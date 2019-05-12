@@ -1,4 +1,2 @@
-+=================================+  
-| AVVENTURE NUMERICHE con newLISP |  
-| by cameyo 2019                  |  
-+=================================+  
+AVVENTURE NUMERICHE con newLISP  
+by cameyo 2019  

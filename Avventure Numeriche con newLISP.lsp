@@ -15,6 +15,7 @@ ARGOMENTI DI UNA FUNZIONE
 TRASFORMARE UNA FUNZIONE DISTRUTTIVA IN NON-DISTRUTTIVA
 TRASFORMARE UNA FUNZIONE DA DUE A N ARGOMENTI
 FUNZIONI CON MEMORIA
+APPLICARE UNA FUNZIONE AD OGNI SOTTOLISTA DI UNA LISTA
 GENERARE FUNZIONI DA FUNZIONI
 ASSEGNAZIONE GLOBALE: SET, SETQ e SETF (e DEFINE)
 ASSEGNAZIONE LOCALE: LET, LETN e LOCAL
@@ -44,6 +45,9 @@ TEMPO DI ESECUZIONE
 LISTA O VETTORE?
 VETTORI
 INDICIZZAZIONE DI STRINGHE, LISTE E VETTORI
+USCITA ANTICIPATA DA FUNZIONI, CICLI E BLOCCHI
+LAVORARE CON I FILE DI DATI
+AMBITO (SCOPE) DINAMICO E LESSICALE
 CONTESTI
 CAR E CDR IN newLISP
 
@@ -137,6 +141,7 @@ PROJECT EULERO
   Problema 21
 
 PROBLEMI VARI
+  Algoritmo babilonese sqrt(x)
   Ricerca binaria (Binary search)
   Frazione generatrice
   Il numero aureo
@@ -155,7 +160,7 @@ PROBLEMI VARI
   Modello di crescita di una popolazione di conigli
   Il gioco dei salti
 
-DOMANDE PER ASSUNZIONE DI PROGRAMMATORI (coding interview questions)
+DOMANDE PER ASSUNZIONE DI PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Swap di due variabili (McAfee)
   Funzione "atoi" (McAfee)
   Somma di numeri in una lista (Google)
@@ -171,6 +176,10 @@ DOMANDE PER ASSUNZIONE DI PROGRAMMATORI (coding interview questions)
   Verifica lista/sottolista (Visa)
   Controllo ordinamento lista (Visa)
   Caramelle (Visa)
+  Unire due liste ordinate (Facebook)
+  Salire le scale (Amazon)
+  Numeri interi con segni opposti (MacAfee)  
+  Parità di un numero (McAfee)
 
 CALCOLI CON I NUMERI COMPLESSI
 
@@ -179,6 +188,8 @@ CALCOLI CON LE FRAZIONI
 CALCOLI CON I TEMPI
 
 OPERAZIONI CON GLI INSIEMI
+
+FUNZIONI WINAPI
 
 APPENDICI
   Sul linguaggio newLISP - FAQ (Lutz Mueller)
@@ -412,13 +423,12 @@ Per accedere agli argomenti ritornati da (args) possiamo usare la funzione "doar
 Le variabili locali definite nell'elenco degli argomenti della funzione possono avere valori predefiniti, che verranno utilizzati solo se non si specificano i valori quando si chiama la funzione.
 
 (define (test (a 1) b (c 2))
-   (println a "" b "" c))
+   (println a " " b " " c))
 
 I simboli "a" e "c" assumono i valori 1 e 2 se non si forniscono valori nella chiamata, ma "b" avrà valore nil a meno che non venga fornito un valore per questo.
 
 (test)
 ;-> 1 nil 2
-
 
 =========================================================
  TRASFORMARE UNA FUNZIONE DISTRUTTIVA IN NON-DISTRUTTIVA
@@ -426,38 +436,37 @@ I simboli "a" e "c" assumono i valori 1 e 2 se non si forniscono valori nella ch
 
 Una funzione viene detta "distruttiva" quando modifica il proprio argomento.
 
-Most of the primitives in newLISP are nondestructive (no side effects) and leave existing objects untouched, although they may create new ones. There are a few destructive functions, however, that do change the contents of a variable, list, array, or string:
-La maggior parte delle funzione primitive in newLISP sono non-distruttive (senza effetti collaterali) e lasciano intatti gli oggetti esistenti, sebbene possano crearne di nuovi. Esistono tuttavia alcune funzioni distruttive che modificano il contenuto di una variabile, una lista, un vettore o una stringa:
+La maggior parte delle funzione primitive in newLISP sono non-distruttive (non hanno effetti collaterali) e lasciano intatti gli oggetti esistenti, sebbene possano crearne di nuovi. Esistono tuttavia alcune funzioni distruttive che modificano il contenuto di una variabile, una lista, un vettore o una stringa:
 
-Funzione	      Descrizione
+Funzione        Descrizione
 --------        -----------
-++	            increments numbers in integer mode
---	            decrements numbers in integer mode
-bind	          binds variable associations in a list
-constant	      sets the contents of a variable and protects it
-extend	        extends a list or string
-dec	            decrements a number referenced by a variable, list or array
-define	        sets the contents of a variable
-define-macro	  sets the contents of a variable
-inc	            increments a number referenced by a variable, list or array
-let           	declares and initializes local variables
-letn	          initializes local variables incrementally, like nested lets
-letex	          expands local variables into an expression, then evaluates
-net-receive	    reads into a buffer variable
-pop	            pops an element from a list or string
-pop-assoc	      removes an association from an association list
-push	          pushes a new element onto a list or string
-read	          reads into a buffer variable
-receive	        receives a message from a parent or child process
-replace	        replaces elements in a list or string
-reverse	        reverses a list or string
-rotate	        rotates the elements of a list or characters of a string
-set	            sets the contents of a variable
-setf setq	      sets the contents of a variable, list, array or string
-set-ref	        searches for an element in a nested list and replaces it
-set-ref-all	    searches for an element in a nested list and replaces all instances
-sort	          sorts the elements of a list or array
-swap	          swaps two elements inside a list or string
+++              increments numbers in integer mode
+--              decrements numbers in integer mode
+bind            binds variable associations in a list
+constant        sets the contents of a variable and protects it
+extend          extends a list or string
+dec              decrements a number referenced by a variable, list or array
+define          sets the contents of a variable
+define-macro    sets the contents of a variable
+inc              increments a number referenced by a variable, list or array
+let             declares and initializes local variables
+letn            initializes local variables incrementally, like nested lets
+letex            expands local variables into an expression, then evaluates
+net-receive      reads into a buffer variable
+pop              pops an element from a list or string
+pop-assoc        removes an association from an association list
+push            pushes a new element onto a list or string
+read            reads into a buffer variable
+receive          receives a message from a parent or child process
+replace          replaces elements in a list or string
+reverse          reverses a list or string
+rotate          rotates the elements of a list or characters of a string
+set              sets the contents of a variable
+setf setq        sets the contents of a variable, list, array or string
+set-ref          searches for an element in a nested list and replaces it
+set-ref-all      searches for an element in a nested list and replaces all instances
+sort            sorts the elements of a list or array
+swap            swaps two elements inside a list or string
 
 Alcune funzioni distruttive possono essere rese non-distruttive applicando la funzione "copy" al parametro della funzione. In questo modo viene passata alla funzione una copia dei dati, impedendo così la modifica dei dati originali.
 
@@ -596,15 +605,16 @@ Infatti ci limitiamo a passare i parametri alla macro senza prima valutarli.
 Per risolvere il problema possiamo utilizzare le funzioni "map" e "eval".
 
 funzione MAP
-sintassi: (map exp-functor list-args-1 [list-args-2 ... ])
+sintassi: (map func list-args-1 [list-args-2 ... ])
 
 Applica la funzione "func" (primitiva, funzione utente, espressione lambda) ad ogni gruppo di argomenti specificati dalle liste "list-args-1", "list-args-2", etc.
 La funzione "func" viene applicata tante volte quanti sono i gruppi di argomenti:
 gli argomenti della prima chiamata sono i primi elementi di ogni lista,
 gli argomenti della seconda chiamata sono i secondi elementi di ogni lista,
 gli argomenti della n-esima chiamata sono gli n-esimi elementi di ogni lista,
-In numero degli argomenti usati viene determinato dalla lunghezza di "list-args1".
+In numero degli argomenti usati viene determinato dalla lunghezza di "list-args1" (prima lista).
 Restituisce una lista di risultati.
+list-args può essere un vettore, ma il risultato sarà sempre una lista.
 
 Ad esempio:
 
@@ -633,6 +643,13 @@ Altri esempi:
 
 (map (fn (x y) (* x y)) '(3 4) '(20 10))
 ;-> (60 40)
+
+map può utilizzare anche l'indice della lista interna $idx.
+
+(map (fn (x) (list $idx x)) '(a b c))
+;-> ((0 a) (1 b) (2 c))
+
+Il numero di argomenti utilizzati è determinato dalla lunghezza della prima lista di argomenti.
 
 funzione EVAL
 sintassi: (eval exp)
@@ -692,7 +709,7 @@ sintassi: (curry func exp)
 
 Trasforma "func" da una funzione f(x, y) che prende due argomenti, in una funzione fx(y) che prende un singolo argomento. "curry" funziona come una macro, nel senso che non valuta i suoi argomenti. Questi ultimi vengono valutati durante l'applicazione della funzione "func".
 
-(set 'f (curry + 10))  
+(set 'f (curry + 10))
 ;-> (lambda ($x) (+ 10 $x))
 
 (f 7)
@@ -791,9 +808,32 @@ Questo potrebbe essere scritto più brevemente, perché "inc" considera nil come
 (gen)
 ;-> 2
 
-Quando si scrive gen:gen, viene creato un context chiamato gen. gen è uno spazio di nomi (namespace)  lessicale contenente i propri simboli usati come variabili e come funzioni. In questo caso il nome-spazio gen contiene due simboli: "gen" (funzione) e "sum" (variabile).
+Quando si scrive gen:gen, viene creato un context chiamato gen. gen è uno spazio di nomi (namespace) lessicale contenente i propri simboli usati come variabili e come funzioni. In questo caso il nome-spazio gen contiene due simboli: "gen" (funzione) e "sum" (variabile).
 Il primo simbolo di un contesto ha lo stesso nome del contesto in cui è contenuto e viene chiamato "funtore" di default del contesto. In questo caso il contesto si chiama "gen" e quindi il funtore si chiama "gen". Quando si utilizza un nome di contesto al posto di un nome di funzione, newLISP assume il functor predefinito.
 Possiamo chiamare la nostra funzione generatore usando (gen). Non è necessario chiamare la funzione usando (gen:gen), (gen) verrà impostato su (gen:gen).
+
+
+========================================================
+ APPLICARE UNA FUNZIONE AD OGNI SOTTOLISTA DI UNA LISTA
+========================================================
+
+Supponiamo di voler sommare gli elementi di ogni sottolista della seguente lista:
+
+(setq lst '((1 3) (3 4) (5 6)))
+
+Il risultato dovrebbe essere: (4 7 11).
+
+Primo metodo
+Applichiamo la funzione map con una funzione lambda che somma gli elementi della sottolista
+
+(map (lambda (x) (apply + x)) lst)
+;-> (4 7 11)
+
+Secondo metodo
+Utilizziamo la funzione "curry" per rimpiazzare la funzione lambda
+
+(map (curry apply +) lst)
+;-> (4 7 11)
 
 
 ===============================
@@ -1506,6 +1546,7 @@ Per impostare il locale di default POSIX C:
 
 Nota: l'utilizzo di "set-locale" non modifica il comportamento delle espressioni regolari in newLISP.
 
+
 ===========================
  FORMATTAZIONE DELL'OUTPUT
 ===========================
@@ -1778,13 +1819,13 @@ I calcoli con i numeri big integer sono più lenti dei calcoli effettuati con gl
 
 Ci sono diversi predicati che consentono di conoscere il tipo di numero associato ad una variabile:
 
-number?	  controlla se una espressione è un integer o un floating point
+number?    controlla se una espressione è un integer o un floating point
 
 float?    controlla se una espressione è floating point
 
-integer?	controlla se una espressione è un integer
+integer?  controlla se una espressione è un integer
 
-bigint?	  controlla se una espressione è un big integer
+bigint?    controlla se una espressione è un big integer
 
 inf?      controlla se un floating point vale infinito
 
@@ -2544,61 +2585,61 @@ Il file si chiama "qa-float.lsp" ed è riportato di seguito:
 (set 'aNegInf (div -1 0))
 ; operation on NaN result in NaN
 (set 'tests '(
-	"operation on NaN result in NaN"
-	(NaN? (mul 1.0 aNan))
-	(NaN? (div 1.0 aNan))
-	(NaN? (add 1.0 aNan))
-	(NaN? (sub 1.0 aNan))
-	(NaN? (sin aNan))
-	(NaN? (cos aNan))
-	(NaN? (tan aNan))
-	(NaN? (atan aNan))
-	"comparison with NaN is always nil"
-	(not (< 1.0 aNan))
-	(not (> 1.0 aNan))
-	(not (>= 1.0 aNan))
-	(not (<= 1.0 aNan))
-	(not (= aNan aNan))
-	"NaN is not equal to itself"
-	(not (= aNan aNan))
-	"integer operations assume NaN as 0"
-	(= (- 1 aNan) 1)
-	(= (+ 1 aNan) 1)
-	(= (* 1 aNan) 0)
-	(not (catch (/ 1 aNan) 'error))
-	(= (>> aNan) 0)
-	(= (<< aNan) 0)
-	"integer operations assume inf as max-int"
-	(= (* 1 aInf) 9223372036854775807)
-	(= (- aInf 1) 9223372036854775806)
-	(= (+ aInf 1) -9223372036854775808) ; wrap around
-	"FP division by inf results in 0"
-	(= (/ 1 aInf) 0)
-	(= (div 1 aInf) 0)
-	"inf specials"
-	(= aInf aInf)
-	(NaN? (sub aInf aInf))
-	"retain sign of -0.0"
-	(= (set 'tiny (div -1 aInf)) -0.0)
-	(= (sqrt tiny) -0.0)
+  "operation on NaN result in NaN"
+  (NaN? (mul 1.0 aNan))
+  (NaN? (div 1.0 aNan))
+  (NaN? (add 1.0 aNan))
+  (NaN? (sub 1.0 aNan))
+  (NaN? (sin aNan))
+  (NaN? (cos aNan))
+  (NaN? (tan aNan))
+  (NaN? (atan aNan))
+  "comparison with NaN is always nil"
+  (not (< 1.0 aNan))
+  (not (> 1.0 aNan))
+  (not (>= 1.0 aNan))
+  (not (<= 1.0 aNan))
+  (not (= aNan aNan))
+  "NaN is not equal to itself"
+  (not (= aNan aNan))
+  "integer operations assume NaN as 0"
+  (= (- 1 aNan) 1)
+  (= (+ 1 aNan) 1)
+  (= (* 1 aNan) 0)
+  (not (catch (/ 1 aNan) 'error))
+  (= (>> aNan) 0)
+  (= (<< aNan) 0)
+  "integer operations assume inf as max-int"
+  (= (* 1 aInf) 9223372036854775807)
+  (= (- aInf 1) 9223372036854775806)
+  (= (+ aInf 1) -9223372036854775808) ; wrap around
+  "FP division by inf results in 0"
+  (= (/ 1 aInf) 0)
+  (= (div 1 aInf) 0)
+  "inf specials"
+  (= aInf aInf)
+  (NaN? (sub aInf aInf))
+  "retain sign of -0.0"
+  (= (set 'tiny (div -1 aInf)) -0.0)
+  (= (sqrt tiny) -0.0)
     (= (div -1 (div 1.0 0)) -0.0)
-	"inf is signed too"
-	(= aNegInf (div -1 0))
-	(!= aNegInf (div 1 0))
+  "inf is signed too"
+  (= aNegInf (div -1 0))
+  (!= aNegInf (div 1 0))
     (= (int aNegInf) -9223372036854775808)
-	"mod with 0 divisor is NaN"
-	(NaN? (mod 10 0))
-	"% with 0 divisor throws error"
-	(not (catch (% 10 0) 'error))
-	)
+  "mod with 0 divisor is NaN"
+  (NaN? (mod 10 0))
+  "% with 0 divisor throws error"
+  (not (catch (% 10 0) 'error))
+  )
 )
 (dolist (t tests)
-	(if (string? t)
-		(println (format "\n%-47s\n%s" t (dup "-" 47)))
-		(let (result (eval t))
-			(println (format "%40s => %s" (string t) (string result)))
-			(push result result-list))
-	)
+  (if (string? t)
+    (println (format "\n%-47s\n%s" t (dup "-" 47)))
+    (let (result (eval t))
+      (println (format "%40s => %s" (string t) (string result)))
+      (push result result-list))
+  )
 )
 (println)
 (set 'result '())
@@ -2640,8 +2681,8 @@ Il file si chiama "qa-float.lsp" ed è riportato di seguito:
 )
 (println)
 (if-not (apply and result-list)
-	(println ">>>>> PROBLEM in floating point tests")
-	(println ">>>>> Floating point tests SUCCESSFUL")
+  (println ">>>>> PROBLEM in floating point tests")
+  (println ">>>>> Floating point tests SUCCESSFUL")
 )
 ;(exit)
 
@@ -3088,30 +3129,30 @@ myarray
 (2 myarray)
 ;-> ((9 10 11 99))
 
-(-3 2 myarray)  
+(-3 2 myarray)
 ;-> ((1 2 3 4) (a b c d))
 
 Bisogna fare attenzione ad usare un vettore quando si sostituisce un'intera riga.
 
 La funzione array-list può essere usata per convertire un vettore in una lista:
 
-(array-list myarray) 
+(array-list myarray)
 ;-> ((1 2 3 4) (a b c d) (1 2 3 99))
 
 Per riconvertire la lista in un vettore, applicare la funzione flat alla lista:
 
-(set 'aList '((1 2) (3 4)))             
+(set 'aList '((1 2) (3 4)))
 ;-> ((1 2) (3 4))
 
-(set 'aArray (array 2 2 (flat aList)))  
+(set 'aArray (array 2 2 (flat aList)))
 ;->  ((1 2) (3 4))
 
 La funzione "array?" la funzione può essere utilizzata per verificare se un'espressione è un vettore:
 
-(array? myarray) 
+(array? myarray)
 ;-> true
                                
-(array? (array-list myarray)) 
+(array? (array-list myarray))
 ;-> nil
 
 Quando si serializzano i vettori usando le funzioni "source" o "save", il codice generato include la dichiarazione necessaria per la loro creazione. In questo modo, le variabili che contengono i vettori sono serializzate correttamente quando si salva con la funzione "save" o si creano stringhe di sorgenti usando la funzione "source".
@@ -3132,7 +3173,662 @@ Quando si serializzano i vettori usando le funzioni "source" o "save", il codice
  INDICIZZAZIONE DI STRINGHE, LISTE E VETTORI
 =============================================
 
+Alcune funzioni accettano vettori, liste o gli elementi di una stringa (caratteri) specificati da uno o più int-index (indice intero). Gli indici positivi hanno valori in sequenza da 0, 1, ..., N-2, N-1, dove N è il numero di elementi nell'elenco. Se int-index è negativo, la sequenza è -N, -N + 1, ..., -2, -1. L'aggiunta di N ad un indice negativo di un elemento produce un indice positivo. A meno che una funzione non sia scritta appositamente, un indice maggiore di N-1 o minore di -N causa un errore "out-of-bounds" su liste e vettori.
 
+Indicizzazione esplicita
+------------------------
+La funzione "nth" accede ad un elemento di una stringa, di una lista o di un vettore.
+
+funzione NTH
+sintassi: (nth int-index list)
+sintassi: (nth int-index array)
+sintassi: (nth int-index str)
+
+sintassi: (nth list-indices list)
+sintassi: (nth list-indices array)
+
+Nel primo gruppo di sintassi nth usa il valore di int-index per individuare un indice in una lista, un vettore o una stringa e restituisce l'elemento trovato a quell'indice.
+È possibile specificare più indici per accedere in modo ricorsivo a elementi in liste o vettori annidati. Se ci sono più indici che livelli di annidamento, gli indici extra vengono ignorati. Quando vengono utilizzati più indici, devono essere inseriti in una lista come mostrato nel secondo gruppo di sintassi.
+
+(set 'L '(a b c))
+(nth 0 L)
+;->  a
+
+; o semplicemente
+(L 0)
+;-> a
+
+(set 'names '(john martha robert alex))
+;-> (john martha robert alex)
+
+(nth 2 names)
+;-> robert
+
+; o semplicemente
+(names 2)
+;-> robert
+
+(names -1)
+;-> lex
+
+; indici multipli
+(set 'persons '((john 30) (martha 120) ((john doe) 17)))
+
+(persons 1 1)
+;-> 120
+
+(nth '(2 0 1) persons)
+;-> doe
+
+; o semplicemente
+(persons 2 0 1)
+;-> doe
+
+; indici multipli in un vettore
+(set 'v '(2 0 1))
+(persons v)
+;-> doe
+(nth v persons)
+;-> doe
+
+; indici negativi
+(persons -2 0)
+;-> martha
+
+; out-of-bounds indices cause error
+(persons 10)
+;-> ERR: list index out of bounds
+
+(person -5)
+;-> ERR: list index out of bounds
+
+La lista L può essere il contesto del funtore predefinito L: L. Questo consente di passare liste per riferimento:
+
+(set 'L:L '(a b c d e f g))
+
+(define (second ctx)
+  (nth 1 ctx))
+
+(reverse L)
+;-> (g f e d c b a)
+L:L
+;-> (g f e d c b a)
+
+;; passare la lista in L:L per riferimento (by reference)
+(second L)
+;-> b
+
+;; passare la lista in L:L per valore (by value)
+(second L:L)
+;-> b
+
+Il passaggio di riferimenti è più veloce e utilizza meno memoria in elenchi di grandi dimensioni e deve essere utilizzato su elenchi con più di poche centinaia di elementi.
+
+Si noti che la versione di indicizzazione implicita di nth non infrange le nuove regole di sintassiLISP ma dovrebbe essere intesa come un'espansione logica delle nuove regole di sintassi di LISP in altri tipi di dati rispetto alle funzioni integrate o alle espressioni lambda. Un elenco nella posizione del functor di un'espressione s assume la funzionalità di autoindicizzazione utilizzando gli argomenti dell'indice seguenti.
+
+Le forme di sintassi indicizzate implicite sono più veloci, ma l'altra forma con un ennesimo esplicito può essere più leggibile in alcune situazioni.
+
+nth funziona sui vettori proprio come fa sulle liste:
+
+(set 'aArray (array 2 3 '(a b c d e f)))
+;->  ((a b c) (d e f))
+(nth 1 aArray)
+;->  (d e f)
+(aArray 1)
+;->  (d e f)
+
+(nth '(1 0) aArray)
+;-> d
+(aArray 1 0)
+;-> d
+(aArray '(1 0))
+;-> d
+
+(set 'vec '(1 0))
+(aArray vec)
+;-> d
+
+Nella versione per le stringhe, nth restituisce il carattere trovato nella posizione int-index della stringa str e lo restituisce come una stringa.
+
+(nth  0 "newLISP")
+;-> "n"
+
+("newLISP" 0)
+;-> "n"
+
+("newLISP" -1)
+;-> "P"
+
+Nota che "nth" funziona sui caratteri piuttosto che sui limiti dei byte quando si utilizza la versione UTF-8 di newLISP. Per accedere ai buffer delle stringhe ASCII e binarie sui limiti dei singoli byte utilizzare la funzione "slice".
+
+Vedi anche "setf" per la modifica di liste e matrici multidimensionali e "push" e "pop" per modificare gli elenchi.
+
+Indicizzazione implicita
+------------------------
+È possibile utilizzare l'indicizzazione implicita anziché la funzione "nth" per accedere agli elementi di una lista o di un vettore o ai caratteri di una stringa:
+
+(set 'lst '(a b c (d e) (f g)))
+
+(lst 0)    → a      ; uguale a (nth 0 lst)
+(lst 3)    → (d e)
+(lst 3 1)  → e      ; uguale a (nth '(3 1) lst)
+(lst -1)   → (f g)
+
+(set 'myarray (array 3 2 (sequence 1 6)))
+
+(myarray 1)     → (3 4)
+(myarray 1 0)   → 3
+(myarray 0 -1)  → 2
+
+; indicizzazione di una stringa ASCII
+("newLISP" 3)   → "L"
+
+; indicizzaione di una stringa in newLISP UTF8
+ ("我能吞下玻璃而不伤身体。" 3) → "下"
+
+Gli indici possono anche essere forniti da una lista. In questo modo, l'indicizzazione implicita funziona insieme a funzioni che prendono o producono indici di vettori, come "push", "pop", "ref" e "ref-all".
+
+(lst '(3 1))
+;-> e
+(set 'vec (ref 'e lst))
+;-> (3 1)
+(lst vec)
+;-> e
+
+Si noti che l'indicizzazione implicita non infrange le regole di sintassi di newLISP, ma è semplicemente un'espansione delle regole esistenti per altri tipi di dati nella posizione del funtore di una s-espressione. Nel Lisp originale, il primo elemento di un elenco di una s-espressione viene applicato come una funzione agli elementi restanti che vengono presicome argomenti. In newLISP, una lista nella posizione del funtore di una s-espressione assume la funzionalità di autoindicizzazione utilizzando gli argomenti che seguono come indici.
+
+L'indicizzazione implicita è più veloce delle forme esplicite, ma le forme esplicite possono essere più leggibili a seconda del contesto.
+
+Si noti che nella versione di newLISP abilitata a UTF-8, l'indicizzazione implicita delle stringhe o l'uso della funzione nth funzionano sul carattere anziché sui limiti di un a byte singolo.
+
+Indicizzazione implicita e funtore predefinito
+----------------------------------------------
+Il funtore predefinito è un functor all'interno di un contesto con lo stesso nome del contesto. (vedi il capitolo sui Contesti). È possibile utilizzare un funtore predefinito insieme all'indicizzazione implicita per fungere da meccanismo di riferimento per le liste:
+
+(set 'MyList:MyList '(a b c d e f g))
+
+(MyList 0)
+;-> a
+(MyList 3)
+;-> d
+(MyList -1)
+;-> g
+
+(3 2 MyList)
+;-> (d e)
+(-3 MyList)
+;-> (e f g)
+
+(set 'aList MyList)
+
+(aList 3)
+;-> d
+
+In questo esempio, aList fa riferimento a MyList:MyList, non ad una copia di essa.
+
+Il funtore predefinito indicizzato può anche essere utilizzato con "setf" come mostrato nell'esempio seguente:
+
+(set 'MyList:MyList '(a b c d e f g))
+
+(setf (MyList 3) 999)
+;-> 999
+(MyList 3)
+;-> 999
+
+MyList:MyList
+;-> (a b c 999 e f g)
+
+Indicizzazione implicita per "rest" e "slice"
+---------------------------------------------
+È possibile creare forme implicite di "rest" e "slice" anteponendo ad una lista uno o due numeri per l'offset e la lunghezza. Se la lunghezza è negativa, il conto avviene dalla fine della lista o della stringa:
+
+(set 'lst '(a b c d e f g))
+; or as array
+(set 'lst (array 7 '(a b c d e f g)))
+
+(1 lst)      → (b c d e f g)
+(2 lst)      → (c d e f g)
+(2 3 lst)    → (c d e)
+(-3 2 lst)   → (e f)
+(2 -2 lst)   → (c d e)
+
+; rest e slice funzionano sempre sui limiti dei caratteri a 8-bit anche con versioni abilitate per UTF8
+
+(set 'str "abcdefg")
+
+(1 str)      → "bcdefg"
+(2 str)      → "cdefg"
+(2 3 str)    → "cde"
+(-3 2 str)   → "ef"
+(2 -2 str)   → "cde"
+
+Le funzioni "rest", "first" e "last" funzionano sui limiti dei caratteri multibyte nelle versioni abilitate UTF-8 di newLISP. Ma i moduli di indicizzazione impliciti per le funzioni "slice" e "rest"slicing e resting funzioneranno sempre sui limiti a byte singolo e possono essere utilizzati per il contenuto binario. I risultati di offset e lunghezza delle funzioni per le espressione regolare "find" e "regex" utilizzano il conteggio a byte singolo e possono essere ulteriormente elaborati con "slice" o la sua forma implicita.
+
+Modifica degli elementi di una lista, un vettore o una stringa
+--------------------------------------------------------------
+Gli elementi a cui si fa riferimento per indici nelle liste, nei vettori e nelle stringhe possono essere modificati usando "setf":
+; lists
+
+(set 'lst '(a b c d (e f g)))
+
+(lst 1)
+;-> b
+
+(setf (lst 1) 'z)
+;-> z
+
+lst
+;-> (a z c d (e f g))
+
+(setf (lst -1) '(E F G))
+;-> (E F G)
+
+lst
+;-> (a z c d (E F G))
+
+; arrays
+
+(set 'myarray (array 2 3 (sequence 1 6)))
+;-> ((1 2 3) (4 5 6))
+
+(setf (myarray 1 2) 66)
+;-> 66
+
+myarray
+;-> ((1 2 3) (4 5 66))
+
+; strings
+
+(set 's "NewLISP")
+
+(setf (s 0) "n")
+;-> "n"
+
+s
+;-> "newLISP"
+
+Si noti che solo gli elementi completi di liste annidate o dei vettori possono essere modificati in questo modo. Gli slice e il rest di una lista o di un vettore non possono essere modificati utilizzando "setf", ma dovrebbero essere sostituiti elemento per elemento. Nelle stringhe può essere sostituito un solo carattere alla volta, ma quel carattere può essere sostituito da una stringa multi-carattere.
+
+
+================================================
+ USCITA ANTICIPATA DA FUNZIONI, CICLI E BLOCCHI
+================================================
+
+Quelli che seguono sono i metodi per interrompere il flusso di controllo all'interno dei cicli e delle espressioni "begin".
+
+Le funzioni di ciclo "for", "dolist" e "dotimes" possono avere espressioni condizionali opzionali che permettono di uscire dal ciclo in anticipo. "catch" e throw sono una forma più generale per uscire da un ciclo e sono applicabili anche ad altre forme o blocchi di istruzioni.
+
+
+Usando "catch" e "throw"
+------------------------
+Poiché newLISP è un linguaggio funzionale, non utilizza le istruzioni break o return per uscire da funzioni o iterazioni. Invece, è possibile uscire da un blocco o una funzione in qualsiasi momento usando le funzioni catch e throw:
+
+(define (foo x)
+    ...
+    (if condition (throw 123))
+    ...
+    456
+)
+
+;; se la condizione è vera
+
+(catch (foo p))
+;-> 123
+
+;; se la condizione non è vera
+
+(catch (foo p))
+;-> 456
+
+L'interruzione dea cicli loop funziona in modo simile:
+
+(catch
+    (dotimes (i N)
+        (if (= (foo i) 100) (throw i))))
+
+;-> valore di i quando foo (i) è uguale a 100
+
+L'esempio mostra come è possibile uscire da un ciclo iterativo prima di essere eseguito N volte.
+
+Punti di ritorno multipli possono essere codificati usando il "throw":
+
+(catch (begin
+    (foo1)
+    (foo2)
+    (if condition-A (throw 'x))
+    (foo3)
+    (if condition-B (throw 'y))
+    (foo4)
+    (foo5)))
+
+Se la condizione-A è vera, x sarà restituito dall'espressione "catch", se la condizione-B è vera, il valore restituito è y. In caso contrario, il risultato di foo5 verrà utilizzato come valore di ritorno.
+
+Oltre alla funzione "catch", possiamo usare la funzione di "error-event" per rilevare errori causati da codice errato o eccezioni avviate dall'utente.
+
+La funzione "throw-error" può essere utilizzata per generare errori definiti dall'utente.
+
+
+===========================
+ LAVORARE CON FILE DI DATI
+===========================
+
+In genere i dati sono memorizzati su file con differenti formati. La prima distinzione è il tipo di file: binario o testo (ASCII). Per adesso prendiamo in considerazione i file di testo (cioè quelli che possono essere letti e/o creati con un qualsiasi editor di testi).
+Consideriamo i seguenti due file di dati:
+
+data.txt
+1 2 3 4 5
+6 7 8 9 0
+a b c d e
+f g h i j
+
+dataCSV.txt
+1,2,3,4,5
+6,7,8,9,0
+a,b,c,d,e
+f,g,h,i,j
+
+newLISP ha la funzione "read-file" che permette di leggere tutto il contenuto di un file e restituirlo come stringa:
+
+(setq datastring (read-file "data.txt"))
+;-> "1 2 3 4 5\r\n6 7 8 9 0\r\na b c d e\r\nf g h i j"
+
+Adesso dobbiamo trasformare questa stringa in una lista di stringhe delimitate dal carattere di fine linea (eol - end of line). La funzione "parse" fa proprio questo, suddivide una stringa in sottostringhe basandosi su un delimitatore (in windows il delimitatore di fine linea è "\r\n", mentre su UNIX è "\n"):
+
+(setq data (parse datastring "\r\n"))
+;-> ("1 2 3 4 5" "6 7 8 9 0" "a b c d e" "f g h i j")
+
+Adesso se vogliamo ottenere una lista per ogni riga, basta mappare la funzione "list" sugli elementi della lista data:
+
+(map list data)
+;-> (("1 2 3 4 5") ("6 7 8 9 0") ("a b c d e") ("f g h i j"))
+
+Notiamo che applicando la funzione "sym" otteniamo una lista di simboli:
+
+(length (map sym data))
+;-> (1 2 3 4 5 6 7 8 9 0 a b c d e f g h i j)
+
+Quindi se vogliamo avere i simboli al posto delle stringhe nella lista finale, possiamo scrivere:
+
+(setq data (map list (map sym data)))
+;-> ((1 2 3 4 5) (6 7 8 9 0) (a b c d e) (f g h i j))
+
+Abbiamo ottenuto una lista le cui sottoliste rappresentano le righe del file di dati.
+
+Purtroppo non è il risultato voluto, poichè ogni sottolista è composta da un solo elemento:
+
+(length (first data))
+;-> 1
+
+(first (first data))
+;-> 1 2 3 4 5
+
+Questo è dovuto al fatto che abbiamo applicato la funzione "sym" ad ogni elemento della lista (es. (1 2 3 4 5)),
+non ad ogni elemento delle sottoliste (es. 1).
+
+Per capire meglio, ripartiamo dall'inizio:
+
+Leggiamo il file su una stringa:
+
+(setq datastring (read-file "data.txt"))
+;-> "1 2 3 4 5\r\n6 7 8 9 0\r\na b c d e\r\nf g h i j"
+
+Dividiamo la stringa in sottostringhe delimitate da eol:
+
+(setq data (parse datastring "\r\n"))
+;-> ("1 2 3 4 5" "6 7 8 9 0" "a b c d e" "f g h i j")
+
+Possiamo applicare nuovamente la funzione "parse" sulla striga "data" utilizzando come separatore il carattere spazio " ":
+
+(setq data (map (fn (x) (parse x " ")) data))
+;-> (("1" "2" "3" "4" "5") ("6" "7" "8" "9" "0") ("a" "b" "c" "d" "e") ("f" "g" "h" "i" "j"))
+
+Adesso possiamo applicare la funzione "sym":
+
+(setq data (map (fn (x) (map sym x)) data))
+;-> ((1 2 3 4 5) (6 7 8 9 0) (a b c d e) (f g h i j))
+
+Controlliamo il risultato:
+
+(length (first data))
+;-> 5
+
+(first (first data))
+;-> 1
+
+Sembra tutto corretto, ma cosa succede se i valori nel file sono separati da un numero differente di spazi " "?
+
+data2.txt
+1  2   3 4   5
+6   7 8 9   0
+a b    c d   e
+f g h    i j
+
+Se vogliamo ignorare gli spazi ripetuti, allora possiamo usare una espressione regolare nella la funzione "parse":
+
+(setq data (map (fn (x) (parse x " +" 0)) data))
+
+Il parametro "0" indica a newLISP di trattare la stringa " +" come un pattern di una espressione regolare. In particolare " +" significa: qualunque numero di spazi.
+
+Quindi le istruzioni finali sono le seguenti:
+
+(setq datastring (read-file "data.txt"))
+(setq data (parse datastring "\r\n"))
+(setq data (map (fn (x) (parse x " +" 0)) data))
+(setq data (map (fn (x) (map sym x)) data))
+;-> ((1 2 3 4 5) (6 7 8 9 0) (a b c d e) (f g h i j))
+
+Per quanto riguarda il file "dataCSV.txt", notiamo che è in formato CSV (Comma Separated Value).
+Possiamo utilizzare lo stesso metodo che abbiamo visto per il file "data.txt", purchè venga utilizzato il carattere virgola "," come separatore:
+
+Leggiamo il file in una stringa:
+
+(setq datastring (read-file "dataCSV.txt"))
+;-> "1,2,3,4,5\r\n6,7,8,9,0\r\na,b,c,d,e\r\nf,g,h,i,j"
+
+Dividiamo la stringa in sottostringhe delimitate da eol:
+
+(setq data (parse datastring "\r\n"))
+;-> ("1,2,3,4,5" "6,7,8,9,0" "a,b,c,d,e" "f,g,h,i,j")
+
+Applichiamo la funzione "parse" sulla striga "data" utilizzando come separatore il carattere virgola ",":
+
+(setq data (map (fn (x) (parse x ",")) data))
+;-> (("1" "2" "3" "4" "5") ("6" "7" "8" "9" "0") ("a" "b" "c" "d" "e") ("f" "g" "h" "i" "j"))
+
+Applichiamo la funzione "sym":
+
+(setq data (map (fn (x) (map sym x)) data))
+;-> ((1 2 3 4 5) (6 7 8 9 0) (a b c d e) (f g h i j))
+
+Controlliamo il risultato:
+
+(length (first data))
+;-> 5
+
+(first (first data))
+;-> 1
+
+Ok. Ma cosa succede se abbiamo dei valori mancanti nel file di dati?
+
+data2CSV.txt
+,2,3,4,5
+6,7,,,0
+a,b,c,,e
+f,g,h,i,
+
+(setq datastring (read-file "data2CSV.txt"))
+;-> ",2,3,4,5\r\n6,7,,,0\r\na,b,c,,e\r\nf,g,h,i,"
+
+Dividiamo la stringa in sottostringhe delimitate da eol:
+
+(setq data (parse datastring "\r\n"))
+;-> (",2,3,4,5" "6,7,,,0" "a,b,c,,e" "f,g,h,i,")
+
+Applichiamo la funzione "parse" sulla striga "data" utilizzando come separatore il carattere virgola ",":
+
+(setq data (map (fn (x) (parse x ",")) data))
+;-> (("" "2" "3" "4" "5") ("6" "7" "" "" "0") ("a" "b" "c" "" "e") ("f" "g" "h" "i" ""))
+
+Adesso prima di applicare la funzione "sym", trasformiamo i valori "" con quello che vogliamo (ad esempio "null"):
+
+(setq data (map (fn (x) (replace "" x "null")) data))
+;-> (("null" "2" "3" "4" "5") ("6" "7" "null" "null" "0") ("a" "b" "c" "null" "e") ("f" "g" "h" "i" "null"))
+
+Adesso possiamo applicare la funzione "sym":
+
+(setq data (map (fn (x) (map sym x)) data))
+;-> ((null 2 3 4 5) (6 7 null null 0) (a b c null e) (f g h i null))
+
+Quindi le istruzioni finali per un file CSV sono le seguenti:
+
+(setq datastring (read-file "data2CSV.txt"))
+(setq data (parse datastring "\r\n"))
+(setq data (map (fn (x) (parse x ",")) data))
+(setq data (map (fn (x) (replace "" x "null")) data))
+(setq data (map (fn (x) (map sym x)) data))
+;-> ((null 2 3 4 5) (6 7 null null 0) (a b c null e) (f g h i null))
+
+A questo punto siamo in grado di scrivere una funzione che importa i nostri file di dati:
+
+(define (leggi-dati file delim sep tipo vuoto)
+  (local (datastring data)
+    (setq datastring (read-file file))
+    (setq data (parse datastring "\r\n"))
+    (if (= sep " ")
+        (setq data (map (fn (x) (parse x (append " " "+") 0)) data)) ; file separato da spazi
+        (begin
+          (setq data (map (fn (x) (parse x sep)) data)) ; file separato con altro separatore
+          (setq data (map (fn (x) (replace "" x vuoto)) data)) ; modifica i valori vuoti
+        )
+    )
+    ; converto in simboli?
+    (if (= tipo "sim") (setq data (map (fn (x) (map sym x)) data)))
+    data
+  );local
+)
+
+Facciamo alcune prove:
+
+(leggi-dati "data.txt" "\r\n" " " "str" "-1")
+;-> (("1" "2" "3" "4" "5") ("6" "7" "8" "9" "0") ("a" "b" "c" "d" "e") ("f" "g" "h" "i" "j"))
+
+(leggi-dati "data2.txt" "\r\n" " " "sim" "-1")
+;-> ((1 2 3 4 5) (6 7 8 9 0) (a b c d e) (f g h i j))
+
+(leggi-dati "dataCSV.txt" "\r\n" "," "sim" "-1")
+;-> ((1 2 3 4 5) (6 7 8 9 0) (a b c d e) (f g h i j))
+
+(leggi-dati "data2CSV.txt" "\r\n" "," "sim" "-1")
+;-> ((-1 2 3 4 5) (6 7 -1 -1 0) (a b c -1 e) (f g h i -1))
+
+Nota:
+(setq lst (leggi-dati "data2CSV.txt" "\r\n" "," "sim" "-1"))
+;-> ((-1 2 3 4 5) (6 7 -1 -1 0) (a b c -1 e) (f g h i -1))
+(setq a 99999)
+;-> 99999
+(eval (nth '(2 0) lst))
+;-> 99999
+
+Possiamo quindi creare da un file una lista con sottoliste di simboli e poi assegnare i valori senza utilizzare alcun tipo di indicizzazione.
+
+Nota: Questa funzione carica il file completamente in memoria.
+
+In altri casi potremmo avere la necessità di leggere il file linea per linea ed elaborare ogni linea fino al raggiungimento della fine del file. Per fare questo dobbiano utilizzare le funzioni "open", "read-line" e "close".
+
+(define (read-data file sep)
+  (setq lst '()) ; lista dei dati
+  (setq in-file (open file "read")) ; apre il file
+  (while (read-line in-file) ; legge il file linea per linea
+    (setq data-linea (parse (current-line) sep)) ; lista con i dati della linea in formato stringa
+    ; Adesso possiamo elaborare i dati della linea corrente ("1" "2" "3" "4" "5")...
+    ;(println (current-line))
+    (println data-linea)
+    (setq lst (push data-linea lst -1)) ; aggiunge la linea corrente alla lista dati
+  )
+  (close in-file) ; chiude il file
+  lst
+)
+
+Proviamo a leggere i nostri file di esempio:
+
+(read-data "data.txt" " ")
+;-> ("1" "2" "3" "4" "5")
+;-> ("6" "7" "8" "9" "0")
+;-> ("a" "b" "c" "d" "e")
+;-> ("f" "g" "h" "i" "j")
+;-> (("1" "2" "3" "4" "5") ("6" "7" "8" "9" "0") ("a" "b" "c" "d" "e") ("f" "g" "h" "i" "j"))
+
+(read-data "data2.txt" " ")
+("1" "" "2" "" "" "3" "4" "" "" "5")
+("6" "" "" "7" "8" "9" "" "" "0")
+("a" "b" "" "" "" "c" "d" "" "" "e")
+("f" "g" "h" "" "" "" "i" "j")
+(("1" "" "2" "" "" "3" "4" "" "" "5") ("6" "" "" "7" "8" "9" "" "" "0") ("a" "b" "" "" "" "c" "d" "" "" "e") ("f" "g" "h" "" "" "" "i" "j"))
+
+(read-data "dataCSV.txt" ",")
+;-> ("1" "2" "3" "4" "5")
+;-> ("6" "7" "8" "9" "0")
+;-> ("a" "b" "c" "d" "e")
+;-> ("f" "g" "h" "i" "j")
+;-> (("1" "2" "3" "4" "5") ("6" "7" "8" "9" "0") ("a" "b" "c" "d" "e") ("f" "g" "h" "i" "j"))
+
+(read-data "data2CSV.txt" ",")
+;-> ("" "2" "3" "4" "5")
+;-> ("6" "7" "" "" "0")
+;-> ("a" "b" "c" "" "e")
+;-> ("f" "g" "h" "i" "")
+;-> (("" "2" "3" "4" "5") ("6" "7" "" "" "0") ("a" "b" "c" "" "e") ("f" "g" "h" "i" ""))
+
+Questo metodo ci permette di eleborare i dati linea per linea (elemento per elemento).
+
+
+=====================================
+ AMBITO (SCOPE) DINAMICO E LESSICALE
+=====================================
+
+newLISP utilizza l'ambito dinamico all'interno dei contesti. Un contesto è uno spazio di nomi lessicalmente chiuso. In questo modo, parti di un programma newLISP possono vivere in spazi di nomi diversi sfruttando l'ambito lessicale.
+
+Quando i simboli dei parametri di un'espressione lambda sono associati ai relativi argomenti, i vecchi collegamenti vengono inseriti in una pila. newLISP ripristina automaticamente le associazioni originali  delle variabili quando termina la funzione lambda.
+
+Nell'esempio seguente viene illustrato il meccanismo di ambito dinamico.
+
+(set 'x 1)
+;-> 1
+(define (f) x)
+;-> (lambda () x)
+(f)
+;-> 1
+(define (g x) (f))
+;-> (lambda (x) (f))
+(g 0)
+;-> 0
+(f)
+;-> 1
+> _
+
+La variabile x è prima impostata su 1. Ma quando viene chiamata (g 0), x è associato a 0 ed x viene è riconosciuto da (f) come 0 durante l'esecuzione di (g 0). Dopo l'esecuzione di (g 0), la chiamata a (f) riporterà x di nuovo al valore 1.
+
+Questo comportamento è diverso dai meccanismi di ambito lessicale che troviamo in linguaggi come C o Java, dove il legame dei parametri locali avviene solo all'interno della funzione. Nei linguaggi lessicali come il C, (f) stamperebbe sempre i collegamenti globali del simbolo x con 1.
+
+Tieni presente che il passaggio di simboli quotati a una funzione definita dall'utente causa un conflitto di nomi se lo stesso nome di variabile viene utilizzato come parametro di funzione:
+
+(define (inc-symbol x y) (inc (eval x) y))
+;-> (lambda (x y) (inc (eval x) y))
+(set 'y 200)
+;-> 200
+(inc-symbol 'y 123)
+;-> 246
+y
+;-> 200; y è ancora 200
+
+Poiché la y globale condivide lo stesso simbolo del secondo parametro della funzione, inc-symbol restituisce 246 (123 + 123), lasciando inalterato il globale. La cattura delle variabili in ambito dinamico può essere uno svantaggio quando si passano i riferimenti dei simboli a funzioni definite dall'utente. newLISP offre diversi metodi per evitare la cattura delle variabili.
+
+- La funzione "args" può essere utilizzata quando si passano simboli.
+- Una o più funzioni definite dall'utente possono essere inserite in uno spazio dei nomi chiamato proprio contesto ("context"). Un conflitto di nomi di simboli non può verificarsi quando si accede a simboli e si chiamano funzioni dall'esterno del contesto di definizione.
+
+I contesti devono essere utilizzati per raggruppare le funzioni correlate quando si creano interfacce o librerie di funzioni. Ciò racchiude le funzioni con un "recinto" lessicale, evitando così conflitti tra i nomi delle variabili e le funzioni chiamate.
+
+In seguito vedremo che newLISP utilizza i contesti per diverse forme di ambiti lessicali.
 
 
 ==========
@@ -3193,7 +3889,7 @@ Un simbolo di contesto è protetto dal cambiamento. Una volta che un simbolo fa 
 
 Per fare riferimento a var o func da qualsiasi altra parte al di fuori dello spazio dei nomi FOO, devono essere preceduti dal nome del contesto:
 
-FOO: var 
+FOO: var
 ;-> 123
 
 (FOO: func p q r)
@@ -3201,11 +3897,11 @@ Si noti che nell'esempio sopra, solo func appartiene allo spazio dei nomi FOO, i
 
 La funzione simboli è usata per mostrare tutti i simboli appartenenti ad un contesto:
 
-(simboli FOO) 
+(simboli FOO)
 ;-> (FOO: func FOO: var FOO: x FOO: y FOO: z)
 
 ; o dall'interno del contesto i simboli sono mostrati senza prefisso di contesto
-(contesto FOO) 
+(contesto FOO)
 ;-> (func x y z)
 (symbols)
 
@@ -3344,6 +4040,20 @@ Test secondo metodo:
 ;-> 906.343
 
 I due metodi hanno la stessa velocità.
+
+Terzo metodo (bitwise not "~") (valido solo per numeri interi)
+(setq n -10)
+;-> -10
+(setq n (add (~ n) 1))
+;-> 10
+(setq n (add (~ n) 1))
+;-> -10
+
+Test secondo metodo:
+(time (map (lambda (x) (add (~ n) 1)) (sequence 1 1000000)) 10)
+;-> 1207.781
+
+Questo metodo è più lento.
 
 
 Moltiplicazione solo con addizioni
@@ -3664,7 +4374,7 @@ Zippare N liste
 ---------------
 
 La funzione "zip" prende due liste e raggruppa in coppie gli elementi delle due liste che hanno lo stesso indice.
-Il risultato è una lista costituita da sottoliste con due welementi ciascuna.La lunghezza della lista è uguale a quella della lista più corta (cioè, la funzione deve fermarsi quando termina una delle due liste).
+Il risultato è una lista costituita da sottoliste con due elementi ciascuna.La lunghezza della lista è uguale a quella della lista più corta (cioè, la funzione deve fermarsi quando termina una delle due liste).
 
 ; zippa due liste
 (define (zip l1 l2)
@@ -4394,15 +5104,15 @@ Ispezionare una cella newLISP
 
 Per conoscere il contenuto (tipo) di una cella lisp possiamo utilizzare la funzione "dump".
 
-Funzione DUMP
+funzione DUMP
 sintassi: (dump [exp])
 
 Mostra i contenuti binari di una nuova cella LISP. Senza argomenti, questa funzione restituisce un elenco di tutte le celle Lisp. Quando viene fornito exp, viene valutato e il contenuto della cella Lisp viene restituito in una lista.
 
-(dump 'a) 
+(dump 'a)
 ;-> (9586996 5 9578692 9578692 9759280)
 
-(dump 999) 
+(dump 999)
 ;-> (9586996 130 9578692 9578692 999)
 
 L'elenco contiene i seguenti indirizzi di memoria e informazioni:
@@ -4887,9 +5597,9 @@ N-99-09 Unire gli elementi duplicati consecutivi di una lista in sottoliste
 =======================================================
 
 (define (raggruppa lst)
-	(if (= lst '()) '()
-		(cons (gruppo lst) (raggruppa (striscia lst)))
-	)
+  (if (= lst '()) '()
+    (cons (gruppo lst) (raggruppa (striscia lst)))
+  )
 )
 
 (define (gruppo lst)
@@ -6884,10 +7594,10 @@ Adesso la scriviamo in stile iterativo:
   (setq acc 0)
   (reverse lst-coeffs) ; funzione distruttiva
   (dolist (el lst-coeffs)
-		acc = acc * x + c
+    acc = acc * x + c
     (setq acc (add (mul acc x) el))
   )
-	acc
+  acc
 )
 
 (horner '(-19 7 -4 6) '3)
@@ -8080,6 +8790,137 @@ la funzione "e021-fast" è tre volte più veloce della funzione "e021".
  PROBLEMI VARI
 ===============
 
+
+Algoritmo babilonese sqrt(x)
+----------------------------
+
+Dato un valore x > 0, l'algoritmo babilonese permette di calcolare un valore approssimato della radice quadrata di x sqrt(x). Questo metodo funziona nel modo seguente:
+
+1) Assegna un valore positivo alla stima-iniziale della radice (quanto più essa è prossima alla radice, tanto migliore è la convergenza dell'algoritmo)
+2) calcola la nuova stima come la media di stima-iniziale e x/stima-iniziale
+3) Se la differenza tra stima-iniziale e stima è minore della precisione desiderata, allora la stima è la soluzione (radice), altrimenti poni la stima-iniziale uguale alla stima e continua al passo 2.
+
+Questo algoritmo può essere rappresentato dalla seguente formula:
+
+          1              x
+x(n+1) = --- * (x(n) + -----)
+          2            x(n)
+
+Scriviamo la funzione:
+
+(define (rq x err)
+  (local (stima-iniziale stima differenza n)
+    (setq n 0)
+    (setq stima-iniziale (div x 2)) ;stima iniziale vale x/2
+    (setq differenza (add 2 err))   ;differenza iniziale > err
+    (while (> differenza err)
+      (setq stima (div (add stima-iniziale (div x stima-iniziale)) 2))
+      (setq differenza (abs(sub stima-iniziale stima)))
+      (setq stima-iniziale stima)
+      (++ n)
+    )
+    (list stima n)
+  )
+)
+
+(rq 0.38 0.00001)
+;-> (0.6164414002968977 6)
+
+(rq 0.09 0.00001)
+;-> (0.3 7)
+
+(rq 0.123456789 0.0000001)
+;-> (0.3513641828644462 7)
+(mul 0.3513641828644462 0.3513641828644462)
+;-> 0.123456789
+
+(rq 123456 0.0000001)
+(351.363060095964 12)
+(mul 351.363060095964 351.363060095964)
+;-> 123456
+
+(rq 123456789 0.0000001)
+;-> (11111.11106055556 18)
+(mul 11111.11106055556 11111.11106055556)
+;-> 123456789.0000001
+
+Vediamo una versione che sceglie la stima iniziale in base al valore di x:
+
+(define (rq x err)
+  (local (stima-iniziale stima differenza n)
+    (setq n 0)
+    (if (> x 1)  ;stima iniziale
+        (setq stima-iniziale (div x 2))
+        (setq stima-iniziale (mul x 2))
+    )
+    (setq differenza (add 2 err))   ;differenza iniziale > err
+    (while (> differenza err)
+      (setq stima (div (add stima-iniziale (div x stima-iniziale)) 2))
+      (setq differenza (abs(sub stima-iniziale stima)))
+      (setq stima-iniziale stima)
+      (++ n)
+    )
+    (list stima n)
+  )
+)
+
+(rq 0.38 0.00001)
+;-> (0.6164414002968979 4)
+
+(rq 0.09 0.00001)
+;-> (0.3000000001396984 4)
+
+(rq 0.09 0.0000001)
+;-> (0.3 5)
+
+(rq 0.123456789 0.0000001)
+;-> (0.3513641828644462 5)
+(mul 0.3513641828644462 0.3513641828644462)
+;-> 0.123456789
+
+(rq 123456 0.0000001)
+(351.363060095964 12)
+(mul 351.363060095964 351.363060095964)
+;-> 123456
+
+(rq 123456789 0.0000001)
+;-> (11111.11106055556 18)
+(mul 11111.11106055556 11111.11106055556)
+;-> 123456789.0000001
+
+Questa ultima versione ha una convergenza più rapida con i numeri minori di 1.
+
+L'algoritmo può anche essere definito nel modo seguente:
+
+1) Poni il valore iniziale della stima della radice x0 uguale al numero x
+2) Inizializza y = 1.
+3) Fino al raggiungimento della precisione desiderata:
+   a) calcolare prossima stima: x0 = (x0 + y)/2
+   b) Imposta y = x / x0
+
+(define (rq x err)
+  (local (x0 y)
+    (setq y 1)
+    (setq x0 (div x 2)) ; stima valore iniziale uguale al numero x
+    (while (> (abs (sub x0 y)) err) ;
+      (setq x0 (div (add x0 y) 2))
+      (setq y (div x x0))
+    )
+    x0
+  )
+)
+
+(rq 4.5 0.000001)
+;-> 2.121320746178046
+(mul (rq 4.5 0.000001) (rq 4.5 0.000001))
+;-> 4.500001708165383
+
+(rq 4 0.000001)
+;-> 2.00000000000012
+
+La complessità temporale di questo algoritmo è O(log (log (n)).
+
+
 Ricerca binaria (binary search)
 -------------------------------
 La "ricerca binaria" è un algoritmo di ricerca che individua l'indice di un determinato valore in un insieme ordinato di dati. Se il valore non esiste allora l'indice vale -1.
@@ -9069,7 +9910,7 @@ Moltiplicazione del contadino russo
 -----------------------------------
 
 Si esegue per mezzo di raddoppi e dimezzamenti successivi.
-Esempio: 83x154. Si dimezza il numero 83 (considerando i valori interi) e si raddoppia il 154. Si sommano le righe della colonna del 154 corrispondenti alle righe dispari nella colonna del numero 83. Totale: 12782.
+Esempio: 83*154. Si dimezza il numero 83 (considerando i valori interi) e si raddoppia il 154. Si sommano le righe della colonna del 154 corrispondenti alle righe dispari nella colonna del numero 83. Totale: 12782.
 
       dispari  -->  83  |   154  <--
       dispari  -->  41  |   308  <--
@@ -9149,6 +9990,14 @@ Notiamo che la nostra funzione è ricorsiva di coda, quiondi possiamo usare la t
 ;-> 328.118
 
 Con la tecnica di memoization la nostra funzione è diventata 7 volte più veloce.
+
+Vediamo la velocità della funzione primitiva di addizione "*":
+
+(* 12345232332323L 6782323232323239)
+;-> 83729356055942287981803754197L
+
+(time (* 12345232332323L 6782323232323239) 100000)
+;-> 91.905
 
 
 Distanza di Manhattan
@@ -9289,10 +10138,9 @@ Versione memoized:
 Versione iterativa:
 
 (define (fibo-i n)
-  (local (a b c lim)
+  (local (a b c)
     (setq a 0L b 1L c 0L)
-    (setq lim (- n 1))
-    (for (i 0 lim)
+    (for (i 0 n)
       (setq c (+ a b))
       (setq a b)
       (setq b c)
@@ -9302,7 +10150,7 @@ Versione iterativa:
 )
 
 (define (num-conigli mese)
-  (fibo-i (add mese 2)))
+  (fibo-i (add mese 1)))
 
 (for (x 1 12) (print (num-conigli x) { }))
 ;-> 2L 3L 5L 8L 13L 21L 34L 55L 89L 144L 233L 377L
@@ -10151,10 +10999,12 @@ Una soluzione efficiente consiste nel pre-calcolare la barra più alta a sinistr
 (bacino '(0 1 0 2 1 0 1 3 2 1 2 1))
 ;-> 0 0 1 0 1 2 1 0 0 1 0 0 6
 
+(bacino '(1 1 1 1 1 1 1 1 1 1 1 1)) ; bacino piatto
+;-> 0 0 0 0 0 0 0 0 0 0 0 0 0
+
 Vediamo un altro esempio:
 
 lista: (2 3 5 3 4 3 4 3 3 7 9 3 8))
-acqua: 78
 
          2353434337938
      9             |
@@ -10170,6 +11020,7 @@ acqua: 78
          0123456789012
 
 Soluzione:
+acqua: 15
 
          2353434337938
      9             |
@@ -10192,7 +11043,6 @@ Totale x = 15
 Un ultimo esempio:
 
 lista: (2 0 3 0 5 0 3 0 4 0 3 0 4 0 3 0 3 0 7 0 9 0 3 0 8)
-acqua: 78
 
          2030503040304030307090308
 
@@ -10209,6 +11059,7 @@ acqua: 78
          0123456789012345678901234
 
 Soluzione:
+acqua: 78
 
          2030503040304030307090308
 
@@ -10421,6 +11272,14 @@ Vediamo come si comporta la funzione nei casi normali e nei casi particolari:
 ;-> t = -1.#IND
 ;-> (nil nil)
 
+; collineari uniti (senza sovrapposizione)
+(intersect-line 1 1 2 2 2 2 3 3)
+;-> numer = 0
+;-> denom = 0
+;-> s = -1.#IND
+;-> t = -1.#IND
+;-> (nil nil)
+
 ; uniti (punto-punto)
 (intersect-line 1 2 3 2 3 2 5 4)
 ;-> numer = 0
@@ -10454,6 +11313,7 @@ Se vogliamo trattare i casi particolari in modo diverso da (nil nil) possiamo ut
 ; indeterminato (inf/inf)
 (NaN? (div (div 5 0) (div 5 0)))
 ;-> true
+
 
 Trovare l'elemento mancante (LeetCode)
 --------------------------------------
@@ -10678,6 +11538,343 @@ Una soluzione semplice è quella di ordinare i punteggi in ordine crescente e po
 ;-> 7
 
 (caramelle '(10 2 1 1 1 3 5 4))
+
+
+Unire due liste ordinate (Facebook)
+-----------------------------------
+L'ordinamento delle liste può essere sia crescente che decrescente. Useremo un parametro "op" con il seguente significato:
+- se "op" vale ">" le liste sono ordinate in modo crescente
+- se "op" vale "<" le liste sono ordinate in modo decrescente
+
+(define (unisce lst1 lst2 op)
+  (local (i j k m n out)
+    (if (< (length lst1) (length lst2)) (swap lst1 lst2)) ;la prima lista deve essere più lunga
+    (setq m (length lst1))
+    (setq n (length lst2))
+    (setq i (sub m 1))
+    (setq j (sub n 1))
+    (setq k (add m n -1))
+    (setq out (array (add m n))) ; vettore risultato
+    (while (>= k 0)
+      (if (or (< j 0) (and (>= i 0) (op (lst1 i) (lst2 j))))
+          (begin (setf (out k) (lst1 i))
+                 (-- k)
+                 (-- i))
+          (begin (setf (out k) (lst2 j))
+                 (-- k)
+                 (-- j))
+      )
+    )
+    (array-list out) ;converte il vettore risultato in lista
+  ); local
+)
+
+(unisce '(1 2 3 4 5) '(4 5) >)
+;-> (1 2 3 4 4 5 5)
+
+(unisce '(4 5) '(1 2 3 4 5) >)
+;-> (1 2 3 4 4 5 5)
+
+(unisce '(7 5 4 1) '(6 5 3) <)
+;-> (7 6 5 5 4 3 1)
+
+
+Salire le scale (Amazon)
+------------------------
+Esiste una scala con N scalini e puoi salire di 1 o 2 passi alla volta. Dato N, scrivi una funzione che restituisce il numero di modi unici in cui puoi salire la scala. L'ordine dei passaggi è importante.
+
+Ad esempio, se N è 4, esistono 5 modi unici: (1, 1, 1, 1) (2, 1, 1) (1, 2, 1) (1, 1, 2) (2, 2).
+
+Cosa succede se, invece di essere in grado di salire di 1 o 2 passi alla volta, è possibile salire qualsiasi numero da un insime di interi positivi X? Ad esempio, se X = {1, 3, 5}, potresti salire 1, 3 o 5 passi alla volta.
+
+QUesto è un classico problema ricorsivo. Iniziamo con casi semplici e cercando di trovare una regola di calcolo (relazione).
+
+N = 1: [1]
+N = 2: [1, 1], [2]
+N = 3: [1, 2], [1, 1, 1], [2, 1]
+N = 4: [1, 1, 2], [2, 2], [1, 2, 1], [1, 1, 1, 1], [2, 1, 1]
+
+Qual è la relazione?
+
+Gli unici modi per arrivare a N = 3, è di arrivare prima a N = 1, e poi salire di 2 passi, oppure di arrivare a N = 2 e salire di 1 passo. Quindi f(3) = f(2) + f(1).
+
+Questo vale per N = 4? Sì. Dal momento che possiamo arrivare al 4° scalino solo partendo dal 3° scalino e salendo di uno oppure partendo dal 2° scalino e salendo di due. Quindi f(4) = f(3) + f(2).
+
+Generalizziamo, f (n) = f (n - 1) + f (n - 2). Questa è la nota sequenza di Fibonacci.
+
+Versione ricorsiva:
+
+(define (fibo n)
+  (if (< n 2) 1
+    (+ (fibo (- n 1)) (fibo (- n 2)))))
+
+
+(fibo 35)
+;-> 14930352
+
+(time (fibo 35))
+;-> 4456.463
+
+Questa è molto lenta perchè stiamo facendo molti calcoli ripetuti: O(2^N).
+
+Vediamo di velocizzare il calcolo scrivendo una versione ricorsiva memoized e una versione iterativa.
+
+Versione ricorsiva memoized:
+
+(define-macro (memoize mem-func func)
+  (set (sym mem-func mem-func)
+    (letex (f func c mem-func)
+      (lambda ()
+        (or (context c (string (args)))
+        (context c (string (args)) (apply f (args))))))))
+
+(memoize fibo-m
+  (lambda (n)
+    (if (< n 2) 1
+      (+ (fibo-m (- n 1)) (fibo-m (- n 2))))))
+
+(fibo-m 35)
+;-> 14930352
+
+(time (fibo-m 35))
+;-> 0
+
+Versione iterativa (che funziona anche per i big integer):
+
+(define (fibo-i n)
+  (local (a b c)
+    (setq a 0L b 1L c 0L)
+    (for (i 0 n)
+      (setq c (+ a b))
+      (setq a b)
+      (setq b c)
+    )
+    a
+  )
+)
+
+(fibo-i 35)
+;-> 14930352L
+
+(time (fibo-i 35))
+;-> 0
+
+Proviamo a generalizzare questo metodo in modo che funzioni usando un numero di passi dall'insieme X.
+Un ragionamento simile ci dice che se X = {1, 3, 5}, allora il nostro algoritmo dovrebbe essere f(n) = f(n - 1) + f(n - 3) + f(n - 5).
+Se n < 0, allora dobbiamo restituire 0 poiché non possiamo iniziare da un numero negativo di passi.
+Se n = 0, allora dobbiamo restituire 1.
+Altrimenti dobbiamo restituire ricorsivamente la somma di tutti i risultati delle chiamate alla funzione.
+
+scala(n, X):
+    if n < 0:      return 0
+    elseif n == 0: return 1
+    else: return sum(staircase(n - x, X) for x in X)
+
+Tradotto in newLISP:
+
+(define (scala n lst)
+    (if (< n 0)
+        0
+         (if (= n 0)
+            1
+            (apply + (map (lambda (x) (scala (sub n x) lst)) lst))
+         )
+    )
+)
+
+(scala 4 '(1 2))
+;-> 5
+
+(scala 8 '(4))
+;-> 1
+
+(scala 10 '(1 2 3))
+;-> 274
+
+(scala 25 '(1 2 3))
+;-> 2555757
+
+(time (scala 25 '(1 2 3)))
+;-> 2508.452
+
+Anche questo funzione è lenta O(|X|^N), poichè ripetiamo molti calcoli.
+
+Velocizziamo i calcoli scrivendo una versione ricorsiva memoized e una versione iterativa.
+
+Versione ricorsiva memoized:
+
+(define-macro (memoize mem-func func)
+  (set (sym mem-func mem-func)
+    (letex (f func c mem-func)
+      (lambda ()
+        (or (context c (string (args)))
+        (context c (string (args)) (apply f (args))))))))
+
+(memoize scala-m
+  (lambda (n lst)
+     (if (< n 0)
+        0
+         (if (= n 0)
+            1
+            (apply + (map (lambda (x) (scala-m (sub n x) lst)) lst))
+         )
+    )
+  )
+)
+
+(scala-m 4 '(1 2))
+;-> 5
+
+(scala-m 8 '(4))
+;-> 1
+
+(scala-m 10 '(1 2 3))
+;-> 274
+
+(scala-m 25 '(1 2 3))
+;-> 2555757
+
+(time (scala-m 25 '(1 2 3)))
+;-> 0
+
+Varsione iterativa (programmazione dinamica):
+
+Ogni i-esimo elemento della lista cache conterrà il numero di modi in cui possiamo arrivare al punto i con l'insieme X. Quindi costruiremo la lista da zero utilizzando i valori precedentemente calcolati per trovare quelli successivi:
+
+(define (scala-i num lst)
+  (local (ca)
+    (setq ca (dup 0 (add num 1)))
+    (setf (ca 0) 1)
+    (for (i 1 num)
+      (dolist (x lst)
+        (if (>= (sub i x) 0)
+          ;(begin (println "i= " i { } "x= " x)
+            (setf (ca i) (add (ca i) (ca (sub i x))))
+          ;)
+        )
+      )
+    )
+    (ca num)
+  );local
+)
+
+(scala-i 4 '(1 2))
+;-> 5
+
+(scala-i 8 '(4))
+;-> 1
+
+(scala-i 10 '(1 2 3))
+;-> 274
+
+(scala-i 25 '(1 2 3))
+;-> 2555757
+
+(time (scala-i 25 '(1 2 3)))
+;-> 0
+
+
+Numeri interi con segni opposti (MacAfee)
+-----------------------------------------
+Determinare se due numeri interi hanno segni opposti (true).
+
+Applicando l'operatore bitwise XOR "^" ai quattro casi possibili si ottiene:
+
+(^ -2 3)
+;-> -3
+(^ -2 -3)
+;-> 3
+(^ 2 3)
+;-> 1
+(^ 2 -3)
+;-> -1
+
+Vediamo la tavola della verità:
+
+   a   |   b  | XOR | segno
+   -----------|-----|-------
+  -2   |   3  | -3  | diverso
+  -2   |  -3  |  3  | uguale
+   2   |   3  |  1  | uguale
+   2   |  -3  | -1  | diverso
+
+Possiamo notare che:
+- se il risultato dello XOR tra i numeri a e b è negativo, allora i numeri hanno segno diverso.
+- se il risultato dello XOR tra i numeri a e b è positivo, allora i numeri hanno segno uguale.
+
+Possiamo scrivere la funzione:
+
+(define (opposti a b)
+  (if (> (^ a b) 0) nil true))
+
+(opposti -2 3)
+;-> true
+
+(opposti -2 -3)
+;-> nil
+
+(opposti 2 3)
+;-> nil
+
+(opposti 2 -3)
+;-> true
+
+
+Parità di un numero (McAfee)
+----------------------------
+
+Parità: la parità di un numero si riferisce al numero di bit che valgono 1.
+Il numero ha "parità dispari", se contiene un numero dispari di 1 bit ed è "parità pari" se contiene un numero pari di 1 bit.
+
+Se n non vale zero, allora creiamo un ciclo che, affinchè n non diventa 0, disattiva uno dei bit impostati e inverte la parità.
+L'algoritmo è il seguente:
+
+1. Inizializza la parità = 0
+2. Loop while n! = 0
+       a. Invertire la parità
+              parità =! parità
+       b. Annullare il bit più a destra del numero
+              n = n & (n-1)
+3. return parità
+
+(int "101" 0 2)
+;-> 5
+
+(define (parita n)
+  (local (out)
+    (setq out nil)
+    (while (!= n 0)
+      (setq out (not out))
+      ; annulla il bit più a destra del numero
+      (setq n (& n (- n 1))) ; "&" = operatore bitwise AND
+    )
+    (if (= out true) 'dispari 'pari)
+  )
+)
+
+Per controllare la correttezza utilizziamo le funzioni di conversione tra numero decimale e binario.
+
+(define (bin2dec n)
+  (if (zero? n) n
+      (+ (% n 10) (* 2 (bin2dec (/ n 10))))))
+
+(define (dec2bin n)
+   (if (zero? n) n
+       (+ (% n 2) (* 10 (dec2bin(/ n 2))))
+   )
+)
+
+(dec2bin 1133)
+;-> 10001101101
+
+(parita 1133)
+;-> pari
+
+(dec2bin 1113)
+;-> 10001011001
+
+(parita 1113)
+;-> dispari
 
 
 ================================
@@ -11377,12 +12574,24 @@ Sottrazione tempi "-tt"
 (+tt '(1 20 40) '(0 20 40) '(1 0 0))
 ;-> (2 41 20)
 
+(-tt '(1 20 30) '(1 20 35) '(0 0 5))
+;-> (0 0 -5)
+
+(+tt '(0 0 -5) '(0 0 5))
+;-> (0 0 0)
+
+(-tt '(2 20 30) '(2 20 35))
+;-> (0 0 -5)
+
+(-tt '(2 20 30) '(2 20 35) '(0 0 5))
+;-> (0 0 -10)
+
 
 ============================
  OPERAZIONI CON GLI INSIEMI
 ============================
 
-newLISP fornisce alcune funzioni per operare sugli insiemi (sets).
+newLISP fornisce alcune funzioni per operare sugli insiemi (set).
 Vediamo quali sono e come implementare le funzioni che mancano (alcune di queste funzioni sono prese dal libro "A Practical Introduction to Fuzzy Logic using Lisp", Luis Argüelles Mendez, 2015).
 
 Definiamo due insiemi (liste) per i test:
@@ -11675,6 +12884,58 @@ Restituisce l'insieme potenza di un insieme.
 
 (powerset '(a b c))
 ;-> ((a b c) (a b) (a c) (a) (b c) (b) (c) ())
+
+
+=================
+ FUNZIONI WINAPI
+=================
+
+(context 'Win32API)
+
+(import "user32.dll" "MessageBoxA")
+(import "kernel32.dll" "GetShortPathNameA")
+(import "kernel32.dll" "GetLongPathNameA")
+(import "shell32.dll" "ShellExecuteA")
+
+(define PATH_MAX 512)
+
+(context MAIN)
+
+;(define NULL 0)
+
+(define (message-box text (title "newLISP"))
+  (let ((MB_OK 0))
+    (Win32API:MessageBoxA 0 text title MB_OK)))
+
+(define (get-short-path-name pathname)
+  (unless (file? pathname)
+    (throw-error (list "No such file or directory" pathname)))
+  (setq pathname (real-path pathname)) ; to fullpath
+  (letn ((len Win32API:PATH_MAX)
+         (buf (dup (char 0) (+ len 1)))
+         (ret (Win32API:GetShortPathNameA pathname buf len)))
+    (slice buf 0 ret)
+    ;; (GetShortPathNameA pathname buf len) (get-string buf)
+    ))
+
+(define (get-longpathname pathname)
+  (letn ((len Win32API:PATH_MAX)
+         (buffer (dup (char 0) (+ len 1)))
+         (r (Win32API:GetLongPathNameA pathname buffer len)))
+    (if (= r 0) (throw-error '("GetLongPathNameA" "failure")))
+    (slice buffer 0 r)))
+
+(define (shell-execute app)
+  (let ((SW_SHOWNORMAL 1) e)
+    (setf e (Win32API:ShellExecuteA 0 "open" app 0 0 SW_SHOWNORMAL))
+    ;(if (< e 32) )
+    ))
+;(shell-execute "C:\\PROGRA~1\\newlisp\\newlisp.exe")
+;(shell-execute "C:/")
+(shell-execute "http://www.newlisp.org/")
+
+(context MAIN)
+;;; EOF
 
 
 +===========+
@@ -13831,14 +15092,14 @@ Ad ogni prompt del debugger:
 possiamo inserire "s", "n", "c" o "q" per proseguire la valutazione in modi diversi (es. valutare ogni subespressione o valutare tutta l'espressione). Al prompt possiamo anche inserire una espressione qualsiasi da valutare. Ad esempio se inseriamo il nome di una variabile, allora verrà restituito il suo valore. In questo modo possiamo verificare il contenuto delle variabili e possiamo anche modificarlo.
 
 ; Imposta newLISP in modalità di debug
-(trace true) 
+(trace true)
 ;-> true
 
 ; il debugger mostra ogni passo
 (my-func a b c)
 
 ; Imposta newLISP in modalità normale (esce dalla modalità di debug)
-(trace nil) 
+(trace nil)
 ;-> nil
 
 Per inserire dei break point dove newLISP dovrebbe interrompere l'esecuzione normale del programma ed entrare in modalità di debug, possiamo inserire l'espression (trace true) prima delle espressioni che devono essere tracciate.
@@ -13901,7 +15162,7 @@ Adesso dobbiamo modificare un makefile che si trova nella cartella dei sorgenti.
 
 Spostarsi nella cartella c:\newLISP-10.7.5 e aprire il file "makefile_mingw64dll_utf8_ffi" con un editor di testo.
 
-Sostituire la riga: 	$(CC) -m64 -shared *.o -Wl,--kill-at -lffi -lws2_32 -o newlisp.dll
+Sostituire la riga:   $(CC) -m64 -shared *.o -Wl,--kill-at -lffi -lws2_32 -o newlisp.dll
 Con la riga:          $(CC) -m64 -shared $(OBJS) -Wl,--kill-at -lffi -lws2_32 -o newlisp.dll
 
 Salvare e chiudere il makefile.
@@ -14782,7 +16043,7 @@ function evaluateExpression(expr)
             result = evaluateFunc(func, args)
         else if typeOf(func) = LAMBDA_FUNCTION
             result = evaluateLambda(func, args)
-		/* extensions for default functor */
+    /* extensions for default functor */
         if typeOf(func) is CONTEXT
             func = defaultFunctor(func)
                 if typeOf(func) = LAMBDA_FUNCTION
@@ -14846,7 +16107,7 @@ The following example sets two variables and defines two lambda functions. After
 ; environment stack: [ ]
 
 (define (foo x y)
-	(+ (double (+ x 1)) y))
+  (+ (double (+ x 1)) y))
 
 ; x → nil, y  → nil,
 ; foo  → (lambda (x y) (+ (double (+ x 1)) y))
@@ -14854,7 +16115,7 @@ The following example sets two variables and defines two lambda functions. After
 ; environment stack: [ ]
 
 (define (double x)
-	(* 2 x))
+  (* 2 x))
 
 ; x  → nil, y  → nil
 ; foo  → (lambda (x y) (+ (double (+ x 1)) y))
@@ -15057,7 +16318,7 @@ Default functors are a convenient way in newLISP to pass lists or other big data
 (set 'my-list:my-list '(a b c d e f))
 
 (define (set-last ctx val)
-	(setf (ctx -1) val))
+  (setf (ctx -1) val))
 
 (set-last my-list 99)  → f
 
@@ -15067,9 +16328,9 @@ Default functors are also a convenient way to define functions with a closed sta
 
 (context 'accumulator)
 (define (accumulator:accumulator x)
-	(if (not value)
-		(set 'value x)
-		(inc 'value x)))
+  (if (not value)
+    (set 'value x)
+    (inc 'value x)))
 (context MAIN)
 
 (accumulator 10)  → 10
@@ -15189,7 +16450,7 @@ function evaluateExpression(expr)
     resultStackIndexSave = resultStackIndex
 
     if typeOf(expr) is BOOLEAN or NUMBER or STRING
-		return(expr)
+    return(expr)
 
     if typeOf(expr) is SYMBOL
         return(symbolContents(expr))
@@ -15242,7 +16503,7 @@ Any newly created result expression is destined to be destroyed later but its de
 The following example shows the evaluation of a small user-defined LISP function sum-of-squares and the creation and deletion of associated memory objects:
 
 (define (sum-of-squares x y)
-	(+ (* x x) (* y y)))
+  (+ (* x x) (* y y)))
 
 (sum-of-squares 3 4) => 25
 sum-of-squares is a user-defined lambda-function calling to built-in functions + and *.
