@@ -46,7 +46,7 @@ LISTA O VETTORE?
 VETTORI
 INDICIZZAZIONE DI STRINGHE, LISTE E VETTORI
 USCITA ANTICIPATA DA FUNZIONI, CICLI E BLOCCHI
-LAVORARE CON I FILE DI DATI
+LAVORARE CON FILE DI DATI (FILE I/O)
 AMBITO (SCOPE) DINAMICO E LESSICALE
 CONTESTI
 CAR E CDR IN newLISP
@@ -71,11 +71,13 @@ FUNZIONI VARIE
   Conversione gradi decimali <--> gradi sessagesimali
   Conversione RGB <--> HSV
   Calcolo della media di n numeri
+  Retta passante per due punti  
   Leggere e stampare un file di testo
   Criptazione e decriptazione di un file
   Funzioni per input utente
   Emettere un beep
   Disabilitare l'output delle espressioni
+  Simboli creati da una funzione
   Il programma è in esecuzione ? (progress display)
   Ispezionare una cella newLISP
 
@@ -147,6 +149,7 @@ PROBLEMI VARI
   Il numero aureo
   Equazione di secondo grado
   Equazione di terzo grado
+  Sistemi lineari
   Numeri Brutti
   Numeri Poligonali
   Torre di Hanoi
@@ -159,9 +162,13 @@ PROBLEMI VARI
   Distanza di Manhattan
   Modello di crescita di una popolazione di conigli
   Il gioco dei salti
+  Ricerca stringa in un testo (algoritmo base)
+  Ricerca stringa in un testo (algoritmo Z)
+
 
 DOMANDE PER ASSUNZIONE DI PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
-  Swap di due variabili (McAfee)
+  Contare i bit di un numero (McAfee)
+  Scambiare il valore di due variabili (McAfee)
   Funzione "atoi" (McAfee)
   Somma di numeri in una lista (Google)
   Aggiornamento di una lista (Uber)
@@ -169,7 +176,7 @@ DOMANDE PER ASSUNZIONE DI PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Decodifica di un messaggio (Facebook)
   Implementazione di un job-scheduler (Apple)
   Massimo raccoglitore d'acqua (LeetCode)
-  Quantità d'acqua in un bacino (LeetCode)
+  Quantità d'acqua in un bacino (Facebook)
   Sposta gli zeri (Facebook)
   Intersezione di segmenti (byte-by-byte)
   Trovare l'elemento mancante (LeetCode)
@@ -178,8 +185,12 @@ DOMANDE PER ASSUNZIONE DI PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Caramelle (Visa)
   Unire due liste ordinate (Facebook)
   Salire le scale (Amazon)
-  Numeri interi con segni opposti (MacAfee)  
+  Numeri interi con segni opposti (MacAfee)
   Parità di un numero (McAfee)
+  Minimo e massimo di due numeri (McAfee)
+  Numero potenza di due (Google)
+  Stanze e riunioni (Snapchat)
+  Bilanciamento parentesi (Facebook)
 
 CALCOLI CON I NUMERI COMPLESSI
 
@@ -212,6 +223,7 @@ BIBLIOGRAFIA / WEB
 
 ============================================================================
 
+
 ==============
  INTRODUZIONE
 ==============
@@ -222,12 +234,13 @@ Maggiori informazioni sono reperibili al sito ufficiale del linguaggio:
 
 http://www.newLISP.org/
 
-Il documento è in continua evoluzione e aggiornamento ed è scritto non da un programmatoree professionista, ma da un principiante che studia ed utilizza newLISP per divertimento.
+Questo documento è in continua evoluzione e aggiornamento ed è scritto non da un programmatoree professionista, ma da un principiante che studia ed utilizza newLISP per divertimento.
 In genere uso newLISP per risolvere problemi di matematica ricreativa.
 Consigli, correzioni e suggerimenti sono i benvenuti.
 
 Per convenzione i comandi di input della REPL non contengono il prompt di newLISP ">".
 L'output della REPL viene preceduto dalla stringa ";-> ".
+Nel testo sono riportate le descrizioni di alcuni comandi predefiniti tradotte dal manuale di riferimento ("newLISP Reference"). Queste descrizioni sono precedute dalla stringa ">>>funzione". Ad esempio, per trovare la funzione "map", ricercare la stringa ">>>funzione MAP".
 
 Caratteristiche del sistema utilizzato
 --------------------------------------
@@ -445,26 +458,26 @@ Funzione        Descrizione
 bind            binds variable associations in a list
 constant        sets the contents of a variable and protects it
 extend          extends a list or string
-dec              decrements a number referenced by a variable, list or array
+dec             decrements a number referenced by a variable, list or array
 define          sets the contents of a variable
 define-macro    sets the contents of a variable
-inc              increments a number referenced by a variable, list or array
+inc             increments a number referenced by a variable, list or array
 let             declares and initializes local variables
 letn            initializes local variables incrementally, like nested lets
-letex            expands local variables into an expression, then evaluates
-net-receive      reads into a buffer variable
-pop              pops an element from a list or string
-pop-assoc        removes an association from an association list
+letex           expands local variables into an expression, then evaluates
+net-receive     reads into a buffer variable
+pop             pops an element from a list or string
+pop-assoc       removes an association from an association list
 push            pushes a new element onto a list or string
 read            reads into a buffer variable
-receive          receives a message from a parent or child process
-replace          replaces elements in a list or string
-reverse          reverses a list or string
+receive         receives a message from a parent or child process
+replace         replaces elements in a list or string
+reverse         reverses a list or string
 rotate          rotates the elements of a list or characters of a string
-set              sets the contents of a variable
-setf setq        sets the contents of a variable, list, array or string
-set-ref          searches for an element in a nested list and replaces it
-set-ref-all      searches for an element in a nested list and replaces all instances
+set             sets the contents of a variable
+setf setq       sets the contents of a variable, list, array or string
+set-ref         searches for an element in a nested list and replaces it
+set-ref-all     searches for an element in a nested list and replaces all instances
 sort            sorts the elements of a list or array
 swap            swaps two elements inside a list or string
 
@@ -531,7 +544,7 @@ Adesso definiamo la macro:
 
 Per capire come funziona dobbiamo analizzare la funzione "apply":
 
-funzione APPLY
+>>>funzione APPLY
 sintassi: (apply func list [int-reduce])
 
 Applica l'espressione "func" (primitiva, funzione utente, o lambda) agli argomenti di "list".
@@ -604,7 +617,7 @@ Infatti ci limitiamo a passare i parametri alla macro senza prima valutarli.
 
 Per risolvere il problema possiamo utilizzare le funzioni "map" e "eval".
 
-funzione MAP
+>>>funzione MAP
 sintassi: (map func list-args-1 [list-args-2 ... ])
 
 Applica la funzione "func" (primitiva, funzione utente, espressione lambda) ad ogni gruppo di argomenti specificati dalle liste "list-args-1", "list-args-2", etc.
@@ -651,7 +664,7 @@ map può utilizzare anche l'indice della lista interna $idx.
 
 Il numero di argomenti utilizzati è determinato dalla lunghezza della prima lista di argomenti.
 
-funzione EVAL
+>>>funzione EVAL
 sintassi: (eval exp)
 
 "eval" calcola il risultato della valutazione dell'espressione "exp".
@@ -704,7 +717,7 @@ Funziona !!!
 
 Adesso vediamo la funzione "curry":
 
-funzione CURRY
+>>>funzione CURRY
 sintassi: (curry func exp)
 
 Trasforma "func" da una funzione f(x, y) che prende due argomenti, in una funzione fx(y) che prende un singolo argomento. "curry" funziona come una macro, nel senso che non valuta i suoi argomenti. Questi ultimi vengono valutati durante l'applicazione della funzione "func".
@@ -975,7 +988,7 @@ Il risultato della valutazione di (f 4) è 24.
  ASSEGNAZIONE GLOBALE: SET, SETQ e SETF (e DEFINE)
 ===================================================
 
-funzione SET
+>>>funzione SET
 sintassi: (set sym-1 exp-1 [sym-2 exp-2 ... ])
 
 Valuta entrambi gli argomenti e poi assegna il risultato di exp al simbolo trovato in sym.
@@ -984,8 +997,9 @@ Il vecchio contenuto del simbolo viene cancellato.
 Viene visualizzato un messaggio di errore quando si tenta di modificare il contenuto dei simboli nil, true o un simbolo del contesto.
 "set" può effettuare assegnazioni multiple sulle coppie di argomenti.
 
-funzione SETQ e SETF
+>>>funzione SETQ
 sintassi: (setq place-1 exp-1 [place-2 exp-2 ... ])
+>>>funzione SETF
 sintassi: (setf place-1 exp-1 [place-2 exp-2 ... ])
 
 In newLISP "setq" e "setf" funzionano allo stesso modo:
@@ -1060,7 +1074,7 @@ s
 
 Vediamo adesso la funzione "define":
 
-funzione DEFINE
+>>>funzione DEFINE
 sintassi: (define sym-name exp)
 
 In genere "define" viene utilizzata per definire una funzione.
@@ -3076,7 +3090,7 @@ Un indice "out-of-bounds" causerà un messaggio di errore su un vettore o una li
 Le matrici possono essere non rettangolari, ma sono rese rettangolari durante la serializzazione quando si utilizza source o save. La funzione array costruisce sempre matrici di forma rettangolare.
 Le funzioni matriciali det, transpose, multiply e invert possono essere utilizzate su matrici costruite con liste annidate o vettori costruiti con array.
 
-funzione ARRAY
+>>>funzione ARRAY
 sintassi: (array int-n1 [int-n2 ...] [list-init])
 
 Crea un vettore con elementi int-n1, inizializzandolo opzionalmente con il contenuto di list-init. Possono essere specificate fino a sedici dimensioni per i vettori multidimensionali (matrici).
@@ -3179,7 +3193,7 @@ Indicizzazione esplicita
 ------------------------
 La funzione "nth" accede ad un elemento di una stringa, di una lista o di un vettore.
 
-funzione NTH
+>>>funzione NTH
 sintassi: (nth int-index list)
 sintassi: (nth int-index array)
 sintassi: (nth int-index str)
@@ -3508,9 +3522,9 @@ Oltre alla funzione "catch", possiamo usare la funzione di "error-event" per ril
 La funzione "throw-error" può essere utilizzata per generare errori definiti dall'utente.
 
 
-===========================
- LAVORARE CON FILE DI DATI
-===========================
+======================================
+ LAVORARE CON FILE DI DATI (FILE I/O)
+======================================
 
 In genere i dati sono memorizzati su file con differenti formati. La prima distinzione è il tipo di file: binario o testo (ASCII). Per adesso prendiamo in considerazione i file di testo (cioè quelli che possono essere letti e/o creati con un qualsiasi editor di testi).
 Consideriamo i seguenti due file di dati:
@@ -3737,7 +3751,8 @@ In altri casi potremmo avere la necessità di leggere il file linea per linea ed
 
 (define (read-data file sep)
   (setq lst '()) ; lista dei dati
-  (setq in-file (open file "read")) ; apre il file
+  ; apre il file in lettura (e assegna un numero di device a in-file)
+  (setq in-file (open file "read"))
   (while (read-line in-file) ; legge il file linea per linea
     (setq data-linea (parse (current-line) sep)) ; lista con i dati della linea in formato stringa
     ; Adesso possiamo elaborare i dati della linea corrente ("1" "2" "3" "4" "5")...
@@ -3779,7 +3794,271 @@ Proviamo a leggere i nostri file di esempio:
 ;-> ("f" "g" "h" "i" "")
 ;-> (("" "2" "3" "4" "5") ("6" "7" "" "" "0") ("a" "b" "c" "" "e") ("f" "g" "h" "i" ""))
 
-Questo metodo ci permette di eleborare i dati linea per linea (elemento per elemento).
+Questo metodo ci permette di eleborare i dati linea per linea (e poi elemento per elemento).
+
+Per scrivere in un file dobbiamo usare le funzioni  le funzioni "open", "write-line" e "close".
+Le seguenti linee visualizzano il file "data.txt":
+
+(setq datafile (open "data.txt" "read"))
+;-> 4 ; numero device associato al file data.txt
+(while (read-line datafile) (write-line)) ; stampiamo il file linea per linea
+;-> 1 2 3 4 5
+;-> 6 7 8 9 0
+;-> a b c d e
+;-> f g h i j
+;-> 11
+(close datafile) ; chiudiamo il file
+;-> true
+
+Usata senza parametri la funzione "write-line" scrive sulla REPL (standard output) il contenuto dell'ultima chiamata di "read-line" (cioè "current-line"). Inoltre "write-line" restituisce il numero di byte (caratteri) scritti.
+
+Per capire meglio i parametri della funzione "write-line" e il funzionamento delle operazioni di Input/Output sui file, vediamo la definizione di tutte le funzioni interessate: "device", "open", "close", "read-line", "current-line", "write-line",  "read-char", "write-char", "read", "write":
+
+>>>funzione DEVICE
+sintassi: (device [int-io-handle])
+
+int-io-handle è un numero di dispositivo I/O, che è impostato su 0 (zero) per l'I/O standard (0 per stdin, 1 per stdout e 2 per stderr). int-io-handle può anche essere un handle di file precedentemente ottenuto usando la funzione "open". In questo caso, sia l'input che l'output utilizzano questo handle. Se non viene fornito alcun argomento, viene restituito il numero corrente del dispositivo I/O.
+
+Il canale I/O specificato da device viene utilizzato internamente dalle funzioni print, println, write, write-line e read-char, read-line. Quando il dispositivo I/O corrente è 0 o 1, la stampa invia l'output alla finestra della console e il read-line accetta l'input dalla tastiera. Se il dispositivo I/O corrente è stato impostato aprendo un file, allora la stampa e la lettura lavorano su quel file.
+
+Si noti che su sistemi operativi Unix, il canale stdin (0) può essere utilizzato anche per l'output e il canale stdout (1) può essere utilizzato anche per la lettura dell'ingresso. Questo non è il caso di Windows, dove 0 è strettamente per input e stdout 1 strettamente per l'output.
+
+(device (open "myfile" "write"))  → 5
+(print "This goes in myfile")     → "This goes in myfile"
+(close (device))                  → true
+
+Nota che usare "close" su un "device" automaticamente impostano il valore di "device" a zero (0).
+
+>>>funzione OPEN
+sintassi: (open str-path-file str-access-mode [str-option])
+
+Il file str-path è un nome di file e str-access-mode è una stringa che specifica la modalità di accesso al file. open restituisce un numero intero, che è un handle di file da utilizzare nelle successive operazioni di lettura o scrittura sul file. In caso di fallimento, open restituisce nil. La modalità di accesso "write" crea il file se non esiste, o tronca un file esistente a 0 (zero) byte di lunghezza.
+
+Le seguenti stringhe sono le modalità di accesso disponibili:
+
+"read"   o "r" per accesso in lettura (read)
+"write"  o "w" per accesso in scrittura (write)
+"update" o "u" per accesso in lettura/scrittura (read/write)
+"append" o "a" per accesso in aggiungere/leggere/scrivere (append/read/write)
+
+(device (open "newfile.data" "write"))  → 5
+(print "hello world\n")  → "hello world"
+(close (device))         → 5
+
+(set 'aFile (open "newfile.data" "read"))
+(seek aFile 6)
+(set 'inChar (read-char aFile))
+(print inChar "\n")
+(close aFile)
+
+Il primo esempio utilizza open per impostare il dispositivo per la stampa e scrive la parola "ciao mondo" nel file newfile.data. Il secondo esempio legge il valore di byte all'offset 6 dello stesso file (il valore ASCII di 'w' è 119). Si noti che l'utilizzo di close sul device ripristina automaticamente il device sul valore 0 (zero).
+
+L'opzione aggiuntiva str-option, "non-block" o "n" possono essere specificati dopo l'opzione "read" o "write". Disponibile solo su sistemi Unix, la modalità non bloccante può essere utile quando si aprono pipe con nome, ma non è richiesto per eseguire I/O su pipe con nome.
+
+>>>funzione CLOSE
+sintassi: (close int-file)
+
+Chiude il file specificato dall'handle del file int-file. L'handle dovrebbe essere stato ottenuto tramite una precedente chiamata alla funzione open. In caso di successo, chiude restituisce vero, altrimenti viene restituito nil.
+
+(close (device))  → true
+(close 7)         → true
+(close aHandle)   → true
+
+Si noti che l'utilizzo di close su un device lo reimposta automaticamente su 0 (zero, il device dello schermo).
+
+>>>funzione READ-LINE
+sintassi: (read-line [int-file])
+
+Legge dal device I/O corrente una stringa delimitata da un carattere di avanzamento riga (line-feed ASCII 10). Non c'è limite alla lunghezza della stringa che può essere letta. Il carattere line-feed non fa parte della stringa restituita. La linea si spezza sempre su un line-feed, che viene poi scartato. Una riga si interrompe su un ritorno a capo (carriage-return ASCII 13) solo se seguito da un avanzamento riga, nel qual caso entrambi i caratteri vengono scartati. Un ritorno a capo da solo spezza la linea e viene scartato solo se è l'ultimo carattere del file.
+
+Per impostazione predefinita, il dispositivo corrente è la tastiera (dispositivo 0). Utilizzare il dispositivo funzione predefinita "device" incorporato per specificare un diverso dispositivo I/O (ad es. un file). Facoltativamente, è possibile specificare un handle di file nel parametro int-file ottenuto da una precedente istruzione open.
+
+L'ultimo contenuto del buffer da un'operazione di lettura riga può essere recuperato utilizzando la linea corrente.
+
+Quando read-line sta leggendo da un file o da stdin in un programma o pipe CGI, restituirà zero quando l'input è esaurito.
+
+Quando si utilizza read-line su stdin, la lunghezza della linea è limitata a 2048 caratteri e le prestazioni sono molto più veloci.
+
+(print "Enter a num:")
+(set 'num (int (read-line)))
+
+(set 'in-file (open "afile.dat" "read"))
+(while (read-line in-file)
+        (write-line))
+(close in-file)
+
+Il primo esempio legge l'input dalla tastiera e lo converte in un numero. Nel secondo esempio, un file viene letto riga per riga e visualizzato sullo schermo. L'istruzione write-line si avvale del fatto che il risultato dell'ultima operazione di lettura (read-line) è memorizzato in un buffer interno al sistema.
+Quando write-line viene utilizzata senza argomenti, scrive il contenuto del buffer ottenuto con l'ultima chiamata di read-line.
+
+>>>funzione CURRENT-LINE
+sintassi: (current-line)
+
+Recupera il contenuto dell'ultima operazione di read-line. Il contenuto di current-line viene implicitamente usato quando write-line viene chiamata senza il parametro stringa.
+
+Il seguente codice sorgente mostra il tipico pattern per la creazione di un filtro da riga di comando Unix:
+
+#!/usr/local/bin/newlisp
+
+(set 'inFile (open (main-args 2) "read"))
+(while (read-line inFile)
+  (if (starts-with (current-line) ";;")
+    (write-line)))
+(exit)
+
+Il programma viene chiamato in questo modo:
+
+./filter myfile.lsp
+
+Questo comando mostra tutte le righe di commento che iniziano con ";;" del file fornito come argomento della riga di comando (myfile.lsp)
+
+>>>funzione WRITE-LINE
+sintassi: (write-line [int-file [str]])
+sintassi: (write-line str-out [str]])
+
+La stringa str e i caratteri di terminazione di riga vengono scritti nel device specificato dal parametro int-file. Quando l'argomento stringa viene omesso, write-line scrive il contenuto dell'ultima operazione read-line sul device individuato da int-file Se viene omesso anche il primo argomento, allora scrive su standard output (STDOUT) o sul dispositivo impostato dalla funzione device.
+
+Nella seconda sintassi le righe vengono aggiunte alla stringa str-out.
+
+write-line restituisce il numero di byte scritti.
+
+(set 'out-file (open "myfile" "write"))
+(write-line out-file "hello there")
+(close out-file)
+
+(set 'myFile (open "init.lsp" "read")
+(while (read-line myFile) (write-line))
+
+(set 'str "")
+(write-line str "hello")
+(write-line str "world")
+
+str  →  "hello\nworld\n"
+
+Il primo esempio apre/crea un file, scrive una riga e chiude il file. Il secondo esempio mostra l'uso di write-line senza argomenti. Il contenuto di init.lsp viene scritto sullo schermo della console.
+
+>>>funzione READ-CHAR
+sintassi: (read-char [int-file])
+
+Legge un byte da un file specificato dall'handle in int-file o dal dispositivo di I/O corrente - ad es. stdin quando non viene specificato alcun handle di file. L'handle del file è ottenuto da una precedente chiamata alla funzione open. Ogni read-char avanza il puntatore del file di un byte. Una volta raggiunta la fine del file, viene restituito nil.
+
+(define (slow-file-copy from-file to-file)
+    (set 'in-file (open from-file "read"))
+    (set 'out-file (open to-file "write"))
+    (while (set 'chr (read-char in-file))
+        (write-char out-file chr))
+    (close in-file)
+    (close out-file)
+    "finished")
+
+Usa read-line e device per leggere un'intera linea alla volta. Notare che newLISP fornisce una funzione predefinita molto veloce per copiare i file (copy-file).
+
+>>>funzione WRITE-CHAR
+sintassi: (write-char int-file int-byte1 [int-byte2 ... ])
+
+Scrive il byte specificato in int-byte nel file specificato dall'handle int-file. L'handle del file è ottenuto da una precedente chiamata alla funzione open. Ogni chiamata write-char fa avanzare il puntatore del file di un byte (8 bit).
+
+write-char restituisce il numero di byte scritti.
+
+(define (slow-file-copy from-file to-file)
+    (set 'in-file (open from-file "read"))
+    (set 'out-file (open to-file "write"))
+    (while (set 'chr (read-char in-file))
+        (write-char out-file chr))
+     (close in-file)
+    (close out-file)
+    "finished")
+
+Utilizzare le funzioni print e device per scrivere grandi porzioni di dati alla volta. Notare che newLISP fornisce già una funzione integrata più veloce chiamata copy-file. Notare che newLISP fornisce una funzione predefinita molto veloce per copiare i file (copy-file).
+
+>>>funzione READ
+sintassi: (read int-file sym-buffer int-size [str-wait])
+
+Legge al massimo int-size byte da un file specificato dall'handle int-file nel buffer sym-buffer. Tutti i dati a cui fa riferimento il simbolo sym-buffer prima della lettura vengono cancellati. L'handle int-file è ottenuto da una precedente istruzione open. Il simbolo sym-buffer contiene dati di tipo stringa dopo l'operazione di lettura. sym-buffer può anche essere un funtore predefinito specificato da un simbolo di contesto per il passaggio per riferimento di funzioni definite dall'utente.
+
+read è un modo più breve di usare read-buffer. La forma più lunga funziona ancora, ma è deprecata e dovrebbe essere evitata nei nuovi programmia.
+
+Opzionalmente, una stringa da attendere può essere specificata in str-wait. read leggerà una quantità massima di byte specificata in int-size o uscirà preventivamente se str-wait è stato trovato nei dati. La stringa di attesa è parte dei dati restituiti e non deve contenere caratteri binari 0 (zero).
+
+Restituisce il numero di byte letti o nil quando non è stata trovata la stringa di attesa. In ogni caso, i byte letti vengono inseriti nel buffer puntato da sym-buffer e il puntatore del file del file in lettura viene spostato in avanti. Se non sono stati letti nuovi byte, sym-buffer conterrà nil.
+
+(set 'handle (open "aFile.ext" "read"))
+(read handle buff 200)
+Legge 200 byte nel buff symbol dal file aFile.ext.
+
+(leggi handle buff 1000 "password:")
+Legge 1000 byte o fino a quando si incontra la stringa "password:". La stringa "password:" sarà parte dei dati restituiti.
+
+>>>funzione WRITE
+sintassi: (write)
+sintassi: (write int-file str-buffer [int-size])
+sintassi: (write str str-buffer [int-size])
+
+Nella seconda sintassi write scrive int-size byte da un buffer in str-buffer in un file specificato da int-file, che è stato precedentemente ottenuto da un'operazione di apertura file (open). Se int-size non viene specificato, allora vengono scritti tutti i dati in sym-buffer o str-buffer. write restituisce il numero di byte scritti o nil in caso di errore.
+
+Se tutti i parametri sono omessi, write scrive il contenuto ottenuto dall'ultima chiamata read-line sullo standard output (stdout).
+
+write è una modo più breve di write-buffer. La forma più lunga funziona ancora, ma è deprecata e dovrebbe essere evitata nel nuovo codice.
+
+(set 'handle (open "myfile.ext" "write"))
+(write handle data 100)
+(write handle "a quick message\n")
+
+Il codice dell'esempio scrive 100 byte nel file myfile.ext presi dal contenuto di della variabile data.
+
+Nella terza sintassi, la scrittura può essere utilizzata per unire stringhe in modo distruttivo:
+
+(set 'str "")
+(write str "hello world")
+
+str   → "hello world"
+
+>>>funzione READ-FILE
+syntax: (read-file str-file-name)
+
+Reads a file in str-file-name in one swoop and returns a string buffer containing the data.
+
+On failure the function returns nil. For error information, use sys-error when used on files. When used on URLs net-error gives more error information.
+
+(write-file "myfile.enc" 
+    (encrypt (read-file "/home/lisp/myFile") "secret"))
+The file myfile is read, then encrypted using the password "secret" before being written back into a new file titled "myfile.enc" in the current directory.
+
+read-file can take an http:// or file:// URL in str-file-name. When the prefix is http://, read-file works exactly like get-url and can take the same additional parameters.
+
+(read-file "http://asite.com/somefile.tgz" 10000)
+The file somefile.tgz is retrieved from the remote location http://asite.com. The file transfer will time out after 10 seconds if it is not finished. In this mode, read-file can also be used to transfer files from remote newLISP server nodes.
+
+>>>funzione WRITE-FILE
+syntax: (write-file str-file-name str-buffer)
+
+Writes a file in str-file-name with contents in str-buffer in one swoop and returns the number of bytes written.
+
+On failure the function returns nil. For error information, use sys-error when used on files. When used on URLs net-error gives more error information.
+
+(write-file "myfile.enc"
+    (encrypt (read-file "/home/lisp/myFile") "secret"))
+The file myfile is read, encrypted using the password secret, and written back into the new file myfile.enc in the current directory.
+
+write-file can take an http:// or file:// URL in str-file-name. When the prefix http:// is used, write-file works exactly like put-url and can take the same additional parameters:
+
+(write-file "http://asite.com/message.txt" "This is a message" )
+The file message.txt is created and written at a remote location, http://asite.com, with the contents of str-buffer. In this mode, write-file can also be used to transfer files to remote newLISP server nodes.
+
+>>>funzione append-file
+syntax: (append-file str-filename str-buffer)
+
+Works similarly to write-file, but the content in str-buffer is appended if the file in str-filename exists. If the file does not exist, it is created (in this case, append-file works identically to write-file). This function returns the number of bytes written.
+
+On failure the function returns nil. For error information, use sys-error when used on files. When used on URLs net-error gives more error information.
+
+(write-file "myfile.txt" "ABC") 
+(append-file "myfile.txt" "DEF")
+
+(read-file "myfile.txt")  → "ABCDEF"
+append-file can take a http:// or file:// URL in str-file-name. In case of the http:// prefix , append-file works exactly like put-url with "Pragma: append\r\n" in the header option and can take the same additional parameters. The "Pragma: append\r\n" option is supplied automatically.
+
+(append-file "http://asite.com/message.txt" "More message text.")
+The file message.txt is appended at a remote location http://asite.com with the contents of str-buffer. If the file does not yet exist, it will be created. In this mode, append-file can also be used to transfer files to remote newLISP server nodes.
 
 
 =====================================
@@ -4049,11 +4328,25 @@ Terzo metodo (bitwise not "~") (valido solo per numeri interi)
 (setq n (add (~ n) 1))
 ;-> -10
 
-Test secondo metodo:
+Test terzo metodo:
 (time (map (lambda (x) (add (~ n) 1)) (sequence 1 1000000)) 10)
 ;-> 1207.781
 
 Questo metodo è più lento.
+
+Quarto metodo (segno meno "-")
+(setq n -10)
+;-> 10
+(setq n (- n))
+;-> 10
+(setq n (- n))
+;-> -10
+
+Test quarto metodo:
+(time (map (lambda (x) (- n)) (sequence 1 1000000)) 10)
+;-> 914.067
+
+Stessa velocità dei primi due metodi, ma quest'ultimo è più leggibile.
 
 
 Moltiplicazione solo con addizioni
@@ -4265,6 +4558,8 @@ Questa funzione converte una stringa esadecimale in un numero intero positivo:
       ; Ponendo val prima del numero 16 forza newlisp a considerare big integer
       ; il risultato dell'operazione di moltiplicazione.
       ;(setq val (+ (* 16 val) (find (char c) digit)))
+      ; Comunque usando 16L al posto di 16 tutto funziona:
+      ;(setq val (+ (* 16L val) (find (char c) digit)))
     )
   )
 )
@@ -4843,6 +5138,43 @@ Calcolo della media di n numeri
 ;-> 5000
 
 
+Retta passante per due punti
+----------------------------
+
+(define (retta2p x1 y1 x2 y2)
+  (local (m q)
+    (cond ((zero? (sub x1 x2))
+              (setq m (div 1 0))
+              (setq q 0)
+          )
+          ((zero? (sub y1 y2))
+              (setq m 0)
+              (setq q y1)
+          )
+          (true
+              (setq m (div (sub y1 y2) (sub x1 x2)))
+              (setq q (sub y1 (mul m x1)))
+          )
+    )
+    (list m q)
+  )
+)
+
+(retta2p 2 -3 3 -1)
+;-> (2 -7)
+
+(retta2p 2 2 3 3)
+;-> (1 0)
+
+;retta verticale
+(retta2p 2 4 2 3)
+;-> (1.#INF 0) 
+
+;retta orizzontale
+(retta2p 1 4 2 4)
+;-> (0 4)
+
+
 Leggere e stampare un file di testo
 -----------------------------------
 
@@ -5024,6 +5356,32 @@ Un modo elegante per ritornare al prompt senza intervento dell'utente è il segu
 
 ; Come utilizzare il metodo:
 (silent (myfunction) (print "Fatto") (resume))
+
+
+Simboli creati da una funzione
+------------------------------
+
+Per vedere quali simboli crea la nostra funzione possaimo utilizzare il seguente procedimento:
+1) lanciare una nuova REPL
+2) impostare i simboli attuali su una variabile:
+   (setq prima (symbols))
+3) Lanciare la funzione
+4) impostare i nuovi simboli su una variabile:
+   (setq dopo (symbols))
+5) Effettuare la differenza tra le due variabili:
+   (difference dopo prima)
+
+Esempio:
+1) lancio una nuova REPL
+2) creo una lista con i simboli attuali:
+  (setq prima (symbols))
+3) eseguo la funzione:
+  (define (doppio x) (mul x x))
+4) creo una lista con i nuovi simboli:
+  (setq dopo (symbols))
+5) calcolo la differenza tra le due liste di simboli:
+  (difference dopo prima)
+;-> (dopo doppio x)
 
 
 Il programma è in esecuzione ? (progress display)
@@ -6928,7 +7286,7 @@ NUMERI PRIMORIALI
 I numeri primoriali sono quelli formati moltiplicando i numeri primi successivi.
 La serie di numeri primoriali vale:
 
-   primorial (0) = 1 (per definizione)
+   primoriale (0) = 1 (per definizione)
    primoriale (1) = 2 (2)
    primoriale (2) = 6 (2 * 3)
    primoriale (3) = 30 (2 * 3 * 5)
@@ -7344,9 +7702,12 @@ Precalcoliamo i valori delle potenze:
 ;-> (0 1 4 27 256 3125 46656 823543 16777216 387420489)
 
 Facciamo una prova:
-(setq a (explode (string "3435")))
+(setq a (explode (string 3435)))
+;-> ("3" "4" "3" "5")
 (setq b (map int a))
+;-> (3 4 3 5)
 (apply + (map (lambda (x) (nth x powers)) b))
+;-> 3435
 
 Adesso definiamo la funzione che verifica se un dato numero è di Munchausen:
 
@@ -7380,7 +7741,7 @@ Infine scriviamo la funzione che ricerca i numeri di Munchausen:
 ;-> 1
 ;-> 3435
 ;-> 438579088
-;-> 1814539.27 ; millisecondi (circa 30 minuti]
+;-> 1814539.27 ; millisecondi (circa 30 minuti)
 
 
 SEQUENZA DI COLLATZ
@@ -9370,6 +9731,186 @@ Vediamo alcuni esempi:
 ;-> (0.7263732804864121 0 -0.02985330690987276 1.172949872052025 -0.02985330690987276 -1.172949872052025)
 
 
+Sistemi Lineari (Cramer)
+------------------------
+Proviamo a scrivere un programma che risolve i sistemi lineari.
+Utilizzeremo il metodo di Cramer perchè newLISP mette a disposizione una funzione standard per calcolare il determinante di una matrice.
+
+Esempio 1
+
+  x + 2y + 3z =  1
+-3x - 2y + 3z = -1
+ 4x - 5y + 2z =  1
+
+Soluzione
+ x = detX/det
+ y = detY/det
+ z = detZ/det
+
+ x = 21/58, y = 4/29, z = 7/58
+ x≈0.36207, y≈0.13793, z≈0.12069
+
+Impostiamo i valori della matrice:
+(setq m '((1 2 3) (-3 -2 3) (4 -5 2)))
+m
+;-> ((1 2 3) (-3 -2 3) (4 -5 2))
+Calcoliamo il determinante:
+(setq det-m (det m))
+;-> 116
+Impostiamo il vettore dei termini noti:
+(setq n '(1 -1 1))
+
+Calcoliamo determinante per la variabile x sostituendo prima la colonna 0 della matrice con i valori della colonna dei termini noti:
+(setf (m 0 0) (n 0))
+(setf (m 1 0) (n 1))
+(setf (m 2 0) (n 2))
+m
+;-> ((1 2 3) (-1 -2 3) (1 -5 2))
+Calcoliamo il determinante di x:
+(setq detX (det m))
+Calcoliamo la soluzione per x:
+(setq x (div detX det-m))
+;-> 0.3620689655172414
+
+Impostiamo i valori della matrice:
+(setq m '((1 2 3) (-3 -2 3) (4 -5 2)))
+Calcoliamo determinante per la variabile y sostituendo prima la colonna 1 della matrice con i valori della colonna dei termini noti:
+(setf (m 0 1) (n 0))
+(setf (m 1 1) (n 1))
+(setf (m 2 1) (n 2))
+m
+;-> ((1 1 3) (-3 -1 3) (4 1 2))
+Calcoliamo il determinante di y:
+(setq detY (det m))
+;-> 16
+Calcoliamo la soluzione per y:
+(setq y (div detY det-m))
+;-> 0.1379310344827586
+
+Impostiamo i valori della matrice:
+(setq m '((1 2 3) (-3 -2 3) (4 -5 2)))
+Calcoliamo determinante per la variabile z sostituendo prima la colonna 2 della matrice con i valori della colonna dei termini noti:
+(setf (m 0 2) (n 0))
+(setf (m 1 2) (n 1))
+(setf (m 2 2) (n 2))
+m
+;-> ((1 2 1) (-3 -2 -1) (4 -5 1))
+Calcoliamo il determinante di z:
+(setq detZ (det m))
+;-> 14
+Calcoliamo la soluzione per z:
+(setq z (div detZ det-m))
+;-> 0.1206896551724138
+
+Esempio 2
+
+ 2x + y +  z =  1
+ 4x - y +  z = -5
+ -x + y + 2z =  5
+
+Soluzione
+x = detX/det
+y = detY/det
+z = detZ/det
+
+x = -1, y = 2, z = 1
+
+Impostiamo i valori della matrice:
+(setq m '((2 1 1) (4 -1 1) (-1 1 2)))
+m
+;-> ((2 1 1) (4 -1 1) (-1 1 2))
+Calcoliamo il determinante:
+(setq det-m (det m))
+;-> -12
+(setq n '(1 -5 5))
+
+Calcoliamo determinante per la variabile x sostituendo prima la colonna 0 della matrice con i valori della colonna dei termini noti:
+(setf (m 0 0) (n 0))
+(setf (m 1 0) (n 1))
+(setf (m 2 0) (n 2))
+m
+Calcoliamo il determinante di x:
+(setq detX (det m))
+;-> 12
+Calcoliamo la soluzione per x:
+(setq x (/ detX det-m))
+;-> -1
+
+Impostiamo i valori della matrice:
+(setq m '((2 1 1) (4 -1 1) (-1 1 2)))
+Calcoliamo determinante per la variabile y sostituendo prima la colonna 1 della matrice con i valori della colonna dei termini noti:
+(setf (m 0 1) (n 0))
+(setf (m 1 1) (n 1))
+(setf (m 2 1) (n 2))
+m
+Calcoliamo il determinante di y:
+(setq detY (det m))
+;-> 24
+Calcoliamo la soluzione per y:
+(setq y (/ detY det-m))
+;-> 2
+
+Impostiamo i valori della matrice:
+(setq m '((2 1 1) (4 -1 1) (-1 1 2)))
+Calcoliamo determinante per la variabile z sostituendo prima la colonna 2 della matrice con i valori della colonna dei termini noti:
+(setf (m 0 2) (n 0))
+(setf (m 1 2) (n 1))
+(setf (m 2 2) (n 2))
+m
+Calcoliamo il determinante di z:
+(setq detZ (det m))
+;-> -12
+Calcoliamo la soluzione per z:
+(setq z (/ detZ det-m))
+;-> 1
+
+Scriviamo la funzione:
+
+(define (solve-linsys matrice noti)
+  (local (dim detm det-i sol copia)
+    (setq dim (length matrice))
+    (setq sol '())
+    (setq copia matrice)
+    (setq detm (det copia))
+    ; la soluzione è indeterminata se il determinante vale zero.
+    (if (= detm 0) (setq sol nil)
+    ;(println detm)
+      (for (i 0 (sub dim 1))
+        (for (j 0 (sub dim 1))
+          (setf (copia j i) (noti j))
+        )
+        (setq det-i (det copia))
+        ;(println det-i)
+        (push (div det-i detm) sol -1)
+        (setq copia matrice)
+      );endfor
+    );endif
+    sol
+  );local
+)
+
+(solve-linsys '((2 1 1) (4 -1 1) (-1 1 2)) '(1 -5 5))
+;-> (-1 2 1)
+
+(solve-linsys '((1 2 3) (-3 -2 3) (4 -5 2)) '(1 -1 1))
+;-> (0.3620689655172414 0.1379310344827586 0.1206896551724138)
+
+Proviamo con un sistema 8x8:
+
+(solve-linsys
+'((2 3 3 -4 -5 3 -2 3)
+  (-3 3 -1 2 3 5 -2 3)
+  (4 2 4 -4 -2 3 -1 -5)
+  (-3 2 2 -4 -1 4 -1 -5)
+  (2 6 -3 -4 -4 3 -2 -3)
+  (2 -6 -1 3 -3 4 -1 -1)
+  (3 -1 -2 -3 -1 3 1 1)
+  (1 -2 -3 4 -1 -3 2 3))
+'(1 -1 1 2 3 2 -2 2))
+;-> (-0.2907517086232766 0.4541737926192612 0.1222139219887456 0.7272295937332997
+;->  -0.9577686974650513 0.1669345810796059 0.682061578219236 -0.3880884752566235)
+
+
 Numeri Brutti
 -------------
 
@@ -9629,7 +10170,7 @@ Il problema del compleanno
 --------------------------
 
 Considerando n persone, quanto vale la probabilità che due persone compiano gli anni nello stesso giorno?
-Il problema del compleanno è stato concepito nel 1939 da Richard von Mises.
+Il problema del compleanno è stato formulato nel 1939 da Richard von Mises.
 
 Per effettuare il calcolo, si ricorre alla formula per la probabilità condizionata con le seguenti ipotesi:
 - gli anni sono tutti di 365 giorni
@@ -10166,6 +10707,7 @@ Con la versione iterativa il calcolo è immediato.
 
 Il gioco dei salti
 ------------------
+
 Dato una lista di numeri interi non negativi, si è inizialmente posizionati nel primo indice della lista. Ogni elemento della lista rappresenta la massima lunghezza di salto in avanti da quella posizione. La funzione deve restituire il numero minimo di passi per raggiungere la fine della lista oppure "nil" se non è possibile raggiungere la fine della lista (cioè l'ultimo indice).
 Ad esempio:
 A = (2 3 1 1 4) restituisce 2.
@@ -10230,13 +10772,485 @@ oppure
 ;-> 3
 
 
+Ricerca stringa in un testo (algoritmo base)
+--------------------------------------------
+
+Dato un testo e una stringa (pattern), scrivere una funzione che ritorna gli indici di tutte le occorrenze della stringa contenute nel testo.
+Si può presumere che il testo sia più lungo della stringa.
+Esempi:
+Input:  txt [] = "TESTO DI PROVA"
+        str [] = "TEST"
+Output: (0)
+
+Input: txt [] = "OOHOOXOOWOOHOOHO"
+       str [] = "OOHO"
+Output: (0 9 12)
+
+Questo algoritmo viene chiamato "naive pattern searching":
+Facciamo scorrere la stringa (pattern) sul testo carattere per carattere per verificarne la corrispondenza. Se viene trovata una corrispondenza, scorriamo in avanti di uno per ricercare le occorrenze successive.
+
+(define (trova pattern testo)
+  (local (m n j out)
+    (setq out '())
+    (setq m (length pattern))
+    (setq n (length testo))
+    ; ciclo per far scorrere il pattern carattere per carattere
+    (for (i 0 (sub n m))
+      ; dall'indice corrente i, verifico la corrispondenza del pattern sul testo
+      (setq j 0)
+      (while (and (< j m) (= (testo (add i j)) (pattern j)))
+        (++ j)
+      )
+      ;(if (= j m) (println i))
+      ; se ho trovato una corrispondenza, aggiorno il risultato
+      (if (= j m) (push i out -1))
+    )
+    out
+  );local
+)
+
+(trova "TEST" "TEST: TESTO DI PROVA")
+;-> (0 6)
+
+(trova "OOHO" "OOHOOXOOWOOHOOHO")
+;-> (0 9 12)
+
+(trova "aba" "abababababa")
+;-> (0 2 4 6 8)
+
+Qual è il caso migliore?
+Il caso migliore si verifica quando il primo carattere del pattern non è presente nel testo.
+txt [] = "AABCCAADDEE";
+pat [] = "FAA";
+Il numero di confronti nel migliore dei casi è O(n).
+
+Qual è il caso peggiore?
+Il caso peggiore si verifica nei seguenti scenari.
+1) Quando tutti i caratteri del testo e del pattern sono uguali.
+txt [] = "AAAAAAAAAAAAAAAAAA";
+pat [] = "AAAAA";
+2) Il caso peggiore si verifica anche quando solo l'ultimo carattere è diverso.
+txt [] = "AAAAAAAAAAAAAAAAAB";
+pat [] = "AAAAB";
+Il numero di confronti nel caso peggiore è O(m*(n-m+1)).
+
+Nei testi italiani le lettere ripetute sono improbabili, ma questo potrebbero verificarsi in altri casi (ad esempio nei testi binari).
+
+
+Ricerca stringa in un testo (algoritmo Z)
+-----------------------------------------
+
+Questo algoritmo trova tutte le occorrenze di una stringa (pattern) in un testo in tempo lineare. Sia "n" la lunghezza del testo, sia "m" quella del pattern, quindi il tempo totale impiegato è O(m+n) con complessità dello spazio lineare. La complessità di tempo e spazio è uguale all'algoritmo KMP, ma questo algoritmo è più semplice da capire.
+In questo algoritmo, costruiamo una lista Z.
+Cos'è la lista Z?
+Per una stringa str[0..n-1], la lista Z ha la stessa lunghezza della stringa. Un elemento Z[i] di Z memorizza la lunghezza della sottostringa più lunga che inizia da str[i] che è anche un prefisso di str[0..n-1]. La prima voce dell'array Z non ha significato in quanto la stringa completa è sempre prefisso di se stessa.
+
+Esempio:
+Indice           0   1   2   3   4   5   6   7   8   9  10  11
+Testo            a   a   b   c   a   a   b   x   a   a   a   z
+Z Valori         x   1   0   0   3   1   0   0   2   2   1   0
+
+Altri esempi:
+str = "aaaaaa"
+Z = (x 5 4 3 2 1)
+
+str = "aabaacd"
+Z = (x 1 0 2 1 0 0)
+
+str = "abababab"
+Z = (x 0 6 0 4 0 2 0)
+
+In che modo la lista Z è utile nella ricerca di pattern in tempo lineare?
+L'idea è quella di concatenare pattern e testo e creare una stringa "P$T" dove P è il pattern, $ è un carattere speciale che non deve essere presente nel pattern e nel testo, e T è il testo. Costruire la lista Z per la stringa concatenata. Nella lista Z, se il valore Z in qualsiasi punto è uguale alla lunghezza del pattern, allora il pattern è presente in quel punto.
+
+Esempio:
+Pattern P = "aab",  Testo T = "baabaa"
+
+La stringa concatenata vale = "aab~baabaa"
+
+La lista Z per la stringa concatenata vale (x 1 0 0 0 3 1 0 2 1).
+Poichè la lunghezza del pattern vale 3, il valore 3 presente nella lista Z indica che il pattern si trova nel testo.
+
+Come costruire la lista Z?
+Una soluzione semplice è costituita da due cicli annidati, il ciclo esterno percorre ogni indice e il ciclo interno trova la lunghezza del prefisso più lungo che corrisponde (match) alla sottostringa che inizia con l'indice corrente. La complessità temporale di questa soluzione è O(n^2).
+Possiamo costruire la lista Z in tempo lineare.
+L'idea è di mantenere un intervallo [L, R] che è l'intervallo con Rmax tale che [L, R] è una sottostringa di prefisso (sottostringa che è anche prefisso).
+
+I passaggi per mantenere questo intervallo sono i seguenti:
+
+1) Se i > R allora non esiste una sottostringa di prefisso che inizi prima di e termina dopo i, quindi ripristiniamo L e R e calcoliamo nuovo [L, R] confrontando str [0 ..] in str [i ..] e ottenendo Z [i] (= R-L + 1).
+
+2) Se i <= R allora lascia K = i-L, ora Z[i] >= min(Z[K], R-i+1) perché str[i ..] corrisponde a str[K ..] per almeno R-i+1 caratteri (essi si trovano nell'intervallo [L, R] che sappiamo essere una sottostringa di prefisso).
+Ora bisogna trattare due sottocasi:
+a) Se Z[K] < R-i+1 allora non esiste una sottostringa di prefisso a partire da str[i] (altrimenti Z[K] sarebbe più grande) quindi Z[i] = Z[K] e l'intervallo [L, R] rimane lo stesso.
+b) Se Z[K] >= R-i+1, allora è possibile estendere l'intervallo [L, R], quindi imposteremo L come i e inizieremo il controllo della corrispondenza da str[R] in poi per calcolare una nuova R con cui aggiorneremo l'intervallo [L, R] e calcoleremo Z [i] (= R - L + 1).
+
+Per una migliore comprensione della procedura, vedere la seguente animazione:
+http://www.utdallas.edu/~besp/demo/John2010/z-algorithm.htm
+
+L'algoritmo viene eseguito in tempo lineare perché non confrontiamo mai un carattere minore di R e con la corrispondenza aumentiamo R di uno, quindi ci sono al massimo T confronti. Nel caso di mancata corrispondenza, questa avviene solo una volta per ogni i (a causa della quale R si arresta), questo comporta al massimo T confronti, quindi la complessità totale rimane lineare.
+
+La seguente funzione restituisce una lista di indici se il "pattern" (stringa) viene trovato nel "testo", altrimenti restituisce la lista vuota:
+
+(define (trovaZ pattern testo)
+  (local (concat ll Z out)
+    (setq out '())
+    ; Crea stringa concatenata "P~T"
+    (setq concat (append pattern "~" testo))
+    (setq ll (length concat))
+    (setq Z (dup  0 ll))
+    ; Costruisce la lista array
+    (setq Z (creaZlista concat Z))
+    ; Loop sulla lista Z per cercare i match
+    (for (i 0 (sub ll 1))
+      (if (= (Z i) (length pattern))
+        ; aggiunge l'indice trovato al risultato
+        (push (add i (- (length pattern)) (- 1)) out -1)
+      )
+    )
+    out
+  );local
+)
+
+; Crea la lista Z per la stringa str
+(define (creaZlista str Z)
+  (local (n L R k)
+    (setq n (length str))
+    ; [L,R] crea un a finestra che corrisponde con il prefisso di str
+    (setq L 0 R 0)
+    (for (i 0 (sub n 1))
+      ; se i>R allora niente corrisponde,
+      ; quindi calcoliamo Z[i] usando il metodo base.
+      (if (> i R)
+        (begin
+          (setq L i R i)
+          ; R-L = 0 all'inizio, per iniziare il controllo dall'indice 0.
+          ; Per esempio, per "ababab" e i = 1,
+          ; il valore di R rimane 0 e Z[i] diventa 0.
+          ; Per la stringa "aaaaaa" e i = 1,
+          ; Z[i] e R diventano 5
+          (while (and (< R n) (= (str (sub R L)) (str R)))
+            (++ R)
+          )
+          (setq (Z i) (sub R L))
+          (-- R)
+        )
+        ;else
+        ; k = i-L, in questo modo k è relativo al numero
+        ; che corrisponde all'intervallo [L,R].
+        (begin
+          (setq k (sub i L))
+          ; se Z [k] è inferiore all'intervallo rimanente
+          ; allora Z [i] sarà uguale a Z [k].
+          ; Ad esempio, str = "ababab", i = 3, R = 5 e L = 2
+          (if (< (Z k) (add R (- i) 1))
+              (setq (Z i) (Z k))
+              ; Per esempio str = "aaaaaa" e i = 2, R vale 5,
+              ; L vale 0
+              ;else
+              (begin
+                (setq L i)
+                (while (and (< R n) (= (str (sub R L)) (str R)))
+                  (++ R)
+                )
+                (setq (Z i) (sub R L))
+                (-- R)
+              )
+          )
+        )
+      );if
+    );for
+    Z
+  );local
+)
+
+(trovaZ "max" "max is the maximum")
+;-> (0 11)
+
+(trovaZ "maxx" "max is the maximum")
+;-> ()
+
+(trovaZ "aba" "abababababa")
+;-> (0 2 4 6 8)
+
+
+Distanza di Levenshtein
+-----------------------
+
+La distanza di Levenshtein (LD) è una misura della somiglianza tra due stringhe A e B. La distanza è il numero di cancellazioni, inserimenti o sostituzioni richieste per trasformare A in B. Per esempio:
+- se A è "pippo" e B è "pippo", le stringhe sono identiche e non sono necessarie trasformazioni, quindi LD (A, B) = 0
+- se A è "pippo" e B è "pluto", allora LD (A, B) = 3, perché tre sostituzioni (modifica "i" in "l", "p" in "u" e "p" in "l" ) sono sufficienti per trasformare A in B.
+Maggiore è la distanza di Levenshtein, minore è la somiglianza tra le stringhe.
+L'algoritmo per il calcolo dell distanza di Levenshtein è stato inventato dal russo Vladimir Levenshtein nel 1965.
+Questo algoritmo viene utilizzato per:
+- Controllo ortografico
+- Riconoscimento vocale
+- Analisi del DNA
+- Rilevamento di plagio
+
+Algoritmo:
+Passo | Descrizione
+------|------------
+   1  | Impostare n = lunghezza di A
+      | Impostare m = lunghezza di B.
+      | Se n = 0 e m = 0, restituire nil e uscire.
+      | Se n = 0, restituire m e uscire.
+      | Se m = 0, restituire n e uscire.
+      | Costruire una matrice contenente 0..m righe e 0..n colonne (m + 1) x (n + 1).
+
+   2  | Inizializzare la prima riga con l'intervallo dei valori 0..n.
+      | Inizializzare la prima colonna con l'intervallo dei valori 0..m.
+
+   3  | Esaminare ciascun carattere di s (i da 1 a n).
+
+   4  | Esaminare ciascun carattere di t (j da 1 a m).
+
+   5  | Se s [i] è uguale a [j], il costo è 0.
+      | Se s [i] non è uguale a [j], il costo è 1.
+
+   6  | Impostare la cella D[i, j] della matrice uguale al minimo di:
+      | a. La cella immediatamente sopra più 1: D[i-1, j] + 1.
+      | b. La cella immediatamente a sinistra più 1: D[i, j-1] + 1.
+      | c. La cella diagonalmente sopra a sinistra più il costo: D[i-1, j-1] + costo.
+
+   7  | Dopo le iterazioni dei passi (3, 4, 5, 6), la distanza si trova nella cella D[n,m].
+
+
+Passi 1 e 2        Passi 3 -> 6 con i = 1      Passi 3 -> 6 con i = 2
+    D U M B O           D U M B O                   D U M B O
+  0 1 2 3 4 5         0 1 2 3 4 5                 0 1 2 3 4 5
+D 1                D  1 0                      D  1 0 1
+A 2                A  2 1                      A  2 1 1
+M 3                M  3 2                      M  3 2 2
+B 4                B  4 3                      B  4 3 3
+O 5                O  5 4                      O  5 4 4
+L 6                L  6 5                      L  6 5 5
+
+                   Passi 3 -> 6 con i = 3      Passi 3 -> 6 con i = 4
+                        D U M B O                   D U M B O
+                      0 1 2 3 4 5                 0 1 2 3 4 5
+                   D  1 0 1 2                  D  1 0 1 2 3
+                   A  2 1 1 2                  A  2 1 1 2 3
+                   M  3 2 2 1                  M  3 2 2 1 2
+                   B  4 3 3 2                  B  4 3 3 2 1
+                   O  5 4 4 3                  O  5 4 4 3 2
+                   L  6 5 5 4                  L  6 5 5 4 3
+
+                   Passi 3 -> 6 con i = 5     Passo 7  D[m, n] = 2
+                        D U M B O                 D U M B O
+                      0 1 2 3 4 5               0 1 2 3 4 5
+                   D  1 0 1 2 3 4             D 1 0 1 2 3 4
+                   A  2 1 1 2 3 4             A 2 1 1 2 3 4
+                   M  3 2 2 1 2 3             M 3 2 2 1 2 3
+                   B  4 3 3 2 1 2             B 4 3 3 2 1 2
+                   O  5 4 4 3 2 1             O 5 4 4 3 2 1
+                   L  6 5 5 4 3 2             L 6 5 5 4 3>2<
+
+La distanza si trova nell'angolo in basso a destra della matrice, ovvero 2. Infatti "DUMBO" può essere trasformato in "DAMBOL" sostituendo "A" per "U" e aggiungendo "L" (una sostituzione e un inserimento = due modifiche).
+
+Vediamo prima una versione ricorsiva:
+
+(define (ld A B)
+  (define (ld-aux A lstA B lstB)
+    (cond ((zero? lstA) lstB)
+          ((zero? lstB) lstA)
+          (true
+            (min (+ (ld-aux (rest A) (- lstA 1) B lstB) 1)
+                 (+ (ld-aux A lstA (rest B) (- lstB 1)) 1)
+                 (+ (ld-aux (rest A) (- lstA 1) (rest B) (- lstB 1))
+                                 (if (= (first A) (first B)) 0 1))
+            )
+          )
+    )
+  );define
+  (ld-aux (explode A) (length A) (explode B) (length B))
+)
+
+(ld "top" "do")
+;-> 2
+
+(ld "topo" "dopo")
+;-> 1
+
+(ld "mister" "mostro")
+;-> 3
+
+(ld "rosettacode" "raisethysword")
+;-> 8
+
+(time (ld "rosettacode" "raisethysword"))
+;-> 166616.661 ; 167 secondi
+
+Questa versione è molto lenta.
+
+Adesso scriviamo una funzione iterativa:
+
+(define (ld A B)
+  (local (n m D costo)
+    (setq n (length A))
+    (setq m (length B))
+    (setq D (array (add n 1) (add m 1)))
+    (cond ((and (zero? n) (zero? m)) nil)
+          ((zero? n) m)
+          ((zero? m) n)
+          (true
+            (for (i 0 n) (setf (D i 0) i))
+            (for (j 0 m) (setf (D 0 j) j))
+            (for (i 1 n)
+              (for (j 1 m)
+                (if (= (A (sub i 1)) (B (sub j 1)))
+                  (setq costo 0)
+                  (setq costo 1)
+                )
+                (setf (D i j) (min (add (D (sub i 1) j) 1)
+                                   (add (D i (sub j 1)) 1)
+                                   (add (D (sub i 1) (sub j 1)) costo)))
+              )
+            )
+          )
+    );cond
+    (D n m)
+  );local
+)
+
+(ld "topo" "dopi")
+;-> 2
+(ld "top" "lo")
+;-> 2
+(ld "lo" "top")
+;-> 2
+(ld "mister" "mostro")
+;-> 3
+(ld "rosettacode" "raisethysword")
+;-> 8
+(time (ld "rosettacode" "raisethysword"))
+;-> 1.002
+(ld "massimo" "omissam")
+;-> 4
+(ld "massimiliano" (reverse "massimiliano"))
+;-> 8
+(ld "abcdefgh" (reverse "abcdefgh"))
+;-> 8
+
+
 ======================================================================
  DOMANDE PER ASSUNZIONE DI PROGRAMMATORI (coding interview questions)
 ======================================================================
 
-Swap di due variabili (McAfee)
-------------------------------
-Come scambiare il valore di due variabili senza utilizzare una variabile di appoggio?
+Contare i bit di un numero (McAfee)
+-----------------------------------
+Dato un numero intero positivo n, contare il numero di bit che valgono 1 nella sua rappresentazione binaria.
+
+Possiamo trasformare il numero in binario e contare quanti bit hanno valore 1.
+Le funzioni di conversione decimale e binario sono le seguenti:
+
+(define (bin2dec n)
+  (if (zero? n) n
+      (+ (% n 10) (* 2 (bin2dec (/ n 10))))))
+
+(define (dec2bin n)
+   (if (zero? n) n
+       (+ (% n 2) (* 10 (dec2bin(/ n 2))))))
+
+Siccome non dobbiamo ricreare il numero binario, ci limiteremo a contare i bit con valore 1.
+
+Con l'operazione modulo (% n 2), estraiamo il bit più a destra del numero n (il bit meno significativo).
+Esempio: consideriamo il numero 25
+
+(dec2bin 25)
+;-> 11001
+
+Calcoliamo (% 25 2):
+(% 25 2)
+;-> 1
+
+Poi calcoliamo (% 12 2), con 25/2 = 12
+(% 12 2)
+;-> 0
+
+(% 6 2)
+;-> 0
+
+(% 3 2)
+;-> 1
+
+(% 1 2)
+;-> 1
+
+Ed ecco la funzione per contare i bit con valore 1:
+
+(define (bit1 n)
+  (let (conta 0)
+    (while (> n 0)
+       (if (= (% n 2) 1) (++ conta))
+       (setq n (/ n 2))
+    )
+    conta
+  )
+)
+
+(bin2dec 10001011001)
+;-> 1113
+(bit1 1133)
+;-> 6
+
+(bin2dec 1110011010001)
+;-> 7377
+(bit1 7377)
+;-> 7
+
+Per estrarre il bit più a destra di un numero possiamo usare anche le funzioni bitwise:
+Usando l'operatore bitwise AND "&", l'espressione (n & 1) produce un valore che è 1 o 0, a seconda del bit meno significativo di x: se l'ultimo bit è 1 allora il risultato di (x & 1) vale 1, altrimenti vale 0.
+Usando l'operatore SHIFT ">>", l'espressione (n >> 1) sposta (shifta) di un bit verso destra il valore del numero n. In altre parole, divide il numero n per 2.
+La funzione diventa:
+
+(define (nbit1 n)
+  (let (conta 0)
+    (if (< n 0) (setq n (sub 0 n))) ; altrimenti il ciclo non termina
+    (while (> n 0)
+      (if (= (& n 1) 1) (++ conta))
+      (setq n (>> n))
+    )
+    conta
+  )
+)
+
+(bin2dec 10001011001)
+;-> 1113
+(nbit1 1133)
+;-> 6
+
+(bin2dec 1110011010001)
+;-> 7377
+(nbit1 7377)
+;-> 7
+(nbit1 -1133)
+;-> 6
+(int "-10001101101" 0 2)
+;-> -1133
+
+Nota: il valore del bit più significativo dopo lo spostamento è zero per i valori di tipo senza segno (unsigned). Per i valori di tipo con segno (signed), il bit più significativo viene copiato dal bit del segno del valore prima dello spostamento come parte dell'estensione del segno, quindi il ciclo non termina mai se n è di tipo con segno e il valore iniziale è negativo.
+
+Ora vediamo quale metodo è più veloce:
+
+(bit1 123456789)
+;-> 16
+
+(time (bit1 123456789) 100000)
+;-> 527.479
+
+(nbit1 123456789)
+;-> 16
+
+(time (nbit1 123456789) 100000)
+;-> 494.247
+
+La funzione che usa gli operatori bitwise è leggermente più veloce.
+
+
+Scambiare il valore di due variabili (McAfee)
+---------------------------------------------
+Come scambiare il valore di due variabili (swap) senza utilizzare una variabile di appoggio?
 
 Primo metodo (somma/sottrazione):
 
@@ -10346,7 +11360,7 @@ Le seguenti operazioni devono essere svolte:
 1. stringa di input vuota o nulla
 2. spazi vuoti nella stringa di input
 3. segno +/-
-4. calculare il valore della stringa
+4. calcolare il valore della stringa
 5. trattare i valori min & max
 
 (define (atoi s)
@@ -10913,7 +11927,7 @@ Ma se invece vogliamo considerare la soluzione seguente:
 allora dobbiamo scrivere una nuova funzione per calcolare la soluzione.
 
 
-Quantità d'acqua in un bacino (LeetCode)
+Quantità d'acqua in un bacino (Facebook)
 ----------------------------------------
 Dati n interi non negativi che rappresentano una mappa di elevazione in cui la larghezza di ciascuna barra è 1, calcolare la quantità massima di acqua che è in grado di contenere
 
@@ -11826,19 +12840,18 @@ Parità di un numero (McAfee)
 Parità: la parità di un numero si riferisce al numero di bit che valgono 1.
 Il numero ha "parità dispari", se contiene un numero dispari di 1 bit ed è "parità pari" se contiene un numero pari di 1 bit.
 
-Se n non vale zero, allora creiamo un ciclo che, affinchè n non diventa 0, disattiva uno dei bit impostati e inverte la parità.
+Se n non vale zero, allora creiamo un ciclo che, affinchè n non diventa 0, disattiva a destra uno dei bit impostati a 1 e inverte la parità.
 L'algoritmo è il seguente:
 
-1. Inizializza la parità = 0
-2. Loop while n! = 0
-       a. Invertire la parità
-              parità =! parità
-       b. Annullare il bit più a destra del numero
-              n = n & (n-1)
-3. return parità
+A. Inizialmente parità = 0
+B. Ciclo while n! = 0
+       1. Invertire la parità
+          parità = not parità
+       2. Annullare il bit 1 più a destra del numero con l'operatore bitwise AND "&"
+          n = n & (n-1)
+C. Restituire parità (pari o dispari)
 
-(int "101" 0 2)
-;-> 5
+Scriviamo la funzione:
 
 (define (parita n)
   (local (out)
@@ -11847,10 +12860,18 @@ L'algoritmo è il seguente:
       (setq out (not out))
       ; annulla il bit più a destra del numero
       (setq n (& n (- n 1))) ; "&" = operatore bitwise AND
+      (println n)
     )
     (if (= out true) 'dispari 'pari)
   )
 )
+
+Vediamo come funziona (con l'epressione print attivata):
+
+(parita 22) ; 22 -> 10110
+;-> 20      ; 20 -> 10100
+;-> 16      ; 16 -> 10000
+;-> 0       ;  0 -> 0
 
 Per controllare la correttezza utilizziamo le funzioni di conversione tra numero decimale e binario.
 
@@ -11875,6 +12896,226 @@ Per controllare la correttezza utilizziamo le funzioni di conversione tra numero
 
 (parita 1113)
 ;-> dispari
+
+
+Numero potenza di due (Google)
+------------------------------
+Determinare se un numero intero positivo n è una potenza di due.
+
+Primo metodo:
+Il logaritmo in base 2 di un numero che è una potenza di due è un numero intero.
+
+(define (isPower2 n)
+  (if (zero? n) nil
+      (= (log n 2) (int (log n 2)))
+  )
+)
+
+(isPower2 1024)
+;-> true
+
+(isPower2 1000)
+;-> nil
+
+Secondo metodo:
+Un numero potenza di due ha un solo 1 nella sua rappresentazione binaria.
+
+(define (dec2bin n)
+   (if (zero? n) n
+       (+ (% n 2) (* 10 (dec2bin(/ n 2))))))
+
+(dec2bin 256)
+;-> 100000000
+
+(dec2bin 2048)
+;-> 100000000000
+
+Questa funzione conta i bit del numero n che hanno valore 1:
+
+(define (bit1 n)
+  (let (conta 0)
+    (while (> n 0)
+       (if (= (% n 2) 1) (++ conta))
+       (setq n (/ n 2))
+    )
+    conta
+  )
+)
+
+(setq n 1024)
+(& n (sub n 1))
+
+(setq n 1000)
+
+(define (isPower2 n)
+  (if (= (bit1 n) 1) true nil)
+)
+
+(isPower2 1024)
+;-> true
+
+(isPower2 1000)
+;-> nil
+
+Terzo metodo:
+Se sottraiamo il valore 1 ad un numero che è potenza di due, l'unico bit con valore 1 viene posto a 0 e i bit con valore 0 vengono posti a 1:
+
+(dec2bin 1024)
+;-> ;-> 10000000000
+
+(dec2bin (sub 1024 1))
+;-> 1111111111 ; senza lo zero in testa
+
+Quindi applicando l'operatore bitwise AND "&" ai numeri n e (n - 1) otteniamo 0 se e solo se n è una potenza di due: (n & (n -1)) == 0 se e solo se n è una potenza di due.
+Nota: L'espressione n & (n-1) non funziona quando n vale 0.
+
+(define (isPower2 n)
+  (if (zero? n) nil
+      (if (zero? (& n (sub n 1)) true nil))
+  )
+)
+
+(isPower2 1024)
+;-> true
+
+(isPower2 1000)
+;-> nil
+
+
+Stanze e riunioni (Snapchat)
+----------------------------
+Data una serie di intervalli di tempo (inizio, fine) per delle riunioni (con tempi che si possono sovrapporre), trovare il numero minimo di stanze richieste.
+Ad esempio, la lista ((30 75) (0 50) (60 150)) dovrebbe restituire 2.
+
+Creiamo e ordiniamo due liste "inizio" e "fine", poi le visitiamo in ordine crescente di tempo.
+Se troviamo un inizio aumentiamo il numero di stanze, se invece troviamo una fine, allora diminuiamo il numero di stanze.
+Inoltre dobbiamo tenere conto del numero massimo di stanze raggiunto.
+
+ | inizio | fine |  tipo  | stanze |
+-------------------------------------
+ |    0   |      | inizio |    1   |
+ |   30   |      | inizio |    2   |
+ |        |  50  |  fine  |    1   |
+ |   60   |      | inizio |    2   |
+ |        |  75  |  fine  |    1   |
+ |        | 150  |  fine  |    0   |
+
+(define (min-stanze lst)
+  (local (inizio fine stanze_richieste massimo_stanze i j n)
+    (setq inizio '())
+    (setq fine '())
+    (dolist (el lst)
+      (push (first el) inizio -1)
+      (push (last el) fine -1)
+    )
+    (sort inizio)
+    (sort fine)
+    (setq stanze_richieste 0)
+    (setq massimo_stanze 0)
+    i = j = 0
+    (setq i 0 j 0)
+    (setq n (length lst))
+    (while (and (< i n) (< j n))
+      (if (< (inizio i) (fine j))
+        (begin
+          (++ stanze_richieste)
+          (setq massimo_stanze (max stanze_richieste massimo_stanze))
+          (++ i))
+        (begin
+          (-- stanze_richieste)
+          (++ j))
+      )
+    )
+    massimo_stanze
+  );local
+)
+
+(min-stanze '((20 30) (0 20) (30 40)))
+;-> 1
+
+(min-stanze '((30 75) (0 50) (60 150)))
+;-> 2
+
+(min-stanze '((90 91) (94 120) (95 112) (110 113) (150 190) (180 200)))
+;-> 3
+
+
+Bilanciamento parentesi (Facebook)
+----------------------------------
+Data una stringa contenente parentesi tonde, quadre e graffe (aperte e chiuse), restituire
+se le parentesi sono bilanciate (ben formate) e rispettano l'ordine ("{}" > "[]" > "()").
+Ad esempio, data la stringa "[()] [] {()}", si dovrebbe restituire true.
+Data la stringa "([]) [] ({})", si dovrebbe restituire false (le graffe non ossono stare dentro le tonde).
+Data la stringa "([)]" o "((()", si dovrebbe restituire false.
+
+Usiamo un contatore per ogni tipo di parentesi e verifichiamo la logica corretta durante la scansione della stringa.
+
+La seguente funzione controlla la correttezza delle parentesi:
+
+(define (par s op)
+  (local (out p1o p2o p3o ch)
+    (setq out true)
+    (dostring (c s (= out nil))
+      (setq ch (char c))
+      (cond ((= ch "(")
+              (++ p1o)
+            )
+            ((= ch "[")
+              ; esiste una par "(" non chiusa
+              (if (> p1o 0)
+                  (setq out nil)
+                  (++ p2o)
+              )
+            )
+            ((= ch "{")
+              ; esiste una par "(" o "[" non chiusa
+              (if (or (> p1o 0) (> p2o 0))
+                  (setq out nil)
+                  (++ p3o)
+              )
+            )
+            ((= ch ")")
+              ; nessuna par "(" da chiudere
+              (if (= p1o 0)
+                  (setq out nil)
+                  (-- p1o)
+              )
+            )
+            ((= ch "]")
+              ; esiste una par ")" da chiudere OR
+              ; nessuna par "[" da chiudere
+              (if (or (> p1o 0) (= p2o 0))
+                  (setq out nil)
+                  (-- p2o)
+              )
+            )
+            ((= ch "}")
+              ; esiste una par ")" da chiudere OR
+              ; esiste una par "]" da chiudere OR
+              ; nessuna par "{" da chiudere
+              (if (or (> p1o 0) (> p2o 0) (= p3o 0))
+                  (setq out nil)
+                  (-- p3o)
+              )
+            )
+      );cond
+    );dostring
+    ; controllo accoppiamento parentesi ed errore
+    (if (and (zero? p1o) (zero? p2o) (zero? p3o) (= out true))
+      true
+      nil
+    )
+  );local
+)
+
+(par "{ { ( [ [ ( ) ] ] ) } }")
+;-> true
+(par "{ { ( [ [ ( ( ) ] ] ) } }")
+;-> nil
+(par "{ { [ [ [ ( ) ] ] ] } }")
+;-> true
+(par "{ { [ [ } } [ ( ) ] ] ]")
+;-> nil
 
 
 ================================
@@ -13639,7 +14880,7 @@ Quindi set, setq e define associano il simbolo se viene trovato nella tabella de
 
 Funzioni
 --------
-L’uente può definire nuove funzioni (come discusso in precedenza). La seguente funzione f restituisce la somma dei suoi due argomenti:
+L’utente può definire nuove funzioni (come discusso in precedenza). La seguente funzione f restituisce la somma dei suoi due argomenti:
 
  (define (f x y) (+ x y))
 
@@ -16445,37 +17686,37 @@ The first two functions pushResultStack and popResultStack push or pop a LISP ob
 
 The two resultStack management functions described are called by newLISP's evaluateExpression function: ³
 
-function evaluateExpression(expr)
-    {
-    resultStackIndexSave = resultStackIndex
-
-    if typeOf(expr) is BOOLEAN or NUMBER or STRING
-    return(expr)
-
-    if typeOf(expr) is SYMBOL
-        return(symbolContents(expr))
-
-    if typeOf(expr) is QUOTE
-        return(quoteContents(expr))
-
-    if typeOf(expr) is LIST
-        {
-        func = evaluateExpression(firstOf(expr))
-        args = rest(expr)
-        if typeOf(func) is BUILTIN_FUNCTION
-                result = evaluateFunc(func, args)
-        else if typeOf(func) = LAMBDA_FUNCTION
-                result = evaluateLambda(func, args)
-        }
-    }
-
-    while (resultStackIndex > resultStackIndexSave)
-        deleteList(popResultStack())
-
-    pushResultStack(result)
-
-    return(result)
-    }
+;; function evaluateExpression(expr)
+;;     {
+;;     resultStackIndexSave = resultStackIndex
+;;
+;;     if typeOf(expr) is BOOLEAN or NUMBER or STRING
+;;     return(expr)
+;;
+;;     if typeOf(expr) is SYMBOL
+;;         return(symbolContents(expr))
+;;
+;;     if typeOf(expr) is QUOTE
+;;         return(quoteContents(expr))
+;;
+;;     if typeOf(expr) is LIST
+;;         {
+;;         func = evaluateExpression(firstOf(expr))
+;;         args = rest(expr)
+;;         if typeOf(func) is BUILTIN_FUNCTION
+;;                 result = evaluateFunc(func, args)
+;;         else if typeOf(func) = LAMBDA_FUNCTION
+;;                 result = evaluateLambda(func, args)
+;;         }
+;;     }
+;;
+;;     while (resultStackIndex > resultStackIndexSave)
+;;         deleteList(popResultStack())
+;;
+;;     pushResultStack(result)
+;;
+;;     return(result)
+;;     }
 
 The function evaluateExpression introduces the two variables resultStackIndexSave and resultStackIndex and a few other functions:
 
