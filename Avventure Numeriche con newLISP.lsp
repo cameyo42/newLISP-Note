@@ -71,7 +71,8 @@ FUNZIONI VARIE
   Conversione gradi decimali <--> gradi sessagesimali
   Conversione RGB <--> HSV
   Calcolo della media di n numeri
-  Retta passante per due punti  
+  Istogramma
+  Retta passante per due punti
   Leggere e stampare un file di testo
   Criptazione e decriptazione di un file
   Funzioni per input utente
@@ -80,6 +81,7 @@ FUNZIONI VARIE
   Simboli creati da una funzione
   Il programma è in esecuzione ? (progress display)
   Ispezionare una cella newLISP
+  Informazioni sul sistema (sys-info)
 
 newLISP 99 PROBLEMI (28)
   N-99-01 Estrarre l'ultimo elemento di una lista
@@ -143,6 +145,7 @@ PROJECT EULERO
   Problema 21
 
 PROBLEMI VARI
+  Lancio di dadi
   Algoritmo babilonese sqrt(x)
   Ricerca binaria (Binary search)
   Frazione generatrice
@@ -161,10 +164,13 @@ PROBLEMI VARI
   Moltiplicazione del contadino russo
   Distanza di Manhattan
   Modello di crescita di una popolazione di conigli
+  The Game of Pig
   Il gioco dei salti
   Ricerca stringa in un testo (algoritmo base)
   Ricerca stringa in un testo (algoritmo Z)
-
+  Distanza di Levenshtein
+  Social Network
+  Skyline
 
 DOMANDE PER ASSUNZIONE DI PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Contare i bit di un numero (McAfee)
@@ -4019,7 +4025,7 @@ Reads a file in str-file-name in one swoop and returns a string buffer containin
 
 On failure the function returns nil. For error information, use sys-error when used on files. When used on URLs net-error gives more error information.
 
-(write-file "myfile.enc" 
+(write-file "myfile.enc"
     (encrypt (read-file "/home/lisp/myFile") "secret"))
 The file myfile is read, then encrypted using the password "secret" before being written back into a new file titled "myfile.enc" in the current directory.
 
@@ -4051,7 +4057,7 @@ Works similarly to write-file, but the content in str-buffer is appended if the 
 
 On failure the function returns nil. For error information, use sys-error when used on files. When used on URLs net-error gives more error information.
 
-(write-file "myfile.txt" "ABC") 
+(write-file "myfile.txt" "ABC")
 (append-file "myfile.txt" "DEF")
 
 (read-file "myfile.txt")  → "ABCDEF"
@@ -5138,6 +5144,88 @@ Calcolo della media di n numeri
 ;-> 5000
 
 
+Istogramma
+----------
+
+Data una lista disegnare l'istogramma dei valori. 
+Deve essere possibile passare un parametro che indica che la lista passata non è una lista di frequenze, ma una lista di valori: in tal taso occorre calcolare la lista delle frequenze prima di disegnare l'istogramma.
+
+Le seguenti espressioni creano una lista di valori con 1000 elementi ("res"):
+
+(setq res '())
+(for (i 0 999)
+  (push (rand 11) res -1)
+)
+(length res)
+
+Le seguenti espressioni creano la lista delle frquenzze della lista "res":
+
+(setq f (array 11 '(0)))
+(dolist (el res)
+  (println el)
+  (++ (f (- el 1)))
+)
+
+f
+;-> (80 98 86 83 86 99 90 106 80 84 108)
+
+La seguente funzione disegna l'istogramma, se il parametro "calc" vale true, allora calcola la lista delle frequenze dalla lista passata:
+
+(define (istogramma lst hmax (calc nil))
+  (local (linee hm scala f-lst)
+    (if calc 
+      ;calcolo la lista delle frequenze partendo da lst
+      (begin
+        ;trovo quanti numeri diversi ci sono nella lista
+        (setq unici (length (unique lst)))
+        ;creo la lista delle frequenze
+        (setq f-lst (array unici '(0)))
+        ; calcolo dei valori delle frequenze
+        (dolist (el lst)
+          (++ (f-lst (- el 1)))
+        )
+      )
+      ;else
+      ;lst è la lista delle frequenze
+      (begin (setq f-lst lst))
+    )
+    (setq hm (apply max f-lst))
+    (setq scala (div hm hmax))
+    (setq linee (map (fn (x) (round (div x scala))) f-lst))
+    (dolist (el linee)
+      ;(println (format "%3d %s %0.2f" (add $idx 1) (dup "*" el) (f-lst $idx)))
+      (println (format "%3d %s %4d" $idx (dup "*" el) (f-lst $idx)))
+    )
+  );local
+)
+
+(istogramma f 20)
+;->   0 ***************   80
+;->   1 ******************   98
+;->   2 ****************   86
+;->   3 ***************   83
+;->   4 ****************   86
+;->   5 ******************   99
+;->   6 *****************   90
+;->   7 ********************  106
+;->   8 ***************   80
+;->   9 ****************   84
+;->  10 ********************  108
+
+(istogramma res 20 true)
+;->   0 ***************   80
+;->   1 ******************   98
+;->   2 ****************   86
+;->   3 ***************   83
+;->   4 ****************   86
+;->   5 ******************   99
+;->   6 *****************   90
+;->   7 ********************  106
+;->   8 ***************   80
+;->   9 ****************   84
+;->  10 ********************  108
+
+
 Retta passante per due punti
 ----------------------------
 
@@ -5168,7 +5256,7 @@ Retta passante per due punti
 
 ;retta verticale
 (retta2p 2 4 2 3)
-;-> (1.#INF 0) 
+;-> (1.#INF 0)
 
 ;retta orizzontale
 (retta2p 1 4 2 4)
@@ -9151,6 +9239,151 @@ la funzione "e021-fast" è tre volte più veloce della funzione "e021".
  PROBLEMI VARI
 ===============
 
+Lancio di dadi
+--------------
+
+Definire una funzione che permetta di ottenere il risultato del lancio di n dadi con m facce.
+Utilizziamo la funzione "rand".
+
+>>>funzione RAND
+sintassi: (rand int-range [int-N])
+
+Valuta l'espressione in int-range e genera un numero casuale compreso tra 0 (zero) e (int-range - 1). Quando viene passato 0 (zero), il generatore casuale interno viene inizializzato utilizzando il valore corrente restituito dalla funzione C time (). Facoltativamente, è possibile specificare un secondo parametro per restituire un elenco di lunghezza int-N di numeri casuali.
+
+(dotimes (x 100) (print (rand 2))) =>
+11100000110100111100111101 ... 10111101011101111101001100001000
+
+(rand 3 100) → (2 0 1 1 2 0 ...)
+
+La prima riga nell'esempio stampa equamente distribuite 0 e 1, mentre la seconda riga produce un elenco di 100 interi con 0, 1 e 2 equamente distribuiti. Utilizzare le funzioni "random" e "normal" per generare numeri casuali in virgola mobile e utilizzare "seed" per variare il seme iniziale per la generazione di numeri casuali.
+
+Per generare il numero prodotto dal lancio di n dadi con m facce, potremmo pensare di generare un numero casuale tra n (quando tutti i dadi valgono 1) e n*m (quando tutti i dadi valgono m).
+
+(define (lancio n m)
+  (add n (rand (sub (add (mul n m) 1) n)))
+)
+
+(lancio 2 6)
+;-> 11
+
+Purtroppo questo ragionamento è sbagliato perchè la nostra funzione considera equiprobabili i numeri tra n e n*m, mentre questo non è vero. Vediamo un esempio con due dadi a sei facce.
+Le probabilità dei numeri non sono identiche, infatti risulta:
+
+ 1: nil (non può mai uscire 1)
+ 2: (1,1) --> (1 caso)
+ 3: (1,2) (2,1) --> (2 casi)
+ 4: (1,3) (3,1) (2,2) --> (3 casi)
+ 5: (1,4) (4,1) (2,3) (3,2) --> (4 casi)
+ 6: (1,5) (5,1) (2,4) (4,2) (3,3) --> (5 casi)
+ 7: (1,6) (5,2) (2,5) (5,2) (3,4) (4,3) --> (6 casi)
+ 8: (2,6) (6,2) (3,5) (5,3) (4,4) --> (5 casi)
+ 9: (3,6) (6,3) (4,5) (5,4) --> (4 casi)
+10: (4,6) (6,4) (5,5) --> (4 casi)
+11: (5,6) (6,5) --> (2 casi)
+12: (6,6) --> (1 caso)
+
+La seguente funzione fornisce il risultato corretto:
+
+(define (lancio-dadi num-dadi num-facce)
+  (+ num-dadi (apply + (rand num-facce num-dadi)))
+)
+
+(lancio-dadi 2 6)
+;-> 9
+
+Per capire meglio la differenza dei risultati tra le due funzioni, creiamo due liste con le frequenze di 10000 valori generati da ognuna delle due funzioni, poi disegniamo un istogramma per ogni lista.
+
+Creiamo la prima lista.
+Generiamo una lista con 10000 lanci:
+
+(setq res1 '())
+(for (i 0 9999)
+  (push (lancio 2 6) res1 -1)
+)
+(length res1)
+
+Creiamo la lista delle frequenze:
+
+(setq f1 (array 13 '(0)))
+(dolist (el res1)
+  (println el)
+  (++ (f1 (- el 1)))
+)
+
+f1
+;-> (0 880 889 913 929 910 914 939 866 902 943 915 0)
+
+Creiamo la seconda lista.
+Generiamo una lista con 10000 lanci:
+
+(setq res2 '())
+(for (i 0 9999)
+  (push (lancio-dadi 2 6) res2 -1)
+)
+(length res2)
+
+Creiamo la lista delle frequenze:
+
+(setq f2 (array 13 '(0)))
+(dolist (el res2)
+  (println el)
+  (++ (f2 (- el 1)))
+)
+
+f2
+;-> (0 288 515 870 1145 1354 1643 1385 1162 803 565 270 0)
+
+Adesso dobbiamo creare una funzione che disegna l'istogramma di una lista. Per i nostri scopi sarà sufficiente la seguente funzione che disegna un istogramma ruotato di 90 gradi utilizzando il carattere "*". Il parametro "hmax" definisce l'altezza massima dell'istogramma.
+
+(define (histo lst hmax)
+  (local (linee hm scala)
+    (setq hm (apply max lst))
+    (setq scala (div hm hmax))
+    (setq linee (map (fn (x) (round (div x scala))) lst))
+    (dolist (el linee)
+      ;(println (format "%3d %s %0.2f" (add $idx 1) (dup "*" el) (lst $idx)))
+      (println (format "%3d %s %4d" (add $idx 1) (dup "*" el) (lst $idx)))
+    )
+  )
+)
+
+Proviamo a disegnare l'istogramma della prima lista:
+
+(histo f1 50)
+;->   1     0
+;->   2 ***********************************************  909
+;->   3 **********************************************  878
+;->   4 **********************************************  892
+;->   5 **********************************************  888
+;->   6 *************************************************  946
+;->   7 *********************************************  870
+;->   8 *************************************************  942
+;->   9 ************************************************  918
+;->  10 **************************************************  962
+;->  11 ************************************************  923
+;->  12 *********************************************  872
+;->  13     0
+
+E poi l'istogramma della seconda lista:
+
+(histo f2 50)
+;->   1     0
+;->   2 ********  251
+;->   3 ****************  525
+;->   4 **************************  852
+;->   5 ********************************** 1142
+;->   6 ***************************************** 1363
+;->   7 ************************************************** 1663
+;->   8 ****************************************** 1403
+;->   9 ********************************** 1133
+;->  10 *************************  846
+;->  11 ****************  541
+;->  12 ********  281
+;->  13     0
+
+La prima lista ha una distribuzione pressochè uniforme.
+La seconda lista ha una distribuzione gaussiana.
+
 
 Algoritmo babilonese sqrt(x)
 ----------------------------
@@ -10705,6 +10938,234 @@ Versione iterativa:
 Con la versione iterativa il calcolo è immediato.
 
 
+The Game of Pig
+---------------
+
+Il gioco è stato inventato da John Scarne nel 1945.
+Ad ogni turno, ogni giocatore lancia ripetutamente un dado finché non viene tirato un 1 o il giocatore decide di "passare":
+Se il giocatore lancia un 1, il punteggio del turno è nullo e passa la mano al prossimo giocatore.
+Se il giocatore lancia un altro numero (2..6), il numero viene aggiunto al punteggio del turno  e il turno del giocatore continua.
+Se un giocatore decide di "passare", il suo punteggio del turno viene aggiunto al suo punteggio totale, e diventa il turno del prossimo giocatore.
+Vince il giocatore che arriva o supera 100 (poichè il turno deve terminare per tutti i giocatori, potrebbero esserci più giocatori che superano 100, allora il vincitore è quello con il punteggio più alto).
+
+Esempio:
+
+Turno |  Player | punteggio Turno | punteggio Totale
+----------------------------------------------------
+1     |  A      | (2-2-3-5) 12    | 12
+1     |  B      | (2-4-5-1)  0    |  0
+2     |  A      | (6-1)      0    | 12
+2     |  B      | (3-4-4)   11    | 11
+3     |  A      | (3-4-2)    9    | 21
+3     |  B      | (3-4)      7    | 18
+4     |  ...    | ...       ...   | ...
+
+Quale strategia massimizza le probabilità di vittoria ?
+
+Quanto vale il valore medio dei punti ottenuti prima che esca un 1 ?
+
+La seguente funzione crea una lista con n elementi del tipo (lanci totale):
+
+(define (mediaVal n)
+  (local (freq tot val lanci continua)
+    (setq freq '())
+    (for (i 0 n)
+      (setq continua true)
+      (setq tot 0)
+      (setq val 0)
+      (setq lanci 0)
+      (while continua
+        (setq val (add (rand 6) 1))
+        (++ lanci)
+        (if (= val 1)
+          (begin
+            (setq continua nil)
+            (push (list lanci tot) freq -1)
+          )
+          (setq tot (add tot val))
+        )
+      )
+    )
+    freq
+  )
+)
+
+(mediaVal 10)
+;-> ((2 6) (7 25) (3 8) (3 9) (6 18) (4 15) (5 17) (2 6) (12 40) (2 5) (8 32))
+
+Creiamo una lista con 100000 elementi:
+
+(silent (setq f (mediaVal 100000)))
+
+Analizziamo il risultato:
+Numero totale di lanci:
+(apply add (map first f))
+;-> 600613 ;numero totale di lanci
+Numero medio di lanci:
+(div (apply add (map first f)) (length f))
+;-> 6.006 ;numero medio di lanci
+Punteggio totale:
+(apply add (map last f))
+;-> 2003171 ;punteggio totale
+Punteggio medio per ogni turno:
+(div (apply add (map last f)) (length f))
+;-> 20.03 ;punteggio medio per ogni turno
+
+Adesso scriviamo un programma che simula "The game of Pig":
+
+(define (pigs n maxvalA maxlanciA maxvalB maxlanciB)
+  (local (res vittA vittB)
+    (setq vittA 0 vittB 0)
+    (for (i 0 n)
+      (setq res (game maxvalA maxlanciA maxvalB maxlanciB))
+      (if (= res "A")
+        (++ vittA)
+        (++ vittB)
+      )
+    )
+    (list vittA vittB)
+  )
+)
+
+Vediamo la funzione che simula una partita tra due giocatori A e B. Con i parametri possiamo stabilire per ogni giocatore:
+1) il numero massimo di lanci per ogni giocata (maxlanci)
+2) il valore massimo per ogni giocata (maxval)
+In questo modo possiamo variare la strategia dei giocatori per definire quale sia la migliore.
+
+(define (game maxvalA maxlanciA maxvalB maxlanciB)
+  (local (totA totB parA parB valA valB playgame continua)
+    (setq totA 0 totB 0)
+    ; "playgame" controlla il termine di una partita
+    (setq playgame true)
+    ; "playgame" diventa nil quando uno dei due giocatori ha superato i 100 punti
+    (while playgame
+      ; player A
+      (setq parA 0)
+      (setq lanciA 0)
+      ; "continua" controlla se la giocata del giocatore è terminata
+      ; "continua" diventa nil se:
+      ; esce un 1 OR
+      ; il giocatore ha raggiunto il numero massimo di lanci OR
+      ; il giocatore ha raggiunto il valore massimo
+      (setq continua true)
+      (while continua
+        ; lancio del dado
+        (setq valA (add (rand 6) 1))
+        (++ lanciA)
+        (if (= valA 1)
+          (begin ; è uscito 1
+            ; annullo il punteggio parziale
+            (setq parA 0)
+            ; tocca al giocatore B
+            (setq continua false)
+          )
+          (begin ; non è uscito 1 (2..6)
+            ;aggiorno punteggio parziale A
+            (setq parA (add parA valA))
+          )
+        )
+        ;(println "valA = " valA { } "parA = " parA { } "lanciA = " lanciA)
+        ;(println "totA = " totA)
+        ;(read-key)
+        ; controllo superamento max lanci
+        (if (>= lanciA maxlanciA) (setq continua false))
+        ; controllo superamento max lanci
+        (if (>= parA maxvalA) (setq continua false))
+      )
+      ; aggiorno punteggio totale A
+      (setq totA (add totA parA))
+      ;(println "totA = " totA)
+      ; controllo fine del gioco
+      (if (> totA 100) (setq playgame false))
+      ;--------------------------------------------
+      ; player B
+      (setq parB 0)
+      (setq lanciB 0)
+      ; "continua" controlla se la giocata del giocatore è terminata
+      ; "continua" diventa nil se:
+      ; esce un 1 OR
+      ; il giocatore ha raggiunto il numero massimo di lanci OR
+      ; il giocatore ha raggiunto il valore massimo
+      (setq continua true)
+      ;(while (and continua playgame) ;B non gioca l'ultimo turno
+      (while continua
+        ; lancio del dado
+        (setq valB (add (rand 6) 1))
+        (++ lanciB)
+        (if (= valB 1)
+          (begin ; è uscito 1
+            ; annullo il punteggio parziale
+            (setq parB 0)
+            ; tocca al giocatore A
+            (setq continua false)
+          )
+          (begin ; non è uscito 1 (2..6)
+            ;aggiorno punteggio parziale B
+            (setq parB (add parB valB))
+          )
+        )
+        ;(println "valB = " valB { } "parB = " parB { } "lanciB = " lanciB)
+        ;(println "totB = " totB)
+        ;(read-key)
+        ; controllo superamento max lanci
+        (if (>= lanciB maxlanciB) (setq continua false))
+        ; controllo superamento max lanci
+        (if (>= parB maxvalB) (setq continua false))
+      )
+      ; aggiorno punteggio totale B
+      (setq totB (add totB parB))
+      ;(println "totB = " totB)
+      ; controllo fine del gioco
+      (if (> totB 100) (setq playgame false))
+      ;(println totA { } totB)
+    );while playgame
+    ; determino il vincitore
+    (if (> totA totB) "A" "B")
+  )
+)
+
+(game 100 2 20 2)
+;-> "B"
+
+Giochiamo con i parametri (maxvalA maxlanciA maxvalB maxlanciB):
+
+(pigs 100000 100 8 100 8)
+;-> (49811 50190)
+(pigs 100000 100 8 20 4)
+;-> (45632 54369)
+(pigs 100000 20 8 20 4)
+;-> (56483 43518)
+(pigs 100000 20 5 20 4)
+;-> (53505 46496)
+(pigs 100000 50 8 20 4)
+;-> (45734 54267)
+(pigs 100000 30 8 20 4)
+;-> (46641 53360)
+(pigs 100000 20 20 20 4)
+;-> (56520 43481)
+(pigs 100000 20 20 20 100)
+;-> (49661 50340)
+(pigs 100000 30 5 20 5)
+;-> (49904 50097)
+(pigs 100000 20 10 20 3)
+;-> (66592 33409)
+(pigs 100000 25 12 20 10)
+;-> (50046 49955)
+(pigs 100000 30 15 20 10)
+;-> (38903 61098)
+(pigs 100000 20 10 21 15)
+;-> (51128 48873)
+(pigs 100000 25 12 25 12)
+;-> (49668 50333)
+(pigs 1000000 25 12 25 12)
+;-> (497380 502621)
+
+Come si vede sembra che utilizzando 20 e 25 come valori massimi per ogni giocata (maxval) si massimizzano la probabilità di vittoria. Dalle prove effettuate sembra che 25 sia leggermente migliore che 20.
+L'articolo "Practical Play of the Dice Game Pig" di Neller e Presser:
+http://cs.gettysburg.edu/~tneller/papers/umap10.pdf
+affronta il gioco matematicamente e raggiunge le stesse conclusioni: il numero 20 e il numero 25 massimizzano le probabilità di vittoria.
+
+
 Il gioco dei salti
 ------------------
 
@@ -10978,10 +11439,15 @@ Distanza di Levenshtein
 -----------------------
 
 La distanza di Levenshtein (LD) è una misura della somiglianza tra due stringhe A e B. La distanza è il numero di cancellazioni, inserimenti o sostituzioni richieste per trasformare A in B. Per esempio:
+
 - se A è "pippo" e B è "pippo", le stringhe sono identiche e non sono necessarie trasformazioni, quindi LD (A, B) = 0
+
 - se A è "pippo" e B è "pluto", allora LD (A, B) = 3, perché tre sostituzioni (modifica "i" in "l", "p" in "u" e "p" in "l" ) sono sufficienti per trasformare A in B.
+
 Maggiore è la distanza di Levenshtein, minore è la somiglianza tra le stringhe.
+
 L'algoritmo per il calcolo dell distanza di Levenshtein è stato inventato dal russo Vladimir Levenshtein nel 1965.
+
 Questo algoritmo viene utilizzato per:
 - Controllo ortografico
 - Riconoscimento vocale
@@ -11131,10 +11597,265 @@ Adesso scriviamo una funzione iterativa:
 ;-> 8
 (ld "abcdefgh" (reverse "abcdefgh"))
 ;-> 8
+(ld "newLISP" "Common LISP")
+;-> 7
+
+
+Social Network
+--------------
+
+Due parole sono amiche se hanno una distanza di Levenshtein pari a 1.
+Cioè, possiamo aggiungere, rimuovere o sostituire esattamente una lettera nella parola A per creare la parola B.
+Il Social Network di una parola è composto da tutti i suoi amici, a cui vanno sommati gli amici dei suoi amici, a cui vanno sommati gli amici degli amici dei suoi amici e così via.
+Scrivere un programma per trovare il Social Network di una parola utilizzando il file "nomi.txt" che contiene circa 9000 nomi italiani.
+
+Dobbiamo avere una funzione che, dato un nome, genera tutti i suoi amici (cioè tutti i nomi che hanno distanza pari a uno) utilizzando il file "nomi.txt". Le seguenti due funzioni fanno proprio questo e sono state prese e adattate dal forum di newLISP (autori: kanen e rickyboy).
+
+; Distanza di Leveshtein
+; (delete, insert, modify)
+;
+; Uso:
+;  (setf found-words (get-friendsLD "benefit" word-list))
+;
+
+(define (get-friendsLD word word-list)
+  (let ((new-words '())
+        (alphabet (explode "abcdefghijklmnopqrstuvwxyz"))
+        (tmpWord ""))
+    ;; Deletes (removing one letter)
+    (for (i 0 (- (length word) 1))
+      (setf tmpWord word)
+      (pop tmpWord i)
+      (push tmpWord new-words -1))
+    ;; Modifies (one letter to another)
+    (for (i 0 (- (length word) 1))
+      (set 'tmpWord word)
+      (dolist (a alphabet)
+        (when (not (= (word i) a))
+          (setf (tmpWord i) a)
+          (push tmpWord new-words -1))))
+    ;; Inserts (add a letter)
+    (for (i 0 (length word))
+      (dolist (a alphabet)
+        (set 'tmpWord word)
+        (push (push a tmpWord i) new-words -1)))
+    (intersect new-words word-list)))
+
+Questa funzione permette anche lo scambio (swap) di lettere adiacenti (si tratta della distanza di Leveshtein-Damerau):
+
+; Distanza di Leveshtein-Damerau
+; (delete, insert, modify, swap)
+(define (get-friendsLDD word word-list)
+  (let ((new-words '())
+        (alphabet (explode "abcdefghijklmnopqrstuvwxyz"))
+        (tmpWord ""))
+    ;; Deletes (removing one letter)
+    (for (i 0 (- (length word) 1))
+      (setf tmpWord word)
+      (pop tmpWord i)
+      (push tmpWord new-words -1))
+    ;; Swaps (swap adjacent letters)
+    (for (i 0 (- (length word) 2))
+      (set 'tmpWord word)
+      (push (push (pop tmpWord i) tmpWord (+ 1 i)) new-words -1))
+    ;; Modifies (one letter to another)
+    (for (i 0 (- (length word) 1))
+      (set 'tmpWord word)
+      (dolist (a alphabet)
+        (when (not (= (word i) a))
+          (setf (tmpWord i) a)
+          (push tmpWord new-words -1))))
+    ;; Inserts (add a letter)
+    (for (i 0 (length word))
+      (dolist (a alphabet)
+        (set 'tmpWord word)
+        (push (push a tmpWord i) new-words -1)))
+    (intersect new-words word-list)))
+
+Per provarle useremo prima il file "nomi-prova.txt":
+
+(define (resume) (print "\r\n> "))
+(silent (setq word-list (parse (read-file "nomiA.txt" "\r\n"))) (print "Fatto") (resume))
+word-list
+;-> ("eva" "leana" "lena" "liana" "lina" "luana" "luano" "luca"
+;->  "luce" "lucia" "luisa" "luna" "max" "roberta" "una" "uno")
+
+(get-friendsLD "luca" word-list)
+;-> ("luna" "luce" "lucia")
+
+Adesso utilizziamo il file "nomi.txt":
+
+(silent (setq word-list (parse (read-file "nomi.txt" "\r\n"))) (print "Fatto") (resume))
+(length word-list)
+;-> 8913
+
+(setq amici (get-friendsLD "luca" word-list))
+;-> ("luna" "luce" "lucia")
+
+Abbiamo la funzione che calcola gli amici di una parola (nome). Adesso dobbiamo scrivere la funzione che calcola il Social Network di una parola (nome).
+La funzione seguente non è ottimizzata, ma è abbastanza semplice: la spiegazione del metodo di calcolo si trova nei commenti:
+
+(define (social x)
+  (local (out lst tmp stop len-out)
+    ; calcola la lista risultato per la prima volta
+    (setq out (get-friendsLD x word-list))
+    ; lista di nomi di cui cercare gli amici (lista ricerca)
+    (setq lst out)
+    (setq stop nil)
+    ;lunghezza della lista risultato
+    (setq len-out (length out))
+    (while (= stop nil)
+      ; per ogni nome della lista ricerca calcoliamo
+      ; una lista con tutti gli amici e poi la uniamo alla lista risultato
+      (setq tmp '())
+      (dolist (el lst)
+        (extend tmp (get-friendsLD el word-list))
+      )
+      (setq out (union out tmp))
+      ; se la lista risultato ha la stessa lunghezza di quella precedente
+      ; (vuol dire che non abbiamo aggiunto alcun nome)...
+      (if (= (length out) len-out)
+        ;allora stop
+        (setq stop true)
+        ;altrimenti...
+        (begin
+          ;(println len-out { } (length out))
+          ;aggiorna la lunghezza della lista risultato
+          (setq len-out (length out))
+          ;crea la nuova lista ricerca partendo dalla lista risultato e
+          ;togliendo gli elementi della lista ricerca attuale
+          (setq lst (difference out lst))
+        )
+      )
+    )
+    out
+  );local
+)
+
+(silent (setq word-list (parse (read-file "nomi-demo.txt" "\r\n"))) (print "Fatto") (resume))
+(social "luca")
+;-> ("luna" "luce" "lucia" "una" "lena" "lina" "luca" "luana" "uno" "leana" "liana" "luano")
+
+Adesso proviamo con il file "nomi.txt" senza visualizzare il risultato sulla REPL perchè la lista è molto grande. Salveremo il risultato nel file "social-luca.txt"
+
+(silent (setq word-list (parse (read-file "nomi.txt" "\r\n"))) (print "Fatto") (resume))
+;(social "luca")
+
+(time (setq amici (social "luca")))
+;-> 102772.905 ; 1 min 42 sec
+
+(length amici)
+;-> 5534
+
+Adesso scriviamo il risultato nel file "social-luca.txt":
+
+(setq datafile (open "social-luca.txt" "write"))
+(write datafile (join amici " "))
+(close datafile)
+
+
+Skyline
+-------
+
+Viene data una serie di n rettangoli in nessun ordine particolare. Hanno larghezze e altezze variabili, ma i loro bordi inferiori sono collineari, in modo che sembrino edifici su un orizzonte. Per ogni rettangolo, viene data la posizione x del bordo sinistro, la posizione x del bordo destro e l'altezza. Il compito è disegnare un contorno attorno alla serie di rettangoli in modo che rappresenti la loro forma complessiva rispetto all'orizzonte (skyline).
+Esempio:
+
+Input lista Rettangoli
+(setq ret '((1 3 3) (2 4 4) (5 8 2) (6 7 4) (8 9 4)))
+
+Output lista Skyline:
+((1 3) (2 4) (4 0) (5 2) (6 4) (7 2) (8 4) (9 0))
+
+     Rettangoli                          Skyline
+
+     |                                   |
+   5 |                                 5 |
+     |                                   |
+     |                                   |
+   4 |     +-----+     +--+  +--+      4 |     O-----+     O--+  O--+
+     |     |     |     |  |  |  |        |     |     |     |  |  |  |
+     |     |     |     |  |  |  |        |     |     |     |  |  |  |
+   3 |  +--|--+  |     |  |  |  |      3 |  O--+     |     |  |  |  |
+     |  |  |  |  |     |  |  |  |        |  |        |     |  |  |  |
+     |  |  |  |  |     |  |  |  |        |  |        |     |  |  |  |
+   2 |  |  |  |  |  +--|--|--+  |      2 |  |        |  O--+  O--+  |
+     |  |  |  |  |  |  |  |  |  |        |  |        |  |           |
+     |  |  |  |  |  |  |  |  |  |        |  |        |  |           |
+   1 |  |  |  |  |  |  |  |  |  |      1 |  |        |  |           |
+     |  |  |  |  |  |  |  |  |  |        |  |        |  |           |
+     |  |  |  |  |  |  |  |  |  |        |  |        |  |           |
+   0 |-----------------------------    0 |-----------O--------------O--
+     0  1  2  3  4  5  6  7  8  9        0  1  2  3  4  5  6  7  8  9
+
+I punti della lista skyline sono contrassegnati con la lettera "O".
+
+Creazione di un vettore delle altezze massime "hmap"
+Creiamo un vettore di (hmax + 1) elementi, dove hmax è l'altezza del rettangolo più alto.
+Per ogni rettangolo (i j h) assegniamo a tutte le celle di hmap da i a (j-1) il valore massimo tra quello contenuto nella cella corrente e h.
+
+Creazione della lista dei punti della linea
+Visitiamo il vettore hmap e riportiamo sulla lista solo i punti (con il relativo valore) che sono diversi dal punto precedente.
+
+Complessità Temporale: O(n)
+Complessità Spaziale: O(max(h)) dove max(h) è l'altezza massima dei rettangoli
+
+Considerando i rettangoli dell'esempio:
+
+indice  0 1 2 3 4 5 6 7 8 9  vettore hmap
+        0 0 0 0 0 0 0 0 0 0  valori iniziale
+          3 3                valori dopo il primo ret (1 3 3)
+            4 4              valori dopo il secondo ret (2 4 4)
+                  2 2 2      valori dopo il terzo ret (5 8 2)
+                    4        valori dopo il quarto ret (6 7 4)
+                        4    valori dopo il quinto ret (8 9 4)
+        0 3 4 4 0 2 4 2 4 0  valori finali
+
+hmap = (0 3 4 4 0 2 4 2 4 0)
+
+Possiamo scrivere la funzione:
+
+(define (skyline lst)
+  (local (len hmap linea)
+    ;calcolo valore massimo altezza
+    (setq len (add (apply max (flat lst)) 1))
+    ; creazione vettore con tutti valori a zero
+    (setq hmap (array len '(0)))
+    ;Calcolo valori per hmap
+    (dolist (el lst)
+      (for (i (el 0) (sub (el 1) 1))
+        (setf (hmap i) (max (el 2) (hmap i)))
+      )
+    )
+    hmap
+    ;calcolo punti visibili
+    (setq out '())
+    (for (i 0 (sub len 1))
+      (if (zero? i)
+        ; controllo primo punto hmap[0]
+        ; se hmap[0] è diverso da zero, allora lo aggiungo al risultato
+        (if (!= (hmap 0) 0) (push (list 0 (hmap i)) out -1))
+        ; controllo punti successivi
+        ; inserisco il valore di hmap[i] solo se è diverso dal precedente
+        (if (!= (hmap i) (hmap (sub i 1))) (push (list i (hmap i)) out -1))
+      )
+    )
+    out
+  );local
+)
+
+(setq ret '((1 3 3) (2 4 4) (5 8 2) (6 7 4) (8 9 4)))
+(skyline ret)
+;-> ((1 3) (2 4) (4 0) (5 2) (6 4) (7 2) (8 4) (9 0))
+
+(setq ret '((0 3 3) (2 4 4) (5 8 2) (6 7 4) (8 9 4)))
+
+(setq ret '((2 9 10) (3 6 15) (5 12 12) (13 16 10) (15 17 5)))
+(skyline ret)
+;-> ((2 10) (3 15) (6 12) (12 0) (13 10) (16 5) (17 0))
 
 
 ======================================================================
- DOMANDE PER ASSUNZIONE DI PROGRAMMATORI (coding interview questions)
+ DOMANDE PER ASSUNZIONE DI PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
 ======================================================================
 
 Contare i bit di un numero (McAfee)
