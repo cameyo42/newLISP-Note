@@ -14,13 +14,14 @@ LE FUNZIONI UTENTE
 ARGOMENTI DI UNA FUNZIONE
 TRASFORMARE UNA FUNZIONE DISTRUTTIVA IN NON-DISTRUTTIVA
 TRASFORMARE UNA FUNZIONE DA DUE A N ARGOMENTI
-FUNZIONI CON MEMORIA
 APPLICARE UNA FUNZIONE AD OGNI SOTTOLISTA DI UNA LISTA
-GENERARE FUNZIONI DA FUNZIONI
 ASSEGNAZIONE GLOBALE: SET, SETQ e SETF (e DEFINE)
 ASSEGNAZIONE LOCALE: LET, LETN e LOCAL
 EFFETTI COLLATERALI (side effect) DI SETQ e LET
+PASSAGGIO PER VALORE E PASSAGGIO PER RIFERIMENTO
 NIL, TRUE e LISTA VUOTA '()
+FUNZIONI CON MEMORIA
+GENERARE FUNZIONI DA FUNZIONI
 TIPI DI NUMERI
 PUNTO DECIMALE O VIRGOLA DECIMALE
 FORMATTAZIONE DELL'OUTPUT
@@ -45,6 +46,8 @@ TEMPO DI ESECUZIONE
 LISTA O VETTORE?
 VETTORI
 INDICIZZAZIONE DI STRINGHE, LISTE E VETTORI
+ATTRAVERSAMENTO DI LISTE E VETTORI
+ATTRAVERSAMENTO DI STRINGHE
 USCITA ANTICIPATA DA FUNZIONI, CICLI E BLOCCHI
 LAVORARE CON FILE DI DATI (FILE I/O)
 AMBITO (SCOPE) DINAMICO E LESSICALE
@@ -57,13 +60,16 @@ FUNZIONI VARIE
   Divisione solo con sottrazioni
   Conversione decimale <--> binario
   Conversione decimale <--> esadecimale
+  Numeri casuali in un intervallo
   Calcolo proporzione
   Trasformare una lista di stringhe in lista di simboli
   Estrarre l'elemento n-esimo da una lista
   Verificare se una lista è palindroma
   Zippare due liste
+  Raggruppare gli elementi di una lista
   Enumerare gli elementi di una lista
   Creare una stringa come ripetizione di un carattere/stringa
+  Massimo annidamento di una lista ("s-espressione")
   Run Length Encode di una lista
   Run Length Decode di una lista
   Massimo Comun Divisore e Minimo Comune Multiplo
@@ -72,13 +78,14 @@ FUNZIONI VARIE
   Conversione RGB <--> HSV
   Calcolo della media di n numeri
   Istogramma
+  Stampare una matrice
   Retta passante per due punti
   Leggere e stampare un file di testo
   Criptazione e decriptazione di un file
   Funzioni per input utente
   Emettere un beep
   Disabilitare l'output delle espressioni
-  Simboli creati da una funzione
+  Simboli creati dall'utente
   Il programma è in esecuzione ? (progress display)
   Ispezionare una cella newLISP
   Informazioni sul sistema (sys-info)
@@ -129,6 +136,7 @@ ROSETTA CODE
   Permutazioni
   Combinazioni
   Regola di Horner
+  Problema dello zaino (Knapsack)
 
 PROJECT EULERO
   Problema 1
@@ -141,11 +149,21 @@ PROJECT EULERO
   Problema 8
   Problema 9
   Problema 10
+  Problema 11
+  Problema 12
   Problema 14
   Problema 21
 
 PROBLEMI VARI
+  Implementare una pila (stack) con un vettore
+  Implementare una coda (queue) con un vettore
+  Coda circolare (Ring Buffer)
+  Fattoriale
+  Coefficiente binomiale
   Lancio di dadi
+  Quadrati magici
+  Quadrati magici 3x3
+  Mastermind numerico
   Algoritmo babilonese sqrt(x)
   Ricerca binaria (Binary search)
   Frazione generatrice
@@ -171,8 +189,15 @@ PROBLEMI VARI
   Distanza di Levenshtein
   Social Network
   Skyline
+  Knuth-shuffle
+  Bussola e direzioni
+  Puzzle (a b c + a b c + a b c = c c c)
+  Numero mancante
+  Somma massima di una sottolista (Algoritmo Kadane)
+  Prodotto massimo di una sottolista
 
 DOMANDE PER ASSUNZIONE DI PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
+  Notazione Big O
   Contare i bit di un numero (McAfee)
   Scambiare il valore di due variabili (McAfee)
   Funzione "atoi" (McAfee)
@@ -197,6 +222,8 @@ DOMANDE PER ASSUNZIONE DI PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Numero potenza di due (Google)
   Stanze e riunioni (Snapchat)
   Bilanciamento parentesi (Facebook)
+  K punti più vicini - K Nearest points (LinkedIn)
+  Ordinamento Colori (LeetCode)
 
 CALCOLI CON I NUMERI COMPLESSI
 
@@ -209,6 +236,7 @@ OPERAZIONI CON GLI INSIEMI
 FUNZIONI WINAPI
 
 APPENDICI
+  Lista delle funzioni newLISP
   Sul linguaggio newLISP - FAQ (Lutz Mueller)
   newLISP in 21 minuti (John W. Small)
   notepad++ plugin
@@ -240,8 +268,8 @@ Maggiori informazioni sono reperibili al sito ufficiale del linguaggio:
 
 http://www.newLISP.org/
 
-Questo documento è in continua evoluzione e aggiornamento ed è scritto non da un programmatoree professionista, ma da un principiante che studia ed utilizza newLISP per divertimento.
-In genere uso newLISP per risolvere problemi di matematica ricreativa.
+Questo documento è in continua evoluzione e aggiornamento ed è scritto non da un programmatore professionista, ma da un principiante che studia ed utilizza newLISP per divertimento.
+In genere uso newLISP nel mio lavoro quotidiano e per risolvere problemi di matematica ricreativa.
 Consigli, correzioni e suggerimenti sono i benvenuti.
 
 Per convenzione i comandi di input della REPL non contengono il prompt di newLISP ">".
@@ -281,7 +309,7 @@ Potete leggere il file PDF oppure utilizzare il file di testo. In quest'ultimo c
 
 https://github.com/cameyo42/notepadpp-newLISP
 
-Seguendo le istruzioni riportate in appendice potete leggere il documento e contemporaneamente eseguire il codice che ritenete oppportuno.
+Seguendo le istruzioni riportate in appendice potete leggere il documento e contemporaneamente eseguire il codice che ritenete opportuno.
 
 
 ==================
@@ -413,7 +441,7 @@ La seguente funzione può essere chiamata senza argomenti, con un argomento di t
 
 (flessibile "ok")
 ;-> gli argomenti sono ("ok")
-;-> -> argumento 0 vale ok
+;-> -> argomento 0 vale ok
 
 (flessibile 1 2 3)
 ;-> gli argomenti sono (1 2 3)
@@ -550,7 +578,9 @@ Adesso definiamo la macro:
 
 Per capire come funziona dobbiamo analizzare la funzione "apply":
 
+******************
 >>>funzione APPLY
+******************
 sintassi: (apply func list [int-reduce])
 
 Applica l'espressione "func" (primitiva, funzione utente, o lambda) agli argomenti di "list".
@@ -623,7 +653,9 @@ Infatti ci limitiamo a passare i parametri alla macro senza prima valutarli.
 
 Per risolvere il problema possiamo utilizzare le funzioni "map" e "eval".
 
+****************
 >>>funzione MAP
+****************
 sintassi: (map func list-args-1 [list-args-2 ... ])
 
 Applica la funzione "func" (primitiva, funzione utente, espressione lambda) ad ogni gruppo di argomenti specificati dalle liste "list-args-1", "list-args-2", etc.
@@ -670,7 +702,9 @@ map può utilizzare anche l'indice della lista interna $idx.
 
 Il numero di argomenti utilizzati è determinato dalla lunghezza della prima lista di argomenti.
 
+*****************
 >>>funzione EVAL
+****************
 sintassi: (eval exp)
 
 "eval" calcola il risultato della valutazione dell'espressione "exp".
@@ -723,7 +757,9 @@ Funziona !!!
 
 Adesso vediamo la funzione "curry":
 
+******************
 >>>funzione CURRY
+******************
 sintassi: (curry func exp)
 
 Trasforma "func" da una funzione f(x, y) che prende due argomenti, in una funzione fx(y) che prende un singolo argomento. "curry" funziona come una macro, nel senso che non valuta i suoi argomenti. Questi ultimi vengono valutati durante l'applicazione della funzione "func".
@@ -743,10 +779,10 @@ Trasforma "func" da una funzione f(x, y) che prende due argomenti, in una funzio
 (map (curry list 'x) (sequence 1 5))
 ;-> ((x 1) (x 2) (x 3) (x 4) (x 5))
 
-curry può essere usato con tutte le funzioni che prendono due argomenti.
+"curry" può essere usato con tutte le funzioni che prendono due argomenti.
 
 Vediamo come usare "curry" insieme alla funzione "map".
-Possiamo utilizzare map con una funzione che riceve più di un argomento (ad esempio la funzione "pow") in questo modo:
+Possiamo utilizzare "map" con una funzione che riceve più di un argomento (ad esempio la funzione "pow") in questo modo:
 
 (map pow '(2 1) '(3 4))
 ;-> (8 1)
@@ -805,33 +841,6 @@ Un altro esempio con la funzione "max":
 ;-> (3 7)
 
 
-======================
- FUNZIONI CON MEMORIA
-======================
-
-È possibile scrivere una funzione con memoria, cioè una funzione che produce un risultato diverso ogni volta che viene chiamata ricordando uno stato interno. Per fare questo occorre utilizzare una chiusura (closure). In altre parole scriviamo una funzione generatore.
-In newLISP creiamo variabili di stato locali usando un spazio dei nomi chiamato "context":
-
-; generatore newLISP
-(define (gen:gen)
-  (setq gen:sum
-  (if gen:sum (inc gen:sum) 1)))
-
-Questo potrebbe essere scritto più brevemente, perché "inc" considera nil come zero:
-
-(define (gen:gen)
-  (inc gen:sum))
-
-(gen)
-;-> 1
-(gen)
-;-> 2
-
-Quando si scrive gen:gen, viene creato un context chiamato gen. gen è uno spazio di nomi (namespace) lessicale contenente i propri simboli usati come variabili e come funzioni. In questo caso il nome-spazio gen contiene due simboli: "gen" (funzione) e "sum" (variabile).
-Il primo simbolo di un contesto ha lo stesso nome del contesto in cui è contenuto e viene chiamato "funtore" di default del contesto. In questo caso il contesto si chiama "gen" e quindi il funtore si chiama "gen". Quando si utilizza un nome di contesto al posto di un nome di funzione, newLISP assume il functor predefinito.
-Possiamo chiamare la nostra funzione generatore usando (gen). Non è necessario chiamare la funzione usando (gen:gen), (gen) verrà impostato su (gen:gen).
-
-
 ========================================================
  APPLICARE UNA FUNZIONE AD OGNI SOTTOLISTA DI UNA LISTA
 ========================================================
@@ -855,146 +864,13 @@ Utilizziamo la funzione "curry" per rimpiazzare la funzione lambda
 ;-> (4 7 11)
 
 
-===============================
- GENERARE FUNZIONI DA FUNZIONI
-===============================
-
-In newLISP possiamo scrivere programmi che generano programmi oppure funzioni che generano funzioni.
-In newLISP codice e dati sono allo stesso livello, cioè le funzioni e le variabili sono nello stesso contesto.
-Ad esempio possiamo assegnare la funzione "println" alla variabile "stampa":
-
-(setq stampa println)
-;-> print@40AC99
-
-Adesso usiamo la funzione "stampa" come la funzione "println":
-
-(stampa "CODICE = DATI")
-;-> CODICE = DATI
-
-Quando definiamo una funzione utente, newLISP la converte in una funzione lambda:
-
-(define (doppio x) (add x x))
-;-> (lambda (x) (add x x))
-
-Anche le funzioni lambda possono essere associate alle variabili:
-
-(setq dd (lambda (x) (add x x)))
-;-> (lambda (x) (add x x))
-
-(dd 5)
-;-> 10
-
-Le funzioni lambda hanno la seguente forma:
-(lambda (<arg-1 arg-2 ... arg-n) (expr-1 expr-2 ... expr-n))
-
-Possiamo crearle dinamicamente con una funzione:
-
-(define (crea-lambda operazione parametro)
-    (append (fn (x)) (list (list operazione parametro 'x))))
-
-La funzione "crea-lambda" genera funzioni lambda che hanno un operatore (add) con un parametro (2) e un argomento (x):
-
-(crea-lambda 'add 2)
-;-> (lambda (x) (add 2 x))
-
-La funzione "map" permette l'uso delle funzioni lambda:
-
-(map (lambda (x) (add 2 x)) '(1 2 3 4 5))
-;-> (3 4 5 6 7)
-
-Quindi possiamo fare lo stesso con la nostra funzione "crea-lambda"
-
-(map (crea-lambda add 2) '(1 2 3 4 5))
-;-> (3 4 5 6 7)
-
-; Ma anche:
-
-(map (crea-lambda mul 3) '(1 2 3 4 5))
-;-> (3 6 9 12 15)
-
-Nota: Possiamo omettere il simbolo quote prima dell'operando (add oppure mul) perche' newLISP valuta sempre le primitive su se stesse.
-
-Possiamo utilizzare la funzione "map" all'interno della funzione "crea-lambda" per applicare direttamente l'operazione (con il parametro) ad una lista:
-
-(define (list-map operazione parametro lista)
-    (map (lambda (x) (operazione parametro x)) lista))
-
-(list-map + 2 '(1 2 3 4))
-;-> (3 4 5 6)
-
-(list-map mul 1.5 '(1 2 3 4))
-;-> (1.5 3 4.5 6)
-
-La funzione "map" rende disponibile anche un indice della lista $idx:
-
-(map (fn (x) (list $idx x)) '(a b c))
-;-> ((0 a) (1 b) (2 c))
-
-In altre parole, in newLISP le funzioni sono liste di prima classe:
-
-(define (double x) (+ x x)))
-(setf (nth 1 double) '(mul 2 x))
-
-double => (lambda (x) (mul 2 x))
-
-La natura di prima classe delle espressioni lambda in newLISP consente di scrivere codice auto modificante.
-
-Come ultimo esempio vediamo un interessante articolo di Kazimir Majorinc:
-http://kazimirmajorinc.com/Documents/Crawler-tractor/index.html
-
-Crawler Tractor (Trattore Cingolato) di Kazimir Majorinc
---------------------------------------------------------
-
-Viene presentato un esempio del programma Lisp di auto-elaborazione. La funzione f incrementa continuamente il valore della variabile "counter" e ne stampa il valore. Tuttavia, l'implementazione di f non contiene alcun ciclo o ricorsione. Invece, la funzione cambia il codice della sua definizione durante la valutazione.
-
-(set 'f
-     (lambda()
-       (begin (print "Hi for the "
-                     (inc counter)
-                     ". time. ")
-              (push (last f) f -1)
-              (if (> (length f) 3)
-                  (pop f 1)))))
-
-Il risultato della valutazione della funzione "f" vale:
-
-Hi for the 1. time.
-Hi for the 2. time.
-Hi for the 3. time.
-Hi for the 4. time.
-...
-
-La valutazione ricorda il funzionamento di un trattore cingolato, veicolo di costruzione popolare. Inizialmente, l'interprete generava un errore di "stack overflow" dopo che il contatore era stato incrementato alcune centinaia di migliaia di volte. Lutz Mueller, l'autore di newLISP, ha prontamente risolto il problema. La perdita di velocità era, secondo Mueller, molto bassa.
-
-Come prova di concetto, Joel Ericson ha definito due funzioni fattoriali che valutano in modo simile. In una di
-
-(define (f)
-  (begin
-    (when (> (length f) 2)
-             (pop f -1))
-    (push '(if (> 0 1)
-               (begin ; Increase return value
-                      (setf ((last f) -1)
-                            (* $it ((last f) 1 1)))
-                      ; Change exit condition
-                      (dec ((last f) 1 1))
-                      ; Shorten f if too long
-                      (if (> (length f) 4)
-                          (pop f 2))
-                      (push (last f) f -1))
-               1)
-          f
-          -1)
-    (setq ((last f) 1 1) (args 0))))
-
-Il risultato della valutazione di (f 4) è 24.
-
-
 ===================================================
  ASSEGNAZIONE GLOBALE: SET, SETQ e SETF (e DEFINE)
 ===================================================
 
+****************
 >>>funzione SET
+****************
 sintassi: (set sym-1 exp-1 [sym-2 exp-2 ... ])
 
 Valuta entrambi gli argomenti e poi assegna il risultato di exp al simbolo trovato in sym.
@@ -1003,9 +879,14 @@ Il vecchio contenuto del simbolo viene cancellato.
 Viene visualizzato un messaggio di errore quando si tenta di modificare il contenuto dei simboli nil, true o un simbolo del contesto.
 "set" può effettuare assegnazioni multiple sulle coppie di argomenti.
 
+*****************
 >>>funzione SETQ
+*****************
 sintassi: (setq place-1 exp-1 [place-2 exp-2 ... ])
+
+*****************
 >>>funzione SETF
+*****************
 sintassi: (setf place-1 exp-1 [place-2 exp-2 ... ])
 
 In newLISP "setq" e "setf" funzionano allo stesso modo:
@@ -1080,7 +961,9 @@ s
 
 Vediamo adesso la funzione "define":
 
+*******************
 >>>funzione DEFINE
+*******************
 sintassi: (define sym-name exp)
 
 In genere "define" viene utilizzata per definire una funzione.
@@ -1382,8 +1265,234 @@ Vediamo un altro comportamento delle variabili con la funzione "local":
 ;-> da F dopo G
 ;-> fa = 1 @ fb = 33
 
-La variabile "fa" viene ridefinita nella funzione "g" quindi il suo valore non cambia per la funzione "f" (in altre parole esistono due varibili locali "fa", una interna alla funzione "f" e l'altra interna alla funzione "g").
-La varibile "fb" non viene ridefinita in "g" quindi il suo valore cambia anche all'interno della funzione "f" (in altre parole esiste una sola variabile "fb" visibile da entrambe le funzioni "f" e "g").
+La variabile "fa" viene ridefinita nella funzione "g" quindi il suo valore non cambia per la funzione "f" (in altre parole esistono due variabili locali "fa", una interna alla funzione "f" e l'altra interna alla funzione "g").
+La variabile "fb" non viene ridefinita in "g" quindi il suo valore cambia anche all'interno della funzione "f" (in altre parole esiste una sola variabile "fb" visibile da entrambe le funzioni "f" e "g").
+
+
+==================================================
+ PASSAGGIO PER VALORE E PASSAGGIO PER RIFERIMENTO
+==================================================
+ Pass by Value e Pass by Reference
+
+Per default, il linguaggio newLISP passa i parametri per valore (Pass by Value), cioè passa alle funzioni una copia dei valori dei parametri.
+Se vogliamo utilizzare il passaggio per riferimento (Pass by Reference) bisogna usare i contesti (CONTEXT).
+
+Cosa significa questo?
+
+Supponiamo di avere una lista m = (0 1 2 3) e di voler modificare il valore di alcuni elementi.
+Scriviamo una funzione che prende tre parametri: una lista, un indice e un valore.
+
+(define (aggiorna lst idx el) (setf (lst idx) el) (println lst))
+
+Proviamo:
+
+(setq m '(0 1 2 3))
+;-> (0 1 2 3)
+(aggiorna m 0 2)
+;-> (2 1 2 3)
+
+Sembra tutto a posto, ma se stampiamo la lista "m" abbiamo una sorpresa:
+
+m
+;-> (0 1 2 3)
+
+La lista "m" non è cambiata !!!
+
+In newLISP, alle funzioni viene sempre passata una copia dei parametri, quindi la lista "m" non può essere modificata perchè la funzione "aggiorna" lavora su una copia della lista "m".
+
+Quindi se vogliamo aggiornare la lista "m" dobbiamo modificare la funzione in modo che ritorni la lista aggiornata e poi assegnare questa lista alla lista "m".
+
+(define (demo lst el) (setf (lst 0) el) lst)
+
+Assegniamo a "m" la lista modificata restituita dalla funzione "aggiorna".
+
+(setq m (demo m 2))
+;-> (2 1 2 3)
+m
+;-> (2 1 2 3)
+
+Nota:
+Quando abbiamo delle liste con molti elementi, il passaggio per valore rallenta l'esecuzione del programma perchè ad ogni chiamata di funzione deve sempre essere fatta una copia degli argomenti.
+
+Per utilizzare il passaggio per riferimento dovremmo vedere come funzionano i contesti (CONTEXT), comunque, dal punto di vista pratico, questa è la tecnica pe usare il "passaggio per riferimento":
+
+(setq m:m '(0 1 2 3 4 5 6 7))
+
+(define (aggiorna lst idx el) (setf (lst idx) el))
+
+Proviamo:
+
+(aggiorna m 0 2)
+;-> 2
+
+m:m
+(2 1 2 3 4 5 6 7))
+
+In questo esempio, la lista viene incapsulata in un contesto denominato "m" che contiene una variabile con lo stesso nome.
+
+Ogni volta che una funzione utilizza un parametro di tipo stringa o lista, è possibile passare un contesto, che verrà quindi interpretato come il funtore predefinito di quel contesto.
+
+
+===============================
+ GENERARE FUNZIONI DA FUNZIONI
+===============================
+
+In newLISP possiamo scrivere programmi che generano programmi oppure funzioni che generano funzioni.
+In newLISP codice e dati sono allo stesso livello, cioè le funzioni e le variabili sono nello stesso contesto.
+Ad esempio possiamo assegnare la funzione "println" alla variabile "stampa":
+
+(setq stampa println)
+;-> print@40AC99
+
+Adesso usiamo la funzione "stampa" come la funzione "println":
+
+(stampa "CODICE = DATI")
+;-> CODICE = DATI
+
+Quando definiamo una funzione utente, newLISP la converte in una funzione lambda:
+
+(define (doppio x) (add x x))
+;-> (lambda (x) (add x x))
+
+Anche le funzioni lambda possono essere associate alle variabili:
+
+(setq dd (lambda (x) (add x x)))
+;-> (lambda (x) (add x x))
+
+(dd 5)
+;-> 10
+
+Le funzioni lambda hanno la seguente forma:
+(lambda (<arg-1 arg-2 ... arg-n) (expr-1 expr-2 ... expr-n))
+
+Possiamo crearle dinamicamente con una funzione:
+
+(define (crea-lambda operazione parametro)
+    (append (fn (x)) (list (list operazione parametro 'x))))
+
+La funzione "crea-lambda" genera funzioni lambda che hanno un operatore (add) con un parametro (2) e un argomento (x):
+
+(crea-lambda 'add 2)
+;-> (lambda (x) (add 2 x))
+
+La funzione "map" permette l'uso delle funzioni lambda:
+
+(map (lambda (x) (add 2 x)) '(1 2 3 4 5))
+;-> (3 4 5 6 7)
+
+Quindi possiamo fare lo stesso con la nostra funzione "crea-lambda"
+
+(map (crea-lambda add 2) '(1 2 3 4 5))
+;-> (3 4 5 6 7)
+
+; Ma anche:
+
+(map (crea-lambda mul 3) '(1 2 3 4 5))
+;-> (3 6 9 12 15)
+
+Nota: Possiamo omettere il simbolo quote prima dell'operando (add oppure mul) perche' newLISP valuta sempre le primitive su se stesse.
+
+Possiamo utilizzare la funzione "map" all'interno della funzione "crea-lambda" per applicare direttamente l'operazione (con il parametro) ad una lista:
+
+(define (list-map operazione parametro lista)
+    (map (lambda (x) (operazione parametro x)) lista))
+
+(list-map + 2 '(1 2 3 4))
+;-> (3 4 5 6)
+
+(list-map mul 1.5 '(1 2 3 4))
+;-> (1.5 3 4.5 6)
+
+La funzione "map" rende disponibile anche un indice della lista $idx:
+
+(map (fn (x) (list $idx x)) '(a b c))
+;-> ((0 a) (1 b) (2 c))
+
+In altre parole, in newLISP le funzioni sono liste di prima classe:
+
+(define (double x) (+ x x)))
+(setf (nth 1 double) '(mul 2 x))
+
+double => (lambda (x) (mul 2 x))
+
+La natura di prima classe delle espressioni lambda in newLISP consente di scrivere codice auto modificante.
+
+Come ultimo esempio vediamo un interessante articolo di Kazimir Majorinc:
+http://kazimirmajorinc.com/Documents/Crawler-tractor/index.html
+
+Crawler Tractor (Trattore Cingolato) di Kazimir Majorinc
+--------------------------------------------------------
+
+Viene presentato un esempio del programma Lisp di auto-elaborazione. La funzione f incrementa continuamente il valore della variabile "counter" e ne stampa il valore. Tuttavia, l'implementazione di f non contiene alcun ciclo o ricorsione. Invece, la funzione cambia il codice della sua definizione durante la valutazione.
+
+(set 'f
+     (lambda()
+       (begin (print "Hi for the "
+                     (inc counter)
+                     ". time. ")
+              (push (last f) f -1)
+              (if (> (length f) 3)
+                  (pop f 1)))))
+
+Il risultato della valutazione della funzione "f" vale:
+
+Hi for the 1. time.
+Hi for the 2. time.
+Hi for the 3. time.
+Hi for the 4. time.
+...
+
+La valutazione ricorda il funzionamento di un trattore cingolato, veicolo di costruzione popolare. Inizialmente, l'interprete generava un errore di "stack overflow" dopo che il contatore era stato incrementato alcune centinaia di migliaia di volte. Lutz Mueller, l'autore di newLISP, ha prontamente risolto il problema. La perdita di velocità era, secondo Mueller, molto bassa.
+
+Come prova di concetto, Joel Ericson ha definito due funzioni fattoriali che valutano in modo simile. In una di queste non vengono usate nemmeno le variabili:
+
+(define (f)
+  (begin
+    (when (> (length f) 2)
+             (pop f -1))
+    (push '(if (> 0 1)
+               (begin ; Increase return value
+                      (setf ((last f) -1)
+                            (* $it ((last f) 1 1)))
+                      ; Change exit condition
+                      (dec ((last f) 1 1))
+                      ; Shorten f if too long
+                      (if (> (length f) 4)
+                          (pop f 2))
+                      (push (last f) f -1))
+               1)
+          f
+          -1)
+    (setq ((last f) 1 1) (args 0))))
+
+Il risultato della valutazione di (f 4) è 24.
+
+
+======================
+ FUNZIONI CON MEMORIA
+======================
+
+È possibile scrivere una funzione con memoria, cioè una funzione che produce un risultato diverso ogni volta che viene chiamata ricordando uno stato interno. Per fare questo occorre utilizzare una chiusura (closure). In altre parole scriviamo una funzione generatore.
+In newLISP creiamo variabili di stato locali usando un spazio dei nomi chiamato "context":
+
+; generatore newLISP
+(define (gen:gen)
+  (setq gen:sum
+  (if gen:sum (inc gen:sum) 1)))
+
+Questo potrebbe essere scritto più brevemente, perché "inc" considera nil come zero:
+
+(define (gen:gen)
+  (inc gen:sum))
+
+(gen)
+;-> 1
+(gen)
+;-> 2
+
+Quando si scrive gen:gen, viene creato un context chiamato gen. gen è uno spazio di nomi (namespace) lessicale contenente i propri simboli usati come variabili e come funzioni. In questo caso il nome-spazio gen contiene due simboli: "gen" (funzione) e "sum" (variabile).
+Il primo simbolo di un contesto ha lo stesso nome del contesto in cui è contenuto e viene chiamato "funtore" di default del contesto. In questo caso il contesto si chiama "gen" e quindi il funtore si chiama "gen". Quando si utilizza un nome di contesto al posto di un nome di funzione, newLISP assume il functor predefinito.
+Possiamo chiamare la nostra funzione generatore usando (gen). Non è necessario chiamare la funzione usando (gen:gen), (gen) verrà impostato su (gen:gen).
 
 
 =============================
@@ -1515,7 +1624,7 @@ Un numero big integer richiede la seguente quantità di memoria:
 
 bytes = 4 * ceil(digits / 9) + 4.
 
-dove digits sono le cifre decimali, bytes sono a 8 bit e "ceil" è la funzione che arrotonda un numero intero al numero intero successivo più grande.
+dove "digits" sono le cifre decimali, "bytes" sono a 8 bit e "ceil" è la funzione che arrotonda un numero intero al numero intero successivo più grande.
 
 Attenzione: Numeri grandi che vengono convertiti da numeri floating point sono troncati ai limiti dei numeri integer. Per esempio:
 
@@ -1526,7 +1635,7 @@ Attenzione: Numeri grandi che vengono convertiti da numeri floating point sono t
 
 newLISP gestisce anche numeri con altre basi:
 
-123 → 123 intero decimale  (base 10)
+123 → 123 intero decimale (base 10)
 0xE8 → 232 intero esadecimale con prefisso 0x (base 16)
 055 → 45 intero ottale con prefisso 0 (base 8)
 0b101010 → 42 intero binario con prefisso 0b (base 2)
@@ -1606,7 +1715,6 @@ Il campo larghezza è opzionale e serve tutti i tipi di dati.
 
 Il carattere "p" rappresenta il numero dei decimali dei numeri floating-point o stringhe ed è separato dal campo larghezza da un punto "." (period).
 La precisione è opzionale. Quando si utilizza il campo precisione in una stringa, allora il numero di caratteri visualizzati è limitato dal valore del numero "p".
-Precision is optional. When using the precision field on strings, the number of characters displayed is limited to the number in p.
 
 Il carattere "f" rappresenta il campo che definisce il tipo di dato ed è essenziale, non può essere omesso.
 
@@ -1746,7 +1854,7 @@ Esempi di operazioni aritmetiche con i numeri reali:
 ============================
 
 I numeri interi a 64-bit hanno il seguente intervallo: da -9223372036854775808 a 9223372036854775807.
-Se aggiungiamo 1 al più grande numero intero a 64-bit, ritoraniamo al primo numero dell'intervallo:
+Se aggiungiamo 1 al più grande numero intero a 64-bit, ritorniamo al primo numero dell'intervallo:
 
 (setq intero64-max 9223372036854775807)
 (+ intero64-max 1)
@@ -2275,45 +2383,29 @@ Si consideri il numero binario corrispondente a 5.625, ovvero:
 dove 1.011101 è la mantissa, 2 è la base del sistema binario (in questo caso espressa in
 base 10) e ² è l' esponente (anch'esso espresso in base 10).
 
-Lo standard IEE754 prevede, per i numeri binari in virgola mobile a 32-bits ( quattro
-bytes), la seguente rappresentazione:
+Lo standard IEE754 prevede, per i numeri binari in virgola mobile a 32-bits (quattro bytes), la seguente rappresentazione:
 
 X       XXXXXXXX    XXXXXXXXXXXXXXXXXXXXXXX
 Segno   Esponente   Mantissa
 1 bit   8 bit       23 bit
 
 Campo Segno
-Il primo campo della rappresentazione IEE754, lungo un bit, rappresenta il segno del
-numero binario. Se vale 0 indica che il numero è positivo, se vale 1 indica che il numero
-è negativo.
-Il numero 1.01101(2b) * (2²)(10b) è positivo per cui questo campo deve valere 0 come
-illustrato nella figura seguente:
+Il primo campo della rappresentazione IEE754, lungo un bit, rappresenta il segno del numero binario. Se vale 0 indica che il numero è positivo, se vale 1 indica che il numero è negativo.
+Il numero 1.01101(2b) * (2²)(10b) è positivo per cui questo campo deve valere 0 come illustrato nella figura seguente:
 
 0 XXXXXXXX XXXXXXXXXXXXXXXXXXXXXXX
 
 Campo Esponente
-Il secondo campo, lungo otto bit (un byte), rappresenta l'esponente del numero
-binario espresso in notazione scientifica. Come è noto, un byte può assumere valori
-che vanno da 0 a 255. Come si fa per rappresentare gli esponenti negativi? Per poter
-rappresentare sia gli esponenti positivi che negativi si usa, per questo campo, la
-notazione eccesso 127. Quest'ultima prevede che al vero esponente vada sommato 127.
-Perciò, per il numero 1.01101(2b) * (2²)(10b) l'esponente da inserire nel secondo campo
-della rappresentazione vale: 2 + 127 = 129 ovvero in binario: 1000 0001.
+Il secondo campo, lungo otto bit (un byte), rappresenta l'esponente del numero binario espresso in notazione scientifica. Come è noto, un byte può assumere valori che vanno da 0 a 255. Come si fa per rappresentare gli esponenti negativi? Per poter rappresentare sia gli esponenti positivi che negativi si usa, per questo campo, la notazione eccesso 127. Quest'ultima prevede che al vero esponente vada sommato 127. Perciò, per il numero 1.01101(2b) * (2²)(10b) l'esponente da inserire nel secondo campo della rappresentazione vale: 2 + 127 = 129 ovvero in binario: 1000 0001.
 
 0 1000 0001 XXXXXXXXXXXXXXXXXXXXXXX
 
 Campo Mantissa
-Il terzo campo, lungo ventitrè bits, rappresenta la mantissa del numero binario
-espresso in notazione scientifica. Nel caso in esame vale 1.01101. A questo punto
-occorre notare che tutti i numeri binari espressi in notazione scientifica hanno un “1”
-prima della virgola, per cui nella rappresentazione IEE754 questo viene sottointeso.
-Inoltre, al valore effettivo della mantissa dell' esempio: 01101, vengono aggiunti tanti
-“0” quanti ne servono per completare il campo a 23 bits è perciò si ha:
+Il terzo campo, lungo ventitrè bits, rappresenta la mantissa del numero binario spresso in notazione scientifica. Nel caso in esame vale 1.01101. A questo punto occorre notare che tutti i numeri binari espressi in notazione scientifica hanno un “1” prima della virgola, per cui nella rappresentazione IEE754 questo viene sottointeso. Inoltre, al valore effettivo della mantissa dell'esempio: 01101, vengono aggiunti tanti “0” quanti ne servono per completare il campo a 23 bits è perciò si ha:
 
 0110100 00000000 00000000
 
-In definitiva il numero 101.101(b2) = 1.01101(b2) * (2²)(10) viene rappresentato ,in floating
-point, nel modo seguente:
+In definitiva il numero 101.101(b2) = 1.01101(b2) * (2²)(10) viene rappresentato ,in floating point, nel modo seguente:
 
 0 1000 0001 0110100 00000000 00000000
 
@@ -2327,7 +2419,7 @@ che in esadecimale equivale a:
 
 Nota: La codifica IEEE754 è complicata dalla necessità di rappresentare alcuni valori particolari:
 1) NaN (Not a Number, risultato di operazioni non ammesse, es. 0/0)
-2) +∞ e -∞ (es. 3/0 = infinito )
+2) +∞ e -∞ (es. 3/0 = infinito)
 3) Il valore 0 (meno banale di quanto sembri)
 
 Proprietà fondamentale della codifica
@@ -2377,7 +2469,7 @@ Il numero 1 in base 10 è rappresentato da:
 
 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0
 
-Il numero binario successivo è rapprsentato da:
+Il numero binario successivo è rappresentato da:
 
 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 1
 
@@ -2453,7 +2545,7 @@ m -> mantissa
  INFINITO E NOT A NUMBER
 =========================
 
-Lo standard IEEE 754 per i numeri floating-point definisce, oltre i numeri ordinari, anche due numeri particolri: INF e NaN.
+Lo standard IEEE 754 per i numeri floating-point definisce, oltre i numeri ordinari, anche due numeri particolari: INF e NaN.
 Si tratta di numeri con valore Infinito e di numeri che...non sono numeri (Not a Number).
 In alcuni linguaggi la divisione per 0 genera un errore di sistema, mentre in newLISP genera il valore Infinito:
 
@@ -2471,7 +2563,7 @@ In alcuni linguaggi la divisione per 0 genera un errore di sistema, mentre in ne
  CONFRONTO TRA NUMERI FLOATING-POINT
 =====================================
 
-La matematica a virgola mobile non è esatta. Valori semplici come 0.1 non possono essere rappresentati con precisione usando numeri floating-point binari, e la precisione limitata di questa rappresentazione  significa che lievi cambiamenti nell'ordine delle operazioni o la precisione dei valori intermedi possono cambiare il risultato. Ciò significa che confrontare due numeri floating-point per vedere se sono uguali di solito non sempre genera un risultato corretto.
+La matematica a virgola mobile non è esatta. Valori semplici come 0.1 non possono essere rappresentati con precisione usando numeri floating-point binari, e la precisione limitata di questa rappresentazione significa che lievi cambiamenti nell'ordine delle operazioni o la precisione dei valori intermedi possono cambiare il risultato. Ciò significa che confrontare due numeri floating-point per vedere se sono uguali di solito non sempre genera un risultato corretto.
 
 Il compilatore GCC ha anche un avvertimento per questo:
 "Avviso: confrontare i numeri in virgola mobile con == oppure != non è sicuro".
@@ -2552,15 +2644,15 @@ con i seguenti valori:
 
 Double.MIN_NORMAL = 2^-1022 =
 = 2.225073858507201383090232717332404064219215980462331... × 10^-308
-Double.MIN_VALUE  = 2^-1074 =
+Double.MIN_VALUE = 2^-1074 =
 = 4.940656458412465441765687928682213723650598026143247... × 10^-324
-Double.MAX_VALUE  = (2 - 2^-52)·2^1023 =
+Double.MAX_VALUE = (2 - 2^-52)·2^1023 =
 = 1.7976931348623157081452742373170435679807056752584499... × 10^308
 Float.MIN_NORMAL = 2^-126 =
 = 1.1754943508222875079687365372222456778186655567720875... × 10^-38
-Float.MIN_VALUE  = 2^-149 =
+Float.MIN_VALUE = 2^-149 =
 = 1.4012984643248170709237295832899161312802619418765157... × 10^-45
-Float.MAX_VALUE  = (2 - 2^-23) * 2^127 =
+Float.MAX_VALUE = (2 - 2^-23) * 2^127 =
 = 3.4028234663852885981170418348451692544 × 10^38
 
 (nearlyEqual 1 1.000001 1e-6)
@@ -2917,7 +3009,7 @@ Invece con mathematica l'errore calcolato vale:
 ==================================
 
 newLISP non definisce alcun valore costante per il numero di Eulero "e".
-Comunque possiamo trovarlo utilizzando la funzione exponenziale:
+Comunque possiamo trovarlo utilizzando la funzione esponenziale:
 
 (exp x) -> e^x
 
@@ -3052,6 +3144,8 @@ Riportiamo solo una parte dei risultati che dipendono (in valore assoluto) dalla
 
 Notiamo che fino a 50 elementi la lista e il vettore hanno la stessa velocità e aumentando il numero di elementi il vettore aumenta la differenza di velocità con la lista: con 250 elementi il vettore è 2.5 volte più veloce della lista.
 
+Inoltre, il calcolo della lunghezza di una lista è una operazione onerosa in termini di tempo (perchè non è un valore costante come nei vettori).
+
 
 =========
  VETTORI
@@ -3096,7 +3190,9 @@ Un indice "out-of-bounds" causerà un messaggio di errore su un vettore o una li
 Le matrici possono essere non rettangolari, ma sono rese rettangolari durante la serializzazione quando si utilizza source o save. La funzione array costruisce sempre matrici di forma rettangolare.
 Le funzioni matriciali det, transpose, multiply e invert possono essere utilizzate su matrici costruite con liste annidate o vettori costruiti con array.
 
+******************
 >>>funzione ARRAY
+******************
 sintassi: (array int-n1 [int-n2 ...] [list-init])
 
 Crea un vettore con elementi int-n1, inizializzandolo opzionalmente con il contenuto di list-init. Possono essere specificate fino a sedici dimensioni per i vettori multidimensionali (matrici).
@@ -3199,7 +3295,9 @@ Indicizzazione esplicita
 ------------------------
 La funzione "nth" accede ad un elemento di una stringa, di una lista o di un vettore.
 
+****************
 >>>funzione NTH
+*****************
 sintassi: (nth int-index list)
 sintassi: (nth int-index array)
 sintassi: (nth int-index str)
@@ -3468,6 +3566,147 @@ s
 ;-> "newLISP"
 
 Si noti che solo gli elementi completi di liste annidate o dei vettori possono essere modificati in questo modo. Gli slice e il rest di una lista o di un vettore non possono essere modificati utilizzando "setf", ma dovrebbero essere sostituiti elemento per elemento. Nelle stringhe può essere sostituito un solo carattere alla volta, ma quel carattere può essere sostituito da una stringa multi-carattere.
+
+
+====================================
+ ATTRAVERSAMENTO DI LISTE E VETTORI
+====================================
+
+Proviamo la velocità di attraversare le liste e i vettori delle funzioni "dolist" e "for":
+
+Definiamo un vettore di 10000 elementi:
+(silent (setq arr (array 100000 (sequence 1 100000))))
+
+Definiamo una lista di 10000 elementi:
+(silent (setq lst (array-list arr)))
+
+Definiamo tre funzioni che fanno la stessa cosa (costruiscono una lista) con le seguenti varianti:
+
+1) Uso di "dolist" con la lista
+
+(define (try-list lst)
+  (setq outlst '())
+  (dolist (el lst)
+    (push el outlst -1)
+  )
+)
+
+2) Uso di "for" per la lista:
+
+(define (try-list-as-array arr)
+  (setq outlst-arr '())
+  (setq fine (- (length lst) 1))
+  (for (i 0 fine)
+    (push (arr i) outlst-arr -1)
+  )
+)
+
+3) Uso di "for" per il vettore:
+
+(define (try-array arr)
+  (setq outarr '())
+  (setq fine (- (length arr) 1))
+  (for (i 0 fine)
+    (push (arr i) outarr -1)
+  )
+)
+
+Vediamo i tempi di calcolo:
+
+(time (try-list lst) 10)
+;-> 93.77
+(length outlst)
+;-> 100000
+
+(time (try-list-as-array lst) 10)
+;-> 80869.0 ; 80 secondi
+(length outlst-arr)
+;-> 100000
+
+(time (try-array arr) 10)
+(length outarr)
+;-> 93.765
+
+Nota: Usare "dolist" per attraversare le liste e usare "for" per attraversare i vettori.
+Non usare "for" per attraversare una lista (l'indicizzazione di una lista (lst i) è un'operazione onerosa).
+
+
+=============================
+ ATTRAVERSAMENTO DI STRINGHE
+=============================
+
+Proviamo la velocità di attraversare le liste e i vettori delle funzioni " dostring", "dolist" e "for":
+
+1) Uso di "dostring" con la stringa
+
+(setq str "abcd")
+;-> "abcd"
+(dostring (c str)
+  (println (char c) { } c)
+)
+;-> a 97
+;-> b 98
+;-> c 99
+;-> d 100
+
+Nota: L'indice di "dostring" (es. c) contiene il valore ASCII del carattere (intero).
+Per ottenere il carattere occorre applicare la funzione "char" (es. (char c)).
+
+2) Uso di "dolist" con la lista ottenuta dalla stringa con "explode"
+
+(setq str "abcd")
+;-> "abcd"
+(setq lst (explode str))
+;-> ("a" "b" "c" "d")
+(dolist (c lst)
+  (println (char c ) { } c)
+)
+;-> 97 a
+;-> 98 b
+;-> 99 c
+;-> 100 d
+
+3) Uso di "for" sulla stringa
+
+(setq str "abcd")
+;-> "abcd"
+(for (i 0 (- (length str) 1))
+  (println (char (str i)) { } (str i))
+)
+;-> 97 a
+;-> 98 b
+;-> 99 c
+;-> 100 d
+
+4) Uso di "for" con la lista ottenuta dalla stringa con "explode"
+
+(setq str "abcd")
+;-> "abcd"
+(setq lst (explode str))
+;-> ("a" "b" "c" "d")
+(for (i 0 (- (length lst) 1))
+  (println (lst i) { } (char (lst i)))
+)
+;-> a 97
+;-> b 98
+;-> c 99
+;-> d 100
+
+Proviamo la velocità dei quattro metodi:
+
+(silent (setq str (dup "-" 2000)))
+(silent (setq lst (explode str)))
+
+(time (dostring (c str) (setq a (char c))) 10000)
+;-> 3406.351
+(time (dolist (c lst) (setq a (char c))) 10000)
+;-> 3688.129
+(time (for (i 0 (- (length str) 1)) (setq a (char (str i)))) 10000)
+;-> 44769.743
+(time (for (i 0 (- (length lst) 1)) (setq a (char (lst i)))) 10000)
+;-> 33721.979
+
+Nota: Usare "dostring" oppure "dolist" per attrversare le stringhe.
 
 
 ================================================
@@ -3818,9 +4057,13 @@ Le seguenti linee visualizzano il file "data.txt":
 
 Usata senza parametri la funzione "write-line" scrive sulla REPL (standard output) il contenuto dell'ultima chiamata di "read-line" (cioè "current-line"). Inoltre "write-line" restituisce il numero di byte (caratteri) scritti.
 
-Per capire meglio i parametri della funzione "write-line" e il funzionamento delle operazioni di Input/Output sui file, vediamo la definizione di tutte le funzioni interessate: "device", "open", "close", "read-line", "current-line", "write-line",  "read-char", "write-char", "read", "write":
+Per capire meglio i parametri della funzione "write-line" e il funzionamento delle operazioni di Input/Output sui file, vediamo la definizione di tutte le funzioni interessate:
 
+"device", "open", "close", "read-line", "current-line", "write-line", "read-char", "write-char", "read", "write".
+
+*******************
 >>>funzione DEVICE
+*******************
 sintassi: (device [int-io-handle])
 
 int-io-handle è un numero di dispositivo I/O, che è impostato su 0 (zero) per l'I/O standard (0 per stdin, 1 per stdout e 2 per stderr). int-io-handle può anche essere un handle di file precedentemente ottenuto usando la funzione "open". In questo caso, sia l'input che l'output utilizzano questo handle. Se non viene fornito alcun argomento, viene restituito il numero corrente del dispositivo I/O.
@@ -3835,7 +4078,9 @@ Si noti che su sistemi operativi Unix, il canale stdin (0) può essere utilizzat
 
 Nota che usare "close" su un "device" automaticamente impostano il valore di "device" a zero (0).
 
+*****************
 >>>funzione OPEN
+*****************
 sintassi: (open str-path-file str-access-mode [str-option])
 
 Il file str-path è un nome di file e str-access-mode è una stringa che specifica la modalità di accesso al file. open restituisce un numero intero, che è un handle di file da utilizzare nelle successive operazioni di lettura o scrittura sul file. In caso di fallimento, open restituisce nil. La modalità di accesso "write" crea il file se non esiste, o tronca un file esistente a 0 (zero) byte di lunghezza.
@@ -3861,7 +4106,9 @@ Il primo esempio utilizza open per impostare il dispositivo per la stampa e scri
 
 L'opzione aggiuntiva str-option, "non-block" o "n" possono essere specificati dopo l'opzione "read" o "write". Disponibile solo su sistemi Unix, la modalità non bloccante può essere utile quando si aprono pipe con nome, ma non è richiesto per eseguire I/O su pipe con nome.
 
+******************
 >>>funzione CLOSE
+******************
 sintassi: (close int-file)
 
 Chiude il file specificato dall'handle del file int-file. L'handle dovrebbe essere stato ottenuto tramite una precedente chiamata alla funzione open. In caso di successo, chiude restituisce vero, altrimenti viene restituito nil.
@@ -3872,7 +4119,9 @@ Chiude il file specificato dall'handle del file int-file. L'handle dovrebbe esse
 
 Si noti che l'utilizzo di close su un device lo reimposta automaticamente su 0 (zero, il device dello schermo).
 
+**********************
 >>>funzione READ-LINE
+**********************
 sintassi: (read-line [int-file])
 
 Legge dal device I/O corrente una stringa delimitata da un carattere di avanzamento riga (line-feed ASCII 10). Non c'è limite alla lunghezza della stringa che può essere letta. Il carattere line-feed non fa parte della stringa restituita. La linea si spezza sempre su un line-feed, che viene poi scartato. Una riga si interrompe su un ritorno a capo (carriage-return ASCII 13) solo se seguito da un avanzamento riga, nel qual caso entrambi i caratteri vengono scartati. Un ritorno a capo da solo spezza la linea e viene scartato solo se è l'ultimo carattere del file.
@@ -3896,7 +4145,9 @@ Quando si utilizza read-line su stdin, la lunghezza della linea è limitata a 20
 Il primo esempio legge l'input dalla tastiera e lo converte in un numero. Nel secondo esempio, un file viene letto riga per riga e visualizzato sullo schermo. L'istruzione write-line si avvale del fatto che il risultato dell'ultima operazione di lettura (read-line) è memorizzato in un buffer interno al sistema.
 Quando write-line viene utilizzata senza argomenti, scrive il contenuto del buffer ottenuto con l'ultima chiamata di read-line.
 
+*************************
 >>>funzione CURRENT-LINE
+*************************
 sintassi: (current-line)
 
 Recupera il contenuto dell'ultima operazione di read-line. Il contenuto di current-line viene implicitamente usato quando write-line viene chiamata senza il parametro stringa.
@@ -3917,7 +4168,9 @@ Il programma viene chiamato in questo modo:
 
 Questo comando mostra tutte le righe di commento che iniziano con ";;" del file fornito come argomento della riga di comando (myfile.lsp)
 
+***********************
 >>>funzione WRITE-LINE
+***********************
 sintassi: (write-line [int-file [str]])
 sintassi: (write-line str-out [str]])
 
@@ -3942,7 +4195,9 @@ str  →  "hello\nworld\n"
 
 Il primo esempio apre/crea un file, scrive una riga e chiude il file. Il secondo esempio mostra l'uso di write-line senza argomenti. Il contenuto di init.lsp viene scritto sullo schermo della console.
 
+**********************
 >>>funzione READ-CHAR
+**********************
 sintassi: (read-char [int-file])
 
 Legge un byte da un file specificato dall'handle in int-file o dal dispositivo di I/O corrente - ad es. stdin quando non viene specificato alcun handle di file. L'handle del file è ottenuto da una precedente chiamata alla funzione open. Ogni read-char avanza il puntatore del file di un byte. Una volta raggiunta la fine del file, viene restituito nil.
@@ -3958,7 +4213,9 @@ Legge un byte da un file specificato dall'handle in int-file o dal dispositivo d
 
 Usa read-line e device per leggere un'intera linea alla volta. Notare che newLISP fornisce una funzione predefinita molto veloce per copiare i file (copy-file).
 
+***********************
 >>>funzione WRITE-CHAR
+***********************
 sintassi: (write-char int-file int-byte1 [int-byte2 ... ])
 
 Scrive il byte specificato in int-byte nel file specificato dall'handle int-file. L'handle del file è ottenuto da una precedente chiamata alla funzione open. Ogni chiamata write-char fa avanzare il puntatore del file di un byte (8 bit).
@@ -3976,7 +4233,9 @@ write-char restituisce il numero di byte scritti.
 
 Utilizzare le funzioni print e device per scrivere grandi porzioni di dati alla volta. Notare che newLISP fornisce già una funzione integrata più veloce chiamata copy-file. Notare che newLISP fornisce una funzione predefinita molto veloce per copiare i file (copy-file).
 
+******************
 >>>funzione READ
+******************
 sintassi: (read int-file sym-buffer int-size [str-wait])
 
 Legge al massimo int-size byte da un file specificato dall'handle int-file nel buffer sym-buffer. Tutti i dati a cui fa riferimento il simbolo sym-buffer prima della lettura vengono cancellati. L'handle int-file è ottenuto da una precedente istruzione open. Il simbolo sym-buffer contiene dati di tipo stringa dopo l'operazione di lettura. sym-buffer può anche essere un funtore predefinito specificato da un simbolo di contesto per il passaggio per riferimento di funzioni definite dall'utente.
@@ -3994,7 +4253,9 @@ Legge 200 byte nel buff symbol dal file aFile.ext.
 (leggi handle buff 1000 "password:")
 Legge 1000 byte o fino a quando si incontra la stringa "password:". La stringa "password:" sarà parte dei dati restituiti.
 
+******************
 >>>funzione WRITE
+******************
 sintassi: (write)
 sintassi: (write int-file str-buffer [int-size])
 sintassi: (write str str-buffer [int-size])
@@ -4018,53 +4279,184 @@ Nella terza sintassi, la scrittura può essere utilizzata per unire stringhe in 
 
 str   → "hello world"
 
+**********************
 >>>funzione READ-FILE
-syntax: (read-file str-file-name)
+**********************
+sintassi: (read-file str-file-name)
 
-Reads a file in str-file-name in one swoop and returns a string buffer containing the data.
+Legge un file dato in str-file-name in un colpo solo e restituisce una stringa (buffer) contenente i dati.
 
-On failure the function returns nil. For error information, use sys-error when used on files. When used on URLs net-error gives more error information.
+In caso di fallimento la funzione ritorna nil. Per informazioni sull'errore, utilizzare sys-error sul file. Se utilizzato su URL, net-error fornisce ulteriori informazioni sull'errore.
 
 (write-file "myfile.enc"
     (encrypt (read-file "/home/lisp/myFile") "secret"))
-The file myfile is read, then encrypted using the password "secret" before being written back into a new file titled "myfile.enc" in the current directory.
 
-read-file can take an http:// or file:// URL in str-file-name. When the prefix is http://, read-file works exactly like get-url and can take the same additional parameters.
+Il file myfile viene prima letto, poi criptato usando la password "secret" e infine sritto con un nuovo nome "myfile.enc" nella cartella corrente.
+
+read-file può usare http:// oppure file:// URL in str-file-name. Quando il prefisso vale http://, read-file funziona esattamente come get-url e può avere gli stessi parametri addizionali.
 
 (read-file "http://asite.com/somefile.tgz" 10000)
-The file somefile.tgz is retrieved from the remote location http://asite.com. The file transfer will time out after 10 seconds if it is not finished. In this mode, read-file can also be used to transfer files from remote newLISP server nodes.
 
+Il file somefile.tgz viene caricato dalla locazione remota http://asite.com. Il trasferimento del file viene interrotto dopo un tempo di 10 secondi (time-out) anche se la lettura non è terminata. In questo modo, read-file può anche essere usato per trasferire file da un server remoto newLISP.
+
+***********************
 >>>funzione WRITE-FILE
-syntax: (write-file str-file-name str-buffer)
+***********************
+sintassi: (write-file str-file-name str-buffer)
 
-Writes a file in str-file-name with contents in str-buffer in one swoop and returns the number of bytes written.
+Scrive un file dato in str-file-name con il contenuto di str-buffer in un colpo solo e restituisce il numero di byte scritti.
 
-On failure the function returns nil. For error information, use sys-error when used on files. When used on URLs net-error gives more error information.
+In caso di fallimento la funzione ritorna nil. Per informazioni sull'errore, utilizzare sys-error sul file. Se utilizzato su URL, net-error fornisce ulteriori informazioni sull'errore.
 
 (write-file "myfile.enc"
     (encrypt (read-file "/home/lisp/myFile") "secret"))
-The file myfile is read, encrypted using the password secret, and written back into the new file myfile.enc in the current directory.
 
-write-file can take an http:// or file:// URL in str-file-name. When the prefix http:// is used, write-file works exactly like put-url and can take the same additional parameters:
+Il file myfile viene prima letto, poi criptato usando la password "secret" e infine sritto con un nuovo nome "myfile.enc" nella cartella corrente.
+
+write-file può usare http:// oppure file:// URL in str-file-name. Quando il prefisso vale http:// allora write-file funziona esattamente come put-url e può avere gli stessi parametri addizionali.
 
 (write-file "http://asite.com/message.txt" "This is a message" )
-The file message.txt is created and written at a remote location, http://asite.com, with the contents of str-buffer. In this mode, write-file can also be used to transfer files to remote newLISP server nodes.
 
->>>funzione append-file
+Il file message.txt viene creato e scritto nella locazione remota http://asite.com con il contenuto di str-buffer. In questo modo, write-file può anche essere usato per trasferire file a un server remoto newLISP.
+
+************************
+>>>funzione APPEND-FILE
+************************
 syntax: (append-file str-filename str-buffer)
 
-Works similarly to write-file, but the content in str-buffer is appended if the file in str-filename exists. If the file does not exist, it is created (in this case, append-file works identically to write-file). This function returns the number of bytes written.
+Funziona in modo simile a write-file, ma il contenuto di str-buffer viene aggiunto se il file str-filename esiste. Se il file non esiste, allora viene creato (in questo caso append-file funziona esattamente come write-file). Questa funzione ritorna il numero di byte scritti.
 
-On failure the function returns nil. For error information, use sys-error when used on files. When used on URLs net-error gives more error information.
+In caso di fallimento la funzione ritorna nil. Per informazioni sull'errore, utilizzare sys-error sul file. Se utilizzato su URL, net-error fornisce ulteriori informazioni sull'errore.
 
 (write-file "myfile.txt" "ABC")
 (append-file "myfile.txt" "DEF")
 
 (read-file "myfile.txt")  → "ABCDEF"
-append-file can take a http:// or file:// URL in str-file-name. In case of the http:// prefix , append-file works exactly like put-url with "Pragma: append\r\n" in the header option and can take the same additional parameters. The "Pragma: append\r\n" option is supplied automatically.
+
+append-file può usare a http:// oppure file:// URL in str-file-name. Quando il prefisso vale http:// allora append-file funziona esattamente come con l'opzione header "Pragma: append\r\n" e può avere gli stessi parametri addizionali. L'opzione "Pragma: append\r\n" viene aggiunta automaticamente.
 
 (append-file "http://asite.com/message.txt" "More message text.")
-The file message.txt is appended at a remote location http://asite.com with the contents of str-buffer. If the file does not yet exist, it will be created. In this mode, append-file can also be used to transfer files to remote newLISP server nodes.
+
+Il file message.txt viene aggiunto nella locazione remota http://asite.com con il contenuto di str-buffer. Se il file non esiste, allora verrà creato. In questo modo, append-file può anche essere usato per trasferire file a un server remoto newLISP.
+
+
+================================
+ SALVARE E CARICARE GLI OGGETTI
+================================
+
+Una caratteristica importante di un linguaggio interpretato è la capacità di salvare gli oggetti creati dall'utente durante la sessione REPL.
+
+Oltre alle funzioni I/O standard( "open", "close", "write-char" ecc), NewLISP mette a disposizione le funzioni "save", "load", "source" e "pretty-print".
+
+Vediamo la loro definizione:
+
+*****************
+>>>funzione SAVE
+*****************
+syntax: (save str-file)
+syntax: (save str-file sym-1 [sym-2 ... ])
+
+In the first syntax, the save function writes the contents of the newLISP workspace (in textual form) to the file str-file. save is the inverse function of load. Using load on files created with save causes newLISP to return to the same state as when save was originally invoked. System symbols starting with the $ character (e.g., $0 from regular expressions or $main-args from the command-line), symbols of built-in functions and symbols containing nil are not saved.
+
+In the second syntax, symbols can be supplied as arguments. If sym-n is supplied, only the definition of that symbol is saved. If sym-n evaluates to a context, all symbols in that context are saved. More than one symbol can be specified, and symbols and context symbols can be mixed. When contexts are saved, system variables and symbols starting with the $ character are not saved. Specifying system symbols explicitly causes them to be saved.
+
+Each symbol is saved by means of a set statement or—if the symbol contains a lambda or lambda-macro function—by means of define or define-macro statements.
+
+save returns true on completion.
+
+(save "save.lsp")
+(save "/home/myself/myfunc.LSP" 'my-func)
+(save "file:///home/myself/myfunc.LSP" 'my-func)
+(save "http://asite.com:8080//home/myself/myfunc.LSP" 'my-func)
+(save "mycontext.lsp" 'mycontext)
+
+;; multiple args
+(save "stuff.lsp" 'aContext 'myFunc '$main-args 'Acontext)
+Because all context symbols are part of the context MAIN, saving MAIN saves all contexts.
+
+Saving to a URL will cause an HTTP PUT request to be sent to the URL. In this mode, save can also be used to push program source to remote newLISP server nodes. Note that a double backslash is required when path names are specified relative to the root directory. save in HTTP mode will observe a 60-second timeout.
+
+Symbols made using sym that are incompatible with the normal syntax rules for symbols are serialized using a sym statement instead of a set statement.
+
+save serializes contexts and symbols as if the current context is MAIN. Regardless of the current context, save will always generate the same output.
+
+See also the functions load (the inverse operation of save) and source, which saves symbols and contexts to a string instead of a file.
+
+*****************
+>>>funzione LOAD
+*****************
+syntax: (load str-file-name-1 [str-file-name-2 ... ] [sym-context])
+
+Loads and translates newLISP from a source file specified in one or more str-file-name and evaluates the expressions contained in the file(s). When loading is successful, load returns the result of the last expression in the last file evaluated. If a file cannot be loaded, load throws an error.
+
+An optional sym-context can be specified, which becomes the context of evaluation, unless such a context switch is already present in the file being loaded. By default, files which do not contain context switches will be loaded into the MAIN context.
+
+The str-file-name specs can contain URLs. Both http:// and file:// URLs are supported.
+
+(load "myfile.lsp")
+
+(load "a-file.lsp" "b-file.lsp")
+
+(load "file.lsp" "http://mysite.org/mypro")
+
+(load "http://192.168.0.21:6000//home/test/program.lsp")
+
+(load "a-file.lsp" "b-file.lsp" 'MyCTX)
+
+(load "file:///usr/local/share/newlisp/mysql.lsp")
+In case expressions evaluated during the load are changing the context, this will not influence the programming module doing the load.
+
+The current context after the load statement will always be the same as before the load.
+
+Normal file specs and URLs can be mixed in the same load command.
+
+load with HTTP URLs can also be used to load code remotely from newLISP server nodes running on a Unix-like operating system. In this mode, load will issue an HTTP GET request to the target URL. Note that a double backslash is required when path names are specified relative to the root directory. load in HTTP mode will observe a 60-second timeout.
+
+The second to last line causes the files to be loaded into the context MyCTX. The quote forces the context to be created if it did not exist.
+
+The file:// URL is followed by a third / for the directory spec.
+
+*******************
+>>>funzione SOURCE
+*******************
+syntax: (source)
+syntax: (source sym-1 [sym-2 ... ])
+
+Works almost identically to save, except symbols and contexts get serialized to a string instead of being written to a file. Multiple variable symbols, definitions, and contexts can be specified. If no argument is given, source serializes the entire newLISP workspace. When context symbols are serialized, any symbols contained within that context will be serialized, as well. Symbols containing nil are not serialized. System symbols beginning with the $ (dollar sign) character are only serialized when mentioned explicitly.
+
+Symbols not belonging to the current context are written out with their context prefix.
+
+(define (double x) (+ x x))
+
+(source 'double)  → "(define (double x)\n  (+ x x))\n\n"
+As with save, the formatting of line breaks and leading spaces or tabs can be controlled using the pretty-print function.
+
+*************************
+>>>funzione PRETTY-PRINT
+*************************
+syntax: (pretty-print [int-length [str-tab [str-fp-format]])
+
+Reformats expressions for print, save, or source and when printing in an interactive console. The first parameter, int-length, specifies the maximum line length, and str-tab specifies the string used to indent lines. The third parameter str-fp-format describes the default format for printing floating point numbers. All parameters are optional. pretty-print returns the current settings or the new settings when parameters are specified.
+
+(pretty-print)  → (80 " " "%1.15g")  ; default setting
+
+(pretty-print 90 "\t")  → (90 "\t" "%1.15g")
+
+(pretty-print 100)  → (100 "\t" "%1.15g")
+
+(sin 1)    → 0.841470984807897
+(pretty-print 80 " " "%1.3f")
+(sin 1)    → 0.841
+
+(set 'x 0.0)
+x   → 0.000
+The first example reports the default settings of 80 for the maximum line length and a space character for indenting. The second example changes the line length to 90 and the indent to a TAB character. The third example changes the line length only. The last example changes the default format for floating point numbers. This is useful when printing unformatted floating point numbers without fractional parts, and these numbers should still be recognizable as floating point numbers. Without the custom format, x would be printed as 0 indistinguishable from floating point number. All situations where unformatted floating point numbers are printed, are affected.
+
+Note that pretty-print cannot be used to prevent line breaks from being printed. To completely suppress pretty printing, use the function string to convert the expression to a raw unformatted string as follows:
+
+;; print without formatting
+
+(print (string my-expression))
 
 
 =====================================
@@ -4286,7 +4678,7 @@ Possiamo definire queste funzioni in newLISP:
  FUNZIONI VARIE
 ================
 
-In questo paragrafo definiremo alcune funzioni che operano sulle liste e altre funzioni di carattere generale. Alcune di queste ci serviranno successivamente per risolvere i problemi che andremo ad affrontare.
+In questo capitolo definiremo alcune funzioni che operano sulle liste e altre funzioni di carattere generale. Alcune di queste ci serviranno successivamente per risolvere i problemi che andremo ad affrontare.
 Poichè newLISP permette sia lo stile funzionale che quello imperativo, le funzioni sono implementate in modo personale e possono essere sicuramente migliorate.
 
 Cambiare di segno ad un numero
@@ -4589,6 +4981,39 @@ Se il numero esadecimale non è intero per trasformarlo in numero decimale bisog
 - convertire la parte frazionaria scrivendo la somma dei prodotti delle cifre del numero, per le potenze crescenti negative del 16.
 
 
+Numeri casuali in un intervallo
+-------------------------------
+
+Generare un numero casuale n tale che: a <= n <= b
+
+(define (rand-range a b)
+  (if (> a b) (swap a b))
+  (+ a (rand (+ (- b a) 1)))
+)
+
+(rand-range 1 10)
+;-> 1
+
+Facciamo un test sulla distribuzione dei risultati:
+
+(define (test n a b)
+  (local (vec r)
+    (setq vec (array 10 '(0)))
+    (for (i 0 n)
+      (setq r (rand-range a b))
+      (++ (vec r))
+    )
+    vec
+  )
+)
+
+(test 100000 1 5)
+;-> (0 19828 20179 20076 20263 19655 0 0 0 0)
+
+(test 100000 0 9)
+;-> (9855 9809 9951 10199 9978 10006 9934 10110 10058 10101)
+
+
 Calcolo proporzione
 -------------------
 
@@ -4651,6 +5076,7 @@ Estrarre l'elemento n-esimo da una lista
 (n-esimo 5 '(1 (2 3) 4))
 ;-> ()
 
+(setq m '(0 1 2 3))
 
 Verificare se una lista è palindroma
 ------------------------------------
@@ -4753,6 +5179,38 @@ Calcoliamo il tempo di esecuzione e notiamo che è più veloce della funzione in
 ;-> 31.87 msec
 
 
+Raggruppare gli elementi di una lista
+-------------------------------------
+
+La funzione "raggruppa" utilizza la ricorsione, prima raggruppiamo la prima parte della lista (presa con la funzione "take"), poi richiamiamo la stessa funzione "raggruppa" sulla lista rimanente (presa con la funzione "drop").
+
+La funzione "take" restituisce i primi n elementi di una lista:
+
+(define (take n lst) (slice lst 0 n))
+
+La funzione "drop" restituisce tutti gli elementi di una lista tranne i primi n (cioè vengono esclusi dalla lista risultante i primi n elementi della lista passata:
+
+(define (drop n lst) (slice lst n))
+
+Adesso possiamo scrivere la funzione "raggruppa":
+
+(define (raggruppa n lst)
+   (if (null? lst) '()
+      (cons (take n lst) (raggruppa n (drop n lst)))
+   )
+)
+
+(setq lst '(0 1 2 3 4 5 6 7 8 9))
+(raggruppa 2 lst)
+;-> ((0 1) (2 3) (4 5) (6 7) (8 9))
+(raggruppa 3 lst)
+;-> ((0 1 2) (3 4 5) (6 7 8) (9))
+
+(setq lst '(1 2 3 4 5 6 7 8 9 10 11 12))
+(raggruppa 2 (raggruppa 2 lst))
+;-> (((1 2) (3 4)) ((5 6) (7 8)) ((9 10) (11 12)))
+
+
 Enumerare gli elementi di una lista
 -----------------------------------
 
@@ -4792,7 +5250,7 @@ Oppure:
 
 Oppure:
 
-(map (fn (x) (list $idx x)) '(a b c))
+(map (fn (x) (list $idx x)) '((a b) (c d) e))
 ;-> ((0 a) (1 b) (2 c))
 
 
@@ -4828,6 +5286,52 @@ Proviamo a scrivere la nostra funzione:
 
 (duplica "prova" 4)
 ;-> "provaprovaprovaprova"
+
+
+Massimo annidamento di una lista ("s-espressione")
+--------------------------------------------------
+
+La seguente funzione calcola il livello massimo di annidamento di una lista:
+
+(define (annidamento lst)
+  (cond ((null? lst) 0)
+        ((atom? lst) 0)
+        (true (max (+ 1 (annidamento (first lst)))
+                   (annidamento (rest lst))))
+  )
+)
+
+Il trucco sta nell'utilizzare la funzione "max" per scoprire quale ramo della ricorsione è il più profondo, notando che ogni volta che ricorraimo su first aggiungiamo un altro livello.
+
+(annidamento '())
+;-> 0
+(annidamento '(a b))
+;-> 1
+(annidamento '((a)))
+;-> 2
+(annidamento '(a (b) ((c)) d e f))
+;-> 3
+(annidamento '(a (((b c d))) (e) ((f)) g))
+;-> 4
+(annidamento '(a (((b c (d)))) (e) ((f)) g))
+;-> 5
+
+rickyboy:
+
+(define (nesting lst)
+  (if (null? lst) 0
+      (atom? lst) 0
+      (+ 1 (apply max (map nesting lst)))))
+
+fdb:
+
+(define (nesting lst prev (t 0))
+   (if (= lst prev)
+      t
+     (nesting (flat lst 1) lst (inc t))))
+
+(nesting '(a (((b c (d)))) (e) ((f)) g))
+;-> 5
 
 
 Run Length Encode di una lista
@@ -5124,7 +5628,7 @@ Calcolo della media di n numeri
 
 (define (media)
   (if (or (= (args) '()) (= (args) '(()) )) nil
-    (if (= (length (args)) 1)
+    (if (= (length (args)) 1) ;controlla se args è una lista o una serie di numeri
         (div (apply add (first (args))) (length (first (args))))
         (div (apply add (args)) (length (args)))
     )
@@ -5140,14 +5644,21 @@ Calcolo della media di n numeri
 (media 1 2 3)
 ;-> 2
 
+(media '(1 2 3 4 5 6 7 8 9))
+;-> 5
+
 (media (sequence 1 9999))
 ;-> 5000
+
+(setq lst '(1 2 3 4 5 6))
+(media lst)
+;-> 3.5
 
 
 Istogramma
 ----------
 
-Data una lista disegnare l'istogramma dei valori. 
+Data una lista disegnare l'istogramma dei valori.
 Deve essere possibile passare un parametro che indica che la lista passata non è una lista di frequenze, ma una lista di valori: in tal taso occorre calcolare la lista delle frequenze prima di disegnare l'istogramma.
 
 Le seguenti espressioni creano una lista di valori con 1000 elementi ("res"):
@@ -5173,7 +5684,7 @@ La seguente funzione disegna l'istogramma, se il parametro "calc" vale true, all
 
 (define (istogramma lst hmax (calc nil))
   (local (linee hm scala f-lst)
-    (if calc 
+    (if calc
       ;calcolo la lista delle frequenze partendo da lst
       (begin
         ;trovo quanti numeri diversi ci sono nella lista
@@ -5224,6 +5735,36 @@ La seguente funzione disegna l'istogramma, se il parametro "calc" vale true, all
 ;->   8 ***************   80
 ;->   9 ****************   84
 ;->  10 ********************  108
+
+
+Stampare una matrice
+--------------------
+
+(define (print-matrix matrix)
+  (local (row col nmax nmin digit fmtstr)
+    ; converto matrice in lista ?
+    (if (array? matrix) (setq matrix  (array-list matrix)))
+    ; righe della matrice
+    (setq row (length matrix))
+    ; colonne della matrice (da rivedere)
+    (setq col (length (first matrix)))
+    ; valore massimo
+    (setq nmax (string (apply max (flat matrix))))
+    ; valore minimo
+    (setq nmin (string (apply min (flat matrix))))
+    ; calcolo spazio per i numeri
+    (setq digit (add 1 (max (length nmax) (length nmin))))
+    ; creo stringa di formattazione
+    (setq fmtstr (append "%" (string digit) "d"))
+    ; stampa
+    (for (i 0 (sub row 1))
+      (for (j 0 (sub col 1))
+        (print (format fmtstr (matrix i j)))
+      )
+      (println)
+    )
+  )
+)
 
 
 Retta passante per due punti
@@ -5323,6 +5864,24 @@ Per decriptare un file:
 
 Funzioni per input utente
 -------------------------
+
+*********************
+>>>funzione READ-KEY
+*********************
+sintassi: (read-key)
+
+Legge un tasto dalla tastiera e restituisce un valore intero. Per i tasti di navigazione, è necessario effettuare più di una chiamata read-key. Per i tasti che rappresentano i caratteri ASCII, il valore di ritorno è lo stesso su tutti i Sistemi Operativi, ad eccezione dei tasti di navigazione e di altre sequenze di controllo come i tasti funzione, nel qual caso i valori di ritorno possono variare in base ai diversi SO e alle configurazioni.
+
+(read-key)  → 97  ; after hitting the A key
+(read-key)  → 65  ; after hitting the shifted A key
+(read-key)  → 10  ; after hitting [enter] on Linux
+(read-key)  → 13  ; after hitting [enter] on Windows
+
+(while (!= (set 'c (read-key)) 1) (println c))
+
+L'ultimo esempio può essere utilizzato per verificare le sequenze di ritorno dalla navigazione e dai tasti funzione. Per interrompere il ciclo, premere Ctrl-A.
+
+Nota che read-key funziona solo quando newLISP è in esecuzione in una shell Unix o nella shell dei comandi di Windows. Non funziona nelle gui Java newLISP-GS e Tcl/Tk newLISP-Tk. Non funziona neanche nelle shared library newwLISP di UNIX o nella DLL newLISP di Windows (Dynamic Link Library).
 
 ; =====================================================
 ; yes-no
@@ -5446,10 +6005,10 @@ Un modo elegante per ritornare al prompt senza intervento dell'utente è il segu
 (silent (myfunction) (print "Fatto") (resume))
 
 
-Simboli creati da una funzione
-------------------------------
+Simboli creati dall'utente
+--------------------------
 
-Per vedere quali simboli crea la nostra funzione possaimo utilizzare il seguente procedimento:
+Per vedere quali simboli crea la nostra funzione possiamo utilizzare il seguente procedimento:
 1) lanciare una nuova REPL
 2) impostare i simboli attuali su una variabile:
    (setq prima (symbols))
@@ -5463,13 +6022,36 @@ Esempio:
 1) lancio una nuova REPL
 2) creo una lista con i simboli attuali:
   (setq prima (symbols))
-3) eseguo la funzione:
+3) Scrivo la funzione:
   (define (doppio x) (mul x x))
 4) creo una lista con i nuovi simboli:
   (setq dopo (symbols))
 5) calcolo la differenza tra le due liste di simboli:
   (difference dopo prima)
 ;-> (dopo doppio x)
+
+La seguente funzione restituisce una lista con due sottoliste, la prima sottolista contiene i nomi delle funzioni definite dall'utente (lambda), mentra la seconda sottolista contiene tutti gli altri simboli definiti dall'utente.
+
+Definite la segunte funzione in una nuova sessione di newLISP (una nuova REPL) e poi eseguitela:
+
+(define (user-symbols)
+  (local (func other)
+    (setq func '())
+    (setq other '())
+    (dolist (el (symbols))
+      (if (lambda? (eval el))  (push el func -1))
+      (if (and (not (lambda? (eval el)))
+               (not (primitive? (eval el)))
+               (not (protected? el))
+               (not (global? el)))
+          (push el other -1))
+    )
+    (list func other)
+  )
+)
+
+(user-symbols)
+;-> ((module user-symbols) (el func other)) 
 
 
 Il programma è in esecuzione ? (progress display)
@@ -5620,6 +6202,99 @@ Un altro metodo simile:
 
 (define (typeof v)
     (types (& 0xf ((dump v) 1))))
+
+
+Informazioni sul sistema (sys-info)
+-----------------------------------
+
+Possiamo ottenre diverse informazioni sul sistema in uso utilizzando la funzione "sys-info".
+
+sintassi: (sys-info [int-idx])
+Chiamando sys-info senza int-idx viene restituito un elenco di informazioni sulle risorse. Dieci valori interi che hanno il seguente significato:
+
+valore descrizione
+  0     Numero di celle Lisp
+  1     Numero massimo di celle Lisp (costante)
+  2     Numero di simboli
+  3     Livello di valutazione / ricorsione dell'ambiente
+  4     Livello di stack dell'ambiente
+  5     Numero massimo di chiamate allo stack (costante)
+  6     Pid del processo genitore oppure 0
+  7     Pid del processo newLISP
+  8     Numero della versione come costante intera
+  9     Costanti del sistema operativo:
+        linux = 1, bsd = 2, osx = 3, solaris = 4, windows = 6, os / 2 = 7, cygwin = 8, tru64 unix = 9, aix = 10, android = 11
+        il bit 11 è impostato per le versioni ffilib (Extended Import / Callback API) (aggiungere 1024)
+        il bit 10 è impostato per le versioni IPv6 (aggiungere 512)
+        il bit  9 è impostato per le versioni a 64 bit (modificabili a runtime) (aggiungere 256)
+        il bit  8 è impostato per le versioni UTF-8 (aggiungere 128)
+        il bit  7 è aggiunto per le versioni di libreria (aggiungere 64)
+
+I numeri da 0 a 9 indicano il valore l'indice int-idx (opzionale) nella lista restituita.
+
+Si consiglia di utilizzare gli indici da 0 a 5 (includendo) "Numero massimo di chiamate allo stack costante") e utilizzare gli offset negativi da -1 a -4 per accedere alle ultime quattro voci nella lista delle informazioni di sistema. Le future nuove voci verranno inserite dopo l'indice 5. In questo modo i programmi scritti precedentemente non dovranno essere modificati.
+
+Quando si usa int-idx, verrà restituito un solo elemento della lista.
+
+(sys-info) → (429 268435456 402 1 0 2048 0 19453 10406 ​​1155)
+(sys-info 3) → 1
+(sys-info -2) → 10406 ​​;; versione 10.4.6
+
+Il numero relativo al massimo di celle Lisp può essere modificato tramite l'opzione della riga di comando -m. Per ogni megabyte di memoria di celle Lisp, è possibile allocare 64k celle Lisp. La profondità massima dello stack di chiamata può essere modificata utilizzando l'opzione della riga di comando -s.
+
+(sys-info -1)
+;-> 1414
+(dec2bin (sys-info -1))
+;-> 10110000110
+1 --> ffilib ON
+0 --> IPv6 OFF
+1 --> 64bit ON
+1 --> UTF-8 ON
+0 --> library OFF
+0 --> (free)
+0 --> (free)
+0110 --> 6 = windows
+
+(bin2dec 110)
+;-> 6
+
+(dec2bin 11)
+; Restituisce il bit n-esimo del numero intero positivo
+; indice zero
+(define (bit n x)
+    (if (< x 0) (setq x (sub 0 x))) ; solo numeri positivi
+    (& (>> x (- n 1)) 1)
+)
+
+(bit 1 1414)
+(bit 2 1414)
+(bit 3 1414)
+(bit 4 1414)
+(bit 5 1414)
+(bit 6 1414)
+(bit 7 1414)
+(bit 8 1414)
+(bit 9 1414)
+(bit 10 1414)
+(bit 11 1414)
+(bit 12 1414)
+
+
+1414 --> 10110000110
+
+(& (>> 1414 0) 1)
+(& (>> 1414 1) 1) 1
+(& (>> 1414 2) 1) 1
+(& (>> 1414 3) 1) 0
+(& (>> 1414 4) 1) 0
+(& (>> 1414 5) 1) 0
+(& (>> 1414 6) 1) 0
+(& (>> 1414 7) 1) 1
+(& (>> 1414 8) 1) 1
+(& (>> 1414 9) 1) 0
+(& (>> 1414 10) 1) 1
+(& (>> 1414 11) 1) 0
+(& (>> 1414 12) 1) 0
 
 
 ==========================
@@ -8053,6 +8728,209 @@ Adesso la scriviamo in stile iterativo:
 ;-> 128
 
 
+PROBLEMA DELLO ZAINO (KNAPSACK)
+-------------------------------
+
+Il problema dello zaino, detto anche problema di Knapsack, è un problema di ottimizzazione combinatoria definito nel modo seguente:
+Dato uno zaino che può supportare determinato peso e dati N oggetti, ognuno dei quali caratterizzato da un peso e un valore, il problema si propone di scegliere quali di questi oggetti mettere nello zaino per ottenere il maggiore valore senza eccedere il peso sostenibile dallo zaino stesso.
+In maniera formale la formulazione del problema diventa:
+- ognuno degli N oggetti possiede un peso p(i) e un valore v(i)
+- il valore W indica il peso massimo sopportabile dallo zaino;
+- la possibilità che un oggetto venga inserito o meno nello zaino è espressa dalle variabili intere x(i)
+La funzione obiettivo è:
+
+max Z = Sum(ci*xi) (per i=1..N)
+
+Con i vincoli:
+
+W <= Sum(wi*xi) (per i=1..N)
+
+Si indichino con w{i} il peso dell'i-esimo oggetto e con c{i} il suo valore. Si vuole massimizzare il valore totale rispettando il vincolo che il peso totale sia minore o uguale al peso massimo consentito W. Definiamo A(i,j) come il massimo valore che può essere trasportato con uno zaino di capacità j <= W avendo a disposizione solo i primi "i" oggetti.
+
+Si può definire A(i,j) ricorsivamente come segue:
+
+A(0,j) = 0
+A(i,0) = 0
+A(i,j) = A(i-1,j) se w(i) > j
+A(i,j) = max[A(i-1,j), A(i-1,j-w(i)) + c(i)] se w(i) <= j.}
+
+Cerchiamo di risolvere il problema con la forza bruta: calcolo tutte le combinazioni di oggetti con il relativo valore e poi scelgo quella combinazione che ha il valore maggiore (potrebbero esserci più di una combinazione con valore massimo).
+I dati sono rappresentati da una lista i cui elementi hanno la seguente struttura:
+
+(nome peso valore)
+
+Supponiamo che la lista iniziale sia la seguente:
+
+(setq k '((a 2 3) (b 3 4) (c 4 5) (d 5 6)))
+;-> ((a 2 3) (b 3 4) (c 4 5) (d 5 6))
+
+Definizmo tre funzioni che estraggono le liste dei noni, dei pesi e dei valori:
+
+(define (getNomi lst) (map (fn(x) (first x)) lst))
+(define (getPesi lst) (map (fn(x) (first (rest x))) lst))
+(define (getValori lst) (map (fn(x) (last x)) lst))
+
+(setq nomi (getNomi k))
+;-> (a b c d)
+(setq pesi (getPesi k))
+;-> (2 3 4 5)
+(setq valori (getValori k))
+;-> (3 4 5 6)
+
+Questa è la funzione per generare le combinazioni:
+
+(define (combinazioni k nlst)
+  (cond ((zero? k)     '(()))
+        ((null? nlst)  '())
+        (true
+          (append (map (lambda (k-1) (cons (first nlst) k-1))
+                       (combinazioni (- k 1) (rest nlst)))
+                  (combinazioni k (rest nlst))))))
+
+(combinazioni 2 '(3 4 5 6))
+;-> ((3 4) (3 5) (3 6) (4 5) (4 6) (5 6))
+
+Dobbiamo generare le combinazioni (dei valori) relative a tutte le possibili liste (quindi quelle di qualunque lunghezza):
+
+(setq allv '())
+(for (i 1 (length valori))
+  (extend allv (combinazioni i valori))
+)
+;-> ((3) (4) (5) (6) (3 4) (3 5) (3 6) (4 5) (4 6) (5 6) (3 4 5) (3 4 6) (3 5 6)
+;->  (4 5 6) (3 4 5 6))
+
+Notare che il numero di combinazioni da cansiderare vale (2^elementi + 1).
+Ad esempio con 22 elementi dobbiamo considerare (pow 2 22) = 4194304 combinazioni.
+
+Adesso dobbiamo calcolare la somma dei valori di ogni sottolista (peso):
+
+(setq sumv (map (fn (x) (apply + x)) allv))
+;-> (3 4 5 6 7 8 9 9 10 11 12 13 14 15 18)
+
+Cerchiamo il valore massimo
+(setq valmax (apply max sumvOK))
+;-> 10
+
+Adesso dobbiamo eliminare tutti i valori che sono superiori al peso massimo W:
+(setq W 10)
+
+(setq sumvOK (map (fn(x) (if (> x W) 0 x)) sumv))
+;-> (3 4 5 6 7 8 9 9 10 0 0 0 0 0 0)
+
+Troviamo gli indici dei valori che hanno valore massimo (10):
+(setq sol-idx (flat (ref-all 10 sumvOK)))
+;-> (8)
+
+Adesso cerchiamo i valori che concorrono a creare il valore massimo:
+(setq val-max '())
+(dolist (el sol-idx)
+  (push (allv el) val-max -1)
+)
+;-> ((4 6))
+
+Troviamo gli indici degli elementi che hanno valore 4 e 6:
+
+(setq ele-idx '())
+(dolist (el val-max)
+  (setq item '())
+  (dolist (x el)
+    (setq vv (ref x valori))
+    (push (list (nomi vv) (valori vv)) item -1)
+  )
+  (push item ele-idx -1)
+)
+;-> (((b 4) (d 6)))
+
+Finalmente abbiamo trovato la soluzione.
+
+Come abbiamo anticipato, si può trovare la soluzione calcolando A(n,W). Per farlo in modo efficiente si può usare una tabella che memorizzi i calcoli fatti precedentemente (memoization o programmazione dinamica). Questa soluzione impiegherà quindi un tempo proporzionale a O(nW)} e uno spazio anch'esso proporzionale a O(nW).
+
+(define (knapsack C items)
+  (define (getNomi lst) (map (fn(x) (first x)) lst))
+  (define (getPesi lst) (map (fn(x) (first (rest x))) lst))
+  (define (getValori lst) (map (fn(x) (last x)) lst))
+  (local (table x name weight val cp n nome peso valore)
+    ;creazione i vettori dei dati
+    (setq n (length items))
+    (setq name (getNomi items))
+    (setq weight (getPesi items))
+    (setq val (getValori items))
+    (setq table (array (add n 1) (add C 1) '(0)))
+    ;(for (i 0 (sub n 1)) (setf (table i 0) 0))
+    ;(for (j 0 (sub n 1)) (setf (table 0 j) 0))
+    (for (i 1 n)
+      (for (cp 1 C)
+        (if (<= (weight (sub i 1)) cp)
+            (begin
+              ;(println (weight (sub i 1)) { } (val (sub i 1)))
+              (setq x (sub cp (weight (sub i 1))))
+              (setf (table i cp) (max (add (val (sub i 1)) (table (sub i 1) x))
+                                      (table (sub i 1) cp)))
+            )
+        ;else
+            (begin
+              (setf (table i cp)  (table (sub i 1) cp))
+            )
+        )
+      )
+    )
+    ;(println (table n C))
+    ; Selezione elementi della soluzione
+    (setq res '())
+    (setq cp C)
+    (setq ptot 0)
+    (setq vtot 0)
+    (for (i n 1 -1)
+      (setq aggiunto (!= (table i cp) (table (sub i 1) cp)))
+      (if aggiunto
+        (begin
+           (setq nome (name (sub i 1)))
+           (setq peso (weight (sub i 1)))
+           (setq valore (val (sub i 1)))
+           (push (list nome peso valore) res)
+           (setq ptot (add ptot peso))
+           (setq vtot (add vtot valore))
+           (setq cp (sub cp peso))
+        )
+      )
+    )
+    (println "Valore: " vtot { } "Peso: " ptot)
+    res
+  )
+)
+
+(setq item '((maps 9 150)
+             (compass 13 35)
+             (water 153 200)
+             (sandwich 50 160)
+             (glucose 15 60)
+             (tin 68 45)
+             (banana 27 60)
+             (apple 39 40)
+             (cheese 23 30)
+             (beer 52 10)
+             (suntan-cream 11 70)
+             (camera 32 30)
+             (T-shirt 24 15)
+             (trousers 48 10)
+             (umbrella 73 40)
+             (waterproof-trousers 42 70)
+             (waterproof-overclothes 43 75)
+             (note-case 22 80)
+             (sunglasses 7 20)
+             (towel 18 12)
+             (socks 4 50)
+             (book 30 10)
+            )
+)
+
+(knapsack 400 items)
+;-> Valore: 1030 Peso: 396
+;-> ((maps 9 150) (compass 13 35) (water 153 200) (sandwich 50 160) (glucose 15 60)
+;->  (banana 27 60) (suntan-cream 11 70) (waterproof-trousers 42 70) (waterproof-overclothes 43 75)
+;->  (note-case 22 80) (sunglasses 7 20) (socks 4 50))
+
+
 ================
  PROJECT EULERO
 ================
@@ -8896,6 +9774,312 @@ Proviamo con una funzione iterativa:
 
 
 ===========
+Problema 11
+===========
+
+Il più grande prodotto in una griglia
+
+Nella griglia 20 × 20 seguente, quattro numeri lungo una linea diagonale sono stati racchiusi con i caratteri > < (es. >26<).
+
+08  02  22  97  38  15  00  40  00  75  04  05  07  78  52  12  50  77  91  08
+49  49  99  40  17  81  18  57  60  87  17  40  98  43  69  48  04  56  62  00
+81  49  31  73  55  79  14  29  93  71  40  67  53  88  30  03  49  13  36  65
+52  70  95  23  04  60  11  42  69  24  68  56  01  32  56  71  37  02  36  91
+22  31  16  71  51  67  63  89  41  92  36  54  22  40  40  28  66  33  13  80
+24  47  32  60  99  03  45  02  44  75  33  53  78  36  84  20  35  17  12  50
+32  98  81  28  64  23  67  10 >26< 38  40  67  59  54  70  66  18  38  64  70
+67  26  20  68  02  62  12  20  95 >63< 94  39  63  08  40  91  66  49  94  21
+24  55  58  05  66  73  99  26  97  17 >78< 78  96  83  14  88  34  89  63  72
+21  36  23  09  75  00  76  44  20  45  35 >14< 00  61  33  97  34  31  33  95
+78  17  53  28  22  75  31  67  15  94  03  80  04  62  16  14  09  53  56  92
+16  39  05  42  96  35  31  47  55  58  88  24  00  17  54  24  36  29  85  57
+86  56  00  48  35  71  89  07  05  44  44  37  44  60  21  58  51  54  17  58
+19  80  81  68  05  94  47  69  28  73  92  13  86  52  17  77  04  89  55  40
+04  52  08  83  97  35  99  16  07  97  57  32  16  26  26  79  33  27  98  66
+88  36  68  87  57  62  20  72  03  46  33  67  46  55  12  32  63  93  53  69
+04  42  16  73  38  25  39  11  24  94  72  18  08  46  29  32  40  62  76  36
+20  69  36  41  72  30  23  88  34  62  99  69  82  67  59  85  74  04  36  16
+20  73  35  29  78  31  90  01  74  31  49  71  48  86  81  16  23  57  05  54
+01  70  54  71  83  51  54  69  16  92  33  48  61  43  52  01  89  19  67  48
+
+Il prodotto di questi numeri vale 26 × 63 × 78 × 14 = 1788696.
+
+Qual'è il valore più grande del prodotto di quattro numeri adiacenti nella stessa direzione (su, giù, sinistra, destra o diagonalmente) nella griglia 20 × 20?
+
+(setq grid 
+'( 8  2 22 97 38 15  0 40  0 75  4  5  7 78 52 12 50 77 91  8
+  49 49 99 40 17 81 18 57 60 87 17 40 98 43 69 48  4 56 62  0
+  81 49 31 73 55 79 14 29 93 71 40 67 53 88 30  3 49 13 36 65
+  52 70 95 23  4 60 11 42 69 24 68 56  1 32 56 71 37  2 36 91
+  22 31 16 71 51 67 63 89 41 92 36 54 22 4  40 28 66 33 13 80
+  24 47 32 60 99  3 45  2 44 75 33 53 78 36 84 20 35 17 12 50
+  32 98 81 28 64 23 67 10 26 38 40 67 59 54 70 66 18 38 64 70
+  67 26 20 68  2 62 12 20 95 63 94 39 63  8 40 91 66 49 94 21
+  24 55 58  5 66 73 99 26 97 17 78 78 96 83 14 88 34 89 63 72
+  21 36 23  9 75  0 76 44 20 45 35 14  0 61 33 97 34 31 33 95
+  78 17 53 28 22 75 31 67 15 94  3 80  4 62 16 14  9 53 56 92
+  16 39  5 42 96 35 31 47 55 58 88 24  0 17 54 24 36 29 85 57
+  86 56  0 48 35 71 89  7  5 44 44 37 44 60 21 58 51 54 17 58
+  19 80 81 68  5 94 47 69 28 73 92 13 86 52 17 77  4 89 55 40
+   4 52  8 83 97 35 99 16  7 97 57 32 16 26 26 79 33 27 98 66
+  88 36 68 87 57 62 20 72  3 46 33 67 46 55 12 32 63 93 53 69
+   4 42 16 73 38 25 39 11 24 94 72 18  8 46 29 32 40 62 76 36
+  20 69 36 41 72 30 23 88 34 62 99 69 82 67 59 85 74  4 36 16
+  20 73 35 29 78 31 90  1 74 31 49 71 48 86 81 16 23 57  5 54
+   1 70 54 71 83 51 54 69 16 92 33 48 61 43 52  1 89 19 67 48))
+
+(length grid)
+;-> 400
+
+(define (right i)
+	(setq r (slice grid i 4))
+	(apply * r))
+
+(define (down i)
+	(setq d (select grid i (+ i 20) (+ i 40) (+ i 60)))
+	(apply * d))
+
+(define (diag-down-right i)
+	(setq dr (select grid i (+ i 21) (+ i 42) (+ i 63)))
+	(apply * dr))
+  
+(define (diag-down-left i)
+	(setq dl (select grid i (+ i 19) (+ i 38) (+ i 57)))
+	(apply * dl))
+
+(define (e011)
+  (setq down-max (apply max (map (fn (x) (down x)) (sequence 0 339))))
+  (setq diag-down-left-max (apply max (map (fn (x) (diag-down-left x)) (sequence 3 339))))
+  (setq diag-down-right-max (apply max (map (fn (x) (diag-down-right x)) (sequence 0 333))))
+  (max down-max diag-down-left-max diag-down-left-max)
+)
+
+(e011)
+;-> 70600674
+
+(time (e011))
+;-> 0
+
+
+===========
+Problema 12
+===========
+
+Numero triangolare altamente divisibile
+
+La sequenza di numeri triangolari viene generata aggiungendo i numeri naturali. Quindi il settimo numero di triangolo sarebbe 1 + 2 + 3 + 4 + 5 + 6 + 7 = 28. I primi dieci termini sarebbero:
+
+1, 3, 6, 10, 15, 21, 28, 36, 45, 55, ...
+
+Cerchiamo di elencare i fattori dei primi sette numeri di triangolo:
+
+  1: 1
+  3: 1,3
+  6: 1,2,3,6
+10: 1,2,5,10
+15: 1,3,5,15
+21: 1,3,7,21
+28: 1,2,4,7,14,28
+
+Possiamo vedere che 28 è il primo numero di triangolo ad avere più di cinque divisori.
+
+Qual'è il valore del primo numero di triangolo per avere oltre cinquecento divisori?
+
+Funzione che calcola l'n-esimo numero triangolare:
+
+(define (numtri n) (/ (+ (* n n) n) 2))
+;-> (numtri 1)
+;-> 1
+;-> (numtri 2)
+;-> 3
+;-> (numtri 3)
+;-> 6
+;-> (numtri 4)
+;-> 10
+
+Funzione cha calcola il numero di divisori di un numero n:
+
+(define (numdivisors n)
+  (local (ndiv)
+    (setq ndiv 0)
+    (for (i 1 (+ n 1))
+      (if (zero? (mod (div n i) 1) 0) (++ ndiv))
+      ;(if (= (mod (div n i) 1) 0) (begin (++ ndiv) (println i)))
+    )
+    ndiv
+  )
+)
+
+(numdivisors 10) ;(1 2 5 10)
+;-> 4 
+
+(numdivisors 64) ;(1 2 4 8 16 32 64)
+;-> 7
+
+(define (e012)
+  (let (look true)
+    (for (i 1 99999 2 (not look))
+      (if (> (* (numdivisors i) (numdivisors (div (numtri i) i))) 500)
+        (begin
+          (println "i = " i {; } 
+                   "tri = " (numtri i) {; } 
+                   "divisori = " (* (numdivisors i) (numdivisors (div (numtri i) i))))
+          (setq look false)
+        )
+      )
+    )
+  )
+)
+
+(e012)
+;-> i = 12375; tri = 76576500; divisori = 576
+;-> true
+
+(time (e012))
+;-> 5444.521
+
+
+===========
+Problema 13
+===========
+
+Grande somma
+
+Calcolare le prime dieci cifre della somma dei seguenti cento numeri di 50 cifre ognuno.
+
+Suddividiamo la lista da 100 numeri in due liste da 50 numeri per evitare il limite dei 2048 caratteri che newLISP pone alla lunghezza di una espressione.
+
+(setq numeriA '(
+ 37107287533902102798797998220837590246510135740250L 
+ 46376937677490009712648124896970078050417018260538L 
+ 74324986199524741059474233309513058123726617309629L 
+ 91942213363574161572522430563301811072406154908250L 
+ 23067588207539346171171980310421047513778063246676L 
+ 89261670696623633820136378418383684178734361726757L 
+ 28112879812849979408065481931592621691275889832738L 
+ 44274228917432520321923589422876796487670272189318L 
+ 47451445736001306439091167216856844588711603153276L 
+ 70386486105843025439939619828917593665686757934951L 
+ 62176457141856560629502157223196586755079324193331L 
+ 64906352462741904929101432445813822663347944758178L 
+ 92575867718337217661963751590579239728245598838407L 
+ 58203565325359399008402633568948830189458628227828L 
+ 80181199384826282014278194139940567587151170094390L 
+ 35398664372827112653829987240784473053190104293586L 
+ 86515506006295864861532075273371959191420517255829L 
+ 71693888707715466499115593487603532921714970056938L 
+ 54370070576826684624621495650076471787294438377604L 
+ 53282654108756828443191190634694037855217779295145L 
+ 36123272525000296071075082563815656710885258350721L 
+ 45876576172410976447339110607218265236877223636045L 
+ 17423706905851860660448207621209813287860733969412L 
+ 81142660418086830619328460811191061556940512689692L 
+ 51934325451728388641918047049293215058642563049483L 
+ 62467221648435076201727918039944693004732956340691L 
+ 15732444386908125794514089057706229429197107928209L 
+ 55037687525678773091862540744969844508330393682126L 
+ 18336384825330154686196124348767681297534375946515L 
+ 80386287592878490201521685554828717201219257766954L 
+ 78182833757993103614740356856449095527097864797581L 
+ 16726320100436897842553539920931837441497806860984L 
+ 48403098129077791799088218795327364475675590848030L 
+ 87086987551392711854517078544161852424320693150332L 
+ 59959406895756536782107074926966537676326235447210L 
+ 69793950679652694742597709739166693763042633987085L 
+ 41052684708299085211399427365734116182760315001271L 
+ 65378607361501080857009149939512557028198746004375L 
+ 35829035317434717326932123578154982629742552737307L 
+ 94953759765105305946966067683156574377167401875275L 
+ 88902802571733229619176668713819931811048770190271L 
+ 25267680276078003013678680992525463401061632866526L 
+ 36270218540497705585629946580636237993140746255962L 
+ 24074486908231174977792365466257246923322810917141L 
+ 91430288197103288597806669760892938638285025333403L 
+ 34413065578016127815921815005561868836468420090470L 
+ 23053081172816430487623791969842487255036638784583L 
+ 11487696932154902810424020138335124462181441773470L 
+ 63783299490636259666498587618221225225512486764533L 
+ 67720186971698544312419572409913959008952310058822L ))
+
+(setq numeriB '(
+ 95548255300263520781532296796249481641953868218774L 
+ 76085327132285723110424803456124867697064507995236L 
+ 37774242535411291684276865538926205024910326572967L 
+ 23701913275725675285653248258265463092207058596522L 
+ 29798860272258331913126375147341994889534765745501L 
+ 18495701454879288984856827726077713721403798879715L 
+ 38298203783031473527721580348144513491373226651381L 
+ 34829543829199918180278916522431027392251122869539L 
+ 40957953066405232632538044100059654939159879593635L 
+ 29746152185502371307642255121183693803580388584903L 
+ 41698116222072977186158236678424689157993532961922L 
+ 62467957194401269043877107275048102390895523597457L 
+ 23189706772547915061505504953922979530901129967519L 
+ 86188088225875314529584099251203829009407770775672L 
+ 11306739708304724483816533873502340845647058077308L 
+ 82959174767140363198008187129011875491310547126581L 
+ 97623331044818386269515456334926366572897563400500L 
+ 42846280183517070527831839425882145521227251250327L 
+ 55121603546981200581762165212827652751691296897789L 
+ 32238195734329339946437501907836945765883352399886L 
+ 75506164965184775180738168837861091527357929701337L 
+ 62177842752192623401942399639168044983993173312731L 
+ 32924185707147349566916674687634660915035914677504L 
+ 99518671430235219628894890102423325116913619626622L 
+ 73267460800591547471830798392868535206946944540724L 
+ 76841822524674417161514036427982273348055556214818L 
+ 97142617910342598647204516893989422179826088076852L 
+ 87783646182799346313767754307809363333018982642090L 
+ 10848802521674670883215120185883543223812876952786L 
+ 71329612474782464538636993009049310363619763878039L 
+ 62184073572399794223406235393808339651327408011116L 
+ 66627891981488087797941876876144230030984490851411L 
+ 60661826293682836764744779239180335110989069790714L 
+ 85786944089552990653640447425576083659976645795096L 
+ 66024396409905389607120198219976047599490197230297L 
+ 64913982680032973156037120041377903785566085089252L 
+ 16730939319872750275468906903707539413042652315011L 
+ 94809377245048795150954100921645863754710598436791L 
+ 78639167021187492431995700641917969777599028300699L 
+ 15368713711936614952811305876380278410754449733078L 
+ 40789923115535562561142322423255033685442488917353L 
+ 44889911501440648020369068063960672322193204149535L 
+ 41503128880339536053299340368006977710650566631954L 
+ 81234880673210146739058568557934581403627822703280L 
+ 82616570773948327592232845941706525094512325230608L 
+ 22918802058777319719839450180888072429661980811197L 
+ 77158542502016545090413245809786882778948721859617L 
+ 72107838435069186155435662884062257473692284509516L 
+ 20849603980134001723930671666823555245252804609722L 
+ 53503534226472524250874054075591789781264330331690L ))
+
+(length numeriA)
+;-> 50
+(length numeriB)
+;-> 50
+
+(apply + numeriA)
+;-> 2739840008414248713350123647779193919724097856798098L
+
+(apply + numeriB)
+;-> 2797536221976627923951925099053792052049561975094574L
+
+(+ (apply + numeriA) (apply + numeriB))
+
+(define (e013)
+  (slice (string (+ (apply + numeriA) (apply + numeriB))) 0 10))
+
+(e013)
+;-> "5537376230"
+
+Il numero  completo vale:
+5479680016828497426700247295558387839448195713596196L
+
+(time (e013))
+;-> 0
+
+
+===========
 Problema 14
 ===========
 
@@ -9239,13 +10423,528 @@ la funzione "e021-fast" è tre volte più veloce della funzione "e021".
  PROBLEMI VARI
 ===============
 
+Implementare una pila (stack) con un vettore
+--------------------------------------------
+
+La pila (Stack) è una struttura dati lineare che segue un ordine particolare in cui vengono eseguite le operazioni. L'ordine può essere LIFO (Last In First Out) o FILO (First In Last Out).
+Principalmente le seguenti quattro operazioni di base sono eseguite nello stack:
+
+Push: aggiunge un elemento nello stack. Se lo stack è pieno, si dice che sia una condizione di Overflow.
+Pop: rimuove un oggetto dalla pila. Gli articoli vengono visualizzati nell'ordine invertito in cui vengono inseriti. Se lo stack è vuoto, si dice che sia una condizione di Underflow.
+Look o Peek o Top: restituisce l'elemento superiore dello stack.
+isEmpty: restituisce true se lo stack è vuoto, altrimenti false.
+pila
+
+Come capire praticamente una pila?
+Ci sono molti esempi di vita reale di una pila. Considera il semplice esempio di piatti impilati uno sull'altro in una mensa. Il piatto che è nella parte superiore è il primo ad essere rimosso, in altre parole il piatto che è stato posto nella posizione più bassa rimane nella pila per il periodo di tempo più lungo. Quindi, può essere semplicemente visto seguire l'ordine LIFO / FILO.
+
+Complessità di tempo delle operazioni sullo stack:
+
+Le funzioni push (), pop (), isEmpty () e look () richiedono tutti un tempo O(1). Non eseguiamo alcun ciclo in queste operazioni.
+
+          ---------------------   <-- push
+          | 1 | 2 | 3 | 4 | 5 |
+          ---------------------   pop -->
+  Indice    0   1   2   3   4
+
+Crea le variabili per la gestione della pila:
+(define (Screate n)
+  (setq Ssize n) ; max size
+  (setq Sidx 0)
+  (setq Stack (array Ssize '(0)))
+)
+
+La pila è vuota?
+(define (SisEmpty?) (= Sidx 0))
+
+La pila è piena?
+(define (SisFull?) (= Sidx Ssize))
+
+Lunghezza della pila
+(define (SgetLen) (Sidx)
+
+Inserisce un elemento nella pila (in cima):
+(define (Spush el)
+  (if (SisFull?) (list nil "Overflow")
+    (begin (setf (Stack Sidx) el) (++ Sidx))
+  )
+)
+
+Estrae un elemento dalla pila (in cima):
+(define (Spop)
+  (if (SisEmpty?) (list nil "Underflow")
+    (begin (-- Sidx) (Stack Sidx))
+  )
+)
+
+Guarda un elemento dalla lista (in cima):
+(define (Slook)
+  (if (SisEmpty?) nil
+      (Stack (- Sidx 1))
+  )
+)
+
+Stampa elementi della pila:
+
+(define (Sshow)
+  (if (SisEmpty?) nil ; coda vuota ?
+      (for (i 0 (- Sidx 1))
+            (print (Stack i) { })
+      )
+  )
+)
+
+(Screate 3)
+;-> (0 0 0)
+(Spush 1)
+;-> 1
+(Spush 2)
+;-> 2
+(SisFull?)
+;-> nil
+(Spush 3)
+;-> 3
+(SisFull?)
+;-> true
+(Slook)
+;-> 3
+(Sshow)
+;-> 1 2 3
+(Spop)
+;-> 3
+(Spop)
+;-> 2
+(Spop)
+;-> 1
+(Spop)
+;-> (nil "Overflow)
+(Spush 1)
+(Spush 2)
+(Spush 3)
+(Spush 4)
+;-> (nil "Overflow")
+
+
+Implementare una coda (queue) con un vettore
+--------------------------------------------
+
+In una coda (queue), l'inserimento e l'eliminazione degli elementi avvengono agli estremi opposti, quindi l'implementazione non è semplice come quella della pila (stack). Le operazioni su una coda sono basate sul principio FIFO (First In First Out).
+Per implementare una coda usando un vettore, creare un vettore "vec" arr di dimensione n e utilizzare due variabili front e rear che verranno inizializzate a 0, il che significa che la coda è attualmente vuota. La variabile "rear" è l'indice in cui gli elementi sono memorizzati nel vettore e "front" è l'indice del primo elemento del vettore. Alcune delle operazioni sulle code sono le seguenti:
+
+Enqueue: aggiunge di un elemento alla coda. L'aggiunta di un elemento verrà eseguita dopo aver controllato se la coda è piena o meno. Se (front < n) che indica che l'array non è pieno, allora memorizza l'elemento in vec[front] e incrementa rear di 1, ma se rear == n allora si ottiene una condizione di Overflow (il vettore è pieno).
+
+Dequeue: rimuove un elemento dalla coda. Un elemento può essere cancellato solo quando è presente almeno un elemento da eliminare, ad esempio (rear > 0). Ora, l'elemento at vec[front] può essere cancellato, ma tutti gli elementi rimanenti devono essere spostati a sinistra di una posizione in modo che le successive operazioni sulla coda trovino il primo elemento della coda sulla prima cella (indice 0) del vettore.
+
+Look: Ottiene l'elemento iniziale (front) dalla coda, ad esempio vec[front] se la coda non è vuota.
+
+Show: Se la coda non è vuota, attraversa e stampa tutti gli elementi dall'indice anteriore a quello posteriore.
+
+               -------------------------
+  dequeue <--  | 1 | 2 | 3 | 4 | 5 |   |  <-- enqueue
+               -------------------------
+       Indice    0   1   2   3   4  ...
+
+Crea le variabili per la gestione della coda:
+
+(define (Qcreate n)
+  (setq Qsize n) ; max size
+  (setq Qfront 0)
+  (setq Qrear 0)
+  (setq Queue (array Qsize '(0)))
+)
+
+Inserisce un elemento nella coda (in fondo alla coda):
+
+(define (Qenqueue el)
+  ;controlla se la coda è piena
+  (if (= Qsize Qrear)
+      (list nil "overflow")
+      ;else
+      (begin
+        (setf (Queue Qrear) el)
+        (++ Qrear)
+        el
+      )
+  )
+)
+
+Estrae un elemento dalla coda (all'inizio della coda):
+
+(define (Qdequeue)
+  (local (el)
+    ;controlla se la coda è vuota
+    (if (= Qfront Qrear)
+        (list nil "overflow")
+        ;else
+        (begin
+          (setq el (Queue Qfront)) ; estrae primo elemento della coda
+          ; sposta tutti gli elementi a sinistra di un posto
+          ; partendo dal secondo indice fino all'indice Qrear
+          (for (i 0 (- Qrear 2)) (setf (Queue i) (Queue (+ i 1))))
+          ; decrementa Qrear
+          (-- Qrear)
+          el
+        )
+    )
+  );local
+)
+
+Stampa elementi della coda:
+
+(define (Qshow)
+  (if (= Qfront Qrear) nil ; coda vuota ?
+      (for (i Qfront (- Qrear 1))
+            (print (Queue i) { })
+      )
+  )
+)
+
+Guarda il primo elemento della coda:
+
+(define (Qlook)
+  (if (= Qfront Qrear) ; coda vuota ?
+      nil
+      (Queue Qfront)
+  )
+)
+
+La coda è vuota?
+
+(define (QisEmpty?) (= Qfront Qrear))
+
+La coda è piena?
+
+(define (QisFull?) (= Qrear Qsize))
+
+Lunghezza della coda:
+
+(define (QgetLen) (- Qfront Qrear))
+
+(Qcreate 4)
+;-> (0 0 0 0)
+(Qenqueue 1)
+;-> 1
+(Qenqueue 2)
+;-> 2
+(Qenqueue 3)
+;-> 3
+(Qshow)
+;-> 1 2 3
+(QisEmpty?)
+;-> nil
+(QisFull?)
+;-> nil
+(Qenqueue 4)
+;-> 4
+(QisFull?)
+;-> true
+(Qenqueue 5)
+;-> (nil "overflow")
+(Qshow)
+;-> (1 2 3 4)
+(Qdequeue)
+;-> (1)
+(Qshow)
+;-> (2 3 4)
+(Qdequeue)
+;-> 2
+(Qdequeue)
+;-> 3
+(Qdequeue)
+;-> 4
+(Qdequeue)
+;-> (nil "overflow")
+(Qenqueue 4)
+(Qshow)
+;-> 4
+(Qlook)
+;-> 4
+(Qshow)
+;-> 4
+
+Complessità temporale enqueue O(1)
+Complessità temporale dequeue O(n)
+
+È possibile ottenere una complessità temporale O(1) per la funzione dequeue se utilizziamo una lista circolare.
+
+Con newLISP possiamo definire una coda (illimitata) utilizzando una lista in maniera "quick and dirty".
+Dichiariamo una lista con lo stesso nome del contesto (funtore):
+
+(setq k:k '())
+
+Funzione che aggiunge (alla fine) un elemento alla coda:
+
+(define (enqQ queue el) (push el queue -1))
+
+Funzione che prende l'elemento iniziale della coda:
+
+(define (deqQ queue) (if (not (emptyQ? queue)) (pop queue) nil))
+
+Funzione che "guarda" il valore del primo elemento della coda:
+
+(define (lookQ queue) (queue 0))
+
+Funzione che restituisce true se la coda è vuota:
+
+(define (emptyQ? queue) (= 0 (length queue)))
+
+Funzione che restituisce il numero di elementi della coda:
+
+(define (lenQ queue) (length queue))
+
+Funzione che mostra tutti gli di elementi della coda:
+
+(define (showQ queue) (println queue))
+
+(enqQ k 1)
+;-> (1)
+(enqQ k 2)
+;-> (2)
+(enqQ k 3)
+;-> (3)
+k:k
+;-> (1 2 3)
+(deqQ k)
+;-> 1
+(println k:k)
+;-> (2 3)
+(emptyQ? k)
+;-> nil
+(lenQ k)
+;-> 2
+(k:k 1)
+;-> 3
+(showQ k:k)
+;-> (2 3)
+(lookQ k)
+;-> 2
+
+Con lo stesso metodo possiamo implementare anche una pila illimitata.
+
+
+Coda circolare (Ring Buffer)
+----------------------------
+
+La Coda circolare (Circular Queue) è una struttura di dati lineare in cui le operazioni vengono eseguite in base al principio FIFO (First In First Out) e l'ultima posizione viene connessa alla prima posizione per creare un cerchio. Viene anche chiamato 'Ring Buffer'.
+
+            front
+ 8      10   0       1  <--- indice
+   -----------------
+   |   |   | 2 | 1 |  <--- valore
+   -----------------
+ 7 |   |       | 4 | 2
+   -----------------
+   |   | 7 | 8 | 5 |
+   -----------------
+ 6       5   4       3
+        rear
+
+Crea le variabili per la gestione della coda circolare:
+
+(define (CQcreate n)
+  (setq CQsize n) ; max size
+  (setq CQfront -1)
+  (setq CQrear -1)
+  (setq CQqueue (array CQsize '(0)))
+)
+
+(define (CQenqueue el)
+  (cond ((or (and (= CQfront 0) (= CQrear (- CQsize 1)))
+             (= CQrear (% (- CQfront 1) (- CQsize 1))))
+          (list nil "Overflow") ; la coda è piena
+        )
+        ((= CQfront -1) ; primo inserimento
+          (setq CQfront 0)
+          (setq CQrear 0)
+          (setq (CQqueue CQrear) el)
+        )
+        ((and (= CQrear (- CQsize 1)) (!= CQfront 0))
+          (setq CQrear 0)
+          (setq (CQqueue CQrear) el)
+        )
+        (true
+          (++ CQrear)
+          (setq (CQqueue CQrear) el)
+        )
+  )
+)
+
+(define (CQdequeue)
+  (local (el)
+    (cond ((= CQfront -1) (list nil "Underflow")) ; la coda è vuota
+          (true
+            (setq el (CQqueue CQfront))
+            (setq (CQqueue CQfront) -1)
+            (cond ((= CQfront CQrear) (setq CQfront -1 CQrear -1))
+                  ((= CQfront (- CQsize 1)) (setq CQfront 0))
+                  (true (++ CQfront))
+            )
+            el
+          )
+    )
+  )
+)
+
+(define (CQshow)
+  (cond ((= -1 CQfront) (list nil "Empty"))
+        ((>= CQrear CQfront) (for (i CQfront CQrear) (print (CQqueue i) { })))
+        (true (for (i CQfront (- CQsize 1) (print (CQqueue i) { })))
+              (for (i 0 CQrear) (print (CQqueue i) { }))
+        )
+  )
+)
+
+(CQcreate 4)
+;-> (0 0 0 0)
+(CQenqueue 2)
+;-> 2
+(CQenqueue 1)
+;-> 1
+(CQshow)
+;-> 2 1
+(CQdequeue)
+;-> 2
+(CQdequeue)
+;-> 1
+(CQdequeue)
+;-> (nil "Underflow")
+(CQshow)
+;-> (nil "Empty")
+
+(CQenqueue 1)
+(CQenqueue 2)
+(CQenqueue 3)
+(CQenqueue 5)
+(CQenqueue 8)
+;-> (nil "Overflow")
+(CQshow)
+;-> (1 2 3 5)
+
+Complessità temporale:  O(1) per CQenqueue e CQdequeue poiché non vi è alcun ciclo in nessuna delle operazioni.
+
+Applicazioni di code:
+
+Gestione della memoria: le posizioni di memoria inutilizzate nel caso di code ordinarie possono essere utilizzate in code circolari.
+Sistema di traffico: nel sistema di traffico controllato da computer, le code circolari vengono utilizzate per accendere ripetutamente i semafori secondo il tempo impostato.
+Pianificazione della CPU: i sistemi operativi spesso mantengono una coda di processi pronti per l'esecuzione o che sono in attesa di un particolare evento.
+
+
+Fattoriale
+----------
+
+In matematica, si definisce fattoriale di un numero naturale n, indicato con n!, il prodotto dei numeri interi positivi minori o uguali a tale numero. In formula:
+
+n! = Prod[i], con (1 <= i <= n)
+
+per la convenzione del prodotto vuoto si definisce inoltre: 0! = 1
+
+Nota: 1 = 1! = 1 * (1-1)! = 1 * 0! = 0!
+
+Metodo ricorsivo:
+
+(define (fact n)
+  (if (< n 2)
+      1
+      (* n (fact (- n 1)))
+  )
+)
+
+(fact 6L)
+;-> 720L
+
+Metodo iterativo:
+
+(define (fact1 n)
+  (let (fatt 1L)
+    (for (x 1L n)
+      (setq fatt (* fatt x))
+    )
+  )
+)
+
+(fact1 6)
+;-> 720L
+
+Metodo newLISP:
+
+(define (fact2 n) (apply * (map bigint (sequence 1 n))))
+
+(fact2 6)
+;-> 720L
+
+(fact2 100)
+;-> 93326215443944152681699238856266700490715968264381621
+;-> 46859296389521759999322991560894146397615651828625369
+;-> 7920827223758251185210916864000000000000000000000000L
+
+I fattoriali sono importanti nel calcolo combinatorio.
+Per esempio, vi sono n! diverse sequenze formate da n oggetti distinti, cioè ci sono n! permutazioni di n oggetti.
+
+
+
+Coefficiente binomiale
+----------------------
+
+Il coefficiente binomiale, cioè il numero di scelte di k elementi tra quelli di un insieme di n elementi (numero di combinazioni semplici), ha la seguente formula:
+
+(n)        n!
+   = ---------------
+(k)   k! * (n - k)!
+
+in altre parole, il coefficiente binomiale C(n, k) fornisce anche il numero di modi, trascurando l'ordine, che k oggetti possono essere scelti tra n oggetti.
+
+Soluzione ricorsiva
+
+(define (binomiale n k)
+  (if (or (= k 0) (= k n))
+      1
+      (add (binomiale (- n 1) (- k 1)) (binomiale (- n 1) k))
+  )
+)
+
+(binomiale 5 2)
+;-> 10
+
+Soluzione iterativa
+
+Per caloclare il coefficiente binomiale, usiamo una matrice M[][] che memorizza i valori precedenti (si tratta di una tecnica della Programmazione Dinamica)
+
+(define (binomiale n k)
+  (local (M q)
+    (setq M (array (+ n 1) (+ k 1) '(0)))
+    (for (i 0 n)
+      (setq q (min i k))
+      (for (j 0 q)
+        (if (or (= j 0) (= j i))
+          (setq (M i j) 1)
+          (setq (M i j) (+ (M (- i 1) (- j 1)) (M (- i 1) j)))
+        )
+      )
+    )
+    (M n k)
+  );local
+)
+
+(debug (binomiale 5 2))
+(binomiale 5 2)
+;-> 10
+
+(binomiale 100 5)
+;-> 75287520
+
+Complessità temporale: O(n*k)
+Complessità spaziale: O(n*k)
+
+
 Lancio di dadi
 --------------
 
 Definire una funzione che permetta di ottenere il risultato del lancio di n dadi con m facce.
 Utilizziamo la funzione "rand".
 
+*****************
 >>>funzione RAND
+*****************
 sintassi: (rand int-range [int-N])
 
 Valuta l'espressione in int-range e genera un numero casuale compreso tra 0 (zero) e (int-range - 1). Quando viene passato 0 (zero), il generatore casuale interno viene inizializzato utilizzando il valore corrente restituito dalla funzione C time (). Facoltativamente, è possibile specificare un secondo parametro per restituire un elenco di lunghezza int-N di numeri casuali.
@@ -9385,6 +11084,588 @@ La prima lista ha una distribuzione pressochè uniforme.
 La seconda lista ha una distribuzione gaussiana.
 
 
+Quadrati magici
+---------------
+
+Un quadrato magico è una matrice quadrata NxN i cui numeri consistono in numeri consecutivi (da 1 a N) disposti in modo tale che la somma di ogni riga e colonna e di entrambe le diagonali siano uguali alla stessa somma (che è chiamata numero magico o costante magica).
+Il numero magico vale: n(n*n + 1)/2
+
+Esistono tre tipi di quadrati magici (catalogati in base alla dimensione del lato)
+
+- dispari (dove n = 3, 5, 7, 9, 11, ecc.)
+
+- singolarmente pari (dove n è multiplodi di 2, ma non di 4, n = 6, 10, 14, 18, 22, ...)
+
+- doppiamente pari (dove n è un multiplo di quattro, n = 4, 8, 12, ...
+
+Dato un numero N, scrivere una funzione che crea un quadrato magico di ordine N.
+
+Per la stampa utilizziamo la seguente funzione:
+
+(define (print-matrix matrix)
+  (local (row col nmax nmin digit fmtstr)
+    ; converto matrice in lista ?
+    (if (array? matrix) (setq matrix  (array-list matrix)))
+    ; righe della matrice
+    (setq row (length matrix))
+    ; colonne della matrice
+    (setq col (length (first matrix)))
+    ; valore massimo
+    (setq nmax (string (apply max (flat matrix))))
+    ; valore minimo
+    (setq nmin (string (apply min (flat matrix))))
+    ; calcolo spazio per i numeri
+    (setq digit (add 1 (max (length nmax) (length nmin))))
+    ; creo stringa di formattazione
+    (setq fmtstr (append "%" (string digit) "d"))
+    ; stampa
+    (for (i 0 (sub row 1))
+      (for (j 0 (sub col 1))
+        (print (format fmtstr (matrix i j)))
+      )
+      (println)
+    )
+  )
+)
+
+Dobbiamo scrivere una funzione per ogni tipo di quadrato magico. Cominciamo con quelli di ordine dispari.
+
+1) Quadrati Magici Dispari
+
+(define (qmDispari n)
+  (define (f n x y) (% (add x (mul y 2) 1) n))
+  (local (val nm row out)
+    (setq out '())
+    (setq row '())
+    ;calcolo quadrato magico
+    (for (i 0 (sub n 1))
+      (for (j 0 (sub n 1))
+        (setq val (add (mul (f n (sub n j 1) i) n)
+                       (add (f n j i))
+                       1))
+        (push val row -1)
+      )
+      (push row out -1)
+      (setq row '())
+    )
+    ;calcolo numero magico
+    (setq nm (div (mul n (add 1 (mul n n))) 2))
+    (println nm)
+    out
+  )
+)
+
+(print-matrix (qmDispari 9))
+;-> 369
+;->   2 75 67 59 51 43 35 27 10
+;->  22 14  6 79 71 63 46 38 30
+;->  42 34 26 18  1 74 66 58 50
+;->  62 54 37 29 21 13  5 78 70
+;->  73 65 57 49 41 33 25 17  9
+;->  12  4 77 69 61 53 45 28 20
+;->  32 24 16  8 81 64 56 48 40
+;->  52 44 36 19 11  3 76 68 60
+;->  72 55 47 39 31 23 15  7 80
+
+Scriviamo una funzione che controlla la correttezza del quadrato generato
+
+(define (check qm n somma)
+  (local (valido srow scol)
+    (setq valido true)
+    ; controllo diagonali
+    (setq srow 0 scol 0)
+    (for (i 0 (sub n 1))
+      (setq srow (add srow (qm i i)))
+      (setq scol (add scol (qm i (sub n i 1))))
+    )
+    (if (or (!= srow somma) (!= scol somma))
+        (setq valido nil))
+    ;controllo righe e colonne
+    (for (i 0 (sub n 1) 1 valido)
+      (setq srow 0 scol 0)
+      (for (j 0 (sub n 1) 1 valido )
+        (setq srow (add srow (qm i j)))
+        (setq scol (add scol (qm j i)))
+      )
+      (if (or (!= srow somma) (!= scol somma))
+          (setq valido nil)
+      )
+    )
+    valido
+  )
+)
+
+(setq m (qmDispari 9))
+;-> 369
+(check m 9 369)
+;-> true
+
+2) Quadrati Magici Doppiamente Pari
+
+(define (qm4 n)
+  (local (r c i bit size mult bitPos nm out v)
+    (setq bit 38505)
+    (setq size (* n n))
+    (setq mult (/ n 4))
+    ;creazione della lista)
+    (setq out (dup (dup 0 n) n))
+    (setq r 0 c 0 i 0)
+    (while (< r n)
+      (while (< c n)
+        (setq bitPos (+ (/ c mult) (* (/ r mult) 4)))
+        (if (!= (& bit (<< 1 bitPos)) 0)
+          (setq v (+ i 1))
+          (setq v (- size i))
+        )
+        (setf (out r c) v)
+        (++ c)
+        (++ i)
+      )
+      (setq c 0)
+      (++ r)
+    )
+    ;calcolo numero magico
+    (setq nm (div (mul n (add 1 (mul n n))) 2))
+    (println nm)
+    out
+  )
+)
+
+(setq m (qm4 4))
+;-> 34
+;-> ((1 15 14 4) (12 6 7 9) (8 10 11 5) (13 3 2 16))
+(print-matrix m)
+;->   1 15 14  4
+;->  12  6  7  9
+;->   8 10 11  5
+;->  13  3  2 16
+(check m 4 34)
+;-> true
+
+(setq m (qm4 12))
+;-> 870
+(print-matrix m)
+;->    1   2   3 141 140 139 138 137 136  10  11  12
+;->   13  14  15 129 128 127 126 125 124  22  23  24
+;->   25  26  27 117 116 115 114 113 112  34  35  36
+;->  108 107 106  40  41  42  43  44  45  99  98  97
+;->   96  95  94  52  53  54  55  56  57  87  86  85
+;->   84  83  82  64  65  66  67  68  69  75  74  73
+;->   72  71  70  76  77  78  79  80  81  63  62  61
+;->   60  59  58  88  89  90  91  92  93  51  50  49
+;->   48  47  46 100 101 102 103 104 105  39  38  37
+;->  109 110 111  33  32  31  30  29  28 118 119 120
+;->  121 122 123  21  20  19  18  17  16 130 131 132
+;->  133 134 135   9   8   7   6   5   4 142 143 144
+(check m 12 870)
+;-> true
+
+3) Quadrati Magici Singolarmente Pari
+
+; Funzione interna che crea un quadrato magico dispari
+(define (oddMS n)
+  (local (r c squaresize nm out value)
+    (setq squaresize (* n n))
+    (setq c (/ n 2))
+    (setq r 0)
+    ;creazione della lista
+    (setq out (dup (dup 0 n) n))
+    (setq value 1)
+    (while (<= value squaresize)
+      (setf (out r c) value)
+      (cond ((= r 0)
+              (if (= c (- n 1))
+                  (++ r)
+                  (begin
+                  (setq r (- n 1))
+                  (++ c))
+              )
+            )
+            ((= c (- n 1))
+              (-- r)
+              (setq c 0)
+            )
+            ((= (out (- r 1) (+ c 1)) 0)
+              (-- r)
+              (++ c)
+            )
+            (true (++ r))
+      )
+      (++ value)
+    )
+    ;(println (div (mul n (add 1 (mul n n))) 2))
+    out
+  )
+)
+
+(setq m (oddMS 5))
+;-> 65
+;-> ((17 24 1 8 15) (23 5 7 14 16) (4 6 13 20 22) (10 12 19 21 3) (11 18 25 2 9))
+(print-matrix m)
+;->  17 24  1  8 15
+;->  23  5  7 14 16
+;->   4  6 13 20 22
+;->  10 12 19 21  3
+;->  11 18 25  2  9
+(check m 5 65)
+;-> true
+
+(define (qm2 n)
+  (local (r c size half grid gridFactors subGrid nColsLeft nColsRigth nm out)
+    (setq size (* n n))
+    (setq halfN (/ n 2))
+    (setq subGridSize (/ size 4))
+    (setq subGrid (oddMS halfN))
+    (setq gridFactors '(0 2 3 1))
+    ;creazione della lista
+    (setq out (dup (dup 0 n) n))
+    (for (r 0 (- n 1))
+      (for (c 0 (- n 1))
+        ;(println r { } c)
+        (setq grid (+ (* (/ r halfN) 2) (/ c halfN)))
+        (setf (out r c) (subGrid (% r halfN) (% c halfN)))
+        (setf (out r c) (+ (out r c) (* (gridFactors grid) subGridSize)))
+      )
+    )
+    (setq nColsLeft (/ halfN 2))
+    (setq nColsRigth (- nColsLeft 1))
+    (for (r 0 (- halfN 1))
+      (for (c 0 (- n 1) 1 )
+        (if (or (< c nColsLeft) (>= c (- n nColsRigth))
+                (and (= c nColsLeft) (= r nColsLeft)))
+            ;(if (and (!= c 0) (!= r nColsLeft))
+            (if (and (= c 0) (= r nColsLeft))
+                (setq c c) ; no operation (NOP)
+                (swap (out r c) (out (+ r halfN) c))
+            )
+        )
+      )
+    )
+    (println (div (mul n (add 1 (mul n n))) 2))
+    out
+  );local
+)
+
+(qm2 6)
+;-> 111
+;-> ((35 1 6 26 19 24) (3 32 7 21 23 25) (31 9 2 22 27 20) (8 28 33 17 10 15)
+;-> (30 5 34 12 14 16) (4 36 29 13 18 11))
+
+(setq m (qm2 6))
+(print-matrix m)
+;->  35  1  6 26 19 24
+;->   3 32  7 21 23 25
+;->  31  9  2 22 27 20
+;->   8 28 33 17 10 15
+;->  30  5 34 12 14 16
+;->   4 36 29 13 18 11
+(check m 6 111)
+;-> true
+
+
+Quadrati magici 3x3
+-------------------
+
+Nessun output sulla REPL:
+(define (resume) (print "\r\n> "))
+
+Esempio di utilizzo:
+(silent <(function)> (print "Fatto") (resume))
+
+Numero magico per i quadrati magici 3x3:
+(setq nm (div (mul 3 (add 1 (mul 3 3))) 2))
+;-> 15
+
+Funzione che controlla se un quadrato è magico:
+
+(define (check3 qm somma)
+  (if (and (= somma (+ (qm 0) (qm 1) (qm 2))) ;riga 0
+           (= somma (+ (qm 3) (qm 4) (qm 5))) ;riga 1
+           (= somma (+ (qm 6) (qm 7) (qm 8))) ;riga 2
+           (= somma (+ (qm 0) (qm 3) (qm 6))) ;colonna 0
+           (= somma (+ (qm 1) (qm 4) (qm 7))) ;colonna 1
+           (= somma (+ (qm 2) (qm 5) (qm 8))) ;colonna 2
+           (= somma (+ (qm 0) (qm 4) (qm 8))) ;diagonale 1
+           (= somma (+ (qm 2) (qm 4) (qm 6)))) ;diagonale 2
+      true
+      nil
+  )
+)
+
+(check3 '(1 2 3 4 5 6 7 9 8) 15)
+;-> nil
+
+Questo è un quadrato magico:
+
+  8 1 6
+  3 5 7
+  4 9 2
+
+(check3 '(8 1 6 3 5 7 4 9 2) 15)
+;-> true
+
+Funzione che genera le permutazioni:
+
+(define (rimuovi x lst)
+  (cond
+    ((null? lst) '())
+    ((= x (first lst)) (rimuovi x (rest lst)))
+    (true (cons (first lst) (rimuovi x (rest lst))))
+  )
+)
+
+(define (permutazioni lst)
+  (cond
+    ((= (length lst) 1)(list lst))
+    (true (apply append(map(lambda (i) (map (lambda (j)(cons i j))
+                                            (permutazioni (rimuovi i lst)))) lst)))
+  )
+)
+
+Generiamo tutte le permutazioni delle cifre da 1 a 9:
+(silent (setq all (permutazioni '(1 2 3 4 5 6 7 8 9))) (print "Fatto") (resume))
+;-> Fatto
+
+Vediamo quante sono le permutazioni:
+(length all)
+;-> 362880
+
+Vediamo una permutazione:
+(all 1)
+;-> (1 2 3 4 5 6 7 9 8)
+
+Verifichiamo la correttezza della funzione di controllo:
+(check3 (all 1) 15)
+;-> nil
+
+Verifichiamo quali permutazioni sono quadrati magici:
+
+(setq out '())
+
+(dolist (el all)
+  (if (check3 el 15)
+      (push el out -1)
+  )
+)
+
+(length out)
+;-> 8
+
+out
+;-> ((2 7 6 9 5 1 4 3 8)
+;->  (2 9 4 7 5 3 6 1 8)
+;->  (4 3 8 9 5 1 2 7 6)
+;->  (4 9 2 3 5 7 8 1 6)
+;->  (6 1 8 7 5 3 2 9 4)
+;->  (6 7 2 1 5 9 8 3 4)
+;->  (8 1 6 3 5 7 4 9 2)
+;->  (8 3 4 1 5 9 6 7 2))
+
+Per attraversare una lista la funzione "dolist" è molto più veloce dell'uso di un ciclo "for" con l'indicizzazione.
+
+(setq out1 '())
+(time
+(for (i 0 (- (length all) 1))
+  (setq el (all i))
+  (if (check3 el 15)
+      (push el out1 -1)
+  )
+  (if (= (% i 10000) 0 (println i)))
+)
+)
+;->  1994673.832; 33 minuti...provatela solo se avete tempo...
+
+Salviamo il risultato:
+
+(save "qm3x3.lsp" 'out)
+;-> true
+
+Rendiamo il risultato più leggibile:
+
+(dolist (el out)
+  (println (el 0) { } (el 1) { } (el 2))
+  (println (el 3) { } (el 4) { } (el 5))
+  (println (el 6) { } (el 7) { } (el 8))
+  (println)
+)
+
+                          Lo Shu
+2 7 6    2 9 4    4 3 8    4 9 2    6 1 8    6 7 2    8 1 6    8 3 4
+9 5 1    7 5 3    9 5 1    3 5 7    7 5 3    1 5 9    3 5 7    1 5 9
+4 3 8    6 1 8    2 7 6    8 1 6    2 9 4    8 3 4    4 9 2    6 7 2
+
+Il quarto quadrato magico è lo Shu (simbolo divinatorio e matematico cinese).
+Ogni altro quadrato magico di ordine tre è ottenuto dallo Shu per rotazione e/o riflessione.
+
+
+Mastermind numerico
+-------------------
+
+(define (guessNumber)
+  (local (num num$ found guess turnlst digits numdigits numTurn guessValue digitOK orderOK)
+    ; lista di ogni turno
+    ; turno -> (numTurn guess$ digitOK orderOK)
+    (setq turnlst '())
+    ; Inserire il numero di cifre del numero random
+    (setq numdigits (input-integer "Numero di cifre (2-10): " 2 10))
+    ; Generazione del numero random con cifre tutte diverse
+    ; Validi anche i numeri con 0 iniziale (es. 0342)
+    (setq num$ "")
+    (setq digits (explode "0123456789"))
+    (setq num$ (join (slice (randomize digits) 0 numdigits 1)))
+    (setq num (int num$))
+    ;(println num$)
+    (setq numTurn 0)
+    (setq found nil)
+    ; Ciclo del gioco
+    (while (not found)
+      ; Inserire il numero (tentativo)
+      (setq guess$ (input-string "Numero da provare: "))
+      (while (not (guessControl guess$ num$))
+        (setq guess$ (input-string "Numero da provare: "))
+      )
+      (++ numTurn)
+      ;confronto tra numero random e guess
+      ;numero di cifre di guess$ presenti in num$
+      (setq digitOK (checkDigitOK num$ guess$))
+      ;numero di cifre di guess$ nello stesso ordine in num$
+      (setq orderOK (checkOrderOK num$ guess$))
+      ; aggiorno la lista dei turni
+      (push (list numTurn guess$ digitOK orderOK) turnlst -1)
+      ;stampo la lista dei turni
+      (println "turno    numero    cifreOK  ordineOK")
+      (dolist (el turnlst)
+        (println (format "%3d %10s %9d %9d" el))
+      )
+      ;controllo fine del gioco (numero indovinato)
+      (if (= num$ guess$)
+        (begin
+          (println "NUMERO INDOVINATO --> " num$)
+          (setq found true))
+      )
+    )
+  );local
+)
+
+; routine che controlla la correttezza del numero di input (guess)
+(define (guessControl guess$ num$)
+  (cond ((not (numero? guess$)) (println "Inserire solo cifre...") nil)
+        ((!= (length num$) (length guess$))
+          (println "Numero di cifre errato...") nil) ;numero di cifre errato
+        ((!= (unique (explode guess$)) (explode guess$))
+          (println "Numero con cifre ripetute...") nil) ;numero con cifre ripetute
+        (true true)
+  )
+)
+
+; routine che controlla se la stringa è composta solo da cifre
+(define (numero? stringa)
+  (while (= "0" (stringa 0))
+    (setq stringa (slice stringa 1)))
+  (if (= (string (int stringa 0)) stringa) true nil))
+
+(numero? "1234")
+;-> true
+(numero? "012a5")
+;-> nil
+(numero? "012")
+;-> true
+
+;routine che permette l'input di una stringa
+(define (input-string message)
+  (print message)
+  (while (not (string? (read-line)))
+    (print message)
+  )
+  (current-line)
+)
+
+;routine che permette l'input di un numero intero (compreso tra minv e maxv)
+(define (input-integer message minv maxv)
+  (print message)
+  (while (or (not (integer? (int (read-line))))
+             (> (int (current-line)) maxv)
+             (< (int (current-line)) minv))
+    (print message)
+  )
+  (int (current-line))
+)
+
+; Restituisce il numero di cifre di str1 che
+; hanno la stessa posizione in str2
+(define (checkOrderOK str1 str2)
+  (local (numOK)
+    (setq numOK 0)
+    (for (i 0 (- (length str1) 1))
+      (if (= (str1 i) (str2 i)) (++ numOK))
+    )
+    numOK
+  )
+)
+
+(checkOrderOK "1234" "4321")
+;-> 0
+(checkOrderOK "123" "124")
+;-> 2
+
+; Restituisce il numero di cifre di str1 presenti in str2
+(define (checkDigitOK str1 str2)
+  (local (numOK)
+    (setq numOK 0)
+    (for (i 0 (- (length str1) 1))
+      (if (!= (find (str1 i) str2) nil) (++ numOK))
+    )
+    numOK
+  )
+)
+
+(checkDigitOK "012" "123")
+;-> 2
+
+(checkDigitOK "123" "132")
+;-> 3
+
+Adesso possiamo provare il gioco:
+
+(guessNumber)
+Numero di cifre (2-10): 3
+Numero da provare: 515
+Numero con cifre ripetute...
+Numero da provare: 428
+turno    numero    cifreOK  ordineOK
+  1        428         2         2
+Numero da provare: 183
+turno    numero    cifreOK  ordineOK
+  1        428         2         2
+  2        183         0         0
+Numero da provare: 421
+turno    numero    cifreOK  ordineOK
+  1        428         2         2
+  2        183         0         0
+  3        421         2         2
+Numero da provare: 426
+turno    numero    cifreOK  ordineOK
+  1        428         2         2
+  2        183         0         0
+  3        421         2         2
+  4        426         2         2
+Numero da provare: er4
+Inserire solo cifre...
+Numero da provare: 1
+Numero di cifre errato...
+Numero da provare: 12345
+Numero di cifre errato...
+Numero da provare: 427
+turno    numero    cifreOK  ordineOK
+  1        428         2         2
+  2        183         0         0
+  3        421         2         2
+  4        426         2         2
+  5        427         3         3
+NUMERO INDOVINATO --> 427
+true
+
+
 Algoritmo babilonese sqrt(x)
 ----------------------------
 
@@ -9512,7 +11793,7 @@ L'algoritmo può anche essere definito nel modo seguente:
 (rq 4 0.000001)
 ;-> 2.00000000000012
 
-La complessità temporale di questo algoritmo è O(log (log (n)).
+La complessità temporale di questo algoritmo è O(log(log(n))).
 
 
 Ricerca binaria (binary search)
@@ -9682,9 +11963,9 @@ D = 99900 (perchè periodo di 3 cifre --> 999 e antiperiodo di 2 cifre --> 00)
 
 La nostra funzione avrà tre parametri:
 
-1) il numero (1.42703)
-2) in numero di cifre del periodo (3)
-3) in numero di cifre dell'antiperiodo (2)
+1) il numero "n" (1.42703)
+2) in numero di cifre del periodo "np" (3)
+3) in numero di cifre dell'antiperiodo "na" (2)
 
 (define (fraz-gen num np na)
   (local (n n1 n2 d d1 d2 t1 t2 temp)
@@ -9739,6 +12020,7 @@ Il numero aureo
 ---------------
 
 Il numero aureo (o rapporto aureo) è il numero ottenuto effettuando il rapporto fra due lunghezze disuguali delle quali la maggiore "a" è medio proporzionale tra la minore "b" e la somma delle due (a+b):
+
                         (a + b)     a
 numero aureo (phi) --> --------- = ---
                            a        b
@@ -10625,7 +12907,7 @@ Ecco un'altra implementazione dell'algoritmo di Karatsuba:
 ;-> 83810205
 
 Nota:
-Nel caso di rappresentazioni binarie le operazioni di quoziente e prodotto relativi a una potenza di 2 (2^k) si riducono  semplicemente a spostamenti (right/left shift) di k cifre.
+Nel caso di rappresentazioni binarie le operazioni di quoziente e prodotto relativi a una potenza di 2 (2^k) si riducono semplicemente a spostamenti (right/left shift) di k cifre.
 Analogamente, il resto della divisione per 2^k corrisponde alla selezione delle ultime k cifre.
 
 
@@ -10998,15 +13280,19 @@ Creiamo una lista con 100000 elementi:
 (silent (setq f (mediaVal 100000)))
 
 Analizziamo il risultato:
+
 Numero totale di lanci:
 (apply add (map first f))
 ;-> 600613 ;numero totale di lanci
+
 Numero medio di lanci:
 (div (apply add (map first f)) (length f))
 ;-> 6.006 ;numero medio di lanci
+
 Punteggio totale:
 (apply add (map last f))
 ;-> 2003171 ;punteggio totale
+
 Punteggio medio per ogni turno:
 (div (apply add (map last f)) (length f))
 ;-> 20.03 ;punteggio medio per ogni turno
@@ -11854,9 +14140,596 @@ Possiamo scrivere la funzione:
 ;-> ((2 10) (3 15) (6 12) (12 0) (13 10) (16 5) (17 0))
 
 
+Knuth-shuffle
+-------------
+
+Knuth-shuffle (oppure Fisher-Yates shuffle) è un algoritmo per mescolare casualmente gli elementi di un array.
+Data una lista con N elementi (idx: 0..N-1), lo pseudo-codice dell'algoritmo è il seguente:
+
+for i from N downto 1 do:
+     let j = numero intero casuale nell'intervallo 0 <= j <= i
+     swap lista[i] con lista[j]
+
+(define (knuth-shuffle lst)
+  (local (N j)
+    (setq N (length lst))
+    (for (i (sub N 1) 0 -1)
+      (setq j (rand (add i 1)))
+      (swap (lst i) (lst j))
+    )
+    lst
+  )
+)
+
+(knuth-shuffle '(1 2 3 4 5 6 7 8 9 0))
+;-> (3 7 9 5 1 0 4 6 8 2)
+(knuth-shuffle '(1 2 3 4 5 6 7 8 9 0))
+;-> (6 4 9 3 2 7 8 1 5 0)
+(knuth-shuffle '(1 2 3 4 5 6 7 8 9 0))
+;-> (9 0 7 5 8 1 3 4 6 2)
+(knuth-shuffle '(1 2 3 4 5 6 7 8 9 0))
+;-> (3 6 5 2 1 4 0 8 7 9)
+
+Estrazione del lotto:
+(knuth-shuffle (sequence 1 90))
+;-> (13 28 18 32 62 56 19 67 89 54 63 81 61 27 78 75 10 39 46 48 52 4 57 55 29 42 16
+;->  24 66 77 44 65 58 15 11 83 85 40 38 6 74 45 3 22 64 79 17 37 49 26 41 70 12 9 73
+;->  68 35 72 84 36 7 47 60 30 80 90 14 33 51 59 50 43 20 21 82 1 5 86 8 31 2 69 25 23
+;->  34 53 87 88 76 71)
+
+Controlliamo il risultato:
+(= (apply + (knuth-shuffle (sequence 1 90))) (apply + (sequence 1 90)))
+;-> true
+
+Controlliamo meglio:
+(difference (knuth-shuffle (sequence 1 90)) (sequence 1 90))
+;-> ()
+
+newLISP ha anche una funzione apposita: "randomize":
+
+(randomize (sequence 1 90))
+;-> (41 43 55 59 78 76 4 67 3 40 25 70 56 83 33 30 61 68 17 44 9 27 73 65 24 12 5 37
+;->  64 82 85 18 75 36 72 89 54 32 28 48 46 84 14 22 52 60 50 51 15 2 35 69 38 11 71
+;->  23 62 53 16 45 31 34 87 47 10 57 26 1 86 81 29 90 74 88 19 80 20 42 8 21 39 58 13
+;->  77 63 49 6 79 7 66)
+
+
+Bussola e direzioni
+-------------------
+
+La bussola è divisa principalmente nelle quattro direzioni cardinali: nord, sud, est e ovest. Questi punti possono essere ulteriormente suddivisi con l'aggiunta delle quattro direzioni intercardinali (o ordinali) - nord-est (NE), sud-est (SE), sud-ovest (SO) e nord-ovest (NO) - per indicare gli otto venti principali. Nell'uso meteorologico, vengono aggiunti ulteriori punti intermedi tra il cardinale e le direzioni intercardinali, come nord-nord est (NNE) per dare i sedici punti di una rosa di bussola.
+La bussola del marinaio ha 32 punti poichè aggiunge punti come nord per est (NbE oppure NxE) tra nord e nord-nordest, e nordest per nord (NEbN oppure NExN) tra nord-nordest e nord-est. Un punto di bussola consente di fare riferimento a una direzione specifica (o azimut) in modo colloquiale, senza ricorrere ai gradi.
+
+(define (bussola32-lista)
+  (local (gradi nomi i j)
+    (setq gradi '(0.0 16.87 16.88 33.75 50.62 50.63 67.5 84.37
+                  84.38 101.25 118.12 118.13 135.0 151.87 151.88
+                  168.75 185.62 185.63 202.5 219.37 219.38 236.25
+                  253.12 253.13 270.0 286.87 286.88 303.75 320.62
+                  320.63 337.5 354.37 354.38))
+    (setq nomi '("North                " "North by east        " "North-northeast      "
+                 "Northeast by north   " "Northeast            " "Northeast by east    "
+                 "East-northeast       " "East by north        " "East                 "
+                 "East by south        " "East-southeast       " "Southeast by east    "
+                 "Southeast            " "Southeast by south   " "South-southeast      "
+                 "South by east        " "South                " "South by west        "
+                 "South-southwest      " "Southwest by south   " "Southwest            "
+                 "Southwest by west    " "West-southwest       " "West by south        "
+                 "West                 " "West by north        " "West-northwest       "
+                 "Northwest by west    " "Northwest            " "Northwest by north   "
+                 "North-northwest      " "North by west        " "North                " ))
+    (for (i 0 31)
+      (setq j (add 0.5 (div (mul 32 (gradi i)) 360)))
+      (println (format "%2d  %.22s  %6.2f %6.2f" (add (mod j 32) 1) (nomi (mod j 32)) (gradi i) j))
+    )
+    nil
+  )
+)
+
+(bussola32-lista)
+;->  1  North                    0.00
+;->  2  North by east           16.87
+;->  3  North-northeast         16.88
+;->  4  Northeast by north      33.75
+;->  5  Northeast               50.62
+;->  6  Northeast by east       50.63
+;->  7  East-northeast          67.50
+;->  8  East by north           84.37
+;->  9  East                    84.38
+;-> 10  East by south          101.25
+;-> 11  East-southeast         118.12
+;-> 12  Southeast by east      118.13
+;-> 13  Southeast              135.00
+;-> 14  Southeast by south     151.87
+;-> 15  South-southeast        151.88
+;-> 16  South by east          168.75
+;-> 17  South                  185.62
+;-> 18  South by west          185.63
+;-> 19  South-southwest        202.50
+;-> 20  Southwest by south     219.37
+;-> 21  Southwest              219.38
+;-> 22  Southwest by west      236.25
+;-> 23  West-southwest         253.12
+;-> 24  West by south          253.13
+;-> 25  West                   270.00
+;-> 26  West by north          286.87
+;-> 27  West-northwest         286.88
+;-> 28  Northwest by west      303.75
+;-> 29  Northwest              320.62
+;-> 30  Northwest by north     320.63
+;-> 31  North-northwest        337.50
+;-> 32  North by west          354.37
+nil
+
+(define (bussola32 gradi)
+  (local (nomi j)
+    (setq nomi '("North" "North by east" "North-northeast"
+                  "Northeast by north" "Northeast" "Northeast by east"
+                  "East-northeast" "East by north" "East"
+                  "East by south" "East-southeast" "Southeast by east"
+                  "Southeast" "Southeast by south" "South-southeast"
+                  "South by east" "South" "South by west"
+                  "South-southwest" "Southwest by south" "Southwest"
+                  "Southwest by west" "West-southwest" "West by south"
+                  "West" "West by north" "West-northwest"
+                  "Northwest by west" "Northwest" "Northwest by north"
+                  "North-northwest" "North by west" "North"))
+    (setq j (add 0.5 (div (mul 32 gradi) 360)))
+    (nomi (mod j 32))
+  )
+)
+
+(bussola32 84.37)
+;-> "East by north"
+
+(bussola32 84.38)
+;-> "East"
+
+
+Puzzle (a b c + a b c + a b c = c c c)
+--------------------------------------
+
+Data la seguente operazione:
+
+a b c +
+a b c +
+a b c =
+--------
+c c c
+
+Trovare il valore delle cifre a, b e c.
+
+Soluzione 1
+
+Matematicamente risulta 3*(abc) = ccc che può essere scritto come:
+
+  300a + 30b + 3c = 100c + 10c + c
+
+Raggruppiamo il termine "c":
+
+  300a + 30b = 108c
+
+Dividiamo per 3:
+
+  100a + 10b = 36c
+
+Inoltre possiamo notare che deve risultare:
+
+  c + c + c = [x]c
+
+dove l'eventuale [x] può valere 1 o 2.
+
+Vediamo quali cifre soddisfano questo vincolo:
+
+(for (i 0 9)
+  (if (< (* 3 i) 10)
+      (if (= i (* 3 i)) (println i)) ; valori minori di 10 (una cifra)
+      (if (= i (% (* 3 i) 10)) (println i)) ; valori maggiori di 10 (due cifre)
+  )
+)
+;-> 0
+;-> 5
+
+Solo il numero 5 è una soluzione accettabile (altrimenti la somma sarebbe nulla).
+Quindi abbiamo:
+
+  a b 5 +
+  a b 5 +
+  a b 5 =
+  --------
+  5 5 5
+
+Adesso deve risultare:
+
+  b + b + b + 1 = [x]5
+
+dove l'eventuale [x] può valere 1 o 2.
+
+Vediamo quali cifre soddisfano questo vincolo:
+
+(for (i 0 9)
+  (if (< (* 3 i) 10)
+      (if (= 5 (+ 1 (* 3 i))) (println i)) ; valori minori di 10 (una cifra)
+      (if (= 5 (% (+ 1 (* 3 i)) 10)) (println i)) ; valori maggiori di 10 (due cifre)
+  )
+)
+;-> 8
+
+Quindi abbiamo:
+
+  a 8 5 +
+  a 8 5 +
+  a 8 5 =
+  --------
+  5 5 5
+
+Adesso deve risultare:
+
+  a + a + a + 2 = 5
+
+Il termine [x] non compare perchè "a" deve essere minore di 10.
+
+Quindi risolviamo quest'ultima equazione:
+
+3*a = 3 ==> a = 1
+
+  1 8 5 +
+  1 8 5 +
+  1 8 5 =
+  --------
+  5 5 5
+
+Soluzione 2 (forza bruta)
+
+Calcolare tutte le combinazioni delle cifre da 0 a 9:
+
+(define (combinazioni k nlst)
+  (cond ((zero? k)     '(()))
+        ((null? nlst)  '())
+        (true
+          (append (map (lambda (k-1) (cons (first nlst) k-1))
+                       (combinazioni (- k 1) (rest nlst)))
+                  (combinazioni k (rest nlst))))))
+
+(setq prove (combinazioni 3 '(1 2 3 4 5 6 7 8 9 0)))
+(length prove)
+;-> 120
+
+Calcolare tutte le permutazioni per ogni elemento della lista delle combinazioni:
+
+(define (rimuovi x lst)
+  (cond
+    ((null? lst) '())
+    ((= x (first lst)) (rimuovi x (rest lst)))
+    (true (cons (first lst) (rimuovi x (rest lst))))))
+
+(define (permutazioni lst)
+  (cond
+    ((= (length lst) 1)(list lst))
+    (true (apply append(map(lambda (i) (map (lambda (j)(cons i j))
+                                            (permutazioni (rimuovi i lst)))) lst)))))
+
+(setq num (map (fn (x) (permutazioni x)) prove))
+
+Eliminare un livello di annidamento:
+
+(setq num (flat num 1))
+(length num)
+;-> 720
+
+Calcolare il valore di ogni elemento della lista " num" (formato elemento (a b c)):
+(setq numeri (map (fn (x) (+ (* 100 (first x)) (* 10 (first (rest x))) (last x))) num))
+
+Ordinare i numeri:
+(sort numeri)
+
+Applicare la seguente funzione di controllo alla lista "numeri":
+
+(define (calcola n)
+  (local (val val$ n$ out)
+    (setq n$ (string n))
+    (setq val (+ n n n))
+    (setq val$ (string val))
+    (cond ((< n 100) nil)
+          ((> val 999) nil)
+          ((or (!= (val$ 0) (val$ 1)) (!= (val$ 0) (val$ 2)) (!= (val$ 1) (val$ 2))) nil)
+          ((!= (val$ 2) (n$ 2)) nil)
+          (true n)
+    )
+  )
+)
+
+(calcola 123)
+;-> nil
+
+(setq lsol (map (fn (x) (calcola x)) numeri))
+
+Eliminare tutti gli elementi nil:
+
+(clean null? lsol)
+;-> (185)
+
+Soluzione:
+a = 1
+b = 8
+c = 5
+
+
+Numero mancante
+---------------
+
+Data una lista contenente n numeri distinti presi da 0, 1, 2, ..., n, trovare quello mancante nella lista. Ad esempio, data la lista nums = (0  1  3), la funzione dovrebbe restituire 2.
+
+Soluzione 1 - Matematica
+
+(define (mancante lst)
+  (local (somma n)
+    (setq n (length lst))
+    (setq somma (apply + lst))
+    (- (/ (* n (+ n 1)) 2) somma)
+  )
+)
+
+(setq lst '(9 0 5 4 7 1 6 8 2))
+(mancante lst)
+;-> 3
+
+Soluzione 2 - Bitwise XOR
+
+(define (mancante lst)
+  (let (manca 0)
+    (for (i 0 (- (length lst) 1))
+      (setq manca (^ manca (^ (+ i 1) (lst i))))
+    )
+  manca
+  )
+)
+
+(mancante lst)
+;-> 3
+
+
+Somma massima di una sottolista (Algoritmo Kadane)
+--------------------------------------------------
+Data una lista di numeri interi trovare il valore massimo della somma di una sua sottolista.
+L'algoritmo di Kadane risolve questo problema per una lista di qualunque dimensione.
+In questo caso lo applicheremo ad una lista semplice ad una sola dimensione (1D).
+
+Prima vediamo la soluzione ottenuta con la forza bruta (brute-force).
+Data la lista lst = (-1 2 -1 3) i valori delle somme di tutte le sottoliste valgono:
+
+ELEMENTI     Somma   start-index   end-index
+-1            -1       0             0
+-1,2           1       0             1
+-1,2,-1        0       0             2
+-1,2,-1,3      3       0             3
+2              2       1             1
+2,-1           1       1             2
+2,-1,3         4       1             3     <--- 4 somma massima sottoliste
+-1            -1       2             2
+-1,3           2       2             3
+3              3       3             3
+
+Dobbiamo scrivere una funzione che calcola la somma di tutte le sottoliste:
+
+(define (maxSumSub lst)
+  (local (n max_sum max_start max_end)
+    (setq n (length lst))
+    (setq max_sum (lst 0))
+    (setq max_start 0)
+    (setq max_end 0)
+    (for (start 0 (- n 1))
+      (for (end start (- n 1))
+        (setq sum (calcSum lst start end))
+        (if (> sum max_sum)
+          (begin
+            (setq max_sum sum)
+            (setq max_start start)
+            (setq max_end end))
+        )
+      )
+    )
+    (list max_sum max_start max_end)
+  );local
+)
+
+(define (calcSum lst i j)
+  (local (sum)
+    (setq sum 0)
+    (for (k i j)
+      (setq sum (+ sum (lst k)))
+    )
+  )
+)
+
+(setq lst '(-1 2 -1 3))
+;-> (-1 2 -1 3)
+(maxSumSub lst)
+;-> (4 1 3)
+
+(setq lst '(5 7 -3 2 9 6 16 22 21 29 -14 10 12))
+(maxSumSub lst)
+;-> (122 0 12)
+
+Questo algoritmo ha complessità temporale O(n^3). 
+
+Dobbiamo utilizzare un algoritmo più veloce.
+
+L'algoritmo di Kadane inizia con una semplice domanda induttiva: se conosciamo la somma massima del subarray che termina con la posizione i (si chiami questo B[i]), qual è la somma massima del subarray che termina alla positione i + 1 (equivalentemente, quanto vale B[i+1]) ? La risposta risulta essere relativamente semplice: o la somma massima del subarray che termina con la posizione i + 1 include la somma massima della subarray che termina alla posizione i come prefisso, oppure no (in altre parole, B[i+1] = max(A[i+1], A[i+1] + B[i]), dove A[i+1] è l'elemento all'indice i + 1).
+
+L'algoritmo può essere codificato nel seguente modo:
+
+(define (getMaxSum lst)
+  (local (currentMax totalMax)
+    (setq currentMax (lst 0))
+    (setq totalMax (lst 0))
+    (for (i 1 (- (length lst) 1))
+      ; aggiorno il valore massimo della somma corrente
+      ; sommandolo al valore corrente
+      (setq currentMax (add (lst i) (max currentMax 0)))
+      ; verifico se occorre aggiornare il valore massimo totale
+      (setq totalMax (max totalMax currentMax 0))
+    )
+  )
+)
+
+(setq lst '(5 7 -3 2 9 6 16 22 21 29 -14 10 12))
+(getMaxSum lst)
+;-> 122
+
+(setq lst '(-2 1 -3 4 -1 2 1 -5 4))
+(getMaxSum lst)
+;-> 6
+
+La soluzione completa consiste nel restituire tre valori:
+1) il valore della somma massima
+2) l'indice di inizio della sottolista massima
+2) l'indice di fine della sottolista massima
+Inoltre bisogna trattare il caso della lista vuota e quello delle liste che hanno tutti valori negativi.
+
+La funzione definitiva è la seguente:
+
+(define (kadaneIdx lst)
+  (local (currentMax totalMax startIdx endIdx tempIdx)
+    (cond ((null? lst) (list nil nil nil))
+          (true
+            (setq currentMax (lst 0))
+            (setq totalMax (lst 0))
+            (setq startIdx 0)
+            (setq endIdx 0)
+            (setq tempIdx 0)
+            (for (i 1 (- (length lst) 1))
+              ; aggiorno il valore massimo della somma corrente
+              (setq currentMax (add currentMax (lst i)))
+              ; spezziamo la condizione che calcola
+              ; il massimo tra totalMax currentMax e 0,
+              ; per tenere conto degli indici coinvolti
+              (cond ((< currentMax 0)
+                      (setq currentMax 0)
+                      (setq tempIdx (add i 1))
+                    )
+                    ((< totalMax currentMax)
+                      (setq totalMax currentMax)
+                      (setq startIdx tempIdx)
+                      (setq endIdx i)
+                    )
+              )
+            )
+            ; controllo soluzione negativa ==> tutti i numeri sono negativi
+            (if (< totalMax 0)
+              (begin
+                ; cerco il valore massimo della lista e il relativo indice
+                (setq startIdx -1)
+                (dolist (el lst)
+                  (if (>= el totalMax) (setq totalMax el startIdx $idx))
+                )
+                (setq endIdx startIdx)
+              )
+            )
+            (list totalMax startIdx endIdx)
+          );true
+    );cond
+  );local
+)
+
+(setq lst '(5 7 -3 2 9 6 16 22 21 29 -14 10 12))
+(kadaneIdx lst)
+;-> (122 0 12)
+
+(setq lst '(-2 1 -3 4 -1 2 1 -5 4))
+(kadaneIdx lst)
+;-> (6 3 6)
+
+(setq lst '(1 2 3 -20 5 6))
+(kadaneIdx lst)
+;-> (11 4 5)
+
+(setq lst '(10 -1 2 11))
+(kadaneIdx lst)
+;-> (22 0 3)
+
+(setq lst '(-11 -10 -12))
+(kadaneIdx lst)
+(-10 1 1)
+
+(setq lst '())
+(kadaneIdx lst)
+;-> (nil nil nil)
+
+L'algoritmo Kadane ha complessità temporale O(n). 
+
+
+Prodotto massimo di una sottolista
+----------------------------------
+
+Data una lista di numeri interi trovare il valore massimo del prodotto di una sua sottolista.
+Per risolvere questo problema potremmo utilizzare l'algoritmo di Kadane e modificarlo per tenere conto degli elementi con valore 0 e del fatto che il prodotto può cambiare segno in funzione del segno dei moltiplicandi.
+Invece utilizziamo un metodo più semplice che però non è ottimale in termini di tempo e di spazio.
+
+(define (maxProd lst)
+  (local (n maxprod pos neg)
+    (setq n (length lst))
+    (setq pos (array n '(0)))
+    (setq neg (array n '(0)))
+    (setq (pos 0) (lst 0)) ; pos[i] contiene il prodotto positivo fino a lst[i]
+    (setq (neg 0) (lst 0)) ; neg[i] contiene il prodotto negativo fino a lst[i]
+    (setq maxprod (lst 0))
+    (for (i 0 (- n 1))
+      ; il massimo dei tre valori
+      (setq (pos i) (max (max (mul (pos (- i 1)) (lst i)) (mul (neg (- i 1)) (lst i))) (lst i)))
+      ; il minimo dei tre valori
+      (setq (neg i) (min (min (mul (pos (- i 1)) (lst i)) (mul (neg (- i 1)) (lst i))) (lst i)))
+      (setq maxprod (max maxprod (pos i)))
+    )
+    maxprod
+  )
+)
+
+(setq lst '(6 -3 -10 0 2))
+(maxProd lst)
+;-> 180
+Sottolista: (6 -3 -10)
+
+(setq lst '(-1 -3 -10 0 60))
+(maxProd lst)
+;-> 60
+Sottolista: (60)
+
+(setq lst '(-2 -3 0 -2 -40))
+(maxProd lst)
+;-> 80
+Sottolista: (-2 -40)
+
+(setq lst '(-1 -2 -3))
+(maxProd lst)
+;-> 6
+
+(setq lst '(0 -1))
+(maxProd lst)
+;-> 0
+
+(setq lst '(0 0 0 0))
+(maxProd lst)
+;-> 0
+
+
 ======================================================================
  DOMANDE PER ASSUNZIONE DI PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
 ======================================================================
+
+Notazione Big-O
+---------------
+Valori della notazione Big-O in funzione del numero di ingresso
+
+ n  costante logaritmo  lineare   nlogn      quadrato   cubo         exp
+ 1    O(1)   O(log(n))   O(n)   O(n*log(n))   O(n^2)   O(n^3)       O(2^n)
+ 2     1        1          1        1             1        1            1  
+ 4     1        1          2        2             4        8            4
+ 8     1        3          8       24            64      512          256
+16     1        4         16       64           256     4096        65536
+32     1        5         32      160          1024    32768   4294967296     
+64     1        6         64      384          4096   262144   1.84x10^19
+
 
 Contare i bit di un numero (McAfee)
 -----------------------------------
@@ -12696,7 +15569,7 @@ acqua: 6
 
 Un elemento dell'array può immagazzinare acqua se ci sono barre più alte a sinistra e a destra. Possiamo trovare quantità di acqua da immagazzinare in ogni elemento trovando l'altezza delle barre sui lati sinistro e destro. L'idea è di calcolare la quantità d'acqua che può essere immagazzinata in ogni elemento dell'array. Ad esempio, considera l'array (3 0 0 2 0 4), possiamo memorizzare due unità di acqua agli indici 1 e 2, e una unità di acqua all'indice 2.
 
-Una soluzione semplice consiste nel percorrere ogni elemento dell'array e trovare le barre più alte sui lati sinistro e destro. Prendi la minore delle due altezze. La differenza tra altezza minima e altezza dell'elemento corrente è la quantità di acqua che può essere immagazzinata in questo elemento dell'array. La complessità temporale di questa soluzione è O(n^2).
+Una soluzione semplice consiste nel percorrere ogni elemento dell'array e trovare le barre più alte sui lati sinistro e destro. Prendere la minore delle due altezze. La differenza tra altezza minima e altezza dell'elemento corrente è la quantità di acqua che può essere immagazzinata in questo elemento dell'array. La complessità temporale di questa soluzione è O(n^2).
 
 Una soluzione efficiente consiste nel pre-calcolare la barra più alta a sinistra e a destra di ogni barra nel tempo O(n). Quindi utilizzare questi valori pre-calcolati per trovare la quantità di acqua in ogni elemento dell'array. Di seguito vediamo l'implementazione di questa ultima soluzione.
 
@@ -13240,7 +16113,7 @@ Devi distribuire caramelle questi bambini in base ai seguenti vincoli:
 3. I bambini che hanno punteggi uguali ottengono lo stesso numero di caramelle
 Qual'è il numero minimo di caramelle da distribuire?
 
-Una soluzione semplice è quella di ordinare i punteggi in ordine crescente e poi assegnare le caramelle dando una caramella al punteggio più basso, due caramelle al successivo e così via fino all'ultimo bambino.
+Una soluzione semplice è quella di ordinare i punteggi in ordine crescente e poi assegnare le caramelle dando una caramella al punteggio più basso, due caramelle al successivo , tre a quello successivo e così via fino all'ultimo bambino.
 
 (define (caramelle lst)
   (local (somma num doppio)
@@ -13760,6 +16633,29 @@ Inoltre dobbiamo tenere conto del numero massimo di stanze raggiunto.
 (min-stanze '((90 91) (94 120) (95 112) (110 113) (150 190) (180 200)))
 ;-> 3
 
+Questo metodo risponde anche ad un'altra domanda:
+Data una serie di intervalli di tempo, una persona può assistere a tutte le riunioni?
+Se il numero minimo di stanze è pari a uno, allora la risposta è affermativa, altrimenti ci sono due o più riunioni che si sovrappongono.
+Possiamo risolvere questo problema in modo più semplice.
+Se una persona può partecipare a tutte le riunioni, non deve esserci alcuna sovrapposizione tra una riunione e l'altra.
+Dopo aver ordinato gli intervalli, possiamo confrontare la "fine" attuale con il prossimo "inizio".
+
+public boolean canAttendMeetings(Interval[] intervals) {
+    Arrays.sort(intervals, new Comparator<Interval>(){
+        public int compare(Interval a, Interval b){
+            return a.start-b.start;
+        }
+    });
+
+    for(int i=0; i<intervals.length-1; i++){
+        if(intervals[i].end>intervals[i+1].start){
+            return false;
+        }
+    }
+
+    return true;
+}
+
 
 Bilanciamento parentesi (Facebook)
 ----------------------------------
@@ -13830,13 +16726,230 @@ La seguente funzione controlla la correttezza delle parentesi:
 )
 
 (par "{ { ( [ [ ( ) ] ] ) } }")
-;-> true
+;-> nil
 (par "{ { ( [ [ ( ( ) ] ] ) } }")
 ;-> nil
 (par "{ { [ [ [ ( ) ] ] ] } }")
 ;-> true
 (par "{ { [ [ } } [ ( ) ] ] ]")
 ;-> nil
+(par "{ { [ [ [ ( ) ] ] ] } { [ ( ) ] }}")
+;-> true
+
+
+K punti più vicini (K Nearest points) (LinkedIn)
+------------------------------------------------
+
+Data una lista di N punti (xi, yi) sul piano cartesiano 2D, trova i K punti più vicini ad un punto centrale C (xc, yc). La distanza tra due punti su un piano è la distanza euclidea.
+È possibile restituire la risposta in qualsiasi ordine.
+Esempi
+Input:  punti = ((0,0), (5,4), (3,1)), P=(1,2), K = 2
+Output: ((0,0), (3,1))
+
+   5 |
+     |
+   4 |              X
+     |
+   3 |  X
+     |
+   2 |  C
+     |
+   1 |
+     |
+   0 X---------------------------
+     0  1  2  3  4  5  6  7  8  9
+
+Input:  punti = ((3,3), (5,-1), (-2,4)), P=(0,0), K = 2
+Output: ((3,3), (-2,4))
+
+Soluzione A: Ordinamento semplice
+Creare una lista con tutte le distanze di ogni punto dal punto centrale. Ordinare la lista delle distanze. Selezionare i primi k punti dalla lista ordinata.
+
+Nota: meglio non usare la funzione sqrt (radice quadrata) nel calcolo della distanza. Le operazioni saranno molto più veloci, soprattutto se i punti hanno coordinate intere.
+
+Lista di punti: ((x0 y0) (x1 y1)...(xn yn))
+Punto centrale: P = (xp yp)
+Elementi da selezionare: k
+
+;calcola il quadrato della distanza tra due punti
+(define (qdist P0 P1)
+  (local (x0 y0 x1 y1)
+    (setq x0 (first P0))
+    (setq y0 (last P0))
+    (setq x1 (first P1))
+    (setq y1 (last P1))
+    ; no radice quadrata (l'ordine dei punti rimane invariato)
+    (+ (* (sub x1 x0) (sub x1 x0)) (* (sub y1 y0) (sub y1 y0)))
+  )
+)
+
+(qdist '(0 0) '(1 1))
+;-> 2
+
+(qdist '(1 1) '(1 3))
+;-> 4
+
+(define (kClosest punti C k)
+  (local (distlst n out)
+    (setq out '())
+    (setq distlst '())
+    (setq n (length punti))
+    ; creo la lista delle distanze
+    (for (i 0 (- n 1))
+      (push (list (qdist (punti i) C) (punti i)) distlst -1)
+    )
+    (sort distlst) ; sort usa il primo elemento di ogni sottolista
+    ;k deve essere minore o uguale a n
+    (if (> k n) (setq k n))
+    ;trova i k punti con distanza minore dal punto centrale
+    (for (i 0 (- k 1))
+      (push (distlst i) out -1)
+    )
+    out
+  )
+)
+
+(kClosest '((1 1) (8 9) (4 5) (32 12)) '(0 0) 2)
+;-> ((2 (1 1)) (41 (4 5)))
+
+Complessità temporale: O(NlogN), dove N è il numero di punti.
+Complessità spaziale: O(N).
+
+Soluzione B: Algoritmo Quickselect
+Memorizzare tutte le distanze in un array. Trovare l'indice che fornisce l'elemento Kth più piccolo usando un metodo simile al quicksort. Quindi l'elemento dall'indice 0 a (K-1) darà tutti i K punti cercati. Vediamo come funziona questo algoritmo.
+
+Cerchiamo un algoritmo più veloce di NlogN. Chiaramente, l'unico modo per farlo è usare il fatto che i K elementi possono essere in qualsiasi ordine, altrimenti dovremmo fare l'ordinamento che è almeno NlogN.
+
+Supponiamo di scegliere un elemento casuale x = A [i] e di dividere l'array in due parti: una parte con tutti gli elementi minori di x e una parte con tutti gli elementi maggiori o uguali a x. Questo metodo è noto come "quickselect con il pivot x".
+
+L'idea è che selezionando alcuni pivot, ridurremo il problema a metà della dimensione originale in tempo lineare (in media).
+
+La funzione work(i, j, K) ordina parzialmente la sottolista (punti [i], punti [i + 1], ..., punti [j]) in modo che i K elementi più piccoli di questa sottolista si trovino nelle prime posizioni K (i, i + 1, ..., i + K-1).
+
+Innanzitutto, selezioniamo dalla sottolista un elemento casuale da usare come pivot. Per farlo, utilizziamo due puntatori i e j, per spostarsi sugli elementi che si trovano nella parte sbagliata e poi scambiamo questi elementi.
+
+Dopo, abbiamo due parti [oi, i] e [i + 1, oj], dove (oi, oj) sono i valori originali (i, j) quando si chiama work(i, j, K). Supponiamo che la prima parte abbia 10 articoli e che la seconda contenga 15 elementi. Se stessimo cercando di ordinare parzialmente, ad esempio K = 5 elementi, allora abbiamo bisogno di ordinare parzialmente soltanto la prima parte: work(oi, i, 5). Altrimenti, se provassimo a ordinare in parte, K = 17 elementi, allora i primi 10 elementi sono già parzialmente ordinati e abbiamo solo bisogno di ordinare parzialmente i successivi 7 elementi: work(i + 1, oj, 7).
+
+(setq pun '((1 2)(2 2)(4 5)))
+
+(define (kClosest punti C k)
+  (local (out)
+    ;
+    ; Funzione che scambia i valori di due punti
+    (define (scambia i j)
+      (swap (punti i) (punti j))
+    )
+    ;
+    ; Funzione che calcola il quadrato della distanza
+    ; tra il punto C e il punto p(i)
+    (define (qdist i)
+      (+ (* (sub (first (punti i)) (first C)) (sub (first (punti i)) (first C)))
+         (* (sub (last (punti i)) (last C)) (sub (last (punti i)) (last C))))
+    )
+    ;
+    ; Funzione che ordina parzialmente A[i:j+1]
+    ; in modo che i primi K elementi siano i più piccoli
+    (define (ordina i j k)
+      (local (r mid leftH)
+        (if (< i j)
+            (begin
+              ; calcola il pivot
+              (setq r (add (rand (+ i 1 (- j))) j))
+              (scambia i r)
+              (setq mid (partition i j))
+              (setq leftH (+ mid 1 (- i)))
+              (if (< k leftH)
+                  (sort i (- mid 1) k)
+              ;else
+                  (if (> k leftH)
+                    (sort (+ mid 1) j (- k leftH))
+                  )
+              )
+            )
+        )
+      ); local
+    ); ordina
+    ;
+    ; Partizionamento con il pivot A[i]
+    ; Restituisce un indice "mid" tale che:
+    ; A[i] <= A[mid] <= A[j] per i < mid < j.
+    (define (partition i j)
+      (local (oi pivot continua)
+        (setq oi i)
+        (setq pivot (qdist i))
+        (++ i)
+        (setq continua true)
+        (while continua
+          (while (and (< i j) (< (qdist i) pivot))
+            (++ i))
+          (while (and (<= i j) (> (qdist j) pivot))
+            (-- j))
+          (if (>= i j)
+              (setq continua nil)
+              ;(scambia (punti i) (punti j))
+              (scambia i j)
+          )
+        )
+        ;(scambia (punti oi) (punti j))
+        (scambia oi j)
+        j
+      )
+    );partition
+    (ordina 0 (- (length punti) 1) k)
+    (slice punti 0 k)
+  )
+)
+
+(kClosest '((0 0)  (5 4)  (3 1))  '(1 2) 2)
+;-> ((0,0), (3,1))
+
+(kClosest '((3 3)  (5 -1) (-2 4)) '(0 0)  2)
+;-> ((3 3 ) (-2 4)
+
+(kClosest '((1 1) (8 9) (4 5) (32 12)) '(0 0) 2)
+;-> ((1 1) (4 5))
+
+Complessità temporale: in media O(N), dove N è il numero di punti.
+Complessità spaziale: O(N)
+
+
+Ordinamento colori (LeetCode)
+-----------------------------
+Data una lista con n elementi che hanno uno dei seguenti valori: "verde", "bianco", "rosso" o "blu". Restituire un'altra lista in modo che gli stessi colori siano adiacenti e l'ordine dei colori sia "verde", "bianco", "rosso" e "blu".
+Un colore può non comparire nella lista (es. lista = ("rosso" "verde" "verde" "blu")
+Esempio:
+Input:  lista = ("rosso" "verde" "bianco" "bianco" "verde" "rosso" "rosso")
+Output: lista = ("verde" "verde" "bianco" "bianco" "rosso" "rosso" "rosso")
+
+Per semplificare i calcoli usiamo i numeri 0, 1, 2 e 3 per rappresentare rispettivamente i colori "verde", "bianco",  "rosso" e "blu".
+
+(define (ordinaColori lst)
+  (local (val numcolors vec out )
+    (setq numcolors (length (unique lst)))
+    (setq vec (array numcolors '(0)))
+    (setq out '())
+    ; riempio il vettore con le frequenze dei numeri (colori)
+    (dolist (el lst)
+      ; aumentiamo di uno il valore del vettore che si trova all'indice "el"
+      (++ (vec el))
+    )
+    ; per ogni valore del vettore "vec" (vec[i])
+    ; inseriamo nella lista l'elemento "i" per vec[i] volte.
+    (for (i 0 (- numcolors 1))
+      (setq val (vec i))
+      (for (j 1 val)
+        (push i out -1)
+      )
+    )
+    out
+  );local
+)
+
+(ordinaColori '(1 2 2 1 1 2 0 0 0 2 2 1))
+;-> (0 0 0 1 1 1 1 2 2 2 2 2)
+
+(ordinaColori '(0 1 2 3 0 1 2 3 0 1 2 3))
+;-> (0 0 0 1 1 1 2 2 2 3 3 3)
 
 
 ================================
@@ -14844,7 +17957,7 @@ Restituisce l'insieme potenza di un insieme.
              (p (powerset (rest lst))))
            (append (map (fn (subset) (cons element subset)) p) p) )))
 
-(powerset '(a b c))
+(powerset '(a b c d))
 ;-> ((a b c) (a b) (a c) (a) (b c) (b) (c) ())
 
 
@@ -14903,6 +18016,516 @@ Restituisce l'insieme potenza di un insieme.
 +===========+
 | APPENDICI |
 +===========+
+
+============================================================================
+ Lista delle funzioni newLISP
+============================================================================
+
+List processing, flow control, and integer arithmetic
+=====================================================
++, -, *, /, %     integer arithmetic
+++                increment integer numbers
+--                decrement integer numbers
+<, >, =           compares any data type: less, greater, equal
+<=, >=, !=        compares any data type: less-equal, greater-equal, not-equal
+:                 constructs a context symbol and applies it to an object
+and               logical and
+append            appends lists ,arrays or strings to form a new list, array or string
+apply             applies a function or primitive to a list of arguments
+args              retrieves the argument list of a function or macro expression
+assoc             searches for keyword associations in a list
+begin             begins a block of functions
+bigint            convert a number to big integer format
+bind              binds variable associations in a list
+case              branches depending on contents of control variable
+catch             evaluates an expression, possibly catching errors
+chop              chops elements from the end of a list
+clean             cleans elements from a list
+collect           repeat evaluating an expression and collect results in a list
+cond              branches conditionally to expressions
+cons              prepends an element to a list, making a new list
+constant          defines a constant symbol
+count             counts elements of one list that occur in another list
+curry             transforms a function f(x, y) into a function fx(y)
+define            defines a new function or lambda expression
+define-macro      defines a macro or lambda-macro expression
+def-new           copies a symbol to a different context (namespace)
+difference        returns the difference between two lists
+doargs            iterates through the arguments of a function
+dolist            evaluates once for each element in a list
+dostring          evaluates once for each character in a string
+dotimes           evaluates once for each number in a range
+dotree            iterates through the symbols of a context
+do-until          repeats evaluation of an expression until the condition is met
+do-while          repeats evaluation of an expression while the condition is true
+dup               duplicates a list or string a specified number of times
+ends-with         checks the end of a string or list against a key of the same type
+eval              evaluates an expression
+exists            checks for the existence of a condition in a list
+expand            replaces a symbol in a nested list
+explode           explodes a list or string
+extend            extends a list or string
+first             gets the first element of a list or string
+filter            filters a list
+find              searches for an element in a list or string
+flat              returns the flattened list
+fn                defines a new function or lambda expression
+for               evaluates once for each number in a range
+for-all           checks if all elements in a list meet a condition
+if                evaluates an expression conditionally
+index             filters elements from a list and returns their indices
+intersect         returns the intersection of two lists
+lambda            defines a new function or lambda expression
+last              returns the last element of a list or string
+length            calculates the length of a list or string
+let               declares and initializes local variables
+letex             expands local variables into an expression, then evaluates
+letn              initializes local variables incrementally, like nested lets
+list              makes a list
+local             declares local variables
+lookup            looks up members in an association list
+map               maps a function over members of a list, collecting the results
+match             matches patterns against lists; for matching against strings, see find and regex
+member            finds a member of a list or string
+not               logical not
+nth               gets the nth element of a list or string
+or                logical or
+pop               deletes and returns an element from a list or string
+pop-assoc         removes an association from an association list
+push              inserts a new element into a list or string
+quote             quotes an expression
+ref               returns the position of an element inside a nested list
+ref-all           returns a list of index vectors of elements inside a nested list
+rest              returns all but the first element of a list or string
+replace           replaces elements inside a list or string
+reverse           reverses a list or string
+rotate            rotates a list or string
+select            selects and permutes elements from a list or string
+self              Accesses the target object inside a FOOP method
+set               sets the binding or contents of a symbol
+setf setq         sets contents of a symbol or list, array or string reference
+set-ref           searches for an element in a nested list and replaces it
+set-ref-all       searches for an element in a nested list and replaces all instances
+silent            works like begin but suppresses console output of the return value
+slice             extracts a sublist or substring
+sort              sorts the members of a list
+starts-with       checks the beginning of a string or list against a key of the same type
+swap              swaps two elements inside a list or string
+unify             unifies two expressions
+unique            returns a list without duplicates
+union             returns a unique list of elements found in two or more lists.
+unless            evaluates an expression conditionally
+until             repeats evaluation of an expression until the condition is met
+when              evaluates a block of statements conditionally
+while             repeats evaluation of an expression while the condition is true
+
+String and conversion functions
+===============================
+address           gets the memory address of a number or string
+bigint            convert a number to big integer format
+bits              translates a number into binary representation
+char              translates between characters and ASCII codes
+chop              chops off characters from the end of a string
+dostring          evaluates once for each character in a string
+dup               duplicates a list or string a specified number of times
+ends-with         checks the end of a string or list against a key of the same type
+encrypt           does a one-time–pad encryption and decryption of a string
+eval-string       compiles, then evaluates a string
+explode           transforms a string into a list of characters
+extend            extends a list or string
+find              searches for an element in a list or string
+find-all          returns a list of all pattern matches found in string
+first             gets the first element in a list or string
+float             translates a string or integer into a floating point number
+format            formats numbers and strings as in the C language
+get-char          gets a character from a memory address
+get-float         gets a double float from a memory address
+get-int           gets a 32-bit integer from a memory address
+get-long          gets a long 64-bit integer from a memory address
+get-string        gets a string from a memory address
+int               translates a string or float into an integer
+join              joins a list of strings
+last              returns the last element of a list or string
+lower-case        converts a string to lowercase characters
+member            finds a list or string member
+name              returns the name of a symbol or its context as a string
+nth               gets the nth element in a list or string
+pack              packs newLISP expressions into a binary structure
+parse             breaks a string into tokens
+pop               pops from a string
+push              pushes onto a string
+regex             performs a Perl-compatible regular expression search
+regex-comp        pre-compiles a regular expression pattern
+replace           replaces elements in a list or string
+rest              gets all but the first element of a list or string
+reverse           reverses a list or string
+rotate            rotates a list or string
+select            selects and permutes elements from a list or string
+setf setq         sets contents of a string reference
+slice             extracts a substring or sublist
+source            returns the source required to bind a symbol as a string
+starts-with       checks the start of the string or list against a key string or list
+string            transforms anything into a string
+sym               translates a string into a symbol
+title-case        converts the first character of a string to uppercase
+trim              trims a string on one or both sides
+unicode           converts ASCII or UTF-8 to UCS-4 Unicode
+utf8              converts UCS-4 Unicode to UTF-8
+utf8len           returns length of an UTF-8 string in UTF-8 characters
+unpack            unpacks a binary structure into newLISP expressions
+upper-case        converts a string to uppercase characters
+
+Floating point math and special functions
+=========================================
+abs               returns the absolute value of a number
+acos              calculates the arc-cosine of a number
+acosh             calculates the inverse hyperbolic cosine of a number
+add               adds floating point or integer numbers and returns a floating point number
+array             creates an array
+array-list        returns a list conversion from an array
+asin              calculates the arcsine of a number
+asinh             calculates the inverse hyperbolic sine of a number
+atan              calculates the arctangent of a number
+atanh             calculates the inverse hyperbolic tangent of a number
+atan2             computes the principal value of the arctangent of Y / X in radians
+beta              calculates the beta function
+betai             calculates the incomplete beta function
+binomial          calculates the binomial function
+ceil              rounds up to the next integer
+cos               calculates the cosine of a number
+cosh              calculates the hyperbolic cosine of a number
+crc32             calculates a 32-bit CRC for a data buffer
+dec               decrements a number in a variable, list or array
+div               divides floating point or integer numbers
+erf               calculates the error function of a number
+exp               calculates the exponential e of a number
+factor            factors a number into primes
+fft               performs a fast Fourier transform (FFT)
+floor             rounds down to the next integer
+flt               converts a number to a 32-bit integer representing a float
+gammai            calculates the incomplete Gamma function
+gammaln           calculates the log Gamma function
+gcd               calculates the greatest common divisor of a group of integers
+ifft              performs an inverse fast Fourier transform (IFFT)
+inc               increments a number in a variable, list or array
+inf?              checks if a floating point value is infinite
+log               calculates the natural or other logarithm of a number
+min               finds the smallest value in a series of values
+max               finds the largest value in a series of values
+mod               calculates the modulo of two numbers
+mul               multiplies floating point or integer numbers
+NaN?              checks if a float is NaN (not a number)
+round             rounds a number
+pow               calculates x to the power of y
+sequence          generates a list sequence of numbers
+series            creates a geometric sequence of numbers
+sgn               calculates the signum function of a number
+sin               calculates the sine of a number
+sinh              calculates the hyperbolic sine of a number
+sqrt              calculates the square root of a number
+ssq               calculates the sum of squares of a vector
+sub               subtracts floating point or integer numbers
+tan               calculates the tangent of a number
+tanh              calculates the hyperbolic tangent of a number
+uuid              returns a UUID (Universal Unique IDentifier)
+
+Matrix functions
+================
+det               returns the determinant of a matrix
+invert            returns the inversion of a matrix
+mat               performs scalar operations on matrices
+multiply          multiplies two matrices
+transpose         returns the transposition of a matrix
+
+Array functions
+===============
+append            appends arrays
+array             creates and initializes an array with up to 16 dimensions
+array-list        converts an array into a list
+array?            checks if expression is an array
+det               returns the determinant of a matrix
+first             returns the first row of an array
+invert            returns the inversion of a matrix
+last              returns the last row of an array
+mat               performs scalar operations on matrices
+multiply          multiplies two matrices
+nth               returns an element of an array
+rest              returns all but the first row of an array
+setf              sets contents of an array reference
+slice             returns a slice of an array
+transpose         transposes a matrix
+
+Bit operators
+=============
+<<, >>            bit shift left, bit shift right
+&                 bitwise and
+|                 bitwise inclusive or
+^                 bitwise exclusive or
+~                 bitwise not
+
+Predicates
+==========
+atom?             checks if an expression is an atom
+array?            checks if an expression is an array
+bigint?           checks if a number is a big integer
+context?          checks if an expression is a context
+directory?        checks if a disk node is a directory
+empty?            checks if a list or string is empty
+even?             checks the parity of an integer number
+file?             checks if a file exists
+float?            checks if an expression is a float
+global?           checks if a symbol is global
+inf?              checks if a floating point value is infinite
+integer?          checks if an expression is an integer
+lambda?           checks if an expression is a lambda expression
+legal?            checks if a string contains a legal symbol
+list?             checks if an expression is a list
+macro?            checks if an expression is a lambda-macro expression
+NaN?              checks if a float is NaN (not a number)
+nil?              checks if an expression is nil
+null?             checks if an expression is nil, "", (), 0 or 0.0
+number?           checks if an expression is a float or an integer
+odd?              checks the parity of an integer number
+protected?        checks if a symbol is protected
+primitive?        checks if an expression is a primitive
+quote?            checks if an expression is quoted
+string?           checks if an expression is a string
+symbol?           checks if an expression is a symbol
+true?             checks if an expression is not nil
+zero?             checks if an expression is 0 or 0.0
+
+Date and time functions
+=======================
+date              converts a date-time value to a string
+date-list         returns a list of year, month, day, hours, minutes, seconds from a time value in seconds
+date-parse        parses a date string and returns the number of seconds passed since January 1, 1970, (formerly parse-date)
+date-value        calculates the time in seconds since January 1, 1970 for a date and time
+now               returns a list of current date-time information
+time              calculates the time it takes to evaluate an expression in milliseconds
+time-of-day       calculates the number of milliseconds elapsed since the day started
+
+Statistics, simulation and modeling functions
+=============================================
+amb               randomly selects an argument and evaluates it
+bayes-query       calculates Bayesian probabilities for a data set
+bayes-train       counts items in lists for Bayesian or frequency analysis
+corr              calculates the product-moment correlation coefficient
+crit-chi2         calculates the Chi² statistic for a given probability
+crit-f            calculates the F statistic for a given probability
+crit-t            calculates the Student's t statistic for a given probability
+crit-z            calculates the normal distributed Z for a given probability
+kmeans-query      calculates distances to cluster centroids or other data points
+kmeans-train      partitions a data set into clusters
+normal            makes a list of normal distributed floating point numbers
+prob-chi2         calculates the tail probability of a Chi² distribution value
+prob-f            calculates the tail probability of a F distribution value
+prob-t            calculates the tail probability of a Student's t distribution value
+prob-z            calculates the cumulated probability of a Z distribution value
+rand              generates random numbers in a range
+random            generates a list of evenly distributed floats
+randomize         shuffles all of the elements in a list
+seed              seeds the internal random number generator
+stats             calculates some basic statistics for a data vector
+t-test            compares means of data samples using the Student's t statistic
+
+Pattern matching
+================
+ends-with         tests if a list or string ends with a pattern
+find              searches for a pattern in a list or string
+find-all          finds all occurrences of a pattern in a string
+match             matches list patterns
+parse             breaks a string along around patterns
+ref               returns the position of an element inside a nested list
+ref-all           returns a list of index vectors of elements inside a nested list
+regex             finds patterns in a string
+replace           replaces patterns in a string
+search            searches for a pattern in a file
+starts-with       tests if a list or string starts with a pattern
+unify             performs a logical unification of patterns
+
+Financial math functions
+========================
+fv                returns the future value of an investment
+irr               calculates the internal rate of return
+nper              calculates the number of periods for an investment
+npv               calculates the net present value of an investment
+pv                calculates the present value of an investment
+pmt               calculates the payment for a loan
+
+Input/output and file operations
+================================
+append-file       appends data to a file
+close             closes a file
+current-line      retrieves contents of last read-line buffer
+device            sets or inquires about current print device
+exec              launches another program, then reads from or writes to it
+load              loads and evaluates a file of newLISP code
+open              opens a file for reading or writing
+peek              checks file descriptor for number of bytes ready for reading
+print             prints to the console or a device
+println           prints to the console or a device with a line-feed
+read              reads binary data from a file
+read-char         reads an 8-bit character from a file
+read-file         reads a whole file in one operation
+read-key          reads a keyboard key
+read-line         reads a line from the console or file
+read-utf8         reads UTF-8 character from a file
+save              saves a workspace, context, or symbol to a file
+search            searches a file for a string
+seek              sets or reads a file position
+write             writes binary data to a file
+write-char        writes a character to a file
+write-file        writes a file in one operation
+write-line        writes a line to the console or a file
+
+Processes and the Cilk API
+==========================
+!                 shells out to the operating system
+abort             aborts a child process started with spawn
+destroy           destroys a process created with fork or process
+exec              runs a process, then reads from or writes to it
+fork              launches a newLISP child process
+pipe              creates a pipe for interprocess communication
+process           launches a child process, remapping standard I/O and standard error
+receive           receive a message from another process
+semaphore         creates and controls semaphores
+send              send a message to another process
+share             shares memory with other processes
+spawn             launches a child process for Cilk process management
+sync              waits for child processes launched with spawn and collects results
+wait-pid          waits for a child process to end
+
+File and directory management
+=============================
+change-dir        changes to a different drive and directory
+copy-file         copies a file
+delete-file       deletes a file
+directory         returns a list of directory entries
+file-info         gets file size, date, time, and attributes
+make-dir          makes a new directory
+real-path         returns the full path of the relative file path
+remove-dir        removes an empty directory
+rename-file       renames a file or directory
+
+HTTP networking API
+===================
+base64-enc        encodes a string into BASE64 format
+base64-dec        decodes a string from BASE64 format
+delete-url        deletes a file or page from the web
+get-url           reads a file or page from the web
+json-error        returns error information from a failed JSON translation.
+json-parse        parses JSON formatted data
+post-url          posts info to a URL address
+put-url           uploads a page to a URL address
+xfer-event        registers an event handler for HTTP byte transfers
+xml-error         returns last XML parse error
+xml-parse         parses an XML document
+xml-type-tags     shows or modifies XML type tags
+
+Socket TCP/IP, UDP and ICMP network API
+=======================================
+net-accept        accepts a new incoming connection
+net-close         closes a socket connection
+net-connect       connects to a remote host
+net-error         returns the last error
+net-eval          evaluates expressions on multiple remote newLISP servers
+net-interface     Sets the default interface IP address on multihomed computers.
+net-ipv           Switches between IPv4 and IPv6 internet protocol versions.
+net-listen        listens for connections to a local socket
+net-local         returns the local IP and port number for a connection
+net-lookup        returns the name for an IP number
+net-packet        send a custom configured IP packet over raw sockets
+net-peek          returns the number of characters ready to be read from a network socket
+net-peer          returns the remote IP and port for a net connect
+net-ping          sends a ping packet (ICMP echo request) to one or more addresses
+net-receive       reads data on a socket connection
+net-receive-from  reads a UDP on an open connection
+net-receive-udp   reads a UDP and closes the connection
+net-select        checks a socket or list of sockets for status
+net-send          sends data on a socket connection
+net-send-to       sends a UDP on an open connection
+net-send-udp      sends a UDP and closes the connection
+net-service       translates a service name into a port number
+net-sessions      returns a list of currently open connections
+
+API for newLISP in a web browser
+================================
+display-html      display an HTML page in a web browser
+eval-string-js    evaluate JavaScript in the current web browser page
+
+Reflection and customization
+============================
+command-event     pre-processes the command-line and HTTP requests
+error-event       defines an error handler
+history           returns the call history of a function
+last-error        report the last error number and text
+macro             create a reader expansion macro
+ostype            contains a string describing the OS platform
+prefix            Returns the context prefix of a symbol
+prompt-event      customizes the interactive newLISP shell prompt
+read-expr         reads and translates s-expressions from source
+reader-event      preprocess expressions before evaluation event-driven
+set-locale        switches to a different locale
+source            returns the source required to bind a symbol to a string
+sys-error         reports OS system error numbers
+sys-info          gives information about system resources
+term              returns the term part of a symbol or its context as a string
+
+System functions
+================
+$                 accesses system variables $0 -> $15
+callback          registers a callback function for an imported library
+catch             evaluates an expression, catching errors and early returns
+context           creates or switches to a different namespace
+copy              copies the result of an evaluation
+debug             debugs a user-defined function
+delete            deletes symbols from the symbol table
+default           returns the contents of a default functor from a context
+env               gets or sets the operating system's environment
+exit              exits newLISP, setting the exit value
+global            makes a symbol accessible outside MAIN
+import            imports a function from a shared library
+main-args         gets command-line arguments
+new               creates a copy of a context
+pretty-print      changes the pretty-printing characteristics
+read-expr         translates a string to an s-expression without evaluating it
+reset             goes to the top level
+signal            sets a signal handler
+sleep             suspends processing for specified milliseconds
+sym               creates a symbol from a string
+symbols           returns a list of all symbols in the system
+throw             causes a previous catch to return
+throw-error       throws a user-defined error
+timer             starts a one-shot timer, firing an event
+trace             sets or inquires about trace mode
+trace-highlight   sets highlighting strings in trace mode
+
+Importing libraries
+===================
+address           returns the memory address of a number or string
+callback          registers a callback function for an imported library
+flt               converts a number to a 32-bit integer representing a float
+float             translates a string or integer into a floating point number
+get-char          gets a character from a memory address
+get-float         gets a double float from a memory address
+get-int           gets a 32-bit integer from a memory address
+get-long          gets a long 64-bit integer from a memory address
+get-string        gets a string from a memory address
+import            imports a function from a shared library
+int               translates a string or float into an integer
+pack              packs newLISP expressions into a binary structure
+struct            Defines a data structure with C types
+unpack            unpacks a binary structure into newLISP expressions
+
+newLISP internals API
+=====================
+command-event     pre-processes the command-line and HTTP requests
+cpymem            copies memory between addresses
+dump              shows memory address and contents of newLISP cells
+prompt-event      customizes the interactive newLISP shell prompt
+read-expr         reads and translates s-expressions from source
+reader-event      preprocess expressions before evaluation event-driven
+
 
 ============================================================================
 newLISP in 21 minuti di John W. Small
@@ -17854,11 +21477,11 @@ Trovare Y
 ---------
 Questa è la definizione ricorsiva originale del fattoriale:
 
-  (define fact (lambda (n) (if (<n 2) 1 (* n (fact (- n 1))))))
+  (define fact (lambda (n) (if (< n 2) 1 (* n (fact (- n 1))))))
 
 L'originale fattoriale ridefinito come funzione anonima e prendendo il vero fattoriale in h:
 
-  (lambda (h) (lambda (n) (if (<n 2) 1 (* n (h (- n 1))))))
+  (lambda (h) (lambda (n) (if (< n 2) 1 (* n (h (- n 1))))))
 
 Se questa funzione è chiamata F e il fattoriale vero è f allora ((F f) n) = (F n), f è un punto fisso di F.
 
@@ -17868,16 +21491,16 @@ Questa funzione è chiamata "Applicative-order Y fixed point operator" per i fun
 
 Il fattoriale base con il vero fattoriale:
 
-  (lambda (n) (if (<n 2) 1 (* n (h (- n 1)))))
+  (lambda (n) (if (< n 2) 1 (* n (h (- n 1)))))
 
 Passiamo la funzione fattoriale come parametro:
 
-  (lambda (h n) (if (<n 2) 1 (* n (h h (- n 1)))))
+  (lambda (h n) (if (< n 2) 1 (* n (h h (- n 1)))))
 
 Impacchettiamo come espressione anonima e proviamo:
 
   (let ((g (lambda (h n)
-           (if (<n 2) 1 (* n (h h (- n 1)))))))
+           (if (< n 2) 1 (* n (h h (- n 1)))))))
     (g g 10)); => 3628800
 
 Fino a questo punto le espressioni sono identiche a quelle trovate in "The Why of Y" di Richard P. Gabriel. Il resto delle trasformazioni segue Gabriel, ma inserisce la funzione newLISP "expand" dove richiesto per ottenere un effetto di chiusura per la funzione passata come parametro nell'espressione (lambda (h) ...).
@@ -17885,7 +21508,7 @@ Fino a questo punto le espressioni sono identiche a quelle trovate in "The Why o
 Curry (g g 10) a ((g g) 10):
 
   (let ((g (lambda (h)
-          (espandi (lambda (n) (if (<n 2) 1 (* n ((h h) (- n 1))))) 'h))))
+          (espandi (lambda (n) (if (< n 2) 1 (* n ((h h) (- n 1))))) 'h))))
       ((g g) 10))
 
 Estraiamo (h h) come f:
@@ -17893,7 +21516,7 @@ Estraiamo (h h) come f:
   (let ((g (lambda (h)
             (espandi (lambda (n)
               (let ((f (lambda (f n)
-                      (if (<n 2) 1 (* n (f (- n 1)))))))
+                      (if (< n 2) 1 (* n (f (- n 1)))))))
               (f (h h) n))) 'h))))
            ((g g) 10))
 
@@ -17903,7 +21526,7 @@ Curry la definizione di f per f interna a (lambda (f n) ...):
            (espandi (lambda (n)
             (let ((f (lambda (q)
                    (espandi (lambda (n)
-                     (se (<n 2) 1 (* n (q (- n 1))))) 'q)))); in Schema
+                     (se (< n 2) 1 (* n (q (- n 1))))) 'q)))); in Schema
              ((f (h h)) n))) 'h))))
     ((g g) 10))
 
@@ -18574,6 +22197,12 @@ Frasi Famose sulla Programmazione e sul Linguaggio Lisp
   Forum ufficiale di newLISP
   http://www.newLISPfanclub.alh.net/forum/
 
+  Johu's Blog
+  https://johu02.wordpress.com/
+
+  Cormullion's Blog
+  https://newlisper.wordpress.com/
+
   "A Practical Introduction to Fuzzy Logic using Lisp", Luis Argüelles Mendez, 2015
 
   Informazioni sui numeri Floating Point:
@@ -18608,3 +22237,6 @@ Frasi Famose sulla Programmazione e sul Linguaggio Lisp
 
   Enciclopedia libera:
   https://www.wikipedia.org/
+
+  LeetCode - La piattaforma leader nel mondo per l'apprendimento online della programmazione:
+  https://leetcode.com/
