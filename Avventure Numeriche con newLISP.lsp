@@ -17,7 +17,7 @@ TRASFORMARE UNA FUNZIONE DA DUE A N ARGOMENTI
 APPLICARE UNA FUNZIONE AD OGNI SOTTOLISTA DI UNA LISTA
 ASSEGNAZIONE GLOBALE: SET, SETQ e SETF (e DEFINE)
 ASSEGNAZIONE LOCALE: LET, LETN e LOCAL
-EFFETTI COLLATERALI (side effect) DI SETQ e LET
+EFFETTI COLLATERALI (side effect) DI SETQ e LET e LOCAL
 PASSAGGIO PER VALORE E PASSAGGIO PER RIFERIMENTO
 NIL, TRUE e LISTA VUOTA '()
 LA FUNZIONE QUOTE E IL SIMBOLO '
@@ -53,6 +53,10 @@ USCITA ANTICIPATA DA FUNZIONI, CICLI E BLOCCHI
 LAVORARE CON FILE DI DATI (FILE I/O)
 AMBITO (SCOPE) DINAMICO E LESSICALE
 CONTESTI
+USO DEI MODULI
+  La variabile di ambiente NEWLISPDIR
+  Il file di inizializzazione init.lsp
+  Esempi sull'utilizzo dei moduli
 CAR E CDR IN newLISP
 
 FUNZIONI VARIE
@@ -67,7 +71,9 @@ FUNZIONI VARIE
   Calcolo proporzione
   Estrarre l'elemento n-esimo da una lista
   Verificare se una lista è palindroma
+  Verificare se una stringa è palindroma
   Zippare due liste
+  Sostituire gli elementi di una lista con un determinato valore
   Raggruppare gli elementi di una lista
   Enumerare gli elementi di una lista
   Creare una stringa come ripetizione di un carattere/stringa
@@ -93,6 +99,7 @@ FUNZIONI VARIE
   Il programma è in esecuzione ? (progress display)
   Ispezionare una cella newLISP
   Informazioni sul sistema (sys-info)
+  Valutazione di elementi di una lista
 
 newLISP 99 PROBLEMI (28)
   N-99-01 Estrarre l'ultimo elemento di una lista
@@ -110,7 +117,7 @@ newLISP 99 PROBLEMI (28)
   N-99-13 Run-length encode di una lista (diretto)
   N-99-14 Duplicare gli elementi di una lista
   N-99-15 Replicare per n volte gli elementi di una lista
-  N-99-16 Eliminare l'elemento k-esimo di una lista
+  N-99-16 Eliminare gli elementi da una lista per ogni k
   N-99-17 Dividere una lista in due parti (la lunghezza della prima lista è un parametro)
   N-99-18 Estrarre una parte di una lista
   N-99-19 Ruotare una lista di N posti a sinistra
@@ -125,6 +132,7 @@ newLISP 99 PROBLEMI (28)
   N-99-28 Ordinare una lista in base alla lunghezza delle sottoliste
 
 ROSETTA CODE
+  FizzBuzz
   Numeri Primi
   Numeri di Smith
   Numeri di Hamming
@@ -142,11 +150,19 @@ ROSETTA CODE
   Regola di Horner
   Problema dello zaino (Knapsack)
   Giorno della settimana
+  Triangolo di Pascal
+  Codice Morse
+  Problema di Babbage
+  Cifrario di Cesare
+  Cifrario di Vigenere
+  Anagrammi
 
 PROJECT EULERO
   Problemi 1..50
 
 PROBLEMI VARI
+  BubbleSort
+  QuickSort
   Simulare una matrice con un vettore
   Implementare una pila (stack) con un vettore
   Implementare una coda (queue) con un vettore
@@ -195,6 +211,7 @@ PROBLEMI VARI
   Moltiplicazione tra numeri interi (stringhe)
   Numeri pandigitali
   Somma dei divisori propri di un numero
+  Labirinti (calcolo percorsi)
 
 DOMANDE PER ASSUNZIONE DI PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Notazione Big O
@@ -245,8 +262,8 @@ APPENDICI
   Chiusure, contesti e funzioni con stato (Lutz Mueller)
   Creazione di funzioni con ambito lessicale in newLISP (Lutz Mueller)
   "The Y of Why" in newLISP (Lutz Mueller)
-  Expression evaluation, Implicit Indexing, Contexts and Default Functors (Lutz Mueller)
-  Automatic Memory Management in newLISP (Lutz Mueller)
+  Valutazione delle espressioni, Indicizzazione Implicita, Contesti e Funtori di Default (Lutz Mueller)
+  Gestione Automatica della Memoria in newLISP (Lutz Mueller)
   Frasi Famose sulla Programmazione e sul Linguaggio Lisp
 
 BIBLIOGRAFIA / WEB
@@ -258,14 +275,13 @@ BIBLIOGRAFIA / WEB
  INTRODUZIONE
 ==============
 
-Questo documento introduce all'uso del linguaggio newLISP per le elaborazioni numeriche (e anche per altre cose). È necessaria una conoscenza di base della programmazione in newLISP. Un ottima scelta per imparare questo linguaggio è il libro "Introduction to newLISP" disponibile come WikiBooks all'indirizzo:  http://en.wikibooks.org/wiki/Introduction_to_newLISP
+Questi appunti introducono all'uso del linguaggio newLISP per le elaborazioni numeriche (e anche per altre cose). È necessaria una conoscenza di base della programmazione in newLISP. Un ottima scelta per imparare questo linguaggio è il libro "Introduction to newLISP" disponibile come WikiBooks all'indirizzo:  http://en.wikibooks.org/wiki/Introduction_to_newLISP
 Comunque per avere una panoramica sul linguaggio potete anche consultare "newLISP in 21 minuti" di John W. Small riportato in appendice.
 Maggiori informazioni sono reperibili al sito ufficiale del linguaggio:
 
 http://www.newLISP.org/
 
-Questo documento è in continua evoluzione e aggiornamento ed è scritto non da un programmatore professionista, ma da un principiante che studia ed utilizza newLISP per divertimento.
-In genere uso newLISP nel mio lavoro quotidiano e per risolvere problemi di matematica ricreativa.
+Questo documento è in continua evoluzione e aggiornamento ed è scritto non da un programmatore professionista, ma da un principiante che studia ed utilizza newLISP per divertimento. In genere uso newLISP nel mio lavoro quotidiano e per risolvere problemi di matematica ricreativa.
 Consigli, correzioni e suggerimenti sono i benvenuti.
 
 Per convenzione i comandi di input della REPL non contengono il prompt di newLISP ">".
@@ -281,6 +297,14 @@ CPU: Intel Core i5-4460
 RAM: 16Gb DDR3 800mHz
 GPU: NVIDIA Geforce GTX 750 SDRAM: 2Gb GDDR5
 
+NOTA:
+I riferimenti principali di questo documento sono:
+1) "newLISP User Manual and Reference" di Lutz Mueller
+2) "Code Patterns in newLISP" di Lutz Muller
+3) "Introduction to newLISP" di Cormullion
+Tutti gli articoli tradotti presenti in questo documento sono sotto il copyright dei rispettivi autori. Ogni errore di traduzione è imputabile soltanto a me.
+Per quanto possibile ho sempre riportato il nome degli autori delle funzioni realizzate da altri programmatori utilizzate in questo documento (viste e prese da forum, blog, ecc.).
+Ringrazio tutti quelli che vorranno suggerire critiche, correzioni e miglioramenti.
 
 ===============
  INSTALLAZIONE
@@ -298,12 +322,12 @@ Terminata l'installazione abbiamo a disposizione due modalità per eseguire newL
 Utilizzeremo solo la modalità REPL (Read Evaluate Print Loop).
 Questo manuale e i sorgenti in esso contenuti si trovano al sito:
 
-https://github.com/cameyo42/numeric-newLISP
+https://github.com/cameyo42/notes-newLISP
 
 Scaricate e copiate i file in una cartella a piacere (es. c:\newLISP\numeric).
 Potete leggere il file PDF oppure utilizzare il file di testo. In quest'ultimo caso per seguire gli esempi potete usare l'editor notepad++ con il plugin che si trova al sito:
 
-https://github.com/cameyo42/notepadpp-newLISP
+https://github.com/cameyo42/notepadpp-newlisp
 
 Seguendo le istruzioni riportate in appendice potete leggere il documento e contemporaneamente eseguire il codice che ritenete opportuno.
 
@@ -323,17 +347,17 @@ newLISP v.10.7.4 64-bit on Windows IPv4/6 UTF-8 libffi, options: newLISP -h
 Per vedere in quale cartella ci troviamo digitiamo il comando "!cd":
 
 !cd
-;-> c:\newLISP\numeric
+;-> c:\newLISP\note
 
 Se non ci troviamo nella cartella corretta possiamo cambiare cartella con il comando "change-dir":
 
-(change-dir "c://newLISP/numeric")
+(change-dir "c://newLISP/note")
 ;-> true
 
 Verifichiamo:
 
 !cd
-;-> c:\newLISP\numeric
+;-> c:\newLISP\note
 
 
 ====================
@@ -1263,6 +1287,25 @@ Vediamo un altro comportamento delle variabili con la funzione "local":
 
 La variabile "fa" viene ridefinita nella funzione "g" quindi il suo valore non cambia per la funzione "f" (in altre parole esistono due variabili locali "fa", una interna alla funzione "f" e l'altra interna alla funzione "g").
 La variabile "fb" non viene ridefinita in "g" quindi il suo valore cambia anche all'interno della funzione "f" (in altre parole esiste una sola variabile "fb" visibile da entrambe le funzioni "f" e "g").
+
+Un ultimo esempio:
+
+(setq a 1 b 2)
+
+(let (c (+ a b)) (println c))
+;-> 3
+
+(let (a 4 b 5 c (+ a b)) (println a { } b { } c))
+;-> 4 5 3
+
+c = 3 perchè nell'espressione (+ a b), a = 1 e b = 2.
+
+Usiamo letn per risolvere il problema:
+
+(letn (a 4 b 5 c (+ a b)) (println a { } b { } c))
+;-> 4 5 9
+
+Adesso c = 9 perchè dentro l'espressione letn a = 4 e b = 5.
 
 
 ==================================================
@@ -2584,6 +2627,7 @@ In alcuni linguaggi la divisione per 0 genera un errore di sistema, mentre in ne
 La matematica a virgola mobile non è esatta. Valori semplici come 0.1 non possono essere rappresentati con precisione usando numeri floating-point binari, e la precisione limitata di questa rappresentazione significa che lievi cambiamenti nell'ordine delle operazioni o la precisione dei valori intermedi possono cambiare il risultato. Ciò significa che confrontare due numeri floating-point per vedere se sono uguali di solito non sempre genera un risultato corretto.
 
 Il compilatore GCC ha anche un avvertimento per questo:
+
 "Avviso: confrontare i numeri in virgola mobile con == oppure != non è sicuro".
 
 Vediamo con un esempio alcuni dei problemi che possiamo incontrare.
@@ -2611,14 +2655,17 @@ Otteniamo tre risultati differenti e il loro confronto non è quello che volevam
 ;-> nil
 
 Come possiamo confrontare due numeri floating point?
+
 Se confrontare i float per l'uguaglianza è una cattiva idea, allora come controllare se la loro differenza rientra nei limiti di errore o in un valore di epsilon, come questo:
 
 se (abs(val1 - val2) <= epsilon) allora i due numeri sono (quasi) uguali.
 
 Con questo calcolo possiamo esprimere il concetto di due float abbastanza vicini da considerarli uguali. Ma quale valore dovremmo usare per epsilon?
+
 Data la nostra sperimentazione sopra, potremmo essere tentati di usare il machine-epsilon.
 Comunque abbiamo anche visto che questo non è un valore costante, ma dipende dalla magnitudine (grandezza) dei numeri. Purtroppo non abbiamo altri numeri epsilon da utilizzare, quindi invece della differenza assoluta dobbiamo usare una comparazione relativa di epsilon e dei valori. L'idea di un confronto relativo epsilon è trovare la differenza tra i due numeri e vedere quanto è grande rispetto alla loro grandezza. Non c'è una risposta semplice a questo problema, ma per ottenere risultati coerenti, devi sempre confrontare la differenza con il più grande dei due numeri. In altre parole: per confrontare f1 e f2 occorre calcolare diff = abs (f1-f2). Se diff è inferiore a n% di max(abs(f1), abs(f2)) allora f1 e f2 possono essere considerati uguali.
 La risposta più generica a questo dilemma consiste nell'utilizzare una miscela di epsilon assoluti e relativi. Se i due numeri confrontati sono estremamente vicini - qualunque cosa significhi - trattali come uguali, indipendentemente dai loro valori relativi. Questa tecnica è necessaria ogni volta che ti aspetti una risposta prossima a zero a causa della sottrazione. Il valore di epsilon assoluto deve essere basato sulla grandezza dei numeri da sottrarre (es. maxInput * machine-epsilon). Sfortunatamente ciò significa che l'uguaglianza tra due numeri dipende dall'algoritmo e dai numeri di input.
+
 La funzione finale per confrontare due numeri floating-point è la seguente:
 
 (define (almostEqual x y maxDiff (maxRelDiff 1e-9))
@@ -3746,7 +3793,7 @@ Le funzioni di ciclo "for", "dolist" e "dotimes" possono avere espressioni condi
 
 Usando "catch" e "throw"
 ------------------------
-Poiché newLISP è un linguaggio funzionale, non utilizza le istruzioni break o return per uscire da funzioni o iterazioni. Invece, è possibile uscire da un blocco o una funzione in qualsiasi momento usando le funzioni catch e throw:
+Poiché newLISP è un linguaggio funzionale, non utilizza le istruzioni "break" o "return" per uscire da funzioni o iterazioni. Invece, è possibile uscire da un blocco o una funzione in qualsiasi momento usando le funzioni catch e throw:
 
 (define (foo x)
     ...
@@ -3787,6 +3834,60 @@ Punti di ritorno multipli possono essere codificati usando il "throw":
     (foo5)))
 
 Se la condizione-A è vera, x sarà restituito dall'espressione "catch", se la condizione-B è vera, il valore restituito è y. In caso contrario, il risultato di foo5 verrà utilizzato come valore di ritorno.
+
+
+Esempio di catch in una funzione:
+
+(define (prova n)
+  (catch
+    (local (x)
+      (if (< n 0) (throw true))
+      (for (i 0 100)
+        (if (= i n) (throw i))
+      )
+      (throw "end")
+    )
+  )
+)
+
+(prova -1)
+;-> true
+
+(prova 10)
+;-> 10
+
+(prova 101)
+;-> "end"
+
+Esempio di catch nidificati in una funzione:
+
+(define (prova2 n)
+  (catch
+    (local (x)
+      (if (< n 0) (throw "primo catch"))
+      (catch
+        (for (i 0 100)
+          (if (= i n) (throw (println i " secondo catch")))
+        )
+      )
+      (println "...continua")
+      (if (> n 100) (throw "maggiore: first catch"))
+      (println "normale")
+    )
+  )
+)
+
+(prova2 -1)
+;-> "primo catch"
+
+(prova2 10)
+;-> 10 secondo catch
+;-> ...continua
+;-> normale
+
+(prova2 101)
+;-> ...continua
+;-> "maggiore: first catch"
 
 Oltre alla funzione "catch", possiamo usare la funzione di "error-event" per rilevare errori causati da codice errato o eccezioni avviate dall'utente.
 
@@ -4319,7 +4420,7 @@ In caso di fallimento la funzione ritorna nil. Per informazioni sull'errore, uti
 
 Il file myfile viene prima letto, poi criptato usando la password "secret" e infine sritto con un nuovo nome "myfile.enc" nella cartella corrente.
 
-read-file può usare http:// oppure file:// URL in str-file-name. Quando il prefisso vale http://, read-file funziona esattamente come get-url e può avere gli stessi parametri addizionali.
+read-file può usare http:// oppure file:// URL in str-file-name. Quando il prefisso vale http:// read-file funziona esattamente come get-url e può avere gli stessi parametri addizionali.
 
 (read-file "http://asite.com/somefile.tgz" 10000)
 
@@ -4348,7 +4449,7 @@ Il file message.txt viene creato e scritto nella locazione remota http://asite.c
 ************************
 >>>funzione APPEND-FILE
 ************************
-syntax: (append-file str-filename str-buffer)
+sintassi: (append-file str-filename str-buffer)
 
 Funziona in modo simile a write-file, ma il contenuto di str-buffer viene aggiunto se il file str-filename esiste. Se il file non esiste, allora viene creato (in questo caso append-file funziona esattamente come write-file). Questa funzione ritorna il numero di byte scritti.
 
@@ -4396,29 +4497,30 @@ save ritorna il valore true al termine.
 (save "http://asite.com:8080//home/myself/myfunc.LSP" 'my-func)
 (save "mycontext.lsp" 'mycontext)
 
+;; argomenti multipli
 ;; multiple args
 (save "stuff.lsp" 'aContext 'myFunc '$main-args 'Acontext)
 
-Because all context symbols are part of the context MAIN, saving MAIN saves all contexts.
+Poiché tutti i simboli di contesto fanno parte del contesto MAIN, il salvataggio di MAIN salva tutti i contesti.
 
-Saving to a URL will cause an HTTP PUT request to be sent to the URL. In this mode, save can also be used to push program source to remote newLISP server nodes. Note that a double backslash is required when path names are specified relative to the root directory. save in HTTP mode will observe a 60-second timeout.
+Il salvataggio su un indirizzo URL causerà l'invio di una richiesta HTTP PUT all'URL. In questa modo, è possibile utilizzare save anche per inviare i sorgenti di un programma a nodi/server newLISP remoti. Si noti che è necessario un doppio backslash quando i nomi dei percorsi sono specificati relativamente alla directory root. In modalità HTTP save osserverà un timeout di 60 secondi.
 
-Symbols made using sym that are incompatible with the normal syntax rules for symbols are serialized using a sym statement instead of a set statement.
+I simboli creati usando sym che sono incompatibili con le normali regole di sintassi per i simboli sono serializzati usando un'istruzione sym invece di un'istruzione set.
 
-save serializes contexts and symbols as if the current context is MAIN. Regardless of the current context, save will always generate the same output.
+save serializza contesti e simboli come se il contesto corrente fosse MAIN. Indipendentemente dal contesto attuale, save genererà sempre lo stesso risultato.
 
-See also the functions load (the inverse operation of save) and source, which saves symbols and contexts to a string instead of a file.
+Vedi anche le funzioni load (l'operazione inversa di save) e source, che salva simboli e contesti in una stringa anziché in un file.
 
 *****************
 >>>funzione LOAD
 *****************
-syntax: (load str-file-name-1 [str-file-name-2 ... ] [sym-context])
+sintassi: (load str-file-name-1 [str-file-name-2 ... ] [sym-context])
 
-Loads and translates newLISP from a source file specified in one or more str-file-name and evaluates the expressions contained in the file(s). When loading is successful, load returns the result of the last expression in the last file evaluated. If a file cannot be loaded, load throws an error.
+Carica e traduce newLISP da un file sorgente specificato in uno o più str-nome-file e valuta le espressioni contenute in tutti i file. Quando il caricamento ha esito positivo, load restituisce il risultato dell'ultima espressione nell'ultimo file valutato. Se non è possibile caricare un file, load genera un errore.
 
-An optional sym-context can be specified, which becomes the context of evaluation, unless such a context switch is already present in the file being loaded. By default, files which do not contain context switches will be loaded into the MAIN context.
+È possibile specificare un simbolo di contesto (sym-context) facoltativo, che diventa il contesto di valutazione, a meno che un tale cambiamento di contesto non sia già presente nel file che si sta caricando. Per impostazione predefinita, i file che non contengono cambiamenti di contesto verranno caricati nel contesto MAIN.
 
-The str-file-name specs can contain URLs. Both http:// and file:// URLs are supported.
+Il parametro str-file-name può contenere URL. Entrambi i metodi http:// e file:// di URL sono supportati.
 
 (load "myfile.lsp")
 
@@ -4431,39 +4533,41 @@ The str-file-name specs can contain URLs. Both http:// and file:// URLs are supp
 (load "a-file.lsp" "b-file.lsp" 'MyCTX)
 
 (load "file:///usr/local/share/newlisp/mysql.lsp")
-In case expressions evaluated during the load are changing the context, this will not influence the programming module doing the load.
 
-The current context after the load statement will always be the same as before the load.
+Nel caso in cui le espressioni valutate durante il caricamento stiano cambiando il contesto, ciò non influenzerà il modulo di programmazione che esegue il caricamento.
 
-Normal file specs and URLs can be mixed in the same load command.
+Il contesto corrente dopo l'istruzione load sarà sempre lo stesso di quello prima dell'operazione load.
 
-load with HTTP URLs can also be used to load code remotely from newLISP server nodes running on a Unix-like operating system. In this mode, load will issue an HTTP GET request to the target URL. Note that a double backslash is required when path names are specified relative to the root directory. load in HTTP mode will observe a 60-second timeout.
+Le normali specifiche per i file e gli URL possono essere utilizzati nello stesso comando load.
 
-The second to last line causes the files to be loaded into the context MyCTX. The quote forces the context to be created if it did not exist.
+Utilizzare load con URL HTTP può anche essere utilizzato per caricare il codice sorgente da nodi/server remoti di newLISP che hanno sistema operativo UNIX/Linux. In questa modo, load invierà una richiesta HTTP GET all'URL di destinazione. Si noti che è necessario un doppio backslash quando i nomi dei percorsi sono specificati relativamente alla directory root. In modalità HTTP load osserverà un timeout di 60 secondi.
 
-The file:// URL is followed by a third / for the directory spec.
+La penultima riga fa caricare i file nel contesto MyCTX. Il carattere quote "'" forza la creazione del contesto se questo non esiste.
+
+L'indirizzo URL file:// è seguito da un terzo / per le specifiche della directory.
 
 *******************
 >>>funzione SOURCE
 *******************
-syntax: (source)
-syntax: (source sym-1 [sym-2 ... ])
+sintassi: (source)
+sintassi: (source sym-1 [sym-2 ... ])
 
-Works almost identically to save, except symbols and contexts get serialized to a string instead of being written to a file. Multiple variable symbols, definitions, and contexts can be specified. If no argument is given, source serializes the entire newLISP workspace. When context symbols are serialized, any symbols contained within that context will be serialized, as well. Symbols containing nil are not serialized. System symbols beginning with the $ (dollar sign) character are only serialized when mentioned explicitly.
+Funziona in modo quasi identico a save, tranne che i simboli e i contesti vengono serializzati su una stringa anziché essere scritti su un file. È possibile specificare più simboli variabili, definizioni e contesti. Se non viene fornito alcun argomento, source serializza l'intero spazio di lavoro di newLISP. Quando i simboli di contesto sono serializzati, anche i simboli contenuti in quel contesto saranno serializzati. I simboli di sistema che iniziano con il carattere $ (simbolo del dollaro) vengono serializzati solo quando menzionati esplicitamente.
 
-Symbols not belonging to the current context are written out with their context prefix.
+I simboli che non appartengono al contesto corrente sono scritti con il loro prefisso di contesto.
 
 (define (double x) (+ x x))
 
 (source 'double)  → "(define (double x)\n  (+ x x))\n\n"
-As with save, the formatting of line breaks and leading spaces or tabs can be controlled using the pretty-print function.
+
+Come con save, la formattazione delle interruzioni di riga e degli spazi iniziali o delle tabulazioni può essere controllata usando la funzione pretty-print.
 
 *************************
 >>>funzione PRETTY-PRINT
 *************************
-syntax: (pretty-print [int-length [str-tab [str-fp-format]])
+sintassi: (pretty-print [int-length [str-tab [str-fp-format]])
 
-Reformats expressions for print, save, or source and when printing in an interactive console. The first parameter, int-length, specifies the maximum line length, and str-tab specifies the string used to indent lines. The third parameter str-fp-format describes the default format for printing floating point numbers. All parameters are optional. pretty-print returns the current settings or the new settings when parameters are specified.
+Riformatta le espressioni per la print, save o source e quando si stampa in una console interattiva. Il primo parametro, int-length, specifica la lunghezza massima della linea e str-tab specifica la stringa utilizzata per le righe di rientro (indentazione). Il terzo parametro str-fp-format descrive il formato predefinito per la stampa di numeri in virgola mobile. Tutti i parametri sono opzionali. pretty-print restituisce le impostazioni correnti o le nuove impostazioni quando vengono specificati i parametri.
 
 (pretty-print)  → (80 " " "%1.15g")  ; default setting
 
@@ -4477,10 +4581,12 @@ Reformats expressions for print, save, or source and when printing in an interac
 
 (set 'x 0.0)
 x   → 0.000
-The first example reports the default settings of 80 for the maximum line length and a space character for indenting. The second example changes the line length to 90 and the indent to a TAB character. The third example changes the line length only. The last example changes the default format for floating point numbers. This is useful when printing unformatted floating point numbers without fractional parts, and these numbers should still be recognizable as floating point numbers. Without the custom format, x would be printed as 0 indistinguishable from floating point number. All situations where unformatted floating point numbers are printed, are affected.
 
-Note that pretty-print cannot be used to prevent line breaks from being printed. To completely suppress pretty printing, use the function string to convert the expression to a raw unformatted string as follows:
+Il primo esempio riporta le impostazioni predefinite di 80 per la lunghezza massima della linea e un carattere di spazio per il rientro. Il secondo esempio cambia la lunghezza della linea in 90 e il rientro nel carattere TAB. Il terzo esempio modifica solo la lunghezza della linea. L'ultimo esempio modifica il formato predefinito per i numeri in virgola mobile. Ciò è utile quando si stampano numeri in virgola mobile non formattati senza parti frazionarie e questi numeri dovrebbero essere ancora riconoscibili come numeri in virgola mobile. Senza il formato personalizzato, x verrebbe stampato come 0 indistinguibile dal numero in virgola mobile. Sono interessate tutte le situazioni in cui vengono stampati numeri in virgola mobile non formattati.
 
+Si noti che non è possibile utilizzare la stampa fine per impedire la stampa delle interruzioni di riga. Per sopprimere completamente la stampa carina, utilizzare la stringa di funzioni per convertire l'espressione in una stringa non formattata come segue:
+
+;; stampa senza formattazione
 ;; print without formatting
 
 (print (string my-expression))
@@ -4608,6 +4714,236 @@ La funzione simboli è usata per mostrare tutti i simboli appartenenti ad un con
 (contesto FOO)
 ;-> (func x y z)
 (symbols)
+
+
+================
+ USO DEI MODULI
+================
+
+Un modulo è un file sorgente di newLISP che contiene funzioni specifiche relative ad un determinato argomento.
+Questa è la lista dei moduli che newLISP mette a disposizione:
+
+- canvas.lsp
+Questo modulo genera pagine HTML adatte per i browser che riconoscono i tag grafici canvas HTML-5.
+
+- cgi.lsp
+Questo modulo definisce gli strumenti di base per la gestione CGI per l'elaborazione di richieste e cookie CGI GET e CGI POST.
+
+- crypto.lsp
+Modulo per il binding della libreria crypto SSL (algoritmi di hashing MD5 e SHA-1).
+
+- ftp.lsp
+Modulo con funzioni per il trasferimento di file tramite protocollo FTP.
+
+- gsl.lsp
+Modulo per l'utilizzo di alcune funzioni della libreria scientifica GNU (devono essere installate le librerie 'libgsl' e 'libgslcblas').
+
+- infix.lsp
+Modulo per analizzare le espressioni infisse, prefisse o postfisse passate come stringa. Restituisce una espressione newLISP che può essere valutata (cattura gli errori di sintassi).
+
+- mysql.lsp
+Modulo per interfacciare il database relazionale MySQL 5.x.
+
+- odbc.lsp
+Modulo per interfacciare i database tramite le librerie ODBC.
+
+- plot.lsp
+Modulo con funzioni per la creazione di grafici di dati.
+
+- pop3.lsp
+Modulo con funzioni per utilizzo della posta POP3.
+
+- postgres.lsp
+Modulo per interfacciare il database relazionale PostgreSQL (PostgreSQL 9.4).
+
+- postscript.lsp
+Modulo con funzioni per la creazione di file PostScript.
+
+- smtp.lsp
+Modulo per la gestione della posta tramite protocollo SMTP.
+
+- smtpx.lsp
+Modulo per la gestione della posta tramite protocollo SMTP (-nix).
+
+- sqlite3.lsp
+Modulo per interfacciare il database relazionale sqlite.
+
+- stat.lsp
+Modulo per statistiche di base e librerie di plottaggio.
+
+- unix.lsp
+Module with interface to various UNIX libc functions
+
+- xmlrpc-client.lsp
+Modulo con funzioni per interfaccia la libreria libc di UNIX.
+
+- zlib.lsp
+Modulo con funzioni per compressione/decompressione di file con la libreria zlib.
+
+
+La variabile di ambiente NEWLISPDIR
+-----------------------------------
+
+Durante l'avvio newLISP imposta la variabile di ambiente NEWLISPDIR, se non è già impostata. Su Linux, BSDs, macOS e altri Unix la variabile /usr/local/share/newlisp. Su MS Windows la variabile viene impostata dove è stato installato newLISP.
+
+La variabile d'ambiente NEWLISPDIR è utile quando si caricano moduli (file) installati con newLISP:
+
+(load (append (env "NEWLISPDIR") "/modules/mysql.lsp"))
+
+Una funzione predefinita "module" può essere utilizzata per abbreviare il parametro relativo alla cartella dell'istruzione load:
+
+(module "mysql.lsp")
+
+
+Il file di inizializzazione init.lsp
+------------------------------------
+
+Prima di caricare qualsiasi file specificato sulla riga di comando e prima che vengano visualizzati il banner e il prompt, newLISP tenta di caricare un file .init.lsp dalla cartella home dell'utente che esegue newLISP. Su macOS, Linux e altri Unix, la cartella home si trova nella variabile di ambiente HOME. Su MS Windows il nome della cartella è contenuto nella variabile di ambiente USERPROFILE (o DOCUMENT_ROOT).
+
+Se un file .init.lsp non può essere trovato nella cartella home, allora newLISP prova a caricare il file init.lsp dalla cartella trovata nella variabile di ambiente NEWLISPDIR.
+
+Quando newLISP viene eseguito come libreria condivisa, viene cercato un file di inizializzazione nella variabile di ambiente NEWLISPLIB_INIT. È necessario specificare il nome percorso completo del file di inizializzazione. Se NEWLISPLIB_INIT non è definita, nessun file di inizializzazione verrà caricato dal modulo della libreria.
+
+Sebbene newLISP non richieda init.lsp per l'esecuzione, è utile per definire funzioni e variabili a livello di sistema.
+
+Nota: nessun file di inizializzazione viene caricato durante il caricamento di programmi collegati (linked) o quando viene specificata una delle opzioni -n, -h, -x.
+
+Nel mio sistema risulta:
+
+(env "NEWLISPDIR")
+;-> "C:\\newLISP"
+
+(env "PROGRAMFILES")
+;-> "C:\\Program Files"
+
+(env "USERPROFILE")
+;-> "C:\\Users\\u42"
+
+(env "DOCUMENT_ROOT")
+;-> nil
+
+Esempi sull'utilizzo dei moduli
+-------------------------------
+
+Vediamo ora come utilizzare i moduli con alcuni esempi. Cominciamo con il modulo "postscript.lsp" che ci permette di creare file postscript. Il seguente programma crea un file pdf con alcune forme geometriche create con la superformula 2D.
+
+; Per eseguire questo file, digitare: (load "superformula.lsp") nella REPL di newLISP.
+; superformula2D.lsp
+; by cameyo 2019
+;
+; Superformula 3D in coordinate polari:
+; r(t) = (|cos(m1*t/4)/a|^n2 + |sin(m2*t/4)/b|^n3)^-1/n1
+; x = mag*r*cos(t);
+; y = mag*r*sin(t);
+
+; Caricamento del modulo
+;(load (append (env "NEWLISPDIR") "/modules/postscript.lsp"))
+(module "postscript.lsp")
+
+; Sfondo
+(ps:goto 0 0)
+(ps:fill-color 0 0 0)
+(ps:line-color 0 0 0)
+;(ps:shape '((0 792) (90 612) (90 792) (90 612)) true)
+(ps:rectangle 612 792 true)
+; Setup iniziale
+(ps:line-join 2)
+(ps:line-width 0.25)
+(ps:fill-color 0.9 0.9 0.9)
+(ps:circle 0 0)
+; Centro della pagina
+(setq xc (/ 612 2))
+(setq yc (/ 792 2))
+; Parametri
+(setq m1 10)
+(setq m2 10)
+(setq a 1)
+(setq b 1)
+(setq n2 3)
+(setq n3 3)
+(setq n1 2)
+(setq step 0.001)
+(setq t 0.0)
+;ciclo di disegno formula
+(setq i 0)
+(while (< i 6)
+  (ps:fill-color (random) (random) (random))
+  (setq mag (+ 150 (* i 20)))
+  (while (< t 6.29)
+    (setq r1 (pow (abs (div (cos (div (mul m1 t) 4)) a)) n2))
+    (setq r2 (pow (abs (div (sin (div (mul m2 t) 4)) b)) n3))
+    (setq r (pow (add r1 r2) (div -1.0 n1)))
+    (setq x (add xc (mul mag r (cos t))))
+    (setq y (add yc (mul mag r (sin t))))
+    (setq t (add t step))
+    (ps:goto x y)
+    (ps:circle .5 true)
+  )
+  (++ i)
+  (setq t 0.0)
+)
+; firma
+(ps:line-color 0.77 0.77 0.77)
+(ps:goto 12 12)
+;(ps:angle 90)
+(ps:angle 0)
+(ps:font "Helvetica" 10)
+(ps:text "newLISP 2019")
+; salva il file postscript
+(ps:save "sf2d01.ps")
+; conversione del file .ps al file .pdf (ghostscript)
+(! "ps2pdf sf2d01.ps sf2d03.pdf")
+; eof
+
+Questo è il file batch per la conversione da file .ps a file .pdf:
+
+------ Inizio file batch
+rem convert postscript (.ps) file to portable document format file (.pdf)
+rem with ghostscript
+rem ps2pdf <file.ps> <file.pdf>
+rem cameyo 2019
+
+rem standard
+rem gs -sDEVICE=pdfwrite -dBATCH -sOutputFile=aFile.pdf -r300 aFile.ps
+
+rem windows 64 bit ghostscript
+rem "c:\Program Files\gs\gs9.15\bin\gswin64c.exe" -sDEVICE=pdfwrite -dBATCH -sOutputFile=%2.pdf -r300 %1
+
+rem windows 64 bit ghostscript (no pause)
+"c:\Program Files\gs\gs9.15\bin\gswin64c.exe" -q -dNOPAUSE -sDEVICE=pdfwrite -dBATCH -sOutputFile=%2 -r300 %1
+------ Fine file batch
+
+Vediamo ora il modulo "infix.lsp", che permette di trsformare le espressioni infisse, prefisse o suffisse passate come stringhe. Restituisce una espressione newLISP, che può essere valutata (cattura gli errori di sintassi).
+
+Carichiamo il modulo:
+
+(module "infix.lsp")
+
+Conversione di formule dal formato infix a newLISP:
+
+(INFIX:xlate "(cos(m1 * t / 4) / a)")
+;-> (div (cos (div (mul m1 t) 4)) a)
+
+(INFIX:xlate "(-b + (sqrt (b ^ 2 - 4 * a * c))) / (2 * a)")
+;-> (div (add -b (sqrt (sub (pow b 2) (mul (mul 4 a) c)))) (mul 2 a))
+
+Conversione di formule dal formato postfix (rpn) a newLISP:
+
+(INFIX:xlate "(3 4 5 + +)")
+;-> (add 3 (add 4 5))
+
+(INFIX:xlate "(5 6 + 5 7 * +)")
+;-> (add 5 (add 6 (mul 5 7)))
+
+Come ultimo esempio vediamo l'utilizzo del modulo "plot.lsp" che permette di creare alcuni tipi di grafici.
+Questo modulo utilizza guiserver.jar che deve essere installato sulla cartella di newLISP.
+Importazione del modulo:
+
+(module "plot.lsp")
+
+Test del modulo (vengono creati due grafici, anche come file .png):
+
+(test-plot)
 
 
 ======================
@@ -5209,6 +5545,38 @@ Nota: senza la funzione "copy", la condizione (= lst (reverse lst)) è sempre ve
 (palindroma? '(e p r e s a l a s e r p e))
 ;-> true
 
+Verificare se una stringa è palindroma
+--------------------------------------
+
+(define (palindroma? str)
+  (= str (reverse (copy str))))
+
+(palindroma? "ababa")
+;-> true
+
+Vediamo una soluzione con gli indici:
+
+(define (palindroma? str)
+  (catch
+    (local (start end)
+      (setq start 0)
+      (setq end (- (length str) 1))
+        (while (< start end)
+          (if (!= (str start) (str end)) (throw nil))
+          (++ start)
+          (-- end)
+        )
+      true
+    );local
+  );catch
+)
+
+(palindroma? "epresalaserpe")
+;-> true
+
+(palindroma? "abbai")
+;-> nil
+
 
 Zippare N liste
 ---------------
@@ -5290,6 +5658,47 @@ Calcoliamo il tempo di esecuzione e notiamo che è più veloce della funzione in
 
 (time (zip '((1 a x) (2 b y))) 100000)
 ;-> 31.87 msec
+
+
+Sostituire gli elementi di una lista con un determinato valore
+--------------------------------------------------------------
+Si tratta di sostituire tutti gli elementi di una lista con un determinato valore con un altro valore.
+
+La funzione è la seguente:
+
+(define (sostituisci x y lst)
+    (if (null? lst) '()
+      (if (= x (first lst))
+        (cons y (sostituisci x y (rest lst)))
+        (cons (first lst) (sostituisci x y (rest lst)))
+      )
+    )
+)
+
+(sostituisci 'd 'K '(a b c d 1 2 3 d))
+;-> (a b c K 1 2 3 K)
+
+Per rimpiazzare tutti gli elementi di una lista che hanno un determinato valore possiamo utilizzare la funzione built-in "replace":
+
+(setq lst '(a b c d 1 2 3 d))
+(replace 'd lst 'K)
+;-> (a b c K 1 2 3 K)
+
+(setq lst '((a b) (c d) (1 2 (3 d))))
+(replace '(c d) lst 'K)
+;-> ((a b) K (1 2 (3 d)))
+
+Purtroppo "replace" non funziona quando vogliamo modificare un atomo che si trova all'interno di una lista nidificata:
+
+(setq lst '((a b) (c d) (1 2 (3 d))))
+(replace 'd lst 'K)
+;-> ((a b) (c d) (1 2 (3 d)))
+
+In questo caso dobbiamo utilizzare la funzione "set-ref-all":
+
+(setq lst '((a b) (c d) (1 2 (3 d))))
+(set-ref-all 'd lst 'K)
+;-> ((a b) K (1 2 (3 K)))
 
 
 Raggruppare gli elementi di una lista
@@ -5470,13 +5879,13 @@ Implementiamo il metodo di compressione Run Length Encoding ad una lista. Gli el
               ; se l'elemento è uguale al precedente aumentiamo il suo conteggio
               (if (= el palo) (++ conta)
                   ; altrimenti costruiamo la coppia (conta el) e la aggiungiamo al risultato
-                  (begin (extend out (list(list conta palo)))
+                  (begin (push (list conta palo) out -1)
                          (setq conta 1)
                          (setq palo el)
                   )
               )
            )
-           (extend out (list(list conta palo)))
+           (push (list conta palo) out -1)
           )
     )
     out
@@ -6454,8 +6863,8 @@ Per rendere più leggibili le informazioni scriviamo la funzione "sysinfo":
     ; library -> bit 6
     (print "library: ")
     (if (zero? (& (>> num 6) 1)) (println "no") (println "yes"))
+    info
   )
-  info
 )
 
 (sysinfo)
@@ -6475,6 +6884,28 @@ Per rendere più leggibili le informazioni scriviamo la funzione "sysinfo":
 ;-> UTF-8: yes
 ;-> library: no
 ;-> (959 576460752303423488 425 2 0 2048 0 6884 10705 1414)
+
+
+Valutazione di elementi di una lista
+------------------------------------
+
+Supponiamo di aver creato la seguente lista:
+
+(setq lst '( ((+ 6 2) (a) 2) ((- 2 5) (b) 5) ))
+;-> (((+ 6 2) (a) 2) ((- 2 5) (b) 5))
+
+La lista ha due elementi ((+ 6 2) (a) 2) e ((- 2 5) (b) 5).
+
+Adesso vogliamo valutare il primo elemento di ogni sottolista: (+ 6 2) e (- 2 5).
+
+Aggiorniamo questo elemento con la sua valutazione:
+
+(dolist (el lst) (setf (first (lst $idx)) (eval (first el))))
+
+Vediamo il risultato:
+
+lst
+;-> ((8 (a) 2) (-3 (b) 5))
 
 
 ==========================
@@ -6509,7 +6940,7 @@ N-99-12 Run-length decode di una lista
 N-99-13 Run-length encode di una lista (diretto)
 N-99-14 Duplicare gli elementi di una lista
 N-99-15 Replicare per n volte gli elementi di una lista
-N-99-16 Eliminare l'elemento k-esimo di una lista
+N-99-16 Eliminare gli elementi da una lista per ogni k
 N-99-17 Dividere una lista in due parti (la lunghezza della prima lista è un parametro)
 N-99-18 Estrarre una parte di una lista
 N-99-19 Ruotare una lista di N posti a sinistra
@@ -7565,6 +7996,62 @@ Il sito contiene moltissimi problemi risolti in 714 linguaggio (non tutti proble
 Di seguito vengono presentanti alcuni di questi problemi e la loro soluzione.
 Per avere una migliore comprensione si consiglia di provare a risolverli per conto proprio prima di leggere la soluzione.
 
+FIZZBUZZ
+--------
+
+Scrivere un programma che stampa i numeri interi da 1 a 100 (inclusi).
+Ma:
+- per multipli di tre, stampa Fizz (invece del numero)
+- per multipli di cinque, stampa Buzz (invece del numero)
+- per multipli di entrambi tre e cinque, stampa FizzBuzz (invece del numero)
+
+(define (fizzbuzz)
+  (for (i 1 100)
+    (cond ((= 0 (% i 15)) (println "FizzBuzz"))
+          ((= 0 (% i 3))  (println "Fizz"))
+          ((= 0 (% i 5))  (println "Buzz"))
+          (true           (println i))
+    )
+  )
+)
+
+(fizzbuzz)
+
+Vediamo ora una generalizzazione del problema. Occorre scrivere una funzione che accetta una lista di fattori e una lista di parole associate. Un ulteriore parametro permette di specificare il numero massimo da stampare.
+Come esempio possiamo usiare la seguente lista associativa:
+
+(3 "Fizz")
+(5 "Buzz")
+(7 "Baxx")
+
+Nel caso in cui un numero sia un multiplo di almeno due fattori, stampare ciascuna delle parole associate a tali fattori nell'ordine dal fattore minore a quello maggiore. Ad esempio, il numero 15 è un multiplo di entrambi 3 e 5, allora stampa FizzBuzz. Se il numero massimo vale 105, occorre stampare FizzBuzzBaxx perché è un multiplo di 3, 5 e 7.
+
+(setq lst '((3 "Fizz") (5 "Buzz") (7 "Baxx")))
+
+(define (fizzbuzzG n lst)
+  (local (out)
+    (for (i 1 n)
+      (setq out "")
+      (dolist (el lst)
+        (if (= 0 (% i (first el))) (setq out (append out (last el))))
+      )
+      (if (= out "") (setq out (string i)))
+      (print out {, })
+    )
+  )
+)
+
+(fizzbuzzG 20 lst)
+;-> 1, 2, Fizz, 4, Buzz, Fizz, Baxx, 8, Fizz, Buzz, 11, 
+;-> Fizz, 13, Baxx, FizzBuzz, 16, 17, Fizz, 19, Buzz
+
+(setq lst '((2 "Fizz") (3 "Buzz") (5 "Baxx")))
+
+(fizzbuzzG 30 lst)
+;-> 1, Fizz, Buzz, Fizz, Baxx, FizzBuzz, 7, Fizz, Buzz, FizzBaxx, 11, 
+;-> FizzBuzz, 13, Fizz, BuzzBaxx, Fizz, 17, FizzBuzz, 19, FizzBaxx, Buzz, 
+;-> Fizz, 23, FizzBuzz, Baxx, Fizz, Buzz, Fizz, 29, FizzBuzzBaxx
+
 
 NUMERI PRIMI
 ------------
@@ -7913,6 +8400,8 @@ Questa volta la funzione "fattori-primi" produce i risultati corretti, ma è mol
 (factor 9223372036854775808L)
 ;-> ERR: number out of range in function factor
 
+Attenzione: la funzione è molto lenta con numeri grandi.
+
 (fattori-primi 9223372036854775809L)
 ;-> (3L 3L 3L 19L 43L 5419L 77158673929L)
 
@@ -7920,6 +8409,7 @@ Questa volta la funzione "fattori-primi" produce i risultati corretti, ma è mol
 ;-> 9223372036854775809L
 
 (time (fattori-primi 9223372036854775809L))
+;-> 551342.497 ; 9 minuti e 11 secondi
 
 
 NUMERI DI SMITH
@@ -9162,7 +9652,7 @@ Come abbiamo anticipato, si può trovare la soluzione calcolando A(n,W). Per far
 ;->  (note-case 22 80) (sunglasses 7 20) (socks 4 50))
 
 
-Giorno della settimana
+GIORNO DELLA SETTIMANA
 ----------------------
 
 Dato anno, mese e giorno, determinare il giorno della settimana.
@@ -9235,6 +9725,922 @@ Adesso possiamo scrivere la funzione:
 (dayZ 2456 12 24) ;-> 0
 (dayG 2456 12 24) ;-> 0
 (dayT 2456 12 24) ;-> 0
+
+
+TRIANGOLO DI PASCAL
+-------------------
+
+Il triangolo di Pascal (o di Tartaglia) è una matrice triangolare formata dai coefficienti binomiali (ossia dai coefficienti dello sviluppo del binomio (a + b) elevato ad una qualsiasi potenza n - Esempio: (a + b)^2 = 1*a^2 + 2*a*b + 1*b^2).
+
+Ecco un triangolo con 9 linee, in cui le righe e le colonne sono state numerate (a base zero):
+
+         colonne
+         0  1  2  3  4  5  6  7  8
+righe
+    0    1  0  0  0  0  0  0  0  0
+    1    1  1  0  0  0  0  0  0  0
+    2    1  2  1  0  0  0  0  0  0
+    3    1  3  3  1  0  0  0  0  0
+    4    1  4  6  4  1  0  0  0  0
+    5    1  5 10 10  5  1  0  0  0
+    6    1  6 15 20 15  6  1  0  0
+    7    1  7 21 35 35 21  7  1  0
+    8    1  8 28 56 70 56 28  8  1
+
+dove ogni elemento della matrice vale: matrice[riga][colonna] = binomiale[n, k]
+
+Tutte le righe iniziano e terminano con il numero 1.
+
+Ogni riga ha un elemento in più rispetto al suo predecessore.
+
+Definiamo una funzione che calcola il triangolo di Pascal utilizzando i coeffiecienti binomiali.
+La prima funzione permette di calcolare il coefficiente binomiale di n,k.
+
+(define (binomiale n k)
+  (local (M q)
+    (setq M (array (+ n 1) (+ k 1) '(0)))
+    (for (i 0 n)
+      (setq q (min i k))
+      (for (j 0 q)
+        (if (or (= j 0) (= j i))
+          (setq (M i j) 1)
+          (setq (M i j) (+ (M (- i 1) (- j 1)) (M (- i 1) j)))
+        )
+      )
+    )
+    (M n k)
+  );local
+)
+
+(binomiale 5 0)
+;-> 1
+(binomiale 5 3)
+;-> 10
+
+Poi definiamo la funzione che crea il triangolo di Pascal:
+
+(define (pascal n)
+  (local (P)
+    (setq P (array n n '(0)))
+    (for (riga 0 (- n 1))
+      (for (i 0 riga)
+        (setf (P riga i) (binomiale riga i))
+      )
+    )
+    ; disabilitare la seguente istruzione per calcolare la velocità
+    (print-matrix P)
+  )
+)
+
+Definiamo la funzione che stampa la matrice:
+
+(define (print-matrix matrix)
+  (local (row col nmax nmin digit fmtstr)
+    ; converto matrice in lista ?
+    (if (array? matrix) (setq matrix  (array-list matrix)))
+    ; righe della matrice
+    (setq row (length matrix))
+    ; colonne della matrice (da rivedere)
+    (setq col (length (first matrix)))
+    ; valore massimo
+    (setq nmax (string (apply max (flat matrix))))
+    ; valore minimo
+    (setq nmin (string (apply min (flat matrix))))
+    ; calcolo spazio per i numeri
+    (setq digit (add 1 (max (length nmax) (length nmin))))
+    ; creo stringa di formattazione
+    (setq fmtstr (append "%" (string digit) "d"))
+    ; stampa
+    (for (i 0 (sub row 1))
+      (for (j 0 (sub col 1))
+        (print (format fmtstr (matrix i j)))
+      )
+      (println)
+    )
+  )
+)
+
+(pascal 9)
+;-> 1  0  0  0  0  0  0  0  0
+;-> 1  1  0  0  0  0  0  0  0
+;-> 1  2  1  0  0  0  0  0  0
+;-> 1  3  3  1  0  0  0  0  0
+;-> 1  4  6  4  1  0  0  0  0
+;-> 1  5 10 10  5  1  0  0  0
+;-> 1  6 15 20 15  6  1  0  0
+;-> 1  7 21 35 35 21  7  1  0
+;-> 1  8 28 56 70 56 28  8  1
+
+Il matematico tedesco Stifel ha scoperto che gli elementi del triangolo di Pascal hanno la seguente proprietà (nota come Relazione di Stifel):
+
+Se col = 0 o row = col,
+  P(row,col) = 1
+
+Se row >= col,
+  P(row,col) = P(row-1,col) + P(row-1,col-1)
+
+dove (row >= 0) e (col >= 0)
+
+Quindi possiamo definire una nuova funzione per calcolare il triangolo di Pascal utilizzando la relazione di Stifel:
+
+(define (pascalS n)
+  (local (P)
+    (setq P (array n n '(0L)))
+    (for (row 0 (- n 1))
+      (for (col 0 row)
+        (if (or (= col 0) (= row col))
+            (setf (P row col) 1L)
+            (setf (P row col) (+ (bigint (P (- row 1) col)) (bigint  (P (- row 1) (- col 1)))))
+        )
+      )
+    )
+    ; disabilitare la seguente istruzione per calcolare la velocità
+    (print-matrix P)
+  );local
+)
+
+(pascalS 9)
+;-> 1  0  0  0  0  0  0  0  0
+;-> 1  1  0  0  0  0  0  0  0
+;-> 1  2  1  0  0  0  0  0  0
+;-> 1  3  3  1  0  0  0  0  0
+;-> 1  4  6  4  1  0  0  0  0
+;-> 1  5 10 10  5  1  0  0  0
+;-> 1  6 15 20 15  6  1  0  0
+;-> 1  7 21 35 35 21  7  1  0
+;-> 1  8 28 56 70 56 28  8  1
+
+(pascalS 14)
+;-> 1    0    0    0    0    0    0    0    0    0    0    0    0    0
+;-> 1    1    0    0    0    0    0    0    0    0    0    0    0    0
+;-> 1    2    1    0    0    0    0    0    0    0    0    0    0    0
+;-> 1    3    3    1    0    0    0    0    0    0    0    0    0    0
+;-> 1    4    6    4    1    0    0    0    0    0    0    0    0    0
+;-> 1    5   10   10    5    1    0    0    0    0    0    0    0    0
+;-> 1    6   15   20   15    6    1    0    0    0    0    0    0    0
+;-> 1    7   21   35   35   21    7    1    0    0    0    0    0    0
+;-> 1    8   28   56   70   56   28    8    1    0    0    0    0    0
+;-> 1    9   36   84  126  126   84   36    9    1    0    0    0    0
+;-> 1   10   45  120  210  252  210  120   45   10    1    0    0    0
+;-> 1   11   55  165  330  462  462  330  165   55   11    1    0    0
+;-> 1   12   66  220  495  792  924  792  495  220   66   12    1    0
+;-> 1   13   78  286  715 1287 1716 1716 1287  715  286   78   13    1
+
+Per vedere quale funzione è più veloce commentiamo nelle due funzioni la riga che contiene l'istruzione per stampare la matrice:
+
+; (print-matrix P)
+
+
+(time (pascal 30) 100)
+;-> 2914.029
+
+(time (pascalS 30) 100)
+;-> 34.966
+
+La seconda funzione è velocissima perchè non calcola tutti i coefficienti binomiali, ma riempie la matrice ricorsivamente con una relazione matematica.
+
+Per finire vediamo come calcolare la riga n-esima del triangolo di Pascal (valida anche per i big integer):
+
+(define (pascaln n)
+  (local (out)
+    (setq out '(1L))
+    (for (k 0 (- n 1))
+      (push (/ (* (out k) (- n k)) (+ k 1)) out -1)
+    )
+    out
+  )
+)
+
+(pascaln 9)
+;-> (1L 9L 36L 84L 126L 126L 84L 36L 9L 1L)
+
+(pascaln 20)
+;-> (1L 20L 190L 1140L 4845L 15504L 38760L 77520L 125970L 167960L 184756L 167960L 125970L
+;->  77520L 38760L 15504L 4845L 1140L 190L 20L 1L)
+
+Questa funzione sfrutta la seguente identità matemetica sulle combinazioni:
+
+C(n, k+1) = C(n,k) * (n-k) / (k+1)
+
+Quindi iniziamo con C(n, 0) = 1 e poi calcoliamo il resto della riga usando questa identità, cioè moltiplichiamo ogni volta l'elemento precedente per (n-k)/(k+1).
+Ricordiamo che il coefficiente binomiale rappresenta il numero di scelte di k elementi tra quelli di un insieme di n elementi (numero di combinazioni semplici).
+
+
+CODICE MORSE
+------------
+
+Il codice Morse è un metodo per trasmettere informazioni, utilizzando sequenze standardizzate di brevi e lunghi segni o impulsi, comunemente noti come punti e linee ("dot and dashes"), per le lettere, i numeri e i caratteri speciali di un messaggio.
+Originariamente creato per il telegrafo elettrico di Samuel Morse verso la metà del 1830, fu anche ampiamente utilizzato per le prime comunicazioni radio a partire dal 1890.
+
+Rappresentazione del codice
+
+A  • −         N  − •         0  − − − − −     .  • − • − • −
+B  − • • •     O  − − −       1  • − − − −     ,  − − • • − −
+C  − • − •     P  • − − •     2  • • − − −     :  − − − • • •
+D  − • •       Q  − − • −     3  • • • − −     ?  • • − − • •
+E  •           R  • − •       4  • • • • −     =  − • • • −
+F  • • − •     S  • • •       5  • • • • •     -  − • • • • −
+G  − − •       T  −           6  − • • • •     (  − • − − •
+H  • • • •     U  • • −       7  − − • • •     )  − • − − • −
+I  • •         V  • • • −     8  − − − • •     {"}  • − • • − •
+J  • − − −     W  • − −       9  − − − − •     '  • − − − − •
+K  − • −       X  − • • −                      /  − • • − •
+L  • − • •     Y  − • − −                      @  • − − • − •
+M  − −         Z  − − • •                      !  − • − • − −
+                                               " "  "       "
+
+Il codice Morse internazionale è composto da 5 elementi:
+
+1) Impulso breve, punto (dot o "dit"): "dot duration" vale una unità di tempo
+2) Impulso lungo, linea (dash o "dah"): "dash duration" vale tre unità di tempo
+3) Intervallo di divisione tra dot e dash di un carattere: vale una unità di tempo
+4) Intervallo breve (tra le lettere): vale tre unità di tempo
+5) Intervallo lungo (tra le parole): vale sette unità di tempo
+
+Il codice Morse viene trasmesso come un codice digitale usando solo due stati (acceso e spento). Il codice Morse può essere rappresentato come un codice binario: 1 acceso e 0 spento. Quindi una sequenza di codice Morse è costituita da una combinazione delle seguenti cinque stringhe di bit:
+
+1) Impulso breve, punto (dot o "dit"): "dot duration" 1
+2) Impulso lungo, linea (dash o "dah"): "dash duration" 111
+3) Intervallo di divisione tra dot e dash di un carattere: 0
+4) Intervallo breve (tra le lettere): 000
+5) Intervallo lungo (tra le parole): 0000000
+
+Notare che gli impulsi e gli intervalli (zeri) sono alternati: punti e linee sono sempre separati da uno degli intervalli vuoti e che gli intervalli sono sempre separati da un punto o da una linea.
+
+In termini di spazio invece che di tempo, abbiamo:
+
+1) Un punto (dot) occupa uno spazio "."
+2) Una linea (dash) occupa 3 spazi "---"
+3) Le parti di ogni lettera sono separate da uno spazio " "
+4) Tra due lettere intercorrono 3 spazi. "   "
+5) Tra due parole intercorrono 7 spazi.  "       "
+
+Per scrivere le funzioni di conversione abbiamo bisogno di creare due liste di associazione:
+
+; Lista di associazione carattere --> codice morse
+(setq alfa-morse '(
+("A"  ". -")
+("B"  "- . . .")
+("C"  "- . - .")
+("D"  "- . .")
+("E"  ".")
+("F"  ". . - .")
+("G"  "- - .")
+("H"  ". . . .")
+("I"  ". .")
+("J"  ". - - -")
+("K"  "- . -")
+("L"  ". - . .")
+("M"  "- -")
+("N"  "- .")
+("O"  "- - -")
+("P"  ". - - .")
+("Q"  "- - . -")
+("R"  ". - .")
+("S"  ". . .")
+("T"  "-")
+("U"  ". . -")
+("V"  ". . . -")
+("W"  ". - -")
+("X"  "- . . -")
+("Y"  "- . - -")
+("Z"  "- - . .")
+("0"  "- - - - -")
+("1"  ". - - - -")
+("2"  ". . - - -")
+("3"  ". . . - -")
+("4"  ". . . . -")
+("5"  ". . . . .")
+("6"  "- . . . .")
+("7"  "- - . . .")
+("8"  "- - - . .")
+("9"  "- - - - .")
+("."  ". - . - . -")
+(","  "- - . . - -")
+(":"  "- - - . . .")
+("?"  ". . - - . .")
+("="  "- . . . -")
+("-"  "- . . . . -")
+("("  "- . - - .")
+(")"  "- . - - . -")
+("\""  ". - . . - .")
+("'"  ". - - - - .")
+("/"  "- . . - .")
+("@"  ". - - . - .")
+("!"  "- . - . - -")
+(" "  "       ")))
+
+Sottolineato  ". . - - . -"
+
+; Lista di associazione codice morse --> carattere
+(setq morse-alfa (map (fn (n) (list (last n) (first n))) alfa-morse))
+
+(lookup "A" alfa-morse)
+;-> ". -"
+(lookup "−" morse-alfa)
+;-> "T"
+
+Adesso possiamo scrivere la funzione che converte un messaggio di testo in una lista di codici morse:
+
+(define (morse2alfa msg)
+  (let (out '())
+    (dolist (ch (explode msg))
+      (if (lookup ch alfa-morse)
+          (push (lookup ch alfa-morse) out -1)
+          (push "$$$" out -1)
+          ;(print (lookup ch alfa-morse){   })
+          ;(print "$$$"{   })
+      )
+    )
+    out
+  )
+)
+
+(setq msg "Testo da tradurre.")
+; conversione del messaggio in lettere maiuscole
+(setq msg (upper-case msg))
+
+(morse2alfa msg)
+;-> ("-" "." ". . ." "-" "- - -" "       " "- . ." ". -" "       " "-" ". - ." ". -"
+;->  "- . ." ". . -" ". - ." ". - ." "." ". - . - . -")
+
+Definiamo la funzione inversa che converta da una lista di codici morse ad una lista di caratteri:
+
+(define (alfa2morse msg)
+  (let (out '())
+    (dolist (ch msg)
+      (if (lookup ch morse-alfa)
+          (push (lookup ch morse-alfa) out -1)
+          (push "$$$" out -1)
+      )
+    )
+    out
+  )
+)
+
+(join (alfa2morse (morse2alfa msg)))
+;-> "TESTO DA TRADURRE."
+
+
+PROBLEMA DI BABBAGE
+-------------------
+
+Qual è il più piccolo intero positivo il cui quadrato termina con le cifre 269.696?
+Lettera di Charles Babbage a Lord Bowden, 1837.
+
+Notiamo che solo i numeri che terminano con 4 o 6 posoono produrre un quadrato che ha il numero 6 come ultima cifra.
+
+Inoltre risulta:
+
+(sqrt 269696)
+;-> 519.3226357477594
+
+quindi qualsiasi numero inferiore a 520 produce un quadrato più piccolo di 269.696.
+Allora, il numero più piccolo da provare vale 574.
+
+(define (babbage)
+  (catch
+    (local (num quadrato)
+      (setq num 524)
+      (setq quadrato (* num num))
+      (while true
+        ; eleva il numero al quadrato
+        (setq quadrato (* num num))
+        ; controlla se è il numero cercato
+        (if (= (slice (string quadrato) -6 6) "269696")
+          ; numero trovato
+          (throw (list num quadrato))
+        )
+        ; aumenta in numero di 2
+        ; adesso il numero termina con la cifra 6
+        (setq num (+ num 2))
+        ; eleva il numero al quadrato
+        (setq quadrato (* num num))
+        ; controlla se è il numero cercato
+        (if (= (slice (string quadrato) -6 6) "269696")
+          ; numero trovato
+          (throw (list num quadrato))
+        )
+        ; aumenta in numero di 8
+        ; adesso il numero termina con la cifra 4
+        (setq num (+ num 8))
+      );while
+    );local
+  );catch
+)
+
+(babbage)
+;-> (25264 638269696)
+
+(time (babbage))
+;-> 15.627
+
+
+CIFRARIO DI CESARE
+------------------
+
+Il cifrario di Cesare è uno dei più antichi algoritmi crittografici conosciuti. È un cifrario a sostituzione monoalfabetica in cui ogni lettera del messaggio in chiaro è sostituita nel messaggio cifrato dalla lettera che si trova un certo numero di posizioni dopo (o prima) nell'alfabeto. La sostituzione avviene lettera per lettera, analizzando il testo dall'inizio alla fine.
+Il cifrario prende il nome da Giulio Cesare, che lo utilizzava per proteggere i suoi messaggi segreti. Cesare utilizzava in genere una chiave di 3 per il cifrario. A quel tempo il metodo era sicuro perché la maggior parte della gente spesso non era neanche in grado di leggere.
+
+Definiamo il nostro alfabeto:
+(setq alfa (explode "ABCDEFGHIJKLMNOPQRSTUVWXYZ"))
+;-> ("A" "B" "C" "D" "E" "F" "G" "H" "I" "J" "K" "L" "M" "N" "O" "P" "Q" "R" "S" "T" "U" "V" "W" "X" "Y" "Z")
+
+Definiamo l'alfabeto di partenza:
+(setq s1 alfa)
+;-> ("A" "B" "C" "D" "E" "F" "G" "H" "I" "J" "K" "L" "M" "N" "O" "P" "Q" "R" "S" "T" "U" "V" "W" "X" "Y" "Z")
+
+Definiamo l'alfabeto di arrivo (con chiave 3):
+(setq s2 (rotate (copy alfa) -3))
+;-> ("D" "E" "F" "G" "H" "I" "J" "K" "L" "M" "N" "O" "P" "Q" "R" "S" "T" "U" "V" "W" "X" "Y" "Z" "A" "B" "C")
+
+Creiamo la lista di associazione tra le lettere in chiaro e le lettere cifrate:
+
+(setq codice (transpose (list s1 s2)))
+;-> (("A" "D") ("B" "E") ("C" "F") ("D" "G") ("E" "H") ("F" "I") ("G" "J")
+;->  ("H" "K") ("I" "L") ("J" "M") ("K" "N") ("L" "O") ("M" "P") ("N" "Q")
+;->  ("O" "R") ("P" "S") ("Q" "T") ("R" "U") ("S" "V") ("T" "W") ("U" "X")
+;->  ("V" "Y") ("W" "Z") ("X" "A") ("Y" "B") ("Z" "C"))
+
+Creiamo la lista di associazione tra le lettere cifrate e le lettere in chiaro:
+
+(setq anticodice (transpose (list s2 s1)))
+;-> (("D" "A") ("E" "B") ("F" "C") ("G" "D") ("H" "E") ("I" "F") ("J" "G")
+;->  ("K" "H") ("L" "I") ("M" "J") ("N" "K") ("O" "L") ("P" "M") ("Q" "N")
+;->  ("R" "O") ("S" "P") ("T" "Q") ("U" "R") ("V" "S") ("W" "T") ("X" "U")
+;->  ("Y" "V") ("Z" "W") ("A" "X") ("B" "Y") ("C" "Z"))
+
+Funzione di conversione da chiaro a cirato:
+
+(define (chiaro-cifrato msg)
+  (let (out '())
+    (dolist (ch (explode (upper-case msg)))
+      (if (lookup ch codice)
+          (push (lookup ch codice) out -1)
+          (push "$" out -1)
+      )
+    )
+    (join out)
+  )
+)
+
+(setq msg "Testo da tradurre")
+
+(chiaro-cifrato msg)
+;-> "WHVWR$GD$WUDGXUUH"
+
+Funzione di conversione da cifrato a chiaro:
+
+(define (cifrato-chiaro msg)
+  (let (out '())
+    (dolist (ch (explode (upper-case msg)))
+      (if (lookup ch anticodice)
+          (push (lookup ch anticodice) out -1)
+          (push "$" out -1)
+      )
+    )
+    (join out)
+  )
+)
+
+(cifrato-chiaro "WHVWR$GD$WUDGXUUH")
+;-> "TESTO$DA$TRADURRE"
+
+Scriviamo una funzione generica che codifica e decodifica ed ha come parametro la chiave (numero):
+
+(define (cesare msg tipo key)
+  (local (s1 s2 codice anticodice)
+    (setq out '())
+    (setq s1 (explode "ABCDEFGHIJKLMNOPQRSTUVWXYZ"))
+    (setq s2 (rotate (copy s1) (- key)))
+    (setq codice (transpose (list s1 s2)))
+    (setq anticodice (transpose (list s2 s1)))    
+    (cond ((= tipo 0)
+           (dolist (ch (explode (upper-case msg)))
+              (if (lookup ch codice)
+                  (push (lookup ch codice) out -1)
+                  (push "$" out -1)
+              )
+           ))
+          ((= tipo 1)
+           (dolist (ch (explode (upper-case msg)))
+              (if (lookup ch anticodice)
+                  (push (lookup ch anticodice) out -1)
+                  (push "$" out -1)
+              )
+           ))
+          (true (println "tipo: 0 -> cifra, 1 -> decifra"))
+    );cond
+    (join out)
+  ); local
+)
+
+(cesare "TESTO DA TRADURRE" 0 3)
+;-> "WHVWR$GD$WUDGXUUH"
+
+(cesare "WHVWR$GD$WUDGXUUH" 1 3)
+;-> "TESTO$DA$TRADURRE"
+
+(cesare "newLISP is great" 0 6)
+;-> "TKCROYV$OY$MXKGZ"
+
+(cesare "TKCROYV$OY$MXKGZ" 1 6)
+;-> "NEWLISP$IS$GREAT"
+
+(cesare "newLISP is great" 2 6)
+;-> tipo: 0 -> cifra, 1 -> decifra
+
+
+CIFRARIO DI VIGENERE
+--------------------
+
+Il cifrario di Vigenère è il più semplice dei cifrari polialfabetici. Il metodo è una generalizzazione del cifrario di Cesare: invece di spostare la lettera da cifrare di un numero fisso di posti, questa viene spostata di un numero di posti variabile, determinato in base ad una parola chiave, che deve essere conosciuta sia dal mittente che dal destinatario. La chiave (detta anche "verme") deve essere ripetuta per tutta la lunghezza del messaggio.
+Per esempio:
+
+Testo in chiaro: RICERCARETESORO
+Verme          : VERMEVERMEVERMEVE
+Testo cifrato  : MMTQVXEIQXZWFDS
+
+Il testo cifrato si ottiene spostando la lettera chiara di un numero fisso di caratteri, pari al numero ordinale della lettera corrispondente del verme. Di fatto si esegue una somma aritmetica tra l'ordinale dei caratteri in chiaro (A = 0, B = 1, C = 2...) e quello del verme. Superando l'ultima lettera, Z, si ricomincia dalla A, secondo la logica delle aritmetiche modulari.
+
+Il vantaggio rispetto ai cifrari monoalfabetici (come il cifrario di Cesare) è dovuto al fatto che il testo è cifrato con n alfabeti cifranti. In questo modo, la stessa lettera viene cifrata (se ripetuta consecutivamente) n volte e questo rende più complessa la crittoanalisi del testo.
+
+Possiamo usare una funzione matematica per la cifratura e la decifratura:
+
+L = Lunghezza del cifrario = Numero caratteri alfabeto (26)
+
+Numero prima lettera del cifrario "A" = 0
+
+Numero ultima lettera del cifrario "Z" = 25
+
+a = Numero della lettera della parola in Chiaro (0-25)
+
+b = Numero della lettera della parola Chiave/Verme (0-25)
+
+c = Numero della lettera della parola Cifrata (0-25)
+
+Formula per cifrare/criptare: n = a + b (mod L)
+
+Formula per decifrare/decriptare: n = c - b + L
+
+r = floor(n / L)
+
+x = n - ( L * r ) = Numero della lettera della parola in Chiaro/Cifrata (0-25)
+
+La funzione si basa sulla somma/sottrazione dei numeri delle lettere e sulla divisione per la lunghezza del cifrario per ottenere il numero della lettera cercata. Per avere sempre un numero n positivo (anche per la decriptazione) basta aggiungere la lunghezza del cifrario L, in quanto verrà poi eliminata grazie al metodo con cui calcoliamo r.
+
+Esempio di criptazione per il carattere "R":
+
+L = 26
+a[R] = 17
+b[V] = 21
+n = 17 + 21 = 38
+r = 38 / 26 = 1,461... = 1
+x = 38 - ( 26 * 1 ) = 38 - 26 = 12
+lettera(12) = M
+
+Esempio di decriptazione per il carattere "M":
+
+L = 26
+b[V] = 21
+c[M] = 12
+n = 12 - 21 + 26 = 17
+r = 17 / 26 = 0,653... = 0
+x = 17 - ( 26 * 0 ) = 17 - 0 = 17
+lettera(17) = R
+
+; messaggio in chiaro
+(setq msg "RICERCARETESORO")
+; costruzione il cifrario
+(setq cifrario "ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+;-> "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+(setq lettere (explode cifrario))
+;-> ("A" "B" "C" "D" "E" "F" "G" "H" "I" "J" "K" "L" "M"
+;->  "N" "O" "P" "Q" "R" "S" "T" "U" "V" "W" "X" "Y" "Z")
+; liste di associazione lettera <--> numero
+(setq char-num (map (fn (x) (list x $idx)) (explode cifrario)))
+;-> (("A" 0) ("B" 1) ("C" 2) ("D" 3) ("E" 4) ("F" 5) ("G" 6)
+;->  ("H" 7) ("I" 8) ("J" 9) ("K" 10) ("L" 11) ("M" 12) ("N" 13)
+;->  ("O" 14) ("P" 15) ("Q" 16) ("R" 17) ("S" 18) ("T" 19) ("U" 20)
+;->  ("V" 21) ("W" 22) ("X" 23) ("Y" 24) ("Z" 25))
+(setq num-char (map (fn (x) (list $idx x)) (explode cifrario)))
+;-> ((0 "A") (1 "B") (2 "C") (3 "D") (4 "E") (5 "F") (6 "G") (7 "H")
+;->  (8 "I") (9 "J") (10 "K") (11 "L") (12 "M") (13 "N") (14 "O")
+;->  (15 "P") (16 "Q") (17 "R") (18 "S") (19 "T") (20 "U") (21 "V")
+;->  (22 "W") (23 "X") (24 "Y") (25 "Z"))
+; la chiave è il valore del verme ripetuto per tutta la lunghezza del messaggio
+(setq chiave (slice (dup verme (+ (/ (length msg) (length verme)) 1)) 0 (length msg) 1))
+;-> "VERMEVERMEVERME"
+(setq L (length cifrario))
+;-> 26
+
+cifratura:
+
+(dolist (el (explode msg))
+  (setq a (lookup el char-num))
+  (setq b (lookup (chiave $idx) char-num))
+  ;(println a { } b)
+  (setq n (% (+ a b) L))
+  (setq r (/ n L))
+  (setq x (- n (* L r)))
+  ;(println n { } r { } x)
+  (print (lookup x num-char))
+)
+;-> MMTQVXEIQXZWFDS
+
+Adesso scriviamo le due funzioni di cifratura/decifratura tenendo conto dei caratteri del messaggio che non si trovano nel cifrario (alfabeto). Inoltre aggiungiamo uno spazio " " al nostro alfabeto.
+
+Funzione di cifratura:
+
+(define (vige-cifra msg verme)
+  (local (cifrario lettere char-num num-char chiave L out)
+    (setq out '())
+    (setq msg (upper-case msg))
+    (setq verme (upper-case verme))
+    ; costruzione del cifrario
+    (setq cifrario "ABCDEFGHIJKLMNOPQRSTUVWXYZ ")
+    (setq lettere (explode cifrario))
+    ; liste di associazione lettera <--> numero
+    (setq char-num (map (fn (x) (list x $idx)) (explode cifrario)))
+    (setq num-char (map (fn (x) (list $idx x)) (explode cifrario)))
+    ; la chiave è il valore del verme ripetuto per tutta la lunghezza del messaggio
+    (setq chiave (slice (dup verme (+ (/ (length msg) (length verme)) 1)) 0 (length msg) 1))
+    (setq L (length cifrario))
+    ; ciclo di cifratura del messaggio
+    (dolist (el (explode msg))
+      ; controllo caratteri sconosciuti
+      (cond ((or (nil? (lookup el char-num)) (nil? (lookup (chiave $idx) char-num)))
+             (push "$" out -1)
+            )
+            (true
+              (setq a (lookup el char-num))
+              (setq b (lookup (chiave $idx) char-num))
+              ;(println a { } b)
+              (setq n (% (+ a b) L))
+              (setq r (/ n L))
+              (setq x (- n (* L r)))
+              ;(println n { } r { } x)
+              ;(print (lookup x num-char))
+              (push (lookup x num-char) out -1)
+            )
+      );cond
+    );dolist
+    (join out)
+  );local
+)
+
+(setq msg "CIFRARIO DI VIGENERE")
+(vige-cifra msg "VERME")
+;-> "XMWCELMELHCDLUKZRVCI"
+
+(define (vige-decifra msg verme)
+  (local (cifrario lettere char-num num-char chiave L out)
+    (setq out '())
+    (setq msg (upper-case msg))
+    (setq verme (upper-case verme))
+    ; costruzione del cifrario
+    (setq cifrario "ABCDEFGHIJKLMNOPQRSTUVWXYZ ")
+    (setq lettere (explode cifrario))
+    ; liste di associazione lettera <--> numero
+    (setq char-num (map (fn (x) (list x $idx)) (explode cifrario)))
+    (setq num-char (map (fn (x) (list $idx x)) (explode cifrario)))
+    ; la chiave è il valore del verme ripetuto per tutta la lunghezza del messaggio
+    (setq chiave (slice (dup verme (+ (/ (length msg) (length verme)) 1)) 0 (length msg) 1))
+    (setq L (length cifrario))
+    ; ciclo di cifratura del messaggio
+    (dolist (el (explode msg))
+      ; controllo caratteri sconosciuti
+      (cond ((or (nil? (lookup el char-num)) (nil? (lookup (chiave $idx) char-num)))
+             (push "$" out -1)
+            )
+            (true
+              (setq c (lookup el char-num))
+              (setq b (lookup (chiave $idx) char-num))
+              ;(println c { } b)
+              (setq n (+ (- c b) L))
+              (setq r (/ n L))
+              (setq x (- n (* L r)))
+              ;(println n { } r { } x)
+              ;(print (lookup x num-char))
+              (push (lookup x num-char) out -1)
+            )
+      );cond
+    );dolist
+    (join out)
+  );local
+)
+
+(setq msg "XMWCELMELHCDLUKZRVCI")
+(vige-decifra msg "VERME")
+;-> "CIFRARIO DI VIGENERE"
+
+
+ANAGRAMMI
+---------
+Quando due o più parole sono composte dagli stessi caratteri, ma in un ordine diverso, vengono chiamate anagrammi.
+Usando l'elenco di parole: http://wiki.puzzlers.org/pub/wordlists/unixdict.txt trovare l'insieme di anagrammi che ha il maggior numero di parole (elementi).
+
+Leggiamo tutto il file in una stringa:
+(setq datafile (read-file "unixdict1.txt"))
+
+Trasformiamo questa stringa in una lista di stringhe delimitate dal carattere di fine linea (eol - end of line). La funzione "parse" fa proprio questo, suddivide una stringa in sottostringhe basandosi su un delimitatore (in windows il delimitatore di fine linea è "\r\n", mentre su UNIX è "\n"):
+
+(setq data (parse datafile "\r\n"))
+
+Se volessi convertire le stringhe in simboli:
+(setq data (map sym data))
+;-> (10th 1st 2nd 3rd 4th 5th 6th 7th 8th 9th a a&m a&p a's aaa aaas aarhus aaron aau
+;->  aba ababa aback abacus abalone abandon abase abash abate abater abbas abbe abbey
+;->  abbot abbott abbreviate abc abdicate abdomen abdominal abduct abe abed abel abelian
+;->  abelson aberdeen abernathy aberrant aberrate abet)
+
+Creazione di una lista ordinata in cui ogni elemento è formato dalla parola ordinata e dalla parola di partenza:
+(setq lst (sort (map (fn (x) (list (join (sort (explode x))) x)) data)))
+;-> (("&am" "a&m") ("&ap" "a&p") ("'as" "a's") ("01ht" "10th")
+;->  ("1st" "1st") ("2dn" "2nd") ("3dr" "3rd") ("4ht" "4th")
+;->  ("5ht" "5th") ("6ht" "6th") ("7ht" "7th") ("8ht" "8th")
+;->  ("9ht" "9th") ("a" "a") ("aaa" "aaa") ("aaabb" "ababa")
+;->  .......
+
+Scriviamo una funzione che utilizza un metodo molto simile al Run-Length Encoding: raggruppa le parole che hanno lo stesso anagramma:
+
+(define (rle lst)
+  (local (palo conta ana out)
+    (cond ((= lst '()) '())
+          (true
+           (setq out '())
+           (setq ana '())
+           (setq palo (first (first lst)))
+           (setq conta 0)
+           (dolist (el lst)
+              ; se l'elemento è uguale al precedente aumentiamo il suo conteggio
+              ; e aggiungiamo l'anagramma alla lista degli anagrammi
+              (if (= (first el) palo)
+                  (begin (++ conta)
+                         (push (last el) ana -1)
+                  )
+                  ; altrimenti costruiamo la lista (conta ana)
+                  ; poi la aggiungiamo al risultato
+                  ; e azzeriamo le variabili
+                  (begin (push conta ana)
+                         (push ana out -1)
+                         (setq conta 1)
+                         (setq palo (first el))
+                         (setq ana (rest el))
+                  )
+              )
+           )
+           ; aggiungiamo l'ultima coppia di valori al risultato
+           (push conta ana)
+           (push ana out -1)
+          )
+    )
+    out
+  )
+)
+
+(rle lst)
+;-> ((1 "a&m") (1 "a&p") (1 "a's") (1 "10th") (1 "1st") (1 "2nd") (1 "3rd")
+;->  (1 "4th") (1 "5th") (1 "6th") (1 "7th") (1 "8th") (1 "9th") (1 "a") (1 "aaa")
+;->  .....
+
+Quindi la soluzione è la seguente:
+
+  (silent (setq datafile (read-file "unixdict.txt")))
+  (silent (setq data (parse datafile "\n")))
+  (silent (setq lst (sort (map (fn (x) (list (join (sort (explode x))) x)) data))))
+  (silent (rle lst))
+  (slice (sort (rle lst) >) 0 10)
+
+Scriviamo la funzione:
+
+(define (solveAna)
+  (setq datafile (read-file "unixdict.txt"))
+  (setq data (parse datafile "\n"))
+  (setq lst (sort (map (fn (x) (list (join (sort (explode x))) x)) data)))
+  (rle lst)
+  (slice (sort (rle lst) >) 0 10)
+)
+
+(solveAna)
+;-> ((5 "evil" "levi" "live" "veil" "vile")
+;->  (5 "elan" "lane" "lean" "lena" "neal")
+;->  (5 "caret" "carte" "cater" "crate" "trace")
+;->  (5 "angel" "angle" "galen" "glean" "lange")
+;->  (5 "alger" "glare" "lager" "large" "regal")
+;->  (5 "abel" "able" "bale" "bela" "elba")
+;->  (4 "resin" "rinse" "risen" "siren")
+;->  (4 "pare" "pear" "rape" "reap")
+;->  (4 "nepal" "panel" "penal" "plane")
+;->  (4 "mate" "meat" "tame" "team"))
+
+(time (solveAna))
+;-> 265.205
+
+Adesso scriviamo una funzione che controlla se due parole sono anagrammi l'una dell'altra:
+
+(define (anagram? str1 str2)
+  (if (or (null? str1) (null? str2)) nil
+      (if (!= (length str1) (length str2)) nil
+          (if (= (sort (explode str1)) (sort (explode str2)))
+              true
+              nil
+          )
+      )
+  )
+)
+
+(anagram? "pippo" "poppi")
+;-> true
+
+(anagram? "abcdefghi" "abcdefghij")
+;-> nil
+
+(anagram? "abcdefghi" "abcdefghj")
+;-> nil
+
+(time (anagram? "pippipappopoppi" "poppipappopippi") 10000)
+;-> 71.007
+
+Se le parole utilizzano solo le lettere maiuscole, allora possiamo scrivere la funzione con un altro algoritmo:
+
+(define (anagram? str1 str2)
+  (local (vec ret)
+    (if (or (null? str1) (null? str2)) (setq ret nil)
+        (if (!= (length str1) (length str2)) (setq ret nil)
+          (begin
+            (setq ret true)
+            (setq str1 (upper-case str1))
+            (setq str2 (upper-case str2))
+            (setq vec (array 26 '(0)))
+            (dostring (ch str1) (++ (vec (- ch 65))))
+            (dostring (ch str2) (-- (vec (- ch 65))))
+            (while (and ret (< i (length str1)))
+               (if (!= (vec i) 0) (setq ret nil))
+               (++ i)
+            )
+          )
+        )
+    )
+    ;(println vec)
+    ret
+  );local
+)
+
+(anagram? "pippo" "poppi")
+;-> true
+
+(anagram? "abcdefghi" "abcdefghij")
+;-> nil
+
+(anagram? "abcdefghi" "abcdefghj")
+;-> nil
+
+(time (anagram? "pippipappopoppi" "poppipappopippi") 10000)
+;-> 73.007
+
+Per finire vediamo due funzioni per generare tutti gli anagrammi di una parola.
+Il primo dei due algoritmi è stato fornito da Sam Cox e funziona direttamente sulla stringa stessa. Sottosezioni ricorsive della stringa vengono esplose, ruotate e poi unite per formare una nuova stringa.
+
+(define (anagrams s)
+    (if (<= (length s) 1)
+        (list s)
+        (flat (map (fn (n) (aux (rotate-string s n)))
+                          (sequence 1 (length s))))))
+
+(define (aux rs)
+    (map (fn (x) (append (first rs) x)) (anagrams (rest rs))))
+
+(define (rotate-string s n)
+    (join (rotate (explode s) n)))
+
+(anagrams "lisp")
+;-> ("psil" "psli" "pils" "pisl" "plsi" "plis" "silp" "sipl" "slpi"
+;->  "slip" "spil" "spli" "ilps" "ilsp" "ipsl" "ipls" "islp" "ispl"
+;->  "lpsi" "lpis" "lsip" "lspi" "lips" "lisp")
+
+Il secondo algoritmo è un po 'più lento ma si basa, su un algoritmo di permutazioni generalmente applicabile. La funzione permutazioni genera tutte le possibili permutazioni di offset nella stringa, quindi applica tali permutazioni.
+
+(define (permutations lst)
+  (if (= (length lst) 1)
+   lst
+   (apply append (map (fn (rot) (map (fn (perm) (cons (first rot) perm))
+      (permutations (rest rot))))
+    (rotations lst)))))
+
+(define (rotations lst)
+  (map (fn (x) (rotate lst)) (sequence 1 (length lst))))
+
+(define (anagrams str)
+  (map (fn (perm) (select str perm))
+     (permutations (sequence 0 (- (length str) 1)))))
+
+(anagrams "lisp")
+;-> ("psil" "psli" "pils" "pisl" "plsi" "plis" "silp" "sipl" "slpi"
+;->  "slip" "spil" "spli" "ilps" "ilsp" "ipsl" "ipls" "islp" "ispl"
+;->  "lpsi" "lpis" "lsip" "lspi" "lips" "lisp")
+
+Nota: numero di anagrammi = fattoriale(numero di caratteri)
 
 
 ================
@@ -13248,7 +14654,7 @@ dove t -> indice triangolari
 dove p -> indice pentagonali
 dove x -> indice esagonali
 
-La soluzione dell'uguaglianza: 
+La soluzione dell'uguaglianza:
 
 t*(t + 1)/2 == x*(2*x-1)
 
@@ -13567,7 +14973,7 @@ Possiamo scrivere la funzione finale:
       (setq a3 (+ a2 3330))
       (if (and (primo? a2) (primo? a3) (cifreUguali a1 a2) (cifreUguali a2 a3))
         (setq out (string a1 a2 a3))
-        ;(println a1 { } a2 { } a3)      
+        ;(println a1 { } a2 { } a3)
       )
     )
     out
@@ -13650,10 +15056,187 @@ Filtro i numeri primi:
 (time (e050))
 ;-> 27113
 
+I numeri coinvolti nella soluzione sono i seguenti:
+
+(997651 543 (7 11 13 17 19 23 29 31 37 41 43 47 53
+59 61 67 71 73 79 83 89 97 101 103 107 109 113 127
+131 137 139 149 151 157 163 167 173 179 181 191 193
+197 199 211 223 227 229 233 239 241 251 257 263 269
+271 277 281 283 293 307 311 313 317 331 337 347 349
+353 359 367 373 379 383 389 397 401 409 419 421 431
+433 439 443 449 457 461 463 467 479 487 491 499 503
+509 521 523 541 547 557 563 569 571 577 587 593 599
+601 607 613 617 619 631 641 643 647 653 659 661 673
+677 683 691 701 709 719 727 733 739 743 751 757 761
+769 773 787 797 809 811 821 823 827 829 839 853 857
+859 863 877 881 883 887 907 911 919 929 937 941 947
+953 967 971 977 983 991 997 1009 1013 1019 1021 1031
+1033 1039 1049 1051 1061 1063 1069 1087 1091 1093 1097
+1103 1109 1117 1123 1129 1151 1153 1163 1171 1181 1187
+1193 1201 1213 1217 1223 1229 1231 1237 1249 1259 1277
+1279 1283 1289 1291 1297 1301 1303 1307 1319 1321 1327
+1361 1367 1373 1381 1399 1409 1423 1427 1429 1433 1439
+1447 1451 1453 1459 1471 1481 1483 1487 1489 1493 1499
+1511 1523 1531 1543 1549 1553 1559 1567 1571 1579 1583
+1597 1601 1607 1609 1613 1619 1621 1627 1637 1657 1663
+1667 1669 1693 1697 1699 1709 1721 1723 1733 1741 1747
+1753 1759 1777 1783 1787 1789 1801 1811 1823 1831 1847
+1861 1867 1871 1873 1877 1879 1889 1901 1907 1913 1931
+1933 1949 1951 1973 1979 1987 1993 1997 1999 2003 2011
+2017 2027 2029 2039 2053 2063 2069 2081 2083 2087 2089
+2099 2111 2113 2129 2131 2137 2141 2143 2153 2161 2179
+2203 2207 2213 2221 2237 2239 2243 2251 2267 2269 2273
+2281 2287 2293 2297 2309 2311 2333 2339 2341 2347 2351
+2357 2371 2377 2381 2383 2389 2393 2399 2411 2417 2423
+2437 2441 2447 2459 2467 2473 2477 2503 2521 2531 2539
+2543 2549 2551 2557 2579 2591 2593 2609 2617 2621 2633
+2647 2657 2659 2663 2671 2677 2683 2687 2689 2693 2699
+2707 2711 2713 2719 2729 2731 2741 2749 2753 2767 2777
+2789 2791 2797 2801 2803 2819 2833 2837 2843 2851 2857
+2861 2879 2887 2897 2903 2909 2917 2927 2939 2953 2957
+2963 2969 2971 2999 3001 3011 3019 3023 3037 3041 3049
+3061 3067 3079 3083 3089 3109 3119 3121 3137 3163 3167
+3169 3181 3187 3191 3203 3209 3217 3221 3229 3251 3253
+3257 3259 3271 3299 3301 3307 3313 3319 3323 3329 3331
+3343 3347 3359 3361 3371 3373 3389 3391 3407 3413 3433
+3449 3457 3461 3463 3467 3469 3491 3499 3511 3517 3527
+3529 3533 3539 3541 3547 3557 3559 3571 3581 3583 3593
+3607 3613 3617 3623 3631 3637 3643 3659 3671 3673 3677
+3691 3697 3701 3709 3719 3727 3733 3739 3761 3767 3769
+3779 3793 3797 3803 3821 3823 3833 3847 3851 3853 3863
+3877 3881 3889 3907 3911 3917 3919 3923 3929 3931))
+
 
 ===============
  PROBLEMI VARI
 ===============
+
+BubbleSort
+----------
+
+Il Bubble sort (ordinamento a bolla) è un semplice algoritmo stabile di ordinamento di una lista o di un vettore di dati. Ogni coppia di elementi adiacenti viene comparata e invertita di posizione se sono nell'ordine sbagliato. L'algoritmo continua continuamente ad eseguire questi passaggi per tutta la lista finché non vengono più eseguiti scambi, situazione che indica che la lista è ordinata.
+
+Complessità temporale media O(n^2).
+
+Nota: Un metodo di ordinamento si dice stabile se preserva l'ordine relativo dei dati con chiavi uguali all'interno della struttura dati da ordinare.
+
+Possiamo rappresentare l'algoritmo con questo pseudocodice:
+
+procedure BubbleSort(A:lista di elementi da ordinare)
+  ultimoScambiato ← n
+  n ← length(A) - 1
+  while (ultimoScambiato > 0) do
+    ultimoScambiato ← 0
+    for i ← 0 to n do
+      if (A[i] > A[i + 1]) then  //sostituire '>' con '<' per ottenere un ordinamento decrescente
+        swap ( A[i], A[i+1] )
+        ultimoScambiato ← i
+   //ad ogni passaggio si accorcia il ciclo di for
+   //fermandosi in corrispondenza dell'ultimo scambio effettuato
+    n ← ultimoScambiato
+
+Versione ricorsiva:
+
+(define (bubble-up lst)
+    (if (null? (rest lst))
+        lst
+        (if (< (first lst) (first (rest lst)))
+            (cons (first lst) (bubble-up (rest lst)))
+            (cons (first (rest lst)) (bubble-up (cons (first lst) (rest (rest lst))))))))
+
+(define (bubble-sort-aux n lst)
+    (cond ((= n 1) (bubble-up lst))
+          (true (bubble-sort-aux (- n 1) (bubble-up lst)))))
+
+(define (bubbleSort lst)
+    (bubble-sort-aux (length lst) lst))
+
+(bubbleSort '(5 10 9 8 7 8 6 7 5 4 3 4 5))
+;-> (3 4 4 5 5 5 6 7 7 8 8 9 10)
+
+Versione iterativa:
+
+(define (bubbleSort lst)
+  (local (i j continua)
+    (setq continua 1)
+    (setq j (length lst))
+    (while (= continua 1)
+      (setq continua 0)
+      (for (i 1 (- j 1))
+        (cond ((< (lst i) (lst (- i 1)))
+               (swap (lst i) (lst (- i 1)))
+               (setq continua 1))
+        )
+      )
+      (-- j)
+    )
+  )
+  lst
+)
+
+(bubbleSort '(5 10 9 8 7 8 6 7 5 4 3 4 5))
+;-> (3 4 4 5 5 5 6 7 7 8 8 9 10)
+
+
+QuickSort
+---------
+
+Il Quicksort è un algoritmo di ordinamento ricorsivo. Appartiene alla classe degli algoritmi divide et impera, dal momento che scompone ricorsivamente i dati da processare in sottoprocessi. Tale procedura ricorsiva viene comunemente detta partizionamento: preso un elemento chiamato "pivot" da una struttura dati (es. lista o vettore) si pongono gli elementi minori a sinistra rispetto al pivot e gli elementi maggiori a destra. L'operazione viene quindi reiterata sui due insiemi risultanti fino al completo ordinamento della struttura.
+
+Il Quicksort (ordinamento rapido), è l'algoritmo di ordinamento che ha, nel caso medio, prestazioni migliori tra quelli basati su confronto. È stato ideato da Richard Hoare nel 1961.
+
+Complessità temporale media O(nlogn).
+
+Lo pseudocodice per il Quicksort è:
+
+Procedure Quicksort(A)
+Input A, vettore a1, a2, a3 .. an
+  begin
+    if n ≤ 1 then return A
+    else
+      begin
+        scegli un elemento pivot ak
+        calcola il vettore A1 dagli elementi ai di A tali che i ≠ K e ai ≤ ak
+        calcola il vettore A2 dagli elementi aj di A tali che j ≠ K e aj > ak
+        A1 ← Quicksort(A1)
+        A2 ← Quicksort(A2)
+        return A1 U (ak) U A2;
+      end
+
+In newLISP possiamo scriverla in questo modo utilizzando la funzione "filter":
+
+(define (quicksort lst)
+  (cond ((or (null? lst)         ; la lista è vuota (ordinata)
+             (null? (rest lst))) ; la lista ha un solo elemento (ordinata)
+         lst)
+        (true
+          (let ((pivot (first lst)) ; Seleziona il primo elemento come pivot
+                (resto (rest lst))) ; Prendi la lista rimanente (resto)
+               (append (quicksort   ; Ricorsivamente ordina la lista dei valori più piccoli
+                          (filter (lambda (x) (< x pivot)) resto)) ; Seleziona i valori più piccoli
+                       (list pivot) ; Aggiungi il pivot al centro
+                       (quicksort   ; Ricorsivamente ordina la lista dei valori più grandi
+                          (filter (lambda (x) (>= x pivot)) resto)))  ; Seleziona i valori maggiori e uguali
+          )
+        )
+  )
+)
+
+(quicksort '(89 3 4 5 3 2 2 4 6 7 8 9 7 8 9 3 2 4 89))
+;-> (2 2 2 3 3 3 4 4 4 5 6 7 7 8 8 9 9 89 89)
+
+Questo è l'algoritmo più veloce (in media) per ordinare una lista:
+
+(silent (setq lst (rand 10000 100000)))
+
+(time (quicksort lst))
+;-> 989.971
+
+Ma non è paragonabile alla funzione predefinita di newLISP "sort":
+
+(time (sort lst))
+;-> 55.94
+
 
 Simulare una matrice con un vettore
 -----------------------------------
@@ -13745,7 +15328,7 @@ Ci sono molti esempi di vita reale di una pila. Considera il semplice esempio di
 
 Complessità di tempo delle operazioni sullo stack:
 
-Le funzioni push (), pop (), isEmpty () e look () richiedono tutti un tempo O(1). Non eseguiamo alcun ciclo in queste operazioni.
+Le funzioni push (), pop (), isEmpty () e look () richiedono tutte un tempo O(1). Non eseguiamo alcun ciclo in queste operazioni.
 
           ---------------------   <-- push
           | 1 | 2 | 3 | 4 | 5 |
@@ -14383,8 +15966,8 @@ E poi l'istogramma della seconda lista:
 ;->  12 ********  281
 ;->  13     0
 
-La prima lista ha una distribuzione pressochè uniforme.
-La seconda lista ha una distribuzione gaussiana.
+La prima lista ha una distribuzione pressochè uniforme (tutti i numeri hanno la stessa probabilità).
+La seconda lista ha una distribuzione gaussiana centrata sul numero più probabile.
 
 
 Quadrati magici
@@ -15615,54 +17198,77 @@ Soluzione
  x≈0.36207, y≈0.13793, z≈0.12069
 
 Impostiamo i valori della matrice:
+
 (setq m '((1 2 3) (-3 -2 3) (4 -5 2)))
 m
 ;-> ((1 2 3) (-3 -2 3) (4 -5 2))
+
 Calcoliamo il determinante:
+
 (setq det-m (det m))
 ;-> 116
+
 Impostiamo il vettore dei termini noti:
+
 (setq n '(1 -1 1))
 
 Calcoliamo determinante per la variabile x sostituendo prima la colonna 0 della matrice con i valori della colonna dei termini noti:
+
 (setf (m 0 0) (n 0))
 (setf (m 1 0) (n 1))
 (setf (m 2 0) (n 2))
 m
 ;-> ((1 2 3) (-1 -2 3) (1 -5 2))
+
 Calcoliamo il determinante di x:
+
 (setq detX (det m))
+;-> 42
+
 Calcoliamo la soluzione per x:
+
 (setq x (div detX det-m))
 ;-> 0.3620689655172414
 
 Impostiamo i valori della matrice:
 (setq m '((1 2 3) (-3 -2 3) (4 -5 2)))
+
 Calcoliamo determinante per la variabile y sostituendo prima la colonna 1 della matrice con i valori della colonna dei termini noti:
+
 (setf (m 0 1) (n 0))
 (setf (m 1 1) (n 1))
 (setf (m 2 1) (n 2))
 m
 ;-> ((1 1 3) (-3 -1 3) (4 1 2))
+
 Calcoliamo il determinante di y:
+
 (setq detY (det m))
 ;-> 16
+
 Calcoliamo la soluzione per y:
+
 (setq y (div detY det-m))
 ;-> 0.1379310344827586
 
 Impostiamo i valori della matrice:
 (setq m '((1 2 3) (-3 -2 3) (4 -5 2)))
+
 Calcoliamo determinante per la variabile z sostituendo prima la colonna 2 della matrice con i valori della colonna dei termini noti:
+
 (setf (m 0 2) (n 0))
 (setf (m 1 2) (n 1))
 (setf (m 2 2) (n 2))
 m
 ;-> ((1 2 1) (-3 -2 -1) (4 -5 1))
+
 Calcoliamo il determinante di z:
+
 (setq detZ (det m))
 ;-> 14
+
 Calcoliamo la soluzione per z:
+
 (setq z (div detZ det-m))
 ;-> 0.1206896551724138
 
@@ -15680,51 +17286,71 @@ z = detZ/det
 x = -1, y = 2, z = 1
 
 Impostiamo i valori della matrice:
+
 (setq m '((2 1 1) (4 -1 1) (-1 1 2)))
 m
 ;-> ((2 1 1) (4 -1 1) (-1 1 2))
+
 Calcoliamo il determinante:
+
 (setq det-m (det m))
 ;-> -12
 (setq n '(1 -5 5))
 
 Calcoliamo determinante per la variabile x sostituendo prima la colonna 0 della matrice con i valori della colonna dei termini noti:
+
 (setf (m 0 0) (n 0))
 (setf (m 1 0) (n 1))
 (setf (m 2 0) (n 2))
 m
+
 Calcoliamo il determinante di x:
+
 (setq detX (det m))
 ;-> 12
+
 Calcoliamo la soluzione per x:
 (setq x (/ detX det-m))
 ;-> -1
 
 Impostiamo i valori della matrice:
 (setq m '((2 1 1) (4 -1 1) (-1 1 2)))
+
 Calcoliamo determinante per la variabile y sostituendo prima la colonna 1 della matrice con i valori della colonna dei termini noti:
+
 (setf (m 0 1) (n 0))
 (setf (m 1 1) (n 1))
 (setf (m 2 1) (n 2))
 m
+
 Calcoliamo il determinante di y:
+
 (setq detY (det m))
 ;-> 24
+
 Calcoliamo la soluzione per y:
+
 (setq y (/ detY det-m))
 ;-> 2
 
 Impostiamo i valori della matrice:
+
 (setq m '((2 1 1) (4 -1 1) (-1 1 2)))
+
 Calcoliamo determinante per la variabile z sostituendo prima la colonna 2 della matrice con i valori della colonna dei termini noti:
+
 (setf (m 0 2) (n 0))
 (setf (m 1 2) (n 1))
 (setf (m 2 2) (n 2))
 m
+
 Calcoliamo il determinante di z:
+
 (setq detZ (det m))
 ;-> -12
+
 Calcoliamo la soluzione per z:
+
 (setq z (/ detZ det-m))
 ;-> 1
 
@@ -16176,15 +17802,11 @@ E il risultato è la seguente somma: z2 * b^2m + z1 * b^m + z0
 Definiamo la funzione potenza per i numeri interi:
 
 (define (potenza n m)
-  (local (pot)
-    (setq pot 1)
-    (dotimes (x m) (setq pot (* pot n)))
-    pot
-  )
+  (let (pot 1L) (dotimes (x m) (setq pot (* pot n))))
 )
 
 (potenza 3 6)
-;-> 729
+;-> 729L
 
 Definiamo la funzione che implementa l'algoritmo di karatsuba:
 
@@ -16226,6 +17848,9 @@ Definiamo la funzione che implementa l'algoritmo di karatsuba:
 (mul 12345 6789)
 ;-> 83810205
 
+(time (karatsuba 12345 6789) 10000)
+;-> 359.359
+
 Ecco un'altra implementazione dell'algoritmo di Karatsuba:
 
 (define (karatsuba x y)
@@ -16254,10 +17879,57 @@ Ecco un'altra implementazione dell'algoritmo di Karatsuba:
 (karatsuba 12345 6789)
 ;-> 83810205
 
+(time (karatsuba 12345 6789) 10000)
+;-> 33347.174
+
 Nota:
 Nel caso di rappresentazioni binarie le operazioni di quoziente e prodotto relativi a una potenza di 2 (2^k) si riducono semplicemente a spostamenti (right/left shift) di k cifre.
 Analogamente, il resto della divisione per 2^k corrisponde alla selezione delle ultime k cifre.
 
+Per implementare l'algoritmo anche per i numeri big integer dobbiamo tenere conto del carattere "L" al termine di ogni numero intero big integer.
+
+(define (karatsuba num1 num2)
+  (local (len1 len2 m m2 high1 low1 high2 low2 z0 z1 z2)
+    (cond ((or (< num1 10) (< num2 10)) (* num1 num2))
+          (true
+            (setq len1 (length (string num1)))
+            (if (= (last (string num1)) "L") (-- len1))
+            (setq len2 (length (string num2)))
+            (if (= (last (string num1)) "L") (-- len2))
+            (setq m (max len1 len2))
+            (setq m2 (/ m 2))
+            (setq n1$ (string num1))
+            (if (= (last n1$) "L") (setq n1$ (chop n1$)))
+            (setq n2$ (string num2))
+            (if (= (last n2$) "L") (setq n2$ (chop n2$)))
+            (setq high1 (bigint (slice n1$ 0 (- (length n1$) m2))))
+            (setq low1  (bigint (slice n1$ (- (length n1$) m2) m2)))
+            (setq high2 (bigint (slice n2$ 0 (- (length n2$) m2))))
+            (setq low2  (bigint (slice n2$ (- (length n2$) m2) m2)))
+            ;(println high1 { } low1)
+            ;(println high2 { } low2)
+            (setq z0 (karatsuba low1 low2))
+            (setq z1 (karatsuba (+ low1 high1) (+ low2 high2)))
+            (setq z2 (karatsuba high1 high2))
+            (+ (* z2 (potenza 10 (* m2 2))) (* (- z1 z2 z0) (potenza 10 m2)) z0)
+          )
+    )
+  );local
+)
+
+(karatsuba 12345 6789)
+;-> 83810205
+
+(karatsuba 9223372036854775807 9223372036854775807)
+;-> 85070591730234615847396907784232501249L
+
+(* 9223372036854775807L 9223372036854775807L)
+;-> 85070591730234615847396907784232501249L
+
+(time (karatsuba 12345 6789) 10000)
+;-> 687.468
+
+La funzione per i big integer è veloce la metà della versione per interi.
 
 Formati A0, A1, A2, A3, A4, ...
 -------------------------------
@@ -18665,6 +20337,302 @@ Terza versione:
 (time (somma-divisori-propri-fast 12345678901234567))
 ;-> 199.812
 
+
+Labirinti (calcolo percorsi)
+============================
+
+Un labirinto è un percorso o un insieme di percorsi, in genere con uno o più ingressi e con nessuna o più uscite.
+Per risolvere un labirinto (maze) utilizzeremo il seguente algoritmo che trova la soluzione (se esiste) in modo ricorsivo. Si parte da un valore iniziale X e Y. Se i valori X e Y non sono su un muro, il metodo (funzione) richiama se stesso con tutti i valori X e Y adiacenti, assicurandosi di non aver utilizzato in precedenza quei valori X e Y. Se i valori X e Y sono quelli della posizione finale, salva tutte le istanze precedenti del metodo (risultati parziali) creando una matrice con il percorso risolutivo.
+Questo metodo non garantisce che la soluzione trovata sia quella più breve.
+
+(define (solveMaze matrice sRow sCol eRow eCol)
+  (local (maze row col visited correctPath starRow startCol endRow endCol)
+    ; matrice labirinto
+    (setq maze matrice)
+    ; righe della matrice
+    (setq row (length maze))
+    ; colonne della matrice
+    (setq col (length (first maze)))
+    ; matrice delle celle visitate
+    (setq visited (array row col '(nil)))
+    ; matrice soluzione del labirinto
+    (setq correctPath (array row col '(nil)))
+    ; posizione iniziale: riga
+    (setq startRow sRow)
+    ; posizione iniziale: colonna
+    (setq startCol sCol)
+    ; posizione finale: riga
+    (setq endRow eRow)
+    ; posizione finale: colonna
+    (setq endCol eCol)
+    ;
+    ; funzione recursive solve
+    ;
+    (define (recursiveSolve x y)
+      (catch
+        (local (return)
+          ;controllo se abbiamo raggiunto la fine e non è un muro
+          (if (and (= x endRow) (= y endCol) (!= (maze x y) 2))
+              (throw (setf (correctPath x y) true))
+          )
+          ; cella muro o cella visitata
+          (if (or (= (maze x y) 2) (= (visited x y) true)) (throw nil))
+          ; imposta cella come visitata
+          (setf (visited x y) true)
+          ; controllo posizione riga 0
+          (if (!= x 0)
+              ; richiama la funzione una riga in basso
+              (if (recursiveSolve (- x 1) y)
+                  (throw (setf (correctPath x y) true))
+              )
+          )
+          ; controllo posizione riga (row - 1)
+          (if (!= x (- row 1))
+              ; richiama la funzione una riga in alto
+              (if (recursiveSolve (+ x 1) y)
+                  (throw (setf (correctPath x y) true))
+              )
+          )
+          ; controllo posizione colonna 0
+          (if (!= y 0)
+              ; richiama la funzione una colonna a sinistra
+              (if (recursiveSolve x (- y 1))
+                  (throw (setf (correctPath x y) true))
+              )
+          )
+          ; controllo posizione colonna (col - 1)
+          (if (!= y (- col 1))
+              ; richiama la funzione una colonna a destra
+              (if (recursiveSolve x (+ y 1))
+                  (throw (setf (correctPath x y) true))
+              )
+          )
+          return
+        );local
+      ) ;catch
+    ); recursiveSolve
+    ;
+    ; Chiama la funzione ricorsiva di soluzione
+    ; Se (recursiveSolve startRow startCol) ritorna nil,
+    ; allora il labirinto non ha soluzione.
+    ; Altrimenti la matrice booleana "correctPath"
+    ; contiene la soluzione (valori true).
+    (if (recursiveSolve startRow startCol) (showPath correctPath))
+  );local
+)
+
+(define (showPath matrix)
+  (local (row col)
+    ; righe della matrice
+    (setq row (length matrix))
+    ; colonne della matrice
+    (setq col (length (first matrix)))
+    ; stampa
+    (for (i 0 (- row 1))
+      (for (j 0 (- col 1))
+        (if (matrix i j) (print " 1") (print " 0"))
+      )
+      (println)
+    )
+    true
+  )
+)
+
+Esempio 1:
+; matrice labirinto (1 = libero, 2 = muro)
+
+ 1 1 1 1
+ 2 2 1 1
+ 1 2 2 1
+ 2 2 2 1
+ 1 1 1 1
+
+; definizione labirinto
+(setq righe 5)
+(setq colonne 4)
+(setq matrice (array righe colonne '(1 1 1 1  2 2 1 1  1 2 2 1  2 2 2 1  1 1 1 1)))
+(solveMaze matrice 0 0 4 3)
+;-> 1 1 1 0
+;-> 0 0 1 1
+;-> 0 0 0 1
+;-> 0 0 0 1
+;-> 0 0 0 1
+
+Esempio 2:
+; matrice labirinto (1 = libero, 2 = muro)
+
+ 1 1 2 1 2
+ 2 1 1 1 2
+ 2 1 2 2 2
+ 2 1 1 1 1
+
+; definizione labirinto
+(setq righe 4)
+(setq colonne 5)
+(setq matrice (array righe colonne '(1 1 2 1 2  2 1 1 1 2  2 1 2 2 2  2 1 1 1 1)))
+(solveMaze matrice 0 0 3 4)
+;-> 1 1 0 0 0
+;-> 0 1 0 0 0
+;-> 0 1 0 0 0
+;-> 0 1 1 1 1
+
+Esempio 3:
+; matrice labirinto (1 = libero, 2 = muro)
+
+ 1 1 2 1 2 1 1 1 2 1 2 1 2 1 2 2 1 1 1 2
+ 2 1 1 1 2 2 1 1 1 1 1 2 2 1 1 1 1 1 2 2
+ 2 1 2 2 2 2 2 1 1 2 2 2 1 2 2 2 2 1 2 1
+ 2 1 1 1 1 1 2 2 2 1 1 1 1 2 2 2 1 2 1 2
+ 1 2 2 2 2 1 2 2 1 2 1 2 1 2 2 1 1 2 2 2
+ 1 2 2 2 2 1 1 1 1 2 1 2 1 2 2 1 1 2 2 2
+ 1 2 2 2 2 2 2 2 1 2 1 2 1 2 2 1 2 1 2 2
+ 1 2 2 2 2 2 2 2 1 1 1 2 1 2 2 1 1 1 2 2
+ 1 2 2 2 2 2 2 2 1 2 2 2 1 1 1 1 2 1 1 1
+ 1 2 2 2 2 2 2 2 1 2 2 2 1 2 2 1 2 2 2 1
+ 1 2 2 2 2 2 2 2 1 2 2 2 1 2 2 1 2 2 2 1
+ 1 2 2 2 2 2 2 2 1 2 2 2 1 2 2 1 2 2 2 1
+
+Soluzione:
+
+ * * 2 1 2 1 1 1 2 1 2 1 2 1 2 2 1 1 1 2
+ 2 * 1 1 2 2 1 1 1 1 1 2 2 1 1 1 1 1 2 2
+ 2 * 2 2 2 2 2 1 1 2 2 2 1 2 2 2 2 1 2 1
+ 2 * * * * * 2 2 2 1 * * * 2 2 2 1 2 1 2
+ 1 2 2 2 2 * 2 2 1 2 * 2 * 2 2 1 1 2 2 2
+ 1 2 2 2 2 * * * * 2 * 2 * 2 2 1 1 2 2 2
+ 1 2 2 2 2 2 2 2 * 2 * 2 * 2 2 1 2 1 2 2
+ 1 2 2 2 2 2 2 2 * * * 2 * 2 2 * * * 2 2
+ 1 2 2 2 2 2 2 2 1 2 2 2 * * * * 2 * * *
+ 1 2 2 2 2 2 2 2 1 2 2 2 1 2 2 1 2 2 2 *
+ 1 2 2 2 2 2 2 2 1 2 2 2 1 2 2 1 2 2 2 *
+ 1 2 2 2 2 2 2 2 1 2 2 2 1 2 2 1 2 2 2 *
+
+; definizione labirinto
+(setq righe 12)
+(setq colonne 20)
+
+(setq matrice (array righe colonne '(
+ 1 1 2 1 2 1 1 1 2 1 2 1 2 1 2 2 1 1 1 2
+ 2 1 1 1 2 2 1 1 1 1 1 2 2 1 1 1 1 1 2 2
+ 2 1 2 2 2 2 2 1 1 2 2 2 1 2 2 2 2 1 2 1
+ 2 1 1 1 1 1 2 2 2 1 1 1 1 2 2 2 1 2 1 2
+ 1 2 2 2 2 1 2 2 1 2 1 2 1 2 2 1 1 2 2 2
+ 1 2 2 2 2 1 1 1 1 2 1 2 1 2 2 1 1 2 2 2
+ 1 2 2 2 2 2 2 2 1 2 1 2 1 2 2 1 2 1 2 2
+ 1 2 2 2 2 2 2 2 1 1 1 2 1 2 2 1 1 1 2 2
+ 1 2 2 2 2 2 2 2 1 2 2 2 1 1 1 1 2 1 1 1
+ 1 2 2 2 2 2 2 2 1 2 2 2 1 2 2 1 2 2 2 1
+ 1 2 2 2 2 2 2 2 1 2 2 2 1 2 2 1 2 2 2 1
+ 1 2 2 2 2 2 2 2 1 2 2 2 1 2 2 1 2 2 2 1)))
+
+(solveMaze matrice 0 0 11 19)
+;-> 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;-> 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;-> 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;-> 0 1 1 1 1 1 0 0 0 0 1 1 1 0 0 0 0 0 0 0
+;-> 0 0 0 0 0 1 0 0 0 0 1 0 1 0 0 0 0 0 0 0
+;-> 0 0 0 0 0 1 1 1 1 0 1 0 1 0 0 0 0 0 0 0
+;-> 0 0 0 0 0 0 0 0 1 0 1 0 1 0 0 0 0 0 0 0
+;-> 0 0 0 0 0 0 0 0 1 1 1 0 1 0 0 1 1 1 0 0
+;-> 0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 1 0 1 1 1
+;-> 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1
+;-> 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1
+;-> 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1
+
+Esempio 4:
+; matrice labirinto (1 = libero, 2 = muro)
+
+ 1 1 2 1 2 1 1 1 2
+ 2 1 1 1 2 2 1 1 1
+ 2 1 2 2 2 2 2 1 1
+ 2 1 1 1 1 1 2 2 2
+ 1 2 2 2 2 1 2 2 1
+ 1 2 2 2 2 1 2 1 1
+ 1 2 2 2 2 2 2 2 1
+ 1 2 2 2 2 2 2 2 1
+ 1 2 2 2 2 2 2 2 1
+
+Nessuna soluzione.
+
+; definizione labirinto
+(setq righe 9)
+(setq colonne 9)
+
+(setq matrice (array righe colonne '(
+ 1 1 2 1 2 1 1 1 2
+ 2 1 1 1 2 2 1 1 1
+ 2 1 2 2 2 2 2 1 1
+ 2 1 1 1 1 1 2 2 2
+ 1 2 2 2 2 1 2 2 1
+ 1 2 2 2 2 1 2 1 1
+ 1 2 2 2 2 2 2 2 1
+ 1 2 2 2 2 2 2 2 1
+ 1 2 2 2 2 2 2 2 1)))
+
+(solveMaze matrice 0 0 8 8)
+;-> nil
+
+(solveMaze matrice 0 0 5 5)
+;-> 1 1 0 0 0 0 0 0 0
+;-> 0 1 0 0 0 0 0 0 0
+;-> 0 1 0 0 0 0 0 0 0
+;-> 0 1 1 1 1 1 0 0 0
+;-> 0 0 0 0 0 1 0 0 0
+;-> 0 0 0 0 0 1 0 0 0
+;-> 0 0 0 0 0 0 0 0 0
+;-> 0 0 0 0 0 0 0 0 0
+;-> 0 0 0 0 0 0 0 0 0
+
+Esempio 5:
+; matrice labirinto (1 = libero, 2 = muro)
+
+ 1 1 2 1 2 1 1 2 1
+ 2 1 1 1 2 2 1 1 1
+ 2 1 2 2 2 2 2 1 2
+ 2 1 1 1 1 1 2 1 1
+ 1 2 2 2 2 1 2 2 1
+ 1 2 2 2 2 1 1 1 1
+ 1 1 1 1 1 2 1 2 1
+ 1 2 2 2 1 2 1 2 1
+ 1 2 2 2 1 1 1 2 1
+
+Soluzione:
+
+ 1 1 2 1 2 1 1 2 *
+ 2 1 1 1 2 2 1 * *
+ 2 1 2 2 2 2 2 * 2
+ 2 1 1 1 1 1 2 * *
+ 1 2 2 2 2 1 2 2 *
+ 1 2 2 2 2 1 * * *
+ * * * * * 2 * 2 1
+ * 2 2 2 * 2 * 2 1
+ * 2 2 2 * * * 2 1
+
+; definizione labirinto
+(setq righe 9)
+(setq colonne 9)
+
+(setq matrice (array righe colonne '(
+ 1 1 2 1 2 1 1 2 1
+ 2 1 1 1 2 2 1 1 1
+ 2 1 2 2 2 2 2 1 2
+ 2 1 1 1 1 1 2 1 1
+ 1 2 2 2 2 1 2 2 1
+ 1 2 2 2 2 1 1 1 1
+ 1 1 1 1 1 2 1 2 1
+ 1 2 2 2 1 2 1 2 1
+ 1 2 2 2 1 1 1 2 1)))
+
+(solveMaze matrice 8 0 0 8)
+;-> 0 0 0 0 0 0 0 0 1
+;-> 0 0 0 0 0 0 0 1 1
+;-> 0 0 0 0 0 0 0 1 0
+;-> 0 0 0 0 0 0 0 1 1
+;-> 0 0 0 0 0 0 0 0 1
+;-> 0 0 0 0 0 0 1 1 1
+;-> 1 1 1 1 1 0 1 0 0
+;-> 1 0 0 0 1 0 1 0 0
+;-> 1 0 0 0 1 1 1 0 0
 
 ======================================================================
  DOMANDE PER ASSUNZIONE DI PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
@@ -25100,6 +27068,7 @@ La gestione della memoria ORO di newLISP è più veloce e utilizza meno risorse.
 newLISP passa i parametri per valore-copia (pass by value) e memorizza i risultati intermedi su uno stack di risultati. La memoria creata per i risultati intermedi viene riciclata dopo il ritorno della funzione. Come la tradizionale garbage collection, la gestione della memoria ORO libera il programmatore dal gestire l'allocazione e la riallocazione della memoria.
 Per evitare di copiare gli oggetti di dati quando si passa per valore-copia, possiamo passare questi dati per riferimento (by reference) racchiudendoli in contesti (context).
 Il seguente frammento di codice mostra il passaggio per riferimento utilizzando il funtore di predefinito di uno spazio di nomi:
+
 (define (modify data value)
   (push value data))
 
@@ -25551,15 +27520,15 @@ https://mvanier.livejournal.com/2897.html
 
 
 ============================================================================
-Expression evaluation, Implicit Indexing, Contexts and Default Functors
-Lutz Mueller, 2007-2013. Last edit December 6th 2013, rev r9
+Valutazione delle espressioni, Indicizzazione Implicita, Contesti e Funtori di Default
+di Lutz Mueller, 2007-2013.
 ============================================================================
 
-Implicit indexing and Default Functors in newLISP are an extension of normal LISP expression evaluation rules. Contexts provide lexically closed state-full namespaces in a dynamically scoped programming language.
+L'indicizzazione esplicita e i funtori di default sono una estensione delle normali regole di valutazione delle espressioni in LISP. I contesti forniscono spazi di nomi lessicamente chiusi (con stato) in un linguaggio di programmazione con ambito (scope) dinamico.
 
-S-expression evaluation and implicit indexing
----------------------------------------------
-In an earlier paper it was explained how s-expression evaluation in newLISP relates to ORO (One Reference Only) automatic memory management [1]. The following pseudo code of the expression evaluation function in newLISP shows how implicit indexing is an extension of Lisp s-expression evaluation rules:
+Valutazione delle S-espressioni e indicizzazione implicita
+----------------------------------------------------------
+In un altro articolo viene spiegato come la valutazione delle S-espressioni si interfaccia con il metodo di gestione automatica della memoria ORO (One Reference Only) [1]. Il seguente pseudo-code della funzione di valutazione di newLISp mostra come l'indicizzazione implicita sia un'estensione delle regole di valutazione delle S-espressioni in LISP:
 
 function evaluateExpression(expr)
     {
@@ -25600,19 +27569,19 @@ function evaluateExpression(expr)
     return(result)
     }
 
-The general working of the function reflects the general structure of the eval function as described by John McCarthy in 1960, [2].
+Il funzionamento generale della funzione riflette la struttura generale della funzione eval descritta da John McCarthy nel 1960, [2].
 
-The function first processes atomic expression types. Constants evaluate to themselves and are returned. Symbols evaluate to their contents.
+La funzione first elabora le espressione atomiche. Le costanti valutano su se stesse e vengono restituite. I simboli valutano al loro contenuto.
 
-If the expression is a list the first element gets applied to the rest elements. As in Scheme, newLISP evaluates the first element before applying it the result to its arguments.
+Se l'espressione è una lista, il primo elemento (first) viene applicato al resto della lista (rest). Come in Scheme, newLISP valuta il primo elemento prima di applicarlo ai suoi argomenti.
 
-Traditional Lisp or Scheme only permit a built-in function, operator or user defined lambda expression in the first, functor position of the s-expression list for evaluation. In newLISP the context symbol type, list, array and number type also act as functions when in the functor position.
+Lisp o Scheme tradizionali consentono solo una funzioni built-in, un operatore o una funzione lambda definita dall'utente come prima posizione (funtore) nella lista S-espression da valutare. In newLISP un simbolo del contesto, una lista, un vettore e un numero possono agire come funzioni se si trovano nella posizione del funtore (prima posizione).
 
-Built-in functions are evaluated calling evaluateFunc(func, args), functors which are lambda expressions call the evaluateLambda(func, args) function. Both functions in turn will call evaluateExpression(expr) again for evaluation of function arguments.
+Le funzioni built-in vengono valutate chiamando evaluateFunc(func, args), i funtori, che sono espressioni lambda, chiamano la funzione evaluateLambda(func, args). Entrambe le funzioni a loro volta chiameranno evaluateExpression(expr) di nuovo per la valutazione degli argomenti della funzione.
 
-The working of a context symbol in the functor position of an s-expression will be explained further down in the chapter about namespaces and default functors.
+Il funzionamento di un simbolo di contesto nella posizione del functor di una 'S-espressione sarà spiegato più in basso nel capitolo sugli spazi di nomi (namespace) e i funtori predefiniti.
 
-The list type causes newLISP to evaluate the whole s-expression to the element indexed by the number(s) following the list and interpreted as index or indices (in newLISP elements in nested lists can be addressed using multiple indices):
+Il tipo lista fa sì che newLISP valuti l'intera S-espressione come l'elemento indicizzato dal numero/i che segue l'elenco e interpretato come indice o indici (in newLISP gli elementi nidificati possono essere indicizzati usando indici multipli).
 
 (set 'lst '(a b (c d e) f g))
 (lst 2)  → (c d e)
@@ -25621,22 +27590,22 @@ The list type causes newLISP to evaluate the whole s-expression to the element i
 (set 'str "abcdefg")
 (str 2)  → "c"
 
-A number in the functor position will assume slicing functionality and slice the following list at the offset expressed by the number. When the number is followed by a second number, the second number specifies the size or length of the sliced part of the list:
+Un numero nella posizione del funtore assumerà funzionalità di slicing e applicherà la funzione slice alla lista seguente utilizzando come offset quel numero. Quando abbiamo due numeri, allora il secondo specifica la lunghezza dello slice della lista:
 
 (1 lst)  → (b (c d e) f g)
 (1 2 lst)  → (b (c d e))
 
 (1 2 str)  → "bc"
 
-On first sight it seems logical to extend the same principle to the boolean data type. A ternary conditional expressions could be constructed without the necessity of the if operator, but in practical programming this leads to difficulties when reading code and causes too much ambiguity in error messages. Most of the time implicit indexing leads to better readable code, because the data object is grouped together with it's indices. Implicit indexing performs faster, but is also optional. The keywords nth, first, last and rest and slice can be used in the few cases where readability is better when using the explicit form of indexing.
+A prima vista sembra logico estendere questo fuznionamento anche ai dati di tipo booleano. Un espressione condizionale ternaria potrebbe essere realizzata sernza utilizzare l'operatore if, ma in pratica questo porta a difficoltà nella lettura del codicee causa troppe ambiguità nei messaggi di errore. Nella maggior parte dei casi, l'indicizzazione implicita genera un codice più leggibile, poichè l'oggetto dati viene raggruppato insieme ai suoi indici. L'indicizzazione implicita è molto veloce, ma è opzionale. Le parole chiave "nth", "first", "last", "rest" e "slice" possono essere usate in quei pochi casi in cui la leggibilità è migliore con l'utilizzo di forme esplicite di indicizzazione.
 
-The environment stack and dynamic scoping
------------------------------------------
-In the original Lisp eval function a variable environment is implemented as an association list of symbols and their values. In newLISP a symbol is implemented as a data structure with one value slot and the environment is not an association list but a binary tree structure of symbols and an environment stack storing previous values of symbols in higher evaluation levels.
+Lo stack dell'ambiente e l'ambito dinamico (dynamic scoping)
+------------------------------------------------------------
+Nella funzione eval del Lisp originale, un variabile  d'ambiente viene implementata come una lista di associazioni di simboli e i loro valori. In newLISP un simbolo viene implementato come una struttura dati con uno slot per il valore e la variabile d'ambiente non è una lista di asssocizioni, ma un albero binario per i simboli e uno stack fi ambiente che memorizza i valori precedenti dei simboli nei livelli di valutazione più alti.
 
-When entering a lambda function, the parameter symbols and their current values are pushed on to the environment stack. When leaving the function, the symbols are restored to their previous values when popping the environment stack. Any other function called will see symbol values as currently defined in the scope of the calling function. The variable environment changes dynamically while calling and returning from functions. The scope of a variable extends dynamically into lower call levels.
+Quando incontriamo una funzione lambda, i parametri dei simboli e i loro valori correnti sono inseriti sullo stack d'ambiente. Qando lasciamo la funzione, i parametri dei simboli sono ripristinati ai valori precedenti, cioè ai valori che avevano immediatamente prima di entrare nello stack. Qualuqnque chiamata ad un'altra funzione vedrà il valore del simbolo così come definito nell'ambito della funzione chiamante. Le variabili d'ambiente cambiano dinamicamente durante le chiamate e il ritorno delle funzioni. L'ambito dei una variabile viene esteso dinamicamente nei livelli inferiori di chiamate.
 
-The following example sets two variables and defines two lambda functions. After the function definitions the functions are used in a nested fashion. The changing parts of the variable environment are shown in bold type face:
+Il seguente esempio imposta due mvariabili e definisce due funzioni lambda. Dopo la loro definizione, le funzioni vengono utilizzate in modo nidificato. La parte delle variabili d'ambiente che si modifica viene evidenziata con una freccia (==>):
 
 ; x  → nil, y  → nil;
 ; foo  → nil
@@ -25647,7 +27616,7 @@ The following example sets two variables and defines two lambda functions. After
   (+ (double (+ x 1)) y))
 
 ; x → nil, y  → nil,
-; foo  → (lambda (x y) (+ (double (+ x 1)) y))
+==> ; foo  → (lambda (x y) (+ (double (+ x 1)) y))
 ; double  → nil
 ; environment stack: [ ]
 
@@ -25656,57 +27625,58 @@ The following example sets two variables and defines two lambda functions. After
 
 ; x  → nil, y  → nil
 ; foo  → (lambda (x y) (+ (double (+ x 1)) y))
-; double  → (lambda (x) (* 2 x)))
+==> ; double  → (lambda (x) (* 2 x)))
 ; environment stack: [ ]
 
 (set 'x 10) (set 'y 20)
 
-; x  → 10, y  → 20
+==> ; x  → 10, y  → 20
 ; foo  → (lambda (x y) (+ (double (+ x 1)) y))
 ; double  → (lambda (x) (* 2 x)))
 ; environment stack: [ ]
 
-Similar to Scheme newLISP uses the same namespace for variable symbols and symbols holding user-defined lambda functions. The define function is just a short-cut for writing:
+In maniera simile a Scheme, newLISP utilizza lo stesso spazio di nomi (namespace) per memorizzare i simboli delle variabili e i simboli delle funzioni lambda definite dall'utente. La funzione "define" è solo un trucco per scrivere:
 
 (set 'foo (lambda (x y) (+ (double (+ x 1)) y)))
-During all these operations the environment stack stays empty [ ]. Symbol variables holding lambda expressions are part of the same namespace and treated the same way as variables holding data. Now the the first function foo gets called:
+
+Durante tutte queste operazioni lo stack d'ambiente rimane vuoto [ ]. I simboli che rappresentano espressioni lambda fanno parte dello stesso spazio di nomi dei simboli che contengono dati e vengono trattati allo stesso modo. Adesso la prima funzione "foo" viene chiamata:
 
 (foo 2 4)
 
 ; after entering the function foo
-; x → 2, y → 4
+==> ; x → 2, y → 4
 ; foo → (lambda (x y) (+ (double (+ x 1)) y))
 ; double → (lambda (x) (* 2 x)))
-; environment stack: [x -> 10, y -> 20]
+==> ; environment stack: [x -> 10, y -> 20]
 
-After entering the functions, the old values of x and y are pushed on the environment stack. This push-operation is initiated by the function evaluateLambda(func, args), discussed later in this paper. Inside foo the second function double is called:
+Dopo essere entrati nella funzione, i vecchi valori di x e y vengono inseriti nello stack d'ambiente. Questa operazione di push è iniziata dalla funzione evaluateLambda(func, args), che verrà discussa in seguito in questo articolo. Internamente a "foo" viene chiamata la funzone "double":
 
 (double 3)
 ; after entering the function double
-; x -> 3, y -> 4
+==> ; x -> 3, y -> 4
 ; foo → (lambda (x y) (+ (double (+ x 1)) y))
 ; double → (lambda (x) (* 2 x)))
-; environment stack: [x -> 10, y -> 20, x -> 2]
+==> ; environment stack: [x -> 10, y -> 20, x -> 2]
 
 ; after return from double
-; x → 2, y → 4
+==> ; x → 2, y → 4
 ; foo → (lambda (x y) (+ (double (+ x 1)) y))
 ; double → (lambda (x) (* 2 x)))
-; environment stack: [x -> 10, y -> 20]
+==> ; environment stack: [x -> 10, y -> 20]
 
 ; after return from foo
-; x → 10, y → 20
+==> ; x → 10, y → 20
 ; foo → (lambda (x y) (+ (double (+ x 1)) y))
 ; double → (lambda (x) (* 2 x)))
-; environment stack: [ ]
+==> ; environment stack: [ ]
 
-Note that in newLISP dynamic scoping of parameter symbols in lambda expressions does not create lexical state-full closures around those symbols as in the Scheme dialect of Lisp. On return from the lambda function the symbol contents gets destroyed and memory is reclaimed. The parameter symbols regain their old values on exit from the lambda function by popping them from the environment stack.
+Si noti che in newLISP l'ambito (scope) dinamico dei simboli dei parametri nelle espressioni lambda non crea chiusure di stato lessicale attorno a quei simboli come nel linguaggio Scheme (dialetto del Lisp). Al ritorno dalla funzione lambda il contenuto del simbolo viene distrutto e la memoria viene recuperata. I simboli dei parametri recuperano i loro vecchi valori all'uscita dalla funzione lambda prendendoli dallo stack d'ambiente.
 
-In newLISP lexical state-full closures are not realized using lambda closures but using lexical namespaces. Lambda functions in newLISP do not create closures but can create a new scope and new temporary content for existing symbols during lambda function execution.
+In newLISP le chiusure lessicali con stato (lexical state-full closures) non vengono con le chiusure lambda, ma utilizzando spazi di nomi lessicali. Le funzioni lambda in newLISP non creano chiusure ma possono creare un nuovo ambito e un nuovo contenuto temporaneo per i simboli esistenti durante l'esecuzione della funzione lambda.
 
-Lambda function evaluation
---------------------------
-All of the processing just described happens in evaluateLambda(func, args). The following pseudo code shows more detail:
+Valutazione delle funzioni lambda
+---------------------------------
+Tutti i processi appena descritti avvengono nella funzione evaluateLambda(func, args). Il seguente pseudo-codice mostra alcuni dettagli:
 
 function evaluateLambda(lambda-func, args)
     {
@@ -25726,27 +27696,28 @@ function evaluateLambda(lambda-func, args)
     return(result)
     }
 
-The evaluateExpression(args) function and evaluateLambda(func, args) call each other in a recursive cycle.
+Le funzioni evaluateExpression(args) e evaluateLambda(func, args) si chiamano in modo reciproco in un ciclo  ricorsivo.
 
-Note that arguments to lambda functions are evaluated in the variable environment as defined previous to the lambda function call. Assignments to parameters symbols do happen after all argument evaluations. Only the arguments are evaluated which have a corresponding parameter symbol. If there are more parameter symbols than arguments passed, then parameter symbols are assigned nil or a default value.
+Si noti che gli argomenti delle funzioni lambda vengono valutati nell'ambiente delle variabili come definito precedentemente alla chiamata della funzione lambda. Le assegnazioni ai simboli dei parametri avvengono dopo tutte le valutazioni degli argomenti. Vengono valutati solo gli argomenti che hanno un simbolo di parametro corrispondente. Se sono presenti più simboli di parametro rispetto agli argomenti passati, i simboli dei parametri vengono assegnati a nil o a un valore predefinito.
 
-Namespaces and the translation and evaluation cycle
-All memory data objects in newLISP are bound directly or indirectly to a symbol. Either memory objects are directly referenced by a symbol or they are part of an enclosing s-expression memory object referenced by a symbol. Unbound objects only exist as transient objects as returned values from evaluations and are referenced on the result stack for later deletion [1].
+Spazi di nomi (namespace) e il ciclo di traduzione e valutazione
+----------------------------------------------------------------
+Tutti gli oggetti dati di memoria in newLISP sono collegati direttamente o indirettamente a un simbolo. Gli oggetti di memoria sono referenziati direttamente da un simbolo o fanno parte di una S-espressione che li racchiude a cui fa riferimento un simbolo. Gli oggetti non legati (unbound) esistono solo come oggetti transitori come valori restituiti dalle valutazioni e sono referenziati sullo stack dei risultati per una eliminazione successiva [1].
 
-Except for symbols, all data and program objects are referenced only once. Symbols are created and organized in a binary tree structure. Namespaces, called contexts in newLISP, are sub-branches in this binary tree. A context is bound to a symbol in the root context MAIN, which itself is a symbol in the root context.
+Tranne che per i simboli, tutti i dati e gli oggetti del programma sono referenziati una sola volta. I simboli sono creati e organizzati in una struttura ad albero binario. Gli spazi di nomi (namespace), chiamati "context" in newLISP, sono sotto-rami in questo albero binario. Un contesto è associato a un simbolo nel contesto principale MAIN, che a sua volta è un simbolo nel contesto radice.
 
-With few exceptions all symbols are created during the code loading and translation phase of the newLISP interpreter. Only the functions load, sym, eval-string and a special syntax of context create symbols during runtime execution.
+Con poche eccezioni, tutti i simboli vengono creati durante il caricamento del codice e la fase di traduzione dell'interprete newLISP. Solo le funzioni load, sym, eval-string e una speciale sintassi dei context creano simboli durante l'esecuzione del runtime.
 
-The two symbols MAIN:x and CTX:x are two different symbols at all times. A symbol under no circumstances can change it's context after it was created. A context, e.g CTX, itself is a symbol in MAIN containing the root pointer to a sub-branch in the symbol tree.
+I due simboli MAIN: x e CTX: x sono due simboli diversi in ogni momento. Un simbolo in nessun caso può cambiare il contesto dopo che è stato creato. Un contesto, ad esempio CTX, è di per sé un simbolo in MAIN contenente il puntatore di root a un sotto-ramo nell'albero dei simboli.
 
-The working of context switching is explained using the following two code pieces:
+Il funzionamento del cambio di contesto è spiegato usando i seguenti due pezzi di codice:
 
 (set 'var 123)
 (define (foo x y)
     (context 'CTX)
     (println var " " x " " y))
 
-The (context 'CTX) statement only has been included here to show, it has no effect in this position. A switch to a different namespace context will only have influence on subsequent symbol creation using sym or eval-string. By the time (context 'CTX) is executed foo has already been defined and all symbols used in it have been looked up and translated. Only when using (context ...) on the top level it will influence the symbol creation of code following it:
+L'istruzione (context 'CTX) è stata inclusa solo qui per mostrare, non ha alcun effetto in questa posizione. Un passaggio a un contesto di namespace diverso avrà influenza solo sulle successive creazione di simboli usando sym o eval-string. Nel momento in cui (context 'CTX) è eseguito, la funzione foo è già stata definita e tutti i simboli utilizzati in esso sono stati cercati e tradotti. Solo quando si utilizza (context ...) sul livello superiore influenzerà la creazione del simbolo con il codice che la segue:
 
 (context 'CTX)
 (set 'var 123)
@@ -25754,27 +27725,33 @@ The (context 'CTX) statement only has been included here to show, it has no effe
     (println var " " x " " y))
 (context MAIN)
 
-Now the context is created and switched to on the top-level. When newLISP translates the subsequent set-statement and function definition, all symbols will be part of CTX as CTX:var, CTX:foo, CTX:x and CTX:y.
+Adesso il contesto viene creato e passato al livello più alto. Quando newLISP traduce la successiva istruzione set e la definizione di funzione, tutti i simboli faranno parte di CTX come CTX:var, CTX:foo, CTX:x e CTX:y.
 
-When loading code newLISP reads a top-level expression translating then evaluating it. This cycle is repeated until all top-level expression are read and evaluated.
+Durante il caricamento del codice newLISP legge un'espressione di livello superiore che traduce e poi valuta. Questo ciclo viene ripetuto fino a quando tutte le espressioni di livello superiore vengono lette e valutate.
 
 (set 'var 123)
 (define (foo x y)
     (println var " " x " " y))
 
-In the previous code snippet two top-level expressions are translated and evaluated resulting in the creation of the three symbols: MAIN:var, MAIN:foo, MAIN:x, MAIN:y and MAIN:CTX.
+Nello snippet di codice precedente due espressioni di livello superiore sono tradotte e valutate con conseguente creazione dei tre simboli: MAIN:var, MAIN:foo, MAIN:x, MAIN:y e MAIN:CTX.
 
-The symbol MAIN:var will contain the number 123 and the MAIN:foo symbols will contain the lambda expression (lambda (x y) (println var " " x " " y)). The symbols MAIN:x and MAIN:y both will contain nil. The var inside the definition of foo is the same as the var previously set to 123 and will be printed as 123 during execution of foo.
+Il simbolo MAIN:var conterrà il numero 123 e il simbolo MAIN:foo conterrà l'espressione lambda (lambda (x y) (println var " " x " " y)). I simboli MAIN:x e MAIN:y entrambi conterranno nil. La var all'interno della definizione di foo è la stessa della var precedentemente impostata a 123 e verrà stampata come 123 durante l'esecuzione di foo.
 
-In detail the following steps are happening:
+In dettaglio vengono eseguiti i seguenti passi:
 
-1. current context is MAIN
-2. read the opening top-level parenthesis I and create a Lisp cell of type EXPRESSION.
-3. read and lookup set in MAIN and find it to be a built-in primitive in MAIN, translate it to the address of this primitive function in memory. Create a Lisp cell of type PRIMITIVE containing the functions address in its contents slot.
-4. read the quote ' and create a Lisp cell of type QUOTE.
-5. read and lookup lookup var in MAIN, it is not found in MAIN, create it in MAIN and translate it to the address in the binary symbol tree. Create a Lisp cell of type SYMBOL containing the symbols address in its contents slot. The previously created quote cell serves as an envelop for the symbols cell.
-6. read 123 and create a Lisp cell of type INTEGER with 123 in its contents slot.
-7. read the closing top-level parenthesis finish the following list structure in memory:
+1. il contesto attuale è MAIN
+
+2. legge la parentesi di apertura di primo livello e crea una cella Lisp di tipo EXPRESSION.
+
+3. legge e cerca set in MAIN e trova che è una primitiva built-in di MAIN, quindi lo traduce nell'indirizzo di memoria di questa funzione primitiva. Crea una cella Lisp di tipo PRIMITIVE che contiene internamente l'indirizzo della funzione.
+
+4. legge il simbolo quote ' e crea una cella Lisp di tipo QUOTE.
+
+5. Legge e cerca la variabile var in MAIN, non si trova in MAIN, lo crea in MAIN e lo traduce nell'indirizzo dell'albero binario dei simboli. Crea una cella Lisp di tipo SYMBOL contenente internamente l'indirizzo del simbolo. La cella di QUOTE precedentemente creata funge da inviluppo per la cella dei simboli.
+
+6. Legge 123 e crea una cella Lisp di tipo INTEGER con 123 nello slot del contenuto.
+
+7. legge la parentesi chiusa che chiude il primo livello e termina la seguente struttura di lista in memoria:
 
 [ ]                          ; cell of type: EXPRESSION
   \
@@ -25782,23 +27759,22 @@ In detail the following steps are happening:
                  \
                [MAIN:var]    ; cell of type: SYMBOL
 
-The above list diagram shows the five Lisp cells, which are created. List and quote cells are envelope cells containing a list or a quoted expression.
+Il diagramma sopra mostra le cinque celle Lisp, che sono state create. Le celle List e quote sono celle di inviluppo che contengono una lista o un'espressione quotata.
 
-The statement (set 'var 123) is not executed yet, but symbol translation and creation have finished and the statement exists as a list structure in memory. The whole list structure can be referenced with one memory address, the address of the first created cell of type EXPRESSION.
+L'istruzione (set 'var 123) non è ancora stata eseguita, ma la traduzione e la creazione dei simboli sono finite e l'istruzione esiste come una struttura di lista in memoria. L'intera struttura della lista può essere referenziata con un indirizzo di memoria, l'indirizzo della prima cella creata di tipo EXPRESSION.
 
-8. Evaluate the statement
+8. Valutazione delle istruzioni
+In modo simile newLISP leggerà e tradurrà la successiva espressione di primo livello, che è la definizione di funzione di foo. La valutazione di questa espressione di livello superiore comporterà un assegnamento di una espressione lambda al simbolo foo.
 
-In similar fashion newLISP will read and translate the next top-level expression, which is the function definition of foo. Evaluating this top-level expression will result in an assignment of a lambda expression to the foo symbol.
+Nel codice sopra riportato, entrambe le istanze di var si riferiscono a MAIN:var. L'istruzione (context 'CTX) cambia solo il contesto, lo spazio di nomi per i nuovi simboli creati. Il simbolo var è stato creato durante il caricamento e la traduzione della funzione foo. Nel momento in cui foo viene chiamata ed eseguitola variabile var esiste già all'interno della funzione foo come MAIN:var. L'istruzione (context 'CTX) non ha alcun effetto sulla succesiva esecuzione di (println var).
 
-In the above code snippet both instances of var refer to MAIN:var. The (context 'CTX) statement only changes the context, namespaces for newly created symbols. The symbol var was created during loading translating the foo function. By the time foo is called and executed var already exists inside the foo function as MAIN:var. The (context 'CTX) statement doesn't have any effect of the subsequent execution of (println var).
+Le istruzioni context come (context 'CTX) sopra, cambiano il contesto corrente per la creazione del simbolo durante la fase di caricamento e traduzione. Il contesto corrente definisce sotto quale ramo nell'albero dei simboli vengono creati nuovi simboli. Questo riguarda solo le funzioni sym, eval-string e una speciale sintassi di context per creare simboli. Una volta che un simbolo appartiene a un contesto, rimane lì.
 
-Context statements like (context 'CTX) above, change the current context for symbol creation during the loading and translation phase. The current context defines under which branch in the symbol tree new symbols are created. This affects only the the functions sym, eval-string and a special syntax of context to create symbols. Once a symbol belongs to a context it stays there.
+Cambiamento di spazi di nomi (namespaces context)
+-------------------------------------------------
+I capitoli precedenti hanno mostrato come utilizzare il cambio di contesto al livello principale [top-level] di un  file sorgente newLISP per influenzare la creazione e la traduzione dei simboli durante il processo di caricamento della sorgente. Una volta che esistono spazi dei nomi diversi, chiamando una funzione che appartiene a un contesto diverso, si verificherà un cambio di contesto nello spazio dei nomi dove si trova la funzione lambda chiamata. Se la funzione chiamata non esegue alcuna istruzione sym o eval-string, allora questo cambio di contesto non hanno alcun effetto. Anche il comando load avvia sempre il caricamento del file relativamente al contesto MAIN, a meno che non venga specificato un contesto diverso come parametro speciale nellas funzione load. All'interno del file caricato i cambiamenti di contesto produrranno la creazioni di simboli durante il processo di load come spiegato precedentemente.
 
-Namespace context switching
----------------------------
-Previous chapters showed how to use context switching on the top-level of a newLISP source file to influence symbol creation and translation during the source loading process. Once different namespaces exist, calling a function which belongs to different context, will cause a context switch to the namespace the called lambda function resides in. If the called function doesn't execute any sym or eval-string statements, then these context switches don't have any effect. Even the load command will always start file loading relative to context MAIN unless a different context is specified as a special parameter in load. Inside the file loaded context switches will have an effect of symbol creation during the load process as explained previously.
-
-What causes the context switch is the symbol holding the lambda function. In the following code examples bold face is used for output generated by println statements:
+Ciò che causa i cambio di contesto è il simbolo che contiene la funzione lambda. Negli esempi di codice seguenti, la freccia ==> viene utilizzata per l'output generato dalle istruzioni println:
 
 (context 'Foo)
 (set 'var 123)
@@ -25808,33 +27784,33 @@ What causes the context switch is the symbol holding the lambda function. In the
 (context 'MAIN)
 
 (Foo:func)
-current context: Foo
-var: 123
+==> current context: Foo
+==> var: 123
 
 (set 'aFunc Foo:func)
 (set 'var 999)
 
 (aFunc)
-current context: MAIN
-var: 123
+==> current context: MAIN
+==> var: 123
 
-Note that the call to aFunc causes the current context to be shown as MAIN, because the symbol aFunc belongs to context MAIN. In both cases var is printed as 123. The symbol var was put into the Foo namespace during translation of func and will always stay there, even if a copy of the lambda function is made and assigned to a symbol in a different context.
+Si noti che la chiamata a aFunc fa sì che il contesto corrente venga visualizzato come MAIN, perché il simbolo aFunc appartiene al contesto MAIN. In entrambi i casi la variabile var viene stampata come 123. Il simbolo var è stato inserito nello spazio dei nomi di Foo durante la traduzione di func e resterà sempre lì, anche se una copia della funzione lambda viene creata e assegnata ad un simbolo in un contesto diverso.
 
-This context switching behaviour follows the same rules when applying or mapping functions:
+Questo comportamento di cambio del contesto segue le stesse regole quando si applicano o si mappano le funzioni:
 
 (apply 'Foo:func)
-current context: Foo
-var: 123
+==> current context: Foo
+==> var: 123
 
 (apply Foo:func)
-current context: MAIN
-var: 123
+==> current context: MAIN
+==> var: 123
 
-The first time Foo:func is applied as a symbol – quoted, the second time the lambda function contained in Foo:func is applied directly, because apply evaluates it's first argument first.
+La prima volta che Foo: func viene applicato come simbolo - quotato, la seconda volta la funzione lambda contenuta in Foo:func viene applicata direttamente, perchè apply valuta prima il suo primo argomento.
 
-Namespaces and the default functor
-----------------------------------
-In newLISP a symbol is a default functor if it has the same name as the context it belongs too, e.g. Foo:Foo is the default functor symbol in the context Foo. In newLISP when using a context symbol in the functor position, it is taken as the default functor:
+Spazi di nomi e il funtore di default
+-------------------------------------
+In newLISP, un simbolo è un funtore predefinito (default functor) se ha lo stesso nome del contesto a cui appartiene, es. Foo:Foo è il simbolo del funtore predefinito nel contesto Foo. In newLISP quando si utilizza un simbolo di contesto nella posizione del funtore, viene preso come il funtore predefinito:
 
 (define (double:double x) (* 2 x))
 (double 3)  → 6
@@ -25842,15 +27818,15 @@ In newLISP a symbol is a default functor if it has the same name as the context 
 (set 'my-list:my-list '(a b c d e f))
 (my-list 3)  → d
 
-The second example combines implicit indexing with usage of a default functor.
+Il secondo esempio combina l'indicizzazione implicita con l'uso di un funtore predefinito.
 
-Default functors can be applied and mapped using apply and map like any other function or functor symbol:
+I funtori predefiniti possono essere applicati e mappati usando apply e map come qualsiasi altra funzione o simbolo di funtore:
 
 (map my-list '(3 2 1 2))  → (d c b c)
 
 (apply double '(10))  → 20
 
-Default functors are a convenient way in newLISP to pass lists or other big data objects by reference:
+I funtori predefiniti sono un modo conveniente in newLISP per passare liste o altri oggetti big data per riferimento:
 
 (set 'my-list:my-list '(a b c d e f))
 
@@ -25861,7 +27837,7 @@ Default functors are a convenient way in newLISP to pass lists or other big data
 
 my-list:my-list  → (a b c d e 99)
 
-Default functors are also a convenient way to define functions with a closed state-full name space:
+I funtori predefiniti sono anche un modo conveniente per definire funzioni full-state in uno spazio di nomi (functions with a closed state-full name space):
 
 (context 'accumulator)
 (define (accumulator:accumulator x)
@@ -25874,13 +27850,13 @@ Default functors are also a convenient way to define functions with a closed sta
 (accumulator 2)  → 12
 (accumulator 3)  → 15
 
-Note that the symbols x and value both belong to the namespace accumulator. Because (context 'accumulator) is at the top level, the translation of following function definition for accumulator:accumulator happens inside the current namespace accumulator.
+Nota che i simboli x e value appartengono entrambi allo spazio dei nomi accumulator. Poichè (context 'accumulator) è al livello più alto, la traduzione della seguente definizione di funzione accumulator:accumulator avviene all'interno dello spazio dei nomi corrente accumulator.
 
-Namespaces in newLISP can be passed by reference and can be used to create state-full lexical closures.
+I namespace in newLISP possono essere passati per riferimento e possono essere utilizzati per creare chiusure lessicali full-state.
 
-The default functor used as a pseudo hash function
---------------------------------------------------
-A default functor containing nil and in operator position will work similar to a hash function for building dictionaries with associative key → value access:
+Il funtore di default usato come funzione pseudo-hash
+-----------------------------------------------------
+Un funtore predefinito che contiene nil e si trova nella posizione di operatore funzionerà in modo simile a una funzione di hash per la costruzione di dizionari con chiave associativa → accesso al valore:
 
 (define aHash:aHash) ; create namespace and default functor containing nil
 
@@ -25888,8 +27864,8 @@ A default functor containing nil and in operator position will work similar to a
 
 (aHash "var")  → 123 ; retrieve value from key
 
-References
-----------
+Riferimenti
+-----------
 
 [1] Lutz Mueller, 2004-2013
 Automatic Memory Management in newLISP.
@@ -25897,90 +27873,91 @@ Automatic Memory Management in newLISP.
 [2] John McCarthy, 1960
 Recursive Functions of Symbolic Expressions and their Computation by Machine.
 
-Copyright © 2007-2013, Lutz Mueller http://newlisp.org. All rights reserved.
-
 
 ============================================================================
-Automatic Memory Management in newLISP
-Lutz Mueller, 2004-2013. Last edit 2013-11-07
+Gestione Automatica della Memoria in newLISP
+di Lutz Mueller, 2004-2013
 ============================================================================
 
-ORO (One Reference Only) automatic memory management developed for newLISP is a fast and resources saving alternative to classic garbage collection algorithms in dynamic, interactive programming languages. This article explains how ORO memory management works.
+ORO (One Reference Only) La gestione automatica della memoria sviluppata per newLISP è un'alternativa rapida e in grado di risparmiare risorse rispetto ai classici algoritmi di garbage collection dei linguaggi di programmazione dinamici e interattivi. Questo articolo spiega come funziona la gestione della memoria di tipo ORO.
 
-newLISP and any other interactive language system will constantly generate new memory objects during expression evaluation. The new memory objects are intermediate evaluation results, reassigned memory objects, or memory objects whose content was changed. If newLISP did not delete some of the objects created, it would eventually run out of available memory.
+newLISP e qualsiasi altro sistema di linguaggio interattivo genererano costantemente nuovi oggetti in memoria durante la valutazione delle espressioni. I nuovi oggetti in memoria sono il risultato delle valutazioni intermedie, della riassegnazione di oggetti in memoria o della modifica di oggetti in memoria il cui contenuto è stato modificato. Se newLISP non eliminasse alcuni degli oggetti creati, alla fine esaurirebbe la memoria disponibile.
 
-In order to understand newLISP's automatic memory management, it is necessary to first review the traditional methods employed by other languages.
+Per comprendere la gestione automatica della memoria in newLISP, è necessario prima rivedere i metodi tradizionali utilizzati da altri linguaggi.
 
-Traditional automatic memory management (Garbage Collection)
-------------------------------------------------------------
-In most programming languages, a process registers allocated memory, and another process finds and recycles the unused parts of the allocated memory pool. The recycling process can be triggered by some memory allocation limit or can be scheduled to happen between evaluation steps. This form of automatic memory management is called Garbage Collection.
+Metodi tradizionali di gestione automatica della memoria (Garbage Collection)
+-----------------------------------------------------------------------------
+Nella maggior parte dei linguaggi di programmazione, un processo registra la memoria allocata e un altro processo trova e ricicla le parti inutilizzate del pool di memoria allocato. Il processo di riciclaggio può essere attivato da un limite di allocazione della memoria o può essere programmato tra una fase di valutazione e l'altra. Questa forma di gestione automatica della memoria si chiama Garbage Collection.
 
-Traditional garbage collection schemes developed for LISP employed one of two algorithms: ¹
+Gli schemi di garbage collection tradizionali sviluppati per LISP utilizzavano uno dei due seguenti algoritmi:¹
 
-(1) The mark-and-sweep algorithm registers each allocated memory object. A mark phase periodically flags each object in the allocated memory pool. A named object (a variable symbol) directly or indirectly references each memory object in the system. The sweep phase frees the memory of the marked objects when they are no longer in use.
+(1) L'algoritmo mark-and-sweep registra ogni oggetto di memoria allocato. Una fase mark contrassegna periodicamente ciascun oggetto nel pool di memoria allocato. Un oggetto con nome (un simbolo di variabile) fa riferimento direttamente o indirettamente a ciascun oggetto di memoria nel sistema. La fase di sweep libera la memoria degli oggetti contrassegnati quando non sono più in uso.
 
-(2) A reference-counting scheme registers each allocated memory object together with a count of references to the object. This reference count gets incremented or decremented during expression evaluation. Whenever an object's reference count reaches zero, the object's allocated memory is freed.
+(2) Uno schema di conteggio di riferimento registra ogni oggetto di memoria allocato insieme con un conteggio di riferimenti all'oggetto. Questo conteggio dei riferimenti viene incrementato o decrementato durante la valutazione dell'espressione. Ogni volta che il conteggio dei riferimenti di un oggetto raggiunge lo zero, la memoria allocata dell'oggetto viene liberata. 
 
-Over time, many elaborate garbage collection schemes have been attempted based on these principles. The first garbage collection algorithms appeared in LISP. The inventors of the Smalltalk language used more elaborate garbage collection schemes. The history of Smalltalk-80 is an exciting account of the challenges of implementing memory management in an interactive programming language, see [Glenn Krasner, 1983: Smalltalk-80, Bits of History, Words of Advice]. A more recent overview of garbage collection methods can be found in [Richard Jones, Rafael Lins, 1996: Garbage Collection, Algorithms for Automatic Dynamic Memory Management].
+Nel corso del tempo, sono stati elaborati molti schemi di garbage collection basati su queste tecniche. I primi algoritmi di garbage collection sono apparsi in LISP. Gli inventori del linguaggio Smalltalk utilizzavano schemi garbage collection più elaborati. La storia di Smalltalk-80 è un resoconto entusiasmante delle sfide poste dall'implementazione di metodi di gestione della memoria in linguaggi di programmazione interattivi, vedi [Glenn Krasner, 1983: Smalltalk-80, Bits of History, Words of Advice]. Una panoramica più recente dei metodi di garbage collection è disponibile in [Richard Jones, Rafael Lins, 1996: Garbage Collection, Algorithms for Automatic Dynamic Memory Management].
 
 One reference only, (ORO) memory management
 -------------------------------------------
-Memory management in newLISP does not rely on a garbage collection algorithm. Memory is not marked or reference-counted. Instead, a decision whether to delete a newly created memory object is made right after the memory object is created.
+La gestione della memoria in newLISP non si basa su un algoritmo di garbage collection. La memoria non è marcata o referenziata per conteggio. Invece, una decisione se eliminare un oggetto di memoria appena creato viene effettuata subito dopo la creazione dell'oggetto.
 
-Empirical studies of LISP have shown that most LISP cells are not shared and so can be reclaimed during the evaluation process. Aside from some optimizations for part of the built-in functions, newLISP deletes memory new objects containing intermediate evaluation results once it reaches a higher evaluation level. newLISP does this by pushing a reference to each created memory object onto a result stack. When newLISP reaches a higher evaluation level, it removes the last evaluation result's reference from the result stack and deletes the evaluation result's memory object. This should not be confused with one-bit reference counting. ORO memory management does not set bits to mark objects as sticky.
+Studi empirici su LISP hanno dimostrato che la maggior parte delle celle LISP non sono condivise e quindi possono essere recuperate durante il processo di valutazione. A parte alcune ottimizzazioni per parte delle funzioni integrate, newLISP cancella la memoria di nuovi oggetti contenenti risultati di valutazione intermedi una volta raggiunto un livello di valutazione più alto. newLISP fa ciò spingendo un riferimento ad ogni oggetto di memoria creato su uno stack di risultati. Quando newLISP raggiunge un livello di valutazione superiore, rimuove il riferimento del risultato dell'ultima valutazione dallo stack dei risultati ed elimina l'oggetto di memoria del risultato della valutazione. Questo non dovrebbe essere confuso con il conteggio dei riferimenti a un bit. La gestione della memoria ORO non imposta bit come adesivi per contrassegnare gli oggetti.
 
-newLISP follows a one reference only (ORO) rule. Every memory object not referenced by a symbol is obsolete once newLISP reaches a higher evaluation level during expression evaluation. Objects in newLISP (excluding symbols and contexts) are passed by value copy to other user-defined functions. As a result, each newLISP object only requires one reference.
+newLISP segue la regola di un solo riferimento (ORO). Ogni oggetto di memoria non referenziato da un simbolo è obsoleto quando newLISP raggiunge un livello di valutazione più alto durante la valutazione dell'espressione. Gli oggetti in newLISP (esclusi simboli e contesti) vengono passati per copia del valore ad altre funzioni definite dall'utente. Di conseguenza, ogni nuovo oggetto LISP richiede solo un riferimento.
 
-newLISP's ORO rule has advantages. It simplifies not only memory management but also other aspects of the newLISP language. For example, while users of traditional LISP have to distinguish between equality of copied memory objects and equality of references to memory objects, newLISP users do not.
+La regola ORO di newLISP ha dei vantaggi. Semplifica non solo la gestione della memoria, ma anche altri aspetti del nuovo linguaggio LISP. Ad esempio, mentre gli utenti di LISP tradizionali devono distinguere tra l'uguaglianza degli oggetti di memoria copiati e l'uguaglianza dei riferimenti agli oggetti di memoria, gli utenti newLISP non ne hanno bisogno.
 
-newLISP's ORO rule forces newLISP to constantly allocate and then free LISP cells. newLISP optimizes this process by allocating large chunks of cell memory from the host operating system. newLISP will request LISP cells from a free cell list and then recycle those cells back into that list. As a result, only a few CPU instructions (pointer assignments) are needed to unlink a free cell or to re-insert a deleted cell.
+La regola ORO di newLISP forza newLISP ad allocare e liberare celle LISP costantemente. newLISP ottimizza questo processo allocando grandi blocchi di memoria per le celle dal sistema operativo. newLISP richiederà celle LISP da un elenco di celle libere e quindi le riciclerà nuovamente in quell'elenco. Di conseguenza, sono necessarie solo alcune istruzioni della CPU (assegnazioni di puntatori) per scollegare una cella libera o per reinserire una cella eliminata.
 
-The overall effect of ORO memory management is a faster evaluation time and a smaller memory and disk footprint than traditional interpreted LISP's can offer. Time spent linking and unlinking memory objects is more than compensated for by the lack of processing time used in traditional garbage collection. ORO memory management also avoids occasional processing pauses seen in languages using traditional garbage collection and the tuning of garbage collection parameters required when running memory intensive programs.
+L'effetto complessivo della gestione della memoria ORO è un tempo di valutazione più rapido e una memoria e un ingombro del disco più contenuti rispetto a quelli offerti dal tradizionale LISP interpretato. Il tempo impiegato per collegare e scollegare gli oggetti di memoria è più che compensato dalla mancanza di tempo di elaborazione causata dai metodi tradizionali di garbage collection. La gestione della memoria ORO evita anche le pause occasionali di elaborazione nei linguaggii che utilizzano la tradizionale garbage collection e l'ottimizzazione dei parametri di garbage collection richiesti durante l'esecuzione di programmi che fanno uso intensivo di memoria.
 
-ORO memory management happens synchronous to other processing in the interpreter, which results in deterministic processing times.
+La gestione della memoria ORO avviene in modo sincrono rispetto ad altre elaborazioni nell'interprete, il che si traduce in tempi di elaborazione deterministici.
 
-In versions before 10.1.3, newLISP employed a classic mark and sweep algorithm to free un-referenced cells under error conditions. Starting version 10.1.3, this has been eliminated and replaced by a proper cleanup of the result stack under error conditions.
+Nelle versioni precedenti alla 10.1.3, newLISP utilizzava un classico algoritmo di mark e sweep per liberare celle non referenziate in condizioni di errore. A partire dalla versione 10.1.3, questo è stato eliminato e sostituito da una corretta pulizia dello stack dei risultati in condizioni di errore.
 
-Performance considerations with copying parameters
---------------------------------------------------
-In theory, passing parameters to user-defined functions by value (memory copying) instead by reference poses a potential disadvantage when dealing with large lists, arrays or strings. But in practice newLISP performs faster or as fast than other scripting languages and offers language facilities to pass very large memory object by reference.
+Considerazioni sulle prestazioni con i parametri di copia
+---------------------------------------------------------
+In teoria, il passaggio dei parametri alle funzioni definite dall'utente in base al valore (by-value, copia della memoria) anziché al riferimento pone un potenziale svantaggio quando si gestiscono liste, matrici o stringhe di grandi dimensioni. Ma in pratica newLISP è più veloce o veloce come altri linguaggi di scripting e offre speciali sintassi per passare oggetti di memoria molto grandi per riferimento.
 
-Since newLISP version 9.4.5 functions can pass list, array and string type parameters as references using default functor namespace ids. Namespaces (called contexts in newLISP) have very little overhead and can be used to wrap functions and data. This allows reference passing of large memory object into user-defined functions.
+Poiché le funzioni newLISP versione 9.4.5 possono passare parametri di tipo list, array e string come riferimenti utilizzando gli identificativi dei funtori predefiniti ​​degli spazi dei nomi. I namespace (chiamati contesti in newLISP) hanno un overhead molto piccolo e possono essere utilizzati per avvolgere funzioni e dati. Ciò consente il passaggio di riferimento di un grande oggetto di memoria nelle funzioni definite dall'utente.
 
-Since version 10.2 FOOP (Functional Object Oriented Programming) in newLISP also passes the target object of a method call by reference.
+Dalla versione 10.2, FOOP (Functional Object Oriented Programming) in newLISP passa per riferimento anche l'oggetto target di una chiamata di metodo.
 
-But even in instances where reference passing and other optimizations are nor present, the speed of ORO memory management more than compensates for the overhead required to copy and delete objects.
+Ma anche nei casi in cui il passaggio di riferimento e altre ottimizzazioni non sono presenti, la velocità della gestione della memoria ORO compensa ampiamente il sovraccarico necessario per copiare ed eliminare oggetti.
 
-Optimizations to ORO memory management ²
---------------------------------------
-Since newLISP version 10.1, all lists, arrays and strings are passed in and out of built-in functions by reference. All built-in functions work directly on memory objects returned by reference from other built-in functions. This has substantially reduced the need for copying and deleting memory objects and increased the speed of some built-in functions. Now only parameters into user-defined functions and return values passed out of user-defined functions are ORO managed.
+Ottimizzazioni per la gestione della memoria ORO ²
+------------------------------------------------
+Dalla versione 10.1 di newLISP, tutte le liste, i vettori (array) e le stringhe vengono passati in e out dalle funzioni predefinite per riferimento. Tutte le funzioni integrate funzionano direttamente sugli oggetti di memoria restituiti per riferimento da altre funzioni incorporate. Ciò ha sostanzialmente ridotto la necessità di copiare ed eliminare oggetti di memoria e aumentato la velocità di alcune funzioni incorporate. Ora solo i parametri in funzioni definite dall'utente e i valori di ritorno passati da funzioni definite dall'utente sono gestiti da ORO.
 
-Since version 10.3.2, newLISP checks the result stack before copying LISP cells. This has reduced the amount of cells copied by about 83% and has significantly increased the speed of many operations on bigger lists.
+Dalla versione 10.3.2, newLISP controlla lo stack dei risultati prima di copiare le celle LISP. Ciò ha ridotto la quantità di celle copiate di circa l'83% e ha aumentato significativamente la velocità di molte operazioni su liste più grandi.
 
-Memory and datatypes in newLISP
+Memoria e tipi di dati in newLISP
 -------------------------------
-The memory objects of newLISP strings are allocated from and freed to the host's OS, whenever newLISP recycles the cells from its allocated chunks of cell memory. This means that newLISP handles cell memory more efficiently than string memory. As a result, it is often better to use symbols rather than strings for efficient processing. For example, when handling natural language it is more efficient to handle natural language words as individual symbols in a separated name-space, then as single strings. The bayes-train function in newLISP uses this method. newLISP can handle millions of symbols without degrading performance.
+Gli oggetti di memoria delle stringhe newLISP vengono allocati e liberati sul sistema operativo host, ogni volta che newLISP ricicla le celle dai suoi blocchi di allocazione delle celle di memoria. Ciò significa che newLISP gestisce la memoria delle celle in modo più efficiente rispetto alla memoria delle stringhe. Di conseguenza, è spesso preferibile utilizzare simboli anziché stringhe per un'elaborazione efficiente. Ad esempio, quando si gestisce il linguaggio naturale è più efficiente gestire le parole del linguaggio naturale come singoli simboli in uno spazio dei nomi separato, quindi come singole stringhe. La funzione bayes-train in newLISP utilizza questo metodo. newLISP può gestire milioni di simboli senza compromettere le prestazioni.
 
-Programmers coming from other programming languages frequently overlook that symbols in LISP can act as more than just variables or object references. The symbol is a useful data type in itself, which in many cases can replace the string data type.
+I programmatori provenienti da altri linguaggi di programmazione spesso trascurano che i simboli in LISP possono comportarsi come qualcosa di più di semplici variabili o riferimenti a oggetti. Il simbolo è un tipo di dati utile in sé, che in molti casi può sostituire il tipo di dati stringa.
 
-Integer numbers and double floating-point numbers are stored directly in newLISP's LISP cells and do not need a separate memory allocation cycle.
+I numeri interi e i numeri a virgola mobile (double) sono memorizzati direttamente nelle celle LISP di newLISP e non richiedono un ciclo di allocazione della memoria separato.
 
-For efficiency during matrix operations like matrix multiplication or inversion, newLISP allocates non-cell memory objects for matrices, converts the results to LISP cells, and then frees the matrix memory objects.
+Per l'efficienza durante operazioni con matrici come la moltiplicazione o l'inversione della matrice, newLISP assegna oggetti di memoria non-cella per matrici, converte i risultati in celle LISP e quindi libera gli oggetti di memoria matrice.
 
-newLISP allocates an array as a group of LISP cells. The LISP cells are allocated linearly. As a result, array indices have faster random access to the LISP cells. Only a subset of newLISP list functions can be used on arrays. Automatic memory management in newLISP handles arrays in a manner similar to how it handles lists.
+newLISP alloca un array come un gruppo di celle LISP. Le celle LISP sono allocate in modo lineare. Di conseguenza, gli indici di array hanno un accesso casuale più rapido alle celle LISP. Solo un sottoinsieme delle funzioni di newLISP disponibilki per le liste può essere utilizzato sugli array. La gestione automatica della memoria in newLISP gestisce gli array in modo simile a come gestisce le liste.
 
-Implementing ORO memory management
-----------------------------------
-The following pseudo code illustrates the algorithm implemented in newLISP in the context of LISP expression evaluation. Only two functions and one data structure are necessary to implement ORO memory management:
+Implementazione della gestione della memoria ORO
+------------------------------------------------
+Il seguente pseudo codice illustra l'algoritmo implementato in newLISP nel contesto della valutazione dell'espressione LISP. Sono necessarie solo due funzioni e una struttura dati per implementare la gestione della memoria ORO:
 
 function pushResultStack(evalationResult)
 
 function popResultStack() ; implies deleting
 
 array resultStack[] ; preallocated stack area
+
+Le prime due funzioni pushResultStack e popResultStack spingono (push) o estraggono (pop) un handle di un oggetto LISP avanti e indietro da una pila. pushResultStack aumenta il valore resultStackIndex mentre popResultStack lo diminuisce. In newLISP ogni oggetto è contenuto in una struttura di celle LISP. L'handle di oggetto di quella struttura è semplicemente il puntatore di memoria alla struttura della cella. La cella stessa può contenere indirizzi puntatore ad altri oggetti di memoria come buffer di stringa o altre celle LISP collegate all'oggetto originale. Oggetti piccoli come numeri vengono memorizzati direttamente. In questa funzione popResultStack() implica anche che l'oggetto estratto venga eliminato.
+
 The first two functions pushResultStack and popResultStack push or pop a LISP object handle on or off a stack. pushResultStack increases the value resultStackIndex while popResultStack decreases it. In newLISP every object is contained in a LISP cell structure. The object handle of that structure is simply the memory pointer to the cell structure. The cell itself may contain pointer addresses to other memory objects like string buffers or other LISP cells linked to the original object. Small objects like numbers are stored directly. In this paper function popResultStack() also implies that the popped object gets deleted.
 
-The two resultStack management functions described are called by newLISP's evaluateExpression function: ³
+Le due funzioni di gestione resultStack descritte sono chiamate dalla funzione evaluateExpression di newLISP:³
 
 ;; function evaluateExpression(expr)
 ;;     {
@@ -26014,38 +27991,39 @@ The two resultStack management functions described are called by newLISP's evalu
 ;;     return(result)
 ;;     }
 
-The function evaluateExpression introduces the two variables resultStackIndexSave and resultStackIndex and a few other functions:
+La funzione evaluateExpression introduce le due variabili resultStackIndexSave e resultStackIndex e alcune altre funzioni:
 
-resultStackIndex is an index pointing to the top element in the resultStack. The deeper the level of evaluation the higher the value of resultStackIndex.
+resultStackIndex è un indice che punta all'elemento superiore di resultStack. Maggiore è il livello di valutazione, maggiore è il valore di resultStackIndex.
 
-resultStackIndexSave serves as a temporary storage for the value of resultStackIndex upon entry of the evaluateExpression(func, args) function. Before exit the resultStack is popped to the saved level of resultStackIndex. Popping the resultStack implies deleting the memory objects pointed to by entries in the resultStack.
+resultStackIndexSave funge da memoria temporanea per il valore di resultStackIndex all'entrata della funzione evaluateExpression(func, args). Prima di uscire, il resultStack viene visualizzato al livello salvato di resultStackIndex. Estrarre il resultStack implica l'eliminazione degli oggetti di memoria indicati dalle voci nel resultStack.
 
-resultStack[] is a preallocated stack area for saving pointers to LISP cells and indexed by resultStackIndex.
+resultStack[] è un'area di stack preallocata per il salvataggio di puntatori a celle LISP che sono indicizzate da resultStackIndex.
 
-symbolContents(expr) and quoteContents(expr) extract contents from symbols or quote-envelope cells.
+symbolContents(expr) e quoteContents(expr) estraggono il contenuto da simboli o da celle di memoria quotate (inviluppate con quote).
 
-typeOf(expr) extracts the type of an expression, which is either a BOOLEAN constant like nil or true or a NUMBER or STRING, or is a variable SYMBOL holding some contents, or a QUOTE serving as an envelope to some other LIST expression expr.
+typeOf(expr) estrae il tipo di un'espressione, che è una costante BOOLEAN come nil o true o un NUMBER o STRING, oppure una variabile SYMBOL contenente alcuni contenuti, o un QUOTE che serve come una busta di inviluppo per un'altra espressione LIST expr.
 
-evaluateFunc(func, args) is the application of a built-in function to its arguments. The built-in function is the evaluated first member of a list in expr and the arguments are the rest of the list in expr. The function func is extracted calling evaluateExpression(first(expr)) recursively. For example if the expression (expr is (foo x y) than foo is a built-in function and x and y are the function arguments or parameters.
+evaluateFunc(func, args) è l'applicazione di una funzione built-in ai suoi argomenti. La funzione built-in è il primo membro valutato di una lista in expr e gli argomenti sono il resto della lista in expr. La funzione func viene estratta chiamando evaluateExpression(first (expr)) in modo ricorsivo. Ad esempio se l'espressione expr vale (foo x y) allora foo è una funzione built-in e x e y sono gli argomenti o parametri della funzione.
 
-evaluateLambda(func, args) works similar to evaluateFunc(func, args), applying a user-defined function first(expr) to its arguments in rest(expr). In case of a user-defined function we have two types of arguments in rest(expr), a list of local parameters followed by one or more body expressions evaluated in sequence.
-Both, evaluateFunc(func, args) and evaluateLambda(func, args) will return a newly created or copied LISP cell object, which may be any type of the above mentioned expressions. Since version 10.0, many built-in functions processed with evaluateFunc(func, args) are optimized and return references instead of a newly created or copied objects. Except for these optimizations, result values will always be newly created LISP cell objects destined to be destroyed on the next higher evaluation level, after the current evaluateExpression(expr) function execution returned.
+evaluateLambda(func, args) funziona in modo simile a evaluateFunc(func, args), applicando una funzione definita dall'utente first(expr) ai suoi argomenti definiti in rest(expr). Nel caso di una funzione definita dall'utente abbiamo due tipi di argomenti in rest(expr), un elenco di parametri locali seguiti da una o più espressioni del corpo valutate in sequenza.
+Sia, evaluateFunc(func, args) e evaluateLambda(func, args) restituiranno un oggetto cella LISP appena creato o copiato, che può essere qualsiasi tipo di espressione sopra menzionata. Dalla versione 10.0, molte funzioni built-in elaborate con evaluateFunc(func, args) sono ottimizzate e restituiscono riferimenti invece di oggetti appena creati o copiati. Fatta eccezione per queste ottimizzazioni, i valori dei risultati saranno sempre gli oggetti di cella LISP appena creati destinati a essere distrutti al successivo livello di valutazione più alto, dopo che la funzione evaluateExpression (expr) corrente è stata eseguita.
 
-Both functions will recursively call evaluateExpression(expr) to evaluate their arguments. As recursion deepens, the recursion level of the function increases.
+Entrambe le funzioni chiamano ricorsivamente evaluateExpression(expr) per valutare i loro argomenti. Con l'aumentare della ricorsione, aumenta il livello di ricorsione della funzione.
 
-Before evaluateExpression(func, args) returns, it will pop the resultStack deleting the result values from deeper level of evaluation and returned by one of the two functions, either evaluateFunc or evaluateLambda.
+Prima del ritorno di evaluateExpression(func, args), questa popolerà il resultStack eliminando i valori del risultato dal livello più profondo di valutazione e restituito da una delle due funzioni, evaluateFunc o evaluateLambda.
 
-Any newly created result expression is destined to be destroyed later but its deletion is delayed until a higher, less deep, level of evaluation is reached. This permits results to be used and/or copied by calling functions.
+Qualsiasi espressione di risultato appena creata è destinata a essere distrutta in seguito, ma la sua cancellazione viene ritardata fino a raggiungere un livello di valutazione più alto, meno profondo. Ciò consente di utilizzare e/o copiare i risultati richiamando le funzioni.
 
-The following example shows the evaluation of a small user-defined LISP function sum-of-squares and the creation and deletion of associated memory objects:
+L'esempio seguente mostra la valutazione di una piccola funzione LISP sum-of-squares definita dall'utente e la creazione e l'eliminazione di oggetti di memoria associati:
 
 (define (sum-of-squares x y)
-  (+ (* x x) (* y y)))
+  (+ (* x x) (* y y)))
 
 (sum-of-squares 3 4) => 25
-sum-of-squares is a user-defined lambda-function calling to built-in functions + and *.
 
-The following trace shows the relevant steps when defining the sum-of-squares function and when executing it with the arguments 3 and 4.
+sum-of-squares è una funzione lambda definita dall'utente che chiama le funzioni built-in + e *.
+
+Il seguente trace mostra i passaggi rilevanti quando si definisce la funzione somma dei quadrati e quando si esegue con gli argomenti 3 e 4.
 
 > (define (sum-of-squares x y) (+ (* x x) (* y y)))
 
@@ -26078,24 +28056,22 @@ level 1:   return( 25 )
 
 → 25
 
-The actual C-language implementation is optimized in some places to avoid pushing the resultStack and avoid calling evaluateExpression(expr). Only the most relevant steps are shown. The function evaluateLambda(func, args) does not need to evaluate its arguments 3 and 4 because they are constants, but evaluateLambda(func, args) will call evaluateExpression(expr) twice to evaluate the two body expressions (+ (* x x) and (+ (* x x). Lines preceded by the prompt > show the command-line entry.
+L'attuale implementazione del linguaggio C è ottimizzata in alcuni punti per evitare di inserire (pop) il resultStack ed evitare di chiamare evaluateExpression (expr). Vengono mostrati solo i passi più rilevanti. La funzione evaluateLambda (func, args) non ha bisogno di valutare i suoi argomenti 3 e 4 perché sono costanti, ma evaluateLambda(func, args) chiamerà evaluateExpression(expr) due volte per valutare le due espressioni del corpo (+ (* xx) e (+ (* xx). Linee precedute dal prompt > mostrano l'input della riga di comando.
 
-evaluateLambda(func, args) also saves the environment for the variable symbols x and y, copies parameters into local variables and restores the old environment upon exit. These actions too involve creation and deletion of memory objects. Details are omitted, because they are similar to methods in other dynamic languages.
+evaluateLambda (func, args) salva anche l'ambiente per i simboli variabili x e y, copia i parametri in variabili locali e ripristina il vecchio ambiente all'uscita. Anche queste azioni comportano la creazione e la cancellazione di oggetti di memoria. I dettagli sono omessi perché sono simili ai metodi in altri linguaggi dinamici.
 
-References
+Riferimenti
 – Glenn Krasner, 1983: Smalltalk-80, Bits of History, Words of Advice
 Addison Wesley Publishing Company
 
 – Richard Jones, Rafael Lins, 1996: Garbage Collection, Algorithms for Automatic Dynamic Memory Management
 John Wiley & Sons
 
-¹ Reference counting and mark-and-sweep algorithms where specifically developed for LISP. Other schemes like copying or generational algorithms where developed for other languages like Smalltalk and later also used in LISP.
+¹ Gli algoritmi Reference counting and mark-and-sweep sono stati  sviluppati appositamente per il LISP. Altri schemi come la copia o gli algoritmi generazionali sono stati sviluppati per altri linguaggi come Smalltalk e successivamente anche in LISP.
 
-² This chapter was added in October 2008 and extended August 2011.
+² Questo capitolo è stato aggiunto nell'ottobre 2008 ed è stato esteso ad agosto 2011.
 
-³ This is a shortened rendition of expression evaluation not including handling of default functors and implicit indexing. For more information on expression evaluation see: Expression evaluation, Implicit Indexing, Contexts and Default Functors in the newLISP Scripting Language.
-
-Copyright © 2004-2013, Lutz Mueller http://newlisp.org. All rights reserved.
+³ Questa è una versione abbreviata della valutazione delle espressioni che non include la gestione dei funtori predefiniti e l'indicizzazione implicita. Per ulteriori informazioni sulla valutazione delle espressioni, consultare: "Valutazione dell'espressione, Indicizzazione implicita, Contesti e Funtori di default"
 
 
 ============================================================================
