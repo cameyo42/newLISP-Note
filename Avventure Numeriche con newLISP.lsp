@@ -7,57 +7,58 @@
  INDICE
 ========
 
-INTRODUZIONE
-INSTALLAZIONE
-ESEGUIRE newLISP
-LE FUNZIONI UTENTE
-ARGOMENTI DI UNA FUNZIONE
-TRASFORMARE UNA FUNZIONE DISTRUTTIVA IN NON-DISTRUTTIVA
-TRASFORMARE UNA FUNZIONE DA DUE A N ARGOMENTI
-APPLICARE UNA FUNZIONE AD OGNI SOTTOLISTA DI UNA LISTA
-ASSEGNAZIONE GLOBALE: SET, SETQ e SETF (e DEFINE)
-ASSEGNAZIONE LOCALE: LET, LETN e LOCAL
-EFFETTI COLLATERALI (side effect) DI SETQ e LET e LOCAL
-PASSAGGIO PER VALORE E PASSAGGIO PER RIFERIMENTO
-NIL, TRUE e LISTA VUOTA '()
-LA FUNZIONE QUOTE E IL SIMBOLO '
-FUNZIONI CON MEMORIA
-GENERARE FUNZIONI DA FUNZIONI
-TIPI DI NUMERI
-PUNTO DECIMALE O VIRGOLA DECIMALE
-FORMATTAZIONE DELL'OUTPUT
-OPERAZIONI ARITMETICHE ELEMENTARI
-USO DEI NUMERI BIG INTEGER
-INTROSPEZIONE
-CONVERSIONI DI TIPO: IMPLICITE ED ESPLICITE
-QUANTO SONO PRECISI I NUMERI FLOATING POINT?
-QUANTO SONO STRANI I NUMERI FLOATING-POINT?
-TIPI DI ERRORE
-PROPAGAZIONE DEGLI ERRORI
-RAPPRESENTAZIONE DEI NUMERI FLOATING POINT (32-bit)
-MACHINE EPSILON
-INFINITO E NOT A NUMBER
-CONFRONTO TRA NUMERI FLOATING-POINT
-VERIFICA DELLE OPERAZIONI FLOATING-POINT
-UNA STRANA SUCCESSIONE
-OPERAZIONI SICURE
-QUANTO VALE PI GRECO?
-QUANTO VALE IL NUMERO DI EULERO?
-TEMPO DI ESECUZIONE
-LISTA O VETTORE?
-VETTORI
-INDICIZZAZIONE DI STRINGHE, LISTE E VETTORI
-ATTRAVERSAMENTO DI LISTE E VETTORI
-ATTRAVERSAMENTO DI STRINGHE
-USCITA ANTICIPATA DA FUNZIONI, CICLI E BLOCCHI
-LAVORARE CON FILE DI DATI (FILE I/O)
-AMBITO (SCOPE) DINAMICO E LESSICALE
-CONTESTI
-USO DEI MODULI
-  La variabile di ambiente NEWLISPDIR
-  Il file di inizializzazione init.lsp
-  Esempi sull'utilizzo dei moduli
-CAR E CDR IN newLISP
+newLISP IN GENERALE
+  Introduzione
+  Installazione
+  Eseguire newLISP
+  Le funzioni utente
+  Argomenti di una funzione
+  Trasformare una funzione distruttiva in non-distruttiva
+  Trasformare una funzione da due a n argomenti
+  Applicare una funzione ad ogni sottolista di una lista
+  Assegnazione globale: set, setq e setf (e define)
+  Assegnazione locale: let, letn e local
+  Effetti collaterali (side effect) di setq e let e local
+  Passaggio per valore e passaggio per riferimento
+  Nil, true e lista vuota '()
+  La funzione quote e il simbolo '
+  Funzioni con memoria
+  Generare funzioni da funzioni
+  Tipi di numeri
+  Punto decimale o virgola decimale
+  Formattazione dell'output
+  Operazioni aritmetiche elementari
+  Uso dei numeri big integer
+  Introspezione
+  Conversioni di tipo: implicite ed esplicite
+  Quanto sono precisi i numeri floating point?
+  Quanto sono strani i numeri floating-point?
+  Tipi di errore
+  Propagazione degli errori
+  Rappresentazione dei numeri floating point (32-bit)
+  Machine epsilon
+  Infinito e not a number
+  Confronto tra numeri floating-point
+  Verifica delle operazioni floating-point
+  Una strana successione
+  Operazioni sicure
+  Quanto vale pi greco?
+  Quanto vale il numero di eulero?
+  Tempo di esecuzione
+  Lista o vettore?
+  Vettori
+  Indicizzazione di stringhe, liste e vettori
+  Attraversamento di liste e vettori
+  Attraversamento di stringhe
+  Uscita anticipata da funzioni, cicli e blocchi
+  Lavorare con file di dati (file i/o)
+  Ambito (scope) dinamico e lessicale
+  Contesti
+  Uso dei moduli
+    La variabile di ambiente newLISPdir
+    Il file di inizializzazione init.lsp
+    Esempi sull'utilizzo dei moduli
+  CAR e CDR in newLISP
 
 FUNZIONI VARIE
   Cambiare di segno ad un numero
@@ -241,16 +242,19 @@ DOMANDE PER ASSUNZIONE DI PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Bilanciamento parentesi (Facebook)
   K punti più vicini - K Nearest points (LinkedIn)
   Ordinamento Colori (LeetCode)
+  Unione di intervalli (Google)
 
-OPERAZIONI CON I NUMERI COMPLESSI
-OPERAZIONI CON LE FRAZIONI
-OPERAZIONI CON I TEMPI
-OPERAZIONI CON GLI INSIEMI
-FUNZIONI WINAPI
+LIBRERIE
+  Operazioni con i numeri complessi
+  Operazioni con le frazioni
+  Operazioni con i tempi
+  Operazioni con gli insiemi
+  Funzioni winapi
 
 APPENDICI
   Lista delle funzioni newLISP
   Sul linguaggio newLISP - FAQ (Lutz Mueller)
+  F-expression - FEXPR
   newLISP in 21 minuti (John W. Small)
   notepad++ plugin
   Debugger
@@ -270,6 +274,11 @@ BIBLIOGRAFIA / WEB
 
 ============================================================================
 
+=======================
+
+  newLISP IN GENERALE 
+
+=======================
 
 ==============
  INTRODUZIONE
@@ -327,7 +336,7 @@ https://github.com/cameyo42/notes-newLISP
 Scaricate e copiate i file in una cartella a piacere (es. c:\newLISP\numeric).
 Potete leggere il file PDF oppure utilizzare il file di testo. In quest'ultimo caso per seguire gli esempi potete usare l'editor notepad++ con il plugin che si trova al sito:
 
-https://github.com/cameyo42/notepadpp-newlisp
+https://github.com/cameyo42/notepadpp-newLISP
 
 Seguendo le istruzioni riportate in appendice potete leggere il documento e contemporaneamente eseguire il codice che ritenete opportuno.
 
@@ -1171,7 +1180,7 @@ Proviamo con la "i" scambiata di posto:
 
 Adesso tutto funziona correttamente.
 
-Abbiamo problemi anche nel caso di variabili globali, per esempio:
+Occore fare attenzione anche nel caso di variabili globali, per esempio:
 
 (setq tot 0)
 
@@ -1456,7 +1465,7 @@ Qualunque altro valore viene considerato vero:
 (if '(1 2) 'vero 'falso)
 ;-> vero
 
-Quindi in newLisp tutto viene considerato vero (true) tranne la lista vuota '() e "nil" che vengono considerati falso (nil). Comunque la lista vuota '() e "nil" sono diversi se confrontati tra loro.
+Quindi in newLISP tutto viene considerato vero (true) tranne la lista vuota '() e "nil" che vengono considerati falso (nil). Comunque la lista vuota '() e "nil" sono diversi se confrontati tra loro.
 
 Quindi, "nil" e "true" rappresentano sia simboli che i valori booleani falso (nil) e vero (true). A seconda del loro contesto, "nil" e "true" sono trattati in modo diverso. I seguenti esempi usano "nil", ma possono essere applicati a "true" semplicemente invertendo la logica.
 
@@ -3630,7 +3639,7 @@ myarray
 
 ; strings
 
-(set 's "NewLISP")
+(set 's "newLISP")
 
 (setf (s 0) "n")
 ;-> "n"
@@ -3997,7 +4006,7 @@ Il parametro "0" indica a newLISP di trattare la stringa " +" come un pattern di
 
 Quindi le istruzioni finali sono le seguenti:
 
-(setq datastring (read-file "data.txt"))
+(setq datastring (read-file "data2.txt"))
 (setq data (parse datastring "\r\n"))
 (setq data (map (fn (x) (parse x " +" 0)) data))
 (setq data (map (fn (x) (map sym x)) data))
@@ -4281,7 +4290,7 @@ Recupera il contenuto dell'ultima operazione di read-line. Il contenuto di curre
 
 Il seguente codice sorgente mostra il tipico pattern per la creazione di un filtro da riga di comando Unix:
 
-#!/usr/local/bin/newlisp
+#!/usr/local/bin/newLISP
 
 (set 'inFile (open (main-args 2) "read"))
 (while (read-line inFile)
@@ -4473,7 +4482,7 @@ Il file message.txt viene aggiunto nella locazione remota http://asite.com con i
 
 Una caratteristica importante di un linguaggio interpretato è la capacità di salvare gli oggetti creati dall'utente durante la sessione REPL.
 
-Oltre alle funzioni I/O standard ("open", "close", "write-char", ecc), NewLISP mette a disposizione le funzioni "save", "load", "source" e "pretty-print".
+Oltre alle funzioni I/O standard ("open", "close", "write-char", ecc), newLISP mette a disposizione le funzioni "save", "load", "source" e "pretty-print".
 
 Vediamo la loro definizione:
 
@@ -4532,7 +4541,7 @@ Il parametro str-file-name può contenere URL. Entrambi i metodi http:// e file:
 
 (load "a-file.lsp" "b-file.lsp" 'MyCTX)
 
-(load "file:///usr/local/share/newlisp/mysql.lsp")
+(load "file:///usr/local/share/newLISP/mysql.lsp")
 
 Nel caso in cui le espressioni valutate durante il caricamento stiano cambiando il contesto, ciò non influenzerà il modulo di programmazione che esegue il caricamento.
 
@@ -4781,14 +4790,14 @@ Modulo con funzioni per interfaccia la libreria libc di UNIX.
 Modulo con funzioni per compressione/decompressione di file con la libreria zlib.
 
 
-La variabile di ambiente NEWLISPDIR
+La variabile di ambiente newLISPDIR
 -----------------------------------
 
-Durante l'avvio newLISP imposta la variabile di ambiente NEWLISPDIR, se non è già impostata. Su Linux, BSDs, macOS e altri Unix la variabile /usr/local/share/newlisp. Su MS Windows la variabile viene impostata dove è stato installato newLISP.
+Durante l'avvio newLISP imposta la variabile di ambiente newLISPDIR, se non è già impostata. Su Linux, BSDs, macOS e altri Unix la variabile /usr/local/share/newLISP. Su MS Windows la variabile viene impostata dove è stato installato newLISP.
 
-La variabile d'ambiente NEWLISPDIR è utile quando si caricano moduli (file) installati con newLISP:
+La variabile d'ambiente newLISPDIR è utile quando si caricano moduli (file) installati con newLISP:
 
-(load (append (env "NEWLISPDIR") "/modules/mysql.lsp"))
+(load (append (env "newLISPDIR") "/modules/mysql.lsp"))
 
 Una funzione predefinita "module" può essere utilizzata per abbreviare il parametro relativo alla cartella dell'istruzione load:
 
@@ -4800,9 +4809,9 @@ Il file di inizializzazione init.lsp
 
 Prima di caricare qualsiasi file specificato sulla riga di comando e prima che vengano visualizzati il banner e il prompt, newLISP tenta di caricare un file .init.lsp dalla cartella home dell'utente che esegue newLISP. Su macOS, Linux e altri Unix, la cartella home si trova nella variabile di ambiente HOME. Su MS Windows il nome della cartella è contenuto nella variabile di ambiente USERPROFILE (o DOCUMENT_ROOT).
 
-Se un file .init.lsp non può essere trovato nella cartella home, allora newLISP prova a caricare il file init.lsp dalla cartella trovata nella variabile di ambiente NEWLISPDIR.
+Se un file .init.lsp non può essere trovato nella cartella home, allora newLISP prova a caricare il file init.lsp dalla cartella trovata nella variabile di ambiente newLISPDIR.
 
-Quando newLISP viene eseguito come libreria condivisa, viene cercato un file di inizializzazione nella variabile di ambiente NEWLISPLIB_INIT. È necessario specificare il nome percorso completo del file di inizializzazione. Se NEWLISPLIB_INIT non è definita, nessun file di inizializzazione verrà caricato dal modulo della libreria.
+Quando newLISP viene eseguito come libreria condivisa, viene cercato un file di inizializzazione nella variabile di ambiente newLISPLIB_INIT. È necessario specificare il nome percorso completo del file di inizializzazione. Se newLISPLIB_INIT non è definita, nessun file di inizializzazione verrà caricato dal modulo della libreria.
 
 Sebbene newLISP non richieda init.lsp per l'esecuzione, è utile per definire funzioni e variabili a livello di sistema.
 
@@ -4810,7 +4819,7 @@ Nota: nessun file di inizializzazione viene caricato durante il caricamento di p
 
 Nel mio sistema risulta:
 
-(env "NEWLISPDIR")
+(env "newLISPDIR")
 ;-> "C:\\newLISP"
 
 (env "PROGRAMFILES")
@@ -4837,7 +4846,7 @@ Vediamo ora come utilizzare i moduli con alcuni esempi. Cominciamo con il modulo
 ; y = mag*r*sin(t);
 
 ; Caricamento del modulo
-;(load (append (env "NEWLISPDIR") "/modules/postscript.lsp"))
+;(load (append (env "newLISPDIR") "/modules/postscript.lsp"))
 (module "postscript.lsp")
 
 ; Sfondo
@@ -5356,7 +5365,7 @@ Questa funzione converte una stringa esadecimale in un numero intero positivo:
       (setq val (+ (* val 16) (find (char c) digit)))
       ; la seguente istruzione converte la variabile val in un numero intero,
       ; quindi genera un risultato sbagliato quando superiamo il limite.
-      ; Ponendo val prima del numero 16 forza newlisp a considerare big integer
+      ; Ponendo val prima del numero 16 forza newLISP a considerare big integer
       ; il risultato dell'operazione di moltiplicazione.
       ;(setq val (+ (* 16 val) (find (char c) digit)))
       ; Comunque usando 16L al posto di 16 tutto funziona:
@@ -6706,7 +6715,7 @@ L'elenco contiene i seguenti indirizzi di memoria e informazioni:
 
 offset  descrizione
 0       indirizzo di memoria della cella Lisp
-1       cella->tipo: maggiore/minore, vedi newlisp.h per i dettagli
+1       cella->tipo: maggiore/minore, vedi newLISP.h per i dettagli
 2       cella->successivo: puntatore alla linked list
 3       cella->aux:
            lunghezza della stringa + 1 o
@@ -6751,7 +6760,7 @@ La seguente funzione estrae il tipo di dato contenuto in una cella newLISP:
 ;; 14            ;; array
 ;; 15            ;; dynamic symbol
 
-Vedere il file newlisp.h nel programma sorgente per conoscere i bit superiori e il loro significato (e anche altre cose).
+Vedere il file newLISP.h nel programma sorgente per conoscere i bit superiori e il loro significato (e anche altre cose).
 
 Un altro metodo simile:
 
@@ -10245,7 +10254,7 @@ Scriviamo una funzione generica che codifica e decodifica ed ha come parametro l
 ;-> "TKCROYV$OY$MXKGZ"
 
 (cesare "TKCROYV$OY$MXKGZ" 1 6)
-;-> "NEWLISP$IS$GREAT"
+;-> "newLISP$IS$GREAT"
 
 (cesare "newLISP is great" 2 6)
 ;-> tipo: 0 -> cifra, 1 -> decifra
@@ -10535,7 +10544,25 @@ Scriviamo la funzione:
 ;->  (4 "mate" "meat" "tame" "team"))
 
 (time (solveAna))
-;-> 265.205
+;-> 265.205 ;la funzione è molto veloce.
+
+Usando il file "60000_parole_italiane.txt" otteniamo:
+
+(solveAna)
+;-> ((9 "avresti" "restavi" "stivare" "svitare" "versati" 
+;->     "vestira" "viraste" "vistare" "vistera")
+;->  (8 "riavesti" "stiverai" "sviterai" "vestiari" "vestirai" 
+;->     "visitare" "visitera" "visterai")
+;->  (8 "aperti" "aprite" "pareti" "patrie" "perita" 
+;->     "pietra" "rapite" "ripeta")
+;->  (7 "cernite" "cretine" "incerte" "recenti" "recinte" "tenerci" "trincee")
+;->  (7 "cavero" "covare" "covera" "creavo" "recavo" "revoca" "vorace")
+;->  (7 "argenti" "girante" "granite" "ingrate" "integra" "regnati" "ritenga")
+;->  (6 "piastre" "prestai" "rapiste" "sparite" "sperati" "spirate")
+;->  (6 "piastra" "rapasti" "raspati" "sparati" "sparita" "spirata")
+;->  (6 "perso" "porse" "poser" "preso" "prose" "spero")
+;->  (6 "parati" "patria" "pirata" "rapati" "rapita" "tarpai"))
+
 
 Adesso scriviamo una funzione che controlla se due parole sono anagrammi l'una dell'altra:
 
@@ -11598,20 +11625,20 @@ Qual'è il valore più grande del prodotto di quattro numeri adiacenti nella ste
 ;-> 400
 
 (define (right i)
-	(setq r (slice grid i 4))
-	(apply * r))
+  (setq r (slice grid i 4))
+  (apply * r))
 
 (define (down i)
-	(setq d (select grid i (+ i 20) (+ i 40) (+ i 60)))
-	(apply * d))
+  (setq d (select grid i (+ i 20) (+ i 40) (+ i 60)))
+  (apply * d))
 
 (define (diag-down-right i)
-	(setq dr (select grid i (+ i 21) (+ i 42) (+ i 63)))
-	(apply * dr))
+  (setq dr (select grid i (+ i 21) (+ i 42) (+ i 63)))
+  (apply * dr))
 
 (define (diag-down-left i)
-	(setq dl (select grid i (+ i 19) (+ i 38) (+ i 57)))
-	(apply * dl))
+  (setq dl (select grid i (+ i 19) (+ i 38) (+ i 57)))
+  (apply * dl))
 
 (define (e011)
   (setq down-max (apply max (map (fn (x) (down x)) (sequence 0 339))))
@@ -15969,6 +15996,21 @@ E poi l'istogramma della seconda lista:
 La prima lista ha una distribuzione pressochè uniforme (tutti i numeri hanno la stessa probabilità).
 La seconda lista ha una distribuzione gaussiana centrata sul numero più probabile.
 
+Notazione internazionale
+
+Una lancio di dadi viene codificato con la seguente espressione matematica:
+
+XdY [<-> | <+> | <*> | </>] [N | AdB]
+
+Al numero uscito dal lancio di X dadi con Y facce viene applicata una delle operazioni - o + o * o / con il numero N o con il numero uscito da un lancio di A dadi con B facce.
+
+Esempi:
+2d6 + 10 
+(al lancio di 2 dadi con 6 facce sommare il numero 10)
+4d8 - 1d6 
+(al lancio di 4 dadi con 8 facce sottrarre il lancio di 1 dado con 6 facce)
+
+
 
 Quadrati magici
 ---------------
@@ -19179,8 +19221,8 @@ for i from N downto 1 do:
 (define (knuth-shuffle lst)
   (local (N j)
     (setq N (length lst))
-    (for (i (sub N 1) 0 -1)
-      (setq j (rand (add i 1)))
+    (for (i (- N 1) 0 -1)
+      (setq j (rand (+ i 1)))
       (swap (lst i) (lst j))
     )
     lst
@@ -19581,7 +19623,7 @@ Questo algoritmo ha complessità temporale O(n^3).
 
 Dobbiamo utilizzare un algoritmo più veloce.
 
-L'algoritmo di Kadane inizia con una semplice domanda induttiva: se conosciamo la somma massima del subarray che termina con la posizione i (si chiami questo B[i]), qual è la somma massima del subarray che termina alla positione i + 1 (equivalentemente, quanto vale B[i+1]) ? La risposta risulta essere relativamente semplice: o la somma massima del subarray che termina con la posizione i + 1 include la somma massima della subarray che termina alla posizione i come prefisso, oppure no (in altre parole, B[i+1] = max(A[i+1], A[i+1] + B[i]), dove A[i+1] è l'elemento all'indice i + 1).
+L'algoritmo di Kadane inizia con un ragionamento induttivo: se conosciamo la somma massima del subarray che termina con la posizione i (si chiami questo B[i]), qual è la somma massima del subarray che termina alla positione i + 1 (equivalentemente, quanto vale B[i+1]) ? La risposta risulta essere relativamente semplice: o la somma massima del subarray che termina con la posizione i + 1 include la somma massima della subarray che termina alla posizione i come prefisso, oppure no (in altre parole, B[i+1] = max(A[i+1], A[i+1] + B[i]), dove A[i+1] è l'elemento all'indice i + 1).
 
 L'algoritmo può essere codificato nel seguente modo:
 
@@ -22872,6 +22914,65 @@ Per semplificare i calcoli usiamo i numeri 0, 1, 2 e 3 per rappresentare rispett
 ;-> (0 0 0 1 1 1 2 2 2 3 3 3)
 
 
+Unione di intervalli (Google)
+-----------------------------
+
+Dato un insieme di intervalli (inizio fine), unire tutti gli intervalli sovrapposti.
+Per esempio,
+
+intervalli di ingresso: (8 10) (2 6) (1 3) (15 18)
+
+intervalli di uscita: (1 6) (8 10) (15 18)
+
+     -------
+        -------------
+                          --------             -----------
+  0  1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18
+     ----------------     --------             -----------
+
+(define (unisci-intervalli lst)
+  (local (t out)
+    (sort lst)
+    (setq out '())
+    (setq t (first lst))
+    (dolist (el lst)
+      (if (> $idx 0) ; il primo elemento non ha confronti precedenti
+        (begin
+          ; confronto tra l'inizio dell'intervallo corrente
+          ; e la fine di quello precedente
+          (if (<= (first el) (last t))
+              (setf (last t) (max (last t) (last el)))
+              (begin (push t out -1) (setq t el))
+          )
+        )
+      )
+    )
+    ; aggiunge l'ultimo invervallo calcolato
+    (push t out -1)
+    out
+  );local
+)
+
+(setq lst '((8 10) (2 6) (1 3) (15 18)))
+
+(unisci-intervalli lst)
+;-> ((1 6) (8 10) (15 18))
+
+Esempio:
+
+     -------
+        -------------
+                          --------             -----------
+           -------------------
+  0  1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18
+     -----------------------------             -----------
+
+(setq lst '((8 10) (1 3) (2 6) (3 9) (15 18)))
+
+(unisci-intervalli lst)
+;-> ((1 10) (15 18))
+
+
 ===================================
  OPERAZIONI CON I NUMERI COMPLESSI
 ===================================
@@ -23925,9 +24026,9 @@ Restituisce l'insieme potenza di un insieme.
     (setf e (Win32API:ShellExecuteA 0 "open" app 0 0 SW_SHOWNORMAL))
     ;(if (< e 32) )
     ))
-;(shell-execute "C:\\PROGRA~1\\newlisp\\newlisp.exe")
+;(shell-execute "C:\\PROGRA~1\\newLISP\\newLISP.exe")
 ;(shell-execute "C:/")
-(shell-execute "http://www.newlisp.org/")
+(shell-execute "http://www.newLISP.org/")
 
 (context MAIN)
 ;;; EOF
@@ -24448,6 +24549,22 @@ reader-event      preprocess expressions before evaluation event-driven
 
 
 ============================================================================
+F-expression - FEXPR
+============================================================================
+
+Nei linguaggi di programmazione Lisp, una FEXPR è una funzione i cui operandi/parametri vengono passati ad essa senza essere valutati. Quando viene chiamato una FEXPR, viene valutato solo il corpo di FEXPR: non si effettuano altre valutazioni se non quando esplicitamente avviato/richiesto dalla FEXPR. 
+
+Al contrario, quando viene chiamata una normale funzione Lisp, gli operandi vengono valutati automaticamente e solo i risultati di queste valutazioni vengono passati alla funzione. 
+
+Quando viene chiamata una macro Lisp (tradizionale), gli operandi vengono passati in modo non valutato, ma qualunque sia il risultato ritornato dalla macro, questo viene valutato automaticamente.
+
+Nel rigoroso utilizzo originale, una FEXPR è quindi una funzione definita dall'utente i cui operandi vengono passati senza essere valutati. Tuttavia, nell'uso successivo, il termine FEXPR descrive qualsiasi funzione di prima classe/ordine i cui operandi vengono passati non valutati, indipendentemente dal fatto che la funzione sia primitiva o definita dall'utente.
+Le macro di newLISP sono FEXPR.
+
+Kent M. Pitman, "Special Forms in Lisp", Proceedings of the 1980 ACM Conference on Lisp and Functional Programming, 1980, pag. 179–187.
+
+
+============================================================================
 newLISP in 21 minuti di John W. Small
 ============================================================================
 
@@ -24483,15 +24600,15 @@ Ambito lessicale (Lexical scope)
 
 Ciao Mondo!
 -----------
-Con newLISP installato sul tuo sistema, al prompt della riga di comando della shell (cmd in windows) inserisci newlisp per avviare la REPL (Read, Eval, Print, Loop).
+Con newLISP installato sul tuo sistema, al prompt della riga di comando della shell (cmd in windows) inserisci newLISP per avviare la REPL (Read, Eval, Print, Loop).
 Su Linux, la console sarebbe simile a questa:
 
-$ newlisp
+$ newLISP
 > _
 
 E su piattaforme Windows, sarebbe simile a questa.
 
-c:\> newlisp
+c:\> newLISP
 > _
 
 Dopo l'avvio, newLISP risponde con il simbolo del prompt.
@@ -24531,7 +24648,7 @@ Se inserisci l'espressione stringa "Ciao Mondo!", come mostrato sopra, questa re
 ;-> 1
 > _
 
-A questo punto potresti essere intimorito dalle parentesi. Se iniziate NewLISP conoscendo un normale linguaggio informatico, sembrerebbe più naturale scrivere una chiamata di funzione nel modo seguente:
+A questo punto potresti essere intimorito dalle parentesi. Se iniziate newLISP conoscendo un normale linguaggio informatico, sembrerebbe più naturale scrivere una chiamata di funzione nel modo seguente:
 
 println ("Ciao Mondo!")
 
@@ -24793,18 +24910,18 @@ Ora possiamo mettere la nostra sequenza di espressioni in un file sorgente:
 
 E possiamo eseguirlo dalla riga di comando, in questo modo:
 
-$ newlisp hw.lsp
+$ newLISP hw.lsp
 Ciao mondo!
 
 O in Windows:
 
-c: \> newlisp hw.lsp
+c: \> newLISP hw.lsp
 Ciao mondo!
 
 Eseguibili e librerie dinamiche (dll)
 -------------------------------------
 Creare eseguibili nativi della piattaforma (exe in windows) e collegarsi alle librerie di collegamenti dinamici (dll in windows e so in linux) con newLISP è semplice.
-Nelle vecchie versioni, dovresti trovare il file link.lsp nella sottodirectory degli esempi oppure dovresti scaricare gli esempi e i moduli separatamente da www.newlisp.org.
+Nelle vecchie versioni, dovresti trovare il file link.lsp nella sottodirectory degli esempi oppure dovresti scaricare gli esempi e i moduli separatamente da www.newLISP.org.
 Con la versione 10.4.7 il processo di collegamento dei file sorgente LISP con un nuovo eseguibile LISP è cambiato e il file link.lsp non è più necessario.
 Il processo è ora disponibile utilizzando l'opzione della riga di comando -x.
 Consideriamo il seguente programma:
@@ -24817,13 +24934,13 @@ Il programma uppercase.lsp prende il primo argomento e lo converte in maiuscolo:
 Le operazioni per creare un file eseguibilie sono le seguenti:
 
 # in OSX, Linux e altri UNIX
-newlisp -x "uppercase.lsp" "uppercase"
+newLISP -x "uppercase.lsp" "uppercase"
 
 # impostiamo i permessi di esecuzione
 chmod 755 uppercase
 
 # in Windows il file eseguibile deve avere estensione .exe
-newlisp -x "uppercase.lsp" "uppercase.exe"
+newLISP -x "uppercase.lsp" "uppercase.exe"
 
 In questo modo vengono messi insieme newLISP.exe e uppercase.lsp per creare il file eseguibile uppercase.exe. Per eseguire il programma occorre scrivere dal prompt dei comandi:
 
@@ -25821,7 +25938,7 @@ Ciascuna delle espressioni di cui sopra sono espressioni di livello superiore, n
 ;-> FOO
 FOO>
 
-Quindi, quando NewLISP si appresta a interpretare:
+Quindi, quando newLISP si appresta a interpretare:
 
 FOO> (setq r 1 s 2)
 
@@ -26102,11 +26219,11 @@ Si. Il comando: newLISP -x "myscript.lsp" "myscript.exe" genera un file eseguibi
 Notepad++ bundle
 ============================================================================
 
-Download: https://github.com/cameyo42/notepadpp-newlisp
+Download: https://github.com/cameyo42/notepadpp-newLISP
 
-Add newlisp syntax highlighting
+Add newLISP syntax highlighting
 -------------------------------
-Copy all the text of the file: newlisp-udl.xml
+Copy all the text of the file: newLISP-udl.xml
 and paste it inside the section:<NotepadPlus> ... </NotepadPlus>
 of the file: userDefineLang.xml (located at: c:\Users\<username>\AppData\Roaming\Notepad++\)
 CODE: SELECT ALL
@@ -26117,42 +26234,42 @@ Example
     </UserLang>
 </NotepadPlus>
 
-The newlisp keywords are from primes.h (newlisp source).
+The newLISP keywords are from primes.h (newLISP source).
 The actual highlight colors are for "obsidiane" theme of notepad++.
 You can change (easily) the colors as you like.
 
-Open newlisp help from notepad++
+Open newLISP help from notepad++
 --------------------------------
 
 Add the line:
 
-<Command name="newLISP Help" Ctrl="yes" Alt="yes" Shift="no" Key="112">chrome file:///C:/Program%20Files%20(x86)/newlisp/newlisp_manual.html#$(CURRENT_WORD)</Command>
+<Command name="newLISP Help" Ctrl="yes" Alt="yes" Shift="no" Key="112">chrome file:///C:/Program%20Files%20(x86)/newLISP/newLISP_manual.html#$(CURRENT_WORD)</Command>
 
 inside the section: <UserDefinedCommands> ... </UserDefinedCommands>
 of the file: shortcut.xml (located at: c:\Users\<username>\AppData\Roaming\Notepad++\)
 
 Example:
 <UserDefinedCommands>
-    <Command name="newLISP Help" Ctrl="yes" Alt="yes" Shift="no" Key="112">chrome file:///C:/Program%20Files%20(x86)/newlisp/newlisp_manual.html#$(CURRENT_WORD)</Command>
+    <Command name="newLISP Help" Ctrl="yes" Alt="yes" Shift="no" Key="112">chrome file:///C:/Program%20Files%20(x86)/newLISP/newLISP_manual.html#$(CURRENT_WORD)</Command>
 
 </UserDefinedCommands>
 
-Note: change the path to point to your newlisp help file
+Note: change the path to point to your newLISP help file
 
-Now you can select a word and press Ctrl+Alt+F1 to open newlisp help file.
+Now you can select a word and press Ctrl+Alt+F1 to open newLISP help file.
 
 The shortcut is Ctrl + Alt + F1, but you can change it.
 
-Execute newlisp code from notepad++
+Execute newLISP code from notepad++
 -----------------------------------
 
 Download and install autohotkey (http://www.autohotkey.com).
 
-Run the script "npp-newlisp.ahk" (double click it).
+Run the script "npp-newLISP.ahk" (double click it).
 
 Run notepad++
 
-Press Win+F12 to start newlisp REPL (la cartella di default di newLISP è quella dove si trova  lo script "npp-newlisp.ahk")
+Press Win+F12 to start newLISP REPL (la cartella di default di newLISP è quella dove si trova  lo script "npp-newLISP.ahk")
 
 Now, from notepad++, you can:
 
@@ -26174,7 +26291,7 @@ When selecting a block of expression be sure to begin and end the selection
 with a blank line (or use [cmd] [/cmd]).
 
 Note:
-The script npp-newlisp.ahk exchange the brackets () and [] in the keyboard.
+The script npp-newLISP.ahk exchange the brackets () and [] in the keyboard.
 You can edit the file to disable this (you must comment two lines).
 The script also enable other shortcuts... see the source.
 
@@ -26638,9 +26755,9 @@ Compilare i sorgenti di newLISP
 
 In questa appendice vediamo i passi necessari per compilare newLISP con windows 10 partendo dai sorgenti. In particolare compileremo la versione di newLISP a 64 bit con estensioni UTF8 e FFI.
 
-Scaricare i sorgenti di newLISP (newlisp-10.7.5.tgz) da:
+Scaricare i sorgenti di newLISP (newLISP-10.7.5.tgz) da:
 
-http://www.newlisp.org/downloads/development/inprogress/
+http://www.newLISP.org/downloads/development/inprogress/
 
 Attualmente la versione è la 10.7.5
 
@@ -26667,8 +26784,8 @@ Adesso dobbiamo modificare un makefile che si trova nella cartella dei sorgenti.
 
 Spostarsi nella cartella c:\newLISP-10.7.5 e aprire il file "makefile_mingw64dll_utf8_ffi" con un editor di testo.
 
-Sostituire la riga:   $(CC) -m64 -shared *.o -Wl,--kill-at -lffi -lws2_32 -o newlisp.dll
-Con la riga:          $(CC) -m64 -shared $(OBJS) -Wl,--kill-at -lffi -lws2_32 -o newlisp.dll
+Sostituire la riga:   $(CC) -m64 -shared *.o -Wl,--kill-at -lffi -lws2_32 -o newLISP.dll
+Con la riga:          $(CC) -m64 -shared $(OBJS) -Wl,--kill-at -lffi -lws2_32 -o newLISP.dll
 
 Salvare e chiudere il makefile.
 
@@ -26676,7 +26793,7 @@ Aprire una finestra DOS (command prompt - cmd.exe) e dalla cartella dei sorgenti
 
 make -f makefile_mingw64_utf8_ffi
 
-Se tutto va bene, dopo alcuni secondi avrete il vostro file "newlisp.exe" insieme a diversi altri file che  hanno estensione ".o".
+Se tutto va bene, dopo alcuni secondi avrete il vostro file "newLISP.exe" insieme a diversi altri file che  hanno estensione ".o".
 
 Prima di creare la dll di newLISP dobbiamo eliminare tutti i file ".o" che sono stati creati.
 
@@ -26684,13 +26801,13 @@ Una volta eliminati i file ".o" digitare:
 
 make -f "makefile_mingw64dll_utf8_ffi"
 
-Questa volta avrete il vostro file "newlisp.dll" insieme a diversi altri file che  hanno estensione ".o".
+Questa volta avrete il vostro file "newLISP.dll" insieme a diversi altri file che  hanno estensione ".o".
 
-Cancellate i file ".o" e copiate "newlisp.exe" e "newlisp.dll" nella cartella che preferite (la cartella deve trovarsi nella variabile di ambiente PATH).
+Cancellate i file ".o" e copiate "newLISP.exe" e "newLISP.dll" nella cartella che preferite (la cartella deve trovarsi nella variabile di ambiente PATH).
 
 Complimenti, avete creato la vostra versione di newLISP !!!
 
-Nota: nelle versioni ffi di newLISP occorre copiare la libreria "libffi-6.dll" nella cartella dove si trova newlisp.exe e newlisp.dll
+Nota: nelle versioni ffi di newLISP occorre copiare la libreria "libffi-6.dll" nella cartella dove si trova newLISP.exe e newLISP.dll
 
 Nota: l'installazione completa di newLISP comprende anche altri file. Comunque questi file devono semplicemente essere copiati dalla cartella dei sorgenti (moduli, manuali, util, ecc.).
 Puoi vedere la cartella dove è installato newLISP per capire quali file sono necessari.
@@ -26788,7 +26905,7 @@ newLISP - Lisp per tutti
 
 Traduzione dell'articolo "newLISP - Lisp for the masses" di Krzysztof Kliś
 
-https://weblambdazero.blogspot.com/2010/06/newlisp-lisp-for-masses.html
+https://weblambdazero.blogspot.com/2010/06/newLISP-lisp-for-masses.html
 
 Esiste un detto popolare tra gli hacker Lisp: pianta un albero, scrivi un libro e crea un dialetto personale del Lisp. Sebbene non ci siano in giro molti Lisp popolari (persino il Common Lisp non è mai stato usato in maniera massiccia) sembra proprio che nel caso di varie distribuzioni Linux, spesso "di più" significa semplicemente "migliore". Un buon esempio di questa storia di successo è Clojure, e adesso arriva un altro candidato a prendere il comando.
 newLISP è un dialetto moderno del Lisp, progettato da Lutz Mueller per essere (come dice lui stesso) "veloce da imparare e per finire il lavoro". Devo dire che questa frase non potrebbe essere più vera - risolvere il problema 10 di ProjectEuler (trovare la somma di tutti i numeri primi sotto 2 milioni) dopo soli due giorni di manipolazione con newLISP mi ci sono voluti meno di 3 minuti, tra cui progettazione, scrittura, test per eseguire il seguente codice:
@@ -26852,7 +26969,7 @@ Ricorsione avanzata in newLISP
 
 Traduzione dell'articolo "Advanced Recursion in newLISP" di Krzysztof Kliś
 
-https://weblambdazero.blogspot.com/2010/07/advanced-recursion-in-newlisp.html
+https://weblambdazero.blogspot.com/2010/07/advanced-recursion-in-newLISP.html
 
 Nel precedente post su newLISP ho menzionato che non supporta l'ottimizzazione delle chiamate di coda. In realtà, molti Lisp non lo fanno. Come indicato da Bill Six, anche lo standard ANSI del Common Lisp non impone (a differenza dello Scheme) un'eliminazione delle chiamate di coda fornita dall'implementazione del linguaggio, anche se sembra che tutti i maggiori compilatori ANSI Common Lisp lo facciano comunque.
 
@@ -26962,7 +27079,7 @@ http://web.cs.mun.ca/~harold/Courses/Old/CS2500.F09/Diary/04563874.pdf
 
 Per ulteriori informazioni su storia, critica e altri aspetti del Lisp, consultare la pagina web:
 
-http://www.newlisp.org/index.cgi?page=Links
+http://www.newLISP.org/index.cgi?page=Links
 
 Apertura e trasparenza
 ----------------------
@@ -27528,7 +27645,7 @@ L'indicizzazione esplicita e i funtori di default sono una estensione delle norm
 
 Valutazione delle S-espressioni e indicizzazione implicita
 ----------------------------------------------------------
-In un altro articolo viene spiegato come la valutazione delle S-espressioni si interfaccia con il metodo di gestione automatica della memoria ORO (One Reference Only) [1]. Il seguente pseudo-code della funzione di valutazione di newLISp mostra come l'indicizzazione implicita sia un'estensione delle regole di valutazione delle S-espressioni in LISP:
+In un altro articolo viene spiegato come la valutazione delle S-espressioni si interfaccia con il metodo di gestione automatica della memoria ORO (One Reference Only) [1]. Il seguente pseudo-code della funzione di valutazione di newLISP mostra come l'indicizzazione implicita sia un'estensione delle regole di valutazione delle S-espressioni in LISP:
 
 function evaluateExpression(expr)
     {
@@ -28120,7 +28237,7 @@ Frasi Famose sulla Programmazione e sul Linguaggio Lisp
   http://en.wikibooks.org/wiki/Introduction_to_newLISP
 
   "newLISP in 21 minutes" di John W. Small
-  http://www.newlisp.org/newLISP_in_21_minutes.html
+  http://www.newLISP.org/newLISP_in_21_minutes.html
 
   Forum ufficiale di newLISP
   http://www.newLISPfanclub.alh.net/forum/
@@ -28129,7 +28246,7 @@ Frasi Famose sulla Programmazione e sul Linguaggio Lisp
   https://johu02.wordpress.com/
 
   Cormullion's Blog
-  https://newlisper.wordpress.com/
+  https://newLISPer.wordpress.com/
 
   "A Practical Introduction to Fuzzy Logic using Lisp", Luis Argüelles Mendez, 2015
 
