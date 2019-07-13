@@ -1,10 +1,14 @@
-+=================================+
-| AVVENTURE NUMERICHE con newLISP |
-| by cameyo 2019                  |
-+=================================+
+============================================================================
+
++=================+
+| Note su newLISP |
+| by cameyo 2019  |
++=================+
 
 ========
+
  INDICE
+
 ========
 
 newLISP IN GENERALE
@@ -5609,7 +5613,9 @@ Possiamo definire queste funzioni in newLISP:
 
 
 ================
+
  FUNZIONI VARIE
+
 ================
 
 In questo capitolo definiremo alcune funzioni che operano sulle liste e altre funzioni di carattere generale. Alcune di queste ci serviranno successivamente per risolvere i problemi che andremo ad affrontare.
@@ -7653,7 +7659,9 @@ lst
 
 
 ==========================
+
  newLISP 99 PROBLEMI (28)
+
 ==========================
 
 Questi problemi sono stati creati per essere risolti con il linguaggio Prolog.
@@ -8730,7 +8738,9 @@ Adesso possiamo creare la lista ordinata utilizzando come indice il primo elemen
 
 
 ==============
+
  ROSETTA CODE
+
 ==============
 
 https://rosettacode.org/wiki/Category:Programming_Tasks
@@ -11539,7 +11549,9 @@ Definiamo una funzione che calcola tutte le domeniche di Pasqua partendo dall'an
 
 
 ================
+
  PROJECT EULERO
+
 ================
 
   Problema    Soluzione     Tempo (msec)
@@ -16003,7 +16015,9 @@ I numeri coinvolti nella soluzione sono i seguenti:
 
 
 ===============
+
  PROBLEMI VARI
+
 ===============
 
 BubbleSort
@@ -21688,8 +21702,7 @@ Risultato corretto:
     Saldo = (Saldo * anno) - 1 (per 25 anni)
     Saldo dopo 25 anni: 0.0399387296732302
 
-deposito = (e - 1)
-anno X --> (deposito * X) - 1
+Proviamo con una funzione che utilizza i numeri floating point:
 
 (define (banca)
   (local (e deposito)
@@ -21866,7 +21879,9 @@ Questa volta il risultato è esatto.
 
 
 ======================================================================
+
  DOMANDE PER ASSUNZIONE DI PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
+
 ======================================================================
 
 Notazione Big-O
@@ -24162,6 +24177,12 @@ Esempio:
 ;-> ((1 10) (15 18))
 
 
+==========
+
+ LIBRERIE
+
+==========
+
 ===================================
  OPERAZIONI CON I NUMERI COMPLESSI
 ===================================
@@ -25223,9 +25244,11 @@ Restituisce l'insieme potenza di un insieme.
 ;;; EOF
 
 
-+===========+
-| APPENDICI |
-+===========+
+===========
+
+ APPENDICI 
+ 
+===========
 
 ============================================================================
  Lista delle funzioni newLISP
@@ -29416,7 +29439,9 @@ Frasi Famose sulla Programmazione e sul Linguaggio Lisp
 
 
 ====================
+
  BIBLIOGRAFIA / WEB
+
 ====================
 
   Documentazione ufficiale:
