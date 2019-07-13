@@ -28,6 +28,7 @@ newLISP IN GENERALE
   Punto decimale o virgola decimale
   Formattazione dell'output
   Operazioni aritmetiche elementari
+  Incremento/decremento di variabili
   Uso dei numeri big integer
   Introspezione
   Conversioni di tipo: implicite ed esplicite
@@ -58,9 +59,13 @@ newLISP IN GENERALE
     La variabile di ambiente newLISPdir
     Il file di inizializzazione init.lsp
     Esempi sull'utilizzo dei moduli
+  Hash-Map e dizionari
   CAR e CDR in newLISP
 
 FUNZIONI VARIE
+  Tabella ASCII
+  Pari o dispari
+  Crono
   Cambiare di segno ad un numero
   Moltiplicazione solo con addizioni
   Divisione solo con sottrazioni
@@ -90,6 +95,7 @@ FUNZIONI VARIE
   Istogramma
   Stampare una matrice
   Retta passante per due punti
+  Coordinate dei punti di una funzione
   Leggere e stampare un file di testo
   Criptazione e decriptazione di un file
   Funzioni per input utente
@@ -157,6 +163,8 @@ ROSETTA CODE
   Cifrario di Cesare
   Cifrario di Vigenere
   Anagrammi
+  Numeri primi cuban
+  Data di Pasqua
 
 PROJECT EULERO
   Problemi 1..50
@@ -213,6 +221,8 @@ PROBLEMI VARI
   Numeri pandigitali
   Somma dei divisori propri di un numero
   Labirinti (calcolo percorsi)
+  Moltiplicazioni di fattori
+  Problemi patologici dei numeri floating point
 
 DOMANDE PER ASSUNZIONE DI PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Notazione Big O
@@ -276,7 +286,7 @@ BIBLIOGRAFIA / WEB
 
 =======================
 
-  newLISP IN GENERALE 
+  newLISP IN GENERALE
 
 =======================
 
@@ -1494,7 +1504,24 @@ Una lista in newLISP è una cella newLISP di tipo lista. Agisce come un contenit
  LA FUNZIONE QUOTE E IL SIMBOLO '
 ==================================
 
-In newLISP possiamo notare il seguente problema:
+Il carattere quote "'" serve per impedire la valutazione dell'espressione che lo segue.
+Questa espressione quotata viene quindi valutata letteralmente.
+Ricordiamoci che ogni espressione deve produrre un risultato. Infatti non possiamo valutare la lista vuota ():
+
+()
+;-> ERR: invalid function : ()
+
+Quotando la lista vuota newLISP restituisce il valore non valutato, cioè la lista vuota:
+
+'()
+;-> ()
+
+In newLISP tutto viene valutato come vero [true] tranne la lista vuota "()" e "nil" che vengono valutati come falso [nil]. Comunque la lista vuota "()" e "nil" sono diversi:
+
+(= '() nil)
+;-> nil
+
+Il linguaggio newLISp ha hanche la funzione "quote" che è equivalente al carattere "'". Comunque possiamo notare il seguente problema:
 
 (= '(quote 1) ''1)
 ;-> nil
@@ -1917,6 +1944,98 @@ Esempi di operazioni aritmetiche con i numeri reali:
 
 (div 12 5)
 ;-> 2.4
+
+
+====================================
+ INCREMENTO/DECREMENTO DI VARIABILI
+====================================
+
+Quando dobbiamo incrementare le variabili possiamo utilizzare diversi metdoi.
+Il metodo normale consiste nell'utilizzare la funzione "setq":
+
+(setq i 0)
+(setq i (+ i 1))
+;-> 1
+
+Oppure possiamo utilizzare l'operatore "++" (per i numeri interi).
+
+sintassi: (++ valore [num])
+
+L'operatore ++ incrementa il valore di 1 o del numero opzionale num e restituisce il risultato. L'operatore ++ usa l'aritmetica intera. Senza l'argomento facoltativo in num, ++ incrementa il valore di 1. Se i numeri in virgola mobile vengono passati come argomenti, la parte frazionaria viene prima troncata. I calcoli risultanti in numeri superiori a 9.223.372.036.854.775.807 produrranno numeri negativi. Risultati inferiori a -9.223.372.036.854.775.808 produrranno numeri positivi. Il parametro "valore" è un simbolo o un valore indicizzato di una lista o il risultato di una espressione.
+
+(set 'x 1)
+(++ x)
+;-> 2
+(set 'x 3.8)
+(++ x)
+;-> 4
+(++ x 1.3)
+;-> 5
+(set 'lst' (1 2 3))
+(++ (lst 1) 2))
+;-> 4
+lst
+;-> (1 4 3)
+
+Se il simbolo per valore contiene nil, viene trattato come se contenga 0.
+
+L'operatore "--" effettua le operazioni di decremento (numeri interi).
+
+Oppure possiamo usare la funzione "inc" (per i numeri in virgola mobile).
+
+sintassi: (inc valore [num])
+
+Incrementa il valore di 1.0 o del numero opzionale num e restituisce il risultato. inc utilizza l'aritmetica in virgola mobile e converte i numeri interi passati in un tipo a virgola mobile. Senza l'argomento facoltativo in num, inc incrementa il valore di 1.0. Il parametro "valore" è un simbolo o un valore indicizzato di una lista o il risultato di una espressione.
+
+(set 'x 0)
+(inc x)
+;-> 1
+(inc x 0.25)
+;-> 1.25
+(inc x)
+;-> 2.25
+
+Se un simbolo per valore contiene nil, viene trattato come se contenga 0.0:
+
+z
+;-> nil
+(inc z)
+;-> 1
+
+Possono essere aggiornati anche gli elementi di una lista o un numero restituito da un'altra espressione:
+
+(set 'lst '(1 2 3 4))
+(inc (lst 3) 0.1)
+;-> 4.1
+(inc (first lst))
+;-> 2
+lst
+;-> (2 2 3 4.1)
+(inc (+ 3 4))
+;-> 8
+
+La funzione "dec" effettua le operazioni di decremento (numeri in virgola mobile).
+
+Nota: Le funzioni "inc" e "dec" hanno un comportamento diverso se il parametro "valore" viene quotato: le funzioni restituiscono il risultato corretto (incremento o decremento dal numero contenuto in valore, ma la la variabile "valore" mantiene inalterato il numero, cioè non viene incrementato.
+
+Parametro "valore" non quotato:
+(setq x 0)
+(inc x)
+;-> 1
+x
+;-> 1
+
+Parametro "valore" quotato:
+(inc 'x)
+;-> 2
+x
+;-> 1
+
+Invece le funzioni "++" e "--" generano un errore quando cerchiamo di appricarle ad un parametro quotato:
+
+(setq x 0)
+(++ 'x)
+;-> ERR: value expected in function ++ : x
 
 
 ============================
@@ -3821,7 +3940,7 @@ Poiché newLISP è un linguaggio funzionale, non utilizza le istruzioni "break" 
 (catch (foo p))
 ;-> 456
 
-L'interruzione dea cicli loop funziona in modo simile:
+L'interruzione dei cicli loop funziona in modo simile:
 
 (catch
     (dotimes (i N)
@@ -3844,6 +3963,14 @@ Punti di ritorno multipli possono essere codificati usando il "throw":
 
 Se la condizione-A è vera, x sarà restituito dall'espressione "catch", se la condizione-B è vera, il valore restituito è y. In caso contrario, il risultato di foo5 verrà utilizzato come valore di ritorno.
 
+Esempio di catch as "continue" in dolist:
+
+(dolist (el lst)
+  (catch
+     (if (= el 'e) (throw nil)
+         (println el))
+  )
+)
 
 Esempio di catch in una funzione:
 
@@ -4936,6 +5063,12 @@ Conversione di formule dal formato infix a newLISP:
 (INFIX:xlate "(-b + (sqrt (b ^ 2 - 4 * a * c))) / (2 * a)")
 ;-> (div (add -b (sqrt (sub (pow b 2) (mul (mul 4 a) c)))) (mul 2 a))
 
+(INFIX:xlate "(a*x*x + b*x + c)")
+;-> (add (add a*x*x b*x) c)
+
+(INFIX:xlate "(a + b)/(c - d)")
+;-> (div (add a b) (sub c d))
+
 Conversione di formule dal formato postfix (rpn) a newLISP:
 
 (INFIX:xlate "(3 4 5 + +)")
@@ -4953,6 +5086,435 @@ Importazione del modulo:
 Test del modulo (vengono creati due grafici, anche come file .png):
 
 (test-plot)
+
+Un altro modulo molto utile è quello che gestisce il protocollo ftp (File Transfer Protocol): "ftp.lsp". L'utilizzo è molto semplice:
+
+; load ftp module
+(module "ftp.lsp")
+
+;; Functions:
+;; (FTP:get <str-user-id> <str-password> <str-host> <str-dir> <str-file-name>)
+;; (FTP:put <str-user-id> <str-password> <str-host> <str-dir> <str-file-name>)
+
+(set 'FTP:debug-mode true)
+(FTP:put "ADMIN" "pwd-admin" "ftpzone.com" "VAS" "ex01ftp.png")
+;-> true
+
+(FTP:get "USER" "pwd-user" "ftpzone.com" "VAS" "olmeco.png")
+;-> true
+
+
+======================
+ HASH MAP E DIZIONARI
+======================
+
+Vediamo come simulare la struttura dati hash map con i contesti (namespace).
+Un funtore predefinito di un contesto che contiene nil e si trova nella posizione di operatore simula a una funzione di hash per la costruzione di dizionari con (chiave associativa → accesso al valore).
+
+Crea un contesto (namespace) e un funtore di default di nome myHash che contiene il valore nil:
+
+(define myHash:myHash)
+;-> nil
+
+In alternativa al metodo precedente, è possibile utilizzare un contesto predefinito e il funtore di default Tree per instanziare un nuovo cotesto:
+
+(new Tree 'myHash)
+;-> myHash
+
+Entrambi i metodi producono lo stesso risultato, ma il secondo metodo protegge anche il funtore predefinito Myhash: Myhash da possibili modifiche.
+
+Adesso possiamo usare il contesto definito come una hash map.
+
+Creaiamo la chiave key con valore 123:
+
+(myHash "var" 123)
+;-> 123
+
+Recuperiamo il valore tramite la chiave:
+
+(myHash "var")
+;-> 123
+
+Possiamo assegnare altri valori al dizionario:
+
+(myHash "x" "stringa")
+;-> "stringa"
+
+(myHash "x")
+;-> "stringa"
+
+(myHash "var")
+;-> 123
+
+Se una chiave non esiste, allora newLISP restituisce nil:
+
+(myHash "valore")
+;-> nil
+
+Per eliminare una chiave occorre assegnarle il valore nil:
+
+(myHash "var" nil)
+;-> nil
+
+(myHash "var")
+;-> nil
+
+(myHash "var" 123)
+;-> 123
+
+Per conoscere tutti i simboli del contesto myHash:
+
+(symbols myHash)
+;-> (myHash:_var myHash:_x myHash:myHash)
+
+Le chiavi (simboli) var e x vengono memorizzate precedute dal contesto e dal carattere underscore "_".
+Aggiungiamo una chiave che inizia per "_":
+
+(myHash "_y" '(1 2))
+;-> (1 2)
+
+(dolist (el (symbols myHash)) (println el))
+;-> myHash:__y
+;-> myHash:_var
+;-> myHash:_x
+;-> myHash:myHash
+;-> myHash:myHash
+
+I simboli delle variabili create in questo modo possono contenere spazi o altri caratteri normalmente non consentiti nei nomi dei simboli newLISP:
+
+(myHash "il numero" 123)
+;-> 123
+(myHash "#1234" "hello world")
+;-> "hello world"
+(myHash "var" '(a b c d))
+;-> (a b c d)
+(myHash "il numero")
+;-> 123
+(myHash "#1234")
+;-> "hello world"
+(myHash "var")
+;-> (a b c d)
+
+Comunque è consigliabile di non eccedere nell'utilizzo di questi caratteri normalmente non consentiti.
+
+Il simbolo chiave può anche essere un numero intero (che verrà internamente convertito in stringa in modo trasparente all'utente):
+
+(myHash 1 "uno")
+;-> "uno"
+
+(myHash 1)
+;-> "uno"
+
+(myHash "1")
+;-> "uno"
+
+Possiamo vedere tutti gli elementi del dizionario (coppie chiave-valore) utilizzando (valutando) il nome del contesto:
+
+(myHash)
+;-> (("#1234" "hello world") ("1" "uno") ("_y" (1 2))
+;->  ("il numero" 123) ("var" (a b c d)) ("x" "stringa"))
+
+Ma myHash non è una lista:
+
+(list? myHash)
+;-> nil
+
+Però possiamo usare lo stesso dolist su un contesto hash per elencare tutte le coppie chiave-valore del dizionario::
+
+(dolist (cp (myHash)) (println (list (cp 0) (cp 1))))
+;-> ("#1234" "hello world")
+;-> ("1" "uno")
+;-> ("_y" (1 2))
+;-> ("il numero" 123)
+;-> ("var" (a b c d))
+;-> ("x" "stringa")
+;-> ("x" "stringa")
+
+Per creare una lista di associazione dal dizionario hash basta assegnare la valutazione del contesto (dizionario) ad una variabile:
+
+(setq alst (myHash))
+;-> (("#1234" "hello world") ("1" "uno") ("_y" (1 2))
+;->  ("il numero" 123) ("var" (a b c d)) ("x" "stringa"))
+
+(list? alst)
+;-> true
+
+Per popolare un dizionario possiamo anche usare una lista:
+
+(myHash '((3 4) (5 6)))
+;-> myHash
+
+(myHash)
+;-> (("#1234" "hello world") ("1" "uno") ("3" 4) ("5" 6) ("_y" (1 2))
+;->  ("il numero" 123) ("var" (a b c d)) ("x" "stringa"))
+
+Nota: le chiavi del dizionario sono ordinate in maniera lessicografica.
+
+Come molte delle funzioni integrate, le espressioni hash restituiscono un riferimento al loro contenuto che può essere modificato direttamente:
+
+(pop (myHash "var"))
+;-> a
+
+(myHash "var")
+;-> (b c d)
+
+(push 'z (myHash "var"))
+;-> (z b c d)
+
+(myHash "var")
+;-> (z b c d)
+
+Quando si impostano i valori hash, la variabile anaforica di sistema "$it" può essere utilizzata per riferirsi al vecchio valore quando si imposta il nuovo:
+
+(myHash "bar" "hello world")
+;-> "hello world"
+
+(myHash "bar" (upper-case $it))
+;-> "HELLO WORLD"
+
+(myHash "bar")
+;-> "HELLO WORLD"
+
+I valori hash possono essere modificati anche usando "setf":
+
+(myHash "bar" 123)
+;-> 123
+
+(setf (myHash "bar") 456)
+;-> 456
+
+(myHash "bar")
+;-> 456
+
+Ma fornire il valore come secondo parametro alle funzioni hash è più breve da scrivere ed è anche più veloce.
+
+I dizionari possono essere facilmente salvati in un file e ricaricati in un secondo momento:
+
+; save dictionary
+(save "myHash.lsp" 'myHash)
+;-> true
+
+Ecco il contenuto del file "myHash.lsp":
+
+(context 'myHash)
+(set '_#1234 "hello world")
+(set '_3 4)
+(set '_5 6)
+(set '__y '(1 2))
+(set '_bar 456)
+(set  (sym "_il numero" MAIN:myHash)  123)
+(set '_var '(MAIN:a MAIN:b MAIN:c MAIN:d))
+(set '_x "stringa")
+(context MAIN)
+
+; load dictionary
+(load "myHash.lsp")
+
+Internamente le stringhe chiave vengono create e memorizzate come simboli nel contesto dell'hash. Come abbiamo viato, tutte le stringhe chiave sono precedute da un carattere di sottolineatura "_". Questo protegge contro la sovrascrittura del simbolo di default a dalle funzioni set and sym che sono necessarie per caricare il contesto dell'hash (namespace) da disco o tramite http. Nota le seguente differenza:
+
+(myHash)
+;-> (("#1234" "hello world") ("1" "uno") ("3" 4) ("5" 6) ("_y" (1 2))
+;->  ("bar" "HELLO WORLD") ("il numero" 123) ("var" (z b c d)) ("x" "stringa"))
+
+(symbols myHash)
+;-> (myHash:_#1234 myHash:_1 myHash:_3 myHash:_5 myHash:__y myHash:_bar
+;->  myHash:_il numero myHash:_var myHash:_x myHash:myHash)
+
+Nella prima riga i simboli di hash sono mostrati come stringhe senza i caratteri di sottolineatura. La seconda riga mostra la forma interna dei simboli con anteposti i caratteri di sottolineatura.
+
+Per vedere se esiste un valore nel dizionario occorre interrogare tutte le chiavi:
+
+(define (hasValue val hash)
+  (catch
+    (dolist (cp (hash))
+      (if (= (cp 1) val) (throw true))
+    )
+  )
+)
+
+(hasValue '(1 2) myHash)
+;-> true
+
+(hasValue '(1) myHash)
+;-> nil
+
+Per vedere se esiste una chiave nel dizionario non occorre interrogare tutte le chiavi:
+
+(myHash "var")
+;-> (z b c d)
+
+(myHash "k")
+;-> nil
+
+Quindi possiamo scrivere la seguente funzione:
+
+(define (hasKey? key hash) (if (hash key) true nil))
+
+(hasKey? "var" myHash)
+;-> true
+
+(hasKey? "#1234" myHash)
+;-> true
+
+Possiamo fare lo stesso con un ciclo dolist:
+
+(define (hasKey? key hash)
+  (catch
+    (dolist (cp (hash))
+      (if (= (cp 0) key) (throw true))
+    )
+  )
+)
+
+(hasKey? "var" myHash)
+;-> true
+
+(hasKey? "#1234" myHash)
+;-> true
+
+Definiamo alcune funzioni per gestire le hash map (dizionario).
+
+Creazione di una nuova hash map:
+--------------------------------
+
+(define (newHash hash) (new Tree hash))
+
+(newHash 'dictA)
+;-> dictA
+(dictA)
+;-> ()
+(newHash 'dictB)
+;-> dictB
+
+Creazione/modifica di una coppia chiave -> valore nella hash map:
+-----------------------------------------------------------------
+
+(define (addHash key value hash) (hash key value))
+
+(addHash "var" 20 dictA)
+;-> 10
+(addHash "num" 42 dictA)
+;-> 42
+(dictA)
+;-> (("num" 42) ("var" 20))
+
+Cancellazione di una coppia chiave -> valore:
+---------------------------------------------
+
+(define (removeHash key hash) (hash key nil))
+
+(removeHash "var" dictA)
+;-> nil
+(dictA)
+;-> (("num" 42))
+(addHash "var" 22 dictA)
+;-> 22
+
+Conversione da hash map a lista associativa:
+--------------------------------------------
+Creiamo una lista con tutte le coppie chiave-valore del dizionario
+
+(define (hash2list hash) (hash))
+
+(setq lstA (hash2list dictA))
+;-> (("num" 42) ("var" 22))
+
+Aggiornamento hash map da lista associativa:
+--------------------------------------------
+
+(define (list2hash lst hash) (if (= hash nil) nil (hash lst)))
+
+(list2hash lstA dictB)
+;-> dictB
+(dictB)
+;-> (("num" 42) ("var" 22))
+
+Se la hash map non esiste, allora viene restituito nil:
+
+(list2hash lstA dictC)
+;-> nil
+
+Lunghezza della hash map:
+-------------------------
+
+(define (lenHash hash) (if (= hash nil) nil (length (hash))))
+
+(lenHash dictA)
+;-> 2
+
+(lenHash dictC)
+;-> nil
+
+Controllo presenza valore in hash map:
+--------------------------------------
+
+(define (hasValue val hash)
+  (if (= hash nil) nil
+    (catch
+      (dolist (cp (hash))
+        (if (= (cp 1) val) (throw true))
+      )
+    )
+  )
+)
+
+(hasValue 22 dictA)
+;-> true
+(hasValue 22 dictC)
+;-> nil
+
+Controllo presenza chiave in hash map:
+--------------------------------------
+
+(define (hasKey key hash) (if (= hash nil) nil (if (hash key) true nil)))
+
+(hasKey "num" dictA)
+;-> true
+(hasKey "nome" dictA)
+;-> nil
+(hasKey "num" dictC)
+;-> nil
+
+Estrazione di tutte le chiavi in una lista:
+-------------------------------------------
+
+(define (getKeys hash)
+  (local (out)
+    (dolist (cp (hash))
+      (push (cp 0) out -1)
+    )
+  out
+  )
+)
+
+(getKeys myHash)
+;-> ("#1234" "1" "_y" "bar" "il numero" "var" "x")
+
+Estrazione di tutti i valori in una lista:
+------------------------------------------
+
+(define (getValues hash)
+  (local (out)
+    (dolist (cp (hash))
+      (push (cp 1) out -1)
+    )
+  out
+  )
+)
+
+(getValues myHash)
+;-> ("hello world" "uno" (1 2) "hello world" 123 (a b c d) "stringa")
+
+Duplicazione (copia) di un hash:
+--------------------------------
+Basta assegnare il dizionario ad una variabile.
+
+(setq Pippo myHash)
+;-> myHash
+
+(Pippo)
+;-> (("#1234" "hello world") ("3" 4) ("5" 6) ("_y" (1 2)) ("bar" 456)
+;->  ("il numero" 123) ("var" (a b c d)) ("x" "stringa"))
 
 
 ======================
@@ -5053,6 +5615,89 @@ Possiamo definire queste funzioni in newLISP:
 In questo capitolo definiremo alcune funzioni che operano sulle liste e altre funzioni di carattere generale. Alcune di queste ci serviranno successivamente per risolvere i problemi che andremo ad affrontare.
 Poichè newLISP permette sia lo stile funzionale che quello imperativo, le funzioni sono implementate in modo personale e possono essere sicuramente migliorate.
 
+-------------
+Tabella ASCII
+-------------
+
+ASCII (acronimo di American Standard Code for Information Interchange, Codice Standard Americano per lo Scambio di Informazioni) è un codice per la codifica di caratteri. Lo standard ASCII è stato pubblicato dall'American National Standards Institute (ANSI) nel 1968. Il codice era composto originariamente da 7 bit (2^7 = 128 caratteri).
+I caratteri del codice ASCII sono di due tipi: stampabili e non stampabili (caratteri di controllo).
+I caratteri stampabili sono 95 (da 32 a 126), mentre quelli non stampabili sono 33 (da 0 a 31 e il 127). Quindi il totale dei caratteri vale 95 + 33 = 128.
+Scriviamo una funzione che crea una lista dei caratteri ASCII stmapabili.
+
+(define (asciiTable)
+  (let (out '())
+    (for (i 32 126)
+      (push (list i (char i)) out -1)
+    )
+    out
+  )
+)
+
+(asciiTable)
+;-> ((32 " ")  (33 "!")  (34 "\"") (35 "#")  (36 "$")  (37 "%")  (38 "&")
+;->  (39 "'")  (40 "(")  (41 ")")  (42 "*")  (43 "+")  (44 ",")  (45 "-")
+;->  (46 ".")  (47 "/")  (48 "0")  (49 "1")  (50 "2")  (51 "3")  (52 "4")
+;->  (53 "5")  (54 "6")  (55 "7")  (56 "8")  (57 "9")  (58 ":")  (59 ";")
+;->  (60 "<")  (61 "=")  (62 ">")  (63 "?")  (64 "@")  (65 "A")  (66 "B")
+;->  (67 "C")  (68 "D")  (69 "E")  (70 "F")  (71 "G")  (72 "H")  (73 "I")
+;->  (74 "J")  (75 "K")  (76 "L")  (77 "M")  (78 "N")  (79 "O")  (80 "P")
+;->  (81 "Q")  (82 "R")  (83 "S")  (84 "T")  (85 "U")  (86 "V")  (87 "W")
+;->  (88 "X")  (89 "Y")  (90 "Z")  (91 "[")  (92 "\\") (93 "]")  (94 "^")
+;->  (95 "_")  (96 "`")  (97 "a")  (98 "b")  (99 "c")  (100 "d") (101 "e")
+;->  (102 "f") (103 "g") (104 "h") (105 "i") (106 "j") (107 "k") (108 "l")
+;->  (109 "m") (110 "n") (111 "o") (112 "p") (113 "q") (114 "r") (115 "s")
+;->  (116 "t") (117 "u") (118 "v") (119 "w") (120 "x") (121 "y") (122 "z")
+;->  (123 "{") (124 "|") (125 "}") (126 "~"))
+
+In newLISP i caratteri numero 34 (doppi apici) e numero 92 (backslash) sono preceduti dal carattere di controllo '\' quando vengono stampati.
+
+
+--------------
+Pari o dispari
+--------------
+
+Definiamo le funzioni "pari" e "dispari":
+
+(define (pari n) (if (= n 0) true (dispari (- n 1))))
+
+(define (dispari n) (if (= n 0) nil (pari (- n 1))))
+
+(pari 5)
+;-> nil
+(pari 0)
+;-> true
+(dispari 0)
+;-> nil
+(dispari 5)
+;-> true
+
+Altro metodo (più veloce) per definire le funzioni "pari " e "dispari":
+
+(define (pari n) (if (= (% n 2) 0) true nil))
+
+(define (dispari n) (if (= (% n 2) 0) nil true))
+
+
+-----
+Crono
+-----
+
+Definiamo una funzione che prende un numero come argomento e costruisce una lista con tutti i numeri dall'argomento fino a 1 in ordine decrescente:
+
+(define (crono n)
+  (if (<= n 0)
+      '()
+      (cons n (crono (- n 1)))
+  )
+)
+
+; Nota: '() rappresenta la lista vuota
+
+(crono 10)
+;-> (10 9 8 7 6 5 4 3 2 1)
+
+
+------------------------------
 Cambiare di segno ad un numero
 ------------------------------
 
@@ -5119,6 +5764,7 @@ Test quarto metodo:
 Stessa velocità dei primi due metodi, ma quest'ultimo è più leggibile.
 
 
+----------------------------------
 Moltiplicazione solo con addizioni
 ----------------------------------
 
@@ -5141,7 +5787,7 @@ Moltiplicare due numeri naturali (interi positivi)
 (moltiplica 20 30)
 ;-> 600
 
-
+------------------------------
 Divisione solo con sottrazioni
 ------------------------------
 
@@ -5166,6 +5812,7 @@ Dividere due numeri naturali (interi positivi)
 ;-> (11 0)
 
 
+----------------------
 Distanza tra due punti
 ----------------------
 
@@ -5206,6 +5853,7 @@ Distanza griglia manhattan (8 movimenti - esempio: regina):
 ;-> 4
 
 
+---------------------------------
 Conversione decimale <--> binario
 ---------------------------------
 
@@ -5328,6 +5976,7 @@ Converte un numero in una stringa o in una lista (1 -> true, 0 -> nil) che conti
 ;-> 1234
 
 
+-------------------------------------
 Conversione decimale <--> esadecimale
 -------------------------------------
 
@@ -5393,6 +6042,7 @@ Se il numero esadecimale non è intero per trasformarlo in numero decimale bisog
 - convertire la parte frazionaria scrivendo la somma dei prodotti delle cifre del numero, per le potenze crescenti negative del 16.
 
 
+------------------------------------
 Conversione numero intero <--> lista
 ------------------------------------
 
@@ -5453,6 +6103,7 @@ Vediamo quale delle due è più veloce:
 ;-> 855.138
 
 
+-------------------------------
 Numeri casuali in un intervallo
 -------------------------------
 
@@ -5486,6 +6137,7 @@ Facciamo un test sulla distribuzione dei risultati:
 ;-> (9855 9809 9951 10199 9978 10006 9934 10110 10058 10101)
 
 
+-------------------
 Calcolo proporzione
 -------------------
 
@@ -5509,6 +6161,7 @@ Calcolare il valore ignoto (che viene rappresentato con il numero zero) di una p
 ;-> 2
 
 
+----------------------------------------
 Estrarre l'elemento n-esimo da una lista
 ----------------------------------------
 
@@ -5536,6 +6189,7 @@ Estrarre l'elemento n-esimo da una lista
 ;-> ()
 
 
+------------------------------------
 Verificare se una lista è palindroma
 ------------------------------------
 
@@ -5554,6 +6208,8 @@ Nota: senza la funzione "copy", la condizione (= lst (reverse lst)) è sempre ve
 (palindroma? '(e p r e s a l a s e r p e))
 ;-> true
 
+
+--------------------------------------
 Verificare se una stringa è palindroma
 --------------------------------------
 
@@ -5587,6 +6243,7 @@ Vediamo una soluzione con gli indici:
 ;-> nil
 
 
+---------------
 Zippare N liste
 ---------------
 
@@ -5669,8 +6326,10 @@ Calcoliamo il tempo di esecuzione e notiamo che è più veloce della funzione in
 ;-> 31.87 msec
 
 
+--------------------------------------------------------------
 Sostituire gli elementi di una lista con un determinato valore
 --------------------------------------------------------------
+
 Si tratta di sostituire tutti gli elementi di una lista con un determinato valore con un altro valore.
 
 La funzione è la seguente:
@@ -5710,6 +6369,7 @@ In questo caso dobbiamo utilizzare la funzione "set-ref-all":
 ;-> ((a b) K (1 2 (3 K)))
 
 
+-------------------------------------
 Raggruppare gli elementi di una lista
 -------------------------------------
 
@@ -5742,6 +6402,7 @@ Adesso possiamo scrivere la funzione "raggruppa":
 ;-> (((1 2) (3 4)) ((5 6) (7 8)) ((9 10) (11 12)))
 
 
+-----------------------------------
 Enumerare gli elementi di una lista
 -----------------------------------
 
@@ -5785,6 +6446,7 @@ Oppure:
 ;-> ((0 a) (1 b) (2 c))
 
 
+-----------------------------------------------------------
 Creare una stringa come ripetizione di un carattere/stringa
 -----------------------------------------------------------
 
@@ -5819,6 +6481,7 @@ Proviamo a scrivere la nostra funzione:
 ;-> "provaprovaprovaprova"
 
 
+--------------------------------------------------
 Massimo annidamento di una lista ("s-espressione")
 --------------------------------------------------
 
@@ -5865,6 +6528,7 @@ fdb:
 ;-> 5
 
 
+-------------------------------
 Run Length Encode di una lista
 -------------------------------
 
@@ -5905,6 +6569,7 @@ Implementiamo il metodo di compressione Run Length Encoding ad una lista. Gli el
 ;-> ((4 a) (1 b) (2 c) (2 a) (1 d) (4 e) (1 f))
 
 
+------------------------------
 Run Length Decode di una lista
 ------------------------------
 
@@ -5939,6 +6604,7 @@ Esempio: (rle-decode '((3 a) (2 b) (2 c) (1 a) (2 d)))
 ;-> (a a a a b c c a a d e e e e f)
 
 
+-----------------------------------------------
 Massimo Comun Divisore e Minimo Comune Multiplo
 -----------------------------------------------
 
@@ -5991,6 +6657,7 @@ Possiamo anche utilizzare una funzione lambda al posto della funzione ausiliaria
 ;-> 780
 
 
+-----------------
 Funzioni booleane
 -----------------
 
@@ -6012,6 +6679,7 @@ Funzioni booleane
 (define (~^ a b) (~ (^ a b))) ; xnor, bitwise
 
 
+-------------------------------
 Estrazione dei bit di un numero
 -------------------------------
 
@@ -6034,6 +6702,7 @@ Estrazione dei bit di un numero
 (bit 7 123) ;-> 1
 
 
+---------------------------------------------------
 Conversione gradi decimali <--> gradi sessagesimali
 ---------------------------------------------------
 
@@ -6075,6 +6744,7 @@ Conversione gradi decimali <--> gradi sessagesimali
 ;-> 30.26388888888889
 
 
+------------------------
 Conversione RGB <--> HSV
 ------------------------
 
@@ -6171,6 +6841,7 @@ Conversione HSV -> RGB:
 ;-> (0.4999999999999999 0.5 0.5)
 
 
+-------------------------------
 Calcolo della media di n numeri
 -------------------------------
 
@@ -6208,6 +6879,7 @@ Calcolo della media di n numeri
 ;-> 3.5
 
 
+----------
 Istogramma
 ----------
 
@@ -6290,6 +6962,7 @@ La seguente funzione disegna l'istogramma, se il parametro "calc" vale true, all
 ;->  10 ********************  108
 
 
+--------------------
 Stampare una matrice
 --------------------
 
@@ -6320,6 +6993,7 @@ Stampare una matrice
 )
 
 
+----------------------------
 Retta passante per due punti
 ----------------------------
 
@@ -6357,6 +7031,57 @@ Retta passante per due punti
 ;-> (0 4)
 
 
+------------------------------------
+Coordinate dei punti di una funzione
+------------------------------------
+
+Supponiamo di avere la seguente funzione e di voler ottenere una serie di coordinate (x,y):
+
+y = f(x) = (3*x^2 - 4*x + 6)
+
+Definiamo la funzione:
+
+(define (fx x) (add (mul 3 (mul x x)) (- (mul 4 x)) 6))
+
+Vogliamo calcolare 5 coppie di coordinate con x che va da 10 a 20.
+
+Prima generiamo i valori delle x:
+
+(setq l (sequence 10 20 2))
+;-> (10 12 14 16 18 20)
+
+Poi generiamo i valori delle y:
+
+(setq k (map fx l))
+;-> (266 390 538 710 906 1126)
+
+Poi uniamo le due liste:
+
+(transpose (list l k))
+;-> ((10 266) (12 390) (14 538) (16 710) (18 906) (20 1126))
+
+Possiamo scrivere una funzione che restituisce le coppie di coordinate:
+
+(define (coordFX funzione xi xf passo)
+  (local (lstX lstY)
+    (setq lstX (sequence xi xf passo))
+    (setq lstY (map funzione lstX))
+    (transpose (list lstX lstY))
+  )
+)
+
+(coordFX fx 10 20 2)
+;-> ((10 266) (12 390) (14 538) (16 710) (18 906) (20 1126))
+
+Definiamo la funzionde quadrato:
+
+(define (gx x) (mul x x))
+
+(coordFX gx 1 10 1)
+;-> ((1 1) (2 4) (3 9) (4 16) (5 25) (6 36) (7 49) (8 64) (9 81) (10 100))
+
+
+-----------------------------------
 Leggere e stampare un file di testo
 -----------------------------------
 
@@ -6384,6 +7109,7 @@ Leggere e stampare un file di testo
 ;-> true
 
 
+--------------------------------------
 Criptazione e decriptazione di un file
 --------------------------------------
 
@@ -6415,6 +7141,7 @@ Per decriptare un file:
 (cripta "testo.enc" "testo.out" "chiave")
 
 
+-------------------------
 Funzioni per input utente
 -------------------------
 
@@ -6516,6 +7243,7 @@ Nota che read-key funziona solo quando newLISP è in esecuzione in una shell Uni
 (input-integer "Insert an integer: ")
 
 
+----------------
 Emettere un beep
 ----------------
 
@@ -6538,6 +7266,7 @@ La funzione "silent" sopprime l'output sulla console, quindi non compare "\007".
 Può essere utile per segnalare il termine delle operazioni.
 
 
+---------------------------------------
 Disabilitare l'output delle espressioni
 ---------------------------------------
 
@@ -6558,6 +7287,7 @@ Un modo elegante per ritornare al prompt senza intervento dell'utente è il segu
 (silent (myfunction) (print "Fatto") (resume))
 
 
+-----------------------------------------------------
 Trasformare una lista di stringhe in lista di simboli
 -----------------------------------------------------
 
@@ -6571,6 +7301,7 @@ Trasformare una lista di stringhe in lista di simboli
 ;-> (Questa è la stringa da convertire)
 
 
+--------------------------
 Simboli creati dall'utente
 --------------------------
 
@@ -6620,6 +7351,7 @@ Definite la seguente funzione in una nuova sessione di newLISP (una nuova REPL) 
 ;-> ((module user-symbols) (el func other))
 
 
+-------------------------------------------------
 Il programma è in esecuzione ? (progress display)
 -------------------------------------------------
 
@@ -6693,6 +7425,7 @@ Il secondo metodo è più informativo, poichè visualizza il valore della iteraz
 Da notare che entrambi i metodi rallentano leggermente l'esecuzione del programma.
 
 
+-----------------------------
 Ispezionare una cella newLISP
 -----------------------------
 
@@ -6772,6 +7505,7 @@ Un altro metodo simile:
     (types (& 0xf ((dump v) 1))))
 
 
+-----------------------------------
 Informazioni sul sistema (sys-info)
 -----------------------------------
 
@@ -6895,6 +7629,7 @@ Per rendere più leggibili le informazioni scriviamo la funzione "sysinfo":
 ;-> (959 576460752303423488 425 2 0 2048 0 6884 10705 1414)
 
 
+------------------------------------
 Valutazione di elementi di una lista
 ------------------------------------
 
@@ -8051,14 +8786,14 @@ Nel caso in cui un numero sia un multiplo di almeno due fattori, stampare ciascu
 )
 
 (fizzbuzzG 20 lst)
-;-> 1, 2, Fizz, 4, Buzz, Fizz, Baxx, 8, Fizz, Buzz, 11, 
+;-> 1, 2, Fizz, 4, Buzz, Fizz, Baxx, 8, Fizz, Buzz, 11,
 ;-> Fizz, 13, Baxx, FizzBuzz, 16, 17, Fizz, 19, Buzz
 
 (setq lst '((2 "Fizz") (3 "Buzz") (5 "Baxx")))
 
 (fizzbuzzG 30 lst)
-;-> 1, Fizz, Buzz, Fizz, Baxx, FizzBuzz, 7, Fizz, Buzz, FizzBaxx, 11, 
-;-> FizzBuzz, 13, Fizz, BuzzBaxx, Fizz, 17, FizzBuzz, 19, FizzBaxx, Buzz, 
+;-> 1, Fizz, Buzz, Fizz, Baxx, FizzBuzz, 7, Fizz, Buzz, FizzBaxx, 11,
+;-> FizzBuzz, 13, Fizz, BuzzBaxx, Fizz, 17, FizzBuzz, 19, FizzBaxx, Buzz,
 ;-> Fizz, 23, FizzBuzz, Baxx, Fizz, Buzz, Fizz, 29, FizzBuzzBaxx
 
 
@@ -10223,7 +10958,7 @@ Scriviamo una funzione generica che codifica e decodifica ed ha come parametro l
     (setq s1 (explode "ABCDEFGHIJKLMNOPQRSTUVWXYZ"))
     (setq s2 (rotate (copy s1) (- key)))
     (setq codice (transpose (list s1 s2)))
-    (setq anticodice (transpose (list s2 s1)))    
+    (setq anticodice (transpose (list s2 s1)))
     (cond ((= tipo 0)
            (dolist (ch (explode (upper-case msg)))
               (if (lookup ch codice)
@@ -10446,6 +11181,7 @@ Funzione di cifratura:
 
 ANAGRAMMI
 ---------
+
 Quando due o più parole sono composte dagli stessi caratteri, ma in un ordine diverso, vengono chiamate anagrammi.
 Usando l'elenco di parole: http://wiki.puzzlers.org/pub/wordlists/unixdict.txt trovare l'insieme di anagrammi che ha il maggior numero di parole (elementi).
 
@@ -10549,11 +11285,11 @@ Scriviamo la funzione:
 Usando il file "60000_parole_italiane.txt" otteniamo:
 
 (solveAna)
-;-> ((9 "avresti" "restavi" "stivare" "svitare" "versati" 
+;-> ((9 "avresti" "restavi" "stivare" "svitare" "versati"
 ;->     "vestira" "viraste" "vistare" "vistera")
-;->  (8 "riavesti" "stiverai" "sviterai" "vestiari" "vestirai" 
+;->  (8 "riavesti" "stiverai" "sviterai" "vestiari" "vestirai"
 ;->     "visitare" "visitera" "visterai")
-;->  (8 "aperti" "aprite" "pareti" "patrie" "perita" 
+;->  (8 "aperti" "aprite" "pareti" "patrie" "perita"
 ;->     "pietra" "rapite" "ripeta")
 ;->  (7 "cernite" "cretine" "incerte" "recenti" "recinte" "tenerci" "trincee")
 ;->  (7 "cavero" "covare" "covera" "creavo" "recavo" "revoca" "vorace")
@@ -10562,7 +11298,6 @@ Usando il file "60000_parole_italiane.txt" otteniamo:
 ;->  (6 "piastra" "rapasti" "raspati" "sparati" "sparita" "spirata")
 ;->  (6 "perso" "porse" "poser" "preso" "prose" "spero")
 ;->  (6 "parati" "patria" "pirata" "rapati" "rapita" "tarpai"))
-
 
 Adesso scriviamo una funzione che controlla se due parole sono anagrammi l'una dell'altra:
 
@@ -10668,6 +11403,139 @@ Il secondo algoritmo è un po 'più lento ma si basa, su un algoritmo di permuta
 ;->  "lpsi" "lpis" "lsip" "lspi" "lips" "lisp")
 
 Nota: numero di anagrammi = fattoriale(numero di caratteri)
+
+
+NUMERI PRIMI CUBAN
+------------------
+
+Il nome "cuban" non ha nulla a che fare con Cuba, ma ha a che fare con il fatto che i cubi (le terze potenze) hanno un ruolo nella sua definizione.
+
+I primi cuban sono tutti i numeri primi p che soddisfano:
+
+p = (x^3 - y^3)/(x - y),    dove x = y + 1
+
+I numeri primi cuban sono stati nominati nel 1923 da Allan Joseph Champneys Cunningham.
+
+La seguente funzione brute-force è abbastanza veloce per trovare i numeri primi cubani sotto a 10000:
+
+(define (isprime? n)
+  (if (< n 2) nil
+    (if (= 1 (length (factor n))))))
+
+(define (primi_cuban N)
+  (local (cubani cubo1 cubo2 conta i diff)
+    (setq cubani (array (+ N 1) '(0L)))
+    (setq cubo1 1L)
+    (setq conta 0)
+    (setq i 1L)
+    (catch
+      (while true
+        (setq cubo2 (* i i i))
+        (setq diff (- cubo2 cubo1))
+        (if (isprime? diff)
+          (begin
+            (if (<= conta N) (setf (cubani conta) diff))
+            (if (= conta N) (throw nil))
+            (++ conta)
+          )
+        )
+        (setq cubo1 cubo2)
+        (++ i)
+      )
+    );catch
+    cubani
+  );local
+)
+
+(primi_cuban 100)
+;-> (7L 19L 37L 61L 127L 271L 331L 397L 547L 631L 919L 1657L 1801L 1951L 2269L 2437L
+;->  2791L 3169L 3571L 4219L 4447L 5167L 5419L 6211L 7057L 7351L 8269L 9241L 10267L 11719L
+;->  12097L 13267L 13669L 16651L 19441L 19927L 22447L 23497L 24571L 25117L 26227L 27361L
+;->  33391L 35317L 42841L 45757L 47251L 49537L 50311L 55897L 59221L 60919L 65269L 70687L
+;->  73477L 74419L 75367L 81181L 82171L 87211L 88237L 89269L 92401L 96661L 102121L 103231L
+;->  104347L 110017L 112327L 114661L 115837L 126691L 129169L 131671L 135469L 140617L
+;->  144541L 145861L 151201L 155269L 163567L 169219L 170647L 176419L 180811L 189757L
+;->  200467L 202021L 213067L 231019L 234361L 241117L 246247L 251431L 260191L 263737L
+;->  267307L 276337L 279991L 283669L 285517L)
+
+(time (primi_cuban 1000))
+;-> 46.869
+(time (primi_cuban 5000))
+;-> 922.045
+(time (primi_cuban 10000))
+;-> 3797.161
+(time (primi_cuban 20000))
+;-> 16017.151
+(time (primi_cuban 30000))
+;-> 37065.96
+(time (primi_cuban 50000))
+;-> 108592.154
+(time (primi_cuban 100000))
+;-> 455520.319
+
+
+DATA DI PASQUA
+--------------
+
+Calcolo della data di pasqua per gli anni 1583 a 4099
+La domenica di Pasqua è la domenica successiva alla luna piena Paschal (PFM).
+Questo algoritmo è un'interpretazione aritmetica del metod EDS "Easter Dating Method" sviluppato da Ron Mallen 1985.
+Poichè i valori vengono ricavati in modo sequenziale da calcoli inter-dipendenti, non modificare l'ordine dei calcoli !
+L'operatore / rappresenta la divisione intera, ad esempio: 30 / 7 = 4
+Tutte le variabili sono tipi di dati interi.
+Per maggiori informazioni: https://www.assa.org.au/edm
+
+(define (pasqua y)
+  (local (FirstDig Remain19 temp tA tB tC tD tD)
+    (setq FirstDig (/ y 100)) ; prime 2 cifre anno
+    (setq Remain19 (% y 19))   ; cifre restanti anno
+    ;calcola data PFM
+    (setq temp (+ (/ (- FirstDig 15) 2) 202 (- (* 11 Remain19))))
+    (if (find FirstDig '(21 24 25 27 28 29 30 31 32 34 35 38))
+      (setq temp (- temp 1))
+    )
+    (if (find FirstDig '(33 36 37 39 40))
+      (setq temp (- temp 2))
+    )
+    (setq temp (% temp 30))
+    (setq tA (+ temp 21))
+    (if (= temp 29) (setq tA (- tA 1)))
+    (if (and (= temp 28) (> Remain19 10)) (setq tA (- tA 1)))
+    ; trova la domenica successiva
+    (setq tB (% (- tA 19) 7))
+    (setq tC (% (- 40 FirstDig) 4))
+    (if (= tC 3) (setq tC (+ tC 1)))
+    (if (> tC 1) (setq tC (+ tC 1)))
+    (setq temp (% y 100))
+    (setq tD (% (+ temp (/ temp 4)) 7))
+    (setq tE (+ (% (- 20 tB tC tD) 7) 1))
+    (setq d (+ tA tE))
+    ;data
+    (if (> d 31)
+      (setq d (- d 31) m 4)
+      (setq m 3)
+    )
+    (list d m y)
+  );local
+)
+
+(pasqua 2000)
+;-> (23 4 2000)
+
+Definiamo una funzione che calcola tutte le domeniche di Pasqua partendo dall'anno x fino all'anno y:
+
+(define (pasque x y)
+  (for (i x y)
+    (print (pasqua i) { })
+    (if (= (% (+ (- i x) 1) 5) 0) (println { }))
+  )
+  'fine
+)
+
+(pasque 2020 2029)
+;-> (12 4 2020) (4 4 2021) (17 4 2022) (9 4 2023) (31 3 2024)
+;-> (20 4 2025) (5 4 2026) (28 3 2027) (16 4 2028) (1 4 2029)
+;-> fine
 
 
 ================
@@ -16005,9 +16873,9 @@ XdY [<-> | <+> | <*> | </>] [N | AdB]
 Al numero uscito dal lancio di X dadi con Y facce viene applicata una delle operazioni - o + o * o / con il numero N o con il numero uscito da un lancio di A dadi con B facce.
 
 Esempi:
-2d6 + 10 
+2d6 + 10
 (al lancio di 2 dadi con 6 facce sommare il numero 10)
-4d8 - 1d6 
+4d8 - 1d6
 (al lancio di 4 dadi con 8 facce sottrarre il lancio di 1 dado con 6 facce)
 
 
@@ -20676,6 +21544,327 @@ Soluzione:
 ;-> 1 0 0 0 1 0 1 0 0
 ;-> 1 0 0 0 1 1 1 0 0
 
+
+Moltiplicazioni di Fattori
+==========================
+
+Dato un numero N, creare la lista dei numeri che possono essere ottenuti dal prodotto di tutte le combinazioni dei fattori primi del numero N.
+Nota: i numeri primi restituiscono una lista vuota.
+
+Esempio:
+N = 12
+Fattori = 2 2 3
+Prodotti = 2*2 2*3 2*2*3 = 4 6 12
+
+(define (combinazioni k nlst)
+  (cond ((zero? k)     '(()))
+        ((null? nlst)  '())
+        (true
+          (append (map (lambda (k-1) (cons (first nlst) k-1))
+                       (combinazioni (- k 1) (rest nlst)))
+                  (combinazioni k (rest nlst))))))
+
+(setq fattori (factor 12))
+
+(setq c1 (combinazioni 1 fattori))
+;-> ((2) (2) (3))
+(setq c2 (combinazioni 2 fattori))
+;-> ((2 2) (2 3) (2 3))
+(setq c3 (combinazioni 3 fattori))
+;-> ((2 2 3))
+
+(setq r1 (map (fn (x) (apply * x)) c1))
+;-> (2 2 3)
+(setq r2 (map (fn (x) (apply * x)) c2))
+;-> (4 6 6)
+(setq r3 (map (fn (x) (apply * x)) c3))
+;-> (12)
+(setq r (append r1 r2 r3))
+;-> (2 2 3 4 6 6 12)
+(setq r (unique r))
+;-> (2 3 4 6 12)
+(setq r (difference r fattori))
+;-> (4 6 12)
+
+Esempio con N = 36:
+
+(setq fattori (factor 36))
+(setq c1 (combinazioni 1 fattori))
+;-> ((2) (2) (3) (3))
+(setq c2 (combinazioni 2 fattori))
+;-> ((2 2) (2 3) (2 3) (2 3) (2 3) (3 3))
+(setq c3 (combinazioni 3 fattori))
+;-> ((2 2 3) (2 2 3) (2 3 3) (2 3 3))
+(setq c4 (combinazioni 4 fattori))
+;-> ((2 2 3 3))
+
+(setq r1 (map (fn (x) (apply * x)) c1))
+;-> (2 2 3 3)
+(setq r2 (map (fn (x) (apply * x)) c2))
+;-> (4 6 6 6 6 9)
+(setq r3 (map (fn (x) (apply * x)) c3))
+;-> (12 12 18 18)
+(setq r4 (map (fn (x) (apply * x)) c4))
+;-> (36)
+
+(setq r (difference (unique(append r1 r2 r3 r4)) fattori))
+;-> (4 6 9 12 18 36)
+
+Possiamo scrivere la funzione:
+
+(define (mult-fact n)
+  (local (fattori c r out)
+    (setq out '())
+    (setq fattori (factor n))
+    (if (= fattori nil) '()
+      (begin
+        (for (i 1 (length fattori))
+          (setq c (combinazioni i fattori))
+          (setq r (map (fn (x) (apply * x)) c))
+          (push r out -1)
+        )
+        (sort (difference (unique (flat out)) fattori))
+      )
+    );if
+  );local
+)
+
+(mult-fact 12)
+;-> (4 6 12)
+
+(mult-fact 36)
+;-> (4 6 9 12 18 36)
+
+(mult-fact 100)
+;-> (4 10 25 20 50 100)
+
+(mult-fact 31)
+;-> ()
+
+(mult-fact 1)
+;-> ()
+
+(mult-fact 10032)
+;-> (4 6 8 12 16 22 24 33 38 44 48 57 66 76 88 114 132 152 176 209 228
+;->  264 304 418 456 528 627 836 912 1254 1672 2508 3344 5016 10032)
+
+Vediamo per curiosità quale numero fino a diecimila genera la lista più lunga.
+
+(define (entro10000)
+  (setq lungo 0)
+  (setq val 0)
+  (for (i 10 10000)
+    (if (> (length (mult-fact i)) lungo)
+      (setq lungo (length (mult-fact i)) val i)
+    )
+  )
+  (println "numero: " val { --- } "lunghezza: " lungo)
+)
+
+(entro10000)
+;-> numero: 7560 --- lunghezza: 59
+
+
+Problemi patologici dei numeri floating point
+=============================================
+
+La Chaotic Bank Society offre questo investimento ai propri clienti.
+Per prima cosa depositi $ e - 1 dove e è 2.7182818 ... la base dei logaritmi naturali.
+
+Dopo ogni anno, il saldo del tuo account verrà moltiplicato per il numero di anni che sono passati e verranno rimossi $ 1 in costi di servizio.
+
+Così ...
+
+dopo 1 anno, il saldo verrà moltiplicato per 1 e $ 1 verrà rimosso per le spese di servizio.
+dopo 2 anni il saldo sarà raddoppiato e $ 1 rimosso.
+dopo 3 anni il saldo sarà triplicato e $ 1 rimosso.
+...
+dopo 10 anni, moltiplicato per 10 e $ 1 rimosso, e così via.
+
+Quale sarà il tuo saldo dopo 25 anni?
+
+Risultato corretto:
+    Saldo iniziale: (e - 1)
+    Saldo = (Saldo * anno) - 1 (per 25 anni)
+    Saldo dopo 25 anni: 0.0399387296732302
+
+deposito = (e - 1)
+anno X --> (deposito * X) - 1
+
+(define (banca)
+  (local (e deposito)
+    ;definiamo il numero e
+    (setq e (exp 1))
+    (setq deposito (sub e 1))
+    (for (i 1 25)
+      (setq deposito (sub (mul deposito i) 1))
+      (println i { } deposito)
+    )
+    deposito
+  )
+)
+
+(banca)
+;-> 1   0.7182818284590451
+;-> 2   0.4365636569180902
+;-> 3   0.3096909707542705
+;-> 4   0.2387638830170822
+;-> 5   0.1938194150854109
+;-> 6   0.1629164905124654
+;-> 7   0.1404154335872576
+;-> 8   0.1233234686980609
+;-> 9   0.1099112182825479
+;-> 10  0.09911218282547907
+;-> 11  0.09023401108026974
+;-> 12  0.08280813296323686
+;-> 13  0.07650572852207915
+;-> 14  0.07108019930910814
+;-> 15  0.06620298963662208
+;-> 16  0.05924783418595325
+;-> 17  0.007213181161205284
+;-> 18 -0.8701627390983049
+;-> 19 -17.53309204286779
+;-> 20 -351.6618408573559
+;-> 21 -7385.898658004473
+;-> 22 -162490.7704760984
+;-> 23 -3737288.720950264
+;-> 24 -89694930.30280632
+;-> 25 -2242373258.570158
+;-> -2242373258.570158
+
+Il risultato è sbagliato, poichè gli arrotondamenti delle operazioni floating point fanno divergere i calcoli.
+Per risolvere il problema possiamo usare le frazioni, cioè eseguiamo tutti i calcoli con le frazioni (numeri interi) e usiamo la divisione solo per ottenere il valore del risultato come floating point. Per fare questo dobbiamo rappresentare anche il numero "e" con una frazione:
+
+e = 106246577894593683 / 39085931702241241
+
+Le funzioni per utilizzare le quattro operazioni delle frazioni sono le seguenti:
+
+(define (semplifica frac)
+  (local (num den n d temp, nums dens)
+    (setq num (first frac))
+    (setq den (last frac))
+    (setq n (first frac))
+    (setq d (last frac))
+    ; calcola il numero massimo che divide esattamente numeratore e denominatore
+    (while (!= d 0)
+      (setq temp d)
+      (setq d (% n temp))
+      (setq n temp)
+    )
+    (setq nums (/ num n))
+    (setq dens (/ den n))
+    ; controllo del segno
+    (cond ((or (and (< dens 0) (< nums 0)) (and (< dens 0) (> nums 0)))
+           (setq nums (* nums -1))
+           (setq dens (* dens -1))
+          )
+    )
+    (list nums dens)
+  )
+)
+
+(define (+f frac1 frac2 redux)
+  (local (num den n1 d1 n2 d2)
+    (setq n1 (first frac1))
+    (setq d1 (last frac1))
+    (setq n2 (first frac2))
+    (setq d2 (last frac2))
+    (setq num (+ (* n1 d2) (* n2 d1)))
+    (setq den (* d1 d2))
+    (if redux (list num den)
+          (semplifica (list num den))
+    )
+  )
+)
+
+(define (-f frac1 frac2 redux)
+  (local (num den n1 d1 n2 d2)
+    (setq n1 (first frac1))
+    (setq d1 (last frac1))
+    (setq n2 (first frac2))
+    (setq d2 (last frac2))
+    (setq num (- (* n1 d2) (* n2 d1)))
+    (setq den (* d1 d2))
+    (if redux (list num den)
+          (semplifica (list num den))
+    )
+  )
+)
+
+(define (*f frac1 frac2 redux)
+  (local (num den n1 d1 n2 d2)
+    (setq n1 (first frac1))
+    (setq d1 (last frac1))
+    (setq n2 (first frac2))
+    (setq d2 (last frac2))
+    (setq num (* n1 n2))
+    (setq den (* d1 d2))
+    (if redux (list num den)
+          (semplifica (list num den))
+    )
+  )
+)
+
+(define (/f frac1 frac2 redux)
+  (local (num den n1 d1 n2 d2)
+    (setq n1 (first frac1))
+    (setq d1 (last frac1))
+    (setq n2 (first frac2))
+    (setq d2 (last frac2))
+    (setq num (* n1 d2))
+    (setq den (* d1 n2))
+    (if redux (list num den)
+          (semplifica (list num den))
+    )
+  )
+)
+
+Adesso riscriviamo la funzione che calcola il valore finale dell'investimento:
+
+(define (banca)
+  (local (e deposito)
+    ;definiamo il numero e
+    (setq e '(106246577894593683L 39085931702241241L))
+    (setq deposito (-f e '(1 1)))
+    (for (i 1 25)
+      (setq deposito (-f (*f deposito (list i 1)) '(1 1)))
+      (println i { } deposito { } (div (first deposito) (last deposito)))
+    )
+    deposito
+  )
+)
+
+(banca)
+;-> 1  (28074714490111201L 39085931702241241L) 0.7182818284590452
+;-> 2  (17063497277981161L 39085931702241241L) 0.4365636569180905
+;-> 3  (12104560131702242L 39085931702241241L) 0.3096909707542714
+;-> 4  (9332308824567727L 39085931702241241L) 0.2387638830170857
+;-> 5  (7575612420597394L 39085931702241241L) 0.1938194150854282
+;-> 6  (6367742821343123L 39085931702241241L) 0.1629164905125695
+;-> 7  (5488268047160620L 39085931702241241L) 0.1404154335879862
+;-> 8  (4820212675043719L 39085931702241241L) 0.1233234687038897
+;-> 9  (4295982373152230L 39085931702241241L) 0.1099112183350075
+;-> 10 (3873892029281059L 39085931702241241L) 0.09911218335007542
+;-> 11 (3526880619850408L 39085931702241241L) 0.09023401685082953
+;-> 12 (3236635735963655L 39085931702241241L) 0.08280820220995427
+;-> 13 (2990332865286274L 39085931702241241L) 0.07650662872940559
+;-> 14 (2778728411766595L 39085931702241241L) 0.07109280221167809
+;-> 15 (2594994474257684L 39085931702241241L) 0.06639203317517139
+;-> 16 (2433979885881703L 39085931702241241L) 0.06227253080274239
+;-> 17 (2291726357747710L 39085931702241241L) 0.05863302364662064
+;-> 18 (2165142737217539L 39085931702241241L) 0.05539442563917152
+;-> 19 (2051780304892000L 39085931702241241L) 0.05249408714425882
+;-> 20 (1949674395598759L 39085931702241241L) 0.04988174288517631
+;-> 21 (1857230605332698L 39085931702241241L) 0.04751660058870241
+;-> 22 (1773141615078115L 39085931702241241L) 0.04536521295145283
+;-> 23 (1696325444555404L 39085931702241241L) 0.04339989788341503
+;-> 24 (1625878967088455L 39085931702241241L) 0.04159754920196069
+;-> 25 (1561042474970134L 39085931702241241L) 0.03993873004901714
+;-> (1561042474970134L 39085931702241241L)
+
+Questa volta il risultato è esatto.
+
+
 ======================================================================
  DOMANDE PER ASSUNZIONE DI PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
 ======================================================================
@@ -23235,7 +24424,7 @@ Funzione che semplifica una frazione "semplifica"
     ; calcola il numero massimo che divide esattamente numeratore e denominatore
     (while (!= d 0)
       (setq temp d)
-      (setq d (mod n temp))
+      (setq d (% n temp))
       (setq n temp)
     )
     (setq nums (/ num n))
@@ -23273,8 +24462,8 @@ Funzione che somma due frazioni "+f"
     (setq d1 (last frac1))
     (setq n2 (first frac2))
     (setq d2 (last frac2))
-    (setq num (add (mul n1 d2) (mul n2 d1)))
-    (setq den (mul d1 d2))
+    (setq num (+ (* n1 d2) (* n2 d1)))
+    (setq den (* d1 d2))
     (if redux (list num den)
           (semplifica (list num den))
     )
@@ -23304,8 +24493,8 @@ Funzione che sottrae due frazioni "-f"
     (setq d1 (last frac1))
     (setq n2 (first frac2))
     (setq d2 (last frac2))
-    (setq num (sub (mul n1 d2) (mul n2 d1)))
-    (setq den (mul d1 d2))
+    (setq num (- (* n1 d2) (* n2 d1)))
+    (setq den (* d1 d2))
     (if redux (list num den)
           (semplifica (list num den))
     )
@@ -23333,8 +24522,8 @@ Funzione che moltiplica due frazioni "*f"
     (setq d1 (last frac1))
     (setq n2 (first frac2))
     (setq d2 (last frac2))
-    (setq num (mul n1 n2))
-    (setq den (mul d1 d2))
+    (setq num (* n1 n2))
+    (setq den (* d1 d2))
     (if redux (list num den)
           (semplifica (list num den))
     )
@@ -23356,8 +24545,8 @@ Funzione che divide due frazioni "/f"
     (setq d1 (last frac1))
     (setq n2 (first frac2))
     (setq d2 (last frac2))
-    (setq num (mul n1 d2))
-    (setq den (mul d1 n2))
+    (setq num (* n1 d2))
+    (setq den (* d1 n2))
     (if redux (list num den)
           (semplifica (list num den))
     )
@@ -23377,8 +24566,8 @@ Funzione che calcola la potenza di una frazione "^f"
   (local (num den n d)
     (setq n (first frac))
     (setq d (last frac))
-    (setq num (pow n power))
-    (setq den (pow d power))
+    (setq num (int (pow n power)))
+    (setq den (int (pow d power)))
     (if redux (list num den)
           (semplifica (list num den))
     )
@@ -23406,8 +24595,8 @@ Poi riscriviamo la funzione che semplifica (riduce ai minimi termini) una frazio
 
 (define (redux f)
   (local (num den)
-    (setq num (div (numf f) (gcd (numf f) (denf f))))
-    (setq den (div (denf f)  (gcd (numf f) (denf f))))
+    (setq num (/ (numf f) (gcd (numf f) (denf f))))
+    (setq den (/ (denf f)  (gcd (numf f) (denf f))))
     (cond ((or (and (< den 0) (< num 0)) (and (< den 0) (> num 0)))
             (setq num (* num -1))
             (setq den (* den -1)))
@@ -23433,8 +24622,8 @@ Testiamo la funzione "redux":
 Adesso riscriviamo (in modo più conciso) la funzione che somma due frazioni:
 
 (define (+f-aux f1 f2)
-  (redux (list (add (mul (numf f1) (denf f2)) (mul (numf f2) (denf f1)))
-               (mul (denf f1) (denf f2))))
+  (redux (list (+ (* (numf f1) (denf f2)) (* (numf f2) (denf f1)))
+               (* (denf f1) (denf f2))))
 )
 
 Si tratta di una funzione (ausiliaria) che prende come parametro due frazioni.
@@ -23492,8 +24681,8 @@ Funzioni varie
 ;riduzione minimi termini
 (define (redux f)
   (local (num den)
-    (setq num (div (numf f) (gcd (numf f) (denf f))))
-    (setq den (div (denf f)  (gcd (numf f) (denf f))))
+    (setq num (/ (numf f) (gcd (numf f) (denf f))))
+    (setq den (/ (denf f)  (gcd (numf f) (denf f))))
     (cond ((or (and (< den 0) (< num 0)) (and (< den 0) (> num 0)))
             (setq num (* num -1))
             (setq den (* den -1)))
@@ -23507,8 +24696,8 @@ Addizione frazioni "+f"
 
 ;ausiliaria
 (define (+f-aux f1 f2)
-  (redux (list (add (mul (numf f1) (denf f2)) (mul (numf f2) (denf f1)))
-               (mul (denf f1) (denf f2))))
+  (redux (list (+ (* (numf f1) (denf f2)) (* (numf f2) (denf f1)))
+               (* (denf f1) (denf f2))))
 )
 
 ;Addiziona tutte le frazioni passate come argomento a due a due
@@ -24552,9 +25741,9 @@ reader-event      preprocess expressions before evaluation event-driven
 F-expression - FEXPR
 ============================================================================
 
-Nei linguaggi di programmazione Lisp, una FEXPR è una funzione i cui operandi/parametri vengono passati ad essa senza essere valutati. Quando viene chiamato una FEXPR, viene valutato solo il corpo di FEXPR: non si effettuano altre valutazioni se non quando esplicitamente avviato/richiesto dalla FEXPR. 
+Nei linguaggi di programmazione Lisp, una FEXPR è una funzione i cui operandi/parametri vengono passati ad essa senza essere valutati. Quando viene chiamato una FEXPR, viene valutato solo il corpo di FEXPR: non si effettuano altre valutazioni se non quando esplicitamente avviato/richiesto dalla FEXPR.
 
-Al contrario, quando viene chiamata una normale funzione Lisp, gli operandi vengono valutati automaticamente e solo i risultati di queste valutazioni vengono passati alla funzione. 
+Al contrario, quando viene chiamata una normale funzione Lisp, gli operandi vengono valutati automaticamente e solo i risultati di queste valutazioni vengono passati alla funzione.
 
 Quando viene chiamata una macro Lisp (tradizionale), gli operandi vengono passati in modo non valutato, ma qualunque sia il risultato ritornato dalla macro, questo viene valutato automaticamente.
 
@@ -26139,7 +27328,7 @@ Sì. Per le applicazioni con accesso random a liste di grandi dimensioni, l'acce
 
 6. newLISP ha le tabelle hash?
 ------------------------------
-newLISP utilizza alberi binari red-black per l'accesso alla memoria associativa quando si gestiscono spazi dei nomi (namespace), dizionari e per l'accesso ai valori-chiave simili alla tencica hash.
+newLISP utilizza alberi binari red-black per l'accesso alla memoria associativa quando si gestiscono spazi dei nomi (namespace), dizionari e per l'accesso ai valori-chiave simili alla tecnica hash.
 
 7. newLISP ha una gestione automatica della memoria?
 ----------------------------------------------------
@@ -28010,7 +29199,7 @@ Gli schemi di garbage collection tradizionali sviluppati per LISP utilizzavano u
 
 (1) L'algoritmo mark-and-sweep registra ogni oggetto di memoria allocato. Una fase mark contrassegna periodicamente ciascun oggetto nel pool di memoria allocato. Un oggetto con nome (un simbolo di variabile) fa riferimento direttamente o indirettamente a ciascun oggetto di memoria nel sistema. La fase di sweep libera la memoria degli oggetti contrassegnati quando non sono più in uso.
 
-(2) Uno schema di conteggio di riferimento registra ogni oggetto di memoria allocato insieme con un conteggio di riferimenti all'oggetto. Questo conteggio dei riferimenti viene incrementato o decrementato durante la valutazione dell'espressione. Ogni volta che il conteggio dei riferimenti di un oggetto raggiunge lo zero, la memoria allocata dell'oggetto viene liberata. 
+(2) Uno schema di conteggio di riferimento registra ogni oggetto di memoria allocato insieme con un conteggio di riferimenti all'oggetto. Questo conteggio dei riferimenti viene incrementato o decrementato durante la valutazione dell'espressione. Ogni volta che il conteggio dei riferimenti di un oggetto raggiunge lo zero, la memoria allocata dell'oggetto viene liberata.
 
 Nel corso del tempo, sono stati elaborati molti schemi di garbage collection basati su queste tecniche. I primi algoritmi di garbage collection sono apparsi in LISP. Gli inventori del linguaggio Smalltalk utilizzavano schemi garbage collection più elaborati. La storia di Smalltalk-80 è un resoconto entusiasmante delle sfide poste dall'implementazione di metodi di gestione della memoria in linguaggi di programmazione interattivi, vedi [Glenn Krasner, 1983: Smalltalk-80, Bits of History, Words of Advice]. Una panoramica più recente dei metodi di garbage collection è disponibile in [Richard Jones, Rafael Lins, 1996: Garbage Collection, Algorithms for Automatic Dynamic Memory Management].
 
@@ -28175,7 +29364,7 @@ level 1:   return( 25 )
 
 L'attuale implementazione del linguaggio C è ottimizzata in alcuni punti per evitare di inserire (pop) il resultStack ed evitare di chiamare evaluateExpression (expr). Vengono mostrati solo i passi più rilevanti. La funzione evaluateLambda (func, args) non ha bisogno di valutare i suoi argomenti 3 e 4 perché sono costanti, ma evaluateLambda(func, args) chiamerà evaluateExpression(expr) due volte per valutare le due espressioni del corpo (+ (* xx) e (+ (* xx). Linee precedute dal prompt > mostrano l'input della riga di comando.
 
-evaluateLambda (func, args) salva anche l'ambiente per i simboli variabili x e y, copia i parametri in variabili locali e ripristina il vecchio ambiente all'uscita. Anche queste azioni comportano la creazione e la cancellazione di oggetti di memoria. I dettagli sono omessi perché sono simili ai metodi in altri linguaggi dinamici.
+evaluateLambda(func, args) salva anche l'ambiente per i simboli variabili x e y, copia i parametri in variabili locali e ripristina il vecchio ambiente all'uscita. Anche queste azioni comportano la creazione e la cancellazione di oggetti di memoria. I dettagli sono omessi perché sono simili ai metodi in altri linguaggi dinamici.
 
 Riferimenti
 – Glenn Krasner, 1983: Smalltalk-80, Bits of History, Words of Advice
@@ -28247,6 +29436,9 @@ Frasi Famose sulla Programmazione e sul Linguaggio Lisp
 
   Cormullion's Blog
   https://newLISPer.wordpress.com/
+
+  Kazimir Majorinc's Blog
+  http://kazimirmajorinc.com/
 
   "A Practical Introduction to Fuzzy Logic using Lisp", Luis Argüelles Mendez, 2015
 
