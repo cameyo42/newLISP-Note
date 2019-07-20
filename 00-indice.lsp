@@ -60,7 +60,7 @@ newLISP IN GENERALE
   Ambito (scope) dinamico e lessicale
   Contesti
   Uso dei moduli
-    La variabile di ambiente newLISPdir
+    La variabile di ambiente NEWLISPDIR
     Il file di inizializzazione init.lsp
     Esempi sull'utilizzo dei moduli
   Hash-Map e dizionari
@@ -76,6 +76,7 @@ FUNZIONI VARIE
   Distanza tra due punti
   Conversione decimale <--> binario
   Conversione decimale <--> esadecimale
+  Conversione decimale --> romano
   Conversione numero intero <--> lista
   Numeri casuali in un intervallo
   Calcolo proporzione
@@ -169,6 +170,12 @@ ROSETTA CODE
   Anagrammi
   Numeri primi cuban
   Data di Pasqua
+  Equazione di Pell
+  Punteggio numerico (ranking)
+  Legge di Bendford
+  Calendario
+  Carte da gioco
+  Generatore di password
 
 PROJECT EULERO
   Problemi 1..50
@@ -220,7 +227,7 @@ PROBLEMI VARI
   Prodotto massimo di una sottolista
   Problema delle N-Regine
   Somma delle cifre di un numero
-  Coppia di punti
+  Coppia di punti più vicina
   Moltiplicazione tra numeri interi (stringhe)
   Numeri pandigitali
   Somma dei divisori propri di un numero
@@ -265,6 +272,14 @@ LIBRERIE
   Operazioni con gli insiemi
   Funzioni winapi
 
+NOTE LIBERE
+  Perchè newLISP ?
+  newLISP facile
+  Funzioni e liste
+  4-4 Puzzle
+  Il primo Primo
+  Uso delle date
+
 APPENDICI
   Lista delle funzioni newLISP
   Sul linguaggio newLISP - FAQ (Lutz Mueller)
@@ -287,3 +302,4 @@ APPENDICI
 BIBLIOGRAFIA / WEB
 
 ============================================================================
+

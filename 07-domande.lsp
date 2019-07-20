@@ -2295,3 +2295,4 @@ Esempio:
 
 (unisci-intervalli lst)
 ;-> ((1 10) (15 18))
+

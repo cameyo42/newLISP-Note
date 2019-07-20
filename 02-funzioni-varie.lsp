@@ -434,6 +434,74 @@ Se il numero esadecimale non è intero per trasformarlo in numero decimale bisog
 - convertire la parte frazionaria scrivendo la somma dei prodotti delle cifre del numero, per le potenze crescenti negative del 16.
 
 
+-------------------------------
+Conversione decimale --> romano
+-------------------------------
+
+; roman.lsp
+; Sam Cox December 8, 2003
+;
+; LM 2003/12/12: took out type checking of n
+;                 
+;
+; This function constructs a roman numeral representation from its positive
+; integer argument, N.  For example,
+;
+;     (roman 1988) --> MCMLXXXVIII
+;
+; The Roman method of writing numbers uses two kinds of symbols: the basic
+; symbols are I=1, X=10, C=100 and M=1000; the auxiliary symbols are V=5,
+; L=50 and D=500. A rule prescribes that the symbol for the larger number
+; always stands to the left of that for the smaller number. An exception
+; is motivated by the desire to use as few symbols as possible. For
+; example, the number nine can be represented as VIIII (5+4) or IX (10-1);
+; the latter is preferred.  Therefore, if the symbol of a smaller number
+; stands at the left, the corresponding number has to be subtracted, not
+; added.  It is not permitted to place several basic symbols or an
+; auxiliary symbol in front.  For example, use CML for 950 instead of LM.
+; ---
+; The VNR Encyclopedia of Mathematics, W. Gellert, H. Kustner, M. Hellwich,
+; and H. Kastner, eds., Van Nostrand Reinhold Company, New York, 1975.  
+
+(define (roman n)
+        (roman-aux "" n (first *ROMAN*) (rest *ROMAN*)))
+
+(define (roman-aux result n pair remaining)
+    (roman-aux-2 result n (first pair) (second pair) remaining)) 
+
+(define (roman-aux-2 result n val rep remaining)
+    (if
+        (= n 0)
+            result
+        (< n val)
+            (roman-aux result n (first remaining) (rest remaining))
+        ;else
+            (roman-aux-2 (append result rep) (- n val) val rep remaining))) 
+
+(define (second x) (nth 1 x)) 
+
+(setq *ROMAN*
+         '(( 1000  "M" )
+           (  999 "IM" )
+           (  990 "XM" )
+           (  900 "CM" )
+           (  500  "D" )
+           (  499 "ID" )
+           (  490 "XD" )
+           (  400 "CD" )
+           (  100  "C" )
+           (   99 "IC" )
+           (   90 "XC" )
+           (   50  "L" )
+           (   49 "IL" )
+           (   40 "XL" )
+           (   10  "X" )
+           (    9 "IX" )
+           (    5  "V" )
+           (    4 "IV" )
+           (    1  "I" ))) 
+
+
 ------------------------------------
 Conversione numero intero <--> lista
 ------------------------------------
@@ -2042,3 +2110,4 @@ Vediamo il risultato:
 
 lst
 ;-> ((8 (a) 2) (-3 (b) 5))
+

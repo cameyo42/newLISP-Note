@@ -4,6 +4,7 @@
  
 ===============
 
+----------
 BubbleSort
 ----------
 
@@ -71,6 +72,7 @@ Versione iterativa:
 ;-> (3 4 4 5 5 5 6 7 7 8 8 9 10)
 
 
+---------
 QuickSort
 ---------
 
@@ -131,6 +133,7 @@ Ma non è paragonabile alla funzione predefinita di newLISP "sort":
 ;-> 55.94
 
 
+-----------------------------------
 Simulare una matrice con un vettore
 -----------------------------------
 
@@ -204,6 +207,7 @@ Stampiamo gli indici della matrice:
 ;-> (0 0) (0 1) (0 2) (0 3) (1 0) (1 1) (1 2) (1 3) (2 0) (2 1) (2 2) (2 3) " "
 
 
+--------------------------------------------
 Implementare una pila (stack) con un vettore
 --------------------------------------------
 
@@ -306,6 +310,7 @@ Stampa elementi della pila:
 ;-> (nil "Overflow")
 
 
+--------------------------------------------
 Implementare una coda (queue) con un vettore
 --------------------------------------------
 
@@ -503,6 +508,7 @@ k:k
 Con lo stesso metodo possiamo implementare anche una pila illimitata.
 
 
+----------------------------
 Coda circolare (Ring Buffer)
 ----------------------------
 
@@ -609,6 +615,7 @@ Sistema di traffico: nel sistema di traffico controllato da computer, le code ci
 Pianificazione della CPU: i sistemi operativi spesso mantengono una coda di processi pronti per l'esecuzione o che sono in attesa di un particolare evento.
 
 
+----------
 Fattoriale
 ----------
 
@@ -661,6 +668,7 @@ I fattoriali sono importanti nel calcolo combinatorio.
 Per esempio, vi sono n! diverse sequenze formate da n oggetti distinti, cioè ci sono n! permutazioni di n oggetti.
 
 
+----------------------
 Coefficiente binomiale
 ----------------------
 
@@ -715,6 +723,7 @@ Complessità temporale: O(n*k)
 Complessità spaziale: O(n*k)
 
 
+--------------
 Lancio di dadi
 --------------
 
@@ -877,7 +886,7 @@ Esempi:
 (al lancio di 4 dadi con 8 facce sottrarre il lancio di 1 dado con 6 facce)
 
 
-
+---------------
 Quadrati magici
 ---------------
 
@@ -1157,6 +1166,7 @@ Scriviamo una funzione che controlla la correttezza del quadrato generato
 ;-> true
 
 
+-------------------
 Quadrati magici 3x3
 -------------------
 
@@ -1292,6 +1302,7 @@ Il quarto quadrato magico è lo Shu (simbolo divinatorio e matematico cinese).
 Ogni altro quadrato magico di ordine tre è ottenuto dallo Shu per rotazione e/o riflessione.
 
 
+-------------------
 Mastermind numerico
 -------------------
 
@@ -1460,6 +1471,7 @@ NUMERO INDOVINATO --> 427
 true
 
 
+----------------------------
 Algoritmo babilonese sqrt(x)
 ----------------------------
 
@@ -1590,8 +1602,9 @@ L'algoritmo può anche essere definito nel modo seguente:
 La complessità temporale di questo algoritmo è O(log(log(n))).
 
 
+-----------------------------------------------------
 Radice quadrata intera di un numero intero (2^64 bit)
----------------------------------------------------
+-----------------------------------------------------
 
 (define (isqrt x)
   (local (x1 s g0 g1)
@@ -1636,8 +1649,10 @@ Radice quadrata intera di un numero intero (2^64 bit)
 ;-> 18446744073709551616L
 
 
+-------------------------------
 Ricerca binaria (binary search)
 -------------------------------
+
 La "ricerca binaria" è un algoritmo di ricerca che individua l'indice di un determinato valore in un insieme ordinato di dati. Se il valore non esiste allora l'indice vale -1.
 Questo algoritmo cerca un elemento all'interno di una lista ordinata, effettuando mediamente meno confronti rispetto ad una ricerca sequenziale, e quindi più rapidamente rispetto ad essa perché, sfruttando l'ordinamento, dimezza l'intervallo di ricerca ad ogni passaggio.
 L'algoritmo è simile q quella della ricerca di una parola sul dizionario: sapendo che il vocabolario è ordinato alfabeticamente, l'idea è quella di iniziare la ricerca non dal primo elemento, ma da quello centrale, cioè a metà del dizionario. Si confronta questo elemento con quello cercato:
@@ -1755,6 +1770,7 @@ Vediamo la versione ricorsiva:
 ;-> -1
 
 
+--------------------
 Frazione generatrice
 --------------------
 
@@ -1856,6 +1872,7 @@ Infatti matematicamente 1.999... = 2.
 ;-> (3927 1250 3.1416)
 
 
+---------------
 Il numero aureo
 ---------------
 
@@ -1896,6 +1913,7 @@ Poniamo il punto fisso iniziale a uno: phi0 = 1
 ;-> 1.618033988749895
 
 
+--------------------------
 Equazioni di secondo grado
 --------------------------
 
@@ -1968,6 +1986,7 @@ Scriviamo una funzione che calcola le soluzioni di una equazione di secondo grad
 ;-> ((-2 nil) (nil nil))
 
 
+------------------------
 Equazione di terzo grado
 ------------------------
 
@@ -2086,8 +2105,10 @@ Vediamo alcuni esempi:
 ;-> (0.7263732804864121 0 -0.02985330690987276 1.172949872052025 -0.02985330690987276 -1.172949872052025)
 
 
+------------------------
 Sistemi Lineari (Cramer)
 ------------------------
+
 Proviamo a scrivere un programma che risolve i sistemi lineari.
 Utilizzeremo il metodo di Cramer perchè newLISP mette a disposizione una funzione standard per calcolare il determinante di una matrice.
 
@@ -2309,6 +2330,7 @@ Proviamo con un sistema 8x8:
 ;->  -0.9577686974650513 0.1669345810796059 0.682061578219236 -0.3880884752566235)
 
 
+-------------
 Numeri Brutti
 -------------
 
@@ -2353,6 +2375,7 @@ Poi scriviamo il programma per trovare l'n-esimo numero Brutto:
 ;-> 13635
 
 
+-----------------
 Numeri poligonali
 -----------------
 
@@ -2423,6 +2446,7 @@ Nota: Ogni numero esagonale è anche un numero triangolare.
 ;-> (1 4 9 16 25 36 49 64 81 100)
 
 
+--------------
 Torre di Hanoi
 --------------
 
@@ -2477,6 +2501,7 @@ La seguente funzione risolve la torre di hanoi:
 ;-> nil
 
 
+------------------
 Indovina il numero
 ------------------
 
@@ -2519,6 +2544,7 @@ Supponiamo di aver scelto il numero 80 e iniziamo il gioco:
 ;-> 80    ; il computer ha indovinato il nostro numero
 
 
+----------------------
 Il problema Monty Hall
 ----------------------
 
@@ -2564,6 +2590,7 @@ Adesso scriviamo la funzione che tiene sempre la prima scelta (non cambia mai la
 Teoricamente cambiare la porta migliora la probabilità del giocatore di vincere il premio, portandola da 1/3 a 2/3.
 
 
+--------------------------
 Il problema del compleanno
 --------------------------
 
@@ -2667,6 +2694,7 @@ con 100 persone siamo quasi sicuri 0.99999969.
 (comunque per ottenere l'evento certo (1) occorre considerare un gruppo di almeno 366 persone)
 
 
+----------------------
 Algoritmo di Karatsuba
 ----------------------
 
@@ -2839,6 +2867,8 @@ Per implementare l'algoritmo anche per i numeri big integer dobbiamo tenere cont
 
 La funzione per i big integer è veloce la metà della versione per interi.
 
+
+-------------------------------
 Formati A0, A1, A2, A3, A4, ...
 -------------------------------
 
@@ -2890,6 +2920,7 @@ Esempio: lati formato A0
 ;-> (84.08964152537145 118.9207115002721)
 
 
+-----------------------------------
 Moltiplicazione del contadino russo
 -----------------------------------
 
@@ -2984,6 +3015,7 @@ Vediamo la velocità della funzione primitiva di addizione "*":
 ;-> 91.905
 
 
+---------------------
 Distanza di Manhattan
 ---------------------
 
@@ -3046,6 +3078,7 @@ La funzione ricorsiva per il calcolo dei percorsi è la seguente:
 ;-> (18 48620)
 
 
+-------------------------------------------------
 Modello di crescita di una popolazione di conigli
 -------------------------------------------------
 
@@ -3148,6 +3181,7 @@ Versione iterativa:
 Con la versione iterativa il calcolo è immediato.
 
 
+---------------
 The Game of Pig
 ---------------
 
@@ -3380,6 +3414,7 @@ http://cs.gettysburg.edu/~tneller/papers/umap10.pdf
 affronta il gioco matematicamente e raggiunge le stesse conclusioni: il numero 20 e il numero 25 massimizzano le probabilità di vittoria.
 
 
+------------------
 Il gioco dei salti
 ------------------
 
@@ -3447,6 +3482,7 @@ oppure
 ;-> 3
 
 
+--------------------------------------------
 Ricerca stringa in un testo (algoritmo base)
 --------------------------------------------
 
@@ -3512,6 +3548,7 @@ Il numero di confronti nel caso peggiore è O(m*(n-m+1)).
 Nei testi italiani le lettere ripetute sono improbabili, ma questo potrebbero verificarsi in altri casi (ad esempio nei testi binari).
 
 
+-----------------------------------------
 Ricerca stringa in un testo (algoritmo Z)
 -----------------------------------------
 
@@ -3651,6 +3688,7 @@ La seguente funzione restituisce una lista di indici se il "pattern" (stringa) v
 ;-> (0 2 4 6 8)
 
 
+-----------------------
 Distanza di Levenshtein
 -----------------------
 
@@ -3817,6 +3855,7 @@ Adesso scriviamo una funzione iterativa:
 ;-> 7
 
 
+--------------
 Social Network
 --------------
 
@@ -3974,6 +4013,7 @@ Adesso scriviamo il risultato nel file "social-luca.txt":
 (close datafile)
 
 
+-------
 Skyline
 -------
 
@@ -4074,6 +4114,7 @@ Possiamo scrivere la funzione:
 ;-> ((2 10) (3 15) (6 12) (12 0) (13 10) (16 5) (17 0))
 
 
+-------------
 Knuth-shuffle
 -------------
 
@@ -4128,6 +4169,7 @@ newLISP ha anche una funzione apposita: "randomize":
 ;->  77 63 49 6 79 7 66)
 
 
+-------------------
 Bussola e direzioni
 -------------------
 
@@ -4220,6 +4262,7 @@ nil
 ;-> "East"
 
 
+--------------------------------------
 Puzzle (a b c + a b c + a b c = c c c)
 --------------------------------------
 
@@ -4389,6 +4432,7 @@ b = 8
 c = 5
 
 
+---------------
 Numero mancante
 ---------------
 
@@ -4423,8 +4467,10 @@ Soluzione 2 - Bitwise XOR
 ;-> 3
 
 
+--------------------------------------------------
 Somma massima di una sottolista (Algoritmo Kadane)
 --------------------------------------------------
+
 Data una lista di numeri interi trovare il valore massimo della somma di una sua sottolista.
 L'algoritmo di Kadane risolve questo problema per una lista di qualunque dimensione.
 In questo caso lo applicheremo ad una lista semplice ad una sola dimensione (1D).
@@ -4593,6 +4639,7 @@ La funzione definitiva è la seguente:
 L'algoritmo Kadane ha complessità temporale O(n).
 
 
+----------------------------------
 Prodotto massimo di una sottolista
 ----------------------------------
 
@@ -4647,6 +4694,7 @@ Sottolista: (-2 -40)
 ;-> 0
 
 
+-----------------------
 Problema delle N-Regine
 -----------------------
 
@@ -4842,6 +4890,7 @@ In questo modo si ottiene una possibile soluzione al problema delle N-Regine e l
 ;-> 31058.105 ; 31 secondi
 
 
+------------------------------
 Somma delle cifre di un numero
 ------------------------------
 
@@ -4909,6 +4958,7 @@ N = ∑ d(i)*10^i ⇒ N mod 9 ≡ ∑ (d(i)*10^i mod 9) ≡ ∑ d(i) mod 9
 Notare che qualsiasi numero intero positivo in base b è congruente alla somma delle sue cifre modulo (b-1) per qualsiasi base.
 
 
+--------------------------
 Coppia di punti più vicina
 --------------------------
 
@@ -5010,6 +5060,7 @@ Vediamo la differenza del numero di cicli tra due for innestati (i = 0 e j = 0) 
 Il primo ciclo ha n^2 cicli, il secondo ha (n^2)/2 cicli.
 
 
+--------------------------------------------
 Moltiplicazione tra numeri interi (stringhe)
 --------------------------------------------
 
@@ -5046,6 +5097,7 @@ Il creatore di newLISP (Lutz Mueller) ha scritto la seguente funzione che moltip
 )
 
 
+------------------
 Numeri pandigitali
 ------------------
 
@@ -5161,6 +5213,7 @@ Vediamo ora in numeri pandigitali (9):
 ;-> 277.714
 
 
+--------------------------------------
 Somma dei divisori propri di un numero
 --------------------------------------
 
@@ -5860,3 +5913,4 @@ Adesso riscriviamo la funzione che calcola il valore finale dell'investimento:
 ;-> (1561042474970134L 39085931702241241L)
 
 Questa volta il risultato è esatto.
+

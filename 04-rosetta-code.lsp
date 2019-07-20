@@ -11,6 +11,7 @@ Il sito contiene moltissimi problemi risolti in 714 linguaggio (non tutti proble
 Di seguito vengono presentanti alcuni di questi problemi e la loro soluzione.
 Per avere una migliore comprensione si consiglia di provare a risolverli per conto proprio prima di leggere la soluzione.
 
+--------
 FIZZBUZZ
 --------
 
@@ -68,6 +69,7 @@ Nel caso in cui un numero sia un multiplo di almeno due fattori, stampare ciascu
 ;-> Fizz, 23, FizzBuzz, Baxx, Fizz, Buzz, Fizz, 29, FizzBuzzBaxx
 
 
+------------
 NUMERI PRIMI
 ------------
 
@@ -427,6 +429,7 @@ Attenzione: la funzione è molto lenta con numeri grandi.
 ;-> 551342.497 ; 9 minuti e 11 secondi
 
 
+---------------
 NUMERI DI SMITH
 ---------------
 
@@ -526,6 +529,7 @@ Adesso possiamo scrivere la funzione richiesta:
 ;-> Fino a 10000 ci sono 376 numeri di Smith.
 
 
+-----------------
 NUMERI DI HAMMING
 -----------------
 
@@ -571,6 +575,7 @@ Questa funzione restituisce il più piccolo tra due numeri (anche big integer):
 ;-> 2130.027 (millisecondi)
 
 
+-----------------
 NUMERI DI CATALAN
 -----------------
 
@@ -628,6 +633,7 @@ Non possiamo usare i big integer poichè la divisione altera il risultato, quind
 ;-> 5.394974869170395e+296
 
 
+------------------
 NUMERI DI KAPREKAR
 ------------------
 
@@ -709,6 +715,7 @@ Adesso possiamo scrivere la funzione:
 ;-> 11532 (millisecondi)
 
 
+-------------
 NUMERI FELICI
 -------------
 
@@ -779,6 +786,7 @@ altrimenti inserisci il numero nella lista e continua                 ;continua 
 ;-> Fino a 1000 ci sono 143 numeri felici.
 
 
+-----------------
 NUMERI PRIMORIALI
 -----------------
 
@@ -881,6 +889,7 @@ La funzione è la seguente (utilizza i big integer):
 ;-> 166589903787325219380851695350896256250980509594874862046961683989710L
 
 
+---------------
 NUMERI PERFETTI
 ---------------
 
@@ -1054,6 +1063,7 @@ Adesso scriviamo la funzione per trovare i numeri perfetti con il nostro algorit
 ;-> true ; ma ci vuole tanto tempo
 
 
+----------------
 NUMERI AMICABILI
 ----------------
 
@@ -1125,6 +1135,7 @@ Scrivere una funzione per trovare le coppie di numeri amicabili fino a N = 100.0
 ;-> 88730 79750
 
 
+-----------------
 NUMERI PERNICIOSI
 -----------------
 
@@ -1188,6 +1199,7 @@ Funzione che calcola i numeri perniciosi fino a n:
 ;-> (3 5 6 7 9 10 11 12 13 14 17 18 19 20 21 22 24 25)
 
 
+--------------------
 NUMERI DI MUNCHAUSEN
 --------------------
 
@@ -1243,6 +1255,7 @@ Infine scriviamo la funzione che ricerca i numeri di Munchausen:
 ;-> 1814539.27 ; millisecondi (circa 30 minuti)
 
 
+-------------------
 SEQUENZA DI COLLATZ
 -------------------
 
@@ -1270,6 +1283,7 @@ La sequenza di numeri di Collatz (o Hailstone) può essere generata da un numero
 ;-> 77
 
 
+------------
 PERMUTAZIONI
 ------------
 
@@ -1391,6 +1405,7 @@ Anche la seguente funzione calcola le permutazioni, ma con un metodo diverso:
 ;-> ((1 2 3) (2 1 3) (2 3 1) (1 3 2) (3 1 2) (3 2 1))
 
 
+------------
 COMBINAZIONI
 ------------
 
@@ -1424,6 +1439,7 @@ COMBINAZIONI
 ;-> ((a b c))
 
 
+----------------
 REGOLA DI HORNER
 ----------------
 
@@ -1464,6 +1480,7 @@ Adesso la scriviamo in stile iterativo:
 ;-> 128
 
 
+-------------------------------
 PROBLEMA DELLO ZAINO (KNAPSACK)
 -------------------------------
 
@@ -1667,6 +1684,7 @@ Come abbiamo anticipato, si può trovare la soluzione calcolando A(n,W). Per far
 ;->  (note-case 22 80) (sunglasses 7 20) (socks 4 50))
 
 
+----------------------
 GIORNO DELLA SETTIMANA
 ----------------------
 
@@ -1742,6 +1760,7 @@ Adesso possiamo scrivere la funzione:
 (dayT 2456 12 24) ;-> 0
 
 
+-------------------
 TRIANGOLO DI PASCAL
 -------------------
 
@@ -1941,6 +1960,7 @@ Quindi iniziamo con C(n, 0) = 1 e poi calcoliamo il resto della riga usando ques
 Ricordiamo che il coefficiente binomiale rappresenta il numero di scelte di k elementi tra quelli di un insieme di n elementi (numero di combinazioni semplici).
 
 
+------------
 CODICE MORSE
 ------------
 
@@ -2097,6 +2117,7 @@ Definiamo la funzione inversa che converta da una lista di codici morse ad una l
 ;-> "TESTO DA TRADURRE."
 
 
+-------------------
 PROBLEMA DI BABBAGE
 -------------------
 
@@ -2151,6 +2172,7 @@ Allora, il numero più piccolo da provare vale 574.
 ;-> 15.627
 
 
+------------------
 CIFRARIO DI CESARE
 ------------------
 
@@ -2266,6 +2288,7 @@ Scriviamo una funzione generica che codifica e decodifica ed ha come parametro l
 ;-> tipo: 0 -> cifra, 1 -> decifra
 
 
+--------------------
 CIFRARIO DI VIGENERE
 --------------------
 
@@ -2450,6 +2473,7 @@ Funzione di cifratura:
 ;-> "CIFRARIO DI VIGENERE"
 
 
+---------
 ANAGRAMMI
 ---------
 
@@ -2676,6 +2700,7 @@ Il secondo algoritmo è un po 'più lento ma si basa, su un algoritmo di permuta
 Nota: numero di anagrammi = fattoriale(numero di caratteri)
 
 
+------------------
 NUMERI PRIMI CUBAN
 ------------------
 
@@ -2745,6 +2770,7 @@ La seguente funzione brute-force è abbastanza veloce per trovare i numeri primi
 ;-> 455520.319
 
 
+--------------
 DATA DI PASQUA
 --------------
 
@@ -2807,3 +2833,939 @@ Definiamo una funzione che calcola tutte le domeniche di Pasqua partendo dall'an
 ;-> (12 4 2020) (4 4 2021) (17 4 2022) (9 4 2023) (31 3 2024)
 ;-> (20 4 2025) (5 4 2026) (28 3 2027) (16 4 2028) (1 4 2029)
 ;-> fine
+
+
+-----------------
+EQUAZIONE DI PELL
+-----------------
+
+L'equazione di Pell (detta anche equazione di Pell-Fermat) è un'equazione diofantina della forma:
+
+x^2 - n*y^2 = 1
+
+dove il parametro "n" è un numero intero positivo non quadrato.
+L'equazione ha soluzioni intere per x e y.
+
+Trovare la soluzione più piccola dell'equazione di Pell per n = 61, 109, 181, 277.
+
+(define (Pell n)
+  (local (z r x y e1 e2 f1 f2 A B t1 t2)
+    (setq x (bigint (int (sqrt n))))
+    (setq y x)
+    (setq z 1L)
+    (setq r (* x 2))
+    (setq e1 1L e2 0L)
+    (setq f1 0L f2 1L)
+    (catch
+      (while true
+        (setq y (bigint (- (* r z) y)))
+        (setq z (bigint (/ (- n (* y y)) z)))
+        (setq r (bigint (/ (+ x y) z)))
+        (setq t1 e1) (setq t2 e2)
+        (setq e1 t2)
+        (setq e2 (bigint (+ (* t2 r) t1)))
+        (setq t1 f1) (setq t2 f2)
+        (setq f1 t2)
+        (setq f2 (bigint (+ (* t2 r) t1)))
+        (setq A f2)
+        (setq B e2)
+        (setq t1 A) (setq t2 B)
+        (setq B t1)
+        (setq A (bigint (+ (* t1 x) t2)))
+        (if (= (- (* A A) (* B B n)) 1) (throw (list A B)))
+        ;(println (format "z = %s\nr = %s\nx = %s\ny = %s" (string z) (string r) (string x) (string y)))
+        ;(println (format "e1 = %s\ne2 = %s\nf1 = %s\nf2 = %s" (string e1) (string e2) (string f1) (string f2)))
+        ;(println (format "A = %s\nB = %s" (string A) (string B)))
+        ;(read-line)
+      );while
+    );catch
+  );local
+)
+
+(Pell 61)
+;-> (1766319049L 226153980L)
+
+(Pell 109)
+;-> (158070671986249L 15140424455100L)
+
+(Pell 181)
+;-> (2469645423824185801L 183567298683461940L)
+
+(Pell 277)
+;-> (159150073798980475849L 9562401173878027020L)
+
+Se passiamo un numero quadrato, otteniamo un errore:
+
+(Pell 4)
+;-> ERR: division by zero
+;-> called from user function (Pell 4)
+
+Troviamo le soluzione dell'equazione di Pell per n = [1..100].
+
+(define (Pell100)
+  (for (i 1 100)
+    (if (= (sqrt i) (int (sqrt i))) (println i {:})
+        (println i {:  }(Pell i))
+    )
+  )
+)
+
+(Pell100)
+;-> 1:
+;-> 2:  (3L 2L)
+;-> 3:  (2L 1L)
+;-> 4:
+;-> 5:  (9L 4L)
+;-> 6:  (5L 2L)
+;-> 7:  (8L 3L)
+;-> 8:  (3L 1L)
+;-> 9:
+;-> 10:  (19L 6L)
+;-> 11:  (10L 3L)
+;-> 12:  (7L 2L)
+;-> 13:  (649L 180L)
+;-> 14:  (15L 4L)
+;-> 15:  (4L 1L)
+;-> 16:
+;-> 17:  (33L 8L)
+;-> 18:  (17L 4L)
+;-> 19:  (170L 39L)
+;-> 20:  (9L 2L)
+;-> 21:  (55L 12L)
+;-> 22:  (197L 42L)
+;-> 23:  (24L 5L)
+;-> 24:  (5L 1L)
+;-> 25:
+;-> 26:  (51L 10L)
+;-> 27:  (26L 5L)
+;-> 28:  (127L 24L)
+;-> 29:  (9801L 1820L)
+;-> 30:  (11L 2L)
+;-> 31:  (1520L 273L)
+;-> 32:  (17L 3L)
+;-> 33:  (23L 4L)
+;-> 34:  (35L 6L)
+;-> 35:  (6L 1L)
+;-> 36:
+;-> 37:  (73L 12L)
+;-> 38:  (37L 6L)
+;-> 39:  (25L 4L)
+;-> 40:  (19L 3L)
+;-> 41:  (2049L 320L)
+;-> 42:  (13L 2L)
+;-> 43:  (3482L 531L)
+;-> 44:  (199L 30L)
+;-> 45:  (161L 24L)
+;-> 46:  (24335L 3588L)
+;-> 47:  (48L 7L)
+;-> 48:  (7L 1L)
+;-> 49:
+;-> 50:  (99L 14L)
+;-> 51:  (50L 7L)
+;-> 52:  (649L 90L)
+;-> 53:  (66249L 9100L)
+;-> 54:  (485L 66L)
+;-> 55:  (89L 12L)
+;-> 56:  (15L 2L)
+;-> 57:  (151L 20L)
+;-> 58:  (19603L 2574L)
+;-> 59:  (530L 69L)
+;-> 60:  (31L 4L)
+;-> 61:  (1766319049L 226153980L)
+;-> 62:  (63L 8L)
+;-> 63:  (8L 1L)
+;-> 64:
+;-> 65:  (129L 16L)
+;-> 66:  (65L 8L)
+;-> 67:  (48842L 5967L)
+;-> 68:  (33L 4L)
+;-> 69:  (7775L 936L)
+;-> 70:  (251L 30L)
+;-> 71:  (3480L 413L)
+;-> 72:  (17L 2L)
+;-> 73:  (2281249L 267000L)
+;-> 74:  (3699L 430L)
+;-> 75:  (26L 3L)
+;-> 76:  (57799L 6630L)
+;-> 77:  (351L 40L)
+;-> 78:  (53L 6L)
+;-> 79:  (80L 9L)
+;-> 80:  (9L 1L)
+;-> 81:
+;-> 82:  (163L 18L)
+;-> 83:  (82L 9L)
+;-> 84:  (55L 6L)
+;-> 85:  (285769L 30996L)
+;-> 86:  (10405L 1122L)
+;-> 87:  (28L 3L)
+;-> 88:  (197L 21L)
+;-> 89:  (500001L 53000L)
+;-> 90:  (19L 2L)
+;-> 91:  (1574L 165L)
+;-> 92:  (1151L 120L)
+;-> 93:  (12151L 1260L)
+;-> 94:  (2143295L 221064L)
+;-> 95:  (39L 4L)
+;-> 96:  (49L 5L)
+;-> 97:  (62809633L 6377352L)
+;-> 98:  (99L 10L)
+;-> 99:  (10L 1L)
+;-> 100:
+
+
+----------------------------
+PUNTEGGIO NUMERICO (RANKING)
+----------------------------
+
+Il punteggio numerico dei concorrenti (ranking) mostra se uno è migliore, uguale o peggiore di un altro in base ai risultati ottenuti in una  o più competizioni.
+Il punteggio numerico di un concorrente può essere assegnato in diversi modi:
+
+1) Ordinale. (I concorrenti prendono il successivo numero intero disponibile. I punteggi uguali non sono trattati diversamente).
+
+2) Standard (I punteggi uguali condividono quello che sarebbe stato il loro primo numero ordinale).
+
+3) Denso. (I punteggi uguali condividono il successivo numero intero disponibile).
+
+Scrivere una funzione per ognuno dei tre metodi di calcolo elencati.
+
+Lista di concorrenti e relativi risultati:
+
+44 Solomon
+42 Jason
+42 Errol
+41 Garry
+41 Bernard
+41 Barry
+39 Stephen
+
+Tipi di punteggi:
+
+Ordinal Ranking    Standard Ranking    Dense Ranking
+---------------    ----------------    -------------
+1  44  Solomon     1  44  Solomon      1  44  Solomon
+2  42  Jason       2  42  Jason        2  42  Jason
+3  42  Errol       2  42  Errol        2  42  Errol
+4  41  Garry       4  41  Garry        3  41  Garry
+5  41  Bernard     4  41  Bernard      3  41  Bernard
+6  41  Barry       4  41  Barry        3  41  Barry
+7  39  Stephen     7  39  Stephen      4  39  Stephen
+
+
+Modified Ranking   Fractional Ranking
+----------------   ------------------
+1  44  Solomon     1.0  44  Solomon
+3  42  Jason       2.5  42  Jason
+3  42  Errol       2.5  42  Errol
+6  41  Garry       5.0  41  Garry
+6  41  Bernard     5.0  41  Bernard
+6  41  Barry       5.0  41  Barry
+7  39  Stephen     7.0  39  Stephen
+
+(setq lst '((44 Solomon) (42 Jason) (42 Errol) (41 Garry) (41 Bernard) (41 Barry) (39 Stephen)))
+
+(define (ordinal-rank lst)
+  (println "Ordinal rank")
+  (for (i 0 (- (length lst) 1))
+    (println (format "%d  %d  %s" (+ i 1) (first (lst i)) (string (last (lst i)))))
+  )
+  'fine
+)
+
+(ordinal-rank lst)
+;-> Ordinal rank
+;-> 1  44  Solomon
+;-> 2  42  Jason
+;-> 3  42  Errol
+;-> 4  41  Garry
+;-> 5  41  Bernard
+;-> 6  41  Barry
+;-> 7  39  Stephen
+
+(define (standard-rank lst)
+  (let (j 1)
+    (println "Standard rank")
+    (for (i 0 (- (length lst) 2))
+      (println (format "%d  %d  %s" j (first (lst i)) (string (last (lst i)))))
+      (if (< (first (lst (+ i 1))) (first (lst i)))
+        (setq j (+ i 2))
+      )
+    )
+    (println (format "%d  %d  %s" j (first (last lst)) (string (last (last lst)))))
+  )
+  'fine
+)
+
+(standard-rank lst)
+;-> Standard rank
+;-> 1  44  Solomon
+;-> 2  42  Jason
+;-> 2  42  Errol
+;-> 4  41  Garry
+;-> 4  41  Bernard
+;-> 4  41  Barry
+;-> 7  39  Stephen
+
+(define (dense-rank lst)
+  (let (j 1)
+    (println "Dense rank")
+    (for (i 0 (- (length lst) 2))
+      (println (format "%d  %d  %s" j (first (lst i)) (string (last (lst i)))))
+      (if (< (first (lst (+ i 1))) (first (lst i)))
+        (++ j)
+      )
+    )
+    (println (format "%d  %d  %s" j (first (last lst)) (string (last (last lst)))))
+  )
+  'fine
+)
+
+(dense-rank lst)
+;-> Dense rank
+;-> 1  44  Solomon
+;-> 2  42  Jason
+;-> 2  42  Errol
+;-> 3  41  Garry
+;-> 3  41  Bernard
+;-> 3  41  Barry
+;-> 4  39  Stephen
+
+Proviamo con una diversa lista relativi risultati:
+
+44 Solomon
+44 Jason
+42 Errol
+41 Garry
+41 Bernard
+39 Barry
+39 Stephen
+
+(setq lst '((44 Solomon) (44 Jason) (42 Errol) (41 Garry) (41 Bernard) (39 Barry) (39 Stephen)))
+
+(ordinal-rank lst)
+;-> Ordinal rank
+;-> 1  44  Solomon
+;-> 2  44  Jason
+;-> 3  42  Errol
+;-> 4  41  Garry
+;-> 5  41  Bernard
+;-> 6  39  Barry
+;-> 7  39  Stephen
+
+(standard-rank lst)
+;-> Standard rank
+;-> 1  44  Solomon
+;-> 1  44  Jason
+;-> 3  42  Errol
+;-> 4  41  Garry
+;-> 4  41  Bernard
+;-> 6  39  Barry
+;-> 6  39  Stephen
+
+(dense-rank lst)
+Dense rank
+;-> 1  44  Solomon
+;-> 1  44  Jason
+;-> 2  42  Errol
+;-> 3  41  Garry
+;-> 3  41  Bernard
+;-> 4  39  Barry
+;-> 4  39  Stephen
+
+-----------------
+LEGGE DI BENDFORD
+-----------------
+
+La legge di Benford, chiamata anche legge della prima cifra, si riferisce alla distribuzione di frequenza delle cifre in molte (ma non tutte) fonti di dati reali.
+
+In questa distribuzione, il numero 1 si presenta come la prima cifra circa il 30% delle volte, mentre i numeri più grandi si verificano in quella posizione meno frequentemente: 9 come prima cifra meno del 5% delle volte. Questa distribuzione delle prime cifre è uguale alle larghezze di una griglia con scala logaritmica.
+
+La legge di Benford riguarda anche la distribuzione prevista per cifre oltre la prima, che si avvicina ad una distribuzione uniforme.
+
+È stato riscontrato che questo risultato si applica a un'ampia varietà di set di dati, tra cui bollette elettriche, indirizzi stradali, quotazioni azionarie, numero di abitanti, tassi di mortalità, lunghezze dei fiumi, costanti fisiche e matematiche e processi descritti dalle leggi di potenza (che sono molto comune in natura). Tende ad essere più preciso quando i valori sono distribuiti su più ordini di grandezza.
+
+Si dice che una serie di numeri soddisfa la legge di Benford se le cifre iniziali (1..9) si verificano con probabilità:
+
+P(d) = log10(d + 1) - log10(d) = log10(1 + 1/d)
+
+(define (P)
+  (let (out '())
+    (for (i 1 9)
+      (push (mul 100 (log (add 1 (div 1 i)) 10)) out -1)
+    )
+  )
+)
+
+(setq bend (P))
+;-> (30.10299956639812 17.60912590556812  12.49387366082999 
+;->   9.69100130080564  7.918124604762481  6.694678963061322 
+;->   5.799194697768673 5.115252244738128  4.575749056067514)
+
+Scriviamo una funzione per calcolare la distribuzione delle prime cifre significative (non zero) in un insieme di numeri, quindi confrontare la distribuzione effettiva rispetto a quella attesa (cioè quella di Bendford). La funzione ha come parametro il nome del file che contiene l'insieme dei numeri.
+
+Come primo esempio utilizziamo come insieme di dati i primi 1000 numeri di fibonacci.
+Scriviamo una funzione che crea un file di testo con i primi 1000 numeri di fibonacci.
+
+Funzione che calcola il numero di fibonacci di un numero n:
+
+(define (fibo-i n)
+  (local (a b c)
+    (setq a 0L b 1L c 0L)
+    (for (i 0 (- n 1))
+      (setq c (+ a b))
+      (setq a b)
+      (setq b c)
+    )
+    a
+  )
+)
+
+Funzione che crea un file con n numeri di Fibonacci (un numero per ogni riga).
+
+(define (fibfile file n)
+  (local (outfile)
+    (setq outfile (open file "write"))
+    (for (i 1 n)
+      (write-line outfile (string (fibo-i i)))
+    )
+    (close outfile)
+  )
+)
+
+(fibfile "fibo1000.txt" 1000)
+;-> true
+
+Adesso scriviamo la funzione per verificare la legge di Bendford. La prima versione della funzione crea il vettore con le frequenze:
+
+(define (bendford file)
+  (local (infile val data)
+    (setq data (array 10 '(0)))
+    ; leggiamo i numeri dal file
+    (setq infile (open file "read"))
+    (while (read-line infile)
+      ; (current-line) restituisce una stringa
+      (setq val (int ((current-line) 0)))
+      ;aggiorniamo il vettore delle frequenze
+      (++ (data val))
+    )
+    (close infile)
+     data
+  )
+)
+
+(setq out (bendford "fibo1000.txt"))
+;-> (0 301 177 125 96 80 67 56 53 45)
+
+Verifichiamo il risultato:
+(apply + out)
+;-> 1000
+
+Adesso scriviamo la versione finale:
+
+(define (bendford file)
+  (local (infile val data dataB perc-freq-reali perc-freq-attese)
+    (setq data (array 10 '(0)))
+    ; leggiamo i numeri dal file
+    (setq infile (open file "read"))
+    (while (read-line infile)
+      ; (current-line) restituisce una stringa
+      (setq val (int ((current-line) 0)))
+      ;aggiorniamo il vettore delle frequenze
+      (++ (data val))
+    )
+    (close infile)
+    (setq data (array-list data))
+    ; calcoliamo le percentuali delle frequenze reali
+    (setq somma (apply add data))
+    (setq perc-freq-reali (map (fn (x) (mul 100 (div x somma))) data))
+    ;(println perc-freq-reali)
+    ; calcoliamo le percentuali delle frequenze attese (Bendford)
+    (setq perc-freq-attese '(0))
+    (for (i 1 9)
+      (push (mul 100 (log (add 1 (div 1 i)) 10)) perc-freq-attese -1)
+    )
+    ;(println perc-freq-attese)
+    ;calcoliamo la differenza tra le due percentuali di ogni cifra
+    (setq diff (map sub perc-freq-attese perc-freq-reali))
+    ;stampiamo i risultati
+    (println {     %att     %real     diff})
+    (for (i 1 9)
+      (println (format "%d %8.2f %8.2f %+8.2f" 
+               i (perc-freq-attese i) (perc-freq-reali i) (diff i)))
+    )
+    '-----------------------------
+  )
+)
+
+(bendford "fibo1000.txt")
+     %att     %real     diff
+1    30.10    30.10    +0.00
+2    17.61    17.70    -0.09
+3    12.49    12.50    -0.01
+4     9.69     9.60    +0.09
+5     7.92     8.00    -0.08
+6     6.69     6.70    -0.01
+7     5.80     5.60    +0.20
+8     5.12     5.30    -0.18
+9     4.58     4.50    +0.08
+-----------------------------
+
+I primi 1000 numeri di Fibonacci rispettano la legge di Bendford.
+
+Proviamo con un altro insieme di dati: i numeri primi.
+
+(bendford "primi5000.txt")
+;->      %att     %real     diff
+;-> 1    30.10    23.86    +6.24
+;-> 2    17.61    22.58    -4.97
+;-> 3    12.49    21.94    -9.45
+;-> 4     9.69    18.72    -9.03
+;-> 5     7.92     2.62    +5.30
+;-> 6     6.69     2.70    +3.99
+;-> 7     5.80     2.50    +3.30
+;-> 8     5.12     2.54    +2.58
+;-> 9     4.58     2.54    +2.04
+;-> -----------------------------
+
+I primi 5000 numeri Primi non sembra che rispettino la legge di Bendford.
+
+Proviamo con un altro insieme di dati: 10000 cifre decimali di pi greco.
+
+(bendford "pigreco10000.txt")
+;->      %att     %real     diff
+;-> 1    30.10    10.26   +19.84
+;-> 2    17.61    10.21    +7.40
+;-> 3    12.49     9.74    +2.75
+;-> 4     9.69    10.12    -0.43
+;-> 5     7.92    10.46    -2.54
+;-> 6     6.69    10.21    -3.52
+;-> 7     5.80     9.70    -3.90
+;-> 8     5.12     9.48    -4.36
+;-> 9     4.58    10.14    -5.56
+;-> -----------------------------
+
+Le prime 10000 cifre decimali di pi greco non sembra che rispettino la legge di Bendford.
+
+Proviamo con i primi 100000 numeri.
+
+(define (numeri file n)
+  (local (outfile)
+    (setq outfile (open file "write"))
+    (for (i 1 n)
+      (write-line outfile (string i))
+    )
+    (close outfile)
+  )
+)
+
+(numeri "numeri100000.txt" 100000)
+;-> true
+
+(bendford "numeri100000.txt")
+;->      %att     %real     diff
+;-> 1    30.10    11.11   +18.99
+;-> 2    17.61    11.11    +6.50
+;-> 3    12.49    11.11    +1.38
+;-> 4     9.69    11.11    -1.42
+;-> 5     7.92    11.11    -3.19
+;-> 6     6.69    11.11    -4.42
+;-> 7     5.80    11.11    -5.31
+;-> 8     5.12    11.11    -6.00
+;-> 9     4.58    11.11    -6.54
+;-> -----------------------------
+
+Le prime cifre dei numeri naturali hanno una distribuzione uniforme.
+
+Proviamo con un altro insieme di dati: la lunghezza dei fiumi italiani (6226).
+
+(bendford "fiumi.txt")
+;->      %att     %real     diff
+;-> 1    30.10    26.10    +4.00
+;-> 2    17.61    12.19    +5.42
+;-> 3    12.49    11.05    +1.44
+;-> 4     9.69    11.84    -2.15
+;-> 5     7.92    10.62    -2.70
+;-> 6     6.69     8.79    -2.09
+;-> 7     5.80     7.65    -1.85
+;-> 8     5.12     6.73    -1.61
+;-> 9     4.58     5.04    -0.47
+;-> -----------------------------
+
+Le lunghezze dei fiumi seguono abbastanza la legge di Bendford.
+
+
+----------
+CALENDARIO
+----------
+
+Unix e Linux hanno il comando "cal" per stampare il calendario corrente. Un programma ancora più completo è GNU "gcal" (con alcune funzionalità esoteriche). Per windows non esiste niente di simile, allora scriviamo una funzione che stampa il calendario dell'anno corrente o di un'anno definito (anno > 1752).
+Ci servono due funzioni ausiliarie, una per il calcolo del giorno della settimana a partire da una data e un'altra per calcolare se un anno è bisestile.
+
+Giorno della settimana
+
+(define (giorno year month day) ; 0..6 --> Domenica..Sabato
+  (local (t d)
+    (setq t '(0 3 2 5 0 3 5 1 4 6 2 4))
+    (if (< month 3) (-- year))
+    (setq d (% (add year (/ year 4) (/ (- year) 100) (/ year 400) (t (- month 1)) day) 7))
+  )
+)
+
+(giorno 2019 7 17)
+;-> 3
+
+Anno bisestile
+
+(define (leap? year)
+  (cond ((= (% year 400) 0) true) ; divisibile per 400
+        ((= (% year 100) 0) nil)  ; divisibile per 100, ma non per 400
+        ((= (% year 4) 0) true)   ; divisibile per 4, ma non per 100 e 400
+        (true nil)                ; non divisibile per 4 o 100 o 400
+  )
+)
+
+(leap? 1900)
+;-> nil
+
+La funzione integrata "now" fornisce le seguenti informazioni:
+
+(now)
+;-> (2019 7 18 8 15 43 236522 199 4 120 2)
+
+Ecco il significato dei numeri interi (11) restituiti dalla funzione "now":
+
+Descrizione                       Valore
+
+ 1) year                          Gregorian calendar
+ 2) month                         (1–12)
+ 3) day                           (1–31)
+ 4) hour                          (0–23) UTC
+ 5) minute                        (0–59)
+ 6) second                        (0–59)
+ 7) microsecond                   (0–999999) OS-specific, millisecond resolution
+ 8) day of current year           Jan 1st is 1
+ 9) day of current week           (1–7) starting Monday
+10) time zone offset in minutes   west of GMT including daylight savings bias
+11) daylight savings time type    (0–6) on Linux/Unix or (0–2) on MS Windows
+
+(define (cal anno)
+  (local (startNum startNum day month numDays pad)
+    (setq day '((1 Lunedi) (2 Martedi) (3 Mercoledi) (4 Giovedi) (5 Venerdi) (6 Sabato) (7 Domenica)))
+    (setq month '((GENNAIO 31) (FEBBRAIO 28) (MARZO 31) (APRILE 30) (MAGGIO 31) (GIUGNO 30)
+      (LUGLIO 31) (AGOSTO 31) (SETTEMBRE 30) (OTTOBRE 31) (NOVEMBRE 30) (DICEMBRE 31)))
+    (if (or (= anno nil) (<= anno 1752)) (setq anno (first (now))))
+    ; if (anno < 1753) then anno = (first (now))
+    ; primo giorno dell'anno (numero)
+    (setq startNum (giorno anno 1 1))
+    ; (1: lunedi ... 7: domenica)
+    (if (= startNum 0) (setq startNum 7))
+    (setq startDay (lookup startNum day))
+    ; anno bisestile?
+    (if (leap? anno) (setf (last (month 1)) 29))
+    ; stampa anno
+    (println (format "\n%d\n" anno))
+    (setq ultimo startNum)
+    (for (i 0 11)
+      ; stampa mese
+      ;(println (format "%s" (first (month i))))
+      (println (first (month i)))
+      ; stampa intestazione giorni
+      (println "Lu Ma Me Gi Ve Sa Do")
+      ; calcola e stampa lo spazio di inizio del primo giorno
+      (setq pad (dup " " (* (- ultimo 1) 3)))
+      (print pad)
+      ; giorni del mese
+      (setq numDays (lookup (first (month i)) month))
+      (for (j 1 numDays)
+        (print (format "%2d " j))
+        ; se il giorno è Domenica (e non è l'ultimo del mese), allora andiamo a capo
+        (if (and (= (giorno anno (+ i 1) j) 0) (!= j numDays))  (println { }))
+      )
+      ; ultimo giorno stampato
+      (setq ultimo (+ 1 (giorno anno (+ i 1) (lookup (first (month i)) month))))
+      (println "\n")
+    )
+    '--------------------
+  )
+)
+
+(cal 2020)
+
+2020
+
+GENNAIO                FEBBRAIO               MARZO
+Lu Ma Me Gi Ve Sa Do   Lu Ma Me Gi Ve Sa Do   Lu Ma Me Gi Ve Sa Do
+       1  2  3  4  5                   1  2                      1
+ 6  7  8  9 10 11 12    3  4  5  6  7  8  9    2  3  4  5  6  7  8
+13 14 15 16 17 18 19   10 11 12 13 14 15 16    9 10 11 12 13 14 15
+20 21 22 23 24 25 26   17 18 19 20 21 22 23   16 17 18 19 20 21 22
+27 28 29 30 31         24 25 26 27 28 29      23 24 25 26 27 28 29
+                                              30 31
+
+APRILE                 MAGGIO                 GIUGNO
+Lu Ma Me Gi Ve Sa Do   Lu Ma Me Gi Ve Sa Do   Lu Ma Me Gi Ve Sa Do
+       1  2  3  4  5                1  2  3    1  2  3  4  5  6  7
+ 6  7  8  9 10 11 12    4  5  6  7  8  9 10    8  9 10 11 12 13 14
+13 14 15 16 17 18 19   11 12 13 14 15 16 17   15 16 17 18 19 20 21
+20 21 22 23 24 25 26   18 19 20 21 22 23 24   22 23 24 25 26 27 28
+27 28 29 30            25 26 27 28 29 30 31   29 30
+
+LUGLIO                 AGOSTO                 SETTEMBRE
+Lu Ma Me Gi Ve Sa Do   Lu Ma Me Gi Ve Sa Do   Lu Ma Me Gi Ve Sa Do
+       1  2  3  4  5                   1  2       1  2  3  4  5  6
+ 6  7  8  9 10 11 12    3  4  5  6  7  8  9    7  8  9 10 11 12 13
+13 14 15 16 17 18 19   10 11 12 13 14 15 16   14 15 16 17 18 19 20
+20 21 22 23 24 25 26   17 18 19 20 21 22 23   21 22 23 24 25 26 27
+27 28 29 30 31         24 25 26 27 28 29 30   28 29 30
+                       31
+
+OTTOBRE                NOVEMBRE               DICEMBRE
+Lu Ma Me Gi Ve Sa Do   Lu Ma Me Gi Ve Sa Do   Lu Ma Me Gi Ve Sa Do
+          1  2  3  4                      1       1  2  3  4  5  6
+ 5  6  7  8  9 10 11    2  3  4  5  6  7  8    7  8  9 10 11 12 13
+12 13 14 15 16 17 18    9 10 11 12 13 14 15   14 15 16 17 18 19 20
+19 20 21 22 23 24 25   16 17 18 19 20 21 22   21 22 23 24 25 26 27
+26 27 28 29 30 31      23 24 25 26 27 28 29   28 29 30 31
+                       30
+
+Nota: L'output della funzione stampa tutti i mesi uno di seguito all'altro.
+
+
+--------------
+CARTE DA GIOCO
+--------------
+
+Crea una struttura dati e le funzioni associate per definire e manipolare un mazzo di carte da gioco.
+Il mazzo dovrebbe contenere 54 carte uniche.
+
+Le funzioni devono includere la capacità di:
+
+1) crea un nuovo mazzo
+2) mischiare il mazzo (shuffle)
+3) Estrarre una carta dal mazzo
+4) Stampare il contenuto del mazzo
+
+Ogni carta deve avere un valore e un seme che costituiscono il codice univoco della carta.
+
+Per chi ha i caratteri utf-8 può usare la definizione seguente:
+
+(setq semi '("♥" "♦" "♣" "♠"))
+
+Definiamo una funzione che crea un mazzo di carte:
+
+(define (crea-carte)
+  (local (semi numeri indice carte)
+    ; definiamo i semi delle carte
+    (setq semi '(Cuori Quadri Fiori Picche))
+    ; definiamo i numeri delle carte
+    (setq numeri '(Asso Due Tre Quattro Cinque Sei Sette Otto Nove Dieci Jack Donna Re))
+    ; creiamo il mazzo di carte: (1 (Asso Cuori)) (2 (Due Cuori)) ...
+    (setq carte '())
+    (setq indice 0)
+    (dolist (seme semi)
+      (push (map (fn (x) (list (+ $idx 1 indice) (list x seme))) numeri) carte -1)
+      (++ indice 13)
+    )
+    ; togliamo un livello alla lista carte (da 4 elementi passa a 52 elementi)
+    (setq carte (flat carte 1))
+    ; aggiungiamo i Jolly (le matte)
+    (push '(53 (Matta Jolly)) carte -1)
+    (push '(54 (Matta Jolly)) carte -1)
+    carte
+  )
+)
+
+(setq mazzo (crea-carte))
+;-> ((1 (Asso Cuori)) (2 (Due Cuori)) (3 (Tre Cuori)) (4 (Quattro Cuori))
+;->  (5 (Cinque Cuori)) ...
+;->  ...
+;->  (51 (Donna Picche)) (52 (Re Picche)) (53 (Matta Jolly)) (54 (Matta Jolly)))
+
+Definiamo una funzione che mischia le carte:
+
+(define (mischia mazzo)
+  (seed (time-of-day))
+  (randomize mazzo)
+)
+
+(setq partita (mischia mazzo))
+;-> ((34 (Otto Fiori)) (30 (Quattro Fiori)) (26 (Re Quadri))...
+;->  ... (21 (Otto Quadri)) (37 (Jack Fiori)))
+
+Per la funzione di estrazione possiamo usare la funzione integrata "pop" estraendo la prima carta del mazzo:
+
+(define (estrai mazzo) (pop mazzo))
+
+Però qualcosa non funziona:
+
+(length partita)
+;-> 54
+
+(estrai partita)
+;-> (34 (Otto Fiori))
+
+(length partita)
+;-> 54
+
+Abbiamo estratto la prima carta, ma non è stata eliminata dal mazzo perchè alla funzione estrai viene passata una copia del mazzo "partita".
+Per risolvere il problema definiamo un mazzo come contesto, in questo modo newLISP passa la variabile definita per riferimento.
+
+(setq p:p (mischia mazzo))
+;-> ((26 (Re Quadri)) (12 (Donna Cuori)) ...
+;->  ... (9 (Nove Cuori)) (43 (Quattro Picche)))
+
+Vediamo se funziona:
+
+(length p)
+;-> 54
+
+(estrai p)
+;-> (26 (Re Quadri))
+
+(length p)
+;-> 53
+
+Sembra che vada tutto bene. Senza utilizzare i contesti avremmo dovuto applicare la funzione "pop" direttamente sulla variabile mazzo.
+
+Infine definiamo una funzione che stampa le carte del mazzo:
+
+(define (stampa-tutto mazzo)
+  (dolist (carta mazzo)
+    (print (format "%18s" (string (last carta))))
+    (if (= (% (+ $idx 1) 4) 0) (println))
+  )
+)
+
+(stampa-tutto partita)
+;->   (Otto Quadri)     (Matta Jolly)      (Tre Picche)     (Donna Fiori)
+;->   (Otto Picche)   (Cinque Picche)       (Sei Fiori)        (Re Fiori)
+;->    (Otto Fiori)     (Matta Jolly)     (Jack Picche)   (Quattro Fiori)
+;->     (Sei Cuori)        (Re Cuori)     (Sette Cuori)       (Due Cuori)
+;->  (Sette Picche)      (Nove Cuori)     (Dieci Cuori)       (Due Fiori)
+;->     (Re Picche)     (Nove Quadri)      (Sei Quadri)       (Tre Cuori)
+;->   (Asso Picche)     (Sette Fiori)      (Sei Picche)    (Sette Quadri)
+;->   (Donna Cuori)     (Jack Quadri)    (Cinque Fiori)      (Jack Cuori)
+;->     (Tre Fiori)    (Cinque Cuori)      (Otto Cuori)    (Donna Picche)
+;->    (Jack Fiori)       (Re Quadri)      (Asso Cuori)      (Nove Fiori)
+;-> (Cinque Quadri)  (Quattro Quadri)  (Quattro Picche)    (Donna Quadri)
+;->    (Due Picche)    (Dieci Picche)      (Tre Quadri)     (Dieci Fiori)
+;->    (Asso Fiori)     (Asso Quadri)    (Dieci Quadri)     (Nove Picche)
+;-> (Quattro Cuori)      (Due Quadri)
+
+
+----------------------
+GENERATORE DI PASSWORD
+----------------------
+
+Creare un programma per la generazione di password contenenti caratteri ASCII casuali dai seguenti gruppi:
+lettere minuscole:  (a..z)
+lettere maiuscole:  (A..Z)
+cifre numeriche:    (0..9)
+cartteri speciali:  (# ! $ % & ( ) * + , - . / : ; < = > ? @ [ ] ^ _ { | } ~)
+
+Le password generate devono includere almeno un carattere di ciascuno dei seguenti quattro gruppi):
+
+1) lettera minuscola,
+2) lettera maiuscola,
+3) cifra numerica,
+4) carattere speciale
+
+La funzione ha come parametri la lunghezza della password e il numero di password da generare.
+
+La funzione deve anche escludere la creazione di password con i seguenti caratteri visualmente simili:
+
+1) Il lI
+2) 1l l1
+3) 1I I1
+4) O0 0O
+5) 5S S5
+6) Z2 2Z
+
+(define (gen-pwd num lun stampa)
+  (local (pwd g g0 g1 g2 g3 gv out)
+    (cond ((or (< num 1) (< lun 4)) (setq out nil) (println "parametri errati"))
+          (true
+            ; inizializza il generatore random
+            (seed (time-of-day))
+            (setq out '())
+            (setq g0 (explode "abcdefghijklmnopqrstuvwxyz"))
+            (setq g1 (explode "ABCDEFGHIJKLMNOPQRSTUVWXYZ"))
+            (setq g2 (explode "0123456789"))
+            (setq g3 (explode "#!$%&()*+,-./:;<=>?@[]^_{|}~"))
+            ; ciclo numero di password
+            (for (i 1 num)
+              (setq pwd '())
+              ; aggiungiamo un carattere per ogni gruppo
+              (push (g0 (rand 26)) pwd -1)
+              (push (g1 (rand 26)) pwd -1)
+              (push (g2 (rand 10)) pwd -1)
+              (push (g3 (rand 28)) pwd -1)
+              ; ciclo genera password di lunghezza lun
+              (if (> lun 4)
+                (begin
+                  (for (j 1 (- lun 4))
+                    (setq g (rand 4))
+                    (if (= g 0) (push (g0 (rand 26)) pwd -1)
+                      (if (= g 1) (push (g1 (rand 26)) pwd -1)
+                        (if (= g 2) (push (g2 (rand 10)) pwd -1)
+                          (if (= g 3) (push (g3 (rand 28)) pwd -1)))))
+                  )
+                )
+              )
+              ; randomize per mischiare i caratteri
+              ; soprattuto per i primi quattro che altrimenti
+              ; seguirebbero una regola fissa
+              (setq pwd (join (randomize pwd)))
+              ; controllo caratteri visualmente simili
+              ; (Il lI) (1l l1) (1I I1) (O0 0O) (5S S5) (Z2 2Z)
+              (if (setq idx (find "Il" pwd)) (setq (pwd idx) (g3 (rand 28))))
+              (if (setq idx (find "ll" pwd)) (setq (pwd idx) (g3 (rand 28))))
+              (if (setq idx (find "1l" pwd)) (setq (pwd idx) (g3 (rand 28))))
+              (if (setq idx (find "l1" pwd)) (setq (pwd idx) (g3 (rand 28))))
+              (if (setq idx (find "1I" pwd)) (setq (pwd idx) (g3 (rand 28))))
+              (if (setq idx (find "I1" pwd)) (setq (pwd idx) (g3 (rand 28))))
+              (if (setq idx (find "0O" pwd)) (setq (pwd idx) (g3 (rand 28))))
+              (if (setq idx (find "O0" pwd)) (setq (pwd idx) (g3 (rand 28))))
+              (if (setq idx (find "5S" pwd)) (setq (pwd idx) (g3 (rand 28))))
+              (if (setq idx (find "S5" pwd)) (setq (pwd idx) (g3 (rand 28))))
+              (if (setq idx (find "Z2" pwd)) (setq (pwd idx) (g3 (rand 28))))
+              (if (setq idx (find "2Z" pwd)) (setq (pwd idx) (g3 (rand 28))))
+              (if stampa (println pwd))
+              (push pwd out -1)
+            );for
+          );true
+    );cond
+    out
+  );local
+)
+
+(gen-pwd 2 8)
+;-> ("BPT=v+8s" "M&I9^o0L")
+
+(gen-pwd 1 3)
+;-> parametri errati
+;-> nil
+
+(gen-pwd 1 4)
+;-> ("M5}g")
+
+(gen-pwd 6 12)
+;-> ("Jrfh.F2~uEtd" "ljR8[=3VYoSH" "|0J4u^4dv0{9" 
+;->  "87HFP;{u6ini" "M3w|1:4],G4m" "3@LH5Q*E00mv")
+
+Funzione che controlla la presenza di caratteri visualmente simili:
+
+(define (test pwd)
+  (for (i 1 100000)
+    (setq pwd (first (gen-pwd 1 21)))
+    (if (or (find "Il" pwd) (find "ll" pwd) (find "1l" pwd)
+            (find "l1" pwd) (find "1I" pwd) (find "I1" pwd)
+            (find "0O" pwd) (find "O0" pwd) (find "5S" pwd)
+            (find "S5" pwd) (find "Z2" pwd) (find "2Z" pwd))
+        (println pwd)
+    )
+  )
+)
+
+(test pwd)
+;-> nil
+

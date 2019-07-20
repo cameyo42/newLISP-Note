@@ -5229,3 +5229,4 @@ Basta assegnare il dizionario ad una variabile.
 (Pippo)
 ;-> (("#1234" "hello world") ("3" 4) ("5" 6) ("_y" (1 2)) ("bar" 456)
 ;->  ("il numero" 123) ("var" (a b c d)) ("x" "stringa"))
+
