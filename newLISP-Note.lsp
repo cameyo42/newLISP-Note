@@ -140,7 +140,7 @@ newLISP 99 PROBLEMI (28)
   N-99-24 Lotto: estrarre N numeri differenti da un intervallo 1..M
   N-99-25 Generare le permutazioni degli elementi di una lista
   N-99-26 Generare le combinazioni di K oggetti distinti tra gli N elementi di una lista
-  N-99-27 Raggruppare gli elementi di un insieme in sottoinsiemi disgiunti (no)
+  N-99-27 Raggruppare gli elementi di un insieme in sottoinsiemi disgiunti
   N-99-28 Ordinare una lista in base alla lunghezza delle sottoliste
 
 ROSETTA CODE
@@ -176,6 +176,7 @@ ROSETTA CODE
   Calendario
   Carte da gioco
   Generatore di password
+  Calcolo di Pi greco
 
 PROJECT EULERO
   Problemi 1..50
@@ -234,6 +235,8 @@ PROBLEMI VARI
   Labirinti (calcolo percorsi)
   Moltiplicazioni di fattori
   Problemi patologici dei numeri floating point
+  Numerali di Church
+  Creazione e valutazione di polinomi
 
 DOMANDE PER ASSUNZIONE DI PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Notazione Big O
@@ -264,6 +267,7 @@ DOMANDE PER ASSUNZIONE DI PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   K punti più vicini - K Nearest points (LinkedIn)
   Ordinamento Colori (LeetCode)
   Unione di intervalli (Google)
+  Somma dei numeri unici
 
 LIBRERIE
   Operazioni con i numeri complessi
@@ -273,12 +277,15 @@ LIBRERIE
   Funzioni winapi
 
 NOTE LIBERE
-  Perchè newLISP ?
+  Perchè newLISP?
   newLISP facile
   Funzioni e liste
   4-4 Puzzle
   Il primo Primo
   Uso delle date
+  Chiusura transitiva e raggiungibilità in un grafo
+  Stalin sort
+  Sequenza triangolare
 
 APPENDICI
   Lista delle funzioni newLISP
@@ -5053,6 +5060,7 @@ Vediamo ora come utilizzare i moduli con alcuni esempi. Cominciamo con il modulo
 Questo è il file batch per la conversione da file .ps a file .pdf:
 
 ------ Inizio file batch
+@echo off
 rem convert postscript (.ps) file to portable document format file (.pdf)
 rem with ghostscript
 rem ps2pdf <file.ps> <file.pdf>
@@ -5534,6 +5542,51 @@ Basta assegnare il dizionario ad una variabile.
 (Pippo)
 ;-> (("#1234" "hello world") ("3" 4) ("5" 6) ("_y" (1 2)) ("bar" 456)
 ;->  ("il numero" 123) ("var" (a b c d)) ("x" "stringa"))
+
+Le liste associative possono essere annidate:
+
+(setq data '((1 ("Sara" (storia geografia italiano))) (2 ("Luca" (matematica storia)))))
+;-> (1 ("Sara" (storia geografia italiano)))
+
+(lookup 1 data)
+;-> ("Sara" (storia geografia italiano))
+
+(assoc 1 data)
+;-> (1 ("Sara" (storia geografia italiano)))
+
+Possiamo estrarre le materie associate a Sara:
+
+(assoc "Sara" (assoc 1 data))
+;-> ("Sara" (storia geografia italiano))
+
+(lookup "Sara" (assoc 1 data))
+;-> (storia geografia italiano)
+
+In generale per aggiornare il valore associato ad una chiave esistente (di un dizionario data) possiamo scrivere:
+
+(letn (key "chiave")
+   (if (lookup key data)
+       (setf (assoc key data) (list key "nuovo valore"))))
+
+Invece, per aggiungere una materia a "Sara":
+
+(if (lookup "Sara" (assoc 1 data))
+    (setf (lookup "Sara" (assoc 1 data)) (push 'matematica (lookup "Sara" (assoc 1 data)) -1)))
+
+Possiamo avere una chiave che si autoincrementa in una hash-map (dizionario):
+
+(new Tree 'Hash)
+;-> Hash
+(Hash (format "%05d" (inc Hash:counter)) "A")
+;-> "A"
+(Hash (format "%05d" (inc Hash:counter)) "B")
+;-> "B"
+(Hash)
+;-> (("00001" "A") ("00002" "B"))
+(symbols Hash)
+;-> (Hash:Hash Hash:_00001 Hash:_00002 Hash:counter)
+
+La variabile 'Hash:counter' viene creata automaticamente quando newLISP legge l'espressione e la funzione "inc" cambia il suo valore da "nil" a 0 (zero). La funzione "format" assicura che l'ordine di creazione sia corretto. Lutz
 
 ================
 
@@ -8048,7 +8101,7 @@ Questi tre punti sono caratteristici per ogni funzione che lavora sulle liste di
 =======================================================
 N-99-08 Elimina gli elementi duplicati consecutivi di una lista
 =======================================================
-Se una lista contiene elementi ripetuti, devono essere sostituiti con una singola copia dell'elemento. L'ordine degli elementi non deve essere cambiato.
+Se una lista ordinata contiene elementi ripetuti, devono essere sostituiti con una singola copia dell'elemento. L'ordine degli elementi non deve essere cambiato.
 
 Esempio: (elimina-duplicati '(1 1 1 2 2 3 4 4 5 5 5 6 6 6)) ==> (1 2 3 4 5 6)
 
@@ -8669,6 +8722,242 @@ N-99-26 Generare le combinazioni di K oggetti distinti tra gli N elementi di una
 =======================================================
 N-99-27 Raggruppare gli elementi di un insieme in sottoinsiemi disgiunti
 =======================================================
+
+(define (car lst) (first lst))
+(define (cdr lst) (rest lst))
+
+(define (combination k xs)
+  (cond ((null? xs) '())
+        ((= k 1) (map list xs))
+        (true (append (map (lambda (x) (cons (car xs) x))
+                           (combination (- k 1) (cdr xs)))
+                      (combination k (cdr xs))))))
+
+(combination 2 '(1 2 3 4))
+;-> ((1 2) (1 3) (1 4) (2 3) (2 4) (3 4))
+
+(define (group gs lst)
+   (define (ciclo gs xss lst)
+     (cond ((null? gs) xss)
+           ((null? xss) '())
+           (true
+            (letn ((xs (car xss)) (resto (filter (lambda (e) (not (member e xs))) lst)))
+              (append (map (lambda (ys) (list xs ys))
+                           (ciclo (cdr gs) (combination (car gs) resto) resto))
+                      (ciclo gs (cdr xss) lst))))))
+   (ciclo (cdr gs) (combination (car gs) lst) lst))
+
+(group '(2 2 3) '(luca carla david eva ugo ida vero))
+;-> (((luca carla) ((david eva) (ugo ida vero))) 
+;->  ((luca carla) ((david ugo) (eva ida vero)))
+;->  ((luca carla) ((david ida) (eva ugo vero)))
+;->  ((luca carla) ((david vero) (eva ugo ida)))
+;->  ((luca carla) ((eva ugo) (david ida vero)))
+;->  ((luca carla) ((eva ida) (david ugo vero)))
+;->  ((luca carla) ((eva vero) (david ugo ida)))
+;->  ((luca carla) ((ugo ida) (david eva vero)))
+;->  ((luca carla) ((ugo vero) (david eva ida)))
+;->  ((luca carla) ((ida vero) (david eva ugo)))
+;->  ((luca david) ((carla eva) (ugo ida vero)))
+;->  ((luca david) ((carla ugo) (eva ida vero)))
+;->  ((luca david) ((carla ida) (eva ugo vero)))
+;->  ((luca david) ((carla vero) (eva ugo ida)))
+;->  ((luca david) ((eva ugo) (carla ida vero)))
+;->  ((luca david) ((eva ida) (carla ugo vero)))
+;->  ((luca david) ((eva vero) (carla ugo ida)))
+;->  ((luca david) ((ugo ida) (carla eva vero)))
+;->  ((luca david) ((ugo vero) (carla eva ida)))
+;->  ((luca david) ((ida vero) (carla eva ugo)))
+;->  ((luca eva) ((carla david) (ugo ida vero)))
+;->  ((luca eva) ((carla ugo) (david ida vero)))
+;->  ((luca eva) ((carla ida) (david ugo vero)))
+;->  ((luca eva) ((carla vero) (david ugo ida)))
+;->  ((luca eva) ((david ugo) (carla ida vero)))
+;->  ((luca eva) ((david ida) (carla ugo vero)))
+;->  ((luca eva) ((david vero) (carla ugo ida)))
+;->  ((luca eva) ((ugo ida) (carla david vero)))
+;->  ((luca eva) ((ugo vero) (carla david ida)))
+;->  ((luca eva) ((ida vero) (carla david ugo)))
+;->  ((luca ugo) ((carla david) (eva ida vero)))
+;->  ((luca ugo) ((carla eva) (david ida vero)))
+;->  ((luca ugo) ((carla ida) (david eva vero)))
+;->  ((luca ugo) ((carla vero) (david eva ida)))
+;->  ((luca ugo) ((david eva) (carla ida vero)))
+;->  ((luca ugo) ((david ida) (carla eva vero)))
+;->  ((luca ugo) ((david vero) (carla eva ida)))
+;->  ((luca ugo) ((eva ida) (carla david vero)))
+;->  ((luca ugo) ((eva vero) (carla david ida)))
+;->  ((luca ugo) ((ida vero) (carla david eva)))
+;->  ((luca ida) ((carla david) (eva ugo vero)))
+;->  ((luca ida) ((carla eva) (david ugo vero)))
+;->  ((luca ida) ((carla ugo) (david eva vero)))
+;->  ((luca ida) ((carla vero) (david eva ugo)))
+;->  ((luca ida) ((david eva) (carla ugo vero)))
+;->  ((luca ida) ((david ugo) (carla eva vero)))
+;->  ((luca ida) ((david vero) (carla eva ugo)))
+;->  ((luca ida) ((eva ugo) (carla david vero)))
+;->  ((luca ida) ((eva vero) (carla david ugo)))
+;->  ((luca ida) ((ugo vero) (carla david eva)))
+;->  ((luca vero) ((carla david) (eva ugo ida)))
+;->  ((luca vero) ((carla eva) (david ugo ida)))
+;->  ((luca vero) ((carla ugo) (david eva ida)))
+;->  ((luca vero) ((carla ida) (david eva ugo)))
+;->  ((luca vero) ((david eva) (carla ugo ida)))
+;->  ((luca vero) ((david ugo) (carla eva ida)))
+;->  ((luca vero) ((david ida) (carla eva ugo)))
+;->  ((luca vero) ((eva ugo) (carla david ida)))
+;->  ((luca vero) ((eva ida) (carla david ugo)))
+;->  ((luca vero) ((ugo ida) (carla david eva)))
+;->  ((carla david) ((luca eva) (ugo ida vero)))
+;->  ((carla david) ((luca ugo) (eva ida vero)))
+;->  ((carla david) ((luca ida) (eva ugo vero)))
+;->  ((carla david) ((luca vero) (eva ugo ida)))
+;->  ((carla david) ((eva ugo) (luca ida vero)))
+;->  ((carla david) ((eva ida) (luca ugo vero)))
+;->  ((carla david) ((eva vero) (luca ugo ida)))
+;->  ((carla david) ((ugo ida) (luca eva vero)))
+;->  ((carla david) ((ugo vero) (luca eva ida)))
+;->  ((carla david) ((ida vero) (luca eva ugo)))
+;->  ((carla eva) ((luca david) (ugo ida vero)))
+;->  ((carla eva) ((luca ugo) (david ida vero)))
+;->  ((carla eva) ((luca ida) (david ugo vero)))
+;->  ((carla eva) ((luca vero) (david ugo ida)))
+;->  ((carla eva) ((david ugo) (luca ida vero)))
+;->  ((carla eva) ((david ida) (luca ugo vero)))
+;->  ((carla eva) ((david vero) (luca ugo ida)))
+;->  ((carla eva) ((ugo ida) (luca david vero)))
+;->  ((carla eva) ((ugo vero) (luca david ida)))
+;->  ((carla eva) ((ida vero) (luca david ugo)))
+;->  ((carla ugo) ((luca david) (eva ida vero)))
+;->  ((carla ugo) ((luca eva) (david ida vero)))
+;->  ((carla ugo) ((luca ida) (david eva vero)))
+;->  ((carla ugo) ((luca vero) (david eva ida)))
+;->  ((carla ugo) ((david eva) (luca ida vero)))
+;->  ((carla ugo) ((david ida) (luca eva vero)))
+;->  ((carla ugo) ((david vero) (luca eva ida)))
+;->  ((carla ugo) ((eva ida) (luca david vero)))
+;->  ((carla ugo) ((eva vero) (luca david ida)))
+;->  ((carla ugo) ((ida vero) (luca david eva)))
+;->  ((carla ida) ((luca david) (eva ugo vero)))
+;->  ((carla ida) ((luca eva) (david ugo vero)))
+;->  ((carla ida) ((luca ugo) (david eva vero)))
+;->  ((carla ida) ((luca vero) (david eva ugo)))
+;->  ((carla ida) ((david eva) (luca ugo vero)))
+;->  ((carla ida) ((david ugo) (luca eva vero)))
+;->  ((carla ida) ((david vero) (luca eva ugo)))
+;->  ((carla ida) ((eva ugo) (luca david vero)))
+;->  ((carla ida) ((eva vero) (luca david ugo)))
+;->  ((carla ida) ((ugo vero) (luca david eva)))
+;->  ((carla vero) ((luca david) (eva ugo ida)))
+;->  ((carla vero) ((luca eva) (david ugo ida)))
+;->  ((carla vero) ((luca ugo) (david eva ida)))
+;->  ((carla vero) ((luca ida) (david eva ugo)))
+;->  ((carla vero) ((david eva) (luca ugo ida)))
+;->  ((carla vero) ((david ugo) (luca eva ida)))
+;->  ((carla vero) ((david ida) (luca eva ugo)))
+;->  ((carla vero) ((eva ugo) (luca david ida)))
+;->  ((carla vero) ((eva ida) (luca david ugo)))
+;->  ((carla vero) ((ugo ida) (luca david eva)))
+;->  ((david eva) ((luca carla) (ugo ida vero)))
+;->  ((david eva) ((luca ugo) (carla ida vero)))
+;->  ((david eva) ((luca ida) (carla ugo vero)))
+;->  ((david eva) ((luca vero) (carla ugo ida)))
+;->  ((david eva) ((carla ugo) (luca ida vero)))
+;->  ((david eva) ((carla ida) (luca ugo vero)))
+;->  ((david eva) ((carla vero) (luca ugo ida)))
+;->  ((david eva) ((ugo ida) (luca carla vero)))
+;->  ((david eva) ((ugo vero) (luca carla ida)))
+;->  ((david eva) ((ida vero) (luca carla ugo)))
+;->  ((david ugo) ((luca carla) (eva ida vero)))
+;->  ((david ugo) ((luca eva) (carla ida vero)))
+;->  ((david ugo) ((luca ida) (carla eva vero)))
+;->  ((david ugo) ((luca vero) (carla eva ida)))
+;->  ((david ugo) ((carla eva) (luca ida vero)))
+;->  ((david ugo) ((carla ida) (luca eva vero)))
+;->  ((david ugo) ((carla vero) (luca eva ida)))
+;->  ((david ugo) ((eva ida) (luca carla vero)))
+;->  ((david ugo) ((eva vero) (luca carla ida)))
+;->  ((david ugo) ((ida vero) (luca carla eva)))
+;->  ((david ida) ((luca carla) (eva ugo vero)))
+;->  ((david ida) ((luca eva) (carla ugo vero)))
+;->  ((david ida) ((luca ugo) (carla eva vero)))
+;->  ((david ida) ((luca vero) (carla eva ugo)))
+;->  ((david ida) ((carla eva) (luca ugo vero)))
+;->  ((david ida) ((carla ugo) (luca eva vero)))
+;->  ((david ida) ((carla vero) (luca eva ugo)))
+;->  ((david ida) ((eva ugo) (luca carla vero)))
+;->  ((david ida) ((eva vero) (luca carla ugo)))
+;->  ((david ida) ((ugo vero) (luca carla eva)))
+;->  ((david vero) ((luca carla) (eva ugo ida)))
+;->  ((david vero) ((luca eva) (carla ugo ida)))
+;->  ((david vero) ((luca ugo) (carla eva ida)))
+;->  ((david vero) ((luca ida) (carla eva ugo)))
+;->  ((david vero) ((carla eva) (luca ugo ida)))
+;->  ((david vero) ((carla ugo) (luca eva ida)))
+;->  ((david vero) ((carla ida) (luca eva ugo)))
+;->  ((david vero) ((eva ugo) (luca carla ida)))
+;->  ((david vero) ((eva ida) (luca carla ugo)))
+;->  ((david vero) ((ugo ida) (luca carla eva)))
+;->  ((eva ugo) ((luca carla) (david ida vero)))
+;->  ((eva ugo) ((luca david) (carla ida vero)))
+;->  ((eva ugo) ((luca ida) (carla david vero)))
+;->  ((eva ugo) ((luca vero) (carla david ida)))
+;->  ((eva ugo) ((carla david) (luca ida vero)))
+;->  ((eva ugo) ((carla ida) (luca david vero)))
+;->  ((eva ugo) ((carla vero) (luca david ida)))
+;->  ((eva ugo) ((david ida) (luca carla vero)))
+;->  ((eva ugo) ((david vero) (luca carla ida)))
+;->  ((eva ugo) ((ida vero) (luca carla david)))
+;->  ((eva ida) ((luca carla) (david ugo vero)))
+;->  ((eva ida) ((luca david) (carla ugo vero)))
+;->  ((eva ida) ((luca ugo) (carla david vero)))
+;->  ((eva ida) ((luca vero) (carla david ugo)))
+;->  ((eva ida) ((carla david) (luca ugo vero)))
+;->  ((eva ida) ((carla ugo) (luca david vero)))
+;->  ((eva ida) ((carla vero) (luca david ugo)))
+;->  ((eva ida) ((david ugo) (luca carla vero)))
+;->  ((eva ida) ((david vero) (luca carla ugo)))
+;->  ((eva ida) ((ugo vero) (luca carla david)))
+;->  ((eva vero) ((luca carla) (david ugo ida)))
+;->  ((eva vero) ((luca david) (carla ugo ida)))
+;->  ((eva vero) ((luca ugo) (carla david ida)))
+;->  ((eva vero) ((luca ida) (carla david ugo)))
+;->  ((eva vero) ((carla david) (luca ugo ida)))
+;->  ((eva vero) ((carla ugo) (luca david ida)))
+;->  ((eva vero) ((carla ida) (luca david ugo)))
+;->  ((eva vero) ((david ugo) (luca carla ida)))
+;->  ((eva vero) ((david ida) (luca carla ugo)))
+;->  ((eva vero) ((ugo ida) (luca carla david)))
+;->  ((ugo ida) ((luca carla) (david eva vero)))
+;->  ((ugo ida) ((luca david) (carla eva vero)))
+;->  ((ugo ida) ((luca eva) (carla david vero)))
+;->  ((ugo ida) ((luca vero) (carla david eva)))
+;->  ((ugo ida) ((carla david) (luca eva vero)))
+;->  ((ugo ida) ((carla eva) (luca david vero)))
+;->  ((ugo ida) ((carla vero) (luca david eva)))
+;->  ((ugo ida) ((david eva) (luca carla vero)))
+;->  ((ugo ida) ((david vero) (luca carla eva)))
+;->  ((ugo ida) ((eva vero) (luca carla david)))
+;->  ((ugo vero) ((luca carla) (david eva ida)))
+;->  ((ugo vero) ((luca david) (carla eva ida)))
+;->  ((ugo vero) ((luca eva) (carla david ida)))
+;->  ((ugo vero) ((luca ida) (carla david eva)))
+;->  ((ugo vero) ((carla david) (luca eva ida)))
+;->  ((ugo vero) ((carla eva) (luca david ida)))
+;->  ((ugo vero) ((carla ida) (luca david eva)))
+;->  ((ugo vero) ((david eva) (luca carla ida)))
+;->  ((ugo vero) ((david ida) (luca carla eva)))
+;->  ((ugo vero) ((eva ida) (luca carla david)))
+;->  ((ida vero) ((luca carla) (david eva ugo)))
+;->  ((ida vero) ((luca david) (carla eva ugo)))
+;->  ((ida vero) ((luca eva) (carla david ugo)))
+;->  ((ida vero) ((luca ugo) (carla david eva)))
+;->  ((ida vero) ((carla david) (luca eva ugo)))
+;->  ((ida vero) ((carla eva) (luca david ugo)))
+;->  ((ida vero) ((carla ugo) (luca david eva)))
+;->  ((ida vero) ((david eva) (luca carla ugo)))
+;->  ((ida vero) ((david ugo) (luca carla eva)))
+;->  ((ida vero) ((eva ugo) (luca carla david))))
 
 =======================================================
 N-99-28 Ordinare una lista in base alla lunghezza delle sottoliste
@@ -12496,6 +12785,95 @@ Funzione che controlla la presenza di caratteri visualmente simili:
 
 (test pwd)
 ;-> nil
+
+
+-------------------
+CALCOLO DI PI GRECO
+-------------------
+
+Pi greco è un numero irrazionale (cioè non può essere il rapporto di due numeri interi) e trascendente (cioè non è una radice di un polinomio con coefficienti razionali.
+
+Pi greco vale: 3.141592653589793238462643383279502884197169399375105820974....
+
+I matematici hanno trovato differenti serie matematiche che, se calcolate sommando un numero infinito di termini, generano un'approssimazione sufficientemente accurata di pi greco per un numero abbastanza grande di decimali.
+Alcune di esse sono talmente complesse da richiedere dei supercomputer per calcolarle.
+Vediamo alcuni algoritmi per il calcolo del numero pigreco.
+Uno dei più semplici è l'algoritmo basato sulla serie di Gregory-Leibniz. Anche se non è molto efficiente, genera un numero sempre più vicino a pi greco ad ogni iterazione, arrivando ad una approssimazione sufficientemente accurata con 10 cifre decimali con 500.000 iterazioni.
+
+Serie di Gregory-Leibniz:
+
+Pi = 4 * (1 - 1/3 + 1/5 - 1/7 + 1/9 - 1/11 + ...)
+
+Pi = (4/1) - (4/3) + (4/5) - (4/7) + (4/9) - (4/11) + ... + (-i)^i/(2*i + 1) + ...
+
+Definiamo la funzione:
+
+(define (pow10? i)
+  (while (> i 10)
+    (setq i (div i 10)))
+  (= i 10)
+)
+
+(define (pigrecoGL iter)
+  (local (sum fac i denom myterm)
+    (setq sum 0)
+    (setq fac 1)
+    (setq i 1)
+    (while (<= i iter)
+      (setq denom (- (mul 2 i ) 1))
+      (setq myterm (div fac denom))
+      (setq sum (add sum myterm))
+      (setq fac (mul -1 fac))
+      (if (pow10? i)
+        (print (format "%d iterazioni: PI = %16.12f.\n" i (mul 4 sum)))
+      )
+      (++ i)
+    )
+  );local
+)
+
+(pigrecoGL 10000000)
+;-> Con 10 termini PI vale:   3.041839618929.
+;-> Con 100 termini PI vale:   3.131592903559.
+;-> Con 1000 termini PI vale:   3.140592653840.
+;-> Con 10000 termini PI vale:   3.141492653590.
+;-> Con 100000 termini PI vale:   3.141582653590.
+;-> Con 1000000 termini PI vale:   3.141591653590.
+;-> Con 10000000 termini PI vale:   3.141592553590.
+Valore reale pi greco:              3.141592653589
+
+Un'altra serie infinita per calcolare pi greco è quella di Nilakantha. Anche se più leggermente più complessa, converge a pi greco molto più velocemente della formula di Leibniz.
+
+Serie di Nilakantha:
+
+pigrecoN = 3 + 4/(2*3*4) - 4/(4*5*6) + 4/(6*7*8) - 4/(8*9*10) + 4/(10*11*12) - (4/(12*13*14) ...
+
+(define (pigrecoN iter)
+  (local (val frac num den i)
+    (setq val 3)
+    (setq based 2)
+    (setq i 1)
+    (setq num 4)
+    (while (<= i iter)
+      (setq den (* based (+ based 1) (+ based 2)))
+      (setq val (add val (div num den)))
+      (++ based 2)
+      (setq num (- num))
+      (++ i)
+      (if (= (% i 100) 0)
+        (print (format "Con %d termini PI vale: %16.12f.\n" i val))
+      )
+    )
+  )
+)
+
+(pigrecoN 500)
+;-> Con 100 termini PI vale:   3.141592903559.
+;-> Con 200 termini PI vale:   3.141592684839.
+;-> Con 300 termini PI vale:   3.141592662849.
+;-> Con 400 termini PI vale:   3.141592657496.
+;-> Con 500 termini PI vale:   3.141592655590.
+Valore reale pi greco:         3.141592653589
 
 ================
 
@@ -16965,7 +17343,7 @@ I numeri coinvolti nella soluzione sono i seguenti:
 ===============
 
  PROBLEMI VARI
- 
+
 ===============
 
 ----------
@@ -18584,8 +18962,8 @@ Radice quadrata intera di un numero intero (2^64 bit)
             (if (> 3 x1) (setq s (+ s 1)))
             (setq g0 (<< 1 s))
             (setq g1 (>> (+ g0 (>> x s)) 1))
-            (while (< g1 g0) ;while approssimazione
-              (setq g0 g1) ; strettamente decrescente
+            (while (< g1 g0) ; while approssimazione
+              (setq g0 g1)   ; strettamente decrescente
               (setq g1 (>> (+ g0 (/ x g0))  1))
             )
           )
@@ -18875,6 +19253,21 @@ Poniamo il punto fisso iniziale a uno: phi0 = 1
   (setq phi (add 1 (div 1 phi)))
 )
 ;-> 1.618033988749895
+
+Possiamo utilizzare anche la funzione predefinita "series":
+
+(series 1 (fn (x) (div (add 1 x))) 20)
+;-> (1 0.5 0.6666666 0.6 0.625 0.6153846 0.619047 0.6176470 0.6181818
+;->  0.6179775 0.6180555 0.6180257 0.6180371 0.6180327 0.6180344
+;->  0.6180338 0.6180340 0.6180339 0.6180339 0.6180339)
+
+Utilizziamo la funzione "series" per approssimare sqrt(2) = 1.414213562373095:
+
+(series 1 (fn (x) (add 1 (div (add 1 x)))) 20)
+;-> (1 1.5 1.4 1.416666666666667 1.413793103448276 1.414285714285714 1.414201183431953
+;->  1.41421568627451 1.414213197969543 1.41421362489487 1.414213551646055 1.414213564213564
+;->  1.41421356205732 1.414213562427273 1.4142135623638 1.41421356237469 1.414213562372821
+;->  1.414213562373142 1.414213562373087 1.414213562373097)
 
 
 --------------------------
@@ -22263,8 +22656,9 @@ Terza versione:
 ;-> 199.812
 
 
+----------------------------
 Labirinti (calcolo percorsi)
-============================
+----------------------------
 
 Un labirinto è un percorso o un insieme di percorsi, in genere con uno o più ingressi e con nessuna o più uscite.
 Per risolvere un labirinto (maze) utilizzeremo il seguente algoritmo che trova la soluzione (se esiste) in modo ricorsivo. Si parte da un valore iniziale X e Y. Se i valori X e Y non sono su un muro, il metodo (funzione) richiama se stesso con tutti i valori X e Y adiacenti, assicurandosi di non aver utilizzato in precedenza quei valori X e Y. Se i valori X e Y sono quelli della posizione finale, salva tutte le istanze precedenti del metodo (risultati parziali) creando una matrice con il percorso risolutivo.
@@ -22560,8 +22954,9 @@ Soluzione:
 ;-> 1 0 0 0 1 1 1 0 0
 
 
+--------------------------
 Moltiplicazioni di Fattori
-==========================
+--------------------------
 
 Dato un numero N, creare la lista dei numeri che possono essere ottenuti dal prodotto di tutte le combinazioni dei fattori primi del numero N.
 Nota: i numeri primi restituiscono una lista vuota.
@@ -22680,8 +23075,9 @@ Vediamo per curiosità quale numero fino a diecimila genera la lista più lunga.
 ;-> numero: 7560 --- lunghezza: 59
 
 
+---------------------------------------------
 Problemi patologici dei numeri floating point
-=============================================
+---------------------------------------------
 
 La Chaotic Bank Society offre questo investimento ai propri clienti.
 Per prima cosa depositi $ e - 1 dove e è 2.7182818 ... la base dei logaritmi naturali.
@@ -22878,14 +23274,284 @@ Adesso riscriviamo la funzione che calcola il valore finale dell'investimento:
 
 Questa volta il risultato è esatto.
 
+Sul forum di newLISP, rickyboy ha fornito le seguenti funzioni equivalenti:
+
+(define (rat n d)
+  (let (g (gcd n d))
+    (map (curry * 1L)
+         (list (/ n g) (/ d g)))))
+
+(define (+rat r1 r2)
+  (rat (+ (* (r1 0) (r2 1))
+          (* (r2 0) (r1 1)))
+       (* (r1 1) (r2 1))))
+
+(define (-rat r1 r2)
+  (rat (- (* (r1 0) (r2 1))
+          (* (r2 0) (r1 1)))
+       (* (r1 1) (r2 1))))
+
+(define (*rat r1 r2)
+  (rat (* (r1 0) (r2 0))
+       (* (r1 1) (r2 1))))
+
+(define (/rat r1 r2)
+  (rat (* (r1 0) (r2 1))
+       (* (r1 1) (r2 0))))
+
+
+------------------
+Numerali di Church
+------------------
+
+Nella codifica di Church dei numeri naturali, il numero N viene codificato da una funzione che applica il suo primo argomento N volte al suo secondo argomento.
+
+Church ZERO restituisce sempre la funzione identità, indipendentemente dal suo primo argomento. In altre parole, il primo argomento non viene applicato al secondo argomento.
+Church UNO applica il suo primo argomento f solo una volta al secondo argomento x, producendo f(x).
+Church DUE applica il suo primo argomento f due volte al suo secondo argomento x, producendo f(f(x))
+e ogni successivo numero della Chiesa applica il suo primo argomento una volta in più al secondo argomento, f(f(f(x))), f(f(f(f(x)))) ... Il numero Church 4, per ad esempio, restituisce una composizione quadrupla della funzione fornita come primo argomento.
+Le operazioni aritmetiche sui numeri naturali possono essere similmente rappresentate come funzioni sui numeri di Church.
+
+Definiamo i numeri di Church:
+
+(define (zero f x) x)
+(define (uno f x) (f x))
+(define (due f x) (f (f x)))
+(define (tre f x) (f (f (f x))))
+(define (quattro f x) (f (f (f (f x)))))
+(define (cinque f x) (f (f (f (f (f x))))))
+(define (sei f x) (f (f (f (f (f (f x)))))))
+(define (sette f x) (f (f (f (f (f (f (f x))))))))
+(define (otto f x) (f (f (f (f (f (f (f x))))))))
+(define (otto f x) (f (f (f (f (f (f (f (f x)))))))))
+(define (nove f x) (f (f (f (f (f (f (f (f (f x))))))))))
+
+(zero inc 0)
+;-> 0
+(uno inc 0)
+;-> 1
+(due inc 0)
+;-> 2
+
+Oppure:
+
+(setq f inc)
+(setq x 0)
+(zero f x)
+;-> 0
+(sei f x)
+;-> 6
+
+Definiamo la funzione successore "succ":
+
+(define (succ n f x) (f (f n x)))
+
+(succ 0 inc 0)
+;-> 1
+(succ 3 inc 0)
+;-> 4
+(succ 2 inc 0)
+;-> 3
+
+Definiamo la funzione somma "plus":
+
+(define (plus m n f x) (f m (f n x)))
+(plus 3 2 inc 0)
+;-> 5
+(plus (due inc 0) 5 inc 0)
+;-> 7
+(plus (due f x) 5 f x)
+;-> 7
+
+Adesso dovremmo definire la funzioni precedente "prec", la funzione moltiplicazione "molt" e la funzione sottrazione "minus". Dopo aver avuto un aiuto da kosh ho deciso di utilizzare il suo metodo per definire i numerali di Church (https://gist.github.com/kosh04/262332)
+
+La funzione "expand" espande solo i simboli che iniziano con una lettera maiuscola:
+
+(define-macro (LAMBDA)
+  (append (lambda) (expand (args))))
+
+(define DEFINE define)
+
+Numeri naturali e aritmetica:
+
+; 0: = λfx.x
+(DEFINE ZERO (LAMBDA (F) (LAMBDA (X) X)))
+; 1: = λfx.fx
+(DEFINE UNO  (LAMBDA (F) (LAMBDA (X) (F X))))
+(define UNO  (LAMBDA (F) (LAMBDA (X) (F X))))
+; 2: = λfx.f (fx)              ; 1: = λfx.fx
+(DEFINE DUE  (LAMBDA (F) (LAMBDA (X) (F (F X)))))
+(define DUE  (LAMBDA (F) (LAMBDA (X) (F (F X)))))
+; 3: = λfx.f (f (fx))
+(DEFINE TRE  (LAMBDA (F) (LAMBDA (X) (F (F (F X))))))
+(DEFINE QUATTRO (LAMBDA (F) (LAMBDA (X) (F (F (F (F X)))))))
+(DEFINE CINQUE  (LAMBDA (F) (LAMBDA (X) (F (F (F (F (F X))))))))
+(DEFINE SEI  (LAMBDA (F) (LAMBDA (X) (F (F (F (F (F (F X)))))))))
+
+; SUCC: = λnfx.f (n f x)
+(DEFINE (SUCC N) (LAMBDA (F) (LAMBDA (X) (F (N F X)))))
+
+; PLUS: = λmnfx.m f (n f x)
+(DEFINE (PLUS M N) (LAMBDA (F) (LAMBDA (X) ((M F) ((N F) X)))))
+(define (PLUS M N) (LAMBDA (F) (LAMBDA (X) ((M F) ((N F) X)))))
+
+; MOLT: = λ mn f. M (n f)
+(DEFINE (MOLT M N) (LAMBDA (F) (LAMBDA (X) ((N (M F) X)))))
+
+; POW: = λbe.e b
+(DEFINE (POW B E) (E B))
+
+(define (to-number x) ((x (lambda (n) (+ n 1))) 0))
+
+(define (to-lambda n) (if (< 0 n) (SUCC (to-lambda (- n 1))) (ZERO)))
+
+(to-number ZERO)
+;-> 0
+(to-number UNO)
+;-> 1
+(to-number DUE)
+;-> 2
+
+La funzione seguente prende un intero e ritorna il numero nella forma di Church:
+
+(define (reduce stencil sq) (apply stencil sq 2))
+
+(define (num n)  
+(cond
+   ((= n 0) 'x)
+   ((< n 2) '(f x))
+   (true (reduce (fn (l i) (list 'f l)) (cons '(f x) (sequence 2 n)) ))))
+
+(define (church-encode n)
+  (letex ((body (num n)))
+    (fn (f x) body)))
+
+(church-encode 0)
+;-> (lambda (f x) x)
+(church-encode 4)
+;-> (lambda (f x) (f (f (f (f x)))))
+
+(num 0)
+;-> x
+
+(num 4)
+;-> (f (f (f (f x))))
+
+Per adesso mi fermo qui, devo ragionarci un pò di più :-)
+
+
+-----------------------------------
+Creazione e valutazione di polinomi
+-----------------------------------
+Supponiamo di avere il polinomio y(x) = 3*x^2 - 7*x + 5 e di voler calcolare i valori di y per x che varia da 0 a 10 (con passo 1).
+Possiamo definire una funzione che rappresenta il polinomio:
+
+(define (poly x)
+  (+ 5 (mul 7 x) (mul 3 (pow x 2))))
+
+(poly 0)
+;-> 5
+
+E poi per ottenere i valori cercati possiamo scrivere:
+
+(for (x 0 10) (println x { } (poly x)))
+;-> 0 5
+;-> 1 15
+;-> 2 31
+;-> 3 53
+;-> 4 81
+;-> 5 115
+;-> 6 155
+;-> 7 201
+;-> 8 253
+;-> 9 311
+;-> 10 375
+
+Poichè i polinomi hanno una struttura ben definita possiamo scrivere una funzione che prende i coefficienti di un polinomio e restituisce una funzione che rappresenta il polinomio:
+Ad esempio, il polinomio:
+
+ y(x) = 4*x^3 + 5*x^2 + 7*x + 10 
+ 
+viene rappresentato dalla funzione:
+
+ (lambda (x) (add 10 (mul x 7) (mul (pow x 2) 5) (mul (pow x 3) 4)))
+ 
+La nostra funzione deve quindi costruire una nuova funzione lambda che rappresenta il polinomio (lavoriamo sulla funzione lambda come se fosse una lista).
+
+; y(x) = 4*x^3 + 5*x^2 + 7*x + 10)
+; (setq poly (crea-polinomio '(4 5 7 10)))
+; poly -> (lambda (x) (add 10 (mul x 7) (mul (pow x 2) 5) (mul (pow x 3) 4)))
+
+(define (crea-polinomio coeff)
+  (local (fun body)
+    (reverse coeff)
+    (setq fun '(lambda (x) x)) ;funzione lambda base
+    (setq body '()) ;corpo della funzione
+    (push 'add body -1)
+    (push (first coeff) body -1) ;termine noto
+    (push (list 'mul 'x (coeff 1)) body -1) ;termine lineare
+    (for (i 2 (- (length coeff) 1))
+      (push (list 'mul (list 'pow 'x i) (coeff i)) body -1)
+    )
+    (setq (last fun) body) ;modifica corpo della funzione
+    fun
+  )
+)
+
+Adesso possiamo definire una nuova funzione "poly" che rappresenta il nostro polinomio:
+
+(setq poly (crea-polinomio '(4 5 7 10)))
+;-> (lambda (x) (add 10 (mul x 7) (mul (pow x 2) 5) (mul (pow x 3) 4)))
+
+Valutando il polinomio per x = 0 otteniamo il termine noto:
+
+(poly 0)
+;-> 10
+
+Usiamo la funzione "poly" in un ciclo for:
+
+(for (x 0 10) (println x { } (poly x)))
+;-> 0 10
+;-> 1 26
+;-> 2 76
+;-> 3 184
+;-> 4 374
+;-> 5 670
+;-> 6 1096
+;-> 7 1676
+;-> 8 2434
+;-> 9 3394
+;-> 10 4580
+
+Proviamio con i dati del primo esempio:
+
+(setq poly2 (crea-polinomio '(3 7 5)))
+;-> (lambda (x) (add 5 (mul x 7) (mul (pow x 2) 3)))
+
+(for (x 0 10) (println x { } (poly2 x)))
+;-> 0 5
+;-> 1 15
+;-> 2 31
+;-> 3 53
+;-> 4 81
+;-> 5 115
+;-> 6 155
+;-> 7 201
+;-> 8 253
+;-> 9 311
+;-> 10 375
+
+
 ======================================================================
 
  DOMANDE PER ASSUNZIONE DI PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
  
 ======================================================================
 
+---------------
 Notazione Big-O
 ---------------
+
 Valori della notazione Big-O in funzione del numero di ingresso
 
  n  costante logaritmo  lineare   nlogn      quadrato   cubo    esponenziale
@@ -22898,8 +23564,10 @@ Valori della notazione Big-O in funzione del numero di ingresso
 64     1        6         64      384          4096   262144   1.84x10^19
 
 
+-----------------------------------
 Contare i bit di un numero (McAfee)
 -----------------------------------
+
 Dato un numero intero positivo n, contare il numero di bit che valgono 1 nella sua rappresentazione binaria.
 
 Possiamo trasformare il numero in binario e contare quanti bit hanno valore 1.
@@ -23009,8 +23677,10 @@ Ora vediamo quale metodo è più veloce:
 La funzione che usa gli operatori bitwise è leggermente più veloce.
 
 
+---------------------------------------------
 Scambiare il valore di due variabili (McAfee)
 ---------------------------------------------
+
 Come scambiare il valore di due variabili (swap) senza utilizzare una variabile di appoggio?
 
 Primo metodo (somma/sottrazione):
@@ -23111,8 +23781,10 @@ Quarto metodo (newLISP):
 ;-> (2 1)
 
 
+------------------------
 Funzione "atoi" (McAfee)
 ------------------------
+
 La funzione "atoi" del linguaggio C converte una stringa in un numero intero.
 Implementare la funzione "atoi".
 
@@ -23183,8 +23855,10 @@ Le seguenti operazioni devono essere svolte:
 ;-> nil
 
 
+-------------------------------------
 Somma di numeri in una lista (Google)
 -------------------------------------
+
 Data una lista di numeri e un numero k, restituire se due numeri dalla lista si sommano a k.
 Ad esempio, dati (10 15 3 7) e k di 17, restituisce true da 10 + 7 che vale 17.
 Bonus: puoi farlo in un solo passaggio?
@@ -23218,8 +23892,10 @@ Quindi la soluzione è iterare sulla lista e per ogni elemento cercare se qualsi
 ;-> nil
 
 
+---------------------------------
 Aggiornamento di una lista (Uber)
 ---------------------------------
+
 Data una lista di interi, restituire una nuova lista in modo tale che ogni elemento nell'indice i della nuova lista sia il prodotto di tutti i numeri nella lista originale tranne quello in i.
 Ad esempio, se il nostro input fosse (1 2 3 4 5), l'uscita prevista sarebbe (120 60 40 30 24).
 Se il nostro input fosse (3 2 1), l'output atteso sarebbe (2 3 6).
@@ -23319,8 +23995,10 @@ La funzione è la seguente:
 ;-> (0 0 0 0 0)
 
 
+------------------------------------
 Ricerca numero su una lista (Stripe)
 ------------------------------------
+
 Data una lista di numeri interi, trova il primo intero positivo mancante in tempo lineare e spazio costante. In altre parole, trova il numero intero positivo più basso che non esiste nelll lista. La lista può contenere anche duplicati e numeri negativi.
 Ad esempio, l'input (3 4 -1 1) dovrebbe dare 2.
 L'input (1 2 0) dovrebbe dare 3.
@@ -23357,8 +24035,10 @@ Quindi inseriamo ogni numero intero positivo di una lista al suo posto e poi ite
 ;-> (3 (0 1 2 1 4 5 7 7))
 
 
+-------------------------------------
 Decodifica di un messaggio (Facebook)
 -------------------------------------
+
 Data la mappatura a = 1, b = 2, ... z = 26 e un messaggio codificato, contare il numero di modi in cui può essere decodificato.
 Ad esempio, il messaggio "111" restituirebbe 3, poiché potrebbe essere decodificato come "aaa" (1)(1)(1), "ka" (11)(1) e "ak" (1)(11).
 Puoi presumere che i messaggi siano decodificabili. Per esempio, "001" non è permesso.
@@ -23424,8 +24104,10 @@ Inoltre utilizzeremo una funzione (decodifica?) che ritorna "1" se la stringa è
 ;-> 1
 
 
+-------------------------------------------
 Implementazione di un job-scheduler (Apple)
 -------------------------------------------
+
 
 Implementare un job scheduler che prende come parametri una funzione "f" e un intero "n" e chiama "f" dopo "n" millisecondi.
 
@@ -23485,8 +24167,10 @@ Lanciamo il nostro job-scheduler che eseguirà la funzione "g" ogni 2 secondi:
 ;-> diventa pari: 10
 
 
+---------------------------------------
 Massimo raccoglitore d'acqua (Facebook)
 ---------------------------------------
+
 Dati n numeri interi non negativi a1, a2, ..., an, dove ognuno rappresenta un punto di coordinate
 (i, ai). n linee verticali sono disegnate in modo tale che i due estremi della linea i siano ad (i, ai)
 e (i, 0). Trova due linee, che insieme all'asse x formano un contenitore, in modo tale che il
@@ -23687,8 +24371,10 @@ Ma se invece vogliamo considerare la soluzione seguente:
 allora dobbiamo scrivere una nuova funzione per calcolare la soluzione.
 
 
+----------------------------------------
 Quantità d'acqua in un bacino (Facebook)
 ----------------------------------------
+
 Dati n interi non negativi che rappresentano una mappa di elevazione in cui la larghezza di ciascuna barra è 1, calcolare la quantità massima di acqua che è in grado di contenere
 
 Esempi:
@@ -23855,8 +24541,10 @@ Totale x = 78
 ;-> 0 2 0 3 0 5 2 5 1 5 2 5 1 5 2 5 2 5 0 7 0 8 5 8 0 78
 
 
+--------------------------
 Sposta gli zeri (LeetCode)
 --------------------------
+
 Data una lista di numeri, scrivere una funzione per spostare tutti gli 0 alla fine della lista mantenendo l'ordine relativo degli elementi diversi da zero.
 Ad esempio, data la lista (0 1 0 3 12), dopo aver chiamato la funzione, la lista dovrebbe essere (1 3 12 0 0).
 
@@ -23917,8 +24605,10 @@ Nel secondo caso utilizziamo due cicli con due indici "i" e "j". Il primo ciclo 
 ;-> (1 1 3 4 0 0 0 0 0)
 
 
+---------------------------------------
 Intersezione di segmenti (byte-by-byte)
 ---------------------------------------
+
 La soluzione è basata su un algoritmo del libro di Andre LeMothe "Tricks of the Windows Game Programming Gurus".
 In generale, una linea ha una delle forme seguenti (interscambiabili):
 
@@ -24089,8 +24779,10 @@ Se vogliamo trattare i casi particolari in modo diverso da (nil nil) possiamo ut
 ;-> true
 
 
+--------------------------------------
 Trovare l'elemento mancante (LeetCode)
 --------------------------------------
+
 Abbiamo due liste con gli stessi elementi, ma una lista ha un elemento in meno. Trovare l'elemento mancante della lista più corta.
 Esempio:
 lista 1: (1 3 4 6 8)
@@ -24121,8 +24813,10 @@ Nota: Dati due valori di una lista con tre scelte (1 2 3), individuare il terzo 
 ;-> 3
 
 
+--------------------------------
 Verifica lista/sottolista (Visa)
 --------------------------------
+
 Date due liste A e B composte da n e m interi, verificare se la lista B è una sottolista della lista A.
 Esempi:
 
@@ -24182,8 +24876,10 @@ Oppure:
 ;-> 140
 
 
+----------------------------------
 Controllo ordinamento lista (Visa)
 ----------------------------------
+
 Scrivere una funzione per controllare se una lista è ordinata o meno. La funzione deve avere un parametro che permette di specificare il tipo di ordinamento (crescente o decrescente).
 
 Usiamo la tecnica della ricorsione per risolvere il problema: applico l'operatore di confronto tra il primo e il secondo elemento e poi richiamo la stessa funzione con il resto della lista.
@@ -24270,8 +24966,10 @@ Usiamo la funzione apply per applicare tutti gli operatori di confronto alla lis
 ;-> <=
 
 
+----------------
 Caramelle (Visa)
 ----------------
+
 Ci sono N bambini in fila. Ad ogni bambino viene assegnato un punteggio.
 Devi distribuire caramelle questi bambini in base ai seguenti vincoli:
 1. Ogni bambino deve avere almeno una caramella.
@@ -24314,8 +25012,10 @@ Una soluzione semplice è quella di ordinare i punteggi in ordine crescente e po
 (caramelle '(10 2 1 1 1 3 5 4))
 
 
+-----------------------------------
 Unire due liste ordinate (Facebook)
 -----------------------------------
+
 L'ordinamento delle liste può essere sia crescente che decrescente. Useremo un parametro "op" con il seguente significato:
 - se "op" vale ">" le liste sono ordinate in modo crescente
 - se "op" vale "<" le liste sono ordinate in modo decrescente
@@ -24353,8 +25053,10 @@ L'ordinamento delle liste può essere sia crescente che decrescente. Useremo un 
 ;-> (7 6 5 5 4 3 1)
 
 
+------------------------
 Salire le scale (Amazon)
 ------------------------
+
 Esiste una scala con N scalini e puoi salire di 1 o 2 passi alla volta. Dato N, scrivi una funzione che restituisce il numero di modi unici in cui puoi salire la scala. L'ordine dei passaggi è importante.
 
 Ad esempio, se N è 4, esistono 5 modi unici: (1, 1, 1, 1) (2, 1, 1) (1, 2, 1) (1, 1, 2) (2, 2).
@@ -24548,8 +25250,10 @@ Ogni i-esimo elemento della lista cache conterrà il numero di modi in cui possi
 ;-> 0
 
 
+-----------------------------------------
 Numeri interi con segni opposti (MacAfee)
 -----------------------------------------
+
 Determinare se due numeri interi hanno segni opposti (true).
 
 Applicando l'operatore bitwise XOR "^" ai quattro casi possibili si ottiene:
@@ -24594,8 +25298,10 @@ Possiamo scrivere la funzione:
 ;-> true
 
 
+----------------------------
 Parità di un numero (McAfee)
 ----------------------------
+
 
 Parità: la parità di un numero si riferisce al numero di bit che valgono 1.
 Il numero ha "parità dispari", se contiene un numero dispari di 1 bit ed è "parità pari" se contiene un numero pari di 1 bit.
@@ -24658,8 +25364,10 @@ Per controllare la correttezza utilizziamo le funzioni di conversione tra numero
 ;-> dispari
 
 
+------------------------------
 Numero potenza di due (Google)
 ------------------------------
+
 Determinare se un numero intero positivo n è una potenza di due.
 
 Primo metodo:
@@ -24742,8 +25450,10 @@ Nota: L'espressione n & (n-1) non funziona quando n vale 0.
 ;-> nil
 
 
+----------------------------
 Stanze e riunioni (Snapchat)
 ----------------------------
+
 Data una serie di intervalli di tempo (inizio, fine) per delle riunioni (con tempi che si possono sovrapporre), trovare il numero minimo di stanze richieste.
 Ad esempio, la lista ((30 75) (0 50) (60 150)) dovrebbe restituire 2.
 
@@ -24823,8 +25533,10 @@ public boolean canAttendMeetings(Interval[] intervals) {
 }
 
 
+----------------------------------
 Bilanciamento parentesi (Facebook)
 ----------------------------------
+
 Data una stringa contenente parentesi tonde, quadre e graffe (aperte e chiuse), restituire
 se le parentesi sono bilanciate (ben formate) e rispettano l'ordine ("{}" > "[]" > "()").
 Ad esempio, data la stringa "[()] [] {()}", si dovrebbe restituire true.
@@ -24903,8 +25615,10 @@ La seguente funzione controlla la correttezza delle parentesi:
 ;-> true
 
 
+------------------------------------------------
 K punti più vicini (K Nearest points) (LinkedIn)
 ------------------------------------------------
+
 
 Data una lista di N punti (xi, yi) sul piano cartesiano 2D, trova i K punti più vicini ad un punto centrale C (xc, yc). La distanza tra due punti su un piano è la distanza euclidea.
 È possibile restituire la risposta in qualsiasi ordine.
@@ -25079,8 +25793,10 @@ Complessità temporale: in media O(N), dove N è il numero di punti.
 Complessità spaziale: O(N)
 
 
+-----------------------------
 Ordinamento colori (LeetCode)
 -----------------------------
+
 Data una lista con n elementi che hanno uno dei seguenti valori: "verde", "bianco", "rosso" o "blu". Restituire un'altra lista in modo che gli stessi colori siano adiacenti e l'ordine dei colori sia "verde", "bianco", "rosso" e "blu".
 Un colore può non comparire nella lista (es. lista = ("rosso" "verde" "verde" "blu")
 Esempio:
@@ -25118,6 +25834,7 @@ Per semplificare i calcoli usiamo i numeri 0, 1, 2 e 3 per rappresentare rispett
 ;-> (0 0 0 1 1 1 2 2 2 3 3 3)
 
 
+-----------------------------
 Unione di intervalli (Google)
 -----------------------------
 
@@ -25175,6 +25892,97 @@ Esempio:
 
 (unisci-intervalli lst)
 ;-> ((1 10) (15 18))
+
+
+----------------------
+Somma dei numeri unici
+----------------------
+
+In una lista di numeri interi, trovare la somma dei numeri che compaiono una sola volta. Ad esempio, nella lista (4 2 3 1 7 4 2 7 1 7 5), i numeri 1, 2, 4 e 7 appaiono più di una volta, quindi sono esclusi dalla somma e la risposta corretta è 3 + 5 = 8.
+
+Soluzione 1 (ordinamento)
+
+(define (somma-unici lst)
+  (local (base conta out)
+    (setq out '())
+    (sort lst)
+    (setq base (first lst))
+    (setq conta 1)
+    (for (i 1 (- (length lst) 1))
+      (if (!= (lst i) base)
+        (begin
+          (if (= conta 1) (push base out -1))
+          (setq base (lst i))
+          (setq conta 1)
+        )
+        (++ conta)
+      )
+    )
+    (apply + out)
+  )
+)
+
+(somma-unici '(1 2 2 3 4 4 5 5 6 6 6))
+;-> 4
+(somma-unici '(4 2 3 1 7 4 2 7 1 7 5))
+;-> 8
+(somma-unici '(1 1 1 2 3 6 6 7 8 8 8))
+;-> 12
+
+(time (somma-unici '(4 2 3 1 7 4 2 7 1 7 5)) 10000)
+;-> 47.005
+
+Soluzione 2 (hashmap)
+
+(define (somma-unici-2 lst)
+  (local (out somma)
+    (setq out '())
+    (setq somma 0)
+    ;crea hashmap
+    (new Tree 'myhash)
+    ;aggiorna hashmap con i valori della lista (valore contatore)
+    (dolist (el lst)
+      (if (myhash el)
+        ;se esiste il valore aumenta di uno il suo contatore
+        (myhash el (+ (int $it) 1))
+        ;altrimenti poni il suo contatore uguale a 1
+        (myhash el 1)
+      )
+    )
+    ;copia la hashmap su una lista associativa
+    (setq out (myhash))
+    ;azzera la hashmap
+    ;(delete 'myhash) ;slower
+    (dolist (el lst) (myhash el nil)) ;faster
+    ;somma i valori unici della lista associativa
+    (dolist (el out)
+      ;(println (lookup (first el) out))
+      (if (= (lookup (first el) out) 1)
+        (setq somma (+ somma (int (first el))))
+      )
+    )
+    somma
+  )
+)
+
+(somma-unici-2 '(1 2 2 3 4 4 5 5 6 6 6))
+;-> 4
+(somma-unici-2 '(4 2 3 1 7 4 2 7 1 7 5))
+;-> 8
+(somma-unici-2 '(1 1 1 2 3 6 6 7 8 8 8))
+;-> 12
+
+(time (somma-unici-2 '(4 2 3 1 7 4 2 7 1 7 5)) 10000)
+;-> 163.016
+
+(time (somma-unici (sequence 1 10000)))
+;-> 187.505
+
+(time (somma-unici-2 (sequence 1 10000)))
+;-> 406.431
+
+La versione 2 (hashmap) è più lenta della versione 1, ma dovrebbe essere il contrario.
+Probabilmente occorre ottimizzare l'uso delle hashmap.
 
 ==========
 
@@ -25599,6 +26407,31 @@ Funzione che calcola la potenza di una frazione "^f"
 
 (^f '(3 5) 2)
 ;-> (9 25)
+
+Sul forum di newLISP, rickyboy ha fornito le seguenti funzioni equivalenti:
+
+(define (rat n d)
+  (let (g (gcd n d))
+    (map (curry * 1L)
+         (list (/ n g) (/ d g)))))
+
+(define (+rat r1 r2)
+  (rat (+ (* (r1 0) (r2 1))
+          (* (r2 0) (r1 1)))
+       (* (r1 1) (r2 1))))
+
+(define (-rat r1 r2)
+  (rat (- (* (r1 0) (r2 1))
+          (* (r2 0) (r1 1)))
+       (* (r1 1) (r2 1))))
+
+(define (*rat r1 r2)
+  (rat (* (r1 0) (r2 0))
+       (* (r1 1) (r2 1))))
+
+(define (/rat r1 r2)
+  (rat (* (r1 0) (r2 1))
+       (* (r1 1) (r2 0))))
 
 Per generalizzare le funzioni che abbiamo scritto, dobbiamo permettere che queste siano in grado di gestire un numero variabile di argomenti (attualmente possiamo passare solo due frazioni alle nostre funzioni).
 Usiamo le seguenti funzioni per estrarre il numeratore e il denominatore da una frazione (num den):
@@ -26482,6 +27315,297 @@ Trasformiamo la data dal formato ISO al formato RFC822:
 
 (date (apply date-value (map int (parse "2007.1.3" { |\.} 0)))  0 "%a, %d %b %Y %H:%M %Z")
 ;-> "Wed, 03 Jan 2007 01:00 W. Europe Standard Time"
+
+
+-------------------------------------------------
+Chiusura transitiva e raggiungibilità in un grafo
+-------------------------------------------------
+
+ralph.ronnquist:
+----------------
+Vediamo come definire una "chiusura transitiva". Data una lista di coppie che rappresenta i link di un grafo, determinare le liste di tutti i nodi connessi transitivamente (in altre parole, unire tutte le sotto-liste che hanno in comune qualche elemento (transitivamente)).
+↔↕
+Esempio:
+
+ 19 ←→ 9 ←→ 4 ←→ 12    3 ←→ 15 ←→ 8    7 ←→ 5 ←→ 0 ←→ 11
+            ↕
+           13 ←→ 1
+
+(setq grafo '((13 1) (9 19) (4 13) (4 12) (15 8) (3 15) (7 5) (9 4) (11 0) (0 5)))
+
+Una soluzione ricorsiva potrebbe essere la seguente:
+
+(define (trans s (x s) (f (and s (curry intersect (first s)))))
+  (if s (trans (rest s) (cons (unique (flat (filter f x))) (clean f x))) x))
+
+(trans grafo)
+;-> ((7 5 0 11) (9 19 4 13 1 12) (15 8 3))
+
+rickyboy:
+---------
+L'input s è una lista di insiemi in cui ogni membro è in relazione l'uno con l'altro. Ad esempio, se uno dei membri di s è (1 2 3) ciascuno di 1, 2 e 3 sono collegati a qualsiasi altro. In termini matematici, se l'input s descrive una relazione (simmetrica) R, allora risulta che 1R2, 2R1, 1R3, 3R1, 2R3 e 3R2 sono tutti veri.
+
+Quindi, ad esempio, il primo membro dell'input di esempio (13 1) implica sia 13R1 che 1R13 (quando l'input di esempio descrive R). Questo perché, l'input di trans e il suo output sono simili, sono entrambi descrizioni di relazione - tranne che l'output è garantito per descriva una relazione di transitività.
+
+Ora, guardando l'input invece come un insieme di link di un grafo, allora la funzione "trans" deve assumere che tutti i link che trova nell'input sono bidirezionali, cioè gli archi (collegamenti) del grafo non sono orientati.
+
+La funzione "trans" unisce (cons) il membro che definisce le relazioni transitive parziali che contengono il link (first s) (per assorbimento/sussunzione) (cioè (unique (flat (filter f x)))), con il sottoinsieme dei membri che definiscono le relazioni transitive parziali in x che sono mutualmente esclusive al link (first s) (cioè clean f x)
+
+Quando utilizziamo la funzione "trans" possiamo accoppiarla con la seguente funzione che crea un predicato per essa:
+
+(define (make-symmetric-relation S)
+  (letex ([S] S)
+    (fn (x y)
+      (exists (fn (s) (and (member x s) (member y s)))
+              '[S]))))
+
+Ecco un test che mostra la funzione in azione:
+
+(define (test-trans input x y)
+  (let (R     (make-symmetric-relation input)
+        Rt    (make-symmetric-relation (trans input))
+        yesno (fn (x) (if x 'yes 'no)))
+    (list ;; is (x,y) in the original relation?
+          (yesno (R x y))
+          ;; is (x,y) in the transitive closure?
+          (yesno (Rt x y)))))
+
+Ad esempio,
+(8 15) è nella relazione originale: quindi, sarà anche nella chiusura transitiva.
+(9 13) non è nella relazione originale, ma è nella chiusura transitiva.
+(9 15) non è in nessuna delle due.
+
+(define input '((13 1) (9 19) (4 13) (4 12) (15 8) (3 15) (7 5) (9 4) (11 0) (0 5)))
+
+(test-trans input 8 15)
+;-> (yes yes)
+
+(test-trans input 9 13)
+;-> (no yes)
+
+(test-trans input 9 15)
+;-> (no no)
+
+ralph.ronnquist:
+----------------
+Esatto, la funzione "trans" tratta la sua lista di input s come una raccolta di classi di equivalenza e combina quelle che si sovrappongono nelle più piccole collezioni di classi.
+
+La funzione simile per le relazioni non riflessive (o per gli archi diretti) riguarderebbe piuttosto la "raggiungibilità transitiva", da un elemento a quelli che sono raggiungibili quando si segue l'articolata relazione (links) in un solo senso (in avanti).
+
+Le seguenti due funzioni svolgono questi metodi: una che determina il raggiungimento individuale di un dato elemento, e una che determina il raggiungimento individuale di tutti gli elementi (mappa di raggiungibilità).
+
+The similar function for non-reflexive relations (or directed arcs) would rather concern transitive reachability, from one element to those that are reachable when following the articulated relation (links) in the forward direction only. I came up with the following for that, which is two functions: one that determines the individual reach from a given element, and an outer function that makes the map of all those for all the elements:
+
+versione iniziale:
+(define (reach s n (f (fn (x) (= n (x 0)))))
+  (cons n (if s (flat (map (curry reach (clean f s))
+                           (map (curry nth 1) (filter f s)))))))
+
+Nota: usare la versione iniziale della funzione "reach".
+
+============================================================================
+versione finale (rimuove gli elementi multipli con "unique"):
+(define (reach s n (f (fn (x) (= n (x 0)))))
+  (cons n (if s (unique (flat (map (curry reach (clean f s))
+                                   (map (curry nth 1) (filter f s))))))))
+============================================================================
+
+(define (reachability s)
+  (map (fn (x) (reach s x)) (sort (unique (flat s)))))
+
+ 19 ← 9 → 4 → 12    3 → 15 → 8    7 → 5 ← 0 ← 11
+          ↓
+          13 → 1
+
+
+(setq grafoD '((13 1) (9 19) (4 13) (4 12) (15 8) (3 15) (7 5) (9 4) (11 0) (0 5)))
+
+(reachability grafoD)
+;-> ((0 5) (1) (3 15 8) (4 13 1 12) (5) (7 5) (8)
+ ;-> (9 19 4 13 1 12) (11 0 5) (12) (13  1) (15 8) (19))
+
+La "mappa di raggiungibilità" in ogni sottolista indica quali elementi sono raggiungibili dal primo elemento secondo la relazione orientata originale. Per creare la chiusura transitiva basta creare le coppie di associazione dalla mappa di raggiungibilità.
+
+(define (transD s)
+  (flat (map (fn (x) (if (1 x) (map (curry list (x 0)) (1 x)) '())) (reachability s)) 1))
+
+(transD grafoD)
+;-> ((0 5) (3 15) (3 8) (4 13) (4 1) (4 12) (7 5) (9 19)
+;->  (9 4) (9 13) (9 1) (9 12) (11 0) (11 5) (13 1) (15 8))
+
+Il nuovo input (grafoD) crea nuove coppie: (3 8) (4 1) (9 13) (9 1) (9 12) (11 5)
+
+Adesso, come andiamo nell'altra direzione? Ovvero, come si riduce al minor numero di coppie, o almeno si trova una sottolista in modo che le relazioni implicite vengano omesse dall'elenco?
+
+rickyboy:
+---------
+Ecco la funzione "untransD" che rimuove le relazioni implicite. LAvora considerando ogni arco in s che può essere visto come coppia (src dst) (sebbene dst non è necessario). La funzione "clean" risponde alla domanda "Questo arco è implicato?", che sarà vero (true) quando la raggiungibilità di src, dopo che abbiamo rimosso l'arco da s, è la stessa della raggiungibilità di src sotto s.
+
+(define (untransD s)
+  (clean (fn (edge)
+           (let (src (edge 0)
+                 remove (fn () (apply replace (args))))
+             (= (reach s src)
+                (reach (remove edge s) src))))
+         s))
+
+Per quelli che non hanno familiarità con newLISP, notare la funzione di "remove" (definita nell'associazioni let). Sembra che stia facendo solo ciò che fa la funzione intrinseca "replace": allora, perché non dire semplicemente (replace edge s) invece di (remove edge s)?
+La ragione di questo è sottile. La primitiva "replace" è distruttiva e non vogliamo che s cambi durante il runtime di untransD. Definire "remove" come abbiamo fatto qui lo trasforma in una funzione di rimozione non distruttiva (a causa del modello di chiamata di newLISP: la funzione riceve una copia e non il riferimento dell'oggetto).
+
+Ma forse da un punto di vista dei contratti (di ingegneria del software), non dovremmo fare affidamento sull'ordine degli output delle chiamate raggiunte (cioè la sua stabilità).
+Anche se possiamo vedere il codice di raggiungibilità, possiamo anche giocare "giocare sicuro" assumendo che non possiamo vedere l'implementazione e quindi sostituire l'uso di = con l'uso di un altro predicato di uguaglianza in cui l'ordine non ha importanza. Potrebbe esserci un modo migliore di quello proposto di seguito:
+
+(define (set-equal? A B)
+  (= (sort A) (sort B)))
+
+Anche la primitiva "sort" è distruttiva. Tuttavia, non abbiamo bisogno di A e B (che sono copie anche loro) per qualsiasi altra cosa nell'ambito di questa funzione (dopo che abbiamo finito possiamo distruggerli). Fortunatamente, possiamo riutilizzare set-equal? nei nostri test.
+
+Innanzitutto, ricordiamo cosa fa "transD" in esecuzione sui dati di esempio (input).
+
+(setq input '((13 1) (9 19) (4 13) (4 12) (15 8) (3 15) (7 5) (9 4) (11 0) (0 5)))
+
+(transD input)
+;-> ((0 5) (3 15) (3 8) (4 13) (4 1) (4 12) (7 5) (9 19)
+;->  (9 4) (9 13) (9 1) (9 12) (11 0) (11 5) (13 1) (15 8))
+
+Adesso vediamo la funzione "untransD" in azione:
+
+(untransD (transD input))
+;-> ((0 5) (3 15) (4 13) (4 12) (7 5) (9 19) (9 4) (11 0) (13 1) (15 8))
+
+L'output della funzione sembra uguale alla lista di ingresso.
+
+Come facciamo a testare meglio queste funzioni? Sembra che dovremmo essere in grado di dire che transD e untransD sono una l'inversa dell'altra. Proviamo.
+
+Innanzitutto, si noti che l'input di esempio stesso è privo di relazioni implicite.
+
+(set-equal? input (untransD input))
+;-> true
+
+Questo significa che deve valere anche la seguente identità:
+
+(set-equal? input (untransD (transD input)))
+;-> nil
+
+Esplorando tutto il codice, credo di aver trovato un bug.
+
+La seguente identità dovrebbe essere vera: la raggiungibilità della chiusura transitiva dell'input è la stessa della raggiungibilità dell'input.
+
+(set-equal? (reachability input)
+            (reachability (transD input)))
+
+;-> nil
+
+Cosa succede?
+
+(reachability (transD input))
+;-> ((0 5) (1) (3 15 8 8) (4 13 1 1 12) (5) (7 5)
+;->  (8) (9 19 4 13 1 1 12 13 1 1 12) (11 0 5 5)
+;->  (12) (13 1) (15 8) (19))
+
+Ok, sembra che alcune raggiungibilità non abbiano elementi unici. Eccone una in particolare.
+
+(reach (transD input) 9)
+;-> (9 19 4 13 1 1 12 13 1 1 12)
+
+Sembra che abbiamo bisogno della funzione "unique" nella funzione "reach".
+
+(define (reach s n (f (fn (x) (= n (x 0)))))
+  (cons n (if s (unique (flat (map (curry reach (clean f s))
+                                   (map (curry nth 1) (filter f s))))))))
+
+Bene, adesso funziona.
+
+(reach (transD input) 9)
+;-> (9 19 4 13 1 12)
+
+E l'identità viene rispettata, come atteso.
+
+(set-equal? (reachability input)
+            (reachability (transD input)))
+
+;-> true
+
+Grazie a ralph.ronnquist e rickyboy.
+
+
+-----------
+Stalin Sort
+-----------
+
+Ecco un algoritmo di ordinamento O(n) (single pass) chiamato StalinSort. L'algoritmo scorre l'elenco degli elementi controllando se sono in ordine. Qualsiasi elemento fuori ordine viene eliminato. Alla fine si ottiene un elenco ordinato.
+
+(define (stalinsort lst op)
+  (local (out)
+    (setq out '())
+    (cond ((null? lst) '())
+          (true
+            (let (base (first lst))
+              (push (first lst) out -1)
+              (for (i 1 (- (length lst) 1))
+                (if (op (lst i) base) 
+                ;(if (not (op (lst i) base))
+                  (begin
+                  (push (lst i) out -1)
+                  (setq base (lst i)))
+                )
+              )
+              out
+            )
+          )
+    )
+  )
+)
+
+(stalinsort '(1 3 4 2 3 6 8 5) <=)
+;-> (1)
+(stalinsort '(1 3 4 2 3 6 8 5) >=)
+;-> (1 3 4 6 8)
+(stalinsort '(11 8 4 2 3 6 8 5) <=)
+;-> (11 8 4 2)
+(stalinsort '(11 8 4 2 3 6 8 5) >=)
+;-> (11)
+(stalinsort '(11 4 8 2 3 6 8 12) <=)
+;-> (11 4 2)
+(stalinsort '(11 4 8 2 3 6 8 12) >=)
+;-> (11 12)
+
+
+--------------------
+Sequenza triangolare
+--------------------
+
+Consideriamo il seguente triangolo di numeri interi:
+
+1
+1 2
+1 2 3
+1 2 3 4
+1 2 3 4 5
+...
+
+Quando il triangolo è appiattito (flattened), produce la lista (1 1 2 1 2 3 1 2 3 4 1 2 3 4 5 ...).
+Il compito è scrivere un programma per generare la sequenza appiattita e per calcolare l'ennesimo elemento nella lista. 
+
+(define (triangle n idx)
+  (local (out)
+    (setq out '())
+    (for (i 1 n)
+      (push (sequence 1 i) out -1)
+    )
+    (setq out (flat out))
+    (if idx (nth idx out) out)
+  )
+)
+
+(triangle 3)
+;-> (1 1 2 1 2 3)
+(triangle 3 2)
+;-> 2
+(triangle 5)
+;-> (1 1 2 1 2 3 1 2 3 4 1 2 3 4 5)
+(triangle 5 10)
+;-> 1
 
 ===========
 

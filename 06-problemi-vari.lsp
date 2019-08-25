@@ -1,7 +1,7 @@
 ===============
 
  PROBLEMI VARI
- 
+
 ===============
 
 ----------
@@ -1620,8 +1620,8 @@ Radice quadrata intera di un numero intero (2^64 bit)
             (if (> 3 x1) (setq s (+ s 1)))
             (setq g0 (<< 1 s))
             (setq g1 (>> (+ g0 (>> x s)) 1))
-            (while (< g1 g0) ;while approssimazione
-              (setq g0 g1) ; strettamente decrescente
+            (while (< g1 g0) ; while approssimazione
+              (setq g0 g1)   ; strettamente decrescente
               (setq g1 (>> (+ g0 (/ x g0))  1))
             )
           )
@@ -1911,6 +1911,21 @@ Poniamo il punto fisso iniziale a uno: phi0 = 1
   (setq phi (add 1 (div 1 phi)))
 )
 ;-> 1.618033988749895
+
+Possiamo utilizzare anche la funzione predefinita "series":
+
+(series 1 (fn (x) (div (add 1 x))) 20)
+;-> (1 0.5 0.6666666 0.6 0.625 0.6153846 0.619047 0.6176470 0.6181818
+;->  0.6179775 0.6180555 0.6180257 0.6180371 0.6180327 0.6180344
+;->  0.6180338 0.6180340 0.6180339 0.6180339 0.6180339)
+
+Utilizziamo la funzione "series" per approssimare sqrt(2) = 1.414213562373095:
+
+(series 1 (fn (x) (add 1 (div (add 1 x)))) 20)
+;-> (1 1.5 1.4 1.416666666666667 1.413793103448276 1.414285714285714 1.414201183431953
+;->  1.41421568627451 1.414213197969543 1.41421362489487 1.414213551646055 1.414213564213564
+;->  1.41421356205732 1.414213562427273 1.4142135623638 1.41421356237469 1.414213562372821
+;->  1.414213562373142 1.414213562373087 1.414213562373097)
 
 
 --------------------------
@@ -5299,8 +5314,9 @@ Terza versione:
 ;-> 199.812
 
 
+----------------------------
 Labirinti (calcolo percorsi)
-============================
+----------------------------
 
 Un labirinto è un percorso o un insieme di percorsi, in genere con uno o più ingressi e con nessuna o più uscite.
 Per risolvere un labirinto (maze) utilizzeremo il seguente algoritmo che trova la soluzione (se esiste) in modo ricorsivo. Si parte da un valore iniziale X e Y. Se i valori X e Y non sono su un muro, il metodo (funzione) richiama se stesso con tutti i valori X e Y adiacenti, assicurandosi di non aver utilizzato in precedenza quei valori X e Y. Se i valori X e Y sono quelli della posizione finale, salva tutte le istanze precedenti del metodo (risultati parziali) creando una matrice con il percorso risolutivo.
@@ -5596,8 +5612,9 @@ Soluzione:
 ;-> 1 0 0 0 1 1 1 0 0
 
 
+--------------------------
 Moltiplicazioni di Fattori
-==========================
+--------------------------
 
 Dato un numero N, creare la lista dei numeri che possono essere ottenuti dal prodotto di tutte le combinazioni dei fattori primi del numero N.
 Nota: i numeri primi restituiscono una lista vuota.
@@ -5716,8 +5733,9 @@ Vediamo per curiosità quale numero fino a diecimila genera la lista più lunga.
 ;-> numero: 7560 --- lunghezza: 59
 
 
+---------------------------------------------
 Problemi patologici dei numeri floating point
-=============================================
+---------------------------------------------
 
 La Chaotic Bank Society offre questo investimento ai propri clienti.
 Per prima cosa depositi $ e - 1 dove e è 2.7182818 ... la base dei logaritmi naturali.
@@ -5913,4 +5931,272 @@ Adesso riscriviamo la funzione che calcola il valore finale dell'investimento:
 ;-> (1561042474970134L 39085931702241241L)
 
 Questa volta il risultato è esatto.
+
+Sul forum di newLISP, rickyboy ha fornito le seguenti funzioni equivalenti:
+
+(define (rat n d)
+  (let (g (gcd n d))
+    (map (curry * 1L)
+         (list (/ n g) (/ d g)))))
+
+(define (+rat r1 r2)
+  (rat (+ (* (r1 0) (r2 1))
+          (* (r2 0) (r1 1)))
+       (* (r1 1) (r2 1))))
+
+(define (-rat r1 r2)
+  (rat (- (* (r1 0) (r2 1))
+          (* (r2 0) (r1 1)))
+       (* (r1 1) (r2 1))))
+
+(define (*rat r1 r2)
+  (rat (* (r1 0) (r2 0))
+       (* (r1 1) (r2 1))))
+
+(define (/rat r1 r2)
+  (rat (* (r1 0) (r2 1))
+       (* (r1 1) (r2 0))))
+
+
+------------------
+Numerali di Church
+------------------
+
+Nella codifica di Church dei numeri naturali, il numero N viene codificato da una funzione che applica il suo primo argomento N volte al suo secondo argomento.
+
+Church ZERO restituisce sempre la funzione identità, indipendentemente dal suo primo argomento. In altre parole, il primo argomento non viene applicato al secondo argomento.
+Church UNO applica il suo primo argomento f solo una volta al secondo argomento x, producendo f(x).
+Church DUE applica il suo primo argomento f due volte al suo secondo argomento x, producendo f(f(x))
+e ogni successivo numero della Chiesa applica il suo primo argomento una volta in più al secondo argomento, f(f(f(x))), f(f(f(f(x)))) ... Il numero Church 4, per ad esempio, restituisce una composizione quadrupla della funzione fornita come primo argomento.
+Le operazioni aritmetiche sui numeri naturali possono essere similmente rappresentate come funzioni sui numeri di Church.
+
+Definiamo i numeri di Church:
+
+(define (zero f x) x)
+(define (uno f x) (f x))
+(define (due f x) (f (f x)))
+(define (tre f x) (f (f (f x))))
+(define (quattro f x) (f (f (f (f x)))))
+(define (cinque f x) (f (f (f (f (f x))))))
+(define (sei f x) (f (f (f (f (f (f x)))))))
+(define (sette f x) (f (f (f (f (f (f (f x))))))))
+(define (otto f x) (f (f (f (f (f (f (f x))))))))
+(define (otto f x) (f (f (f (f (f (f (f (f x)))))))))
+(define (nove f x) (f (f (f (f (f (f (f (f (f x))))))))))
+
+(zero inc 0)
+;-> 0
+(uno inc 0)
+;-> 1
+(due inc 0)
+;-> 2
+
+Oppure:
+
+(setq f inc)
+(setq x 0)
+(zero f x)
+;-> 0
+(sei f x)
+;-> 6
+
+Definiamo la funzione successore "succ":
+
+(define (succ n f x) (f (f n x)))
+
+(succ 0 inc 0)
+;-> 1
+(succ 3 inc 0)
+;-> 4
+(succ 2 inc 0)
+;-> 3
+
+Definiamo la funzione somma "plus":
+
+(define (plus m n f x) (f m (f n x)))
+(plus 3 2 inc 0)
+;-> 5
+(plus (due inc 0) 5 inc 0)
+;-> 7
+(plus (due f x) 5 f x)
+;-> 7
+
+Adesso dovremmo definire la funzioni precedente "prec", la funzione moltiplicazione "molt" e la funzione sottrazione "minus". Dopo aver avuto un aiuto da kosh ho deciso di utilizzare il suo metodo per definire i numerali di Church (https://gist.github.com/kosh04/262332)
+
+La funzione "expand" espande solo i simboli che iniziano con una lettera maiuscola:
+
+(define-macro (LAMBDA)
+  (append (lambda) (expand (args))))
+
+(define DEFINE define)
+
+Numeri naturali e aritmetica:
+
+; 0: = λfx.x
+(DEFINE ZERO (LAMBDA (F) (LAMBDA (X) X)))
+; 1: = λfx.fx
+(DEFINE UNO  (LAMBDA (F) (LAMBDA (X) (F X))))
+(define UNO  (LAMBDA (F) (LAMBDA (X) (F X))))
+; 2: = λfx.f (fx)              ; 1: = λfx.fx
+(DEFINE DUE  (LAMBDA (F) (LAMBDA (X) (F (F X)))))
+(define DUE  (LAMBDA (F) (LAMBDA (X) (F (F X)))))
+; 3: = λfx.f (f (fx))
+(DEFINE TRE  (LAMBDA (F) (LAMBDA (X) (F (F (F X))))))
+(DEFINE QUATTRO (LAMBDA (F) (LAMBDA (X) (F (F (F (F X)))))))
+(DEFINE CINQUE  (LAMBDA (F) (LAMBDA (X) (F (F (F (F (F X))))))))
+(DEFINE SEI  (LAMBDA (F) (LAMBDA (X) (F (F (F (F (F (F X)))))))))
+
+; SUCC: = λnfx.f (n f x)
+(DEFINE (SUCC N) (LAMBDA (F) (LAMBDA (X) (F (N F X)))))
+
+; PLUS: = λmnfx.m f (n f x)
+(DEFINE (PLUS M N) (LAMBDA (F) (LAMBDA (X) ((M F) ((N F) X)))))
+(define (PLUS M N) (LAMBDA (F) (LAMBDA (X) ((M F) ((N F) X)))))
+
+; MOLT: = λ mn f. M (n f)
+(DEFINE (MOLT M N) (LAMBDA (F) (LAMBDA (X) ((N (M F) X)))))
+
+; POW: = λbe.e b
+(DEFINE (POW B E) (E B))
+
+(define (to-number x) ((x (lambda (n) (+ n 1))) 0))
+
+(define (to-lambda n) (if (< 0 n) (SUCC (to-lambda (- n 1))) (ZERO)))
+
+(to-number ZERO)
+;-> 0
+(to-number UNO)
+;-> 1
+(to-number DUE)
+;-> 2
+
+La funzione seguente prende un intero e ritorna il numero nella forma di Church:
+
+(define (reduce stencil sq) (apply stencil sq 2))
+
+(define (num n)  
+(cond
+   ((= n 0) 'x)
+   ((< n 2) '(f x))
+   (true (reduce (fn (l i) (list 'f l)) (cons '(f x) (sequence 2 n)) ))))
+
+(define (church-encode n)
+  (letex ((body (num n)))
+    (fn (f x) body)))
+
+(church-encode 0)
+;-> (lambda (f x) x)
+(church-encode 4)
+;-> (lambda (f x) (f (f (f (f x)))))
+
+(num 0)
+;-> x
+
+(num 4)
+;-> (f (f (f (f x))))
+
+Per adesso mi fermo qui, devo ragionarci un pò di più :-)
+
+
+-----------------------------------
+Creazione e valutazione di polinomi
+-----------------------------------
+Supponiamo di avere il polinomio y(x) = 3*x^2 - 7*x + 5 e di voler calcolare i valori di y per x che varia da 0 a 10 (con passo 1).
+Possiamo definire una funzione che rappresenta il polinomio:
+
+(define (poly x)
+  (+ 5 (mul 7 x) (mul 3 (pow x 2))))
+
+(poly 0)
+;-> 5
+
+E poi per ottenere i valori cercati possiamo scrivere:
+
+(for (x 0 10) (println x { } (poly x)))
+;-> 0 5
+;-> 1 15
+;-> 2 31
+;-> 3 53
+;-> 4 81
+;-> 5 115
+;-> 6 155
+;-> 7 201
+;-> 8 253
+;-> 9 311
+;-> 10 375
+
+Poichè i polinomi hanno una struttura ben definita possiamo scrivere una funzione che prende i coefficienti di un polinomio e restituisce una funzione che rappresenta il polinomio:
+Ad esempio, il polinomio:
+
+ y(x) = 4*x^3 + 5*x^2 + 7*x + 10 
+ 
+viene rappresentato dalla funzione:
+
+ (lambda (x) (add 10 (mul x 7) (mul (pow x 2) 5) (mul (pow x 3) 4)))
+ 
+La nostra funzione deve quindi costruire una nuova funzione lambda che rappresenta il polinomio (lavoriamo sulla funzione lambda come se fosse una lista).
+
+; y(x) = 4*x^3 + 5*x^2 + 7*x + 10)
+; (setq poly (crea-polinomio '(4 5 7 10)))
+; poly -> (lambda (x) (add 10 (mul x 7) (mul (pow x 2) 5) (mul (pow x 3) 4)))
+
+(define (crea-polinomio coeff)
+  (local (fun body)
+    (reverse coeff)
+    (setq fun '(lambda (x) x)) ;funzione lambda base
+    (setq body '()) ;corpo della funzione
+    (push 'add body -1)
+    (push (first coeff) body -1) ;termine noto
+    (push (list 'mul 'x (coeff 1)) body -1) ;termine lineare
+    (for (i 2 (- (length coeff) 1))
+      (push (list 'mul (list 'pow 'x i) (coeff i)) body -1)
+    )
+    (setq (last fun) body) ;modifica corpo della funzione
+    fun
+  )
+)
+
+Adesso possiamo definire una nuova funzione "poly" che rappresenta il nostro polinomio:
+
+(setq poly (crea-polinomio '(4 5 7 10)))
+;-> (lambda (x) (add 10 (mul x 7) (mul (pow x 2) 5) (mul (pow x 3) 4)))
+
+Valutando il polinomio per x = 0 otteniamo il termine noto:
+
+(poly 0)
+;-> 10
+
+Usiamo la funzione "poly" in un ciclo for:
+
+(for (x 0 10) (println x { } (poly x)))
+;-> 0 10
+;-> 1 26
+;-> 2 76
+;-> 3 184
+;-> 4 374
+;-> 5 670
+;-> 6 1096
+;-> 7 1676
+;-> 8 2434
+;-> 9 3394
+;-> 10 4580
+
+Proviamio con i dati del primo esempio:
+
+(setq poly2 (crea-polinomio '(3 7 5)))
+;-> (lambda (x) (add 5 (mul x 7) (mul (pow x 2) 3)))
+
+(for (x 0 10) (println x { } (poly2 x)))
+;-> 0 5
+;-> 1 15
+;-> 2 31
+;-> 3 53
+;-> 4 81
+;-> 5 115
+;-> 6 155
+;-> 7 201
+;-> 8 253
+;-> 9 311
+;-> 10 375
+
 

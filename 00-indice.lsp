@@ -140,7 +140,7 @@ newLISP 99 PROBLEMI (28)
   N-99-24 Lotto: estrarre N numeri differenti da un intervallo 1..M
   N-99-25 Generare le permutazioni degli elementi di una lista
   N-99-26 Generare le combinazioni di K oggetti distinti tra gli N elementi di una lista
-  N-99-27 Raggruppare gli elementi di un insieme in sottoinsiemi disgiunti (no)
+  N-99-27 Raggruppare gli elementi di un insieme in sottoinsiemi disgiunti
   N-99-28 Ordinare una lista in base alla lunghezza delle sottoliste
 
 ROSETTA CODE
@@ -176,6 +176,7 @@ ROSETTA CODE
   Calendario
   Carte da gioco
   Generatore di password
+  Calcolo di Pi greco
 
 PROJECT EULERO
   Problemi 1..50
@@ -234,6 +235,8 @@ PROBLEMI VARI
   Labirinti (calcolo percorsi)
   Moltiplicazioni di fattori
   Problemi patologici dei numeri floating point
+  Numerali di Church
+  Creazione e valutazione di polinomi
 
 DOMANDE PER ASSUNZIONE DI PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Notazione Big O
@@ -264,6 +267,7 @@ DOMANDE PER ASSUNZIONE DI PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   K punti più vicini - K Nearest points (LinkedIn)
   Ordinamento Colori (LeetCode)
   Unione di intervalli (Google)
+  Somma dei numeri unici
 
 LIBRERIE
   Operazioni con i numeri complessi
@@ -273,12 +277,15 @@ LIBRERIE
   Funzioni winapi
 
 NOTE LIBERE
-  Perchè newLISP ?
+  Perchè newLISP?
   newLISP facile
   Funzioni e liste
   4-4 Puzzle
   Il primo Primo
   Uso delle date
+  Chiusura transitiva e raggiungibilità in un grafo
+  Stalin sort
+  Sequenza triangolare
 
 APPENDICI
   Lista delle funzioni newLISP

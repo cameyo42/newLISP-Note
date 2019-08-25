@@ -3769,3 +3769,92 @@ Funzione che controlla la presenza di caratteri visualmente simili:
 (test pwd)
 ;-> nil
 
+
+-------------------
+CALCOLO DI PI GRECO
+-------------------
+
+Pi greco è un numero irrazionale (cioè non può essere il rapporto di due numeri interi) e trascendente (cioè non è una radice di un polinomio con coefficienti razionali.
+
+Pi greco vale: 3.141592653589793238462643383279502884197169399375105820974....
+
+I matematici hanno trovato differenti serie matematiche che, se calcolate sommando un numero infinito di termini, generano un'approssimazione sufficientemente accurata di pi greco per un numero abbastanza grande di decimali.
+Alcune di esse sono talmente complesse da richiedere dei supercomputer per calcolarle.
+Vediamo alcuni algoritmi per il calcolo del numero pigreco.
+Uno dei più semplici è l'algoritmo basato sulla serie di Gregory-Leibniz. Anche se non è molto efficiente, genera un numero sempre più vicino a pi greco ad ogni iterazione, arrivando ad una approssimazione sufficientemente accurata con 10 cifre decimali con 500.000 iterazioni.
+
+Serie di Gregory-Leibniz:
+
+Pi = 4 * (1 - 1/3 + 1/5 - 1/7 + 1/9 - 1/11 + ...)
+
+Pi = (4/1) - (4/3) + (4/5) - (4/7) + (4/9) - (4/11) + ... + (-i)^i/(2*i + 1) + ...
+
+Definiamo la funzione:
+
+(define (pow10? i)
+  (while (> i 10)
+    (setq i (div i 10)))
+  (= i 10)
+)
+
+(define (pigrecoGL iter)
+  (local (sum fac i denom myterm)
+    (setq sum 0)
+    (setq fac 1)
+    (setq i 1)
+    (while (<= i iter)
+      (setq denom (- (mul 2 i ) 1))
+      (setq myterm (div fac denom))
+      (setq sum (add sum myterm))
+      (setq fac (mul -1 fac))
+      (if (pow10? i)
+        (print (format "%d iterazioni: PI = %16.12f.\n" i (mul 4 sum)))
+      )
+      (++ i)
+    )
+  );local
+)
+
+(pigrecoGL 10000000)
+;-> Con 10 termini PI vale:   3.041839618929.
+;-> Con 100 termini PI vale:   3.131592903559.
+;-> Con 1000 termini PI vale:   3.140592653840.
+;-> Con 10000 termini PI vale:   3.141492653590.
+;-> Con 100000 termini PI vale:   3.141582653590.
+;-> Con 1000000 termini PI vale:   3.141591653590.
+;-> Con 10000000 termini PI vale:   3.141592553590.
+Valore reale pi greco:              3.141592653589
+
+Un'altra serie infinita per calcolare pi greco è quella di Nilakantha. Anche se più leggermente più complessa, converge a pi greco molto più velocemente della formula di Leibniz.
+
+Serie di Nilakantha:
+
+pigrecoN = 3 + 4/(2*3*4) - 4/(4*5*6) + 4/(6*7*8) - 4/(8*9*10) + 4/(10*11*12) - (4/(12*13*14) ...
+
+(define (pigrecoN iter)
+  (local (val frac num den i)
+    (setq val 3)
+    (setq based 2)
+    (setq i 1)
+    (setq num 4)
+    (while (<= i iter)
+      (setq den (* based (+ based 1) (+ based 2)))
+      (setq val (add val (div num den)))
+      (++ based 2)
+      (setq num (- num))
+      (++ i)
+      (if (= (% i 100) 0)
+        (print (format "Con %d termini PI vale: %16.12f.\n" i val))
+      )
+    )
+  )
+)
+
+(pigrecoN 500)
+;-> Con 100 termini PI vale:   3.141592903559.
+;-> Con 200 termini PI vale:   3.141592684839.
+;-> Con 300 termini PI vale:   3.141592662849.
+;-> Con 400 termini PI vale:   3.141592657496.
+;-> Con 500 termini PI vale:   3.141592655590.
+Valore reale pi greco:         3.141592653589
+

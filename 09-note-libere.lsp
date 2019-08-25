@@ -239,3 +239,294 @@ Trasformiamo la data dal formato ISO al formato RFC822:
 (date (apply date-value (map int (parse "2007.1.3" { |\.} 0)))  0 "%a, %d %b %Y %H:%M %Z")
 ;-> "Wed, 03 Jan 2007 01:00 W. Europe Standard Time"
 
+
+-------------------------------------------------
+Chiusura transitiva e raggiungibilità in un grafo
+-------------------------------------------------
+
+ralph.ronnquist:
+----------------
+Vediamo come definire una "chiusura transitiva". Data una lista di coppie che rappresenta i link di un grafo, determinare le liste di tutti i nodi connessi transitivamente (in altre parole, unire tutte le sotto-liste che hanno in comune qualche elemento (transitivamente)).
+↔↕
+Esempio:
+
+ 19 ←→ 9 ←→ 4 ←→ 12    3 ←→ 15 ←→ 8    7 ←→ 5 ←→ 0 ←→ 11
+            ↕
+           13 ←→ 1
+
+(setq grafo '((13 1) (9 19) (4 13) (4 12) (15 8) (3 15) (7 5) (9 4) (11 0) (0 5)))
+
+Una soluzione ricorsiva potrebbe essere la seguente:
+
+(define (trans s (x s) (f (and s (curry intersect (first s)))))
+  (if s (trans (rest s) (cons (unique (flat (filter f x))) (clean f x))) x))
+
+(trans grafo)
+;-> ((7 5 0 11) (9 19 4 13 1 12) (15 8 3))
+
+rickyboy:
+---------
+L'input s è una lista di insiemi in cui ogni membro è in relazione l'uno con l'altro. Ad esempio, se uno dei membri di s è (1 2 3) ciascuno di 1, 2 e 3 sono collegati a qualsiasi altro. In termini matematici, se l'input s descrive una relazione (simmetrica) R, allora risulta che 1R2, 2R1, 1R3, 3R1, 2R3 e 3R2 sono tutti veri.
+
+Quindi, ad esempio, il primo membro dell'input di esempio (13 1) implica sia 13R1 che 1R13 (quando l'input di esempio descrive R). Questo perché, l'input di trans e il suo output sono simili, sono entrambi descrizioni di relazione - tranne che l'output è garantito per descriva una relazione di transitività.
+
+Ora, guardando l'input invece come un insieme di link di un grafo, allora la funzione "trans" deve assumere che tutti i link che trova nell'input sono bidirezionali, cioè gli archi (collegamenti) del grafo non sono orientati.
+
+La funzione "trans" unisce (cons) il membro che definisce le relazioni transitive parziali che contengono il link (first s) (per assorbimento/sussunzione) (cioè (unique (flat (filter f x)))), con il sottoinsieme dei membri che definiscono le relazioni transitive parziali in x che sono mutualmente esclusive al link (first s) (cioè clean f x)
+
+Quando utilizziamo la funzione "trans" possiamo accoppiarla con la seguente funzione che crea un predicato per essa:
+
+(define (make-symmetric-relation S)
+  (letex ([S] S)
+    (fn (x y)
+      (exists (fn (s) (and (member x s) (member y s)))
+              '[S]))))
+
+Ecco un test che mostra la funzione in azione:
+
+(define (test-trans input x y)
+  (let (R     (make-symmetric-relation input)
+        Rt    (make-symmetric-relation (trans input))
+        yesno (fn (x) (if x 'yes 'no)))
+    (list ;; is (x,y) in the original relation?
+          (yesno (R x y))
+          ;; is (x,y) in the transitive closure?
+          (yesno (Rt x y)))))
+
+Ad esempio,
+(8 15) è nella relazione originale: quindi, sarà anche nella chiusura transitiva.
+(9 13) non è nella relazione originale, ma è nella chiusura transitiva.
+(9 15) non è in nessuna delle due.
+
+(define input '((13 1) (9 19) (4 13) (4 12) (15 8) (3 15) (7 5) (9 4) (11 0) (0 5)))
+
+(test-trans input 8 15)
+;-> (yes yes)
+
+(test-trans input 9 13)
+;-> (no yes)
+
+(test-trans input 9 15)
+;-> (no no)
+
+ralph.ronnquist:
+----------------
+Esatto, la funzione "trans" tratta la sua lista di input s come una raccolta di classi di equivalenza e combina quelle che si sovrappongono nelle più piccole collezioni di classi.
+
+La funzione simile per le relazioni non riflessive (o per gli archi diretti) riguarderebbe piuttosto la "raggiungibilità transitiva", da un elemento a quelli che sono raggiungibili quando si segue l'articolata relazione (links) in un solo senso (in avanti).
+
+Le seguenti due funzioni svolgono questi metodi: una che determina il raggiungimento individuale di un dato elemento, e una che determina il raggiungimento individuale di tutti gli elementi (mappa di raggiungibilità).
+
+The similar function for non-reflexive relations (or directed arcs) would rather concern transitive reachability, from one element to those that are reachable when following the articulated relation (links) in the forward direction only. I came up with the following for that, which is two functions: one that determines the individual reach from a given element, and an outer function that makes the map of all those for all the elements:
+
+versione iniziale:
+(define (reach s n (f (fn (x) (= n (x 0)))))
+  (cons n (if s (flat (map (curry reach (clean f s))
+                           (map (curry nth 1) (filter f s)))))))
+
+Nota: usare la versione iniziale della funzione "reach".
+
+============================================================================
+versione finale (rimuove gli elementi multipli con "unique"):
+(define (reach s n (f (fn (x) (= n (x 0)))))
+  (cons n (if s (unique (flat (map (curry reach (clean f s))
+                                   (map (curry nth 1) (filter f s))))))))
+============================================================================
+
+(define (reachability s)
+  (map (fn (x) (reach s x)) (sort (unique (flat s)))))
+
+ 19 ← 9 → 4 → 12    3 → 15 → 8    7 → 5 ← 0 ← 11
+          ↓
+          13 → 1
+
+
+(setq grafoD '((13 1) (9 19) (4 13) (4 12) (15 8) (3 15) (7 5) (9 4) (11 0) (0 5)))
+
+(reachability grafoD)
+;-> ((0 5) (1) (3 15 8) (4 13 1 12) (5) (7 5) (8)
+ ;-> (9 19 4 13 1 12) (11 0 5) (12) (13  1) (15 8) (19))
+
+La "mappa di raggiungibilità" in ogni sottolista indica quali elementi sono raggiungibili dal primo elemento secondo la relazione orientata originale. Per creare la chiusura transitiva basta creare le coppie di associazione dalla mappa di raggiungibilità.
+
+(define (transD s)
+  (flat (map (fn (x) (if (1 x) (map (curry list (x 0)) (1 x)) '())) (reachability s)) 1))
+
+(transD grafoD)
+;-> ((0 5) (3 15) (3 8) (4 13) (4 1) (4 12) (7 5) (9 19)
+;->  (9 4) (9 13) (9 1) (9 12) (11 0) (11 5) (13 1) (15 8))
+
+Il nuovo input (grafoD) crea nuove coppie: (3 8) (4 1) (9 13) (9 1) (9 12) (11 5)
+
+Adesso, come andiamo nell'altra direzione? Ovvero, come si riduce al minor numero di coppie, o almeno si trova una sottolista in modo che le relazioni implicite vengano omesse dall'elenco?
+
+rickyboy:
+---------
+Ecco la funzione "untransD" che rimuove le relazioni implicite. LAvora considerando ogni arco in s che può essere visto come coppia (src dst) (sebbene dst non è necessario). La funzione "clean" risponde alla domanda "Questo arco è implicato?", che sarà vero (true) quando la raggiungibilità di src, dopo che abbiamo rimosso l'arco da s, è la stessa della raggiungibilità di src sotto s.
+
+(define (untransD s)
+  (clean (fn (edge)
+           (let (src (edge 0)
+                 remove (fn () (apply replace (args))))
+             (= (reach s src)
+                (reach (remove edge s) src))))
+         s))
+
+Per quelli che non hanno familiarità con newLISP, notare la funzione di "remove" (definita nell'associazioni let). Sembra che stia facendo solo ciò che fa la funzione intrinseca "replace": allora, perché non dire semplicemente (replace edge s) invece di (remove edge s)?
+La ragione di questo è sottile. La primitiva "replace" è distruttiva e non vogliamo che s cambi durante il runtime di untransD. Definire "remove" come abbiamo fatto qui lo trasforma in una funzione di rimozione non distruttiva (a causa del modello di chiamata di newLISP: la funzione riceve una copia e non il riferimento dell'oggetto).
+
+Ma forse da un punto di vista dei contratti (di ingegneria del software), non dovremmo fare affidamento sull'ordine degli output delle chiamate raggiunte (cioè la sua stabilità).
+Anche se possiamo vedere il codice di raggiungibilità, possiamo anche giocare "giocare sicuro" assumendo che non possiamo vedere l'implementazione e quindi sostituire l'uso di = con l'uso di un altro predicato di uguaglianza in cui l'ordine non ha importanza. Potrebbe esserci un modo migliore di quello proposto di seguito:
+
+(define (set-equal? A B)
+  (= (sort A) (sort B)))
+
+Anche la primitiva "sort" è distruttiva. Tuttavia, non abbiamo bisogno di A e B (che sono copie anche loro) per qualsiasi altra cosa nell'ambito di questa funzione (dopo che abbiamo finito possiamo distruggerli). Fortunatamente, possiamo riutilizzare set-equal? nei nostri test.
+
+Innanzitutto, ricordiamo cosa fa "transD" in esecuzione sui dati di esempio (input).
+
+(setq input '((13 1) (9 19) (4 13) (4 12) (15 8) (3 15) (7 5) (9 4) (11 0) (0 5)))
+
+(transD input)
+;-> ((0 5) (3 15) (3 8) (4 13) (4 1) (4 12) (7 5) (9 19)
+;->  (9 4) (9 13) (9 1) (9 12) (11 0) (11 5) (13 1) (15 8))
+
+Adesso vediamo la funzione "untransD" in azione:
+
+(untransD (transD input))
+;-> ((0 5) (3 15) (4 13) (4 12) (7 5) (9 19) (9 4) (11 0) (13 1) (15 8))
+
+L'output della funzione sembra uguale alla lista di ingresso.
+
+Come facciamo a testare meglio queste funzioni? Sembra che dovremmo essere in grado di dire che transD e untransD sono una l'inversa dell'altra. Proviamo.
+
+Innanzitutto, si noti che l'input di esempio stesso è privo di relazioni implicite.
+
+(set-equal? input (untransD input))
+;-> true
+
+Questo significa che deve valere anche la seguente identità:
+
+(set-equal? input (untransD (transD input)))
+;-> nil
+
+Esplorando tutto il codice, credo di aver trovato un bug.
+
+La seguente identità dovrebbe essere vera: la raggiungibilità della chiusura transitiva dell'input è la stessa della raggiungibilità dell'input.
+
+(set-equal? (reachability input)
+            (reachability (transD input)))
+
+;-> nil
+
+Cosa succede?
+
+(reachability (transD input))
+;-> ((0 5) (1) (3 15 8 8) (4 13 1 1 12) (5) (7 5)
+;->  (8) (9 19 4 13 1 1 12 13 1 1 12) (11 0 5 5)
+;->  (12) (13 1) (15 8) (19))
+
+Ok, sembra che alcune raggiungibilità non abbiano elementi unici. Eccone una in particolare.
+
+(reach (transD input) 9)
+;-> (9 19 4 13 1 1 12 13 1 1 12)
+
+Sembra che abbiamo bisogno della funzione "unique" nella funzione "reach".
+
+(define (reach s n (f (fn (x) (= n (x 0)))))
+  (cons n (if s (unique (flat (map (curry reach (clean f s))
+                                   (map (curry nth 1) (filter f s))))))))
+
+Bene, adesso funziona.
+
+(reach (transD input) 9)
+;-> (9 19 4 13 1 12)
+
+E l'identità viene rispettata, come atteso.
+
+(set-equal? (reachability input)
+            (reachability (transD input)))
+
+;-> true
+
+Grazie a ralph.ronnquist e rickyboy.
+
+
+-----------
+Stalin Sort
+-----------
+
+Ecco un algoritmo di ordinamento O(n) (single pass) chiamato StalinSort. L'algoritmo scorre l'elenco degli elementi controllando se sono in ordine. Qualsiasi elemento fuori ordine viene eliminato. Alla fine si ottiene un elenco ordinato.
+
+(define (stalinsort lst op)
+  (local (out)
+    (setq out '())
+    (cond ((null? lst) '())
+          (true
+            (let (base (first lst))
+              (push (first lst) out -1)
+              (for (i 1 (- (length lst) 1))
+                (if (op (lst i) base) 
+                ;(if (not (op (lst i) base))
+                  (begin
+                  (push (lst i) out -1)
+                  (setq base (lst i)))
+                )
+              )
+              out
+            )
+          )
+    )
+  )
+)
+
+(stalinsort '(1 3 4 2 3 6 8 5) <=)
+;-> (1)
+(stalinsort '(1 3 4 2 3 6 8 5) >=)
+;-> (1 3 4 6 8)
+(stalinsort '(11 8 4 2 3 6 8 5) <=)
+;-> (11 8 4 2)
+(stalinsort '(11 8 4 2 3 6 8 5) >=)
+;-> (11)
+(stalinsort '(11 4 8 2 3 6 8 12) <=)
+;-> (11 4 2)
+(stalinsort '(11 4 8 2 3 6 8 12) >=)
+;-> (11 12)
+
+
+--------------------
+Sequenza triangolare
+--------------------
+
+Consideriamo il seguente triangolo di numeri interi:
+
+1
+1 2
+1 2 3
+1 2 3 4
+1 2 3 4 5
+...
+
+Quando il triangolo è appiattito (flattened), produce la lista (1 1 2 1 2 3 1 2 3 4 1 2 3 4 5 ...).
+Il compito è scrivere un programma per generare la sequenza appiattita e per calcolare l'ennesimo elemento nella lista. 
+
+(define (triangle n idx)
+  (local (out)
+    (setq out '())
+    (for (i 1 n)
+      (push (sequence 1 i) out -1)
+    )
+    (setq out (flat out))
+    (if idx (nth idx out) out)
+  )
+)
+
+(triangle 3)
+;-> (1 1 2 1 2 3)
+(triangle 3 2)
+;-> 2
+(triangle 5)
+;-> (1 1 2 1 2 3 1 2 3 4 1 2 3 4 5)
+(triangle 5 10)
+;-> 1
+

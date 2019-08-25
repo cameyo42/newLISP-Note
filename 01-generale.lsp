@@ -4748,6 +4748,7 @@ Vediamo ora come utilizzare i moduli con alcuni esempi. Cominciamo con il modulo
 Questo è il file batch per la conversione da file .ps a file .pdf:
 
 ------ Inizio file batch
+@echo off
 rem convert postscript (.ps) file to portable document format file (.pdf)
 rem with ghostscript
 rem ps2pdf <file.ps> <file.pdf>
@@ -5229,4 +5230,49 @@ Basta assegnare il dizionario ad una variabile.
 (Pippo)
 ;-> (("#1234" "hello world") ("3" 4) ("5" 6) ("_y" (1 2)) ("bar" 456)
 ;->  ("il numero" 123) ("var" (a b c d)) ("x" "stringa"))
+
+Le liste associative possono essere annidate:
+
+(setq data '((1 ("Sara" (storia geografia italiano))) (2 ("Luca" (matematica storia)))))
+;-> (1 ("Sara" (storia geografia italiano)))
+
+(lookup 1 data)
+;-> ("Sara" (storia geografia italiano))
+
+(assoc 1 data)
+;-> (1 ("Sara" (storia geografia italiano)))
+
+Possiamo estrarre le materie associate a Sara:
+
+(assoc "Sara" (assoc 1 data))
+;-> ("Sara" (storia geografia italiano))
+
+(lookup "Sara" (assoc 1 data))
+;-> (storia geografia italiano)
+
+In generale per aggiornare il valore associato ad una chiave esistente (di un dizionario data) possiamo scrivere:
+
+(letn (key "chiave")
+   (if (lookup key data)
+       (setf (assoc key data) (list key "nuovo valore"))))
+
+Invece, per aggiungere una materia a "Sara":
+
+(if (lookup "Sara" (assoc 1 data))
+    (setf (lookup "Sara" (assoc 1 data)) (push 'matematica (lookup "Sara" (assoc 1 data)) -1)))
+
+Possiamo avere una chiave che si autoincrementa in una hash-map (dizionario):
+
+(new Tree 'Hash)
+;-> Hash
+(Hash (format "%05d" (inc Hash:counter)) "A")
+;-> "A"
+(Hash (format "%05d" (inc Hash:counter)) "B")
+;-> "B"
+(Hash)
+;-> (("00001" "A") ("00002" "B"))
+(symbols Hash)
+;-> (Hash:Hash Hash:_00001 Hash:_00002 Hash:counter)
+
+La variabile 'Hash:counter' viene creata automaticamente quando newLISP legge l'espressione e la funzione "inc" cambia il suo valore da "nil" a 0 (zero). La funzione "format" assicura che l'ordine di creazione sia corretto. Lutz
 

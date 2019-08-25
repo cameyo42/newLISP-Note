@@ -4,8 +4,10 @@
  
 ======================================================================
 
+---------------
 Notazione Big-O
 ---------------
+
 Valori della notazione Big-O in funzione del numero di ingresso
 
  n  costante logaritmo  lineare   nlogn      quadrato   cubo    esponenziale
@@ -18,8 +20,10 @@ Valori della notazione Big-O in funzione del numero di ingresso
 64     1        6         64      384          4096   262144   1.84x10^19
 
 
+-----------------------------------
 Contare i bit di un numero (McAfee)
 -----------------------------------
+
 Dato un numero intero positivo n, contare il numero di bit che valgono 1 nella sua rappresentazione binaria.
 
 Possiamo trasformare il numero in binario e contare quanti bit hanno valore 1.
@@ -129,8 +133,10 @@ Ora vediamo quale metodo è più veloce:
 La funzione che usa gli operatori bitwise è leggermente più veloce.
 
 
+---------------------------------------------
 Scambiare il valore di due variabili (McAfee)
 ---------------------------------------------
+
 Come scambiare il valore di due variabili (swap) senza utilizzare una variabile di appoggio?
 
 Primo metodo (somma/sottrazione):
@@ -231,8 +237,10 @@ Quarto metodo (newLISP):
 ;-> (2 1)
 
 
+------------------------
 Funzione "atoi" (McAfee)
 ------------------------
+
 La funzione "atoi" del linguaggio C converte una stringa in un numero intero.
 Implementare la funzione "atoi".
 
@@ -303,8 +311,10 @@ Le seguenti operazioni devono essere svolte:
 ;-> nil
 
 
+-------------------------------------
 Somma di numeri in una lista (Google)
 -------------------------------------
+
 Data una lista di numeri e un numero k, restituire se due numeri dalla lista si sommano a k.
 Ad esempio, dati (10 15 3 7) e k di 17, restituisce true da 10 + 7 che vale 17.
 Bonus: puoi farlo in un solo passaggio?
@@ -338,8 +348,10 @@ Quindi la soluzione è iterare sulla lista e per ogni elemento cercare se qualsi
 ;-> nil
 
 
+---------------------------------
 Aggiornamento di una lista (Uber)
 ---------------------------------
+
 Data una lista di interi, restituire una nuova lista in modo tale che ogni elemento nell'indice i della nuova lista sia il prodotto di tutti i numeri nella lista originale tranne quello in i.
 Ad esempio, se il nostro input fosse (1 2 3 4 5), l'uscita prevista sarebbe (120 60 40 30 24).
 Se il nostro input fosse (3 2 1), l'output atteso sarebbe (2 3 6).
@@ -439,8 +451,10 @@ La funzione è la seguente:
 ;-> (0 0 0 0 0)
 
 
+------------------------------------
 Ricerca numero su una lista (Stripe)
 ------------------------------------
+
 Data una lista di numeri interi, trova il primo intero positivo mancante in tempo lineare e spazio costante. In altre parole, trova il numero intero positivo più basso che non esiste nelll lista. La lista può contenere anche duplicati e numeri negativi.
 Ad esempio, l'input (3 4 -1 1) dovrebbe dare 2.
 L'input (1 2 0) dovrebbe dare 3.
@@ -477,8 +491,10 @@ Quindi inseriamo ogni numero intero positivo di una lista al suo posto e poi ite
 ;-> (3 (0 1 2 1 4 5 7 7))
 
 
+-------------------------------------
 Decodifica di un messaggio (Facebook)
 -------------------------------------
+
 Data la mappatura a = 1, b = 2, ... z = 26 e un messaggio codificato, contare il numero di modi in cui può essere decodificato.
 Ad esempio, il messaggio "111" restituirebbe 3, poiché potrebbe essere decodificato come "aaa" (1)(1)(1), "ka" (11)(1) e "ak" (1)(11).
 Puoi presumere che i messaggi siano decodificabili. Per esempio, "001" non è permesso.
@@ -544,8 +560,10 @@ Inoltre utilizzeremo una funzione (decodifica?) che ritorna "1" se la stringa è
 ;-> 1
 
 
+-------------------------------------------
 Implementazione di un job-scheduler (Apple)
 -------------------------------------------
+
 
 Implementare un job scheduler che prende come parametri una funzione "f" e un intero "n" e chiama "f" dopo "n" millisecondi.
 
@@ -605,8 +623,10 @@ Lanciamo il nostro job-scheduler che eseguirà la funzione "g" ogni 2 secondi:
 ;-> diventa pari: 10
 
 
+---------------------------------------
 Massimo raccoglitore d'acqua (Facebook)
 ---------------------------------------
+
 Dati n numeri interi non negativi a1, a2, ..., an, dove ognuno rappresenta un punto di coordinate
 (i, ai). n linee verticali sono disegnate in modo tale che i due estremi della linea i siano ad (i, ai)
 e (i, 0). Trova due linee, che insieme all'asse x formano un contenitore, in modo tale che il
@@ -807,8 +827,10 @@ Ma se invece vogliamo considerare la soluzione seguente:
 allora dobbiamo scrivere una nuova funzione per calcolare la soluzione.
 
 
+----------------------------------------
 Quantità d'acqua in un bacino (Facebook)
 ----------------------------------------
+
 Dati n interi non negativi che rappresentano una mappa di elevazione in cui la larghezza di ciascuna barra è 1, calcolare la quantità massima di acqua che è in grado di contenere
 
 Esempi:
@@ -975,8 +997,10 @@ Totale x = 78
 ;-> 0 2 0 3 0 5 2 5 1 5 2 5 1 5 2 5 2 5 0 7 0 8 5 8 0 78
 
 
+--------------------------
 Sposta gli zeri (LeetCode)
 --------------------------
+
 Data una lista di numeri, scrivere una funzione per spostare tutti gli 0 alla fine della lista mantenendo l'ordine relativo degli elementi diversi da zero.
 Ad esempio, data la lista (0 1 0 3 12), dopo aver chiamato la funzione, la lista dovrebbe essere (1 3 12 0 0).
 
@@ -1037,8 +1061,10 @@ Nel secondo caso utilizziamo due cicli con due indici "i" e "j". Il primo ciclo 
 ;-> (1 1 3 4 0 0 0 0 0)
 
 
+---------------------------------------
 Intersezione di segmenti (byte-by-byte)
 ---------------------------------------
+
 La soluzione è basata su un algoritmo del libro di Andre LeMothe "Tricks of the Windows Game Programming Gurus".
 In generale, una linea ha una delle forme seguenti (interscambiabili):
 
@@ -1209,8 +1235,10 @@ Se vogliamo trattare i casi particolari in modo diverso da (nil nil) possiamo ut
 ;-> true
 
 
+--------------------------------------
 Trovare l'elemento mancante (LeetCode)
 --------------------------------------
+
 Abbiamo due liste con gli stessi elementi, ma una lista ha un elemento in meno. Trovare l'elemento mancante della lista più corta.
 Esempio:
 lista 1: (1 3 4 6 8)
@@ -1241,8 +1269,10 @@ Nota: Dati due valori di una lista con tre scelte (1 2 3), individuare il terzo 
 ;-> 3
 
 
+--------------------------------
 Verifica lista/sottolista (Visa)
 --------------------------------
+
 Date due liste A e B composte da n e m interi, verificare se la lista B è una sottolista della lista A.
 Esempi:
 
@@ -1302,8 +1332,10 @@ Oppure:
 ;-> 140
 
 
+----------------------------------
 Controllo ordinamento lista (Visa)
 ----------------------------------
+
 Scrivere una funzione per controllare se una lista è ordinata o meno. La funzione deve avere un parametro che permette di specificare il tipo di ordinamento (crescente o decrescente).
 
 Usiamo la tecnica della ricorsione per risolvere il problema: applico l'operatore di confronto tra il primo e il secondo elemento e poi richiamo la stessa funzione con il resto della lista.
@@ -1390,8 +1422,10 @@ Usiamo la funzione apply per applicare tutti gli operatori di confronto alla lis
 ;-> <=
 
 
+----------------
 Caramelle (Visa)
 ----------------
+
 Ci sono N bambini in fila. Ad ogni bambino viene assegnato un punteggio.
 Devi distribuire caramelle questi bambini in base ai seguenti vincoli:
 1. Ogni bambino deve avere almeno una caramella.
@@ -1434,8 +1468,10 @@ Una soluzione semplice è quella di ordinare i punteggi in ordine crescente e po
 (caramelle '(10 2 1 1 1 3 5 4))
 
 
+-----------------------------------
 Unire due liste ordinate (Facebook)
 -----------------------------------
+
 L'ordinamento delle liste può essere sia crescente che decrescente. Useremo un parametro "op" con il seguente significato:
 - se "op" vale ">" le liste sono ordinate in modo crescente
 - se "op" vale "<" le liste sono ordinate in modo decrescente
@@ -1473,8 +1509,10 @@ L'ordinamento delle liste può essere sia crescente che decrescente. Useremo un 
 ;-> (7 6 5 5 4 3 1)
 
 
+------------------------
 Salire le scale (Amazon)
 ------------------------
+
 Esiste una scala con N scalini e puoi salire di 1 o 2 passi alla volta. Dato N, scrivi una funzione che restituisce il numero di modi unici in cui puoi salire la scala. L'ordine dei passaggi è importante.
 
 Ad esempio, se N è 4, esistono 5 modi unici: (1, 1, 1, 1) (2, 1, 1) (1, 2, 1) (1, 1, 2) (2, 2).
@@ -1668,8 +1706,10 @@ Ogni i-esimo elemento della lista cache conterrà il numero di modi in cui possi
 ;-> 0
 
 
+-----------------------------------------
 Numeri interi con segni opposti (MacAfee)
 -----------------------------------------
+
 Determinare se due numeri interi hanno segni opposti (true).
 
 Applicando l'operatore bitwise XOR "^" ai quattro casi possibili si ottiene:
@@ -1714,8 +1754,10 @@ Possiamo scrivere la funzione:
 ;-> true
 
 
+----------------------------
 Parità di un numero (McAfee)
 ----------------------------
+
 
 Parità: la parità di un numero si riferisce al numero di bit che valgono 1.
 Il numero ha "parità dispari", se contiene un numero dispari di 1 bit ed è "parità pari" se contiene un numero pari di 1 bit.
@@ -1778,8 +1820,10 @@ Per controllare la correttezza utilizziamo le funzioni di conversione tra numero
 ;-> dispari
 
 
+------------------------------
 Numero potenza di due (Google)
 ------------------------------
+
 Determinare se un numero intero positivo n è una potenza di due.
 
 Primo metodo:
@@ -1862,8 +1906,10 @@ Nota: L'espressione n & (n-1) non funziona quando n vale 0.
 ;-> nil
 
 
+----------------------------
 Stanze e riunioni (Snapchat)
 ----------------------------
+
 Data una serie di intervalli di tempo (inizio, fine) per delle riunioni (con tempi che si possono sovrapporre), trovare il numero minimo di stanze richieste.
 Ad esempio, la lista ((30 75) (0 50) (60 150)) dovrebbe restituire 2.
 
@@ -1943,8 +1989,10 @@ public boolean canAttendMeetings(Interval[] intervals) {
 }
 
 
+----------------------------------
 Bilanciamento parentesi (Facebook)
 ----------------------------------
+
 Data una stringa contenente parentesi tonde, quadre e graffe (aperte e chiuse), restituire
 se le parentesi sono bilanciate (ben formate) e rispettano l'ordine ("{}" > "[]" > "()").
 Ad esempio, data la stringa "[()] [] {()}", si dovrebbe restituire true.
@@ -2023,8 +2071,10 @@ La seguente funzione controlla la correttezza delle parentesi:
 ;-> true
 
 
+------------------------------------------------
 K punti più vicini (K Nearest points) (LinkedIn)
 ------------------------------------------------
+
 
 Data una lista di N punti (xi, yi) sul piano cartesiano 2D, trova i K punti più vicini ad un punto centrale C (xc, yc). La distanza tra due punti su un piano è la distanza euclidea.
 È possibile restituire la risposta in qualsiasi ordine.
@@ -2199,8 +2249,10 @@ Complessità temporale: in media O(N), dove N è il numero di punti.
 Complessità spaziale: O(N)
 
 
+-----------------------------
 Ordinamento colori (LeetCode)
 -----------------------------
+
 Data una lista con n elementi che hanno uno dei seguenti valori: "verde", "bianco", "rosso" o "blu". Restituire un'altra lista in modo che gli stessi colori siano adiacenti e l'ordine dei colori sia "verde", "bianco", "rosso" e "blu".
 Un colore può non comparire nella lista (es. lista = ("rosso" "verde" "verde" "blu")
 Esempio:
@@ -2238,6 +2290,7 @@ Per semplificare i calcoli usiamo i numeri 0, 1, 2 e 3 per rappresentare rispett
 ;-> (0 0 0 1 1 1 2 2 2 3 3 3)
 
 
+-----------------------------
 Unione di intervalli (Google)
 -----------------------------
 
@@ -2295,4 +2348,95 @@ Esempio:
 
 (unisci-intervalli lst)
 ;-> ((1 10) (15 18))
+
+
+----------------------
+Somma dei numeri unici
+----------------------
+
+In una lista di numeri interi, trovare la somma dei numeri che compaiono una sola volta. Ad esempio, nella lista (4 2 3 1 7 4 2 7 1 7 5), i numeri 1, 2, 4 e 7 appaiono più di una volta, quindi sono esclusi dalla somma e la risposta corretta è 3 + 5 = 8.
+
+Soluzione 1 (ordinamento)
+
+(define (somma-unici lst)
+  (local (base conta out)
+    (setq out '())
+    (sort lst)
+    (setq base (first lst))
+    (setq conta 1)
+    (for (i 1 (- (length lst) 1))
+      (if (!= (lst i) base)
+        (begin
+          (if (= conta 1) (push base out -1))
+          (setq base (lst i))
+          (setq conta 1)
+        )
+        (++ conta)
+      )
+    )
+    (apply + out)
+  )
+)
+
+(somma-unici '(1 2 2 3 4 4 5 5 6 6 6))
+;-> 4
+(somma-unici '(4 2 3 1 7 4 2 7 1 7 5))
+;-> 8
+(somma-unici '(1 1 1 2 3 6 6 7 8 8 8))
+;-> 12
+
+(time (somma-unici '(4 2 3 1 7 4 2 7 1 7 5)) 10000)
+;-> 47.005
+
+Soluzione 2 (hashmap)
+
+(define (somma-unici-2 lst)
+  (local (out somma)
+    (setq out '())
+    (setq somma 0)
+    ;crea hashmap
+    (new Tree 'myhash)
+    ;aggiorna hashmap con i valori della lista (valore contatore)
+    (dolist (el lst)
+      (if (myhash el)
+        ;se esiste il valore aumenta di uno il suo contatore
+        (myhash el (+ (int $it) 1))
+        ;altrimenti poni il suo contatore uguale a 1
+        (myhash el 1)
+      )
+    )
+    ;copia la hashmap su una lista associativa
+    (setq out (myhash))
+    ;azzera la hashmap
+    ;(delete 'myhash) ;slower
+    (dolist (el lst) (myhash el nil)) ;faster
+    ;somma i valori unici della lista associativa
+    (dolist (el out)
+      ;(println (lookup (first el) out))
+      (if (= (lookup (first el) out) 1)
+        (setq somma (+ somma (int (first el))))
+      )
+    )
+    somma
+  )
+)
+
+(somma-unici-2 '(1 2 2 3 4 4 5 5 6 6 6))
+;-> 4
+(somma-unici-2 '(4 2 3 1 7 4 2 7 1 7 5))
+;-> 8
+(somma-unici-2 '(1 1 1 2 3 6 6 7 8 8 8))
+;-> 12
+
+(time (somma-unici-2 '(4 2 3 1 7 4 2 7 1 7 5)) 10000)
+;-> 163.016
+
+(time (somma-unici (sequence 1 10000)))
+;-> 187.505
+
+(time (somma-unici-2 (sequence 1 10000)))
+;-> 406.431
+
+La versione 2 (hashmap) è più lenta della versione 1, ma dovrebbe essere il contrario.
+Probabilmente occorre ottimizzare l'uso delle hashmap.
 
