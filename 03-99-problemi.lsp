@@ -643,11 +643,10 @@ N-99-14 Duplicare gli elementi di una lista
 =======================================================
 Esempio: (duplicare '(a b c c d)) ==> (a a b b c c c c d d)
 
-(define duplica
-  (lambda (xs)
+(define (duplica xs)
     (if (null? xs) '()
       (cons (car xs)
-            (cons (car xs) (duplica (cdr xs)))))))
+            (cons (car xs) (duplica (cdr xs))))))
 
 (define (duplicare lst)
     (if (null? lst) '()

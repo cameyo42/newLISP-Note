@@ -1,7 +1,7 @@
 ==============
 
  ROSETTA CODE
- 
+
 ==============
 
 https://rosettacode.org/wiki/Category:Programming_Tasks
@@ -111,16 +111,18 @@ Quando l'algoritmo termina, tutti i numeri nell'elenco che non sono contrassegna
 Adesso possiamo scrivere la funzione completa:
 
 (define (Eratostene n)
-  (setq primi (array (add 1 n) '(true)))
-  (setq p 2)
-  (while (<= (* p p) n)
-    (if (= (primi p) true))
-    (for (i (* p p) n p) (setq (primi i) nil))
-    (++ p)
-  )
-  (for (p 2 n 1)
-    (if (= (primi p) true)
-        (print p { })
+  (local (primi p)
+    (setq primi (array (add 1 n) '(true)))
+    (setq p 2)
+    (while (<= (* p p) n)
+      (if (= (primi p) true))
+      (for (i (* p p) n p) (setq (primi i) nil))
+      (++ p)
+    )
+    (for (p 2 n 1)
+      (if (= (primi p) true)
+          (print p { })
+      )
     )
   )
 )
@@ -133,12 +135,6 @@ Adesso possiamo scrivere la funzione completa:
 ;-> 541 547 557 563 569 571 577 587 593 599 601 607 613 617 619 631 641 643 647 653 659 661 673
 ;-> 677 683 691 701 709 719 727 733 739 743 751 757 761 769 773 787 797 809 811 821 823 827 829
 ;-> 839 853 857 859 863 877 881 883 887 907 911 919 929 937 941 947 953 967 971 977 983 991 997
-
-(prime 137)
-;-> true
-
-(prime 889)
-;-> nil
 
 Se vogliamo sapere soltanto se un certo numero è primo possiamo utilizzare altri metodi.
 Il test di primalità più semplice è la "prova della divisione": Dato un numero n, controlla se ogni numero intero m, che va da 2 a sqrt(n), divide precisamente n (la divisione non lascia resto). Se n è divisibile per uno qualsiasi dei valori di m allora n è composto, altrimenti è primo.
@@ -250,18 +246,25 @@ Nota: le funzioni "primo-a" e "primo-b" non funzionano con i big integer perchè
 Riscriviamo la nostra funzione "primo?" in modo da funzionare con i big integer:
 
 (define (primoBig? n)
-  (setq out true) ; il numero viene considerato primo fino a che non troviamo un divisore preciso
-  (cond ((<= n 3L) (setq out true))
-        ((or (= (% n 2L) 0L) (= (% n 3L) 0L)) (setq out nil))
-        (true (setq i 5L)
-              (while (<= (* i i) n)
-                (if (or (= (% n i) 0L) (= (% n (+ i 2L)) 0L)) (setq out nil))
-                (setq i (+ i 6L))
-              )
-        )
+  (local (out i)
+    (setq out true) ; il numero viene considerato primo fino a che non troviamo un divisore preciso
+    (cond ((<= n 3L) (setq out true))
+          ((or (= (% n 2L) 0L) (= (% n 3L) 0L)) (setq out nil))
+          (true (setq i 5L)
+                (while (<= (* i i) n)
+                  (if (or (= (% n i) 0L) (= (% n (+ i 2L)) 0L)) (setq out nil))
+                  (setq i (+ i 6L))
+                )
+          )
+    )
+    out
   )
-  out
 )
+
+(primoBig? 3347833720307)
+;-> nil
+(primoBig? 100000017239)
+;-> true
 
 La funzione è lenta con numeri grandi:
 
@@ -288,10 +291,12 @@ Adesso scriviamo una funzione che fattorizza un numero raggruppando i termini ug
 Ad esempio (fattorizza 45) deve produrre ((3 2) (5 1)), cioè 45 = 3^2 * 5^1.
 
 (define (fattorizza x)
-  (setq fattori (factor x))
-  (setq unici (unique fattori))
-  (transpose (list unici (count unici fattori)))
-  ;(map (list unici (count unici fattori)))
+  (local (fattori unici)
+    (setq fattori (factor x))
+    (setq unici (unique fattori))
+    (transpose (list unici (count unici fattori)))
+    ;(map list unici (count unici fattori))
+  )
 )
 
 (fattorizza 45)
@@ -333,6 +338,26 @@ Operazione inversa di "fattorizza":
 (setq num-fg (apply * (map (lambda (x) (pow (first x) (last x))) fg)))
 ;-> 232792560
 
+Adesso scriviamo una funzione che converte il risultato di "fattorizza" nel risultato di "factor". Per esempio, ((2 3) (3 4)) --> (2 2 2 3 3 3 3)
+
+(define (fattorizza-factor lst-fattori)
+  (define (crea lst) (dup (first lst) (last lst)))
+  (flat (map crea lst-fattori))
+)
+
+(crea '(2 3))
+;-> (2 2 2)
+
+(fattorizza-factor '((2 3) (3 4)))
+;-> (2 2 2 3 3 3 3)
+
+(fattorizza-factor (fattorizza 2301))
+;-> (3 13 59)
+
+(fattorizza-factor (fattorizza 29))
+;-> (29)
+
+(fattorizza 11)
 Per finire scriviamo una funzione "fattori-primi" che fa lo stesso lavoro di "factor":
 
 (define (fattori-primi numero)
@@ -428,6 +453,123 @@ Attenzione: la funzione è molto lenta con numeri grandi.
 (time (fattori-primi 9223372036854775809L))
 ;-> 551342.497 ; 9 minuti e 11 secondi
 
+Funzione che calcola i numeri primi fino a n:
+
+(define (isPrime n)
+  (local (idx step out)
+    (cond ((or (= n 2) (= n 3)) (setq out true))
+          ((or (< n 2) (= (% n 2) 0) (= (% n 3) 0)) (setq out nil))
+          (true
+            (setq idx 5 step 2)
+            (while (< (* idx idx) n)
+              (setq idx (+ idx step))
+              (setq step (- 6 step ))
+              (if (= 0 (% n idx)) (setq out nil))
+            )
+          )
+    )
+    out
+  )
+)
+
+(isPrime 100)
+;-> nil
+
+(isPrime 18376353439383)
+;-> nil
+
+(factor 18376353439383)
+;-> (3 850261 7204201)
+
+(for (i 2 100000) (if (and (isPrime i) (> (length (factor i)) 1)) (println "error: " i)))
+;-> nil
+
+Vediamo un post di fdb sul forum di newLISP:
+
+Funzione (factor) che calcola i numeri primi fino a n:
+
+(define (primes-to n , (out '(2)))
+  (for (i 3 n 2)
+    (unless (rest (factor i))
+      (push i out -1)
+    )
+  )
+  out
+)
+
+(length (primes-to 1000000))
+;-> 78498
+
+(time (primes-to 1000000))
+;-> 640.006
+
+Funzione (Eratostene) che calcola i numeri primi fino a n:
+
+(define (sieve-to n)
+   (setq arr (array (+ n 1)) lst '(2))
+   (for (x 3 n 2)
+      (when (not (arr x))
+         (push x lst -1)
+         (for (y (* x x) n (* 2 x) (> y n))
+            (setf (arr y) true))))
+   lst
+)
+
+(length (sieve-to 1000000))
+;-> 78498
+
+(time (sieve-to 1000000))
+;-> 251.022
+
+Funzione che applica una operazione ad ogni coppia di elementi di una lista:
+el(1) op el(2), el(2) op el(3), el(3) op el(4), ..., el(n-1) op (el n)
+
+(define (funlist lst func)
+  (local (skip)
+  (if skip
+      (map func (chop lst) (rest lst))
+      (map func (rest lst) (chop lst)))))
+
+Differenza/distanza tra gli elementi:
+
+(funlist '(4 7 11 16 18) -)
+;-> (3 4 5 2)
+
+Somma tra gli elementi:
+
+(funlist '(4 7 11 16 18) +)
+;-> (11 18 27 34)
+
+Calcoliamo le distanze tra le coppie di numeri primi contigui:
+
+(funlist (sieve 1000) -)
+;-> (1 2 2 4 2 4 2 4 6 2 6 4 2 4 6 6 2 6 4 2 6 4 6 8 4 2 4 2 4 14 4 6 2 10 2 6 6 4 6
+;->  6 2 10 2 4 2 12 12 4 2 4 6 2 10 6 6 6 2 6 4 2 10 14 4 2 4 14 6 10 2 4 6 8 6 6 4
+;->  6 8 4 8 10 2 10 2 6 4 6 8 4 2 4 12 8 4 8 4 6 12 2 18 6 10 6 6 2 6 10 6 6 2 6 6 4
+;->  2 12 10 2 4 6 6 2 12 4 6 8 10 8 10 8 6 6 4 8 6 4 8 4 14 10 12 2 10 2 4 2 10 14 4
+;->  2 4 14 4 2 4 20 4 8 10 8 4 6 6 14 4 6 6 8 6)
+
+Contiamo la frequenza delle distanze:
+
+(define (freq lst)
+   (let (ulist (unique (sort lst)))
+      (map list ulist (count ulist lst))))
+
+(freq (funlist (sieve 1000) -))
+;-> ((1 1) (2 35) (4 40) (6 44) (8 15) (10 16) (12 7) (14 7) (18 1) (20 1))
+
+Ordiniamo le frequenze:
+
+(define (comp x y) (>= (last x) (last y)))
+
+(sort (freq (funlist (sieve 1000000) -)) comp)
+;-> ((6 13549) (2 8169) (4 8143) (12 8005) (10 7079) (8 5569) 
+;->  (18 4909) (14 4233) (16 2881) (24 2682) (20 2401) (22 2172) 
+;->  (30 1914) (28 1234) (26 1175) (36 767)  (34 557)  (32 550)...
+;->  ...(114 1))
+
+La distanza più frequente tra due numeri primi vale 6.
+
 
 ---------------
 NUMERI DI SMITH
@@ -469,19 +611,21 @@ Le seguenti istruzioni verificano se un numero x è un numero di Smith:
 Adesso possiamo scrivere la funzione richiesta:
 
 (define (smith? x)
-  (cond
-    ((bigint? x) -1) ; do not work with big integer
-    ( true
-        (setq s (string x))
-        (setq a (slice (explode s) 0))
-        (setq b (apply + (map int a)))
-        (setq f (factor x))
-        (if (= 1 (length f)) (setq f '(0))) ; trovato numero primo
-        (setq sf (apply string f))
-        (setq af (slice (explode sf) 0))
-        (setq bf (apply + (map int af)))
-        (= b bf)
-        ;(if (= b bf) true nil)
+  (local (s aa b f sf af bf)
+    (cond
+      ((bigint? x) -1) ; do not work with big integer
+      ( true
+          (setq s (string x))
+          (setq a (slice (explode s) 0))
+          (setq b (apply + (map int a)))
+          (setq f (factor x))
+          (if (= 1 (length f)) (setq f '(0))) ; trovato numero primo
+          (setq sf (apply string f))
+          (setq af (slice (explode sf) 0))
+          (setq bf (apply + (map int af)))
+          (= b bf)
+          ;(if (= b bf) true nil)
+      )
     )
   )
 )
@@ -494,12 +638,13 @@ Adesso possiamo scrivere la funzione richiesta:
 ;-> -1
 
 (define (smith10000)
-  (setq n '())
-  (for (i 1 10000)
-    (if (smith? i) (setq n (append (list i) n)))
+  (let (n '())
+    (for (i 1 10000)
+      (if (smith? i) (setq n (append (list i) n)))
+    )
+    (println (reverse n))
+    (println "Fino a 10000 ci sono " (length n) " numeri di Smith.")
   )
-  (println (reverse n))
-  (println "Fino a 10000 ci sono " (length n) " numeri di Smith.")
 )
 
 (smith10000)
@@ -543,23 +688,23 @@ Scrivere un programma per calcolare i numeri di hamming nel corretto ordine.
 
 Questa funzione restituisce il più piccolo tra due numeri (anche big integer):
 
-(define (minimo x y)
-  (if (< x y) x y)
-)
+(define (minimo x y) (if (< x y) x y))
 
 (define (hamming n bool)
-  (setq h (array n '(0L))) ; utilizziamo un vettore big integer
-  (setf (h 0) 1L)
-  (setq i 0L)  (setq j 0L)  (setq k 0L)
-  (setq x2 2L)  (setq x3 3L)  (setq x5 5L)
-  (for (m 1 (-- n) 1)
-    (setf (h m) (minimo x2 (minimo x3 x5)))
-    ;(setf (h m) (min x2 (min x3 x5))) ; la funzione "min" non funziona con i big integer
-    (if (= (h m) x2) (begin (++ i) (setq x2 (* (h i) 2L))))
-    (if (= (h m) x3) (begin (++ j) (setq x3 (* (h j) 3L))))
-    (if (= (h m) x5) (begin (++ k) (setq x5 (* (h k) 5L))))
+  (local (h i j k x2 x3 x5)
+    (setq h (array n '(0L))) ; utilizziamo un vettore big integer
+    (setf (h 0) 1L)
+    (setq i 0L)  (setq j 0L)  (setq k 0L)
+    (setq x2 2L)  (setq x3 3L)  (setq x5 5L)
+    (for (m 1 (-- n) 1)
+      (setf (h m) (minimo x2 (minimo x3 x5)))
+      ;(setf (h m) (min x2 (min x3 x5))) ; la funzione "min" non funziona con i big integer
+      (if (= (h m) x2) (begin (++ i) (setq x2 (* (h i) 2L))))
+      (if (= (h m) x3) (begin (++ j) (setq x3 (* (h j) 3L))))
+      (if (= (h m) x5) (begin (++ k) (setq x5 (* (h k) 5L))))
+    )
+    (if bool h (last h)) ; se bool = true, allora resitutuisce tutti i numeri, altrimenti solo l'ultimo
   )
-  (if bool h (last h)) ; se bool = true, allora stampa tutti i numeri, altrimenti solo l'ultimo
 )
 
 (hamming 20 true)
@@ -617,9 +762,10 @@ Iterativo
 Non possiamo usare i big integer poichè la divisione altera il risultato, quindi dobbiamo usare i floating-point.
 
 (define (catalan-i n)
-  (setq res 1.0)
-  (for (k 2 n)
-      (setq res (mul res (div (add n k) k)))
+  (let (res 1.0)
+    (for (k 2 n)
+        (setq res (mul res (div (add n k) k)))
+    )
   )
 )
 
@@ -662,17 +808,19 @@ Per convenzione 1 è un numero di Kaprekar.
 Adesso possiamo scrivere la funzione:
 
 (define (kaprekar? n)
-  (setq kap nil)
-  (setq i 0)
-  (setq xx (* n n))
-  (setq s (string xx))
-  (while (and (<= i (length s)) (= kap nil))
-    (setq num1 (int (slice s 0 i) 0 10))
-    (setq num2 (int (slice s i (length s)) 0 10))
-    (if (and (> num2 0) (= n (+ num1 num2))) (setq kap true))
-    (++ i)
+  (local (kap i xx s num1 num2)
+    (setq kap nil)
+    (setq i 0)
+    (setq xx (* n n))
+    (setq s (string xx))
+    (while (and (<= i (length s)) (= kap nil))
+      (setq num1 (int (slice s 0 i) 0 10))
+      (setq num2 (int (slice s i (length s)) 0 10))
+      (if (and (> num2 0) (= n (+ num1 num2))) (setq kap true))
+      (++ i)
+    )
+    kap
   )
-  kap
 )
 
 (kaprekar? 1)
@@ -683,17 +831,18 @@ Adesso possiamo scrivere la funzione:
 ;-> true
 
 (define (kaprekar10000)
-  (setq out '())
-  (for (j 1 10000)
-    (if (kaprekar? j) (setq out (append (list j) out)))
+  (let (out '())
+    (for (j 1 10000)
+      (if (kaprekar? j) (setq out (append (list j) out)))
+    )
+    (println (reverse out))
+    (println "Fino a 10000 ci sono " (length out) " numeri di Kaprekar.")
   )
-  (println (reverse out))
-  (println "Fino a 10000 ci sono " (length out) " numeri di Kaprekar.")
 )
 
 (kaprekar10000)
-;-> (1 9 45 55 99 297 703 999 2223 2728 4950 5050 7272 7777 9999)
-;-> Fino a 10000 ci sono 15 numeri di Kaprekar.
+;-> (1 9 45 55 99 297 703 999 2223 2728 4879 4950 5050 5292 7272 7777 9999)
+;-> Fino a 10000 ci sono 17 numeri di Kaprekar.
 
 (define (kaprekar1milione)
   (setq out '())
@@ -744,19 +893,21 @@ se (b si trova nella lista) allora (felice = nil) e (continua = nil)  ;(il numer
 altrimenti inserisci il numero nella lista e continua                 ;continua creazione lista
 
 (define (felice? n)
-  (setq continua true)
-  (setq lista '())
-  (setq x n)
-  (while (= continua true)
-    (setq s (string x))
-    (setq a (slice (explode s) 0))
-    (setq b (apply + (map (lambda (x) (* (int x) (int x)))  a)))
-    (cond ((= b 1) (setq felice true) (setq continua nil))
-          ((!= (ref b lista) nil) (setq felice nil) (setq continua nil))
-          (true (setq lista (cons b lista)) (setq x b))
+  (local (continua lista x s a b)
+    (setq continua true)
+    (setq lista '())
+    (setq x n)
+    (while (= continua true)
+      (setq s (string x))
+      (setq a (slice (explode s) 0))
+      (setq b (apply + (map (lambda (x) (* (int x) (int x)))  a)))
+      (cond ((= b 1) (setq felice true) (setq continua nil))
+            ((!= (ref b lista) nil) (setq felice nil) (setq continua nil))
+            (true (setq lista (cons b lista)) (setq x b))
+      )
     )
+    felice
   )
-  felice
 )
 
 (felice? 10)
@@ -767,12 +918,13 @@ altrimenti inserisci il numero nella lista e continua                 ;continua 
 ;-> true
 
 (define (felici1000)
-  (setq out '())
-  (for (j 1 1000)
-    (if (felice? j) (setq out (append (list j) out)))
+  (let (out '())
+    (for (j 1 1000)
+      (if (felice? j) (setq out (append (list j) out)))
+    )
+    (println (reverse out))
+    (println "Fino a 1000 ci sono " (length out) " numeri felici.")
   )
-  (println (reverse out))
-  (println "Fino a 1000 ci sono " (length out) " numeri felici.")
 )
 
 (felici1000)
@@ -814,54 +966,56 @@ n*ln(n) + n*ln(ln(n)) - 1 < p(n) < n*ln(n) + n*ln(ln(n)) per n ≥ 6
 La funzione è la seguente (utilizza i big integer):
 
 (define (primoriale n bool)
-  (cond ((= n 0L) (setq pn '(1L)))
-        ((= n 1L) (setq pn '(1L 2L)))
-        (
-          (if (<= n 6L) (setq maxnum 20L)
-              (setq maxnum (ceil (mul n (add (log n) (log (log n)))))) ; limite superiore
-          )
-          ;(println maxnum)
-          ; generiamo la lista con tutti i numeri primi esistenti fino a maxnum
-          (setq primi (array (+ 1L maxnum) '(true)))
-          (setq p 2L)
-          (while (<= (* p p) maxnum)
-            (if (= (primi p) true))
-            (for (i (* p p) maxnum p) (setq (primi i) nil))
-            (++ p)
-          )
-          (setq lista-primi '())
-          (for (p 2L maxnum)
-            (if (= (primi p) true)
-                ;(print p { })
-                (setq lista-primi (cons p lista-primi))
+  (local (pn maxnum primi p sum)
+    (cond ((= n 0L) (setq pn '(1L)))
+          ((= n 1L) (setq pn '(1L 2L)))
+          (
+            (if (<= n 6L) (setq maxnum 20L)
+                (setq maxnum (ceil (mul n (add (log n) (log (log n)))))) ; limite superiore
+            )
+            ;(println maxnum)
+            ; generiamo la lista con tutti i numeri primi esistenti fino a maxnum
+            (setq primi (array (+ 1L maxnum) '(true)))
+            (setq p 2L)
+            (while (<= (* p p) maxnum)
+              (if (= (primi p) true))
+              (for (i (* p p) maxnum p) (setq (primi i) nil))
+              (++ p)
+            )
+            (setq lista-primi '())
+            (for (p 2L maxnum)
+              (if (= (primi p) true)
+                  ;(print p { })
+                  (setq lista-primi (cons p lista-primi))
+              )
+            )
+            (reverse lista-primi) ; funzione distruttiva (cambia direttamente lista-primi)
+            ;(println lista-primi)
+            ;(println (length lista-primi))
+            (if (> n (length lista-primi)) (println "Errore")
+                ; Calcoliamo i numeri primoriali fino a n
+                (begin
+                  (setq pn '(1L))
+                  (setq sum 1L)
+                  (for (i 0L (- n 1L))
+                    ;(println {i =} i)
+                    (for (k 0L i)
+                      ;(println k)
+                      (setq sum (* sum (nth k lista-primi)))
+                    )
+                    (setq pn (cons sum pn))
+                    (setq sum 1L)
+                  )
+                  (reverse pn)
+                  ; risultato
+                  (if (= bool true) pn
+                      (last pn)
+                  )
+                )
             )
           )
-          (reverse lista-primi) ; funzione distruttiva (cambia direttamente lista-primi)
-          ;(println lista-primi)
-          ;(println (length lista-primi))
-          (if (> n (length lista-primi)) (println "Errore")
-              ; Calcoliamo i numeri primoriali fino a n
-              (begin
-                (setq pn '(1L))
-                (setq sum 1L)
-                (for (i 0L (- n 1L))
-                  ;(println {i =} i)
-                  (for (k 0L i)
-                    ;(println k)
-                    (setq sum (* sum (nth k lista-primi)))
-                  )
-                  (setq pn (cons sum pn))
-                  (setq sum 1L)
-                )
-                (reverse pn)
-                ; risultato
-                (if (= bool true) pn
-                    (last pn)
-                )
-              )
-          )
-        )
-  ); end cond
+    ); end cond
+  )
 )
 
 (primoriale 0)
@@ -903,20 +1057,25 @@ Si conoscono pochi numeri perfetti perchè diventano enormi velocemente.
 Per calcolare questi numeri scriviamo per primo una funzione che restituisce i divisori propri di un numero:
 
 (define (divisori n)
-  (setq lista-div '(1L))
-  (setq m (sqrt n))
-  (setq i 2L)
-  (while (<= i m)
-      (if (zero? (% n i))   ; se 'i' è divisore di 'n'
-          (if (= i (/ n i)) ; se entrambi i divisori sono gli stessi aggiungine uno,
-                            ; altrimenti aggiungili entrambi
-            (setq lista-div (cons i lista-div))
-            (setq lista-div (cons (/ n i) (cons i lista-div)))
-          )
-      )
-      (setq i (+ i 1L))
+  (local (lista-div m i)
+    (setq lista-div '(1)) ; aggiungo il numero 1
+    (setq m (int (sqrt n)))
+    (setq i 2)
+    (while (<= i m)
+        (if (zero? (% n i))   ; se 'i' è divisore di 'n'
+            (if (= i (/ n i)) ; se entrambi i divisori sono gli stessi aggiungine uno,
+                              ; altrimenti aggiungili entrambi
+              ;(setq lista-div (cons i lista-div))
+              ;(setq lista-div (cons (/ n i) (cons i lista-div)))
+              (push i lista-div -1)
+              (begin (push i lista-div -1) (push (/ n i) lista-div -1))
+            )
+        )
+        (++ i)
+    )
+    ;(push n lista-div -1) ; aggiungo il numero stesso
+    (sort lista-div)
   )
-  (sort lista-div)
 )
 
 (divisori 128)
@@ -936,11 +1095,12 @@ Per calcolare questi numeri scriviamo per primo una funzione che restituisce i d
 ;-> nil
 
 (define (perfetti n)
-  (setq res '())
-  (for (x 2 n)
-    (if (= true (perfetto? x)) (setq res (cons x res)))
+  (let (res '())
+    (for (x 2 n)
+      (if (= true (perfetto? x)) (setq res (cons x res)))
+    )
+    (reverse res)
   )
-  (reverse res)
 )
 
 (perfetti 10000)
@@ -949,19 +1109,21 @@ Per calcolare questi numeri scriviamo per primo una funzione che restituisce i d
 La funzione è corretta, ma molto lenta. Proviamo a scrivere una versione ottimizzata:
 
 (define (perfetto-fast? n)
-  (cond ((< n 2) (setq somma nil))
-        ((!= (mod n 2) 0) (setq somma nil)) ; i numeri dispari non sono perfetti
-        (true (setq somma 1)
-              (for (i 2 (sqrt n))
-                   (if (= (mod n i) 0) (begin (setq somma (+ somma i))
-                                              (setq q (/ n i))
-                                              (if (> q i) (setq somma (+ somma q)))
-                                        )
-                   )
-               )
-        )
+  (local (somma q)
+    (cond ((< n 2) (setq somma nil))
+          ((!= (mod n 2) 0) (setq somma nil)) ; i numeri dispari non sono perfetti
+          (true (setq somma 1)
+                (for (i 2 (sqrt n))
+                    (if (= (mod n i) 0) (begin (setq somma (+ somma i))
+                                                (setq q (/ n i))
+                                                (if (> q i) (setq somma (+ somma q)))
+                                          )
+                    )
+                )
+          )
+    )
+    (= n somma)
   )
-  (= n somma)
 )
 
 (perfetto-fast? 6)
@@ -974,19 +1136,18 @@ La funzione è corretta, ma molto lenta. Proviamo a scrivere una versione ottimi
 ;-> true
 
 (define (perfetti-fast n)
-  (setq res '())
-  (for (x 2 n)
-    (if (= true (perfetto-fast? x)) (setq res (cons x res)))
+  (let (res '())
+    (for (x 2 n)
+      (if (= true (perfetto-fast? x)) (setq res (cons x res)))
+    )
+    (reverse res)
   )
-  (reverse res)
 )
 
 (perfetti-fast 10000)
 ;-> (6 28 496 8128)
 
 Non provare ad eseguire (perfetti-fast 35000000) per trovare il prossimo numero perfetto (che vale 33550336) perchè impiega molto tempo (alcune ore sul mio computer).
-
-(time (perfetti-fast 34000000))
 
 Vediamo la differenza di velocità:
 
@@ -1023,13 +1184,15 @@ Quindi possiamo cercare i numeri perfetti con il seguente algoritmo:
 
 Prima di tutto definiamo una funzione che converte una stringa binaria in un numero decimale (big integer):
 
-(define (binary2decimal _b)
-  (setq _l (length _b))
-  (setq _d 0L)
-  (setq _r (reverse _b))
-  (dostring (_c _r)
-    ;(println c { } (char c) { } $idx)
-    (setq _d (+ _d (* (int (char _c)) (pow 2 $idx))))
+(define (binary2decimal b)
+  (local (l d r d)
+    (setq l (length b))
+    (setq d 0L)
+    (setq r (reverse b))
+    (dostring (c r)
+      ;(println c { } (char c) { } $idx)
+      (setq d (+ d (* (int (char c)) (pow 2 $idx))))
+    )
   )
 )
 
@@ -1042,22 +1205,24 @@ Prima di tutto definiamo una funzione che converte una stringa binaria in un num
 Adesso scriviamo la funzione per trovare i numeri perfetti con il nostro algoritmo:
 
 (define (perfetti-primi)
-  ; lista di numeri primi (attenzione che la funzione "divisori" è lenta)
-  (setq primi '(2L 3L 5L 7L 11L 13L 17L 19L 23L))
-  (setq res '())
-  (dolist (p primi)
-    ; creo il numero binario
-    (setq ns (join (list (dup "1" p) (dup "0" (- p 1)))))
-    ; converto il numero binario in decimale
-    (setq dp (binary2decimal ns))
-    ; se il numero decimale è perfetto, allora lo stampo
-    (if (= dp (apply + (divisori dp))) (print dp { (} p {), }))
+  (local (primi res ns dp)
+    ; lista di numeri primi (attenzione che la funzione "divisori" è lenta)
+    (setq primi '(2L 3L 5L 7L 11L 13L 17L 19L 23L))
+    (setq res '())
+    (dolist (p primi)
+      ; creo il numero binario
+      (setq ns (join (list (dup "1" p) (dup "0" (- p 1)))))
+      ; converto il numero binario in decimale
+      (setq dp (binary2decimal ns))
+      ; se il numero decimale è perfetto, allora lo stampo
+      (if (= dp (apply + (divisori dp))) (print dp { (} p {), }))
+    )
   )
 )
 
 (perfetti-primi)
-;-> 6L (2L), 28L (3L), 496L (5L), 8128L (7L), 33550336L (13L), 8589869056L (17L), 137438691328L
-;-> (19L), nil
+;-> 6L (2L), 28L (3L), 496L (5L), 8128L (7L), 33550336L (13L), 
+;-> 8589869056L (17L), 137438691328L (19L), nil
 
 (perfetto-fast? 2305843008139952128)
 ;-> true ; ma ci vuole tanto tempo
@@ -1074,19 +1239,21 @@ Per N > 1 includeranno sempre 1, ma per N == 1 non ci sono divisori propri.
 Scrivere una funzione per trovare le coppie di numeri amicabili fino a N = 100.000
 
 (define (somma-divisori n)
-  (setq res 0)
-  (setq m (sqrt n))
-  (setq i 2)
-  (while (<= i m)
-      (if (zero? (% n i))   ; se 'i' è un divisore di 'n'
-          (if (= i (/ n i)) ; se entrambi i divisori sono uguali...
-            (setq res (+ res i)) ; aggiungili una volta
-            (setq res (+ res i (/ n i))) ; altrimenti aggiungili entrambi
-          )
-      )
-      (setq i (+ i 1))
+  (local (res m i)
+    (setq res 0)
+    (setq m (sqrt n))
+    (setq i 2)
+    (while (<= i m)
+        (if (zero? (% n i))   ; se 'i' è un divisore di 'n'
+            (if (= i (/ n i)) ; se entrambi i divisori sono uguali...
+              (setq res (+ res i)) ; aggiungili una volta
+              (setq res (+ res i (/ n i))) ; altrimenti aggiungili entrambi
+            )
+        )
+        (setq i (+ i 1))
+    )
+    res
   )
-  res
 )
 
 (somma-divisori 10)
@@ -1097,12 +1264,14 @@ Scrivere una funzione per trovare le coppie di numeri amicabili fino a N = 100.0
 )
 
 (define (amicabili)
-  (for (j 1 100000)
-      (setq spd (somma-divisori-propri j))
-      (setq spd2 (somma-divisori-propri spd))
-      (if (and (= j spd2) (!= spd spd2))
-          (println j { } spd)
-      )
+  (local (spd spd2)
+    (for (j 1 100000)
+        (setq spd (somma-divisori-propri j))
+        (setq spd2 (somma-divisori-propri spd))
+        (if (and (= j spd2) (!= spd spd2))
+            (println j { } spd)
+        )
+    )
   )
 )
 
@@ -1178,8 +1347,10 @@ Funzione che converte un numero decimale in un numero binario:
 Funzione che verifica se un numero è pernicioso:
 
 (define (pernicioso? n)
-  (setq np (count '(1) (decimal2binary n)))
-  (if (= true (primo? (first np))) true nil)
+  (local (np)
+    (setq np (count '(1) (decimal2binary n)))
+    (if (= true (primo? (first np))) true nil)
+  )
 )
 
 (pernicioso? 22)
@@ -1187,15 +1358,16 @@ Funzione che verifica se un numero è pernicioso:
 
 Funzione che calcola i numeri perniciosi fino a n:
 
-(define (pernicioso n)
-  (setq res '())
-  (for (x 2 n)
-    (if (= true (pernicioso? x)) (setq res (cons x res)))
+(define (perniciosi n)
+  (let (res '())
+    (for (x 2 n)
+      (if (= true (pernicioso? x)) (setq res (cons x res)))
+    )
+    (reverse res)
   )
-  (reverse res)
 )
 
-(pernicioso 25)
+(perniciosi 25)
 ;-> (3 5 6 7 9 10 11 12 13 14 17 18 19 20 21 22 24 25)
 
 
@@ -1235,10 +1407,12 @@ Adesso definiamo la funzione che verifica se un dato numero è di Munchausen:
 Infine scriviamo la funzione che ricerca i numeri di Munchausen:
 
 (define (cerca-munchausen m)
-  (setq powers (cons '0 (map (lambda (x) (pow x x)) (sequence 1 9))))
-  ;-> (0 1 4 27 256 3125 46656 823543 16777216 387420489)
-  (dotimes (0 m)
-    (if (= i (munchausen i)) (println i))
+  (local (powers)
+    (setq powers (cons '0 (map (lambda (x) (pow x x)) (sequence 1 9))))
+    ;-> (0 1 4 27 256 3125 46656 823543 16777216 387420489)
+    (dotimes (i m)
+      (if (= i (munchausen i)) (println i))
+    )
   )
 )
 
@@ -1303,6 +1477,7 @@ PERMUTAZIONI
     ((= (length lst) 1)(list lst))
     (true (apply append(map(lambda (i) (map (lambda (j)(cons i j))
                                             (permutations (remove i lst)))) lst)))))
+                                            
 (permutations '(1 2 3))
 ;-> ((1 2 3) (2 1 3) (2 3 1) (1 3 2) (3 1 2) (3 2 1))
 
@@ -1466,17 +1641,19 @@ Scriviamo la funzione prima in stile funzionale:
 
 Adesso la scriviamo in stile iterativo:
 
-(define (horner lst-coeffs x)
-  (setq acc 0)
-  (reverse lst-coeffs) ; funzione distruttiva
-  (dolist (el lst-coeffs)
-    acc = acc * x + c
-    (setq acc (add (mul acc x) el))
+(define (horner-i lst-coeffs x)
+  (local (acc)
+    (setq acc 0)
+    (reverse lst-coeffs) ; funzione distruttiva
+    (dolist (el lst-coeffs)
+      ;acc = acc * x + c
+      (setq acc (add (mul acc x) el))
+    )
+    acc
   )
-  acc
 )
 
-(horner '(-19 7 -4 6) '3)
+(horner-i '(-19 7 -4 6) '3)
 ;-> 128
 
 
@@ -3196,8 +3373,8 @@ P(d) = log10(d + 1) - log10(d) = log10(1 + 1/d)
 )
 
 (setq bend (P))
-;-> (30.10299956639812 17.60912590556812  12.49387366082999 
-;->   9.69100130080564  7.918124604762481  6.694678963061322 
+;-> (30.10299956639812 17.60912590556812  12.49387366082999
+;->   9.69100130080564  7.918124604762481  6.694678963061322
 ;->   5.799194697768673 5.115252244738128  4.575749056067514)
 
 Scriviamo una funzione per calcolare la distribuzione delle prime cifre significative (non zero) in un insieme di numeri, quindi confrontare la distribuzione effettiva rispetto a quella attesa (cioè quella di Bendford). La funzione ha come parametro il nome del file che contiene l'insieme dei numeri.
@@ -3289,7 +3466,7 @@ Adesso scriviamo la versione finale:
     ;stampiamo i risultati
     (println {     %att     %real     diff})
     (for (i 1 9)
-      (println (format "%d %8.2f %8.2f %+8.2f" 
+      (println (format "%d %8.2f %8.2f %+8.2f"
                i (perc-freq-attese i) (perc-freq-reali i) (diff i)))
     )
     '-----------------------------
@@ -3749,7 +3926,7 @@ La funzione deve anche escludere la creazione di password con i seguenti caratte
 ;-> ("M5}g")
 
 (gen-pwd 6 12)
-;-> ("Jrfh.F2~uEtd" "ljR8[=3VYoSH" "|0J4u^4dv0{9" 
+;-> ("Jrfh.F2~uEtd" "ljR8[=3VYoSH" "|0J4u^4dv0{9"
 ;->  "87HFP;{u6ini" "M3w|1:4],G4m" "3@LH5Q*E00mv")
 
 Funzione che controlla la presenza di caratteri visualmente simili:
@@ -3832,7 +4009,7 @@ Serie di Nilakantha:
 pigrecoN = 3 + 4/(2*3*4) - 4/(4*5*6) + 4/(6*7*8) - 4/(8*9*10) + 4/(10*11*12) - (4/(12*13*14) ...
 
 (define (pigrecoN iter)
-  (local (val frac num den i)
+  (local (val based frac num den i)
     (setq val 3)
     (setq based 2)
     (setq i 1)

@@ -2350,9 +2350,9 @@ Esempio:
 ;-> ((1 10) (15 18))
 
 
-----------------------
-Somma dei numeri unici
-----------------------
+-------------------------------
+Somma dei numeri unici (Google)
+-------------------------------
 
 In una lista di numeri interi, trovare la somma dei numeri che compaiono una sola volta. Ad esempio, nella lista (4 2 3 1 7 4 2 7 1 7 5), i numeri 1, 2, 4 e 7 appaiono più di una volta, quindi sono esclusi dalla somma e la risposta corretta è 3 + 5 = 8.
 
@@ -2408,8 +2408,9 @@ Soluzione 2 (hashmap)
     ;copia la hashmap su una lista associativa
     (setq out (myhash))
     ;azzera la hashmap
-    ;(delete 'myhash) ;slower
-    (dolist (el lst) (myhash el nil)) ;faster
+    ;(dolist (el (myhash)) (println el))
+    ;(delete 'myhash) ;method 1
+    (dolist (el lst) (myhash el nil)) ;method 2
     ;somma i valori unici della lista associativa
     (dolist (el out)
       ;(println (lookup (first el) out))
@@ -2421,6 +2422,7 @@ Soluzione 2 (hashmap)
   )
 )
 
+(myhash)
 (somma-unici-2 '(1 2 2 3 4 4 5 5 6 6 6))
 ;-> 4
 (somma-unici-2 '(4 2 3 1 7 4 2 7 1 7 5))
@@ -2429,7 +2431,7 @@ Soluzione 2 (hashmap)
 ;-> 12
 
 (time (somma-unici-2 '(4 2 3 1 7 4 2 7 1 7 5)) 10000)
-;-> 163.016
+;-> 140.011
 
 (time (somma-unici (sequence 1 10000)))
 ;-> 187.505

@@ -375,11 +375,13 @@ Conversione decimale <--> esadecimale
 Questa funzione converte un numero intero positivo in una stringa esadecimale:
 
 (define (d2h n)
-  (setq digit "0123456789ABCDEF")
-  (setq x (% n 16))
-  (setq y (/ n 16))
-  (if (= y 0) (nth x digit)
-      (cons (nth x digit) (d2h y))
+  (local (digit x y)
+    (setq digit "0123456789ABCDEF")
+    (setq x (% n 16))
+    (setq y (/ n 16))
+    (if (= y 0) (nth x digit)
+        (cons (nth x digit) (d2h y))
+    )
   )
 )
 
@@ -861,6 +863,7 @@ Adesso possiamo scrivere la funzione "raggruppa":
 (raggruppa 2 (raggruppa 2 lst))
 ;-> (((1 2) (3 4)) ((5 6) (7 8)) ((9 10) (11 12)))
 
+Con newLISP possiamo utilizzare la funzione "explode".
 
 -----------------------------------
 Enumerare gli elementi di una lista
@@ -871,15 +874,17 @@ Enumerare gli elementi di una lista
 ; Crea una nuova lista numerando gli elementi di lst
 ; =====================================================
 (define (enumera lst)
-  (cond ((null? lst) '())
-        (true (setq _out '())
-              (dolist (el lst)
-                ;(push (list $idx el) _out)
-                ;(push (list $idx el) _out -1)
-                (extend _out (list(list $idx el)))
-              )
-              ;(reverse _out)
-        )
+  (local (out)
+    (cond ((null? lst) '())
+          (true (setq out '())
+                (dolist (el lst)
+                  ;(push (list $idx el) _out)
+                  ;(push (list $idx el) _out -1)
+                  (extend out (list(list $idx el)))
+                )
+                ;(reverse _out)
+          )
+    )
   )
 )
 
@@ -931,9 +936,11 @@ Proviamo a scrivere la nostra funzione:
 ; =====================================================
 
 (define (duplica str num , newstr)
-   (setq newstr "")
-   (dotimes (x num)
-    (extend newstr str)
+  (local (newstr)
+    (setq newstr "")
+    (dotimes (x num)
+      (extend newstr str)
+    )
    )
 )
 
@@ -1172,16 +1179,19 @@ Conversione gradi decimali <--> gradi sessagesimali
 ; =====================================================
 
 (define (dd-to-dms degrees)
-  (if (> 0.0 degrees)
-      (setq udegree (abs degrees))
-      (setq udegree degrees)
+  (local (udegree d m s)
+    (if (> 0.0 degrees)
+        (setq udegree (abs degrees))
+        (setq udegree degrees)
+    )
+    (setq d (int udegree))
+    (setq m (int (mul 60.0 (sub udegree d))))
+    (setq s (mul 3600.0 (sub udegree d (div m 60.0))))
+    (if (> 0.0 degrees) (set 'd (sub d 0)))
+    ;(println d { } m { } s { })
+    (list d m s)
+    ;result d m s
   )
-  (setq d (int udegree))
-  (setq m (int (mul 60.0 (sub udegree d))))
-  (setq s (mul 3600.0 (sub udegree d (div m 60.0))))
-  (if (> 0.0 degrees) (set 'd (sub d 0)))
-  ;(println d { } m { } s { })
-  result d m s
 )
 
 (dd-to-dms 30.263888889)
@@ -1193,11 +1203,13 @@ Conversione gradi decimali <--> gradi sessagesimali
 ; =====================================================
 
 (define (dms-to-dd degrees minutes seconds)
-  (if (< 0.0 degrees)
-      (setq dd (add degrees (div minutes 60.0) (div seconds 3600.0)))
-      (setq dd (add degrees (- 0.0 (div minutes 60.0)) (- 0.0 (div seconds 3600.0))))
+  (local (dd)
+    (if (< 0.0 degrees)
+        (setq dd (add degrees (div minutes 60.0) (div seconds 3600.0)))
+        (setq dd (add degrees (- 0.0 (div minutes 60.0)) (- 0.0 (div seconds 3600.0))))
+    )
+    result dd
   )
-  result dd
 )
 
 (dms-to-dd 30.0 15.0 50.0)
@@ -1368,7 +1380,7 @@ f
 La seguente funzione disegna l'istogramma, se il parametro "calc" vale true, allora calcola la lista delle frequenze dalla lista passata:
 
 (define (istogramma lst hmax (calc nil))
-  (local (linee hm scala f-lst)
+  (local (unici linee hm scala f-lst)
     (if calc
       ;calcolo la lista delle frequenze partendo da lst
       (begin

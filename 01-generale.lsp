@@ -5276,3 +5276,46 @@ Possiamo avere una chiave che si autoincrementa in una hash-map (dizionario):
 
 La variabile 'Hash:counter' viene creata automaticamente quando newLISP legge l'espressione e la funzione "inc" cambia il suo valore da "nil" a 0 (zero). La funzione "format" assicura che l'ordine di creazione sia corretto. Lutz
 
+Per creare una hashmap invece di (define hash:hash) usare (new Tree 'hash) che fa la stessa cosa, ma rende anche la funzione predefinita hash:hash una costante (contenente nil).
+
+Un buon stile di programmazione è quello di definire tutti gli hash e gli altri contesti nel modulo di contesto MAIN come tutti gli altri simboli usati a livello globale. Nei progetti più grandi di newLISP o quando si lavora in un gruppo di programmatori sullo stesso progetto, i conflitti/problemi possono essere evitati/minimizzati in questo modo.
+Chiamiamo i dizionari di contesto spesso "hash", ma non esiste una funzione di hash alla base di esso. "Hash" è solo un nome conveniente poiché la maggior parte degli altri linguaggi implementa la funzionalità di ricerca utilizzando le funzioni hash.
+In newLISP i dizionari sono basati su alberi binari bilanciati rosso-nero (AVL red-black tree) separati e solo la radice del dizionario - il nome del contesto - fa parte dello spazio principale dei simboli MAIN.
+
+Suggerimento:
+il contesto è un valore, quindi possiamo usare (uuid) per generare un simbolo univoco in MAIN, quindi trasformarlo in un contesto. Ma non c'è garbage collection, devi eliminare tu stesso il contesto.
+
+(set 'a (new Tree (sym (string "_" (uuid)) MAIN)))
+
+Eliminare il contesto in questo modo:
+
+(set 'name (sym (term a) MAIN)) ; trova il nome del contesto in MAIN
+(delete name) ; elimina il contesto
+(delete name) ; elimina il simbolo in MAIN
+
+Cancellazione di un contesto
+Quando si elimina un simbolo di contesto, la prima eliminazione rimuove il contenuto dello spazio dei nomi di contesto e riduce il simbolo a un normale simbolo mono-variabile. La seconda eliminazione rimuove quindi completamente il simbolo dalla tabella dei simboli. Questo metodo è necessario quando si utilizzano simboli di variabili locali in funzioni come contesti.
+
+In generale: non cancellare di spazi dei nomi nei programmi newLISP di dimensioni non banali. Tranne quando si usa il flag nil nel comando delete, i simboli vengono controllati come riferimento nell'intero spazio di memoria delle celle newLISP, che può rallentare molto su programmi grandi con dati grandi.
+
+I contesti non sono pensati per essere creati ed eliminati in modo frequente. Anche se è possibile farlo, ci sono altri modi per ottenere qualcosa di globale, che rimane attivo per l'intera esecuzione del programma.
+
+Per tale motivo, nella FOOP i contesti vengono utilizzati principalmente come contenitori per le classi e i metodi, mentre i dati sono normali liste LISP, che sono gestite automaticamente dalla memoria di newLISP. Se usi i contesti come oggetti, la loro gestione della memoria è manuale e quindi non è molto efficiente.
+
+Per cancellare un contesto dobbiamo usare:
+
+(delete 'S) oppure (delete 'S true)
+
+che non sono la stessa cosa anche se entrambi effettuano il controllo dei riferimenti.
+Infatti, (delete 'S true) restituirà nil quando viene trovato un riferimento. (delete 'S) sostituisce tutti i riferimenti trovati con nil.
+In definitiva abbiamo davvero 3 modalità:
+
+(delete 'S) controlla i riferimenti e li sostituisce con nil.
+
+(delete 'S true) controlla i riferimenti e restituisce nil quando vengono trovati riferimenti.
+
+(delete 'S nil) ignora i riferimenti, elimina soltanto (metodo non sicuro se esistono riferimenti).
+
+Con i contesti è un processo in due passaggi: il primo elimina i contenuti del contesto, il secondo elimina il simbolo del contesto.
+L'eliminazione dei contesti in due fasi è necessaria quando lo stesso simbolo viene utilizzato come contesto, quindi il contenuto del contesto viene eliminato, e poi lo stesso simbolo ottiene nuovamente un contesto.
+

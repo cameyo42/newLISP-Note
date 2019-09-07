@@ -267,7 +267,7 @@ DOMANDE PER ASSUNZIONE DI PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   K punti più vicini - K Nearest points (LinkedIn)
   Ordinamento Colori (LeetCode)
   Unione di intervalli (Google)
-  Somma dei numeri unici
+  Somma dei numeri unici (Google)
 
 LIBRERIE
   Operazioni con i numeri complessi
@@ -286,7 +286,18 @@ NOTE LIBERE
   Chiusura transitiva e raggiungibilità in un grafo
   Stalin sort
   Sequenza triangolare
-
+  Vettore/lista di funzioni
+  Potenze di un numero
+  Coppie di primi gemelli
+  Radice quadrata intera
+  Numeri con tre divisori
+  Quadrati perfetti
+  Numeri di Carmichael
+  Numeri dispari differenza di quadrati
+  Numeri semiprimi
+  Zero? test
+  Numeri coprimi
+  
 APPENDICI
   Lista delle funzioni newLISP
   Sul linguaggio newLISP - FAQ (Lutz Mueller)

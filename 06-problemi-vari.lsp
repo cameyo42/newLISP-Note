@@ -2494,7 +2494,7 @@ Per spostare n dischi si richiede di compiere un'operazione elementare (spostame
 Questo algoritmo ha una complessità esponenziale.
 Si può dimostrare che la Torre di Hanoi è risolvibile per qualsiasi valore di "n".
 
-La seguente funzione risolve la torre di hanoi:
+La seguente funzione risolve il problema della torre di hanoi:
 
 (define (solve-hanoi n from to using)
   (cond ((> n 0)
@@ -4939,9 +4939,9 @@ Complessità temporale O(1).
 Ted Walther ha scritto una funzione più elegante:
 
 (define (digital_root n)
-    (+ 1 (% (- n 1) 9))
+    (+ 1 (% (- n 1) 9)))
 
-Vediamo la dimostrazione matematica.
+Vediamo adesso la dimostrazione matematica.
 
 Prendiamo un numero numero positivo N. Scrivendo N in termini di cifre abbiamo:
 
@@ -6199,4 +6199,34 @@ Proviamio con i dati del primo esempio:
 ;-> 9 311
 ;-> 10 375
 
+Sul forum di newLISP, raph.ronnquist ha fornito la seguente funzione per creare polinomi:
+
+(define (make-poly coeff)
+  (let ((rank (length coeff))
+        (polyterm (fn (k) (case (dec rank)
+                                (0 k)
+                                (1 (list 'mul 'x k))
+                                (true (list 'mul (list 'pow 'x rank) k))))))
+    (push (cons 'add (reverse (map polyterm coeff))) (copy '(fn (x))) -1)))
+
+(setq poly3 (make-poly '(4 5 7 10)))
+;-> (lambda (x) (add 10 (mul x 7) (mul (pow x 2) 5) (mul (pow x 3) 4)))
+
+Sul forum di newLISP, rickyboy ha fornito la seguente funzione per creare polinomi con la regola di Horner:
+
+(define (make-poly-horner coeffs)
+  (push (if (< (length coeffs) 2)
+            (first coeffs)
+          (apply (fn (acc c)
+                   (list 'add c (cons 'mul (list 'x acc))))
+                 coeffs
+                 2))
+        (copy '(fn (x)))
+        -1))
+
+(setq poly4 (make-poly-horner '(3 7 5)))
+;-> (lambda (x) (add 5 (mul x (add 7 (mul x 3)))))
+
+(poly4 0)
+;-> 5
 
