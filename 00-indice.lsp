@@ -297,6 +297,8 @@ NOTE LIBERE
   Numeri semiprimi
   Zero? test
   Numeri coprimi
+  Operazioni su elementi consecutivi di una lista
+  Fattorizzazione di un numero intero (big integer)
   
 APPENDICI
   Lista delle funzioni newLISP

@@ -297,6 +297,8 @@ NOTE LIBERE
   Numeri semiprimi
   Zero? test
   Numeri coprimi
+  Operazioni su elementi consecutivi di una lista
+  Fattorizzazione di un numero intero (big integer)
   
 APPENDICI
   Lista delle funzioni newLISP
@@ -29127,6 +29129,264 @@ Ottimizziamo un pò la funzione "farey":
 ;-> 6469.966
 
 Le due funzioni hanno la stessa velocità.
+
+
+-----------------------------------------------
+Operazioni su elementi consecutivi di una lista
+-----------------------------------------------
+
+Supponiamo di voler calcolare la differenza tra gli elementi consecutivi della seguente lista: (7 11 13 17 19 23 29 31 37)
+
+(setq a '(7 11 13 17 19 23 29 31 37))
+
+(define (dist-lst lst) (map - (rest lst) (chop lst)))
+
+(dist-lst a)
+;-> (4 2 4 2 4 6 2 6)
+
+(11 - 7 = 4) (13 - 11 = 2) (17 - 13 = 4)...(37 - 31 = 6)
+
+Possiamo generalizzare la funzione per utilizzare anche altri operatori:
+
+(define (calc-lst lst func ) (map func (rest lst) (chop lst)))
+
+(calc-lst a +)
+;-> (18 24 30 36 42 52 60 68)
+
+(11 + 7 = 18) (13 + 11 = 24) (17 + 13 = 30)...(37 + 31 = 68)
+
+Possiamo generalizzare ancora la funzione permettendo di stabilire l'ordine degli operandi. Quando il parametro rev vale true, allora viene effettuata l'operazione (el(n) func el(n+1)), altrimenti viene effettuata l'operazione (el(n+1) func el(n))
+
+(define (calc-lst lst func rev)
+  (if rev
+      (map func (chop lst) (rest lst))
+      (map func (rest lst) (chop lst))))
+
+(calc-lst a -)
+;-> (4 2 4 2 4 6 2 6)
+
+(calc-lst a - true)
+;-> (-4 -2 -4 -2 -4 -6 -2 -6)
+
+(7 - 11 = -4) (11 - 13 = -2) (13 - 17 = -4)...(31 - 37 = -6)
+
+
+-------------------------------------------------
+Fattorizzazione di un numero intero (big integer)
+-------------------------------------------------
+
+La fattorizzazione a ruota è un miglioramento del metodo della divisione di prova per la fattorizzazione a numeri interi.
+
+Il metodo della divisione di prova consiste nel dividere il numero da fattorizzare successivamente per i primi numeri interi (2, 3, 4, 5, ...) fino a trovare un divisore. Con la fattorizzazione a ruota, si parte da una lista (base) dei primi numeri primi. Quindi si genera l'elenco, chiamato la ruota, degli interi che sono coprimi con tutti i numeri della base. Quindi, per trovare il divisore più piccolo del numero da fattorizzare, lo si divide in successione per i numeri nella base e nella ruota.
+
+Con la base {2, 3}, questo metodo riduce il numero di divisioni a 1/3 <34% del numero necessario per la divisione di prova. Basi più grandi riducono ulteriormente questa proporzione. Ad esempio, con base da {2, 3, 5} a 8/30 <27%, mentre con una base da {2, 3, 5, 7} a 48/210 <23%.
+
+Esempio
+
+Con la base dei primi 3 numeri primi {2, 3, 5}, il "primo giro" della ruota è costituito da:
+
+7, 11, 13, 17, 19, 23, 29, 31.
+
+Il secondo giro si ottiene aggiungendo il prodotto della base 2 * 3 * 5 = 30, ai numeri del primo giro. Il terzo giro si ottiene aggiungendo 30 al secondo giro e così via.
+Da notare che gli incrementi tra due elementi consecutivi della ruota, cioè
+
+dist = [4, 2, 4, 2, 4, 6, 2, 6],
+
+rimangono gli stessi dopo ogni giro.
+
+Nota: (setq MAXINT 9223372036854775807)
+
+Scriviamo la funzione per fattorizzare un numero:
+
+(define (factorbig n)
+  (local (f k i dist out)
+    ; distanze tra due elementi consecutivi della ruota (wheel)
+    (setq dist '(0 4 2 4 2 4 6 2 6))
+    (setq out '())
+    (while (zero? (% n 2))
+      (push '2L out -1)
+      (setq n (/ n 2)))
+    (while (zero? (% n 3))
+      (push '3L out -1)
+      (setq n (/ n 3)))
+    (while (zero? (% n 5))
+      (push '5L out -1)
+      (setq n (/ n 5)))
+    (setq k 7L i 1)
+    (while (<= (* k k) n)
+      (if (zero? (% n k))
+        (begin
+        (push k out -1)
+        (setq n (/ n k)))
+        (begin
+        (setq k (+ k (dist i)))
+        (if (< i 8) (++ i) (setq i 1)))
+      )
+    )
+    (if (> n 1) (push (bigint n) out -1))
+    out
+  )
+)
+
+(factorbig 9223372036854775809L)
+;-> (3L 3L 3L 19L 43L 5419L 77158673929L)
+
+(time (factorbig 9223372036854775809L))
+;-> 50.947
+
+(apply * '(3L 3L 3L 19L 43L 5419L 77158673929L))
+;-> 9223372036854775809L
+
+Controlliamo se "factorbig" e "factor" producono lo stesso risultato (fino ad un milione):
+
+(= (map factorbig (sequence 2 1e6)) (map factor (sequence 2 1e6)))
+;-> true
+
+Proviamo con un numero di 20 cifre:
+
+(time (println (factorbig 92233720368547758091L)))
+;-> (7L 13L 1013557366687338001L)
+;-> 182879.379 ; 3 minuti e 2 secondi
+
+(apply * '(7L 13L 1013557366687338001L))
+;-> 92233720368547758091L
+
+Più è grande il valore dei fattori maggiore è il tempo di esecuzione.
+
+(time (println (factorbig 1013557366687338001L)))
+;-> (1013557366687338001L)
+;-> 179855.465 ; 3 minuti
+
+Invece nel seguente esempio il calcolo è immediato:
+
+2^64 = 18446744073709551616
+
+(setq d 18446744073709551616L)
+
+(factorbig d)
+;-> (2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L
+;->  2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L
+;->  2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L
+;->  2L 2L 2L 2L)
+
+Calcoliamo la differenza di velocità tra "factorbig" e "factor":
+
+(time (map factorbig (sequence 2 1e5)))
+;-> 1453.157
+
+(time (map factor (sequence 2 1e5)))
+;-> 78.108
+
+(time (map factorbig (sequence 2 1e6)))
+;-> 33469.801 ; 33 secondi
+
+(time (map factor (sequence 2 1e6)))
+;-> 1027.95
+
+La funzione integrata "factor" è molto più veloce, ma non funzione con i big integer.
+
+Possiamo migliorare le prestazioni della funzione utilizzando una base più grande:
+
+(2 3 5 7)
+
+Vediamo come calcolare la lista delle distanze. Prima occorre generare i numeri della ruota, cioè tutti gli interi coprimi con la base fino al numero (+ (* 2 3 5 7) 11) = 221
+
+Funzione per calcolare i coprimi:
+
+(define (coprimi? a b) (= (gcd a b) 1))
+
+Funzione che verifica se un numero appartiene alla ruota:
+
+(define (wheel7 n) (and (coprimi? n 2) (coprimi? n 3) (coprimi? n 5) (coprimi? n 7)))
+
+Funzioneche crea la ruota dei numeri:
+
+(define (dowheel7)
+  (let (out '())
+    (for (i 2 221) (if (wheel7 i) (push i out -1)))
+  )
+)
+
+(dowheel7)
+;-> (11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71 73 79 83 89 97 101 103 107 109 113
+;->  121 127 131 137 139 143 149 151 157 163 167 169 173 179 181 187 191 193 197 199
+;->  209 211 221)
+
+Per calcolare le distanze tra due elementi consecutivi della ruota usiamo la seguente funzione:
+
+(define (creadist lst) (map - (rest lst) (chop lst)))
+
+(creadist (dowheel7))
+;-> (2 4 2 4 6 2 6 4 2 4 6 6 2 6 4 2 6 4 6 8 4 2 4 2 4 8 6 4 6 2 4 6 2 6 6 4 2 4 6 2
+;-> 6 4 2 4 2 10 2 10)
+
+Adesso possiamo scrivere la nuova funzione di fattorizzazione con base (2 3 5 7):
+
+(define (factorbig n)
+  (local (f k i dist out)
+    ; Distanze tra due elementi consecutivi della ruota (wheel)
+    (setq dist (array 48 '(2 4 2 4 6 2 6 4 2 4 6 6 2 6 4 2 6 4
+                           6 8 4 2 4 2 4 8 6 4 6 2 4 6 2 6 6 4
+                           2 4 6 2 6 4 2 4 2 10 2 10)))
+    (setq out '())
+    (while (zero? (% n 2)) (push '2L out -1) (setq n (/ n 2)))
+    (while (zero? (% n 3)) (push '3L out -1) (setq n (/ n 3)))
+    (while (zero? (% n 5)) (push '5L out -1) (setq n (/ n 5)))
+    (while (zero? (% n 7)) (push '7L out -1) (setq n (/ n 7)))
+    (setq k 11L i 0)
+    (while (<= (* k k) n)
+      (if (zero? (% n k))
+        (begin
+        (push k out -1)
+        (setq n (/ n k)))
+        (begin
+        ;(++ k (dist i))
+        (setq k (+ k (dist i)))
+        (if (< i 47) (++ i) (setq i 0)))
+      )
+    )
+    (if (> n 1) (push (bigint n) out -1))
+    out
+  )
+)
+
+(factorbig 9223372036854775809L)
+;-> (3L 3L 3L 19L 43L 5419L 77158673929L)
+
+(time (factorbig 9223372036854775809L))
+;-> 46.875
+
+(apply * '(3L 3L 3L 19L 43L 5419L 77158673929L))
+;-> 9223372036854775809L
+
+Controlliamo se "factorbig" e "factor" producono lo stesso risultato (fino ad un milione):
+
+(= (map factorbig (sequence 2 1e5)) (map factor (sequence 2 1e5)))
+;-> true
+(= (map factorbig (sequence 2 1e6)) (map factor (sequence 2 1e6)))
+;-> true
+
+Proviamo con un numero di 20 cifre:
+
+(time (println (factorbig 92233720368547758091L)))
+;-> (7L 13L 1013557366687338001L)
+;-> 150515.93
+
+Questa funzione "factorbig" impiega 30 secondi in meno di quella precedente (con la base (2 3 5) la funzione impiegava 180 secondi).
+
+Calcoliamo la differenza di velocità tra "factorbig" e "factor":
+
+(time (map factorbig (sequence 2 1e5)))
+;-> 1406.559
+
+(time (map factor (sequence 2 1e5)))
+;-> 78.108
+
+(time (map factorbig (sequence 2 1e6)))
+;-> 28834.221 ; 29 secondi
+
+(time (map factor (sequence 2 1e6)))
+;-> 1027.95
 
 ===========
 
