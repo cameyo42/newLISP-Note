@@ -279,6 +279,9 @@ LIBRERIE
 NOTE LIBERE
   Perchè newLISP?
   newLISP facile
+  Commentare righe di codice
+  Controllare l'output della REPL (prettyprint)
+  File e cartelle
   Funzioni e liste
   4-4 Puzzle
   Il primo Primo
@@ -299,6 +302,7 @@ NOTE LIBERE
   Numeri coprimi
   Operazioni su elementi consecutivi di una lista
   Fattorizzazione di un numero intero (big integer)
+  Problema della segretaria
   
 APPENDICI
   Lista delle funzioni newLISP

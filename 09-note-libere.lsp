@@ -69,6 +69,177 @@ Il primo elemento della lista è "speciale" (funzione).
 Il resto della lista sono "normali" (argomenti).
 Tutte le liste vengono valutate tranne quelle quotate.
 
+--------------------------
+Commentare righe di codice
+--------------------------
+
+Per commentare una singola riga utilizzare il carattere ";" ad inizio riga:
+
+;  (println 1 { })
+
+Per commentare una sezione di codice (gruppo di righe) racchiudere la sezione con le parole "[text]" e "[/text]":
+
+[text]
+  (print 3 { })
+  (print 4 { })
+[/text]
+
+(define (test)
+;  (println 1 { })
+  (print 2 { })
+  [text]
+  (print 3 { })
+  (print 4 { })
+  [/text]
+  (println 5 { })
+)
+
+(test)
+;-> 2 5
+
+Per commentare una sezione di codice (gruppo di righe) racchiudere la sezione con i caratteri"{" e "}"
+
+(define (test1)
+;  (println 1 { })
+  (print 2 { })
+{
+  (print 3 { })
+  (print 4 { })
+}
+  (println 5 { })
+)
+
+(test1)
+;-> 2 5
+
+Il risultato è corretto, ma perdiamo il match visivo con le parentesi "{" "}" che si trovano nella sezione commentata. Per risolvere il problema usiamo il carattere doppio apice al posto delle parentesi graffe.
+
+(define (test2)
+;  (println 1 " ")
+  (print 2 " ")
+{
+  (print 3 " ")
+  (print 4 " ")
+}
+  (println 5 " ")
+)
+
+
+---------------------------------------------
+Controllare l'output della REPL (prettyprint)
+---------------------------------------------
+
+*************************
+>>>funzione PRETTY-PRINT
+*************************
+sintassi: (pretty-print [int-length [str-tab [str-fp-format]])
+
+Riformatta le espressioni per la stampa, il salvataggio o il sorgente e quando si stampa in una console interattiva (REPL). Il primo parametro, int-length, specifica la lunghezza massima della linea e str-tab specifica la stringa utilizzata per indentare le linee. Il terzo parametro str-fp-format descrive il formato predefinito per la stampa di numeri in virgola mobile. Tutti i parametri sono opzionali. pretty-print restituisce le impostazioni correnti o le nuove impostazioni quando vengono specificati i parametri.
+
+(pretty-print)  → (80 " " "%1.15g")  ; default setting
+
+(pretty-print 90 "\t")  → (90 "\t" "%1.15g")
+
+(pretty-print 100)  → (100 "\t" "%1.15g") 
+
+(sin 1)    → 0.841470984807897 
+(pretty-print 80 " " "%1.3f")
+(sin 1)    → 0.841
+
+(set 'x 0.0)
+x   → 0.000
+
+Il primo esempio riporta le impostazioni predefinite di 80 colonne per la lunghezza massima della linea e uno spazio per il rientro. Il secondo esempio modifica la lunghezza della linea in 90 e il rientro in un carattere TAB. Il terzo esempio modifica solo la lunghezza della linea. L'ultimo esempio modifica il formato predefinito per i numeri in virgola mobile. Ciò è utile quando si stampano numeri in virgola mobile non formattati senza parti frazionarie e questi numeri dovrebbero essere comunque riconoscibili come numeri in virgola mobile. Senza il formato personalizzato, x verrebbe stampato come 0 indistinguibile dal numero in virgola mobile. Sono interessate tutte le situazioni in cui sono stampati numeri in virgola mobile non formattati.
+
+Si noti che pretty-print non può essere utilizzato per impedire la stampa di interruzioni di riga. Per sopprimere completamente la stampa "pretty print", utilizzare la funzione string per convertire l'espressione in una stringa raw non formattata come nell'esempio seguente:
+
+;; print without formatting
+
+(print (string my-expression))	
+
+Esempio base:
+
+(pretty-print)
+;-> (80 " " "%1.16g")
+
+(pretty-print 70 " " "%1.16g")
+;-> (70 " " "%1.16g")
+
+
+----------------
+File e cartelle
+----------------
+
+Cartella --> Directory o Folder
+
+Per vedere la cartella corrente della REPL di newLISP:
+
+!cd
+;-> f:\Lisp-Scheme\newLisp\MAX
+
+Per cambiare la cartella corrente della REPL di newLISP:
+
+(change-dir "c:\\util")
+;-> true
+
+(change-dir "c:/util")
+;-> true
+
+Verifichiamo:
+
+!cd 
+;-> c:\\util
+
+Ritorniamo alla cartella precedente:
+
+(change-dir "f:\\Lisp-Scheme\\newLisp\\MAX")
+;-> true
+
+(change-dir "f:/Lisp-Scheme/newLisp/MAX")
+;-> true
+
+Vediamo ora alcune funzioni per stampare la lista dei file e delle cartelle.
+
+"show-tree" mostra tutti i file e le cartelle ricorsivamente:
+
+(define (show-tree dir)
+  (dolist (nde (directory dir))
+    (if (and (directory? (append dir "/" nde)) (!= nde ".") (!= nde ".."))
+          (show-tree (append dir "/" nde))
+          (println (append dir "/" nde)))))
+
+(show-tree "c:\\")
+
+(show-tree "c:/")
+
+(env "newLISPDIR")
+;-> "C:\\newlisp"
+
+(show-tree (env "newLISPDIR")) ;; also works on Win32
+
+"show-dir" mostra cartelle dalla cartella corrente:
+
+(define (show-dir dir)
+  (dolist (nde (directory dir))
+    (if (and (directory? (append dir "/" nde)) (!= nde ".") (!= nde ".."))
+          (if (directory? (append dir "/" nde))
+            (println (append dir "/" nde))))))
+
+(show-dir (env "newLISPDIR"))
+
+"show-file" mostra file e cartelle dalla cartella corrente:
+
+(define (show-file dir)
+  (dolist (nde (directory dir))
+    (println (append dir "/" nde))))
+
+(show-file (env "newLISPDIR"))
+
+(show-file "c:\\")
+
+(show-file "C:\\newlisp\\util")
+(show-file "C:/newlisp/util")
+
 
 ----------------
 Funzioni e liste
@@ -1946,7 +2117,7 @@ Funzione che verifica se un numero appartiene alla ruota:
 
 (define (wheel7 n) (and (coprimi? n 2) (coprimi? n 3) (coprimi? n 5) (coprimi? n 7)))
 
-Funzioneche crea la ruota dei numeri:
+Funzione che crea la ruota dei numeri:
 
 (define (dowheel7)
   (let (out '())
@@ -2034,4 +2205,268 @@ Calcoliamo la differenza di velocità tra "factorbig" e "factor":
 
 (time (map factor (sequence 2 1e6)))
 ;-> 1027.95
+
+
+-------------------------
+Problema della segretaria
+-------------------------
+
+Il problema della segretaria è un problema che dimostra uno scenario che coinvolge la teoria dell'arresto ottimale.
+La forma base del problema è la seguente: immagina un amministratore che vuole assumere la miglior segretaria da n candidate. Le candidate vengono intervistate una per una in ordine casuale. Una decisione su ciascuna candidata particolare deve essere presa immediatamente dopo il colloquio. Una volta respinta, una candidata non può essere richiamata. Durante il colloquio, l'amministratore ottiene informazioni sufficienti per classificare con un punteggio la candidata. La domanda riguarda la strategia ottimale (regola di arresto) per massimizzare la probabilità di selezionare la miglior candidata. Se la decisione può essere rinviata alla fine, allora la scelta viene fatta al termine di tutti i colloqui, selezionando la candidata con il punteggio maggiore. La difficoltà è che la decisione deve essere presa immediatamente: la candidata deve essere presa o scartata.
+
+La probabilità di vincita ottimale è sempre almeno 1/e (dove e è la base del logaritmo naturale). La regola di arresto ottimale prescrive sempre di rifiutare le prime n/e candidate che vengono intervistate e quindi fermarsi alla prima candidata che è migliore di tutti le candidate intervistate finora (o si continua fino all'ultima candidata se ciò non si verifica mai). A volte questa strategia è chiamata regola di arresto 1/e , perché la probabilità di fermarsi alla migliore candidata con questa strategia è circa 1/e già per valori piccoli n. Il metodo per la soluzione del problema (la regola di arresto) è semplice e seleziona la migliore candidata circa il 37% delle volte, indipendentemente dal fatto che ci siano 100 o 100 milioni di candidate.
+
+Sebbene ci siano molte varianti, il problema di base può essere definito come segue:
+
+1) C'è una singola posizione da riempire.
+2) Ci sono n candidate per la posizione e il valore di n è noto.
+3) Le candidate, se viste complessivamente, possono essere classificate dalla migliore alla peggiore in modo inequivocabile.
+4) I punteggi relativi alle valutazioni devono essere tutti diversi.
+5) Le candidate vengono intervistate in sequenza in ordine casuale.
+6) Immediatamente dopo un colloquio, la candidata intervistata viene accettata o respinta e la decisione è irrevocabile.
+7) La decisione di accettare o respingere una candidata si basa solo sui punteggi delle candidate intervistate finora.
+
+L'obiettivo della soluzione generale è trovare un metodo che renda massima probabilità di selezionare il miglior candidato dell'intero gruppo.
+
+La politica ottimale per il problema è una regola di arresto. Con questa, l'intervistatore rifiuta le prime (r - 1) (considerando che la candidata M abbia il miglior punteggio tra queste (r - 1) candidate), quindi seleziona, tra le candidate successive, la prima candidata che ha un punteggio migliore della candidata M. Si può dimostrare che la strategia ottimale sta in questa classe di strategie. Con un taglio arbitrario r, la probabilità che sia selezionato il miglior richiedente vale:
+
+P(r) = (r - 1)/n * sum[i=1...i=n] 1/(i-1)
+
+Definiamo una funzione per calcolare questo valore:
+
+(define (P r n)
+  (local (somma out)
+    (setq out 0)
+    (if (= r 1) (setq out (div 1 n))
+        (begin
+          (setq somma 0)
+          (for (i r n)
+            (setq somma (add somma (div 1 (sub i 1))))
+          )
+          (setq out (mul somma (div (sub r 1) n)))
+        )
+    )
+  out
+  )
+)
+
+(P 1 1)
+;-> 1
+
+(P 1 2)
+;-> 0.5
+
+(P 2 3)
+;-> 0.5
+
+(P 3 5)
+;-> 0.4333333
+
+(P 37 100)
+;-> 0.371014595504193
+
+La teoria afferma che il taglio ottimo vale n/e
+
+(div 1 (exp 1))
+;-> 0.3678794411714423
+
+Proviamo con un esempio per capire come funziona.
+
+Abbiamo 100 candidati con punteggi variabili da 1 a 100:
+
+(setq cand (randomize (sequence 0 99)))
+;-> (76 64 72 83 55 63 29 95 89 74 61 71 60 49 3 8 2 58
+;->  53 98 24 15 38 69 43 94 39 8 21 5 19 41 80 59 20 44
+;->  28 82 73 7 75 36 77 14 79 25 67 11 85 9 47 32 16 88
+;->  12 90 17 0 91 46 26 93 99 35 18 37 13 42 22 50 66 52
+;->  96 97 48 62 51 4 70 45 87 6 92 4 27 65 54 23 34 86 31
+;->  1 33 30 78 57 40 56 10 81)
+
+La teoria afferma che il taglio ottimo vale n/e:
+
+(div 1 (exp 1))
+;-> 0.3678794411714423
+
+(setq taglio (round (div 100 (exp 1))))
+;-> 37
+
+Calcoliamo il punteggio massimo dal primo fino al taglio:
+(apply max (slice cand 0 taglio))
+;-> 98
+
+Quindi nelle rimanenti candidate (dal taglio alla fine della lista) troviamo la candidata con punteggio 99, che è la miglioer ed è quella che verrà selezionata.
+
+Adesso scriviamo una funzione che calcola la percentuale di successo (cioè quante volte selezioniamo la migliore candidata) con due parametri, il numero delle candidate n e il numero dei colloqui (cioè quante volte ripetiamo il test).
+
+(define (secretary n prove)
+  (local (cand taglio m1 m2 success found)
+    (setq success 0)
+    ;Definiamo il taglio
+    ; 1/e = (div 1 (exp 1))) = 0.3678794411714423
+    (setq taglio (round (div n (exp 1))))
+    (for (i 1 prove)
+      ; Generiamo la lista dei punteggi per le candidate
+      (setq cand (randomize (sequence 0 (- n 1))))
+      ;Calcoliamo il valore massimo FINO al taglio
+      (setq m1 (apply max (slice cand 0 taglio)))
+      ;Cerchiamo il primo valore > m1 dal resto della lista
+      ;se non esiste tale valore, allora m2 vale l'ultimo candidato
+      (setq m2 (last cand))
+      (setq found nil)
+      (dolist (el (slice cand taglio) found)
+        (if (> el m1) (setq m2 el found true))
+      )
+      ;se m2 > max allora abbiamo scelto la candidata migliore
+      ;(if (>= m2 (apply max cand) (++ success)))
+      ;se m2 = (n - 1) allora abbiamo scelto la candidata migliore
+      ;(if (= m2 (- n 1)) (++ success))
+      (if (= m2 (- n 1)) (++ success))
+    )
+    (div success prove)
+  )
+)
+
+(secretary 100 100)
+;-> 0.35
+
+(secretary 100 1000)
+;-> 0.365
+
+(secretary 100 10000)
+;-> 0.3668
+
+(secretary 100 100000)
+;-> 0.36995
+
+(time (println (secretary 1000 100000)))
+;-> 0.36794
+;-> 14018
+;-> 14018
+
+Quindi con il taglio ottimo selezioniamo la segretaria migliore il 37% delle volte.
+
+Adesso vogliamo verificare se il taglio ottimo n/e è veramente ottimo. Per fare questo scriviamo una funzione simile alla precedente, ma che utilizza il taglio dal 2% dei candidati al 98% dei candidati con passo dell'1%. Prima abbiamo bisogno di aggiungere il parametro percentuale (perc) alla funzione "secretary".
+
+(define (secretary1 n prove perc)
+  (local (cand taglio m1 m2 success found)
+    ; numero di successi
+    (setq success 0)
+    ;Definiamo il taglio
+    ; 1/e = (div 1 (exp 1))) = 0.3678794411714423
+    ;(setq taglio (round (mul n (div 1 (exp 1)))))
+    (setq taglio (round (mul n perc)))
+    (for (i 1 prove)
+      ; Generiamo la lista dei punteggi per le candidate
+      ; I punteggi devono essere tutti diversi
+      (setq cand (randomize (sequence 0 (- n 1))))
+      ;
+      ;Definiamo il taglio
+      ; 1/e = (div 1 (exp 1))) = 0.3678794411714423
+      ;(setq taglio (round (mul n (div 1 (exp 1)))))
+      ;
+      ;Calcoliamo il valore massimo FINO al taglio
+      (setq m1 (apply max (slice cand 0 taglio)))
+      ;Cerchiamo il primo valore > m1 dal resto della lista
+      ;se non esiste tale valore, allora m2 vale l'ultimo candidato
+      (setq m2 (last cand))
+      (setq found nil)
+      (dolist (el (slice cand taglio) found)
+        (if (> el m1) (setq m2 el found true))
+      )
+      ;se m2 > max allora abbiamo scelto la candidata migliore
+      ;(if (>= m2 (apply max cand) (++ success)))
+      ;se m2 = (n - 1) allora abbiamo scelto la candidata migliore
+      (if (= m2 (- n 1)) (++ success))
+    )
+    (div success prove)
+  )
+)
+
+Proviamo la funzione con il taglio ottimo:
+
+(secretary1 100 10000 0.37)
+;-> 0.3688
+
+Adesso scriviamo la funzione di test:
+
+(define (test numero try)
+  (let (out '())
+    (for (i 0.02 0.98 0.01)
+      (push (list i (secretary1 numero try i)) out -1)
+    )
+    out
+  )
+)
+
+(time (println (test 1000 100000)))
+;-> ((0.02 0.07912) (0.03 0.10446) (0.04 0.12815) (0.05 0.14926) (0.06 0.16773)
+;->  (0.07 0.18446) (0.08 0.19901) (0.09 0.21840) (0.10 0.23036) (0.11 0.24187)
+;->  (0.12 0.25638) (0.13 0.26558) (0.14 0.27721) (0.15 0.28404) (0.16 0.29332)
+;->  (0.17 0.30204) (0.18 0.30775) (0.19 0.31570) (0.20 0.32219) (0.21 0.32700)
+;->  (0.22 0.33187) (0.23 0.33872) (0.24 0.34584) (0.25 0.34686) (0.26 0.35190)
+;->  (0.27 0.35387) (0.28 0.35426) (0.29 0.35849) (0.30 0.36257) (0.31 0.36373)
+;->  (0.32 0.36782) (0.33 0.36693) (0.34 0.36981) (0.35 0.36654) (0.36 0.36841)
+;->  (0.37 0.36798) (0.38 0.37075) (0.39 0.36919) (0.40 0.37071) (0.41 0.36927)
+;->  (0.42 0.36649) (0.43 0.36714) (0.44 0.36583) (0.45 0.36196) (0.46 0.35700)
+;->  (0.47 0.35620) (0.48 0.35523) (0.49 0.35266) (0.50 0.34981) (0.51 0.34740)
+;->  (0.52 0.34153) (0.53 0.33946) (0.54 0.33874) (0.55 0.32996) (0.56 0.32723)
+;->  (0.57 0.32194) (0.58 0.31821) (0.59 0.31414) (0.60 0.31107) (0.61 0.30513)
+;->  (0.62 0.29896) (0.63 0.29224) (0.64 0.28734) (0.65 0.28199) (0.66 0.28114)
+;->  (0.67 0.26891) (0.68 0.26747) (0.69 0.25871) (0.70 0.25116) (0.71 0.24809)
+;->  (0.72 0.23956) (0.73 0.23304) (0.74 0.22672) (0.75 0.21875) (0.76 0.21029)
+;->  (0.77 0.20602) (0.78 0.19533) (0.79 0.18661) (0.80 0.18105) (0.81 0.17393)
+;->  (0.82 0.16428) (0.83 0.15788) (0.84 0.14896) (0.85 0.13921) (0.86 0.13023)
+;->  (0.87 0.12356) (0.88 0.11341) (0.89 0.10416) (0.90 0.09511) (0.91 0.08739)
+;->  (0.92 0.07860) (0.93 0.06842) (0.94 0.05824) (0.95 0.04976) (0.96 0.03982)
+;->  (0.97 0.03023) (0.98 0.01985))
+;-> 964754.466
+
+Come possiamo vedere, i risultati calcolati confermano la teoria, cioè il taglio ottimo è circa il 37%.
+
+Per definire meglio la validità del metodo sarebbe interessante vedere quanto siamo lontani dal punteggio massimo, quando non selezioniamo la segretaria migliore utilizxzando il taglio ottimo. Per fare questo modifichiamo la funzione "secretary":
+
+(define (secretary2 n prove)
+  (local (cand taglio m1 m2 success found delta)
+    (setq success 0)
+    (setq delta 0)
+    ;Definiamo il taglio
+    ; 1/e = (div 1 (exp 1))) = 0.3678794411714423
+    (setq taglio (round (div n (exp 1))))
+    (for (i 1 prove)
+      ; Generiamo la lista dei punteggi per le candidate
+      (setq cand (randomize (sequence 0 (- n 1))))
+      ;Calcoliamo il valore massimo FINO al taglio
+      (setq m1 (apply max (slice cand 0 taglio)))
+      ;Cerchiamo il primo valore > m1 dal resto della lista
+      ;se non esiste tale valore, allora m2 vale l'ultimo candidato
+      (setq m2 (last cand))
+      (setq found nil)
+      (dolist (el (slice cand taglio) found)
+        (if (> el m1) (setq m2 el found true))
+      )
+      ;se m2 > max allora abbiamo scelto la candidata migliore
+      ;(if (>= m2 (apply max cand) (++ success)))
+      ;se m2 = (n - 1) allora abbiamo scelto la candidata migliore
+      ;(if (= m2 (- n 1)) (++ success))
+      (if (= m2 (- n 1)) (++ success))
+      ;somma le distanze tra la candidata scelta e quella migliore
+      (setq delta (+ delta (- (- n 1) m2)))
+    )
+    (println (div success prove))
+    (println delta)
+    (div delta prove)
+  )
+)
+
+(secretary2 100 100000)
+;-> 0.37281  ; percentuale di successo
+;-> 1888047  ; totale distanze
+;-> 18.88047 ; distanza media
+
+(secretary2 1000 100000)
+;-> 0.37051   ; percentuale di successo
+;-> 18267139  ; totale distanze
+;-> 182.67139 ; distanza media
+
+Con questo metodo si seleziona una candidata che ha circa il 18% di punteggio inferiore alla candidata migliore (in media).
 

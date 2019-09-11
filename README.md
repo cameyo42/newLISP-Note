@@ -14,6 +14,6 @@ Appunti sul linguaggio newLISP
 06) Problemi vari (55)
 07) Domande per assunzione di programmatori (29)
 08) Librerie (4)
-09) Note libere (22)
+09) Note libere (26)
 10) Appendici
 11) Bibliografia

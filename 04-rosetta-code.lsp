@@ -563,8 +563,8 @@ Ordiniamo le frequenze:
 (define (comp x y) (>= (last x) (last y)))
 
 (sort (freq (funlist (sieve 1000000) -)) comp)
-;-> ((6 13549) (2 8169) (4 8143) (12 8005) (10 7079) (8 5569) 
-;->  (18 4909) (14 4233) (16 2881) (24 2682) (20 2401) (22 2172) 
+;-> ((6 13549) (2 8169) (4 8143) (12 8005) (10 7079) (8 5569)
+;->  (18 4909) (14 4233) (16 2881) (24 2682) (20 2401) (22 2172)
 ;->  (30 1914) (28 1234) (26 1175) (36 767)  (34 557)  (32 550)...
 ;->  ...(114 1))
 
@@ -1221,7 +1221,7 @@ Adesso scriviamo la funzione per trovare i numeri perfetti con il nostro algorit
 )
 
 (perfetti-primi)
-;-> 6L (2L), 28L (3L), 496L (5L), 8128L (7L), 33550336L (13L), 
+;-> 6L (2L), 28L (3L), 496L (5L), 8128L (7L), 33550336L (13L),
 ;-> 8589869056L (17L), 137438691328L (19L), nil
 
 (perfetto-fast? 2305843008139952128)
@@ -1477,7 +1477,7 @@ PERMUTAZIONI
     ((= (length lst) 1)(list lst))
     (true (apply append(map(lambda (i) (map (lambda (j)(cons i j))
                                             (permutations (remove i lst)))) lst)))))
-                                            
+
 (permutations '(1 2 3))
 ;-> ((1 2 3) (2 1 3) (2 3 1) (1 3 2) (3 1 2) (3 2 1))
 
@@ -3348,6 +3348,7 @@ Dense rank
 ;-> 4  39  Barry
 ;-> 4  39  Stephen
 
+
 -----------------
 LEGGE DI BENDFORD
 -----------------
@@ -4034,4 +4035,36 @@ pigrecoN = 3 + 4/(2*3*4) - 4/(4*5*6) + 4/(6*7*8) - 4/(8*9*10) + 4/(10*11*12) - (
 ;-> Con 400 termini PI vale:   3.141592657496.
 ;-> Con 500 termini PI vale:   3.141592655590.
 Valore reale pi greco:         3.141592653589
+
+Serie di Eulero:
+
+(pigreco^2)/6 = sum[1,∞] 1/(i*i)
+
+(define (pigrecoL iter)
+  (local (val i)
+      (setq i 1)
+      (setq val 0)
+      (while (<= i iter)
+        (setq val (add val (div 1 (mul i i))))
+        (if (= (% i 100000) 0)
+          (print (format "Iterazioni: %d   PI: %16.12f\n" i (sqrt (mul val 6))))
+        )
+        (++ i)
+      )
+      (sqrt (mul val 6))
+  )
+)
+
+(pigrecoL 1000000)
+Iterazioni: 100000   PI:   3.141583104326
+Iterazioni: 200000   PI:   3.141587878950
+Iterazioni: 300000   PI:   3.141589470495
+Iterazioni: 400000   PI:   3.141590266268
+Iterazioni: 500000   PI:   3.141590743732
+Iterazioni: 600000   PI:   3.141591062041
+Iterazioni: 700000   PI:   3.141591289405
+Iterazioni: 800000   PI:   3.141591459928
+Iterazioni: 900000   PI:   3.141591592557
+Iterazioni: 1000000  PI:   3.141591698661
+Valore reale pi greco:     3.141592653589
 
