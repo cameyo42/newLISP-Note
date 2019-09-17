@@ -2442,3 +2442,151 @@ Soluzione 2 (hashmap)
 La versione 2 (hashmap) è più lenta della versione 1, ma dovrebbe essere il contrario.
 Probabilmente occorre ottimizzare l'uso delle hashmap.
 
+
+-------------------------------------
+Unione di due liste ordinate (Google)
+-------------------------------------
+
+Unire due liste ordinate in una terza lista ordinata.
+
+Versione ricorsiva:
+
+(define (merge lstA lstB)
+  (define (loop result lstA lstB)
+    (cond ((null? lstA) (append (reverse result) lstB))
+          ((null? lstB) (append (reverse result) lstA))
+          ((< (first lstB) (first lstA))
+            (loop (cons (first lstB) result) lstA (rest lstB)))
+          (true
+            (loop (cons (first lstA) result) (rest lstA) lstB))))
+  (loop '() lstA lstB)
+)
+
+(setq A '(1 2 3 4 5 6 7 8))
+(setq B '(2 3 4 5 11 12 13))
+
+(merge A B)
+;-> (1 2 2 3 3 4 4 5 5 6 7 8 11 12 13)
+(merge B A)
+;-> (1 2 2 3 3 4 4 5 5 6 7 8 11 12 13)
+
+(setq A '(4 5 6 7 8 18 19))
+(setq B '(1 2 3 4 5 11 12 13))
+
+(merge A B)
+;-> (1 2 3 4 4 5 5 6 7 8 11 12 13 18 19)
+(merge B A)
+;-> (1 2 3 4 4 5 5 6 7 8 11 12 13 18 19)
+
+Ma la funzione produce un risultato errato se le liste sono ordinate in modo decrescente:
+
+(setq C '(4 3 2))
+(setq D '(8 5 3 1))
+
+(merge C D)
+;-> (4 3 2 8 5 3 1) ; errore
+
+Per ottenere il risultato corretto è sufficiente modificare l'operatore "<" nella riga:
+
+((< (first rhs) (first lhs))
+
+con l'operatore ">":
+
+((> (first rhs) (first lhs))
+
+Definiamo una funzione in cui l'operatore è un parametro della funzione:
+
+(define (merge lstA lstB op)
+  (define (ciclo out lstA lstB)
+    (cond ((null? lstA) (extend (reverse out) lstB))
+          ((null? lstB) (extend (reverse out) lstA))
+          ((op (first lstB) (first lstA))
+            (ciclo (cons (first lstB) out) lstA (rest lstB)))
+          (true
+            (ciclo (cons (first lstA) out) (rest lstA) lstB))))
+  (ciclo '() lstA lstB)
+)
+
+Per liste ordinate crescenti:
+
+(merge A B <)
+;-> (1 2 3 4 4 5 5 6 7 8 11 12 13 18 19)
+(merge B A <)
+;-> (1 2 3 4 4 5 5 6 7 8 11 12 13 18 19)
+
+Per liste ordinate decrescenti:
+
+(merge C D >)
+;-> (8 5 4 3 3 2 1)
+(merge D C >)
+;-> (8 5 4 3 3 2 1)
+
+Da notare che questa versione ricorsiva produce un errore di stack overflow anche con valori non molto grandi (> 1000):
+
+(merge (sequence 1 1000) (sequence 1 1000) <)
+;-> ERR: call or result stack overflow in function < : first
+;-> called from user function (loop (cons (first rhs) result) lhs (rest rhs))
+
+Versione iterativa:
+
+(define (merge-i lstA lstB op)
+  (local (i j out)
+    (setq i 0 j 0 out '())
+    ; attraversiamo entrambe le liste
+    (while (and (< i (length lstA)) (< j (length lstB)))
+      ; troviamo l'elemento minore/maggiore
+      ; tra gli elementi correnti delle due liste.
+      ; Aggiungiamo l'elemento alla lista out
+      ; e incrementiamo l'indice della lista corrispondente
+      (if (op (lstA i) (lstB j))
+        (begin (push (lstA i) out -1) (++ i))
+        (begin (push (lstB j) out -1) (++ j))
+      )
+    )
+    ; Aggiungiamo gli elementi rimanenti della lista lstA (veloce)
+    (if (< i (length lstA))
+      (extend out (slice lstA i))
+    )
+    ; Aggiungiamo gli elementi rimanenti della lista lstA (lenta)
+    ;(while (< i (length lstA))
+    ;  (push (lstA i) out -1)
+    ;  (++ i)
+    ;)
+    ; Aggiungiamo gli elementi rimanenti della lista lstB (veloce)
+    (if (< j (length lstB))
+      (extend out (slice lstB j))
+    )    
+    ; Aggiungiamo gli elementi rimanenti della lista lstB (lenta)
+    ;(while (< j (length lstB))
+    ;  (push (lstB j) out -1)
+    ;  (++ j)
+    ;)
+    out
+  )
+)
+
+(setq A '(1 2 3 4 5 6 7 8))
+(setq B '(2 3 4 5 11 12 13))
+
+(merge-i A B <)
+;-> (1 2 2 3 3 4 4 5 5 6 7 8 11 12 13)
+(merge-i B A <)
+;-> (1 2 2 3 3 4 4 5 5 6 7 8 11 12 13)
+
+(setq C '(4 3 2))
+(setq D '(8 5 3 1))
+
+(merge-i C D >)
+;-> (8 5 4 3 3 2 1)
+(merge-i D C >)
+;-> (8 5 4 3 3 2 1)
+
+Vediamo la differenza di velocità tra le due funzioni:
+
+(time (merge (sequence 1 500) (sequence 1 200) <) 500)
+;-> 1751.43
+
+(time (merge-i (sequence 1 500) (sequence 1 200) <) 500)
+;-> 474.117
+
+La versione iterativa è circa 3.5 volte più veloce.

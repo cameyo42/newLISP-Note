@@ -74,7 +74,7 @@ Altro metodo (più veloce) per definire le funzioni "pari " e "dispari":
 Crono
 -----
 
-Definiamo una funzione che prende un numero come argomento e costruisce una lista con tutti i numeri dall'argomento fino a 1 in ordine decrescente:
+Definiamo una funzione che prende un numero n come argomento e costruisce una lista con tutti i numeri da n fino a 1 in ordine decrescente:
 
 (define (crono n)
   (if (<= n 0)

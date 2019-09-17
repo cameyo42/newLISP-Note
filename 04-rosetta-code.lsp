@@ -4056,15 +4056,85 @@ Serie di Eulero:
 )
 
 (pigrecoL 1000000)
-Iterazioni: 100000   PI:   3.141583104326
-Iterazioni: 200000   PI:   3.141587878950
-Iterazioni: 300000   PI:   3.141589470495
-Iterazioni: 400000   PI:   3.141590266268
-Iterazioni: 500000   PI:   3.141590743732
-Iterazioni: 600000   PI:   3.141591062041
-Iterazioni: 700000   PI:   3.141591289405
-Iterazioni: 800000   PI:   3.141591459928
-Iterazioni: 900000   PI:   3.141591592557
-Iterazioni: 1000000  PI:   3.141591698661
-Valore reale pi greco:     3.141592653589
+;-> Iterazioni: 100000   PI:   3.141583104326
+;-> Iterazioni: 200000   PI:   3.141587878950
+;-> Iterazioni: 300000   PI:   3.141589470495
+;-> Iterazioni: 400000   PI:   3.141590266268
+;-> Iterazioni: 500000   PI:   3.141590743732
+;-> Iterazioni: 600000   PI:   3.141591062041
+;-> Iterazioni: 700000   PI:   3.141591289405
+;-> Iterazioni: 800000   PI:   3.141591459928
+;-> Iterazioni: 900000   PI:   3.141591592557
+;-> Iterazioni: 1000000  PI:   3.141591698661
+Valore reale pi greco:         3.141592653589
+
+
+---------------
+NUMERI DI LUCAS
+---------------
+
+I numeri di Lucas sono simili ai numeri di Fibonacci. I numeri di Lucas sono definiti come la somma dei suoi due termini immediatamente precedenti. Ma qui i primi due termini sono 2 e 1 mentre nei numeri di Fibonacci i primi due termini sono rispettivamente 0 e 1.
+
+Matematicamente, i numeri di Lucas sono definiti come:
+
+ L(0) = 2
+ L(1) = 1
+ L(n) = L(n-2) + L(n-1), per n > 1.
+
+I primi numeri di Lucas sono i seguenti numeri interi:
+
+2, 1, 3, 4, 7, 11, 18, 29, 47, 76, 123, ...
+
+Scriviamo una funzione che restituisce l'ennesimo numero di Lucas.
+
+Versione ricorsiva:
+
+(define (lucas n)
+  (if (zero? n)
+      2
+      (if (= 1 n)
+      1
+      (+ (lucas (- n 1)) (lucas (- n 2))))))
+
+(map lucas (sequence 0 10))
+;-> (2 1 3 4 7 11 18 29 47 76 123)
+
+(lucas 30)
+;-> 1860498
+
+Versione iterativa:
+
+(define (lucas-i n)
+  (local (a b c)
+    (setq a 2 b 1)
+    (if (zero? n)
+        a
+        (if (= 1 n)
+            b
+            (for (i 2 n)
+              (setq c (+ a b))
+              (setq a b)
+              (setq b c)
+            )
+        )
+    )
+  )
+)
+
+(map lucas-i (sequence 0 10))
+;-> (2 1 3 4 7 11 18 29 47 76 123)
+
+(lucas-i 30)
+;-> 1860498
+
+Vediamo la differenza di velocità:
+
+(time (lucas 30))
+;-> 500.961
+
+(time (lucas-i 30))
+;-> 0
+
+La versione iterativa è molto più veloce della versione ricorsiva.
+Esistono algoritmi ancora più veloci per il calcolo dei numeri di Lucas che utilizzano le operazioni tra matrici.
 

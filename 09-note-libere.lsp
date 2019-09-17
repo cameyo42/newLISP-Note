@@ -140,9 +140,9 @@ Riformatta le espressioni per la stampa, il salvataggio o il sorgente e quando s
 
 (pretty-print 90 "\t")  → (90 "\t" "%1.15g")
 
-(pretty-print 100)  → (100 "\t" "%1.15g") 
+(pretty-print 100)  → (100 "\t" "%1.15g")
 
-(sin 1)    → 0.841470984807897 
+(sin 1)    → 0.841470984807897
 (pretty-print 80 " " "%1.3f")
 (sin 1)    → 0.841
 
@@ -155,7 +155,7 @@ Si noti che pretty-print non può essere utilizzato per impedire la stampa di in
 
 ;; print without formatting
 
-(print (string my-expression))	
+(print (string my-expression))
 
 Esempio base:
 
@@ -187,7 +187,7 @@ Per cambiare la cartella corrente della REPL di newLISP:
 
 Verifichiamo:
 
-!cd 
+!cd
 ;-> c:\\util
 
 Ritorniamo alla cartella precedente:
@@ -821,6 +821,62 @@ Possiamo generalizzare la funzione per determinare se un numero m è potenza del
 (power-of-3? 847288609443)
 ;-> true
 
+Un altro metodo è quello di utilizzare i logaritmi. L'idea è di calcolare il logaritmo di y in base x. Se risulta essere un numero intero, allora il numero y è una potenza perfetta, altrimenti non lo è.
+Ricordiamo che matematicamente risulta:
+
+logb(x) = logc(x) / logc(b)
+
+E in newLISP la funzione "log" ha la seguente sintassi:
+
+(log num num-base)
+
+Quindi la funzione è la seguente:
+
+(define (ispower? x y) (= (log y x) (int (log y x))))
+
+(ispower? 2 16)
+;-> true
+
+(ispower? 3 81)
+;-> true
+
+
+Per finire, scriviamo una funzione che calcola se un numero intero n è potenza di un qualsiasi numero intero.
+Un numero n viene detto una potenza perfetta quando n = m^k è un numero intero e m>1 e k>=2.
+Consideriamo la fattorizzazione di un numero: n = p1^a1 * p2^a2 *...* pk^ak
+Il numero n è una potenza perfetta se e solo se (MCD a1 a2 ... ak) > 1
+
+La funzione "factor-exp-list" calcola la lista degli esponenti della fattorizzazione del numero x:
+
+(define (factor-exp-list x)
+  (if (= x 1) '(1)
+    (letn (fattori (factor x)
+           unici (unique fattori))
+       (count unici fattori))))
+
+1000 = 2^3 * 5^3
+(factor-exp-list 1000)
+;-> (3 3)
+
+Adesso possiamo scrivere la funzione "checkpower" che calcola se un numero è una potenza perfetta:
+
+(define (checkpower n)
+  (local (a out)
+    (if (> (setq a (apply gcd (factor-exp-list n))) 1)
+        (list (ceil (pow n (div 1 a))) a)
+        nil)))
+
+(checkpower (pow 3 12))
+;-> (3 12)
+
+(checkpower (pow 4 25))
+;-> (2 50)
+
+(checkpower (+ (pow 3 7) 1))
+;-> nil
+
+(checkpower 4096)
+;-> (2 12)
 
 -----------------------
 Coppie di primi gemelli
@@ -1075,7 +1131,7 @@ Primo metodo:
   )
 )
 
-(isqrt1 900) 
+(isqrt1 900)
 ;-> 30
 
 (isqrt1 899)
@@ -1087,7 +1143,7 @@ Primo metodo:
 (time (map isqrt1 (sequence 2 1e6)))
 ;-> 4980.122
 
-Test di correttezza: 
+Test di correttezza:
 
 (for (i 2 1e6) (if (!= (isqrt1 (* i i)) (sqrt (* i i))) (println "error: " (* i i)) ))
 ;-> nil
@@ -1170,7 +1226,7 @@ oppure:
     (setq end (bigint (/ n 2)))
     (while (and (<= start end) (= trovato nil))
       (setq mid (/ (+ start end) 2))
-      (if (= n (* mid mid)) 
+      (if (= n (* mid mid))
           (begin (setq out mid) (setq trovato true))
           (if (< (* mid mid) n)
             (begin (setq start (+ mid 1)) (setq out mid))
@@ -1197,7 +1253,7 @@ Test di correttezza:
 
 (for (i 2 1e6)
   (setq j (bigint i))
-  (if (!= (isqrt4 (* j j)) (sqrt (* j j))) 
+  (if (!= (isqrt4 (* j j)) (sqrt (* j j)))
     (begin (println "error: " (* j j)))))
 ;-> nil
 
@@ -1206,7 +1262,7 @@ Test di correttezza:
 Numeri con tre divisori
 -----------------------
 
-Trovare tutti i numeri fino al milione che hanno tre divisori. 
+Trovare tutti i numeri fino al milione che hanno tre divisori.
 Ad esempio, il numero 10 ha quattro divisori: 1, 2, 5 e 10.
 
 Scriviamo una funzione per calcolare i divisori di un numero N.
@@ -1237,7 +1293,7 @@ Scriviamo una funzione per calcolare i divisori di un numero N.
 Facciamo una prova per vedere quanto tempo occorre per trovare la soluzione:
 
 (define (prova n)
-  (for (i 2 n) 
+  (for (i 2 n)
     (if (= (length (divisori i)) 3) (println i { } (divisori i))))
 )
 
@@ -1259,7 +1315,7 @@ Vediamo quanti sono i numeri da ricercare:
 
 (define (prova1 n)
   (let (out 0)
-    (for (i 2 n) 
+    (for (i 2 n)
       (if (= (length (divisori i)) 3) (++ out)))
   out
   )
@@ -1287,7 +1343,7 @@ Riscriviamo la funzione per i divisori:
             )
         )
         (if (> num 2) (setq i m)) ;numero da scartare
-        (++ i) 
+        (++ i)
     )
     (++ num 1) ; il numero stesso
   )
@@ -1297,7 +1353,7 @@ Proviamo questa nuova funzione:
 
 (define (prova2 n)
   (let (out 0)
-    (for (i 2 n) 
+    (for (i 2 n)
       (if (= (numdiv3 i) 3) (++ out)))
   out
   )
@@ -1311,8 +1367,8 @@ Proviamo questa nuova funzione:
 
 Abbiamo ottenuto un buon miglioramento della velocità, ma possiamo fare meglio.
 
-I divisori vengono in coppie, quindi per la maggior parte dei numeri il conteggio dei divisori è un numero pari. Per esempio, i divisori di 24 sono 1 e 24, 2 e 12, 3 e 8, e 4 e 6, quindi 24 ha 8 divisori. 
-L'unica volta in cui un numero può avere un numero dispari di divisori è quando il numero è un quadrato perfetto. Ad esempio, i divisori di 36 sono 1 e 36, 2 e 18, 3 e 12, 4 e 9 e 6 e 6, gli ultimi due sono duplicati, quindi 36 ha 9 divisori. 
+I divisori vengono in coppie, quindi per la maggior parte dei numeri il conteggio dei divisori è un numero pari. Per esempio, i divisori di 24 sono 1 e 24, 2 e 12, 3 e 8, e 4 e 6, quindi 24 ha 8 divisori.
+L'unica volta in cui un numero può avere un numero dispari di divisori è quando il numero è un quadrato perfetto. Ad esempio, i divisori di 36 sono 1 e 36, 2 e 18, 3 e 12, 4 e 9 e 6 e 6, gli ultimi due sono duplicati, quindi 36 ha 9 divisori.
 E l'unica volta in cui un numero può avere 3 divisori è quando il numero è un quadrato di un numero primo. Ad esempio, i divisori di 25 sono 1, 5 e 25.
 
 Quindi possiamo modificare il ciclo for e controllare solo i numeri quadrati. In questo modo il valore di n passato alla funzione vale 1000, poichè 1000x1000 = 1000000 (un milione). Inoltre controlliamo solo i quadrati dei numeri dispari (perchè non esistono numeri primi pari oltre al numero 2).
@@ -1335,7 +1391,7 @@ Questo è un miglioramento enorme. Provamo a modificare la funzione per testare 
 
 (define (prova4 n)
   (let (out 1) ; il numero 4
-    (for (i 3 n 2) 
+    (for (i 3 n 2)
       (if (= (length (factor i)) 1) ; se il numero è primo...
         (if (= (numdiv3 (* i i)) 3) (++ out)))
     )
@@ -1355,7 +1411,7 @@ Scriviamo la funzione finale che ritorna una lista con tutti i numeri che hanno 
 
 (define (divisori3 n)
   (let (out '(4)); il numero 4
-    (for (i 3 n 2) 
+    (for (i 3 n 2)
       (if (= (length (factor i)) 1) ; se il numero è primo...
         (if (= (numdiv3 (* i i)) 3) (push (* i i) out -1)))
     )
@@ -1364,23 +1420,23 @@ Scriviamo la funzione finale che ritorna una lista con tutti i numeri che hanno 
 )
 
 (divisori3 1000)
-;-> (4 9 25 49 121 169 289 361 529 841 961 1369 1681 1849 2209 2809 
-;->  3481 3721 4489 5041 5329 6241 6889 7921 9409 10201 10609 11449 
-;->  11881 12769 16129 17161 18769 19321 22201 22801 24649 26569 
-;->  27889 29929 32041 32761 36481 37249 38809 39601 44521 49729 
-;->  51529 52441 54289 57121 58081 63001 66049 69169 72361 73441 
-;->  76729 78961 80089 85849 94249 96721 97969 100489 109561 113569 
-;->  120409 121801 124609 128881 134689 139129 143641 146689 151321 
-;->  157609 160801 167281 175561 177241 185761 187489 192721 196249 
-;->  201601 208849 212521 214369 218089 229441 237169 241081 249001 
-;->  253009 259081 271441 273529 292681 299209 310249 316969 323761 
-;->  326041 332929 344569 351649 358801 361201 368449 375769 380689 
-;->  383161 398161 410881 413449 418609 426409 434281 436921 452929 
-;->  458329 466489 477481 491401 502681 516961 528529 537289 546121 
-;->  552049 564001 573049 579121 591361 597529 619369 635209 654481 
-;->  657721 674041 677329 683929 687241 703921 727609 734449 737881 
-;->  744769 769129 776161 779689 786769 822649 829921 844561 863041 
-;->  877969 885481 896809 908209 935089 942841 954529 966289 982081 
+;-> (4 9 25 49 121 169 289 361 529 841 961 1369 1681 1849 2209 2809
+;->  3481 3721 4489 5041 5329 6241 6889 7921 9409 10201 10609 11449
+;->  11881 12769 16129 17161 18769 19321 22201 22801 24649 26569
+;->  27889 29929 32041 32761 36481 37249 38809 39601 44521 49729
+;->  51529 52441 54289 57121 58081 63001 66049 69169 72361 73441
+;->  76729 78961 80089 85849 94249 96721 97969 100489 109561 113569
+;->  120409 121801 124609 128881 134689 139129 143641 146689 151321
+;->  157609 160801 167281 175561 177241 185761 187489 192721 196249
+;->  201601 208849 212521 214369 218089 229441 237169 241081 249001
+;->  253009 259081 271441 273529 292681 299209 310249 316969 323761
+;->  326041 332929 344569 351649 358801 361201 368449 375769 380689
+;->  383161 398161 410881 413449 418609 426409 434281 436921 452929
+;->  458329 466489 477481 491401 502681 516961 528529 537289 546121
+;->  552049 564001 573049 579121 591361 597529 619369 635209 654481
+;->  657721 674041 677329 683929 687241 703921 727609 734449 737881
+;->  744769 769129 776161 779689 786769 822649 829921 844561 863041
+;->  877969 885481 896809 908209 935089 942841 954529 966289 982081
 ;->  994009)
 
 (length (divisori3 1000))
@@ -1634,7 +1690,7 @@ Scriviamo una funxione che controlla se un dato numero è un numero di Carmichae
     )
     out
   )
-)  
+)
 
 Scriviamo una funzione che calcola i numeri di Carmichael fino al numero n:
 
@@ -1707,7 +1763,7 @@ Numeri semiprimi
 
 Un numero semi-primo è un numero che è il prodotto di due numeri primi.
 Algoritmo:
-1) Trovare un divisore del numero d1. 
+1) Trovare un divisore del numero d1.
 2) Dividere il numero per d1 per ottenere un secondo divisore d2.
 3) Se d1 e d2 sono entrambi primi, allora il numero originale è semiprimo.
 4) ripetere 1), 2) e 3) per tutti i divisori del numero.
@@ -1750,7 +1806,7 @@ Scriviamo una funzione che calcola i numeri semiprimi fino a n:
 )
 
 (semiprimi 100)
-;-> (4 6 9 10 14 15 21 22 25 26 33 34 35 38 39 46 49 51 55 
+;-> (4 6 9 10 14 15 21 22 25 26 33 34 35 38 39 46 49 51 55
 ;->  57 58 62 65 69 74 77 82 85 86 87 91 93 94 95)
 
 (length (semiprimi 1000))
@@ -1776,7 +1832,7 @@ Per migliorare la velocità possiamo inglobare il controllo dei numeri primi all
 )
 
 (semiprimi 100)
-;-> (4 6 9 10 14 15 21 22 25 26 33 34 35 38 39 46 49 51 55 
+;-> (4 6 9 10 14 15 21 22 25 26 33 34 35 38 39 46 49 51 55
 ;->  57 58 62 65 69 74 77 82 85 86 87 91 93 94 95)
 
 (length (semiprimi 1000))
@@ -1858,7 +1914,7 @@ Due numeri a e b sono detti coprimi (o primi tra loro o relativamente primi) se 
 )
 
 (coprimi 10)
-;-> ((0 1) (1 1) (1 2) (1 3) (1 4) (1 5) (1 6) (1 7) (1 8) (1 9) 
+;-> ((0 1) (1 1) (1 2) (1 3) (1 4) (1 5) (1 6) (1 7) (1 8) (1 9)
 ;->  (1 10) (2 3) (2 5) (2 7) (2 9) (3 4) (3 5) (3 7) (3 8) (3 10)
 ;->  (4 5) (4 7) (4 9) (5 6) (5 7) (5 8) (5 9) (6 7) (7 8) (7 9)
 ;->  (7 10) (8 9) (9 10))
@@ -1873,7 +1929,7 @@ Teorema: Numeri naturali consecutivi n e (n + 1) sono sempre coprimi.
 Teorema: La probabilità che due interi scelti a caso siano primi tra loro è 6/(π^2).
 
 Un altro metodo per calcolare tutte le coppie di coprimi è quello di utilizzare la sequenza di Farey.
-La sequenza di Farey F(n), per ogni numero naturale positivo n, è definita come l'insieme ordinato secondo l'ordine crescente di tutti i numeri razionali irriducibili (cioè tali che numeratore e denominatore siano coprimi) espressi sotto forma di frazione con numeratore e denominatore compresi tra zero e n. 
+La sequenza di Farey F(n), per ogni numero naturale positivo n, è definita come l'insieme ordinato secondo l'ordine crescente di tutti i numeri razionali irriducibili (cioè tali che numeratore e denominatore siano coprimi) espressi sotto forma di frazione con numeratore e denominatore compresi tra zero e n.
 
 La seguente funzione genera la n-esima sequenza di Farey in ordine crescente o decrescente:
 
@@ -1900,7 +1956,7 @@ La seguente funzione genera la n-esima sequenza di Farey in ordine crescente o d
 ;-> ((0 1) (1 3) (1 2) (2 3) (1 1))
 
 (farey 10)
-;-> ((0 1) (1 10) (1 9) (1 8) (1 7) (1 6) (1 5) (2 9) (1 4) (2 7) 
+;-> ((0 1) (1 10) (1 9) (1 8) (1 7) (1 6) (1 5) (2 9) (1 4) (2 7)
 ;->  (3 10) (1 3) (3 8) (2 5) (3 7) (4 9) (1 2) (5 9) (4 7) (3 5)
 ;->  (5 8) (2 3) (7 10) (5 7) (3 4) (7 9) (4 5) (5 6) (6 7) (7 8)
 ;->  (8 9) (9 10) (1 1))
@@ -2207,6 +2263,72 @@ Calcoliamo la differenza di velocità tra "factorbig" e "factor":
 ;-> 1027.95
 
 
+------------------------------------------
+Potenza di due numeri interi (big integer)
+------------------------------------------
+
+Utilizziamo una soluzione ricorsiva per calcolare x^n usando il metodo divide & conquer:
+
+power(x, n) =     power(x, n/2) * power(x, n/2)     (se n è pari)
+power(x, n) = x * power(x, n/2) * power(x, n/2)     (se n è dispari)
+
+(define (power-i x n)
+  (cond ((zero? n) 1)
+        ((even? n) (power-i (* x x) (/ n 2)))
+        (true (* x (power-i (* x x) (/ (- n 1) 2))))))
+
+(power-i 3 7)
+;-> 2187
+
+(power-i -2 15)
+;-> -32768
+
+Il metodo può essere migliorato notando che calcoliamo due volte lo stesso sotto-problema (power (x, n/2) per ogni chiamata ricorsiva. Possiamo ottimizzare la funzione calcolando e memorizzando la soluzione del sotto-problema solo una volta.
+
+(define (power-i x n)
+  (local (pot out)
+    (if (zero? n)
+        (setq out 1L)
+        (begin
+          (setq pot (power-i x (/ n 2)))
+          (if (odd? n) (setq out (* x pot pot))
+                       (setq out (* pot pot)))
+        )
+    )
+    out
+  )
+)
+
+(power-i -2 15)
+;-> -32768
+
+Controllo se la soluzione genera gli stessi risultati della funzione built-in pow(n m):
+
+(for (i 1 15)
+  (for (j 1 15)
+    (if (!= (pow i j) (power-i i j))
+      (println "error: " i ", " j))
+  )
+)
+;-> nil
+
+(setq MAXINT 9223372036854775807)
+
+(power-i 10 53)
+;-> -8169529724050079744 ;errore di overflow
+
+Passando gli argomenti come big integer otteniamo il risultato corretto:
+
+(power-i 10L 53L)
+;-> 100000000000000000000000000000000000000000000000000000L
+
+(power-i 3L 8L)
+;-> 6561L
+
+Complessità temporale: O(log(n))
+
+Potete trovare un algoritmo più efficiente che utilizza il metodo delle "addiction chain" nel libro di Donald Knuth "The Art of Computer Programming".
+
 -------------------------
 Problema della segretaria
 -------------------------
@@ -2469,4 +2591,99 @@ Per definire meglio la validità del metodo sarebbe interessante vedere quanto s
 ;-> 182.67139 ; distanza media
 
 Con questo metodo si seleziona una candidata che ha circa il 18% di punteggio inferiore alla candidata migliore (in media).
+
+
+---------------------------------------------------
+Il loop implicito del linguaggio Scheme (named let)
+---------------------------------------------------
+
+La seguente funzione in linguggio Scheme converte un numero intero in una lista:
+
+(define (number->list n)
+  (let loop ((n n)
+             (acc '()))
+    (if (< n 10)
+        (cons n acc)
+        (loop (quotient n 10)
+              (cons (remainder n 10) acc)))))
+
+Viene definito un ciclo in cui la variabile n è uguale a n e la variabile acc è uguale all'elenco vuoto. Quindi se n è minore di 10, n viene inserito in acc. Altrimenti, "loop" viene applicato con n uguale a n/10 e acc uguale al cons del resto di n / 10 e della lista accumulata precedentemente, quindi chiama se stesso.
+L'idea alla base di let è che permette di creare una funzione interna, che può chiamare se stessa e invocarla automaticamente. Possiamo utilizzare questa idea per scrivere in newLISP una funzione simile:
+
+(define (number->list n)
+  ; definiamo la funzione "loop" (può avere qualunque nome)
+  (define (loop n acc)
+    (if (< n 10)
+        (cons n acc)
+        (loop (/ n 10) (cons (% n 10) acc))
+    )
+  )
+  ; chiamiamo la funzione "loop"
+  (loop n '())
+)
+
+(number->list '1234)
+;-> (1 2 3 4)
+
+Viene chiamato "loop" perché la funzione chiama se stessa dalla posizione di coda. Questo è noto come ricorsione di coda (tail recursion). In Scheme, con la ricorsione di coda, la chiamata ricorsiva ritorna direttamente al chiamante, quindi non è necessario mantenere il frame di chiamata corrente. È possibile eseguire la ricorsione della coda tutte le volte che si desidera senza causare un overflow dello stack. In newLISP non esiste l'ottimizzazione della ricorsione di coda, quindi dobbiamo stare molto attenti a non causare un errore di stack overflow quando usiamo la tecnica della ricorsione.
+
+
+------------------------------
+Brainfuck string encode/decode
+------------------------------
+
+Brainfuck è un linguaggio di programmazione esoterico, creato da Urban Müller nel 1993.
+
+Scrivere due funzioni che effettuano le seguenti operazioni:
+
+1) Input -> Stringa, Output -> Programma Brainfuck per stampare la stringa
+
+2) Input -> Programma Brainfuck per stampare la stringa, Output -> stringa
+
+Questa funzione prende una stringa e restituisce un programma (stringa) in linguaggio Brainfuck che stampa la stringa:
+
+(define (gen-bf str)
+  (let (o "")
+    (dolist (el (explode str))
+      (setq o (join (list o (dup "+" (char el)) ".[-]")))
+    )
+    ;(silent (println o))
+  )
+)
+
+(gen-bf "ciao")
+;-> "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++.[-]+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++.[-]+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++.[-]+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++.[-]"
+
+(gen-bf "newLISP")
+;-> "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++.[-]+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++.[-]+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++.[-]++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++.[-]+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++.[-]+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++.[-]++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++.[-]"
+
+Questa funzione prende un programma (stringa) in linguaggio Brainfuck che stampa la stringa e restituisce la stringa da stampare:
+
+(define (bf str)
+  (local (cc)
+    (setq cc 0)
+    (dolist (el (explode str))
+      ; conta i caratteri "+"
+      (if (= el "+") 
+          (++ cc)
+          ; e quando finiscono i "+", stampa il carattere relativo al numero dei "+"
+          (if (!= cc 0) (begin (print (char cc)) (setq cc 0)))
+      )    
+    )
+    (silent (print (format "\n%s " "stop.")))
+  )
+)
+
+(bf "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++.[-]+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++.[-]+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++.[-]+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++.[-]")
+;-> ciao
+;-> stop.
+
+(bf 
+"++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++.[-]+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++.[-]+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++.[-]++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++.[-]+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++.[-]+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++.[-]++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++.[-]")
+;-> newLISP
+;-> stop.
+
+(bf (gen-bf "Controllo funzioni"))
+;-> Controllo funzioni
+;-> stop.
 

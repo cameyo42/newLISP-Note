@@ -177,6 +177,7 @@ ROSETTA CODE
   Carte da gioco
   Generatore di password
   Calcolo di Pi greco
+  Numeri di Lucas
 
 PROJECT EULERO
   Problemi 1..50
@@ -268,6 +269,7 @@ DOMANDE PER ASSUNZIONE DI PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Ordinamento Colori (LeetCode)
   Unione di intervalli (Google)
   Somma dei numeri unici (Google)
+  Unione di due liste ordinate (Google)
 
 LIBRERIE
   Operazioni con i numeri complessi
@@ -302,7 +304,10 @@ NOTE LIBERE
   Numeri coprimi
   Operazioni su elementi consecutivi di una lista
   Fattorizzazione di un numero intero (big integer)
+  Potenza di due numeri interi (big integer)
   Problema della segretaria
+  Il loop implicito del linguaggio Scheme (named let)
+  Brainfuck string encode/decode
   
 APPENDICI
   Lista delle funzioni newLISP
