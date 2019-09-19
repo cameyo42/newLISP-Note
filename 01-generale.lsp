@@ -5319,3 +5319,4 @@ In definitiva abbiamo davvero 3 modalità:
 Con i contesti è un processo in due passaggi: il primo elimina i contenuti del contesto, il secondo elimina il simbolo del contesto.
 L'eliminazione dei contesti in due fasi è necessaria quando lo stesso simbolo viene utilizzato come contesto, quindi il contenuto del contesto viene eliminato, e poi lo stesso simbolo ottiene nuovamente un contesto.
 
+

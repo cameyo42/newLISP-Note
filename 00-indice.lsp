@@ -8,7 +8,7 @@
 ========
 
  INDICE
- 
+
 ========
 
 newLISP IN GENERALE
@@ -178,6 +178,15 @@ ROSETTA CODE
   Generatore di password
   Calcolo di Pi greco
   Numeri di Lucas
+  Logaritmo intero di un numero intero
+  Numeri di Carmichael
+  Radice quadrata intera di un numero intero
+  Coppie di primi gemelli
+  Numeri semiprimi
+  Numeri coprimi
+  Fattorizzazione di un numero intero (big integer)
+  Potenza di due numeri interi (big integer)
+  Numeri di Tribonacci
 
 PROJECT EULERO
   Problemi 1..50
@@ -238,9 +247,13 @@ PROBLEMI VARI
   Problemi patologici dei numeri floating point
   Numerali di Church
   Creazione e valutazione di polinomi
+  Quadrato perfetto di un numero
+  Potenza perfetta di un numero
+  Problema della segretaria
+  Numeri con tre divisori
 
 DOMANDE PER ASSUNZIONE DI PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
-  Notazione Big O
+  Notazione Big-O
   Contare i bit di un numero (McAfee)
   Scambiare il valore di due variabili (McAfee)
   Funzione "atoi" (McAfee)
@@ -270,6 +283,7 @@ DOMANDE PER ASSUNZIONE DI PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Unione di intervalli (Google)
   Somma dei numeri unici (Google)
   Unione di due liste ordinate (Google)
+  Prodotto massimo di due numeri in una lista (Facebook)
 
 LIBRERIE
   Operazioni con i numeri complessi
@@ -292,23 +306,13 @@ NOTE LIBERE
   Stalin sort
   Sequenza triangolare
   Vettore/lista di funzioni
-  Potenze di un numero
-  Coppie di primi gemelli
-  Radice quadrata intera
-  Numeri con tre divisori
-  Quadrati perfetti
-  Numeri di Carmichael
   Numeri dispari differenza di quadrati
-  Numeri semiprimi
   Zero? test
-  Numeri coprimi
   Operazioni su elementi consecutivi di una lista
-  Fattorizzazione di un numero intero (big integer)
-  Potenza di due numeri interi (big integer)
-  Problema della segretaria
   Il loop implicito del linguaggio Scheme (named let)
   Brainfuck string encode/decode
-  
+  Creare una utilità di sistema (.exe)
+
 APPENDICI
   Lista delle funzioni newLISP
   Sul linguaggio newLISP - FAQ (Lutz Mueller)
@@ -331,4 +335,5 @@ APPENDICI
 BIBLIOGRAFIA / WEB
 
 ============================================================================
+
 

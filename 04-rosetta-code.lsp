@@ -4138,3 +4138,1165 @@ Vediamo la differenza di velocità:
 La versione iterativa è molto più veloce della versione ricorsiva.
 Esistono algoritmi ancora più veloci per il calcolo dei numeri di Lucas che utilizzano le operazioni tra matrici.
 
+
+------------------------------------
+LOGARITMO INTERO DI UN NUMERO INTERO
+------------------------------------
+
+Il logaritmo intero base b di un numero n è il numero di volte in cui il numero b può essere moltiplicato per se stesso senza superare n.
+
+Scrivere una funzione che calcola il logaritmo intero di un numero intero.
+
+Funzione ricorsiva:
+
+(define (ilog n b)
+  (if (zero? n) -1
+    (+ (ilog (/ n b) b) 1L)))
+
+(ilog 1818272126126126 3)
+;-> 31
+
+Verifichiamo la correttezza della funzione:
+
+(for (i 1 1e6)
+  (if (!= (ilog i 10) (int (log i 10)))
+    (println "error: " i { } (ilog i 10) { } (log i 10))
+  )
+)
+;-> error: 1000 3 3
+;-> error: 1000000 6 5.999999999999999
+
+Questi errori sono dovuti alla mancanza di precisione dei numeri floating-point, non a bug della  funzione "ilog".
+
+Vediamo la velocità della funzione:
+
+(time (for (i 1 1000000) (ilog i 10)))
+;-> 1294.672
+
+(time (for (i 1 1000000) (int (log i 10))))
+;-> 114.881
+
+Se cambio la base (es. 2) "ilog" aumenta il tempo, mentre "log" rimane costante) !!!
+
+(time (for (i 1 1000000) (ilog i 2)))
+;-> 4015.893
+
+(time (for (i 1 1000000) (int (log i 2))))
+;-> 109.365
+
+Nota: Per la funzione "log" vale: logb(n) = x, n = b^x. Questo non è vero per la funzione "ilog".
+
+Versione iterativa:
+
+(define (ilog n b)
+  (let (out -1)
+    (while (!= n 0)
+      ;(++ out)
+      (setq n (/ n b))
+      (setq out (+ out 1))
+    )
+    out
+  )
+)
+
+(ilog 1818272126126126 3)
+;-> 31
+
+Verifichiamo la correttezza della funzione:
+
+(for (i 1 1e6)
+  (if (!= (ilog i 10) (int (log i 10)))
+    (println "error: " i { } (ilog i 10) { } (log i 10))
+  )
+)
+;-> error: 1000 3 3
+;-> error: 1000000 6 5.999999999999999
+
+Questi errori sono dovuti alla mancanza di precisione dei numeri floating-point, non a bug della  funzione "ilog".
+
+Vediamo la velocità della funzione:
+
+(time (for (i 1 1000000) (ilog i 10)))
+;-> 1015.882
+
+Se cambio la base (es. 2) "ilog" aumenta il tempo, mentre "log" rimane costante) !!!
+
+(time (for (i 1 1000000) (ilog i 2)))
+;-> 2797.303
+
+(time (for (i 1 1000000) (int (log i 2))))
+;-> 109.365
+
+Versione iterativa (big integer):
+
+(define (ilog n b)
+  (let (out -1L)
+    (while (!= n 0)
+      ;(++ out)
+      (setq n (/ n b))
+      (setq out (+ out 1L))
+    )
+    out
+  )
+)
+
+(ilog 1818272126126126 3)
+;-> 31L
+
+Verifichiamo la correttezza della funzione:
+
+(for (i 1 1e6)
+  (if (!= (ilog i 10) (int (log i 10)))
+    (println "error: " i { } (ilog i 10) { } (log i 10))
+  )
+)
+;-> error: 1000 3L 3
+;-> error: 1000000 6L 5.999999999999999
+
+Questi errori sono dovuti alla mancanza di precisione dei numeri floating-point, non a bug della  funzione "ilog".
+
+Vediamo la velocità della funzione:
+
+(time (for (i 1 1000000) (ilog i 10)))
+;-> 1687.71
+
+Se cambio la base (es. 2 ilog aumenta il tempo, mentre log rimane costante) !!!
+
+(time (for (i 1 1000000) (ilog i 2)))
+;-> 4359.772
+
+
+--------------------
+NUMERI DI CARMICHAEL
+--------------------
+
+In teoria dei numeri, un numero di Carmichael è un intero positivo composto n che soddisfa la congruenza
+
+ b^(n-1) ≡ 1 mod n
+
+per tutti gli interi b che sono coprimi con n o, equivalentemente, che verificano la congruenza
+
+ b^n ≡ b mod n
+
+per ogni b.
+
+Il piccolo teorema di Fermat afferma che tutti i numeri primi hanno quella proprietà, ma il viceversa non è vero: ad esempio  2^(341) mod 341, ma 341 non è primo, essendo il prodotto di 11 e 31. Un numero tale che b^n ≡ b mod n è detto pseudoprimo di Fermat rispetto alla base b. I numeri di Carmichael sono pseudoprimi di Fermat in ogni base, cioè assoluti.
+
+I numeri di Carmichael passano in ogni caso il test di primalità di Fermat pur essendo composti: la loro esistenza impedisce di utilizzare questo test per certificare con sicurezza la primalità di un numero, mentre rimane utilizzabile per dimostrare che un numero è composto.
+
+I numeri di Carmichael sono tutti dispari.
+
+Scriviamo una funxione che controlla se un dato numero è un numero di Carmichael:
+
+(define (fattorizza x)
+  (letn (fattori (factor x)
+         unici (unique fattori))
+    (transpose (list unici (count unici fattori)))))
+    ;(map list unici (count unici fattori))))
+
+(fattorizza 45)
+;-> ((3 2) (5 1))
+
+(fattorizza 561)
+;-> ((3 1) (11 1) (17 1))
+
+(define (carmichael? n)
+  (local (out fattori)
+    (setq out true)
+    (cond ((or (= n 1) (even? n) (= 1 (length (factor n)))) (setq out nil))
+          (true
+            (setq fattori (fattorizza n))
+            (dolist (f fattori (= out nil))
+              (if (> (f 1) 1) (setq out nil))
+              (if (!= (% (- n 1) (- (f 0) 1)) 0) (setq out nil))
+            )
+          )
+    )
+    out
+  )
+)
+
+Scriviamo una funzione che calcola i numeri di Carmichael fino al numero n:
+
+(define (carmichael n)
+  (let (out '())
+    (for (i 3 n 2)
+      (if (carmichael? i) (push i out -1))
+    )
+  out
+  )
+)
+
+(carmichael 1000000)
+;-> (561 1105 1729 2465 2821 6601 8911 10585 15841 29341 41041 46657 52633 62745 63973
+;->  75361 101101 115921 126217 162401 172081 188461 252601 278545 294409 314821 334153
+;->  340561 399001 410041 449065 488881 512461 530881 552721 656601 658801 670033 748657
+;->  825265 838201 852841 997633)
+
+(time (carmichael 1000000))
+;-> 2043.545
+
+(define (carmichael n)
+  (filter carmichael? (sequence 3 n 2)))
+
+(time (carmichael 1000000))
+;-> 3510.422
+
+
+------------------------------------------
+RADICE QUADRATA INTERA DI UN NUMERO INTERO
+------------------------------------------
+
+Calcolare la radice quadrata intera di un numero n.
+
+Primo metodo:
+
+(define (isqrt1 n)
+  (local (xn xn1)
+    (setq xn 1)
+    (setq xn1 (/ (+ xn (/ n xn)) 2))
+    (while (> (abs (- xn1 xn)) 1)
+      (setq xn xn1)
+      (setq xn1 (/ (+ xn (/ n xn)) 2))
+    )
+    (while (> (* xn1 xn1) n) (-- xn1))
+    xn1
+  )
+)
+
+(isqrt1 900)
+;-> 30
+
+(isqrt1 899)
+;-> 29
+
+(isqrt1 6074020096)
+;-> 77936
+
+(time (map isqrt1 (sequence 2 1e6)))
+;-> 4980.122
+
+Test di correttezza:
+
+(for (i 2 1e6) (if (!= (isqrt1 (* i i)) (sqrt (* i i))) (println "error: " (* i i)) ))
+;-> nil
+
+Secondo metodo (algoritmo babilonese):
+
+(define (isqrt2 n)
+  (let ((x n) (y 1))
+    (while (> x y)
+      (setq x (/ (+ x y) 2))
+      (setq y (/ n x))
+    )
+    x
+  )
+)
+
+(isqrt2 900)
+;-> 30
+
+(isqrt2 899)
+;-> 29
+
+(isqrt2 6074020096)
+;-> 77936
+
+(time (map isqrt2 (sequence 2 1e6)))
+;-> 3630.086
+
+Test di correttezza:
+
+(for (i 2 1e6) (if (!= (isqrt2 (* i i)) (sqrt (* i i))) (println "error: " (* i i)) ))
+;-> nil
+
+Terzo metodo:
+
+(define (isqrt3 n) (int (sqrt n)))
+
+(isqrt3 900)
+;-> 30
+
+(isqrt3 899)
+;-> 29
+
+(isqrt3 6074020096)
+;-> 77936
+
+(time (map isqrt3 (sequence 2 1e6)))
+;-> 150.086
+
+Test di correttezza:
+
+(for (i 2 1e6) (if (!= (isqrt (* i i)) (sqrt (* i i))) (println "error: " (* i i)) ))
+;-> nil
+
+Quarto metodo (big integer):
+
+(define (isqrt4 n)
+  (catch
+    (local (start mid end out)
+      (setq start 1L)
+      (setq end (bigint (/ n 2)))
+      (while (<= start end)
+        (setq mid (/ (+ start end) 2))
+        (if (= n (* mid mid)) (throw mid))
+        (if (< (* mid mid) n)
+          (begin (setq start (+ mid 1)) (setq out mid))
+          (setq end (- mid 1))
+        )
+      )
+      (throw out)
+    )
+  )
+)
+
+oppure:
+
+(define (isqrt4 n)
+  (local (start mid end trovato out)
+    (setq start 1L)
+    (setq end (bigint (/ n 2)))
+    (while (and (<= start end) (= trovato nil))
+      (setq mid (/ (+ start end) 2))
+      (if (= n (* mid mid))
+          (begin (setq out mid) (setq trovato true))
+          (if (< (* mid mid) n)
+            (begin (setq start (+ mid 1)) (setq out mid))
+            (begin (setq end (- mid 1))  (setq out mid)))
+      )
+    )
+    out
+  )
+)
+
+(isqrt4 900)
+;-> 30L
+
+(isqrt4 899)
+;-> 29L
+
+(isqrt4 6074020096)
+;-> 77936L
+
+(time (map isqrt4 (sequence 2 1e6)))
+;-> 26274.627
+
+Test di correttezza:
+
+(for (i 2 1e6)
+  (setq j (bigint i))
+  (if (!= (isqrt4 (* j j)) (sqrt (* j j)))
+    (begin (println "error: " (* j j)))))
+;-> nil
+
+
+-----------------------
+COPPIE DI PRIMI GEMELLI
+-----------------------
+
+Due numeri sono primi gemelli se n e (n + 2) sono entrambi primi.
+Le coppie di primi gemelli sono infinite, ma la loro frequenza diminuisce con l'aumentare di n.
+
+Usiamo la seguente funzione per verificare se un numero n è primo:
+
+(define (primo? n)
+  (if (even? n) nil
+      (= 1 (length (factor n)))))
+
+(primo? 11)
+;-> true
+
+Definiamo una funzione per verificare se un numero n ha un gemello:
+
+(define (gemelli? n) (if (and (primo? n) (primo? (+ n 2)))))
+
+(gemelli? 5)
+;-> true
+
+Definiamo una funzione che trova tutte le coppie di gemelli dal numero a (dispari) al numero b:
+
+(define (coppieGemelli a b)
+  (local (somma)
+    (setq somma 0)
+    ;(for (i a b) (if (gemelli? i) (println (++ somma) { } i { } (+ i 2))))
+    (for (i a b 2) (if (gemelli? i) (++ somma)))
+    somma
+  )
+)
+
+Con: (for (i a b) (if (gemelli? i) (println (++ somma) { } i { } (+ i 2))))
+
+(coppieGemelli 3 1000)
+;-> 1 3 5         2 5 7
+;-> 3 11 13       4 17 19
+;-> 5 29 31       6 41 43
+;-> 7 59 61       8 71 73
+;-> 9 101 103     10 107 109
+;-> 11 137 139    12 149 151
+;-> 13 179 181    14 191 193
+;-> 15 197 199    16 227 229
+;-> 17 239 241    18 269 271
+;-> 19 281 283    20 311 313
+;-> 21 347 349    22 419 421
+;-> 23 431 433    24 461 463
+;-> 25 521 523    26 569 571
+;-> 27 599 601    28 617 619
+;-> 29 641 643    30 659 661
+;-> 31 809 811    32 821 823
+;-> 33 827 829    34 857 859
+;-> 35 881 883
+
+Con: (for (i a b 2) (if (gemelli? i) (++ somma)))
+
+Calcoliamo la velocità della funzione:
+
+(time (coppieGemelli 3 2e7))
+;-> 46361.619
+
+Adesso definiamo una funzione "pairs" che restituisce una lista con tutte le coppie di primi gemelli dal numero a al numero b.
+
+Prima scriviamo la funzione "twin?" che dato un numero n restituisce la coppia di primi n e (n + 2) oppure nil:
+
+(define (twin? n)
+  (if (and (primo? n) (primo? (+ n 2)))
+    (list n (+ n 2))
+    nil
+  )
+)
+
+(twin? 9)
+;-> nil
+
+(twin? 881)
+;-> (881 883)
+
+(define (pairs a b)
+  (filter true? (map twin? (sequence a b)))
+)
+
+(pairs 3 1000)
+;-> ((3 5) (5 7) (11 13) (17 19) (29 31) (41 43) (59 61) (71 73) (101 103) (107 109)
+;->  (137 139) (149 151) (179 181) (191 193) (197 199) (227 229) (239 241) (269 271)
+;->  (281 283) (311 313) (347 349) (419 421) (431 433) (461 463) (521 523) (569 571)
+;->  (599 601) (617 619) (641 643) (659 661) (809 811) (821 823) (827 829) (857 859)
+;->  (881 883))
+
+(length (pairs 3 1000))
+;-> 35
+
+Calcoliamo la velocità della funzione:
+
+(time (pairs 3 2e7))
+;-> 47479.457
+
+Adesso definiamo la stessa funzione, ma in modo imperativo:
+
+(define (pairs-i a b)
+  (local (idx out)
+    (setq idx a)
+    (while (< idx b)
+      (if (and (primo? idx) (primo? (+ idx 2)))
+        (push (list idx (+ idx 2)) out -1)
+      )
+      (++ idx 2)
+    )
+    out
+  )
+)
+
+(length (pairs-i 3 1000))
+;-> 35
+
+(time (pairs-i 3 2e7))
+;-> 44355.696
+
+Adesso riscriviamo la funzione ottimizzata (non ricalcoliamo un numero primo quando troviamo una coppia):
+
+(define (pairs-i a b)
+  (local (idx found out)
+    (setq found nil)
+    (setq idx a)
+    ; solo il numero 5 appartiene a due coppie di numeri primi gemelli
+    (setq out '((3 5) (5 7)))
+    (while (< idx b)
+      (if (and (primo? idx) (primo? (+ idx 2)))
+        (begin
+        (push (list idx (+ idx 2)) out -1)
+        (setq found true))
+      )
+      (if found (++ idx 4) (++ idx 2))
+      (setq found nil)
+    )
+    out
+  )
+)
+
+(length (pairs-i 7 1000))
+;-> 35
+
+(time (pairs-i 7 2e7))
+;-> 43177.908
+
+Questo è il miglior risultato ottenuto in termini di velocità.
+
+Cerchiamo di capire dove la funzione spende il tempo maggiore. Proviamo a testare solo la parte che calcola i numeri primi:
+
+(define (test-a a b)
+  (local (idx out)
+    (setq idx a)
+    (while (< idx b)
+      (if (and (primo? idx) (primo? (+ idx 2))))
+      (++ idx 2)
+    )
+  )
+)
+
+(time (test-a 3 2e7))
+;-> 44295.723
+
+Come avevamo intuito, quasi tutto il tempo di esecuzione della funzione è dedicato al calcolo dei numeri primi.
+
+Calcoliamo la distanza tra le coppie di numeri primi:
+
+(define (dist-pairs a b)
+  (local (idx base out)
+    (setq idx a)
+    (setq base 3)
+    (while (< idx b)
+      (if (and (primo? idx) (primo? (+ idx 2)))
+        (begin
+          (push (- idx base) out -1)
+          (setq base idx))
+      )
+      (++ idx 2)
+    )
+    out
+  )
+)
+
+(dist-pairs 5 1000)
+;-> (2 6 6 12 12 18 12 30 6 30 12 30 12 6 30 12 30 12
+;->  30 36 72 12 30 60 48 30 18 24 18 150 12 6 30 24)
+
+(silent (setq dp6 (dist-pairs 5 1e6)))
+(length dp6)
+;-> 8168
+
+Infine salviamo dp6 come file di testo (per esempio per plottare i dati con un altro programma):
+
+(save "dist-coppie.txt" 'dp6)
+;-> true
+
+Sul forum di newLISP, raph.ronnquist ha fornito due funzioni per calcolare le coppie:
+
+(define (pairs-i a b)
+  (let ((out (list)) (x nil))
+    (for (y (if (odd? a) a (inc a)) b 2)
+      (if (1 (factor y)) (setf y nil) x (push (list x y) out -1))
+      (setf x y))
+    out))
+
+(length (pairs-i 3 1000))
+;-> 35
+
+(time (pairs-i 3 2e7))
+;-> 40072.606
+
+La seconda funzione sfrutta la seguente idea. Per migliorare la velocità (nei numeri grandi) possiamo controllare se il modulo di un generico prodotto di primi include uno dei numeri primi del prodotto.
+Il codice è il seguente:
+
+(define (pairs-i1 a b)
+  (let ((out (list)) (x nil) (FX (* 2 3 5 7 11 13)) (M 0))
+    (for (y (if (odd? a) a (inc a)) b 2)
+      (if (if (< y FX) (1 (factor y))
+             (or (= (setf M (% y FX))) (if (factor M) (<= ($it 0) 13)) (1 (factor y))))
+        (setf y nil)
+        x (push (list x y) out -1))
+      (setf x y))
+    out))
+
+In questo esempio viene utilizzato il prodotto di primi (* 2 3 5 7 11 13). Per numeri maggiori di questo, controlla se il modulo è un prodotto di uno di quei numeri primi, nel qual caso il numero nel suo insieme è divisibile per quel numero primo (e quindi non è un numero primo). In particolare, la fattorizzazione del modulo è in genere più veloce perchè filtra questi i numeri controllati dal modulo.
+
+(time (pairs-i1 3 2e7))
+;-> 29964.396
+
+Il miglioramento di velocità per la gestione di grandi numeri è significativo (+ 25%).
+
+
+----------------
+NUMERI SEMIPRIMI
+----------------
+
+Un numero semi-primo è un numero che è il prodotto di due numeri primi.
+Algoritmo:
+1) Trovare un divisore del numero d1.
+2) Dividere il numero per d1 per ottenere un secondo divisore d2.
+3) Se d1 e d2 sono entrambi primi, allora il numero originale è semiprimo.
+4) ripetere 1), 2) e 3) per tutti i divisori del numero.
+
+Scriviamo una funzione che verifica se un numero è primo:
+
+(define (primo? n)
+  (if (and (!= n 2) (even? n)) nil
+      (= 1 (length (factor n)))))
+
+Scriviamo una funzione che verifica se un numero è semiprimo:
+
+(define (semiprimo? num)
+  (local (d2 out)
+    (for (d1 2 (int (+ (sqrt num) 1)) 1 (= out true))
+      (if (= (% num d1) 0)
+        (setq d2 (/ num d1)
+              out (and (primo? d1) (primo? d2)))
+      )
+    )
+    out
+  )
+)
+
+(semiprimo? 21)
+;-> true
+
+(semiprimo? 4)
+;-> true
+
+Scriviamo una funzione che calcola i numeri semiprimi fino a n:
+
+(define (semiprimi n)
+  (let (out '())
+    (for (i 2 n)
+      (if (semiprimo? i) (push i out -1))
+    )
+  out
+  )
+)
+
+(semiprimi 100)
+;-> (4 6 9 10 14 15 21 22 25 26 33 34 35 38 39 46 49 51 55
+;->  57 58 62 65 69 74 77 82 85 86 87 91 93 94 95)
+
+(length (semiprimi 1000))
+;-> 299
+
+(time (map semiprimi (sequence 10 1000)))
+;-> 1473.389
+
+Per migliorare la velocità possiamo inglobare il controllo dei numeri primi all'interno del ciclo while:
+
+(define (semiprimo? num)
+  (let ((cnt 0) (i 2))
+    (while (and (< cnt 2) (<= (* i i) num))
+      (while (zero? (% num i))
+        (setq num (/ num i))
+        (++ cnt)
+      )
+      (++ i)
+    )
+    (if (> num 1) (++ cnt))
+    (= cnt 2)
+  )
+)
+
+(semiprimi 100)
+;-> (4 6 9 10 14 15 21 22 25 26 33 34 35 38 39 46 49 51 55
+;->  57 58 62 65 69 74 77 82 85 86 87 91 93 94 95)
+
+(length (semiprimi 1000))
+;-> 299
+
+(time (map semiprimi (sequence 10 1000)))
+;-> 1056.916
+
+
+--------------
+NUMERI COPRIMI
+--------------
+
+Due numeri a e b sono detti coprimi (o primi tra loro o relativamente primi) se e solo se essi non hanno nessun divisore comune eccetto 1 e -1 o, in modo equivalente, se il loro massimo comune divisore è 1, cioè MCD(a,b) = 1.
+
+(define (coprimi? a b) (= (gcd a b) 1))
+
+(coprimi? 10 11)
+
+(define (coprimi n)
+  (let ((out '()))
+    (for (i 0 n)
+      (for (j i n)
+      ;(for (j (+ i 1) n)
+        (if (coprimi? i j) (push (list i j) out -1))
+      )
+    )
+    out
+  )
+)
+
+(coprimi 10)
+;-> ((0 1) (1 1) (1 2) (1 3) (1 4) (1 5) (1 6) (1 7) (1 8) (1 9)
+;->  (1 10) (2 3) (2 5) (2 7) (2 9) (3 4) (3 5) (3 7) (3 8) (3 10)
+;->  (4 5) (4 7) (4 9) (5 6) (5 7) (5 8) (5 9) (6 7) (7 8) (7 9)
+;->  (7 10) (8 9) (9 10))
+
+Due teoremi interessanti sui numeri coprimi:
+
+Teorema: Numeri naturali consecutivi n e (n + 1) sono sempre coprimi.
+
+(coprimi? 310 311)
+;-> true
+
+Teorema: La probabilità che due interi scelti a caso siano primi tra loro è 6/(π^2).
+
+Un altro metodo per calcolare tutte le coppie di coprimi è quello di utilizzare la sequenza di Farey.
+La sequenza di Farey F(n), per ogni numero naturale positivo n, è definita come l'insieme ordinato secondo l'ordine crescente di tutti i numeri razionali irriducibili (cioè tali che numeratore e denominatore siano coprimi) espressi sotto forma di frazione con numeratore e denominatore compresi tra zero e n.
+
+La seguente funzione genera la n-esima sequenza di Farey in ordine crescente o decrescente:
+
+(define (farey n desc)
+  (local (a b c d k p q out)
+    (setq out '())
+    (setq a 0 b 1 c 1 d n)
+    ;(println a { } b)
+    (if desc (setq a 1 c (- n 1)))
+    (push (list a b) out -1)
+    (while (or (and (<= c n) (not desc)) (and (> a 0) desc))
+      (setq k (int (div (+ n b) d)))
+      (setq p (- (* k c) a))
+      (setq q (- (* k d) b))
+      (setq a c b d c p d q)
+      (push (list a b) out -1)
+      ;(println a { } b)
+    )
+    out
+  )
+)
+
+(farey 3)
+;-> ((0 1) (1 3) (1 2) (2 3) (1 1))
+
+(farey 10)
+;-> ((0 1) (1 10) (1 9) (1 8) (1 7) (1 6) (1 5) (2 9) (1 4) (2 7)
+;->  (3 10) (1 3) (3 8) (2 5) (3 7) (4 9) (1 2) (5 9) (4 7) (3 5)
+;->  (5 8) (2 3) (7 10) (5 7) (3 4) (7 9) (4 5) (5 6) (6 7) (7 8)
+;->  (8 9) (9 10) (1 1))
+
+Verifichiamo che le due funzioni "coprimi" e "farey" generano le stesse sequenze :
+
+(= (coprimi 100) (sort (farey 100)))
+;-> true
+
+Vediamo la differenza delle due funzioni in termin di velocità
+
+(time (map coprimi (sequence 10 500)))
+;-> 6391.329
+
+(time (map farey (sequence 10 500)))
+;-> 7297.73
+
+Ottimizziamo un pò la funzione "farey":
+
+(define (farey1 n)
+  (local (a b c d k p q out)
+    (setq out '())
+    (setq a 0 b 1 c 1 d n)
+    ;(println a { } b)
+    (push (list a b) out -1)
+    ;(while (or (and (<= c n) (not desc)) (and (> a 0) desc))
+    (while (<= c n)
+      ;(setq k (int (div (+ n b) d)))
+      (setq k (/ (+ n b) d))
+      (setq p (- (* k c) a))
+      (setq q (- (* k d) b))
+      (setq a c b d c p d q)
+      (push (list a b) out -1)
+      ;(println a { } b)
+    )
+    out
+  )
+)
+
+(= (coprimi 100) (sort(farey1 100)))
+;-> true
+
+(time (map farey1 (sequence 10 500)))
+;-> 6469.966
+
+Le due funzioni hanno la stessa velocità.
+
+
+-------------------------------------------------
+FATTORIZZAZIONE DI UN NUMERO INTERO (BIG INTEGER)
+-------------------------------------------------
+
+La fattorizzazione a ruota è un miglioramento del metodo della divisione di prova per la fattorizzazione a numeri interi.
+
+Il metodo della divisione di prova consiste nel dividere il numero da fattorizzare successivamente per i primi numeri interi (2, 3, 4, 5, ...) fino a trovare un divisore. Con la fattorizzazione a ruota, si parte da una lista (base) dei primi numeri primi. Quindi si genera l'elenco, chiamato la ruota, degli interi che sono coprimi con tutti i numeri della base. Quindi, per trovare il divisore più piccolo del numero da fattorizzare, lo si divide in successione per i numeri nella base e nella ruota.
+
+Con la base {2, 3}, questo metodo riduce il numero di divisioni a 1/3 <34% del numero necessario per la divisione di prova. Basi più grandi riducono ulteriormente questa proporzione. Ad esempio, con base da {2, 3, 5} a 8/30 <27%, mentre con una base da {2, 3, 5, 7} a 48/210 <23%.
+
+Esempio
+
+Con la base dei primi 3 numeri primi {2, 3, 5}, il "primo giro" della ruota è costituito da:
+
+7, 11, 13, 17, 19, 23, 29, 31.
+
+Il secondo giro si ottiene aggiungendo il prodotto della base 2 * 3 * 5 = 30, ai numeri del primo giro. Il terzo giro si ottiene aggiungendo 30 al secondo giro e così via.
+Da notare che gli incrementi tra due elementi consecutivi della ruota, cioè
+
+dist = [4, 2, 4, 2, 4, 6, 2, 6],
+
+rimangono gli stessi dopo ogni giro.
+
+Nota: (setq MAXINT 9223372036854775807)
+
+Scriviamo la funzione per fattorizzare un numero:
+
+(define (factorbig n)
+  (local (f k i dist out)
+    ; distanze tra due elementi consecutivi della ruota (wheel)
+    (setq dist '(0 4 2 4 2 4 6 2 6))
+    (setq out '())
+    (while (zero? (% n 2))
+      (push '2L out -1)
+      (setq n (/ n 2)))
+    (while (zero? (% n 3))
+      (push '3L out -1)
+      (setq n (/ n 3)))
+    (while (zero? (% n 5))
+      (push '5L out -1)
+      (setq n (/ n 5)))
+    (setq k 7L i 1)
+    (while (<= (* k k) n)
+      (if (zero? (% n k))
+        (begin
+        (push k out -1)
+        (setq n (/ n k)))
+        (begin
+        (setq k (+ k (dist i)))
+        (if (< i 8) (++ i) (setq i 1)))
+      )
+    )
+    (if (> n 1) (push (bigint n) out -1))
+    out
+  )
+)
+
+(factorbig 9223372036854775809L)
+;-> (3L 3L 3L 19L 43L 5419L 77158673929L)
+
+(time (factorbig 9223372036854775809L))
+;-> 50.947
+
+(apply * '(3L 3L 3L 19L 43L 5419L 77158673929L))
+;-> 9223372036854775809L
+
+Controlliamo se "factorbig" e "factor" producono lo stesso risultato (fino ad un milione):
+
+(= (map factorbig (sequence 2 1e6)) (map factor (sequence 2 1e6)))
+;-> true
+
+Proviamo con un numero di 20 cifre:
+
+(time (println (factorbig 92233720368547758091L)))
+;-> (7L 13L 1013557366687338001L)
+;-> 182879.379 ; 3 minuti e 2 secondi
+
+(apply * '(7L 13L 1013557366687338001L))
+;-> 92233720368547758091L
+
+Più è grande il valore dei fattori maggiore è il tempo di esecuzione.
+
+(time (println (factorbig 1013557366687338001L)))
+;-> (1013557366687338001L)
+;-> 179855.465 ; 3 minuti
+
+Invece nel seguente esempio il calcolo è immediato:
+
+2^64 = 18446744073709551616
+
+(setq d 18446744073709551616L)
+
+(factorbig d)
+;-> (2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L
+;->  2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L
+;->  2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L
+;->  2L 2L 2L 2L)
+
+Calcoliamo la differenza di velocità tra "factorbig" e "factor":
+
+(time (map factorbig (sequence 2 1e5)))
+;-> 1453.157
+
+(time (map factor (sequence 2 1e5)))
+;-> 78.108
+
+(time (map factorbig (sequence 2 1e6)))
+;-> 33469.801 ; 33 secondi
+
+(time (map factor (sequence 2 1e6)))
+;-> 1027.95
+
+La funzione integrata "factor" è molto più veloce, ma non funzione con i big integer.
+
+Possiamo migliorare le prestazioni della funzione utilizzando una base più grande:
+
+(2 3 5 7)
+
+Vediamo come calcolare la lista delle distanze. Prima occorre generare i numeri della ruota, cioè tutti gli interi coprimi con la base fino al numero (+ (* 2 3 5 7) 11) = 221
+
+Funzione per calcolare i coprimi:
+
+(define (coprimi? a b) (= (gcd a b) 1))
+
+Funzione che verifica se un numero appartiene alla ruota:
+
+(define (wheel7 n) (and (coprimi? n 2) (coprimi? n 3) (coprimi? n 5) (coprimi? n 7)))
+
+Funzione che crea la ruota dei numeri:
+
+(define (dowheel7)
+  (let (out '())
+    (for (i 2 221) (if (wheel7 i) (push i out -1)))
+  )
+)
+
+(dowheel7)
+;-> (11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71 73 79 83 89 97 101 103 107 109 113
+;->  121 127 131 137 139 143 149 151 157 163 167 169 173 179 181 187 191 193 197 199
+;->  209 211 221)
+
+Per calcolare le distanze tra due elementi consecutivi della ruota usiamo la seguente funzione:
+
+(define (creadist lst) (map - (rest lst) (chop lst)))
+
+(creadist (dowheel7))
+;-> (2 4 2 4 6 2 6 4 2 4 6 6 2 6 4 2 6 4 6 8 4 2 4 2 4 8 6 4 6 2 4 6 2 6 6 4 2 4 6 2
+;-> 6 4 2 4 2 10 2 10)
+
+Adesso possiamo scrivere la nuova funzione di fattorizzazione con base (2 3 5 7):
+
+(define (factorbig n)
+  (local (f k i dist out)
+    ; Distanze tra due elementi consecutivi della ruota (wheel)
+    (setq dist (array 48 '(2 4 2 4 6 2 6 4 2 4 6 6 2 6 4 2 6 4
+                           6 8 4 2 4 2 4 8 6 4 6 2 4 6 2 6 6 4
+                           2 4 6 2 6 4 2 4 2 10 2 10)))
+    (setq out '())
+    (while (zero? (% n 2)) (push '2L out -1) (setq n (/ n 2)))
+    (while (zero? (% n 3)) (push '3L out -1) (setq n (/ n 3)))
+    (while (zero? (% n 5)) (push '5L out -1) (setq n (/ n 5)))
+    (while (zero? (% n 7)) (push '7L out -1) (setq n (/ n 7)))
+    (setq k 11L i 0)
+    (while (<= (* k k) n)
+      (if (zero? (% n k))
+        (begin
+        (push k out -1)
+        (setq n (/ n k)))
+        (begin
+        ;(++ k (dist i))
+        (setq k (+ k (dist i)))
+        (if (< i 47) (++ i) (setq i 0)))
+      )
+    )
+    (if (> n 1) (push (bigint n) out -1))
+    out
+  )
+)
+
+(factorbig 9223372036854775809L)
+;-> (3L 3L 3L 19L 43L 5419L 77158673929L)
+
+(time (factorbig 9223372036854775809L))
+;-> 46.875
+
+(apply * '(3L 3L 3L 19L 43L 5419L 77158673929L))
+;-> 9223372036854775809L
+
+Controlliamo se "factorbig" e "factor" producono lo stesso risultato (fino ad un milione):
+
+(= (map factorbig (sequence 2 1e5)) (map factor (sequence 2 1e5)))
+;-> true
+(= (map factorbig (sequence 2 1e6)) (map factor (sequence 2 1e6)))
+;-> true
+
+Proviamo con un numero di 20 cifre:
+
+(time (println (factorbig 92233720368547758091L)))
+;-> (7L 13L 1013557366687338001L)
+;-> 150515.93
+
+Questa funzione "factorbig" impiega 30 secondi in meno di quella precedente (con la base (2 3 5) la funzione impiegava 180 secondi).
+
+Calcoliamo la differenza di velocità tra "factorbig" e "factor":
+
+(time (map factorbig (sequence 2 1e5)))
+;-> 1406.559
+
+(time (map factor (sequence 2 1e5)))
+;-> 78.108
+
+(time (map factorbig (sequence 2 1e6)))
+;-> 28834.221 ; 29 secondi
+
+(time (map factor (sequence 2 1e6)))
+;-> 1027.95
+
+
+------------------------------------------
+POTENZA DI DUE NUMERI INTERI (BIG INTEGER)
+------------------------------------------
+
+Utilizziamo una soluzione ricorsiva per calcolare x^n usando il metodo divide & conquer:
+
+power(x, n) =     power(x, n/2) * power(x, n/2)     (se n è pari)
+power(x, n) = x * power(x, n/2) * power(x, n/2)     (se n è dispari)
+
+(define (ipow x n)
+  (cond ((zero? n) 1)
+        ((even? n) (ipow (* x x) (/ n 2)))
+        (true (* x (ipow (* x x) (/ (- n 1) 2))))))
+
+(ipow 3 7)
+;-> 2187
+
+(ipow -2 15)
+;-> -32768
+
+Il metodo può essere migliorato notando che calcoliamo due volte lo stesso sotto-problema (power (x, n/2) per ogni chiamata ricorsiva. Possiamo ottimizzare la funzione calcolando e memorizzando la soluzione del sotto-problema solo una volta.
+
+(define (ipow x n)
+  (local (pot out)
+    (if (zero? n)
+        (setq out 1L)
+        (begin
+          (setq pot (ipow x (/ n 2)))
+          (if (odd? n) (setq out (* x pot pot))
+                       (setq out (* pot pot)))
+        )
+    )
+    out
+  )
+)
+
+(ipow -2 15)
+;-> -32768
+
+Controlliamo se la soluzione genera gli stessi risultati della funzione built-in pow(n m):
+
+(for (i 1 15)
+  (for (j 1 15)
+    (if (!= (pow i j) (ipow i j))
+      (println "error: " i ", " j))
+  )
+)
+;-> nil
+
+(setq MAXINT 9223372036854775807)
+
+(ipow 10 53)
+;-> -8169529724050079744 ;errore di overflow
+
+Passando gli argomenti come big integer otteniamo il risultato corretto:
+
+(ipow 10L 53L)
+;-> 100000000000000000000000000000000000000000000000000000L
+
+(ipow 3L 8L)
+;-> 6561L
+
+Complessità temporale: O(log(n))
+
+Potete trovare un algoritmo più efficiente che utilizza il metodo delle "addiction chain" nel libro di Donald Knuth "The Art of Computer Programming".
+
+
+--------------------
+NUMERI DI TRIBONACCI
+--------------------
+
+La serie tribonacci è una generalizzazione della sequenza di Fibonacci in cui ogni termine è la somma dei tre termini precedenti.
+
+La sequenza Tribonacci:
+
+0, 0, 1, 1, 2, 4, 7, 13, 24, 44, 81, 149, 274, 504, 927, 1705, 3136, 5768, 10609, 19513, 35890, 66012, 121415, 223317, 410744, 755476, 1389537, 2555757, 4700770, 8646064, 15902591, 29249425, 53798080, 98950096, 181997601, 334745777, 615693474, 1132436852...
+
+Forma generale del numero Tribonacci:
+
+a(n) = a(n-1) + a(n-2) + a(n-3)
+
+dove: a(0) = a(1) = 0, a(2) = 1
+
+Scrivere una funzione che calcola l'n-esimo numero di Tribonacci.
+
+Soluzione ricorsiva:
+
+(define (trib n)
+  (if (or (= n 2) (= n 1) (zero? n))
+      0
+      (if (= n 3)
+          1
+          (+ (trib (- n 1)) (trib (- n 2)) (trib (- n 3)))
+      )
+  )
+)
+
+(trib 10)
+;-> 44
+
+(map trib (sequence 1 10))
+;-> (0 0 1 1 2 4 7 13 24 44)
+
+Complessità temporale: O(2^n) (esponenziale)
+
+Una soluzione migliore è utilizzare la programmazione dinamica (cioè memorizzando e poi utilizzando i valori calcolati precedentemente):
+
+(define (trib n)
+  (local (a b c val)
+    (setq a 0 b 0 c 1 val 0)
+    (if (or (= 0 n) (= n 1) (= n 2))
+        (setq val 0)
+        (if (= n 3)
+            (setq val 1)
+            (for (i 3 (- n 1))
+              (setq val (+ a b c))
+              (setq a b b c c val)
+            )
+        )
+    )
+    val
+  )
+)
+
+(map trib (sequence 1 10))
+;-> (0 0 1 1 2 4 7 13 24 44)
+
+Complessità temporale: O(n) (lineare)
+
+Scriviamo una versione per i big-integer:
+
+(define (trib-big n)
+  (local (a b c val)
+    (setq a 0L b 0L c 1L val 0L)
+    (if (or (= 0 n) (= n 1) (= n 2))
+        (setq val 0L)
+        (if (= n 3)
+            (setq val 1L)
+            (for (i 3 (- n 1))
+              (setq val (+ a b c))
+              (setq a b b c c val)
+            )
+        )
+    )
+    val
+  )
+)
+
+(trib-big 1000L)
+;-> 443382579490226307661986241584270009256355236429858450381499235934108943134478901646797270328593836893366107162717822510963842586116043942479088674053663996392411782672993524690287662511197858910187264664163782145563472265666010074477859199789932765503984125240893L
+
+Calcoliamo il limite del rapporto tra due numeri consecutivi di Tribonacci:
+
+(div (trib-big 1000L) (trib-big 999L))
+;-> 1.839286755214161
+
+Esiste un algoritmo ancora più veloce che utilizza la moltiplicazioni tra matrici, ma la funzione (trib-big) è sufficientemente veloce.
+
+

@@ -4194,3 +4194,4 @@ Frasi Famose sulla Programmazione e sul Linguaggio Lisp
 "Cavemen in bearskins invaded the ivory towers of Artificial Intelligence. Nine months later, they left with a baby named newLISP. The women of the ivory towers wept and wailed. 'Abomination!' they cried."
 - TedWalther
 
+

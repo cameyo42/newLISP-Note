@@ -8,7 +8,7 @@
 ========
 
  INDICE
- 
+
 ========
 
 newLISP IN GENERALE
@@ -178,6 +178,15 @@ ROSETTA CODE
   Generatore di password
   Calcolo di Pi greco
   Numeri di Lucas
+  Logaritmo intero di un numero intero
+  Numeri di Carmichael
+  Radice quadrata intera di un numero intero
+  Coppie di primi gemelli
+  Numeri semiprimi
+  Numeri coprimi
+  Fattorizzazione di un numero intero (big integer)
+  Potenza di due numeri interi (big integer)
+  Numeri di Tribonacci
 
 PROJECT EULERO
   Problemi 1..50
@@ -238,9 +247,13 @@ PROBLEMI VARI
   Problemi patologici dei numeri floating point
   Numerali di Church
   Creazione e valutazione di polinomi
+  Quadrato perfetto di un numero
+  Potenza perfetta di un numero
+  Problema della segretaria
+  Numeri con tre divisori
 
 DOMANDE PER ASSUNZIONE DI PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
-  Notazione Big O
+  Notazione Big-O
   Contare i bit di un numero (McAfee)
   Scambiare il valore di due variabili (McAfee)
   Funzione "atoi" (McAfee)
@@ -270,6 +283,7 @@ DOMANDE PER ASSUNZIONE DI PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Unione di intervalli (Google)
   Somma dei numeri unici (Google)
   Unione di due liste ordinate (Google)
+  Prodotto massimo di due numeri in una lista (Facebook)
 
 LIBRERIE
   Operazioni con i numeri complessi
@@ -292,23 +306,13 @@ NOTE LIBERE
   Stalin sort
   Sequenza triangolare
   Vettore/lista di funzioni
-  Potenze di un numero
-  Coppie di primi gemelli
-  Radice quadrata intera
-  Numeri con tre divisori
-  Quadrati perfetti
-  Numeri di Carmichael
   Numeri dispari differenza di quadrati
-  Numeri semiprimi
   Zero? test
-  Numeri coprimi
   Operazioni su elementi consecutivi di una lista
-  Fattorizzazione di un numero intero (big integer)
-  Potenza di due numeri interi (big integer)
-  Problema della segretaria
   Il loop implicito del linguaggio Scheme (named let)
   Brainfuck string encode/decode
-  
+  Creare una utilità di sistema (.exe)
+
 APPENDICI
   Lista delle funzioni newLISP
   Sul linguaggio newLISP - FAQ (Lutz Mueller)
@@ -331,6 +335,7 @@ APPENDICI
 BIBLIOGRAFIA / WEB
 
 ============================================================================
+
 
 =======================
 
@@ -5653,6 +5658,7 @@ In definitiva abbiamo davvero 3 modalità:
 Con i contesti è un processo in due passaggi: il primo elimina i contenuti del contesto, il secondo elimina il simbolo del contesto.
 L'eliminazione dei contesti in due fasi è necessaria quando lo stesso simbolo viene utilizzato come contesto, quindi il contenuto del contesto viene eliminato, e poi lo stesso simbolo ottiene nuovamente un contesto.
 
+
 ================
 
  FUNZIONI VARIE
@@ -7778,6 +7784,7 @@ Vediamo il risultato:
 lst
 ;-> ((8 (a) 2) (-3 (b) 5))
 
+
 ==========================
 
  newLISP 99 PROBLEMI (28)
@@ -9090,6 +9097,7 @@ Adesso possiamo creare la lista ordinata utilizzando come indice il primo elemen
 
 (ordina-lunghezza '((a b c) (d e) (f g h) (d e) (i j k l) (m n) (o)))
 ;-> ((i j k l) (a b c) (f g h) (d e) (d e) (m n) (o))
+
 
 ==============
 
@@ -13231,6 +13239,1168 @@ Vediamo la differenza di velocità:
 La versione iterativa è molto più veloce della versione ricorsiva.
 Esistono algoritmi ancora più veloci per il calcolo dei numeri di Lucas che utilizzano le operazioni tra matrici.
 
+
+------------------------------------
+LOGARITMO INTERO DI UN NUMERO INTERO
+------------------------------------
+
+Il logaritmo intero base b di un numero n è il numero di volte in cui il numero b può essere moltiplicato per se stesso senza superare n.
+
+Scrivere una funzione che calcola il logaritmo intero di un numero intero.
+
+Funzione ricorsiva:
+
+(define (ilog n b)
+  (if (zero? n) -1
+    (+ (ilog (/ n b) b) 1L)))
+
+(ilog 1818272126126126 3)
+;-> 31
+
+Verifichiamo la correttezza della funzione:
+
+(for (i 1 1e6)
+  (if (!= (ilog i 10) (int (log i 10)))
+    (println "error: " i { } (ilog i 10) { } (log i 10))
+  )
+)
+;-> error: 1000 3 3
+;-> error: 1000000 6 5.999999999999999
+
+Questi errori sono dovuti alla mancanza di precisione dei numeri floating-point, non a bug della  funzione "ilog".
+
+Vediamo la velocità della funzione:
+
+(time (for (i 1 1000000) (ilog i 10)))
+;-> 1294.672
+
+(time (for (i 1 1000000) (int (log i 10))))
+;-> 114.881
+
+Se cambio la base (es. 2) "ilog" aumenta il tempo, mentre "log" rimane costante) !!!
+
+(time (for (i 1 1000000) (ilog i 2)))
+;-> 4015.893
+
+(time (for (i 1 1000000) (int (log i 2))))
+;-> 109.365
+
+Nota: Per la funzione "log" vale: logb(n) = x, n = b^x. Questo non è vero per la funzione "ilog".
+
+Versione iterativa:
+
+(define (ilog n b)
+  (let (out -1)
+    (while (!= n 0)
+      ;(++ out)
+      (setq n (/ n b))
+      (setq out (+ out 1))
+    )
+    out
+  )
+)
+
+(ilog 1818272126126126 3)
+;-> 31
+
+Verifichiamo la correttezza della funzione:
+
+(for (i 1 1e6)
+  (if (!= (ilog i 10) (int (log i 10)))
+    (println "error: " i { } (ilog i 10) { } (log i 10))
+  )
+)
+;-> error: 1000 3 3
+;-> error: 1000000 6 5.999999999999999
+
+Questi errori sono dovuti alla mancanza di precisione dei numeri floating-point, non a bug della  funzione "ilog".
+
+Vediamo la velocità della funzione:
+
+(time (for (i 1 1000000) (ilog i 10)))
+;-> 1015.882
+
+Se cambio la base (es. 2) "ilog" aumenta il tempo, mentre "log" rimane costante) !!!
+
+(time (for (i 1 1000000) (ilog i 2)))
+;-> 2797.303
+
+(time (for (i 1 1000000) (int (log i 2))))
+;-> 109.365
+
+Versione iterativa (big integer):
+
+(define (ilog n b)
+  (let (out -1L)
+    (while (!= n 0)
+      ;(++ out)
+      (setq n (/ n b))
+      (setq out (+ out 1L))
+    )
+    out
+  )
+)
+
+(ilog 1818272126126126 3)
+;-> 31L
+
+Verifichiamo la correttezza della funzione:
+
+(for (i 1 1e6)
+  (if (!= (ilog i 10) (int (log i 10)))
+    (println "error: " i { } (ilog i 10) { } (log i 10))
+  )
+)
+;-> error: 1000 3L 3
+;-> error: 1000000 6L 5.999999999999999
+
+Questi errori sono dovuti alla mancanza di precisione dei numeri floating-point, non a bug della  funzione "ilog".
+
+Vediamo la velocità della funzione:
+
+(time (for (i 1 1000000) (ilog i 10)))
+;-> 1687.71
+
+Se cambio la base (es. 2 ilog aumenta il tempo, mentre log rimane costante) !!!
+
+(time (for (i 1 1000000) (ilog i 2)))
+;-> 4359.772
+
+
+--------------------
+NUMERI DI CARMICHAEL
+--------------------
+
+In teoria dei numeri, un numero di Carmichael è un intero positivo composto n che soddisfa la congruenza
+
+ b^(n-1) ≡ 1 mod n
+
+per tutti gli interi b che sono coprimi con n o, equivalentemente, che verificano la congruenza
+
+ b^n ≡ b mod n
+
+per ogni b.
+
+Il piccolo teorema di Fermat afferma che tutti i numeri primi hanno quella proprietà, ma il viceversa non è vero: ad esempio  2^(341) mod 341, ma 341 non è primo, essendo il prodotto di 11 e 31. Un numero tale che b^n ≡ b mod n è detto pseudoprimo di Fermat rispetto alla base b. I numeri di Carmichael sono pseudoprimi di Fermat in ogni base, cioè assoluti.
+
+I numeri di Carmichael passano in ogni caso il test di primalità di Fermat pur essendo composti: la loro esistenza impedisce di utilizzare questo test per certificare con sicurezza la primalità di un numero, mentre rimane utilizzabile per dimostrare che un numero è composto.
+
+I numeri di Carmichael sono tutti dispari.
+
+Scriviamo una funxione che controlla se un dato numero è un numero di Carmichael:
+
+(define (fattorizza x)
+  (letn (fattori (factor x)
+         unici (unique fattori))
+    (transpose (list unici (count unici fattori)))))
+    ;(map list unici (count unici fattori))))
+
+(fattorizza 45)
+;-> ((3 2) (5 1))
+
+(fattorizza 561)
+;-> ((3 1) (11 1) (17 1))
+
+(define (carmichael? n)
+  (local (out fattori)
+    (setq out true)
+    (cond ((or (= n 1) (even? n) (= 1 (length (factor n)))) (setq out nil))
+          (true
+            (setq fattori (fattorizza n))
+            (dolist (f fattori (= out nil))
+              (if (> (f 1) 1) (setq out nil))
+              (if (!= (% (- n 1) (- (f 0) 1)) 0) (setq out nil))
+            )
+          )
+    )
+    out
+  )
+)
+
+Scriviamo una funzione che calcola i numeri di Carmichael fino al numero n:
+
+(define (carmichael n)
+  (let (out '())
+    (for (i 3 n 2)
+      (if (carmichael? i) (push i out -1))
+    )
+  out
+  )
+)
+
+(carmichael 1000000)
+;-> (561 1105 1729 2465 2821 6601 8911 10585 15841 29341 41041 46657 52633 62745 63973
+;->  75361 101101 115921 126217 162401 172081 188461 252601 278545 294409 314821 334153
+;->  340561 399001 410041 449065 488881 512461 530881 552721 656601 658801 670033 748657
+;->  825265 838201 852841 997633)
+
+(time (carmichael 1000000))
+;-> 2043.545
+
+(define (carmichael n)
+  (filter carmichael? (sequence 3 n 2)))
+
+(time (carmichael 1000000))
+;-> 3510.422
+
+
+------------------------------------------
+RADICE QUADRATA INTERA DI UN NUMERO INTERO
+------------------------------------------
+
+Calcolare la radice quadrata intera di un numero n.
+
+Primo metodo:
+
+(define (isqrt1 n)
+  (local (xn xn1)
+    (setq xn 1)
+    (setq xn1 (/ (+ xn (/ n xn)) 2))
+    (while (> (abs (- xn1 xn)) 1)
+      (setq xn xn1)
+      (setq xn1 (/ (+ xn (/ n xn)) 2))
+    )
+    (while (> (* xn1 xn1) n) (-- xn1))
+    xn1
+  )
+)
+
+(isqrt1 900)
+;-> 30
+
+(isqrt1 899)
+;-> 29
+
+(isqrt1 6074020096)
+;-> 77936
+
+(time (map isqrt1 (sequence 2 1e6)))
+;-> 4980.122
+
+Test di correttezza:
+
+(for (i 2 1e6) (if (!= (isqrt1 (* i i)) (sqrt (* i i))) (println "error: " (* i i)) ))
+;-> nil
+
+Secondo metodo (algoritmo babilonese):
+
+(define (isqrt2 n)
+  (let ((x n) (y 1))
+    (while (> x y)
+      (setq x (/ (+ x y) 2))
+      (setq y (/ n x))
+    )
+    x
+  )
+)
+
+(isqrt2 900)
+;-> 30
+
+(isqrt2 899)
+;-> 29
+
+(isqrt2 6074020096)
+;-> 77936
+
+(time (map isqrt2 (sequence 2 1e6)))
+;-> 3630.086
+
+Test di correttezza:
+
+(for (i 2 1e6) (if (!= (isqrt2 (* i i)) (sqrt (* i i))) (println "error: " (* i i)) ))
+;-> nil
+
+Terzo metodo:
+
+(define (isqrt3 n) (int (sqrt n)))
+
+(isqrt3 900)
+;-> 30
+
+(isqrt3 899)
+;-> 29
+
+(isqrt3 6074020096)
+;-> 77936
+
+(time (map isqrt3 (sequence 2 1e6)))
+;-> 150.086
+
+Test di correttezza:
+
+(for (i 2 1e6) (if (!= (isqrt (* i i)) (sqrt (* i i))) (println "error: " (* i i)) ))
+;-> nil
+
+Quarto metodo (big integer):
+
+(define (isqrt4 n)
+  (catch
+    (local (start mid end out)
+      (setq start 1L)
+      (setq end (bigint (/ n 2)))
+      (while (<= start end)
+        (setq mid (/ (+ start end) 2))
+        (if (= n (* mid mid)) (throw mid))
+        (if (< (* mid mid) n)
+          (begin (setq start (+ mid 1)) (setq out mid))
+          (setq end (- mid 1))
+        )
+      )
+      (throw out)
+    )
+  )
+)
+
+oppure:
+
+(define (isqrt4 n)
+  (local (start mid end trovato out)
+    (setq start 1L)
+    (setq end (bigint (/ n 2)))
+    (while (and (<= start end) (= trovato nil))
+      (setq mid (/ (+ start end) 2))
+      (if (= n (* mid mid))
+          (begin (setq out mid) (setq trovato true))
+          (if (< (* mid mid) n)
+            (begin (setq start (+ mid 1)) (setq out mid))
+            (begin (setq end (- mid 1))  (setq out mid)))
+      )
+    )
+    out
+  )
+)
+
+(isqrt4 900)
+;-> 30L
+
+(isqrt4 899)
+;-> 29L
+
+(isqrt4 6074020096)
+;-> 77936L
+
+(time (map isqrt4 (sequence 2 1e6)))
+;-> 26274.627
+
+Test di correttezza:
+
+(for (i 2 1e6)
+  (setq j (bigint i))
+  (if (!= (isqrt4 (* j j)) (sqrt (* j j)))
+    (begin (println "error: " (* j j)))))
+;-> nil
+
+
+-----------------------
+COPPIE DI PRIMI GEMELLI
+-----------------------
+
+Due numeri sono primi gemelli se n e (n + 2) sono entrambi primi.
+Le coppie di primi gemelli sono infinite, ma la loro frequenza diminuisce con l'aumentare di n.
+
+Usiamo la seguente funzione per verificare se un numero n è primo:
+
+(define (primo? n)
+  (if (even? n) nil
+      (= 1 (length (factor n)))))
+
+(primo? 11)
+;-> true
+
+Definiamo una funzione per verificare se un numero n ha un gemello:
+
+(define (gemelli? n) (if (and (primo? n) (primo? (+ n 2)))))
+
+(gemelli? 5)
+;-> true
+
+Definiamo una funzione che trova tutte le coppie di gemelli dal numero a (dispari) al numero b:
+
+(define (coppieGemelli a b)
+  (local (somma)
+    (setq somma 0)
+    ;(for (i a b) (if (gemelli? i) (println (++ somma) { } i { } (+ i 2))))
+    (for (i a b 2) (if (gemelli? i) (++ somma)))
+    somma
+  )
+)
+
+Con: (for (i a b) (if (gemelli? i) (println (++ somma) { } i { } (+ i 2))))
+
+(coppieGemelli 3 1000)
+;-> 1 3 5         2 5 7
+;-> 3 11 13       4 17 19
+;-> 5 29 31       6 41 43
+;-> 7 59 61       8 71 73
+;-> 9 101 103     10 107 109
+;-> 11 137 139    12 149 151
+;-> 13 179 181    14 191 193
+;-> 15 197 199    16 227 229
+;-> 17 239 241    18 269 271
+;-> 19 281 283    20 311 313
+;-> 21 347 349    22 419 421
+;-> 23 431 433    24 461 463
+;-> 25 521 523    26 569 571
+;-> 27 599 601    28 617 619
+;-> 29 641 643    30 659 661
+;-> 31 809 811    32 821 823
+;-> 33 827 829    34 857 859
+;-> 35 881 883
+
+Con: (for (i a b 2) (if (gemelli? i) (++ somma)))
+
+Calcoliamo la velocità della funzione:
+
+(time (coppieGemelli 3 2e7))
+;-> 46361.619
+
+Adesso definiamo una funzione "pairs" che restituisce una lista con tutte le coppie di primi gemelli dal numero a al numero b.
+
+Prima scriviamo la funzione "twin?" che dato un numero n restituisce la coppia di primi n e (n + 2) oppure nil:
+
+(define (twin? n)
+  (if (and (primo? n) (primo? (+ n 2)))
+    (list n (+ n 2))
+    nil
+  )
+)
+
+(twin? 9)
+;-> nil
+
+(twin? 881)
+;-> (881 883)
+
+(define (pairs a b)
+  (filter true? (map twin? (sequence a b)))
+)
+
+(pairs 3 1000)
+;-> ((3 5) (5 7) (11 13) (17 19) (29 31) (41 43) (59 61) (71 73) (101 103) (107 109)
+;->  (137 139) (149 151) (179 181) (191 193) (197 199) (227 229) (239 241) (269 271)
+;->  (281 283) (311 313) (347 349) (419 421) (431 433) (461 463) (521 523) (569 571)
+;->  (599 601) (617 619) (641 643) (659 661) (809 811) (821 823) (827 829) (857 859)
+;->  (881 883))
+
+(length (pairs 3 1000))
+;-> 35
+
+Calcoliamo la velocità della funzione:
+
+(time (pairs 3 2e7))
+;-> 47479.457
+
+Adesso definiamo la stessa funzione, ma in modo imperativo:
+
+(define (pairs-i a b)
+  (local (idx out)
+    (setq idx a)
+    (while (< idx b)
+      (if (and (primo? idx) (primo? (+ idx 2)))
+        (push (list idx (+ idx 2)) out -1)
+      )
+      (++ idx 2)
+    )
+    out
+  )
+)
+
+(length (pairs-i 3 1000))
+;-> 35
+
+(time (pairs-i 3 2e7))
+;-> 44355.696
+
+Adesso riscriviamo la funzione ottimizzata (non ricalcoliamo un numero primo quando troviamo una coppia):
+
+(define (pairs-i a b)
+  (local (idx found out)
+    (setq found nil)
+    (setq idx a)
+    ; solo il numero 5 appartiene a due coppie di numeri primi gemelli
+    (setq out '((3 5) (5 7)))
+    (while (< idx b)
+      (if (and (primo? idx) (primo? (+ idx 2)))
+        (begin
+        (push (list idx (+ idx 2)) out -1)
+        (setq found true))
+      )
+      (if found (++ idx 4) (++ idx 2))
+      (setq found nil)
+    )
+    out
+  )
+)
+
+(length (pairs-i 7 1000))
+;-> 35
+
+(time (pairs-i 7 2e7))
+;-> 43177.908
+
+Questo è il miglior risultato ottenuto in termini di velocità.
+
+Cerchiamo di capire dove la funzione spende il tempo maggiore. Proviamo a testare solo la parte che calcola i numeri primi:
+
+(define (test-a a b)
+  (local (idx out)
+    (setq idx a)
+    (while (< idx b)
+      (if (and (primo? idx) (primo? (+ idx 2))))
+      (++ idx 2)
+    )
+  )
+)
+
+(time (test-a 3 2e7))
+;-> 44295.723
+
+Come avevamo intuito, quasi tutto il tempo di esecuzione della funzione è dedicato al calcolo dei numeri primi.
+
+Calcoliamo la distanza tra le coppie di numeri primi:
+
+(define (dist-pairs a b)
+  (local (idx base out)
+    (setq idx a)
+    (setq base 3)
+    (while (< idx b)
+      (if (and (primo? idx) (primo? (+ idx 2)))
+        (begin
+          (push (- idx base) out -1)
+          (setq base idx))
+      )
+      (++ idx 2)
+    )
+    out
+  )
+)
+
+(dist-pairs 5 1000)
+;-> (2 6 6 12 12 18 12 30 6 30 12 30 12 6 30 12 30 12
+;->  30 36 72 12 30 60 48 30 18 24 18 150 12 6 30 24)
+
+(silent (setq dp6 (dist-pairs 5 1e6)))
+(length dp6)
+;-> 8168
+
+Infine salviamo dp6 come file di testo (per esempio per plottare i dati con un altro programma):
+
+(save "dist-coppie.txt" 'dp6)
+;-> true
+
+Sul forum di newLISP, raph.ronnquist ha fornito due funzioni per calcolare le coppie:
+
+(define (pairs-i a b)
+  (let ((out (list)) (x nil))
+    (for (y (if (odd? a) a (inc a)) b 2)
+      (if (1 (factor y)) (setf y nil) x (push (list x y) out -1))
+      (setf x y))
+    out))
+
+(length (pairs-i 3 1000))
+;-> 35
+
+(time (pairs-i 3 2e7))
+;-> 40072.606
+
+La seconda funzione sfrutta la seguente idea. Per migliorare la velocità (nei numeri grandi) possiamo controllare se il modulo di un generico prodotto di primi include uno dei numeri primi del prodotto.
+Il codice è il seguente:
+
+(define (pairs-i1 a b)
+  (let ((out (list)) (x nil) (FX (* 2 3 5 7 11 13)) (M 0))
+    (for (y (if (odd? a) a (inc a)) b 2)
+      (if (if (< y FX) (1 (factor y))
+             (or (= (setf M (% y FX))) (if (factor M) (<= ($it 0) 13)) (1 (factor y))))
+        (setf y nil)
+        x (push (list x y) out -1))
+      (setf x y))
+    out))
+
+In questo esempio viene utilizzato il prodotto di primi (* 2 3 5 7 11 13). Per numeri maggiori di questo, controlla se il modulo è un prodotto di uno di quei numeri primi, nel qual caso il numero nel suo insieme è divisibile per quel numero primo (e quindi non è un numero primo). In particolare, la fattorizzazione del modulo è in genere più veloce perchè filtra questi i numeri controllati dal modulo.
+
+(time (pairs-i1 3 2e7))
+;-> 29964.396
+
+Il miglioramento di velocità per la gestione di grandi numeri è significativo (+ 25%).
+
+
+----------------
+NUMERI SEMIPRIMI
+----------------
+
+Un numero semi-primo è un numero che è il prodotto di due numeri primi.
+Algoritmo:
+1) Trovare un divisore del numero d1.
+2) Dividere il numero per d1 per ottenere un secondo divisore d2.
+3) Se d1 e d2 sono entrambi primi, allora il numero originale è semiprimo.
+4) ripetere 1), 2) e 3) per tutti i divisori del numero.
+
+Scriviamo una funzione che verifica se un numero è primo:
+
+(define (primo? n)
+  (if (and (!= n 2) (even? n)) nil
+      (= 1 (length (factor n)))))
+
+Scriviamo una funzione che verifica se un numero è semiprimo:
+
+(define (semiprimo? num)
+  (local (d2 out)
+    (for (d1 2 (int (+ (sqrt num) 1)) 1 (= out true))
+      (if (= (% num d1) 0)
+        (setq d2 (/ num d1)
+              out (and (primo? d1) (primo? d2)))
+      )
+    )
+    out
+  )
+)
+
+(semiprimo? 21)
+;-> true
+
+(semiprimo? 4)
+;-> true
+
+Scriviamo una funzione che calcola i numeri semiprimi fino a n:
+
+(define (semiprimi n)
+  (let (out '())
+    (for (i 2 n)
+      (if (semiprimo? i) (push i out -1))
+    )
+  out
+  )
+)
+
+(semiprimi 100)
+;-> (4 6 9 10 14 15 21 22 25 26 33 34 35 38 39 46 49 51 55
+;->  57 58 62 65 69 74 77 82 85 86 87 91 93 94 95)
+
+(length (semiprimi 1000))
+;-> 299
+
+(time (map semiprimi (sequence 10 1000)))
+;-> 1473.389
+
+Per migliorare la velocità possiamo inglobare il controllo dei numeri primi all'interno del ciclo while:
+
+(define (semiprimo? num)
+  (let ((cnt 0) (i 2))
+    (while (and (< cnt 2) (<= (* i i) num))
+      (while (zero? (% num i))
+        (setq num (/ num i))
+        (++ cnt)
+      )
+      (++ i)
+    )
+    (if (> num 1) (++ cnt))
+    (= cnt 2)
+  )
+)
+
+(semiprimi 100)
+;-> (4 6 9 10 14 15 21 22 25 26 33 34 35 38 39 46 49 51 55
+;->  57 58 62 65 69 74 77 82 85 86 87 91 93 94 95)
+
+(length (semiprimi 1000))
+;-> 299
+
+(time (map semiprimi (sequence 10 1000)))
+;-> 1056.916
+
+
+--------------
+NUMERI COPRIMI
+--------------
+
+Due numeri a e b sono detti coprimi (o primi tra loro o relativamente primi) se e solo se essi non hanno nessun divisore comune eccetto 1 e -1 o, in modo equivalente, se il loro massimo comune divisore è 1, cioè MCD(a,b) = 1.
+
+(define (coprimi? a b) (= (gcd a b) 1))
+
+(coprimi? 10 11)
+
+(define (coprimi n)
+  (let ((out '()))
+    (for (i 0 n)
+      (for (j i n)
+      ;(for (j (+ i 1) n)
+        (if (coprimi? i j) (push (list i j) out -1))
+      )
+    )
+    out
+  )
+)
+
+(coprimi 10)
+;-> ((0 1) (1 1) (1 2) (1 3) (1 4) (1 5) (1 6) (1 7) (1 8) (1 9)
+;->  (1 10) (2 3) (2 5) (2 7) (2 9) (3 4) (3 5) (3 7) (3 8) (3 10)
+;->  (4 5) (4 7) (4 9) (5 6) (5 7) (5 8) (5 9) (6 7) (7 8) (7 9)
+;->  (7 10) (8 9) (9 10))
+
+Due teoremi interessanti sui numeri coprimi:
+
+Teorema: Numeri naturali consecutivi n e (n + 1) sono sempre coprimi.
+
+(coprimi? 310 311)
+;-> true
+
+Teorema: La probabilità che due interi scelti a caso siano primi tra loro è 6/(π^2).
+
+Un altro metodo per calcolare tutte le coppie di coprimi è quello di utilizzare la sequenza di Farey.
+La sequenza di Farey F(n), per ogni numero naturale positivo n, è definita come l'insieme ordinato secondo l'ordine crescente di tutti i numeri razionali irriducibili (cioè tali che numeratore e denominatore siano coprimi) espressi sotto forma di frazione con numeratore e denominatore compresi tra zero e n.
+
+La seguente funzione genera la n-esima sequenza di Farey in ordine crescente o decrescente:
+
+(define (farey n desc)
+  (local (a b c d k p q out)
+    (setq out '())
+    (setq a 0 b 1 c 1 d n)
+    ;(println a { } b)
+    (if desc (setq a 1 c (- n 1)))
+    (push (list a b) out -1)
+    (while (or (and (<= c n) (not desc)) (and (> a 0) desc))
+      (setq k (int (div (+ n b) d)))
+      (setq p (- (* k c) a))
+      (setq q (- (* k d) b))
+      (setq a c b d c p d q)
+      (push (list a b) out -1)
+      ;(println a { } b)
+    )
+    out
+  )
+)
+
+(farey 3)
+;-> ((0 1) (1 3) (1 2) (2 3) (1 1))
+
+(farey 10)
+;-> ((0 1) (1 10) (1 9) (1 8) (1 7) (1 6) (1 5) (2 9) (1 4) (2 7)
+;->  (3 10) (1 3) (3 8) (2 5) (3 7) (4 9) (1 2) (5 9) (4 7) (3 5)
+;->  (5 8) (2 3) (7 10) (5 7) (3 4) (7 9) (4 5) (5 6) (6 7) (7 8)
+;->  (8 9) (9 10) (1 1))
+
+Verifichiamo che le due funzioni "coprimi" e "farey" generano le stesse sequenze :
+
+(= (coprimi 100) (sort (farey 100)))
+;-> true
+
+Vediamo la differenza delle due funzioni in termin di velocità
+
+(time (map coprimi (sequence 10 500)))
+;-> 6391.329
+
+(time (map farey (sequence 10 500)))
+;-> 7297.73
+
+Ottimizziamo un pò la funzione "farey":
+
+(define (farey1 n)
+  (local (a b c d k p q out)
+    (setq out '())
+    (setq a 0 b 1 c 1 d n)
+    ;(println a { } b)
+    (push (list a b) out -1)
+    ;(while (or (and (<= c n) (not desc)) (and (> a 0) desc))
+    (while (<= c n)
+      ;(setq k (int (div (+ n b) d)))
+      (setq k (/ (+ n b) d))
+      (setq p (- (* k c) a))
+      (setq q (- (* k d) b))
+      (setq a c b d c p d q)
+      (push (list a b) out -1)
+      ;(println a { } b)
+    )
+    out
+  )
+)
+
+(= (coprimi 100) (sort(farey1 100)))
+;-> true
+
+(time (map farey1 (sequence 10 500)))
+;-> 6469.966
+
+Le due funzioni hanno la stessa velocità.
+
+
+-------------------------------------------------
+FATTORIZZAZIONE DI UN NUMERO INTERO (BIG INTEGER)
+-------------------------------------------------
+
+La fattorizzazione a ruota è un miglioramento del metodo della divisione di prova per la fattorizzazione a numeri interi.
+
+Il metodo della divisione di prova consiste nel dividere il numero da fattorizzare successivamente per i primi numeri interi (2, 3, 4, 5, ...) fino a trovare un divisore. Con la fattorizzazione a ruota, si parte da una lista (base) dei primi numeri primi. Quindi si genera l'elenco, chiamato la ruota, degli interi che sono coprimi con tutti i numeri della base. Quindi, per trovare il divisore più piccolo del numero da fattorizzare, lo si divide in successione per i numeri nella base e nella ruota.
+
+Con la base {2, 3}, questo metodo riduce il numero di divisioni a 1/3 <34% del numero necessario per la divisione di prova. Basi più grandi riducono ulteriormente questa proporzione. Ad esempio, con base da {2, 3, 5} a 8/30 <27%, mentre con una base da {2, 3, 5, 7} a 48/210 <23%.
+
+Esempio
+
+Con la base dei primi 3 numeri primi {2, 3, 5}, il "primo giro" della ruota è costituito da:
+
+7, 11, 13, 17, 19, 23, 29, 31.
+
+Il secondo giro si ottiene aggiungendo il prodotto della base 2 * 3 * 5 = 30, ai numeri del primo giro. Il terzo giro si ottiene aggiungendo 30 al secondo giro e così via.
+Da notare che gli incrementi tra due elementi consecutivi della ruota, cioè
+
+dist = [4, 2, 4, 2, 4, 6, 2, 6],
+
+rimangono gli stessi dopo ogni giro.
+
+Nota: (setq MAXINT 9223372036854775807)
+
+Scriviamo la funzione per fattorizzare un numero:
+
+(define (factorbig n)
+  (local (f k i dist out)
+    ; distanze tra due elementi consecutivi della ruota (wheel)
+    (setq dist '(0 4 2 4 2 4 6 2 6))
+    (setq out '())
+    (while (zero? (% n 2))
+      (push '2L out -1)
+      (setq n (/ n 2)))
+    (while (zero? (% n 3))
+      (push '3L out -1)
+      (setq n (/ n 3)))
+    (while (zero? (% n 5))
+      (push '5L out -1)
+      (setq n (/ n 5)))
+    (setq k 7L i 1)
+    (while (<= (* k k) n)
+      (if (zero? (% n k))
+        (begin
+        (push k out -1)
+        (setq n (/ n k)))
+        (begin
+        (setq k (+ k (dist i)))
+        (if (< i 8) (++ i) (setq i 1)))
+      )
+    )
+    (if (> n 1) (push (bigint n) out -1))
+    out
+  )
+)
+
+(factorbig 9223372036854775809L)
+;-> (3L 3L 3L 19L 43L 5419L 77158673929L)
+
+(time (factorbig 9223372036854775809L))
+;-> 50.947
+
+(apply * '(3L 3L 3L 19L 43L 5419L 77158673929L))
+;-> 9223372036854775809L
+
+Controlliamo se "factorbig" e "factor" producono lo stesso risultato (fino ad un milione):
+
+(= (map factorbig (sequence 2 1e6)) (map factor (sequence 2 1e6)))
+;-> true
+
+Proviamo con un numero di 20 cifre:
+
+(time (println (factorbig 92233720368547758091L)))
+;-> (7L 13L 1013557366687338001L)
+;-> 182879.379 ; 3 minuti e 2 secondi
+
+(apply * '(7L 13L 1013557366687338001L))
+;-> 92233720368547758091L
+
+Più è grande il valore dei fattori maggiore è il tempo di esecuzione.
+
+(time (println (factorbig 1013557366687338001L)))
+;-> (1013557366687338001L)
+;-> 179855.465 ; 3 minuti
+
+Invece nel seguente esempio il calcolo è immediato:
+
+2^64 = 18446744073709551616
+
+(setq d 18446744073709551616L)
+
+(factorbig d)
+;-> (2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L
+;->  2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L
+;->  2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L
+;->  2L 2L 2L 2L)
+
+Calcoliamo la differenza di velocità tra "factorbig" e "factor":
+
+(time (map factorbig (sequence 2 1e5)))
+;-> 1453.157
+
+(time (map factor (sequence 2 1e5)))
+;-> 78.108
+
+(time (map factorbig (sequence 2 1e6)))
+;-> 33469.801 ; 33 secondi
+
+(time (map factor (sequence 2 1e6)))
+;-> 1027.95
+
+La funzione integrata "factor" è molto più veloce, ma non funzione con i big integer.
+
+Possiamo migliorare le prestazioni della funzione utilizzando una base più grande:
+
+(2 3 5 7)
+
+Vediamo come calcolare la lista delle distanze. Prima occorre generare i numeri della ruota, cioè tutti gli interi coprimi con la base fino al numero (+ (* 2 3 5 7) 11) = 221
+
+Funzione per calcolare i coprimi:
+
+(define (coprimi? a b) (= (gcd a b) 1))
+
+Funzione che verifica se un numero appartiene alla ruota:
+
+(define (wheel7 n) (and (coprimi? n 2) (coprimi? n 3) (coprimi? n 5) (coprimi? n 7)))
+
+Funzione che crea la ruota dei numeri:
+
+(define (dowheel7)
+  (let (out '())
+    (for (i 2 221) (if (wheel7 i) (push i out -1)))
+  )
+)
+
+(dowheel7)
+;-> (11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71 73 79 83 89 97 101 103 107 109 113
+;->  121 127 131 137 139 143 149 151 157 163 167 169 173 179 181 187 191 193 197 199
+;->  209 211 221)
+
+Per calcolare le distanze tra due elementi consecutivi della ruota usiamo la seguente funzione:
+
+(define (creadist lst) (map - (rest lst) (chop lst)))
+
+(creadist (dowheel7))
+;-> (2 4 2 4 6 2 6 4 2 4 6 6 2 6 4 2 6 4 6 8 4 2 4 2 4 8 6 4 6 2 4 6 2 6 6 4 2 4 6 2
+;-> 6 4 2 4 2 10 2 10)
+
+Adesso possiamo scrivere la nuova funzione di fattorizzazione con base (2 3 5 7):
+
+(define (factorbig n)
+  (local (f k i dist out)
+    ; Distanze tra due elementi consecutivi della ruota (wheel)
+    (setq dist (array 48 '(2 4 2 4 6 2 6 4 2 4 6 6 2 6 4 2 6 4
+                           6 8 4 2 4 2 4 8 6 4 6 2 4 6 2 6 6 4
+                           2 4 6 2 6 4 2 4 2 10 2 10)))
+    (setq out '())
+    (while (zero? (% n 2)) (push '2L out -1) (setq n (/ n 2)))
+    (while (zero? (% n 3)) (push '3L out -1) (setq n (/ n 3)))
+    (while (zero? (% n 5)) (push '5L out -1) (setq n (/ n 5)))
+    (while (zero? (% n 7)) (push '7L out -1) (setq n (/ n 7)))
+    (setq k 11L i 0)
+    (while (<= (* k k) n)
+      (if (zero? (% n k))
+        (begin
+        (push k out -1)
+        (setq n (/ n k)))
+        (begin
+        ;(++ k (dist i))
+        (setq k (+ k (dist i)))
+        (if (< i 47) (++ i) (setq i 0)))
+      )
+    )
+    (if (> n 1) (push (bigint n) out -1))
+    out
+  )
+)
+
+(factorbig 9223372036854775809L)
+;-> (3L 3L 3L 19L 43L 5419L 77158673929L)
+
+(time (factorbig 9223372036854775809L))
+;-> 46.875
+
+(apply * '(3L 3L 3L 19L 43L 5419L 77158673929L))
+;-> 9223372036854775809L
+
+Controlliamo se "factorbig" e "factor" producono lo stesso risultato (fino ad un milione):
+
+(= (map factorbig (sequence 2 1e5)) (map factor (sequence 2 1e5)))
+;-> true
+(= (map factorbig (sequence 2 1e6)) (map factor (sequence 2 1e6)))
+;-> true
+
+Proviamo con un numero di 20 cifre:
+
+(time (println (factorbig 92233720368547758091L)))
+;-> (7L 13L 1013557366687338001L)
+;-> 150515.93
+
+Questa funzione "factorbig" impiega 30 secondi in meno di quella precedente (con la base (2 3 5) la funzione impiegava 180 secondi).
+
+Calcoliamo la differenza di velocità tra "factorbig" e "factor":
+
+(time (map factorbig (sequence 2 1e5)))
+;-> 1406.559
+
+(time (map factor (sequence 2 1e5)))
+;-> 78.108
+
+(time (map factorbig (sequence 2 1e6)))
+;-> 28834.221 ; 29 secondi
+
+(time (map factor (sequence 2 1e6)))
+;-> 1027.95
+
+
+------------------------------------------
+POTENZA DI DUE NUMERI INTERI (BIG INTEGER)
+------------------------------------------
+
+Utilizziamo una soluzione ricorsiva per calcolare x^n usando il metodo divide & conquer:
+
+power(x, n) =     power(x, n/2) * power(x, n/2)     (se n è pari)
+power(x, n) = x * power(x, n/2) * power(x, n/2)     (se n è dispari)
+
+(define (ipow x n)
+  (cond ((zero? n) 1)
+        ((even? n) (ipow (* x x) (/ n 2)))
+        (true (* x (ipow (* x x) (/ (- n 1) 2))))))
+
+(ipow 3 7)
+;-> 2187
+
+(ipow -2 15)
+;-> -32768
+
+Il metodo può essere migliorato notando che calcoliamo due volte lo stesso sotto-problema (power (x, n/2) per ogni chiamata ricorsiva. Possiamo ottimizzare la funzione calcolando e memorizzando la soluzione del sotto-problema solo una volta.
+
+(define (ipow x n)
+  (local (pot out)
+    (if (zero? n)
+        (setq out 1L)
+        (begin
+          (setq pot (ipow x (/ n 2)))
+          (if (odd? n) (setq out (* x pot pot))
+                       (setq out (* pot pot)))
+        )
+    )
+    out
+  )
+)
+
+(ipow -2 15)
+;-> -32768
+
+Controlliamo se la soluzione genera gli stessi risultati della funzione built-in pow(n m):
+
+(for (i 1 15)
+  (for (j 1 15)
+    (if (!= (pow i j) (ipow i j))
+      (println "error: " i ", " j))
+  )
+)
+;-> nil
+
+(setq MAXINT 9223372036854775807)
+
+(ipow 10 53)
+;-> -8169529724050079744 ;errore di overflow
+
+Passando gli argomenti come big integer otteniamo il risultato corretto:
+
+(ipow 10L 53L)
+;-> 100000000000000000000000000000000000000000000000000000L
+
+(ipow 3L 8L)
+;-> 6561L
+
+Complessità temporale: O(log(n))
+
+Potete trovare un algoritmo più efficiente che utilizza il metodo delle "addiction chain" nel libro di Donald Knuth "The Art of Computer Programming".
+
+
+--------------------
+NUMERI DI TRIBONACCI
+--------------------
+
+La serie tribonacci è una generalizzazione della sequenza di Fibonacci in cui ogni termine è la somma dei tre termini precedenti.
+
+La sequenza Tribonacci:
+
+0, 0, 1, 1, 2, 4, 7, 13, 24, 44, 81, 149, 274, 504, 927, 1705, 3136, 5768, 10609, 19513, 35890, 66012, 121415, 223317, 410744, 755476, 1389537, 2555757, 4700770, 8646064, 15902591, 29249425, 53798080, 98950096, 181997601, 334745777, 615693474, 1132436852...
+
+Forma generale del numero Tribonacci:
+
+a(n) = a(n-1) + a(n-2) + a(n-3)
+
+dove: a(0) = a(1) = 0, a(2) = 1
+
+Scrivere una funzione che calcola l'n-esimo numero di Tribonacci.
+
+Soluzione ricorsiva:
+
+(define (trib n)
+  (if (or (= n 2) (= n 1) (zero? n))
+      0
+      (if (= n 3)
+          1
+          (+ (trib (- n 1)) (trib (- n 2)) (trib (- n 3)))
+      )
+  )
+)
+
+(trib 10)
+;-> 44
+
+(map trib (sequence 1 10))
+;-> (0 0 1 1 2 4 7 13 24 44)
+
+Complessità temporale: O(2^n) (esponenziale)
+
+Una soluzione migliore è utilizzare la programmazione dinamica (cioè memorizzando e poi utilizzando i valori calcolati precedentemente):
+
+(define (trib n)
+  (local (a b c val)
+    (setq a 0 b 0 c 1 val 0)
+    (if (or (= 0 n) (= n 1) (= n 2))
+        (setq val 0)
+        (if (= n 3)
+            (setq val 1)
+            (for (i 3 (- n 1))
+              (setq val (+ a b c))
+              (setq a b b c c val)
+            )
+        )
+    )
+    val
+  )
+)
+
+(map trib (sequence 1 10))
+;-> (0 0 1 1 2 4 7 13 24 44)
+
+Complessità temporale: O(n) (lineare)
+
+Scriviamo una versione per i big-integer:
+
+(define (trib-big n)
+  (local (a b c val)
+    (setq a 0L b 0L c 1L val 0L)
+    (if (or (= 0 n) (= n 1) (= n 2))
+        (setq val 0L)
+        (if (= n 3)
+            (setq val 1L)
+            (for (i 3 (- n 1))
+              (setq val (+ a b c))
+              (setq a b b c c val)
+            )
+        )
+    )
+    val
+  )
+)
+
+(trib-big 1000L)
+;-> 443382579490226307661986241584270009256355236429858450381499235934108943134478901646797270328593836893366107162717822510963842586116043942479088674053663996392411782672993524690287662511197858910187264664163782145563472265666010074477859199789932765503984125240893L
+
+Calcoliamo il limite del rapporto tra due numeri consecutivi di Tribonacci:
+
+(div (trib-big 1000L) (trib-big 999L))
+;-> 1.839286755214161
+
+Esiste un algoritmo ancora più veloce che utilizza la moltiplicazioni tra matrici, ma la funzione (trib-big) è sufficientemente veloce.
+
+
 ================
 
  PROJECT EULERO
@@ -13258,7 +14428,7 @@ Esistono algoritmi ancora più veloci per il calcolo dei numeri di Lucas che uti
 |    18    |  1074         |        32  |
 |    19    |  171          |         3  |
 |    20    |  648          |         0  |
-|    21    |  31626        |       672  |
+|    21    |  31626        |       122  |
 |    22    |  871198282    |        20  |
 |    23    |  4179871      |     40900  |
 |    24    |  278391546    |     25309  |
@@ -14988,8 +16158,8 @@ Adesso scriviamo la funzione che calcola i numeri amicabili:
 ;-> 6368 6232 6368
 ;-> 31626
 
-(time (e021) 10)
-;-> 1937.7
+(time (e021))
+;-> 220.022
 
 Una soluzione più efficiente si ottiene usando la seguente formula:
 Siano p1, p2, … pk i fattori primi del numero n.
@@ -15136,8 +16306,8 @@ Scriviamo la funzione richiesta dal problema:
 (e021-fast)
 ;-> 31626
 
-(time (e021-fast) 10)
-;-> 672.0
+(time (e021-fast))
+;-> 122.883
 
 la funzione "e021-fast" è tre volte più veloce della funzione "e021".
 
@@ -15448,7 +16618,6 @@ Abbiamo ordinato le permutazioni poichè non vengono create in ordine lessicogra
 
 (time (e024))
 ;-> 25309.091  ;circa 25 secondi
-
 
 
 ===========
@@ -17695,6 +18864,7 @@ I numeri coinvolti nella soluzione sono i seguenti:
 3691 3697 3701 3709 3719 3727 3733 3739 3761 3767 3769
 3779 3793 3797 3803 3821 3823 3833 3847 3851 3853 3863
 3877 3881 3889 3907 3911 3917 3919 3923 3929 3931))
+
 
 ===============
 
@@ -22484,7 +23654,6 @@ Quindi torniamo indietro (backtracking) e cerchiamo di mettere la terza regina i
 
 In questo modo si ottiene una possibile soluzione al problema delle N-Regine e l'algoritmo termina.
 
-
 (define (isAttacked x y board N)
   (local (out)
     ; controllo righe e colonne
@@ -23311,7 +24480,7 @@ Soluzione:
 
 
 --------------------------
-Moltiplicazioni di Fattori
+Moltiplicazioni di fattori
 --------------------------
 
 Dato un numero N, creare la lista dei numeri che possono essere ottenuti dal prodotto di tutte le combinazioni dei fattori primi del numero N.
@@ -23799,6 +24968,7 @@ Per adesso mi fermo qui, devo ragionarci un pò di più :-)
 -----------------------------------
 Creazione e valutazione di polinomi
 -----------------------------------
+
 Supponiamo di avere il polinomio y(x) = 3*x^2 - 7*x + 5 e di voler calcolare i valori di y per x che varia da 0 a 10 (con passo 1).
 Possiamo definire una funzione che rappresenta il polinomio:
 
@@ -23879,7 +25049,7 @@ Usiamo la funzione "poly" in un ciclo for:
 ;-> 9 3394
 ;-> 10 4580
 
-Proviamio con i dati del primo esempio:
+Proviamo con i dati del primo esempio:
 
 (setq poly2 (crea-polinomio '(3 7 5)))
 ;-> (lambda (x) (add 5 (mul x 7) (mul (pow x 2) 3)))
@@ -23927,6 +25097,792 @@ Sul forum di newLISP, rickyboy ha fornito la seguente funzione per creare polino
 
 (poly4 0)
 ;-> 5
+
+
+------------------------------
+Quadrato perfetto di un numero
+------------------------------
+
+Determinare se un numero n è un quadrato perfetto.
+
+Usiamo la funzione radice quadrata (sqrt):
+
+(define (square? n)
+  (let (v (+ (sqrt n 0.5)))
+    (= n (* v v))))
+
+(square? 400)
+;-> true
+
+(square? 1736364774)
+;-> nil
+
+(time (map square? (sequence 2 1000000)))
+;-> 225.77
+
+Facciamo un test per vedere se la funzione è corretta:
+
+(for (i 2 1e7)
+  (if (not (square? (* i i))) (println i { } (* i i))))
+;-> nil
+
+Un metodo alternativo:
+
+(define (square1? n)
+  (catch
+    (let (i (max 1 (int (- (sqrt n) 1))))
+      (while (<= (* i i) n)
+        (if (and (= (% n i) 0) (= i (/ n i))) (throw true))
+        (++ i)
+      )
+      (throw nil)
+    )
+  )
+)
+
+(square1? 400)
+;-> true
+
+(square1? 1736364774)
+;-> nil
+
+(time (map square1? (sequence 2 1000000)))
+;-> 2253.451
+
+Test:
+
+(for (i 2 1e6)
+  (if (not (square1? (* i i))) (println i { } (* i i))))
+;-> nil
+
+Un altro metodo è quello di fattorizzare il numero n e poi, se tutti gli esponenti dei fattori sono numeri pari, allora n è un quadrato perfetto.
+
+Esempio:
+n = 400
+(factor 400)
+;-> (2 2 2 2 5 5)
+
+400 = 20*20 = 2^4 * 5^2
+
+Poichè 4 e 2 (gli esponenti) sono numeri pari allora 400 è un quadrato perfetto.
+
+Ecco la funzione:
+
+(define (square2? n)
+  (let (f (factor n))
+    (catch
+      (dolist (x (count (unique f) f))
+        (if (odd? x) (throw nil))
+        true
+      )
+    )
+  )
+)
+
+(square2? 400)
+;-> true
+
+(square2? 1736364774)
+;-> nil
+
+(time (map square2? (sequence 2 1000000)))
+;-> 3534.401
+
+Test:
+
+(for (i 2 1e5)
+  (if (not (square2? (* i i))) (println i { } (* i i))))
+;-> nil
+
+Un altro algoritmo (molto lento).
+
+Dato il numero n:
+1) a = 5*n
+2) b = 5
+3) Affinchè (a >= b)
+      a = a - b
+      b = b + 10
+4) Quando (a < b):
+   se e solo se (a == 0) allora n è un quadrato perfetto
+
+Ecco la funzione:
+
+(define (square3? n)
+  (let ((a (* 5 n)) (b 5))
+    (while (>= a b)
+      (setq a (- a b))
+      (++ b 10)
+    )
+    (zero? a)
+  )
+)
+
+(square3? 400)
+;-> true
+
+(square3? 1736364774)
+;-> nil
+
+(time (map square3? (sequence 2 1000000)))
+;-> 80311.923
+
+Test:
+
+(for (i 2 1e4)
+  (if (not (square3? (* i i))) (println i { } (* i i))))
+;-> nil
+
+Inoltre valgono le seguenti due regole:
+
+1) Se un numero ha 2 o 3 o 7 o 8 nel posto dell'unità, allora non è un quadrato perfetto.
+
+(define (digit-1 n)
+  (if (zero? (/ n 10))
+      n
+      (digit-1 (/ n 10))
+  )
+)
+
+(digit-1 (* 343 343))
+;-> 1
+
+2) Se la somma delle cifre di un numero non vale 1 o 4 o 7 o 9, allora non è un quadrato perfetto.
+
+(define (digit-sum n) (+ 1 (% (- n 1) 9)))
+
+(digit-sum (* 361 361))
+;-> 1
+
+Infine, ecco una soluzione abbastanza veloce che funzione anche per i numeri big integer:
+
+(define (square4? n)
+  (local (a)
+    (setq a n)
+    (while (> (* a a) n)
+      (setq a (/ (+ a (/ n a)) 2L))
+    )
+    (= (* a a) n)
+  )
+)
+
+(square4? 400L)
+;-> true
+
+(square4? 1736364774L)
+;-> nil
+
+(* 83968 83968)
+;-> 7050625024
+
+(square4? (* 83968L 83968L))
+;-> true
+
+Ma attenzione, occorre passare dei numeri big integer (L) per ottenere il risultato corretto:
+
+(square4? (* 83968 83968))
+;-> nil ;errore
+
+(square4? (* 383747464646473736473647364736L 383747464646473736473647364736L))
+;-> true
+
+(time (map square4? (sequence 2L 1000000L)))
+;-> 2578.611
+
+Test:
+
+(for (i 2 1e6)
+  (if (not (square4? (* (bigint i) (bigint i))) (println i { } (* i i)))))
+;-> nil
+
+
+-----------------------------
+Potenza perfetta di un numero
+-----------------------------
+
+Determinare se un numero intero è potenza perfetta di un altro numero intero.
+
+Cominciamo col determinare se un numero n è potenza del numero 3.
+
+(define (power-of-3? n)
+  (if (zero? (% n 3))
+        (power-of-3? (/ n 3))
+        (= n 1)
+  )
+)
+
+(power-of-3? 9)
+;-> true
+(power-of-3? 6)
+;-> nil
+(power-of-3? 81)
+;-> true
+(power-of-3? 847288609443)
+;-> true
+
+Vediamo la velocità della funzione:
+
+(time (map power-of-3? (sequence 4 1e7)))
+;-> 2676.189
+
+Notiamo che la somma delle cifre di ogni numero che è potenza di 3 vale 9 (tranne 0 e 3).
+Per calcolare la somma delle cifre di un numero usiamo la seguente funzione:
+
+(define (digitSum n) (+ 1 (% (- n 1) 9)))
+
+Verifichiamo la nostra ipotesi:
+
+(for (i 4 1e6)
+  (if (and (power-of-3? i) (!= 9 (digitSum i)))
+    (println "Error: " i)
+  )
+)
+;-> nil
+
+Non è vero il contrario, cioè esistono tanti numeri che hanno come somma delle cifre il valore 9, ma non sono potenze del numero 3.
+
+(for (i 4 1e2)
+  (if (and (= 9 (digitSum i)) (not (power-of-3? i)))
+    (println "Error: " i)
+  )
+)
+;-> Error: 18
+;-> Error: 36
+;-> Error: 45
+;-> Error: 54
+;-> Error: 63
+;-> Error: 72
+;-> Error: 90
+;-> Error: 99
+
+Possiamo generalizzare la funzione per determinare se un numero m è potenza del numero n.
+
+(define (power-of? n m)
+  (if (zero? (% m n))
+        (power-of? n (/ m n))
+        (= m 1)
+  )
+)
+
+(power-of? 3 117)
+;-> nil
+(power-of? 4 4096)
+;-> true
+(power-of? 4 20)
+;-> nil
+(power-of? 7 2401)
+;-> true
+(power-of-3? 847288609443)
+;-> true
+
+Un altro metodo è quello di utilizzare i logaritmi. L'idea è di calcolare il logaritmo di y in base x. Se risulta essere un numero intero, allora il numero y è una potenza perfetta, altrimenti non lo è.
+Ricordiamo che matematicamente risulta:
+
+logb(x) = logc(x) / logc(b)
+
+E in newLISP la funzione "log" ha la seguente sintassi:
+
+(log num num-base)
+
+Quindi la funzione è la seguente:
+
+(define (ispower? x y) (= (log y x) (int (log y x))))
+
+(ispower? 2 16)
+;-> true
+
+(ispower? 3 81)
+;-> true
+
+
+Per finire, scriviamo una funzione che calcola se un numero intero n è potenza di un qualsiasi numero intero.
+Un numero n viene detto una potenza perfetta quando n = m^k è un numero intero e m>1 e k>=2.
+Consideriamo la fattorizzazione di un numero: n = p1^a1 * p2^a2 *...* pk^ak
+Il numero n è una potenza perfetta se e solo se (MCD a1 a2 ... ak) > 1
+
+La funzione "factor-exp-list" calcola la lista degli esponenti della fattorizzazione del numero x:
+
+(define (factor-exp-list x)
+  (if (= x 1) '(1)
+    (letn (fattori (factor x)
+           unici (unique fattori))
+       (count unici fattori))))
+
+1000 = 2^3 * 5^3
+(factor-exp-list 1000)
+;-> (3 3)
+
+Adesso possiamo scrivere la funzione "checkpower" che calcola se un numero è una potenza perfetta:
+
+(define (checkpower n)
+  (local (a out)
+    (if (> (setq a (apply gcd (factor-exp-list n))) 1)
+        (list (ceil (pow n (div 1 a))) a)
+        nil)))
+
+(checkpower (pow 3 12))
+;-> (3 12)
+
+(checkpower (pow 4 25))
+;-> (2 50)
+
+(checkpower (+ (pow 3 7) 1))
+;-> nil
+
+(checkpower 4096)
+;-> (2 12)
+
+
+-------------------------
+Problema della segretaria
+-------------------------
+
+Il problema della segretaria è un problema che dimostra uno scenario che coinvolge la teoria dell'arresto ottimale.
+La forma base del problema è la seguente: immagina un amministratore che vuole assumere la miglior segretaria da n candidate. Le candidate vengono intervistate una per una in ordine casuale. Una decisione su ciascuna candidata particolare deve essere presa immediatamente dopo il colloquio. Una volta respinta, una candidata non può essere richiamata. Durante il colloquio, l'amministratore ottiene informazioni sufficienti per classificare con un punteggio la candidata. La domanda riguarda la strategia ottimale (regola di arresto) per massimizzare la probabilità di selezionare la miglior candidata. Se la decisione può essere rinviata alla fine, allora la scelta viene fatta al termine di tutti i colloqui, selezionando la candidata con il punteggio maggiore. La difficoltà è che la decisione deve essere presa immediatamente: la candidata deve essere presa o scartata.
+
+La probabilità di vincita ottimale è sempre almeno 1/e (dove e è la base del logaritmo naturale). La regola di arresto ottimale prescrive sempre di rifiutare le prime n/e candidate che vengono intervistate e quindi fermarsi alla prima candidata che è migliore di tutti le candidate intervistate finora (o si continua fino all'ultima candidata se ciò non si verifica mai). A volte questa strategia è chiamata regola di arresto 1/e , perché la probabilità di fermarsi alla migliore candidata con questa strategia è circa 1/e già per valori piccoli n. Il metodo per la soluzione del problema (la regola di arresto) è semplice e seleziona la migliore candidata circa il 37% delle volte, indipendentemente dal fatto che ci siano 100 o 100 milioni di candidate.
+
+Sebbene ci siano molte varianti, il problema di base può essere definito come segue:
+
+1) C'è una singola posizione da riempire.
+2) Ci sono n candidate per la posizione e il valore di n è noto.
+3) Le candidate, se viste complessivamente, possono essere classificate dalla migliore alla peggiore in modo inequivocabile.
+4) I punteggi relativi alle valutazioni devono essere tutti diversi.
+5) Le candidate vengono intervistate in sequenza in ordine casuale.
+6) Immediatamente dopo un colloquio, la candidata intervistata viene accettata o respinta e la decisione è irrevocabile.
+7) La decisione di accettare o respingere una candidata si basa solo sui punteggi delle candidate intervistate finora.
+
+L'obiettivo della soluzione generale è trovare un metodo che renda massima probabilità di selezionare il miglior candidato dell'intero gruppo.
+
+La politica ottimale per il problema è una regola di arresto. Con questa, l'intervistatore rifiuta le prime (r - 1) (considerando che la candidata M abbia il miglior punteggio tra queste (r - 1) candidate), quindi seleziona, tra le candidate successive, la prima candidata che ha un punteggio migliore della candidata M. Si può dimostrare che la strategia ottimale sta in questa classe di strategie. Con un taglio arbitrario r, la probabilità che sia selezionato il miglior richiedente vale:
+
+P(r) = (r - 1)/n * sum[i=1...i=n] 1/(i-1)
+
+Definiamo una funzione per calcolare questo valore:
+
+(define (P r n)
+  (local (somma out)
+    (setq out 0)
+    (if (= r 1) (setq out (div 1 n))
+        (begin
+          (setq somma 0)
+          (for (i r n)
+            (setq somma (add somma (div 1 (sub i 1))))
+          )
+          (setq out (mul somma (div (sub r 1) n)))
+        )
+    )
+  out
+  )
+)
+
+(P 1 1)
+;-> 1
+
+(P 1 2)
+;-> 0.5
+
+(P 2 3)
+;-> 0.5
+
+(P 3 5)
+;-> 0.4333333
+
+(P 37 100)
+;-> 0.371014595504193
+
+La teoria afferma che il taglio ottimo vale n/e
+
+(div 1 (exp 1))
+;-> 0.3678794411714423
+
+Proviamo con un esempio per capire come funziona.
+
+Abbiamo 100 candidati con punteggi variabili da 1 a 100:
+
+(setq cand (randomize (sequence 0 99)))
+;-> (76 64 72 83 55 63 29 95 89 74 61 71 60 49 3 8 2 58
+;->  53 98 24 15 38 69 43 94 39 8 21 5 19 41 80 59 20 44
+;->  28 82 73 7 75 36 77 14 79 25 67 11 85 9 47 32 16 88
+;->  12 90 17 0 91 46 26 93 99 35 18 37 13 42 22 50 66 52
+;->  96 97 48 62 51 4 70 45 87 6 92 4 27 65 54 23 34 86 31
+;->  1 33 30 78 57 40 56 10 81)
+
+La teoria afferma che il taglio ottimo vale n/e:
+
+(div 1 (exp 1))
+;-> 0.3678794411714423
+
+(setq taglio (round (div 100 (exp 1))))
+;-> 37
+
+Calcoliamo il punteggio massimo dal primo fino al taglio:
+(apply max (slice cand 0 taglio))
+;-> 98
+
+Quindi nelle rimanenti candidate (dal taglio alla fine della lista) troviamo la candidata con punteggio 99, che è la miglioer ed è quella che verrà selezionata.
+
+Adesso scriviamo una funzione che calcola la percentuale di successo (cioè quante volte selezioniamo la migliore candidata) con due parametri, il numero delle candidate n e il numero dei colloqui (cioè quante volte ripetiamo il test).
+
+(define (secretary n prove)
+  (local (cand taglio m1 m2 success found)
+    (setq success 0)
+    ;Definiamo il taglio
+    ; 1/e = (div 1 (exp 1))) = 0.3678794411714423
+    (setq taglio (round (div n (exp 1))))
+    (for (i 1 prove)
+      ; Generiamo la lista dei punteggi per le candidate
+      (setq cand (randomize (sequence 0 (- n 1))))
+      ;Calcoliamo il valore massimo FINO al taglio
+      (setq m1 (apply max (slice cand 0 taglio)))
+      ;Cerchiamo il primo valore > m1 dal resto della lista
+      ;se non esiste tale valore, allora m2 vale l'ultimo candidato
+      (setq m2 (last cand))
+      (setq found nil)
+      (dolist (el (slice cand taglio) found)
+        (if (> el m1) (setq m2 el found true))
+      )
+      ;se m2 > max allora abbiamo scelto la candidata migliore
+      ;(if (>= m2 (apply max cand) (++ success)))
+      ;se m2 = (n - 1) allora abbiamo scelto la candidata migliore
+      ;(if (= m2 (- n 1)) (++ success))
+      (if (= m2 (- n 1)) (++ success))
+    )
+    (div success prove)
+  )
+)
+
+(secretary 100 100)
+;-> 0.35
+
+(secretary 100 1000)
+;-> 0.365
+
+(secretary 100 10000)
+;-> 0.3668
+
+(secretary 100 100000)
+;-> 0.36995
+
+(time (println (secretary 1000 100000)))
+;-> 0.36794
+;-> 14018
+;-> 14018
+
+Quindi con il taglio ottimo selezioniamo la segretaria migliore il 37% delle volte.
+
+Adesso vogliamo verificare se il taglio ottimo n/e è veramente ottimo. Per fare questo scriviamo una funzione simile alla precedente, ma che utilizza il taglio dal 2% dei candidati al 98% dei candidati con passo dell'1%. Prima abbiamo bisogno di aggiungere il parametro percentuale (perc) alla funzione "secretary".
+
+(define (secretary1 n prove perc)
+  (local (cand taglio m1 m2 success found)
+    ; numero di successi
+    (setq success 0)
+    ;Definiamo il taglio
+    ; 1/e = (div 1 (exp 1))) = 0.3678794411714423
+    ;(setq taglio (round (mul n (div 1 (exp 1)))))
+    (setq taglio (round (mul n perc)))
+    (for (i 1 prove)
+      ; Generiamo la lista dei punteggi per le candidate
+      ; I punteggi devono essere tutti diversi
+      (setq cand (randomize (sequence 0 (- n 1))))
+      ;
+      ;Definiamo il taglio
+      ; 1/e = (div 1 (exp 1))) = 0.3678794411714423
+      ;(setq taglio (round (mul n (div 1 (exp 1)))))
+      ;
+      ;Calcoliamo il valore massimo FINO al taglio
+      (setq m1 (apply max (slice cand 0 taglio)))
+      ;Cerchiamo il primo valore > m1 dal resto della lista
+      ;se non esiste tale valore, allora m2 vale l'ultimo candidato
+      (setq m2 (last cand))
+      (setq found nil)
+      (dolist (el (slice cand taglio) found)
+        (if (> el m1) (setq m2 el found true))
+      )
+      ;se m2 > max allora abbiamo scelto la candidata migliore
+      ;(if (>= m2 (apply max cand) (++ success)))
+      ;se m2 = (n - 1) allora abbiamo scelto la candidata migliore
+      (if (= m2 (- n 1)) (++ success))
+    )
+    (div success prove)
+  )
+)
+
+Proviamo la funzione con il taglio ottimo:
+
+(secretary1 100 10000 0.37)
+;-> 0.3688
+
+Adesso scriviamo la funzione di test:
+
+(define (test numero try)
+  (let (out '())
+    (for (i 0.02 0.98 0.01)
+      (push (list i (secretary1 numero try i)) out -1)
+    )
+    out
+  )
+)
+
+(time (println (test 1000 100000)))
+;-> ((0.02 0.07912) (0.03 0.10446) (0.04 0.12815) (0.05 0.14926) (0.06 0.16773)
+;->  (0.07 0.18446) (0.08 0.19901) (0.09 0.21840) (0.10 0.23036) (0.11 0.24187)
+;->  (0.12 0.25638) (0.13 0.26558) (0.14 0.27721) (0.15 0.28404) (0.16 0.29332)
+;->  (0.17 0.30204) (0.18 0.30775) (0.19 0.31570) (0.20 0.32219) (0.21 0.32700)
+;->  (0.22 0.33187) (0.23 0.33872) (0.24 0.34584) (0.25 0.34686) (0.26 0.35190)
+;->  (0.27 0.35387) (0.28 0.35426) (0.29 0.35849) (0.30 0.36257) (0.31 0.36373)
+;->  (0.32 0.36782) (0.33 0.36693) (0.34 0.36981) (0.35 0.36654) (0.36 0.36841)
+;->  (0.37 0.36798) (0.38 0.37075) (0.39 0.36919) (0.40 0.37071) (0.41 0.36927)
+;->  (0.42 0.36649) (0.43 0.36714) (0.44 0.36583) (0.45 0.36196) (0.46 0.35700)
+;->  (0.47 0.35620) (0.48 0.35523) (0.49 0.35266) (0.50 0.34981) (0.51 0.34740)
+;->  (0.52 0.34153) (0.53 0.33946) (0.54 0.33874) (0.55 0.32996) (0.56 0.32723)
+;->  (0.57 0.32194) (0.58 0.31821) (0.59 0.31414) (0.60 0.31107) (0.61 0.30513)
+;->  (0.62 0.29896) (0.63 0.29224) (0.64 0.28734) (0.65 0.28199) (0.66 0.28114)
+;->  (0.67 0.26891) (0.68 0.26747) (0.69 0.25871) (0.70 0.25116) (0.71 0.24809)
+;->  (0.72 0.23956) (0.73 0.23304) (0.74 0.22672) (0.75 0.21875) (0.76 0.21029)
+;->  (0.77 0.20602) (0.78 0.19533) (0.79 0.18661) (0.80 0.18105) (0.81 0.17393)
+;->  (0.82 0.16428) (0.83 0.15788) (0.84 0.14896) (0.85 0.13921) (0.86 0.13023)
+;->  (0.87 0.12356) (0.88 0.11341) (0.89 0.10416) (0.90 0.09511) (0.91 0.08739)
+;->  (0.92 0.07860) (0.93 0.06842) (0.94 0.05824) (0.95 0.04976) (0.96 0.03982)
+;->  (0.97 0.03023) (0.98 0.01985))
+;-> 964754.466
+
+Come possiamo vedere, i risultati calcolati confermano la teoria, cioè il taglio ottimo è circa il 37%.
+
+Per definire meglio la validità del metodo sarebbe interessante vedere quanto siamo lontani dal punteggio massimo, quando non selezioniamo la segretaria migliore utilizxzando il taglio ottimo. Per fare questo modifichiamo la funzione "secretary":
+
+(define (secretary2 n prove)
+  (local (cand taglio m1 m2 success found delta)
+    (setq success 0)
+    (setq delta 0)
+    ;Definiamo il taglio
+    ; 1/e = (div 1 (exp 1))) = 0.3678794411714423
+    (setq taglio (round (div n (exp 1))))
+    (for (i 1 prove)
+      ; Generiamo la lista dei punteggi per le candidate
+      (setq cand (randomize (sequence 0 (- n 1))))
+      ;Calcoliamo il valore massimo FINO al taglio
+      (setq m1 (apply max (slice cand 0 taglio)))
+      ;Cerchiamo il primo valore > m1 dal resto della lista
+      ;se non esiste tale valore, allora m2 vale l'ultimo candidato
+      (setq m2 (last cand))
+      (setq found nil)
+      (dolist (el (slice cand taglio) found)
+        (if (> el m1) (setq m2 el found true))
+      )
+      ;se m2 > max allora abbiamo scelto la candidata migliore
+      ;(if (>= m2 (apply max cand) (++ success)))
+      ;se m2 = (n - 1) allora abbiamo scelto la candidata migliore
+      ;(if (= m2 (- n 1)) (++ success))
+      (if (= m2 (- n 1)) (++ success))
+      ;somma le distanze tra la candidata scelta e quella migliore
+      (setq delta (+ delta (- (- n 1) m2)))
+    )
+    (println (div success prove))
+    (println delta)
+    (div delta prove)
+  )
+)
+
+(secretary2 100 100000)
+;-> 0.37281  ; percentuale di successo
+;-> 1888047  ; totale distanze
+;-> 18.88047 ; distanza media
+
+(secretary2 1000 100000)
+;-> 0.37051   ; percentuale di successo
+;-> 18267139  ; totale distanze
+;-> 182.67139 ; distanza media
+
+Con questo metodo si seleziona una candidata che ha circa il 18% di punteggio inferiore alla candidata migliore (in media).
+
+
+-----------------------
+Numeri con tre divisori
+-----------------------
+
+Trovare tutti i numeri fino al milione che hanno tre divisori.
+Ad esempio, il numero 10 ha quattro divisori: 1, 2, 5 e 10.
+
+Scriviamo una funzione per calcolare i divisori di un numero N.
+
+(define (divisori n)
+  (local (lista-div m i)
+    (setq lista-div '(1)) ; aggiungo il numero 1
+    (setq m (int (sqrt n)))
+    (setq i 2)
+    (while (<= i m)
+        (if (zero? (% n i))   ; se 'i' è divisore di 'n'
+            (if (= i (/ n i)) ; se entrambi i divisori sono gli stessi aggiungine uno,
+                              ; altrimenti aggiungili entrambi
+              (push i lista-div -1)
+              (begin (push i lista-div -1) (push (/ n i) lista-div -1))
+            )
+        )
+        (++ i)
+    )
+    (push n lista-div -1) ; aggiungo il numero stesso
+    (sort lista-div)
+  )
+)
+
+(divisori 1000)
+;-> (1 2 4 5 8 10 20 25 40 50 100 125 200 250 500 1000)
+
+Facciamo una prova per vedere quanto tempo occorre per trovare la soluzione:
+
+(define (prova n)
+  (for (i 2 n)
+    (if (= (length (divisori i)) 3) (println i { } (divisori i))))
+)
+
+(prova 1e6)
+;-> 4 (1 2 4)
+;-> 9 (1 3 9)
+;-> 25 (1 5 25)
+;-> 49 (1 7 49)
+;-> 121 (1 11 121)
+;-> 169 (1 13 169)
+;-> 289 (1 17 289)
+...
+;-> 954529 (1 977 954529)
+;-> 966289 (1 983 966289)
+;-> 982081 (1 991 982081)
+;-> 994009 (1 997 994009)
+
+Vediamo quanti sono i numeri da ricercare:
+
+(define (prova1 n)
+  (let (out 0)
+    (for (i 2 n)
+      (if (= (length (divisori i)) 3) (++ out)))
+  out
+  )
+)
+
+(prova1 1e6)
+;-> 168
+
+(time (prova1 1e6))
+;-> 94695.56 ; circa 95 secondi
+
+La funzione è molto lenta, quindi cerchiamo di ottimizzarla. Inannzitutto la funzione "divisori" calcola una lista di divisori, ma a noi in interessa sapere soltanto se un numero ha esattamente 3 divisori.
+Riscriviamo la funzione per i divisori:
+
+(define (numdiv3 n)
+  (local (num m i)
+    (setq num 1) ; il numero 1
+    (setq m (int (sqrt n)))
+    (setq i 2)
+    (while (<= i m)
+        (if (zero? (% n i))   ; se 'i' è divisore di 'n'...
+            (if (= i (/ n i)) ; se entrambi i divisori sono gli stessi ...
+              (++ num)   ; allora aggiungine uno,
+              (++ num 2) ; altrimenti aggiungili entrambi
+            )
+        )
+        (if (> num 2) (setq i m)) ;numero da scartare
+        (++ i)
+    )
+    (++ num 1) ; il numero stesso
+  )
+)
+
+Proviamo questa nuova funzione:
+
+(define (prova2 n)
+  (let (out 0)
+    (for (i 2 n)
+      (if (= (numdiv3 i) 3) (++ out)))
+  out
+  )
+)
+
+(prova2 1e6)
+;-> 168
+
+(time (prova2 1e6))
+;-> 12788.932 ; circa 13 secondi
+
+Abbiamo ottenuto un buon miglioramento della velocità, ma possiamo fare meglio.
+
+I divisori vengono in coppie, quindi per la maggior parte dei numeri il conteggio dei divisori è un numero pari. Per esempio, i divisori di 24 sono 1 e 24, 2 e 12, 3 e 8, e 4 e 6, quindi 24 ha 8 divisori.
+L'unica volta in cui un numero può avere un numero dispari di divisori è quando il numero è un quadrato perfetto. Ad esempio, i divisori di 36 sono 1 e 36, 2 e 18, 3 e 12, 4 e 9 e 6 e 6, gli ultimi due sono duplicati, quindi 36 ha 9 divisori.
+E l'unica volta in cui un numero può avere 3 divisori è quando il numero è un quadrato di un numero primo. Ad esempio, i divisori di 25 sono 1, 5 e 25.
+
+Quindi possiamo modificare il ciclo for e controllare solo i numeri quadrati. In questo modo il valore di n passato alla funzione vale 1000, poichè 1000x1000 = 1000000 (un milione). Inoltre controlliamo solo i quadrati dei numeri dispari (perchè non esistono numeri primi pari oltre al numero 2).
+
+(define (prova3 n)
+  (let (out 1) ; il numero 4
+    (for (i 3 n 2)
+      (if (= (numdiv3 (* i i)) 3) (++ out)))
+  out
+  )
+)
+
+(prova3 1000)
+;-> 168
+
+(time (prova3 1000))
+;-> 32.965
+
+Questo è un miglioramento enorme. Provamo a modificare la funzione per testare anche se il numero è primo:
+
+(define (prova4 n)
+  (let (out 1) ; il numero 4
+    (for (i 3 n 2)
+      (if (= (length (factor i)) 1) ; se il numero è primo...
+        (if (= (numdiv3 (* i i)) 3) (++ out)))
+    )
+  out
+  )
+)
+
+(prova4 1000)
+;-> 168
+
+(time (prova4 1000))
+;-> 30.968
+
+I tempi di "prova3" e "prova4" sono quasi uguali (poichè il calcolo del numero primo pur eliminando molti numeri, ma richiede tempo).
+
+Scriviamo la funzione finale che ritorna una lista con tutti i numeri che hanno 3 divisori:
+
+(define (divisori3 n)
+  (let (out '(4)); il numero 4
+    (for (i 3 n 2)
+      (if (= (length (factor i)) 1) ; se il numero è primo...
+        (if (= (numdiv3 (* i i)) 3) (push (* i i) out -1)))
+    )
+  out
+  )
+)
+
+(divisori3 1000)
+;-> (4 9 25 49 121 169 289 361 529 841 961 1369 1681 1849 2209 2809
+;->  3481 3721 4489 5041 5329 6241 6889 7921 9409 10201 10609 11449
+;->  11881 12769 16129 17161 18769 19321 22201 22801 24649 26569
+;->  27889 29929 32041 32761 36481 37249 38809 39601 44521 49729
+;->  51529 52441 54289 57121 58081 63001 66049 69169 72361 73441
+;->  76729 78961 80089 85849 94249 96721 97969 100489 109561 113569
+;->  120409 121801 124609 128881 134689 139129 143641 146689 151321
+;->  157609 160801 167281 175561 177241 185761 187489 192721 196249
+;->  201601 208849 212521 214369 218089 229441 237169 241081 249001
+;->  253009 259081 271441 273529 292681 299209 310249 316969 323761
+;->  326041 332929 344569 351649 358801 361201 368449 375769 380689
+;->  383161 398161 410881 413449 418609 426409 434281 436921 452929
+;->  458329 466489 477481 491401 502681 516961 528529 537289 546121
+;->  552049 564001 573049 579121 591361 597529 619369 635209 654481
+;->  657721 674041 677329 683929 687241 703921 727609 734449 737881
+;->  744769 769129 776161 779689 786769 822649 829921 844561 863041
+;->  877969 885481 896809 908209 935089 942841 954529 966289 982081
+;->  994009)
+
+(length (divisori3 1000))
+;-> 168
+
+(time (divisori3 1000))
+;-> 33.964
+
 
 ======================================================================
 
@@ -24558,7 +26514,7 @@ Massimo raccoglitore d'acqua (Facebook)
 ---------------------------------------
 
 Dati n numeri interi non negativi a1, a2, ..., an, dove ognuno rappresenta un punto di coordinate
-(i, ai). n linee verticali sono disegnate in modo tale che i due estremi della linea i siano ad (i, ai)
+(i, ai), n linee verticali sono disegnate in modo tale che i due estremi della linea i siano ad (i, ai)
 e (i, 0). Trova due linee, che insieme all'asse x formano un contenitore, in modo tale che il
 il contenitore contenga più acqua.
 
@@ -26418,11 +28374,11 @@ Ma la funzione produce un risultato errato se le liste sono ordinate in modo dec
 
 Per ottenere il risultato corretto è sufficiente modificare l'operatore "<" nella riga:
 
-((< (first rhs) (first lhs))
+((< (first lstB) (first lstA))
 
 con l'operatore ">":
 
-((> (first rhs) (first lhs))
+((> (first lstB) (first lstA))
 
 Definiamo una funzione in cui l'operatore è un parametro della funzione:
 
@@ -26455,7 +28411,7 @@ Da notare che questa versione ricorsiva produce un errore di stack overflow anch
 
 (merge (sequence 1 1000) (sequence 1 1000) <)
 ;-> ERR: call or result stack overflow in function < : first
-;-> called from user function (loop (cons (first rhs) result) lhs (rest rhs))
+;-> called from user function (loop (cons (first lstB) result) lstA (rest lstB))
 
 Versione iterativa:
 
@@ -26520,6 +28476,56 @@ Vediamo la differenza di velocità tra le due funzioni:
 ;-> 474.117
 
 La versione iterativa è circa 3.5 volte più veloce.
+
+
+------------------------------------------------------
+Prodotto massimo di due numeri in una lista (Facebook)
+------------------------------------------------------
+
+Una soluzione efficiente attraversa la lista una sola volta. La soluzione è quella di attraversare la lista e tenere traccia dei seguenti quattro valori:
+
+1) Valore positivo massimo
+2) Secondo valore positivo massimo
+3) Valore negativo massimo, ovvero un valore negativo con valore assoluto massimo
+4) Secondo valore negativo massimo.
+
+Alla fine del ciclo, confrontare i prodotti dei primi due e degli ultimi due e stampare il massimo di due prodotti.
+
+(setq MAXINT 9223372036854775807)
+(setq MININT -9223372036854775808)
+
+(define (pairmax lst)
+  (local (a b c d)
+    (setq a -9223372036854775808 b -9223372036854775808)
+    (setq c -9223372036854775808 d -9223372036854775808)
+    (dolist (el lst)
+      ; controllo se aggiornare i due valori positivi massimi
+      (if (> el a)
+          (setq b a a el)
+          (if (> el b) (setq b el))
+      )
+      ; controllo se aggiornare i due valori negativi massimi
+      (if (and (< el 0) (> (abs el) (abs c)))
+          (setq d c c el)
+          (if (and (< el 0) (> (abs el) (abs d))) (setq d el))
+      )
+    )
+    (if (> (* c d) (* a b))
+        (list c d (* c d))
+        (list a b (* a b))
+    )
+  )
+)
+
+(pairmax '(12 13 11 3 4 -3 -4 45 -34 -15 4))
+;-> 45 13 585
+
+(pairmax '(12 13 11 3 4 -3 -4 45 -34 -18 4))
+;-> (-34 -18 612)
+
+Complessità temporale: O(n) (lineare)
+
+
 ==========
 
  LIBRERIE
@@ -27611,6 +29617,7 @@ Restituisce l'insieme potenza di un insieme.
 (context MAIN)
 ;;; EOF
 
+
 =============
 
  NOTE LIBERE
@@ -28357,982 +30364,7 @@ Utilizzando una lista otteniamo lo stesso risultato:
 ;-> 8
 
 
---------------------
-Potenze di un numero
---------------------
-
-Determinare se un numero n è potenza del numero 3.
-
-(define (power-of-3? n)
-  (if (zero? (% n 3))
-        (power-of-3? (/ n 3))
-        (= n 1)
-  )
-)
-
-(power-of-3? 9)
-;-> true
-(power-of-3? 6)
-;-> nil
-(power-of-3? 81)
-;-> true
-(power-of-3? 847288609443)
-;-> true
-
-Vediamo la velocità della funzione:
-
-(time (map power-of-3? (sequence 4 1e7)))
-;-> 2676.189
-
-Notiamo che la somma delle cifre di ogni numero che è potenza di 3 vale 9 (tranne 0 e 3).
-Per calcolare la somma delle cifre di un numero usiamo la seguente funzione:
-
-(define (digitSum n) (+ 1 (% (- n 1) 9)))
-
-Verifichiamo la nostra ipotesi:
-
-(for (i 4 1e6)
-  (if (and (power-of-3? i) (!= 9 (digitSum i)))
-    (println "Error: " i)
-  )
-)
-;-> nil
-
-Non è vero il contrario, cioè esistono tanti numeri che hanno come somma delle cifre il valore 9, ma non sono potenze del numero 3.
-
-(for (i 4 1e2)
-  (if (and (= 9 (digitSum i)) (not (power-of-3? i)))
-    (println "Error: " i)
-  )
-)
-;-> Error: 18
-;-> Error: 36
-;-> Error: 45
-;-> Error: 54
-;-> Error: 63
-;-> Error: 72
-;-> Error: 90
-;-> Error: 99
-
-Possiamo generalizzare la funzione per determinare se un numero m è potenza del numero n.
-
-(define (power-of? n m)
-  (if (zero? (% m n))
-        (power-of? n (/ m n))
-        (= m 1)
-  )
-)
-
-(power-of? 3 117)
-;-> nil
-(power-of? 4 4096)
-;-> true
-(power-of? 4 20)
-;-> nil
-(power-of? 7 2401)
-;-> true
-(power-of-3? 847288609443)
-;-> true
-
-Un altro metodo è quello di utilizzare i logaritmi. L'idea è di calcolare il logaritmo di y in base x. Se risulta essere un numero intero, allora il numero y è una potenza perfetta, altrimenti non lo è.
-Ricordiamo che matematicamente risulta:
-
-logb(x) = logc(x) / logc(b)
-
-E in newLISP la funzione "log" ha la seguente sintassi:
-
-(log num num-base)
-
-Quindi la funzione è la seguente:
-
-(define (ispower? x y) (= (log y x) (int (log y x))))
-
-(ispower? 2 16)
-;-> true
-
-(ispower? 3 81)
-;-> true
-
-
-Per finire, scriviamo una funzione che calcola se un numero intero n è potenza di un qualsiasi numero intero.
-Un numero n viene detto una potenza perfetta quando n = m^k è un numero intero e m>1 e k>=2.
-Consideriamo la fattorizzazione di un numero: n = p1^a1 * p2^a2 *...* pk^ak
-Il numero n è una potenza perfetta se e solo se (MCD a1 a2 ... ak) > 1
-
-La funzione "factor-exp-list" calcola la lista degli esponenti della fattorizzazione del numero x:
-
-(define (factor-exp-list x)
-  (if (= x 1) '(1)
-    (letn (fattori (factor x)
-           unici (unique fattori))
-       (count unici fattori))))
-
-1000 = 2^3 * 5^3
-(factor-exp-list 1000)
-;-> (3 3)
-
-Adesso possiamo scrivere la funzione "checkpower" che calcola se un numero è una potenza perfetta:
-
-(define (checkpower n)
-  (local (a out)
-    (if (> (setq a (apply gcd (factor-exp-list n))) 1)
-        (list (ceil (pow n (div 1 a))) a)
-        nil)))
-
-(checkpower (pow 3 12))
-;-> (3 12)
-
-(checkpower (pow 4 25))
-;-> (2 50)
-
-(checkpower (+ (pow 3 7) 1))
-;-> nil
-
-(checkpower 4096)
-;-> (2 12)
-
------------------------
-Coppie di primi gemelli
------------------------
-
-Due numeri sono primi gemelli se n e (n + 2) sono entrambi primi.
-Le coppie di primi gemelli sono infinite, ma la loro frequenza diminuisce con l'aumentare di n.
-
-Usiamo la seguente funzione per verificare se un numero n è primo:
-
-(define (primo? n)
-  (if (even? n) nil
-      (= 1 (length (factor n)))))
-
-(primo? 11)
-;-> true
-
-Definiamo una funzione per verificare se un numero n ha un gemello:
-
-(define (gemelli? n) (if (and (primo? n) (primo? (+ n 2)))))
-
-(gemelli? 5)
-;-> true
-
-Definiamo una funzione che trova tutte le coppie di gemelli dal numero a (dispari) al numero b:
-
-(define (coppieGemelli a b)
-  (local (somma)
-    (setq somma 0)
-    ;(for (i a b) (if (gemelli? i) (println (++ somma) { } i { } (+ i 2))))
-    (for (i a b 2) (if (gemelli? i) (++ somma)))
-    somma
-  )
-)
-
-Con: (for (i a b) (if (gemelli? i) (println (++ somma) { } i { } (+ i 2))))
-
-(coppieGemelli 3 1000)
-;-> 1 3 5         2 5 7
-;-> 3 11 13       4 17 19
-;-> 5 29 31       6 41 43
-;-> 7 59 61       8 71 73
-;-> 9 101 103     10 107 109
-;-> 11 137 139    12 149 151
-;-> 13 179 181    14 191 193
-;-> 15 197 199    16 227 229
-;-> 17 239 241    18 269 271
-;-> 19 281 283    20 311 313
-;-> 21 347 349    22 419 421
-;-> 23 431 433    24 461 463
-;-> 25 521 523    26 569 571
-;-> 27 599 601    28 617 619
-;-> 29 641 643    30 659 661
-;-> 31 809 811    32 821 823
-;-> 33 827 829    34 857 859
-;-> 35 881 883
-
-Con: (for (i a b 2) (if (gemelli? i) (++ somma)))
-
-Calcoliamo la velocità della funzione:
-
-(time (coppieGemelli 3 2e7))
-;-> 46361.619
-
-Adesso definiamo una funzione "pairs" che restituisce una lista con tutte le coppie di primi gemelli dal numero a al numero b.
-
-Prima scriviamo la funzione "twin?" che dato un numero n restituisce la coppia di primi n e (n + 2) oppure nil:
-
-(define (twin? n)
-  (if (and (primo? n) (primo? (+ n 2)))
-    (list n (+ n 2))
-    nil
-  )
-)
-
-(twin? 9)
-;-> nil
-
-(twin? 881)
-;-> (881 883)
-
-(define (pairs a b)
-  (filter true? (map twin? (sequence a b)))
-)
-
-(pairs 3 1000)
-;-> ((3 5) (5 7) (11 13) (17 19) (29 31) (41 43) (59 61) (71 73) (101 103) (107 109)
-;->  (137 139) (149 151) (179 181) (191 193) (197 199) (227 229) (239 241) (269 271)
-;->  (281 283) (311 313) (347 349) (419 421) (431 433) (461 463) (521 523) (569 571)
-;->  (599 601) (617 619) (641 643) (659 661) (809 811) (821 823) (827 829) (857 859)
-;->  (881 883))
-
-(length (pairs 3 1000))
-;-> 35
-
-Calcoliamo la velocità della funzione:
-
-(time (pairs 3 2e7))
-;-> 47479.457
-
-Adesso definiamo la stessa funzione, ma in modo imperativo:
-
-(define (pairs-i a b)
-  (local (idx out)
-    (setq idx a)
-    (while (< idx b)
-      (if (and (primo? idx) (primo? (+ idx 2)))
-        (push (list idx (+ idx 2)) out -1)
-      )
-      (++ idx 2)
-    )
-    out
-  )
-)
-
-(length (pairs-i 3 1000))
-;-> 35
-
-(time (pairs-i 3 2e7))
-;-> 44355.696
-
-Adesso riscriviamo la funzione ottimizzata (non ricalcoliamo un numero primo quando troviamo una coppia):
-
-(define (pairs-i a b)
-  (local (idx found out)
-    (setq found nil)
-    (setq idx a)
-    ; solo il numero 5 appartiene a due coppie di numeri primi gemelli
-    (setq out '((3 5) (5 7)))
-    (while (< idx b)
-      (if (and (primo? idx) (primo? (+ idx 2)))
-        (begin
-        (push (list idx (+ idx 2)) out -1)
-        (setq found true))
-      )
-      (if found (++ idx 4) (++ idx 2))
-      (setq found nil)
-    )
-    out
-  )
-)
-
-(length (pairs-i 7 1000))
-;-> 35
-
-(time (pairs-i 7 2e7))
-;-> 43177.908
-
-Questo è il miglior risultato ottenuto in termini di velocità.
-
-Cerchiamo di capire dove la funzione spende il tempo maggiore. Proviamo a testare solo la parte che calcola i numeri primi:
-
-(define (test-a a b)
-  (local (idx out)
-    (setq idx a)
-    (while (< idx b)
-      (if (and (primo? idx) (primo? (+ idx 2))))
-      (++ idx 2)
-    )
-  )
-)
-
-(time (test-a 3 2e7))
-;-> 44295.723
-
-Come avevamo intuito, quasi tutto il tempo di esecuzione della funzione è dedicato al calcolo dei numeri primi.
-
-Calcoliamo la distanza tra le coppie di numeri primi:
-
-(define (dist-pairs a b)
-  (local (idx base out)
-    (setq idx a)
-    (setq base 3)
-    (while (< idx b)
-      (if (and (primo? idx) (primo? (+ idx 2)))
-        (begin
-          (push (- idx base) out -1)
-          (setq base idx))
-      )
-      (++ idx 2)
-    )
-    out
-  )
-)
-
-(dist-pairs 5 1000)
-;-> (2 6 6 12 12 18 12 30 6 30 12 30 12 6 30 12 30 12
-;->  30 36 72 12 30 60 48 30 18 24 18 150 12 6 30 24)
-
-(silent (setq dp6 (dist-pairs 5 1e6)))
-(length dp6)
-;-> 8168
-
-Infine salviamo dp6 come file di testo (per esempio per plottare i dati con un altro programma):
-
-(save "dist-coppie.txt" 'dp6)
-;-> true
-
-Sul forum di newLISP, raph.ronnquist ha fornito due funzioni per calcolare le coppie:
-
-(define (pairs-i a b)
-  (let ((out (list)) (x nil))
-    (for (y (if (odd? a) a (inc a)) b 2)
-      (if (1 (factor y)) (setf y nil) x (push (list x y) out -1))
-      (setf x y))
-    out))
-
-(length (pairs-i 3 1000))
-;-> 35
-
-(time (pairs-i 3 2e7))
-;-> 40072.606
-
-La seconda funzione sfrutta la seguente idea. Per migliorare la velocità (nei numeri grandi) possiamo controllare se il modulo di un generico prodotto di primi include uno dei numeri primi del prodotto.
-Il codice è il seguente:
-
-(define (pairs-i1 a b)
-  (let ((out (list)) (x nil) (FX (* 2 3 5 7 11 13)) (M 0))
-    (for (y (if (odd? a) a (inc a)) b 2)
-      (if (if (< y FX) (1 (factor y))
-             (or (= (setf M (% y FX))) (if (factor M) (<= ($it 0) 13)) (1 (factor y))))
-        (setf y nil)
-        x (push (list x y) out -1))
-      (setf x y))
-    out))
-
-In questo esempio viene utilizzato il prodotto di primi (* 2 3 5 7 11 13). Per numeri maggiori di questo, controlla se il modulo è un prodotto di uno di quei numeri primi, nel qual caso il numero nel suo insieme è divisibile per quel numero primo (e quindi non è un numero primo). In particolare, la fattorizzazione del modulo è in genere più veloce perchè filtra questi i numeri controllati dal modulo.
-
-(time (pairs-i1 3 2e7))
-;-> 29964.396
-
-Il miglioramento di velocità per la gestione di grandi numeri è significativo (+ 25%).
-
-
 ------------------------------------
-Radice quadrata intera
-------------------------------------
-Calcolare la radice quadrata intera di un numero n.
-
-Primo metodo:
-
-(define (isqrt1 n)
-  (local (xn xn1)
-    (setq xn 1)
-    (setq xn1 (/ (+ xn (/ n xn)) 2))
-    (while (> (abs (- xn1 xn)) 1)
-      (setq xn xn1)
-      (setq xn1 (/ (+ xn (/ n xn)) 2))
-    )
-    (while (> (* xn1 xn1) n) (-- xn1))
-    xn1
-  )
-)
-
-(isqrt1 900)
-;-> 30
-
-(isqrt1 899)
-;-> 29
-
-(isqrt1 6074020096)
-;-> 77936
-
-(time (map isqrt1 (sequence 2 1e6)))
-;-> 4980.122
-
-Test di correttezza:
-
-(for (i 2 1e6) (if (!= (isqrt1 (* i i)) (sqrt (* i i))) (println "error: " (* i i)) ))
-;-> nil
-
-Secondo metodo (algoritmo babilonese):
-
-(define (isqrt2 n)
-  (let ((x n) (y 1))
-    (while (> x y)
-      (setq x (/ (+ x y) 2))
-      (setq y (/ n x))
-    )
-    x
-  )
-)
-
-(isqrt2 900)
-;-> 30
-
-(isqrt2 899)
-;-> 29
-
-(isqrt2 6074020096)
-;-> 77936
-
-(time (map isqrt2 (sequence 2 1e6)))
-;-> 3630.086
-
-Test di correttezza:
-
-(for (i 2 1e6) (if (!= (isqrt2 (* i i)) (sqrt (* i i))) (println "error: " (* i i)) ))
-;-> nil
-
-Terzo metodo:
-
-(define (isqrt3 n) (int (sqrt n)))
-
-(isqrt3 900)
-;-> 30
-
-(isqrt3 899)
-;-> 29
-
-(isqrt3 6074020096)
-;-> 77936
-
-(time (map isqrt3 (sequence 2 1e6)))
-;-> 150.086
-
-Test di correttezza:
-
-(for (i 2 1e6) (if (!= (isqrt (* i i)) (sqrt (* i i))) (println "error: " (* i i)) ))
-;-> nil
-
-Quarto metodo (big integer):
-
-(define (isqrt4 n)
-  (catch
-    (local (start mid end out)
-      (setq start 1L)
-      (setq end (bigint (/ n 2)))
-      (while (<= start end)
-        (setq mid (/ (+ start end) 2))
-        (if (= n (* mid mid)) (throw mid))
-        (if (< (* mid mid) n)
-          (begin (setq start (+ mid 1)) (setq out mid))
-          (setq end (- mid 1))
-        )
-      )
-      (throw out)
-    )
-  )
-)
-
-oppure:
-
-(define (isqrt4 n)
-  (local (start mid end trovato out)
-    (setq start 1L)
-    (setq end (bigint (/ n 2)))
-    (while (and (<= start end) (= trovato nil))
-      (setq mid (/ (+ start end) 2))
-      (if (= n (* mid mid))
-          (begin (setq out mid) (setq trovato true))
-          (if (< (* mid mid) n)
-            (begin (setq start (+ mid 1)) (setq out mid))
-            (begin (setq end (- mid 1))  (setq out mid)))
-      )
-    )
-    out
-  )
-)
-
-(isqrt4 900)
-;-> 30L
-
-(isqrt4 899)
-;-> 29L
-
-(isqrt4 6074020096)
-;-> 77936L
-
-(time (map isqrt4 (sequence 2 1e6)))
-;-> 26274.627
-
-Test di correttezza:
-
-(for (i 2 1e6)
-  (setq j (bigint i))
-  (if (!= (isqrt4 (* j j)) (sqrt (* j j)))
-    (begin (println "error: " (* j j)))))
-;-> nil
-
-
------------------------
-Numeri con tre divisori
------------------------
-
-Trovare tutti i numeri fino al milione che hanno tre divisori.
-Ad esempio, il numero 10 ha quattro divisori: 1, 2, 5 e 10.
-
-Scriviamo una funzione per calcolare i divisori di un numero N.
-
-(define (divisori n)
-  (local (lista-div m i)
-    (setq lista-div '(1)) ; aggiungo il numero 1
-    (setq m (int (sqrt n)))
-    (setq i 2)
-    (while (<= i m)
-        (if (zero? (% n i))   ; se 'i' è divisore di 'n'
-            (if (= i (/ n i)) ; se entrambi i divisori sono gli stessi aggiungine uno,
-                              ; altrimenti aggiungili entrambi
-              (push i lista-div -1)
-              (begin (push i lista-div -1) (push (/ n i) lista-div -1))
-            )
-        )
-        (++ i)
-    )
-    (push n lista-div -1) ; aggiungo il numero stesso
-    (sort lista-div)
-  )
-)
-
-(divisori 1000)
-;-> (1 2 4 5 8 10 20 25 40 50 100 125 200 250 500 1000)
-
-Facciamo una prova per vedere quanto tempo occorre per trovare la soluzione:
-
-(define (prova n)
-  (for (i 2 n)
-    (if (= (length (divisori i)) 3) (println i { } (divisori i))))
-)
-
-(prova 1e6)
-;-> 4 (1 2 4)
-;-> 9 (1 3 9)
-;-> 25 (1 5 25)
-;-> 49 (1 7 49)
-;-> 121 (1 11 121)
-;-> 169 (1 13 169)
-;-> 289 (1 17 289)
-...
-;-> 954529 (1 977 954529)
-;-> 966289 (1 983 966289)
-;-> 982081 (1 991 982081)
-;-> 994009 (1 997 994009)
-
-Vediamo quanti sono i numeri da ricercare:
-
-(define (prova1 n)
-  (let (out 0)
-    (for (i 2 n)
-      (if (= (length (divisori i)) 3) (++ out)))
-  out
-  )
-)
-
-(prova1 1e6)
-;-> 168
-
-(time (prova1 1e6))
-;-> 94695.56 ; circa 95 secondi
-
-La funzione è molto lenta, quindi cerchiamo di ottimizzarla. Inannzitutto la funzione "divisori" calcola una lista di divisori, ma a noi in interessa sapere soltanto se un numero ha esattamente 3 divisori.
-Riscriviamo la funzione per i divisori:
-
-(define (numdiv3 n)
-  (local (num m i)
-    (setq num 1) ; il numero 1
-    (setq m (int (sqrt n)))
-    (setq i 2)
-    (while (<= i m)
-        (if (zero? (% n i))   ; se 'i' è divisore di 'n'...
-            (if (= i (/ n i)) ; se entrambi i divisori sono gli stessi ...
-              (++ num)   ; allora aggiungine uno,
-              (++ num 2) ; altrimenti aggiungili entrambi
-            )
-        )
-        (if (> num 2) (setq i m)) ;numero da scartare
-        (++ i)
-    )
-    (++ num 1) ; il numero stesso
-  )
-)
-
-Proviamo questa nuova funzione:
-
-(define (prova2 n)
-  (let (out 0)
-    (for (i 2 n)
-      (if (= (numdiv3 i) 3) (++ out)))
-  out
-  )
-)
-
-(prova2 1e6)
-;-> 168
-
-(time (prova2 1e6))
-;-> 12788.932 ; circa 13 secondi
-
-Abbiamo ottenuto un buon miglioramento della velocità, ma possiamo fare meglio.
-
-I divisori vengono in coppie, quindi per la maggior parte dei numeri il conteggio dei divisori è un numero pari. Per esempio, i divisori di 24 sono 1 e 24, 2 e 12, 3 e 8, e 4 e 6, quindi 24 ha 8 divisori.
-L'unica volta in cui un numero può avere un numero dispari di divisori è quando il numero è un quadrato perfetto. Ad esempio, i divisori di 36 sono 1 e 36, 2 e 18, 3 e 12, 4 e 9 e 6 e 6, gli ultimi due sono duplicati, quindi 36 ha 9 divisori.
-E l'unica volta in cui un numero può avere 3 divisori è quando il numero è un quadrato di un numero primo. Ad esempio, i divisori di 25 sono 1, 5 e 25.
-
-Quindi possiamo modificare il ciclo for e controllare solo i numeri quadrati. In questo modo il valore di n passato alla funzione vale 1000, poichè 1000x1000 = 1000000 (un milione). Inoltre controlliamo solo i quadrati dei numeri dispari (perchè non esistono numeri primi pari oltre al numero 2).
-
-(define (prova3 n)
-  (let (out 1) ; il numero 4
-    (for (i 3 n 2)
-      (if (= (numdiv3 (* i i)) 3) (++ out)))
-  out
-  )
-)
-
-(prova3 1000)
-;-> 168
-
-(time (prova3 1000))
-;-> 32.965
-
-Questo è un miglioramento enorme. Provamo a modificare la funzione per testare anche se il numero è primo:
-
-(define (prova4 n)
-  (let (out 1) ; il numero 4
-    (for (i 3 n 2)
-      (if (= (length (factor i)) 1) ; se il numero è primo...
-        (if (= (numdiv3 (* i i)) 3) (++ out)))
-    )
-  out
-  )
-)
-
-(prova4 1000)
-;-> 168
-
-(time (prova4 1000))
-;-> 30.968
-
-I tempi di "prova3" e "prova4" sono quasi uguali (poichè il calcolo del numero primo pur eliminando molti numeri, ma richiede tempo).
-
-Scriviamo la funzione finale che ritorna una lista con tutti i numeri che hanno 3 divisori:
-
-(define (divisori3 n)
-  (let (out '(4)); il numero 4
-    (for (i 3 n 2)
-      (if (= (length (factor i)) 1) ; se il numero è primo...
-        (if (= (numdiv3 (* i i)) 3) (push (* i i) out -1)))
-    )
-  out
-  )
-)
-
-(divisori3 1000)
-;-> (4 9 25 49 121 169 289 361 529 841 961 1369 1681 1849 2209 2809
-;->  3481 3721 4489 5041 5329 6241 6889 7921 9409 10201 10609 11449
-;->  11881 12769 16129 17161 18769 19321 22201 22801 24649 26569
-;->  27889 29929 32041 32761 36481 37249 38809 39601 44521 49729
-;->  51529 52441 54289 57121 58081 63001 66049 69169 72361 73441
-;->  76729 78961 80089 85849 94249 96721 97969 100489 109561 113569
-;->  120409 121801 124609 128881 134689 139129 143641 146689 151321
-;->  157609 160801 167281 175561 177241 185761 187489 192721 196249
-;->  201601 208849 212521 214369 218089 229441 237169 241081 249001
-;->  253009 259081 271441 273529 292681 299209 310249 316969 323761
-;->  326041 332929 344569 351649 358801 361201 368449 375769 380689
-;->  383161 398161 410881 413449 418609 426409 434281 436921 452929
-;->  458329 466489 477481 491401 502681 516961 528529 537289 546121
-;->  552049 564001 573049 579121 591361 597529 619369 635209 654481
-;->  657721 674041 677329 683929 687241 703921 727609 734449 737881
-;->  744769 769129 776161 779689 786769 822649 829921 844561 863041
-;->  877969 885481 896809 908209 935089 942841 954529 966289 982081
-;->  994009)
-
-(length (divisori3 1000))
-;-> 168
-
-(time (divisori3 1000))
-;-> 33.964
-
-
------------------
-Quadrati perfetti
------------------
-
-Determinare se un numero n è un quadrato perfetto.
-
-Usiamo la funzione radice quadrata (sqrt):
-
-(define (square? n)
-  (let (v (+ (sqrt n 0.5)))
-    (= n (* v v))))
-
-(square? 400)
-;-> true
-
-(square? 1736364774)
-;-> nil
-
-(time (map square? (sequence 2 1000000)))
-;-> 225.77
-
-Facciamo un test per vedere se la funzione è corretta:
-
-(for (i 2 1e7)
-  (if (not (square? (* i i))) (println i { } (* i i))))
-;-> nil
-
-Un metodo alternativo:
-
-(define (square1? n)
-  (catch
-    (let (i (max 1 (int (- (sqrt n) 1))))
-      (while (<= (* i i) n)
-        (if (and (= (% n i) 0) (= i (/ n i))) (throw true))
-        (++ i)
-      )
-      (throw nil)
-    )
-  )
-)
-
-(square1? 400)
-;-> true
-
-(square1? 1736364774)
-;-> nil
-
-(time (map square1? (sequence 2 1000000)))
-;-> 2253.451
-
-Test:
-
-(for (i 2 1e6)
-  (if (not (square1? (* i i))) (println i { } (* i i))))
-;-> nil
-
-Un altro metodo è quello di fattorizzare il numero n e poi, se tutti gli esponenti dei fattori sono numeri pari, allora n è un quadrato perfetto.
-
-Esempio:
-n = 400
-(factor 400)
-;-> (2 2 2 2 5 5)
-
-400 = 20*20 = 2^4 * 5^2
-
-Poichè 4 e 2 (gli esponenti) sono numeri pari allora 400 è un quadrato perfetto.
-
-Ecco la funzione:
-
-(define (square2? n)
-  (let (f (factor n))
-    (catch
-      (dolist (x (count (unique f) f))
-        (if (odd? x) (throw nil))
-        true
-      )
-    )
-  )
-)
-
-(square2? 400)
-;-> true
-
-(square2? 1736364774)
-;-> nil
-
-(time (map square2? (sequence 2 1000000)))
-;-> 3534.401
-
-Test:
-
-(for (i 2 1e5)
-  (if (not (square2? (* i i))) (println i { } (* i i))))
-;-> nil
-
-Un altro algoritmo (molto lento).
-
-Dato il numero n:
-1) a = 5*n
-2) b = 5
-3) Affinchè (a >= b)
-      a = a - b
-      b = b + 10
-4) Quando (a < b):
-   se e solo se (a == 0) allora n è un quadrato perfetto
-
-Ecco la funzione:
-
-(define (square3? n)
-  (let ((a (* 5 n)) (b 5))
-    (while (>= a b)
-      (setq a (- a b))
-      (++ b 10)
-    )
-    (zero? a)
-  )
-)
-
-(square3? 400)
-;-> true
-
-(square3? 1736364774)
-;-> nil
-
-(time (map square3? (sequence 2 1000000)))
-;-> 80311.923
-
-Test:
-
-(for (i 2 1e4)
-  (if (not (square3? (* i i))) (println i { } (* i i))))
-;-> nil
-
-Inoltre valgono le seguenti due regole:
-
-1) Se un numero ha 2 o 3 o 7 o 8 nel posto dell'unità, allora non è un quadrato perfetto.
-
-(define (digit-1 n)
-  (if (zero? (/ n 10))
-      n
-      (digit-1 (/ n 10))
-  )
-)
-
-(digit-1 (* 343 343))
-;-> 1
-
-2) Se la somma delle cifre di un numero non vale 1 o 4 o 7 o 9, allora non è un quadrato perfetto.
-
-(define (digit-sum n) (+ 1 (% (- n 1) 9)))
-
-(digit-sum (* 361 361))
-;-> 1
-
-Infine, ecco una soluzione abbastanza veloce che funzione anche per i numeri big integer:
-
-(define (square4? n)
-  (local (a)
-    (setq a n)
-    (while (> (* a a) n)
-      (setq a (/ (+ a (/ n a)) 2L))
-    )
-    (= (* a a) n)
-  )
-)
-
-(square4? 400L)
-;-> true
-
-(square4? 1736364774L)
-;-> nil
-
-(* 83968 83968)
-;-> 7050625024
-
-(square4? (* 83968L 83968L))
-;-> true
-
-Ma attenzione, occorre passare dei numeri big integer (L) per ottenere il risultato corretto:
-
-(square4? (* 83968 83968))
-;-> nil ;errore
-
-(square4? (* 383747464646473736473647364736L 383747464646473736473647364736L))
-;-> true
-
-(time (map square4? (sequence 2L 1000000L)))
-;-> 2578.611
-
-Test:
-
-(for (i 2 1e6)
-  (if (not (square4? (* (bigint i) (bigint i))) (println i { } (* i i)))))
-;-> nil
-
-
---------------------
-Numeri di Carmichael
---------------------
-
-In teoria dei numeri, un numero di Carmichael è un intero positivo composto n che soddisfa la congruenza
-
- b^(n-1) ≡ 1 mod n
-
-per tutti gli interi b che sono coprimi con n o, equivalentemente, che verificano la congruenza
-
- b^n ≡ b mod n
-
-per ogni b.
-
-Il piccolo teorema di Fermat afferma che tutti i numeri primi hanno quella proprietà, ma il viceversa non è vero: ad esempio  2^(341) mod 341, ma 341 non è primo, essendo il prodotto di 11 e 31. Un numero tale che b^n ≡ b mod n è detto pseudoprimo di Fermat rispetto alla base b. I numeri di Carmichael sono pseudoprimi di Fermat in ogni base, cioè assoluti.
-
-I numeri di Carmichael passano in ogni caso il test di primalità di Fermat pur essendo composti: la loro esistenza impedisce di utilizzare questo test per certificare con sicurezza la primalità di un numero, mentre rimane utilizzabile per dimostrare che un numero è composto.
-
-I numeri di Carmichael sono tutti dispari.
-
-Scriviamo una funxione che controlla se un dato numero è un numero di Carmichael:
-
-(define (fattorizza x)
-  (letn (fattori (factor x)
-         unici (unique fattori))
-    (transpose (list unici (count unici fattori)))))
-    ;(map list unici (count unici fattori))))
-
-(fattorizza 45)
-;-> ((3 2) (5 1))
-
-(fattorizza 561)
-;-> ((3 1) (11 1) (17 1))
-
-(define (carmichael? n)
-  (local (out fattori)
-    (setq out true)
-    (cond ((or (= n 1) (even? n) (= 1 (length (factor n)))) (setq out nil))
-          (true
-            (setq fattori (fattorizza n))
-            (dolist (f fattori (= out nil))
-              (if (> (f 1) 1) (setq out nil))
-              (if (!= (% (- n 1) (- (f 0) 1)) 0) (setq out nil))
-            )
-          )
-    )
-    out
-  )
-)
-
-Scriviamo una funzione che calcola i numeri di Carmichael fino al numero n:
-
-(define (carmichael n)
-  (let (out '())
-    (for (i 3 n 2)
-      (if (carmichael? i) (push i out -1))
-    )
-  out
-  )
-)
-
-(carmichael 1000000)
-;-> (561 1105 1729 2465 2821 6601 8911 10585 15841 29341 41041 46657 52633 62745 63973
-;->  75361 101101 115921 126217 162401 172081 188461 252601 278545 294409 314821 334153
-;->  340561 399001 410041 449065 488881 512461 530881 552721 656601 658801 670033 748657
-;->  825265 838201 852841 997633)
-
-(time (carmichael 1000000))
-;-> 2043.545
-
-(define (carmichael n)
-  (filter carmichael? (sequence 3 n 2)))
-
-(time (carmichael 1000000))
-;-> 3510.422
-
-
--------------------------------------
 Numeri dispari differenza di quadrati
 -------------------------------------
 
@@ -29368,91 +30400,6 @@ Scriviamo una funzione che calcola questi numeri:
 
 (breaknum 9527)
 ;-> (22695696 22686169)
-
-
-----------------
-Numeri semiprimi
-----------------
-
-Un numero semi-primo è un numero che è il prodotto di due numeri primi.
-Algoritmo:
-1) Trovare un divisore del numero d1.
-2) Dividere il numero per d1 per ottenere un secondo divisore d2.
-3) Se d1 e d2 sono entrambi primi, allora il numero originale è semiprimo.
-4) ripetere 1), 2) e 3) per tutti i divisori del numero.
-
-Scriviamo una funzione che verifica se un numero è primo:
-
-(define (primo? n)
-  (if (and (!= n 2) (even? n)) nil
-      (= 1 (length (factor n)))))
-
-Scriviamo una funzione che verifica se un numero è semiprimo:
-
-(define (semiprimo? num)
-  (local (d2 out)
-    (for (d1 2 (int (+ (sqrt num) 1)) 1 (= out true))
-      (if (= (% num d1) 0)
-        (setq d2 (/ num d1)
-              out (and (primo? d1) (primo? d2)))
-      )
-    )
-    out
-  )
-)
-
-(semiprimo? 21)
-;-> true
-
-(semiprimo? 4)
-;-> true
-
-Scriviamo una funzione che calcola i numeri semiprimi fino a n:
-
-(define (semiprimi n)
-  (let (out '())
-    (for (i 2 n)
-      (if (semiprimo? i) (push i out -1))
-    )
-  out
-  )
-)
-
-(semiprimi 100)
-;-> (4 6 9 10 14 15 21 22 25 26 33 34 35 38 39 46 49 51 55
-;->  57 58 62 65 69 74 77 82 85 86 87 91 93 94 95)
-
-(length (semiprimi 1000))
-;-> 299
-
-(time (map semiprimi (sequence 10 1000)))
-;-> 1473.389
-
-Per migliorare la velocità possiamo inglobare il controllo dei numeri primi all'interno del ciclo while:
-
-(define (semiprimo? num)
-  (let ((cnt 0) (i 2))
-    (while (and (< cnt 2) (<= (* i i) num))
-      (while (zero? (% num i))
-        (setq num (/ num i))
-        (++ cnt)
-      )
-      (++ i)
-    )
-    (if (> num 1) (++ cnt))
-    (= cnt 2)
-  )
-)
-
-(semiprimi 100)
-;-> (4 6 9 10 14 15 21 22 25 26 33 34 35 38 39 46 49 51 55
-;->  57 58 62 65 69 74 77 82 85 86 87 91 93 94 95)
-
-(length (semiprimi 1000))
-;-> 299
-
-(time (map semiprimi (sequence 10 1000)))
-;-> 1056.916
 
 
 ----------
@@ -29504,120 +30451,6 @@ Proviamo con un altro calcolo al posto di "rand":
 Quindi nei test numerici è meglio utilizzare la funzione "zero?"
 
 
---------------
-Numeri coprimi
---------------
-
-Due numeri a e b sono detti coprimi (o primi tra loro o relativamente primi) se e solo se essi non hanno nessun divisore comune eccetto 1 e -1 o, in modo equivalente, se il loro massimo comune divisore è 1, cioè MCD(a,b) = 1.
-
-(define (coprimi? a b) (= (gcd a b) 1))
-
-(coprimi? 10 11)
-
-(define (coprimi n)
-  (let ((out '()))
-    (for (i 0 n)
-      (for (j i n)
-      ;(for (j (+ i 1) n)
-        (if (coprimi? i j) (push (list i j) out -1))
-      )
-    )
-    out
-  )
-)
-
-(coprimi 10)
-;-> ((0 1) (1 1) (1 2) (1 3) (1 4) (1 5) (1 6) (1 7) (1 8) (1 9)
-;->  (1 10) (2 3) (2 5) (2 7) (2 9) (3 4) (3 5) (3 7) (3 8) (3 10)
-;->  (4 5) (4 7) (4 9) (5 6) (5 7) (5 8) (5 9) (6 7) (7 8) (7 9)
-;->  (7 10) (8 9) (9 10))
-
-Due teoremi interessanti sui numeri coprimi:
-
-Teorema: Numeri naturali consecutivi n e (n + 1) sono sempre coprimi.
-
-(coprimi? 310 311)
-;-> true
-
-Teorema: La probabilità che due interi scelti a caso siano primi tra loro è 6/(π^2).
-
-Un altro metodo per calcolare tutte le coppie di coprimi è quello di utilizzare la sequenza di Farey.
-La sequenza di Farey F(n), per ogni numero naturale positivo n, è definita come l'insieme ordinato secondo l'ordine crescente di tutti i numeri razionali irriducibili (cioè tali che numeratore e denominatore siano coprimi) espressi sotto forma di frazione con numeratore e denominatore compresi tra zero e n.
-
-La seguente funzione genera la n-esima sequenza di Farey in ordine crescente o decrescente:
-
-(define (farey n desc)
-  (local (a b c d k p q out)
-    (setq out '())
-    (setq a 0 b 1 c 1 d n)
-    ;(println a { } b)
-    (if desc (setq a 1 c (- n 1)))
-    (push (list a b) out -1)
-    (while (or (and (<= c n) (not desc)) (and (> a 0) desc))
-      (setq k (int (div (+ n b) d)))
-      (setq p (- (* k c) a))
-      (setq q (- (* k d) b))
-      (setq a c b d c p d q)
-      (push (list a b) out -1)
-      ;(println a { } b)
-    )
-    out
-  )
-)
-
-(farey 3)
-;-> ((0 1) (1 3) (1 2) (2 3) (1 1))
-
-(farey 10)
-;-> ((0 1) (1 10) (1 9) (1 8) (1 7) (1 6) (1 5) (2 9) (1 4) (2 7)
-;->  (3 10) (1 3) (3 8) (2 5) (3 7) (4 9) (1 2) (5 9) (4 7) (3 5)
-;->  (5 8) (2 3) (7 10) (5 7) (3 4) (7 9) (4 5) (5 6) (6 7) (7 8)
-;->  (8 9) (9 10) (1 1))
-
-Verifichiamo che le due funzioni "coprimi" e "farey" generano le stesse sequenze :
-
-(= (coprimi 100) (sort (farey 100)))
-;-> true
-
-Vediamo la differenza delle due funzioni in termin di velocità
-
-(time (map coprimi (sequence 10 500)))
-;-> 6391.329
-
-(time (map farey (sequence 10 500)))
-;-> 7297.73
-
-Ottimizziamo un pò la funzione "farey":
-
-(define (farey1 n)
-  (local (a b c d k p q out)
-    (setq out '())
-    (setq a 0 b 1 c 1 d n)
-    ;(println a { } b)
-    (push (list a b) out -1)
-    ;(while (or (and (<= c n) (not desc)) (and (> a 0) desc))
-    (while (<= c n)
-      ;(setq k (int (div (+ n b) d)))
-      (setq k (/ (+ n b) d))
-      (setq p (- (* k c) a))
-      (setq q (- (* k d) b))
-      (setq a c b d c p d q)
-      (push (list a b) out -1)
-      ;(println a { } b)
-    )
-    out
-  )
-)
-
-(= (coprimi 100) (sort(farey1 100)))
-;-> true
-
-(time (map farey1 (sequence 10 500)))
-;-> 6469.966
-
-Le due funzioni hanno la stessa velocità.
-
-
 -----------------------------------------------
 Operazioni su elementi consecutivi di una lista
 -----------------------------------------------
@@ -29656,554 +30489,6 @@ Possiamo generalizzare ancora la funzione permettendo di stabilire l'ordine degl
 ;-> (-4 -2 -4 -2 -4 -6 -2 -6)
 
 (7 - 11 = -4) (11 - 13 = -2) (13 - 17 = -4)...(31 - 37 = -6)
-
-
--------------------------------------------------
-Fattorizzazione di un numero intero (big integer)
--------------------------------------------------
-
-La fattorizzazione a ruota è un miglioramento del metodo della divisione di prova per la fattorizzazione a numeri interi.
-
-Il metodo della divisione di prova consiste nel dividere il numero da fattorizzare successivamente per i primi numeri interi (2, 3, 4, 5, ...) fino a trovare un divisore. Con la fattorizzazione a ruota, si parte da una lista (base) dei primi numeri primi. Quindi si genera l'elenco, chiamato la ruota, degli interi che sono coprimi con tutti i numeri della base. Quindi, per trovare il divisore più piccolo del numero da fattorizzare, lo si divide in successione per i numeri nella base e nella ruota.
-
-Con la base {2, 3}, questo metodo riduce il numero di divisioni a 1/3 <34% del numero necessario per la divisione di prova. Basi più grandi riducono ulteriormente questa proporzione. Ad esempio, con base da {2, 3, 5} a 8/30 <27%, mentre con una base da {2, 3, 5, 7} a 48/210 <23%.
-
-Esempio
-
-Con la base dei primi 3 numeri primi {2, 3, 5}, il "primo giro" della ruota è costituito da:
-
-7, 11, 13, 17, 19, 23, 29, 31.
-
-Il secondo giro si ottiene aggiungendo il prodotto della base 2 * 3 * 5 = 30, ai numeri del primo giro. Il terzo giro si ottiene aggiungendo 30 al secondo giro e così via.
-Da notare che gli incrementi tra due elementi consecutivi della ruota, cioè
-
-dist = [4, 2, 4, 2, 4, 6, 2, 6],
-
-rimangono gli stessi dopo ogni giro.
-
-Nota: (setq MAXINT 9223372036854775807)
-
-Scriviamo la funzione per fattorizzare un numero:
-
-(define (factorbig n)
-  (local (f k i dist out)
-    ; distanze tra due elementi consecutivi della ruota (wheel)
-    (setq dist '(0 4 2 4 2 4 6 2 6))
-    (setq out '())
-    (while (zero? (% n 2))
-      (push '2L out -1)
-      (setq n (/ n 2)))
-    (while (zero? (% n 3))
-      (push '3L out -1)
-      (setq n (/ n 3)))
-    (while (zero? (% n 5))
-      (push '5L out -1)
-      (setq n (/ n 5)))
-    (setq k 7L i 1)
-    (while (<= (* k k) n)
-      (if (zero? (% n k))
-        (begin
-        (push k out -1)
-        (setq n (/ n k)))
-        (begin
-        (setq k (+ k (dist i)))
-        (if (< i 8) (++ i) (setq i 1)))
-      )
-    )
-    (if (> n 1) (push (bigint n) out -1))
-    out
-  )
-)
-
-(factorbig 9223372036854775809L)
-;-> (3L 3L 3L 19L 43L 5419L 77158673929L)
-
-(time (factorbig 9223372036854775809L))
-;-> 50.947
-
-(apply * '(3L 3L 3L 19L 43L 5419L 77158673929L))
-;-> 9223372036854775809L
-
-Controlliamo se "factorbig" e "factor" producono lo stesso risultato (fino ad un milione):
-
-(= (map factorbig (sequence 2 1e6)) (map factor (sequence 2 1e6)))
-;-> true
-
-Proviamo con un numero di 20 cifre:
-
-(time (println (factorbig 92233720368547758091L)))
-;-> (7L 13L 1013557366687338001L)
-;-> 182879.379 ; 3 minuti e 2 secondi
-
-(apply * '(7L 13L 1013557366687338001L))
-;-> 92233720368547758091L
-
-Più è grande il valore dei fattori maggiore è il tempo di esecuzione.
-
-(time (println (factorbig 1013557366687338001L)))
-;-> (1013557366687338001L)
-;-> 179855.465 ; 3 minuti
-
-Invece nel seguente esempio il calcolo è immediato:
-
-2^64 = 18446744073709551616
-
-(setq d 18446744073709551616L)
-
-(factorbig d)
-;-> (2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L
-;->  2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L
-;->  2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L
-;->  2L 2L 2L 2L)
-
-Calcoliamo la differenza di velocità tra "factorbig" e "factor":
-
-(time (map factorbig (sequence 2 1e5)))
-;-> 1453.157
-
-(time (map factor (sequence 2 1e5)))
-;-> 78.108
-
-(time (map factorbig (sequence 2 1e6)))
-;-> 33469.801 ; 33 secondi
-
-(time (map factor (sequence 2 1e6)))
-;-> 1027.95
-
-La funzione integrata "factor" è molto più veloce, ma non funzione con i big integer.
-
-Possiamo migliorare le prestazioni della funzione utilizzando una base più grande:
-
-(2 3 5 7)
-
-Vediamo come calcolare la lista delle distanze. Prima occorre generare i numeri della ruota, cioè tutti gli interi coprimi con la base fino al numero (+ (* 2 3 5 7) 11) = 221
-
-Funzione per calcolare i coprimi:
-
-(define (coprimi? a b) (= (gcd a b) 1))
-
-Funzione che verifica se un numero appartiene alla ruota:
-
-(define (wheel7 n) (and (coprimi? n 2) (coprimi? n 3) (coprimi? n 5) (coprimi? n 7)))
-
-Funzione che crea la ruota dei numeri:
-
-(define (dowheel7)
-  (let (out '())
-    (for (i 2 221) (if (wheel7 i) (push i out -1)))
-  )
-)
-
-(dowheel7)
-;-> (11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71 73 79 83 89 97 101 103 107 109 113
-;->  121 127 131 137 139 143 149 151 157 163 167 169 173 179 181 187 191 193 197 199
-;->  209 211 221)
-
-Per calcolare le distanze tra due elementi consecutivi della ruota usiamo la seguente funzione:
-
-(define (creadist lst) (map - (rest lst) (chop lst)))
-
-(creadist (dowheel7))
-;-> (2 4 2 4 6 2 6 4 2 4 6 6 2 6 4 2 6 4 6 8 4 2 4 2 4 8 6 4 6 2 4 6 2 6 6 4 2 4 6 2
-;-> 6 4 2 4 2 10 2 10)
-
-Adesso possiamo scrivere la nuova funzione di fattorizzazione con base (2 3 5 7):
-
-(define (factorbig n)
-  (local (f k i dist out)
-    ; Distanze tra due elementi consecutivi della ruota (wheel)
-    (setq dist (array 48 '(2 4 2 4 6 2 6 4 2 4 6 6 2 6 4 2 6 4
-                           6 8 4 2 4 2 4 8 6 4 6 2 4 6 2 6 6 4
-                           2 4 6 2 6 4 2 4 2 10 2 10)))
-    (setq out '())
-    (while (zero? (% n 2)) (push '2L out -1) (setq n (/ n 2)))
-    (while (zero? (% n 3)) (push '3L out -1) (setq n (/ n 3)))
-    (while (zero? (% n 5)) (push '5L out -1) (setq n (/ n 5)))
-    (while (zero? (% n 7)) (push '7L out -1) (setq n (/ n 7)))
-    (setq k 11L i 0)
-    (while (<= (* k k) n)
-      (if (zero? (% n k))
-        (begin
-        (push k out -1)
-        (setq n (/ n k)))
-        (begin
-        ;(++ k (dist i))
-        (setq k (+ k (dist i)))
-        (if (< i 47) (++ i) (setq i 0)))
-      )
-    )
-    (if (> n 1) (push (bigint n) out -1))
-    out
-  )
-)
-
-(factorbig 9223372036854775809L)
-;-> (3L 3L 3L 19L 43L 5419L 77158673929L)
-
-(time (factorbig 9223372036854775809L))
-;-> 46.875
-
-(apply * '(3L 3L 3L 19L 43L 5419L 77158673929L))
-;-> 9223372036854775809L
-
-Controlliamo se "factorbig" e "factor" producono lo stesso risultato (fino ad un milione):
-
-(= (map factorbig (sequence 2 1e5)) (map factor (sequence 2 1e5)))
-;-> true
-(= (map factorbig (sequence 2 1e6)) (map factor (sequence 2 1e6)))
-;-> true
-
-Proviamo con un numero di 20 cifre:
-
-(time (println (factorbig 92233720368547758091L)))
-;-> (7L 13L 1013557366687338001L)
-;-> 150515.93
-
-Questa funzione "factorbig" impiega 30 secondi in meno di quella precedente (con la base (2 3 5) la funzione impiegava 180 secondi).
-
-Calcoliamo la differenza di velocità tra "factorbig" e "factor":
-
-(time (map factorbig (sequence 2 1e5)))
-;-> 1406.559
-
-(time (map factor (sequence 2 1e5)))
-;-> 78.108
-
-(time (map factorbig (sequence 2 1e6)))
-;-> 28834.221 ; 29 secondi
-
-(time (map factor (sequence 2 1e6)))
-;-> 1027.95
-
-
-------------------------------------------
-Potenza di due numeri interi (big integer)
-------------------------------------------
-
-Utilizziamo una soluzione ricorsiva per calcolare x^n usando il metodo divide & conquer:
-
-power(x, n) =     power(x, n/2) * power(x, n/2)     (se n è pari)
-power(x, n) = x * power(x, n/2) * power(x, n/2)     (se n è dispari)
-
-(define (power-i x n)
-  (cond ((zero? n) 1)
-        ((even? n) (power-i (* x x) (/ n 2)))
-        (true (* x (power-i (* x x) (/ (- n 1) 2))))))
-
-(power-i 3 7)
-;-> 2187
-
-(power-i -2 15)
-;-> -32768
-
-Il metodo può essere migliorato notando che calcoliamo due volte lo stesso sotto-problema (power (x, n/2) per ogni chiamata ricorsiva. Possiamo ottimizzare la funzione calcolando e memorizzando la soluzione del sotto-problema solo una volta.
-
-(define (power-i x n)
-  (local (pot out)
-    (if (zero? n)
-        (setq out 1L)
-        (begin
-          (setq pot (power-i x (/ n 2)))
-          (if (odd? n) (setq out (* x pot pot))
-                       (setq out (* pot pot)))
-        )
-    )
-    out
-  )
-)
-
-(power-i -2 15)
-;-> -32768
-
-Controllo se la soluzione genera gli stessi risultati della funzione built-in pow(n m):
-
-(for (i 1 15)
-  (for (j 1 15)
-    (if (!= (pow i j) (power-i i j))
-      (println "error: " i ", " j))
-  )
-)
-;-> nil
-
-(setq MAXINT 9223372036854775807)
-
-(power-i 10 53)
-;-> -8169529724050079744 ;errore di overflow
-
-Passando gli argomenti come big integer otteniamo il risultato corretto:
-
-(power-i 10L 53L)
-;-> 100000000000000000000000000000000000000000000000000000L
-
-(power-i 3L 8L)
-;-> 6561L
-
-Complessità temporale: O(log(n))
-
-Potete trovare un algoritmo più efficiente che utilizza il metodo delle "addiction chain" nel libro di Donald Knuth "The Art of Computer Programming".
-
--------------------------
-Problema della segretaria
--------------------------
-
-Il problema della segretaria è un problema che dimostra uno scenario che coinvolge la teoria dell'arresto ottimale.
-La forma base del problema è la seguente: immagina un amministratore che vuole assumere la miglior segretaria da n candidate. Le candidate vengono intervistate una per una in ordine casuale. Una decisione su ciascuna candidata particolare deve essere presa immediatamente dopo il colloquio. Una volta respinta, una candidata non può essere richiamata. Durante il colloquio, l'amministratore ottiene informazioni sufficienti per classificare con un punteggio la candidata. La domanda riguarda la strategia ottimale (regola di arresto) per massimizzare la probabilità di selezionare la miglior candidata. Se la decisione può essere rinviata alla fine, allora la scelta viene fatta al termine di tutti i colloqui, selezionando la candidata con il punteggio maggiore. La difficoltà è che la decisione deve essere presa immediatamente: la candidata deve essere presa o scartata.
-
-La probabilità di vincita ottimale è sempre almeno 1/e (dove e è la base del logaritmo naturale). La regola di arresto ottimale prescrive sempre di rifiutare le prime n/e candidate che vengono intervistate e quindi fermarsi alla prima candidata che è migliore di tutti le candidate intervistate finora (o si continua fino all'ultima candidata se ciò non si verifica mai). A volte questa strategia è chiamata regola di arresto 1/e , perché la probabilità di fermarsi alla migliore candidata con questa strategia è circa 1/e già per valori piccoli n. Il metodo per la soluzione del problema (la regola di arresto) è semplice e seleziona la migliore candidata circa il 37% delle volte, indipendentemente dal fatto che ci siano 100 o 100 milioni di candidate.
-
-Sebbene ci siano molte varianti, il problema di base può essere definito come segue:
-
-1) C'è una singola posizione da riempire.
-2) Ci sono n candidate per la posizione e il valore di n è noto.
-3) Le candidate, se viste complessivamente, possono essere classificate dalla migliore alla peggiore in modo inequivocabile.
-4) I punteggi relativi alle valutazioni devono essere tutti diversi.
-5) Le candidate vengono intervistate in sequenza in ordine casuale.
-6) Immediatamente dopo un colloquio, la candidata intervistata viene accettata o respinta e la decisione è irrevocabile.
-7) La decisione di accettare o respingere una candidata si basa solo sui punteggi delle candidate intervistate finora.
-
-L'obiettivo della soluzione generale è trovare un metodo che renda massima probabilità di selezionare il miglior candidato dell'intero gruppo.
-
-La politica ottimale per il problema è una regola di arresto. Con questa, l'intervistatore rifiuta le prime (r - 1) (considerando che la candidata M abbia il miglior punteggio tra queste (r - 1) candidate), quindi seleziona, tra le candidate successive, la prima candidata che ha un punteggio migliore della candidata M. Si può dimostrare che la strategia ottimale sta in questa classe di strategie. Con un taglio arbitrario r, la probabilità che sia selezionato il miglior richiedente vale:
-
-P(r) = (r - 1)/n * sum[i=1...i=n] 1/(i-1)
-
-Definiamo una funzione per calcolare questo valore:
-
-(define (P r n)
-  (local (somma out)
-    (setq out 0)
-    (if (= r 1) (setq out (div 1 n))
-        (begin
-          (setq somma 0)
-          (for (i r n)
-            (setq somma (add somma (div 1 (sub i 1))))
-          )
-          (setq out (mul somma (div (sub r 1) n)))
-        )
-    )
-  out
-  )
-)
-
-(P 1 1)
-;-> 1
-
-(P 1 2)
-;-> 0.5
-
-(P 2 3)
-;-> 0.5
-
-(P 3 5)
-;-> 0.4333333
-
-(P 37 100)
-;-> 0.371014595504193
-
-La teoria afferma che il taglio ottimo vale n/e
-
-(div 1 (exp 1))
-;-> 0.3678794411714423
-
-Proviamo con un esempio per capire come funziona.
-
-Abbiamo 100 candidati con punteggi variabili da 1 a 100:
-
-(setq cand (randomize (sequence 0 99)))
-;-> (76 64 72 83 55 63 29 95 89 74 61 71 60 49 3 8 2 58
-;->  53 98 24 15 38 69 43 94 39 8 21 5 19 41 80 59 20 44
-;->  28 82 73 7 75 36 77 14 79 25 67 11 85 9 47 32 16 88
-;->  12 90 17 0 91 46 26 93 99 35 18 37 13 42 22 50 66 52
-;->  96 97 48 62 51 4 70 45 87 6 92 4 27 65 54 23 34 86 31
-;->  1 33 30 78 57 40 56 10 81)
-
-La teoria afferma che il taglio ottimo vale n/e:
-
-(div 1 (exp 1))
-;-> 0.3678794411714423
-
-(setq taglio (round (div 100 (exp 1))))
-;-> 37
-
-Calcoliamo il punteggio massimo dal primo fino al taglio:
-(apply max (slice cand 0 taglio))
-;-> 98
-
-Quindi nelle rimanenti candidate (dal taglio alla fine della lista) troviamo la candidata con punteggio 99, che è la miglioer ed è quella che verrà selezionata.
-
-Adesso scriviamo una funzione che calcola la percentuale di successo (cioè quante volte selezioniamo la migliore candidata) con due parametri, il numero delle candidate n e il numero dei colloqui (cioè quante volte ripetiamo il test).
-
-(define (secretary n prove)
-  (local (cand taglio m1 m2 success found)
-    (setq success 0)
-    ;Definiamo il taglio
-    ; 1/e = (div 1 (exp 1))) = 0.3678794411714423
-    (setq taglio (round (div n (exp 1))))
-    (for (i 1 prove)
-      ; Generiamo la lista dei punteggi per le candidate
-      (setq cand (randomize (sequence 0 (- n 1))))
-      ;Calcoliamo il valore massimo FINO al taglio
-      (setq m1 (apply max (slice cand 0 taglio)))
-      ;Cerchiamo il primo valore > m1 dal resto della lista
-      ;se non esiste tale valore, allora m2 vale l'ultimo candidato
-      (setq m2 (last cand))
-      (setq found nil)
-      (dolist (el (slice cand taglio) found)
-        (if (> el m1) (setq m2 el found true))
-      )
-      ;se m2 > max allora abbiamo scelto la candidata migliore
-      ;(if (>= m2 (apply max cand) (++ success)))
-      ;se m2 = (n - 1) allora abbiamo scelto la candidata migliore
-      ;(if (= m2 (- n 1)) (++ success))
-      (if (= m2 (- n 1)) (++ success))
-    )
-    (div success prove)
-  )
-)
-
-(secretary 100 100)
-;-> 0.35
-
-(secretary 100 1000)
-;-> 0.365
-
-(secretary 100 10000)
-;-> 0.3668
-
-(secretary 100 100000)
-;-> 0.36995
-
-(time (println (secretary 1000 100000)))
-;-> 0.36794
-;-> 14018
-;-> 14018
-
-Quindi con il taglio ottimo selezioniamo la segretaria migliore il 37% delle volte.
-
-Adesso vogliamo verificare se il taglio ottimo n/e è veramente ottimo. Per fare questo scriviamo una funzione simile alla precedente, ma che utilizza il taglio dal 2% dei candidati al 98% dei candidati con passo dell'1%. Prima abbiamo bisogno di aggiungere il parametro percentuale (perc) alla funzione "secretary".
-
-(define (secretary1 n prove perc)
-  (local (cand taglio m1 m2 success found)
-    ; numero di successi
-    (setq success 0)
-    ;Definiamo il taglio
-    ; 1/e = (div 1 (exp 1))) = 0.3678794411714423
-    ;(setq taglio (round (mul n (div 1 (exp 1)))))
-    (setq taglio (round (mul n perc)))
-    (for (i 1 prove)
-      ; Generiamo la lista dei punteggi per le candidate
-      ; I punteggi devono essere tutti diversi
-      (setq cand (randomize (sequence 0 (- n 1))))
-      ;
-      ;Definiamo il taglio
-      ; 1/e = (div 1 (exp 1))) = 0.3678794411714423
-      ;(setq taglio (round (mul n (div 1 (exp 1)))))
-      ;
-      ;Calcoliamo il valore massimo FINO al taglio
-      (setq m1 (apply max (slice cand 0 taglio)))
-      ;Cerchiamo il primo valore > m1 dal resto della lista
-      ;se non esiste tale valore, allora m2 vale l'ultimo candidato
-      (setq m2 (last cand))
-      (setq found nil)
-      (dolist (el (slice cand taglio) found)
-        (if (> el m1) (setq m2 el found true))
-      )
-      ;se m2 > max allora abbiamo scelto la candidata migliore
-      ;(if (>= m2 (apply max cand) (++ success)))
-      ;se m2 = (n - 1) allora abbiamo scelto la candidata migliore
-      (if (= m2 (- n 1)) (++ success))
-    )
-    (div success prove)
-  )
-)
-
-Proviamo la funzione con il taglio ottimo:
-
-(secretary1 100 10000 0.37)
-;-> 0.3688
-
-Adesso scriviamo la funzione di test:
-
-(define (test numero try)
-  (let (out '())
-    (for (i 0.02 0.98 0.01)
-      (push (list i (secretary1 numero try i)) out -1)
-    )
-    out
-  )
-)
-
-(time (println (test 1000 100000)))
-;-> ((0.02 0.07912) (0.03 0.10446) (0.04 0.12815) (0.05 0.14926) (0.06 0.16773)
-;->  (0.07 0.18446) (0.08 0.19901) (0.09 0.21840) (0.10 0.23036) (0.11 0.24187)
-;->  (0.12 0.25638) (0.13 0.26558) (0.14 0.27721) (0.15 0.28404) (0.16 0.29332)
-;->  (0.17 0.30204) (0.18 0.30775) (0.19 0.31570) (0.20 0.32219) (0.21 0.32700)
-;->  (0.22 0.33187) (0.23 0.33872) (0.24 0.34584) (0.25 0.34686) (0.26 0.35190)
-;->  (0.27 0.35387) (0.28 0.35426) (0.29 0.35849) (0.30 0.36257) (0.31 0.36373)
-;->  (0.32 0.36782) (0.33 0.36693) (0.34 0.36981) (0.35 0.36654) (0.36 0.36841)
-;->  (0.37 0.36798) (0.38 0.37075) (0.39 0.36919) (0.40 0.37071) (0.41 0.36927)
-;->  (0.42 0.36649) (0.43 0.36714) (0.44 0.36583) (0.45 0.36196) (0.46 0.35700)
-;->  (0.47 0.35620) (0.48 0.35523) (0.49 0.35266) (0.50 0.34981) (0.51 0.34740)
-;->  (0.52 0.34153) (0.53 0.33946) (0.54 0.33874) (0.55 0.32996) (0.56 0.32723)
-;->  (0.57 0.32194) (0.58 0.31821) (0.59 0.31414) (0.60 0.31107) (0.61 0.30513)
-;->  (0.62 0.29896) (0.63 0.29224) (0.64 0.28734) (0.65 0.28199) (0.66 0.28114)
-;->  (0.67 0.26891) (0.68 0.26747) (0.69 0.25871) (0.70 0.25116) (0.71 0.24809)
-;->  (0.72 0.23956) (0.73 0.23304) (0.74 0.22672) (0.75 0.21875) (0.76 0.21029)
-;->  (0.77 0.20602) (0.78 0.19533) (0.79 0.18661) (0.80 0.18105) (0.81 0.17393)
-;->  (0.82 0.16428) (0.83 0.15788) (0.84 0.14896) (0.85 0.13921) (0.86 0.13023)
-;->  (0.87 0.12356) (0.88 0.11341) (0.89 0.10416) (0.90 0.09511) (0.91 0.08739)
-;->  (0.92 0.07860) (0.93 0.06842) (0.94 0.05824) (0.95 0.04976) (0.96 0.03982)
-;->  (0.97 0.03023) (0.98 0.01985))
-;-> 964754.466
-
-Come possiamo vedere, i risultati calcolati confermano la teoria, cioè il taglio ottimo è circa il 37%.
-
-Per definire meglio la validità del metodo sarebbe interessante vedere quanto siamo lontani dal punteggio massimo, quando non selezioniamo la segretaria migliore utilizxzando il taglio ottimo. Per fare questo modifichiamo la funzione "secretary":
-
-(define (secretary2 n prove)
-  (local (cand taglio m1 m2 success found delta)
-    (setq success 0)
-    (setq delta 0)
-    ;Definiamo il taglio
-    ; 1/e = (div 1 (exp 1))) = 0.3678794411714423
-    (setq taglio (round (div n (exp 1))))
-    (for (i 1 prove)
-      ; Generiamo la lista dei punteggi per le candidate
-      (setq cand (randomize (sequence 0 (- n 1))))
-      ;Calcoliamo il valore massimo FINO al taglio
-      (setq m1 (apply max (slice cand 0 taglio)))
-      ;Cerchiamo il primo valore > m1 dal resto della lista
-      ;se non esiste tale valore, allora m2 vale l'ultimo candidato
-      (setq m2 (last cand))
-      (setq found nil)
-      (dolist (el (slice cand taglio) found)
-        (if (> el m1) (setq m2 el found true))
-      )
-      ;se m2 > max allora abbiamo scelto la candidata migliore
-      ;(if (>= m2 (apply max cand) (++ success)))
-      ;se m2 = (n - 1) allora abbiamo scelto la candidata migliore
-      ;(if (= m2 (- n 1)) (++ success))
-      (if (= m2 (- n 1)) (++ success))
-      ;somma le distanze tra la candidata scelta e quella migliore
-      (setq delta (+ delta (- (- n 1) m2)))
-    )
-    (println (div success prove))
-    (println delta)
-    (div delta prove)
-  )
-)
-
-(secretary2 100 100000)
-;-> 0.37281  ; percentuale di successo
-;-> 1888047  ; totale distanze
-;-> 18.88047 ; distanza media
-
-(secretary2 1000 100000)
-;-> 0.37051   ; percentuale di successo
-;-> 18267139  ; totale distanze
-;-> 182.67139 ; distanza media
-
-Con questo metodo si seleziona una candidata che ha circa il 18% di punteggio inferiore alla candidata migliore (in media).
 
 
 ---------------------------------------------------
@@ -30299,6 +30584,102 @@ Questa funzione prende un programma (stringa) in linguaggio Brainfuck che stampa
 (bf (gen-bf "Controllo funzioni"))
 ;-> Controllo funzioni
 ;-> stop.
+
+
+------------------------------------
+Creare una utilità di sistema (.exe)
+------------------------------------
+
+Il codice sorgente e l'eseguibile newLISP.exe possono essere uniti tra loro per creare un'applicazione autonoma utilizzando il flag della riga di comando -x.
+
+;; uppercase.lsp - Link example
+(println (upper-case (main-args 1)))
+(exit)
+
+Il programma uppercase.lsp prende la prima parola dalla riga di comando e la converte in maiuscolo.
+
+Per compilare questo programma come eseguibile autonomo, eseguire dal terminale la seguente procedura:
+
+Su OSX, Linux e altri UNIX
+
+newlisp -x uppercase.lsp uppercase
+
+chmod 755 uppercase # give executable permission
+
+Su Windows il file di destinazione richiede l'estensione .exe
+
+newlisp -x uppercase.lsp uppercase.exe
+
+newLISP troverà l'eseguibile "newLISP.exe" nel percorso di esecuzione dell'ambiente (PATH) e lo unirà ad una copia del codice sorgente "uppercase.lsp" per creare il programma "uppercase.exe".
+
+Per eseguire il programma eseguire dal terminale il comando:
+
+Su Linux e altri UNIX, se la cartella (directory) corrente si trova nel percorso eseguibile:
+
+uppercase "convert me to uppercase"
+
+Su Linux e altri UNIX, se la directory corrente non si trova nel percorso eseguibile:
+
+./uppercase "convert me to uppercase"
+
+Su windows:
+
+uppercase "convert me to uppercase"
+
+La console dovrebbe stampare:
+
+;-> CONVERT ME TO UPPERCASE
+
+Si noti che nessuno dei file di inizializzazione init.lsp né .init.lsp viene caricato durante l'avvio dei programmi creati in questo modo.
+
+Vediamo come gestire i parametri passati alla linea di comando utilizzando la funzione "main-args".
+
+**********************
+>>>funzione MAIN-ARGS
+**********************
+sintassi: (main-args int-index)
+
+main-args restituisce una lista con diversi elementi di tipo stringa, uno per l'invocazione del programma e uno per ciascuno degli argomenti della riga di comando.
+
+newlisp 1 2 3
+
+> (main-args)
+("/usr/local/bin/newlisp" "1" "2" "3")
+
+Dopo che newlisp 1 2 3 viene eseguito al prompt dei comandi, main-args restituisce una lista contenente il nome del programma chiamante e i tre argomenti della riga di comando.
+
+Facoltativamente, main-args può prendere un int-index per l'indicizzazione della lista. Si noti che un indice fuori intervallo causerà la restituzione di zero, non l'ultimo elemento dell'elenco come nell'indicizzazione delle liste.
+
+newlisp a b c
+
+(main-args 0)   
+;-> "/usr/local/bin/newlisp"
+(main-args -1)  
+;-> "c"
+(main-args 2)   
+;-> "b"
+(main-args 10)
+;-> nil
+
+Nota che quando newLISP viene eseguito da uno script, main-args restituisce anche il nome dello script come secondo argomento:
+
+#!/usr/local/bin/newlisp
+# 
+# script to show the effect of 'main-args' in script file
+
+(print (main-args) "\n")
+(exit)
+
+# end of script file
+
+;; execute script in the OS shell:
+
+script 1 2 3
+
+;-> ("/usr/local/bin/newlisp" "./script" "1" "2" "3")
+
+Prova a eseguire questo script con diversi parametri della riga di comando.
+
 
 ===========
 
@@ -34496,6 +34877,7 @@ Frasi Famose sulla Programmazione e sul Linguaggio Lisp
 "Cavemen in bearskins invaded the ivory towers of Artificial Intelligence. Nine months later, they left with a baby named newLISP. The women of the ivory towers wept and wailed. 'Abomination!' they cried."
 - TedWalther
 
+
 ====================
 
  BIBLIOGRAFIA / WEB
@@ -34567,3 +34949,6 @@ Frasi Famose sulla Programmazione e sul Linguaggio Lisp
   "The Art of Computer Programming", Donald Knuth, 4 volumi
   
   "Introduction to Algorithms", Cormen-Leiserson-Rivest-Stein, 3 ed, 2009
+  
+  
+  

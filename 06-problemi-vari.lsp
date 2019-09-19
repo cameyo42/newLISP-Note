@@ -4786,7 +4786,6 @@ Quindi torniamo indietro (backtracking) e cerchiamo di mettere la terza regina i
 
 In questo modo si ottiene una possibile soluzione al problema delle N-Regine e l'algoritmo termina.
 
-
 (define (isAttacked x y board N)
   (local (out)
     ; controllo righe e colonne
@@ -5613,7 +5612,7 @@ Soluzione:
 
 
 --------------------------
-Moltiplicazioni di Fattori
+Moltiplicazioni di fattori
 --------------------------
 
 Dato un numero N, creare la lista dei numeri che possono essere ottenuti dal prodotto di tutte le combinazioni dei fattori primi del numero N.
@@ -6101,6 +6100,7 @@ Per adesso mi fermo qui, devo ragionarci un pò di più :-)
 -----------------------------------
 Creazione e valutazione di polinomi
 -----------------------------------
+
 Supponiamo di avere il polinomio y(x) = 3*x^2 - 7*x + 5 e di voler calcolare i valori di y per x che varia da 0 a 10 (con passo 1).
 Possiamo definire una funzione che rappresenta il polinomio:
 
@@ -6181,7 +6181,7 @@ Usiamo la funzione "poly" in un ciclo for:
 ;-> 9 3394
 ;-> 10 4580
 
-Proviamio con i dati del primo esempio:
+Proviamo con i dati del primo esempio:
 
 (setq poly2 (crea-polinomio '(3 7 5)))
 ;-> (lambda (x) (add 5 (mul x 7) (mul (pow x 2) 3)))
@@ -6229,4 +6229,790 @@ Sul forum di newLISP, rickyboy ha fornito la seguente funzione per creare polino
 
 (poly4 0)
 ;-> 5
+
+
+------------------------------
+Quadrato perfetto di un numero
+------------------------------
+
+Determinare se un numero n è un quadrato perfetto.
+
+Usiamo la funzione radice quadrata (sqrt):
+
+(define (square? n)
+  (let (v (+ (sqrt n 0.5)))
+    (= n (* v v))))
+
+(square? 400)
+;-> true
+
+(square? 1736364774)
+;-> nil
+
+(time (map square? (sequence 2 1000000)))
+;-> 225.77
+
+Facciamo un test per vedere se la funzione è corretta:
+
+(for (i 2 1e7)
+  (if (not (square? (* i i))) (println i { } (* i i))))
+;-> nil
+
+Un metodo alternativo:
+
+(define (square1? n)
+  (catch
+    (let (i (max 1 (int (- (sqrt n) 1))))
+      (while (<= (* i i) n)
+        (if (and (= (% n i) 0) (= i (/ n i))) (throw true))
+        (++ i)
+      )
+      (throw nil)
+    )
+  )
+)
+
+(square1? 400)
+;-> true
+
+(square1? 1736364774)
+;-> nil
+
+(time (map square1? (sequence 2 1000000)))
+;-> 2253.451
+
+Test:
+
+(for (i 2 1e6)
+  (if (not (square1? (* i i))) (println i { } (* i i))))
+;-> nil
+
+Un altro metodo è quello di fattorizzare il numero n e poi, se tutti gli esponenti dei fattori sono numeri pari, allora n è un quadrato perfetto.
+
+Esempio:
+n = 400
+(factor 400)
+;-> (2 2 2 2 5 5)
+
+400 = 20*20 = 2^4 * 5^2
+
+Poichè 4 e 2 (gli esponenti) sono numeri pari allora 400 è un quadrato perfetto.
+
+Ecco la funzione:
+
+(define (square2? n)
+  (let (f (factor n))
+    (catch
+      (dolist (x (count (unique f) f))
+        (if (odd? x) (throw nil))
+        true
+      )
+    )
+  )
+)
+
+(square2? 400)
+;-> true
+
+(square2? 1736364774)
+;-> nil
+
+(time (map square2? (sequence 2 1000000)))
+;-> 3534.401
+
+Test:
+
+(for (i 2 1e5)
+  (if (not (square2? (* i i))) (println i { } (* i i))))
+;-> nil
+
+Un altro algoritmo (molto lento).
+
+Dato il numero n:
+1) a = 5*n
+2) b = 5
+3) Affinchè (a >= b)
+      a = a - b
+      b = b + 10
+4) Quando (a < b):
+   se e solo se (a == 0) allora n è un quadrato perfetto
+
+Ecco la funzione:
+
+(define (square3? n)
+  (let ((a (* 5 n)) (b 5))
+    (while (>= a b)
+      (setq a (- a b))
+      (++ b 10)
+    )
+    (zero? a)
+  )
+)
+
+(square3? 400)
+;-> true
+
+(square3? 1736364774)
+;-> nil
+
+(time (map square3? (sequence 2 1000000)))
+;-> 80311.923
+
+Test:
+
+(for (i 2 1e4)
+  (if (not (square3? (* i i))) (println i { } (* i i))))
+;-> nil
+
+Inoltre valgono le seguenti due regole:
+
+1) Se un numero ha 2 o 3 o 7 o 8 nel posto dell'unità, allora non è un quadrato perfetto.
+
+(define (digit-1 n)
+  (if (zero? (/ n 10))
+      n
+      (digit-1 (/ n 10))
+  )
+)
+
+(digit-1 (* 343 343))
+;-> 1
+
+2) Se la somma delle cifre di un numero non vale 1 o 4 o 7 o 9, allora non è un quadrato perfetto.
+
+(define (digit-sum n) (+ 1 (% (- n 1) 9)))
+
+(digit-sum (* 361 361))
+;-> 1
+
+Infine, ecco una soluzione abbastanza veloce che funzione anche per i numeri big integer:
+
+(define (square4? n)
+  (local (a)
+    (setq a n)
+    (while (> (* a a) n)
+      (setq a (/ (+ a (/ n a)) 2L))
+    )
+    (= (* a a) n)
+  )
+)
+
+(square4? 400L)
+;-> true
+
+(square4? 1736364774L)
+;-> nil
+
+(* 83968 83968)
+;-> 7050625024
+
+(square4? (* 83968L 83968L))
+;-> true
+
+Ma attenzione, occorre passare dei numeri big integer (L) per ottenere il risultato corretto:
+
+(square4? (* 83968 83968))
+;-> nil ;errore
+
+(square4? (* 383747464646473736473647364736L 383747464646473736473647364736L))
+;-> true
+
+(time (map square4? (sequence 2L 1000000L)))
+;-> 2578.611
+
+Test:
+
+(for (i 2 1e6)
+  (if (not (square4? (* (bigint i) (bigint i))) (println i { } (* i i)))))
+;-> nil
+
+
+-----------------------------
+Potenza perfetta di un numero
+-----------------------------
+
+Determinare se un numero intero è potenza perfetta di un altro numero intero.
+
+Cominciamo col determinare se un numero n è potenza del numero 3.
+
+(define (power-of-3? n)
+  (if (zero? (% n 3))
+        (power-of-3? (/ n 3))
+        (= n 1)
+  )
+)
+
+(power-of-3? 9)
+;-> true
+(power-of-3? 6)
+;-> nil
+(power-of-3? 81)
+;-> true
+(power-of-3? 847288609443)
+;-> true
+
+Vediamo la velocità della funzione:
+
+(time (map power-of-3? (sequence 4 1e7)))
+;-> 2676.189
+
+Notiamo che la somma delle cifre di ogni numero che è potenza di 3 vale 9 (tranne 0 e 3).
+Per calcolare la somma delle cifre di un numero usiamo la seguente funzione:
+
+(define (digitSum n) (+ 1 (% (- n 1) 9)))
+
+Verifichiamo la nostra ipotesi:
+
+(for (i 4 1e6)
+  (if (and (power-of-3? i) (!= 9 (digitSum i)))
+    (println "Error: " i)
+  )
+)
+;-> nil
+
+Non è vero il contrario, cioè esistono tanti numeri che hanno come somma delle cifre il valore 9, ma non sono potenze del numero 3.
+
+(for (i 4 1e2)
+  (if (and (= 9 (digitSum i)) (not (power-of-3? i)))
+    (println "Error: " i)
+  )
+)
+;-> Error: 18
+;-> Error: 36
+;-> Error: 45
+;-> Error: 54
+;-> Error: 63
+;-> Error: 72
+;-> Error: 90
+;-> Error: 99
+
+Possiamo generalizzare la funzione per determinare se un numero m è potenza del numero n.
+
+(define (power-of? n m)
+  (if (zero? (% m n))
+        (power-of? n (/ m n))
+        (= m 1)
+  )
+)
+
+(power-of? 3 117)
+;-> nil
+(power-of? 4 4096)
+;-> true
+(power-of? 4 20)
+;-> nil
+(power-of? 7 2401)
+;-> true
+(power-of-3? 847288609443)
+;-> true
+
+Un altro metodo è quello di utilizzare i logaritmi. L'idea è di calcolare il logaritmo di y in base x. Se risulta essere un numero intero, allora il numero y è una potenza perfetta, altrimenti non lo è.
+Ricordiamo che matematicamente risulta:
+
+logb(x) = logc(x) / logc(b)
+
+E in newLISP la funzione "log" ha la seguente sintassi:
+
+(log num num-base)
+
+Quindi la funzione è la seguente:
+
+(define (ispower? x y) (= (log y x) (int (log y x))))
+
+(ispower? 2 16)
+;-> true
+
+(ispower? 3 81)
+;-> true
+
+
+Per finire, scriviamo una funzione che calcola se un numero intero n è potenza di un qualsiasi numero intero.
+Un numero n viene detto una potenza perfetta quando n = m^k è un numero intero e m>1 e k>=2.
+Consideriamo la fattorizzazione di un numero: n = p1^a1 * p2^a2 *...* pk^ak
+Il numero n è una potenza perfetta se e solo se (MCD a1 a2 ... ak) > 1
+
+La funzione "factor-exp-list" calcola la lista degli esponenti della fattorizzazione del numero x:
+
+(define (factor-exp-list x)
+  (if (= x 1) '(1)
+    (letn (fattori (factor x)
+           unici (unique fattori))
+       (count unici fattori))))
+
+1000 = 2^3 * 5^3
+(factor-exp-list 1000)
+;-> (3 3)
+
+Adesso possiamo scrivere la funzione "checkpower" che calcola se un numero è una potenza perfetta:
+
+(define (checkpower n)
+  (local (a out)
+    (if (> (setq a (apply gcd (factor-exp-list n))) 1)
+        (list (ceil (pow n (div 1 a))) a)
+        nil)))
+
+(checkpower (pow 3 12))
+;-> (3 12)
+
+(checkpower (pow 4 25))
+;-> (2 50)
+
+(checkpower (+ (pow 3 7) 1))
+;-> nil
+
+(checkpower 4096)
+;-> (2 12)
+
+
+-------------------------
+Problema della segretaria
+-------------------------
+
+Il problema della segretaria è un problema che dimostra uno scenario che coinvolge la teoria dell'arresto ottimale.
+La forma base del problema è la seguente: immagina un amministratore che vuole assumere la miglior segretaria da n candidate. Le candidate vengono intervistate una per una in ordine casuale. Una decisione su ciascuna candidata particolare deve essere presa immediatamente dopo il colloquio. Una volta respinta, una candidata non può essere richiamata. Durante il colloquio, l'amministratore ottiene informazioni sufficienti per classificare con un punteggio la candidata. La domanda riguarda la strategia ottimale (regola di arresto) per massimizzare la probabilità di selezionare la miglior candidata. Se la decisione può essere rinviata alla fine, allora la scelta viene fatta al termine di tutti i colloqui, selezionando la candidata con il punteggio maggiore. La difficoltà è che la decisione deve essere presa immediatamente: la candidata deve essere presa o scartata.
+
+La probabilità di vincita ottimale è sempre almeno 1/e (dove e è la base del logaritmo naturale). La regola di arresto ottimale prescrive sempre di rifiutare le prime n/e candidate che vengono intervistate e quindi fermarsi alla prima candidata che è migliore di tutti le candidate intervistate finora (o si continua fino all'ultima candidata se ciò non si verifica mai). A volte questa strategia è chiamata regola di arresto 1/e , perché la probabilità di fermarsi alla migliore candidata con questa strategia è circa 1/e già per valori piccoli n. Il metodo per la soluzione del problema (la regola di arresto) è semplice e seleziona la migliore candidata circa il 37% delle volte, indipendentemente dal fatto che ci siano 100 o 100 milioni di candidate.
+
+Sebbene ci siano molte varianti, il problema di base può essere definito come segue:
+
+1) C'è una singola posizione da riempire.
+2) Ci sono n candidate per la posizione e il valore di n è noto.
+3) Le candidate, se viste complessivamente, possono essere classificate dalla migliore alla peggiore in modo inequivocabile.
+4) I punteggi relativi alle valutazioni devono essere tutti diversi.
+5) Le candidate vengono intervistate in sequenza in ordine casuale.
+6) Immediatamente dopo un colloquio, la candidata intervistata viene accettata o respinta e la decisione è irrevocabile.
+7) La decisione di accettare o respingere una candidata si basa solo sui punteggi delle candidate intervistate finora.
+
+L'obiettivo della soluzione generale è trovare un metodo che renda massima probabilità di selezionare il miglior candidato dell'intero gruppo.
+
+La politica ottimale per il problema è una regola di arresto. Con questa, l'intervistatore rifiuta le prime (r - 1) (considerando che la candidata M abbia il miglior punteggio tra queste (r - 1) candidate), quindi seleziona, tra le candidate successive, la prima candidata che ha un punteggio migliore della candidata M. Si può dimostrare che la strategia ottimale sta in questa classe di strategie. Con un taglio arbitrario r, la probabilità che sia selezionato il miglior richiedente vale:
+
+P(r) = (r - 1)/n * sum[i=1...i=n] 1/(i-1)
+
+Definiamo una funzione per calcolare questo valore:
+
+(define (P r n)
+  (local (somma out)
+    (setq out 0)
+    (if (= r 1) (setq out (div 1 n))
+        (begin
+          (setq somma 0)
+          (for (i r n)
+            (setq somma (add somma (div 1 (sub i 1))))
+          )
+          (setq out (mul somma (div (sub r 1) n)))
+        )
+    )
+  out
+  )
+)
+
+(P 1 1)
+;-> 1
+
+(P 1 2)
+;-> 0.5
+
+(P 2 3)
+;-> 0.5
+
+(P 3 5)
+;-> 0.4333333
+
+(P 37 100)
+;-> 0.371014595504193
+
+La teoria afferma che il taglio ottimo vale n/e
+
+(div 1 (exp 1))
+;-> 0.3678794411714423
+
+Proviamo con un esempio per capire come funziona.
+
+Abbiamo 100 candidati con punteggi variabili da 1 a 100:
+
+(setq cand (randomize (sequence 0 99)))
+;-> (76 64 72 83 55 63 29 95 89 74 61 71 60 49 3 8 2 58
+;->  53 98 24 15 38 69 43 94 39 8 21 5 19 41 80 59 20 44
+;->  28 82 73 7 75 36 77 14 79 25 67 11 85 9 47 32 16 88
+;->  12 90 17 0 91 46 26 93 99 35 18 37 13 42 22 50 66 52
+;->  96 97 48 62 51 4 70 45 87 6 92 4 27 65 54 23 34 86 31
+;->  1 33 30 78 57 40 56 10 81)
+
+La teoria afferma che il taglio ottimo vale n/e:
+
+(div 1 (exp 1))
+;-> 0.3678794411714423
+
+(setq taglio (round (div 100 (exp 1))))
+;-> 37
+
+Calcoliamo il punteggio massimo dal primo fino al taglio:
+(apply max (slice cand 0 taglio))
+;-> 98
+
+Quindi nelle rimanenti candidate (dal taglio alla fine della lista) troviamo la candidata con punteggio 99, che è la miglioer ed è quella che verrà selezionata.
+
+Adesso scriviamo una funzione che calcola la percentuale di successo (cioè quante volte selezioniamo la migliore candidata) con due parametri, il numero delle candidate n e il numero dei colloqui (cioè quante volte ripetiamo il test).
+
+(define (secretary n prove)
+  (local (cand taglio m1 m2 success found)
+    (setq success 0)
+    ;Definiamo il taglio
+    ; 1/e = (div 1 (exp 1))) = 0.3678794411714423
+    (setq taglio (round (div n (exp 1))))
+    (for (i 1 prove)
+      ; Generiamo la lista dei punteggi per le candidate
+      (setq cand (randomize (sequence 0 (- n 1))))
+      ;Calcoliamo il valore massimo FINO al taglio
+      (setq m1 (apply max (slice cand 0 taglio)))
+      ;Cerchiamo il primo valore > m1 dal resto della lista
+      ;se non esiste tale valore, allora m2 vale l'ultimo candidato
+      (setq m2 (last cand))
+      (setq found nil)
+      (dolist (el (slice cand taglio) found)
+        (if (> el m1) (setq m2 el found true))
+      )
+      ;se m2 > max allora abbiamo scelto la candidata migliore
+      ;(if (>= m2 (apply max cand) (++ success)))
+      ;se m2 = (n - 1) allora abbiamo scelto la candidata migliore
+      ;(if (= m2 (- n 1)) (++ success))
+      (if (= m2 (- n 1)) (++ success))
+    )
+    (div success prove)
+  )
+)
+
+(secretary 100 100)
+;-> 0.35
+
+(secretary 100 1000)
+;-> 0.365
+
+(secretary 100 10000)
+;-> 0.3668
+
+(secretary 100 100000)
+;-> 0.36995
+
+(time (println (secretary 1000 100000)))
+;-> 0.36794
+;-> 14018
+;-> 14018
+
+Quindi con il taglio ottimo selezioniamo la segretaria migliore il 37% delle volte.
+
+Adesso vogliamo verificare se il taglio ottimo n/e è veramente ottimo. Per fare questo scriviamo una funzione simile alla precedente, ma che utilizza il taglio dal 2% dei candidati al 98% dei candidati con passo dell'1%. Prima abbiamo bisogno di aggiungere il parametro percentuale (perc) alla funzione "secretary".
+
+(define (secretary1 n prove perc)
+  (local (cand taglio m1 m2 success found)
+    ; numero di successi
+    (setq success 0)
+    ;Definiamo il taglio
+    ; 1/e = (div 1 (exp 1))) = 0.3678794411714423
+    ;(setq taglio (round (mul n (div 1 (exp 1)))))
+    (setq taglio (round (mul n perc)))
+    (for (i 1 prove)
+      ; Generiamo la lista dei punteggi per le candidate
+      ; I punteggi devono essere tutti diversi
+      (setq cand (randomize (sequence 0 (- n 1))))
+      ;
+      ;Definiamo il taglio
+      ; 1/e = (div 1 (exp 1))) = 0.3678794411714423
+      ;(setq taglio (round (mul n (div 1 (exp 1)))))
+      ;
+      ;Calcoliamo il valore massimo FINO al taglio
+      (setq m1 (apply max (slice cand 0 taglio)))
+      ;Cerchiamo il primo valore > m1 dal resto della lista
+      ;se non esiste tale valore, allora m2 vale l'ultimo candidato
+      (setq m2 (last cand))
+      (setq found nil)
+      (dolist (el (slice cand taglio) found)
+        (if (> el m1) (setq m2 el found true))
+      )
+      ;se m2 > max allora abbiamo scelto la candidata migliore
+      ;(if (>= m2 (apply max cand) (++ success)))
+      ;se m2 = (n - 1) allora abbiamo scelto la candidata migliore
+      (if (= m2 (- n 1)) (++ success))
+    )
+    (div success prove)
+  )
+)
+
+Proviamo la funzione con il taglio ottimo:
+
+(secretary1 100 10000 0.37)
+;-> 0.3688
+
+Adesso scriviamo la funzione di test:
+
+(define (test numero try)
+  (let (out '())
+    (for (i 0.02 0.98 0.01)
+      (push (list i (secretary1 numero try i)) out -1)
+    )
+    out
+  )
+)
+
+(time (println (test 1000 100000)))
+;-> ((0.02 0.07912) (0.03 0.10446) (0.04 0.12815) (0.05 0.14926) (0.06 0.16773)
+;->  (0.07 0.18446) (0.08 0.19901) (0.09 0.21840) (0.10 0.23036) (0.11 0.24187)
+;->  (0.12 0.25638) (0.13 0.26558) (0.14 0.27721) (0.15 0.28404) (0.16 0.29332)
+;->  (0.17 0.30204) (0.18 0.30775) (0.19 0.31570) (0.20 0.32219) (0.21 0.32700)
+;->  (0.22 0.33187) (0.23 0.33872) (0.24 0.34584) (0.25 0.34686) (0.26 0.35190)
+;->  (0.27 0.35387) (0.28 0.35426) (0.29 0.35849) (0.30 0.36257) (0.31 0.36373)
+;->  (0.32 0.36782) (0.33 0.36693) (0.34 0.36981) (0.35 0.36654) (0.36 0.36841)
+;->  (0.37 0.36798) (0.38 0.37075) (0.39 0.36919) (0.40 0.37071) (0.41 0.36927)
+;->  (0.42 0.36649) (0.43 0.36714) (0.44 0.36583) (0.45 0.36196) (0.46 0.35700)
+;->  (0.47 0.35620) (0.48 0.35523) (0.49 0.35266) (0.50 0.34981) (0.51 0.34740)
+;->  (0.52 0.34153) (0.53 0.33946) (0.54 0.33874) (0.55 0.32996) (0.56 0.32723)
+;->  (0.57 0.32194) (0.58 0.31821) (0.59 0.31414) (0.60 0.31107) (0.61 0.30513)
+;->  (0.62 0.29896) (0.63 0.29224) (0.64 0.28734) (0.65 0.28199) (0.66 0.28114)
+;->  (0.67 0.26891) (0.68 0.26747) (0.69 0.25871) (0.70 0.25116) (0.71 0.24809)
+;->  (0.72 0.23956) (0.73 0.23304) (0.74 0.22672) (0.75 0.21875) (0.76 0.21029)
+;->  (0.77 0.20602) (0.78 0.19533) (0.79 0.18661) (0.80 0.18105) (0.81 0.17393)
+;->  (0.82 0.16428) (0.83 0.15788) (0.84 0.14896) (0.85 0.13921) (0.86 0.13023)
+;->  (0.87 0.12356) (0.88 0.11341) (0.89 0.10416) (0.90 0.09511) (0.91 0.08739)
+;->  (0.92 0.07860) (0.93 0.06842) (0.94 0.05824) (0.95 0.04976) (0.96 0.03982)
+;->  (0.97 0.03023) (0.98 0.01985))
+;-> 964754.466
+
+Come possiamo vedere, i risultati calcolati confermano la teoria, cioè il taglio ottimo è circa il 37%.
+
+Per definire meglio la validità del metodo sarebbe interessante vedere quanto siamo lontani dal punteggio massimo, quando non selezioniamo la segretaria migliore utilizxzando il taglio ottimo. Per fare questo modifichiamo la funzione "secretary":
+
+(define (secretary2 n prove)
+  (local (cand taglio m1 m2 success found delta)
+    (setq success 0)
+    (setq delta 0)
+    ;Definiamo il taglio
+    ; 1/e = (div 1 (exp 1))) = 0.3678794411714423
+    (setq taglio (round (div n (exp 1))))
+    (for (i 1 prove)
+      ; Generiamo la lista dei punteggi per le candidate
+      (setq cand (randomize (sequence 0 (- n 1))))
+      ;Calcoliamo il valore massimo FINO al taglio
+      (setq m1 (apply max (slice cand 0 taglio)))
+      ;Cerchiamo il primo valore > m1 dal resto della lista
+      ;se non esiste tale valore, allora m2 vale l'ultimo candidato
+      (setq m2 (last cand))
+      (setq found nil)
+      (dolist (el (slice cand taglio) found)
+        (if (> el m1) (setq m2 el found true))
+      )
+      ;se m2 > max allora abbiamo scelto la candidata migliore
+      ;(if (>= m2 (apply max cand) (++ success)))
+      ;se m2 = (n - 1) allora abbiamo scelto la candidata migliore
+      ;(if (= m2 (- n 1)) (++ success))
+      (if (= m2 (- n 1)) (++ success))
+      ;somma le distanze tra la candidata scelta e quella migliore
+      (setq delta (+ delta (- (- n 1) m2)))
+    )
+    (println (div success prove))
+    (println delta)
+    (div delta prove)
+  )
+)
+
+(secretary2 100 100000)
+;-> 0.37281  ; percentuale di successo
+;-> 1888047  ; totale distanze
+;-> 18.88047 ; distanza media
+
+(secretary2 1000 100000)
+;-> 0.37051   ; percentuale di successo
+;-> 18267139  ; totale distanze
+;-> 182.67139 ; distanza media
+
+Con questo metodo si seleziona una candidata che ha circa il 18% di punteggio inferiore alla candidata migliore (in media).
+
+
+-----------------------
+Numeri con tre divisori
+-----------------------
+
+Trovare tutti i numeri fino al milione che hanno tre divisori.
+Ad esempio, il numero 10 ha quattro divisori: 1, 2, 5 e 10.
+
+Scriviamo una funzione per calcolare i divisori di un numero N.
+
+(define (divisori n)
+  (local (lista-div m i)
+    (setq lista-div '(1)) ; aggiungo il numero 1
+    (setq m (int (sqrt n)))
+    (setq i 2)
+    (while (<= i m)
+        (if (zero? (% n i))   ; se 'i' è divisore di 'n'
+            (if (= i (/ n i)) ; se entrambi i divisori sono gli stessi aggiungine uno,
+                              ; altrimenti aggiungili entrambi
+              (push i lista-div -1)
+              (begin (push i lista-div -1) (push (/ n i) lista-div -1))
+            )
+        )
+        (++ i)
+    )
+    (push n lista-div -1) ; aggiungo il numero stesso
+    (sort lista-div)
+  )
+)
+
+(divisori 1000)
+;-> (1 2 4 5 8 10 20 25 40 50 100 125 200 250 500 1000)
+
+Facciamo una prova per vedere quanto tempo occorre per trovare la soluzione:
+
+(define (prova n)
+  (for (i 2 n)
+    (if (= (length (divisori i)) 3) (println i { } (divisori i))))
+)
+
+(prova 1e6)
+;-> 4 (1 2 4)
+;-> 9 (1 3 9)
+;-> 25 (1 5 25)
+;-> 49 (1 7 49)
+;-> 121 (1 11 121)
+;-> 169 (1 13 169)
+;-> 289 (1 17 289)
+...
+;-> 954529 (1 977 954529)
+;-> 966289 (1 983 966289)
+;-> 982081 (1 991 982081)
+;-> 994009 (1 997 994009)
+
+Vediamo quanti sono i numeri da ricercare:
+
+(define (prova1 n)
+  (let (out 0)
+    (for (i 2 n)
+      (if (= (length (divisori i)) 3) (++ out)))
+  out
+  )
+)
+
+(prova1 1e6)
+;-> 168
+
+(time (prova1 1e6))
+;-> 94695.56 ; circa 95 secondi
+
+La funzione è molto lenta, quindi cerchiamo di ottimizzarla. Inannzitutto la funzione "divisori" calcola una lista di divisori, ma a noi in interessa sapere soltanto se un numero ha esattamente 3 divisori.
+Riscriviamo la funzione per i divisori:
+
+(define (numdiv3 n)
+  (local (num m i)
+    (setq num 1) ; il numero 1
+    (setq m (int (sqrt n)))
+    (setq i 2)
+    (while (<= i m)
+        (if (zero? (% n i))   ; se 'i' è divisore di 'n'...
+            (if (= i (/ n i)) ; se entrambi i divisori sono gli stessi ...
+              (++ num)   ; allora aggiungine uno,
+              (++ num 2) ; altrimenti aggiungili entrambi
+            )
+        )
+        (if (> num 2) (setq i m)) ;numero da scartare
+        (++ i)
+    )
+    (++ num 1) ; il numero stesso
+  )
+)
+
+Proviamo questa nuova funzione:
+
+(define (prova2 n)
+  (let (out 0)
+    (for (i 2 n)
+      (if (= (numdiv3 i) 3) (++ out)))
+  out
+  )
+)
+
+(prova2 1e6)
+;-> 168
+
+(time (prova2 1e6))
+;-> 12788.932 ; circa 13 secondi
+
+Abbiamo ottenuto un buon miglioramento della velocità, ma possiamo fare meglio.
+
+I divisori vengono in coppie, quindi per la maggior parte dei numeri il conteggio dei divisori è un numero pari. Per esempio, i divisori di 24 sono 1 e 24, 2 e 12, 3 e 8, e 4 e 6, quindi 24 ha 8 divisori.
+L'unica volta in cui un numero può avere un numero dispari di divisori è quando il numero è un quadrato perfetto. Ad esempio, i divisori di 36 sono 1 e 36, 2 e 18, 3 e 12, 4 e 9 e 6 e 6, gli ultimi due sono duplicati, quindi 36 ha 9 divisori.
+E l'unica volta in cui un numero può avere 3 divisori è quando il numero è un quadrato di un numero primo. Ad esempio, i divisori di 25 sono 1, 5 e 25.
+
+Quindi possiamo modificare il ciclo for e controllare solo i numeri quadrati. In questo modo il valore di n passato alla funzione vale 1000, poichè 1000x1000 = 1000000 (un milione). Inoltre controlliamo solo i quadrati dei numeri dispari (perchè non esistono numeri primi pari oltre al numero 2).
+
+(define (prova3 n)
+  (let (out 1) ; il numero 4
+    (for (i 3 n 2)
+      (if (= (numdiv3 (* i i)) 3) (++ out)))
+  out
+  )
+)
+
+(prova3 1000)
+;-> 168
+
+(time (prova3 1000))
+;-> 32.965
+
+Questo è un miglioramento enorme. Provamo a modificare la funzione per testare anche se il numero è primo:
+
+(define (prova4 n)
+  (let (out 1) ; il numero 4
+    (for (i 3 n 2)
+      (if (= (length (factor i)) 1) ; se il numero è primo...
+        (if (= (numdiv3 (* i i)) 3) (++ out)))
+    )
+  out
+  )
+)
+
+(prova4 1000)
+;-> 168
+
+(time (prova4 1000))
+;-> 30.968
+
+I tempi di "prova3" e "prova4" sono quasi uguali (poichè il calcolo del numero primo pur eliminando molti numeri, ma richiede tempo).
+
+Scriviamo la funzione finale che ritorna una lista con tutti i numeri che hanno 3 divisori:
+
+(define (divisori3 n)
+  (let (out '(4)); il numero 4
+    (for (i 3 n 2)
+      (if (= (length (factor i)) 1) ; se il numero è primo...
+        (if (= (numdiv3 (* i i)) 3) (push (* i i) out -1)))
+    )
+  out
+  )
+)
+
+(divisori3 1000)
+;-> (4 9 25 49 121 169 289 361 529 841 961 1369 1681 1849 2209 2809
+;->  3481 3721 4489 5041 5329 6241 6889 7921 9409 10201 10609 11449
+;->  11881 12769 16129 17161 18769 19321 22201 22801 24649 26569
+;->  27889 29929 32041 32761 36481 37249 38809 39601 44521 49729
+;->  51529 52441 54289 57121 58081 63001 66049 69169 72361 73441
+;->  76729 78961 80089 85849 94249 96721 97969 100489 109561 113569
+;->  120409 121801 124609 128881 134689 139129 143641 146689 151321
+;->  157609 160801 167281 175561 177241 185761 187489 192721 196249
+;->  201601 208849 212521 214369 218089 229441 237169 241081 249001
+;->  253009 259081 271441 273529 292681 299209 310249 316969 323761
+;->  326041 332929 344569 351649 358801 361201 368449 375769 380689
+;->  383161 398161 410881 413449 418609 426409 434281 436921 452929
+;->  458329 466489 477481 491401 502681 516961 528529 537289 546121
+;->  552049 564001 573049 579121 591361 597529 619369 635209 654481
+;->  657721 674041 677329 683929 687241 703921 727609 734449 737881
+;->  744769 769129 776161 779689 786769 822649 829921 844561 863041
+;->  877969 885481 896809 908209 935089 942841 954529 966289 982081
+;->  994009)
+
+(length (divisori3 1000))
+;-> 168
+
+(time (divisori3 1000))
+;-> 33.964
+
 

@@ -2123,3 +2123,4 @@ Vediamo il risultato:
 lst
 ;-> ((8 (a) 2) (-3 (b) 5))
 
+

@@ -25,7 +25,7 @@
 |    18    |  1074         |        32  |
 |    19    |  171          |         3  |
 |    20    |  648          |         0  |
-|    21    |  31626        |       672  |
+|    21    |  31626        |       122  |
 |    22    |  871198282    |        20  |
 |    23    |  4179871      |     40900  |
 |    24    |  278391546    |     25309  |
@@ -1755,8 +1755,8 @@ Adesso scriviamo la funzione che calcola i numeri amicabili:
 ;-> 6368 6232 6368
 ;-> 31626
 
-(time (e021) 10)
-;-> 1937.7
+(time (e021))
+;-> 220.022
 
 Una soluzione più efficiente si ottiene usando la seguente formula:
 Siano p1, p2, … pk i fattori primi del numero n.
@@ -1903,8 +1903,8 @@ Scriviamo la funzione richiesta dal problema:
 (e021-fast)
 ;-> 31626
 
-(time (e021-fast) 10)
-;-> 672.0
+(time (e021-fast))
+;-> 122.883
 
 la funzione "e021-fast" è tre volte più veloce della funzione "e021".
 
@@ -2215,7 +2215,6 @@ Abbiamo ordinato le permutazioni poichè non vengono create in ordine lessicogra
 
 (time (e024))
 ;-> 25309.091  ;circa 25 secondi
-
 
 
 ===========
@@ -4462,4 +4461,5 @@ I numeri coinvolti nella soluzione sono i seguenti:
 3691 3697 3701 3709 3719 3727 3733 3739 3761 3767 3769
 3779 3793 3797 3803 3821 3823 3833 3847 3851 3853 3863
 3877 3881 3889 3907 3911 3917 3919 3923 3929 3931))
+
 

@@ -628,7 +628,7 @@ Massimo raccoglitore d'acqua (Facebook)
 ---------------------------------------
 
 Dati n numeri interi non negativi a1, a2, ..., an, dove ognuno rappresenta un punto di coordinate
-(i, ai). n linee verticali sono disegnate in modo tale che i due estremi della linea i siano ad (i, ai)
+(i, ai), n linee verticali sono disegnate in modo tale che i due estremi della linea i siano ad (i, ai)
 e (i, 0). Trova due linee, che insieme all'asse x formano un contenitore, in modo tale che il
 il contenitore contenga più acqua.
 
@@ -2488,11 +2488,11 @@ Ma la funzione produce un risultato errato se le liste sono ordinate in modo dec
 
 Per ottenere il risultato corretto è sufficiente modificare l'operatore "<" nella riga:
 
-((< (first rhs) (first lhs))
+((< (first lstB) (first lstA))
 
 con l'operatore ">":
 
-((> (first rhs) (first lhs))
+((> (first lstB) (first lstA))
 
 Definiamo una funzione in cui l'operatore è un parametro della funzione:
 
@@ -2525,7 +2525,7 @@ Da notare che questa versione ricorsiva produce un errore di stack overflow anch
 
 (merge (sequence 1 1000) (sequence 1 1000) <)
 ;-> ERR: call or result stack overflow in function < : first
-;-> called from user function (loop (cons (first rhs) result) lhs (rest rhs))
+;-> called from user function (loop (cons (first lstB) result) lstA (rest lstB))
 
 Versione iterativa:
 
@@ -2590,3 +2590,53 @@ Vediamo la differenza di velocità tra le due funzioni:
 ;-> 474.117
 
 La versione iterativa è circa 3.5 volte più veloce.
+
+
+------------------------------------------------------
+Prodotto massimo di due numeri in una lista (Facebook)
+------------------------------------------------------
+
+Una soluzione efficiente attraversa la lista una sola volta. La soluzione è quella di attraversare la lista e tenere traccia dei seguenti quattro valori:
+
+1) Valore positivo massimo
+2) Secondo valore positivo massimo
+3) Valore negativo massimo, ovvero un valore negativo con valore assoluto massimo
+4) Secondo valore negativo massimo.
+
+Alla fine del ciclo, confrontare i prodotti dei primi due e degli ultimi due e stampare il massimo di due prodotti.
+
+(setq MAXINT 9223372036854775807)
+(setq MININT -9223372036854775808)
+
+(define (pairmax lst)
+  (local (a b c d)
+    (setq a -9223372036854775808 b -9223372036854775808)
+    (setq c -9223372036854775808 d -9223372036854775808)
+    (dolist (el lst)
+      ; controllo se aggiornare i due valori positivi massimi
+      (if (> el a)
+          (setq b a a el)
+          (if (> el b) (setq b el))
+      )
+      ; controllo se aggiornare i due valori negativi massimi
+      (if (and (< el 0) (> (abs el) (abs c)))
+          (setq d c c el)
+          (if (and (< el 0) (> (abs el) (abs d))) (setq d el))
+      )
+    )
+    (if (> (* c d) (* a b))
+        (list c d (* c d))
+        (list a b (* a b))
+    )
+  )
+)
+
+(pairmax '(12 13 11 3 4 -3 -4 45 -34 -15 4))
+;-> 45 13 585
+
+(pairmax '(12 13 11 3 4 -3 -4 45 -34 -18 4))
+;-> (-34 -18 612)
+
+Complessità temporale: O(n) (lineare)
+
+
