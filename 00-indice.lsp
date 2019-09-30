@@ -187,6 +187,7 @@ ROSETTA CODE
   Fattorizzazione di un numero intero (big integer)
   Potenza di due numeri interi (big integer)
   Numeri di Tribonacci
+  Numeri Eureka
 
 PROJECT EULERO
   Problemi 1..50
@@ -296,6 +297,7 @@ NOTE LIBERE
   Perchè newLISP?
   newLISP facile
   Commentare righe di codice
+  Stile del codice newLISP
   Controllare l'output della REPL (prettyprint)
   File e cartelle
   Funzioni e liste
@@ -312,6 +314,8 @@ NOTE LIBERE
   Il loop implicito del linguaggio Scheme (named let)
   Brainfuck string encode/decode
   Creare una utilità di sistema (.exe)
+  Fattoriale, Fibonacci, Primi
+  Quine
 
 APPENDICI
   Lista delle funzioni newLISP

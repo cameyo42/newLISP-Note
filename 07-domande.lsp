@@ -1,7 +1,7 @@
 ======================================================================
 
  DOMANDE PER ASSUNZIONE DI PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
- 
+
 ======================================================================
 
 ---------------
@@ -2555,7 +2555,7 @@ Versione iterativa:
     ; Aggiungiamo gli elementi rimanenti della lista lstB (veloce)
     (if (< j (length lstB))
       (extend out (slice lstB j))
-    )    
+    )
     ; Aggiungiamo gli elementi rimanenti della lista lstB (lenta)
     ;(while (< j (length lstB))
     ;  (push (lstB j) out -1)
@@ -2591,6 +2591,104 @@ Vediamo la differenza di velocità tra le due funzioni:
 
 La versione iterativa è circa 3.5 volte più veloce.
 
+Da notare che la funzione ricorsiva genera un problema con la funzione "time". Infatti ripetendo l'operazione di timing, il tempo di esecuzione aumenta (dovrebbe rimanere costante).
+
+(time (merge (sequence 1 500) (sequence 1 200) <) 500)
+;-> 1766.856
+(time (merge (sequence 1 500) (sequence 1 200) <) 500)
+;-> 2224.526
+(time (merge (sequence 1 500) (sequence 1 200) <) 500)
+;-> 2720.155
+(time (merge (sequence 1 500) (sequence 1 200) <) 500)
+;-> 3047.918
+
+Sul forum di newLISP ralph.ronnquist ha proposto la seguente spiegazione:
+
+"Molto probabilmente il problema è nella definizione interna define, che probabilmente finisce per far crescere in qualche modo la tabella dei simboli per ogni nuova definizione.
+Prova a risolvere il problema utilizzando la seguente funzione temporanea che viene memorizzata nello heap."
+
+(define (mergeH lstA lstB op)
+  (let ((ciclo (fn (out lstA lstB)
+                 (cond ((null? lstA) (extend (reverse out) lstB))
+                       ((null? lstB) (extend (reverse out) lstA))
+                       ((op (first lstB) (first lstA))
+                        (ciclo (cons (first lstB) out) lstA (rest lstB)))
+                       (true
+                        (ciclo (cons (first lstA) out) (rest lstA) lstB))))
+               ))
+    (ciclo '() lstA lstB)
+    ))
+
+"Ciò dovrebbe dare lo stesso risultato, tranne per il fatto che la funzione interna è semplicemente un elemento heap e non si aggiunge alla tabella dei simboli."
+
+Proviamo:
+
+(time (merge (sequence 1 500) (sequence 1 200) <) 500)
+;-> 1842.392
+(time (merge (sequence 1 500) (sequence 1 200) <) 500)
+;-> 2290.107
+(time (merge (sequence 1 500) (sequence 1 200) <) 500)
+;-> 2831.184
+(time (merge (sequence 1 500) (sequence 1 200) <) 500)
+;-> 2993.474
+
+Purtroppo anche questa soluzione non risolve il problema.
+
+Il creatore di newLISP Lutz ha scritto:
+
+"Come puoi verificare, stampando con (sys-info) non c'è alcun aumento nei livelli di stack o nelle celle lisp tra le chiamate della funzione "merge". Immagino che la risposta sia nello stack e nella gestione della memoria del sistema operativo."
+
+(dotimes (i 5)
+   (println (time (merge (sequence 1 500) (sequence 1 200) <) 500))
+   (println (sys-info)))
+
+;-> 1797.074
+;-> (1186 576460752303423488 431 3 0 2048 0 2948 10705 1414)
+;-> 2265.725
+;-> (1186 576460752303423488 431 3 0 2048 0 2948 10705 1414)
+;-> 2734.743
+;-> (1186 576460752303423488 431 3 0 2048 0 2948 10705 1414)
+;-> 3031.553
+;-> (1186 576460752303423488 431 3 0 2048 0 2948 10705 1414)
+;-> 3437.808
+;-> (1186 576460752303423488 431 3 0 2048 0 2948 10705 1414)
+
+Nota: Usare "sys-info" per controllare quello che accade a newLISP dopo o durante l'esecuzione del programma.
+
+Invece rickyboy ha proposto la seguente funzione per "aggirare" il problema:
+
+(define (merge-via-loop lstA lstB op)
+  (let (out '())
+    (until (or (null? lstA) (null? lstB))
+      (push (if (op (first lstB) (first lstA))
+                (pop lstB)
+                (pop lstA))
+            out -1))
+    (extend out (if (null? lstA) lstB lstA))))
+
+(merge-via-loop A B <)
+;-> (1 2 2 3 3 4 4 5 5 6 7 8 11 12 13)
+
+Vediamo la velocità di esecuzione:
+
+(time (merge-via-loop (sequence 1 500) (sequence 1 200) <) 500)
+;-> 46.965
+
+Questa funzione è 10 volte più veloce della versione iterativa.
+
+Infine la versione proposta da ralph.ronnquist:
+
+(define (mergeRR lstA lstB op) (sort (append lstA lstB) op))
+
+(mergeRR A B <)
+;-> (1 2 2 3 3 4 4 5 5 6 7 8 11 12 13)
+
+Vediamo la velocità di esecuzione:
+
+(time (mergeRR (sequence 1 500) (sequence 1 200) <) 500)
+;-> 203.121
+
+Questa funzione è 2 volte più veloce della versione iterativa.
 
 ------------------------------------------------------
 Prodotto massimo di due numeri in una lista (Facebook)

@@ -5300,3 +5300,159 @@ Calcoliamo il limite del rapporto tra due numeri consecutivi di Tribonacci:
 Esiste un algoritmo ancora più veloce che utilizza la moltiplicazioni tra matrici, ma la funzione (trib-big) è sufficientemente veloce.
 
 
+-------------
+NUMERI EUREKA
+-------------
+
+Un numero intero è un numero eureka se la somma delle potenze delle sue cifre, con le potenze crescenti in aumento, è uguale al numero stesso. Ad esempio, 89 è un numero eureka perché 8^1 + 9^2 = 89 e 1306 è un numero eureka perché 1^1 + 3^2 + 6^4 = 1306.
+Scrivere una funzione per calcolare i numeri eureka fino al milione.
+Maggiori informazioni:
+
+https://oeis.org/A032799
+
+Precalcoliamo i valori delle potenze (da 1 a 9) di ogni cifra. Per comodità creiamo una lista/matrice 10x10 "pot" in modo che si possa scrivere:
+
+(pot 2 4)
+;-> 16
+
+(define (creapotenze)
+  (let ((out '()) (row '()))
+    (dotimes (i 10)
+      (dotimes (j 10)
+        (push (pow i j) row -1)
+      )
+      (push row out -1)
+      (setq row '())
+    )
+    out
+  )
+)
+
+(setq pot (creapotenze))
+;-> ((1 0 0 0 0 0 0 0 0 0)
+;->  (1 1 1 1 1 1 1 1 1 1)
+;->  (1 2 4 8 16 32 64 128 256 512)
+;->  (1 3 9 27 81 243 729 2187 6561 19683)
+;->  (1 4 16 64 256 1024 4096 16384 65536 262144)
+;->  (1 5 25 125 625 3125 15625 78125 390625 1953125)
+;->  (1 6 36 216 1296 7776 46656 279936 1679616 10077696)
+;->  (1 7 49 343 2401 16807 117649 823543 5764801 40353607)
+;->  (1 8 64 512 4096 32768 262144 2097152 16777216 134217728)
+;->  (1 9 81 729 6561 59049 531441 4782969 43046721 387420489))
+
+Proviamo:
+
+(pot 7 7)
+;-> 823543
+
+(pow 7 7)
+;-> 823543
+
+Da notare che possiamo calcolare numeri con al massimo 10 cifre, poichè la matrice "pot" contiene solo le prime dieci potenze (da 0 a 9) di ogni cifra (da 0 a 9).
+
+Funzione che converte un intero in una lista di cifre 
+
+(define (int2list n)
+  (let (out '())
+    (while (!= n 0)
+      (push (% n 10) out)
+      (setq n (/ n 10))
+    )
+    out
+  )
+)
+
+(define (eureka num)
+  (local (somma d out)
+    (setq out '())
+    (setq somma 0)
+    (for (i 0 num)
+      (setq j i)
+      ; valore della potenza della cifra meno significativa
+      ; cioè la cifra più a destra
+      (setq d (length (string j)))
+      ; somma delle potenze di ogni cifra
+      ; partendo dalla cifra meno significativa (da destra)
+      ; stop somma se somma > i (è più lento !!!)
+      ;(while (and (!= j 0) (<= somma i))
+      (while (!= j 0)
+        (setq somma (+ somma (pot (% j 10) d)))
+        (setq j (/ j 10))
+        (-- d)
+      )
+      ; numero eureka?
+      (if (= i somma) (push i out -1))
+      (setq somma 0)
+    )
+    out
+  )
+)
+
+(eureka 1e6)
+;-> (0 1 2 3 4 5 6 7 8 9 89 135 175 518 598 1306 1676 2427)
+
+(time (eureka 1e6))
+;-> 2226.745
+
+(eureka 3e6)
+;-> (0 1 2 3 4 5 6 7 8 9 89 135 175 518 598 1306 1676 2427 2646798)
+
+(time (eureka 3e6))
+;-> 7266.561
+
+Proviamo a riscrivere la funzione in stile funzionale.
+
+Funzione che converte un numero in un a lista di cifre:
+
+(define (int2list n)
+  (let (out '())
+    (while (!= n 0)
+      (push (% n 10) out)
+      (setq n (/ n 10))) out))
+
+Funzione che calcola i numeri eureka:
+
+(define (eureka2 num)
+  (let (out '())
+    (dotimes (x num)
+      (if (= x (apply + (map (fn (x) (pot x (+ $idx 1))) (int2list x))))
+          (push x out -1)
+      )
+    )
+    out
+  )
+)
+
+(eureka2 1e6)
+;-> (0 1 2 3 4 5 6 7 8 9 89 135 175 518 598 1306 1676 2427)
+
+(time (eureka2 1e6))
+;-> 2408
+
+(eureka 3e6)
+;-> (0 1 2 3 4 5 6 7 8 9 89 135 175 518 598 1306 1676 2427)
+
+(time (eureka2 3e6))
+;-> 7908.93
+
+La versione iterativa è leggermente più veloce.
+
+Il prossimo numero eureka vale: 12157692622039623539.
+La nostra funzione non è in grado di calcolarlo...in tempo.
+
+I numeri eureka sono un numero finito e l'ultimo termite ha un massimo di 22 cifre. Perchè?
+Dato un numero naturale n di m cifre. Risulta che:
+
+10^(m-1) <= n 
+
+e 
+
+n <= 9 + 9^2 + ... 9^m = 9*(9^m-1)/8 < (9^(m+1))/8 
+
+Quindi:
+
+10^(m-1) < (9^(m+1))/8. 
+
+Facendo il logaritmo di entrambe le parti e risolvendo l'equazione si ottiene: m < 22.97.
+
+

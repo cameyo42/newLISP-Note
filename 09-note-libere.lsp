@@ -125,6 +125,150 @@ Il risultato è corretto, ma perdiamo il match visivo con le parentesi "{" "}" c
 )
 
 
+------------------------
+Stile del codice newLISP
+------------------------
+
+Ogni linguaggio ha un proprio stile generale nella scrittura el codice. Comunque anche ogni programmatore ha uno stile proprio che deriva dalla sua esperienza. Fortunatamente newLISP permette di scrivere con stili diversi basta che si rispetti la sintassi delle liste (parentesi).
+Lo stile non è uno standard, ma solo il modo preferito di scrivere e leggere i programmi. Il problema nasce quando diversi programmatori lavorano sullo stesso codice. In questo caso occorrono delle regole comuni per evitare di avere stili diversi nello stesso programma. Poichè newLISP deriva dal LISP vediamo quali indicazioni vengono raccomandate per questo linguaggio (Common LISP) e quanto sono aderenti a newLISP (e comunque sta a voi scegliere quale stile di scittura si adatta di più al vostro modo di programmare).
+
+REGOLE GENERALI
+
+Funzioni di primo ordine
+------------------------
+Tutte le funzioni di primo ordine devono iniziare dalla colonna 1.
+
+Chiusura parentesi
+Le parentesi chiuse non devono essere precedute dal carattere newline.
+
+Esempio:
+
+;; errato
+(define (f x)
+  (when (< x 3)
+    (++ x)
+  )
+)
+
+;; corretto
+(define (f x)
+  (when (< x 3)
+    (++ x)))
+
+Nota: questa indicazione può non essere la migliore per newLISP.
+
+Diversi programmatori newLISP si allontanano lentamente dalla regola "newline non deve precedere una parentesi chiusa", per usare lo stile di identazione del linguaggio "C". Non solo per una migliore corrispondenza tra le parentesi, ma anche perché è più facile modificare il codice. Nella funzione seguente:
+
+(define (f x)
+  (when (< x 3)
+    (++ x)
+  )
+  (pippo x)
+)
+
+è molto più facile eliminare o inserire codice prima o dopo le righe in cui le parentesi di chiusura si trovano su righe diverse. Puoi eliminare o inserire una nuova riga senza preoccuparti molto di distruggere l'equilibrio della parentesi. Questo metodo aiuta a gestire programmi con molto codice e la forma visuale delle parentesi facilita l'individuazione dei blocchi di codice.
+
+Comunque è anche vero che lo stile funzionale genera molte parentesi chiuse alla fine di ogni espressione. Quindi ci sono alcuni casi in cui è preferibile chiudere le parentesi sulla stessa linea.
+
+Esempio:
+
+(define (f x)
+  (if (< x 3)
+    (++ x)
+    (begin (pippo x) (++ x))
+  )
+)
+
+In questo caso la parentesi che chiude "begin" si trova sulla stessa linea.
+
+Per alcuni, il metodo "parentesi chiuse sulla nuova linea" non deve esse usato perchè la lettura dei programmi LISP non deve seguire la corrispondenza delle parentesi, ma seguire l'indentazione. Inoltre  questo metodo richiede più righe per lo stesso codice. In generale, è bene mantenere basso il numero di righe, in modo che più codice si adatti a una pagina o una schermata.
+
+Livello di indentazione
+-----------------------
+Il livello di indentazione (TAB) dovrebbe essere relativamente piccolo. In genere vengono usati due caratteri spazio per ogni rientro.
+
+Esempio:
+
+;; errato
+(define (f x)
+    (when (< x 3)
+        (++ x)
+    )
+    (pippo x)
+)
+
+;; corretto
+(define (f x)
+  (when (< x 3)
+    (++ x)
+  )
+  (pippo x)
+)
+
+;; corretto
+(define (f x)
+  (when (< x 3)
+    (++ x))
+  (pippo x))
+
+Con un livello di indentazione piccolo si diminuisce la lunghezza delle righe del programma.
+
+Commenti
+--------
+1) Numero di punti e virgola ";" (semicolon)
+Un singolo punto e virgola viene utilizzato per un commento relativo a una singola riga di codice e si trova sulla stessa riga del codice, ad esempio:
+
+(if (< x err)     ; se x è minore dell'errore
+    (calc x)      ; calcola una funzione
+    (prova x))    ; altrimenti prova di nuovo
+
+Nota: La funzione "if" è una forma speciale e segue una indentazione differente: le espressioni che devono essere eseguite (calc x) o (prova x) sono allineate alla condizione (< x err).
+
+Due punti e virgola sono usati per un commento che si riferisce a diverse righe di codice. La riga di commento è allineata con le righe di codice e le precede, in questo modo:
+
+(when (< x 2)
+  ;; abbandona tutto e ricomincia
+  (setq x 0)
+  (prova x))
+
+Tre punti e virgola sono usati per i commenti che descrivono una funzione. Tali commenti iniziano sempre nella colonna 1, in questo modo:
+
+;;; Calcola la quantità di spazio tra i simboli
+;;; in una lista di valori interi
+(define (calcola-spazi-simboli)
+  (map calcola (symbols)))
+
+2) Contenuto dei commenti
+Come al solito, cerchiamo di essere brevi, senza perdere il contenuto delle informazioni. Affinché i commenti funzionino con le definizioni, una buona idea è usare la forma imperativa del verbo. In questo modo è possibile evitare espressioni ridondanti come "questa funzione...".
+
+Non scrivere:
+
+;;; Questa funzione calcola lo spazio tra i simboli
+;;; in una lista di valori interi
+(define (calcola-spazi-simboli)
+
+Invece, scrivere in questo modo:
+
+;;; Calcola la quantità di spazio tra i simboli
+;;; in una lista di valori interi
+(define (calcola-spazi-simboli)
+  (map calcola (symbols)))
+
+In genere i commenti di una funzione includono anche l'elenco e la spiegazione dei parametri di input/output e i limiti di applicazione degli stessi.
+
+Al seguente indirizzo web potete trovare la guida sullo stile LISP raccomandato da Google:
+
+https://google.github.io/styleguide/lispguide.xml
+
+Un altra lettura molto interessante è "Tutorial on Good Lisp Programming Style" di Peter Norvig:
+
+https://www.cs.umd.edu/~nau/cmsc421/norvig-lisp-style.pdf
+
+Nota: i programmatori Lisp esperti leggono e comprendono il codice in base all'indentazione invece che al controllo del livello/numero delle parentesi.
+
+La mia idea è che ognuno deve creare ed affinare con il tempo il proprio stile di programmazione, sia in termini di scrittura che di logica. Inoltre consiglio di studiare i programmi dei programmatori esperti (questo è uno dei metodi migliori per imparare).
+
+
 ---------------------------------------------
 Controllare l'output della REPL (prettyprint)
 ---------------------------------------------
@@ -487,8 +631,6 @@ Esatto, la funzione "trans" tratta la sua lista di input s come una raccolta di 
 La funzione simile per le relazioni non riflessive (o per gli archi diretti) riguarderebbe piuttosto la "raggiungibilità transitiva", da un elemento a quelli che sono raggiungibili quando si segue l'articolata relazione (links) in un solo senso (in avanti).
 
 Le seguenti due funzioni svolgono questi metodi: una che determina il raggiungimento individuale di un dato elemento, e una che determina il raggiungimento individuale di tutti gli elementi (mappa di raggiungibilità).
-
-The similar function for non-reflexive relations (or directed arcs) would rather concern transitive reachability, from one element to those that are reachable when following the articulated relation (links) in the forward direction only. I came up with the following for that, which is two functions: one that determines the individual reach from a given element, and an outer function that makes the map of all those for all the elements:
 
 versione iniziale:
 (define (reach s n (f (fn (x) (= n (x 0)))))
@@ -942,11 +1084,11 @@ Questa funzione prende un programma (stringa) in linguaggio Brainfuck che stampa
     (setq cc 0)
     (dolist (el (explode str))
       ; conta i caratteri "+"
-      (if (= el "+") 
+      (if (= el "+")
           (++ cc)
           ; e quando finiscono i "+", stampa il carattere relativo al numero dei "+"
           (if (!= cc 0) (begin (print (char cc)) (setq cc 0)))
-      )    
+      )
     )
     (silent (print (format "\n%s " "stop.")))
   )
@@ -956,7 +1098,7 @@ Questa funzione prende un programma (stringa) in linguaggio Brainfuck che stampa
 ;-> ciao
 ;-> stop.
 
-(bf 
+(bf
 "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++.[-]+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++.[-]+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++.[-]++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++.[-]+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++.[-]+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++.[-]++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++.[-]")
 ;-> newLISP
 ;-> stop.
@@ -1032,11 +1174,11 @@ Facoltativamente, main-args può prendere un int-index per l'indicizzazione dell
 
 newlisp a b c
 
-(main-args 0)   
+(main-args 0)
 ;-> "/usr/local/bin/newlisp"
-(main-args -1)  
+(main-args -1)
 ;-> "c"
-(main-args 2)   
+(main-args 2)
 ;-> "b"
 (main-args 10)
 ;-> nil
@@ -1044,7 +1186,7 @@ newlisp a b c
 Nota che quando newLISP viene eseguito da uno script, main-args restituisce anche il nome dello script come secondo argomento:
 
 #!/usr/local/bin/newlisp
-# 
+#
 # script to show the effect of 'main-args' in script file
 
 (print (main-args) "\n")
@@ -1059,5 +1201,356 @@ script 1 2 3
 ;-> ("/usr/local/bin/newlisp" "./script" "1" "2" "3")
 
 Prova a eseguire questo script con diversi parametri della riga di comando.
+
+
+----------------------------
+Fattoriale, Fibonacci, Primi
+----------------------------
+
+(setq MAXINT 9223372036854775807)
+
+Funzione di fattorizzazione:
+
+(define (factorbig n)
+  (local (f k i dist out)
+    ; Distanze tra due elementi consecutivi della ruota (wheel)
+    (setq dist (array 48 '(2 4 2 4 6 2 6 4 2 4 6 6 2 6 4 2 6 4
+                           6 8 4 2 4 2 4 8 6 4 6 2 4 6 2 6 6 4
+                           2 4 6 2 6 4 2 4 2 10 2 10)))
+    (setq out '())
+    (while (zero? (% n 2)) (push '2L out -1) (setq n (/ n 2)))
+    (while (zero? (% n 3)) (push '3L out -1) (setq n (/ n 3)))
+    (while (zero? (% n 5)) (push '5L out -1) (setq n (/ n 5)))
+    (while (zero? (% n 7)) (push '7L out -1) (setq n (/ n 7)))
+    (setq k 11L i 0)
+    (while (<= (* k k) n)
+      (if (zero? (% n k))
+        (begin
+        (push k out -1)
+        (setq n (/ n k)))
+        (begin
+        ;(++ k (dist i))
+        (setq k (+ k (dist i)))
+        (if (< i 47) (++ i) (setq i 0)))
+      )
+    )
+    (if (> n 1) (push (bigint n) out -1))
+    out
+  )
+)
+
+Funzione fattoriale:
+
+(define (fact n) (if (= n 0) 1 (apply * (map bigint (sequence 1 n)))))
+
+Definiamo una funzione che stampa il fattoriale e la sua scomposizione in fattori fino a n:
+
+(define (test n)
+  (local (f fp)
+    (for (i 2 n)
+      (setq f (fact i))
+      (setq fp (factorbig f))
+      (println i { } f)
+      (println fp)
+    )
+  )
+)
+
+(test 14)
+2 2L
+(2L)
+3 6L
+(2L 3L)
+4 24L
+(2L 2L 2L 3L)
+5 120L
+(2L 2L 2L 3L 5L)
+6 720L
+(2L 2L 2L 2L 3L 3L 5L)
+7 5040L
+(2L 2L 2L 2L 3L 3L 5L 7L)
+8 40320L
+(2L 2L 2L 2L 2L 2L 2L 3L 3L 5L 7L)
+9 362880L
+(2L 2L 2L 2L 2L 2L 2L 3L 3L 3L 3L 5L 7L)
+10 3628800L
+(2L 2L 2L 2L 2L 2L 2L 2L 3L 3L 3L 3L 5L 5L 7L)
+11 39916800L
+(2L 2L 2L 2L 2L 2L 2L 2L 3L 3L 3L 3L 5L 5L 7L 11L)
+12 479001600L
+(2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 3L 3L 3L 3L 3L 5L 5L 7L 11L)
+13 6227020800L
+(2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 3L 3L 3L 3L 3L 5L 5L 7L 11L 13L)
+14 87178291200L
+(2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 3L 3L 3L 3L 3L 5L 5L 7L 7L 11L 13L)
+
+(pretty-print)
+;-> (80 " " "%1.16g")
+
+(pretty-print 70 " " "%1.16g")
+
+(factorbig (fact 100))
+;-> (2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L
+;->  2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L
+;->  2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L
+;->  2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L
+;->  2L 3L 3L 3L 3L 3L 3L 3L 3L 3L 3L 3L 3L 3L 3L 3L 3L 3L 3L 3L 3L 3L 3L 3L
+;->  3L 3L 3L 3L 3L 3L 3L 3L 3L 3L 3L 3L 3L 3L 3L 3L 3L 3L 3L 3L 3L 3L 3L 3L
+;->  3L 5L 5L 5L 5L 5L 5L 5L 5L 5L 5L 5L 5L 5L 5L 5L 5L 5L 5L 5L 5L 5L 5L 5L
+;->  5L 7L 7L 7L 7L 7L 7L 7L 7L 7L 7L 7L 7L 7L 7L 7L 7L 11L 11L 11L 11L 11L
+;->  11L 11L 11L 11L 13L 13L 13L 13L 13L 13L 13L 17L 17L 17L 17L 17L 19L 19L
+;->  19L 19L 19L 23L 23L 23L 23L 29L 29L 29L 31L 31L 31L 37L 37L 41L 41L 43L
+;->  43L 47L 47L 53L 59L 61L 67L 71L 73L 79L 83L 89L 97L)
+
+Definiamo una funzione per calcolare i numeri di Fibonacci:
+
+(define (fibo-i n)
+  (local (a b c)
+    (setq a 0L b 1L c 0L)
+    (for (i 0 (- n 1))
+      (setq c (+ a b))
+      (setq a b)
+      (setq b c)
+    )
+    a
+  )
+)
+
+(fibo-i 3)
+;-> 55L
+
+Definiamo una funzione per verificare se un numero è primo:
+
+(define (isprime? n)
+  (if (< n 2) nil
+    (= 1 (length (factorbig n)))))
+
+(isprime? (fibo-i 20))
+;-> nil
+
+Definiamo una funzione che stampa il numero di Fibonacci e la sua scomposizione in fattori fino a n:
+
+(define (test1 n)
+  (local (f fp)
+    (for (i 2 n)
+      (setq f (fibo-i i))
+      (setq fp (factorbig f))
+      (println i { } f)
+      (println fp)
+    )
+  )
+)
+
+(test1 100)
+;-> 2 1L
+;-> ()
+;-> 3 2L
+;-> (2L)
+;-> 4 3L
+;-> (3L)
+;-> 5 5L
+;-> (5L)
+;-> 6 8L
+;-> (2L 2L 2L)
+;-> 7 13L
+;-> (13L)
+;-> 8 21L
+;-> (3L 7L)
+;-> 9 34L
+;-> (2L 17L)
+;-> 10 55L
+;-> (5L 11L)
+;-> 11 89L
+;-> (89L)
+;-> 12 144L
+;-> (2L 2L 2L 2L 3L 3L)
+;-> 13 233L
+;-> (233L)
+;-> ...
+;-> 83 99194853094755497L
+;-> (99194853094755497L)
+;-> 84 160500643816367088L
+;-> (2L 2L 2L 2L 3L 3L 13L 29L 83L 211L 281L 421L 1427L)
+;-> 85 259695496911122585L
+;-> (5L 1597L 9521L 3415914041L)
+;-> 86 420196140727489673L
+;-> (6709L 144481L 433494437L)
+;-> 87 679891637638612258L
+;-> (2L 173L 514229L 3821263937L)
+;-> 88 1100087778366101931L
+;-> (3L 7L 43L 89L 199L 263L 307L 881L 967L)
+;-> 89 1779979416004714189L
+;-> (1069L 1665088321800481L)
+;-> 90 2880067194370816120L
+;-> (2L 2L 2L 5L 11L 17L 19L 31L 61L 181L 541L 109441L)
+;-> 91 4660046610375530309L
+;-> (13L 13L 233L 741469L 159607993L)
+;-> 92 7540113804746346429L
+;-> (3L 139L 461L 4969L 28657L 275449L)
+;-> 93 12200160415121876738L
+;-> (2L 557L 2417L 4531100550901L)
+;-> 94 19740274219868223167L
+;-> (2971215073L 6643838879L)
+;-> 95 31940434634990099905L
+;-> (5L 37L 113L 761L 29641L 67735001L)
+;-> 96 51680708854858323072L
+;-> (2L 2L 2L 2L 2L 2L 2L 3L 3L 7L 23L 47L 769L 1103L 2207L 3167L)
+;-> 97 83621143489848422977L
+;-> (193L 389L 3084989L 361040209L)
+;-> 98 135301852344706746049L
+;-> (13L 29L 97L 6168709L 599786069L)
+;-> 99 218922995834555169026L
+;-> (2L 17L 89L 197L 19801L 18546805133L)
+;-> 100 354224848179261915075L
+;-> (3L 5L 5L 11L 41L 101L 151L 401L 3001L 570601L)
+;-> (3L 5L 5L 11L 41L 101L 151L 401L 3001L 570601L)
+
+Adesso cerchiamo i numeri di Fibonacci che sono anche primi fino a n.
+
+(define (primi-fib n)
+  (for (i 2 n)
+    (if (= 1 (length (factorbig (fibo-i i))))
+      (println i { } (fibo-i i))
+    )
+  )
+)
+
+(primi-fib 50)
+;-> 3 2L
+;-> 4 3L
+;-> 5 5L
+;-> 7 13L
+;-> 11 89L
+;-> 13 233L
+;-> 17 1597L
+;-> 23 28657L
+;-> 29 514229L
+;-> 43 433494437L
+;-> 47 2971215073L
+
+(time (primi-fib 100))
+;-> 3 2L
+;-> 4 3L
+;-> 5 5L
+;-> 7 13L
+;-> 11 89L
+;-> 13 233L
+;-> 17 1597L
+;-> 23 28657L
+;-> 29 514229L
+;-> 43 433494437L
+;-> 47 2971215073L
+;-> 83 99194853094755497L
+;-> 514886.082 ; 8 minuti e 34 secondi
+
+Definiamo una funzione che converte i millisecondi in minuti e secondi:
+
+(define (ms2min ms)
+  (let ((mins (/ ms 1000 60))
+       (secs (% (/ ms 1000) 60)))
+       (println (format "%d millisec = %d minuti e %d secondi." ms mins secs))
+       (list mins secs)
+  )
+)
+
+(ms2min 514886.082)
+;-> 514886 millisec = 8 minuti e 34 secondi.
+
+Sequenza OEIS dei numeri di Fibonacci primi:
+
+2, 3, 5, 13, 89, 233, 1597, 28657, 514229, 433494437, 2971215073,
+99194853094755497, 1066340417491710595814572169,
+19134702400093278081449423917,
+
+Nota: MAXINT = 9223372036854775807 e MININT = -9223372036854775808
+
+Usiamo la funzione "factor" al posto di "factorbig", ma possiamo arrivare solo fino a n = 92:
+
+(- (fibo-i 92) 9223372036854775807)
+;-> -1683258232108429378L
+
+(- (fibo-i 93) 9223372036854775807)
+;-> 2976788378267100931L
+
+(define (primi-fib2 n)
+  (for (i 2 n)
+    (if (= 1 (length (factor (fibo-i i))))
+      (println i { } (fibo-i i))
+    )
+  )
+)
+
+(time (primi-fib2 92))
+;-> 3 2L
+;-> 4 3L
+;-> 5 5L
+;-> 7 13L
+;-> 11 89L
+;-> 13 233L
+;-> 17 1597L
+;-> 23 28657L
+;-> 29 514229L
+;-> 43 433494437L
+;-> 47 2971215073L
+;-> 83 99194853094755497L
+;-> 1718.801
+
+Il prossimo numero di Fibonacci primo vale:
+
+(fibo-i 131)
+;-> 1066340417491710595814572169L)
+
+Vediamo quanto tempo impiega la funzione "factorbig" per verificarlo:
+
+(time (println (factorbig 1066340417491710595814572169L)))
+
+Tanto tanto tempo...
+
+
+-----
+Quine
+-----
+
+Un Quine è un programma autoreferenziale che stampa, senza alcun input, il proprio sorgente.
+Il nome "quine" fu coniato da Douglas Hofstadter, nel suo famoso libro di scienze "Gödel, Escher, Bach: Un Eterna Ghirlanda Brillante", in onore del filosofo Willard Van Orman Quine (1908–2000), che i coniò l'espressione paradossale "Yields falsehood when appended to its own quotation", yields falsehood when appended to its own quotation, ovvero "Produce una falsità se preceduto dalla propria citazione" produce una falsità se preceduto dalla propria citazione.
+
+Uno degli esempi più famosi (scritto da Chris Hruska) è il seguente:
+
+((lambda (x) (list x (list 'quote x))) '(lambda (x) (list x (list 'quote x))))
+;-> ((lambda (x) (list x (list 'quote x))) '(lambda (x) (list x (list 'quote x))))
+
+Infatti valutando l'espressione nella REPL si ottiene come output l'espressione stessa.
+
+Anche il creatore di LISP ha creato un quine (John McCarthy e Carolyn Talcott):
+
+((lambda (x)
+   (list x (list (quote quote) x)))
+  (quote
+     (lambda (x)
+       (list x (list (quote quote) x)))))
+;-> ((lambda (x) (list x (list (quote quote) x))) (quote (lambda (x) 
+;->        (list x (list (quote quote) x)))))
+
+Continuiamo con un altro esempio:
+
+((lambda (x) (list x x)) (lambda (x) (list x x)))
+;-> ((lambda (x) (list x x)) (lambda (x) (list x x)))
+
+In newLISP, Lutz Mueller (il creatore del linguaggio) ha creato il più corto programma quine:
+
+(lambda (x))
+;-> (lambda (x))
+
+Perché in newLISP le espressioni lambda valutano/ritornano a se stesse.
+
+Anche il seguente potrebbe essere un quine (se fossero ammissibili i programmi errati):
+
+ERR: context expected : ERR:
+;-> ERR: context expected : ERR:
+
+Invece il seguente è sicuramente un quine:
+
+(lambda (s) (print (list s (list 'quote s))))
+;-> (lambda (s) (print (list s (list 'quote s))))
 
 

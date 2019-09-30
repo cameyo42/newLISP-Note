@@ -2576,6 +2576,8 @@ c ; valuta tutta la funzione fino al termine
 
 Occorre fare molta pratica per utilizzare proficuamente il debugger.
 
+Nota: Poichè il debugger usa i caratteri "s", "n", "c" e "q" come tasti scorciatoia per le azioni di "s|tep n|ext c|ont q|uit" è consigliabile non usare questi caratteri come nomi delle variabili nelle funzioni (altrimenti sulla REPL dovreste usare "print" per conoscere il loro valore).
+
 Per fare il debug di un file (es. test.lsp) possiamo scrivere:
 
 (debug (load "test.lsp"))
