@@ -9,7 +9,7 @@
 ==============
 
 Questi appunti introducono all'uso del linguaggio newLISP per le elaborazioni numeriche (e anche per altre cose). È necessaria una conoscenza di base della programmazione in newLISP. Un ottima scelta per imparare questo linguaggio è il libro "Introduction to newLISP" disponibile come WikiBooks all'indirizzo:  http://en.wikibooks.org/wiki/Introduction_to_newLISP
-Comunque per avere una panoramica sul linguaggio potete anche consultare "newLISP in 21 minuti" di John W. Small riportato in appendice.
+Comunque per avere una panoramica sul linguaggio potete anche consultare "newLISP in 21 minuti" di John W. Small oppure "newLISP per programmatori" di Dmitry Chernyak entrambi riportati in appendice.
 Maggiori informazioni sono reperibili al sito ufficiale del linguaggio:
 
 http://www.newLISP.org/
@@ -39,6 +39,7 @@ Tutti gli articoli tradotti presenti in questo documento sono sotto il copyright
 Per quanto possibile ho sempre riportato il nome degli autori delle funzioni realizzate da altri programmatori utilizzate in questo documento (trovate e prese da forum, blog, ecc.).
 Ringrazio tutti quelli che vorranno suggerire critiche, correzioni e miglioramenti.
 
+
 ===============
  INSTALLAZIONE
 ===============
@@ -62,7 +63,7 @@ Potete leggere il file PDF oppure utilizzare il file di testo. In quest'ultimo c
 
 https://github.com/cameyo42/notepadpp-newLISP
 
-Seguendo le istruzioni riportate in appendice potete leggere il documento e contemporaneamente eseguire il codice che ritenete opportuno.
+Seguendo le istruzioni riportate in appendice potete leggere il documento e contemporaneamente eseguire il codice che ritenete opportuno. Questo è possibile anche utilizzando l'editor gratuito Visual Studio Code (disponibile per windows, mac e linux).
 
 
 ==================
@@ -91,7 +92,6 @@ Verifichiamo:
 
 !cd
 ;-> c:\newLISP\note
-
 
 ====================
  LE FUNZIONI UTENTE
@@ -229,6 +229,7 @@ I simboli "a" e "c" assumono i valori 1 e 2 se non si forniscono valori nella ch
 
 (test)
 ;-> 1 nil 2
+
 
 =========================================================
  TRASFORMARE UNA FUNZIONE DISTRUTTIVA IN NON-DISTRUTTIVA
@@ -5651,3 +5652,5 @@ Analogamente, esistono delle classi di caratteri predefinite:
 [[:xdigit:]] indica i valori esadecimali
 
 Che ci crediate o no, le poche regole appena esplicate (che non esauriscono l’argomento, comunque) sono sufficienti a permetterci di lavorare con le Espressioni Regolari e a costruire, quindi, dei validi modelli per gli scopi che ci proponiamo, mi preme solo aggiungerne una dettata dalla mia esperienza personale: prima di accingervi a costruire l’Espressione, è fondamentale che abbiate in mente l’esatto modello che volete riprodurre, le parti di cui esso si compone, in altre parole, che sappiate esattamente ciò che volete cercare delimitandone correttamente i confini.
+
+

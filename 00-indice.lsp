@@ -254,7 +254,7 @@ PROBLEMI VARI
   Problema della segretaria
   Numeri con tre divisori
 
-DOMANDE PER ASSUNZIONE DI PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
+DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Notazione Big-O
   Contare i bit di un numero (McAfee)
   Scambiare il valore di due variabili (McAfee)
@@ -320,13 +320,14 @@ NOTE LIBERE
   I buchi delle cifre numeriche
   Ordinare tre numeri
   Conteggio strano
+  Funzioni automodificanti
 
 APPENDICI
   Lista delle funzioni newLISP
   Sul linguaggio newLISP - FAQ (Lutz Mueller)
   F-expression - FEXPR
   newLISP in 21 minuti (John W. Small)
-  newLISP per programmatori
+  newLISP per programmatori ()
   notepad++ plugin
   Visual Studio Code e newLISP
   Debugger

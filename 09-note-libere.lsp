@@ -69,6 +69,7 @@ Il primo elemento della lista è "speciale" (funzione).
 Il resto della lista sono "normali" (argomenti).
 Tutte le liste vengono valutate tranne quelle quotate.
 
+
 --------------------------
 Commentare righe di codice
 --------------------------
@@ -1740,5 +1741,213 @@ Possiamo scrivere la funzione in maniera concisa:
 
 (hand 5)
 ;-> mignolo
+
+
+------------------------
+Funzioni automodificanti
+------------------------
+
+In newLISP le funzioni sono oggetti di prima classe, cioè possono essere passate e restituite da altre funzioni. Inoltre le funzioni possono modificare il codice di altre funzioni durante l'elaborazione (runtime).
+Quindi una funzione può modificare e restituire se stessa. Per esempio:
+
+(define (f lst)
+  (println (first f))
+  (println f)
+  (setf (first f) '(lista))
+  (println (first f))
+  f)
+
+(f '(1 2 3))
+;-> (lst)
+;-> (lambda (lst) (println (first f)) (println f) (setf (first f) 'lista) (println (first f)) f)
+;-> lista
+;-> (lambda (lista) (println (first f)) (println f) (setf (first f) 'lista) (println (first f)) f)
+
+In questo caso abbiamo modificato il nome dell'argomento della funzione (da "lst" a "lista"), quindi il comportamento della nuova funzione è uguale al precedente.
+
+Gli elementi che compongono la funzione (argomenti e corpo) vengono identificati con le normali funzioni per il trattamento delle liste:
+
+(define (fun a b) (+ a b))
+;-> (lambda (a b) (+ a b))
+
+Gli argomenti della funzione sono il primo elemento della lista/funzione:
+
+(setq arg (first fun))
+;-> (a b)
+
+Il corpo della funzione sono tutti i rimanenti elementi della lista/funzione:
+
+lista di tutte le espressioni:
+(setq corpo (rest fun))
+;-> ((+ a b))
+
+ultima espressione:
+(setq corpo (last fun))
+;-> (+ a b)
+
+Possiamo modificare questi elementi (arg e corpo) direttamente nella lista/funzione oppure possiamo creare una nuova funzione e poi assegnarla alla funzione desiderata. Per identificare le varie parti della lista/funzione utilizziamo la funzione "nth" (non possiamo utilizzare l'indicizzazione implicita e l'uso di "first" e "rest" è abbastanza scomodo).
+
+(nth 0 fun)
+;-> (a b)
+
+(nth 1 fun)
+;-> (+ a b)
+
+(nth '(1 0) fun)
+;-> +
+
+Adesso supponiamo di voler modificare la funzione fun in modo che faccia la sottrazione degli argomenti (invece che la somma).
+
+Nel caso della modifica diretta della funzione possiamo scrivere:
+
+(setf (nth '(1 0) fun) '-)
+;-> -
+
+Abbiamo modificato la funzione "fun":
+
+fun
+;-> (lambda (a b) (- a b))
+
+Infatti adesso effettua la sottrazione degli argomenti:
+
+(fun 1 2)
+;-> -1
+
+Nel caso in cui creiamo una nuova funzione possiamo scrivere:
+
+(setq fun '(lambda (a b) (+ a b)))
+;-> (lambda (a b) (+ a b))
+
+(fun 1 2)
+;-> 3
+
+Oppure:
+
+(setq f-aux (append '(lambda (a b)) '((- a b))))
+;-> (lambda (a b) (- a b))
+
+(f-aux 1 2)
+;-> -1
+
+Oppure:
+
+(setq f-aux (append '(lambda) (list (nth 0 fun) '(- a b))))
+;-> (lambda (a b) (- a b))
+
+(setq fun f-aux)
+;-> (lambda (a b) (- a b))
+
+(fun 1 2)
+;-> -1
+
+Proviamo a scrivere una funzione automodificante ad ogni chiamata alterna l'addizione e la sottrazione dei suoi argomenti:
+
+(define (boh a b)
+  ; AUTOMODIFICA
+  ; modifichiamo la funzione alternando gli operatori + e -
+  ; (+ a b) --> (- a b)
+  ; (- a b) --> (+ a b)
+  (if (= (nth '(2 0) boh) '+) (setf (nth '(2 0) boh) '-) (setf (nth '(2 0) boh) '+))
+  ; calcolo dell'operazione
+  (+ a b)
+)
+
+(nth '(2 0) boh)
+;-> +
+
+(boh 2 3)
+;-> -1
+
+(boh 2 3)
+;-> 5
+
+(boh 2 3)
+;-> -1
+
+Ad ogni chiamata la funzione alterna tra addizione e sottrazione degli argomenti.
+
+Vediamo una funzione leggermente più complessa:
+
+(define (massimo a b)
+  (local (out)
+    (if (< a b)
+        (setq out b)
+        (setq out a))
+    (println "il massimo vale: " out)
+    out
+  )
+)
+
+(massimo 2 4)
+;-> il massimo vale: 4
+;-> 4
+
+massimo
+;-> (lambda (a b)
+;->  (local (out)
+;->   (if (< a b)
+;->    (setq out b)
+;->    (setq out a))
+;->   (println "il massimo vale: " out) out))
+
+(nth 0 massimo)
+;-> (a b)
+
+(nth 1 massimo)
+;-> (local (out)
+;->  (if (< a b)
+;->   (setq out b)
+;->   (setq out a))
+;->  (println "il massimo vale: " out) out)
+
+(length (nth 1 massimo))
+;-> 5
+
+(nth '(1 0) massimo)
+;-> local
+
+(nth '(1 1) massimo)
+;-> (out)
+
+(nth '(1 2) massimo)
+;-> (if (< a b) (setq out b) (setq out a))
+
+(nth '(1 3) massimo)
+;-> (println "il massimo vale: " out)
+
+(nth '(1 4) massimo)
+;-> out 
+
+Per modificare le funzioni è fondamentale identificare con "nth" l'esatta posizione della espressione da trattare.
+Vediamo un altro esempio:
+
+(define (prova a b)
+  (setq x (+ a b))
+  (setq y (- a b))
+  (* x y))
+
+(nth 0 prova)
+;-> (a b)
+(length (nth 0 prova))
+;-> 2
+
+(nth 1 prova)
+;-> (setq x (+ a b))
+(length (nth 1 prova))
+;-> 3
+
+(nth 2 prova)
+;-> (setq y (- a b))
+(length (nth 2 prova))
+;-> 3
+
+(nth 3 prova)
+;-> (* x y)
+(length (nth 3 prova))
+;-> 3
+
+Il metodo di generare funzioni tramite codice viene utilizzato anche per lo sviluppo di "malware", poichè queste funzioni sono "invisibili" ai programmi anti-virus basati su pattern.
+
+Nota: la scrittura di funzioni (auto) modificanti rende il programma difficile da interpretare e da analizzare con il debugger.
 
 
