@@ -65,6 +65,7 @@ newLISP IN GENERALE
     Esempi sull'utilizzo dei moduli
   Hash-Map e dizionari
   CAR e CDR in newLISP
+  Espressioni regolari
 
 FUNZIONI VARIE
   Tabella ASCII
@@ -316,13 +317,18 @@ NOTE LIBERE
   Creare una utilità di sistema (.exe)
   Fattoriale, Fibonacci, Primi
   Quine
+  I buchi delle cifre numeriche
+  Ordinare tre numeri
+  Conteggio strano
 
 APPENDICI
   Lista delle funzioni newLISP
   Sul linguaggio newLISP - FAQ (Lutz Mueller)
   F-expression - FEXPR
   newLISP in 21 minuti (John W. Small)
+  newLISP per programmatori
   notepad++ plugin
+  Visual Studio Code e newLISP
   Debugger
   Compilare i sorgenti di newLISP
   Ricorsione e ottimizzazione della chiamata di coda (Tail Call Optimization)

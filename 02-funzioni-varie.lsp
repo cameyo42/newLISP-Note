@@ -564,6 +564,32 @@ Vediamo quale delle due è più veloce:
 (time (list2int2 '(9 2 2 3 3 7 2 0 3 6 8 5 4 7 7 5 8 0 7)) 100000)
 ;-> 855.138
 
+Ricapitoliamo:
+
+(define (int2list n)
+  (let (out '())
+    (while (!= n 0)
+      (push (% n 10) out)
+      (setq n (/ n 10))) out))
+
+(int2list 1282738374847)
+;-> (1 2 8 2 7 3 8 3 7 4 8 4 7)
+
+(define (int2list2 n) (map sym (explode (string n))))
+
+(int2list2 1282738374847)
+;-> (1 2 8 2 7 3 8 3 7 4 8 4 7)
+
+(time (dotimes (x 1e7) (int2list x)))
+;-> 1107.929
+(time (dotimes (x 1e7) (int2list x)))
+;-> 12721.02
+
+(time (dotimes (x 1e6) (int2list2 x)))
+;-> 1544.137
+(time (dotimes (x 1e7) (int2list2 x)))
+;-> 17760.076
+
 
 -------------------------------
 Numeri casuali in un intervallo

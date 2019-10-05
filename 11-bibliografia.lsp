@@ -59,6 +59,9 @@
 
   Enciclopedia libera:
   https://www.wikipedia.org/
+  
+  Programming Praxis - La programmazione, come qualsiasi attività creativa, richiede costante studio e pratica:
+  https://programmingpraxis.com/
 
   LeetCode - La piattaforma leader nel mondo per l'apprendimento online della programmazione:
   https://leetcode.com/
@@ -68,7 +71,8 @@
 
   "The Art of Computer Programming", Donald Knuth, 4 volumi
   
-  "Introduction to Algorithms", Cormen-Leiserson-Rivest-Stein, 3 ed, 2009
+  "Introduction to Algorithms", Cormen-Leiserson-Rivest-Stein, 3ed, 2009
   
+  "Teoria e Progetto di Algoritmi Fondamentali", Ausiello-Marchetti-Spaccamela-Protasi, 1985
   
-  
+  "Land of Lisp", Conrad Barsky, 2011

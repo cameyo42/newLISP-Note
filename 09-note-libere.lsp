@@ -1554,3 +1554,191 @@ Invece il seguente è sicuramente un quine:
 ;-> (lambda (s) (print (list s (list 'quote s))))
 
 
+-----------------------------
+I buchi delle cifre numeriche
+-----------------------------
+
+Quale numero viene dopo la sequenza: 1, 4, 8, 48, 88, 488, ...
+
+Notiamo che 1 non a buchi, 4 ha un buco, 8 ha due buchi, 48 ha tre buchi, 88 ha quattro buchi, 488 ha cinque buchi, quindi il prossimo numero è 888 perchè è il più piccolo numero che ha sei buchi.
+
+Quindi il problema è quello di trovare il numero intero più piccolo con n buchi nelle sue cifre decimali.
+
+Definiamo una lista associativa in cui ci sono due valori (x y), dove x è la cifra numerica e y è il numero di buchi della cifra:
+
+(setq buchi '((0 1) (1 0) (2 0) (3 0) (4 1) (5 0) (6 1) (7 0) (8 2) (9 1)))
+(lookup 1 buchi)
+;-> 0
+(lookup 8 buchi)
+;-> 2
+
+La seguente espressione converte un numero in una lista di cifre:
+
+(map int (explode (string 1234)))
+;-> (1 2 3 4)
+
+Adesso scriviamo la funzione:
+
+(define (holesequence num)
+  (local (val out)
+    (setq val 0 out '())
+    (dotimes (n num)
+      ;somma dei buchi di tutte le cifre che compongono il numero n
+      (if (= val (apply +
+            (map (fn (x) (lookup x buchi)) (map int (explode (string n))))))
+          (begin (push (list val n) out -1) (++ val)))
+    )
+    out
+  )
+)
+
+(holesequence 100000)
+;-> ((0 1) (1 4) (2 8) (3 48) (4 88) (5 488)
+;->  (6 888) (7 4888) (8 8888) (9 48888))
+
+1  ha 0 (zero) buchi
+4  ha 1 (uno) buco
+8  ha 2 (due) buchi
+48 ha 3 (tre) buchi
+88 ha 4 (quattro) buchi
+...
+
+
+-------------------
+Ordinare tre numeri
+-------------------
+
+Esercizio preso dal libro di Bjarne Stroustrup "Principles and Practice Using C++".
+
+Scrivere una funzione che prende 3 valori interi e li stampa in ordine crescente.
+
+Esempio: 
+input = 10 4 6
+output = 4 6 10
+
+È possibile utilizzare solo le seguenti istruzioni:
+
+1) if
+2) cond
+3) setq
+4) println
+5) local
+6) let
+
+(define (ordina x y z)
+  (local (a b c)
+    (setq a 0 b 0 c 0) ; al termine: a <= b <= c
+    (cond ((and (<= x y) (<= x z)) ; x è minore di y e di z
+           (setq a x) ; x è il più piccolo
+           ; quale dei due numeri rimanenti è minore?
+           (if (<= y z) (setq b y c z) (setq c y b z)))
+          ((and (<= y x) (<= y z)) ; y è minore di x e di z
+           (setq a y) ; y è il più piccolo
+           ; quale dei due numeri rimanenti è minore?
+           (if (<= x z) (setq b x c z) (setq c x b z)))
+          (true                    ; z è minore di x e di y
+           (setq a z) ; z è il più piccolo
+           ; quale dei due numeri rimanenti è minore?
+           (if (<= x y) (setq b x c y) (setq c x b y)))
+    )
+    (println a { } b { } c)
+  )
+)
+
+(ordina 10 4 6)
+;-> 4 6 10
+
+(ordina 4 6 10)
+;-> 4 6 10
+
+(ordina 10 6 4)
+;-> 4 6 10
+
+
+----------------
+Conteggio strano
+----------------
+
+Una bambina conta sulle dita di una mano partendo da 1 sul pollice, 2 sul dito indice, 3 sul medio, 4 sul dito anulare e 5 sul mignolo. Quindi torna indietro nella stessa mano, contando 6 sul'anulare, 7 sul medio, 8 sull'indice e 9 sul pollice. Poi continua indefinitamente contando sempre nello stesso modo. Scrivere un programma che, dato un numero intero n, determina su quale dito terminerà quando il  conteggio raggiunge n.
+
+Il conteggio procede nel modo seguente:
+
+ a   b   c   d   e
+POL IND MED ANU MIG
+ 1   2   3   4   5
+ 9   8   7   6
+    10  11  12  13
+17  16  15  14
+    18  19  20  21
+25  24  23  22
+    26  27  28  29
+33  32  31  30
+    34  35  36  37
+
+Il pattern è il seguente:
+
+  1       5   6     9      13  14      18    21  22    25      29  
+("a b c d e" "d c b a b c d e" "d c b a b c d e" "d c b a b c d e")
+              1 2 3 4 5 6 7 8   9    12      16  17    20  22  24   
+
+A parte i primi cinque numeri, troviamo sempre una sequenza ripetuta: "d c b a b c d e".
+
+Quindi risulta che ((n-5) mod 8) indica la posizione (indice) nella sequenza ripetuta:
+
+resto:     1 2 3 4 5 6 7 0
+sequenza: "d c b a b c d e"
+
+Possiamo scrivere la funzione:
+
+(define (mano n)
+  (cond ((<= n 5) 
+         (cond ((= n 1) 'pollice)
+               ((= n 2) 'indice)
+               ((= n 3) 'medio)
+               ((= n 4) 'anulare)
+               ((= n 5) 'mignolo)))
+        ((= 1 (% (- n 5) 8)) 'anulare)
+        ((= 2 (% (- n 5) 8)) 'medio)
+        ((= 3 (% (- n 5) 8)) 'indice)
+        ((= 4 (% (- n 5) 8)) 'pollice)
+        ((= 5 (% (- n 5) 8)) 'indice)
+        ((= 6 (% (- n 5) 8)) 'medio)
+        ((= 7 (% (- n 5) 8)) 'anulare)
+        (true 'mignolo)
+  )
+)
+
+(mano 36)
+;-> anulare
+
+(mano 8)
+;-> indice
+
+(mano 1000)
+;-> indice
+
+Possiamo scrivere la funzione in maniera concisa:
+
+(define (hand n)
+  (let ((fingers1 '(pollice indice medio anulare mignolo))
+        (fingers2 '(mignolo anulare medio indice pollice indice medio anulare)))
+       (if (<= n 5)
+           (fingers1 (- n 1))
+           (fingers2 (% (- n 5) 8))
+       )
+  )
+)
+
+(hand 36)
+;-> anulare
+
+(hand 8)
+;-> indice
+
+(hand 1000)
+;-> indice
+
+(hand 5)
+;-> mignolo
+
+

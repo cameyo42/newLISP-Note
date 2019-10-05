@@ -2304,7 +2304,7 @@ Il secondo campo, lungo otto bit (un byte), rappresenta l'esponente del numero b
 0 1000 0001 XXXXXXXXXXXXXXXXXXXXXXX
 
 Campo Mantissa
-Il terzo campo, lungo ventitrè bits, rappresenta la mantissa del numero binario spresso in notazione scientifica. Nel caso in esame vale 1.01101. A questo punto occorre notare che tutti i numeri binari espressi in notazione scientifica hanno un “1” prima della virgola, per cui nella rappresentazione IEE754 questo viene sottointeso. Inoltre, al valore effettivo della mantissa dell'esempio: 01101, vengono aggiunti tanti “0” quanti ne servono per completare il campo a 23 bits è perciò si ha:
+Il terzo campo, lungo ventitrè bits, rappresenta la mantissa del numero binario spresso in notazione scientifica. Nel caso in esame vale 1.01101. A questo punto occorre notare che tutti i numeri binari espressi in notazione scientifica hanno un "1" prima della virgola, per cui nella rappresentazione IEE754 questo viene sottointeso. Inoltre, al valore effettivo della mantissa dell'esempio: 01101, vengono aggiunti tanti "0" quanti ne servono per completare il campo a 23 bits è perciò si ha:
 
 0110100 00000000 00000000
 
@@ -5320,3 +5320,334 @@ Con i contesti è un processo in due passaggi: il primo elimina i contenuti del 
 L'eliminazione dei contesti in due fasi è necessaria quando lo stesso simbolo viene utilizzato come contesto, quindi il contenuto del contesto viene eliminato, e poi lo stesso simbolo ottiene nuovamente un contesto.
 
 
+
+======================
+ CAR E CDR IN newLISP
+======================
+
+La spiegazione del nome delle istruzioni CAR e CADR direttamente dall'autore Steve Russell:
+
+"I wrote the first implementation of a LISP interpreter on the IBM 704 at MIT in early in 1959.
+The 704 family (704, 709, 7090) had "Address" and "Decrement" fields that were 15 bits long in some of the looping instructions.
+There were also special load and store instructions that moved these 15-bit addresses between memory and the index regiseters ( 3 on the 704, 7 on the others ).
+We had devised a representation for list structure that took advantage of these instructions.
+Because of an unfortunate temporary lapse of inspiration, we couldn't think of any other names for the 2 pointers in a list node than "address" and "decrement", so we called the functions CAR for "Contents of Address of Register" and CDR for "Contents of Decrement of Register".
+After several months and giving a few classes in LISP, we realized that "first" and "rest" were better names, and we (John McCarthy, I and some of the rest of the AI Project) tried to get people to use them instead. Alas, it was too late! We couldn't make it stick at all.
+So we have CAR and CDR."
+
+newLISP chiama "first" la funzione "CAR" e chiama "rest" la funzione "CDR".
+
+Sebbene auto e cdr siano stati nomi poco ispirati per quasi 50 anni, sono sopravvissuti perché offrono una geniale funzionalità: puoi aggiungere più lettere a e d tra "c" e "r", per produrre funzioni con nomi anche più strani.
+Allora "caddr" trova il "car" del "cdr" del "cdr", leggiamo da sinistra a destra, sebbene le funzioni siano applicate da destra a sinistra come al solito.
+
+Come vengono pronunciate queste funzioni?
+
+Dal libro "Common Lisp: A Gentle Introduction to Symbolic Computation" di David S. Touretzky:
+
+CAR/CDR Pronunciation Guide
+---------------------------
+
+Function       Pronunciation    Alternate Name
+CAR            kar              FIRST
+CDR            cou-der          REST
+CAAR           ka-ar
+CADR           kae-der          SECOND
+CDAR           cou-dar
+CDDR           cou-dih-der
+CAAAR          ka-a-ar
+CAADR          ka-ae-der
+CADAR          ka-dar
+CADDR          ka-dih-der       THIRD
+CDAAR          cou-da-ar
+CDADR          cou-dae-der
+CDDAR          cou-dih-dar
+CDDDR          cou-did-dih-der
+CADDDR         ka-dih-dih-der   FOURTH
+...
+
+Possiamo definire queste funzioni in newLISP:
+
+; =======================================
+; Funzioni CAR e CDR
+; C????R (quattro livelli)
+; =======================================
+(define (car x)    (first x))
+(define (cdr x)    (rest x))
+(define (caar x)   (first (first x)))
+(define (cadr x)   (first (rest x)))
+(define (cdar x)   (rest (first x)))
+(define (cddr x)   (rest (rest x)))
+(define (caaar x)  (first (first (first x))))
+(define (caadr x)  (first (first (rest x))))
+(define (cadar x)  (first (rest (first x))))
+(define (caddr x)  (first (rest (rest x))))
+(define (cdaar x)  (rest (first (first x))))
+(define (cdadr x)  (rest (first (rest x))))
+(define (cddar x)  (rest (rest (first x))))
+(define (cdddr x)  (rest (rest (rest x))))
+(define (caaaar x) (first (first (first (first x)))))
+(define (caaadr x) (first (first (first (rest x)))))
+(define (caadar x) (first (first (rest (first x)))))
+(define (caaddr x) (first (first (rest (rest x)))))
+(define (cadaar x) (first (rest (first (first x)))))
+(define (cadadr x) (first (rest (first (rest x)))))
+(define (caddar x) (first (rest (rest (first x)))))
+(define (cadddr x) (first (rest (rest (rest x)))))
+(define (cdaaar x) (rest (first (first (first x)))))
+(define (cdaadr x) (rest (first (first (rest x)))))
+(define (cdadar x) (rest (first (rest (first x)))))
+(define (cdaddr x) (rest (first (rest (rest x)))))
+(define (cddaar x) (rest (rest (first (first x)))))
+(define (cddadr x) (rest (rest (first (rest x)))))
+(define (cdddar x) (rest (rest (rest (first x)))))
+(define (cddddr x) (rest (rest (rest (rest x)))))
+
+(cadadr '(0 (1 2 3) 4 5))
+;-> 2
+
+(cadr (cdr '(7 3 5)))
+;-> 5
+
+(caddr '(7 3 5))
+;-> 5
+
+
+====================
+ESPRESSIONI REGOLARI
+====================
+
+newLISP utilizza le espressioni regolari di tipo PCRE (Perl Compatible Regular Expressions).
+Per maggior informazioni consultare: https://www.pcre.org/
+
+Le funzioni newLISP che utilizzano le regex sono:
+
+1) directory
+2) find
+3) find-all
+4) parse
+5) regex
+6) regex-comp
+7) replace
+8) search
+
+Vediamo come viene definita nel manuale la funzione "regex".
+
+******************
+>>>funzione REGEX
+******************
+sintassi: (regex str-pattern str-text [regex-option [int-offset]])
+
+Esegue una ricerca PCRE compatibile su str-text con il pattern (modello) specificato in str-pattern. La stesso modello di espressione regolare è supportato anche nelle funzioni directory, find, find-all, parse, replace, e search quando vengono usate con delle stringhe.
+
+regex restituisce una lista con le stringhe e le sottostringhe trovate e l'inizio (offset) e la lunghezza di ciascuna stringa all'interno del testo. Se non viene trovata alcuna corrispondenza, restituisce nil. È possibile utilizzare i numeri di offset per una elaborazione successiva.
+
+Inoltre, è possibile specificare una opzione regex per controllare alcune opzioni delle espressioni regolari definite in seguito. Le opzioni possono essere fornite da numeri o lettere in una stringa.
+
+Il parametro int-offset aggiuntivo dice a regex di iniziare la ricerca di una corrispondenza non dall'inizio della stringa, ma da un offset specifico.
+
+Quando non è presente alcuna opzione regex, i numeri di offset e i numeri di lunghezza di regex sono calcolati in base ai byte, anche quando si esegue la versione abilitata UTF-8 di newLISP. Quando si specifica l'opzione PCRE_UTF8 in regex-option, sono calcolati come caratteri UTF8 solo l'offset e la lunghezza in caratteri.
+
+regex imposta anche le variabili $0, $1 e $2 relative all'espressione e alle sottoespressioni trovate. Proprio come qualsiasi altro simbolo in newLISP, queste variabili o le loro espressioni equivalenti ($0), ($1) e ($2), possono essere utilizzate in altre espressioni newLISP per ulteriori elaborazioni.
+
+Le funzioni che usano espressioni regolari non resettano le variabili $0, $1 ... $15 a nil quando non viene trovata alcuna corrispondenza.
+
+(regex "b+" "aaaabbbaaaa")  → ("bbb" 4 3)
+
+; ricerca senza distinzione tra maiuscole e minuscole - opzione 1
+(regex "b+" "AAAABBBAAAA" 1)  → ("BBB" 4 3)
+; stessa opzione, ma passata come stringa "i"
+(regex "b+" "AAAABBBAAAA" "i")  → ("BBB" 4 3)
+
+(regex "[bB]+" "AAAABbBAAAA" )  → ("BbB" 4 3)
+
+(regex "http://(.*):(.*)" "http://nuevatec.com:80")
+→ ("http://nuevatec.com:80" 0 22 "nuevatec.com" 7 12 "80" 20 2)
+
+$0  → "http://nuevatec.com:80"
+$1  → "nuevatec.com"
+$2  → "80"
+
+(dotimes (i 3) (println ($ i)))
+http://nuevatec.com:80
+nuevatec.com
+80
+→ "80"
+
+Il secondo esempio mostra l'uso di opzioni extra, mentre il terzo esempio mostra l'analisi più complessa di due sottoespressioni che sono state contrassegnate da parentesi nel modello di ricerca. Nell'ultimo esempio, l'espressione e le sottoespressioni vengono recuperate utilizzando le variabili di sistema da $0 a $2 o la loro espressione equivalente ($0) a ($2).
+
+Quando i caratteri "" (virgolette) vengono utilizzate per delimitare le stringhe che includono caratteri di backslash \, il carattere backslash deve essere raddoppiato nel modello di espressione regolare "\\". In alternativa, è possibile utilizzare i caratteri {} (parentesi graffe) o [testo] e [/ testo] (tag di testo) per delimitare le stringhe di testo. In questi casi, non sono richieste backslash aggiuntivi.
+
+I caratteri protetti con un backslash (escaped) in newLISP (ad esempio, il carattere quote \" o \n)" non devono essere raddoppiati in un modello di espressione regolare, che a sua volta è delimitato da virgolette.
+
+; doppio backslash per le parentesi e altri caratteri speciali delle regex
+(regex "\\(abc\\)" "xyz(abc)xyz")  → ("(abc)" 3 5)
+
+; doppio backslash per il backslash (carattere speciale delle regex)
+(regex "\\d{1,3}" "qwerty567asdfg")  → ("567" 6 3)
+
+; un solo backslash per il carattere quote (carattere speciale in newLISP)
+(regex "\"" "abc\"def")  → ("\"" 3 1)
+
+; parentesi graffe (brackets) come delimitatori
+(regex {\(abc\)} "xyz(abc)xyz")  → ("(abc)" 3 5)
+
+; parentesi graffe (brackets) come delimitatori e carattere quote nel pattern
+(regex {"} "abc\"def")  → ("\"" 3 1)
+
+; tag [text] come delimitatore, utile per testi multilinea
+(regex [text]\(abc\)[/text] "xyz(abc)xyz")  → ("(abc)" 3 5)
+(regex [text]"[/text] "abc\"def")           → ("\"" 3 1)
+
+Quando vengono utilizzate parentesi graffe o il tag [text] per delimitare la stringa del modello anziché le virgolette, è sufficiente un semplice backslash. Il modello e la stringa vengono quindi passati in forma grezza alle routine delle espressioni regolari. Quando le parentesi graffe vengono utilizzate all'interno di un modello delimitato da parentesi graffe, le parentesi interne devono essere bilanciate, come segue:
+
+; le parentesi graffe nel pattern sono bilanciate
+(regex {\d{1,3}} "qwerty567asdfg")  → ("567" 6 3)
+
+Le seguenti costanti possono essere usate per regex-option.
+Diverse opzioni possono essere combinate usando un operatore "or" binario | (pipe). Per esempio, (| 1 4) combina le opzioni 1 e 4 oppure la stringa "is" quando si usano le lettere per le due opzioni.
+
+Le ultime due opzioni sono specifiche per newLISP.
+L'opzione REPLACE_ONCE deve essere utilizzata solo in sostituzione e può essere combinata con altre opzioni PCRE.
+
+È possibile combinare più opzioni usando + (più) o | (or) operatore, ad esempio, (| PCRE_CASELESS PCRE_DOTALL) oppure la stringa "is" quando si usano le lettere come opzioni.
+
+PCRE name            num        description
+---------            ---        -----------
+PCRE_CASELESS          1 or i   treat uppercase like lowercase
+PCRE_MULTILINE         2 or m   limit search at a newline like Perl's /m
+PCRE_DOTALL            4 or s   . (dot) also matches newline
+PCRE_EXTENDED          8 or x   ignore whitespace except inside char class
+PCRE_ANCHORED         16 or A   anchor at the start
+PCRE_DOLLAR_ENDONLY   32 or D   $ matches at end of string, not before newline
+PCRE_EXTRA            64        additional functionality currently not used
+PCRE_NOTBOL          128        first ch, not start of line; ^ shouldn't match
+PCRE_NOTEOL          256        last char, not end of line; $ shouldn't match
+PCRE_UNGREEDY       512i or U   invert greediness of quantifiers
+PCRE_NOTEMPTY       1024        empty string considered invalid
+PCRE_UTF8           2048 or u   pattern and strings as UTF-8 characters
+REPLACE_ONCE      0x8000        replace only one occurrence only for use in replace
+PRECOMPILED      0x10000 or p   pattern is pre-compiled, can only be combined with RREPLACE_ONCE 0x8000
+
+Le impostazioni delle opzioni PCRE_CASELESS, PCRE_MULTILINE, PCRE_DOTALL e PCRE_EXTENDED possono essere modificate all'interno del modello da una sequenza di lettere di opzione racchiuse tra "(?" e ")". Le lettere delle opzioni sono:
+
+  i for PCRE_CASELESS
+  m for PCRE_MULTILINE
+  s for PCRE_DOTALL
+  x for PCRE_EXTENDED
+
+Nota che la sintassi delle espressioni regolari è molto complessa e ricca di funzionalità con molti caratteri e forme speciali. Per ulteriori dettagli, consultare un libro o le pagine del manuale di PCRE. La maggior parte dei libri PERL o introduzioni a Linux o Unix contengono anche capitoli sulle espressioni regolari. Vedi anche http://www.pcre.org per ulteriori riferimenti e la consultazione delle pagine del manuale.
+
+I pattern di espressione regolari possono essere precompilati, per una maggiore velocità quando si usano i pattern in modo ripetuto, con regex-comp.
+
+Quindi per usare in modo proficuo le espressioni regolari occorre imparare come devono essere costruiti i pattern regex in relazione alle ricerche che vogliamo affettuare. In questo contesto ci limiteremo ad affrontare i pattern di ricerca e sostituzione più comuni e come utilizzarli all'interno di newLISP.
+
+Le espressioni regolari sono stringhe che contengono caratteri e metacaratteri. I caratteri vengono valutati in modo letterale, mentre i metacaratteri assumono un significato speciale. Vediamo la lista dei metacaratteri principali:
+
+Metacarattere	  Significato
+-------------   -----------
+  .	            qualsiasi carattere (tranne newline)
+  *	            zero o più occorrenze (carattere o gruppo di caratteri)
+  ?	            zero o una occorrenza (carattere o gruppo di caratteri)
+  {}	          numero esatto o minimo o massimo o l’intervallo di occorrenze (carattere o gruppo di caratteri)
+  +	            una o più occorrenze (carattere o gruppo di caratteri)
+  ^	            inizio della stringa (o la negazione di un gruppo di caratteri)
+  $	            fine della stringa
+  |	            operatore OR
+  \             carattere di escape per i caratteri speciali
+  ()	          contengono una sottostringa
+  []	          contengono una 'classe' di caratteri
+
+Per utilizzare i metacaratteri come "valori letterali" devono essere preceduti dal carattere di escap backslash " \ ". Ad esempio, se volessimo ricercare il caratter punto interrogativo "?" all'interno di una stringa, dovremmo scrivere: \?
+
+Esaminiamo meglio i singoli metacaratteri.
+
+"[]"
+Le parentesi quadre [], come si è accennato, racchiudono una 'classe' di caratteri. Questo vuol dire che il modello può o deve contenere alcuni o tutti i caratteri in esse contenute. Vediamo alcuni esempi:
+
+[abc]
+questo modello è soddisfatto quando viene trovata una delle lettere, senza tener conto dell’ordine in cui sono presenti:
+
+[a-z]
+in questo modello è presente un intervallo di caratteri (notare il segno -, sta per "dalla a alla z"), esso è soddisfatto quando viene trovato uno qualsiasi dei caratteri compresi nell’intervallo;
+
+[0-9]
+in questo modello è presente invece un intervallo di numeri, esso è soddisfatto quando viene trovato uno qualsiasi dei numeri compresi nell’intervallo;
+
+[a-z0-9?]
+questo modello è leggermente più complesso, ma dovrebbe essere di facile comprensione. La corrispondenza viene trovata quando la stringa contiene una lettera (minuscola in questo caso), un numero o il carattere ? (notate il segno prima di ?, perché il punto interrogativo è un carattere speciale, che qui però assumiamo per il suo valore letterale);
+
+[^a-z]
+questo modello è soddisfatto quando viene trovato un qualsiasi carattere che non sia una lettera minuscola (notate il segno ^ che all’interno della classe, la nega);
+
+Naturalmente una classe di caratteri può essere seguita (e normalmente lo è) da uno dei metacaratteri che indicano il numero di volte in cui uno dei caratteri in essa contenuti, deve essere presente, riprendendo l’ultimo modello:
+
+[a-z0-9?]?
+i caratteri contenuti nella classe devono essere presenti zero o una volta;
+
+[a-z0-9?]*
+i caratteri contenuti nella classe devono essere presenti zero o più volte;
+
+[a-z0-9?]{3}
+i caratteri contenuti nella classe devonoo essere presenti esattamente tre volte;
+
+[a-z0-9?]{1,3}
+i caratteri contenuti nella classe devono essere presenti da una a tre volte;
+
+[a-z0-9?]{3,}
+i caratteri contenuti nella classe devono essere presenti minimo tre volte;
+
+[a-z0-9?]{,3}
+i caratteri contenuti nella classe devono essere presenti massimo tre volte.
+
+Le parentesi graffe, come abbiamo già visto, indicano il numero esatto, minimo, massimo o l’intervallo di volte in cui una un’esatta sequenza o una classe di caratteri, devono essere presenti in una stringa:
+
+{3} esattamente 3 volte;
+{3,} minimo 3 volte;
+{,3} massimo 3 volte;
+{1,3} da 1 a 3 volte;
+
+"()"
+Le parentesi tonde, invece, fanno riferimento ad una sottostringa, o una parte di stringa se preferite, che viene assunta per il suo esatto valore letterale.
+
+Quindi ad esempio (abc) si riferisce all’esatta sequenza di caratteri abc, a differenza, come abbiamo visto, di [abc] che si riferisce invece ad uno dei tre caratteri.
+
+Ovviamente anche le parentesi tonde, possono essere usate con quei metacaratteri che indicano il numero di volte in cui la sottostringa deve ripetersi, per cui l’espressione (casa)? indica la presenza opzionale della parola casa (o, il che è lo stesso, che la parola deve essere presente zero o una volta).
+
+Ma le parentesi tonde sono molto importanti anche e soprattutto perche le parti di stringa (o le espressioni) in esse contenute, possono essere "utilizzate" per vari scopi (un replace per dirne uno), ma lo vedremo più avanti quando faremo un cenno alle funzioni PHP sulle Espressioni Regolari.
+
+Descriviamo adesso brevemente, gli altri metacaratteri. 
+
+"."
+Partiamo dal punto che sta per qualsiasi carattere escluso un accapo, per cui, ad esempio, l’espressione (.)+ indica qualsiasi carattere ripetuto una o più volte (nella pratica è difficile che questo modello non trovi corrispondenza…).
+
+"|"
+Dei caratteri *,? e + abbiamo già detto in relazioni alle classi e alle sottostringhe. Il carattere | (pipe) indica l’operatore OR e consente, quindi, di presentare più alternative per un’espressione: ad esempio (bello|normale|brutto) va letta come "bello o normale o brutto" ed è quindi soddisfatta quando solo una delle tre parole viene trovata nella stringa analizzata.
+
+"^"
+Sul carattere ^ vale la pena di soffermarsi un attimo perchè, come accennato, esso assume una duplice valenza, a seconda del punto in cui si trovi all’interno dell’Espressione Regolare ed occorre quindi porre molta attenzione nel suo uso.
+
+Se posto all’inizio del modello, tale carattere indica l’inizio esatto dello stesso: ^(ciao) indica infatti che la stringa deve iniziare con la parola ciao. Ma l’accento circonflesso, se posto all’interno di una classe di caratteri, nega la stessa: [^0-9] indica qualsiasi carattere che non sia un numero.
+
+"$"
+Infine, il carattere $ indica la fine di una stringa, per cui se viene usato in combinazione con ^, è possibile costruire un’Espressione Regolare che indichi un modello esattamente contenuto in una stringa, ad esempio ^Ciao come stai ?$, o che indichi l’esatto inizio e l’esatta fine di una stringa, ad esempio ^(Ciao) [a-zA-Z]+ (come stai ?)$
+
+Le Espressioni Regolari, conoscono anche, per così dire, delle abbreviazioni per ottenere ciò che si desidera, in relazione, ad esempio, alle classi di caratteri usate più di frequente. Eccone di seguito un breve schema riepilogativo:
+
+d equivale a [0-9]
+D equivale a [^0-9]
+w equivale a [0-9A-Za-z]
+W equivale a [^0-9A-Za-z]
+s equivale a [ tnr]
+S equivale a [^ tnr]
+
+Analogamente, esistono delle classi di caratteri predefinite:
+
+[[:alpha:]] indica qualsiasi lettera, maiuscola o minuscola
+[[:digit:]] indica qualsiasi cifra
+[[:space:]] indica tutti i caratteri di spazio ( trn)
+[[:upper:]] indica le lettere maiuscole
+[[:lower:]] indica le lettere minuscole
+[[:punct:]] indica i caratteri di punteggiatura
+[[:xdigit:]] indica i valori esadecimali
+
+Che ci crediate o no, le poche regole appena esplicate (che non esauriscono l’argomento, comunque) sono sufficienti a permetterci di lavorare con le Espressioni Regolari e a costruire, quindi, dei validi modelli per gli scopi che ci proponiamo, mi preme solo aggiungerne una dettata dalla mia esperienza personale: prima di accingervi a costruire l’Espressione, è fondamentale che abbiate in mente l’esatto modello che volete riprodurre, le parti di cui esso si compone, in altre parole, che sappiate esattamente ciò che volete cercare delimitandone correttamente i confini.

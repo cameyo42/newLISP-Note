@@ -65,6 +65,7 @@ newLISP IN GENERALE
     Esempi sull'utilizzo dei moduli
   Hash-Map e dizionari
   CAR e CDR in newLISP
+  Espressioni regolari
 
 FUNZIONI VARIE
   Tabella ASCII
@@ -316,13 +317,18 @@ NOTE LIBERE
   Creare una utilità di sistema (.exe)
   Fattoriale, Fibonacci, Primi
   Quine
+  I buchi delle cifre numeriche
+  Ordinare tre numeri
+  Conteggio strano
 
 APPENDICI
   Lista delle funzioni newLISP
   Sul linguaggio newLISP - FAQ (Lutz Mueller)
   F-expression - FEXPR
   newLISP in 21 minuti (John W. Small)
+  newLISP per programmatori
   notepad++ plugin
+  Visual Studio Code e newLISP
   Debugger
   Compilare i sorgenti di newLISP
   Ricorsione e ottimizzazione della chiamata di coda (Tail Call Optimization)
@@ -2647,7 +2653,7 @@ Il secondo campo, lungo otto bit (un byte), rappresenta l'esponente del numero b
 0 1000 0001 XXXXXXXXXXXXXXXXXXXXXXX
 
 Campo Mantissa
-Il terzo campo, lungo ventitrè bits, rappresenta la mantissa del numero binario spresso in notazione scientifica. Nel caso in esame vale 1.01101. A questo punto occorre notare che tutti i numeri binari espressi in notazione scientifica hanno un “1” prima della virgola, per cui nella rappresentazione IEE754 questo viene sottointeso. Inoltre, al valore effettivo della mantissa dell'esempio: 01101, vengono aggiunti tanti “0” quanti ne servono per completare il campo a 23 bits è perciò si ha:
+Il terzo campo, lungo ventitrè bits, rappresenta la mantissa del numero binario spresso in notazione scientifica. Nel caso in esame vale 1.01101. A questo punto occorre notare che tutti i numeri binari espressi in notazione scientifica hanno un "1" prima della virgola, per cui nella rappresentazione IEE754 questo viene sottointeso. Inoltre, al valore effettivo della mantissa dell'esempio: 01101, vengono aggiunti tanti "0" quanti ne servono per completare il campo a 23 bits è perciò si ha:
 
 0110100 00000000 00000000
 
@@ -5663,6 +5669,337 @@ Con i contesti è un processo in due passaggi: il primo elimina i contenuti del 
 L'eliminazione dei contesti in due fasi è necessaria quando lo stesso simbolo viene utilizzato come contesto, quindi il contenuto del contesto viene eliminato, e poi lo stesso simbolo ottiene nuovamente un contesto.
 
 
+
+======================
+ CAR E CDR IN newLISP
+======================
+
+La spiegazione del nome delle istruzioni CAR e CADR direttamente dall'autore Steve Russell:
+
+"I wrote the first implementation of a LISP interpreter on the IBM 704 at MIT in early in 1959.
+The 704 family (704, 709, 7090) had "Address" and "Decrement" fields that were 15 bits long in some of the looping instructions.
+There were also special load and store instructions that moved these 15-bit addresses between memory and the index regiseters ( 3 on the 704, 7 on the others ).
+We had devised a representation for list structure that took advantage of these instructions.
+Because of an unfortunate temporary lapse of inspiration, we couldn't think of any other names for the 2 pointers in a list node than "address" and "decrement", so we called the functions CAR for "Contents of Address of Register" and CDR for "Contents of Decrement of Register".
+After several months and giving a few classes in LISP, we realized that "first" and "rest" were better names, and we (John McCarthy, I and some of the rest of the AI Project) tried to get people to use them instead. Alas, it was too late! We couldn't make it stick at all.
+So we have CAR and CDR."
+
+newLISP chiama "first" la funzione "CAR" e chiama "rest" la funzione "CDR".
+
+Sebbene auto e cdr siano stati nomi poco ispirati per quasi 50 anni, sono sopravvissuti perché offrono una geniale funzionalità: puoi aggiungere più lettere a e d tra "c" e "r", per produrre funzioni con nomi anche più strani.
+Allora "caddr" trova il "car" del "cdr" del "cdr", leggiamo da sinistra a destra, sebbene le funzioni siano applicate da destra a sinistra come al solito.
+
+Come vengono pronunciate queste funzioni?
+
+Dal libro "Common Lisp: A Gentle Introduction to Symbolic Computation" di David S. Touretzky:
+
+CAR/CDR Pronunciation Guide
+---------------------------
+
+Function       Pronunciation    Alternate Name
+CAR            kar              FIRST
+CDR            cou-der          REST
+CAAR           ka-ar
+CADR           kae-der          SECOND
+CDAR           cou-dar
+CDDR           cou-dih-der
+CAAAR          ka-a-ar
+CAADR          ka-ae-der
+CADAR          ka-dar
+CADDR          ka-dih-der       THIRD
+CDAAR          cou-da-ar
+CDADR          cou-dae-der
+CDDAR          cou-dih-dar
+CDDDR          cou-did-dih-der
+CADDDR         ka-dih-dih-der   FOURTH
+...
+
+Possiamo definire queste funzioni in newLISP:
+
+; =======================================
+; Funzioni CAR e CDR
+; C????R (quattro livelli)
+; =======================================
+(define (car x)    (first x))
+(define (cdr x)    (rest x))
+(define (caar x)   (first (first x)))
+(define (cadr x)   (first (rest x)))
+(define (cdar x)   (rest (first x)))
+(define (cddr x)   (rest (rest x)))
+(define (caaar x)  (first (first (first x))))
+(define (caadr x)  (first (first (rest x))))
+(define (cadar x)  (first (rest (first x))))
+(define (caddr x)  (first (rest (rest x))))
+(define (cdaar x)  (rest (first (first x))))
+(define (cdadr x)  (rest (first (rest x))))
+(define (cddar x)  (rest (rest (first x))))
+(define (cdddr x)  (rest (rest (rest x))))
+(define (caaaar x) (first (first (first (first x)))))
+(define (caaadr x) (first (first (first (rest x)))))
+(define (caadar x) (first (first (rest (first x)))))
+(define (caaddr x) (first (first (rest (rest x)))))
+(define (cadaar x) (first (rest (first (first x)))))
+(define (cadadr x) (first (rest (first (rest x)))))
+(define (caddar x) (first (rest (rest (first x)))))
+(define (cadddr x) (first (rest (rest (rest x)))))
+(define (cdaaar x) (rest (first (first (first x)))))
+(define (cdaadr x) (rest (first (first (rest x)))))
+(define (cdadar x) (rest (first (rest (first x)))))
+(define (cdaddr x) (rest (first (rest (rest x)))))
+(define (cddaar x) (rest (rest (first (first x)))))
+(define (cddadr x) (rest (rest (first (rest x)))))
+(define (cdddar x) (rest (rest (rest (first x)))))
+(define (cddddr x) (rest (rest (rest (rest x)))))
+
+(cadadr '(0 (1 2 3) 4 5))
+;-> 2
+
+(cadr (cdr '(7 3 5)))
+;-> 5
+
+(caddr '(7 3 5))
+;-> 5
+
+
+====================
+ESPRESSIONI REGOLARI
+====================
+
+newLISP utilizza le espressioni regolari di tipo PCRE (Perl Compatible Regular Expressions).
+Per maggior informazioni consultare: https://www.pcre.org/
+
+Le funzioni newLISP che utilizzano le regex sono:
+
+1) directory
+2) find
+3) find-all
+4) parse
+5) regex
+6) regex-comp
+7) replace
+8) search
+
+Vediamo come viene definita nel manuale la funzione "regex".
+
+******************
+>>>funzione REGEX
+******************
+sintassi: (regex str-pattern str-text [regex-option [int-offset]])
+
+Esegue una ricerca PCRE compatibile su str-text con il pattern (modello) specificato in str-pattern. La stesso modello di espressione regolare è supportato anche nelle funzioni directory, find, find-all, parse, replace, e search quando vengono usate con delle stringhe.
+
+regex restituisce una lista con le stringhe e le sottostringhe trovate e l'inizio (offset) e la lunghezza di ciascuna stringa all'interno del testo. Se non viene trovata alcuna corrispondenza, restituisce nil. È possibile utilizzare i numeri di offset per una elaborazione successiva.
+
+Inoltre, è possibile specificare una opzione regex per controllare alcune opzioni delle espressioni regolari definite in seguito. Le opzioni possono essere fornite da numeri o lettere in una stringa.
+
+Il parametro int-offset aggiuntivo dice a regex di iniziare la ricerca di una corrispondenza non dall'inizio della stringa, ma da un offset specifico.
+
+Quando non è presente alcuna opzione regex, i numeri di offset e i numeri di lunghezza di regex sono calcolati in base ai byte, anche quando si esegue la versione abilitata UTF-8 di newLISP. Quando si specifica l'opzione PCRE_UTF8 in regex-option, sono calcolati come caratteri UTF8 solo l'offset e la lunghezza in caratteri.
+
+regex imposta anche le variabili $0, $1 e $2 relative all'espressione e alle sottoespressioni trovate. Proprio come qualsiasi altro simbolo in newLISP, queste variabili o le loro espressioni equivalenti ($0), ($1) e ($2), possono essere utilizzate in altre espressioni newLISP per ulteriori elaborazioni.
+
+Le funzioni che usano espressioni regolari non resettano le variabili $0, $1 ... $15 a nil quando non viene trovata alcuna corrispondenza.
+
+(regex "b+" "aaaabbbaaaa")  → ("bbb" 4 3)
+
+; ricerca senza distinzione tra maiuscole e minuscole - opzione 1
+(regex "b+" "AAAABBBAAAA" 1)  → ("BBB" 4 3)
+; stessa opzione, ma passata come stringa "i"
+(regex "b+" "AAAABBBAAAA" "i")  → ("BBB" 4 3)
+
+(regex "[bB]+" "AAAABbBAAAA" )  → ("BbB" 4 3)
+
+(regex "http://(.*):(.*)" "http://nuevatec.com:80")
+→ ("http://nuevatec.com:80" 0 22 "nuevatec.com" 7 12 "80" 20 2)
+
+$0  → "http://nuevatec.com:80"
+$1  → "nuevatec.com"
+$2  → "80"
+
+(dotimes (i 3) (println ($ i)))
+http://nuevatec.com:80
+nuevatec.com
+80
+→ "80"
+
+Il secondo esempio mostra l'uso di opzioni extra, mentre il terzo esempio mostra l'analisi più complessa di due sottoespressioni che sono state contrassegnate da parentesi nel modello di ricerca. Nell'ultimo esempio, l'espressione e le sottoespressioni vengono recuperate utilizzando le variabili di sistema da $0 a $2 o la loro espressione equivalente ($0) a ($2).
+
+Quando i caratteri "" (virgolette) vengono utilizzate per delimitare le stringhe che includono caratteri di backslash \, il carattere backslash deve essere raddoppiato nel modello di espressione regolare "\\". In alternativa, è possibile utilizzare i caratteri {} (parentesi graffe) o [testo] e [/ testo] (tag di testo) per delimitare le stringhe di testo. In questi casi, non sono richieste backslash aggiuntivi.
+
+I caratteri protetti con un backslash (escaped) in newLISP (ad esempio, il carattere quote \" o \n)" non devono essere raddoppiati in un modello di espressione regolare, che a sua volta è delimitato da virgolette.
+
+; doppio backslash per le parentesi e altri caratteri speciali delle regex
+(regex "\\(abc\\)" "xyz(abc)xyz")  → ("(abc)" 3 5)
+
+; doppio backslash per il backslash (carattere speciale delle regex)
+(regex "\\d{1,3}" "qwerty567asdfg")  → ("567" 6 3)
+
+; un solo backslash per il carattere quote (carattere speciale in newLISP)
+(regex "\"" "abc\"def")  → ("\"" 3 1)
+
+; parentesi graffe (brackets) come delimitatori
+(regex {\(abc\)} "xyz(abc)xyz")  → ("(abc)" 3 5)
+
+; parentesi graffe (brackets) come delimitatori e carattere quote nel pattern
+(regex {"} "abc\"def")  → ("\"" 3 1)
+
+; tag [text] come delimitatore, utile per testi multilinea
+(regex [text]\(abc\)[/text] "xyz(abc)xyz")  → ("(abc)" 3 5)
+(regex [text]"[/text] "abc\"def")           → ("\"" 3 1)
+
+Quando vengono utilizzate parentesi graffe o il tag [text] per delimitare la stringa del modello anziché le virgolette, è sufficiente un semplice backslash. Il modello e la stringa vengono quindi passati in forma grezza alle routine delle espressioni regolari. Quando le parentesi graffe vengono utilizzate all'interno di un modello delimitato da parentesi graffe, le parentesi interne devono essere bilanciate, come segue:
+
+; le parentesi graffe nel pattern sono bilanciate
+(regex {\d{1,3}} "qwerty567asdfg")  → ("567" 6 3)
+
+Le seguenti costanti possono essere usate per regex-option.
+Diverse opzioni possono essere combinate usando un operatore "or" binario | (pipe). Per esempio, (| 1 4) combina le opzioni 1 e 4 oppure la stringa "is" quando si usano le lettere per le due opzioni.
+
+Le ultime due opzioni sono specifiche per newLISP.
+L'opzione REPLACE_ONCE deve essere utilizzata solo in sostituzione e può essere combinata con altre opzioni PCRE.
+
+È possibile combinare più opzioni usando + (più) o | (or) operatore, ad esempio, (| PCRE_CASELESS PCRE_DOTALL) oppure la stringa "is" quando si usano le lettere come opzioni.
+
+PCRE name            num        description
+---------            ---        -----------
+PCRE_CASELESS          1 or i   treat uppercase like lowercase
+PCRE_MULTILINE         2 or m   limit search at a newline like Perl's /m
+PCRE_DOTALL            4 or s   . (dot) also matches newline
+PCRE_EXTENDED          8 or x   ignore whitespace except inside char class
+PCRE_ANCHORED         16 or A   anchor at the start
+PCRE_DOLLAR_ENDONLY   32 or D   $ matches at end of string, not before newline
+PCRE_EXTRA            64        additional functionality currently not used
+PCRE_NOTBOL          128        first ch, not start of line; ^ shouldn't match
+PCRE_NOTEOL          256        last char, not end of line; $ shouldn't match
+PCRE_UNGREEDY       512i or U   invert greediness of quantifiers
+PCRE_NOTEMPTY       1024        empty string considered invalid
+PCRE_UTF8           2048 or u   pattern and strings as UTF-8 characters
+REPLACE_ONCE      0x8000        replace only one occurrence only for use in replace
+PRECOMPILED      0x10000 or p   pattern is pre-compiled, can only be combined with RREPLACE_ONCE 0x8000
+
+Le impostazioni delle opzioni PCRE_CASELESS, PCRE_MULTILINE, PCRE_DOTALL e PCRE_EXTENDED possono essere modificate all'interno del modello da una sequenza di lettere di opzione racchiuse tra "(?" e ")". Le lettere delle opzioni sono:
+
+  i for PCRE_CASELESS
+  m for PCRE_MULTILINE
+  s for PCRE_DOTALL
+  x for PCRE_EXTENDED
+
+Nota che la sintassi delle espressioni regolari è molto complessa e ricca di funzionalità con molti caratteri e forme speciali. Per ulteriori dettagli, consultare un libro o le pagine del manuale di PCRE. La maggior parte dei libri PERL o introduzioni a Linux o Unix contengono anche capitoli sulle espressioni regolari. Vedi anche http://www.pcre.org per ulteriori riferimenti e la consultazione delle pagine del manuale.
+
+I pattern di espressione regolari possono essere precompilati, per una maggiore velocità quando si usano i pattern in modo ripetuto, con regex-comp.
+
+Quindi per usare in modo proficuo le espressioni regolari occorre imparare come devono essere costruiti i pattern regex in relazione alle ricerche che vogliamo affettuare. In questo contesto ci limiteremo ad affrontare i pattern di ricerca e sostituzione più comuni e come utilizzarli all'interno di newLISP.
+
+Le espressioni regolari sono stringhe che contengono caratteri e metacaratteri. I caratteri vengono valutati in modo letterale, mentre i metacaratteri assumono un significato speciale. Vediamo la lista dei metacaratteri principali:
+
+Metacarattere	  Significato
+-------------   -----------
+  .	            qualsiasi carattere (tranne newline)
+  *	            zero o più occorrenze (carattere o gruppo di caratteri)
+  ?	            zero o una occorrenza (carattere o gruppo di caratteri)
+  {}	          numero esatto o minimo o massimo o l’intervallo di occorrenze (carattere o gruppo di caratteri)
+  +	            una o più occorrenze (carattere o gruppo di caratteri)
+  ^	            inizio della stringa (o la negazione di un gruppo di caratteri)
+  $	            fine della stringa
+  |	            operatore OR
+  \             carattere di escape per i caratteri speciali
+  ()	          contengono una sottostringa
+  []	          contengono una 'classe' di caratteri
+
+Per utilizzare i metacaratteri come "valori letterali" devono essere preceduti dal carattere di escap backslash " \ ". Ad esempio, se volessimo ricercare il caratter punto interrogativo "?" all'interno di una stringa, dovremmo scrivere: \?
+
+Esaminiamo meglio i singoli metacaratteri.
+
+"[]"
+Le parentesi quadre [], come si è accennato, racchiudono una 'classe' di caratteri. Questo vuol dire che il modello può o deve contenere alcuni o tutti i caratteri in esse contenute. Vediamo alcuni esempi:
+
+[abc]
+questo modello è soddisfatto quando viene trovata una delle lettere, senza tener conto dell’ordine in cui sono presenti:
+
+[a-z]
+in questo modello è presente un intervallo di caratteri (notare il segno -, sta per "dalla a alla z"), esso è soddisfatto quando viene trovato uno qualsiasi dei caratteri compresi nell’intervallo;
+
+[0-9]
+in questo modello è presente invece un intervallo di numeri, esso è soddisfatto quando viene trovato uno qualsiasi dei numeri compresi nell’intervallo;
+
+[a-z0-9?]
+questo modello è leggermente più complesso, ma dovrebbe essere di facile comprensione. La corrispondenza viene trovata quando la stringa contiene una lettera (minuscola in questo caso), un numero o il carattere ? (notate il segno prima di ?, perché il punto interrogativo è un carattere speciale, che qui però assumiamo per il suo valore letterale);
+
+[^a-z]
+questo modello è soddisfatto quando viene trovato un qualsiasi carattere che non sia una lettera minuscola (notate il segno ^ che all’interno della classe, la nega);
+
+Naturalmente una classe di caratteri può essere seguita (e normalmente lo è) da uno dei metacaratteri che indicano il numero di volte in cui uno dei caratteri in essa contenuti, deve essere presente, riprendendo l’ultimo modello:
+
+[a-z0-9?]?
+i caratteri contenuti nella classe devono essere presenti zero o una volta;
+
+[a-z0-9?]*
+i caratteri contenuti nella classe devono essere presenti zero o più volte;
+
+[a-z0-9?]{3}
+i caratteri contenuti nella classe devonoo essere presenti esattamente tre volte;
+
+[a-z0-9?]{1,3}
+i caratteri contenuti nella classe devono essere presenti da una a tre volte;
+
+[a-z0-9?]{3,}
+i caratteri contenuti nella classe devono essere presenti minimo tre volte;
+
+[a-z0-9?]{,3}
+i caratteri contenuti nella classe devono essere presenti massimo tre volte.
+
+Le parentesi graffe, come abbiamo già visto, indicano il numero esatto, minimo, massimo o l’intervallo di volte in cui una un’esatta sequenza o una classe di caratteri, devono essere presenti in una stringa:
+
+{3} esattamente 3 volte;
+{3,} minimo 3 volte;
+{,3} massimo 3 volte;
+{1,3} da 1 a 3 volte;
+
+"()"
+Le parentesi tonde, invece, fanno riferimento ad una sottostringa, o una parte di stringa se preferite, che viene assunta per il suo esatto valore letterale.
+
+Quindi ad esempio (abc) si riferisce all’esatta sequenza di caratteri abc, a differenza, come abbiamo visto, di [abc] che si riferisce invece ad uno dei tre caratteri.
+
+Ovviamente anche le parentesi tonde, possono essere usate con quei metacaratteri che indicano il numero di volte in cui la sottostringa deve ripetersi, per cui l’espressione (casa)? indica la presenza opzionale della parola casa (o, il che è lo stesso, che la parola deve essere presente zero o una volta).
+
+Ma le parentesi tonde sono molto importanti anche e soprattutto perche le parti di stringa (o le espressioni) in esse contenute, possono essere "utilizzate" per vari scopi (un replace per dirne uno), ma lo vedremo più avanti quando faremo un cenno alle funzioni PHP sulle Espressioni Regolari.
+
+Descriviamo adesso brevemente, gli altri metacaratteri. 
+
+"."
+Partiamo dal punto che sta per qualsiasi carattere escluso un accapo, per cui, ad esempio, l’espressione (.)+ indica qualsiasi carattere ripetuto una o più volte (nella pratica è difficile che questo modello non trovi corrispondenza…).
+
+"|"
+Dei caratteri *,? e + abbiamo già detto in relazioni alle classi e alle sottostringhe. Il carattere | (pipe) indica l’operatore OR e consente, quindi, di presentare più alternative per un’espressione: ad esempio (bello|normale|brutto) va letta come "bello o normale o brutto" ed è quindi soddisfatta quando solo una delle tre parole viene trovata nella stringa analizzata.
+
+"^"
+Sul carattere ^ vale la pena di soffermarsi un attimo perchè, come accennato, esso assume una duplice valenza, a seconda del punto in cui si trovi all’interno dell’Espressione Regolare ed occorre quindi porre molta attenzione nel suo uso.
+
+Se posto all’inizio del modello, tale carattere indica l’inizio esatto dello stesso: ^(ciao) indica infatti che la stringa deve iniziare con la parola ciao. Ma l’accento circonflesso, se posto all’interno di una classe di caratteri, nega la stessa: [^0-9] indica qualsiasi carattere che non sia un numero.
+
+"$"
+Infine, il carattere $ indica la fine di una stringa, per cui se viene usato in combinazione con ^, è possibile costruire un’Espressione Regolare che indichi un modello esattamente contenuto in una stringa, ad esempio ^Ciao come stai ?$, o che indichi l’esatto inizio e l’esatta fine di una stringa, ad esempio ^(Ciao) [a-zA-Z]+ (come stai ?)$
+
+Le Espressioni Regolari, conoscono anche, per così dire, delle abbreviazioni per ottenere ciò che si desidera, in relazione, ad esempio, alle classi di caratteri usate più di frequente. Eccone di seguito un breve schema riepilogativo:
+
+d equivale a [0-9]
+D equivale a [^0-9]
+w equivale a [0-9A-Za-z]
+W equivale a [^0-9A-Za-z]
+s equivale a [ tnr]
+S equivale a [^ tnr]
+
+Analogamente, esistono delle classi di caratteri predefinite:
+
+[[:alpha:]] indica qualsiasi lettera, maiuscola o minuscola
+[[:digit:]] indica qualsiasi cifra
+[[:space:]] indica tutti i caratteri di spazio ( trn)
+[[:upper:]] indica le lettere maiuscole
+[[:lower:]] indica le lettere minuscole
+[[:punct:]] indica i caratteri di punteggiatura
+[[:xdigit:]] indica i valori esadecimali
+
+Che ci crediate o no, le poche regole appena esplicate (che non esauriscono l’argomento, comunque) sono sufficienti a permetterci di lavorare con le Espressioni Regolari e a costruire, quindi, dei validi modelli per gli scopi che ci proponiamo, mi preme solo aggiungerne una dettata dalla mia esperienza personale: prima di accingervi a costruire l’Espressione, è fondamentale che abbiate in mente l’esatto modello che volete riprodurre, le parti di cui esso si compone, in altre parole, che sappiate esattamente ciò che volete cercare delimitandone correttamente i confini.
 ================
 
  FUNZIONI VARIE
@@ -6228,6 +6565,32 @@ Vediamo quale delle due è più veloce:
 
 (time (list2int2 '(9 2 2 3 3 7 2 0 3 6 8 5 4 7 7 5 8 0 7)) 100000)
 ;-> 855.138
+
+Ricapitoliamo:
+
+(define (int2list n)
+  (let (out '())
+    (while (!= n 0)
+      (push (% n 10) out)
+      (setq n (/ n 10))) out))
+
+(int2list 1282738374847)
+;-> (1 2 8 2 7 3 8 3 7 4 8 4 7)
+
+(define (int2list2 n) (map sym (explode (string n))))
+
+(int2list2 1282738374847)
+;-> (1 2 8 2 7 3 8 3 7 4 8 4 7)
+
+(time (dotimes (x 1e7) (int2list x)))
+;-> 1107.929
+(time (dotimes (x 1e7) (int2list x)))
+;-> 12721.02
+
+(time (dotimes (x 1e6) (int2list2 x)))
+;-> 1544.137
+(time (dotimes (x 1e7) (int2list2 x)))
+;-> 17760.076
 
 
 -------------------------------
@@ -31432,6 +31795,194 @@ Invece il seguente è sicuramente un quine:
 ;-> (lambda (s) (print (list s (list 'quote s))))
 
 
+-----------------------------
+I buchi delle cifre numeriche
+-----------------------------
+
+Quale numero viene dopo la sequenza: 1, 4, 8, 48, 88, 488, ...
+
+Notiamo che 1 non a buchi, 4 ha un buco, 8 ha due buchi, 48 ha tre buchi, 88 ha quattro buchi, 488 ha cinque buchi, quindi il prossimo numero è 888 perchè è il più piccolo numero che ha sei buchi.
+
+Quindi il problema è quello di trovare il numero intero più piccolo con n buchi nelle sue cifre decimali.
+
+Definiamo una lista associativa in cui ci sono due valori (x y), dove x è la cifra numerica e y è il numero di buchi della cifra:
+
+(setq buchi '((0 1) (1 0) (2 0) (3 0) (4 1) (5 0) (6 1) (7 0) (8 2) (9 1)))
+(lookup 1 buchi)
+;-> 0
+(lookup 8 buchi)
+;-> 2
+
+La seguente espressione converte un numero in una lista di cifre:
+
+(map int (explode (string 1234)))
+;-> (1 2 3 4)
+
+Adesso scriviamo la funzione:
+
+(define (holesequence num)
+  (local (val out)
+    (setq val 0 out '())
+    (dotimes (n num)
+      ;somma dei buchi di tutte le cifre che compongono il numero n
+      (if (= val (apply +
+            (map (fn (x) (lookup x buchi)) (map int (explode (string n))))))
+          (begin (push (list val n) out -1) (++ val)))
+    )
+    out
+  )
+)
+
+(holesequence 100000)
+;-> ((0 1) (1 4) (2 8) (3 48) (4 88) (5 488)
+;->  (6 888) (7 4888) (8 8888) (9 48888))
+
+1  ha 0 (zero) buchi
+4  ha 1 (uno) buco
+8  ha 2 (due) buchi
+48 ha 3 (tre) buchi
+88 ha 4 (quattro) buchi
+...
+
+
+-------------------
+Ordinare tre numeri
+-------------------
+
+Esercizio preso dal libro di Bjarne Stroustrup "Principles and Practice Using C++".
+
+Scrivere una funzione che prende 3 valori interi e li stampa in ordine crescente.
+
+Esempio: 
+input = 10 4 6
+output = 4 6 10
+
+È possibile utilizzare solo le seguenti istruzioni:
+
+1) if
+2) cond
+3) setq
+4) println
+5) local
+6) let
+
+(define (ordina x y z)
+  (local (a b c)
+    (setq a 0 b 0 c 0) ; al termine: a <= b <= c
+    (cond ((and (<= x y) (<= x z)) ; x è minore di y e di z
+           (setq a x) ; x è il più piccolo
+           ; quale dei due numeri rimanenti è minore?
+           (if (<= y z) (setq b y c z) (setq c y b z)))
+          ((and (<= y x) (<= y z)) ; y è minore di x e di z
+           (setq a y) ; y è il più piccolo
+           ; quale dei due numeri rimanenti è minore?
+           (if (<= x z) (setq b x c z) (setq c x b z)))
+          (true                    ; z è minore di x e di y
+           (setq a z) ; z è il più piccolo
+           ; quale dei due numeri rimanenti è minore?
+           (if (<= x y) (setq b x c y) (setq c x b y)))
+    )
+    (println a { } b { } c)
+  )
+)
+
+(ordina 10 4 6)
+;-> 4 6 10
+
+(ordina 4 6 10)
+;-> 4 6 10
+
+(ordina 10 6 4)
+;-> 4 6 10
+
+
+----------------
+Conteggio strano
+----------------
+
+Una bambina conta sulle dita di una mano partendo da 1 sul pollice, 2 sul dito indice, 3 sul medio, 4 sul dito anulare e 5 sul mignolo. Quindi torna indietro nella stessa mano, contando 6 sul'anulare, 7 sul medio, 8 sull'indice e 9 sul pollice. Poi continua indefinitamente contando sempre nello stesso modo. Scrivere un programma che, dato un numero intero n, determina su quale dito terminerà quando il  conteggio raggiunge n.
+
+Il conteggio procede nel modo seguente:
+
+ a   b   c   d   e
+POL IND MED ANU MIG
+ 1   2   3   4   5
+ 9   8   7   6
+    10  11  12  13
+17  16  15  14
+    18  19  20  21
+25  24  23  22
+    26  27  28  29
+33  32  31  30
+    34  35  36  37
+
+Il pattern è il seguente:
+
+  1       5   6     9      13  14      18    21  22    25      29  
+("a b c d e" "d c b a b c d e" "d c b a b c d e" "d c b a b c d e")
+              1 2 3 4 5 6 7 8   9    12      16  17    20  22  24   
+
+A parte i primi cinque numeri, troviamo sempre una sequenza ripetuta: "d c b a b c d e".
+
+Quindi risulta che ((n-5) mod 8) indica la posizione (indice) nella sequenza ripetuta:
+
+resto:     1 2 3 4 5 6 7 0
+sequenza: "d c b a b c d e"
+
+Possiamo scrivere la funzione:
+
+(define (mano n)
+  (cond ((<= n 5) 
+         (cond ((= n 1) 'pollice)
+               ((= n 2) 'indice)
+               ((= n 3) 'medio)
+               ((= n 4) 'anulare)
+               ((= n 5) 'mignolo)))
+        ((= 1 (% (- n 5) 8)) 'anulare)
+        ((= 2 (% (- n 5) 8)) 'medio)
+        ((= 3 (% (- n 5) 8)) 'indice)
+        ((= 4 (% (- n 5) 8)) 'pollice)
+        ((= 5 (% (- n 5) 8)) 'indice)
+        ((= 6 (% (- n 5) 8)) 'medio)
+        ((= 7 (% (- n 5) 8)) 'anulare)
+        (true 'mignolo)
+  )
+)
+
+(mano 36)
+;-> anulare
+
+(mano 8)
+;-> indice
+
+(mano 1000)
+;-> indice
+
+Possiamo scrivere la funzione in maniera concisa:
+
+(define (hand n)
+  (let ((fingers1 '(pollice indice medio anulare mignolo))
+        (fingers2 '(mignolo anulare medio indice pollice indice medio anulare)))
+       (if (<= n 5)
+           (fingers1 (- n 1))
+           (fingers2 (% (- n 5) 8))
+       )
+  )
+)
+
+(hand 36)
+;-> anulare
+
+(hand 8)
+;-> indice
+
+(hand 1000)
+;-> indice
+
+(hand 5)
+;-> mignolo
+
+
 ===========
 
  APPENDICI 
@@ -32557,11 +33108,11 @@ Si noti che x e y sono legati rispettivamente a 1 e 2 nella tabella dei simboli 
 
 La funzione list prende un numero variabile di argomenti che vengono valutati rigorosamente restituendo ogni valore risultante in una lista.
 
-La forma let è simile alla forma iniziale mostrata in precedenza, tranne che estende dinamicamente la tabella dei simboli implicita per la durata del “blocco let” che include tutti gli argomenti dell'espressione let . Questo è possibile perché questi argomenti vengono pigramente valutati all'interno del contesto esteso del “blocco let”. Se visualizzassimo la tabella dei simboli implicita all'interno del blocco let, avremmo la seguente lista di associazioni estesa:
+La forma let è simile alla forma iniziale mostrata in precedenza, tranne che estende dinamicamente la tabella dei simboli implicita per la durata del "blocco let" che include tutti gli argomenti dell'espressione let . Questo è possibile perché questi argomenti vengono pigramente valutati all'interno del contesto esteso del "blocco let". Se visualizzassimo la tabella dei simboli implicita all'interno del blocco let, avremmo la seguente lista di associazioni estesa:
 
  '((y 4) (x 3) (y 2) (x 1))
 
-Poiché la ricerca inizia da sinistra, i valori di associazione di x e y vengono restituiti, in modo da “nascondere: i loro valori originali al di fuori dell’espressione let.
+Poiché la ricerca inizia da sinistra, i valori di associazione di x e y vengono restituiti, in modo da nascondere i loro valori originali al di fuori dell’espressione let.
 Quando l'espressione let termina, la tabella dei simboli si presenta come segue:
 
  '((y 2) (x 1))
@@ -32673,7 +33224,7 @@ Questa è in realtà una scorciatoia per qualsiasi delle seguenti definizioni:
 
  (set 'f (lambda (x y) (+ x y)))
 
-L'espressione "lambda" definisce una funzione anonima, cioè una funzione senza nome. Il primo argomento dell'espressione lambda è la sua lista di argomenti formali e le restanti espressioni costituiscono una sequenza (ritardata) di espressioni che costituiscono il corpo della funzione (questa sequenza di espressioni viene detta “ritardata” perchè viene valutata solamente quando chiamiamo la funzione).
+L'espressione "lambda" definisce una funzione anonima, cioè una funzione senza nome. Il primo argomento dell'espressione lambda è la sua lista di argomenti formali e le restanti espressioni costituiscono una sequenza (ritardata) di espressioni che costituiscono il corpo della funzione (questa sequenza di espressioni viene detta "ritardata" perchè viene valutata solamente quando chiamiamo la funzione).
 
  (f 1 2)
  ;-> 3
@@ -32854,7 +33405,7 @@ Anche se l'espressione lambda è definita all'interno dell'ambito lessicale dell
 
 Qualsiasi variabile libera di un'espressione lambda viene associata dinamicamente nel momento in cui viene valutato il corpo delle espressioni. Le variabili non specificate (non associate) nella lista degli argomenti formali sono chiamate libere (free).
 
-Possiamo usare la funzione di expand mostrata in precedenza per “chiudere” un'espressione lambda, cioè per associare tutte le variabili libere:
+Possiamo usare la funzione di expand mostrata in precedenza per "chiudere" un'espressione lambda, cioè per associare tutte le variabili libere:
 
  (define f
   (let ((x 1) (y 2))
@@ -32940,7 +33491,7 @@ Poiché _key non viene valutato, si trova in forma simbolica (cioè, è come se 
  ;-> 1
  > _
 
-Il carattere underscore “_” viene utilizzato per impedire la “cattura” delle variabili.
+Il carattere underscore "_" viene utilizzato per impedire la "cattura" delle variabili.
 Considera quanto segue:
 
  (my-setq _key 1)
@@ -32955,7 +33506,7 @@ L’espressione:
 
  (set _key 1)
 
-imposta semplicemente la variabile locale _key . Diciamo che la variabile _key è stata catturata dalla "espansione" della macro. Scheme ha macro “igieniche” (hygenic) che sono “pulite” (clean) nel senso che garantiscono la protezione delle variabili (cioè impediscono la cattura delle variabili). Normalmente, utilizzare il carattere underscore “_” nei nomi degli argomenti formali della macro è sufficiente per impedire la cattura delle variabili.
+imposta semplicemente la variabile locale _key . Diciamo che la variabile _key è stata catturata dalla "espansione" della macro. Scheme ha macro "igieniche" (hygenic) che sono "pulite" (clean) nel senso che garantiscono la protezione delle variabili (cioè impediscono la cattura delle variabili). Normalmente, utilizzare il carattere underscore "_" nei nomi degli argomenti formali della macro è sufficiente per impedire la cattura delle variabili.
 La funzione define-macro è una scorciatoia per associare un'espressione lambda-macro in un unico passaggio.
 
  (define my-setq
@@ -33463,7 +34014,727 @@ Si noti come vari caratteri come " -> " possono essere usati nei nomi degli iden
 Adesso dovresti conoscere abbastanza su newLISP ora per decifrare le funzioni def-make e context->string che abbiamo definito. Assicurati di cercare nella documentazione di newLISP eventuali operazioni primitive come dotree, push, join, ecc. che non ti sono familiari.
 
 Sia Common Lisp che Scheme hanno funzioni lessical scope, questo significa che una chiusura è esclusiva per una particolare funzione. Le funzioni in newLISP possono condividere una chiusura lessicale, cioè il contesto, che è simile a un oggetto i cui metodi condividono uno stato comune. Gli esempi di contesto mostrati finora potrebbero aver incluso anche funzioni. La documentazione di newLISP fornisce diversi esempi di utilizzo dei contesti come semplice oggetti.
- 
+
+
+============================================================================
+newLISP per programmatori
+============================================================================
+v. 1.1
+
+(C) 2006, Dmitry Chernyak losthost@narod.ru.
+http://en.feautec.pp.ru.
+
+Traduzione: Massimo Corinaldesi aka cameyo 2019
+
+Questo articolo è stato scritto per i programmatori di linguaggi "tradizionali" procedurali e object-oriented. Il suo scopo è quello di mostrare alcune convenienti tecniche di programmazione comuni per il linguaggio funzionale LISP, ma raramente utilizzati in altre linguaggi.
+
+LISP è un'intera famiglia di dialetti, il più famoso e riconosciuto tra questi è Common LISP. Tuttavia, la base di questo articolo è il dialetto semplificato newLISP, il cui interprete funziona in qualsiasi sistema operativo e che può essere utilizzato per "le attività quotidiane" a livello del linguaggio Perl. Le differenze tra newLISP e Common LISP nel quadro del materiale presentato non sono assolutamente significative.
+
+Dove trovare la distribuzione newLISP è scritto nell'ultimo capitolo.
+
+Dunque proviamo!
+
+A COSA SERVE IL LISP?
+---------------------
+
+La maggior parte dei linguaggi di programmazione ​​(Con l'eccezione del BASIC :-)) sono stati sviluppati per semplificare la soluzione di certi problemi. Il nome del linguaggio LISP sta per "LISt Processor", "gestore di liste" - questa è la principale area delle sua applicazioni.
+
+Durante la scrittura di codice LISP, le liste sono delimitate da parentesi tonde, ed i suoi elementi sono separati dal carattere spazio. Che cosa può contenere una lista? - in LISP - quasi tutto! Gli elementi di una lista possono essere costanti, nomi di variabili e funzioni (nella terminologia LISP, simboli) e, naturalmente, altre liste:
+
+(1 2 "abc" var (34 "w"))
+
+Non è esagerato dire che in LISP la lista è la principale struttura di dati e di aggregazione. Records e strutture in Common Lisp sono implementati per mezzo del linguaggio stesso (primitive), ma in newLISP non ce ne sono affatto. Le implementazioni moderne (tra cui newLISP) sono dotate di supporto per gli array e gli hash, ma in realtà sono utilizzati solo nei casi in cui l'algoritmo ha davvero bisogno array o hash, vale a dire, sorprendentemente, alquanto raramente. Va notato che in LISP vengono solitamente utilizzate le "liste associative" al posto degli hash.
+
+Una lista associativa è una "lista di liste", in cui il primo elemento è utilizzato come chiave per la ricerca:
+
+((key1 value1_1 value1_2) (key2 value2_1 value2_2) ...)
+
+Per la ricerca nelle liste associative, si utilizzano le funzioni "assoc" e "lookup". Da un lato, questo approccio (teoricamente) porta ad una riduzione delle prestazioni di ricerca (in pratica, questo è un punto controverso...), ma d'altra parte, si può avere più elementi con la stessa chiave e si ha sempre una sequenza fissa di record.
+
+(Come?
+ (leggi il programma Lisp))
+
+È molto semplice - tutto ciò che è all'interno delle parentesi è una chiamata di funzione, la prima parola dopo la parentesi aperta è il nome della funzione, e il resto sono i suoi parametri. 
+Un matematico scriverebbe:
+
+f1 (x, y)
+
+su LISP sarà simile a:
+
+(f1 x y)
+
+Una espressione più complicata:
+
+f1(x, f2(y, z))
+
+si trasformerà in:
+
+(f1 x (f2 y z))
+
+Esempio, addizione
+
+"in modo matematico":
+
+1 + 2 -> 3
+
+"in modo LISP":
+
+(+ 1 2) -> 3
+
+(di seguito, il segno "->" precederà il risultato della valutazione dell'espressione)
+
+Pensi che sia "scomodo!"? – Allora guarda questo:
+
+(+ 1 2 3 4 5) -> 15
+
+Inoltre saranno mostrate le conseguenze più interessanti di questo tipo di approccio.
+
+COME VIENE CALCOLATA UN'ESPRESSIONE LISP?
+-----------------------------------------
+
+Così come in matematica: quando calcoliamo una funzione, prima vengono calcolati i suoi argomenti, e poi le azioni definite da questa funzione sono eseguite su di essi.
+
+(+ 10 (sqrt 25)) -> 15
+
+la funzione sqrt (radice quadrata) è calcolata, il risultato (5) viene passato alla funzione +, che, a sua volta, viene calcolata e restituisce il risultato: 10 + 5 = 15.
+
+Alcuni esempi utili:
+
+(setq a "test") -> "test"
+
+"setq" è una funzione di assegnazione, restituisce il valore dell'ultimo argomento, ma assegna anche al carattere "a" il valore "test".
+
+a -> "test"
+
+Il calcolo di un carattere restituisce il suo valore.
+
+(setq b (sqrt 25)) -> 5
+
+Non ci sono commenti.
+
+(setq b '(sqrt 25)) -> (sqrt 25)
+
+un apostrofo "quote" è un carattere speciale che impedisce la valutazione dell'espressione: il risultato è una mormale lista. In realtà, un apostrofo è un'abbreviazione della funzione quote. Questa è l'unica estensione che è stata introdotta nella sintassi del LISP (uso puro di parentesi), grazie all'uso frequente:
+
+(setq b (quote (sqrt 25))) -> (sqrt 25)
+
+"quote", a sua volta, è l'esempio più semplice di una "funzione macro" - una funzione speciale i cui argomenti non vengono calcolati/valutati automaticamente. Torneremo in seguito sui diversi modi di applicare le funzioni macro.
+
+(setq b '(("first" 1) ("second" 2) ("third" 3)))
+ -> (("first" 1) ("second" 2) ("third" 3))
+
+(b 1) -> ("second" 2)
+
+per ottenere un elemento tramite un indice, il primo elemento ha indice 0. Tale sintassi di newLISP si chiama "indicizzazione implicita".
+
+(nota: non esiste una sintassi simile in Common LISP, l'indicizzazione viene eseguita dalla funzione nth).
+
+(1 b) -> (("second" 2) ("third" 3))
+
+Taglio (slice) dal secondo elemento alla fine della lista.
+
+(0 2 b) -> (("first" 1) ("second" 2))
+
+taglio dal primo elemento della lista con una lunghezza di 2 elementi. C'è un modo più tradizionale per LISP - la funzione "nth" (elemento per indice) e "slice" - taglio.
+
+(assoc "second" b) -> ("second" 2)
+(lookup "second" b) -> 2
+(lookup "second" b 0) -> "second"
+(lookup "second" b 1) -> 2
+
+Ricerca nella lista associativa: "assoc" restituisce l'intero sottolista, e "lookup" restituisce l'ultimo elemento della sottolista, o un elemento con l'indice specificato nel terzo parametro.
+
+(Perchè?
+ (tutte
+ (queste parentesi)))
+
+Il codice di un programma LISP è visivamente simile al titolo di questo capitolo. Naturalmente, la cosa più importante che cattura immediatamente l'occhio è l'abbondanza di parentesi :-). E la prima domanda che di solito si pone quando si acquisisce familiarità con LISP è perché usare così tante parentesi quando potrebbero essere sostituite con lo stesso numero di virgole, punti e virgola, parentesi graffe e altre sintassi convenienti?
+
+La risposta si trova in superficie: probabilmente hai già notato la somiglianza tra le liste del LISP e le espressioni del LISP. In effetti, l'espressione LISP è sintatticamente una lista LISP. Inoltre un'espressione può essere trattata come una normale lista – memorizzata in variabili, sottoposta a trasformazioni, passata come parametro di una funzione nella forma di una lista e, ovviamente, verranno eseguite!
+
+Questa è una delle proprietà fondamentali del LISP - l'uso del codice come dati.
+
+Un semplice programma di esempio: movimento in modo casuale nelle quattro direzioni
+
+(setq x 0 y 0); posizione iniziale
+
+(define (up moves) (dec 'y moves))
+; definizione di una funzione con il nome "up",
+; il parametro "sposta", che riduce
+; il valore del carattere "y" per il valore di "moves"
+
+(define (down moves)  (inc 'y moves)); similare
+(define (left moves)  (dec 'x moves))
+(define (right moves) (inc 'x moves))
+
+(setq doings (list up down left right))
+; solo un elenco di caratteri con
+; le funzioni appena definite ;-)
+; funzione list - crea una lista
+
+(seed (date-value)) 
+; inizializza il generatore di numeri random
+
+; spostamento diretto
+dotimes (i 100)
+  ((doings (rand 4)) (rand 5))
+  (println x ":" y))
+
+Analizziamo l'espressione spostamento più in dettaglio:
+
+(dotimes (i 100) espressione1 espressione2 ...) - calcola le "espressioni" 100 volte, mentre il simbolo "i" assume valori​​da 0 a 99.
+
+(rand 4) - genera un numero intero casuale nell'intervallo da 0 a 3.
+
+(doings (rand 4)) - questa forma è stata descritta nel capitolo precedente come "ottenere un elemento da una lista in base all'indice". Di conseguenza: "doings" è una lista, e "(rand 4)" serve come indice.
+
+Vale la pena di guardare la lista delle azioni/moves più da vicino:
+
+doings ->
+ ((lambda (moves) (dec 'y moves))
+  (lambda (moves) (inc 'y moves))
+  (lambda (moves) (dec 'x moves))
+  (lambda (moves) (inc 'x moves)))
+
+Come promesso all'inizio del capitolo, una normale lista può contenere codice di programma! La parola "lambda", che si trova all'inizio di ogni funzione - l'elemento dell'azione, non è un elemento della lista, ma indica che questa lista è una funzione che può essere chiamata. Tali funzioni sono chiamate "funzioni lambda" o "funzioni senza nome." Allo stesso tempo, la funzione lambda è una lista normale, e il primo elemento (zero) della nostra lista lambda è l'elemento "(moves)".
+
+Forse avete una domanda: che dire dei nomi - "up", "down", "left" e "destra"? In realtà, questi nomi sono solo i caratteri delle variabili a cui vengono assegnate le liste lambda come valori:
+
+up -> (lambda (sposta) (dec 'y mosse))
+
+(up 1) -> -1; funzione viene chiamata con il parametro 1
+
+(nth 0 up) -> (moves)
+; poiché indicizzazione implicita non funziona in questo 
+; caso, utilizzare la funzione ennesima per ottenere 
+; l'elemento 0
+
+(setq up-new up)
+
+up-new -> (lambda (moves) (dec 'y moves))
+
+(up-new 1) -> -2; era -1, diminuiamo ancora di uno...
+
+Infatti, le due espressioni seguenti sono identiche:
+
+define (up moves) (dec 'y moves))
+
+setq up '(lambda (moves) (dec' y moves)))
+
+Tuttavia, andiamo avanti con il nostro esempio ...
+
+((doings (rand4)) (rand 5)) - dal momento gli elementi della lista "doings" sono funzioni, si può usare come una normale chiamata a funzione - cioè, sostituire il nome della funzione nell'espressione LISP. Di conseguenza, un numero casuale (rand 5) sarà l'argomento della funzione.
+
+(println expression1 expression2 ...) - stampa i risultati della valutazione delle espressioni-argomenti, completandoli con un avanzamento di riga. Inoltre, la funzione println restituisce il risultato della valutazione dell'ultima espressione dell'argomento.
+
+In conclusione dell'analisi di questo esempio, occorre notare che, con non meno di successo, potremmo fare una lista di "azioni" non dal codice della funzione, ma dai caratteri a cui sono assegnati:
+
+...
+(setq doings' (up down left right))
+...
+(dotimes (i 100)
+  (apply (doings (rand 4)) (list (rand 5)))
+  (println x ":" y))
+
+L'unica nuova funzione qui è "apply" - il suo primo argomento è il nome della funzione che si deve chiamare, e il secondo è un elenco di argomenti a cui questa funzione deve essere applicata.
+ 
+Opportunità simili a quelli descritte e parzialmente rudimentali sono presenti nei linguaggi procedurali, tuttavia, essi sono utilizzati principalmente da programmatori molto esperti nei in momenti di disperazione. Per renderli più amichevoli, la OOP è stata aggiunta ai linguaggi procedurali, che, a sua volta, richiede la decomposizioni in oggetti e rende più complessa la programmazione.
+
+Tuttavia, in LISP, l'uso del codice come dati è una pratica "quotidiana", applicata quando necessario (e anche quando non servirebbe :-).
+
+Alla fine del capitolo, qualche parola sulla OOP in Lisp: In Common Lisp, il sistema di programmazione orientata agli oggetti (CLOS) è implementato come una normale libreria scritta in Common LISP - senza alcuna modifica al linguaggio in se stesso.
+Nel linguaggio newLISP, per la programmazione con gli oggetti, viene proposto un sistema integrato di "contesti" ( "context") – spazi di nomi (namespace) isolati che implementano i principi fondamentali della programmazione orientata agli oggetti in forma più adatta per la scrittura rapida di "script".
+
+LE ECCEZIONI CHE CONFERMANO LE REGOLE.
+--------------------------------------
+
+Nei capitoli precedenti, abbiamo già incontrato un'eccezione insolita alla sintassi armoniosa delle parentesi LISP - il simbolo della apostrofo, una notazione abbreviata per la funzione macro "quote". Infatti, questa funzione è l'unico modo in LISP per impostare una funzione costante (non valutata) come argomento. Cosa che la rende così speciale?
+
+(define (test1 arg) (println arg))
+; definiamo una funzione ordinaria
+(test1 (+ 1 2)) -> 3
+; e prova ...
+
+(define-macro (test2 arg) (println arg))
+; ora definiamo una "inusuale" funzione macro
+(test2 (+ 1 2)) -> (+ 1 2)
+; e prova ...
+
+A differenza delle funzioni ordinarie, in cui gli argomenti vengono valutati automaticamente prima della chiamata, quando si utilizzano le "funzioni macro" viene utilizzato il modello di valutazione "lazy" (pigro), in cui gli argomenti non vengono assolutamente valutati.
+
+Al fine di evitare confusione inutile, è opportuno notare che il termine "macro" in LISP non significa che la funzione viene calcolata/espansa dal preprocessore prima di interpretare (compilare) il codice principale, come avviene nel linguaggio C. – Le funzioni "Macro", così come quelle ordinari, vengono calcolate/valutate direttamente durante l'esecuzione del programma.
+
+La funzione di "quote" è la funzione macro più semplice. Se non fosse definita nel linguaggio, potrebbe essere scritta come segue:
+
+(define-macro (quote a) a)
+; funzione prende un argomento
+; e lo restituisce inalterato (senza valutarlo)
+
+Se si passa un'espressione LISP come argomento a una funzione macro, allora questa espressione in sé (non valutata) sarà disponibile come variabile nel calcolo della funzione macro chiamata. Se si desidera valutarla, è necessario utilizzare la funzione "eval":
+
+(define-macro (test3 arg) (println (eval arg)))
+(test3 (+ 1 2) -> 3
+
+Tale comportamento permette una interessante opportunità:
+
+(define-macro (my-if condition result-true result-false)
+  (let  (_c (eval condition))
+    (and _c (eval result-true))
+    (or  _c (eval result-false))))
+
+(my-if (= 1 1) (println "true") (println "false")) -> "true"
+(my-if (= 1 2) (println "true") (println "false")) -> "false"
+
+La funzione "let" ha la seguente sintassi:
+ 
+(let (character1 expression-value1 character2 expression-value2 ...)
+  action expression
+  action expression
+  ....)
+
+crea e inizializza i caratteri/variabili che agiranno al momento del calcolo delle espressioni-azioni, e cessano di esistere (memoria libera) al momento del ritorno dalla funzione "let". Il risultato della funzione let è il risultato della valutazione dell'ultima espressione.
+
+Le funzioni "and" e "or" sono operatori logici ed operano secondo uno schema evidente: per "or" - se la prima espressione è falsa, la seconda è calcolata, ecc, viene ritornato il risultato della prima espressione vera (true).
+Per "and", rispettivamente.
+
+Così, abbiamo discretamente definito e provato un nuovo costrutto di sintassi - l'operatore più comune di branching condizionale! E la cosa più sorprendente di questo operatore è che esteriormente è indistinguibile da tutti i costrutti della sintassi LISP, compresi quelli incorporati! (built-in)
+Grazie a questa caratteristica, LISP è giustamente chiamato un "meta-linguaggio", o "il linguaggio per la creazione di linguaggi": uno dei metodi di programmazione raccomandati in LISP è quello di creare il proprio linguaggio con la sintassi conveniente per risolvere un problema specifico, e quindi utilizzare questo linguaggio per ottenere il risultato desiderato.
+
+Tra l'altro, durante la creazione di compilatori Common Lisp, la maggior parte della sintassi del linguaggio standard è implementato non nel linguaggio di creazione del compilatore, ma in Common Lisp se stesso, come librerie.
+
+Naturalmente, ci sono modi più complessi e produttivi per costruire le funzioni-macro, basati sula modifica del codice passato loro e la compilazione di nuove espressioni sulla base di questo codice. Durante la scrittura di macro in newLISP non dimenticate di fare la conoscenza con la funzione "letex".
+
+UN PÒ DI COMPUTAZIONE CONDIZIONALE.
+-----------------------------------
+
+Dal momento che abbiamo citato l'operatore condizionale, diamo uno sguardo più da vicino ai calcoli logici in newLISP (il LISP tradizionale ha alcune differenze, in particolare, una diversa interpretazione del concetto di "nil" e regole molto insoliti di uguaglianza).
+La base dei calcoli logici, la logica binaria, è costruita sui valori ​​di "vero" (true) e "falso" (false). In newLISP, il valore "false" utilizza il simbolo "nil". Il secondo scopo di questo carattere è il valore "null" che hanno i caratteri non inizializzati.
+
+Tutti gli altri valori ​​in newLISP sono trattati come true (incluso 0, una stringa vuota e una lista vuota). Per facilità di scrittura, newLISP ha anche un simbolo speciale "true" - alcune funzioni logiche possono restituirlo.
+
+(if condition expression
+    condition expression
+    ...
+    otherwise, expression)
+
+Così appare la vera funzione della ramificazione condizionale. Se la "condition" è vera, allora la corrispondente "espressione" viene eseguita e il calcolo della funzione viene interrotto. Se tutte le "condition" sono false, allora viene eseguita l’espressione "otherwise, expression". Se una qualsiasi "espression" viene valutata, allora il risultato viene restituito come risultato della funzione, altrimenti viene restituito nil.
+Si noti che un "expression" può essere una sola espressione:
+
+(if right (+ x 1))
+
+Se è necessario eseguire una sequenza di espressioni diverse, allora è necessario "racchiuderle" con la funzione "begin":
+
+(if right (begin
+            (+ x 1)
+            (+ y 1)))
+
+"begin" è una semplice funzione per collegare una sequenza di espressioni. Naturalmente, se necessario, invece di questa, è possibile utilizzare la funzione già vista "let" o un altro operatore condizionale o qualcos'altro adatto per il caso.
+
+Notare che l'esempio potrebbe utilizzare dei caratteri UTF-8 per i nomi dei simboli, poichè in newLISP questo è valido.
+
+Un'alternativa al costrutto "if" è la funzione "cond":
+
+(cond (expression condition)
+       (expression condition)
+       ...)
+
+A causa delle parentesi aggiuntive, "expression" può essere una sequenza di diverse espressioni, senza ulteriori contenitori.
+
+E, infine, la regina delle funzioni condizionali è la funzione "case":
+
+(case symbol
+   (test constant expression)
+   (test constant expression)
+   ...
+   (true expressions))
+
+Esempio:
+
+(define (translate n)
+  (case n
+    (1 "one")
+    (2 "two")          
+    (3 "three")
+    (4 "four")
+    (true "Can't translate this")))
+
+ (translate 3) -> "three"
+ (translate 10) -> "Can't translate this"
+
+In questo esempio, il valore del simbolo "n" sarà sequenzialmente confrontato con i "test costanti" 1, 2, 3, ecc. e, se abbinato, l'espressione corrispondente verrà calcolato. Si noti che in questo esempio costanti di tipo stringa sono utilizzate come expressions. The costante finale "true" viene usata per indicare l'azione predefinita.
+
+Ora, utilizzando la funzione "translate", un valore numerico può essere convertito in una stringa numerica.
+
+Va notato che la funzione "caso" ha una particolarità: le "costanti di prova" sono solo costanti, non possono essere delle espressioni da calcolare. Cioè, il seguente programma è sintatticamente valido, ma non porterà al risultato desiderato:
+
+(case n
+   (a "n is equal to a")
+   ((+ a 1) "n is one more than the value of a"))
+
+Il vantaggio di questo comportamento è l'aumento di velocità della funzione "case".
+
+Ma cosa succede se la convenienza è più importante? È molto semplice scrivere una macro:
+
+(define-macro (ecase _v)
+   (eval (append
+           (list 'case _v)
+           (map (fn (_i) (set-nth 0 _i (eval (_i 0))))
+                (args))))))
+Proviamo:
+
+(setq a 1 n 2)
+; assegna a = 1, n = 2
+
+(ecase n
+  (a "n is equal to a")
+  ((+ a 1) "n is one more than the value of a"))
+
+-> "n is one greater than the value of a"
+
+La funzione macro ecase funziona nel seguente modo: nella lista dei suoi argomenti, che è lo stessa di quella della funzione "case", sostituisce tutte le espressioni che sono al posto delle "costanti di prova" con il risultato del loro calcolo - cioè, con altre costanti.
+Poi il simbolo case e il nome della variabile testata vengono aggiunti in cima alla lista convertita.
+Poi l'espressione risultante viene valutata utilizzando la funzione eval.
+
+Il testo di questa macro è ancora un po 'complicato - sarà chiaro dopo i capitoli "Conversione di liste" e "Funzioni anonime".
+
+ASSEGNAZIONE FUNZIONALE TALMENTE "SCOMODA".
+-------------------------------------------
+
+Espressione semplice:
+
+a = 1 + 2;
+
+con newLISP può essere scritta come:
+
+(setq a (+ 1 2)) -> 3
+
+Sembra insolito? Non è ovvia la convenienza di questo metodo? 
+Dai un'occhiata a questo:
+
+(setq a (+ 1 2 3 4 5)) -> 15
+
+Molte delle funzioni LISP standard possono gestire un numero arbitrario di argomenti Qui, naturalmente, si può dire che il vantaggio non è grande - la capacità di indicare in modo statico un elenco arbitrario di argomenti. Tuttavia, non abbiate fretta... 
+È facile notare che gli argomenti della funzione "+" sono una lista. Scriviamo sotto:
+
+(setq L '(1 2 3 4 5)) -> (1 2 3 4 5)
+
+L -> (1 2 3 4 5)
+
+Ora abbiamo una lista. Se potessimo costruire un'espressione dal nome della funzione desiderata e la nostra lista, e potessimo calcolarla, allora l'elaborazione di funzioni di un numero arbitrario di argomenti avrebbe più senso...
+
+(define-macro (my-apply fun lst)
+  (eval (cons fun (eval lst))))
+
+(my-apply + L) -> 15
+
+La funzione "cons", nuova per noi, crea una lista con l'aggiunta di un nuovo elemento (primo argomento) all'inizio di quella esistente (secondo argomento). In realtà, abbiamo già visto la funzione built-in "apply", che fa la stessa come la nostra macro.
+
+(setq a (a + L)) -> 15
+
+La funzione "applica" valuta la funzione indicata dal primo argomento, passando come argomenti la lista del secondo argomento.
+Naturalemente, al posto della funzione "+" ci può essere una qualsiasi altra funzione, compresa una definita dall'utente:
+
+(define (average) (div (apply add (args)) (length (args))))
+-> (lambda () (div (apply add (args)) (length (args))))
+
+(apply average L) -> 3
+
+"add" e "div" sono analoghi delle funzioni e "+" "/", ma funzionano con i numeri in virgola mobile. "args" è una funzione che restituisce tutti gli argomenti non collegati passati alla funzione.
+Così:
+
+(define (f x y) (println "x =" x "y =" y "args =" (args)))
+-> (lambda (x y) (println "x =" x "y =" y "args =" (args)))
+
+(f 1 2 3 4) -> x = 1 y = 2 args = (3 4)
+
+CARATTERISTICHE ANONIME.
+------------------------
+
+In LISP ci sono un sacco di funzioni che, come "apply", prendono altre funzioni come argomenti. Puoi anche scriverne una.
+
+Uno dei più notevoli esempi built-in è la funzione "map".
+
+(map pow '(1 2 3 4)) -> (1 4 9 16)
+; pow – elevamento a potenza
+
+(map first '((1 2 3) (4 5 6) (7 8 9))) ->' (1 4 7)
+; first - restituisce il primo elemento della lista
+
+La funzione "map" viene utilizzata per convertire gli elementi delle lista. La funzione specificata come primo argomento di "map" viene applicata in sequenza (uno per uno) a tutti gli elementi della lista specificata nel secondo argomento. I risultati del calcolo vengono inseriti in una nuova lista, che viene restituita dalla funzione.
+Comunque "map", non sembra molto conveniente nel caso seguente:
+
+(define (third lst) (lst 2))
+ ; there is no third function
+
+(map third '((1 2 3) (4 5 6) (7 8 9))) ->' (3 6 9)
+Abbiamo solo voluto prendere il terzo elemento di ogni sottolista, e per questo abbiamo dovuto pre-definire la funzione. Anche se a volte questo non è affatto dannoso, in generale, mi piacerebbe essere in grado di farne a meno. La funzione "fn" viene in soccorso - il costruttore di liste lambda anonimi:
+
+(map (fn (lst) (lst 2))
+     '((1 2 3) (4 5 6) (7 8 9))) ->' (3 6 9)
+
+La funzione "fn" funziona in modo simile alla funzione di "define", ma e "fn" non assegna la lista lambda creata ad una nome/variabile:
+ 
+(define (third lst) (lst 2)) -> (lambda (lst) (lst 2))
+; in addition, the symbol "third" received a value 
+; the same of lambda list
+
+(fn (lst) (lst 2)) -> (lambda (lst) (lst 2))
+; only lambda list as a result
+; no additional effect
+
+Oltre alla funzione di "fn", c'è un "fn-macro" progettato per creare macro anonime.
+
+Abbiamo già visto una tecnica simile al capitolo "(Perché? (Tutte (queste parentesi)))", ma negli esempi non veniva utilizzata la funzione "fn", ma direttamente la lista lambda, protetta dal simbolo apostrofo:
+
+(fn (lst) (lst 2)) -> (lambda (lst) (lst 2))
+'(lambda (lst) (lst 2)) -> (lambda (lst) (lst 2))
+
+Di conseguenza, queste espressioni sono equivalenti. L'unica differenza è la brevità.
+
+CONVERTIRE LISTE.
+-----------------
+
+Nell'esempio con il "ecase" macro, che abbiamo già incontrato la funzione "lista", che permette di creare liste di singoli elementi:
+
+(setq a 25)
+(list 1 2 3 a) -> (1 2 3 25)
+
+Abbiamo visto anche la funzione di "append", che unisce le liste:
+
+(append '(1 2 3)' (4 5 6)) -> (1 2 3 4 5 6)
+
+E l'esempio con il "my-append" - la funzione "cons", che aggiunge un elemento in cima alla lista:
+
+(cons 1 '(2 3 4)) -> (1 2 3 4)
+(cons '(1 2)' (3 4)) -> ((1 2) 3 4)
+
+In un LISP tradizionale, dove le liste sono rappresentate come una testa e una coda, "cons" svolge un ruolo molto più significativo combinando questi due componenti. In newLISP, le liste sono costruiti su una base "lineare".
+
+Di maggiore interesse sono funzioni progettate per convertire una lista in un’altra. La più semplice e più attesa è la funzione "filter", che filtra la lista, lasciando in essa solo i valori​ ​che soddisfano la condizione data:
+
+; (filter test_function list)
+
+(filter (fn (x) (not (empty? x))) '("abc" "" "def" "jhi" ""))
+  -> ("abc" "def" "jhi")
+
+"empty?" - Una funzione che restituisce "true" se argomento non è una stringa vuota o una lista non vuota. "filter" restituisce una lista in cui rimangono solo gli elementi per cui la funzione di test restituirà true.
+La funzione inversa è "clean":
+
+(clean empty? '("abc" "" "def" "jhi" "")) -> ("abc" "def" "jhi")
+
+Un’altra semplice, ma utile funzione, "join", combina una lista di stringhe in una singola stringa.
+
+(join '("abc" "" "def" "jhi") ":") -> "abc :: def: jhi"
+(join '("abc" 123 "def" "jhi") ":") -> Error! - 123 is not a string
+(join (map string '("abc" 123 "def" "jhi")) ":") -> "abc: 123: def: jhi"
+
+Il primo parametro "join" è un elenco di stringhe, il secondo (opzionale) è un delimitatore di stringa. La funzione utilizzata converte qualsiasi tipo di dati in una rappresentazione di testo.
+
+E, naturalmente, "la più meravigliosa" è la funzione "mappa" discussa nel capitolo precedente. Inoltre, essa può gestire più liste.
+
+(map (fn (x y) (+ x y)) '(1 2 3 4)' (5 6 7 8)) -> (6 8 10 12)
+
+E, data la ben nota funzione "+", è possibile scriverla in modo ancora più semplice:
+
+(map + '(1 2 3 4)' (5 6 7 8)) -> (6 8 10 12)
+
+Ora sapete abbastanza per tornare alla macro "ecase" e vedere come funziona.
+
+METODI DI PROGRAMMAZIONE.
+-------------------------
+
+Se siete armati con competenze di programmazione procedurale, e si tenta di scrivere in LISP (e, in particolare, in newLISP), allora si avrà successo molto presto. Tuttavia, è improbabile che il risultato finale sia superiore agli analoghi in linguaggi ordinari. LISP è un linguaggio funzionale, in cui troviamo le sue leggi di efficienza e i propri metodi di programmazione confortevole.
+
+Caratteristiche di autocontenimento.
+------------------------------------
+
+La accademicamente corretta programmazione funzionale "pura" richiede che le funzioni utilizzate non abbiano "effetti collaterali (side effect)". Cioè, la funzione può elaborare solo i dati che riceve come parametri e l'unico risultato del suo funzionamento deve essere il valore restituito. La funzione non deve utilizzare o modificare le variabili "globali".
+
+Nonostante il fatto che, nella pratica reale, un tale stile non è sempre possibile ed efficace, cercare di avvicinarsi ad essa permette di scrivere il programma in modo più trasparente e rendere gli errori logici più visibili.
+
+Registrazione funzionale.
+-------------------------
+
+Ridurre l'uso di effetti collaterali consente, a sua volta, di aumentare le capacità di registrazione funzionale - quello che normalmente è scritto sotto forma di diverse espressioni in un linguaggio procedurale spesso può essere messo in una sola espressione in LISP. Inoltre, la struttura annidata dell'espressione LISP rivela le connessioni logiche dei suoi componenti. L’aspetto di una notazione funzionale è più simile a un linguaggio naturale, mentre una notazione procedurale non è altro che un elenco di azioni sequenziali (come l’assembler).
+
+Sviluppo dal basso verso l'alto (bottom-up).
+--------------------------------------------
+
+Naturalmente, non si deve aspettare "trasparenza" da un'espressione funzionale di due pagine. Tutti sanno che il codice che è troppo grande può essere diviso in funzioni. L'approccio usuale per linguaggi procedurali ​​è quello di definire un compito, isolare i sottocompiti, e dividerli fino a quando diventa possibile scrivere funzioni separate per la loro soluzione. Se alla fine dello sviluppo le funzioni risultano ancora grandi e complesse, si capisce che era necessario risolvere il problema in modo leggermente diverso ... Questo metodo è chiamato sviluppo top-down.
+In LISP, grazie alle sue proprietà di meta-linguaggio, tutto è fatto al contrario. Per risolvere il problema, l'argomento da risolvere viene indagato e, in base alle capacità di LISP, viene creato un nuovo linguaggio. Quindi, la soluzione del problema viene scritta in questo linguaggio. Se "improvvisamente" si scopre che il piano originale ha subito cambiamenti significativi, questo non è un problema - in un linguaggio ad-hoc non è difficile scrivere qualcosa di nuovo. Questo metodo viene chiamato sviluppo bottom-up.
+
+Un conseguenza particolarmente piacevole dello sviluppo bottom-up è la capacità di usare il linguaggio più appropriato a ciascun livello di risoluzione del problema, che, ancora una volta, può essere facilmente tradotto nella logica del linguaggio naturale.
+
+Auto documentante.
+------------------
+
+A tutto quanto sopra, occorre aggiungere due osservazioni: - non lesinare sui nomi "auto-documentanti" delle funzioni e delle variabili. I nomi "t", "tmp", "ex", ecc sono buoni in sezioni locali di codice. Tuttavia, per i nomi a livello globale, qualcosa come "exit-state" è molto meglio (e non dire che tu digiti lentamente!). A volte per designare un'azione da svolgere solo una volta è meglio scrivere una funzione separata.
+
+Non privatevi della possibilità di scrivere in questo modo:
+
+(do-select ((CustomerName CustomerEmail)
+            : from Customers
+            : where (> CustomerAge 100))
+  (send-email CustomerEmail
+              : subject "Congratulations!"
+              : body (format nil
+                            "Dear ~ A, you won a prize! Call ~ A."
+                            CustomerName company-phone)))
+
+I commenti sono superflui, non è vero?
+
+Questo esempio è scritto in sintassi Common Lisp. Preso da un forum su http://linux.org.ru.
+
+Elaborazione liste.
+-------------------
+
+E, infine, occorre ricordare che LISP è progettato per elaborare liste. Maggiori sono le opportunità di applicare le liste nel problema, maggiori sono le possibilità che l'elaborazione dei dati sia più facile (for free).
+
+FORMATTAZIONE DEL CODICE.
+-------------------------
+
+Ci sono opinioni diverse su come formattare meglio il codice LISP e newLISP. Un metodo abbastanza comodo e "canonico" è descritto qui:
+
+Indentazione.
+-------------
+
+Il rientro standard per l’annidamento delle espressioni è impostato su due spazi.
+
+Il rientro per liste di dati annidate è uno spazio (dal momento che le parentesi di apertura sulla linea precedente possono seguire una dopo l'altra).
+
+Se una funzione ha molti argomenti e il primo si trova sulla stessa riga del nome della funzione, il resto degli argomenti sono convenientemente scritti sotto il primo "in una colonna" (come nell'esempio precedente).
+
+Per funzioni speciali, come "let" o "se", in cui il primo parametro ha un significato speciale, il primo parametro di solito inizia sulla stessa riga del nome della funzione, e il resto su altre linee con una indentazione standard di due spazi:
+
+(if (= ab)
+  (println "equality")
+  (println "inequality"))
+
+Chiusura parentesi.
+-------------------
+
+Le parentesi di chiusura di solito non compaiono su righe separate, come avviene nel linguaggio "C" e simili. Questo è inutile per mettere in evidenza la struttura del programma, dal momento che l’indentazione (i rientri) porta già tutte le informazioni necessarie.
+
+Per controllare l'equilibrio (bilanciamento) delle parentesi, è meglio utilizzare un editor di testo che offre la possibilità di visualizzare automaticamente le coppie di parentesi - tutti i moderni editor per "programmatori" sono in  grado di farlo.
+
+In assenza di un editor "corretto", è conveniente per chiudere le parentesi "alla cieca" - usare gli occhi per contare il rientro del codice dal più interno al livello che deve essere completato, per ogni volta che premete ciecamente la parentesi di chiusura sulla tastiera.
+
+SCRIPTING PRATICO.
+------------------
+
+Il compito più comune di scripting è, naturalmente, elaborare file di testo. Il leader assoluto in termini di convenienza qui è AWK - non esiste un linguaggio che potrebbe essere scritto in modo più conciso. Purtroppo, questo è un linguaggio piuttosto debole, che perde rapidamente terreno quando c'è la necessità di elaborare dati complessi. In questa area, Perl ha tradizionalmente dominato.
+
+Per gli stessi compiti, newLISP è una buona scelta. Questo linguaggio supporta anche le espressioni regolari Perl-compatibili (PCRE) e permette l'analisi (parsing) di documenti di testo. La peculiarità dell'uso di newLISP è il suo orientamento per l’elaborazione di liste (mentre lo stile Perl tende all’elaborazione del flusso – stream processing). Ciò significa che quando usiamo newLISP, di solito è più vantaggioso non processare il testo linea per linea, ma di leggere tutto il file, dividerlo in una lista che contiene le sue parti (linee, parole, righe) e quindi elaborarle utilizzando tutta la potenza del LISP.
+
+Ad esempio, si consideri un compito semplice: Supponiamo che il file "report.txt" contenga un rapporto nella forma seguente:
+
++ ---------------------------- +
+ | Sample Text Report |
++ ---------------------------- +
+ |uid | balance | volume |
++ ---------------------------- +
+ |user1 | 100,000 | 1000 |
+ |user2 | 200,000 | 1234 |
+ ...
+
+e si desidera conoscere l'importo per totale della colonna balance:
+
+(apply +
+  (map (fn (x) (int (x 3) 10))
+       (filter (fn (x) (and (> (length x) 3) (regex "^ [0-9] + $" (x 3))))
+               (map (fn (x) (parse x "* \\ | *" 0))
+                    (parse (read-file "report.txt") "\ n")))))
+
+Nuove funzionalità:
+
+"Read-file" - legge in un file come una unica stringa.
+
+"parse" - divide la linea in una lista di linee in base ai delimitatori specificati. Quando si specificano le opzioni aggiuntive, è possibile utilizzare le espressioni regolari (PCRE).
+
+"\n" è il carattere di fine linea.
+
+"regex" - Ricerca per una corrispondenza della espressione regolare.... Se non la trova, restituisce nil 
+
+"int" - converte una stringa in un intero con la base specificata dal secondo parametro.
+
+Per capire come funziona, scriviamo la stessa cosa, ma più accuratamente:
+
+(define (split-report-line str)
+  (map (fn (x) (parse x "* \\ | *" 0))
+       str))
+
+(define (line-has-data? lst)
+  (and (> (length lst) 3) (regex "^ [0-9] + $" (lst 3))))
+
+(apply +
+  (map (fn (x) (int (x 3) 10))
+       (filter line-has-data?
+               (map split-report-line
+                    (parse (read-file "report.txt") "\ n")))))
+
+Ora il codice principale praticamente non ha bisogno di commenti. In breve: 
+1) il file di report viene letto (nella sua interezza), 
+suddiviso in una lista di righe, 
+2) le linee sono divise in elementi, 
+3) le linee contenenti dati per l'analisi vengono filtrate, 
+4) il quarto elemento viene preso da ogni riga (indice -3) e convertito in un numero, 
+5) la lista risultante viene sommmata.
+
+Due funzioni ausiliarie sono evidenti: la prima separa la stringa con una espressione regolare (e rimuove tutti gli spazi aggiuntivi in ​​uno), la seconda cerca nella lista divisa in stringhe il valore numerico nel quarto elemento (quello che interessa a noi).
+
+Forse in Perl è possibile scrivere un programma più compatto. Tuttavia, non bisogna dimenticare che il risultato principale di questo script è quello di ottenere una lista di tutti gli elementi del report che possono poi essere raggruppati, filtrati, correlati e manipolati con tutta la ricchezza delle funzioni per l’elaborazione delle liste.
+
+-------------------
+Qui mi permetto di interrompere il racconto, visto che è stato scritto abbastanza, e si può cedere al desiderio di vedere cosa si può fare con questo linguaggio ...
+-------------------
+
+IN CONCLUSIONE, QUALCHE PAROLA SULLE CARATTERISTICHE DEL LINGUAGGIO newLISP.
+----------------------------------------------------------------------------
+
+newLISP è stato creato ed è attivamente sviluppato grazie agli sforzi di Lutz Mueller. Si tratta di un interprete scritto in puro C, utilizzando solo la libreria standard libc. Questa implementazione ha reso newLISP un linguaggio multipiattaforma che funziona allo stesso modo in molti sistemi Unix, tutte le versioni di M$ di Windows, e sotto MacOS X.
+Nonostante le sue dimensioni in miniatura - un file binario di circa 300k, newLISP ha molte caratteristiche, tra cui:
+
+• TCP/IP, uso di network deamon e supporto HTTP
+• Spawn dei processi, semafori, segnali, timer
+• Utilizzo di funzioni da librerie dinamiche (.so, .dll, etc.)
+• PCRE espressioni regolari
+• parser XML
+• Interfaccia per TCL/Tk (distribuzione di Windows include Tk Graphics Library)
+• sistema di unificazione che permette di implementare la logica in stile Prolog
+• classificatori bayesiani (utilizzando librerie aggiuntive dal kit di distribuzione)
+• Supporto Unicode
+• Molte funzioni matematiche
+
+newLISP è pubblicato con licenza GNU GPL con sorgenti e binari disponibili presso http://newlisp.org. Sullo stesso sito avrete accesso a una eccellente documentazione (in inglese), link utili, suggerimenti e un forum accogliente (in inglese).
+Tra la documentazione, vale la pena evidenziare i documenti "ufficiali" estremamente utili:
+"newLISP Manual and Reference" - un riferimento alla lingua e alla
+"Code Patterns in newLISP" - una descrizione delle tecniche di programmazione per tutte le principali aree di applicazione del linguaggio.
+
+Il sito dell'autore di questo articolo si trova a http://en.feautec.pp.ru. Si possono trovare diverse librerie utili e un repository non ufficiale Debian.
+
+
+RINGRAZIAMENTI
+--------------
+
+Ai visitatori di linux.org.ru alcuni dei loro commenti sono stati molto interessanti.
+
+Alex dal forum di newLISP per i commenti sullo stile.
+
+
+LICENZA
+-------
+
+This text may be freely distributed in whole or in part on electronic networks, provided that information about the author and the original site is stored - http://en.feautec.pp.ru.
+
+Any modification of the text is allowed under the following conditions:
+- reflection of the fact of modification in the line with the version number at the beginning of the document,
+- notification of the author by e-mail specified in the Copyright document,
+- unconditional consent to include any fragments of the changes in the original version of the document (with reflection authorship in the Acknowledgments section).
+
+Any reproduction of this document in the form of hard copies (on paper or electronic media), with the exception of newLISP distributions and distributions of free operating systems, is allowed only with the written consent of the author.
+
+(C) 2006, Dmitry Chernyak losthost@narod.ru.
+
 
 ============================================================================
 Sul linguaggio newLISP - FAQ di Lutz Mueller
@@ -33604,7 +34875,7 @@ Sui sistemi Win32, newLISP è stato utilizzato all'interno di MS Excel, MS Visua
 19. Copyright sui miei script anche se newLISP è concesso in licenza GPL?
 -------------------------------------------------------------------------
 Si, puoi. Le FAQ di gnu.org per la GPL lo spiegano. Finché i tuoi script non usano altro software GPL di terze parti sotto forma di librerie importate o moduli caricati, i tuoi script in newLISP non devono necessariamente avere una licenza GPL. La maggior parte dei moduli sul sito Web di newLISP non ha licenza e non importa altre librerie. Se lo fanno, consultare le licenze di quelle librerie di terze parti.
-newLISP ti permette di distribuire un binario dell'interprete insieme al closed source. Quando si utilizza newLISP nel software, menzionare sempre il sito Web www.newLISP.org nella documentazione come luogo in cui è disponibile il codice sorgente per newLISP.
+newLISP ti permette di distribuire un binario dell'interprete insieme al tuo sorgente. Quando si utilizza newLISP nel software, menzionare sempre il sito Web www.newLISP.org nella documentazione come luogo in cui è disponibile il codice sorgente per newLISP.
 
 20. Dove posso segnalare eventuali bug?
 ---------------------------------------
@@ -33619,6 +34890,8 @@ Si. Il comando: newLISP -x "myscript.lsp" "myscript.exe" genera un file eseguibi
 Notepad++ bundle
 ============================================================================
 
+How to use notepad++ with newLISP.
+
 Download: https://github.com/cameyo42/notepadpp-newLISP
 
 Add newLISP syntax highlighting
@@ -33626,7 +34899,7 @@ Add newLISP syntax highlighting
 Copy all the text of the file: newLISP-udl.xml
 and paste it inside the section:<NotepadPlus> ... </NotepadPlus>
 of the file: userDefineLang.xml (located at: c:\Users\<username>\AppData\Roaming\Notepad++\)
-CODE: SELECT ALL
+
 Example
 <NotepadPlus>
     <UserLang name="newLISP" ext="lsp" udlVersion="2.1">
@@ -33694,6 +34967,48 @@ Note:
 The script npp-newLISP.ahk exchange the brackets () and [] in the keyboard.
 You can edit the file to disable this (you must comment two lines).
 The script also enable other shortcuts... see the source.
+
+
+============================================================================
+Visual Studio Code e newLISP
+============================================================================
+
+You can use VSCode with newLISP.
+
+Add these lines to the file "keybindings.json":
+
+1. Shift+Enter to run selected text or current line
+
+{ "key": "shift+enter",
+  "command": "workbench.action.terminal.runSelectedText, "when": "editorTextFocus"}
+  
+2. switch editor <--> terminal
+
+{ "key": "ctrl+`", "command": "workbench.action.focusActiveEditorGroup", "when": "terminalFocus" },
+{ "key": "ctrl+`", "command": "workbench.action.terminal.focus", "when": "!terminalFocus" },
+
+Now, open Terminal and run newlisp.exe (type newlisp.exe)
+
+Now type (+ 1 2 3) and press Shift+Enter:
+;-> 6
+
+(define (sum a b) (add a b))
+;-> (lambda (a b) (add a b))
+
+(sum 2 3)
+;-> 5
+
+To move the Terminal window to the right, right click on Terminal menu bar and select "Move Panel to Right".
+
+You can use the autohotkey script "vscode.ahk":
+
+Ctrl-Alt-q insert:
+;-> 
+
+Ctrl-Alt-w insert:
+[cmd]
+
+[/cmd]
 
 
 ============================================================================
@@ -35692,6 +37007,9 @@ Frasi Famose sulla Programmazione e sul Linguaggio Lisp
 
   Enciclopedia libera:
   https://www.wikipedia.org/
+  
+  Programming Praxis - La programmazione, come qualsiasi attività creativa, richiede costante studio e pratica:
+  https://programmingpraxis.com/
 
   LeetCode - La piattaforma leader nel mondo per l'apprendimento online della programmazione:
   https://leetcode.com/
@@ -35701,7 +37019,8 @@ Frasi Famose sulla Programmazione e sul Linguaggio Lisp
 
   "The Art of Computer Programming", Donald Knuth, 4 volumi
   
-  "Introduction to Algorithms", Cormen-Leiserson-Rivest-Stein, 3 ed, 2009
+  "Introduction to Algorithms", Cormen-Leiserson-Rivest-Stein, 3ed, 2009
   
+  "Teoria e Progetto di Algoritmi Fondamentali", Ausiello-Marchetti-Spaccamela-Protasi, 1985
   
-  
+  "Land of Lisp", Conrad Barsky, 2011
