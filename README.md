@@ -1,9 +1,7 @@
-================================  
  Note su newLISP  
  © copyright Massimo Corinaldesi  
  MIT License  
-================================  
-  
+    
 Appunti sul linguaggio newLISP  
   
 00) Indice  
