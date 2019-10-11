@@ -2690,6 +2690,7 @@ Vediamo la velocità di esecuzione:
 
 Questa funzione è 2 volte più veloce della versione iterativa.
 
+
 ------------------------------------------------------
 Prodotto massimo di due numeri in una lista (Facebook)
 ------------------------------------------------------
@@ -2736,5 +2737,48 @@ Alla fine del ciclo, confrontare i prodotti dei primi due e degli ultimi due e s
 ;-> (-34 -18 612)
 
 Complessità temporale: O(n) (lineare)
+
+
+----------------------------
+Invertire le vocali (Google)
+----------------------------
+
+Scrivere una funzione che data una stringa ne inverte solo le vocali.
+Usiamo due puntatori che attraversono l'array nelle due direzioni.
+
+(define (vocali str)
+  (local (i j t)
+    (setq i 0 j (- (length str) 1))
+    ; fino a che l'indice da sinistra è minore dell'indice da destra...
+    (while (< i j)
+      ; avanti fino ad una vocale (o indici uguali)
+      (until (or (find (str i) "aeiouAEIOU") (= i j)) (++ i))
+      ; indietro fino ad una vocale (o indici uguali)
+      (until (or (find (str j) "aeiouAEIOU") (= i j)) (-- j))
+      ; scambiamo di posto le due vocali trovate
+      (setq t (str i))
+      (setf (str i) (str j))
+      (setf (str j) t)
+      (++ i)
+      (-- j)
+    )
+    str
+  )
+)
+
+(vocali "pippo")
+;-> "poppi"
+
+(vocali "eva")
+;-> "ave"
+
+(vocali "sfgchjkv")
+;-> sfgchjkv
+
+(vocali "stra")
+;-> "stra"
+
+(vocali "")
+;-> ""
 
 

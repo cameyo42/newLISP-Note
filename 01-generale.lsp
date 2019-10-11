@@ -4443,6 +4443,211 @@ Si noti che non è possibile utilizzare la stampa fine per impedire la stampa de
 (print (string my-expression))
 
 
+===========================
+ STRUTTURA DATI: IL RECORD
+===========================
+
+Un record (noto anche come struttura) è un tipo di dato strutturato che comprende diversi elementi (detti campi o membri) di tipo diverso. Nei record il numero e il tipo dei campi vengono stabiliti nella sua definizione iniziale. I record sono impiegati tipicamente nell'implementazione delle strutture dati plain old data (POD).
+Nei linguaggi di programmazione orientata agli oggetti, un oggetto può avere dei campi che agiscono come funzioni o procedure che manipolano i dati memorizzati.
+
+Un esempio di record è il seguente:
+
+Nome record: PERSONA
+Campi:
+ 1) nome (stringa)
+ 2) età  (intero)
+ 3) lavoro (true|false)
+ 4) indirizzo (sub-record)
+4a)     via (stringa)
+4b)   città (stringa)
+4c)   paese (stringa)
+ 5) figli (sub-record)
+5a)    nome (stringa)
+5b)     età (intero)
+
+In newLISP un record può essere implementato tramite le liste di associazione.
+Una lista associativa è una "lista di liste", in cui il primo elemento è utilizzato come chiave per la ricerca:
+
+((chiave1 valore1_1 valore1_2) (chiave2 valore2_1 valore2_2) ...)
+
+Esempio:
+
+(setq alst '( (1 Cuori) (2 Quadri)  (3 Fiori) (4 Picche)))
+
+Per la ricerca nelle liste associative, si utilizzano le funzioni "assoc" e "lookup".
+
+(assoc 2 alst)
+;-> (2 Quadri)
+
+(lookup 4 alst)
+;-> Picche
+
+Adesso vediamo la loro definizione:
+
+*******************
+>>> funzione ASSOC
+*******************
+sintassi: (assoc exp-key list-alist)
+sintassi: (assoc list-exp-key list-alist)
+
+Nella prima sintassi il valore di exp-key (chiave) viene utilizzato per cercare nella lista list-alist una sottolista il cui primo elemento corrisponde al valore della chiave. Se trovato, viene restituita la sottolista. In caso contrario, il risultato sarà nil.
+
+(assoc 1 '((3 4) (1 2)))
+;-> (1 2)
+
+(set 'data '((apples 123) (bananas 123 45) (pears 7)))
+
+(assoc 'bananas data)
+;-> (bananas 123 45)
+(assoc 'oranges data)
+;-> nil
+
+Insieme a "setf" la funzione "assoc" può essere usata per modificare un'associazione.
+
+(setf (assoc 'pears data) '(pears 8))
+data
+;-> ((apples 123) (bananas 123 45) (pears 8))
+
+Nella seconda sintassi è possibile specificare più espressioni-chiave per la ricerca di liste associative annidate in più livelli:
+
+(set 'persons '(
+    (id001 (name "Anne") (address (country "USA") (city "New York")))
+    (id002 (name "Jean") (address (country "France") (city "Paris")))
+))
+
+(assoc '(id001 address) persons)
+;-> (address (country "USA") (city "New York"))
+(assoc '(id001 address city) persons)
+;-> (city "New York")
+
+La lista in list-aList può essere un contesto (context) che verrà interpretato come il suo funtore di default. In questo modo è possibile passare per riferimento liste molto grandi per un accesso più rapido e un minore utilizzo della memoria:
+
+(set 'persons:persons '(
+    (id001 (name "Anne") (address (country "USA") (city "New York")))
+    (id002 (name "Jean") (address (country "France") (city "Paris")))
+))
+
+(define (get-city db id)
+    (last (assoc (list id 'address 'city) db ))
+)
+
+(get-city persons 'id001)
+;-> "New York"
+
+Per effettuare sostituzioni nelle liste di associazioni, utilizzare "setf" insieme alla funzione "assoc". La funzione "lookup" viene utilizzata per eseguire la ricerca di associazione e l'estrazione dell'elemento in un solo passaggio.
+
+********************
+>>> funzione LOOKUP
+********************
+sintassi: (lookup exp-key list-assoc [int-index [exp-default]])
+
+Cerca, nella lista di associazione list-assoc, una sottolista, il cui elemento chiave ha lo stesso valore di exp-key e restituisce l'elemento int-index dell'associazione (o l'ultimo elemento se int-index è assente).
+
+Facoltativamente, è possibile specificare exp-default, che viene restituita se non è possibile trovare un'associazione corrispondente a exp-key. Se exp-default è assente e non è stata trovata alcuna associazione, viene restituito nil.
+
+Vedi anche l'indicizzazione delle liste e delle stringhe.
+
+La ricerca è simile a quella della funzione "assoc", ma fa un ulteriore passo estraendo un elemento specifico trovato nella lista.
+
+(set 'params '(
+    (name "John Doe")
+    (age 35)
+    (gender "M")
+    (balance 12.34)
+))
+
+(lookup 'age params)
+;-> 35
+
+; utilizzata insieme a setf per modificare una lista di associazione
+
+(setf (lookup 'age params) 42)
+;-> 42
+(lookup 'age params)
+;-> 42
+
+(set 'persons '(
+    ("John Doe" 35 "M" 12.34)
+    ("Mickey Mouse" 65 "N" 12345678)
+))
+
+(lookup "Mickey Mouse" persons 2)
+;-> "N"
+(lookup "Mickey Mouse" persons -3)
+;-> 65
+(lookup "John Doe" persons 1)
+;-> 35
+(lookup "John Doe" persons -2)
+;-> "M"
+(lookup "Jane Doe" persons 1 "N/A")
+;-> "N/A"
+
+Ritornando all'esempio iniziale del record, possiamo definire una lista di associazione per rappresentare la sua struttura:
+
+Record                             Lista associativa
+
+ 1) nome (stringa)                 ( ("nome" "Pietro Rossi")
+ 2) età  (intero)                    ("eta" 42)
+ 3) lavoro (true|false)              ("lavoro" true)
+ 4) indirizzo (sub-record)           ("indirizzo" (
+4a)     via (stringa)                    ("via" "Mazzini, 104.")
+4b)   città (stringa)                    ("citta" "Roma")
+4c)   paese (stringa)                    ("paese" "Italia")) )
+ 5) figli (sub-record)               ("figli" (
+5a)    nome (stringa)                    (("nome" "Eva")  ("eta" 7))
+5b)     età (intero)                     (("nome" "Lisa") ("eta" 4))
+                                         (("nome" "Luca") ("eta" 3))) ) )
+
+Notare che il campo "figli" ha un numero variabile di elementi.
+
+Una volta definita la lista associativa che rappresenta il record, dobbiamo scivere le funzioni che operano su di essi, cioè le funzioni di creazione di un record, ricerca del record, aggiornamento del record, eliminazione del record, ecc.
+
+Per esempio supponiamo di avere il seguente tipo di record:
+
+(setq rec
+ '( ("nome" "Pietro Rossi")
+    ("eta" 42)
+    ("lavoro" true)
+    ("indirizzo" (
+      ("via" "Mazzini, 104.")
+      ("citta" "Roma")
+      ("paese" "Italia")) )
+    ("figli" (
+      (("nome" "Eva")  ("eta" 7))
+      (("nome" "Lisa") ("eta" 4))
+      (("nome" "Luca") ("eta" 3))) ) )
+)
+
+I valori possono essere estratti con le funzioni "assoc", "lookup" o "ref":
+
+; indirizzo
+(lookup "indirizzo" rec)
+;-> (("via" "Mazzini, 104.") ("citta" "Roma") ("paese" "Italia"))
+
+; la citta dell'indirizzo
+(lookup "citta" (lookup "indirizzo" rec))
+;-> "Roma"
+
+; una figlia di nome Eva
+(ref '(( * "Eva") *) rec match true)
+;-> (("nome" "Eva") ("eta" 7))
+
+; tutti i nomi
+(map last (ref-all '("nome" *) rec match true))
+;-> ("Pietro Rossi" "Eva" "Lisa" "Luca")
+
+; solo i nomi dei figli
+(map last (ref-all '("nome" *) (lookup "figli" rec) match true))
+;-> ("Eva" "Lisa" "Luca")
+
+; solo i nomi dei figli (altro metodo)
+(map last (map first (lookup "figli" rec)))
+;-> ("Eva" "Lisa" "Luca")
+
+I record possono essere memorizzati utilizzando una lista, un vettore, un file XML o JSON, ecc.
+Comunque le prestazioni sono accettabili soltanto fino ad un migliaia di record, poi sarebbe meglio utilizzare un DBMS (esempio: SQLite).
+
+
 =====================================
  AMBITO (SCOPE) DINAMICO E LESSICALE
 =====================================
@@ -5321,7 +5526,6 @@ Con i contesti è un processo in due passaggi: il primo elimina i contenuti del 
 L'eliminazione dei contesti in due fasi è necessaria quando lo stesso simbolo viene utilizzato come contesto, quindi il contenuto del contesto viene eliminato, e poi lo stesso simbolo ottiene nuovamente un contesto.
 
 
-
 ======================
  CAR E CDR IN newLISP
 ======================
@@ -5411,6 +5615,24 @@ Possiamo definire queste funzioni in newLISP:
 
 (caddr '(7 3 5))
 ;-> 5
+
+Per ottimizzare le funzioni sarebbe meglio scrivere:
+
+(define car first)
+;-> first@4071B9
+(define cdr rest)
+;-> rest@4072CA
+
+In questo modo newLISP lavora molto più velocemente:
+
+(define (car1 x)    (first x))
+(define (cdr1 x)    (rest x))
+
+(time (car '(1 2 3 4 5 6 7 8 9 0)) 10000000)
+;-> 171.873
+
+(time (car1 '(1 2 3 4 5 6 7 8 9 0)) 10000000)
+;-> 1468.897
 
 
 ====================

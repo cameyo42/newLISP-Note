@@ -5207,6 +5207,16 @@ Complessità temporale: O(log(n))
 
 Potete trovare un algoritmo più efficiente che utilizza il metodo delle "addiction chain" nel libro di Donald Knuth "The Art of Computer Programming".
 
+Questa è una versione fornita da Lutz su forum di newLISP:
+
+(define (** x p)
+    (let (y 1L)
+        (dotimes (i p)
+            (set 'y (* y x)))))
+
+(** 10 53)
+;-> 100000000000000000000000000000000000000000000000000000L
+
 
 --------------------
 NUMERI DI TRIBONACCI
@@ -5350,7 +5360,7 @@ Proviamo:
 
 Da notare che possiamo calcolare numeri con al massimo 10 cifre, poichè la matrice "pot" contiene solo le prime dieci potenze (da 0 a 9) di ogni cifra (da 0 a 9).
 
-Funzione che converte un intero in una lista di cifre 
+Funzione che converte un intero in una lista di cifre
 
 (define (int2list n)
   (let (out '())
@@ -5443,16 +5453,171 @@ La nostra funzione non è in grado di calcolarlo...in tempo.
 I numeri eureka sono un numero finito e l'ultimo termite ha un massimo di 22 cifre. Perchè?
 Dato un numero naturale n di m cifre. Risulta che:
 
-10^(m-1) <= n 
+10^(m-1) <= n
 
-e 
+e
 
-n <= 9 + 9^2 + ... 9^m = 9*(9^m-1)/8 < (9^(m+1))/8 
+n <= 9 + 9^2 + ... 9^m = 9*(9^m-1)/8 < (9^(m+1))/8
 
 Quindi:
 
-10^(m-1) < (9^(m+1))/8. 
+10^(m-1) < (9^(m+1))/8.
 
 Facendo il logaritmo di entrambe le parti e risolvendo l'equazione si ottiene: m < 22.97.
+
+
+-------------------
+ABITAZIONI MULTIPLE
+-------------------
+
+I signori Baker, Cooper, Fletcher, Miller e Smith vivono su piani diversi in un condominio che ha cinque piani. Si conoscono le seguenti informazioni:
+
+1) Baker non vive all'ultimo piano.
+2) Cooper non vive al piano inferiore.
+3) Fletcher non vive né al piano superiore né al piano inferiore.
+4) Miller vive a un piano più alto di Cooper.
+5) Smith non vive su un piano adiacente a quello di Fletcher.
+6) Fletcher non vive su un piano adiacente a quello di Cooper.
+
+Dove vivono tutti?
+
+Possiamo risolvere questo problema utilizzando la funzione non-deterministica "amb".
+
+(define (dove n)
+  (local (i baker cooper fletcher miller smith found)
+    (setq i 1 found nil)
+    ; inizializzazione generatore random
+    ; la funzione "amb" usa il generatore random
+    (seed (time-of-day))
+    (while (and (< i n) (= found nil))
+      ; genera una disposizione random degli inquilini
+      (setq baker (amb 1 2 3 4 5))
+      (setq cooper (amb 1 2 3 4 5))
+      (setq fletcher (amb 1 2 3 4 5))
+      (setq miller (amb 1 2 3 4 5))
+      (setq smith (amb 1 2 3 4 5))
+      ; controllo dei vincoli
+      (if (and (not (= baker 5))
+               (not (= cooper 1))
+               (not (= fletcher 5))
+               (not (= fletcher 1))
+               (> miller cooper)
+               (not (= (abs (- smith fletcher)) 1))
+               (not (= (abs (- fletcher cooper)) 1))
+               (= (list baker cooper fletcher miller smith)
+                  (unique (list baker cooper fletcher miller smith))))
+          (begin ; soluzione trovata
+            (setq found true)
+            ; commentare println quando si usa la funzione "time"
+            ;(println (list baker cooper fletcher miller smith))
+            ;(println i)
+          )
+      )
+      (++ i)
+    )
+    (if (not found)
+        ; commentare println quando si usa la funzione "time"
+        ;(println "...nessuna soluzione con " n " tentativi.")
+        ;(println "...risolto.")
+    )
+  )
+)
+
+Il parametro n serve per limitare i tentativi di prova, altrimenti la funzione potrebbe girare all'infinito se la soluzione non esiste.
+
+(dove 100)
+;-> ...nessuna soluzione con 100 tentativi.
+
+(dove 1000)
+;-> (3 2 4 5 1)
+;-> 293
+;-> ...risolto
+
+Il programma non è deterministico, infatti:
+
+(dove 1000)
+;-> ...nessuna soluzione con 1000 tentativi.
+
+(dove 2000)
+;-> ...nessuna soluzione con 2000 tentativi.
+
+(dove 10000)
+;-> (3 2 4 5 1)
+;-> 224
+;-> ...risolto.
+
+(dove 10000)
+;-> (3 2 4 5 1)
+;-> 416
+;-> ...risolto.
+
+(dove 10000)
+;-> (3 2 4 5 1)
+;-> 3302
+;-> ...risolto.
+
+Un programma non deterministico ha un tempo di esecuzione variabile ogni volta che viene eseguito.
+
+Possiamo scrivere anche una funzione deterministica che risolve il problema.
+Numero di posizioni:
+(* 5 5 5 5 5)
+;-> 3125
+
+(define (dove-d)
+  (let (found nil)
+    (for (baker 1 5)
+     (for (cooper 1 5)
+      (for (fletcher 1 5)
+       (for (miller 1 5)
+        (for (smith 1 5)
+          ; controllo dei vincoli
+          (if (and (not (= baker 5))
+                   (not (= cooper 1))
+                   (not (= fletcher 5))
+                   (not (= fletcher 1))
+                   (> miller cooper)
+                   (not (= (abs (- smith fletcher)) 1))
+                   (not (= (abs (- fletcher cooper)) 1))
+                   (= (list baker cooper fletcher miller smith)
+                      (unique (list baker cooper fletcher miller smith))))
+              (begin ; soluzione trovata
+                (setq found true)
+                ; commentare println quando si usa la funzione "time"
+                ;(println (list baker cooper fletcher miller smith))
+              )
+          );if
+    )))));fors
+    ; commentare println quando si usa la funzione "time"
+    ;(if (not found) (println "nessuna soluzione."))
+  );let
+)
+
+(dove-d)
+;-> (3 2 4 5 1)
+
+Vediamo la differenza di velocità tra le due funzioni.
+
+Funzione non-deterministica (non ha un tempo di esecuzione costante):
+
+(time (dove 100000) 1000)
+;-> 1440.525
+
+(time (dove 100000) 1000)
+;-> 1126.112
+
+Funzione deterministica (ha un tempo di esecuzione costante):
+
+(time (dove-d) 1000)
+;-> 852.58
+
+(time (dove-d) 1000)
+;-> 854.525
+
+Comunque con diversi tentativi si possono ottenere risultati sorprendenti con la funzione non-deterministica:
+
+(time (dove 100000) 1000)
+;-> 392.759
+
+In questo caso è stata più veloce della funzione deterministica.
 
 

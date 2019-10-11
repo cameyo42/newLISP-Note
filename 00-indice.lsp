@@ -1,9 +1,9 @@
-============================================================================
 
-+=================+
-| Note su newLISP |
-| by cameyo 2019  |
-+=================+
+============================================================================
+ Note su newLISP
+ © copyright Massimo Corinaldesi
+ MIT License
+============================================================================
 
 ========
 
@@ -12,6 +12,7 @@
 ========
 
 newLISP IN GENERALE
+===================
   Introduzione
   Installazione
   Eseguire newLISP
@@ -57,6 +58,7 @@ newLISP IN GENERALE
   Attraversamento di stringhe
   Uscita anticipata da funzioni, cicli e blocchi
   Lavorare con file di dati (file i/o)
+  Struttura dati: il record
   Ambito (scope) dinamico e lessicale
   Contesti
   Uso dei moduli
@@ -68,6 +70,7 @@ newLISP IN GENERALE
   Espressioni regolari
 
 FUNZIONI VARIE
+==============
   Tabella ASCII
   Pari o dispari
   Crono
@@ -115,6 +118,7 @@ FUNZIONI VARIE
   Valutazione di elementi di una lista
 
 newLISP 99 PROBLEMI (28)
+========================
   N-99-01 Estrarre l'ultimo elemento di una lista
   N-99-02 Estrarre il penultimo elemento di una lista
   N-99-03 Estrarre il k-esimo elemento di una lista
@@ -145,6 +149,7 @@ newLISP 99 PROBLEMI (28)
   N-99-28 Ordinare una lista in base alla lunghezza delle sottoliste
 
 ROSETTA CODE
+============
   FizzBuzz
   Numeri Primi
   Numeri di Smith
@@ -189,11 +194,14 @@ ROSETTA CODE
   Potenza di due numeri interi (big integer)
   Numeri di Tribonacci
   Numeri Eureka
+  Abitazioni multiple
 
 PROJECT EULERO
+==============
   Problemi 1..50
 
 PROBLEMI VARI
+=============
   BubbleSort
   QuickSort
   Simulare una matrice con un vettore
@@ -255,6 +263,7 @@ PROBLEMI VARI
   Numeri con tre divisori
 
 DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
+==================================================
   Notazione Big-O
   Contare i bit di un numero (McAfee)
   Scambiare il valore di due variabili (McAfee)
@@ -281,13 +290,15 @@ DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Stanze e riunioni (Snapchat)
   Bilanciamento parentesi (Facebook)
   K punti più vicini - K Nearest points (LinkedIn)
-  Ordinamento Colori (LeetCode)
+  Ordinamento Colori (LeetCode) 
   Unione di intervalli (Google)
   Somma dei numeri unici (Google)
   Unione di due liste ordinate (Google)
   Prodotto massimo di due numeri in una lista (Facebook)
+  Invertire le vocali (Google)
 
 LIBRERIE
+========
   Operazioni con i numeri complessi
   Operazioni con le frazioni
   Operazioni con i tempi
@@ -295,6 +306,7 @@ LIBRERIE
   Funzioni winapi
 
 NOTE LIBERE
+===========
   Perchè newLISP?
   newLISP facile
   Commentare righe di codice
@@ -321,13 +333,17 @@ NOTE LIBERE
   Ordinare tre numeri
   Conteggio strano
   Funzioni automodificanti
+  I cicli (loops)
+  L'alfabeto web "Leet"
+  Autogrammi
 
 APPENDICI
+=========
   Lista delle funzioni newLISP
   Sul linguaggio newLISP - FAQ (Lutz Mueller)
   F-expression - FEXPR
   newLISP in 21 minuti (John W. Small)
-  newLISP per programmatori ()
+  newLISP per programmatori (Dmitry Chernyak)
   notepad++ plugin
   Visual Studio Code e newLISP
   Debugger
@@ -344,7 +360,34 @@ APPENDICI
   Frasi Famose sulla Programmazione e sul Linguaggio Lisp
 
 BIBLIOGRAFIA / WEB
+==================
 
-============================================================================
+==========================================================================
+
+LICENSE
+
+MIT License
+
+Copyright (c) 2019 Massimo Corinaldesi aka cameyo
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+==========================================================================
 
 

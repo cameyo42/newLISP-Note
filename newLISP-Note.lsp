@@ -1,9 +1,9 @@
-============================================================================
 
-+=================+
-| Note su newLISP |
-| by cameyo 2019  |
-+=================+
+============================================================================
+ Note su newLISP
+ © copyright Massimo Corinaldesi
+ MIT License
+============================================================================
 
 ========
 
@@ -12,6 +12,7 @@
 ========
 
 newLISP IN GENERALE
+===================
   Introduzione
   Installazione
   Eseguire newLISP
@@ -57,6 +58,7 @@ newLISP IN GENERALE
   Attraversamento di stringhe
   Uscita anticipata da funzioni, cicli e blocchi
   Lavorare con file di dati (file i/o)
+  Struttura dati: il record
   Ambito (scope) dinamico e lessicale
   Contesti
   Uso dei moduli
@@ -68,6 +70,7 @@ newLISP IN GENERALE
   Espressioni regolari
 
 FUNZIONI VARIE
+==============
   Tabella ASCII
   Pari o dispari
   Crono
@@ -115,6 +118,7 @@ FUNZIONI VARIE
   Valutazione di elementi di una lista
 
 newLISP 99 PROBLEMI (28)
+========================
   N-99-01 Estrarre l'ultimo elemento di una lista
   N-99-02 Estrarre il penultimo elemento di una lista
   N-99-03 Estrarre il k-esimo elemento di una lista
@@ -145,6 +149,7 @@ newLISP 99 PROBLEMI (28)
   N-99-28 Ordinare una lista in base alla lunghezza delle sottoliste
 
 ROSETTA CODE
+============
   FizzBuzz
   Numeri Primi
   Numeri di Smith
@@ -189,11 +194,14 @@ ROSETTA CODE
   Potenza di due numeri interi (big integer)
   Numeri di Tribonacci
   Numeri Eureka
+  Abitazioni multiple
 
 PROJECT EULERO
+==============
   Problemi 1..50
 
 PROBLEMI VARI
+=============
   BubbleSort
   QuickSort
   Simulare una matrice con un vettore
@@ -255,6 +263,7 @@ PROBLEMI VARI
   Numeri con tre divisori
 
 DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
+==================================================
   Notazione Big-O
   Contare i bit di un numero (McAfee)
   Scambiare il valore di due variabili (McAfee)
@@ -286,8 +295,10 @@ DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Somma dei numeri unici (Google)
   Unione di due liste ordinate (Google)
   Prodotto massimo di due numeri in una lista (Facebook)
+  Invertire le vocali (Google)
 
 LIBRERIE
+========
   Operazioni con i numeri complessi
   Operazioni con le frazioni
   Operazioni con i tempi
@@ -295,6 +306,7 @@ LIBRERIE
   Funzioni winapi
 
 NOTE LIBERE
+===========
   Perchè newLISP?
   newLISP facile
   Commentare righe di codice
@@ -321,13 +333,17 @@ NOTE LIBERE
   Ordinare tre numeri
   Conteggio strano
   Funzioni automodificanti
+  I cicli (loops)
+  L'alfabeto web "Leet"
+  Autogrammi
 
 APPENDICI
+=========
   Lista delle funzioni newLISP
   Sul linguaggio newLISP - FAQ (Lutz Mueller)
   F-expression - FEXPR
   newLISP in 21 minuti (John W. Small)
-  newLISP per programmatori ()
+  newLISP per programmatori (Dmitry Chernyak)
   notepad++ plugin
   Visual Studio Code e newLISP
   Debugger
@@ -344,8 +360,35 @@ APPENDICI
   Frasi Famose sulla Programmazione e sul Linguaggio Lisp
 
 BIBLIOGRAFIA / WEB
+==================
 
-============================================================================
+==========================================================================
+
+LICENSE
+
+MIT License
+
+Copyright (c) 2019 Massimo Corinaldesi aka cameyo
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+==========================================================================
 
 
 =======================
@@ -4793,6 +4836,211 @@ Si noti che non è possibile utilizzare la stampa fine per impedire la stampa de
 (print (string my-expression))
 
 
+===========================
+ STRUTTURA DATI: IL RECORD
+===========================
+
+Un record (noto anche come struttura) è un tipo di dato strutturato che comprende diversi elementi (detti campi o membri) di tipo diverso. Nei record il numero e il tipo dei campi vengono stabiliti nella sua definizione iniziale. I record sono impiegati tipicamente nell'implementazione delle strutture dati plain old data (POD).
+Nei linguaggi di programmazione orientata agli oggetti, un oggetto può avere dei campi che agiscono come funzioni o procedure che manipolano i dati memorizzati.
+
+Un esempio di record è il seguente:
+
+Nome record: PERSONA
+Campi:
+ 1) nome (stringa)
+ 2) età  (intero)
+ 3) lavoro (true|false)
+ 4) indirizzo (sub-record)
+4a)     via (stringa)
+4b)   città (stringa)
+4c)   paese (stringa)
+ 5) figli (sub-record)
+5a)    nome (stringa)
+5b)     età (intero)
+
+In newLISP un record può essere implementato tramite le liste di associazione.
+Una lista associativa è una "lista di liste", in cui il primo elemento è utilizzato come chiave per la ricerca:
+
+((chiave1 valore1_1 valore1_2) (chiave2 valore2_1 valore2_2) ...)
+
+Esempio:
+
+(setq alst '( (1 Cuori) (2 Quadri)  (3 Fiori) (4 Picche)))
+
+Per la ricerca nelle liste associative, si utilizzano le funzioni "assoc" e "lookup".
+
+(assoc 2 alst)
+;-> (2 Quadri)
+
+(lookup 4 alst)
+;-> Picche
+
+Adesso vediamo la loro definizione:
+
+*******************
+>>> funzione ASSOC
+*******************
+sintassi: (assoc exp-key list-alist)
+sintassi: (assoc list-exp-key list-alist)
+
+Nella prima sintassi il valore di exp-key (chiave) viene utilizzato per cercare nella lista list-alist una sottolista il cui primo elemento corrisponde al valore della chiave. Se trovato, viene restituita la sottolista. In caso contrario, il risultato sarà nil.
+
+(assoc 1 '((3 4) (1 2)))
+;-> (1 2)
+
+(set 'data '((apples 123) (bananas 123 45) (pears 7)))
+
+(assoc 'bananas data)
+;-> (bananas 123 45)
+(assoc 'oranges data)
+;-> nil
+
+Insieme a "setf" la funzione "assoc" può essere usata per modificare un'associazione.
+
+(setf (assoc 'pears data) '(pears 8))
+data
+;-> ((apples 123) (bananas 123 45) (pears 8))
+
+Nella seconda sintassi è possibile specificare più espressioni-chiave per la ricerca di liste associative annidate in più livelli:
+
+(set 'persons '(
+    (id001 (name "Anne") (address (country "USA") (city "New York")))
+    (id002 (name "Jean") (address (country "France") (city "Paris")))
+))
+
+(assoc '(id001 address) persons)
+;-> (address (country "USA") (city "New York"))
+(assoc '(id001 address city) persons)
+;-> (city "New York")
+
+La lista in list-aList può essere un contesto (context) che verrà interpretato come il suo funtore di default. In questo modo è possibile passare per riferimento liste molto grandi per un accesso più rapido e un minore utilizzo della memoria:
+
+(set 'persons:persons '(
+    (id001 (name "Anne") (address (country "USA") (city "New York")))
+    (id002 (name "Jean") (address (country "France") (city "Paris")))
+))
+
+(define (get-city db id)
+    (last (assoc (list id 'address 'city) db ))
+)
+
+(get-city persons 'id001)
+;-> "New York"
+
+Per effettuare sostituzioni nelle liste di associazioni, utilizzare "setf" insieme alla funzione "assoc". La funzione "lookup" viene utilizzata per eseguire la ricerca di associazione e l'estrazione dell'elemento in un solo passaggio.
+
+********************
+>>> funzione LOOKUP
+********************
+sintassi: (lookup exp-key list-assoc [int-index [exp-default]])
+
+Cerca, nella lista di associazione list-assoc, una sottolista, il cui elemento chiave ha lo stesso valore di exp-key e restituisce l'elemento int-index dell'associazione (o l'ultimo elemento se int-index è assente).
+
+Facoltativamente, è possibile specificare exp-default, che viene restituita se non è possibile trovare un'associazione corrispondente a exp-key. Se exp-default è assente e non è stata trovata alcuna associazione, viene restituito nil.
+
+Vedi anche l'indicizzazione delle liste e delle stringhe.
+
+La ricerca è simile a quella della funzione "assoc", ma fa un ulteriore passo estraendo un elemento specifico trovato nella lista.
+
+(set 'params '(
+    (name "John Doe")
+    (age 35)
+    (gender "M")
+    (balance 12.34)
+))
+
+(lookup 'age params)
+;-> 35
+
+; utilizzata insieme a setf per modificare una lista di associazione
+
+(setf (lookup 'age params) 42)
+;-> 42
+(lookup 'age params)
+;-> 42
+
+(set 'persons '(
+    ("John Doe" 35 "M" 12.34)
+    ("Mickey Mouse" 65 "N" 12345678)
+))
+
+(lookup "Mickey Mouse" persons 2)
+;-> "N"
+(lookup "Mickey Mouse" persons -3)
+;-> 65
+(lookup "John Doe" persons 1)
+;-> 35
+(lookup "John Doe" persons -2)
+;-> "M"
+(lookup "Jane Doe" persons 1 "N/A")
+;-> "N/A"
+
+Ritornando all'esempio iniziale del record, possiamo definire una lista di associazione per rappresentare la sua struttura:
+
+Record                             Lista associativa
+
+ 1) nome (stringa)                 ( ("nome" "Pietro Rossi")
+ 2) età  (intero)                    ("eta" 42)
+ 3) lavoro (true|false)              ("lavoro" true)
+ 4) indirizzo (sub-record)           ("indirizzo" (
+4a)     via (stringa)                    ("via" "Mazzini, 104.")
+4b)   città (stringa)                    ("citta" "Roma")
+4c)   paese (stringa)                    ("paese" "Italia")) )
+ 5) figli (sub-record)               ("figli" (
+5a)    nome (stringa)                    (("nome" "Eva")  ("eta" 7))
+5b)     età (intero)                     (("nome" "Lisa") ("eta" 4))
+                                         (("nome" "Luca") ("eta" 3))) ) )
+
+Notare che il campo "figli" ha un numero variabile di elementi.
+
+Una volta definita la lista associativa che rappresenta il record, dobbiamo scivere le funzioni che operano su di essi, cioè le funzioni di creazione di un record, ricerca del record, aggiornamento del record, eliminazione del record, ecc.
+
+Per esempio supponiamo di avere il seguente tipo di record:
+
+(setq rec
+ '( ("nome" "Pietro Rossi")
+    ("eta" 42)
+    ("lavoro" true)
+    ("indirizzo" (
+      ("via" "Mazzini, 104.")
+      ("citta" "Roma")
+      ("paese" "Italia")) )
+    ("figli" (
+      (("nome" "Eva")  ("eta" 7))
+      (("nome" "Lisa") ("eta" 4))
+      (("nome" "Luca") ("eta" 3))) ) )
+)
+
+I valori possono essere estratti con le funzioni "assoc", "lookup" o "ref":
+
+; indirizzo
+(lookup "indirizzo" rec)
+;-> (("via" "Mazzini, 104.") ("citta" "Roma") ("paese" "Italia"))
+
+; la citta dell'indirizzo
+(lookup "citta" (lookup "indirizzo" rec))
+;-> "Roma"
+
+; una figlia di nome Eva
+(ref '(( * "Eva") *) rec match true)
+;-> (("nome" "Eva") ("eta" 7))
+
+; tutti i nomi
+(map last (ref-all '("nome" *) rec match true))
+;-> ("Pietro Rossi" "Eva" "Lisa" "Luca")
+
+; solo i nomi dei figli
+(map last (ref-all '("nome" *) (lookup "figli" rec) match true))
+;-> ("Eva" "Lisa" "Luca")
+
+; solo i nomi dei figli (altro metodo)
+(map last (map first (lookup "figli" rec)))
+;-> ("Eva" "Lisa" "Luca")
+
+I record possono essere memorizzati utilizzando una lista, un vettore, un file XML o JSON, ecc.
+Comunque le prestazioni sono accettabili soltanto fino ad un migliaia di record, poi sarebbe meglio utilizzare un DBMS (esempio: SQLite).
+
+
 =====================================
  AMBITO (SCOPE) DINAMICO E LESSICALE
 =====================================
@@ -5671,7 +5919,6 @@ Con i contesti è un processo in due passaggi: il primo elimina i contenuti del 
 L'eliminazione dei contesti in due fasi è necessaria quando lo stesso simbolo viene utilizzato come contesto, quindi il contenuto del contesto viene eliminato, e poi lo stesso simbolo ottiene nuovamente un contesto.
 
 
-
 ======================
  CAR E CDR IN newLISP
 ======================
@@ -5761,6 +6008,24 @@ Possiamo definire queste funzioni in newLISP:
 
 (caddr '(7 3 5))
 ;-> 5
+
+Per ottimizzare le funzioni sarebbe meglio scrivere:
+
+(define car first)
+;-> first@4071B9
+(define cdr rest)
+;-> rest@4072CA
+
+In questo modo newLISP lavora molto più velocemente:
+
+(define (car1 x)    (first x))
+(define (cdr1 x)    (rest x))
+
+(time (car '(1 2 3 4 5 6 7 8 9 0)) 10000000)
+;-> 171.873
+
+(time (car1 '(1 2 3 4 5 6 7 8 9 0)) 10000000)
+;-> 1468.897
 
 
 ====================
@@ -14679,6 +14944,16 @@ Complessità temporale: O(log(n))
 
 Potete trovare un algoritmo più efficiente che utilizza il metodo delle "addiction chain" nel libro di Donald Knuth "The Art of Computer Programming".
 
+Questa è una versione fornita da Lutz su forum di newLISP:
+
+(define (** x p)
+    (let (y 1L)
+        (dotimes (i p)
+            (set 'y (* y x)))))
+
+(** 10 53)
+;-> 100000000000000000000000000000000000000000000000000000L
+
 
 --------------------
 NUMERI DI TRIBONACCI
@@ -14822,7 +15097,7 @@ Proviamo:
 
 Da notare che possiamo calcolare numeri con al massimo 10 cifre, poichè la matrice "pot" contiene solo le prime dieci potenze (da 0 a 9) di ogni cifra (da 0 a 9).
 
-Funzione che converte un intero in una lista di cifre 
+Funzione che converte un intero in una lista di cifre
 
 (define (int2list n)
   (let (out '())
@@ -14915,17 +15190,172 @@ La nostra funzione non è in grado di calcolarlo...in tempo.
 I numeri eureka sono un numero finito e l'ultimo termite ha un massimo di 22 cifre. Perchè?
 Dato un numero naturale n di m cifre. Risulta che:
 
-10^(m-1) <= n 
+10^(m-1) <= n
 
-e 
+e
 
-n <= 9 + 9^2 + ... 9^m = 9*(9^m-1)/8 < (9^(m+1))/8 
+n <= 9 + 9^2 + ... 9^m = 9*(9^m-1)/8 < (9^(m+1))/8
 
 Quindi:
 
-10^(m-1) < (9^(m+1))/8. 
+10^(m-1) < (9^(m+1))/8.
 
 Facendo il logaritmo di entrambe le parti e risolvendo l'equazione si ottiene: m < 22.97.
+
+
+-------------------
+ABITAZIONI MULTIPLE
+-------------------
+
+I signori Baker, Cooper, Fletcher, Miller e Smith vivono su piani diversi in un condominio che ha cinque piani. Si conoscono le seguenti informazioni:
+
+1) Baker non vive all'ultimo piano.
+2) Cooper non vive al piano inferiore.
+3) Fletcher non vive né al piano superiore né al piano inferiore.
+4) Miller vive a un piano più alto di Cooper.
+5) Smith non vive su un piano adiacente a quello di Fletcher.
+6) Fletcher non vive su un piano adiacente a quello di Cooper.
+
+Dove vivono tutti?
+
+Possiamo risolvere questo problema utilizzando la funzione non-deterministica "amb".
+
+(define (dove n)
+  (local (i baker cooper fletcher miller smith found)
+    (setq i 1 found nil)
+    ; inizializzazione generatore random
+    ; la funzione "amb" usa il generatore random
+    (seed (time-of-day))
+    (while (and (< i n) (= found nil))
+      ; genera una disposizione random degli inquilini
+      (setq baker (amb 1 2 3 4 5))
+      (setq cooper (amb 1 2 3 4 5))
+      (setq fletcher (amb 1 2 3 4 5))
+      (setq miller (amb 1 2 3 4 5))
+      (setq smith (amb 1 2 3 4 5))
+      ; controllo dei vincoli
+      (if (and (not (= baker 5))
+               (not (= cooper 1))
+               (not (= fletcher 5))
+               (not (= fletcher 1))
+               (> miller cooper)
+               (not (= (abs (- smith fletcher)) 1))
+               (not (= (abs (- fletcher cooper)) 1))
+               (= (list baker cooper fletcher miller smith)
+                  (unique (list baker cooper fletcher miller smith))))
+          (begin ; soluzione trovata
+            (setq found true)
+            ; commentare println quando si usa la funzione "time"
+            ;(println (list baker cooper fletcher miller smith))
+            ;(println i)
+          )
+      )
+      (++ i)
+    )
+    (if (not found)
+        ; commentare println quando si usa la funzione "time"
+        ;(println "...nessuna soluzione con " n " tentativi.")
+        ;(println "...risolto.")
+    )
+  )
+)
+
+Il parametro n serve per limitare i tentativi di prova, altrimenti la funzione potrebbe girare all'infinito se la soluzione non esiste.
+
+(dove 100)
+;-> ...nessuna soluzione con 100 tentativi.
+
+(dove 1000)
+;-> (3 2 4 5 1)
+;-> 293
+;-> ...risolto
+
+Il programma non è deterministico, infatti:
+
+(dove 1000)
+;-> ...nessuna soluzione con 1000 tentativi.
+
+(dove 2000)
+;-> ...nessuna soluzione con 2000 tentativi.
+
+(dove 10000)
+;-> (3 2 4 5 1)
+;-> 224
+;-> ...risolto.
+
+(dove 10000)
+;-> (3 2 4 5 1)
+;-> 416
+;-> ...risolto.
+
+(dove 10000)
+;-> (3 2 4 5 1)
+;-> 3302
+;-> ...risolto.
+
+Un programma non deterministico ha un tempo di esecuzione variabile ogni volta che viene eseguito.
+
+Possiamo scrivere anche una funzione deterministica che risolve il problema.
+Numero di posizioni:
+(* 5 5 5 5 5)
+;-> 3125
+
+(define (dove-d)
+  (let (found nil)
+    (for (baker 1 5)
+     (for (cooper 1 5)
+      (for (fletcher 1 5)
+       (for (miller 1 5)
+        (for (smith 1 5)
+          ; controllo dei vincoli
+          (if (and (not (= baker 5))
+                   (not (= cooper 1))
+                   (not (= fletcher 5))
+                   (not (= fletcher 1))
+                   (> miller cooper)
+                   (not (= (abs (- smith fletcher)) 1))
+                   (not (= (abs (- fletcher cooper)) 1))
+                   (= (list baker cooper fletcher miller smith)
+                      (unique (list baker cooper fletcher miller smith))))
+              (begin ; soluzione trovata
+                (setq found true)
+                ; commentare println quando si usa la funzione "time"
+                ;(println (list baker cooper fletcher miller smith))
+              )
+          );if
+    )))));fors
+    ; commentare println quando si usa la funzione "time"
+    ;(if (not found) (println "nessuna soluzione."))
+  );let
+)
+
+(dove-d)
+;-> (3 2 4 5 1)
+
+Vediamo la differenza di velocità tra le due funzioni.
+
+Funzione non-deterministica (non ha un tempo di esecuzione costante):
+
+(time (dove 100000) 1000)
+;-> 1440.525
+
+(time (dove 100000) 1000)
+;-> 1126.112
+
+Funzione deterministica (ha un tempo di esecuzione costante):
+
+(time (dove-d) 1000)
+;-> 852.58
+
+(time (dove-d) 1000)
+;-> 854.525
+
+Comunque con diversi tentativi si possono ottenere risultati sorprendenti con la funzione non-deterministica:
+
+(time (dove 100000) 1000)
+;-> 392.759
+
+In questo caso è stata più veloce della funzione deterministica.
 
 
 ================
@@ -29103,6 +29533,7 @@ Vediamo la velocità di esecuzione:
 
 Questa funzione è 2 volte più veloce della versione iterativa.
 
+
 ------------------------------------------------------
 Prodotto massimo di due numeri in una lista (Facebook)
 ------------------------------------------------------
@@ -29149,6 +29580,49 @@ Alla fine del ciclo, confrontare i prodotti dei primi due e degli ultimi due e s
 ;-> (-34 -18 612)
 
 Complessità temporale: O(n) (lineare)
+
+
+----------------------------
+Invertire le vocali (Google)
+----------------------------
+
+Scrivere una funzione che data una stringa ne inverte solo le vocali.
+Usiamo due puntatori che attraversono l'array nelle due direzioni.
+
+(define (vocali str)
+  (local (i j t)
+    (setq i 0 j (- (length str) 1))
+    ; fino a che l'indice da sinistra è minore dell'indice da destra...
+    (while (< i j)
+      ; avanti fino ad una vocale (o indici uguali)
+      (until (or (find (str i) "aeiouAEIOU") (= i j)) (++ i))
+      ; indietro fino ad una vocale (o indici uguali)
+      (until (or (find (str j) "aeiouAEIOU") (= i j)) (-- j))
+      ; scambiamo di posto le due vocali trovate
+      (setq t (str i))
+      (setf (str i) (str j))
+      (setf (str j) t)
+      (++ i)
+      (-- j)
+    )
+    str
+  )
+)
+
+(vocali "pippo")
+;-> "poppi"
+
+(vocali "eva")
+;-> "ave"
+
+(vocali "sfgchjkv")
+;-> sfgchjkv
+
+(vocali "stra")
+;-> "stra"
+
+(vocali "")
+;-> ""
 
 
 ==========
@@ -30808,7 +31282,7 @@ Chiusura transitiva e raggiungibilità in un grafo
 ralph.ronnquist:
 ----------------
 Vediamo come definire una "chiusura transitiva". Data una lista di coppie che rappresenta i link di un grafo, determinare le liste di tutti i nodi connessi transitivamente (in altre parole, unire tutte le sotto-liste che hanno in comune qualche elemento (transitivamente)).
-↔↕
+
 Esempio:
 
  19 ←→ 9 ←→ 4 ←→ 12    3 ←→ 15 ←→ 8    7 ←→ 5 ←→ 0 ←→ 11
@@ -32194,6 +32668,353 @@ Vediamo un altro esempio:
 Il metodo di generare funzioni tramite codice viene utilizzato anche per lo sviluppo di "malware", poichè queste funzioni sono "invisibili" ai programmi anti-virus basati su pattern.
 
 Nota: la scrittura di funzioni (auto) modificanti rende il programma difficile da interpretare e da analizzare con il debugger.
+
+
+---------------
+I cicli (loops)
+---------------
+
+In newLISP sono supportati la maggior parte dei metodi di loop tradizionali. Ogni volta che esiste una variabile di loop, è locale nell'ambito del loop, comportandosi secondo le regole di scoping dinamico all'interno dello spazio dei nomi o del contesto corrente:
+
+*** DOTIMES ***
+; ripete per un numero di volte
+; "i" va da 0 a N - 1
+(dotimes (i N)
+    ....
+)
+
+; dimostra la località di "i"
+(dotimes (i 3)
+    (print i ":")
+    (dotimes (i 3) (print i))
+    (println)
+)
+;-> 0:012
+;-> 1:012
+;-> 2:012
+
+*** DOLIST ***
+; ciclo attraverso una lista
+; la variabile "e" prende il valore di ciascun elemento della lista aList
+(dolist (e aList)
+    ...
+)
+
+La funzione "dolist" ha anche una variabile $idx che tiene traccia dell'indice numerico dell'elemento corrente (partendo da 0):
+
+(dolist (e '(a b c d)) (println (list $idx e)))
+;-> (0 a)
+;-> (1 b)
+;-> (2 c)
+;-> (3 d)
+
+*** DOSTRING ***
+; ciclo attraverso una stringa
+; "e" prende il valore ASCII o UTF-8 di ogni carattere della string aString
+(dostring (e aString)
+    ...
+)
+
+*** DOTREE ***
+; ciclo attraverso i simboli di un contesto
+; ordinati in ordine alfabetico
+(dotree (s CTX)
+    ...
+)
+
+*** FOR ***
+; ciclo che parte da un valore "init",
+; termina quando "i" diventa uguale a "N",
+; con passo opzionale "step".
+; Il segno del passo è irrilevante (dipende solo da N e init)
+(for (i init N step)
+    ...
+)
+
+(for (i 1 9) (print i))
+;-> 123456789
+
+(for (i 1 9 2) (print i))
+;-> 13579
+
+(for (i 9 1 -2) (print i))
+;-> 97531
+
+(for (i 9 1 2) (print i))
+;-> 97531
+
+*** WHILE ***
+; ciclo finchè una condizione è vera;
+; prima controlla la condition, poi esegue il corpo
+(while condition
+    ...
+)
+
+*** UNTIL ***
+; ciclo finchè una condizione è falsa;
+; prima controlla la condition, poi esegue il corpo
+(until condition
+    ...
+)
+
+*** DO-WHILE ***
+; ciclo finchè una condizione è vera;
+; prima esegue il corpo poi controlla la condition.
+; Il corpo viene eseguito almeno una volta.
+(do-while condition
+    ...
+)
+
+*** DO-UNTIL ***
+; ciclo finchè una condizione è falsa;
+; prima esegue il corpo poi controlla la condition.
+; Il corpo viene eseguito almeno una volta.
+(do-until condition
+    ...
+)
+
+Le funzioni di loop "dolist", "dotimes" e "for" possono anche prendere una condizione di interruzione (break) come argomento aggiuntivo. Quando la condizione di interruzione restituisce true, il ciclo termina:
+
+(dolist (x '(a b c d e f g) (= x 'e))
+    (print x))
+;->  abcd
+
+
+---------------------
+L'alfabeto web "Leet"
+---------------------
+
+L'alfabeto Leet ("Leet") è un altro alfabeto per il linguaggio inglese usato principalmente su internet e sulla messaggistica.
+Alcune lettere vengono sosituite con delle cifre. In genre si ha la seguente corrispondenza:
+
+0 = O
+1 = I
+2 = Z
+3 = E
+4 = A
+5 = S
+6 = G
+7 = T
+8 = B
+9 = J
+
+Possiamo scrivere una funzione che converte una stringa in linguaggio Leet.
+
+(setq leet '((O 0) (I 1) (Z 2) (E 3) (A 4) (S 5) (G 6) (T 7) (B 8) (9 J)))
+
+(define (toLeet str)
+  (local (out)
+    (setq out (explode (upper-case str)))
+    (set-ref-all "O" out "0")
+    (set-ref-all "I" out "1")
+    (set-ref-all "Z" out "2")
+    (set-ref-all "E" out "3")
+    (set-ref-all "A" out "4")
+    (set-ref-all "S" out "5")
+    (set-ref-all "G" out "6")
+    (set-ref-all "T" out "7")
+    (set-ref-all "B" out "8")
+    (set-ref-all "J" out "9")
+    (join out)
+  )
+)
+
+(toLeet "Questa frase convertita in Leet")
+;-> "QU3574 FR453 C0NV3R7174 1N L337"
+
+Nota che set-ref-all restituisce la stringa modificata oppure nil se non avviene nessuna modifica.
+
+(set-ref-all "C" '("C" "V" "B" "C") "Z")
+;-> ("Z" "V" "B" "Z")
+
+(set-ref-all "A" '("C" "V" "B" "C") "Z")
+;-> nil
+
+Possiamo scrivere la funzione anche in un altro modo:
+
+(define (toLeet str)
+  (local (out)
+    (setq out (explode (upper-case str)))
+    (dolist (el out)
+      (if (= el "O") (setq (out $idx) "0"))
+      (if (= el "I") (setq (out $idx) "1"))
+      (if (= el "Z") (setq (out $idx) "2"))
+      (if (= el "E") (setq (out $idx) "3"))
+      (if (= el "A") (setq (out $idx) "4"))
+      (if (= el "S") (setq (out $idx) "5"))
+      (if (= el "G") (setq (out $idx) "6"))
+      (if (= el "T") (setq (out $idx) "7"))
+      (if (= el "B") (setq (out $idx) "8"))
+      (if (= el "J") (setq (out $idx) "9"))
+    )
+    (join out)
+  )
+)
+
+(toLeet "Questa frase convertita in Leet")
+;-> "QU3574 FR453 C0NV3R7174 1N L337"
+
+
+----------
+Autogrammi
+----------
+
+Un autogramma (in greco: αὐτός = sé, γράμμα = lettera) è una frase autodescrittiva nel senso che fornisce la lista dei suoi caratteri. Sono stati inventati da Lee Sallows, che ha anche coniato la parola autogramma. Una caratteristica essenziale è l'uso dei nomi completi dei numeri cardinali come "uno", "due", ecc., nella registrazione dei conteggi dei caratteri. Gli autogrammi sono anche chiamati frasi "auto-enumeranti" o "auto-documentanti". In genere, viene registrato solo il conteggio delle lettere, mentre i segni di punteggiatura vengono ignorati, come in questo esempio (in inglese):
+
+This sentence employs two a's, two c's, two d's, twenty-eight e's, five f's, three g's, eight h's, eleven i's, three l's, two m's, thirteen n's, nine o's, two p's, five r's, twenty-five s's, twenty-three t's, six v's, ten w's, two x's, five y's, and one z.
+
+Se avete tempo potete verificarlo...
+
+Il primo autogramma pubblicato (Sallows 1982) è apparso nella rubrica "Metamagical Themas" di Douglas Hofstadter in Scientific American.
+
+Il compito di produrre un autogramma è intricato e complesso perché l'oggetto da descrivere non può essere conosciuto fino a quando la sua descrizione non è completa.
+
+Per cominciare proviamo a contare le vocali di una frase. Prediamo una frase base con valori iniziali nulli:
+
+(setq a "zero" e "zero" i "zero" o "zero" u "zero")
+(setq base '(0 0 0 0 0))
+(setq str (string a " a, " e " e, " i " i, " o " o " "e " u " u."))
+;-> "zero a, zero e, zero i, zero o e zero u."
+
+Poi contiamo le vocali nella frase:
+
+(setq res (count '("a" "e" "i" "o" "u") (explode str)))
+;-> (1 7 1 6 1)
+
+In questo caso: (0 0 0 0 0) != (1 7 1 6 1), cioè i numeri iniziali delle vocali (0 0 0 0 0) non corrispondono a quanto calcolato nella stringa: (1 7 1 6 1).
+
+Quindi la nuova lista base vale:
+
+(setq base res)
+;-> (1 7 1 6 1)
+
+Convertiamo questi valori numerici in cifre e ricostruiamo la stringa:
+
+; lista associativa: cifra -> stringa
+(setq cifre '((0 "zero") (1 "una") (2 "due") (3 "tre") (4 "quattro")
+              (5 "cinque") (6 "sei") (7 "sette") (8 "otto") (9 "nove")))
+
+(setq a (lookup (base 0) cifre))
+;-> "una"
+(setq e (lookup (base 1) cifre))
+;-> "sette"
+(setq i (lookup (base 2) cifre))
+;-> "una"
+(setq o (lookup (base 3) cifre))
+;-> "sei"
+(setq u (lookup (base 4) cifre))
+;-> "una"
+
+(setq str (string a " a, " e " e, " i " i, " o " o " "e " u " u."))
+;-> "una a, sette e, una i, sei o e una u."
+
+Poi contiamo le vocali nella frase:
+
+(setq res (count '("a" "e" "i" "o" "u") (explode str)))
+;-> (4 5 2 1 4)
+
+Nella stringa ci sono 4 "a", 5 "e", 2 "i" 1 "o" e 4 "u".
+
+In questo caso: (1 7 1 6 1) != (4 5 2 1 4)
+
+Quindi la nuova lista base vale:
+
+(setq base res)
+;-> (4 5 2 1 4)
+
+...continuare in questo modo fino a che non si trova una soluzione oppure si entra in un ciclo infinito.
+
+Questo metodo (partendo da (0 0 0 0 0)) genera il seguente ciclo:
+
+ 1  (1 7 1 6 1)
+ 2  (4 5 2 1 4)
+ 3  (4 4 2 3 6)
+ 4  (3 5 2 3 4)
+ 5  (2 6 2 2 4)
+ 6  (2 6 2 2 5) <--
+ 7  (1 7 3 1 5)   |
+ 8  (3 6 2 1 4)   |  Ciclo infinito
+ 9  (3 5 2 2 4)   |
+10  (2 6 2 2 5) <--
+
+La seguente funzione cerca una soluzione e controlla se si entra in un ciclo infinito, inoltre permette di impostare due parametri: i valori della lista iniziale e una stringa all'inizio della frase (che ci permette di 'pareggiare i conti'):
+
+(define (autogram start-list init-str)
+  (local (a e i o u base res cifre str all)
+    (setq found nil)
+    (setq ciclo nil)
+    (setq all '())
+    ; lista associativa: cifra -> stringa
+    (setq cifre '((0 "zero") (1 "una") (2 "due") (3 "tre") (4 "quattro")
+                  (5 "cinque") (6 "sei") (7 "sette") (8 "otto") (9 "nove")))
+    ; lista cifre iniziali
+    (setq base start-list)
+    ; cifre iniziali
+    (setq a (lookup (base 0) cifre))
+    (setq e (lookup (base 1) cifre))
+    (setq i (lookup (base 2) cifre))
+    (setq o (lookup (base 3) cifre))
+    (setq u (lookup (base 4) cifre))
+    ; fino a che non troviamo una soluzione oppure non troviamo un ciclo...
+    (until (or found ciclo)
+      ; impostare la stringa
+      (setq str (string init-str
+            a " a, " e " e, " i " i, " o " o " "e " u " u."))
+      ; contare le vocali
+      (setq res (count '("a" "e" "i" "o" "u") (explode str)))
+      ; se la lista base è uguale alla lista del conteggio -> stop
+      ; altrimenti aggiorna i valori dei nuovi conteggi
+      (if (= base res) (setq found true) (setq base res))
+      (setq a (lookup (base 0) cifre))
+      (setq e (lookup (base 1) cifre))
+      (setq i (lookup (base 2) cifre))
+      (setq o (lookup (base 3) cifre))
+      (setq u (lookup (base 4) cifre))
+      (println "try: " base)
+      ; inserimento lista conteggi per controllo ciclo
+      (if (find base all) ; se esiste il conteggio...
+        (setq ciclo true) ; allora siamo in un ciclo
+        (push base all)   ; altrimenti inserisci conteggio
+      )
+    )
+    (if found (println "sol: " base) (println "ciclo infinito"))
+    (println str)
+  )
+)
+
+(autogram '(0 0 0 0 0) "")
+;-> try: (1 7 1 6 1)
+;-> try: (4 5 2 1 4)
+;-> try: (4 4 2 3 6)
+;-> try: (3 5 2 3 4)
+;-> try: (2 6 2 2 4)
+;-> try: (2 6 2 2 5)
+;-> try: (1 7 3 1 5)
+;-> try: (3 6 2 1 4)
+;-> try: (3 5 2 2 4)
+;-> try: (2 6 2 2 5)
+;-> ciclo infinito
+;-> tre a, cinque e, due i, due o e quattro u.
+
+Potremmo provare con altri valori iniziali, ma in questo caso notiamo che dopo (2 6 2 2 4) troviamo (2 6 2 2 5). Quindi aggiungendo una "u" (per passare da 4 a 5), renderebbe la frase un autogramma. Per fare questo passiamo la seguente stringa iniziale: "Hu! "
+
+(autogram '(0 0 0 0 0) "Hu! ")
+;-> try: (1 7 1 6 2)
+;-> try: (3 6 2 1 5)
+;-> try: (2 6 3 1 5)
+;-> try: (2 6 3 1 5)
+;-> sol: (2 6 3 1 5)
+;-> Hu! due a, sei e, tre i, una o e cinque u.
+
+Abbiamo trovato un'autogramma (anche se con un piccolo trucco): 
+
+"Hu! due a, sei e, tre i, una o e cinque u."
+
+Il trucco di aggiungere una stringa iniziale è possibile solo quando tutti i valori delle vocali di una stringa sono minori o uguali a quelli della stringa immediatamente successiva.
+
+Per ulteriori informazioni: https://en.wikipedia.org/wiki/Autogram
+
+Nota: "QUESTA FRASE HA CINQUE PAROLE" è una frase autoreferenziale.
 
 
 ===========

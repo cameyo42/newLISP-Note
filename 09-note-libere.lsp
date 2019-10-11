@@ -563,7 +563,7 @@ Chiusura transitiva e raggiungibilità in un grafo
 ralph.ronnquist:
 ----------------
 Vediamo come definire una "chiusura transitiva". Data una lista di coppie che rappresenta i link di un grafo, determinare le liste di tutti i nodi connessi transitivamente (in altre parole, unire tutte le sotto-liste che hanno in comune qualche elemento (transitivamente)).
-↔↕
+
 Esempio:
 
  19 ←→ 9 ←→ 4 ←→ 12    3 ←→ 15 ←→ 8    7 ←→ 5 ←→ 0 ←→ 11
@@ -1949,5 +1949,352 @@ Vediamo un altro esempio:
 Il metodo di generare funzioni tramite codice viene utilizzato anche per lo sviluppo di "malware", poichè queste funzioni sono "invisibili" ai programmi anti-virus basati su pattern.
 
 Nota: la scrittura di funzioni (auto) modificanti rende il programma difficile da interpretare e da analizzare con il debugger.
+
+
+---------------
+I cicli (loops)
+---------------
+
+In newLISP sono supportati la maggior parte dei metodi di loop tradizionali. Ogni volta che esiste una variabile di loop, è locale nell'ambito del loop, comportandosi secondo le regole di scoping dinamico all'interno dello spazio dei nomi o del contesto corrente:
+
+*** DOTIMES ***
+; ripete per un numero di volte
+; "i" va da 0 a N - 1
+(dotimes (i N)
+    ....
+)
+
+; dimostra la località di "i"
+(dotimes (i 3)
+    (print i ":")
+    (dotimes (i 3) (print i))
+    (println)
+)
+;-> 0:012
+;-> 1:012
+;-> 2:012
+
+*** DOLIST ***
+; ciclo attraverso una lista
+; la variabile "e" prende il valore di ciascun elemento della lista aList
+(dolist (e aList)
+    ...
+)
+
+La funzione "dolist" ha anche una variabile $idx che tiene traccia dell'indice numerico dell'elemento corrente (partendo da 0):
+
+(dolist (e '(a b c d)) (println (list $idx e)))
+;-> (0 a)
+;-> (1 b)
+;-> (2 c)
+;-> (3 d)
+
+*** DOSTRING ***
+; ciclo attraverso una stringa
+; "e" prende il valore ASCII o UTF-8 di ogni carattere della string aString
+(dostring (e aString)
+    ...
+)
+
+*** DOTREE ***
+; ciclo attraverso i simboli di un contesto
+; ordinati in ordine alfabetico
+(dotree (s CTX)
+    ...
+)
+
+*** FOR ***
+; ciclo che parte da un valore "init",
+; termina quando "i" diventa uguale a "N",
+; con passo opzionale "step".
+; Il segno del passo è irrilevante (dipende solo da N e init)
+(for (i init N step)
+    ...
+)
+
+(for (i 1 9) (print i))
+;-> 123456789
+
+(for (i 1 9 2) (print i))
+;-> 13579
+
+(for (i 9 1 -2) (print i))
+;-> 97531
+
+(for (i 9 1 2) (print i))
+;-> 97531
+
+*** WHILE ***
+; ciclo finchè una condizione è vera;
+; prima controlla la condition, poi esegue il corpo
+(while condition
+    ...
+)
+
+*** UNTIL ***
+; ciclo finchè una condizione è falsa;
+; prima controlla la condition, poi esegue il corpo
+(until condition
+    ...
+)
+
+*** DO-WHILE ***
+; ciclo finchè una condizione è vera;
+; prima esegue il corpo poi controlla la condition.
+; Il corpo viene eseguito almeno una volta.
+(do-while condition
+    ...
+)
+
+*** DO-UNTIL ***
+; ciclo finchè una condizione è falsa;
+; prima esegue il corpo poi controlla la condition.
+; Il corpo viene eseguito almeno una volta.
+(do-until condition
+    ...
+)
+
+Le funzioni di loop "dolist", "dotimes" e "for" possono anche prendere una condizione di interruzione (break) come argomento aggiuntivo. Quando la condizione di interruzione restituisce true, il ciclo termina:
+
+(dolist (x '(a b c d e f g) (= x 'e))
+    (print x))
+;->  abcd
+
+
+---------------------
+L'alfabeto web "Leet"
+---------------------
+
+L'alfabeto Leet ("Leet") è un altro alfabeto per il linguaggio inglese usato principalmente su internet e sulla messaggistica.
+Alcune lettere vengono sosituite con delle cifre. In genre si ha la seguente corrispondenza:
+
+0 = O
+1 = I
+2 = Z
+3 = E
+4 = A
+5 = S
+6 = G
+7 = T
+8 = B
+9 = J
+
+Possiamo scrivere una funzione che converte una stringa in linguaggio Leet.
+
+(setq leet '((O 0) (I 1) (Z 2) (E 3) (A 4) (S 5) (G 6) (T 7) (B 8) (9 J)))
+
+(define (toLeet str)
+  (local (out)
+    (setq out (explode (upper-case str)))
+    (set-ref-all "O" out "0")
+    (set-ref-all "I" out "1")
+    (set-ref-all "Z" out "2")
+    (set-ref-all "E" out "3")
+    (set-ref-all "A" out "4")
+    (set-ref-all "S" out "5")
+    (set-ref-all "G" out "6")
+    (set-ref-all "T" out "7")
+    (set-ref-all "B" out "8")
+    (set-ref-all "J" out "9")
+    (join out)
+  )
+)
+
+(toLeet "Questa frase convertita in Leet")
+;-> "QU3574 FR453 C0NV3R7174 1N L337"
+
+Nota che set-ref-all restituisce la stringa modificata oppure nil se non avviene nessuna modifica.
+
+(set-ref-all "C" '("C" "V" "B" "C") "Z")
+;-> ("Z" "V" "B" "Z")
+
+(set-ref-all "A" '("C" "V" "B" "C") "Z")
+;-> nil
+
+Possiamo scrivere la funzione anche in un altro modo:
+
+(define (toLeet str)
+  (local (out)
+    (setq out (explode (upper-case str)))
+    (dolist (el out)
+      (if (= el "O") (setq (out $idx) "0"))
+      (if (= el "I") (setq (out $idx) "1"))
+      (if (= el "Z") (setq (out $idx) "2"))
+      (if (= el "E") (setq (out $idx) "3"))
+      (if (= el "A") (setq (out $idx) "4"))
+      (if (= el "S") (setq (out $idx) "5"))
+      (if (= el "G") (setq (out $idx) "6"))
+      (if (= el "T") (setq (out $idx) "7"))
+      (if (= el "B") (setq (out $idx) "8"))
+      (if (= el "J") (setq (out $idx) "9"))
+    )
+    (join out)
+  )
+)
+
+(toLeet "Questa frase convertita in Leet")
+;-> "QU3574 FR453 C0NV3R7174 1N L337"
+
+
+----------
+Autogrammi
+----------
+
+Un autogramma (in greco: αὐτός = sé, γράμμα = lettera) è una frase autodescrittiva nel senso che fornisce la lista dei suoi caratteri. Sono stati inventati da Lee Sallows, che ha anche coniato la parola autogramma. Una caratteristica essenziale è l'uso dei nomi completi dei numeri cardinali come "uno", "due", ecc., nella registrazione dei conteggi dei caratteri. Gli autogrammi sono anche chiamati frasi "auto-enumeranti" o "auto-documentanti". In genere, viene registrato solo il conteggio delle lettere, mentre i segni di punteggiatura vengono ignorati, come in questo esempio (in inglese):
+
+This sentence employs two a's, two c's, two d's, twenty-eight e's, five f's, three g's, eight h's, eleven i's, three l's, two m's, thirteen n's, nine o's, two p's, five r's, twenty-five s's, twenty-three t's, six v's, ten w's, two x's, five y's, and one z.
+
+Se avete tempo potete verificarlo...
+
+Il primo autogramma pubblicato (Sallows 1982) è apparso nella rubrica "Metamagical Themas" di Douglas Hofstadter in Scientific American.
+
+Il compito di produrre un autogramma è intricato e complesso perché l'oggetto da descrivere non può essere conosciuto fino a quando la sua descrizione non è completa.
+
+Per cominciare proviamo a contare le vocali di una frase. Prediamo una frase base con valori iniziali nulli:
+
+(setq a "zero" e "zero" i "zero" o "zero" u "zero")
+(setq base '(0 0 0 0 0))
+(setq str (string a " a, " e " e, " i " i, " o " o " "e " u " u."))
+;-> "zero a, zero e, zero i, zero o e zero u."
+
+Poi contiamo le vocali nella frase:
+
+(setq res (count '("a" "e" "i" "o" "u") (explode str)))
+;-> (1 7 1 6 1)
+
+In questo caso: (0 0 0 0 0) != (1 7 1 6 1), cioè i numeri iniziali delle vocali (0 0 0 0 0) non corrispondono a quanto calcolato nella stringa: (1 7 1 6 1).
+
+Quindi la nuova lista base vale:
+
+(setq base res)
+;-> (1 7 1 6 1)
+
+Convertiamo questi valori numerici in cifre e ricostruiamo la stringa:
+
+; lista associativa: cifra -> stringa
+(setq cifre '((0 "zero") (1 "una") (2 "due") (3 "tre") (4 "quattro")
+              (5 "cinque") (6 "sei") (7 "sette") (8 "otto") (9 "nove")))
+
+(setq a (lookup (base 0) cifre))
+;-> "una"
+(setq e (lookup (base 1) cifre))
+;-> "sette"
+(setq i (lookup (base 2) cifre))
+;-> "una"
+(setq o (lookup (base 3) cifre))
+;-> "sei"
+(setq u (lookup (base 4) cifre))
+;-> "una"
+
+(setq str (string a " a, " e " e, " i " i, " o " o " "e " u " u."))
+;-> "una a, sette e, una i, sei o e una u."
+
+Poi contiamo le vocali nella frase:
+
+(setq res (count '("a" "e" "i" "o" "u") (explode str)))
+;-> (4 5 2 1 4)
+
+Nella stringa ci sono 4 "a", 5 "e", 2 "i" 1 "o" e 4 "u".
+
+In questo caso: (1 7 1 6 1) != (4 5 2 1 4)
+
+Quindi la nuova lista base vale:
+
+(setq base res)
+;-> (4 5 2 1 4)
+
+...continuare in questo modo fino a che non si trova una soluzione oppure si entra in un ciclo infinito.
+
+Questo metodo (partendo da (0 0 0 0 0)) genera il seguente ciclo:
+
+ 1  (1 7 1 6 1)
+ 2  (4 5 2 1 4)
+ 3  (4 4 2 3 6)
+ 4  (3 5 2 3 4)
+ 5  (2 6 2 2 4)
+ 6  (2 6 2 2 5) <--
+ 7  (1 7 3 1 5)   |
+ 8  (3 6 2 1 4)   |  Ciclo infinito
+ 9  (3 5 2 2 4)   |
+10  (2 6 2 2 5) <--
+
+La seguente funzione cerca una soluzione e controlla se si entra in un ciclo infinito, inoltre permette di impostare due parametri: i valori della lista iniziale e una stringa all'inizio della frase (che ci permette di 'pareggiare i conti'):
+
+(define (autogram start-list init-str)
+  (local (a e i o u base res cifre str all)
+    (setq found nil)
+    (setq ciclo nil)
+    (setq all '())
+    ; lista associativa: cifra -> stringa
+    (setq cifre '((0 "zero") (1 "una") (2 "due") (3 "tre") (4 "quattro")
+                  (5 "cinque") (6 "sei") (7 "sette") (8 "otto") (9 "nove")))
+    ; lista cifre iniziali
+    (setq base start-list)
+    ; cifre iniziali
+    (setq a (lookup (base 0) cifre))
+    (setq e (lookup (base 1) cifre))
+    (setq i (lookup (base 2) cifre))
+    (setq o (lookup (base 3) cifre))
+    (setq u (lookup (base 4) cifre))
+    ; fino a che non troviamo una soluzione oppure non troviamo un ciclo...
+    (until (or found ciclo)
+      ; impostare la stringa
+      (setq str (string init-str
+            a " a, " e " e, " i " i, " o " o " "e " u " u."))
+      ; contare le vocali
+      (setq res (count '("a" "e" "i" "o" "u") (explode str)))
+      ; se la lista base è uguale alla lista del conteggio -> stop
+      ; altrimenti aggiorna i valori dei nuovi conteggi
+      (if (= base res) (setq found true) (setq base res))
+      (setq a (lookup (base 0) cifre))
+      (setq e (lookup (base 1) cifre))
+      (setq i (lookup (base 2) cifre))
+      (setq o (lookup (base 3) cifre))
+      (setq u (lookup (base 4) cifre))
+      (println "try: " base)
+      ; inserimento lista conteggi per controllo ciclo
+      (if (find base all) ; se esiste il conteggio...
+        (setq ciclo true) ; allora siamo in un ciclo
+        (push base all)   ; altrimenti inserisci conteggio
+      )
+    )
+    (if found (println "sol: " base) (println "ciclo infinito"))
+    (println str)
+  )
+)
+
+(autogram '(0 0 0 0 0) "")
+;-> try: (1 7 1 6 1)
+;-> try: (4 5 2 1 4)
+;-> try: (4 4 2 3 6)
+;-> try: (3 5 2 3 4)
+;-> try: (2 6 2 2 4)
+;-> try: (2 6 2 2 5)
+;-> try: (1 7 3 1 5)
+;-> try: (3 6 2 1 4)
+;-> try: (3 5 2 2 4)
+;-> try: (2 6 2 2 5)
+;-> ciclo infinito
+;-> tre a, cinque e, due i, due o e quattro u.
+
+Potremmo provare con altri valori iniziali, ma in questo caso notiamo che dopo (2 6 2 2 4) troviamo (2 6 2 2 5). Quindi aggiungendo una "u" (per passare da 4 a 5), renderebbe la frase un autogramma. Per fare questo passiamo la seguente stringa iniziale: "Hu! "
+
+(autogram '(0 0 0 0 0) "Hu! ")
+;-> try: (1 7 1 6 2)
+;-> try: (3 6 2 1 5)
+;-> try: (2 6 3 1 5)
+;-> try: (2 6 3 1 5)
+;-> sol: (2 6 3 1 5)
+;-> Hu! due a, sei e, tre i, una o e cinque u.
+
+Abbiamo trovato un'autogramma (anche se con un piccolo trucco): 
+
+"Hu! due a, sei e, tre i, una o e cinque u."
+
+Il trucco di aggiungere una stringa iniziale è possibile solo quando tutti i valori delle vocali di una stringa sono minori o uguali a quelli della stringa immediatamente successiva.
+
+Per ulteriori informazioni: https://en.wikipedia.org/wiki/Autogram
+
+Nota: "QUESTA FRASE HA CINQUE PAROLE" è una frase autoreferenziale.
 
 
