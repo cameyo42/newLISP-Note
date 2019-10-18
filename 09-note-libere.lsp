@@ -186,7 +186,7 @@ Per alcuni, il metodo "parentesi chiuse sulla nuova linea" non deve esse usato p
 
 Livello di indentazione
 -----------------------
-Il livello di indentazione (TAB) dovrebbe essere relativamente piccolo. In genere vengono usati due caratteri spazio per ogni rientro.
+Il livello di indentazione (TAB) dovrebbe essere relativamente piccolo. In genere vengono usati due caratteri spazio per ogni rientro (max 4 caratteri spazio).
 
 Esempio:
 
@@ -214,6 +214,39 @@ Esempio:
 
 Con un livello di indentazione piccolo si diminuisce la lunghezza delle righe del programma.
 
+Nomi delle variabili
+--------------------
+I nomi delle variabili vengono scritti in minuscolo e le parole sono separate dal carattere trattino "-" (hyphens). Non utilizzare il carattere underscore "_".
+Non utilizzare lettere maiuscole.
+
+giusto: total-time
+
+sbagliato: total_time oppure Total-Time
+
+Un nome di una variabile o funzione (identificatore) deve essere semplice da capire e da leggere. Non dovrebbe essere troppo lungo, ma è meglio un mome lungo che un nome incomprensibile.
+
+giusto: somma-totale
+
+sbagliato: stot
+
+I nomi che rappresentano collezioni di oggetti (es. liste, vettori) devono avere il carattere "s" alla fine (plurale). Non inserire il tipo dell'oggetto nel nome.
+
+giusto: cars
+
+sbagliato: list-of-car
+
+Le variabili globali devono essere racchiuse dal carattere "*" (earmuffing technique):
+
+*global-value*
+
+La variabili costanti devono essere racchiuse dal carattere "+" (earmuffing technique):
+
++constant-value+
+
+I predicati (funzioni che restituiscono vero (true) o falso (nil) devono avere il carattere "?" alla fine del nome:
+
+primo?
+
 Commenti
 --------
 1) Numero di punti e virgola ";" (semicolon)
@@ -238,6 +271,11 @@ Tre punti e virgola sono usati per i commenti che descrivono una funzione. Tali 
 ;;; in una lista di valori interi
 (define (calcola-spazi-simboli)
   (map calcola (symbols)))
+  
+Quattro punti e virgola sono usati per i commenti che si riferiscono ad un intero file e iniziano sempre dalla colonna 1:
+
+;;;; Libreria per il calcolo con i quaternioni
+;;;; Operazioni: +, -, *, /
 
 2) Contenuto dei commenti
 Come al solito, cerchiamo di essere brevi, senza perdere il contenuto delle informazioni. Affinché i commenti funzionino con le definizioni, una buona idea è usare la forma imperativa del verbo. In questo modo è possibile evitare espressioni ridondanti come "questa funzione...".
@@ -256,6 +294,19 @@ Invece, scrivere in questo modo:
   (map calcola (symbols)))
 
 In genere i commenti di una funzione includono anche l'elenco e la spiegazione dei parametri di input/output e i limiti di applicazione degli stessi.
+
+Stringhe di documentazione (documentation string)
+-------------------------------------------------
+Una stringa di documentazione è una stringa di caratteri che appare in predeterminate posizioni  nel codice (es: la prima espressione nel corpo di una funzione).
+Le stringhe di documentazione differiscono dai commenti in quanto sono disponibili in fase di esecuzione. Le stringhe di documentazione devono essere brevi e devono essere associate al nome di una particolare funzione, classe, ecc. Non devono dare spiegazioni generali sul funzionamento di una biblioteca o di una applicazione.
+La prima frase di una stringa di documentazione (che in genere si trova nella prima riga),
+dovrebbe fornire una breve descrizione dell'oggetto (come il titolo di un giornale).
+Il testo successivo della stringa di documentazione dovrebbe espandersi nella descrizione di
+l'oggetto. Questa parte della stringa di documentazione (nel caso in cui l'oggetto sia una funzione) potrebbe contenere precondizioni, situazioni di errore che potrebbero essere segnalate e possibili comportamenti inaspettato.
+In una stringa di documentazione, quando è necessario fare riferimento a argomenti di funzioni, nomi di classi o altri oggetti lisp, questi nomi vengono scritti in maiuscolo, in modo che essi
+siano facili da trovare.
+
+Le stringhe di documentazione possono essere estratte automaticamente (ad esempio per la creazione del manuale di riferimento delle funzioni).
 
 Al seguente indirizzo web potete trovare la guida sullo stile LISP raccomandato da Google:
 
@@ -2103,7 +2154,7 @@ Possiamo scrivere una funzione che converte una stringa in linguaggio Leet.
 (toLeet "Questa frase convertita in Leet")
 ;-> "QU3574 FR453 C0NV3R7174 1N L337"
 
-Nota che set-ref-all restituisce la stringa modificata oppure nil se non avviene nessuna modifica.
+Nota che set-ref-all restituisce la stringa modificata oppure nil se non trova una corrispondenza (e quindi non avviene alcuna modifica).
 
 (set-ref-all "C" '("C" "V" "B" "C") "Z")
 ;-> ("Z" "V" "B" "Z")
@@ -2117,16 +2168,17 @@ Possiamo scrivere la funzione anche in un altro modo:
   (local (out)
     (setq out (explode (upper-case str)))
     (dolist (el out)
-      (if (= el "O") (setq (out $idx) "0"))
-      (if (= el "I") (setq (out $idx) "1"))
-      (if (= el "Z") (setq (out $idx) "2"))
-      (if (= el "E") (setq (out $idx) "3"))
-      (if (= el "A") (setq (out $idx) "4"))
-      (if (= el "S") (setq (out $idx) "5"))
-      (if (= el "G") (setq (out $idx) "6"))
-      (if (= el "T") (setq (out $idx) "7"))
-      (if (= el "B") (setq (out $idx) "8"))
-      (if (= el "J") (setq (out $idx) "9"))
+      (cond ((= el "O") (setq (out $idx) "0"))
+            ((= el "I") (setq (out $idx) "1"))
+            ((= el "Z") (setq (out $idx) "2"))
+            ((= el "E") (setq (out $idx) "3"))
+            ((= el "A") (setq (out $idx) "4"))
+            ((= el "S") (setq (out $idx) "5"))
+            ((= el "G") (setq (out $idx) "6"))
+            ((= el "T") (setq (out $idx) "7"))
+            ((= el "B") (setq (out $idx) "8"))
+            ((= el "J") (setq (out $idx) "9"))
+      )
     )
     (join out)
   )
@@ -2218,7 +2270,7 @@ Questo metodo (partendo da (0 0 0 0 0)) genera il seguente ciclo:
  9  (3 5 2 2 4)   |
 10  (2 6 2 2 5) <--
 
-La seguente funzione cerca una soluzione e controlla se si entra in un ciclo infinito, inoltre permette di impostare due parametri: i valori della lista iniziale e una stringa all'inizio della frase (che ci permette di 'pareggiare i conti'):
+La seguente funzione cerca una soluzione e controlla se si entra in un ciclo infinito, inoltre permette di impostare due parametri: i valori della lista iniziale e una stringa all'inizio della frase (che ci permette poi di 'pareggiare i conti'):
 
 (define (autogram start-list init-str)
   (local (a e i o u base res cifre str all)
@@ -2296,5 +2348,281 @@ Il trucco di aggiungere una stringa iniziale è possibile solo quando tutti i va
 Per ulteriori informazioni: https://en.wikipedia.org/wiki/Autogram
 
 Nota: "QUESTA FRASE HA CINQUE PAROLE" è una frase autoreferenziale.
+
+
+--------------------------------------------
+Ambito dinamico e ambito lessicale (statico)
+--------------------------------------------
+
+La nozione di ambito (scope) nei linguaggi di programmazione è tradizionalmente
+legata a quella delle associazioni (bindings). Un'associazione (binding) è un legame tra un simbolo (o una variabile) e un valore. L'ambito dell'associazione definisce il tipo di"visibilità" del simbolo (o variabile) nel programma e può essere "dinamico" o "lessicale" ("statico"). 
+Secondo l'ambito lessicale (statico), in una espressione, una variabile fa riferimento al costrutto più interno in cui viene dichiarata la variabile (ad esempio, al blocco di codice in cui è definita).
+Invece l'ambito dinamico prevede che la variabile esista e possa essere usata solo durante l'estensione dinamica (esecuzione) di una espressione. Una variabile con ambito dinamico viene anche chiamata 'parametro'.
+L'associazione dinamica associa i dati all'esecuzione del contesto corrente, e quindi consente di passare i dati alle funzioni senza dover dichiarare esplicitamente questi dati nell'interfaccia della funzione.
+Una caratteristica particolare dei binding dinamici è che non sono catturati da una chiusura lessicale (lexical closure). Questo consente alcuni benefici, come la concisione, la modularità e l'adattabilità. Esempi tipici sono il reindirizzamento dell'output di un programma, la definizione di gestori di eccezioni (exception handler), la gestione dello stato dell'host locale in un sistema distribuito, ecc.
+
+newLISP utilizza l'ambito dinamico per la visibilità delle variabili/identificatori, ma può anche usare l'ambito lessicale utilizzando i contesti (context).
+
+In un linguaggio con ambito dinamico è possibile fare riferimento a un identificatore, non solo nel blocco in cui è dichiarato, ma anche in qualsiasi funzione o procedura richiamata dall'interno di quel blocco, anche se la procedura chiamata è dichiarata all'esterno del blocco.
+
+Vediamo un esempio:
+
+(setq x 42)
+(define (f x) (g (+ x 2)))
+(define (g y) (+ y x))
+
+Quando chiamiamo (f 1) in newLISP accade questo:
+
+(f 1) --> (g (+ 1 2)) --> (g 3) --> (+ 3 1) --> 4
+
+Invece nel linguaggio Scheme (che ha un ambito lessicale) accade questo:
+
+(f 1) --> (g (+ 1 2)) --> (g 3) ---> (+ 3 42) --> 45
+
+In Scheme g può vedere solo la x definita al livello superiore (o qualsiasi livello al di sopra di essa in una definizione nidificata). In newLISP, g vede la x definita "attraverso" la chiamata della funzione applicata f (da cui il termine "dinamico"), poiché quella x è il parametro formale di f.
+
+Vediamo un altro esempio del funzionamento dell'ambito dinamico:
+
+(define (f a b)
+  (local (LOC)
+    (setq LOC 'dynamic)
+    (println "pre f: a -> " a " b -> " b)
+    (g a b)
+    (println "post f: a -> " a " b -> " b)
+  )
+)
+
+(define (g x y)
+  (println LOC)
+  (println "pre g: a -> " a " b -> " b)
+  (println "pre g: x -> " x " y -> " y)
+  (setq a (* a a))
+  (setq b (* b b))
+  (setq x (* x x))
+  (setq y (* y y))
+  (println "post g: a -> " a " b -> " b)
+  (println "post g: x -> " x " y -> " y)
+)
+
+(f 2 3)
+;-> pre f: a -> 2 b -> 3
+;-> dynamic               ; "g" vede LOC perchè chiamata dall'interno di "f"
+;-> pre g: a -> 2 b -> 3  ; "g" vede "a" perchè chiamata dall'interno di "f"
+;-> pre g: x -> 2 y -> 3  ; "g" vede "b" perchè chiamata dall'interno di "f"
+;-> post g: a -> 4 b -> 9
+;-> post g: x -> 4 y -> 9
+;-> post f: a -> 4 b -> 9 ; "f" vede i nuovi valori di "a" e "b".
+
+Questo perchè le variabili libere "a" e "b" sono associate con dei valori nella funzione "f" e l'ambito dinamico permette alla funzione "g" di vedere queste associazioni perchè viene chiamata dall'interno della funzione "f".
+
+Se chiamiamo direttamente la funzione "g" otteniamo un errore:
+
+(g 2 3)
+;-> nil                      ; la variabile LOC non esiste
+;-> pre g: a -> nil b -> nil ; le variabili "a" e "b" esistono
+;-> pre g: x -> 2 y -> 3
+;-> ERR: value expected in function * : nil ; errore perchè "a" non esiste.
+
+Questo perchè le variabili libere "a" e "b" non sono associate ad alcun valore e quindi valgono nil.
+
+Il problema dell'ambito dinamico risiede nel fatto, che se usiamo simboli che non sono stati definiti nella nostra funzione, non possiamo sapere se il simbolo è globale oppure è stato "ereditato" da una chiamata di funzione.
+
+Utilizzando i contesti (context) possiamo utilizza l'ambito lessicale anche in newLISP:
+
+(define (f x) (g (+ x 2)))
+(context 'g)
+(setq x 42)
+(define (g:g y) (+ y x))
+(context MAIN)
+(f 1)
+
+;-> 45
+
+Comunque è molto meglio scrivere funzioni che non hanno variabili "libere" e quindi non occorre creare contesti per queste funzioni.
+
+Ad esempio, si noti che il corpo di g ha due variabili x e y. y è una variabile associata in g, poiché è un parametro formale di g. Tuttavia, x non è associato, ovvero è "libera".
+
+Nelle funzioni non dovrebbero esistere variabili "libere" (devono essere legate a un let o un local), ma nel caso fossero presenti devono riferirsi a variabili globali con nomi racchiusi da asterischi "*" (earmuffing), per evitare di entrare in conflitto con le varibili locali (quelle che entrano nello stack). Per esempio, *MAX-VAL* è una variabile globale (per convenzione).
+
+Questo metodo di programmazione è principio di base della "programmazione strutturata" ed è valido per quasi tutti i linguaggi programmazione.
+
+L'utilizzo dei contesti per avere l'ambito lessicale è utile quando si lavora a programmi grandi e/o con un gruppo di programmatori: in questo modo nessuno influisce sul codice degli altri.
+
+Comunque i contesti hanno un proprio ambito dinamico internamente, essi isolano il proprio ambito dinamico rispetto agli altri contesti (in altre parole un contesto è un nuovo spazio di nomi).
+
+Lutz suggerisce anche un altro metodo per utilizzare le variabili globali (e le costanti): inserirle tutte in un contesto. Per esempio:
+
+(set 'Setup:datapath "/home/data")
+(set 'Setup:language "english")
+(set 'Setup:n-records 12345)
+
+Questo ha anche il vantaggio che tutte le variabili globali e le costanti possono essere salvate/caricate su un file tutte insieme:
+
+Salvataggio variabili e costanti:
+(save "setup.lsp" 'Setup)
+
+Caricamento variabili e costanti:
+(load "setup.lsp")
+
+L'ambito dinamico costringe il programmatore a scrivere funzioni senza effetti collaterali (side effect).
+
+newLISP comunque permette di utilizzare entrambi gli ambiti: dinamico e lessicale (o statico).
+
+Un libro molto interessante su questo argomento e sul LISP in generale è:
+"COMMON LISP: A Gentle Introduction to Symbolic Computation" di David Touretzky.
+
+Infine, vediamo il perchè della parola "lessicale":
+
+nell'ambito statico, una variabile si riferisce sempre all'associazione di chiusura più vicina (binding). Questa è una proprietà del testo del programma e non è correlata allo stack delle chiamate di runtime. Poiché la corrispondenza di una variabile con l'associazione richiede solo l'analisi del testo del programma, questo tipo di ambito viene chiamato anche "ambito lessicale".
+
+
+----------------------------------
+Uso delle espressioni condizionali
+----------------------------------
+
+Analizzeremo i metodi consigliati nell'uso delle espressioni: "if", "when", "unless", "cond" e "case".
+
+Quando utilizzare l'espressione "cond"
+--------------------------------------
+Ci sono alcuni casi in cui "cond" è preferibile ad "if":
+
+1) Quando abbiamo una catena di "if" (skip chain)
+
+sbagliato:
+
+(if condizione1
+    esegui-1
+    (if condizione-2
+        esegui-2
+        esegui-3))
+
+giusto:
+
+(cond (condizione-1 esegui-1)
+      (condizione-2 esegui-2)
+      (true esegui-3)
+
+2) Quando la parte 'then' o 'else' contiene diverse espressioni da valutare (che richiederebbe l'uso di "begin")
+
+sbagliato:
+
+(if condizione-1
+    (begin azione-1a
+           azione-1b)
+    (begin azione-2a
+           azione-2b)
+
+giusto:
+
+(cond (condizione-1 esegui-1a esegui-1b)
+      (true esegui-2a esegui-2b))
+
+L'espressione "cond" ha una definizione implicita di "begin" per ogni clausola.
+
+3) Quando viene il risultato della condizione rappresenta l'espressione di ritorno
+
+sbagliato:
+
+(let ((val (calcolo-complicato a b c)))
+  (if val
+      val
+      (esegui-altro x y z)))
+
+giusto:
+
+(cond ((calcolo-complicato a b c))
+      (true (esegui altro x y z)))
+
+Quando utilizzare l'espressione "case"
+--------------------------------------
+L'espressione condizionale "case" può essere vista come un caso speciale del condizionale "cond" che risolve il problema di testare il valore di un'espressione con un certo numero di valori costanti (questi valori devono essere costanti perchè non vengono valutati da newLISP).
+Il "case" esiste perchè è molto più veloce del cond per questo caso speciale (il compilatore può utilizzare una tabella hash invece di dover testare ogni clausola in sequenza).
+
+sbagliato:
+
+(cond ((= val 1) esegui-1)
+      ((= val 2) esegui-2)
+      ((= val 3) esegui-3)
+      ((= val 4) esegui-4)
+      (true esegui-5))
+
+giusto:
+
+(case val
+  (1 esegui-1)
+  (2 esegui-2)
+  (3 esegui-3)
+  (4 esegui-4)
+  (true esegui-5))
+
+Quando utilizzare l'espressione "when" e "unless"
+-------------------------------------------------
+Quando l'espressione "if" ha un solo ramo ('then' oppure 'else'), allora è meglio utilizzare "when" o "unless". L'uso di queste due espressioni permettono di risparmiare spazio e rendono il codice più preciso (leggibile).
+
+sbagliato:
+
+(if (un-test a b c)
+    (begin (calcolo-1 a b c)
+           (calcolo-2 a b c)
+           (calcolo-3 a b c)
+           ...))
+
+giusto:
+
+(when (un-test a b c)
+  (calcolo-1 a b c)
+  (calcolo-2 a b c)
+  (calcolo-3 a b c)
+  ...)
+
+Quando si usa "when" o "unless" la condizione di test non deve essere negata con l'espressione "not".
+
+sbagliato:
+
+(when (not (un-test a b c))
+  (calcolo-1 a b c)
+  (calcolo-2 a b c)
+  (calcolo-3 a b c)
+  ...)
+
+giusto:
+
+(unless (un-test a b c)
+  (calcolo-1 a b c)
+  (calcolo-2 a b c)
+  (calcolo-3 a b c)
+  ...)
+
+L'uso del test "null?" è consigliato nel caso seguente:
+
+sbagliato:
+
+(when (rest lst))
+  (calcolo-1 a b c)
+  (calcolo-2 a b c)
+  (calcolo-3 a b c)
+  ...)
+
+giusto:
+
+(unless (null? (rest lst))
+  (calcolo-1 a b c)
+  (calcolo-2 a b c)
+  (calcolo-3 a b c)
+  ...)
+
+Ricordiamo che in newLISP "nil" è diverso dalla lista vuota '():
+
+(= nil '())
+;-> nil
+
+Ma si comportano allo stesso modo con l'espressione di test "null?":
+
+(if (null? '()) (println "nullo") (println "non nullo"))
+;-> nullo
+(if (null? nil) (println "nullo") (println "non nullo"))
+;-> nullo
+(if (null? 0) (println "nullo") (println "non nullo"))
+;-> nullo
 
 

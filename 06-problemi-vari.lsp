@@ -1655,14 +1655,16 @@ Ricerca binaria (binary search)
 
 La "ricerca binaria" è un algoritmo di ricerca che individua l'indice di un determinato valore in un insieme ordinato di dati. Se il valore non esiste allora l'indice vale -1.
 Questo algoritmo cerca un elemento all'interno di una lista ordinata, effettuando mediamente meno confronti rispetto ad una ricerca sequenziale, e quindi più rapidamente rispetto ad essa perché, sfruttando l'ordinamento, dimezza l'intervallo di ricerca ad ogni passaggio.
-L'algoritmo è simile q quella della ricerca di una parola sul dizionario: sapendo che il vocabolario è ordinato alfabeticamente, l'idea è quella di iniziare la ricerca non dal primo elemento, ma da quello centrale, cioè a metà del dizionario. Si confronta questo elemento con quello cercato:
+L'algoritmo è simile a quello della ricerca di una parola sul dizionario: sapendo che il vocabolario è ordinato alfabeticamente, l'idea è quella di iniziare la ricerca non dal primo elemento, ma da quello centrale, cioè a metà del dizionario. Si confronta questo elemento con quello cercato:
 - se corrisponde, la ricerca termina indicando che l'elemento è stato trovato;
 - se è superiore, la ricerca viene ripetuta sugli elementi precedenti (ovvero sulla prima metà del dizionario), scartando quelli successivi;
 - se invece è inferiore, la ricerca viene ripetuta sugli elementi successivi (ovvero sulla seconda metà del dizionario), scartando quelli precedenti.
 Se tutti gli elementi vengono scartati, la ricerca termina senza aver trovato il valore.
 La ricerca binaria non usa mai più di floor(log(2) N) (logaritmo base 2 di N approssimato per eccesso) confronti.
 
-Scriviamo questo algoritmo sia in versione iterativa che in versione ricorsiva.
+Attenzione che questo algoritmo è più difficile di quanto sembri da scrivere. Jon Bentley, nel suo libro "Programming Pearls", riferisce che il 90% dei programmatori professionisti non è in grado di scrivere una corretta implementazione della ricerca binaria in due ore, e Donald Knuth, nel secondo volume della sua opera "The Art of Computer Programming", riporta che sebbene il primo codice per la ricerca binaria fu pubblicato nel 1946, la prima ricerca binaria senza errori non fu pubblicata fino al 1962.
+
+Scriviamo questo algoritmo sia in versione iterativa che in versione ricorsiva (e speriamo di farlo correttamente).
 
 Versione iterativa:
 
@@ -1670,13 +1672,13 @@ Versione iterativa:
   (local (basso alto indice)
     (setq out -1) ; elemento non trovato
     (setq basso 0) ; inizio lista
-    (setq alto (sub (length lst) 1)) ; fine lista
+    (setq alto (- (length lst) 1)) ; fine lista
     (while (and (>= alto basso) (= out -1))
-      (setq indice (>> (add basso alto))) ; valore centrale indice
+      (setq indice (>> (+ basso alto))) ; valore centrale indice
       (cond ((> (lst indice) num)
-             (setq alto (sub indice 1))) ; aggiorno l'indice "alto"
+             (setq alto (- indice 1))) ; aggiorno l'indice "alto"
             ((< (lst indice) num)
-             (setq basso (add indice 1))) ; aggiorno l'indice "basso"
+             (setq basso (+ indice 1))) ; aggiorno l'indice "basso"
             (true (setq out indice)) ; elemento trovato
       )
     );while
@@ -1703,18 +1705,18 @@ Aggiungiamo un parametro che ci permette di specificare l'ordinamento della list
   (local (basso alto indice)
     (setq out -1)
     (setq basso 0)
-    (setq alto (sub (length lst) 1))
+    (setq alto (- (length lst) 1))
     (while (and (>= alto basso) (= out -1))
-      (setq indice (>> (add basso alto))) ;; right shift
+      (setq indice (>> (+ basso alto))) ;; right shift
       (cond ((> (lst indice) num)
              (if (= op >) ;controllo dell'ordinamento della lista
-                (setq alto (sub indice 1))
-                (setq basso (add indice 1))
+                (setq alto (- indice 1))
+                (setq basso (+ indice 1))
              ))
             ((< (lst indice) num)
              (if (= op >) ;controllo dell'ordinamento della lista
-                (setq basso (add indice 1))
-                (setq alto (sub indice 1))
+                (setq basso (+ indice 1))
+                (setq alto (- indice 1))
              ))
             (true (setq out indice))
       )
@@ -1735,27 +1737,34 @@ Aggiungiamo un parametro che ci permette di specificare l'ordinamento della list
 (bs -2 '(782 99 83 65 4 3 2 1 0 -31) <)
 ;-> -1
 
+(bs 1 '() >)
+;-> -1
+
+(bs 2 '(1 2 2 3) <)
+;-> 1 ;restituisce il primo valore del 2
+
 Vediamo la versione ricorsiva:
 
 (define (bs-r num lst op)
   (define (bsr num lst basso alto op)
-    (setq indice (>> (add basso alto)))
+    (setq indice (>> (+ basso alto)))
     (cond ((< alto basso) -1)
           ((> (lst indice) num)
               (if (= op >)
-                  (bsr num lst basso (sub indice 1) op)
-                  (bsr num lst (add indice 1) alto op)))
+                  (bsr num lst basso (- indice 1) op)
+                  (bsr num lst (+ indice 1) alto op)))
           ((< (lst indice) num)
               (if (= op >)
-                  (bsr num lst (add indice 1) alto op)
-                  (bsr num lst basso (sub indice 1) op)))
+                  (bsr num lst (+ indice 1) alto op)
+                  (bsr num lst basso (- indice 1) op)))
           (true indice)
     );cond
   )
-  (bsr num lst 0 (length lst) op)
+  (if (= lst '())
+    -1
+    (bsr num lst 0 (length lst) op)
+  )
 )
-
-(bs-r 2 '(-31 0 1 2 3 4 65 83 99 782))
 
 (bs-r 2 '(-31 0 1 2 3 4 65 83 99 782) >)
 ;-> 3
@@ -1768,6 +1777,12 @@ Vediamo la versione ricorsiva:
 
 (bs-r -2 '(782 99 83 65 4 3 2 1 0 -31) <)
 ;-> -1
+
+(bs-r 1 '() >)
+;-> -1
+
+(bs-r 2 '(1 2 2 3) >)
+;-> 2 ;restituisce il secondo valore del 2
 
 
 --------------------

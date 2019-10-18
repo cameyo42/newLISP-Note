@@ -1579,6 +1579,43 @@ Anche la seguente funzione calcola le permutazioni, ma con un metodo diverso:
 (permutations '(1 2 3))
 ;-> ((1 2 3) (2 1 3) (2 3 1) (1 3 2) (3 1 2) (3 2 1))
 
+Possiamo creare le permutazioni utilizzando l'algoritmo di Heap ( https://en.wikipedia.org/wiki/Heap%27s_algorithm ).
+Questo algoritmo produce tutte le permutazioni scambiando un elemento ad ogni iterazione.
+
+(define (perm lst)
+  (local (i indici out)
+    (setq indici (dup 0 (length lst)))
+    (setq i 0)
+    ; aggiungiamo la lista iniziale alla soluzione
+    (setq out (list lst))
+    (while (< i (length lst))
+      (if (< (indici i) i)
+          (begin
+            (if (zero? (% i 2))
+              (swap (lst 0) (lst i))
+              (swap (lst (indici i)) (lst i))
+            )
+            ;(println lst);
+            (push lst out -1)
+            (++ (indici i))
+            (setq i 0)
+          )
+          (begin
+            (setf (indici i) 0)
+            (++ i)
+          )
+       )
+    )
+    out
+  )
+)
+
+(length (perm '(0 1 2 3 4 5 6 7 8 9)))
+;-> 36628800
+
+(time (length (perm '(0 1 2 3 4 5 6 7 8 9))))
+;-> 3928.519
+
 
 ------------
 COMBINAZIONI
@@ -1773,7 +1810,7 @@ Troviamo gli indici degli elementi che hanno valore 4 e 6:
 
 Finalmente abbiamo trovato la soluzione.
 
-Come abbiamo anticipato, si può trovare la soluzione calcolando A(n,W). Per farlo in modo efficiente si può usare una tabella che memorizzi i calcoli fatti precedentemente (memoization o programmazione dinamica). Questa soluzione impiegherà quindi un tempo proporzionale a O(nW)} e uno spazio anch'esso proporzionale a O(nW).
+Come abbiamo anticipato, si può trovare la soluzione calcolando A(n,W). Per farlo in modo efficiente si può usare una tabella che memorizza i calcoli fatti precedentemente (memoization o programmazione dinamica). Questa soluzione impiegherà quindi un tempo proporzionale a O(nW)} e uno spazio anch'esso proporzionale a O(nW).
 
 (define (knapsack C items)
   (define (getNomi lst) (map (fn(x) (first x)) lst))

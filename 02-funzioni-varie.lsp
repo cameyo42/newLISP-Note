@@ -1,7 +1,7 @@
 ================
 
  FUNZIONI VARIE
- 
+
 ================
 
 In questo capitolo definiremo alcune funzioni che operano sulle liste e altre funzioni di carattere generale. Alcune di queste ci serviranno successivamente per risolvere i problemi che andremo ad affrontare.
@@ -444,7 +444,7 @@ Conversione decimale --> romano
 ; Sam Cox December 8, 2003
 ;
 ; LM 2003/12/12: took out type checking of n
-;                 
+;
 ;
 ; This function constructs a roman numeral representation from its positive
 ; integer argument, N.  For example,
@@ -463,13 +463,13 @@ Conversione decimale --> romano
 ; auxiliary symbol in front.  For example, use CML for 950 instead of LM.
 ; ---
 ; The VNR Encyclopedia of Mathematics, W. Gellert, H. Kustner, M. Hellwich,
-; and H. Kastner, eds., Van Nostrand Reinhold Company, New York, 1975.  
+; and H. Kastner, eds., Van Nostrand Reinhold Company, New York, 1975.
 
 (define (roman n)
         (roman-aux "" n (first *ROMAN*) (rest *ROMAN*)))
 
 (define (roman-aux result n pair remaining)
-    (roman-aux-2 result n (first pair) (second pair) remaining)) 
+    (roman-aux-2 result n (first pair) (second pair) remaining))
 
 (define (roman-aux-2 result n val rep remaining)
     (if
@@ -478,9 +478,9 @@ Conversione decimale --> romano
         (< n val)
             (roman-aux result n (first remaining) (rest remaining))
         ;else
-            (roman-aux-2 (append result rep) (- n val) val rep remaining))) 
+            (roman-aux-2 (append result rep) (- n val) val rep remaining)))
 
-(define (second x) (nth 1 x)) 
+(define (second x) (nth 1 x))
 
 (setq *ROMAN*
          '(( 1000  "M" )
@@ -501,7 +501,7 @@ Conversione decimale --> romano
            (    9 "IX" )
            (    5  "V" )
            (    4 "IV" )
-           (    1  "I" ))) 
+           (    1  "I" )))
 
 
 ------------------------------------
@@ -934,7 +934,7 @@ Oppure:
 Oppure:
 
 (map (fn (x) (list $idx x)) '((a b) (c d) e))
-;-> ((0 a) (1 b) (2 c))
+;-> ((0 (a b)) (1 (c d)) (2 e))
 
 
 -----------------------------------------------------------
@@ -2148,5 +2148,837 @@ Vediamo il risultato:
 
 lst
 ;-> ((8 (a) 2) (-3 (b) 5))
+
+
+---------------------------------------
+Download tutti i file da una pagina web
+---------------------------------------
+
+La seguente funzione permette di scaricare tutti i file da una pagina web.
+
+; get-all.lsp
+; cameyo 2019
+; scarica tutti i file da una pagina web
+; get all downloadable files from a webpage
+
+; get the page
+(setq page (get-url "http://newlisp.digidep.net/"))
+(setq page (get-url "http://landoflisp.com/source.html"))
+
+; find files (*.lsp)
+(setq filesA (find-all {href="(.*\.lsp)"} page $1))
+
+; find files (*.jpg)
+(setq filesB (find-all {href="(.*\.jpg)"} page $1))
+
+(setq allfiles (union filesA filesB))
+
+(dolist (file allfiles)
+        (write-file file (get-url (string "http://newlisp.digidep.net/scripts/" file)))
+        (println "->" file))
+
+Esempio:
+
+(change-dir "c:/temp")
+(setq page (get-url "http://landoflisp.com/source.html"))
+(setq allfiles (find-all {href="(.*\.lisp)"} page $1))
+(dolist (file allfiles)
+        (write-file file (get-url (string "http://landoflisp.com/source.html" file)))
+        (println "-> " file))
+;-> -> guess.lisp
+;-> -> wizards_game.lisp
+;-> -> graph-util.lisp
+;-> -> wumpus.lisp
+;-> -> orc-battle.lisp
+;-> -> evolution.lisp
+;-> -> robots.lisp
+;-> -> webserver.lisp
+;-> -> dice_of_doom_v1.lisp
+;-> -> svg.lisp
+;-> -> wizard_special_actions.
+;-> -> lazy.lisp
+;-> -> dice_of_doom_v2.lisp
+;-> -> dice_of_doom_v3.lisp
+;-> -> dice_of_doom_v4.lisp
+
+
+-------------------------------------
+Conversione numero da cifre a lettere
+-------------------------------------
+
+Vogliamo convertire un numero da cifre a lettere, ad esempio:
+
+10421 -> diecimilaquattrocentoventuno
+
+Questo problema è più difficile da risolvere per la lingua italiana che per quella inglese a causa delle cifre 1 ("uno") e 8 ("otto") che modifica la lettura del numero (es. ventuno e non ventiuno, trentotto e non trantaotto).
+
+Come prima cosa definiamo alcune liste:
+
+  ; la cifra 1
+  (setq un "Un")
+  ; le dieci cifre - codeA
+  (setq cifre '("Zero" "Uno" "Due" "Tre" "Quattro" "Cinque" "Sei" "Sette"
+    "Otto" "Nove"))
+  ; i primi venti numeri - code
+  (setq venti '("Zero" "Uno" "Due" "Tre" "Quattro" "Cinque" "Sei" "Sette"
+    "Otto" "Nove" "Dieci" "Undici" "Dodici" "Tredici" "Quattordici"
+    "Quindici" "Sedici" "Diciassette" "Diciotto" "Diciannove"))
+  ; le decine - codeB
+  (setq decine '("" "" "Venti" "Trenta" "Quaranta" "Cinquanta"
+    "Sessanta" "Settanta" "Ottanta" "Novanta"))
+  ; le decine senza vocali - codeB1
+  (setq dcn    '("" "" "Vent" "Trent" "Quarant" "Cinquant"
+    "Sessant" "Settant" "Ottant" "Novant"))
+  ; il numero 100
+  (setq cento "Cento")
+  ; multipli con la cifra 1 - codeC
+  (setq multiplo '("" "Mille" "Milione" "Miliardo" "Bilione" "Biliardo"
+    "Trilione" "Triliardo" "Quadrilione" "Quadriliardo"))
+  ; multipli con la cifra diversa da 1 - codeC1
+  (setq multipli '("" "Mila" "Milioni" "Miliardi" "Bilioni" "Biliardi"
+    "Trilioni" "Triliardi" "Quadrilioni" "Quadriliardi"))
+
+Poichè la lettura di un numero procede per gruppi di tre (partendo da sinistra) scriviamo una funzione che converte in lettere un numero con 3 cifre. I numeri con una o due cifre devono essere riempiti con degli zeri: 000,001,002,...,999.
+L'algoritmo controlla a quale cifra si riferisce (unita, decine o centinaia) e crea la stringa relativa. La creazione della stringa avviene scegliendo la lista corretta in base al valore della cifra e verificando se la cifra vale 1 o 8.
+
+(define (triple num)
+  (local (lst res)
+    (setq res "")
+    ; lista delle cifre
+    (setq lst (map int (explode (string num))))
+    (dolist (el lst)
+      (cond ((= el 0) nil)
+            (true (cond ((= $idx 2) ; cifra unita ?
+                          (if (!= 1 (lst 1)) ; ultime 2 cifre > 19 ?
+                              (setq res (append res (cifre el)))))
+                        ((= $idx 1) ; cifra decine ?
+                          (if (= el 1) ; ultime 2 cifre < 20 ?
+                            ; prendo il numero da 11 a 19
+                            (setq res (append res (venti (+ 9 el (lst 2)))))
+                            ; oppure prendo le decine
+                            (if (or (= 1 (lst 2)) (= 8 (lst 2))) ; numero finisce con 1 o con 8?
+                              ; prendo le decine senza vocale finale
+                              (setq res (append res (dcn el)))
+                              ; oppure prendo le decine con vocale finale
+                              (setq res (append res (decine el))))))
+                        ((= $idx 0) ; cifra centinaia ?
+                          (if (= el 1) ; cifra centinaia = 1 ?
+                              ; prendo solo "cento"
+                              (setq res (append res cento))
+                              ; prendo il numero e "cento"
+                              (setq res (append res (venti el) cento))))
+                  )
+            )
+      )
+    )
+    res
+  )
+)
+
+Proviamo la funzione:
+
+(triple "010")
+;-> Dieci
+(triple "070")
+;-> "Settanta"
+(triple "999")
+;-> "NoveCentoNovantaNove"
+(triple "007")
+;-> "Sette"
+(triple "000")
+;-> ""
+(triple 100)
+;-> "Cento"
+(triple "001")
+;-> "Uno"
+(triple "016")
+;-> "Sedici"
+(triple "020")
+;-> Venti
+(triple "011")
+;-> "Undici"
+(triple "071")
+;-> "SettantUno"
+(triple "021")
+;-> "Ventuno"
+(triple "088")
+;-> "OttantOtto"
+
+Adesso definiamo una funzione che formatta un numero. La funzione prende un numero da formattare in stringa, un numero che rappresenta la lunghezza della stringa finale e un carattere con cui viene riempita la stringa se il numero ha una lunghezza inferiore alla lunghezza della stringa finale.
+
+(define (pad num len ch)
+  (local (out)
+    (setq out (string num))
+    (while (> len (length out))
+      (setq out (string ch out)))
+  out
+  )
+)
+
+(pad 1256 8 "0")
+;-> "00001256"
+
+(pad 124623 3 "0")
+;-> "124623"
+
+(pad 1 3 "0")
+;-> "001"
+
+Ora possiamo stampare tutti i numeri da 1 (uno) a 100 (cento):
+
+(for (i 1 100) (println i { - } (triple (pad i 3 "0"))))
+;-> 1 - Uno
+;-> 2 - Due
+;-> 3 - Tre
+;-> 4 - Quattro
+;-> 5 - Cinque
+;-> 6 - Sei
+;-> 7 - Sette
+;-> 8 - Otto
+;-> 9 - Nove
+;-> 10 - Dieci
+;-> 11 - Undici
+;-> ...
+;-> 89 - OttantaNove
+;-> 90 - Novanta
+;-> 91 - NovantUno
+;-> 92 - NovantaDue
+;-> 93 - NovantaTre
+;-> 94 - NovantaQuattro
+;-> 95 - NovantaCinque
+;-> 96 - NovantaSei
+;-> 97 - NovantaSette
+;-> 98 - NovantaOtto
+;-> 99 - NovantaNove
+;-> 100 - Cento
+
+La funzione finale utilizza la funzione "triple" e tiene conto del numero (indice) della tripla a cui si riferisce per la creazione della stringa risultato.
+
+(define (numero num)
+  (local (lst tri val out)
+    (setq out "")
+    (if (= (string num) "0")
+      (setq out "zero")
+      (begin
+        ; calcola il numero di triplette
+        (if (zero? (% (length (string num)) 3))
+            (setq tri (/ (length (string num)) 3))
+            (setq tri (+ (/ (length (string num)) 3) 1))
+        )
+        ; formatta in stringa il numero (padding)
+        ; e crea una lista con tutte le triplette
+        (setq lst (explode (pad (string num) (* 3 tri) "0") 3))
+        ; ciclo per la creazione della stringa finale
+        (dolist (el lst)
+          ; creazione del numero rappresentato dalla tripletta
+          (setq val (triple el))
+          ; controllo se tale numero vale "Uno"
+          (if (= val "Uno")
+            (cond ((= $idx (- (length lst) 1)) ; primo gruppo a destra ?
+                  (setq out (append out val))) ; aggiungo solo "Uno"
+                  ((= $idx (- (length lst) 2)) ; secondo gruppo a destra ?
+                  (setq out (string out (multiplo (- tri 1))))) ;aggiungo solo "Mille"
+                  ;altrimenti aggiungo "Un" e il codice corrispondente
+                  (true (setq out (string out "Un" (multiplo (- tri 1)))))
+            )
+            (if (!= val "") ; se la tripletta vale "000" --> val = ""
+              (setq out (string out val (multipli (- tri 1)))))
+          )
+          (-- tri)
+          ;(println (triple el))
+        )
+        out
+      )
+    )
+  )
+)
+
+(numero "2001001")
+;-> "DueMilioniMilleUno"
+(numero "1000000")
+;-> "UnMilione"
+(numero "12345670")
+;-> "DodiciMilioniTreCentoQuarantaCinqueMilaSeiCentoSettanta"
+(numero "2401001024")
+;-> "DueMiliardiQuattroCentoUnoMilioniMilleVentiQuattro"
+(numero "1111111111")
+;-> "UnMiliardoCentoUndiciMilioniCentoUndiciMilaCentoUndici"
+(numero "888881")
+;-> "OttoCentoOttantOttoMilaOttoCentoOttantUno"
+
+(for (i 0 100) (println i { - } (numero i)))
+;-> 0 - zero
+;-> 1 - Uno
+;-> 2 - Due
+;-> 3 - Tre
+;-> 4 - Quattro
+;-> 5 - Cinque
+;-> 6 - Sei
+;-> 7 - Sette
+;-> 8 - Otto
+;-> 9 - Nove
+;-> 10 - Dieci
+;-> 11 - Undici
+;-> ...
+;-> 88 - OttantOtto
+;-> 89 - OttantaNove
+;-> 90 - Novanta
+;-> 91 - NovantUno
+;-> 92 - NovantaDue
+;-> 93 - NovantaTre
+;-> 94 - NovantaQuattro
+;-> 95 - NovantaCinque
+;-> 96 - NovantaSei
+;-> 97 - NovantaSette
+;-> 98 - NovantOtto
+;-> 99 - NovantaNove
+;-> 100 - Cento
+
+
+--------------------------------------
+Punto a destra o sinistra di una linea
+--------------------------------------
+
+Data una linea e un punto, determinare se il punto si trova a destra o a sinistra della linea.
+Utilizziamo il prodotto vettoriale (cross-product) tra due vettori.
+Se il prodotto è maggiore di zero, allora il punto si trova a sinistra della linea.
+Se il prodotto è minore di zero, allora il punto si trova a destra della linea.
+Se il prodotto è uguale a zero, allora il punto si trova sulla linea.
+
+cross(point a, point b, point c)
+{
+     return ((b.X - a.X)*(c.Y - a.Y) - (b.Y - a.Y)*(c.X - a.X));
+}
+
+dove:
+a = primo punto della linea
+b = secondo punto della linea
+c = punto da verificare
+
+Nel caso in cui la linea è orizzontale:
+Se il prodotto è maggiore di zero, allora il punto si trova sopra la linea.
+Se il prodotto è minore di zero, allora il punto si trova sotto la linea.
+Se il prodotto è uguale a zero, allora il punto si trova sulla linea.
+
+Esempio:
+
+      |         .
+      |         .PL2
+      |         O
+      |         .
+      |         .
+      |         .      P4
+      |         .     X
+      |   P3    .
+      |     X   .
+      |         .
+      |         .
+      |    P1   .PL1
+      |   X     O
+      |         .        P2
+      |         .       X
+      |         .
+   -------------.--------------------
+      |         .
+
+(setq PL1 '(5 2))
+(setq PL2 '(5 8))
+(setq P1 '(2 3))
+(setq P2 '(9 1))
+(setq P3 '(3 6))
+(setq P4 '(8 7))
+
+(define (sinistra? PL1 PL2 P)
+  (local (pl1.x pl1.y pl2.x pl2.y p.x p.y)
+    (setq pl1.x (first PL1) pl1.y (last PL1))
+    (setq pl2.x (first PL2) pl2.y (last PL2))
+    (setq p.x (first P) p.y (last P))
+    (> (sub (mul (sub pl2.x pl1.x) (sub p.y pl1.y))
+            (mul (sub pl2.y pl1.y) (sub p.x pl1.x))) 0)
+  )
+)
+
+(sinistra? PL1 PL2 P1)
+;-> true
+(sinistra? PL1 PL2 P2)
+;-> nil
+(sinistra? PL1 PL2 P3)
+;-> true
+(sinistra? PL1 PL2 P4)
+;-> nil
+
+
+----------------------------------------------
+Creazione di un poligono da una lista di punti
+----------------------------------------------
+
+Data una lista di punti, costruire un poligono semplice (non autointersecante) con tutti i punti.
+
+Ordiniamo i punti in base all'angolo creato con l'asse X quando si traccia una linea attraverso il punto e il punto più basso a destra (sinistra).
+Se due o più punti formano lo stesso angolo con l'asse X (cioè sono allineati rispetto al punto di riferimento), questi punti devono essere ordinati in base alla distanza dal punto di riferimento.
+
+Di seguito il codice che implementa questo algoritmo:
+
+Funzione di confronto angoli usata dalla funzione "sort":
+
+(define (angleCompare a b)
+  (local (left)
+    (setq left (isLeft p0 a b))
+    (if (= left 0)
+      (distCompare a b);
+      (> left 0)
+    )
+  )
+)
+
+Funzione di confronto distanze usata dalla funzione "sort":
+
+(define (distCompare a b)
+  (local (distA distB)
+    (setq distA (add (mul (sub (first p0) (first a)) (sub (first p0) (first a)))
+                    (mul (sub (last p0)  (last a))  (sub (last p0)  (last a)))))
+    (setq distB (add (mul (sub (first p0) (first b)) (sub (first p0) (first b)))
+                    (mul (sub (last p0)  (last b))  (sub (last p0)  (last b)))))
+    (> distA distB)
+  )
+)
+
+Funzione che ritorna la posizione di un punto rispetto ad una retta:
+
+(define (isLeft p0 a b)
+  (sub (mul (sub (first a) (first p0)) (sub (last b) (last p0)))
+       (mul (sub (first b) (first p0)) (sub (last a) (last p0))))
+)
+
+(define (crea-poligono lst)
+  (local (p0 hull out)
+    ; trova il punto più in basso (e più a sinistra)
+    (setq hull (lst 0))
+    (for (i 1 (- (length lst) 1))
+      (if (<= (last (lst i)) (last hull))
+          (if (= (last (lst i)) (last hull))
+              (if (> (first (lst i)) (first hull))
+                  (setq hull (lst i)))
+              (setq hull (lst i))
+          )
+      )
+    )
+    (setq p0 hull)
+    ;(println hull)
+    (sort lst angleCompare)
+  )
+)
+
+Vediamo alcuni esempi:
+
+Esempio 1:
+
+(setq P1 '(0 0))
+(setq P2 '(90 10))
+(setq P3 '(30 40))
+(setq P4 '(80 50))
+(setq P5 '(50 60))
+(setq P6 '(10 100))
+(setq P7 '(20 20))
+(setq P8 '(30 10))
+
+(setq points (list P1 P2 P3 P4 P5 P6 P7 P8))
+
+(setq lista (crea-poligono points))
+;-> ((90 10) (30 10) (80 50) (20 20) (50 60) (30 40) (10 100) (0 0))
+
+Per verificare il risultato scriviamo una funzione che crea un file postscript (che viene poi convertito con ghostscript tramite un programma batch):
+
+(define (disegna lista-punti file)
+  (local (xc yc punti)
+    (module "postscript.lsp")
+    ; setup iniziale
+    ; creazione sfondo nero
+    (ps:goto 0 0)
+    (ps:fill-color 0 0 0)
+    (ps:line-color 0 0 0)
+    (ps:rectangle 612 792 true)
+    ; tipo giunzione (1 = round)
+    (ps:line-join 1)
+    ; spessore linea
+    (ps:line-width 0.25)
+    ;colore linea
+    (ps:line-color 220 220 220)
+    ;colore riempimento
+    (ps:fill-color 255 20 20)
+    ; coordinate centro della pagina
+    (setq xc (/ 612 2))
+    (setq yc (/ 792 2))
+    ; punti da tracciare
+    (setq punti lista-punti)
+    ; Inizia a disegnare dal centro pagina partendo dal primo punto
+    (ps:goto (+ xc (first (punti 0))) (+ yc (last (punti 0))))
+    ; Sposto il primo punto alla fine (chiusura del poligono)
+    (push (pop punti) punti -1)
+    ; Disegna il poligono
+    (dolist (el punti)
+      ; disegna linea dalla posizione corrente al punto passato come parametro
+      (ps:drawto (+ xc (first el)) (+ yc (last el)))
+      ; disegna un punto alla posizione corrente
+      (ps:circle 1 true)
+    )
+    ; salva il file postscript
+    ;(ps:save "poly.ps")
+    (ps:save (string file ".ps"))
+    ; conversione del file .ps al file .pdf (ghostscript)
+    ;(! (string "ps2pdf poly.ps poly.pdf")
+    (! (string "ps2pdf " file ".ps " file ".pdf"))
+  )
+)
+
+Creiamo i file "poly-1.ps" e "poly-1.pdf":
+
+(disegna lista "poly-1")
+
+Esempio 2:
+
+(setq P1 '(20 20))
+(setq P2 '(40 80))
+(setq P3 '(30 50))
+(setq P4 '(50 10))
+(setq P5 '(70 40))
+(setq P6 '(70 70))
+(setq P7 '(80 20))
+(setq P8 '(30 10))
+
+(setq points (list P1 P2 P3 P4 P5 P6 P7 P8))
+
+(setq lista (crea-poligono points))
+;-> ((80 20) (70 40) (70 70) (40 80) (30 50) (20 20) (30 10) (50 10))
+
+Creiamo i file "poly-2.ps" e "poly-2.pdf":
+
+(disegna lista "poly-2")
+
+Esempio 3:
+
+(setq P1 '(80 90))
+(setq P2 '(50 90))
+(setq P3 '(70 70))
+(setq P4 '(40 70))
+(setq P5 '(60 50))
+(setq P6 '(80 30))
+(setq P7 '(40 40))
+(setq P8 '(20 30))
+(setq P9 '(60 20))
+
+(setq points (list P1 P2 P3 P4 P5 P6 P7 P8 P9))
+
+(setq lista (crea-poligono points))
+;-> ((80 30) (80 90) (70 70) (60 50) (50 90) (40 70) (40 40) (20 30) (60 20))
+
+Creiamo i file "poly-3.ps" e "poly-3.pdf":
+
+(disegna lista "poly-3")
+
+Esempio 4:
+
+(setq P1 '(20 20))
+(setq P2 '(40 50))
+(setq P3 '(100 20))
+(setq P4 '(60 30))
+(setq P5 '(80 50))
+
+(setq points (list P1 P2 P3 P4 P5))
+
+(setq lista (crea-poligono points))
+;-> ((80 50) (40 50) (60 30) (20 20) (100 20))
+
+Creiamo i file "poly-4.ps" e "poly-4.pdf":
+
+(disegna lista "poly-4")
+
+Esempio 5:
+
+(setq P1 '(20 20))
+(setq P2 '(40 80))
+(setq P3 '(30 50))
+(setq P4 '(50 10))
+(setq P5 '(70 40))
+(setq P6 '(70 70))
+(setq P7 '(80 20))
+(setq P8 '(30 10))
+(setq P9 '(120 50))
+(setq P10 '(50 40))
+
+(setq points (list P1 P2 P3 P4 P5 P6 P7 P8 P9 P10))
+
+(setq lista (crea-poligono points))
+;-> ((80 20) (120 50) (70 40) (70 70) (50 40) (40 80) (30 50) (20 20) (30 10) (50 10))
+
+Creiamo i file "poly-5.ps" e "poly-5.pdf":
+
+(disegna lista "poly-5")
+
+Nota: questo algoritmo non trova il percorso minimo tra i punti.
+
+
+-------------------------------------
+Percorso minimo di una lista di punti
+-------------------------------------
+
+Data una lista di punti, costruire il poligono con tutti i punti che ha lunghezza minima.
+
+Generiamo tutte le permutazioni dei punti e calcoliamo la somma totale della distanza tra i punti per ogni permutazione. La permutazione che ha la distanza minima è la soluzione.
+
+Funzione per calcolare le permutazioni:
+
+(define (perm lst)
+  (local (i indici out)
+    (setq indici (dup 0 (length lst)))
+    (setq i 0)
+    (setq out (list lst))
+    (while (< i (length lst))
+      (if (< (indici i) i)
+          (begin
+            (if (zero? (% i 2))
+              (swap (lst 0) (lst i))
+              (swap (lst (indici i)) (lst i))
+            )
+            ;(println lst);
+            (push lst out -1)
+            (++ (indici i))
+            (setq i 0)
+          )
+          (begin
+            (setf (indici i) 0)
+            (++ i)
+          )
+       )
+    )
+    out
+  )
+)
+
+(length (perm '(0 1 2 3 4 5 6 7)))
+;-> 40320
+
+Supponiamo di avere i seguenti punti.
+
+Esempio 1:
+
+(setq P1 '(0 0))
+(setq P2 '(90 10))
+(setq P3 '(30 40))
+(setq P4 '(80 50))
+(setq P5 '(50 60))
+(setq P6 '(10 100))
+(setq P7 '(20 20))
+(setq P8 '(30 10))
+
+(setq points (list P1 P2 P3 P4 P5 P6 P7 P8))
+
+Funzione per calcolare il quadrato della distanza tra due punti (questo è sufficiente per il confronto tra due distanze):
+
+(define (quad-dist p q)
+  (add
+    (mul (sub (first q) (first p)) (sub (first q) (first p)))
+    (mul (sub (last q) (last p)) (sub (last q) (last p)))))
+
+(quad-dist P2 P1)
+;-> 8200
+(quad-dist P3 P2)
+;-> 4500
+
+Adesso definiamo la funzione finale:
+
+(define (tsp lst)
+  (local (permutazioni sol points dist dist-min)
+    ;(setq points (map (fn (x) (list $idx x)) lst))
+    (setq permutazioni (perm lst))
+    (setq dist-min '999999)
+    (dolist (p permutazioni)
+      (setq dist 0)
+      (for (i 1 (- (length p) 1))
+        (setq dist (add dist (quad-dist (p i) (p (- i 1)))))
+      )
+      (if (< dist dist-min)
+          (begin
+            (setq dist-min dist)
+            (setq sol p))
+            ;(println p { } dist-min)
+      )
+    )
+    sol
+  )
+)
+
+Proviamo la funzione:
+
+(setq lista (tsp points))
+;-> ((0 0) (30 10) (20 20) (30 40) (10 100) (50 60) (80 50) (90 10))
+
+Per verificare il risultato scriviamo una funzione che crea un file postscript (che viene poi convertito con ghostscript tramite un programma batch):
+
+(define (disegna lista-punti file)
+  (local (xc yc punti)
+    (module "postscript.lsp")
+    ; setup iniziale
+    ; creazione sfondo nero
+    (ps:goto 0 0)
+    (ps:fill-color 0 0 0)
+    (ps:line-color 0 0 0)
+    (ps:rectangle 612 792 true)
+    ; tipo giunzione (1 = round)
+    (ps:line-join 1)
+    ; spessore linea
+    (ps:line-width 0.25)
+    ;colore linea
+    (ps:line-color 220 220 220)
+    ;colore riempimento
+    (ps:fill-color 255 20 20)
+    ; coordinate centro della pagina
+    (setq xc (/ 612 2))
+    (setq yc (/ 792 2))
+    ; punti da tracciare
+    (setq punti lista-punti)
+    ; Inizia a disegnare dal centro pagina partendo dal primo punto
+    (ps:goto (+ xc (first (punti 0))) (+ yc (last (punti 0))))
+    ; Sposto il primo punto alla fine (chiusura del poligono)
+    (push (pop punti) punti -1)
+    ; Disegna il poligono
+    (dolist (el punti)
+      ; disegna linea dalla posizione corrente al punto passato come parametro
+      (ps:drawto (+ xc (first el)) (+ yc (last el)))
+      ; disegna un punto alla posizione corrente
+      (ps:circle 1 true)
+    )
+    ; salva il file postscript
+    ;(ps:save "poly.ps")
+    (ps:save (string file ".ps"))
+    ; conversione del file .ps al file .pdf (ghostscript)
+    ;(! (string "ps2pdf poly.ps poly.pdf")
+    (! (string "ps2pdf " file ".ps " file ".pdf"))
+  )
+)
+
+Creiamo i file "tsp-1.ps" e "tsp-1.pdf":
+
+(disegna lista "tsp-1")
+
+Esempio 2:
+
+(setq P1 '(20 20))
+(setq P2 '(40 80))
+(setq P3 '(30 50))
+(setq P4 '(50 10))
+(setq P5 '(70 40))
+(setq P6 '(70 70))
+(setq P7 '(80 20))
+(setq P8 '(30 10))
+
+(setq points (list P1 P2 P3 P4 P5 P6 P7 P8))
+
+(setq lista (tsp points))
+;-> ((50 10) (30 10) (20 20) (30 50) (40 80) (70 70) (70 40) (80 20))
+
+Creiamo i file "tsp-2.ps" e "tsp-2.pdf":
+
+(disegna lista "tsp-2")
+
+Esempio 3:
+
+(setq P1 '(80 90))
+(setq P2 '(50 90))
+(setq P3 '(70 70))
+(setq P4 '(40 70))
+(setq P5 '(60 50))
+(setq P6 '(80 30))
+(setq P7 '(40 40))
+(setq P8 '(20 30))
+(setq P9 '(60 20))
+
+(setq points (list P1 P2 P3 P4 P5 P6 P7 P8 P9))
+
+(setq lista (tsp points))
+;-> ((20 30) (40 40) (60 20) (80 30) (60 50) (70 70) (80 90) (50 90) (40 70))
+
+Creiamo i file "tsp-3.ps" e "tsp-3.pdf":
+
+(disegna lista "tsp-3")
+
+Esempio 4:
+
+(setq P1 '(20 20))
+(setq P2 '(40 50))
+(setq P3 '(100 20))
+(setq P4 '(60 30))
+(setq P5 '(80 50))
+
+(setq points (list P1 P2 P3 P4 P5))
+
+(setq lista (tsp points))
+;-> ((20 20) (40 50) (60 30) (80 50) (100 20))
+
+Creiamo i file "tsp-4.ps" e "tsp-4.pdf":
+
+(disegna lista "tsp-4")
+
+Esempio 5:
+
+(setq P1 '(20 20))
+(setq P2 '(40 80))
+(setq P3 '(30 50))
+(setq P4 '(50 10))
+(setq P5 '(70 40))
+(setq P6 '(70 70))
+(setq P7 '(80 20))
+(setq P8 '(30 10))
+(setq P9 '(120 50))
+(setq P10 '(50 40))
+
+(setq points (list P1 P2 P3 P4 P5 P6 P7 P8 P9 P10))
+
+(time (setq lista (tsp points)))
+;-> 34969.302
+
+lista
+;-> ((20 20) (30 10) (50 10) (80 20) (70 40) (50 40) (30 50) (40 80) (70 70) (120 50))
+
+Creiamo i file "tsp-5.ps" e "tsp-5.pdf":
+
+(disegna lista "tsp-5")
+
+Nota: Con questo algoritmo possiamo usare al massimo dieci punti (altrimenti il calcolo delle permutazioni richiederebbe troppo tempo)
+
+
+---------------------------
+Utilizzo del protocollo ftp
+---------------------------
+
+newLISP mette a disposizione un modulo per il download e l'upload di file tramite il protocollo ftp.
+
+Esempio:
+
+; ftp: ftp://ftpzone.data
+; remote folder: temp
+; Utente    Password    Diritti
+; ------    --------    -------
+; user1     pwd1        lettura
+; user2     pwd2        lettura/scrittura
+
+; load ftp module
+(module "ftp.lsp")
+
+; primitive functions
+;; (FTP:get <str-user-id> <str-password> <str-host> <str-dir> <str-file-name>)
+;; (FTP:put <str-user-id> <str-password> <str-host> <str-dir> <str-file-name>)
+
+(set 'FTP:debug-mode true)
+
+; Upload file:
+
+(FTP:put "user2" "pwd2" "ftpzone.data" "temp" "filename.ext")
+;-> true
+
+; Download file:
+
+(FTP:get "user2" "pwd2" "ftpzone.data" "temp" "filename.ext")
+;-> true
 
 

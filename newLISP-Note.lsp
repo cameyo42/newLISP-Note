@@ -116,6 +116,12 @@ FUNZIONI VARIE
   Ispezionare una cella newLISP
   Informazioni sul sistema (sys-info)
   Valutazione di elementi di una lista
+  Download tutti i file da una pagina web
+  Conversione numero da cifre a lettere
+  Punto a destra o sinistra di una linea
+  Creazione di un poligono da una lista di punti
+  Percorso minimo di una lista di punti
+  Utilizzo del protocollo ftp
 
 newLISP 99 PROBLEMI (28)
 ========================
@@ -290,7 +296,7 @@ DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Stanze e riunioni (Snapchat)
   Bilanciamento parentesi (Facebook)
   K punti più vicini - K Nearest points (LinkedIn)
-  Ordinamento Colori (LeetCode)
+  Ordinamento Colori (LeetCode) 
   Unione di intervalli (Google)
   Somma dei numeri unici (Google)
   Unione di due liste ordinate (Google)
@@ -336,6 +342,8 @@ NOTE LIBERE
   I cicli (loops)
   L'alfabeto web "Leet"
   Autogrammi
+  Ambito dinamico e ambito lessicale (statico)
+  Uso delle espressioni condizionali
 
 APPENDICI
 =========
@@ -6272,7 +6280,7 @@ Che ci crediate o no, le poche regole appena esplicate (che non esauriscono l’
 ================
 
  FUNZIONI VARIE
- 
+
 ================
 
 In questo capitolo definiremo alcune funzioni che operano sulle liste e altre funzioni di carattere generale. Alcune di queste ci serviranno successivamente per risolvere i problemi che andremo ad affrontare.
@@ -6715,7 +6723,7 @@ Conversione decimale --> romano
 ; Sam Cox December 8, 2003
 ;
 ; LM 2003/12/12: took out type checking of n
-;                 
+;
 ;
 ; This function constructs a roman numeral representation from its positive
 ; integer argument, N.  For example,
@@ -6734,13 +6742,13 @@ Conversione decimale --> romano
 ; auxiliary symbol in front.  For example, use CML for 950 instead of LM.
 ; ---
 ; The VNR Encyclopedia of Mathematics, W. Gellert, H. Kustner, M. Hellwich,
-; and H. Kastner, eds., Van Nostrand Reinhold Company, New York, 1975.  
+; and H. Kastner, eds., Van Nostrand Reinhold Company, New York, 1975.
 
 (define (roman n)
         (roman-aux "" n (first *ROMAN*) (rest *ROMAN*)))
 
 (define (roman-aux result n pair remaining)
-    (roman-aux-2 result n (first pair) (second pair) remaining)) 
+    (roman-aux-2 result n (first pair) (second pair) remaining))
 
 (define (roman-aux-2 result n val rep remaining)
     (if
@@ -6749,9 +6757,9 @@ Conversione decimale --> romano
         (< n val)
             (roman-aux result n (first remaining) (rest remaining))
         ;else
-            (roman-aux-2 (append result rep) (- n val) val rep remaining))) 
+            (roman-aux-2 (append result rep) (- n val) val rep remaining)))
 
-(define (second x) (nth 1 x)) 
+(define (second x) (nth 1 x))
 
 (setq *ROMAN*
          '(( 1000  "M" )
@@ -6772,7 +6780,7 @@ Conversione decimale --> romano
            (    9 "IX" )
            (    5  "V" )
            (    4 "IV" )
-           (    1  "I" ))) 
+           (    1  "I" )))
 
 
 ------------------------------------
@@ -7205,7 +7213,7 @@ Oppure:
 Oppure:
 
 (map (fn (x) (list $idx x)) '((a b) (c d) e))
-;-> ((0 a) (1 b) (2 c))
+;-> ((0 (a b)) (1 (c d)) (2 e))
 
 
 -----------------------------------------------------------
@@ -8421,6 +8429,838 @@ lst
 ;-> ((8 (a) 2) (-3 (b) 5))
 
 
+---------------------------------------
+Download tutti i file da una pagina web
+---------------------------------------
+
+La seguente funzione permette di scaricare tutti i file da una pagina web.
+
+; get-all.lsp
+; cameyo 2019
+; scarica tutti i file da una pagina web
+; get all downloadable files from a webpage
+
+; get the page
+(setq page (get-url "http://newlisp.digidep.net/"))
+(setq page (get-url "http://landoflisp.com/source.html"))
+
+; find files (*.lsp)
+(setq filesA (find-all {href="(.*\.lsp)"} page $1))
+
+; find files (*.jpg)
+(setq filesB (find-all {href="(.*\.jpg)"} page $1))
+
+(setq allfiles (union filesA filesB))
+
+(dolist (file allfiles)
+        (write-file file (get-url (string "http://newlisp.digidep.net/scripts/" file)))
+        (println "->" file))
+
+Esempio:
+
+(change-dir "c:/temp")
+(setq page (get-url "http://landoflisp.com/source.html"))
+(setq allfiles (find-all {href="(.*\.lisp)"} page $1))
+(dolist (file allfiles)
+        (write-file file (get-url (string "http://landoflisp.com/source.html" file)))
+        (println "-> " file))
+;-> -> guess.lisp
+;-> -> wizards_game.lisp
+;-> -> graph-util.lisp
+;-> -> wumpus.lisp
+;-> -> orc-battle.lisp
+;-> -> evolution.lisp
+;-> -> robots.lisp
+;-> -> webserver.lisp
+;-> -> dice_of_doom_v1.lisp
+;-> -> svg.lisp
+;-> -> wizard_special_actions.
+;-> -> lazy.lisp
+;-> -> dice_of_doom_v2.lisp
+;-> -> dice_of_doom_v3.lisp
+;-> -> dice_of_doom_v4.lisp
+
+
+-------------------------------------
+Conversione numero da cifre a lettere
+-------------------------------------
+
+Vogliamo convertire un numero da cifre a lettere, ad esempio:
+
+10421 -> diecimilaquattrocentoventuno
+
+Questo problema è più difficile da risolvere per la lingua italiana che per quella inglese a causa delle cifre 1 ("uno") e 8 ("otto") che modifica la lettura del numero (es. ventuno e non ventiuno, trentotto e non trantaotto).
+
+Come prima cosa definiamo alcune liste:
+
+  ; la cifra 1
+  (setq un "Un")
+  ; le dieci cifre - codeA
+  (setq cifre '("Zero" "Uno" "Due" "Tre" "Quattro" "Cinque" "Sei" "Sette"
+    "Otto" "Nove"))
+  ; i primi venti numeri - code
+  (setq venti '("Zero" "Uno" "Due" "Tre" "Quattro" "Cinque" "Sei" "Sette"
+    "Otto" "Nove" "Dieci" "Undici" "Dodici" "Tredici" "Quattordici"
+    "Quindici" "Sedici" "Diciassette" "Diciotto" "Diciannove"))
+  ; le decine - codeB
+  (setq decine '("" "" "Venti" "Trenta" "Quaranta" "Cinquanta"
+    "Sessanta" "Settanta" "Ottanta" "Novanta"))
+  ; le decine senza vocali - codeB1
+  (setq dcn    '("" "" "Vent" "Trent" "Quarant" "Cinquant"
+    "Sessant" "Settant" "Ottant" "Novant"))
+  ; il numero 100
+  (setq cento "Cento")
+  ; multipli con la cifra 1 - codeC
+  (setq multiplo '("" "Mille" "Milione" "Miliardo" "Bilione" "Biliardo"
+    "Trilione" "Triliardo" "Quadrilione" "Quadriliardo"))
+  ; multipli con la cifra diversa da 1 - codeC1
+  (setq multipli '("" "Mila" "Milioni" "Miliardi" "Bilioni" "Biliardi"
+    "Trilioni" "Triliardi" "Quadrilioni" "Quadriliardi"))
+
+Poichè la lettura di un numero procede per gruppi di tre (partendo da sinistra) scriviamo una funzione che converte in lettere un numero con 3 cifre. I numeri con una o due cifre devono essere riempiti con degli zeri: 000,001,002,...,999.
+L'algoritmo controlla a quale cifra si riferisce (unita, decine o centinaia) e crea la stringa relativa. La creazione della stringa avviene scegliendo la lista corretta in base al valore della cifra e verificando se la cifra vale 1 o 8.
+
+(define (triple num)
+  (local (lst res)
+    (setq res "")
+    ; lista delle cifre
+    (setq lst (map int (explode (string num))))
+    (dolist (el lst)
+      (cond ((= el 0) nil)
+            (true (cond ((= $idx 2) ; cifra unita ?
+                          (if (!= 1 (lst 1)) ; ultime 2 cifre > 19 ?
+                              (setq res (append res (cifre el)))))
+                        ((= $idx 1) ; cifra decine ?
+                          (if (= el 1) ; ultime 2 cifre < 20 ?
+                            ; prendo il numero da 11 a 19
+                            (setq res (append res (venti (+ 9 el (lst 2)))))
+                            ; oppure prendo le decine
+                            (if (or (= 1 (lst 2)) (= 8 (lst 2))) ; numero finisce con 1 o con 8?
+                              ; prendo le decine senza vocale finale
+                              (setq res (append res (dcn el)))
+                              ; oppure prendo le decine con vocale finale
+                              (setq res (append res (decine el))))))
+                        ((= $idx 0) ; cifra centinaia ?
+                          (if (= el 1) ; cifra centinaia = 1 ?
+                              ; prendo solo "cento"
+                              (setq res (append res cento))
+                              ; prendo il numero e "cento"
+                              (setq res (append res (venti el) cento))))
+                  )
+            )
+      )
+    )
+    res
+  )
+)
+
+Proviamo la funzione:
+
+(triple "010")
+;-> Dieci
+(triple "070")
+;-> "Settanta"
+(triple "999")
+;-> "NoveCentoNovantaNove"
+(triple "007")
+;-> "Sette"
+(triple "000")
+;-> ""
+(triple 100)
+;-> "Cento"
+(triple "001")
+;-> "Uno"
+(triple "016")
+;-> "Sedici"
+(triple "020")
+;-> Venti
+(triple "011")
+;-> "Undici"
+(triple "071")
+;-> "SettantUno"
+(triple "021")
+;-> "Ventuno"
+(triple "088")
+;-> "OttantOtto"
+
+Adesso definiamo una funzione che formatta un numero. La funzione prende un numero da formattare in stringa, un numero che rappresenta la lunghezza della stringa finale e un carattere con cui viene riempita la stringa se il numero ha una lunghezza inferiore alla lunghezza della stringa finale.
+
+(define (pad num len ch)
+  (local (out)
+    (setq out (string num))
+    (while (> len (length out))
+      (setq out (string ch out)))
+  out
+  )
+)
+
+(pad 1256 8 "0")
+;-> "00001256"
+
+(pad 124623 3 "0")
+;-> "124623"
+
+(pad 1 3 "0")
+;-> "001"
+
+Ora possiamo stampare tutti i numeri da 1 (uno) a 100 (cento):
+
+(for (i 1 100) (println i { - } (triple (pad i 3 "0"))))
+;-> 1 - Uno
+;-> 2 - Due
+;-> 3 - Tre
+;-> 4 - Quattro
+;-> 5 - Cinque
+;-> 6 - Sei
+;-> 7 - Sette
+;-> 8 - Otto
+;-> 9 - Nove
+;-> 10 - Dieci
+;-> 11 - Undici
+;-> ...
+;-> 89 - OttantaNove
+;-> 90 - Novanta
+;-> 91 - NovantUno
+;-> 92 - NovantaDue
+;-> 93 - NovantaTre
+;-> 94 - NovantaQuattro
+;-> 95 - NovantaCinque
+;-> 96 - NovantaSei
+;-> 97 - NovantaSette
+;-> 98 - NovantaOtto
+;-> 99 - NovantaNove
+;-> 100 - Cento
+
+La funzione finale utilizza la funzione "triple" e tiene conto del numero (indice) della tripla a cui si riferisce per la creazione della stringa risultato.
+
+(define (numero num)
+  (local (lst tri val out)
+    (setq out "")
+    (if (= (string num) "0")
+      (setq out "zero")
+      (begin
+        ; calcola il numero di triplette
+        (if (zero? (% (length (string num)) 3))
+            (setq tri (/ (length (string num)) 3))
+            (setq tri (+ (/ (length (string num)) 3) 1))
+        )
+        ; formatta in stringa il numero (padding)
+        ; e crea una lista con tutte le triplette
+        (setq lst (explode (pad (string num) (* 3 tri) "0") 3))
+        ; ciclo per la creazione della stringa finale
+        (dolist (el lst)
+          ; creazione del numero rappresentato dalla tripletta
+          (setq val (triple el))
+          ; controllo se tale numero vale "Uno"
+          (if (= val "Uno")
+            (cond ((= $idx (- (length lst) 1)) ; primo gruppo a destra ?
+                  (setq out (append out val))) ; aggiungo solo "Uno"
+                  ((= $idx (- (length lst) 2)) ; secondo gruppo a destra ?
+                  (setq out (string out (multiplo (- tri 1))))) ;aggiungo solo "Mille"
+                  ;altrimenti aggiungo "Un" e il codice corrispondente
+                  (true (setq out (string out "Un" (multiplo (- tri 1)))))
+            )
+            (if (!= val "") ; se la tripletta vale "000" --> val = ""
+              (setq out (string out val (multipli (- tri 1)))))
+          )
+          (-- tri)
+          ;(println (triple el))
+        )
+        out
+      )
+    )
+  )
+)
+
+(numero "2001001")
+;-> "DueMilioniMilleUno"
+(numero "1000000")
+;-> "UnMilione"
+(numero "12345670")
+;-> "DodiciMilioniTreCentoQuarantaCinqueMilaSeiCentoSettanta"
+(numero "2401001024")
+;-> "DueMiliardiQuattroCentoUnoMilioniMilleVentiQuattro"
+(numero "1111111111")
+;-> "UnMiliardoCentoUndiciMilioniCentoUndiciMilaCentoUndici"
+(numero "888881")
+;-> "OttoCentoOttantOttoMilaOttoCentoOttantUno"
+
+(for (i 0 100) (println i { - } (numero i)))
+;-> 0 - zero
+;-> 1 - Uno
+;-> 2 - Due
+;-> 3 - Tre
+;-> 4 - Quattro
+;-> 5 - Cinque
+;-> 6 - Sei
+;-> 7 - Sette
+;-> 8 - Otto
+;-> 9 - Nove
+;-> 10 - Dieci
+;-> 11 - Undici
+;-> ...
+;-> 88 - OttantOtto
+;-> 89 - OttantaNove
+;-> 90 - Novanta
+;-> 91 - NovantUno
+;-> 92 - NovantaDue
+;-> 93 - NovantaTre
+;-> 94 - NovantaQuattro
+;-> 95 - NovantaCinque
+;-> 96 - NovantaSei
+;-> 97 - NovantaSette
+;-> 98 - NovantOtto
+;-> 99 - NovantaNove
+;-> 100 - Cento
+
+
+--------------------------------------
+Punto a destra o sinistra di una linea
+--------------------------------------
+
+Data una linea e un punto, determinare se il punto si trova a destra o a sinistra della linea.
+Utilizziamo il prodotto vettoriale (cross-product) tra due vettori.
+Se il prodotto è maggiore di zero, allora il punto si trova a sinistra della linea.
+Se il prodotto è minore di zero, allora il punto si trova a destra della linea.
+Se il prodotto è uguale a zero, allora il punto si trova sulla linea.
+
+cross(point a, point b, point c)
+{
+     return ((b.X - a.X)*(c.Y - a.Y) - (b.Y - a.Y)*(c.X - a.X));
+}
+
+dove:
+a = primo punto della linea
+b = secondo punto della linea
+c = punto da verificare
+
+Nel caso in cui la linea è orizzontale:
+Se il prodotto è maggiore di zero, allora il punto si trova sopra la linea.
+Se il prodotto è minore di zero, allora il punto si trova sotto la linea.
+Se il prodotto è uguale a zero, allora il punto si trova sulla linea.
+
+Esempio:
+
+      |         .
+      |         .PL2
+      |         O
+      |         .
+      |         .
+      |         .      P4
+      |         .     X
+      |   P3    .
+      |     X   .
+      |         .
+      |         .
+      |    P1   .PL1
+      |   X     O
+      |         .        P2
+      |         .       X
+      |         .
+   -------------.--------------------
+      |         .
+
+(setq PL1 '(5 2))
+(setq PL2 '(5 8))
+(setq P1 '(2 3))
+(setq P2 '(9 1))
+(setq P3 '(3 6))
+(setq P4 '(8 7))
+
+(define (sinistra? PL1 PL2 P)
+  (local (pl1.x pl1.y pl2.x pl2.y p.x p.y)
+    (setq pl1.x (first PL1) pl1.y (last PL1))
+    (setq pl2.x (first PL2) pl2.y (last PL2))
+    (setq p.x (first P) p.y (last P))
+    (> (sub (mul (sub pl2.x pl1.x) (sub p.y pl1.y))
+            (mul (sub pl2.y pl1.y) (sub p.x pl1.x))) 0)
+  )
+)
+
+(sinistra? PL1 PL2 P1)
+;-> true
+(sinistra? PL1 PL2 P2)
+;-> nil
+(sinistra? PL1 PL2 P3)
+;-> true
+(sinistra? PL1 PL2 P4)
+;-> nil
+
+
+----------------------------------------------
+Creazione di un poligono da una lista di punti
+----------------------------------------------
+
+Data una lista di punti, costruire un poligono semplice (non autointersecante) con tutti i punti.
+
+Ordiniamo i punti in base all'angolo creato con l'asse X quando si traccia una linea attraverso il punto e il punto più basso a destra (sinistra).
+Se due o più punti formano lo stesso angolo con l'asse X (cioè sono allineati rispetto al punto di riferimento), questi punti devono essere ordinati in base alla distanza dal punto di riferimento.
+
+Di seguito il codice che implementa questo algoritmo:
+
+Funzione di confronto angoli usata dalla funzione "sort":
+
+(define (angleCompare a b)
+  (local (left)
+    (setq left (isLeft p0 a b))
+    (if (= left 0)
+      (distCompare a b);
+      (> left 0)
+    )
+  )
+)
+
+Funzione di confronto distanze usata dalla funzione "sort":
+
+(define (distCompare a b)
+  (local (distA distB)
+    (setq distA (add (mul (sub (first p0) (first a)) (sub (first p0) (first a)))
+                    (mul (sub (last p0)  (last a))  (sub (last p0)  (last a)))))
+    (setq distB (add (mul (sub (first p0) (first b)) (sub (first p0) (first b)))
+                    (mul (sub (last p0)  (last b))  (sub (last p0)  (last b)))))
+    (> distA distB)
+  )
+)
+
+Funzione che ritorna la posizione di un punto rispetto ad una retta:
+
+(define (isLeft p0 a b)
+  (sub (mul (sub (first a) (first p0)) (sub (last b) (last p0)))
+       (mul (sub (first b) (first p0)) (sub (last a) (last p0))))
+)
+
+(define (crea-poligono lst)
+  (local (p0 hull out)
+    ; trova il punto più in basso (e più a sinistra)
+    (setq hull (lst 0))
+    (for (i 1 (- (length lst) 1))
+      (if (<= (last (lst i)) (last hull))
+          (if (= (last (lst i)) (last hull))
+              (if (> (first (lst i)) (first hull))
+                  (setq hull (lst i)))
+              (setq hull (lst i))
+          )
+      )
+    )
+    (setq p0 hull)
+    ;(println hull)
+    (sort lst angleCompare)
+  )
+)
+
+Vediamo alcuni esempi:
+
+Esempio 1:
+
+(setq P1 '(0 0))
+(setq P2 '(90 10))
+(setq P3 '(30 40))
+(setq P4 '(80 50))
+(setq P5 '(50 60))
+(setq P6 '(10 100))
+(setq P7 '(20 20))
+(setq P8 '(30 10))
+
+(setq points (list P1 P2 P3 P4 P5 P6 P7 P8))
+
+(setq lista (crea-poligono points))
+;-> ((90 10) (30 10) (80 50) (20 20) (50 60) (30 40) (10 100) (0 0))
+
+Per verificare il risultato scriviamo una funzione che crea un file postscript (che viene poi convertito con ghostscript tramite un programma batch):
+
+(define (disegna lista-punti file)
+  (local (xc yc punti)
+    (module "postscript.lsp")
+    ; setup iniziale
+    ; creazione sfondo nero
+    (ps:goto 0 0)
+    (ps:fill-color 0 0 0)
+    (ps:line-color 0 0 0)
+    (ps:rectangle 612 792 true)
+    ; tipo giunzione (1 = round)
+    (ps:line-join 1)
+    ; spessore linea
+    (ps:line-width 0.25)
+    ;colore linea
+    (ps:line-color 220 220 220)
+    ;colore riempimento
+    (ps:fill-color 255 20 20)
+    ; coordinate centro della pagina
+    (setq xc (/ 612 2))
+    (setq yc (/ 792 2))
+    ; punti da tracciare
+    (setq punti lista-punti)
+    ; Inizia a disegnare dal centro pagina partendo dal primo punto
+    (ps:goto (+ xc (first (punti 0))) (+ yc (last (punti 0))))
+    ; Sposto il primo punto alla fine (chiusura del poligono)
+    (push (pop punti) punti -1)
+    ; Disegna il poligono
+    (dolist (el punti)
+      ; disegna linea dalla posizione corrente al punto passato come parametro
+      (ps:drawto (+ xc (first el)) (+ yc (last el)))
+      ; disegna un punto alla posizione corrente
+      (ps:circle 1 true)
+    )
+    ; salva il file postscript
+    ;(ps:save "poly.ps")
+    (ps:save (string file ".ps"))
+    ; conversione del file .ps al file .pdf (ghostscript)
+    ;(! (string "ps2pdf poly.ps poly.pdf")
+    (! (string "ps2pdf " file ".ps " file ".pdf"))
+  )
+)
+
+Creiamo i file "poly-1.ps" e "poly-1.pdf":
+
+(disegna lista "poly-1")
+
+Esempio 2:
+
+(setq P1 '(20 20))
+(setq P2 '(40 80))
+(setq P3 '(30 50))
+(setq P4 '(50 10))
+(setq P5 '(70 40))
+(setq P6 '(70 70))
+(setq P7 '(80 20))
+(setq P8 '(30 10))
+
+(setq points (list P1 P2 P3 P4 P5 P6 P7 P8))
+
+(setq lista (crea-poligono points))
+;-> ((80 20) (70 40) (70 70) (40 80) (30 50) (20 20) (30 10) (50 10))
+
+Creiamo i file "poly-2.ps" e "poly-2.pdf":
+
+(disegna lista "poly-2")
+
+Esempio 3:
+
+(setq P1 '(80 90))
+(setq P2 '(50 90))
+(setq P3 '(70 70))
+(setq P4 '(40 70))
+(setq P5 '(60 50))
+(setq P6 '(80 30))
+(setq P7 '(40 40))
+(setq P8 '(20 30))
+(setq P9 '(60 20))
+
+(setq points (list P1 P2 P3 P4 P5 P6 P7 P8 P9))
+
+(setq lista (crea-poligono points))
+;-> ((80 30) (80 90) (70 70) (60 50) (50 90) (40 70) (40 40) (20 30) (60 20))
+
+Creiamo i file "poly-3.ps" e "poly-3.pdf":
+
+(disegna lista "poly-3")
+
+Esempio 4:
+
+(setq P1 '(20 20))
+(setq P2 '(40 50))
+(setq P3 '(100 20))
+(setq P4 '(60 30))
+(setq P5 '(80 50))
+
+(setq points (list P1 P2 P3 P4 P5))
+
+(setq lista (crea-poligono points))
+;-> ((80 50) (40 50) (60 30) (20 20) (100 20))
+
+Creiamo i file "poly-4.ps" e "poly-4.pdf":
+
+(disegna lista "poly-4")
+
+Esempio 5:
+
+(setq P1 '(20 20))
+(setq P2 '(40 80))
+(setq P3 '(30 50))
+(setq P4 '(50 10))
+(setq P5 '(70 40))
+(setq P6 '(70 70))
+(setq P7 '(80 20))
+(setq P8 '(30 10))
+(setq P9 '(120 50))
+(setq P10 '(50 40))
+
+(setq points (list P1 P2 P3 P4 P5 P6 P7 P8 P9 P10))
+
+(setq lista (crea-poligono points))
+;-> ((80 20) (120 50) (70 40) (70 70) (50 40) (40 80) (30 50) (20 20) (30 10) (50 10))
+
+Creiamo i file "poly-5.ps" e "poly-5.pdf":
+
+(disegna lista "poly-5")
+
+Nota: questo algoritmo non trova il percorso minimo tra i punti.
+
+
+-------------------------------------
+Percorso minimo di una lista di punti
+-------------------------------------
+
+Data una lista di punti, costruire il poligono con tutti i punti che ha lunghezza minima.
+
+Generiamo tutte le permutazioni dei punti e calcoliamo la somma totale della distanza tra i punti per ogni permutazione. La permutazione che ha la distanza minima è la soluzione.
+
+Funzione per calcolare le permutazioni:
+
+(define (perm lst)
+  (local (i indici out)
+    (setq indici (dup 0 (length lst)))
+    (setq i 0)
+    (setq out (list lst))
+    (while (< i (length lst))
+      (if (< (indici i) i)
+          (begin
+            (if (zero? (% i 2))
+              (swap (lst 0) (lst i))
+              (swap (lst (indici i)) (lst i))
+            )
+            ;(println lst);
+            (push lst out -1)
+            (++ (indici i))
+            (setq i 0)
+          )
+          (begin
+            (setf (indici i) 0)
+            (++ i)
+          )
+       )
+    )
+    out
+  )
+)
+
+(length (perm '(0 1 2 3 4 5 6 7)))
+;-> 40320
+
+Supponiamo di avere i seguenti punti.
+
+Esempio 1:
+
+(setq P1 '(0 0))
+(setq P2 '(90 10))
+(setq P3 '(30 40))
+(setq P4 '(80 50))
+(setq P5 '(50 60))
+(setq P6 '(10 100))
+(setq P7 '(20 20))
+(setq P8 '(30 10))
+
+(setq points (list P1 P2 P3 P4 P5 P6 P7 P8))
+
+Funzione per calcolare il quadrato della distanza tra due punti (questo è sufficiente per il confronto tra due distanze):
+
+(define (quad-dist p q)
+  (add
+    (mul (sub (first q) (first p)) (sub (first q) (first p)))
+    (mul (sub (last q) (last p)) (sub (last q) (last p)))))
+
+(quad-dist P2 P1)
+;-> 8200
+(quad-dist P3 P2)
+;-> 4500
+
+Adesso definiamo la funzione finale:
+
+(define (tsp lst)
+  (local (permutazioni sol points dist dist-min)
+    ;(setq points (map (fn (x) (list $idx x)) lst))
+    (setq permutazioni (perm lst))
+    (setq dist-min '999999)
+    (dolist (p permutazioni)
+      (setq dist 0)
+      (for (i 1 (- (length p) 1))
+        (setq dist (add dist (quad-dist (p i) (p (- i 1)))))
+      )
+      (if (< dist dist-min)
+          (begin
+            (setq dist-min dist)
+            (setq sol p))
+            ;(println p { } dist-min)
+      )
+    )
+    sol
+  )
+)
+
+Proviamo la funzione:
+
+(setq lista (tsp points))
+;-> ((0 0) (30 10) (20 20) (30 40) (10 100) (50 60) (80 50) (90 10))
+
+Per verificare il risultato scriviamo una funzione che crea un file postscript (che viene poi convertito con ghostscript tramite un programma batch):
+
+(define (disegna lista-punti file)
+  (local (xc yc punti)
+    (module "postscript.lsp")
+    ; setup iniziale
+    ; creazione sfondo nero
+    (ps:goto 0 0)
+    (ps:fill-color 0 0 0)
+    (ps:line-color 0 0 0)
+    (ps:rectangle 612 792 true)
+    ; tipo giunzione (1 = round)
+    (ps:line-join 1)
+    ; spessore linea
+    (ps:line-width 0.25)
+    ;colore linea
+    (ps:line-color 220 220 220)
+    ;colore riempimento
+    (ps:fill-color 255 20 20)
+    ; coordinate centro della pagina
+    (setq xc (/ 612 2))
+    (setq yc (/ 792 2))
+    ; punti da tracciare
+    (setq punti lista-punti)
+    ; Inizia a disegnare dal centro pagina partendo dal primo punto
+    (ps:goto (+ xc (first (punti 0))) (+ yc (last (punti 0))))
+    ; Sposto il primo punto alla fine (chiusura del poligono)
+    (push (pop punti) punti -1)
+    ; Disegna il poligono
+    (dolist (el punti)
+      ; disegna linea dalla posizione corrente al punto passato come parametro
+      (ps:drawto (+ xc (first el)) (+ yc (last el)))
+      ; disegna un punto alla posizione corrente
+      (ps:circle 1 true)
+    )
+    ; salva il file postscript
+    ;(ps:save "poly.ps")
+    (ps:save (string file ".ps"))
+    ; conversione del file .ps al file .pdf (ghostscript)
+    ;(! (string "ps2pdf poly.ps poly.pdf")
+    (! (string "ps2pdf " file ".ps " file ".pdf"))
+  )
+)
+
+Creiamo i file "tsp-1.ps" e "tsp-1.pdf":
+
+(disegna lista "tsp-1")
+
+Esempio 2:
+
+(setq P1 '(20 20))
+(setq P2 '(40 80))
+(setq P3 '(30 50))
+(setq P4 '(50 10))
+(setq P5 '(70 40))
+(setq P6 '(70 70))
+(setq P7 '(80 20))
+(setq P8 '(30 10))
+
+(setq points (list P1 P2 P3 P4 P5 P6 P7 P8))
+
+(setq lista (tsp points))
+;-> ((50 10) (30 10) (20 20) (30 50) (40 80) (70 70) (70 40) (80 20))
+
+Creiamo i file "tsp-2.ps" e "tsp-2.pdf":
+
+(disegna lista "tsp-2")
+
+Esempio 3:
+
+(setq P1 '(80 90))
+(setq P2 '(50 90))
+(setq P3 '(70 70))
+(setq P4 '(40 70))
+(setq P5 '(60 50))
+(setq P6 '(80 30))
+(setq P7 '(40 40))
+(setq P8 '(20 30))
+(setq P9 '(60 20))
+
+(setq points (list P1 P2 P3 P4 P5 P6 P7 P8 P9))
+
+(setq lista (tsp points))
+;-> ((20 30) (40 40) (60 20) (80 30) (60 50) (70 70) (80 90) (50 90) (40 70))
+
+Creiamo i file "tsp-3.ps" e "tsp-3.pdf":
+
+(disegna lista "tsp-3")
+
+Esempio 4:
+
+(setq P1 '(20 20))
+(setq P2 '(40 50))
+(setq P3 '(100 20))
+(setq P4 '(60 30))
+(setq P5 '(80 50))
+
+(setq points (list P1 P2 P3 P4 P5))
+
+(setq lista (tsp points))
+;-> ((20 20) (40 50) (60 30) (80 50) (100 20))
+
+Creiamo i file "tsp-4.ps" e "tsp-4.pdf":
+
+(disegna lista "tsp-4")
+
+Esempio 5:
+
+(setq P1 '(20 20))
+(setq P2 '(40 80))
+(setq P3 '(30 50))
+(setq P4 '(50 10))
+(setq P5 '(70 40))
+(setq P6 '(70 70))
+(setq P7 '(80 20))
+(setq P8 '(30 10))
+(setq P9 '(120 50))
+(setq P10 '(50 40))
+
+(setq points (list P1 P2 P3 P4 P5 P6 P7 P8 P9 P10))
+
+(time (setq lista (tsp points)))
+;-> 34969.302
+
+lista
+;-> ((20 20) (30 10) (50 10) (80 20) (70 40) (50 40) (30 50) (40 80) (70 70) (120 50))
+
+Creiamo i file "tsp-5.ps" e "tsp-5.pdf":
+
+(disegna lista "tsp-5")
+
+Nota: Con questo algoritmo possiamo usare al massimo dieci punti (altrimenti il calcolo delle permutazioni richiederebbe troppo tempo)
+
+
+---------------------------
+Utilizzo del protocollo ftp
+---------------------------
+
+newLISP mette a disposizione un modulo per il download e l'upload di file tramite il protocollo ftp.
+
+Esempio:
+
+; ftp: ftp://ftpzone.data
+; remote folder: temp
+; Utente    Password    Diritti
+; ------    --------    -------
+; user1     pwd1        lettura
+; user2     pwd2        lettura/scrittura
+
+; load ftp module
+(module "ftp.lsp")
+
+; primitive functions
+;; (FTP:get <str-user-id> <str-password> <str-host> <str-dir> <str-file-name>)
+;; (FTP:put <str-user-id> <str-password> <str-host> <str-dir> <str-file-name>)
+
+(set 'FTP:debug-mode true)
+
+; Upload file:
+
+(FTP:put "user2" "pwd2" "ftpzone.data" "temp" "filename.ext")
+;-> true
+
+; Download file:
+
+(FTP:get "user2" "pwd2" "ftpzone.data" "temp" "filename.ext")
+;-> true
+
+
 ==========================
 
  newLISP 99 PROBLEMI (28)
@@ -9411,6 +10251,45 @@ Usiamo la funzione di sistema "sequence" al posto della funzione utente "seq":
 (time (length (permutations '(0 1 2 3 4 5 6 7 8 9))))
 ;-> 18024.311 ; Strano: "sequence" è più lenta di "seq".
 
+Possiamo creare le permutazioni utilizzando l'algoritmo di Heap ( https://en.wikipedia.org/wiki/Heap%27s_algorithm ).
+Questo algoritmo produce tutte le permutazioni scambiando un elemento ad ogni iterazione.
+
+(define (perm lst)
+  (local (i indici out)
+    (setq indici (dup 0 (length lst)))
+    (setq i 0)
+    ; aggiungiamo la lista iniziale alla soluzione
+    (setq out (list lst))
+    (while (< i (length lst))
+      (if (< (indici i) i)
+          (begin
+            (if (zero? (% i 2))
+              (swap (lst 0) (lst i))
+              (swap (lst (indici i)) (lst i))
+            )
+            ;(println lst);
+            (push lst out -1)
+            (++ (indici i))
+            (setq i 0)
+          )
+          (begin
+            (setf (indici i) 0)
+            (++ i)
+          )
+       )
+    )
+    out
+  )
+)
+
+(length (perm '(0 1 2 3 4 5 6 7 8 9)))
+;-> 36628800
+
+(time (length (perm '(0 1 2 3 4 5 6 7 8 9))))
+;-> 3928.519
+
+Questa funzioni è la più veloce tra tutte quelle presentate.
+
 =======================================================
 N-99-26 Generare le combinazioni di K oggetti distinti tra gli N elementi di una lista
 =======================================================
@@ -9466,217 +10345,217 @@ N-99-27 Raggruppare gli elementi di un insieme in sottoinsiemi disgiunti
                       (ciclo gs (cdr xss) lst))))))
    (ciclo (cdr gs) (combination (car gs) lst) lst))
 
-(group '(2 2 3) '(luca carla david eva ugo ida vero))
-;-> (((luca carla) ((david eva) (ugo ida vero))) 
-;->  ((luca carla) ((david ugo) (eva ida vero)))
-;->  ((luca carla) ((david ida) (eva ugo vero)))
-;->  ((luca carla) ((david vero) (eva ugo ida)))
-;->  ((luca carla) ((eva ugo) (david ida vero)))
-;->  ((luca carla) ((eva ida) (david ugo vero)))
-;->  ((luca carla) ((eva vero) (david ugo ida)))
-;->  ((luca carla) ((ugo ida) (david eva vero)))
-;->  ((luca carla) ((ugo vero) (david eva ida)))
-;->  ((luca carla) ((ida vero) (david eva ugo)))
-;->  ((luca david) ((carla eva) (ugo ida vero)))
-;->  ((luca david) ((carla ugo) (eva ida vero)))
-;->  ((luca david) ((carla ida) (eva ugo vero)))
-;->  ((luca david) ((carla vero) (eva ugo ida)))
-;->  ((luca david) ((eva ugo) (carla ida vero)))
-;->  ((luca david) ((eva ida) (carla ugo vero)))
-;->  ((luca david) ((eva vero) (carla ugo ida)))
-;->  ((luca david) ((ugo ida) (carla eva vero)))
-;->  ((luca david) ((ugo vero) (carla eva ida)))
-;->  ((luca david) ((ida vero) (carla eva ugo)))
-;->  ((luca eva) ((carla david) (ugo ida vero)))
-;->  ((luca eva) ((carla ugo) (david ida vero)))
-;->  ((luca eva) ((carla ida) (david ugo vero)))
-;->  ((luca eva) ((carla vero) (david ugo ida)))
-;->  ((luca eva) ((david ugo) (carla ida vero)))
-;->  ((luca eva) ((david ida) (carla ugo vero)))
-;->  ((luca eva) ((david vero) (carla ugo ida)))
-;->  ((luca eva) ((ugo ida) (carla david vero)))
-;->  ((luca eva) ((ugo vero) (carla david ida)))
-;->  ((luca eva) ((ida vero) (carla david ugo)))
-;->  ((luca ugo) ((carla david) (eva ida vero)))
-;->  ((luca ugo) ((carla eva) (david ida vero)))
-;->  ((luca ugo) ((carla ida) (david eva vero)))
-;->  ((luca ugo) ((carla vero) (david eva ida)))
-;->  ((luca ugo) ((david eva) (carla ida vero)))
-;->  ((luca ugo) ((david ida) (carla eva vero)))
-;->  ((luca ugo) ((david vero) (carla eva ida)))
-;->  ((luca ugo) ((eva ida) (carla david vero)))
-;->  ((luca ugo) ((eva vero) (carla david ida)))
-;->  ((luca ugo) ((ida vero) (carla david eva)))
-;->  ((luca ida) ((carla david) (eva ugo vero)))
-;->  ((luca ida) ((carla eva) (david ugo vero)))
-;->  ((luca ida) ((carla ugo) (david eva vero)))
-;->  ((luca ida) ((carla vero) (david eva ugo)))
-;->  ((luca ida) ((david eva) (carla ugo vero)))
-;->  ((luca ida) ((david ugo) (carla eva vero)))
-;->  ((luca ida) ((david vero) (carla eva ugo)))
-;->  ((luca ida) ((eva ugo) (carla david vero)))
-;->  ((luca ida) ((eva vero) (carla david ugo)))
-;->  ((luca ida) ((ugo vero) (carla david eva)))
-;->  ((luca vero) ((carla david) (eva ugo ida)))
-;->  ((luca vero) ((carla eva) (david ugo ida)))
-;->  ((luca vero) ((carla ugo) (david eva ida)))
-;->  ((luca vero) ((carla ida) (david eva ugo)))
-;->  ((luca vero) ((david eva) (carla ugo ida)))
-;->  ((luca vero) ((david ugo) (carla eva ida)))
-;->  ((luca vero) ((david ida) (carla eva ugo)))
-;->  ((luca vero) ((eva ugo) (carla david ida)))
-;->  ((luca vero) ((eva ida) (carla david ugo)))
-;->  ((luca vero) ((ugo ida) (carla david eva)))
-;->  ((carla david) ((luca eva) (ugo ida vero)))
-;->  ((carla david) ((luca ugo) (eva ida vero)))
-;->  ((carla david) ((luca ida) (eva ugo vero)))
-;->  ((carla david) ((luca vero) (eva ugo ida)))
-;->  ((carla david) ((eva ugo) (luca ida vero)))
-;->  ((carla david) ((eva ida) (luca ugo vero)))
-;->  ((carla david) ((eva vero) (luca ugo ida)))
-;->  ((carla david) ((ugo ida) (luca eva vero)))
-;->  ((carla david) ((ugo vero) (luca eva ida)))
-;->  ((carla david) ((ida vero) (luca eva ugo)))
-;->  ((carla eva) ((luca david) (ugo ida vero)))
-;->  ((carla eva) ((luca ugo) (david ida vero)))
-;->  ((carla eva) ((luca ida) (david ugo vero)))
-;->  ((carla eva) ((luca vero) (david ugo ida)))
-;->  ((carla eva) ((david ugo) (luca ida vero)))
-;->  ((carla eva) ((david ida) (luca ugo vero)))
-;->  ((carla eva) ((david vero) (luca ugo ida)))
-;->  ((carla eva) ((ugo ida) (luca david vero)))
-;->  ((carla eva) ((ugo vero) (luca david ida)))
-;->  ((carla eva) ((ida vero) (luca david ugo)))
-;->  ((carla ugo) ((luca david) (eva ida vero)))
-;->  ((carla ugo) ((luca eva) (david ida vero)))
-;->  ((carla ugo) ((luca ida) (david eva vero)))
-;->  ((carla ugo) ((luca vero) (david eva ida)))
-;->  ((carla ugo) ((david eva) (luca ida vero)))
-;->  ((carla ugo) ((david ida) (luca eva vero)))
-;->  ((carla ugo) ((david vero) (luca eva ida)))
-;->  ((carla ugo) ((eva ida) (luca david vero)))
-;->  ((carla ugo) ((eva vero) (luca david ida)))
-;->  ((carla ugo) ((ida vero) (luca david eva)))
-;->  ((carla ida) ((luca david) (eva ugo vero)))
-;->  ((carla ida) ((luca eva) (david ugo vero)))
-;->  ((carla ida) ((luca ugo) (david eva vero)))
-;->  ((carla ida) ((luca vero) (david eva ugo)))
-;->  ((carla ida) ((david eva) (luca ugo vero)))
-;->  ((carla ida) ((david ugo) (luca eva vero)))
-;->  ((carla ida) ((david vero) (luca eva ugo)))
-;->  ((carla ida) ((eva ugo) (luca david vero)))
-;->  ((carla ida) ((eva vero) (luca david ugo)))
-;->  ((carla ida) ((ugo vero) (luca david eva)))
-;->  ((carla vero) ((luca david) (eva ugo ida)))
-;->  ((carla vero) ((luca eva) (david ugo ida)))
-;->  ((carla vero) ((luca ugo) (david eva ida)))
-;->  ((carla vero) ((luca ida) (david eva ugo)))
-;->  ((carla vero) ((david eva) (luca ugo ida)))
-;->  ((carla vero) ((david ugo) (luca eva ida)))
-;->  ((carla vero) ((david ida) (luca eva ugo)))
-;->  ((carla vero) ((eva ugo) (luca david ida)))
-;->  ((carla vero) ((eva ida) (luca david ugo)))
-;->  ((carla vero) ((ugo ida) (luca david eva)))
-;->  ((david eva) ((luca carla) (ugo ida vero)))
-;->  ((david eva) ((luca ugo) (carla ida vero)))
-;->  ((david eva) ((luca ida) (carla ugo vero)))
-;->  ((david eva) ((luca vero) (carla ugo ida)))
-;->  ((david eva) ((carla ugo) (luca ida vero)))
-;->  ((david eva) ((carla ida) (luca ugo vero)))
-;->  ((david eva) ((carla vero) (luca ugo ida)))
-;->  ((david eva) ((ugo ida) (luca carla vero)))
-;->  ((david eva) ((ugo vero) (luca carla ida)))
-;->  ((david eva) ((ida vero) (luca carla ugo)))
-;->  ((david ugo) ((luca carla) (eva ida vero)))
-;->  ((david ugo) ((luca eva) (carla ida vero)))
-;->  ((david ugo) ((luca ida) (carla eva vero)))
-;->  ((david ugo) ((luca vero) (carla eva ida)))
-;->  ((david ugo) ((carla eva) (luca ida vero)))
-;->  ((david ugo) ((carla ida) (luca eva vero)))
-;->  ((david ugo) ((carla vero) (luca eva ida)))
-;->  ((david ugo) ((eva ida) (luca carla vero)))
-;->  ((david ugo) ((eva vero) (luca carla ida)))
-;->  ((david ugo) ((ida vero) (luca carla eva)))
-;->  ((david ida) ((luca carla) (eva ugo vero)))
-;->  ((david ida) ((luca eva) (carla ugo vero)))
-;->  ((david ida) ((luca ugo) (carla eva vero)))
-;->  ((david ida) ((luca vero) (carla eva ugo)))
-;->  ((david ida) ((carla eva) (luca ugo vero)))
-;->  ((david ida) ((carla ugo) (luca eva vero)))
-;->  ((david ida) ((carla vero) (luca eva ugo)))
-;->  ((david ida) ((eva ugo) (luca carla vero)))
-;->  ((david ida) ((eva vero) (luca carla ugo)))
-;->  ((david ida) ((ugo vero) (luca carla eva)))
-;->  ((david vero) ((luca carla) (eva ugo ida)))
-;->  ((david vero) ((luca eva) (carla ugo ida)))
-;->  ((david vero) ((luca ugo) (carla eva ida)))
-;->  ((david vero) ((luca ida) (carla eva ugo)))
-;->  ((david vero) ((carla eva) (luca ugo ida)))
-;->  ((david vero) ((carla ugo) (luca eva ida)))
-;->  ((david vero) ((carla ida) (luca eva ugo)))
-;->  ((david vero) ((eva ugo) (luca carla ida)))
-;->  ((david vero) ((eva ida) (luca carla ugo)))
-;->  ((david vero) ((ugo ida) (luca carla eva)))
-;->  ((eva ugo) ((luca carla) (david ida vero)))
-;->  ((eva ugo) ((luca david) (carla ida vero)))
-;->  ((eva ugo) ((luca ida) (carla david vero)))
-;->  ((eva ugo) ((luca vero) (carla david ida)))
-;->  ((eva ugo) ((carla david) (luca ida vero)))
-;->  ((eva ugo) ((carla ida) (luca david vero)))
-;->  ((eva ugo) ((carla vero) (luca david ida)))
-;->  ((eva ugo) ((david ida) (luca carla vero)))
-;->  ((eva ugo) ((david vero) (luca carla ida)))
-;->  ((eva ugo) ((ida vero) (luca carla david)))
-;->  ((eva ida) ((luca carla) (david ugo vero)))
-;->  ((eva ida) ((luca david) (carla ugo vero)))
-;->  ((eva ida) ((luca ugo) (carla david vero)))
-;->  ((eva ida) ((luca vero) (carla david ugo)))
-;->  ((eva ida) ((carla david) (luca ugo vero)))
-;->  ((eva ida) ((carla ugo) (luca david vero)))
-;->  ((eva ida) ((carla vero) (luca david ugo)))
-;->  ((eva ida) ((david ugo) (luca carla vero)))
-;->  ((eva ida) ((david vero) (luca carla ugo)))
-;->  ((eva ida) ((ugo vero) (luca carla david)))
-;->  ((eva vero) ((luca carla) (david ugo ida)))
-;->  ((eva vero) ((luca david) (carla ugo ida)))
-;->  ((eva vero) ((luca ugo) (carla david ida)))
-;->  ((eva vero) ((luca ida) (carla david ugo)))
-;->  ((eva vero) ((carla david) (luca ugo ida)))
-;->  ((eva vero) ((carla ugo) (luca david ida)))
-;->  ((eva vero) ((carla ida) (luca david ugo)))
-;->  ((eva vero) ((david ugo) (luca carla ida)))
-;->  ((eva vero) ((david ida) (luca carla ugo)))
-;->  ((eva vero) ((ugo ida) (luca carla david)))
-;->  ((ugo ida) ((luca carla) (david eva vero)))
-;->  ((ugo ida) ((luca david) (carla eva vero)))
-;->  ((ugo ida) ((luca eva) (carla david vero)))
-;->  ((ugo ida) ((luca vero) (carla david eva)))
-;->  ((ugo ida) ((carla david) (luca eva vero)))
-;->  ((ugo ida) ((carla eva) (luca david vero)))
-;->  ((ugo ida) ((carla vero) (luca david eva)))
-;->  ((ugo ida) ((david eva) (luca carla vero)))
-;->  ((ugo ida) ((david vero) (luca carla eva)))
-;->  ((ugo ida) ((eva vero) (luca carla david)))
-;->  ((ugo vero) ((luca carla) (david eva ida)))
-;->  ((ugo vero) ((luca david) (carla eva ida)))
-;->  ((ugo vero) ((luca eva) (carla david ida)))
-;->  ((ugo vero) ((luca ida) (carla david eva)))
-;->  ((ugo vero) ((carla david) (luca eva ida)))
-;->  ((ugo vero) ((carla eva) (luca david ida)))
-;->  ((ugo vero) ((carla ida) (luca david eva)))
-;->  ((ugo vero) ((david eva) (luca carla ida)))
-;->  ((ugo vero) ((david ida) (luca carla eva)))
-;->  ((ugo vero) ((eva ida) (luca carla david)))
-;->  ((ida vero) ((luca carla) (david eva ugo)))
-;->  ((ida vero) ((luca david) (carla eva ugo)))
-;->  ((ida vero) ((luca eva) (carla david ugo)))
-;->  ((ida vero) ((luca ugo) (carla david eva)))
-;->  ((ida vero) ((carla david) (luca eva ugo)))
-;->  ((ida vero) ((carla eva) (luca david ugo)))
-;->  ((ida vero) ((carla ugo) (luca david eva)))
-;->  ((ida vero) ((david eva) (luca carla ugo)))
-;->  ((ida vero) ((david ugo) (luca carla eva)))
-;->  ((ida vero) ((eva ugo) (luca carla david))))
+(group '(2 2 3) '(luca vale andrea eva tommy roby vero))
+;-> (((luca vale) ((andrea eva) (tommy roby vero))) 
+;->  ((luca vale) ((andrea tommy) (eva roby vero)))
+;->  ((luca vale) ((andrea roby) (eva tommy vero)))
+;->  ((luca vale) ((andrea vero) (eva tommy roby)))
+;->  ((luca vale) ((eva tommy) (andrea roby vero)))
+;->  ((luca vale) ((eva roby) (andrea tommy vero)))
+;->  ((luca vale) ((eva vero) (andrea tommy roby)))
+;->  ((luca vale) ((tommy roby) (andrea eva vero)))
+;->  ((luca vale) ((tommy vero) (andrea eva roby)))
+;->  ((luca vale) ((roby vero) (andrea eva tommy)))
+;->  ((luca andrea) ((vale eva) (tommy roby vero)))
+;->  ((luca andrea) ((vale tommy) (eva roby vero)))
+;->  ((luca andrea) ((vale roby) (eva tommy vero)))
+;->  ((luca andrea) ((vale vero) (eva tommy roby)))
+;->  ((luca andrea) ((eva tommy) (vale roby vero)))
+;->  ((luca andrea) ((eva roby) (vale tommy vero)))
+;->  ((luca andrea) ((eva vero) (vale tommy roby)))
+;->  ((luca andrea) ((tommy roby) (vale eva vero)))
+;->  ((luca andrea) ((tommy vero) (vale eva roby)))
+;->  ((luca andrea) ((roby vero) (vale eva tommy)))
+;->  ((luca eva) ((vale andrea) (tommy roby vero)))
+;->  ((luca eva) ((vale tommy) (andrea roby vero)))
+;->  ((luca eva) ((vale roby) (andrea tommy vero)))
+;->  ((luca eva) ((vale vero) (andrea tommy roby)))
+;->  ((luca eva) ((andrea tommy) (vale roby vero)))
+;->  ((luca eva) ((andrea roby) (vale tommy vero)))
+;->  ((luca eva) ((andrea vero) (vale tommy roby)))
+;->  ((luca eva) ((tommy roby) (vale andrea vero)))
+;->  ((luca eva) ((tommy vero) (vale andrea roby)))
+;->  ((luca eva) ((roby vero) (vale andrea tommy)))
+;->  ((luca tommy) ((vale andrea) (eva roby vero)))
+;->  ((luca tommy) ((vale eva) (andrea roby vero)))
+;->  ((luca tommy) ((vale roby) (andrea eva vero)))
+;->  ((luca tommy) ((vale vero) (andrea eva roby)))
+;->  ((luca tommy) ((andrea eva) (vale roby vero)))
+;->  ((luca tommy) ((andrea roby) (vale eva vero)))
+;->  ((luca tommy) ((andrea vero) (vale eva roby)))
+;->  ((luca tommy) ((eva roby) (vale andrea vero)))
+;->  ((luca tommy) ((eva vero) (vale andrea roby)))
+;->  ((luca tommy) ((roby vero) (vale andrea eva)))
+;->  ((luca roby) ((vale andrea) (eva tommy vero)))
+;->  ((luca roby) ((vale eva) (andrea tommy vero)))
+;->  ((luca roby) ((vale tommy) (andrea eva vero)))
+;->  ((luca roby) ((vale vero) (andrea eva tommy)))
+;->  ((luca roby) ((andrea eva) (vale tommy vero)))
+;->  ((luca roby) ((andrea tommy) (vale eva vero)))
+;->  ((luca roby) ((andrea vero) (vale eva tommy)))
+;->  ((luca roby) ((eva tommy) (vale andrea vero)))
+;->  ((luca roby) ((eva vero) (vale andrea tommy)))
+;->  ((luca roby) ((tommy vero) (vale andrea eva)))
+;->  ((luca vero) ((vale andrea) (eva tommy roby)))
+;->  ((luca vero) ((vale eva) (andrea tommy roby)))
+;->  ((luca vero) ((vale tommy) (andrea eva roby)))
+;->  ((luca vero) ((vale roby) (andrea eva tommy)))
+;->  ((luca vero) ((andrea eva) (vale tommy roby)))
+;->  ((luca vero) ((andrea tommy) (vale eva roby)))
+;->  ((luca vero) ((andrea roby) (vale eva tommy)))
+;->  ((luca vero) ((eva tommy) (vale andrea roby)))
+;->  ((luca vero) ((eva roby) (vale andrea tommy)))
+;->  ((luca vero) ((tommy roby) (vale andrea eva)))
+;->  ((vale andrea) ((luca eva) (tommy roby vero)))
+;->  ((vale andrea) ((luca tommy) (eva roby vero)))
+;->  ((vale andrea) ((luca roby) (eva tommy vero)))
+;->  ((vale andrea) ((luca vero) (eva tommy roby)))
+;->  ((vale andrea) ((eva tommy) (luca roby vero)))
+;->  ((vale andrea) ((eva roby) (luca tommy vero)))
+;->  ((vale andrea) ((eva vero) (luca tommy roby)))
+;->  ((vale andrea) ((tommy roby) (luca eva vero)))
+;->  ((vale andrea) ((tommy vero) (luca eva roby)))
+;->  ((vale andrea) ((roby vero) (luca eva tommy)))
+;->  ((vale eva) ((luca andrea) (tommy roby vero)))
+;->  ((vale eva) ((luca tommy) (andrea roby vero)))
+;->  ((vale eva) ((luca roby) (andrea tommy vero)))
+;->  ((vale eva) ((luca vero) (andrea tommy roby)))
+;->  ((vale eva) ((andrea tommy) (luca roby vero)))
+;->  ((vale eva) ((andrea roby) (luca tommy vero)))
+;->  ((vale eva) ((andrea vero) (luca tommy roby)))
+;->  ((vale eva) ((tommy roby) (luca andrea vero)))
+;->  ((vale eva) ((tommy vero) (luca andrea roby)))
+;->  ((vale eva) ((roby vero) (luca andrea tommy)))
+;->  ((vale tommy) ((luca andrea) (eva roby vero)))
+;->  ((vale tommy) ((luca eva) (andrea roby vero)))
+;->  ((vale tommy) ((luca roby) (andrea eva vero)))
+;->  ((vale tommy) ((luca vero) (andrea eva roby)))
+;->  ((vale tommy) ((andrea eva) (luca roby vero)))
+;->  ((vale tommy) ((andrea roby) (luca eva vero)))
+;->  ((vale tommy) ((andrea vero) (luca eva roby)))
+;->  ((vale tommy) ((eva roby) (luca andrea vero)))
+;->  ((vale tommy) ((eva vero) (luca andrea roby)))
+;->  ((vale tommy) ((roby vero) (luca andrea eva)))
+;->  ((vale roby) ((luca andrea) (eva tommy vero)))
+;->  ((vale roby) ((luca eva) (andrea tommy vero)))
+;->  ((vale roby) ((luca tommy) (andrea eva vero)))
+;->  ((vale roby) ((luca vero) (andrea eva tommy)))
+;->  ((vale roby) ((andrea eva) (luca tommy vero)))
+;->  ((vale roby) ((andrea tommy) (luca eva vero)))
+;->  ((vale roby) ((andrea vero) (luca eva tommy)))
+;->  ((vale roby) ((eva tommy) (luca andrea vero)))
+;->  ((vale roby) ((eva vero) (luca andrea tommy)))
+;->  ((vale roby) ((tommy vero) (luca andrea eva)))
+;->  ((vale vero) ((luca andrea) (eva tommy roby)))
+;->  ((vale vero) ((luca eva) (andrea tommy roby)))
+;->  ((vale vero) ((luca tommy) (andrea eva roby)))
+;->  ((vale vero) ((luca roby) (andrea eva tommy)))
+;->  ((vale vero) ((andrea eva) (luca tommy roby)))
+;->  ((vale vero) ((andrea tommy) (luca eva roby)))
+;->  ((vale vero) ((andrea roby) (luca eva tommy)))
+;->  ((vale vero) ((eva tommy) (luca andrea roby)))
+;->  ((vale vero) ((eva roby) (luca andrea tommy)))
+;->  ((vale vero) ((tommy roby) (luca andrea eva)))
+;->  ((andrea eva) ((luca vale) (tommy roby vero)))
+;->  ((andrea eva) ((luca tommy) (vale roby vero)))
+;->  ((andrea eva) ((luca roby) (vale tommy vero)))
+;->  ((andrea eva) ((luca vero) (vale tommy roby)))
+;->  ((andrea eva) ((vale tommy) (luca roby vero)))
+;->  ((andrea eva) ((vale roby) (luca tommy vero)))
+;->  ((andrea eva) ((vale vero) (luca tommy roby)))
+;->  ((andrea eva) ((tommy roby) (luca vale vero)))
+;->  ((andrea eva) ((tommy vero) (luca vale roby)))
+;->  ((andrea eva) ((roby vero) (luca vale tommy)))
+;->  ((andrea tommy) ((luca vale) (eva roby vero)))
+;->  ((andrea tommy) ((luca eva) (vale roby vero)))
+;->  ((andrea tommy) ((luca roby) (vale eva vero)))
+;->  ((andrea tommy) ((luca vero) (vale eva roby)))
+;->  ((andrea tommy) ((vale eva) (luca roby vero)))
+;->  ((andrea tommy) ((vale roby) (luca eva vero)))
+;->  ((andrea tommy) ((vale vero) (luca eva roby)))
+;->  ((andrea tommy) ((eva roby) (luca vale vero)))
+;->  ((andrea tommy) ((eva vero) (luca vale roby)))
+;->  ((andrea tommy) ((roby vero) (luca vale eva)))
+;->  ((andrea roby) ((luca vale) (eva tommy vero)))
+;->  ((andrea roby) ((luca eva) (vale tommy vero)))
+;->  ((andrea roby) ((luca tommy) (vale eva vero)))
+;->  ((andrea roby) ((luca vero) (vale eva tommy)))
+;->  ((andrea roby) ((vale eva) (luca tommy vero)))
+;->  ((andrea roby) ((vale tommy) (luca eva vero)))
+;->  ((andrea roby) ((vale vero) (luca eva tommy)))
+;->  ((andrea roby) ((eva tommy) (luca vale vero)))
+;->  ((andrea roby) ((eva vero) (luca vale tommy)))
+;->  ((andrea roby) ((tommy vero) (luca vale eva)))
+;->  ((andrea vero) ((luca vale) (eva tommy roby)))
+;->  ((andrea vero) ((luca eva) (vale tommy roby)))
+;->  ((andrea vero) ((luca tommy) (vale eva roby)))
+;->  ((andrea vero) ((luca roby) (vale eva tommy)))
+;->  ((andrea vero) ((vale eva) (luca tommy roby)))
+;->  ((andrea vero) ((vale tommy) (luca eva roby)))
+;->  ((andrea vero) ((vale roby) (luca eva tommy)))
+;->  ((andrea vero) ((eva tommy) (luca vale roby)))
+;->  ((andrea vero) ((eva roby) (luca vale tommy)))
+;->  ((andrea vero) ((tommy roby) (luca vale eva)))
+;->  ((eva tommy) ((luca vale) (andrea roby vero)))
+;->  ((eva tommy) ((luca andrea) (vale roby vero)))
+;->  ((eva tommy) ((luca roby) (vale andrea vero)))
+;->  ((eva tommy) ((luca vero) (vale andrea roby)))
+;->  ((eva tommy) ((vale andrea) (luca roby vero)))
+;->  ((eva tommy) ((vale roby) (luca andrea vero)))
+;->  ((eva tommy) ((vale vero) (luca andrea roby)))
+;->  ((eva tommy) ((andrea roby) (luca vale vero)))
+;->  ((eva tommy) ((andrea vero) (luca vale roby)))
+;->  ((eva tommy) ((roby vero) (luca vale andrea)))
+;->  ((eva roby) ((luca vale) (andrea tommy vero)))
+;->  ((eva roby) ((luca andrea) (vale tommy vero)))
+;->  ((eva roby) ((luca tommy) (vale andrea vero)))
+;->  ((eva roby) ((luca vero) (vale andrea tommy)))
+;->  ((eva roby) ((vale andrea) (luca tommy vero)))
+;->  ((eva roby) ((vale tommy) (luca andrea vero)))
+;->  ((eva roby) ((vale vero) (luca andrea tommy)))
+;->  ((eva roby) ((andrea tommy) (luca vale vero)))
+;->  ((eva roby) ((andrea vero) (luca vale tommy)))
+;->  ((eva roby) ((tommy vero) (luca vale andrea)))
+;->  ((eva vero) ((luca vale) (andrea tommy roby)))
+;->  ((eva vero) ((luca andrea) (vale tommy roby)))
+;->  ((eva vero) ((luca tommy) (vale andrea roby)))
+;->  ((eva vero) ((luca roby) (vale andrea tommy)))
+;->  ((eva vero) ((vale andrea) (luca tommy roby)))
+;->  ((eva vero) ((vale tommy) (luca andrea roby)))
+;->  ((eva vero) ((vale roby) (luca andrea tommy)))
+;->  ((eva vero) ((andrea tommy) (luca vale roby)))
+;->  ((eva vero) ((andrea roby) (luca vale tommy)))
+;->  ((eva vero) ((tommy roby) (luca vale andrea)))
+;->  ((tommy roby) ((luca vale) (andrea eva vero)))
+;->  ((tommy roby) ((luca andrea) (vale eva vero)))
+;->  ((tommy roby) ((luca eva) (vale andrea vero)))
+;->  ((tommy roby) ((luca vero) (vale andrea eva)))
+;->  ((tommy roby) ((vale andrea) (luca eva vero)))
+;->  ((tommy roby) ((vale eva) (luca andrea vero)))
+;->  ((tommy roby) ((vale vero) (luca andrea eva)))
+;->  ((tommy roby) ((andrea eva) (luca vale vero)))
+;->  ((tommy roby) ((andrea vero) (luca vale eva)))
+;->  ((tommy roby) ((eva vero) (luca vale andrea)))
+;->  ((tommy vero) ((luca vale) (andrea eva roby)))
+;->  ((tommy vero) ((luca andrea) (vale eva roby)))
+;->  ((tommy vero) ((luca eva) (vale andrea roby)))
+;->  ((tommy vero) ((luca roby) (vale andrea eva)))
+;->  ((tommy vero) ((vale andrea) (luca eva roby)))
+;->  ((tommy vero) ((vale eva) (luca andrea roby)))
+;->  ((tommy vero) ((vale roby) (luca andrea eva)))
+;->  ((tommy vero) ((andrea eva) (luca vale roby)))
+;->  ((tommy vero) ((andrea roby) (luca vale eva)))
+;->  ((tommy vero) ((eva roby) (luca vale andrea)))
+;->  ((roby vero) ((luca vale) (andrea eva tommy)))
+;->  ((roby vero) ((luca andrea) (vale eva tommy)))
+;->  ((roby vero) ((luca eva) (vale andrea tommy)))
+;->  ((roby vero) ((luca tommy) (vale andrea eva)))
+;->  ((roby vero) ((vale andrea) (luca eva tommy)))
+;->  ((roby vero) ((vale eva) (luca andrea tommy)))
+;->  ((roby vero) ((vale tommy) (luca andrea eva)))
+;->  ((roby vero) ((andrea eva) (luca vale tommy)))
+;->  ((roby vero) ((andrea tommy) (luca vale eva)))
+;->  ((roby vero) ((eva tommy) (luca vale andrea))))
 
 =======================================================
 N-99-28 Ordinare una lista in base alla lunghezza delle sottoliste
@@ -11316,6 +12195,43 @@ Anche la seguente funzione calcola le permutazioni, ma con un metodo diverso:
 (permutations '(1 2 3))
 ;-> ((1 2 3) (2 1 3) (2 3 1) (1 3 2) (3 1 2) (3 2 1))
 
+Possiamo creare le permutazioni utilizzando l'algoritmo di Heap ( https://en.wikipedia.org/wiki/Heap%27s_algorithm ).
+Questo algoritmo produce tutte le permutazioni scambiando un elemento ad ogni iterazione.
+
+(define (perm lst)
+  (local (i indici out)
+    (setq indici (dup 0 (length lst)))
+    (setq i 0)
+    ; aggiungiamo la lista iniziale alla soluzione
+    (setq out (list lst))
+    (while (< i (length lst))
+      (if (< (indici i) i)
+          (begin
+            (if (zero? (% i 2))
+              (swap (lst 0) (lst i))
+              (swap (lst (indici i)) (lst i))
+            )
+            ;(println lst);
+            (push lst out -1)
+            (++ (indici i))
+            (setq i 0)
+          )
+          (begin
+            (setf (indici i) 0)
+            (++ i)
+          )
+       )
+    )
+    out
+  )
+)
+
+(length (perm '(0 1 2 3 4 5 6 7 8 9)))
+;-> 36628800
+
+(time (length (perm '(0 1 2 3 4 5 6 7 8 9))))
+;-> 3928.519
+
 
 ------------
 COMBINAZIONI
@@ -11510,7 +12426,7 @@ Troviamo gli indici degli elementi che hanno valore 4 e 6:
 
 Finalmente abbiamo trovato la soluzione.
 
-Come abbiamo anticipato, si può trovare la soluzione calcolando A(n,W). Per farlo in modo efficiente si può usare una tabella che memorizzi i calcoli fatti precedentemente (memoization o programmazione dinamica). Questa soluzione impiegherà quindi un tempo proporzionale a O(nW)} e uno spazio anch'esso proporzionale a O(nW).
+Come abbiamo anticipato, si può trovare la soluzione calcolando A(n,W). Per farlo in modo efficiente si può usare una tabella che memorizza i calcoli fatti precedentemente (memoization o programmazione dinamica). Questa soluzione impiegherà quindi un tempo proporzionale a O(nW)} e uno spazio anch'esso proporzionale a O(nW).
 
 (define (knapsack C items)
   (define (getNomi lst) (map (fn(x) (first x)) lst))
@@ -21480,14 +22396,16 @@ Ricerca binaria (binary search)
 
 La "ricerca binaria" è un algoritmo di ricerca che individua l'indice di un determinato valore in un insieme ordinato di dati. Se il valore non esiste allora l'indice vale -1.
 Questo algoritmo cerca un elemento all'interno di una lista ordinata, effettuando mediamente meno confronti rispetto ad una ricerca sequenziale, e quindi più rapidamente rispetto ad essa perché, sfruttando l'ordinamento, dimezza l'intervallo di ricerca ad ogni passaggio.
-L'algoritmo è simile q quella della ricerca di una parola sul dizionario: sapendo che il vocabolario è ordinato alfabeticamente, l'idea è quella di iniziare la ricerca non dal primo elemento, ma da quello centrale, cioè a metà del dizionario. Si confronta questo elemento con quello cercato:
+L'algoritmo è simile a quello della ricerca di una parola sul dizionario: sapendo che il vocabolario è ordinato alfabeticamente, l'idea è quella di iniziare la ricerca non dal primo elemento, ma da quello centrale, cioè a metà del dizionario. Si confronta questo elemento con quello cercato:
 - se corrisponde, la ricerca termina indicando che l'elemento è stato trovato;
 - se è superiore, la ricerca viene ripetuta sugli elementi precedenti (ovvero sulla prima metà del dizionario), scartando quelli successivi;
 - se invece è inferiore, la ricerca viene ripetuta sugli elementi successivi (ovvero sulla seconda metà del dizionario), scartando quelli precedenti.
 Se tutti gli elementi vengono scartati, la ricerca termina senza aver trovato il valore.
 La ricerca binaria non usa mai più di floor(log(2) N) (logaritmo base 2 di N approssimato per eccesso) confronti.
 
-Scriviamo questo algoritmo sia in versione iterativa che in versione ricorsiva.
+Attenzione che questo algoritmo è più difficile di quanto sembri da scrivere. Jon Bentley, nel suo libro "Programming Pearls", riferisce che il 90% dei programmatori professionisti non è in grado di scrivere una corretta implementazione della ricerca binaria in due ore, e Donald Knuth, nel secondo volume della sua opera "The Art of Computer Programming", riporta che sebbene il primo codice per la ricerca binaria fu pubblicato nel 1946, la prima ricerca binaria senza errori non fu pubblicata fino al 1962.
+
+Scriviamo questo algoritmo sia in versione iterativa che in versione ricorsiva (e speriamo di farlo correttamente).
 
 Versione iterativa:
 
@@ -21495,13 +22413,13 @@ Versione iterativa:
   (local (basso alto indice)
     (setq out -1) ; elemento non trovato
     (setq basso 0) ; inizio lista
-    (setq alto (sub (length lst) 1)) ; fine lista
+    (setq alto (- (length lst) 1)) ; fine lista
     (while (and (>= alto basso) (= out -1))
-      (setq indice (>> (add basso alto))) ; valore centrale indice
+      (setq indice (>> (+ basso alto))) ; valore centrale indice
       (cond ((> (lst indice) num)
-             (setq alto (sub indice 1))) ; aggiorno l'indice "alto"
+             (setq alto (- indice 1))) ; aggiorno l'indice "alto"
             ((< (lst indice) num)
-             (setq basso (add indice 1))) ; aggiorno l'indice "basso"
+             (setq basso (+ indice 1))) ; aggiorno l'indice "basso"
             (true (setq out indice)) ; elemento trovato
       )
     );while
@@ -21528,18 +22446,18 @@ Aggiungiamo un parametro che ci permette di specificare l'ordinamento della list
   (local (basso alto indice)
     (setq out -1)
     (setq basso 0)
-    (setq alto (sub (length lst) 1))
+    (setq alto (- (length lst) 1))
     (while (and (>= alto basso) (= out -1))
-      (setq indice (>> (add basso alto))) ;; right shift
+      (setq indice (>> (+ basso alto))) ;; right shift
       (cond ((> (lst indice) num)
              (if (= op >) ;controllo dell'ordinamento della lista
-                (setq alto (sub indice 1))
-                (setq basso (add indice 1))
+                (setq alto (- indice 1))
+                (setq basso (+ indice 1))
              ))
             ((< (lst indice) num)
              (if (= op >) ;controllo dell'ordinamento della lista
-                (setq basso (add indice 1))
-                (setq alto (sub indice 1))
+                (setq basso (+ indice 1))
+                (setq alto (- indice 1))
              ))
             (true (setq out indice))
       )
@@ -21560,27 +22478,34 @@ Aggiungiamo un parametro che ci permette di specificare l'ordinamento della list
 (bs -2 '(782 99 83 65 4 3 2 1 0 -31) <)
 ;-> -1
 
+(bs 1 '() >)
+;-> -1
+
+(bs 2 '(1 2 2 3) <)
+;-> 1 ;restituisce il primo valore del 2
+
 Vediamo la versione ricorsiva:
 
 (define (bs-r num lst op)
   (define (bsr num lst basso alto op)
-    (setq indice (>> (add basso alto)))
+    (setq indice (>> (+ basso alto)))
     (cond ((< alto basso) -1)
           ((> (lst indice) num)
               (if (= op >)
-                  (bsr num lst basso (sub indice 1) op)
-                  (bsr num lst (add indice 1) alto op)))
+                  (bsr num lst basso (- indice 1) op)
+                  (bsr num lst (+ indice 1) alto op)))
           ((< (lst indice) num)
               (if (= op >)
-                  (bsr num lst (add indice 1) alto op)
-                  (bsr num lst basso (sub indice 1) op)))
+                  (bsr num lst (+ indice 1) alto op)
+                  (bsr num lst basso (- indice 1) op)))
           (true indice)
     );cond
   )
-  (bsr num lst 0 (length lst) op)
+  (if (= lst '())
+    -1
+    (bsr num lst 0 (length lst) op)
+  )
 )
-
-(bs-r 2 '(-31 0 1 2 3 4 65 83 99 782))
 
 (bs-r 2 '(-31 0 1 2 3 4 65 83 99 782) >)
 ;-> 3
@@ -21593,6 +22518,12 @@ Vediamo la versione ricorsiva:
 
 (bs-r -2 '(782 99 83 65 4 3 2 1 0 -31) <)
 ;-> -1
+
+(bs-r 1 '() >)
+;-> -1
+
+(bs-r 2 '(1 2 2 3) >)
+;-> 2 ;restituisce il secondo valore del 2
 
 
 --------------------
@@ -30905,7 +31836,7 @@ Per alcuni, il metodo "parentesi chiuse sulla nuova linea" non deve esse usato p
 
 Livello di indentazione
 -----------------------
-Il livello di indentazione (TAB) dovrebbe essere relativamente piccolo. In genere vengono usati due caratteri spazio per ogni rientro.
+Il livello di indentazione (TAB) dovrebbe essere relativamente piccolo. In genere vengono usati due caratteri spazio per ogni rientro (max 4 caratteri spazio).
 
 Esempio:
 
@@ -30933,6 +31864,39 @@ Esempio:
 
 Con un livello di indentazione piccolo si diminuisce la lunghezza delle righe del programma.
 
+Nomi delle variabili
+--------------------
+I nomi delle variabili vengono scritti in minuscolo e le parole sono separate dal carattere trattino "-" (hyphens). Non utilizzare il carattere underscore "_".
+Non utilizzare lettere maiuscole.
+
+giusto: total-time
+
+sbagliato: total_time oppure Total-Time
+
+Un nome di una variabile o funzione (identificatore) deve essere semplice da capire e da leggere. Non dovrebbe essere troppo lungo, ma è meglio un mome lungo che un nome incomprensibile.
+
+giusto: somma-totale
+
+sbagliato: stot
+
+I nomi che rappresentano collezioni di oggetti (es. liste, vettori) devono avere il carattere "s" alla fine (plurale). Non inserire il tipo dell'oggetto nel nome.
+
+giusto: cars
+
+sbagliato: list-of-car
+
+Le variabili globali devono essere racchiuse dal carattere "*" (earmuffing technique):
+
+*global-value*
+
+La variabili costanti devono essere racchiuse dal carattere "+" (earmuffing technique):
+
++constant-value+
+
+I predicati (funzioni che restituiscono vero (true) o falso (nil) devono avere il carattere "?" alla fine del nome:
+
+primo?
+
 Commenti
 --------
 1) Numero di punti e virgola ";" (semicolon)
@@ -30957,6 +31921,11 @@ Tre punti e virgola sono usati per i commenti che descrivono una funzione. Tali 
 ;;; in una lista di valori interi
 (define (calcola-spazi-simboli)
   (map calcola (symbols)))
+  
+Quattro punti e virgola sono usati per i commenti che si riferiscono ad un intero file e iniziano sempre dalla colonna 1:
+
+;;;; Libreria per il calcolo con i quaternioni
+;;;; Operazioni: +, -, *, /
 
 2) Contenuto dei commenti
 Come al solito, cerchiamo di essere brevi, senza perdere il contenuto delle informazioni. Affinché i commenti funzionino con le definizioni, una buona idea è usare la forma imperativa del verbo. In questo modo è possibile evitare espressioni ridondanti come "questa funzione...".
@@ -30975,6 +31944,19 @@ Invece, scrivere in questo modo:
   (map calcola (symbols)))
 
 In genere i commenti di una funzione includono anche l'elenco e la spiegazione dei parametri di input/output e i limiti di applicazione degli stessi.
+
+Stringhe di documentazione (documentation string)
+-------------------------------------------------
+Una stringa di documentazione è una stringa di caratteri che appare in predeterminate posizioni  nel codice (es: la prima espressione nel corpo di una funzione).
+Le stringhe di documentazione differiscono dai commenti in quanto sono disponibili in fase di esecuzione. Le stringhe di documentazione devono essere brevi e devono essere associate al nome di una particolare funzione, classe, ecc. Non devono dare spiegazioni generali sul funzionamento di una biblioteca o di una applicazione.
+La prima frase di una stringa di documentazione (che in genere si trova nella prima riga),
+dovrebbe fornire una breve descrizione dell'oggetto (come il titolo di un giornale).
+Il testo successivo della stringa di documentazione dovrebbe espandersi nella descrizione di
+l'oggetto. Questa parte della stringa di documentazione (nel caso in cui l'oggetto sia una funzione) potrebbe contenere precondizioni, situazioni di errore che potrebbero essere segnalate e possibili comportamenti inaspettato.
+In una stringa di documentazione, quando è necessario fare riferimento a argomenti di funzioni, nomi di classi o altri oggetti lisp, questi nomi vengono scritti in maiuscolo, in modo che essi
+siano facili da trovare.
+
+Le stringhe di documentazione possono essere estratte automaticamente (ad esempio per la creazione del manuale di riferimento delle funzioni).
 
 Al seguente indirizzo web potete trovare la guida sullo stile LISP raccomandato da Google:
 
@@ -32822,7 +33804,7 @@ Possiamo scrivere una funzione che converte una stringa in linguaggio Leet.
 (toLeet "Questa frase convertita in Leet")
 ;-> "QU3574 FR453 C0NV3R7174 1N L337"
 
-Nota che set-ref-all restituisce la stringa modificata oppure nil se non avviene nessuna modifica.
+Nota che set-ref-all restituisce la stringa modificata oppure nil se non trova una corrispondenza (e quindi non avviene alcuna modifica).
 
 (set-ref-all "C" '("C" "V" "B" "C") "Z")
 ;-> ("Z" "V" "B" "Z")
@@ -32836,16 +33818,17 @@ Possiamo scrivere la funzione anche in un altro modo:
   (local (out)
     (setq out (explode (upper-case str)))
     (dolist (el out)
-      (if (= el "O") (setq (out $idx) "0"))
-      (if (= el "I") (setq (out $idx) "1"))
-      (if (= el "Z") (setq (out $idx) "2"))
-      (if (= el "E") (setq (out $idx) "3"))
-      (if (= el "A") (setq (out $idx) "4"))
-      (if (= el "S") (setq (out $idx) "5"))
-      (if (= el "G") (setq (out $idx) "6"))
-      (if (= el "T") (setq (out $idx) "7"))
-      (if (= el "B") (setq (out $idx) "8"))
-      (if (= el "J") (setq (out $idx) "9"))
+      (cond ((= el "O") (setq (out $idx) "0"))
+            ((= el "I") (setq (out $idx) "1"))
+            ((= el "Z") (setq (out $idx) "2"))
+            ((= el "E") (setq (out $idx) "3"))
+            ((= el "A") (setq (out $idx) "4"))
+            ((= el "S") (setq (out $idx) "5"))
+            ((= el "G") (setq (out $idx) "6"))
+            ((= el "T") (setq (out $idx) "7"))
+            ((= el "B") (setq (out $idx) "8"))
+            ((= el "J") (setq (out $idx) "9"))
+      )
     )
     (join out)
   )
@@ -32937,7 +33920,7 @@ Questo metodo (partendo da (0 0 0 0 0)) genera il seguente ciclo:
  9  (3 5 2 2 4)   |
 10  (2 6 2 2 5) <--
 
-La seguente funzione cerca una soluzione e controlla se si entra in un ciclo infinito, inoltre permette di impostare due parametri: i valori della lista iniziale e una stringa all'inizio della frase (che ci permette di 'pareggiare i conti'):
+La seguente funzione cerca una soluzione e controlla se si entra in un ciclo infinito, inoltre permette di impostare due parametri: i valori della lista iniziale e una stringa all'inizio della frase (che ci permette poi di 'pareggiare i conti'):
 
 (define (autogram start-list init-str)
   (local (a e i o u base res cifre str all)
@@ -33015,6 +33998,282 @@ Il trucco di aggiungere una stringa iniziale è possibile solo quando tutti i va
 Per ulteriori informazioni: https://en.wikipedia.org/wiki/Autogram
 
 Nota: "QUESTA FRASE HA CINQUE PAROLE" è una frase autoreferenziale.
+
+
+--------------------------------------------
+Ambito dinamico e ambito lessicale (statico)
+--------------------------------------------
+
+La nozione di ambito (scope) nei linguaggi di programmazione è tradizionalmente
+legata a quella delle associazioni (bindings). Un'associazione (binding) è un legame tra un simbolo (o una variabile) e un valore. L'ambito dell'associazione definisce il tipo di"visibilità" del simbolo (o variabile) nel programma e può essere "dinamico" o "lessicale" ("statico"). 
+Secondo l'ambito lessicale (statico), in una espressione, una variabile fa riferimento al costrutto più interno in cui viene dichiarata la variabile (ad esempio, al blocco di codice in cui è definita).
+Invece l'ambito dinamico prevede che la variabile esista e possa essere usata solo durante l'estensione dinamica (esecuzione) di una espressione. Una variabile con ambito dinamico viene anche chiamata 'parametro'.
+L'associazione dinamica associa i dati all'esecuzione del contesto corrente, e quindi consente di passare i dati alle funzioni senza dover dichiarare esplicitamente questi dati nell'interfaccia della funzione.
+Una caratteristica particolare dei binding dinamici è che non sono catturati da una chiusura lessicale (lexical closure). Questo consente alcuni benefici, come la concisione, la modularità e l'adattabilità. Esempi tipici sono il reindirizzamento dell'output di un programma, la definizione di gestori di eccezioni (exception handler), la gestione dello stato dell'host locale in un sistema distribuito, ecc.
+
+newLISP utilizza l'ambito dinamico per la visibilità delle variabili/identificatori, ma può anche usare l'ambito lessicale utilizzando i contesti (context).
+
+In un linguaggio con ambito dinamico è possibile fare riferimento a un identificatore, non solo nel blocco in cui è dichiarato, ma anche in qualsiasi funzione o procedura richiamata dall'interno di quel blocco, anche se la procedura chiamata è dichiarata all'esterno del blocco.
+
+Vediamo un esempio:
+
+(setq x 42)
+(define (f x) (g (+ x 2)))
+(define (g y) (+ y x))
+
+Quando chiamiamo (f 1) in newLISP accade questo:
+
+(f 1) --> (g (+ 1 2)) --> (g 3) --> (+ 3 1) --> 4
+
+Invece nel linguaggio Scheme (che ha un ambito lessicale) accade questo:
+
+(f 1) --> (g (+ 1 2)) --> (g 3) ---> (+ 3 42) --> 45
+
+In Scheme g può vedere solo la x definita al livello superiore (o qualsiasi livello al di sopra di essa in una definizione nidificata). In newLISP, g vede la x definita "attraverso" la chiamata della funzione applicata f (da cui il termine "dinamico"), poiché quella x è il parametro formale di f.
+
+Vediamo un altro esempio del funzionamento dell'ambito dinamico:
+
+(define (f a b)
+  (local (LOC)
+    (setq LOC 'dynamic)
+    (println "pre f: a -> " a " b -> " b)
+    (g a b)
+    (println "post f: a -> " a " b -> " b)
+  )
+)
+
+(define (g x y)
+  (println LOC)
+  (println "pre g: a -> " a " b -> " b)
+  (println "pre g: x -> " x " y -> " y)
+  (setq a (* a a))
+  (setq b (* b b))
+  (setq x (* x x))
+  (setq y (* y y))
+  (println "post g: a -> " a " b -> " b)
+  (println "post g: x -> " x " y -> " y)
+)
+
+(f 2 3)
+;-> pre f: a -> 2 b -> 3
+;-> dynamic               ; "g" vede LOC perchè chiamata dall'interno di "f"
+;-> pre g: a -> 2 b -> 3  ; "g" vede "a" perchè chiamata dall'interno di "f"
+;-> pre g: x -> 2 y -> 3  ; "g" vede "b" perchè chiamata dall'interno di "f"
+;-> post g: a -> 4 b -> 9
+;-> post g: x -> 4 y -> 9
+;-> post f: a -> 4 b -> 9 ; "f" vede i nuovi valori di "a" e "b".
+
+Questo perchè le variabili libere "a" e "b" sono associate con dei valori nella funzione "f" e l'ambito dinamico permette alla funzione "g" di vedere queste associazioni perchè viene chiamata dall'interno della funzione "f".
+
+Se chiamiamo direttamente la funzione "g" otteniamo un errore:
+
+(g 2 3)
+;-> nil                      ; la variabile LOC non esiste
+;-> pre g: a -> nil b -> nil ; le variabili "a" e "b" esistono
+;-> pre g: x -> 2 y -> 3
+;-> ERR: value expected in function * : nil ; errore perchè "a" non esiste.
+
+Questo perchè le variabili libere "a" e "b" non sono associate ad alcun valore e quindi valgono nil.
+
+Il problema dell'ambito dinamico risiede nel fatto, che se usiamo simboli che non sono stati definiti nella nostra funzione, non possiamo sapere se il simbolo è globale oppure è stato "ereditato" da una chiamata di funzione.
+
+Utilizzando i contesti (context) possiamo utilizza l'ambito lessicale anche in newLISP:
+
+(define (f x) (g (+ x 2)))
+(context 'g)
+(setq x 42)
+(define (g:g y) (+ y x))
+(context MAIN)
+(f 1)
+
+;-> 45
+
+Comunque è molto meglio scrivere funzioni che non hanno variabili "libere" e quindi non occorre creare contesti per queste funzioni.
+
+Ad esempio, si noti che il corpo di g ha due variabili x e y. y è una variabile associata in g, poiché è un parametro formale di g. Tuttavia, x non è associato, ovvero è "libera".
+
+Nelle funzioni non dovrebbero esistere variabili "libere" (devono essere legate a un let o un local), ma nel caso fossero presenti devono riferirsi a variabili globali con nomi racchiusi da asterischi "*" (earmuffing), per evitare di entrare in conflitto con le varibili locali (quelle che entrano nello stack). Per esempio, *MAX-VAL* è una variabile globale (per convenzione).
+
+Questo metodo di programmazione è principio di base della "programmazione strutturata" ed è valido per quasi tutti i linguaggi programmazione.
+
+L'utilizzo dei contesti per avere l'ambito lessicale è utile quando si lavora a programmi grandi e/o con un gruppo di programmatori: in questo modo nessuno influisce sul codice degli altri.
+
+Comunque i contesti hanno un proprio ambito dinamico internamente, essi isolano il proprio ambito dinamico rispetto agli altri contesti (in altre parole un contesto è un nuovo spazio di nomi).
+
+Lutz suggerisce anche un altro metodo per utilizzare le variabili globali (e le costanti): inserirle tutte in un contesto. Per esempio:
+
+(set 'Setup:datapath "/home/data")
+(set 'Setup:language "english")
+(set 'Setup:n-records 12345)
+
+Questo ha anche il vantaggio che tutte le variabili globali e le costanti possono essere salvate/caricate su un file tutte insieme:
+
+Salvataggio variabili e costanti:
+(save "setup.lsp" 'Setup)
+
+Caricamento variabili e costanti:
+(load "setup.lsp")
+
+L'ambito dinamico costringe il programmatore a scrivere funzioni senza effetti collaterali (side effect).
+
+newLISP comunque permette di utilizzare entrambi gli ambiti: dinamico e lessicale (o statico).
+
+Un libro molto interessante su questo argomento e sul LISP in generale è:
+"COMMON LISP: A Gentle Introduction to Symbolic Computation" di David Touretzky.
+
+Infine, vediamo il perchè della parola "lessicale":
+
+nell'ambito statico, una variabile si riferisce sempre all'associazione di chiusura più vicina (binding). Questa è una proprietà del testo del programma e non è correlata allo stack delle chiamate di runtime. Poiché la corrispondenza di una variabile con l'associazione richiede solo l'analisi del testo del programma, questo tipo di ambito viene chiamato anche "ambito lessicale".
+
+
+----------------------------------
+Uso delle espressioni condizionali
+----------------------------------
+
+Analizzeremo i metodi consigliati nell'uso delle espressioni: "if", "when", "unless", "cond" e "case".
+
+Quando utilizzare l'espressione "cond"
+--------------------------------------
+Ci sono alcuni casi in cui "cond" è preferibile ad "if":
+
+1) Quando abbiamo una catena di "if" (skip chain)
+
+sbagliato:
+
+(if condizione1
+    esegui-1
+    (if condizione-2
+        esegui-2
+        esegui-3))
+
+giusto:
+
+(cond (condizione-1 esegui-1)
+      (condizione-2 esegui-2)
+      (true esegui-3)
+
+2) Quando la parte 'then' o 'else' contiene diverse espressioni da valutare (che richiederebbe l'uso di "begin")
+
+sbagliato:
+
+(if condizione-1
+    (begin azione-1a
+           azione-1b)
+    (begin azione-2a
+           azione-2b)
+
+giusto:
+
+(cond (condizione-1 esegui-1a esegui-1b)
+      (true esegui-2a esegui-2b))
+
+L'espressione "cond" ha una definizione implicita di "begin" per ogni clausola.
+
+3) Quando viene il risultato della condizione rappresenta l'espressione di ritorno
+
+sbagliato:
+
+(let ((val (calcolo-complicato a b c)))
+  (if val
+      val
+      (esegui-altro x y z)))
+
+giusto:
+
+(cond ((calcolo-complicato a b c))
+      (true (esegui altro x y z)))
+
+Quando utilizzare l'espressione "case"
+--------------------------------------
+L'espressione condizionale "case" può essere vista come un caso speciale del condizionale "cond" che risolve il problema di testare il valore di un'espressione con un certo numero di valori costanti (questi valori devono essere costanti perchè non vengono valutati da newLISP).
+Il "case" esiste perchè è molto più veloce del cond per questo caso speciale (il compilatore può utilizzare una tabella hash invece di dover testare ogni clausola in sequenza).
+
+sbagliato:
+
+(cond ((= val 1) esegui-1)
+      ((= val 2) esegui-2)
+      ((= val 3) esegui-3)
+      ((= val 4) esegui-4)
+      (true esegui-5))
+
+giusto:
+
+(case val
+  (1 esegui-1)
+  (2 esegui-2)
+  (3 esegui-3)
+  (4 esegui-4)
+  (true esegui-5))
+
+Quando utilizzare l'espressione "when" e "unless"
+-------------------------------------------------
+Quando l'espressione "if" ha un solo ramo ('then' oppure 'else'), allora è meglio utilizzare "when" o "unless". L'uso di queste due espressioni permettono di risparmiare spazio e rendono il codice più preciso (leggibile).
+
+sbagliato:
+
+(if (un-test a b c)
+    (begin (calcolo-1 a b c)
+           (calcolo-2 a b c)
+           (calcolo-3 a b c)
+           ...))
+
+giusto:
+
+(when (un-test a b c)
+  (calcolo-1 a b c)
+  (calcolo-2 a b c)
+  (calcolo-3 a b c)
+  ...)
+
+Quando si usa "when" o "unless" la condizione di test non deve essere negata con l'espressione "not".
+
+sbagliato:
+
+(when (not (un-test a b c))
+  (calcolo-1 a b c)
+  (calcolo-2 a b c)
+  (calcolo-3 a b c)
+  ...)
+
+giusto:
+
+(unless (un-test a b c)
+  (calcolo-1 a b c)
+  (calcolo-2 a b c)
+  (calcolo-3 a b c)
+  ...)
+
+L'uso del test "null?" è consigliato nel caso seguente:
+
+sbagliato:
+
+(when (rest lst))
+  (calcolo-1 a b c)
+  (calcolo-2 a b c)
+  (calcolo-3 a b c)
+  ...)
+
+giusto:
+
+(unless (null? (rest lst))
+  (calcolo-1 a b c)
+  (calcolo-2 a b c)
+  (calcolo-3 a b c)
+  ...)
+
+Ricordiamo che in newLISP "nil" è diverso dalla lista vuota '():
+
+(= nil '())
+;-> nil
+
+Ma si comportano allo stesso modo con l'espressione di test "null?":
+
+(if (null? '()) (println "nullo") (println "non nullo"))
+;-> nullo
+(if (null? nil) (println "nullo") (println "non nullo"))
+;-> nullo
+(if (null? 0) (println "nullo") (println "non nullo"))
+;-> nullo
 
 
 ===========

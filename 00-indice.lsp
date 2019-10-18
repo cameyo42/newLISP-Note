@@ -116,6 +116,12 @@ FUNZIONI VARIE
   Ispezionare una cella newLISP
   Informazioni sul sistema (sys-info)
   Valutazione di elementi di una lista
+  Download tutti i file da una pagina web
+  Conversione numero da cifre a lettere
+  Punto a destra o sinistra di una linea
+  Creazione di un poligono da una lista di punti
+  Percorso minimo di una lista di punti
+  Utilizzo del protocollo ftp
 
 newLISP 99 PROBLEMI (28)
 ========================
@@ -336,6 +342,8 @@ NOTE LIBERE
   I cicli (loops)
   L'alfabeto web "Leet"
   Autogrammi
+  Ambito dinamico e ambito lessicale (statico)
+  Uso delle espressioni condizionali
 
 APPENDICI
 =========
