@@ -122,6 +122,8 @@ FUNZIONI VARIE
   Creazione di un poligono da una lista di punti
   Percorso minimo di una lista di punti
   Utilizzo del protocollo ftp
+  Normalizzazione di una lista di numeri
+  Trasformazione omografica 2D
 
 newLISP 99 PROBLEMI (28)
 ========================
@@ -227,7 +229,8 @@ PROBLEMI VARI
   Il numero aureo
   Equazione di secondo grado
   Equazione di terzo grado
-  Sistemi lineari
+  Sistemi lineari (Cramer)
+  Sistemi lineari (Gauss)
   Numeri Brutti
   Numeri Poligonali
   Torre di Hanoi
@@ -344,6 +347,7 @@ NOTE LIBERE
   Autogrammi
   Ambito dinamico e ambito lessicale (statico)
   Uso delle espressioni condizionali
+  select e unselect (antiselect)
 
 APPENDICI
 =========

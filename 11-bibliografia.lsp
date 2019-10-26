@@ -69,10 +69,12 @@
   GeeksforGeeks - Un portale di computer science per "geeks"
   https://www.geeksforgeeks.org/
 
-  "The Art of Computer Programming", Donald Knuth, 4 volumi
+  "The Art of Computer Programming", Donald Knuth, 4 volumi, 1968...2015
   
   "Introduction to Algorithms", Cormen-Leiserson-Rivest-Stein, 3ed, 2009
   
   "Teoria e Progetto di Algoritmi Fondamentali", Ausiello-Marchetti-Spaccamela-Protasi, 1985
   
   "Land of Lisp", Conrad Barsky, 2011
+  
+  "Structure and Interpretation of Computer Programs",  Abelson-Sussman, 2ed, 1996

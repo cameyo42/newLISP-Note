@@ -2142,6 +2142,31 @@ Sistemi Lineari (Cramer)
 Proviamo a scrivere un programma che risolve i sistemi lineari.
 Utilizzeremo il metodo di Cramer perchè newLISP mette a disposizione una funzione standard per calcolare il determinante di una matrice.
 
+****************
+>>>funzione DET
+****************
+sintassi: (det matrix [float-pivot])
+
+Restituisce il determinante di una matrice quadrata. Una matrice può essere una lista nidificata o un vettore (array).
+
+Opzionalmente 0.0 o un valore molto piccolo può essere specificato in float-pivot. Questo valore sostituisce gli elementi pivot nell'algoritmo di decomposizione LU, che risulta zero quando l'algoritmo incontra una matrice singolare.
+
+(set 'A '((-1 1 1) (1 4 -5) (1 -2 0)))
+(det A)
+;-> -0.9999999999999998
+
+; trattamento di una matrice singolare
+(det '((2 -1) (4 -2)))
+;-> nil
+(det '((2 -1) (4 -2)) 0)
+-0
+(det '((2 -1) (4 -2)) 1e-20)
+;-> -4e-20
+
+Se la matrice è singolare e float-pivot non è specificato, viene restituito nil.
+
+Vediamo alcuni esempi di risoluzione di un sistema lineare.
+
 Esempio 1
 
   x + 2y + 3z =  1
@@ -2159,7 +2184,6 @@ Soluzione
 Impostiamo i valori della matrice:
 
 (setq m '((1 2 3) (-3 -2 3) (4 -5 2)))
-m
 ;-> ((1 2 3) (-3 -2 3) (4 -5 2))
 
 Calcoliamo il determinante:
@@ -2315,21 +2339,22 @@ Calcoliamo la soluzione per z:
 
 Scriviamo la funzione:
 
-(define (solve-linsys matrice noti)
+(define (cramer matrice noti)
   (local (dim detm det-i sol copia)
     (setq dim (length matrice))
     (setq sol '())
     (setq copia matrice)
-    (setq detm (det copia))
+    (setq detm (det copia 0.0))
     ; la soluzione è indeterminata se il determinante vale zero.
     (if (= detm 0) (setq sol nil)
     ;(println detm)
-      (for (i 0 (sub dim 1))
-        (for (j 0 (sub dim 1))
+      (for (i 0 (- dim 1))
+        (for (j 0 (- dim 1))
           (setf (copia j i) (noti j))
         )
-        (setq det-i (det copia))
-        ;(println det-i)
+        ; 0.0 -> restituisce 0 (invece di nil),
+        ; quando la matrice è singolare
+        (setq det-i (det copia 0.0))
         (push (div det-i detm) sol -1)
         (setq copia matrice)
       );endfor
@@ -2338,15 +2363,15 @@ Scriviamo la funzione:
   );local
 )
 
-(solve-linsys '((2 1 1) (4 -1 1) (-1 1 2)) '(1 -5 5))
+(cramer '((2 1 1) (4 -1 1) (-1 1 2)) '(1 -5 5))
 ;-> (-1 2 1)
 
-(solve-linsys '((1 2 3) (-3 -2 3) (4 -5 2)) '(1 -1 1))
+(cramer '((1 2 3) (-3 -2 3) (4 -5 2)) '(1 -1 1))
 ;-> (0.3620689655172414 0.1379310344827586 0.1206896551724138)
 
 Proviamo con un sistema 8x8:
 
-(solve-linsys
+(cramer
 '((2 3 3 -4 -5 3 -2 3)
   (-3 3 -1 2 3 5 -2 3)
   (4 2 4 -4 -2 3 -1 -5)
@@ -2358,6 +2383,167 @@ Proviamo con un sistema 8x8:
 '(1 -1 1 2 3 2 -2 2))
 ;-> (-0.2907517086232766 0.4541737926192612 0.1222139219887456 0.7272295937332997
 ;->  -0.9577686974650513 0.1669345810796059 0.682061578219236 -0.3880884752566235)
+
+Nota: La regola di Cramer è inadatta per N grande (es. N > 12), sia per l'accuratezza numerica e la sensibilità agli errori, sia perché è molto lenta rispetto ad altri algoritmi.
+
+
+-----------------------
+Sistemi lineari (Gauss)
+-----------------------
+
+Per risolvere un sitema lineare utilizzeremo il metodo di eliminazione di Gauss con pivot e poi sostituzione all'indietro (Gaussian elimination with pivot and then backwards substitution).
+Per maggiori informazioni sull'algoritmo:
+
+https://it.wikipedia.org/wiki/Metodo_di_eliminazione_di_Gauss
+
+; risolve il sistema lineare A*x = b
+(define (gauss A b)
+  (local (n m p rowx amax xfac temp temp1 x)
+    (setq rowx 0) ;conta il numero di scambio righe
+    (setq n (length A))
+    (setq x (dup '0 n))
+    (for (k 0 (- n 2))
+      (setq amax (abs (A k k)))
+      (setq m k)
+      ; trova la riga con il pivot più grande
+      (for (i (+ k 1) (- n 1))
+        (setq xfac (abs (A i k)))
+        (if (> xfac amax) (setq amax xfac m i))
+      )
+      ; scambio delle righe
+      (if (!= m k) (begin
+          (++ rowx)
+          (setq temp1 (b k))
+          (setq (b k) (b m))
+          (setq (b m) temp1)
+          (for (j k (- n 1))
+            (setq temp (A k j))
+            (setq (A k j) (A m j))
+            (setq (A m j) temp)
+          ))
+      )
+      (for (i (+ k 1) (- n 1))
+        (setq xfac (div (A i k) (A k k)))
+        (for (j (+ k 1) (- n 1))
+          (setq (A i j) (sub (A i j) (mul xfac (A k j))))
+        )
+        (setq (b i) (sub (b i) (mul xfac (b k))))
+      )
+    )
+    ; sostituzione all'indietro (backward sostitution)
+    (for (j 0 (- n 1))
+      (setq p (sub n j 1))
+      (setq (x p) (b p))
+      (if (<= (+ p 1) (- n 1))
+        (for (i (+ p 1) (- n 1))
+          (setq (x p) (sub (x p) (mul (A p i) (x i))))
+        )
+      )
+      (setq (x p) (div (x p) (A p p)))
+    )
+    x
+  ); local
+)
+
+(gauss '((2 1 1) (4 -1 1) (-1 1 2)) '(1 -5 5))
+;-> (-1 2 1)
+
+(gauss '((1 2 3) (-3 -2 3) (4 -5 2)) '(1 -1 1))
+;-> (0.3620689655172414 0.1379310344827586 0.1206896551724138)
+
+(setq matrice '((1 1 1 0 0 0 -10 -10)
+ (0 0 0 1 1 1 -2 -2)
+ (5 1 1 0 0 0 -65 -13)
+ (0 0 0 5 1 1 -25 -5)
+ (5 5 1 0 0 0 -60 -60)
+ (0 0 0 5 5 1 -55 -55)
+ (1 5 1 0 0 0 -9 -45)
+ (0 0 0 1 5 1 -8 -40)))
+
+(setq noti '(10 2 13 5 12 11 9 8))
+;-> (10 2 13 5 12 11 9 8)
+
+(gauss matrice noti)
+;-> (0.7500000000000002 -0.2499999999999999 9.5 0.7500000000000002
+;->  1.5 -0.2500000000000003 2.379049338482478e-017 7.930164461608264e-018)
+
+Arrotondiamo a 4 cifre decimali dopo la virgola:
+
+(map (fn (x) (round x -4)) (gauss matrice noti))
+;-> (0.75 -0.25 9.5 0.75 1.5 -0.25 0 0)
+
+Vediamo la differenza di velocità tra il metodo di Cramer e il metodo di Gauss:
+
+(time (gauss matrice noti) 10000)
+;-> 667.316
+
+(time (cramer matrice noti) 10000)
+;-> 318.691
+
+Proviamo con un sistea 16x16:
+
+(setq matrice '((1 1 1 0 0 0 -10 -10 -20 -22 -10 -12 -14 -16 22 -42)
+ (0 0 0 -1 1 -1 0 0 0 -1 1 1 1 1 -2 -2)
+ (5 1 1 0 0 0 5 -1 1 0 0 0 0 0 -65 -13)
+ (0 0 0 5 1 1 0 0 0 5 1 -1 1 1 -25 -5)
+ (5 5 1 0 0 0 5 -5 1 0 0 0 0 0 -60 -60)
+ (0 0 0 5 5 1 0 0 0 5 5 1 -5 1 -55 -55)
+ (1 5 1 0 0 0 1 5 -1 0 0 0 0 0 -9 -45)
+ (0 0 0 1 5 2 0 0 0 1 -5 2 -5 2 -3 -40)
+ (0 4 0 6 5 0 0 4 0 6 5 0 5 0 -8 -30)
+ (1 0 4 1 5 1 1 0 4 1 -5 1 5 -1 -8 -40)
+ (1 3 3 4 8 2 1 3 3 4 -8 2 8 2 -5 -64)
+ (1 3 4 3 -4 2 1 3 3 3 4 2 4 2 -1 -14)
+ (2 4 3 1 5 -2 2 4 3 1 0 2 5 2 -1 -24)
+ (1 5 3 9 6 2 -1 5 3 9 6 0 6 2 -1 -34)
+ (3 6 3 1 7 2 3 -6 3 1 7 2 0 2 -1 -44)
+ (9 2 1 1 5 6 9 2 -1 1 5 6 5 0 -6 -74)))
+
+(setq noti '(10 -2 13 -5 12 11 9 -8 -10 12 -18 10 20 16 8 6))
+
+(cramer matrice noti)
+;-> (6.073265713499919 
+;-> -7.895511516493116 
+;-> 1.832360106508081 
+;-> 3.230429811886619 
+;-> -1.455619886107596
+;-> -6.476253322763236 
+;-> 3.679036826897333 
+;-> 2.718120581717722 
+;-> 6.958059613240136 
+;-> -3.641846643266388
+;-> 2.958481343355023 
+;-> -12.86237050078677 
+;-> -2.628371168374938 
+;-> 4.849669122127303 
+;-> 0.6839772385617239
+;-> -0.8092477063837188)
+
+(gauss matrice noti)
+;-> (6.073265713499932 
+;->  -7.895511516493109 
+;->  1.832360106508014 
+;->  3.230429811886656 
+;->  -1.455619886107596
+;->  -6.476253322763209 
+;->  3.679036826897329 
+;->  2.718120581717728 
+;->  6.958059613240156 
+;->  -3.641846643266435
+;->  2.958481343355025 
+;->  -12.86237050078677 
+;->  -2.628371168374938 
+;->  4.849669122127305 
+;->  0.6839772385617227
+;->  -0.8092477063837177)
+
+(time (gauss matrice noti) 10000)
+;-> 4114.972
+
+(time (cramer matrice noti) 10000)
+;-> 1526.089
+
+La funzione built-in "det" è molto veloce...
 
 
 -------------
@@ -6088,7 +6274,7 @@ La funzione seguente prende un intero e ritorna il numero nella forma di Church:
 
 (define (reduce stencil sq) (apply stencil sq 2))
 
-(define (num n)  
+(define (num n)
 (cond
    ((= n 0) 'x)
    ((< n 2) '(f x))
@@ -6143,12 +6329,12 @@ E poi per ottenere i valori cercati possiamo scrivere:
 Poichè i polinomi hanno una struttura ben definita possiamo scrivere una funzione che prende i coefficienti di un polinomio e restituisce una funzione che rappresenta il polinomio:
 Ad esempio, il polinomio:
 
- y(x) = 4*x^3 + 5*x^2 + 7*x + 10 
- 
+ y(x) = 4*x^3 + 5*x^2 + 7*x + 10
+
 viene rappresentato dalla funzione:
 
  (lambda (x) (add 10 (mul x 7) (mul (pow x 2) 5) (mul (pow x 3) 4)))
- 
+
 La nostra funzione deve quindi costruire una nuova funzione lambda che rappresenta il polinomio (lavoriamo sulla funzione lambda come se fosse una lista).
 
 ; y(x) = 4*x^3 + 5*x^2 + 7*x + 10)

@@ -122,6 +122,8 @@ FUNZIONI VARIE
   Creazione di un poligono da una lista di punti
   Percorso minimo di una lista di punti
   Utilizzo del protocollo ftp
+  Normalizzazione di una lista di numeri
+  Trasformazione omografica 2D
 
 newLISP 99 PROBLEMI (28)
 ========================
@@ -227,7 +229,8 @@ PROBLEMI VARI
   Il numero aureo
   Equazione di secondo grado
   Equazione di terzo grado
-  Sistemi lineari
+  Sistemi lineari (Cramer)
+  Sistemi lineari (Gauss)
   Numeri Brutti
   Numeri Poligonali
   Torre di Hanoi
@@ -344,6 +347,7 @@ NOTE LIBERE
   Autogrammi
   Ambito dinamico e ambito lessicale (statico)
   Uso delle espressioni condizionali
+  select e unselect (antiselect)
 
 APPENDICI
 =========
@@ -8724,10 +8728,8 @@ Se il prodotto è maggiore di zero, allora il punto si trova a sinistra della li
 Se il prodotto è minore di zero, allora il punto si trova a destra della linea.
 Se il prodotto è uguale a zero, allora il punto si trova sulla linea.
 
-cross(point a, point b, point c)
-{
-     return ((b.X - a.X)*(c.Y - a.Y) - (b.Y - a.Y)*(c.X - a.X));
-}
+(cross (point-a point-b point-c)
+  (((b.X - a.X)*(c.Y - a.Y) - (b.Y - a.Y)*(c.X - a.X))))
 
 dove:
 a = primo punto della linea
@@ -9001,9 +9003,11 @@ Nota: questo algoritmo non trova il percorso minimo tra i punti.
 Percorso minimo di una lista di punti
 -------------------------------------
 
-Data una lista di punti, costruire il poligono con tutti i punti che ha lunghezza minima.
+Data una lista di punti, costruire il poligono (percorso chiuso) che ha lunghezza minima.
 
-Generiamo tutte le permutazioni dei punti e calcoliamo la somma totale della distanza tra i punti per ogni permutazione. La permutazione che ha la distanza minima è la soluzione.
+Questo problema assomiglia a quello del commesso viaggiatore (Travelling Salesman Problem), ma in questo caso, potenzialmente, ogni punto è connesso con tutti gli altri (grafo completo non orientato).
+L'algoritmo che adottiamo è abbastanza brutale: generiamo tutte le permutazioni dei punti e calcoliamo la somma totale della distanza tra i punti per ogni permutazione. La permutazione che ha la distanza minima è la soluzione.
+Questo metodo limita fortemente il numero di punti che possiamo analizzare in tempi accettabili.
 
 Funzione per calcolare le permutazioni:
 
@@ -9068,14 +9072,19 @@ Adesso definiamo la funzione finale:
 
 (define (tsp lst)
   (local (permutazioni sol points dist dist-min)
-    ;(setq points (map (fn (x) (list $idx x)) lst))
+    ; creazione permutazioni dei punti
     (setq permutazioni (perm lst))
-    (setq dist-min '999999)
+    ; distanza minima iniziale
+    (setq dist-min '99999999)
     (dolist (p permutazioni)
       (setq dist 0)
+      ; calcola somma della distanza tra tutti i punti di una permutazione
       (for (i 1 (- (length p) 1))
         (setq dist (add dist (quad-dist (p i) (p (- i 1)))))
       )
+      ; aggiunge distanza tra ultimo e primo punto (percorso chiuso)
+      (setq dist (add dist (quad-dist (p 0) (p (- (length p) 1)))))
+      ;controllo distanza minima
       (if (< dist dist-min)
           (begin
             (setq dist-min dist)
@@ -9090,9 +9099,9 @@ Adesso definiamo la funzione finale:
 Proviamo la funzione:
 
 (setq lista (tsp points))
-;-> ((0 0) (30 10) (20 20) (30 40) (10 100) (50 60) (80 50) (90 10))
+;-> ((0 0) (20 20) (30 40) (10 100) (50 60) (80 50) (90 10) (30 10))
 
-Per verificare il risultato scriviamo una funzione che crea un file postscript (che viene poi convertito con ghostscript tramite un programma batch):
+Per verificare il risultato scriviamo una funzione che crea un file postscript (che viene poi convertito con ghostscript in pdf tramite un programma batch):
 
 (define (disegna lista-punti file)
   (local (xc yc punti)
@@ -9131,6 +9140,7 @@ Per verificare il risultato scriviamo una funzione che crea un file postscript (
     ;(ps:save "poly.ps")
     (ps:save (string file ".ps"))
     ; conversione del file .ps al file .pdf (ghostscript)
+    ; ps2pdf.bat
     ;(! (string "ps2pdf poly.ps poly.pdf")
     (! (string "ps2pdf " file ".ps " file ".pdf"))
   )
@@ -9154,7 +9164,7 @@ Esempio 2:
 (setq points (list P1 P2 P3 P4 P5 P6 P7 P8))
 
 (setq lista (tsp points))
-;-> ((50 10) (30 10) (20 20) (30 50) (40 80) (70 70) (70 40) (80 20))
+;-> ((20 20) (30 50) (40 80) (70 70) (70 40) (80 20) (50 10) (30 10))
 
 Creiamo i file "tsp-2.ps" e "tsp-2.pdf":
 
@@ -9175,7 +9185,7 @@ Esempio 3:
 (setq points (list P1 P2 P3 P4 P5 P6 P7 P8 P9))
 
 (setq lista (tsp points))
-;-> ((20 30) (40 40) (60 20) (80 30) (60 50) (70 70) (80 90) (50 90) (40 70))
+;-> ((80 30) (60 50) (70 70) (80 90) (50 90) (40 70) (40 40) (20 30) (60 20))
 
 Creiamo i file "tsp-3.ps" e "tsp-3.pdf":
 
@@ -9192,7 +9202,7 @@ Esempio 4:
 (setq points (list P1 P2 P3 P4 P5))
 
 (setq lista (tsp points))
-;-> ((20 20) (40 50) (60 30) (80 50) (100 20))
+;-> ((40 50) (20 20) (60 30) (100 20) (80 50))
 
 Creiamo i file "tsp-4.ps" e "tsp-4.pdf":
 
@@ -9214,16 +9224,16 @@ Esempio 5:
 (setq points (list P1 P2 P3 P4 P5 P6 P7 P8 P9 P10))
 
 (time (setq lista (tsp points)))
-;-> 34969.302
+;-> 37307.071
 
 lista
-;-> ((20 20) (30 10) (50 10) (80 20) (70 40) (50 40) (30 50) (40 80) (70 70) (120 50))
+;-> ((50 10) (30 10) (20 20) (30 50) (40 80) (70 70) (120 50) (80 20) (70 40) (50 40))
 
 Creiamo i file "tsp-5.ps" e "tsp-5.pdf":
 
 (disegna lista "tsp-5")
 
-Nota: Con questo algoritmo possiamo usare al massimo dieci punti (altrimenti il calcolo delle permutazioni richiederebbe troppo tempo)
+Nota: Con questo algoritmo possiamo calcolare al massimo dieci punti (altrimenti il calcolo delle permutazioni richiederebbe troppo tempo).
 
 
 ---------------------------
@@ -9259,6 +9269,455 @@ Esempio:
 
 (FTP:get "user2" "pwd2" "ftpzone.data" "temp" "filename.ext")
 ;-> true
+
+
+--------------------------------------
+Normalizzazione di una lista di numeri
+--------------------------------------
+
+Supponiamo di avere una lista di numeri che devono essere trasformati in un altro sistema di coordinate. Ad esempio una lista di coordinate geografiche che devono essere convertite per poter essere visualizzate sullo schermo o stampate con un plotter (cioè nel sistema di riferimento che usa lo schermo o il plotter).
+In questo caso le coordinate geografiche rappresentano un punto di coordinate (x, y) ovvero (long, lat). Quindi useremo una trasformazione lineare in due dimensioni (2D).
+Nota: la trasformazione lineare può essere applicata solo se l'estensione della zona geografica è limitata, cioè se possiamo approssimare la zona geografica con un piano cartesiano (in altre parole se possiamo trascurare la curvatura terrestre).
+
+Questa è la lista delle coordinate geografiche:
+
+(setq geo '((12.41142785 43.66627426)
+            (12.65043641 43.55027395)
+            (12.67496872 43.62171555)
+            (12.78785627 43.95023854)
+            (12.83323383 43.70941544)
+            (12.90976429 43.90989685)
+            (12.93863011 43.49932483)))
+
+Poichè le coordinate hanno 8 cifre significative, possiamo moltiplicarle per 1e8 (in modo da avere numeri interi).
+
+(setq geo (map (fn (x) (list (int (mul (first x) 1e8)) (int (mul (last x) 1e8)))) geo))
+;-> ((1241142785 4366627426)
+;->  (1265043641 4355027395)
+;->  (1267496872 4362171555)
+;->  (1278785627 4395023854)
+;->  (1283323383 4370941544)
+;->  (1290976429 4390989685)
+;->  (1293863011 4349932483))
+
+(integer? (first (first geo)))
+;-> true
+
+(setq long (first (first geo)))
+;-> 1241142785
+(setq lat (last (first geo)))
+;-> 4366627426
+
+Le coordinate hanno i seguenti limiti:
+
+ 1200000000 <= long <= 1300000000  --> (1300000000 - 1200000000) = 100000000
+ 4200000000 <= lat <= 4300000000   --> (4300000000 - 4200000000) = 100000000
+
+Poichè i limiti definiscono un quadrato (100000000 e 100000000), per mantenere i rapporti di proporzione dobbiamo convertire queste coordinate in un piano cartesiano quadrato (10x10 o 200x200 o 150x150 ecc.)
+
+Supponiamo che i limiti delle coordinate piane siano (0,0) e (100,100).
+Possiamo scrivere:
+
+(setq long-min 1200000000)
+(setq long-max 1300000000)
+(setq lat-min 4200000000)
+(setq lat-max 4300000000)
+(setq x-min 0)
+(setq x-max 100)
+(setq y-min 0)
+(setq y-max 100)
+
+Calcoliamo il fattore di scala nelle due dimensioni x e y:
+
+(setq scala-x (div (sub x-max x-min) (sub long-max long-min)))
+;-> 1e-006
+(setq scala-y (div (sub y-max y-min) (sub lat-max lat-min)))
+;-> 1e-006
+
+Adesso possiamo scrivere le formule di trasformazione da una coordinata geografica (geo-long, geo-lat) ad una coordinata piana (x, y):
+
+x = (geo-long - long-min) * scala-x
+y = (geo-lat  -  lat-min) * scala-y
+
+Esempio:
+
+Coordinata geografica da convertire:
+
+(setq geo-long 1241142785)
+(setq geo-lat 4366627426)
+
+Formula di trasformazione:
+
+(setq x (mul (sub geo-long long-min) scala-x))
+;-> 41.142785
+(setq y (mul (sub geo-lat lat-min) scala-y))
+;-> 166.627426
+
+Controlliamo la correttezza della trasformazione:
+
+Punto di mezzo
+(setq geo-long 1250000000)
+(setq geo-lat 4250000000)
+(setq x (mul (sub geo-long long-min) scala-x))
+;-> 50
+(setq y (mul (sub geo-lat lat-min) scala-y))
+;-> 50
+
+Punto iniziale
+(setq geo-long 1200000000)
+(setq geo-lat 4200000000)
+(setq x (mul (sub geo-long long-min) scala-x))
+;-> 0
+(setq y (mul (sub geo-lat lat-min) scala-y))
+;-> 0
+
+Punto finale
+(setq geo-long 1300000000)
+(setq geo-lat 4300000000)
+(setq x (mul (sub geo-long long-min) scala-x))
+;-> 100
+(setq y (mul (sub geo-lat lat-min) scala-y))
+;-> 100
+
+Vediamo ora il calcolo senza premoltiplicare le coordinate per 1e8:
+
+(setq geo '((12.41142785 43.66627426)
+            (12.65043641 43.55027395)
+            (12.67496872 43.62171555)
+            (12.78785627 43.95023854)
+            (12.83323383 43.70941544)
+            (12.90976429 43.90989685)
+            (12.93863011 43.49932483)))
+(setq long-min 12)
+(setq long-max 13)
+(setq lat-min 42)
+(setq lat-max 43)
+(setq x-min 0)
+(setq x-max 100)
+(setq y-min 0)
+(setq y-max 100)
+(setq scala-x (div (sub x-max x-min) (sub long-max long-min)))
+(setq scala-y (div (sub y-max y-min) (sub lat-max lat-min)))
+(setq x (mul (sub geo-long long-min) scala-x))
+(setq y (mul (sub geo-lat lat-min) scala-y))
+
+Punto iniziale
+(setq geo-long 12)
+(setq geo-lat 42)
+(setq x (mul (sub geo-long long-min) scala-x))
+;-> 0
+(setq y (mul (sub geo-lat lat-min) scala-y))
+;-> 0
+
+Punto di mezzo
+(setq geo-long 12.5)
+(setq geo-lat 42.5)
+(setq x (mul (sub geo-long long-min) scala-x))
+;-> 50
+(setq y (mul (sub geo-lat lat-min) scala-y))
+;-> 50
+
+Punto finale
+(setq geo-long 13)
+(setq geo-lat 43)
+(setq x (mul (sub geo-long long-min) scala-x))
+;-> 100
+(setq y (mul (sub geo-lat lat-min) scala-y))
+;-> 100
+
+Abbiamo ottenuto gli stessi risultati.
+
+La funzione che effettua la trasformazione ha i seguenti parametri:
+
+1. lista delle coordinate (es. geo)
+2. longitudine coordinata geografica minima  (es. 1200000000)
+3. longitudine coordinata geografica massima (es. 1300000000)
+4. latitudine  coordinata geografica minima  (es. 4200000000)
+5. latitudine  coordinata geografica massima (es. 4300000000)
+6. X minima coordinate piane
+7. X massima coordinate piane
+8. Y minima coordinate piane
+9. Y massima coordinate piane
+
+(define (trasf-coord punti long-min long-max lat-min lat-max x-min x-max y-min y-max)
+  (local (x y scale-x scale-y out)
+    (setq scala-x (div (sub x-max x-min) (sub long-max long-min)))
+    (setq scala-y (div (sub y-max y-min) (sub lat-max lat-min)))
+    (dolist (geo punti)
+      (setq x (round (mul (sub (first geo) long-min) scala-x)))
+      (setq y (round (mul (sub (last geo) lat-min) scala-y)))
+      (push (list x y) out -1)
+    )
+  )
+)
+
+(setq geo '((12.41142785 43.66627426)
+            (12.65043641 43.55027395)
+            (12.67496872 43.62171555)
+            (12.78785627 43.95023854)
+            (12.83323383 43.70941544)
+            (12.90976429 43.90989685)
+            (12.93863011 43.49932483)))
+
+(trasf-coord geo 12 13 42 43 0 100 0 100)
+;-> ((41 167) (65 155) (67 162) (79 195) (83 171) (91 191) (94 150))
+
+
+----------------------------
+Trasformazione omografica 2D
+----------------------------
+
+Una omografia è una relazione tra punti di due spazi tali per cui ogni punto di uno spazio corrisponde ad uno ed un solo punto del secondo spazio. Si basa su concetti geometrici e matematici abbastanza, noti come "coordinate omogenee" e "piani proiettivi", la cui spiegazione non rientra nell'ambito di questo documento.
+
+Giusto per dare un'idea semplificata, il familiare "piano cartesiano" è composto da un insieme di punti che hanno una correlazione uno-a-uno con coppie di numeri reali, ovvero X-Y sui due assi. Il "piano proiettivo" invece è un superset di quel piano reale dove per ogni punto consideriamo anche tutte le possibili (infinite) rette verso lo spazio.
+
+In questo scenario ogni punto 2D può essere proiettato su qualsiasi altro piano nello spazio.
+
+Sulla base di questi concetti viene definita "omografia tra 2 piani" la trasformazione dei punti di un piano ad un altro piano.
+
+La trasformazione omografica si basa sulle seguenti formule.
+
+Formule di trasformazione omografica
+
+     a*x + b*y + c              d*x + e*y + f
+X = ---------------        Y = ---------------
+     g*x + h*y + 1              g*x + h*y + 1
+
+Dove X-Y sono le coordinate da calcolare nel secondo sistema di riferimento, date le coordinate x-y nel primo sistema di riferimento in funzione degli 8 parametri di trasformazione a, b, c, d, e, f, g, h.
+
+a = fattore di scala fisso in direzione X con scala Y invariata.
+b = fattore di scala in direzione X proporzionale alla distanza Y dall'origine.
+c = traslazione dell'origine in direzione X.
+d = fattore di scala in direzione Y proporzionale alla distanza X dall'origine.
+e = fattore di scala fisso in direzione Y con scala X invariata.
+f = traslazione dell'origine in direzione Y.
+g = fattore di scala proporzionale X e Y in funzione di X.
+h = fattore di scala proporzionale X e Y in funzione di Y.
+
+Quindi, avendo queste 8 incognite, sono richiesti almeno 4 punti noti in entrambi i sistemi. In altre parole, dati 4 punti in un piano, esiste sempre una relazione che li trasforma nei corrispondenti 4 punti in un altro piano.
+
+La trasformazione omografica viene utilizzata per la georeferenziazione di mappe oppure per correggere un'immagine prospettica (es. per generare una vista "in pianta" di un edificio da una foto "prospettica").
+
+Le formule precedenti possono essere trasformate (tramite manipolazione algebrica) nella matrice di trasformazione omografica che ci consente di calcolare gli 8 parametri di trasformazione risolvendo il sistema lineare A*z = B.
+
+Dati i quattro punti di partenza e i quattro punti di destinazione possiamo scrivere 8 equazioni:
+
+        a*x(i) + b*y(i) + c                 d*x(i) + e*y(i) + f
+X(i) = ---------------------        Y(i) = ---------------------
+        g*x(i) + h*y(i) + 1                 g*x(i) + h*y(i) + 1
+
+per 1 <= i <= 4
+
+Queste 8 equazioni possono essere trasformate nel sistema lineare:
+
+x1*a + y1*b + c - x1*X1*g - y1*X1*h = X1
+x2*a + y2*b + c - x2*X2*g - y2*X2*h = X2
+x3*a + y3*b + c - x3*X3*g - y3*X3*h = X3
+x4*a + y4*b + c - x4*X4*g - y4*X4*h = X4
+x1*d + y1*e + f - x1*Y1*g - y1*Y1*h = Y1
+x2*d + y2*e + f - x2*Y2*g - y2*Y2*h = Y2
+x3*d + y3*e + f - x3*Y3*g - y3*Y3*h = Y3
+x4*d + y4*e + f - x4*Y4*g - y4*Y4*h = Y4
+
+Che ha la seguente matrice di rappresentazione A*z = B:
+
+| x1 y1  1  0  0  0 -x1*X1 -y1*X1 |   | a |   | X1 |
+| x2 y2  1  0  0  0 -x2*X2 -y2*X2 |   | b |   | X2 |
+| x3 y3  1  0  0  0 -x3*X3 -y3*X3 |   | c |   | X3 |
+| x4 y4  1  0  0  0 -x4*X4 -y4*X4 | * | d | = | X4 |
+|  0  0  0 x1 y1  1 -x1*Y1 -y1*Y1 |   | e |   | Y1 |
+|  0  0  0 x2 y2  1 -x2*Y2 -y2*Y2 |   | f |   | Y2 |
+|  0  0  0 x3 y3  1 -x3*Y3 -y3*Y3 |   | g |   | Y3 |
+|  0  0  0 x4 y4  1 -x4*Y4 -y4*Y4 |   | h |   | Y4 |
+
+matrice A:
+
+  A[0][0] = x1  A[0][1] = y1  A[0][2] = 1  A[0][3] = 0   A[0][4] = 0   A[0][5] = 0  A[0][6] = -(X1*x1)  A[0][7] = -(X1*y1)
+  A[1][0] = x2  A[1][1] = y2  A[1][2] = 1  A[1][3] = 0   A[1][4] = 0   A[1][5] = 0  A[1][6] = -(X2*x2)  A[1][7] = -(X2*y2)
+  A[2][0] = x3  A[2][1] = y3  A[2][2] = 1  A[2][3] = 0   A[2][4] = 0   A[2][5] = 0  A[2][6] = -(X3*x3)  A[2][7] = -(X3*y3)
+  A[3][0] = x4  A[3][1] = y4  A[3][2] = 1  A[3][3] = 0   A[3][4] = 0   A[3][5] = 0  A[3][6] = -(X4*x4)  A[3][7] = -(X4*y4)
+  A[4][0] = 0   A[4][1] = 0   A[4][2] = 0  A[4][3] = x1  A[4][4] = y1  A[4][5] = 1  A[4][6] = -(Y1*x1)  A[4][7] = -(Y1*y1)
+  A[5][0] = 0   A[5][1] = 0   A[5][2] = 0  A[5][3] = x2  A[5][4] = y2  A[5][5] = 1  A[5][6] = -(Y2*x2)  A[5][7] = -(Y2*y2)
+  A[6][0] = 0   A[6][1] = 0   A[6][2] = 0  A[6][3] = x3  A[6][4] = y3  A[6][5] = 1  A[6][6] = -(Y3*x3)  A[6][7] = -(Y3*y3)
+  A[7][0] = 0   A[7][1] = 0   A[7][2] = 0  A[7][3] = x4  A[7][4] = y4  A[7][5] = 1  A[7][6] = -(Y4*x4)  A[7][7] = -(Y4*y4)
+
+matrice B (termini noti):
+
+    B[0][0] = X1
+    B[1][0] = X2
+    B[2][0] = X3
+    B[3][0] = X4
+    B[4][0] = Y1
+    B[5][0] = Y2
+    B[6][0] = Y3
+    B[7][0] = Y4
+
+vettore incognite z:
+
+    z[0] = a
+    z[1] = b
+    z[2] = c
+    z[3] = d
+    z[4] = e
+    z[5] = f
+    z[6] = g
+    z[7] = h
+
+Una volta calcolati questi 8 parametri (a, b, c, d, e, f, g, h) possiamo utilizzare le formule di trasformazione omografica per convertire qualsiasi punto dal primo sistema di riferimento al secondo.
+
+Nota: I quattro punti iniziali devono essere non allineati a tre a tre (cioè non ci devono essere tre punti allineati).
+
+Esempio:
+
+       |
+    13 |
+    12 |                       #3
+    11 |
+    10 |
+     9 |
+     8 |                 #4
+     7 |
+     6 | o4      o3
+     5 |
+     4 |                         #2
+     3 |
+     2 |                   #1
+     1 | o1     o2
+   ---------------------------------------
+       | 1 2 3 4 5 6 7 8 9 101112131415
+
+I punti sono i seguenti:
+
+Iniziale  --> Finale
+o1 (1 1)  --> #1 (10 2)
+o2 (5 1)  --> #2 (13 4)
+o3 (5 5)  --> #3 (12 12)
+o4 (1 5)  --> #4 (9 8)
+
+(setq x1 1 y1 1)
+(setq x2 5 y2 1)
+(setq x3 5 y3 5)
+(setq x4 1 y4 5)
+
+(setq X1 10  Y1 2)
+(setq X2 13 Y2 4)
+(setq X3 12 Y3 12)
+(setq X4 9  Y4 8)
+
+Utilizziamo la seguente funzione per risolvere il sistema lineare:
+
+(define (solve-linsys matrice noti)
+  (local (dim detm det-i sol copia)
+    (setq dim (length matrice))
+    (setq sol '())
+    (setq copia matrice)
+    (setq detm (det copia))
+    ; la soluzione è indeterminata se il determinante vale zero.
+    (if (= detm 0) (setq sol nil)
+    ;(println detm)
+      (for (i 0 (- dim 1))
+        (for (j 0 (- dim 1))
+          (setf (copia j i) (noti j))
+        )
+        ; 0.0 -> restituisce 0 (invece di nil),
+        ; quando la matrice è singolare
+        (setq det-i (det copia 0.0))
+        (push (div det-i detm) sol -1)
+        (setq copia matrice)
+      );endfor
+    );endif
+    sol
+  );local
+)
+
+(solve-linsys '((2 1 1) (4 -1 1) (-1 1 2)) '(1 -5 5))
+ -> (-1 2 1)
+
+Calcoliamo i parametri:
+
+(setq r0 (list x1 y1  1  0  0  0 (- (mul x1 X1)) (- (mul y1 X1))))
+(setq r1 (list x2 y2  1  0  0  0 (- (mul x2 X2)) (- (mul y2 X2))))
+(setq r2 (list x3 y3  1  0  0  0 (- (mul x3 X3)) (- (mul y3 X3))))
+(setq r3 (list x4 y4  1  0  0  0 (- (mul x4 X4)) (- (mul y4 X4))))
+(setq r4 (list  0  0  0 x1 y1  1 (- (mul x1 Y1)) (- (mul y1 Y1))))
+(setq r5 (list  0  0  0 x2 y2  1 (- (mul x2 Y2)) (- (mul y2 Y2))))
+(setq r6 (list  0  0  0 x3 y3  1 (- (mul x3 Y3)) (- (mul y3 Y3))))
+(setq r7 (list  0  0  0 x4 y4  1 (- (mul x4 Y4)) (- (mul y4 Y4))))
+;-> (1 1 1 0 0 0 -10 -10)
+;-> (5 1 1 0 0 0 -65 -13)
+;-> (5 5 1 0 0 0 -60 -60)
+;-> (1 5 1 0 0 0 -9 -45)
+;-> (0 0 0 1 1 1 -2 -2)
+;-> (0 0 0 5 1 1 -20 -4)
+;-> (0 0 0 5 5 1 -60 -60)
+;-> (0 0 0 1 5 1 -8 -40)
+
+(setq matrix (list r0 r1 r2 r3 r4 r5 r6 r7))
+;-> ((1 1 1 0 0 0 -10 -10)
+;->  (5 1 1 0 0 0 -65 -13)
+;->  (5 5 1 0 0 0 -60 -60)
+;->  (1 5 1 0 0 0 -9 -45)
+;->  (0 0 0 1 1 1 -2 -2)
+;->  (0 0 0 5 1 1 -20 -4)
+;->  (0 0 0 5 5 1 -60 -60)
+;->  (0 0 0 1 5 1 -8 -40))
+
+(setq noti (list X1 X2 X3 X4 Y1 Y2 Y3 Y4))
+;-> (10 13 12 9 2 4 12 8)
+
+(setq sol (solve-linsys matrix noti))
+;-> (0.05000000000000014 -0.3833333333333334 9.666666666666666 0.2666666666666667 1.266666666666667
+;->  0.3333333333333333 -0.04999999999999998 -0.01666666666666667)
+
+(setq a (sol 0))
+(setq b (sol 1))
+(setq c (sol 2))
+(setq d (sol 3))
+(setq e (sol 4))
+(setq f (sol 5))
+(setq g (sol 6))
+(setq h (sol 7))
+
+Adesso possiamo trasformare qualunque punto dal sistema di riferimento iniziale al sistema di riferimento finale utilizzando le fornule di trasformazione omografica:
+
+     a*x + b*y + c              d*x + e*y + f
+X = ---------------        Y = ---------------
+     g*x + h*y + 1              g*x + h*y + 1
+
+(define (toX x y)
+  (round (div (add (mul a x) (mul b y) c) (add (mul g x) (mul h y) 1)) -1))
+
+(define (toY x y)
+  (round (div (add (mul d x) (mul e y) f) (add (mul g x) (mul h y) 1)) -1))
+
+Verifichiamo la trasformazione dei quattro punti iniziali:
+
+(1 1)  -->  (10 2)
+(5 1)  -->  (13 4)
+(5 5)  -->  (12 12)
+(1 5)  -->  (9 8)
+
+(list (toX 1 1) (toY 1 1))
+;-> (10 2)
+
+(list (toX 5 1) (toY 5 1))
+;-> (13 4)
+
+(list (toX 5 5) (toY 5 5))
+;-> (12 12)
+
+(list (toX 1 5) (toY 1 5))
+;-> (9 8)
+
+Proviamo con altri punti:
+
+(list (toX 3 3) (toY 3 3))
+;-> (10.8 6.2)
+
+(list (toX 5 3) (toY 5 3))
+;-> (12.5 7.8)
+
+Con questo metodo siamo in grado di prendere un file di coordinate geografiche (es. in formato geojson) e visualizzarlo sul monitor oppure creare un file postscript.
 
 
 ==========================
@@ -22883,6 +23342,31 @@ Sistemi Lineari (Cramer)
 Proviamo a scrivere un programma che risolve i sistemi lineari.
 Utilizzeremo il metodo di Cramer perchè newLISP mette a disposizione una funzione standard per calcolare il determinante di una matrice.
 
+****************
+>>>funzione DET
+****************
+sintassi: (det matrix [float-pivot])
+
+Restituisce il determinante di una matrice quadrata. Una matrice può essere una lista nidificata o un vettore (array).
+
+Opzionalmente 0.0 o un valore molto piccolo può essere specificato in float-pivot. Questo valore sostituisce gli elementi pivot nell'algoritmo di decomposizione LU, che risulta zero quando l'algoritmo incontra una matrice singolare.
+
+(set 'A '((-1 1 1) (1 4 -5) (1 -2 0)))
+(det A)
+;-> -0.9999999999999998
+
+; trattamento di una matrice singolare
+(det '((2 -1) (4 -2)))
+;-> nil
+(det '((2 -1) (4 -2)) 0)
+-0
+(det '((2 -1) (4 -2)) 1e-20)
+;-> -4e-20
+
+Se la matrice è singolare e float-pivot non è specificato, viene restituito nil.
+
+Vediamo alcuni esempi di risoluzione di un sistema lineare.
+
 Esempio 1
 
   x + 2y + 3z =  1
@@ -22900,7 +23384,6 @@ Soluzione
 Impostiamo i valori della matrice:
 
 (setq m '((1 2 3) (-3 -2 3) (4 -5 2)))
-m
 ;-> ((1 2 3) (-3 -2 3) (4 -5 2))
 
 Calcoliamo il determinante:
@@ -23056,21 +23539,22 @@ Calcoliamo la soluzione per z:
 
 Scriviamo la funzione:
 
-(define (solve-linsys matrice noti)
+(define (cramer matrice noti)
   (local (dim detm det-i sol copia)
     (setq dim (length matrice))
     (setq sol '())
     (setq copia matrice)
-    (setq detm (det copia))
+    (setq detm (det copia 0.0))
     ; la soluzione è indeterminata se il determinante vale zero.
     (if (= detm 0) (setq sol nil)
     ;(println detm)
-      (for (i 0 (sub dim 1))
-        (for (j 0 (sub dim 1))
+      (for (i 0 (- dim 1))
+        (for (j 0 (- dim 1))
           (setf (copia j i) (noti j))
         )
-        (setq det-i (det copia))
-        ;(println det-i)
+        ; 0.0 -> restituisce 0 (invece di nil),
+        ; quando la matrice è singolare
+        (setq det-i (det copia 0.0))
         (push (div det-i detm) sol -1)
         (setq copia matrice)
       );endfor
@@ -23079,15 +23563,15 @@ Scriviamo la funzione:
   );local
 )
 
-(solve-linsys '((2 1 1) (4 -1 1) (-1 1 2)) '(1 -5 5))
+(cramer '((2 1 1) (4 -1 1) (-1 1 2)) '(1 -5 5))
 ;-> (-1 2 1)
 
-(solve-linsys '((1 2 3) (-3 -2 3) (4 -5 2)) '(1 -1 1))
+(cramer '((1 2 3) (-3 -2 3) (4 -5 2)) '(1 -1 1))
 ;-> (0.3620689655172414 0.1379310344827586 0.1206896551724138)
 
 Proviamo con un sistema 8x8:
 
-(solve-linsys
+(cramer
 '((2 3 3 -4 -5 3 -2 3)
   (-3 3 -1 2 3 5 -2 3)
   (4 2 4 -4 -2 3 -1 -5)
@@ -23099,6 +23583,167 @@ Proviamo con un sistema 8x8:
 '(1 -1 1 2 3 2 -2 2))
 ;-> (-0.2907517086232766 0.4541737926192612 0.1222139219887456 0.7272295937332997
 ;->  -0.9577686974650513 0.1669345810796059 0.682061578219236 -0.3880884752566235)
+
+Nota: La regola di Cramer è inadatta per N grande (es. N > 12), sia per l'accuratezza numerica e la sensibilità agli errori, sia perché è molto lenta rispetto ad altri algoritmi.
+
+
+-----------------------
+Sistemi lineari (Gauss)
+-----------------------
+
+Per risolvere un sitema lineare utilizzeremo il metodo di eliminazione di Gauss con pivot e poi sostituzione all'indietro (Gaussian elimination with pivot and then backwards substitution).
+Per maggiori informazioni sull'algoritmo:
+
+https://it.wikipedia.org/wiki/Metodo_di_eliminazione_di_Gauss
+
+; risolve il sistema lineare A*x = b
+(define (gauss A b)
+  (local (n m p rowx amax xfac temp temp1 x)
+    (setq rowx 0) ;conta il numero di scambio righe
+    (setq n (length A))
+    (setq x (dup '0 n))
+    (for (k 0 (- n 2))
+      (setq amax (abs (A k k)))
+      (setq m k)
+      ; trova la riga con il pivot più grande
+      (for (i (+ k 1) (- n 1))
+        (setq xfac (abs (A i k)))
+        (if (> xfac amax) (setq amax xfac m i))
+      )
+      ; scambio delle righe
+      (if (!= m k) (begin
+          (++ rowx)
+          (setq temp1 (b k))
+          (setq (b k) (b m))
+          (setq (b m) temp1)
+          (for (j k (- n 1))
+            (setq temp (A k j))
+            (setq (A k j) (A m j))
+            (setq (A m j) temp)
+          ))
+      )
+      (for (i (+ k 1) (- n 1))
+        (setq xfac (div (A i k) (A k k)))
+        (for (j (+ k 1) (- n 1))
+          (setq (A i j) (sub (A i j) (mul xfac (A k j))))
+        )
+        (setq (b i) (sub (b i) (mul xfac (b k))))
+      )
+    )
+    ; sostituzione all'indietro (backward sostitution)
+    (for (j 0 (- n 1))
+      (setq p (sub n j 1))
+      (setq (x p) (b p))
+      (if (<= (+ p 1) (- n 1))
+        (for (i (+ p 1) (- n 1))
+          (setq (x p) (sub (x p) (mul (A p i) (x i))))
+        )
+      )
+      (setq (x p) (div (x p) (A p p)))
+    )
+    x
+  ); local
+)
+
+(gauss '((2 1 1) (4 -1 1) (-1 1 2)) '(1 -5 5))
+;-> (-1 2 1)
+
+(gauss '((1 2 3) (-3 -2 3) (4 -5 2)) '(1 -1 1))
+;-> (0.3620689655172414 0.1379310344827586 0.1206896551724138)
+
+(setq matrice '((1 1 1 0 0 0 -10 -10)
+ (0 0 0 1 1 1 -2 -2)
+ (5 1 1 0 0 0 -65 -13)
+ (0 0 0 5 1 1 -25 -5)
+ (5 5 1 0 0 0 -60 -60)
+ (0 0 0 5 5 1 -55 -55)
+ (1 5 1 0 0 0 -9 -45)
+ (0 0 0 1 5 1 -8 -40)))
+
+(setq noti '(10 2 13 5 12 11 9 8))
+;-> (10 2 13 5 12 11 9 8)
+
+(gauss matrice noti)
+;-> (0.7500000000000002 -0.2499999999999999 9.5 0.7500000000000002
+;->  1.5 -0.2500000000000003 2.379049338482478e-017 7.930164461608264e-018)
+
+Arrotondiamo a 4 cifre decimali dopo la virgola:
+
+(map (fn (x) (round x -4)) (gauss matrice noti))
+;-> (0.75 -0.25 9.5 0.75 1.5 -0.25 0 0)
+
+Vediamo la differenza di velocità tra il metodo di Cramer e il metodo di Gauss:
+
+(time (gauss matrice noti) 10000)
+;-> 667.316
+
+(time (cramer matrice noti) 10000)
+;-> 318.691
+
+Proviamo con un sistea 16x16:
+
+(setq matrice '((1 1 1 0 0 0 -10 -10 -20 -22 -10 -12 -14 -16 22 -42)
+ (0 0 0 -1 1 -1 0 0 0 -1 1 1 1 1 -2 -2)
+ (5 1 1 0 0 0 5 -1 1 0 0 0 0 0 -65 -13)
+ (0 0 0 5 1 1 0 0 0 5 1 -1 1 1 -25 -5)
+ (5 5 1 0 0 0 5 -5 1 0 0 0 0 0 -60 -60)
+ (0 0 0 5 5 1 0 0 0 5 5 1 -5 1 -55 -55)
+ (1 5 1 0 0 0 1 5 -1 0 0 0 0 0 -9 -45)
+ (0 0 0 1 5 2 0 0 0 1 -5 2 -5 2 -3 -40)
+ (0 4 0 6 5 0 0 4 0 6 5 0 5 0 -8 -30)
+ (1 0 4 1 5 1 1 0 4 1 -5 1 5 -1 -8 -40)
+ (1 3 3 4 8 2 1 3 3 4 -8 2 8 2 -5 -64)
+ (1 3 4 3 -4 2 1 3 3 3 4 2 4 2 -1 -14)
+ (2 4 3 1 5 -2 2 4 3 1 0 2 5 2 -1 -24)
+ (1 5 3 9 6 2 -1 5 3 9 6 0 6 2 -1 -34)
+ (3 6 3 1 7 2 3 -6 3 1 7 2 0 2 -1 -44)
+ (9 2 1 1 5 6 9 2 -1 1 5 6 5 0 -6 -74)))
+
+(setq noti '(10 -2 13 -5 12 11 9 -8 -10 12 -18 10 20 16 8 6))
+
+(cramer matrice noti)
+;-> (6.073265713499919 
+;-> -7.895511516493116 
+;-> 1.832360106508081 
+;-> 3.230429811886619 
+;-> -1.455619886107596
+;-> -6.476253322763236 
+;-> 3.679036826897333 
+;-> 2.718120581717722 
+;-> 6.958059613240136 
+;-> -3.641846643266388
+;-> 2.958481343355023 
+;-> -12.86237050078677 
+;-> -2.628371168374938 
+;-> 4.849669122127303 
+;-> 0.6839772385617239
+;-> -0.8092477063837188)
+
+(gauss matrice noti)
+;-> (6.073265713499932 
+;->  -7.895511516493109 
+;->  1.832360106508014 
+;->  3.230429811886656 
+;->  -1.455619886107596
+;->  -6.476253322763209 
+;->  3.679036826897329 
+;->  2.718120581717728 
+;->  6.958059613240156 
+;->  -3.641846643266435
+;->  2.958481343355025 
+;->  -12.86237050078677 
+;->  -2.628371168374938 
+;->  4.849669122127305 
+;->  0.6839772385617227
+;->  -0.8092477063837177)
+
+(time (gauss matrice noti) 10000)
+;-> 4114.972
+
+(time (cramer matrice noti) 10000)
+;-> 1526.089
+
+La funzione built-in "det" è molto veloce...
 
 
 -------------
@@ -26829,7 +27474,7 @@ La funzione seguente prende un intero e ritorna il numero nella forma di Church:
 
 (define (reduce stencil sq) (apply stencil sq 2))
 
-(define (num n)  
+(define (num n)
 (cond
    ((= n 0) 'x)
    ((< n 2) '(f x))
@@ -26884,12 +27529,12 @@ E poi per ottenere i valori cercati possiamo scrivere:
 Poichè i polinomi hanno una struttura ben definita possiamo scrivere una funzione che prende i coefficienti di un polinomio e restituisce una funzione che rappresenta il polinomio:
 Ad esempio, il polinomio:
 
- y(x) = 4*x^3 + 5*x^2 + 7*x + 10 
- 
+ y(x) = 4*x^3 + 5*x^2 + 7*x + 10
+
 viene rappresentato dalla funzione:
 
  (lambda (x) (add 10 (mul x 7) (mul (pow x 2) 5) (mul (pow x 3) 4)))
- 
+
 La nostra funzione deve quindi costruire una nuova funzione lambda che rappresenta il polinomio (lavoriamo sulla funzione lambda come se fosse una lista).
 
 ; y(x) = 4*x^3 + 5*x^2 + 7*x + 10)
@@ -33662,7 +34307,7 @@ In newLISP sono supportati la maggior parte dei metodi di loop tradizionali. Ogn
 ; ripete per un numero di volte
 ; "i" va da 0 a N - 1
 (dotimes (i N)
-    ....
+    ...
 )
 
 ; dimostra la località di "i"
@@ -33692,8 +34337,16 @@ La funzione "dolist" ha anche una variabile $idx che tiene traccia dell'indice n
 
 *** DOSTRING ***
 ; ciclo attraverso una stringa
-; "e" prende il valore ASCII o UTF-8 di ogni carattere della string aString
+; "e" prende il valore numerico ASCII o UTF-8 di ogni carattere della stringa aString
 (dostring (e aString)
+    ...
+)
+
+Per attraversare una stringa possiamo usare anche "dolist" insieme ad "explode".
+
+; ciclo attraverso una stringa
+; "e" prende il valore del carattere ASCII o UTF-8 di ogni carattere della stringa aString
+(dolist (e (explode aString))
     ...
 )
 
@@ -33995,9 +34648,12 @@ Abbiamo trovato un'autogramma (anche se con un piccolo trucco):
 
 Il trucco di aggiungere una stringa iniziale è possibile solo quando tutti i valori delle vocali di una stringa sono minori o uguali a quelli della stringa immediatamente successiva.
 
+"Questa frase ha nove a, una b, sette c, undici d, sedici e, due f, una g, due h, dodici i, una l, sette n, otto o, cinque q, quattro r, sette s, quattordici t, dodici u e due v."
+
 Per ulteriori informazioni: https://en.wikipedia.org/wiki/Autogram
 
 Nota: "QUESTA FRASE HA CINQUE PAROLE" è una frase autoreferenziale.
+
 
 
 --------------------------------------------
@@ -34274,6 +34930,103 @@ Ma si comportano allo stesso modo con l'espressione di test "null?":
 ;-> nullo
 (if (null? 0) (println "nullo") (println "non nullo"))
 ;-> nullo
+
+
+------------------------------
+select e unselect (antiselect)
+------------------------------
+
+Prendiamo dal manuale la definizione della funzione built-in "select":
+
+********************
+>>>funzione SELECT
+********************
+sintassi: (select list list-selection)
+sintassi: (select list [int-index_i ... ])
+
+Nelle prime due forme, "select" seleziona uno o più elementi dall'elenco utilizzando uno o più indici specificati dalla list-selection o da int-index_i.
+
+(set 'lst '(a b c d e f g))
+
+(select lst '(0 3 2 5 3))
+;-> (a d c f d)
+
+(select lst '(-2 -1 0))
+;-> (f g a)
+
+(select lst -2 -1 0)
+;-> (f g a)
+
+Nelle seconde due forme, "select" seleziona uno o più caratteri dalla stringa utilizzando uno o più indici specificati dalla list-selection o da int-index_i.
+
+(set 'str "abcdefg")
+
+(select str '(0 3 2 5 3))
+;-> "adcfd"
+
+(select str '(-2 -1 0))
+;-> "fga"
+
+(select str -2 -1 0)
+;-> "fga"
+
+Gli elementi selezionati possono essere ripetuti e non devono apparire in ordine, sebbene ciò acceleri l'elaborazione. L'ordine in list-selection o int-index_i può essere modificato per riorganizzare gli elementi.
+
+Ecco un altro esempio:
+
+(select { ILPSaegilnouw} '(1 9 0 9 8 10 7 12 5 7 7 8 11 0 10 6 13 2 1 4 3))
+;-> "Il linguaggio newLISP"
+
+Adesso vediamo la funzione opposta "unselect" che elimina dalla lista "lst" gli elementi che hanno gli indici elencati dalla lista "sel": (unselect lst sel)
+
+(setq lst '(a b c d nil f))
+
+Funzione proposta da newbert:
+
+(define (unselect1 lst sel)
+  (select lst (difference (sequence 0 (- (length lst) 1)) sel)))
+
+(unselect1 lst '(1 2))
+;-> (a d nil f)
+
+Funzione proposta da fdb:
+
+(define (unselect2 lst sel)
+    (select lst (difference (sequence 0 (dec (length lst))) sel)))
+
+(unselect2 lst '(1 2))
+;-> (a d nil f)
+
+Funzione proposta da ralph.ronnquist:
+
+(define (unselect3 lst sel) (let (n -1) (clean (fn (x) (member (inc n) sel)) lst)))
+
+(unselect3 lst '(1 2))
+;-> (a d nil f)
+
+Vediamo quale funzione è più veloce:
+
+(setq lista '(a b c d nil f g h i j k l m n o p q r s t nil v w x y nil))
+
+(setq sel '(3 7 5 4 7 9 11 3 22 25 4 0 7 13 20 19 18 20 25))
+
+(unselect1 lista sel)
+;-> (b c g i k m o p q r v x y)
+
+(unselect2 lista sel)
+;-> (b c g i k m o p q r v x y)
+
+(unselect3 lista sel)
+;-> (b c g i k m o p q r v x y)
+
+(time (unselect1 lista sel) 100000)
+;-> 430.979
+
+(time (unselect2 lista sel) 100000)
+;-> 425.475
+
+(time (unselect3 lista sel) 100000)
+;-> 1225.691
 
 
 ===========
@@ -39310,10 +40063,12 @@ Frasi Famose sulla Programmazione e sul Linguaggio Lisp
   GeeksforGeeks - Un portale di computer science per "geeks"
   https://www.geeksforgeeks.org/
 
-  "The Art of Computer Programming", Donald Knuth, 4 volumi
+  "The Art of Computer Programming", Donald Knuth, 4 volumi, 1968...2015
   
   "Introduction to Algorithms", Cormen-Leiserson-Rivest-Stein, 3ed, 2009
   
   "Teoria e Progetto di Algoritmi Fondamentali", Ausiello-Marchetti-Spaccamela-Protasi, 1985
   
   "Land of Lisp", Conrad Barsky, 2011
+  
+  "Structure and Interpretation of Computer Programs",  Abelson-Sussman, 2ed, 1996

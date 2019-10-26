@@ -2012,7 +2012,7 @@ In newLISP sono supportati la maggior parte dei metodi di loop tradizionali. Ogn
 ; ripete per un numero di volte
 ; "i" va da 0 a N - 1
 (dotimes (i N)
-    ....
+    ...
 )
 
 ; dimostra la località di "i"
@@ -2042,8 +2042,16 @@ La funzione "dolist" ha anche una variabile $idx che tiene traccia dell'indice n
 
 *** DOSTRING ***
 ; ciclo attraverso una stringa
-; "e" prende il valore ASCII o UTF-8 di ogni carattere della string aString
+; "e" prende il valore numerico ASCII o UTF-8 di ogni carattere della stringa aString
 (dostring (e aString)
+    ...
+)
+
+Per attraversare una stringa possiamo usare anche "dolist" insieme ad "explode".
+
+; ciclo attraverso una stringa
+; "e" prende il valore del carattere ASCII o UTF-8 di ogni carattere della stringa aString
+(dolist (e (explode aString))
     ...
 )
 
@@ -2345,9 +2353,12 @@ Abbiamo trovato un'autogramma (anche se con un piccolo trucco):
 
 Il trucco di aggiungere una stringa iniziale è possibile solo quando tutti i valori delle vocali di una stringa sono minori o uguali a quelli della stringa immediatamente successiva.
 
+"Questa frase ha nove a, una b, sette c, undici d, sedici e, due f, una g, due h, dodici i, una l, sette n, otto o, cinque q, quattro r, sette s, quattordici t, dodici u e due v."
+
 Per ulteriori informazioni: https://en.wikipedia.org/wiki/Autogram
 
 Nota: "QUESTA FRASE HA CINQUE PAROLE" è una frase autoreferenziale.
+
 
 
 --------------------------------------------
@@ -2624,5 +2635,102 @@ Ma si comportano allo stesso modo con l'espressione di test "null?":
 ;-> nullo
 (if (null? 0) (println "nullo") (println "non nullo"))
 ;-> nullo
+
+
+------------------------------
+select e unselect (antiselect)
+------------------------------
+
+Prendiamo dal manuale la definizione della funzione built-in "select":
+
+********************
+>>>funzione SELECT
+********************
+sintassi: (select list list-selection)
+sintassi: (select list [int-index_i ... ])
+
+Nelle prime due forme, "select" seleziona uno o più elementi dall'elenco utilizzando uno o più indici specificati dalla list-selection o da int-index_i.
+
+(set 'lst '(a b c d e f g))
+
+(select lst '(0 3 2 5 3))
+;-> (a d c f d)
+
+(select lst '(-2 -1 0))
+;-> (f g a)
+
+(select lst -2 -1 0)
+;-> (f g a)
+
+Nelle seconde due forme, "select" seleziona uno o più caratteri dalla stringa utilizzando uno o più indici specificati dalla list-selection o da int-index_i.
+
+(set 'str "abcdefg")
+
+(select str '(0 3 2 5 3))
+;-> "adcfd"
+
+(select str '(-2 -1 0))
+;-> "fga"
+
+(select str -2 -1 0)
+;-> "fga"
+
+Gli elementi selezionati possono essere ripetuti e non devono apparire in ordine, sebbene ciò acceleri l'elaborazione. L'ordine in list-selection o int-index_i può essere modificato per riorganizzare gli elementi.
+
+Ecco un altro esempio:
+
+(select { ILPSaegilnouw} '(1 9 0 9 8 10 7 12 5 7 7 8 11 0 10 6 13 2 1 4 3))
+;-> "Il linguaggio newLISP"
+
+Adesso vediamo la funzione opposta "unselect" che elimina dalla lista "lst" gli elementi che hanno gli indici elencati dalla lista "sel": (unselect lst sel)
+
+(setq lst '(a b c d nil f))
+
+Funzione proposta da newbert:
+
+(define (unselect1 lst sel)
+  (select lst (difference (sequence 0 (- (length lst) 1)) sel)))
+
+(unselect1 lst '(1 2))
+;-> (a d nil f)
+
+Funzione proposta da fdb:
+
+(define (unselect2 lst sel)
+    (select lst (difference (sequence 0 (dec (length lst))) sel)))
+
+(unselect2 lst '(1 2))
+;-> (a d nil f)
+
+Funzione proposta da ralph.ronnquist:
+
+(define (unselect3 lst sel) (let (n -1) (clean (fn (x) (member (inc n) sel)) lst)))
+
+(unselect3 lst '(1 2))
+;-> (a d nil f)
+
+Vediamo quale funzione è più veloce:
+
+(setq lista '(a b c d nil f g h i j k l m n o p q r s t nil v w x y nil))
+
+(setq sel '(3 7 5 4 7 9 11 3 22 25 4 0 7 13 20 19 18 20 25))
+
+(unselect1 lista sel)
+;-> (b c g i k m o p q r v x y)
+
+(unselect2 lista sel)
+;-> (b c g i k m o p q r v x y)
+
+(unselect3 lista sel)
+;-> (b c g i k m o p q r v x y)
+
+(time (unselect1 lista sel) 100000)
+;-> 430.979
+
+(time (unselect2 lista sel) 100000)
+;-> 425.475
+
+(time (unselect3 lista sel) 100000)
+;-> 1225.691
 
 
