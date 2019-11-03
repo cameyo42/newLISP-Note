@@ -1264,7 +1264,7 @@ In newLISP creiamo variabili di stato locali usando un spazio dei nomi chiamato 
 ; generatore newLISP
 (define (gen:gen)
   (setq gen:sum
-  (if gen:sum (inc gen:sum) 1)))
+    (if gen:sum (inc gen:sum) 1)))
 
 Questo potrebbe essere scritto più brevemente, perché "inc" considera nil come zero:
 
@@ -1277,8 +1277,7 @@ Questo potrebbe essere scritto più brevemente, perché "inc" considera nil come
 ;-> 2
 
 Quando si scrive gen:gen, viene creato un context chiamato gen. gen è uno spazio di nomi (namespace) lessicale contenente i propri simboli usati come variabili e come funzioni. In questo caso il nome-spazio gen contiene due simboli: "gen" (funzione) e "sum" (variabile).
-Il primo simbolo di un contesto ha lo stesso nome del contesto in cui è contenuto e viene chiamato "funtore" di default del contesto. In questo caso il contesto si chiama "gen" e quindi il funtore si chiama "gen". Quando si utilizza un nome di contesto al posto di un nome di funzione, newLISP assume il functor predefinito.
-Possiamo chiamare la nostra funzione generatore usando (gen). Non è necessario chiamare la funzione usando (gen:gen), (gen) verrà impostato su (gen:gen).
+Il primo simbolo di un contesto ha lo stesso nome del contesto in cui è contenuto e viene chiamato "funtore" di default del contesto. In questo caso il contesto si chiama "gen" e quindi il funtore si chiama "gen". Quando si utilizza un nome di contesto al posto di un nome di funzione, newLISP assume il funtore predefinito. Quindi possiamo chiamare la nostra funzione generatore usando (gen). Non è necessario chiamare la funzione usando (gen:gen), (gen) verrà impostato automaticamente su (gen:gen).
 
 
 ===============================

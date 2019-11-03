@@ -7217,3 +7217,127 @@ Scriviamo la funzione finale che ritorna una lista con tutti i numeri che hanno 
 ;-> 33.964
 
 
+----------------------
+Congettura di Goldbach
+----------------------
+
+Nel 1742, il matematico prussiano Christian Goldbach scrisse una lettera a Leonhard Euler in cui proponeva la seguente congettura:
+
+  "Ogni numero intero maggiore di 2 può essere scritto come la somma di tre numeri primi."
+
+Considerava 1 un numero primo, una convenzione successivamente abbandonata. Quindi oggi, la congettura originale di Goldbach sarebbe stata scritta:
+
+  "Ogni numero intero maggiore di 5 può essere scritto come la somma di tre numeri primi."
+
+Euler, diventando interessato al problema, rispose con una versione equivalente della congettura:
+
+  "Ogni numero pari maggiore di 2 può essere scritto come la somma di due numeri primi,"
+
+aggiungendo che lo considerava un teorema del tutto certo ("ein ganz gewisses Theorema"), nonostante non fosse in grado di dimostrarlo.
+
+La prima congettura è oggi nota come congettura di Goldbach "ternaria" o "debole", la seconda come congettura di Goldbach  "binaria" o "forte". La congettura che tutti gli interi dispari maggiori di 9 siano la somma di tre numeri primi dispari è chiamata congettura di Goldbach "debole". Entrambe le domande sono rimaste irrisolte da allora, sebbene la forma debole della congettura sia molto più vicina alla risoluzione di quella forte.
+
+La maggior parte dei matematici ha sempre ritenuto che la congettura (sia nella forma debole che in quella forte) sia vera, almeno per numeri interi sufficientemente grandi, principalmente basata su considerazioni statistiche incentrate sulla distribuzione probabilistica dei numeri primi: più grande è il numero, più modi ci sono disponibili affinché quel numero sia rappresentato come la somma di altri due o tre numeri e più "probabile" diventa che almeno una di queste rappresentazioni è costituita interamente da numeri primi.
+
+Nel 2012 e 2013 Harald Helfgott ha pubblicato su internet due articoli che dimostrerebbero la congettura debole incondizionatamente per ogni intero maggiore di 7.
+
+La congettura forte non è ancora stata dimostrata.
+
+Vediamo come calcolare la coppia di numeri che soddisfano la congettura di Goldbach per ogni numero pari maggiore di due.
+
+Utilizziamo il Crivello (sieve) di Eratostene per calcolare i numeri primi fino a n. Questa funzione restituisce un vettore di valori booleani dove l'indice i-esimo è primo se vettore(i) vale true.
+
+(define (sieve n)
+  (local (primi p)
+    (setq primi (array (add 1 n) '(true)))
+    (setf (primi 0) nil) ; 0 non è primo
+    (setf (primi 1) nil) ; 1 non è primo
+    (setq p 2)
+    (while (<= (* p p) n)
+      (if (= (primi p) true))
+      (for (i (* p p) n p) (setq (primi i) nil))
+      (++ p)
+    )
+    ; se vogliamo la lista dei numeri
+    ;(slice (filter true? (map (fn (x) (if x $idx)) primi)) 2)
+    ; se vogliamo la lista dei valori booleani (indicizzata)
+    primi
+  )
+)
+
+Adesso scriviamo la funzione che cerca la coppia di numeri primi che sommati valgono n:
+
+(define (coppia n)
+  (local (primi stop out)
+    (setq primi (sieve n))
+    (setq stop nil)
+    ; attraversiamo la lista per trovare la prima coppia 
+    ; di numeri primi che sommati valgono n
+    (dolist (el primi stop)
+       (if (and el (primi (- n $idx)))
+           (begin 
+            (setq stop true)
+            (setq out (list $idx (- n $idx)))
+           )
+       )
+    )
+    out
+  )
+)
+
+(coppia 4)
+;-> (2 2)
+
+Verifichiamo la congettura per valori fino a n:
+
+(define (testGoldbach n)
+  (local (primi out)
+    (setq out '())
+    (setq primi (sieve n))
+    (for (i 4 n 2)
+      (setq stop nil)
+      (dolist (el primi stop)
+        (if (and el (primi (- i $idx)))
+            (begin 
+              (setq stop true)
+              ; se vogliamo stampare le coppie
+              ;(println (list $idx (- i $idx)))
+              ; se vogliamo memorizzare le coppie in una lista
+              ;(push (list $idx (- i $idx)) out -1)
+            )
+        )
+      )
+      (if (null? stop) (println "errore con numero: " i))
+    )
+    ;out
+    'fine
+  )
+)
+
+(testGoldbach 10000)
+;-> fine ; nessun errore
+
+(time (testGoldbach 100000))
+;-> 38084.502
+
+Infine scriviamo la funzione che genera tutte le coppie di numeri primi che sommate valgono n:
+
+(define (coppie n)
+  (local (primi out)
+    (setq out '())
+    (setq primi (sieve n))
+    ; attraversiamo la lista per trovare la prima coppia 
+    ; di numeri primi che sommati valgono n
+    (dolist (el primi)
+       (if (and el (primi (- n $idx)))
+           (push (list $idx (- n $idx)) out -1)
+       )
+    )
+    out
+  )
+)
+
+(coppie 20)
+;-> ((3 17) (7 13) (13 7) (17 3))
+
+

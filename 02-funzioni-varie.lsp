@@ -3437,3 +3437,48 @@ Proviamo con altri punti:
 Con questo metodo siamo in grado di prendere un file di coordinate geografiche (es. in formato geojson) e visualizzarlo sul monitor oppure creare un file postscript.
 
 
+------------------------------------
+Numeri primi successivi e precedenti
+------------------------------------
+
+Dato un numero intero n vogliamo determinare il primo numero primo successivo a n e il primo numero primo precedente a n.
+Scriviamo due funzioni separate "primo+" e "primo-".
+
+(define (primo+ num)
+  (local (found val)
+    (setq found nil)
+    (setq val (+ num 1))
+    (until found
+      (if (primo? val)
+          (setq found true)
+          (++ val)
+      )
+    )
+    val
+  )
+)
+
+(primo+ 50)
+;-> 53
+
+(define (primo- num)
+  (local (found val)
+    (setq found nil)
+    (setq val (- num 1))
+    (until found
+      (if (primo? val)
+          (setq found true)
+          (-- val)
+      )
+    )
+    val
+  )
+)
+
+(primo- 50)
+;-> 47
+
+(primo+ 2)
+;-> 3
+
+

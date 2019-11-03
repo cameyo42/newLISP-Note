@@ -2734,3 +2734,211 @@ Vediamo quale funzione è più veloce:
 ;-> 1225.691
 
 
+------------
+Generatori 1
+------------
+
+Un generatore è una funzione che produce un risultato diverso (generalmente in sequenza) ogni volta che viene chiamata.
+Per fare questo occorre ricordare/memorizzare lo stato corrente della funzione. Per questo scopo si usa un contesto (context) che contiene la funzione (funtore del contesto) e i dati necessari. In altra parole si tratta di una funzione con memoria.
+
+(define (gen:gen)
+  (setq gen:sum
+    (if gen:sum (inc gen:sum) 1)))
+
+Questo potrebbe essere scritto più brevemente, perché "inc" considera nil come zero:
+
+(define (gen:gen)
+  (inc gen:sum))
+
+(gen)
+;-> 1
+(gen)
+;-> 2
+
+Quando si scrive gen:gen, viene creato un context chiamato "gen". Questo è uno spazio di nomi (namespace) lessicale contenente i propri simboli usati come variabili e come funzioni. In questo caso il nome-spazio "gen" contiene due simboli: "gen" (funzione/funtore) e "sum" (variabile).
+Il primo simbolo di un contesto ha lo stesso nome del contesto in cui è contenuto e viene chiamato "funtore" di default del contesto. In questo caso il contesto si chiama "gen" e quindi il funtore si chiama "gen". Quando si utilizza un nome di contesto al posto di un nome di funzione, newLISP assume il funtore predefinito. Quindi possiamo chiamare la nostra funzione generatore usando (gen). Non è necessario chiamare la funzione usando (gen:gen), (gen) verrà impostato automaticamente su (gen:gen).
+
+Possiamo aggiungere altre funzioni al contesto "gen", ad esempio una funzione che inizializza il generatore:
+
+(define (gen:init x)
+  (setq gen:sum x))
+
+(gen:init -1)
+;-> -1
+
+(gen)
+;-> 0
+
+(gen)
+;-> 1
+
+Adesso proviamo a scrivere un generatore di numeri primi.
+
+Prima definiamo la funzione che verifica se un numero è primo:
+
+(define (primo:isprime? n)
+  (if (< n 2) nil
+    (= 1 (length (factor n)))))
+
+Poi scriviamo la funzione che inizializza il valore dello stato della funzione (cioè la funzione che imposta il valore di partenza della funzione):
+
+(define (primo:start x)
+  (setq primo:val x))
+
+Una funzione per verificare il valore dello stato:
+
+(define (primo:print-val) primo:val)
+
+Infine scriviamo la funzione/funtore del contesto "primo" (il parametro "dir" può assumere true o nil e specifica se generare il  primo successivo oppure il primo precedente):
+
+(define (primo:primo dir)
+  (local (found num)
+    (setq found nil)
+    (if (null? dir)
+      (setq num (+ primo:val 1))
+      (setq num (- primo:val 1))
+    )
+    (until found
+      (if (primo:isprime? num) 
+          (setq primo:val num found true)
+      )
+      (if (null? dir)    
+        (++ num)
+        (-- num)
+      )
+    )
+    primo:val
+  )
+)
+
+Proviamo il tutto: 
+
+(primo:start 13)
+;-> 13
+
+(primo:print-val)
+;-> 13
+
+(primo:isprime? 13)
+;-> true
+
+(primo)
+;-> 17
+
+(primo)
+;-> 19
+
+(primo)
+;-> 23
+
+(primo true)
+;-> 19
+
+(primo true)
+;-> 17
+
+(primo)
+;-> 19
+
+Nota: quando programmiamo con i contesti è utile analizzare i simboli che sono stati definiti con la seguente funzione:
+
+(define (simboli contesto)
+  (dotree (el contesto) (println el)))
+
+(simboli primo)
+;-> primo:isprime?
+;-> primo:primo
+;-> primo:print-val
+;-> primo:start
+;-> primo:val
+
+Nota: quando la situazione diventa "caotica" è possibile (consigliato) chiudere la REPL corrente e rilanciare una nuova REPL (per avere tutti i simboli di default).
+
+
+------------
+Generatori 2
+------------
+
+In newLISP le funzioni sono oggetti di prima classe (cioè possono essere assegnati alle variabili, passati e/o restituiti da una funzione e possono essere modificati da codice). Questa caratteristica permette di scrivere un altro tipo di generatori utilizzando una funzione automodificante. Supponiamo di avere una funzione somma/accumulatore del tipo seguente:
+
+(setq a 0)
+(define (somma (x a)) (inc a x))
+;-> (lambda ((x a)) (inc a x))
+
+Se chiamiamo la funzione senza parametri otteniamo il valore di "a":
+
+(somma)
+;-> 0
+
+Se chiamiamo la funzione con un parametro otteniamo la somma di "a" e del parametrorametro (che viena assegnata ad "a"):
+
+(somma 3)
+;-> 3
+a
+;-> 3
+
+(somma 2)
+;-> 5
+a
+;-> 5
+
+newLISP ci permette di sostituire il simbolo "a" con il simbolo "0":
+
+(define (somma (x 0)) (inc 0 x))
+;-> (lambda ((x 0)) (inc 0 x))
+
+(somma)
+;-> 0
+
+(somma 1)
+;-> 1
+
+(somma 5)
+;-> 6
+
+(somma 15)
+;-> 21
+
+Per capire meglio questo metodo analizziamo come è cambiata la funzione "somma" dopo la sua esecuzione:
+
+somma
+;-> (lambda ((x 0)) (inc 21 x))
+
+Il simbolo iniziale "0" è stato modificato dalla funzione stessa nel valore della somma "21". Questo processo viene eseguito durante la valutazione e l'espansione dei parametri che vengono applicati al corpo della funzione.
+
+Un altro esempio di generatore utilizza la funzione "expand" per creare funzioni che effettuano lo stream (flusso) di liste o di stringhe:
+
+(define (make-stream lst)
+    (letex (stream lst) 
+        (lambda () (pop 'stream))))
+;-> (lambda (lst)
+;->  (letex (stream lst) (lambda () (pop 'stream))))
+
+(set 'lst '(a b c d e f g h))
+
+Adesso definiamo la funzione di stream sulla lista "lst":
+
+(define mystream (make-stream lst))
+;-> (lambda () (pop '(a b c d e f g h)))
+
+Attiviamo lo stream degli elementi:
+
+(mystream)
+;-> a
+(mystream)
+;-> b
+(mystream)
+;-> c
+Poiché pop funziona sia con le liste che con le stringh, la stessa funzione generatrice può essere utilizzata per generare uno stream di stringhe:
+
+(setq str "abcddefgh")
+
+(define mystream (make-stream str))
+;-> (lambda () (pop '"abcddefgh"))
+
+(mystream)
+;-> "a"
+(mystream)
+;-> "b"
+
+

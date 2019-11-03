@@ -244,7 +244,7 @@ Funzione "atoi" (McAfee)
 La funzione "atoi" del linguaggio C converte una stringa in un numero intero.
 Implementare la funzione "atoi".
 
-Le seguenti operazioni devono essere svolte:
+Per una corretta implementazione devono essere considerati i seguenti casi:
 
 1. stringa di input vuota o nulla
 2. spazi vuoti nella stringa di input
@@ -2780,5 +2780,26 @@ Usiamo due puntatori che attraversono l'array nelle due direzioni.
 
 (vocali "")
 ;-> ""
+
+
+------------------------------------
+Distanza di Hamming tra DNA (Google)
+------------------------------------
+
+Date due sequenze di DNA (stringhe), determinare la distanza di Hamming. In pratica, occorre calcolare il numero di caratteri diversi tra due stringhe della stessa lunghezza.
+
+La struttura canonica del DNA ha quattro basi: Adenina (Adenine) (A), Citosina (Cytosine) (C), Guanina (Guanine) (G), e Timina (Thymine) (T).
+La struttura canonica del RNA ha quattro basi: Adenina (Adenine) (A), Citosina (Cytosine) (C), Guanina (Guanine) (G), e Uracile (Uracile) (U).
+
+(define (hamming-dist dna1 dna2)
+  (let ((nl1 (explode dna1)) (nl2 (explode dna2)))
+    (cond ((= (length nl1) (length nl2)) (length (filter not (map = nl1 nl2))))
+          (true (println "Error: different length of DNA.")))))
+
+(setq dna1 "AATCCGCTAG")
+(setq dna2 "AAACCCTTAG")
+
+(hamming-dist dna1 dna2)
+;-> 3
 
 

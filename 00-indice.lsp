@@ -124,6 +124,7 @@ FUNZIONI VARIE
   Utilizzo del protocollo ftp
   Normalizzazione di una lista di numeri
   Trasformazione omografica 2D
+  Numeri primi successivi e precedenti
 
 newLISP 99 PROBLEMI (28)
 ========================
@@ -270,6 +271,7 @@ PROBLEMI VARI
   Potenza perfetta di un numero
   Problema della segretaria
   Numeri con tre divisori
+  Congettura di Goldbach
 
 DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
 ==================================================
@@ -305,6 +307,7 @@ DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Unione di due liste ordinate (Google)
   Prodotto massimo di due numeri in una lista (Facebook)
   Invertire le vocali (Google)
+  Distanza di Hamming tra DNA (Google)
 
 LIBRERIE
 ========
@@ -313,6 +316,7 @@ LIBRERIE
   Operazioni con i tempi
   Operazioni con gli insiemi
   Funzioni winapi
+  Operazioni con gli alberi binari
 
 NOTE LIBERE
 ===========
@@ -348,6 +352,8 @@ NOTE LIBERE
   Ambito dinamico e ambito lessicale (statico)
   Uso delle espressioni condizionali
   select e unselect (antiselect)
+  Generatori 1
+  Generatori 2
 
 APPENDICI
 =========
