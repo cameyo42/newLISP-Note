@@ -73,6 +73,7 @@ Funzione newLISP predefinita: (last lst)
 (last '())
 ;-> ERR: list is empty in function last : '()
 
+
 =======================================================
 N-99-02 Estrarre il penultimo elemento di una lista
 =======================================================
@@ -95,9 +96,11 @@ N-99-02 Estrarre il penultimo elemento di una lista
 (penultimo '(1))
 ;-> nil
 
+
 =======================================================
 N-99-03 Estrarre il k-esimo elemento di una lista
 =======================================================
+
 Nota: il primo elemento della lista ha indice zero (zero-based index)
 
 (define (k-esimo lst k)
@@ -133,6 +136,7 @@ Funzione predefinita newLISP: (nth int-index lst)
 (nth 0 '())
 ;-> ERR: invalid list index in function nth
 
+
 =======================================================
 N-99-04 Determinare il numero di elementi di una lista
 =======================================================
@@ -156,9 +160,11 @@ Funzione predefinita newLISP: (length lst)
 (length '())
 ;-> 0
 
+
 =======================================================
 N-99-05 Invertire una lista
 =======================================================
+
 Per invertire una lista, possiamo salvare il primo elemento, invertire il resto, quindi inserire il vecchio primo elemento in fondo al "resto invertito".
 
 (define (inverti lst)
@@ -234,7 +240,7 @@ Così possiamo definire una funzione somma in termini di "fold-left":
 
 La procedura "fold-left" riduce la lista ad un singolo valore, quindi nel caso dell'inversione riduciamo la lista di ingresso ad una singola lista di uscita.
 
-Vediamo un altro esempio di applicazioe di "fold-left":
+Vediamo un altro esempio di applicazione di "fold-left":
 
 Rivediamo brevemente la valutazione della somma: la procedura è l'operatore "+" e il valore inziale vale zero.
 
@@ -299,12 +305,12 @@ Altro esempio:
 (fold-right - '(4 3 2 1) 0)
 ;-> 2
 
-La funzione "folder-right" con operatore "cons" e lista vuota '() come valore iniziale, produce una copia della lista.
+La funzione "fold-right" con operatore "cons" e la lista vuota '() come valore iniziale, produce una copia della lista passata.
 
 (fold-right cons '(4 3 2 1) '())
 ;-> (4 3 2 1)
 
-Ritorniamo al nostro problema, iscriviamo la funzione inverti-fold e vediamo come funziona la valutazione:
+Ritorniamo al nostro problema, scriviamo la funzione inverti-fold e vediamo come funziona la valutazione:
 
 (define (inverti-fold lst)
   (fold-left cons lst '()))
@@ -351,6 +357,7 @@ Vediamo il tempo di esecuzione di queste funzioni:
 
 Morale: implementate le funzioni per conto vostro in modo da imparare nuovi metodi, ma usate quelle predefinite (se esistono).
 
+
 =======================================================
 N-99-06 Determinare se una lista è palindroma
 =======================================================
@@ -364,9 +371,11 @@ N-99-06 Determinare se una lista è palindroma
 (palindroma? '(e p r e s a l))
 ;-> nil
 
+
 =======================================================
 N-99-07 Appiattire una lista annidata
 =======================================================
+
 Una lista piatta e' una lista senza sottoliste, cioe' una lista costituita solo da atomi.
 
 (define (piatta lst)
@@ -395,9 +404,11 @@ Punto terzo
 
 Questi tre punti sono caratteristici per ogni funzione che lavora sulle liste di liste.
 
+
 =======================================================
 N-99-08 Elimina gli elementi duplicati consecutivi di una lista
 =======================================================
+
 Se una lista ordinata contiene elementi ripetuti, devono essere sostituiti con una singola copia dell'elemento. L'ordine degli elementi non deve essere cambiato.
 
 Esempio: (elimina-duplicati '(1 1 1 2 2 3 4 4 5 5 5 6 6 6)) ==> (1 2 3 4 5 6)
@@ -415,6 +426,7 @@ Esempio: (elimina-duplicati '(1 1 1 2 2 3 4 4 5 5 5 6 6 6)) ==> (1 2 3 4 5 6)
 
 (elimina-duplicati '(a a b b c c c))
 ;-> (a b c)
+
 
 =======================================================
 N-99-09 Unire gli elementi duplicati consecutivi di una lista in sottoliste
@@ -450,9 +462,11 @@ N-99-09 Unire gli elementi duplicati consecutivi di una lista in sottoliste
 (raggruppa '(a a))
 ;-> ((a a))
 
+
 =======================================================
 N-99-10 Run-length encode di una lista
 =======================================================
+
 Implementiamo il metodo di compressione Run Length Encoding ad una lista. Gli elementi consecutivi duplicati sono codificati come liste (N E) dove N è il numero di duplicati dell'elemento E.
 
 newLISP permette di utilizzare diversi stili di programmazione, infatti per questo problema scriveremo la funzione di rle encode sia in uno stile imperativo (iterativo), che in uno stile funzionale (ricorsivo).
@@ -533,9 +547,11 @@ Versione ricorsiva:
 
 La versione iterativa è 2.5 volte più veloce.
 
+
 =======================================================
 N-99-11 Run-length encode di una lista (modificato)
 =======================================================
+
 A differenza dell'esercizio precedente se un elemento non ha duplicati, allora viene semplicemente copiato nella lista risultante.
 Solo gli elementi con duplicati assumono la forma (num elemento).
 
@@ -585,9 +601,11 @@ Adesso definiamo la funzione per il metodo rle encode modificato:
 (rle-encode-2 '(a a a a b c c a a d e e e e))
 ;-> ((4 a) b (2 c) (2 a) d (4 e))
 
+
 =======================================================
 N-99-12 Run-length decode di una lista
 =======================================================
+
 Esempio: (rle-decode '((3 a) (2 b) (2 c) (1 a) (2 d)))
 ;-> (a a a b b c c a d d))
 
@@ -618,9 +636,11 @@ Esempio: (rle-decode '((3 a) (2 b) (2 c) (1 a) (2 d)))
 (rle-decode (rle-encode '(a a a a b c c a a d e e e e f)))
 ;-> (a a a a b c c a a d e e e e f)
 
+
 =======================================================
 N-99-13 Run-length encode di una lista (diretto)
 =======================================================
+
 Implementare il metodo di compressione dei dati run-length encode direttamente. Cioè non creare in modo esplicito le sottoliste che contengono l'elemento duplicato, come nel problema P09, ma contarli direttamente. Come nel problema P11, semplificare la lista dei risultati sostituendo le liste dei singleton (1 X) con X.
 
 (define (rle-encode-direct lst1)
@@ -638,9 +658,11 @@ Implementare il metodo di compressione dei dati run-length encode direttamente. 
 (rle-encode-direct '(a a a a b c c a a d e e e e))
 ;-> ((4 a) b (2 c) (2 a) d (4 e))
 
+
 =======================================================
 N-99-14 Duplicare gli elementi di una lista
 =======================================================
+
 Esempio: (duplicare '(a b c c d)) ==> (a a b b c c c c d d)
 
 (define (duplica xs)
@@ -658,6 +680,7 @@ Esempio: (duplicare '(a b c c d)) ==> (a a b b c c c c d d)
 
 (duplicare '((a b) c (d (e))))
 ;-> ((a b) (a b) c c (d (e)) (d (e)))
+
 
 =======================================================
 N-99-15 Replicare per n volte gli elementi di una lista
@@ -685,6 +708,7 @@ Esempio: (replica '(a b c) 3)  ==>  (a a a b b b c c c)
 (replica '((a) (b c) d) 2)
 ;-> ((a) (a) (b c) (b c) d d)
 
+
 =======================================================
 N-99-16 Eliminare gli elementi da una lista per ogni k
 =======================================================
@@ -710,6 +734,7 @@ Esempio: (elimina-ogni '(a b c d e f g) 2) ==> (a c e g)
 (elimina-ogni '(a b c d e f g) 0)
 ;-> (a b c d e f g)
 
+
 =======================================================
 N-99-17 Dividere una lista in due parti (la lunghezza della prima lista è un parametro)
 =======================================================
@@ -730,9 +755,11 @@ N-99-17 Dividere una lista in due parti (la lunghezza della prima lista è un pa
 (divide-lista '() 3)
 ;-> (() ())
 
+
 =======================================================
 N-99-18 Estrarre una parte di una lista
 =======================================================
+
 Dati due indici, I e K, creare una lista contenente gli elementi tra l'I-esimo e il K-esimo della lista originale (entrambi i limiti inclusi). Il primo elemento ha indice 1 (uno).
 
 (define (prendi-1 lst n)
@@ -775,6 +802,7 @@ Se invece consideriamo che il primo elemento ha indice 0 (zero), basta modificar
 (estrai-0 '(a b c d e f g h i k) 0 1)
 ;-> (a b)
 
+
 =======================================================
 N-99-19 Ruotare una lista di N posti a sinistra
 =======================================================
@@ -805,6 +833,7 @@ N-99-19 Ruotare una lista di N posti a sinistra
 =======================================================
 N-99-20 Eliminare l'elemento k-esimo di una lista
 =======================================================
+
 Il primo elemento della lista ha indice 0 (zero).
 
 (define (elimina-a lst k)
@@ -827,9 +856,11 @@ Il primo elemento della lista ha indice 0 (zero).
 (elimina-a '(a b c d e) 25)
 ;-> (a b c d e)
 
+
 =======================================================
 N-99-21 Inserire un elemento in una data posizione di una lista
 =======================================================
+
 Il primo elemento della lista ha indice 1 (uno).
 
 Esempio: (inserisci-a 'z '(a b c d) 2)  ==>  (a z b c d)
@@ -859,6 +890,7 @@ Esempio: (inserisci-a 'z '(a b c d) 2)  ==>  (a z b c d)
 
 (inserisci-a 'alfa '(a b c d) 1000)
 ;-> (a b c d)
+
 
 =======================================================
 N-99-22 Creare una lista che contiene tutti i numeri interi di un intervallo
@@ -893,6 +925,7 @@ Un altro metodo per la stessa funzione (gestisce anche intervalli decrescenti):
 (range 10 2)
 (;-> (10 9 8 7 6 5 4 3 2)
 
+
 =======================================================
 N-99-23 Estrarre un dato numero di elementi da una lista in maniera casuale (random)
 =======================================================
@@ -902,6 +935,7 @@ N-99-23 Estrarre un dato numero di elementi da una lista in maniera casuale (ran
 
 (estrai-random '(a b c d e f g h) 3)
 ;-> (h g b)
+
 
 =======================================================
 N-99-24 Lotto: estrarre N numeri differenti da un intervallo 1..M
@@ -918,6 +952,7 @@ N-99-24 Lotto: estrarre N numeri differenti da un intervallo 1..M
 ;->  65 75 23 39 32 36 16 82 4 43 67 31 15 63 12 29 1 48 28 6 77 9 38 60 74 25 40 51
 ;->  10 89 18 88 46 71 50 7 2 22 68 35 70 20 57 49 59 44 54 87 62 34 21 56 84 85 3 2
 ;->  7 66 58 5 52 14 83 24)
+
 
 =======================================================
 N-99-25 Generare le permutazioni degli elementi di una lista
@@ -1027,6 +1062,7 @@ Questo algoritmo produce tutte le permutazioni scambiando un elemento ad ogni it
 
 Questa funzioni è la più veloce tra tutte quelle presentate.
 
+
 =======================================================
 N-99-26 Generare le combinazioni di K oggetti distinti tra gli N elementi di una lista
 =======================================================
@@ -1053,6 +1089,7 @@ N-99-26 Generare le combinazioni di K oggetti distinti tra gli N elementi di una
 
 (combinazioni 3 '(a b c))
 ;-> ((a b c))
+
 
 =======================================================
 N-99-27 Raggruppare gli elementi di un insieme in sottoinsiemi disgiunti
@@ -1293,6 +1330,7 @@ N-99-27 Raggruppare gli elementi di un insieme in sottoinsiemi disgiunti
 ;->  ((roby vero) ((andrea eva) (luca vale tommy)))
 ;->  ((roby vero) ((andrea tommy) (luca vale eva)))
 ;->  ((roby vero) ((eva tommy) (luca vale andrea))))
+
 
 =======================================================
 N-99-28 Ordinare una lista in base alla lunghezza delle sottoliste

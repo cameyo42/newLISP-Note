@@ -515,23 +515,157 @@ reader-event      preprocess expressions before evaluation event-driven
 
 
 ============================================================================
-F-expression - FEXPR
+Sul linguaggio newLISP - FAQ di Lutz Mueller
 ============================================================================
 
-Nei linguaggi di programmazione Lisp, una FEXPR è una funzione i cui operandi/parametri vengono passati ad essa senza essere valutati. Quando viene chiamato una FEXPR, viene valutato solo il corpo di FEXPR: non si effettuano altre valutazioni se non quando esplicitamente avviato/richiesto dalla FEXPR.
+Questa è la traduzione della pagina web relativa alle FAQ (Frequently Asked Questions) su newLISP:
 
-Al contrario, quando viene chiamata una normale funzione Lisp, gli operandi vengono valutati automaticamente e solo i risultati di queste valutazioni vengono passati alla funzione.
+http://www.newLISP.org/index.cgi?FAQ
 
-Quando viene chiamata una macro Lisp (tradizionale), gli operandi vengono passati in modo non valutato, ma qualunque sia il risultato ritornato dalla macro, questo viene valutato automaticamente.
+1.  Cos'è newLISP e cosa posso fare con questo linguaggio?
+2.  Perché newLISP, perché non uno degli altri LISP standard?
+3.  Come posso studiare newLISP?
+4.  Quanto è veloce newLISP?
+5.  newLISP ha le matrici?
+6.  newLISP ha le tabelle hash?
+7.  newLISP ha una gestione automatica della memoria?
+8.  newLISP può passare i dati per riferimento?
+9.  Come funziona il variable scoping in newLISP?
+10. newLISP gestisce il multiprocessing?
+11. Posso usare newLISP per compiti di calcolo distribuiti?
+12. Possiamo utilizzare la metodologia di programmazione orientata agli oggetti?
+13. Cosa sono di pacchetti e moduli?
+14. Quali sono alcune differenze tra newLISP e altri LISP?
+15. newLISP funziona sul sistema operativo XYZ?
+16. newLISP può gestire i caratteri speciali del mio paese e della mia lingua?
+17. L'indicizzazione implicita non infrange le regole di sintassi del LISP?
+18. newLISP può essere incorporato in altri programmi?
+19. Posso mettere il copyright ai miei script anche se newLISP è concesso in licenza GPL?
+20. Dove posso segnalare eventuali bug?
 
-Nel rigoroso utilizzo originale, una FEXPR è quindi una funzione definita dall'utente i cui operandi vengono passati senza essere valutati. Tuttavia, nell'uso successivo, il termine FEXPR descrive qualsiasi funzione di prima classe/ordine i cui operandi vengono passati non valutati, indipendentemente dal fatto che la funzione sia primitiva o definita dall'utente.
-Le macro di newLISP sono FEXPR.
+1. Cos'è newLISP e cosa posso fare con questo linguaggio?
+---------------------------------------------------------
+newLISP è un linguaggio di scripting simile a LISP per fare quelle cose che si fanno tipicamente con linguaggi di scripting: programmazione per internet, amministrazione di sistema, elaborazione testi, incollare diversi altri programmi insieme, ecc. newLISP è un LISP di scripting per persone che sono affascinate dalla bellezza e dal potere espressivo del LISP, ma che hanno bisogno di una versione ridotta per imparare facilmente l'essenziale.
 
-Kent M. Pitman, "Special Forms in Lisp", Proceedings of the 1980 ACM Conference on Lisp and Functional Programming, 1980, pag. 179–187.
+2. Perché newLISP, perché non uno degli altri LISP standard?
+------------------------------------------------------------
+LISP è un vecchio linguaggio nato, cresciuto e standardizzato in tempi molto diversi da oggi, tempi in cui la programmazione era per persone altamente istruite che hanno progettato programmi. newLISP è un LISP rinato come linguaggio di scripting: pragmatico e casuale, semplice da imparare senza che tu debba conoscere concetti avanzati di informatica. Come ogni buon linguaggio di scripting, newLISP è relativamente semplice da imparare e potente per terminare il proprio lavoro senza problemi.
+
+Vedi anche: "In Praise of Scripting: Real Programming Pragmatics" di Ronald P. Loui
+
+http://web.cs.mun.ca/~harold/Courses/Old/CS2500.F09/Diary/04563874.pdf
+
+newLISP ha un tempo di avvio molto veloce, ha bisogno di poche risorse come spazio su disco e memoria ed ha una pratica API con funzioni native per networking, statistica, machine learning, espressioni regolari, multiprocessing e calcolo distribuito, non aggiunte successivamente con moduli esterni.
+
+3. Come posso studiare newLISP?
+-------------------------------
+Almeno all'inizio, studia principalmente newLISP utilizzandolo. Se capisci questo:
+
+(+ 1 2 3); calcola la somma di 1,2,3 => 6
+
+e questo:
+
+(define (double x) (+ x x)); definisce una funzione
+
+(doppio 123); calcola il doppio di 123 => 246
+
+allora hai imparato abbastanza per iniziare a programmare in newLISP. Ci sono alcuni altri concetti come le funzioni anonime, l'applicazione di funzioni, spazi dei nomi (contesti) e l'indicizzazione implicita. Imparerai queste tecniche mentre usi newLISP.
+I libri su LISP o Scheme, che sono due standard di LISP diversi e più vecchi, insegnano concetti che non hai la necessità di imparare per programmare in newLISP. Molte volte newLISP esprime le cose in modo diverso dai LISP tradizionali e in modi più applicabili ai compiti di programmazione odierni e ad un livello superiore più vicino al problema in questione.
+Impara a risolvere i problemi con il modo newLISP! Per una comprensione più approfondita di newLISP, leggi la sezione del "manuale utente" di newLISP, con meno teoria e più esempi. Dai uno sguardo al "manuale di riferimento" per avere un'idea della profondità e dell'ampiezza delle funzioni API integrate.
+Per lavorare seriamente con newLISP occorre leggere il manuale "Code Patterns" con altri suggerimenti e pezzi di codice. Una buona introduzione per principianto è il libro "Introduction to newLISP" oppure i video tutorial che sono disponibili nella pagina ufficiale della documentazione.
+Molte funzioni in newLISP hanno una funzionalità facile da capire, ma sono molto più potenti quando si conoscono e si usano le opzioni speciali di quella funzione. La profondità della API di newLISP non è basata sulla quantità delle funzioni, ma piuttosto sulle opzioni e sulle sintassi multipla di ogni specifica funzione
+Inizia a scrivere il tuo primo programma ora. Guarda le porzioni di codice (snippet) riportate in tutto il manuale e su questo sito web. Se hai domande, iscriviti al forum di discussione di newLISP e chiedi.
+
+4. Quanto è veloce newLISP?
+---------------------------
+La velocità di calcolo di newLISP è confrontabile con quella dei popolari strumenti di scripting come Perl o Python, ma si comporta meglio quando si tratta di tempi di avvio e di memoria / spazio su disco.
+Dai un'occhiata ad alcuni benchmark: http://www.newLISP.org/benchmarks/
+Molte funzioni per cui altri linguaggi richiedono l'utilizzo di moduli esterni sono già incorporate in newLISP. Funzioni di networking e metodi matematici come FFT (Fast Fourier Analysis) o funzioni di apprendimento automatico bayesiano sono rapidissime in newLISP. Sono funzioni integrate e non richiedono alcun modulo esterno. Nonostante ciò, newLISP è più piccolo di altri linguaggi di scripting.
+
+5. newLISP ha le matrici?
+-------------------------
+Sì. Per le applicazioni con accesso random a liste di grandi dimensioni, l'accesso può essere effettuato più velocemente utilizzando gli array di newLISP.
+
+6. newLISP ha le tabelle hash?
+------------------------------
+newLISP utilizza alberi binari red-black per l'accesso alla memoria associativa quando si gestiscono spazi dei nomi (namespace), dizionari e per l'accesso ai valori-chiave simili alla tecnica hash.
+
+7. newLISP ha una gestione automatica della memoria?
+----------------------------------------------------
+Sì. Ma non è il tipico processo di garbage collection che trovi in altri linguaggi interattivi. Proprio come la garbage collection dei tradizionali linguaggi, newLISP ricicla la memoria inutilizzata. Tuttavia, newLISP lo fa in un modo nuovo, molto più efficiente. La gestione della memoria di newLISP è sincrona senza pause improvvise nell'elaborazione che vengono osservate in linguaggi con garbage collection vecchio stile. L'esclusiva gestione automatica della memoria di newLISP è una delle ragioni della sua velocità, delle sue dimensioni ridotte e dell'uso efficiente della memoria.
+Vedi anche: "Automatic Memory Management in newLISP" di Lutz Mueller
+
+http://www.newLISP.org/MemoryManagement.html
+
+8. newLISP può passare i dati per riferimento?
+----------------------------------------------
+Tutte le funzioni integrate passano liste e stringhe per riferimento sia in ingresso che in uscita. Per passare per riferimento a funzioni definite dall'utente, liste e stringhe possono essere raggruppati in spazi dei nomi particolari (context). Maggiori informazioni su questo argomento sul manuale utente. Dalla versione 10.2, FOOP passa per riferimento anche l'oggetto.
+
+9. Come funziona il variable scoping in newLISP?
+------------------------------------------------
+newLISP ha uno scope dinamico applicato all'interno di contesti o spazi dei nomi separati lessicalmente. I namespace hanno un overhead molto piccolo e possono esisterne a milioni. I contesti in newLISP consentono la chiusura lessicale di più di una funzione lambda e di un oggetto. I contesti possono essere utilizzati per scrivere funzioni con scope lessicale con memoria, moduli software e oggetti. Ciò evita le insidie dello scope dinamico e aiuta a strutturare programmi più grandi.
+
+10. newLISP gestisce il multiprocessing?
+----------------------------------------
+Le versioni Linux / UNIX di newLISP possono eseguire il fork e lo spawn dei processi. Le versioni di Windows possono avviare processi figlio indipendenti. I semafori vengono utilizzati per sincronizzare i processi e la memoria condivisa può essere utilizzata per le comunicazioni tra i processi.
+Su macOS, Linux e altri Unix, l'API Cilk è integrata per facilitare il lancio e la sincronizzazione di più processi, in modo trasparente senza preoccuparsi di semafori, blocchi, ecc. È disponibile un'API di messaggistica asincrona per comunicare tra processi.
+
+11. Posso usare newLISP per compiti di calcolo distribuiti?
+-----------------------------------------------------------
+Alcune delle applicazioni più grandi di oggi vengono distribuite su più computer, dividendo le loro complesse attività tra più nodi su una rete. newLISP può essere eseguito come server per valutare i comandi inviati da altri client newLISP ad esso connessi. La funzione "net-eval" incapsula tutta la gestione della rete necessaria per comunicare con altri computer sulla rete, distribuire il codice e le attività di calcolo e raccogliere i risultati in un modo bloccante o basato sugli eventi. newLISP può anche fungere da server Web che gestisce le richieste HTTP incluso CGI.
+
+12. Possiamo utilizzare la metodologia di programmazione orientata agli oggetti?
+--------------------------------------------------------------------------------
+newLISP offre un nuovo modo di programmazione orientata agli oggetti funzionale chiamata FOOP. Usa gli spazi dei nomi per raccogliere tutti i metodi per una classe di oggetti e usa le normali espressioni S per rappresentare gli oggetti. Per ulteriori dettagli su questo nuovo modo di programmazione orientata agli oggetti in newLISP consultare la serie di video di addestramento "Towards FOOP" nella sezione documentazione e il capitolo "Functional object-oriented programming" nel manuale utente. Dalla versione 10.2 gli oggetti FOOP sono mutabili.
+
+13. Cosa sono  pacchetti e moduli?
+----------------------------------
+newLISP utilizza gli spazi dei nomi per la creazione di pacchetti e moduli. Esistono moduli per l'accesso ai database come MySQL, PostgreSQL e SQLite, nonché ODBC. I moduli aggiuntivi supportano i protocolli Internet FTP, POP3, SMTP e REST. Poiché i nuovi spazi dei nomi di LISP vengono chiusi lessicamente, newLISP consente ai programmatori di trattare i moduli come black box. Questo metodologia è adatta per gruppi di programmatori che lavorano su applicazioni di grandi dimensioni.
+newLISP può anche chiamare funzioni di librerie C condivise su Linux / UNIX e sistemi operativi Windows per espandere le sue funzionalità.
+I moduli possono essere documentati utilizzando il sistema di documentazione automatica  newLISPdoc.
+
+14. Quali sono alcune differenze tra newLISP e altri LISP?
+----------------------------------------------------------
+Le nuove differenze di LISP dagli altri LISP includono: il funzionamento delle espressioni lambda, l'esistenza di namespace (o contesti), il passaggio parametri e, naturalmente, la  API di newLISP (repertorio di funzioni). Nel complesso, il nuovo modo di programmazione del LISP di newLISP lo rendono più veloce, più piccolo e più facile da capire e da apprendere. Per una discussione più dettagliata, vedere "Comparison to Common Lisp and Scheme":
+
+http://www.newLISP.org/index.cgi?page=Differences_to_Other_LISPs
+
+15. newLISP funziona sul sistema operativo XYZ?
+-----------------------------------------------
+Probabilmente si. newLISP ha un minimo di dipendenze. Utilizza solo librerie C standard per la compilazione. Se il tuo sistema ha strumenti GNU come il compilatore GCC e l'utility make, allora newLISP dovrebbe compilare e linkare immediatamente usando uno dei makefile contenuti nella sua distribuzione sorgente.
+newLISP viene creato utilizzando uno dei numerosi makefile, ciascuno scritto per una piattaforma specifica. Non ci sono script di make complessi. I makefile sono brevi e facili da modificare e adattare se  non sono già inclusi nella tua piattaforma o configurazione.
+
+16. newLISP può gestire i caratteri speciali del mio paese e della mia lingua?
+------------------------------------------------------------------------------
+Nella maggior parte del mondo occidentale, è sufficiente impostare le impostazioni internazionali utilizzando la funzione newLISP "set-locale".
+Più della metà dei paesi del mondo usano una virgola decimale invece di un punto decimale. newLISP leggerà e scriverà correttamente le virgole decimali quando passerà alla corretta locale.
+La maggior parte degli alfabeti nell'emisfero occidentale si adattano a tabelle di codici carattere a 256 codici e ogni carattere richiede un solo byte di 8 bit da codificare. Se la lingua del tuo paese richiede caratteri multibyte per codificarla, allora hai bisogno della versione di newLISP con supporto UTF-8 abilitato. I Makefile per Windows e Linux sono inclusi per compilare le versioni UTF-8 di newLISP. Nella versione UTF-8, molte funzioni di gestione dei caratteri sono in grado di gestire caratteri multibyte. Vedere il capitolo sulla localizzazione e UTF-8 nel manuale per i dettagli.
+
+17. L'indicizzazione implicita non infrange le regole di sintassi del LISP?
+---------------------------------------------------------------------------
+Al contrario, l'indicizzazione implicita è un'estensione logica della sintassi LISP. Quando si valutano le espressioni S, il primo elemento viene applicato come una funzione agli elementi restanti nell'espressione che servono come argomenti della funzione. L'indicizzazione implicita consiste semplicemente nel considerare i membri dei tipi di dati numerici, di stringa e di elenco come operatori speciali di indicizzazione quando si trovano nella prima posizione di un'espressione S.
+
+18. newLISP può essere incorporato in altri programmi?
+------------------------------------------------------
+newLISP può essere compilato come libreria condivisa UNIX o DLL Windows (libreria a collegamento dinamico). Di conseguenza, le versioni di libreria condivisa di newLISP possono essere utilizzate all'interno di altri programmi che sono in grado di importare funzioni di libreria condivisa. Altri modi per integrare la tua applicazione con newLISP includono i pipe I/O e le porte di rete.
+Sui sistemi Win32, newLISP è stato utilizzato all'interno di MS Excel, MS Visual Basic e del generatore di applicazioni GUI NeoBook. Su UNIX, newLISP è stato utilizzato all'interno del foglio di calcolo di GNumeric. Su macOS, newLISP è stato utilizzato come linguaggio di estensione per l'editor di BBEdit grazie alla nuova LISP che comunica con BBEdit tramite i pipe di I/O standard. Il Guiserver basato su Java e il vecchio frontend Tcl/Tk per newLISP sono esempi di integrazione di newLISP tramite porte di rete.
+
+19. Copyright sui miei script anche se newLISP è concesso in licenza GPL?
+-------------------------------------------------------------------------
+Si, puoi. Le FAQ di gnu.org per la GPL lo spiegano. Finché i tuoi script non usano altro software GPL di terze parti sotto forma di librerie importate o moduli caricati, i tuoi script in newLISP non devono necessariamente avere una licenza GPL. La maggior parte dei moduli sul sito Web di newLISP non ha licenza e non importa altre librerie. Se lo fanno, consultare le licenze di quelle librerie di terze parti.
+newLISP ti permette di distribuire un binario dell'interprete insieme al tuo sorgente. Quando si utilizza newLISP nel software, menzionare sempre il sito Web www.newLISP.org nella documentazione come luogo in cui è disponibile il codice sorgente per newLISP.
+
+20. Dove posso segnalare eventuali bug?
+---------------------------------------
+La maggior parte delle segnalazioni di bug risulta dalla mancata lettura della documentazione o dal ritenere che newLISP funzioni come Common Lisp o Scheme. Le domande, i commenti e le segnalazioni di bug sono pubblicati sul forum ufficiale, dove vengono letti da molti altri, dando loro l'opportunità di commentare o dare consigli. Il forum consente anche di inviare messaggi privati.
+
+21. Posso compilare i miei script in programmi eseguibili?
+----------------------------------------------------------
+Si. Il comando: newLISP -x "myscript.lsp" "myscript.exe" genera un file eseguibile sul proprio sistema operativo.
 
 
 ============================================================================
-newLISP in 21 minuti di John W. Small
+newLISP in 21 minuti (John W. Small)
 ============================================================================
 
 newLISP: un tutorial interattivo
@@ -2032,7 +2166,7 @@ Sia Common Lisp che Scheme hanno funzioni lessical scope, questo significa che u
 
 
 ============================================================================
-newLISP per programmatori
+newLISP per programmatori (Dmitry Chernyak)
 ============================================================================
 v. 1.1
 
@@ -2749,156 +2883,6 @@ Any modification of the text is allowed under the following conditions:
 Any reproduction of this document in the form of hard copies (on paper or electronic media), with the exception of newLISP distributions and distributions of free operating systems, is allowed only with the written consent of the author.
 
 (C) 2006, Dmitry Chernyak losthost@narod.ru.
-
-
-============================================================================
-Sul linguaggio newLISP - FAQ di Lutz Mueller
-============================================================================
-
-Questa è la traduzione della pagina web relativa alle FAQ (Frequently Asked Questions) su newLISP:
-
-http://www.newLISP.org/index.cgi?FAQ
-
-1.  Cos'è newLISP e cosa posso fare con questo linguaggio?
-2.  Perché newLISP, perché non uno degli altri LISP standard?
-3.  Come posso studiare newLISP?
-4.  Quanto è veloce newLISP?
-5.  newLISP ha le matrici?
-6.  newLISP ha le tabelle hash?
-7.  newLISP ha una gestione automatica della memoria?
-8.  newLISP può passare i dati per riferimento?
-9.  Come funziona il variable scoping in newLISP?
-10. newLISP gestisce il multiprocessing?
-11. Posso usare newLISP per compiti di calcolo distribuiti?
-12. Possiamo utilizzare la metodologia di programmazione orientata agli oggetti?
-13. Cosa sono di pacchetti e moduli?
-14. Quali sono alcune differenze tra newLISP e altri LISP?
-15. newLISP funziona sul sistema operativo XYZ?
-16. newLISP può gestire i caratteri speciali del mio paese e della mia lingua?
-17. L'indicizzazione implicita non infrange le regole di sintassi del LISP?
-18. newLISP può essere incorporato in altri programmi?
-19. Posso mettere il copyright ai miei script anche se newLISP è concesso in licenza GPL?
-20. Dove posso segnalare eventuali bug?
-
-1. Cos'è newLISP e cosa posso fare con questo linguaggio?
----------------------------------------------------------
-newLISP è un linguaggio di scripting simile a LISP per fare quelle cose che si fanno tipicamente con linguaggi di scripting: programmazione per internet, amministrazione di sistema, elaborazione testi, incollare diversi altri programmi insieme, ecc. newLISP è un LISP di scripting per persone che sono affascinate dalla bellezza e dal potere espressivo del LISP, ma che hanno bisogno di una versione ridotta per imparare facilmente l'essenziale.
-
-2. Perché newLISP, perché non uno degli altri LISP standard?
-------------------------------------------------------------
-LISP è un vecchio linguaggio nato, cresciuto e standardizzato in tempi molto diversi da oggi, tempi in cui la programmazione era per persone altamente istruite che hanno progettato programmi. newLISP è un LISP rinato come linguaggio di scripting: pragmatico e casuale, semplice da imparare senza che tu debba conoscere concetti avanzati di informatica. Come ogni buon linguaggio di scripting, newLISP è relativamente semplice da imparare e potente per terminare il proprio lavoro senza problemi.
-
-Vedi anche: "In Praise of Scripting: Real Programming Pragmatics" di Ronald P. Loui
-
-http://web.cs.mun.ca/~harold/Courses/Old/CS2500.F09/Diary/04563874.pdf
-
-newLISP ha un tempo di avvio molto veloce, ha bisogno di poche risorse come spazio su disco e memoria ed ha una pratica API con funzioni native per networking, statistica, machine learning, espressioni regolari, multiprocessing e calcolo distribuito, non aggiunte successivamente con moduli esterni.
-
-3. Come posso studiare newLISP?
--------------------------------
-Almeno all'inizio, studia principalmente newLISP utilizzandolo. Se capisci questo:
-
-(+ 1 2 3); calcola la somma di 1,2,3 => 6
-
-e questo:
-
-(define (double x) (+ x x)); definisce una funzione
-
-(doppio 123); calcola il doppio di 123 => 246
-
-allora hai imparato abbastanza per iniziare a programmare in newLISP. Ci sono alcuni altri concetti come le funzioni anonime, l'applicazione di funzioni, spazi dei nomi (contesti) e l'indicizzazione implicita. Imparerai queste tecniche mentre usi newLISP.
-I libri su LISP o Scheme, che sono due standard di LISP diversi e più vecchi, insegnano concetti che non hai la necessità di imparare per programmare in newLISP. Molte volte newLISP esprime le cose in modo diverso dai LISP tradizionali e in modi più applicabili ai compiti di programmazione odierni e ad un livello superiore più vicino al problema in questione.
-Impara a risolvere i problemi con il modo newLISP! Per una comprensione più approfondita di newLISP, leggi la sezione del "manuale utente" di newLISP, con meno teoria e più esempi. Dai uno sguardo al "manuale di riferimento" per avere un'idea della profondità e dell'ampiezza delle funzioni API integrate.
-Per lavorare seriamente con newLISP occorre leggere il manuale "Code Patterns" con altri suggerimenti e pezzi di codice. Una buona introduzione per principianto è il libro "Introduction to newLISP" oppure i video tutorial che sono disponibili nella pagina ufficiale della documentazione.
-Molte funzioni in newLISP hanno una funzionalità facile da capire, ma sono molto più potenti quando si conoscono e si usano le opzioni speciali di quella funzione. La profondità della API di newLISP non è basata sulla quantità delle funzioni, ma piuttosto sulle opzioni e sulle sintassi multipla di ogni specifica funzione
-Inizia a scrivere il tuo primo programma ora. Guarda le porzioni di codice (snippet) riportate in tutto il manuale e su questo sito web. Se hai domande, iscriviti al forum di discussione di newLISP e chiedi.
-
-4. Quanto è veloce newLISP?
----------------------------
-La velocità di calcolo di newLISP è confrontabile con quella dei popolari strumenti di scripting come Perl o Python, ma si comporta meglio quando si tratta di tempi di avvio e di memoria / spazio su disco.
-Dai un'occhiata ad alcuni benchmark: http://www.newLISP.org/benchmarks/
-Molte funzioni per cui altri linguaggi richiedono l'utilizzo di moduli esterni sono già incorporate in newLISP. Funzioni di networking e metodi matematici come FFT (Fast Fourier Analysis) o funzioni di apprendimento automatico bayesiano sono rapidissime in newLISP. Sono funzioni integrate e non richiedono alcun modulo esterno. Nonostante ciò, newLISP è più piccolo di altri linguaggi di scripting.
-
-5. newLISP ha le matrici?
--------------------------
-Sì. Per le applicazioni con accesso random a liste di grandi dimensioni, l'accesso può essere effettuato più velocemente utilizzando gli array di newLISP.
-
-6. newLISP ha le tabelle hash?
-------------------------------
-newLISP utilizza alberi binari red-black per l'accesso alla memoria associativa quando si gestiscono spazi dei nomi (namespace), dizionari e per l'accesso ai valori-chiave simili alla tecnica hash.
-
-7. newLISP ha una gestione automatica della memoria?
-----------------------------------------------------
-Sì. Ma non è il tipico processo di garbage collection che trovi in altri linguaggi interattivi. Proprio come la garbage collection dei tradizionali linguaggi, newLISP ricicla la memoria inutilizzata. Tuttavia, newLISP lo fa in un modo nuovo, molto più efficiente. La gestione della memoria di newLISP è sincrona senza pause improvvise nell'elaborazione che vengono osservate in linguaggi con garbage collection vecchio stile. L'esclusiva gestione automatica della memoria di newLISP è una delle ragioni della sua velocità, delle sue dimensioni ridotte e dell'uso efficiente della memoria.
-Vedi anche: "Automatic Memory Management in newLISP" di Lutz Mueller
-
-http://www.newLISP.org/MemoryManagement.html
-
-8. newLISP può passare i dati per riferimento?
-----------------------------------------------
-Tutte le funzioni integrate passano liste e stringhe per riferimento sia in ingresso che in uscita. Per passare per riferimento a funzioni definite dall'utente, liste e stringhe possono essere raggruppati in spazi dei nomi particolari (context). Maggiori informazioni su questo argomento sul manuale utente. Dalla versione 10.2, FOOP passa per riferimento anche l'oggetto.
-
-9. Come funziona il variable scoping in newLISP?
-------------------------------------------------
-newLISP ha uno scope dinamico applicato all'interno di contesti o spazi dei nomi separati lessicalmente. I namespace hanno un overhead molto piccolo e possono esisterne a milioni. I contesti in newLISP consentono la chiusura lessicale di più di una funzione lambda e di un oggetto. I contesti possono essere utilizzati per scrivere funzioni con scope lessicale con memoria, moduli software e oggetti. Ciò evita le insidie dello scope dinamico e aiuta a strutturare programmi più grandi.
-
-10. newLISP gestisce il multiprocessing?
-----------------------------------------
-Le versioni Linux / UNIX di newLISP possono eseguire il fork e lo spawn dei processi. Le versioni di Windows possono avviare processi figlio indipendenti. I semafori vengono utilizzati per sincronizzare i processi e la memoria condivisa può essere utilizzata per le comunicazioni tra i processi.
-Su macOS, Linux e altri Unix, l'API Cilk è integrata per facilitare il lancio e la sincronizzazione di più processi, in modo trasparente senza preoccuparsi di semafori, blocchi, ecc. È disponibile un'API di messaggistica asincrona per comunicare tra processi.
-
-11. Posso usare newLISP per compiti di calcolo distribuiti?
------------------------------------------------------------
-Alcune delle applicazioni più grandi di oggi vengono distribuite su più computer, dividendo le loro complesse attività tra più nodi su una rete. newLISP può essere eseguito come server per valutare i comandi inviati da altri client newLISP ad esso connessi. La funzione "net-eval" incapsula tutta la gestione della rete necessaria per comunicare con altri computer sulla rete, distribuire il codice e le attività di calcolo e raccogliere i risultati in un modo bloccante o basato sugli eventi. newLISP può anche fungere da server Web che gestisce le richieste HTTP incluso CGI.
-
-12. Possiamo utilizzare la metodologia di programmazione orientata agli oggetti?
---------------------------------------------------------------------------------
-newLISP offre un nuovo modo di programmazione orientata agli oggetti funzionale chiamata FOOP. Usa gli spazi dei nomi per raccogliere tutti i metodi per una classe di oggetti e usa le normali espressioni S per rappresentare gli oggetti. Per ulteriori dettagli su questo nuovo modo di programmazione orientata agli oggetti in newLISP consultare la serie di video di addestramento "Towards FOOP" nella sezione documentazione e il capitolo "Functional object-oriented programming" nel manuale utente. Dalla versione 10.2 gli oggetti FOOP sono mutabili.
-
-13. Cosa sono  pacchetti e moduli?
-----------------------------------
-newLISP utilizza gli spazi dei nomi per la creazione di pacchetti e moduli. Esistono moduli per l'accesso ai database come MySQL, PostgreSQL e SQLite, nonché ODBC. I moduli aggiuntivi supportano i protocolli Internet FTP, POP3, SMTP e REST. Poiché i nuovi spazi dei nomi di LISP vengono chiusi lessicamente, newLISP consente ai programmatori di trattare i moduli come black box. Questo metodologia è adatta per gruppi di programmatori che lavorano su applicazioni di grandi dimensioni.
-newLISP può anche chiamare funzioni di librerie C condivise su Linux / UNIX e sistemi operativi Windows per espandere le sue funzionalità.
-I moduli possono essere documentati utilizzando il sistema di documentazione automatica  newLISPdoc.
-
-14. Quali sono alcune differenze tra newLISP e altri LISP?
-----------------------------------------------------------
-Le nuove differenze di LISP dagli altri LISP includono: il funzionamento delle espressioni lambda, l'esistenza di namespace (o contesti), il passaggio parametri e, naturalmente, la  API di newLISP (repertorio di funzioni). Nel complesso, il nuovo modo di programmazione del LISP di newLISP lo rendono più veloce, più piccolo e più facile da capire e da apprendere. Per una discussione più dettagliata, vedere "Comparison to Common Lisp and Scheme":
-
-http://www.newLISP.org/index.cgi?page=Differences_to_Other_LISPs
-
-15. newLISP funziona sul sistema operativo XYZ?
------------------------------------------------
-Probabilmente si. newLISP ha un minimo di dipendenze. Utilizza solo librerie C standard per la compilazione. Se il tuo sistema ha strumenti GNU come il compilatore GCC e l'utility make, allora newLISP dovrebbe compilare e linkare immediatamente usando uno dei makefile contenuti nella sua distribuzione sorgente.
-newLISP viene creato utilizzando uno dei numerosi makefile, ciascuno scritto per una piattaforma specifica. Non ci sono script di make complessi. I makefile sono brevi e facili da modificare e adattare se  non sono già inclusi nella tua piattaforma o configurazione.
-
-16. newLISP può gestire i caratteri speciali del mio paese e della mia lingua?
-------------------------------------------------------------------------------
-Nella maggior parte del mondo occidentale, è sufficiente impostare le impostazioni internazionali utilizzando la funzione newLISP "set-locale".
-Più della metà dei paesi del mondo usano una virgola decimale invece di un punto decimale. newLISP leggerà e scriverà correttamente le virgole decimali quando passerà alla corretta locale.
-La maggior parte degli alfabeti nell'emisfero occidentale si adattano a tabelle di codici carattere a 256 codici e ogni carattere richiede un solo byte di 8 bit da codificare. Se la lingua del tuo paese richiede caratteri multibyte per codificarla, allora hai bisogno della versione di newLISP con supporto UTF-8 abilitato. I Makefile per Windows e Linux sono inclusi per compilare le versioni UTF-8 di newLISP. Nella versione UTF-8, molte funzioni di gestione dei caratteri sono in grado di gestire caratteri multibyte. Vedere il capitolo sulla localizzazione e UTF-8 nel manuale per i dettagli.
-
-17. L'indicizzazione implicita non infrange le regole di sintassi del LISP?
----------------------------------------------------------------------------
-Al contrario, l'indicizzazione implicita è un'estensione logica della sintassi LISP. Quando si valutano le espressioni S, il primo elemento viene applicato come una funzione agli elementi restanti nell'espressione che servono come argomenti della funzione. L'indicizzazione implicita consiste semplicemente nel considerare i membri dei tipi di dati numerici, di stringa e di elenco come operatori speciali di indicizzazione quando si trovano nella prima posizione di un'espressione S.
-
-18. newLISP può essere incorporato in altri programmi?
-------------------------------------------------------
-newLISP può essere compilato come libreria condivisa UNIX o DLL Windows (libreria a collegamento dinamico). Di conseguenza, le versioni di libreria condivisa di newLISP possono essere utilizzate all'interno di altri programmi che sono in grado di importare funzioni di libreria condivisa. Altri modi per integrare la tua applicazione con newLISP includono i pipe I/O e le porte di rete.
-Sui sistemi Win32, newLISP è stato utilizzato all'interno di MS Excel, MS Visual Basic e del generatore di applicazioni GUI NeoBook. Su UNIX, newLISP è stato utilizzato all'interno del foglio di calcolo di GNumeric. Su macOS, newLISP è stato utilizzato come linguaggio di estensione per l'editor di BBEdit grazie alla nuova LISP che comunica con BBEdit tramite i pipe di I/O standard. Il Guiserver basato su Java e il vecchio frontend Tcl/Tk per newLISP sono esempi di integrazione di newLISP tramite porte di rete.
-
-19. Copyright sui miei script anche se newLISP è concesso in licenza GPL?
--------------------------------------------------------------------------
-Si, puoi. Le FAQ di gnu.org per la GPL lo spiegano. Finché i tuoi script non usano altro software GPL di terze parti sotto forma di librerie importate o moduli caricati, i tuoi script in newLISP non devono necessariamente avere una licenza GPL. La maggior parte dei moduli sul sito Web di newLISP non ha licenza e non importa altre librerie. Se lo fanno, consultare le licenze di quelle librerie di terze parti.
-newLISP ti permette di distribuire un binario dell'interprete insieme al tuo sorgente. Quando si utilizza newLISP nel software, menzionare sempre il sito Web www.newLISP.org nella documentazione come luogo in cui è disponibile il codice sorgente per newLISP.
-
-20. Dove posso segnalare eventuali bug?
----------------------------------------
-La maggior parte delle segnalazioni di bug risulta dalla mancata lettura della documentazione o dal ritenere che newLISP funzioni come Common Lisp o Scheme. Le domande, i commenti e le segnalazioni di bug sono pubblicati sul forum ufficiale, dove vengono letti da molti altri, dando loro l'opportunità di commentare o dare consigli. Il forum consente anche di inviare messaggi privati.
-
-21. Posso compilare i miei script in programmi eseguibili?
-----------------------------------------------------------
-Si. Il comando: newLISP -x "myscript.lsp" "myscript.exe" genera un file eseguibile sul proprio sistema operativo.
 
 
 ============================================================================
@@ -3632,7 +3616,23 @@ https://weblambdazero.blogspot.com/2010/07/advanced-recursion-in-newLISP.html di
 
 
 ============================================================================
-newLISP - Lisp per tutti
+F-expression - FEXPR
+============================================================================
+
+Nei linguaggi di programmazione Lisp, una FEXPR è una funzione i cui operandi/parametri vengono passati ad essa senza essere valutati. Quando viene chiamato una FEXPR, viene valutato solo il corpo di FEXPR: non si effettuano altre valutazioni se non quando esplicitamente avviato/richiesto dalla FEXPR.
+
+Al contrario, quando viene chiamata una normale funzione Lisp, gli operandi vengono valutati automaticamente e solo i risultati di queste valutazioni vengono passati alla funzione.
+
+Quando viene chiamata una macro Lisp (tradizionale), gli operandi vengono passati in modo non valutato, ma qualunque sia il risultato ritornato dalla macro, questo viene valutato automaticamente.
+
+Nel rigoroso utilizzo originale, una FEXPR è quindi una funzione definita dall'utente i cui operandi vengono passati senza essere valutati. Tuttavia, nell'uso successivo, il termine FEXPR descrive qualsiasi funzione di prima classe/ordine i cui operandi vengono passati non valutati, indipendentemente dal fatto che la funzione sia primitiva o definita dall'utente.
+Le macro di newLISP sono FEXPR.
+
+Kent M. Pitman, "Special Forms in Lisp", Proceedings of the 1980 ACM Conference on Lisp and Functional Programming, 1980, pag. 179–187.
+
+
+============================================================================
+newLISP - Lisp per tutti (Krzysztof Kliś)
 ============================================================================
 
 Traduzione dell'articolo "newLISP - Lisp for the masses" di Krzysztof Kliś
@@ -3696,7 +3696,7 @@ Per esempio,
 
 
 ============================================================================
-Ricorsione avanzata in newLISP
+Ricorsione avanzata in newLISP (Krzysztof Kliś)
 ============================================================================
 
 Traduzione dell'articolo "Advanced Recursion in newLISP" di Krzysztof Kliś
@@ -3792,7 +3792,7 @@ Un "thunk" è una subroutine usata per iniettare un calcolo addizionale in un'al
 
 
 ============================================================================
-Differenze tra newLISP, Scheme e Common LISP di Lutz Mueller
+Differenze tra newLISP, Scheme e Common LISP (Lutz Mueller)
 ============================================================================
 
 Cerchiamo di capire quali sono le differenze tra newLISP, Scheme e Common LISP.
@@ -4000,7 +4000,7 @@ L'utilizzo dell'indicizzazione implicita è opzionale. In parecchi casi permette
 
 
 ============================================================================
-Chiusure, contesti e funzioni con stato di Lutz Mueller
+Chiusure, contesti e funzioni con stato (Lutz Mueller)
 ============================================================================
 
 Scheme utilizza le chiusure per scrivere funzioni generatrici, funzioni con stato e oggetti software. newLISP usa l'espansione delle variabili e spazi di nomi chiamati contesti (context) per fare lo stesso.
@@ -4172,7 +4172,7 @@ newLISP ha la possibilità unica di scrivere funzioni auto-modificanti.
 
 
 ============================================================================
-Creazione di funzioni con ambito lessicale in newLISP di Lutz Mueller
+Creazione di funzioni con ambito lessicale in newLISP (Lutz Mueller)
 ============================================================================
 
 Una funzione predefinita appare e si comporta in modo analogo alle funzioni con ambito statico trovate in altri linguaggi di programmazione. Diverse funzioni possono condividere uno spazio di nomi.
@@ -4238,7 +4238,7 @@ La macro def-static crea innanzitutto un'espressione lambda della funzione da de
 
 
 ============================================================================
-The Y of Why in newLISP di Lutz Mueller
+The Y of Why in newLISP (Lutz Mueller)
 ============================================================================
 
 Il compito è trovare una funzione Y, che può trasformare una funzione ricorsiva in una funzione veramente funzionale senza effetti collaterali, senza variabili libere e con la proprietà del punto fisso (fixed point). Quanto segue è una versione di "The Why of Y" [1] di Richard P. Gabriel modificata per newLISP.
@@ -4369,8 +4369,7 @@ https://mvanier.livejournal.com/2897.html
 
 
 ============================================================================
-Valutazione delle espressioni, Indicizzazione Implicita, Contesti e Funtori di Default
-di Lutz Mueller, 2007-2013.
+Valutazione delle espressioni, Indicizzazione Implicita, Contesti e Funtori di Default (Lutz Mueller)
 ============================================================================
 
 L'indicizzazione esplicita e i funtori di default sono una estensione delle normali regole di valutazione delle espressioni in LISP. I contesti forniscono spazi di nomi lessicamente chiusi (con stato) in un linguaggio di programmazione con ambito (scope) dinamico.
@@ -4724,8 +4723,7 @@ Recursive Functions of Symbolic Expressions and their Computation by Machine.
 
 
 ============================================================================
-Gestione Automatica della Memoria in newLISP
-di Lutz Mueller, 2004-2013
+Gestione Automatica della Memoria in newLISP (Lutz Mueller)
 ============================================================================
 
 ORO (One Reference Only) La gestione automatica della memoria sviluppata per newLISP è un'alternativa rapida e in grado di risparmiare risorse rispetto ai classici algoritmi di garbage collection dei linguaggi di programmazione dinamici e interattivi. Questo articolo spiega come funziona la gestione della memoria di tipo ORO.

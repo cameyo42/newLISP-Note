@@ -2942,3 +2942,525 @@ Poiché pop funziona sia con le liste che con le stringh, la stessa funzione gen
 ;-> "b"
 
 
+-------------------------------
+Shift logico e Shift aritmetico
+-------------------------------
+
+Shift = Spostamento
+
+Lo shift logico e lo shift aritmetico sono operazioni di manipolazione dei bit (operazioni bitwise).
+
+Shift Logico
+------------
+
+Uno "shift logico sinistro" sposta ogni bit di una posizione a sinistra. Il bit meno significativo libero (LSB) viene riempito con zero e il bit più significativo (MSB) viene scartato.
+
+              MSB                         LSB
+             +---+---+---+---+---+---+---+---+
+scartato <-- | 1 | 0 | 1 | 1 | 0 | 0 | 1 | 1 | <-- 0
+             +---+---+---+---+---+---+---+---+
+                  /   /   /   /   /   /   /
+                 /   /   /   /   /   /   /
+                /   /   /   /   /   /   /
+             +---+---+---+---+---+---+---+---+
+             | 0 | 1 | 1 | 0 | 0 | 1 | 1 | 0 |
+             +---+---+---+---+---+---+---+---+
+
+Uno "shift logico destro" sposta ogni bit di una posizione a destra. Il bit meno significativo (LSB) viene scartato e il bit più significativo (MSB) che è vuoto viene riempito con zero.
+
+              MSB                         LSB
+             +---+---+---+---+---+---+---+---+
+             | 1 | 0 | 1 | 1 | 0 | 0 | 1 | 1 | --> scartato
+             +---+---+---+---+---+---+---+---+
+                \   \   \   \   \   \   \
+                 \   \   \   \   \   \   \
+                  \   \   \   \   \   \   \
+             +---+---+---+---+---+---+---+---+
+       0 --> | 0 | 1 | 0 | 1 | 1 | 0 | 0 | 1 |
+             +---+---+---+---+---+---+---+---+
+
+Shift Aritmetico
+----------------
+
+Uno "shift aritmetico sinistro" sposta ogni bit di una posizione a sinistra. Il bit meno significativo  (LSB)  che è vuoto viene riempito con zero e il bit più significativo (MSB) viene scartato. È identico allo shift logico sinistro.
+
+              MSB                         LSB
+             +---+---+---+---+---+---+---+---+
+scartato <-- | 1 | 0 | 1 | 1 | 0 | 0 | 1 | 1 | <-- 0
+             +---+---+---+---+---+---+---+---+
+                  /   /   /   /   /   /   /
+                 /   /   /   /   /   /   /
+                /   /   /   /   /   /   /
+             +---+---+---+---+---+---+---+---+
+             | 0 | 1 | 1 | 0 | 0 | 1 | 1 | 0 |
+             +---+---+---+---+---+---+---+---+
+
+Uno "shift aritmetico destro" sposta ogni bit di una posizione verso destra. Il bit meno significativo (LSB) viene scartato e il bit più significativo (MSB) che è vuoto viene riempito con il valore dell'MSB precedente (ora spostato di una posizione verso destra).
+
+              MSB                         LSB
+             +---+---+---+---+---+---+---+---+
+             | 1 | 0 | 1 | 1 | 0 | 0 | 1 | 1 | --> scartato
+             +---+---+---+---+---+---+---+---+
+               |\   \   \   \   \   \   \
+               | \   \   \   \   \   \   \
+               |  \   \   \   \   \   \   \
+             +---+---+---+---+---+---+---+---+
+             | 1 | 1 | 0 | 1 | 1 | 0 | 0 | 1 |
+             +---+---+---+---+---+---+---+---+
+
+In newLISP viene implementato solo lo "shift aritmetico" (quindi manca solo lo shift logico destro).
+
+Vediamo la definizione delle operazioni di Shift dal manuale:
+
+********************
+>>>funzione << e >>
+********************
+sintassi: (<< int-1 int-2 [int-3 ... ])
+sintassi: (>> int-1 int-2 [int-3 ... ])
+sintassi: (<< int-1)
+sintassi: (>> int-1)
+
+Il numero int-1 viene shiftato (spostato) aritmeticamente verso sinistra o verso destra dal numero di bit dato da int-2, quindi shiftato da int-3 e così via. Ad esempio, gli interi a 64 bit possono essere spostati fino a 63 posizioni. Quando si sposta a destra, il bit più significativo viene duplicato (shift aritmetico):
+
+(>> 0x8000000000000000 1)  → 0xC000000000000000  ; not 0x0400000000000000!
+
+(<< 1 3)      →  8
+(<< 1 2 1)    →  8
+(>> 1024 10)  →  1
+(>> 160 2 2)  → 10
+
+(<< 3)        →  6
+(>> 8)        →  4
+
+Quando int-1 è l'unico argomento << e >> shifta int-1 di un bit.
+
+Le operazioni di shift aritmetico possono essere utilizzate per dividere o moltiplicare un numero  intero. 
+
+Moltiplicazione con lo shift a sinistra
+---------------------------------------
+Il risultato di un'operazione di shift a sinistra è una moltiplicazione per 2^n, dove n è il numero di posizioni di bit shiftate.
+
+Esempio:
+
+10 * 2 = 20
+(<< 10)
+;-> 20
+
+-3 * 4 = -12
+(<< -3 2)
+;-> -12
+
+Divisione con lo shift a destra
+-------------------------------
+Il risultato di un'operazione di shift a destra è una divisione per 2^n, dove n è il numero di posizioni di bit shiftate.
+
+Esempio:
+
+10 / 2 = 5
+(>> 10)
+;-> 5
+
+-20 / 4 = -5
+(>> -20 2)
+;-> -5
+
+
+----------------------
+fold-left e fold-right
+----------------------
+
+La funzione generica "fold" rappresenta il modello base di ricorsione su una lista. Anche se newLISP non ha l'ottimizzazione della ricorsione di coda (tail recursion) è interessante e utile capire il funzionamento di questa funzione.
+
+Supponiamo di voler sommare una lista di numeri (1 2 3 4). Il modo più immediato è il seguente:
+
+1 + 2 + 3 + 4
+
+In altre parole, abbiamo inserito l'operatore "+" in mezzo ad ogni elemento. Valutiamo l'espressione:
+
+((1 + 2) + 3) + 4
+
+(3 + 3) + 4
+
+6 + 4  ==>  10
+
+La funzione "fold-left" fa esattamente questo: prende una procedura che ha due parametri, un valore iniziale e una lista. Nel nostro caso la procedura è "+", il valore iniziale è 0 e la lista è (1 2 3 4). La lista iniziale viene "ripiegata" (fold) a "sinistra" (left), quindi si parte dall'ultima elemento della lista e si procede verso sinistra (questo non è un problema perchè l'operazione di somma gode della proprietà associativa a + b = b + a).
+
+Vediamo un esempio di applicazione della funzione "fold-left" in termini di s-espressioni in notazione prefissa:
+
+(fold-left + '(1 2 3 4) 0)
+
+(+ 4 (+ 3 (+ 2 (+ 1 0))))
+
+(+ 4 (+ 3 (+ 2 1)))
+
+(+ 4 (+ 3 3))
+
+(+ 4 6)  ==>  10
+
+Il valore iniziale è importante perchè se la lista di input è vuota, allora questo è il valore che ritorna la funzione "fold-left".
+
+(fold-left + '() 0)  ==>  0
+
+Così possiamo definire una funzione somma in termini di "fold-left":
+
+(define (somma lst) (fold-left + lst 0))
+
+(somma '(1 2 3 4))   ==>  10
+
+(somma '())          ==>  0
+
+La procedura "fold-left" riduce la lista ad un singolo valore.
+
+Vediamo un altro esempio di utilizzo della funzione "fold-left" con i seguenti parametri:
+
+valore iniziale -> lista vuota '()
+procedura       -> cons
+
+Eseguiamo la valutazione della seguente espressione:
+
+(fold-left cons '(1 2 3) '())
+
+(cons 3 (cons 2 (cons 1 '())))
+
+(cons 3 (cons 2 '(1)))
+
+(cons 3 '(2 1))
+
+==> '(3 2 1)
+
+Il risultato è l'inversione della lista di input.
+
+Vediamo l'implementazione della funzione "fold-left":
+
+(define (fold-left func lst init)
+    (if (null? lst) init
+        (fold-left func (rest lst) (func (first lst) init))))
+
+Proviamo a verificare gli esempi:
+
+(fold-left + '(1 2 3 4) 0)
+;-> 10
+
+(fold-left + '() 0)
+;-> 0
+
+(fold-left cons '(1 2 3) '())
+;-> (3 2 1)
+
+Altri esempi:
+
+(fold-left - '(1 2 3 4) 0)
+;-> 2
+(- 4 (- 3 (- 2 (- 1 0))))
+(- 4 (- 3 (- 2 (1))))
+(- 4 (- 3 1))
+(- 4 2)  ==>  2
+
+(fold-left - '(4 3 2 1) 0)
+;-> -2
+(- 1 (- 2 (- 3 (- 4 0))))
+(- 1 (- 2 (- 3 4)))
+(- 1 (- 2 (- 1)))
+(- 1 3)  ==> -2
+
+La funzione "fold-left" ha una sorella chiamata "fold-right" che "ripiega" la lista a destra, cioè dal primo valore della lista all'ultimo.
+
+(define (fold-right func lst end)
+    (if (null? lst) end
+        (func (first lst) (fold-right func (rest lst) end))))
+
+Se la lista è vuota, restituire il valore finale end. In caso contrario, applicare la funzione al primo elemento della lista e al risultato del "folding" di questa funzione e del valore finale verso il resto della lista. Poiché l'operando di destra viene piegato per primo, abbiamo un "folding"  associativo a destra.
+
+Per la maggior parte delle operazioni associative come + e *, "fold-left" e "fold-right" sono completamente equivalenti. Tuttavia, esiste almeno un'importante operazione binaria che non è associativa: cons. Per tutte le nostre funzioni di manipolazione di liste, quindi, dovremo scegliere tra il "folding" associativo sinistro e destro.
+
+Rivediamo la funzione "fold-left":
+
+(define (fold-left func lst init)
+    (if (null? lst) init
+        (fold-left func (rest lst) (func (first lst) init))))
+
+Questa inizia allo stesso modo della versione associativa di destra, con il test per la lista vuota che restituisce il valore iniziale (accumulatore). Questa volta, tuttavia, applichiamo la funzione all'accumulatore e al primo elemento della lista, invece di applicarla al primo elemento e al risultato del folding della lista. Ciò significa che elaboriamo prima l'inizio, generando una  associatività a sinistra. Una volta raggiunta la fine della lista '(), restituiamo il risultato che abbiamo progressivamente accumulato.
+
+Si noti che func prende i suoi argomenti nell'ordine opposto da "fold-right". In "fold-right", l'accumulatore (end) rappresenta l'ultimo valore da utilizzare dopo il folding della lista. In "fold-left", l'accumulatore (init) rappresenta il calcolo completato per la parte a sinistra della lista. Al fine di preservare la commutatività degli operatori, l'accumulatore deve essere l'argomento a sinistra della nostra operazione in "fold-left", ma l'argomento a destra in "fold-right".
+
+(fold-right - '(1 2 3 4) 0)
+;-> -2
+(- 1 (- 2 (- 3 (- 4 0))))
+(- 1 (- 2 (- 3 4)))
+(- 1 (- 2 -1))
+(- 1 3) ==> -2
+
+(fold-right - '(4 3 2 1) 0)
+;-> 2
+
+La funzione "fold-right" con operatore "cons" e lista vuota '() come valore iniziale, produce una copia della lista:
+
+(fold-right cons '(4 3 2 1) '())
+;-> (4 3 2 1)
+
+Possiamo anche definire una funzione "unfold" che è l'opposto di "fold". Data una funzione unaria, un valore iniziale e un predicato unario, "unfold" continua ad applicare la funzione all'ultimo valore fino a quando il predicato è vero, costruendo una lista mentre procede.
+
+(define (unfold func init pred)
+  (if (pred init)
+      (cons init '())
+      (cons init (unfold func (func init) pred))))
+
+Se il predicato è vero, allora "cons" la lista vuota '() sull'ultimo valore, terminando la lista. Altrimenti, "cons" il risultato di "unfolding" del valore successivo (func init) con il valore corrente.
+
+Esempi:
+
+(unfold (fn(x) (* x x)) 2 (fn(x) (> (* x x) 100)))
+;-> (2 4 16)
+
+(unfold (fn(x) (sqrt x)) 64 (fn(x) (< x 2)))
+;-> (64 8 2.82842712474619 1.681792830507429)
+
+La funzione "fold" (left e right) è una funzione universale, nel senso che ci permette di generare molte altre funzioni. Vediamo alcuni esempi:
+
+Inversione di una lista:
+
+(define (inverte lst) (fold-left cons lst '()))
+(inverte '(4 3 2 1))
+;-> (1 2 3 4)
+
+Somma degli elementi di una lista:
+
+(define (somma lst) (fold-left + lst 0))
+(somma '(1 3 -2 3))
+;-> 5
+
+Moltiplicazione degli elementi di una lista:
+
+(define (moltiplica lst) (fold-left * lst 1))
+(moltiplica '(1 3 -2 3))
+;-> -18
+
+Operatore AND agli elementi di una lista:
+
+(define (and-lst lst) (fold-left and lst true))
+(and-lst '(true true nil))
+;-> nil
+(and-lst '(true true true))
+;-> true
+
+Operatore OR agli elementi di una lista:
+
+(define (or-lst lst) (fold-left or lst nil))
+(or-lst '(true true nil))
+;-> true
+(or-lst '(nil nil))
+;-> nil
+
+Valore massimo degli elementi di una lista:
+
+(define (max-lst lst)
+  (fold-left (fn (old cur) (if (> old cur) old cur)) (rest lst) (first lst)))
+(max-lst '(1 3 3 4 8 3 2 4))
+;-> 8
+
+Valore minimo degli elementi di una lista:
+
+(define (min-lst lst)
+  (fold-left (fn (old cur) (if (< old cur) old cur)) (rest lst) (first lst)))
+(min-lst '(1 3 3 4 8 3 2 4))
+;-> 1
+
+Lunghezza di una lista:
+
+Pensiamo in termini di definizione di un ciclo. L'accumulatore inizia da 0 e viene incrementato di 1 ad ogni iterazione. Questo ci dà sia il nostro valore di inizializzazione, 0, sia la nostra funzione (fn (x y) (+ x 1)). Un altro modo di vedere questo è "La lunghezza di una lista vale 1 + la lunghezza della sotto-lista alla sua sinistra".
+
+(define (lunghezza lst) (fold-left (fn (x y) (+ x 1)) lst 0))
+(lunghezza '(1 2 3 5 8 4 6))
+;-> 7
+
+Filtraggio degli elementi di una lista:
+Questa funzione mantiene solo gli elementi di una lista che soddisfano un predicato, eliminando tutti gli altri:
+
+(define (filtra pred lst) (fold-right (fn (x y) (if (pred x) (cons x y) y)) lst '()))
+(filtra (fn (x) (> x 5)) '(1 45 34 2 3 6))
+;-> 45 34 6
+
+Viene testato il valore corrente rispetto al predicato. Se è vero, sostituisce "cons" con "cons", cioè non cambia nulla. Se è falso, elimina il "cons" e restituisce il resto dell'elenco. Questo elimina tutti gli elementi che non soddisfano il predicato, creando una nuova lista che include solo quelli che lo soddisfano.
+
+Nota: la chiave per programmare con il metodo "fold" è pensare solo in termini di ciò che accade ad ogni iterazione. Questo metodo cattura il modello di ricorsione in una lista e i problemi ricorsivi si risolvono meglio lavorando un passo alla volta.
+
+
+-----------------------
+La divisione di Feynman
+-----------------------
+
+Ecco un puzzle proposto da Feynman: Divisione lunga.
+
+Ogni punto "." (dot) rappresenta una cifra (qualsiasi cifra da 0 a 9). Ogni "A" rappresenta la stessa cifra (ad esempio, un 3). Nessuno dei punti "." ha lo stesso valore di "A" (cioè, nessun punto "." può valere 3 se "A" vale 3).
+
+    ....A..   | .A.
+    ..AA      |------
+    ----      | ..A.
+     ...A     |
+      ..A     |
+    -----     |
+      ....    |
+      .A..    |
+      ----    |
+       ....   |
+       ....   |
+       ----   |
+          .   |
+
+Per risolvere il problema possiamo pensare di lavorare al contrario, cioè calcolare il valore del prodotto tra il risultato e il divisore e sottoponendolo ad alcuni vincoli.
+
+Per cominciare inseriamo le variabili (A, b, c, d, e, f) per il divisore e il risultato:
+
+  il divisore vale:  ".A."  --> bAc
+  il risultato vale: "..A." --> deAf
+
+Quindi calcoliamo il valore (bAc * deAf) = "....A.."
+
+Alcune considerazioni che trasformiamo in vincoli:
+
+1) Il valore cercato ha sette cifre.
+
+2) Il valore A è diverso da b, c, d, e, f.
+
+3) La prima linea della divisione implica che d * bAc deve valere AA modulo 100.
+
+4) La seconda linea della divisione implica che e * bAc deve valere A modulo 10.
+
+5) La terza linea della divisione implica A * bAc è un numero con quattro cifre e la seconda cifra deve essere A.
+
+(define (feynman)
+  (local (a b c d e f m1 m2)
+    (for (a 0 9)
+      (for (b 0 9)
+        (for (c 0 9)
+          (for (d 0 9)
+            (for (e 0 9)
+              (for (f 0 9)
+                ; calcoliamo i due numeri del prodotto
+                ; (moltiplicando e moltiplicatore)
+                (setq m1 (+ (* b 100) (* a 10) c))
+                (setq m2 (+ (* d 1000) (* e 100) (* a 10) f))
+                ; impostiamo i vincoli
+                        ; A è diverso dalle altre cifre
+                (if (and (!= a b) (!= a c) (!= a d) (!= a e) (!= a f)
+                        ; il prodotto ha sette cifre
+                          (< 999999 (* m1 m2) 10000000)
+                        ; il quinto numero deve valere A
+                          (= (int ((explode (string (* m1 m2))) 4)) a)
+                        ; d * bAc deve valere AA modulo 100
+                          (= (% (* d m1) 100) (+ (* a 10) a))
+                        ; e * bAc deve valere A modulo 10
+                          (= (% (* e m1) 10) a)
+                        ; A * bAc deve avere quattro cifre
+                          (< 999 (* a m1))
+                        ; la seconda cifra di A * bAc deve valere A
+                          (= (int ((explode (string (* a m1))) 1)) a)
+                    )
+                    (println (list b a c) { * } (list d e a f))
+                )))))))))
+
+(feynman)
+;-> (4 3 7) * (9 9 3 9)
+;-> (4 8 4) * (7 2 8 9)
+;-> (4 8 4) * (7 7 8 9)
+
+Non abbiamo una soluzione unica, quindi dobbiamo inserire altri vincoli. Prima di fare questo verifichiamo il primo risultato per vedere se stiamo procedendo con la giusta logica:
+
+(* 437 9939)
+;-> 4343343
+
+(* bAc deAf)
+
+; Impostiamo le cifre
+(setq b 4 a 3 c 7 d 9 e 9 f 9)
+; Calcoliamo i due fattori (moltiplicando e moltiplicatore)
+(setq m1 (+ (* b 100) (* a 10) c))
+;-> 437
+(setq m2 (+ (* d 1000) (* e 100) (* a 10) f))
+;-> 9939
+
+; Applichiamo i vincoli:
+; A è diverso dalle altre cifre
+(and (!= a b) (!= a c) (!= a d) (!= a e) (!= a f))
+;-> true
+; il prodotto ha sette cifre
+(< 999999 (* m1 m2) 10000000)
+;-> true
+; il quinto numero deve valere A
+(= (int ((explode (string (* m1 m2))) 4)) a)
+;-> true
+; d * bAc deve valere AA modulo 100
+(= (% (* d m1) 100) (+ (* a 10) a))
+;-> true
+; e * bAc deve valere A modulo 10
+(= (% (* e m1) 10) a)
+;-> true
+; A * bAc deve avere quattro cifre
+(< 999 (* a m1))
+;-> true
+; la seconda cifra di A * bAc deve valere A
+(= (int ((explode (string (* a m1))) 1)) a)
+;-> true
+
+Per ora, sembra che sia tutto corretto.
+Un altro vincolo viene osservando che "e" deve essere inferiore a "d", poiché (e * bAc) è un numero di tre cifre, ma (d * bAc) è un numero di quattro cifre. Questo si traduce nella seguente espressione: (< e d).
+
+Riscriviamo la funzione con il nuovo vincolo:
+
+(define (feynman)
+  (local (a b c d e f m1 m2)
+    (for (a 0 9)
+      (for (b 0 9)
+        (for (c 0 9)
+          (for (d 0 9)
+            (for (e 0 9)
+              (for (f 0 9)
+                ; calcoliamo i due numeri del prodotto
+                ; (moltiplicando e moltiplicatore)
+                (setq m1 (+ (* b 100) (* a 10) c))
+                (setq m2 (+ (* d 1000) (* e 100) (* a 10) f))
+                ; impostiamo i vincoli
+                        ; A è diverso dalle altre cifre
+                (if (and (!= a b) (!= a c) (!= a d) (!= a e) (!= a f)
+                        ; il prodotto ha sette cifre
+                          (< 999999 (* m1 m2) 10000000)
+                        ; il quinto numero deve valere A
+                          (= (int ((explode (string (* m1 m2))) 4)) a)
+                        ; d * bAc deve valere AA modulo 100
+                          (= (% (* d m1) 100) (+ (* a 10) a))
+                        ; e * bAc deve valere A modulo 10
+                          (= (% (* e m1) 10) a)
+                        ; A * bAc deve avere quattro cifre
+                          (< 999 (* a m1))
+                        ; la seconda cifra di A * bAc deve valere A
+                          (= (int ((explode (string (* a m1))) 1)) a)
+                        ; "e" deve essere minore di "d"
+                          (< e d)
+                    )
+                    (println (list b a c) { * } (list d e a f) { -> }
+                             (list a b c d e f))
+                )))))))))
+
+(feynman)
+;-> (4 8 4) * (7 2 8 9) -> (8 4 4 7 2 9)
+
+(* 484 7289)
+;-> 3527876
+
+Quindi la divisione finale è la seguente:
+
+3527876   | 484
+3388      |------
+----      | 7289
+ 1398     |
+  968     |
+-----     |
+  4307    |
+  3872    |
+  ----    |
+   4356   |
+   4356   |
+   ----   |
+      0   |
+
+

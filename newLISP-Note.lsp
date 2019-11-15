@@ -58,6 +58,7 @@ newLISP IN GENERALE
   Attraversamento di stringhe
   Uscita anticipata da funzioni, cicli e blocchi
   Lavorare con file di dati (file i/o)
+  Salvare e caricare gli oggetti
   Struttura dati: il record
   Ambito (scope) dinamico e lessicale
   Contesti
@@ -87,7 +88,7 @@ FUNZIONI VARIE
   Estrarre l'elemento n-esimo da una lista
   Verificare se una lista è palindroma
   Verificare se una stringa è palindroma
-  Zippare due liste
+  Zippare N liste
   Sostituire gli elementi di una lista con un determinato valore
   Raggruppare gli elementi di una lista
   Enumerare gli elementi di una lista
@@ -125,6 +126,8 @@ FUNZIONI VARIE
   Normalizzazione di una lista di numeri
   Trasformazione omografica 2D
   Numeri primi successivi e precedenti
+  Giorno Giuliano (Julian day)
+  Punto interno al poligono
 
 newLISP 99 PROBLEMI (28)
 ========================
@@ -204,6 +207,7 @@ ROSETTA CODE
   Numeri di Tribonacci
   Numeri Eureka
   Abitazioni multiple
+  Toziente di Eulero
 
 PROJECT EULERO
 ==============
@@ -308,6 +312,7 @@ DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Prodotto massimo di due numeri in una lista (Facebook)
   Invertire le vocali (Google)
   Distanza di Hamming tra DNA (Google)
+  Controllo sequenza RNA (Google)
 
 LIBRERIE
 ========
@@ -354,19 +359,22 @@ NOTE LIBERE
   select e unselect (antiselect)
   Generatori 1
   Generatori 2
+  Shift logico e Shift aritmetico
+  fold-left e fold-right
+  La divisione di Feynman
 
 APPENDICI
 =========
   Lista delle funzioni newLISP
   Sul linguaggio newLISP - FAQ (Lutz Mueller)
-  F-expression - FEXPR
   newLISP in 21 minuti (John W. Small)
   newLISP per programmatori (Dmitry Chernyak)
-  notepad++ plugin
+  notepad++ bundle
   Visual Studio Code e newLISP
   Debugger
   Compilare i sorgenti di newLISP
   Ricorsione e ottimizzazione della chiamata di coda (Tail Call Optimization)
+  F-expression - FEXPR
   newLISP - Lisp per tutti (Krzysztof Kliś)
   Ricorsione avanzata in newLISP (Krzysztof Kliś)
   Differenze tra newLISP, Scheme e Common LISP (Lutz Mueller)
@@ -6467,6 +6475,7 @@ Moltiplicare due numeri naturali (interi positivi)
 (moltiplica 20 30)
 ;-> 600
 
+
 ------------------------------
 Divisione solo con sottrazioni
 ------------------------------
@@ -7178,6 +7187,7 @@ Adesso possiamo scrivere la funzione "raggruppa":
 ;-> (((1 2) (3 4)) ((5 6) (7 8)) ((9 10) (11 12)))
 
 Con newLISP possiamo utilizzare la funzione "explode".
+
 
 -----------------------------------
 Enumerare gli elementi di una lista
@@ -9770,6 +9780,430 @@ Scriviamo due funzioni separate "primo+" e "primo-".
 ;-> 3
 
 
+----------------------------
+Giorno Giuliano (Julian day)
+----------------------------
+Il giorno giuliano (Julian Day, JD) è il numero di giorni passati dal mezzogiorno del lunedì 1 gennaio 4713 a.C. (-4012 1 1), che viene considerato il giorno 0 (zero) del calendario giuliano.
+Il sistema dei giorni giuliani fornisce un singolo sistema di datazione che permette di lavorare con differenti calendari (in pratica è un metodo di normalizzazione delle date).
+
+La formula per il calcolo del giorno giuliano è la seguente:
+
+  JDN = (1461 × (Y + 4800 + (M − 14)/12))/4 +(367 × (M − 2 − 12 × ((M − 14)/12)))/12 − (3 × ((Y + 4900 + (M - 14)/12)/100))/4 + D − 32075
+
+dove Y = Year  (anno)
+     M = Month (mese)
+     D = Day   (giorno)
+
+Nota: le divisioni sono tutte intere, i resti vengono scartati.
+
+Preferisco usare le formule (equivalenti) definite da Claus Tondering in "Calendar FAQ" e disponibili al seguente indirizzo web:
+
+ https://stason.org/TULARC/society/calendars/index.html
+
+In cui si trovano molte informazioni interessanti sulle date e sui vari calendari creati dall'uomo.
+
+Vediamo l'algoritmo per il calcolo del giorno giuliano.
+
+Calcolare le seguenti variabili ausiliarie:
+
+  a = (14-month)/12
+  y = year + 4800 - a
+  m = month + 12*a - 3
+
+Per una data nel calendario Gregoriano:
+
+  JD = day + (153*m + 2)/5 + y*365 + y/4 - y/100 + y/400 - 32045
+
+Per una data nel calendario Giuliano:
+
+  JD = day + (153*m + 2)/5 + y*365 + y/4 - 32083
+
+Il calendario Gregoriano viene utilizzato per le date che vanno dal 15 ottobre 1582 d.C. in avanti e il calendario Giuliano viene utilizzato per le date precedenti al 4 ottobre 1582.
+
+Nota: Il calendario Giuliano non ha nulla in comune con il giorno giuliano.
+Il calendario Giuliano fu introdotto da Giulio Cesare nel 45 AC ed era di uso comune fino al 1500, quando i paesi iniziarono ad utilizzare il calendario Gregoriano.
+
+Scriviamo la funzione per il calcolo del numero del giorno giuliano partendo da una data del calendario Gregoriano:
+
+(define (julian-g year month day)
+  (local (a y m)
+    (setq a (/ (- 14 month) 12))
+    (setq y (+ year 4800 (- a)))
+    (setq m (+ month (* 12 a) (- 3)))
+    (+ day (/ (+ (* 153 m) 2) 5) (* y 365) (/ y 4) (- (/ y 100)) (/ y 400) (- 32045))
+  )
+)
+
+(julian-g 2019 11 11)
+;-> 2458799
+
+(julian-g 2019 11 12)
+;-> 2458800
+
+Nota: per gli anni Avanti Cristo (Before Christ) occorre prima convertire l'anno A.C. in un anno negativo (es. 10 A.C. = -9).
+
+Le "Idi di Marzo", il giorno dell'assassinio di Giulio Cesare avvenuto il 15 marzo del 44 A.C.
+
+(julian-g -43 3 15)
+;-> 1705428
+
+Scriviamo la funzione per il calcolo del numero del giorno giuliano partendo da una data del calendario Giuliano:
+
+(define (julian-j year month day)
+  (local (a y m)
+    (setq a (/ (- 14 month) 12))
+    (setq y (+ year 4800 (- a)))
+    (setq m (+ month (* 12 a) (- 3)))
+    (+ day (/ (+ (* 153 m) 2) 5) (* y 365) (/ y 4) (- 32083))
+  )
+)
+
+(julian-j 2019 11 11)
+;-> 2458812
+
+(julian-j 2019 11 12)
+;-> 2458813
+
+Verifichiamo il primo giorno del periodo giuliano:
+
+(julian-j -4712 01 01)
+;-> 0
+
+Per convertire un giorno giuliano in una data del calendario Gregoriano o Giuliano utilizziamo il seguente algoritmo:
+
+Per il calendario Gregoriano:
+
+  a = JD + 32044
+  b = (4*a + 3)/146097
+  c = a - (b*146097)/4
+
+Per il calendario Giuliano:
+
+  a = 0
+  b = 0
+  c = JD + 32082
+
+Poi, per entrambi i calendari:
+
+  d = (4*c + 3)/1461
+  e = c - (1461*d)/4
+  m = (5*e + 2)/153
+
+Infine calcoliamo la data:
+
+  giorno = e - (153*m + 2)/5 + 1
+  mese   = m + 3 - 12*(m/10)
+  anno   = b*100 + d - 4800 + m/10
+
+Scriviamo la funzione che converte da giorno giuliano a data Gregoriana (anno mese giorno):
+
+(define (date-g JD)
+  (local (a b c d e m)
+    (setq a (+ JD 32044))
+    (setq b (/ (+ (* 4 a) 3) 146097))
+    (setq c (- a (/ (* b 146097) 4)))
+    (setq d (/ (+ (* 4 c) 3) 1461))
+    (setq e (- c (/ (* 1461 d) 4)))
+    (setq m (/ (+ (* 5 e) 2) 153))
+    (list
+      (+ (* b 100) d (- 4800) (/ m 10))
+      (+ m 3 (- (* 12 (/ m 10))))
+      (+ e (- (/ (+ (* 153 m) 2) 5)) 1)
+    )
+  )
+)
+
+(julian-g 2019 11 11)
+;-> 2458799
+(date-g 2458799)
+;-> (11 11 2019)
+
+(julian-g 2019 11 12)
+;-> 2458800
+(date-g 2458800)
+;-> (2019 11 12)
+
+(julian-g -43 3 15)
+;-> 1705428
+(date-g 1705428)
+;-> (-43 3 15)
+
+Scriviamo la funzione che converte da giorno giuliano a data Giuliana (anno mese giorno):
+
+(define (date-j JD)
+  (local (a b c d e m)
+    (setq a 0)
+    (setq b 0)
+    (setq c (+ JD 32082))
+    (setq d (/ (+ (* 4 c) 3) 1461))
+    (setq e (- c (/ (* 1461 d) 4)))
+    (setq m (/ (+ (* 5 e) 2) 153))
+    (list
+      (+ (* b 100) d (- 4800) (/ m 10))
+      (+ m 3 (- (* 12 (/ m 10))))
+      (+ e (- (/ (+ (* 153 m) 2) 5)) 1)
+    )
+  )
+)
+
+(julian-j 2019 11 11)
+;-> 2458812
+(date-j 2458812)
+;-> (2019 11 11)
+
+(julian-j 2019 11 12)
+;-> 2458813
+(date-j 2458813)
+;-> (2019 11 12)
+
+(julian-j -4712 01 01)
+;-> 0
+(date-j 0)
+;-> (-4712 1 1)
+
+Adesso vediamo come trovare il giorno della settimana partendo da un giorno giuliano.
+
+Sistema anglosassone
+Se la settimana comincia (giorno 0) con la Domenica (Sunday), allora risulta:
+
+  Sun Mon Tue Wed Thu Fri Sat
+  Dom Lun Mar Mer Gio Ven Sab
+   0   1   2   3   4   5   6
+
+  giorno = mod(JD + 1, 7)
+
+Sistema ISO internazionale
+Se la settimana comincia (giorno 1) con il Lunedi (Monday), allora risulta:
+
+  Mon Tue Wed Thu Fri Sat Sun
+  Lun Mar Mer Gio Ven Sab Dom
+   1   2   3   4   5   6   7
+
+  giorno = mod(J, 7) + 1
+
+(define (jd-day JD) (+ (% JD 7) 1))
+
+(julian-g -43 3 15)
+;-> 1705428
+(date-g 1705428)
+;-> (-43 3 15)
+(jd-day 1705428)
+;-> 5 ; Caio Giulio Cesare è morto di Venerdi
+
+Le date formano uno spazio affine. Ciò significa che il risultato della sottrazione di due date non è un'altra data, ma piuttosto un intervallo di tempo. Ad esempio, il risultato della sottrazione del 1 gennaio 2013 dal 2 gennaio 2013 è l'intervallo di tempo di un giorno. Non è un'altra data.
+
+In uno spazio affine, ci sono due tipi di oggetti, chiamati "punti" e "vettori". In questo caso i punti sono "date" e i vettori sono gli "intervalli" (numero di giorni). Con questi oggetti è possibile eseguire le seguenti operazioni:
+
+Operazione                      Risultato
+  data1 - data2                   intervallo
+  data + intervallo               data
+  data - intervallo               data
+  intervallo1 + intervallo2       intervallo
+  intervallo1 - intervallo2       intervallo
+
+Si noti in particolare che non è possibile sommare due date.
+
+Quindi con le funzioni che abbiamo definito (julian-g, date-g, jd-day ecc.) possiamo effettuare tutte le operazioni elencate sopra. Ad esempio, supponiamo di voler calcolare la differenza tra il 22 aprile 2010 e il 28 novembre 2012:
+
+Calcoliamo il giorno giuliano per ognuna delle due date:
+
+(setq jd1 (julian-g 2010 4 22))
+;-> 2455309
+(setq jd2 (julian-g 2012 11 28))
+;-> 2456260
+
+e poi calcoliamo la differenza:
+
+(setq diff (- jd2 jd1))
+;-> 951
+
+Un altro esempio: che giorno della settimana sarà il natale del 2020 ?
+
+(jd-day (julian-g 2020 12 25))
+;-> 5 ;venerdi
+
+
+-------------------------
+Punto interno al poligono
+-------------------------
+
+Dato un poligono e un punto, determinare se il punto è interno o esterno al poligono.
+
+Un metodo per verificare la presenza di un punto all'interno di una regione è il teorema della curva di Jordan. In sostanza, dice che un punto è all'interno di un poligono se, per qualsiasi raggio da questo punto, c'è un numero dispari di intersezioni del raggio con i segmenti (lati) del poligono. Questo vale per tutti i poligoni (concavi, convessi, con isole). Occorre considerare il caso particolare in cui il raggio interseziona uno o più vertici del poligono.
+
+Esempio:
+
+     |
+  14 |           X---------X
+     |          /           \
+     |         /             \
+  11 |        /         X-----X
+     |       /          |
+     |      /           |
+   8 |     X     p1     X
+     |      \           /
+   6 |    p2 \         /
+     |        \       /
+     |         \     /
+     |          \   /
+     |           \ /
+   1 |            X
+     |
+  ---------------------------------
+     |     5     12     18 21 24
+
+Rappresentazione degli oggetti punto e poligono:
+
+pnt -> (x y)
+
+poly ((x0 y0) (x1 y1) (x2 y2) (x3 y3) ... (xn yn))
+
+Definiamo prima la funzione:
+
+(define (point-in-polygon? pnt poly)
+  (local (numpoint i j res)
+    (setq numpoint (length poly))
+    (setq res nil)
+    (setq i 0)
+    (setq j (- numpoint 1))
+    (while (< i numpoint)
+      (if (and (!= (> (last (poly i)) (last pnt)) (> (last (poly j)) (last pnt)))
+               (< (first pnt)
+                  (add (div (mul (sub (first (poly j)) (first (poly i)))
+                                 (sub (last pnt) (last (poly i))))
+                            (sub (last (poly j)) (last (poly i))))
+                       (first (poly i)))))
+          (setq res (not res))
+      )
+      (setq j i)
+      (setq i (+ i 1))
+    )
+    ; check if point is equal to a vertex of polygon
+    (dolist (el poly)
+      (if (and (= (first el) (first pnt))
+               (= (last el) (last pnt)))
+          (setq res true)))
+    res
+  )
+)
+
+Altra versione con variabili ausiliarie:
+
+(define (point-in-polygon? pnt poly)
+  (local (numpoint i j res a b)
+    (setq numpoint (length poly))
+    (setq res nil)
+    (setq i 0)
+    (setq j (- numpoint 1))
+    (while (< i numpoint)
+      (setq a (mul (sub (first (poly j)) (first (poly i)))
+                   (sub (last pnt) (last (poly i)))))
+      (setq b (sub (last (poly j)) (last (poly i))))
+      (if (and (!= (> (last (poly i)) (last pnt)) (> (last (poly j)) (last pnt)))
+               (< (first pnt) (add (div a b) (first (poly i)))))
+          (setq res (not res))
+      )
+      (setq j i)
+      (setq i (+ i 1))
+    )
+    ; check if point is equal to a vertex of polygon
+    (dolist (el poly)
+      (if (and (= (first el) (first pnt))
+               (= (last el) (last pnt)))
+          (setq res true)))
+    res
+  )
+)
+
+
+Poligono:
+(setq poligono '((12 1) (5 8) (12 14) (21 14) (24 11) (18 11) (18 8)))
+(setq poligono '((12 1) (5 8) (12 14) (21 14) (24 11) (18 11) (18 8) (12 1)))
+
+Punto interno p1:
+(setq p1 '(12 8))
+
+Punto esterno P2:
+(setq p2 '(5 6))
+
+(point-in-polygon? p1 poligono)
+;-> true
+
+(point-in-polygon? p2 poligono)
+;-> nil
+
+(point-in-polygon? '(21 12) poligono)
+;-> true
+
+(point-in-polygon? '(12 11) poligono)
+;-> true
+
+(point-in-polygon? '(21 10) poligono)
+;-> nil
+
+(point-in-polygon? '(5 11) poligono)
+;-> nil
+
+I punti del poligono appartengono al poligono:
+
+(point-in-polygon? '(5 8) poligono)
+;-> true
+
+(point-in-polygon? '(21 14) poligono)
+;-> true
+
+(point-in-polygon? '(12 1) poligono)
+;-> true
+
+Spiegazione rapida:
+Supponendo che il punto si trovi sulla coordinata y, la funzione calcola semplicemente le posizioni x in cui ciascuna dei lati (non orizzontali) del poligono interseziona con y. Conta il numero di posizioni x che sono inferiori alla posizione x del tuo punto. Se il numero di posizioni x è dispari, il punto è all'interno del poligono.
+Un altro modo di visualizzare questo metodo: tracciamo una linea dall'infinito direttamente al tuo punto. Quando questa linea attraversa un lato del poligono siamo all'interno del poligono. Quando attraversiamo di nuovo un lato del poligono, allora siamo fuori. Nuova intersezione, dentro... e così via.
+
+Spiegazione approfondita:
+Il metodo esamina un "raggio" che inizia nel punto testato e si estende all'infinito sul lato destro dell'asse X. Per ogni segmento poligonale, controlla se il raggio lo attraversa. Se il numero totale di attraversamenti di segmenti è dispari, il punto testato viene considerato all'interno del poligono, altrimenti è esterno.
+
+Per capire come viene calcolata la traversata, considerare la seguente figura:
+
+              v2
+              o
+             /
+            / c (intersezione)
+  o -------- x ----------------------> all'infinito
+  t       /
+         /
+        /
+       o
+       v1
+
+Affinché si verifichi l'intersezione, test.y deve essere compreso tra i valori y dei vertici del segmento (v1 e v2). Questa è la prima condizione dell'istruzione if nel metodo. In questo caso, la linea orizzontale deve intersecare il segmento. Resta solo da stabilire se l'intersezione avviene alla destra del punto testato o alla sua sinistra. Ciò richiede di trovare la coordinata x del punto di intersezione, che è:
+
+              t.y - v1.y
+c.x = v1.x + ----------- * (v2.x - v1.x)
+             v2.y - v1.y
+
+Tutto ciò che resta da fare è esaminare i casi particolari:
+
+Se v1.y == v2.y il raggio percorre il segmento e quindi il segmento non ha influenza sul risultato. In effetti, la prima parte dell'istruzione if restituisce false in quel caso.
+Il codice moltiplica prima e solo successivamente divide. Questo viene fatto per supportare differenze molto piccole tra v1.x e v2.x, che potrebbero portare a uno zero dopo la divisione, a causa dell'arrotondamento.
+
+Poi, viene il problema dell'incrocio esattamente su un vertice. Considera i seguenti due casi:
+
+           o                    o
+           |                     \     o
+           | A1                C1 \   /
+           |                       \ / C2
+  o--------x-----------x------------x--------> all'infinito
+          /           / \
+      A2 /        B1 /   \ B2
+        /           /     \
+       o           /       o
+                  o
+
+Ora, per verificare se funziona, controlla tu stesso cosa viene restituito per ciascuno dei 4 segmenti dalla condizione if nel corpo del metodo. Dovresti scoprire che i segmenti sopra il raggio (A1, C1, C2) ricevono un risultato positivo, mentre quelli sotto di esso (A2, B1, B2) ricevono un risultato negativo. Ciò significa che il vertice A contribuisce con un numero dispari (1) al conteggio dei passaggi, mentre B e C contribuiscono con un numero pari (0 e 2, rispettivamente), che è esattamente ciò che si desidera. A è davvero un vero incrocio del poligono, mentre B e C sono solo due casi di "sorvolo".
+
+Infine viene verificato il caso in cui il punto è uguale ad uno dei vertici del poligono.
+
+
 ==========================
 
  newLISP 99 PROBLEMI (28)
@@ -9845,6 +10279,7 @@ Funzione newLISP predefinita: (last lst)
 (last '())
 ;-> ERR: list is empty in function last : '()
 
+
 =======================================================
 N-99-02 Estrarre il penultimo elemento di una lista
 =======================================================
@@ -9867,9 +10302,11 @@ N-99-02 Estrarre il penultimo elemento di una lista
 (penultimo '(1))
 ;-> nil
 
+
 =======================================================
 N-99-03 Estrarre il k-esimo elemento di una lista
 =======================================================
+
 Nota: il primo elemento della lista ha indice zero (zero-based index)
 
 (define (k-esimo lst k)
@@ -9905,6 +10342,7 @@ Funzione predefinita newLISP: (nth int-index lst)
 (nth 0 '())
 ;-> ERR: invalid list index in function nth
 
+
 =======================================================
 N-99-04 Determinare il numero di elementi di una lista
 =======================================================
@@ -9928,9 +10366,11 @@ Funzione predefinita newLISP: (length lst)
 (length '())
 ;-> 0
 
+
 =======================================================
 N-99-05 Invertire una lista
 =======================================================
+
 Per invertire una lista, possiamo salvare il primo elemento, invertire il resto, quindi inserire il vecchio primo elemento in fondo al "resto invertito".
 
 (define (inverti lst)
@@ -10006,7 +10446,7 @@ Così possiamo definire una funzione somma in termini di "fold-left":
 
 La procedura "fold-left" riduce la lista ad un singolo valore, quindi nel caso dell'inversione riduciamo la lista di ingresso ad una singola lista di uscita.
 
-Vediamo un altro esempio di applicazioe di "fold-left":
+Vediamo un altro esempio di applicazione di "fold-left":
 
 Rivediamo brevemente la valutazione della somma: la procedura è l'operatore "+" e il valore inziale vale zero.
 
@@ -10071,12 +10511,12 @@ Altro esempio:
 (fold-right - '(4 3 2 1) 0)
 ;-> 2
 
-La funzione "folder-right" con operatore "cons" e lista vuota '() come valore iniziale, produce una copia della lista.
+La funzione "fold-right" con operatore "cons" e la lista vuota '() come valore iniziale, produce una copia della lista passata.
 
 (fold-right cons '(4 3 2 1) '())
 ;-> (4 3 2 1)
 
-Ritorniamo al nostro problema, iscriviamo la funzione inverti-fold e vediamo come funziona la valutazione:
+Ritorniamo al nostro problema, scriviamo la funzione inverti-fold e vediamo come funziona la valutazione:
 
 (define (inverti-fold lst)
   (fold-left cons lst '()))
@@ -10123,6 +10563,7 @@ Vediamo il tempo di esecuzione di queste funzioni:
 
 Morale: implementate le funzioni per conto vostro in modo da imparare nuovi metodi, ma usate quelle predefinite (se esistono).
 
+
 =======================================================
 N-99-06 Determinare se una lista è palindroma
 =======================================================
@@ -10136,9 +10577,11 @@ N-99-06 Determinare se una lista è palindroma
 (palindroma? '(e p r e s a l))
 ;-> nil
 
+
 =======================================================
 N-99-07 Appiattire una lista annidata
 =======================================================
+
 Una lista piatta e' una lista senza sottoliste, cioe' una lista costituita solo da atomi.
 
 (define (piatta lst)
@@ -10167,9 +10610,11 @@ Punto terzo
 
 Questi tre punti sono caratteristici per ogni funzione che lavora sulle liste di liste.
 
+
 =======================================================
 N-99-08 Elimina gli elementi duplicati consecutivi di una lista
 =======================================================
+
 Se una lista ordinata contiene elementi ripetuti, devono essere sostituiti con una singola copia dell'elemento. L'ordine degli elementi non deve essere cambiato.
 
 Esempio: (elimina-duplicati '(1 1 1 2 2 3 4 4 5 5 5 6 6 6)) ==> (1 2 3 4 5 6)
@@ -10187,6 +10632,7 @@ Esempio: (elimina-duplicati '(1 1 1 2 2 3 4 4 5 5 5 6 6 6)) ==> (1 2 3 4 5 6)
 
 (elimina-duplicati '(a a b b c c c))
 ;-> (a b c)
+
 
 =======================================================
 N-99-09 Unire gli elementi duplicati consecutivi di una lista in sottoliste
@@ -10222,9 +10668,11 @@ N-99-09 Unire gli elementi duplicati consecutivi di una lista in sottoliste
 (raggruppa '(a a))
 ;-> ((a a))
 
+
 =======================================================
 N-99-10 Run-length encode di una lista
 =======================================================
+
 Implementiamo il metodo di compressione Run Length Encoding ad una lista. Gli elementi consecutivi duplicati sono codificati come liste (N E) dove N è il numero di duplicati dell'elemento E.
 
 newLISP permette di utilizzare diversi stili di programmazione, infatti per questo problema scriveremo la funzione di rle encode sia in uno stile imperativo (iterativo), che in uno stile funzionale (ricorsivo).
@@ -10305,9 +10753,11 @@ Versione ricorsiva:
 
 La versione iterativa è 2.5 volte più veloce.
 
+
 =======================================================
 N-99-11 Run-length encode di una lista (modificato)
 =======================================================
+
 A differenza dell'esercizio precedente se un elemento non ha duplicati, allora viene semplicemente copiato nella lista risultante.
 Solo gli elementi con duplicati assumono la forma (num elemento).
 
@@ -10357,9 +10807,11 @@ Adesso definiamo la funzione per il metodo rle encode modificato:
 (rle-encode-2 '(a a a a b c c a a d e e e e))
 ;-> ((4 a) b (2 c) (2 a) d (4 e))
 
+
 =======================================================
 N-99-12 Run-length decode di una lista
 =======================================================
+
 Esempio: (rle-decode '((3 a) (2 b) (2 c) (1 a) (2 d)))
 ;-> (a a a b b c c a d d))
 
@@ -10390,9 +10842,11 @@ Esempio: (rle-decode '((3 a) (2 b) (2 c) (1 a) (2 d)))
 (rle-decode (rle-encode '(a a a a b c c a a d e e e e f)))
 ;-> (a a a a b c c a a d e e e e f)
 
+
 =======================================================
 N-99-13 Run-length encode di una lista (diretto)
 =======================================================
+
 Implementare il metodo di compressione dei dati run-length encode direttamente. Cioè non creare in modo esplicito le sottoliste che contengono l'elemento duplicato, come nel problema P09, ma contarli direttamente. Come nel problema P11, semplificare la lista dei risultati sostituendo le liste dei singleton (1 X) con X.
 
 (define (rle-encode-direct lst1)
@@ -10410,9 +10864,11 @@ Implementare il metodo di compressione dei dati run-length encode direttamente. 
 (rle-encode-direct '(a a a a b c c a a d e e e e))
 ;-> ((4 a) b (2 c) (2 a) d (4 e))
 
+
 =======================================================
 N-99-14 Duplicare gli elementi di una lista
 =======================================================
+
 Esempio: (duplicare '(a b c c d)) ==> (a a b b c c c c d d)
 
 (define (duplica xs)
@@ -10430,6 +10886,7 @@ Esempio: (duplicare '(a b c c d)) ==> (a a b b c c c c d d)
 
 (duplicare '((a b) c (d (e))))
 ;-> ((a b) (a b) c c (d (e)) (d (e)))
+
 
 =======================================================
 N-99-15 Replicare per n volte gli elementi di una lista
@@ -10457,6 +10914,7 @@ Esempio: (replica '(a b c) 3)  ==>  (a a a b b b c c c)
 (replica '((a) (b c) d) 2)
 ;-> ((a) (a) (b c) (b c) d d)
 
+
 =======================================================
 N-99-16 Eliminare gli elementi da una lista per ogni k
 =======================================================
@@ -10482,6 +10940,7 @@ Esempio: (elimina-ogni '(a b c d e f g) 2) ==> (a c e g)
 (elimina-ogni '(a b c d e f g) 0)
 ;-> (a b c d e f g)
 
+
 =======================================================
 N-99-17 Dividere una lista in due parti (la lunghezza della prima lista è un parametro)
 =======================================================
@@ -10502,9 +10961,11 @@ N-99-17 Dividere una lista in due parti (la lunghezza della prima lista è un pa
 (divide-lista '() 3)
 ;-> (() ())
 
+
 =======================================================
 N-99-18 Estrarre una parte di una lista
 =======================================================
+
 Dati due indici, I e K, creare una lista contenente gli elementi tra l'I-esimo e il K-esimo della lista originale (entrambi i limiti inclusi). Il primo elemento ha indice 1 (uno).
 
 (define (prendi-1 lst n)
@@ -10547,6 +11008,7 @@ Se invece consideriamo che il primo elemento ha indice 0 (zero), basta modificar
 (estrai-0 '(a b c d e f g h i k) 0 1)
 ;-> (a b)
 
+
 =======================================================
 N-99-19 Ruotare una lista di N posti a sinistra
 =======================================================
@@ -10577,6 +11039,7 @@ N-99-19 Ruotare una lista di N posti a sinistra
 =======================================================
 N-99-20 Eliminare l'elemento k-esimo di una lista
 =======================================================
+
 Il primo elemento della lista ha indice 0 (zero).
 
 (define (elimina-a lst k)
@@ -10599,9 +11062,11 @@ Il primo elemento della lista ha indice 0 (zero).
 (elimina-a '(a b c d e) 25)
 ;-> (a b c d e)
 
+
 =======================================================
 N-99-21 Inserire un elemento in una data posizione di una lista
 =======================================================
+
 Il primo elemento della lista ha indice 1 (uno).
 
 Esempio: (inserisci-a 'z '(a b c d) 2)  ==>  (a z b c d)
@@ -10631,6 +11096,7 @@ Esempio: (inserisci-a 'z '(a b c d) 2)  ==>  (a z b c d)
 
 (inserisci-a 'alfa '(a b c d) 1000)
 ;-> (a b c d)
+
 
 =======================================================
 N-99-22 Creare una lista che contiene tutti i numeri interi di un intervallo
@@ -10665,6 +11131,7 @@ Un altro metodo per la stessa funzione (gestisce anche intervalli decrescenti):
 (range 10 2)
 (;-> (10 9 8 7 6 5 4 3 2)
 
+
 =======================================================
 N-99-23 Estrarre un dato numero di elementi da una lista in maniera casuale (random)
 =======================================================
@@ -10674,6 +11141,7 @@ N-99-23 Estrarre un dato numero di elementi da una lista in maniera casuale (ran
 
 (estrai-random '(a b c d e f g h) 3)
 ;-> (h g b)
+
 
 =======================================================
 N-99-24 Lotto: estrarre N numeri differenti da un intervallo 1..M
@@ -10690,6 +11158,7 @@ N-99-24 Lotto: estrarre N numeri differenti da un intervallo 1..M
 ;->  65 75 23 39 32 36 16 82 4 43 67 31 15 63 12 29 1 48 28 6 77 9 38 60 74 25 40 51
 ;->  10 89 18 88 46 71 50 7 2 22 68 35 70 20 57 49 59 44 54 87 62 34 21 56 84 85 3 2
 ;->  7 66 58 5 52 14 83 24)
+
 
 =======================================================
 N-99-25 Generare le permutazioni degli elementi di una lista
@@ -10799,6 +11268,7 @@ Questo algoritmo produce tutte le permutazioni scambiando un elemento ad ogni it
 
 Questa funzioni è la più veloce tra tutte quelle presentate.
 
+
 =======================================================
 N-99-26 Generare le combinazioni di K oggetti distinti tra gli N elementi di una lista
 =======================================================
@@ -10825,6 +11295,7 @@ N-99-26 Generare le combinazioni di K oggetti distinti tra gli N elementi di una
 
 (combinazioni 3 '(a b c))
 ;-> ((a b c))
+
 
 =======================================================
 N-99-27 Raggruppare gli elementi di un insieme in sottoinsiemi disgiunti
@@ -11065,6 +11536,7 @@ N-99-27 Raggruppare gli elementi di un insieme in sottoinsiemi disgiunti
 ;->  ((roby vero) ((andrea eva) (luca vale tommy)))
 ;->  ((roby vero) ((andrea tommy) (luca vale eva)))
 ;->  ((roby vero) ((eva tommy) (luca vale andrea))))
+
 
 =======================================================
 N-99-28 Ordinare una lista in base alla lunghezza delle sottoliste
@@ -16783,6 +17255,156 @@ Comunque con diversi tentativi si possono ottenere risultati sorprendenti con la
 In questo caso è stata più veloce della funzione deterministica.
 
 
+------------------
+TOZIENTE DI EULERO
+------------------
+
+La funzione φ (phi) di Eulero o funzione toziente, è una funzione definita, per ogni intero positivo n, come il numero degli interi compresi tra 1 e n che sono coprimi con n. Ad esempio, phi(8) = 4 poiché i numeri coprimi di 8 sono quattro: 1, 3, 5 e 7.
+
+Funzione per verificare se due numeri sono coprimi:
+
+(define (coprimi? a b) (= (gcd a b) 1))
+
+Funzione per calcolare il toziente:
+
+(define (toziente-coprimi num)
+  (let (toz 0)
+    (dotimes (i (- num 1))
+      ;(println (+ i 1) { } num { } (coprimi? (+ i 1) num))
+      (if (coprimi? (+ i 1) num)
+          (++ toz)
+          toz))))
+
+(toziente-coprimi 8)
+;-> 4
+(toziente-coprimi 10090)
+;-> 4032
+(toziente-coprimi 5e6)
+;-> 2000000
+
+Questa funzione ha complessità temporale O(n).
+
+Un'altro metodo per calcolare il toziente è quello di utilizzare la seguente formula:
+
+phi(n) = n * [(1 - 1/p(1)) * (1 - 1/p(2)) * ... * (1 - 1/p(r))]
+
+dove p(1), p(2), ... p(r) sono i fattori primi distinti del numero n.
+
+Utilizzando la fattorizzazione, il problema ha la stessa complessità temporale di quella della fattorizzazione di un numero O(sqrt n).
+
+(define (toziente-factor num)
+  (let ((result num) (i 2))
+    ; Per ogni fattore primo di n (fattore p),
+    ; moltiplica il risultato per (1 - 1/p)
+    (while (<= (* p p) num)
+      ; Controlla se p è un fattore primo
+      (if (= 0 (% num p))
+          ; Se è vero, allora aggiorna num e il risultato
+          (begin
+          (while (= 0 (% num p)) (setq num (/ num p)))
+          (setq result (mul result (sub 1 (div 1 p))))
+          )
+      )
+      (++ p)
+    )
+    ; Se n ha un fattore primo maggiore di sqrt (n)
+    ; (Può esserci al massimo uno di questi fattori primi)
+    (if (> num 1)
+        (setq result (mul result (sub 1 (div 1 num))))
+    )
+    (round result 0)
+  )
+)
+
+(toziente-factor 8)
+;-> 4
+(toziente-factor 10090)
+;-> 4032
+(toziente-factor 5e6)
+;-> 2000000
+
+Per evitare i calcoli floating-point possiamo utilizzare il seguente metodo: contare tutti i fattori primi e i loro multipli e sottrarre questo conteggio da n per ottenere il valore della funzione toziente (i fattori primi e i multipli di fattori primi non hanno gcd = 1).
+
+I passi da seguire sono i seguenti:
+
+1) Inizializza il risultato come num
+2) Considera ogni numero 'p' (dove 'p' varia da 2 a num).
+    Se p divide n, procedi come segue
+    a) Sottrai tutti i multipli di p da 1 a n (tutti i multipli di p
+       hanno gcd maggiore di 1 (almeno p) con num)
+    b) Aggiorna n dividendolo ripetutamente per p.
+3) Se il valore ridotto di num è superiore a 1, rimuovi tutti i multipli
+    di num dal risultato.
+
+(define (toziente-factor-int num)
+  (let ((result num) (i 2))
+    (while (<= (* i i) num)
+      (if (= 0 (% num i))
+          (begin
+          (while (= 0 (% num i)) (setq num (/ num i)))
+          (setq result (- result (/ result i)))
+          )
+      )
+      (++ i)
+    )
+    (if (> num 1)
+        (setq result (- result (/ result num)))
+    )
+    result
+  )
+)
+
+(toziente-factor-int 8)
+;-> 4
+(toziente-factor-int 10090)
+;-> 4032
+(toziente-factor-int 5e6)
+;-> 2000000
+
+Adesso scriviamo una nuova funzione per il calcolo del toziente utilizzando le primitive di newLISP (in stile LISP):
+
+(define (toziente num)
+    (round (mul num (apply mul (map (fn (x) (sub 1 (div 1 x))) (unique (factor num))))) 0))
+
+Calcola la lista dei fattori unici:
+(unique (factor num))
+
+Applica la funzione (1 - 1/p) agli elementi della lista dei fattori unici:
+(map (fn (x) (sub 1 (div 1 x))) ...
+
+Moltiplica n e tutti gli elementi della lista
+(mul num (apply mul ...
+
+(toziente 8)
+;-> 4
+(toziente 10090)
+;-> 4032
+(toziente 5e6)
+;-> 200000
+
+Non ci resta che verificare quale funzione è la più veloce.
+
+(time (toziente-coprimi 5e6))
+;-> 1884.903
+(time (toziente-factor 5e6))
+;-> 0
+(time (toziente-factor-int 5e6))
+;-> 0
+(time (toziente 5e6))
+;-> 0
+
+Le ultime tre funzioni devono essere differenziate ripetendo il calcolo per un certo numero di volte (50000):
+
+(time (toziente-factor 5e6) 50000)
+;-> 175.132
+(time (toziente-factor-int 5e6) 50000)
+;-> 164.518
+(time (toziente 5e6) 50000)
+;-> 144.019
+
+Il risultato è conforme alle aspettative logiche.
+
+
 ================
 
  PROJECT EULERO
@@ -16841,7 +17463,7 @@ In questo caso è stata più veloce della funzione deterministica.
 |    49    |  296962999629 |        19  |
 |    50    |  997651       |     27113  |
 
-https://projecteuler.net/archives
+Sito web: https://projecteuler.net/archives
 
 Cos'è Project Euler?
 Project Euler è una serie di stimolanti problemi di programmazione matematica/informatica che richiedono molto più di semplici approfondimenti matematici da risolvere. Sebbene la matematica ti aiuti ad arrivare a metodi eleganti ed efficienti, per risolvere la maggior parte dei problemi sarà necessario l'uso di un computer e competenze di programmazione.
@@ -23842,7 +24464,7 @@ Poi scriviamo il programma per trovare l'n-esimo numero Brutto:
 
 
 -----------------
-Numeri poligonali
+Numeri Poligonali
 -----------------
 
 Un numero poligonale è un numero che può essere rappresentato mediante uno schema geometrico regolare in modo da raffigurare un poligono regolare.
@@ -30351,7 +30973,6 @@ Possiamo scrivere la funzione:
 Parità di un numero (McAfee)
 ----------------------------
 
-
 Parità: la parità di un numero si riferisce al numero di bit che valgono 1.
 Il numero ha "parità dispari", se contiene un numero dispari di 1 bit ed è "parità pari" se contiene un numero pari di 1 bit.
 
@@ -30411,6 +31032,37 @@ Per controllare la correttezza utilizziamo le funzioni di conversione tra numero
 
 (parita 1113)
 ;-> dispari
+
+
+---------------------------------------
+Minimo e massimo di due numeri (McAfee)
+---------------------------------------
+
+Scrivere due funzioni per calcolare il minimo e il massimo tra due numeri utilizzando gli operatori bitwise.
+
+Le formule per trovare il minimo e il massimo tra due numeri sono le seguenti:
+
+minimo  = y + ((x - y) & ((x - y) >> (sizeof(int) * CHAR_BIT - 1)))
+
+Questo metodo shifta la sottrazione di x e y di 31 (se la dimensione dell'intero è 32). Se (x-y) è minore di 0, allora ((x-y) >> 31) sarà 1. Se (x-y) è maggiore o uguale a 0, allora ((x - y) >> 31) sarà 0. Quindi se (x >= y), otteniamo il minimo come (y + ((x-y) & 0)) che è y.
+Se x < y, otteniamo il minimo come (y + ((x-y) & 1)) che è x.
+
+Allo stesso modo, per trovare il massimo utilizzare la formula:
+
+massimo = x - ((x - y) & ((x - y) >> (sizeof(int) * CHAR_BIT - 1)))
+
+Per interi a 64 bit:
+
+(define (minimo x y)  (+ y (& (- x y) (>> (- x y) 63))))
+
+(define (massimo x y) (- x (& (- x y) (>> (- x y) 63))))
+
+(minimo 10 30)
+;-> 10
+(minimo 100 30)
+;-> 30
+
+Nota: queste funzioni producono un risultato errato per valori maggiori di (2^62 - 1) = 4611686018427387903 o minori di -(2^62 - 1) = -4611686018427387903.
 
 
 ------------------------------
@@ -30660,14 +31312,15 @@ La seguente funzione controlla la correttezza delle parentesi:
 ;-> true
 (par "{ { [ [ } } [ ( ) ] ] ]")
 ;-> nil
-(par "{ { [ [ [ ( ) ] ] ] } { [ ( ) ] }}")
+(par "{ { [ [ [ ( ) ] ] ] } { [ ( ) ] } }")
 ;-> true
+(par "{ { [ [ [ ( [ ] ) ] ] ] } { [ ( ) ] } }")
+;-> nil
 
 
 ------------------------------------------------
 K punti più vicini (K Nearest points) (LinkedIn)
 ------------------------------------------------
-
 
 Data una lista di N punti (xi, yi) sul piano cartesiano 2D, trova i K punti più vicini ad un punto centrale C (xc, yc). La distanza tra due punti su un piano è la distanza euclidea.
 È possibile restituire la risposta in qualsiasi ordine.
@@ -31382,7 +32035,6 @@ Distanza di Hamming tra DNA (Google)
 Date due sequenze di DNA (stringhe), determinare la distanza di Hamming. In pratica, occorre calcolare il numero di caratteri diversi tra due stringhe della stessa lunghezza.
 
 La struttura canonica del DNA ha quattro basi: Adenina (Adenine) (A), Citosina (Cytosine) (C), Guanina (Guanine) (G), e Timina (Thymine) (T).
-La struttura canonica del RNA ha quattro basi: Adenina (Adenine) (A), Citosina (Cytosine) (C), Guanina (Guanine) (G), e Uracile (Uracile) (U).
 
 (define (hamming-dist dna1 dna2)
   (let ((nl1 (explode dna1)) (nl2 (explode dna2)))
@@ -31394,6 +32046,61 @@ La struttura canonica del RNA ha quattro basi: Adenina (Adenine) (A), Citosina (
 
 (hamming-dist dna1 dna2)
 ;-> 3
+
+
+-------------------------------
+Controllo sequenza RNA (Google)
+-------------------------------
+
+Verificare se una sequenza RNA (stringa) contiene caratteri diversi da "A", "C", "G" e "U".
+La funzione deve restituire la lista dei caratteri diversi (i caratteri multipli devono comparire una sola volta).
+
+La struttura canonica del RNA ha quattro basi: Adenina (Adenine) (A), Citosina (Cytosine) (C), Guanina (Guanine) (G), e Uracile (Uracile) (U).
+
+Il primo algoritmo che viene in mente è quello di scorrere la stringa e collezionare in una lista tutti i caratteri che sono diversi da "A", "C", "G" e "U" (al termine occorre eliminare dalla lista i caratteri multipli).
+
+(define (check-rna rna)
+  (let (out '())
+    (dolist (el (explode rna))
+      (cond ((or (= el "A") (= el "C") (= el "G") (= el "U")) out)
+            (true (push el out -1)))) (unique out)))
+
+(setq rna1 "AAUCCGCUAG")
+(check-rna rna1)
+;-> ()
+
+(setq rna2 "AAACCCUUAG")
+(check-rna rna2)
+;-> ()
+
+(setq rna3 "ACCGTB ABABAUKL")
+(check-rna rna3)
+;-> ("T" "B" " " "K" "L")
+
+Utilizzando le funzioni built-in sugli insiemi possiamo scrivere la funzione in un modo diverso:
+
+(define (checkrna dna)
+  (difference (explode dna) '("A" "C" "G" "U")))
+
+(checkrna rna1)
+;-> ()
+(checkrna rna2)
+;-> ()
+(checkrna rna3)
+;-> ("T" "B" " " "K" "L")
+
+Vediamo la differenza di velocità:
+
+(setq rna4
+ "AGCBFHTGHFGFHSGBCVGTSGAFSRFDUGDTFGRGFGDGRKIDUHFGUAACGTAGCUBFHTGHFGFHSGBCVGTSGAFSRFDGDTFGR")
+
+(time (check-rna rna4) 25000)
+;-> 1174.073
+
+(time (checkrna rna4) 25000)
+;-> 524.879
+
+Le funzioni built-in sono sempre molto veloci.
 
 
 ==========
@@ -36646,6 +37353,528 @@ Poiché pop funziona sia con le liste che con le stringh, la stessa funzione gen
 ;-> "b"
 
 
+-------------------------------
+Shift logico e Shift aritmetico
+-------------------------------
+
+Shift = Spostamento
+
+Lo shift logico e lo shift aritmetico sono operazioni di manipolazione dei bit (operazioni bitwise).
+
+Shift Logico
+------------
+
+Uno "shift logico sinistro" sposta ogni bit di una posizione a sinistra. Il bit meno significativo libero (LSB) viene riempito con zero e il bit più significativo (MSB) viene scartato.
+
+              MSB                         LSB
+             +---+---+---+---+---+---+---+---+
+scartato <-- | 1 | 0 | 1 | 1 | 0 | 0 | 1 | 1 | <-- 0
+             +---+---+---+---+---+---+---+---+
+                  /   /   /   /   /   /   /
+                 /   /   /   /   /   /   /
+                /   /   /   /   /   /   /
+             +---+---+---+---+---+---+---+---+
+             | 0 | 1 | 1 | 0 | 0 | 1 | 1 | 0 |
+             +---+---+---+---+---+---+---+---+
+
+Uno "shift logico destro" sposta ogni bit di una posizione a destra. Il bit meno significativo (LSB) viene scartato e il bit più significativo (MSB) che è vuoto viene riempito con zero.
+
+              MSB                         LSB
+             +---+---+---+---+---+---+---+---+
+             | 1 | 0 | 1 | 1 | 0 | 0 | 1 | 1 | --> scartato
+             +---+---+---+---+---+---+---+---+
+                \   \   \   \   \   \   \
+                 \   \   \   \   \   \   \
+                  \   \   \   \   \   \   \
+             +---+---+---+---+---+---+---+---+
+       0 --> | 0 | 1 | 0 | 1 | 1 | 0 | 0 | 1 |
+             +---+---+---+---+---+---+---+---+
+
+Shift Aritmetico
+----------------
+
+Uno "shift aritmetico sinistro" sposta ogni bit di una posizione a sinistra. Il bit meno significativo  (LSB)  che è vuoto viene riempito con zero e il bit più significativo (MSB) viene scartato. È identico allo shift logico sinistro.
+
+              MSB                         LSB
+             +---+---+---+---+---+---+---+---+
+scartato <-- | 1 | 0 | 1 | 1 | 0 | 0 | 1 | 1 | <-- 0
+             +---+---+---+---+---+---+---+---+
+                  /   /   /   /   /   /   /
+                 /   /   /   /   /   /   /
+                /   /   /   /   /   /   /
+             +---+---+---+---+---+---+---+---+
+             | 0 | 1 | 1 | 0 | 0 | 1 | 1 | 0 |
+             +---+---+---+---+---+---+---+---+
+
+Uno "shift aritmetico destro" sposta ogni bit di una posizione verso destra. Il bit meno significativo (LSB) viene scartato e il bit più significativo (MSB) che è vuoto viene riempito con il valore dell'MSB precedente (ora spostato di una posizione verso destra).
+
+              MSB                         LSB
+             +---+---+---+---+---+---+---+---+
+             | 1 | 0 | 1 | 1 | 0 | 0 | 1 | 1 | --> scartato
+             +---+---+---+---+---+---+---+---+
+               |\   \   \   \   \   \   \
+               | \   \   \   \   \   \   \
+               |  \   \   \   \   \   \   \
+             +---+---+---+---+---+---+---+---+
+             | 1 | 1 | 0 | 1 | 1 | 0 | 0 | 1 |
+             +---+---+---+---+---+---+---+---+
+
+In newLISP viene implementato solo lo "shift aritmetico" (quindi manca solo lo shift logico destro).
+
+Vediamo la definizione delle operazioni di Shift dal manuale:
+
+********************
+>>>funzione << e >>
+********************
+sintassi: (<< int-1 int-2 [int-3 ... ])
+sintassi: (>> int-1 int-2 [int-3 ... ])
+sintassi: (<< int-1)
+sintassi: (>> int-1)
+
+Il numero int-1 viene shiftato (spostato) aritmeticamente verso sinistra o verso destra dal numero di bit dato da int-2, quindi shiftato da int-3 e così via. Ad esempio, gli interi a 64 bit possono essere spostati fino a 63 posizioni. Quando si sposta a destra, il bit più significativo viene duplicato (shift aritmetico):
+
+(>> 0x8000000000000000 1)  → 0xC000000000000000  ; not 0x0400000000000000!
+
+(<< 1 3)      →  8
+(<< 1 2 1)    →  8
+(>> 1024 10)  →  1
+(>> 160 2 2)  → 10
+
+(<< 3)        →  6
+(>> 8)        →  4
+
+Quando int-1 è l'unico argomento << e >> shifta int-1 di un bit.
+
+Le operazioni di shift aritmetico possono essere utilizzate per dividere o moltiplicare un numero  intero. 
+
+Moltiplicazione con lo shift a sinistra
+---------------------------------------
+Il risultato di un'operazione di shift a sinistra è una moltiplicazione per 2^n, dove n è il numero di posizioni di bit shiftate.
+
+Esempio:
+
+10 * 2 = 20
+(<< 10)
+;-> 20
+
+-3 * 4 = -12
+(<< -3 2)
+;-> -12
+
+Divisione con lo shift a destra
+-------------------------------
+Il risultato di un'operazione di shift a destra è una divisione per 2^n, dove n è il numero di posizioni di bit shiftate.
+
+Esempio:
+
+10 / 2 = 5
+(>> 10)
+;-> 5
+
+-20 / 4 = -5
+(>> -20 2)
+;-> -5
+
+
+----------------------
+fold-left e fold-right
+----------------------
+
+La funzione generica "fold" rappresenta il modello base di ricorsione su una lista. Anche se newLISP non ha l'ottimizzazione della ricorsione di coda (tail recursion) è interessante e utile capire il funzionamento di questa funzione.
+
+Supponiamo di voler sommare una lista di numeri (1 2 3 4). Il modo più immediato è il seguente:
+
+1 + 2 + 3 + 4
+
+In altre parole, abbiamo inserito l'operatore "+" in mezzo ad ogni elemento. Valutiamo l'espressione:
+
+((1 + 2) + 3) + 4
+
+(3 + 3) + 4
+
+6 + 4  ==>  10
+
+La funzione "fold-left" fa esattamente questo: prende una procedura che ha due parametri, un valore iniziale e una lista. Nel nostro caso la procedura è "+", il valore iniziale è 0 e la lista è (1 2 3 4). La lista iniziale viene "ripiegata" (fold) a "sinistra" (left), quindi si parte dall'ultima elemento della lista e si procede verso sinistra (questo non è un problema perchè l'operazione di somma gode della proprietà associativa a + b = b + a).
+
+Vediamo un esempio di applicazione della funzione "fold-left" in termini di s-espressioni in notazione prefissa:
+
+(fold-left + '(1 2 3 4) 0)
+
+(+ 4 (+ 3 (+ 2 (+ 1 0))))
+
+(+ 4 (+ 3 (+ 2 1)))
+
+(+ 4 (+ 3 3))
+
+(+ 4 6)  ==>  10
+
+Il valore iniziale è importante perchè se la lista di input è vuota, allora questo è il valore che ritorna la funzione "fold-left".
+
+(fold-left + '() 0)  ==>  0
+
+Così possiamo definire una funzione somma in termini di "fold-left":
+
+(define (somma lst) (fold-left + lst 0))
+
+(somma '(1 2 3 4))   ==>  10
+
+(somma '())          ==>  0
+
+La procedura "fold-left" riduce la lista ad un singolo valore.
+
+Vediamo un altro esempio di utilizzo della funzione "fold-left" con i seguenti parametri:
+
+valore iniziale -> lista vuota '()
+procedura       -> cons
+
+Eseguiamo la valutazione della seguente espressione:
+
+(fold-left cons '(1 2 3) '())
+
+(cons 3 (cons 2 (cons 1 '())))
+
+(cons 3 (cons 2 '(1)))
+
+(cons 3 '(2 1))
+
+==> '(3 2 1)
+
+Il risultato è l'inversione della lista di input.
+
+Vediamo l'implementazione della funzione "fold-left":
+
+(define (fold-left func lst init)
+    (if (null? lst) init
+        (fold-left func (rest lst) (func (first lst) init))))
+
+Proviamo a verificare gli esempi:
+
+(fold-left + '(1 2 3 4) 0)
+;-> 10
+
+(fold-left + '() 0)
+;-> 0
+
+(fold-left cons '(1 2 3) '())
+;-> (3 2 1)
+
+Altri esempi:
+
+(fold-left - '(1 2 3 4) 0)
+;-> 2
+(- 4 (- 3 (- 2 (- 1 0))))
+(- 4 (- 3 (- 2 (1))))
+(- 4 (- 3 1))
+(- 4 2)  ==>  2
+
+(fold-left - '(4 3 2 1) 0)
+;-> -2
+(- 1 (- 2 (- 3 (- 4 0))))
+(- 1 (- 2 (- 3 4)))
+(- 1 (- 2 (- 1)))
+(- 1 3)  ==> -2
+
+La funzione "fold-left" ha una sorella chiamata "fold-right" che "ripiega" la lista a destra, cioè dal primo valore della lista all'ultimo.
+
+(define (fold-right func lst end)
+    (if (null? lst) end
+        (func (first lst) (fold-right func (rest lst) end))))
+
+Se la lista è vuota, restituire il valore finale end. In caso contrario, applicare la funzione al primo elemento della lista e al risultato del "folding" di questa funzione e del valore finale verso il resto della lista. Poiché l'operando di destra viene piegato per primo, abbiamo un "folding"  associativo a destra.
+
+Per la maggior parte delle operazioni associative come + e *, "fold-left" e "fold-right" sono completamente equivalenti. Tuttavia, esiste almeno un'importante operazione binaria che non è associativa: cons. Per tutte le nostre funzioni di manipolazione di liste, quindi, dovremo scegliere tra il "folding" associativo sinistro e destro.
+
+Rivediamo la funzione "fold-left":
+
+(define (fold-left func lst init)
+    (if (null? lst) init
+        (fold-left func (rest lst) (func (first lst) init))))
+
+Questa inizia allo stesso modo della versione associativa di destra, con il test per la lista vuota che restituisce il valore iniziale (accumulatore). Questa volta, tuttavia, applichiamo la funzione all'accumulatore e al primo elemento della lista, invece di applicarla al primo elemento e al risultato del folding della lista. Ciò significa che elaboriamo prima l'inizio, generando una  associatività a sinistra. Una volta raggiunta la fine della lista '(), restituiamo il risultato che abbiamo progressivamente accumulato.
+
+Si noti che func prende i suoi argomenti nell'ordine opposto da "fold-right". In "fold-right", l'accumulatore (end) rappresenta l'ultimo valore da utilizzare dopo il folding della lista. In "fold-left", l'accumulatore (init) rappresenta il calcolo completato per la parte a sinistra della lista. Al fine di preservare la commutatività degli operatori, l'accumulatore deve essere l'argomento a sinistra della nostra operazione in "fold-left", ma l'argomento a destra in "fold-right".
+
+(fold-right - '(1 2 3 4) 0)
+;-> -2
+(- 1 (- 2 (- 3 (- 4 0))))
+(- 1 (- 2 (- 3 4)))
+(- 1 (- 2 -1))
+(- 1 3) ==> -2
+
+(fold-right - '(4 3 2 1) 0)
+;-> 2
+
+La funzione "fold-right" con operatore "cons" e lista vuota '() come valore iniziale, produce una copia della lista:
+
+(fold-right cons '(4 3 2 1) '())
+;-> (4 3 2 1)
+
+Possiamo anche definire una funzione "unfold" che è l'opposto di "fold". Data una funzione unaria, un valore iniziale e un predicato unario, "unfold" continua ad applicare la funzione all'ultimo valore fino a quando il predicato è vero, costruendo una lista mentre procede.
+
+(define (unfold func init pred)
+  (if (pred init)
+      (cons init '())
+      (cons init (unfold func (func init) pred))))
+
+Se il predicato è vero, allora "cons" la lista vuota '() sull'ultimo valore, terminando la lista. Altrimenti, "cons" il risultato di "unfolding" del valore successivo (func init) con il valore corrente.
+
+Esempi:
+
+(unfold (fn(x) (* x x)) 2 (fn(x) (> (* x x) 100)))
+;-> (2 4 16)
+
+(unfold (fn(x) (sqrt x)) 64 (fn(x) (< x 2)))
+;-> (64 8 2.82842712474619 1.681792830507429)
+
+La funzione "fold" (left e right) è una funzione universale, nel senso che ci permette di generare molte altre funzioni. Vediamo alcuni esempi:
+
+Inversione di una lista:
+
+(define (inverte lst) (fold-left cons lst '()))
+(inverte '(4 3 2 1))
+;-> (1 2 3 4)
+
+Somma degli elementi di una lista:
+
+(define (somma lst) (fold-left + lst 0))
+(somma '(1 3 -2 3))
+;-> 5
+
+Moltiplicazione degli elementi di una lista:
+
+(define (moltiplica lst) (fold-left * lst 1))
+(moltiplica '(1 3 -2 3))
+;-> -18
+
+Operatore AND agli elementi di una lista:
+
+(define (and-lst lst) (fold-left and lst true))
+(and-lst '(true true nil))
+;-> nil
+(and-lst '(true true true))
+;-> true
+
+Operatore OR agli elementi di una lista:
+
+(define (or-lst lst) (fold-left or lst nil))
+(or-lst '(true true nil))
+;-> true
+(or-lst '(nil nil))
+;-> nil
+
+Valore massimo degli elementi di una lista:
+
+(define (max-lst lst)
+  (fold-left (fn (old cur) (if (> old cur) old cur)) (rest lst) (first lst)))
+(max-lst '(1 3 3 4 8 3 2 4))
+;-> 8
+
+Valore minimo degli elementi di una lista:
+
+(define (min-lst lst)
+  (fold-left (fn (old cur) (if (< old cur) old cur)) (rest lst) (first lst)))
+(min-lst '(1 3 3 4 8 3 2 4))
+;-> 1
+
+Lunghezza di una lista:
+
+Pensiamo in termini di definizione di un ciclo. L'accumulatore inizia da 0 e viene incrementato di 1 ad ogni iterazione. Questo ci dà sia il nostro valore di inizializzazione, 0, sia la nostra funzione (fn (x y) (+ x 1)). Un altro modo di vedere questo è "La lunghezza di una lista vale 1 + la lunghezza della sotto-lista alla sua sinistra".
+
+(define (lunghezza lst) (fold-left (fn (x y) (+ x 1)) lst 0))
+(lunghezza '(1 2 3 5 8 4 6))
+;-> 7
+
+Filtraggio degli elementi di una lista:
+Questa funzione mantiene solo gli elementi di una lista che soddisfano un predicato, eliminando tutti gli altri:
+
+(define (filtra pred lst) (fold-right (fn (x y) (if (pred x) (cons x y) y)) lst '()))
+(filtra (fn (x) (> x 5)) '(1 45 34 2 3 6))
+;-> 45 34 6
+
+Viene testato il valore corrente rispetto al predicato. Se è vero, sostituisce "cons" con "cons", cioè non cambia nulla. Se è falso, elimina il "cons" e restituisce il resto dell'elenco. Questo elimina tutti gli elementi che non soddisfano il predicato, creando una nuova lista che include solo quelli che lo soddisfano.
+
+Nota: la chiave per programmare con il metodo "fold" è pensare solo in termini di ciò che accade ad ogni iterazione. Questo metodo cattura il modello di ricorsione in una lista e i problemi ricorsivi si risolvono meglio lavorando un passo alla volta.
+
+
+-----------------------
+La divisione di Feynman
+-----------------------
+
+Ecco un puzzle proposto da Feynman: Divisione lunga.
+
+Ogni punto "." (dot) rappresenta una cifra (qualsiasi cifra da 0 a 9). Ogni "A" rappresenta la stessa cifra (ad esempio, un 3). Nessuno dei punti "." ha lo stesso valore di "A" (cioè, nessun punto "." può valere 3 se "A" vale 3).
+
+    ....A..   | .A.
+    ..AA      |------
+    ----      | ..A.
+     ...A     |
+      ..A     |
+    -----     |
+      ....    |
+      .A..    |
+      ----    |
+       ....   |
+       ....   |
+       ----   |
+          .   |
+
+Per risolvere il problema possiamo pensare di lavorare al contrario, cioè calcolare il valore del prodotto tra il risultato e il divisore e sottoponendolo ad alcuni vincoli.
+
+Per cominciare inseriamo le variabili (A, b, c, d, e, f) per il divisore e il risultato:
+
+  il divisore vale:  ".A."  --> bAc
+  il risultato vale: "..A." --> deAf
+
+Quindi calcoliamo il valore (bAc * deAf) = "....A.."
+
+Alcune considerazioni che trasformiamo in vincoli:
+
+1) Il valore cercato ha sette cifre.
+
+2) Il valore A è diverso da b, c, d, e, f.
+
+3) La prima linea della divisione implica che d * bAc deve valere AA modulo 100.
+
+4) La seconda linea della divisione implica che e * bAc deve valere A modulo 10.
+
+5) La terza linea della divisione implica A * bAc è un numero con quattro cifre e la seconda cifra deve essere A.
+
+(define (feynman)
+  (local (a b c d e f m1 m2)
+    (for (a 0 9)
+      (for (b 0 9)
+        (for (c 0 9)
+          (for (d 0 9)
+            (for (e 0 9)
+              (for (f 0 9)
+                ; calcoliamo i due numeri del prodotto
+                ; (moltiplicando e moltiplicatore)
+                (setq m1 (+ (* b 100) (* a 10) c))
+                (setq m2 (+ (* d 1000) (* e 100) (* a 10) f))
+                ; impostiamo i vincoli
+                        ; A è diverso dalle altre cifre
+                (if (and (!= a b) (!= a c) (!= a d) (!= a e) (!= a f)
+                        ; il prodotto ha sette cifre
+                          (< 999999 (* m1 m2) 10000000)
+                        ; il quinto numero deve valere A
+                          (= (int ((explode (string (* m1 m2))) 4)) a)
+                        ; d * bAc deve valere AA modulo 100
+                          (= (% (* d m1) 100) (+ (* a 10) a))
+                        ; e * bAc deve valere A modulo 10
+                          (= (% (* e m1) 10) a)
+                        ; A * bAc deve avere quattro cifre
+                          (< 999 (* a m1))
+                        ; la seconda cifra di A * bAc deve valere A
+                          (= (int ((explode (string (* a m1))) 1)) a)
+                    )
+                    (println (list b a c) { * } (list d e a f))
+                )))))))))
+
+(feynman)
+;-> (4 3 7) * (9 9 3 9)
+;-> (4 8 4) * (7 2 8 9)
+;-> (4 8 4) * (7 7 8 9)
+
+Non abbiamo una soluzione unica, quindi dobbiamo inserire altri vincoli. Prima di fare questo verifichiamo il primo risultato per vedere se stiamo procedendo con la giusta logica:
+
+(* 437 9939)
+;-> 4343343
+
+(* bAc deAf)
+
+; Impostiamo le cifre
+(setq b 4 a 3 c 7 d 9 e 9 f 9)
+; Calcoliamo i due fattori (moltiplicando e moltiplicatore)
+(setq m1 (+ (* b 100) (* a 10) c))
+;-> 437
+(setq m2 (+ (* d 1000) (* e 100) (* a 10) f))
+;-> 9939
+
+; Applichiamo i vincoli:
+; A è diverso dalle altre cifre
+(and (!= a b) (!= a c) (!= a d) (!= a e) (!= a f))
+;-> true
+; il prodotto ha sette cifre
+(< 999999 (* m1 m2) 10000000)
+;-> true
+; il quinto numero deve valere A
+(= (int ((explode (string (* m1 m2))) 4)) a)
+;-> true
+; d * bAc deve valere AA modulo 100
+(= (% (* d m1) 100) (+ (* a 10) a))
+;-> true
+; e * bAc deve valere A modulo 10
+(= (% (* e m1) 10) a)
+;-> true
+; A * bAc deve avere quattro cifre
+(< 999 (* a m1))
+;-> true
+; la seconda cifra di A * bAc deve valere A
+(= (int ((explode (string (* a m1))) 1)) a)
+;-> true
+
+Per ora, sembra che sia tutto corretto.
+Un altro vincolo viene osservando che "e" deve essere inferiore a "d", poiché (e * bAc) è un numero di tre cifre, ma (d * bAc) è un numero di quattro cifre. Questo si traduce nella seguente espressione: (< e d).
+
+Riscriviamo la funzione con il nuovo vincolo:
+
+(define (feynman)
+  (local (a b c d e f m1 m2)
+    (for (a 0 9)
+      (for (b 0 9)
+        (for (c 0 9)
+          (for (d 0 9)
+            (for (e 0 9)
+              (for (f 0 9)
+                ; calcoliamo i due numeri del prodotto
+                ; (moltiplicando e moltiplicatore)
+                (setq m1 (+ (* b 100) (* a 10) c))
+                (setq m2 (+ (* d 1000) (* e 100) (* a 10) f))
+                ; impostiamo i vincoli
+                        ; A è diverso dalle altre cifre
+                (if (and (!= a b) (!= a c) (!= a d) (!= a e) (!= a f)
+                        ; il prodotto ha sette cifre
+                          (< 999999 (* m1 m2) 10000000)
+                        ; il quinto numero deve valere A
+                          (= (int ((explode (string (* m1 m2))) 4)) a)
+                        ; d * bAc deve valere AA modulo 100
+                          (= (% (* d m1) 100) (+ (* a 10) a))
+                        ; e * bAc deve valere A modulo 10
+                          (= (% (* e m1) 10) a)
+                        ; A * bAc deve avere quattro cifre
+                          (< 999 (* a m1))
+                        ; la seconda cifra di A * bAc deve valere A
+                          (= (int ((explode (string (* a m1))) 1)) a)
+                        ; "e" deve essere minore di "d"
+                          (< e d)
+                    )
+                    (println (list b a c) { * } (list d e a f) { -> }
+                             (list a b c d e f))
+                )))))))))
+
+(feynman)
+;-> (4 8 4) * (7 2 8 9) -> (8 4 4 7 2 9)
+
+(* 484 7289)
+;-> 3527876
+
+Quindi la divisione finale è la seguente:
+
+3527876   | 484
+3388      |------
+----      | 7289
+ 1398     |
+  968     |
+-----     |
+  4307    |
+  3872    |
+  ----    |
+   4356   |
+   4356   |
+   ----   |
+      0   |
+
+
 ===========
 
  APPENDICI 
@@ -37163,23 +38392,157 @@ reader-event      preprocess expressions before evaluation event-driven
 
 
 ============================================================================
-F-expression - FEXPR
+Sul linguaggio newLISP - FAQ di Lutz Mueller
 ============================================================================
 
-Nei linguaggi di programmazione Lisp, una FEXPR è una funzione i cui operandi/parametri vengono passati ad essa senza essere valutati. Quando viene chiamato una FEXPR, viene valutato solo il corpo di FEXPR: non si effettuano altre valutazioni se non quando esplicitamente avviato/richiesto dalla FEXPR.
+Questa è la traduzione della pagina web relativa alle FAQ (Frequently Asked Questions) su newLISP:
 
-Al contrario, quando viene chiamata una normale funzione Lisp, gli operandi vengono valutati automaticamente e solo i risultati di queste valutazioni vengono passati alla funzione.
+http://www.newLISP.org/index.cgi?FAQ
 
-Quando viene chiamata una macro Lisp (tradizionale), gli operandi vengono passati in modo non valutato, ma qualunque sia il risultato ritornato dalla macro, questo viene valutato automaticamente.
+1.  Cos'è newLISP e cosa posso fare con questo linguaggio?
+2.  Perché newLISP, perché non uno degli altri LISP standard?
+3.  Come posso studiare newLISP?
+4.  Quanto è veloce newLISP?
+5.  newLISP ha le matrici?
+6.  newLISP ha le tabelle hash?
+7.  newLISP ha una gestione automatica della memoria?
+8.  newLISP può passare i dati per riferimento?
+9.  Come funziona il variable scoping in newLISP?
+10. newLISP gestisce il multiprocessing?
+11. Posso usare newLISP per compiti di calcolo distribuiti?
+12. Possiamo utilizzare la metodologia di programmazione orientata agli oggetti?
+13. Cosa sono di pacchetti e moduli?
+14. Quali sono alcune differenze tra newLISP e altri LISP?
+15. newLISP funziona sul sistema operativo XYZ?
+16. newLISP può gestire i caratteri speciali del mio paese e della mia lingua?
+17. L'indicizzazione implicita non infrange le regole di sintassi del LISP?
+18. newLISP può essere incorporato in altri programmi?
+19. Posso mettere il copyright ai miei script anche se newLISP è concesso in licenza GPL?
+20. Dove posso segnalare eventuali bug?
 
-Nel rigoroso utilizzo originale, una FEXPR è quindi una funzione definita dall'utente i cui operandi vengono passati senza essere valutati. Tuttavia, nell'uso successivo, il termine FEXPR descrive qualsiasi funzione di prima classe/ordine i cui operandi vengono passati non valutati, indipendentemente dal fatto che la funzione sia primitiva o definita dall'utente.
-Le macro di newLISP sono FEXPR.
+1. Cos'è newLISP e cosa posso fare con questo linguaggio?
+---------------------------------------------------------
+newLISP è un linguaggio di scripting simile a LISP per fare quelle cose che si fanno tipicamente con linguaggi di scripting: programmazione per internet, amministrazione di sistema, elaborazione testi, incollare diversi altri programmi insieme, ecc. newLISP è un LISP di scripting per persone che sono affascinate dalla bellezza e dal potere espressivo del LISP, ma che hanno bisogno di una versione ridotta per imparare facilmente l'essenziale.
 
-Kent M. Pitman, "Special Forms in Lisp", Proceedings of the 1980 ACM Conference on Lisp and Functional Programming, 1980, pag. 179–187.
+2. Perché newLISP, perché non uno degli altri LISP standard?
+------------------------------------------------------------
+LISP è un vecchio linguaggio nato, cresciuto e standardizzato in tempi molto diversi da oggi, tempi in cui la programmazione era per persone altamente istruite che hanno progettato programmi. newLISP è un LISP rinato come linguaggio di scripting: pragmatico e casuale, semplice da imparare senza che tu debba conoscere concetti avanzati di informatica. Come ogni buon linguaggio di scripting, newLISP è relativamente semplice da imparare e potente per terminare il proprio lavoro senza problemi.
+
+Vedi anche: "In Praise of Scripting: Real Programming Pragmatics" di Ronald P. Loui
+
+http://web.cs.mun.ca/~harold/Courses/Old/CS2500.F09/Diary/04563874.pdf
+
+newLISP ha un tempo di avvio molto veloce, ha bisogno di poche risorse come spazio su disco e memoria ed ha una pratica API con funzioni native per networking, statistica, machine learning, espressioni regolari, multiprocessing e calcolo distribuito, non aggiunte successivamente con moduli esterni.
+
+3. Come posso studiare newLISP?
+-------------------------------
+Almeno all'inizio, studia principalmente newLISP utilizzandolo. Se capisci questo:
+
+(+ 1 2 3); calcola la somma di 1,2,3 => 6
+
+e questo:
+
+(define (double x) (+ x x)); definisce una funzione
+
+(doppio 123); calcola il doppio di 123 => 246
+
+allora hai imparato abbastanza per iniziare a programmare in newLISP. Ci sono alcuni altri concetti come le funzioni anonime, l'applicazione di funzioni, spazi dei nomi (contesti) e l'indicizzazione implicita. Imparerai queste tecniche mentre usi newLISP.
+I libri su LISP o Scheme, che sono due standard di LISP diversi e più vecchi, insegnano concetti che non hai la necessità di imparare per programmare in newLISP. Molte volte newLISP esprime le cose in modo diverso dai LISP tradizionali e in modi più applicabili ai compiti di programmazione odierni e ad un livello superiore più vicino al problema in questione.
+Impara a risolvere i problemi con il modo newLISP! Per una comprensione più approfondita di newLISP, leggi la sezione del "manuale utente" di newLISP, con meno teoria e più esempi. Dai uno sguardo al "manuale di riferimento" per avere un'idea della profondità e dell'ampiezza delle funzioni API integrate.
+Per lavorare seriamente con newLISP occorre leggere il manuale "Code Patterns" con altri suggerimenti e pezzi di codice. Una buona introduzione per principianto è il libro "Introduction to newLISP" oppure i video tutorial che sono disponibili nella pagina ufficiale della documentazione.
+Molte funzioni in newLISP hanno una funzionalità facile da capire, ma sono molto più potenti quando si conoscono e si usano le opzioni speciali di quella funzione. La profondità della API di newLISP non è basata sulla quantità delle funzioni, ma piuttosto sulle opzioni e sulle sintassi multipla di ogni specifica funzione
+Inizia a scrivere il tuo primo programma ora. Guarda le porzioni di codice (snippet) riportate in tutto il manuale e su questo sito web. Se hai domande, iscriviti al forum di discussione di newLISP e chiedi.
+
+4. Quanto è veloce newLISP?
+---------------------------
+La velocità di calcolo di newLISP è confrontabile con quella dei popolari strumenti di scripting come Perl o Python, ma si comporta meglio quando si tratta di tempi di avvio e di memoria / spazio su disco.
+Dai un'occhiata ad alcuni benchmark: http://www.newLISP.org/benchmarks/
+Molte funzioni per cui altri linguaggi richiedono l'utilizzo di moduli esterni sono già incorporate in newLISP. Funzioni di networking e metodi matematici come FFT (Fast Fourier Analysis) o funzioni di apprendimento automatico bayesiano sono rapidissime in newLISP. Sono funzioni integrate e non richiedono alcun modulo esterno. Nonostante ciò, newLISP è più piccolo di altri linguaggi di scripting.
+
+5. newLISP ha le matrici?
+-------------------------
+Sì. Per le applicazioni con accesso random a liste di grandi dimensioni, l'accesso può essere effettuato più velocemente utilizzando gli array di newLISP.
+
+6. newLISP ha le tabelle hash?
+------------------------------
+newLISP utilizza alberi binari red-black per l'accesso alla memoria associativa quando si gestiscono spazi dei nomi (namespace), dizionari e per l'accesso ai valori-chiave simili alla tecnica hash.
+
+7. newLISP ha una gestione automatica della memoria?
+----------------------------------------------------
+Sì. Ma non è il tipico processo di garbage collection che trovi in altri linguaggi interattivi. Proprio come la garbage collection dei tradizionali linguaggi, newLISP ricicla la memoria inutilizzata. Tuttavia, newLISP lo fa in un modo nuovo, molto più efficiente. La gestione della memoria di newLISP è sincrona senza pause improvvise nell'elaborazione che vengono osservate in linguaggi con garbage collection vecchio stile. L'esclusiva gestione automatica della memoria di newLISP è una delle ragioni della sua velocità, delle sue dimensioni ridotte e dell'uso efficiente della memoria.
+Vedi anche: "Automatic Memory Management in newLISP" di Lutz Mueller
+
+http://www.newLISP.org/MemoryManagement.html
+
+8. newLISP può passare i dati per riferimento?
+----------------------------------------------
+Tutte le funzioni integrate passano liste e stringhe per riferimento sia in ingresso che in uscita. Per passare per riferimento a funzioni definite dall'utente, liste e stringhe possono essere raggruppati in spazi dei nomi particolari (context). Maggiori informazioni su questo argomento sul manuale utente. Dalla versione 10.2, FOOP passa per riferimento anche l'oggetto.
+
+9. Come funziona il variable scoping in newLISP?
+------------------------------------------------
+newLISP ha uno scope dinamico applicato all'interno di contesti o spazi dei nomi separati lessicalmente. I namespace hanno un overhead molto piccolo e possono esisterne a milioni. I contesti in newLISP consentono la chiusura lessicale di più di una funzione lambda e di un oggetto. I contesti possono essere utilizzati per scrivere funzioni con scope lessicale con memoria, moduli software e oggetti. Ciò evita le insidie dello scope dinamico e aiuta a strutturare programmi più grandi.
+
+10. newLISP gestisce il multiprocessing?
+----------------------------------------
+Le versioni Linux / UNIX di newLISP possono eseguire il fork e lo spawn dei processi. Le versioni di Windows possono avviare processi figlio indipendenti. I semafori vengono utilizzati per sincronizzare i processi e la memoria condivisa può essere utilizzata per le comunicazioni tra i processi.
+Su macOS, Linux e altri Unix, l'API Cilk è integrata per facilitare il lancio e la sincronizzazione di più processi, in modo trasparente senza preoccuparsi di semafori, blocchi, ecc. È disponibile un'API di messaggistica asincrona per comunicare tra processi.
+
+11. Posso usare newLISP per compiti di calcolo distribuiti?
+-----------------------------------------------------------
+Alcune delle applicazioni più grandi di oggi vengono distribuite su più computer, dividendo le loro complesse attività tra più nodi su una rete. newLISP può essere eseguito come server per valutare i comandi inviati da altri client newLISP ad esso connessi. La funzione "net-eval" incapsula tutta la gestione della rete necessaria per comunicare con altri computer sulla rete, distribuire il codice e le attività di calcolo e raccogliere i risultati in un modo bloccante o basato sugli eventi. newLISP può anche fungere da server Web che gestisce le richieste HTTP incluso CGI.
+
+12. Possiamo utilizzare la metodologia di programmazione orientata agli oggetti?
+--------------------------------------------------------------------------------
+newLISP offre un nuovo modo di programmazione orientata agli oggetti funzionale chiamata FOOP. Usa gli spazi dei nomi per raccogliere tutti i metodi per una classe di oggetti e usa le normali espressioni S per rappresentare gli oggetti. Per ulteriori dettagli su questo nuovo modo di programmazione orientata agli oggetti in newLISP consultare la serie di video di addestramento "Towards FOOP" nella sezione documentazione e il capitolo "Functional object-oriented programming" nel manuale utente. Dalla versione 10.2 gli oggetti FOOP sono mutabili.
+
+13. Cosa sono  pacchetti e moduli?
+----------------------------------
+newLISP utilizza gli spazi dei nomi per la creazione di pacchetti e moduli. Esistono moduli per l'accesso ai database come MySQL, PostgreSQL e SQLite, nonché ODBC. I moduli aggiuntivi supportano i protocolli Internet FTP, POP3, SMTP e REST. Poiché i nuovi spazi dei nomi di LISP vengono chiusi lessicamente, newLISP consente ai programmatori di trattare i moduli come black box. Questo metodologia è adatta per gruppi di programmatori che lavorano su applicazioni di grandi dimensioni.
+newLISP può anche chiamare funzioni di librerie C condivise su Linux / UNIX e sistemi operativi Windows per espandere le sue funzionalità.
+I moduli possono essere documentati utilizzando il sistema di documentazione automatica  newLISPdoc.
+
+14. Quali sono alcune differenze tra newLISP e altri LISP?
+----------------------------------------------------------
+Le nuove differenze di LISP dagli altri LISP includono: il funzionamento delle espressioni lambda, l'esistenza di namespace (o contesti), il passaggio parametri e, naturalmente, la  API di newLISP (repertorio di funzioni). Nel complesso, il nuovo modo di programmazione del LISP di newLISP lo rendono più veloce, più piccolo e più facile da capire e da apprendere. Per una discussione più dettagliata, vedere "Comparison to Common Lisp and Scheme":
+
+http://www.newLISP.org/index.cgi?page=Differences_to_Other_LISPs
+
+15. newLISP funziona sul sistema operativo XYZ?
+-----------------------------------------------
+Probabilmente si. newLISP ha un minimo di dipendenze. Utilizza solo librerie C standard per la compilazione. Se il tuo sistema ha strumenti GNU come il compilatore GCC e l'utility make, allora newLISP dovrebbe compilare e linkare immediatamente usando uno dei makefile contenuti nella sua distribuzione sorgente.
+newLISP viene creato utilizzando uno dei numerosi makefile, ciascuno scritto per una piattaforma specifica. Non ci sono script di make complessi. I makefile sono brevi e facili da modificare e adattare se  non sono già inclusi nella tua piattaforma o configurazione.
+
+16. newLISP può gestire i caratteri speciali del mio paese e della mia lingua?
+------------------------------------------------------------------------------
+Nella maggior parte del mondo occidentale, è sufficiente impostare le impostazioni internazionali utilizzando la funzione newLISP "set-locale".
+Più della metà dei paesi del mondo usano una virgola decimale invece di un punto decimale. newLISP leggerà e scriverà correttamente le virgole decimali quando passerà alla corretta locale.
+La maggior parte degli alfabeti nell'emisfero occidentale si adattano a tabelle di codici carattere a 256 codici e ogni carattere richiede un solo byte di 8 bit da codificare. Se la lingua del tuo paese richiede caratteri multibyte per codificarla, allora hai bisogno della versione di newLISP con supporto UTF-8 abilitato. I Makefile per Windows e Linux sono inclusi per compilare le versioni UTF-8 di newLISP. Nella versione UTF-8, molte funzioni di gestione dei caratteri sono in grado di gestire caratteri multibyte. Vedere il capitolo sulla localizzazione e UTF-8 nel manuale per i dettagli.
+
+17. L'indicizzazione implicita non infrange le regole di sintassi del LISP?
+---------------------------------------------------------------------------
+Al contrario, l'indicizzazione implicita è un'estensione logica della sintassi LISP. Quando si valutano le espressioni S, il primo elemento viene applicato come una funzione agli elementi restanti nell'espressione che servono come argomenti della funzione. L'indicizzazione implicita consiste semplicemente nel considerare i membri dei tipi di dati numerici, di stringa e di elenco come operatori speciali di indicizzazione quando si trovano nella prima posizione di un'espressione S.
+
+18. newLISP può essere incorporato in altri programmi?
+------------------------------------------------------
+newLISP può essere compilato come libreria condivisa UNIX o DLL Windows (libreria a collegamento dinamico). Di conseguenza, le versioni di libreria condivisa di newLISP possono essere utilizzate all'interno di altri programmi che sono in grado di importare funzioni di libreria condivisa. Altri modi per integrare la tua applicazione con newLISP includono i pipe I/O e le porte di rete.
+Sui sistemi Win32, newLISP è stato utilizzato all'interno di MS Excel, MS Visual Basic e del generatore di applicazioni GUI NeoBook. Su UNIX, newLISP è stato utilizzato all'interno del foglio di calcolo di GNumeric. Su macOS, newLISP è stato utilizzato come linguaggio di estensione per l'editor di BBEdit grazie alla nuova LISP che comunica con BBEdit tramite i pipe di I/O standard. Il Guiserver basato su Java e il vecchio frontend Tcl/Tk per newLISP sono esempi di integrazione di newLISP tramite porte di rete.
+
+19. Copyright sui miei script anche se newLISP è concesso in licenza GPL?
+-------------------------------------------------------------------------
+Si, puoi. Le FAQ di gnu.org per la GPL lo spiegano. Finché i tuoi script non usano altro software GPL di terze parti sotto forma di librerie importate o moduli caricati, i tuoi script in newLISP non devono necessariamente avere una licenza GPL. La maggior parte dei moduli sul sito Web di newLISP non ha licenza e non importa altre librerie. Se lo fanno, consultare le licenze di quelle librerie di terze parti.
+newLISP ti permette di distribuire un binario dell'interprete insieme al tuo sorgente. Quando si utilizza newLISP nel software, menzionare sempre il sito Web www.newLISP.org nella documentazione come luogo in cui è disponibile il codice sorgente per newLISP.
+
+20. Dove posso segnalare eventuali bug?
+---------------------------------------
+La maggior parte delle segnalazioni di bug risulta dalla mancata lettura della documentazione o dal ritenere che newLISP funzioni come Common Lisp o Scheme. Le domande, i commenti e le segnalazioni di bug sono pubblicati sul forum ufficiale, dove vengono letti da molti altri, dando loro l'opportunità di commentare o dare consigli. Il forum consente anche di inviare messaggi privati.
+
+21. Posso compilare i miei script in programmi eseguibili?
+----------------------------------------------------------
+Si. Il comando: newLISP -x "myscript.lsp" "myscript.exe" genera un file eseguibile sul proprio sistema operativo.
 
 
 ============================================================================
-newLISP in 21 minuti di John W. Small
+newLISP in 21 minuti (John W. Small)
 ============================================================================
 
 newLISP: un tutorial interattivo
@@ -38680,7 +40043,7 @@ Sia Common Lisp che Scheme hanno funzioni lessical scope, questo significa che u
 
 
 ============================================================================
-newLISP per programmatori
+newLISP per programmatori (Dmitry Chernyak)
 ============================================================================
 v. 1.1
 
@@ -39397,156 +40760,6 @@ Any modification of the text is allowed under the following conditions:
 Any reproduction of this document in the form of hard copies (on paper or electronic media), with the exception of newLISP distributions and distributions of free operating systems, is allowed only with the written consent of the author.
 
 (C) 2006, Dmitry Chernyak losthost@narod.ru.
-
-
-============================================================================
-Sul linguaggio newLISP - FAQ di Lutz Mueller
-============================================================================
-
-Questa è la traduzione della pagina web relativa alle FAQ (Frequently Asked Questions) su newLISP:
-
-http://www.newLISP.org/index.cgi?FAQ
-
-1.  Cos'è newLISP e cosa posso fare con questo linguaggio?
-2.  Perché newLISP, perché non uno degli altri LISP standard?
-3.  Come posso studiare newLISP?
-4.  Quanto è veloce newLISP?
-5.  newLISP ha le matrici?
-6.  newLISP ha le tabelle hash?
-7.  newLISP ha una gestione automatica della memoria?
-8.  newLISP può passare i dati per riferimento?
-9.  Come funziona il variable scoping in newLISP?
-10. newLISP gestisce il multiprocessing?
-11. Posso usare newLISP per compiti di calcolo distribuiti?
-12. Possiamo utilizzare la metodologia di programmazione orientata agli oggetti?
-13. Cosa sono di pacchetti e moduli?
-14. Quali sono alcune differenze tra newLISP e altri LISP?
-15. newLISP funziona sul sistema operativo XYZ?
-16. newLISP può gestire i caratteri speciali del mio paese e della mia lingua?
-17. L'indicizzazione implicita non infrange le regole di sintassi del LISP?
-18. newLISP può essere incorporato in altri programmi?
-19. Posso mettere il copyright ai miei script anche se newLISP è concesso in licenza GPL?
-20. Dove posso segnalare eventuali bug?
-
-1. Cos'è newLISP e cosa posso fare con questo linguaggio?
----------------------------------------------------------
-newLISP è un linguaggio di scripting simile a LISP per fare quelle cose che si fanno tipicamente con linguaggi di scripting: programmazione per internet, amministrazione di sistema, elaborazione testi, incollare diversi altri programmi insieme, ecc. newLISP è un LISP di scripting per persone che sono affascinate dalla bellezza e dal potere espressivo del LISP, ma che hanno bisogno di una versione ridotta per imparare facilmente l'essenziale.
-
-2. Perché newLISP, perché non uno degli altri LISP standard?
-------------------------------------------------------------
-LISP è un vecchio linguaggio nato, cresciuto e standardizzato in tempi molto diversi da oggi, tempi in cui la programmazione era per persone altamente istruite che hanno progettato programmi. newLISP è un LISP rinato come linguaggio di scripting: pragmatico e casuale, semplice da imparare senza che tu debba conoscere concetti avanzati di informatica. Come ogni buon linguaggio di scripting, newLISP è relativamente semplice da imparare e potente per terminare il proprio lavoro senza problemi.
-
-Vedi anche: "In Praise of Scripting: Real Programming Pragmatics" di Ronald P. Loui
-
-http://web.cs.mun.ca/~harold/Courses/Old/CS2500.F09/Diary/04563874.pdf
-
-newLISP ha un tempo di avvio molto veloce, ha bisogno di poche risorse come spazio su disco e memoria ed ha una pratica API con funzioni native per networking, statistica, machine learning, espressioni regolari, multiprocessing e calcolo distribuito, non aggiunte successivamente con moduli esterni.
-
-3. Come posso studiare newLISP?
--------------------------------
-Almeno all'inizio, studia principalmente newLISP utilizzandolo. Se capisci questo:
-
-(+ 1 2 3); calcola la somma di 1,2,3 => 6
-
-e questo:
-
-(define (double x) (+ x x)); definisce una funzione
-
-(doppio 123); calcola il doppio di 123 => 246
-
-allora hai imparato abbastanza per iniziare a programmare in newLISP. Ci sono alcuni altri concetti come le funzioni anonime, l'applicazione di funzioni, spazi dei nomi (contesti) e l'indicizzazione implicita. Imparerai queste tecniche mentre usi newLISP.
-I libri su LISP o Scheme, che sono due standard di LISP diversi e più vecchi, insegnano concetti che non hai la necessità di imparare per programmare in newLISP. Molte volte newLISP esprime le cose in modo diverso dai LISP tradizionali e in modi più applicabili ai compiti di programmazione odierni e ad un livello superiore più vicino al problema in questione.
-Impara a risolvere i problemi con il modo newLISP! Per una comprensione più approfondita di newLISP, leggi la sezione del "manuale utente" di newLISP, con meno teoria e più esempi. Dai uno sguardo al "manuale di riferimento" per avere un'idea della profondità e dell'ampiezza delle funzioni API integrate.
-Per lavorare seriamente con newLISP occorre leggere il manuale "Code Patterns" con altri suggerimenti e pezzi di codice. Una buona introduzione per principianto è il libro "Introduction to newLISP" oppure i video tutorial che sono disponibili nella pagina ufficiale della documentazione.
-Molte funzioni in newLISP hanno una funzionalità facile da capire, ma sono molto più potenti quando si conoscono e si usano le opzioni speciali di quella funzione. La profondità della API di newLISP non è basata sulla quantità delle funzioni, ma piuttosto sulle opzioni e sulle sintassi multipla di ogni specifica funzione
-Inizia a scrivere il tuo primo programma ora. Guarda le porzioni di codice (snippet) riportate in tutto il manuale e su questo sito web. Se hai domande, iscriviti al forum di discussione di newLISP e chiedi.
-
-4. Quanto è veloce newLISP?
----------------------------
-La velocità di calcolo di newLISP è confrontabile con quella dei popolari strumenti di scripting come Perl o Python, ma si comporta meglio quando si tratta di tempi di avvio e di memoria / spazio su disco.
-Dai un'occhiata ad alcuni benchmark: http://www.newLISP.org/benchmarks/
-Molte funzioni per cui altri linguaggi richiedono l'utilizzo di moduli esterni sono già incorporate in newLISP. Funzioni di networking e metodi matematici come FFT (Fast Fourier Analysis) o funzioni di apprendimento automatico bayesiano sono rapidissime in newLISP. Sono funzioni integrate e non richiedono alcun modulo esterno. Nonostante ciò, newLISP è più piccolo di altri linguaggi di scripting.
-
-5. newLISP ha le matrici?
--------------------------
-Sì. Per le applicazioni con accesso random a liste di grandi dimensioni, l'accesso può essere effettuato più velocemente utilizzando gli array di newLISP.
-
-6. newLISP ha le tabelle hash?
-------------------------------
-newLISP utilizza alberi binari red-black per l'accesso alla memoria associativa quando si gestiscono spazi dei nomi (namespace), dizionari e per l'accesso ai valori-chiave simili alla tecnica hash.
-
-7. newLISP ha una gestione automatica della memoria?
-----------------------------------------------------
-Sì. Ma non è il tipico processo di garbage collection che trovi in altri linguaggi interattivi. Proprio come la garbage collection dei tradizionali linguaggi, newLISP ricicla la memoria inutilizzata. Tuttavia, newLISP lo fa in un modo nuovo, molto più efficiente. La gestione della memoria di newLISP è sincrona senza pause improvvise nell'elaborazione che vengono osservate in linguaggi con garbage collection vecchio stile. L'esclusiva gestione automatica della memoria di newLISP è una delle ragioni della sua velocità, delle sue dimensioni ridotte e dell'uso efficiente della memoria.
-Vedi anche: "Automatic Memory Management in newLISP" di Lutz Mueller
-
-http://www.newLISP.org/MemoryManagement.html
-
-8. newLISP può passare i dati per riferimento?
-----------------------------------------------
-Tutte le funzioni integrate passano liste e stringhe per riferimento sia in ingresso che in uscita. Per passare per riferimento a funzioni definite dall'utente, liste e stringhe possono essere raggruppati in spazi dei nomi particolari (context). Maggiori informazioni su questo argomento sul manuale utente. Dalla versione 10.2, FOOP passa per riferimento anche l'oggetto.
-
-9. Come funziona il variable scoping in newLISP?
-------------------------------------------------
-newLISP ha uno scope dinamico applicato all'interno di contesti o spazi dei nomi separati lessicalmente. I namespace hanno un overhead molto piccolo e possono esisterne a milioni. I contesti in newLISP consentono la chiusura lessicale di più di una funzione lambda e di un oggetto. I contesti possono essere utilizzati per scrivere funzioni con scope lessicale con memoria, moduli software e oggetti. Ciò evita le insidie dello scope dinamico e aiuta a strutturare programmi più grandi.
-
-10. newLISP gestisce il multiprocessing?
-----------------------------------------
-Le versioni Linux / UNIX di newLISP possono eseguire il fork e lo spawn dei processi. Le versioni di Windows possono avviare processi figlio indipendenti. I semafori vengono utilizzati per sincronizzare i processi e la memoria condivisa può essere utilizzata per le comunicazioni tra i processi.
-Su macOS, Linux e altri Unix, l'API Cilk è integrata per facilitare il lancio e la sincronizzazione di più processi, in modo trasparente senza preoccuparsi di semafori, blocchi, ecc. È disponibile un'API di messaggistica asincrona per comunicare tra processi.
-
-11. Posso usare newLISP per compiti di calcolo distribuiti?
------------------------------------------------------------
-Alcune delle applicazioni più grandi di oggi vengono distribuite su più computer, dividendo le loro complesse attività tra più nodi su una rete. newLISP può essere eseguito come server per valutare i comandi inviati da altri client newLISP ad esso connessi. La funzione "net-eval" incapsula tutta la gestione della rete necessaria per comunicare con altri computer sulla rete, distribuire il codice e le attività di calcolo e raccogliere i risultati in un modo bloccante o basato sugli eventi. newLISP può anche fungere da server Web che gestisce le richieste HTTP incluso CGI.
-
-12. Possiamo utilizzare la metodologia di programmazione orientata agli oggetti?
---------------------------------------------------------------------------------
-newLISP offre un nuovo modo di programmazione orientata agli oggetti funzionale chiamata FOOP. Usa gli spazi dei nomi per raccogliere tutti i metodi per una classe di oggetti e usa le normali espressioni S per rappresentare gli oggetti. Per ulteriori dettagli su questo nuovo modo di programmazione orientata agli oggetti in newLISP consultare la serie di video di addestramento "Towards FOOP" nella sezione documentazione e il capitolo "Functional object-oriented programming" nel manuale utente. Dalla versione 10.2 gli oggetti FOOP sono mutabili.
-
-13. Cosa sono  pacchetti e moduli?
-----------------------------------
-newLISP utilizza gli spazi dei nomi per la creazione di pacchetti e moduli. Esistono moduli per l'accesso ai database come MySQL, PostgreSQL e SQLite, nonché ODBC. I moduli aggiuntivi supportano i protocolli Internet FTP, POP3, SMTP e REST. Poiché i nuovi spazi dei nomi di LISP vengono chiusi lessicamente, newLISP consente ai programmatori di trattare i moduli come black box. Questo metodologia è adatta per gruppi di programmatori che lavorano su applicazioni di grandi dimensioni.
-newLISP può anche chiamare funzioni di librerie C condivise su Linux / UNIX e sistemi operativi Windows per espandere le sue funzionalità.
-I moduli possono essere documentati utilizzando il sistema di documentazione automatica  newLISPdoc.
-
-14. Quali sono alcune differenze tra newLISP e altri LISP?
-----------------------------------------------------------
-Le nuove differenze di LISP dagli altri LISP includono: il funzionamento delle espressioni lambda, l'esistenza di namespace (o contesti), il passaggio parametri e, naturalmente, la  API di newLISP (repertorio di funzioni). Nel complesso, il nuovo modo di programmazione del LISP di newLISP lo rendono più veloce, più piccolo e più facile da capire e da apprendere. Per una discussione più dettagliata, vedere "Comparison to Common Lisp and Scheme":
-
-http://www.newLISP.org/index.cgi?page=Differences_to_Other_LISPs
-
-15. newLISP funziona sul sistema operativo XYZ?
------------------------------------------------
-Probabilmente si. newLISP ha un minimo di dipendenze. Utilizza solo librerie C standard per la compilazione. Se il tuo sistema ha strumenti GNU come il compilatore GCC e l'utility make, allora newLISP dovrebbe compilare e linkare immediatamente usando uno dei makefile contenuti nella sua distribuzione sorgente.
-newLISP viene creato utilizzando uno dei numerosi makefile, ciascuno scritto per una piattaforma specifica. Non ci sono script di make complessi. I makefile sono brevi e facili da modificare e adattare se  non sono già inclusi nella tua piattaforma o configurazione.
-
-16. newLISP può gestire i caratteri speciali del mio paese e della mia lingua?
-------------------------------------------------------------------------------
-Nella maggior parte del mondo occidentale, è sufficiente impostare le impostazioni internazionali utilizzando la funzione newLISP "set-locale".
-Più della metà dei paesi del mondo usano una virgola decimale invece di un punto decimale. newLISP leggerà e scriverà correttamente le virgole decimali quando passerà alla corretta locale.
-La maggior parte degli alfabeti nell'emisfero occidentale si adattano a tabelle di codici carattere a 256 codici e ogni carattere richiede un solo byte di 8 bit da codificare. Se la lingua del tuo paese richiede caratteri multibyte per codificarla, allora hai bisogno della versione di newLISP con supporto UTF-8 abilitato. I Makefile per Windows e Linux sono inclusi per compilare le versioni UTF-8 di newLISP. Nella versione UTF-8, molte funzioni di gestione dei caratteri sono in grado di gestire caratteri multibyte. Vedere il capitolo sulla localizzazione e UTF-8 nel manuale per i dettagli.
-
-17. L'indicizzazione implicita non infrange le regole di sintassi del LISP?
----------------------------------------------------------------------------
-Al contrario, l'indicizzazione implicita è un'estensione logica della sintassi LISP. Quando si valutano le espressioni S, il primo elemento viene applicato come una funzione agli elementi restanti nell'espressione che servono come argomenti della funzione. L'indicizzazione implicita consiste semplicemente nel considerare i membri dei tipi di dati numerici, di stringa e di elenco come operatori speciali di indicizzazione quando si trovano nella prima posizione di un'espressione S.
-
-18. newLISP può essere incorporato in altri programmi?
-------------------------------------------------------
-newLISP può essere compilato come libreria condivisa UNIX o DLL Windows (libreria a collegamento dinamico). Di conseguenza, le versioni di libreria condivisa di newLISP possono essere utilizzate all'interno di altri programmi che sono in grado di importare funzioni di libreria condivisa. Altri modi per integrare la tua applicazione con newLISP includono i pipe I/O e le porte di rete.
-Sui sistemi Win32, newLISP è stato utilizzato all'interno di MS Excel, MS Visual Basic e del generatore di applicazioni GUI NeoBook. Su UNIX, newLISP è stato utilizzato all'interno del foglio di calcolo di GNumeric. Su macOS, newLISP è stato utilizzato come linguaggio di estensione per l'editor di BBEdit grazie alla nuova LISP che comunica con BBEdit tramite i pipe di I/O standard. Il Guiserver basato su Java e il vecchio frontend Tcl/Tk per newLISP sono esempi di integrazione di newLISP tramite porte di rete.
-
-19. Copyright sui miei script anche se newLISP è concesso in licenza GPL?
--------------------------------------------------------------------------
-Si, puoi. Le FAQ di gnu.org per la GPL lo spiegano. Finché i tuoi script non usano altro software GPL di terze parti sotto forma di librerie importate o moduli caricati, i tuoi script in newLISP non devono necessariamente avere una licenza GPL. La maggior parte dei moduli sul sito Web di newLISP non ha licenza e non importa altre librerie. Se lo fanno, consultare le licenze di quelle librerie di terze parti.
-newLISP ti permette di distribuire un binario dell'interprete insieme al tuo sorgente. Quando si utilizza newLISP nel software, menzionare sempre il sito Web www.newLISP.org nella documentazione come luogo in cui è disponibile il codice sorgente per newLISP.
-
-20. Dove posso segnalare eventuali bug?
----------------------------------------
-La maggior parte delle segnalazioni di bug risulta dalla mancata lettura della documentazione o dal ritenere che newLISP funzioni come Common Lisp o Scheme. Le domande, i commenti e le segnalazioni di bug sono pubblicati sul forum ufficiale, dove vengono letti da molti altri, dando loro l'opportunità di commentare o dare consigli. Il forum consente anche di inviare messaggi privati.
-
-21. Posso compilare i miei script in programmi eseguibili?
-----------------------------------------------------------
-Si. Il comando: newLISP -x "myscript.lsp" "myscript.exe" genera un file eseguibile sul proprio sistema operativo.
 
 
 ============================================================================
@@ -40280,7 +41493,23 @@ https://weblambdazero.blogspot.com/2010/07/advanced-recursion-in-newLISP.html di
 
 
 ============================================================================
-newLISP - Lisp per tutti
+F-expression - FEXPR
+============================================================================
+
+Nei linguaggi di programmazione Lisp, una FEXPR è una funzione i cui operandi/parametri vengono passati ad essa senza essere valutati. Quando viene chiamato una FEXPR, viene valutato solo il corpo di FEXPR: non si effettuano altre valutazioni se non quando esplicitamente avviato/richiesto dalla FEXPR.
+
+Al contrario, quando viene chiamata una normale funzione Lisp, gli operandi vengono valutati automaticamente e solo i risultati di queste valutazioni vengono passati alla funzione.
+
+Quando viene chiamata una macro Lisp (tradizionale), gli operandi vengono passati in modo non valutato, ma qualunque sia il risultato ritornato dalla macro, questo viene valutato automaticamente.
+
+Nel rigoroso utilizzo originale, una FEXPR è quindi una funzione definita dall'utente i cui operandi vengono passati senza essere valutati. Tuttavia, nell'uso successivo, il termine FEXPR descrive qualsiasi funzione di prima classe/ordine i cui operandi vengono passati non valutati, indipendentemente dal fatto che la funzione sia primitiva o definita dall'utente.
+Le macro di newLISP sono FEXPR.
+
+Kent M. Pitman, "Special Forms in Lisp", Proceedings of the 1980 ACM Conference on Lisp and Functional Programming, 1980, pag. 179–187.
+
+
+============================================================================
+newLISP - Lisp per tutti (Krzysztof Kliś)
 ============================================================================
 
 Traduzione dell'articolo "newLISP - Lisp for the masses" di Krzysztof Kliś
@@ -40344,7 +41573,7 @@ Per esempio,
 
 
 ============================================================================
-Ricorsione avanzata in newLISP
+Ricorsione avanzata in newLISP (Krzysztof Kliś)
 ============================================================================
 
 Traduzione dell'articolo "Advanced Recursion in newLISP" di Krzysztof Kliś
@@ -40440,7 +41669,7 @@ Un "thunk" è una subroutine usata per iniettare un calcolo addizionale in un'al
 
 
 ============================================================================
-Differenze tra newLISP, Scheme e Common LISP di Lutz Mueller
+Differenze tra newLISP, Scheme e Common LISP (Lutz Mueller)
 ============================================================================
 
 Cerchiamo di capire quali sono le differenze tra newLISP, Scheme e Common LISP.
@@ -40648,7 +41877,7 @@ L'utilizzo dell'indicizzazione implicita è opzionale. In parecchi casi permette
 
 
 ============================================================================
-Chiusure, contesti e funzioni con stato di Lutz Mueller
+Chiusure, contesti e funzioni con stato (Lutz Mueller)
 ============================================================================
 
 Scheme utilizza le chiusure per scrivere funzioni generatrici, funzioni con stato e oggetti software. newLISP usa l'espansione delle variabili e spazi di nomi chiamati contesti (context) per fare lo stesso.
@@ -40820,7 +42049,7 @@ newLISP ha la possibilità unica di scrivere funzioni auto-modificanti.
 
 
 ============================================================================
-Creazione di funzioni con ambito lessicale in newLISP di Lutz Mueller
+Creazione di funzioni con ambito lessicale in newLISP (Lutz Mueller)
 ============================================================================
 
 Una funzione predefinita appare e si comporta in modo analogo alle funzioni con ambito statico trovate in altri linguaggi di programmazione. Diverse funzioni possono condividere uno spazio di nomi.
@@ -40886,7 +42115,7 @@ La macro def-static crea innanzitutto un'espressione lambda della funzione da de
 
 
 ============================================================================
-The Y of Why in newLISP di Lutz Mueller
+The Y of Why in newLISP (Lutz Mueller)
 ============================================================================
 
 Il compito è trovare una funzione Y, che può trasformare una funzione ricorsiva in una funzione veramente funzionale senza effetti collaterali, senza variabili libere e con la proprietà del punto fisso (fixed point). Quanto segue è una versione di "The Why of Y" [1] di Richard P. Gabriel modificata per newLISP.
@@ -41017,8 +42246,7 @@ https://mvanier.livejournal.com/2897.html
 
 
 ============================================================================
-Valutazione delle espressioni, Indicizzazione Implicita, Contesti e Funtori di Default
-di Lutz Mueller, 2007-2013.
+Valutazione delle espressioni, Indicizzazione Implicita, Contesti e Funtori di Default (Lutz Mueller)
 ============================================================================
 
 L'indicizzazione esplicita e i funtori di default sono una estensione delle normali regole di valutazione delle espressioni in LISP. I contesti forniscono spazi di nomi lessicamente chiusi (con stato) in un linguaggio di programmazione con ambito (scope) dinamico.
@@ -41372,8 +42600,7 @@ Recursive Functions of Symbolic Expressions and their Computation by Machine.
 
 
 ============================================================================
-Gestione Automatica della Memoria in newLISP
-di Lutz Mueller, 2004-2013
+Gestione Automatica della Memoria in newLISP (Lutz Mueller)
 ============================================================================
 
 ORO (One Reference Only) La gestione automatica della memoria sviluppata per newLISP è un'alternativa rapida e in grado di risparmiare risorse rispetto ai classici algoritmi di garbage collection dei linguaggi di programmazione dinamici e interattivi. Questo articolo spiega come funziona la gestione della memoria di tipo ORO.
@@ -41656,6 +42883,16 @@ Frasi Famose sulla Programmazione e sul Linguaggio Lisp
   "Advanced Recursion in newLISP" di Krzysztof Kliś
   https://weblambdazero.blogspot.com/2010/07/advanced-recursion-in-newLISP.html
 
+  "The Art of Computer Programming", Donald Knuth, 4 volumi, 1968...2015
+  
+  "Introduction to Algorithms", Cormen-Leiserson-Rivest-Stein, 3ed, 2009
+  
+  "Teoria e Progetto di Algoritmi Fondamentali", Ausiello-Marchetti-Spaccamela-Protasi, 1985
+  
+  "Land of Lisp", Conrad Barsky, 2011
+  
+  "Structure and Interpretation of Computer Programs",  Abelson-Sussman, 2ed, 1996
+
   Computer e Matematica:
   https://www.nayuki.io
 
@@ -41679,13 +42916,6 @@ Frasi Famose sulla Programmazione e sul Linguaggio Lisp
 
   GeeksforGeeks - Un portale di computer science per "geeks"
   https://www.geeksforgeeks.org/
-
-  "The Art of Computer Programming", Donald Knuth, 4 volumi, 1968...2015
   
-  "Introduction to Algorithms", Cormen-Leiserson-Rivest-Stein, 3ed, 2009
   
-  "Teoria e Progetto di Algoritmi Fondamentali", Ausiello-Marchetti-Spaccamela-Protasi, 1985
   
-  "Land of Lisp", Conrad Barsky, 2011
-  
-  "Structure and Interpretation of Computer Programs",  Abelson-Sussman, 2ed, 1996

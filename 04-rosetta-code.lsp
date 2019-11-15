@@ -5658,3 +5658,153 @@ Comunque con diversi tentativi si possono ottenere risultati sorprendenti con la
 In questo caso è stata più veloce della funzione deterministica.
 
 
+------------------
+TOZIENTE DI EULERO
+------------------
+
+La funzione φ (phi) di Eulero o funzione toziente, è una funzione definita, per ogni intero positivo n, come il numero degli interi compresi tra 1 e n che sono coprimi con n. Ad esempio, phi(8) = 4 poiché i numeri coprimi di 8 sono quattro: 1, 3, 5 e 7.
+
+Funzione per verificare se due numeri sono coprimi:
+
+(define (coprimi? a b) (= (gcd a b) 1))
+
+Funzione per calcolare il toziente:
+
+(define (toziente-coprimi num)
+  (let (toz 0)
+    (dotimes (i (- num 1))
+      ;(println (+ i 1) { } num { } (coprimi? (+ i 1) num))
+      (if (coprimi? (+ i 1) num)
+          (++ toz)
+          toz))))
+
+(toziente-coprimi 8)
+;-> 4
+(toziente-coprimi 10090)
+;-> 4032
+(toziente-coprimi 5e6)
+;-> 2000000
+
+Questa funzione ha complessità temporale O(n).
+
+Un'altro metodo per calcolare il toziente è quello di utilizzare la seguente formula:
+
+phi(n) = n * [(1 - 1/p(1)) * (1 - 1/p(2)) * ... * (1 - 1/p(r))]
+
+dove p(1), p(2), ... p(r) sono i fattori primi distinti del numero n.
+
+Utilizzando la fattorizzazione, il problema ha la stessa complessità temporale di quella della fattorizzazione di un numero O(sqrt n).
+
+(define (toziente-factor num)
+  (let ((result num) (i 2))
+    ; Per ogni fattore primo di n (fattore p),
+    ; moltiplica il risultato per (1 - 1/p)
+    (while (<= (* p p) num)
+      ; Controlla se p è un fattore primo
+      (if (= 0 (% num p))
+          ; Se è vero, allora aggiorna num e il risultato
+          (begin
+          (while (= 0 (% num p)) (setq num (/ num p)))
+          (setq result (mul result (sub 1 (div 1 p))))
+          )
+      )
+      (++ p)
+    )
+    ; Se n ha un fattore primo maggiore di sqrt (n)
+    ; (Può esserci al massimo uno di questi fattori primi)
+    (if (> num 1)
+        (setq result (mul result (sub 1 (div 1 num))))
+    )
+    (round result 0)
+  )
+)
+
+(toziente-factor 8)
+;-> 4
+(toziente-factor 10090)
+;-> 4032
+(toziente-factor 5e6)
+;-> 2000000
+
+Per evitare i calcoli floating-point possiamo utilizzare il seguente metodo: contare tutti i fattori primi e i loro multipli e sottrarre questo conteggio da n per ottenere il valore della funzione toziente (i fattori primi e i multipli di fattori primi non hanno gcd = 1).
+
+I passi da seguire sono i seguenti:
+
+1) Inizializza il risultato come num
+2) Considera ogni numero 'p' (dove 'p' varia da 2 a num).
+    Se p divide n, procedi come segue
+    a) Sottrai tutti i multipli di p da 1 a n (tutti i multipli di p
+       hanno gcd maggiore di 1 (almeno p) con num)
+    b) Aggiorna n dividendolo ripetutamente per p.
+3) Se il valore ridotto di num è superiore a 1, rimuovi tutti i multipli
+    di num dal risultato.
+
+(define (toziente-factor-int num)
+  (let ((result num) (i 2))
+    (while (<= (* i i) num)
+      (if (= 0 (% num i))
+          (begin
+          (while (= 0 (% num i)) (setq num (/ num i)))
+          (setq result (- result (/ result i)))
+          )
+      )
+      (++ i)
+    )
+    (if (> num 1)
+        (setq result (- result (/ result num)))
+    )
+    result
+  )
+)
+
+(toziente-factor-int 8)
+;-> 4
+(toziente-factor-int 10090)
+;-> 4032
+(toziente-factor-int 5e6)
+;-> 2000000
+
+Adesso scriviamo una nuova funzione per il calcolo del toziente utilizzando le primitive di newLISP (in stile LISP):
+
+(define (toziente num)
+    (round (mul num (apply mul (map (fn (x) (sub 1 (div 1 x))) (unique (factor num))))) 0))
+
+Calcola la lista dei fattori unici:
+(unique (factor num))
+
+Applica la funzione (1 - 1/p) agli elementi della lista dei fattori unici:
+(map (fn (x) (sub 1 (div 1 x))) ...
+
+Moltiplica n e tutti gli elementi della lista
+(mul num (apply mul ...
+
+(toziente 8)
+;-> 4
+(toziente 10090)
+;-> 4032
+(toziente 5e6)
+;-> 200000
+
+Non ci resta che verificare quale funzione è la più veloce.
+
+(time (toziente-coprimi 5e6))
+;-> 1884.903
+(time (toziente-factor 5e6))
+;-> 0
+(time (toziente-factor-int 5e6))
+;-> 0
+(time (toziente 5e6))
+;-> 0
+
+Le ultime tre funzioni devono essere differenziate ripetendo il calcolo per un certo numero di volte (50000):
+
+(time (toziente-factor 5e6) 50000)
+;-> 175.132
+(time (toziente-factor-int 5e6) 50000)
+;-> 164.518
+(time (toziente 5e6) 50000)
+;-> 144.019
+
+Il risultato è conforme alle aspettative logiche.
+
+

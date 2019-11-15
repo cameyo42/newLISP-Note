@@ -179,6 +179,7 @@ Moltiplicare due numeri naturali (interi positivi)
 (moltiplica 20 30)
 ;-> 600
 
+
 ------------------------------
 Divisione solo con sottrazioni
 ------------------------------
@@ -890,6 +891,7 @@ Adesso possiamo scrivere la funzione "raggruppa":
 ;-> (((1 2) (3 4)) ((5 6) (7 8)) ((9 10) (11 12)))
 
 Con newLISP possiamo utilizzare la funzione "explode".
+
 
 -----------------------------------
 Enumerare gli elementi di una lista
@@ -3480,5 +3482,429 @@ Scriviamo due funzioni separate "primo+" e "primo-".
 
 (primo+ 2)
 ;-> 3
+
+
+----------------------------
+Giorno Giuliano (Julian day)
+----------------------------
+Il giorno giuliano (Julian Day, JD) è il numero di giorni passati dal mezzogiorno del lunedì 1 gennaio 4713 a.C. (-4012 1 1), che viene considerato il giorno 0 (zero) del calendario giuliano.
+Il sistema dei giorni giuliani fornisce un singolo sistema di datazione che permette di lavorare con differenti calendari (in pratica è un metodo di normalizzazione delle date).
+
+La formula per il calcolo del giorno giuliano è la seguente:
+
+  JDN = (1461 × (Y + 4800 + (M − 14)/12))/4 +(367 × (M − 2 − 12 × ((M − 14)/12)))/12 − (3 × ((Y + 4900 + (M - 14)/12)/100))/4 + D − 32075
+
+dove Y = Year  (anno)
+     M = Month (mese)
+     D = Day   (giorno)
+
+Nota: le divisioni sono tutte intere, i resti vengono scartati.
+
+Preferisco usare le formule (equivalenti) definite da Claus Tondering in "Calendar FAQ" e disponibili al seguente indirizzo web:
+
+ https://stason.org/TULARC/society/calendars/index.html
+
+In cui si trovano molte informazioni interessanti sulle date e sui vari calendari creati dall'uomo.
+
+Vediamo l'algoritmo per il calcolo del giorno giuliano.
+
+Calcolare le seguenti variabili ausiliarie:
+
+  a = (14-month)/12
+  y = year + 4800 - a
+  m = month + 12*a - 3
+
+Per una data nel calendario Gregoriano:
+
+  JD = day + (153*m + 2)/5 + y*365 + y/4 - y/100 + y/400 - 32045
+
+Per una data nel calendario Giuliano:
+
+  JD = day + (153*m + 2)/5 + y*365 + y/4 - 32083
+
+Il calendario Gregoriano viene utilizzato per le date che vanno dal 15 ottobre 1582 d.C. in avanti e il calendario Giuliano viene utilizzato per le date precedenti al 4 ottobre 1582.
+
+Nota: Il calendario Giuliano non ha nulla in comune con il giorno giuliano.
+Il calendario Giuliano fu introdotto da Giulio Cesare nel 45 AC ed era di uso comune fino al 1500, quando i paesi iniziarono ad utilizzare il calendario Gregoriano.
+
+Scriviamo la funzione per il calcolo del numero del giorno giuliano partendo da una data del calendario Gregoriano:
+
+(define (julian-g year month day)
+  (local (a y m)
+    (setq a (/ (- 14 month) 12))
+    (setq y (+ year 4800 (- a)))
+    (setq m (+ month (* 12 a) (- 3)))
+    (+ day (/ (+ (* 153 m) 2) 5) (* y 365) (/ y 4) (- (/ y 100)) (/ y 400) (- 32045))
+  )
+)
+
+(julian-g 2019 11 11)
+;-> 2458799
+
+(julian-g 2019 11 12)
+;-> 2458800
+
+Nota: per gli anni Avanti Cristo (Before Christ) occorre prima convertire l'anno A.C. in un anno negativo (es. 10 A.C. = -9).
+
+Le "Idi di Marzo", il giorno dell'assassinio di Giulio Cesare avvenuto il 15 marzo del 44 A.C.
+
+(julian-g -43 3 15)
+;-> 1705428
+
+Scriviamo la funzione per il calcolo del numero del giorno giuliano partendo da una data del calendario Giuliano:
+
+(define (julian-j year month day)
+  (local (a y m)
+    (setq a (/ (- 14 month) 12))
+    (setq y (+ year 4800 (- a)))
+    (setq m (+ month (* 12 a) (- 3)))
+    (+ day (/ (+ (* 153 m) 2) 5) (* y 365) (/ y 4) (- 32083))
+  )
+)
+
+(julian-j 2019 11 11)
+;-> 2458812
+
+(julian-j 2019 11 12)
+;-> 2458813
+
+Verifichiamo il primo giorno del periodo giuliano:
+
+(julian-j -4712 01 01)
+;-> 0
+
+Per convertire un giorno giuliano in una data del calendario Gregoriano o Giuliano utilizziamo il seguente algoritmo:
+
+Per il calendario Gregoriano:
+
+  a = JD + 32044
+  b = (4*a + 3)/146097
+  c = a - (b*146097)/4
+
+Per il calendario Giuliano:
+
+  a = 0
+  b = 0
+  c = JD + 32082
+
+Poi, per entrambi i calendari:
+
+  d = (4*c + 3)/1461
+  e = c - (1461*d)/4
+  m = (5*e + 2)/153
+
+Infine calcoliamo la data:
+
+  giorno = e - (153*m + 2)/5 + 1
+  mese   = m + 3 - 12*(m/10)
+  anno   = b*100 + d - 4800 + m/10
+
+Scriviamo la funzione che converte da giorno giuliano a data Gregoriana (anno mese giorno):
+
+(define (date-g JD)
+  (local (a b c d e m)
+    (setq a (+ JD 32044))
+    (setq b (/ (+ (* 4 a) 3) 146097))
+    (setq c (- a (/ (* b 146097) 4)))
+    (setq d (/ (+ (* 4 c) 3) 1461))
+    (setq e (- c (/ (* 1461 d) 4)))
+    (setq m (/ (+ (* 5 e) 2) 153))
+    (list
+      (+ (* b 100) d (- 4800) (/ m 10))
+      (+ m 3 (- (* 12 (/ m 10))))
+      (+ e (- (/ (+ (* 153 m) 2) 5)) 1)
+    )
+  )
+)
+
+(julian-g 2019 11 11)
+;-> 2458799
+(date-g 2458799)
+;-> (11 11 2019)
+
+(julian-g 2019 11 12)
+;-> 2458800
+(date-g 2458800)
+;-> (2019 11 12)
+
+(julian-g -43 3 15)
+;-> 1705428
+(date-g 1705428)
+;-> (-43 3 15)
+
+Scriviamo la funzione che converte da giorno giuliano a data Giuliana (anno mese giorno):
+
+(define (date-j JD)
+  (local (a b c d e m)
+    (setq a 0)
+    (setq b 0)
+    (setq c (+ JD 32082))
+    (setq d (/ (+ (* 4 c) 3) 1461))
+    (setq e (- c (/ (* 1461 d) 4)))
+    (setq m (/ (+ (* 5 e) 2) 153))
+    (list
+      (+ (* b 100) d (- 4800) (/ m 10))
+      (+ m 3 (- (* 12 (/ m 10))))
+      (+ e (- (/ (+ (* 153 m) 2) 5)) 1)
+    )
+  )
+)
+
+(julian-j 2019 11 11)
+;-> 2458812
+(date-j 2458812)
+;-> (2019 11 11)
+
+(julian-j 2019 11 12)
+;-> 2458813
+(date-j 2458813)
+;-> (2019 11 12)
+
+(julian-j -4712 01 01)
+;-> 0
+(date-j 0)
+;-> (-4712 1 1)
+
+Adesso vediamo come trovare il giorno della settimana partendo da un giorno giuliano.
+
+Sistema anglosassone
+Se la settimana comincia (giorno 0) con la Domenica (Sunday), allora risulta:
+
+  Sun Mon Tue Wed Thu Fri Sat
+  Dom Lun Mar Mer Gio Ven Sab
+   0   1   2   3   4   5   6
+
+  giorno = mod(JD + 1, 7)
+
+Sistema ISO internazionale
+Se la settimana comincia (giorno 1) con il Lunedi (Monday), allora risulta:
+
+  Mon Tue Wed Thu Fri Sat Sun
+  Lun Mar Mer Gio Ven Sab Dom
+   1   2   3   4   5   6   7
+
+  giorno = mod(J, 7) + 1
+
+(define (jd-day JD) (+ (% JD 7) 1))
+
+(julian-g -43 3 15)
+;-> 1705428
+(date-g 1705428)
+;-> (-43 3 15)
+(jd-day 1705428)
+;-> 5 ; Caio Giulio Cesare è morto di Venerdi
+
+Le date formano uno spazio affine. Ciò significa che il risultato della sottrazione di due date non è un'altra data, ma piuttosto un intervallo di tempo. Ad esempio, il risultato della sottrazione del 1 gennaio 2013 dal 2 gennaio 2013 è l'intervallo di tempo di un giorno. Non è un'altra data.
+
+In uno spazio affine, ci sono due tipi di oggetti, chiamati "punti" e "vettori". In questo caso i punti sono "date" e i vettori sono gli "intervalli" (numero di giorni). Con questi oggetti è possibile eseguire le seguenti operazioni:
+
+Operazione                      Risultato
+  data1 - data2                   intervallo
+  data + intervallo               data
+  data - intervallo               data
+  intervallo1 + intervallo2       intervallo
+  intervallo1 - intervallo2       intervallo
+
+Si noti in particolare che non è possibile sommare due date.
+
+Quindi con le funzioni che abbiamo definito (julian-g, date-g, jd-day ecc.) possiamo effettuare tutte le operazioni elencate sopra. Ad esempio, supponiamo di voler calcolare la differenza tra il 22 aprile 2010 e il 28 novembre 2012:
+
+Calcoliamo il giorno giuliano per ognuna delle due date:
+
+(setq jd1 (julian-g 2010 4 22))
+;-> 2455309
+(setq jd2 (julian-g 2012 11 28))
+;-> 2456260
+
+e poi calcoliamo la differenza:
+
+(setq diff (- jd2 jd1))
+;-> 951
+
+Un altro esempio: che giorno della settimana sarà il natale del 2020 ?
+
+(jd-day (julian-g 2020 12 25))
+;-> 5 ;venerdi
+
+
+-------------------------
+Punto interno al poligono
+-------------------------
+
+Dato un poligono e un punto, determinare se il punto è interno o esterno al poligono.
+
+Un metodo per verificare la presenza di un punto all'interno di una regione è il teorema della curva di Jordan. In sostanza, dice che un punto è all'interno di un poligono se, per qualsiasi raggio da questo punto, c'è un numero dispari di intersezioni del raggio con i segmenti (lati) del poligono. Questo vale per tutti i poligoni (concavi, convessi, con isole). Occorre considerare il caso particolare in cui il raggio interseziona uno o più vertici del poligono.
+
+Esempio:
+
+     |
+  14 |           X---------X
+     |          /           \
+     |         /             \
+  11 |        /         X-----X
+     |       /          |
+     |      /           |
+   8 |     X     p1     X
+     |      \           /
+   6 |    p2 \         /
+     |        \       /
+     |         \     /
+     |          \   /
+     |           \ /
+   1 |            X
+     |
+  ---------------------------------
+     |     5     12     18 21 24
+
+Rappresentazione degli oggetti punto e poligono:
+
+pnt -> (x y)
+
+poly ((x0 y0) (x1 y1) (x2 y2) (x3 y3) ... (xn yn))
+
+Definiamo prima la funzione:
+
+(define (point-in-polygon? pnt poly)
+  (local (numpoint i j res)
+    (setq numpoint (length poly))
+    (setq res nil)
+    (setq i 0)
+    (setq j (- numpoint 1))
+    (while (< i numpoint)
+      (if (and (!= (> (last (poly i)) (last pnt)) (> (last (poly j)) (last pnt)))
+               (< (first pnt)
+                  (add (div (mul (sub (first (poly j)) (first (poly i)))
+                                 (sub (last pnt) (last (poly i))))
+                            (sub (last (poly j)) (last (poly i))))
+                       (first (poly i)))))
+          (setq res (not res))
+      )
+      (setq j i)
+      (setq i (+ i 1))
+    )
+    ; check if point is equal to a vertex of polygon
+    (dolist (el poly)
+      (if (and (= (first el) (first pnt))
+               (= (last el) (last pnt)))
+          (setq res true)))
+    res
+  )
+)
+
+Altra versione con variabili ausiliarie:
+
+(define (point-in-polygon? pnt poly)
+  (local (numpoint i j res a b)
+    (setq numpoint (length poly))
+    (setq res nil)
+    (setq i 0)
+    (setq j (- numpoint 1))
+    (while (< i numpoint)
+      (setq a (mul (sub (first (poly j)) (first (poly i)))
+                   (sub (last pnt) (last (poly i)))))
+      (setq b (sub (last (poly j)) (last (poly i))))
+      (if (and (!= (> (last (poly i)) (last pnt)) (> (last (poly j)) (last pnt)))
+               (< (first pnt) (add (div a b) (first (poly i)))))
+          (setq res (not res))
+      )
+      (setq j i)
+      (setq i (+ i 1))
+    )
+    ; check if point is equal to a vertex of polygon
+    (dolist (el poly)
+      (if (and (= (first el) (first pnt))
+               (= (last el) (last pnt)))
+          (setq res true)))
+    res
+  )
+)
+
+
+Poligono:
+(setq poligono '((12 1) (5 8) (12 14) (21 14) (24 11) (18 11) (18 8)))
+(setq poligono '((12 1) (5 8) (12 14) (21 14) (24 11) (18 11) (18 8) (12 1)))
+
+Punto interno p1:
+(setq p1 '(12 8))
+
+Punto esterno P2:
+(setq p2 '(5 6))
+
+(point-in-polygon? p1 poligono)
+;-> true
+
+(point-in-polygon? p2 poligono)
+;-> nil
+
+(point-in-polygon? '(21 12) poligono)
+;-> true
+
+(point-in-polygon? '(12 11) poligono)
+;-> true
+
+(point-in-polygon? '(21 10) poligono)
+;-> nil
+
+(point-in-polygon? '(5 11) poligono)
+;-> nil
+
+I punti del poligono appartengono al poligono:
+
+(point-in-polygon? '(5 8) poligono)
+;-> true
+
+(point-in-polygon? '(21 14) poligono)
+;-> true
+
+(point-in-polygon? '(12 1) poligono)
+;-> true
+
+Spiegazione rapida:
+Supponendo che il punto si trovi sulla coordinata y, la funzione calcola semplicemente le posizioni x in cui ciascuna dei lati (non orizzontali) del poligono interseziona con y. Conta il numero di posizioni x che sono inferiori alla posizione x del tuo punto. Se il numero di posizioni x è dispari, il punto è all'interno del poligono.
+Un altro modo di visualizzare questo metodo: tracciamo una linea dall'infinito direttamente al tuo punto. Quando questa linea attraversa un lato del poligono siamo all'interno del poligono. Quando attraversiamo di nuovo un lato del poligono, allora siamo fuori. Nuova intersezione, dentro... e così via.
+
+Spiegazione approfondita:
+Il metodo esamina un "raggio" che inizia nel punto testato e si estende all'infinito sul lato destro dell'asse X. Per ogni segmento poligonale, controlla se il raggio lo attraversa. Se il numero totale di attraversamenti di segmenti è dispari, il punto testato viene considerato all'interno del poligono, altrimenti è esterno.
+
+Per capire come viene calcolata la traversata, considerare la seguente figura:
+
+              v2
+              o
+             /
+            / c (intersezione)
+  o -------- x ----------------------> all'infinito
+  t       /
+         /
+        /
+       o
+       v1
+
+Affinché si verifichi l'intersezione, test.y deve essere compreso tra i valori y dei vertici del segmento (v1 e v2). Questa è la prima condizione dell'istruzione if nel metodo. In questo caso, la linea orizzontale deve intersecare il segmento. Resta solo da stabilire se l'intersezione avviene alla destra del punto testato o alla sua sinistra. Ciò richiede di trovare la coordinata x del punto di intersezione, che è:
+
+              t.y - v1.y
+c.x = v1.x + ----------- * (v2.x - v1.x)
+             v2.y - v1.y
+
+Tutto ciò che resta da fare è esaminare i casi particolari:
+
+Se v1.y == v2.y il raggio percorre il segmento e quindi il segmento non ha influenza sul risultato. In effetti, la prima parte dell'istruzione if restituisce false in quel caso.
+Il codice moltiplica prima e solo successivamente divide. Questo viene fatto per supportare differenze molto piccole tra v1.x e v2.x, che potrebbero portare a uno zero dopo la divisione, a causa dell'arrotondamento.
+
+Poi, viene il problema dell'incrocio esattamente su un vertice. Considera i seguenti due casi:
+
+           o                    o
+           |                     \     o
+           | A1                C1 \   /
+           |                       \ / C2
+  o--------x-----------x------------x--------> all'infinito
+          /           / \
+      A2 /        B1 /   \ B2
+        /           /     \
+       o           /       o
+                  o
+
+Ora, per verificare se funziona, controlla tu stesso cosa viene restituito per ciascuno dei 4 segmenti dalla condizione if nel corpo del metodo. Dovresti scoprire che i segmenti sopra il raggio (A1, C1, C2) ricevono un risultato positivo, mentre quelli sotto di esso (A2, B1, B2) ricevono un risultato negativo. Ciò significa che il vertice A contribuisce con un numero dispari (1) al conteggio dei passaggi, mentre B e C contribuiscono con un numero pari (0 e 2, rispettivamente), che è esattamente ciò che si desidera. A è davvero un vero incrocio del poligono, mentre B e C sono solo due casi di "sorvolo".
+
+Infine viene verificato il caso in cui il punto è uguale ad uno dei vertici del poligono.
 
 

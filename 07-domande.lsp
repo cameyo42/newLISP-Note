@@ -1758,7 +1758,6 @@ Possiamo scrivere la funzione:
 Parità di un numero (McAfee)
 ----------------------------
 
-
 Parità: la parità di un numero si riferisce al numero di bit che valgono 1.
 Il numero ha "parità dispari", se contiene un numero dispari di 1 bit ed è "parità pari" se contiene un numero pari di 1 bit.
 
@@ -1818,6 +1817,37 @@ Per controllare la correttezza utilizziamo le funzioni di conversione tra numero
 
 (parita 1113)
 ;-> dispari
+
+
+---------------------------------------
+Minimo e massimo di due numeri (McAfee)
+---------------------------------------
+
+Scrivere due funzioni per calcolare il minimo e il massimo tra due numeri utilizzando gli operatori bitwise.
+
+Le formule per trovare il minimo e il massimo tra due numeri sono le seguenti:
+
+minimo  = y + ((x - y) & ((x - y) >> (sizeof(int) * CHAR_BIT - 1)))
+
+Questo metodo shifta la sottrazione di x e y di 31 (se la dimensione dell'intero è 32). Se (x-y) è minore di 0, allora ((x-y) >> 31) sarà 1. Se (x-y) è maggiore o uguale a 0, allora ((x - y) >> 31) sarà 0. Quindi se (x >= y), otteniamo il minimo come (y + ((x-y) & 0)) che è y.
+Se x < y, otteniamo il minimo come (y + ((x-y) & 1)) che è x.
+
+Allo stesso modo, per trovare il massimo utilizzare la formula:
+
+massimo = x - ((x - y) & ((x - y) >> (sizeof(int) * CHAR_BIT - 1)))
+
+Per interi a 64 bit:
+
+(define (minimo x y)  (+ y (& (- x y) (>> (- x y) 63))))
+
+(define (massimo x y) (- x (& (- x y) (>> (- x y) 63))))
+
+(minimo 10 30)
+;-> 10
+(minimo 100 30)
+;-> 30
+
+Nota: queste funzioni producono un risultato errato per valori maggiori di (2^62 - 1) = 4611686018427387903 o minori di -(2^62 - 1) = -4611686018427387903.
 
 
 ------------------------------
@@ -2067,14 +2097,15 @@ La seguente funzione controlla la correttezza delle parentesi:
 ;-> true
 (par "{ { [ [ } } [ ( ) ] ] ]")
 ;-> nil
-(par "{ { [ [ [ ( ) ] ] ] } { [ ( ) ] }}")
+(par "{ { [ [ [ ( ) ] ] ] } { [ ( ) ] } }")
 ;-> true
+(par "{ { [ [ [ ( [ ] ) ] ] ] } { [ ( ) ] } }")
+;-> nil
 
 
 ------------------------------------------------
 K punti più vicini (K Nearest points) (LinkedIn)
 ------------------------------------------------
-
 
 Data una lista di N punti (xi, yi) sul piano cartesiano 2D, trova i K punti più vicini ad un punto centrale C (xc, yc). La distanza tra due punti su un piano è la distanza euclidea.
 È possibile restituire la risposta in qualsiasi ordine.
@@ -2789,7 +2820,6 @@ Distanza di Hamming tra DNA (Google)
 Date due sequenze di DNA (stringhe), determinare la distanza di Hamming. In pratica, occorre calcolare il numero di caratteri diversi tra due stringhe della stessa lunghezza.
 
 La struttura canonica del DNA ha quattro basi: Adenina (Adenine) (A), Citosina (Cytosine) (C), Guanina (Guanine) (G), e Timina (Thymine) (T).
-La struttura canonica del RNA ha quattro basi: Adenina (Adenine) (A), Citosina (Cytosine) (C), Guanina (Guanine) (G), e Uracile (Uracile) (U).
 
 (define (hamming-dist dna1 dna2)
   (let ((nl1 (explode dna1)) (nl2 (explode dna2)))
@@ -2801,5 +2831,60 @@ La struttura canonica del RNA ha quattro basi: Adenina (Adenine) (A), Citosina (
 
 (hamming-dist dna1 dna2)
 ;-> 3
+
+
+-------------------------------
+Controllo sequenza RNA (Google)
+-------------------------------
+
+Verificare se una sequenza RNA (stringa) contiene caratteri diversi da "A", "C", "G" e "U".
+La funzione deve restituire la lista dei caratteri diversi (i caratteri multipli devono comparire una sola volta).
+
+La struttura canonica del RNA ha quattro basi: Adenina (Adenine) (A), Citosina (Cytosine) (C), Guanina (Guanine) (G), e Uracile (Uracile) (U).
+
+Il primo algoritmo che viene in mente è quello di scorrere la stringa e collezionare in una lista tutti i caratteri che sono diversi da "A", "C", "G" e "U" (al termine occorre eliminare dalla lista i caratteri multipli).
+
+(define (check-rna rna)
+  (let (out '())
+    (dolist (el (explode rna))
+      (cond ((or (= el "A") (= el "C") (= el "G") (= el "U")) out)
+            (true (push el out -1)))) (unique out)))
+
+(setq rna1 "AAUCCGCUAG")
+(check-rna rna1)
+;-> ()
+
+(setq rna2 "AAACCCUUAG")
+(check-rna rna2)
+;-> ()
+
+(setq rna3 "ACCGTB ABABAUKL")
+(check-rna rna3)
+;-> ("T" "B" " " "K" "L")
+
+Utilizzando le funzioni built-in sugli insiemi possiamo scrivere la funzione in un modo diverso:
+
+(define (checkrna dna)
+  (difference (explode dna) '("A" "C" "G" "U")))
+
+(checkrna rna1)
+;-> ()
+(checkrna rna2)
+;-> ()
+(checkrna rna3)
+;-> ("T" "B" " " "K" "L")
+
+Vediamo la differenza di velocità:
+
+(setq rna4
+ "AGCBFHTGHFGFHSGBCVGTSGAFSRFDUGDTFGRGFGDGRKIDUHFGUAACGTAGCUBFHTGHFGFHSGBCVGTSGAFSRFDGDTFGR")
+
+(time (check-rna rna4) 25000)
+;-> 1174.073
+
+(time (checkrna rna4) 25000)
+;-> 524.879
+
+Le funzioni built-in sono sempre molto veloci.
 
 

@@ -58,6 +58,7 @@ newLISP IN GENERALE
   Attraversamento di stringhe
   Uscita anticipata da funzioni, cicli e blocchi
   Lavorare con file di dati (file i/o)
+  Salvare e caricare gli oggetti
   Struttura dati: il record
   Ambito (scope) dinamico e lessicale
   Contesti
@@ -87,7 +88,7 @@ FUNZIONI VARIE
   Estrarre l'elemento n-esimo da una lista
   Verificare se una lista è palindroma
   Verificare se una stringa è palindroma
-  Zippare due liste
+  Zippare N liste
   Sostituire gli elementi di una lista con un determinato valore
   Raggruppare gli elementi di una lista
   Enumerare gli elementi di una lista
@@ -125,6 +126,8 @@ FUNZIONI VARIE
   Normalizzazione di una lista di numeri
   Trasformazione omografica 2D
   Numeri primi successivi e precedenti
+  Giorno Giuliano (Julian day)
+  Punto interno al poligono
 
 newLISP 99 PROBLEMI (28)
 ========================
@@ -204,6 +207,7 @@ ROSETTA CODE
   Numeri di Tribonacci
   Numeri Eureka
   Abitazioni multiple
+  Toziente di Eulero
 
 PROJECT EULERO
 ==============
@@ -308,6 +312,7 @@ DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Prodotto massimo di due numeri in una lista (Facebook)
   Invertire le vocali (Google)
   Distanza di Hamming tra DNA (Google)
+  Controllo sequenza RNA (Google)
 
 LIBRERIE
 ========
@@ -354,19 +359,22 @@ NOTE LIBERE
   select e unselect (antiselect)
   Generatori 1
   Generatori 2
+  Shift logico e Shift aritmetico
+  fold-left e fold-right
+  La divisione di Feynman
 
 APPENDICI
 =========
   Lista delle funzioni newLISP
   Sul linguaggio newLISP - FAQ (Lutz Mueller)
-  F-expression - FEXPR
   newLISP in 21 minuti (John W. Small)
   newLISP per programmatori (Dmitry Chernyak)
-  notepad++ plugin
+  notepad++ bundle
   Visual Studio Code e newLISP
   Debugger
   Compilare i sorgenti di newLISP
   Ricorsione e ottimizzazione della chiamata di coda (Tail Call Optimization)
+  F-expression - FEXPR
   newLISP - Lisp per tutti (Krzysztof Kliś)
   Ricorsione avanzata in newLISP (Krzysztof Kliś)
   Differenze tra newLISP, Scheme e Common LISP (Lutz Mueller)

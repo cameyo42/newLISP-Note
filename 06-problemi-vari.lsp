@@ -2592,7 +2592,7 @@ Poi scriviamo il programma per trovare l'n-esimo numero Brutto:
 
 
 -----------------
-Numeri poligonali
+Numeri Poligonali
 -----------------
 
 Un numero poligonale è un numero che può essere rappresentato mediante uno schema geometrico regolare in modo da raffigurare un poligono regolare.
