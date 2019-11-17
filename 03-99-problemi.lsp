@@ -1,7 +1,7 @@
 ==========================
 
  newLISP 99 PROBLEMI (28)
- 
+
 ==========================
 
 Questi problemi sono stati creati per essere risolti con il linguaggio Prolog.
@@ -11,7 +11,8 @@ Potete trovare l'elenco completo dei problemi al sito:
 https://www.ic.unicamp.br/~meidanis/courses/mc336/2006s2/funcional/L-99_Ninety-Nine_Lisp_Problems.html
 http://beta-reduction.blogspot.com/search/label/L-99%3A%20Ninety-Nine%20Lisp%20Problems
 
-In questo documento vengono risolti solo i 28 problemi relativi alla elaborazione di liste.
+In questo capitolo vengono risolti solo i primi 28 problemi relativi alla elaborazione di liste.
+Molti problemi successivi al numero 28 sono risolti in altre parti di questo documento.
 
 Elenco problemi
 ---------------
@@ -45,6 +46,78 @@ N-99-25 Generare le permutazioni degli elementi di una lista
 N-99-26 Generare le combinazioni di K oggetti distinti tra gli N elementi di una lista
 N-99-27 Raggruppare gli elementi di un insieme in sottoinsiemi disgiunti.
 N-99-28 Ordinare una lista in base alla lunghezza delle sottoliste
+
+Arithmetic (Aritmetica)
+N-99-31  Determine whether a given integer number is prime
+N-99-32  Determine the greatest common divisor of two positive integer numbers
+N-99-33  Determine whether two positive integer numbers are coprime
+N-99-34  Calculate Euler's totient function phi(m)
+N-99-35  Determine the prime factors of a given positive integer
+N-99-36  Determine the prime factors of a given positive integer (2)
+N-99-37  Calculate Euler's totient function phi(m) (improved)
+N-99-38  Compare the two methods of calculating Euler's totient function
+N-99-39  A list of prime numbers
+N-99-40  Goldbach's conjecture
+N-99-41  A list of Goldbach compositions
+
+Logic and Codes (Logica e Codici)
+N-99-46  Truth tables for logical expressions
+N-99-47  Truth tables for logical expressions (2)
+N-99-48  Truth tables for logical expressions (3)
+N-99-49  Gray code
+N-99-50  Huffman code
+
+Binary trees (Alberi Binari)
+N-99-54A Check whether a given term represents a binary tree
+N-99-55  Construct completely balanced binary trees
+N-99-56  Symmetric binary trees
+N-99-57  Binary search trees (dictionaries)
+N-99-58  Generate-and-test paradigm
+N-99-59  Construct height-balanced binary trees
+N-99-60  Construct height-balanced binary trees with a given number of nodes
+N-99-61  Count the leaves of a binary tree
+N-99-61A Collect the leaves of a binary tree in a list
+N-99-62  Collect the internal nodes of a binary tree in a list
+N-99-62B Collect the nodes at a given level in a list
+N-99-63  Construct a complete binary tree
+N-99-64  Layout a binary tree (1)
+N-99-65  Layout a binary tree (2)
+N-99-66  Layout a binary tree (3)
+N-99-67  A string representation of binary trees
+N-99-68  Preorder and inorder sequences of binary trees
+N-99-69  Dotstring representation of binary trees
+N-99-70  Tree construction from a node string
+
+Multiway Trees (Alberi n-ari)
+N-99-70B Check whether a given term represents a multiway tree
+N-99-70C Count the nodes of a multiway tree
+N-99-71  Determine the internal path length of a tree
+N-99-72  Construct the bottom-up order sequence of the tree nodes
+N-99-73  Lisp-like tree representation
+
+Graphs (Grafi)
+N-99-80  Conversions
+N-99-81  Path from one node to another one
+N-99-82  Cycle from a given node
+N-99-83  Construct all spanning trees
+N-99-84  Construct the minimal spanning tree
+N-99-85  Graph isomorphism
+N-99-86  Node degree and graph coloration
+N-99-87  Depth-first order graph traversal (alternative solution)
+N-99-88  Connected components (alternative solution)
+N-99-89  Bipartite graphs
+
+Miscellaneous Problems (Problemi Vari)
+N-99-90  Eight queens problem
+N-99-91  Knight's tour
+N-99-92  Von Koch's conjecture
+N-99-93  An arithmetic puzzle
+N-99-94  Generate K-regular simple graphs with N nodes
+N-99-95  English number words
+N-99-96  Syntax checker (alternative solution with difference lists)
+N-99-97  Sudoku
+N-99-98  Nonograms
+N-99-99  Crossword puzzle
 
 =======================================================
 N-99-01 Estrarre l'ultimo elemento di una lista
@@ -1120,7 +1193,7 @@ N-99-27 Raggruppare gli elementi di un insieme in sottoinsiemi disgiunti
    (ciclo (cdr gs) (combination (car gs) lst) lst))
 
 (group '(2 2 3) '(luca vale andrea eva tommy roby vero))
-;-> (((luca vale) ((andrea eva) (tommy roby vero))) 
+;-> (((luca vale) ((andrea eva) (tommy roby vero)))
 ;->  ((luca vale) ((andrea tommy) (eva roby vero)))
 ;->  ((luca vale) ((andrea roby) (eva tommy vero)))
 ;->  ((luca vale) ((andrea vero) (eva tommy roby)))

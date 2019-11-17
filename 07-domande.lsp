@@ -2888,3 +2888,161 @@ Vediamo la differenza di velocità:
 Le funzioni built-in sono sempre molto veloci.
 
 
+-------------------------
+Somma di due box (Amazon)
+-------------------------
+
+Un box è una lista di coppie chiave/conteggio: ad esempio, un bag contenente due dell'articolo T, tre dell'articolo K e tre dell'articolo Z può essere scritto T2K3Z3. L'unione di due box è un singolo box contenente un elenco di coppie chiave/conteggio di entrambi i box: se esistono chiavi ripetute tri i due box, allora la coppia risultante ha il suo conteggio sommato: ad esempio, l'unione dei box T2K3Z3 e B1R3K2 vale T2K5Z3B1R3. L'ordine degli articoli nei box non è significativo.
+
+Rappresentiamo un box con una lista associativa.
+
+(setq box1 '((T 2) (K 3) (Z 3)))
+(setq box2 '((B 1) (R 3) (K 2)))
+
+(lookup 'K box1)
+;-> 3
+
+(lookup 'B box1)
+;-> nil
+
+(define (sum-box b1 b2)
+  (local (out val)
+    ; aggiungiamo il primo box al risultato
+    (setq out b1)
+    (dolist (el b2)
+          ;se la chiave dell'elemento di b2 esiste in out
+      (if (lookup (first el) out)
+          ; allora somma i due valori in out
+          ;(setf (lookup (first el) out) (+ (lookup (first el) out) (last el)))
+          ; usiamo la varibile anaforica $it di setf
+          (setf (lookup (first el) out) (+ $it (last el)))
+          ; altrimenti aggiungi l'elemento di b2 in out
+          (push el out -1)
+      )
+    )
+    out
+  )
+)
+
+(sum-box box1 box2)
+;-> ((T 2) (K 5) (Z 3) (B 1) (R 3))
+
+(setq box1 '((T 2) (K 3) (Z 3)))
+(setq box2 '((B 1) (R 3) (K 2) (K 2) (B 3)))
+(sum-box box1 box2)
+;-> ((T 2) (K 7) (Z 3) (B 4) (R 3))
+
+
+----------------------------
+Punti vicini a zero (Amazon)
+----------------------------
+
+Dato un milione di punti (x, y), scrivere una funzione per trovare i 100 punti più vicini a (0, 0).
+
+La formula della distanza al quadrato tra due punti in cui uno vale (0 0) è la seguente:
+
+(define (dist0 x y) (add (mul x x) (mul y y)))
+
+La soluzione più semplice (ma non la più veloce) è quella di calcolare la distanza al quadrato per ogni punto e poi ordinare il risultato. La lsita che dovremo ordinare è composta da elementi con la seguente struttura:
+
+(distanza coord-x coord-y)
+
+(define (cento lst)
+  (let (out '())
+    (dolist (el lst)
+      (push (list (dist0 (first el) (last el)) (first el) (last el)) out -1)
+    )
+    (slice (sort out) 0 99)
+  )
+)
+
+Proviamo con una lista di 10000 punti:
+
+(setq lst (map (fn(x) (list (+ (rand 10000) 1) (+ (rand 10000) 1))) (sequence 1 10000)))
+
+(cento lst)
+;-> ((132994 363 35) (133613 322 173) (142322 331 181)
+;-> ...
+;-> (12966169 3580 387) (13184525 2830 2275) (13267610 3629 313))
+
+Proviamo con una lista di un milione di punti:
+
+(silent (setq lst (map (fn(x) (list (+ (rand 10000) 1) (+ (rand 10000) 1))) (sequence 1 1000000))))
+
+(time (cento lst))
+;-> 1984.666
+
+La funzione impiega quasi due secondi per risolvere il problema. Questo risultato è dovuto principalmente alla velocità della funzione built-in "sort".
+Un altro metodo sarebbe quello di inserire i punti mantenendo la lista ordinata durante la costruzione (heap). In questo modo non sarebbe necessario il sort finale, ma solo l'estrazione dei primi cento elementi della lista. Poichè newLISP non ha una struttura heap, la creazione di una struttura heap con le liste sarebbe, probabilmente, più lenta dell'uso della funzione "sort".
+
+
+------------------------
+Trova la Funzione (Uber)
+------------------------
+
+Scivere una funzione f in modo che f(f(n)) = -n per ogni numero intero n.
+
+La prima soluzione che mi è venuta in mente...
+
+(define (nega n) (if (>= n 0) (- n) n))
+
+(nega (nega 3))
+;-> -3
+
+Ma la prova con i numeri negativi fallisce (il risultato dovrebbe essere +3):
+
+(nega (nega -3))
+;-> -3
+
+L'intuizione è stata quella di separare il segno e la grandezza del numero dalla parità del numero.
+Quindi ci sono tre regole:
+
+1) Se il numero è pari, mantenere lo stesso segno e avvicinarsi di 1 a 0 (quindi, sottrarre 1 da un numero pari positivo e aggiungere 1 a un numero pari negativo.
+
+2) Se il numero è dispari, cambiare il segno e spostarsi di 1 più lontano da 0 (quindi, moltiplicare per -1 e sottrarre 1 da un numero dispari positivo e moltiplicare per -1 e aggiungere 1 a un numero pari negativo.
+
+3) Nel caso in cui n vale 0, tutto rimane invariato (lo zero non ha segno, quindi non possiamo cambiarlo)
+
+Ecco la funzione:
+
+(define (f n)
+  (cond ((and (> n 0) (even? n)) (- n 1))
+        ((and (> n 0) (odd? n))  (- (- n) 1))
+        ((and (< n 0) (even? n)) (+ n 1))
+        ((and (< n 0) (odd? n))  (+ (- n) 1))
+        (true 0)))
+
+(f (f 1))
+;-> -1
+(f (f -1))
+;-> 1
+
+(f (f 3))
+;-> -3
+(f (f -3))
+;-> 3
+
+(f (f 0))
+;-> 0
+
+Un altro metodo è quello di considerare il numero n come una lista:
+
+(define (f1 n)
+ (if (list? n)
+     (- (first n))
+     (list n)))
+
+(f1 (f1 -1))
+;-> 1
+(f1 (f1 1))
+;-> -1
+
+(f1 (f1 3))
+;-> -3
+(f1 (f1 -3))
+;-> 3
+
+(f1 (f1 0))
+;-> 0
+
+

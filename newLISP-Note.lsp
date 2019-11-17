@@ -128,6 +128,9 @@ FUNZIONI VARIE
   Numeri primi successivi e precedenti
   Giorno Giuliano (Julian day)
   Punto interno al poligono
+  Prodotto cartesiano
+  Insieme delle parti (powerset)
+  Terne pitagoriche
 
 newLISP 99 PROBLEMI (28)
 ========================
@@ -208,6 +211,7 @@ ROSETTA CODE
   Numeri Eureka
   Abitazioni multiple
   Toziente di Eulero
+  Numeri Vampiri
 
 PROJECT EULERO
 ==============
@@ -313,6 +317,9 @@ DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Invertire le vocali (Google)
   Distanza di Hamming tra DNA (Google)
   Controllo sequenza RNA (Google)
+  Somma di due box (Amazon)
+  Punti vicini a zero (Amazon)
+  Trova la Funzione (Uber)
 
 LIBRERIE
 ========
@@ -9482,7 +9489,7 @@ La funzione che effettua la trasformazione ha i seguenti parametri:
 Trasformazione omografica 2D
 ----------------------------
 
-Una omografia è una relazione tra punti di due spazi tali per cui ogni punto di uno spazio corrisponde ad uno ed un solo punto del secondo spazio. Si basa su concetti geometrici e matematici abbastanza, noti come "coordinate omogenee" e "piani proiettivi", la cui spiegazione non rientra nell'ambito di questo documento.
+Una omografia è una relazione tra punti di due spazi tali per cui ogni punto di uno spazio corrisponde ad uno ed un solo punto del secondo spazio. Si basa su concetti geometrici e matematici abbastanza complessi, noti come "coordinate omogenee" e "piani proiettivi", la cui spiegazione non rientra nell'ambito di questo documento.
 
 Giusto per dare un'idea semplificata, il familiare "piano cartesiano" è composto da un insieme di punti che hanno una correlazione uno-a-uno con coppie di numeri reali, ovvero X-Y sui due assi. Il "piano proiettivo" invece è un superset di quel piano reale dove per ogni punto consideriamo anche tutte le possibili (infinite) rette verso lo spazio.
 
@@ -10160,6 +10167,9 @@ Supponendo che il punto si trovi sulla coordinata y, la funzione calcola semplic
 Un altro modo di visualizzare questo metodo: tracciamo una linea dall'infinito direttamente al tuo punto. Quando questa linea attraversa un lato del poligono siamo all'interno del poligono. Quando attraversiamo di nuovo un lato del poligono, allora siamo fuori. Nuova intersezione, dentro... e così via.
 
 Spiegazione approfondita:
+
+https://stackoverflow.com/questions/8721406/how-to-determine-if-a-point-is-inside-a-2d-convex-polygon
+
 Il metodo esamina un "raggio" che inizia nel punto testato e si estende all'infinito sul lato destro dell'asse X. Per ogni segmento poligonale, controlla se il raggio lo attraversa. Se il numero totale di attraversamenti di segmenti è dispari, il punto testato viene considerato all'interno del poligono, altrimenti è esterno.
 
 Per capire come viene calcolata la traversata, considerare la seguente figura:
@@ -10199,15 +10209,267 @@ Poi, viene il problema dell'incrocio esattamente su un vertice. Considera i segu
        o           /       o
                   o
 
-Ora, per verificare se funziona, controlla tu stesso cosa viene restituito per ciascuno dei 4 segmenti dalla condizione if nel corpo del metodo. Dovresti scoprire che i segmenti sopra il raggio (A1, C1, C2) ricevono un risultato positivo, mentre quelli sotto di esso (A2, B1, B2) ricevono un risultato negativo. Ciò significa che il vertice A contribuisce con un numero dispari (1) al conteggio dei passaggi, mentre B e C contribuiscono con un numero pari (0 e 2, rispettivamente), che è esattamente ciò che si desidera. A è davvero un vero incrocio del poligono, mentre B e C sono solo due casi di "sorvolo".
+Ora, per verificare se funziona, occorre controllare cosa viene restituito per ciascuno dei 4 segmenti dalla condizione if nel corpo del metodo. Scopriamo che i segmenti sopra il raggio (A1, C1, C2) ricevono un risultato positivo, mentre quelli sotto di esso (A2, B1, B2) ricevono un risultato negativo. Ciò significa che il vertice A contribuisce con un numero dispari (1) al conteggio dei passaggi, mentre B e C contribuiscono con un numero pari (0 e 2, rispettivamente), che è esattamente ciò che si desidera. A è davvero un vero incrocio del poligono, mentre B e C sono solo due casi di "sorvolo".
 
 Infine viene verificato il caso in cui il punto è uguale ad uno dei vertici del poligono.
+
+Vedi anche: 
+
+https://stackoverflow.com/questions/217578/how-can-i-determine-whether-a-2d-point-is-within-a-polygon
+
+
+-------------------
+Prodotto cartesiano
+-------------------
+
+In matematica il prodotto cartesiano di due insiemi A e B è l'insieme delle coppie ordinate (a,b) cona in A e b in B:
+
+A x B = [(a,b): a in A AND b in B]
+
+Per esempiop, date due liste A = (1 2) e B = (3 4) il loro prodotto cartesiano vale:
+
+(1 2) x (3 4) = ((1 3) (1 4) (2 3) (2 4))
+
+cioè tutte le coppie formate dall'unione di ogni elemento della lista A con ogni elemento della lista B.
+
+Nota: Il prodotto cartesiano non è commutativo: (A x B) != (B x A)
+
+La funzione per calcolare il prodotto cartesiano di due liste è la seguente:
+
+(define (cp lst1 lst2)
+  (let (out '())
+    (if (or (null? lst1) (null? lst2)) 
+        nil
+        (dolist (el1 lst1)
+          (dolist (el2 lst2)
+            (push (list el1 el2) out -1))))))
+
+(cp '(1 2) '(3 4))
+;-> ((1 3) (1 4) (2 3) (2 4))
+
+(cp '(3 4) '(1 2))
+;-> ((3 1) (3 2) (4 1) (4 2))
+
+(cp '(1 2) '())
+;-> nil
+
+(cp '() '(1 2))
+;-> nil
+
+(cp '(1 2 3) '(4 5))
+;-> ((1 4) (1 5) (2 4) (2 5) (3 4) (3 5))
+
+Il prodotto cartesiano può essere esteso alla composizione di n insiemi considerando l'insieme delle n-uple ordinate:
+
+A1 x A2 x ... x An = [(a1,a2,...,an): a(i) in A(i) per i=1..n]
+
+Il prodotto cartesiano è naturalmente associativo:
+
+A1 x A2 x ... x An = A1 x (A2 x ... x An)
+
+Per calcolare il prodotto cartesiano di più liste (comunque racchiuse in una lista) potremmo applicare la funzione "apply":
+
+(apply cp '((1 2) (3 4) (5 6)) 2)
+;-> (((1 3) 5) ((1 3) 6) ((1 4) 5) ((1 4) 6) ((2 3) 5) ((2 3) 6) ((2 4) 5) ((2 4) 6))
+
+Il risultato è corretto, dobbiamo solo togliere le parentesi ad ogni elemento della lista:
+
+((1 3) 5) --> (1 3 5)
+((1 3) 6) --> (1 3 6)
+((1 4) 5) --> (1 4 5)
+...
+((2 4) 6) --> (2 4 6)
+
+Scriviamo la funzione che calcola il prodotto cartesiano di tutte le sotto-liste di una lista:
+
+(define (prodotto-cartesiano lst-lst)
+  (let (out '())
+    (dolist (el (apply cp lst-lst 2))
+      (push (flat el) out -1))))
+
+(prodotto-cartesiano '((1 2) (3 4) (5 6)))
+;-> ((1 3 5) (1 3 6) (1 4 5) (1 4 6) (2 3 5) (2 3 6) (2 4 5) (2 4 6))
+
+(prodotto-cartesiano '((1 2 3) (4) (5 6)))
+;-> ((1 4 5) (1 4 6) (2 4 5) (2 4 6) (3 4 5) (3 4 6))
+
+(prodotto-cartesiano '((1 5) (2 6) (3 7) (4 8 9)))
+;-> ((1 2 3 4) (1 2 3 8) (1 2 3 9) (1 2 7 4) (1 2 7 8) (1 2 7 9) (1 6 3 4) 
+;->  (1 6 3 8) (1 6 3 9) (1 6 7 4) (1 6 7 8) (1 6 7 9) (5 2 3 4) (5 2 3 8)
+;->  (5 2 3 9) (5 2 7 4) (5 2 7 8) (5 2 7 9) (5 6 3 4) (5 6 3 8) (5 6 3 9)
+;->  (5 6 7 4) (5 6 7 8) (5 6 7 9))
+
+(prodotto-cartesiano '((1 2 3) () (500 100)))
+
+Prodotto cartesiano di funzioni
+Se f è una funzione da A in B e g una funzione da C in }D, si definisce come loro prodotto cartesiano e si denota con f x g la funzione da A x C in B x D data da:
+
+[f x g](a,c) = [f(a), g(c)]
+
+(Abbiamo distinto le parentesi che delimitano argomenti di funzione () dalle parentesi che delimitano coppie ordinate [])
+
+Esempio:
+
+(define (pcf f g lst1 lst2)
+  (let (out '())
+    (if (or (null? lst1) (null? lst2)) 
+        nil
+        (dolist (el1 lst1)
+          (dolist (el2 lst2)
+            (push (list (f el1) (g el2)) out -1))))))
+
+(define (f x) x)
+(define (g x) (* x x))
+
+(pcf f g (sequence 1 3) (sequence 1 3))
+;-> ((1 1) (1 4) (1 9) (2 1) (2 4) (2 9) (3 1) (3 4) (3 9))
+
+
+------------------------------
+Insieme delle parti (powerset)
+------------------------------
+
+Dato un insieme L, l'insieme delle parti di L, scritto P(L), è l'insieme di tutti i sottoinsiemi di L. Questa collezione di insiemi viene anche detta insieme potenza di L.
+Se l'insieme L ha n elementi, allora l'insieme delle parti ha 2^n elementi.
+
+Esempio:
+(setq L '(1 2 3))
+(powerset-i L)
+;-> ((3 2 1) (3 2) (3 1) (3) (2 1) (2) (1) ())
+(length (powerset-i L))
+;-> 8
+
+Scriviamo una funzione ricorsiva cha calcola l'insieme potenza:
+
+(define (powerset lst)
+  (if (empty? lst)
+      (list '())
+      (let ( (element (first lst))
+             (p (powerset (rest lst))))
+           (append (map (fn (subset) (cons element subset)) p) p) )))
+
+(powerset '(a b c d))
+;-> ((a b c) (a b) (a c) (a) (b c) (b) (c) ())
+
+Adesso scriviamo una funzione iterativa cha calcola l'insieme potenza:
+
+(define (powerset-i lst)
+  (define (loop res s)
+    (if (empty? s)
+      res
+      (loop (append (map (lambda (i) (cons (first s) i)) res) res) (rest s))))
+  (loop '(()) lst))
+
+Vediamo la differenza di velocità tra le due funzioni:
+
+(time (powerset '(1 2 3 4 5 6 7 8 9 10 15 16)) 1000)
+;-> 2906.498
+
+(time (powerset-i '(1 2 3 4 5 6 7 8 9 10 15 16)) 1000)
+;-> 3672.166
+
+
+-----------------
+Terne pitagoriche
+-----------------
+
+Una terna pitagorica è costituita da tre numeri interi positivi a, b e c con a < b < c tale che a^2 + b^2 = c^2. Ad esempio, i tre numeri 3, 4 e 5 formano una tripla pitagorica perché 3^2 + 4^2 = 9 + 16 = 25 = 5^2. 
+
+Scrivere una funzione per generare tutte le terne pitagoriche.
+
+Esistono diversi metodi per generare le terne pitagoriche ad esempio l'algoritmo di Hall:
+
+Se (a b c) è una terna pitagorica primitiva, allora lo sono anche:
+
+  (a – 2b + 2c,  2a – b + 2c,  2a – 2b + 3c)
+  
+  (a + 2b + 2c,  2a + b + 2c,  2a + 2b + 3c)
+  
+  (-a + 2b + 2c, 2a + b + 2c, -2a + 2b + 3c)
+
+Comunque per generare tutte le terne pitagoriche useremo il metodo di Dickson:
+
+Per trovare soluzioni intere a x^2 + y^2 = z^2, trovare degli interi positivi r, s, t tali che r^2 = 2st sia un quadrato perfetto.
+Quindi calcolare la terna pitagorica (x y z):
+
+  x = r + s, y = r + t, z = r + s + t
+
+Notiamo che r è un numero intero pari e che s e t sono fattori di (r ^ 2) / 2. Tutte le terne pitagoriche possono essere trovate con questo metodo. Quando s e t sono coprimi, la terna viene detta primitiva.
+
+Nota: Una terna (x y z) viene detta primitiva quando x e y sono coprimi. Una terna primitiva (x y z) genera infinite terne non primitive moltiplicando i termini per un qualunque numero intero positivo n. 
+
+Esempio:
+
+Terna primitiva: (3 4 5)       n
+Terna non primitiva: (3 4 5) * 2 ==> (6 8 10)
+Terna non primitiva: (3 4 5) * 3 ==> (9 12 15)
+...
+
+Il metodo di Dickson genera tutte le terne pitagoriche, anche quelle simmetriche (quelle in cui vengono scambiati i valori di x e y). Esempio: (3 4 5) e (4 3 5) sono due terne pitagoriche distinte.
+
+La seguente funzione restituisce n terne pigatoriche:
+
+(define (terne n)
+  (local (a b c r f1 f2 idx somma continua out)
+    (setq r 2)
+    (setq f1 1)
+    (setq idx 0)
+    (while (< idx n)
+      (setq continua true)
+      (while continua
+      ; calcola i fattori s (f1) e t (f2) del prossimo r^2/2 
+      ; e inserisci l'equazione per s e t
+        (cond ((zero? (% (/ (* r r) 2) f1))
+                (setq f2 (/ (/ (* r r) 2) f1))
+                (setq a (+ r f1))
+                (setq b (+ r f2))
+                (setq c (+ r f1 f2))
+                (++ f1)
+                (setq continua nil)
+                (push (list a b c) out -1))
+                ; se f1 è maggiore di r^2/2, passa alla r successiva 
+                ; e imposta il fattore f1 a 1                
+              ((= f1 (+ (/ (* r r) 2) 1))
+                (setq r (+ r 2))
+                (setq f1 1))
+              (true (++ f1))
+        )
+      )
+      (++ idx)
+    )
+    out))
+
+Calcoliamo le prime venti terne pitagoriche (primitive e non primitive):
+
+(terne 20)
+;-> ((3 4 5) (4 3 5) (5 12 13) (6 8 10) (8 6 10) (12 5 13) (7 24 25)
+;->  (8 15 17) (9 12 15) (12 9 15) (15 8 17) (24 7 25) (9 40 41)
+;->  (10 24 26) (12 16 20) (16 12 20) (24 10 26) (40 9 41) (11 60 61)
+;->  (12 35 37))
+
+Se vogliamo estrarre solo le terne primitive usiamo la funzione "filter" con il seguente predicato che verifica se i primi due numeri di una terna sono coprimi:
+
+(define (coprimi? lst) (= (gcd (first lst) (first (rest lst))) 1))
+
+(coprimi? '(3 4 5))
+;-> true
+
+Estraiamo solo le terne primitive:
+
+(filter coprimi? (terne 20))
+;-> ((3 4 5) (4 3 5) (5 12 13) (12 5 13) (7 24 25) (8 15 17) (15 8 17) 
+;->  (24 7 25) (9 40 41) (40 9 41) (11 60 61) (12 35 37))
+
+Se vogliamo eliminare le terne simmetriche possiamo ordinare tutte le terne e poi rimuovere tutti i duplicati:
+
+(unique (map (fn(x) (sort x)) (filter coprimi? (terne 20))))
+;-> ((3 4 5) (5 12 13) (7 24 25) (8 15 17) (9 40 41) (11 60 61) (12 35 37))
 
 
 ==========================
 
  newLISP 99 PROBLEMI (28)
- 
+
 ==========================
 
 Questi problemi sono stati creati per essere risolti con il linguaggio Prolog.
@@ -10217,7 +10479,8 @@ Potete trovare l'elenco completo dei problemi al sito:
 https://www.ic.unicamp.br/~meidanis/courses/mc336/2006s2/funcional/L-99_Ninety-Nine_Lisp_Problems.html
 http://beta-reduction.blogspot.com/search/label/L-99%3A%20Ninety-Nine%20Lisp%20Problems
 
-In questo documento vengono risolti solo i 28 problemi relativi alla elaborazione di liste.
+In questo capitolo vengono risolti solo i primi 28 problemi relativi alla elaborazione di liste.
+Molti problemi successivi al numero 28 sono risolti in altre parti di questo documento.
 
 Elenco problemi
 ---------------
@@ -10251,6 +10514,78 @@ N-99-25 Generare le permutazioni degli elementi di una lista
 N-99-26 Generare le combinazioni di K oggetti distinti tra gli N elementi di una lista
 N-99-27 Raggruppare gli elementi di un insieme in sottoinsiemi disgiunti.
 N-99-28 Ordinare una lista in base alla lunghezza delle sottoliste
+
+Arithmetic (Aritmetica)
+N-99-31  Determine whether a given integer number is prime
+N-99-32  Determine the greatest common divisor of two positive integer numbers
+N-99-33  Determine whether two positive integer numbers are coprime
+N-99-34  Calculate Euler's totient function phi(m)
+N-99-35  Determine the prime factors of a given positive integer
+N-99-36  Determine the prime factors of a given positive integer (2)
+N-99-37  Calculate Euler's totient function phi(m) (improved)
+N-99-38  Compare the two methods of calculating Euler's totient function
+N-99-39  A list of prime numbers
+N-99-40  Goldbach's conjecture
+N-99-41  A list of Goldbach compositions
+
+Logic and Codes (Logica e Codici)
+N-99-46  Truth tables for logical expressions
+N-99-47  Truth tables for logical expressions (2)
+N-99-48  Truth tables for logical expressions (3)
+N-99-49  Gray code
+N-99-50  Huffman code
+
+Binary trees (Alberi Binari)
+N-99-54A Check whether a given term represents a binary tree
+N-99-55  Construct completely balanced binary trees
+N-99-56  Symmetric binary trees
+N-99-57  Binary search trees (dictionaries)
+N-99-58  Generate-and-test paradigm
+N-99-59  Construct height-balanced binary trees
+N-99-60  Construct height-balanced binary trees with a given number of nodes
+N-99-61  Count the leaves of a binary tree
+N-99-61A Collect the leaves of a binary tree in a list
+N-99-62  Collect the internal nodes of a binary tree in a list
+N-99-62B Collect the nodes at a given level in a list
+N-99-63  Construct a complete binary tree
+N-99-64  Layout a binary tree (1)
+N-99-65  Layout a binary tree (2)
+N-99-66  Layout a binary tree (3)
+N-99-67  A string representation of binary trees
+N-99-68  Preorder and inorder sequences of binary trees
+N-99-69  Dotstring representation of binary trees
+N-99-70  Tree construction from a node string
+
+Multiway Trees (Alberi n-ari)
+N-99-70B Check whether a given term represents a multiway tree
+N-99-70C Count the nodes of a multiway tree
+N-99-71  Determine the internal path length of a tree
+N-99-72  Construct the bottom-up order sequence of the tree nodes
+N-99-73  Lisp-like tree representation
+
+Graphs (Grafi)
+N-99-80  Conversions
+N-99-81  Path from one node to another one
+N-99-82  Cycle from a given node
+N-99-83  Construct all spanning trees
+N-99-84  Construct the minimal spanning tree
+N-99-85  Graph isomorphism
+N-99-86  Node degree and graph coloration
+N-99-87  Depth-first order graph traversal (alternative solution)
+N-99-88  Connected components (alternative solution)
+N-99-89  Bipartite graphs
+
+Miscellaneous Problems (Problemi Vari)
+N-99-90  Eight queens problem
+N-99-91  Knight's tour
+N-99-92  Von Koch's conjecture
+N-99-93  An arithmetic puzzle
+N-99-94  Generate K-regular simple graphs with N nodes
+N-99-95  English number words
+N-99-96  Syntax checker (alternative solution with difference lists)
+N-99-97  Sudoku
+N-99-98  Nonograms
+N-99-99  Crossword puzzle
 
 =======================================================
 N-99-01 Estrarre l'ultimo elemento di una lista
@@ -11326,7 +11661,7 @@ N-99-27 Raggruppare gli elementi di un insieme in sottoinsiemi disgiunti
    (ciclo (cdr gs) (combination (car gs) lst) lst))
 
 (group '(2 2 3) '(luca vale andrea eva tommy roby vero))
-;-> (((luca vale) ((andrea eva) (tommy roby vero))) 
+;-> (((luca vale) ((andrea eva) (tommy roby vero)))
 ;->  ((luca vale) ((andrea tommy) (eva roby vero)))
 ;->  ((luca vale) ((andrea roby) (eva tommy vero)))
 ;->  ((luca vale) ((andrea vero) (eva tommy roby)))
@@ -17403,6 +17738,205 @@ Le ultime tre funzioni devono essere differenziate ripetendo il calcolo per un c
 ;-> 144.019
 
 Il risultato è conforme alle aspettative logiche.
+
+
+--------------
+NUMERI VAMPIRI
+--------------
+
+Un numero del vampiro è un numero naturale composto v, con un numero pari di cifre n, che può essere fattorizzato in due interi x e y (chiamati zanne "faing") che non abbiano entrambi degli zeri finali e ognuno dei quali abbia n/2 cifre, dove v contiene precisamente tutte le cifre di x e y, in un ordine qualsiasi, contando la molteplicità.
+
+Per esempio: 1260 è un numero del vampiro, le cui zanne sono 21 e 60 (dato che 21·60 = 1260): infatti, 1260 ha 4 cifre e 12 e 60 hanno entrambi 4/2 = 2 cifre, ed è inoltre formato da tutte le cifre di 21 e 60.
+
+I primi numeri vampiro sono:
+
+1260, 1395, 1435, 1530, 1827, 2187, 6880, 102510, 104260, 105210, 105264, 105750, 108135, 110758, 115672, 116725, 117067, 118440, 120600, 123354, 124483, 125248, 125433, 125460, 125500, ...
+
+Proviamo a risolvere il problema con la forza bruta. Generiamo tutte le permutazioni delle cifre di un numero e poi verifichiamo se il prodotto tra la prima metà delle cifre della permutazione e la seconda metà delle cifre della permutazione è uguale al numero.
+
+(define (list2int lst) (int (join (map string lst))))
+
+(define (int2list n)  (map int (explode (string n))))
+
+Funzione che calcola le permutazioni:
+
+(define (perm lst)
+  (local (i indici out)
+    (setq indici (dup 0 (length lst)))
+    (setq i 0)
+    (setq out (list lst))
+    (while (< i (length lst))
+      (if (< (indici i) i)
+          (begin
+            (if (zero? (% i 2))
+              (swap (lst 0) (lst i))
+              (swap (lst (indici i)) (lst i)))
+            (push lst out -1)
+            (++ (indici i))
+            (setq i 0))
+          (begin
+            (setf (indici i) 0)
+            (++ i))))
+    out))
+
+Scriviamo la funzione:
+
+(define (vampire n)
+  (local (i-lst lun lst a b half)
+    (for (i 1111 n)
+      (setq i-lst (int2list i))
+      (setq lun (length i-lst))
+      (setq half (/ lun 2))
+      (cond ((even? lun)
+             (setq lst (unique (perm i-lst)))
+             (dolist (el lst)
+               (setq a (list2int (slice el 0 half)))
+               (setq b (list2int (slice el half)))
+               (if (= (* a b) i)
+                 (println a { * } b { = } (* a b)))))))))
+
+(vampire 2000)
+;-> 21 * 60 = 1260
+;-> 60 * 21 = 1260
+;-> 93 * 15 = 1395
+;-> 15 * 93 = 1395
+;-> 41 * 35 = 1435
+;-> 35 * 41 = 1435
+;-> 51 * 30 = 1530
+;-> 30 * 51 = 1530
+;-> 21 * 87 = 1827
+;-> 87 * 21 = 1827
+
+(time (vampire 125000))
+;-> 68708.184
+
+Questo metodo è molto lento a causa della funzione che calcola le permutazioni.
+
+Cerchiamo di risolvere il problema utilizzando le coppie di fattori.
+Ogni numero può essere scomposto in fattori primi. Un fattore è quindi un qualsiasi sottoinsieme dei fattori primi moltiplicati tra loro. La coppia di fattori è il numero originale diviso per il fattore scelto.
+
+Esempio:
+
+Numero = 54
+(factor 54)
+;-> (2 3 3 3)
+Sottoinsieme scelto = (2 3) = 2*3 = 6
+Coppia di fattori = (6 (54 / 6)) = (6 9)
+
+Per generare tutti i sottoinsiemi (tutti i fattori) utilizziamo la funzione "powerset-i":
+
+(define (powerset-i lst)
+  (define (loop res s)
+    (if (empty? s)
+      res
+      (loop (append (map (lambda (i) (cons (first s) i)) res) res) (rest s))))
+  (loop '(()) lst))
+
+(factor 1260)
+;-> (2 2 3 3 5 7)
+
+(powerset-i (factor 1260))
+;-> ((2 2 3 3 5 7) (2 2 3 3 5) (2 2 3 3 7) (2 2 3 3) (2 2 3 5 7) (2 2 3 5) (2 2 3 7)
+;->  (2 2 3) (2 2 3 5 7) (2 2 3 5) (2 2 3 7)
+;->  ...
+;->  (5 7) (5) (7) ())
+
+Per generare i fattori applichiamo la funzione moltiplicazione "*" a tutti gli elementi do ogni sotto-lista:
+
+(setq r (map (fn(x) (apply * x)) (powerset-i (factor 1260))))
+;-> (1260 180 252 36 420 60 84 12 420 60 84 12 140 20 28 4 630 90 126 18 210
+;->  30 42 6 210 30 42 6 70 10 14 2 630 90 126 18 210 30 42 6 210 30 42 6 70
+;->  10 14 2 315 45 63 9 105 15 21 3 105 15 21 3 35 5 7 1)
+
+Di questa lista a noi interessano solo i numeri che sono lunghi 2 cifre e che dividendo il numero base (1260) generano un numero con due cifre:
+
+(setq r (unique (filter (fn(x) (and (= (length x) 2) (= (length (/ 1260 x)) 2))) r)))
+;-> (36 60 84 20 28 90 18 30 42 70 14 45 63 15 21 35)
+
+Da questa lista possiamo creare le coppie di fattori e verificare se le cifre di queste coppie sono le stesse di quelle del numero:
+
+(dolist (el r)
+  (setq a el)
+  (setq b (/ 1260 el))
+    (if (= (sort (append (int2list a) (int2list b))) (sort '(1 2 6 0)))
+      (println a { } b { } 1260)))
+
+;-> 60 21 1260
+;-> 21 60 1260
+
+Adesso possiamo scrivere la nuova funzione che calcola i numeri vampiri fino a n:
+
+(define (vampire2 n)
+  (local (lst lst2 i-lst lun a b h)
+    (for (i 1 n)
+      ;(setq lun (length i-lst))
+      (setq lun (length i))
+      (cond ((even? lun)
+             (setq i-lst (int2list i))
+             (setq h (/ (length i) 2))
+             (setq lst (map (fn(x) (apply * x)) (powerset-i (factor i))))
+             (setq lst2 (unique (filter (fn(x) (and (= (length x) h) (= (length (/ i x)) h))) lst)))
+             (dolist (el lst2)
+               (setq a el)
+               (setq b (/ i el))
+                 (if (= (sort (append (int2list a) (int2list b))) (sort i-lst))
+                   (println a { * } b { = } i))
+             )
+            )
+      )
+    )
+  )
+)
+
+(vampire2 2000)
+;-> 60 * 21 = 1260
+;-> 21 * 60 = 1260
+;-> 15 * 93 = 1395
+;-> 93 * 15 = 1395
+;-> 35 * 41 = 1435
+;-> 41 * 35 = 1435
+;-> 30 * 51 = 1530
+;-> 51 * 30 = 1530
+;-> 21 * 87 = 1827
+;-> 87 * 21 = 1827
+
+(time (vampire2 125000))
+;-> 4734.965
+
+Questo metodo è molto più veloce e la funzione potrebbe essere ottimizzata, oppure si potrebbe utilizzare un importante risultato teorico trovato da Pete Hartley:
+
+  Se x · y è un numero vampiro, allora x · y == x + y (mod 9)
+
+Prova:
+Sia mod l'operatore modulo binario e d(x) la somma delle cifre decimali di x.
+È noto che d(x) mod 9 = x mod 9, per tutti i valori di x.
+Supponiamo che x · y sia un vampiro. Quindi contiene le stesse cifre di xey, in particolare d(x · y) = d(x) + d(y). Questo porta a:
+(x · y) mod 9 = d(x · y) mod 9 = (d(x) + d(y)) mod 9 = (d(x) mod 9 + d(y) mod 9) mod 9
+              = (x mod 9 + y mod 9) mod 9 = (x + y) mod 9
+
+Le soluzioni alla congruenza sono (x mod 9, y mod 9) in ((0 0) (2 2) (3 6) (5 8) (6 3) (8 5)). Solo questi casi (6 su 81) devono essere testati nella ricerca di vampiri basata sul test di x · y per valori diversi di x e y.
+
+Esempio:
+
+(setq num 1260)
+
+(define (faing? x y)
+  (true? (find (list (% x 9) (% y 9))
+               '((0 0) (2 2) (3 6) (5 8) (6 3) (8 5)))))
+
+(faing? 12 60)
+;-> true
+
+Formula di Roushe e Rogers per generare numeri vampiri:
+
+  1·10^(2n+3) + 524·10^(n+1) + 208 = (25·10^(n) + 1 · (40·10^n + 208)
+
+Questa formula produce numeri vampiri con (2n + 4) cifre.
+
+n = 2  ==>  10524208 = 2501 · 4208
+n = 3  ==>  1005240208 = 25001 · 40208
+
+Ma per adesso basta con i numeri vampiri.
 
 
 ================
@@ -32103,6 +32637,164 @@ Vediamo la differenza di velocità:
 Le funzioni built-in sono sempre molto veloci.
 
 
+-------------------------
+Somma di due box (Amazon)
+-------------------------
+
+Un box è una lista di coppie chiave/conteggio: ad esempio, un bag contenente due dell'articolo T, tre dell'articolo K e tre dell'articolo Z può essere scritto T2K3Z3. L'unione di due box è un singolo box contenente un elenco di coppie chiave/conteggio di entrambi i box: se esistono chiavi ripetute tri i due box, allora la coppia risultante ha il suo conteggio sommato: ad esempio, l'unione dei box T2K3Z3 e B1R3K2 vale T2K5Z3B1R3. L'ordine degli articoli nei box non è significativo.
+
+Rappresentiamo un box con una lista associativa.
+
+(setq box1 '((T 2) (K 3) (Z 3)))
+(setq box2 '((B 1) (R 3) (K 2)))
+
+(lookup 'K box1)
+;-> 3
+
+(lookup 'B box1)
+;-> nil
+
+(define (sum-box b1 b2)
+  (local (out val)
+    ; aggiungiamo il primo box al risultato
+    (setq out b1)
+    (dolist (el b2)
+          ;se la chiave dell'elemento di b2 esiste in out
+      (if (lookup (first el) out)
+          ; allora somma i due valori in out
+          ;(setf (lookup (first el) out) (+ (lookup (first el) out) (last el)))
+          ; usiamo la varibile anaforica $it di setf
+          (setf (lookup (first el) out) (+ $it (last el)))
+          ; altrimenti aggiungi l'elemento di b2 in out
+          (push el out -1)
+      )
+    )
+    out
+  )
+)
+
+(sum-box box1 box2)
+;-> ((T 2) (K 5) (Z 3) (B 1) (R 3))
+
+(setq box1 '((T 2) (K 3) (Z 3)))
+(setq box2 '((B 1) (R 3) (K 2) (K 2) (B 3)))
+(sum-box box1 box2)
+;-> ((T 2) (K 7) (Z 3) (B 4) (R 3))
+
+
+----------------------------
+Punti vicini a zero (Amazon)
+----------------------------
+
+Dato un milione di punti (x, y), scrivere una funzione per trovare i 100 punti più vicini a (0, 0).
+
+La formula della distanza al quadrato tra due punti in cui uno vale (0 0) è la seguente:
+
+(define (dist0 x y) (add (mul x x) (mul y y)))
+
+La soluzione più semplice (ma non la più veloce) è quella di calcolare la distanza al quadrato per ogni punto e poi ordinare il risultato. La lsita che dovremo ordinare è composta da elementi con la seguente struttura:
+
+(distanza coord-x coord-y)
+
+(define (cento lst)
+  (let (out '())
+    (dolist (el lst)
+      (push (list (dist0 (first el) (last el)) (first el) (last el)) out -1)
+    )
+    (slice (sort out) 0 99)
+  )
+)
+
+Proviamo con una lista di 10000 punti:
+
+(setq lst (map (fn(x) (list (+ (rand 10000) 1) (+ (rand 10000) 1))) (sequence 1 10000)))
+
+(cento lst)
+;-> ((132994 363 35) (133613 322 173) (142322 331 181)
+;-> ...
+;-> (12966169 3580 387) (13184525 2830 2275) (13267610 3629 313))
+
+Proviamo con una lista di un milione di punti:
+
+(silent (setq lst (map (fn(x) (list (+ (rand 10000) 1) (+ (rand 10000) 1))) (sequence 1 1000000))))
+
+(time (cento lst))
+;-> 1984.666
+
+La funzione impiega quasi due secondi per risolvere il problema. Questo risultato è dovuto principalmente alla velocità della funzione built-in "sort".
+Un altro metodo sarebbe quello di inserire i punti mantenendo la lista ordinata durante la costruzione (heap). In questo modo non sarebbe necessario il sort finale, ma solo l'estrazione dei primi cento elementi della lista. Poichè newLISP non ha una struttura heap, la creazione di una struttura heap con le liste sarebbe, probabilmente, più lenta dell'uso della funzione "sort".
+
+
+------------------------
+Trova la Funzione (Uber)
+------------------------
+
+Scivere una funzione f in modo che f(f(n)) = -n per ogni numero intero n.
+
+La prima soluzione che mi è venuta in mente...
+
+(define (nega n) (if (>= n 0) (- n) n))
+
+(nega (nega 3))
+;-> -3
+
+Ma la prova con i numeri negativi fallisce (il risultato dovrebbe essere +3):
+
+(nega (nega -3))
+;-> -3
+
+L'intuizione è stata quella di separare il segno e la grandezza del numero dalla parità del numero.
+Quindi ci sono tre regole:
+
+1) Se il numero è pari, mantenere lo stesso segno e avvicinarsi di 1 a 0 (quindi, sottrarre 1 da un numero pari positivo e aggiungere 1 a un numero pari negativo.
+
+2) Se il numero è dispari, cambiare il segno e spostarsi di 1 più lontano da 0 (quindi, moltiplicare per -1 e sottrarre 1 da un numero dispari positivo e moltiplicare per -1 e aggiungere 1 a un numero pari negativo.
+
+3) Nel caso in cui n vale 0, tutto rimane invariato (lo zero non ha segno, quindi non possiamo cambiarlo)
+
+Ecco la funzione:
+
+(define (f n)
+  (cond ((and (> n 0) (even? n)) (- n 1))
+        ((and (> n 0) (odd? n))  (- (- n) 1))
+        ((and (< n 0) (even? n)) (+ n 1))
+        ((and (< n 0) (odd? n))  (+ (- n) 1))
+        (true 0)))
+
+(f (f 1))
+;-> -1
+(f (f -1))
+;-> 1
+
+(f (f 3))
+;-> -3
+(f (f -3))
+;-> 3
+
+(f (f 0))
+;-> 0
+
+Un altro metodo è quello di considerare il numero n come una lista:
+
+(define (f1 n)
+ (if (list? n)
+     (- (first n))
+     (list n)))
+
+(f1 (f1 -1))
+;-> 1
+(f1 (f1 1))
+;-> -1
+
+(f1 (f1 3))
+;-> -3
+(f1 (f1 -3))
+;-> 3
+
+(f1 (f1 0))
+;-> 0
+
+
 ==========
 
  LIBRERIE
@@ -34682,7 +35374,7 @@ Tre punti e virgola sono usati per i commenti che descrivono una funzione. Tali 
 ;;; in una lista di valori interi
 (define (calcola-spazi-simboli)
   (map calcola (symbols)))
-  
+
 Quattro punti e virgola sono usati per i commenti che si riferiscono ad un intero file e iniziano sempre dalla colonna 1:
 
 ;;;; Libreria per il calcolo con i quaternioni
@@ -35510,6 +36202,25 @@ L'idea alla base di let è che permette di creare una funzione interna, che può
 
 Viene chiamato "loop" perché la funzione chiama se stessa dalla posizione di coda. Questo è noto come ricorsione di coda (tail recursion). In Scheme, con la ricorsione di coda, la chiamata ricorsiva ritorna direttamente al chiamante, quindi non è necessario mantenere il frame di chiamata corrente. È possibile eseguire la ricorsione della coda tutte le volte che si desidera senza causare un overflow dello stack. In newLISP non esiste l'ottimizzazione della ricorsione di coda, quindi dobbiamo stare molto attenti a non causare un errore di stack overflow quando usiamo la tecnica della ricorsione.
 
+Vediamo un altro esempio: il calcolo dell'insieme delle parti (powerset) di una lista.
+
+Versione "named let" in Scheme:
+(define (power-set-i lst)
+  (let loop ((res '(())) (s lst))
+    (if (empty? s)
+        res
+        (loop (append (map (lambda (i) (cons (first s) i)) res) res) (rest s)))))
+
+Versione "newLISP":
+(define (powerset-i lst)
+  (define (loop res s)
+    (if (empty? s)
+      res
+      (loop (append (map (lambda (i) (cons (first s) i)) res) res) (rest s))))
+  (loop '(()) lst))
+
+(powerset-i '(1 2 3))
+;-> ((3 2 1) (3 2) (3 1) (3) (2 1) (2) (1) ())
 
 ------------------------------
 Brainfuck string encode/decode
@@ -35991,7 +36702,7 @@ Anche il creatore di LISP ha creato un quine (John McCarthy e Carolyn Talcott):
   (quote
      (lambda (x)
        (list x (list (quote quote) x)))))
-;-> ((lambda (x) (list x (list (quote quote) x))) (quote (lambda (x) 
+;-> ((lambda (x) (list x (list (quote quote) x))) (quote (lambda (x)
 ;->        (list x (list (quote quote) x)))))
 
 Continuiamo con un altro esempio:
@@ -36075,7 +36786,7 @@ Esercizio preso dal libro di Bjarne Stroustrup "Principles and Practice Using C+
 
 Scrivere una funzione che prende 3 valori interi e li stampa in ordine crescente.
 
-Esempio: 
+Esempio:
 input = 10 4 6
 output = 4 6 10
 
@@ -36087,6 +36798,8 @@ output = 4 6 10
 4) println
 5) local
 6) let
+7) and
+8) or
 
 (define (ordina x y z)
   (local (a b c)
@@ -36140,9 +36853,9 @@ POL IND MED ANU MIG
 
 Il pattern è il seguente:
 
-  1       5   6     9      13  14      18    21  22    25      29  
+  1       5   6     9      13  14      18    21  22    25      29
 ("a b c d e" "d c b a b c d e" "d c b a b c d e" "d c b a b c d e")
-              1 2 3 4 5 6 7 8   9    12      16  17    20  22  24   
+              1 2 3 4 5 6 7 8   9    12      16  17    20  22  24
 
 A parte i primi cinque numeri, troviamo sempre una sequenza ripetuta: "d c b a b c d e".
 
@@ -36154,7 +36867,7 @@ sequenza: "d c b a b c d e"
 Possiamo scrivere la funzione:
 
 (define (mano n)
-  (cond ((<= n 5) 
+  (cond ((<= n 5)
          (cond ((= n 1) 'pollice)
                ((= n 2) 'indice)
                ((= n 3) 'medio)
@@ -36378,7 +37091,7 @@ massimo
 ;-> (println "il massimo vale: " out)
 
 (nth '(1 4) massimo)
-;-> out 
+;-> out
 
 Per modificare le funzioni è fondamentale identificare con "nth" l'esatta posizione della espressione da trattare.
 Vediamo un altro esempio:
@@ -36758,7 +37471,7 @@ Potremmo provare con altri valori iniziali, ma in questo caso notiamo che dopo (
 ;-> sol: (2 6 3 1 5)
 ;-> Hu! due a, sei e, tre i, una o e cinque u.
 
-Abbiamo trovato un'autogramma (anche se con un piccolo trucco): 
+Abbiamo trovato un'autogramma (anche se con un piccolo trucco):
 
 "Hu! due a, sei e, tre i, una o e cinque u."
 
@@ -36777,7 +37490,7 @@ Ambito dinamico e ambito lessicale (statico)
 --------------------------------------------
 
 La nozione di ambito (scope) nei linguaggi di programmazione è tradizionalmente
-legata a quella delle associazioni (bindings). Un'associazione (binding) è un legame tra un simbolo (o una variabile) e un valore. L'ambito dell'associazione definisce il tipo di"visibilità" del simbolo (o variabile) nel programma e può essere "dinamico" o "lessicale" ("statico"). 
+legata a quella delle associazioni (bindings). Un'associazione (binding) è un legame tra un simbolo (o una variabile) e un valore. L'ambito dell'associazione definisce il tipo di"visibilità" del simbolo (o variabile) nel programma e può essere "dinamico" o "lessicale" ("statico").
 Secondo l'ambito lessicale (statico), in una espressione, una variabile fa riferimento al costrutto più interno in cui viene dichiarata la variabile (ad esempio, al blocco di codice in cui è definita).
 Invece l'ambito dinamico prevede che la variabile esista e possa essere usata solo durante l'estensione dinamica (esecuzione) di una espressione. Una variabile con ambito dinamico viene anche chiamata 'parametro'.
 L'associazione dinamica associa i dati all'esecuzione del contesto corrente, e quindi consente di passare i dati alle funzioni senza dover dichiarare esplicitamente questi dati nell'interfaccia della funzione.
@@ -37210,10 +37923,10 @@ Infine scriviamo la funzione/funtore del contesto "primo" (il parametro "dir" pu
       (setq num (- primo:val 1))
     )
     (until found
-      (if (primo:isprime? num) 
+      (if (primo:isprime? num)
           (setq primo:val num found true)
       )
-      (if (null? dir)    
+      (if (null? dir)
         (++ num)
         (-- num)
       )
@@ -37222,7 +37935,7 @@ Infine scriviamo la funzione/funtore del contesto "primo" (il parametro "dir" pu
   )
 )
 
-Proviamo il tutto: 
+Proviamo il tutto:
 
 (primo:start 13)
 ;-> 13
@@ -37320,7 +38033,7 @@ Il simbolo iniziale "0" è stato modificato dalla funzione stessa nel valore del
 Un altro esempio di generatore utilizza la funzione "expand" per creare funzioni che effettuano lo stream (flusso) di liste o di stringhe:
 
 (define (make-stream lst)
-    (letex (stream lst) 
+    (letex (stream lst)
         (lambda () (pop 'stream))))
 ;-> (lambda (lst)
 ;->  (letex (stream lst) (lambda () (pop 'stream))))
@@ -37445,7 +38158,7 @@ Il numero int-1 viene shiftato (spostato) aritmeticamente verso sinistra o verso
 
 Quando int-1 è l'unico argomento << e >> shifta int-1 di un bit.
 
-Le operazioni di shift aritmetico possono essere utilizzate per dividere o moltiplicare un numero  intero. 
+Le operazioni di shift aritmetico possono essere utilizzate per dividere o moltiplicare un numero  intero.
 
 Moltiplicazione con lo shift a sinistra
 ---------------------------------------
@@ -37685,7 +38398,8 @@ Pensiamo in termini di definizione di un ciclo. L'accumulatore inizia da 0 e vie
 ;-> 7
 
 Filtraggio degli elementi di una lista:
-Questa funzione mantiene solo gli elementi di una lista che soddisfano un predicato, eliminando tutti gli altri:
+
+Questa funzione mantiene solo gli elementi di una lista che soddisfano un predicato, eliminando tutti gli altri.
 
 (define (filtra pred lst) (fold-right (fn (x y) (if (pred x) (cons x y) y)) lst '()))
 (filtra (fn (x) (> x 5)) '(1 45 34 2 3 6))
@@ -37694,6 +38408,20 @@ Questa funzione mantiene solo gli elementi di una lista che soddisfano un predic
 Viene testato il valore corrente rispetto al predicato. Se è vero, sostituisce "cons" con "cons", cioè non cambia nulla. Se è falso, elimina il "cons" e restituisce il resto dell'elenco. Questo elimina tutti gli elementi che non soddisfano il predicato, creando una nuova lista che include solo quelli che lo soddisfano.
 
 Nota: la chiave per programmare con il metodo "fold" è pensare solo in termini di ciò che accade ad ogni iterazione. Questo metodo cattura il modello di ricorsione in una lista e i problemi ricorsivi si risolvono meglio lavorando un passo alla volta.
+
+Le stesse due funzioni possono essere scritte anche in modo leggermente diverso. Infatti sono scambiati i parametri (func --> op, init --> base, lst --> xs):
+
+(define (fold-left op base xs)
+  (if (null? xs)
+      base
+      (fold-left op (op base (car xs)) (cdr xs))))
+
+(define (fold-right op base xs)
+  (if (null? xs)
+      base
+      (op (car xs) (fold-right op base (cdr xs)))))
+
+Il metodo Fold utilizza una funzione specificata dall'utente per ridurre una lista di valori a un singolo valore e rappresenta uno delgi idiomi fondamentali della programmazione funzionale. "Fold-left" lavora da sinistra a destra attraverso l'elenco xs, applicando la funzione binaria op alla base e al primo elemento di xs, quindi applicando la funzione binaria op al risultato della prima funzione op e del secondo elemento di xs, e così via, applicando ad ogni passo la funzione binaria op al risultato della precedente funzione op e all'elemento corrente di xs. "fold-right" funziona allo stesso modo, ma da destra a sinistra.
 
 
 -----------------------

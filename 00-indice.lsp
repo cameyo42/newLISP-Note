@@ -128,6 +128,9 @@ FUNZIONI VARIE
   Numeri primi successivi e precedenti
   Giorno Giuliano (Julian day)
   Punto interno al poligono
+  Prodotto cartesiano
+  Insieme delle parti (powerset)
+  Terne pitagoriche
 
 newLISP 99 PROBLEMI (28)
 ========================
@@ -208,6 +211,7 @@ ROSETTA CODE
   Numeri Eureka
   Abitazioni multiple
   Toziente di Eulero
+  Numeri Vampiri
 
 PROJECT EULERO
 ==============
@@ -313,6 +317,9 @@ DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Invertire le vocali (Google)
   Distanza di Hamming tra DNA (Google)
   Controllo sequenza RNA (Google)
+  Somma di due box (Amazon)
+  Punti vicini a zero (Amazon)
+  Trova la Funzione (Uber)
 
 LIBRERIE
 ========

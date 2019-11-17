@@ -3186,7 +3186,7 @@ La funzione che effettua la trasformazione ha i seguenti parametri:
 Trasformazione omografica 2D
 ----------------------------
 
-Una omografia è una relazione tra punti di due spazi tali per cui ogni punto di uno spazio corrisponde ad uno ed un solo punto del secondo spazio. Si basa su concetti geometrici e matematici abbastanza, noti come "coordinate omogenee" e "piani proiettivi", la cui spiegazione non rientra nell'ambito di questo documento.
+Una omografia è una relazione tra punti di due spazi tali per cui ogni punto di uno spazio corrisponde ad uno ed un solo punto del secondo spazio. Si basa su concetti geometrici e matematici abbastanza complessi, noti come "coordinate omogenee" e "piani proiettivi", la cui spiegazione non rientra nell'ambito di questo documento.
 
 Giusto per dare un'idea semplificata, il familiare "piano cartesiano" è composto da un insieme di punti che hanno una correlazione uno-a-uno con coppie di numeri reali, ovvero X-Y sui due assi. Il "piano proiettivo" invece è un superset di quel piano reale dove per ogni punto consideriamo anche tutte le possibili (infinite) rette verso lo spazio.
 
@@ -3864,6 +3864,9 @@ Supponendo che il punto si trovi sulla coordinata y, la funzione calcola semplic
 Un altro modo di visualizzare questo metodo: tracciamo una linea dall'infinito direttamente al tuo punto. Quando questa linea attraversa un lato del poligono siamo all'interno del poligono. Quando attraversiamo di nuovo un lato del poligono, allora siamo fuori. Nuova intersezione, dentro... e così via.
 
 Spiegazione approfondita:
+
+https://stackoverflow.com/questions/8721406/how-to-determine-if-a-point-is-inside-a-2d-convex-polygon
+
 Il metodo esamina un "raggio" che inizia nel punto testato e si estende all'infinito sul lato destro dell'asse X. Per ogni segmento poligonale, controlla se il raggio lo attraversa. Se il numero totale di attraversamenti di segmenti è dispari, il punto testato viene considerato all'interno del poligono, altrimenti è esterno.
 
 Per capire come viene calcolata la traversata, considerare la seguente figura:
@@ -3903,8 +3906,260 @@ Poi, viene il problema dell'incrocio esattamente su un vertice. Considera i segu
        o           /       o
                   o
 
-Ora, per verificare se funziona, controlla tu stesso cosa viene restituito per ciascuno dei 4 segmenti dalla condizione if nel corpo del metodo. Dovresti scoprire che i segmenti sopra il raggio (A1, C1, C2) ricevono un risultato positivo, mentre quelli sotto di esso (A2, B1, B2) ricevono un risultato negativo. Ciò significa che il vertice A contribuisce con un numero dispari (1) al conteggio dei passaggi, mentre B e C contribuiscono con un numero pari (0 e 2, rispettivamente), che è esattamente ciò che si desidera. A è davvero un vero incrocio del poligono, mentre B e C sono solo due casi di "sorvolo".
+Ora, per verificare se funziona, occorre controllare cosa viene restituito per ciascuno dei 4 segmenti dalla condizione if nel corpo del metodo. Scopriamo che i segmenti sopra il raggio (A1, C1, C2) ricevono un risultato positivo, mentre quelli sotto di esso (A2, B1, B2) ricevono un risultato negativo. Ciò significa che il vertice A contribuisce con un numero dispari (1) al conteggio dei passaggi, mentre B e C contribuiscono con un numero pari (0 e 2, rispettivamente), che è esattamente ciò che si desidera. A è davvero un vero incrocio del poligono, mentre B e C sono solo due casi di "sorvolo".
 
 Infine viene verificato il caso in cui il punto è uguale ad uno dei vertici del poligono.
+
+Vedi anche: 
+
+https://stackoverflow.com/questions/217578/how-can-i-determine-whether-a-2d-point-is-within-a-polygon
+
+
+-------------------
+Prodotto cartesiano
+-------------------
+
+In matematica il prodotto cartesiano di due insiemi A e B è l'insieme delle coppie ordinate (a,b) cona in A e b in B:
+
+A x B = [(a,b): a in A AND b in B]
+
+Per esempiop, date due liste A = (1 2) e B = (3 4) il loro prodotto cartesiano vale:
+
+(1 2) x (3 4) = ((1 3) (1 4) (2 3) (2 4))
+
+cioè tutte le coppie formate dall'unione di ogni elemento della lista A con ogni elemento della lista B.
+
+Nota: Il prodotto cartesiano non è commutativo: (A x B) != (B x A)
+
+La funzione per calcolare il prodotto cartesiano di due liste è la seguente:
+
+(define (cp lst1 lst2)
+  (let (out '())
+    (if (or (null? lst1) (null? lst2)) 
+        nil
+        (dolist (el1 lst1)
+          (dolist (el2 lst2)
+            (push (list el1 el2) out -1))))))
+
+(cp '(1 2) '(3 4))
+;-> ((1 3) (1 4) (2 3) (2 4))
+
+(cp '(3 4) '(1 2))
+;-> ((3 1) (3 2) (4 1) (4 2))
+
+(cp '(1 2) '())
+;-> nil
+
+(cp '() '(1 2))
+;-> nil
+
+(cp '(1 2 3) '(4 5))
+;-> ((1 4) (1 5) (2 4) (2 5) (3 4) (3 5))
+
+Il prodotto cartesiano può essere esteso alla composizione di n insiemi considerando l'insieme delle n-uple ordinate:
+
+A1 x A2 x ... x An = [(a1,a2,...,an): a(i) in A(i) per i=1..n]
+
+Il prodotto cartesiano è naturalmente associativo:
+
+A1 x A2 x ... x An = A1 x (A2 x ... x An)
+
+Per calcolare il prodotto cartesiano di più liste (comunque racchiuse in una lista) potremmo applicare la funzione "apply":
+
+(apply cp '((1 2) (3 4) (5 6)) 2)
+;-> (((1 3) 5) ((1 3) 6) ((1 4) 5) ((1 4) 6) ((2 3) 5) ((2 3) 6) ((2 4) 5) ((2 4) 6))
+
+Il risultato è corretto, dobbiamo solo togliere le parentesi ad ogni elemento della lista:
+
+((1 3) 5) --> (1 3 5)
+((1 3) 6) --> (1 3 6)
+((1 4) 5) --> (1 4 5)
+...
+((2 4) 6) --> (2 4 6)
+
+Scriviamo la funzione che calcola il prodotto cartesiano di tutte le sotto-liste di una lista:
+
+(define (prodotto-cartesiano lst-lst)
+  (let (out '())
+    (dolist (el (apply cp lst-lst 2))
+      (push (flat el) out -1))))
+
+(prodotto-cartesiano '((1 2) (3 4) (5 6)))
+;-> ((1 3 5) (1 3 6) (1 4 5) (1 4 6) (2 3 5) (2 3 6) (2 4 5) (2 4 6))
+
+(prodotto-cartesiano '((1 2 3) (4) (5 6)))
+;-> ((1 4 5) (1 4 6) (2 4 5) (2 4 6) (3 4 5) (3 4 6))
+
+(prodotto-cartesiano '((1 5) (2 6) (3 7) (4 8 9)))
+;-> ((1 2 3 4) (1 2 3 8) (1 2 3 9) (1 2 7 4) (1 2 7 8) (1 2 7 9) (1 6 3 4) 
+;->  (1 6 3 8) (1 6 3 9) (1 6 7 4) (1 6 7 8) (1 6 7 9) (5 2 3 4) (5 2 3 8)
+;->  (5 2 3 9) (5 2 7 4) (5 2 7 8) (5 2 7 9) (5 6 3 4) (5 6 3 8) (5 6 3 9)
+;->  (5 6 7 4) (5 6 7 8) (5 6 7 9))
+
+(prodotto-cartesiano '((1 2 3) () (500 100)))
+
+Prodotto cartesiano di funzioni
+Se f è una funzione da A in B e g una funzione da C in }D, si definisce come loro prodotto cartesiano e si denota con f x g la funzione da A x C in B x D data da:
+
+[f x g](a,c) = [f(a), g(c)]
+
+(Abbiamo distinto le parentesi che delimitano argomenti di funzione () dalle parentesi che delimitano coppie ordinate [])
+
+Esempio:
+
+(define (pcf f g lst1 lst2)
+  (let (out '())
+    (if (or (null? lst1) (null? lst2)) 
+        nil
+        (dolist (el1 lst1)
+          (dolist (el2 lst2)
+            (push (list (f el1) (g el2)) out -1))))))
+
+(define (f x) x)
+(define (g x) (* x x))
+
+(pcf f g (sequence 1 3) (sequence 1 3))
+;-> ((1 1) (1 4) (1 9) (2 1) (2 4) (2 9) (3 1) (3 4) (3 9))
+
+
+------------------------------
+Insieme delle parti (powerset)
+------------------------------
+
+Dato un insieme L, l'insieme delle parti di L, scritto P(L), è l'insieme di tutti i sottoinsiemi di L. Questa collezione di insiemi viene anche detta insieme potenza di L.
+Se l'insieme L ha n elementi, allora l'insieme delle parti ha 2^n elementi.
+
+Esempio:
+(setq L '(1 2 3))
+(powerset-i L)
+;-> ((3 2 1) (3 2) (3 1) (3) (2 1) (2) (1) ())
+(length (powerset-i L))
+;-> 8
+
+Scriviamo una funzione ricorsiva cha calcola l'insieme potenza:
+
+(define (powerset lst)
+  (if (empty? lst)
+      (list '())
+      (let ( (element (first lst))
+             (p (powerset (rest lst))))
+           (append (map (fn (subset) (cons element subset)) p) p) )))
+
+(powerset '(a b c d))
+;-> ((a b c) (a b) (a c) (a) (b c) (b) (c) ())
+
+Adesso scriviamo una funzione iterativa cha calcola l'insieme potenza:
+
+(define (powerset-i lst)
+  (define (loop res s)
+    (if (empty? s)
+      res
+      (loop (append (map (lambda (i) (cons (first s) i)) res) res) (rest s))))
+  (loop '(()) lst))
+
+Vediamo la differenza di velocità tra le due funzioni:
+
+(time (powerset '(1 2 3 4 5 6 7 8 9 10 15 16)) 1000)
+;-> 2906.498
+
+(time (powerset-i '(1 2 3 4 5 6 7 8 9 10 15 16)) 1000)
+;-> 3672.166
+
+
+-----------------
+Terne pitagoriche
+-----------------
+
+Una terna pitagorica è costituita da tre numeri interi positivi a, b e c con a < b < c tale che a^2 + b^2 = c^2. Ad esempio, i tre numeri 3, 4 e 5 formano una tripla pitagorica perché 3^2 + 4^2 = 9 + 16 = 25 = 5^2. 
+
+Scrivere una funzione per generare tutte le terne pitagoriche.
+
+Esistono diversi metodi per generare le terne pitagoriche ad esempio l'algoritmo di Hall:
+
+Se (a b c) è una terna pitagorica primitiva, allora lo sono anche:
+
+  (a – 2b + 2c,  2a – b + 2c,  2a – 2b + 3c)
+  
+  (a + 2b + 2c,  2a + b + 2c,  2a + 2b + 3c)
+  
+  (-a + 2b + 2c, 2a + b + 2c, -2a + 2b + 3c)
+
+Comunque per generare tutte le terne pitagoriche useremo il metodo di Dickson:
+
+Per trovare soluzioni intere a x^2 + y^2 = z^2, trovare degli interi positivi r, s, t tali che r^2 = 2st sia un quadrato perfetto.
+Quindi calcolare la terna pitagorica (x y z):
+
+  x = r + s, y = r + t, z = r + s + t
+
+Notiamo che r è un numero intero pari e che s e t sono fattori di (r ^ 2) / 2. Tutte le terne pitagoriche possono essere trovate con questo metodo. Quando s e t sono coprimi, la terna viene detta primitiva.
+
+Nota: Una terna (x y z) viene detta primitiva quando x e y sono coprimi. Una terna primitiva (x y z) genera infinite terne non primitive moltiplicando i termini per un qualunque numero intero positivo n. 
+
+Esempio:
+
+Terna primitiva: (3 4 5)       n
+Terna non primitiva: (3 4 5) * 2 ==> (6 8 10)
+Terna non primitiva: (3 4 5) * 3 ==> (9 12 15)
+...
+
+Il metodo di Dickson genera tutte le terne pitagoriche, anche quelle simmetriche (quelle in cui vengono scambiati i valori di x e y). Esempio: (3 4 5) e (4 3 5) sono due terne pitagoriche distinte.
+
+La seguente funzione restituisce n terne pigatoriche:
+
+(define (terne n)
+  (local (a b c r f1 f2 idx somma continua out)
+    (setq r 2)
+    (setq f1 1)
+    (setq idx 0)
+    (while (< idx n)
+      (setq continua true)
+      (while continua
+      ; calcola i fattori s (f1) e t (f2) del prossimo r^2/2 
+      ; e inserisci l'equazione per s e t
+        (cond ((zero? (% (/ (* r r) 2) f1))
+                (setq f2 (/ (/ (* r r) 2) f1))
+                (setq a (+ r f1))
+                (setq b (+ r f2))
+                (setq c (+ r f1 f2))
+                (++ f1)
+                (setq continua nil)
+                (push (list a b c) out -1))
+                ; se f1 è maggiore di r^2/2, passa alla r successiva 
+                ; e imposta il fattore f1 a 1                
+              ((= f1 (+ (/ (* r r) 2) 1))
+                (setq r (+ r 2))
+                (setq f1 1))
+              (true (++ f1))
+        )
+      )
+      (++ idx)
+    )
+    out))
+
+Calcoliamo le prime venti terne pitagoriche (primitive e non primitive):
+
+(terne 20)
+;-> ((3 4 5) (4 3 5) (5 12 13) (6 8 10) (8 6 10) (12 5 13) (7 24 25)
+;->  (8 15 17) (9 12 15) (12 9 15) (15 8 17) (24 7 25) (9 40 41)
+;->  (10 24 26) (12 16 20) (16 12 20) (24 10 26) (40 9 41) (11 60 61)
+;->  (12 35 37))
+
+Se vogliamo estrarre solo le terne primitive usiamo la funzione "filter" con il seguente predicato che verifica se i primi due numeri di una terna sono coprimi:
+
+(define (coprimi? lst) (= (gcd (first lst) (first (rest lst))) 1))
+
+(coprimi? '(3 4 5))
+;-> true
+
+Estraiamo solo le terne primitive:
+
+(filter coprimi? (terne 20))
+;-> ((3 4 5) (4 3 5) (5 12 13) (12 5 13) (7 24 25) (8 15 17) (15 8 17) 
+;->  (24 7 25) (9 40 41) (40 9 41) (11 60 61) (12 35 37))
+
+Se vogliamo eliminare le terne simmetriche possiamo ordinare tutte le terne e poi rimuovere tutti i duplicati:
+
+(unique (map (fn(x) (sort x)) (filter coprimi? (terne 20))))
+;-> ((3 4 5) (5 12 13) (7 24 25) (8 15 17) (9 40 41) (11 60 61) (12 35 37))
 
 

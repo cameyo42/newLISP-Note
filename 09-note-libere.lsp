@@ -271,7 +271,7 @@ Tre punti e virgola sono usati per i commenti che descrivono una funzione. Tali 
 ;;; in una lista di valori interi
 (define (calcola-spazi-simboli)
   (map calcola (symbols)))
-  
+
 Quattro punti e virgola sono usati per i commenti che si riferiscono ad un intero file e iniziano sempre dalla colonna 1:
 
 ;;;; Libreria per il calcolo con i quaternioni
@@ -1099,6 +1099,25 @@ L'idea alla base di let è che permette di creare una funzione interna, che può
 
 Viene chiamato "loop" perché la funzione chiama se stessa dalla posizione di coda. Questo è noto come ricorsione di coda (tail recursion). In Scheme, con la ricorsione di coda, la chiamata ricorsiva ritorna direttamente al chiamante, quindi non è necessario mantenere il frame di chiamata corrente. È possibile eseguire la ricorsione della coda tutte le volte che si desidera senza causare un overflow dello stack. In newLISP non esiste l'ottimizzazione della ricorsione di coda, quindi dobbiamo stare molto attenti a non causare un errore di stack overflow quando usiamo la tecnica della ricorsione.
 
+Vediamo un altro esempio: il calcolo dell'insieme delle parti (powerset) di una lista.
+
+Versione "named let" in Scheme:
+(define (power-set-i lst)
+  (let loop ((res '(())) (s lst))
+    (if (empty? s)
+        res
+        (loop (append (map (lambda (i) (cons (first s) i)) res) res) (rest s)))))
+
+Versione "newLISP":
+(define (powerset-i lst)
+  (define (loop res s)
+    (if (empty? s)
+      res
+      (loop (append (map (lambda (i) (cons (first s) i)) res) res) (rest s))))
+  (loop '(()) lst))
+
+(powerset-i '(1 2 3))
+;-> ((3 2 1) (3 2) (3 1) (3) (2 1) (2) (1) ())
 
 ------------------------------
 Brainfuck string encode/decode
@@ -1580,7 +1599,7 @@ Anche il creatore di LISP ha creato un quine (John McCarthy e Carolyn Talcott):
   (quote
      (lambda (x)
        (list x (list (quote quote) x)))))
-;-> ((lambda (x) (list x (list (quote quote) x))) (quote (lambda (x) 
+;-> ((lambda (x) (list x (list (quote quote) x))) (quote (lambda (x)
 ;->        (list x (list (quote quote) x)))))
 
 Continuiamo con un altro esempio:
@@ -1664,7 +1683,7 @@ Esercizio preso dal libro di Bjarne Stroustrup "Principles and Practice Using C+
 
 Scrivere una funzione che prende 3 valori interi e li stampa in ordine crescente.
 
-Esempio: 
+Esempio:
 input = 10 4 6
 output = 4 6 10
 
@@ -1676,6 +1695,8 @@ output = 4 6 10
 4) println
 5) local
 6) let
+7) and
+8) or
 
 (define (ordina x y z)
   (local (a b c)
@@ -1729,9 +1750,9 @@ POL IND MED ANU MIG
 
 Il pattern è il seguente:
 
-  1       5   6     9      13  14      18    21  22    25      29  
+  1       5   6     9      13  14      18    21  22    25      29
 ("a b c d e" "d c b a b c d e" "d c b a b c d e" "d c b a b c d e")
-              1 2 3 4 5 6 7 8   9    12      16  17    20  22  24   
+              1 2 3 4 5 6 7 8   9    12      16  17    20  22  24
 
 A parte i primi cinque numeri, troviamo sempre una sequenza ripetuta: "d c b a b c d e".
 
@@ -1743,7 +1764,7 @@ sequenza: "d c b a b c d e"
 Possiamo scrivere la funzione:
 
 (define (mano n)
-  (cond ((<= n 5) 
+  (cond ((<= n 5)
          (cond ((= n 1) 'pollice)
                ((= n 2) 'indice)
                ((= n 3) 'medio)
@@ -1967,7 +1988,7 @@ massimo
 ;-> (println "il massimo vale: " out)
 
 (nth '(1 4) massimo)
-;-> out 
+;-> out
 
 Per modificare le funzioni è fondamentale identificare con "nth" l'esatta posizione della espressione da trattare.
 Vediamo un altro esempio:
@@ -2347,7 +2368,7 @@ Potremmo provare con altri valori iniziali, ma in questo caso notiamo che dopo (
 ;-> sol: (2 6 3 1 5)
 ;-> Hu! due a, sei e, tre i, una o e cinque u.
 
-Abbiamo trovato un'autogramma (anche se con un piccolo trucco): 
+Abbiamo trovato un'autogramma (anche se con un piccolo trucco):
 
 "Hu! due a, sei e, tre i, una o e cinque u."
 
@@ -2366,7 +2387,7 @@ Ambito dinamico e ambito lessicale (statico)
 --------------------------------------------
 
 La nozione di ambito (scope) nei linguaggi di programmazione è tradizionalmente
-legata a quella delle associazioni (bindings). Un'associazione (binding) è un legame tra un simbolo (o una variabile) e un valore. L'ambito dell'associazione definisce il tipo di"visibilità" del simbolo (o variabile) nel programma e può essere "dinamico" o "lessicale" ("statico"). 
+legata a quella delle associazioni (bindings). Un'associazione (binding) è un legame tra un simbolo (o una variabile) e un valore. L'ambito dell'associazione definisce il tipo di"visibilità" del simbolo (o variabile) nel programma e può essere "dinamico" o "lessicale" ("statico").
 Secondo l'ambito lessicale (statico), in una espressione, una variabile fa riferimento al costrutto più interno in cui viene dichiarata la variabile (ad esempio, al blocco di codice in cui è definita).
 Invece l'ambito dinamico prevede che la variabile esista e possa essere usata solo durante l'estensione dinamica (esecuzione) di una espressione. Una variabile con ambito dinamico viene anche chiamata 'parametro'.
 L'associazione dinamica associa i dati all'esecuzione del contesto corrente, e quindi consente di passare i dati alle funzioni senza dover dichiarare esplicitamente questi dati nell'interfaccia della funzione.
@@ -2799,10 +2820,10 @@ Infine scriviamo la funzione/funtore del contesto "primo" (il parametro "dir" pu
       (setq num (- primo:val 1))
     )
     (until found
-      (if (primo:isprime? num) 
+      (if (primo:isprime? num)
           (setq primo:val num found true)
       )
-      (if (null? dir)    
+      (if (null? dir)
         (++ num)
         (-- num)
       )
@@ -2811,7 +2832,7 @@ Infine scriviamo la funzione/funtore del contesto "primo" (il parametro "dir" pu
   )
 )
 
-Proviamo il tutto: 
+Proviamo il tutto:
 
 (primo:start 13)
 ;-> 13
@@ -2909,7 +2930,7 @@ Il simbolo iniziale "0" è stato modificato dalla funzione stessa nel valore del
 Un altro esempio di generatore utilizza la funzione "expand" per creare funzioni che effettuano lo stream (flusso) di liste o di stringhe:
 
 (define (make-stream lst)
-    (letex (stream lst) 
+    (letex (stream lst)
         (lambda () (pop 'stream))))
 ;-> (lambda (lst)
 ;->  (letex (stream lst) (lambda () (pop 'stream))))
@@ -3034,7 +3055,7 @@ Il numero int-1 viene shiftato (spostato) aritmeticamente verso sinistra o verso
 
 Quando int-1 è l'unico argomento << e >> shifta int-1 di un bit.
 
-Le operazioni di shift aritmetico possono essere utilizzate per dividere o moltiplicare un numero  intero. 
+Le operazioni di shift aritmetico possono essere utilizzate per dividere o moltiplicare un numero  intero.
 
 Moltiplicazione con lo shift a sinistra
 ---------------------------------------
@@ -3274,7 +3295,8 @@ Pensiamo in termini di definizione di un ciclo. L'accumulatore inizia da 0 e vie
 ;-> 7
 
 Filtraggio degli elementi di una lista:
-Questa funzione mantiene solo gli elementi di una lista che soddisfano un predicato, eliminando tutti gli altri:
+
+Questa funzione mantiene solo gli elementi di una lista che soddisfano un predicato, eliminando tutti gli altri.
 
 (define (filtra pred lst) (fold-right (fn (x y) (if (pred x) (cons x y) y)) lst '()))
 (filtra (fn (x) (> x 5)) '(1 45 34 2 3 6))
@@ -3283,6 +3305,20 @@ Questa funzione mantiene solo gli elementi di una lista che soddisfano un predic
 Viene testato il valore corrente rispetto al predicato. Se è vero, sostituisce "cons" con "cons", cioè non cambia nulla. Se è falso, elimina il "cons" e restituisce il resto dell'elenco. Questo elimina tutti gli elementi che non soddisfano il predicato, creando una nuova lista che include solo quelli che lo soddisfano.
 
 Nota: la chiave per programmare con il metodo "fold" è pensare solo in termini di ciò che accade ad ogni iterazione. Questo metodo cattura il modello di ricorsione in una lista e i problemi ricorsivi si risolvono meglio lavorando un passo alla volta.
+
+Le stesse due funzioni possono essere scritte anche in modo leggermente diverso. Infatti sono scambiati i parametri (func --> op, init --> base, lst --> xs):
+
+(define (fold-left op base xs)
+  (if (null? xs)
+      base
+      (fold-left op (op base (car xs)) (cdr xs))))
+
+(define (fold-right op base xs)
+  (if (null? xs)
+      base
+      (op (car xs) (fold-right op base (cdr xs)))))
+
+Il metodo Fold utilizza una funzione specificata dall'utente per ridurre una lista di valori a un singolo valore e rappresenta uno delgi idiomi fondamentali della programmazione funzionale. "Fold-left" lavora da sinistra a destra attraverso l'elenco xs, applicando la funzione binaria op alla base e al primo elemento di xs, quindi applicando la funzione binaria op al risultato della prima funzione op e del secondo elemento di xs, e così via, applicando ad ogni passo la funzione binaria op al risultato della precedente funzione op e all'elemento corrente di xs. "fold-right" funziona allo stesso modo, ma da destra a sinistra.
 
 
 -----------------------

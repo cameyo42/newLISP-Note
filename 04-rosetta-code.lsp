@@ -5808,3 +5808,202 @@ Le ultime tre funzioni devono essere differenziate ripetendo il calcolo per un c
 Il risultato è conforme alle aspettative logiche.
 
 
+--------------
+NUMERI VAMPIRI
+--------------
+
+Un numero del vampiro è un numero naturale composto v, con un numero pari di cifre n, che può essere fattorizzato in due interi x e y (chiamati zanne "faing") che non abbiano entrambi degli zeri finali e ognuno dei quali abbia n/2 cifre, dove v contiene precisamente tutte le cifre di x e y, in un ordine qualsiasi, contando la molteplicità.
+
+Per esempio: 1260 è un numero del vampiro, le cui zanne sono 21 e 60 (dato che 21·60 = 1260): infatti, 1260 ha 4 cifre e 12 e 60 hanno entrambi 4/2 = 2 cifre, ed è inoltre formato da tutte le cifre di 21 e 60.
+
+I primi numeri vampiro sono:
+
+1260, 1395, 1435, 1530, 1827, 2187, 6880, 102510, 104260, 105210, 105264, 105750, 108135, 110758, 115672, 116725, 117067, 118440, 120600, 123354, 124483, 125248, 125433, 125460, 125500, ...
+
+Proviamo a risolvere il problema con la forza bruta. Generiamo tutte le permutazioni delle cifre di un numero e poi verifichiamo se il prodotto tra la prima metà delle cifre della permutazione e la seconda metà delle cifre della permutazione è uguale al numero.
+
+(define (list2int lst) (int (join (map string lst))))
+
+(define (int2list n)  (map int (explode (string n))))
+
+Funzione che calcola le permutazioni:
+
+(define (perm lst)
+  (local (i indici out)
+    (setq indici (dup 0 (length lst)))
+    (setq i 0)
+    (setq out (list lst))
+    (while (< i (length lst))
+      (if (< (indici i) i)
+          (begin
+            (if (zero? (% i 2))
+              (swap (lst 0) (lst i))
+              (swap (lst (indici i)) (lst i)))
+            (push lst out -1)
+            (++ (indici i))
+            (setq i 0))
+          (begin
+            (setf (indici i) 0)
+            (++ i))))
+    out))
+
+Scriviamo la funzione:
+
+(define (vampire n)
+  (local (i-lst lun lst a b half)
+    (for (i 1111 n)
+      (setq i-lst (int2list i))
+      (setq lun (length i-lst))
+      (setq half (/ lun 2))
+      (cond ((even? lun)
+             (setq lst (unique (perm i-lst)))
+             (dolist (el lst)
+               (setq a (list2int (slice el 0 half)))
+               (setq b (list2int (slice el half)))
+               (if (= (* a b) i)
+                 (println a { * } b { = } (* a b)))))))))
+
+(vampire 2000)
+;-> 21 * 60 = 1260
+;-> 60 * 21 = 1260
+;-> 93 * 15 = 1395
+;-> 15 * 93 = 1395
+;-> 41 * 35 = 1435
+;-> 35 * 41 = 1435
+;-> 51 * 30 = 1530
+;-> 30 * 51 = 1530
+;-> 21 * 87 = 1827
+;-> 87 * 21 = 1827
+
+(time (vampire 125000))
+;-> 68708.184
+
+Questo metodo è molto lento a causa della funzione che calcola le permutazioni.
+
+Cerchiamo di risolvere il problema utilizzando le coppie di fattori.
+Ogni numero può essere scomposto in fattori primi. Un fattore è quindi un qualsiasi sottoinsieme dei fattori primi moltiplicati tra loro. La coppia di fattori è il numero originale diviso per il fattore scelto.
+
+Esempio:
+
+Numero = 54
+(factor 54)
+;-> (2 3 3 3)
+Sottoinsieme scelto = (2 3) = 2*3 = 6
+Coppia di fattori = (6 (54 / 6)) = (6 9)
+
+Per generare tutti i sottoinsiemi (tutti i fattori) utilizziamo la funzione "powerset-i":
+
+(define (powerset-i lst)
+  (define (loop res s)
+    (if (empty? s)
+      res
+      (loop (append (map (lambda (i) (cons (first s) i)) res) res) (rest s))))
+  (loop '(()) lst))
+
+(factor 1260)
+;-> (2 2 3 3 5 7)
+
+(powerset-i (factor 1260))
+;-> ((2 2 3 3 5 7) (2 2 3 3 5) (2 2 3 3 7) (2 2 3 3) (2 2 3 5 7) (2 2 3 5) (2 2 3 7)
+;->  (2 2 3) (2 2 3 5 7) (2 2 3 5) (2 2 3 7)
+;->  ...
+;->  (5 7) (5) (7) ())
+
+Per generare i fattori applichiamo la funzione moltiplicazione "*" a tutti gli elementi do ogni sotto-lista:
+
+(setq r (map (fn(x) (apply * x)) (powerset-i (factor 1260))))
+;-> (1260 180 252 36 420 60 84 12 420 60 84 12 140 20 28 4 630 90 126 18 210
+;->  30 42 6 210 30 42 6 70 10 14 2 630 90 126 18 210 30 42 6 210 30 42 6 70
+;->  10 14 2 315 45 63 9 105 15 21 3 105 15 21 3 35 5 7 1)
+
+Di questa lista a noi interessano solo i numeri che sono lunghi 2 cifre e che dividendo il numero base (1260) generano un numero con due cifre:
+
+(setq r (unique (filter (fn(x) (and (= (length x) 2) (= (length (/ 1260 x)) 2))) r)))
+;-> (36 60 84 20 28 90 18 30 42 70 14 45 63 15 21 35)
+
+Da questa lista possiamo creare le coppie di fattori e verificare se le cifre di queste coppie sono le stesse di quelle del numero:
+
+(dolist (el r)
+  (setq a el)
+  (setq b (/ 1260 el))
+    (if (= (sort (append (int2list a) (int2list b))) (sort '(1 2 6 0)))
+      (println a { } b { } 1260)))
+
+;-> 60 21 1260
+;-> 21 60 1260
+
+Adesso possiamo scrivere la nuova funzione che calcola i numeri vampiri fino a n:
+
+(define (vampire2 n)
+  (local (lst lst2 i-lst lun a b h)
+    (for (i 1 n)
+      ;(setq lun (length i-lst))
+      (setq lun (length i))
+      (cond ((even? lun)
+             (setq i-lst (int2list i))
+             (setq h (/ (length i) 2))
+             (setq lst (map (fn(x) (apply * x)) (powerset-i (factor i))))
+             (setq lst2 (unique (filter (fn(x) (and (= (length x) h) (= (length (/ i x)) h))) lst)))
+             (dolist (el lst2)
+               (setq a el)
+               (setq b (/ i el))
+                 (if (= (sort (append (int2list a) (int2list b))) (sort i-lst))
+                   (println a { * } b { = } i))
+             )
+            )
+      )
+    )
+  )
+)
+
+(vampire2 2000)
+;-> 60 * 21 = 1260
+;-> 21 * 60 = 1260
+;-> 15 * 93 = 1395
+;-> 93 * 15 = 1395
+;-> 35 * 41 = 1435
+;-> 41 * 35 = 1435
+;-> 30 * 51 = 1530
+;-> 51 * 30 = 1530
+;-> 21 * 87 = 1827
+;-> 87 * 21 = 1827
+
+(time (vampire2 125000))
+;-> 4734.965
+
+Questo metodo è molto più veloce e la funzione potrebbe essere ottimizzata, oppure si potrebbe utilizzare un importante risultato teorico trovato da Pete Hartley:
+
+  Se x · y è un numero vampiro, allora x · y == x + y (mod 9)
+
+Prova:
+Sia mod l'operatore modulo binario e d(x) la somma delle cifre decimali di x.
+È noto che d(x) mod 9 = x mod 9, per tutti i valori di x.
+Supponiamo che x · y sia un vampiro. Quindi contiene le stesse cifre di xey, in particolare d(x · y) = d(x) + d(y). Questo porta a:
+(x · y) mod 9 = d(x · y) mod 9 = (d(x) + d(y)) mod 9 = (d(x) mod 9 + d(y) mod 9) mod 9
+              = (x mod 9 + y mod 9) mod 9 = (x + y) mod 9
+
+Le soluzioni alla congruenza sono (x mod 9, y mod 9) in ((0 0) (2 2) (3 6) (5 8) (6 3) (8 5)). Solo questi casi (6 su 81) devono essere testati nella ricerca di vampiri basata sul test di x · y per valori diversi di x e y.
+
+Esempio:
+
+(setq num 1260)
+
+(define (faing? x y)
+  (true? (find (list (% x 9) (% y 9))
+               '((0 0) (2 2) (3 6) (5 8) (6 3) (8 5)))))
+
+(faing? 12 60)
+;-> true
+
+Formula di Roushe e Rogers per generare numeri vampiri:
+
+  1·10^(2n+3) + 524·10^(n+1) + 208 = (25·10^(n) + 1 · (40·10^n + 208)
+
+Questa formula produce numeri vampiri con (2n + 4) cifre.
+
+n = 2  ==>  10524208 = 2501 · 4208
+n = 3  ==>  1005240208 = 25001 · 40208
+
+Ma per adesso basta con i numeri vampiri.
+
+
