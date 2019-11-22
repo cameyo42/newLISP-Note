@@ -1119,6 +1119,7 @@ Versione "newLISP":
 (powerset-i '(1 2 3))
 ;-> ((3 2 1) (3 2) (3 1) (3) (2 1) (2) (1) ())
 
+
 ------------------------------
 Brainfuck string encode/decode
 ------------------------------
@@ -3498,5 +3499,593 @@ Quindi la divisione finale è la seguente:
    4356   |
    ----   |
       0   |
+
+
+----------------------------------------
+Il linguaggio di programmazione Fractran
+----------------------------------------
+
+Fractran è un linguaggio di programmazione esoterico Turing-completo inventato dal matematico John Conway. Un programma Fractran è una lista ordinata di frazioni positive e un numero intero positivo iniziale n. Il programma viene eseguito aggiornando l'intero n come segue:
+
+1) per la prima frazione f nell'elenco per cui n*f è un numero intero, sostituire n con n*f
+
+2) ripetere questa regola fino a quando nessuna frazione dell'elenco produce un numero intero se moltiplicata per n, quindi arrestarsi.
+
+Nel 1987 Conway ha scritto il seguente programma per generare i numeri primi:
+
+(17/91 78/85 19/51 23/38 29/33 77/29 95/23 77/19 1/17 11/13 13/11 15/14 15/2 55/1)
+
+A partire da n = 2, questo programma genera la seguente sequenza di numeri interi:
+
+2, 15, 825, 725, 1925, 2275, 425, 390, 330, 290, 770, ...
+
+Dopo 2, questa sequenza contiene le seguenti potenze di 2:
+
+2^2 = 4, 2^3 = 8, 2^5 = 32, 2^7 = 128, 2^11 = 2048
+2^13 = 8192, 2^17 = 131072, 2^19 = 5244288, ...
+
+in cui le potenze rappresentano i numeri primi.
+
+Rappresentiamo il programma Fractran come una lista:
+
+(setq primegame '((17L 91L) (78L 85L) (19L 51L) (23L 38L) (29L 33L)
+(77L 29L) (95L 23L) (77L 19L) (1L 17L) (11L 13L) (13L 11L) (15L 14L) (15L 2L) (55L 1L)))
+
+La funzione "fractran" prende il programma e un valore iniziale e restituisce il prossimo valore oppure si ferma se non viene trovato alcun valore intero.
+
+(define (fractran prog n)
+  (local (value stop)
+    (setq stop nil)
+    (dolist (el prog stop)
+      (setq value (/ (* (first el) n) (last el)))
+      (cond ((null? prog) (setq stop true))
+            ((= 0 (% (* (first el) n) (last el)))
+                (setq stop true))))
+    value))
+
+Nota: Poichè i numeri superano presto il limite degli interi a 64 bit dobbiamo utilizzare i big-integer.
+
+La funzione "run" esegue l'intero programma fractran:
+
+(define (run program start step)
+  (dotimes (x step)
+    (println start)
+    (setq start (fractran program start)))
+  'stop)
+
+Proviamo ad eseguire il programma fractran:
+
+(run primegame 2L 10)
+;-> 2L
+;-> 15L
+;-> 825L
+;-> 725L
+;-> 1925L
+;-> 2275L
+;-> 425L
+;-> 390L
+;-> 330L
+;-> 290L
+;-> stop
+
+Per estrarre i numeri primi occorre verificare se un dato numero intero è una potenza di due.
+
+Definiamo due funzione "ipow" (calcola la potenza intera di un numero) e "ilog" (calcola il logaritmo intero di un numero):
+
+(define (ipow x n)
+  (cond ((zero? n) 1)
+        ((even? n) (ipow (* x x) (/ n 2)))
+        (true (* x (ipow (* x x) (/ (- n 1) 2))))))
+
+(define (ilog n b)
+  (if (zero? n) -1
+    (+ (ilog (/ n b) b) 1L)))
+
+Un numero n è potenza di due se risulta:
+
+(= n (ipow 2 (ilog n 2)))
+
+(= 1122 (ipow 2 (ilog 1122 2)))
+;-> nil
+(= 4096 (ipow 2 (ilog 4096 2)))
+;-> true
+
+Adesso possiamo scrivere la funzione "run2" che estre i numeri primi:
+
+(define (run2 program start step)
+  (dotimes (x step)
+    (if (= start (ipow 2 (ilog start 2)))
+      (print (ilog start 2) {, }))
+    (setq start (fractran program start)))
+  'stop)
+
+Eseguiamo il programma per generare i numeri primi:
+
+(run2 primegame 2L 1e6)
+;-> 1, 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, stop
+
+Conway è un ragazzo molto "cattivo" :-)
+
+Da ralph.ronnquist:
+
+(define (run2 program start step)
+  (dotimes (x step)
+    (let (b (bits x))
+       (or (find "1" (1 b)) (print (dec (length b)) ", ")))
+    (setq start (fractran program start)))
+  'stop)
+
+(run2 primegame 2 100)
+;-> 0, 0, 1, 2, 3, 4, 5, 6 stop
+(run2 primegame 2 1e6)
+;-> 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, stop
+
+Purtroppo la funzione "bits" non funziona con i big integer.
+
+Allora usiamo la seguente funzione:
+
+; Compute "bits" for bigint and int
+(constant 'MAXINT (pow 2 62))                                                   
+(define (prep s) (string (dup "0" (- 62 (length s))) s))
+(define (bitsL n)
+    (if (<= n MAXINT) (bits (int n))
+      (string (bitsL (/ n MAXINT))
+              (prep (bits (int (% n MAXINT)))))))
+
+
+----------------------------
+La funzione map semplificata
+----------------------------
+
+Definiamo una funzione che simula la funzione "map". Per semplificare esaminiamo solo la situazione unaria, cioè scriveremo una funzione "mappa" che applica una funzione unaria (es. sin, log, ecc.) ad una sola lista.
+
+(define (mappa func lst)
+  (if (null? lst) '()
+      (cons (func (first lst)) (mappa func (rest lst)))))
+
+(mappa sin '(3 4 5))
+;-> (0.1411200080598672 -0.7568024953079282 -0.9589242746631385)
+
+(mappa sqrt '(4 9 25))
+;-> (2 3 5)
+
+Possiamo anche applicare una funzione lambda definita dall'utente:
+
+(mappa (fn(x) (* x x)) '(2 3 5))
+;-> (4 9 25)
+
+
+-----------------------------------------------
+Generazione della documentazione con newLISPdoc
+-----------------------------------------------
+
+Vediamo come sia possibile generare automaticamente la documentazione per le funzioni (sorgenti) di un modulo creato dall'utente.
+Supponiamo di voler creare un modulo con due funzioni per la conversione da gradi Celsius a gradi Fahrenheit e viceversa.
+
+Questo è il contenuto del file "doc-demo.lsp":
+
+;; @module doc-demo.lsp
+;; @author X Y, xy@doc-demo.com
+;; @version 1.0
+;; 
+;; Questo modulo è un esempio per mostrare
+;; il funzionamento del programma newlispdoc
+;; che genera automaticamente documentazione
+;; per i sorgenti newLISP.
+
+;; @syntax (demo:celsius->fahrenheit gradi-celsius)
+;; @param <gradi-celsius> valore in gradi Celsius.
+;; @return restituisce il valore in gradi Fahrenheit.
+;;
+;; La funzione 'celsius->fahrenheit' converte
+;; i gradi Celsius in gradi Fahrenheit.
+;;
+;; @example
+;; (celsius->fahrenheit 0)        ==> 32
+;; (celsius->fahrenheit 100)      ==> 212
+;; (celsius->fahrenheit -273.15)  ==> -459.67
+
+; Creiamo le funzioni in un nuovo contesto
+(context 'demo)
+
+(define (celsius->fahrenheit gradi-celsius)
+  (add (div (mul gradi-celsius 9) 5) 32))
+
+;; @syntax (demo:fahrenheit->celsius gradi-fahrenheit)
+;; @paramn <gradi-fahrenheit> valore in gradi Fahrenheit.
+;; @return restituisce il valore in gradi Celsius.
+;;
+;; The function 'celsius->fahrenheit' converte
+;; i gradi Celsius in gradi Fahrenheit.
+;;
+;; @example
+;; (fahrenheit->celsius 32)       ==> 0
+;; (fahrenheit->celsius 212)      ==> 100
+;; (fahrenheit->celsius -459.67)  ==> -273.15
+
+(define (fahrenheit->celsius gradi-fahrenheit)
+  (div (mul (sub gradi-fahrenheit 32) 5) 9))
+
+; Ritorniamo al contesto principale
+(context MAIN)
+; eof ;
+
+Adesso creiamo una cartella (es. doc-demo) in cui copiamo questo file "doc-demo.lsp" e il file "newlispdoc" (c:\newlisp\util\newlispdoc). Poi apriamo il Command Prompt, ci posizioniamo sulla cartella, e digitiamo la seguente riga di comando:
+
+newlisp newlispdoc doc-demo.lsp
+
+Adesso nella cartella troviamo anche i file "index.html" e "doc-demo.lsp.html" che sono la documentazione al nostro modulo.
+
+Ve digitiamo il seguente comando:
+
+newlisp newlispdoc -s doc-demo.lsp
+
+viene creato anche il file "doc-demo.lsp.src.html" che è il sorgente (evidenziato) del nostro modulo in formato HTML.
+
+Per maggiori informazioni consultare l'Appendice su newlispdoc.
+
+Per testare il nostro modulo dobbiamo prima caricarlo nella sessione di newLISP:
+
+(load "doc-demo.lsp")
+MAIN
+
+Adesso possiamo usare le due funzione definite nel modulo:
+
+(demo:fahrenheit->celsius 32)
+;-> 0
+
+(demo:celsius->fahrenheit 100)
+;-> 212
+
+
+-----------------------
+Ancora sui numeri primi
+-----------------------
+
+Queste sono quattro funzioni simili che verificano se un numero è primo.
+
+(define (primo? n)
+   (if (< n 2) nil
+       (= 1 (length (factor n)))))
+
+(define (primoa? n)
+  (setq out true) ; il numero viene considerato primo fino a che non troviamo un divisore preciso
+  (cond ((<= n 3) (setq out true))
+        ((or (= (% n 2) 0) (= (% n 3) 0)) (setq out nil))
+        (true (setq i 5)
+              (while (and (<= (* i i) n) out)
+                (if (or (= (% n i) 0) (= (% n (+ i 2)) 0)) (setq out nil))
+                (setq i (+ i 6))
+              ))) out)
+
+(define (primob? n)
+  (local (idx step out)
+    (setq out true)
+    (cond ((or (= n 2) (= n 3)) true)
+          ((or (< n 2) (= (% n 2) 0) (= (% n 3) 0)) nil)
+          (true
+            (setq idx 5 step 2)
+            (while (and (<= (* idx idx) n) out)
+              (if (= 0 (% n idx)) (setq out nil))
+              (setq idx (+ idx step))
+              (setq step (- 6 step ))
+            )
+            out))))
+
+(define (primoc? n)
+  (local (r f test)
+    (setq test true)
+    (cond ((= n 1) nil)
+          ((< n 4) true) ; 2 e 3 sono primi
+          ((even? n) nil)
+          ;((= (% n 2) 0) nil)
+          ((< n 9) true) ; abbiamo già escluso 4,6 e 8
+          ((= (% n 3) 0) nil)
+          (true
+              (setq r (floor (sqrt n)))
+              (setq f 5)
+              (while (and test (<= f r))
+                (if (= (% n f) 0) (setq test nil))
+                (if (= (% n (+ f 2)) 0) (setq test nil))
+                (++ f 6)
+              )
+              test))))
+
+Controlliamo che le funzioni diano i risultati corretti:
+
+(= (map primo? (sequence 2 500000)) (map primoa? (sequence 2 500000)))
+;-> true
+(= (map primo? (sequence 2 500000)) (map primob? (sequence 2 500000)))
+;-> true
+(= (map primo? (sequence 2 500000)) (map primoc? (sequence 2 500000)))
+;-> true
+
+Vediamo la velocità delle funzioni:
+
+(time (map primo? (sequence 1 1000000)))
+;-> 1109.48
+(time (map primoa? (sequence 1 1000000)))
+;-> 3984.891
+(time (map primob? (sequence 1 1000000)))
+;-> 6172.891
+(time (map primoc? (sequence 1 1000000)))
+;-> 3552.159
+
+La funzione più veloce è quella che usa la funzione "factor".
+
+Se invece dobbiamo calcolare i primi n numeri primi, una routine ad hoc è più veloce dell'utilizzo di "factor", perchè non dobbiamo fattorizzare il numero, ma ci fermiamo quando troviamo un divisore del numero:
+
+(define (primi-fino1 n)
+  (setq lst '(2))
+  (for (i 3 n 2)
+    (if (primo? i) (push i lst -1))) lst)
+
+(define (primi-fino2 n)
+   (setq arr (array (+ n 1)) lst '(2))
+   (for (x 3 n 2)
+      (when (not (arr x))
+         (push x lst -1)
+         (for (y (* x x) n (* 2 x) (> y n))
+            (setf (arr y) true)))) lst)
+
+(= (primi-fino1 1000000) (primi-fino2 1000000))
+;-> true
+
+(time (primi-fino1 1e6))
+;-> 656.265
+(time (primi-fino2 1e6))
+;-> 203.137
+
+La funzione che non usa "factor" è più veloce.
+
+
+----------------------------------------
+Un algoritmo: matrice con somme positive
+----------------------------------------
+
+Supponiamo di avere una matrice N x M di numeri interi positivi e negativi. Le operazioni possibili sono:
+1) cambiare di segno a tutti i numeri di una riga
+2) cambiare di segno a tutti i numeri di una colonna
+
+Determinare (se esiste) un algoritmo che utilizzando soltanto le operazioni 1) e 2) rende positiva la somma di ogni riga e ogni colonna della matrice (consideriamo positiva una somma con valore zero).
+
+In genere un algoritmo è un insieme finito di operazioni possibili applicati ad una "situazione iniziale" per trasformarla in una "situazione finale" (quella desiderata).
+
+Quando sviluppiamo un algoritmo dobbiamo rispondere alle seguenti domande:
+
+1) Esiste un insieme finito di operazioni che risolve il problema?
+
+2) Qual'è l'insieme di operazioni che risolve il problema?
+
+Durante l'applicazione delle operazioni la "situazione iniziale" cambia stato numerose volte prima di raggiungere (eventualmente) la "situazione finale": come possiamo essere certi che ogni stato successivo è "migliore" di quello precedente? Quanto ci avviciniamo alla soluzione ad ogni passo?
+
+Nota: per evitare il Paradosso di Zenone (tanti piccoli passi che diminuiscono di valore e non raggiungono mai la meta finale), si può definire un valore minimo P di miglioramento che deve essere affettuato ad ogni passo.
+
+Per il nostro problema possiamo fare la seguente osservazione:
+
+Se una riga (o colonna) ha una somma negativa, allora cambiando il segno a tutti i numeri di quella riga (o colonna) la somma diventa positiva, ma modifichiamo anche le somme delle altre colonne (righe).
+
+Come possiamo essere sicuri di aver migliorato la situazione dopo ogni passo (cioè dopo aver cambiato di segno ad una riga o ad una colonna)?
+
+Per rispondere a questa domanda pensiamo alla somma di tutti i numeri della matrice. Questa è uguale alla somma delle righe o alla somma delle colonne:
+
+ST = Somma Totale = Somma delle Righe = Somma delle Colonne
+
+Quando modifichiamo una riga con somma negativa -S, otteniamo una riga con somma S. Quindi incrementiamo la Somma Totale (ST) di un valore pari a 2*S. Poichè esiste un numero finito di valori di ST (al massimo 2^(n+m)) e ST aumenta sempre ogni volta che cambiamo una riga (o una colonna) negativa, allora dobbiamo per forza raggiungere, alla fine, una situazione in cui tutte le somme delle righe e delle colonne sono positive.
+
+L'algoritmo quindi esiste ed è il seguente:
+
+Per ogni riga (o colonna) della matrice:
+se la somma è negativa, allora invertire il segno di tutti i numeri (che rende la somma positiva)
+
+Scriviamo adesso le funzioni necessarie per risolvere il problema.
+
+Genera un numero intero casuale n nell 'intervallo [a..b] (cioè, a <= n <= b):
+
+(define (rand-range a b)
+  (if (> a b) (swap a b))
+  (+ a (rand (+ (- b a) 1)))
+)
+
+Genera una matrice N x M con numeri interi casuali compresi tra "a" e "b":
+
+(define (genera-matrice m n a b)
+  (array m n (map (fn(x) (rand-range a b)) (sequence 1 (* a b)))))
+
+(setq m (genera-matrice 5 4 -10 10))
+;-> ((2 3 7 7) (3 5 1 -3) (-7 5 1 9) (-5 -7 2 4) (2 -3 0 -9))
+
+(setq m '((2 3 7 7) (3 5 1 -3) (-7 5 1 9) (-5 -7 2 4) (2 -3 0 -9)))
+
+Calcola la somma della riga di una matrice (passate come argomento):
+
+(define (sum-row matrice riga) (apply + (matrice riga)))
+
+(sum-row m 0)
+;-> 19
+
+Calcola la somma della colonna di una matrice (passate come argomento):
+
+(define (sum-col matrice col) (apply + ((transpose matrice) col)))
+
+(sum-col m 0)
+;-> -5
+
+Cambia il segno di ogni numero della riga di una matrice (passate come argomento):
+
+(define (flip-row matrice riga)
+  (for (i 0 (- (length (matrice riga)) 1))
+    (setf (matrice riga i) (- (matrice riga i)))) matrice)
+
+(setq m (flip-row m 2))
+;-> ((2 3 7 7) (3 5 1 -3) (7 -5 -1 -9) (-5 -7 2 4) (2 -3 0 -9))
+
+Cambia il segno di ogni numero della riga di una matrice (passate come argomento):
+
+(define (flip-col matrice col)
+  (for (i 0 (- (length matrice) 1))
+    (setf (matrice i col) (- (matrice i col)))) matrice)
+
+(setq m (flip-col m 0))
+;-> ((-2 3 7 7) (-3 5 1 -3) (-7 -5 -1 -9) (5 -7 2 4) (-2 -3 0 -9))
+
+Controlla se una matrice ha somma positiva per tutte le righe e tutte le colonne:
+
+(define (check-sum matrice)
+    (let (out true)
+      (for (i 0 (- (length matrice) 1)) ; righe
+        (if (< (sum-row matrice i) 0) (setq out nil)))
+      (for (i 0 (- (length (matrice 0)) 1)) ; colonne
+        (if (< (sum-col matrice i) 0) (setq out nil)))
+      out))
+
+(check-sum m)
+;-> nil
+
+La funzione finale che risolve il problema:
+
+(define (solve matrice)
+  (until (check-sum matrice)
+    (print 'r)
+    (for (i 0 (- (length matrice) 1)) ; righe
+      (if (< (sum-row matrice i) 0) (setf matrice (flip-row matrice i))))
+    (print 'c)
+    (for (i 0 (- (length (matrice 0)) 1)) ; colonne
+      (if (< (sum-col matrice i) 0) (setf matrice (flip-col matrice i)))))
+    matrice)
+
+(setq m (genera-matrice 5 4 -10 10))
+;-> ((1 -3 10 3) (-7 -3 -8 5) (9 2 -10 -4) (-9 3 -8 7) (8 2 5 7))
+
+(setq m '((1 -3 10 3) (-7 -3 -8 5) (9 2 -10 -4) (-9 3 -8 7) (8 2 5 7)))
+
+(setq sol (solve m))
+;-> rc((1 3 10 3) (7 -3 8 -5) (-9 2 10 4) (9 3 8 -7) (8 -2 5 7))
+
+(check-sum sol)
+;-> true
+
+Con matrici più grandi dobbiamo invertire diverse righe e colonne prima di arrivare alla soluzione:
+
+(setq m (genera-matrice 50 40 -1000 1000))
+(silent (setq sol (solve m)))
+;-> rcrcrcrc
+
+(check-sum sol)
+;-> true
+
+Il numero di inversioni dipende dal numero delle righe, dal numero delle colonne e dal valore dei numeri della matrice (non credo che sia facilmente calcolabile a priori).
+
+
+------------------
+Dadi e probabilità
+------------------
+
+Quesito 1
+---------
+In media, quante volte occorre lanciare un dado prima di ottenere tutti i sei i numeri?
+
+Dal punto di vista matematico il numero medio di lanci vale:
+
+  6   6   6   6   6   6
+  - + - + - + - + - + - = 14.7
+  6   5   4   3   2   1
+
+(add (div 6 6) (div 6 5) (div 6 4) (div 6 3) (div 6 2) (div 6 1)) = 14.7
+
+Vediamo di simulare l'evento con alcune funzioni:
+
+Funzione per il lancio di un dado:
+
+(define (dado num-dadi num-facce)
+  (+ num-dadi (apply + (rand num-facce num-dadi))))
+
+(dado 1 6)
+;-> 5
+
+Funzione che conta quante volte bisogna lanciare il dado prima di ottenere tutti i valori:
+
+(define (num-lanci)
+  (let ((lst (dup 0 7)) (num 0))
+    (until (= (apply + lst) 6)
+      (setf (lst (dado 1 6)) 1)
+      (++ num))
+    num))
+
+(num-lanci)
+;-> 18
+
+Funzione che calcola la media del numero dei lanci:
+
+(define (solve iter)
+  (let (somma 0)
+    (for (i 1 iter)
+      (setq somma (+ somma (num-lanci))))
+    (div somma iter)))
+
+Proviamo a vedere se otteniamo lo stesso valore (14.7):
+
+(solve 1000)
+;-> 14.546
+
+(solve 100000)
+;-> 14.69487
+
+(solve 1000000)
+;-> 14.703081
+
+Quesito 2
+---------
+In media, quante volte occorre lanciare contemporaneamente 6 dadi prima di ottenere una mano con tutti i numeri (1,2,3,4,5 e 6) in qualunque ordine?
+
+Dal punto di vista matematico il numero medio di lanci vale:
+
+1   6*5*4*3*2*1
+- = ----------- = 0.0154321  ==> n = 64.8
+n      6^6
+
+(div (pow 6 6) (apply * '(1 2 3 4 5 6))) = 64.8
+
+Vediamo di simulare l'evento con alcune funzioni:
+
+Funzione che conta quante volte bisogna lanciare il dado prima di ottenere tutti i valori:
+
+(define (num-lanci6)
+  (let ((lst (dup 0 7)) (num 0))
+    (until (= (apply + lst) 6)
+      (setq lst (dup 0 7))
+      (setf (lst (dado 1 6)) 1)
+      (setf (lst (dado 1 6)) 1)
+      (setf (lst (dado 1 6)) 1)
+      (setf (lst (dado 1 6)) 1)
+      (setf (lst (dado 1 6)) 1)
+      (setf (lst (dado 1 6)) 1)
+      (++ num))
+    num))
+
+(num-lanci6)
+;-> 18
+
+Funzione che calcola la media del numero dei lanci:
+
+(define (solve6 iter)
+  (let (somma 0)
+    (for (i 1 iter)
+      (setq somma (+ somma (num-lanci6))))
+    (div somma iter)))
+
+Proviamo a vedere se otteniamo lo stesso valore (64.8):
+
+(solve6 1000)
+;-> 64.477
+
+(solve6 10000)
+;-> 63.9149
+
+(solve6 100000)
+;-> 64.81573
+
+(solve6 500000)
+;-> 64.810948
 
 

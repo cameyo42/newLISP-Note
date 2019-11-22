@@ -4163,3 +4163,153 @@ Se vogliamo eliminare le terne simmetriche possiamo ordinare tutte le terne e po
 ;-> ((3 4 5) (5 12 13) (7 24 25) (8 15 17) (9 40 41) (11 60 61) (12 35 37))
 
 
+---------------------------------
+Calcolo di e con il metodo spigot
+---------------------------------
+
+Definiamo una funzione che calcola il numero di Eulero usando l'algoritmo di Rabinowitz e Wagon.
+
+Il numero di Eulero "e" vale (con 500 cifre dopo la virgola):
+
+2.7182818284590452353602874713526624977572470936999595749669676277240766303535475945713821785251664274274663919320030599218174135966290435729003342952605956307381323286279434907632338298807531952510190115738341879307021540891499348841675092447614606680822648001684774118537423454424371075390777449920695517027618386062613313845830007520449338265602976067371132007093287091274437470472306969772093101416928368190255151086574637721112523897844250569536967707854499699679468644549059879316368892300987931
+
+Di seguito lo pseudo-codice dell'algoritmo come riportato nell'articolo di Rabinowitz e Wagon:
+
+Algorithm e-spigot:
+
+1. Initialize: 
+   Let the first digit be 2 and 
+   initialize an array A of length n + 1 to (1, 1, 1, . . . , 1).
+2. Repeat n − 1 times:
+   Multiply by 10: Multiply each entry of A by 10.
+   Take the fractional part: Starting from the right, 
+                             reduce the ith entry of A modulo i + 1, 
+                             carrying the quotient one place left.
+   Output the next digit: The final quotient is the next digit of e.
+
+Questa è l'implementazione in newLISP:
+
+(define (spigot-e n)
+  (local (vec cifra out)
+    (setq out '())
+    ; vettore con n elementi tutti di valore 1
+    (setq vec (array n '(1)))
+    (for (i 0 (- n 1))
+      (setq cifra 0)
+      (for (j (- n 1) 0 -1)
+        (setf (vec j) (+ (* 10 (vec j)) cifra))
+        (setq cifra (/ (vec j) (+ j 2)))
+        (setf (vec j) (% (vec j) (+ j 2)))
+      )
+      (push cifra out -1))
+    out))
+
+(spigot-e 10)
+;-> (7 1 8 2 8 1 8 2 6 1)
+
+Un aspetto negativo di questo algoritmo è che le ultime cifre calcolate non sono corrette (soprattutto quando calcoliamo poche cifre). Questo problema può essere risolto in maniera pratica calcolando più cifre di quelle necessarie, in quanto l'algoritmo è molto veloce (calcolando 50 cifre in più siamo al sicuro fino a miliardi di cifre...). 
+
+Calcoliamo il numero "e" con 500 cifre dopo la virgola:
+
+(join (map string (spigot-e 499)))
+;-> "7182818284590452353602874713526624977572470936999595749669676277240766303535475945713821785251664274274663919320030599218174135966290435729003342952605956307381323286279434907632338298807531952510190115738341879307021540891499348841675092447614606680822648001684774118537423454424371075390777449920695517027618386062613313845830007520449338265602976067371132007093287091274437470472306969772093101416928368190255151086574637721112523897844250569536967707854499699679468644549059879316368892300987931"
+
+In questo caso tutte le cifre sono corrette.
+
+
+-----------
+Calcolo IVA
+-----------
+
+Due funzioni per calcolare l'IVA (Imposta Valore Aggiunto) e per scorporare l'IVA.
+
+(define (iva+ value iva-perc)
+  (mul value (add 1 (div iva-perc 100))))
+
+(iva+ 100 20)
+;-> 120
+
+(iva+ 80 20)
+;-> 96
+
+(define (iva- value iva-perc)
+  (div value (add 1 (div iva-perc 100))))
+
+(iva- 96 20)
+;-> 80
+
+
+-----------------------
+Numeri casuali distinti
+-----------------------
+
+Generare una lista ordinata con N numeri casuali distinti tra loro compresi tra "a" e "b".
+
+Usiamo la funzione "rand-range" per generare un numero compreso tra "a" e "b":
+
+(define (rand-range a b)
+  (if (> a b) (swap a b))
+  (+ a (rand (+ (- b a) 1))))
+
+Poi scriviamo la funzione richiesta:
+
+(define (sample n a b)
+  (local (value out)
+    ; creazione di un hashmap
+    (new Tree 'hset)
+    (until (= (length (hset)) n)
+      ; genera valore casuale
+      (setq value (rand-range a b))
+      ; inserisce valore casuale nell'hash
+      (hset (string value) value))
+      ; assegnazione dei valori dell'hasmap ad una lista
+      (setq out (getValues hset))
+      ; eliminazione dell'hashmap
+      (delete 'hset)
+      (sort out)))
+
+(sample 50 1 1000)
+;-> (52 58 71 97 103 107 111 128 131 135 160 203 219 221 
+;->  225 240 284 291 294 301 307 324 397 416 428 474 530 
+;->  547 623 651 744 763 773 779 790 807 821 826 837 839 
+;->  851 859 875 921 930 936 965 970 980 988)
+
+Nota: La chiamata (sample 50 1 25) non termina mai. Per correttezza dovremmo inserire un controllo che verifica se "n" è maggiore di "(b - a + 1)", nel qual caso non esiste una lista con 50 numeri diversi con un intervallo minore della dimensione della lista. Il caso limite è quando risulta n = (b - a + 1):
+
+(sample 10 1 10)
+;-> (1 2 3 4 5 6 7 8 9 10)
+
+Invece la seguente chiamata non termina mai:
+
+(sample 10 1 9)
+Premere Ctrl+C per fermare l'elaborazione...
+;-> ERR: received SIGINT - in function length
+;-> called from user function (sample 10 1 9)>
+
+Riscriviamo la funzione inserendo il controllo:
+
+(define (sample n a b)
+  (local (value out)
+    (cond ((> n (+ b (- a) 1)) '()) ; controllo
+          (true
+            ; creazione di un hashmap
+            (new Tree 'hset)
+            (until (= (length (hset)) n)
+              ; genera valore casuale
+              (setq value (rand-range a b))
+              ; inserisce valore casuale nell'hash
+              (hset (string value) value))
+              ; assegnazione dei valori dell'hasmap ad una lista
+              (setq out (getValues hset))
+              ; eliminazione dell'hashmap
+              (delete 'hset)
+              (sort out)))))
+
+(sample 10 1 10)
+;-> (1 2 3 4 5 6 7 8 9 10)
+
+Adesso quando risulta n > (b - a + 1) la funzione restituisce la lista vuota:
+
+(sample 10 1 9)
+;-> ()
+

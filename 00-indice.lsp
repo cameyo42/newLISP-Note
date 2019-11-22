@@ -131,6 +131,9 @@ FUNZIONI VARIE
   Prodotto cartesiano
   Insieme delle parti (powerset)
   Terne pitagoriche
+  Calcolo di e con il metodo spigot
+  Calcolo IVA
+  Numeri casuali distinti
 
 newLISP 99 PROBLEMI (28)
 ========================
@@ -320,6 +323,11 @@ DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Somma di due box (Amazon)
   Punti vicini a zero (Amazon)
   Trova la Funzione (Uber)
+  Prodotto scalare minimo e massimo (Google)
+  25 numeri (Wolfram)
+  Le cento porte (Wolfram)
+  Insiemi con la stessa somma (Wolfram)
+  Tripartizione di un intero (Wolfram)
 
 LIBRERIE
 ========
@@ -369,6 +377,12 @@ NOTE LIBERE
   Shift logico e Shift aritmetico
   fold-left e fold-right
   La divisione di Feynman
+  Il linguaggio di programmazione Fractran
+  La funzione map semplificata
+  Generazione della documentazione con newLISPdoc
+  Ancora sui numeri primi
+  Un algoritmo: matrice con somme positive
+  Dadi e probabilità
 
 APPENDICI
 =========
@@ -379,6 +393,7 @@ APPENDICI
   notepad++ bundle
   Visual Studio Code e newLISP
   Debugger
+  newLISPdoc - Il programma per la documentazione newLISP
   Compilare i sorgenti di newLISP
   Ricorsione e ottimizzazione della chiamata di coda (Tail Call Optimization)
   F-expression - FEXPR

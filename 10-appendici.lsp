@@ -3465,9 +3465,200 @@ Due ulteriori stringhe opzionali "str-header" e "str-footer" che controllano il 
 (trace-highlight ">>\027[1m" "\027[0m")
 
 
-================================
+============================================================================
+newLISPdoc - Il programma per la documentazione newLISP
+============================================================================
+
+I commenti nei file sorgenti di newLISP possono essere convertiti in documentazione HTML utilizzando solo pochi tag nei commenti. Il sistema newLISPdoc è progettato per utilizzare un minimo di tag e lasciare ancora leggibili i commenti con tag.
+
+newLISPdoc genera anche una pagina indice per tutti i file sorgente newLISP generati.
+
+Potete leggere il sorgente del file "newLISPdoc" nella cartella "util" dell'installazione di newLISP ((es. c:\newlisp\util). Il programma e questa documentazione fanno anche parte della distribuzione di newLISP dalla versione 9.0. Poiché l'evidenziazione della sintassi di newLISP versione 9.1 è integrata in newlispdoc, che è installato nella stessa cartella del programma eseguibile newLISP. Lo script syntax.cgi è ancora disponibile per le installazioni di siti Web, ma non è più necessario per newLISPdoc.
+
+Utilizzo
+Dall'interno della cartella in cui si trovano i tuoi moduli, eseguire "newlispdoc" dalla linea di comando passando tutti i nomi dei file dei moduli. Ad esempio, per elaborare i file mysql.lsp, odbc.lsp e sqlite3.lsp eseguire:
+
+Linux, OSX:
+newlispdoc mysql.lsp odbc.lsp sqlite.lsp
+
+Windows:
+newlisp newlispdoc mysql.lsp odbc.lsp sqlite.lsp
+
+Questo genera i file index.html, mysql.lsp.html, odbc.lsp.html e sqlite.lsp.html tutti nella stessa cartella da dove è stato eseguito il comando. La pagina index.html contiene i collegamenti a tutte le altre pagine.
+
+Se la cartella di lavoro contiene il file newlispdoc.css, l'output HTML verrà formattato di conseguenza. Per un esempio, consultare il file "util/newlispdoc.css" nella cartella di installazione.
+
+Possiamo usare il flag -s della riga di comando per generare anche file HTML separati con evidenzazione dei sorgenti e inserire un collegamento alla versione evidenziata del file nella pagina della documentazione:
+
+newlispdoc -s mysql.lsp odbc.lsp sqlite.lsp
+newlispdoc -s *.lsp
+
+Il flag -d fornisce un collegamento per il download dei sorgenti originali:
+
+Linux, OSX:
+newlispdoc -d *.lsp
+newlispdoc -s -d *.lsp
+
+È possibile fornire una o entrambe le opzioni.
+
+Windows:
+newlisp newlispdoc -s mysql.lsp odbc.lsp sqlite.lsp
+
+Possiamo specificare anche la posizione del file sorgente con un indirizzo URL. Ciò consente l'indicizzazione e la documentazione di sorgenti newLISP distribuiti su diversi siti:
+
+Linux, OSX:
+newlispdoc -url file-with-urls.txt
+newlispdoc -s -url file-with-urls.txt
+
+Windows:
+newlisp newlispdoc -url file-with-urls.txt
+newlisp newlispdoc -s -url file-with-urls.txt
+
+L'indirizzo URL può utilizzare http:// e file://
+Come per i singoli file, l'opzione -s può essere specificata per generare anche file sorgente con sintassi evidenziata. Un file URL contiene un URL per riga. Non sono consentite altre informazioni nel file. Di seguito è riportato un file URL di esempio:
+
+http://asite.com/code/afile.lsp
+http://othersite.org/somefile.lsp
+file:///usr/home/joe/program.lsp
+
+L'ultima riga mostra un URL di file locale.
+
+Tutti i file generati verranno scritti nella cartella corrente.
+
+Lista "tag"
+-----------
+
+I tag hanno la seguente sintassi:
+
+;; @<tag-name>
+
+Con le seguenti funzionalità:
+
+;; @module una parola per il nome del modulo
+;; @index Titolo e URL per la pagina indice
+;; @description una riga per la descrizione del modulo
+;; @location la posizione dell'URL originale del file sorgente
+;; @version una riga per le informazioni sulla versione
+;; @author una riga per le informazioni sull'autore
+;; @syntax una riga per il modello di sintassi (syntax pattern)
+;; @param una riga per il nome e la descrizione del parametro
+;; @return una riga per descrizione del risultato (output)
+;; @esempio esempio di codice multilinea a partire dalla riga successiva
+
+L'unico tag richiesto è il tag @module o in alternativa il tag @index. Se nessuno di questi tag è presente nel file, allora non verrà elaborato. Tutti gli altri tag sono opzionali. Solo le righe che iniziano con ";;" (2 punti e virgola) vengono elaborate. Il testo del commento del programma che non dovrebbe apparire nella documentazione dovrebbe iniziare con un solo punto e virgola.
+
+La descrizione di una riga del tag @description verrà inserita sotto il nome del modulo nella pagina dell'indice e del documento del modulo.
+
+Una funzione può avere più tag @syntax ciascuno su righe consecutive.
+
+Quello che segue è l'unico tag, che può essere incorporato ovunque nel testo. Tra la specifica e la descrizione del collegamento tag c'è esattamente uno spazio:
+
+@link link descrizione
+
+Tag personalizzati possono essere creati semplicemente anteponendo il nome personalizzato con una @. Il testo dopo il tag personalizzato verrà tradotto come al solito, ad es. può contenere un tag @link. Come nella maggior parte degli altri tag, il testo da inserire è limitato alla stessa riga.
+
+Tutte le parole tra <...> (parentesi angolari) sono visualizzate in corsivo. Internamente newLISPdoc utilizza i tag <em>, </em> per la formattazione. Dovrebbero essere utilizzati per le specifiche dei parametri dopo il tag @param e nel testo che si riferisce a tali parametri.
+
+Tutte le parole tra virgolette singole '...' sono stampate in monospace. Internamente newLISPdoc utilizza i tag <tt>, </tt> per la formattazione.
+
+Tutte le altre righe che iniziano con 2 punti e virgola contengono testo descrittivo. Una riga vuota con solo 2 punti e virgola all'inizio è un'interruzione tra paragrafi di testo.
+
+Le righe che non iniziano con 2 punti e virgola vengono ignorate da newLISPdoc. Ciò consente di scrivere commenti sul codice con un solo punto e virgola.
+
+Se è richiesta una formattazione maggiore di quella offerta da newLISPdoc, è possibile utilizzare anche i seguenti semplici tag HTML e i relativi moduli di chiusura: <h1>, <h2>, <h3>, <h4>, <i>, <em>, <b>, <tt>, <p>, <br>, <pre>, <center>, <blockquote> e <hr>.
+
+Collegamento ad altre raccolte di moduli
+----------------------------------------
+newLISPdoc genera e indicizza la pagina per tutti i moduli documentati. È possibile utilizzare un tag speciale @index per mostrare un collegamento nella pagina dell'indice a un indice di altre raccolte di moduli. In questo modo è possibile creare indici multilivello dei moduli. Per visualizzare un collegamento a un'altra raccolta di moduli nella pagina dell'indice, creare un file contenente il tag @index e il tag @description nel modo seguente:
+
+; - other-collection.txt -
+;; @index OtherCollection http://example.com/modules
+;; @description Modules from OtherCollection
+
+Utilizzare uno o più di questi file nella riga di comando newLISPdoc come qualsiasi altro file di origine:
+
+newlispdoc -s other-collection.txt *.lsp
+
+Questo mostrerà la voce di indice per OtherCollection sull'indice del modulo prima di elencare tutti i moduli in *.lsp.
+
+Esempi
+
+Quella che segue è il sorgente commentato del programma newLISP di esempio:
+
+;; @syntax (example:foo <num-repeat> <str-message>)
+;; @param <num-repeat> The number of times to repeat.
+;; @param <str-message> The message string to be printed.
+;; @return Returns the message in <str-message>
+;;
+;; The function 'foo' repeatedly prints a string to
+;; standard out terminated by a line feed.
+;;
+;; @example
+;; (example:foo 5 "hello world")
+;; =>
+;; "hello world"
+;; "hello world"
+;; "hello world"
+;; "hello world"
+;; "hello world"
+
+(context 'example)
+
+(define (foo n msg)
+	(dotimes (i n)
+		(println msg))
+)
+
+;; See the @link http://example.com/example.lsp source .
+
+Di seguito vengono riportate le pagine "example.lsp.html" e "index.html" generate:
+
+"example.lsp.html"
+-------------------------------------------------
+Module index(link)
+
+Module: example.lsp
+Author: John Doe, johndoe@example.com
+Version: 1.0
+
+This module is an example module for the newlispdoc program, which generates automatic newLISP module documentation.
+
+                        - § -
+
+Syntax: (example:foo num-repeat str-message)
+
+parameter: num-repeat - The number of times to repeat.
+parameter: str-message - The message string to be printed.
+
+return: Returns the message in str-message
+
+The function foo repeatedly prints a string to standard out terminated by a line feed.
+
+example:
+ (example:foo 5 "hello world")
+ =>
+ "hello world"
+ "hello world"
+ "hello world"
+ "hello world"
+ "hello world"
+
+See the source(link).
+-------------------------------------------------
+
+"index.html"
+-------------------------------------------------
+        Index
+Module: example.lsp(link)
+foo(link)
+-------------------------------------------------
+
+Quando viene specificato più di un modulo sulla riga di comando, la pagina dell'indice mostrerà una riga di collegamento per ciascun modulo.
+
+
+============================================================================
 Compilare i sorgenti di newLISP
-================================
+============================================================================
 
 In questa appendice vediamo i passi necessari per compilare newLISP con windows 10 partendo dai sorgenti. In particolare compileremo la versione di newLISP a 64 bit con estensioni UTF8 e FFI.
 

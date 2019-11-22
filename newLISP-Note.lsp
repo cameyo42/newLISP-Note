@@ -131,6 +131,9 @@ FUNZIONI VARIE
   Prodotto cartesiano
   Insieme delle parti (powerset)
   Terne pitagoriche
+  Calcolo di e con il metodo spigot
+  Calcolo IVA
+  Numeri casuali distinti
 
 newLISP 99 PROBLEMI (28)
 ========================
@@ -320,6 +323,11 @@ DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Somma di due box (Amazon)
   Punti vicini a zero (Amazon)
   Trova la Funzione (Uber)
+  Prodotto scalare minimo e massimo (Google)
+  25 numeri (Wolfram)
+  Le cento porte (Wolfram)
+  Insiemi con la stessa somma (Wolfram)
+  Tripartizione di un intero (Wolfram)
 
 LIBRERIE
 ========
@@ -369,6 +377,12 @@ NOTE LIBERE
   Shift logico e Shift aritmetico
   fold-left e fold-right
   La divisione di Feynman
+  Il linguaggio di programmazione Fractran
+  La funzione map semplificata
+  Generazione della documentazione con newLISPdoc
+  Ancora sui numeri primi
+  Un algoritmo: matrice con somme positive
+  Dadi e probabilità
 
 APPENDICI
 =========
@@ -379,6 +393,7 @@ APPENDICI
   notepad++ bundle
   Visual Studio Code e newLISP
   Debugger
+  newLISPdoc - Il programma per la documentazione newLISP
   Compilare i sorgenti di newLISP
   Ricorsione e ottimizzazione della chiamata di coda (Tail Call Optimization)
   F-expression - FEXPR
@@ -6060,9 +6075,9 @@ In questo modo newLISP lavora molto più velocemente:
 ;-> 1468.897
 
 
-====================
-ESPRESSIONI REGOLARI
-====================
+======================
+ ESPRESSIONI REGOLARI
+======================
 
 newLISP utilizza le espressioni regolari di tipo PCRE (Perl Compatible Regular Expressions).
 Per maggior informazioni consultare: https://www.pcre.org/
@@ -10466,6 +10481,156 @@ Se vogliamo eliminare le terne simmetriche possiamo ordinare tutte le terne e po
 ;-> ((3 4 5) (5 12 13) (7 24 25) (8 15 17) (9 40 41) (11 60 61) (12 35 37))
 
 
+---------------------------------
+Calcolo di e con il metodo spigot
+---------------------------------
+
+Definiamo una funzione che calcola il numero di Eulero usando l'algoritmo di Rabinowitz e Wagon.
+
+Il numero di Eulero "e" vale (con 500 cifre dopo la virgola):
+
+2.7182818284590452353602874713526624977572470936999595749669676277240766303535475945713821785251664274274663919320030599218174135966290435729003342952605956307381323286279434907632338298807531952510190115738341879307021540891499348841675092447614606680822648001684774118537423454424371075390777449920695517027618386062613313845830007520449338265602976067371132007093287091274437470472306969772093101416928368190255151086574637721112523897844250569536967707854499699679468644549059879316368892300987931
+
+Di seguito lo pseudo-codice dell'algoritmo come riportato nell'articolo di Rabinowitz e Wagon:
+
+Algorithm e-spigot:
+
+1. Initialize: 
+   Let the first digit be 2 and 
+   initialize an array A of length n + 1 to (1, 1, 1, . . . , 1).
+2. Repeat n − 1 times:
+   Multiply by 10: Multiply each entry of A by 10.
+   Take the fractional part: Starting from the right, 
+                             reduce the ith entry of A modulo i + 1, 
+                             carrying the quotient one place left.
+   Output the next digit: The final quotient is the next digit of e.
+
+Questa è l'implementazione in newLISP:
+
+(define (spigot-e n)
+  (local (vec cifra out)
+    (setq out '())
+    ; vettore con n elementi tutti di valore 1
+    (setq vec (array n '(1)))
+    (for (i 0 (- n 1))
+      (setq cifra 0)
+      (for (j (- n 1) 0 -1)
+        (setf (vec j) (+ (* 10 (vec j)) cifra))
+        (setq cifra (/ (vec j) (+ j 2)))
+        (setf (vec j) (% (vec j) (+ j 2)))
+      )
+      (push cifra out -1))
+    out))
+
+(spigot-e 10)
+;-> (7 1 8 2 8 1 8 2 6 1)
+
+Un aspetto negativo di questo algoritmo è che le ultime cifre calcolate non sono corrette (soprattutto quando calcoliamo poche cifre). Questo problema può essere risolto in maniera pratica calcolando più cifre di quelle necessarie, in quanto l'algoritmo è molto veloce (calcolando 50 cifre in più siamo al sicuro fino a miliardi di cifre...). 
+
+Calcoliamo il numero "e" con 500 cifre dopo la virgola:
+
+(join (map string (spigot-e 499)))
+;-> "7182818284590452353602874713526624977572470936999595749669676277240766303535475945713821785251664274274663919320030599218174135966290435729003342952605956307381323286279434907632338298807531952510190115738341879307021540891499348841675092447614606680822648001684774118537423454424371075390777449920695517027618386062613313845830007520449338265602976067371132007093287091274437470472306969772093101416928368190255151086574637721112523897844250569536967707854499699679468644549059879316368892300987931"
+
+In questo caso tutte le cifre sono corrette.
+
+
+-----------
+Calcolo IVA
+-----------
+
+Due funzioni per calcolare l'IVA (Imposta Valore Aggiunto) e per scorporare l'IVA.
+
+(define (iva+ value iva-perc)
+  (mul value (add 1 (div iva-perc 100))))
+
+(iva+ 100 20)
+;-> 120
+
+(iva+ 80 20)
+;-> 96
+
+(define (iva- value iva-perc)
+  (div value (add 1 (div iva-perc 100))))
+
+(iva- 96 20)
+;-> 80
+
+
+-----------------------
+Numeri casuali distinti
+-----------------------
+
+Generare una lista ordinata con N numeri casuali distinti tra loro compresi tra "a" e "b".
+
+Usiamo la funzione "rand-range" per generare un numero compreso tra "a" e "b":
+
+(define (rand-range a b)
+  (if (> a b) (swap a b))
+  (+ a (rand (+ (- b a) 1))))
+
+Poi scriviamo la funzione richiesta:
+
+(define (sample n a b)
+  (local (value out)
+    ; creazione di un hashmap
+    (new Tree 'hset)
+    (until (= (length (hset)) n)
+      ; genera valore casuale
+      (setq value (rand-range a b))
+      ; inserisce valore casuale nell'hash
+      (hset (string value) value))
+      ; assegnazione dei valori dell'hasmap ad una lista
+      (setq out (getValues hset))
+      ; eliminazione dell'hashmap
+      (delete 'hset)
+      (sort out)))
+
+(sample 50 1 1000)
+;-> (52 58 71 97 103 107 111 128 131 135 160 203 219 221 
+;->  225 240 284 291 294 301 307 324 397 416 428 474 530 
+;->  547 623 651 744 763 773 779 790 807 821 826 837 839 
+;->  851 859 875 921 930 936 965 970 980 988)
+
+Nota: La chiamata (sample 50 1 25) non termina mai. Per correttezza dovremmo inserire un controllo che verifica se "n" è maggiore di "(b - a + 1)", nel qual caso non esiste una lista con 50 numeri diversi con un intervallo minore della dimensione della lista. Il caso limite è quando risulta n = (b - a + 1):
+
+(sample 10 1 10)
+;-> (1 2 3 4 5 6 7 8 9 10)
+
+Invece la seguente chiamata non termina mai:
+
+(sample 10 1 9)
+Premere Ctrl+C per fermare l'elaborazione...
+;-> ERR: received SIGINT - in function length
+;-> called from user function (sample 10 1 9)>
+
+Riscriviamo la funzione inserendo il controllo:
+
+(define (sample n a b)
+  (local (value out)
+    (cond ((> n (+ b (- a) 1)) '()) ; controllo
+          (true
+            ; creazione di un hashmap
+            (new Tree 'hset)
+            (until (= (length (hset)) n)
+              ; genera valore casuale
+              (setq value (rand-range a b))
+              ; inserisce valore casuale nell'hash
+              (hset (string value) value))
+              ; assegnazione dei valori dell'hasmap ad una lista
+              (setq out (getValues hset))
+              ; eliminazione dell'hashmap
+              (delete 'hset)
+              (sort out)))))
+
+(sample 10 1 10)
+;-> (1 2 3 4 5 6 7 8 9 10)
+
+Adesso quando risulta n > (b - a + 1) la funzione restituisce la lista vuota:
+
+(sample 10 1 9)
+;-> ()
+
 ==========================
 
  newLISP 99 PROBLEMI (28)
@@ -12385,22 +12550,23 @@ Attenzione: la funzione è molto lenta con numeri grandi.
 (time (fattori-primi 9223372036854775809L))
 ;-> 551342.497 ; 9 minuti e 11 secondi
 
-Funzione che calcola i numeri primi fino a n:
+Altra funzione che controlla se un numero è primo:
 
 (define (isPrime n)
   (local (idx step out)
-    (cond ((or (= n 2) (= n 3)) (setq out true))
-          ((or (< n 2) (= (% n 2) 0) (= (% n 3) 0)) (setq out nil))
+    (setq out true)
+    (cond ((or (= n 2) (= n 3)) true)
+          ((or (< n 2) (= (% n 2) 0) (= (% n 3) 0)) nil)
           (true
             (setq idx 5 step 2)
-            (while (< (* idx idx) n)
+            (while (<= (* idx idx) n)
+              (if (= 0 (% n idx)) (setq out nil))
               (setq idx (+ idx step))
               (setq step (- 6 step ))
-              (if (= 0 (% n idx)) (setq out nil))
             )
+            out
           )
     )
-    out
   )
 )
 
@@ -12409,6 +12575,9 @@ Funzione che calcola i numeri primi fino a n:
 
 (isPrime 18376353439383)
 ;-> nil
+
+(isPrime 113)
+;-> true
 
 (factor 18376353439383)
 ;-> (3 850261 7204201)
@@ -19011,7 +19180,7 @@ Problema 13
 Grande somma
 
 Calcolare le prime dieci cifre della somma dei seguenti cento numeri di 50 cifre ognuno.
-P==============
+============================================================================
 
 Suddividiamo la lista da 100 numeri in due liste da 50 numeri per evitare il limite dei 2048 caratteri che newLISP pone alla lunghezza di una espressione.
 
@@ -32729,7 +32898,7 @@ Un altro metodo sarebbe quello di inserire i punti mantenendo la lista ordinata 
 Trova la Funzione (Uber)
 ------------------------
 
-Scivere una funzione f in modo che f(f(n)) = -n per ogni numero intero n.
+Scrivere una funzione f in modo che f(f(n)) = -n per ogni numero intero n.
 
 La prima soluzione che mi è venuta in mente...
 
@@ -32793,6 +32962,449 @@ Un altro metodo è quello di considerare il numero n come una lista:
 
 (f1 (f1 0))
 ;-> 0
+
+
+------------------------------------------
+Prodotto scalare minimo e massimo (Google)
+------------------------------------------
+
+Siano date due liste L1 = (a1 a2 ... an) e L2 = (b1 b2 ... bn). Il prodotto scalare delle due liste vale:
+
+PS = (a1*b1 + a2*b2 + ... + an*bn)
+
+Scrivere due funzioni che, modificando la posizione degli elementi delle due liste, producano il prodotto scalare minimo e il prodotto scalare massimo.
+
+Prima scriviamo una funzione che realizza il prodotto scalare tra due liste:
+
+(define (scalare lst1 lst2) (apply + (map * lst1 lst2)))
+
+(scalare '(1 2) '(3 4))
+;-> 11
+
+Il prodotto scalare minimo si ha quando una lista viene ordinata in ordine crescente e l'altra lista viene ordinata in ordine decrescente.
+
+Quindi scriviamo la funzione che calcola il prodotto scalare minimo:
+
+(define (ps-min lst1 lst2) (scalare (sort lst1 <) (sort lst2 >)))
+
+(ps-min '(1 3 -5) '(-2 4 1))
+;-> -25
+
+(ps-min '(1 2 3 4 5) '(1 0 1 0 1))
+;-> 6
+
+Il prodotto scalare massimo si ha quando entrambe le liste vengono ordinate allo stesso modo (crescente o decrescente).
+
+Quindi scriviamo la funzione che calcola il prodotto scalare massimo:
+
+(define (ps-max lst1 lst2) (scalare (sort lst1 >) (sort lst2 >)))
+
+(ps-max '(1 3 -5) '(-2 4 1))
+;-> 23
+
+(ps-max '(1 2 3 4 5) '(1 0 1 0 1))
+;-> 12
+
+
+-------------------
+25 numeri (Wolfram)
+-------------------
+
+Data una lista di 25 numeri positivi diversi, sceglierne due di questi in modo tale che nessuno degli altri numeri sia uguale alla loro somma o alla loro differenza.
+
+Invece utilizzare un metodo brute-force possiamo ordinare in modo crescente la lista in modo che risulti:
+ x(1) < x(2) < ... < x(n)
+Se x(n) non è disponibile per essere preso come uno dei desiderati numeri, deve risultare che per ogni numero inferiore x(i), c'è un altro x(j) tale che x(i) + x(j) = x(n). Pertanto, i primi 24 numeri sono associati in modo tale che x(i) + x(n-i-1) = x(n). Ora considera x(n-1) accoppiato ad uno qualsiasi dei numeri x(2), ... ,x(n-2): queste coppie sommano a più di x(n) = x(n-i) + x(1) e quindi anche x2, ..., x(n-2) deve essere accoppiato, questa volta risultando x(2+i) + x(n-2-i) = x(n-1).
+Ma questo lascia x((n-1)/2) accoppiato con se stesso, quindi i numeri x(n-1) e x((n-1)/2) risolvono il problema.
+Poichè le liste di newLISP sono zero-based (il primo elemento ha indice zero), i numeri che risolvono il problema sono x(23) e x(11).
+
+Scriviamo le funzioni:
+
+Genera un numero compreso tra "a" e "b":
+
+(define (rand-range a b)
+  (if (> a b) (swap a b))
+  (+ a (rand (+ (- b a) 1))))
+
+Crea una lista con tutti i valori di una hashmap:
+
+(define (getValues hash)
+  (local (out)
+    (dolist (cp (hash))
+      (push (cp 1) out -1)
+    )
+  out
+  )
+)
+
+Genera una lista con ordinata in modo crescente con 25 numeri casuali diversi e compresi tra "a" e "b":
+
+(define (sample n a b)
+  (local (value out)
+    ; creazione di un hashmap
+    (new Tree 'hset)
+    (until (= (length (hset)) n)
+      ; genera valore casuale
+      (setq value (rand-range a b))
+      ; inserisce valore casuale nell'hash
+      (hset (string value) value))
+      ; assegnazione dei valori dell'hasmap ad una lista
+      (setq out (getValues hset))
+      ; eliminazione dell'hashmap
+      (delete 'hset)
+      (sort out)))
+
+(sample 50 1 1000)
+;-> (2 5 9 15 24 57 58 64 92 93 109 120 142 143 148 152
+;->  166 167 169 175 194 206 210 226 236 267 273 276 298
+;->  302 304 346 351 353 362 365 376 378 386 393 426 427
+;->  446 451 458 463 469 480 485 492 505 514 518 520 532
+;->  540 564 572 573 586 588 600 602 608 609 612 658 664
+;->  678 692 693 700 711 727 736 744 745 747 752 780 784
+;->  803 809 823 838 841 844 859 863 876 896 906 919 926
+;->  950 956 989 990 997 1000)
+
+(setq lst '(2 5 9 15 24 57 58 64 92 93 109 120 142 143 148 152
+ 166 167 169 175 194 206 210 226 236 267 273 276 298
+ 302 304 346 351 353 362 365 376 378 386 393 426 427
+ 446 451 458 463 469 480 485 492 505 514 518 520 532
+ 540 564 572 573 586 588 600 602 608 609 612 658 664
+ 678 692 693 700 711 727 736 744 745 747 752 780 784
+ 803 809 823 838 841 844 859 863 876 896 906 919 926
+ 950 956 989 990 997 1000))
+
+Funzione che risolve il problema:
+
+(define (solve lst)
+  (list (lst 23) (lst 11)))
+
+Proviamo:
+
+(solve lst)
+;-> (226 120)
+
+Quindi la soluzione vale a = 226 e b = 120
+
+Per verificare la soluzione generiamo una lista con tutte le somme e le differenze tra tutti i numeri della lista (Per fare questo usiamo una versione modificata della funzione che calcola il prodotto scalare tra due liste) e poi controlliamo se (a - b) o (a + b) o (b - a) si trovano o meno nella lista.
+
+(define (make-calc lst1 lst2 func)
+  (let (out '())
+    (if (or (null? lst1) (null? lst2))
+        nil
+        (dolist (el1 lst1)
+          (dolist (el2 lst2)
+            (push (func el1 el2) out -1))))))
+
+(make-calc '(1 2 3) '(1 2 3) +)
+;-> (2 3 4 3 4 5 4 5 6)
+(make-calc '(1 2 3) '(1 2 3) -)
+;-> (0 -1 -2 1 0 -1 2 1 0)
+
+Funzione che controlla se (a + b) o (a - b) o (b - a) sono presenti nella lista completa di tutte le somme e di tutte le differenze dei 25 numeri della lista iniziale:
+
+(define (check-num lst a b)
+  (local (calc)
+    (setq calc (union (make-calc lst lst +) (make-calc lst lst -)))
+    (cond ((= true (find (- a b) calc)) true)
+          ((= true (find (- b a) calc)) true)
+          ((= true (find (+ a b) calc)) true)
+          (true nil))))
+
+(check-num lst 226 120)
+;-> nil
+
+Proviamo il tutto con un nuovo esempio:
+
+(setq lst (sample 50 1 100))
+;-> (1 2 4 6 9 10 11 13 14 17 26 28 29 30 31 32 33 34
+;->  35 41 42 43 44 46 48 52 53 54 55 57 58 62 63 64 
+;->  66 67 68 69 70 71 73 77 79 81 86 89 92 93 95 99)
+
+(setq sol (solve lst))
+;-> (46 28)
+
+(setq a (first sol))
+;-> 46
+
+(setq b (last sol))
+;-> 28
+
+(check-num lst a b)
+;-> nil
+
+
+------------------------
+Le cento porte (Wolfram)
+------------------------
+
+Date cento porte tutte chiuse, cento studenti affettuano la seguente operazione:
+
+lo studente i-esimo cambia lo stato (apre o chiude) della porta i-esima e di tutte le porte multiple di i.
+
+In altre parole,
+lo studente 1 cambia lo stato (apre) la porta 1 e tutte le porte multiple di 1 (cioè tutte le porte)
+lo studente 2 cambia lo stato (chiude) della porta 2 e di tutte le porte multiple di 2
+lo studente 3 cambia lo stato (apre o chiude) della porta 3 e di tutte le porte multiple di 3
+...
+lo studente 100 cambia lo stato (apre o chiude) della porta 100
+
+Quali porte rimangono aperte? Perchè?
+
+Scriviamo prima la funzione considerando una lista di cento elementi in cui "1" rappresenta la porta chiusa e "0" rappresenta la porta aperta:
+
+(define (porte? n stampa)
+  (local (porte)
+    ; partiamo con centouno porte tutte aperte
+    ; cioè con valore 1
+    ; (consideriamo il primo studente già passato)
+    (setq porte (dup 1 (+ n 1)))
+    ; tranne la porta 0 che non ci serve
+    (setf (porte 0) 0)
+    ; per ogni studente...
+    (for (s 2 n) ; il primo studente è passato
+      ; per ogni porta multipla di s...
+      (for (p s n s)
+        ; cambiamo lo stato della porta
+        (if (= (porte p) 1)
+          (setf (porte p) 0)
+          (setf (porte p) 1))
+      )
+      ; stampa dello stato delle porte ad ogni passaggio
+      (if stampa (println s { -> } porte))
+    )
+    porte))
+
+Proviamo a vedere cosa accade con 10 porte:
+
+(porte? 10 true)
+;->  2 -> (0 1 0 1 0 1 0 1 0 1 0)
+;->  3 -> (0 1 0 0 0 1 1 1 0 0 0)
+;->  4 -> (0 1 0 0 1 1 1 1 1 0 0)
+;->  5 -> (0 1 0 0 1 0 1 1 1 0 1)
+;->  6 -> (0 1 0 0 1 0 0 1 1 0 1)
+;->  7 -> (0 1 0 0 1 0 0 0 1 0 1)
+;->  8 -> (0 1 0 0 1 0 0 0 0 0 1)
+;->  9 -> (0 1 0 0 1 0 0 0 0 1 1)
+;-> 10 -> (0 1 0 0 1 0 0 0 0 1 0)
+;-> (0 1 0 0 1 0 0 0 0 1 0)
+
+Quindi rimangono aperte le porte 1, 4 e 9.
+
+Proviamo con 100 porte stampando solo gli indici degli elementi che hanno valore 1 (cioè stampiamo i numeri di tutte le porte aperte):
+
+(dolist (el (porte? 100 nil)) (if (= el 1) (print $idx { })))
+;-> 1 4 9 16 25 36 49 64 81 100 " "
+
+Si nota che rimangono solo i numeri che sono quadrati perfetti.
+
+Spiegazione:
+Lo stato della porta n-esima cambia con lo studente k-esimo per tutti i valori in cui k è divisore di n. I divisori di un numero sono accoppiati (k e j) poichè risulta  n = k * j, cioè k = n / j e j = n / k. Quindi ogni coppia cambia due volte lo stato di una porta (una volta con lo studente k e una volta con lo studente j) lasciando lo stato finale invariato.
+Osserviamo che la coppia non esiste quando abbiamo un quadrato perfetto in quanto n = k * k e non esistono studenti con lo stesso numero k. In altre parole, quando lo studente k-esimo passa sulla porta k*k non ha uno studente con il valore corrispondente (k) che cancella la sua modifica. Le porte che sono un quadrato perfetto ricevono un numero dispari di cambiamenti di stato e quindi al termine dei passaggi restano aperte.
+
+
+-------------------------------------
+Insiemi con la stessa somma (Wolfram)
+-------------------------------------
+
+Verificare la seguente affermazione:
+
+" Ogni insieme di 10 numeri distinti nell'intervallo [1..100] ha due sottoinsiemi disgiunti non vuoti cha hanno la stessa somma."
+
+Per esempio, l'insieme (1 3 7 76 34 36 4 55 71 88) ha due sottoinsiemi non vuoti (a1 a2...) e (b1 b2...) che hanno la stessa somma.
+
+Il numero di sottoinsiemi di un insieme con n elementi vale (2^n - 1). Si tratta del numero di elementi dell'insieme delle parti (powerset) meno l'insieme vuoto.
+
+Per generare tutti i sottoinsiemi utilizziamo la funzione "powerset-i":
+
+(define (powerset-i lst)
+  (define (loop res s)
+    (if (empty? s)
+      res
+      (loop (append (map (lambda (i) (cons (first s) i)) res) res) (rest s))))
+  (loop '(()) lst))
+
+(powerset-i '(1 2 3))
+;-> ((3 2 1) (3 2) (3 1) (3) (2 1) (2) (1) ())
+
+(length (powerset-i '(1 3 7 76 34 36 4 55 71 88)))
+;-> 1024
+
+Adesso dobbiamo sommare tutti i numeri di ogni sottoinsieme e verificare se esiste almeno una coppia di elementi con lo stesso valore.
+
+Mentre scrivevo la funzione che verifica se esiste una coppia di valori uguali in una lista, ho avuto l'intuizione per dimostrare matematicamente l'affermazione del problema.
+
+Ma andiamo con ordine. 
+
+Per verificare se esistono elementi doppi in una lista possiamo utilizzare diversi metodi:
+
+1) doppio ciclo sulla lista (il primo prende un elemento alla volta e il secondo controlla se quell'elemento si trova sulla lista)
+
+2) ciclo unico (ogni elemento viene inserito in una hashmap se non è già presente)
+
+3) ciclo unico con una lista di controllo che ha dimensione pari al valore del numero massimo della lista (inizializzo la lista di controllo con tutti 0, poi, per ogni elemento della lista dei numeri imposto il valore 1 all'elemento della lista di controllo che ha indice pari al numero).
+
+Il problema di questa ultima tecnica è che per conoscere il valore massimo contenuto nella lista dei numeri occorrerebbe utilizzare un altro ciclo. Inoltre tale valore massimo potrebbe essere talmente grande da richiedere una lista di controllo enorme.
+Per fortuna possiamo calcolare a priori questo valore massimo, senza effettuare alcun ciclo sulla lista. In una lista di 10 numeri in cui i numeri sono diversi e possono variare da 1 a 100, il valore massimo (somma massima) è dato dalla lista (100 99 98 87 96 95 94 93 92 91), la cui somma vale:
+
+(+ 100 99 98 87 96 95 94 93 92 91)
+;-> 945
+
+Quindi possiamo scrivere la funzione per la ricerca degli elementi doppi utilizzando una lista di controllo con 1000 elementi.
+
+(define (checkdouble lst)
+  (local (board found out)
+    (setq board (dup 0 1001))
+    (setq found nil)
+    (setq out '())
+    (dolist (el lst found)
+      (if (= (board el) 1)
+        (setq found true out el)
+        (setf (board el) 1)))
+    out))
+
+(checkdouble '(1 2 4 5 6 7 8 9))
+;-> ()
+
+(checkdouble '(1 2 4 5 6 1 7 8 9 2))
+;-> 1
+    
+(define (checksum lst)
+  (local (somme)
+    ; generiamo il powerset e calcoliamo la somma di ogni sottoinsieme
+    (setq somme (map (fn(x) (apply + x)) (powerset-i lst)))
+    ; verifichiamo se esistono elementi doppi)
+    (checkdouble somme)))
+
+(checksum (randomize (slice (sequence 1 100) 1 10)))
+;-> 50
+
+(checksum (randomize (slice (sequence 1 100) 1 10)))
+;-> 55
+
+Adesso proviamo 10000 volte per vedere se la funzione restituisce sempre un valore (cioè, se esiste sempre almeno un elemento doppio):
+
+(for (i 1 10000)
+  (if (= (checksum (randomize (slice (sequence 1 100) 1 10))) '()) 
+    (println "error")))
+;-> nil 
+
+Sembra che l'affermazione sia vera.
+Adesso dovremmo verificare che gli insiemi che hanno la stessa somma siano disgiunti (cioè non abbiamo elementi in comune). Ma non è necessario scrivere codice, perchè anche se gli insiemi avessero degli elementi in comune, possiamo sempre eliminare questi elementi da entrambi gli insiemi mantenendo uguali le somme dei numeri di entrambi gli insiemi (e rendendo in questo modo gli insiemi disgiunti).
+
+La funzione che abbiamo scritto non prova che l'affermazione sia vera. Possiamo provarla con il seguente ragionamento:
+
+- il numero di somme possibili vale il numero di elementi del powerset (meno l'insieme vuoto), cioè (2^10 - 1) = 1023
+
+- il numero di somme diverse può essere al massimo 945 (che è il valore massimo di una somma)
+
+Quindi abbiamo 1023 somme con 945 valori diversi, per il "principio dei cassetti" ci deve essere per forza almeno due somme con lo stesso valore.
+
+Il principio dei cassetti (pigeon-hole principle), detto anche legge del buco della piccionaia, afferma che se (n + k) oggetti sono messi in n cassetti, allora almeno un cassetto deve contenere più di un oggetto. Formalmente, il principio afferma che se A e B sono due insiemi finiti e B ha cardinalità strettamente minore di A, allora non esiste alcuna funzione iniettiva da A a B.
+
+Nel nostro caso non possiamo riempire 1023 cassetti con solo 945 somme diverse, qualche cassetto deve per forza contenere una somma uguale a quella di un altro cassetto.
+
+Spesso il ragionamento evita di scrivere codice inutile.
+
+
+------------------------------------
+Tripartizione di un intero (Wolfram)
+------------------------------------
+
+Quesito A
+---------
+Dato un numero intero positivo n, trovare i numeri interi positivi x, y e z tale che
+
+1) x * y * z = n 
+
+2) x + y + z sia minimo
+
+Ad esempio, dato n = 1890, la risposta corretta è (9 14 15).
+
+Risolviamo il problema con un metodo brute-force: due cicli per x e y che vanno da 1 a n (con alcune piccole ottimizzazioni).
+
+(define (solve n)
+  (local (minimo out)
+    (setq out 0)
+    (setq minimo 999999999)
+    ; i arriva fino (sqrt n) + 1
+    (for (i 1 (+ (int (sqrt n) 1)))
+      ; j parte da i e arriva fino (sqrt n) + 1
+      (for (j i (+ (int (sqrt n) 1)))
+        (if (zero? (% n (* i j)))
+            (if (< (+ i j (/ n (* i j))) minimo)
+                (begin
+                  (setq out (list i j (/ n (* i j))))
+                  (setq minimo (+ i j (/ n (* i j))))))))) out))
+
+(solve 1890)
+;-> (9 14 15)
+
+(solve 10000)
+;-> (20 20 25)
+
+(solve 1000001)
+;-> (1 101 9901)
+
+(solve 123456789)
+;-> (9 3607 3803)
+
+(time (solve 123456789))
+;-> 6270.58
+
+Nota: Il programma dovrebbe avere un controllo per verificare se n è un numero primo, nel qual caso la soluzione vale (1 1 n).
+
+(solve 48611)
+;-> (1 1 48611)
+
+Quesito B
+---------
+Dato un numero intero positivo n, trovare i numeri interi positivi x, y e z tale che
+
+1) x * y * z = n 
+
+2) x + y + z = n
+
+Le soluzioni al sistema (intere e reali/complesse) sono le seguenti:
+
+1) x = 0 && z = -y && n = 0
+
+2) x != 0 && 
+   y = (n Sqrt[x] - x^(3/2) - Sqrt[-4 n + n^2 x - 2 n x^2 + x^3])/(2 Sqrt[x])
+   z = (n Sqrt[x] - x^(3/2) + Sqrt[-4 n + n^2 x - 2 n x^2 + x^3])/(2 Sqrt[x])
+ 
+3) x != 0 && 
+   y = (n Sqrt[x] - x^(3/2) + Sqrt[-4 n + n^2 x - 2 n x^2 + x^3])/(2 Sqrt[x])
+   z = (n Sqrt[x] - x^(3/2) - Sqrt[-4 n + n^2 x - 2 n x^2 + x^3])/(2 Sqrt[x])
+
+Invece di utilizzare le soluzioni sopra, modifichiamo la funzione solve per controllare se x + y + x = n:
+
+(define (solve2 n)
+  (local (tri val)
+    (setq tri '())
+    (for (i 1 (+ (int (sqrt n) 1)))
+      (for (j i (+ (int (sqrt n) 1)))
+        (setq val (% n (* i j)))
+        (if (zero? val)
+          (if (= (+ i j (/ n (* i j))) n)
+            (push (list i j (/ n (* i j))) tri -1)))) tri)))
+
+(solve2 3)
+;-> '()
+
+Calcoliamo solve2 con valori da 1 a 1000 per vedere se esiste qualche soluzione:
+
+(define (test100) (for (k 3 1000) (if (!= (solve k) '()) (println (solve k)))))
+
+(test100)
+;-> ((1 2 3) (1 3 2) (2 1 3) (2 3 1) (3 1 2) (3 2 1))
+
+Intuitivamente, l'unico numero n per cui risulta (x*y*z = x+y+z = n) vale sei (6), con x = 1, y = 2 e z = 3. Per dimostrarlo supponiamo che risulti (a<=b<=c), quindi (a*b*c = a+b+c <= 3*c). Adesso abbiamo due casi:
+
+1) c = 0, quindi a = b = c = 0
+
+2) a*b <= 3, quindi le quattro possibilità sono (a=0), (a=1, b=1), (a=1, b=2), (a=1, b=3).
+
+Per esclusione l'unica soluzione vale: (a=1, b=2, c=3).
 
 
 ==========
@@ -36222,6 +36834,7 @@ Versione "newLISP":
 (powerset-i '(1 2 3))
 ;-> ((3 2 1) (3 2) (3 1) (3) (2 1) (2) (1) ())
 
+
 ------------------------------
 Brainfuck string encode/decode
 ------------------------------
@@ -38601,6 +39214,594 @@ Quindi la divisione finale è la seguente:
    4356   |
    ----   |
       0   |
+
+
+----------------------------------------
+Il linguaggio di programmazione Fractran
+----------------------------------------
+
+Fractran è un linguaggio di programmazione esoterico Turing-completo inventato dal matematico John Conway. Un programma Fractran è una lista ordinata di frazioni positive e un numero intero positivo iniziale n. Il programma viene eseguito aggiornando l'intero n come segue:
+
+1) per la prima frazione f nell'elenco per cui n*f è un numero intero, sostituire n con n*f
+
+2) ripetere questa regola fino a quando nessuna frazione dell'elenco produce un numero intero se moltiplicata per n, quindi arrestarsi.
+
+Nel 1987 Conway ha scritto il seguente programma per generare i numeri primi:
+
+(17/91 78/85 19/51 23/38 29/33 77/29 95/23 77/19 1/17 11/13 13/11 15/14 15/2 55/1)
+
+A partire da n = 2, questo programma genera la seguente sequenza di numeri interi:
+
+2, 15, 825, 725, 1925, 2275, 425, 390, 330, 290, 770, ...
+
+Dopo 2, questa sequenza contiene le seguenti potenze di 2:
+
+2^2 = 4, 2^3 = 8, 2^5 = 32, 2^7 = 128, 2^11 = 2048
+2^13 = 8192, 2^17 = 131072, 2^19 = 5244288, ...
+
+in cui le potenze rappresentano i numeri primi.
+
+Rappresentiamo il programma Fractran come una lista:
+
+(setq primegame '((17L 91L) (78L 85L) (19L 51L) (23L 38L) (29L 33L)
+(77L 29L) (95L 23L) (77L 19L) (1L 17L) (11L 13L) (13L 11L) (15L 14L) (15L 2L) (55L 1L)))
+
+La funzione "fractran" prende il programma e un valore iniziale e restituisce il prossimo valore oppure si ferma se non viene trovato alcun valore intero.
+
+(define (fractran prog n)
+  (local (value stop)
+    (setq stop nil)
+    (dolist (el prog stop)
+      (setq value (/ (* (first el) n) (last el)))
+      (cond ((null? prog) (setq stop true))
+            ((= 0 (% (* (first el) n) (last el)))
+                (setq stop true))))
+    value))
+
+Nota: Poichè i numeri superano presto il limite degli interi a 64 bit dobbiamo utilizzare i big-integer.
+
+La funzione "run" esegue l'intero programma fractran:
+
+(define (run program start step)
+  (dotimes (x step)
+    (println start)
+    (setq start (fractran program start)))
+  'stop)
+
+Proviamo ad eseguire il programma fractran:
+
+(run primegame 2L 10)
+;-> 2L
+;-> 15L
+;-> 825L
+;-> 725L
+;-> 1925L
+;-> 2275L
+;-> 425L
+;-> 390L
+;-> 330L
+;-> 290L
+;-> stop
+
+Per estrarre i numeri primi occorre verificare se un dato numero intero è una potenza di due.
+
+Definiamo due funzione "ipow" (calcola la potenza intera di un numero) e "ilog" (calcola il logaritmo intero di un numero):
+
+(define (ipow x n)
+  (cond ((zero? n) 1)
+        ((even? n) (ipow (* x x) (/ n 2)))
+        (true (* x (ipow (* x x) (/ (- n 1) 2))))))
+
+(define (ilog n b)
+  (if (zero? n) -1
+    (+ (ilog (/ n b) b) 1L)))
+
+Un numero n è potenza di due se risulta:
+
+(= n (ipow 2 (ilog n 2)))
+
+(= 1122 (ipow 2 (ilog 1122 2)))
+;-> nil
+(= 4096 (ipow 2 (ilog 4096 2)))
+;-> true
+
+Adesso possiamo scrivere la funzione "run2" che estre i numeri primi:
+
+(define (run2 program start step)
+  (dotimes (x step)
+    (if (= start (ipow 2 (ilog start 2)))
+      (print (ilog start 2) {, }))
+    (setq start (fractran program start)))
+  'stop)
+
+Eseguiamo il programma per generare i numeri primi:
+
+(run2 primegame 2L 1e6)
+;-> 1, 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, stop
+
+Conway è un ragazzo molto "cattivo" :-)
+
+Da ralph.ronnquist:
+
+(define (run2 program start step)
+  (dotimes (x step)
+    (let (b (bits x))
+       (or (find "1" (1 b)) (print (dec (length b)) ", ")))
+    (setq start (fractran program start)))
+  'stop)
+
+(run2 primegame 2 100)
+;-> 0, 0, 1, 2, 3, 4, 5, 6 stop
+(run2 primegame 2 1e6)
+;-> 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, stop
+
+Purtroppo la funzione "bits" non funziona con i big integer.
+
+Allora usiamo la seguente funzione:
+
+; Compute "bits" for bigint and int
+(constant 'MAXINT (pow 2 62))                                                   
+(define (prep s) (string (dup "0" (- 62 (length s))) s))
+(define (bitsL n)
+    (if (<= n MAXINT) (bits (int n))
+      (string (bitsL (/ n MAXINT))
+              (prep (bits (int (% n MAXINT)))))))
+
+
+----------------------------
+La funzione map semplificata
+----------------------------
+
+Definiamo una funzione che simula la funzione "map". Per semplificare esaminiamo solo la situazione unaria, cioè scriveremo una funzione "mappa" che applica una funzione unaria (es. sin, log, ecc.) ad una sola lista.
+
+(define (mappa func lst)
+  (if (null? lst) '()
+      (cons (func (first lst)) (mappa func (rest lst)))))
+
+(mappa sin '(3 4 5))
+;-> (0.1411200080598672 -0.7568024953079282 -0.9589242746631385)
+
+(mappa sqrt '(4 9 25))
+;-> (2 3 5)
+
+Possiamo anche applicare una funzione lambda definita dall'utente:
+
+(mappa (fn(x) (* x x)) '(2 3 5))
+;-> (4 9 25)
+
+
+-----------------------------------------------
+Generazione della documentazione con newLISPdoc
+-----------------------------------------------
+
+Vediamo come sia possibile generare automaticamente la documentazione per le funzioni (sorgenti) di un modulo creato dall'utente.
+Supponiamo di voler creare un modulo con due funzioni per la conversione da gradi Celsius a gradi Fahrenheit e viceversa.
+
+Questo è il contenuto del file "doc-demo.lsp":
+
+;; @module doc-demo.lsp
+;; @author X Y, xy@doc-demo.com
+;; @version 1.0
+;; 
+;; Questo modulo è un esempio per mostrare
+;; il funzionamento del programma newlispdoc
+;; che genera automaticamente documentazione
+;; per i sorgenti newLISP.
+
+;; @syntax (demo:celsius->fahrenheit gradi-celsius)
+;; @param <gradi-celsius> valore in gradi Celsius.
+;; @return restituisce il valore in gradi Fahrenheit.
+;;
+;; La funzione 'celsius->fahrenheit' converte
+;; i gradi Celsius in gradi Fahrenheit.
+;;
+;; @example
+;; (celsius->fahrenheit 0)        ==> 32
+;; (celsius->fahrenheit 100)      ==> 212
+;; (celsius->fahrenheit -273.15)  ==> -459.67
+
+; Creiamo le funzioni in un nuovo contesto
+(context 'demo)
+
+(define (celsius->fahrenheit gradi-celsius)
+  (add (div (mul gradi-celsius 9) 5) 32))
+
+;; @syntax (demo:fahrenheit->celsius gradi-fahrenheit)
+;; @paramn <gradi-fahrenheit> valore in gradi Fahrenheit.
+;; @return restituisce il valore in gradi Celsius.
+;;
+;; The function 'celsius->fahrenheit' converte
+;; i gradi Celsius in gradi Fahrenheit.
+;;
+;; @example
+;; (fahrenheit->celsius 32)       ==> 0
+;; (fahrenheit->celsius 212)      ==> 100
+;; (fahrenheit->celsius -459.67)  ==> -273.15
+
+(define (fahrenheit->celsius gradi-fahrenheit)
+  (div (mul (sub gradi-fahrenheit 32) 5) 9))
+
+; Ritorniamo al contesto principale
+(context MAIN)
+; eof ;
+
+Adesso creiamo una cartella (es. doc-demo) in cui copiamo questo file "doc-demo.lsp" e il file "newlispdoc" (c:\newlisp\util\newlispdoc). Poi apriamo il Command Prompt, ci posizioniamo sulla cartella, e digitiamo la seguente riga di comando:
+
+newlisp newlispdoc doc-demo.lsp
+
+Adesso nella cartella troviamo anche i file "index.html" e "doc-demo.lsp.html" che sono la documentazione al nostro modulo.
+
+Ve digitiamo il seguente comando:
+
+newlisp newlispdoc -s doc-demo.lsp
+
+viene creato anche il file "doc-demo.lsp.src.html" che è il sorgente (evidenziato) del nostro modulo in formato HTML.
+
+Per maggiori informazioni consultare l'Appendice su newlispdoc.
+
+Per testare il nostro modulo dobbiamo prima caricarlo nella sessione di newLISP:
+
+(load "doc-demo.lsp")
+MAIN
+
+Adesso possiamo usare le due funzione definite nel modulo:
+
+(demo:fahrenheit->celsius 32)
+;-> 0
+
+(demo:celsius->fahrenheit 100)
+;-> 212
+
+
+-----------------------
+Ancora sui numeri primi
+-----------------------
+
+Queste sono quattro funzioni simili che verificano se un numero è primo.
+
+(define (primo? n)
+   (if (< n 2) nil
+       (= 1 (length (factor n)))))
+
+(define (primoa? n)
+  (setq out true) ; il numero viene considerato primo fino a che non troviamo un divisore preciso
+  (cond ((<= n 3) (setq out true))
+        ((or (= (% n 2) 0) (= (% n 3) 0)) (setq out nil))
+        (true (setq i 5)
+              (while (and (<= (* i i) n) out)
+                (if (or (= (% n i) 0) (= (% n (+ i 2)) 0)) (setq out nil))
+                (setq i (+ i 6))
+              ))) out)
+
+(define (primob? n)
+  (local (idx step out)
+    (setq out true)
+    (cond ((or (= n 2) (= n 3)) true)
+          ((or (< n 2) (= (% n 2) 0) (= (% n 3) 0)) nil)
+          (true
+            (setq idx 5 step 2)
+            (while (and (<= (* idx idx) n) out)
+              (if (= 0 (% n idx)) (setq out nil))
+              (setq idx (+ idx step))
+              (setq step (- 6 step ))
+            )
+            out))))
+
+(define (primoc? n)
+  (local (r f test)
+    (setq test true)
+    (cond ((= n 1) nil)
+          ((< n 4) true) ; 2 e 3 sono primi
+          ((even? n) nil)
+          ;((= (% n 2) 0) nil)
+          ((< n 9) true) ; abbiamo già escluso 4,6 e 8
+          ((= (% n 3) 0) nil)
+          (true
+              (setq r (floor (sqrt n)))
+              (setq f 5)
+              (while (and test (<= f r))
+                (if (= (% n f) 0) (setq test nil))
+                (if (= (% n (+ f 2)) 0) (setq test nil))
+                (++ f 6)
+              )
+              test))))
+
+Controlliamo che le funzioni diano i risultati corretti:
+
+(= (map primo? (sequence 2 500000)) (map primoa? (sequence 2 500000)))
+;-> true
+(= (map primo? (sequence 2 500000)) (map primob? (sequence 2 500000)))
+;-> true
+(= (map primo? (sequence 2 500000)) (map primoc? (sequence 2 500000)))
+;-> true
+
+Vediamo la velocità delle funzioni:
+
+(time (map primo? (sequence 1 1000000)))
+;-> 1109.48
+(time (map primoa? (sequence 1 1000000)))
+;-> 3984.891
+(time (map primob? (sequence 1 1000000)))
+;-> 6172.891
+(time (map primoc? (sequence 1 1000000)))
+;-> 3552.159
+
+La funzione più veloce è quella che usa la funzione "factor".
+
+Se invece dobbiamo calcolare i primi n numeri primi, una routine ad hoc è più veloce dell'utilizzo di "factor", perchè non dobbiamo fattorizzare il numero, ma ci fermiamo quando troviamo un divisore del numero:
+
+(define (primi-fino1 n)
+  (setq lst '(2))
+  (for (i 3 n 2)
+    (if (primo? i) (push i lst -1))) lst)
+
+(define (primi-fino2 n)
+   (setq arr (array (+ n 1)) lst '(2))
+   (for (x 3 n 2)
+      (when (not (arr x))
+         (push x lst -1)
+         (for (y (* x x) n (* 2 x) (> y n))
+            (setf (arr y) true)))) lst)
+
+(= (primi-fino1 1000000) (primi-fino2 1000000))
+;-> true
+
+(time (primi-fino1 1e6))
+;-> 656.265
+(time (primi-fino2 1e6))
+;-> 203.137
+
+La funzione che non usa "factor" è più veloce.
+
+
+----------------------------------------
+Un algoritmo: matrice con somme positive
+----------------------------------------
+
+Supponiamo di avere una matrice N x M di numeri interi positivi e negativi. Le operazioni possibili sono:
+1) cambiare di segno a tutti i numeri di una riga
+2) cambiare di segno a tutti i numeri di una colonna
+
+Determinare (se esiste) un algoritmo che utilizzando soltanto le operazioni 1) e 2) rende positiva la somma di ogni riga e ogni colonna della matrice (consideriamo positiva una somma con valore zero).
+
+In genere un algoritmo è un insieme finito di operazioni possibili applicati ad una "situazione iniziale" per trasformarla in una "situazione finale" (quella desiderata).
+
+Quando sviluppiamo un algoritmo dobbiamo rispondere alle seguenti domande:
+
+1) Esiste un insieme finito di operazioni che risolve il problema?
+
+2) Qual'è l'insieme di operazioni che risolve il problema?
+
+Durante l'applicazione delle operazioni la "situazione iniziale" cambia stato numerose volte prima di raggiungere (eventualmente) la "situazione finale": come possiamo essere certi che ogni stato successivo è "migliore" di quello precedente? Quanto ci avviciniamo alla soluzione ad ogni passo?
+
+Nota: per evitare il Paradosso di Zenone (tanti piccoli passi che diminuiscono di valore e non raggiungono mai la meta finale), si può definire un valore minimo P di miglioramento che deve essere affettuato ad ogni passo.
+
+Per il nostro problema possiamo fare la seguente osservazione:
+
+Se una riga (o colonna) ha una somma negativa, allora cambiando il segno a tutti i numeri di quella riga (o colonna) la somma diventa positiva, ma modifichiamo anche le somme delle altre colonne (righe).
+
+Come possiamo essere sicuri di aver migliorato la situazione dopo ogni passo (cioè dopo aver cambiato di segno ad una riga o ad una colonna)?
+
+Per rispondere a questa domanda pensiamo alla somma di tutti i numeri della matrice. Questa è uguale alla somma delle righe o alla somma delle colonne:
+
+ST = Somma Totale = Somma delle Righe = Somma delle Colonne
+
+Quando modifichiamo una riga con somma negativa -S, otteniamo una riga con somma S. Quindi incrementiamo la Somma Totale (ST) di un valore pari a 2*S. Poichè esiste un numero finito di valori di ST (al massimo 2^(n+m)) e ST aumenta sempre ogni volta che cambiamo una riga (o una colonna) negativa, allora dobbiamo per forza raggiungere, alla fine, una situazione in cui tutte le somme delle righe e delle colonne sono positive.
+
+L'algoritmo quindi esiste ed è il seguente:
+
+Per ogni riga (o colonna) della matrice:
+se la somma è negativa, allora invertire il segno di tutti i numeri (che rende la somma positiva)
+
+Scriviamo adesso le funzioni necessarie per risolvere il problema.
+
+Genera un numero intero casuale n nell 'intervallo [a..b] (cioè, a <= n <= b):
+
+(define (rand-range a b)
+  (if (> a b) (swap a b))
+  (+ a (rand (+ (- b a) 1)))
+)
+
+Genera una matrice N x M con numeri interi casuali compresi tra "a" e "b":
+
+(define (genera-matrice m n a b)
+  (array m n (map (fn(x) (rand-range a b)) (sequence 1 (* a b)))))
+
+(setq m (genera-matrice 5 4 -10 10))
+;-> ((2 3 7 7) (3 5 1 -3) (-7 5 1 9) (-5 -7 2 4) (2 -3 0 -9))
+
+(setq m '((2 3 7 7) (3 5 1 -3) (-7 5 1 9) (-5 -7 2 4) (2 -3 0 -9)))
+
+Calcola la somma della riga di una matrice (passate come argomento):
+
+(define (sum-row matrice riga) (apply + (matrice riga)))
+
+(sum-row m 0)
+;-> 19
+
+Calcola la somma della colonna di una matrice (passate come argomento):
+
+(define (sum-col matrice col) (apply + ((transpose matrice) col)))
+
+(sum-col m 0)
+;-> -5
+
+Cambia il segno di ogni numero della riga di una matrice (passate come argomento):
+
+(define (flip-row matrice riga)
+  (for (i 0 (- (length (matrice riga)) 1))
+    (setf (matrice riga i) (- (matrice riga i)))) matrice)
+
+(setq m (flip-row m 2))
+;-> ((2 3 7 7) (3 5 1 -3) (7 -5 -1 -9) (-5 -7 2 4) (2 -3 0 -9))
+
+Cambia il segno di ogni numero della riga di una matrice (passate come argomento):
+
+(define (flip-col matrice col)
+  (for (i 0 (- (length matrice) 1))
+    (setf (matrice i col) (- (matrice i col)))) matrice)
+
+(setq m (flip-col m 0))
+;-> ((-2 3 7 7) (-3 5 1 -3) (-7 -5 -1 -9) (5 -7 2 4) (-2 -3 0 -9))
+
+Controlla se una matrice ha somma positiva per tutte le righe e tutte le colonne:
+
+(define (check-sum matrice)
+    (let (out true)
+      (for (i 0 (- (length matrice) 1)) ; righe
+        (if (< (sum-row matrice i) 0) (setq out nil)))
+      (for (i 0 (- (length (matrice 0)) 1)) ; colonne
+        (if (< (sum-col matrice i) 0) (setq out nil)))
+      out))
+
+(check-sum m)
+;-> nil
+
+La funzione finale che risolve il problema:
+
+(define (solve matrice)
+  (until (check-sum matrice)
+    (print 'r)
+    (for (i 0 (- (length matrice) 1)) ; righe
+      (if (< (sum-row matrice i) 0) (setf matrice (flip-row matrice i))))
+    (print 'c)
+    (for (i 0 (- (length (matrice 0)) 1)) ; colonne
+      (if (< (sum-col matrice i) 0) (setf matrice (flip-col matrice i)))))
+    matrice)
+
+(setq m (genera-matrice 5 4 -10 10))
+;-> ((1 -3 10 3) (-7 -3 -8 5) (9 2 -10 -4) (-9 3 -8 7) (8 2 5 7))
+
+(setq m '((1 -3 10 3) (-7 -3 -8 5) (9 2 -10 -4) (-9 3 -8 7) (8 2 5 7)))
+
+(setq sol (solve m))
+;-> rc((1 3 10 3) (7 -3 8 -5) (-9 2 10 4) (9 3 8 -7) (8 -2 5 7))
+
+(check-sum sol)
+;-> true
+
+Con matrici più grandi dobbiamo invertire diverse righe e colonne prima di arrivare alla soluzione:
+
+(setq m (genera-matrice 50 40 -1000 1000))
+(silent (setq sol (solve m)))
+;-> rcrcrcrc
+
+(check-sum sol)
+;-> true
+
+Il numero di inversioni dipende dal numero delle righe, dal numero delle colonne e dal valore dei numeri della matrice (non credo che sia facilmente calcolabile a priori).
+
+
+------------------
+Dadi e probabilità
+------------------
+
+Quesito 1
+---------
+In media, quante volte occorre lanciare un dado prima di ottenere tutti i sei i numeri?
+
+Dal punto di vista matematico il numero medio di lanci vale:
+
+  6   6   6   6   6   6
+  - + - + - + - + - + - = 14.7
+  6   5   4   3   2   1
+
+(add (div 6 6) (div 6 5) (div 6 4) (div 6 3) (div 6 2) (div 6 1)) = 14.7
+
+Vediamo di simulare l'evento con alcune funzioni:
+
+Funzione per il lancio di un dado:
+
+(define (dado num-dadi num-facce)
+  (+ num-dadi (apply + (rand num-facce num-dadi))))
+
+(dado 1 6)
+;-> 5
+
+Funzione che conta quante volte bisogna lanciare il dado prima di ottenere tutti i valori:
+
+(define (num-lanci)
+  (let ((lst (dup 0 7)) (num 0))
+    (until (= (apply + lst) 6)
+      (setf (lst (dado 1 6)) 1)
+      (++ num))
+    num))
+
+(num-lanci)
+;-> 18
+
+Funzione che calcola la media del numero dei lanci:
+
+(define (solve iter)
+  (let (somma 0)
+    (for (i 1 iter)
+      (setq somma (+ somma (num-lanci))))
+    (div somma iter)))
+
+Proviamo a vedere se otteniamo lo stesso valore (14.7):
+
+(solve 1000)
+;-> 14.546
+
+(solve 100000)
+;-> 14.69487
+
+(solve 1000000)
+;-> 14.703081
+
+Quesito 2
+---------
+In media, quante volte occorre lanciare contemporaneamente 6 dadi prima di ottenere una mano con tutti i numeri (1,2,3,4,5 e 6) in qualunque ordine?
+
+Dal punto di vista matematico il numero medio di lanci vale:
+
+1   6*5*4*3*2*1
+- = ----------- = 0.0154321  ==> n = 64.8
+n      6^6
+
+(div (pow 6 6) (apply * '(1 2 3 4 5 6))) = 64.8
+
+Vediamo di simulare l'evento con alcune funzioni:
+
+Funzione che conta quante volte bisogna lanciare il dado prima di ottenere tutti i valori:
+
+(define (num-lanci6)
+  (let ((lst (dup 0 7)) (num 0))
+    (until (= (apply + lst) 6)
+      (setq lst (dup 0 7))
+      (setf (lst (dado 1 6)) 1)
+      (setf (lst (dado 1 6)) 1)
+      (setf (lst (dado 1 6)) 1)
+      (setf (lst (dado 1 6)) 1)
+      (setf (lst (dado 1 6)) 1)
+      (setf (lst (dado 1 6)) 1)
+      (++ num))
+    num))
+
+(num-lanci6)
+;-> 18
+
+Funzione che calcola la media del numero dei lanci:
+
+(define (solve6 iter)
+  (let (somma 0)
+    (for (i 1 iter)
+      (setq somma (+ somma (num-lanci6))))
+    (div somma iter)))
+
+Proviamo a vedere se otteniamo lo stesso valore (64.8):
+
+(solve6 1000)
+;-> 64.477
+
+(solve6 10000)
+;-> 63.9149
+
+(solve6 100000)
+;-> 64.81573
+
+(solve6 500000)
+;-> 64.810948
 
 
 ===========
@@ -42070,9 +43271,200 @@ Due ulteriori stringhe opzionali "str-header" e "str-footer" che controllano il 
 (trace-highlight ">>\027[1m" "\027[0m")
 
 
-================================
+============================================================================
+newLISPdoc - Il programma per la documentazione newLISP
+============================================================================
+
+I commenti nei file sorgenti di newLISP possono essere convertiti in documentazione HTML utilizzando solo pochi tag nei commenti. Il sistema newLISPdoc è progettato per utilizzare un minimo di tag e lasciare ancora leggibili i commenti con tag.
+
+newLISPdoc genera anche una pagina indice per tutti i file sorgente newLISP generati.
+
+Potete leggere il sorgente del file "newLISPdoc" nella cartella "util" dell'installazione di newLISP ((es. c:\newlisp\util). Il programma e questa documentazione fanno anche parte della distribuzione di newLISP dalla versione 9.0. Poiché l'evidenziazione della sintassi di newLISP versione 9.1 è integrata in newlispdoc, che è installato nella stessa cartella del programma eseguibile newLISP. Lo script syntax.cgi è ancora disponibile per le installazioni di siti Web, ma non è più necessario per newLISPdoc.
+
+Utilizzo
+Dall'interno della cartella in cui si trovano i tuoi moduli, eseguire "newlispdoc" dalla linea di comando passando tutti i nomi dei file dei moduli. Ad esempio, per elaborare i file mysql.lsp, odbc.lsp e sqlite3.lsp eseguire:
+
+Linux, OSX:
+newlispdoc mysql.lsp odbc.lsp sqlite.lsp
+
+Windows:
+newlisp newlispdoc mysql.lsp odbc.lsp sqlite.lsp
+
+Questo genera i file index.html, mysql.lsp.html, odbc.lsp.html e sqlite.lsp.html tutti nella stessa cartella da dove è stato eseguito il comando. La pagina index.html contiene i collegamenti a tutte le altre pagine.
+
+Se la cartella di lavoro contiene il file newlispdoc.css, l'output HTML verrà formattato di conseguenza. Per un esempio, consultare il file "util/newlispdoc.css" nella cartella di installazione.
+
+Possiamo usare il flag -s della riga di comando per generare anche file HTML separati con evidenzazione dei sorgenti e inserire un collegamento alla versione evidenziata del file nella pagina della documentazione:
+
+newlispdoc -s mysql.lsp odbc.lsp sqlite.lsp
+newlispdoc -s *.lsp
+
+Il flag -d fornisce un collegamento per il download dei sorgenti originali:
+
+Linux, OSX:
+newlispdoc -d *.lsp
+newlispdoc -s -d *.lsp
+
+È possibile fornire una o entrambe le opzioni.
+
+Windows:
+newlisp newlispdoc -s mysql.lsp odbc.lsp sqlite.lsp
+
+Possiamo specificare anche la posizione del file sorgente con un indirizzo URL. Ciò consente l'indicizzazione e la documentazione di sorgenti newLISP distribuiti su diversi siti:
+
+Linux, OSX:
+newlispdoc -url file-with-urls.txt
+newlispdoc -s -url file-with-urls.txt
+
+Windows:
+newlisp newlispdoc -url file-with-urls.txt
+newlisp newlispdoc -s -url file-with-urls.txt
+
+L'indirizzo URL può utilizzare http:// e file://
+Come per i singoli file, l'opzione -s può essere specificata per generare anche file sorgente con sintassi evidenziata. Un file URL contiene un URL per riga. Non sono consentite altre informazioni nel file. Di seguito è riportato un file URL di esempio:
+
+http://asite.com/code/afile.lsp
+http://othersite.org/somefile.lsp
+file:///usr/home/joe/program.lsp
+
+L'ultima riga mostra un URL di file locale.
+
+Tutti i file generati verranno scritti nella cartella corrente.
+
+Lista "tag"
+-----------
+
+I tag hanno la seguente sintassi:
+
+;; @<tag-name>
+
+Con le seguenti funzionalità:
+
+;; @module una parola per il nome del modulo
+;; @index Titolo e URL per la pagina indice
+;; @description una riga per la descrizione del modulo
+;; @location la posizione dell'URL originale del file sorgente
+;; @version una riga per le informazioni sulla versione
+;; @author una riga per le informazioni sull'autore
+;; @syntax una riga per il modello di sintassi (syntax pattern)
+;; @param una riga per il nome e la descrizione del parametro
+;; @return una riga per descrizione del risultato (output)
+;; @esempio esempio di codice multilinea a partire dalla riga successiva
+
+L'unico tag richiesto è il tag @module o in alternativa il tag @index. Se nessuno di questi tag è presente nel file, allora non verrà elaborato. Tutti gli altri tag sono opzionali. Solo le righe che iniziano con ";;" (2 punti e virgola) vengono elaborate. Il testo del commento del programma che non dovrebbe apparire nella documentazione dovrebbe iniziare con un solo punto e virgola.
+
+La descrizione di una riga del tag @description verrà inserita sotto il nome del modulo nella pagina dell'indice e del documento del modulo.
+
+Una funzione può avere più tag @syntax ciascuno su righe consecutive.
+
+Quello che segue è l'unico tag, che può essere incorporato ovunque nel testo. Tra la specifica e la descrizione del collegamento tag c'è esattamente uno spazio:
+
+@link link descrizione
+
+Tag personalizzati possono essere creati semplicemente anteponendo il nome personalizzato con una @. Il testo dopo il tag personalizzato verrà tradotto come al solito, ad es. può contenere un tag @link. Come nella maggior parte degli altri tag, il testo da inserire è limitato alla stessa riga.
+
+Tutte le parole tra <...> (parentesi angolari) sono visualizzate in corsivo. Internamente newLISPdoc utilizza i tag <em>, </em> per la formattazione. Dovrebbero essere utilizzati per le specifiche dei parametri dopo il tag @param e nel testo che si riferisce a tali parametri.
+
+Tutte le parole tra virgolette singole '...' sono stampate in monospace. Internamente newLISPdoc utilizza i tag <tt>, </tt> per la formattazione.
+
+Tutte le altre righe che iniziano con 2 punti e virgola contengono testo descrittivo. Una riga vuota con solo 2 punti e virgola all'inizio è un'interruzione tra paragrafi di testo.
+
+Le righe che non iniziano con 2 punti e virgola vengono ignorate da newLISPdoc. Ciò consente di scrivere commenti sul codice con un solo punto e virgola.
+
+Se è richiesta una formattazione maggiore di quella offerta da newLISPdoc, è possibile utilizzare anche i seguenti semplici tag HTML e i relativi moduli di chiusura: <h1>, <h2>, <h3>, <h4>, <i>, <em>, <b>, <tt>, <p>, <br>, <pre>, <center>, <blockquote> e <hr>.
+
+Collegamento ad altre raccolte di moduli
+----------------------------------------
+newLISPdoc genera e indicizza la pagina per tutti i moduli documentati. È possibile utilizzare un tag speciale @index per mostrare un collegamento nella pagina dell'indice a un indice di altre raccolte di moduli. In questo modo è possibile creare indici multilivello dei moduli. Per visualizzare un collegamento a un'altra raccolta di moduli nella pagina dell'indice, creare un file contenente il tag @index e il tag @description nel modo seguente:
+
+; - other-collection.txt -
+;; @index OtherCollection http://example.com/modules
+;; @description Modules from OtherCollection
+
+Utilizzare uno o più di questi file nella riga di comando newLISPdoc come qualsiasi altro file di origine:
+
+newlispdoc -s other-collection.txt *.lsp
+
+Questo mostrerà la voce di indice per OtherCollection sull'indice del modulo prima di elencare tutti i moduli in *.lsp.
+
+Esempi
+
+Quella che segue è il sorgente commentato del programma newLISP di esempio:
+
+;; @syntax (example:foo <num-repeat> <str-message>)
+;; @param <num-repeat> The number of times to repeat.
+;; @param <str-message> The message string to be printed.
+;; @return Returns the message in <str-message>
+;;
+;; The function 'foo' repeatedly prints a string to
+;; standard out terminated by a line feed.
+;;
+;; @example
+;; (example:foo 5 "hello world")
+;; =>
+;; "hello world"
+;; "hello world"
+;; "hello world"
+;; "hello world"
+;; "hello world"
+
+(context 'example)
+
+(define (foo n msg)
+	(dotimes (i n)
+		(println msg))
+)
+
+;; See the @link http://example.com/example.lsp source .
+
+Di seguito vengono riportate le pagine "example.lsp.html" e "index.html" generate:
+
+"example.lsp.html"
+-------------------------------------------------
+Module index(link)
+
+Module: example.lsp
+Author: John Doe, johndoe@example.com
+Version: 1.0
+
+This module is an example module for the newlispdoc program, which generates automatic newLISP module documentation.
+
+                        - § -
+
+Syntax: (example:foo num-repeat str-message)
+
+parameter: num-repeat - The number of times to repeat.
+parameter: str-message - The message string to be printed.
+
+return: Returns the message in str-message
+
+The function foo repeatedly prints a string to standard out terminated by a line feed.
+
+example:
+ (example:foo 5 "hello world")
+ =>
+ "hello world"
+ "hello world"
+ "hello world"
+ "hello world"
+ "hello world"
+
+See the source(link).
+-------------------------------------------------
+
+"index.html"
+-------------------------------------------------
+        Index
+Module: example.lsp(link)
+foo(link)
+-------------------------------------------------
+
+Quando viene specificato più di un modulo sulla riga di comando, la pagina dell'indice mostrerà una riga di collegamento per ciascun modulo.
+
+
+============================================================================
 Compilare i sorgenti di newLISP
-================================
+============================================================================
 
 In questa appendice vediamo i passi necessari per compilare newLISP con windows 10 partendo dai sorgenti. In particolare compileremo la versione di newLISP a 64 bit con estensioni UTF8 e FFI.
 

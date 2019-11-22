@@ -1070,7 +1070,7 @@ Problema 13
 Grande somma
 
 Calcolare le prime dieci cifre della somma dei seguenti cento numeri di 50 cifre ognuno.
-P==============
+============================================================================
 
 Suddividiamo la lista da 100 numeri in due liste da 50 numeri per evitare il limite dei 2048 caratteri che newLISP pone alla lunghezza di una espressione.
 

@@ -5634,9 +5634,9 @@ In questo modo newLISP lavora molto più velocemente:
 ;-> 1468.897
 
 
-====================
-ESPRESSIONI REGOLARI
-====================
+======================
+ ESPRESSIONI REGOLARI
+======================
 
 newLISP utilizza le espressioni regolari di tipo PCRE (Perl Compatible Regular Expressions).
 Per maggior informazioni consultare: https://www.pcre.org/

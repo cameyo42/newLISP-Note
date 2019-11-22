@@ -2980,7 +2980,7 @@ Un altro metodo sarebbe quello di inserire i punti mantenendo la lista ordinata 
 Trova la Funzione (Uber)
 ------------------------
 
-Scivere una funzione f in modo che f(f(n)) = -n per ogni numero intero n.
+Scrivere una funzione f in modo che f(f(n)) = -n per ogni numero intero n.
 
 La prima soluzione che mi è venuta in mente...
 
@@ -3044,5 +3044,448 @@ Un altro metodo è quello di considerare il numero n come una lista:
 
 (f1 (f1 0))
 ;-> 0
+
+
+------------------------------------------
+Prodotto scalare minimo e massimo (Google)
+------------------------------------------
+
+Siano date due liste L1 = (a1 a2 ... an) e L2 = (b1 b2 ... bn). Il prodotto scalare delle due liste vale:
+
+PS = (a1*b1 + a2*b2 + ... + an*bn)
+
+Scrivere due funzioni che, modificando la posizione degli elementi delle due liste, producano il prodotto scalare minimo e il prodotto scalare massimo.
+
+Prima scriviamo una funzione che realizza il prodotto scalare tra due liste:
+
+(define (scalare lst1 lst2) (apply + (map * lst1 lst2)))
+
+(scalare '(1 2) '(3 4))
+;-> 11
+
+Il prodotto scalare minimo si ha quando una lista viene ordinata in ordine crescente e l'altra lista viene ordinata in ordine decrescente.
+
+Quindi scriviamo la funzione che calcola il prodotto scalare minimo:
+
+(define (ps-min lst1 lst2) (scalare (sort lst1 <) (sort lst2 >)))
+
+(ps-min '(1 3 -5) '(-2 4 1))
+;-> -25
+
+(ps-min '(1 2 3 4 5) '(1 0 1 0 1))
+;-> 6
+
+Il prodotto scalare massimo si ha quando entrambe le liste vengono ordinate allo stesso modo (crescente o decrescente).
+
+Quindi scriviamo la funzione che calcola il prodotto scalare massimo:
+
+(define (ps-max lst1 lst2) (scalare (sort lst1 >) (sort lst2 >)))
+
+(ps-max '(1 3 -5) '(-2 4 1))
+;-> 23
+
+(ps-max '(1 2 3 4 5) '(1 0 1 0 1))
+;-> 12
+
+
+-------------------
+25 numeri (Wolfram)
+-------------------
+
+Data una lista di 25 numeri positivi diversi, sceglierne due di questi in modo tale che nessuno degli altri numeri sia uguale alla loro somma o alla loro differenza.
+
+Invece utilizzare un metodo brute-force possiamo ordinare in modo crescente la lista in modo che risulti:
+ x(1) < x(2) < ... < x(n)
+Se x(n) non è disponibile per essere preso come uno dei desiderati numeri, deve risultare che per ogni numero inferiore x(i), c'è un altro x(j) tale che x(i) + x(j) = x(n). Pertanto, i primi 24 numeri sono associati in modo tale che x(i) + x(n-i-1) = x(n). Ora considera x(n-1) accoppiato ad uno qualsiasi dei numeri x(2), ... ,x(n-2): queste coppie sommano a più di x(n) = x(n-i) + x(1) e quindi anche x2, ..., x(n-2) deve essere accoppiato, questa volta risultando x(2+i) + x(n-2-i) = x(n-1).
+Ma questo lascia x((n-1)/2) accoppiato con se stesso, quindi i numeri x(n-1) e x((n-1)/2) risolvono il problema.
+Poichè le liste di newLISP sono zero-based (il primo elemento ha indice zero), i numeri che risolvono il problema sono x(23) e x(11).
+
+Scriviamo le funzioni:
+
+Genera un numero compreso tra "a" e "b":
+
+(define (rand-range a b)
+  (if (> a b) (swap a b))
+  (+ a (rand (+ (- b a) 1))))
+
+Crea una lista con tutti i valori di una hashmap:
+
+(define (getValues hash)
+  (local (out)
+    (dolist (cp (hash))
+      (push (cp 1) out -1)
+    )
+  out
+  )
+)
+
+Genera una lista con ordinata in modo crescente con 25 numeri casuali diversi e compresi tra "a" e "b":
+
+(define (sample n a b)
+  (local (value out)
+    ; creazione di un hashmap
+    (new Tree 'hset)
+    (until (= (length (hset)) n)
+      ; genera valore casuale
+      (setq value (rand-range a b))
+      ; inserisce valore casuale nell'hash
+      (hset (string value) value))
+      ; assegnazione dei valori dell'hasmap ad una lista
+      (setq out (getValues hset))
+      ; eliminazione dell'hashmap
+      (delete 'hset)
+      (sort out)))
+
+(sample 50 1 1000)
+;-> (2 5 9 15 24 57 58 64 92 93 109 120 142 143 148 152
+;->  166 167 169 175 194 206 210 226 236 267 273 276 298
+;->  302 304 346 351 353 362 365 376 378 386 393 426 427
+;->  446 451 458 463 469 480 485 492 505 514 518 520 532
+;->  540 564 572 573 586 588 600 602 608 609 612 658 664
+;->  678 692 693 700 711 727 736 744 745 747 752 780 784
+;->  803 809 823 838 841 844 859 863 876 896 906 919 926
+;->  950 956 989 990 997 1000)
+
+(setq lst '(2 5 9 15 24 57 58 64 92 93 109 120 142 143 148 152
+ 166 167 169 175 194 206 210 226 236 267 273 276 298
+ 302 304 346 351 353 362 365 376 378 386 393 426 427
+ 446 451 458 463 469 480 485 492 505 514 518 520 532
+ 540 564 572 573 586 588 600 602 608 609 612 658 664
+ 678 692 693 700 711 727 736 744 745 747 752 780 784
+ 803 809 823 838 841 844 859 863 876 896 906 919 926
+ 950 956 989 990 997 1000))
+
+Funzione che risolve il problema:
+
+(define (solve lst)
+  (list (lst 23) (lst 11)))
+
+Proviamo:
+
+(solve lst)
+;-> (226 120)
+
+Quindi la soluzione vale a = 226 e b = 120
+
+Per verificare la soluzione generiamo una lista con tutte le somme e le differenze tra tutti i numeri della lista (Per fare questo usiamo una versione modificata della funzione che calcola il prodotto scalare tra due liste) e poi controlliamo se (a - b) o (a + b) o (b - a) si trovano o meno nella lista.
+
+(define (make-calc lst1 lst2 func)
+  (let (out '())
+    (if (or (null? lst1) (null? lst2))
+        nil
+        (dolist (el1 lst1)
+          (dolist (el2 lst2)
+            (push (func el1 el2) out -1))))))
+
+(make-calc '(1 2 3) '(1 2 3) +)
+;-> (2 3 4 3 4 5 4 5 6)
+(make-calc '(1 2 3) '(1 2 3) -)
+;-> (0 -1 -2 1 0 -1 2 1 0)
+
+Funzione che controlla se (a + b) o (a - b) o (b - a) sono presenti nella lista completa di tutte le somme e di tutte le differenze dei 25 numeri della lista iniziale:
+
+(define (check-num lst a b)
+  (local (calc)
+    (setq calc (union (make-calc lst lst +) (make-calc lst lst -)))
+    (cond ((= true (find (- a b) calc)) true)
+          ((= true (find (- b a) calc)) true)
+          ((= true (find (+ a b) calc)) true)
+          (true nil))))
+
+(check-num lst 226 120)
+;-> nil
+
+Proviamo il tutto con un nuovo esempio:
+
+(setq lst (sample 50 1 100))
+;-> (1 2 4 6 9 10 11 13 14 17 26 28 29 30 31 32 33 34
+;->  35 41 42 43 44 46 48 52 53 54 55 57 58 62 63 64 
+;->  66 67 68 69 70 71 73 77 79 81 86 89 92 93 95 99)
+
+(setq sol (solve lst))
+;-> (46 28)
+
+(setq a (first sol))
+;-> 46
+
+(setq b (last sol))
+;-> 28
+
+(check-num lst a b)
+;-> nil
+
+
+------------------------
+Le cento porte (Wolfram)
+------------------------
+
+Date cento porte tutte chiuse, cento studenti affettuano la seguente operazione:
+
+lo studente i-esimo cambia lo stato (apre o chiude) della porta i-esima e di tutte le porte multiple di i.
+
+In altre parole,
+lo studente 1 cambia lo stato (apre) la porta 1 e tutte le porte multiple di 1 (cioè tutte le porte)
+lo studente 2 cambia lo stato (chiude) della porta 2 e di tutte le porte multiple di 2
+lo studente 3 cambia lo stato (apre o chiude) della porta 3 e di tutte le porte multiple di 3
+...
+lo studente 100 cambia lo stato (apre o chiude) della porta 100
+
+Quali porte rimangono aperte? Perchè?
+
+Scriviamo prima la funzione considerando una lista di cento elementi in cui "1" rappresenta la porta chiusa e "0" rappresenta la porta aperta:
+
+(define (porte? n stampa)
+  (local (porte)
+    ; partiamo con centouno porte tutte aperte
+    ; cioè con valore 1
+    ; (consideriamo il primo studente già passato)
+    (setq porte (dup 1 (+ n 1)))
+    ; tranne la porta 0 che non ci serve
+    (setf (porte 0) 0)
+    ; per ogni studente...
+    (for (s 2 n) ; il primo studente è passato
+      ; per ogni porta multipla di s...
+      (for (p s n s)
+        ; cambiamo lo stato della porta
+        (if (= (porte p) 1)
+          (setf (porte p) 0)
+          (setf (porte p) 1))
+      )
+      ; stampa dello stato delle porte ad ogni passaggio
+      (if stampa (println s { -> } porte))
+    )
+    porte))
+
+Proviamo a vedere cosa accade con 10 porte:
+
+(porte? 10 true)
+;->  2 -> (0 1 0 1 0 1 0 1 0 1 0)
+;->  3 -> (0 1 0 0 0 1 1 1 0 0 0)
+;->  4 -> (0 1 0 0 1 1 1 1 1 0 0)
+;->  5 -> (0 1 0 0 1 0 1 1 1 0 1)
+;->  6 -> (0 1 0 0 1 0 0 1 1 0 1)
+;->  7 -> (0 1 0 0 1 0 0 0 1 0 1)
+;->  8 -> (0 1 0 0 1 0 0 0 0 0 1)
+;->  9 -> (0 1 0 0 1 0 0 0 0 1 1)
+;-> 10 -> (0 1 0 0 1 0 0 0 0 1 0)
+;-> (0 1 0 0 1 0 0 0 0 1 0)
+
+Quindi rimangono aperte le porte 1, 4 e 9.
+
+Proviamo con 100 porte stampando solo gli indici degli elementi che hanno valore 1 (cioè stampiamo i numeri di tutte le porte aperte):
+
+(dolist (el (porte? 100 nil)) (if (= el 1) (print $idx { })))
+;-> 1 4 9 16 25 36 49 64 81 100 " "
+
+Si nota che rimangono solo i numeri che sono quadrati perfetti.
+
+Spiegazione:
+Lo stato della porta n-esima cambia con lo studente k-esimo per tutti i valori in cui k è divisore di n. I divisori di un numero sono accoppiati (k e j) poichè risulta  n = k * j, cioè k = n / j e j = n / k. Quindi ogni coppia cambia due volte lo stato di una porta (una volta con lo studente k e una volta con lo studente j) lasciando lo stato finale invariato.
+Osserviamo che la coppia non esiste quando abbiamo un quadrato perfetto in quanto n = k * k e non esistono studenti con lo stesso numero k. In altre parole, quando lo studente k-esimo passa sulla porta k*k non ha uno studente con il valore corrispondente (k) che cancella la sua modifica. Le porte che sono un quadrato perfetto ricevono un numero dispari di cambiamenti di stato e quindi al termine dei passaggi restano aperte.
+
+
+-------------------------------------
+Insiemi con la stessa somma (Wolfram)
+-------------------------------------
+
+Verificare la seguente affermazione:
+
+" Ogni insieme di 10 numeri distinti nell'intervallo [1..100] ha due sottoinsiemi disgiunti non vuoti cha hanno la stessa somma."
+
+Per esempio, l'insieme (1 3 7 76 34 36 4 55 71 88) ha due sottoinsiemi non vuoti (a1 a2...) e (b1 b2...) che hanno la stessa somma.
+
+Il numero di sottoinsiemi di un insieme con n elementi vale (2^n - 1). Si tratta del numero di elementi dell'insieme delle parti (powerset) meno l'insieme vuoto.
+
+Per generare tutti i sottoinsiemi utilizziamo la funzione "powerset-i":
+
+(define (powerset-i lst)
+  (define (loop res s)
+    (if (empty? s)
+      res
+      (loop (append (map (lambda (i) (cons (first s) i)) res) res) (rest s))))
+  (loop '(()) lst))
+
+(powerset-i '(1 2 3))
+;-> ((3 2 1) (3 2) (3 1) (3) (2 1) (2) (1) ())
+
+(length (powerset-i '(1 3 7 76 34 36 4 55 71 88)))
+;-> 1024
+
+Adesso dobbiamo sommare tutti i numeri di ogni sottoinsieme e verificare se esiste almeno una coppia di elementi con lo stesso valore.
+
+Mentre scrivevo la funzione che verifica se esiste una coppia di valori uguali in una lista, ho avuto l'intuizione per dimostrare matematicamente l'affermazione del problema.
+
+Ma andiamo con ordine. 
+
+Per verificare se esistono elementi doppi in una lista possiamo utilizzare diversi metodi:
+
+1) doppio ciclo sulla lista (il primo prende un elemento alla volta e il secondo controlla se quell'elemento si trova sulla lista)
+
+2) ciclo unico (ogni elemento viene inserito in una hashmap se non è già presente)
+
+3) ciclo unico con una lista di controllo che ha dimensione pari al valore del numero massimo della lista (inizializzo la lista di controllo con tutti 0, poi, per ogni elemento della lista dei numeri imposto il valore 1 all'elemento della lista di controllo che ha indice pari al numero).
+
+Il problema di questa ultima tecnica è che per conoscere il valore massimo contenuto nella lista dei numeri occorrerebbe utilizzare un altro ciclo. Inoltre tale valore massimo potrebbe essere talmente grande da richiedere una lista di controllo enorme.
+Per fortuna possiamo calcolare a priori questo valore massimo, senza effettuare alcun ciclo sulla lista. In una lista di 10 numeri in cui i numeri sono diversi e possono variare da 1 a 100, il valore massimo (somma massima) è dato dalla lista (100 99 98 87 96 95 94 93 92 91), la cui somma vale:
+
+(+ 100 99 98 87 96 95 94 93 92 91)
+;-> 945
+
+Quindi possiamo scrivere la funzione per la ricerca degli elementi doppi utilizzando una lista di controllo con 1000 elementi.
+
+(define (checkdouble lst)
+  (local (board found out)
+    (setq board (dup 0 1001))
+    (setq found nil)
+    (setq out '())
+    (dolist (el lst found)
+      (if (= (board el) 1)
+        (setq found true out el)
+        (setf (board el) 1)))
+    out))
+
+(checkdouble '(1 2 4 5 6 7 8 9))
+;-> ()
+
+(checkdouble '(1 2 4 5 6 1 7 8 9 2))
+;-> 1
+    
+(define (checksum lst)
+  (local (somme)
+    ; generiamo il powerset e calcoliamo la somma di ogni sottoinsieme
+    (setq somme (map (fn(x) (apply + x)) (powerset-i lst)))
+    ; verifichiamo se esistono elementi doppi)
+    (checkdouble somme)))
+
+(checksum (randomize (slice (sequence 1 100) 1 10)))
+;-> 50
+
+(checksum (randomize (slice (sequence 1 100) 1 10)))
+;-> 55
+
+Adesso proviamo 10000 volte per vedere se la funzione restituisce sempre un valore (cioè, se esiste sempre almeno un elemento doppio):
+
+(for (i 1 10000)
+  (if (= (checksum (randomize (slice (sequence 1 100) 1 10))) '()) 
+    (println "error")))
+;-> nil 
+
+Sembra che l'affermazione sia vera.
+Adesso dovremmo verificare che gli insiemi che hanno la stessa somma siano disgiunti (cioè non abbiamo elementi in comune). Ma non è necessario scrivere codice, perchè anche se gli insiemi avessero degli elementi in comune, possiamo sempre eliminare questi elementi da entrambi gli insiemi mantenendo uguali le somme dei numeri di entrambi gli insiemi (e rendendo in questo modo gli insiemi disgiunti).
+
+La funzione che abbiamo scritto non prova che l'affermazione sia vera. Possiamo provarla con il seguente ragionamento:
+
+- il numero di somme possibili vale il numero di elementi del powerset (meno l'insieme vuoto), cioè (2^10 - 1) = 1023
+
+- il numero di somme diverse può essere al massimo 945 (che è il valore massimo di una somma)
+
+Quindi abbiamo 1023 somme con 945 valori diversi, per il "principio dei cassetti" ci deve essere per forza almeno due somme con lo stesso valore.
+
+Il principio dei cassetti (pigeon-hole principle), detto anche legge del buco della piccionaia, afferma che se (n + k) oggetti sono messi in n cassetti, allora almeno un cassetto deve contenere più di un oggetto. Formalmente, il principio afferma che se A e B sono due insiemi finiti e B ha cardinalità strettamente minore di A, allora non esiste alcuna funzione iniettiva da A a B.
+
+Nel nostro caso non possiamo riempire 1023 cassetti con solo 945 somme diverse, qualche cassetto deve per forza contenere una somma uguale a quella di un altro cassetto.
+
+Spesso il ragionamento evita di scrivere codice inutile.
+
+
+------------------------------------
+Tripartizione di un intero (Wolfram)
+------------------------------------
+
+Quesito A
+---------
+Dato un numero intero positivo n, trovare i numeri interi positivi x, y e z tale che
+
+1) x * y * z = n 
+
+2) x + y + z sia minimo
+
+Ad esempio, dato n = 1890, la risposta corretta è (9 14 15).
+
+Risolviamo il problema con un metodo brute-force: due cicli per x e y che vanno da 1 a n (con alcune piccole ottimizzazioni).
+
+(define (solve n)
+  (local (minimo out)
+    (setq out 0)
+    (setq minimo 999999999)
+    ; i arriva fino (sqrt n) + 1
+    (for (i 1 (+ (int (sqrt n) 1)))
+      ; j parte da i e arriva fino (sqrt n) + 1
+      (for (j i (+ (int (sqrt n) 1)))
+        (if (zero? (% n (* i j)))
+            (if (< (+ i j (/ n (* i j))) minimo)
+                (begin
+                  (setq out (list i j (/ n (* i j))))
+                  (setq minimo (+ i j (/ n (* i j))))))))) out))
+
+(solve 1890)
+;-> (9 14 15)
+
+(solve 10000)
+;-> (20 20 25)
+
+(solve 1000001)
+;-> (1 101 9901)
+
+(solve 123456789)
+;-> (9 3607 3803)
+
+(time (solve 123456789))
+;-> 6270.58
+
+Nota: Il programma dovrebbe avere un controllo per verificare se n è un numero primo, nel qual caso la soluzione vale (1 1 n).
+
+(solve 48611)
+;-> (1 1 48611)
+
+Quesito B
+---------
+Dato un numero intero positivo n, trovare i numeri interi positivi x, y e z tale che
+
+1) x * y * z = n 
+
+2) x + y + z = n
+
+Le soluzioni al sistema (intere e reali/complesse) sono le seguenti:
+
+1) x = 0 && z = -y && n = 0
+
+2) x != 0 && 
+   y = (n Sqrt[x] - x^(3/2) - Sqrt[-4 n + n^2 x - 2 n x^2 + x^3])/(2 Sqrt[x])
+   z = (n Sqrt[x] - x^(3/2) + Sqrt[-4 n + n^2 x - 2 n x^2 + x^3])/(2 Sqrt[x])
+ 
+3) x != 0 && 
+   y = (n Sqrt[x] - x^(3/2) + Sqrt[-4 n + n^2 x - 2 n x^2 + x^3])/(2 Sqrt[x])
+   z = (n Sqrt[x] - x^(3/2) - Sqrt[-4 n + n^2 x - 2 n x^2 + x^3])/(2 Sqrt[x])
+
+Invece di utilizzare le soluzioni sopra, modifichiamo la funzione solve per controllare se x + y + x = n:
+
+(define (solve2 n)
+  (local (tri val)
+    (setq tri '())
+    (for (i 1 (+ (int (sqrt n) 1)))
+      (for (j i (+ (int (sqrt n) 1)))
+        (setq val (% n (* i j)))
+        (if (zero? val)
+          (if (= (+ i j (/ n (* i j))) n)
+            (push (list i j (/ n (* i j))) tri -1)))) tri)))
+
+(solve2 3)
+;-> '()
+
+Calcoliamo solve2 con valori da 1 a 1000 per vedere se esiste qualche soluzione:
+
+(define (test100) (for (k 3 1000) (if (!= (solve k) '()) (println (solve k)))))
+
+(test100)
+;-> ((1 2 3) (1 3 2) (2 1 3) (2 3 1) (3 1 2) (3 2 1))
+
+Intuitivamente, l'unico numero n per cui risulta (x*y*z = x+y+z = n) vale sei (6), con x = 1, y = 2 e z = 3. Per dimostrarlo supponiamo che risulti (a<=b<=c), quindi (a*b*c = a+b+c <= 3*c). Adesso abbiamo due casi:
+
+1) c = 0, quindi a = b = c = 0
+
+2) a*b <= 3, quindi le quattro possibilità sono (a=0), (a=1, b=1), (a=1, b=2), (a=1, b=3).
+
+Per esclusione l'unica soluzione vale: (a=1, b=2, c=3).
 
 

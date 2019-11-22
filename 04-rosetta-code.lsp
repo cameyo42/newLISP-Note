@@ -453,22 +453,23 @@ Attenzione: la funzione è molto lenta con numeri grandi.
 (time (fattori-primi 9223372036854775809L))
 ;-> 551342.497 ; 9 minuti e 11 secondi
 
-Funzione che calcola i numeri primi fino a n:
+Altra funzione che controlla se un numero è primo:
 
 (define (isPrime n)
   (local (idx step out)
-    (cond ((or (= n 2) (= n 3)) (setq out true))
-          ((or (< n 2) (= (% n 2) 0) (= (% n 3) 0)) (setq out nil))
+    (setq out true)
+    (cond ((or (= n 2) (= n 3)) true)
+          ((or (< n 2) (= (% n 2) 0) (= (% n 3) 0)) nil)
           (true
             (setq idx 5 step 2)
-            (while (< (* idx idx) n)
+            (while (<= (* idx idx) n)
+              (if (= 0 (% n idx)) (setq out nil))
               (setq idx (+ idx step))
               (setq step (- 6 step ))
-              (if (= 0 (% n idx)) (setq out nil))
             )
+            out
           )
     )
-    out
   )
 )
 
@@ -477,6 +478,9 @@ Funzione che calcola i numeri primi fino a n:
 
 (isPrime 18376353439383)
 ;-> nil
+
+(isPrime 113)
+;-> true
 
 (factor 18376353439383)
 ;-> (3 850261 7204201)
