@@ -14,7 +14,7 @@ Maggiori informazioni sono reperibili al sito ufficiale del linguaggio:
 
 http://www.newLISP.org/
 
-Questo documento è in continua evoluzione e aggiornamento ed è scritto non da un programmatore professionista, ma da un principiante che studia ed utilizza newLISP per divertimento e per risolvere problemi di matematica ricreativa. Qualche volta (ultimamente sempre più spesso) uso newLISP anche nel mio lavoro quotidiano.
+Questo documento è in continua evoluzione e aggiornamento ed è scritto non da un programmatore professionista, ma da un principiante che studia ed utilizza newLISP per divertimento e per risolvere problemi di matematica ricreativa. Qualche volta (ultimamente sempre più spesso) uso newLISP anche nel mio lavoro quotidiano. 
 Consigli, correzioni e suggerimenti sono i benvenuti.
 
 Per convenzione i comandi di input della REPL non contengono il prompt di newLISP ">".
@@ -30,11 +30,15 @@ CPU: Intel Core i5-4460
 RAM: 16Gb DDR3 800mHz
 GPU: NVIDIA Geforce GTX 750 SDRAM: 2Gb GDDR5
 
-NOTA:
+Nota:
 I riferimenti principali di questo documento sono:
+
 1) "newLISP User Manual and Reference" di Lutz Mueller
+
 2) "Code Patterns in newLISP" di Lutz Muller
+
 3) "Introduction to newLISP" di Cormullion
+
 Tutti gli articoli tradotti presenti in questo documento sono sotto il copyright dei rispettivi autori. Ogni errore di traduzione è imputabile soltanto a me.
 Per quanto possibile ho sempre riportato il nome degli autori delle funzioni realizzate da altri programmatori utilizzate in questo documento (trovate e prese da forum, blog, ecc.).
 Ringrazio tutti quelli che vorranno suggerire critiche, correzioni e miglioramenti.
@@ -2850,8 +2854,8 @@ Nell' esempio, sono stati scelti i valori iniziali u0 = 2 e u1 = -4 in modo che 
 Pertanto, il limite esatto di u(n) è 6.
 Eppure, quando si calcolano i valori usando il nostro programma, l'aritmetica floating-point utilizzata produce piccoli errori di arrotondamento, e anche i primi termini calcolati sono leggermente differenti da quelli esatti.
 In questo caso, il valore di A corrispondente a questi calcoli è molto piccolo, ma diverso da zero. Questo è sufficiente per far convergere la successione al numero errato 100.
-
 Bisogna sempre stare attenti!
+Per risolvere questo problema potremmo utilizzare le frazioni intere per i calcoli e convertire la frazione finale in un numero floating-point.
 
 
 ===================
@@ -3489,10 +3493,10 @@ Si noti che solo gli elementi completi di liste annidate o dei vettori possono e
 
 Proviamo la velocità di attraversare le liste e i vettori delle funzioni "dolist" e "for":
 
-Definiamo un vettore di 10000 elementi:
+Definiamo un vettore di 100000 elementi:
 (silent (setq arr (array 100000 (sequence 1 100000))))
 
-Definiamo una lista di 10000 elementi:
+Definiamo una lista di 100000 elementi:
 (silent (setq lst (array-list arr)))
 
 Definiamo tre funzioni che fanno la stessa cosa (costruiscono una lista) con le seguenti varianti:
@@ -3506,7 +3510,16 @@ Definiamo tre funzioni che fanno la stessa cosa (costruiscono una lista) con le 
   )
 )
 
-2) Uso di "for" per la lista:
+2) Uso di "dolist" con il vettore
+
+(define (try-array-as-list arr)
+  (setq outarr '())
+  (dolist (el arr)
+    (push el outarr -1)
+  )
+)
+
+3) Uso di "for" per la lista:
 
 (define (try-list-as-array arr)
   (setq outlst-arr '())
@@ -3516,7 +3529,7 @@ Definiamo tre funzioni che fanno la stessa cosa (costruiscono una lista) con le 
   )
 )
 
-3) Uso di "for" per il vettore:
+4) Uso di "for" per il vettore:
 
 (define (try-array arr)
   (setq outarr '())
@@ -3533,16 +3546,20 @@ Vediamo i tempi di calcolo:
 (length outlst)
 ;-> 100000
 
+(time (try-array-as-list lst) 10)
+;-> 93.578
+
 (time (try-list-as-array lst) 10)
 ;-> 80869.0 ; 80 secondi
 (length outlst-arr)
 ;-> 100000
 
 (time (try-array arr) 10)
-(length outarr)
 ;-> 93.765
+(length outarr)
+;-> 100000
 
-Nota: Usare "dolist" per attraversare le liste e usare "for" per attraversare i vettori.
+Nota: Usare "dolist" per attraversare le liste e usare "for" o "dolist" per attraversare i vettori.
 Non usare "for" per attraversare una lista (l'indicizzazione di una lista (lst i) è un'operazione onerosa).
 
 

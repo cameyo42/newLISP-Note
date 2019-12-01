@@ -1,7 +1,7 @@
 
 ============================================================================
  Note su newLISP
- © copyright Massimo Corinaldesi
+ © copyright Massimo Corinaldesi aka cameyo
  MIT License
 ============================================================================
 
@@ -88,6 +88,7 @@ FUNZIONI VARIE
   Estrarre l'elemento n-esimo da una lista
   Verificare se una lista è palindroma
   Verificare se una stringa è palindroma
+  Verificare se un numero è palindromo
   Zippare N liste
   Sostituire gli elementi di una lista con un determinato valore
   Raggruppare gli elementi di una lista
@@ -134,6 +135,8 @@ FUNZIONI VARIE
   Calcolo di e con il metodo spigot
   Calcolo IVA
   Numeri casuali distinti
+  Numeri casuali con distribuzione discreta predefinita
+  Generatore di stringhe casuali
 
 newLISP 99 PROBLEMI (28)
 ========================
@@ -215,6 +218,7 @@ ROSETTA CODE
   Abitazioni multiple
   Toziente di Eulero
   Numeri Vampiri
+  Il gioco del Nim
 
 PROJECT EULERO
 ==============
@@ -328,6 +332,7 @@ DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Le cento porte (Wolfram)
   Insiemi con la stessa somma (Wolfram)
   Tripartizione di un intero (Wolfram)
+  Cifre stampate (Uber)
 
 LIBRERIE
 ========
@@ -383,6 +388,7 @@ NOTE LIBERE
   Ancora sui numeri primi
   Un algoritmo: matrice con somme positive
   Dadi e probabilità
+  Test Vettori e Liste
 
 APPENDICI
 =========
@@ -455,7 +461,7 @@ Maggiori informazioni sono reperibili al sito ufficiale del linguaggio:
 
 http://www.newLISP.org/
 
-Questo documento è in continua evoluzione e aggiornamento ed è scritto non da un programmatore professionista, ma da un principiante che studia ed utilizza newLISP per divertimento e per risolvere problemi di matematica ricreativa. Qualche volta (ultimamente sempre più spesso) uso newLISP anche nel mio lavoro quotidiano.
+Questo documento è in continua evoluzione e aggiornamento ed è scritto non da un programmatore professionista, ma da un principiante che studia ed utilizza newLISP per divertimento e per risolvere problemi di matematica ricreativa. Qualche volta (ultimamente sempre più spesso) uso newLISP anche nel mio lavoro quotidiano. 
 Consigli, correzioni e suggerimenti sono i benvenuti.
 
 Per convenzione i comandi di input della REPL non contengono il prompt di newLISP ">".
@@ -471,11 +477,15 @@ CPU: Intel Core i5-4460
 RAM: 16Gb DDR3 800mHz
 GPU: NVIDIA Geforce GTX 750 SDRAM: 2Gb GDDR5
 
-NOTA:
+Nota:
 I riferimenti principali di questo documento sono:
+
 1) "newLISP User Manual and Reference" di Lutz Mueller
+
 2) "Code Patterns in newLISP" di Lutz Muller
+
 3) "Introduction to newLISP" di Cormullion
+
 Tutti gli articoli tradotti presenti in questo documento sono sotto il copyright dei rispettivi autori. Ogni errore di traduzione è imputabile soltanto a me.
 Per quanto possibile ho sempre riportato il nome degli autori delle funzioni realizzate da altri programmatori utilizzate in questo documento (trovate e prese da forum, blog, ecc.).
 Ringrazio tutti quelli che vorranno suggerire critiche, correzioni e miglioramenti.
@@ -3291,8 +3301,8 @@ Nell' esempio, sono stati scelti i valori iniziali u0 = 2 e u1 = -4 in modo che 
 Pertanto, il limite esatto di u(n) è 6.
 Eppure, quando si calcolano i valori usando il nostro programma, l'aritmetica floating-point utilizzata produce piccoli errori di arrotondamento, e anche i primi termini calcolati sono leggermente differenti da quelli esatti.
 In questo caso, il valore di A corrispondente a questi calcoli è molto piccolo, ma diverso da zero. Questo è sufficiente per far convergere la successione al numero errato 100.
-
 Bisogna sempre stare attenti!
+Per risolvere questo problema potremmo utilizzare le frazioni intere per i calcoli e convertire la frazione finale in un numero floating-point.
 
 
 ===================
@@ -3930,10 +3940,10 @@ Si noti che solo gli elementi completi di liste annidate o dei vettori possono e
 
 Proviamo la velocità di attraversare le liste e i vettori delle funzioni "dolist" e "for":
 
-Definiamo un vettore di 10000 elementi:
+Definiamo un vettore di 100000 elementi:
 (silent (setq arr (array 100000 (sequence 1 100000))))
 
-Definiamo una lista di 10000 elementi:
+Definiamo una lista di 100000 elementi:
 (silent (setq lst (array-list arr)))
 
 Definiamo tre funzioni che fanno la stessa cosa (costruiscono una lista) con le seguenti varianti:
@@ -3947,7 +3957,16 @@ Definiamo tre funzioni che fanno la stessa cosa (costruiscono una lista) con le 
   )
 )
 
-2) Uso di "for" per la lista:
+2) Uso di "dolist" con il vettore
+
+(define (try-array-as-list arr)
+  (setq outarr '())
+  (dolist (el arr)
+    (push el outarr -1)
+  )
+)
+
+3) Uso di "for" per la lista:
 
 (define (try-list-as-array arr)
   (setq outlst-arr '())
@@ -3957,7 +3976,7 @@ Definiamo tre funzioni che fanno la stessa cosa (costruiscono una lista) con le 
   )
 )
 
-3) Uso di "for" per il vettore:
+4) Uso di "for" per il vettore:
 
 (define (try-array arr)
   (setq outarr '())
@@ -3974,16 +3993,20 @@ Vediamo i tempi di calcolo:
 (length outlst)
 ;-> 100000
 
+(time (try-array-as-list lst) 10)
+;-> 93.578
+
 (time (try-list-as-array lst) 10)
 ;-> 80869.0 ; 80 secondi
 (length outlst-arr)
 ;-> 100000
 
 (time (try-array arr) 10)
-(length outarr)
 ;-> 93.765
+(length outarr)
+;-> 100000
 
-Nota: Usare "dolist" per attraversare le liste e usare "for" per attraversare i vettori.
+Nota: Usare "dolist" per attraversare le liste e usare "for" o "dolist" per attraversare i vettori.
 Non usare "for" per attraversare una lista (l'indicizzazione di una lista (lst i) è un'operazione onerosa).
 
 
@@ -6361,6 +6384,10 @@ Scriviamo una funzione che crea una lista dei caratteri ASCII stmapabili.
 
 In newLISP i caratteri numero 34 (doppi apici) e numero 92 (backslash) sono preceduti dal carattere di controllo '\' quando vengono stampati.
 
+Altro metodo, applico (con "map") la funzione (list x (char(x))) ad ogni elemento della lista di numeri che va da 32 a 126 (sequence 32 126):
+
+(define (ascii-list)
+  (map (fn(x) (list x (char x))) (sequence 32 126)))
 
 --------------
 Pari o dispari
@@ -7048,6 +7075,37 @@ Vediamo una soluzione con gli indici:
 
 (palindroma? "abbai")
 ;-> nil
+
+
+------------------------------------
+Verificare se un numero è palindromo
+------------------------------------
+
+(define (palindromo? num)
+  (let (str (string num))
+    (= str (reverse (copy str)))))
+
+(palindromo? 1234321)
+;-> true
+
+(define (palinum? num)
+  (let ((val 0) (copia num))
+    (until (null? num)
+      (setq val (+ (* 10 val) (% num 10)))
+      (setq num (/ num 10))
+    )
+    (= val copia)
+  )
+)
+
+(palinum? 1234321)
+;-> true
+
+(time (map palindromo? (sequence 100000 110000)) 200)
+;-> 1535.427
+
+(time (map palinum? (sequence 100000 110000)) 200)
+;-> 2778.158
 
 
 ---------------
@@ -9656,7 +9714,7 @@ Utilizziamo la seguente funzione per risolvere il sistema lineare:
         (for (j 0 (- dim 1))
           (setf (copia j i) (noti j))
         )
-        ; 0.0 -> restituisce 0 (invece di nil),
+        ; 0.0 -> "det" restituisce 0 (invece di nil),
         ; quando la matrice è singolare
         (setq det-i (det copia 0.0))
         (push (div det-i detm) sol -1)
@@ -9762,7 +9820,14 @@ Numeri primi successivi e precedenti
 ------------------------------------
 
 Dato un numero intero n vogliamo determinare il primo numero primo successivo a n e il primo numero primo precedente a n.
-Scriviamo due funzioni separate "primo+" e "primo-".
+
+Prima scriviamo la funzione che verifica se un numero è primo:
+
+(define (primo? n)
+  (if (< n 2) nil
+      (= 1 (length (factor n)))))
+
+Poi scriviamo due funzioni separate "primo+" e "primo-".
 
 (define (primo+ num)
   (local (found val)
@@ -10630,6 +10695,279 @@ Adesso quando risulta n > (b - a + 1) la funzione restituisce la lista vuota:
 
 (sample 10 1 9)
 ;-> ()
+
+
+-----------------------------------------------------
+Numeri casuali con distribuzione discreta predefinita
+-----------------------------------------------------
+
+Supponiamo di voler generare uno dei seguenti eventi (a b c d) con le seguenti probabilità associate (0.05 0.15 0.35 0.45). In altre parole, se generiamo 1000 eventi la distribuzione deve essere uguale a quella predefinita: 50 a, 150 b, 350 c e 450 d (più o meno).
+
+Nota: la somma delle probabilità deve valere 1.0.
+
+Definiamo gli intervalli:
+
+1) (0.00, 0.05) --> probabilità 5%
+2) (0.05, 0.20) --> probabilità 15% (0.20 = 0.05 + 0.15)
+3) (0.20, 0.55) --> probabilità 35% (0.55 = 0.20 + 0.35)
+4) (0.55, 1.00) --> probabilità 45% (1.00 = 0.55 + 0.45)
+
+(setq intervalli '(0.0 0.05 0.2 0.55 1.0))
+
+Adesso generiamo un numero casuale R:
+
+- se R cade nell'intervallo 1 (0.00, 0.05), 
+  allora si verifica l'evento "a" --> indice 0
+- se R cade nell'intervallo 2 (0.05, 0.20), 
+  allora si verifica l'evento "b" --> indice 1
+- se R cade nell'intervallo 3 (0.20, 0.55), 
+  allora si verifica l'evento "c" --> indice 2
+- se R cade nell'intervallo 4 (0.55, 1.00), 
+  allora si verifica l'evento "d" --> indice 3
+
+La funzione genera un numero da 0 a (n-1) che rappresenta l'indice del valore di probabilità nella lista delle probabilità:
+
+(define (rand-prob probs)
+  (local (out inter cur val found)
+    (setq found nil)
+    (setq inter '(0.0))
+    (setq cur 0)
+    ; creazione della lista degli intervalli
+    (dolist (el probs)
+      (setq cur (round (add cur el) -4))
+      (push cur inter -1)
+    )
+    ; l'ultimo valore della lista degli intervalli deve valere 1
+    (if (!= (last inter) 1) (println "Errore: somma probabilita diversa da 1"))
+    ; generazione numero random con probabilità predefinite
+    (setq val (random))
+    (setq out nil)
+    ; ricerca in quale intervallo cade il numero random
+    ; e restituisce l'indice corrispondente
+    (for (i 0 (- (length inter) 2) 1 found)
+      (if (and (>= val (inter i)) (<= val (inter (+ i 1))))
+        (begin
+        (setq out i)
+        (setq found true))
+      )
+    )
+    out))
+
+Proviamo con l'esempio iniziale:
+
+(setq p '(0.05 0.15 0.35 0.45))
+
+(rand-prob p)
+;-> 2
+
+Verifichiamo la funzione generando 1000000 di valori che popolano un vettore di frequenze:
+
+(setq vet (array 4 '(0)))
+;-> (0 0 0 0)
+(for (i 0 999999) (++ (vet (rand-prob p))))
+vet
+;-> (50177 150075 348712 451036)
+Il risultato segue bene la distribuzione perfetta che vale (50000 150000 350000 450000).
+
+Calcoliamo la somma dei valori del vettore:
+(apply + vet)
+;-> 1000000
+
+Sembra che tutto funzioni correttamente.
+
+
+------------------------------
+Generatore di stringhe casuali
+------------------------------
+
+Scrivere una funzione che genera stringhe casuali di lunghezza prefissata.
+
+Lettere minuscole:
+(char 97)
+;-> "a"
+(char 122)
+;-> "z"
+(setq lower (map char (sequence 97 122)))
+;-> ("a" "b" "c" "d" "e" "f" "g" "h" "i" "j" "k" "l" "m"
+;->  "n" "o" "p" "q" "r" "s" "t" "u" "v" "w" "x" "y" "z")
+(length lower)
+;-> 26
+
+Lettere maiuscole:
+(char 65)
+;-> "A"
+(char 90)
+;-> "Z"
+(setq upper (map char (sequence 65 90)))
+;-> ("A" "B" "C" "D" "E" "F" "G" "H" "I" "J" "K" "L" "M"
+;->  "N" "O" "P" "Q" "R" "S" "T" "U" "V" "W" "X" "Y" "Z")
+(length upper)
+;-> 26
+
+Vocali:
+(setq vowels '("a" "e" "i" "o" "u"))
+
+Consonanti:
+(setq consonants '("b" "c" "d" "f" "g" "h" "j" "k" "l" "m" "n" "p" "q" "r" "s" "t" "v" "w" "x" "y" "z"))
+
+(setq upper-rnd (map char (randomize (sequence 65 90))))
+;-> ("A" "P" "G" "V" "Q" "B" "N" "Y" "W" "D" "M" "X" "J"
+;->  "T" "R" "F" "E" "U" "C" "O" "Z" "L" "I" "K" "H" "S")
+
+Generatore di interi tra [a, b]:
+
+(define (rand-range a b)
+  (if (> a b) (swap a b))
+  (+ a (rand (+ (- b a) 1))))
+
+Estrae un carattere casuale da una lista:
+
+(define (rand-char lst) (lst (rand (length lst))))
+
+(rand-char lower)
+;-> "c"
+
+Il più semplice dei generatori casuali utilizza la funzione "rand-char" per creare una stringa di lunghezza n con caratteri presi dall'alfabeto alfa:
+
+(define (rand-string n alfa)
+  (let (out '())
+    (dotimes (i n)
+      (push (rand-char alfa) out -1))
+      (join out)))
+
+(rand-string 10 lower)
+;-> "unhwsyyodm"
+
+(rand-string 10 upper)
+;-> "YTCPKTPOJD"
+
+(rand-string 10 vowels)
+;-> "eiuiuoeaoi"
+
+Adesso ci proponiamo di scrivere una funzione che genera stringhe "leggibili". Per stringa "leggibile" intendiamo una stringa che segue le regole generali della lingua italiana e quindi può essere letta senza difficoltà (es. "unhwsyyodm" è illeggibile).
+Vediamo alcune di queste regole (che hanno quasi sempre delle eccezioni):
+1) non ci sono tre vocali di seguito (eccez. aiuola)
+2) non ci sono tre consonanti di seguito (eccez. strada)
+3) non ci sono quattro consonanti di seguito
+4) alcune consonanti non possono essere doppie (es. hh, yy, xx, ww)
+5) ecc.
+
+La funzione che implementiamo segue le seguenti regole di costruzione:
+
+a) Inizia con una consonante
+b) segue una vocale
+c) può seguire:
+   c1) una consonante (percentuale di probabilità 60%)
+   c2) due consonanti uguali (nn,rr,tt,...) (30%)
+   c3) due consonanti diverse (fr,pr,tr,sf,...) (15%)
+   c4) tre consonanti diverse (sfr, str, ttr,...) (5%)
+d) segue una vocale
+e) ritornare al punto a)
+
+Cominciamo a definire quali sono le consonanti doppi possibili.
+
+(define (doppia lst)
+  (let (out '())
+    (dolist (el lst)
+      (push (string el el) out -1))))
+
+(doppia consonants)
+;-> ("bb" "cc" "dd" "ff" "gg" "hh" "jj" "kk" "ll" "mm" "nn" "pp"
+;->  "qq" "rr" "ss" "tt" "vv" "ww" "xx" "yy" "zz")
+
+Eliminiamo "hh", "jj", "kk", ,"qq", "ww", "xx" e "yy".
+
+(setq doppie '("bb" "cc" "dd" "ff" "gg" "ll" "mm" "nn" "pp" "rr" "ss" "tt" "zz"))
+
+Adesso analizziamo le consonanti diverse.
+
+(setq lettere '("b" "c" "d" "f" "g" "l" "m" "n" "p" "q" "r" "s" "t" "v"))
+
+Generiamo tutte le doppie:
+
+(define (cp lst1 lst2 func)
+  (let (out '())
+    (if (or (null? lst1) (null? lst2))
+        nil
+        (dolist (el1 lst1)
+          (dolist (el2 lst2)
+            (push (func el1 el2) out -1))))))
+
+(difference (unique (cp lettere lettere string)) (doppia lettere))
+;-> ("bc" "bd" "bf" "bg" "bl" "bm" "bn" "bp" "bq" "br" "bs" "bt" "bv"
+;->  "cb" "cd" "cf" "cg" "cl" "cm" "cn" "cp" "cq" "cr" "cs" "ct" "cv"
+;->  "db" "dc" "df" "dg" "dl" "dm" "dn" "dp" "dq" "dr" "ds" "dt" "dv"
+;->  "fb" "fc" "fd" "fg" "fl" "fm" "fn" "fp" "fq" "fr" "fs" "ft" "fv"
+;->  "gb" "gc" "gd" "gf" "gl" "gm" "gn" "gp" "gq" "gr" "gs" "gt" "gv"
+;->  "lb" "lc" "ld" "lf" "lg" "lm" "ln" "lp" "lq" "lr" "ls" "lt" "lv"
+;->  "mb" "mc" "md" "mf" "mg" "ml" "mn" "mp" "mq" "mr" "ms" "mt" "mv"
+;->  "nb" "nc" "nd" "nf" "ng" "nl" "nm" "np" "nq" "nr" "ns" "nt" "nv"
+;->  "pb" "pc" "pd" "pf" "pg" "pl" "pm" "pn" "pq" "pr" "ps" "pt" "pv"
+;->  "qb" "qc" "qd" "qf" "qg" "ql" "qm" "qn" "qp" "qr" "qs" "qt" "qv"
+;->  "rb" "rc" "rd" "rf" "rg" "rl" "rm" "rn" "rp" "rq" "rs" "rt" "rv"
+;->  "sb" "sc" "sd" "sf" "sg" "sl" "sm" "sn" "sp" "sq" "sr" "st" "sv"
+;->  "tb" "tc" "td" "tf" "tg" "tl" "tm" "tn" "tp" "tq" "tr" "ts" "tv"
+;->  "vb" "vc" "vd" "vf" "vg" "vl" "vm" "vn" "vp" "vq" "vr" "vs" "vt")
+
+Scegliamo "br", "cl", "cr", "dr", "fl", "fr", "gl", "gn", "gr", "lg", "pl", "pr", "rb", "rc" , "rs", "sb", "sc", "sf", "sl", "sm", "sp", "st", "tr".
+
+(setq doppie-div '("br" "cl" "cr" "dr" "fl" "fr" "gl" "gn" "gr" "lg" "pl" "pr" "rb" "rc"  "rs" "sb" "sc" "sf" "sl" "sm" "sp" "st" "tr"))
+
+Vediamo le triple consonanti:
+
+(setq triple '("sfr" "str" "ttr"))
+
+Funzione che estrae un elemento casuale dalla lista passata:
+
+(define (rand-list lst) (lst (rand (length lst))))
+
+(rand-list doppie)
+;-> "cc"
+(rand-list doppie-div)
+;-> "dr"
+
+Infine scriviamo la funzione che genera parole casuali "leggibili":
+
+(define (rand-word iter)
+  (local (out)
+    (setq out '())
+    (dotimes (i iter)
+      (push (rand-list consonants) out -1)
+      (push (rand-list vowels) out -1)
+      (case (rand 4)
+            (0 (push (rand-list consonants) out -1))
+            (1 (push (rand-list doppie) out -1))
+            (2 (push (rand-list doppie-div) out -1))
+            (3 (push (rand-list triple) out -1))
+            (true (println "error")))
+      (push (rand-list vowels) out -1))
+    (join out)))
+
+(rand-word 2)
+;-> "fuzzarazza"
+
+Dieci parole casuali:
+
+(dotimes (x 10) (println (rand-word (+ 1 (rand 2)))))
+;-> nistra
+;-> kattru
+;-> riscumexu
+;-> dusfri
+;-> cadidosbo
+;-> sestruvela
+;-> guledavo
+;-> bissinopa
+;-> xunototto
+;-> paslo
+
+Il passo successivo sarebbe quello di definire una percentuale di probabilità predefinita ad ogni evento casuale, per esempio:
+c1) una consonante (percentuale di probabilità 60%)
+c2) due consonanti uguali  (30%)
+c3) due consonanti diverse (15%)
+c4) tre consonanti diverse (5%)
+
+Inoltre sarebbe interessante modificare o definire altre regole di costruzione.
+
 
 ==========================
 
@@ -16854,7 +17192,7 @@ Il codice è il seguente:
       (setf x y))
     out))
 
-In questo esempio viene utilizzato il prodotto di primi (* 2 3 5 7 11 13). Per numeri maggiori di questo, controlla se il modulo è un prodotto di uno di quei numeri primi, nel qual caso il numero nel suo insieme è divisibile per quel numero primo (e quindi non è un numero primo). In particolare, la fattorizzazione del modulo è in genere più veloce perchè filtra questi i numeri controllati dal modulo.
+In questo esempio viene utilizzato il prodotto di primi (* 2 3 5 7 11 13). Per numeri maggiori di questo, controlla se il modulo è un prodotto di uno di quei numeri primi, nel qual caso il numero nel suo insieme è divisibile per quel numero primo (e quindi non è un numero primo). In particolare, la fattorizzazione del modulo è in genere più veloce perchè filtra tutti i numeri controllati dal modulo.
 
 (time (pairs-i1 3 2e7))
 ;-> 29964.396
@@ -17345,7 +17683,7 @@ Complessità temporale: O(log(n))
 
 Potete trovare un algoritmo più efficiente che utilizza il metodo delle "addiction chain" nel libro di Donald Knuth "The Art of Computer Programming".
 
-Questa è una versione fornita da Lutz su forum di newLISP:
+Questa è una versione brute-force fornita da Lutz su forum di newLISP:
 
 (define (** x p)
     (let (y 1L)
@@ -17354,6 +17692,15 @@ Questa è una versione fornita da Lutz su forum di newLISP:
 
 (** 10 53)
 ;-> 100000000000000000000000000000000000000000000000000000L
+
+(= (ipow 10L 53L) (** 10 53))
+;-> true
+
+(time (ipow 12345L 12345L) 100)
+;-> 2572.051
+
+(time (** 12345L 12345L) 100)
+;-> 9752.167
 
 
 --------------------
@@ -17445,7 +17792,7 @@ Calcoliamo il limite del rapporto tra due numeri consecutivi di Tribonacci:
 (div (trib-big 1000L) (trib-big 999L))
 ;-> 1.839286755214161
 
-Esiste un algoritmo ancora più veloce che utilizza la moltiplicazioni tra matrici, ma la funzione (trib-big) è sufficientemente veloce.
+Esiste un algoritmo ancora più veloce che utilizza la moltiplicazioni tra matrici, ma la funzione "trib-big" è sufficientemente veloce.
 
 
 -------------
@@ -17588,7 +17935,8 @@ La versione iterativa è leggermente più veloce.
 Il prossimo numero eureka vale: 12157692622039623539.
 La nostra funzione non è in grado di calcolarlo...in tempo.
 
-I numeri eureka sono un numero finito e l'ultimo termite ha un massimo di 22 cifre. Perchè?
+I numeri eureka sono un numero finito e l'ultimo termine ha un massimo di 22 cifre. Perchè?
+
 Dato un numero naturale n di m cifre. Risulta che:
 
 10^(m-1) <= n
@@ -17703,11 +18051,11 @@ Numero di posizioni:
 
 (define (dove-d)
   (let (found nil)
-    (for (baker 1 5)
-     (for (cooper 1 5)
-      (for (fletcher 1 5)
-       (for (miller 1 5)
-        (for (smith 1 5)
+    (for (baker 1 5 1 found)
+     (for (cooper 1 5 1 found)
+      (for (fletcher 1 5 1 found)
+       (for (miller 1 5 1 found)
+        (for (smith 1 5 1 found)
           ; controllo dei vincoli
           (if (and (not (= baker 5))
                    (not (= cooper 1))
@@ -17746,10 +18094,10 @@ Funzione non-deterministica (non ha un tempo di esecuzione costante):
 Funzione deterministica (ha un tempo di esecuzione costante):
 
 (time (dove-d) 1000)
-;-> 852.58
+;-> 838.496
 
 (time (dove-d) 1000)
-;-> 854.525
+;-> 535.417
 
 Comunque con diversi tentativi si possono ottenere risultati sorprendenti con la funzione non-deterministica:
 
@@ -18106,6 +18454,230 @@ n = 2  ==>  10524208 = 2501 · 4208
 n = 3  ==>  1005240208 = 25001 · 40208
 
 Ma per adesso basta con i numeri vampiri.
+
+
+----------------
+Il gioco del Nim
+----------------
+
+Nim è un gioco in cui due persone alternativamente rimuovono alcuni elementi disposti in una serie di righe partendo da una posizione iniziale. Si inizia con una serie di righe contenenti un certo numero di elementi (il numero delle righe e degli elementi di ogni riga possono essere qualunque numero intero e sono concordati tra i giocatori all'inizio della partita). I giocatori, a turno, tolgono da una qualsiasi riga un numero di elementi a piacere, da uno a tutti. Vince chi toglie l'ultimo elemento presente. Non è possibile passare (saltare la mossa).
+Esiste anche una variante chiamata Marienbad in cui chi toglie l'ultimo elemento perde.
+
+Esempio di posizione iniziale:
+
+        |          riga: 0 - elementi: 1
+      | | |        riga: 1 - elementi: 3
+    | | | | |      riga: 2 - elementi: 5
+  | | | | | | |    riga: 3 - elementi: 7
+  
+La strategia di gioco è la seguente:
+
+1) se (n1 xor n2 xor ... nk = 0), scegliere una mossa casuale valida (poichè non esiste una mossa vincente)
+
+2) se (n1 xor n2 xor ... nk != 0), scegliere la mossa che rende (n1 xor n2 xor ... nk = 0).
+
+Non svilupperemo un programma completo, ma solo le funzioni per giocare interattivamente.
+
+Rappresentiamo una posizione con una lista: l'indice della lista rappresenta il numero di riga, mentre il relativo valore rappresenta il numero di elementi presenti nella riga.
+
+Utilizzeremo due variabili globali per tenere traccia della posizione iniziale (*start*) e della posizione corrente (*current*): questo rende più semplice l'interazione con la REPL durante una partita
+
+Esempio:
+(setq *start* '(1 3 5 7))
+(setq *current* '(0 2 3 7))
+
+Funzione che stampa la posizione corrente:
+
+(define (show-position)
+  (local (triple)
+    (setq big (apply max *start*))
+    (setq space (map (fn(x) (+ big 1 (- x))) *start*))
+    (setq triple (map list *start* *current* space))
+    (dolist (el triple)
+      (print (dup " " (el 2)))
+      (print (dup ". " (- (el 0) (el 1))))
+      (print (dup "| " (el 1)))
+      (println)
+    )
+    '...
+  )
+)
+
+Funzione per iniziare una nuova partita:
+
+(define (nim start-position current-position)
+  (setq *start* start-position)
+  (setq *current* current-position)
+  (show-position))
+
+(nim '(1 3 5 7) '(1 3 5 7))
+;->        |
+;->      | | |
+;->    | | | | |
+;->  | | | | | | |
+;-> ...
+
+Funzione che calcola lo xor di una posizione:
+
+(define (calc-xor position) (apply ^ position))
+
+Funzione che verifica se una posizione è vincente per il giocatore di turno:
+Se il calcolo dello xor della posizione attuale vale 0, allora non è una posizione vincente.
+Se il calcolo dello xor della posizione attuale è diverso da zero, allora è una posizione vincente.
+Da una posizione vincente la mossa vincente è quella che rende zero il calcolo dello xor della nuova posizione.
+
+(define (canwin? position) (if (zero? (calc-xor position)) nil true))
+
+Funzione che verifica la fine del gioco:
+
+(define (game-end?)
+  (if (zero? (apply + *current*)) true nil))
+
+Funzione che genera e applica una mossa del computer alla posizione corrente:
+
+(define (move-ai)
+  (local (found sol)
+    ; ricerca una mossa vincente
+    (setq found nil)
+    (dolist (el *current* found)
+      (if (!= el 0)
+        (for (i 1 el 1 found)
+          (setq test *current*)
+          (setq (test $idx) (- el i))
+          (if (not (canwin? test))
+            (begin
+              (setq sol (list $idx i))
+              (setq found true)))
+        )
+      )
+    )
+    ; se non esiste alcuna mossa vincente,
+    ; allora genera una mossa casuale valida.
+    ; Toglie un elemento dalla prima riga non vuota...
+    (dolist (el *current* found)
+      (if (not (zero? el)) (begin
+          (setq sol (list $idx 1))
+          (setq found true)))
+    )
+    (if found (begin
+        (setf (*current* (first sol)) (- (*current* (first sol)) (last sol)))
+        (println "row: " (first sol) { - } "elementi: " (last sol))
+        (show-position *start* *current*)
+        (if (game-end?) (println "I WIN !!!"))
+        )
+        (println "Error: search move"))
+  )
+)
+
+Funzione che applica una mossa dell'utente alla posizione corrente:
+
+(define (move-human mossa)
+  (local (ok riga elementi)
+    (setq ok nil)
+    (until ok
+      (setq out mossa)
+      (cond ((!= 2 (length out))
+             (setq ok true)
+             (println "Error: only two value"))
+            (true
+             (setq riga (first out))
+             (setq elementi (last out))
+             (cond ((or (not (integer? riga)) (not (integer? elementi)))
+                    (setq ok true)
+                    (println "Error: only integer value"))
+                   ((>= riga (length *current*))
+                    (setq ok true)
+                    (println "Error: row not found: " riga))
+                   ((> elementi (*current* riga))
+                    (setq ok true)
+                    (println "Error: can't remove " elementi " elements from row " riga))
+                   (true ; applica la mossa (validata) alla posizione corrente
+                     (setq ok true)
+                     (setf (*current* riga) (- (*current* riga) elementi))
+                     (println "row: " riga { - } "elementi: " elementi)
+                     (show-position *start* *current*)
+                     (if (game-end?) (println "YOU WIN !!!"))
+                   )
+             )
+            )
+       )
+     )
+  )
+)
+
+Giochiamo una partita:
+
+(nim '(1 3 5 7) '(1 3 5 7))
+;->        |
+;->      | | |
+;->    | | | | |
+;->  | | | | | | |
+;-> ...
+
+(canwin? '(1 3 5 7))
+;-> nil
+
+(move-human '(0 1))
+;-> row: 0 - elementi: 1
+;->        .
+;->      | | |
+;->    | | | | |
+;->  | | | | | | |
+
+(move-ai)
+row: 1 - elementi: 1
+;->        .
+;->      . | |
+;->    | | | | |
+;->  | | | | | | |
+;-> ...
+
+(move-human '(3 6))
+;-> row: 3 - elementi: 6
+;->        .
+;->      . | |
+;->    | | | | |
+;->  . . . . . . |
+;-> ...
+
+(move-ai)
+;-> row: 2 - elementi: 2
+;->        .
+;->      . | |
+;->    . . | | |
+;->  . . . . . . |
+;-> ...
+
+(move-human '(2 1))
+;-> row: 2 - elementi: 1
+;->        .
+;->      . | |
+;->    . . . | |
+;->  . . . . . . |
+;-> ...
+
+(move-ai)
+;-> row: 3 - elementi: 1
+;->        .
+;->      . | |
+;->    . . . | |
+;->  . . . . . . .
+;-> ...
+
+(move-human '(2 2))
+;-> row: 2 - elementi: 2
+;->        .
+;->      . | |
+;->    . . . . .
+;->  . . . . . . .
+;-> ...
+
+(move-ai)
+;->        .
+;->      . . .
+;->    . . . . .
+;->  . . . . . . .
+;-> I WIN !!!
 
 
 ================
@@ -32915,9 +33487,9 @@ Ma la prova con i numeri negativi fallisce (il risultato dovrebbe essere +3):
 L'intuizione è stata quella di separare il segno e la grandezza del numero dalla parità del numero.
 Quindi ci sono tre regole:
 
-1) Se il numero è pari, mantenere lo stesso segno e avvicinarsi di 1 a 0 (quindi, sottrarre 1 da un numero pari positivo e aggiungere 1 a un numero pari negativo.
+1) Se il numero è pari, mantenere lo stesso segno e avvicinarsi di 1 a 0 (quindi, sottrarre 1 da un numero pari positivo e aggiungere 1 a un numero pari negativo).
 
-2) Se il numero è dispari, cambiare il segno e spostarsi di 1 più lontano da 0 (quindi, moltiplicare per -1 e sottrarre 1 da un numero dispari positivo e moltiplicare per -1 e aggiungere 1 a un numero pari negativo.
+2) Se il numero è dispari, cambiare il segno e spostarsi di 1 più lontano da 0 (quindi, moltiplicare per -1 e sottrarre 1 da un numero dispari positivo e moltiplicare per -1 e aggiungere 1 a un numero pari negativo).
 
 3) Nel caso in cui n vale 0, tutto rimane invariato (lo zero non ha segno, quindi non possiamo cambiarlo)
 
@@ -32962,6 +33534,24 @@ Un altro metodo è quello di considerare il numero n come una lista:
 
 (f1 (f1 0))
 ;-> 0
+
+Soluzione proposta da "fdb":
+
+(define-macro (f n) (- (n 1)))
+
+(f (f -1))
+;-> 1
+(f (f 1))
+;-> -1
+
+(f (f 3))
+;-> -3
+(f (f -3))
+;-> 3
+
+(f (f 0))
+;-> 0
+
 
 
 ------------------------------------------
@@ -33117,7 +33707,7 @@ Proviamo il tutto con un nuovo esempio:
 
 (setq lst (sample 50 1 100))
 ;-> (1 2 4 6 9 10 11 13 14 17 26 28 29 30 31 32 33 34
-;->  35 41 42 43 44 46 48 52 53 54 55 57 58 62 63 64 
+;->  35 41 42 43 44 46 48 52 53 54 55 57 58 62 63 64
 ;->  66 67 68 69 70 71 73 77 79 81 86 89 92 93 95 99)
 
 (setq sol (solve lst))
@@ -33233,7 +33823,7 @@ Adesso dobbiamo sommare tutti i numeri di ogni sottoinsieme e verificare se esis
 
 Mentre scrivevo la funzione che verifica se esiste una coppia di valori uguali in una lista, ho avuto l'intuizione per dimostrare matematicamente l'affermazione del problema.
 
-Ma andiamo con ordine. 
+Ma andiamo con ordine.
 
 Per verificare se esistono elementi doppi in una lista possiamo utilizzare diversi metodi:
 
@@ -33267,7 +33857,7 @@ Quindi possiamo scrivere la funzione per la ricerca degli elementi doppi utilizz
 
 (checkdouble '(1 2 4 5 6 1 7 8 9 2))
 ;-> 1
-    
+
 (define (checksum lst)
   (local (somme)
     ; generiamo il powerset e calcoliamo la somma di ogni sottoinsieme
@@ -33284,9 +33874,9 @@ Quindi possiamo scrivere la funzione per la ricerca degli elementi doppi utilizz
 Adesso proviamo 10000 volte per vedere se la funzione restituisce sempre un valore (cioè, se esiste sempre almeno un elemento doppio):
 
 (for (i 1 10000)
-  (if (= (checksum (randomize (slice (sequence 1 100) 1 10))) '()) 
+  (if (= (checksum (randomize (slice (sequence 1 100) 1 10))) '())
     (println "error")))
-;-> nil 
+;-> nil
 
 Sembra che l'affermazione sia vera.
 Adesso dovremmo verificare che gli insiemi che hanno la stessa somma siano disgiunti (cioè non abbiamo elementi in comune). Ma non è necessario scrivere codice, perchè anche se gli insiemi avessero degli elementi in comune, possiamo sempre eliminare questi elementi da entrambi gli insiemi mantenendo uguali le somme dei numeri di entrambi gli insiemi (e rendendo in questo modo gli insiemi disgiunti).
@@ -33314,7 +33904,7 @@ Quesito A
 ---------
 Dato un numero intero positivo n, trovare i numeri interi positivi x, y e z tale che
 
-1) x * y * z = n 
+1) x * y * z = n
 
 2) x + y + z sia minimo
 
@@ -33360,19 +33950,19 @@ Quesito B
 ---------
 Dato un numero intero positivo n, trovare i numeri interi positivi x, y e z tale che
 
-1) x * y * z = n 
+1) x * y * z = n
 
 2) x + y + z = n
 
 Le soluzioni al sistema (intere e reali/complesse) sono le seguenti:
 
-1) x = 0 && z = -y && n = 0
+1) x = 0, z = -y, n = 0
 
-2) x != 0 && 
+2) x != 0
    y = (n Sqrt[x] - x^(3/2) - Sqrt[-4 n + n^2 x - 2 n x^2 + x^3])/(2 Sqrt[x])
    z = (n Sqrt[x] - x^(3/2) + Sqrt[-4 n + n^2 x - 2 n x^2 + x^3])/(2 Sqrt[x])
- 
-3) x != 0 && 
+
+3) x != 0
    y = (n Sqrt[x] - x^(3/2) + Sqrt[-4 n + n^2 x - 2 n x^2 + x^3])/(2 Sqrt[x])
    z = (n Sqrt[x] - x^(3/2) - Sqrt[-4 n + n^2 x - 2 n x^2 + x^3])/(2 Sqrt[x])
 
@@ -33404,7 +33994,60 @@ Intuitivamente, l'unico numero n per cui risulta (x*y*z = x+y+z = n) vale sei (6
 
 2) a*b <= 3, quindi le quattro possibilità sono (a=0), (a=1, b=1), (a=1, b=2), (a=1, b=3).
 
-Per esclusione l'unica soluzione vale: (a=1, b=2, c=3).
+Per esclusione, l'unica soluzione vale: (a=1, b=2, c=3).
+
+
+---------------------
+Cifre stampate (Uber)
+---------------------
+
+Quesito 1
+---------
+Quante cifre occorrono per numerare N pagine (facciate) di un libro?
+
+Esempio:
+Libro di 10 pagine => 1 2 3 4 5 6 7 8 9 10 => 12345678910 ==> 11 cifre
+
+Nota: la funzione "length" di newLISP restituisce anche la lunghezza di un numero intero.
+
+(define (num-cifre pagine)
+  (let (cifre 0)
+    (for (i 1 pagine)
+      (setq cifre (+ cifre (length i))))))
+
+(num-cifre 562)
+;-> 1578
+
+Altro metodo:
+
+(define (num-cifre pagine)
+  (apply + (map length (sequence 1 pagine))))
+
+Quesito 2
+---------
+Quante pagine (facciate) sono state numerate se abbiamo utilizzato D cifre?
+
+Vediamo una soluzione con la forza bruta.
+
+(define (num-pagine cifre)
+  (let ((pagine 0) (found nil))
+    (until found
+      (++ pagine)
+      (if (>= (num-cifre pagine) cifre) (setq found true))
+    )
+    (list pagine (- cifre (num-cifre pagine)))))
+
+(num-pagine 1578)
+;-> (562 0) ; 562 pagine esatte
+
+(num-pagine 12300)
+;-> (3352 -1) ; manca una cifra per numerare 3352 pagine
+
+(num-pagine 14998)
+;-> (4027 -3) ; mancano tre cifre per numerare 4027 pagine
+
+(num-pagine 100000)
+;-> (22222 -4) ; mancano 4 cifre per numerare 22222 pagine
 
 
 ==========
@@ -35772,6 +36415,8 @@ Indirizzi web:
 Home: http://www.newlisp.org
 Forum: http://www.newlispfanclub.alh.net/forum/
 
+newLisp ha una sintassi semplice, ma una semantica potente e la sua natura interattiva supporta la prototipazione rapida e incoraggia gli utenti a esplorare e testare soluzioni ai problemi in modo incrementale.
+
 
 --------------
 newLISP facile
@@ -35848,7 +36493,7 @@ Stile del codice newLISP
 Ogni linguaggio ha un proprio stile generale nella scrittura el codice. Comunque anche ogni programmatore ha uno stile proprio che deriva dalla sua esperienza. Fortunatamente newLISP permette di scrivere con stili diversi basta che si rispetti la sintassi delle liste (parentesi).
 Lo stile non è uno standard, ma solo il modo preferito di scrivere e leggere i programmi. Il problema nasce quando diversi programmatori lavorano sullo stesso codice. In questo caso occorrono delle regole comuni per evitare di avere stili diversi nello stesso programma. Poichè newLISP deriva dal LISP vediamo quali indicazioni vengono raccomandate per questo linguaggio (Common LISP) e quanto sono aderenti a newLISP (e comunque sta a voi scegliere quale stile di scittura si adatta di più al vostro modo di programmare).
 
-REGOLE GENERALI
+--- Regole Generali ---
 
 Funzioni di primo ordine
 ------------------------
@@ -35931,6 +36576,7 @@ Con un livello di indentazione piccolo si diminuisce la lunghezza delle righe de
 
 Nomi delle variabili
 --------------------
+La convenzione è quella di usare lo stile: "dashed-lower-case-names".
 I nomi delle variabili vengono scritti in minuscolo e le parole sono separate dal carattere trattino "-" (hyphens). Non utilizzare il carattere underscore "_".
 Non utilizzare lettere maiuscole.
 
@@ -36034,6 +36680,8 @@ https://www.cs.umd.edu/~nau/cmsc421/norvig-lisp-style.pdf
 Nota: i programmatori Lisp esperti leggono e comprendono il codice in base all'indentazione invece che al controllo del livello/numero delle parentesi.
 
 La mia idea è che ognuno deve creare ed affinare con il tempo il proprio stile di programmazione, sia in termini di scrittura che di logica. Inoltre consiglio di studiare i programmi dei programmatori esperti (questo è uno dei metodi migliori per imparare).
+
+Il mio approccio è quello di scrivere in stile C quando sviluppo una funzione. Una volta che la funzione è definitiva, cioè testata e corretta, converto le parentesi in stile Lisp.
 
 
 ---------------------------------------------
@@ -39757,11 +40405,11 @@ Dal punto di vista matematico il numero medio di lanci vale:
 
 1   6*5*4*3*2*1
 - = ----------- = 0.0154321  ==> n = 64.8
-n      6^6
+n   6*6*6*6*6*6
 
 (div (pow 6 6) (apply * '(1 2 3 4 5 6))) = 64.8
 
-Vediamo di simulare l'evento con alcune funzioni:
+Vediamo di simulare l'evento con alcune funzioni.
 
 Funzione che conta quante volte bisogna lanciare il dado prima di ottenere tutti i valori:
 
@@ -39802,6 +40450,106 @@ Proviamo a vedere se otteniamo lo stesso valore (64.8):
 
 (solve6 500000)
 ;-> 64.810948
+
+
+--------------------
+Test Vettori e Liste
+--------------------
+
+Creazione di un vettore di 10000 elementi:
+
+(silent (setq vet (array 10000 (sequence 0 9999))))
+(length vet)
+;-> 10000
+
+Creazione di una lista associativa con 10000 elementi:
+
+(silent (setq lst (map list (sequence 0 9999) (sequence 0 9999))))
+(length lst)
+;-> 10000
+
+Genera un numero casuale in [a..b]:
+
+(define (rand-range a b)
+  (if (> a b) (swap a b))
+  (+ a (rand (+ (- b a) 1))))
+
+Test accesso sequenziale:
+
+(time (dolist (el vet) (setq x el)) 1000)
+;-> 439.966
+
+(time (dolist (el lst) (setq x el)) 1000)
+;-> 995.0391314
+
+Test accesso random:
+
+(time (for (i 0 (- (length vet) 1)) (setq x (vet (rand-range 0 9999)))) 1000)
+;-> 3452.562
+  
+(time (for (i 0 (- (length lst) 1)) (setq x (assoc (rand-range 0 9999) lst))) 1000)
+;-> 204534.455
+
+Modifica di una lista on-place:
+
+(silent (setq lst (sequence 0 9999)))
+(time (dolist (el lst) (setf (lst $idx) (* el 2))) 100)
+;-> 8299.447
+
+Modifica di un vettore on-place con "dolist":
+
+(silent (setq vet (array 10000 (sequence 0 9999))))
+(time (dolist (el vet) (setf (vet $idx) (* el 2))) 100)
+;-> 91.947
+
+Modifica di un vettore on-place con "for":
+
+(silent (setq vet (array 10000 (sequence 0 9999))))
+(time (for (i 0 (- (length vet) 1)) (setf (vet i) (* (vet i) 2))) 100)
+;-> 93.917
+Nota: stessa velocità di "dolist", ma con "for" facciamo due accessi ad ogni elemento del vettore (vet i).
+
+Modifica di una lista con lista di appoggio:
+
+(setq lst (sequence 0 9999))
+(setq out '())
+(time (dolist (el lst) (push (* el 2) out -1)) 1000)
+;-> 768.231
+
+Modifica di una lista con "map":
+
+(setq lst (sequence 0 9999))
+(time (map (fn(x) (* x 2)) lst) 1000)
+;-> 940.893
+
+Somma elementi di una lista con "dolist":
+
+(setq lst (sequence 0 9999))
+(setq somma 0)
+(time (dolist (el lst) (++ somma el)) 1000)
+;-> 555.431
+
+Somma elementi di un vettore con "dolist":
+
+(silent (setq vet (array 10000 (sequence 0 9999))))
+(setq somma 0)
+(time (dolist (el vet) (++ somma el)) 1000)
+;-> 552.455
+
+Somma elementi di un vettore con "for":
+
+(silent (setq vet (array 10000 (sequence 0 9999))))
+(setq somma 0)
+(time (for (i 0 (- (length vet) 1)) (++ somma (vet i))) 1000)
+;-> 620.386
+
+Somma elementi di una lista con "apply":
+
+(setq lst (sequence 0 9999))
+(time (apply + lst) 1000)
+;-> 169.736
+
+Nota: le funzioni "map" e "apply" non sono applicabili ai vettori
 
 
 ===========

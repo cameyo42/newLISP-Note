@@ -1,7 +1,7 @@
 
 ============================================================================
  Note su newLISP
- © copyright Massimo Corinaldesi
+ © copyright Massimo Corinaldesi aka cameyo
  MIT License
 ============================================================================
 
@@ -88,6 +88,7 @@ FUNZIONI VARIE
   Estrarre l'elemento n-esimo da una lista
   Verificare se una lista è palindroma
   Verificare se una stringa è palindroma
+  Verificare se un numero è palindromo
   Zippare N liste
   Sostituire gli elementi di una lista con un determinato valore
   Raggruppare gli elementi di una lista
@@ -134,6 +135,8 @@ FUNZIONI VARIE
   Calcolo di e con il metodo spigot
   Calcolo IVA
   Numeri casuali distinti
+  Numeri casuali con distribuzione discreta predefinita
+  Generatore di stringhe casuali
 
 newLISP 99 PROBLEMI (28)
 ========================
@@ -215,6 +218,7 @@ ROSETTA CODE
   Abitazioni multiple
   Toziente di Eulero
   Numeri Vampiri
+  Il gioco del Nim
 
 PROJECT EULERO
 ==============
@@ -328,6 +332,7 @@ DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Le cento porte (Wolfram)
   Insiemi con la stessa somma (Wolfram)
   Tripartizione di un intero (Wolfram)
+  Cifre stampate (Uber)
 
 LIBRERIE
 ========
@@ -383,6 +388,7 @@ NOTE LIBERE
   Ancora sui numeri primi
   Un algoritmo: matrice con somme positive
   Dadi e probabilità
+  Test Vettori e Liste
 
 APPENDICI
 =========

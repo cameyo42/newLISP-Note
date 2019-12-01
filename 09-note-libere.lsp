@@ -57,6 +57,8 @@ Indirizzi web:
 Home: http://www.newlisp.org
 Forum: http://www.newlispfanclub.alh.net/forum/
 
+newLisp ha una sintassi semplice, ma una semantica potente e la sua natura interattiva supporta la prototipazione rapida e incoraggia gli utenti a esplorare e testare soluzioni ai problemi in modo incrementale.
+
 
 --------------
 newLISP facile
@@ -133,7 +135,7 @@ Stile del codice newLISP
 Ogni linguaggio ha un proprio stile generale nella scrittura el codice. Comunque anche ogni programmatore ha uno stile proprio che deriva dalla sua esperienza. Fortunatamente newLISP permette di scrivere con stili diversi basta che si rispetti la sintassi delle liste (parentesi).
 Lo stile non è uno standard, ma solo il modo preferito di scrivere e leggere i programmi. Il problema nasce quando diversi programmatori lavorano sullo stesso codice. In questo caso occorrono delle regole comuni per evitare di avere stili diversi nello stesso programma. Poichè newLISP deriva dal LISP vediamo quali indicazioni vengono raccomandate per questo linguaggio (Common LISP) e quanto sono aderenti a newLISP (e comunque sta a voi scegliere quale stile di scittura si adatta di più al vostro modo di programmare).
 
-REGOLE GENERALI
+--- Regole Generali ---
 
 Funzioni di primo ordine
 ------------------------
@@ -216,6 +218,7 @@ Con un livello di indentazione piccolo si diminuisce la lunghezza delle righe de
 
 Nomi delle variabili
 --------------------
+La convenzione è quella di usare lo stile: "dashed-lower-case-names".
 I nomi delle variabili vengono scritti in minuscolo e le parole sono separate dal carattere trattino "-" (hyphens). Non utilizzare il carattere underscore "_".
 Non utilizzare lettere maiuscole.
 
@@ -319,6 +322,8 @@ https://www.cs.umd.edu/~nau/cmsc421/norvig-lisp-style.pdf
 Nota: i programmatori Lisp esperti leggono e comprendono il codice in base all'indentazione invece che al controllo del livello/numero delle parentesi.
 
 La mia idea è che ognuno deve creare ed affinare con il tempo il proprio stile di programmazione, sia in termini di scrittura che di logica. Inoltre consiglio di studiare i programmi dei programmatori esperti (questo è uno dei metodi migliori per imparare).
+
+Il mio approccio è quello di scrivere in stile C quando sviluppo una funzione. Una volta che la funzione è definitiva, cioè testata e corretta, converto le parentesi in stile Lisp.
 
 
 ---------------------------------------------
@@ -4042,11 +4047,11 @@ Dal punto di vista matematico il numero medio di lanci vale:
 
 1   6*5*4*3*2*1
 - = ----------- = 0.0154321  ==> n = 64.8
-n      6^6
+n   6*6*6*6*6*6
 
 (div (pow 6 6) (apply * '(1 2 3 4 5 6))) = 64.8
 
-Vediamo di simulare l'evento con alcune funzioni:
+Vediamo di simulare l'evento con alcune funzioni.
 
 Funzione che conta quante volte bisogna lanciare il dado prima di ottenere tutti i valori:
 
@@ -4087,5 +4092,105 @@ Proviamo a vedere se otteniamo lo stesso valore (64.8):
 
 (solve6 500000)
 ;-> 64.810948
+
+
+--------------------
+Test Vettori e Liste
+--------------------
+
+Creazione di un vettore di 10000 elementi:
+
+(silent (setq vet (array 10000 (sequence 0 9999))))
+(length vet)
+;-> 10000
+
+Creazione di una lista associativa con 10000 elementi:
+
+(silent (setq lst (map list (sequence 0 9999) (sequence 0 9999))))
+(length lst)
+;-> 10000
+
+Genera un numero casuale in [a..b]:
+
+(define (rand-range a b)
+  (if (> a b) (swap a b))
+  (+ a (rand (+ (- b a) 1))))
+
+Test accesso sequenziale:
+
+(time (dolist (el vet) (setq x el)) 1000)
+;-> 439.966
+
+(time (dolist (el lst) (setq x el)) 1000)
+;-> 995.0391314
+
+Test accesso random:
+
+(time (for (i 0 (- (length vet) 1)) (setq x (vet (rand-range 0 9999)))) 1000)
+;-> 3452.562
+  
+(time (for (i 0 (- (length lst) 1)) (setq x (assoc (rand-range 0 9999) lst))) 1000)
+;-> 204534.455
+
+Modifica di una lista on-place:
+
+(silent (setq lst (sequence 0 9999)))
+(time (dolist (el lst) (setf (lst $idx) (* el 2))) 100)
+;-> 8299.447
+
+Modifica di un vettore on-place con "dolist":
+
+(silent (setq vet (array 10000 (sequence 0 9999))))
+(time (dolist (el vet) (setf (vet $idx) (* el 2))) 100)
+;-> 91.947
+
+Modifica di un vettore on-place con "for":
+
+(silent (setq vet (array 10000 (sequence 0 9999))))
+(time (for (i 0 (- (length vet) 1)) (setf (vet i) (* (vet i) 2))) 100)
+;-> 93.917
+Nota: stessa velocità di "dolist", ma con "for" facciamo due accessi ad ogni elemento del vettore (vet i).
+
+Modifica di una lista con lista di appoggio:
+
+(setq lst (sequence 0 9999))
+(setq out '())
+(time (dolist (el lst) (push (* el 2) out -1)) 1000)
+;-> 768.231
+
+Modifica di una lista con "map":
+
+(setq lst (sequence 0 9999))
+(time (map (fn(x) (* x 2)) lst) 1000)
+;-> 940.893
+
+Somma elementi di una lista con "dolist":
+
+(setq lst (sequence 0 9999))
+(setq somma 0)
+(time (dolist (el lst) (++ somma el)) 1000)
+;-> 555.431
+
+Somma elementi di un vettore con "dolist":
+
+(silent (setq vet (array 10000 (sequence 0 9999))))
+(setq somma 0)
+(time (dolist (el vet) (++ somma el)) 1000)
+;-> 552.455
+
+Somma elementi di un vettore con "for":
+
+(silent (setq vet (array 10000 (sequence 0 9999))))
+(setq somma 0)
+(time (for (i 0 (- (length vet) 1)) (++ somma (vet i))) 1000)
+;-> 620.386
+
+Somma elementi di una lista con "apply":
+
+(setq lst (sequence 0 9999))
+(time (apply + lst) 1000)
+;-> 169.736
+
+Nota: le funzioni "map" e "apply" non sono applicabili ai vettori
 
 

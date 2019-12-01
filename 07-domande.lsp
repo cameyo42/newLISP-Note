@@ -2997,9 +2997,9 @@ Ma la prova con i numeri negativi fallisce (il risultato dovrebbe essere +3):
 L'intuizione è stata quella di separare il segno e la grandezza del numero dalla parità del numero.
 Quindi ci sono tre regole:
 
-1) Se il numero è pari, mantenere lo stesso segno e avvicinarsi di 1 a 0 (quindi, sottrarre 1 da un numero pari positivo e aggiungere 1 a un numero pari negativo.
+1) Se il numero è pari, mantenere lo stesso segno e avvicinarsi di 1 a 0 (quindi, sottrarre 1 da un numero pari positivo e aggiungere 1 a un numero pari negativo).
 
-2) Se il numero è dispari, cambiare il segno e spostarsi di 1 più lontano da 0 (quindi, moltiplicare per -1 e sottrarre 1 da un numero dispari positivo e moltiplicare per -1 e aggiungere 1 a un numero pari negativo.
+2) Se il numero è dispari, cambiare il segno e spostarsi di 1 più lontano da 0 (quindi, moltiplicare per -1 e sottrarre 1 da un numero dispari positivo e moltiplicare per -1 e aggiungere 1 a un numero pari negativo).
 
 3) Nel caso in cui n vale 0, tutto rimane invariato (lo zero non ha segno, quindi non possiamo cambiarlo)
 
@@ -3044,6 +3044,24 @@ Un altro metodo è quello di considerare il numero n come una lista:
 
 (f1 (f1 0))
 ;-> 0
+
+Soluzione proposta da "fdb":
+
+(define-macro (f n) (- (n 1)))
+
+(f (f -1))
+;-> 1
+(f (f 1))
+;-> -1
+
+(f (f 3))
+;-> -3
+(f (f -3))
+;-> 3
+
+(f (f 0))
+;-> 0
+
 
 
 ------------------------------------------
@@ -3199,7 +3217,7 @@ Proviamo il tutto con un nuovo esempio:
 
 (setq lst (sample 50 1 100))
 ;-> (1 2 4 6 9 10 11 13 14 17 26 28 29 30 31 32 33 34
-;->  35 41 42 43 44 46 48 52 53 54 55 57 58 62 63 64 
+;->  35 41 42 43 44 46 48 52 53 54 55 57 58 62 63 64
 ;->  66 67 68 69 70 71 73 77 79 81 86 89 92 93 95 99)
 
 (setq sol (solve lst))
@@ -3315,7 +3333,7 @@ Adesso dobbiamo sommare tutti i numeri di ogni sottoinsieme e verificare se esis
 
 Mentre scrivevo la funzione che verifica se esiste una coppia di valori uguali in una lista, ho avuto l'intuizione per dimostrare matematicamente l'affermazione del problema.
 
-Ma andiamo con ordine. 
+Ma andiamo con ordine.
 
 Per verificare se esistono elementi doppi in una lista possiamo utilizzare diversi metodi:
 
@@ -3349,7 +3367,7 @@ Quindi possiamo scrivere la funzione per la ricerca degli elementi doppi utilizz
 
 (checkdouble '(1 2 4 5 6 1 7 8 9 2))
 ;-> 1
-    
+
 (define (checksum lst)
   (local (somme)
     ; generiamo il powerset e calcoliamo la somma di ogni sottoinsieme
@@ -3366,9 +3384,9 @@ Quindi possiamo scrivere la funzione per la ricerca degli elementi doppi utilizz
 Adesso proviamo 10000 volte per vedere se la funzione restituisce sempre un valore (cioè, se esiste sempre almeno un elemento doppio):
 
 (for (i 1 10000)
-  (if (= (checksum (randomize (slice (sequence 1 100) 1 10))) '()) 
+  (if (= (checksum (randomize (slice (sequence 1 100) 1 10))) '())
     (println "error")))
-;-> nil 
+;-> nil
 
 Sembra che l'affermazione sia vera.
 Adesso dovremmo verificare che gli insiemi che hanno la stessa somma siano disgiunti (cioè non abbiamo elementi in comune). Ma non è necessario scrivere codice, perchè anche se gli insiemi avessero degli elementi in comune, possiamo sempre eliminare questi elementi da entrambi gli insiemi mantenendo uguali le somme dei numeri di entrambi gli insiemi (e rendendo in questo modo gli insiemi disgiunti).
@@ -3396,7 +3414,7 @@ Quesito A
 ---------
 Dato un numero intero positivo n, trovare i numeri interi positivi x, y e z tale che
 
-1) x * y * z = n 
+1) x * y * z = n
 
 2) x + y + z sia minimo
 
@@ -3442,19 +3460,19 @@ Quesito B
 ---------
 Dato un numero intero positivo n, trovare i numeri interi positivi x, y e z tale che
 
-1) x * y * z = n 
+1) x * y * z = n
 
 2) x + y + z = n
 
 Le soluzioni al sistema (intere e reali/complesse) sono le seguenti:
 
-1) x = 0 && z = -y && n = 0
+1) x = 0, z = -y, n = 0
 
-2) x != 0 && 
+2) x != 0
    y = (n Sqrt[x] - x^(3/2) - Sqrt[-4 n + n^2 x - 2 n x^2 + x^3])/(2 Sqrt[x])
    z = (n Sqrt[x] - x^(3/2) + Sqrt[-4 n + n^2 x - 2 n x^2 + x^3])/(2 Sqrt[x])
- 
-3) x != 0 && 
+
+3) x != 0
    y = (n Sqrt[x] - x^(3/2) + Sqrt[-4 n + n^2 x - 2 n x^2 + x^3])/(2 Sqrt[x])
    z = (n Sqrt[x] - x^(3/2) - Sqrt[-4 n + n^2 x - 2 n x^2 + x^3])/(2 Sqrt[x])
 
@@ -3486,6 +3504,59 @@ Intuitivamente, l'unico numero n per cui risulta (x*y*z = x+y+z = n) vale sei (6
 
 2) a*b <= 3, quindi le quattro possibilità sono (a=0), (a=1, b=1), (a=1, b=2), (a=1, b=3).
 
-Per esclusione l'unica soluzione vale: (a=1, b=2, c=3).
+Per esclusione, l'unica soluzione vale: (a=1, b=2, c=3).
+
+
+---------------------
+Cifre stampate (Uber)
+---------------------
+
+Quesito 1
+---------
+Quante cifre occorrono per numerare N pagine (facciate) di un libro?
+
+Esempio:
+Libro di 10 pagine => 1 2 3 4 5 6 7 8 9 10 => 12345678910 ==> 11 cifre
+
+Nota: la funzione "length" di newLISP restituisce anche la lunghezza di un numero intero.
+
+(define (num-cifre pagine)
+  (let (cifre 0)
+    (for (i 1 pagine)
+      (setq cifre (+ cifre (length i))))))
+
+(num-cifre 562)
+;-> 1578
+
+Altro metodo:
+
+(define (num-cifre pagine)
+  (apply + (map length (sequence 1 pagine))))
+
+Quesito 2
+---------
+Quante pagine (facciate) sono state numerate se abbiamo utilizzato D cifre?
+
+Vediamo una soluzione con la forza bruta.
+
+(define (num-pagine cifre)
+  (let ((pagine 0) (found nil))
+    (until found
+      (++ pagine)
+      (if (>= (num-cifre pagine) cifre) (setq found true))
+    )
+    (list pagine (- cifre (num-cifre pagine)))))
+
+(num-pagine 1578)
+;-> (562 0) ; 562 pagine esatte
+
+(num-pagine 12300)
+;-> (3352 -1) ; manca una cifra per numerare 3352 pagine
+
+(num-pagine 14998)
+;-> (4027 -3) ; mancano tre cifre per numerare 4027 pagine
+
+(num-pagine 100000)
+;-> (22222 -4) ; mancano 4 cifre per numerare 22222 pagine
 
 

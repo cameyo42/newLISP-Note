@@ -43,6 +43,10 @@ Scriviamo una funzione che crea una lista dei caratteri ASCII stmapabili.
 
 In newLISP i caratteri numero 34 (doppi apici) e numero 92 (backslash) sono preceduti dal carattere di controllo '\' quando vengono stampati.
 
+Altro metodo, applico (con "map") la funzione (list x (char(x))) ad ogni elemento della lista di numeri che va da 32 a 126 (sequence 32 126):
+
+(define (ascii-list)
+  (map (fn(x) (list x (char x))) (sequence 32 126)))
 
 --------------
 Pari o dispari
@@ -730,6 +734,37 @@ Vediamo una soluzione con gli indici:
 
 (palindroma? "abbai")
 ;-> nil
+
+
+------------------------------------
+Verificare se un numero è palindromo
+------------------------------------
+
+(define (palindromo? num)
+  (let (str (string num))
+    (= str (reverse (copy str)))))
+
+(palindromo? 1234321)
+;-> true
+
+(define (palinum? num)
+  (let ((val 0) (copia num))
+    (until (null? num)
+      (setq val (+ (* 10 val) (% num 10)))
+      (setq num (/ num 10))
+    )
+    (= val copia)
+  )
+)
+
+(palinum? 1234321)
+;-> true
+
+(time (map palindromo? (sequence 100000 110000)) 200)
+;-> 1535.427
+
+(time (map palinum? (sequence 100000 110000)) 200)
+;-> 2778.158
 
 
 ---------------
@@ -3338,7 +3373,7 @@ Utilizziamo la seguente funzione per risolvere il sistema lineare:
         (for (j 0 (- dim 1))
           (setf (copia j i) (noti j))
         )
-        ; 0.0 -> restituisce 0 (invece di nil),
+        ; 0.0 -> "det" restituisce 0 (invece di nil),
         ; quando la matrice è singolare
         (setq det-i (det copia 0.0))
         (push (div det-i detm) sol -1)
@@ -3444,7 +3479,14 @@ Numeri primi successivi e precedenti
 ------------------------------------
 
 Dato un numero intero n vogliamo determinare il primo numero primo successivo a n e il primo numero primo precedente a n.
-Scriviamo due funzioni separate "primo+" e "primo-".
+
+Prima scriviamo la funzione che verifica se un numero è primo:
+
+(define (primo? n)
+  (if (< n 2) nil
+      (= 1 (length (factor n)))))
+
+Poi scriviamo due funzioni separate "primo+" e "primo-".
 
 (define (primo+ num)
   (local (found val)
@@ -4312,4 +4354,277 @@ Adesso quando risulta n > (b - a + 1) la funzione restituisce la lista vuota:
 
 (sample 10 1 9)
 ;-> ()
+
+
+-----------------------------------------------------
+Numeri casuali con distribuzione discreta predefinita
+-----------------------------------------------------
+
+Supponiamo di voler generare uno dei seguenti eventi (a b c d) con le seguenti probabilità associate (0.05 0.15 0.35 0.45). In altre parole, se generiamo 1000 eventi la distribuzione deve essere uguale a quella predefinita: 50 a, 150 b, 350 c e 450 d (più o meno).
+
+Nota: la somma delle probabilità deve valere 1.0.
+
+Definiamo gli intervalli:
+
+1) (0.00, 0.05) --> probabilità 5%
+2) (0.05, 0.20) --> probabilità 15% (0.20 = 0.05 + 0.15)
+3) (0.20, 0.55) --> probabilità 35% (0.55 = 0.20 + 0.35)
+4) (0.55, 1.00) --> probabilità 45% (1.00 = 0.55 + 0.45)
+
+(setq intervalli '(0.0 0.05 0.2 0.55 1.0))
+
+Adesso generiamo un numero casuale R:
+
+- se R cade nell'intervallo 1 (0.00, 0.05), 
+  allora si verifica l'evento "a" --> indice 0
+- se R cade nell'intervallo 2 (0.05, 0.20), 
+  allora si verifica l'evento "b" --> indice 1
+- se R cade nell'intervallo 3 (0.20, 0.55), 
+  allora si verifica l'evento "c" --> indice 2
+- se R cade nell'intervallo 4 (0.55, 1.00), 
+  allora si verifica l'evento "d" --> indice 3
+
+La funzione genera un numero da 0 a (n-1) che rappresenta l'indice del valore di probabilità nella lista delle probabilità:
+
+(define (rand-prob probs)
+  (local (out inter cur val found)
+    (setq found nil)
+    (setq inter '(0.0))
+    (setq cur 0)
+    ; creazione della lista degli intervalli
+    (dolist (el probs)
+      (setq cur (round (add cur el) -4))
+      (push cur inter -1)
+    )
+    ; l'ultimo valore della lista degli intervalli deve valere 1
+    (if (!= (last inter) 1) (println "Errore: somma probabilita diversa da 1"))
+    ; generazione numero random con probabilità predefinite
+    (setq val (random))
+    (setq out nil)
+    ; ricerca in quale intervallo cade il numero random
+    ; e restituisce l'indice corrispondente
+    (for (i 0 (- (length inter) 2) 1 found)
+      (if (and (>= val (inter i)) (<= val (inter (+ i 1))))
+        (begin
+        (setq out i)
+        (setq found true))
+      )
+    )
+    out))
+
+Proviamo con l'esempio iniziale:
+
+(setq p '(0.05 0.15 0.35 0.45))
+
+(rand-prob p)
+;-> 2
+
+Verifichiamo la funzione generando 1000000 di valori che popolano un vettore di frequenze:
+
+(setq vet (array 4 '(0)))
+;-> (0 0 0 0)
+(for (i 0 999999) (++ (vet (rand-prob p))))
+vet
+;-> (50177 150075 348712 451036)
+Il risultato segue bene la distribuzione perfetta che vale (50000 150000 350000 450000).
+
+Calcoliamo la somma dei valori del vettore:
+(apply + vet)
+;-> 1000000
+
+Sembra che tutto funzioni correttamente.
+
+
+------------------------------
+Generatore di stringhe casuali
+------------------------------
+
+Scrivere una funzione che genera stringhe casuali di lunghezza prefissata.
+
+Lettere minuscole:
+(char 97)
+;-> "a"
+(char 122)
+;-> "z"
+(setq lower (map char (sequence 97 122)))
+;-> ("a" "b" "c" "d" "e" "f" "g" "h" "i" "j" "k" "l" "m"
+;->  "n" "o" "p" "q" "r" "s" "t" "u" "v" "w" "x" "y" "z")
+(length lower)
+;-> 26
+
+Lettere maiuscole:
+(char 65)
+;-> "A"
+(char 90)
+;-> "Z"
+(setq upper (map char (sequence 65 90)))
+;-> ("A" "B" "C" "D" "E" "F" "G" "H" "I" "J" "K" "L" "M"
+;->  "N" "O" "P" "Q" "R" "S" "T" "U" "V" "W" "X" "Y" "Z")
+(length upper)
+;-> 26
+
+Vocali:
+(setq vowels '("a" "e" "i" "o" "u"))
+
+Consonanti:
+(setq consonants '("b" "c" "d" "f" "g" "h" "j" "k" "l" "m" "n" "p" "q" "r" "s" "t" "v" "w" "x" "y" "z"))
+
+(setq upper-rnd (map char (randomize (sequence 65 90))))
+;-> ("A" "P" "G" "V" "Q" "B" "N" "Y" "W" "D" "M" "X" "J"
+;->  "T" "R" "F" "E" "U" "C" "O" "Z" "L" "I" "K" "H" "S")
+
+Generatore di interi tra [a, b]:
+
+(define (rand-range a b)
+  (if (> a b) (swap a b))
+  (+ a (rand (+ (- b a) 1))))
+
+Estrae un carattere casuale da una lista:
+
+(define (rand-char lst) (lst (rand (length lst))))
+
+(rand-char lower)
+;-> "c"
+
+Il più semplice dei generatori casuali utilizza la funzione "rand-char" per creare una stringa di lunghezza n con caratteri presi dall'alfabeto alfa:
+
+(define (rand-string n alfa)
+  (let (out '())
+    (dotimes (i n)
+      (push (rand-char alfa) out -1))
+      (join out)))
+
+(rand-string 10 lower)
+;-> "unhwsyyodm"
+
+(rand-string 10 upper)
+;-> "YTCPKTPOJD"
+
+(rand-string 10 vowels)
+;-> "eiuiuoeaoi"
+
+Adesso ci proponiamo di scrivere una funzione che genera stringhe "leggibili". Per stringa "leggibile" intendiamo una stringa che segue le regole generali della lingua italiana e quindi può essere letta senza difficoltà (es. "unhwsyyodm" è illeggibile).
+Vediamo alcune di queste regole (che hanno quasi sempre delle eccezioni):
+1) non ci sono tre vocali di seguito (eccez. aiuola)
+2) non ci sono tre consonanti di seguito (eccez. strada)
+3) non ci sono quattro consonanti di seguito
+4) alcune consonanti non possono essere doppie (es. hh, yy, xx, ww)
+5) ecc.
+
+La funzione che implementiamo segue le seguenti regole di costruzione:
+
+a) Inizia con una consonante
+b) segue una vocale
+c) può seguire:
+   c1) una consonante (percentuale di probabilità 60%)
+   c2) due consonanti uguali (nn,rr,tt,...) (30%)
+   c3) due consonanti diverse (fr,pr,tr,sf,...) (15%)
+   c4) tre consonanti diverse (sfr, str, ttr,...) (5%)
+d) segue una vocale
+e) ritornare al punto a)
+
+Cominciamo a definire quali sono le consonanti doppi possibili.
+
+(define (doppia lst)
+  (let (out '())
+    (dolist (el lst)
+      (push (string el el) out -1))))
+
+(doppia consonants)
+;-> ("bb" "cc" "dd" "ff" "gg" "hh" "jj" "kk" "ll" "mm" "nn" "pp"
+;->  "qq" "rr" "ss" "tt" "vv" "ww" "xx" "yy" "zz")
+
+Eliminiamo "hh", "jj", "kk", ,"qq", "ww", "xx" e "yy".
+
+(setq doppie '("bb" "cc" "dd" "ff" "gg" "ll" "mm" "nn" "pp" "rr" "ss" "tt" "zz"))
+
+Adesso analizziamo le consonanti diverse.
+
+(setq lettere '("b" "c" "d" "f" "g" "l" "m" "n" "p" "q" "r" "s" "t" "v"))
+
+Generiamo tutte le doppie:
+
+(define (cp lst1 lst2 func)
+  (let (out '())
+    (if (or (null? lst1) (null? lst2))
+        nil
+        (dolist (el1 lst1)
+          (dolist (el2 lst2)
+            (push (func el1 el2) out -1))))))
+
+(difference (unique (cp lettere lettere string)) (doppia lettere))
+;-> ("bc" "bd" "bf" "bg" "bl" "bm" "bn" "bp" "bq" "br" "bs" "bt" "bv"
+;->  "cb" "cd" "cf" "cg" "cl" "cm" "cn" "cp" "cq" "cr" "cs" "ct" "cv"
+;->  "db" "dc" "df" "dg" "dl" "dm" "dn" "dp" "dq" "dr" "ds" "dt" "dv"
+;->  "fb" "fc" "fd" "fg" "fl" "fm" "fn" "fp" "fq" "fr" "fs" "ft" "fv"
+;->  "gb" "gc" "gd" "gf" "gl" "gm" "gn" "gp" "gq" "gr" "gs" "gt" "gv"
+;->  "lb" "lc" "ld" "lf" "lg" "lm" "ln" "lp" "lq" "lr" "ls" "lt" "lv"
+;->  "mb" "mc" "md" "mf" "mg" "ml" "mn" "mp" "mq" "mr" "ms" "mt" "mv"
+;->  "nb" "nc" "nd" "nf" "ng" "nl" "nm" "np" "nq" "nr" "ns" "nt" "nv"
+;->  "pb" "pc" "pd" "pf" "pg" "pl" "pm" "pn" "pq" "pr" "ps" "pt" "pv"
+;->  "qb" "qc" "qd" "qf" "qg" "ql" "qm" "qn" "qp" "qr" "qs" "qt" "qv"
+;->  "rb" "rc" "rd" "rf" "rg" "rl" "rm" "rn" "rp" "rq" "rs" "rt" "rv"
+;->  "sb" "sc" "sd" "sf" "sg" "sl" "sm" "sn" "sp" "sq" "sr" "st" "sv"
+;->  "tb" "tc" "td" "tf" "tg" "tl" "tm" "tn" "tp" "tq" "tr" "ts" "tv"
+;->  "vb" "vc" "vd" "vf" "vg" "vl" "vm" "vn" "vp" "vq" "vr" "vs" "vt")
+
+Scegliamo "br", "cl", "cr", "dr", "fl", "fr", "gl", "gn", "gr", "lg", "pl", "pr", "rb", "rc" , "rs", "sb", "sc", "sf", "sl", "sm", "sp", "st", "tr".
+
+(setq doppie-div '("br" "cl" "cr" "dr" "fl" "fr" "gl" "gn" "gr" "lg" "pl" "pr" "rb" "rc"  "rs" "sb" "sc" "sf" "sl" "sm" "sp" "st" "tr"))
+
+Vediamo le triple consonanti:
+
+(setq triple '("sfr" "str" "ttr"))
+
+Funzione che estrae un elemento casuale dalla lista passata:
+
+(define (rand-list lst) (lst (rand (length lst))))
+
+(rand-list doppie)
+;-> "cc"
+(rand-list doppie-div)
+;-> "dr"
+
+Infine scriviamo la funzione che genera parole casuali "leggibili":
+
+(define (rand-word iter)
+  (local (out)
+    (setq out '())
+    (dotimes (i iter)
+      (push (rand-list consonants) out -1)
+      (push (rand-list vowels) out -1)
+      (case (rand 4)
+            (0 (push (rand-list consonants) out -1))
+            (1 (push (rand-list doppie) out -1))
+            (2 (push (rand-list doppie-div) out -1))
+            (3 (push (rand-list triple) out -1))
+            (true (println "error")))
+      (push (rand-list vowels) out -1))
+    (join out)))
+
+(rand-word 2)
+;-> "fuzzarazza"
+
+Dieci parole casuali:
+
+(dotimes (x 10) (println (rand-word (+ 1 (rand 2)))))
+;-> nistra
+;-> kattru
+;-> riscumexu
+;-> dusfri
+;-> cadidosbo
+;-> sestruvela
+;-> guledavo
+;-> bissinopa
+;-> xunototto
+;-> paslo
+
+Il passo successivo sarebbe quello di definire una percentuale di probabilità predefinita ad ogni evento casuale, per esempio:
+c1) una consonante (percentuale di probabilità 60%)
+c2) due consonanti uguali  (30%)
+c3) due consonanti diverse (15%)
+c4) tre consonanti diverse (5%)
+
+Inoltre sarebbe interessante modificare o definire altre regole di costruzione.
+
 

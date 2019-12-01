@@ -4757,7 +4757,7 @@ Il codice è il seguente:
       (setf x y))
     out))
 
-In questo esempio viene utilizzato il prodotto di primi (* 2 3 5 7 11 13). Per numeri maggiori di questo, controlla se il modulo è un prodotto di uno di quei numeri primi, nel qual caso il numero nel suo insieme è divisibile per quel numero primo (e quindi non è un numero primo). In particolare, la fattorizzazione del modulo è in genere più veloce perchè filtra questi i numeri controllati dal modulo.
+In questo esempio viene utilizzato il prodotto di primi (* 2 3 5 7 11 13). Per numeri maggiori di questo, controlla se il modulo è un prodotto di uno di quei numeri primi, nel qual caso il numero nel suo insieme è divisibile per quel numero primo (e quindi non è un numero primo). In particolare, la fattorizzazione del modulo è in genere più veloce perchè filtra tutti i numeri controllati dal modulo.
 
 (time (pairs-i1 3 2e7))
 ;-> 29964.396
@@ -5248,7 +5248,7 @@ Complessità temporale: O(log(n))
 
 Potete trovare un algoritmo più efficiente che utilizza il metodo delle "addiction chain" nel libro di Donald Knuth "The Art of Computer Programming".
 
-Questa è una versione fornita da Lutz su forum di newLISP:
+Questa è una versione brute-force fornita da Lutz su forum di newLISP:
 
 (define (** x p)
     (let (y 1L)
@@ -5257,6 +5257,15 @@ Questa è una versione fornita da Lutz su forum di newLISP:
 
 (** 10 53)
 ;-> 100000000000000000000000000000000000000000000000000000L
+
+(= (ipow 10L 53L) (** 10 53))
+;-> true
+
+(time (ipow 12345L 12345L) 100)
+;-> 2572.051
+
+(time (** 12345L 12345L) 100)
+;-> 9752.167
 
 
 --------------------
@@ -5348,7 +5357,7 @@ Calcoliamo il limite del rapporto tra due numeri consecutivi di Tribonacci:
 (div (trib-big 1000L) (trib-big 999L))
 ;-> 1.839286755214161
 
-Esiste un algoritmo ancora più veloce che utilizza la moltiplicazioni tra matrici, ma la funzione (trib-big) è sufficientemente veloce.
+Esiste un algoritmo ancora più veloce che utilizza la moltiplicazioni tra matrici, ma la funzione "trib-big" è sufficientemente veloce.
 
 
 -------------
@@ -5491,7 +5500,8 @@ La versione iterativa è leggermente più veloce.
 Il prossimo numero eureka vale: 12157692622039623539.
 La nostra funzione non è in grado di calcolarlo...in tempo.
 
-I numeri eureka sono un numero finito e l'ultimo termite ha un massimo di 22 cifre. Perchè?
+I numeri eureka sono un numero finito e l'ultimo termine ha un massimo di 22 cifre. Perchè?
+
 Dato un numero naturale n di m cifre. Risulta che:
 
 10^(m-1) <= n
@@ -5606,11 +5616,11 @@ Numero di posizioni:
 
 (define (dove-d)
   (let (found nil)
-    (for (baker 1 5)
-     (for (cooper 1 5)
-      (for (fletcher 1 5)
-       (for (miller 1 5)
-        (for (smith 1 5)
+    (for (baker 1 5 1 found)
+     (for (cooper 1 5 1 found)
+      (for (fletcher 1 5 1 found)
+       (for (miller 1 5 1 found)
+        (for (smith 1 5 1 found)
           ; controllo dei vincoli
           (if (and (not (= baker 5))
                    (not (= cooper 1))
@@ -5649,10 +5659,10 @@ Funzione non-deterministica (non ha un tempo di esecuzione costante):
 Funzione deterministica (ha un tempo di esecuzione costante):
 
 (time (dove-d) 1000)
-;-> 852.58
+;-> 838.496
 
 (time (dove-d) 1000)
-;-> 854.525
+;-> 535.417
 
 Comunque con diversi tentativi si possono ottenere risultati sorprendenti con la funzione non-deterministica:
 
@@ -6009,5 +6019,229 @@ n = 2  ==>  10524208 = 2501 · 4208
 n = 3  ==>  1005240208 = 25001 · 40208
 
 Ma per adesso basta con i numeri vampiri.
+
+
+----------------
+Il gioco del Nim
+----------------
+
+Nim è un gioco in cui due persone alternativamente rimuovono alcuni elementi disposti in una serie di righe partendo da una posizione iniziale. Si inizia con una serie di righe contenenti un certo numero di elementi (il numero delle righe e degli elementi di ogni riga possono essere qualunque numero intero e sono concordati tra i giocatori all'inizio della partita). I giocatori, a turno, tolgono da una qualsiasi riga un numero di elementi a piacere, da uno a tutti. Vince chi toglie l'ultimo elemento presente. Non è possibile passare (saltare la mossa).
+Esiste anche una variante chiamata Marienbad in cui chi toglie l'ultimo elemento perde.
+
+Esempio di posizione iniziale:
+
+        |          riga: 0 - elementi: 1
+      | | |        riga: 1 - elementi: 3
+    | | | | |      riga: 2 - elementi: 5
+  | | | | | | |    riga: 3 - elementi: 7
+  
+La strategia di gioco è la seguente:
+
+1) se (n1 xor n2 xor ... nk = 0), scegliere una mossa casuale valida (poichè non esiste una mossa vincente)
+
+2) se (n1 xor n2 xor ... nk != 0), scegliere la mossa che rende (n1 xor n2 xor ... nk = 0).
+
+Non svilupperemo un programma completo, ma solo le funzioni per giocare interattivamente.
+
+Rappresentiamo una posizione con una lista: l'indice della lista rappresenta il numero di riga, mentre il relativo valore rappresenta il numero di elementi presenti nella riga.
+
+Utilizzeremo due variabili globali per tenere traccia della posizione iniziale (*start*) e della posizione corrente (*current*): questo rende più semplice l'interazione con la REPL durante una partita
+
+Esempio:
+(setq *start* '(1 3 5 7))
+(setq *current* '(0 2 3 7))
+
+Funzione che stampa la posizione corrente:
+
+(define (show-position)
+  (local (triple)
+    (setq big (apply max *start*))
+    (setq space (map (fn(x) (+ big 1 (- x))) *start*))
+    (setq triple (map list *start* *current* space))
+    (dolist (el triple)
+      (print (dup " " (el 2)))
+      (print (dup ". " (- (el 0) (el 1))))
+      (print (dup "| " (el 1)))
+      (println)
+    )
+    '...
+  )
+)
+
+Funzione per iniziare una nuova partita:
+
+(define (nim start-position current-position)
+  (setq *start* start-position)
+  (setq *current* current-position)
+  (show-position))
+
+(nim '(1 3 5 7) '(1 3 5 7))
+;->        |
+;->      | | |
+;->    | | | | |
+;->  | | | | | | |
+;-> ...
+
+Funzione che calcola lo xor di una posizione:
+
+(define (calc-xor position) (apply ^ position))
+
+Funzione che verifica se una posizione è vincente per il giocatore di turno:
+Se il calcolo dello xor della posizione attuale vale 0, allora non è una posizione vincente.
+Se il calcolo dello xor della posizione attuale è diverso da zero, allora è una posizione vincente.
+Da una posizione vincente la mossa vincente è quella che rende zero il calcolo dello xor della nuova posizione.
+
+(define (canwin? position) (if (zero? (calc-xor position)) nil true))
+
+Funzione che verifica la fine del gioco:
+
+(define (game-end?)
+  (if (zero? (apply + *current*)) true nil))
+
+Funzione che genera e applica una mossa del computer alla posizione corrente:
+
+(define (move-ai)
+  (local (found sol)
+    ; ricerca una mossa vincente
+    (setq found nil)
+    (dolist (el *current* found)
+      (if (!= el 0)
+        (for (i 1 el 1 found)
+          (setq test *current*)
+          (setq (test $idx) (- el i))
+          (if (not (canwin? test))
+            (begin
+              (setq sol (list $idx i))
+              (setq found true)))
+        )
+      )
+    )
+    ; se non esiste alcuna mossa vincente,
+    ; allora genera una mossa casuale valida.
+    ; Toglie un elemento dalla prima riga non vuota...
+    (dolist (el *current* found)
+      (if (not (zero? el)) (begin
+          (setq sol (list $idx 1))
+          (setq found true)))
+    )
+    (if found (begin
+        (setf (*current* (first sol)) (- (*current* (first sol)) (last sol)))
+        (println "row: " (first sol) { - } "elementi: " (last sol))
+        (show-position *start* *current*)
+        (if (game-end?) (println "I WIN !!!"))
+        )
+        (println "Error: search move"))
+  )
+)
+
+Funzione che applica una mossa dell'utente alla posizione corrente:
+
+(define (move-human mossa)
+  (local (ok riga elementi)
+    (setq ok nil)
+    (until ok
+      (setq out mossa)
+      (cond ((!= 2 (length out))
+             (setq ok true)
+             (println "Error: only two value"))
+            (true
+             (setq riga (first out))
+             (setq elementi (last out))
+             (cond ((or (not (integer? riga)) (not (integer? elementi)))
+                    (setq ok true)
+                    (println "Error: only integer value"))
+                   ((>= riga (length *current*))
+                    (setq ok true)
+                    (println "Error: row not found: " riga))
+                   ((> elementi (*current* riga))
+                    (setq ok true)
+                    (println "Error: can't remove " elementi " elements from row " riga))
+                   (true ; applica la mossa (validata) alla posizione corrente
+                     (setq ok true)
+                     (setf (*current* riga) (- (*current* riga) elementi))
+                     (println "row: " riga { - } "elementi: " elementi)
+                     (show-position *start* *current*)
+                     (if (game-end?) (println "YOU WIN !!!"))
+                   )
+             )
+            )
+       )
+     )
+  )
+)
+
+Giochiamo una partita:
+
+(nim '(1 3 5 7) '(1 3 5 7))
+;->        |
+;->      | | |
+;->    | | | | |
+;->  | | | | | | |
+;-> ...
+
+(canwin? '(1 3 5 7))
+;-> nil
+
+(move-human '(0 1))
+;-> row: 0 - elementi: 1
+;->        .
+;->      | | |
+;->    | | | | |
+;->  | | | | | | |
+
+(move-ai)
+row: 1 - elementi: 1
+;->        .
+;->      . | |
+;->    | | | | |
+;->  | | | | | | |
+;-> ...
+
+(move-human '(3 6))
+;-> row: 3 - elementi: 6
+;->        .
+;->      . | |
+;->    | | | | |
+;->  . . . . . . |
+;-> ...
+
+(move-ai)
+;-> row: 2 - elementi: 2
+;->        .
+;->      . | |
+;->    . . | | |
+;->  . . . . . . |
+;-> ...
+
+(move-human '(2 1))
+;-> row: 2 - elementi: 1
+;->        .
+;->      . | |
+;->    . . . | |
+;->  . . . . . . |
+;-> ...
+
+(move-ai)
+;-> row: 3 - elementi: 1
+;->        .
+;->      . | |
+;->    . . . | |
+;->  . . . . . . .
+;-> ...
+
+(move-human '(2 2))
+;-> row: 2 - elementi: 2
+;->        .
+;->      . | |
+;->    . . . . .
+;->  . . . . . . .
+;-> ...
+
+(move-ai)
+;->        .
+;->      . . .
+;->    . . . . .
+;->  . . . . . . .
+;-> I WIN !!!
 
 
