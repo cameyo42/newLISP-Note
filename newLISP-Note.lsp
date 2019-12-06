@@ -417,6 +417,12 @@ APPENDICI
 BIBLIOGRAFIA / WEB
 ==================
 
+DOCUMENTAZIONE EXTRA
+====================
+  A) Introduction to newLISP (by Cormullion)
+  B) The Little newLISPER (wip)
+
+
 ==========================================================================
 
 LICENSE

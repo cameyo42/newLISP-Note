@@ -17,7 +17,7 @@ Appunti sul linguaggio newLISP
 10) Appendici (20)  
 11) Bibliografia  
 
-Documentazione Extra:
-A) Introduction to newLISP (by Cormullion)
-B) The Little newLISPER (wip)
+Documentazione Extra:  
+A) Introduction to newLISP (by Cormullion)  
+B) The Little newLISPER (wip)  
 
