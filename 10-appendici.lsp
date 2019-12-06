@@ -1710,11 +1710,9 @@ La seguente macro permette proprio questo:
 Usando il nostro repeat-until possiamo scrivere:
 
  (setq i 0)
-
  (repeat-until (> i 5)
   (println i)
   (inc i))
-
   ;  => 0 1 2 3 4 5
 
 Le macro possono diventare complesse abbastanza rapidamente. Un trucco per convalidarle è sostituire eval con list o println per verificare l'aspetto dell'espansione appena prima di essere valutata:

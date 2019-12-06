@@ -69,6 +69,7 @@ newLISP IN GENERALE
   Hash-Map e dizionari
   CAR e CDR in newLISP
   Espressioni regolari
+  Macro
 
 FUNZIONI VARIE
 ==============
@@ -415,6 +416,12 @@ APPENDICI
 
 BIBLIOGRAFIA / WEB
 ==================
+
+DOCUMENTAZIONE EXTRA
+====================
+  A) Introduction to newLISP (by Cormullion)
+  B) The Little newLISPER (wip)
+
 
 ==========================================================================
 

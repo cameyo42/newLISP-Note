@@ -1314,7 +1314,7 @@ Percorsi in una griglia
 Partendo dall'angolo in alto a sinistra di una griglia 2 × 2, e potendo solo spostarsi verso destra e verso il basso, ci sono esattamente 6 percorsi diversi per raggiungere l'angolo in basso a destra.
 
 Quanti percorsi ci sono attraverso una griglia 20 × 20?
-P==============
+==============
 
 Quello che ci interessa è la distanza tra le coordinate di inizio e fine, cioè la dimensione della griglia: 20.
 

@@ -14,7 +14,7 @@ Maggiori informazioni sono reperibili al sito ufficiale del linguaggio:
 
 http://www.newLISP.org/
 
-Questo documento è in continua evoluzione e aggiornamento ed è scritto non da un programmatore professionista, ma da un principiante che studia ed utilizza newLISP per divertimento e per risolvere problemi di matematica ricreativa. Qualche volta (ultimamente sempre più spesso) uso newLISP anche nel mio lavoro quotidiano. 
+Questo documento è in continua evoluzione e aggiornamento ed è scritto non da un programmatore professionista, ma da un principiante che studia ed utilizza newLISP per divertimento e per risolvere problemi di matematica ricreativa. Qualche volta (ultimamente sempre più spesso) uso newLISP anche nel mio lavoro quotidiano.
 Consigli, correzioni e suggerimenti sono i benvenuti.
 
 Per convenzione i comandi di input della REPL non contengono il prompt di newLISP ">".
@@ -5854,7 +5854,7 @@ Ovviamente anche le parentesi tonde, possono essere usate con quei metacaratteri
 
 Ma le parentesi tonde sono molto importanti anche e soprattutto perche le parti di stringa (o le espressioni) in esse contenute, possono essere "utilizzate" per vari scopi (un replace per dirne uno), ma lo vedremo più avanti quando faremo un cenno alle funzioni PHP sulle Espressioni Regolari.
 
-Descriviamo adesso brevemente, gli altri metacaratteri. 
+Descriviamo adesso brevemente, gli altri metacaratteri.
 
 "."
 Partiamo dal punto che sta per qualsiasi carattere escluso un accapo, per cui, ad esempio, l’espressione (.)+ indica qualsiasi carattere ripetuto una o più volte (nella pratica è difficile che questo modello non trovi corrispondenza…).
@@ -5889,6 +5889,458 @@ Analogamente, esistono delle classi di caratteri predefinite:
 [[:punct:]] indica i caratteri di punteggiatura
 [[:xdigit:]] indica i valori esadecimali
 
-Che ci crediate o no, le poche regole appena esplicate (che non esauriscono l’argomento, comunque) sono sufficienti a permetterci di lavorare con le Espressioni Regolari e a costruire, quindi, dei validi modelli per gli scopi che ci proponiamo, mi preme solo aggiungerne una dettata dalla mia esperienza personale: prima di accingervi a costruire l’Espressione, è fondamentale che abbiate in mente l’esatto modello che volete riprodurre, le parti di cui esso si compone, in altre parole, che sappiate esattamente ciò che volete cercare delimitandone correttamente i confini.
+Che ci crediate o no, le poche regole appena esplicate (che non esauriscono l’argomento, comunque) sono sufficienti a permetterci di lavorare con le Espressioni Regolari e a costruire, quindi, dei validi modelli per gli scopi che ci proponiamo. Un consiglio: prima di accingervi a costruire l’espressione, è fondamentale che abbiate in mente l’esatto modello che volete riprodurre, le parti di cui esso si compone, in altre parole, che sappiate esattamente ciò che volete cercare delimitandone correttamente i confini.
+
+
+=====
+MACRO
+=====
+
+Prima di tutto vediamo con la descrizione del manuale della funzione "define-macro":
+
+*************************
+>>>funzione DEFINE-MACRO
+*************************
+sintassi: (define-macro (sym-name [sym-param-1 ...]) body)
+sintassi: (define-macro (sym-name [(sym-param-1 exp-default) ...]) body)
+
+Le funzioni definite usando "define-macro" sono chiamate fexpr in altri LISP in quanto non effettuano l'espansione delle variabili. In newLISP sono ancora chiamate macro, perché sono scritte con lo stesso scopo di creare forme di sintassi speciali con schemi di valutazione non standard degli argomenti. Le funzioni create usando "define-macro" possono essere combinate con le funzioni di espansione "expand" o "letex".
+
+Dalla v.10.5.8, newLISP ha anche una macro di espansione utilizzando la funzione "macro".
+
+Definisce una nuova fexpr di nome sym-name, con argomenti opzionali sym-param-1. "define-macro" equivale ad assegnare un'espressione lambda-macro ad un simbolo. Quando viene chiamata una funzione "define-macro", gli argomenti non valutati vengono assegnati alle variabili in sym-param-1 .... Quindi vengono valutate le espressioni del corpo. Quando si valuta la funzione "define-macro", viene restituita l'espressione lambda-macro.
+
+(define-macro (my-setq p1 p2) (set p1 (eval p2)))
+→ (lambda-macro (p1 p2) (set p1 (eval p2)))
+
+(my-setq x 123)  → 123
+x                → 123
+
+Nuove funzioni possono essere create per comportarsi come funzioni integrate che ritardano la valutazione di determinati argomenti. Poiché le fexpr possono accedere agli argomenti all'interno di una lista di parametri, possono essere utilizzate per creare funzioni di controllo del flusso come quelle già presenti in newLISP.
+
+Tutti i parametri definiti sono opzionali. Quando una macro viene chiamata senza argomenti, tali parametri assumono il valore nil. Se tali parametri hanno un valore predefinito specificato in exp-default, assumono quel valore predefinito.
+
+(define-macro (foo (a 1) (b 2))
+  (list a b))
+
+(foo)      → (1 2)
+(foo 3)    → (3 2)
+(foo 3 4)  → (3 4)
+
+Le espressioni in exp-default vengono valutate nell'ambiente della funzione corrente.
+
+(define-macro (foo (a 10) (b (div a 2)))
+  (list a b))
+
+(foo)      → (10 5)
+(foo 30)   → (30 15)
+(foo 3 4)  → (3 4)
+
+Si noti che nelle fexprs esiste il pericolo di passare un parametro con lo stesso nome di una variabile usata nella definizione di "define-macro". In questo caso, la variabile interna della fexpr finirebbe per ricevere nil invece del valore previsto:
+
+;; not a good definition!
+
+(define-macro (my-setq x y) (set x (eval y)))
+
+;; symbol name clash for x
+
+(my-setq x 123)  → 123
+x                → nil
+
+Esistono diversi metodi che possono essere utilizzati per evitare questo problema, noto come "cattura delle variabili", scrivendo delle macro "igieniche":
+
+Inserire la definizione nel proprio contesto dello spazio dei nomi lessicamente chiuso. Se la funzione ha lo stesso nome del contesto, può essere chiamata utilizzando solo il nome del contesto. Una funzione con questa caratteristica è chiamata funzione di default (funtore di default). Questo è il metodo preferito in newLISP per scrivere macro-definizioni.
+
+Utilizzare args per accedere agli argomenti passati dalla funzione.
+
+;; a define-macro as a lexically isolated function
+;; avoiding variable capture in passed parameters
+
+(context 'my-setq)
+
+(define-macro (my-setq:my-setq x y) (set x (eval y)))
+
+(context MAIN)
+
+(my-setq x 123)  → 123  ; no symbol clash
+x                → 123
+
+La definizione nell'esempio è isolata dal punto di vista lessicale e non può verificarsi alcuna cattura di variabile. Invece di chiamare la funzione usando (my-setq:my-setq ...), può essere chiamata con solo (my-setq ...) perché è una funzione di default.
+
+La seconda possibilità è di fare riferimento ai parametri passati usando args:
+
+;; avoid variable capture in macros using the args function
+
+(define-macro (my-setq) (set (args 0) (eval (args 1))))
+
+Vedi anche la funzione di espansione "macro" che non risente della cattura delle variabili.
+----------
+
+Una macro è un tipo speciale di funzione che possiamo usare per modificare il modo in cui newLISP valuta il codice. Per esempio, è possibile creare nuovi tipi di funzioni di controllo di flusso, come la propria versione di if o di case.
+Con le macro, possiamo creare dei costrutti altamente personalizzati. In verità, le macro di newLISP sono "fexprs", non macro. In newLISP, le "fexprs" vengono chiamate macro perché hanno uno scopo simile alle macro in altri LISP.
+
+Il concetto fondamentale delle macro è il metodo di valutazione delle espressioni: in una funzione ordinaria gli argomenti delle espressioni vengono valutati per primi, mentre in una funzione macro possiamo decidere se e quando valutare gli argomenti.
+
+Vediamo un esempio, supponiamo di voler creare la nostra funzione "if" con una funzione ordinaria:
+
+(define (iff test true-action nil-action)
+  (if test true-action nil-action))
+
+Adesso eseguiamo la nostra funzione con un test vero (true) e un test falso (nil):
+
+(iff (> 3 2) (println "vero") (println "falso"))
+;-> vero
+;-> falso
+;-> "vero"
+
+(iff (< 3 2) (println "vero") (println "falso"))
+;-> vero
+;-> falso
+;-> "falso"
+
+Il risultato non è quello che volevamo: qualunque sia il risultato del test, vengono sempre stampati entrambi i valori (vero e falso) prima del risultato dell'azione. Questo perchè newLISP valuta gli argomenti prima della valutazione (applicazione) della funzione "iff".
+
+Per risolvere il problema utilizziamo una macro:
+
+(define-macro (iff test true-action nil-action)
+  (if test true-action nil-action))
+
+proviamo la nostra macro:
+
+(iff (> 3 2) (println "vero") (println "falso"))
+;-> (println "vero")
+
+(iff (< 3 2) (println "vero") (println "falso"))
+;-> (println "vero")
+
+Anche in questo caso non abbiamo ottenuto il risultato sperato: questo è dovuto al fatto che la nostra macro non valuta affatto gli argomenti e quindi restituisce sempre un'espressione non valutata (in questo caso (println "vero")). Per fare in modo che la macro valuti gli argomenti occorre utilizzare la funzione "eval", che ci permette di effettuare la valutazione delle espressioni in modo sequenziale:
+
+(define-macro (iff test true-action nil-action)
+  (if (eval test) (eval true-action) (eval nil-action)))
+
+(iff (> 3 2) (println "vero") (println "falso"))
+;-> vero
+;-> "vero"
+
+(iff (< 3 2) (println "vero") (println "falso"))
+;-> (println "vero")
+;-> falso
+;-> "falso"
+
+Finalmente la nostra macro "iff" si comporta correttamente.
+
+Vediamo una altro esempio, questa volta creiamo una funzione di assegnazione "qset":
+
+(define-macro (qset simb val)
+  (set simb (eval val)))
+
+In questo caso il simbolo "simb" non viene valutato e rimane in forma simbolica (è come se fosse quotato). Invece il simbolo "val" viene valutato e il valore risultante viene poi assegnato a "simb".
+
+(qset a (+ 20 10))
+;-> 30
+a
+;-> 30
+
+Problema: la cattura delle variabili
+------------------------------------
+Il problema principale delle macro è dovuto alla possibile sovrapposizione (cioè nomi uguali) tra i simboli utilizzati dalla macro e i simboli utilizzati dal programma chiamante.
+Vediamo un esempio per capire meglio di cosa si tratta. Supponiamo di chiamare la nostra ultima macro "qset" nel modo seguente:
+
+(qset val (+ 20 10))
+;-> 30
+val
+;-> nil
+
+(qset simb (+ 20 10))
+;-> 30
+simb
+;-> nil
+
+In questi casi la nostra macro non ha effettuato alcuna assegnazione, poichè le espressioni:
+(setq simb (+ 20 10)) e (setq val (+ 20 10)) impostano il valore delle variabili/simboli locali "simb" e "val". Quando questo accade, si dice che la variabile "val" (e "simb") è stata catturata durante l'"espansione" della macro.
+Il linguaggio Scheme permette di scrivere macro "igieniche", nel senso che la sovrapposizione delle variabili viene risolta automaticamente dall'interprete del linguaggio, quind i simboli con lo stesso nome non creano effetti indesiderati. Purtroppo newLISP non ha questa funzionalità, quindi dobbiamo risolvere in altro modo il problema della "cattura delle variabili".
+
+Possiamo utilizzare uno dei seguenti tre metodi per evitare la "cattura delle variabili".
+
+Metodo 1: uso di variabili con underscore "_"
+---------------------------------------------
+Decidiamo di utilizziamo il carattere underscore "_" come prefisso per ogni variabile della macro.
+Inoltre decidiamo di non utilizziamo il carattere underscore "_" come prefisso per le variabile del codice newLISP standard.
+Ad esempio, la macro "qset" viene scritta nel modo seguente:
+
+(define-macro (qset _simb _val)
+  (set _simb (eval _val)))
+
+(qset a (+ 20 10))
+;-> 30
+a
+;-> nil
+
+Abbiamo soltanto "aggirato" il problema, infatti:
+
+(qset _simb (+ 20 10))
+;-> 30
+_simb
+;-> nil
+
+Si tratta di una soluzione naif, che però si adatta bene ai principi pratici di newLISP.
+
+Nota: questa soluzione può essere considerata nel caso di un solo programmatore, oppure previo accordo tra il team di programmatori che lavorano al programma.
+
+Metodo 2: uso della funzione "args"
+-----------------------------------
+Utilizziamo la funzione "args" per estrarre le variabili locali dai parametri.
+In questo caso, la macro "qset" diventa:
+
+(define-macro (qset)
+  (set (args 0) (eval (args 1))))
+
+(qset _simb (+ 20 10))
+;-> 30
+_simb
+;-> 30
+
+Possiamo anche utilizzare la funzione "letex" che ci permette di espandere gli argomenti ed assegnarli alle variabili locali della macro:
+
+(define-macro (qset)
+  (letex (_simb (args 0)
+          _val  (args 1))
+  (set _simb (eval _val))))
+
+(qset _simb (+ 20 10))
+;-> 30
+_simb
+;-> 30
+
+Comunque se esiste un simbolo globale con lo stesso nome di una variabile della macro, oppure se passiamo alla macro un parametro con lo stesso nome di una variabile (anche locale) della macro, oppure ricadiamo nella "cattura delle variabili".
+
+Esempio:
+
+(setq _simb 10)
+;-> 10
+
+(qset _simb (+ 20 10))
+;-> 30
+_simb
+;-> 10 ; il valore della variabile _simb non è cambiato
+
+Altro esempio:
+
+(define-macro (demo param)
+  (println "y globale = " y)
+  (let (y 10)
+    (println "y locale = " y)
+    (setq param (add (eval param) y))))
+
+(setq y 3)
+(demo y)
+;-> 20
+y
+;-> 3  ; anche in questo caso il valore della variabile y non è cambiato
+
+Metodo 3: uso di un contesto (context)
+--------------------------------------
+Utilizziamo un contesto con lo stesso nome della macro. Inoltre utilizziamo la funzione "args" per assegnare i parametri alle variabili locali della macro.
+In questo caso, la macro "qset" viene scritta nel modo seguente:
+
+(context 'qset)
+
+(define-macro (qset:qset)
+  (letex (_simb (args 0)
+          _val  (args 1))
+  (setq _simb (eval _val))))
+
+(context MAIN)
+
+(qset a (+ 20 10))
+;-> 30
+a
+;-> 30
+
+(setq _simb 10)
+(qset _simb (+ 20 10))
+;-> 30
+_simb
+;-> 30 ; questa volta la variabile globale _simb è stata modificata.
+
+Nota: questo è il metodo più sicuro per evitare la "cattura delle variabili". Anche perchè il simbolo "qset" è protetto perchè è un contesto (context).
+
+(context? qset)
+;-> true
+(setq qset 1)
+;-> ERR: symbol is protected in function setf : qset
+
+La chiamata alla funzione (args) restituisce l'elenco di tutti gli argomenti passati alla lambda-macro (cioè tutti quelli che non vengono assegnati durante la chiamata tramite i parametri). Questo ci permette di estendere la funzione "qset" in modo che sia possibile effettuare assegnazioni multiple.
+La nuova funzione "mset" è la seguente:
+
+(define-macro (mset)
+  (eval (cons 'setq (args))))
+
+La funzione cons unisce una lista con un nuovo primo elemento (inserisce un elemento al primo posto di una lista):
+
+(cons 1 '(2 3))
+;-> (1 2 3)
+
+Adesso possiamo associare/utilizzare un numero variabile di argomenti:
+
+(mset x 10 y 11)
+;-> 11
+x
+;-> 10
+y
+;-> 11
+
+Quindi la macro prima costruisce l'espressione simbolica mostrata sotto:
+
+'(setq x 10 y 11)
+
+Poi questa espressione viene valutata.
+
+Lo scopo principale delle macro è quello di estendere la sintassi del linguaggio.
+
+Debug delle macro
+-----------------
+Le macro sono abbastanza complesse da scrivere, soprattutto quando dobbiamo testare e verificare la loro correttezza. Possiamo usare il debug di newLISP, ma è più difficile rispetto ad una funzione standard.
+Un metodo utile è quello di sostituire la funzione "eval" con la funzione "list" o "println" per verificare l'aspetto dell'espressione espansa prima di essere valutata.
+
+Supponiamo di voler creare una macro che implementi il controllo "dolist-while":
+
+(define-macro (dolist-while)
+  (letex (_var (args 0 0) ; variabile del ciclo
+          _lst (args 0 1) ; lista
+          _cnd (args 0 2) ; condizione
+          _body (cons 'begin (1 (args)))) ; corpo della funzione
+    (let (_y)
+    (println (args 0 0) { - } _lst)
+    (catch (dolist (_var _lst)
+    (if (set '_y _cnd) _body (throw _y)))))))
+
+Abbiamo inserito una println per "vedere" cosa accade all'interno della macro.
+
+Proviamo la nostra macro:
+
+(dolist-while (x (sequence 15 0) (> x 10))
+  (println {x is } (dec x 1)))
+;-> x - (15 14 13 12 11 10 9 8 7 6 5 4 3 2 1 0)
+;-> x is 14
+;-> x is 13
+;-> x is 12
+;-> x is 11
+;-> x is 10
+
+Nota: questa macro non è immune dal problema della "cattura delle variabili", infatti se passiamo alla macro la variabile _y, otteniamo un errore:
+
+(dolist-while (_y (sequence 15 0) (> _y 10))
+  (println {_y is } (dec _y 1)))
+;-> _y - (15 14 13 12 11 10 9 8 7 6 5 4 3 2 1 0)
+;-> _y is
+;-> ERR: value expected in function dec : true
+;-> called from user function (dolist-while (_y (sequence 15 0) (> _y 10))
+;-> (println "_y is " (dec _y 1)))
+
+Macro di esempio
+----------------
+Vediamo altri esempi di macro presi dal forum di newLISP. Alcuni sono abbastanza complessi.
+Nota: per ogni macro viene riportato anche il nome del creatore (quando conosciuto).
+
+macro "ecase" (Dmitry)
+------------
+Questa macro (a differenza della funzione built-in "case") valuta le espressioni di confronto (test).
+
+(define-macro (ecase _v)
+  (eval (append
+          (list 'case _v)
+          (map (fn (_i) (cons (eval (_i 0)) (rest _i))) (args)))))
+
+(define (test n)
+  (ecase n
+    ((/ 4 4) (println "n vale 1"))
+    ((- 12 10) (println "n vale 2"))))
+
+(define-macro (test n)
+  (ecase n
+    ((/ 4 4) (println "n vale 1"))
+    ((- 12 10) (println "n vale 2"))
+    (true (println "n diverso da 1 e 2"))))
+
+(test 1)
+;-> n vale 1
+
+(test 2)
+;-> n vale 2
+
+(test 3)
+;-> n diverso da 1 e 2
+
+Come possiamo notare le espressioni (/ 4 4), (- 12 10) e true sono state tutte valutate. Con la versione standard di "case", queste espressioni non sarebbero state valutate.
+
+macro "create-functions" (Cormullion)
+------------------------
+Questa macro crea nuove funzioni.
+
+(define-macro (create-functions group-name)
+  (letex
+    ((f1 (sym (append (term group-name) "1")))
+     (f2 (sym (append (term group-name) "2"))))
+    (define (f1 arg) (+ arg 1))
+    (define (f2 arg) (+ arg 2))))
+
+; creazione di due funzioni che iniziano con "foo":
+(create-functions foo)
+(foo1 10)
+;-> 11
+(foo2 10)
+;-> 12
+(create-functions bar)
+; crea due funzioni che iniziano con "bar":
+(bar1 12)
+;-> 13
+(bar2 12)
+;-> 14
+
+macro "tracer"
+--------------
+Questa macro crea un file di log di tutte le funzioni eseguite (tracer).
+Il codice seguente modifica il funzionamento di newLISP in modo che ogni funzione definita usando define aggiunga, quando valutata, il suo nome e i suoi argomenti in un file di log. Quando si esegue uno script, il file di log conterrà un record delle funzioni e degli argomenti che sono stati valutati.
+
+(context 'tracer)
+
+(define-macro (tracer:tracer farg)
+  (set (farg 0)
+    (letex (func (farg 0)
+            arg (rest farg)
+            arg-p (cons 'list (map (fn (x) (if (list? x) (first x) x))
+                   (rest farg)))
+            body (cons 'begin (args)))
+            (lambda
+                arg
+                (append-file
+                  (string (env "HOME") "/trace.log")
+                  (string 'func { } arg-p "\n"))
+             body))))
+
+(context MAIN)
+
+(constant (global 'newLISP-define) define)
+
+; ridefinisce la funzione built-in "define"
+(constant (global 'define) tracer)
+
+Per verificare l'uso di questa macro occorre prima caricare lo script dalla REPL:
+
+(load "tracer.lsp")
+
+Il file di log generato contiene la lista di tutte le funzioni chiamate e gli argomenti che hanno ricevuto.
+
+Nota: questa macro rallenta notevolmente l'esecuzione dei programmi.
+
+macro "println-unix" (Lutz)
+--------------------
+Questa macro permette di scrivere file con unix EOL (End Of Line) '\n' in windows.
+In windows il carattere EOL vale '\r\n'.
+
+(define-macro (println-unix)
+    (apply print (map eval (args)))
+    (print "\n"))
 
 
