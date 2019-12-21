@@ -1826,14 +1826,45 @@ Un modo elegante per ritornare al prompt senza intervento dell'utente è il segu
 Trasformare una lista di stringhe in lista di simboli
 -----------------------------------------------------
 
+Partendo da una stringa:
+
 (setq str "Questa è la stringa da convertire")
 ;-> "Questa è la stringa da convertire"
+
+Creiamo una lista di stringhe:
 
 (setq lst (parse str))
 ;-> ("Questa" "è" "la" "stringa" "da" "convertire")
 
+Infine convertiamo la lista di stringhe in lista di simboli:
+
 (map sym lst)
 ;-> (Questa è la stringa da convertire)
+
+
+-----------------------------------------------------
+Trasformare una lista di simboli in lista di stringhe
+-----------------------------------------------------
+
+Convertiamo una lista di simboli in una lista di stringhe:
+
+(map string '(uno due tre))
+;-> ("uno" "due" "tre")
+
+Con una macro possiamo passare tutti i simboli senza usare una lista:
+
+(define-macro (str-m) (map string (args)))
+;-> (lambda-macro () (map string (args)))
+
+(str-m uno due tre)
+;-> ("uno" "due" "tre")
+
+Una funzione non risolve il problema perchè prima di applicare "string" i parametri (args) vengono valutati (a nil):
+
+(define (str-f) (map string (args)))
+
+(str-f uno due tre)
+;-> ("nil" "nil" "nil")
 
 
 --------------------------

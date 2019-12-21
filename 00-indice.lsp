@@ -70,6 +70,7 @@ newLISP IN GENERALE
   CAR e CDR in newLISP
   Espressioni regolari
   Macro
+  FOOP - Programmazione funzionale orientata agli oggetti
 
 FUNZIONI VARIE
 ==============
@@ -114,6 +115,7 @@ FUNZIONI VARIE
   Emettere un beep
   Disabilitare l'output delle espressioni
   Trasformare una lista di stringhe in lista di simboli
+  Trasformare una lista di simboli in lista di stringhe
   Simboli creati dall'utente
   Il programma è in esecuzione ? (progress display)
   Ispezionare una cella newLISP
@@ -220,6 +222,7 @@ ROSETTA CODE
   Toziente di Eulero
   Numeri Vampiri
   Il gioco del Nim
+  Fibonacci sequenze di n-numeri
 
 PROJECT EULERO
 ==============
@@ -348,6 +351,7 @@ NOTE LIBERE
 ===========
   Perchè newLISP?
   newLISP facile
+  Apprendere newLISP
   Commentare righe di codice
   Stile del codice newLISP
   Controllare l'output della REPL (prettyprint)
@@ -390,6 +394,11 @@ NOTE LIBERE
   Un algoritmo: matrice con somme positive
   Dadi e probabilità
   Test Vettori e Liste
+  Un motore per espressioni regolari
+  Insiemi (set) senza reinserimento
+  Funzioni con parametri nominali
+  La funzione COMMAND-EVENT
+  Massimo Comun Divisore (MCD)
 
 APPENDICI
 =========
@@ -421,7 +430,6 @@ DOCUMENTAZIONE EXTRA
 ====================
   A) Introduction to newLISP (by Cormullion)
   B) The Little newLISPER (wip)
-
 
 ==========================================================================
 

@@ -4712,6 +4712,58 @@ I contesti devono essere utilizzati per raggruppare le funzioni correlate quando
 
 In seguito vedremo che newLISP utilizza i contesti per diverse forme di ambiti lessicali.
 
+Perchè newLISP usa l'ambito dinamico?
+Lutz: I pericoli dell'ambito dinamico sono ampiamente sopravvalutati e per questo motivo, le possibilità dell'ambito dinamico sono quasi inesplorate.
+
+Nel corso degli anni, non abbiamo quasi mai visto l'ambito dinamico come un problema. Laddove il pericolo è in qualche modo presente, si trova nelle fexprs 'define-macro' e tale pericolo può essere facilmente evitato usando gli spazi dei nomi. Esistono pochissime ragioni nello stile di programmazione di newLISP per passare simboli quotati alle funzioni "define", ci sono altri modi sicuri per passare i dati per riferimento in newLISP, ovvero tramite gli handle degli spazi dei nomi.
+
+Puoi avere un isolamento lessicale usando gli spazi dei nomi, che hanno un sovraccarico minimo in newLISP: puoi letteralmente averne milioni. Le fexpr in stile 'define-macro' possono essere inserite nel proprio contesto dello spazio dei nomi e quindi sono completamente sicure. Generalmente, lo stile migliore di programmazione in newLISP è quello di inserire dati, funzioni e fexprs correlati in un contesto di spazio dei nomi.
+
+L'assenza delle chiusure lessicali di Scheme consente a newLISP di eseguire un diverso tipo di gestione automatica della memoria - non la tradizionale garbage collection, ma un tipo sincrono di gestione della memoria - molto più veloce, senza pause inattese di garbage collection e molto più efficiente nell'uso delle risorse di memoria. Non c'è modo di scrivere un linguaggio completamente dinamico così piccolo e veloce come newLISP usando la tradizionale gestione della memoria della garbage collection.
+
+Vediamo un esempio:
+
+(define (sum f n)
+    (set 'result 0)
+    (for (i 1 n)
+        (inc result (f i)))
+    result)
+
+; works because no clash of free j in f with i in sum
+(for (j 1 5)
+    (define (f x) (pow x j))
+    (println j ": " (sum f 10)))
+
+; does not work, free i in f clashes with i in sum
+(for (i 1 5)
+     (define (f x) (pow x i))
+     (println i ": " (sum f 10)))
+
+; works with previous expansion of free variable
+(for (i 1 5)
+     (letex (e i) (define (f x) (pow x e))) ; expansion of free variable 
+     (println i ": " (sum f 10)))
+
+produce:
+
+1: 55
+2: 385
+3: 3025
+4: 25333
+5: 220825
+1: 1.040507132e+10
+2: 1.040507132e+10
+3: 1.040507132e+10
+4: 1.040507132e+10
+5: 1.040507132e+10
+1: 55
+2: 385
+3: 3025
+4: 25333
+5: 220825
+
+Le variabili libere nello scoping dinamico non sono pre-associate durante la definizione della funzione. Ma proprio come una chiusura di Scheme vincolerebbe le variabili libere al suo ambiente durante la definizione di f, lo stesso può essere fatto usando "letex" o "expand" associando la variabile libera durante la definizione della funzione.
+
 
 ==========
  CONTESTI
@@ -5892,11 +5944,11 @@ Analogamente, esistono delle classi di caratteri predefinite:
 Che ci crediate o no, le poche regole appena esplicate (che non esauriscono l’argomento, comunque) sono sufficienti a permetterci di lavorare con le Espressioni Regolari e a costruire, quindi, dei validi modelli per gli scopi che ci proponiamo. Un consiglio: prima di accingervi a costruire l’espressione, è fondamentale che abbiate in mente l’esatto modello che volete riprodurre, le parti di cui esso si compone, in altre parole, che sappiate esattamente ciò che volete cercare delimitandone correttamente i confini.
 
 
-=====
-MACRO
-=====
+=======
+ MACRO
+=======
 
-Prima di tutto vediamo con la descrizione del manuale della funzione "define-macro":
+Iniziamo con la descrizione del manuale della funzione "define-macro":
 
 *************************
 >>>funzione DEFINE-MACRO
@@ -5976,10 +6028,52 @@ La seconda possibilità è di fare riferimento ai parametri passati usando args:
 Vedi anche la funzione di espansione "macro" che non risente della cattura delle variabili.
 ----------
 
+In newLISP la differenza tra una funzione definita con 'define' e una con 'define-macro' è che 'define' valuterà tutti i suoi argomenti, mentre 'define-macro' no.
+
+Con 'define-macro' è possibile creare funzioni che si comportano e sembrano fiunctions built-in. Cioè la funzione (setq x y) non valuta l'argomento 'x', ma passa direttamente 'x' come simbolo. La normale (set 'x y) non funziona nello stesso modo perchè valuta entrambi i suoi argomenti.
+
+Un altro esempio è: (dolist (item mylist) .....). L'espressione (item mylist) non viene valutata ma passata in "dolist" per gestirla. Altrimenti, dovremmo citare facendo (dolist '(item mylist) ...).
+
+Le macro non vengono utilizzate molto spesso, ma quando vengono utilizzate possono essere utili e importanti. 
+
+Abbiamo bisogno delle macro solo quando non vogliamo che una funzione valuti immediatamente i suoi argomenti. Per esempio:
+
+(define (calc e)
+  (println "the answer to " e " is " (eval e)))
+
+(calc (+ 2 2))
+
+;-> the answer to 4 is 4
+
+(define-macro (calc e)
+  (println "the answer to " e " is " (eval e)))
+
+(calc (+ 2 2))
+
+;-> the answer to (+ 2 2) is 4
+
+La funzione non produce il risultato voluto, perché vede solo il '4', non l'espressione. La macro è migliore, perché "e" viene valutata solo quando vogliamo che sia valutata, dandoci la possibilità di utilizzarla anche come espressione non valutata.
+
+Comunque le macro possono anche estendere il linguaggio con nuove funzioni. L'esempio seguente implementa la funzione "defun" come si trova nel Common LISP. Senza 'define-macro' questo sarebbe impossibile:
+
+; Esempio d'uso: (defun foo (x y z) ....)
+
+(define-macro (defun _func-name _arguments)
+      (set _func-name (append
+        '(lambda )
+         (list _arguments)
+         (args))))
+
+;(defun foo (x y z) ....)
+
+Senza 'define-macro' potremmo scrivere solo un 'defun' in cui sia il nome della funzione (cioè foo) che l'elenco dei parametri (cioè (x y z)) dovrebbero essere quotati.
+
 Una macro è un tipo speciale di funzione che possiamo usare per modificare il modo in cui newLISP valuta il codice. Per esempio, è possibile creare nuovi tipi di funzioni di controllo di flusso, come la propria versione di if o di case.
 Con le macro, possiamo creare dei costrutti altamente personalizzati. In verità, le macro di newLISP sono "fexprs", non macro. In newLISP, le "fexprs" vengono chiamate macro perché hanno uno scopo simile alle macro in altri LISP.
 
 Il concetto fondamentale delle macro è il metodo di valutazione delle espressioni: in una funzione ordinaria gli argomenti delle espressioni vengono valutati per primi, mentre in una funzione macro possiamo decidere se e quando valutare gli argomenti.
+
+In altre parole, in newLISP la funzione "define-macro" crea delle funzioni(macro) in cui gli argomenti non sono valutati: se abbiamo una variabile/simbolo x con valore 10 e la passiamo ad una macro, allora il valore visto dalla macro è x e non 10.
 
 Vediamo un esempio, supponiamo di voler creare la nostra funzione "if" con una funzione ordinaria:
 
@@ -6029,7 +6123,39 @@ Anche in questo caso non abbiamo ottenuto il risultato sperato: questo è dovuto
 
 Finalmente la nostra macro "iff" si comporta correttamente.
 
-Vediamo una altro esempio, questa volta creiamo una funzione di assegnazione "qset":
+Adesso creiamo una macro che effettua un ciclo su una funzione. Il primo tentativo è quello di scrivere la funzione seguente:
+
+(define (loop _func) (while true _func))
+
+Proviamo:
+
+(loop (println "."))
+;-> .
+Otteniamo un crash della REPL.
+
+Quando l'argomento della funzione (println ".") viene passato alla funzione, viene valutato e restituisce ".". Poi all'interno della funzione troviamo (while true "."), che ferma l'esecuzione del programma senza alcun output.
+
+Usando 'define-macro' lasciamo (println ".") non valutato e otteniamo:
+
+(while true (eval '(println ".")))
+
+che viene valutato correttamente.
+
+Con la seguente macro otteniamo il comportamento voluto:
+
+(define-macro (loop _func) (while true (eval _func)))
+
+Proviamo (premere Ctrl-C per terminare il programma):
+
+(loop (println "."))
+;-> .
+;-> .
+;-> .
+Ctrl-C
+;-> ERR: received SIGINT - in function println
+;-> called from user function (loop (println ".")).
+
+Vediamo un altro esempio, questa volta creiamo una funzione di assegnazione "qset":
 
 (define-macro (qset simb val)
   (set simb (eval val)))
@@ -6040,6 +6166,43 @@ In questo caso il simbolo "simb" non viene valutato e rimane in forma simbolica 
 ;-> 30
 a
 ;-> 30
+
+Cerchiamo di capire come funziona una macro con altri esempi. Definiamo una macro che crea una lista con i due parametri passati alla macro:
+
+(define-macro (f1 _x _y) (list _x _y))
+
+La macro restituisce una lista con i valori passati:
+
+(f1 1 2)
+;-> (1 2)
+(f1 a b)
+;-> (a b)
+
+Proviamo a cambiare la macro ponendo la funzione "list" all'interno di una funzione lambda:
+
+(define-macro (f2 _x _y) (lambda () (list _x _y)))
+
+Adesso la macro restituisce la funzione lambda non valutata:
+
+(f2 1 2)
+;-> (lambda () (list _x _y))
+
+Quindi define-macro è define-lazy (non valuta la funzione lambda al suo interno).
+Possiamo utilizare la funzione "expand" per espandere le variabili:
+
+(define-macro (f3 _x _y) (expand (fn () (list _x _y)) '_x '_y))
+(f3 1 2)
+;-> (lambda () (list 1 2)
+
+Questo spiega perchè il seguente esempio non funziona come vorremmo:
+
+(define-macro (my-setq x y) (setq x (eval y)))
+(my-setq x 123)
+;-> 123
+x
+;-> nil
+
+La variabile x è locale alla define-macro e non può impostare il valore per l'ambiente dinamico superiore: si tratta del "problema della cattura delle variabili".
 
 Problema: la cattura delle variabili
 ------------------------------------
@@ -6111,6 +6274,8 @@ Possiamo anche utilizzare la funzione "letex" che ci permette di espandere gli a
 ;-> 30
 _simb
 ;-> 30
+
+La funzione "letex" funziona come qualsiasi altra espressione lambda in quanto localizza le variabili di un ambito dinamico che non è "igienico".
 
 Comunque se esiste un simbolo globale con lo stesso nome di una variabile della macro, oppure se passiamo alla macro un parametro con lo stesso nome di una variabile (anche locale) della macro, oppure ricadiamo nella "cattura delle variabili".
 
@@ -6196,12 +6361,15 @@ Quindi la macro prima costruisce l'espressione simbolica mostrata sotto:
 
 Poi questa espressione viene valutata.
 
+Per capire le macro di newLISP dovresti anche familiarizzare con le seguenti funzioni: "expand", "letex" e "doargs".
+
 Lo scopo principale delle macro è quello di estendere la sintassi del linguaggio.
 
 Debug delle macro
 -----------------
 Le macro sono abbastanza complesse da scrivere, soprattutto quando dobbiamo testare e verificare la loro correttezza. Possiamo usare il debug di newLISP, ma è più difficile rispetto ad una funzione standard.
 Un metodo utile è quello di sostituire la funzione "eval" con la funzione "list" o "println" per verificare l'aspetto dell'espressione espansa prima di essere valutata.
+Infatti, non è possibile espandere le macro in Newlisp, poiché queste sono in realtà fexpr, che non si espandono. In molti casi è possibile sostituire eval esterno con println: in tal caso la chiamata alla macro stamperà ciò che si intendeva valutare.
 
 Supponiamo di voler creare una macro che implementi il controllo "dolist-while":
 
@@ -6238,13 +6406,127 @@ Nota: questa macro non è immune dal problema della "cattura delle variabili", i
 ;-> called from user function (dolist-while (_y (sequence 15 0) (> _y 10))
 ;-> (println "_y is " (dec _y 1)))
 
+Vediamo altri esempi. Il primo è l'implementazone della funzione "inc":
+
+(define-macro (my-inc _var)
+  (eval (list 'setq _var (list '+ 1 _var) ))
+)
+
+Proviamo:
+
+(setq i 0)
+(while (< i 5) (println (my-inc i)))
+;-> 1
+;-> 2
+;-> 3
+;-> 4
+;-> 5
+
+Notiamo che la macro costruisce codice che viene valutato dalla funzione "eval". In questo caso costruisce una lista che contiene (setq i (+ 1 i)) e poi la valuta. Se sostituiamo "eval" con "println" possiamo vedere il codice che deve essere valutato:
+
+(define-macro (my-inc _var)
+  (println (list 'setq _var (list '+ 1 _var) ))
+)
+
+(setq i 0)
+(while (< i 5) (println (my-inc i)))
+;-> (setq i (+ 1 i))
+;-> (setq i (+ 1 i))
+;-> (setq i (+ 1 i))
+...
+
+Alternativamente la macro potrebbe restituire la lista non valutata pronta per essere elaborata ulteriormente.
+
+Il secondo esempio è una replica del ciclo "for":
+
+(define-macro (mi-for var from init to final do body)
+  (eval
+    (list 'let (list (list var init))
+               (cons 'while (cons (list '<= var final)
+                             (append (list body)
+                               (list (list 'inc var))))))))
+
+In modo analogo in questo caso la macro costruisce un ciclo while che viene eseguito un certo numero di volte.
+
+Proviamo:
+
+(mi-for i from 1 to 5 do (println i))
+;-> 1
+;-> 2
+;-> 3
+;-> 4
+;-> 5
+;-> 6 ; valore restituito da "mi-for"
+
+Sostituiamo "eval" con "println":
+
+(define-macro (mi-for var from init to final do body)
+  (println
+    (list 'let (list (list var init))
+               (cons 'while (cons (list '<= var final)
+                             (append (list body)
+                               (list (list 'inc var))))))))
+
+(mi-for i from 1 to 5 do (println i))
+;-> (let ((i 1)) (while (<= i 5) (println i) (inc i)))
+
+Quindi le macro possono servire per costruire codice che può essere valutato successivamente.
+
+Adesso vediamo una macro scritta da John Small per capire come si applica la funzione "expand". La macro "expand-let" opera nello stesso modo della seguente espressione:
+
+(let ((x 1)(y 2)(z 3))
+  (expand '(x y z) 'x 'y 'z))
+;-> (1 2 3)
+
+(define (keys alist)
+  (map (fn (pair) (first pair)) alist))
+
+(keys '((x 1) (y 2) (z 3)))
+;-> (x y z)
+
+(define (bindings alist)
+  (map (fn (pair) (cons (first pair) (eval (last pair)))) alist))
+
+(bindings '((x 1) (y (+ 1 1)) (z 3)))
+;-> ((x 1) (y 2) (z 3))
+
+(define-macro (expand-let expr)
+  (let ((ks (keys (rest (args))))
+        (bs (bindings (rest (args)))))
+  (eval (expand '(let bs
+        (apply expand (cons (eval expr) (quote ks))))
+  'ks 'bs))))
+
+Comunque il risultato non è quello voluto:
+
+(expand-let '(x y z) (x 1) (y 2) (z 3))
+;-> (x 2 3)
+
+Abbiamo ottenuto "x" al posto di "1" (e non ho ancora capito perchè).
+Comunque se chiamiamo la macro aggiungendo un parametro con valore nil, allora tutto funziona:
+
+(expand-let '(x y z) nil (x 1) (y 2) (z (+ 1 2)))
+;-> (1 2 3)
+
+Nel frattempo Lutz ha fornito una versione compatta:
+
+(define-macro (expand-let)
+  (eval (append (list 'let (rest (args)))
+                (list (cons 'expand
+                             (append (list (first (args)))
+                             (map quote (map first (rest (args))))))))))
+
+(expand-let '(x y z) (x 1) (y (+ 1 1)) (z 3))
+;-> (1 2 3)
+
 Macro di esempio
 ----------------
-Vediamo altri esempi di macro presi dal forum di newLISP. Alcuni sono abbastanza complessi.
+Vediamo altri esempi di macro presi dal forum di newLISP per avere un'idea di quanto sono potenti. Alcune di queste macro sono abbastanza complesse, ma non spaventatevi... andate avanti.
+
 Nota: per ogni macro viene riportato anche il nome del creatore (quando conosciuto).
 
 macro "ecase" (Dmitry)
-------------
+----------------------
 Questa macro (a differenza della funzione built-in "case") valuta le espressioni di confronto (test).
 
 (define-macro (ecase _v)
@@ -6275,7 +6557,7 @@ Questa macro (a differenza della funzione built-in "case") valuta le espressioni
 Come possiamo notare le espressioni (/ 4 4), (- 12 10) e true sono state tutte valutate. Con la versione standard di "case", queste espressioni non sarebbero state valutate.
 
 macro "create-functions" (Cormullion)
-------------------------
+-------------------------------------
 Questa macro crea nuove funzioni.
 
 (define-macro (create-functions group-name)
@@ -6298,8 +6580,8 @@ Questa macro crea nuove funzioni.
 (bar2 12)
 ;-> 14
 
-macro "tracer"
---------------
+macro "tracer" (?)
+------------------
 Questa macro crea un file di log di tutte le funzioni eseguite (tracer).
 Il codice seguente modifica il funzionamento di newLISP in modo che ogni funzione definita usando define aggiunga, quando valutata, il suo nome e i suoi argomenti in un file di log. Quando si esegue uno script, il file di log conterrà un record delle funzioni e degli argomenti che sono stati valutati.
 
@@ -6335,12 +6617,1393 @@ Il file di log generato contiene la lista di tutte le funzioni chiamate e gli ar
 Nota: questa macro rallenta notevolmente l'esecuzione dei programmi.
 
 macro "println-unix" (Lutz)
---------------------
+---------------------------
 Questa macro permette di scrivere file con unix EOL (End Of Line) '\n' in windows.
 In windows il carattere EOL vale '\r\n'.
 
 (define-macro (println-unix)
     (apply print (map eval (args)))
     (print "\n"))
+
+macro "multiple-replace" (Lutz)
+-------------------------------
+Questa macro permette di effettuare modifiche multiple ad un testo.
+
+(set 'text "Sherlock Holmes")
+(set 'repls '(("Sherlock" "Ellery") ("Holmes" "Queen")))
+
+Codice standard:
+(dolist (r repls)
+    (replace (first r) text (last r)))
+
+Macro:
+(define-macro (replace-all)
+    (dolist (r (eval (args 0)))
+        (replace (first r) (eval (args 1)) (last r))))
+
+(replace-all repls text)
+;-> "Ellery Queen"
+text
+;-> "Ellery Queen"
+Questo metodo permette di tenere insieme le coppie di sostituire nel caso ci sia una lista lunga di modifiche.
+
+macro "destroy-func" (newdep)
+-----------------------------
+Questa macro permette di eseguire una funzione e poi eliminarla dal contesto.
+
+(define-macro (destroy-func)
+    (let (temp (eval (args)))
+      (delete (args 0))
+      temp))
+
+(define (foo x) (+ x x))
+
+(destroy-func foo 123)
+;-> 246
+
+(sym "foo" MAIN nil)
+;-> nil ; il simbolo foo non esiste più
+
+(foo 2)
+;-> ERR: invalid function : (foo 2)
+
+macro "rev-args" (Cormullion)
+-----------------------------
+Questa macro permette di eseguire una funzione/espressione con i parametri in ordine invertito.
+
+(define-macro (rev-args expr)
+  (apply (expr 0) (reverse (rest expr))))
+
+(rev-args (div 3 6))
+;-> 2
+
+macro "define!" (Cormullion)
+----------------------------
+Questa macro permette di definire funzioni che hanno la variabile "_selr" impostata con il loro nome.
+
+(define-macro (define! farg)
+  (set (farg 0)
+    (letex (func   (farg 0)
+            arg    (rest farg)
+            arg-p  (cons 'list (map (fn (x) (if (list? x) (first x) x))
+                     (rest farg)))
+            body   (cons 'begin (args)))
+           (lambda
+               arg (let (_self 'func) body)))))
+
+(define! (f a b c)
+   (println "I'm " _self)
+   (+ a b c))
+
+(define! (g a b c)
+   (println "and I'm " _self)
+   (+ a b c))
+
+(f 7 8 9)
+;-> I'm f
+;-> 24
+
+(g 10 11 12)
+;-> and I'm g
+;-> 33
+
+macro "second" (rickyboy)
+-------------------------
+Questa funzione estrae il secondo elemento di una lista e ritorna nil se questo elemento non esiste.
+
+Codice standard:
+(define (second xs)
+  (if (> (length xs) 1) (xs 1)))
+
+Macro:
+(define-macro (second)
+  (letex (xs (args 0)) (if (> (length xs) 1) (xs 1))))
+
+Se abbiamo delle sequenze lunghe è meglio usare la macro poichè questa non crea una copia della sequenza, quindi è più veloce e utilizza meno memoria.
+
+macro "->" e "->>" pipeline (William James, Johu)
+-------------------------------------------------
+Queste macro permettono di applicare una lista di funzioni una di seguito all'altra.
+
+(context '->>)
+(define-macro (->>:->> E form)
+  (if (empty? (args))
+    (if (list? form)
+      (eval (push E form -1))
+      (eval (list form E)))
+    (eval (cons '->> (cons (list '->> E form) (args))))))
+
+(context '->)
+(define-macro (->:-> E form)
+  (if (empty? (args))
+    (if (list? form)
+      (eval (cons (first form) (cons E (rest form))))
+      (eval (list form E)))
+    (eval (cons '-> (cons (list '-> E form) (args))))))
+
+(context MAIN)
+
+Supponiamo di voler applicare tre funzioni in in sequenza ad un argomento:
+
+(exp (sqrt (abs -3)))
+;-> 5.652233674034092
+
+Con questa macro possiamo scrivere:
+(-> -3 abs sqrt exp)
+;-> 5.652233674034092
+
+(-> (+ 2 1) abs sqrt exp)
+;-> 5.652233674034092
+
+La macro "->" prende il primo elemento come primo argomento della funzione:
+
+(-> 8 (div 4))
+;-> 2
+
+The macro "->>" prende il primo elemento come ultimo argomento della funzione:
+
+(->> 8 (div 4))
+;-> 0.5
+
+Un altro esempio, estraiamo da una lista associativa i valori che sono in feriori a 50 e li sommiamo:
+
+(setq alist '((a 29)(b 25)(c 21)(d 64)))
+(->> alist (map last) (filter (curry > 50)) (apply +))
+;-> 75
+
+Altro metodo di scrivere le due macro (johu):
+
+(context 'MAIN:->>)
+(define-macro (->>:->> E form)
+  (letex (_func
+            (if $args (cons '->> (cons (list '->> E form) $args))
+                (list? form) (push E form -1)
+                (list form E)))
+  _func))
+
+(context 'MAIN:->)
+(define-macro (->:-> E form)
+  (letex (_func
+            (if $args (cons '-> (cons (list '-> E form) $args))
+                (list? form) (push E form 1)
+                (list form E)))
+  _func))
+(context MAIN)
+
+Notare "(if $args" al posto di "(if (empty? (args))", chiaro e conciso.
+
+Altro metodo di scrivere le due macro (William James):
+
+(context '->>)
+(define-macro (->>:->> E form)
+  (eval
+    (if $args
+      (cons '->> (cons (list '->> E form) (args)))
+      (if (list? form)
+        (push E form -1)
+        (list form E)))))
+
+(context '->)
+(define-macro (->:-> E form)
+  (eval
+    (if $args
+      (cons '-> (cons (list '-> E form) (args)))
+      (if (list? form)
+        (cons (first form) (cons E (rest form)))
+        (list form E)))))
+(context MAIN)
+
+macro "mvdolist" (johu)
+-----------------------
+Questa macro permette di usare indici multipli con la funzione dolist:
+
+(define-macro (mvdolist)
+  (letex (_vars (args 0 0)
+          _vals (args 0 1)
+          _body (cons 'begin (1 (args))))
+    (local _vars
+      (dolist (_x (explode _vals (length '_vars)))
+        (bind (transpose (list '_vars _x)))
+        _body))))
+
+Esempi di utilizzo:
+(mvdolist ( (i j k) '(1 2 3 4 5 6 7 8 9)) (println i "-" j "-" k))
+;-> 1-2-3
+;-> 4-5-6
+;-> 7-8-9
+(mvdolist ( (i j k) (sequence 1 9) ) (println i "-" j "-" k))
+;-> 1-2-3
+;-> 4-5-6
+;-> 7-8-9
+(mvdolist ( (i j k) (sequence 1 5) ) (println i "-" j "-" k))
+;-> 1-2-3
+;-> 4-5-nil
+
+Altra macro simile:
+
+(define-macro (mvdolist)
+  (letex (_varlst (map list (args 0 0))
+          _vars (args 0 0)
+          _vals (args 0 1)
+          _flag (and (= 3 (length (args 0))) (args 0 2))
+          _body (cons 'begin (1 (args))))
+    (let _varlst
+      (dolist (_x (if _flag _vals (explode _vals (length '_vars))))
+        (bind (transpose (list '_vars _x)))
+        _body))))
+
+Esempi di utilizzo:
+
+(mvdolist ( (i j k) '((1 2 3)(4 5 6)(7 8 9)) ) (println i "-" j "-" k))
+;-> (1 2 3)-(4 5 6)-(7 8 9)
+(mvdolist ( (i j k) '((1 2 3)(4 5 6)(7 8 9)) true) (println i "-" j "-" k))
+;-> 1-2-3
+;-> 4-5-6
+;-> 7-8-9
+(mvdolist ( (i j k) (explode (sequence 1 9) 3) true) (println i "-" j "-" k))
+;-> 1-2-3
+;-> 4-5-6
+;-> 7-8-9
+(mvdolist ( (i j k) (explode (sequence 1 9) 4) true) (println i "-" j "-" k))
+;-> 1-2-3
+;-> 5-6-7
+;-> 9-nil-nil
+(mvdolist ( (i j k) (explode (sequence 1 9) 2) true) (println i "-" j "-" k))
+;-> 1-2-nil
+;-> 3-4-nil
+;-> 5-6-nil
+;-> 7-8-nil
+;-> 9-nil-nil
+(mvdolist ( (i j k) '(1 2 3) true) (println i "-" j "-" k))
+;-> 1-1-1
+;-> 2-2-2
+;-> 3-3-3
+
+Altra macro simile:
+
+(define-macro (map-mv)
+;(map-mv exp-functor nested-list)
+   (letex (_func (args 0)
+           _vals (args 1))
+     (map (curry apply _func) _vals)))
+
+(map-mv (fn (i j k) (println i "-" j "-" k)) (explode (sequence 1 9) 3))
+;-> 1-2-3
+;-> 4-5-6
+;-> 7-8-9
+(map-mv pow '((2 1) (2 2) (2 3)))
+;-> (2 4 8)
+
+macro "foreach" (Hans-Peter)
+----------------------------
+Questa macro è l'equivalente della funzione "foreach" del LISP e di Scheme.
+Fondamentalmente "for-each" fa la stessa cosa della funzione "map", tranne il fatto che quest'ultima restituisce una lista, mentre "for-each" non ha un valore di ritorno definito (in Scheme).
+
+(define-macro (foreach _foreachx _foreachlst)
+  (eval (list 'dolist (list _foreachx _foreachlst)
+                      (append (list 'begin) (args)))))
+
+La seguente espressione protegge la macro "foreach" dalla sovrascittura.
+(constant (global 'foreach))
+
+Esempio di utilizzo:
+
+(foreach i '(1 2 3 4) (println (* i i)))
+;-> 1 4 9 16
+
+Per vedere il risultato dell'espansione di una macro è possibile sostituire le funzione "eval" con la funzione "println":
+
+(define-macro (foreach _foreachx _foreachlst)
+  (println (list 'dolist (list _foreachx _foreachlst)
+                         (append (list 'begin) (args)))))
+
+(foreach i '(1 2 3 4) (println (* i i)))
+;-> (dolist (i '(1 2 3 4))
+;->  (begin
+;->   (println (* i i))))
+;-> (dolist (i '(1 2 3 4))
+;->  (begin
+;->   (println (* i i))))
+
+Potremmo definire for-each anche senza definire una macro:
+
+(setq foreach map)
+(foreach (fn(x)(println(* x x))) '(1 2 3 4))
+;-> 1
+;-> 4
+;-> 9
+;-> 16
+;-> (1 4 9 16)
+
+Altro esempio fornito da Lutz:
+
+(define-macro (foreach _x from _a to  _z _body)
+  (for (_x (eval _a) (eval _z)) (eval _body)))
+
+(foreach i from 1 to 5 (print _x { }))
+;-> 1 2 3 4 5 " "
+
+
+macro "doc" (Cormullion-jamesqiu-cameyo)
+---------------------------------------
+Questa macro permette di visualizzare il manuale di riferimento di una funzione.
+
+(context 'doc)
+
+(define-macro (doc:doc func-name)
+  (let ((func-name (string func-name)))
+     (set 'f (read-file {/c:/newlisp/newlisp_manual.html}))
+     (set 'r (regex (string "<a name=\"" func-name "\"></a>") f))
+     (set 'n0 (r 1))
+     (set 'n1 ((regex "<a name=" f 0 (+ n0 (r 2))) 1))
+     (set 'html-text (slice f n0 (- n1 n0)))
+     (replace "<.*?>" html-text "" 0)
+     (replace "&lt;"  html-text "<")
+     (replace "&gt;"  html-text ">")
+     (replace "&amp;" html-text "&")
+     (replace "&nbsp;" html-text " ")
+     (replace "&mdash" html-text "...")
+     (replace "&rarr;" html-text "->")
+     (replace "\n\n+" html-text "\n\n" 1)
+     (replace "^\n+|\n+$" html-text "" 1)
+     (replace "\t" html-text "" 1)
+     ;(replace "[  ]" html-text " " 1)
+     (println "--------------------------")
+     (println html-text)
+     (println "--------------------------")
+     'end))
+
+(context MAIN)
+
+Esempio di utilizzo:
+
+(doc curry)
+(doc map)
+(doc apply)
+(doc println)
+
+Purtroppo non funziona per i predicati (null?, zero?, ecc.)
+(doc null?)
+;-> ERR: invalid function in function set : (r 1)
+;-> called from user function (doc null?)
+
+macro "fnkeyword" (Lutz-Cormullion-cameyo)
+------------------------------------------
+Questa macro permette di passare argomenti con nome e valore alla macro:
+
+(define-macro (fnkeyword)
+   (local (len width height)
+      (bind (args) true)
+      (println "len:" len " width:" width " height:" height)
+   ))
+
+(fnkeyword (width 20) (height 30) (len 10))
+;-> len:10 width:20 height:30
+
+(fnkeyword (w 20) (h 30) (l 10))
+;-> len:nil width:nil height:nil
+
+Con una piccola modifica possiamo chiamare una funzione con i parametri passati ala macro:
+
+(define-macro (fnkeyword func)
+   (local (len width height)
+      (bind (args) true)
+      (println "len:" len " width:" width " height:" height)
+      ((eval func) len width height)
+   ))
+
+(fnkeyword + (width 20) (height 30) (len 10))
+;-> len:10 width:20 height:30
+;-> 60
+
+macro "ifnot" (cameyo)
+----------------------
+Questa macro implementa un "if negato".
+
+(define-macro (ifnot _condition _else _then)
+  (if (eval _condition)
+      (eval _then)
+      (eval _else)))
+
+(ifnot (> 3 2) (setq a 4) (setq b 1))
+;-> 1
+(ifnot (< 3 2) (setq a 4) (setq b 1))
+;-> 4
+
+macro "until-0" (nallen05)
+--------------------------
+Questa macro implementa il controllo "until" con il test di confronto prefissato al valore zero:
+
+(define-macro (until-0)
+  (letex (zero-form (args 0)
+         body      (cons 'begin (1 (args))))
+   (let ($num nil)
+    (until (= 0 (setq $num zero-form))
+      body))))
+
+Esempi di utilizzo:
+
+(until-0 0 (println  $idx ":" $num " not 0"))
+;-> nil
+
+(until-0 (rand 10) (println  $idx ":" $num " not 0"))
+;-> 0:5 not 0
+;-> 1:6 not 0
+;-> 2:4 not 0
+;-> 3:1 not 0
+;-> 4:9 not 0
+;-> 5:9 not 0
+;-> 6:5 not 0
+
+macro "up-down" (William James)
+-------------------------------
+Questa macro simula una pseudo-closure utilizzando gensym.
+
+(define (gensym:gensym)
+  (sym (string "gensym-" (inc gensym:counter))))
+
+(define-macro (closure varval-pairs body)
+  (let (alist (map (fn(x) (list (x 0) (gensym) (eval (x 1))))
+                   (explode varval-pairs 2)))
+    (bind (map (fn (x) (rest x)) alist))
+    (dolist (x alist)
+      (set-ref-all (x 0) body (x 1)))
+    body))
+
+(set 'up-down
+  (closure (a 0 b 99)
+    (lambda () (list (++ a) (-- b)))))
+
+Proviamo la funzione:
+
+(up-down)
+(1 98)
+(up-down)
+(2 97)
+(up-down)
+(3 96)
+
+(println up-down)
+;-> (lambda () (list (++ gensym:gensym-14) (-- gensym:gensym-15)))
+
+Nota: la funzione gensym può essere scritta anche nel seguente modo:
+
+(define (gensym:gensym)
+  (sym (string "gs-" (sym (uuid)))))
+
+Questo funziona perchè "uuid" genera una valore univoco. Comunque, la prima funzione "gensym" è leggermente più veloce e mantiene i simboli generati tutti nel relativo spazio dei nomi gensym. Se usiamo pochi valori, allora (sym (uuid)) è più pratico. Una pratica sicura è quella di definire le macro (fexprs) nel loro spazio dei nomi, che risolve anche il problema della cattura delle variabili creando una specie di chiusura lessicale.
+
+macro "a-if"
+------------
+Un'altra macro che simula il controllo "if" con l'aggiunta di una variabile anaforica $it.
+
+(define-macro (aif)
+  (let ((_it (eval (args 0))))
+    (if _it
+      (eval (args 1))
+      (eval (args 2)))))
+
+Esempi d'uso:
+
+(aif (> 4 2) (println _it) (println "else"))
+;-> true
+(aif (> 2 4) (println _it) (println "else"))
+;-> else
+(let (a 5) (aif a (println _it) (println "else")))
+;-> 5
+
+macro "loop" e "recur" (rickyboy)
+----------------------
+Macro che simulano le istruzioni
+
+(constant '[loop/recur-marker] '[loop/recur-marker])
+
+(define (loop- BODY-FN)
+  (let (.args (args) .res nil)
+    (while (begin
+             (setq .res (apply BODY-FN .args))
+             (when (and (list? .res) (not (empty? .res))
+                        (= [loop/recur-marker] (first .res)))
+               (setq .args (rest .res)))))
+    .res))
+
+(define (recur) (cons [loop/recur-marker] (args)))
+
+(define (flat-shallow-pairs LIST)
+  (let (i 0 acc '())
+    (dolist (e LIST)
+      (cond ((even? i) ; Indicator i is even = abscissa
+             (cond ((and (list? e) (not (empty? e)))
+                    (extend acc (0 2 (push nil e -1))))
+                   ((symbol? e)
+                    (push e acc -1)
+                    (inc i))))
+            ((odd? i) ; Indicator i is odd = ordinate
+             (push e acc -1)
+             (inc i))))
+    acc))
+
+(define (parms<-bindings BINDINGS)
+  (map first (explode (flat-shallow-pairs BINDINGS) 2)))
+
+(define-macro (loop INIT)
+  (letn (.parms (parms<-bindings INIT)
+         .body-fn (letex ([body] (args)
+                          [parms] .parms)
+                    (append '(fn [parms]) '[body]))
+         .loop-call (letex ([body-fn] .body-fn
+                            [parms] .parms)
+                      (append '(loop- [body-fn]) '[parms])))
+    (letex ([init] INIT [loop-call] .loop-call)
+      (letn [init] [loop-call]))))
+
+Vediamo due esempi di utilizzo delle macro:
+
+(define (factorial x)
+  (loop (x x acc 1)
+    (if (< x 1)
+        acc
+        (recur (- x 1) (* x acc)))))
+
+(factorial 10)
+;-> 3628800
+
+(define (fibo x)
+  (loop (x x curr 0 next 1)
+    (if (= x 0)
+        curr
+        (recur (- x 1) next (+ curr next)))))
+
+(fibo 10)
+;-> 55
+
+macro "my-or" (Kazimir Majorinc)
+--------------------------------
+Questa macro simula la funzione boolena "or".
+
+(set 'my-or
+  (lambda-macro (x y)
+     (first (list (eval (let ((temp (sym (append (string (last (symbols))) "+"))))
+                    (expand
+                     '(let ((temp (eval x)))
+                            (if temp          ; Naive
+                              temp          ; version
+                              (eval y)))
+                 'temp)))
+             (delete (last (symbols)))    ))))
+
+Esempio:
+
+(setq temp 45)
+(my-or 45 nil)
+;-> 45
+(my-or nil 45)
+;-> 45
+
+Commento di Lutz:
+La soluzione corretta in newLISP è quella di evitare la cattura variabile in primo luogo racchiudendo il "my-or" in uno spazio dei nomi (contesto):
+
+(define-macro (my-or:my-or)
+   (let (my-or:temp (eval (args 0)))
+      (if my-or:temp my-or: temp (eval (args 1)))))
+
+(my-or 1 nil)
+;-> 1
+(my-or nil 1)
+;-> 1
+
+Questa funzione è più veloce e risolve il problema della cattura delle variabili.
+
+Nelle versioni prcedenti del manuale di newLISP era riportata questa funzione di utilità per definire funzioni racchiuse automaticamente nel proprio contesto:
+
+(define (def-static s body)
+    (def-new 'body (sym s s)))
+
+la funzione accetta un nuovo simbolo nome-funzione "s" e crea una nuova funzione racchiusa in uno spazio dei nomi. Qui "def-static" è usata per definire "my-or:my-or" come sopra trasformando la vecchia definizione in una nuova con ambito statico:
+
+(def-static 'my-or
+    (fn-macro (x y)
+        (let (temp (eval x)) (if temp temp (eval y)))))
+
+(my-or 1 nil)
+;-> 1
+(my-or nil 1)
+;-> 1
+
+In questo modo possiamo anche evitare di utilizzare (args ...) e nominare le variabili per una migliore leggibilità.
+
+Non esiste il problema dell"esaurimento degli spazi dei nomi". Un overhead dello spazio dei nomi è costituito da nient'altro che un simbolo aggiuntivo, il simbolo di contesto. Potenzialmente possiamo avere milioni di contesti in newLISP senza alcun problema.
+
+Un commento generale:
+
+Invece di provare a emulare Scheme o altri LISP tradizionali, dovremmo enfatizzare le tipiche soluzioni di newLISP. Cercare di utilizzare le tecniche di Scheme in newLISP porta solo a un codice inefficiente e, spesso, brutto e newLISP viene percepito come un LISP di seconda classe a causa di ciò.
+
+Proprio come Scheme è progettato attorno all'ambito lessicale e alle chiusure, newLISP è progettato attorno all'ambito dinamico e agli spazi dei nomi (contesti). Entrambi gli approcci sono progettati per evitare conflitti tra nomi di simboli e mantenere lo stato. Credo che il nuovo approccio LISP sia alla fine più facile da capire e più aperto all'esplorazione dei futuri paradigmi di programmazione.
+
+Inoltre, newLISP non può generare contesti innestati, che introducono un complessità inutile.
+
+Come nota a margine: il linguaggio non ha il meccanismo di "ricorsione della coda" (tail recursion) perché altrimenti la ricorsione sarebbe stato il principale meccanismo di controllo del flusso. Limitare il controllo del flusso alla ricorsione e alle continuazioni sarebbe stata una limitazione innaturale in newLISP, forse bella dal punto di vista matematico, ma ostica da usare e comprendere per le persone di altre discipline.
+Lutz
+
+Versione proposta da DrDave:
+
+(define-macro (my-or)
+   (let (temp (eval (args 0))
+         temp1 (eval (args 1)))
+     (if temp
+         temp
+         temp1)))
+
+Versione proposta da Michael (però usa "or"):
+
+(define-macro (my-or)
+   (or (eval (args 0)) (eval (args 1)))
+)
+
+Versione proposta da newdep:
+
+(define-macro (my-or)
+ (let (temp
+  (unless (eval (args 0))
+   (eval (args 1))))
+    temp))
+
+Versione proposta da cgs1019:
+
+Questa soluzione utilizza una funzione lambda per memorizzare il primo argomento valutato nella macro e rinviare la valutazione del secondo. Non è veloce come la soluzione presentata da Lutz, che ha un tempo di esecuzione di circa il 65% di questa, probabilmente perché  comporta una chiamata di funzione aggiuntiva. Ma almeno evita la necessità di creare un nuovo contesto solo per una semplice macro.
+
+Il trucco è quello di usare una chiamata di funzione nidificata per trasferire argomenti nella funzione nidificata in modo da non dover usare alcuna variabile. Poiché (arg n) sono sempre locali, è impossibile la cattura delle variabili.
+
+(define-macro (my-or)
+  (
+    (lambda ()
+      (if (args 0)
+        (args 0)
+         (eval (args 1))
+      )
+    )
+    (eval (args 0))
+    (args 1)
+  )
+)
+
+Possiamo riscriverla per capire meglio come funziona:
+
+(define-macro (my-or)
+  (let ( func (lambda () (if (args 0) (args 0) (eval (args 1)) )))
+    (func (eval (args 0)) (args 1))
+  )
+)
+
+cgs1019 utilizza un versione anonima di func. Questo è equivalente a:
+
+((lambda (x) (+ x x)) 1)
+;-> 2
+
+macro "ncase" (Sammo, nigelbrown)
+---------------------------------
+Questa macro simula la funzione "case" con valori multipli di comparazione.
+
+(define-macro (ncase _x)
+    (eval (append (list 'case _x) (apply append (map expandit (rest (args)))))))
+
+(define (expander c)
+    (apply append (map expandit c)))
+
+(define (expandit x)
+    (if (list? (first x))
+        ;((a b c) d e) --> ((a d e) (b d e) (c d e))
+        (map (lambda (y) (append (list y) (rest x))) (first x))
+    ;else
+        ;(a d e) --> ((a d e))
+        (list x) ))
+
+Esempi:
+
+(ncase "diane" () (("bob" "mary" "susie") 'friend) (("tim" "diane") 'boss) ("sam" 'self) ("sammo" 'clever-alias) (true 'stranger))
+;-> boss
+
+(ncase "bob" () (("bob" "mary" "susie") 'friend) (("tim" "diane") 'boss) ("sam" 'self) ("sammo" 'clever-alias) (true 'stranger))
+;-> boss
+
+(ncase 3 () ((1 3 5 7 9) "odd") (10 "ten") ((2 4 6 8) "even") (true "none"))
+"odd"
+(ncase 10 () ((1 3 5 7 9) "odd") (10 "ten") ((2 4 6 8) "even") (true "none"))
+"ten"
+(ncase 2 () ((1 3 5 7 9) "odd") (10 "ten") ((2 4 6 8) "even") (true "none"))
+"even"
+(ncase 35 () ((1 3 5 7 9) "odd") (10 "ten") ((2 4 6 8) "even") (true "none"))
+"none"
+(ncase 5 () ((1 3 5 7 9) "odd") (10 "ten") ((2 4 6 8) "even") (true "none"))
+
+macro "+-" (Lutz)
+-----------------
+Questa macro permette di calcolare la seguente espressione:
+
+(a + b - c + d - ...)
+
+dove a,b,c,d,... sono valori numerici
+
+(define-macro (+- )
+  (let (signs (cons 1 (series 1 -1 (- (length (args)) 1))))
+   (apply 'add (map 'mul (map eval (args)) signs))))
+
+Esempi:
+
+(+- 1 2 3 4 5)
+;-> -1
+(apply +- '(1 2 3 4))
+;-> 4
+(apply +- (sequence 1 5))
+;-> -1
+(+- 1.2 1.2 2.4)
+;-> 0
+
+Possiamo farlo anche con una funzione, che è anche più veloce (rickyboy).
+
+(define (+-)
+  (let (signs (cons 1 (series 1 -1 (- (length (args)) 1))))
+    (apply add (map mul signs (args)))))
+
+macro "try" (Lutz)
+------------------
+Questa macro permette di gestire errori come eccezioni.
+
+(define-macro (try body else)
+    (if (not (catch (eval body) 'result))
+         (eval else)
+         result))
+
+(setq error-text "errore")
+; now try this
+
+(try (+ 3 4) (println error-text))
+;-> 7
+
+(try (xyz) (println error-text))
+;-> errore
+
+macro "+++" e "---" (Dmitry)
+----------------------------
+Queste macro simulano le funzioni di incremento/decremento "++" e "--".
+
+(define-macro (+++ _a _b)
+  (if (symbol? _a)
+    (set _a (+ (eval _a) (or _b 1)))
+  ;else
+    (+ (eval _a) (or _b 1)) ))
+
+(define (--- _a _b)
+  (if (symbol? _a)
+    (set _a (- (eval _a) (or _b 1)))
+  ;else
+    (- (eval _a) (or _b 1)) ))
+
+Le seguenti versioni valutano l'espressione "_b" prima di essere usata, in questo modo possiamo scrivre: (+++ var (expression))
+
+(define-macro (+++ _a _b)
+  "(++ a b) - increment a by b. a can by either a symbol or a value"
+  (if (symbol? _a)
+    (set _a (+ (eval _a) (or (eval _b) 1)))
+    (+ (eval _a) (or (eval _b) 1)) ))
+
+(define-macro (--- _a _b)
+  "(--- a b) - decrement a by b. a can by either a symbol or a value"
+  (if (symbol? _a)
+    (set _a (- (eval _a) (or (eval _b) 1)))
+    (- (eval _a) (or (eval _b) 1)) ))
+
+(--- (+ 3 3) (- 4 2))
+;-> 4
+
+Nota: "+++" e "---" funzionano solo con i numeri interi.
+
+Infine, una versione senza utilizzare le macro:
+
+(define (+++ _a01 _b01)
+  "(++ int-a int-b) - increment int-a by int-b. int-a can be either a symbol or a value"
+  (if (symbol? _a01)
+    (set _a01 (+ (eval _a01) (or _b01 1)))
+    (+ (eval _a01) (or _b01 1))))
+
+(setq a 1)
+(+++ 'a)
+;-> 2
+a
+;-> 2
+
+macro "dolist-index" (Lutz)
+---------------------------
+Questa macro simula la funzione "dolist".
+
+(define-macro (dolist-index)
+  (letex (var ((args) 0 0)
+          lst ((args) 0 1)
+          idx ((args) 0 2)
+          body (cons 'begin (1 (args))))
+          (setq idx 0)
+          (dolist (var lst)
+              body
+              (inc idx) )
+   )
+)
+
+(dolist-index (i '(a b c d e f) id) (println id ":" i))
+0:a
+1:b
+2:c
+3:d
+4:e
+5:f
+
+Nota: l'uso di (args) rende la macro "igienica", ma l'utilizzo di un contesto e del relativo funtore di default rende il codice più leggibile e forse più veloce.
+
+macro "rep-var" (Lutz)
+----------------------
+Questa macro permette di interpolare una variabile in una stringa.
+
+(define-macro (rep-var str)
+    (dolist (_v (args))
+        (replace (append "#" (string _v)) (eval str) (eval _v))))
+
+(setq var "pippo")
+;-> "pippo"
+(rep-var "Buonanotte #var" var)
+;-> "Goodnight pippo"
+
+macro "not-" e "if-" (Jeremy Dunn)
+-----------------------------
+
+;; Negate a boolean function
+;; Write (not (= x y)) as (not- = x y)
+(define-macro (not-) (not (eval (args))))
+
+(setq x 2 y 3)
+(not- = x y)
+;-> true
+(setq x 2 y 2)
+(not- = x y)
+;-> nil
+
+;; Convert a boolean to an if statement
+;; Write (if (= x 3) a b) as (if- = x 3 a b)
+(define-macro (if-)
+  (setq L (length (args)))
+  (if (eval (0 (- L 2)(args)))
+      (eval (nth -2 (args)))
+      (eval (last (args)))
+  ))
+
+(if- > 4 5 (println "riga 1") (println "riga 2"))
+;-> riga 2
+
+(setq a (println "a"))
+(setq b (println "b"))
+(if- = 3 3 a b)
+;-> "a"
+(if- > 3 4 a b)
+;-> "b"
+
+macro "if*" (Cormullion)
+------------------------
+Questa macro simula un "if" senza "else", ma permette di eseguire multiple espressioni senza utilizzare la funzione "begin".
+
+(define-macro (if* condition)
+  (let (c (eval condition))
+    (if c (map eval (args)))))
+
+(if* true
+   (println "uno")
+   (println "due")
+   (println "tre"))
+;-> uno
+;-> due
+;-> tre
+;-> ("uno" "due" "tre")
+
+Comunque è meglio utilizzare la funzione "cond".
+
+macro "defun" (kinghajj)
+------------------------
+Questa macro definisce la funzione "DEFUN" del Common LISP.
+
+; This macro provides a classic defun.
+; If I remember CL correctly, if an argument is prefixed with &, then it is not
+; evaluated; that is hom CL makes macros. This macro checks if the argument name
+; has a & at the start, and if it does it does not evaluate it. This makes it
+; easy if you want to write a macro that needs no evaluate some arguments.
+(define-macro (defun _name _args)
+  (let (_body (args))
+    ; go through to arguments
+    (dolist (_arg _args)
+        ; evaluate argument unless prefixed with &
+        (unless (= (first (string _arg)) "&")
+          (push (list 'eval _arg) _body)))
+    ; create macro function
+    (set _name (append (lambda-macro) (list _args) _body))))
+
+Esempio:
+
+(defun test (v1 &v2)
+   (println "Got " v1 " and " &v2))
+
+(test 37 (+ 40 2))
+; => "Got 37 and (+ 40 2)"
+
+macro "each" (Jeff)
+-------------------
+Questa macro implementa una struttura di controllo iterativa.
+
+(define-macro (each object do iter)
+  (set 'iter (trim (string iter) "|"))
+  (dolist (obj (eval object))
+          (eval (set (sym (eval iter)) obj))
+          (catch (doargs (a)
+                 (if (= a 'end) (throw nil) (eval a))))))
+
+La sintassi è la seguente:
+
+(each '(ruby is not a lisp) do |item| (println item) end)
+;-> ruby 
+;-> is
+;-> not
+;-> a
+;-> lisp
+
+Altra versione senza "end" finale (rickyboy).
+
+(define-macro (each object iter)
+  (set 'iter (trim (string iter) "|"))
+  (dolist (obj (eval object))
+    (eval (set (sym (eval iter)) obj))
+    (doargs (a) (eval a))))
+
+(each '(ruby is not a lisp) |item| (println item))
+;-> ruby
+;-> is
+;-> not
+;-> a
+;-> lisp
+
+macro "my-define" (Cormullion, Fanda)
+-----------------------------------
+Questa macro crea una nuova versione di "define", in modo tale che quando viene chiamata la funzione che definisce, stampa i suoi argomenti (ad esempio su un file di log).
+
+"define" crea una funzione/lista lambda. È necessario includere le funzioni di "print" nella nuova funzione da creare:
+
+(define-macro (my-define @farg)
+  (set (@farg 0)
+    (letex (@fn (@farg 0)
+            @arg (rest @farg)
+            @arg-p (cons 'list (map (fn (@x) (if (list? @x) (first @x) @x)) (rest @farg)))
+            @body (args))
+      (append
+           (lambda @arg (println "[" '@fn "] params: " @arg-p " args: " (args)))
+        '@body))))
+
+(constant (global 'define) my-define)
+
+Esempi:
+
+(define (f x) (+ x x))
+;-> (lambda (x) (println "[" 'f "] params: " (list x) " args: " (args)) (+ x x))
+(f 2)
+;-> [f] params: (2) args: ()
+;-> 4
+
+(define (f (x 10) y) (+ x y))
+;-> (lambda ((x 10) y) (println "[" 'f "] params: " (list x y) " args: " (args)) (+ x y))
+(f 2 3)
+;-> [f] params: (2 3) args: ()
+;-> 5
+(f 2 3 4 5)
+;-> [f] params: (2 3) args: (4 5)
+;-> 5
+
+Nota: viene usato il carattere "@" (at) invece di "_" (underscore) perché in genere le macro hanno variabili che iniziano con "_" e quindi evitiamo il conflitto tra variabili.
+
+Altra versione che ritorna anche il risultato della funzione:
+
+(define-macro (my-define @farg)
+  (set (@farg 0)
+    (letex (@fn (@farg 0)
+            @arg (rest @farg)
+            @arg-p (cons 'list (map (fn (@x) (if (list? @x) (first @x) @x)) (rest @farg)))
+            @body (cons 'begin (args)))
+       (lambda @arg
+         (println "[" '@fn "] params: " @arg-p " args: " (args))
+         (println "[" '@fn "] result: " @body)))))
+
+(constant (global 'define) my-define)
+
+Esempi:
+
+(define (f (x 10) y) (+ x y))
+;-> (lambda ((x 10) y) (println "[" 'f "] params: " (list x y) " args: " (args)) 
+  ;-> (println "[" 'f "] result: "  (begin  (+ x y))))
+(f 2 3)
+;-> [f] params: (2 3) args: ()
+;-> [f] result: 5
+;-> 5
+(f 2 3 4 5)
+;-> [f] params: (2 3) args: (4 5)
+;-> [f] result: 5
+;-> 5
+
+macro "type" (Fanda)
+--------------------
+Questa macro permette di determinare il tipo dell'argomento.
+
+(define-macro (type)
+  (cond
+    ((integer? (args 0)) "integer")
+    ((float? (args 0)) "float")
+    ((symbol? (args 0)) "symbol")
+    ((string? (args 0)) "string")
+    ((lambda? (args 0)) "lambda")
+    ((macro? (args 0)) "macro")
+    ((context? (args 0)) "context")
+    ((list? (args 0)) "list")
+    ((nil? (args 0)) "nil")
+    (true nil)))
+
+(type 1)
+;-> "integer"
+
+(type a)
+;-> "symbol"
+
+Un piccolo problema:
+
+(type type)
+;-> "symbol" 
+(macro? type)
+;-> true
+
+Nota: attenzione ad accettare troppi tipi di dati in una funzione. Soprattutto in un linguaggio con ambito dinamico, in cui è importante conoscere con sicurezza il tipo dei parametri in ingresso e di uscita.
+
+macro "atag" (Lutz)
+-------------------
+Questa macro permette di formattare i tag HTML (JSON, XML).
+
+(define-macro (atag )
+  (append "<atag> " (join (map string (args)) " ") " </atag>"))
+
+Esempio:
+
+(atag a b c)
+;-> "<atag> a b c </atag>"
+
+Quindi l'idea è quella di definire una funzione o macro per ogni tag per formattarli agevolmente.
+
+macro "func-lst" (Lutz)
+-----------------------
+Questa macro mostra come controllare quale parametro della macro sia una lista (cioè individuare quale indice ha il primo parametro di tipo lista).
+
+(define-macro (func-lst) (nth (first (index list? (args))) (args)))
+(func-lst 1 2 (a b c))
+;-> (a b c)
+
+(func-lst 1 2 (a b c) 4 5)
+;-> (a b c)
+
+Possiamo renderla più corta con la funzione "filter":
+
+(define-macro (func-lst) (first (filter list? (args))))
+(func-lst 1 2 (a b c) 4 5)
+;-> (a b c)
+
+Anche più corta con l'indicizzazione implicita (implicit indexing):
+
+(define-macro (func-lst) ((filter list? (args)) 0))
+(func-lst 1 2 (a b c) 4 5)
+;-> (a b c)
+
+macro "sq" (Jeremy Dunn)
+------------------------
+Questa macro effettua calcoli diversi in funzione del numero dei parametri:
+un parametro: calcola il quadrato del parametro
+N parametri: calcola la radice della somma dei quadrati dei parametri
+
+;; This function takes one or more numbers as arguments. If there is a single
+;; number the number is squared. If there is more than one number then the square
+;; root of the sum of the squares (a^2 + b^2 + c^2 + ...)^1/2 is returned.
+;; Example: (sq 3) -> 9
+;;          (sq 2 3) -> 3.605551275
+(define-macro (sq)
+  (if (= (length (args)) 1)
+      (mul (args 0)(args 0))
+      (sqrt (apply add (map mul (args)(args))))))
+
+macro "plist" (Jeff)
+--------------------
+Questa macro simula l'utilizzo delle property lists.
+
+(define-macro (plist) (map rest (explode (args) 3)))
+
+Esempio:
+
+(println (plist :foo "bar" :baz "bat"))
+;-> ((foo "bar") (baz "bat"))
+
+macro "do" (Jeff)
+-----------------
+Ecco una macro che simula il controllo "do" del Common LISP (in realtà è più simile a do*, poiché usa "letn", piuttosto che "let" nella sua espansione):
+
+(define-macro (do)
+  (letex ((iter-forms (args 0))
+        (break (args 1 0))
+        (result (args 1 1))
+        (body (cons begin (rest (rest (args))))))
+   (letex ((init-forms (map (fn (form) (0 2 form)) 'iter-forms))
+         (update-symbols (reverse (map first 'iter-forms)))
+         (update-values (reverse (map last 'iter-forms))))
+     (letn init-forms
+      (do-until break body
+              (map set 'update-symbols
+                  (map eval 'update-values)))
+      result))))
+
+Questo è qualcosa che non si trova in newLISP. Tranne in casi specializzati come dolist, è più probabile che l'iterazione si verifichi su più variabili. La sintassi di questa macro è simile a quella del ciclo "for" (senza il valore del passo), con più espressioni init/update, quindi la lista della espressione di break e il risultato dell'espressione.
+
+Ecco un esempio di fattoriale (da Ansi Common Lisp) che usa questo "do". Non ha nemmeno un corpo, perché i moduli di aggiornamento (update) fanno tutto il lavoro. Ho incluso un commento sulla posizione dove dove sarebbe il corpo.
+
+(define (factorial n)
+  (do ((j n (- j 1))
+      (f 1 (* j f)))
+     ((= j 0) f)
+    ; (println j ", " f)
+  ))
+
+(println (factorial 10))
+;-> 3628800
+
+Sintassi:
+
+(do ((sym1 init-form1 update-form1) [(sym2 init-form2 update-form2) ...]) 
+     (exp-break sym-result) (expr-body*))
+
+In altre parole, questa macro fa semplicemente la stessa cosa del ciclo "for", ma su più variabili, con una condizione di arresto e controllo sul valore restituito.
+
+Considerazioni generali
+-----------------------
+L'idea alla base delle macro è quella di poter espandere la sintassi del linguaggio stesso quando necessario. Certo, le s-espressioni rendono questo meno necessario, dal momento che è possibile passare un lambda come "blocco di codice" a una funzione.
+
+È generalmente accettato che l'utilizzo di macro per ottimizzare un programma è comunque una cattiva pratica. Le macro dovrebbero essere utilizzate per implementare funzionalità che non sarebbero altrimenti disponibili o che altrimenti richiederebbero la duplicazione della logica.
+
+Le macro permettono di creare strutture sintattiche specifiche per scrivere un programma, spesso chiamati linguaggi specifici di dominio (DSL - Domain Specific Language). In questo modo la soluzione del problema viene definita (programmata) con espressioni (funzioni) che si adattano/descrivono meglio al dominio del problema stesso.
+
+Nota: "define-macro" alone is just a "define" without arguments evaluation (Lutz).
+
+
+=========================================================
+ FOOP - PROGRAMMAZIONE FUNZIONALE ORIENTATA AGLI OGGETTI
+=========================================================
+
+La programmazione orientata agli oggetti funzionali (FOOP - Functional Object Oriented Programming) si basa sui seguenti cinque principi:
+
+1) Gli attributi e i metodi delle classi sono memorizzati nello spazio dei nomi della classe di oggetti.
+
+2) La funzione predefinita dello spazio dei nomi (functor) contiene il metodo di costruzione degli oggetti.
+
+3) Un oggetto viene costruito utilizzando una lista, il cui primo elemento è il simbolo di contesto che descrive la classe dell'oggetto.
+
+4) Il polimorfismo viene implementato usando l'operatore: (due punti), che seleziona la classe appropriata dall'oggetto.
+
+5) Un oggetto target all'interno di una funzione dei metodi della classe è accessibile tramite la funzione "self".
+
+I seguenti paragrafi sono una breve introduzione alla FOOP progettata da Michael Michaels:
+http://neglook.com/
+
+Al seguente indirizzo web potete trovare alcuni tutorial video sull'utilizzo della FOOP in newLISP: 
+
+http://neglook.com/index.cgi?page=newLISP
+
+Classi e costruttori FOOP
+-------------------------
+Gli attributi e i metodi della classe sono memorizzati nello spazio dei nomi della classe di oggetti. Nessun dato dell'istanza di un oggetto è memorizzato in questo spazio dei nomi/contesto. Le variabili di dati nello spazio dei nomi della classe descrivono solo la classe di oggetti nel suo insieme, ma non contengono alcuna informazione specifica sull'oggetto. Un costruttore di oggetti FOOP generico può essere utilizzato come modello (template) per specifici costruttori di oggetti quando si creano nuove classi di oggetti con la funzione "new":
+
+; built-in generic FOOP object constructor
+(define (Class:Class) 
+    (cons (context) (args)))
+
+; create some new classes
+
+(new Class 'Rectangle)   → Rectangle
+(new Class 'Circle)      → Circle
+
+; create some objects using the default constructor
+
+(set 'rect (Rectangle 10 20))   → (Rectangle 10 20)
+(set 'circ (Circle 10 10 20))   → (Circle 10 10 20)
+
+; create a list of objects
+; building the list using the list function instead of assigning
+; a quoted list ensures that the object constructors are executed
+
+(set 'shapes (list (Circle 5 8 12) (Rectangle 4 8) (Circle 7 7 15)))
+→ ((Circle 5 8 12) (Rectangle 4 8) (Circle 7 7 15))
+
+Il costruttore FOOP generico è già predefinito e il codice FOOP può iniziare subito con (new Class ...).
+
+Per motivi di stile, le nuove classi dovrebbero essere create solo nel contesto MAIN. Se si crea una nuova classe in uno spazio dei nomi diverso, il nome della nuova classe deve essere preceduto da MAIN e l'istruzione deve essere al livello superiore:
+
+(context 'Geometry)
+
+(new Class 'MAIN:Rectangle)
+(new Class 'MAIN:Circle)
+
+...
+
+La creazione delle classi nello spazio dei nomi usando new riserva il nome della classe come contesto in newLISP e facilita i riferimenti diretti. Allo stesso tempo, viene definito un semplice costruttore per la nuova classe per creare istanze di nuovi oggetti. Come convenzione, si consiglia di iniziare i nomi delle classi in maiuscolo per segnalare che il nome sta per uno spazio dei nomi.
+
+In alcuni casi, può essere utile sovrascrivere il costruttore semplice, creato durante la creazione della classe, con "new":
+
+; overwrite simple constructor 
+(define (Circle:Circle x y radius)
+    (list Circle x y radius))
+    
+Un costruttore può anche specificare i valori predefiniti:
+
+; costruttore con valori predefiniti
+(definisci (Cerchio: Cerchio (x 10) (y 10) (raggio 3))
+    (elenco Cerchio x raggio y))
+
+(Cerchio) → (Cerchio 10 10 3)
+In molti casi il costruttore creato quando si utilizza new è sufficiente e non è necessario sovrascriverlo.
+
+Oggetti e associazioni
+----------------------
+FOOP rappresenta gli oggetti come liste. Il primo elemento dell'elenco indica il tipo o la classe dell'oggetto, mentre gli elementi rimanenti contengono i dati. Le seguenti istruzioni definiscono due oggetti utilizzando uno dei costruttori definiti in precedenza:
+
+(set 'myrect (Rectangle 5 5 10 20)) → (Rectangle 5 5 10 20)
+(set 'mycircle (Circle 1 2 10)) → (Circle 1 2 10)
+
+Un oggetto creato è identico alla funzione necessaria per crearlo (quindi FOOP). Gli oggetti nidificati possono essere creati in modo simile:
+
+; create classes
+(new Class 'Person)
+(new Class 'Address)
+(new Class 'City)
+(new Class 'Street)
+
+; create an object containing other objects
+(set 'JohnDoe (Person (Address (City "Boston") (Street 123 "Main Street"))))
+→ (Person (Address (City "Boston") (Street 123 "Main Street")))
+
+Gli oggetti in FOOP non solo assomigliano a funzioni, ma assomigliano anche ad associazioni. La funzione assoc può essere utilizzata per accedere ai dati degli oggetti per nome:
+
+(assoc Address JohnDoe) → (Address (City "Boston") (Street 123 "Main Street"))
+
+(assoc (list Address Street) JohnDoe) → (Street 123 "Main Street")
+
+In modo simile setf insieme ad assoc può essere usato per modificare i dati degli oggetti:
+
+(setf (assoc (list Address Street) JohnDoe) '(Street 456 "Main Street"))
+→ (Street 456 "Main Street")
+
+Il numero civico "Street number" è stato cambiato da 123 a 456.
+
+Si noti che nessuna delle dichiarazioni associate ad Address e Street contiene virgolette. Lo stesso vale per l'istruzione set: (set 'JohnDoe (Person ...)) per la parte di assegnazione dati. In entrambi i casi non trattiamo con simboli o con liste di simboli, ma piuttosto con contesti e oggetti FOOP che valutano su se stessi. Le virgolette non fanno alcuna differenza.
+
+I due punti (colon) : operatore e polimorfismo
+----------------------------------------------
+In newLISP, il carattere due punti ":" viene utilizzato principalmente per connettere il simbolo di contesto con il simbolo che sta qualificando. In secondo luogo, la funzione due punti viene utilizzata in FOOP per risolvere l'applicazione di una funzione polimorfa.
+Il codice seguente definisce due funzioni chiamate area, ognuna appartenente a un diverso spazio dei nomi/classe. Entrambe le funzioni avrebbero potuto essere definite in moduli diversi per una migliore separazione, ma in questo caso sono definite nello stesso file e senza istruzioni di contesto tra parentesi. Qui, solo i simboli rettangle:area e circle:area appartengono a spazi dei nomi diversi. I parametri locali p, c, dx e dy fanno tutti parte di MAIN, ma questo non è un problema.
+
+;; class methods for rectangles
+
+(define (Rectangle:area)
+    (mul (self 3) (self 4)))
+
+(define (Rectangle:move dx dy)
+    (inc (self 1) dx) 
+    (inc (self 2) dy))
+
+;; class methods for circles
+
+(define (Circle:area)
+    (mul (pow (self 3) 2) (acos 0) 2))
+
+(define (Circle:move dx dy)
+    (inc (self 1) dx) 
+    (inc (self 2) dy))
+    
+Prefissando il simbolo area con il carattere ":" (due punti), possiamo chiamare queste funzioni per ciascuna classe di oggetti. Sebbene non vi sia spazio tra i due punti e il simbolo che lo segue, newLISP li analizza come entità distinte. I due punti possono essere visti come una funzione che processa i parametri:
+
+(:area myrect) → 200 ; same as (: area myrect)
+(:area mycircle) → 314.1592654 ; same as (: area mycircle)
+
+;; map class methods uses curry to enclose the colon operator and class function
+
+(map (curry :area) (list myrect mycircle)) → (200 314.1592654)
+
+(map (curry :area) '((Rectangle 5 5 10 20) (Circle 1 2 10))) → (200 314.1592654) 
+
+;; objects are mutable (since v10.1.8)
+
+(:move myrect 2 3)
+(:move mycircle 4 5) 
+
+myrect    → (Rectangle 7 8 10 20)
+mycircle  → (Circle 5 7 10)
+
+In questo esempio, il simbolo qualificato correttamente (rettangle:area o circle:area) viene costruito e applicato ai dati dell'oggetto in base al simbolo che segue i due punti e il nome del contesto (il primo elemento della lista che rappresenta l'oggetto).
+
+Si noti che sebbene il chiamante specifica l'oggetto target della chiamata, la definizione del metodo non include l'oggetto come parametro. Quando si scrivono funzioni per modificare oggetti FOOP, viene utilizzata la funzione "self" per accedere e indicizzare l'oggetto.
+
+Strutturare un programma FOOP grande
+------------------------------------
+In tutti gli esempi precedenti, i metodi delle funzioni della classe venivano scritti direttamente nello spazio dei nomi del contesto MAIN. Questo metodo funziona ed è adeguato per programmi piccoli scritti da un solo programmatore. Quando si scrivono sistemi più grandi, tutti i metodi di una classe dovrebbero essere rachhiusi da istruzioni di contesto per fornire un migliore isolamento delle variabili di parametro utilizzate e per creare una locazione isolata per le potenziali variabili di classe.
+
+Le variabili di classe potrebbero essere utilizzate in questo esempio come contenitore per liste di oggetti, contatori o altre informazioni specifiche di una classe, ma non di un oggetto specifico. Il seguente codice riscrive l'esempio precedente in questo modo.
+
+Ogni contesto/spazio dei nomi potrebbe essere memorizzato in un file aggiuntivo con lo stesso nome della classe contenuta. La creazione della classe, il codice di avvio e il codice di controllo principale si trovano nel file MAIN.lsp:
+
+; file MAIN.lsp - declare all classes used in MAIN
+
+(new Class 'Rectangle)
+(new Class 'Circle)
+
+; start up code
+
+(load "Rectangle.lsp")
+(load "Circle.lsp")
+
+; main control code
+
+; end of file
+
+Ogni classe si trova in un file separato:
+
+; file Rectangle.lsp - class methods for rectangles
+
+(context Rectangle)
+
+(define (Rectangle:area)
+(mul (self 3) (self 4)))
+
+(define (Rectangle:move dx dy)
+(inc (self 1) dx) 
+(inc (self 2) dy))
+
+; end of file
+
+Segue la classe Circle:
+
+; file Circle.lsp - class methods for circles
+
+(context Circle)
+
+(define (Circle:area)
+    (mul (pow (self 3) 2) (acos 0) 2))
+
+(define (Circle:move dx dy)
+    (inc (self 1) dx) 
+    (inc (self 2) dy))
+
+; end of file
+
+Tutti gli insiemi delle funzioni di ogni classe sono ora separati lessicamente l'uno dall'altro.
 
 

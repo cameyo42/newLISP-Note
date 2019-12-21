@@ -6245,3 +6245,121 @@ row: 1 - elementi: 1
 ;-> I WIN !!!
 
 
+------------------------------
+FIBONACCI SEQUENZE DI N-NUMERI
+------------------------------
+
+Scrivere una funzione per generare le sequenze di Fibonacci in base al valore di n.
+
+ n   Nome         Valori
+ 2   fibonacci    1 1 2 3 5 8 13 21 34 55 89 144 233 377 610 ...
+ 3   tribonacci   1 1 2 4 7 13 24 44 81 149 274 504 927 1705 3136 ...
+ 4   tetranacci   1 1 2 4 8 15 29 56 108 208 401 773 1490 2872 5536 ...
+ 5   pentanacci   1 1 2 4 8 16 31 61 120 236 464 912 1793 3525 6930 ...
+ 6   hexanacci    1 1 2 4 8 16 32 63 125 248 492 976 1936 3840 7617 ...
+ 7   heptanacci   1 1 2 4 8 16 32 64 127 253 504 1004 2000 3984 7936 ...
+ 8   octonacci    1 1 2 4 8 16 32 64 128 255 509 1016 2028 4048 8080 ...
+ 9   nonanacci    1 1 2 4 8 16 32 64 128 256 511 1021 2040 4076 8144 ...
+10   decanacci    1 1 2 4 8 16 32 64 128 256 512 1023 2045 4088 8172 ...
+
+La funzione "iterate" crea una lista applicando n volte una funzione ad una lista iniziale. 
+Vediamo il funzionamento in particolare con un esempio:
+
+- la lista iniziale vale (1 2 3)
+- la funzione da applicare è "+"
+- il numero di iterazioni vale 3
+
+1. applichiamo la funzione alla lista: (apply + '(1 2 3)) = 4
+2. aggiungiamo il valore (4) alla lista: (1 2 3 4)
+3. applichiamo la funzione alla lista, 
+   prendendo solo gli ultimi 3 elementi della lista: (apply + '(2 3 4)) = 9
+   (perchè la lista iniziale aveva tre elementi)
+4. continua come al punto 2 per la prossima iterazione.
+
+La funzione può essere scritta nel seguente modo:
+
+(define (iterate iter func lst)
+  (let ((out lst)
+        (cur '())
+        (len (length lst)))
+    (dotimes (x iter)
+      (setq cur (slice out (- len)))
+      (push (apply func cur) out -1)
+    )
+    out))
+
+Oppure in modo più conciso:
+
+(define (iterate iter func lst)
+  (let ((out lst) (len (length lst)))
+    (dotimes (x iter)
+      (push (apply func (slice out (- len))) out -1)
+    )
+    out))
+
+Vediamo il nostro esempio:
+
+(iterate 5 + '(1 2 3))
+;-> (1 2 3 6 11 20 37 68)
+ 
+Invece per calcolare i numeri Pentabonacci:
+
+(iterate 10 + '(0 1 1 2 4))
+;-> (0 1 1 2 4 8 16 31 61 120 236 464 912 1793 3525)
+
+(iterate 20 + '(0 1 1 2 4))
+;-> (0 1 1 2 4 8 16 31 61 120 236 464 912 1793 3525 6930 13624 
+;->  26784 52656 103519 203513 400096 786568 1546352 3040048)
+
+Numeri di Fibonacci:
+
+(iterate 10 + '(1 1))
+;-> (1 1 2 3 5 8 13 21 34 55 89 144)
+
+Numeri di Tribonacci:
+
+(iterate 10 + '(0 0 1))
+;-> (0 0 1 1 2 4 7 13 24 44 81 149 274)
+
+Possiamo usare anche altre funzioni:
+
+(iterate 10 - '(0 1 1 2 4))
+;-> (0 1 1 2 4 -8 2 1 3 6 -20 12 0 5 9)
+
+Per utilizzare i numeri big-integer:
+
+(iterate 100 + '(0L 1L 1L 2L 4L))
+;-> (0L 1L 1L 2L 4L 8L 16L 31L 61L 120L 236L 464L
+;->  ...
+;->  930350798981478627292926391581L) 
+
+Vediamo le sequenze di Fibonacci:
+n = 2
+(iterate 10 + '(1 1))
+;-> (1 1 2 3 5 8 13 21 34 55 89 144)
+n = 3
+(iterate 10 + '(1 1 2))
+;-> (1 1 2 4 7 13 24 44 81 149 274 504 927)
+n = 4
+(iterate 10 + '(1 1 2 4))
+;-> (1 1 2 4 8 15 29 56 108 208 401 773 1490 2872)
+n = 5
+(iterate 10 + '(1 1 2 4 8))
+;-> (1 1 2 4 8 16 31 61 120 236 464 912 1793 3525 6930)
+n = 6
+(iterate 10 + '(1 1 2 4 8 16))
+;-> (1 1 2 4 8 16 32 63 125 248 492 976 1936 3840 7617 15109)
+n = 7
+(iterate 10 + '(1 1 2 4 8 16 32))
+;-> (1 1 2 4 8 16 32 64 127 253 504 1004 2000 3984 7936 15808 31489)
+n = 8
+(iterate 10 + '(1 1 2 4 8 16 32 64))
+;-> (1 1 2 4 8 16 32 64 128 255 509 1016 2028 4048 8080 16128 32192 64256)
+n = 9
+(iterate 10 + '(1 1 2 4 8 16 32 64 128))
+;-> (1 1 2 4 8 16 32 64 128 256 511 1021 2040 4076 8144 16272 32512 64960 129792)
+n = 10
+(iterate 10 + '(1 1 2 4 8 16 32 64 128 256))
+;-> (1 1 2 4 8 16 32 64 128 256 512 1023 2045 4088 8172 16336 32656 65280 130496 260864)
+
+

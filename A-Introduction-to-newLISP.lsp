@@ -9,13 +9,11 @@
 ; Original version creator: Cormullion
 ; This version creator: cameyo
 
-; Y combinator
-; Y = λf.(λx.f(xx))(λx.f(xx))
-
 ; This document is based on:
 ; "Introduction to newLISP" (by Cormullion)
-; (this is a modified text version with max row length = 100)
-; All the errors are mine
+; (this is a modified/reduced text version 
+;  with max row length = 100)
+; All the errors are mine.
 ; Some infos from:
 ;          "official newLISP forum"
 ;          "Kazimir Marjoncic blog"
@@ -29,6 +27,9 @@
 ; the semicolon ";" is the comment character
 
 ; ";->" is a way of saying "the output is"
+
+; Y combinator
+; Y = λf.(λx.f(xx))(λx.f(xx))
 
 ; MULTI-LINE CODE IN REPL
 ; =======================
@@ -291,7 +292,7 @@
 ; A LIST IS A SEQUENCE OF ELEMENTS ENCLOSED IN PARENTHESES.
 ; ==========================================================================
 
- ; a list of integers
+; a list of integers
 '(1 2 3 4 5)
 
 ; a list of strings
@@ -2265,7 +2266,7 @@ y
 ; For example, you can supply a hand-crafted quoted list:
 
 (set 'ascii-chart '(("a" 97) ("b" 98) ("c" 99)
- ; ..
+; ..
 ))
 
 ; Or you could use functions like list and push to build the association list:
@@ -4589,19 +4590,20 @@ odds
 ; that combines dolist and do-while.
 ; A loop variable steps through a list while a condition is true:
 
-(define-macro (dolist-while)
-  (letex (var (args 0 0) ; loop variable
-          lst (args 0 1) ; list
-          cnd (args 0 2) ; condition
-          body (cons 'begin (1 (args)))) ; body
-  (let (y)
-    (catch (dolist (var lst)
-      (if (set 'y cnd) body (throw y)))))))
+(define-macro (dolist-while:dolist-while)
+  (letex (var (args 0 0)
+          lst (args 0 1)
+          cnd (args 0 2)
+          body (cons 'begin (1 (args))))
+    (let (res)
+      (catch (dolist (var lst)
+                     (if (set 'res cnd) body (throw res)))))))
 
 ; It's called like this:
 
 (dolist-while (x (sequence 20 0) (> x 10))
 (println {x is } (dec x 1)))
+
 ;-> x is 19
 ;-> x is 18
 ;-> x is 17
@@ -4619,15 +4621,15 @@ odds
 
 ; Put a (println y) statement in the loop to see why:
 
-(dolist-while (x (sequence 20 0) (> x 10))
+(dolist-while (x (sequence 20 0) (> x 16))
   (println {x is } (dec x 1))
   (println {y is } y))
 ;-> x is 19
-;-> y is true
+;-> y is nil
 ;-> x is 18
-;-> y is true
+;-> y is nil
 ;-> x is 17
-;-> y is true
+;-> y is nil
 
 ; If you try to use y, it won't work:
 
@@ -4649,18 +4651,19 @@ odds
           lst (args 0 1)
           cnd (args 0 2)
           body (cons 'begin (1 (args))))
-  (let (y)
-    (catch (dolist (var lst)
-      (if (set 'y cnd) body (throw y)))))))
+    (let (res)
+      (catch (dolist (var lst)
+                     (if (set 'res cnd) body (throw res)))))))
 (context MAIN)
 
 ; This can be used in the same way, but without any problems:
 
-(dolist-while (y (sequence 20 0) (> y 10))
+(dolist-while (y (sequence 20 0) (> y 16))
   (println {y is } (dec y 1)))
 ;-> y is 19
 ;-> y is 18
 ;-> y is 17
+;-> y is 16
 
 ; OTHER IDEAS FOR MACROS
 ; ======================

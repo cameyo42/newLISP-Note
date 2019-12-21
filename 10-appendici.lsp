@@ -5141,10 +5141,16 @@ Frasi Famose sulla Programmazione e sul Linguaggio Lisp
 "Most languages in computer science describe how their author learned what someone else already developed."
 - unknown
 
-"It is better to look for semplicity, clarity and correctness and to make programs efficient only if really needed."
-- unknown
+"It is better to first strive for clarity and correctness and to make programs efficient only if really needed."
+- "Getting Started with Erlang" by Ericsson
 
 "Cavemen in bearskins invaded the ivory towers of Artificial Intelligence. Nine months later, they left with a baby named newLISP. The women of the ivory towers wept and wailed. 'Abomination!' they cried."
 - TedWalther
+
+"On every new project/problem, newLISP behave like a chameleon. It changed to a new language (of the Lisp-family) for solving that problem."
+- Hans-Peter
+
+"All profound and true things are simple. Complexity is vanity."
+- Lutz Mueller  (creator of newLISP)
 
 

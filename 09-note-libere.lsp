@@ -59,6 +59,8 @@ Forum: http://www.newlispfanclub.alh.net/forum/
 
 newLisp ha una sintassi semplice, ma una semantica potente e la sua natura interattiva supporta la prototipazione rapida e incoraggia gli utenti a esplorare e testare soluzioni ai problemi in modo incrementale.
 
+newLISP è un linguaggio di tipo LISP-1, cioè le funzioni e le variabili si trovano nello stesso spazio di nomi (come Scheme). Invece il Common Lisp è un linguaggio di tipo LISP-2, dove le funzioni e le variabili si trovano su due spazi di nomi differenti.
+
 
 --------------
 newLISP facile
@@ -71,6 +73,27 @@ Il primo elemento della lista è "speciale" (funzione).
 Il resto della lista sono "normali" (argomenti).
 Tutte le liste vengono valutate tranne quelle quotate.
 
+------------------
+Apprendere newLISP
+------------------
+
+"Alcune considerazioni generali sull'apprendimento della programmazione in newLISP:
+
+Non c'è un "sotto" in newLISP, nessuno stato nascosto, (quasi) tutto è visibile e può essere ispezionato. È possibile utilizzare la funzione "debug" per scorrere attraverso 'define-macro's. Queste non sono macro di espansione compilate come in Common LISP, ma piuttosto fexprs - funzioni senza valutazione automatica dei loro argomenti. Kazimir discute di fexprs in modo più dettagliato sul suo sito.
+
+Non credo sia una buona idea, ad esempio, provare a implementare un "foreach" in newLISP. Ci sono altre funzioni integrate che fanno lo stesso o simili e senza l'overhead di una definizione di funzione / fexpr. Come "map". Kazimir ha semplicemente definito "foreach" come "map".
+
+Non provare a programmare come Common Lisp o Scheme in newLISP. Queste sono linguaggi diversi. Prova a imparare newLISP studiando ed utilizzando le funzioni integrate. Il "nuovo" in newLISP significa una nuova mentalità di programmazione: un approccio Lisp con una mentalità orientata allo scripting di applicazioni, non con una mentalità da Computer Science come sviluppata in Scheme o con una mentalità rivolta alla compilazione del linguaggio come in Common Lisp.
+
+L'introduzione di Cormullion nel WikiBooks è un modo eccellente per imparare nuove LISP. Se si desidera lavorare seriamente in newLISP, è necessario leggere almeno una volta il "Manuale d'uso e riferimento". Ha molti esempi. C'è anche una sezione che raggruppa tutte le funzioni in diverse aree dei problemi. Questo ti aiuterà a scoprire quali funzioni sono già integrate in newLISP.
+
+A volte penso che sarebbe utile avere una "Guida di stile" che definisca determinate convenzioni su come utilizzare il set di funzionalità di newLISP. Poi, pensandoci di nuovo, penso che sarebbe una brutta cosa. Uno dei motivi per cui molti utenti sono attratti da newLISP è la sua malleabilità e flessibilità, che è anche la ragione per cui così tante persone provenienti da professioni creative utilizzano newLISP.
+
+newLISP ti dà la libertà di esprimere la stessa funzionalità in modi e stili diversi, senza costringerti in un "modo giusto" di fare le cose.
+
+Ma sicuramente, ci sono convenzioni emergenti dalla comunità. Ad esempio, racchiudere le macro nel proprio spazio dei nomi è una convenzione adottata spesso."
+
+Lutz
 
 --------------------------
 Commentare righe di codice
@@ -1997,6 +2020,7 @@ massimo
 ;-> out
 
 Per modificare le funzioni è fondamentale identificare con "nth" l'esatta posizione della espressione da trattare.
+
 Vediamo un altro esempio:
 
 (define (prova a b)
@@ -2027,6 +2051,52 @@ Vediamo un altro esempio:
 Il metodo di generare funzioni tramite codice viene utilizzato anche per lo sviluppo di "malware", poichè queste funzioni sono "invisibili" ai programmi anti-virus basati su pattern.
 
 Nota: la scrittura di funzioni (auto) modificanti rende il programma difficile da interpretare e da analizzare con il debugger.
+
+Vediamo un altro esempio, una funzione che si comporta come un generatore automodificandosi.
+ 
+(define (sum (x 0)) (my-inc 0 x))
+(define (selfmod x) (setf (last selfmod) (+ (last selfmod) 1)) 0)
+;-> (lambda (x) (setf (last selfmod) (+ (last selfmod) 1)) 0)
+
+Vediamo come funziona:
+
+(selfmod)
+;-> 1
+
+Adesso rivediamo la definizione della funzione:
+
+selfmod
+;-> (lambda (x) (setf (last selfmod) (+ (last selfmod) 1)) 1)
+La funzione ha modificato il suo ultimo parametro (dal valore 0 al valore 1).
+
+(selfmod)
+;-> 2
+selfmod
+;-> (lambda (x) (setf (last selfmod) (+ (last selfmod) 1)) 2)
+
+(selfmod)
+;-> 3
+selfmod
+;-> (lambda (x) (setf (last selfmod) (+ (last selfmod) 1)) 3)
+
+Un altro modo di creare un generatore:
+
+(define (selfinc x) (myinc x) 0)
+;-> (lambda (x) (myinc x) 0)
+
+(define (myinc x) (inc (last selfinc) x))
+;-> (lambda (x) (inc (last selfinc) x))
+
+(selfinc 1)
+;-> 1
+(selfinc 2)
+;-> 3
+(selfinc 3)
+;-> 6
+selfinc
+;-> (lambda (x) (myinc x) 6)
+
+Nota: Una funzione definita dall'utente non ha modo di fare riferimento alla funzione da cui è stata invocata, tranne quando ha una sua precedente conoscenza. Quando abbiamo questa necessità, in cui una funzione deve conoscere il nome della chiamante, basta renderla un parametro della chiamata di funzione.
 
 
 ---------------
@@ -2509,9 +2579,21 @@ newLISP comunque permette di utilizzare entrambi gli ambiti: dinamico e lessical
 Un libro molto interessante su questo argomento e sul LISP in generale è:
 "COMMON LISP: A Gentle Introduction to Symbolic Computation" di David Touretzky.
 
+Alcune raccomandazioni per evitare i problemi dell'ambito dinamico:
+
+(1) Non passare mai simboli quotati alle funzioni. Per passare i riferimenti, utilizzare i  contesti e i funtori di default.
+
+(2) Non utilizzare mai variabili libere all'interno di una funzione, ad eccezione delle variabili chiaramente contrassegnate per l'uso globale da alcune convenzioni di denominazione (ad esempio *earmuffing*).
+
+(3) Inserisci sempre le define-macro nel proprio spazio dei nomi. O ignorale completamente. Non sono una nuova funzionalità essenziale di newLISP.
+
+Seguendo queste tre regole newLISP si comporterà come un linguaggio con ambito lessicale.
+
 Infine, vediamo il perchè della parola "lessicale":
 
 nell'ambito statico, una variabile si riferisce sempre all'associazione di chiusura più vicina (binding). Questa è una proprietà del testo del programma e non è correlata allo stack delle chiamate di runtime. Poiché la corrispondenza di una variabile con l'associazione richiede solo l'analisi del testo del programma, questo tipo di ambito viene chiamato anche "ambito lessicale".
+
+Dal punto di vista storico, newLISP ci comporta come il LISP originale di McCarthy. Poi  Scheme ha introdotto l'ambito lessicale che è stato seguito anche dal Common Lisp (sebbene CL supporti l'ambito dinamico se si dichiarano le variabili locali come speciali). È una delle questioni più controverse nella famiglia dei linguaggi LISP.
 
 
 ----------------------------------
@@ -2799,6 +2881,25 @@ Possiamo aggiungere altre funzioni al contesto "gen", ad esempio una funzione ch
 (gen)
 ;-> 1
 
+Possiamo usare anche un'altro metodo:
+
+(define (foo:foo x) (if x (set 'foo:sum x)) (inc foo:sum))
+
+(foo)
+;-> 1
+(foo)
+;-> 2
+(foo 10)
+;-> 11
+(foo)
+;-> 12
+(foo 8)
+;-> 9
+foo:sum
+;-> 9
+
+Queso metodo è meglio perché non è necessario scrivere funzioni aggiuntive per accedere alla somma.Inoltre foo:sum porta in primo piano il qualificatore 'foo'. Infine, ma non meno importante, questo è più facile da capire di una chiusura (closure).
+
 Adesso proviamo a scrivere un generatore di numeri primi.
 
 Prima definiamo la funzione che verifica se un numero è primo:
@@ -2897,7 +2998,7 @@ Se chiamiamo la funzione senza parametri otteniamo il valore di "a":
 (somma)
 ;-> 0
 
-Se chiamiamo la funzione con un parametro otteniamo la somma di "a" e del parametrorametro (che viena assegnata ad "a"):
+Se chiamiamo la funzione con un parametro otteniamo la somma di "a" e del parametro (che viena assegnata ad "a"):
 
 (somma 3)
 ;-> 3
@@ -4191,6 +4292,389 @@ Somma elementi di una lista con "apply":
 (time (apply + lst) 1000)
 ;-> 169.736
 
-Nota: le funzioni "map" e "apply" non sono applicabili ai vettori
+Nota: le funzioni "map" e "apply" non sono applicabili ai vettori.
 
+
+----------------------------------
+Un motore per espressioni regolari
+----------------------------------
+
+Nel libro "The Practice of Programming" di Rob Pike e Brian Kernighan viene presentato un programma che implementa un interessante motore per le espressioni regolari. 
+
+Il programma gestisce le seguenti regole per le espressioni regolari:
+
+    c    matches any literal character c
+    .    matches any single character
+    ^    matches the beginning of the input string
+    $    matches the end of the input string
+    *    matches zero or more occurrences of the previous character
+    
+Per maggiori informazioni potete riferirvi all'articolo "A Regular Expression Matcher" disponibile sul web: 
+
+https://www.cs.princeton.edu/courses/archive/spr09/cos333/beautiful.html
+
+Sul forum di newLISP rickiboy ha pubblicato una versione del programma in newLISP.
+
+Riportiamo questo elegante programma (grazie rickiboy):
+
+Funzioni ausiliarie:
+
+(define-macro (second)
+  (letex (xs (args 0)) (if (> (length xs) 1) (xs 1))))
+
+(define (some pred coll) (and (exists pred coll) true))
+
+Codice del motore per le espressioni regolari:
+
+(define (tails coll)
+  (map (curry slice coll) (sequence 0 (- (length coll) 1))))
+
+(define (matchstar c regexp text)
+  (some (curry matchhere regexp)
+        (filter (fn (xs) (or (= c (first xs)) (= "." c) (empty? xs)))
+                (tails text))))
+
+(define (matchhere regexp text)
+  (if (empty? regexp) true
+      (= "*" (second regexp)) (matchstar (first regexp) (slice regexp 2) text)
+      (= "$" regexp) (empty? text)
+      (empty? text) false
+      (= "." (first regexp)) (matchhere (rest regexp) (rest text))
+      (= (first regexp) (first text)) (matchhere (rest regexp) (rest text))))
+
+(define (match* regexp text)
+  (if (= "^" (first regexp))
+      (matchhere (rest regexp) text)
+      (some (curry matchhere regexp) (tails text))))
+
+Vediamo alcuni esempi:
+
+(match* "^a" "apro")
+;-> true
+
+(match* ".a" "apro")
+;-> nil
+
+(match* "a" "apro")
+;-> true
+
+(match* ".ro" "apro")
+;-> true
+
+(match* "^a..i" "appi")
+;-> true
+
+(match* "f*" "ffi")
+;-> true
+
+Veramente impressionante.
+
+
+---------------------------------
+Insiemi (set) senza reinserimento
+---------------------------------
+
+Definire una struttura insieme che non permette di aggiungere elementi già cancellati. Ad esempio:
+lista = (1 2 3 4 5)
+(set-add 3) --> lista = (1 2 3 4 5) ; elemento già presente
+(set-add 8) --> lista = (1 2 3 4 5 8)
+(set-del 5) --> lista = (1 2 3 4 8)
+(set-add 5) --> lista = (1 2 3 4 8) ; elemento cancellato
+
+Definiamo due liste, una contiene gli elementi esistenti e una contiene gli elementi cancellati.
+
+(setq items '())
+(setq deleted '())
+
+Funzione per aggiungere gli elementi:
+
+(define (set-add el)
+  ;se l'elemento è presente oppure è stato cancellato...
+  (if (or (find el items) (find el deleted))
+      nil ; non fare nulla
+      (push el items -1)) ; altrimenti, aggiunge l'elemento al set
+  items)
+
+Funzione per cancellare gli elementi:
+
+(define (set-del el)
+  (let (idx -1)
+    ; se l'elemento è stato cancellato...
+    (if (find el deleted)
+        nil ; non fare nulla
+        ; se l'elemento si trova nella lista...
+        (if (setq idx (find el items))
+            ;(pop items (find el items))
+            ; eliminalo al set e aggiungilo ai cancellati
+            (begin (pop items idx) (push el deleted -1))
+            ; altrimenti non fare nulla
+            nil))
+    items))
+
+Aggiungiamo 10 numeri (0..9) alla lista items:
+
+(dotimes (x 10) (set-add x))
+;-> (0 1 2 3 4 5 6 7 8 9)
+
+Cancelliamo i numeri 3 e 5:
+
+(set-del 3)
+;-> (0 1 2 4 5 6 7 8 9)
+
+(set-del 5)
+;-> (0 1 2 4 6 7 8 9)
+
+Aggiungiamo 15 numeri (0..14):
+
+(dotimes (x 15) (set-add x))
+;-> (0 1 2 4 6 7 8 9 10 11 12 13 14)
+
+
+-------------------------------
+Funzioni con parametri nominali
+-------------------------------
+
+Possiamo passare dei parametri nominali ad una funzione con la seguente tecnica:
+
+(define (func-par)
+  (let (x nil y nil)
+    (apply set (args))
+    (println "x = " x ", y = " y)))
+
+Possiamo chiamare la funzione soltanto con i parametri x e y:
+
+(func-par 'x 1 'y 2)
+;-> x = 1, y = 2
+
+Infatti con altri parametri otteniamo nil:
+
+(func-par 'a 1 'b 2)
+;-> x = nil, y = nil
+
+Però possiamo inserire x e y in qualunque ordine:
+
+(func-par 'y 2 'x 1)
+;-> x = 1, y = 2
+
+Nota: non possiamo usare "setq" al posto di "set" perchè i parametri non devono essere valutati.
+
+Potremmo usare anche una macro:
+
+(define-macro (funcpar)
+  (let (x nil y nil)
+    (apply set (args))
+    (println "x = " x ", y = " y)))
+
+(funcpar x 1 y 2)
+;-> x = 1, y = 2
+
+(funcpar a 1 b 2)
+;-> x = nil, y = nil
+
+(funcpar y 2 x 1)
+;-> x = 1, y = 2
+
+
+-------------------------
+la funzione COMMAND-EVENT
+-------------------------
+
+**************************
+>>>funzione COMMAND-EVENT
+**************************
+sintassi: (command-event sym-event-handler | func-event-handler)
+sintassi: (command-event nil)
+
+Specifica una funzione definita dall'utente per la preelaborazione della riga di comando newLISP prima che venga valutata. Questo può essere usato per scrivere shell di newLISP interattive personalizzate e per trasformare richieste HTTP durante l'esecuzione in modalità server.
+
+command-event accetta il simbolo di una funzione definita dall'utente o una funzione lambda. La funzione del gestore eventi (event-handler) deve restituire una stringa oppure la riga di comando verrà passata non tradotta a newLISP.
+
+Per forzare solo un prompt e disabilitare l'elaborazione dei comandi, la funzione deve restituire la stringa vuota "". Per ripristinare il comando-evento, utilizzare la seconda sintassi.
+
+L'esempio seguente fa funzionare la shell newLISP come una normale shell Unix quando il comando inizia con una lettera. Ma iniziando la linea con una parentesi aperta o uno spazio avvia la valutazione di newLISP.
+
+(command-event (fn (s)
+	(if (starts-with s "[a-zA-Z]" 0) (append "!" s) s)))
+
+Vedere anche la funzione correlata "prompt-event" che può essere utilizzata per personalizzare ulteriormente la modalità interattiva modificando il prompt newLISP.
+
+Il seguente programma può essere utilizzato autonomo o incluso nel file di avvio init.lsp di newLISP:
+
+#!/usr/local/bin/newlisp
+
+; set the prompt to the current directory name
+(prompt-event (fn (ctx) (append (real-path) "> ")))
+
+; pre-process the command-line
+(command-event (fn (s)
+    (if
+        (starts-with s "cd")
+        (string " " (true? (change-dir (last (parse s " ")))))
+        (starts-with s "[a-zA-Z]" 0)
+        (append "!" s)
+        true s)))
+
+Nella definizione della funzione di traduzione della riga di comando, il comando "cd" Unix riceve un trattamento speciale, per assicurarsi che la directory venga cambiata  anche per il processo newLISP. In questo modo quando utilizziamo un comando shell con "!" al ritorno, newLISP manterrà il cambio della directory.
+
+Command lines for newLISP must start either with a space or an opening parenthesis. Unix commands must start at the beginning of the line.
+Note, that the command line length as well as the line length in HTTP headers is limited to 512 characters for newLISP.
+
+Le righe di comando per newLISP devono iniziare con uno spazio o una parentesi aperta.
+I comandi Unix devono iniziare all'inizio della riga.
+Si noti che la lunghezza della riga di comando e la lunghezza della riga nelle intestazioni HTTP sono limitate a 512 caratteri in newLISP.
+
+Esempio presentato da Cormullion sul forum di newLISP:
+
+(define (show l)
+  (map (fn (f)
+    (println (format {%s is %s} (map string (select (facts f) '(0 1)))))) l))
+
+(define-macro (is a b)
+  (cond
+    ((= a 'who)   (show (ref-all (list '? b) facts match)))
+    ((= a 'what)  (show (ref-all (list b '?) facts match)))
+    (true         (push (list (sym a) (sym b)) facts))))
+
+(command-event (fn (s)
+   (if (find "is " s)
+       (string {(is } (replace {is } s {}) {)})
+       s)))
+;-> $command-event
+
+Adesso possiamo scrivere nella REPL:
+
+mike is tall
+;-> ((mike tall))
+john is tall
+;-> ((john tall) (mike tall))
+peter is old
+;-> ((peter old) (john tall) (mike tall))
+john is old
+;-> ((john old) (peter old) (john tall) (mike tall))
+what is john
+;-> john is old
+;-> john is tall
+;-> ("john is old" "john is tall")
+john is smart
+;-> ((john smart) (john old) (peter old) (john tall) (mike tall))
+what is john
+;-> john is tall
+;-> ("john is smart" "john is old" "john is tall")
+who is smart
+;-> john is smart
+;-> ("john is smart")
+who is old
+;-> john is old
+;-> peter is old
+;-> ("john is old" "peter is old")
+mike is old
+;-> ((mike old) (john smart) (john old) (peter old) (john tall) (mike tall))
+who is old
+;-> mike is old
+;-> john is old
+;-> peter is old
+;-> ("mike is old" "john is old" "peter is old")
+
+Questo funziona come un preprocessore all'interno di un gestore eventi. Quindi, praticamente, il codice tratta tratta "x IS y" come dati e li elabora in qualcosa di più leggibile.
+
+----------------------------
+Massimo Comun Divisore (MCD)
+----------------------------
+MCD - Massimo Comune Divisore
+GCD - Greatest Common Divisor
+
+Vediamo alcune funzioni per calcolare il MCD:
+
+(define (gcd1_ a b)
+  (let (r (% b a))
+    (if (= r 0) a (gcd_ r a))))
+
+(define-macro (my-gcd1) (apply gcd1_ (args) 2))
+
+Questo è un semplice algoritmo non ottimizzato per la velocità. Uno migliore è il seguente:
+
+(define (gcd2_ x y , r)
+  (while (> y 0)
+    (setq r (% x y))
+    (if (> r (>> y 1))(setq r (- y r)))
+    (setq x y y r)
+  )
+  x
+)
+
+(define-macro (my-gcd2) (apply gcd2_ (args) 2))
+
+Uno ancora migliore è l'algoritmo binario con spostamento a destra. Il codice originale è in linguaggio C da un libro di teoria dei numeri, quella che segue è la traduzione in newLISP:
+
+(define (gcd3_ x y , g t)
+  (setq g 0)
+  (while (~ (& (| x y) 1))
+    (setq x (>> x 1)
+          y (>> y 1)
+          g (+ g 1)
+    )
+  )
+  (while (~ (& x 1))(setq x (>> x 1)))
+  (while (~ (& y 1))(setq y (>> y 1)))
+  (while (!= x y)
+    (if (< x y)
+        (setq t x x y y t))
+    (setq x (- x y))
+    (while (~ (& x 1))
+        (setq x (>> x 1)))
+  )
+  (<< x g)
+)
+
+Tuttavia, quando eseguiamo questo programma rimaniamo bloccati in un ciclo infinito.
+
+Probabilmente il ciclo infinito si trova nelle seguenti espressioni:
+
+(while (~ (& x 1))(setq x (>> x 1)))
+(while (~ (& y 1))(setq y (>> y 1)))
+
+oppure qui:
+
+(while (~ (& (| x y) 1))
+
+Il linguaggio C considera lo 0 (zero) com un falso logico e il ciclo while esce quando il valore vale 0. In newLISP lo 0 è invece un vero logico, e "~" (tilde) è una negazione binaria (bit flip), non logica. Quindi le espressioni sopra dovrebbero essere scritte nel modo seguente:
+
+(while (= 0 (& x 1)) ...)
+
+oppure:
+
+(while (zero? (& x 1)) ...)
+
+Quindi la versione finale è questa:
+
+(define (gcd3_ x y , g t)
+  (setq g 0)
+  (while (zero? (& (| x y) 1))
+    (setq x (>> x 1)
+          y (>> y 1)
+          g (+ g 1)
+    ))
+  (while (zero? (& x 1))(setq x (>> x 1)))
+  (while (zero? (& y 1))(setq y (>> y 1)))
+  (while (!= x y)
+    (if (< x y)
+        (setq t x x y y t))
+    (setq x (- x y))
+    (while (zero? (& x 1))
+        (setq x (>> x 1))))
+  (<< x g)
+)
+
+(gcd3_ 2018478412740 21241241994)
+;-> 6
+
+(define-macro (my-gcd3) (apply gcd_ (args) 2))
+
+Per completezza vediamo anche il calcolo del Minimo Comune Multiplo (mcm):
+
+;Returns the least common multiple of two integers x and y.
+(define (lcm_ x y)(* x (/ y (gcd x y))))
+(define-macro (lcm)(apply lcm_ (args) 2))
+
+Infine vediamo alcuni test di velocità delle funzioni.
 
