@@ -349,6 +349,45 @@ La mia idea è che ognuno deve creare ed affinare con il tempo il proprio stile 
 Il mio approccio è quello di scrivere in stile C quando sviluppo una funzione. Una volta che la funzione è definitiva, cioè testata e corretta, converto le parentesi in stile Lisp.
 
 
+---------------------------------------
+Considerazioni sulle parentesi del LISP
+---------------------------------------
+
+LISP è l'acronimo di LISt Processing, ma spesso i commenti di scherno di alcuni programmatori lo definiscono come:
+Lots of (Insipid | Irritating | Infuriating | Idiotic | ...) (Spurious | Stubborn | Superfluous | Silly | ...) Parentheses. In questo modo la sintassi del LISP viene accusata di rendere il codice incompresibile da leggere e impossibile da scrivere senza errori. Credo che queste idee siano completamente sbagliate.
+
+Prima di tutto le parentesi rendono il codice semplice da leggere (se correttamente indentato) e la loro sintassi può essere compresa da chiunque in 30 minuti. L'unico problema potrebbe essere quello del bilanciamento delle parentesi, ma è dal 1970 che gli editor si prendono cura di risolvere visualmente questo problema. La sintassi del C è molto più complessa e intricata.
+
+Per quanto riguarda la semantica, possiamo notare che la sintassi annidabile e regolare del LISP permette di creare sia una semantica ricorsiva annidabile naturale, che una semantica iterativa/gerarchica.
+
+Un altra critica alla sintassi del LISP è quella rendere il linguaggio a "bassa densità di linee di codice": penso che sia vero il contrario, la semantica dei programmi LISP lo compensa in gran parte con la necessità di scrivere molte meno righe di codice per la stessa funzionalità, rendendo la densità complessiva del codice LISP più alta che in qualsiasi altra linguaggio (inoltre il LISP può estendere la propria semantica tramite le macro e la meta-programmazione).
+
+La struttura di programma cresce naturalmente fino a quando non raggiunge la barriera della comprensione umana, ciò che cambia da una linguaggio all'altro non è questa barriera, propria dell'uomo, ma la quantità di cose utili che si possono esprimere all'interno di questa barriera.
+
+Un altro argomento contro la sintassi di Lisp è che le sue parentesi non aiutano a distinguere la semantica all'interno del codice del programma. Questo è vero, ma in LISP le parentesi indicano l'annidamento del codice, ma non le distinzioni semantiche. Ciò non significa che queste distinzioni non possano essere fatte facilmente in LISP tramite l'utilizzo di altri metodi (moduli, simboli,ecc.)
+
+Quanto a ciò che rende necessarie le parentesi, non è una questione di sintassi prefissa opposta alla sinassi infissa: è una questione di arità fissa contro arità variabile. La sintassi prefissa può funzionare completamente senza parentesi, quando si conosce l'arità di ciascun operatore. In realtà, la prima sintassi prefissa sistematica, la famosa Notazione polacca di Jan Lukasiewicz, è stata ideata proprio come un modo per sbarazzarsi del tutto delle parentesi. La variante postfix di questa notazione, nota come notazione polacca inversa (RPN), si trova nel FORTH, nelle calcolatrici HP, nel PostScript e in molte macchine virtuali.
+La necessità delle parentesi è dovuta al fatto che LISP ha una sintassi uniforme ed estensibile che deve adattarsi ad un numero arbitrario di argomenti nei moduli del programma. LISP si standardizza su una sintassi generica che è immediatamente leggibile in modo non ambiguo da qualsiasi Lisper anche senza una conoscenza a priori dell'arità di ogni operatore che appare in un dato dominio. LISP consente inoltre agli utenti di estendere il linguaggio attraverso le macro qualora si desideri una sintassi ad-hoc per un dominio specifico. Quindi, ciò che rende necessarie le parentesi è il fatto che la stessa sintassi deve essere estendibile a funzioni e forme variadiche.
+
+Probabilmente queste critiche alle parentesi sono dovute a diversi fattori:
+a) l'uso delle parentesi negli altri linguaggi ha un'interpretazione ambigua
+b) aspettative di soluzioni per problemi che provengono da altri linguaggi
+c) automatica reazione quando si tratta di imparare qualcosa di nuovo e totalmente diverso
+
+Quelli che conoscono bene il LISP si lamentano di tante cose... ma non della sua sintassi. In fondo le parentesi sono l'emozione del LISP come gli spazi bianchi sono l'emozione di Python.
+
+Per quanto mi riguarda ho imparato più facilmente la sintassi del LISP che quella del C. Il timore iniziale delle "parentesi" si è rapidamente trasformato in simpatia e anche dipendenza. Non è stato un "colpo di fulmine", ma si è trasformato in un sentimento profondo :-)
+Le parentesi aiutano benissimo ad isolare le espressioni, che quindi possono essere estratte e riposizionate con facilità all'interno del programma. Inoltre occorre ricordare che: "Un programmatore LISP legge il programma dalla sua indentazione, non controllando l'annidamento delle parentesi."
+
+In genere quando si studia un linguaggio di programmazione è meglio attenersi agli idiomi e ai metodi propri del linguaggio. Solo in seguito, una volta acquisita una sufficiente familiarità, si potranno provare nuove strade o implementare le tecniche di altri linguaggi. 
+
+"Learn at least one new [programming] language every year. Different languages solve the same problems in different ways. By learning several different approaches, you can help broaden your thinking and avoid getting stuck in a rut." - The Pragmatic Programmers
+
+"Imparare almeno un nuovo linguaggio di programmazione ogni anno. Linguaggi diversi risolvono gli stessi problemi in modi diversi. Imparando diversi approcci, puoi ampliare il tuo pensiero ed evitare rimanere bloccato in un vicolo cieco." - The Pragmatic Programmers
+
+"newLISP is so much like a pile of clay (in a good way ;-), waiting to be formed into whatever the programming potter wishes it to be, that it's better for it to remain faithful to the simple ideas that originated in LISP and stay a pile of clay. Parentheses and all :-)" - michael
+
+
 ---------------------------------------------
 Controllare l'output della REPL (prettyprint)
 ---------------------------------------------
@@ -2047,6 +2086,30 @@ Vediamo un altro esempio:
 ;-> (* x y)
 (length (nth 3 prova))
 ;-> 3
+
+L'oggetto "lambda" in newLISP non è una parola chiave come una funzione o un operatore incorporato, ma un attributo speciale di una lista: un lista lambda, che si presenta in questo modo:
+
+(lambda)
+;-> (lambda )
+
+Come si vede, una lista lambda valuta su se stessa in newLISP e non è necessario quotarla quando la si utilizza come parametro per un'altra funzione.
+
+Quando si costruiscono liste lambda con "append" o "cons", allora "append" associa la proprietà lambda a destra e "cons" a sinistra:
+
+(append (lambda) '((x) (+ x x)))
+;-> (lambda (x) (+ x x))
+
+(cons '(x) (lambda (+ x x)))
+;-> (lambda (x) (+ x x))
+
+L'esempio "cons" mostra che lambda non è il primo elemento di una lista, ma piuttosto una proprietà di quella lista. Infatti risulta:
+
+(empty? (lambda))
+;-> true
+
+(lambda? (lambda))
+;-> true
+
 
 Il metodo di generare funzioni tramite codice viene utilizzato anche per lo sviluppo di "malware", poichè queste funzioni sono "invisibili" ai programmi anti-virus basati su pattern.
 
@@ -3822,7 +3885,7 @@ newlisp newlispdoc doc-demo.lsp
 
 Adesso nella cartella troviamo anche i file "index.html" e "doc-demo.lsp.html" che sono la documentazione al nostro modulo.
 
-Ve digitiamo il seguente comando:
+Se digitiamo il seguente comando:
 
 newlisp newlispdoc -s doc-demo.lsp
 
@@ -3943,6 +4006,34 @@ Se invece dobbiamo calcolare i primi n numeri primi, una routine ad hoc è più 
 ;-> 203.137
 
 La funzione che non usa "factor" è più veloce.
+
+Infine, una funzione di Kazimir Majorinc per calcolare quanti numeri primi ci sono fino a n.
+
+(setq sieve (lambda(size)
+              (let ((flags (array (+ size 1)))
+                    (sqrtsize (sqrt size))
+                    (total 0))
+                   (for (i 2 sqrtsize)
+                     (when (not (flags i))
+                           (for (k (* i i) size i)
+                             ;(nth-set (flags k) 0))
+                             (setf (flags k) 0))
+                           (inc total)))
+                   (for (i (+ sqrtsize 1) size)
+                     (unless (flags i)
+                             (inc total)))
+                   total)))
+
+(sieve 10)
+;-> 4
+(sieve 100)
+;-> 25
+(sieve 1000)
+;-> 168
+(sieve 10000)
+;-> 1229
+(sieve 1e7)
+;-> 664579
 
 
 ----------------------------------------
@@ -4587,7 +4678,7 @@ Vediamo alcune funzioni per calcolare il MCD:
 
 (define (gcd1_ a b)
   (let (r (% b a))
-    (if (= r 0) a (gcd_ r a))))
+    (if (= r 0) a (gcd1_ r a))))
 
 (define-macro (my-gcd1) (apply gcd1_ (args) 2))
 
@@ -4604,7 +4695,7 @@ Questo è un semplice algoritmo non ottimizzato per la velocità. Uno migliore �
 
 (define-macro (my-gcd2) (apply gcd2_ (args) 2))
 
-Uno ancora migliore è l'algoritmo binario con spostamento a destra. Il codice originale è in linguaggio C da un libro di teoria dei numeri, quella che segue è la traduzione in newLISP:
+Uno ancora migliore è l'algoritmo binario con spostamento a destra. Il codice originale è in linguaggio C preso da un libro di teoria dei numeri, quella che segue è la traduzione in newLISP:
 
 (define (gcd3_ x y , g t)
   (setq g 0)
@@ -4673,8 +4764,409 @@ Quindi la versione finale è questa:
 Per completezza vediamo anche il calcolo del Minimo Comune Multiplo (mcm):
 
 ;Returns the least common multiple of two integers x and y.
+
 (define (lcm_ x y)(* x (/ y (gcd x y))))
+
 (define-macro (lcm)(apply lcm_ (args) 2))
 
 Infine vediamo alcuni test di velocità delle funzioni.
+
+(setq number1 (map int (random 1 1e8 10000)))
+(setq number2 (map int (random 1 1e8 10000)))
+
+(time (map gcd1_ number1 number2) 100)
+;-> 3187.894
+(time (map gcd2_ number1 number2) 100)
+;-> 2768.187
+(time (map gcd3_ number1 number2) 100)
+;-> 8453.914
+
+Vediamo la funzione standard "gcd" (che è la più veloce):
+
+(time (map gcd number1 number2) 100)
+;-> 281.56
+
+
+------------------------
+Indicizzazione implicita
+------------------------
+È possibile creare forme implicite di "rest" e "slice" anteponendo alla lista uno o due numeri per indicare l'offset e la lunghezza. Se la lunghezza è negativa, inizia a contare dalla fine della lista:
+
+(set 'lst '(a b c d e f g))
+; or as array
+(set 'lst (array 7 '(a b c d e f g)))
+
+(1 lst)      → (b c d e f g)
+(2 lst)      → (c d e f g)
+(2 3 lst)    → (c d e)
+(-3 2 lst)   → (e f)
+(2 -2 lst)   → (c d e)
+
+; resting and slicing is always on 8-bit char borders
+; even on UTF8 enabled versions
+
+(set 'str "abcdefg")
+
+(1 str)      → "bcdefg"
+(2 str)      → "cdefg"
+(2 3 str)    → "cde"
+(-3 2 str)   → "ef"
+(2 -2 str)   → "cde"
+
+(setq lst '(a b c d e))
+
+(0 -1 lst)
+;-> (a b c d)
+lst
+;-> (a b c d e)
+
+(chop lst)
+;-> (a b c d)
+lst
+;-> (a b c d e)
+
+(pop lst)
+;-> a
+lst
+;-> (b c d e)
+
+Se credi che l'indicizzazione implicita sia confusa da interpretare, allora puoi creare una funzione:
+
+(define (drop-last var)(0 -1 var))
+
+Quindi:
+(drop-last '("a" "b" "c" "d" "e"))
+;-> ("a" "b" "c" "d")
+
+Equivalente a:
+(chop '("a" "b" "c" "d" "e"))
+;-> ("a" "b" "c" "d")
+
+
+------------------------------------
+nil come valore e nil come risultato
+------------------------------------
+
+Ricordiamo che la lista vuota non è "true" o "nil":
+
+(nil? '())
+;-> nil
+
+(true? '())
+;-> nil
+
+(empty? '())
+;-> true
+
+(list? '())
+;-> true
+
+(= '() '())
+;-> true
+
+Ma in un contesto booleano risulta falsa (nil):
+
+(if '() "vero" "falso")
+;-> "falso"
+
+Questo fatto ci permette di velocizzare il codice nel modo seguente:
+
+(setq lst '())
+;-> ()
+
+La lista vuota non è uguale a "nil" come valore:
+
+(nil? lst)
+;-> nil
+
+Ma è considerata falsa (nil) quando è vuota in un contesto booleano:
+
+(if lst (println "vero") (println "falso"))
+;-> falso
+
+Questo permette di scrivere:
+
+(time (if lst 'si 'no) 1000000)
+;-> 31.247
+
+Che è molto più veloce di:
+
+(time (if (not (empty? lst)) 'si 'no) 1000000)
+;-> 62.506
+
+Inoltre, se non è presente alcuna clausola "else" nell'istruzione "if", viene restituita la valutazione della condizione:
+
+(if lst 'si)
+;-> ()
+
+Mentre nel secondo caso avremmo:
+
+(if (not (empty? lst)) 'si)
+;-> nil
+
+Questa potrebbe essere una distinzione importante quando si controlla il valore di ritorno di una funzione/macro, per distinguere tra un elemento nil restituito oppure il risultato nil come mancata applicazione della funzione/macro. Supponiamo di voler scrivere una macro che elimina l'ultimo oggetto da una lista. Se utilizziamo la primitiva "pop" otteniamo un errore quando viena applicata alla lista vuota:
+
+(setq lst '(a))
+;-> (a)
+(pop lst -1)
+;-> a
+
+Adesso lst è vuota:
+lst
+;-> ()
+
+Applicando "pop" otteniamo un errore:
+
+(pop lst -1)
+;-> ERR: invalid list index in function pop
+
+Con una macro (Lutz) possiamo scrivere:
+
+(macro (drop L) (if L (pop L -1)))
+;-> (lambda-macro (L) (expand '(if L (pop L -1))))
+
+(setq lst '(a))
+;-> (a)
+
+(drop lst)
+;-> a
+(drop lst)
+;-> ()
+
+In questo caso, quando la lista è vuota "drop" produce una lista vuota e non un errore.
+
+
+---------------------
+Simulare un iteratore
+---------------------
+
+Per simulare velocemente un iteratore possiamo utilizare un lista di numeri:
+
+(setq s '(3 2 1))
+
+(pop s) ;-> 3
+(pop s) ;-> 2
+(pop s) ;-> 1
+(pop s) ;-> nil
+
+Per simulare un generatore crescente non possiamo usare "pop" con il parametro -1 (cioè non possiamo togliere l'ultimo elemento) perchè si avrebbe un errore quando la lista è vuota:
+
+(setq s '(3 2 1))
+
+(pop s -1) ;-> 1
+(pop s -1) ;-> 2
+(pop s -1) ;-> 3
+(pop s -1) ;-> ERR: invalid list index in function pop
+
+Quindi usiamo una sequenza inversa:
+
+(setq s '(1 2 3))
+(pop s) ;-> 1
+(pop s) ;-> 2
+(pop s) ;-> 3
+(pop s) ;-> nil
+
+
+-------------------------------
+"Don't underrate an iterate..."
+-------------------------------
+
+"Non sottovalutate l'iterazione..."
+Questa è una legge di Lutz, il creatore di newLISP.
+Non sempre dobbiamo usare "dolist" per iterare attraverso una lista.
+
+(setq lst (series 1 2 12))
+;-> (1 2 4 8 16 32 64 128 256 512 1024 2048)
+
+(map (fn (n) (apply add n)) (explode lst 3))
+;-> (7 56 448 3584)
+
+(dolist (n (explode lst 3)) (println (apply add n)))
+;-> 7
+;-> 56
+;-> 448
+;-> 3584
+
+(do-while lst (println (apply add (list (pop lst) (pop lst) (pop lst)))))
+;-> 7
+;-> 56
+;-> 448
+;-> 3584
+
+(setq lst (series 1 2 12))
+;-> (1 2 4 8 16 32 64 128 256 512 1024 2048)
+(map (fn (x) (println (x 0) "-" (x 1) "-" (x 2))) (explode lst 3))
+;-> 1-2-4
+;-> 8-16-32
+;-> 64-128-256
+;-> 512-1024-2048
+;-> (4 32 256 2048)
+
+(map (curry apply (fn (i j k) (println i "-" j "-" k))) (explode lst 3))
+;-> 1-2-4
+;-> 8-16-32
+;-> 64-128-256
+;-> 512-1024-2048
+;-> (4 32 256 2048)
+
+Da notare l'opzione "int-reduce" in "apply". Quando "int-reduce" è 2, il comportamento è simile alla funzione "fold" o "reduce", quando è più grande di 2 è ancora più divertente.
+
+(apply (fn(_ a b c)(println a {-} b {-} c)) (cons nil lst) 4)
+;-> 1-2-4
+;-> 8-16-32
+;-> 64-128-256
+;-> 512-1024-2048
+
+(apply (fn(_ a b c)(println a b c)) (cons nil (sequence 1 9)) 4)
+;-> 123
+;-> 456
+;-> 789
+
+
+----------------------------
+Simboli che iniziano con "$"
+----------------------------
+
+Tutti i simboli che iniziano con il carattere "$" sono sempre definiti in MAIN.
+Esempio:
+(context 'Demo)
+;-> Demo
+Demo>
+(setq $demo "hi!")
+;-> "hi!"
+Fred> 
+(symbols)
+;-> ()
+Demo>
+(context MAIN)
+;-> MAIN
+(symbols)
+;-> (! != $ $0 $1 $10 $11 $12 $13 $14 $15 $2 $3 $4 $5 $6 $7 $8 $9 
+;->  $args $count $demo $idx $it $main-args $x % & * + ++ , - -- / 
+;->  : < << <= = > >= >> ? @ Class Demo MAIN NaN? Tree ...)
+
+Spiegazione (Lutz):
+I simboli che iniziano con $ sono variabili modificate/gestite da newLISP in MAIN e sono accessibili a livello globale. Le variabili da $0 a $15 vengono utilizzate per contenere informazioni delle espressioni regolari e $0 contiene anche l'espressione di sostituzione per diversi "set" e per la funzione "replace". $idx è l'indice corrente di "dolist". $args contiene l'elenco restituito dalla funzione "args" e $main-args contiene lla lista restituita dalla funzione "main-args". Tutti questi simboli sono globali e tutti, tranne $0 a $15, sono protetti e non possono essere modificati dall'utente. L'utente può impostare da $0 a $15 perché ci sono casi in cui ciò è necessario quando si lavora con espressioni regolari.
+
+Inoltre, i simboli che iniziano con $ non vengono salvati quando si salva un contesto (es. (save 'MyContext) o quando si serializzano nuovi oggetti LISP con la funzione "source".
+
+Nota: il nome di una variabile può iniziare con qualsiasi carattere tranne una cifra numerica o un punto e virgola ";" o il cancelletto "#". 
+Se il primo carattere è un "+" o "-" nessuna cifra può seguirlo.
+Dopodiché può seguire qualsiasi carattere tranne "(" ")" "," ":" """ "'" spazio ";" "#"  che terminerà la variabile.
+Un simbolo che inizia con "[" e termina con "]" può contenere qualunque carattere all'interno, ad esempio:
+
+[1 &*$()}]
+
+è un simbolo legale.
+
+
+-------------------------------
+Uso di map nelle liste annidate
+-------------------------------
+
+In alcuni casi abbiamo bisogno di applicare una funzione a tutti gli elementi di una lista annidata. Ad esempio, poter scrivere qualcosa del tipo: 
+
+(map-all abs '(-1 -2 (-3 -4)))
+
+ed ottenere come risultato (1 2 (3 4)) dove tutti i sotto-elementi vengono elaborati e viene mantenuto l'annidamento della lista originale.
+
+La funzione "map" non è progettata per risolvere questo problema, quindi occorre scrivere una funzione specifica.
+
+(define (map-all f lst)
+  (let (result '())
+    (dolist (el lst)
+      (if (list? el)
+        (push (map-all f el) result -1)
+        (push (f el) result -1)))
+    result))
+
+(map-all abs '(-1 -2 (-3 -4)))
+;-> (1 2 (3 4))
+
+(define (doppio x) (* 2 x))
+
+(map-all doppio '(-1 -2 (-3 -4)))
+;-> (-2 -4 (-6 -8))
+
+(map-all doppio (map-all abs '(-1 -2 (-3 -4))))
+;-> (2 4 (6 8))
+
+(map-all doppio '(((1)) 2 ((3) (4 5 ((6)))) ((6) 7) (8 9)))
+;-> (((2)) 4 ((6) (8 10 ((12)))) ((12) 14) (16 18))
+
+
+------------------------------
+Funzioni ordinali con le liste
+------------------------------
+Ecco alcune funzioni per estrarre elementi da una lista in base alla loro posizione ordinale:
+
+(define (primo lst)   (if (> (length lst) 0) (nth 0 lst) 'nil))
+(define (secondo lst) (if (> (length lst) 1) (nth 1 lst) 'nil))
+(define (terzo lst)   (if (> (length lst) 2) (nth 2 lst) 'nil))
+(define (quarto lst)  (if (> (length lst) 3) (nth 3 lst) 'nil))
+(define (quinto lst)  (if (> (length lst) 4) (nth 4 lst) 'nil))
+(define (sesto lst)   (if (> (length lst) 5) (nth 5 lst) 'nil))
+(define (settimo lst) (if (> (length lst) 6) (nth 6 lst) 'nil))
+(define (ottavo lst)  (if (> (length lst) 7) (nth 7 lst) 'nil))
+(define (nono lst)    (if (> (length lst) 8) (nth 8 lst) 'nil))
+(define (decimo lst)  (if (> (length lst) 9) (nth 9 lst) 'nil))
+
+(primo '())
+;-> nil
+(primo '(1 2 3))
+;-> 1
+(decimo '(1 2 3 4 5 6 7 8 9 10))
+;-> 10
+
+
+------------------------
+gensym e macro igieniche
+------------------------
+
+Nei LISP tradizionali esiste la funzione GENSYM che serve per generare un simbolo nuovo ed univoco. Questa funzione viene utilizzata soprattutto per rendere le macro igieniche.
+Comunque in newLISP possiamo ottenere lo stesso scopo ed evitare l'acquisizione variabile, utilizzando la funzione "args" per accedere agli argomenti macro o funzioni:
+
+(define-macro (setq1)
+   (set (args 0) (eval (args 1))))
+
+(setq1 x 123)
+;-> 123
+x
+;-> 123
+
+Per il templating possiamo usare le funzioni "expand" e "letex". Ecco un esempio per l'uso di "letex" insieme a una definizione di "gensym":
+
+(define (gensym:gensym)
+   (if gensym:count
+      (inc gensym:count)
+      (setq gensym:count 1))
+   (sym (string "gs" gensym:count) MAIN))
+
+(gensym)
+;-> gs1
+(gensym)
+;-> gs2
+
+(define setq2
+   (letex (s (gensym) v (gensym))
+      (lambda-macro (s v) (set s (eval v)))))
+
+;-> (lambda-macro (gs3 gs4) (set gs3 (eval gs4)))
+
+(setq2 y 456)
+;-> 456
+y
+;-> 456
+
+o per avere un "gensym" ancora più sicuro possiamo usare la funzione "uuid":
+
+(define (gen-sym) (string "gs" (uuid)))
+
+(gen-sym)
+;-> "gs7D1365E2-78A6-48A6-8C31-B6034840B528"
+
+La prima funzione genera simboli più leggibili dall'uomo, mentre la seconda è utile per il codice interno alla macchina ed sicuro al 100%. "uuid" da sola genera un stringa ID univoca e universale, utile per gli ID di sessione nella programmazione web ecc.
+
+Per le macro, ciò che funziona meglio la maggior parte delle volte, è semplicemente usare "args" come nel primo esempio.
+
 

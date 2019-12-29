@@ -140,6 +140,7 @@ FUNZIONI VARIE
   Numeri casuali distinti
   Numeri casuali con distribuzione discreta predefinita
   Generatore di stringhe casuali
+  Inverso di un numero
 
 newLISP 99 PROBLEMI (28)
 ========================
@@ -291,6 +292,7 @@ PROBLEMI VARI
   Problema della segretaria
   Numeri con tre divisori
   Congettura di Goldbach
+  Problema dei travasi ed equazioni diofantee
 
 DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
 ==================================================
@@ -337,6 +339,7 @@ DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Insiemi con la stessa somma (Wolfram)
   Tripartizione di un intero (Wolfram)
   Cifre stampate (Uber)
+  Travasi di liquidi (Facebook)
 
 LIBRERIE
 ========
@@ -354,6 +357,7 @@ NOTE LIBERE
   Apprendere newLISP
   Commentare righe di codice
   Stile del codice newLISP
+  Considerazioni sulle parentesi del LISP
   Controllare l'output della REPL (prettyprint)
   File e cartelle
   Funzioni e liste
@@ -399,6 +403,14 @@ NOTE LIBERE
   Funzioni con parametri nominali
   La funzione COMMAND-EVENT
   Massimo Comun Divisore (MCD)
+  Indicizzazione implicita
+  nil come valore e nil come risultato
+  Simulare un iteratore
+  "Don't underrate an iterate..."
+  Simboli che iniziano con "$"
+  Uso di map nelle liste annidate
+  Funzioni ordinali con le liste
+  gensym e macro igieniche
 
 APPENDICI
 =========
@@ -479,7 +491,7 @@ http://www.newLISP.org/
 Questo documento è in continua evoluzione e aggiornamento ed è scritto non da un programmatore professionista, ma da un principiante che studia ed utilizza newLISP per divertimento e per risolvere problemi di matematica ricreativa. Qualche volta (ultimamente sempre più spesso) uso newLISP anche nel mio lavoro quotidiano.
 Consigli, correzioni e suggerimenti sono i benvenuti.
 
-Per convenzione i comandi di input della REPL non contengono il prompt di newLISP ">".
+Per convenzione i comandi di input della REPL (Read Eval Print Loop) non contengono il prompt di newLISP ">".
 L'output della REPL viene preceduto dalla stringa ";-> ".
 Nel testo sono riportate le descrizioni di alcuni comandi predefiniti tradotte dal manuale di riferimento ("newLISP Reference"). Queste descrizioni sono precedute dalla stringa ">>>funzione". Ad esempio, per trovare la funzione "map", ricercare la stringa ">>>funzione MAP".
 
@@ -549,6 +561,11 @@ Per vedere in quale cartella ci troviamo digitiamo il comando "!cd":
 !cd
 ;-> c:\newLISP\note
 
+Oppure possiamo usare la funzione "real-path":
+
+(real-path)
+;-> "c:\newLISP\note"
+
 Se non ci troviamo nella cartella corretta possiamo cambiare cartella con il comando "change-dir":
 
 (change-dir "c://newLISP/note")
@@ -556,8 +573,10 @@ Se non ci troviamo nella cartella corretta possiamo cambiare cartella con il com
 
 Verifichiamo:
 
-!cd
-;-> c:\newLISP\note
+(real-path)
+;-> "c:\newLISP\note"
+
+Questa sarà la cartella di default per la REPL.
 
 ====================
  LE FUNZIONI UTENTE
@@ -13128,6 +13147,34 @@ c3) due consonanti diverse (15%)
 c4) tre consonanti diverse (5%)
 
 Inoltre sarebbe interessante modificare o definire altre regole di costruzione.
+
+
+--------------------
+Inverso di un numero
+--------------------
+
+Per calcolare l'inverso di un numero basta dividere 1 (uno) per il numero stesso. Comunque il newLISP è più veloce non includere il numero 1 nella divisione. Infatti risulta:
+
+(= (div 1 2) (div 2))
+;-> true
+
+Calcoliamo la velocità dei due metodi:
+
+(time (div 1 2) 10000000)
+;-> 319.685
+
+(time (div 2) 10000000)
+;-> 264.999
+
+Quindi la funzione inversa può essere scritta nel modo seguente:
+
+(define (inv x) (if (zero? x) nil (div x)))
+
+(inv 10)
+;-> 0.1
+
+(inv 0)
+;-> nil
 
 
 ==========================
@@ -29496,6 +29543,22 @@ Adesso scriviamo una funzione iterativa:
 (ld "newLISP" "Common LISP")
 ;-> 7
 
+La distanza Levenshtein è stata utilizzata:
+1. nell'implementazione di un calcolatore per la distanza tra matrici
+2. per la valutazione percettiva delle misurazioni della distanza dialettale.
+3. per la marcatura automatica di dettati musicali.
+4. per la corrispondenza approssimativa nelle espressioni regolari.
+5. per identificare se due sequenze genetiche hanno funzioni simili.
+6. per filtrare blocchi di elenchi e-mail (indirizzi spam candidati) entro un valore soglia.
+7. come esploratore per i nomi di bambini.
+8. per nominare prodotti e servizi come domini, marchi, ecc.
+9. per condurre ricerche fuzzy nel tuo ambiente preferito.
+10. per i motori di ricerca spamdex - convertendo casualmente il testo in una serie di caratteri incomprensibili.
+11. per i motori di ricerca che generano spam - aggiungendo sistematicamente le modifiche a testi validi.
+12. come parte di una routine per il controllo ortografico.
+13. per identificare contenuti duplicati e plagio.
+14. come criterio di ordinamento.
+
 
 --------------
 Social Network
@@ -32767,6 +32830,250 @@ Infine scriviamo la funzione che genera tutte le coppie di numeri primi che somm
 ;-> ((3 17) (7 13) (13 7) (17 3))
 
 
+-------------------------------------------
+Problema dei travasi ed equazioni diofantee
+-------------------------------------------
+
+Avendo a disposizione una fontana e due recipienti, rispettivamente da 9 e da 15 litri, come si può a raccogliere precisamente 12 litri d’acqua?
+
+In generale, dati due contenitori non graduati e una quantità infinita di liquido, è possibile avere, con una serie di riempimenti, svuotamenti e travasi, una fissata quantità in un solo recipiente?
+
+Indichiamo con A e B i due contenitori e con a e b le loro capacità e c la quantità di liquido da ottenere. Dove a, b, c sono numeri naturali e (0 < c < max(a,b)).
+
+Indichiamo con la coppia (x,y) un particolare stato del problema, caratterizzato dalla quantità di liquido x contenuto nel contenitore A e dalla quantità di liquido y contenuta in B. Dove x, y sono numeri naturali e (0 <= x <= a), (0 <= y <= b).
+
+Lo stato iniziale è quindi rappresentato dalla coppia (0,0) e quello da raggiungere è (c,y) per qualche y, oppure (x,c) per qualche x.
+
+Le azioni che permettono di passare da uno stato ad un altro sono descritte nel seguente schema:
+
+Riempimenti
+-----------
+Azione         Risultato                            Vincoli
+RiempiA        A viene completamente riempito.      A non deve essere pieno.
+RiempiB        B viene completamente riempito.      B non deve essere pieno.
+
+Travasi
+-------
+TravasoAB      A viene svuotato in B, fino a che    A non deve essere vuoto e
+               A è vuoto oppure B è pieno.          B non deve essere pieno.
+TravasoBA      B viene svuotato in A, fino a che    B non deve essere vuoto e
+               B è vuoto oppure A è pieno.          A non deve essere pieno.
+
+Svuotamenti
+-----------
+SvuotaA        A viene completamente svuotato.      A non deve essere vuoto.
+SvuotaB        B viene completamente svuotato.      B non deve essere vuoto.
+
+Adesso vediamo gli effetti delle azioni su un generico stato iniziale (x,y):
+
+Iniziale      Azione      Finale
+ (x,y)        RiempiA      (a,y)
+ (x,y)        RiempiB      (x,b)
+ (x,y)        TravasoAB    (0,x+y) oppure (x+y-b,b)
+ (x,y)        TravasoBA    (x+y,0) oppure (a,x+y-a)
+ (x,y)        SvuotaA      (0,y)
+ (x,y)        SvuotaB      (x,0)
+
+Nota: se si parte dallo stato (0,0) non si ottengono mai stati in cui 0 < x < a e 0 < y < b.
+
+Ogni problema dei travasi con contenitori di capienza a e b e quantità da realizzare c può essere formalizzato nel modo seguente:
+
+Dati tre numeri naturali a, b, c Îe 0 < c < max(a,b), trovare una sequenza di azioni che permetta di passare dallo stato iniziale (0,0) a quello (c,y) per qualche y, oppure a quello (x, c) per qualche x.
+
+Per risolvere il problema ci servono alcune nozioni di teoria di numeri.
+
+Teorema della divisione e del resto
+-----------------------------------
+Dati due numeri interi a e b esistono solo due numeri interi q e r che soddisfano la seguente relazione:
+
+  a = q*b + r  con 0 <= r < b
+
+q prende il nome di “quoziente” della divisione di a per b
+r prende il nome di “resto” della divisione di a per b
+
+Ddefinizione: equazioni diofantee di primo grado
+------------------------------------------------
+Si dice equazione diofantea (di 1° grado) ogni equazione della forma:
+
+ax + by = c
+
+dove a, b, c numeri interi relativi e a e b non entrambi nulli
+
+Si dice soluzione dell’equazione diofantea ogni coppia (x0,y0) con x0 e y0 numeri interi relativi tale che:
+
+a*x + b*y = c
+
+Teorema fondamentale delle equazioni diofantee di primo grado
+-------------------------------------------------------------
+Un'equazione diofantea di primo grado
+
+  ax + by = c
+
+con a, b, c numeri interi relativi e a e b non entrambi nulli ha soluzioni se e solo se c è un multiplo del Massimo Comun Denominatore di (a,b).
+
+In tal caso se (x0,y0) è una soluzione dell’equazione, tutte le soluzioni (x(n),y(n)) si trovano con le formule:
+
+                    b                              a
+    x(n) = x0 + ----------*n       y(n) = y0 + ----------*n
+                 MCD(a,b)                       MCD(a,b)
+
+al variare di n.
+
+Nota: se a e/o b sono negativi si considera il MCD dei loro valori assoluti.
+
+Esempio: 8x - 6y = 26
+a = 8
+b = -6
+c = 26
+MCD(8, 6) = 2
+
+Quindi c è multiplo di MCD(a,b): (26 mod 2) = 0
+Una soluzione vale (1,-3), quindi tutte le soluzioni si ottengono dalle formule:
+
+                b                  -6
+x(n) = x0 + ----------*n = 1 + ----------*n = 1 - 3*n
+             MCD(a,b)           MCD(8,6)
+
+                a                   8
+y(n) = y0 + ----------*n = -3 + ----------*n = -3 - 4*n
+             MCD(a,b)            MCD(8,6)
+
+Quindi risulta:
+...
+n = -2 --> (7,5)
+n = -1 --> (4,1)
+n = 0  --> (1,-3)
+n = 1  --> (-2,-7)
+n = 2  --> (-5,-11)
+...
+
+Vedremo in seguito come viene calcolata la prima soluzione (x0,y0). Adesso dobbiamo vedeere quali sono le possibili strategie per risolvere il problema.
+
+Strategia Destra
+----------------
+Si definisce "strategia destra" ogni sequenza di azioni che segue le seguenti regole:
+1) Se A è vuoto lo si riempie con RiempiA.
+2) Se A non è vuoto lo si svuota con un numero finito di travasi TravisaAB e
+svuotamenti SvuotaB di B fino ad uno stato (0,y) con y<b.
+
+
+Strategia Sinistra
+------------------
+Si definisce "strategia sinistra" ogni sequenza di azioni che segue le seguenti regole:
+1) Se B è vuoto lo si riempie con RiempiB
+2) Se B non è vuoto lo si svuota con un numero finito di travasi TravasiBA e
+svuotamenti SvuotaA di A fino ad uno stato (x,0) con x<a.
+
+Nota: si osservi che applicando la strategia destra (sinistra) a partire dallo stato (0,0) si effettua un primo riempimento di A (di B) (regola 1), poi si raggiunge lo stato (0,y) con y<b (lo stato (x,0) con x<a) (regola 2), da qui si può ricominciare e andare avanti quanto si vuole alternando le regole 1 e 2.
+Si noti inoltre che nella strategia destra (sinistra) per ogni stato ottenuto del tipo (0,y) (del tipo (x,0)) si ha y = n*a - m*b (x = n*b - m*a) dove n è il numero di riempimenti di A (di B) e m il numero di svuotamenti di B (di A).
+
+Adesso siamo in grado di definire in quali casi il problema dei travasi ha una soluzione.
+
+Teorema
+Dati tre numeri naturali a, b, c con 0 < c < max(a,b) CNES affinché il problema dei travasi con contenitori di capienza a, b e quantità da realizzare c sia risolubile, è che c sia un multiplo di MCD(a,b).
+
+Applichiamo ora il teorema appena dimostrato al problema dei travasi proposto all'inizio.
+Avendo a disposizione una fontana e due recipienti, rispettivamente da 9 e da 15 litri, come si può a raccogliere precisamente 12 litri d’acqua?
+In virtù del teorema il problema è risolubile perché 12 è un multiplo di MCD(9,15)=3.
+Mostreremo ora come la strategia destra permette di raggiungere lo stato (0,6) e la
+strategia sinistra lo stato (6,0).
+
+Strategia destra
+Inizio  Azione     Fine
+(0,0)   RiempiA    (9,0)
+(9,0)   TravasoAB  (0,9)
+(0,9)   RiempiA    (9,9)
+(9,9)   TravasoAB  (3,15)
+(3,15)  SvuotaB    (3,0)
+(3,0)   TravasoAB  (0,3)
+(0,3)   RiempiA    (9,3)
+(9,3)   TravasoAB  (0,12)
+
+Strategia sinistra
+Inizio  Azione     Fine
+(0,0)   RiempiB    (0,15)
+(0,15)  TravasoBA  (9,6)
+(9,6)   SvuotaA    (0,6)
+(0,6)   RiempiB    (6,15)
+(6,15)  TravasoBA  (9,12)
+(9,12)  SvuotaA    (0,12)
+(0,12)  TravasoBA  (12,0)
+
+Osserviamo che nella strategia sinistra le ultime due azioni sono inutili ai fini della
+risoluzione del problema, ed eliminandole, la strategia sinistra si dimostra in questo caso "migliore": 6 azioni per quella sinistra contro le 8 di quella destra.
+
+Per finire vediamo un algoritmo per trovare la soluzione (x0,y0), se esiste, di una equazione diofantea lineare a due incognite.
+
+Possiamo usare l'algoritmo euclideo esteso. Innanzitutto, supponiamo che a e b siano non negativi. Quando applichiamo l'algoritmo euclideo esteso per a e b, possiamo trovare il loro massimo comune divisore g e due numeri xg e yg tali che:
+
+a*xg + b*yg = g
+
+Se c è divisibile per g = gcd(a, b), allora l'equazione diofantea data ha una soluzione, altrimenti non ha alcuna soluzione. La dimostrazione è semplice: una combinazione lineare di due numeri è sempre divisibile per il loro comune divisore.
+
+Ora supponiamo che c sia divisibile per g, quindi abbiamo:
+
+a*xg*c/g + b*yg*c/g = c
+
+Pertanto una delle soluzioni dell'equazione diofantea è:
+
+x0 = xg*c/g
+y0 = yg*c/g
+
+Questo metodo funziona anche quando a e/o b sono negativi.
+
+(define (gcdex a b)
+  (local (x y lastx lasty temp)
+    (setq x 0)
+    (setq y 1)
+    (setq lastx 1)
+    (setq lasty 0)
+    (while (not (zero? b))
+      (setq q (div a b))
+      (setq r (% a b))
+      (setq a b)
+      (setq b r)
+      (setq temp x)
+      (setq x (- lastx (* q x)))
+      (setq lastx temp)
+      (setq temp y)
+      (setq y (- lasty (* q y)))
+      (setq lasty temp)
+    )
+    ; Adesso la variabile a contine il valore di gcd
+    ;(println a { } b { } x { } y { } lastx { } lasty)
+    (list a lastx lasty)))
+
+(gcdex 120 23)
+;-> 1 0 23 -120 -9 47
+;-> (-9 47)
+
+(gcdex 8 -6)
+;-> 2 0 3 4 1 1
+;-> (1 1)
+
+(define (diofanto a b c)
+  (local (gcdex-lst g xg yg out)
+    (setq out '())
+    (setq gcdex-lst (gcdex a b))
+    (setq g (first gcdex-lst))
+    (setq xg (first (rest gcdex-lst)))
+    (setq yg (last gcdex-lst))
+    (println g { } xg { } yg)
+    (cond ((not (zero? (% c g))) (setq out '()))
+          (true
+            (setq out (list (div (mul xg c) g) (div (mul yg c) g)))))
+    out))
+
+(diofanto 8 -6 26)
+;-> 2 1 1 
+;-> (13 13)
+
+Infatti risulta:
+
+(+ (* 13 8) (* 13 -6))
+;-> 26
+
+
 ====================================================
 
  DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
@@ -33781,7 +34088,7 @@ con find-all possiamo creare la lista degli zeri:
 (setq zeri (find-all 0 '(0 1 0 3 12)))
 ;-> (0 0)
 
-con filter possiamo creare la lista di tuti inumeri diversi da zero:
+con filter possiamo creare la lista di tutti inumeri diversi da zero:
 (define (pos? x) (> x 0))
 (setq numeri (filter pos? '(0 1 0 3 12)))
 ;-> (1 3 12)
@@ -34189,7 +34496,8 @@ Usiamo la funzione apply per applicare tutti gli operatori di confronto alla lis
 ;-> >=
 (order? '(-1 -1 3 4))
 ;-> <=
-
+(order? '(-1 -2 3 -1))
+;-> nil
 
 ----------------
 Caramelle (Visa)
@@ -34288,7 +34596,7 @@ Ad esempio, se N è 4, esistono 5 modi unici: (1, 1, 1, 1) (2, 1, 1) (1, 2, 1) (
 
 Cosa succede se, invece di essere in grado di salire di 1 o 2 passi alla volta, è possibile salire qualsiasi numero da un insime di interi positivi X? Ad esempio, se X = {1, 3, 5}, potresti salire 1, 3 o 5 passi alla volta.
 
-QUesto è un classico problema ricorsivo. Iniziamo con casi semplici e cercando di trovare una regola di calcolo (relazione).
+Questo è un classico problema ricorsivo. Iniziamo con casi semplici e cercando di trovare una regola di calcolo (relazione).
 
 N = 1: [1]
 N = 2: [1, 1], [2]
@@ -34737,7 +35045,6 @@ Inoltre dobbiamo tenere conto del numero massimo di stanze raggiunto.
     (sort fine)
     (setq stanze_richieste 0)
     (setq massimo_stanze 0)
-    i = j = 0
     (setq i 0 j 0)
     (setq n (length lst))
     (while (and (< i n) (< j n))
@@ -34765,27 +35072,34 @@ Inoltre dobbiamo tenere conto del numero massimo di stanze raggiunto.
 ;-> 3
 
 Questo metodo risponde anche ad un'altra domanda:
-Data una serie di intervalli di tempo, una persona può assistere a tutte le riunioni?
+data una serie di intervalli di tempo, una persona può assistere a tutte le riunioni?
 Se il numero minimo di stanze è pari a uno, allora la risposta è affermativa, altrimenti ci sono due o più riunioni che si sovrappongono.
 Possiamo risolvere questo problema in modo più semplice.
 Se una persona può partecipare a tutte le riunioni, non deve esserci alcuna sovrapposizione tra una riunione e l'altra.
 Dopo aver ordinato gli intervalli, possiamo confrontare la "fine" attuale con il prossimo "inizio".
 
-public boolean canAttendMeetings(Interval[] intervals) {
-    Arrays.sort(intervals, new Comparator<Interval>(){
-        public int compare(Interval a, Interval b){
-            return a.start-b.start;
-        }
-    });
+La funzione è la seguente:
 
-    for(int i=0; i<intervals.length-1; i++){
-        if(intervals[i].end>intervals[i+1].start){
-            return false;
-        }
-    }
+(setq lst '((20 30) (0 20) (30 40)))
 
-    return true;
-}
+(define (allMeeting lst)
+  (let ((i 0) (out true))
+    (sort lst)
+    (while (and (< i (- (length lst) 1)) out)
+      (if (> (lst i 1) (lst (+ i 1) 0)) (setq out nil))
+      (++ i))
+    out))
+
+(setq lst '((20 30) (0 20) (30 40)))
+
+(allMeeting lst)
+;-> true
+
+(allMeeting '((30 75) (0 50) (60 150)))
+;-> nil
+
+(allMeeting '((90 91) (94 120) (95 112) (110 113) (150 190) (180 200)))
+;-> nil
 
 
 ----------------------------------
@@ -34795,7 +35109,7 @@ Bilanciamento parentesi (Facebook)
 Data una stringa contenente parentesi tonde, quadre e graffe (aperte e chiuse), restituire
 se le parentesi sono bilanciate (ben formate) e rispettano l'ordine ("{}" > "[]" > "()").
 Ad esempio, data la stringa "[()] [] {()}", si dovrebbe restituire true.
-Data la stringa "([]) [] ({})", si dovrebbe restituire false (le graffe non ossono stare dentro le tonde).
+Data la stringa "([]) [] ({})", si dovrebbe restituire false (le graffe non possono stare dentro le tonde).
 Data la stringa "([)]" o "((()", si dovrebbe restituire false.
 
 Usiamo un contatore per ogni tipo di parentesi e verifichiamo la logica corretta durante la scansione della stringa.
@@ -36327,6 +36641,136 @@ Vediamo una soluzione con la forza bruta.
 
 (num-pagine 100000)
 ;-> (22222 -4) ; mancano 4 cifre per numerare 22222 pagine
+
+
+-----------------------------
+Travasi di liquidi (Facebook)
+-----------------------------
+
+Abbiamo due recipienti (1 e 2) che contengono due liquidi diversi (A e B).
+All'inizio il recipiente 1 contiene 100 litri del liquido A e 0 litri del liquido B, mentre il recipiente 2 contiene 0 litri del liquido A e 100 litri del liquido B.
+
+Quesito 1
+---------
+Supponiamo di travasare 10 litri dal recipiente 1 al recipiente 2, poi travasiamo 10 litri dal recipiente 2 al recipiente 1.
+È maggiore il liquido B nel recipiente 1 oppure è maggiore il liquido A nel recipiente 2 ?
+
+Il risultato è che sono uguali. Non c'è bisogno di fare calcoli, basta notare che, dopo i due travasi, i livelli dei liquidi nei recipienti sono gli stessi di prima, quindi gli scambi dei liquidi A e B devono essere gli stessi.
+
+Quesito 2
+---------
+Scrivere una funzione che permette di travasare il liquido da un recipiente ad un altro, in modo che, al termine del travaso, si conoscano sia il numero di litri totale di ogni recipiente, sia la percentuale dei liquidi contenuta in ogni recipiente (e quindi il numero di litri dei liquidi A e B che si trovano in ogni recipiente.)
+
+Partiamo da questa situazione iniziale:
+; numero litri bottiglia 1
+(setq bot1 100)
+; percentuale del liquido A nella bottiglia 1
+(setq p1A 100)
+; percentuale del liquido B nella bottiglia 1
+(setq p1B 0)
+; numero litri bottiglia 2
+(setq bot2 100)
+; percentuale del liquido A nella bottiglia 2
+(setq p2A 0)
+; percentuale del liquido B nella bottiglia 2
+(setq p2B 100)
+
+Funzione che calcola la quantità dato il totale e la percentuale:
+
+(define (quanto val perc) (mul val (div perc 100)))
+
+Funzione di travaso da 1 a 2:
+
+(define (travaso-12 litri)
+  (local (qa qb)
+    (setq qa (quanto litri p1A))
+    (setq qb (quanto litri p1B))
+    ;(println qa { } qb)
+    (setq p1A p1A) ;non cambia
+    (setq p1B p1B) ;non cambia
+    (setq p2A (mul 100 (div (add (quanto bot2 p2A) qa) (add bot2 qa qb))))
+    (setq p2B (mul 100 (div (add (quanto bot2 p2B) qb) (add bot2 qa qb))))
+    (setq bot1 (sub bot1 qa qb))
+    (setq bot2 (add bot2 qa qb))
+    ;(println bot1 { } p1A { } p1B { } bot2 { } p2A { } p2B)
+    (println "Bottiglia 1: " bot1 " litri")
+    (println "   liquido A: " (mul bot1 (div p1A 100)) " litri (" p1A"%)")
+    (println "   liquido B: " (mul bot1 (div p1B 100)) " litri (" p1B"%)")
+    (println "Bottiglia 2: " bot2 " litri")
+    (println "   liquido A: " (mul bot2 (div p2A 100)) " litri (" p2A"%)")
+    (println "   liquido B: " (mul bot2 (div p2B 100)) " litri (" p2B"%)")
+    (list bot1 (mul bot1 (div p1A 100)) (mul bot1 (div p1B 100))
+          bot2 (mul bot2 (div p2A 100)) (mul bot2 (div p2B 100)))
+  ))
+
+Funzione di travaso da 2 a 1:
+
+(define (travaso-21 litri)
+  (local (qa qb)
+    (setq qa (quanto litri p2A))
+    (setq qb (quanto litri p2B))
+    ;(println qa { } qb)
+    (setq p2A p2A) ;non cambia
+    (setq p2B p2B) ;non cambia
+    (setq p1A (mul 100 (div (add (quanto bot1 p1A) qa) (add bot1 qa qb))))
+    (setq p1B (mul 100 (div (add (quanto bot1 p1B) qb) (add bot1 qa qb))))
+    (setq bot1 (add bot1 qa qb))
+    (setq bot2 (sub bot2 qa qb))
+    ;(println bot1 { } p1A { } p1B { } bot2 { } p2A { } p2B)
+    (println "Bottiglia 1: " bot1 " litri")
+    (println "   liquido A: " (mul bot1 (div p1A 100)) " litri (" p1A"%)")
+    (println "   liquido B: " (mul bot1 (div p1B 100)) " litri (" p1B"%)")
+    (println "Bottiglia 2: " bot2 " litri")
+    (println "   liquido A: " (mul bot2 (div p2A 100)) " litri (" p2A"%)")
+    (println "   liquido B: " (mul bot2 (div p2B 100)) " litri (" p2B"%)")        
+    (list bot1 (mul bot1 (div p1A 100)) (mul bot1 (div p1B 100))
+          bot2 (mul bot2 (div p2A 100)) (mul bot2 (div p2B 100)))
+  ))
+
+Se travasiamo per 10 volte 10 litri da 1 a 2 partendo dalla situzione iniziale otteniamo:
+
+(dotimes (x 10) (travaso-12 10))
+;-> Bottiglia 1: 0 litri
+;->    liquido A: 0 litri (100%)
+;->    liquido B: 0 litri (0%)
+;-> Bottiglia 2: 200 litri
+;->    liquido A: 99.99999999999999 litri (49.99999999999999%)
+;->    liquido B: 100 litri (50.00000000000002%)
+;-> (0 0 0 200 99.99999999999999 100)
+
+Adesso, se travasiamo per 10 volte 10 litri da 2 a 1 torniamo alla situazione di partenza, ma con i liquidi mescolati al 50% su entrambi i recipienti:
+
+(dotimes (x 10) (travaso-21 10))
+;-> Bottiglia 1: 100 litri
+;->    liquido A: 49.99999999999999 litri (49.99999999999999%)
+;->    liquido B: 50.00000000000001 litri (50.00000000000001%)
+;-> Bottiglia 2: 100 litri
+;->    liquido A: 49.99999999999999 litri (49.99999999999999%)
+;->    liquido B: 50.00000000000002 litri (50.00000000000002%)
+;-> (100 49.99999999999999 50.00000000000001 100 49.99999999999999 50.00000000000002)
+
+Adesso verifichiamo il primo quesito, travasiamo 10 litri da 1 a 2 e poi 10 litri da 2 a 1:
+
+(travaso-12 10)
+;-> Bottiglia 1: 90 litri
+;->    liquido A: 90 litri (100%)
+;->    liquido B: 0 litri (0%)
+;-> Bottiglia 2: 110 litri
+;->    liquido A: 10 litri (9.090909090909092%)
+;->    liquido B: 100 litri (90.90909090909091%)
+;-> (90 90 0 110 10 100)
+
+(travaso-21 10)
+;-> Bottiglia 1: 100 litri
+;->    liquido A: 90.90909090909091 litri (90.90909090909091%)
+;->    liquido B: 9.09090909090909 litri (9.09090909090909%)
+;-> Bottiglia 2: 100 litri
+;->    liquido A: 9.090909090909092 litri (9.090909090909092%)
+;->    liquido B: 90.90909090909091 litri (90.90909090909091%)
+;-> (100 90.90909090909091 9.09090909090909 100 9.090909090909092 90.90909090909091)
+
+La quantità di liquido B nella bottiglia 1 è uguale alla quantità di liquido A nella bottiglia 2 (9.0909...).
+La quantità di liquido A nella bottiglia 1 è uguale alla quantità di liquido B nella bottiglia 2 (90.0909...).
 
 
 ==========
@@ -38986,6 +39430,45 @@ La mia idea è che ognuno deve creare ed affinare con il tempo il proprio stile 
 Il mio approccio è quello di scrivere in stile C quando sviluppo una funzione. Una volta che la funzione è definitiva, cioè testata e corretta, converto le parentesi in stile Lisp.
 
 
+---------------------------------------
+Considerazioni sulle parentesi del LISP
+---------------------------------------
+
+LISP è l'acronimo di LISt Processing, ma spesso i commenti di scherno di alcuni programmatori lo definiscono come:
+Lots of (Insipid | Irritating | Infuriating | Idiotic | ...) (Spurious | Stubborn | Superfluous | Silly | ...) Parentheses. In questo modo la sintassi del LISP viene accusata di rendere il codice incompresibile da leggere e impossibile da scrivere senza errori. Credo che queste idee siano completamente sbagliate.
+
+Prima di tutto le parentesi rendono il codice semplice da leggere (se correttamente indentato) e la loro sintassi può essere compresa da chiunque in 30 minuti. L'unico problema potrebbe essere quello del bilanciamento delle parentesi, ma è dal 1970 che gli editor si prendono cura di risolvere visualmente questo problema. La sintassi del C è molto più complessa e intricata.
+
+Per quanto riguarda la semantica, possiamo notare che la sintassi annidabile e regolare del LISP permette di creare sia una semantica ricorsiva annidabile naturale, che una semantica iterativa/gerarchica.
+
+Un altra critica alla sintassi del LISP è quella rendere il linguaggio a "bassa densità di linee di codice": penso che sia vero il contrario, la semantica dei programmi LISP lo compensa in gran parte con la necessità di scrivere molte meno righe di codice per la stessa funzionalità, rendendo la densità complessiva del codice LISP più alta che in qualsiasi altra linguaggio (inoltre il LISP può estendere la propria semantica tramite le macro e la meta-programmazione).
+
+La struttura di programma cresce naturalmente fino a quando non raggiunge la barriera della comprensione umana, ciò che cambia da una linguaggio all'altro non è questa barriera, propria dell'uomo, ma la quantità di cose utili che si possono esprimere all'interno di questa barriera.
+
+Un altro argomento contro la sintassi di Lisp è che le sue parentesi non aiutano a distinguere la semantica all'interno del codice del programma. Questo è vero, ma in LISP le parentesi indicano l'annidamento del codice, ma non le distinzioni semantiche. Ciò non significa che queste distinzioni non possano essere fatte facilmente in LISP tramite l'utilizzo di altri metodi (moduli, simboli,ecc.)
+
+Quanto a ciò che rende necessarie le parentesi, non è una questione di sintassi prefissa opposta alla sinassi infissa: è una questione di arità fissa contro arità variabile. La sintassi prefissa può funzionare completamente senza parentesi, quando si conosce l'arità di ciascun operatore. In realtà, la prima sintassi prefissa sistematica, la famosa Notazione polacca di Jan Lukasiewicz, è stata ideata proprio come un modo per sbarazzarsi del tutto delle parentesi. La variante postfix di questa notazione, nota come notazione polacca inversa (RPN), si trova nel FORTH, nelle calcolatrici HP, nel PostScript e in molte macchine virtuali.
+La necessità delle parentesi è dovuta al fatto che LISP ha una sintassi uniforme ed estensibile che deve adattarsi ad un numero arbitrario di argomenti nei moduli del programma. LISP si standardizza su una sintassi generica che è immediatamente leggibile in modo non ambiguo da qualsiasi Lisper anche senza una conoscenza a priori dell'arità di ogni operatore che appare in un dato dominio. LISP consente inoltre agli utenti di estendere il linguaggio attraverso le macro qualora si desideri una sintassi ad-hoc per un dominio specifico. Quindi, ciò che rende necessarie le parentesi è il fatto che la stessa sintassi deve essere estendibile a funzioni e forme variadiche.
+
+Probabilmente queste critiche alle parentesi sono dovute a diversi fattori:
+a) l'uso delle parentesi negli altri linguaggi ha un'interpretazione ambigua
+b) aspettative di soluzioni per problemi che provengono da altri linguaggi
+c) automatica reazione quando si tratta di imparare qualcosa di nuovo e totalmente diverso
+
+Quelli che conoscono bene il LISP si lamentano di tante cose... ma non della sua sintassi. In fondo le parentesi sono l'emozione del LISP come gli spazi bianchi sono l'emozione di Python.
+
+Per quanto mi riguarda ho imparato più facilmente la sintassi del LISP che quella del C. Il timore iniziale delle "parentesi" si è rapidamente trasformato in simpatia e anche dipendenza. Non è stato un "colpo di fulmine", ma si è trasformato in un sentimento profondo :-)
+Le parentesi aiutano benissimo ad isolare le espressioni, che quindi possono essere estratte e riposizionate con facilità all'interno del programma. Inoltre occorre ricordare che: "Un programmatore LISP legge il programma dalla sua indentazione, non controllando l'annidamento delle parentesi."
+
+In genere quando si studia un linguaggio di programmazione è meglio attenersi agli idiomi e ai metodi propri del linguaggio. Solo in seguito, una volta acquisita una sufficiente familiarità, si potranno provare nuove strade o implementare le tecniche di altri linguaggi. 
+
+"Learn at least one new [programming] language every year. Different languages solve the same problems in different ways. By learning several different approaches, you can help broaden your thinking and avoid getting stuck in a rut." - The Pragmatic Programmers
+
+"Imparare almeno un nuovo linguaggio di programmazione ogni anno. Linguaggi diversi risolvono gli stessi problemi in modi diversi. Imparando diversi approcci, puoi ampliare il tuo pensiero ed evitare rimanere bloccato in un vicolo cieco." - The Pragmatic Programmers
+
+"newLISP is so much like a pile of clay (in a good way ;-), waiting to be formed into whatever the programming potter wishes it to be, that it's better for it to remain faithful to the simple ideas that originated in LISP and stay a pile of clay. Parentheses and all :-)" - michael
+
+
 ---------------------------------------------
 Controllare l'output della REPL (prettyprint)
 ---------------------------------------------
@@ -40684,6 +41167,30 @@ Vediamo un altro esempio:
 ;-> (* x y)
 (length (nth 3 prova))
 ;-> 3
+
+L'oggetto "lambda" in newLISP non è una parola chiave come una funzione o un operatore incorporato, ma un attributo speciale di una lista: un lista lambda, che si presenta in questo modo:
+
+(lambda)
+;-> (lambda )
+
+Come si vede, una lista lambda valuta su se stessa in newLISP e non è necessario quotarla quando la si utilizza come parametro per un'altra funzione.
+
+Quando si costruiscono liste lambda con "append" o "cons", allora "append" associa la proprietà lambda a destra e "cons" a sinistra:
+
+(append (lambda) '((x) (+ x x)))
+;-> (lambda (x) (+ x x))
+
+(cons '(x) (lambda (+ x x)))
+;-> (lambda (x) (+ x x))
+
+L'esempio "cons" mostra che lambda non è il primo elemento di una lista, ma piuttosto una proprietà di quella lista. Infatti risulta:
+
+(empty? (lambda))
+;-> true
+
+(lambda? (lambda))
+;-> true
+
 
 Il metodo di generare funzioni tramite codice viene utilizzato anche per lo sviluppo di "malware", poichè queste funzioni sono "invisibili" ai programmi anti-virus basati su pattern.
 
@@ -42459,7 +42966,7 @@ newlisp newlispdoc doc-demo.lsp
 
 Adesso nella cartella troviamo anche i file "index.html" e "doc-demo.lsp.html" che sono la documentazione al nostro modulo.
 
-Ve digitiamo il seguente comando:
+Se digitiamo il seguente comando:
 
 newlisp newlispdoc -s doc-demo.lsp
 
@@ -42580,6 +43087,34 @@ Se invece dobbiamo calcolare i primi n numeri primi, una routine ad hoc è più 
 ;-> 203.137
 
 La funzione che non usa "factor" è più veloce.
+
+Infine, una funzione di Kazimir Majorinc per calcolare quanti numeri primi ci sono fino a n.
+
+(setq sieve (lambda(size)
+              (let ((flags (array (+ size 1)))
+                    (sqrtsize (sqrt size))
+                    (total 0))
+                   (for (i 2 sqrtsize)
+                     (when (not (flags i))
+                           (for (k (* i i) size i)
+                             ;(nth-set (flags k) 0))
+                             (setf (flags k) 0))
+                           (inc total)))
+                   (for (i (+ sqrtsize 1) size)
+                     (unless (flags i)
+                             (inc total)))
+                   total)))
+
+(sieve 10)
+;-> 4
+(sieve 100)
+;-> 25
+(sieve 1000)
+;-> 168
+(sieve 10000)
+;-> 1229
+(sieve 1e7)
+;-> 664579
 
 
 ----------------------------------------
@@ -43224,7 +43759,7 @@ Vediamo alcune funzioni per calcolare il MCD:
 
 (define (gcd1_ a b)
   (let (r (% b a))
-    (if (= r 0) a (gcd_ r a))))
+    (if (= r 0) a (gcd1_ r a))))
 
 (define-macro (my-gcd1) (apply gcd1_ (args) 2))
 
@@ -43241,7 +43776,7 @@ Questo è un semplice algoritmo non ottimizzato per la velocità. Uno migliore �
 
 (define-macro (my-gcd2) (apply gcd2_ (args) 2))
 
-Uno ancora migliore è l'algoritmo binario con spostamento a destra. Il codice originale è in linguaggio C da un libro di teoria dei numeri, quella che segue è la traduzione in newLISP:
+Uno ancora migliore è l'algoritmo binario con spostamento a destra. Il codice originale è in linguaggio C preso da un libro di teoria dei numeri, quella che segue è la traduzione in newLISP:
 
 (define (gcd3_ x y , g t)
   (setq g 0)
@@ -43310,10 +43845,411 @@ Quindi la versione finale è questa:
 Per completezza vediamo anche il calcolo del Minimo Comune Multiplo (mcm):
 
 ;Returns the least common multiple of two integers x and y.
+
 (define (lcm_ x y)(* x (/ y (gcd x y))))
+
 (define-macro (lcm)(apply lcm_ (args) 2))
 
 Infine vediamo alcuni test di velocità delle funzioni.
+
+(setq number1 (map int (random 1 1e8 10000)))
+(setq number2 (map int (random 1 1e8 10000)))
+
+(time (map gcd1_ number1 number2) 100)
+;-> 3187.894
+(time (map gcd2_ number1 number2) 100)
+;-> 2768.187
+(time (map gcd3_ number1 number2) 100)
+;-> 8453.914
+
+Vediamo la funzione standard "gcd" (che è la più veloce):
+
+(time (map gcd number1 number2) 100)
+;-> 281.56
+
+
+------------------------
+Indicizzazione implicita
+------------------------
+È possibile creare forme implicite di "rest" e "slice" anteponendo alla lista uno o due numeri per indicare l'offset e la lunghezza. Se la lunghezza è negativa, inizia a contare dalla fine della lista:
+
+(set 'lst '(a b c d e f g))
+; or as array
+(set 'lst (array 7 '(a b c d e f g)))
+
+(1 lst)      → (b c d e f g)
+(2 lst)      → (c d e f g)
+(2 3 lst)    → (c d e)
+(-3 2 lst)   → (e f)
+(2 -2 lst)   → (c d e)
+
+; resting and slicing is always on 8-bit char borders
+; even on UTF8 enabled versions
+
+(set 'str "abcdefg")
+
+(1 str)      → "bcdefg"
+(2 str)      → "cdefg"
+(2 3 str)    → "cde"
+(-3 2 str)   → "ef"
+(2 -2 str)   → "cde"
+
+(setq lst '(a b c d e))
+
+(0 -1 lst)
+;-> (a b c d)
+lst
+;-> (a b c d e)
+
+(chop lst)
+;-> (a b c d)
+lst
+;-> (a b c d e)
+
+(pop lst)
+;-> a
+lst
+;-> (b c d e)
+
+Se credi che l'indicizzazione implicita sia confusa da interpretare, allora puoi creare una funzione:
+
+(define (drop-last var)(0 -1 var))
+
+Quindi:
+(drop-last '("a" "b" "c" "d" "e"))
+;-> ("a" "b" "c" "d")
+
+Equivalente a:
+(chop '("a" "b" "c" "d" "e"))
+;-> ("a" "b" "c" "d")
+
+
+------------------------------------
+nil come valore e nil come risultato
+------------------------------------
+
+Ricordiamo che la lista vuota non è "true" o "nil":
+
+(nil? '())
+;-> nil
+
+(true? '())
+;-> nil
+
+(empty? '())
+;-> true
+
+(list? '())
+;-> true
+
+(= '() '())
+;-> true
+
+Ma in un contesto booleano risulta falsa (nil):
+
+(if '() "vero" "falso")
+;-> "falso"
+
+Questo fatto ci permette di velocizzare il codice nel modo seguente:
+
+(setq lst '())
+;-> ()
+
+La lista vuota non è uguale a "nil" come valore:
+
+(nil? lst)
+;-> nil
+
+Ma è considerata falsa (nil) quando è vuota in un contesto booleano:
+
+(if lst (println "vero") (println "falso"))
+;-> falso
+
+Questo permette di scrivere:
+
+(time (if lst 'si 'no) 1000000)
+;-> 31.247
+
+Che è molto più veloce di:
+
+(time (if (not (empty? lst)) 'si 'no) 1000000)
+;-> 62.506
+
+Inoltre, se non è presente alcuna clausola "else" nell'istruzione "if", viene restituita la valutazione della condizione:
+
+(if lst 'si)
+;-> ()
+
+Mentre nel secondo caso avremmo:
+
+(if (not (empty? lst)) 'si)
+;-> nil
+
+Questa potrebbe essere una distinzione importante quando si controlla il valore di ritorno di una funzione/macro, per distinguere tra un elemento nil restituito oppure il risultato nil come mancata applicazione della funzione/macro. Supponiamo di voler scrivere una macro che elimina l'ultimo oggetto da una lista. Se utilizziamo la primitiva "pop" otteniamo un errore quando viena applicata alla lista vuota:
+
+(setq lst '(a))
+;-> (a)
+(pop lst -1)
+;-> a
+
+Adesso lst è vuota:
+lst
+;-> ()
+
+Applicando "pop" otteniamo un errore:
+
+(pop lst -1)
+;-> ERR: invalid list index in function pop
+
+Con una macro (Lutz) possiamo scrivere:
+
+(macro (drop L) (if L (pop L -1)))
+;-> (lambda-macro (L) (expand '(if L (pop L -1))))
+
+(setq lst '(a))
+;-> (a)
+
+(drop lst)
+;-> a
+(drop lst)
+;-> ()
+
+In questo caso, quando la lista è vuota "drop" produce una lista vuota e non un errore.
+
+
+---------------------
+Simulare un iteratore
+---------------------
+
+Per simulare velocemente un iteratore possiamo utilizare un lista di numeri:
+
+(setq s '(3 2 1))
+
+(pop s) ;-> 3
+(pop s) ;-> 2
+(pop s) ;-> 1
+(pop s) ;-> nil
+
+Per simulare un generatore crescente non possiamo usare "pop" con il parametro -1 (cioè non possiamo togliere l'ultimo elemento) perchè si avrebbe un errore quando la lista è vuota:
+
+(setq s '(3 2 1))
+
+(pop s -1) ;-> 1
+(pop s -1) ;-> 2
+(pop s -1) ;-> 3
+(pop s -1) ;-> ERR: invalid list index in function pop
+
+Quindi usiamo una sequenza inversa:
+
+(setq s '(1 2 3))
+(pop s) ;-> 1
+(pop s) ;-> 2
+(pop s) ;-> 3
+(pop s) ;-> nil
+
+
+-------------------------------
+"Don't underrate an iterate..."
+-------------------------------
+
+"Non sottovalutate l'iterazione..."
+Questa è una legge di Lutz, il creatore di newLISP.
+Non sempre dobbiamo usare "dolist" per iterare attraverso una lista.
+
+(setq lst (series 1 2 12))
+;-> (1 2 4 8 16 32 64 128 256 512 1024 2048)
+
+(map (fn (n) (apply add n)) (explode lst 3))
+;-> (7 56 448 3584)
+
+(dolist (n (explode lst 3)) (println (apply add n)))
+;-> 7
+;-> 56
+;-> 448
+;-> 3584
+
+(do-while lst (println (apply add (list (pop lst) (pop lst) (pop lst)))))
+;-> 7
+;-> 56
+;-> 448
+;-> 3584
+
+(setq lst (series 1 2 12))
+;-> (1 2 4 8 16 32 64 128 256 512 1024 2048)
+(map (fn (x) (println (x 0) "-" (x 1) "-" (x 2))) (explode lst 3))
+;-> 1-2-4
+;-> 8-16-32
+;-> 64-128-256
+;-> 512-1024-2048
+;-> (4 32 256 2048)
+
+(map (curry apply (fn (i j k) (println i "-" j "-" k))) (explode lst 3))
+;-> 1-2-4
+;-> 8-16-32
+;-> 64-128-256
+;-> 512-1024-2048
+;-> (4 32 256 2048)
+
+Da notare l'opzione "int-reduce" in "apply". Quando "int-reduce" è 2, il comportamento è simile alla funzione "fold" o "reduce", quando è più grande di 2 è ancora più divertente.
+
+(apply (fn(_ a b c)(println a {-} b {-} c)) (cons nil lst) 4)
+;-> 1-2-4
+;-> 8-16-32
+;-> 64-128-256
+;-> 512-1024-2048
+
+(apply (fn(_ a b c)(println a b c)) (cons nil (sequence 1 9)) 4)
+;-> 123
+;-> 456
+;-> 789
+
+
+----------------------------
+Simboli che iniziano con "$"
+----------------------------
+
+Tutti i simboli che iniziano con il carattere "$" sono sempre definiti in MAIN.
+Esempio:
+(context 'Demo)
+;-> Demo
+Demo>
+(setq $demo "hi!")
+;-> "hi!"
+Fred> 
+(symbols)
+;-> ()
+Demo>
+(context MAIN)
+;-> MAIN
+(symbols)
+;-> (! != $ $0 $1 $10 $11 $12 $13 $14 $15 $2 $3 $4 $5 $6 $7 $8 $9 
+;->  $args $count $demo $idx $it $main-args $x % & * + ++ , - -- / 
+;->  : < << <= = > >= >> ? @ Class Demo MAIN NaN? Tree ...)
+
+Spiegazione (Lutz):
+I simboli che iniziano con $ sono variabili modificate/gestite da newLISP in MAIN e sono accessibili a livello globale. Le variabili da $0 a $15 vengono utilizzate per contenere informazioni delle espressioni regolari e $0 contiene anche l'espressione di sostituzione per diversi "set" e per la funzione "replace". $idx è l'indice corrente di "dolist". $args contiene l'elenco restituito dalla funzione "args" e $main-args contiene lla lista restituita dalla funzione "main-args". Tutti questi simboli sono globali e tutti, tranne $0 a $15, sono protetti e non possono essere modificati dall'utente. L'utente può impostare da $0 a $15 perché ci sono casi in cui ciò è necessario quando si lavora con espressioni regolari.
+
+Inoltre, i simboli che iniziano con $ non vengono salvati quando si salva un contesto (es. (save 'MyContext) o quando si serializzano nuovi oggetti LISP con la funzione "source".
+
+Nota: il nome di una variabile può iniziare con qualsiasi carattere tranne una cifra numerica o un punto e virgola ";" o il cancelletto "#". 
+Se il primo carattere è un "+" o "-" nessuna cifra può seguirlo.
+Dopodiché può seguire qualsiasi carattere tranne "(" ")" "," ":" """ "'" spazio ";" "#"  che terminerà la variabile.
+Un simbolo che inizia con "[" e termina con "]" può contenere qualunque carattere all'interno, ad esempio:
+
+[1 &*$()}]
+
+è un simbolo legale.
+
+
+-------------------------------
+Uso di map nelle liste annidate
+-------------------------------
+
+In alcuni casi abbiamo bisogno di applicare una funzione a tutti gli elementi di una lista annidata. Ad esempio, poter scrivere qualcosa del tipo: 
+
+(map-all abs '(-1 -2 (-3 -4)))
+
+ed ottenere come risultato (1 2 (3 4)) dove tutti i sotto-elementi vengono elaborati e viene mantenuto l'annidamento della lista originale.
+
+La funzione "map" non è progettata per risolvere questo problema, quindi occorre scrivere una funzione specifica.
+
+(define (map-all f lst)
+  (let (result '())
+    (dolist (el lst)
+      (if (list? el)
+        (push (map-all f el) result -1)
+        (push (f el) result -1)))
+    result))
+
+(map-all abs '(-1 -2 (-3 -4)))
+;-> (1 2 (3 4))
+
+(define (doppio x) (* 2 x))
+
+(map-all doppio '(-1 -2 (-3 -4)))
+;-> (-2 -4 (-6 -8))
+
+(map-all doppio (map-all abs '(-1 -2 (-3 -4))))
+;-> (2 4 (6 8))
+
+(map-all doppio '(((1)) 2 ((3) (4 5 ((6)))) ((6) 7) (8 9)))
+;-> (((2)) 4 ((6) (8 10 ((12)))) ((12) 14) (16 18))
+
+
+------------------------------
+Funzioni ordinali con le liste
+------------------------------
+Ecco alcune funzioni per estrarre elementi da una lista in base alla loro posizione ordinale:
+
+(define (primo lst)   (if (> (length lst) 0) (nth 0 lst) 'nil))
+(define (secondo lst) (if (> (length lst) 1) (nth 1 lst) 'nil))
+(define (terzo lst)   (if (> (length lst) 2) (nth 2 lst) 'nil))
+(define (quarto lst)  (if (> (length lst) 3) (nth 3 lst) 'nil))
+(define (quinto lst)  (if (> (length lst) 4) (nth 4 lst) 'nil))
+(define (sesto lst)   (if (> (length lst) 5) (nth 5 lst) 'nil))
+(define (settimo lst) (if (> (length lst) 6) (nth 6 lst) 'nil))
+(define (ottavo lst)  (if (> (length lst) 7) (nth 7 lst) 'nil))
+(define (nono lst)    (if (> (length lst) 8) (nth 8 lst) 'nil))
+(define (decimo lst)  (if (> (length lst) 9) (nth 9 lst) 'nil))
+
+(primo '())
+;-> nil
+(primo '(1 2 3))
+;-> 1
+(decimo '(1 2 3 4 5 6 7 8 9 10))
+;-> 10
+
+
+------------------------
+gensym e macro igieniche
+------------------------
+
+Nei LISP tradizionali esiste la funzione GENSYM che serve per generare un simbolo nuovo ed univoco. Questa funzione viene utilizzata soprattutto per rendere le macro igieniche.
+Comunque in newLISP possiamo ottenere lo stesso scopo ed evitare l'acquisizione variabile, utilizzando la funzione "args" per accedere agli argomenti macro o funzioni:
+
+(define-macro (setq1)
+   (set (args 0) (eval (args 1))))
+
+(setq1 x 123)
+;-> 123
+x
+;-> 123
+
+Per il templating possiamo usare le funzioni "expand" e "letex". Ecco un esempio per l'uso di "letex" insieme a una definizione di "gensym":
+
+(define (gensym:gensym)
+   (if gensym:count
+      (inc gensym:count)
+      (setq gensym:count 1))
+   (sym (string "gs" gensym:count) MAIN))
+
+(gensym)
+;-> gs1
+(gensym)
+;-> gs2
+
+(define setq2
+   (letex (s (gensym) v (gensym))
+      (lambda-macro (s v) (set s (eval v)))))
+
+;-> (lambda-macro (gs3 gs4) (set gs3 (eval gs4)))
+
+(setq2 y 456)
+;-> 456
+y
+;-> 456
+
+o per avere un "gensym" ancora più sicuro possiamo usare la funzione "uuid":
+
+(define (gen-sym) (string "gs" (uuid)))
+
+(gen-sym)
+;-> "gs7D1365E2-78A6-48A6-8C31-B6034840B528"
+
+La prima funzione genera simboli più leggibili dall'uomo, mentre la seconda è utile per il codice interno alla macchina ed sicuro al 100%. "uuid" da sola genera un stringa ID univoca e universale, utile per gli ID di sessione nella programmazione web ecc.
+
+Per le macro, ciò che funziona meglio la maggior parte delle volte, è semplicemente usare "args" come nel primo esempio.
+
 
 ===========
 
@@ -46696,6 +47632,8 @@ Il debugger non visualizza i commenti che si trovano nelle funzioni. Per fare ap
   [text]Questo testo appare nel debugger.[/text]
   ; Questo testo no appare nel debugger.
   (inc i))
+  
+Nota: modificare la funzione di cui si sta effettuandoo il debug genera sempre un crash della REPL.
 
 Per finire riportiamo la traduzione del manuale di riferimento delle funzioni "trace", "trace-highlight" e "debug".
 
@@ -48460,6 +49398,9 @@ Frasi Famose sulla Programmazione e sul Linguaggio Lisp
 
 "It is better to first strive for clarity and correctness and to make programs efficient only if really needed."
 - "Getting Started with Erlang" by Ericsson
+
+"Rules of optimization: Rule #1: Don't do it. Rule #2 (for experts only): Don't do it yet."
+- Michael A. Jackson
 
 "Cavemen in bearskins invaded the ivory towers of Artificial Intelligence. Nine months later, they left with a baby named newLISP. The women of the ivory towers wept and wailed. 'Abomination!' they cried."
 - TedWalther

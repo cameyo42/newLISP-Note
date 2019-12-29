@@ -140,6 +140,7 @@ FUNZIONI VARIE
   Numeri casuali distinti
   Numeri casuali con distribuzione discreta predefinita
   Generatore di stringhe casuali
+  Inverso di un numero
 
 newLISP 99 PROBLEMI (28)
 ========================
@@ -291,6 +292,7 @@ PROBLEMI VARI
   Problema della segretaria
   Numeri con tre divisori
   Congettura di Goldbach
+  Problema dei travasi ed equazioni diofantee
 
 DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
 ==================================================
@@ -337,6 +339,7 @@ DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Insiemi con la stessa somma (Wolfram)
   Tripartizione di un intero (Wolfram)
   Cifre stampate (Uber)
+  Travasi di liquidi (Facebook)
 
 LIBRERIE
 ========
@@ -354,6 +357,7 @@ NOTE LIBERE
   Apprendere newLISP
   Commentare righe di codice
   Stile del codice newLISP
+  Considerazioni sulle parentesi del LISP
   Controllare l'output della REPL (prettyprint)
   File e cartelle
   Funzioni e liste
@@ -399,6 +403,14 @@ NOTE LIBERE
   Funzioni con parametri nominali
   La funzione COMMAND-EVENT
   Massimo Comun Divisore (MCD)
+  Indicizzazione implicita
+  nil come valore e nil come risultato
+  Simulare un iteratore
+  "Don't underrate an iterate..."
+  Simboli che iniziano con "$"
+  Uso di map nelle liste annidate
+  Funzioni ordinali con le liste
+  gensym e macro igieniche
 
 APPENDICI
 =========

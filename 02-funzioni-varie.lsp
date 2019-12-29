@@ -4659,3 +4659,31 @@ c4) tre consonanti diverse (5%)
 Inoltre sarebbe interessante modificare o definire altre regole di costruzione.
 
 
+--------------------
+Inverso di un numero
+--------------------
+
+Per calcolare l'inverso di un numero basta dividere 1 (uno) per il numero stesso. Comunque il newLISP è più veloce non includere il numero 1 nella divisione. Infatti risulta:
+
+(= (div 1 2) (div 2))
+;-> true
+
+Calcoliamo la velocità dei due metodi:
+
+(time (div 1 2) 10000000)
+;-> 319.685
+
+(time (div 2) 10000000)
+;-> 264.999
+
+Quindi la funzione inversa può essere scritta nel modo seguente:
+
+(define (inv x) (if (zero? x) nil (div x)))
+
+(inv 10)
+;-> 0.1
+
+(inv 0)
+;-> nil
+
+

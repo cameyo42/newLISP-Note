@@ -3379,6 +3379,8 @@ Il debugger non visualizza i commenti che si trovano nelle funzioni. Per fare ap
   [text]Questo testo appare nel debugger.[/text]
   ; Questo testo no appare nel debugger.
   (inc i))
+  
+Nota: modificare la funzione di cui si sta effettuandoo il debug genera sempre un crash della REPL.
 
 Per finire riportiamo la traduzione del manuale di riferimento delle funzioni "trace", "trace-highlight" e "debug".
 
@@ -5143,6 +5145,9 @@ Frasi Famose sulla Programmazione e sul Linguaggio Lisp
 
 "It is better to first strive for clarity and correctness and to make programs efficient only if really needed."
 - "Getting Started with Erlang" by Ericsson
+
+"Rules of optimization: Rule #1: Don't do it. Rule #2 (for experts only): Don't do it yet."
+- Michael A. Jackson
 
 "Cavemen in bearskins invaded the ivory towers of Artificial Intelligence. Nine months later, they left with a baby named newLISP. The women of the ivory towers wept and wailed. 'Abomination!' they cried."
 - TedWalther

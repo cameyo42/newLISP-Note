@@ -17,7 +17,7 @@ http://www.newLISP.org/
 Questo documento è in continua evoluzione e aggiornamento ed è scritto non da un programmatore professionista, ma da un principiante che studia ed utilizza newLISP per divertimento e per risolvere problemi di matematica ricreativa. Qualche volta (ultimamente sempre più spesso) uso newLISP anche nel mio lavoro quotidiano.
 Consigli, correzioni e suggerimenti sono i benvenuti.
 
-Per convenzione i comandi di input della REPL non contengono il prompt di newLISP ">".
+Per convenzione i comandi di input della REPL (Read Eval Print Loop) non contengono il prompt di newLISP ">".
 L'output della REPL viene preceduto dalla stringa ";-> ".
 Nel testo sono riportate le descrizioni di alcuni comandi predefiniti tradotte dal manuale di riferimento ("newLISP Reference"). Queste descrizioni sono precedute dalla stringa ">>>funzione". Ad esempio, per trovare la funzione "map", ricercare la stringa ">>>funzione MAP".
 
@@ -87,6 +87,11 @@ Per vedere in quale cartella ci troviamo digitiamo il comando "!cd":
 !cd
 ;-> c:\newLISP\note
 
+Oppure possiamo usare la funzione "real-path":
+
+(real-path)
+;-> "c:\newLISP\note"
+
 Se non ci troviamo nella cartella corretta possiamo cambiare cartella con il comando "change-dir":
 
 (change-dir "c://newLISP/note")
@@ -94,8 +99,10 @@ Se non ci troviamo nella cartella corretta possiamo cambiare cartella con il com
 
 Verifichiamo:
 
-!cd
-;-> c:\newLISP\note
+(real-path)
+;-> "c:\newLISP\note"
+
+Questa sarà la cartella di default per la REPL.
 
 ====================
  LE FUNZIONI UTENTE

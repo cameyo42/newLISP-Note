@@ -1012,7 +1012,7 @@ con find-all possiamo creare la lista degli zeri:
 (setq zeri (find-all 0 '(0 1 0 3 12)))
 ;-> (0 0)
 
-con filter possiamo creare la lista di tuti inumeri diversi da zero:
+con filter possiamo creare la lista di tutti inumeri diversi da zero:
 (define (pos? x) (> x 0))
 (setq numeri (filter pos? '(0 1 0 3 12)))
 ;-> (1 3 12)
@@ -1420,7 +1420,8 @@ Usiamo la funzione apply per applicare tutti gli operatori di confronto alla lis
 ;-> >=
 (order? '(-1 -1 3 4))
 ;-> <=
-
+(order? '(-1 -2 3 -1))
+;-> nil
 
 ----------------
 Caramelle (Visa)
@@ -1519,7 +1520,7 @@ Ad esempio, se N è 4, esistono 5 modi unici: (1, 1, 1, 1) (2, 1, 1) (1, 2, 1) (
 
 Cosa succede se, invece di essere in grado di salire di 1 o 2 passi alla volta, è possibile salire qualsiasi numero da un insime di interi positivi X? Ad esempio, se X = {1, 3, 5}, potresti salire 1, 3 o 5 passi alla volta.
 
-QUesto è un classico problema ricorsivo. Iniziamo con casi semplici e cercando di trovare una regola di calcolo (relazione).
+Questo è un classico problema ricorsivo. Iniziamo con casi semplici e cercando di trovare una regola di calcolo (relazione).
 
 N = 1: [1]
 N = 2: [1, 1], [2]
@@ -1968,7 +1969,6 @@ Inoltre dobbiamo tenere conto del numero massimo di stanze raggiunto.
     (sort fine)
     (setq stanze_richieste 0)
     (setq massimo_stanze 0)
-    i = j = 0
     (setq i 0 j 0)
     (setq n (length lst))
     (while (and (< i n) (< j n))
@@ -1996,27 +1996,34 @@ Inoltre dobbiamo tenere conto del numero massimo di stanze raggiunto.
 ;-> 3
 
 Questo metodo risponde anche ad un'altra domanda:
-Data una serie di intervalli di tempo, una persona può assistere a tutte le riunioni?
+data una serie di intervalli di tempo, una persona può assistere a tutte le riunioni?
 Se il numero minimo di stanze è pari a uno, allora la risposta è affermativa, altrimenti ci sono due o più riunioni che si sovrappongono.
 Possiamo risolvere questo problema in modo più semplice.
 Se una persona può partecipare a tutte le riunioni, non deve esserci alcuna sovrapposizione tra una riunione e l'altra.
 Dopo aver ordinato gli intervalli, possiamo confrontare la "fine" attuale con il prossimo "inizio".
 
-public boolean canAttendMeetings(Interval[] intervals) {
-    Arrays.sort(intervals, new Comparator<Interval>(){
-        public int compare(Interval a, Interval b){
-            return a.start-b.start;
-        }
-    });
+La funzione è la seguente:
 
-    for(int i=0; i<intervals.length-1; i++){
-        if(intervals[i].end>intervals[i+1].start){
-            return false;
-        }
-    }
+(setq lst '((20 30) (0 20) (30 40)))
 
-    return true;
-}
+(define (allMeeting lst)
+  (let ((i 0) (out true))
+    (sort lst)
+    (while (and (< i (- (length lst) 1)) out)
+      (if (> (lst i 1) (lst (+ i 1) 0)) (setq out nil))
+      (++ i))
+    out))
+
+(setq lst '((20 30) (0 20) (30 40)))
+
+(allMeeting lst)
+;-> true
+
+(allMeeting '((30 75) (0 50) (60 150)))
+;-> nil
+
+(allMeeting '((90 91) (94 120) (95 112) (110 113) (150 190) (180 200)))
+;-> nil
 
 
 ----------------------------------
@@ -2026,7 +2033,7 @@ Bilanciamento parentesi (Facebook)
 Data una stringa contenente parentesi tonde, quadre e graffe (aperte e chiuse), restituire
 se le parentesi sono bilanciate (ben formate) e rispettano l'ordine ("{}" > "[]" > "()").
 Ad esempio, data la stringa "[()] [] {()}", si dovrebbe restituire true.
-Data la stringa "([]) [] ({})", si dovrebbe restituire false (le graffe non ossono stare dentro le tonde).
+Data la stringa "([]) [] ({})", si dovrebbe restituire false (le graffe non possono stare dentro le tonde).
 Data la stringa "([)]" o "((()", si dovrebbe restituire false.
 
 Usiamo un contatore per ogni tipo di parentesi e verifichiamo la logica corretta durante la scansione della stringa.
@@ -3558,5 +3565,135 @@ Vediamo una soluzione con la forza bruta.
 
 (num-pagine 100000)
 ;-> (22222 -4) ; mancano 4 cifre per numerare 22222 pagine
+
+
+-----------------------------
+Travasi di liquidi (Facebook)
+-----------------------------
+
+Abbiamo due recipienti (1 e 2) che contengono due liquidi diversi (A e B).
+All'inizio il recipiente 1 contiene 100 litri del liquido A e 0 litri del liquido B, mentre il recipiente 2 contiene 0 litri del liquido A e 100 litri del liquido B.
+
+Quesito 1
+---------
+Supponiamo di travasare 10 litri dal recipiente 1 al recipiente 2, poi travasiamo 10 litri dal recipiente 2 al recipiente 1.
+È maggiore il liquido B nel recipiente 1 oppure è maggiore il liquido A nel recipiente 2 ?
+
+Il risultato è che sono uguali. Non c'è bisogno di fare calcoli, basta notare che, dopo i due travasi, i livelli dei liquidi nei recipienti sono gli stessi di prima, quindi gli scambi dei liquidi A e B devono essere gli stessi.
+
+Quesito 2
+---------
+Scrivere una funzione che permette di travasare il liquido da un recipiente ad un altro, in modo che, al termine del travaso, si conoscano sia il numero di litri totale di ogni recipiente, sia la percentuale dei liquidi contenuta in ogni recipiente (e quindi il numero di litri dei liquidi A e B che si trovano in ogni recipiente.)
+
+Partiamo da questa situazione iniziale:
+; numero litri bottiglia 1
+(setq bot1 100)
+; percentuale del liquido A nella bottiglia 1
+(setq p1A 100)
+; percentuale del liquido B nella bottiglia 1
+(setq p1B 0)
+; numero litri bottiglia 2
+(setq bot2 100)
+; percentuale del liquido A nella bottiglia 2
+(setq p2A 0)
+; percentuale del liquido B nella bottiglia 2
+(setq p2B 100)
+
+Funzione che calcola la quantità dato il totale e la percentuale:
+
+(define (quanto val perc) (mul val (div perc 100)))
+
+Funzione di travaso da 1 a 2:
+
+(define (travaso-12 litri)
+  (local (qa qb)
+    (setq qa (quanto litri p1A))
+    (setq qb (quanto litri p1B))
+    ;(println qa { } qb)
+    (setq p1A p1A) ;non cambia
+    (setq p1B p1B) ;non cambia
+    (setq p2A (mul 100 (div (add (quanto bot2 p2A) qa) (add bot2 qa qb))))
+    (setq p2B (mul 100 (div (add (quanto bot2 p2B) qb) (add bot2 qa qb))))
+    (setq bot1 (sub bot1 qa qb))
+    (setq bot2 (add bot2 qa qb))
+    ;(println bot1 { } p1A { } p1B { } bot2 { } p2A { } p2B)
+    (println "Bottiglia 1: " bot1 " litri")
+    (println "   liquido A: " (mul bot1 (div p1A 100)) " litri (" p1A"%)")
+    (println "   liquido B: " (mul bot1 (div p1B 100)) " litri (" p1B"%)")
+    (println "Bottiglia 2: " bot2 " litri")
+    (println "   liquido A: " (mul bot2 (div p2A 100)) " litri (" p2A"%)")
+    (println "   liquido B: " (mul bot2 (div p2B 100)) " litri (" p2B"%)")
+    (list bot1 (mul bot1 (div p1A 100)) (mul bot1 (div p1B 100))
+          bot2 (mul bot2 (div p2A 100)) (mul bot2 (div p2B 100)))
+  ))
+
+Funzione di travaso da 2 a 1:
+
+(define (travaso-21 litri)
+  (local (qa qb)
+    (setq qa (quanto litri p2A))
+    (setq qb (quanto litri p2B))
+    ;(println qa { } qb)
+    (setq p2A p2A) ;non cambia
+    (setq p2B p2B) ;non cambia
+    (setq p1A (mul 100 (div (add (quanto bot1 p1A) qa) (add bot1 qa qb))))
+    (setq p1B (mul 100 (div (add (quanto bot1 p1B) qb) (add bot1 qa qb))))
+    (setq bot1 (add bot1 qa qb))
+    (setq bot2 (sub bot2 qa qb))
+    ;(println bot1 { } p1A { } p1B { } bot2 { } p2A { } p2B)
+    (println "Bottiglia 1: " bot1 " litri")
+    (println "   liquido A: " (mul bot1 (div p1A 100)) " litri (" p1A"%)")
+    (println "   liquido B: " (mul bot1 (div p1B 100)) " litri (" p1B"%)")
+    (println "Bottiglia 2: " bot2 " litri")
+    (println "   liquido A: " (mul bot2 (div p2A 100)) " litri (" p2A"%)")
+    (println "   liquido B: " (mul bot2 (div p2B 100)) " litri (" p2B"%)")        
+    (list bot1 (mul bot1 (div p1A 100)) (mul bot1 (div p1B 100))
+          bot2 (mul bot2 (div p2A 100)) (mul bot2 (div p2B 100)))
+  ))
+
+Se travasiamo per 10 volte 10 litri da 1 a 2 partendo dalla situzione iniziale otteniamo:
+
+(dotimes (x 10) (travaso-12 10))
+;-> Bottiglia 1: 0 litri
+;->    liquido A: 0 litri (100%)
+;->    liquido B: 0 litri (0%)
+;-> Bottiglia 2: 200 litri
+;->    liquido A: 99.99999999999999 litri (49.99999999999999%)
+;->    liquido B: 100 litri (50.00000000000002%)
+;-> (0 0 0 200 99.99999999999999 100)
+
+Adesso, se travasiamo per 10 volte 10 litri da 2 a 1 torniamo alla situazione di partenza, ma con i liquidi mescolati al 50% su entrambi i recipienti:
+
+(dotimes (x 10) (travaso-21 10))
+;-> Bottiglia 1: 100 litri
+;->    liquido A: 49.99999999999999 litri (49.99999999999999%)
+;->    liquido B: 50.00000000000001 litri (50.00000000000001%)
+;-> Bottiglia 2: 100 litri
+;->    liquido A: 49.99999999999999 litri (49.99999999999999%)
+;->    liquido B: 50.00000000000002 litri (50.00000000000002%)
+;-> (100 49.99999999999999 50.00000000000001 100 49.99999999999999 50.00000000000002)
+
+Adesso verifichiamo il primo quesito, travasiamo 10 litri da 1 a 2 e poi 10 litri da 2 a 1:
+
+(travaso-12 10)
+;-> Bottiglia 1: 90 litri
+;->    liquido A: 90 litri (100%)
+;->    liquido B: 0 litri (0%)
+;-> Bottiglia 2: 110 litri
+;->    liquido A: 10 litri (9.090909090909092%)
+;->    liquido B: 100 litri (90.90909090909091%)
+;-> (90 90 0 110 10 100)
+
+(travaso-21 10)
+;-> Bottiglia 1: 100 litri
+;->    liquido A: 90.90909090909091 litri (90.90909090909091%)
+;->    liquido B: 9.09090909090909 litri (9.09090909090909%)
+;-> Bottiglia 2: 100 litri
+;->    liquido A: 9.090909090909092 litri (9.090909090909092%)
+;->    liquido B: 90.90909090909091 litri (90.90909090909091%)
+;-> (100 90.90909090909091 9.09090909090909 100 9.090909090909092 90.90909090909091)
+
+La quantità di liquido B nella bottiglia 1 è uguale alla quantità di liquido A nella bottiglia 2 (9.0909...).
+La quantità di liquido A nella bottiglia 1 è uguale alla quantità di liquido B nella bottiglia 2 (90.0909...).
 
 

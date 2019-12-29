@@ -4070,6 +4070,22 @@ Adesso scriviamo una funzione iterativa:
 (ld "newLISP" "Common LISP")
 ;-> 7
 
+La distanza Levenshtein è stata utilizzata:
+1. nell'implementazione di un calcolatore per la distanza tra matrici
+2. per la valutazione percettiva delle misurazioni della distanza dialettale.
+3. per la marcatura automatica di dettati musicali.
+4. per la corrispondenza approssimativa nelle espressioni regolari.
+5. per identificare se due sequenze genetiche hanno funzioni simili.
+6. per filtrare blocchi di elenchi e-mail (indirizzi spam candidati) entro un valore soglia.
+7. come esploratore per i nomi di bambini.
+8. per nominare prodotti e servizi come domini, marchi, ecc.
+9. per condurre ricerche fuzzy nel tuo ambiente preferito.
+10. per i motori di ricerca spamdex - convertendo casualmente il testo in una serie di caratteri incomprensibili.
+11. per i motori di ricerca che generano spam - aggiungendo sistematicamente le modifiche a testi validi.
+12. come parte di una routine per il controllo ortografico.
+13. per identificare contenuti duplicati e plagio.
+14. come criterio di ordinamento.
+
 
 --------------
 Social Network
@@ -7339,5 +7355,249 @@ Infine scriviamo la funzione che genera tutte le coppie di numeri primi che somm
 
 (coppie 20)
 ;-> ((3 17) (7 13) (13 7) (17 3))
+
+
+-------------------------------------------
+Problema dei travasi ed equazioni diofantee
+-------------------------------------------
+
+Avendo a disposizione una fontana e due recipienti, rispettivamente da 9 e da 15 litri, come si può a raccogliere precisamente 12 litri d’acqua?
+
+In generale, dati due contenitori non graduati e una quantità infinita di liquido, è possibile avere, con una serie di riempimenti, svuotamenti e travasi, una fissata quantità in un solo recipiente?
+
+Indichiamo con A e B i due contenitori e con a e b le loro capacità e c la quantità di liquido da ottenere. Dove a, b, c sono numeri naturali e (0 < c < max(a,b)).
+
+Indichiamo con la coppia (x,y) un particolare stato del problema, caratterizzato dalla quantità di liquido x contenuto nel contenitore A e dalla quantità di liquido y contenuta in B. Dove x, y sono numeri naturali e (0 <= x <= a), (0 <= y <= b).
+
+Lo stato iniziale è quindi rappresentato dalla coppia (0,0) e quello da raggiungere è (c,y) per qualche y, oppure (x,c) per qualche x.
+
+Le azioni che permettono di passare da uno stato ad un altro sono descritte nel seguente schema:
+
+Riempimenti
+-----------
+Azione         Risultato                            Vincoli
+RiempiA        A viene completamente riempito.      A non deve essere pieno.
+RiempiB        B viene completamente riempito.      B non deve essere pieno.
+
+Travasi
+-------
+TravasoAB      A viene svuotato in B, fino a che    A non deve essere vuoto e
+               A è vuoto oppure B è pieno.          B non deve essere pieno.
+TravasoBA      B viene svuotato in A, fino a che    B non deve essere vuoto e
+               B è vuoto oppure A è pieno.          A non deve essere pieno.
+
+Svuotamenti
+-----------
+SvuotaA        A viene completamente svuotato.      A non deve essere vuoto.
+SvuotaB        B viene completamente svuotato.      B non deve essere vuoto.
+
+Adesso vediamo gli effetti delle azioni su un generico stato iniziale (x,y):
+
+Iniziale      Azione      Finale
+ (x,y)        RiempiA      (a,y)
+ (x,y)        RiempiB      (x,b)
+ (x,y)        TravasoAB    (0,x+y) oppure (x+y-b,b)
+ (x,y)        TravasoBA    (x+y,0) oppure (a,x+y-a)
+ (x,y)        SvuotaA      (0,y)
+ (x,y)        SvuotaB      (x,0)
+
+Nota: se si parte dallo stato (0,0) non si ottengono mai stati in cui 0 < x < a e 0 < y < b.
+
+Ogni problema dei travasi con contenitori di capienza a e b e quantità da realizzare c può essere formalizzato nel modo seguente:
+
+Dati tre numeri naturali a, b, c Îe 0 < c < max(a,b), trovare una sequenza di azioni che permetta di passare dallo stato iniziale (0,0) a quello (c,y) per qualche y, oppure a quello (x, c) per qualche x.
+
+Per risolvere il problema ci servono alcune nozioni di teoria di numeri.
+
+Teorema della divisione e del resto
+-----------------------------------
+Dati due numeri interi a e b esistono solo due numeri interi q e r che soddisfano la seguente relazione:
+
+  a = q*b + r  con 0 <= r < b
+
+q prende il nome di “quoziente” della divisione di a per b
+r prende il nome di “resto” della divisione di a per b
+
+Ddefinizione: equazioni diofantee di primo grado
+------------------------------------------------
+Si dice equazione diofantea (di 1° grado) ogni equazione della forma:
+
+ax + by = c
+
+dove a, b, c numeri interi relativi e a e b non entrambi nulli
+
+Si dice soluzione dell’equazione diofantea ogni coppia (x0,y0) con x0 e y0 numeri interi relativi tale che:
+
+a*x + b*y = c
+
+Teorema fondamentale delle equazioni diofantee di primo grado
+-------------------------------------------------------------
+Un'equazione diofantea di primo grado
+
+  ax + by = c
+
+con a, b, c numeri interi relativi e a e b non entrambi nulli ha soluzioni se e solo se c è un multiplo del Massimo Comun Denominatore di (a,b).
+
+In tal caso se (x0,y0) è una soluzione dell’equazione, tutte le soluzioni (x(n),y(n)) si trovano con le formule:
+
+                    b                              a
+    x(n) = x0 + ----------*n       y(n) = y0 + ----------*n
+                 MCD(a,b)                       MCD(a,b)
+
+al variare di n.
+
+Nota: se a e/o b sono negativi si considera il MCD dei loro valori assoluti.
+
+Esempio: 8x - 6y = 26
+a = 8
+b = -6
+c = 26
+MCD(8, 6) = 2
+
+Quindi c è multiplo di MCD(a,b): (26 mod 2) = 0
+Una soluzione vale (1,-3), quindi tutte le soluzioni si ottengono dalle formule:
+
+                b                  -6
+x(n) = x0 + ----------*n = 1 + ----------*n = 1 - 3*n
+             MCD(a,b)           MCD(8,6)
+
+                a                   8
+y(n) = y0 + ----------*n = -3 + ----------*n = -3 - 4*n
+             MCD(a,b)            MCD(8,6)
+
+Quindi risulta:
+...
+n = -2 --> (7,5)
+n = -1 --> (4,1)
+n = 0  --> (1,-3)
+n = 1  --> (-2,-7)
+n = 2  --> (-5,-11)
+...
+
+Vedremo in seguito come viene calcolata la prima soluzione (x0,y0). Adesso dobbiamo vedeere quali sono le possibili strategie per risolvere il problema.
+
+Strategia Destra
+----------------
+Si definisce "strategia destra" ogni sequenza di azioni che segue le seguenti regole:
+1) Se A è vuoto lo si riempie con RiempiA.
+2) Se A non è vuoto lo si svuota con un numero finito di travasi TravisaAB e
+svuotamenti SvuotaB di B fino ad uno stato (0,y) con y<b.
+
+
+Strategia Sinistra
+------------------
+Si definisce "strategia sinistra" ogni sequenza di azioni che segue le seguenti regole:
+1) Se B è vuoto lo si riempie con RiempiB
+2) Se B non è vuoto lo si svuota con un numero finito di travasi TravasiBA e
+svuotamenti SvuotaA di A fino ad uno stato (x,0) con x<a.
+
+Nota: si osservi che applicando la strategia destra (sinistra) a partire dallo stato (0,0) si effettua un primo riempimento di A (di B) (regola 1), poi si raggiunge lo stato (0,y) con y<b (lo stato (x,0) con x<a) (regola 2), da qui si può ricominciare e andare avanti quanto si vuole alternando le regole 1 e 2.
+Si noti inoltre che nella strategia destra (sinistra) per ogni stato ottenuto del tipo (0,y) (del tipo (x,0)) si ha y = n*a - m*b (x = n*b - m*a) dove n è il numero di riempimenti di A (di B) e m il numero di svuotamenti di B (di A).
+
+Adesso siamo in grado di definire in quali casi il problema dei travasi ha una soluzione.
+
+Teorema
+Dati tre numeri naturali a, b, c con 0 < c < max(a,b) CNES affinché il problema dei travasi con contenitori di capienza a, b e quantità da realizzare c sia risolubile, è che c sia un multiplo di MCD(a,b).
+
+Applichiamo ora il teorema appena dimostrato al problema dei travasi proposto all'inizio.
+Avendo a disposizione una fontana e due recipienti, rispettivamente da 9 e da 15 litri, come si può a raccogliere precisamente 12 litri d’acqua?
+In virtù del teorema il problema è risolubile perché 12 è un multiplo di MCD(9,15)=3.
+Mostreremo ora come la strategia destra permette di raggiungere lo stato (0,6) e la
+strategia sinistra lo stato (6,0).
+
+Strategia destra
+Inizio  Azione     Fine
+(0,0)   RiempiA    (9,0)
+(9,0)   TravasoAB  (0,9)
+(0,9)   RiempiA    (9,9)
+(9,9)   TravasoAB  (3,15)
+(3,15)  SvuotaB    (3,0)
+(3,0)   TravasoAB  (0,3)
+(0,3)   RiempiA    (9,3)
+(9,3)   TravasoAB  (0,12)
+
+Strategia sinistra
+Inizio  Azione     Fine
+(0,0)   RiempiB    (0,15)
+(0,15)  TravasoBA  (9,6)
+(9,6)   SvuotaA    (0,6)
+(0,6)   RiempiB    (6,15)
+(6,15)  TravasoBA  (9,12)
+(9,12)  SvuotaA    (0,12)
+(0,12)  TravasoBA  (12,0)
+
+Osserviamo che nella strategia sinistra le ultime due azioni sono inutili ai fini della
+risoluzione del problema, ed eliminandole, la strategia sinistra si dimostra in questo caso "migliore": 6 azioni per quella sinistra contro le 8 di quella destra.
+
+Per finire vediamo un algoritmo per trovare la soluzione (x0,y0), se esiste, di una equazione diofantea lineare a due incognite.
+
+Possiamo usare l'algoritmo euclideo esteso. Innanzitutto, supponiamo che a e b siano non negativi. Quando applichiamo l'algoritmo euclideo esteso per a e b, possiamo trovare il loro massimo comune divisore g e due numeri xg e yg tali che:
+
+a*xg + b*yg = g
+
+Se c è divisibile per g = gcd(a, b), allora l'equazione diofantea data ha una soluzione, altrimenti non ha alcuna soluzione. La dimostrazione è semplice: una combinazione lineare di due numeri è sempre divisibile per il loro comune divisore.
+
+Ora supponiamo che c sia divisibile per g, quindi abbiamo:
+
+a*xg*c/g + b*yg*c/g = c
+
+Pertanto una delle soluzioni dell'equazione diofantea è:
+
+x0 = xg*c/g
+y0 = yg*c/g
+
+Questo metodo funziona anche quando a e/o b sono negativi.
+
+(define (gcdex a b)
+  (local (x y lastx lasty temp)
+    (setq x 0)
+    (setq y 1)
+    (setq lastx 1)
+    (setq lasty 0)
+    (while (not (zero? b))
+      (setq q (div a b))
+      (setq r (% a b))
+      (setq a b)
+      (setq b r)
+      (setq temp x)
+      (setq x (- lastx (* q x)))
+      (setq lastx temp)
+      (setq temp y)
+      (setq y (- lasty (* q y)))
+      (setq lasty temp)
+    )
+    ; Adesso la variabile a contine il valore di gcd
+    ;(println a { } b { } x { } y { } lastx { } lasty)
+    (list a lastx lasty)))
+
+(gcdex 120 23)
+;-> 1 0 23 -120 -9 47
+;-> (-9 47)
+
+(gcdex 8 -6)
+;-> 2 0 3 4 1 1
+;-> (1 1)
+
+(define (diofanto a b c)
+  (local (gcdex-lst g xg yg out)
+    (setq out '())
+    (setq gcdex-lst (gcdex a b))
+    (setq g (first gcdex-lst))
+    (setq xg (first (rest gcdex-lst)))
+    (setq yg (last gcdex-lst))
+    (println g { } xg { } yg)
+    (cond ((not (zero? (% c g))) (setq out '()))
+          (true
+            (setq out (list (div (mul xg c) g) (div (mul yg c) g)))))
+    out))
+
+(diofanto 8 -6 26)
+;-> 2 1 1 
+;-> (13 13)
+
+Infatti risulta:
+
+(+ (* 13 8) (* 13 -6))
+;-> 26
 
 
