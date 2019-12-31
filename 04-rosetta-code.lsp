@@ -546,7 +546,7 @@ Somma tra gli elementi:
 
 Calcoliamo le distanze tra le coppie di numeri primi contigui:
 
-(funlist (sieve 1000) -)
+(funlist (sieve-to 1000) -)
 ;-> (1 2 2 4 2 4 2 4 6 2 6 4 2 4 6 6 2 6 4 2 6 4 6 8 4 2 4 2 4 14 4 6 2 10 2 6 6 4 6
 ;->  6 2 10 2 4 2 12 12 4 2 4 6 2 10 6 6 6 2 6 4 2 10 14 4 2 4 14 6 10 2 4 6 8 6 6 4
 ;->  6 8 4 8 10 2 10 2 6 4 6 8 4 2 4 12 8 4 8 4 6 12 2 18 6 10 6 6 2 6 10 6 6 2 6 6 4
@@ -559,14 +559,14 @@ Contiamo la frequenza delle distanze:
    (let (ulist (unique (sort lst)))
       (map list ulist (count ulist lst))))
 
-(freq (funlist (sieve 1000) -))
+(freq (funlist (sieve-to 1000) -))
 ;-> ((1 1) (2 35) (4 40) (6 44) (8 15) (10 16) (12 7) (14 7) (18 1) (20 1))
 
 Ordiniamo le frequenze:
 
 (define (comp x y) (>= (last x) (last y)))
 
-(sort (freq (funlist (sieve 1000000) -)) comp)
+(sort (freq (funlist (sieve-to 1000000) -)) comp)
 ;-> ((6 13549) (2 8169) (4 8143) (12 8005) (10 7079) (8 5569)
 ;->  (18 4909) (14 4233) (16 2881) (24 2682) (20 2401) (22 2172)
 ;->  (30 1914) (28 1234) (26 1175) (36 767)  (34 557)  (32 550)...

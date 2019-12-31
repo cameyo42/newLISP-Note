@@ -227,7 +227,7 @@ ROSETTA CODE
 
 PROJECT EULERO
 ==============
-  Problemi 1..50
+  Problemi 1..53
 
 PROBLEMI VARI
 =============
@@ -340,6 +340,8 @@ DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Tripartizione di un intero (Wolfram)
   Cifre stampate (Uber)
   Travasi di liquidi (Facebook)
+  Cambio monete 1 (LinkedIn)
+  Cambio monete 2 (LinkedIn)
 
 LIBRERIE
 ========
@@ -9075,13 +9077,13 @@ Ricapitoliamo:
 (int2list2 1282738374847)
 ;-> (1 2 8 2 7 3 8 3 7 4 8 4 7)
 
-(time (dotimes (x 1e7) (int2list x)))
-;-> 1107.929
-(time (dotimes (x 1e7) (int2list x)))
-;-> 12721.02
-
+(time (dotimes (x 1e6) (int2list x)))
+;-> 1143.595
 (time (dotimes (x 1e6) (int2list2 x)))
-;-> 1544.137
+;-> 1866.541
+
+(time (dotimes (x 1e7) (int2list x)))
+;-> 12979.094
 (time (dotimes (x 1e7) (int2list2 x)))
 ;-> 17760.076
 
@@ -15189,7 +15191,7 @@ Somma tra gli elementi:
 
 Calcoliamo le distanze tra le coppie di numeri primi contigui:
 
-(funlist (sieve 1000) -)
+(funlist (sieve-to 1000) -)
 ;-> (1 2 2 4 2 4 2 4 6 2 6 4 2 4 6 6 2 6 4 2 6 4 6 8 4 2 4 2 4 14 4 6 2 10 2 6 6 4 6
 ;->  6 2 10 2 4 2 12 12 4 2 4 6 2 10 6 6 6 2 6 4 2 10 14 4 2 4 14 6 10 2 4 6 8 6 6 4
 ;->  6 8 4 8 10 2 10 2 6 4 6 8 4 2 4 12 8 4 8 4 6 12 2 18 6 10 6 6 2 6 10 6 6 2 6 6 4
@@ -15202,14 +15204,14 @@ Contiamo la frequenza delle distanze:
    (let (ulist (unique (sort lst)))
       (map list ulist (count ulist lst))))
 
-(freq (funlist (sieve 1000) -))
+(freq (funlist (sieve-to 1000) -))
 ;-> ((1 1) (2 35) (4 40) (6 44) (8 15) (10 16) (12 7) (14 7) (18 1) (20 1))
 
 Ordiniamo le frequenze:
 
 (define (comp x y) (>= (last x) (last y)))
 
-(sort (freq (funlist (sieve 1000000) -)) comp)
+(sort (freq (funlist (sieve-to 1000000) -)) comp)
 ;-> ((6 13549) (2 8169) (4 8143) (12 8005) (10 7079) (8 5569)
 ;->  (18 4909) (14 4233) (16 2881) (24 2682) (20 2401) (22 2172)
 ;->  (30 1914) (28 1234) (26 1175) (36 767)  (34 557)  (32 550)...
@@ -21009,7 +21011,7 @@ n = 10
 ================
 
  PROJECT EULERO
- 
+
 ================
 
   Problema    Soluzione     Tempo (msec)
@@ -21063,6 +21065,9 @@ n = 10
 |    48    |  9110846700   |       266  |
 |    49    |  296962999629 |        19  |
 |    50    |  997651       |     27113  |
+|    51    |  121313       |       269  |
+|    52    |  142857       |       313  |
+|    53    |  4075         |        25  |
 
 Sito web: https://projecteuler.net/archives
 
@@ -21093,9 +21098,11 @@ Vengono prima presentate alcune funzioni comuni che servono per la soluzione di 
 ; Controlla se n è un numero primo
 ; Non funziona con i big integer
 ; numero massimo (int64): 9223372036854775807
+;=============================================
+
 (define (isprime? n)
-  (if (< n 2) nil
-    (if (= 1 (length (factor n))))))
+   (if (< n 2) nil
+       (= 1 (length (factor n)))))
 ;=============================================
 
 ;=============================================
@@ -22359,7 +22366,7 @@ Definiamo la funzione fattoriale:
 
 (define (fact n) (apply * (map bigint (sequence 1 n))))
 
-Calcoliamo il numero di persorsi:
+Calcoliamo il numero di percorsi:
 
 (define (e015)
   (div (fact 40) (mul (fact 20) (fact 20)))
@@ -25469,6 +25476,294 @@ I numeri coinvolti nella soluzione sono i seguenti:
 3691 3697 3701 3709 3719 3727 3733 3739 3761 3767 3769
 3779 3793 3797 3803 3821 3823 3833 3847 3851 3853 3863
 3877 3881 3889 3907 3911 3917 3919 3923 3929 3931))
+
+
+===========
+Problema 51
+===========
+
+Sostituzioni di cifre nei numeri primi
+
+Sostituendo la prima cifra del numero a 2 cifre *3, si scopre che sei dei nove valori possibili: 13, 23, 43, 53, 73 e 83, sono tutti primi.
+
+Sostituendo la terza e la quarta cifra di 56**3 con la stessa cifra, questo numero di 5 cifre è il primo esempio con sette numeri primi tra i dieci numeri generati, dando la famiglia: 56003, 56113, 56333, 56443, 56663, 56773 e 56993. Di conseguenza 56003, essendo il primo membro di questa famiglia, è il primo più piccolo con questa proprietà.
+
+Trova il primo più piccolo che, sostituendo parte del numero (non necessariamente cifre adiacenti) con la stessa cifra, fa parte di una famiglia di otto valori primi.
+============================================================================
+
+Prima di scrivere la soluzione abbiamo bisogno di alcune funzioni ausiliarie.
+
+Funzione che genera tutti i numeri primi da m a n:
+
+(define (sieve-from-to m n)
+  (local (arr lst out)
+    (setq out '())
+    (setq arr (array (+ n 1)) lst '(2))
+    (for (x 3 n 2)
+        (when (not (arr x))
+          (push x lst -1)
+          (for (y (* x x) n (* 2 x) (> y n))
+              (setf (arr y) true))))
+    (if (<= m 2)
+        lst
+        (dolist (el lst) (if (>= el m) (push el out -1)))
+    )
+  )
+)
+
+Funzione che conta le occorrenze di un carattere in una stringa:
+
+(define (conta-char stringa carattere)
+  (let (out 0)
+    (dolist (el (explode stringa))
+      (if (= carattere el) (++ out))) out))
+
+(conta-char "451234555" "5")
+;-> 4
+
+Funzione che sostituisce caratteri (char-old -> char-new) in una stringa:
+
+(define (cambia-char stringa char-old char-new)
+  (let (out "")
+    (dolist (el (explode stringa))
+      (if (= char-old el)
+        (write out char-new)
+        (write out el)))
+    out))
+
+(cambia-char "12345543215" "5" "0")
+;-> "12340043210"
+
+Funzione che verifica la primalità di un numero:
+
+(define (primo? n)
+  (if (< n 2) nil
+    (if (= 1 (length (factor n))))))
+
+Infine la funzione soluzione (brute-force):
+
+(define (e051 n)
+  (local (cycleMaxL primi numS ciclo cycleL uguali newnum found)
+    (setq found nil)
+    (setq primi (sieve-from-to 100000 n))
+    (dolist (num primi found)
+      (setq numS (string num))
+      (dolist (cifra (explode "1234567890") found)
+        (setq ciclo 0)
+        (setq cycleL '())
+        (setq uguali (conta-char numS cifra))
+        (if (= uguali 3)
+          ;(dolist (nuovo (explode "1234567890"))
+          (dolist (nuovo (explode "1234567890") found)
+            (setq newnum (cambia-char numS cifra nuovo))
+            (if (= (length newnum) (length numS))
+              (if (primo? (int newnum))
+                (begin (++ ciclo)
+                       (push (int newnum) cycleL -1))
+              )
+            )
+          )
+        )
+        (if (> (length cycleL) (length cycleMaxL))
+          (begin (setq cycleMaxL cycleL)
+                 (if (>= (length cycleMaxL) 8)
+                   (begin (setq found true)
+                    (println "Sol: " numS { } (slice cycleMaxL 0 8)))
+                    ;(println "Sol: " numS { } cycleMaxL)))
+                 ))
+        )
+      )
+    )
+    'end
+  )
+)
+
+(e051 999999)
+;-> Sol: 121313 (121313 222323 323333 424343 525353 626363 828383 929393)
+;-> end
+
+(time (e051 999999))
+;-> Sol: 121313 (121313 222323 323333 424343 525353 626363 828383 929393)
+;-> 269.946
+
+
+===========
+Problema 52
+===========
+
+Permutazione di multipli
+
+Si può vedere che il numero 125874 e il suo doppio 251748 contengono esattamente le stesse cifre, ma in un ordine diverso.
+
+Trova il numero intero positivo più piccolo x, tale che 2x, 3x, 4x, 5x e 6x contengano le stesse cifre.
+============================================================================
+
+Funzione che verifica se due numeri hanno le stesse cifre:
+
+(define (same-digit m n)
+  (if (!= (length m) (length n))
+      nil
+      (= (sort (explode (string m))) (sort (explode (string n))))))
+
+(same-digit 1234 4321)
+;-> true
+
+(same-digit 12341 4321)
+;-> nil
+
+(define (e052)
+  (let ((i 10)
+        (continua true))
+    (while continua
+      (if (and (same-digit i (* 2 i))
+               (same-digit i (* 3 i))
+               (same-digit i (* 4 i))
+               (same-digit i (* 5 i))
+               (same-digit i (* 6 i)))
+          (setq continua nil))
+      (++ i)
+    )
+    (- i 1)))
+
+(e052)
+;-> 142857
+
+(time (e052))
+;-> 313.15
+
+
+===========
+Problema 53
+===========
+
+Esistono esattamente dieci modi per selezionare tre cifre tra cinque cifre 1, 2, 3, 4 e 5): 123, 124, 125, 134, 135, 145, 234, 235, 245 e 345
+                                      (5)
+In combinatoria, si usa la notazione,     = 10.
+                                      (3)
+
+In generale, (nr) = n! R! (N − r) !, dove r≤n, n! = N × (n − 1) × ... × 3 × 2 × 1 e 0! = 1.
+
+(n)         n!
+    = --------------- , dove r <= n
+(r)    r! * (n - r)!
+
+e n! = 1 * 2 * 3 * ... * (n - 1) * n
+
+Il numero n = 23 ha il primo valore che supera il milione:
+
+(23)
+     = 1144066
+(10)
+                                                (n)
+Quanti valori, non necessariamente distinti, di (r) per 1<=n<=100, sono maggiori di un milione?
+============================================================================
+
+Formula che calcola il binomiale (big-integer):
+
+(define (binom n k)
+  (local (M q)
+    (setq M (array (+ n 1) (+ k 1) '(0L)))
+    (for (i 0 n)
+      (setq q (min i k))
+      (for (j 0 q)
+        (if (or (= j 0) (= j i))
+          (setq (M i j) 1L)
+          (setq (M i j) (+ (M (- i 1) (- j 1)) (M (- i 1) j)))
+        )
+      )
+    )
+    (M n k)
+  );local
+)
+
+(binom 23 10)
+;-> 1144066L
+
+Funzione soluzione:
+
+(define (e053 n)
+  (let (quanti 0)
+    (for (i 1 n)
+      (for (j 1 i)
+        (if (> (binom i j) 1e6) (++ quanti))))
+    quanti))
+
+(e053 100)
+;-> 4075
+
+(time (e053 100))
+;-> 6231.481
+
+Per velocizzare la soluzione, proviamo a non usare i big integer nella funzione che calcola il binomiale.
+
+(define (binom n k)
+  (local (M q)
+    (setq M (array (+ n 1) (+ k 1) '(0)))
+    (for (i 0 n)
+      (setq q (min i k))
+      (for (j 0 q)
+        (if (or (= j 0) (= j i))
+          (setq (M i j) 1)
+          (setq (M i j) (+ (M (- i 1) (- j 1)) (M (- i 1) j)))
+        )
+      )
+    )
+    (M n k)
+  );local
+)
+
+(binom 23 10)
+;-> 1144066
+
+I numeri binomiali che superano il valore massimo per gli int64 diventano negativi, quindi usiamo la funzione "abs" per considerarli maggiori di 10 milioni.
+
+(define (e053 n)
+  (let (quanti 0)
+    (for (i 1 n)
+      (for (j 1 i)
+        (if (> (abs (binom i j)) 1e6) (++ quanti))))
+    quanti))
+
+(e053 100)
+;-> 4075
+
+(time (e053 100))
+;-> 3522.499
+
+Abbiamo quasi raddoppiato la velocità, ma il problema è la lentezza della funzione che calcola il binomiale. Proviamo un altro metodo: poichè il numero n arriva solo fino a 100, possiamo precalcolare il fattoriale dei primi 100 numeri e usarli per calcolare il binomiale con la formula originale.
+
+Funzione fattoriale (big-integer):
+
+(define (fact n) (apply * (map bigint (sequence 1 n))))
+
+Funzione binomiale (big-integer):
+
+(define (bino n r) (/ (f n) (* (f r) (f (- n r)))))
+
+Adesso riscriviamo la funzione soluzione:
+
+(define (e053)
+  (local (quanti f)
+    (setq quanti 0)
+    ;precalcolo dei fattoriali da 0 a 100
+    (setq f (map fact (sequence 0 100)))
+    (for (i 1 100)
+      (for (j 1 i)
+        ; la differenza tra gli indici deve essere
+        ; maggiore di 0 affinchè (bino i j) possa
+        ; essere maggiore di un milione.
+        ; Infatti (bino x x) = 1
+        (if (> (- i j) 0)
+          (if (> (bino i j) 1e6) (++ quanti)))))
+    quanti))
+
+(e053)
+;-> 4075
+
+(time (e053))
+;-> 25.013
+
+Questa volta la risposta di newLISP è immediata.
 
 
 ===============
@@ -36722,7 +37017,7 @@ Funzione di travaso da 2 a 1:
     (println "   liquido B: " (mul bot1 (div p1B 100)) " litri (" p1B"%)")
     (println "Bottiglia 2: " bot2 " litri")
     (println "   liquido A: " (mul bot2 (div p2A 100)) " litri (" p2A"%)")
-    (println "   liquido B: " (mul bot2 (div p2B 100)) " litri (" p2B"%)")        
+    (println "   liquido B: " (mul bot2 (div p2B 100)) " litri (" p2B"%)")
     (list bot1 (mul bot1 (div p1A 100)) (mul bot1 (div p1B 100))
           bot2 (mul bot2 (div p2A 100)) (mul bot2 (div p2B 100)))
   ))
@@ -36771,6 +37066,163 @@ Adesso verifichiamo il primo quesito, travasiamo 10 litri da 1 a 2 e poi 10 litr
 
 La quantità di liquido B nella bottiglia 1 è uguale alla quantità di liquido A nella bottiglia 2 (9.0909...).
 La quantità di liquido A nella bottiglia 1 è uguale alla quantità di liquido B nella bottiglia 2 (90.0909...).
+
+
+--------------------------
+Cambio monete 1 (LinkedIn)
+--------------------------
+
+Dato un numero N e una lista di numeri M (m1, m2, ..., mm). Determinare in quanti modi è possibile sommare i numeri per avere N. È possibile utilizzare ogni elemento della lista M infinite volte.
+In altre parole, data una cifra N e un insieme di monete (m1, m2, ..., mm), in quanti modi possiamo 'spicciare' la cifra N ?
+
+Per contare il numero totale di soluzioni, possiamo dividere tutte le soluzioni in due insiemi:
+
+1) Soluzioni che non contengono la moneta i-esima mi.
+2) Soluzioni che contengono almeno una moneta mi.
+
+Sia conta(Monete, m, N) la funzione per contare il numero di soluzioni, questa può essere scritta come somma di conta(Monete, m-1, N) e conta(Monete, m, N - mi).
+Quindi il problema può essere risolto in modo ricorsivo.
+
+(define (conta monete num cifra)
+  (cond ((zero? cifra) 1) ;se cifra vale 0, allora una soluzione
+        ((< cifra 0) 0)   ;se cifra minore di 0, allora nessuna soluzione
+        ; se non ci sono monete e la cifra è maggiore di zero,
+        ; allora nessuna soluzione
+        ((and (<= num 0) (>= cifra 1)) 0)
+        (true
+          (println (monete (- num 1)))
+          (+ (conta monete (- num 1) cifra)
+               (conta monete num (- cifra (monete (- num 1)))))
+        )))
+
+(conta '(2 3 5 6) 4 10)
+;-> 5
+(2 2 2 2 2)
+(2 2 3 3)
+(2 2 6)
+(2 3 5)
+(5 5)
+
+(conta '(1 2 3) 3 4)
+;-> 4
+(1 1 1 1 1)
+(1 1 2)
+(2 2)
+(1 3)
+
+(conta '(5 10) 2 11)
+;-> 0
+
+(conta '(2 3) 2 13)
+;-> 2
+(2 2 2 2 2 3)
+(2 2 3 3 3)
+
+(conta '(3 4) 2 17)
+;-> 1
+(3 3 3 4 4)
+
+Il problema può essere risolto anche con la programmazione dinamica.
+
+(define (conta monete num cifra)
+  ; vett[i] memorizza il numero di soluzioni per il valore i.
+  ; Servono (n + 1) righe perchè la tabella viene costruita
+  ; in modo bottom-up usando il caso base (n = 0).
+  (let ((vett (array (+ cifra 1) '(0)))
+        (i 0)
+        (j 0))
+    ; caso base
+    (setf (vett 0) 1)
+    ; Prende tutte le monete una per una e aggiorna i valori
+    ; di vett dove l'indice è maggiore o uguale a quello
+    ; della moneta scelta.
+    (while (< i num)
+      (setq j (monete i))
+      (while (<= j cifra)
+        (setf (vett j) (+ (vett j) (vett (- j (monete i)))))
+        (++ j))
+      (++ i))
+    (vett cifra)
+  ))
+
+(conta '(2 3 5 6) 4 10)
+;-> 5
+(conta '(1 2 3) 3 4)
+;-> 4
+(conta '(5 10) 2 11)
+;-> 0
+(conta '(2 3) 2 13)
+;-> 2
+(conta '(3 4) 2 17)
+;-> 1
+
+Altra soluzione usando la programmazione dinamica:
+
+def make_change(coins, n):
+    results = [0 for _ in range(n + 1)]
+    results[0] = 1
+    for coin in coins:
+        for i in range(coin, n + 1):
+            results[i] += results[i - coin]
+    return results[n]
+
+(setq t (array (+ 5 1) '(0)))
+
+(define (conta monete cifra)
+  (let (out (array (+ cifra 2) '(0)))
+    (setq (out 0) 1)
+    (dolist (el monete)
+      (for (i el (+ cifra 1))
+        (setf (out i) (+ (out i) (out (- i el))))
+      )) (out cifra)))
+
+(conta '(2 3 5 6) 10)
+;-> 5
+(conta '(1 2 3) 4)
+;-> 4
+(conta '(5 10) 11)
+;-> 0
+(conta '(2 3) 13)
+;-> 2
+(conta '(3 4) 17)
+;-> 1
+
+
+--------------------------
+Cambio monete 2 (LinkedIn)
+--------------------------
+
+Dato un numero N e una lista di numeri M (m1, m2, ..., mm). Determinare il più breve elenco di numeri che somma a N. È possibile utilizzare ogni elemento della lista M infinite volte.
+In altre parole, data una cifra N e un insieme di monete (m1, m2, ..., mm), quale modo di 'spicciare' la cifra N contiene meno monete ?
+
+La soluzione usa la tecnica ricorsiva di backtracking:
+
+(define (cambio-min monete cifra)
+  (local (out)
+    (setq out '())
+    (define (cambio-min-aux end resto cur-out)
+      (cond ((< end 0) nil)
+            ((zero? resto) (push cur-out out -1))
+            ((>= resto (monete end))
+              (cambio-min-aux end 
+                              (- resto (monete end))
+                              (push (monete end) cur-out -1)))
+            (true (cambio-min-aux (- end 1) resto cur-out))
+      )
+    )
+    (cambio-min-aux (- (length monete) 1) cifra '())
+    out
+  )
+)
+
+(cambio-min '(1 2 5 8) 7)
+;-> ((5 2))
+
+(cambio-min '(2) 10)
+;-> ((2 2 2 2 2))
+
+(cambio-min '(2 3 5) 10)
+;-> ((5 5))
 
 
 ==========
@@ -43747,7 +44199,7 @@ who is old
 ;-> peter is old
 ;-> ("mike is old" "john is old" "peter is old")
 
-Questo funziona come un preprocessore all'interno di un gestore eventi. Quindi, praticamente, il codice tratta tratta "x IS y" come dati e li elabora in qualcosa di più leggibile.
+Questo funziona come un preprocessore all'interno di un gestore eventi. Quindi, praticamente, il codice tratta tratta "x IS y" come dati e li trasforma in qualcosa di più leggibile.
 
 ----------------------------
 Massimo Comun Divisore (MCD)
@@ -44253,8 +44705,8 @@ Per le macro, ciò che funziona meglio la maggior parte delle volte, è semplice
 
 ===========
 
- APPENDICI 
- 
+ APPENDICI
+
 ===========
 
 ============================================================================
@@ -46454,7 +46906,7 @@ Per la ricerca nelle liste associative, si utilizzano le funzioni "assoc" e "loo
 (Come?
  (leggi il programma Lisp))
 
-È molto semplice - tutto ciò che è all'interno delle parentesi è una chiamata di funzione, la prima parola dopo la parentesi aperta è il nome della funzione, e il resto sono i suoi parametri. 
+È molto semplice - tutto ciò che è all'interno delle parentesi è una chiamata di funzione, la prima parola dopo la parentesi aperta è il nome della funzione, e il resto sono i suoi parametri.
 Un matematico scriverebbe:
 
 f1 (x, y)
@@ -46572,7 +47024,7 @@ Un semplice programma di esempio: movimento in modo casuale nelle quattro direzi
 ; le funzioni appena definite ;-)
 ; funzione list - crea una lista
 
-(seed (date-value)) 
+(seed (date-value))
 ; inizializza il generatore di numeri random
 
 ; spostamento diretto
@@ -46605,8 +47057,8 @@ up -> (lambda (sposta) (dec 'y mosse))
 (up 1) -> -1; funzione viene chiamata con il parametro 1
 
 (nth 0 up) -> (moves)
-; poiché indicizzazione implicita non funziona in questo 
-; caso, utilizzare la funzione ennesima per ottenere 
+; poiché indicizzazione implicita non funziona in questo
+; caso, utilizzare la funzione ennesima per ottenere
 ; l'elemento 0
 
 (setq up-new up)
@@ -46637,7 +47089,7 @@ In conclusione dell'analisi di questo esempio, occorre notare che, con non meno 
   (println x ":" y))
 
 L'unica nuova funzione qui è "apply" - il suo primo argomento è il nome della funzione che si deve chiamare, e il secondo è un elenco di argomenti a cui questa funzione deve essere applicata.
- 
+
 Opportunità simili a quelli descritte e parzialmente rudimentali sono presenti nei linguaggi procedurali, tuttavia, essi sono utilizzati principalmente da programmatori molto esperti nei in momenti di disperazione. Per renderli più amichevoli, la OOP è stata aggiunta ai linguaggi procedurali, che, a sua volta, richiede la decomposizioni in oggetti e rende più complessa la programmazione.
 
 Tuttavia, in LISP, l'uso del codice come dati è una pratica "quotidiana", applicata quando necessario (e anche quando non servirebbe :-).
@@ -46686,7 +47138,7 @@ Tale comportamento permette una interessante opportunità:
 (my-if (= 1 2) (println "true") (println "false")) -> "false"
 
 La funzione "let" ha la seguente sintassi:
- 
+
 (let (character1 expression-value1 character2 expression-value2 ...)
   action expression
   action expression
@@ -46753,7 +47205,7 @@ Esempio:
 (define (translate n)
   (case n
     (1 "one")
-    (2 "two")          
+    (2 "two")
     (3 "three")
     (4 "four")
     (true "Can't translate this")))
@@ -46808,12 +47260,12 @@ con newLISP può essere scritta come:
 
 (setq a (+ 1 2)) -> 3
 
-Sembra insolito? Non è ovvia la convenienza di questo metodo? 
+Sembra insolito? Non è ovvia la convenienza di questo metodo?
 Dai un'occhiata a questo:
 
 (setq a (+ 1 2 3 4 5)) -> 15
 
-Molte delle funzioni LISP standard possono gestire un numero arbitrario di argomenti Qui, naturalmente, si può dire che il vantaggio non è grande - la capacità di indicare in modo statico un elenco arbitrario di argomenti. Tuttavia, non abbiate fretta... 
+Molte delle funzioni LISP standard possono gestire un numero arbitrario di argomenti Qui, naturalmente, si può dire che il vantaggio non è grande - la capacità di indicare in modo statico un elenco arbitrario di argomenti. Tuttavia, non abbiate fretta...
 È facile notare che gli argomenti della funzione "+" sono una lista. Scriviamo sotto:
 
 (setq L '(1 2 3 4 5)) -> (1 2 3 4 5)
@@ -46873,9 +47325,9 @@ Abbiamo solo voluto prendere il terzo elemento di ogni sottolista, e per questo 
      '((1 2 3) (4 5 6) (7 8 9))) ->' (3 6 9)
 
 La funzione "fn" funziona in modo simile alla funzione di "define", ma e "fn" non assegna la lista lambda creata ad una nome/variabile:
- 
+
 (define (third lst) (lst 2)) -> (lambda (lst) (lst 2))
-; in addition, the symbol "third" received a value 
+; in addition, the symbol "third" received a value
 ; the same of lambda list
 
 (fn (lst) (lst 2)) -> (lambda (lst) (lst 2))
@@ -47053,7 +47505,7 @@ Nuove funzionalità:
 
 "\n" è il carattere di fine linea.
 
-"regex" - Ricerca per una corrispondenza della espressione regolare.... Se non la trova, restituisce nil 
+"regex" - Ricerca per una corrispondenza della espressione regolare.... Se non la trova, restituisce nil
 
 "int" - converte una stringa in un intero con la base specificata dal secondo parametro.
 
@@ -47072,12 +47524,12 @@ Per capire come funziona, scriviamo la stessa cosa, ma più accuratamente:
                (map split-report-line
                     (parse (read-file "report.txt") "\ n")))))
 
-Ora il codice principale praticamente non ha bisogno di commenti. In breve: 
-1) il file di report viene letto (nella sua interezza), 
-suddiviso in una lista di righe, 
-2) le linee sono divise in elementi, 
-3) le linee contenenti dati per l'analisi vengono filtrate, 
-4) il quarto elemento viene preso da ogni riga (indice -3) e convertito in un numero, 
+Ora il codice principale praticamente non ha bisogno di commenti. In breve:
+1) il file di report viene letto (nella sua interezza),
+suddiviso in una lista di righe,
+2) le linee sono divise in elementi,
+3) le linee contenenti dati per l'analisi vengono filtrate,
+4) il quarto elemento viene preso da ogni riga (indice -3) e convertito in un numero,
 5) la lista risultante viene sommmata.
 
 Due funzioni ausiliarie sono evidenti: la prima separa la stringa con una espressione regolare (e rimuove tutti gli spazi aggiuntivi in ​​uno), la seconda cerca nella lista divisa in stringhe il valore numerico nel quarto elemento (quello che interessa a noi).
@@ -47231,7 +47683,7 @@ Add these lines to the file "keybindings.json":
 
 { "key": "shift+enter",
   "command": "workbench.action.terminal.runSelectedText, "when": "editorTextFocus"}
-  
+
 2. switch editor <--> terminal
 
 { "key": "ctrl+`", "command": "workbench.action.focusActiveEditorGroup", "when": "terminalFocus" },
@@ -47253,7 +47705,7 @@ To move the Terminal window to the right, right click on Terminal menu bar and s
 You can use the autohotkey script "vscode.ahk":
 
 Ctrl-Alt-q insert:
-;-> 
+;->
 
 Ctrl-Alt-w insert:
 [cmd]
@@ -47632,7 +48084,7 @@ Il debugger non visualizza i commenti che si trovano nelle funzioni. Per fare ap
   [text]Questo testo appare nel debugger.[/text]
   ; Questo testo no appare nel debugger.
   (inc i))
-  
+
 Nota: modificare la funzione di cui si sta effettuandoo il debug genera sempre un crash della REPL.
 
 Per finire riportiamo la traduzione del manuale di riferimento delle funzioni "trace", "trace-highlight" e "debug".
@@ -48070,9 +48522,35 @@ Al contrario, quando viene chiamata una normale funzione Lisp, gli operandi veng
 Quando viene chiamata una macro Lisp (tradizionale), gli operandi vengono passati in modo non valutato, ma qualunque sia il risultato ritornato dalla macro, questo viene valutato automaticamente.
 
 Nel rigoroso utilizzo originale, una FEXPR è quindi una funzione definita dall'utente i cui operandi vengono passati senza essere valutati. Tuttavia, nell'uso successivo, il termine FEXPR descrive qualsiasi funzione di prima classe/ordine i cui operandi vengono passati non valutati, indipendentemente dal fatto che la funzione sia primitiva o definita dall'utente.
-Le macro di newLISP sono FEXPR.
 
+Il supporto delle Fexpr è continuato in Lisp 1.5, l'ultimo dialetto sostanzialmente standard di Lisp prima che si frammentasse in più linguaggi. Negli anni '70, i due linguaggi dominanti, MacLisp e Interlisp, supportarono entrambi le fexprs.
+
+Alla conferenza del 1980 sul Lisp e la programmazione funzionale, Kent Pitman presentò un documento "Special Forms in Lisp" in cui discuteva dei vantaggi e degli svantaggi delle macro e delle fexprs e, infine, condannò le fexprs. La sua obiezione centrale era che, in un dialetto di Lisp che consente fexprs, l'analisi statica non può determinare in generale se un operatore rappresenti una funzione ordinaria o un fexpr - pertanto l'analisi statica non può determinare se gli operandi saranno valutati o meno. In particolare, il compilatore non può dire se una sottoespressione può essere ottimizzata in modo sicuro, poiché la sottoespressione potrebbe essere trattata come dati non valutati in fase di esecuzione.
+
+"Le MACRO offrono un meccanismo adeguato per specificare definizioni di moduli speciali e ... le FEXPR no. ... Si suggerisce che, nella progettazione dei futuri dialetti del Lisp, si dovrebbe prendere in seria considerazione la proposizione che le FEXPR dovrebbero essere del tutto escluse dal linguaggio"
 Kent M. Pitman, "Special Forms in Lisp", Proceedings of the 1980 ACM Conference on Lisp and Functional Programming, 1980, pag. 179–187.
+
+Le macro di newLISP sono FEXPR. Perchè?
+
+Il problema evidenziato da Pitman è valido solo per i linguaggi compilati, infatti nei linguaggi interpretati (come newLISP) le fexpr non hanno effetti indesiderati, anzi rendono la meta-programmazione più semplice ed elegante.
+
+Con le fexpr viene aggiunta "generalità" al linguaggio, in quanto permette di trattare i più importanti elementi del Lisp come oggetti di prima classe durante il runtime.
+
+Per un'analisi approfondita potete consultare l'articolo "On Pitman's 'Special Forms in Lisp'" di Kazimir Majorinc all'indirizzo:
+
+http://kazimirmajorinc.com/Documents/On-Pitmans-Special-forms-in-Lisp/index.html
+
+Riportiamo le conclusioni dell'articolo citato sopra:
+
+"Sebbene l'articolo di Pitman contenga un numero di argomenti validi, inclusi alcuni a favore delle fexprs, tre argomenti importanti sembrano essere stati omessi:
+
+1. Lisp con fexprs ha una semantica più semplice, più regolare ed espressiva di Lisp con funzioni, con o senza macro.
+
+2. L'esistenza di fexprs espandibili simili a macro non è riconosciuta. Per ogni macro esiste un equivalente fexpr espandibile simile a una macro con le stesse proprietà desiderabili. In particolare, se viene applicata una semplice ottimizzazione di fexprs espandibili, per ogni programma che utilizza macro esiste un programma equivalente altrettanto veloce che utilizza fexprs.
+
+3. In alcuni casi, i programmi che usano fexprs sono molto più veloci dei programmi che usano macro.
+
+Queste affermazioni costituiscono un valido motivo per i fexprs, in particolare perché uno dei principali argomenti contro i fexprs era la loro influenza sulla velocità dei programmi."
 
 
 ============================================================================
@@ -49468,6 +49946,10 @@ Frasi Famose sulla Programmazione e sul Linguaggio Lisp
   "Land of Lisp", Conrad Barsky, 2011
   
   "Structure and Interpretation of Computer Programs",  Abelson-Sussman, 2ed, 1996
+  
+  "Special Forms in Lisp" Kent Pitman, Conference Record of the 1980 Lisp Conference,
+  Stanford University, August 25-27, 1980
+  http://www.nhplace.com/kent/Papers/Special-Forms.html
 
   Computer e Matematica:
   https://www.nayuki.io

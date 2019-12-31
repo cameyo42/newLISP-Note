@@ -585,13 +585,13 @@ Ricapitoliamo:
 (int2list2 1282738374847)
 ;-> (1 2 8 2 7 3 8 3 7 4 8 4 7)
 
-(time (dotimes (x 1e7) (int2list x)))
-;-> 1107.929
-(time (dotimes (x 1e7) (int2list x)))
-;-> 12721.02
-
+(time (dotimes (x 1e6) (int2list x)))
+;-> 1143.595
 (time (dotimes (x 1e6) (int2list2 x)))
-;-> 1544.137
+;-> 1866.541
+
+(time (dotimes (x 1e7) (int2list x)))
+;-> 12979.094
 (time (dotimes (x 1e7) (int2list2 x)))
 ;-> 17760.076
 

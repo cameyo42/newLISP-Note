@@ -227,7 +227,7 @@ ROSETTA CODE
 
 PROJECT EULERO
 ==============
-  Problemi 1..50
+  Problemi 1..53
 
 PROBLEMI VARI
 =============
@@ -340,6 +340,8 @@ DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Tripartizione di un intero (Wolfram)
   Cifre stampate (Uber)
   Travasi di liquidi (Facebook)
+  Cambio monete 1 (LinkedIn)
+  Cambio monete 2 (LinkedIn)
 
 LIBRERIE
 ========

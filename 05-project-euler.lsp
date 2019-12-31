@@ -1,7 +1,7 @@
 ================
 
  PROJECT EULERO
- 
+
 ================
 
   Problema    Soluzione     Tempo (msec)
@@ -55,6 +55,9 @@
 |    48    |  9110846700   |       266  |
 |    49    |  296962999629 |        19  |
 |    50    |  997651       |     27113  |
+|    51    |  121313       |       269  |
+|    52    |  142857       |       313  |
+|    53    |  4075         |        25  |
 
 Sito web: https://projecteuler.net/archives
 
@@ -85,9 +88,11 @@ Vengono prima presentate alcune funzioni comuni che servono per la soluzione di 
 ; Controlla se n è un numero primo
 ; Non funziona con i big integer
 ; numero massimo (int64): 9223372036854775807
+;=============================================
+
 (define (isprime? n)
-  (if (< n 2) nil
-    (if (= 1 (length (factor n))))))
+   (if (< n 2) nil
+       (= 1 (length (factor n)))))
 ;=============================================
 
 ;=============================================
@@ -1351,7 +1356,7 @@ Definiamo la funzione fattoriale:
 
 (define (fact n) (apply * (map bigint (sequence 1 n))))
 
-Calcoliamo il numero di persorsi:
+Calcoliamo il numero di percorsi:
 
 (define (e015)
   (div (fact 40) (mul (fact 20) (fact 20)))
@@ -4461,5 +4466,293 @@ I numeri coinvolti nella soluzione sono i seguenti:
 3691 3697 3701 3709 3719 3727 3733 3739 3761 3767 3769
 3779 3793 3797 3803 3821 3823 3833 3847 3851 3853 3863
 3877 3881 3889 3907 3911 3917 3919 3923 3929 3931))
+
+
+===========
+Problema 51
+===========
+
+Sostituzioni di cifre nei numeri primi
+
+Sostituendo la prima cifra del numero a 2 cifre *3, si scopre che sei dei nove valori possibili: 13, 23, 43, 53, 73 e 83, sono tutti primi.
+
+Sostituendo la terza e la quarta cifra di 56**3 con la stessa cifra, questo numero di 5 cifre è il primo esempio con sette numeri primi tra i dieci numeri generati, dando la famiglia: 56003, 56113, 56333, 56443, 56663, 56773 e 56993. Di conseguenza 56003, essendo il primo membro di questa famiglia, è il primo più piccolo con questa proprietà.
+
+Trova il primo più piccolo che, sostituendo parte del numero (non necessariamente cifre adiacenti) con la stessa cifra, fa parte di una famiglia di otto valori primi.
+============================================================================
+
+Prima di scrivere la soluzione abbiamo bisogno di alcune funzioni ausiliarie.
+
+Funzione che genera tutti i numeri primi da m a n:
+
+(define (sieve-from-to m n)
+  (local (arr lst out)
+    (setq out '())
+    (setq arr (array (+ n 1)) lst '(2))
+    (for (x 3 n 2)
+        (when (not (arr x))
+          (push x lst -1)
+          (for (y (* x x) n (* 2 x) (> y n))
+              (setf (arr y) true))))
+    (if (<= m 2)
+        lst
+        (dolist (el lst) (if (>= el m) (push el out -1)))
+    )
+  )
+)
+
+Funzione che conta le occorrenze di un carattere in una stringa:
+
+(define (conta-char stringa carattere)
+  (let (out 0)
+    (dolist (el (explode stringa))
+      (if (= carattere el) (++ out))) out))
+
+(conta-char "451234555" "5")
+;-> 4
+
+Funzione che sostituisce caratteri (char-old -> char-new) in una stringa:
+
+(define (cambia-char stringa char-old char-new)
+  (let (out "")
+    (dolist (el (explode stringa))
+      (if (= char-old el)
+        (write out char-new)
+        (write out el)))
+    out))
+
+(cambia-char "12345543215" "5" "0")
+;-> "12340043210"
+
+Funzione che verifica la primalità di un numero:
+
+(define (primo? n)
+  (if (< n 2) nil
+    (if (= 1 (length (factor n))))))
+
+Infine la funzione soluzione (brute-force):
+
+(define (e051 n)
+  (local (cycleMaxL primi numS ciclo cycleL uguali newnum found)
+    (setq found nil)
+    (setq primi (sieve-from-to 100000 n))
+    (dolist (num primi found)
+      (setq numS (string num))
+      (dolist (cifra (explode "1234567890") found)
+        (setq ciclo 0)
+        (setq cycleL '())
+        (setq uguali (conta-char numS cifra))
+        (if (= uguali 3)
+          ;(dolist (nuovo (explode "1234567890"))
+          (dolist (nuovo (explode "1234567890") found)
+            (setq newnum (cambia-char numS cifra nuovo))
+            (if (= (length newnum) (length numS))
+              (if (primo? (int newnum))
+                (begin (++ ciclo)
+                       (push (int newnum) cycleL -1))
+              )
+            )
+          )
+        )
+        (if (> (length cycleL) (length cycleMaxL))
+          (begin (setq cycleMaxL cycleL)
+                 (if (>= (length cycleMaxL) 8)
+                   (begin (setq found true)
+                    (println "Sol: " numS { } (slice cycleMaxL 0 8)))
+                    ;(println "Sol: " numS { } cycleMaxL)))
+                 ))
+        )
+      )
+    )
+    'end
+  )
+)
+
+(e051 999999)
+;-> Sol: 121313 (121313 222323 323333 424343 525353 626363 828383 929393)
+;-> end
+
+(time (e051 999999))
+;-> Sol: 121313 (121313 222323 323333 424343 525353 626363 828383 929393)
+;-> 269.946
+
+
+===========
+Problema 52
+===========
+
+Permutazione di multipli
+
+Si può vedere che il numero 125874 e il suo doppio 251748 contengono esattamente le stesse cifre, ma in un ordine diverso.
+
+Trova il numero intero positivo più piccolo x, tale che 2x, 3x, 4x, 5x e 6x contengano le stesse cifre.
+============================================================================
+
+Funzione che verifica se due numeri hanno le stesse cifre:
+
+(define (same-digit m n)
+  (if (!= (length m) (length n))
+      nil
+      (= (sort (explode (string m))) (sort (explode (string n))))))
+
+(same-digit 1234 4321)
+;-> true
+
+(same-digit 12341 4321)
+;-> nil
+
+(define (e052)
+  (let ((i 10)
+        (continua true))
+    (while continua
+      (if (and (same-digit i (* 2 i))
+               (same-digit i (* 3 i))
+               (same-digit i (* 4 i))
+               (same-digit i (* 5 i))
+               (same-digit i (* 6 i)))
+          (setq continua nil))
+      (++ i)
+    )
+    (- i 1)))
+
+(e052)
+;-> 142857
+
+(time (e052))
+;-> 313.15
+
+
+===========
+Problema 53
+===========
+
+Esistono esattamente dieci modi per selezionare tre cifre tra cinque cifre 1, 2, 3, 4 e 5): 123, 124, 125, 134, 135, 145, 234, 235, 245 e 345
+                                      (5)
+In combinatoria, si usa la notazione,     = 10.
+                                      (3)
+
+In generale, (nr) = n! R! (N − r) !, dove r≤n, n! = N × (n − 1) × ... × 3 × 2 × 1 e 0! = 1.
+
+(n)         n!
+    = --------------- , dove r <= n
+(r)    r! * (n - r)!
+
+e n! = 1 * 2 * 3 * ... * (n - 1) * n
+
+Il numero n = 23 ha il primo valore che supera il milione:
+
+(23)
+     = 1144066
+(10)
+                                                (n)
+Quanti valori, non necessariamente distinti, di (r) per 1<=n<=100, sono maggiori di un milione?
+============================================================================
+
+Formula che calcola il binomiale (big-integer):
+
+(define (binom n k)
+  (local (M q)
+    (setq M (array (+ n 1) (+ k 1) '(0L)))
+    (for (i 0 n)
+      (setq q (min i k))
+      (for (j 0 q)
+        (if (or (= j 0) (= j i))
+          (setq (M i j) 1L)
+          (setq (M i j) (+ (M (- i 1) (- j 1)) (M (- i 1) j)))
+        )
+      )
+    )
+    (M n k)
+  );local
+)
+
+(binom 23 10)
+;-> 1144066L
+
+Funzione soluzione:
+
+(define (e053 n)
+  (let (quanti 0)
+    (for (i 1 n)
+      (for (j 1 i)
+        (if (> (binom i j) 1e6) (++ quanti))))
+    quanti))
+
+(e053 100)
+;-> 4075
+
+(time (e053 100))
+;-> 6231.481
+
+Per velocizzare la soluzione, proviamo a non usare i big integer nella funzione che calcola il binomiale.
+
+(define (binom n k)
+  (local (M q)
+    (setq M (array (+ n 1) (+ k 1) '(0)))
+    (for (i 0 n)
+      (setq q (min i k))
+      (for (j 0 q)
+        (if (or (= j 0) (= j i))
+          (setq (M i j) 1)
+          (setq (M i j) (+ (M (- i 1) (- j 1)) (M (- i 1) j)))
+        )
+      )
+    )
+    (M n k)
+  );local
+)
+
+(binom 23 10)
+;-> 1144066
+
+I numeri binomiali che superano il valore massimo per gli int64 diventano negativi, quindi usiamo la funzione "abs" per considerarli maggiori di 10 milioni.
+
+(define (e053 n)
+  (let (quanti 0)
+    (for (i 1 n)
+      (for (j 1 i)
+        (if (> (abs (binom i j)) 1e6) (++ quanti))))
+    quanti))
+
+(e053 100)
+;-> 4075
+
+(time (e053 100))
+;-> 3522.499
+
+Abbiamo quasi raddoppiato la velocità, ma il problema è la lentezza della funzione che calcola il binomiale. Proviamo un altro metodo: poichè il numero n arriva solo fino a 100, possiamo precalcolare il fattoriale dei primi 100 numeri e usarli per calcolare il binomiale con la formula originale.
+
+Funzione fattoriale (big-integer):
+
+(define (fact n) (apply * (map bigint (sequence 1 n))))
+
+Funzione binomiale (big-integer):
+
+(define (bino n r) (/ (f n) (* (f r) (f (- n r)))))
+
+Adesso riscriviamo la funzione soluzione:
+
+(define (e053)
+  (local (quanti f)
+    (setq quanti 0)
+    ;precalcolo dei fattoriali da 0 a 100
+    (setq f (map fact (sequence 0 100)))
+    (for (i 1 100)
+      (for (j 1 i)
+        ; la differenza tra gli indici deve essere
+        ; maggiore di 0 affinchè (bino i j) possa
+        ; essere maggiore di un milione.
+        ; Infatti (bino x x) = 1
+        (if (> (- i j) 0)
+          (if (> (bino i j) 1e6) (++ quanti)))))
+    quanti))
+
+(e053)
+;-> 4075
+
+(time (e053))
+;-> 25.013
+
+Questa volta la risposta di newLISP è immediata.
 
 

@@ -3646,7 +3646,7 @@ Funzione di travaso da 2 a 1:
     (println "   liquido B: " (mul bot1 (div p1B 100)) " litri (" p1B"%)")
     (println "Bottiglia 2: " bot2 " litri")
     (println "   liquido A: " (mul bot2 (div p2A 100)) " litri (" p2A"%)")
-    (println "   liquido B: " (mul bot2 (div p2B 100)) " litri (" p2B"%)")        
+    (println "   liquido B: " (mul bot2 (div p2B 100)) " litri (" p2B"%)")
     (list bot1 (mul bot1 (div p1A 100)) (mul bot1 (div p1B 100))
           bot2 (mul bot2 (div p2A 100)) (mul bot2 (div p2B 100)))
   ))
@@ -3695,5 +3695,162 @@ Adesso verifichiamo il primo quesito, travasiamo 10 litri da 1 a 2 e poi 10 litr
 
 La quantità di liquido B nella bottiglia 1 è uguale alla quantità di liquido A nella bottiglia 2 (9.0909...).
 La quantità di liquido A nella bottiglia 1 è uguale alla quantità di liquido B nella bottiglia 2 (90.0909...).
+
+
+--------------------------
+Cambio monete 1 (LinkedIn)
+--------------------------
+
+Dato un numero N e una lista di numeri M (m1, m2, ..., mm). Determinare in quanti modi è possibile sommare i numeri per avere N. È possibile utilizzare ogni elemento della lista M infinite volte.
+In altre parole, data una cifra N e un insieme di monete (m1, m2, ..., mm), in quanti modi possiamo 'spicciare' la cifra N ?
+
+Per contare il numero totale di soluzioni, possiamo dividere tutte le soluzioni in due insiemi:
+
+1) Soluzioni che non contengono la moneta i-esima mi.
+2) Soluzioni che contengono almeno una moneta mi.
+
+Sia conta(Monete, m, N) la funzione per contare il numero di soluzioni, questa può essere scritta come somma di conta(Monete, m-1, N) e conta(Monete, m, N - mi).
+Quindi il problema può essere risolto in modo ricorsivo.
+
+(define (conta monete num cifra)
+  (cond ((zero? cifra) 1) ;se cifra vale 0, allora una soluzione
+        ((< cifra 0) 0)   ;se cifra minore di 0, allora nessuna soluzione
+        ; se non ci sono monete e la cifra è maggiore di zero,
+        ; allora nessuna soluzione
+        ((and (<= num 0) (>= cifra 1)) 0)
+        (true
+          (println (monete (- num 1)))
+          (+ (conta monete (- num 1) cifra)
+               (conta monete num (- cifra (monete (- num 1)))))
+        )))
+
+(conta '(2 3 5 6) 4 10)
+;-> 5
+(2 2 2 2 2)
+(2 2 3 3)
+(2 2 6)
+(2 3 5)
+(5 5)
+
+(conta '(1 2 3) 3 4)
+;-> 4
+(1 1 1 1 1)
+(1 1 2)
+(2 2)
+(1 3)
+
+(conta '(5 10) 2 11)
+;-> 0
+
+(conta '(2 3) 2 13)
+;-> 2
+(2 2 2 2 2 3)
+(2 2 3 3 3)
+
+(conta '(3 4) 2 17)
+;-> 1
+(3 3 3 4 4)
+
+Il problema può essere risolto anche con la programmazione dinamica.
+
+(define (conta monete num cifra)
+  ; vett[i] memorizza il numero di soluzioni per il valore i.
+  ; Servono (n + 1) righe perchè la tabella viene costruita
+  ; in modo bottom-up usando il caso base (n = 0).
+  (let ((vett (array (+ cifra 1) '(0)))
+        (i 0)
+        (j 0))
+    ; caso base
+    (setf (vett 0) 1)
+    ; Prende tutte le monete una per una e aggiorna i valori
+    ; di vett dove l'indice è maggiore o uguale a quello
+    ; della moneta scelta.
+    (while (< i num)
+      (setq j (monete i))
+      (while (<= j cifra)
+        (setf (vett j) (+ (vett j) (vett (- j (monete i)))))
+        (++ j))
+      (++ i))
+    (vett cifra)
+  ))
+
+(conta '(2 3 5 6) 4 10)
+;-> 5
+(conta '(1 2 3) 3 4)
+;-> 4
+(conta '(5 10) 2 11)
+;-> 0
+(conta '(2 3) 2 13)
+;-> 2
+(conta '(3 4) 2 17)
+;-> 1
+
+Altra soluzione usando la programmazione dinamica:
+
+def make_change(coins, n):
+    results = [0 for _ in range(n + 1)]
+    results[0] = 1
+    for coin in coins:
+        for i in range(coin, n + 1):
+            results[i] += results[i - coin]
+    return results[n]
+
+(setq t (array (+ 5 1) '(0)))
+
+(define (conta monete cifra)
+  (let (out (array (+ cifra 2) '(0)))
+    (setq (out 0) 1)
+    (dolist (el monete)
+      (for (i el (+ cifra 1))
+        (setf (out i) (+ (out i) (out (- i el))))
+      )) (out cifra)))
+
+(conta '(2 3 5 6) 10)
+;-> 5
+(conta '(1 2 3) 4)
+;-> 4
+(conta '(5 10) 11)
+;-> 0
+(conta '(2 3) 13)
+;-> 2
+(conta '(3 4) 17)
+;-> 1
+
+
+--------------------------
+Cambio monete 2 (LinkedIn)
+--------------------------
+
+Dato un numero N e una lista di numeri M (m1, m2, ..., mm). Determinare il più breve elenco di numeri che somma a N. È possibile utilizzare ogni elemento della lista M infinite volte.
+In altre parole, data una cifra N e un insieme di monete (m1, m2, ..., mm), quale modo di 'spicciare' la cifra N contiene meno monete ?
+
+La soluzione usa la tecnica ricorsiva di backtracking:
+
+(define (cambio-min monete cifra)
+  (local (out)
+    (setq out '())
+    (define (cambio-min-aux end resto cur-out)
+      (cond ((< end 0) nil)
+            ((zero? resto) (push cur-out out -1))
+            ((>= resto (monete end))
+              (cambio-min-aux end 
+                              (- resto (monete end))
+                              (push (monete end) cur-out -1)))
+            (true (cambio-min-aux (- end 1) resto cur-out))
+      )
+    )
+    (cambio-min-aux (- (length monete) 1) cifra '())
+    out
+  )
+)
+
+(cambio-min '(1 2 5 8) 7)
+;-> ((5 2))
+
+(cambio-min '(2) 10)
+;-> ((2 2 2 2 2))
+
+(cambio-min '(2 3 5) 10)
+;-> ((5 5))
 
 

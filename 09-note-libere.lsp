@@ -4666,7 +4666,7 @@ who is old
 ;-> peter is old
 ;-> ("mike is old" "john is old" "peter is old")
 
-Questo funziona come un preprocessore all'interno di un gestore eventi. Quindi, praticamente, il codice tratta tratta "x IS y" come dati e li elabora in qualcosa di più leggibile.
+Questo funziona come un preprocessore all'interno di un gestore eventi. Quindi, praticamente, il codice tratta tratta "x IS y" come dati e li trasforma in qualcosa di più leggibile.
 
 ----------------------------
 Massimo Comun Divisore (MCD)

@@ -1,7 +1,7 @@
 ===========
 
- APPENDICI 
- 
+ APPENDICI
+
 ===========
 
 ============================================================================
@@ -2201,7 +2201,7 @@ Per la ricerca nelle liste associative, si utilizzano le funzioni "assoc" e "loo
 (Come?
  (leggi il programma Lisp))
 
-È molto semplice - tutto ciò che è all'interno delle parentesi è una chiamata di funzione, la prima parola dopo la parentesi aperta è il nome della funzione, e il resto sono i suoi parametri. 
+È molto semplice - tutto ciò che è all'interno delle parentesi è una chiamata di funzione, la prima parola dopo la parentesi aperta è il nome della funzione, e il resto sono i suoi parametri.
 Un matematico scriverebbe:
 
 f1 (x, y)
@@ -2319,7 +2319,7 @@ Un semplice programma di esempio: movimento in modo casuale nelle quattro direzi
 ; le funzioni appena definite ;-)
 ; funzione list - crea una lista
 
-(seed (date-value)) 
+(seed (date-value))
 ; inizializza il generatore di numeri random
 
 ; spostamento diretto
@@ -2352,8 +2352,8 @@ up -> (lambda (sposta) (dec 'y mosse))
 (up 1) -> -1; funzione viene chiamata con il parametro 1
 
 (nth 0 up) -> (moves)
-; poiché indicizzazione implicita non funziona in questo 
-; caso, utilizzare la funzione ennesima per ottenere 
+; poiché indicizzazione implicita non funziona in questo
+; caso, utilizzare la funzione ennesima per ottenere
 ; l'elemento 0
 
 (setq up-new up)
@@ -2384,7 +2384,7 @@ In conclusione dell'analisi di questo esempio, occorre notare che, con non meno 
   (println x ":" y))
 
 L'unica nuova funzione qui è "apply" - il suo primo argomento è il nome della funzione che si deve chiamare, e il secondo è un elenco di argomenti a cui questa funzione deve essere applicata.
- 
+
 Opportunità simili a quelli descritte e parzialmente rudimentali sono presenti nei linguaggi procedurali, tuttavia, essi sono utilizzati principalmente da programmatori molto esperti nei in momenti di disperazione. Per renderli più amichevoli, la OOP è stata aggiunta ai linguaggi procedurali, che, a sua volta, richiede la decomposizioni in oggetti e rende più complessa la programmazione.
 
 Tuttavia, in LISP, l'uso del codice come dati è una pratica "quotidiana", applicata quando necessario (e anche quando non servirebbe :-).
@@ -2433,7 +2433,7 @@ Tale comportamento permette una interessante opportunità:
 (my-if (= 1 2) (println "true") (println "false")) -> "false"
 
 La funzione "let" ha la seguente sintassi:
- 
+
 (let (character1 expression-value1 character2 expression-value2 ...)
   action expression
   action expression
@@ -2500,7 +2500,7 @@ Esempio:
 (define (translate n)
   (case n
     (1 "one")
-    (2 "two")          
+    (2 "two")
     (3 "three")
     (4 "four")
     (true "Can't translate this")))
@@ -2555,12 +2555,12 @@ con newLISP può essere scritta come:
 
 (setq a (+ 1 2)) -> 3
 
-Sembra insolito? Non è ovvia la convenienza di questo metodo? 
+Sembra insolito? Non è ovvia la convenienza di questo metodo?
 Dai un'occhiata a questo:
 
 (setq a (+ 1 2 3 4 5)) -> 15
 
-Molte delle funzioni LISP standard possono gestire un numero arbitrario di argomenti Qui, naturalmente, si può dire che il vantaggio non è grande - la capacità di indicare in modo statico un elenco arbitrario di argomenti. Tuttavia, non abbiate fretta... 
+Molte delle funzioni LISP standard possono gestire un numero arbitrario di argomenti Qui, naturalmente, si può dire che il vantaggio non è grande - la capacità di indicare in modo statico un elenco arbitrario di argomenti. Tuttavia, non abbiate fretta...
 È facile notare che gli argomenti della funzione "+" sono una lista. Scriviamo sotto:
 
 (setq L '(1 2 3 4 5)) -> (1 2 3 4 5)
@@ -2620,9 +2620,9 @@ Abbiamo solo voluto prendere il terzo elemento di ogni sottolista, e per questo 
      '((1 2 3) (4 5 6) (7 8 9))) ->' (3 6 9)
 
 La funzione "fn" funziona in modo simile alla funzione di "define", ma e "fn" non assegna la lista lambda creata ad una nome/variabile:
- 
+
 (define (third lst) (lst 2)) -> (lambda (lst) (lst 2))
-; in addition, the symbol "third" received a value 
+; in addition, the symbol "third" received a value
 ; the same of lambda list
 
 (fn (lst) (lst 2)) -> (lambda (lst) (lst 2))
@@ -2800,7 +2800,7 @@ Nuove funzionalità:
 
 "\n" è il carattere di fine linea.
 
-"regex" - Ricerca per una corrispondenza della espressione regolare.... Se non la trova, restituisce nil 
+"regex" - Ricerca per una corrispondenza della espressione regolare.... Se non la trova, restituisce nil
 
 "int" - converte una stringa in un intero con la base specificata dal secondo parametro.
 
@@ -2819,12 +2819,12 @@ Per capire come funziona, scriviamo la stessa cosa, ma più accuratamente:
                (map split-report-line
                     (parse (read-file "report.txt") "\ n")))))
 
-Ora il codice principale praticamente non ha bisogno di commenti. In breve: 
-1) il file di report viene letto (nella sua interezza), 
-suddiviso in una lista di righe, 
-2) le linee sono divise in elementi, 
-3) le linee contenenti dati per l'analisi vengono filtrate, 
-4) il quarto elemento viene preso da ogni riga (indice -3) e convertito in un numero, 
+Ora il codice principale praticamente non ha bisogno di commenti. In breve:
+1) il file di report viene letto (nella sua interezza),
+suddiviso in una lista di righe,
+2) le linee sono divise in elementi,
+3) le linee contenenti dati per l'analisi vengono filtrate,
+4) il quarto elemento viene preso da ogni riga (indice -3) e convertito in un numero,
 5) la lista risultante viene sommmata.
 
 Due funzioni ausiliarie sono evidenti: la prima separa la stringa con una espressione regolare (e rimuove tutti gli spazi aggiuntivi in ​​uno), la seconda cerca nella lista divisa in stringhe il valore numerico nel quarto elemento (quello che interessa a noi).
@@ -2978,7 +2978,7 @@ Add these lines to the file "keybindings.json":
 
 { "key": "shift+enter",
   "command": "workbench.action.terminal.runSelectedText, "when": "editorTextFocus"}
-  
+
 2. switch editor <--> terminal
 
 { "key": "ctrl+`", "command": "workbench.action.focusActiveEditorGroup", "when": "terminalFocus" },
@@ -3000,7 +3000,7 @@ To move the Terminal window to the right, right click on Terminal menu bar and s
 You can use the autohotkey script "vscode.ahk":
 
 Ctrl-Alt-q insert:
-;-> 
+;->
 
 Ctrl-Alt-w insert:
 [cmd]
@@ -3379,7 +3379,7 @@ Il debugger non visualizza i commenti che si trovano nelle funzioni. Per fare ap
   [text]Questo testo appare nel debugger.[/text]
   ; Questo testo no appare nel debugger.
   (inc i))
-  
+
 Nota: modificare la funzione di cui si sta effettuandoo il debug genera sempre un crash della REPL.
 
 Per finire riportiamo la traduzione del manuale di riferimento delle funzioni "trace", "trace-highlight" e "debug".
@@ -3817,9 +3817,35 @@ Al contrario, quando viene chiamata una normale funzione Lisp, gli operandi veng
 Quando viene chiamata una macro Lisp (tradizionale), gli operandi vengono passati in modo non valutato, ma qualunque sia il risultato ritornato dalla macro, questo viene valutato automaticamente.
 
 Nel rigoroso utilizzo originale, una FEXPR è quindi una funzione definita dall'utente i cui operandi vengono passati senza essere valutati. Tuttavia, nell'uso successivo, il termine FEXPR descrive qualsiasi funzione di prima classe/ordine i cui operandi vengono passati non valutati, indipendentemente dal fatto che la funzione sia primitiva o definita dall'utente.
-Le macro di newLISP sono FEXPR.
 
+Il supporto delle Fexpr è continuato in Lisp 1.5, l'ultimo dialetto sostanzialmente standard di Lisp prima che si frammentasse in più linguaggi. Negli anni '70, i due linguaggi dominanti, MacLisp e Interlisp, supportarono entrambi le fexprs.
+
+Alla conferenza del 1980 sul Lisp e la programmazione funzionale, Kent Pitman presentò un documento "Special Forms in Lisp" in cui discuteva dei vantaggi e degli svantaggi delle macro e delle fexprs e, infine, condannò le fexprs. La sua obiezione centrale era che, in un dialetto di Lisp che consente fexprs, l'analisi statica non può determinare in generale se un operatore rappresenti una funzione ordinaria o un fexpr - pertanto l'analisi statica non può determinare se gli operandi saranno valutati o meno. In particolare, il compilatore non può dire se una sottoespressione può essere ottimizzata in modo sicuro, poiché la sottoespressione potrebbe essere trattata come dati non valutati in fase di esecuzione.
+
+"Le MACRO offrono un meccanismo adeguato per specificare definizioni di moduli speciali e ... le FEXPR no. ... Si suggerisce che, nella progettazione dei futuri dialetti del Lisp, si dovrebbe prendere in seria considerazione la proposizione che le FEXPR dovrebbero essere del tutto escluse dal linguaggio"
 Kent M. Pitman, "Special Forms in Lisp", Proceedings of the 1980 ACM Conference on Lisp and Functional Programming, 1980, pag. 179–187.
+
+Le macro di newLISP sono FEXPR. Perchè?
+
+Il problema evidenziato da Pitman è valido solo per i linguaggi compilati, infatti nei linguaggi interpretati (come newLISP) le fexpr non hanno effetti indesiderati, anzi rendono la meta-programmazione più semplice ed elegante.
+
+Con le fexpr viene aggiunta "generalità" al linguaggio, in quanto permette di trattare i più importanti elementi del Lisp come oggetti di prima classe durante il runtime.
+
+Per un'analisi approfondita potete consultare l'articolo "On Pitman's 'Special Forms in Lisp'" di Kazimir Majorinc all'indirizzo:
+
+http://kazimirmajorinc.com/Documents/On-Pitmans-Special-forms-in-Lisp/index.html
+
+Riportiamo le conclusioni dell'articolo citato sopra:
+
+"Sebbene l'articolo di Pitman contenga un numero di argomenti validi, inclusi alcuni a favore delle fexprs, tre argomenti importanti sembrano essere stati omessi:
+
+1. Lisp con fexprs ha una semantica più semplice, più regolare ed espressiva di Lisp con funzioni, con o senza macro.
+
+2. L'esistenza di fexprs espandibili simili a macro non è riconosciuta. Per ogni macro esiste un equivalente fexpr espandibile simile a una macro con le stesse proprietà desiderabili. In particolare, se viene applicata una semplice ottimizzazione di fexprs espandibili, per ogni programma che utilizza macro esiste un programma equivalente altrettanto veloce che utilizza fexprs.
+
+3. In alcuni casi, i programmi che usano fexprs sono molto più veloci dei programmi che usano macro.
+
+Queste affermazioni costituiscono un valido motivo per i fexprs, in particolare perché uno dei principali argomenti contro i fexprs era la loro influenza sulla velocità dei programmi."
 
 
 ============================================================================
