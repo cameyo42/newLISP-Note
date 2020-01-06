@@ -379,7 +379,7 @@ Quelli che conoscono bene il LISP si lamentano di tante cose... ma non della sua
 Per quanto mi riguarda ho imparato più facilmente la sintassi del LISP che quella del C. Il timore iniziale delle "parentesi" si è rapidamente trasformato in simpatia e anche dipendenza. Non è stato un "colpo di fulmine", ma si è trasformato in un sentimento profondo :-)
 Le parentesi aiutano benissimo ad isolare le espressioni, che quindi possono essere estratte e riposizionate con facilità all'interno del programma. Inoltre occorre ricordare che: "Un programmatore LISP legge il programma dalla sua indentazione, non controllando l'annidamento delle parentesi."
 
-In genere quando si studia un linguaggio di programmazione è meglio attenersi agli idiomi e ai metodi propri del linguaggio. Solo in seguito, una volta acquisita una sufficiente familiarità, si potranno provare nuove strade o implementare le tecniche di altri linguaggi. 
+In genere quando si studia un linguaggio di programmazione è meglio attenersi agli idiomi e ai metodi propri del linguaggio. Solo in seguito, una volta acquisita una sufficiente familiarità, si potranno provare nuove strade o implementare le tecniche di altri linguaggi.
 
 "Learn at least one new [programming] language every year. Different languages solve the same problems in different ways. By learning several different approaches, you can help broaden your thinking and avoid getting stuck in a rut." - The Pragmatic Programmers
 
@@ -2116,7 +2116,7 @@ Il metodo di generare funzioni tramite codice viene utilizzato anche per lo svil
 Nota: la scrittura di funzioni (auto) modificanti rende il programma difficile da interpretare e da analizzare con il debugger.
 
 Vediamo un altro esempio, una funzione che si comporta come un generatore automodificandosi.
- 
+
 (define (sum (x 0)) (my-inc 0 x))
 (define (selfmod x) (setf (last selfmod) (+ (last selfmod) 1)) 0)
 ;-> (lambda (x) (setf (last selfmod) (+ (last selfmod) 1)) 0)
@@ -2596,6 +2596,27 @@ Se chiamiamo direttamente la funzione "g" otteniamo un errore:
 
 Questo perchè le variabili libere "a" e "b" non sono associate ad alcun valore e quindi valgono nil.
 
+Ecco un ulteriore esempio:
+
+(define (uno)
+  (local (x)
+    (setq x 10)
+    (due)))
+
+(define (due)
+  (local (y)
+    (setq y 20)
+    (println (+ x y))))
+
+(uno)
+;-> 30
+x
+;-> nil
+y
+;-> nil
+
+Quando la funzione "uno" chiama la funzione "due" il suo ambito (in particolare il valore della variabile "x") viene passato alla funzione "due". Quindi la funzione "due" conosce sia "x" (che proviene dal contesto di "uno"), sia "y" che è una variabile del proprio contesto.
+
 Il problema dell'ambito dinamico risiede nel fatto, che se usiamo simboli che non sono stati definiti nella nostra funzione, non possiamo sapere se il simbolo è globale oppure è stato "ereditato" da una chiamata di funzione.
 
 Utilizzando i contesti (context) possiamo utilizza l'ambito lessicale anche in newLISP:
@@ -2617,7 +2638,7 @@ Nelle funzioni non dovrebbero esistere variabili "libere" (devono essere legate 
 
 Questo metodo di programmazione è principio di base della "programmazione strutturata" ed è valido per quasi tutti i linguaggi programmazione.
 
-L'utilizzo dei contesti per avere l'ambito lessicale è utile quando si lavora a programmi grandi e/o con un gruppo di programmatori: in questo modo nessuno influisce sul codice degli altri.
+L'utilizzo dei contesti per avere un ambito lessicale è utile quando si lavora a programmi grandi e/o con un gruppo di programmatori: in questo modo nessuno influisce sul codice degli altri.
 
 Comunque i contesti hanno un proprio ambito dinamico internamente, essi isolano il proprio ambito dinamico rispetto agli altri contesti (in altre parole un contesto è un nuovo spazio di nomi).
 
@@ -3794,7 +3815,7 @@ Purtroppo la funzione "bits" non funziona con i big integer.
 Allora usiamo la seguente funzione:
 
 ; Compute "bits" for bigint and int
-(constant 'MAXINT (pow 2 62))                                                   
+(constant 'MAXINT (pow 2 62))
 (define (prep s) (string (dup "0" (- 62 (length s))) s))
 (define (bitsL n)
     (if (<= n MAXINT) (bits (int n))
@@ -3836,7 +3857,7 @@ Questo è il contenuto del file "doc-demo.lsp":
 ;; @module doc-demo.lsp
 ;; @author X Y, xy@doc-demo.com
 ;; @version 1.0
-;; 
+;;
 ;; Questo modulo è un esempio per mostrare
 ;; il funzionamento del programma newlispdoc
 ;; che genera automaticamente documentazione
@@ -3911,14 +3932,16 @@ Adesso possiamo usare le due funzione definite nel modulo:
 Ancora sui numeri primi
 -----------------------
 
-Queste sono quattro funzioni simili che verificano se un numero è primo.
+Queste sono cinque funzioni simili che verificano se un numero è primo.
 
 (define (primo? n)
    (if (< n 2) nil
        (= 1 (length (factor n)))))
 
 (define (primoa? n)
-  (setq out true) ; il numero viene considerato primo fino a che non troviamo un divisore preciso
+  ; il numero viene considerato primo 
+  ; fino a che non troviamo un divisore preciso
+  (setq out true) 
   (cond ((<= n 3) (setq out true))
         ((or (= (% n 2) 0) (= (% n 3) 0)) (setq out nil))
         (true (setq i 5)
@@ -3960,6 +3983,29 @@ Queste sono quattro funzioni simili che verificano se un numero è primo.
               )
               test))))
 
+(define (primod? n)
+  (let ((out true)
+        (i 0)
+        (w 0)
+        (r 0))
+    (cond ((= n 1) (setq out nil))
+          ((= n 2) (setq out true))
+          ((= n 3) (setq out true))
+          ((zero? (% n 2)) (setq out nil))
+          ((zero? (% n 3)) (setq out nil))
+          (true
+            (setq i 5)
+            (setq w 2)
+            (setq r (floor (sqrt n)))
+            (while (and out (<= i r))
+              (if (zero? (% n i)) (setq out nil))
+              (++ i w)
+              (setq w (- 6 w))
+            )
+          )
+    )
+   out))
+
 Controlliamo che le funzioni diano i risultati corretti:
 
 (= (map primo? (sequence 2 500000)) (map primoa? (sequence 2 500000)))
@@ -3967,6 +4013,8 @@ Controlliamo che le funzioni diano i risultati corretti:
 (= (map primo? (sequence 2 500000)) (map primob? (sequence 2 500000)))
 ;-> true
 (= (map primo? (sequence 2 500000)) (map primoc? (sequence 2 500000)))
+;-> true
+(= (map primo? (sequence 2 500000)) (map primod? (sequence 2 500000)))
 ;-> true
 
 Vediamo la velocità delle funzioni:
@@ -3979,6 +4027,8 @@ Vediamo la velocità delle funzioni:
 ;-> 6172.891
 (time (map primoc? (sequence 1 1000000)))
 ;-> 3552.159
+(time (map primod? (sequence 1 1000000)))
+;-> ;-> 5063.098
 
 La funzione più veloce è quella che usa la funzione "factor".
 
@@ -4320,7 +4370,7 @@ Test accesso random:
 
 (time (for (i 0 (- (length vet) 1)) (setq x (vet (rand-range 0 9999)))) 1000)
 ;-> 3452.562
-  
+
 (time (for (i 0 (- (length lst) 1)) (setq x (assoc (rand-range 0 9999) lst))) 1000)
 ;-> 204534.455
 
@@ -4390,7 +4440,7 @@ Nota: le funzioni "map" e "apply" non sono applicabili ai vettori.
 Un motore per espressioni regolari
 ----------------------------------
 
-Nel libro "The Practice of Programming" di Rob Pike e Brian Kernighan viene presentato un programma che implementa un interessante motore per le espressioni regolari. 
+Nel libro "The Practice of Programming" di Rob Pike e Brian Kernighan viene presentato un programma che implementa un interessante motore per le espressioni regolari.
 
 Il programma gestisce le seguenti regole per le espressioni regolari:
 
@@ -4399,8 +4449,8 @@ Il programma gestisce le seguenti regole per le espressioni regolari:
     ^    matches the beginning of the input string
     $    matches the end of the input string
     *    matches zero or more occurrences of the previous character
-    
-Per maggiori informazioni potete riferirvi all'articolo "A Regular Expression Matcher" disponibile sul web: 
+
+Per maggiori informazioni potete riferirvi all'articolo "A Regular Expression Matcher" disponibile sul web:
 
 https://www.cs.princeton.edu/courses/archive/spr09/cos333/beautiful.html
 
@@ -5034,15 +5084,15 @@ Esempio:
 Demo>
 (setq $demo "hi!")
 ;-> "hi!"
-Fred> 
+Fred>
 (symbols)
 ;-> ()
 Demo>
 (context MAIN)
 ;-> MAIN
 (symbols)
-;-> (! != $ $0 $1 $10 $11 $12 $13 $14 $15 $2 $3 $4 $5 $6 $7 $8 $9 
-;->  $args $count $demo $idx $it $main-args $x % & * + ++ , - -- / 
+;-> (! != $ $0 $1 $10 $11 $12 $13 $14 $15 $2 $3 $4 $5 $6 $7 $8 $9
+;->  $args $count $demo $idx $it $main-args $x % & * + ++ , - -- /
 ;->  : < << <= = > >= >> ? @ Class Demo MAIN NaN? Tree ...)
 
 Spiegazione (Lutz):
@@ -5050,7 +5100,7 @@ I simboli che iniziano con $ sono variabili modificate/gestite da newLISP in MAI
 
 Inoltre, i simboli che iniziano con $ non vengono salvati quando si salva un contesto (es. (save 'MyContext) o quando si serializzano nuovi oggetti LISP con la funzione "source".
 
-Nota: il nome di una variabile può iniziare con qualsiasi carattere tranne una cifra numerica o un punto e virgola ";" o il cancelletto "#". 
+Nota: il nome di una variabile può iniziare con qualsiasi carattere tranne una cifra numerica o un punto e virgola ";" o il cancelletto "#".
 Se il primo carattere è un "+" o "-" nessuna cifra può seguirlo.
 Dopodiché può seguire qualsiasi carattere tranne "(" ")" "," ":" """ "'" spazio ";" "#"  che terminerà la variabile.
 Un simbolo che inizia con "[" e termina con "]" può contenere qualunque carattere all'interno, ad esempio:
@@ -5064,7 +5114,7 @@ Un simbolo che inizia con "[" e termina con "]" può contenere qualunque caratte
 Uso di map nelle liste annidate
 -------------------------------
 
-In alcuni casi abbiamo bisogno di applicare una funzione a tutti gli elementi di una lista annidata. Ad esempio, poter scrivere qualcosa del tipo: 
+In alcuni casi abbiamo bisogno di applicare una funzione a tutti gli elementi di una lista annidata. Ad esempio, poter scrivere qualcosa del tipo:
 
 (map-all abs '(-1 -2 (-3 -4)))
 
@@ -5168,5 +5218,226 @@ o per avere un "gensym" ancora più sicuro possiamo usare la funzione "uuid":
 La prima funzione genera simboli più leggibili dall'uomo, mentre la seconda è utile per il codice interno alla macchina ed sicuro al 100%. "uuid" da sola genera un stringa ID univoca e universale, utile per gli ID di sessione nella programmazione web ecc.
 
 Per le macro, ciò che funziona meglio la maggior parte delle volte, è semplicemente usare "args" come nel primo esempio.
+
+
+---------------------------
+La variabile anaforica $idx
+---------------------------
+La variabile interna di sistema $idx (variabile anaforica) tiene traccia dell'indice relativo del ciclo (numero intero). 
+$idx è protetta e non può essere modificata dall'utente.
+La variabile anaforica $idx viene utilizzata dalle seguenti funzioni: "dolist", "dostring", "doargs", "dotree", "series", "while", "do-while", "until", "do-until", "map". 
+
+Esempi:
+
+(map (fn(x) (list $idx x)) '(a b c))
+;-> ((0 a) (1 b) (2 c))
+
+(dolist (el '(a b c)) (print (list $idx el) { }))
+;-> (0 a) (1 b) (2 c)
+
+Nota: quando si utilizzano queste funzioni in modo innestato, la variabile $idx fa riferimento sempre al ciclo in cui si trova. Ad esempio:
+
+(define (test)
+  (setq lst '((1 2 3) (1 2 3) (1 2 3)))
+  (dolist (el lst)
+    (setq i 0)
+    (while (< i 3)
+      (println $idx {-} i)
+      (++ i)
+    )
+  )
+)
+
+(test)
+;-> 0-0
+;-> 1-1
+;-> 2-2
+;-> 0-0
+;-> 1-1
+;-> 2-2
+;-> 0-0
+;-> 1-1
+;-> 2-2
+
+Il valore di $idx non è quello della lista, ma quello del ciclo while.
+Per usare $idx della lista all'interno del ciclo while occorre utilizzare una variabile ausiliaria (setq idx-lst $idx) ed utilizzare questa all'interno cel ciclo while.
+
+(define (test)
+  (setq lst '((1 2 3) (1 2 3) (1 2 3)))
+  (dolist (el lst)
+    (setq idx-lst $idx)
+    (setq i 0)
+    (while (< i 3)
+      (println idx-lst {-} i)
+      (++ i)
+    )
+  )
+)
+
+(test)
+;-> 0-0
+;-> 0-1
+;-> 0-2
+;-> 1-0
+;-> 1-1
+;-> 1-2
+;-> 2-0
+;-> 2-1
+;-> 2-2
+
+
+--------------------
+Gestione dei simboli
+--------------------
+newLISP fornisce tre funzioni per la gestione dei simboli: "symbols", "symbol?" e "sym".
+Vediamo la traduzione delle funzioni dal manuale di newLISP.
+
+*******************
+>>>funzione SYMBOLS
+*******************
+sintassi: (symbols [context])
+
+Quando viene chiamato senza argomento, restituisce una lista ordinata di tutti i simboli nel contesto corrente. Se viene specificato un simbolo di contesto, vengono restituiti i simboli definiti in quel contesto.
+
+*******************
+>>>funzione SYMBOL?
+*******************
+sintassi: (symbol? exp)
+
+Valuta l'espressione exp e restituisce true se il valore è un simbolo. In caso contrario, restituisce nil.
+
+(set 'x 'y)  → y
+
+(symbol? x)  → true 
+
+(symbol? 123)  → nil
+
+(symbol? (first '(var x y z)))  → true
+
+La prima istruzione imposta il contenuto di x sul simbolo y. La seconda istruzione controlla quindi il contenuto di x. L'ultimo esempio controlla il primo elemento di una lista.
+
+***************
+>>>funzione SYM
+***************
+sintassi: (sym string [sym-context [nil-flag]])
+sintassi: (sym number [sym-context [nil-flag]])
+sintassi: (sym symbol [sym-context [nil-flag]])
+
+Converte il primo argomento di tipo stringa, numero o simbolo in un simbolo e lo restituisce. Se non viene specificato un contesto (opzionale) in sym-context, allora viene utilizzato il contesto corrente durante la ricerca o la creazione dei simboli. I simboli verranno creati solo se non esistono già. Quando il contesto non esiste e il contesto è specificato da un simbolo quotato, viene creato anche il simbolo. Se la specifica di contesto non è quotata, il contesto è il nome specificato o la specifica di contesto è una variabile che contiene il contesto.
+
+sym può creare simboli all'interno della tabella dei simboli che non sono simboli legali nel codice sorgente newLISP (ad es. numeri o nomi contenenti caratteri speciali come parentesi, due punti, ecc.). Ciò rende sym utilizzabile come funzione per l'accesso alla memoria associativa, proprio come l'accesso alla tabella hash in altri linguaggi di scripting.
+
+Come terzo argomento facoltativo, è possibile specificare nil per sopprimere la creazione del simbolo se il simbolo non viene trovato. In questo caso, sym non restituisce nil se il simbolo cercato non esiste. Usando quest'ultima forma, sym può essere usato per verificare l'esistenza di un simbolo.
+
+(sym "some")           → some
+(set (sym "var") 345)  → 345
+var                    → 345
+(sym "aSym" 'MyCTX)    → MyCTX:aSym
+(sym "aSym" MyCTX)     → MyCTX:aSym  ; unquoted context
+
+(sym "foo" MyCTX nil)  → nil  ; 'foo does not exist
+(sym "foo" MyCTX)      → foo  ; 'foo is created
+(sym "foo" MyCTX nil)  → foo  ; foo now exists
+
+Poiché la funzione sym restituisce il simbolo cercato o creato, le espressioni con sym possono essere incorporate direttamente in altre espressioni che usano simboli come argomenti. L'esempio seguente mostra l'uso di sym come una funzione simile all'hash per l'accesso alla memoria associativa, nonché l'utilizzo di simboli che non sono simboli legali nel codice newLISP:
+
+;; using sym for simulating hash tables
+
+(set (sym "John Doe" 'MyDB) 1.234)
+(set (sym "(" 'MyDB) "parenthesis open")
+(set (sym 12 'MyDB) "twelve")
+
+(eval (sym "John Doe" 'MyDB))  → 1.234
+(eval (sym "(" 'MyDB))         → "parenthesis open"
+(eval (sym 12 'MyDB))          → "twelve"
+
+;; delete a symbol from a symbol table or hash
+(delete (sym "John Doe" 'MyDB))  → true
+
+L'ultima espressione mostra come può essere eliminato un simbolo usando "delete".
+
+La terza sintassi consente di utilizzare i simboli anziché le stringhe per il nome del simbolo nel contesto di destinazione. In questo caso, sym estrae il nome dal simbolo e lo utilizzerà come stringa del nome per il simbolo nel contesto di destinazione:
+
+(sym 'myVar 'FOO)  → FOO:myVar
+
+(define-macro (def-context)
+  (dolist (s (rest (args)))
+    (sym s (first (args)))))
+
+(def-context foo x y z)
+
+(symbols foo)  → (foo:x foo:y foo:z)
+
+La macro "def-context" mostra come questo potrebbe essere usato per creare una macro che crea contesti e le loro variabili in modo dinamico.
+
+Una sintassi della funzione "context" può anche essere utilizzata per creare, impostare e valutare simboli.
+
+Dopo aver letto la definizione delle tre funzioni, vediamo un esempio per capire come newLISP crea/gestisce i simboli.
+
+Creiamo un contesto:
+(context 'demo)
+
+Non ci sono simboli nel contesto demo:
+(symbols)
+;-> ()
+
+Creiamo il simbolo "aa":
+(setq aa 10)
+(symbols)
+;-> (aa)
+
+La funzione "symbol?" valuta l'argomento e verifica se valuta su un simbolo:
+
+(symbol? aa)
+;-> nil 
+Il simbolo "aa" non valuta ad un simbolo, ma al numero 10.
+
+Creiamo un altro simbolo "bb":
+(setq bb 'aa)
+(symbols)
+;-> (aa bb)
+
+(symbol? bb)
+;-> true
+Questa volta il simbolo "bb" viene valutato e otteniamo il simbolo "aa".
+
+Vediamo cosa accade se applichiamo la funzione "symbol?" ad un simbolo che ancora non esiste "cc":
+
+(symbol? cc)
+;-> nil
+
+Sembra tutto corretto, ma vediamo i simboli del contesto:
+(symbols)
+;-> (aa bb cc)
+
+È stato creato il simbolo "cc". Cosa è successo? 
+Prima di applicare una funzione newLISP valuta gli argomenti (in questo caso "cc"). Anche se tale valutazione restituisce nil (come in questo caso), newLISP crea comunque un simbolo per la variabile (con valore nil).
+
+Anche quando scriviamo un nome qualunque sulla REPL viene creato un simbolo:
+
+un-nome
+;-> nil
+(symbols)
+;-> (aa bb cc un-nome)
+
+Questo significa che newLISP crea/valuta gli argomenti di ogni funzione prima di applicare la funzione. Quindi, se volessimo sapere se un simbolo esiste nel contesto corrente non possiamo applicare una funzione qualunque (esempio "find") perchè crerebbe il simbolo prima di verificarne l'esistenza e qualunque argomento passato risulta esistente nel contesto:
+
+(symbols)
+;-> (aa bb cc un-nome)
+(find 'dd (symbols))
+;-> 3
+(symbols)
+;-> (aa bb cc dd un-nome)
+
+Ma allora, come possiamo conoscere se un simbolo esiste in un determinato contesto? 
+Dobbiamo usare la funzione "sym":
+
+(sym "var" demo nil)
+;-> nil
+(symbols)
+;-> (aa bb cc dd un-nome)
+
+Il simbolo "var" non esiste nel contesto demo (e non viene neanche creato).
+Problema risolto.
 
 

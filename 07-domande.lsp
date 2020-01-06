@@ -3854,3 +3854,615 @@ La soluzione usa la tecnica ricorsiva di backtracking:
 ;-> ((5 5))
 
 
+--------------------------------
+Primi con cifre uguali (Wolfram)
+--------------------------------
+
+Scrivere una funzione che trova tutti i numeri primi sotto a 10 milioni che hanno almeno 5 cifre uguali.
+
+Vediamo prima le funzioni che ci servono per risolvere il problema.
+
+Funzione che calcola i numeri primi da m a n:
+
+(define (sieve-from-to m n)
+  (local (arr lst out)
+    (setq out '())
+    (setq arr (array (+ n 1)) lst '(2))
+    (for (x 3 n 2)
+        (when (not (arr x))
+          (push x lst -1)
+          (for (y (* x x) n (* 2 x) (> y n))
+              (setf (arr y) true))))
+    (if (<= m 2)
+        lst
+        (dolist (el lst) (if (>= el m) (push el out -1)))
+    )
+  )
+)
+
+(sieve-from-to 10 100)
+;-> (11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71 73 79 83 89 97)
+
+Funzioni di conversione lista <--> intero:
+
+(define (int2list n)
+  (let (out '())
+    (while (!= n 0)
+      (push (% n 10) out)
+      (setq n (/ n 10))) out))
+
+(define (list2int lst)
+  (let (n 0)
+    (dolist (el lst) (setq n (+ el (* n 10))))))
+
+Adesso vediamo il procedimento di soluzione usando dei numeri piccoli:
+
+Troviamo i numeri primi da 100 a 200:
+
+(setq a (sieve-from-to 100 200))
+;-> (101 103 107 109 113 127 131 137 139 149 151
+;->  157 163 167 173 179 181 191 193 197 199)
+
+Trasformiamo i numeri in liste:
+
+(setq b (map int2list a))
+;-> ((1 0 1) (1 0 3) (1 0 7) (1 0 9) (1 1 3) (1 2 7) (1 3 1) (1 3 7)
+;->  (1 3 9) (1 4 9) (1 5 1) (1 5 7) (1 6 3) (1 6 7) (1 7 3) (1 7 9)
+;->  (1 8 1) (1 9 1) (1 9 3) (1 9 7) (1 9 9))
+
+La funzione "count" conta le occorrenze di ogni elemento della prima lista nella seconda lista. Il risultato è una lista di occorrenze.
+
+Esempio:
+(count '(0 1 2) '(1 1 2 2 2 2 3))
+;-> (0 2 4)
+0 appare 0 volte in (1 1 2 2 2 2 3)
+1 appare 2 volte in (1 1 2 2 2 2 3)
+2 appare 4 volte in (1 1 2 2 2 2 3)
+
+Contiamo quante volte le cifre 0, 1 e 2 compaiono in ogni cifra/sottolista:
+
+(setq c (map (fn(x) (count '(0 1 2) x)) b))
+(setq c (map (fn(x) (count (sequence 0 2) x)) b))
+;-> ((1 2 0) (1 1 0) (1 1 0) (1 1 0) (0 2 0) (0 1 1) (0 2 0) (0 1 0)
+;->  (0 1 0) (0 1 0) (0 2 0) (0 1 0) (0 1 0) (0 1 0) (0 1 0) (0 1 0)
+;->  (0 2 0) (0 2 0) (0 1 0) (0 1 0) (0 1 0))
+
+Scegliamo quelli in cui almeno la cifra 0 o 1 o 2 compare due (2) volte:
+
+(setq d '())
+(dolist (el c) (if (find 2 el) (push (b $idx) d -1)))
+d
+;-> ((1 0 1) (1 1 3) (1 3 1) (1 5 1) (1 8 1) (1 9 1))
+
+Trasformiamo in lista di numeri:
+
+(setq e (map list2int d))
+;-> (101 113 131 151 181 191)
+
+Questi sono tutti i numeri primi tra 100 e 200 che hanno la cifra 0 o la cifra 1 o la cifra 2 ripetuta due volte.
+
+Scriviamo la funzione finale in maniera sequenziale:
+
+(define (calcola num cifre)
+  (local (a b c d e)
+    ;(println "a")
+    (setq a (sieve-from-to 10 num))
+    ;(println "b")
+    (setq b (map int2list a))
+    ;(println "c")
+    (setq c (map (fn(x) (count (sequence 0 9) x)) b))
+    ;(println "d")
+    (setq d '())
+    ;(dolist (el c) (if (find cifre (last el)) (push (first el) d -1)))
+    (dolist (el c) (if (find cifre el) (push (b $idx) d -1)))
+    ;(println "e")
+    (setq e (map list2int d))
+    (length e)
+  ))
+
+(calcola 1e7 5)
+;-> 1112
+
+(time (calcola 1e7 5))
+;-> 5874.936
+
+(calcola 1e5 4)
+;-> 40
+(calcola 1e6 5)
+;-> 53
+(calcola 1e7 6)
+;-> 35
+
+Possiamo velocizzare la funzione creando la lista "c" in questo modo:
+
+( ((1 0 1) 2) ((1 0 2) 1)...)
+
+Poi questa lista viene filtrata con la funzione "filter".
+
+(define (calcola1 num cifre)
+  (local (a b c d e)
+    (define (test x) (= (last x) cifre))
+    ;(println "a")
+    (setq a (sieve-from-to 10 num))
+    ;(println "b")
+    (setq b (map int2list a))
+    ;(println "c")
+    (setq c (map (fn(x) (list x (apply max (count (sequence 0 9) x)))) b))
+    ;(println "d")
+    (setq d (filter test c))
+    ;(dolist (el c) (if (= cifre (last el)) (push (first el) d -1)))
+    ;(println "e")
+    (setq e (map (fn(x) (list2int (first x))) d))
+    (length e)
+  ))
+
+(calcola1 1e7 5)
+;-> 1112
+
+(time (calcola1 1e7 5))
+;-> 4859.91
+
+Abbiamo velocizzato la funzione del 20%.
+
+(calcola1 1e5 4)
+;-> 40
+(calcola1 1e6 5)
+;-> 53
+(calcola1 1e7 6)
+;-> 35
+
+
+-------------------------------
+Intervalli di numeri (Facebook)
+-------------------------------
+
+Data una lista di numeri interi restituire una nuova lista con tutti gli intervalli ordinati dei numeri che sono consecutivi nella lista originale. Ad esempio:
+
+lista input:  (2 3 4 7 9 11 12 13 20)
+lista output: ((2 4) (7) (9) (11 13) (20))
+
+Quando eseguiamo l'iterazione sulla lista, teniamo traccia di due valori:
+1) il primo valore di un nuovo intervallo
+2) il valore precedente nell'intervallo
+
+(define (intervalli lst)
+  (local (res pre primo)
+    (setq res '())
+    (cond ((null? lst) (setq res '()))
+          ((= (length lst) 1) (setq res lst))
+          (true
+            ;ordina la lista univoca
+            (setq lst (sort (unique lst)))
+            (println lst)
+            ; elemento precedente
+            (setq pre (lst 0))
+            ; primo elemento di ogni intervallo
+            (setq primo pre)
+            (for (i 1 (- (length lst) 1))
+              (if (= (lst i) (+ pre 1))
+                  (if (= i (- (length lst) 1))
+                    (push (list primo (lst i)) res -1)
+                  )
+              ;else
+                  (begin
+                    (if (= primo pre)
+                        (push (list primo) res -1)
+                        (push (list primo pre) res -1)
+                    )
+                    (if (= i (- (length lst) 1))
+                        (push (list (lst i)) res -1)
+                    )
+                    (setq primo (lst i))
+                  )
+              )
+              (setq pre (lst i))
+            )
+          )
+    )
+    res
+  )
+)
+
+(intervalli '(2 0 1 7 5 4))
+;-> ((0 2) (4 5) (7))
+
+(intervalli '(2 3 4 7 9 11 12 13 20))
+;-> ((2 4) (7) (9) (11 13) (20))
+
+(intervalli '(10 3 -1 -2 4 -5 8 7 6 -3))
+;-> ((-5) (-3 -1) (3 4) (6 8) (10))
+
+
+---------------------------
+Pattern Matching (Facebook)
+---------------------------
+
+Implementare una funzione di pattern matching che supporta i caratteri jolly "?" (un  carattere qualunque) e "*" (zero o più caratteri qualunque).
+
+To understand this solution, you can use s="aab" and p="*ab".
+
+(define (isMatch s p)
+  (local (i j staridx idx res)
+    (setq res -1)
+    (setq i 0)
+    (setq j 0)
+    (setq staridx -1)
+    (setq idx -1)
+    (while (and (< i (length s)) (= res -1))
+      (cond ((and (< j (length p)) (or (= (p j) "?") (= (p j) (s i))))
+             (++ i)
+             (++ j))
+            ((and (< j (length p)) (= (p j) "*"))
+             (setq staridx j)
+             (setq idx i)
+             (++ j))
+            ((!= staridx -1)
+             (setq j (+ staridx 1))
+             (setq i (+ idx 1))
+             (++ idx))
+            (true (setq res nil))
+      )
+    )
+    (if (= res -1)
+      (while (and (< j (length p)) (= (p j) "*"))
+        (++ j)
+      )
+    )
+    (if (and (= res -1) (= j (length p)))
+        true
+        nil
+    )
+  )
+)
+
+(isMatch "aab" "*ab")
+;-> true
+
+(isMatch "aaaabbbbcccc" "a*")
+;-> true
+
+(isMatch "aaaabbbbcccc" "d*")
+;-> nil
+
+(isMatch "aaaabbbbcccc" "a???b???c*")
+;-> true
+
+(isMatch "abcdefg" "??cde?g*")
+;-> true
+
+
+------------------------------
+Percorsi su una griglia (Uber)
+------------------------------
+Data una matrice M per N composta da valori 0 e 1 che rappresenta una griglia. Ogni valore 0 rappresenta un muro. Ogni valore 1 rappresenta una cella libera.
+Data questa matrice, una coordinata iniziale e una coordinata finale, restituire il numero minimo di passi necessari per raggiungere la coordinata finale partendo dall'inizio. Se non è possibile alcun percorso, restituire nil. Possiamo spostarci verso l'alto, a sinistra, in basso e a destra. Non possiamo attraversare i muri. Non possiamo attraversare i bordi della griglia.
+Il percorso risolutivo può essere costruito solo da celle con valore 1 e in un dato momento, possiamo muovere solo di un passo in una delle quattro direzioni. Le mosse valide sono:
+
+Vai su: (x, y) -> (x - 1, y)
+Vai a sinistra: (x, y) -> (x, y - 1)
+Vai giù: (x, y) -> (x + 1, y)
+Vai a destra: (x, y) -> (x, y + 1)
+
+Ad esempio, consideriamo la matrice binaria sotto. Se origine = (0, 0) e destinazione = (7, 5), il percorso più breve dall'origine alla destinazione ha lunghezza 12:
+
+(1 1 1 1 1 0 0 1 1 1)
+(0 1 1 1 1 1 0 1 0 1)
+(0 0 1 0 1 1 1 0 0 1)
+(1 0 1 1 1 0 1 1 0 1)
+(0 0 0 1 0 0 0 1 0 1)
+(1 0 1 1 1 0 0 1 1 0)
+(0 0 0 0 1 0 0 1 0 1)
+(0 1 1 1 1 1 1 1 0 0)
+(1 1 1 1 1 0 0 1 1 1)
+(0 0 1 0 0 1 1 0 0 1)
+
+La soluzione utilizza l'algoritmo di Lee che è una buona scelta nella maggior parte dei problemi di ricerca di percorsi minimi, infatti fornisce sempre la soluzione ottimale, anche se è un pò lento e richiede molta memoria.Questo algoritmo è uguale a Breadth First Search (BFS), ma teniamo traccia della distanza e valutiamo la distanza più breve tra l'insieme delle distanze.
+
+I passaggi fondamentali sono i seguenti:
+1. Scegli un punto di partenza e aggiungilo alla coda.
+2. Aggiungi le celle adiacenti valide alla coda.
+3. Rimuovi la posizione in cui ci si trova dalla coda e passa all'elemento successivo.
+4. Ripeti i passaggi 2 e 3 fino a quando la coda è vuota.
+
+Eseguendo questo algoritmo per ogni cella, avremo il numero di passi necessari per arrivare a qualsiasi altro punto dall'inizio.
+Naturalmente dovremo ignorare i muri e le celle precedentemente contrassegnate su ogni iterazione ed interrompere le chiamate ricorsive una volta raggiunta la cella finale.
+
+Si noti che in BFS, tutte le celle che hanno il percorso più breve uguale a 1 vengono visitate per prime, seguite dalle celle adiacenti che hanno il percorso più breve come 1 + 1 = 2 e così via .. quindi se raggiungiamo un nodo in BFS, il suo percorso più breve = percorso più breve del genitore + 1. Quindi, la prima occorrenza della cella di destinazione ci dà il risultato e possiamo fermare la nostra ricerca lì. Non è possibile che esista il percorso più breve da un'altra cella per la quale non abbiamo ancora raggiunto il nodo specificato. Se fosse stato possibile tale percorso, lo avremmo già esplorato.
+
+Struttura dei dati:
+
+grid = matrice binaria MxN (0, 1) (1 = aperto, 0 = chiuso)
+visited = matrice booleana MxN (true, nil)
+lifo = lista (coda lifo) con elementi/nodi di tipo (x-coord y-coord distanza)
+
+Funzione che controlla se una cella della griglia è valida:
+
+(define (isvalid grid visited row col)
+  ; la cella è valida se:
+  ; 1. si trova nella griglia
+  ; 2. ha valore 1
+  ; 3. non è stata visitata
+  (and (>= row 0) (< row M) (>= col 0) (< col N)
+       (= (grid row col) 1)
+       (not (visited row col))))
+
+Funzione Breadth First Search di tipo Lee:
+
+; Trova il percorso minimo in una matrice/griglia
+; partendo dalla cella (i, j) e arrivando alla cella (x y)
+(define (bfs grid i j x y)
+  (local (riga colonna lifo visited min-dist
+          nodo dist n found)
+    (setq found nil)
+    ; crea la lista/coda lifo
+    (setq lifo '())
+    ; le liste riga e colonna permettono di muoversi
+    ; facilmente nelle quattro direzioni
+    (setq riga '(-1 0 0 1))
+    (setq colonna '(0 -1 1 0))
+    ; matrice delle celle visitate
+    (setq visited (array M N '(nil)))
+    ; valore minimo iniziale
+    (setq min-dist 9999999999)
+    ; marca la cella iniziale come visitata e
+    ; aggiunge il nodo della cella iniziale alla lista lifo
+    (setf (visited i j) true)
+    (push (list i j 0) lifo)
+    ; ciclo per visitare i nodi
+    ; fino a che coda (lista lifo) non è vuota...
+    (while (and lifo (not found))
+      ; estrae il nodo dalla coda e lo processa
+      (setq nodo (pop lifo))
+      ; (i, j) rappresenta la cella corrente...
+      (setq i (nodo 0))
+      (setq j (nodo 1))
+      ; e dist è la distanza minima dalla sorgente
+      (setq dist (nodo 2))
+      ; se abbiamo raggiunto la destinazione
+      ; aggiorniamo la distanza e terminiamo la ricerca
+      (if (and (= i x) (= j y))
+          (begin
+            (setq min-dist dist)
+            (setq found true)
+          )
+      )
+      ; se la ricerca non è terminata...
+      (if (not found)
+        ; controlla le celle raggiungibili con i quattro movimenti
+        ; e accoda le celle valide
+        (for (k 0 3)
+          ; controlla se è possibile passare dalla posizione corrente
+          ; alla posizione (i + riga(k), j + colonna(k))
+          (if (isvalid grid visited (+ i (riga k)) (+ j (colonna k)))
+            (begin
+              ; marca la cella come visitata e
+              ; aggiungila alla coda.
+              (setf (visited (+ i (riga k)) (+ j (colonna k))) true)
+              (setq n (list (+ i (riga k)) (+ j (colonna k)) (+ dist 1)))
+              (push n lifo)
+            )
+          )
+        )
+      )
+      ; Restituisci il risultato finale: distanza minima oppure nil.
+      (if (= min-dist 9999999999)
+        nil
+        min-dist
+      )
+    )
+  )
+)
+
+Proviamo la funzione:
+
+(setq M 5)
+(setq N 5)
+
+(setq matrice
+'(( 1 0 1 1 1 )
+  ( 1 0 1 0 1 )
+  ( 1 1 1 0 1 )
+  ( 0 0 0 0 1 )
+  ( 1 1 1 0 1 )
+  ( 1 1 0 0 0 )))
+
+Punto di partenza: Start = (0 0)
+Punto di arrivo: End = (3 4)
+
+(bfs matrice 0 0 3 4)
+;-> 11
+
+Celle del percorso minimo:
+(0 0) (1 0) (2 0) (2 1) (2 2) (1 2) (0 2) (0 3) (0 4) (1 4) (2 4) (3 4)
+
+Nota:
+Se vogliamo muoverci nelle otto direzioni, allora dobbiamo fare le seguenti modifiche al codice:
+
+1) Modificare le lista riga e colonna per elencare tutti gli 8 movimenti possibili da una cella, ovvero alto, destra, basso, sinistra e le 4 mosse diagonali.
+
+(setq riga '(-1 -1 -1 0 1 0 1 1 ))
+(setq colonna '(-1 1 0 -1 -1 1 0 1))
+
+2. Controllare tutti gli 8 movimenti possibili dalla cella corrente.
+
+(for (k 0 7) (...))
+
+Adesso dobbiamo restituire anche le celle che compongono il percorso trovato e non solo il suo valore. Per fare questo dobbiamo aggiungere ad ogni nodo un puntatore al nodo genitore. Quindi il nuovo nodo della lista lifo ha la seguente struttura:
+
+(x-coord y-coord dist (x-genitore y-genitore dist))
+
+In questo caso il nodo è una struttura ricorsiva (di lunghezza crescente) del tipo:
+
+(0 3 7 (0 2 6 (1 2 5 (2 2 4 (2 1 3 (2 0 2 (1 0 1 (0 0 0()))))))))
+
+Abbiamo bisogno anche di una funzione che stampa la matrice con il percorso risolutivo:
+
+(define (print-sol matrix sol)
+  ; elimina la distanza minima dalla lista della soluzione
+  (pop sol)
+  (dolist (el sol)
+    (setf (matrix (el 0) (el 1)) 2))
+  (dolist (r matrix) (println r)))
+
+(define (isvalid grid visited row col)
+  ; la cella è valida se:
+  ; 1. si trova nella griglia
+  ; 2. ha valore 1
+  ; 3. non è stata visitata
+  (and (>= row 0) (< row M) (>= col 0) (< col N)
+       (= (grid row col) 1)
+       (not (visited row col))))
+
+La funzione "bfs" finale è la seguente:
+
+; Trova il percorso minimo in una matrice/griglia
+; partendo dalla cella (i, j) e arrivando alla cella (x y)
+(define (bfs grid i j x y)
+  (local (riga colonna lifo visited min-dist
+          nodo parent dist n found k sol)
+    (setq found nil)
+    ; crea la lista/coda lifo
+    (setq lifo '())
+    ; le liste riga e colonna permettono di muoversi
+    ; facilmente nelle quattro direzioni
+    (setq riga '(-1 0 0 1))
+    (setq colonna '(0 -1 1 0))
+    ; matrice delle celle visitate
+    (setq visited (array M N '(nil)))
+    ; valore minimo iniziale
+    (setq min-dist 9999999999)
+    ; crea il genitore per la cella origine
+    (setq parent '())
+    ; marca la cella iniziale come visitata e
+    ; aggiunge il nodo della cella iniziale alla lista lifo
+    (setf (visited i j) true)
+    (push (list i j 0 '()) lifo)
+    ; ciclo per visitare i nodi
+    ; fino a che coda (lista lifo) non è vuota...
+    (while (and lifo (not found))
+      ; estrae il nodo dalla coda e lo processa
+      (setq nodo (pop lifo))
+      ; (i, j) rappresenta la cella corrente...
+      (setq i (nodo 0))
+      (setq j (nodo 1))
+      ; e dist è la distanza minima dalla sorgente
+      (setq dist (nodo 2))
+      ; se abbiamo raggiunto la destinazione
+      ; aggiorniamo la distanza e terminiamo la ricerca
+      (if (and (= i x) (= j y))
+        (begin
+          (setq min-dist dist)
+          (setq found true)
+          ; la soluzione
+        )
+      )
+      ; se la ricerca non è terminata...
+      (if (not found)
+        ; controlla le celle raggiungibili con i quattro movimenti
+        ; e accoda le celle valide
+        (for (k 0 3)
+          ; controlla se è possibile passare dalla posizione corrente
+          ; alla posizione (i + riga(k), j + colonna(k))
+          (if (isvalid grid visited (+ i (riga k)) (+ j (colonna k)))
+            (begin
+              ; marca la cella come visitata e
+              ; aggiungila alla coda.
+              (setf (visited (+ i (riga k)) (+ j (colonna k))) true)
+              (setq n (list (+ i (riga k)) (+ j (colonna k)) (+ dist 1) nodo))
+              (push n lifo)
+            )
+          )
+        )
+      )
+      ; Restituisce il risultato finale: (distanza minima + celle del percorso) oppure nil.
+      (if (= min-dist 9999999999)
+        nil
+        (begin
+          ; crea la lista soluzione
+          (setq sol (push min-dist (map (fn(x) (list (x 0) (x 1))) (reverse (explode (flat nodo) 3)))))
+          ; stampa la griglia con la soluzione
+          (print-sol grid sol)
+          sol
+        )
+      )
+    )
+  )
+)
+
+Proviamo:
+
+(setq M 5)
+(setq N 5)
+
+(setq matrice
+'(( 1 0 1 1 1 )
+  ( 1 0 1 0 1 )
+  ( 1 1 1 0 1 )
+  ( 0 0 0 0 1 )
+  ( 1 1 1 0 1 )
+  ( 1 1 0 0 0 )))
+
+(bfs matrice 0 0 3 4)
+;-> (2 0 2 2 2)
+;-> (2 0 2 0 2)
+;-> (2 2 2 0 2)
+;-> (0 0 0 0 2)
+;-> (1 1 1 0 1)
+;-> (1 1 0 0 0)
+;-> (11 (0 0) (1 0) (2 0) (2 1) (2 2) (1 2) (0 2) (0 3) (0 4) (1 4) (2 4) (3 4))
+
+Vediamo come viene creata la lista soluzione. Il nodo finale "nodo" vale:
+
+(3 4 11 (2 4 10 (1 4 9 (0 4 8 (0 3 7 (0 2 6 (1 2 5 (2 2 4 (2 1 3 (2 0 2 (1 0 1 (0 0 0()))))))))))))
+
+Quindi possiamo estrarre la soluzione nel modo seguente:
+
+(setq sol '(3 4 11 (2 4 10 (1 4 9 (0 4 8 (0 3 7 (0 2 6 (1 2 5 (2 2 4 (2 1 3 (2 0 2 (1 0 1 (0 0 0())))))))))))))
+(setq a (flat sol))
+;-> (3 4 11 2 4 10 1 4 9 0 4 8 0 3 7 0 2 6 1 2 5 2 2 4 2 1 3 2 0 2 1 0 1 0 0 0)
+(setq b (explode a 3))
+;-> ((3 4 11) (2 4 10) (1 4 9) (0 4 8) (0 3 7) (0 2 6) (1 2 5) (2 2 4) (2 1 3) (2 0 2) (1 0 1) (0 0 0))
+(setq c (reverse b))
+;-> ((0 0 0) (1 0 1) (2 0 2) (2 1 3) (2 2 4) (1 2 5) (0 2 6) (0 3 7) (0 4 8) (1 4 9) (2 4 10) (3 4 11))
+(setq d (map (fn(x) (list (x 0) (x 1))) c))
+;-> ((0 0) (1 0) (2 0) (2 1) (2 2) (1 2) (0 2) (0 3) (0 4) (1 4) (2 4) (3 4))
+
+Mettendo tutto insieme:
+
+(setq sol (push min-dist (map (fn(x) (list (x 0) (x 1))) (reverse (explode (flat nodo) 3)))))
+
+Vediamo la soluzione dell'esempio iniziale:
+
+(setq M 10)
+(setq N 10)
+
+(setq matrice
+'((1 1 1 1 1 0 0 1 1 1)
+  (0 1 1 1 1 1 0 1 0 1)
+  (0 0 1 0 1 1 1 0 0 1)
+  (1 0 1 1 1 0 1 1 0 1)
+  (0 0 0 1 0 0 0 1 0 1)
+  (1 0 1 1 1 0 0 1 1 0)
+  (0 0 0 0 1 0 0 1 0 1)
+  (0 1 1 1 1 1 1 1 0 0)
+  (1 1 1 1 1 0 0 1 1 1)
+  (0 0 1 0 0 1 1 0 0 1)))
+
+Origine: (0 0)
+Destinazione: (7 5)
+
+(bfs matrice 0 0 7 5)
+;-> (2 2 1 1 1 0 0 1 1 1)
+;-> (0 2 2 1 1 1 0 1 0 1)
+;-> (0 0 2 0 1 1 1 0 0 1)
+;-> (1 0 2 2 1 0 1 1 0 1)
+;-> (0 0 0 2 0 0 0 1 0 1)
+;-> (1 0 1 2 2 0 0 1 1 0)
+;-> (0 0 0 0 2 0 0 1 0 1)
+;-> (0 1 1 1 2 2 1 1 0 0)
+;-> (1 1 1 1 1 0 0 1 1 1)
+;-> (0 0 1 0 0 1 1 0 0 1)
+;-> (12 (0 0) (0 1) (1 1) (1 2) (2 2) (3 2) (3 3) 
+;->     (4 3) (5 3) (5 4) (6 4) (7 4) (7 5))
+
+

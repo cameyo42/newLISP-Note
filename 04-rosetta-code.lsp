@@ -6363,3 +6363,713 @@ n = 10
 ;-> (1 1 2 4 8 16 32 64 128 256 512 1023 2045 4088 8172 16336 32656 65280 130496 260864)
 
 
+---------------------------------
+IL PROBLEMA DEI MATRIMONI STABILI
+---------------------------------
+
+Il problema del matrimoni stabili è un nome semplice che rappresenta un problema molto importante. In economia questo intende ogni problema che richieda di allocare un gruppo di risorse di un insieme A con un gruppo di risorse di un insieme B in maniera tale da formare dei gruppi stabili (nella versione base si parla di coppie, ma è estendibile).
+
+La definizione originale del problema è la seguente:
+dato n uomini e n donne, dove ogni persona ha classificato tutti i membri del sesso opposto in ordine di preferenza, si accoppiano uomini e donne insieme in modo tale che non ci siano due persone di sesso opposto che preferirebbero stare tra loro rispetto ai loro attuali partner. Quando non esistono coppie di questo tipo, l'insieme dei matrimoni è considerato stabile.
+
+I matematici americani Dave Gale e Lloyd Shapley pubblicarono un algoritmo di soluzione nel 1962 dimostrando che il problema del matrimonio stabile ammette sempre una soluzione.
+
+L’algoritmo di Gale e Shapley consente di individuare una soluzione stabile. Nel 1971 Mc Vitie e Wilson pubblicarono un algoritmo che consente di individuare tutte le soluzioni stabili del problema.
+
+La soluzione proposta è un adattamento del programma in Java presentato all'indirizzo web:
+
+https://www.sanfoundry.com/java-program-gale-shapley-algorithm/
+
+In questo modo possiamo vedere come possono essere tradotte in newLISP alcune espressioni/costrutti del linguaggio Java. Inoltre la nomenclatura è stata lasciata in lingua inglese.
+
+La struttura dei dati di input è la seguente:
+
+Men:   ("M1" "M2" "M3" "M4" "M5")
+Women: ("W1" "W2" "W3" "W4" "W5")
+
+Men preferenze:
+(("W5" "W2" "W3" "W4" "W1")
+ ("W2" "W5" "W1" "W3" "W4")
+ ("W4" "W3" "W2" "W1" "W5")
+ ("W1" "W2" "W3" "W4" "W5")
+ ("W5" "W2" "W3" "W4" "W1"))
+
+Women preferenze:
+(("M5" "M3" "M4" "M1" "M2")
+ ("M1" "M2" "M3" "M5" "M4")
+ ("M4" "M5" "M3" "M2" "M1")
+ ("M5" "M2" "M1" "M4" "M3")
+ ("M2" "M1" "M4" "M3" "M5"))
+
+Lo pseudocodice dell'algoritmo è il seguente:
+
+Algorithm Gale-Shapley
+    Initialize all m of M and w of W to free
+    while exist free man m who still has a woman w to propose to
+    (
+       w = m's highest ranked such woman to whom he has not yet proposed
+       if w is free
+         (m, w) become engaged
+       else some pair (m', w) already exists
+         if w prefers m to m'
+           (m, w) become engaged
+           m' becomes free
+         else
+           (m', w) remain engaged
+    )
+
+Di seguito viene riportato il codice in Java:
+
+"
+/** Java Program to Implement Gale Shapley Algorithm **/
+/**
+ Gale Shapley Algorithm is used to solve the stable marriage problem (SMP). SMP is the problem of finding a stable matching between two sets of elements given a set of preferences for each element.
+**/
+/** Class GaleShapley **/
+public class GaleShapley
+{
+    private int N, engagedCount;
+    private String[][] menPref;
+    private String[][] womenPref;
+    private String[] men;
+    private String[] women;
+    private String[] womenPartner;
+    private boolean[] menEngaged;
+
+    /** Constructor **/
+    public GaleShapley(String[] m, String[] w, String[][] mp, String[][] wp)
+    {
+        N = mp.length;
+        engagedCount = 0;
+        men = m;
+        women = w;
+        menPref = mp;
+        womenPref = wp;
+        menEngaged = new boolean[N];
+        womenPartner = new String[N];
+        calcMatches();
+    }
+    /** function to calculate all matches **/
+    private void calcMatches()
+    {
+        while (engagedCount < N)
+        {
+            int free;
+            for (free = 0; free < N; free++)
+                if (!menEngaged[free])
+                    break;
+            for (int i = 0; i < N && !menEngaged[free]; i++)
+            {
+                int index = womenIndexOf(menPref[free][i]);
+                if (womenPartner[index] == null)
+                {
+                    womenPartner[index] = men[free];
+                    menEngaged[free] = true;
+                    engagedCount++;
+                }
+                else
+                {
+                    String currentPartner = womenPartner[index];
+                    if (morePreference(currentPartner, men[free], index))
+                    {
+                        womenPartner[index] = men[free];
+                        menEngaged[free] = true;
+                        menEngaged[menIndexOf(currentPartner)] = false;
+                    }
+                }
+            }
+        }
+        printCouples();
+    }
+    /** function to check if women prefers new partner over old assigned partner **/
+    private boolean morePreference(String curPartner, String newPartner, int index)
+    {
+        for (int i = 0; i < N; i++)
+        {
+            if (womenPref[index][i].equals(newPartner))
+                return true;
+            if (womenPref[index][i].equals(curPartner))
+                return false;
+        }
+        return false;
+    }
+    /** get men index **/
+    private int menIndexOf(String str)
+    {
+        for (int i = 0; i < N; i++)
+            if (men[i].equals(str))
+                return i;
+        return -1;
+    }
+    /** get women index **/
+    private int womenIndexOf(String str)
+    {
+        for (int i = 0; i < N; i++)
+            if (women[i].equals(str))
+                return i;
+        return -1;
+    }
+    /** print couples **/
+    public void printCouples()
+    {
+        System.out.println("Couples are : ");
+        for (int i = 0; i < N; i++)
+        {
+            System.out.println(womenPartner[i] +" "+ women[i]);
+        }
+    }
+    /** main function **/
+    public static void main(String[] args)
+    {
+        System.out.println("Gale Shapley Marriage Algorithm\n");
+        /** list of men **/
+        String[] m = {"M1", "M2", "M3", "M4", "M5"};
+        /** list of women **/
+        String[] w = {"W1", "W2", "W3", "W4", "W5"};
+        /** men preference **/
+        String[][] mp = {{"W5", "W2", "W3", "W4", "W1"},
+                         {"W2", "W5", "W1", "W3", "W4"},
+                         {"W4", "W3", "W2", "W1", "W5"},
+                         {"W1", "W2", "W3", "W4", "W5"},
+                         {"W5", "W2", "W3", "W4", "W1"}};
+        /** women preference **/
+        String[][] wp = {{"M5", "M3", "M4", "M1", "M2"},
+                         {"M1", "M2", "M3", "M5", "M4"},
+                         {"M4", "M5", "M3", "M2", "M1"},
+                         {"M5", "M2", "M1", "M4", "M3"},
+                         {"M2", "M1", "M4", "M3", "M5"}};
+        GaleShapley gs = new GaleShapley(m, w, mp, wp);
+    }
+}
+"
+
+Adesso vediamo l'implementazione in newLISP in cui ho cercato di mantenere il codice newLISP il più possibile fedele all'originale:
+
+(define (gs m w mp wp)
+  (local (N engagedCount menPref womenPref men women womenPartner menEngaged
+          free cont i j km kw ind currentPartner pref res)
+    (setq N (length mp))
+    (setq engagedCount 0) ;
+    (setq men m)   ; array of men (string)
+    (setq women w) ; array of women (string)
+    (setq menPref mp)   ; array of array of men preferences (string)
+    (setq womenPref wp) ; array of array women preferences (string)
+    (setq menEngaged (array N '(nil)))   ; boolean array
+    (setq womenPartner (array N '(""))) ; string array
+    ; function: calcMatches
+    (define (calcMatches)
+      (while (< engagedCount N)
+        ;(println "engaged: " engagedCount)
+        (setq free 0)
+        (setq cont true)
+        (while (and (< free N) cont)
+          (if (null? (menEngaged free))
+              (setq cont nil)
+              (++ free))
+        )
+        (setq i 0)
+        (setq cont true)
+        (while (and (< i N) (null? (menEngaged free)))
+          ;(println "i: " i " free: " free)
+          (setq ind (womenIndexOf (menPref free i)))
+          (if (null? (womenPartner ind))
+            (begin
+             (setf (womenPartner ind) (men free))
+             (setf (menEngaged free) true)
+             (++ engagedCount))
+            ;else
+            (begin
+             (setq currentPartner (womenPartner ind))
+             (if (morePreference currentPartner (men free) ind)
+              (begin
+               (setf (womenPartner ind) (men free))
+               (setf (menEngaged free) true)
+               (setf (menEngaged (menIndexOf currentPartner)) nil))
+             ))
+          )
+          (++ i)
+        )
+      )
+    )
+    ; function: morePreference
+    (define (morePreference curPartner newPartner idx)
+      (setq res nil)
+      (setq j 0)
+      (setq cont true)
+      (while (and (< j N) cont)
+        (cond ((= (womenPref idx j) newPartner)
+               (setq cont nil)
+               (setq res true))
+              ((= (womenPref idx j) curPartner)
+               (setq cont nil)
+               (setq res nil))
+        )
+        (++ j)
+      )
+      res)
+    ; function: menIndexOf
+    (define (menIndexOf str)
+      (setq km 0)
+      (setq cont true)
+      (while (and (< km N) cont)
+        (if (= (men km) str)
+            (setq cont nil)
+            (++ km))
+      )
+      ;(if (= i N) -1 i)
+      (if (= km N) nil km)
+    )
+    ; function: womenIndexOf
+    (define (womenIndexOf str)
+      (setq kw 0)
+      (setq cont true)
+      (while (and (< kw N) cont)
+        (if (= (women kw) str)
+            (setq cont nil)
+            (++ kw))
+      )
+      ;(if (= i N) -1 i)
+      (if (= kw N) nil kw)
+    )
+    ;
+    (define (printCouples)
+      (dolist (el womenPartner)
+        (println el { } (women $idx)))
+    )
+    ;
+    ; Calculate solution
+    (calcMatches)
+    ; Print solution
+    (printCouples)
+    'end
+  ))
+
+Assegniamo i valori iniziali:
+
+Array of Men:
+
+(setq mm '("M1" "M2" "M3" "M4" "M5"))
+(setq m (array 5 mm))
+
+Array of Women:
+
+(setq ww '("W1" "W2" "W3" "W4" "W5"))
+(setq w (array 5 ww))
+
+Array of Men preference:
+
+(setq mmp '(("W5" "W2" "W3" "W4" "W1")
+           ("W2" "W5" "W1" "W3" "W4")
+           ("W4" "W3" "W2" "W1" "W5")
+           ("W1" "W2" "W3" "W4" "W5")
+           ("W5" "W2" "W3" "W4" "W1")))
+(setq mp (array 5 5 (flat mmp)))
+
+Array of Women preference:
+
+(setq wwp '(("M5" "M3" "M4" "M1" "M2")
+           ("M1" "M2" "M3" "M5" "M4")
+           ("M4" "M5" "M3" "M2" "M1")
+           ("M5" "M2" "M1" "M4" "M3")
+           ("M2" "M1" "M4" "M3" "M5")))
+(setq wp (array 5 5 (flat wwp)))
+
+Proviamo la funzione:
+
+(gs m w mp wp)
+;-> M4 W1
+;-> M2 W2
+;-> M5 W3
+;-> M3 W4
+;-> M1 W5
+;-> end
+
+Attenzione, questo algoritmo permette di trovare una soluzione stabile, non ottima.
+Alcune coppie potrebbero essere ottime (banalmente se la prima scelta di un x e un y combaciano), ma non è necessario che lo siano. Anzi, è molto probabile che ciascun elemento ottenga la sua seconda o terza scelta (o, al crescere del numero di persone, anche scelte molto peggiori). Inoltre se un elemento riceve una sola proposta sarà costretto ad accettarla, non importa quanto sia in basso nella sua scala delle preferenze.
+È opportuno osservare che l’algoritmo produce sempre la soluzione ottimale per ciascun elemento del gruppo che propone e al tempo stesso produce la soluzione peggiore per ciascun elemento dell'altro gruppo.
+Quindi se il gruppo che propone fosse una volta quello degli uomini e una volta quello delle donne otterremmo due risultati diversi, entrambi i risultati però sarebbero completi e costituiti solo da coppie stabili (ottimali per il gruppo proponente).
+Di fatto l’algoritmo garantisce che ogni coppia formata non possa "trovare di meglio" e che quindi non abbia motivo per rompersi. E questo è il risultato migliore a cui si può aspirare.
+
+Nota: nei problemi pratici occorre considerare anche i casi generali in cui gli insiemi sono di cardinalità differente e/o le liste di preferenza sono incomplete.
+
+L'algoritmo di Gale-Shapley è usato in tutto il mondo: in Danimarca per l'assegnazione di bambini agli asili, in Ungheria per l'iscrizione di bambini alle scuole, a New York per la scelta dei rabbini alle sinagoghe, in Cina, Germania e Spagna per gli studenti delle università, nel Regno Unito l'algoritmo è stato il punto di partenza per elaborare un metodo ottimale per associare organi a pazienti bisognosi di trapianti...
+
+Vediamo un altro esempio (Rosetta code):
+
+(setq mm (map string '(abe bob col dan ed fred gav hal ian jon)))
+(setq m (array 10 mm))
+
+(setq ww (map string '(abi bea cath dee eve fay gay hope ivy jan)))
+(setq w (array 10 ww))
+
+(setq mmp (map string (flat '((abi eve cath ivy jan dee fay bea hope gay)
+            (cath hope abi dee eve fay bea jan ivy gay)
+            (hope eve abi dee bea fay ivy gay cath jan)
+            (ivy fay dee gay hope eve jan bea cath abi)
+            (jan dee bea cath fay eve abi ivy hope gay)
+            (bea abi dee gay eve ivy cath jan hope fay)
+            (gay eve ivy bea cath abi dee hope jan fay)
+            (abi eve hope fay ivy cath jan bea gay dee)
+            (hope cath dee gay bea abi fay ivy jan eve)
+            (abi fay jan gay eve bea dee cath ivy hope)))))
+(setq mp (array 10 10 (flat mmp)))
+
+(setq wwp (map string (flat '((bob fred jon gav ian abe dan ed col hal)
+            (bob abe col fred gav dan ian ed jon hal)
+            (fred bob ed gav hal col ian abe dan jon)
+            (fred jon col abe ian hal gav dan bob ed)
+            (jon hal fred dan abe gav col ed ian bob)
+            (bob abe ed ian jon dan fred gav col hal)
+            (jon gav hal fred bob abe col ed dan ian)
+            (gav jon bob abe ian dan hal ed col fred)
+            (ian col hal gav fred bob abe ed jon dan)
+            (ed hal gav abe bob jon col ian fred dan)))))
+(setq wp (array 10 10 (flat wwp)))
+
+(gs m w mp wp)
+;-> jon abi
+;-> fred bea
+;-> bob cath
+;-> col dee
+;-> hal eve
+;-> dan fay
+;-> gav gay
+;-> ian hope
+;-> abe ivy
+;-> ed jan
+;-> end
+
+Cerchiamo adesso di scrivere una funzione che controlla se una data soluzione è stabile o meno. Una soluzione non è stabile se risultano vere entrambe le seguenti condizioni:
+
+1) Esiste un elemento A del primo gruppo (a) che preferisce un elemento B del secondo gruppo (b) all'elemento a cui A è stato abbinato e
+2) l'elemento b di B preferisce a di A all'elemento a cui è stato abbinato.
+
+In altre parole, una soluzione è stabile quando non esiste alcuna coppia (a di A e b di B) in cui entrambi si preferiscono l'un l'altro rispetto al loro partner attuale.
+
+Utilizziamo i dati del primo esempio:
+
+(setq mm '("M1" "M2" "M3" "M4" "M5"))
+(setq m (array 5 mm))
+(setq ww '("W1" "W2" "W3" "W4" "W5"))
+(setq w (array 5 ww))
+(setq mmp '(("W5" "W2" "W3" "W4" "W1")
+           ("W2" "W5" "W1" "W3" "W4")
+           ("W4" "W3" "W2" "W1" "W5")
+           ("W1" "W2" "W3" "W4" "W5")
+           ("W5" "W2" "W3" "W4" "W1")))
+(setq mp (array 5 5 (flat mmp)))
+(setq wwp '(("M5" "M3" "M4" "M1" "M2")
+           ("M1" "M2" "M3" "M5" "M4")
+           ("M4" "M5" "M3" "M2" "M1")
+           ("M5" "M2" "M1" "M4" "M3")
+           ("M2" "M1" "M4" "M3" "M5")))
+(setq wp (array 5 5 (flat wwp)))
+
+Calcoliamo la soluzione:
+
+(gs m w mp wp)
+;-> M4 W1
+;-> M2 W2
+;-> M5 W3
+;-> M3 W4
+;-> M1 W5
+;-> end
+
+(setq sol '(("M1" "W5") ("M2" "W2") ("M3" "W4") ("M4" "W1") ("M5" "W3")))
+
+Per seguire meglio il metodo di soluzione modifichiamo e stampiamo i dati:
+
+(define (check-sol sol mmp wwp)
+  (local (i j k stable men women theman thewoman pos-woman pos-men idx-m idx-w
+          uomini donne prefU prefD link pos ind-uomo ind-donna 
+          ind-uomo ind-uomo-accoppiato)
+    (setq stable true)
+    (sort sol)
+    (setq men (sort (map (fn(x) (first x)) sol)))
+    (setq women (sort (map (fn(x) (last x)) sol)))
+    (setq uomini '())
+    (setq donne '())
+    (setq prefU '())
+    (setq prefD '())
+    (setq link '())
+    ; preferenze degli uomini
+    (println "Preferenze M")
+    (dolist (el mmp)
+      (print "M" $idx ": ")
+      (dolist (pref el)
+        (print (first (ref pref women)) { })
+        (push (first (ref pref women)) prefU -1)
+      )
+      (println)
+    )
+    (setq prefU (explode prefU 5))
+    ; preferenze delle donne
+    (println "Preferenze W")
+    (dolist (el wwp)
+      (print "W" $idx ": ")
+      (dolist (pref el)
+        (print (first (ref pref men)) { })
+        (push (first (ref pref men)) prefD -1)
+      )
+      (println)
+    )
+    (setq prefD (explode prefD 5))
+    ; accoppiamenti
+    (println "M p  W p")
+    (setq i 0)
+    (while (< i (length sol))
+      (setq theman (first (sol i)))
+      (setq thewoman (last (sol i)))
+      (setq pos-woman (first (ref thewoman (mmp i))))
+      (setq pos-man (first (ref theman (wwp (first (ref thewoman ww))))))
+      (setq idx-m i)
+      (setq idx-w (first (ref thewoman women)))
+      ;(println idx-m { } idx-w { } theman { } thewoman { } pos-woman { } pos-man)
+      (println i { } pos-woman {  } idx-w { } pos-man)
+      (push idx-m uomini -1)
+      (push idx-m donne -1)
+      (push (list i pos-woman idx-w pos-man) link -1)
+      (++ i)
+    )
+  )
+)
+
+Eseguiamo la funzione:
+
+(check-sol sol mmp wwp)
+;-> Preferenze M
+;-> M0: 4 1 2 3 0
+;-> M1: 1 4 0 2 3
+;-> M2: 3 2 1 0 4
+;-> M3: 0 1 2 3 4
+;-> M4: 4 1 2 3 0
+;-> Preferenze W
+;-> W0: 4 2 3 0 1
+;-> W1: 0 1 2 4 3
+;-> W2: 3 4 2 1 0
+;-> W3: 4 1 0 3 2
+;-> W4: 1 0 3 2 4
+;-> M p  W p
+;-> 0 0  4 1
+;-> 1 0  1 1
+;-> 2 0  3 4
+;-> 3 0  0 2
+;-> 4 2  2 1
+
+Analizziamo la situazione per verificare la stabilità:
+tutti gli M che sono accoppiati con valore 0 (colonna p per M) hanno la scelta migliore, quindi non hanno motivo di cambiare. Vediamo l'unico elemento M che non è accoppiato con valore 0, cioè M4.
+M4 è accoppiato con W2 (con valore 2), ma preferisce di più W4 e W1.
+W4 è accoppiata con M0 con valore 1 e (per W4) M4 vale 4, quindi W4 preferisce restare con M0.
+W1 è accoppiata con M1 con valore 1 e (per W1) M4 vale 3, quindi W1 preferisce restare con M1.
+
+Adesso possiamo scrivere la funzione che controlla la stabilità:
+
+(define (check-sol sol mmp wwp)
+  (local (i j k stable men women theman thewoman pos-woman pos-men idx-m idx-w
+          uomini donne prefU prefD link pos ind-uomo ind-donna 
+          ind-uomo ind-uomo-accoppiato)
+    (setq stable true)
+    (sort sol)
+    (setq men (sort (map (fn(x) (first x)) sol)))
+    (setq women (sort (map (fn(x) (last x)) sol)))
+    (setq uomini '())
+    (setq donne '())
+    (setq prefU '())
+    (setq prefD '())
+    (setq link '())
+    ; preferenze degli uomini
+    (println "Preferenze M")
+    (dolist (el mmp)
+      (print "M" $idx ": ")
+      (dolist (pref el)
+        (print (first (ref pref women)) { })
+        (push (first (ref pref women)) prefU -1)
+      )
+      (println)
+    )
+    (setq prefU (explode prefU 5))
+    ; preferenze delle donne
+    (println "Preferenze W")
+    (dolist (el wwp)
+      (print "W" $idx ": ")
+      (dolist (pref el)
+        (print (first (ref pref men)) { })
+        (push (first (ref pref men)) prefD -1)
+      )
+      (println)
+    )
+    (setq prefD (explode prefD 5))
+    ; accoppiamenti
+    (println "M p  W p")
+    (setq i 0)
+    (while (< i (length sol))
+      (setq theman (first (sol i)))
+      (setq thewoman (last (sol i)))
+      (setq pos-woman (first (ref thewoman (mmp i))))
+      (setq pos-man (first (ref theman (wwp (first (ref thewoman ww))))))
+      (setq idx-m i)
+      (setq idx-w (first (ref thewoman women)))
+      ;(println idx-m { } idx-w { } theman { } thewoman { } pos-woman { } pos-man)
+      (println i { } pos-woman {  } idx-w { } pos-man)
+      (push idx-m uomini -1)
+      (push idx-m donne -1)
+      (push (list i pos-woman idx-w pos-man) link -1)
+      (++ i)
+    )
+    ;(println uomini)
+    ;(println donne)
+    ;(println prefU)
+    ;(println prefD)
+    ;(println link)
+    ;
+    ; check stability
+    ;
+    (dolist (cur-link link)
+      ;(println cur-link { } $idx)
+      (setq idx-link $idx)
+      ; controllo solo accoppiamenti non ottimali
+      (if (> (cur-link 1) 0)
+        (begin
+         ;(println (cur-link 1) { } $idx)
+         (setq pos (- (cur-link 1) 1))
+         (while (> pos -1)
+           (println "uomo corrente: " idx-link)
+           ; indice donna migliore di quella attuale
+           (setq ind-donna (prefU idx-link pos))
+           (println "indice donna migliore di quella attuale: " ind-donna)
+           ; valore uomo corrente per donna migliore
+           (setq ind-uomo (first (ref idx-link (prefD ind-donna))))
+           (println "valore uomo corrente per donna migliore: " ind-uomo)
+           ; valore uomo accoppiato per donna migliore
+           (dolist (el link)
+             (if (= (el 2) ind-donna) (setq ind-uomo-accoppiato (el 3)))
+           )
+           (println "valore uomo accoppiato per donna migliore: " ind-uomo-accoppiato)
+           ;controllo stabilità
+           (if (< ind-uomo ind-uomo-accoppiato) 
+             (begin
+               (setq stable nil)
+               (println "coppia instabile")
+             )
+             ;else
+             (println "coppia stabile")
+           )
+           (-- pos)
+         )
+        )
+      )
+    )
+    (println "Soluzione stabile: " stable)
+  )
+)
+
+Proviamo la stabilità:
+
+(check-sol sol mmp wwp)
+;-> Preferenze M
+;-> M0: 4 1 2 3 0
+;-> M1: 1 4 0 2 3
+;-> M2: 3 2 1 0 4
+;-> M3: 0 1 2 3 4
+;-> M4: 4 1 2 3 0
+;-> Preferenze W
+;-> W0: 4 2 3 0 1
+;-> W1: 0 1 2 4 3
+;-> W2: 3 4 2 1 0
+;-> W3: 4 1 0 3 2
+;-> W4: 1 0 3 2 4
+;-> M p  W p
+;-> 0 0  4 1
+;-> 1 0  1 1
+;-> 2 0  3 4
+;-> 3 0  0 2
+;-> 4 2  2 1
+;-> uomo corrente: 4
+;-> indice donna migliore di quella attuale: 1
+;-> valore uomo corrente per donna migliore: 3
+;-> valore uomo accoppiato per donna migliore: 1
+;-> coppia stabile
+;-> uomo corrente: 4
+;-> indice donna migliore di quella attuale: 4
+;-> valore uomo corrente per donna migliore: 4
+;-> valore uomo accoppiato per donna migliore: 1
+;-> coppia stabile
+;-> Soluzione stabile: true
+
+Proviamo a modificare la soluzione:
+
+(setq sol '(("M1" "W5") ("M2" "W2") ("M3" "W4") ("M4" "W1") ("M5" "W3")))
+
+scambiando di posto W4 in W5:
+
+(setq sol1 '(("M1" "W4") ("M2" "W2") ("M3" "W5") ("M4" "W1") ("M5" "W3")))
+
+(check-sol sol1 mmp wwp)
+;-> Preferenze M
+;-> M0: 4 1 2 3 0
+;-> M1: 1 4 0 2 3
+;-> M2: 3 2 1 0 4
+;-> M3: 0 1 2 3 4
+;-> M4: 4 1 2 3 0
+;-> Preferenze W
+;-> W0: 4 2 3 0 1
+;-> W1: 0 1 2 4 3
+;-> W2: 3 4 2 1 0
+;-> W3: 4 1 0 3 2
+;-> W4: 1 0 3 2 4
+;-> M p  W p
+;-> 0 3  3 2
+;-> 1 0  1 1
+;-> 2 4  4 3
+;-> 3 0  0 2
+;-> 4 2  2 1
+;-> uomo corrente: 0
+;-> indice donna migliore di quella attuale: 2
+;-> valore uomo corrente per donna migliore: 4
+;-> valore uomo accoppiato per donna migliore: 1
+;-> coppia stabile
+;-> uomo corrente: 0
+;-> indice donna migliore di quella attuale: 1
+;-> valore uomo corrente per donna migliore: 0
+;-> valore uomo accoppiato per donna migliore: 1
+;-> coppia instabile
+;-> uomo corrente: 0
+;-> indice donna migliore di quella attuale: 4
+;-> valore uomo corrente per donna migliore: 1
+;-> valore uomo accoppiato per donna migliore: 3
+;-> coppia instabile
+;-> uomo corrente: 2
+;-> indice donna migliore di quella attuale: 0
+;-> valore uomo corrente per donna migliore: 1
+;-> valore uomo accoppiato per donna migliore: 2
+;-> coppia instabile
+;-> uomo corrente: 2
+;-> indice donna migliore di quella attuale: 1
+;-> valore uomo corrente per donna migliore: 2
+;-> valore uomo accoppiato per donna migliore: 1
+;-> coppia stabile
+;-> uomo corrente: 2
+;-> indice donna migliore di quella attuale: 2
+;-> valore uomo corrente per donna migliore: 2
+;-> valore uomo accoppiato per donna migliore: 1
+;-> coppia stabile
+;-> uomo corrente: 2
+;-> indice donna migliore di quella attuale: 3
+;-> valore uomo corrente per donna migliore: 4
+;-> valore uomo accoppiato per donna migliore: 2
+;-> coppia stabile
+;-> uomo corrente: 4
+;-> indice donna migliore di quella attuale: 1
+;-> valore uomo corrente per donna migliore: 3
+;-> valore uomo accoppiato per donna migliore: 1
+;-> coppia stabile
+;-> uomo corrente: 4
+;-> indice donna migliore di quella attuale: 4
+;-> valore uomo corrente per donna migliore: 4
+;-> valore uomo accoppiato per donna migliore: 3
+;-> coppia stabile
+;-> Soluzione stabile: nil
+
+La soluzione modificata non è stabile.
+
+

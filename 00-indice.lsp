@@ -224,6 +224,7 @@ ROSETTA CODE
   Numeri Vampiri
   Il gioco del Nim
   Fibonacci sequenze di n-numeri
+  Il problema dei matrimoni stabili
 
 PROJECT EULERO
 ==============
@@ -293,6 +294,7 @@ PROBLEMI VARI
   Numeri con tre divisori
   Congettura di Goldbach
   Problema dei travasi ed equazioni diofantee
+  Primi circolari
 
 DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
 ==================================================
@@ -342,6 +344,10 @@ DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Travasi di liquidi (Facebook)
   Cambio monete 1 (LinkedIn)
   Cambio monete 2 (LinkedIn)
+  Primi con cifre uguali (Wolfram)
+  Intervalli di numeri (Facebook)
+  Pattern Matching (Facebook)
+  Percorsi su una griglia (Uber)
 
 LIBRERIE
 ========
@@ -413,6 +419,8 @@ NOTE LIBERE
   Uso di map nelle liste annidate
   Funzioni ordinali con le liste
   gensym e macro igieniche
+  La variabile anaforica $idx
+  Gestione dei simboli
 
 APPENDICI
 =========

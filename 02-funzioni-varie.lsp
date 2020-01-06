@@ -513,7 +513,7 @@ Conversione decimale --> romano
 Conversione numero intero <--> lista
 ------------------------------------
 
-Da numero intero a lista:
+Vediamo due funzioni per convertire da numero intero a lista:
 
 (define (int2list n)
   (let (out '())
@@ -542,7 +542,7 @@ Vediamo quale delle due è più veloce:
 (time (int2list2 9223372036854775807) 100000)
 ;-> 442.561
 
-Da lista a numero intero:
+Vediamo tre funzioni per convertire da lista a numero intero:
 
 (define (list2int lst)
   (let (n 0)
@@ -561,13 +561,23 @@ Da lista a numero intero:
 (list2int2 '(1 2 3 4 5 6 7 8 9 0))
 ;-> 1234567890
 
-Vediamo quale delle due è più veloce:
+(define (list2int3 lst)
+  (let (n 0)
+    (dolist (el lst) (setq n (+ el (* n 10))))))
+
+(list2int3 '(1 2 3 4 5 6 7 8 9 0))
+;-> 1234567890
+
+Vediamo quale delle tre è più veloce:
 
 (time (list2int '(9 2 2 3 3 7 2 0 3 6 8 5 4 7 7 5 8 0 7)) 100000)
 ;-> 622.365
 
 (time (list2int2 '(9 2 2 3 3 7 2 0 3 6 8 5 4 7 7 5 8 0 7)) 100000)
 ;-> 855.138
+
+(time (list2int3 '(9 2 2 3 3 7 2 0 3 6 8 5 4 7 7 5 8 0 7)) 100000)
+;-> 234.349
 
 Ricapitoliamo:
 

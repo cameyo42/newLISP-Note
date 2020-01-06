@@ -7483,7 +7483,6 @@ Si definisce "strategia destra" ogni sequenza di azioni che segue le seguenti re
 2) Se A non è vuoto lo si svuota con un numero finito di travasi TravisaAB e
 svuotamenti SvuotaB di B fino ad uno stato (0,y) con y<b.
 
-
 Strategia Sinistra
 ------------------
 Si definisce "strategia sinistra" ogni sequenza di azioni che segue le seguenti regole:
@@ -7599,5 +7598,54 @@ Infatti risulta:
 
 (+ (* 13 8) (* 13 -6))
 ;-> 26
+
+
+---------------
+Primi circolari
+---------------
+
+Un numero primo è circolare se i numeri che otteniamo da tutte le sue rotazioni sono primi. Per esempio il numero 3779 è un nuero primo circolare perchè risulta:
+
+numero base: 3779 -> numero primo
+rotazione 1: 7793 -> numero primo
+rotazione 2: 7937 -> numero primo
+rotazione 3: 9377 -> numero primo
+
+Trovare tutti i numeri primi circolari sotto al milione.
+
+(define (primo? n)
+   (if (< n 2) nil
+       (= 1 (length (factor n)))))
+
+(define (prime-rot n)
+  (local (num cand valid)
+    (for (i 2 n)
+      ; se i è primo
+      (if (primo? i)
+        (begin
+           ; controlliamo se sono primi i numeri ruotati
+           (setq cand i)
+           (setq valid true)
+           (for (i 1 (- (length cand) 1) 1 (not valid))
+             (setq cand (int (rotate (string cand))))
+             (if (not (primo? cand)) (setq valid nil))
+           )
+           ; se il numero è valido, allora lo stampiamo
+           (if valid (print i { }))
+        ))
+    )
+    'end
+  )
+)
+
+(prime-rot 1000000)
+;-> 2 3 5 7 11 13 17 31 37 71 73 79 97 113 131 197 199 311 337
+;-> 373 719 733 919 971 991 1193 1931 3119 3779 7793 7937 9311
+;-> 9377 11939 19391 19937 37199 39119 71993 91193 93719 93911
+;-> 99371 193939 199933 319993 331999 391939 393919 919393
+;-> 933199 939193 939391 993319 999331 end
+
+(time (prime-rot 1000000))
+;-> ;-> 1368.633
 
 

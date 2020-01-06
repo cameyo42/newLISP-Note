@@ -8,12 +8,12 @@ Appunti sul linguaggio newLISP
 01) newLISP in generale (58)  
 02) Funzioni varie (67)  
 03) newLISP 99 problemi (28)  
-04) Rosetta code (49)  
+04) Rosetta code (50)  
 05) Project eulero (53)  
-06) Problemi vari (62)  
-07) Domande programmatori (46)  
+06) Problemi vari (63)  
+07) Domande programmatori (50)  
 08) Librerie (6)  
-09) Note libere (59)  
+09) Note libere (61)  
 10) Appendici (20)  
 11) Bibliografia  
 

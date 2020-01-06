@@ -224,6 +224,7 @@ ROSETTA CODE
   Numeri Vampiri
   Il gioco del Nim
   Fibonacci sequenze di n-numeri
+  Il problema dei matrimoni stabili
 
 PROJECT EULERO
 ==============
@@ -293,6 +294,7 @@ PROBLEMI VARI
   Numeri con tre divisori
   Congettura di Goldbach
   Problema dei travasi ed equazioni diofantee
+  Primi circolari
 
 DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
 ==================================================
@@ -342,6 +344,10 @@ DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Travasi di liquidi (Facebook)
   Cambio monete 1 (LinkedIn)
   Cambio monete 2 (LinkedIn)
+  Primi con cifre uguali (Wolfram)
+  Intervalli di numeri (Facebook)
+  Pattern Matching (Facebook)
+  Percorsi su una griglia (Uber)
 
 LIBRERIE
 ========
@@ -413,6 +419,8 @@ NOTE LIBERE
   Uso di map nelle liste annidate
   Funzioni ordinali con le liste
   gensym e macro igieniche
+  La variabile anaforica $idx
+  Gestione dei simboli
 
 APPENDICI
 =========
@@ -9005,7 +9013,7 @@ Conversione decimale --> romano
 Conversione numero intero <--> lista
 ------------------------------------
 
-Da numero intero a lista:
+Vediamo due funzioni per convertire da numero intero a lista:
 
 (define (int2list n)
   (let (out '())
@@ -9034,7 +9042,7 @@ Vediamo quale delle due è più veloce:
 (time (int2list2 9223372036854775807) 100000)
 ;-> 442.561
 
-Da lista a numero intero:
+Vediamo tre funzioni per convertire da lista a numero intero:
 
 (define (list2int lst)
   (let (n 0)
@@ -9053,13 +9061,23 @@ Da lista a numero intero:
 (list2int2 '(1 2 3 4 5 6 7 8 9 0))
 ;-> 1234567890
 
-Vediamo quale delle due è più veloce:
+(define (list2int3 lst)
+  (let (n 0)
+    (dolist (el lst) (setq n (+ el (* n 10))))))
+
+(list2int3 '(1 2 3 4 5 6 7 8 9 0))
+;-> 1234567890
+
+Vediamo quale delle tre è più veloce:
 
 (time (list2int '(9 2 2 3 3 7 2 0 3 6 8 5 4 7 7 5 8 0 7)) 100000)
 ;-> 622.365
 
 (time (list2int2 '(9 2 2 3 3 7 2 0 3 6 8 5 4 7 7 5 8 0 7)) 100000)
 ;-> 855.138
+
+(time (list2int3 '(9 2 2 3 3 7 2 0 3 6 8 5 4 7 7 5 8 0 7)) 100000)
+;-> 234.349
 
 Ricapitoliamo:
 
@@ -21006,6 +21024,716 @@ n = 9
 n = 10
 (iterate 10 + '(1 1 2 4 8 16 32 64 128 256))
 ;-> (1 1 2 4 8 16 32 64 128 256 512 1023 2045 4088 8172 16336 32656 65280 130496 260864)
+
+
+---------------------------------
+IL PROBLEMA DEI MATRIMONI STABILI
+---------------------------------
+
+Il problema del matrimoni stabili è un nome semplice che rappresenta un problema molto importante. In economia questo intende ogni problema che richieda di allocare un gruppo di risorse di un insieme A con un gruppo di risorse di un insieme B in maniera tale da formare dei gruppi stabili (nella versione base si parla di coppie, ma è estendibile).
+
+La definizione originale del problema è la seguente:
+dato n uomini e n donne, dove ogni persona ha classificato tutti i membri del sesso opposto in ordine di preferenza, si accoppiano uomini e donne insieme in modo tale che non ci siano due persone di sesso opposto che preferirebbero stare tra loro rispetto ai loro attuali partner. Quando non esistono coppie di questo tipo, l'insieme dei matrimoni è considerato stabile.
+
+I matematici americani Dave Gale e Lloyd Shapley pubblicarono un algoritmo di soluzione nel 1962 dimostrando che il problema del matrimonio stabile ammette sempre una soluzione.
+
+L’algoritmo di Gale e Shapley consente di individuare una soluzione stabile. Nel 1971 Mc Vitie e Wilson pubblicarono un algoritmo che consente di individuare tutte le soluzioni stabili del problema.
+
+La soluzione proposta è un adattamento del programma in Java presentato all'indirizzo web:
+
+https://www.sanfoundry.com/java-program-gale-shapley-algorithm/
+
+In questo modo possiamo vedere come possono essere tradotte in newLISP alcune espressioni/costrutti del linguaggio Java. Inoltre la nomenclatura è stata lasciata in lingua inglese.
+
+La struttura dei dati di input è la seguente:
+
+Men:   ("M1" "M2" "M3" "M4" "M5")
+Women: ("W1" "W2" "W3" "W4" "W5")
+
+Men preferenze:
+(("W5" "W2" "W3" "W4" "W1")
+ ("W2" "W5" "W1" "W3" "W4")
+ ("W4" "W3" "W2" "W1" "W5")
+ ("W1" "W2" "W3" "W4" "W5")
+ ("W5" "W2" "W3" "W4" "W1"))
+
+Women preferenze:
+(("M5" "M3" "M4" "M1" "M2")
+ ("M1" "M2" "M3" "M5" "M4")
+ ("M4" "M5" "M3" "M2" "M1")
+ ("M5" "M2" "M1" "M4" "M3")
+ ("M2" "M1" "M4" "M3" "M5"))
+
+Lo pseudocodice dell'algoritmo è il seguente:
+
+Algorithm Gale-Shapley
+    Initialize all m of M and w of W to free
+    while exist free man m who still has a woman w to propose to
+    (
+       w = m's highest ranked such woman to whom he has not yet proposed
+       if w is free
+         (m, w) become engaged
+       else some pair (m', w) already exists
+         if w prefers m to m'
+           (m, w) become engaged
+           m' becomes free
+         else
+           (m', w) remain engaged
+    )
+
+Di seguito viene riportato il codice in Java:
+
+"
+/** Java Program to Implement Gale Shapley Algorithm **/
+/**
+ Gale Shapley Algorithm is used to solve the stable marriage problem (SMP). SMP is the problem of finding a stable matching between two sets of elements given a set of preferences for each element.
+**/
+/** Class GaleShapley **/
+public class GaleShapley
+{
+    private int N, engagedCount;
+    private String[][] menPref;
+    private String[][] womenPref;
+    private String[] men;
+    private String[] women;
+    private String[] womenPartner;
+    private boolean[] menEngaged;
+
+    /** Constructor **/
+    public GaleShapley(String[] m, String[] w, String[][] mp, String[][] wp)
+    {
+        N = mp.length;
+        engagedCount = 0;
+        men = m;
+        women = w;
+        menPref = mp;
+        womenPref = wp;
+        menEngaged = new boolean[N];
+        womenPartner = new String[N];
+        calcMatches();
+    }
+    /** function to calculate all matches **/
+    private void calcMatches()
+    {
+        while (engagedCount < N)
+        {
+            int free;
+            for (free = 0; free < N; free++)
+                if (!menEngaged[free])
+                    break;
+            for (int i = 0; i < N && !menEngaged[free]; i++)
+            {
+                int index = womenIndexOf(menPref[free][i]);
+                if (womenPartner[index] == null)
+                {
+                    womenPartner[index] = men[free];
+                    menEngaged[free] = true;
+                    engagedCount++;
+                }
+                else
+                {
+                    String currentPartner = womenPartner[index];
+                    if (morePreference(currentPartner, men[free], index))
+                    {
+                        womenPartner[index] = men[free];
+                        menEngaged[free] = true;
+                        menEngaged[menIndexOf(currentPartner)] = false;
+                    }
+                }
+            }
+        }
+        printCouples();
+    }
+    /** function to check if women prefers new partner over old assigned partner **/
+    private boolean morePreference(String curPartner, String newPartner, int index)
+    {
+        for (int i = 0; i < N; i++)
+        {
+            if (womenPref[index][i].equals(newPartner))
+                return true;
+            if (womenPref[index][i].equals(curPartner))
+                return false;
+        }
+        return false;
+    }
+    /** get men index **/
+    private int menIndexOf(String str)
+    {
+        for (int i = 0; i < N; i++)
+            if (men[i].equals(str))
+                return i;
+        return -1;
+    }
+    /** get women index **/
+    private int womenIndexOf(String str)
+    {
+        for (int i = 0; i < N; i++)
+            if (women[i].equals(str))
+                return i;
+        return -1;
+    }
+    /** print couples **/
+    public void printCouples()
+    {
+        System.out.println("Couples are : ");
+        for (int i = 0; i < N; i++)
+        {
+            System.out.println(womenPartner[i] +" "+ women[i]);
+        }
+    }
+    /** main function **/
+    public static void main(String[] args)
+    {
+        System.out.println("Gale Shapley Marriage Algorithm\n");
+        /** list of men **/
+        String[] m = {"M1", "M2", "M3", "M4", "M5"};
+        /** list of women **/
+        String[] w = {"W1", "W2", "W3", "W4", "W5"};
+        /** men preference **/
+        String[][] mp = {{"W5", "W2", "W3", "W4", "W1"},
+                         {"W2", "W5", "W1", "W3", "W4"},
+                         {"W4", "W3", "W2", "W1", "W5"},
+                         {"W1", "W2", "W3", "W4", "W5"},
+                         {"W5", "W2", "W3", "W4", "W1"}};
+        /** women preference **/
+        String[][] wp = {{"M5", "M3", "M4", "M1", "M2"},
+                         {"M1", "M2", "M3", "M5", "M4"},
+                         {"M4", "M5", "M3", "M2", "M1"},
+                         {"M5", "M2", "M1", "M4", "M3"},
+                         {"M2", "M1", "M4", "M3", "M5"}};
+        GaleShapley gs = new GaleShapley(m, w, mp, wp);
+    }
+}
+"
+
+Adesso vediamo l'implementazione in newLISP in cui ho cercato di mantenere il codice newLISP il più possibile fedele all'originale:
+
+(define (gs m w mp wp)
+  (local (N engagedCount menPref womenPref men women womenPartner menEngaged
+          free cont i j km kw ind currentPartner pref res)
+    (setq N (length mp))
+    (setq engagedCount 0) ;
+    (setq men m)   ; array of men (string)
+    (setq women w) ; array of women (string)
+    (setq menPref mp)   ; array of array of men preferences (string)
+    (setq womenPref wp) ; array of array women preferences (string)
+    (setq menEngaged (array N '(nil)))   ; boolean array
+    (setq womenPartner (array N '(""))) ; string array
+    ; function: calcMatches
+    (define (calcMatches)
+      (while (< engagedCount N)
+        ;(println "engaged: " engagedCount)
+        (setq free 0)
+        (setq cont true)
+        (while (and (< free N) cont)
+          (if (null? (menEngaged free))
+              (setq cont nil)
+              (++ free))
+        )
+        (setq i 0)
+        (setq cont true)
+        (while (and (< i N) (null? (menEngaged free)))
+          ;(println "i: " i " free: " free)
+          (setq ind (womenIndexOf (menPref free i)))
+          (if (null? (womenPartner ind))
+            (begin
+             (setf (womenPartner ind) (men free))
+             (setf (menEngaged free) true)
+             (++ engagedCount))
+            ;else
+            (begin
+             (setq currentPartner (womenPartner ind))
+             (if (morePreference currentPartner (men free) ind)
+              (begin
+               (setf (womenPartner ind) (men free))
+               (setf (menEngaged free) true)
+               (setf (menEngaged (menIndexOf currentPartner)) nil))
+             ))
+          )
+          (++ i)
+        )
+      )
+    )
+    ; function: morePreference
+    (define (morePreference curPartner newPartner idx)
+      (setq res nil)
+      (setq j 0)
+      (setq cont true)
+      (while (and (< j N) cont)
+        (cond ((= (womenPref idx j) newPartner)
+               (setq cont nil)
+               (setq res true))
+              ((= (womenPref idx j) curPartner)
+               (setq cont nil)
+               (setq res nil))
+        )
+        (++ j)
+      )
+      res)
+    ; function: menIndexOf
+    (define (menIndexOf str)
+      (setq km 0)
+      (setq cont true)
+      (while (and (< km N) cont)
+        (if (= (men km) str)
+            (setq cont nil)
+            (++ km))
+      )
+      ;(if (= i N) -1 i)
+      (if (= km N) nil km)
+    )
+    ; function: womenIndexOf
+    (define (womenIndexOf str)
+      (setq kw 0)
+      (setq cont true)
+      (while (and (< kw N) cont)
+        (if (= (women kw) str)
+            (setq cont nil)
+            (++ kw))
+      )
+      ;(if (= i N) -1 i)
+      (if (= kw N) nil kw)
+    )
+    ;
+    (define (printCouples)
+      (dolist (el womenPartner)
+        (println el { } (women $idx)))
+    )
+    ;
+    ; Calculate solution
+    (calcMatches)
+    ; Print solution
+    (printCouples)
+    'end
+  ))
+
+Assegniamo i valori iniziali:
+
+Array of Men:
+
+(setq mm '("M1" "M2" "M3" "M4" "M5"))
+(setq m (array 5 mm))
+
+Array of Women:
+
+(setq ww '("W1" "W2" "W3" "W4" "W5"))
+(setq w (array 5 ww))
+
+Array of Men preference:
+
+(setq mmp '(("W5" "W2" "W3" "W4" "W1")
+           ("W2" "W5" "W1" "W3" "W4")
+           ("W4" "W3" "W2" "W1" "W5")
+           ("W1" "W2" "W3" "W4" "W5")
+           ("W5" "W2" "W3" "W4" "W1")))
+(setq mp (array 5 5 (flat mmp)))
+
+Array of Women preference:
+
+(setq wwp '(("M5" "M3" "M4" "M1" "M2")
+           ("M1" "M2" "M3" "M5" "M4")
+           ("M4" "M5" "M3" "M2" "M1")
+           ("M5" "M2" "M1" "M4" "M3")
+           ("M2" "M1" "M4" "M3" "M5")))
+(setq wp (array 5 5 (flat wwp)))
+
+Proviamo la funzione:
+
+(gs m w mp wp)
+;-> M4 W1
+;-> M2 W2
+;-> M5 W3
+;-> M3 W4
+;-> M1 W5
+;-> end
+
+Attenzione, questo algoritmo permette di trovare una soluzione stabile, non ottima.
+Alcune coppie potrebbero essere ottime (banalmente se la prima scelta di un x e un y combaciano), ma non è necessario che lo siano. Anzi, è molto probabile che ciascun elemento ottenga la sua seconda o terza scelta (o, al crescere del numero di persone, anche scelte molto peggiori). Inoltre se un elemento riceve una sola proposta sarà costretto ad accettarla, non importa quanto sia in basso nella sua scala delle preferenze.
+È opportuno osservare che l’algoritmo produce sempre la soluzione ottimale per ciascun elemento del gruppo che propone e al tempo stesso produce la soluzione peggiore per ciascun elemento dell'altro gruppo.
+Quindi se il gruppo che propone fosse una volta quello degli uomini e una volta quello delle donne otterremmo due risultati diversi, entrambi i risultati però sarebbero completi e costituiti solo da coppie stabili (ottimali per il gruppo proponente).
+Di fatto l’algoritmo garantisce che ogni coppia formata non possa "trovare di meglio" e che quindi non abbia motivo per rompersi. E questo è il risultato migliore a cui si può aspirare.
+
+Nota: nei problemi pratici occorre considerare anche i casi generali in cui gli insiemi sono di cardinalità differente e/o le liste di preferenza sono incomplete.
+
+L'algoritmo di Gale-Shapley è usato in tutto il mondo: in Danimarca per l'assegnazione di bambini agli asili, in Ungheria per l'iscrizione di bambini alle scuole, a New York per la scelta dei rabbini alle sinagoghe, in Cina, Germania e Spagna per gli studenti delle università, nel Regno Unito l'algoritmo è stato il punto di partenza per elaborare un metodo ottimale per associare organi a pazienti bisognosi di trapianti...
+
+Vediamo un altro esempio (Rosetta code):
+
+(setq mm (map string '(abe bob col dan ed fred gav hal ian jon)))
+(setq m (array 10 mm))
+
+(setq ww (map string '(abi bea cath dee eve fay gay hope ivy jan)))
+(setq w (array 10 ww))
+
+(setq mmp (map string (flat '((abi eve cath ivy jan dee fay bea hope gay)
+            (cath hope abi dee eve fay bea jan ivy gay)
+            (hope eve abi dee bea fay ivy gay cath jan)
+            (ivy fay dee gay hope eve jan bea cath abi)
+            (jan dee bea cath fay eve abi ivy hope gay)
+            (bea abi dee gay eve ivy cath jan hope fay)
+            (gay eve ivy bea cath abi dee hope jan fay)
+            (abi eve hope fay ivy cath jan bea gay dee)
+            (hope cath dee gay bea abi fay ivy jan eve)
+            (abi fay jan gay eve bea dee cath ivy hope)))))
+(setq mp (array 10 10 (flat mmp)))
+
+(setq wwp (map string (flat '((bob fred jon gav ian abe dan ed col hal)
+            (bob abe col fred gav dan ian ed jon hal)
+            (fred bob ed gav hal col ian abe dan jon)
+            (fred jon col abe ian hal gav dan bob ed)
+            (jon hal fred dan abe gav col ed ian bob)
+            (bob abe ed ian jon dan fred gav col hal)
+            (jon gav hal fred bob abe col ed dan ian)
+            (gav jon bob abe ian dan hal ed col fred)
+            (ian col hal gav fred bob abe ed jon dan)
+            (ed hal gav abe bob jon col ian fred dan)))))
+(setq wp (array 10 10 (flat wwp)))
+
+(gs m w mp wp)
+;-> jon abi
+;-> fred bea
+;-> bob cath
+;-> col dee
+;-> hal eve
+;-> dan fay
+;-> gav gay
+;-> ian hope
+;-> abe ivy
+;-> ed jan
+;-> end
+
+Cerchiamo adesso di scrivere una funzione che controlla se una data soluzione è stabile o meno. Una soluzione non è stabile se risultano vere entrambe le seguenti condizioni:
+
+1) Esiste un elemento A del primo gruppo (a) che preferisce un elemento B del secondo gruppo (b) all'elemento a cui A è stato abbinato e
+2) l'elemento b di B preferisce a di A all'elemento a cui è stato abbinato.
+
+In altre parole, una soluzione è stabile quando non esiste alcuna coppia (a di A e b di B) in cui entrambi si preferiscono l'un l'altro rispetto al loro partner attuale.
+
+Utilizziamo i dati del primo esempio:
+
+(setq mm '("M1" "M2" "M3" "M4" "M5"))
+(setq m (array 5 mm))
+(setq ww '("W1" "W2" "W3" "W4" "W5"))
+(setq w (array 5 ww))
+(setq mmp '(("W5" "W2" "W3" "W4" "W1")
+           ("W2" "W5" "W1" "W3" "W4")
+           ("W4" "W3" "W2" "W1" "W5")
+           ("W1" "W2" "W3" "W4" "W5")
+           ("W5" "W2" "W3" "W4" "W1")))
+(setq mp (array 5 5 (flat mmp)))
+(setq wwp '(("M5" "M3" "M4" "M1" "M2")
+           ("M1" "M2" "M3" "M5" "M4")
+           ("M4" "M5" "M3" "M2" "M1")
+           ("M5" "M2" "M1" "M4" "M3")
+           ("M2" "M1" "M4" "M3" "M5")))
+(setq wp (array 5 5 (flat wwp)))
+
+Calcoliamo la soluzione:
+
+(gs m w mp wp)
+;-> M4 W1
+;-> M2 W2
+;-> M5 W3
+;-> M3 W4
+;-> M1 W5
+;-> end
+
+(setq sol '(("M1" "W5") ("M2" "W2") ("M3" "W4") ("M4" "W1") ("M5" "W3")))
+
+Per seguire meglio il metodo di soluzione modifichiamo e stampiamo i dati:
+
+(define (check-sol sol mmp wwp)
+  (local (i j k stable men women theman thewoman pos-woman pos-men idx-m idx-w
+          uomini donne prefU prefD link pos ind-uomo ind-donna 
+          ind-uomo ind-uomo-accoppiato)
+    (setq stable true)
+    (sort sol)
+    (setq men (sort (map (fn(x) (first x)) sol)))
+    (setq women (sort (map (fn(x) (last x)) sol)))
+    (setq uomini '())
+    (setq donne '())
+    (setq prefU '())
+    (setq prefD '())
+    (setq link '())
+    ; preferenze degli uomini
+    (println "Preferenze M")
+    (dolist (el mmp)
+      (print "M" $idx ": ")
+      (dolist (pref el)
+        (print (first (ref pref women)) { })
+        (push (first (ref pref women)) prefU -1)
+      )
+      (println)
+    )
+    (setq prefU (explode prefU 5))
+    ; preferenze delle donne
+    (println "Preferenze W")
+    (dolist (el wwp)
+      (print "W" $idx ": ")
+      (dolist (pref el)
+        (print (first (ref pref men)) { })
+        (push (first (ref pref men)) prefD -1)
+      )
+      (println)
+    )
+    (setq prefD (explode prefD 5))
+    ; accoppiamenti
+    (println "M p  W p")
+    (setq i 0)
+    (while (< i (length sol))
+      (setq theman (first (sol i)))
+      (setq thewoman (last (sol i)))
+      (setq pos-woman (first (ref thewoman (mmp i))))
+      (setq pos-man (first (ref theman (wwp (first (ref thewoman ww))))))
+      (setq idx-m i)
+      (setq idx-w (first (ref thewoman women)))
+      ;(println idx-m { } idx-w { } theman { } thewoman { } pos-woman { } pos-man)
+      (println i { } pos-woman {  } idx-w { } pos-man)
+      (push idx-m uomini -1)
+      (push idx-m donne -1)
+      (push (list i pos-woman idx-w pos-man) link -1)
+      (++ i)
+    )
+  )
+)
+
+Eseguiamo la funzione:
+
+(check-sol sol mmp wwp)
+;-> Preferenze M
+;-> M0: 4 1 2 3 0
+;-> M1: 1 4 0 2 3
+;-> M2: 3 2 1 0 4
+;-> M3: 0 1 2 3 4
+;-> M4: 4 1 2 3 0
+;-> Preferenze W
+;-> W0: 4 2 3 0 1
+;-> W1: 0 1 2 4 3
+;-> W2: 3 4 2 1 0
+;-> W3: 4 1 0 3 2
+;-> W4: 1 0 3 2 4
+;-> M p  W p
+;-> 0 0  4 1
+;-> 1 0  1 1
+;-> 2 0  3 4
+;-> 3 0  0 2
+;-> 4 2  2 1
+
+Analizziamo la situazione per verificare la stabilità:
+tutti gli M che sono accoppiati con valore 0 (colonna p per M) hanno la scelta migliore, quindi non hanno motivo di cambiare. Vediamo l'unico elemento M che non è accoppiato con valore 0, cioè M4.
+M4 è accoppiato con W2 (con valore 2), ma preferisce di più W4 e W1.
+W4 è accoppiata con M0 con valore 1 e (per W4) M4 vale 4, quindi W4 preferisce restare con M0.
+W1 è accoppiata con M1 con valore 1 e (per W1) M4 vale 3, quindi W1 preferisce restare con M1.
+
+Adesso possiamo scrivere la funzione che controlla la stabilità:
+
+(define (check-sol sol mmp wwp)
+  (local (i j k stable men women theman thewoman pos-woman pos-men idx-m idx-w
+          uomini donne prefU prefD link pos ind-uomo ind-donna 
+          ind-uomo ind-uomo-accoppiato)
+    (setq stable true)
+    (sort sol)
+    (setq men (sort (map (fn(x) (first x)) sol)))
+    (setq women (sort (map (fn(x) (last x)) sol)))
+    (setq uomini '())
+    (setq donne '())
+    (setq prefU '())
+    (setq prefD '())
+    (setq link '())
+    ; preferenze degli uomini
+    (println "Preferenze M")
+    (dolist (el mmp)
+      (print "M" $idx ": ")
+      (dolist (pref el)
+        (print (first (ref pref women)) { })
+        (push (first (ref pref women)) prefU -1)
+      )
+      (println)
+    )
+    (setq prefU (explode prefU 5))
+    ; preferenze delle donne
+    (println "Preferenze W")
+    (dolist (el wwp)
+      (print "W" $idx ": ")
+      (dolist (pref el)
+        (print (first (ref pref men)) { })
+        (push (first (ref pref men)) prefD -1)
+      )
+      (println)
+    )
+    (setq prefD (explode prefD 5))
+    ; accoppiamenti
+    (println "M p  W p")
+    (setq i 0)
+    (while (< i (length sol))
+      (setq theman (first (sol i)))
+      (setq thewoman (last (sol i)))
+      (setq pos-woman (first (ref thewoman (mmp i))))
+      (setq pos-man (first (ref theman (wwp (first (ref thewoman ww))))))
+      (setq idx-m i)
+      (setq idx-w (first (ref thewoman women)))
+      ;(println idx-m { } idx-w { } theman { } thewoman { } pos-woman { } pos-man)
+      (println i { } pos-woman {  } idx-w { } pos-man)
+      (push idx-m uomini -1)
+      (push idx-m donne -1)
+      (push (list i pos-woman idx-w pos-man) link -1)
+      (++ i)
+    )
+    ;(println uomini)
+    ;(println donne)
+    ;(println prefU)
+    ;(println prefD)
+    ;(println link)
+    ;
+    ; check stability
+    ;
+    (dolist (cur-link link)
+      ;(println cur-link { } $idx)
+      (setq idx-link $idx)
+      ; controllo solo accoppiamenti non ottimali
+      (if (> (cur-link 1) 0)
+        (begin
+         ;(println (cur-link 1) { } $idx)
+         (setq pos (- (cur-link 1) 1))
+         (while (> pos -1)
+           (println "uomo corrente: " idx-link)
+           ; indice donna migliore di quella attuale
+           (setq ind-donna (prefU idx-link pos))
+           (println "indice donna migliore di quella attuale: " ind-donna)
+           ; valore uomo corrente per donna migliore
+           (setq ind-uomo (first (ref idx-link (prefD ind-donna))))
+           (println "valore uomo corrente per donna migliore: " ind-uomo)
+           ; valore uomo accoppiato per donna migliore
+           (dolist (el link)
+             (if (= (el 2) ind-donna) (setq ind-uomo-accoppiato (el 3)))
+           )
+           (println "valore uomo accoppiato per donna migliore: " ind-uomo-accoppiato)
+           ;controllo stabilità
+           (if (< ind-uomo ind-uomo-accoppiato) 
+             (begin
+               (setq stable nil)
+               (println "coppia instabile")
+             )
+             ;else
+             (println "coppia stabile")
+           )
+           (-- pos)
+         )
+        )
+      )
+    )
+    (println "Soluzione stabile: " stable)
+  )
+)
+
+Proviamo la stabilità:
+
+(check-sol sol mmp wwp)
+;-> Preferenze M
+;-> M0: 4 1 2 3 0
+;-> M1: 1 4 0 2 3
+;-> M2: 3 2 1 0 4
+;-> M3: 0 1 2 3 4
+;-> M4: 4 1 2 3 0
+;-> Preferenze W
+;-> W0: 4 2 3 0 1
+;-> W1: 0 1 2 4 3
+;-> W2: 3 4 2 1 0
+;-> W3: 4 1 0 3 2
+;-> W4: 1 0 3 2 4
+;-> M p  W p
+;-> 0 0  4 1
+;-> 1 0  1 1
+;-> 2 0  3 4
+;-> 3 0  0 2
+;-> 4 2  2 1
+;-> uomo corrente: 4
+;-> indice donna migliore di quella attuale: 1
+;-> valore uomo corrente per donna migliore: 3
+;-> valore uomo accoppiato per donna migliore: 1
+;-> coppia stabile
+;-> uomo corrente: 4
+;-> indice donna migliore di quella attuale: 4
+;-> valore uomo corrente per donna migliore: 4
+;-> valore uomo accoppiato per donna migliore: 1
+;-> coppia stabile
+;-> Soluzione stabile: true
+
+Proviamo a modificare la soluzione:
+
+(setq sol '(("M1" "W5") ("M2" "W2") ("M3" "W4") ("M4" "W1") ("M5" "W3")))
+
+scambiando di posto W4 in W5:
+
+(setq sol1 '(("M1" "W4") ("M2" "W2") ("M3" "W5") ("M4" "W1") ("M5" "W3")))
+
+(check-sol sol1 mmp wwp)
+;-> Preferenze M
+;-> M0: 4 1 2 3 0
+;-> M1: 1 4 0 2 3
+;-> M2: 3 2 1 0 4
+;-> M3: 0 1 2 3 4
+;-> M4: 4 1 2 3 0
+;-> Preferenze W
+;-> W0: 4 2 3 0 1
+;-> W1: 0 1 2 4 3
+;-> W2: 3 4 2 1 0
+;-> W3: 4 1 0 3 2
+;-> W4: 1 0 3 2 4
+;-> M p  W p
+;-> 0 3  3 2
+;-> 1 0  1 1
+;-> 2 4  4 3
+;-> 3 0  0 2
+;-> 4 2  2 1
+;-> uomo corrente: 0
+;-> indice donna migliore di quella attuale: 2
+;-> valore uomo corrente per donna migliore: 4
+;-> valore uomo accoppiato per donna migliore: 1
+;-> coppia stabile
+;-> uomo corrente: 0
+;-> indice donna migliore di quella attuale: 1
+;-> valore uomo corrente per donna migliore: 0
+;-> valore uomo accoppiato per donna migliore: 1
+;-> coppia instabile
+;-> uomo corrente: 0
+;-> indice donna migliore di quella attuale: 4
+;-> valore uomo corrente per donna migliore: 1
+;-> valore uomo accoppiato per donna migliore: 3
+;-> coppia instabile
+;-> uomo corrente: 2
+;-> indice donna migliore di quella attuale: 0
+;-> valore uomo corrente per donna migliore: 1
+;-> valore uomo accoppiato per donna migliore: 2
+;-> coppia instabile
+;-> uomo corrente: 2
+;-> indice donna migliore di quella attuale: 1
+;-> valore uomo corrente per donna migliore: 2
+;-> valore uomo accoppiato per donna migliore: 1
+;-> coppia stabile
+;-> uomo corrente: 2
+;-> indice donna migliore di quella attuale: 2
+;-> valore uomo corrente per donna migliore: 2
+;-> valore uomo accoppiato per donna migliore: 1
+;-> coppia stabile
+;-> uomo corrente: 2
+;-> indice donna migliore di quella attuale: 3
+;-> valore uomo corrente per donna migliore: 4
+;-> valore uomo accoppiato per donna migliore: 2
+;-> coppia stabile
+;-> uomo corrente: 4
+;-> indice donna migliore di quella attuale: 1
+;-> valore uomo corrente per donna migliore: 3
+;-> valore uomo accoppiato per donna migliore: 1
+;-> coppia stabile
+;-> uomo corrente: 4
+;-> indice donna migliore di quella attuale: 4
+;-> valore uomo corrente per donna migliore: 4
+;-> valore uomo accoppiato per donna migliore: 3
+;-> coppia stabile
+;-> Soluzione stabile: nil
+
+La soluzione modificata non è stabile.
 
 
 ================
@@ -33251,7 +33979,6 @@ Si definisce "strategia destra" ogni sequenza di azioni che segue le seguenti re
 2) Se A non è vuoto lo si svuota con un numero finito di travasi TravisaAB e
 svuotamenti SvuotaB di B fino ad uno stato (0,y) con y<b.
 
-
 Strategia Sinistra
 ------------------
 Si definisce "strategia sinistra" ogni sequenza di azioni che segue le seguenti regole:
@@ -33367,6 +34094,55 @@ Infatti risulta:
 
 (+ (* 13 8) (* 13 -6))
 ;-> 26
+
+
+---------------
+Primi circolari
+---------------
+
+Un numero primo è circolare se i numeri che otteniamo da tutte le sue rotazioni sono primi. Per esempio il numero 3779 è un nuero primo circolare perchè risulta:
+
+numero base: 3779 -> numero primo
+rotazione 1: 7793 -> numero primo
+rotazione 2: 7937 -> numero primo
+rotazione 3: 9377 -> numero primo
+
+Trovare tutti i numeri primi circolari sotto al milione.
+
+(define (primo? n)
+   (if (< n 2) nil
+       (= 1 (length (factor n)))))
+
+(define (prime-rot n)
+  (local (num cand valid)
+    (for (i 2 n)
+      ; se i è primo
+      (if (primo? i)
+        (begin
+           ; controlliamo se sono primi i numeri ruotati
+           (setq cand i)
+           (setq valid true)
+           (for (i 1 (- (length cand) 1) 1 (not valid))
+             (setq cand (int (rotate (string cand))))
+             (if (not (primo? cand)) (setq valid nil))
+           )
+           ; se il numero è valido, allora lo stampiamo
+           (if valid (print i { }))
+        ))
+    )
+    'end
+  )
+)
+
+(prime-rot 1000000)
+;-> 2 3 5 7 11 13 17 31 37 71 73 79 97 113 131 197 199 311 337
+;-> 373 719 733 919 971 991 1193 1931 3119 3779 7793 7937 9311
+;-> 9377 11939 19391 19937 37199 39119 71993 91193 93719 93911
+;-> 99371 193939 199933 319993 331999 391939 393919 919393
+;-> 933199 939193 939391 993319 999331 end
+
+(time (prime-rot 1000000))
+;-> ;-> 1368.633
 
 
 ====================================================
@@ -37225,6 +38001,618 @@ La soluzione usa la tecnica ricorsiva di backtracking:
 ;-> ((5 5))
 
 
+--------------------------------
+Primi con cifre uguali (Wolfram)
+--------------------------------
+
+Scrivere una funzione che trova tutti i numeri primi sotto a 10 milioni che hanno almeno 5 cifre uguali.
+
+Vediamo prima le funzioni che ci servono per risolvere il problema.
+
+Funzione che calcola i numeri primi da m a n:
+
+(define (sieve-from-to m n)
+  (local (arr lst out)
+    (setq out '())
+    (setq arr (array (+ n 1)) lst '(2))
+    (for (x 3 n 2)
+        (when (not (arr x))
+          (push x lst -1)
+          (for (y (* x x) n (* 2 x) (> y n))
+              (setf (arr y) true))))
+    (if (<= m 2)
+        lst
+        (dolist (el lst) (if (>= el m) (push el out -1)))
+    )
+  )
+)
+
+(sieve-from-to 10 100)
+;-> (11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71 73 79 83 89 97)
+
+Funzioni di conversione lista <--> intero:
+
+(define (int2list n)
+  (let (out '())
+    (while (!= n 0)
+      (push (% n 10) out)
+      (setq n (/ n 10))) out))
+
+(define (list2int lst)
+  (let (n 0)
+    (dolist (el lst) (setq n (+ el (* n 10))))))
+
+Adesso vediamo il procedimento di soluzione usando dei numeri piccoli:
+
+Troviamo i numeri primi da 100 a 200:
+
+(setq a (sieve-from-to 100 200))
+;-> (101 103 107 109 113 127 131 137 139 149 151
+;->  157 163 167 173 179 181 191 193 197 199)
+
+Trasformiamo i numeri in liste:
+
+(setq b (map int2list a))
+;-> ((1 0 1) (1 0 3) (1 0 7) (1 0 9) (1 1 3) (1 2 7) (1 3 1) (1 3 7)
+;->  (1 3 9) (1 4 9) (1 5 1) (1 5 7) (1 6 3) (1 6 7) (1 7 3) (1 7 9)
+;->  (1 8 1) (1 9 1) (1 9 3) (1 9 7) (1 9 9))
+
+La funzione "count" conta le occorrenze di ogni elemento della prima lista nella seconda lista. Il risultato è una lista di occorrenze.
+
+Esempio:
+(count '(0 1 2) '(1 1 2 2 2 2 3))
+;-> (0 2 4)
+0 appare 0 volte in (1 1 2 2 2 2 3)
+1 appare 2 volte in (1 1 2 2 2 2 3)
+2 appare 4 volte in (1 1 2 2 2 2 3)
+
+Contiamo quante volte le cifre 0, 1 e 2 compaiono in ogni cifra/sottolista:
+
+(setq c (map (fn(x) (count '(0 1 2) x)) b))
+(setq c (map (fn(x) (count (sequence 0 2) x)) b))
+;-> ((1 2 0) (1 1 0) (1 1 0) (1 1 0) (0 2 0) (0 1 1) (0 2 0) (0 1 0)
+;->  (0 1 0) (0 1 0) (0 2 0) (0 1 0) (0 1 0) (0 1 0) (0 1 0) (0 1 0)
+;->  (0 2 0) (0 2 0) (0 1 0) (0 1 0) (0 1 0))
+
+Scegliamo quelli in cui almeno la cifra 0 o 1 o 2 compare due (2) volte:
+
+(setq d '())
+(dolist (el c) (if (find 2 el) (push (b $idx) d -1)))
+d
+;-> ((1 0 1) (1 1 3) (1 3 1) (1 5 1) (1 8 1) (1 9 1))
+
+Trasformiamo in lista di numeri:
+
+(setq e (map list2int d))
+;-> (101 113 131 151 181 191)
+
+Questi sono tutti i numeri primi tra 100 e 200 che hanno la cifra 0 o la cifra 1 o la cifra 2 ripetuta due volte.
+
+Scriviamo la funzione finale in maniera sequenziale:
+
+(define (calcola num cifre)
+  (local (a b c d e)
+    ;(println "a")
+    (setq a (sieve-from-to 10 num))
+    ;(println "b")
+    (setq b (map int2list a))
+    ;(println "c")
+    (setq c (map (fn(x) (count (sequence 0 9) x)) b))
+    ;(println "d")
+    (setq d '())
+    ;(dolist (el c) (if (find cifre (last el)) (push (first el) d -1)))
+    (dolist (el c) (if (find cifre el) (push (b $idx) d -1)))
+    ;(println "e")
+    (setq e (map list2int d))
+    (length e)
+  ))
+
+(calcola 1e7 5)
+;-> 1112
+
+(time (calcola 1e7 5))
+;-> 5874.936
+
+(calcola 1e5 4)
+;-> 40
+(calcola 1e6 5)
+;-> 53
+(calcola 1e7 6)
+;-> 35
+
+Possiamo velocizzare la funzione creando la lista "c" in questo modo:
+
+( ((1 0 1) 2) ((1 0 2) 1)...)
+
+Poi questa lista viene filtrata con la funzione "filter".
+
+(define (calcola1 num cifre)
+  (local (a b c d e)
+    (define (test x) (= (last x) cifre))
+    ;(println "a")
+    (setq a (sieve-from-to 10 num))
+    ;(println "b")
+    (setq b (map int2list a))
+    ;(println "c")
+    (setq c (map (fn(x) (list x (apply max (count (sequence 0 9) x)))) b))
+    ;(println "d")
+    (setq d (filter test c))
+    ;(dolist (el c) (if (= cifre (last el)) (push (first el) d -1)))
+    ;(println "e")
+    (setq e (map (fn(x) (list2int (first x))) d))
+    (length e)
+  ))
+
+(calcola1 1e7 5)
+;-> 1112
+
+(time (calcola1 1e7 5))
+;-> 4859.91
+
+Abbiamo velocizzato la funzione del 20%.
+
+(calcola1 1e5 4)
+;-> 40
+(calcola1 1e6 5)
+;-> 53
+(calcola1 1e7 6)
+;-> 35
+
+
+-------------------------------
+Intervalli di numeri (Facebook)
+-------------------------------
+
+Data una lista di numeri interi restituire una nuova lista con tutti gli intervalli ordinati dei numeri che sono consecutivi nella lista originale. Ad esempio:
+
+lista input:  (2 3 4 7 9 11 12 13 20)
+lista output: ((2 4) (7) (9) (11 13) (20))
+
+Quando eseguiamo l'iterazione sulla lista, teniamo traccia di due valori:
+1) il primo valore di un nuovo intervallo
+2) il valore precedente nell'intervallo
+
+(define (intervalli lst)
+  (local (res pre primo)
+    (setq res '())
+    (cond ((null? lst) (setq res '()))
+          ((= (length lst) 1) (setq res lst))
+          (true
+            ;ordina la lista univoca
+            (setq lst (sort (unique lst)))
+            (println lst)
+            ; elemento precedente
+            (setq pre (lst 0))
+            ; primo elemento di ogni intervallo
+            (setq primo pre)
+            (for (i 1 (- (length lst) 1))
+              (if (= (lst i) (+ pre 1))
+                  (if (= i (- (length lst) 1))
+                    (push (list primo (lst i)) res -1)
+                  )
+              ;else
+                  (begin
+                    (if (= primo pre)
+                        (push (list primo) res -1)
+                        (push (list primo pre) res -1)
+                    )
+                    (if (= i (- (length lst) 1))
+                        (push (list (lst i)) res -1)
+                    )
+                    (setq primo (lst i))
+                  )
+              )
+              (setq pre (lst i))
+            )
+          )
+    )
+    res
+  )
+)
+
+(intervalli '(2 0 1 7 5 4))
+;-> ((0 2) (4 5) (7))
+
+(intervalli '(2 3 4 7 9 11 12 13 20))
+;-> ((2 4) (7) (9) (11 13) (20))
+
+(intervalli '(10 3 -1 -2 4 -5 8 7 6 -3))
+;-> ((-5) (-3 -1) (3 4) (6 8) (10))
+
+
+---------------------------
+Pattern Matching (Facebook)
+---------------------------
+
+Implementare una funzione di pattern matching che supporta i caratteri jolly "?" (un  carattere qualunque) e "*" (zero o più caratteri qualunque).
+
+To understand this solution, you can use s="aab" and p="*ab".
+
+(define (isMatch s p)
+  (local (i j staridx idx res)
+    (setq res -1)
+    (setq i 0)
+    (setq j 0)
+    (setq staridx -1)
+    (setq idx -1)
+    (while (and (< i (length s)) (= res -1))
+      (cond ((and (< j (length p)) (or (= (p j) "?") (= (p j) (s i))))
+             (++ i)
+             (++ j))
+            ((and (< j (length p)) (= (p j) "*"))
+             (setq staridx j)
+             (setq idx i)
+             (++ j))
+            ((!= staridx -1)
+             (setq j (+ staridx 1))
+             (setq i (+ idx 1))
+             (++ idx))
+            (true (setq res nil))
+      )
+    )
+    (if (= res -1)
+      (while (and (< j (length p)) (= (p j) "*"))
+        (++ j)
+      )
+    )
+    (if (and (= res -1) (= j (length p)))
+        true
+        nil
+    )
+  )
+)
+
+(isMatch "aab" "*ab")
+;-> true
+
+(isMatch "aaaabbbbcccc" "a*")
+;-> true
+
+(isMatch "aaaabbbbcccc" "d*")
+;-> nil
+
+(isMatch "aaaabbbbcccc" "a???b???c*")
+;-> true
+
+(isMatch "abcdefg" "??cde?g*")
+;-> true
+
+
+------------------------------
+Percorsi su una griglia (Uber)
+------------------------------
+Data una matrice M per N composta da valori 0 e 1 che rappresenta una griglia. Ogni valore 0 rappresenta un muro. Ogni valore 1 rappresenta una cella libera.
+Data questa matrice, una coordinata iniziale e una coordinata finale, restituire il numero minimo di passi necessari per raggiungere la coordinata finale partendo dall'inizio. Se non è possibile alcun percorso, restituire nil. Possiamo spostarci verso l'alto, a sinistra, in basso e a destra. Non possiamo attraversare i muri. Non possiamo attraversare i bordi della griglia.
+Il percorso risolutivo può essere costruito solo da celle con valore 1 e in un dato momento, possiamo muovere solo di un passo in una delle quattro direzioni. Le mosse valide sono:
+
+Vai su: (x, y) -> (x - 1, y)
+Vai a sinistra: (x, y) -> (x, y - 1)
+Vai giù: (x, y) -> (x + 1, y)
+Vai a destra: (x, y) -> (x, y + 1)
+
+Ad esempio, consideriamo la matrice binaria sotto. Se origine = (0, 0) e destinazione = (7, 5), il percorso più breve dall'origine alla destinazione ha lunghezza 12:
+
+(1 1 1 1 1 0 0 1 1 1)
+(0 1 1 1 1 1 0 1 0 1)
+(0 0 1 0 1 1 1 0 0 1)
+(1 0 1 1 1 0 1 1 0 1)
+(0 0 0 1 0 0 0 1 0 1)
+(1 0 1 1 1 0 0 1 1 0)
+(0 0 0 0 1 0 0 1 0 1)
+(0 1 1 1 1 1 1 1 0 0)
+(1 1 1 1 1 0 0 1 1 1)
+(0 0 1 0 0 1 1 0 0 1)
+
+La soluzione utilizza l'algoritmo di Lee che è una buona scelta nella maggior parte dei problemi di ricerca di percorsi minimi, infatti fornisce sempre la soluzione ottimale, anche se è un pò lento e richiede molta memoria.Questo algoritmo è uguale a Breadth First Search (BFS), ma teniamo traccia della distanza e valutiamo la distanza più breve tra l'insieme delle distanze.
+
+I passaggi fondamentali sono i seguenti:
+1. Scegli un punto di partenza e aggiungilo alla coda.
+2. Aggiungi le celle adiacenti valide alla coda.
+3. Rimuovi la posizione in cui ci si trova dalla coda e passa all'elemento successivo.
+4. Ripeti i passaggi 2 e 3 fino a quando la coda è vuota.
+
+Eseguendo questo algoritmo per ogni cella, avremo il numero di passi necessari per arrivare a qualsiasi altro punto dall'inizio.
+Naturalmente dovremo ignorare i muri e le celle precedentemente contrassegnate su ogni iterazione ed interrompere le chiamate ricorsive una volta raggiunta la cella finale.
+
+Si noti che in BFS, tutte le celle che hanno il percorso più breve uguale a 1 vengono visitate per prime, seguite dalle celle adiacenti che hanno il percorso più breve come 1 + 1 = 2 e così via .. quindi se raggiungiamo un nodo in BFS, il suo percorso più breve = percorso più breve del genitore + 1. Quindi, la prima occorrenza della cella di destinazione ci dà il risultato e possiamo fermare la nostra ricerca lì. Non è possibile che esista il percorso più breve da un'altra cella per la quale non abbiamo ancora raggiunto il nodo specificato. Se fosse stato possibile tale percorso, lo avremmo già esplorato.
+
+Struttura dei dati:
+
+grid = matrice binaria MxN (0, 1) (1 = aperto, 0 = chiuso)
+visited = matrice booleana MxN (true, nil)
+lifo = lista (coda lifo) con elementi/nodi di tipo (x-coord y-coord distanza)
+
+Funzione che controlla se una cella della griglia è valida:
+
+(define (isvalid grid visited row col)
+  ; la cella è valida se:
+  ; 1. si trova nella griglia
+  ; 2. ha valore 1
+  ; 3. non è stata visitata
+  (and (>= row 0) (< row M) (>= col 0) (< col N)
+       (= (grid row col) 1)
+       (not (visited row col))))
+
+Funzione Breadth First Search di tipo Lee:
+
+; Trova il percorso minimo in una matrice/griglia
+; partendo dalla cella (i, j) e arrivando alla cella (x y)
+(define (bfs grid i j x y)
+  (local (riga colonna lifo visited min-dist
+          nodo dist n found)
+    (setq found nil)
+    ; crea la lista/coda lifo
+    (setq lifo '())
+    ; le liste riga e colonna permettono di muoversi
+    ; facilmente nelle quattro direzioni
+    (setq riga '(-1 0 0 1))
+    (setq colonna '(0 -1 1 0))
+    ; matrice delle celle visitate
+    (setq visited (array M N '(nil)))
+    ; valore minimo iniziale
+    (setq min-dist 9999999999)
+    ; marca la cella iniziale come visitata e
+    ; aggiunge il nodo della cella iniziale alla lista lifo
+    (setf (visited i j) true)
+    (push (list i j 0) lifo)
+    ; ciclo per visitare i nodi
+    ; fino a che coda (lista lifo) non è vuota...
+    (while (and lifo (not found))
+      ; estrae il nodo dalla coda e lo processa
+      (setq nodo (pop lifo))
+      ; (i, j) rappresenta la cella corrente...
+      (setq i (nodo 0))
+      (setq j (nodo 1))
+      ; e dist è la distanza minima dalla sorgente
+      (setq dist (nodo 2))
+      ; se abbiamo raggiunto la destinazione
+      ; aggiorniamo la distanza e terminiamo la ricerca
+      (if (and (= i x) (= j y))
+          (begin
+            (setq min-dist dist)
+            (setq found true)
+          )
+      )
+      ; se la ricerca non è terminata...
+      (if (not found)
+        ; controlla le celle raggiungibili con i quattro movimenti
+        ; e accoda le celle valide
+        (for (k 0 3)
+          ; controlla se è possibile passare dalla posizione corrente
+          ; alla posizione (i + riga(k), j + colonna(k))
+          (if (isvalid grid visited (+ i (riga k)) (+ j (colonna k)))
+            (begin
+              ; marca la cella come visitata e
+              ; aggiungila alla coda.
+              (setf (visited (+ i (riga k)) (+ j (colonna k))) true)
+              (setq n (list (+ i (riga k)) (+ j (colonna k)) (+ dist 1)))
+              (push n lifo)
+            )
+          )
+        )
+      )
+      ; Restituisci il risultato finale: distanza minima oppure nil.
+      (if (= min-dist 9999999999)
+        nil
+        min-dist
+      )
+    )
+  )
+)
+
+Proviamo la funzione:
+
+(setq M 5)
+(setq N 5)
+
+(setq matrice
+'(( 1 0 1 1 1 )
+  ( 1 0 1 0 1 )
+  ( 1 1 1 0 1 )
+  ( 0 0 0 0 1 )
+  ( 1 1 1 0 1 )
+  ( 1 1 0 0 0 )))
+
+Punto di partenza: Start = (0 0)
+Punto di arrivo: End = (3 4)
+
+(bfs matrice 0 0 3 4)
+;-> 11
+
+Celle del percorso minimo:
+(0 0) (1 0) (2 0) (2 1) (2 2) (1 2) (0 2) (0 3) (0 4) (1 4) (2 4) (3 4)
+
+Nota:
+Se vogliamo muoverci nelle otto direzioni, allora dobbiamo fare le seguenti modifiche al codice:
+
+1) Modificare le lista riga e colonna per elencare tutti gli 8 movimenti possibili da una cella, ovvero alto, destra, basso, sinistra e le 4 mosse diagonali.
+
+(setq riga '(-1 -1 -1 0 1 0 1 1 ))
+(setq colonna '(-1 1 0 -1 -1 1 0 1))
+
+2. Controllare tutti gli 8 movimenti possibili dalla cella corrente.
+
+(for (k 0 7) (...))
+
+Adesso dobbiamo restituire anche le celle che compongono il percorso trovato e non solo il suo valore. Per fare questo dobbiamo aggiungere ad ogni nodo un puntatore al nodo genitore. Quindi il nuovo nodo della lista lifo ha la seguente struttura:
+
+(x-coord y-coord dist (x-genitore y-genitore dist))
+
+In questo caso il nodo è una struttura ricorsiva (di lunghezza crescente) del tipo:
+
+(0 3 7 (0 2 6 (1 2 5 (2 2 4 (2 1 3 (2 0 2 (1 0 1 (0 0 0()))))))))
+
+Abbiamo bisogno anche di una funzione che stampa la matrice con il percorso risolutivo:
+
+(define (print-sol matrix sol)
+  ; elimina la distanza minima dalla lista della soluzione
+  (pop sol)
+  (dolist (el sol)
+    (setf (matrix (el 0) (el 1)) 2))
+  (dolist (r matrix) (println r)))
+
+(define (isvalid grid visited row col)
+  ; la cella è valida se:
+  ; 1. si trova nella griglia
+  ; 2. ha valore 1
+  ; 3. non è stata visitata
+  (and (>= row 0) (< row M) (>= col 0) (< col N)
+       (= (grid row col) 1)
+       (not (visited row col))))
+
+La funzione "bfs" finale è la seguente:
+
+; Trova il percorso minimo in una matrice/griglia
+; partendo dalla cella (i, j) e arrivando alla cella (x y)
+(define (bfs grid i j x y)
+  (local (riga colonna lifo visited min-dist
+          nodo parent dist n found k sol)
+    (setq found nil)
+    ; crea la lista/coda lifo
+    (setq lifo '())
+    ; le liste riga e colonna permettono di muoversi
+    ; facilmente nelle quattro direzioni
+    (setq riga '(-1 0 0 1))
+    (setq colonna '(0 -1 1 0))
+    ; matrice delle celle visitate
+    (setq visited (array M N '(nil)))
+    ; valore minimo iniziale
+    (setq min-dist 9999999999)
+    ; crea il genitore per la cella origine
+    (setq parent '())
+    ; marca la cella iniziale come visitata e
+    ; aggiunge il nodo della cella iniziale alla lista lifo
+    (setf (visited i j) true)
+    (push (list i j 0 '()) lifo)
+    ; ciclo per visitare i nodi
+    ; fino a che coda (lista lifo) non è vuota...
+    (while (and lifo (not found))
+      ; estrae il nodo dalla coda e lo processa
+      (setq nodo (pop lifo))
+      ; (i, j) rappresenta la cella corrente...
+      (setq i (nodo 0))
+      (setq j (nodo 1))
+      ; e dist è la distanza minima dalla sorgente
+      (setq dist (nodo 2))
+      ; se abbiamo raggiunto la destinazione
+      ; aggiorniamo la distanza e terminiamo la ricerca
+      (if (and (= i x) (= j y))
+        (begin
+          (setq min-dist dist)
+          (setq found true)
+          ; la soluzione
+        )
+      )
+      ; se la ricerca non è terminata...
+      (if (not found)
+        ; controlla le celle raggiungibili con i quattro movimenti
+        ; e accoda le celle valide
+        (for (k 0 3)
+          ; controlla se è possibile passare dalla posizione corrente
+          ; alla posizione (i + riga(k), j + colonna(k))
+          (if (isvalid grid visited (+ i (riga k)) (+ j (colonna k)))
+            (begin
+              ; marca la cella come visitata e
+              ; aggiungila alla coda.
+              (setf (visited (+ i (riga k)) (+ j (colonna k))) true)
+              (setq n (list (+ i (riga k)) (+ j (colonna k)) (+ dist 1) nodo))
+              (push n lifo)
+            )
+          )
+        )
+      )
+      ; Restituisce il risultato finale: (distanza minima + celle del percorso) oppure nil.
+      (if (= min-dist 9999999999)
+        nil
+        (begin
+          ; crea la lista soluzione
+          (setq sol (push min-dist (map (fn(x) (list (x 0) (x 1))) (reverse (explode (flat nodo) 3)))))
+          ; stampa la griglia con la soluzione
+          (print-sol grid sol)
+          sol
+        )
+      )
+    )
+  )
+)
+
+Proviamo:
+
+(setq M 5)
+(setq N 5)
+
+(setq matrice
+'(( 1 0 1 1 1 )
+  ( 1 0 1 0 1 )
+  ( 1 1 1 0 1 )
+  ( 0 0 0 0 1 )
+  ( 1 1 1 0 1 )
+  ( 1 1 0 0 0 )))
+
+(bfs matrice 0 0 3 4)
+;-> (2 0 2 2 2)
+;-> (2 0 2 0 2)
+;-> (2 2 2 0 2)
+;-> (0 0 0 0 2)
+;-> (1 1 1 0 1)
+;-> (1 1 0 0 0)
+;-> (11 (0 0) (1 0) (2 0) (2 1) (2 2) (1 2) (0 2) (0 3) (0 4) (1 4) (2 4) (3 4))
+
+Vediamo come viene creata la lista soluzione. Il nodo finale "nodo" vale:
+
+(3 4 11 (2 4 10 (1 4 9 (0 4 8 (0 3 7 (0 2 6 (1 2 5 (2 2 4 (2 1 3 (2 0 2 (1 0 1 (0 0 0()))))))))))))
+
+Quindi possiamo estrarre la soluzione nel modo seguente:
+
+(setq sol '(3 4 11 (2 4 10 (1 4 9 (0 4 8 (0 3 7 (0 2 6 (1 2 5 (2 2 4 (2 1 3 (2 0 2 (1 0 1 (0 0 0())))))))))))))
+(setq a (flat sol))
+;-> (3 4 11 2 4 10 1 4 9 0 4 8 0 3 7 0 2 6 1 2 5 2 2 4 2 1 3 2 0 2 1 0 1 0 0 0)
+(setq b (explode a 3))
+;-> ((3 4 11) (2 4 10) (1 4 9) (0 4 8) (0 3 7) (0 2 6) (1 2 5) (2 2 4) (2 1 3) (2 0 2) (1 0 1) (0 0 0))
+(setq c (reverse b))
+;-> ((0 0 0) (1 0 1) (2 0 2) (2 1 3) (2 2 4) (1 2 5) (0 2 6) (0 3 7) (0 4 8) (1 4 9) (2 4 10) (3 4 11))
+(setq d (map (fn(x) (list (x 0) (x 1))) c))
+;-> ((0 0) (1 0) (2 0) (2 1) (2 2) (1 2) (0 2) (0 3) (0 4) (1 4) (2 4) (3 4))
+
+Mettendo tutto insieme:
+
+(setq sol (push min-dist (map (fn(x) (list (x 0) (x 1))) (reverse (explode (flat nodo) 3)))))
+
+Vediamo la soluzione dell'esempio iniziale:
+
+(setq M 10)
+(setq N 10)
+
+(setq matrice
+'((1 1 1 1 1 0 0 1 1 1)
+  (0 1 1 1 1 1 0 1 0 1)
+  (0 0 1 0 1 1 1 0 0 1)
+  (1 0 1 1 1 0 1 1 0 1)
+  (0 0 0 1 0 0 0 1 0 1)
+  (1 0 1 1 1 0 0 1 1 0)
+  (0 0 0 0 1 0 0 1 0 1)
+  (0 1 1 1 1 1 1 1 0 0)
+  (1 1 1 1 1 0 0 1 1 1)
+  (0 0 1 0 0 1 1 0 0 1)))
+
+Origine: (0 0)
+Destinazione: (7 5)
+
+(bfs matrice 0 0 7 5)
+;-> (2 2 1 1 1 0 0 1 1 1)
+;-> (0 2 2 1 1 1 0 1 0 1)
+;-> (0 0 2 0 1 1 1 0 0 1)
+;-> (1 0 2 2 1 0 1 1 0 1)
+;-> (0 0 0 2 0 0 0 1 0 1)
+;-> (1 0 1 2 2 0 0 1 1 0)
+;-> (0 0 0 0 2 0 0 1 0 1)
+;-> (0 1 1 1 2 2 1 1 0 0)
+;-> (1 1 1 1 1 0 0 1 1 1)
+;-> (0 0 1 0 0 1 1 0 0 1)
+;-> (12 (0 0) (0 1) (1 1) (1 2) (2 2) (3 2) (3 3) 
+;->     (4 3) (5 3) (5 4) (6 4) (7 4) (7 5))
+
+
 ==========
 
  LIBRERIE
@@ -39912,7 +41300,7 @@ Quelli che conoscono bene il LISP si lamentano di tante cose... ma non della sua
 Per quanto mi riguarda ho imparato più facilmente la sintassi del LISP che quella del C. Il timore iniziale delle "parentesi" si è rapidamente trasformato in simpatia e anche dipendenza. Non è stato un "colpo di fulmine", ma si è trasformato in un sentimento profondo :-)
 Le parentesi aiutano benissimo ad isolare le espressioni, che quindi possono essere estratte e riposizionate con facilità all'interno del programma. Inoltre occorre ricordare che: "Un programmatore LISP legge il programma dalla sua indentazione, non controllando l'annidamento delle parentesi."
 
-In genere quando si studia un linguaggio di programmazione è meglio attenersi agli idiomi e ai metodi propri del linguaggio. Solo in seguito, una volta acquisita una sufficiente familiarità, si potranno provare nuove strade o implementare le tecniche di altri linguaggi. 
+In genere quando si studia un linguaggio di programmazione è meglio attenersi agli idiomi e ai metodi propri del linguaggio. Solo in seguito, una volta acquisita una sufficiente familiarità, si potranno provare nuove strade o implementare le tecniche di altri linguaggi.
 
 "Learn at least one new [programming] language every year. Different languages solve the same problems in different ways. By learning several different approaches, you can help broaden your thinking and avoid getting stuck in a rut." - The Pragmatic Programmers
 
@@ -41649,7 +43037,7 @@ Il metodo di generare funzioni tramite codice viene utilizzato anche per lo svil
 Nota: la scrittura di funzioni (auto) modificanti rende il programma difficile da interpretare e da analizzare con il debugger.
 
 Vediamo un altro esempio, una funzione che si comporta come un generatore automodificandosi.
- 
+
 (define (sum (x 0)) (my-inc 0 x))
 (define (selfmod x) (setf (last selfmod) (+ (last selfmod) 1)) 0)
 ;-> (lambda (x) (setf (last selfmod) (+ (last selfmod) 1)) 0)
@@ -42129,6 +43517,27 @@ Se chiamiamo direttamente la funzione "g" otteniamo un errore:
 
 Questo perchè le variabili libere "a" e "b" non sono associate ad alcun valore e quindi valgono nil.
 
+Ecco un ulteriore esempio:
+
+(define (uno)
+  (local (x)
+    (setq x 10)
+    (due)))
+
+(define (due)
+  (local (y)
+    (setq y 20)
+    (println (+ x y))))
+
+(uno)
+;-> 30
+x
+;-> nil
+y
+;-> nil
+
+Quando la funzione "uno" chiama la funzione "due" il suo ambito (in particolare il valore della variabile "x") viene passato alla funzione "due". Quindi la funzione "due" conosce sia "x" (che proviene dal contesto di "uno"), sia "y" che è una variabile del proprio contesto.
+
 Il problema dell'ambito dinamico risiede nel fatto, che se usiamo simboli che non sono stati definiti nella nostra funzione, non possiamo sapere se il simbolo è globale oppure è stato "ereditato" da una chiamata di funzione.
 
 Utilizzando i contesti (context) possiamo utilizza l'ambito lessicale anche in newLISP:
@@ -42150,7 +43559,7 @@ Nelle funzioni non dovrebbero esistere variabili "libere" (devono essere legate 
 
 Questo metodo di programmazione è principio di base della "programmazione strutturata" ed è valido per quasi tutti i linguaggi programmazione.
 
-L'utilizzo dei contesti per avere l'ambito lessicale è utile quando si lavora a programmi grandi e/o con un gruppo di programmatori: in questo modo nessuno influisce sul codice degli altri.
+L'utilizzo dei contesti per avere un ambito lessicale è utile quando si lavora a programmi grandi e/o con un gruppo di programmatori: in questo modo nessuno influisce sul codice degli altri.
 
 Comunque i contesti hanno un proprio ambito dinamico internamente, essi isolano il proprio ambito dinamico rispetto agli altri contesti (in altre parole un contesto è un nuovo spazio di nomi).
 
@@ -43327,7 +44736,7 @@ Purtroppo la funzione "bits" non funziona con i big integer.
 Allora usiamo la seguente funzione:
 
 ; Compute "bits" for bigint and int
-(constant 'MAXINT (pow 2 62))                                                   
+(constant 'MAXINT (pow 2 62))
 (define (prep s) (string (dup "0" (- 62 (length s))) s))
 (define (bitsL n)
     (if (<= n MAXINT) (bits (int n))
@@ -43369,7 +44778,7 @@ Questo è il contenuto del file "doc-demo.lsp":
 ;; @module doc-demo.lsp
 ;; @author X Y, xy@doc-demo.com
 ;; @version 1.0
-;; 
+;;
 ;; Questo modulo è un esempio per mostrare
 ;; il funzionamento del programma newlispdoc
 ;; che genera automaticamente documentazione
@@ -43444,14 +44853,16 @@ Adesso possiamo usare le due funzione definite nel modulo:
 Ancora sui numeri primi
 -----------------------
 
-Queste sono quattro funzioni simili che verificano se un numero è primo.
+Queste sono cinque funzioni simili che verificano se un numero è primo.
 
 (define (primo? n)
    (if (< n 2) nil
        (= 1 (length (factor n)))))
 
 (define (primoa? n)
-  (setq out true) ; il numero viene considerato primo fino a che non troviamo un divisore preciso
+  ; il numero viene considerato primo 
+  ; fino a che non troviamo un divisore preciso
+  (setq out true) 
   (cond ((<= n 3) (setq out true))
         ((or (= (% n 2) 0) (= (% n 3) 0)) (setq out nil))
         (true (setq i 5)
@@ -43493,6 +44904,29 @@ Queste sono quattro funzioni simili che verificano se un numero è primo.
               )
               test))))
 
+(define (primod? n)
+  (let ((out true)
+        (i 0)
+        (w 0)
+        (r 0))
+    (cond ((= n 1) (setq out nil))
+          ((= n 2) (setq out true))
+          ((= n 3) (setq out true))
+          ((zero? (% n 2)) (setq out nil))
+          ((zero? (% n 3)) (setq out nil))
+          (true
+            (setq i 5)
+            (setq w 2)
+            (setq r (floor (sqrt n)))
+            (while (and out (<= i r))
+              (if (zero? (% n i)) (setq out nil))
+              (++ i w)
+              (setq w (- 6 w))
+            )
+          )
+    )
+   out))
+
 Controlliamo che le funzioni diano i risultati corretti:
 
 (= (map primo? (sequence 2 500000)) (map primoa? (sequence 2 500000)))
@@ -43500,6 +44934,8 @@ Controlliamo che le funzioni diano i risultati corretti:
 (= (map primo? (sequence 2 500000)) (map primob? (sequence 2 500000)))
 ;-> true
 (= (map primo? (sequence 2 500000)) (map primoc? (sequence 2 500000)))
+;-> true
+(= (map primo? (sequence 2 500000)) (map primod? (sequence 2 500000)))
 ;-> true
 
 Vediamo la velocità delle funzioni:
@@ -43512,6 +44948,8 @@ Vediamo la velocità delle funzioni:
 ;-> 6172.891
 (time (map primoc? (sequence 1 1000000)))
 ;-> 3552.159
+(time (map primod? (sequence 1 1000000)))
+;-> ;-> 5063.098
 
 La funzione più veloce è quella che usa la funzione "factor".
 
@@ -43853,7 +45291,7 @@ Test accesso random:
 
 (time (for (i 0 (- (length vet) 1)) (setq x (vet (rand-range 0 9999)))) 1000)
 ;-> 3452.562
-  
+
 (time (for (i 0 (- (length lst) 1)) (setq x (assoc (rand-range 0 9999) lst))) 1000)
 ;-> 204534.455
 
@@ -43923,7 +45361,7 @@ Nota: le funzioni "map" e "apply" non sono applicabili ai vettori.
 Un motore per espressioni regolari
 ----------------------------------
 
-Nel libro "The Practice of Programming" di Rob Pike e Brian Kernighan viene presentato un programma che implementa un interessante motore per le espressioni regolari. 
+Nel libro "The Practice of Programming" di Rob Pike e Brian Kernighan viene presentato un programma che implementa un interessante motore per le espressioni regolari.
 
 Il programma gestisce le seguenti regole per le espressioni regolari:
 
@@ -43932,8 +45370,8 @@ Il programma gestisce le seguenti regole per le espressioni regolari:
     ^    matches the beginning of the input string
     $    matches the end of the input string
     *    matches zero or more occurrences of the previous character
-    
-Per maggiori informazioni potete riferirvi all'articolo "A Regular Expression Matcher" disponibile sul web: 
+
+Per maggiori informazioni potete riferirvi all'articolo "A Regular Expression Matcher" disponibile sul web:
 
 https://www.cs.princeton.edu/courses/archive/spr09/cos333/beautiful.html
 
@@ -44567,15 +46005,15 @@ Esempio:
 Demo>
 (setq $demo "hi!")
 ;-> "hi!"
-Fred> 
+Fred>
 (symbols)
 ;-> ()
 Demo>
 (context MAIN)
 ;-> MAIN
 (symbols)
-;-> (! != $ $0 $1 $10 $11 $12 $13 $14 $15 $2 $3 $4 $5 $6 $7 $8 $9 
-;->  $args $count $demo $idx $it $main-args $x % & * + ++ , - -- / 
+;-> (! != $ $0 $1 $10 $11 $12 $13 $14 $15 $2 $3 $4 $5 $6 $7 $8 $9
+;->  $args $count $demo $idx $it $main-args $x % & * + ++ , - -- /
 ;->  : < << <= = > >= >> ? @ Class Demo MAIN NaN? Tree ...)
 
 Spiegazione (Lutz):
@@ -44583,7 +46021,7 @@ I simboli che iniziano con $ sono variabili modificate/gestite da newLISP in MAI
 
 Inoltre, i simboli che iniziano con $ non vengono salvati quando si salva un contesto (es. (save 'MyContext) o quando si serializzano nuovi oggetti LISP con la funzione "source".
 
-Nota: il nome di una variabile può iniziare con qualsiasi carattere tranne una cifra numerica o un punto e virgola ";" o il cancelletto "#". 
+Nota: il nome di una variabile può iniziare con qualsiasi carattere tranne una cifra numerica o un punto e virgola ";" o il cancelletto "#".
 Se il primo carattere è un "+" o "-" nessuna cifra può seguirlo.
 Dopodiché può seguire qualsiasi carattere tranne "(" ")" "," ":" """ "'" spazio ";" "#"  che terminerà la variabile.
 Un simbolo che inizia con "[" e termina con "]" può contenere qualunque carattere all'interno, ad esempio:
@@ -44597,7 +46035,7 @@ Un simbolo che inizia con "[" e termina con "]" può contenere qualunque caratte
 Uso di map nelle liste annidate
 -------------------------------
 
-In alcuni casi abbiamo bisogno di applicare una funzione a tutti gli elementi di una lista annidata. Ad esempio, poter scrivere qualcosa del tipo: 
+In alcuni casi abbiamo bisogno di applicare una funzione a tutti gli elementi di una lista annidata. Ad esempio, poter scrivere qualcosa del tipo:
 
 (map-all abs '(-1 -2 (-3 -4)))
 
@@ -44701,6 +46139,227 @@ o per avere un "gensym" ancora più sicuro possiamo usare la funzione "uuid":
 La prima funzione genera simboli più leggibili dall'uomo, mentre la seconda è utile per il codice interno alla macchina ed sicuro al 100%. "uuid" da sola genera un stringa ID univoca e universale, utile per gli ID di sessione nella programmazione web ecc.
 
 Per le macro, ciò che funziona meglio la maggior parte delle volte, è semplicemente usare "args" come nel primo esempio.
+
+
+---------------------------
+La variabile anaforica $idx
+---------------------------
+La variabile interna di sistema $idx (variabile anaforica) tiene traccia dell'indice relativo del ciclo (numero intero). 
+$idx è protetta e non può essere modificata dall'utente.
+La variabile anaforica $idx viene utilizzata dalle seguenti funzioni: "dolist", "dostring", "doargs", "dotree", "series", "while", "do-while", "until", "do-until", "map". 
+
+Esempi:
+
+(map (fn(x) (list $idx x)) '(a b c))
+;-> ((0 a) (1 b) (2 c))
+
+(dolist (el '(a b c)) (print (list $idx el) { }))
+;-> (0 a) (1 b) (2 c)
+
+Nota: quando si utilizzano queste funzioni in modo innestato, la variabile $idx fa riferimento sempre al ciclo in cui si trova. Ad esempio:
+
+(define (test)
+  (setq lst '((1 2 3) (1 2 3) (1 2 3)))
+  (dolist (el lst)
+    (setq i 0)
+    (while (< i 3)
+      (println $idx {-} i)
+      (++ i)
+    )
+  )
+)
+
+(test)
+;-> 0-0
+;-> 1-1
+;-> 2-2
+;-> 0-0
+;-> 1-1
+;-> 2-2
+;-> 0-0
+;-> 1-1
+;-> 2-2
+
+Il valore di $idx non è quello della lista, ma quello del ciclo while.
+Per usare $idx della lista all'interno del ciclo while occorre utilizzare una variabile ausiliaria (setq idx-lst $idx) ed utilizzare questa all'interno cel ciclo while.
+
+(define (test)
+  (setq lst '((1 2 3) (1 2 3) (1 2 3)))
+  (dolist (el lst)
+    (setq idx-lst $idx)
+    (setq i 0)
+    (while (< i 3)
+      (println idx-lst {-} i)
+      (++ i)
+    )
+  )
+)
+
+(test)
+;-> 0-0
+;-> 0-1
+;-> 0-2
+;-> 1-0
+;-> 1-1
+;-> 1-2
+;-> 2-0
+;-> 2-1
+;-> 2-2
+
+
+--------------------
+Gestione dei simboli
+--------------------
+newLISP fornisce tre funzioni per la gestione dei simboli: "symbols", "symbol?" e "sym".
+Vediamo la traduzione delle funzioni dal manuale di newLISP.
+
+*******************
+>>>funzione SYMBOLS
+*******************
+sintassi: (symbols [context])
+
+Quando viene chiamato senza argomento, restituisce una lista ordinata di tutti i simboli nel contesto corrente. Se viene specificato un simbolo di contesto, vengono restituiti i simboli definiti in quel contesto.
+
+*******************
+>>>funzione SYMBOL?
+*******************
+sintassi: (symbol? exp)
+
+Valuta l'espressione exp e restituisce true se il valore è un simbolo. In caso contrario, restituisce nil.
+
+(set 'x 'y)  → y
+
+(symbol? x)  → true 
+
+(symbol? 123)  → nil
+
+(symbol? (first '(var x y z)))  → true
+
+La prima istruzione imposta il contenuto di x sul simbolo y. La seconda istruzione controlla quindi il contenuto di x. L'ultimo esempio controlla il primo elemento di una lista.
+
+***************
+>>>funzione SYM
+***************
+sintassi: (sym string [sym-context [nil-flag]])
+sintassi: (sym number [sym-context [nil-flag]])
+sintassi: (sym symbol [sym-context [nil-flag]])
+
+Converte il primo argomento di tipo stringa, numero o simbolo in un simbolo e lo restituisce. Se non viene specificato un contesto (opzionale) in sym-context, allora viene utilizzato il contesto corrente durante la ricerca o la creazione dei simboli. I simboli verranno creati solo se non esistono già. Quando il contesto non esiste e il contesto è specificato da un simbolo quotato, viene creato anche il simbolo. Se la specifica di contesto non è quotata, il contesto è il nome specificato o la specifica di contesto è una variabile che contiene il contesto.
+
+sym può creare simboli all'interno della tabella dei simboli che non sono simboli legali nel codice sorgente newLISP (ad es. numeri o nomi contenenti caratteri speciali come parentesi, due punti, ecc.). Ciò rende sym utilizzabile come funzione per l'accesso alla memoria associativa, proprio come l'accesso alla tabella hash in altri linguaggi di scripting.
+
+Come terzo argomento facoltativo, è possibile specificare nil per sopprimere la creazione del simbolo se il simbolo non viene trovato. In questo caso, sym non restituisce nil se il simbolo cercato non esiste. Usando quest'ultima forma, sym può essere usato per verificare l'esistenza di un simbolo.
+
+(sym "some")           → some
+(set (sym "var") 345)  → 345
+var                    → 345
+(sym "aSym" 'MyCTX)    → MyCTX:aSym
+(sym "aSym" MyCTX)     → MyCTX:aSym  ; unquoted context
+
+(sym "foo" MyCTX nil)  → nil  ; 'foo does not exist
+(sym "foo" MyCTX)      → foo  ; 'foo is created
+(sym "foo" MyCTX nil)  → foo  ; foo now exists
+
+Poiché la funzione sym restituisce il simbolo cercato o creato, le espressioni con sym possono essere incorporate direttamente in altre espressioni che usano simboli come argomenti. L'esempio seguente mostra l'uso di sym come una funzione simile all'hash per l'accesso alla memoria associativa, nonché l'utilizzo di simboli che non sono simboli legali nel codice newLISP:
+
+;; using sym for simulating hash tables
+
+(set (sym "John Doe" 'MyDB) 1.234)
+(set (sym "(" 'MyDB) "parenthesis open")
+(set (sym 12 'MyDB) "twelve")
+
+(eval (sym "John Doe" 'MyDB))  → 1.234
+(eval (sym "(" 'MyDB))         → "parenthesis open"
+(eval (sym 12 'MyDB))          → "twelve"
+
+;; delete a symbol from a symbol table or hash
+(delete (sym "John Doe" 'MyDB))  → true
+
+L'ultima espressione mostra come può essere eliminato un simbolo usando "delete".
+
+La terza sintassi consente di utilizzare i simboli anziché le stringhe per il nome del simbolo nel contesto di destinazione. In questo caso, sym estrae il nome dal simbolo e lo utilizzerà come stringa del nome per il simbolo nel contesto di destinazione:
+
+(sym 'myVar 'FOO)  → FOO:myVar
+
+(define-macro (def-context)
+  (dolist (s (rest (args)))
+    (sym s (first (args)))))
+
+(def-context foo x y z)
+
+(symbols foo)  → (foo:x foo:y foo:z)
+
+La macro "def-context" mostra come questo potrebbe essere usato per creare una macro che crea contesti e le loro variabili in modo dinamico.
+
+Una sintassi della funzione "context" può anche essere utilizzata per creare, impostare e valutare simboli.
+
+Dopo aver letto la definizione delle tre funzioni, vediamo un esempio per capire come newLISP crea/gestisce i simboli.
+
+Creiamo un contesto:
+(context 'demo)
+
+Non ci sono simboli nel contesto demo:
+(symbols)
+;-> ()
+
+Creiamo il simbolo "aa":
+(setq aa 10)
+(symbols)
+;-> (aa)
+
+La funzione "symbol?" valuta l'argomento e verifica se valuta su un simbolo:
+
+(symbol? aa)
+;-> nil 
+Il simbolo "aa" non valuta ad un simbolo, ma al numero 10.
+
+Creiamo un altro simbolo "bb":
+(setq bb 'aa)
+(symbols)
+;-> (aa bb)
+
+(symbol? bb)
+;-> true
+Questa volta il simbolo "bb" viene valutato e otteniamo il simbolo "aa".
+
+Vediamo cosa accade se applichiamo la funzione "symbol?" ad un simbolo che ancora non esiste "cc":
+
+(symbol? cc)
+;-> nil
+
+Sembra tutto corretto, ma vediamo i simboli del contesto:
+(symbols)
+;-> (aa bb cc)
+
+È stato creato il simbolo "cc". Cosa è successo? 
+Prima di applicare una funzione newLISP valuta gli argomenti (in questo caso "cc"). Anche se tale valutazione restituisce nil (come in questo caso), newLISP crea comunque un simbolo per la variabile (con valore nil).
+
+Anche quando scriviamo un nome qualunque sulla REPL viene creato un simbolo:
+
+un-nome
+;-> nil
+(symbols)
+;-> (aa bb cc un-nome)
+
+Questo significa che newLISP crea/valuta gli argomenti di ogni funzione prima di applicare la funzione. Quindi, se volessimo sapere se un simbolo esiste nel contesto corrente non possiamo applicare una funzione qualunque (esempio "find") perchè crerebbe il simbolo prima di verificarne l'esistenza e qualunque argomento passato risulta esistente nel contesto:
+
+(symbols)
+;-> (aa bb cc un-nome)
+(find 'dd (symbols))
+;-> 3
+(symbols)
+;-> (aa bb cc dd un-nome)
+
+Ma allora, come possiamo conoscere se un simbolo esiste in un determinato contesto? 
+Dobbiamo usare la funzione "sym":
+
+(sym "var" demo nil)
+;-> nil
+(symbols)
+;-> (aa bb cc dd un-nome)
+
+Il simbolo "var" non esiste nel contesto demo (e non viene neanche creato).
+Problema risolto.
 
 
 ===========
