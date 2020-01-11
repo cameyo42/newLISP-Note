@@ -58,6 +58,11 @@
 |    51    |  121313       |       269  |
 |    52    |  142857       |       313  |
 |    53    |  4075         |        25  |
+|    54    |  376          |       154  |
+|    55    |  249          |       116  |
+|    56    |  972          |       186  |
+|    57    |  153          |        10  |
+|    58    |  26241        |       630  |
 
 Sito web: https://projecteuler.net/archives
 
@@ -3719,7 +3724,7 @@ L'ennesimo termine della sequenza di numeri triangolari è dato da, t(n) = ½*n*
 
 Convertendo ogni lettera di una parola in un numero corrispondente alla sua posizione alfabetica e aggiungendo questi valori formiamo un valore della parola. Ad esempio, il valore della parola per SKY è 19 + 11 + 25 = 55 = t10. Se il valore della parola è un numero triangolare, chiameremo la parola triangolo.
 
-Usando il file words.txt, un file di testo 16K contenente quasi duemila parole inglesi comuni, quante sono le parole triangolari?
+Usando il file "words.txt", un file di testo 16K contenente quasi duemila parole inglesi comuni, quante sono le parole triangolari?
 ============================================================================
 
 Il file ha questa struttura:
@@ -4626,15 +4631,17 @@ Funzione che verifica se due numeri hanno le stesse cifre:
 Problema 53
 ===========
 
+Selezione di combinazioni
+
 Esistono esattamente dieci modi per selezionare tre cifre tra cinque cifre 1, 2, 3, 4 e 5): 123, 124, 125, 134, 135, 145, 234, 235, 245 e 345
                                       (5)
-In combinatoria, si usa la notazione,     = 10.
+In combinatoria, si usa la notazione, ( ) = 10.
                                       (3)
 
-In generale, (nr) = n! R! (N − r) !, dove r≤n, n! = N × (n − 1) × ... × 3 × 2 × 1 e 0! = 1.
+In generale, 
 
 (n)         n!
-    = --------------- , dove r <= n
+( ) = --------------- , dove r <= n
 (r)    r! * (n - r)!
 
 e n! = 1 * 2 * 3 * ... * (n - 1) * n
@@ -4642,7 +4649,7 @@ e n! = 1 * 2 * 3 * ... * (n - 1) * n
 Il numero n = 23 ha il primo valore che supera il milione:
 
 (23)
-     = 1144066
+(  ) = 1144066
 (10)
                                                 (n)
 Quanti valori, non necessariamente distinti, di (r) per 1<=n<=100, sono maggiori di un milione?
@@ -4754,5 +4761,814 @@ Adesso riscriviamo la funzione soluzione:
 ;-> 25.013
 
 Questa volta la risposta di newLISP è immediata.
+
+
+===========
+Problema 54
+===========
+
+Mani di poker
+
+Nel gioco del poker, una mano è composta da cinque carte e sono classificate, dalla più bassa alla più alta, nel modo seguente:
+
+Carta alta: carta di valore più alto.
+Una coppia: due carte dello stesso valore.
+Due coppie: due coppie diverse.
+Tris: tre carte dello stesso valore.
+Scala: tutte le carte hanno valori consecutivi.
+Colore: tutte le carte sono dello stesso seme.
+Full: un tris e una coppia.
+Poker: quattro carte dello stesso valore.
+Scala reale: tutte le carte sono valori consecutivi dello stesso seme.
+Scala reale massima: dieci, Jack, Queen, King, Asso dello stesso seme.
+Le carte sono valutate nell'ordine:
+2, 3, 4, 5, 6, 7, 8, 9, 10, Jack, Queen, King, Asso
+
+Se due giocatori hanno mani dello stesso valore, allora vince quello che ha il valore composto più alto(per esempio, una coppia di otto batte una coppia di cinque, vedi esempio 1 sotto). Ma se abbiamo un pareggio tra ranghi uguali, ad esempio entrambi i giocatori hanno una coppia di regine, vengono confrontate le carte più alte in ogni mano (vedi esempio 4 di seguito). Se le carte più alte sono uguali, allora vengono confrontate le carte più alte successive e così via.
+
+Considera le seguenti cinque mani distribuite a due giocatori:
+
+Hand   Player 1             Player 2               Winner
+1      5H 5C 6S 7S KD       2C 3S 8S 8D TD         Player 2
+       Pair of Fives        Pair of Eights
+       
+2      5D 8C 9S JS AC       2C 5C 7D 8S QH         Player 1
+       Highest card Ace     Highest card Queen
+       
+3      2D 9C AS AH AC       3D 6D 7D TD QD         Player 2
+       Flush with Diamonds  Three Aces
+       
+4      4D 6S 9H QH QC       3D 6D 7H QD QS         Player 1
+       Pair of Queens       Pair of Queens
+       Highest card Nine    Highest card Seven
+       
+5      2H 2D 4C 4D 4S       3C 3D 3S 9S 9D         Player 1
+       Full House           Full House
+       With Three Fours     with Three Threes
+
+Il file "poker.txt" contiene mille mani casuali distribuite a due giocatori. Ogni riga del file contiene dieci carte (separate da un singolo spazio): le prime cinque sono le carte del giocatore 1 e le ultime cinque sono le carte del giocatore 2. Puoi presumere che tutte le mani siano valide (nessun carattere non valido o carte ripetute), la mano di ogni giocatore non è in un ordine specifico e in ogni mano c'è un chiaro vincitore.
+
+Quante mani vince il giocatore 1?
+============================================================================
+
+Vediamo come vengono rappresentati i semi:
+
+H = Hearts (Cuori)
+D = Diamonds (Quadri)
+C = Clubs (Fiori)
+S = Spades (Picche)
+
+Vediamo i passi della soluzione con il file "poker.txt" (che ha solo 10 mani):
+
+(setq raw (read-file "poker.txt"))
+"8C TS KC 9H 4S 7D 2S 5D 3S AC\r\n
+ 5C AD 5D AC 9C 7C 5H 8D TD KS\r\n
+ 3H 7H 6S KC JS QH TD JC 2D 8S\r\n
+ TH 8H 5C QS TC 9H 4D JC KS JS\r\n
+ 7C 5H KC QH JD AS KH 4C AD 4S\r\n
+ 5H KS 9C 7D 9H 8D 3S 5D 5C AH\r\n
+ 6H 4H 5C 3H 2H 3S QH 5S 6S AS\r\n
+ TD 8C 4H 7C TC KC 4C 3H 7S KS\r\n
+ 7C 9C 6D KD 3H 4C QS QC AC KH\r\n
+ JC 6S 5H 2H 2D KD 9D 7C AS JS"
+
+Usiamo la funzione "parse" per ottenere solo una stringa che rappresenta una mano:
+
+(setq data (parse raw "\r\n"))
+("8C TS KC 9H 4S 7D 2S 5D 3S AC"
+ "5C AD 5D AC 9C 7C 5H 8D TD KS"
+ "3H 7H 6S KC JS QH TD JC 2D 8S"
+ "TH 8H 5C QS TC 9H 4D JC KS JS"
+ "7C 5H KC QH JD AS KH 4C AD 4S"
+ "5H KS 9C 7D 9H 8D 3S 5D 5C AH"
+ "6H 4H 5C 3H 2H 3S QH 5S 6S AS"
+ "TD 8C 4H 7C TC KC 4C 3H 7S KS"
+ "7C 9C 6D KD 3H 4C QS QC AC KH"
+ "JC 6S 5H 2H 2D KD 9D 7C AS JS")
+
+Adesso se vogliamo ottenere una lista per ogni riga, basta mappare la funzione "list" sugli elementi della lista data:
+
+(setq data (map list data))
+(("8C TS KC 9H 4S 7D 2S 5D 3S AC")
+ ("5C AD 5D AC 9C 7C 5H 8D TD KS")
+ ("3H 7H 6S KC JS QH TD JC 2D 8S")
+ ("TH 8H 5C QS TC 9H 4D JC KS JS")
+ ("7C 5H KC QH JD AS KH 4C AD 4S")
+ ("5H KS 9C 7D 9H 8D 3S 5D 5C AH")
+ ("6H 4H 5C 3H 2H 3S QH 5S 6S AS")
+ ("TD 8C 4H 7C TC KC 4C 3H 7S KS")
+ ("7C 9C 6D KD 3H 4C QS QC AC KH")
+ ("JC 6S 5H 2H 2D KD 9D 7C AS JS"))
+
+Dobbiamo cambiare i valori dei caratteri:
+('A','14')
+('K','13')
+('Q','12')
+('J','11')
+('T','10')
+
+e creiamo la seguente struttura per i dati per ogni mano:
+
+((valori-p1) (semi-p1) (valori-p2) (semi-p2))
+
+(setq mani '())
+(dolist (el data)
+  (setq row (first el))
+  ;(println row)
+  (setq val-p1 (explode (select row '(0 3 6 9 12))))
+  (replace "A" val-p1 "14")
+  (replace "K" val-p1 "13")
+  (replace "Q" val-p1 "12")
+  (replace "J" val-p1 "11")
+  (replace "T" val-p1 "10")
+  (setq val-p1 (sort (map int val-p1)))
+  (setq val-p2 (explode (select row '(15 18 21 24 27))))
+  (replace "A" val-p2 "14")
+  (replace "K" val-p2 "13")
+  (replace "Q" val-p2 "12")
+  (replace "J" val-p2 "11")
+  (replace "T" val-p2 "10")
+  (setq val-p2 (sort (map int val-p2)))
+  ; i semi non vengono ordinati perchè ci servono
+  ; solo per calcolare "colore"
+  (setq sem-p1 (select row '(1 4 7 10 13)))
+  (setq sem-p2 (select row '(16 19 22 25 28)))
+  (push (list val-p1 sem-p1 val-p2 sem-p2) mani -1)
+  mani
+)
+
+;-> (((4 8 9 10 13) "CSCHS" (2 3 5 7 14) "DSDSC")
+;->  ((5 5 9 14 14) "CDDCC" (5 7 8 10 13)  "CHDDS")
+;->  ((3 6 7 11 13) "HHSCS" (2 8 10 11 12) "HDCDS")
+;->  ((5 8 10 10 12) "HHCSC" (4 9 11 11 13) "HDCSS")
+;->  ((5 7 11 12 13) "CHCHD" (4 4 13 14 14) "SHCDS")
+;->  ((5 7 9 9 13) "HSCDH" (3 5 5 8 14) "DSDCH")
+;->  ((2 3 4 5 6) "HHCHH" (3 5 6 12 14) "SHSSS")
+;->  ((4 7 8 10 10) "DCHCC" (3 4 7 13 13) "CCHSS")
+;->  ((3 6 7 9 13) "CCDDH" (4 12 12 13 14) "CSCCH")
+;->  ((2 2 5 6 11) "CSHHD" (7 9 11 13 14) "DDCSS"))
+
+(first mani)
+;-> ((4 8 9 10 13) "CSCHS" (2 3 5 7 14) "DSDSC")
+(first (first mani))
+;-> (4 8 9 10 13)
+
+Adesso scriviamo la funzione che calcola il punteggio di una singola mano con i parametri "numeri" e "semi": (4 8 9 10 13) "CSCHS". Da notare che gli indici dei semi non corrispondono agli indici dei numeri. Questo perchè i semi servono solo per stabilire se sono tutti uguali (es. "CCCCC").
+
+Esempi di utilizzo della funzione "calcola":
+
+Input
+  numeri = (2 3 4 8 10) ; numeri è ordinato
+  semi = "CHCCC"
+Output 
+  ((1 10 8 4 3 2) "High Card")
+  dove 1 è il valore della mano 
+  e 10,8,4,3,2 sono i valori delle ordinati carte
+
+Input
+  numeri = (2 2 2 8 8) ; numeri è ordinato
+  semi = "CHCCC"
+Output 
+  ((7 2 8) "Full House")
+  dove 7 è il valore della mano 
+  2 è il valore del tris e
+  8 è il valore della coppia
+
+(define (calcola numeri semi)
+  (local (valore nome a b c)
+    (setq valore '())
+    (setq nome "")
+    ;
+    ; Flush, Straight Flush, Royal Flush
+    ; Colore, Scala Reale, Scala Reale Massima
+    (if (or (= semi "CCCCC") (= semi "DDDDD") (= semi "HHHHH") (= semi "SSSSS"))
+        (begin
+         (setq valore '(6)
+               nome "Flush") ; Colore
+         (if (= 4 (- (numeri 4) (numeri 0)))
+             (begin
+             (setq valore (list 9 (numeri 4))
+                   nome "Straight Flush") ; Scala Reale
+             (if (= 14 (numeri 4))
+                 (setq valore (list 10 14)
+                       nome "Royal Flush") ; Scala Reale Massima
+             ))
+         )
+        )
+    )
+    ;
+    ; Four of a Kind
+    ; Poker
+    (if (= valore '()) ; non abbiamo ancora catalogato la mano
+        (for (i 2 14)
+          (if (= (count (list i) numeri) '(4))
+              (setq valore (list 8 i)
+                    nome "Four of a Kind") ; Poker
+          )
+        )
+    )
+    ;
+    ; Full House
+    ; Full
+    (if (= valore '()) ; non abbiamo ancora catalogato la mano
+        (for (i 2 14)
+          (if (= (count (list i) numeri) '(3))
+              (for (j 2 14)
+                (if (= (count (list j) numeri) '(2))
+                    (setq valore (list 7 i j)
+                          nome "Full House") ; Full
+                )
+              )
+          )
+        )
+    )
+    ;
+    ; Three of a Kind
+    ; Tris
+    (if (= valore '()) ; non abbiamo ancora catalogato la mano
+        (for (i 2 14)
+          (if (= (count (list i) numeri) '(3))
+              (begin
+                (setq a i)
+                (setq valore (list 4 i)
+                      nome "Three of a Kind") ; Tris
+                (for (k 4 0 -1)
+                  (if (!= a (numeri k))
+                      (push (numeri k) valore -1)
+                  )
+                )
+              )
+          )
+        )
+    )
+    ;
+    ; Two Pairs
+    ; Doppia Coppia
+    (if (= valore '()) ; non abbiamo ancora catalogato la mano
+        (for (i 2 14)
+          (if (= (count (list i) numeri) '(2))
+              (for (j 2 14)
+                (if (and (= (count (list j) numeri) '(2)) (!= i j))
+                    (begin
+                    (setq a (max i j))
+                    (setq b (min i j))
+                    (for (k 4 0 -1)
+                       (if (and (!= a (numeri k)) (!= b (numeri k)))
+                           (setq c (numeri k))
+                       )
+                    )
+                    (setq valore (list 3 a b c)
+                          nome "Two Pairs") ; Doppia Coppia
+                ))
+              )
+          )
+        )
+    )
+    ;
+    ; Straight
+    ; Scala
+    (if (= valore '()) ; non abbiamo ancora catalogato la mano
+        (if (and (= 1 (- (numeri 4) (numeri 3)))
+                 (= 1 (- (numeri 3) (numeri 2)))
+                 (= 1 (- (numeri 2) (numeri 1)))
+                 (= 1 (- (numeri 1) (numeri 0))))
+            (setq valore (list 5 (numeri 4))
+                  nome "Straight") ; Scala
+        )
+    )
+    ;
+    ; One Pair
+    ; Coppia
+    (if (= valore '()) ; non abbiamo ancora catalogato la mano
+        (for (i 2 14)
+          (if (= (count (list i) numeri) '(2))
+              (begin
+              (setq valore (list 2 i)
+                    nome "One Pair") ; Coppia
+              (for (k 4 0 -1)
+                (if (!= i (numeri k))
+                    (push (numeri k) valore -1)
+                )
+              ))
+          )
+        )
+    )
+    ;
+    ; High Card
+    ; Carta maggiore
+    (if (= valore '()) ; non abbiamo ancora catalogato la mano
+        (setq valore (list 1 (numeri 4) (numeri 3) (numeri 2)
+                             (numeri 1) (numeri 0))
+              nome "High Card") ; Carta maggiore
+    )
+    ;
+    ; Error: mano unclassified
+    ; Errore: mano non catalogata
+    (if (= valore '()) ; non abbiamo ancora catalogato la mano
+        (println "error")
+    )
+    (list valore nome)
+  )
+)
+
+Proviamo la funzione "calcola":
+
+(calcola '(2 3 4 6 8) "CHCCC")
+;-> ((1 6 8 4 3 2) "High Card")
+(calcola '(2 2 2 10 10) "CHCCC")
+;-> ((7 2 10) "Full House")
+(calcola '(2 3 4 8 10) "CHCCC")
+;-> ((1 8 3 4 2 10) "High Card")
+(calcola '(10 2 3 3 8) "CHCCC")
+;-> ((2 3 8 2 10) "One Pair")
+(calcola '(3 3 3 5 6) "CHCCC")
+;-> ((4 3 6 5) "Three of a Kind")
+(calcola '(4 8 9 10 13) "CSCHS")
+;-> ((1 13 10 9 8 4) "High Card")
+(calcola '(2 3 5 4 6) "DDDDD")
+;-> ((9 6) "Straight Flush")
+(calcola '(10 11 12 13 14) "DDDDD")
+;-> ((10 14) "Royal Flush")
+
+Vediamo se funziona correttamente:
+
+(dolist (el mani)
+  (setq p1 (calcola (el 0) (el 1)))
+  (setq p2 (calcola (el 2) (el 3)))
+  (println (el 0) { - } p1)
+  (println (el 2) { - } p2)
+)
+
+;-> (4 8 9 10 13) - ((1 13 10 9 8 4) "High Card")
+;-> (2 3 5 7 14) - ((1 14 7 5 3 2) "High Card")
+;-> (5 5 9 14 14) - ((3 14 5 9) "Two Pairs")
+;-> (5 7 8 10 13) - ((1 13 10 8 7 5) "High Card")
+;-> (3 6 7 11 13) - ((1 13 11 7 6 3) "High Card")
+;-> (2 8 10 11 12) - ((1 12 11 10 8 2) "High Card")
+;-> (5 8 10 10 12) - ((2 10 12 8 5) "One Pair")
+;-> (4 9 11 11 13) - ((2 11 13 9 4) "One Pair")
+;-> (5 7 11 12 13) - ((1 13 12 11 7 5) "High Card")
+;-> (4 4 13 14 14) - ((3 14 4 13) "Two Pairs")
+;-> (5 7 9 9 13) - ((2 9 13 7 5) "One Pair")
+;-> (3 5 5 8 14) - ((2 5 14 8 3) "One Pair")
+;-> (2 3 4 5 6) - ((5 6) "Straight")
+;-> (3 5 6 12 14) - ((1 14 12 6 5 3) "High Card")
+;-> (4 7 8 10 10) - ((2 10 8 7 4) "One Pair")
+;-> (3 4 7 13 13) - ((2 13 7 4 3) "One Pair")
+;-> (3 6 7 9 13) - ((1 13 9 7 6 3) "High Card")
+;-> (4 12 12 13 14) - ((2 12 14 13 4) "One Pair")
+;-> (2 2 5 6 11) - ((2 2 11 6 5) "One Pair")
+;-> (7 9 11 13 14) - ((1 14 13 11 9 7) "High Card")
+;-> ((1 14 13 11 9 7) "High Card")
+
+Adesso dobbiamo scrivere una funzione che confronta gli elementi di due liste per trovare quale delle due è maggiore:
+
+Esempi:
+(3 4 9) maggiore di (2 3 12)
+(3 4 9) maggiore di (3 3 12)
+(3 4 9) minore di (5 3 8)
+(4 5 2 7) maggiore di (4 5 2 6)
+
+(define (maggiore lst1 lst2)
+  (cond ((or (null? lst1) (null? lst2))
+         ; se lst1 ha più elementi di lst2
+         (if (not (null? lst1))
+             true  ;se lst1 ha più elementi di lst2
+             nil)) ; altrimenti lst1 = lst2
+        ((> (first lst1) (first lst2)) true)
+        ((< (first lst1) (first lst2)) nil)
+        ((= (first lst1) (first lst2))
+         (maggiore (rest lst1) (rest lst2)))))
+
+(maggiore '(3 4 9) '(3 4 9))
+;-> nil
+(= '(3 4 9) '(3 4 9))
+;-> true
+(maggiore '(13 10 9 8 7 6) '(13 10 9 8 7 5))
+;-> true
+(maggiore '(13 10 9 8 7) '(13 10 9 8 7 2))
+;-> nil
+(maggiore '(13 10 9 8 7 2) '(13 10 9 8 7))
+;-> true
+(maggiore '(13 10 9 8 7) '(12 10 9 8 7 2))
+;-> true
+(maggiore '(12 9 9 8 7) '(12 10 9 8 7 2))
+;-> nil
+(maggiore '(14 4) '(14 3 6 7 8 9))
+;-> true
+(maggiore '(14 4) '(14 5 6 7 8 9))
+;-> nil
+
+Adesso possiamo scrivere la funzione finale:
+
+(define (e054)
+  (setq raw (read-file "054_poker.txt"))
+  (setq data (parse raw "\r\n"))
+  (setq data (map list data))
+  (setq mani '())
+  (dolist (el data)
+    (setq row (first el))
+    ;(println row)
+    (setq val-p1 (explode (select row '(0 3 6 9 12))))
+    (replace "A" val-p1 "14")
+    (replace "K" val-p1 "13")
+    (replace "Q" val-p1 "12")
+    (replace "J" val-p1 "11")
+    (replace "T" val-p1 "10")
+    (setq val-p1 (sort (map int val-p1)))
+    (setq val-p2 (explode (select row '(15 18 21 24 27))))
+    (replace "A" val-p2 "14")
+    (replace "K" val-p2 "13")
+    (replace "Q" val-p2 "12")
+    (replace "J" val-p2 "11")
+    (replace "T" val-p2 "10")
+    (setq val-p2 (sort (map int val-p2)))
+    ; i semi non vengono ordinati perchè ci servono
+    ; solo per calcolare "colore"
+    (setq sem-p1 (select row '(1 4 7 10 13)))
+    (setq sem-p2 (select row '(16 19 22 25 28)))
+    (push (list val-p1 sem-p1 val-p2 sem-p2) mani -1)
+    mani
+  )
+  ;(println (length mani))
+  (setq val-p1 0)
+  (setq val-p2 0)
+  (dolist (el mani)
+    (setq p1 (first (calcola (el 0) (el 1))))
+    (setq p2 (first (calcola (el 2) (el 3))))
+    (if (maggiore p1 p2) 
+        (begin
+          ;(println (el 0) { } (el 1))
+          ;(println (el 2) { } (el 3))
+          ;(println p1 { } p2)
+          (++ val-p1)
+          ;(read-line)
+        )
+    )
+  )
+  val-p1
+)
+
+Calcoliamo la soluzione:
+
+(e054)
+;-> 376
+
+(time (e054))
+;-> 154.756
+
+
+===========
+Problema 55
+===========
+
+Numeri di Lychrel
+
+Se prendiamo 47, lo invertiamo e lo aggiungiamo, otteniamo 47 + 74 = 121, che è palindromo.
+
+Non tutti i numeri producono palindromi così rapidamente. Per esempio,
+
+349 + 943 = 1292,
+1292 + 2921 = 4213
+4213 + 3124 = 7337
+
+Cioè, 349 impiega tre iterazioni per arrivare a un palindromo.
+
+Sebbene nessuno lo abbia ancora dimostrato, si ritiene che alcuni numeri, come 196, non producano mai un palindromo. Un numero che non forma mai un palindromo attraverso il processo di inversione e aggiunta si chiama numero Lychrel. A causa della natura teorica di questi numeri e ai fini di questo problema, supponiamo che un numero sia Lychrel fino a prova contraria. Inoltre, ti viene dato che per ogni numero inferiore a diecimila, o (i) diventerà un palindromo in meno di cinquanta iterazioni, o (ii) nessuno, con tutta la potenza di calcolo esistente, è riuscito finora a mapparlo su un palindromo. Infatti, 10677 è il primo numero in cui è stato dimostrato di richiedere oltre cinquanta iterazioni prima di produrre un palindromo: 4668731596684224866951378664 (53 iterazioni, 28 cifre).
+
+Sorprendentemente, ci sono numeri palindromi che sono essi stessi numeri Lychrel (il primo esempio è 4994).
+
+Quanti numeri Lychrel ci sono sotto diecimila?
+
+NOTA: il testo è stato leggermente modificato il 24 aprile 2007 per enfatizzare la natura teorica dei numeri di Lychrel.
+============================================================================
+
+Funzione che inverte le cifre un numero:
+
+(define (inverti n)
+  (int (reverse (string n)) 0 10))
+
+Da notare che la funzione "int" considera in base ottale il suo argomento se tale numero inizia con uno "0".
+
+(int "055")
+;-> 45
+
+Per specificare una conversione decimale occorre specificarlo:
+
+(int "055" 0 10)
+;-> 55
+
+(inverti 12345)
+;-> 54321
+
+Funzione che controlla se un numero è palindromo:
+
+(define (pali? n) (= n (inverti n)))
+
+(pali? 12344321)
+;-> true
+(pali? 123454321)
+;-> true
+(pali? 123211)
+;-> nil
+
+Funzione che controlla se un numero è di Lychrel:
+
+(define (lychrel? num)
+  (local (a b found lyc zzz)
+    (setq zzz num)
+    (setq found nil)
+    (setq lyc true)
+    (for (i 1 50 1 found)
+      (setq a num)
+      (setq b (inverti a))
+      ;(println "num: " zzz { } "i: " i { } "a: " a { } "b: " b { } "a+b: " (+ a b))
+      (if (pali? (+ a b))
+        (begin
+          (setq lyc nil)
+          (setq found true)
+          ;(println "NUM: " zzz { } "i: " i { } "a: " a { } "b: " b { } "a+b: " (+ a b))
+        )
+      )
+      (setq num (+ a b))
+    )
+    lyc
+  )
+)
+
+(lychrel? 47)
+;-> nil
+
+Funzione finale (versione 1):
+
+(define (e053 prove)
+  (let (out 0)
+    (for (i 1 prove)
+      (if (lychrel? i) (++ out))
+    )
+    out))
+
+(e053 10000)
+;-> 249
+(time (e053 10000))    
+;-> 116.877
+
+Funzione finale (versione 2):
+
+(define (e053 n)
+  (count '(true) (map lychrel? (sequence 1 n))))
+
+(e053 10000)
+;-> (249)
+(time (e053 10000))
+;-> 125.839
+
+
+===========
+Problema 56
+===========
+
+Somma di cifre di potenza
+
+Un googol (10^100) è un numero enorme: uno seguito da cento zeri. 100^100 è quasi inimmaginabilmente grande: uno seguito da duecento zeri. Nonostante le loro dimensioni, la somma delle cifre in ciascun numero è solo 1.
+
+Considerando i numeri naturali della forma a^b, dove a, b < 100, qual'è la somma massima delle cifre?
+============================================================================
+
+Funzione che calcola la somma delle cifre di un numero:
+
+(define (digit-sum n)
+  (let (out 0)
+    (while (!= n 0)
+      (setq out (+ out (% n 10)))
+      (setq n (/ n 10))
+    )
+    out))
+
+(digit-sum 123456789L)
+;-> 45
+
+Funzione che calcola la potenza intera di due numeri interi:
+
+(define (** x p)
+    (let (y 1L)
+        (dotimes (i p)
+            (setq y (* y x)))))
+
+(** 35 21)
+;-> 266335422555582049846649169921875L
+
+(digit-sum 266335422555582049846649169921875L)
+;-> 161
+
+(+ 2 6 6 3 3 5 4 2 2 5 5 5 5 8 2 0 4 9 8 4 6 6 4 9 1 6 9 9 2 1 8 7 5)
+;-> 161
+
+Funzione soluzione:
+
+(define (e056)
+  (local (somma somma-max)
+    (setq somma-max 0)
+    (for (a 75 100)
+      (for (b 75 100)
+        (setq somma (digit-sum (** a b)))
+        (if (> somma somma-max) (setq somma-max somma))
+      )
+    )
+    somma-max))
+
+(e056)
+;-> 972
+
+(time (e056))
+;-> 199.794
+
+Possiamo scrivere la funzione anche in stile funzionale. 
+
+Questa funzione calcola tutte le potenza di ogni elemento della prima lista elevato ad ogni elemento della seconda lista (prodotto cartesiano):
+
+(define (cp lst1 lst2)
+  (let (out '())
+    (if (or (null? lst1) (null? lst2)) 
+        nil
+        (dolist (el1 lst1)
+          (dolist (el2 lst2)
+            (push (** el1 el2) out -1))))))
+
+Funzione soluzione:
+
+(define (e056)
+  (apply max (map digit-sum (cp (map bigint (sequence 75 100))
+                                (map bigint (sequence 75 100))))))
+
+(e056)
+;-> 972
+
+(time (e056))
+;-> 186.794
+
+
+===========
+Problema 57
+===========
+
+È possibile dimostrare che la radice quadrata di due può essere espressa come una frazione continua infinita.
+
+sqrt(2) = 1 + 1 / (2 + 1 / (2 + 1 / (2 +…))) = 1.414213…
+
+Espandendo questo per le prime quattro iterazioni, otteniamo:
+
+1 + 1/2 = 3/2 = 1.5
+1 + 1 / (2 + 1/2) = 7/5 = 1.4
+1 + 1 / (2 + 1 / (2 + 1/2)) = 17/12 = 1.41666…
+1 + 1 / (2 + 1 / (2 + 1 / (2 + 1/2))) = 41/29 = 1.41379…
+
+Le tre espansioni successive sono 99/70, 239/169 e 577/408, ma l'ottava espansione, 1393/985, è il primo esempio in cui il numero di cifre nel numeratore supera il numero di cifre nel denominatore.
+
+Nelle prime mille espansioni, quante frazioni contengono un numeratore con più cifre del denominatore?
+============================================================================
+
+La sequenza a(k) inizia con a(0) = 1 + 1/2 e a(1) = (1 + (1 / (2 + 1/2))), sostituendo a(0) in a(1) otteniamo a(1) = 1 + (1 / (1 + a(0))). Quindi possiamo scrivere:
+
+                                        1  
+a(k+1) = 1 + (1 / (1 + a(k))) = 1 + ----------
+                                     1 + a(k)
+                                   
+Invece di utilizzare la libreria delle frazioni per calcolare il numeratore e il denominatore di ogni iterazione, possiamo espandere a(k+1):
+
+a(k+1) = 1 + (1 / (1 + a(k))) = 1 + (1 / (1 + nk/dk)) =
+       = 1 + (1 / (1 + nk/dk)) = 1 + (1 / (1 + (dk + nk)/dk) =
+       = 1 + dk/(dk + nk) = (dk + nk + dk)/(dk + nk) =
+       = (2*dk + nk)/(dk + nk)
+
+Usiamo questa formula per calcolare il numeratore e il denominatore per ogni iterazione, poi confrontiamo le loro lunghezze e incrementiamo il contatore:
+
+(define (e057 num)
+  (local (n d tn td out)
+    (setq out 0)
+    (setq n 1L)
+    (setq d 1L)
+    (for (i 0 num)
+      (setq tn n)
+      (setq td d)
+      (setq n (+ (* 2L td) tn))
+      (setq d (+ td tn))
+      ;(println n { } d)
+      (if (> (length n) (length d)) (++ out))
+    )
+    out
+  )
+)
+
+(e057 1000)
+;-> 153
+
+(time (e057 1000))
+;-> 10.036
+
+
+===========
+Problema 58
+===========
+Numeri primi a spirale
+
+A partire da 1 e creando una spirale in senso antiorario, si forma una spirale quadrata con lato di lunghezza 7:
+
+37 36 35 34 33 32 31
+38 17 16 15 14 13 30
+39 18  5  4  3 12 29
+40 19  6  1  2 11 28
+41 20  7  8  9 10 27
+42 21 22 23 24 25 26
+43 44 45 46 47 48 49
+
+È interessante notare che i quadrati dispari si trovano lungo la diagonale in basso a destra, ma ciò che è più interessante è che 8 dei 13 numeri che giacciono lungo entrambe le diagonali sono primi (43 7 3 13 31) e (37 17 5). Cioè, un rapporto dell'8/13 ≈ 62%.
+
+Se un nuovo strato completo viene avvolto attorno alla spirale sopra, verrà formata una spirale quadrata con lunghezza laterale 9. Se questo processo continua, qual è la lunghezza laterale della spirale quadrata per la quale il rapporto dei numeri primi lungo entrambe le diagonali scende prima sotto il 10%?
+============================================================================
+
+La spirale di lato 9 è la seguente:
+
+ 65 64 63 62 61 60 59 58 57
+ 66 37 36 35 34 33 32 31 56
+ 67 38 17 16 15 14 13 30 55
+ 68 39 18  5  4  3 12 29 54
+ 69 40 19  6  1  2 11 28 53
+ 70 41 20  7  8  9 10 27 52
+ 71 42 21 22 23 24 25 26 51
+ 72 43 44 45 46 47 48 49 50
+ 73 74 75 76 77 78 79 80 81
+
+Occorre notare che partendo da k=1 i valori che cerchiamo sono:
+
+lato = 2*k + 1
+basso-dx = (2*k + 1)^2
+alto-dx  = (basso-dx - 6*k)
+alto-sx  = (basso-dx - 4*k)
+basso-sx = (basso-dx - 2*k)
+
+Quindi ad ogni iterazione/spirale dobbiamo solo controllare se questi quattro numeri sono primi ed eventualmente aggiornare il conteggio dei numeri primi totali.
+
+Iterazione 1:
+5  4  3
+6  1  2
+7  8  9
+
+Iterazione 2:
+17 16 15 14 13
+18  5  4  3 12
+19  6  1  2 11
+20  7  8  9 10
+21 22 23 24 25
+
+Iterazione 3:
+37 36 35 34 33 32 31
+38 17 16 15 14 13 30
+39 18  5  4  3 12 29
+40 19  6  1  2 11 28
+41 20  7  8  9 10 27
+42 21 22 23 24 25 26
+
+...e così via.
+
+Possiamo scrivere la funzione di soluzione:
+
+(define (primo? n)
+   (if (< n 2) nil
+       (= 1 (length (factor n)))))
+
+(define (e058 n)
+  (local (numeriDiag numeriPrimi perc lato found
+          alto-dx alto-sx basso-dx basso-sx)
+    (setq found nil)
+    (setq numeriDiag 1)
+    (setq numeriPrimi 0)
+    (setq perc 0)
+    (for (side 1 n 1 found)
+      (setq lato (+ (* 2 side) 1))
+      ;(setq basso-dx (* (+ (* 2 side) 1) (+ (* 2 side) 1)))
+      (setq basso-dx (* lato lato))
+      (setq alto-dx (- basso-dx (* 6 side)))
+      (setq alto-sx (- basso-dx (* 4 side)))
+      (setq basso-sx (- basso-dx (* 2 side)))
+      ;(println alto-dx { } alto-sx { } basso-sx { } basso-dx)
+      (setq numeriDiag (+ (* 2 lato) 1))
+      ;(if (primo? basso-dx) (++ numeriPrimi))
+      (if (primo? alto-dx) (++ numeriPrimi))
+      (if (primo? basso-sx) (++ numeriPrimi))
+      (if (primo? alto-sx) (++ numeriPrimi))
+      (setq perc (div numeriPrimi numeriDiag))
+      ;(println side { } lato { } numeriPrimi { } numeriDiag { } perc)
+      (if (< perc 0.1) (setq found true))
+    )
+    (list lato perc numeriPrimi numeriDiag)
+  )
+)
+
+(e058 50000)
+;-> (26241 0.09999428386334623 5248 52483)
+
+(time (e058 50000))
+;-> 630.190
 
 

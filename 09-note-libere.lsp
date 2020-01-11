@@ -2673,11 +2673,63 @@ Alcune raccomandazioni per evitare i problemi dell'ambito dinamico:
 
 Seguendo queste tre regole newLISP si comporterà come un linguaggio con ambito lessicale.
 
-Infine, vediamo il perchè della parola "lessicale":
-
+Vediamo il perchè della parola "lessicale":
 nell'ambito statico, una variabile si riferisce sempre all'associazione di chiusura più vicina (binding). Questa è una proprietà del testo del programma e non è correlata allo stack delle chiamate di runtime. Poiché la corrispondenza di una variabile con l'associazione richiede solo l'analisi del testo del programma, questo tipo di ambito viene chiamato anche "ambito lessicale".
 
 Dal punto di vista storico, newLISP ci comporta come il LISP originale di McCarthy. Poi  Scheme ha introdotto l'ambito lessicale che è stato seguito anche dal Common Lisp (sebbene CL supporti l'ambito dinamico se si dichiarano le variabili locali come speciali). È una delle questioni più controverse nella famiglia dei linguaggi LISP.
+
+Infine riportiamo alcune considerazioni di Lutz:
+
+"Per i meno iniziati qui, ecco alcune regole e spiegazioni relative alla cattura delle variabili e ai pericoli percepiti quando non ce ne sono.
+
+- non vi è alcun pericolo di acquisizione di variabili quando si riutilizzano nomi di variabili nelle funzioni nidificate, 'let' ed espressioni di loop nidificati. Tutte le variabili dei parametri vengono salvate internamente su uno stack di ambiente e ripristinate dopo l'uso. Puoi anche fare quanto segue senza pericolo:
+
+(dotimes (i 3) (println "->" i)
+    (dotimes (i 3) (println i)))
+
+sebbene il ciclo interno usi lo stesso nome di variabile del ciclo esterno, è totalmente sicuro in newLISP e non sicuro in molte altre lingue.
+
+Lo stesso vale per le funzioni create con 'define'. Anche il seguente codice un pò folle funzionerà perfettamente con 'let' riutilizzando gli stessi nomi di variabili:
+
+(define (foo x y)
+   (println x ":" y)
+   (let ((x (div x 2)) (y (div y 2)))
+      (println x "::" y))
+   (println x ":" y))
+
+(foo 3 4)
+;-> 3:4
+;-> 1.5::2
+;-> 3:4
+;-> 4 ;restituisce il valore di foo
+
+L'espressione 'let' sa che la x sinistra non è la stessa della x destra. La x sinistra proviene dal 'let' interno e la x destra dal parametro di 'foo'. Dopo aver lasciato 'let' tutto è come prima. Potresti anche chiamare una funzione 'bar' con i nomi dei parametri x e y dall'interno di 'foo' o 'let' e non succederebbe niente di male.
+
+Quando si usano le normali funzioni create con 'define', la cattura variabile può avvenire solo quando si passano simboli tra virgolette. Passare simboli quotati è qualcosa che accade molto raramente in newLISP. Se devi farlo, allora isola quella funzione in un contesto/spazio dei nomi o usa 'args' per recuperare i parametri. Entrambi i metodi sono sicuri contro la cattura delle variabili.
+
+- l'unico vero pericolo di acquisizione variabile si verifica nelle fexpr (define-macro in newLISP). L'uso di qualcosa come "gensym" e "eval" per aggirare il problema funzionerà, ma continuerà a influire sulle prestazioni e ad ogni chiamata verranno creati sempre più simboli da "gensym" e spreco di memoria. Potrebbero essere eliminati dopo l'uso, ma richiederebbero ancora più cicli della CPU. È meglio usare 'args' e non avere alcuna variabile come parametro o racchiudere la macro-funzione e i parametri nel proprio contesto:
+
+(define-macro (foo:foo foo:x foo:y)
+   ....
+)
+
+; or as an alternative
+
+(context 'foo)
+(define-macro (foo x y)
+    ...
+)
+(context MAIN)
+
+; and in either case you can call with the simple name
+
+(foo ...)
+
+'foo' è ora una macro globale (in realtà fexpr) e completamente sicura contro l'acquisizione di variabili, anche quando si passano simboli quoatai. Non si verificano perdite di prestazioni in questo modo, anche quando si scrivono milioni di macro.
+
+- anche qualsiasi altra funzione o macro (fexpr) in un modulo 'foo:this', 'foo:that' è completamente sicuro contro la cattura/confusione variabili, anche quando si passano simboli quotati.
+
+- in ultimo, ma non meno importante: perché newLISP chiama le macro fexprs? Perché dal punto di vista dell'uso vengono utilizzate per ottenere lo stesso risultato: scrivere funzioni che non seguono le solite regole di valutazione dei parametri per la valutazione iniziale di tutti i parametri ma controllano da sole la valutazione dei parametri usando 'eval'. Trovo più utile usare una definizione orientata all'applicazione."
 
 
 ----------------------------------
@@ -5148,6 +5200,7 @@ La funzione "map" non è progettata per risolvere questo problema, quindi occorr
 ------------------------------
 Funzioni ordinali con le liste
 ------------------------------
+
 Ecco alcune funzioni per estrarre elementi da una lista in base alla loro posizione ordinale:
 
 (define (primo lst)   (if (> (length lst) 0) (nth 0 lst) 'nil))
@@ -5223,6 +5276,7 @@ Per le macro, ciò che funziona meglio la maggior parte delle volte, è semplice
 ---------------------------
 La variabile anaforica $idx
 ---------------------------
+
 La variabile interna di sistema $idx (variabile anaforica) tiene traccia dell'indice relativo del ciclo (numero intero). 
 $idx è protetta e non può essere modificata dall'utente.
 La variabile anaforica $idx viene utilizzata dalle seguenti funzioni: "dolist", "dostring", "doargs", "dotree", "series", "while", "do-while", "until", "do-until", "map". 
@@ -5289,6 +5343,7 @@ Per usare $idx della lista all'interno del ciclo while occorre utilizzare una va
 --------------------
 Gestione dei simboli
 --------------------
+
 newLISP fornisce tre funzioni per la gestione dei simboli: "symbols", "symbol?" e "sym".
 Vediamo la traduzione delle funzioni dal manuale di newLISP.
 
@@ -5438,6 +5493,116 @@ Dobbiamo usare la funzione "sym":
 ;-> (aa bb cc dd un-nome)
 
 Il simbolo "var" non esiste nel contesto demo (e non viene neanche creato).
-Problema risolto.
+Problema risolto. Ma forse è meglio scrivere una funzione ad-hoc:
+
+(define (is-sym symbol ctx)
+    (sym symbol (context) nil))
+
+(is-sym "non-presente")
+;-> nil
+
+Adesso vediamo un esempio di nome speciale per un simbolo, cioè un nome che può essere generato solo utilizzando la funzione "sym".
+Le seguenti espressioni generano un errore:
+
+(set '"name" 3)
+;-> ERR: symbol expected in function set : '"name"
+(set (quote "name") 3) 
+;->ERR: symbol expected in function set : '"name"
+
+Ma le seguenti sono valide:
+
+(setf '"name" 3)
+;-> -> 3
+(setq "name" 3)
+;-> 3
+
+Però il simbolo "name" non esiste nei simboli di MAIN:
+
+(sym {"name"} MAIN nil)
+;-> nil
+
+Allora dobbiamo utilizzare "sym" per poter usare il nome "name" (con i doppi apici) per un simbolo. Creiamo il simbolo:
+
+(set (sym {"name"}) 3)
+;-> 3
+
+Vediamo se si trova nei simboli di MAIN:
+
+(sym {"name"} MAIN nil)
+;-> "name"
+
+Per recuperare il valore del simbolo utilizziamo "eval":
+
+(eval (sym {"name"}))
+;-> 3
 
 
+-------------------
+Funzioni e contesti
+-------------------
+
+La seguente funzione permette di definire funzioni come funtori di default nel proprio contesto.
+
+(define (def-static s body)
+      (def-new 'body (sym s s)))
+
+Vediamo un esempio di utilizzo:
+
+(def-static 'acc (fn (x) (inc sum x)))
+;-> acc:acc
+(acc 1)
+;-> 1
+(acc 1)
+;-> 2
+(acc 1)
+;-> 3
+(acc 5)
+;-> 8
+acc:acc
+;-> (lambda (acc:x) (inc acc:sum acc:x))
+
+è possibile utilizzare "def-static" anche come lambda-macro:
+
+(def-static 'mysetq (lambda-macro (p1 p2) (set p1 (eval p2))))
+;-> mysetq:mysetq
+(mysetq x 123)
+;-> 123
+
+e questo è quello che viene generato:
+
+mysetq:mysetq
+;-> (lambda-macro (mysetq:p1 mysetq:p2) (set mysetq:p1 (eval mysetq:p2)))
+
+Per avere informazioni sui contesti definiti e sul contesto corrente possiamo usare le seguenti espressioni/funzioni:
+
+(define (contexts-info) (filter context? (map eval (symbols 'MAIN))))
+(contexts-info)
+;-> (Class MAIN Tree aac mysetq)
+(context)
+;-> MAIN
+
+(symbols)
+
+
+------------------
+Buon 2020 (e 2021)
+------------------
+
+Conto alla rovescia per il nuovo anno:
+
+10 * 9 * 8 + (7 + 6) * 5 * 4 * (3 + 2) * 1 = 2020
+
+...e anche per il prossimo:
+
+10 * 9 * 8 + (7 + 6) * 5 * 4 * (3 + 2) + 1 = 2021
+
+(define (buon-anno)
+  (println "Buon " (+ (* 10 9 8) (* (+ 7 6) 5 4 (+ 3 2) 1))))
+
+(buon-anno)
+;-> Buon 2020
+
+(setq a (+ (* 10 9 8) (* (+ 7 6) 5 4 (+ 3 2) 1)))
+;-> 2020
+(setq b (+ (* 10 9 8) (* (+ 7 6) 5 4 (+ 3 2)) 1))
+;-> 2021

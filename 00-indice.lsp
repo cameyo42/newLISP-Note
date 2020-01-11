@@ -228,7 +228,7 @@ ROSETTA CODE
 
 PROJECT EULERO
 ==============
-  Problemi 1..53
+  Problemi 1..58
 
 PROBLEMI VARI
 =============
@@ -421,6 +421,8 @@ NOTE LIBERE
   gensym e macro igieniche
   La variabile anaforica $idx
   Gestione dei simboli
+  Funzioni e contesti
+  Buon 2020 (e 2021)
 
 APPENDICI
 =========

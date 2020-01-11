@@ -9,11 +9,11 @@ Appunti sul linguaggio newLISP
 02) Funzioni varie (67)  
 03) newLISP 99 problemi (28)  
 04) Rosetta code (50)  
-05) Project eulero (53)  
+05) Project eulero (58)  
 06) Problemi vari (63)  
 07) Domande programmatori (50)  
 08) Librerie (6)  
-09) Note libere (61)  
+09) Note libere (62)  
 10) Appendici (20)  
 11) Bibliografia  
 
