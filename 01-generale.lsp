@@ -617,13 +617,13 @@ Supponiamo di voler sommare gli elementi di ogni sottolista della seguente lista
 Il risultato dovrebbe essere: (4 7 11).
 
 Primo metodo
-Applichiamo la funzione map con una funzione lambda che somma gli elementi della sottolista
+Applichiamo la funzione map con una funzione lambda che somma gli elementi della sottolista:
 
 (map (lambda (x) (apply + x)) lst)
 ;-> (4 7 11)
 
 Secondo metodo
-Utilizziamo la funzione "curry" per rimpiazzare la funzione lambda
+Utilizziamo la funzione "curry" per rimpiazzare la funzione lambda:
 
 (map (curry apply +) lst)
 ;-> (4 7 11)
@@ -671,12 +671,12 @@ Il simbolo "a" è quotato poichè altrimenti verrebbe valutato.
 (set 'a '(1 2 3))
 ;-> (1 2 3)
 
-Non serve quotare "a" ("setq" non valuta il primo argomento)
+Non serve quotare "a" ("setq" non valuta il primo argomento):
 
 (setq a '(1 2 3))
 ;-> (1 2 3)
 
-Assegnazione multipla
+Assegnazione multipla:
 
 (setq a 1 b 2 c 3)
 ;-> 3
@@ -685,7 +685,7 @@ a b c
 ;-> 2
 ;-> 3
 
-Usando la funzione "nth" oppure l'indicizzazione implicita (gli indici iniziano da zero)
+Usando la funzione "nth" oppure l'indicizzazione implicita (gli indici iniziano da zero).
 
 (setq L '(a b (c d) e f g))
 
@@ -701,7 +701,7 @@ L
 L
 ;-> (a B (C d) e f g)
 
-Assegnazione e modifica di stringhe
+Assegnazione e modifica di stringhe:
 
 (set 's "NewISP")
 ;-> "NewISP"
@@ -745,8 +745,10 @@ Esempi:
 
 (define area (lambda (x y) (* x y)))
 è uguale a:
+
 (set 'area (lambda (x y) (* x y)))
 è uguale a:
+
 (define (area x y) (* x y))
 
 Nota: l'assegnazione setq o setf è più veloce di set.

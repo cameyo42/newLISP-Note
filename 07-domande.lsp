@@ -207,7 +207,7 @@ a è ora impostato sulla maschera di bit combinata di a e b. b ha ancora il valo
 b è ora impostato sulla maschera di bit combinata di (a XOR b) e b. La b si cancella, quindi ora b è impostato sul valore originale di a. a è ancora impostato sulla maschera di bit combinata di a e b.
 
 (setq a (^ a b))
-a è ora impostato sulla maschera di bit combinata di (a XOR b) e a. (ricorda, b contiene effettivamente il valore originale di a adesso) La a si cancella, e quindi a è ora impostato sul valore originale di b.
+a è ora impostato sulla maschera di bit combinata di (a XOR b) e a. (ricorda, b contiene effettivamente il valore originale di a adesso). La a si cancella, e quindi a è ora impostato sul valore originale di b.
 
 Scriviamo la funzione (dobbiamo controllare che le variabili non contengano lo stesso numero, altrimenti il risultato sarebbe zero per entrambe):
 
@@ -831,7 +831,7 @@ allora dobbiamo scrivere una nuova funzione per calcolare la soluzione.
 Quantità d'acqua in un bacino (Facebook)
 ----------------------------------------
 
-Dati n interi non negativi che rappresentano una mappa di elevazione in cui la larghezza di ciascuna barra è 1, calcolare la quantità massima di acqua che è in grado di contenere
+Dati n interi non negativi che rappresentano una mappa di elevazione in cui la larghezza di ciascuna barra è 1, calcolare la quantità massima di acqua che è in grado di contenere.
 
 Esempi:
 
@@ -4464,5 +4464,137 @@ Destinazione: (7 5)
 ;-> (0 0 1 0 0 1 1 0 0 1)
 ;-> (12 (0 0) (0 1) (1 1) (1 2) (2 2) (3 2) (3 3) 
 ;->     (4 3) (5 3) (5 4) (6 4) (7 4) (7 5))
+
+
+-------------------------
+Dadi e probabilità (Visa)
+-------------------------
+
+Quali sono le probabilità di vittoria, sconfitta e pareggio di due giocatori che lanciano ognuno un dado con 6 facce (valori da 1 a 6)?
+Calcolare le stesse probabilità nel caso in cui il primo giocatore lanci un dado con 7,8,9,10,11 e 12 facce (valori da 1 a numero facce).
+
+Proviamo con una simulazione di lanci per calcolare le probabilità:
+
+(define (dadoni v1 v2 n)
+  (local (p1 p2 pp r1 r2)
+    (setq p1 0)
+    (setq p2 0)
+    (setq pp 0)
+    (for (i 1 n)
+      (setq r1 (rand v1))
+      (setq r2 (rand v2))
+      (cond ((> r1 r2) (++ p1))
+            ((= r1 r2) (++ pp))
+            (true (++ p2))
+      )
+    )
+    (println (+ p1 p2 pp) { } (add (div p1 n) (div p2 n) (div pp n)))
+    (list p1 (div p1 n) p2 (div p2 n) pp (div pp n))
+  )
+)
+
+(dadoni 6 6 1000000)
+;-> (416485 0.416485 416996 0.416996 166519 0.166519)
+(dadoni 7 6 1000000)
+;-> (500586 0.500586 356171 0.356171 143243 0.143243)
+(dadoni 8 6 1000000)
+;-> (562627 0.562627 312738 0.312738 124635 0.124635)
+(dadoni 9 6 1000000)
+;-> (611542 0.611542 277806 0.277806 110652 0.110652)
+(dadoni 10 6 1000000)
+;-> (650110 0.65011 249709 0.249709 100181 0.100181)
+(dadoni 11 6 1000000)
+;-> (682167 0.682167 227011 0.227011 90822 0.090822)
+(dadoni 12 6 1000000)
+;-> (708841 0.708841 207595 0.207595 83564 0.083564)
+(dadoni 100 6 1000000)
+;-> (964911 0.964911 24972 0.024972 10117 0.010117)
+
+Adesso calcoliamo rigorosamente queste probabilità/percentuali. Tutte le probabilità vengono calcolate con la formula:
+
+                numero eventi favorevoli
+Probabilità = ----------------------------
+                numero eventi possibili
+
+Prodotto cartesiano tra due liste:
+
+(define (cp lst1 lst2)
+  (let (out '())
+    (if (or (null? lst1) (null? lst2))
+        nil
+        (dolist (el1 lst1)
+          (dolist (el2 lst2)
+            (push (list el1 el2) out -1))))))
+
+
+I due dadi:
+(setq d1 '(1 2 3 4 5 6))
+(setq d2 '(1 2 3 4 5 6))
+
+Lista di tutti gli eventi possibili (ogni elemento della lista rappresenta un lancio e contiene i valori dei dadi lanciati dal primo e dal secondo giocatore):
+
+(setq eventi (cp d1 d2))
+;-> ((1 1) (1 2) (1 3) (1 4) (1 5) (1 6) (2 1) (2 2) (2 3) (2 4)
+;->  (2 5) (2 6) (3 1) (3 2) (3 3) (3 4) (3 5) (3 6) (4 1) (4 2)
+;->  (4 3) (4 4) (4 5) (4 6) (5 1) (5 2) (5 3) (5 4) (5 5) (5 6)
+;->  (6 1) (6 2) (6 3) (6 4) (6 5) (6 6))
+ 
+Calcolo gli eventi favorevoli a p1, quelli favorevoli a p2 e quelli in parità:
+
+(setq p1 0)
+(setq p2 0)
+(setq pp 0)
+
+(dolist (el eventi)
+  (cond ((> (el 0) (el 1)) (++ p1))
+        ((< (el 0) (el 1)) (++ p2))
+        (true (++ pp))
+  )
+)
+
+(setq num (length eventi))
+(list p1 (div p1 num) p2 (div p2 num) pp (div pp num))
+;-> (15 0.4166666666666667 15 0.4166666666666667 6 0.1666666666666667)
+
+Per gli altri dadi otteniamo i seguenti valori:
+
+(setq d1 '(1 2 3 4 5 6 7))
+(setq d2 '(1 2 3 4 5 6))
+;-> (21 0.5 15 0.3571428571428572 6 0.1428571428571429)
+
+(setq d1 '(1 2 3 4 5 6 7 8))
+(setq d2 '(1 2 3 4 5 6))
+;-> (27 0.5625 15 0.3125 6 0.125)
+
+(setq d1 '(1 2 3 4 5 6 7 8 9))
+(setq d2 '(1 2 3 4 5 6))
+;-> (33 0.6111111111111112 15 0.2777777777777778 6 0.1111111111111111)
+
+(setq d1 '(1 2 3 4 5 6 7 8 9 10))
+(setq d2 '(1 2 3 4 5 6))
+;-> (39 0.65 15 0.25 6 0.1)
+
+(setq d1 '(1 2 3 4 5 6 7 8 9 10 11))
+(setq d2 '(1 2 3 4 5 6))
+;-> (45 0.6818181818181818 15 0.2272727272727273 6 0.09090909090909091)
+
+(setq d1 '(1 2 3 4 5 6 7 8 9 10 11))
+(setq d2 '(1 2 3 4 5 6))
+;-> (45 0.6818181818181818 15 0.2272727272727273 6 0.09090909090909091)
+
+Routine di calcolo:
+
+(setq eventi (cp d1 d2))
+(setq p1 0)
+(setq p2 0)
+(setq pp 0)
+(dolist (el eventi)
+  (cond ((> (el 0) (el 1)) (++ p1))
+        ((< (el 0) (el 1)) (++ p2))
+        (true (++ pp))
+  )
+)
+(setq num (length eventi))
+(list p1 (div p1 num) p2 (div p2 num) pp (div pp num))
 
 

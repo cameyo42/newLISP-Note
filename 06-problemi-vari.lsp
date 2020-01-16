@@ -5188,6 +5188,19 @@ N = ∑ d(i)*10^i ⇒ N mod 9 ≡ ∑ (d(i)*10^i mod 9) ≡ ∑ d(i) mod 9
 
 Notare che qualsiasi numero intero positivo in base b è congruente alla somma delle sue cifre modulo (b-1) per qualsiasi base.
 
+Per completezza riportiamo una funzione che calcola la somma delle cifre di un numero (non ripetutamente):
+
+(define (digit-sum n)
+  (let (out 0)
+    (while (!= n 0)
+      (setq out (+ out (% n 10)))
+      (setq n (/ n 10))
+    )
+    out))
+
+(digit-sum 123456789L)
+;-> 45
+
 
 --------------------------
 Coppia di punti più vicina

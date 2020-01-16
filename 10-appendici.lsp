@@ -2169,7 +2169,8 @@ newLISP per programmatori (Dmitry Chernyak)
 v. 1.1
 
 (C) 2006, Dmitry Chernyak losthost@narod.ru.
-http://en.feautec.pp.ru.
+http://en.feautec.pp.ru
+https://web.archive.org/web/20091010040813/http://en.feautec.pp.ru/store/fun-of-newlisp.html
 
 Traduzione: Massimo Corinaldesi aka cameyo 2019
 

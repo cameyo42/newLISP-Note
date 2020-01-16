@@ -228,7 +228,7 @@ ROSETTA CODE
 
 PROJECT EULERO
 ==============
-  Problemi 1..58
+  Problemi 1..60
 
 PROBLEMI VARI
 =============
@@ -348,6 +348,7 @@ DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Intervalli di numeri (Facebook)
   Pattern Matching (Facebook)
   Percorsi su una griglia (Uber)
+  Dadi e probabilità (Visa)
 
 LIBRERIE
 ========
@@ -423,6 +424,7 @@ NOTE LIBERE
   Gestione dei simboli
   Funzioni e contesti
   Buon 2020 (e 2021)
+  Nascita della teoria della probabilità
 
 APPENDICI
 =========

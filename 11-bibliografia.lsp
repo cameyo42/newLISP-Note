@@ -46,15 +46,15 @@
   https://weblambdazero.blogspot.com/2010/07/advanced-recursion-in-newLISP.html
 
   "The Art of Computer Programming", Donald Knuth, 4 volumi, 1968...2015
-  
+
   "Introduction to Algorithms", Cormen-Leiserson-Rivest-Stein, 3ed, 2009
-  
+
   "Teoria e Progetto di Algoritmi Fondamentali", Ausiello-Marchetti-Spaccamela-Protasi, 1985
-  
+
   "Land of Lisp", Conrad Barsky, 2011
-  
+
   "Structure and Interpretation of Computer Programs",  Abelson-Sussman, 2ed, 1996
-  
+
   "Special Forms in Lisp" Kent Pitman, Conference Record of the 1980 Lisp Conference,
   Stanford University, August 25-27, 1980
   http://www.nhplace.com/kent/Papers/Special-Forms.html
@@ -73,7 +73,7 @@
 
   Enciclopedia libera:
   https://www.wikipedia.org/
-  
+
   Programming Praxis - La programmazione, come qualsiasi attività creativa, richiede costante studio e pratica:
   https://programmingpraxis.com/
 
@@ -82,6 +82,5 @@
 
   GeeksforGeeks - Un portale di computer science per "geeks"
   https://www.geeksforgeeks.org/
-  
-  
-  
+
+

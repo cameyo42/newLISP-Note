@@ -228,7 +228,7 @@ ROSETTA CODE
 
 PROJECT EULERO
 ==============
-  Problemi 1..58
+  Problemi 1..60
 
 PROBLEMI VARI
 =============
@@ -348,6 +348,7 @@ DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Intervalli di numeri (Facebook)
   Pattern Matching (Facebook)
   Percorsi su una griglia (Uber)
+  Dadi e probabilità (Visa)
 
 LIBRERIE
 ========
@@ -423,6 +424,7 @@ NOTE LIBERE
   Gestione dei simboli
   Funzioni e contesti
   Buon 2020 (e 2021)
+  Nascita della teoria della probabilità
 
 APPENDICI
 =========
@@ -1103,13 +1105,13 @@ Supponiamo di voler sommare gli elementi di ogni sottolista della seguente lista
 Il risultato dovrebbe essere: (4 7 11).
 
 Primo metodo
-Applichiamo la funzione map con una funzione lambda che somma gli elementi della sottolista
+Applichiamo la funzione map con una funzione lambda che somma gli elementi della sottolista:
 
 (map (lambda (x) (apply + x)) lst)
 ;-> (4 7 11)
 
 Secondo metodo
-Utilizziamo la funzione "curry" per rimpiazzare la funzione lambda
+Utilizziamo la funzione "curry" per rimpiazzare la funzione lambda:
 
 (map (curry apply +) lst)
 ;-> (4 7 11)
@@ -1157,12 +1159,12 @@ Il simbolo "a" è quotato poichè altrimenti verrebbe valutato.
 (set 'a '(1 2 3))
 ;-> (1 2 3)
 
-Non serve quotare "a" ("setq" non valuta il primo argomento)
+Non serve quotare "a" ("setq" non valuta il primo argomento):
 
 (setq a '(1 2 3))
 ;-> (1 2 3)
 
-Assegnazione multipla
+Assegnazione multipla:
 
 (setq a 1 b 2 c 3)
 ;-> 3
@@ -1171,7 +1173,7 @@ a b c
 ;-> 2
 ;-> 3
 
-Usando la funzione "nth" oppure l'indicizzazione implicita (gli indici iniziano da zero)
+Usando la funzione "nth" oppure l'indicizzazione implicita (gli indici iniziano da zero).
 
 (setq L '(a b (c d) e f g))
 
@@ -1187,7 +1189,7 @@ L
 L
 ;-> (a B (C d) e f g)
 
-Assegnazione e modifica di stringhe
+Assegnazione e modifica di stringhe:
 
 (set 's "NewISP")
 ;-> "NewISP"
@@ -1231,8 +1233,10 @@ Esempi:
 
 (define area (lambda (x y) (* x y)))
 è uguale a:
+
 (set 'area (lambda (x y) (* x y)))
 è uguale a:
+
 (define (area x y) (* x y))
 
 Nota: l'assegnazione setq o setf è più veloce di set.
@@ -8550,6 +8554,7 @@ Altro metodo, applico (con "map") la funzione (list x (char(x))) ad ogni element
 (define (ascii-list)
   (map (fn(x) (list x (char x))) (sequence 32 126)))
 
+
 --------------
 Pari o dispari
 --------------
@@ -9149,7 +9154,13 @@ Calcolo proporzione
 Calcolare il valore ignoto (che viene rappresentato con il numero zero) di una proporzione: A/B = C/D
 
 (define (proporzione a b c d)
-  (cond ((= a 0) (div (mul b c) d))
+        ; nessuno zero: controllo proporzione
+  (cond ((= '(0) (count '(0) (list a b c d)))
+         (= (div a b) (div c d)))
+        ; numero zeri maggiore di 1: nil
+        ((!= '(1) (count '(0) (list a b c d))) nil)
+        ; numero zeri uguale a 1: calcolo proporzione...
+        ((= a 0) (div (mul b c) d))
         ((= b 0) (div (mul a d) c))
         ((= c 0) (div (mul a d) b))
         ((= d 0) (div (mul b c) a))
@@ -9164,6 +9175,12 @@ Calcolare il valore ignoto (che viene rappresentato con il numero zero) di una p
 ;-> 10
 (proporzione 4 0 10 5)
 ;-> 2
+(proporzione 4 3 0 0)
+;-> nil
+(proporzione 10 5 4 3)
+;-> nil
+(proporzione 10 5 4 2)
+;-> true
 
 
 ----------------------------------------
@@ -13212,8 +13229,7 @@ Potete trovare l'elenco completo dei problemi al sito:
 https://www.ic.unicamp.br/~meidanis/courses/mc336/2006s2/funcional/L-99_Ninety-Nine_Lisp_Problems.html
 http://beta-reduction.blogspot.com/search/label/L-99%3A%20Ninety-Nine%20Lisp%20Problems
 
-In questo capitolo vengono risolti solo i primi 28 problemi relativi alla elaborazione di liste.
-Molti problemi successivi al numero 28 sono risolti in altre parti di questo documento.
+In questo capitolo vengono risolti solo i primi 28 problemi relativi alla elaborazione di liste. Molti problemi successivi al numero 28 sono risolti in altre parti di questo documento.
 
 Elenco problemi
 ---------------
@@ -14748,7 +14764,7 @@ Di seguito è riportato l'algoritmo che trova tutti i numeri primi minori o ugua
 
 3) A partire da p^2, contare ad incrementi di p e marca nella lista tutti quei numeri che sono maggiori o uguali a p^2 stesso. Questi numeri saranno p(p + 1), p(p + 2), p(p + 3), ecc.
 
-4) Trova nella lista il primo numero maggiore di p che non è marcato. Se non esiste tale numero, fermati algoritmo terminato). Altrimenti, lascia p ora uguale a questo numero (che è il prossimo primo), e ripeti dal punto 3.
+4) Trova nella lista il primo numero maggiore di p che non è marcato. Se non esiste tale numero, allora fermati -> algoritmo terminato). Altrimenti, lascia p uguale a questo numero (che è il prossimo primo), e ripeti dal punto 3.
 
 Quando l'algoritmo termina, tutti i numeri nell'elenco che non sono contrassegnati sono primi.
 
@@ -14802,7 +14818,7 @@ Adesso possiamo scrivere la funzione completa:
 ;-> 839 853 857 859 863 877 881 883 887 907 911 919 929 937 941 947 953 967 971 977 983 991 997
 
 Se vogliamo sapere soltanto se un certo numero è primo possiamo utilizzare altri metodi.
-Il test di primalità più semplice è la "prova della divisione": Dato un numero n, controlla se ogni numero intero m, che va da 2 a sqrt(n), divide precisamente n (la divisione non lascia resto). Se n è divisibile per uno qualsiasi dei valori di m allora n è composto, altrimenti è primo.
+Il test di primalità più semplice è la "prova della divisione": dato un numero n, controlla se ogni numero intero m, che va da 2 a sqrt(n), divide precisamente n (la divisione non lascia resto). Se n è divisibile per uno qualsiasi dei valori di m allora n è composto, altrimenti è primo.
 
 Ad esempio, per testare la primalità di 100 con questo metodo, considera tutti i divisori interi di 100:
 
@@ -21803,6 +21819,8 @@ La soluzione modificata non è stabile.
 |    56    |  972          |       186  |
 |    57    |  153          |        10  |
 |    58    |  26241        |       630  |
+|    59    |  107359       |        15  |
+|    60    |  26033        |     55055  |
 
 Sito web: https://projecteuler.net/archives
 
@@ -21823,6 +21841,8 @@ Per tenere traccia dei tuoi progressi è necessario impostare un account e abili
 Tuttavia, poiché alcuni problemi sono difficili, potresti voler visualizzare i Problemi prima di registrarti.
 
 "Il progetto Eulero esiste per incoraggiare, sfidare e sviluppare le capacità e il divertimento di chiunque abbia un interesse per l'affascinante mondo della matematica."
+
+Nota: i problemi devono essere risolti con la "regola del minuto", cioè i programmi devono trovare la soluzione entro un minuto.
 
 In questo paragrafo affronteremo e risolveremo alcuni di questi problemi. Comunque prima di vedere la soluzione dovresti provare a risolverli per conto proprio in modo da migliorare le tue capacità di problem-solver e di programmatore.
 
@@ -27312,6 +27332,662 @@ Possiamo scrivere la funzione di soluzione:
 ;-> 630.190
 
 
+===========
+Problema 59
+===========
+
+Decodifica XOR
+
+A ciascun carattere di un computer viene assegnato un codice univoco e lo standard preferito è ASCII (American Standard Code for Information Interchange). Ad esempio, A maiuscola = 65, asterisco (*) = 42 e k minuscola = 107.
+
+Un moderno metodo di crittografia è quello di prendere un file di testo, convertire i byte in ASCII, quindi fare lo XOR ad ogni byte con un dato valore, preso da una chiave segreta. Il vantaggio con la funzione XOR è che l'uso della stessa chiave di crittografia sul testo cifrato ripristina il testo normale, ad esempio, 65 XOR 42 = 107, quindi 107 XOR 42 = 65.
+
+Per avere una criptazione inviolabile, la chiave deve avere la stessa lunghezza del messaggio di testo normale e la chiave deve essere composta da byte casuali. Se l'utente tiene il messaggio crittografato e la chiave di crittografia in posti diversi allora è impossibile decrittografare il messaggio senza entrambe le 'metà' (messaggio crittografato e chiave).
+
+Sfortunatamente, questo metodo non è pratico per la maggior parte degli utenti, quindi il metodo modificato è usare una password come chiave. Se la password è più corta del messaggio, il che è probabile, la chiave viene ripetuta ciclicamente in tutto il messaggio. Il giusto bilanciamento è quello di usare una chiave (password) sufficientemente lunga per la sicurezza, ma abbastanza corta per essere ricordata.
+
+Il tuo compito è stata semplificato, poiché la chiave di crittografia è composta da tre caratteri minuscoli. Utilizzando il file "p059_cipher.txt" che contiene i codici ASCII crittografati e sapendo che il testo normale (decifrato) contiene parole inglesi comuni, decodificare il messaggio e trovare la somma dei valori ASCII dei caratteri contenuti nel testo originale.
+============================================================================
+
+Assegniamo i valori contenuti nel file "p059_cipher.txt" ad una lista:
+
+(setq tc '(79 59 12 2 79 35 8 28 20 2 3 68 8 9 68 45 0 12 9 67
+68 4 7 5 23 27 1 21 79 85 78 79 85 71 38 10 71 27 12 2
+79 6 2 8 13 9 1 13 9 8 68 19 7 1 71 56 11 21 11 68
+6 3 22 2 14 0 30 79 1 31 6 23 19 10 0 73 79 44 2 79
+19 6 28 68 16 6 16 15 79 35 8 11 72 71 14 10 3 79 12 2
+79 19 6 28 68 32 0 0 73 79 86 71 39 1 71 24 5 20 79 13
+9 79 16 15 10 68 5 10 3 14 1 10 14 1 3 71 24 13 19 7
+68 32 0 0 73 79 87 71 39 1 71 12 22 2 14 16 2 11 68 2
+25 1 21 22 16 15 6 10 0 79 16 15 10 22 2 79 13 20 65 68
+41 0 16 15 6 10 0 79 1 31 6 23 19 28 68 19 7 5 19 79
+12 2 79 0 14 11 10 64 27 68 10 14 15 2 65 68 83 79 40 14
+9 1 71 6 16 20 10 8 1 79 19 6 28 68 14 1 68 15 6 9
+75 79 5 9 11 68 19 7 13 20 79 8 14 9 1 71 8 13 17 10
+23 71 3 13 0 7 16 71 27 11 71 10 18 2 29 29 8 1 1 73
+79 81 71 59 12 2 79 8 14 8 12 19 79 23 15 6 10 2 28 68
+19 7 22 8 26 3 15 79 16 15 10 68 3 14 22 12 1 1 20 28
+72 71 14 10 3 79 16 15 10 68 3 14 22 12 1 1 20 28 68 4
+14 10 71 1 1 17 10 22 71 10 28 19 6 10 0 26 13 20 7 68
+14 27 74 71 89 68 32 0 0 71 28 1 9 27 68 45 0 12 9 79
+16 15 10 68 37 14 20 19 6 23 19 79 83 71 27 11 71 27 1 11
+3 68 2 25 1 21 22 11 9 10 68 6 13 11 18 27 68 19 7 1
+71 3 13 0 7 16 71 28 11 71 27 12 6 27 68 2 25 1 21 22
+11 9 10 68 10 6 3 15 27 68 5 10 8 14 10 18 2 79 6 2
+12 5 18 28 1 71 0 2 71 7 13 20 79 16 2 28 16 14 2 11
+9 22 74 71 87 68 45 0 12 9 79 12 14 2 23 2 3 2 71 24
+5 20 79 10 8 27 68 19 7 1 71 3 13 0 7 16 92 79 12 2
+79 19 6 28 68 8 1 8 30 79 5 71 24 13 19 1 1 20 28 68
+19 0 68 19 7 1 71 3 13 0 7 16 73 79 93 71 59 12 2 79
+11 9 10 68 16 7 11 71 6 23 71 27 12 2 79 16 21 26 1 71
+3 13 0 7 16 75 79 19 15 0 68 0 6 18 2 28 68 11 6 3
+15 27 68 19 0 68 2 25 1 21 22 11 9 10 72 71 24 5 20 79
+3 8 6 10 0 79 16 8 79 7 8 2 1 71 6 10 19 0 68 19
+7 1 71 24 11 21 3 0 73 79 85 87 79 38 18 27 68 6 3 16
+15 0 17 0 7 68 19 7 1 71 24 11 21 3 0 71 24 5 20 79
+9 6 11 1 71 27 12 21 0 17 0 7 68 15 6 9 75 79 16 15
+10 68 16 0 22 11 11 68 3 6 0 9 72 16 71 29 1 4 0 3
+9 6 30 2 79 12 14 2 68 16 7 1 9 79 12 2 79 7 6 2
+1 73 79 85 86 79 33 17 10 10 71 6 10 71 7 13 20 79 11 16
+1 68 11 14 10 3 79 5 9 11 68 6 2 11 9 8 68 15 6 23
+71 0 19 9 79 20 2 0 20 11 10 72 71 7 1 71 24 5 20 79
+10 8 27 68 6 12 7 2 31 16 2 11 74 71 94 86 71 45 17 19
+79 16 8 79 5 11 3 68 16 7 11 71 13 1 11 6 1 17 10 0
+71 7 13 10 79 5 9 11 68 6 12 7 2 31 16 2 11 68 15 6
+9 75 79 12 2 79 3 6 25 1 71 27 12 2 79 22 14 8 12 19
+79 16 8 79 6 2 12 11 10 10 68 4 7 13 11 11 22 2 1 68
+8 9 68 32 0 0 73 79 85 84 79 48 15 10 29 71 14 22 2 79
+22 2 13 11 21 1 69 71 59 12 14 28 68 14 28 68 9 0 16 71
+14 68 23 7 29 20 6 7 6 3 68 5 6 22 19 7 68 21 10 23
+18 3 16 14 1 3 71 9 22 8 2 68 15 26 9 6 1 68 23 14
+23 20 6 11 9 79 11 21 79 20 11 14 10 75 79 16 15 6 23 71
+29 1 5 6 22 19 7 68 4 0 9 2 28 68 1 29 11 10 79 35
+8 11 74 86 91 68 52 0 68 19 7 1 71 56 11 21 11 68 5 10
+7 6 2 1 71 7 17 10 14 10 71 14 10 3 79 8 14 25 1 3
+79 12 2 29 1 71 0 10 71 10 5 21 27 12 71 14 9 8 1 3
+71 26 23 73 79 44 2 79 19 6 28 68 1 26 8 11 79 11 1 79
+17 9 9 5 14 3 13 9 8 68 11 0 18 2 79 5 9 11 68 1
+14 13 19 7 2 18 3 10 2 28 23 73 79 37 9 11 68 16 10 68
+15 14 18 2 79 23 2 10 10 71 7 13 20 79 3 11 0 22 30 67
+68 19 7 1 71 8 8 8 29 29 71 0 2 71 27 12 2 79 11 9
+3 29 71 60 11 9 79 11 1 79 16 15 10 68 33 14 16 15 10 22 73))
+
+Vediamo come criptare/decriptare un carattere con la funzione XOR:
+
+(char "a")
+;-> 97
+
+(char "k")
+;-> 107
+
+Cripta il valore (ASCII) del carattere "a" con il valore della chiave "k":
+(^ 97 107)
+;-> 10
+
+Decripta il valore criptato (10) con il valore della chiave "k":
+(^ 10 107)
+;-> 97
+
+Funzione di criptazione:
+
+(define (crypt ch key)
+  (char (^ (char ch) (char key))))
+
+(crypt "a" "k")
+;-> "\n"
+
+Funzione di decriptazione:
+
+(define (decrypt ch key)
+  (char (^ (char ch) (char key))))
+
+(decrypt (crypt "a" "k") "k")
+;-> "a"
+
+Nota: le funzione di criptazione e decriptazione sono identiche.
+
+Adesso scriviamo una funzione che cripta una stringa con una data password.
+
+(define (crypt ch key)
+  (char (^ (char ch) (char key))))
+
+(crypt "a" "k")
+;-> "\n"
+
+(define (decrypt ch key)
+  (char (^ (char ch) (char key))))
+
+(decrypt (crypt "a" "k") "k")
+;-> "a"
+
+Adesso scriviamo una funzione che cripta una stringa con una data password.
+
+(define (crypt-text text pwd)
+  (local (k lst len out)
+    (setq out '())
+    (setq numchar (- (length pwd) 1))
+    ;converto il testo in una lista di numeri ASCII
+    ;(setq lst (map char (explode text)))
+    (setq lst (explode text))
+    (setq k 0)
+    (dolist (el lst)
+      (push (crypt el (pwd k)) out -1)
+      (++ k)
+      (if (= k numchar) (setq k 0))
+    )
+    (join out)
+  )
+)
+
+(crypt-text "Massimo" "pwd")
+;-> "=\022\003\004\025\026\031"
+
+(crypt-text "=\022\003\004\025\026\031" "pwd")
+(crypt-text "=\022\003\004\025\026\031" "pwd")
+;-> Massimo
+
+Per il nostro scopo è più conveniente avere in input una lista di codici ASCII la nostra lista tc):
+
+(define (crypt-text text pwd)
+  ; text: testo in una lista di numeri ASCII
+  (local (k lst len out)
+    (setq out '())
+    (setq numchar (length pwd))
+    (setq k 0)
+    (dolist (el text)
+      (push (^ el (char (pwd k))) out -1)
+      (++ k)
+      (if (= k numchar) (setq k 0))
+    )
+    out
+  )
+)
+
+(crypt-text (map char (explode "Massimo Eva")) "pwd")
+;-> (61 22 23 3 30 9 31 87 33 6 22)
+
+(join (map char (crypt-text '(61 22 23 3 30 9 31 87 33 6 22) "pwd")))
+;-> "Massimo Eva"
+
+Adesso dobbiamo trovare la chiave (password) del testo cifrato. Sappiamo che è formata da tre lettere minuscole. Facciamo l'analisi delle frequenze al testo cifrato.
+
+Frequenza dei caratteri nella lingua inglese:
+http://www.data-compression.com/english.html
+
+|=========|=========|=========|=========|=========|=========|=========|
+|    a    |    b    |    c    |    d    |    e    |    f    |    g    |
+|=========|=========|=========|=========|=========|=========|=========|
+ 0.0651738 0.0124248 0.0217339 0.0349835 0.1041442 0.0197881 0.0158610
+
+|=========|=========|=========|=========|=========|=========|=========|
+|    h    |    i    |    j    |    k    |    l    |    m    |    n    |
+|=========|=========|=========|=========|=========|=========|=========|
+ 0.0492888 0.0558094 0.0009033 0.0050529 0.0331490 0.0202124 0.0564513
+
+|=========|=========|=========|=========|=========|=========|=========|
+|    o    |    p    |    q    |    r    |    s    |    t    |    u    |
+|=========|=========|=========|=========|=========|=========|=========|
+ 0.0596302 0.0137645 0.0008606 0.0497563 0.0515760 0.0729357 0.0225134
+
+|=========|=========|=========|=========|=========|=========|
+|    v    |    w    |    x    |    y    |    z    |  SPACE  |
+|=========|=========|=========|=========|=========|=========|
+ 0.0082903 0.0171272 0.0013692 0.0145984 0.0007836 0.1918182
+
+(setq af '(
+ (0.0651738 "a") (0.0124248 "b") (0.0217339 "c") (0.0349835 "d") 
+ (0.1041442 "e") (0.0197881 "f") (0.0158610 "g") (0.0492888 "h")
+ (0.0558094 "i") (0.0009033 "j") (0.0050529 "k") (0.0331490 "l")
+ (0.0202124 "m") (0.0564513 "n") (0.0596302 "o") (0.0137645 "p")
+ (0.0008606 "q") (0.0497563 "r") (0.0515760 "s") (0.0729357 "t")
+ (0.0225134 "u") (0.0082903 "v") (0.0171272 "w") (0.0013692 "x")
+ (0.0145984 "y") (0.0007836 "z") (0.1918182 " ")))
+
+(sort af >)
+((0.1918182 " ") (0.1041442 "e") (0.0729357 "t") (0.0651738 "a") 
+ (0.0596302 "o") (0.0564513 "n") (0.0558094 "i") (0.051576 "s")
+ (0.0497563 "r") (0.0492888 "h") (0.0349835 "d") (0.033149 "l")
+ (0.0225134 "u") (0.0217339 "c") (0.0202124 "m") (0.0197881 "f")
+ (0.0171272 "w") (0.015861 "g")  (0.0145984 "y") (0.0137645 "p")
+ (0.0124248 "b") (0.0082903 "v") (0.0050529 "k") (0.0013692 "x")
+ (0.0009033 "j") (0.0008606 "q") (0.0007836 "z"))
+
+Quindi il carattere spazio " " è quello di gran lunga più frequente (quasi il 20%). Per il nostro algoritmo sarà sufficiente utilizzare questo carattere.
+ 
+Vediamo quali sono i valori più frequenti nel testo cifrato:
+
+(apply max tc)
+;-> 94
+(setq freq (array 95 '(0)))
+
+(dolist (el tc) (setf (freq el) (+ (freq el) 1)))
+freq
+;-> (49 63 60 37 5 21 49 41 34 41 60 54 31 24 38 26 38 9 10 35
+;->  22 15 22 17 9 6 6 21 21 11 4 4 4 2 0 3 0 2 2 2 1 1 0 0 2
+;->  4 0 0 1 0 0 0 1 0 0 0 2 0 0 4 1 0 0 0 1 2 0 2 77 1 0 70 5
+;->  11 4 5 0 0 1 86 0 1 0 2 1 5 4 3 0 1 0 1 1 1 1)
+
+Converto il vettore in lista:
+
+(setq f (array-list freq))
+f
+
+Lista di frequenze ordinata:
+
+(sort (copy f) >)
+;-> (86 77 70 63 60 60 54 49 49 41 41 38 38 37 35 34 31 26 24 22 22 21 21 21 17 15 11
+;->  11 10 9 9 6 6 5 5 5 5 4 4 4 4 4 4 4 3 3 2 2 2 2 2 2 2 2 2 1 1 1 1 1 1 1 1 1 1 1
+;->  1 1 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
+
+Il valore più frequente del testo cifrato è 86.
+
+Posizione (valore ASCII criptato):
+
+(ref 86 f)
+;-> (79)
+
+Associo il valore 79 al carattere " " (che è il più frequente in lingua inglese). Quindi trovo il carattere della chiave che restituisce uno spazio " ":
+
+(dolist (el (explode "abcdefghijlklmnopqrstuvwxyz ")) 
+  (if (= " " (char (^ 79 (char el))))
+    (println el)))
+;-> o
+
+Un carattere della chiave è "o".
+
+Lo stesso ragionamento può essere fatto con il secondo valore più frequente del testo cifrato, cioè 77.
+Infatti, poichè ogni carattere della chiave codifica (quasi) lo stesso numero di caratteri
+
+Posizione (valore ASCII criptato):
+
+(ref 77 f)
+;-> (68)
+
+(dolist (el (explode "abcdefghijlklmnopqrstuvwxyz ")) 
+  (if (= " " (char (^ 68 (char el))))
+    (println el)))
+;-> d
+
+Un altro carattere della chiave è "d".
+
+Lo stesso ragionamento può essere fatto con il terzo valore più frequente del testo cifrato, cioè 70.
+
+Posizione (valore ASCII criptato):
+
+(ref 70 f)
+;-> (71)
+
+(dolist (el (explode "abcdefghijlklmnopqrstuvwxyz ")) 
+  (if (= " " (char (^ 71 (char el))))
+    (println el)))
+;-> g
+
+Il terzo carattere della chiave è "g".
+
+La chiave è composta dai caratteri "o", "d" e "g". Proviamo con "dog":
+
+(setq testo (join (map char (crypt-text tc "dog"))))
+
+In questo caso otteniamo un testo illeggibile.
+
+Proviamo con "god":
+
+(setq testo (join (map char (crypt-text tc "god"))))
+"(The Gospel of John, chapter 1) 1 In the beginning the Word already existed. He was with God, and he was God. 2 He was in the beginning with God. 3 He created everything there is. Nothing exists that he didn't make. 4 Life itself was in him, and this life gives light to everyone. 5 The light shines through the darkness, and the darkness can never extinguish it. 6 God sent John the Baptist 7 to tell everyone about the light so that everyone might believe because of his testimony. 8 John himself was not the light; he was only a witness to the light. 9 The one who is the true light, who gives light to everyone, was going to come into the world. 10 But although the world was made through him, the world didn't recognize him when he came. 11 Even in his own land and among his own people, he was not accepted. 12 But to all who believed him and accepted him, he gave the right to become children of God. 13 They are reborn! This is not a physical birth resulting from human passion or plan, this rebirth comes from God.14 So the Word became human and lived here on earth among us. He was full of unfailing love and faithfulness. And we have seen his glory, the glory of the only Son of the Father."
+
+Testo decifrato correttamente. Vediamo la somma dei valori ASCII del testo decifrato:
+
+(setq sol (apply + (map char (explode testo))))
+;-> 107359
+
+(define (e059)
+  (setq testo (join (map char (crypt-text tc "god"))))
+  (setq sol (apply + (map char (explode testo)))))
+
+(e059)
+;-> 107359
+
+(time (e059))
+;-> 15.625
+
+Il tempo registrato non è quello che include tutti i calcoli, ma credo che una funzione completa che utilizza questo metodo non dovrebbe impiegare più di 2/3 secondi per trovare la soluzione.
+
+Sembra che il sito di Project Euler abbia cambiato il contenuto del file "p059_cipher.txt".
+Proviamo il nostro metodo con questo nuovo file.
+
+Assegniamo i valori contenuti nel file ad una lista:
+
+(setq tc1 '(
+ 36 22 80 0 0 4 23 25 19 17 88 4 4 19 21 11 88 22 23 23 29 69 
+ 12 24 0 88 25 11 12 2 10 28 5 6 12 25 10 22 80 10 30 80 10 22 
+ 21 69 23 22 69 61 5 9 29 2 66 11 80 8 23 3 17 88 19 0 20 21 
+ 7 10 17 17 29 20 69 8 17 21 29 2 22 84 80 71 60 21 69 11 5 8 
+ 21 25 22 88 3 0 10 25 0 10 5 8 88 2 0 27 25 21 10 31 6 25 
+ 2 16 21 82 69 35 63 11 88 4 13 29 80 22 13 29 22 88 31 3 88 3 
+ 0 10 25 0 11 80 10 30 80 23 29 19 12 8 2 10 27 17 9 11 45 95 
+ 88 57 69 16 17 19 29 80 23 29 19 0 22 4 9 1 80 3 23 5 11 28 
+ 92 69 9 5 12 12 21 69 13 30 0 0 0 0 27 4 0 28 28 28 84 80 
+ 4 22 80 0 20 21 2 25 30 17 88 21 29 8 2 0 11 3 12 23 30 69 
+ 30 31 23 88 4 13 29 80 0 22 4 12 10 21 69 11 5 8 88 31 3 88 
+ 4 13 17 3 69 11 21 23 17 21 22 88 65 69 83 80 84 87 68 69 83 80 
+ 84 87 73 69 83 80 84 87 65 83 88 91 69 29 4 6 86 92 69 15 24 12 
+ 27 24 69 28 21 21 29 30 1 11 80 10 22 80 17 16 21 69 9 5 4 28 
+ 2 4 12 5 23 29 80 10 30 80 17 16 21 69 27 25 23 27 28 0 84 80 
+ 22 23 80 17 16 17 17 88 25 3 88 4 13 29 80 17 10 5 0 88 3 16 
+ 21 80 10 30 80 17 16 25 22 88 3 0 10 25 0 11 80 12 11 80 10 26 
+ 4 4 17 30 0 28 92 69 30 2 10 21 80 12 12 80 4 12 80 10 22 19 
+ 0 88 4 13 29 80 20 13 17 1 10 17 17 13 2 0 88 31 3 88 4 13 
+ 29 80 6 17 2 6 20 21 69 30 31 9 20 31 18 11 94 69 54 17 8 29 
+ 28 28 84 80 44 88 24 4 14 21 69 30 31 16 22 20 69 12 24 4 12 80 
+ 17 16 21 69 11 5 8 88 31 3 88 4 13 17 3 69 11 21 23 17 21 22 
+ 88 25 22 88 17 69 11 25 29 12 24 69 8 17 23 12 80 10 30 80 17 16 
+ 21 69 11 1 16 25 2 0 88 31 3 88 4 13 29 80 21 29 2 12 21 21 
+ 17 29 2 69 23 22 69 12 24 0 88 19 12 10 19 9 29 80 18 16 31 22 
+ 29 80 1 17 17 8 29 4 0 10 80 12 11 80 84 67 80 10 10 80 7 1 
+ 80 21 13 4 17 17 30 2 88 4 13 29 80 22 13 29 69 23 22 69 12 24 
+ 12 11 80 22 29 2 12 29 3 69 29 1 16 25 28 69 12 31 69 11 92 69 
+ 17 4 69 16 17 22 88 4 13 29 80 23 25 4 12 23 80 22 9 2 17 80 
+ 70 76 88 29 16 20 4 12 8 28 12 29 20 69 26 9 69 11 80 17 23 80 
+ 84 88 31 3 88 4 13 29 80 21 29 2 12 21 21 17 29 2 69 12 31 69 
+ 12 24 0 88 20 12 25 29 0 12 21 23 86 80 44 88 7 12 20 28 69 11 
+ 31 10 22 80 22 16 31 18 88 4 13 25 4 69 12 24 0 88 3 16 21 80 
+ 10 30 80 17 16 25 22 88 3 0 10 25 0 11 80 17 23 80 7 29 80 4 
+ 8 0 23 23 8 12 21 17 17 29 28 28 88 65 75 78 68 81 65 67 81 72 
+ 70 83 64 68 87 74 70 81 75 70 81 67 80 4 22 20 69 30 2 10 21 80 
+ 8 13 28 17 17 0 9 1 25 11 31 80 17 16 25 22 88 30 16 21 18 0 
+ 10 80 7 1 80 22 17 8 73 88 17 11 28 80 17 16 21 11 88 4 4 19 
+ 25 11 31 80 17 16 21 69 11 1 16 25 2 0 88 2 10 23 4 73 88 4 
+ 13 29 80 11 13 29 7 29 2 69 75 94 84 76 65 80 65 66 83 77 67 80 
+ 64 73 82 65 67 87 75 72 69 17 3 69 17 30 1 29 21 1 88 0 23 23 
+ 20 16 27 21 1 84 80 18 16 25 6 16 80 0 0 0 23 29 3 22 29 3 
+ 69 12 24 0 88 0 0 10 25 8 29 4 0 10 80 10 30 80 4 88 19 12 
+ 10 19 9 29 80 18 16 31 22 29 80 1 17 17 8 29 4 0 10 80 12 11 
+ 80 84 86 80 35 23 28 9 23 7 12 22 23 69 25 23 4 17 30 69 12 24 
+ 0 88 3 4 21 21 69 11 4 0 8 3 69 26 9 69 15 24 12 27 24 69 
+ 49 80 13 25 20 69 25 2 23 17 6 0 28 80 4 12 80 17 16 25 22 88 
+ 3 16 21 92 69 49 80 13 25 6 0 88 20 12 11 19 10 14 21 23 29 20 
+ 69 12 24 4 12 80 17 16 21 69 11 5 8 88 31 3 88 4 13 29 80 22 
+ 29 2 12 29 3 69 73 80 78 88 65 74 73 70 69 83 80 84 87 72 84 88 
+ 91 69 73 95 87 77 70 69 83 80 84 87 70 87 77 80 78 88 21 17 27 94 
+ 69 25 28 22 23 80 1 29 0 0 22 20 22 88 31 11 88 4 13 29 80 20 
+ 13 17 1 10 17 17 13 2 0 88 31 3 88 4 13 29 80 6 17 2 6 20 
+ 21 75 88 62 4 21 21 9 1 92 69 12 24 0 88 3 16 21 80 10 30 80 
+ 17 16 25 22 88 29 16 20 4 12 8 28 12 29 20 69 26 9 69 65 64 69 
+ 31 25 19 29 3 69 12 24 0 88 18 12 9 5 4 28 2 4 12 21 69 80 
+ 22 10 13 2 17 16 80 21 23 7 0 10 89 69 23 22 69 12 24 0 88 19 
+ 12 10 19 16 21 22 0 10 21 11 27 21 69 23 22 69 12 24 0 88 0 0 
+ 10 25 8 29 4 0 10 80 10 30 80 4 88 19 12 10 19 9 29 80 18 16 
+ 31 22 29 80 1 17 17 8 29 4 0 10 80 12 11 80 84 86 80 36 22 20 
+ 69 26 9 69 11 25 8 17 28 4 10 80 23 29 17 22 23 30 12 22 23 69 
+ 49 80 13 25 6 0 88 28 12 19 21 18 17 3 0 88 18 0 29 30 69 25 
+ 18 9 29 80 17 23 80 1 29 4 0 10 29 12 22 21 69 12 24 0 88 3 
+ 16 21 3 69 23 22 69 12 24 0 88 3 16 26 3 0 9 5 0 22 4 69 
+ 11 21 23 17 21 22 88 25 11 88 7 13 17 19 13 88 4 13 29 80 0 0 
+ 0 10 22 21 11 12 3 69 25 2 0 88 21 19 29 30 69 22 5 8 26 21 23 11 94))
+
+(apply max tc1)
+;-> 95
+(setq freq1 (array 96 '(0)))
+
+(dolist (el tc1) (setf (freq1 el) (+ (freq1 el) 1)))
+freq1
+;-> (75 19 31 36 61 15 11 9 25 20 52 43 65 33 2 2 38 73 11 21 22 65
+;->  56 46 21 42 7 10 25 70 26 24 0 0 0 2 2 0 0 0 0 0 0 0 2 1 0 0 0 
+;->  3 0 0 0 0 1 0 0 1 0 0 1 1 1 1 3 9 2 5 3 86 7 1 3 7 2 5 2 3 3 0 
+;->  107 4 2 8 16 0 4 9 77 1 0 2 6 0 4 2)
+
+Converto il vettore in lista:
+
+(setq f1 (array-list freq1))
+f1
+
+Lista di frequenze ordinata:
+
+(sort (copy f1) >)
+;-> (107 86 77 75 73 70 65 65 61 56 52 46 43 42 38 36 33 31 26 25 25 24 
+;->  22 21 21 20 19 16 15 11 11 10 9 9 9 8 7 7 7 6 5 5 4 4 4 3 3 3 3 3 
+;->  3 2 2 2 2 2 2 2 2 2 2 2 1 1 1 1 1 1 1 1 1 0 0 0 0 0 0 0 0 0 0 0 0 
+;->  0 0 0 0 0 0 0 0 0 0 0 0 0)
+
+Il valore più frequente del testo cifrato è 107.
+
+Posizione (valore ASCII criptato):
+
+(ref 107 f1)
+;-> (80)
+
+Associo il valore 80 al carattere " " (che è il più frequente in lingua inglese). Quindi trovo il carattere della chiave che restituisce uno spazio " ":
+
+(dolist (el (explode "abcdefghijlklmnopqrstuvwxyz ")) 
+  (if (= " " (char (^ 80 (char el))))
+    (println el)))
+;-> p
+
+Un carattere della chiave è "p".
+
+Lo stesso ragionamento può essere fatto con il secondo valore più frequente del testo cifrato, cioè 86.
+
+Posizione (valore ASCII criptato):
+
+(ref 86 f1)
+;-> (69)
+
+(dolist (el (explode "abcdefghijlklmnopqrstuvwxyz ")) 
+  (if (= " " (char (^ 69 (char el))))
+    (println el)))
+;-> e
+
+Un altro carattere della chiave è "e".
+
+Lo stesso ragionamento può essere fatto con il terzo valore più frequente del testo cifrato, cioè 77.
+
+Posizione (valore ASCII criptato):
+
+(ref 77 f1)
+;-> (88)
+
+(dolist (el (explode "abcdefghijlklmnopqrstuvwxyz ")) 
+  (if (= " " (char (^ 88 (char el))))
+    (println el)))
+;-> x
+
+Il terzo carattere della chiave è "x".
+
+La chiave è composta dai caratteri "p", "e" e "x". 
+
+Facciamo alcuni tentativi:
+
+(setq testo (join (map char (crypt-text tc1 "xpe"))))
+In questo caso otteniamo un testo illeggibile.
+(setq testo (join (map char (crypt-text tc1 "pex"))))
+In questo caso otteniamo un testo illeggibile.
+(setq testo (join (map char (crypt-text tc1 "pxe"))))
+In questo caso otteniamo un testo illeggibile.
+(setq testo (join (map char (crypt-text tc1 "xep"))))
+In questo caso otteniamo un testo illeggibile.
+(setq testo (join (map char (crypt-text tc1 "exp"))))
+"An extract taken from the introduction of one of Euler's most celebrated papers, \"De summis serierum reciprocarum\" [On the sums of series of reciprocals]: I have recently found, quite unexpectedly, an elegant expression for the entire sum of this series 1 + 1/4 + 1/9 + 1/16 + etc., which depends on the quadrature of the circle, so that if the true sum of this series is obtained, from it at once the quadrature of the circle follows. Namely, I have found that the sum of this series is a sixth part of the square of the perimeter of the circle whose diameter is 1; or by putting the sum of this series equal to s, it has the ratio sqrt(6) multiplied by s to 1 of the perimeter to the diameter. I will soon show that the sum of this series to be approximately 1.644934066842264364; and from multiplying this number by six, and then taking the square root, the number 3.141592653589793238 is indeed produced, which expresses the perimeter of a circle whose diameter is 1. Following again the same steps by which I had arrived at this sum, I have discovered that the sum of the series 1 + 1/16 + 1/81 + 1/256 + 1/625 + etc. also depends on the quadrature of the circle. Namely, the sum of this multiplied by 90 gives the biquadrate (fourth power) of the circumference of the perimeter of a circle whose diameter is 1. And by similar reasoning I have likewise been able to determine the sums of the subsequent series in which the exponents are even numbers."
+
+Testo decifrato correttamente. 
+La chiave vale "exp".
+
+Vediamo la somma dei valori ASCII del testo decifrato:
+
+(setq sol (apply + (map char (explode testo))))
+;-> 129448
+
+
+
+===========
+Problema 60
+===========
+
+Insiemi di coppie di numeri primi
+
+I numeri primi 3, 7, 109 e 673 sono piuttosto notevoli. Prendendo due numeri primi e concatenandoli in qualsiasi ordine, il risultato sarà sempre un numero primo. Ad esempio, prendendo 7 e 109, sia 7109 che 1097 sono primi. La somma di questi quattro numeri primi, 792, rappresenta la somma più bassa per un insieme di quattro numeri primi con questa proprietà.
+
+Trova la somma più bassa per un set di cinque numeri primi per i quali qualunque coppia di numeri primi si concatenano per produrre un altro numero primo.
+============================================================================
+
+L'algoritmo di soluzione è del tipo brute-force:
+
+Generare N numeri primi.
+Il primo numero della lista dei numeri primi è "a", il secondo numero della lista è "b" (b > a).
+Controllare se "ab" e "ba" sono numeri primi, 
+se sono numeri primi, allora prendere il terzo numero dalla lista "c" (c > b).
+   controllare se "ac", "ca", "bc", "ca" sono tutti numeri primi,
+   se sono numeri primi, allora prendere un quarto numero dalla lista "d" (d > c).
+      controllare se "ad", "da", "bd", "db", "cd", "dc" sono tutti numeri primi,
+      se sono tutti numeri primi, prendi il quinto numero dalla lista "e" (e > d)
+         controllare se "ae", "ea", "be", "eb", "ce", "ec", "de", "ed" sono tutti numeri primi,
+         se sono tutti numeri primi, allora stampa a + b + c + d + e.
+
+Adesso resta il problema di definire il numero N, cioè fino a quale numero primo dobbiamo considerare?
+Non possiamo fermarci quando abbiamo trovato una soluzione, perchè non sappiamo se ne esistono altre con un valore di somma minore.
+Andremo per tentativi... fino a 5000, fino a 6000, fino a 7000 ecc.
+
+Funzione per verificare se un numero n è primo:
+
+(define (prime? n)
+   (if (< n 2) nil
+       (= 1 (length (factor n)))))
+
+Funzione per generare tutti i numeri primi fino a n:
+
+(define (sieve n)
+   (setq arr (array (+ n 1)) lst '(2))
+   (for (x 3 n 2)
+      (when (not (arr x))
+         (push x lst -1)
+         (for (y (* x x) n (* 2 x) (> y n))
+            (setf (arr y) true)))) lst)
+
+(sieve 50)
+;-> (2 3 5 7 11 13 17 19 23 29 31 37 41 43 47)
+
+Funzione che controlla se la combinazione (come stringa) dei numeri ab e ba sono entrambi primi:
+
+(define (check a b)
+  (and (prime? (int (string a b))) (prime? (int (string b a)))))
+
+Questa è più veloce.
+
+(define (check a b)
+  (local (len-a len-b)
+    (setq len-a (+ (int (log a 10)) 1))
+    (setq len-b (+ (int (log b 10)) 1))
+    ;(setq len-a (length a))
+    ;(setq len-b (length b))
+    (and (prime? (int (+ (* a (pow 10 len-b)) b)))
+         (prime? (int (+ (* b (pow 10 len-a)) a))))
+    ;(and (prime? (int (+ (* a (pow 10 (+ (int (log b 10)) 1))) b)))
+    ;     (prime? (int (+ (* b (pow 10 (+ (int (log a 10)) 1))) a))))
+  )
+)
+
+(check 109 673)
+;-> true
+(check 3 23)
+;-> nil
+
+(define (e060 n)
+  (local (primi-lst primi)
+    ; (setq primi (sieve n))
+    ; Il 2 e il 5 non possono essere nella soluzione perchè
+    ; un numero con 2 o 5 come ultima cifra non è primo.
+    (pop (setq primi (sieve n)) '(0 2))
+    ;(setq primi (array (length primi-lst) primi-lst))
+    ; a è il primo numero
+    (dolist (a primi)
+      ; b è il secondo numero
+      (dolist (b primi)
+        (cond ((>= a b) nil)
+              (true
+               (if (check a b)
+                   ; c è il terzo numero
+                   (dolist (c primi)
+                     (cond ((>= b c) nil)
+                           (true
+                            ; check se (a,c) e (b,c) soddisfano la condizione
+                            (if (and (check a c) (check b c))
+                                ; d è il quarto numero
+                                (dolist (d primi)
+                                  (cond ((>= c d) nil)
+                                         (true
+                                          # check se (a,d), (b,d) e (c,d) soddisfano la condizione
+                                          (if (and (check a d) (check b d) (check c d))
+                                              ; e è il quinto numero
+                                              (dolist (e primi)
+                                                (cond ((>= d e) nil)
+                                                       (true
+                                                        ; check se (a,e), (b,e), (c,e) e (d,e) soddisfano la condizione
+                                                        (if (and (check a e) (check b e) (check c e) (check d e))
+                                                            (println (+ a b c d e) { } a { } b { } c { } d { } e)
+                                                        )))))))))))))))))))
+
+
+(e060 5000)
+;-> nil
+(e060 6000)
+;-> nil
+(e060 7000)
+;-> nil
+(e060 8000)
+;-> nil
+(e060 9000)
+;-> 26033 13 5197 5701 6733 8389
+
+(time (e060 9000))
+;-> 26033 13 5197 5701 6733 8389
+;-> 56943.359
+
+La funzione impiega circa 57 secondi per trovare la soluzione (siamo sotto al minuto).
+
+Proviamo ad usare un vettore per i numeri primi. In questo modo possiamo evitare di controllare se un numero primo selezionato è superiore al precedente, ma dobbiamo usare l'indicizzazione per trovare il valore di un numero nel vettore.
+
+(define (e060 n)
+  (local (primi primi-lst up)
+    ; (setq primi (sieve n))
+    ; Il 2 e il 5 non possono essere nella soluzione perchè
+    ; un numero con 2 o 5 come ultima cifra non è primo.
+    (pop (setq primi-lst (sieve n)) '(0 2))
+    (setq primi (array (length primi-lst) primi-lst))
+    (setq up (- (length primi) 1))
+    ; a è il primo numero
+    (for (i 0 (- up 1))
+      ; b è il secondo numero
+      (for (j (+ i 1) (- up 2))
+        ; check se (a,b) soddisfano la condizione
+        (if (check (primi i) (primi j))
+            ; c è il terzo numero
+            (for (k (+ j 1) (- up 3))
+              ; check se (a,c) e (b,c) soddisfano la condizione
+              (if (and (check (primi i) (primi k)) 
+                       (check (primi j) (primi k)))
+                  ; d è il quarto numero
+                  (for (x (+ k 1) (- up 4))
+                    # check se (a,d), (b,d) e (c,d) soddisfano la condizione
+                    (if (and (check (primi i) (primi x))
+                             (check (primi j) (primi x)) 
+                             (check (primi k) (primi x)))
+                        ; e è il quinto numero
+                        (for (y (+ x 1) (- up 5))
+                          ; check se (a,e), (b,e), (c,e) e (d,e) soddisfano la condizione
+                          (if (and (check (primi i) (primi y))
+                                   (check (primi j) (primi y)) 
+                                   (check (primi k) (primi y)) 
+                                   (check (primi x) (primi y)))
+                              (println (+ (primi i) (primi j) (primi k) (primi x) (primi y)) { } 
+                                       (primi i) { } (primi j) { } (primi k) { } (primi x) { } (primi y))
+                          )))))))))))
+
+(time (e060 9000))
+;-> 26033 13 5197 5701 6733 8389
+;-> 55055.913
+
+I tempi di calcolo delle due funzioni sono quasi uguali.
+
+
 ===============
 
  PROBLEMI VARI
@@ -32502,6 +33178,19 @@ N = ∑ d(i)*10^i ⇒ N mod 9 ≡ ∑ (d(i)*10^i mod 9) ≡ ∑ d(i) mod 9
 
 Notare che qualsiasi numero intero positivo in base b è congruente alla somma delle sue cifre modulo (b-1) per qualsiasi base.
 
+Per completezza riportiamo una funzione che calcola la somma delle cifre di un numero (non ripetutamente):
+
+(define (digit-sum n)
+  (let (out 0)
+    (while (!= n 0)
+      (setq out (+ out (% n 10)))
+      (setq n (/ n 10))
+    )
+    out))
+
+(digit-sum 123456789L)
+;-> 45
+
 
 --------------------------
 Coppia di punti più vicina
@@ -35172,7 +35861,7 @@ a è ora impostato sulla maschera di bit combinata di a e b. b ha ancora il valo
 b è ora impostato sulla maschera di bit combinata di (a XOR b) e b. La b si cancella, quindi ora b è impostato sul valore originale di a. a è ancora impostato sulla maschera di bit combinata di a e b.
 
 (setq a (^ a b))
-a è ora impostato sulla maschera di bit combinata di (a XOR b) e a. (ricorda, b contiene effettivamente il valore originale di a adesso) La a si cancella, e quindi a è ora impostato sul valore originale di b.
+a è ora impostato sulla maschera di bit combinata di (a XOR b) e a. (ricorda, b contiene effettivamente il valore originale di a adesso). La a si cancella, e quindi a è ora impostato sul valore originale di b.
 
 Scriviamo la funzione (dobbiamo controllare che le variabili non contengano lo stesso numero, altrimenti il risultato sarebbe zero per entrambe):
 
@@ -35796,7 +36485,7 @@ allora dobbiamo scrivere una nuova funzione per calcolare la soluzione.
 Quantità d'acqua in un bacino (Facebook)
 ----------------------------------------
 
-Dati n interi non negativi che rappresentano una mappa di elevazione in cui la larghezza di ciascuna barra è 1, calcolare la quantità massima di acqua che è in grado di contenere
+Dati n interi non negativi che rappresentano una mappa di elevazione in cui la larghezza di ciascuna barra è 1, calcolare la quantità massima di acqua che è in grado di contenere.
 
 Esempi:
 
@@ -39429,6 +40118,138 @@ Destinazione: (7 5)
 ;-> (0 0 1 0 0 1 1 0 0 1)
 ;-> (12 (0 0) (0 1) (1 1) (1 2) (2 2) (3 2) (3 3) 
 ;->     (4 3) (5 3) (5 4) (6 4) (7 4) (7 5))
+
+
+-------------------------
+Dadi e probabilità (Visa)
+-------------------------
+
+Quali sono le probabilità di vittoria, sconfitta e pareggio di due giocatori che lanciano ognuno un dado con 6 facce (valori da 1 a 6)?
+Calcolare le stesse probabilità nel caso in cui il primo giocatore lanci un dado con 7,8,9,10,11 e 12 facce (valori da 1 a numero facce).
+
+Proviamo con una simulazione di lanci per calcolare le probabilità:
+
+(define (dadoni v1 v2 n)
+  (local (p1 p2 pp r1 r2)
+    (setq p1 0)
+    (setq p2 0)
+    (setq pp 0)
+    (for (i 1 n)
+      (setq r1 (rand v1))
+      (setq r2 (rand v2))
+      (cond ((> r1 r2) (++ p1))
+            ((= r1 r2) (++ pp))
+            (true (++ p2))
+      )
+    )
+    (println (+ p1 p2 pp) { } (add (div p1 n) (div p2 n) (div pp n)))
+    (list p1 (div p1 n) p2 (div p2 n) pp (div pp n))
+  )
+)
+
+(dadoni 6 6 1000000)
+;-> (416485 0.416485 416996 0.416996 166519 0.166519)
+(dadoni 7 6 1000000)
+;-> (500586 0.500586 356171 0.356171 143243 0.143243)
+(dadoni 8 6 1000000)
+;-> (562627 0.562627 312738 0.312738 124635 0.124635)
+(dadoni 9 6 1000000)
+;-> (611542 0.611542 277806 0.277806 110652 0.110652)
+(dadoni 10 6 1000000)
+;-> (650110 0.65011 249709 0.249709 100181 0.100181)
+(dadoni 11 6 1000000)
+;-> (682167 0.682167 227011 0.227011 90822 0.090822)
+(dadoni 12 6 1000000)
+;-> (708841 0.708841 207595 0.207595 83564 0.083564)
+(dadoni 100 6 1000000)
+;-> (964911 0.964911 24972 0.024972 10117 0.010117)
+
+Adesso calcoliamo rigorosamente queste probabilità/percentuali. Tutte le probabilità vengono calcolate con la formula:
+
+                numero eventi favorevoli
+Probabilità = ----------------------------
+                numero eventi possibili
+
+Prodotto cartesiano tra due liste:
+
+(define (cp lst1 lst2)
+  (let (out '())
+    (if (or (null? lst1) (null? lst2))
+        nil
+        (dolist (el1 lst1)
+          (dolist (el2 lst2)
+            (push (list el1 el2) out -1))))))
+
+
+I due dadi:
+(setq d1 '(1 2 3 4 5 6))
+(setq d2 '(1 2 3 4 5 6))
+
+Lista di tutti gli eventi possibili (ogni elemento della lista rappresenta un lancio e contiene i valori dei dadi lanciati dal primo e dal secondo giocatore):
+
+(setq eventi (cp d1 d2))
+;-> ((1 1) (1 2) (1 3) (1 4) (1 5) (1 6) (2 1) (2 2) (2 3) (2 4)
+;->  (2 5) (2 6) (3 1) (3 2) (3 3) (3 4) (3 5) (3 6) (4 1) (4 2)
+;->  (4 3) (4 4) (4 5) (4 6) (5 1) (5 2) (5 3) (5 4) (5 5) (5 6)
+;->  (6 1) (6 2) (6 3) (6 4) (6 5) (6 6))
+ 
+Calcolo gli eventi favorevoli a p1, quelli favorevoli a p2 e quelli in parità:
+
+(setq p1 0)
+(setq p2 0)
+(setq pp 0)
+
+(dolist (el eventi)
+  (cond ((> (el 0) (el 1)) (++ p1))
+        ((< (el 0) (el 1)) (++ p2))
+        (true (++ pp))
+  )
+)
+
+(setq num (length eventi))
+(list p1 (div p1 num) p2 (div p2 num) pp (div pp num))
+;-> (15 0.4166666666666667 15 0.4166666666666667 6 0.1666666666666667)
+
+Per gli altri dadi otteniamo i seguenti valori:
+
+(setq d1 '(1 2 3 4 5 6 7))
+(setq d2 '(1 2 3 4 5 6))
+;-> (21 0.5 15 0.3571428571428572 6 0.1428571428571429)
+
+(setq d1 '(1 2 3 4 5 6 7 8))
+(setq d2 '(1 2 3 4 5 6))
+;-> (27 0.5625 15 0.3125 6 0.125)
+
+(setq d1 '(1 2 3 4 5 6 7 8 9))
+(setq d2 '(1 2 3 4 5 6))
+;-> (33 0.6111111111111112 15 0.2777777777777778 6 0.1111111111111111)
+
+(setq d1 '(1 2 3 4 5 6 7 8 9 10))
+(setq d2 '(1 2 3 4 5 6))
+;-> (39 0.65 15 0.25 6 0.1)
+
+(setq d1 '(1 2 3 4 5 6 7 8 9 10 11))
+(setq d2 '(1 2 3 4 5 6))
+;-> (45 0.6818181818181818 15 0.2272727272727273 6 0.09090909090909091)
+
+(setq d1 '(1 2 3 4 5 6 7 8 9 10 11))
+(setq d2 '(1 2 3 4 5 6))
+;-> (45 0.6818181818181818 15 0.2272727272727273 6 0.09090909090909091)
+
+Routine di calcolo:
+
+(setq eventi (cp d1 d2))
+(setq p1 0)
+(setq p2 0)
+(setq pp 0)
+(dolist (el eventi)
+  (cond ((> (el 0) (el 1)) (++ p1))
+        ((< (el 0) (el 1)) (++ p2))
+        (true (++ pp))
+  )
+)
+(setq num (length eventi))
+(list p1 (div p1 num) p2 (div p2 num) pp (div pp num))
 
 
 ==========
@@ -46781,7 +47602,7 @@ In questo caso, quando la lista è vuota "drop" produce una lista vuota e non un
 Simulare un iteratore
 ---------------------
 
-Per simulare velocemente un iteratore possiamo utilizare un lista di numeri:
+Per simulare velocemente un iteratore possiamo utilizzare un lista di numeri:
 
 (setq s '(3 2 1))
 
@@ -46932,7 +47753,8 @@ La funzione "map" non è progettata per risolvere questo problema, quindi occorr
 (map-all doppio (map-all abs '(-1 -2 (-3 -4))))
 ;-> (2 4 (6 8))
 
-(map-all doppio '(((1)) 2 ((3) (4 5 ((6)))) ((6) 7) (8 9)))
+(setq lst '(((1)) 2 ((3) (4 5 ((6)))) ((6) 7) (8 9)))
+(map-all doppio lst)
 ;-> (((2)) 4 ((6) (8 10 ((12)))) ((12) 14) (16 18))
 
 
@@ -47344,7 +48166,173 @@ Conto alla rovescia per il nuovo anno:
 (setq a (+ (* 10 9 8) (* (+ 7 6) 5 4 (+ 3 2) 1)))
 ;-> 2020
 (setq b (+ (* 10 9 8) (* (+ 7 6) 5 4 (+ 3 2)) 1))
-;-> 2021===========
+;-> 2021
+
+
+--------------------------------------
+Nascita della teoria della probabilità
+--------------------------------------
+
+Chevelier de Mere (1607-1684) era un gentiluomo francese giocatore d'azzardo che è entrato nella storia per aver chiesto aiuto a Blaise Pascal nel risolvere un problema relativo al gioco dei dadi.
+
+La situazione di Chevelier de Mere prevedeva due giochi di dadi. Nel primo, De Mere puntava con probabilità pari di ottenere almeno un sei su quattro tiri di un dado non truccato. Il suo ragionamento era il seguente: con il lancio di un dado il numero 6 ha probabilità 1/6 di uscire (corretto). Poi ha pensato che con il lancio di quattro dadi la probabilità sarebbe 4*(1/6) = 4/6 = 2/3 (sbagliato). Sebbene il suo ragionamento fosse errato, nel corso degli anni ha fatto molti soldi facendo questa scommessa.
+
+Con il successo del primo gioco, de Mere ha modificato il gioco scommettendo con pari probabilità di ottenere almeno un doppio sei lanciando 24 volte una coppia di dadi. Egli riteneva correttamente che la possibilità di ottenere un doppio sei lanciando una coppia di dadi è 1/6 * 1/6 = 1/36. Tuttavia, sbagliava nel pensare che in 24 lanci di una coppia di dadi, la possibilità di ottenere un doppio sei sarebbe stata 24 * 1/36 = 24/36 = 2/3.
+
+Dopo avere perso molti soldi intuì che qualcosa non andava nel secondo gioco dei dadi. Quindi chiese aiuto al suo rinomato amico Blaise Pascal per trovare una spiegazione al problema. In una serie di lettere tra Pascal e Pierre de Fermet, il quesito di de Mere à stato risolto. Da questo sforzo congiunto furono gettate le basi per la teoria della probabilità.
+La chiave della soluzione ai problemi di de Mere è la distribuzione binomiale.
+
+Vediamo perché il primo gioco è stato redditizio per de Mere e perché il secondo gioco non lo è stato.
+
+Primo gioco
+
+La probabilità di ottenere un 6 con un dado vale 1/6.
+La probabilità di non ottenere almeno un 6 con un dado vale 5/6, quindi la probabilità di non ottenere alcun 6 lanciando 4 dadi vale: (5/6)*(5/6)*(5/6)*(5/6) = (5/6)^4 = 0.482253.
+Quindi la probabilità di avere almeno un 6 lanciando 4 dadi vale:
+
+P(un 6 con 4 dadi) = 1 - P(nessun 6 con 4 dadi) =
+= 1 - 0.482253 = 0.517747
+
+La probabilità di ottenere almeno un sei su quattro tiri di un dado giusto è 0.517747. Su 100 partite, de Mere avrebbe vinto in media 52 partite. Su 1000 partite, avrebbe vinto in media 518 partite. Supponiamo che ogni scommessa sia di un euro. Quindi de Mere avrebbe guadagnato 36 euro per ogni 1000 euro. Con un guadagno pari al 3.6% (circa).
+
+Secondo gioco
+
+In un lancio di una coppia di dadi, ci sono un totale di 36 possibili esiti (cioè i sei risultati del primo dado combinati con i sei risultati del secondo dado). Di questi 36 risultati, solo uno di questi è un doppio sei. Quindi, la probabilità di ottenere un doppio sei è 1/36 nel tirare un paio di dadi. Allo stesso modo, la probabilità di non ottenere un doppio sei è 35/36.
+
+La probabilità di non ottenere un doppio sei in 24 tiri di una coppia di dadi è:
+
+P(nessun doppio sei in 24 tiri) = (35/36)^24 = 0.5086
+
+Quindi la probabilità di ottenere almeno un doppio sei in 24 tiri è:
+
+P (almeno un doppio sei in 24 rotoli) = 1 - P (nessun doppio sei in 24 rotoli) =
+= 1 - 0.5086 = 0.4914
+
+La probabilità di ottenere almeno un doppio sei in 24 tiri di una coppia di dadi è 0.4914. In media, De Mere avrebbe vinto solo circa 49 partite su 100 e l'avversario avrebbe vinto circa 51 partite. Se ogni scommessa vale un euro, la parte avversaria di de Mere vincerebbe 2 franchi per ogni 100 franchi scommessi (con un guadagno di circa il 2%).
+
+Verifichiamo i risultati con una simulazione.
+
+(define (dado) (+ 1 (rand 6)))
+
+(define (game1 n)
+  (let ((mere 0) (break nil))
+    (for (i 1 n)
+      (setq break nil)
+      (for (j 1 4 1 break)
+        (if (= (dado) 6) (begin
+            (++ mere)
+            (setq break true)
+        ))
+      )
+    )
+    (println "games: " n { } "mere wins: " mere { - } (div mere n)"%")
+    (list n mere (div mere n))
+  )
+)
+
+(game1 1e4)
+;-> games: 10000 mere wins: 5149 - 0.5149%
+;-> (10000 5149 0.5149)
+(game1 1e5)
+;-> games: 100000 mere wins: 51845 - 0.51845%
+;-> (100000 51845 0.51845)
+(game1 1e6)
+;-> games: 1000000 mere wins: 518265 - 0.518265%
+;-> (1000000 518265 0.518265)
+(game1 1e7)
+;-> games: 10000000 mere wins: 5180712 - 0.5180712%
+;-> (10000000 5180712 0.5180712)
+(game1 1e8)
+;-> games: 100000000 mere wins: 51774774 - 0.51774774%
+;-> (100000000 51774774 0.51774774)
+(game1 1e8)
+;-> games: 100000000 mere wins: 51774196 - 0.51774196%
+;-> (100000000 51774196 0.51774196)
+
+Nota:
+se per ogni lancio le vittorie sono il numero di 6 ottenuti, allora la prob di vittoria vale 2/3.
+(define (game1 n)
+  (let ((mere 0) (break nil))
+    (for (i 1 n)
+      ;(setq break nil)
+      (for (j 1 4 1 break)
+        (if (= (dado) 6) (begin
+            (++ mere)
+            ;(setq break true)
+        ))
+      )
+    )
+    (println "games: " n { } "mere wins: " mere { - } (div mere n)"%")
+    (list n mere (div mere n))
+  )
+)
+
+(game1 1e7)
+;-> games: 10000000 mere wins: 6665579 - 0.6665579% ; 2/3 come pensava de Mere !!!)
+;-> (10000000 6665579 0.6665579) 
+
+Nota: le seguenti funzioni producono risultati differenti
+
+(define (dadi1) (+ 2 (rand 11)))
+(define (dadi) (+ (+ 1 (rand 6)) (+ 1 (rand 6))))
+
+Vediamo la distribuzione dei numeri random creati.
+
+Funzione dadi1:
+
+(setq res1 (array 13))
+(for (i 1 10000) (++ (res1 (dadi1))))
+res1
+;-> (nil nil 927 896 862 863 918 914 882 980 902 968 888)
+La distribuzione dei numeri da 2 a 12 è uniforme.
+
+Funzione dadi:
+
+(setq res (array 13))
+(for (i 1 10000) (++ (res (dadi))))
+res
+;-> (nil nil 264 540 850 1098 1427 1703 1388 1073 825 571 261)
+La distribuzione dai numeri da 1 a 12 non è uniforme. Questo è corretto ed è dovuto al fatto che i numeri non sono equiprobabili (ad esempio il numero 7 ha la probabilità più alta, perchè può essere formato da 1+6, 2+5, 3+4, 6+1, 4+3 e 5+2)
+
+(define (game2 n)
+  (let ((mere 0) (break nil))
+    (for (i 1 n)
+      (setq break nil)
+      (for (j 1 24 1 break)
+        (if (= (dadi) 12) (begin
+            (++ mere)
+            (setq break true)
+        ))
+      )
+    )
+    (println "games: " n { } "mere wins: " mere { - } (div mere n)"%")
+    (list n mere (div mere n))
+  )
+)
+
+(game2 1e3)
+; games: 1000 mere wins: 524 - 0.524%
+;-> (1000 524 0.524)
+(game2 1e4)
+;-> games: 10000 mere wins: 4933 - 0.4933%
+;-> (10000 4933 0.4933)
+(game2 1e5)
+;-> games: 100000 mere wins: 49140 - 0.4914%
+;-> (100000 49140 0.4914)
+(game2 1e6)
+;-> games: 1000000 mere wins: 491200 - 0.4912%
+;-> (1000000 491200 0.4912)
+(game2 1e7)
+;-> games: 10000000 mere wins: 4914713 - 0.4914713%
+;-> (10000000 4914713 0.4914713)
+
+(time (game2 1e7))
+;-> 60520.989
+
+Nota: nel 1933 una monografia del matematico russo A. Kolmogorov delinea un approccio assiomatico che costituisce la base per la moderna teoria della probabilità ("Foundations of Probability Theory", Chelsea, New York, 1950).
+
+
+===========
 
  APPENDICI
 
@@ -49515,7 +50503,8 @@ newLISP per programmatori (Dmitry Chernyak)
 v. 1.1
 
 (C) 2006, Dmitry Chernyak losthost@narod.ru.
-http://en.feautec.pp.ru.
+http://en.feautec.pp.ru
+https://web.archive.org/web/20091010040813/http://en.feautec.pp.ru/store/fun-of-newlisp.html
 
 Traduzione: Massimo Corinaldesi aka cameyo 2019
 
@@ -52579,15 +53568,15 @@ Frasi Famose sulla Programmazione e sul Linguaggio Lisp
   https://weblambdazero.blogspot.com/2010/07/advanced-recursion-in-newLISP.html
 
   "The Art of Computer Programming", Donald Knuth, 4 volumi, 1968...2015
-  
+
   "Introduction to Algorithms", Cormen-Leiserson-Rivest-Stein, 3ed, 2009
-  
+
   "Teoria e Progetto di Algoritmi Fondamentali", Ausiello-Marchetti-Spaccamela-Protasi, 1985
-  
+
   "Land of Lisp", Conrad Barsky, 2011
-  
+
   "Structure and Interpretation of Computer Programs",  Abelson-Sussman, 2ed, 1996
-  
+
   "Special Forms in Lisp" Kent Pitman, Conference Record of the 1980 Lisp Conference,
   Stanford University, August 25-27, 1980
   http://www.nhplace.com/kent/Papers/Special-Forms.html
@@ -52606,7 +53595,7 @@ Frasi Famose sulla Programmazione e sul Linguaggio Lisp
 
   Enciclopedia libera:
   https://www.wikipedia.org/
-  
+
   Programming Praxis - La programmazione, come qualsiasi attività creativa, richiede costante studio e pratica:
   https://programmingpraxis.com/
 
@@ -52615,6 +53604,5 @@ Frasi Famose sulla Programmazione e sul Linguaggio Lisp
 
   GeeksforGeeks - Un portale di computer science per "geeks"
   https://www.geeksforgeeks.org/
-  
-  
-  
+
+

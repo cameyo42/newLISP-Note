@@ -5042,7 +5042,7 @@ In questo caso, quando la lista è vuota "drop" produce una lista vuota e non un
 Simulare un iteratore
 ---------------------
 
-Per simulare velocemente un iteratore possiamo utilizare un lista di numeri:
+Per simulare velocemente un iteratore possiamo utilizzare un lista di numeri:
 
 (setq s '(3 2 1))
 
@@ -5193,7 +5193,8 @@ La funzione "map" non è progettata per risolvere questo problema, quindi occorr
 (map-all doppio (map-all abs '(-1 -2 (-3 -4))))
 ;-> (2 4 (6 8))
 
-(map-all doppio '(((1)) 2 ((3) (4 5 ((6)))) ((6) 7) (8 9)))
+(setq lst '(((1)) 2 ((3) (4 5 ((6)))) ((6) 7) (8 9)))
+(map-all doppio lst)
 ;-> (((2)) 4 ((6) (8 10 ((12)))) ((12) 14) (16 18))
 
 
@@ -5606,3 +5607,168 @@ Conto alla rovescia per il nuovo anno:
 ;-> 2020
 (setq b (+ (* 10 9 8) (* (+ 7 6) 5 4 (+ 3 2)) 1))
 ;-> 2021
+
+
+--------------------------------------
+Nascita della teoria della probabilità
+--------------------------------------
+
+Chevelier de Mere (1607-1684) era un gentiluomo francese giocatore d'azzardo che è entrato nella storia per aver chiesto aiuto a Blaise Pascal nel risolvere un problema relativo al gioco dei dadi.
+
+La situazione di Chevelier de Mere prevedeva due giochi di dadi. Nel primo, De Mere puntava con probabilità pari di ottenere almeno un sei su quattro tiri di un dado non truccato. Il suo ragionamento era il seguente: con il lancio di un dado il numero 6 ha probabilità 1/6 di uscire (corretto). Poi ha pensato che con il lancio di quattro dadi la probabilità sarebbe 4*(1/6) = 4/6 = 2/3 (sbagliato). Sebbene il suo ragionamento fosse errato, nel corso degli anni ha fatto molti soldi facendo questa scommessa.
+
+Con il successo del primo gioco, de Mere ha modificato il gioco scommettendo con pari probabilità di ottenere almeno un doppio sei lanciando 24 volte una coppia di dadi. Egli riteneva correttamente che la possibilità di ottenere un doppio sei lanciando una coppia di dadi è 1/6 * 1/6 = 1/36. Tuttavia, sbagliava nel pensare che in 24 lanci di una coppia di dadi, la possibilità di ottenere un doppio sei sarebbe stata 24 * 1/36 = 24/36 = 2/3.
+
+Dopo avere perso molti soldi intuì che qualcosa non andava nel secondo gioco dei dadi. Quindi chiese aiuto al suo rinomato amico Blaise Pascal per trovare una spiegazione al problema. In una serie di lettere tra Pascal e Pierre de Fermet, il quesito di de Mere à stato risolto. Da questo sforzo congiunto furono gettate le basi per la teoria della probabilità.
+La chiave della soluzione ai problemi di de Mere è la distribuzione binomiale.
+
+Vediamo perché il primo gioco è stato redditizio per de Mere e perché il secondo gioco non lo è stato.
+
+Primo gioco
+
+La probabilità di ottenere un 6 con un dado vale 1/6.
+La probabilità di non ottenere almeno un 6 con un dado vale 5/6, quindi la probabilità di non ottenere alcun 6 lanciando 4 dadi vale: (5/6)*(5/6)*(5/6)*(5/6) = (5/6)^4 = 0.482253.
+Quindi la probabilità di avere almeno un 6 lanciando 4 dadi vale:
+
+P(un 6 con 4 dadi) = 1 - P(nessun 6 con 4 dadi) =
+= 1 - 0.482253 = 0.517747
+
+La probabilità di ottenere almeno un sei su quattro tiri di un dado giusto è 0.517747. Su 100 partite, de Mere avrebbe vinto in media 52 partite. Su 1000 partite, avrebbe vinto in media 518 partite. Supponiamo che ogni scommessa sia di un euro. Quindi de Mere avrebbe guadagnato 36 euro per ogni 1000 euro. Con un guadagno pari al 3.6% (circa).
+
+Secondo gioco
+
+In un lancio di una coppia di dadi, ci sono un totale di 36 possibili esiti (cioè i sei risultati del primo dado combinati con i sei risultati del secondo dado). Di questi 36 risultati, solo uno di questi è un doppio sei. Quindi, la probabilità di ottenere un doppio sei è 1/36 nel tirare un paio di dadi. Allo stesso modo, la probabilità di non ottenere un doppio sei è 35/36.
+
+La probabilità di non ottenere un doppio sei in 24 tiri di una coppia di dadi è:
+
+P(nessun doppio sei in 24 tiri) = (35/36)^24 = 0.5086
+
+Quindi la probabilità di ottenere almeno un doppio sei in 24 tiri è:
+
+P (almeno un doppio sei in 24 rotoli) = 1 - P (nessun doppio sei in 24 rotoli) =
+= 1 - 0.5086 = 0.4914
+
+La probabilità di ottenere almeno un doppio sei in 24 tiri di una coppia di dadi è 0.4914. In media, De Mere avrebbe vinto solo circa 49 partite su 100 e l'avversario avrebbe vinto circa 51 partite. Se ogni scommessa vale un euro, la parte avversaria di de Mere vincerebbe 2 franchi per ogni 100 franchi scommessi (con un guadagno di circa il 2%).
+
+Verifichiamo i risultati con una simulazione.
+
+(define (dado) (+ 1 (rand 6)))
+
+(define (game1 n)
+  (let ((mere 0) (break nil))
+    (for (i 1 n)
+      (setq break nil)
+      (for (j 1 4 1 break)
+        (if (= (dado) 6) (begin
+            (++ mere)
+            (setq break true)
+        ))
+      )
+    )
+    (println "games: " n { } "mere wins: " mere { - } (div mere n)"%")
+    (list n mere (div mere n))
+  )
+)
+
+(game1 1e4)
+;-> games: 10000 mere wins: 5149 - 0.5149%
+;-> (10000 5149 0.5149)
+(game1 1e5)
+;-> games: 100000 mere wins: 51845 - 0.51845%
+;-> (100000 51845 0.51845)
+(game1 1e6)
+;-> games: 1000000 mere wins: 518265 - 0.518265%
+;-> (1000000 518265 0.518265)
+(game1 1e7)
+;-> games: 10000000 mere wins: 5180712 - 0.5180712%
+;-> (10000000 5180712 0.5180712)
+(game1 1e8)
+;-> games: 100000000 mere wins: 51774774 - 0.51774774%
+;-> (100000000 51774774 0.51774774)
+(game1 1e8)
+;-> games: 100000000 mere wins: 51774196 - 0.51774196%
+;-> (100000000 51774196 0.51774196)
+
+Nota:
+se per ogni lancio le vittorie sono il numero di 6 ottenuti, allora la prob di vittoria vale 2/3.
+(define (game1 n)
+  (let ((mere 0) (break nil))
+    (for (i 1 n)
+      ;(setq break nil)
+      (for (j 1 4 1 break)
+        (if (= (dado) 6) (begin
+            (++ mere)
+            ;(setq break true)
+        ))
+      )
+    )
+    (println "games: " n { } "mere wins: " mere { - } (div mere n)"%")
+    (list n mere (div mere n))
+  )
+)
+
+(game1 1e7)
+;-> games: 10000000 mere wins: 6665579 - 0.6665579% ; 2/3 come pensava de Mere !!!)
+;-> (10000000 6665579 0.6665579) 
+
+Nota: le seguenti funzioni producono risultati differenti
+
+(define (dadi1) (+ 2 (rand 11)))
+(define (dadi) (+ (+ 1 (rand 6)) (+ 1 (rand 6))))
+
+Vediamo la distribuzione dei numeri random creati.
+
+Funzione dadi1:
+
+(setq res1 (array 13))
+(for (i 1 10000) (++ (res1 (dadi1))))
+res1
+;-> (nil nil 927 896 862 863 918 914 882 980 902 968 888)
+La distribuzione dei numeri da 2 a 12 è uniforme.
+
+Funzione dadi:
+
+(setq res (array 13))
+(for (i 1 10000) (++ (res (dadi))))
+res
+;-> (nil nil 264 540 850 1098 1427 1703 1388 1073 825 571 261)
+La distribuzione dai numeri da 1 a 12 non è uniforme. Questo è corretto ed è dovuto al fatto che i numeri non sono equiprobabili (ad esempio il numero 7 ha la probabilità più alta, perchè può essere formato da 1+6, 2+5, 3+4, 6+1, 4+3 e 5+2)
+
+(define (game2 n)
+  (let ((mere 0) (break nil))
+    (for (i 1 n)
+      (setq break nil)
+      (for (j 1 24 1 break)
+        (if (= (dadi) 12) (begin
+            (++ mere)
+            (setq break true)
+        ))
+      )
+    )
+    (println "games: " n { } "mere wins: " mere { - } (div mere n)"%")
+    (list n mere (div mere n))
+  )
+)
+
+(game2 1e3)
+; games: 1000 mere wins: 524 - 0.524%
+;-> (1000 524 0.524)
+(game2 1e4)
+;-> games: 10000 mere wins: 4933 - 0.4933%
+;-> (10000 4933 0.4933)
+(game2 1e5)
+;-> games: 100000 mere wins: 49140 - 0.4914%
+;-> (100000 49140 0.4914)
+(game2 1e6)
+;-> games: 1000000 mere wins: 491200 - 0.4912%
+;-> (1000000 491200 0.4912)
+(game2 1e7)
+;-> games: 10000000 mere wins: 4914713 - 0.4914713%
+;-> (10000000 4914713 0.4914713)
+
+(time (game2 1e7))
+;-> 60520.989
+
+Nota: nel 1933 una monografia del matematico russo A. Kolmogorov delinea un approccio assiomatico che costituisce la base per la moderna teoria della probabilità ("Foundations of Probability Theory", Chelsea, New York, 1950).
+
+

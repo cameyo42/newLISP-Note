@@ -48,6 +48,7 @@ Altro metodo, applico (con "map") la funzione (list x (char(x))) ad ogni element
 (define (ascii-list)
   (map (fn(x) (list x (char x))) (sequence 32 126)))
 
+
 --------------
 Pari o dispari
 --------------
@@ -647,7 +648,13 @@ Calcolo proporzione
 Calcolare il valore ignoto (che viene rappresentato con il numero zero) di una proporzione: A/B = C/D
 
 (define (proporzione a b c d)
-  (cond ((= a 0) (div (mul b c) d))
+        ; nessuno zero: controllo proporzione
+  (cond ((= '(0) (count '(0) (list a b c d)))
+         (= (div a b) (div c d)))
+        ; numero zeri maggiore di 1: nil
+        ((!= '(1) (count '(0) (list a b c d))) nil)
+        ; numero zeri uguale a 1: calcolo proporzione...
+        ((= a 0) (div (mul b c) d))
         ((= b 0) (div (mul a d) c))
         ((= c 0) (div (mul a d) b))
         ((= d 0) (div (mul b c) a))
@@ -662,6 +669,12 @@ Calcolare il valore ignoto (che viene rappresentato con il numero zero) di una p
 ;-> 10
 (proporzione 4 0 10 5)
 ;-> 2
+(proporzione 4 3 0 0)
+;-> nil
+(proporzione 10 5 4 3)
+;-> nil
+(proporzione 10 5 4 2)
+;-> true
 
 
 ----------------------------------------

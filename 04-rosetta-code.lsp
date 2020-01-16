@@ -83,7 +83,7 @@ Di seguito è riportato l'algoritmo che trova tutti i numeri primi minori o ugua
 
 3) A partire da p^2, contare ad incrementi di p e marca nella lista tutti quei numeri che sono maggiori o uguali a p^2 stesso. Questi numeri saranno p(p + 1), p(p + 2), p(p + 3), ecc.
 
-4) Trova nella lista il primo numero maggiore di p che non è marcato. Se non esiste tale numero, fermati algoritmo terminato). Altrimenti, lascia p ora uguale a questo numero (che è il prossimo primo), e ripeti dal punto 3.
+4) Trova nella lista il primo numero maggiore di p che non è marcato. Se non esiste tale numero, allora fermati -> algoritmo terminato). Altrimenti, lascia p uguale a questo numero (che è il prossimo primo), e ripeti dal punto 3.
 
 Quando l'algoritmo termina, tutti i numeri nell'elenco che non sono contrassegnati sono primi.
 
@@ -137,7 +137,7 @@ Adesso possiamo scrivere la funzione completa:
 ;-> 839 853 857 859 863 877 881 883 887 907 911 919 929 937 941 947 953 967 971 977 983 991 997
 
 Se vogliamo sapere soltanto se un certo numero è primo possiamo utilizzare altri metodi.
-Il test di primalità più semplice è la "prova della divisione": Dato un numero n, controlla se ogni numero intero m, che va da 2 a sqrt(n), divide precisamente n (la divisione non lascia resto). Se n è divisibile per uno qualsiasi dei valori di m allora n è composto, altrimenti è primo.
+Il test di primalità più semplice è la "prova della divisione": dato un numero n, controlla se ogni numero intero m, che va da 2 a sqrt(n), divide precisamente n (la divisione non lascia resto). Se n è divisibile per uno qualsiasi dei valori di m allora n è composto, altrimenti è primo.
 
 Ad esempio, per testare la primalità di 100 con questo metodo, considera tutti i divisori interi di 100:
 
