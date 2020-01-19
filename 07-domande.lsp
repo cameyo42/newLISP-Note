@@ -4598,3 +4598,153 @@ Routine di calcolo:
 (list p1 (div p1 num) p2 (div p2 num) pp (div pp num))
 
 
+----------------------------------
+Numeri casuali e fattori (Wolfram)
+----------------------------------
+
+Dati due numeri casuali (random), qual'è la probabilità che non abbiano fattori in comune?
+
+Nota: due numeri m e n non hanno fattori in comune quando gcd(m,n) = 1 (cioè i due numeri sono coprimi tra loro).
+
+Dirichlet ha dimostrato che questa probabilità vale:
+
+6 / pi^2 = 1 / [(1/(1*1)) + (1/(2*2)) + (1/(3*3)) + (1/(4*4)) + ...]
+
+----------
+Vediamo la dimostrazione a grandi linee:
+la probabilità che 2 numeri condividano un divisore primo è 1/p^2. Ciò significa che la probabilità che 2 numeri non condividano un fattore primo vale  (1 - 1/p^2). Allora, 1/2 di tutti i numeri hanno un fattore 2, 1/3 hanno un fattore 3, 1/4 hanno un fattore 4, ecc. Due numeri con fattore 2 sono entrambi (1/2)^2, entrambi con 3 è (1/3)^2, ecc. Questi sono eventi indipendenti quindi possiamo sommare tutte le p.
+
+Verifichiamo l'equazione sopra ponendo A = B(n).
+
+(setq pi (mul 2.0 (acos 0.0)))
+;-> 3.141592653589793
+
+(setq A (div 6 (mul pi pi)))
+;-> 0.6079271018540267
+
+(define (B n)
+  (let (val 0)
+    (for (i 1 n)
+      (setq val (add val (div 1 (mul i i))))
+    )
+    (setq val (div 1 val))
+  )
+)
+
+(B 10000)
+;-> 0.6079640597889869
+
+Vediamo la convergenza della serie:
+
+(sub A (B 10000))
+;-> -3.695793496027999e-005
+(sub A (B 100000))
+;-> -3.695757594401883e-006
+(sub A (B 1000000))
+;-> -3.695753849619621e-007
+
+Scriviamo una funzione che simula il processo.
+
+(setq r1 (rand 100000000))
+;-> 74660481
+(setq r2 (rand 100000000))
+;-> 17410809
+(gcd r1 r2)
+;-> 3
+Quindi r1 e r2 hanno fattori in comune.
+
+Un altro metodo è il seguente (più lungo):
+
+(setq r1 (rand 100000000))
+(setq r2 (rand 100000000))
+
+Calcoliamo i fattori primi dei due numeri:
+
+(setq f1 (factor r1))
+(setq f2 (factor r2))
+
+Se non ci sono fattori in comune la funzione "count" restituisce una lista con tutti valori 0:
+
+(count f1 f2)
+;-> (0 0 0 0 1 0 0)
+
+(count f2 f1)
+;-> (1 0)
+
+Per verificare l'esistenza di valori diversi da 0 in una lista possiamo sommare tutti gli elementi e controllare il risultato:
+
+(apply + (count f1 f2))
+;-> 1 ; ci sono fattori comuni
+
+Comunque per la nostra funzione di simulazione utilizziamo "gcd":
+
+(define (coprimi% n)
+  (local (r1 r2 perc)
+    (setq perc 0)
+    (for (i 1 n)
+      (if (= 1 (gcd (rand 100000000) (rand 100000000)))
+        (++ perc)
+      )
+    )
+    (mul 100 (div perc n))
+  )
+)
+
+(coprimi% 1e7)
+;-> 60.79949
+
+Il risultato della simulazione conferma il risultato della formula (0.6079271018540267).
+
+
+------------------------
+Coprimi vicini (Wolfram)
+------------------------
+
+Dato un numero n, trovare i primi tre numeri a, b e c, maggiori o uguali a n, tali che:
+
+1. a è coprimo di b,
+2. b è coprimo di c,
+3. a non è coprimo di c.
+
+Nota: due numeri sono coprimi se e solo se essi non hanno nessun divisore comune eccetto 1 e -1 o, in modo equivalente, se il loro massimo comune divisore è 1.
+
+Dato qualsiasi numero naturale x, questo è certamente coprimo a x + 1. Inoltre, due numeri pari non sono mai coprimi, perché condividono un fattore 2. Quindi, se n è pari, n, n + 1 e lo + 2 formano una tripla corretta, e se lo è dispari, n + 1, n + 2 e n + 3 formano una tripla adatta.
+
+Sciviamo una funzione che calcola e verifica la soluzione:
+
+(define coprimi (a b) (= 1 (gcd a b)))
+
+(define (coprimi-near n)
+  (let ((out '()) (a 0) (b 0) (c 0))
+    (cond ((even? n)
+           (setq a n)
+           (setq b (+ n 1))
+           (setq c (+ n 2))
+           (println "gcd("a { } b") = " (gcd  a b))
+           (println "gcd("b { } c") = " (gcd  b c))
+           (println "gcd("a { } c") = " (gcd  a c)))
+          ((odd? n)
+           (setq a (+ n 1))
+           (setq b (+ n 2))
+           (setq c (+ n 3))
+           (println "gcd("a { } b") = " (gcd  a b))
+           (println "gcd("b { } c") = " (gcd  b c))
+           (println "gcd("a { } c") = " (gcd  a c)))
+    )
+    (list a b c)
+  )
+)
+
+(coprimi-near 10)
+;-> gcd(10 11) = 1
+;-> gcd(11 12) = 1
+;-> gcd(10 12) = 2
+;-> (10 11 12)
+
+(coprimi-near 1111)
+;-> gcd(1112 1113) = 1
+;-> gcd(1113 1114) = 1
+;-> gcd(1112 1114) = 2
+;-> (1112 1113 1114)
+
+

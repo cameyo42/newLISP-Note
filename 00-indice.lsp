@@ -349,6 +349,8 @@ DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Pattern Matching (Facebook)
   Percorsi su una griglia (Uber)
   Dadi e probabilità (Visa)
+  Numeri casuali e fattori (Wolfram)
+  Coprimi vicini (Wolfram)
 
 LIBRERIE
 ========

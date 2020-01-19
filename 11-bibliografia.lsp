@@ -83,4 +83,7 @@
   GeeksforGeeks - Un portale di computer science per "geeks"
   https://www.geeksforgeeks.org/
 
+  Fermat's Library: a platform for illuminating academic papers. Publish an annotated paper every week.
+  https://twitter.com/fermatslibrary?lang=en
+
 

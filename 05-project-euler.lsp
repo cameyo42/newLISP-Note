@@ -6061,7 +6061,6 @@ Vediamo la somma dei valori ASCII del testo decifrato:
 ;-> 129448
 
 
-
 ===========
 Problema 60
 ===========

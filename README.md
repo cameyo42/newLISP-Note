@@ -11,8 +11,8 @@ Appunti sul linguaggio newLISP
 04) Rosetta code (50)  
 05) Project eulero (60)  
 06) Problemi vari (63)  
-07) Domande programmatori (51)  
-08) Librerie (6)  
+07) Domande programmatori (53)  
+08) Librerie (7)  
 09) Note libere (62)  
 10) Appendici (20)  
 11) Bibliografia  
@@ -20,4 +20,5 @@ Appunti sul linguaggio newLISP
 Documentazione Extra:  
 A) Introduction to newLISP (by Cormullion)  
 B) The Little newLISPER (wip)  
+
 

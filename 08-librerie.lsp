@@ -2304,3 +2304,500 @@ Per caricare la libreria nella REPL:
 (load "tree-library.lsp")
 
 
+=========
+ FUNLISP
+=========
+
+L'autore di questa libreria di funzioni "funlisp.lsp" è Dmitry Chernyak <dmi@en.feautec.pp.ru>.
+La libreria è reperibile all'indirizzo:
+
+http://en.feautec.pp.ru/store/libs/funlib.lsp
+
+;; @module funlib.lsp
+;; @author Dmitry Chernyak <dmi@en.feautec.pp.ru>
+;; @version 1.22
+;; @description The newLISP language unofficial extension module
+;; @location http://en.feautec.pp.ru/store/libs/funlib.lsp
+
+(context MAIN)
+
+;; @syntax (push-end <item> <list>)
+;;
+;; Push <item> to the end of the <list>
+;; Equivalent to (push item list -1)
+(context 'MAIN:push-end)
+(define-macro (push-end:push-end _push lst_push)
+  "(push-end item list) - push item to the end of the list"
+  (eval (list 'push (quote (eval _push)) lst_push -1)))
+
+;; @syntax (pushl-end <lst> <slst> <index>)
+;;
+;; Push a list <lst> into the end of a list <slst>
+;;
+;; @param <slst> must be a list
+;;
+;; @return the last element of <lst>
+;;
+;; Effective as in-place alternative to <b>append</b> in case
+;; of frequently appending to long list
+;;
+;; @example
+;; (set 'l (1 2 3))
+;; (pushl '(4 5 6) l)
+;; l => (1 2 3 4 5 6)
+(context 'MAIN:pushl-end)
+(define-macro (pushl-end:pushl-end lst slst)
+  "(pushl-end lst slst) - push a list lst into the end of a list in symbol slst"
+  (dolist (l (eval lst))
+    (push l (eval slst) -1)))
+
+;; @syntax (dofile (<sym> <str-fnam>e [<str-delim> [<int-strlen>]]) <body>)
+;; @syntax (dofile (<sym> <int-fd> [<str-delim> [<int-strlen>]]) <body>)
+;;
+;; Behaves like 'dolist' but for a file contents
+;;
+;; @param <sym> iterating symbol
+;; @param <str-fname> filename
+;; @param <int-fd> opened file descriptor (will be closed on finish)
+;; @param <str-delim> "\n" by default; use nil to turn off explicitly
+;; @param <int-strlen> 65000 by default. Not limited
+;; @param <body> the plain sequence of funcalls
+;;
+;; @example
+;; (dofile (l "/etc/passwd") (print ">") (println l))
+;; =>
+;; >root:x:0:0:root:/root:/bin/bash
+;; >daemon:x:1:1:daemon:/usr/sbin:/bin/sh
+;; >bin:x:2:2:bin:/bin:/bin/sh
+;; >....
+(context 'MAIN:dofile)
+(define-macro (dofile:dofile ini)
+  "(dofile (sym str-fname|int-fd [str-delim [int-strlen]]) body) - behaves like dolist, but for file's contents"
+  (let (
+    _sym (ini 0)
+    fil (eval (ini 1))
+    delim (eval (if (> (length ini) 2) (ini 2) "\n"))
+    buflen (eval (if (> (length ini) 3) (ini 3) 65000))
+    fd nil
+    iter nil buf nil delim_len 0
+    _read-buffer nil
+    res nil err nil)
+    (set 'delim_len (length delim))
+    (if (not (set 'fd
+      (if
+        (string? fil) (open fil "r")
+        (integer? fil) fil
+        (throw-error "dofile: fname must evaluate to str-fname or int-fd"))))
+      (throw-error "dofile: no file descriptor or can't open file"))
+    (unless (atom? _sym) (set '_sym (eval _sym)))
+    (set 'iter
+      (expand (append '(let (_sym buf)) (args)) '_sym))
+    (set '_read-buffer
+      '(read-buffer fd 'buf buflen))
+    (if delim (push 'delim _read-buffer -1))
+    (set 'err (catch
+      (while (or (eval _read-buffer) buf) ; works since 8.7.0
+         (if (and delim (ends-with buf delim))
+           (set 'buf (chop buf delim_len)))
+         (eval iter))
+      'res))
+    (close fd)
+    (if err res (throw-error res))))
+
+;; @syntax (ecase <exp-switch> (<exp-key1> <body-1>)[ (<exp-key2> <body-2>)...])
+;;
+;; Like a <b>case</b> with evaluating <exp-key> before testing against evaluated <exp-switch>
+;;
+;; @param <exp-switch> expression, value of which will be tested against <exp-key> conditions
+;; @param <exp-key> expression, value of which will be tested against value
+(context 'MAIN:ecase)
+(define-macro (ecase:ecase v)
+  "(ecase ...) - case with evaluating exp-key before testing"
+  (eval (append (list 'case v)
+    (map (fn (i) (set-nth 0 i (eval (i 0))))
+         (args)))))
+
+;; @syntax (ifempty <exp-value> <exp-replacement>)
+;;
+;; Replace empty or nil value
+;;
+;; If the result of <exp-value> is <nil> or is empty, returns the result of
+;; <exp-replacement>.
+;; Otherwise returns the result of <exp-value>.<br>
+;; NOTE: <b>ifempty</b> is a macro, so <exp-replacement> evaluated only when needed.
+(context 'MAIN:ifempty)
+(define-macro (ifempty:ifempty v r)
+  "(ifempty value replacement) - replace empty or nil value"
+  (set 'v (eval v))
+  (if (or (not v) (empty? v)) (eval r) v))
+
+;; @syntax (ifnil <exp-value> <exp-replacement>)
+;;
+;; Replace nil value
+;;
+;; If the result of <exp-value> is <nil>, returns the result of
+;; <exp-replacement>.
+;; Otherwise returns the result of <exp-value>.<br>
+;; NOTE: <b>ifnil</b> is a macro, so <exp-replacement> evaluated only when needed.
+(context 'MAIN:ifnil)
+(define-macro (ifnil:ifnil v r)
+  "(ifempty value replacement) - replace empty or nil value"
+  (set 'v (eval v))
+  (if v v (eval r)))
+
+;; @syntax (file-tree <dir|dir-list> [<filter-function>])
+;;
+;; Filesystem tree iterator
+;;
+;; @param <dir|dir-list> starting directory or a list of several
+;; @param <filter-function> filter: (lambda <filename> <dirname> <is-file>)
+;; @param <is-file> <true> if filename is a file
+;;
+;; @return a list of pairs (<filename> <directory>) where <filename> satisfy
+;; to filter-function (more precise - see code and examles).<br>
+;; <filename> can be either the name of a file or a directory.
+;;
+;; @example
+;; (setq list1 (file-tree "." ))
+;; (setq list2 (file-tree "." (fn (x) (starts-with x "b" nil))))
+;; ; got files only and skip directories
+;; (setq list3 (file-tree "." (fn (f d is-file) is-file)))
+
+;; ORIGIN<br>
+;; file-tree was introduced by alex version 2005.12.02.
+;; Published at newLisp fan Club forum.
+;; funlib has slightly modified version of it.
+; by alex (modified)
+(context 'MAIN:file-tree)
+(define-macro (file-tree:file-tree dir _filter)
+  "(file-tree dir|dir-list [filter-function]) - filesystem tree iterator.\nfilter-function: (fn (filename dirname is-file))"
+  (if (symbol? _filter) (setq _filter (eval _filter)))
+  (letn
+    ( result '()
+      file-tree-utility
+        (lambda (d)
+          (dolist (f (replace "." (replace ".." (directory d))))
+            (let (isdir (directory? (append d f)))
+              (if isdir
+                (file-tree-utility (append d f "/")))
+              (if (or (not _filter) (_filter f d (not isdir)))
+                (push (list f d) result))))))
+
+    (unless (list? dir) (setq dir (list dir)))
+    (dolist (d dir)
+      (replace "\\" d "/")
+      (unless (ends-with d "/") (setq d (append d "/" )))
+      (file-tree-utility d))
+    result))
+
+;; @syntax (doif (<sym> <expr>) <expr-yes> <expr-no>)
+;;
+;; Anaphoric if
+;;
+;; Eval <expr-yes> if <expr> orherwise eval <expr-no><br>
+;; While evaluating <expr-yes> or <expr-no> the result of <expr> is stored in <sym>
+;; @example
+;; (doif (l (lookup key table))
+;;   (println "found: " l)
+;;   (println "not found"))
+(context 'MAIN:doif)
+(define-macro (doif:doif test do-yes do-no)
+        (eval
+    (list let test (list 'if (first test) do-yes do-no))))
+
+(context MAIN)
+
+;; @syntax (inc-p '<sym> [<num>])
+;;
+;; Post increment function
+;;
+;; @param <num> increment value, 1 by default
+(define (inc-p symb num)
+  "(inc-p sym num) - post-increment sym by num"
+  (let (old (eval symb))
+    (if num (inc symb num) (inc symb))
+  old))
+
+;; @syntax (dec-p '<sym> [<num>])
+;;
+;; Post decrement function
+;;
+;; @param <num> decrement value, 1 by default
+(define (dec-p symb num)
+  "(dec-p sym num) - post-decrement sym by num"
+  (let (old (eval symb))
+    (if num (dec symb num) (dec symb))
+  old))
+
+;; @syntax (group <n> <lst>)
+;;
+;; Group list lst into sublists by n members, truncate the last incomplete group
+;;
+;; @param <n> number of members in a group, if <n>>0 group from start, else from end
+(define (group n lst)
+  "(group n lst) - group list by n members, truncate the last incomplete group"
+  (letn
+    (an (abs n)
+     ln (length lst)
+     t (% ln an))
+    (if (> an ln) (set 'an ln))
+    (array-list (array
+      (/ ln an) an
+      (if (> n 0)
+        lst
+        (t lst))))))
+
+;; @syntax (group-all <n> <lst>)
+;;
+;; Group list lst into sublists by n members, save the last incomplete group
+;;
+;; @param <n> number of members in a group, if <n>>0 group from start, else from end
+(define (group-all n lst)
+  "(group-all n lst) - group list by n members, save the last incomplete group"
+  (letn
+    (an (abs n)
+     ln (length lst)
+     an (if (> an ln) ln an)
+     t (% ln an)
+     ml (array-list (array
+      (/ ln an) an
+      (if (> n 0) lst (t lst)))))
+    (if (= t 0) ml
+      (if (> n 0) (append ml (list ((- ln t) lst)))
+        (append (list (0 t lst)) ml)))))
+
+;; @syntax (group-by <lst> <ind-grp> <ind-memb>)
+;;
+;; Group sublists by a key
+;;
+;; @param <lst> list of some sublists
+;; @param <ind-grp> list of member's indices in a sublists, which will be a KEY-list
+;; @param <ind-memb> list of member's indices in a sublists, which will be a VALUE-list
+;;
+;; Group (select lst ind-memb) <VALUE-list> by (select lst ind-grp) <KEY-list>.<br>
+;;
+;; Result is an assoc-list where each unique <KEY-list> relies to a list of
+;; corresponding <VALUE-lists>.
+(define (group-by lst ind-grp ind-memb)
+  "(group-by lst ind-grp ind-memb) - group sublists of lst into assoc-list with a key of ind-grp and a list of values of ind-memb indices"
+  (let (grp '())
+    (dolist (l lst)
+      (let (g (select l ind-grp) m (select l ind-memb))
+        (if (not
+              (replace-assoc
+                g grp
+                (list g (append ($0 1) (list m)))))
+          (push (list g (list m)) grp))))
+    grp))
+
+;; @syntax (lesser <int>)
+;;
+;; @return next lesser int value
+;;
+;; Equivalent to (- <int> 1)
+;;
+;; Introduced for readability improvement
+(define (lesser x) (- x 1))
+
+;; @syntax (greater <int>)
+;;
+;; @return next greater int value
+;;
+;; Equivalent to (+ <int> 1)
+;;
+;; Introduced for readability improvement
+(define (greater x) (+ x 1))
+
+;; @syntax  (append-one <lst> <memb>)
+;;
+;; Append one any element to the end of the list
+(define (append-one lst)
+  "(append-one lst arg1 arg2 ...)  - append one or more elements to the end of the list"
+  (append lst (args)))
+
+;; @syntax (dirname <str-pathname>)
+;;
+;; @return a directory part of pathname
+;;
+;; Split pathname by "/" symbol and return all but last element as a string.<br>
+;; If directory part is empty, return ".".<br>
+;; Return value is not finished by a "/".
+(define (dirname f)
+  "(dirname pathname) - return directory part of pathname"
+  (ifempty (join (chop (parse f "/")) "/") "."))
+
+;; @syntax (strip-end <str> <fin>)
+;;
+;; Strip the final substring from the end of string
+;; Useful for stripping filename extension
+;;
+;; @example
+;; (strip-end "abcd" "cd") => "ab"
+;; (strip-end "abcd" "c") => "abcd"
+;; (strip-end "somedir/somefile.txt" ".txt") => "somedir/somefile"
+(define (strip-end str fin)
+  "(strip-end str fin) - strip the fin-string from the end of str"
+  (if (ends-with str fin) (chop str (length fin)) str))
+
+;; @syntax (newlisp-version)
+;;
+;; @return a version string like "newLisp v8.8.0-p0 on linux"
+;;
+;; ORIGIN<br>
+;; Introduced by Sammo on newLISP Fan Club forum.
+(define (newlisp-version)
+  "(newlisp-version) - return version string"
+  (let (OS '("unknown" "linux" "bsd" "osx" "solaris" "cygwin" "win32"
+             "win32-Borland" "WinCE" "Tru64Unix")
+        FORMAT "newLISP v%s.%s.%s-p%s on %s")
+    (apply format (flat (list FORMAT (explode (string ((sys-info) -2)))
+                              (OS ((sys-info) -1)))))))
+
+;; @syntax (int10 <str> <int-default>)
+;;
+;; String to integer on base 10 conversion
+;;
+;; Converts a string to an integer strictly on base 10 (despite of leading
+;; zeroes etc.)
+(define (int10 str def)
+  "(int10 str [def]) - converts str to int on base 10"
+  (int str (if def def 0) 10))
+
+;; @syntax (doc <sym-function>)
+;;
+;; Prints help on function
+;;
+;; If function body has a meaningless string value at it's start,
+;; it will be returned, otherwise nil is returned.
+;;
+;; @example
+;; (define (foo bar)
+;;   "doc test function"
+;;   (if bar (bla-bla-bla)
+;;           (aaaarrgghhhh)))
+;;
+;; (doc foo) => "doc test function"
+
+;; ORIGIN<br>
+;; Nigel Brown and HPW has introduced this on newLisp forum.
+; by nigelbrown & HPW
+(define (doc f)
+  "(doc f) - display function f's doc string, if present"
+  (if (and (or (lambda? f) (macro? f))(string? (nth 1 f)))
+      (nth 1 f)
+      nil))
+
+;; @syntax (make-k-permutations <k> <multiset>)
+;;
+;; Make permutation w/o duplicates
+;;
+;; @param <k> a permutation length >= (length <multiset>)
+;; @param <multiset> a list for permutation
+;;
+;; Warren-Hanson algorithm for generating permutations of multisets.
+;;
+;; @example
+;; (make-k-permutations 2 '(1 2)) => ((2 1) (1 2))
+
+;; ORIGIN<br>
+;; Copied from newLisp code snippets
+; from newLisp code snippets
+(define (make-k-permutations k multiset)
+ "(make-k-permutations k multiset) - make permutations w/o duplicates"
+ (let ((pivots (unique multiset)))
+   (if (= k 1)
+      (map list pivots)
+      (let ((acc '()))
+        (dolist (p pivots)
+          (let ((sub-multiset (remove-from-list p multiset)))
+            (dolist (sub-perm
+                     (make-k-permutations (- k 1) sub-multiset))
+              (push (cons p sub-perm) acc))))
+        acc))))
+
+;; @syntax (remove-from-list <elt> <lst>)
+;;
+;; Nondestructive remove element from list
+(define (remove-from-list elt lst)
+  "(remove-from-list elt lst) - nondestructive remove element from list"
+  (let ((elt-pos (find elt lst)))
+    (if elt-pos (pop lst elt-pos))
+    lst))
+
+;; @syntax (compose <lst> <lst> ...)
+;;
+;; Inter-compose lists
+;;
+;; Generate all possible combinations of lists's elements
+;; @example
+;; (compose '(a b) '(c d) '(e f))
+;; =>
+;; ((b d f) (b d e) (b c f) (b c e) (a d f) (a d e) (a c f) (a c e))
+(define (compose )
+  "(compose lst lst ...) - inter-compose lists"
+  (let (res '())
+   (compose-support (args) '()) res))
+
+(define (compose-support l s)
+  (if (empty? l)
+   (push s res)
+   (dolist (p (l 0))
+    (compose-support (1 l) (append s (list p))))))
+
+;; @syntax (++ '<int-a> <int-b>)
+;;
+;; Increment <int-a> by <int-b>.
+;;
+;; @param <int-a> can be either a symbol or a value
+;;
+;; ORIGIN<br>
+;; Sammo has introduced this on newLisp forum.
+; by Sammo, modified
+(define (++ _a01 _b01)
+  "(++ 'int-a int-b) - increment int-a by int-b. int-a can be either a symbol or a value"
+  (if (symbol? _a01)
+    (set _a01 (+ (or (eval _a01) 0) (or (eval _b01) 1)))
+    (+ (or (eval _a01) 0) (or (eval _b01) 1))))
+
+;; @syntax (-- '<int-a> <int-b>)
+;;
+;; Decrement <int-a> by <int-b>.
+;;
+;; @param <int-a> can be either a symbol or a value
+(define (-- _a01 _b01)
+  "(-- 'int-a int-b) - decrement int-a by int-b. int-a can be either a symbol or a value"
+  (if (symbol? _a01)
+    (set _a01 (- (or (eval _a01) 0) (or (eval _b01) 1)))
+    (- (or (eval _a01) 0) (or (eval _b01) 1))))
+
+;; @syntax (p++ '<int-a> <int-b>)
+;;
+;; Post-increment <int-a> by <int-b>.
+(define (p++ _a01 _b01)
+  "(p++ int-sym int-num) - post-increment int-sym by int-num"
+  (let (_old (eval _a01))
+    (++ _a01 (or _b01 1))
+  _old))
+
+;; @syntax (p-- '<int-a> <int-b>)
+;;
+;; Post-decrement <int-a> by <int-b>.
+(define (p-- _a01 _b01)
+  "(p-- int-sym int-num) - post-decrement int-sym by int-num"
+  (let (_old (eval _a01))
+    (-- _a01 (or _b01 1))
+  _old))
+
+;; @syntax (second <lst>)
+;;
+;; Returns the second element of a list
+(define (second lst)
+  "(second lst) - returns the second element from a list"
+  (lst 1))
+
+(global 'inc-p 'dec-p 'group 'group-all 'group-by 'lesser 'greater
+  'append-one 'dirname 'strip-end 'newlisp-version 'int10 'doc
+  'make-k-permutations 'remove-from-list 'compose
+        '++ '-- 'p++ 'p-- 'second)
+
+
