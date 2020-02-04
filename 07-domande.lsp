@@ -399,10 +399,10 @@ Adesso dobbiamo tenere conto degli elementi con valore zero:
 In questo caso, il risultato dovrebbe essere tutti zero tranne l'elemento che ha valore 0: questo elemento dovrebbe contenere il prodotto di tutti gli altri.
 
 2. Due zeri o più nella lista.
-Questo caso è più o meno come il primo, ma la lista risultante contiene sempre solo zeri. Perché 'cè sempre uno zero nel prodotto.
+Questo caso è più o meno come il primo, ma la lista risultante contiene sempre solo zeri. Perché c'è sempre uno zero nel prodotto.
 
 Per considerare questi due casi calcoliamo il prodotto di tutti gli elementi tranne quelli che hanno valore zero e contiamo anche quanti zeri ci sono nella lista.
-Quindi se abbiamo due o più zeri nella lista iniziale, possiamo restituire una list con tutti zeri.
+Quindi se abbiamo due o più zeri nella lista iniziale, possiamo restituire una lista con tutti zeri.
 Altrimenti, iteriamo la lista per sostituire gli elementi che valgono zero con il prodotto che abbiamo calcolato e assegnare il valore zero a tutti gli altri elementi.
 
 La funzione è la seguente:
@@ -455,9 +455,9 @@ La funzione è la seguente:
 Ricerca numero su una lista (Stripe)
 ------------------------------------
 
-Data una lista di numeri interi, trova il primo intero positivo mancante in tempo lineare e spazio costante. In altre parole, trova il numero intero positivo più basso che non esiste nelll lista. La lista può contenere anche duplicati e numeri negativi.
-Ad esempio, l'input (3 4 -1 1) dovrebbe dare 2.
-L'input (1 2 0) dovrebbe dare 3.
+Data una lista di numeri interi, trova il primo intero positivo mancante in tempo lineare e spazio costante. In altre parole, trova il numero intero positivo più basso che non esiste nella lista. La lista può contenere anche duplicati e numeri negativi.
+Ad esempio, l'input (3 4 -1 1) dovrebbe restituire 2.
+L'input (1 2 0) dovrebbe restituire 3.
 È possibile modificare la lista di input.
 
 Possiamo notare che gli indici di una lista e i numeri interi sono la stessa cosa.
@@ -563,7 +563,6 @@ Inoltre utilizzeremo una funzione (decodifica?) che ritorna "1" se la stringa è
 -------------------------------------------
 Implementazione di un job-scheduler (Apple)
 -------------------------------------------
-
 
 Implementare un job scheduler che prende come parametri una funzione "f" e un intero "n" e chiama "f" dopo "n" millisecondi.
 
@@ -1009,15 +1008,18 @@ Risolviamo questo problema in due modi: il primo con le funzioni predefinite di 
 Nel primo caso notiamo che:
 
 con find-all possiamo creare la lista degli zeri:
+
 (setq zeri (find-all 0 '(0 1 0 3 12)))
 ;-> (0 0)
 
-con filter possiamo creare la lista di tutti inumeri diversi da zero:
+con filter possiamo creare la lista di tutti i numeri diversi da zero:
+
 (define (pos? x) (> x 0))
 (setq numeri (filter pos? '(0 1 0 3 12)))
 ;-> (1 3 12)
 
 infine uniamo le due liste con append:
+
 (append numeri zeri)
 ;-> (1 3 12 0 0)
 
@@ -1068,11 +1070,11 @@ Intersezione di segmenti (byte-by-byte)
 La soluzione è basata su un algoritmo del libro di Andre LeMothe "Tricks of the Windows Game Programming Gurus".
 In generale, una linea ha una delle forme seguenti (interscambiabili):
 
-Y-Intercetta:  y=m*x+b
-Pendenza:      (y–y0)=m*(x–x0)
-Due punti:     (y–y0)=(x–x0)*(y1–y0)/(x1–x0)
-Generale:      a*x+b*y=c
-Parametrica:   P=p0+V*t
+Y-Intercetta:  y = m*x + b
+Pendenza:      (y – y0) = m*(x – x0)
+Due punti:     (y – y0) = (x – x0)*(y1 – y0)/(x1 – x0)
+Generale:      a*x + b*y = c
+Parametrica:   P = p0 + V*t
 
 Il caso generale dell'intersezione è il seguente:
 
@@ -1422,6 +1424,7 @@ Usiamo la funzione apply per applicare tutti gli operatori di confronto alla lis
 ;-> <=
 (order? '(-1 -2 3 -1))
 ;-> nil
+
 
 ----------------
 Caramelle (Visa)
@@ -4746,5 +4749,120 @@ Sciviamo una funzione che calcola e verifica la soluzione:
 ;-> gcd(1113 1114) = 1
 ;-> gcd(1112 1114) = 2
 ;-> (1112 1113 1114)
+
+
+--------------------------
+Unione di liste (LinkedIn)
+--------------------------
+
+Date due liste costruire la lista unione, cioè una lista con tutti valori non ripetuti delle due liste.
+Per esempio, unione (1 3 1 4 4 3) (2 1 5 6 4)  -->  (1 3 4 2 5 6)
+
+Usiamo un dizionario (hash-map) che ci permette di inserire automaticamente solo i valori che non sono già presenti nel dizionario stesso.
+
+(define (unione lst1 lst2)
+  (let (out '())
+    ; creazione di una hash-map (Hash)
+    (new Tree 'Hash)
+    ; inserisce i valori della lista 1 sull'hash-map
+    ; (solo quelli non presenti nell'hash-map)
+    (dolist (el lst1) (Hash el el))
+    ; inserisce i valori della lista 2 sull'hash-map
+    ; (solo quelli non presenti nell'hash-map)
+    (dolist (el lst2) (Hash el el))
+    ; creazione della lista di output 
+    (dolist (el (Hash)) (push (el 1) out -1))
+    ; occorre eliminare i valori dalla hash-map
+    ; perchè è una variabile globale (è un contesto)
+    (delete 'Hash)
+    out
+  )
+)
+
+(unione '(1 3 1 4 4 3) '(2 1 5 6 4))
+;-> (1 2 3 4 5 6)
+
+
+---------------------------
+Tripla crescente (LeetCode)
+---------------------------
+
+Data una lista non ordinata restituire, se esiste, una sottosequenza crescente di lunghezza 3.
+I numeri non devono essere necessariamente consecutivi. 
+Il problema non richiede di trovare la sottosequenza, ma verificare solo la sua esistenza.
+
+Dal punto di vista formale occorre trovare una sequenza x, y e z, tale che x < y < z.
+
+(define (triple? lst)
+  (local (x y z i out)
+    (setq out nil)
+    (setq x 9223372036854775807)
+    (setq y 9223372036854775807)
+    (setq i 0)
+    (dolist (el lst)
+      (setq z el)
+      (cond ((>= x z) (setq x z)) ; aggiorna x ad un valore inferiore
+            ((>= y z) (setq y z)) ; aggiorna y ad un valore inferiore
+            (true (setq out true))
+      )
+    )
+    ; I valori memorizzati in x,y,z non sono 
+    ; necessariamente la sottosequenza crescente
+    ;(println x { } y { } z)
+    out
+  )
+)
+
+(triple? '(10 1 5 4 3))
+;-> nil
+(triple? '(10 1 5 4 3 4))
+;-> true
+
+
+----------------------------
+Stringhe isomorfe (Facebook)
+----------------------------
+
+Date due stringhe, determinare se sono isomorfe. Due stringhe sono isomorfe se i caratteri nella prima stringa possono essere sostituiti per ottenere la seconda stringa. Ad esempio, "egg" e "add" sono isomorfe, "foo" e "bar" non lo sono.
+
+Possiamo usare due hashmap che tengono traccia delle mappature char-char. Se un valore è già mappato, non può essere mappato nuovamente.
+
+(define (isomorfe str1 str2)
+  (let (out true)
+    (cond ((!= (length str1) (length str2))
+          (setq out nil))
+          ((or (null? str1) (null? str2))
+          (setq out nil))
+          (true
+            (new Tree 'map1)
+            (new Tree 'map2)
+            (for (i 0 (- (length str1) 1) 1 (not out))
+              (setq c1 (str1 i))
+              (setq c2 (str2 i))
+              (if (map1 c1)
+                (if (!= c2 (map1 c1))
+                    (setq out nil)
+                )
+                (if (map2 c2)
+                    (setq out nil)
+                )
+              )
+              (map1 c1 c2)
+              (map2 c2 c1)
+            )
+          )
+    )
+    (delete 'map1)
+    (delete 'map2)
+    out
+  )
+)
+
+(isomorfe "egg" "add")
+;-> true
+(isomorfe "foo" "bar")
+;-> nil
+(isomorfe "nonna" "lilla")
+;-> true
 
 

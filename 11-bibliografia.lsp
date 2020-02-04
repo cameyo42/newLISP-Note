@@ -50,6 +50,8 @@
   "Introduction to Algorithms", Cormen-Leiserson-Rivest-Stein, 3ed, 2009
 
   "Teoria e Progetto di Algoritmi Fondamentali", Ausiello-Marchetti-Spaccamela-Protasi, 1985
+  
+  "Primality Testing in Polynomial Time" di Martin Dietzfelbinger, 2004
 
   "Land of Lisp", Conrad Barsky, 2011
 

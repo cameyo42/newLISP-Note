@@ -476,6 +476,19 @@ Punto terzo
 
 Questi tre punti sono caratteristici per ogni funzione che lavora sulle liste di liste.
 
+Funzione predefinita newLISP: (flat lst)
+
+(flat '((1 2) ((2 (3)) (4 4)) (((7)))))
+;-> (1 2 2 3 4 4 7)
+
+Possiamo anche specificare quante annidamenti vogliamo rimuovere:
+
+(flat '((1 2) ((2 (3)) (4 4)) (((7)))) 1)
+;-> (1 2 (2 (3)) (4 4) ((7)))
+
+(flat '((1 2) ((2 (3)) (4 4)) (((7)))) 2)
+;-> (1 2 2 (3) 4 4 (7))
+
 
 =======================================================
 N-99-08 Elimina gli elementi duplicati consecutivi di una lista

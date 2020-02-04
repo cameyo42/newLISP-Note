@@ -440,6 +440,11 @@ Per vedere la cartella corrente della REPL di newLISP:
 !cd
 ;-> f:\Lisp-Scheme\newLisp\MAX
 
+oppure con una funzione:
+
+(real-path)
+;-> f:\Lisp-Scheme\newLisp\MAX
+
 Per cambiare la cartella corrente della REPL di newLISP:
 
 (change-dir "c:\\util")
@@ -450,7 +455,7 @@ Per cambiare la cartella corrente della REPL di newLISP:
 
 Verifichiamo:
 
-!cd
+(real-path)
 ;-> c:\\util
 
 Ritorniamo alla cartella precedente:
@@ -5771,4 +5776,376 @@ La distribuzione dai numeri da 1 a 12 non è uniforme. Questo è corretto ed è 
 
 Nota: nel 1933 una monografia del matematico russo A. Kolmogorov delinea un approccio assiomatico che costituisce la base per la moderna teoria della probabilità ("Foundations of Probability Theory", Chelsea, New York, 1950).
 
+
+-----------------
+Fibonacci(104911)
+-----------------
+
+Questo è il più grande numero noto di Fibonacci che è anche primo. Contieneo 21925 cifre ed è stato dimostrato primo da Mathew Steine e Bouk de Water nel 2015.
+
+Con newLISP possiamo calcolare questo numero, ma non possiamo verificare se è primo perchè richiederebbe un tempo lunghissimo.
+
+(define (fibonacci n)
+  (let (L '(0L 1L))
+    (dotimes (i n)
+      (setq L (list (L 1) (apply + L)))
+    )
+    ;(L 1)
+    (last L)
+  )
+)
+
+(length (setq a (fibonacci 104911)))
+;-> 21925
+
+(setq a (fibonacci 104911))
+
+
+-------------
+Conta e leggi
+-------------
+
+La sequenza di interi 1, 11, 21, 1211, 111221, ... viene creata partendo dal numero 1 e leggendo i numeri nel modo seguente:
+
+     1 viene letto come 1 volta 1 ==> 11
+    11 viene letto come 2 volte 1 ==> 21
+    21 viene letto come 1 volta 2 e 1 volta 1 ==> 1211
+  1211 viene letto come 1 volta 1, 1 volta 2 e 2 volte 1 ==> 111221
+111221 viene letto come 3 volte 1, 2 volte 2 e 1 volta 1 ==> 312211
+...
+
+Scrivere una programma che genera questa sequenza fino ad un numero n passato come parametro.
+
+Il problema può essere risolto utilizzando una semplice iterazione.
+
+(define (conta n)
+  (local (rip cur out i j res)
+    (setq res '("1"))
+    (setq out "1")
+    (setq i 1)
+    (while (< i n)
+      (setq cur "")
+      (setq rip 1)
+      (setq j 1)
+      (while (< j (length out))
+        (if (= (out j) (out (- j 1)))
+          (++ rip)
+          (begin
+            (setq cur (string cur rip (out (- j 1))))
+            (setq rip 1)
+          )
+        )
+        (++ j)
+      )
+      (setq cur (string cur rip (out (- (length out) 1))))
+      (setq out cur)
+      (push out res -1)
+      (++ i)
+    )
+    res
+  )
+)
+
+(conta 6)
+;-> ("1" "11" "21" "1211" "111221" "312211")
+(conta 12)
+;-> ("1" "11" "21" "1211" "111221" "312211" "13112221" 
+;-> "1113213211" "31131211131221" "13211311123113112211" 
+;-> "11131221133112132113212221" "3113112221232112111312211312113211")
+
+Nota: la funzione è lenta per numeri superiore a poche decine perchè le stringhe che rappresentano i numeri crescono molto rapidamente e newLISP utilizza il tag [text][/text] per delimitare le stringhe che superano 2047 caratteri. Questo rallenta molto l'esecuzione.
+
+
+----------------------
+Assegnazione parallela
+----------------------
+
+newLISP non ha alcun meccanismo per l'assegnazione parallela delle variabili. Vediamo la differenza tra assegnazione sequenziale e assegnazione parallela.
+
+(setq a 1 b 1)
+
+Assegnazione sequenziale
+(setq a (+ a b))
+;-> 2
+(setq b (- a b))
+;-> 1
+
+Assegnazione parallela
+(psetq (a b) ((+ a b) (- a b)))
+a -> 2
+b -> 0
+
+Cioè entrambe le espressioni (+ a b) e (- a b) vengono calcolate con i valori iniziali a=1 e b=1.
+
+Per definire l'assegnazione parallela scriveremo una macro "psetq" che ha due argomenti:
+
+1. (a b) che rappresenta la lista delle variabili
+2. ((+ a b) (- a b)) che rappresenta la lista delle espressioni
+
+Il metodo è quello di valutare (con la funzione "expand") le espressioni sostituendo il valore delle variabili:
+
+(setq a 1 b 1)
+
+(expand (+ a b) 'a 'b)
+;-> 2
+
+(expand (- a b) 'a 'b)
+;-> 0
+
+Poi assegniamo queste "espansioni" alle variabili della prima lista. Questo è possibile perchè una macro non valuta gli argomenti, infatti se scriviamo le stesse espressioni non in una macro, non possiamo ottenere il risultato voluto:
+
+(setq a (expand (+ a b) 'a 'b))
+;-> 2
+(setq b (expand (- a b) 'a 'b))
+;-> 1 ; questo valore doveva essere 0
+
+Questo perchè l'espressione (setq b (expand (- a b) 'a 'b)) valuta prima gli argomenti e trova che a = 2.
+
+Vediamo come funziona la macro:
+
+(define-macro (psetq)
+  (let ((_tx (expand (args 1 0) (args 0 0) (args 0 1)))
+        (_ty (expand (args 1 1) (args 0 0) (args 0 1))))
+       (println _tx)
+       (println _ty)
+       (list (set (args 0 0) (eval _tx))
+             (set (args 0 1) (eval _ty)))))
+
+Facciamo l'espansione delle espressioni e inseriamo il risultato in "_tx" e "_ty":
+(_tx (expand (args 1 0) (args 0 0) (args 0 1)))
+(_ty (expand (args 1 1) (args 0 0) (args 0 1)))
+
+Poi assegniamo la valutazione di queste espressioni alle relative variabili:
+(set (args 0 0) (eval _tx))
+(set (args 0 1) (eval _ty)))))
+
+Proviamo la macro:
+
+(setq a 1 b 1)
+(psetq (a b) ((+ a b) (- a b)))
+;-> (+ 1 1)
+;-> (- 1 1)
+;-> (2 0)
+
+(list a b)
+;-> (2 0)
+
+La macro funziona correttamente, ma dobbiamo renderla più generale, nel senso che deve permettere di avere qualunque numero di variabili e di espressioni come argomenti (adesso la macro funziona solo con due variabili e due espressioni). 
+
+Invece di usare due variabili ("_tx" e "_ty") inseriamo le espressioni espanse in una lista "_var" e poi attraversiamo questa lista assegnando la valutazione delle espressioni alle relative variabili della lista delle variabili.
+La lista delle variabili è (args 0), mentre la lista delle espressioni è (args 1).
+
+(define-macro (psetq)
+  (let ((_var '()) (_ex '()))
+    ; per ogni espressione in (args 1)...
+    (for (i 0 (- (length (args 1)) 1))
+      ; espande l'espressione i-esima con il valore 
+      ; di ogni variabile (args 0)
+      (setq _ex (expand (args 1 i) (args 0 0)))
+      ; ciclo che espande l'espressione i-esima per ogni variabile
+      (for (j 1 (- (length (args 0)) 1))
+        (setq _ex (expand _ex (args 0 j)))
+        (println _ex)
+      )
+      ; aggiunge l'espressione espansa ad una lista
+      (push _ex _var -1)
+    )
+    (println _var)
+    ; assegna ad ogni variabile la valutazione 
+    ; della relativa espressione della lista creata
+    (dolist (el _var)
+      (set (args 0 $idx) (eval el))
+    )
+  )
+)
+
+Vediamo alcuni esempi:
+
+(setq x 2 y 3)
+
+(psetq (x y) ((+ 1 y) (+ 1 x)))
+;-> (+ 1 3)
+;-> (+ 1 2)
+;-> ((+ 1 3) (+ 1 2))
+(list x y)
+;-> (4 3)
+
+(psetq (x y) (3 4))
+;-> 3
+;-> 4
+;-> (3 4)
+(list x y)
+;-> (3 4)
+----------------------
+
+(setq x 2)
+(setq y 4)
+(setq a 2)
+
+(setq x (- y 1 a))
+;-> 1
+(setq y (+ x y))
+;-> 5
+
+(setq x 2)
+(setq y 4)
+(setq a 2)
+
+(psetq (x y) ((- y 1 a) (+ y x)))
+;-> (- 4 1 a)
+;-> (+ 4 2)
+;-> ((- 4 1 a) (+ 4 2))
+(list x y)
+;-> (1 6)
+----------------------
+
+(setq x 1)
+(setq y 2)
+(setq z 3)
+
+(setq x (+ x y z))
+;-> 6
+(setq y (- z y x))
+;-> -5
+(setq z (- x y z))
+;-> 8
+
+(setq x 1)
+(setq y 2)
+(setq z 3)
+
+(psetq (x y z) ((+ x y z) (- z y x) (- x y z)))
+;-> (+ 1 2 z)
+;-> (+ 1 2 3)
+;-> (- z 2 1)
+;-> (- 3 2 1)
+;-> (- 1 2 z)
+;-> (- 1 2 3)
+;-> ((+ 1 2 3) (- 3 2 1) (- 1 2 3))
+(list x y z)
+;-> (6 0 -4)
+----------------------
+
+(define (test a b c)
+  (psetq (a b c) ((+ a b c) (- c b a) (- a b c)))
+  (list a b c))
+
+(test 1 2 3)
+;-> (+ 1 2 c)
+;-> (+ 1 2 3)
+;-> (- c 2 1)
+;-> (- 3 2 1)
+;-> (- 1 2 c)
+;-> (- 1 2 3)
+;-> ((+ 1 2 3) (- 3 2 1) (- 1 2 3))
+;-> (6 0 -4)
+
+(psetq (x y z) (2 3 4))
+;-> 2
+;-> 2
+;-> 3
+;-> 3
+;-> 4
+;-> 4
+;-> (2 3 4)
+
+
+----------------------------
+Generatore di numeri casuali
+----------------------------
+
+Generatore lineare congruenziale
+--------------------------------
+Il generatore congruenziale lineare (LCG) è l'algoritmo più comune e più vecchio per la generazione di numeri pseudo-cauali. Il generatore è definito dalla relazione di ricorrenza:
+
+X(n+1) = (a*X(n) + c) mod m
+
+dove:
+X è la sequenza di valori pseudo-casuali
+m,    0 < m         -> modulo
+a,    0 < a < m     -> moltiplicatore
+c,    0 ≤ c < m     -> incremento
+X(0), 0 ≤ X(0) < m  -> il valore iniziale (seed)
+
+Generiamo il numero intero casuale successivo utilizzando il numero intero casuale precedente (con le costanti intere "a" (moltiplicatore) e "c" (incremento). All'inizio occorre fornire anche un valore di partenza (seed), "X(0)". La caratteristica della casualità viene fornita dall'utilizzo dell'aritmetica modulare.
+
+Il periodo di un LCG è al più m, e per alcune scelte di a può essere molto più piccolo. Il LCG ha un periodo pieno se e solo se:
+
+1. c e m sono coprimi (con c > 0)
+2. a-1 è divisibile per tutti i fattori primi di m,
+3. a-1 è un multiplo/divisibile di 4 se m è un multiplo/divisibile di 4.
+
+Nonostante gli LCG siano generalmente in grado di produrre numeri pseudocasuali decenti, la loro qualità è molto sensibile alla scelta dei coefficienti c, m ed a.
+
+Le caratteristiche principali di un LCG
+
+Efficiente: LCG può produrre molti numeri in breve tempo.
+
+Deterministico: una data sequenza di numeri può essere riprodotta in un secondo momento se si conosce il punto iniziale nella sequenza. Il determinismo è utile se è necessario riprodurre nuovamente la stessa sequenza di numeri in una fase successiva (debug).
+
+Periodico: i LCG sono periodici, il che significa che la sequenza alla fine si ripeterà. Mentre la periodicità non è quasi mai una caratteristica desiderabile, i LCG moderni hanno un periodo così lungo che può essere ignorato per la maggior parte degli scopi pratici.
+
+I LCG sono adatti per applicazioni in cui sono richiesti molti numeri casuali e in cui è utile riprodurre facilmente la stessa sequenza (per esempio, le applicazioni di simulazione e modellazione). I LCG non sono adatti per applicazioni in cui è importante che i numeri siano davvero casuali (imprevedibili), come la crittografia dei dati e il gioco d'azzardo.
+
+Esempio:
+
+(define (LCG m a c s n)
+  (let (out '())
+    (dotimes (x n)
+      (push (setq s (% (+ (* a s) c) m)) out -1))))
+
+(LCG 5 3 1 1 6)
+;-> (4 3 0 1 4 3)
+
+Ecco una lista di parametri per LCG in uso in diversi compilatori:
+
+                     m       a                    c
+GCC                  2³¹     1103515245           12345
+Delphi               2³²     134775813            1
+Visual C             2³²     214013               2531011
+MMIX (Donald Knuth)  2⁶⁴     6364136223846793005  1442695040888963407
+Numerical Recipes    2³²     1664525              1013904223
+C++11 (MINSTD)       2³¹−1   48271                0
+
+2^64 = 18446744073709551616
+2^32 = 4294967296
+
+(LCG 4294967296 1103515245 12345 1 10)
+;-> (1103527590 2524885223 662824084 3295386429 4182499122
+;->  2516284547 3655513600 2633739833 3210001534 267834847)
+
+(LCG 4294967296 1103515245 (int (time-of-day)) 1 10)
+;-> (1174154431 3237027237 1954923411 4185058793 1775773831 
+;->  2432844237 1673943195 3515535953 3289127119 3959783541)
+
+Quando "c" vale 0, abbiamo un generatore di numeri casuali di tipo Lehmer (chiamato anche generatore di Park-Miller):
+
+X(n+1) = a*X(n) mod m
+
+Un esempio è il famoso RANDU creato dall'IBM negli anni '60. La formula di questo generatore è la seguente:
+
+V(j+1)=65539*V(j) mod 2^(31)
+
+con V(0) numero intero dispari. Genera interi pseudocasuali V(j) che sono distribuiti uniformemente nell'intervallo [1, 2^31 - 1], ma nelle applicazioni pratiche sono spesso mappati in numeri razionali pseudocasuali X(j) nell'intervallo (0, 1), con la formula:
+
+X(j) = V(j)/2^31
+
+Il RANDU è considerato uno dei peggiori generatori di numeri casuali progettati, ed è stato descritto come "veramente orribile" da Donald Knuth. Il test spettrale ha esito negativo per dimensioni maggiori di 2 e ogni risultato intero è dispari. Tuttavia, almeno otto bit di ordine inferiore vengono eliminati quando convertiti in virgola mobile a precisione singola (32 bit, 24 bit mantissa).
+
+Vediamo un generatore di numeri casuali fornito da Lutz:
+(set 'IM 139968)
+(set 'IA 3877)
+(set 'IC 29573)
+(set 'LAST 42)
+
+(define (gen_random maximum)
+	(set 'LAST (mod (add (mul LAST IA) IC) IM))
+	(div (mul maximum LAST) IM))
+
+(gen_random 100)
+;-> 37.46499199817101
+(gen_random 100)
+;-> 72.90237768632831
+(gen_random 100)
+;-> 63.64669067215363
 

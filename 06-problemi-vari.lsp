@@ -7662,3 +7662,197 @@ Trovare tutti i numeri primi circolari sotto al milione.
 ;-> ;-> 1368.633
 
 
+---------------------------------
+Radici di un polinomio (Bairstow)
+---------------------------------
+
+Questo programma utilizza il metodo di Bairstow per trovare le radici reali e complesse di un poliomiale con coefficienti reali. Il metodo fornisce un processo iterativo per trovare le radici reali e complesse usando solo l'aritmetica reale.
+
+Inoltre, poiché si basa sul metodo di Newton per un sistema di due equazioni non lineari in due incognite, ha la proprietà di convergenza rapida del metodo di Newton per i sistemi di equazioni. Il principale svantaggio di questo metodo è che a volte non coverge alla soluzione. Questo perché è difficile trovare un'ipotesi iniziale che soddisfi le rigide condizioni necessarie per assicurare la convergenza. Quando queste condizioni non sono soddisfatte, la sequenza di approssimazioni può allontanarsi dalle radici desiderate o può iterare indefinitamente intorno alle radici.
+
+Il programma ottiene un'approssimazione iniziale a due radici del polinomio e usa queste due radici per stimare i valori iniziali iniziali dell'interazione di Bairstow. Questi valori sono i coefficienti r e s di un fattore quadratico approssimativo x^2 + rx + s, del polinomio dato. Il polinomio dato passerà attraverso la divisione sintetica per il fattore quadratico che alla fine fornirà tutte le radici reali o complesse in forma singola o in coppia a seconda del grado del polinomio.
+
+Il programma è la traduzione in newLISP del programma in C disponibile all'indirizzo:
+
+https://github.com/DipakMajhi/Roots_of_a_Polynomial
+
+in cui potete trovare anche un articolo (pdf) con tutte le spiegazioni sull'algoritmo.
+
+(define (linear a0 a1)
+  ;(println (sub (div a0 a1)))
+  (push (list (sub (div a0 a1))) sol -1))
+
+(define (quadratic t r s)
+  (local (deter x1 x2 x1r x1i x2r x2i)
+    (setq deter (sub (mul r r) (mul 4 s t)))
+    ;(println t { } r { } s)
+    (cond ((>= deter 0)
+           (setq x1 (div (add (sub r) (sqrt deter)) (mul 2 t)))
+           (setq x2 (div (sub (sub r) (sqrt deter)) (mul 2 t)))
+           ;(println "x1: " x1 { } "x2: " x2)
+           (push (list x1 x2) sol -1)
+          )
+          (true
+           (setq x1r (div (sub r) (mul 2 t)))
+           (setq x1i (div (sqrt (abs deter)) (mul 2 t)))
+           (setq x2r x1r)
+           (setq x2i (sub x1i))
+           ;(println "x1r: " x1r { , } "x1i: " x1i)
+           ;(println "x2r: " x2r { , } "x2i: " x2i)
+           (push (list (list x1r x1i) (list x2r x2i)) sol -1)
+          ))))
+
+(define (bairstow coeff)
+  (local (w j i n
+          t deter p q x1 x2 x1r x1i r s ds dr
+          a b c d sol)
+    (setq sol '())
+    (setq x1 0.0)
+    (setq x2 0.0)
+    (setq r 0.1)
+    (setq s 0.1)
+    (setq a (array 100 '(0)))
+    (setq b (array 100 '(0)))
+    (setq c (array 100 '(0)))
+    (setq d (array 100 '(0)))
+    (setq (b 4) 0)
+    (setq (b 3) 0)
+    ;assegna i coefficienti al vettore "a"
+    (dolist (el (reverse coeff))
+      (setq (a $idx) el)
+    )
+    ;(println a)
+    (setq n (- (length coeff) 1))
+    (setq w n)
+    (cond ((= w 1) (linear (a 0) (a 1)) (-- w))
+          ((= w 2) (quadratic (a 2) (a 1) (a 0)) (setq w (- w 2)))
+          (true
+           (while (>= w 3)
+             (for (j 1 50)
+               (setq (b n) (a n))
+               (setq (b (- n 1)) (sub (a (- n 1)) (mul r (b n))))
+               (for (i (- n 2) 1 -1)
+                 (setq (b i) (sub (a i) (mul r (b (+ i 1))) (mul s (b (+ i 2)))))
+               )
+               (setq (b 0) (sub (a 0) (mul s (b 2))))
+               (setq (c n) (b n))
+               (setq (c (- n 1)) (sub (b (- n 1)) (mul r (c n))))
+               (for (i (- n 2) 2 -1)
+                 (setq (c i) (sub (b i) (mul r (c (+ i 1))) (mul s (c (+ i 2)))))
+               )
+               (setq (c 1) (sub (mul s (c 3))))
+               (setq (d n) (b n))
+               (setq (d (- n 1)) (sub (b (- n 1)) (mul r (d n))))
+               (for (i (- n 2) 3 -1)
+                 (setq (d i) (sub (b i) (mul r (d (+ i 1))) (mul s (d (+ i 2)))))
+               )
+               (setq (d 2) (sub (b 2) (mul s (d 4))))
+               (setq dr (div
+                        (sub (mul (b 0) (d 3)) (mul (b 1) (d 2)))
+                        (add (mul (sub (d 2) (mul r (d 3))) (d 2)) (mul s (d 3) (d 3)))))
+               (setq ds (div
+                        (sub (add (mul (b 1) s (d 3)) (mul (b 0) (sub (d 2) (mul r (d 3))))))
+                        (add (mul (sub (d 2) (mul r (d 3))) (d 2)) (mul s (d 3) (d 3)))))
+               (setq p (sub r dr))
+               (setq q (sub s ds))
+               (setq r p)
+               (setq s q)
+            )
+            (setq t 1)
+            (quadratic t r s)
+            (setq w (- w 2))
+            (for (i n 0 -1)
+              (setq (a (- n i)) (b (- n i)))
+            )
+            (for (i n 0 -1)
+              (setq (a (- n i)) (a (+ (- n i) 2)))
+            )
+          )
+          (cond ((= w 2) (quadratic (b 4) (b 3) (b 2)) (setq w (- w 2)))
+                ((= w 1) (linear (b 2) (b 3)) (-- w))
+          )
+        )
+    )
+    sol
+  )
+)
+
+Vediamo alcuni esempi:
+
+4x - 32 = 0
+(bairstow '(4 32))
+;-> ((-8))
+
+2x^2 -4x + 10 = 0
+(bairstow '(2 -4 10))
+;-> (((1 2) (1 -2)))
+
+x^2 -3x + 2 = 0
+(bairstow '(1 -3 2))
+;-> ((2 1))
+
+4x^3 + 2x^2 -4*x + 10 = 0
+(bairstow '(4 2 -4 10))
+;-> (((0.6563019928818721 0.9739090873711072) 
+;->   (0.6563019928818721 -0.9739090873711072))
+;->  (-1.812603985763744))
+WolframAlpha
+x≈0.656301992881872 + 0.973909087371107 i
+x≈0.656301992881872 - 0.973909087371107 i
+x≈-1.81260398576374
+
+3x^4 - 2x^3 - x^2 + 4x + 10 = 0
+(bairstow '(3 -2 -1 4 10))
+;-> (((-0.871136997600388 0.7358894057211269) 
+;->   (-0.871136997600388 -0.7358894057211269))
+;->  ((1.204470330933721 1.054769962446627) 
+;->   (1.204470330933721 -1.054769962446627)))
+WolframAlpha
+x≈-0.871136997600388 + 0.735889405721127 i
+x≈-0.871136997600388 - 0.735889405721127 i
+x≈1.20447033093372 + 1.05476996244663 i
+x≈1.20447033093372 - 1.05476996244663 i
+
+5x^5 - 4x^4 + 7x^3 + 8x^2 + 9x + 3 = 0
+(bairstow '(5 -4 7 8 9 3))
+;-> (((-0.3480864445180198 0.6520958216175604) 
+;->   (-0.3480864445180198 -0.6520958216175604))
+;->  ((0.9531760543651267 1.329888453606416) 
+;->   (0.9531760543651267 -1.329888453606416))
+;->  (-0.4101792196942135))
+WolframAlpha
+x≈-0.348086 - 0.652096 i
+x≈-0.348086 + 0.652096 i
+x≈0.953176 - 1.32989 i
+x≈0.953176 + 1.32989 i
+x≈-0.410179
+
+x^9 - 2x^8 + 3x^7 + 0x^6 + 5x^5 - 4x^4 + 7x^3 + 8x^2 + 9x + 3 = 0
+(bairstow '(1 -2 3 0 5 -4 7 8 9 3))
+;-> (((-0.3612218566283093 0.6913476051961196) 
+;->   (-0.3612218566283093 -0.6913476051961196))
+;->  ((-0.739130448788589 0.9706810141091354) 
+;->   (-0.739130448788589 -0.9706810141091354))
+;->  ((1.251229097959007 1.099346245887554) 
+;->   (1.251229097959007 -1.099346245887554))
+;->  ((1.053720393127137 1.34449644051663) 
+;->   (1.053720393127137 -1.34449644051663))
+;->  (-0.4091943713384922))
+WolframAlpha
+x≈-0.361222 + 0.691348 i
+x≈-0.361222 - 0.691348 i
+x≈-0.73913 + 0.970681 i
+x≈-0.73913 - 0.970681 i
+x≈1.25123 + 1.09935 i
+x≈1.25123 - 1.09935 i
+x≈1.05372 + 1.3445 i
+x≈1.05372 - 1.3445 i
+x≈-0.409194
+
+Calcoliamo il valore del polinomio per una radice:
+x^9 - 2 x^8 + 3 x^7 + 0 x^6 + 5 x^5 - 4 x^4 + 7 x^3 + 8 x^2 + 9 x + 3 
+dove x = 1.251229097959007 - 1.099346245887554 i
+Risultato:
+2.99×10^-14 + 6.8×10^-15 i
+
+

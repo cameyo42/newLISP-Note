@@ -4710,3 +4710,321 @@ Quindi la funzione inversa può essere scritta nel modo seguente:
 ;-> nil
 
 
+-----------------
+Crivello di Atkin
+-----------------
+
+Il crivello di Atkin è un algoritmo per calcolare tutti i numeri primi fino ad dato numero intero.
+Potete trovare maggiori informazioni sul sito web:
+
+https://it.wikipedia.org/wiki/Crivello_di_Atkin
+
+(define (atkin n)
+  (local (primi up m j)
+    (setq primi (array (+ n 1) '(nil)))
+    (setf (primi 2) true)
+    (setf (primi 3) true)
+    (setq up (int (ceil (sqrt n))))
+    (for (x 1 (- up 1))
+      (for (y 1 (- up 1))
+        (setq m (+ (* 4 x x) (* y y)))
+        (if (and (<= m n) (or (= (% m 12) 1) (= (% m 12) 5)))
+            (setf (primi m) (not (primi m)))
+        )
+        (setq m (+ (* 3 x x) (* y y)))
+        (if (and (<= m n) (= (% m 12) 7))
+            (setf (primi m) (not (primi m)))
+        )
+        (setq m (- (* 3 x x) (* y y)))
+        (if (and (> x y) (<= m n) (= (% m 12) 11))
+            (setf (primi m) (not (primi m)))
+        )
+      )
+    )
+    (for (i 5 up)
+      (if (primi i)
+        (begin
+        (setq j (* i i))
+        (while (< j n)
+          (setf (primi j) nil)
+          (setq j (+ j (* i i)))
+        )
+        )
+      )
+    )
+    ; converte i valori true del vettore in numeri interi (primi)
+    (filter integer? (map (fn(x) (if (= x true) $idx)) primi))
+  )
+)
+
+(atkin 100)
+;-> (2 3 5 7 11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71 73 79 83 89 97)
+
+Vediamo il tempo di esecuzione:
+
+(time (atkin 1e6))
+;-> 1046.776
+(time (atkin 1e7))
+;-> 10329.198
+
+Vediamo un'altra funzione per calcolare i numeri primi fino ad un dato numero:
+
+(define (sieve-to n)
+   (setq arr (array (+ n 1)) lst '(2))
+   (for (x 3 n 2)
+      (when (not (arr x))
+         (push x lst -1)
+         (for (y (* x x) n (* 2 x) (> y n))
+            (setf (arr y) true))))
+   lst
+)
+
+Controlliamo che le due funzioni producano risultati uguali:
+
+(= (sieve-to 100000) (atkin 100000))
+;-> true
+
+Vediamo il tempo di esecuzione:
+
+(time (sieve-to 1e7))
+;-> 1932.644
+
+
+-------------------------------
+Esponenziazione modulare veloce
+-------------------------------
+
+In alcuni calcoli/algoritmi (per esempio il test di primalità di Miller-Rabin) è necessario calcolare l'espressione:
+
+(b^e % m)
+
+Esistono dei metodi per effettuare questo calcolo in modo più veloce. Invece di calcolare la potenza e poi il modulo, possiamo effettuare il calcolo in modo integrato.
+
+Primo metodo:
+
+(define (powmod b e m)
+  (local (r)
+    (cond ((= m 1) (setq r 0))
+          (true
+            (setq r 1L)
+            (setq b (% b m))
+            (while (> e 0)
+              (if (= (% e 2) 1) (setq r (% (* r b) m)))
+              (setq e (/ e 2))
+              (setq b (% (* b b) m))
+            )
+          )
+    )
+    r))
+
+Secondo metodo:
+
+(define (modexpt b e M)
+  (cond
+    ((zero? e) 1L)
+    ((even? e) (modexpt (% (* b b) M) (/ e 2L) M))
+    ((odd? e) (% (* b (modexpt b (- e 1L) M)) M))))
+
+(time (modexpt 1234L 55555456844L 7L) 10000)
+;-> 421.888
+(time (powmod 1234L 55555456844L 7L) 10000)
+;-> 437.499
+(time (modexpt 1234L 55555456844L 7L) 10000)
+;-> 421.888
+(time (powmod 1234L 55555456844L 7L) 10000)
+;-> 421.874
+
+Terzo metodo (standard):
+
+(** x p) calcola la potenza di due numeri interi (x^p):
+
+(define (** x p)
+  (let (y 1L)
+    (dotimes (i p)
+      (set 'y (* y x)))))
+
+(time (% (** 1234L 55555L) 7L))
+;-> 1484.471
+
+Praticamente, il terzo metodo è inutilizzabile.
+
+
+-------------
+random sample
+-------------
+
+In statistica, un "random sample" è un sottoinsieme di elementi (un campione) scelti da un insieme più ampio. Ogni elemento viene scelto casualmente in modo tale che ogni elemento abbia la stessa probabilità di essere scelto in qualsiasi fase durante il processo di campionamento e ogni sottoinsieme di k elementi abbia la stessa probabilità di essere scelto come campione di qualsiasi altro sottoinsieme di k elementi. Questo processo e questa tecnica viene chiamata "campionamento casuale semplice" (simple random sample).
+
+La seguente funzione "random-sample" non è corretta, in quanto può generare numeri uguali (non distinti).
+
+(define (random-sample n k)
+  (let (out '())
+    (for (i 1 k)
+      (push (+ 2 (rand n)) out)
+    )
+    out))
+
+La seguente "random-sample" è corretta e seleziona k numeri distinti dai numeri 1..n.
+
+(define (random-sample n k)
+  ; newLISP start with the same sequence without "seed"
+  (seed (time-of-day))
+  (slice (randomize (sequence 1 n)) 0 k))
+
+Invece questa "random-sample" seleziona k numeri distinti da una lista
+Se n è un numero, allora la lista vale (1 2 ... n).
+Altrimenti n deve essere una lista di elementi distinti.
+
+(define (random-sample n k)
+  ; newLISP start with the same sequence without "seed"
+  (seed (time-of-day))
+  (cond ((integer? n)
+         (slice (randomize (sequence 1 n)) 0 k))
+        ((list? n)
+         (slice (randomize n) 0 k))
+        (true nil)))
+
+(random-sample 100 10)
+;-> (73 30 87 32 20 74 91 2 82 36)
+
+(random-sample '(a v f j k o l) 3)
+;-> (j v l)
+
+Nota: queste ultime due funzioni sono inutilizzabili per valori di n grandi, infatti la funzione "sequence" richiederebbe troppa memoria per generare la lista di numeri da 1 a n.
+
+Possiamo scrivere una funzione che utilizza una hashmap. Continuiamo a generare un numero casuale e lo inseriamo nella hashmap fino a che non abbiamo k numeri casuali. La hashmap si preoccupa di gestire le eventuali collisioni (numeri casuali già estratti).
+
+(define (random-sample1 n k)
+  (let ((out '()) (r 0))
+    (new Tree 'Hash)
+    (while (< (length (Hash)) k)
+      (setq r (+ 1 (rand n)))
+      (Hash r r)
+    )
+    (dolist (el (Hash)) (push (el 1) out -1))
+    (delete 'Hash)
+    out
+  )
+)
+
+Chiaramente questa funzione è efficiente quando il valore di n è almeno un ordine di grandezza superiore al valore di k.
+
+(random-sample1 100 10)
+;-> (11 26 38 4 57 60 70 73 77 87)
+
+(length (unique (random-sample1 1000 1000)))
+;-> 1000
+
+Un altro problema viene dal fatto che la cancellazione della hashmap (delete 'Hash) è una funzione molto lenta. Allora proviamo ad eliminare tutti gli elementi della hashmap:
+
+(define (random-sample n k)
+  (let ((out '()) (r 0))
+    (new Tree 'Hash)
+    (while (< (length (Hash)) k)
+      (setq r (+ 1 (rand n)))
+      (Hash r r)
+    )
+    (dolist (el (Hash)) (push (el 1) out -1))
+    ; delete Hash elements
+    (dolist (el out) (Hash el nil))
+    ;(delete 'Hash)
+    out
+  )
+)
+
+(random-sample 10 3)
+;-> (4 5 6)
+
+Vediamo la velocità:
+
+(time (random-sample1 1000 100) 1000)
+;-> 1125.599
+(time (random-sample 1000 100) 1000)
+;-> 940.62
+
+(time (random-sample1 100000 1000) 100)
+;-> 7111.842
+(time (random-sample 100000 1000) 100)
+;-> 7116.742
+
+Nessun miglioramento sostanziale.
+
+
+-------------------------------
+Funzioni di Mobius e di Mertens
+-------------------------------
+
+La funzione di Mobius, indicata con mu(n), è una funzione che trova impiego in teoria dei numeri per classificare i numeri interi positivi in una di tre categorie possibili secondo la scomposizione in fattori.
+
+La funzione viene definita assegnando a μ(n) i seguenti valori:
+
+−1 se n è scomponibile in un numero dispari di fattori primi distinti.
+   (se n ha un numero dispari di fattori primi non ripetuti)
+Per esempio μ(435) = −1 perché 435 = 3 × 5 × 29, ha tre fattori primi. Per gli scopi di questa funzione, un numero primo è considerato avere un fattore primo, in sé, quindi μ(p) = −1.
+
+0 se n ha uno o più fattori primi ripetuti.
+Per esempio μ(436) = 0 perché 436 = 22 × 109 = 2 × 2 × 109, poiché gli esponenti significano che un fattore accade due volte o più nella scomposizione in fattori.
+
++1 se n è scomponibile in un numero pari di fattori primi distinti.
+   (se n ha un numero pari di fattori non ripetuti)
+Per esempio μ(437) = 1 perché 437 = 19 × 23. Si assume anche che μ(1) = 1, considerando che abbia una scomposizione in 0 fattori primi.
+
+Per convenzione mu(1) = 1.
+
+Questa è una funzione aritmetica moltiplicativa, cioè se h e k sono interi positivi coprimi, allora risulta: mu(h*k) = mu(h) * mu(k).
+
+Sequenza OESIS: A008683
+
+(setq A008683 '(
+ 1 -1 -1 0 -1 1 -1 0 0 1 -1 0 -1 1 1
+ 0 -1 0 -1 0 1 1 -1 0 0 1 0 0 -1 -1
+ -1 0 1 1 1 0 -1 1 1 0 -1 -1 -1 0 0
+ 1 -1 0 0 0 1 0 -1 0 1 0 1 1 -1 0 -1
+ 1 0 0 1 -1 -1 0 1 -1 -1 0 -1 1 0 0 1 -1))
+
+(length A008683)
+;-> 78
+
+(define (mobius n)
+  (let (f (factor n))
+    (cond ((= n 1) 1)
+          ; se n ha fattori primi distinti...
+          ((= f (unique f))
+           ; se dispari -> -1, altrimenti -> 1
+           (if (odd? (length f)) -1 1))
+          ;se n ha fattori primi non distinti (ripetuti)
+          (true 0))))
+
+(mobius 6)
+;-> 1
+
+(= A008683 (map mobius (sequence 1 78)))
+;-> true
+
+La funzione di Mertens indicata con M(x) è la sommatoria della funzione di Mobius:
+
+M(x) = Sum[mu(n)] (per tutti i valori n <= x)
+
+Sequenza OESIS: A002321
+
+(setq A002321 '(
+ 1 0 -1 -1 -2 -1 -2 -2 -2 -1 -2 -2 -3 -2
+ -1 -1 -2 -2 -3 -3 -2 -1 -2 -2 -2 -1 -1 -1
+ -2 -3 -4 -4 -3 -2 -1 -1 -2 -1 0 0 -1 -2
+ -3 -3 -3 -2 -3 -3 -3 -3 -2 -2 -3 -3 -2 -2
+ -1 0 -1 -1 -2 -1 -1 -1 0 -1 -2 -2 -1 -2
+ -3 -3 -4 -3 -3 -3 -2 -3 -4 -4 -4))
+ 
+(length A002321)
+;-> 81
+
+(define (mertens x)
+  (apply + (map mobius (sequence 1 x))))
+
+(mertens 3)
+;-> -1
+
+(= A002321 (map mertens (sequence 1 81)))
+;-> true
+
+

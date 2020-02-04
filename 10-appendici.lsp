@@ -5139,6 +5139,883 @@ John Wiley & Sons
 ³ Questa è una versione abbreviata della valutazione delle espressioni che non include la gestione dei funtori predefiniti e l'indicizzazione implicita. Per ulteriori informazioni sulla valutazione delle espressioni, consultare: "Valutazione dell'espressione, Indicizzazione implicita, Contesti e Funtori di default"
 
 
+====================
+Benchmarking newLISP
+====================
+
+Questo documento contiene tutte le funzioni utilizzate da Lutz Mueller per il Benckmark di newLISP. Le funzioni sono state leggermente modificate per il sistema operativo Windows.
+
+Lista delle funzioni:
+
+ 1) Ackerman
+ 2) Array Access
+ 3) Concatenate
+ 4) Count Words
+ 5) Deque Lists
+ 6) Echo Client/Server
+ 7) Exceptions
+ 8) Fannkuch
+ 9) Fibonacci Numbers
+10) Hash Access
+11) Hash Update
+12) Heap Sort
+13) Matrix Multiplication
+14) Method Calls
+15) Nested Loops
+16) Nsieve
+17) Object Instantiation
+18) Prime
+19) Random Numbers
+20) Regular Expressions
+21) Reverse a File
+22) Spell Checker
+23) Startup
+24) Statistical Moments
+25) Sum a File of Numbers
+26) Synchronize
+27) Takfp
+28) Word Frequency
+
+---------------------------------------------------------------------
+;;
+;; Ackermann's Function
+;; by Brent Fulgham
+;;
+
+(define (ack m n)
+    (cond ((= m 0) (+ n 1))
+          ((= n 0) (ack (- m 1) 1))
+	  (true    (ack (- m 1) (ack m (- n 1))))))
+
+(define (main)
+    (set 'N (integer (last (main-args))))
+    (println
+        (format "Ack(3,%d): %d" N (ack 3 N))))
+
+---------------------------------------------------------------------
+;;
+;; Array Access
+;; (requires newLISP 9.0)
+;;
+
+(define (main)
+	(set 'n (integer (main-args 2)))
+	(set 'x (array n (sequence 1 n)))
+	(set 'y (array n '(0)))
+	(dotimes (k 1000)
+		(for (i (- n 1) 0)
+			(nth-set (y i) (+ (y i) (x i)) )))
+	(println (y 0) " " (y (- n 1) )))
+
+---------------------------------------------------------------------
+;;
+;; Concatenate Strings
+;; (requires newLISP 8.3.0)
+;;
+
+(set 'n (integer (main-args 2)))
+(set 'str "")
+(dotimes (i n) (write-buffer str "hello\n"))
+(println (length str))
+
+---------------------------------------------------------------------
+;;
+;; Count Words
+;;
+
+(set 'lc 0 'wc 0 'cc 0)
+(while (set 'line (read-line))
+	(inc 'lc)
+	(inc 'wc (length (parse (trim line) "\\s+" 0)))
+	(inc 'cc (+ (length line) 1))) ;; add back the line feed
+(println lc " " wc " " cc)
+
+---------------------------------------------------------------------
+;;
+;; Deque Lists
+;; (requires newLISP 8.3.0)
+;; (mimics Python's way)
+;;
+
+(set 'SIZE 10000)
+(define (test-lists)
+	(set 'Li1  (sequence 1 SIZE))
+	(set 'Li2 Li1)
+	(set 'Li3 '())
+	; remove each item from left of Li2 and append to Li3
+	(reverse Li2)
+	(while Li2 (push (pop Li2) Li3 -1))
+	(while Li3 (push (pop Li3) Li2 -1))
+	(reverse Li1)
+	(if 	(!= (first Li1) SIZE) 0
+		(= Li1 Li2) (length Li1)
+		0))
+(set 'n (integer (main-args 2)))
+(dotimes (i n)
+	(set 'result (test-lists)))
+(println result)
+
+---------------------------------------------------------------------
+;;
+;; Echo Client/Server
+;; (requires newLISP 9.0.0)
+;; do not work on Windows
+;;
+
+(set 'DATA "Hello there sailor\n");
+(set 'bufferSize (length DATA))
+(define (server port)
+	(set 'listen (net-listen port))
+	(set 'connection (net-accept listen))
+	(set 'N 0)
+	(while (net-receive connection 'buff bufferSize)
+		(inc 'N (length buff))
+		(net-send connection buff))
+	(net-close connection)
+	(net-close listen)
+	(println "server processed " N " bytes"))
+
+(define (client port n)
+	(set 'connection (net-connect "127.0.0.1" port))
+	(dotimes (x n)
+		(net-send connection DATA)
+		(net-receive connection 'buff bufferSize)
+		(if (!= buff DATA) (println "Received different message: " buff)))
+	(net-close connection))
+
+(set 'n (integer (main-args 2)))
+
+(fork (server 100001))
+(sleep 100)
+(client 100001 n)
+
+---------------------------------------------------------------------
+;;
+;; Exceptions
+;; (requires newLISP 7.5.1)
+;;
+
+(context 'MAIN)
+
+(set 'HI 0 'LO 0)
+
+(define (some_function num)
+	(catch (hi_function num) 'result)
+	(if (not (integer? result))
+		(println "we never get here")))
+
+(define (hi_function num)
+	(catch (lo_function num) 'result)
+	(if (= result 'HI_exception)
+		(inc 'HI)
+		(throw result)))
+
+(define (lo_function num)
+	(catch (blowup num) 'result)
+	(if (= result 'LO_exception)
+		(inc 'LO)
+		(throw result)))
+
+(define (blowup num)
+	(if (= (& num 1) 1)
+		(throw 'HI_exception)
+		(throw 'LO_exception)))
+
+(define (main)
+	(dotimes (i n)
+		(some_function i))
+	(println "Exceptions: HI=" HI " / LO=" LO))
+
+(set 'n (integer (nth 2 (main-args))))
+
+(main)
+
+---------------------------------------------------------------------
+;;
+;; Fannkuch 9.0
+;; by Lutz Mueller 2004-12-11
+;;
+
+(define MaxCount 0)
+
+(define (permute left right)
+    (let (j (length right))
+        (if (< j 2)
+            (permCount (append left right))
+            (dotimes (i j)
+                (permute (append left (slice right i 1))
+                         (append (slice right 0 i) (slice right (+ i 1))))))))
+
+(define (permCount perm , myCount perm0)
+        (set 'myCount 0)
+        (while (!= (set 'perm0 (first perm)) 1)
+            (inc 'myCount)
+            (set 'perm (append (reverse (slice perm 0 perm0)) (slice perm perm0))))
+        (if (> myCount MaxCount) (set 'MaxCount myCount)))
+
+(define (fannkuch n)
+    (permute '() (sequence 1 n))
+    MaxCount)
+
+(define (main)
+    (set 'n (integer (main-args 2)))
+    (println (format "Pfannkuchen(%d) = %d" n (fannkuch n))))
+
+(main)
+
+---------------------------------------------------------------------
+;;
+;; Fibonacci Numbers
+;;
+
+(define (fibo n)
+	(if(< n 2) 1
+	(+  (fibo (- n 1))
+	    (fibo (- n 2)))))
+
+(println (fibo (integer (main-args 2))))
+
+---------------------------------------------------------------------
+;;
+;; Hash Access
+;; create i = 1..n symbols with value i
+;; count all exsiting symbols in reverse
+;;
+;; newLISP does not have hashtables but can
+;; simulate hashes with symbols
+;;
+
+(context 'HASH) ; create hash container
+(context 'MAIN) ; go back to MAIN context
+
+(set 'n (integer (main-args 2)))
+
+(for (i 1 n)
+	(set (sym (format "_%x" i) HASH) i) )
+
+(set 'cnt 0)
+(for (i n 1)
+	(if (sym (format "_%d"  i) HASH nil) (inc 'cnt)))
+
+(println cnt)
+
+---------------------------------------------------------------------
+;;
+;; Hash update
+;;
+;; newLISP does not have hashtables but can
+;; simulate hashes efficient with symbols
+;;
+
+(context 'Hash1) ; create hash container
+(context 'MAIN) ; go back to MAIN context
+(context 'Hash2) ; create hash container
+(context 'MAIN) ; go back to MAIN context
+
+(set 'n (integer (main-args 2)))
+
+(dotimes (i 10000)
+	(set (sym (format "foo_%d" i) Hash1) i) )
+
+(dotimes (i n)
+	(dotree (k Hash1)
+		(set 'key (sym (name k) Hash2 nil))
+		(if key
+			(inc key (eval k))
+			(set (sym (name k) Hash2) (eval k)))))
+
+(println Hash1:foo_1 " " Hash1:foo_9999 " " Hash2:foo_1 " " Hash2:foo_9999)
+
+---------------------------------------------------------------------
+;;
+;; Heap Sort
+;;
+;; newLISP has fast built-in sort and random algorithms
+;; not used in this benchmark
+;;
+
+(set 'IM 139968)
+(set 'IA 3877)
+(set 'IC 29573)
+
+(set 'LAST 42)
+
+(define (gen_random maximum)
+	(set 'LAST (mod (add (mul LAST IA) IC) IM))
+	(div (mul maximum LAST) IM))
+
+(define (heapsort n ra)
+	(set 'rra 0 'i 0 'j 0)
+	(set 'l (+ (>> n 1) 1))
+	(set 'ir n)
+
+	(while (not done)
+		(if (> l 1)
+			(begin
+				(dec 'l)
+				(set 'rra (ra l)))
+			(begin
+				(set 'rra (ra ir))
+				(nth-set ir ra (ra 1))
+				(dec 'ir)
+				(if (= ir 1)
+					(begin
+						(nth-set (ra 1) rra)
+						(set 'done true)
+						; return
+						ra))))
+		(set 'i l)
+		(set 'j (<< l 1))
+		(if (not done) (begin
+			(while (<= j ir)
+				(if (and (< j ir) (< (ra j) (ra (+ j 1))))
+					(inc ' j))
+				(if (< rra (ra j))
+					(begin
+						(nth-set (ra i) (ra j))
+						(set 'i j)
+						(inc 'j i))
+					(set 'j (+ ir 1))))
+			(nth-set (ra i) rra))
+		) ra))
+
+(define (main)
+	(set 'N (integer (last (main-args))))
+
+	(set 'ary (array (+ N 1)))
+
+	(for (i 1 N) (nth-set (ary i) (gen_random 1.0)))
+
+	(set 'ary (heapsort N ary))
+
+	(println (format "%.10f" (ary N)))
+)
+
+(main)
+
+---------------------------------------------------------------------
+;;
+;; Matrix Multiplication
+;; since version 9.0 matrix finctions can also be used
+;; on array types, additionally to lists.
+;;
+
+(set 'size 30)
+
+(define (mkmatrix rows cols)
+ 	(map (fn (i) (sequence (+ (* i cols) 1)  (+ (* i cols) cols))) (sequence 0 (- rows 1))))
+
+(define (main n)
+	(set 'm1 (mkmatrix size size))
+	(set 'm2 m1)
+	(dotimes (i n)
+		(set 'm3 (multiply m1 m2)))
+	(println (m3 0 0) " " (m3 2 3) " " (m3 3 2) " " (m3 4 4)))
+
+(set 'n (integer (main-args 2)))
+
+(main n)
+
+---------------------------------------------------------------------
+;;
+;; Method Calls
+;;
+;; this is almost identical Object Instantiation
+;; but here method call is measured instead of
+;; object creation/instantiation
+;;
+
+; define class Toggle
+
+(context 'Toggle)
+
+(define (init start_state)
+	(set 'bool start_state))
+
+(define (value)
+	bool)
+
+(define (activate)
+	(set 'bool (not bool)))
+
+(context 'MAIN)
+
+; subclass Toggle to NthToggle and overwrite methods
+
+(new Toggle 'NthToggle)
+
+(context NthToggle)
+
+(define (init start_state max_counter)
+	(set 'bool start_state)
+	(set 'count_max max_counter)
+	(set 'counter 0))
+
+(define (activate)
+	(inc 'counter)
+	(if (>= counter count_max)
+		(begin
+			(set 'bool (not bool))
+			(set 'counter 0))
+                counter ))
+
+(context 'MAIN)
+
+; Method calls
+; get n from command line
+
+(set 'n (integer (main-args 2)))
+
+(define (main)
+	(new Toggle 'toggle)
+	(toggle:init true)
+
+	(dotimes (x n)
+		(toggle:activate)
+		(set 'val toggle:value))
+
+	(if (toggle:value) (println "true") (println "false"))
+
+	(new NthToggle 'ntoggle)
+	(ntoggle:init true 3)
+
+	(dotimes (x n)
+		(ntoggle:activate)
+		(set 'val ntoggle:value))
+
+	(if (ntoggle:value) (println "true") (println "false"))
+	)
+
+(main)
+
+---------------------------------------------------------------------
+;;
+;; Nested Loops
+;;
+;; newLISP also has a 'for' which takes an initializer
+;; for the looping variable and is a bit slower
+;;
+
+(set 'n (integer (main-args 2)))
+(set 'x 0)
+(dotimes (a n)
+	(dotimes (b n)
+		(dotimes (c n)
+			(dotimes (d n)
+				(dotimes (e n)
+					(dotimes (f n)
+						(inc 'x)))))))
+(println x)
+
+(set 'n (integer (main-args 2)))
+(set 'x 0)
+(for (a 1 n)
+	(for (b 1 n)
+		(for (c 1 n)
+			(for (d 1 n)
+				(for (e 1 n)
+					(for (f 1 n)
+						(inc 'x)))))))
+(println x)
+
+---------------------------------------------------------------------
+;;
+;; Nsieve
+;;
+;; by Lutz Mueller 2004-12-11
+;;
+;; A solution with a newLISP array for flags is about the same
+;; speed but uses much more memory. Here a character vector is
+;; manipulated directly.
+;;
+
+(define (nsieve m f, cnt)
+	(set 'cnt 0)
+
+        (for (i 2 m)
+            (if (= (char f:isPrime i) 1)
+                (begin
+                    (set 'k (+ i i))
+                    (while (<= k m)
+                        (cpymem "\000" (+ k (address f:isPrime)) 1)
+                        (inc 'k i))
+	        (inc 'cnt))))
+         cnt)
+
+(define (main)
+    (set 'n (integer (main-args 2)))
+
+    (set 'm (* (pow 2 n) 10000))
+    (set 'flags:isPrime (dup "\001" (+ m 1) ))
+
+    (println (format "Primes up to %8d%8d" m (nsieve m flags)))
+
+    (set 'm (* (pow 2 (- n 1)) 10000))
+    (println (format "Primes up to %8d%8d" m (nsieve m flags)))
+
+    (set 'm (* (pow 2 (- n 2)) 10000))
+    (println (format "Primes up to %8d%8d" m (nsieve m flags)))
+    )
+
+(main)
+
+---------------------------------------------------------------------
+;;
+;; Object Instantiation
+;;
+
+; define class Toggle
+
+(context 'Toggle)
+
+(define (init start_state)
+	(set 'bool start_state))
+
+(define (value)
+	bool)
+
+(define (activate)
+	(set 'bool (not bool)))
+
+(context 'MAIN)
+
+; subclass Toggle to NthToggle and overwrite methods
+
+(new Toggle 'NthToggle)
+
+(context NthToggle)
+
+(define (init start_state max_counter)
+	(set 'bool start_state)
+	(set 'count_max max_counter)
+	(set 'counter 0))
+
+(define (activate)
+	(inc 'counter)
+	(if (>= counter count_max)
+		(begin
+			(set 'bool (not bool))
+			(set 'counter 0))
+                counter ))
+
+(context 'MAIN)
+
+; get n from command line
+
+(set 'n (integer (main-args 2)))
+
+(define (main)
+	(new Toggle 'toggle)
+	(toggle:init true)
+
+	(dotimes (x 5)
+		(toggle:activate)
+		(if (toggle:value) (println "true") (println "false")))
+
+	(dotimes (x n)
+		(new Toggle 'toggle)
+		(toggle:init true))
+
+	(println)
+
+	(new NthToggle 'ntoggle)
+	(ntoggle:init true 3)
+
+	(dotimes (x 8)
+		(ntoggle:activate)
+		(if (ntoggle:value) (println "true") (println "false")))
+
+	(dotimes (x n)
+		(new NthToggle 'ntoggle)
+		(ntoggle:init true 3))
+	)
+
+(main)
+
+---------------------------------------------------------------------
+;;
+;; Prime
+;; (requires newLISP 7.5.2)
+;;
+
+(define (main)
+	(set 'NUM (integer (main-args 2)))
+
+	(dotimes (p NUM)
+		(set 'flags (array 8193 '(1)))
+		(set 'cnt 0)
+
+		(for (i 2 8192)
+			(if (= (nth i flags) 1)
+				(begin
+					(set 'k (+ i i))
+					(while (<= k 8192)
+						(nth-set k flags 0)
+						(inc 'k i))
+					(inc 'cnt)))))
+
+	(println "Count: " cnt))
+
+(main)
+
+---------------------------------------------------------------------
+;;
+;; Random Numbers
+;;
+;; note, that newLISP has various fast built-in random
+;; functions which are not used here
+;;
+
+(set 'IM 139968)
+(set 'IA 3877)
+(set 'IC 29573)
+
+(set 'LAST 42)
+
+(define (gen_random maximum)
+	(set 'LAST (mod (add (mul LAST IA) IC) IM))
+	(div (mul maximum LAST) IM))
+
+
+(define (main)
+	(set 'N (integer (main-args 2)))
+	(dotimes (i (- N 1)) (gen_random 100.0))
+
+	(println (format "%.9f" (gen_random 100.0))) )
+
+(main)
+
+---------------------------------------------------------------------
+;;
+;; Regular Expressions
+;; get phone data from stdin
+;;
+
+(while (read-line) (push (append (current-line) "\n") phones))
+(reverse phones)
+
+;; patterns
+(set 'pattern (append
+    {(?:^|[^\d\(])}		; must be preceeded by non-digit
+    {(\()?}				; match 1: possible initial left paren
+    {(\d\d\d)}			; match 2: area code is 3 digits
+    {(?(1)\))}			; if match1 then match right paren
+    {[ ]}				; area code followed by one space
+    {(\d\d\d)}			; match 3: prefix of 3 digits
+    {[ -]}			      ; separator is either space or dash
+    {(\d\d\d\d)}			; match 4: last 4 digits
+    {\D}				; must be followed by a non-digit
+))
+
+;; get N
+(set 'N (integer (last (main-args))))
+(set 'cnt 0)
+
+(dotimes (i N)
+  (dolist (phone phones)
+    (if (regex pattern phone)
+        (if (= i 0)
+          (begin
+            (inc 'cnt)
+            (println (string cnt ": (" $2 ") " $3 "-" $4)))))))
+
+---------------------------------------------------------------------
+;;
+;; Reverse a File
+;;
+
+(while (read-line) (push (current-line) file))
+(println (join file "\n"))
+
+---------------------------------------------------------------------
+;;
+;; Spell Checker
+;; (requires newLISP 8.3.0)
+
+(context 'MAIN)
+
+(define (main)
+	(set 'infile (open "Usr.Dict.Words" "read"))
+	(while (set 'word (read-line infile))
+		(sym word 'Dictionary))
+	(close infile)
+
+	(while (set 'word (read-line))
+		(if (not (sym word 'Dictionary nil))
+			(println word))))
+
+(main)
+
+---------------------------------------------------------------------
+;;
+;; Startup
+;;
+
+(println "Hello World")
+
+---------------------------------------------------------------------
+;;
+;; Statistical Moments
+;; read file filter empty lines
+;;
+
+(define (main)
+  (while (read-line) (push (float (current-line)) nums))
+  (set 'nums (reverse (filter float? nums)))
+  (set 'n (length nums))
+  (set 'sum (apply add nums))
+  (set 'mean (div sum n))
+  (set 'avg-dev 0 'std-dev 0 'var 0 'skew 0 'kurtosis 0)
+  (set 'dev (map sub nums (dup mean n)))
+  (set 'avg-dev (div (apply add (map abs dev)) n))
+  (set 'var (div (apply add (map mul dev dev)) (- n 1)))
+  (set 'skew (apply add (map mul dev dev dev)))
+  (set 'kurtosis (apply add (map  mul dev dev dev dev)))
+  (set 'std-dev (sqrt var))
+  (if (> var 0.0)
+    (begin
+	(set 'skew (div skew (mul n var std-dev)))
+	(set 'kurtosis (sub (div kurtosis (mul n var var)) 3.0))))
+  (sort nums)
+  (set 'mid (/ n 2))
+  (if (= 0 (% n 2))
+	(set 'median (div (add (nums mid) (nums (- mid 1))) 2))
+	(set 'median (nums mid)))
+  (println (format "n:                  %d" n))
+  (println (format "median:             %f" median))
+  (println (format "mean:               %f" mean))
+  (println (format "average_deviation:  %f" avg-dev))
+  (println (format "standard_deviation: %f" std-dev))
+  (println (format "variance:           %f" var))
+  (println (format "skew:               %f" skew))
+  (println (format "kurtosis:           %f" kurtosis))
+)
+
+(main)
+
+---------------------------------------------------------------------
+;;
+;; Sum a File of Numbers
+;;
+
+(set 'sum 0)
+(while (read-line) (inc 'sum (integer (current-line))))
+(println sum)
+
+---------------------------------------------------------------------
+;;
+;; Synchronize
+;; producer/consumer
+;; (requires newLISP 8.3.0)
+;; Note that newLISP does not use Pthreads,
+;; but classic UNIX/fork() processes
+;; therefore no mutexes amd condition variables,
+;; but semaphores and shared memory
+;;
+
+(constant 'wait -1 'sig 1)
+
+(define (consumer n)
+	(set 'i 0)
+	(while (< i n)
+		(semaphore cons-sem wait)
+		(set 'i (share data))
+		(share consumed (+ (share consumed) 1))
+		(semaphore prod-sem sig))
+	(exit))
+
+(define (producer n)
+	(for (i 1 n)
+		(semaphore prod-sem wait)
+		(share data i)
+		(share produced (+ (share produced) 1))
+		(semaphore cons-sem sig))
+	(exit))
+
+(define (main n)
+	(set 'produced (share)) ; get shared mem addresses
+	(set 'consumed (share))
+	(set 'data (share))
+
+	(share produced 0) ; init shared memory
+	(share consumed 0)
+	(share data 0)
+
+	(set 'prod-sem (semaphore)) ; get semaphores
+	(set 'cons-sem (semaphore))
+
+	(set 'prod-pid (fork (producer n))) ; start processes
+	(set 'cons-pid (fork (consumer n)))
+	(semaphore prod-sem sig) ; get producer started
+
+	(wait-pid prod-pid) ; wait for processe to finish
+	(wait-pid cons-pid)
+	(semaphore cons-sem 0) ; release semaphore
+	(semaphore prod-sem 0) ; release semaphore
+
+	(println (share produced) " " (share consumed)))
+
+(main (integer (last (main-args))))
+
+(exit)
+
+---------------------------------------------------------------------
+;;
+;; -*- mode: lisp -*-
+;; $Id: takfp-newlisp.code,v 1.1 2004/12/05 21:22:46 bfulgham Exp $
+;; http://shootout.alioth.debian.org/
+;; Contributed by Brent Fulgham
+;; changes L.M. 2004/12/13
+;;
+
+;;; switch int-ops to float-ops
+(constant '- sub '* mul)
+
+(define (tak x y z)
+  (if (>= y x)
+      z
+      (tak (tak (- x 1) y z) (tak (- y 1) z x) (tak (- z 1) x y))))
+
+(define (main)
+  (set 'n (integer (last (main-args))))
+  (println
+    (format "%.1f" (tak (* n 3.0) (* n 2.0) (* n 1.0) ))))
+
+(main)
+
+---------------------------------------------------------------------
+;;
+;; Word Frequency
+;; create a context/namespace to hold words
+;; since version 8.8 newLISP has a built in function
+;; bayes-query, which will do the counting in just
+;; one statement and much faster
+;;
+
+(context 'wc)
+(context MAIN)
+
+(define (main)
+;;	(HASH:make 'wc)
+	(while (read-line)
+		(set 'data (parse (lower-case (current-line)) "[^a-z]+" 0))
+		(dolist (w data)
+			(if (set 'result (eval (symbol (append "_" w) wc) ))
+				(set (symbol (append "_" w) wc) (+ result 1))
+				(set (symbol (append "_" w) wc) 1))))
+	(dolist (w (symbols wc))
+		(set 'wrd (name w))
+		(if (and (starts-with wrd "_") (!= "_" wrd))
+			(push (list (eval w) (slice wrd 1) ) words) ))
+	(dolist (w (reverse (sort words)))
+		(println (format "%7d %s" (first w) (last w))))
+	)
+
+(main)
+
+---------------------------------------------------------------------
+
+
 ============================================================================
 Frasi Famose sulla Programmazione e sul Linguaggio Lisp
 ============================================================================
@@ -5184,5 +6061,8 @@ Frasi Famose sulla Programmazione e sul Linguaggio Lisp
 
 "All profound and true things are simple. Complexity is vanity."
 - Lutz Mueller  (creator of newLISP)
+
+"It pays to know the dark corners of your language."
+- unknown
 
 

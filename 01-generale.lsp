@@ -5114,12 +5114,12 @@ Crea un contesto (namespace) e un funtore di default di nome myHash che contiene
 (define myHash:myHash)
 ;-> nil
 
-In alternativa al metodo precedente, è possibile utilizzare un contesto predefinito e il funtore di default Tree per instanziare un nuovo cotesto:
+In alternativa al metodo precedente, è possibile utilizzare un contesto predefinito e il funtore di default Tree per instanziare un nuovo contesto:
 
 (new Tree 'myHash)
 ;-> myHash
 
-Entrambi i metodi producono lo stesso risultato, ma il secondo metodo protegge anche il funtore predefinito Myhash: Myhash da possibili modifiche.
+Entrambi i metodi producono lo stesso risultato, ma il secondo metodo protegge anche il funtore predefinito myHash:myHash da possibili modifiche.
 
 Adesso possiamo usare il contesto definito come una hash map.
 
@@ -5716,6 +5716,10 @@ In questo modo newLISP lavora molto più velocemente:
  ESPRESSIONI REGOLARI
 ======================
 
+Le espressioni regolari (regex o regexp) sono estremamente utili per estrarre informazioni da qualsiasi testo cercando una o più corrispondenze di un modello (pattern) di ricerca specifico (ovvero una sequenza specifica di caratteri ASCII o unicode).
+I campi di applicazione sono convalida di dati, analisi/sostituzione di stringhe, trasformazione di dati in altri formati, web scraping, syntax highlighting, ecc.
+Una delle caratteristiche più interessanti è che una volta appresa la sintassi, puoi utilizzare questo strumento in (quasi) tutti i linguaggi di programmazione con minime distinzioni in base al tipo di supporto fornito dal linguaggio utilizzato.
+
 newLISP utilizza le espressioni regolari di tipo PCRE (Perl Compatible Regular Expressions).
 Per maggior informazioni consultare: https://www.pcre.org/
 
@@ -5838,6 +5842,7 @@ Le impostazioni delle opzioni PCRE_CASELESS, PCRE_MULTILINE, PCRE_DOTALL e PCRE_
 Nota che la sintassi delle espressioni regolari è molto complessa e ricca di funzionalità con molti caratteri e forme speciali. Per ulteriori dettagli, consultare un libro o le pagine del manuale di PCRE. La maggior parte dei libri PERL o introduzioni a Linux o Unix contengono anche capitoli sulle espressioni regolari. Vedi anche http://www.pcre.org per ulteriori riferimenti e la consultazione delle pagine del manuale.
 
 I pattern di espressione regolari possono essere precompilati, per una maggiore velocità quando si usano i pattern in modo ripetuto, con regex-comp.
+-----------------------------------------------------------
 
 Quindi per usare in modo proficuo le espressioni regolari occorre imparare come devono essere costruiti i pattern regex in relazione alle ricerche che vogliamo affettuare. In questo contesto ci limiteremo ad affrontare i pattern di ricerca e sostituzione più comuni e come utilizzarli all'interno di newLISP.
 
@@ -5950,7 +5955,274 @@ Analogamente, esistono delle classi di caratteri predefinite:
 [[:punct:]] indica i caratteri di punteggiatura
 [[:xdigit:]] indica i valori esadecimali
 
-Che ci crediate o no, le poche regole appena esplicate (che non esauriscono l’argomento, comunque) sono sufficienti a permetterci di lavorare con le Espressioni Regolari e a costruire, quindi, dei validi modelli per gli scopi che ci proponiamo. Un consiglio: prima di accingervi a costruire l’espressione, è fondamentale che abbiate in mente l’esatto modello che volete riprodurre, le parti di cui esso si compone, in altre parole, che sappiate esattamente ciò che volete cercare delimitandone correttamente i confini.
+Che ci crediate o no, le poche regole appena esplicate (che non esauriscono l’argomento, comunque) sono sufficienti a permetterci di lavorare con le Espressioni Regolari e a costruire modelli validi per gli scopi che ci proponiamo. Prima di costruire l’espressione, è fondamentale che abbiate in mente l’esatto modello che volete riprodurre, le parti di cui esso si compone, in altre parole, che sappiate esattamente ciò che volete cercare delimitandone correttamente i confini.
+
+Adesso esaminiamo alcuni esempi generali non specifici a newLISP. Le spiegazioni degli esempi sono state lasciate in lingua inglese perchè sono più sintetiche.
+
+Argomenti di base
+-----------------
+
+Ancoraggi: "^" e "$"
+--------------------
+^The
+matches any string that starts with The
+
+end$
+matches a string that ends with end
+
+^The end$
+exact string match (starts and ends with The end)
+
+roar
+matches any string that has the text roar in it
+
+Quantificatori: "*" "+" "?" e "{}"
+----------------------------------
+abc*
+matches a string that has "ab" followed by zero or more "c"
+
+abc+
+matches a string that has "ab" followed by one or more "c"
+
+abc?
+matches a string that has "ab" followed by zero or one "c"
+
+abc{2}
+matches a string that has "ab" followed by 2 "c"
+
+abc{2,}
+matches a string that has "ab" followed by 2 or more "c"
+
+abc{2,5}
+matches a string that has "ab" followed by 2 up to 5 "c"
+
+a(bc)*
+matches a string that has "a" followed by zero or more copies of the sequence "bc"
+
+a(bc){2,5}
+matches a string that has "a" followed by 2 up to 5 copies of the sequence "bc"
+
+Operatore OR: "|" oppure "[]"
+-----------------------------
+a(b|c)
+matches a string that has "a" followed by "b" or "c"
+
+a[bc]
+same as previous
+
+Classi di caratteri: "\d" "\w" "\s" e "."
+-----------------------------------------
+\d
+matches a single character that is a digit
+
+\w
+matches a word character (alphanumeric character plus underscore)
+
+\s
+matches a whitespace character (includes tabs and line breaks)
+
+.
+matches any character
+
+Usa l'operatore "." con attenzione poiché spesso le classi o le classi di caratteri negati (che tratteremo in seguito) sono più veloci e più precisi.
+
+"\d", "\w" e "\s" hanno anche le rispettive negazioni con "\D", "\W" e "\S".
+
+Per esempio, "\D" effettua il match inverso rispetto a quello ottenuto con "/d".
+
+\D
+matches a single non-digit character
+
+Per specificare correttamente il carattere, occurre proteggere i caratteri ^.[$()|*?{}\ con il carattere '\' (barra rovesciata - backslash). Questa regola viene chiamata "escape rule".
+
+\$\d
+matches a string that has a "$" before one digit
+
+Nota che possiamo utilizzare anche caratteri non stampabili come tab "\t", new-line "\n", ritorni a capo "\r".
+
+Marcatori (flag)
+----------------
+I marcatori (flag) rappresentano un aspetto fondamentale delle espressioni regolari.
+Una regex di solito si presenta nella forma /abc/, dove il modello di ricerca è delimitato da due caratteri barra /. Alla fine possiamo specificare un flag con questi valori (possiamo anche combinarli tra loro):
+
+g (globale) 
+non ritorna dopo la prima corrispondenza, riavviando le ricerche successive dalla fine della corrispondenza precedente
+
+m (multilinea) 
+quando abilitato, "^" e "$" corrisponderanno all'inizio e alla fine di una riga, anziché all'intera stringa
+
+i (insensibile) 
+rende l'intera espressione senza distinzione tra maiuscole e minuscole (ad esempio /aBc/ corrisponde con AbC)
+
+Argomenti intermedi
+-------------------
+
+Raggruppare e catturare: "()"
+-----------------------------
+a(bc)
+parentheses create a capturing group with value bc
+
+a(?:bc)*        
+using ?: we disable the capturing group
+
+a(?<foo>bc)     
+using ?<foo> we put a name to the group
+
+Questo operatore è molto utile quando abbiamo bisogno di estrarre informazioni da stringhe o dati usando il linguaggio di programmazione preferito. Eventuali ricorrenze multiple catturate da più gruppi saranno esposte sotto forma di un classico vettore/lista: accederemo ai loro valori specificando un indice del risultato della corrispondenza.
+
+Se assegniamo un nome ai gruppi (usando (?<nome> ...)) saremo in grado di recuperare i valori del gruppo usando il risultato della corrispondenza come un dizionario in cui le chiavi saranno il nome di ciascun gruppo.
+
+Espressioni con parentesi: "[]"
+-------------------------------
+[abc]            
+matches a string that has either an a or a b or a c -> is the same as a|b|c
+
+[a-c]            
+same as previous
+
+[a-fA-F0-9]      
+a string that represents a single hexadecimal digit, case insensitively
+
+[0-9]%           
+a string that has a character from 0 to 9 before a % sign
+
+[^a-zA-Z]        
+a string that has not a letter from a to z or from A to Z
+In this case the ^ is used as negation of the expression
+
+Ricorda che all'interno delle parentesi quadre tutti i caratteri speciali (inclusa la barra rovesciata \) perdono i loro poteri speciali: quindi non applicheremo la "escape rule".
+
+Corrispondenza golosa (greedy) e pigra (lazy)
+---------------------------------------------
+I quantificatori (* + {}) sono operatori golosi, nel senso che espandono la corrispondenza il più possibile nel testo da analizzare.
+
+Ad esempio, "<. +>" corrisponde a "<div>simple div</div>" nel testo "This is a <div> simple div</div>". Per catturare solo il tag div possiamo usare un "?" per renderlo pigro:
+
+<.+?>            
+matches any character one or more times included inside < and >, expanding as needed
+
+Si noti che una soluzione migliore dovrebbe evitare l'utilizzo di "." a favore di una regex più rigorosa:
+
+<[^<>]+>         
+matches any character except < or > one or more times included inside < and >
+
+Argomenti avanzati
+------------------
+
+Confini (Boundaries): "\b" e "\B"
+---------------------------------
+\babc\b          
+performs a "whole words only" search
+
+\b rappresenta un punto di ancoraggio come il punto di inserimento (è simile a $ e ^) in corrispondenza delle posizioni in cui un lato è un carattere di una parola (come \w) e l'altro lato non è un carattere di parola (ad esempio potrebbe essere l'inizio della stringa o un carattere spazio).
+
+Esiste anche la sua negazione, \B. Questo corrisponde a tutte le posizioni in cui \b non corrisponde e rappresenta un modello per la ricerca di pattern racchiusi da altri caratteri.
+
+\Babc\B          
+matches only if the pattern is fully surrounded by word characters
+
+Riferimento all'indietro (Back-references): "\1"
+------------------------------------------------
+([abc])\1              
+using \1 it matches the same text that was matched by the first capturing group
+
+([abc])([de])\2\1      
+we can use \2 (\3, \4, etc.) to identify the same text that was matched by the second (third, fourth, etc.) capturing group
+
+(?<foo>[abc])\k<foo>   
+we put the name foo to the group and we reference it later (\k<foo>). The result is the same of the first regex
+
+Guarda-avanti (look-ahead) e (look-behind): "(?=)" e "(?<=)"
+------------------------------------------------------------
+d(?=r)       
+matches a d only if is followed by r, but r will not be part of the overall regex match
+
+(?<=r)d      
+matches a d only if is preceded by an r, but r will not be part of the overall regex match
+
+Possiamo anche usare l'operatore di negazione "!":
+
+d(?!r)       
+matches a d only if is not followed by r, but r will not be part of the overall regex match
+
+(?<!r)d      
+matches a d only if is not preceded by an r, but r will not be part of the overall regex match
+
+Adesso vediamo alcuni esempi di regex e delle funzioni di newLISP che la utilizzano.
+
+*******************
+>>>funzione REPLACE
+*******************
+sintassi: (replace str-pattern str-data exp-replacement regex-option)
+
+La presenza di un quarto parametro indica che è necessario eseguire una ricerca di espressioni regolari con un modello di espressione regolare specificato in str-pattern e un numero di opzione specificato in regex-option (ad es. 1 (uno) o "i" per la ricerca senza distinzione tra maiuscole e minuscole o 0 (zero) per una ricerca standard Perl compatibile con espressione regolare (PCRE) senza opzioni). Vedi regex sopra per i dettagli.
+
+Per impostazione predefinita, replace sostituisce tutte le occorrenze di una stringa di ricerca anche se nel modello di ricerca è inclusa una specifica di inizio riga. Dopo ogni sostituzione, viene avviata una nuova ricerca in una nuova posizione in str-data. L'impostazione del bit di opzione su 0x8000 in regex-option forzerà la sostituzione solo della prima occorrenza. Viene restituita la stringa modificata.
+
+replace con le espressioni regolari imposta anche le variabili interne $0, $1 e $2 con il contenuto delle espressioni e delle sottoespressioni trovate. La variabile di sistema anaforica $it è impostata sullo stesso valore di $0. Questi possono essere utilizzati per eseguire sostituzioni che dipendono dal contenuto trovato durante la sostituzione. I simboli $it, $0, $1 e $2  possono essere usati nelle espressioni come qualsiasi altro simbolo. Se l'espressione di sostituzione restituisce qualcosa di diverso da una stringa, non viene effettuata alcuna sostituzione. In alternativa, è possibile accedere al contenuto di queste variabili anche utilizzando ($ 0), ($ 1), ($ 2) e così via. Questo metodo consente l'accesso indicizzato (ad es. ($ i), dove i è un numero intero).
+
+Dopo aver effettuato tutte le sostituzioni, il numero di sostituzioni è contenuto nella variabile di sistema $count.
+
+;; using the option parameter to employ regular expressions
+
+(set 'str "ZZZZZxZZZZyy")     → "ZZZZZxZZZZyy"
+(replace "x|y" str "PP" 0)    → "ZZZZZPPZZZZPPPP"
+str                           → "ZZZZZPPZZZZPPPP"
+
+;; using system variables for dynamic replacement
+
+(set 'str "---axb---ayb---")
+(replace "(a)(.)(b)" str (append $3 $2 $1) 0)
+→ "---bxa---bya---"
+
+str  → "---bxa---bya---"
+
+;; using the 'replace once' option bit 0x8000
+
+(replace "a" "aaa" "X" 0)  → "XXX"
+
+(replace "a" "aaa" "X" 0x8000)  → "Xaa"
+
+;; URL translation of hex codes with dynamic replacement
+
+(set 'str "xxx%41xxx%42")
+(replace "%([0-9A-F][0-9A-F])" str
+               (char (int (append "0x" $1))) 1)
+
+str    → "xxxAxxxB"
+
+$count → 2
+
+Un'altra funzione che può usare le espressioni regolari è "search".
+
+******************
+>>>funzione SEARCH
+******************
+sintassi: (search int-file str-search [bool-flag [regex-option]])
+
+Cerca un file specificato dal suo handle in int-file per una stringa in str-search. int-file può essere ottenuto da un precedente file aperto. Dopo la ricerca, il puntatore del file viene posizionato all'inizio o alla fine della stringa cercata o alla fine del file se non viene trovato nulla.
+
+Per impostazione predefinita, il puntatore del file è posizionato all'inizio della stringa cercata. Se bool-flag vale true, il puntatore del file viene posizionato alla fine della stringa cercata.
+
+In regex-option, i flag delle opzioni possono essere specificati per eseguire una ricerca di espressioni regolari PCRE. Vedi la funzione regex per i dettagli. Se l'opzione regex non viene specificata, viene eseguita una ricerca di stringhe più veloce e semplice. search restituisce la nuova posizione del file o zero se non viene trovato nulla.
+
+Quando si utilizza il flag delle opzioni di espressione regolare, i modelli trovati vengono archiviati nelle variabili di sistema da $0 a $15.
+
+(set 'file (open "init.lsp" "read"))
+(search file "define")
+(print (read-line file) "\n")
+(close file)
+
+(set 'file (open "program.c" "r"))
+(while (search file "#define (.*)" true 0) (println $1))
+(close file)
+
+Il file init.lsp viene aperto e cercata la stringa "define" e viene stampata la linea in cui si trova la stringa.
+
+Il secondo esempio cerca tutte le righe nel file program.c che iniziano con la stringa "#define" e stampa il resto della riga dopo la stringa "#define".
+
+Vediamo adesso alcuni esempi di espressioni regolari presi dal forum di newLISP.
+...
 
 
 =======
@@ -6688,7 +6960,7 @@ Questa macro permette di eseguire una funzione/espressione con i parametri in or
 
 macro "define!" (Cormullion)
 ----------------------------
-Questa macro permette di definire funzioni che hanno la variabile "_selr" impostata con il loro nome.
+Questa macro permette di definire funzioni che hanno la variabile "_self" impostata con il loro nome.
 
 (define-macro (define! farg)
   (set (farg 0)

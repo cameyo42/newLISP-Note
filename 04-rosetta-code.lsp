@@ -7073,3 +7073,161 @@ scambiando di posto W4 in W5:
 La soluzione modificata non è stabile.
 
 
+-----------------------
+TEST PRIMI MILLER-RABIN
+-----------------------
+
+Il test di primalità di Miller-Rabin è un algoritmo per determinare se un numero intero è primo.
+Il test è probabilistico, nel senso che se il test è negativo, allora il numero è sicuramente composito (non primo), mentre se il test è positivo il numero è "quasi" sicuramente primo.
+
+Per maggiori informazioni: https://it.wikipedia.org/wiki/Test_di_Miller-Rabin
+
+Definiamo alcune funzioni che servono per l'agoritmo.
+
+(random-sample n k) seleziona k numeri distinti da una lista n.
+Se il parametro n è un numero, allora la lista vale (1 2 ... n).
+Altrimenti n deve essere una lista di elementi distinti.
+
+(define (random-sample n k)
+  (cond ((integer? n)
+         (slice (randomize (sequence 1 n)) 0 k))
+        ((list? n)
+         (slice (randomize n) 0 k))
+        (true nil)))
+
+(random-sample 100 10)
+;-> (73 30 87 32 20 74 91 2 82 36)
+(random-sample '(a v f j k o l) 3)
+;-> (f j a)
+
+Nota: la funzione "random-sample" manda in crash il sistema con numeri grandi. Probabilmente la primitiva "sequence" richiede troppa memoria per generare la lista di numeri.
+
+Quindi utilizziamo la seguente funzione:
+
+(define (random-sample n k)
+  (let (out '())
+    (for (i 1 k)
+      (push (+ 2 (rand n)) out)
+    )
+    out))
+
+(random-sample 10 3)
+;-> (75 83 90 36 48 59 81 20 57 1)
+
+Nota: questa funzione può generare numeri uguali, ma è molto improbabile con n grande.
+
+(powmod b e m) calcola l'espressione ((b^e) % m) in modo veloce.
+
+(define (powmod b e m)
+  (local (r)
+    (cond ((= m 1) (setq r 0))
+          (true
+            ;(setq r 1L)
+            (setq r 1)
+            (setq b (% b m))
+            (while (> e 0)
+              (if (= (% e 2) 1) (setq r (% (* r b) m)))
+              (setq e (/ e 2))
+              (setq b (% (* b b) m))
+            )
+          )
+    )
+    r))
+
+(** x p) calcola la potenza di due numeri interi (x^p):
+
+(define (** x p)
+  (let (y 1L)
+    (dotimes (i p)
+      (set 'y (* y x)))))
+
+(powmod 10320320302 2322 5)
+;-> 4L
+(% (** 10320320302 2322) 5)
+;-> 4L
+
+Vediamo i tempi di esecuzione:
+(time (% (** 103203203022222 23213) 5))
+;-> 2160.79
+(time (powmod 103203203022222 23213 5))
+;-> 0
+
+Adesso possiamo scrivere la funzione che implementa l'algoritmo di Miller-Rabin:
+
+(define (mil-rab n)
+  (local (k s d x out stop)
+    (setq out true)
+    (setq stop nil)
+    (setq k 5)
+    (cond ((or (= n 1) (= n 4)) (setq out nil))
+          ((or (= n 2) (= n 3) (= n 5)) (setq out true))
+          ((zero? (% n 2)) (setq out nil))
+          (true
+            (setq s 0)
+            (setq d (- n 1))
+            (while (= (% d 2) 0)
+              (++ s)
+              (setq d (/ d 2))
+            )
+            ; ciclo con una lista di numeri casuali (k = 5)
+            ;(dolist (a (random-sample (sequence 2 (- n 3)) k) stop)
+            ;(dolist (a (random-sample (- n 5) k) stop)
+            (dolist (a (random-sample (- n 3) k) stop)
+              (setq x (powmod a d n))
+              (if (and (!= x 1) (!= n (+ x 1)))
+                (begin
+                  (setq r 1)
+                  (while (< r s)
+                    (setq x (powmod x 2 n))
+                    (if (= x 1) ; numero composito
+                        (setq out nil r s stop true)
+                    ;else
+                        (if (= x (- n 1)) ; il ciclo non continua
+                            (setq a 0 r s)) ; proviamo un'altro "a"
+                    )
+                    (++ r)
+                  )
+                  ; numero composito
+                  (if (> a 0) (setq out nil stop true))
+                )
+              )
+            )
+            ; probabilmente primo se raggiunge la fine del loop
+            ; cioè, (out = true)
+          )
+    )
+    out))
+
+Prima di verificare la funzione utilizziamo la funzone "seed" per inizializzare il generatore di numerii casuali di newLISP (altrimenti newLISP inizia sempre con la stessa sequenza di numeri casuali).
+
+(seed (time-of-day))
+
+(mil-rab 11)
+;-> true
+(mil-rab 1117)
+;-> true
+
+Verifichiamo la funzione "mil-rab" utilizzando la funzione "primo?":
+
+(define (primo? n)
+   (if (< n 2) nil
+       (= 1 (length (factor n)))))
+
+Verifichiamo la correttezza dell'algoritmo per i primi 100000 numeri:
+
+(= (map primo? (sequence 1 100000)) (map mil-rab (sequence 1 100000)))
+;-> true
+
+Nota: all'aumentare di k aumenta l'affidabilità della funzione , ma diminuisce la velocità di esecuzione.
+
+Vediamo al differenza di velocità tra le due funzioni:
+
+(time (map primo? (sequence 1 1000000)))
+;-> 1123.864
+
+(time (map mil-rab (sequence 1 1000000)))
+;-> 6828.682
+
+Purtroppo la funzione "rand" non gestisce i numeri big-integer.
+
+

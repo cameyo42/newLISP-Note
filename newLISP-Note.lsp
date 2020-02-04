@@ -141,6 +141,10 @@ FUNZIONI VARIE
   Numeri casuali con distribuzione discreta predefinita
   Generatore di stringhe casuali
   Inverso di un numero
+  Crivello di Atkin
+  Esponenziazione modulare veloce
+  random sample
+  Funzioni di Mobius e di Mertens
 
 newLISP 99 PROBLEMI (28)
 ========================
@@ -225,6 +229,7 @@ ROSETTA CODE
   Il gioco del Nim
   Fibonacci sequenze di n-numeri
   Il problema dei matrimoni stabili
+  Test Primi Miller-Rabin
 
 PROJECT EULERO
 ==============
@@ -295,6 +300,7 @@ PROBLEMI VARI
   Congettura di Goldbach
   Problema dei travasi ed equazioni diofantee
   Primi circolari
+  Radici di un polinomio (Bairstow)
 
 DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
 ==================================================
@@ -351,6 +357,9 @@ DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Dadi e probabilità (Visa)
   Numeri casuali e fattori (Wolfram)
   Coprimi vicini (Wolfram)
+  Unione di liste (LinkedIn)
+  Tripla crescente (LeetCode)
+  Stringhe isomorfe (Facebook)
 
 LIBRERIE
 ========
@@ -360,6 +369,7 @@ LIBRERIE
   Operazioni con gli insiemi
   Funzioni winapi
   Operazioni con gli alberi binari
+  funlisp.lsp (by Dmitry Chernyak)
 
 NOTE LIBERE
 ===========
@@ -427,6 +437,10 @@ NOTE LIBERE
   Funzioni e contesti
   Buon 2020 (e 2021)
   Nascita della teoria della probabilità
+  Fibonacci(104911)
+  Conta e leggi
+  Assegnazione parallela
+  Generatore di numeri casuali
 
 APPENDICI
 =========
@@ -449,6 +463,7 @@ APPENDICI
   "The Y of Why" in newLISP (Lutz Mueller)
   Valutazione delle espressioni, Indicizzazione Implicita, Contesti e Funtori di Default (Lutz Mueller)
   Gestione Automatica della Memoria in newLISP (Lutz Mueller)
+  Benchmarking newLISP
   Frasi Famose sulla Programmazione e sul Linguaggio Lisp
 
 BIBLIOGRAFIA / WEB
@@ -458,6 +473,7 @@ DOCUMENTAZIONE EXTRA
 ====================
   A) Introduction to newLISP (by Cormullion)
   B) The Little newLISPER (wip)
+  C) Primality Testing (wip)
 
 ==========================================================================
 
@@ -465,7 +481,7 @@ LICENSE
 
 MIT License
 
-Copyright (c) 2019 Massimo Corinaldesi aka cameyo
+Copyright (c) 2019-2020 Massimo Corinaldesi aka cameyo
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -5604,12 +5620,12 @@ Crea un contesto (namespace) e un funtore di default di nome myHash che contiene
 (define myHash:myHash)
 ;-> nil
 
-In alternativa al metodo precedente, è possibile utilizzare un contesto predefinito e il funtore di default Tree per instanziare un nuovo cotesto:
+In alternativa al metodo precedente, è possibile utilizzare un contesto predefinito e il funtore di default Tree per instanziare un nuovo contesto:
 
 (new Tree 'myHash)
 ;-> myHash
 
-Entrambi i metodi producono lo stesso risultato, ma il secondo metodo protegge anche il funtore predefinito Myhash: Myhash da possibili modifiche.
+Entrambi i metodi producono lo stesso risultato, ma il secondo metodo protegge anche il funtore predefinito myHash:myHash da possibili modifiche.
 
 Adesso possiamo usare il contesto definito come una hash map.
 
@@ -6206,6 +6222,10 @@ In questo modo newLISP lavora molto più velocemente:
  ESPRESSIONI REGOLARI
 ======================
 
+Le espressioni regolari (regex o regexp) sono estremamente utili per estrarre informazioni da qualsiasi testo cercando una o più corrispondenze di un modello (pattern) di ricerca specifico (ovvero una sequenza specifica di caratteri ASCII o unicode).
+I campi di applicazione sono convalida di dati, analisi/sostituzione di stringhe, trasformazione di dati in altri formati, web scraping, syntax highlighting, ecc.
+Una delle caratteristiche più interessanti è che una volta appresa la sintassi, puoi utilizzare questo strumento in (quasi) tutti i linguaggi di programmazione con minime distinzioni in base al tipo di supporto fornito dal linguaggio utilizzato.
+
 newLISP utilizza le espressioni regolari di tipo PCRE (Perl Compatible Regular Expressions).
 Per maggior informazioni consultare: https://www.pcre.org/
 
@@ -6328,6 +6348,7 @@ Le impostazioni delle opzioni PCRE_CASELESS, PCRE_MULTILINE, PCRE_DOTALL e PCRE_
 Nota che la sintassi delle espressioni regolari è molto complessa e ricca di funzionalità con molti caratteri e forme speciali. Per ulteriori dettagli, consultare un libro o le pagine del manuale di PCRE. La maggior parte dei libri PERL o introduzioni a Linux o Unix contengono anche capitoli sulle espressioni regolari. Vedi anche http://www.pcre.org per ulteriori riferimenti e la consultazione delle pagine del manuale.
 
 I pattern di espressione regolari possono essere precompilati, per una maggiore velocità quando si usano i pattern in modo ripetuto, con regex-comp.
+-----------------------------------------------------------
 
 Quindi per usare in modo proficuo le espressioni regolari occorre imparare come devono essere costruiti i pattern regex in relazione alle ricerche che vogliamo affettuare. In questo contesto ci limiteremo ad affrontare i pattern di ricerca e sostituzione più comuni e come utilizzarli all'interno di newLISP.
 
@@ -6440,7 +6461,274 @@ Analogamente, esistono delle classi di caratteri predefinite:
 [[:punct:]] indica i caratteri di punteggiatura
 [[:xdigit:]] indica i valori esadecimali
 
-Che ci crediate o no, le poche regole appena esplicate (che non esauriscono l’argomento, comunque) sono sufficienti a permetterci di lavorare con le Espressioni Regolari e a costruire, quindi, dei validi modelli per gli scopi che ci proponiamo. Un consiglio: prima di accingervi a costruire l’espressione, è fondamentale che abbiate in mente l’esatto modello che volete riprodurre, le parti di cui esso si compone, in altre parole, che sappiate esattamente ciò che volete cercare delimitandone correttamente i confini.
+Che ci crediate o no, le poche regole appena esplicate (che non esauriscono l’argomento, comunque) sono sufficienti a permetterci di lavorare con le Espressioni Regolari e a costruire modelli validi per gli scopi che ci proponiamo. Prima di costruire l’espressione, è fondamentale che abbiate in mente l’esatto modello che volete riprodurre, le parti di cui esso si compone, in altre parole, che sappiate esattamente ciò che volete cercare delimitandone correttamente i confini.
+
+Adesso esaminiamo alcuni esempi generali non specifici a newLISP. Le spiegazioni degli esempi sono state lasciate in lingua inglese perchè sono più sintetiche.
+
+Argomenti di base
+-----------------
+
+Ancoraggi: "^" e "$"
+--------------------
+^The
+matches any string that starts with The
+
+end$
+matches a string that ends with end
+
+^The end$
+exact string match (starts and ends with The end)
+
+roar
+matches any string that has the text roar in it
+
+Quantificatori: "*" "+" "?" e "{}"
+----------------------------------
+abc*
+matches a string that has "ab" followed by zero or more "c"
+
+abc+
+matches a string that has "ab" followed by one or more "c"
+
+abc?
+matches a string that has "ab" followed by zero or one "c"
+
+abc{2}
+matches a string that has "ab" followed by 2 "c"
+
+abc{2,}
+matches a string that has "ab" followed by 2 or more "c"
+
+abc{2,5}
+matches a string that has "ab" followed by 2 up to 5 "c"
+
+a(bc)*
+matches a string that has "a" followed by zero or more copies of the sequence "bc"
+
+a(bc){2,5}
+matches a string that has "a" followed by 2 up to 5 copies of the sequence "bc"
+
+Operatore OR: "|" oppure "[]"
+-----------------------------
+a(b|c)
+matches a string that has "a" followed by "b" or "c"
+
+a[bc]
+same as previous
+
+Classi di caratteri: "\d" "\w" "\s" e "."
+-----------------------------------------
+\d
+matches a single character that is a digit
+
+\w
+matches a word character (alphanumeric character plus underscore)
+
+\s
+matches a whitespace character (includes tabs and line breaks)
+
+.
+matches any character
+
+Usa l'operatore "." con attenzione poiché spesso le classi o le classi di caratteri negati (che tratteremo in seguito) sono più veloci e più precisi.
+
+"\d", "\w" e "\s" hanno anche le rispettive negazioni con "\D", "\W" e "\S".
+
+Per esempio, "\D" effettua il match inverso rispetto a quello ottenuto con "/d".
+
+\D
+matches a single non-digit character
+
+Per specificare correttamente il carattere, occurre proteggere i caratteri ^.[$()|*?{}\ con il carattere '\' (barra rovesciata - backslash). Questa regola viene chiamata "escape rule".
+
+\$\d
+matches a string that has a "$" before one digit
+
+Nota che possiamo utilizzare anche caratteri non stampabili come tab "\t", new-line "\n", ritorni a capo "\r".
+
+Marcatori (flag)
+----------------
+I marcatori (flag) rappresentano un aspetto fondamentale delle espressioni regolari.
+Una regex di solito si presenta nella forma /abc/, dove il modello di ricerca è delimitato da due caratteri barra /. Alla fine possiamo specificare un flag con questi valori (possiamo anche combinarli tra loro):
+
+g (globale) 
+non ritorna dopo la prima corrispondenza, riavviando le ricerche successive dalla fine della corrispondenza precedente
+
+m (multilinea) 
+quando abilitato, "^" e "$" corrisponderanno all'inizio e alla fine di una riga, anziché all'intera stringa
+
+i (insensibile) 
+rende l'intera espressione senza distinzione tra maiuscole e minuscole (ad esempio /aBc/ corrisponde con AbC)
+
+Argomenti intermedi
+-------------------
+
+Raggruppare e catturare: "()"
+-----------------------------
+a(bc)
+parentheses create a capturing group with value bc
+
+a(?:bc)*        
+using ?: we disable the capturing group
+
+a(?<foo>bc)     
+using ?<foo> we put a name to the group
+
+Questo operatore è molto utile quando abbiamo bisogno di estrarre informazioni da stringhe o dati usando il linguaggio di programmazione preferito. Eventuali ricorrenze multiple catturate da più gruppi saranno esposte sotto forma di un classico vettore/lista: accederemo ai loro valori specificando un indice del risultato della corrispondenza.
+
+Se assegniamo un nome ai gruppi (usando (?<nome> ...)) saremo in grado di recuperare i valori del gruppo usando il risultato della corrispondenza come un dizionario in cui le chiavi saranno il nome di ciascun gruppo.
+
+Espressioni con parentesi: "[]"
+-------------------------------
+[abc]            
+matches a string that has either an a or a b or a c -> is the same as a|b|c
+
+[a-c]            
+same as previous
+
+[a-fA-F0-9]      
+a string that represents a single hexadecimal digit, case insensitively
+
+[0-9]%           
+a string that has a character from 0 to 9 before a % sign
+
+[^a-zA-Z]        
+a string that has not a letter from a to z or from A to Z
+In this case the ^ is used as negation of the expression
+
+Ricorda che all'interno delle parentesi quadre tutti i caratteri speciali (inclusa la barra rovesciata \) perdono i loro poteri speciali: quindi non applicheremo la "escape rule".
+
+Corrispondenza golosa (greedy) e pigra (lazy)
+---------------------------------------------
+I quantificatori (* + {}) sono operatori golosi, nel senso che espandono la corrispondenza il più possibile nel testo da analizzare.
+
+Ad esempio, "<. +>" corrisponde a "<div>simple div</div>" nel testo "This is a <div> simple div</div>". Per catturare solo il tag div possiamo usare un "?" per renderlo pigro:
+
+<.+?>            
+matches any character one or more times included inside < and >, expanding as needed
+
+Si noti che una soluzione migliore dovrebbe evitare l'utilizzo di "." a favore di una regex più rigorosa:
+
+<[^<>]+>         
+matches any character except < or > one or more times included inside < and >
+
+Argomenti avanzati
+------------------
+
+Confini (Boundaries): "\b" e "\B"
+---------------------------------
+\babc\b          
+performs a "whole words only" search
+
+\b rappresenta un punto di ancoraggio come il punto di inserimento (è simile a $ e ^) in corrispondenza delle posizioni in cui un lato è un carattere di una parola (come \w) e l'altro lato non è un carattere di parola (ad esempio potrebbe essere l'inizio della stringa o un carattere spazio).
+
+Esiste anche la sua negazione, \B. Questo corrisponde a tutte le posizioni in cui \b non corrisponde e rappresenta un modello per la ricerca di pattern racchiusi da altri caratteri.
+
+\Babc\B          
+matches only if the pattern is fully surrounded by word characters
+
+Riferimento all'indietro (Back-references): "\1"
+------------------------------------------------
+([abc])\1              
+using \1 it matches the same text that was matched by the first capturing group
+
+([abc])([de])\2\1      
+we can use \2 (\3, \4, etc.) to identify the same text that was matched by the second (third, fourth, etc.) capturing group
+
+(?<foo>[abc])\k<foo>   
+we put the name foo to the group and we reference it later (\k<foo>). The result is the same of the first regex
+
+Guarda-avanti (look-ahead) e (look-behind): "(?=)" e "(?<=)"
+------------------------------------------------------------
+d(?=r)       
+matches a d only if is followed by r, but r will not be part of the overall regex match
+
+(?<=r)d      
+matches a d only if is preceded by an r, but r will not be part of the overall regex match
+
+Possiamo anche usare l'operatore di negazione "!":
+
+d(?!r)       
+matches a d only if is not followed by r, but r will not be part of the overall regex match
+
+(?<!r)d      
+matches a d only if is not preceded by an r, but r will not be part of the overall regex match
+
+Adesso vediamo alcuni esempi di regex e delle funzioni di newLISP che la utilizzano.
+
+*******************
+>>>funzione REPLACE
+*******************
+sintassi: (replace str-pattern str-data exp-replacement regex-option)
+
+La presenza di un quarto parametro indica che è necessario eseguire una ricerca di espressioni regolari con un modello di espressione regolare specificato in str-pattern e un numero di opzione specificato in regex-option (ad es. 1 (uno) o "i" per la ricerca senza distinzione tra maiuscole e minuscole o 0 (zero) per una ricerca standard Perl compatibile con espressione regolare (PCRE) senza opzioni). Vedi regex sopra per i dettagli.
+
+Per impostazione predefinita, replace sostituisce tutte le occorrenze di una stringa di ricerca anche se nel modello di ricerca è inclusa una specifica di inizio riga. Dopo ogni sostituzione, viene avviata una nuova ricerca in una nuova posizione in str-data. L'impostazione del bit di opzione su 0x8000 in regex-option forzerà la sostituzione solo della prima occorrenza. Viene restituita la stringa modificata.
+
+replace con le espressioni regolari imposta anche le variabili interne $0, $1 e $2 con il contenuto delle espressioni e delle sottoespressioni trovate. La variabile di sistema anaforica $it è impostata sullo stesso valore di $0. Questi possono essere utilizzati per eseguire sostituzioni che dipendono dal contenuto trovato durante la sostituzione. I simboli $it, $0, $1 e $2  possono essere usati nelle espressioni come qualsiasi altro simbolo. Se l'espressione di sostituzione restituisce qualcosa di diverso da una stringa, non viene effettuata alcuna sostituzione. In alternativa, è possibile accedere al contenuto di queste variabili anche utilizzando ($ 0), ($ 1), ($ 2) e così via. Questo metodo consente l'accesso indicizzato (ad es. ($ i), dove i è un numero intero).
+
+Dopo aver effettuato tutte le sostituzioni, il numero di sostituzioni è contenuto nella variabile di sistema $count.
+
+;; using the option parameter to employ regular expressions
+
+(set 'str "ZZZZZxZZZZyy")     → "ZZZZZxZZZZyy"
+(replace "x|y" str "PP" 0)    → "ZZZZZPPZZZZPPPP"
+str                           → "ZZZZZPPZZZZPPPP"
+
+;; using system variables for dynamic replacement
+
+(set 'str "---axb---ayb---")
+(replace "(a)(.)(b)" str (append $3 $2 $1) 0)
+→ "---bxa---bya---"
+
+str  → "---bxa---bya---"
+
+;; using the 'replace once' option bit 0x8000
+
+(replace "a" "aaa" "X" 0)  → "XXX"
+
+(replace "a" "aaa" "X" 0x8000)  → "Xaa"
+
+;; URL translation of hex codes with dynamic replacement
+
+(set 'str "xxx%41xxx%42")
+(replace "%([0-9A-F][0-9A-F])" str
+               (char (int (append "0x" $1))) 1)
+
+str    → "xxxAxxxB"
+
+$count → 2
+
+Un'altra funzione che può usare le espressioni regolari è "search".
+
+******************
+>>>funzione SEARCH
+******************
+sintassi: (search int-file str-search [bool-flag [regex-option]])
+
+Cerca un file specificato dal suo handle in int-file per una stringa in str-search. int-file può essere ottenuto da un precedente file aperto. Dopo la ricerca, il puntatore del file viene posizionato all'inizio o alla fine della stringa cercata o alla fine del file se non viene trovato nulla.
+
+Per impostazione predefinita, il puntatore del file è posizionato all'inizio della stringa cercata. Se bool-flag vale true, il puntatore del file viene posizionato alla fine della stringa cercata.
+
+In regex-option, i flag delle opzioni possono essere specificati per eseguire una ricerca di espressioni regolari PCRE. Vedi la funzione regex per i dettagli. Se l'opzione regex non viene specificata, viene eseguita una ricerca di stringhe più veloce e semplice. search restituisce la nuova posizione del file o zero se non viene trovato nulla.
+
+Quando si utilizza il flag delle opzioni di espressione regolare, i modelli trovati vengono archiviati nelle variabili di sistema da $0 a $15.
+
+(set 'file (open "init.lsp" "read"))
+(search file "define")
+(print (read-line file) "\n")
+(close file)
+
+(set 'file (open "program.c" "r"))
+(while (search file "#define (.*)" true 0) (println $1))
+(close file)
+
+Il file init.lsp viene aperto e cercata la stringa "define" e viene stampata la linea in cui si trova la stringa.
+
+Il secondo esempio cerca tutte le righe nel file program.c che iniziano con la stringa "#define" e stampa il resto della riga dopo la stringa "#define".
+
+Vediamo adesso alcuni esempi di espressioni regolari presi dal forum di newLISP.
+...
 
 
 =======
@@ -7178,7 +7466,7 @@ Questa macro permette di eseguire una funzione/espressione con i parametri in or
 
 macro "define!" (Cormullion)
 ----------------------------
-Questa macro permette di definire funzioni che hanno la variabile "_selr" impostata con il loro nome.
+Questa macro permette di definire funzioni che hanno la variabile "_self" impostata con il loro nome.
 
 (define-macro (define! farg)
   (set (farg 0)
@@ -13218,6 +13506,324 @@ Quindi la funzione inversa può essere scritta nel modo seguente:
 ;-> nil
 
 
+-----------------
+Crivello di Atkin
+-----------------
+
+Il crivello di Atkin è un algoritmo per calcolare tutti i numeri primi fino ad dato numero intero.
+Potete trovare maggiori informazioni sul sito web:
+
+https://it.wikipedia.org/wiki/Crivello_di_Atkin
+
+(define (atkin n)
+  (local (primi up m j)
+    (setq primi (array (+ n 1) '(nil)))
+    (setf (primi 2) true)
+    (setf (primi 3) true)
+    (setq up (int (ceil (sqrt n))))
+    (for (x 1 (- up 1))
+      (for (y 1 (- up 1))
+        (setq m (+ (* 4 x x) (* y y)))
+        (if (and (<= m n) (or (= (% m 12) 1) (= (% m 12) 5)))
+            (setf (primi m) (not (primi m)))
+        )
+        (setq m (+ (* 3 x x) (* y y)))
+        (if (and (<= m n) (= (% m 12) 7))
+            (setf (primi m) (not (primi m)))
+        )
+        (setq m (- (* 3 x x) (* y y)))
+        (if (and (> x y) (<= m n) (= (% m 12) 11))
+            (setf (primi m) (not (primi m)))
+        )
+      )
+    )
+    (for (i 5 up)
+      (if (primi i)
+        (begin
+        (setq j (* i i))
+        (while (< j n)
+          (setf (primi j) nil)
+          (setq j (+ j (* i i)))
+        )
+        )
+      )
+    )
+    ; converte i valori true del vettore in numeri interi (primi)
+    (filter integer? (map (fn(x) (if (= x true) $idx)) primi))
+  )
+)
+
+(atkin 100)
+;-> (2 3 5 7 11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71 73 79 83 89 97)
+
+Vediamo il tempo di esecuzione:
+
+(time (atkin 1e6))
+;-> 1046.776
+(time (atkin 1e7))
+;-> 10329.198
+
+Vediamo un'altra funzione per calcolare i numeri primi fino ad un dato numero:
+
+(define (sieve-to n)
+   (setq arr (array (+ n 1)) lst '(2))
+   (for (x 3 n 2)
+      (when (not (arr x))
+         (push x lst -1)
+         (for (y (* x x) n (* 2 x) (> y n))
+            (setf (arr y) true))))
+   lst
+)
+
+Controlliamo che le due funzioni producano risultati uguali:
+
+(= (sieve-to 100000) (atkin 100000))
+;-> true
+
+Vediamo il tempo di esecuzione:
+
+(time (sieve-to 1e7))
+;-> 1932.644
+
+
+-------------------------------
+Esponenziazione modulare veloce
+-------------------------------
+
+In alcuni calcoli/algoritmi (per esempio il test di primalità di Miller-Rabin) è necessario calcolare l'espressione:
+
+(b^e % m)
+
+Esistono dei metodi per effettuare questo calcolo in modo più veloce. Invece di calcolare la potenza e poi il modulo, possiamo effettuare il calcolo in modo integrato.
+
+Primo metodo:
+
+(define (powmod b e m)
+  (local (r)
+    (cond ((= m 1) (setq r 0))
+          (true
+            (setq r 1L)
+            (setq b (% b m))
+            (while (> e 0)
+              (if (= (% e 2) 1) (setq r (% (* r b) m)))
+              (setq e (/ e 2))
+              (setq b (% (* b b) m))
+            )
+          )
+    )
+    r))
+
+Secondo metodo:
+
+(define (modexpt b e M)
+  (cond
+    ((zero? e) 1L)
+    ((even? e) (modexpt (% (* b b) M) (/ e 2L) M))
+    ((odd? e) (% (* b (modexpt b (- e 1L) M)) M))))
+
+(time (modexpt 1234L 55555456844L 7L) 10000)
+;-> 421.888
+(time (powmod 1234L 55555456844L 7L) 10000)
+;-> 437.499
+(time (modexpt 1234L 55555456844L 7L) 10000)
+;-> 421.888
+(time (powmod 1234L 55555456844L 7L) 10000)
+;-> 421.874
+
+Terzo metodo (standard):
+
+(** x p) calcola la potenza di due numeri interi (x^p):
+
+(define (** x p)
+  (let (y 1L)
+    (dotimes (i p)
+      (set 'y (* y x)))))
+
+(time (% (** 1234L 55555L) 7L))
+;-> 1484.471
+
+Praticamente, il terzo metodo è inutilizzabile.
+
+
+-------------
+random sample
+-------------
+
+In statistica, un "random sample" è un sottoinsieme di elementi (un campione) scelti da un insieme più ampio. Ogni elemento viene scelto casualmente in modo tale che ogni elemento abbia la stessa probabilità di essere scelto in qualsiasi fase durante il processo di campionamento e ogni sottoinsieme di k elementi abbia la stessa probabilità di essere scelto come campione di qualsiasi altro sottoinsieme di k elementi. Questo processo e questa tecnica viene chiamata "campionamento casuale semplice" (simple random sample).
+
+La seguente funzione "random-sample" non è corretta, in quanto può generare numeri uguali (non distinti).
+
+(define (random-sample n k)
+  (let (out '())
+    (for (i 1 k)
+      (push (+ 2 (rand n)) out)
+    )
+    out))
+
+La seguente "random-sample" è corretta e seleziona k numeri distinti dai numeri 1..n.
+
+(define (random-sample n k)
+  ; newLISP start with the same sequence without "seed"
+  (seed (time-of-day))
+  (slice (randomize (sequence 1 n)) 0 k))
+
+Invece questa "random-sample" seleziona k numeri distinti da una lista
+Se n è un numero, allora la lista vale (1 2 ... n).
+Altrimenti n deve essere una lista di elementi distinti.
+
+(define (random-sample n k)
+  ; newLISP start with the same sequence without "seed"
+  (seed (time-of-day))
+  (cond ((integer? n)
+         (slice (randomize (sequence 1 n)) 0 k))
+        ((list? n)
+         (slice (randomize n) 0 k))
+        (true nil)))
+
+(random-sample 100 10)
+;-> (73 30 87 32 20 74 91 2 82 36)
+
+(random-sample '(a v f j k o l) 3)
+;-> (j v l)
+
+Nota: queste ultime due funzioni sono inutilizzabili per valori di n grandi, infatti la funzione "sequence" richiederebbe troppa memoria per generare la lista di numeri da 1 a n.
+
+Possiamo scrivere una funzione che utilizza una hashmap. Continuiamo a generare un numero casuale e lo inseriamo nella hashmap fino a che non abbiamo k numeri casuali. La hashmap si preoccupa di gestire le eventuali collisioni (numeri casuali già estratti).
+
+(define (random-sample1 n k)
+  (let ((out '()) (r 0))
+    (new Tree 'Hash)
+    (while (< (length (Hash)) k)
+      (setq r (+ 1 (rand n)))
+      (Hash r r)
+    )
+    (dolist (el (Hash)) (push (el 1) out -1))
+    (delete 'Hash)
+    out
+  )
+)
+
+Chiaramente questa funzione è efficiente quando il valore di n è almeno un ordine di grandezza superiore al valore di k.
+
+(random-sample1 100 10)
+;-> (11 26 38 4 57 60 70 73 77 87)
+
+(length (unique (random-sample1 1000 1000)))
+;-> 1000
+
+Un altro problema viene dal fatto che la cancellazione della hashmap (delete 'Hash) è una funzione molto lenta. Allora proviamo ad eliminare tutti gli elementi della hashmap:
+
+(define (random-sample n k)
+  (let ((out '()) (r 0))
+    (new Tree 'Hash)
+    (while (< (length (Hash)) k)
+      (setq r (+ 1 (rand n)))
+      (Hash r r)
+    )
+    (dolist (el (Hash)) (push (el 1) out -1))
+    ; delete Hash elements
+    (dolist (el out) (Hash el nil))
+    ;(delete 'Hash)
+    out
+  )
+)
+
+(random-sample 10 3)
+;-> (4 5 6)
+
+Vediamo la velocità:
+
+(time (random-sample1 1000 100) 1000)
+;-> 1125.599
+(time (random-sample 1000 100) 1000)
+;-> 940.62
+
+(time (random-sample1 100000 1000) 100)
+;-> 7111.842
+(time (random-sample 100000 1000) 100)
+;-> 7116.742
+
+Nessun miglioramento sostanziale.
+
+
+-------------------------------
+Funzioni di Mobius e di Mertens
+-------------------------------
+
+La funzione di Mobius, indicata con mu(n), è una funzione che trova impiego in teoria dei numeri per classificare i numeri interi positivi in una di tre categorie possibili secondo la scomposizione in fattori.
+
+La funzione viene definita assegnando a μ(n) i seguenti valori:
+
+−1 se n è scomponibile in un numero dispari di fattori primi distinti.
+   (se n ha un numero dispari di fattori primi non ripetuti)
+Per esempio μ(435) = −1 perché 435 = 3 × 5 × 29, ha tre fattori primi. Per gli scopi di questa funzione, un numero primo è considerato avere un fattore primo, in sé, quindi μ(p) = −1.
+
+0 se n ha uno o più fattori primi ripetuti.
+Per esempio μ(436) = 0 perché 436 = 22 × 109 = 2 × 2 × 109, poiché gli esponenti significano che un fattore accade due volte o più nella scomposizione in fattori.
+
++1 se n è scomponibile in un numero pari di fattori primi distinti.
+   (se n ha un numero pari di fattori non ripetuti)
+Per esempio μ(437) = 1 perché 437 = 19 × 23. Si assume anche che μ(1) = 1, considerando che abbia una scomposizione in 0 fattori primi.
+
+Per convenzione mu(1) = 1.
+
+Questa è una funzione aritmetica moltiplicativa, cioè se h e k sono interi positivi coprimi, allora risulta: mu(h*k) = mu(h) * mu(k).
+
+Sequenza OESIS: A008683
+
+(setq A008683 '(
+ 1 -1 -1 0 -1 1 -1 0 0 1 -1 0 -1 1 1
+ 0 -1 0 -1 0 1 1 -1 0 0 1 0 0 -1 -1
+ -1 0 1 1 1 0 -1 1 1 0 -1 -1 -1 0 0
+ 1 -1 0 0 0 1 0 -1 0 1 0 1 1 -1 0 -1
+ 1 0 0 1 -1 -1 0 1 -1 -1 0 -1 1 0 0 1 -1))
+
+(length A008683)
+;-> 78
+
+(define (mobius n)
+  (let (f (factor n))
+    (cond ((= n 1) 1)
+          ; se n ha fattori primi distinti...
+          ((= f (unique f))
+           ; se dispari -> -1, altrimenti -> 1
+           (if (odd? (length f)) -1 1))
+          ;se n ha fattori primi non distinti (ripetuti)
+          (true 0))))
+
+(mobius 6)
+;-> 1
+
+(= A008683 (map mobius (sequence 1 78)))
+;-> true
+
+La funzione di Mertens indicata con M(x) è la sommatoria della funzione di Mobius:
+
+M(x) = Sum[mu(n)] (per tutti i valori n <= x)
+
+Sequenza OESIS: A002321
+
+(setq A002321 '(
+ 1 0 -1 -1 -2 -1 -2 -2 -2 -1 -2 -2 -3 -2
+ -1 -1 -2 -2 -3 -3 -2 -1 -2 -2 -2 -1 -1 -1
+ -2 -3 -4 -4 -3 -2 -1 -1 -2 -1 0 0 -1 -2
+ -3 -3 -3 -2 -3 -3 -3 -3 -2 -2 -3 -3 -2 -2
+ -1 0 -1 -1 -2 -1 -1 -1 0 -1 -2 -2 -1 -2
+ -3 -3 -4 -3 -3 -3 -2 -3 -4 -4 -4))
+ 
+(length A002321)
+;-> 81
+
+(define (mertens x)
+  (apply + (map mobius (sequence 1 x))))
+
+(mertens 3)
+;-> -1
+
+(= A002321 (map mertens (sequence 1 81)))
+;-> true
+
+
 ==========================
 
  newLISP 99 PROBLEMI (28)
@@ -13695,6 +14301,19 @@ Punto terzo
  Contiene due chiamate ricorsive sulle parti "first" e "rest" della lista.
 
 Questi tre punti sono caratteristici per ogni funzione che lavora sulle liste di liste.
+
+Funzione predefinita newLISP: (flat lst)
+
+(flat '((1 2) ((2 (3)) (4 4)) (((7)))))
+;-> (1 2 2 3 4 4 7)
+
+Possiamo anche specificare quante annidamenti vogliamo rimuovere:
+
+(flat '((1 2) ((2 (3)) (4 4)) (((7)))) 1)
+;-> (1 2 (2 (3)) (4 4) ((7)))
+
+(flat '((1 2) ((2 (3)) (4 4)) (((7)))) 2)
+;-> (1 2 2 (3) 4 4 (7))
 
 
 =======================================================
@@ -21754,6 +22373,164 @@ scambiando di posto W4 in W5:
 ;-> Soluzione stabile: nil
 
 La soluzione modificata non è stabile.
+
+
+-----------------------
+TEST PRIMI MILLER-RABIN
+-----------------------
+
+Il test di primalità di Miller-Rabin è un algoritmo per determinare se un numero intero è primo.
+Il test è probabilistico, nel senso che se il test è negativo, allora il numero è sicuramente composito (non primo), mentre se il test è positivo il numero è "quasi" sicuramente primo.
+
+Per maggiori informazioni: https://it.wikipedia.org/wiki/Test_di_Miller-Rabin
+
+Definiamo alcune funzioni che servono per l'agoritmo.
+
+(random-sample n k) seleziona k numeri distinti da una lista n.
+Se il parametro n è un numero, allora la lista vale (1 2 ... n).
+Altrimenti n deve essere una lista di elementi distinti.
+
+(define (random-sample n k)
+  (cond ((integer? n)
+         (slice (randomize (sequence 1 n)) 0 k))
+        ((list? n)
+         (slice (randomize n) 0 k))
+        (true nil)))
+
+(random-sample 100 10)
+;-> (73 30 87 32 20 74 91 2 82 36)
+(random-sample '(a v f j k o l) 3)
+;-> (f j a)
+
+Nota: la funzione "random-sample" manda in crash il sistema con numeri grandi. Probabilmente la primitiva "sequence" richiede troppa memoria per generare la lista di numeri.
+
+Quindi utilizziamo la seguente funzione:
+
+(define (random-sample n k)
+  (let (out '())
+    (for (i 1 k)
+      (push (+ 2 (rand n)) out)
+    )
+    out))
+
+(random-sample 10 3)
+;-> (75 83 90 36 48 59 81 20 57 1)
+
+Nota: questa funzione può generare numeri uguali, ma è molto improbabile con n grande.
+
+(powmod b e m) calcola l'espressione ((b^e) % m) in modo veloce.
+
+(define (powmod b e m)
+  (local (r)
+    (cond ((= m 1) (setq r 0))
+          (true
+            ;(setq r 1L)
+            (setq r 1)
+            (setq b (% b m))
+            (while (> e 0)
+              (if (= (% e 2) 1) (setq r (% (* r b) m)))
+              (setq e (/ e 2))
+              (setq b (% (* b b) m))
+            )
+          )
+    )
+    r))
+
+(** x p) calcola la potenza di due numeri interi (x^p):
+
+(define (** x p)
+  (let (y 1L)
+    (dotimes (i p)
+      (set 'y (* y x)))))
+
+(powmod 10320320302 2322 5)
+;-> 4L
+(% (** 10320320302 2322) 5)
+;-> 4L
+
+Vediamo i tempi di esecuzione:
+(time (% (** 103203203022222 23213) 5))
+;-> 2160.79
+(time (powmod 103203203022222 23213 5))
+;-> 0
+
+Adesso possiamo scrivere la funzione che implementa l'algoritmo di Miller-Rabin:
+
+(define (mil-rab n)
+  (local (k s d x out stop)
+    (setq out true)
+    (setq stop nil)
+    (setq k 5)
+    (cond ((or (= n 1) (= n 4)) (setq out nil))
+          ((or (= n 2) (= n 3) (= n 5)) (setq out true))
+          ((zero? (% n 2)) (setq out nil))
+          (true
+            (setq s 0)
+            (setq d (- n 1))
+            (while (= (% d 2) 0)
+              (++ s)
+              (setq d (/ d 2))
+            )
+            ; ciclo con una lista di numeri casuali (k = 5)
+            ;(dolist (a (random-sample (sequence 2 (- n 3)) k) stop)
+            ;(dolist (a (random-sample (- n 5) k) stop)
+            (dolist (a (random-sample (- n 3) k) stop)
+              (setq x (powmod a d n))
+              (if (and (!= x 1) (!= n (+ x 1)))
+                (begin
+                  (setq r 1)
+                  (while (< r s)
+                    (setq x (powmod x 2 n))
+                    (if (= x 1) ; numero composito
+                        (setq out nil r s stop true)
+                    ;else
+                        (if (= x (- n 1)) ; il ciclo non continua
+                            (setq a 0 r s)) ; proviamo un'altro "a"
+                    )
+                    (++ r)
+                  )
+                  ; numero composito
+                  (if (> a 0) (setq out nil stop true))
+                )
+              )
+            )
+            ; probabilmente primo se raggiunge la fine del loop
+            ; cioè, (out = true)
+          )
+    )
+    out))
+
+Prima di verificare la funzione utilizziamo la funzone "seed" per inizializzare il generatore di numerii casuali di newLISP (altrimenti newLISP inizia sempre con la stessa sequenza di numeri casuali).
+
+(seed (time-of-day))
+
+(mil-rab 11)
+;-> true
+(mil-rab 1117)
+;-> true
+
+Verifichiamo la funzione "mil-rab" utilizzando la funzione "primo?":
+
+(define (primo? n)
+   (if (< n 2) nil
+       (= 1 (length (factor n)))))
+
+Verifichiamo la correttezza dell'algoritmo per i primi 100000 numeri:
+
+(= (map primo? (sequence 1 100000)) (map mil-rab (sequence 1 100000)))
+;-> true
+
+Nota: all'aumentare di k aumenta l'affidabilità della funzione , ma diminuisce la velocità di esecuzione.
+
+Vediamo al differenza di velocità tra le due funzioni:
+
+(time (map primo? (sequence 1 1000000)))
+;-> 1123.864
+
+(time (map mil-rab (sequence 1 1000000)))
+;-> 6828.682
+
+Purtroppo la funzione "rand" non gestisce i numeri big-integer.
 
 
 ================
@@ -35653,6 +36430,200 @@ Trovare tutti i numeri primi circolari sotto al milione.
 ;-> ;-> 1368.633
 
 
+---------------------------------
+Radici di un polinomio (Bairstow)
+---------------------------------
+
+Questo programma utilizza il metodo di Bairstow per trovare le radici reali e complesse di un poliomiale con coefficienti reali. Il metodo fornisce un processo iterativo per trovare le radici reali e complesse usando solo l'aritmetica reale.
+
+Inoltre, poiché si basa sul metodo di Newton per un sistema di due equazioni non lineari in due incognite, ha la proprietà di convergenza rapida del metodo di Newton per i sistemi di equazioni. Il principale svantaggio di questo metodo è che a volte non coverge alla soluzione. Questo perché è difficile trovare un'ipotesi iniziale che soddisfi le rigide condizioni necessarie per assicurare la convergenza. Quando queste condizioni non sono soddisfatte, la sequenza di approssimazioni può allontanarsi dalle radici desiderate o può iterare indefinitamente intorno alle radici.
+
+Il programma ottiene un'approssimazione iniziale a due radici del polinomio e usa queste due radici per stimare i valori iniziali iniziali dell'interazione di Bairstow. Questi valori sono i coefficienti r e s di un fattore quadratico approssimativo x^2 + rx + s, del polinomio dato. Il polinomio dato passerà attraverso la divisione sintetica per il fattore quadratico che alla fine fornirà tutte le radici reali o complesse in forma singola o in coppia a seconda del grado del polinomio.
+
+Il programma è la traduzione in newLISP del programma in C disponibile all'indirizzo:
+
+https://github.com/DipakMajhi/Roots_of_a_Polynomial
+
+in cui potete trovare anche un articolo (pdf) con tutte le spiegazioni sull'algoritmo.
+
+(define (linear a0 a1)
+  ;(println (sub (div a0 a1)))
+  (push (list (sub (div a0 a1))) sol -1))
+
+(define (quadratic t r s)
+  (local (deter x1 x2 x1r x1i x2r x2i)
+    (setq deter (sub (mul r r) (mul 4 s t)))
+    ;(println t { } r { } s)
+    (cond ((>= deter 0)
+           (setq x1 (div (add (sub r) (sqrt deter)) (mul 2 t)))
+           (setq x2 (div (sub (sub r) (sqrt deter)) (mul 2 t)))
+           ;(println "x1: " x1 { } "x2: " x2)
+           (push (list x1 x2) sol -1)
+          )
+          (true
+           (setq x1r (div (sub r) (mul 2 t)))
+           (setq x1i (div (sqrt (abs deter)) (mul 2 t)))
+           (setq x2r x1r)
+           (setq x2i (sub x1i))
+           ;(println "x1r: " x1r { , } "x1i: " x1i)
+           ;(println "x2r: " x2r { , } "x2i: " x2i)
+           (push (list (list x1r x1i) (list x2r x2i)) sol -1)
+          ))))
+
+(define (bairstow coeff)
+  (local (w j i n
+          t deter p q x1 x2 x1r x1i r s ds dr
+          a b c d sol)
+    (setq sol '())
+    (setq x1 0.0)
+    (setq x2 0.0)
+    (setq r 0.1)
+    (setq s 0.1)
+    (setq a (array 100 '(0)))
+    (setq b (array 100 '(0)))
+    (setq c (array 100 '(0)))
+    (setq d (array 100 '(0)))
+    (setq (b 4) 0)
+    (setq (b 3) 0)
+    ;assegna i coefficienti al vettore "a"
+    (dolist (el (reverse coeff))
+      (setq (a $idx) el)
+    )
+    ;(println a)
+    (setq n (- (length coeff) 1))
+    (setq w n)
+    (cond ((= w 1) (linear (a 0) (a 1)) (-- w))
+          ((= w 2) (quadratic (a 2) (a 1) (a 0)) (setq w (- w 2)))
+          (true
+           (while (>= w 3)
+             (for (j 1 50)
+               (setq (b n) (a n))
+               (setq (b (- n 1)) (sub (a (- n 1)) (mul r (b n))))
+               (for (i (- n 2) 1 -1)
+                 (setq (b i) (sub (a i) (mul r (b (+ i 1))) (mul s (b (+ i 2)))))
+               )
+               (setq (b 0) (sub (a 0) (mul s (b 2))))
+               (setq (c n) (b n))
+               (setq (c (- n 1)) (sub (b (- n 1)) (mul r (c n))))
+               (for (i (- n 2) 2 -1)
+                 (setq (c i) (sub (b i) (mul r (c (+ i 1))) (mul s (c (+ i 2)))))
+               )
+               (setq (c 1) (sub (mul s (c 3))))
+               (setq (d n) (b n))
+               (setq (d (- n 1)) (sub (b (- n 1)) (mul r (d n))))
+               (for (i (- n 2) 3 -1)
+                 (setq (d i) (sub (b i) (mul r (d (+ i 1))) (mul s (d (+ i 2)))))
+               )
+               (setq (d 2) (sub (b 2) (mul s (d 4))))
+               (setq dr (div
+                        (sub (mul (b 0) (d 3)) (mul (b 1) (d 2)))
+                        (add (mul (sub (d 2) (mul r (d 3))) (d 2)) (mul s (d 3) (d 3)))))
+               (setq ds (div
+                        (sub (add (mul (b 1) s (d 3)) (mul (b 0) (sub (d 2) (mul r (d 3))))))
+                        (add (mul (sub (d 2) (mul r (d 3))) (d 2)) (mul s (d 3) (d 3)))))
+               (setq p (sub r dr))
+               (setq q (sub s ds))
+               (setq r p)
+               (setq s q)
+            )
+            (setq t 1)
+            (quadratic t r s)
+            (setq w (- w 2))
+            (for (i n 0 -1)
+              (setq (a (- n i)) (b (- n i)))
+            )
+            (for (i n 0 -1)
+              (setq (a (- n i)) (a (+ (- n i) 2)))
+            )
+          )
+          (cond ((= w 2) (quadratic (b 4) (b 3) (b 2)) (setq w (- w 2)))
+                ((= w 1) (linear (b 2) (b 3)) (-- w))
+          )
+        )
+    )
+    sol
+  )
+)
+
+Vediamo alcuni esempi:
+
+4x - 32 = 0
+(bairstow '(4 32))
+;-> ((-8))
+
+2x^2 -4x + 10 = 0
+(bairstow '(2 -4 10))
+;-> (((1 2) (1 -2)))
+
+x^2 -3x + 2 = 0
+(bairstow '(1 -3 2))
+;-> ((2 1))
+
+4x^3 + 2x^2 -4*x + 10 = 0
+(bairstow '(4 2 -4 10))
+;-> (((0.6563019928818721 0.9739090873711072) 
+;->   (0.6563019928818721 -0.9739090873711072))
+;->  (-1.812603985763744))
+WolframAlpha
+x≈0.656301992881872 + 0.973909087371107 i
+x≈0.656301992881872 - 0.973909087371107 i
+x≈-1.81260398576374
+
+3x^4 - 2x^3 - x^2 + 4x + 10 = 0
+(bairstow '(3 -2 -1 4 10))
+;-> (((-0.871136997600388 0.7358894057211269) 
+;->   (-0.871136997600388 -0.7358894057211269))
+;->  ((1.204470330933721 1.054769962446627) 
+;->   (1.204470330933721 -1.054769962446627)))
+WolframAlpha
+x≈-0.871136997600388 + 0.735889405721127 i
+x≈-0.871136997600388 - 0.735889405721127 i
+x≈1.20447033093372 + 1.05476996244663 i
+x≈1.20447033093372 - 1.05476996244663 i
+
+5x^5 - 4x^4 + 7x^3 + 8x^2 + 9x + 3 = 0
+(bairstow '(5 -4 7 8 9 3))
+;-> (((-0.3480864445180198 0.6520958216175604) 
+;->   (-0.3480864445180198 -0.6520958216175604))
+;->  ((0.9531760543651267 1.329888453606416) 
+;->   (0.9531760543651267 -1.329888453606416))
+;->  (-0.4101792196942135))
+WolframAlpha
+x≈-0.348086 - 0.652096 i
+x≈-0.348086 + 0.652096 i
+x≈0.953176 - 1.32989 i
+x≈0.953176 + 1.32989 i
+x≈-0.410179
+
+x^9 - 2x^8 + 3x^7 + 0x^6 + 5x^5 - 4x^4 + 7x^3 + 8x^2 + 9x + 3 = 0
+(bairstow '(1 -2 3 0 5 -4 7 8 9 3))
+;-> (((-0.3612218566283093 0.6913476051961196) 
+;->   (-0.3612218566283093 -0.6913476051961196))
+;->  ((-0.739130448788589 0.9706810141091354) 
+;->   (-0.739130448788589 -0.9706810141091354))
+;->  ((1.251229097959007 1.099346245887554) 
+;->   (1.251229097959007 -1.099346245887554))
+;->  ((1.053720393127137 1.34449644051663) 
+;->   (1.053720393127137 -1.34449644051663))
+;->  (-0.4091943713384922))
+WolframAlpha
+x≈-0.361222 + 0.691348 i
+x≈-0.361222 - 0.691348 i
+x≈-0.73913 + 0.970681 i
+x≈-0.73913 - 0.970681 i
+x≈1.25123 + 1.09935 i
+x≈1.25123 - 1.09935 i
+x≈1.05372 + 1.3445 i
+x≈1.05372 - 1.3445 i
+x≈-0.409194
+
+Calcoliamo il valore del polinomio per una radice:
+x^9 - 2 x^8 + 3 x^7 + 0 x^6 + 5 x^5 - 4 x^4 + 7 x^3 + 8 x^2 + 9 x + 3 
+dove x = 1.251229097959007 - 1.099346245887554 i
+Risultato:
+2.99×10^-14 + 6.8×10^-15 i
+
+
 ====================================================
 
  DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
@@ -36054,10 +37025,10 @@ Adesso dobbiamo tenere conto degli elementi con valore zero:
 In questo caso, il risultato dovrebbe essere tutti zero tranne l'elemento che ha valore 0: questo elemento dovrebbe contenere il prodotto di tutti gli altri.
 
 2. Due zeri o più nella lista.
-Questo caso è più o meno come il primo, ma la lista risultante contiene sempre solo zeri. Perché 'cè sempre uno zero nel prodotto.
+Questo caso è più o meno come il primo, ma la lista risultante contiene sempre solo zeri. Perché c'è sempre uno zero nel prodotto.
 
 Per considerare questi due casi calcoliamo il prodotto di tutti gli elementi tranne quelli che hanno valore zero e contiamo anche quanti zeri ci sono nella lista.
-Quindi se abbiamo due o più zeri nella lista iniziale, possiamo restituire una list con tutti zeri.
+Quindi se abbiamo due o più zeri nella lista iniziale, possiamo restituire una lista con tutti zeri.
 Altrimenti, iteriamo la lista per sostituire gli elementi che valgono zero con il prodotto che abbiamo calcolato e assegnare il valore zero a tutti gli altri elementi.
 
 La funzione è la seguente:
@@ -36110,9 +37081,9 @@ La funzione è la seguente:
 Ricerca numero su una lista (Stripe)
 ------------------------------------
 
-Data una lista di numeri interi, trova il primo intero positivo mancante in tempo lineare e spazio costante. In altre parole, trova il numero intero positivo più basso che non esiste nelll lista. La lista può contenere anche duplicati e numeri negativi.
-Ad esempio, l'input (3 4 -1 1) dovrebbe dare 2.
-L'input (1 2 0) dovrebbe dare 3.
+Data una lista di numeri interi, trova il primo intero positivo mancante in tempo lineare e spazio costante. In altre parole, trova il numero intero positivo più basso che non esiste nella lista. La lista può contenere anche duplicati e numeri negativi.
+Ad esempio, l'input (3 4 -1 1) dovrebbe restituire 2.
+L'input (1 2 0) dovrebbe restituire 3.
 È possibile modificare la lista di input.
 
 Possiamo notare che gli indici di una lista e i numeri interi sono la stessa cosa.
@@ -36218,7 +37189,6 @@ Inoltre utilizzeremo una funzione (decodifica?) che ritorna "1" se la stringa è
 -------------------------------------------
 Implementazione di un job-scheduler (Apple)
 -------------------------------------------
-
 
 Implementare un job scheduler che prende come parametri una funzione "f" e un intero "n" e chiama "f" dopo "n" millisecondi.
 
@@ -36664,15 +37634,18 @@ Risolviamo questo problema in due modi: il primo con le funzioni predefinite di 
 Nel primo caso notiamo che:
 
 con find-all possiamo creare la lista degli zeri:
+
 (setq zeri (find-all 0 '(0 1 0 3 12)))
 ;-> (0 0)
 
-con filter possiamo creare la lista di tutti inumeri diversi da zero:
+con filter possiamo creare la lista di tutti i numeri diversi da zero:
+
 (define (pos? x) (> x 0))
 (setq numeri (filter pos? '(0 1 0 3 12)))
 ;-> (1 3 12)
 
 infine uniamo le due liste con append:
+
 (append numeri zeri)
 ;-> (1 3 12 0 0)
 
@@ -36723,11 +37696,11 @@ Intersezione di segmenti (byte-by-byte)
 La soluzione è basata su un algoritmo del libro di Andre LeMothe "Tricks of the Windows Game Programming Gurus".
 In generale, una linea ha una delle forme seguenti (interscambiabili):
 
-Y-Intercetta:  y=m*x+b
-Pendenza:      (y–y0)=m*(x–x0)
-Due punti:     (y–y0)=(x–x0)*(y1–y0)/(x1–x0)
-Generale:      a*x+b*y=c
-Parametrica:   P=p0+V*t
+Y-Intercetta:  y = m*x + b
+Pendenza:      (y – y0) = m*(x – x0)
+Due punti:     (y – y0) = (x – x0)*(y1 – y0)/(x1 – x0)
+Generale:      a*x + b*y = c
+Parametrica:   P = p0 + V*t
 
 Il caso generale dell'intersezione è il seguente:
 
@@ -37077,6 +38050,7 @@ Usiamo la funzione apply per applicare tutti gli operatori di confronto alla lis
 ;-> <=
 (order? '(-1 -2 3 -1))
 ;-> nil
+
 
 ----------------
 Caramelle (Visa)
@@ -40403,6 +41377,121 @@ Sciviamo una funzione che calcola e verifica la soluzione:
 ;-> (1112 1113 1114)
 
 
+--------------------------
+Unione di liste (LinkedIn)
+--------------------------
+
+Date due liste costruire la lista unione, cioè una lista con tutti valori non ripetuti delle due liste.
+Per esempio, unione (1 3 1 4 4 3) (2 1 5 6 4)  -->  (1 3 4 2 5 6)
+
+Usiamo un dizionario (hash-map) che ci permette di inserire automaticamente solo i valori che non sono già presenti nel dizionario stesso.
+
+(define (unione lst1 lst2)
+  (let (out '())
+    ; creazione di una hash-map (Hash)
+    (new Tree 'Hash)
+    ; inserisce i valori della lista 1 sull'hash-map
+    ; (solo quelli non presenti nell'hash-map)
+    (dolist (el lst1) (Hash el el))
+    ; inserisce i valori della lista 2 sull'hash-map
+    ; (solo quelli non presenti nell'hash-map)
+    (dolist (el lst2) (Hash el el))
+    ; creazione della lista di output 
+    (dolist (el (Hash)) (push (el 1) out -1))
+    ; occorre eliminare i valori dalla hash-map
+    ; perchè è una variabile globale (è un contesto)
+    (delete 'Hash)
+    out
+  )
+)
+
+(unione '(1 3 1 4 4 3) '(2 1 5 6 4))
+;-> (1 2 3 4 5 6)
+
+
+---------------------------
+Tripla crescente (LeetCode)
+---------------------------
+
+Data una lista non ordinata restituire, se esiste, una sottosequenza crescente di lunghezza 3.
+I numeri non devono essere necessariamente consecutivi. 
+Il problema non richiede di trovare la sottosequenza, ma verificare solo la sua esistenza.
+
+Dal punto di vista formale occorre trovare una sequenza x, y e z, tale che x < y < z.
+
+(define (triple? lst)
+  (local (x y z i out)
+    (setq out nil)
+    (setq x 9223372036854775807)
+    (setq y 9223372036854775807)
+    (setq i 0)
+    (dolist (el lst)
+      (setq z el)
+      (cond ((>= x z) (setq x z)) ; aggiorna x ad un valore inferiore
+            ((>= y z) (setq y z)) ; aggiorna y ad un valore inferiore
+            (true (setq out true))
+      )
+    )
+    ; I valori memorizzati in x,y,z non sono 
+    ; necessariamente la sottosequenza crescente
+    ;(println x { } y { } z)
+    out
+  )
+)
+
+(triple? '(10 1 5 4 3))
+;-> nil
+(triple? '(10 1 5 4 3 4))
+;-> true
+
+
+----------------------------
+Stringhe isomorfe (Facebook)
+----------------------------
+
+Date due stringhe, determinare se sono isomorfe. Due stringhe sono isomorfe se i caratteri nella prima stringa possono essere sostituiti per ottenere la seconda stringa. Ad esempio, "egg" e "add" sono isomorfe, "foo" e "bar" non lo sono.
+
+Possiamo usare due hashmap che tengono traccia delle mappature char-char. Se un valore è già mappato, non può essere mappato nuovamente.
+
+(define (isomorfe str1 str2)
+  (let (out true)
+    (cond ((!= (length str1) (length str2))
+          (setq out nil))
+          ((or (null? str1) (null? str2))
+          (setq out nil))
+          (true
+            (new Tree 'map1)
+            (new Tree 'map2)
+            (for (i 0 (- (length str1) 1) 1 (not out))
+              (setq c1 (str1 i))
+              (setq c2 (str2 i))
+              (if (map1 c1)
+                (if (!= c2 (map1 c1))
+                    (setq out nil)
+                )
+                (if (map2 c2)
+                    (setq out nil)
+                )
+              )
+              (map1 c1 c2)
+              (map2 c2 c1)
+            )
+          )
+    )
+    (delete 'map1)
+    (delete 'map2)
+    out
+  )
+)
+
+(isomorfe "egg" "add")
+;-> true
+(isomorfe "foo" "bar")
+;-> nil
+(isomorfe "nonna" "lilla")
+;-> true
+
+
 ==========
 
  LIBRERIE
@@ -43648,6 +44737,11 @@ Per vedere la cartella corrente della REPL di newLISP:
 !cd
 ;-> f:\Lisp-Scheme\newLisp\MAX
 
+oppure con una funzione:
+
+(real-path)
+;-> f:\Lisp-Scheme\newLisp\MAX
+
 Per cambiare la cartella corrente della REPL di newLISP:
 
 (change-dir "c:\\util")
@@ -43658,7 +44752,7 @@ Per cambiare la cartella corrente della REPL di newLISP:
 
 Verifichiamo:
 
-!cd
+(real-path)
 ;-> c:\\util
 
 Ritorniamo alla cartella precedente:
@@ -48980,6 +50074,378 @@ La distribuzione dai numeri da 1 a 12 non è uniforme. Questo è corretto ed è 
 Nota: nel 1933 una monografia del matematico russo A. Kolmogorov delinea un approccio assiomatico che costituisce la base per la moderna teoria della probabilità ("Foundations of Probability Theory", Chelsea, New York, 1950).
 
 
+-----------------
+Fibonacci(104911)
+-----------------
+
+Questo è il più grande numero noto di Fibonacci che è anche primo. Contieneo 21925 cifre ed è stato dimostrato primo da Mathew Steine e Bouk de Water nel 2015.
+
+Con newLISP possiamo calcolare questo numero, ma non possiamo verificare se è primo perchè richiederebbe un tempo lunghissimo.
+
+(define (fibonacci n)
+  (let (L '(0L 1L))
+    (dotimes (i n)
+      (setq L (list (L 1) (apply + L)))
+    )
+    ;(L 1)
+    (last L)
+  )
+)
+
+(length (setq a (fibonacci 104911)))
+;-> 21925
+
+(setq a (fibonacci 104911))
+
+
+-------------
+Conta e leggi
+-------------
+
+La sequenza di interi 1, 11, 21, 1211, 111221, ... viene creata partendo dal numero 1 e leggendo i numeri nel modo seguente:
+
+     1 viene letto come 1 volta 1 ==> 11
+    11 viene letto come 2 volte 1 ==> 21
+    21 viene letto come 1 volta 2 e 1 volta 1 ==> 1211
+  1211 viene letto come 1 volta 1, 1 volta 2 e 2 volte 1 ==> 111221
+111221 viene letto come 3 volte 1, 2 volte 2 e 1 volta 1 ==> 312211
+...
+
+Scrivere una programma che genera questa sequenza fino ad un numero n passato come parametro.
+
+Il problema può essere risolto utilizzando una semplice iterazione.
+
+(define (conta n)
+  (local (rip cur out i j res)
+    (setq res '("1"))
+    (setq out "1")
+    (setq i 1)
+    (while (< i n)
+      (setq cur "")
+      (setq rip 1)
+      (setq j 1)
+      (while (< j (length out))
+        (if (= (out j) (out (- j 1)))
+          (++ rip)
+          (begin
+            (setq cur (string cur rip (out (- j 1))))
+            (setq rip 1)
+          )
+        )
+        (++ j)
+      )
+      (setq cur (string cur rip (out (- (length out) 1))))
+      (setq out cur)
+      (push out res -1)
+      (++ i)
+    )
+    res
+  )
+)
+
+(conta 6)
+;-> ("1" "11" "21" "1211" "111221" "312211")
+(conta 12)
+;-> ("1" "11" "21" "1211" "111221" "312211" "13112221" 
+;-> "1113213211" "31131211131221" "13211311123113112211" 
+;-> "11131221133112132113212221" "3113112221232112111312211312113211")
+
+Nota: la funzione è lenta per numeri superiore a poche decine perchè le stringhe che rappresentano i numeri crescono molto rapidamente e newLISP utilizza il tag [text][/text] per delimitare le stringhe che superano 2047 caratteri. Questo rallenta molto l'esecuzione.
+
+
+----------------------
+Assegnazione parallela
+----------------------
+
+newLISP non ha alcun meccanismo per l'assegnazione parallela delle variabili. Vediamo la differenza tra assegnazione sequenziale e assegnazione parallela.
+
+(setq a 1 b 1)
+
+Assegnazione sequenziale
+(setq a (+ a b))
+;-> 2
+(setq b (- a b))
+;-> 1
+
+Assegnazione parallela
+(psetq (a b) ((+ a b) (- a b)))
+a -> 2
+b -> 0
+
+Cioè entrambe le espressioni (+ a b) e (- a b) vengono calcolate con i valori iniziali a=1 e b=1.
+
+Per definire l'assegnazione parallela scriveremo una macro "psetq" che ha due argomenti:
+
+1. (a b) che rappresenta la lista delle variabili
+2. ((+ a b) (- a b)) che rappresenta la lista delle espressioni
+
+Il metodo è quello di valutare (con la funzione "expand") le espressioni sostituendo il valore delle variabili:
+
+(setq a 1 b 1)
+
+(expand (+ a b) 'a 'b)
+;-> 2
+
+(expand (- a b) 'a 'b)
+;-> 0
+
+Poi assegniamo queste "espansioni" alle variabili della prima lista. Questo è possibile perchè una macro non valuta gli argomenti, infatti se scriviamo le stesse espressioni non in una macro, non possiamo ottenere il risultato voluto:
+
+(setq a (expand (+ a b) 'a 'b))
+;-> 2
+(setq b (expand (- a b) 'a 'b))
+;-> 1 ; questo valore doveva essere 0
+
+Questo perchè l'espressione (setq b (expand (- a b) 'a 'b)) valuta prima gli argomenti e trova che a = 2.
+
+Vediamo come funziona la macro:
+
+(define-macro (psetq)
+  (let ((_tx (expand (args 1 0) (args 0 0) (args 0 1)))
+        (_ty (expand (args 1 1) (args 0 0) (args 0 1))))
+       (println _tx)
+       (println _ty)
+       (list (set (args 0 0) (eval _tx))
+             (set (args 0 1) (eval _ty)))))
+
+Facciamo l'espansione delle espressioni e inseriamo il risultato in "_tx" e "_ty":
+(_tx (expand (args 1 0) (args 0 0) (args 0 1)))
+(_ty (expand (args 1 1) (args 0 0) (args 0 1)))
+
+Poi assegniamo la valutazione di queste espressioni alle relative variabili:
+(set (args 0 0) (eval _tx))
+(set (args 0 1) (eval _ty)))))
+
+Proviamo la macro:
+
+(setq a 1 b 1)
+(psetq (a b) ((+ a b) (- a b)))
+;-> (+ 1 1)
+;-> (- 1 1)
+;-> (2 0)
+
+(list a b)
+;-> (2 0)
+
+La macro funziona correttamente, ma dobbiamo renderla più generale, nel senso che deve permettere di avere qualunque numero di variabili e di espressioni come argomenti (adesso la macro funziona solo con due variabili e due espressioni). 
+
+Invece di usare due variabili ("_tx" e "_ty") inseriamo le espressioni espanse in una lista "_var" e poi attraversiamo questa lista assegnando la valutazione delle espressioni alle relative variabili della lista delle variabili.
+La lista delle variabili è (args 0), mentre la lista delle espressioni è (args 1).
+
+(define-macro (psetq)
+  (let ((_var '()) (_ex '()))
+    ; per ogni espressione in (args 1)...
+    (for (i 0 (- (length (args 1)) 1))
+      ; espande l'espressione i-esima con il valore 
+      ; di ogni variabile (args 0)
+      (setq _ex (expand (args 1 i) (args 0 0)))
+      ; ciclo che espande l'espressione i-esima per ogni variabile
+      (for (j 1 (- (length (args 0)) 1))
+        (setq _ex (expand _ex (args 0 j)))
+        (println _ex)
+      )
+      ; aggiunge l'espressione espansa ad una lista
+      (push _ex _var -1)
+    )
+    (println _var)
+    ; assegna ad ogni variabile la valutazione 
+    ; della relativa espressione della lista creata
+    (dolist (el _var)
+      (set (args 0 $idx) (eval el))
+    )
+  )
+)
+
+Vediamo alcuni esempi:
+
+(setq x 2 y 3)
+
+(psetq (x y) ((+ 1 y) (+ 1 x)))
+;-> (+ 1 3)
+;-> (+ 1 2)
+;-> ((+ 1 3) (+ 1 2))
+(list x y)
+;-> (4 3)
+
+(psetq (x y) (3 4))
+;-> 3
+;-> 4
+;-> (3 4)
+(list x y)
+;-> (3 4)
+----------------------
+
+(setq x 2)
+(setq y 4)
+(setq a 2)
+
+(setq x (- y 1 a))
+;-> 1
+(setq y (+ x y))
+;-> 5
+
+(setq x 2)
+(setq y 4)
+(setq a 2)
+
+(psetq (x y) ((- y 1 a) (+ y x)))
+;-> (- 4 1 a)
+;-> (+ 4 2)
+;-> ((- 4 1 a) (+ 4 2))
+(list x y)
+;-> (1 6)
+----------------------
+
+(setq x 1)
+(setq y 2)
+(setq z 3)
+
+(setq x (+ x y z))
+;-> 6
+(setq y (- z y x))
+;-> -5
+(setq z (- x y z))
+;-> 8
+
+(setq x 1)
+(setq y 2)
+(setq z 3)
+
+(psetq (x y z) ((+ x y z) (- z y x) (- x y z)))
+;-> (+ 1 2 z)
+;-> (+ 1 2 3)
+;-> (- z 2 1)
+;-> (- 3 2 1)
+;-> (- 1 2 z)
+;-> (- 1 2 3)
+;-> ((+ 1 2 3) (- 3 2 1) (- 1 2 3))
+(list x y z)
+;-> (6 0 -4)
+----------------------
+
+(define (test a b c)
+  (psetq (a b c) ((+ a b c) (- c b a) (- a b c)))
+  (list a b c))
+
+(test 1 2 3)
+;-> (+ 1 2 c)
+;-> (+ 1 2 3)
+;-> (- c 2 1)
+;-> (- 3 2 1)
+;-> (- 1 2 c)
+;-> (- 1 2 3)
+;-> ((+ 1 2 3) (- 3 2 1) (- 1 2 3))
+;-> (6 0 -4)
+
+(psetq (x y z) (2 3 4))
+;-> 2
+;-> 2
+;-> 3
+;-> 3
+;-> 4
+;-> 4
+;-> (2 3 4)
+
+
+----------------------------
+Generatore di numeri casuali
+----------------------------
+
+Generatore lineare congruenziale
+--------------------------------
+Il generatore congruenziale lineare (LCG) è l'algoritmo più comune e più vecchio per la generazione di numeri pseudo-cauali. Il generatore è definito dalla relazione di ricorrenza:
+
+X(n+1) = (a*X(n) + c) mod m
+
+dove:
+X è la sequenza di valori pseudo-casuali
+m,    0 < m         -> modulo
+a,    0 < a < m     -> moltiplicatore
+c,    0 ≤ c < m     -> incremento
+X(0), 0 ≤ X(0) < m  -> il valore iniziale (seed)
+
+Generiamo il numero intero casuale successivo utilizzando il numero intero casuale precedente (con le costanti intere "a" (moltiplicatore) e "c" (incremento). All'inizio occorre fornire anche un valore di partenza (seed), "X(0)". La caratteristica della casualità viene fornita dall'utilizzo dell'aritmetica modulare.
+
+Il periodo di un LCG è al più m, e per alcune scelte di a può essere molto più piccolo. Il LCG ha un periodo pieno se e solo se:
+
+1. c e m sono coprimi (con c > 0)
+2. a-1 è divisibile per tutti i fattori primi di m,
+3. a-1 è un multiplo/divisibile di 4 se m è un multiplo/divisibile di 4.
+
+Nonostante gli LCG siano generalmente in grado di produrre numeri pseudocasuali decenti, la loro qualità è molto sensibile alla scelta dei coefficienti c, m ed a.
+
+Le caratteristiche principali di un LCG
+
+Efficiente: LCG può produrre molti numeri in breve tempo.
+
+Deterministico: una data sequenza di numeri può essere riprodotta in un secondo momento se si conosce il punto iniziale nella sequenza. Il determinismo è utile se è necessario riprodurre nuovamente la stessa sequenza di numeri in una fase successiva (debug).
+
+Periodico: i LCG sono periodici, il che significa che la sequenza alla fine si ripeterà. Mentre la periodicità non è quasi mai una caratteristica desiderabile, i LCG moderni hanno un periodo così lungo che può essere ignorato per la maggior parte degli scopi pratici.
+
+I LCG sono adatti per applicazioni in cui sono richiesti molti numeri casuali e in cui è utile riprodurre facilmente la stessa sequenza (per esempio, le applicazioni di simulazione e modellazione). I LCG non sono adatti per applicazioni in cui è importante che i numeri siano davvero casuali (imprevedibili), come la crittografia dei dati e il gioco d'azzardo.
+
+Esempio:
+
+(define (LCG m a c s n)
+  (let (out '())
+    (dotimes (x n)
+      (push (setq s (% (+ (* a s) c) m)) out -1))))
+
+(LCG 5 3 1 1 6)
+;-> (4 3 0 1 4 3)
+
+Ecco una lista di parametri per LCG in uso in diversi compilatori:
+
+                     m       a                    c
+GCC                  2³¹     1103515245           12345
+Delphi               2³²     134775813            1
+Visual C             2³²     214013               2531011
+MMIX (Donald Knuth)  2⁶⁴     6364136223846793005  1442695040888963407
+Numerical Recipes    2³²     1664525              1013904223
+C++11 (MINSTD)       2³¹−1   48271                0
+
+2^64 = 18446744073709551616
+2^32 = 4294967296
+
+(LCG 4294967296 1103515245 12345 1 10)
+;-> (1103527590 2524885223 662824084 3295386429 4182499122
+;->  2516284547 3655513600 2633739833 3210001534 267834847)
+
+(LCG 4294967296 1103515245 (int (time-of-day)) 1 10)
+;-> (1174154431 3237027237 1954923411 4185058793 1775773831 
+;->  2432844237 1673943195 3515535953 3289127119 3959783541)
+
+Quando "c" vale 0, abbiamo un generatore di numeri casuali di tipo Lehmer (chiamato anche generatore di Park-Miller):
+
+X(n+1) = a*X(n) mod m
+
+Un esempio è il famoso RANDU creato dall'IBM negli anni '60. La formula di questo generatore è la seguente:
+
+V(j+1)=65539*V(j) mod 2^(31)
+
+con V(0) numero intero dispari. Genera interi pseudocasuali V(j) che sono distribuiti uniformemente nell'intervallo [1, 2^31 - 1], ma nelle applicazioni pratiche sono spesso mappati in numeri razionali pseudocasuali X(j) nell'intervallo (0, 1), con la formula:
+
+X(j) = V(j)/2^31
+
+Il RANDU è considerato uno dei peggiori generatori di numeri casuali progettati, ed è stato descritto come "veramente orribile" da Donald Knuth. Il test spettrale ha esito negativo per dimensioni maggiori di 2 e ogni risultato intero è dispari. Tuttavia, almeno otto bit di ordine inferiore vengono eliminati quando convertiti in virgola mobile a precisione singola (32 bit, 24 bit mantissa).
+
+Vediamo un generatore di numeri casuali fornito da Lutz:
+(set 'IM 139968)
+(set 'IA 3877)
+(set 'IC 29573)
+(set 'LAST 42)
+
+(define (gen_random maximum)
+	(set 'LAST (mod (add (mul LAST IA) IC) IM))
+	(div (mul maximum LAST) IM))
+
+(gen_random 100)
+;-> 37.46499199817101
+(gen_random 100)
+;-> 72.90237768632831
+(gen_random 100)
+;-> 63.64669067215363
+
 ===========
 
  APPENDICI
@@ -54121,6 +55587,883 @@ John Wiley & Sons
 ³ Questa è una versione abbreviata della valutazione delle espressioni che non include la gestione dei funtori predefiniti e l'indicizzazione implicita. Per ulteriori informazioni sulla valutazione delle espressioni, consultare: "Valutazione dell'espressione, Indicizzazione implicita, Contesti e Funtori di default"
 
 
+====================
+Benchmarking newLISP
+====================
+
+Questo documento contiene tutte le funzioni utilizzate da Lutz Mueller per il Benckmark di newLISP. Le funzioni sono state leggermente modificate per il sistema operativo Windows.
+
+Lista delle funzioni:
+
+ 1) Ackerman
+ 2) Array Access
+ 3) Concatenate
+ 4) Count Words
+ 5) Deque Lists
+ 6) Echo Client/Server
+ 7) Exceptions
+ 8) Fannkuch
+ 9) Fibonacci Numbers
+10) Hash Access
+11) Hash Update
+12) Heap Sort
+13) Matrix Multiplication
+14) Method Calls
+15) Nested Loops
+16) Nsieve
+17) Object Instantiation
+18) Prime
+19) Random Numbers
+20) Regular Expressions
+21) Reverse a File
+22) Spell Checker
+23) Startup
+24) Statistical Moments
+25) Sum a File of Numbers
+26) Synchronize
+27) Takfp
+28) Word Frequency
+
+---------------------------------------------------------------------
+;;
+;; Ackermann's Function
+;; by Brent Fulgham
+;;
+
+(define (ack m n)
+    (cond ((= m 0) (+ n 1))
+          ((= n 0) (ack (- m 1) 1))
+	  (true    (ack (- m 1) (ack m (- n 1))))))
+
+(define (main)
+    (set 'N (integer (last (main-args))))
+    (println
+        (format "Ack(3,%d): %d" N (ack 3 N))))
+
+---------------------------------------------------------------------
+;;
+;; Array Access
+;; (requires newLISP 9.0)
+;;
+
+(define (main)
+	(set 'n (integer (main-args 2)))
+	(set 'x (array n (sequence 1 n)))
+	(set 'y (array n '(0)))
+	(dotimes (k 1000)
+		(for (i (- n 1) 0)
+			(nth-set (y i) (+ (y i) (x i)) )))
+	(println (y 0) " " (y (- n 1) )))
+
+---------------------------------------------------------------------
+;;
+;; Concatenate Strings
+;; (requires newLISP 8.3.0)
+;;
+
+(set 'n (integer (main-args 2)))
+(set 'str "")
+(dotimes (i n) (write-buffer str "hello\n"))
+(println (length str))
+
+---------------------------------------------------------------------
+;;
+;; Count Words
+;;
+
+(set 'lc 0 'wc 0 'cc 0)
+(while (set 'line (read-line))
+	(inc 'lc)
+	(inc 'wc (length (parse (trim line) "\\s+" 0)))
+	(inc 'cc (+ (length line) 1))) ;; add back the line feed
+(println lc " " wc " " cc)
+
+---------------------------------------------------------------------
+;;
+;; Deque Lists
+;; (requires newLISP 8.3.0)
+;; (mimics Python's way)
+;;
+
+(set 'SIZE 10000)
+(define (test-lists)
+	(set 'Li1  (sequence 1 SIZE))
+	(set 'Li2 Li1)
+	(set 'Li3 '())
+	; remove each item from left of Li2 and append to Li3
+	(reverse Li2)
+	(while Li2 (push (pop Li2) Li3 -1))
+	(while Li3 (push (pop Li3) Li2 -1))
+	(reverse Li1)
+	(if 	(!= (first Li1) SIZE) 0
+		(= Li1 Li2) (length Li1)
+		0))
+(set 'n (integer (main-args 2)))
+(dotimes (i n)
+	(set 'result (test-lists)))
+(println result)
+
+---------------------------------------------------------------------
+;;
+;; Echo Client/Server
+;; (requires newLISP 9.0.0)
+;; do not work on Windows
+;;
+
+(set 'DATA "Hello there sailor\n");
+(set 'bufferSize (length DATA))
+(define (server port)
+	(set 'listen (net-listen port))
+	(set 'connection (net-accept listen))
+	(set 'N 0)
+	(while (net-receive connection 'buff bufferSize)
+		(inc 'N (length buff))
+		(net-send connection buff))
+	(net-close connection)
+	(net-close listen)
+	(println "server processed " N " bytes"))
+
+(define (client port n)
+	(set 'connection (net-connect "127.0.0.1" port))
+	(dotimes (x n)
+		(net-send connection DATA)
+		(net-receive connection 'buff bufferSize)
+		(if (!= buff DATA) (println "Received different message: " buff)))
+	(net-close connection))
+
+(set 'n (integer (main-args 2)))
+
+(fork (server 100001))
+(sleep 100)
+(client 100001 n)
+
+---------------------------------------------------------------------
+;;
+;; Exceptions
+;; (requires newLISP 7.5.1)
+;;
+
+(context 'MAIN)
+
+(set 'HI 0 'LO 0)
+
+(define (some_function num)
+	(catch (hi_function num) 'result)
+	(if (not (integer? result))
+		(println "we never get here")))
+
+(define (hi_function num)
+	(catch (lo_function num) 'result)
+	(if (= result 'HI_exception)
+		(inc 'HI)
+		(throw result)))
+
+(define (lo_function num)
+	(catch (blowup num) 'result)
+	(if (= result 'LO_exception)
+		(inc 'LO)
+		(throw result)))
+
+(define (blowup num)
+	(if (= (& num 1) 1)
+		(throw 'HI_exception)
+		(throw 'LO_exception)))
+
+(define (main)
+	(dotimes (i n)
+		(some_function i))
+	(println "Exceptions: HI=" HI " / LO=" LO))
+
+(set 'n (integer (nth 2 (main-args))))
+
+(main)
+
+---------------------------------------------------------------------
+;;
+;; Fannkuch 9.0
+;; by Lutz Mueller 2004-12-11
+;;
+
+(define MaxCount 0)
+
+(define (permute left right)
+    (let (j (length right))
+        (if (< j 2)
+            (permCount (append left right))
+            (dotimes (i j)
+                (permute (append left (slice right i 1))
+                         (append (slice right 0 i) (slice right (+ i 1))))))))
+
+(define (permCount perm , myCount perm0)
+        (set 'myCount 0)
+        (while (!= (set 'perm0 (first perm)) 1)
+            (inc 'myCount)
+            (set 'perm (append (reverse (slice perm 0 perm0)) (slice perm perm0))))
+        (if (> myCount MaxCount) (set 'MaxCount myCount)))
+
+(define (fannkuch n)
+    (permute '() (sequence 1 n))
+    MaxCount)
+
+(define (main)
+    (set 'n (integer (main-args 2)))
+    (println (format "Pfannkuchen(%d) = %d" n (fannkuch n))))
+
+(main)
+
+---------------------------------------------------------------------
+;;
+;; Fibonacci Numbers
+;;
+
+(define (fibo n)
+	(if(< n 2) 1
+	(+  (fibo (- n 1))
+	    (fibo (- n 2)))))
+
+(println (fibo (integer (main-args 2))))
+
+---------------------------------------------------------------------
+;;
+;; Hash Access
+;; create i = 1..n symbols with value i
+;; count all exsiting symbols in reverse
+;;
+;; newLISP does not have hashtables but can
+;; simulate hashes with symbols
+;;
+
+(context 'HASH) ; create hash container
+(context 'MAIN) ; go back to MAIN context
+
+(set 'n (integer (main-args 2)))
+
+(for (i 1 n)
+	(set (sym (format "_%x" i) HASH) i) )
+
+(set 'cnt 0)
+(for (i n 1)
+	(if (sym (format "_%d"  i) HASH nil) (inc 'cnt)))
+
+(println cnt)
+
+---------------------------------------------------------------------
+;;
+;; Hash update
+;;
+;; newLISP does not have hashtables but can
+;; simulate hashes efficient with symbols
+;;
+
+(context 'Hash1) ; create hash container
+(context 'MAIN) ; go back to MAIN context
+(context 'Hash2) ; create hash container
+(context 'MAIN) ; go back to MAIN context
+
+(set 'n (integer (main-args 2)))
+
+(dotimes (i 10000)
+	(set (sym (format "foo_%d" i) Hash1) i) )
+
+(dotimes (i n)
+	(dotree (k Hash1)
+		(set 'key (sym (name k) Hash2 nil))
+		(if key
+			(inc key (eval k))
+			(set (sym (name k) Hash2) (eval k)))))
+
+(println Hash1:foo_1 " " Hash1:foo_9999 " " Hash2:foo_1 " " Hash2:foo_9999)
+
+---------------------------------------------------------------------
+;;
+;; Heap Sort
+;;
+;; newLISP has fast built-in sort and random algorithms
+;; not used in this benchmark
+;;
+
+(set 'IM 139968)
+(set 'IA 3877)
+(set 'IC 29573)
+
+(set 'LAST 42)
+
+(define (gen_random maximum)
+	(set 'LAST (mod (add (mul LAST IA) IC) IM))
+	(div (mul maximum LAST) IM))
+
+(define (heapsort n ra)
+	(set 'rra 0 'i 0 'j 0)
+	(set 'l (+ (>> n 1) 1))
+	(set 'ir n)
+
+	(while (not done)
+		(if (> l 1)
+			(begin
+				(dec 'l)
+				(set 'rra (ra l)))
+			(begin
+				(set 'rra (ra ir))
+				(nth-set ir ra (ra 1))
+				(dec 'ir)
+				(if (= ir 1)
+					(begin
+						(nth-set (ra 1) rra)
+						(set 'done true)
+						; return
+						ra))))
+		(set 'i l)
+		(set 'j (<< l 1))
+		(if (not done) (begin
+			(while (<= j ir)
+				(if (and (< j ir) (< (ra j) (ra (+ j 1))))
+					(inc ' j))
+				(if (< rra (ra j))
+					(begin
+						(nth-set (ra i) (ra j))
+						(set 'i j)
+						(inc 'j i))
+					(set 'j (+ ir 1))))
+			(nth-set (ra i) rra))
+		) ra))
+
+(define (main)
+	(set 'N (integer (last (main-args))))
+
+	(set 'ary (array (+ N 1)))
+
+	(for (i 1 N) (nth-set (ary i) (gen_random 1.0)))
+
+	(set 'ary (heapsort N ary))
+
+	(println (format "%.10f" (ary N)))
+)
+
+(main)
+
+---------------------------------------------------------------------
+;;
+;; Matrix Multiplication
+;; since version 9.0 matrix finctions can also be used
+;; on array types, additionally to lists.
+;;
+
+(set 'size 30)
+
+(define (mkmatrix rows cols)
+ 	(map (fn (i) (sequence (+ (* i cols) 1)  (+ (* i cols) cols))) (sequence 0 (- rows 1))))
+
+(define (main n)
+	(set 'm1 (mkmatrix size size))
+	(set 'm2 m1)
+	(dotimes (i n)
+		(set 'm3 (multiply m1 m2)))
+	(println (m3 0 0) " " (m3 2 3) " " (m3 3 2) " " (m3 4 4)))
+
+(set 'n (integer (main-args 2)))
+
+(main n)
+
+---------------------------------------------------------------------
+;;
+;; Method Calls
+;;
+;; this is almost identical Object Instantiation
+;; but here method call is measured instead of
+;; object creation/instantiation
+;;
+
+; define class Toggle
+
+(context 'Toggle)
+
+(define (init start_state)
+	(set 'bool start_state))
+
+(define (value)
+	bool)
+
+(define (activate)
+	(set 'bool (not bool)))
+
+(context 'MAIN)
+
+; subclass Toggle to NthToggle and overwrite methods
+
+(new Toggle 'NthToggle)
+
+(context NthToggle)
+
+(define (init start_state max_counter)
+	(set 'bool start_state)
+	(set 'count_max max_counter)
+	(set 'counter 0))
+
+(define (activate)
+	(inc 'counter)
+	(if (>= counter count_max)
+		(begin
+			(set 'bool (not bool))
+			(set 'counter 0))
+                counter ))
+
+(context 'MAIN)
+
+; Method calls
+; get n from command line
+
+(set 'n (integer (main-args 2)))
+
+(define (main)
+	(new Toggle 'toggle)
+	(toggle:init true)
+
+	(dotimes (x n)
+		(toggle:activate)
+		(set 'val toggle:value))
+
+	(if (toggle:value) (println "true") (println "false"))
+
+	(new NthToggle 'ntoggle)
+	(ntoggle:init true 3)
+
+	(dotimes (x n)
+		(ntoggle:activate)
+		(set 'val ntoggle:value))
+
+	(if (ntoggle:value) (println "true") (println "false"))
+	)
+
+(main)
+
+---------------------------------------------------------------------
+;;
+;; Nested Loops
+;;
+;; newLISP also has a 'for' which takes an initializer
+;; for the looping variable and is a bit slower
+;;
+
+(set 'n (integer (main-args 2)))
+(set 'x 0)
+(dotimes (a n)
+	(dotimes (b n)
+		(dotimes (c n)
+			(dotimes (d n)
+				(dotimes (e n)
+					(dotimes (f n)
+						(inc 'x)))))))
+(println x)
+
+(set 'n (integer (main-args 2)))
+(set 'x 0)
+(for (a 1 n)
+	(for (b 1 n)
+		(for (c 1 n)
+			(for (d 1 n)
+				(for (e 1 n)
+					(for (f 1 n)
+						(inc 'x)))))))
+(println x)
+
+---------------------------------------------------------------------
+;;
+;; Nsieve
+;;
+;; by Lutz Mueller 2004-12-11
+;;
+;; A solution with a newLISP array for flags is about the same
+;; speed but uses much more memory. Here a character vector is
+;; manipulated directly.
+;;
+
+(define (nsieve m f, cnt)
+	(set 'cnt 0)
+
+        (for (i 2 m)
+            (if (= (char f:isPrime i) 1)
+                (begin
+                    (set 'k (+ i i))
+                    (while (<= k m)
+                        (cpymem "\000" (+ k (address f:isPrime)) 1)
+                        (inc 'k i))
+	        (inc 'cnt))))
+         cnt)
+
+(define (main)
+    (set 'n (integer (main-args 2)))
+
+    (set 'm (* (pow 2 n) 10000))
+    (set 'flags:isPrime (dup "\001" (+ m 1) ))
+
+    (println (format "Primes up to %8d%8d" m (nsieve m flags)))
+
+    (set 'm (* (pow 2 (- n 1)) 10000))
+    (println (format "Primes up to %8d%8d" m (nsieve m flags)))
+
+    (set 'm (* (pow 2 (- n 2)) 10000))
+    (println (format "Primes up to %8d%8d" m (nsieve m flags)))
+    )
+
+(main)
+
+---------------------------------------------------------------------
+;;
+;; Object Instantiation
+;;
+
+; define class Toggle
+
+(context 'Toggle)
+
+(define (init start_state)
+	(set 'bool start_state))
+
+(define (value)
+	bool)
+
+(define (activate)
+	(set 'bool (not bool)))
+
+(context 'MAIN)
+
+; subclass Toggle to NthToggle and overwrite methods
+
+(new Toggle 'NthToggle)
+
+(context NthToggle)
+
+(define (init start_state max_counter)
+	(set 'bool start_state)
+	(set 'count_max max_counter)
+	(set 'counter 0))
+
+(define (activate)
+	(inc 'counter)
+	(if (>= counter count_max)
+		(begin
+			(set 'bool (not bool))
+			(set 'counter 0))
+                counter ))
+
+(context 'MAIN)
+
+; get n from command line
+
+(set 'n (integer (main-args 2)))
+
+(define (main)
+	(new Toggle 'toggle)
+	(toggle:init true)
+
+	(dotimes (x 5)
+		(toggle:activate)
+		(if (toggle:value) (println "true") (println "false")))
+
+	(dotimes (x n)
+		(new Toggle 'toggle)
+		(toggle:init true))
+
+	(println)
+
+	(new NthToggle 'ntoggle)
+	(ntoggle:init true 3)
+
+	(dotimes (x 8)
+		(ntoggle:activate)
+		(if (ntoggle:value) (println "true") (println "false")))
+
+	(dotimes (x n)
+		(new NthToggle 'ntoggle)
+		(ntoggle:init true 3))
+	)
+
+(main)
+
+---------------------------------------------------------------------
+;;
+;; Prime
+;; (requires newLISP 7.5.2)
+;;
+
+(define (main)
+	(set 'NUM (integer (main-args 2)))
+
+	(dotimes (p NUM)
+		(set 'flags (array 8193 '(1)))
+		(set 'cnt 0)
+
+		(for (i 2 8192)
+			(if (= (nth i flags) 1)
+				(begin
+					(set 'k (+ i i))
+					(while (<= k 8192)
+						(nth-set k flags 0)
+						(inc 'k i))
+					(inc 'cnt)))))
+
+	(println "Count: " cnt))
+
+(main)
+
+---------------------------------------------------------------------
+;;
+;; Random Numbers
+;;
+;; note, that newLISP has various fast built-in random
+;; functions which are not used here
+;;
+
+(set 'IM 139968)
+(set 'IA 3877)
+(set 'IC 29573)
+
+(set 'LAST 42)
+
+(define (gen_random maximum)
+	(set 'LAST (mod (add (mul LAST IA) IC) IM))
+	(div (mul maximum LAST) IM))
+
+
+(define (main)
+	(set 'N (integer (main-args 2)))
+	(dotimes (i (- N 1)) (gen_random 100.0))
+
+	(println (format "%.9f" (gen_random 100.0))) )
+
+(main)
+
+---------------------------------------------------------------------
+;;
+;; Regular Expressions
+;; get phone data from stdin
+;;
+
+(while (read-line) (push (append (current-line) "\n") phones))
+(reverse phones)
+
+;; patterns
+(set 'pattern (append
+    {(?:^|[^\d\(])}		; must be preceeded by non-digit
+    {(\()?}				; match 1: possible initial left paren
+    {(\d\d\d)}			; match 2: area code is 3 digits
+    {(?(1)\))}			; if match1 then match right paren
+    {[ ]}				; area code followed by one space
+    {(\d\d\d)}			; match 3: prefix of 3 digits
+    {[ -]}			      ; separator is either space or dash
+    {(\d\d\d\d)}			; match 4: last 4 digits
+    {\D}				; must be followed by a non-digit
+))
+
+;; get N
+(set 'N (integer (last (main-args))))
+(set 'cnt 0)
+
+(dotimes (i N)
+  (dolist (phone phones)
+    (if (regex pattern phone)
+        (if (= i 0)
+          (begin
+            (inc 'cnt)
+            (println (string cnt ": (" $2 ") " $3 "-" $4)))))))
+
+---------------------------------------------------------------------
+;;
+;; Reverse a File
+;;
+
+(while (read-line) (push (current-line) file))
+(println (join file "\n"))
+
+---------------------------------------------------------------------
+;;
+;; Spell Checker
+;; (requires newLISP 8.3.0)
+
+(context 'MAIN)
+
+(define (main)
+	(set 'infile (open "Usr.Dict.Words" "read"))
+	(while (set 'word (read-line infile))
+		(sym word 'Dictionary))
+	(close infile)
+
+	(while (set 'word (read-line))
+		(if (not (sym word 'Dictionary nil))
+			(println word))))
+
+(main)
+
+---------------------------------------------------------------------
+;;
+;; Startup
+;;
+
+(println "Hello World")
+
+---------------------------------------------------------------------
+;;
+;; Statistical Moments
+;; read file filter empty lines
+;;
+
+(define (main)
+  (while (read-line) (push (float (current-line)) nums))
+  (set 'nums (reverse (filter float? nums)))
+  (set 'n (length nums))
+  (set 'sum (apply add nums))
+  (set 'mean (div sum n))
+  (set 'avg-dev 0 'std-dev 0 'var 0 'skew 0 'kurtosis 0)
+  (set 'dev (map sub nums (dup mean n)))
+  (set 'avg-dev (div (apply add (map abs dev)) n))
+  (set 'var (div (apply add (map mul dev dev)) (- n 1)))
+  (set 'skew (apply add (map mul dev dev dev)))
+  (set 'kurtosis (apply add (map  mul dev dev dev dev)))
+  (set 'std-dev (sqrt var))
+  (if (> var 0.0)
+    (begin
+	(set 'skew (div skew (mul n var std-dev)))
+	(set 'kurtosis (sub (div kurtosis (mul n var var)) 3.0))))
+  (sort nums)
+  (set 'mid (/ n 2))
+  (if (= 0 (% n 2))
+	(set 'median (div (add (nums mid) (nums (- mid 1))) 2))
+	(set 'median (nums mid)))
+  (println (format "n:                  %d" n))
+  (println (format "median:             %f" median))
+  (println (format "mean:               %f" mean))
+  (println (format "average_deviation:  %f" avg-dev))
+  (println (format "standard_deviation: %f" std-dev))
+  (println (format "variance:           %f" var))
+  (println (format "skew:               %f" skew))
+  (println (format "kurtosis:           %f" kurtosis))
+)
+
+(main)
+
+---------------------------------------------------------------------
+;;
+;; Sum a File of Numbers
+;;
+
+(set 'sum 0)
+(while (read-line) (inc 'sum (integer (current-line))))
+(println sum)
+
+---------------------------------------------------------------------
+;;
+;; Synchronize
+;; producer/consumer
+;; (requires newLISP 8.3.0)
+;; Note that newLISP does not use Pthreads,
+;; but classic UNIX/fork() processes
+;; therefore no mutexes amd condition variables,
+;; but semaphores and shared memory
+;;
+
+(constant 'wait -1 'sig 1)
+
+(define (consumer n)
+	(set 'i 0)
+	(while (< i n)
+		(semaphore cons-sem wait)
+		(set 'i (share data))
+		(share consumed (+ (share consumed) 1))
+		(semaphore prod-sem sig))
+	(exit))
+
+(define (producer n)
+	(for (i 1 n)
+		(semaphore prod-sem wait)
+		(share data i)
+		(share produced (+ (share produced) 1))
+		(semaphore cons-sem sig))
+	(exit))
+
+(define (main n)
+	(set 'produced (share)) ; get shared mem addresses
+	(set 'consumed (share))
+	(set 'data (share))
+
+	(share produced 0) ; init shared memory
+	(share consumed 0)
+	(share data 0)
+
+	(set 'prod-sem (semaphore)) ; get semaphores
+	(set 'cons-sem (semaphore))
+
+	(set 'prod-pid (fork (producer n))) ; start processes
+	(set 'cons-pid (fork (consumer n)))
+	(semaphore prod-sem sig) ; get producer started
+
+	(wait-pid prod-pid) ; wait for processe to finish
+	(wait-pid cons-pid)
+	(semaphore cons-sem 0) ; release semaphore
+	(semaphore prod-sem 0) ; release semaphore
+
+	(println (share produced) " " (share consumed)))
+
+(main (integer (last (main-args))))
+
+(exit)
+
+---------------------------------------------------------------------
+;;
+;; -*- mode: lisp -*-
+;; $Id: takfp-newlisp.code,v 1.1 2004/12/05 21:22:46 bfulgham Exp $
+;; http://shootout.alioth.debian.org/
+;; Contributed by Brent Fulgham
+;; changes L.M. 2004/12/13
+;;
+
+;;; switch int-ops to float-ops
+(constant '- sub '* mul)
+
+(define (tak x y z)
+  (if (>= y x)
+      z
+      (tak (tak (- x 1) y z) (tak (- y 1) z x) (tak (- z 1) x y))))
+
+(define (main)
+  (set 'n (integer (last (main-args))))
+  (println
+    (format "%.1f" (tak (* n 3.0) (* n 2.0) (* n 1.0) ))))
+
+(main)
+
+---------------------------------------------------------------------
+;;
+;; Word Frequency
+;; create a context/namespace to hold words
+;; since version 8.8 newLISP has a built in function
+;; bayes-query, which will do the counting in just
+;; one statement and much faster
+;;
+
+(context 'wc)
+(context MAIN)
+
+(define (main)
+;;	(HASH:make 'wc)
+	(while (read-line)
+		(set 'data (parse (lower-case (current-line)) "[^a-z]+" 0))
+		(dolist (w data)
+			(if (set 'result (eval (symbol (append "_" w) wc) ))
+				(set (symbol (append "_" w) wc) (+ result 1))
+				(set (symbol (append "_" w) wc) 1))))
+	(dolist (w (symbols wc))
+		(set 'wrd (name w))
+		(if (and (starts-with wrd "_") (!= "_" wrd))
+			(push (list (eval w) (slice wrd 1) ) words) ))
+	(dolist (w (reverse (sort words)))
+		(println (format "%7d %s" (first w) (last w))))
+	)
+
+(main)
+
+---------------------------------------------------------------------
+
+
 ============================================================================
 Frasi Famose sulla Programmazione e sul Linguaggio Lisp
 ============================================================================
@@ -54166,6 +56509,9 @@ Frasi Famose sulla Programmazione e sul Linguaggio Lisp
 
 "All profound and true things are simple. Complexity is vanity."
 - Lutz Mueller  (creator of newLISP)
+
+"It pays to know the dark corners of your language."
+- unknown
 
 
 ====================
@@ -54220,6 +56566,8 @@ Frasi Famose sulla Programmazione e sul Linguaggio Lisp
   "Introduction to Algorithms", Cormen-Leiserson-Rivest-Stein, 3ed, 2009
 
   "Teoria e Progetto di Algoritmi Fondamentali", Ausiello-Marchetti-Spaccamela-Protasi, 1985
+  
+  "Primality Testing in Polynomial Time" di Martin Dietzfelbinger, 2004
 
   "Land of Lisp", Conrad Barsky, 2011
 

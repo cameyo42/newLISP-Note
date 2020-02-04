@@ -141,6 +141,10 @@ FUNZIONI VARIE
   Numeri casuali con distribuzione discreta predefinita
   Generatore di stringhe casuali
   Inverso di un numero
+  Crivello di Atkin
+  Esponenziazione modulare veloce
+  random sample
+  Funzioni di Mobius e di Mertens
 
 newLISP 99 PROBLEMI (28)
 ========================
@@ -225,6 +229,7 @@ ROSETTA CODE
   Il gioco del Nim
   Fibonacci sequenze di n-numeri
   Il problema dei matrimoni stabili
+  Test Primi Miller-Rabin
 
 PROJECT EULERO
 ==============
@@ -295,6 +300,7 @@ PROBLEMI VARI
   Congettura di Goldbach
   Problema dei travasi ed equazioni diofantee
   Primi circolari
+  Radici di un polinomio (Bairstow)
 
 DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
 ==================================================
@@ -351,6 +357,9 @@ DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Dadi e probabilità (Visa)
   Numeri casuali e fattori (Wolfram)
   Coprimi vicini (Wolfram)
+  Unione di liste (LinkedIn)
+  Tripla crescente (LeetCode)
+  Stringhe isomorfe (Facebook)
 
 LIBRERIE
 ========
@@ -360,6 +369,7 @@ LIBRERIE
   Operazioni con gli insiemi
   Funzioni winapi
   Operazioni con gli alberi binari
+  funlisp.lsp (by Dmitry Chernyak)
 
 NOTE LIBERE
 ===========
@@ -427,6 +437,10 @@ NOTE LIBERE
   Funzioni e contesti
   Buon 2020 (e 2021)
   Nascita della teoria della probabilità
+  Fibonacci(104911)
+  Conta e leggi
+  Assegnazione parallela
+  Generatore di numeri casuali
 
 APPENDICI
 =========
@@ -449,6 +463,7 @@ APPENDICI
   "The Y of Why" in newLISP (Lutz Mueller)
   Valutazione delle espressioni, Indicizzazione Implicita, Contesti e Funtori di Default (Lutz Mueller)
   Gestione Automatica della Memoria in newLISP (Lutz Mueller)
+  Benchmarking newLISP
   Frasi Famose sulla Programmazione e sul Linguaggio Lisp
 
 BIBLIOGRAFIA / WEB
@@ -458,6 +473,7 @@ DOCUMENTAZIONE EXTRA
 ====================
   A) Introduction to newLISP (by Cormullion)
   B) The Little newLISPER (wip)
+  C) Primality Testing (wip)
 
 ==========================================================================
 
@@ -465,7 +481,7 @@ LICENSE
 
 MIT License
 
-Copyright (c) 2019 Massimo Corinaldesi aka cameyo
+Copyright (c) 2019-2020 Massimo Corinaldesi aka cameyo
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
