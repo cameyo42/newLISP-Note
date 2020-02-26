@@ -145,6 +145,7 @@ FUNZIONI VARIE
   Esponenziazione modulare veloce
   random sample
   Funzioni di Mobius e di Mertens
+  Quadruple pitagoriche
 
 newLISP 99 PROBLEMI (28)
 ========================
@@ -441,6 +442,8 @@ NOTE LIBERE
   Conta e leggi
   Assegnazione parallela
   Generatore di numeri casuali
+  Liste di associazione
+  Funzione Z e ipotesi di Riemann
 
 APPENDICI
 =========

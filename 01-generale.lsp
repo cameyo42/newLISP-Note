@@ -2899,7 +2899,7 @@ Comunque possiamo trovarlo utilizzando le funzioni trigonometriche inverse:
 ;-> "3.14159265358979310000"
 
 (setq pi2 (mul 2.0 (asin 1.0)))
-3.141592653589793
+;-> 3.141592653589793
 (format {%1.20f} pi2)
 ;-> "3.14159265358979310000"
 

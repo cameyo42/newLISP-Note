@@ -4006,7 +4006,7 @@ Ora, per verificare se funziona, occorre controllare cosa viene restituito per c
 
 Infine viene verificato il caso in cui il punto è uguale ad uno dei vertici del poligono.
 
-Vedi anche: 
+Vedi anche:
 
 https://stackoverflow.com/questions/217578/how-can-i-determine-whether-a-2d-point-is-within-a-polygon
 
@@ -4031,7 +4031,7 @@ La funzione per calcolare il prodotto cartesiano di due liste è la seguente:
 
 (define (cp lst1 lst2)
   (let (out '())
-    (if (or (null? lst1) (null? lst2)) 
+    (if (or (null? lst1) (null? lst2))
         nil
         (dolist (el1 lst1)
           (dolist (el2 lst2)
@@ -4087,7 +4087,7 @@ Scriviamo la funzione che calcola il prodotto cartesiano di tutte le sotto-liste
 ;-> ((1 4 5) (1 4 6) (2 4 5) (2 4 6) (3 4 5) (3 4 6))
 
 (prodotto-cartesiano '((1 5) (2 6) (3 7) (4 8 9)))
-;-> ((1 2 3 4) (1 2 3 8) (1 2 3 9) (1 2 7 4) (1 2 7 8) (1 2 7 9) (1 6 3 4) 
+;-> ((1 2 3 4) (1 2 3 8) (1 2 3 9) (1 2 7 4) (1 2 7 8) (1 2 7 9) (1 6 3 4)
 ;->  (1 6 3 8) (1 6 3 9) (1 6 7 4) (1 6 7 8) (1 6 7 9) (5 2 3 4) (5 2 3 8)
 ;->  (5 2 3 9) (5 2 7 4) (5 2 7 8) (5 2 7 9) (5 6 3 4) (5 6 3 8) (5 6 3 9)
 ;->  (5 6 7 4) (5 6 7 8) (5 6 7 9))
@@ -4105,7 +4105,7 @@ Esempio:
 
 (define (pcf f g lst1 lst2)
   (let (out '())
-    (if (or (null? lst1) (null? lst2)) 
+    (if (or (null? lst1) (null? lst2))
         nil
         (dolist (el1 lst1)
           (dolist (el2 lst2)
@@ -4166,7 +4166,7 @@ Vediamo la differenza di velocità tra le due funzioni:
 Terne pitagoriche
 -----------------
 
-Una terna pitagorica è costituita da tre numeri interi positivi a, b e c con a < b < c tale che a^2 + b^2 = c^2. Ad esempio, i tre numeri 3, 4 e 5 formano una tripla pitagorica perché 3^2 + 4^2 = 9 + 16 = 25 = 5^2. 
+Una terna pitagorica è costituita da tre numeri interi positivi a, b e c con a < b < c tale che a^2 + b^2 = c^2. Ad esempio, i tre numeri 3, 4 e 5 formano una tripla pitagorica perché 3^2 + 4^2 = 9 + 16 = 25 = 5^2.
 
 Scrivere una funzione per generare tutte le terne pitagoriche.
 
@@ -4175,9 +4175,9 @@ Esistono diversi metodi per generare le terne pitagoriche ad esempio l'algoritmo
 Se (a b c) è una terna pitagorica primitiva, allora lo sono anche:
 
   (a – 2b + 2c,  2a – b + 2c,  2a – 2b + 3c)
-  
+
   (a + 2b + 2c,  2a + b + 2c,  2a + 2b + 3c)
-  
+
   (-a + 2b + 2c, 2a + b + 2c, -2a + 2b + 3c)
 
 Comunque per generare tutte le terne pitagoriche useremo il metodo di Dickson:
@@ -4189,7 +4189,7 @@ Quindi calcolare la terna pitagorica (x y z):
 
 Notiamo che r è un numero intero pari e che s e t sono fattori di (r ^ 2) / 2. Tutte le terne pitagoriche possono essere trovate con questo metodo. Quando s e t sono coprimi, la terna viene detta primitiva.
 
-Nota: Una terna (x y z) viene detta primitiva quando x e y sono coprimi. Una terna primitiva (x y z) genera infinite terne non primitive moltiplicando i termini per un qualunque numero intero positivo n. 
+Nota: Una terna (x y z) viene detta primitiva quando x e y sono coprimi. Una terna primitiva (x y z) genera infinite terne non primitive moltiplicando i termini per un qualunque numero intero positivo n.
 
 Esempio:
 
@@ -4210,7 +4210,7 @@ La seguente funzione restituisce n terne pigatoriche:
     (while (< idx n)
       (setq continua true)
       (while continua
-      ; calcola i fattori s (f1) e t (f2) del prossimo r^2/2 
+      ; calcola i fattori s (f1) e t (f2) del prossimo r^2/2
       ; e inserisci l'equazione per s e t
         (cond ((zero? (% (/ (* r r) 2) f1))
                 (setq f2 (/ (/ (* r r) 2) f1))
@@ -4220,8 +4220,8 @@ La seguente funzione restituisce n terne pigatoriche:
                 (++ f1)
                 (setq continua nil)
                 (push (list a b c) out -1))
-                ; se f1 è maggiore di r^2/2, passa alla r successiva 
-                ; e imposta il fattore f1 a 1                
+                ; se f1 è maggiore di r^2/2, passa alla r successiva
+                ; e imposta il fattore f1 a 1
               ((= f1 (+ (/ (* r r) 2) 1))
                 (setq r (+ r 2))
                 (setq f1 1))
@@ -4250,7 +4250,7 @@ Se vogliamo estrarre solo le terne primitive usiamo la funzione "filter" con il 
 Estraiamo solo le terne primitive:
 
 (filter coprimi? (terne 20))
-;-> ((3 4 5) (4 3 5) (5 12 13) (12 5 13) (7 24 25) (8 15 17) (15 8 17) 
+;-> ((3 4 5) (4 3 5) (5 12 13) (12 5 13) (7 24 25) (8 15 17) (15 8 17)
 ;->  (24 7 25) (9 40 41) (40 9 41) (11 60 61) (12 35 37))
 
 Se vogliamo eliminare le terne simmetriche possiamo ordinare tutte le terne e poi rimuovere tutti i duplicati:
@@ -4273,13 +4273,13 @@ Di seguito lo pseudo-codice dell'algoritmo come riportato nell'articolo di Rabin
 
 Algorithm e-spigot:
 
-1. Initialize: 
-   Let the first digit be 2 and 
+1. Initialize:
+   Let the first digit be 2 and
    initialize an array A of length n + 1 to (1, 1, 1, . . . , 1).
 2. Repeat n − 1 times:
    Multiply by 10: Multiply each entry of A by 10.
-   Take the fractional part: Starting from the right, 
-                             reduce the ith entry of A modulo i + 1, 
+   Take the fractional part: Starting from the right,
+                             reduce the ith entry of A modulo i + 1,
                              carrying the quotient one place left.
    Output the next digit: The final quotient is the next digit of e.
 
@@ -4303,7 +4303,7 @@ Questa è l'implementazione in newLISP:
 (spigot-e 10)
 ;-> (7 1 8 2 8 1 8 2 6 1)
 
-Un aspetto negativo di questo algoritmo è che le ultime cifre calcolate non sono corrette (soprattutto quando calcoliamo poche cifre). Questo problema può essere risolto in maniera pratica calcolando più cifre di quelle necessarie, in quanto l'algoritmo è molto veloce (calcolando 50 cifre in più siamo al sicuro fino a miliardi di cifre...). 
+Un aspetto negativo di questo algoritmo è che le ultime cifre calcolate non sono corrette (soprattutto quando calcoliamo poche cifre). Questo problema può essere risolto in maniera pratica calcolando più cifre di quelle necessarie, in quanto l'algoritmo è molto veloce (calcolando 50 cifre in più siamo al sicuro fino a miliardi di cifre...).
 
 Calcoliamo il numero "e" con 500 cifre dopo la virgola:
 
@@ -4365,9 +4365,9 @@ Poi scriviamo la funzione richiesta:
       (sort out)))
 
 (sample 50 1 1000)
-;-> (52 58 71 97 103 107 111 128 131 135 160 203 219 221 
-;->  225 240 284 291 294 301 307 324 397 416 428 474 530 
-;->  547 623 651 744 763 773 779 790 807 821 826 837 839 
+;-> (52 58 71 97 103 107 111 128 131 135 160 203 219 221
+;->  225 240 284 291 294 301 307 324 397 416 428 474 530
+;->  547 623 651 744 763 773 779 790 807 821 826 837 839
 ;->  851 859 875 921 930 936 965 970 980 988)
 
 Nota: La chiamata (sample 50 1 25) non termina mai. Per correttezza dovremmo inserire un controllo che verifica se "n" è maggiore di "(b - a + 1)", nel qual caso non esiste una lista con 50 numeri diversi con un intervallo minore della dimensione della lista. Il caso limite è quando risulta n = (b - a + 1):
@@ -4429,13 +4429,13 @@ Definiamo gli intervalli:
 
 Adesso generiamo un numero casuale R:
 
-- se R cade nell'intervallo 1 (0.00, 0.05), 
+- se R cade nell'intervallo 1 (0.00, 0.05),
   allora si verifica l'evento "a" --> indice 0
-- se R cade nell'intervallo 2 (0.05, 0.20), 
+- se R cade nell'intervallo 2 (0.05, 0.20),
   allora si verifica l'evento "b" --> indice 1
-- se R cade nell'intervallo 3 (0.20, 0.55), 
+- se R cade nell'intervallo 3 (0.20, 0.55),
   allora si verifica l'evento "c" --> indice 2
-- se R cade nell'intervallo 4 (0.55, 1.00), 
+- se R cade nell'intervallo 4 (0.55, 1.00),
   allora si verifica l'evento "d" --> indice 3
 
 La funzione genera un numero da 0 a (n-1) che rappresenta l'indice del valore di probabilità nella lista delle probabilità:
@@ -5014,7 +5014,7 @@ Sequenza OESIS: A002321
  -3 -3 -3 -2 -3 -3 -3 -3 -2 -2 -3 -3 -2 -2
  -1 0 -1 -1 -2 -1 -1 -1 0 -1 -2 -2 -1 -2
  -3 -3 -4 -3 -3 -3 -2 -3 -4 -4 -4))
- 
+
 (length A002321)
 ;-> 81
 
@@ -5026,5 +5026,51 @@ Sequenza OESIS: A002321
 
 (= A002321 (map mertens (sequence 1 81)))
 ;-> true
+
+
+---------------------
+Quadruple pitagoriche
+---------------------
+
+Una quadrupla pitagorica è costituita da quattro numeri interi positivi a, b, c e d tali che a ≤ b ≤ c ≤ d e a² + b² + c² = d². Ad esempio, (2 3 6 7) è una quadrupla pitagorica perché 2² + 3² + 6² = 4 + 9 + 36 = 49 = 7².
+
+Scrivere un programma che conteggi le quadruple pitagoriche con a, b, c minore o uguale a 1000.
+
+(define (isqrt n) (int (sqrt n)))
+
+(define (pyquad n)
+  (local (a b c d s out)
+    (for (a 1 n)
+      (for (b a n)
+        (for (c b n)
+          (setq s (+ (* a a) (* b b) (* c c)))
+          (setq d (isqrt s))
+          (if (= (* d d) s) (push (list a b c d) out -1)))))
+    out))
+
+(time (setq pq (pyquad 1000)))
+;-> 59196.872
+
+(length pq)
+;-> 85490
+
+(slice pq 0 20)
+;-> ((1 2 2 3) (1 4 8 9) (1 6 18 19) (1 8 32 33) (1 10 50 51)
+;->  (1 12 12 17) (1 12 72 73) (1 14 98 99) (1 16 128 129)
+;->  (1 18 30 35) (1 18 162 163) (1 20 200 201) (1 22 46 51)
+;->  (1 22 242 243) (1 24 288 289) (1 26 338 339) (1 28 76 81)
+;->  (1 28 392 393) (1 30 450 451) (1 32 100 105))
+
+Test del risultato:
+
+(define (test a b c d)
+  (= (* d d) (+ (* a a) (* b b) (* c c))))
+
+(test 36 399 448 601)
+;-> true
+
+(dolist (el pq)
+  (if (= (test (el 0) (el 1) (el 2) (el 3)) true)
+    (println el)))
 
 

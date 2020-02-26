@@ -3465,6 +3465,8 @@ Due ulteriori stringhe opzionali "str-header" e "str-footer" che controllano il 
 ;; colore brillante ('bright') su terminali VT-100 o compatibili
 (trace-highlight ">>\027[1m" "\027[0m")
 
+Nota: looks like old "print" function never dies.
+
 
 ============================================================================
 newLISPdoc - Il programma per la documentazione newLISP

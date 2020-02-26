@@ -6149,3 +6149,235 @@ Vediamo un generatore di numeri casuali fornito da Lutz:
 (gen_random 100)
 ;-> 63.64669067215363
 
+
+---------------------
+Liste di associazione
+---------------------
+
+Una lista di associazione è una lista con la seguente struttura:
+
+((chiave1 valore11 valore12 valore13 ... valore1N) (chiave2 valore21 valore22 valore23 ... valore2N) ...
+ (chiaveM valoreM1 valoreM2 valoreM3 ... valoreMN))
+
+Le funzioni specifiche di queste liste sono:
+1) assoc
+2) lookup
+3) pop-assoc
+
+Vediamo alcuni esempi:
+
+FUNZIONE "assoc"
+sintassi: (assoc exp-key list-alist)
+sintassi: (assoc list-exp-key list-alist)
+
+(setq lst '((key1 value1) (key2 value2) (key3 value3)))
+
+Recuperare l'associazione con chiave key1:
+(assoc 'key1 lst)
+;-> (key1 value1)
+
+FUNZIONE "lookup"
+sintassi: (lookup exp-key list-assoc [int-index [exp-default]])
+
+Recuperare solo il valore dell'associazione con chiave key1:
+(lookup 'key1 lst)
+;-> value1
+
+Con int-index = 0:
+(lookup 'key1 lst 0 'null)
+;-> key1
+
+Con int-index = 1:
+(lookup 'key1 lst 1 'null)
+;-> value1
+
+Con int-index = 2: (in questo caso non esiste un elemento con indice 2 nella sottolista con chiave key1 e viene restituito l'ultimo elemento associato)
+(lookup 'key1 lst 2 'null)
+;-> value1
+
+Con una chiave inesistente key5:
+(lookup 'key5 lst 1 'null)
+;-> null
+
+Usiamo una lista associativa con valori multipli:
+(setq lst1 '((key1 value1 value11) (key2 value2 value22) (key3 value3 value33)))
+
+(lookup 'key1 lst1)
+;-> value11
+
+Con int-index = 0:
+(lookup 'key1 lst1 0 'null)
+;-> key1
+
+Con int-index = 1:
+(lookup 'key1 lst1 1 'null)
+;-> value1
+
+Con int-index = 2: (in questo caso esiste un elemento con indice 2 nella sottolista con chiave key1 e quindi viene restituito)
+(lookup 'key1 lst1 2 'null)
+;-> value11
+
+Liste associative annidate
+(setq lsta '((nome "eva") (eta "23") (esami ((storia 27) (chimica 28)))))
+
+(lookup 'esami lsta)
+;-> ((storia 27) (chimica 28))
+
+Verificare se una chiave esiste ed (eventualmente) aggiornare il valore associato:
+
+(letn (key 'nome)
+  (if (lookup key lsta)
+      (setf (assoc key lsta) (list key "max"))))
+;-> (nome "max")
+lsta
+;-> ((nome "max") (eta "23") (esami ((storia 27) (chimica 28))))
+
+Possiamo scriviamo una versione semplificata delle funzioni "assoc" e "lookup":
+
+(define (car x)    (first x))
+(define (cdr x)    (rest x))
+(define (caar x)   (first (first x)))
+(define (cadar x)  (first (rest (first x))))
+
+(setq lst '((2 a) (1 b) (3 c)))
+
+(define (assoc. key lst)
+  (cond ((null? lst) nil)
+        ((= (caar lst) key) (cadar lst))
+        (true (assoc. key (cdr lst)))))
+
+(assoc. 1 lst)
+;-> b
+(assoc. 4 lst)
+;-> nil
+
+(assoc. 4 '((2 a) (1 b) (3 c)))
+
+(define (lookup. key lst)
+  (cond ((null? lst) nil)
+        ((= (caar lst) key) (car lst))
+        (true (lookup. key (cdr lst)))))
+
+(lookup. 1 lst)
+;-> (1 b)
+(lookup. 4 lst)
+;-> nil
+
+
+-------------------------------
+Funzione Z e ipotesi di Riemann
+-------------------------------
+
+La funzione zeta di Riemann è una funzione che riveste una fondamentale importanza nella teoria dei numeri e ha notevoli risvolti in fisica, teoria della probabilità e statistica.
+I primi studi su questa funzione furono effettuati da Leonhard Euler nel diciottesimo secolo, ma il nome deriva da Bernhard Riemann, che nel testo "Über die Anzahl der Primzahlen unter einer gegebenen Grösse" del 1859, avanzò l'ipotesi di una relazione tra gli zeri della funzione e la distribuzione dei numeri primi, la celebre "Congettura di Riemann".
+
+Z(s) = 1/1^s + 1/2^s + 1/3^s + 1/4^s + ... =
+     = Sum[1/i^s], (1 <= i <= ∞)
+
+Eulero ha dimostrato che:
+
+Z(s) = Prod[1/(1 - p^(-s))], (p numeri primi)
+
+Quindi risulta:
+
+Z(s) = 1/1^s + 1/2^s + 1/3^s + 1/4^s + ... =
+     = (1/(1 - 1/2^s)) * (1/(1 - 1/3^s)) * (1/(1 - 1/5^s)) * (1/(1 - 1/7^s)) * ...
+
+(define (ipow x n)
+  (cond ((zero? n) 1)
+        ((even? n) (ipow (* x x) (/ n 2)))
+        (true (* x (ipow (* x x) (/ (- n 1) 2))))))
+
+(ipow 21L 25L)
+;-> 1136272165922724266740722458520501L
+
+(define (Z s n)
+  (let (out 0L)
+    (for (i 1 n)
+      (setq out (add out (div (ipow (bigint i) (bigint s)))))
+    )
+  out))
+
+(setq PI (mul 2.0 (acos 0.0)))
+;-> 3.141592653589793
+(setq PI (mul 2.0 (asin 1.0)))
+;-> 3.141592653589793
+
+Eulero ha dimostrato che per s=2 e s=4 otteniamo:
+
+Z(2) = (PI^2)/6 =
+(setq Z2 (div (mul PI PI) 6))
+;-> 1.644934066848226
+
+Z(4) = (PI^4)/90 =
+(setq Z4 (div (mul PI PI PI PI) 90))
+;-> 1.082323233711138
+
+Proviamo con la nostra funzione Z:
+
+(Z 2 100000)
+;-> 1.644924066898242
+(Z 4 100000)
+;-> 1.082323233710861
+
+Vediamo l'errore:
+
+(sub (Z 2 100000) Z2)
+;-> -9.999949984074164e-006
+(sub (Z 4 100000) Z4)
+;-> -2.76889622341514e-013
+
+Notiamo che per s = 0 otteniamo:
+
+Z(0) = 1/1^0 + 1/2^0 + 1/3^0 + ... = 1 + 1 + 1 + ... = infinito
+
+E per valori di (s < 0) otteniamo:
+
+Z(-1) = 1/(1^-1) + 1/2^0 + 1/3^0 + ... = 1^1 + 2^1 + 3^1 + ... = infinito
+
+Quindi per (s <= 0) la funzione Z tende all'infinito.
+
+Riemann ha trovato una funzione analoga a Z(s):
+
+            1          ∞    1        ∞               n!
+ζ(s) = ------------- * ∑ --------- * ∑ (-1)^k * ----------- * (k + 1)^-s
+         1-2^(1-s)    n=0 2^(n+1)   k=0          k!(n - k)!
+
+ζ(2) = (PI^2)/6
+
+ζ(4) = (PI^4)/90
+
+Ma il valore di ζ(1) è indefinito.
+
+Calcolo degli zeri della funzione ζ:
+
+ζ(s) = 0 per s = -2, -4, -6, -8, -10, ... (per tutti i valori negativi pari di s)
+
+Per i numeri s positivi risulta:
+
+ζ(1/2 + 14.134725142i) = 0
+ζ(1/2 + 21.022039639i) = 0
+ζ(1/2 + 25.010857580i) = 0
+ζ(1/2 + 30.424876126i) = 0
+
+L'ipotesi di Riemann (RH) afferma che tutti gli zeri non banali di ζ si trovano sulla linea 1/2 + iR.
+(Gli zeri banali sono quelli per cui s è un numero negativo pari).
+
+L'istituto Clay Mathematics ha messo in palio 1.000.000 di dollari a chi dimostrerà questa ipotesi.
+
+Per finire scriviamo una funzione che calcola Z(s) con numeri floating-point:
+
+(define (Z s n)
+  (let (out 0)
+    (for (i 1 n)
+      (setq out (add out (div (pow i s))))
+    )
+  out))
+
+(Z 2 1000000)
+;-> 1.64493306684877
+
+(Z 4 1000000)
+;-> 1.082323233710861
+
+
