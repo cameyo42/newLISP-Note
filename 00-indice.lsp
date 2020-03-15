@@ -444,6 +444,10 @@ NOTE LIBERE
   Generatore di numeri casuali
   Liste di associazione
   Funzione Z e ipotesi di Riemann
+  Rotazione di stringhe e liste
+  Quadrato di una lista ordinata
+  Somma da due numeri
+  Mescolamento perfetto
 
 APPENDICI
 =========

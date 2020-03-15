@@ -6381,3 +6381,341 @@ Per finire scriviamo una funzione che calcola Z(s) con numeri floating-point:
 ;-> 1.082323233710861
 
 
+-----------------------------
+Rotazione di stringhe e liste
+-----------------------------
+
+Scrivere una funzione che produce tutte le rotazioni di una stringa (e di una lista)
+Esempio: "abc" -> "abc" "bca" "cab"
+
+(define (ruota str)
+  (let ((len (length str))
+        (out '()))
+    (dotimes (x len)
+      (push (rotate str) out))))
+
+(ruota "abc")
+;-> ("abc" "bca" "cab")
+
+Funziona anche per le liste:
+
+(ruota '(1 2 3))
+;-> ((1 2 3) (2 3 1) (3 1 2))
+
+(setq lst '(a b c))
+
+Vediamo un altro metodo:
+
+(define (ruota2 lst)
+  (let (out '())
+    (dotimes (x (length lst))
+    (push (push (pop lst) lst -1) out))))
+
+(ruota2 '(a b c))
+;-> ((a b c) (c a b) (b c a))
+
+Funziona anche per le stringhe:
+
+(ruota2 "abc")
+;-> ("abc" "cab" "bca")
+
+Vediamo la differenza di velocità:
+
+(time (ruota (sequence 1 100)) 10000)
+;-> 2181.789
+
+(time (ruota2 (sequence 1 100)) 10000)
+;-> 1959.412
+
+(time (ruota "abcdefghijklmnopqrstuvwxyz") 10000)
+;-> 91.905
+
+(time (ruota2 "abcdefghijklmnopqrstuvwxyz") 10000)
+;-> 164.827
+
+Quindi con le stringhe è meglio usare "ruota", mentre con le liste è meglio "ruota2".
+
+
+------------------------------
+Quadrato di una lista ordinata
+------------------------------
+
+Data una lista di numeri interi ordinati in ordine non decrescente, una funzione che restituISCE una lista con i quadrati di ciascun numero, anch'essa ordinata in ordine non decrescente.
+Ad esempio, data (-2 3 7 7 8), l'output desiderato è (4 9 49 49 64).
+Attenzione: data (-4 -1 0 3 10), l'output desiderato è (0 1 9 16 100).
+
+(define (quad lst)
+  (let (out '())
+    (sort (map (fn (x) (* x x)) lst))))
+
+(quad '(-2 3 7 7 8))
+;-> (4 9 49 49 64)
+(quad '(-4 -1 0 3 10))
+;-> (0 1 9 16 100)
+
+
+-------------------
+Somma da due numeri
+-------------------
+
+Dato una lista di numeri interi e un numero intero s, trovare tutte le coppie di numeri interi nella lista che si sommano all'intero s oppure restituire che non esistono coppie di questo tipo.
+O(n²), O(n log n), O(n).
+
+Il metodo più semplice è quello di considerare ogni elemento della lista sommandolo a tutti gli altri e controllare se sommano al valore s. Complessità temporale O(n²).
+
+(define (find-coppie lst somma)
+  (let (out '())
+    (for (i 0 (- (length lst) 2))
+      (for (j (+ i 1) (- (length lst) 1))
+        (if (= somma (+ (lst i) (lst j)))
+          (push (list (lst i) (lst j)) out -1)
+        )))
+  out))
+
+(find-coppie '(1 5 7 -1 5) 6)
+;-> ((1 5) (1 5) (7 -1))
+(find-coppie '(2 5 17 -1) 7)
+;-> (2 5)
+(find-coppie '(3 5 6 -1) 10)
+;-> ()
+(find-coppie '(2 3 4 -2 6 8 9 11) 6)
+;-> ((2 4) (-2 8))
+(find-coppie (sequence 1 10) 6)
+;-> ((1 5) (2 4))
+
+Un altro è quello di ordinare la lista e poi con due indici (basso e alto) attraversiamo la lista:
+
+(define (find-coppie2 lst somma)
+  (local (out alto basso)
+    (setq out '())
+    (setq alto (- (length lst) 1))
+    (setq basso 0)
+    (sort lst)
+    (while (< basso alto)
+      (if (= somma (+ (lst basso) (lst alto)))
+          (push (list (lst basso) (lst alto)) out -1)
+      )
+      (if (> (+ (lst basso) (lst alto)) somma)
+          (setq alto (- alto 1))
+          (setq basso (+ basso 1))
+      )
+    )
+    out))
+
+(find-coppie2 '(1 5 7 -1 5) 6)
+(find-coppie2 '(-1 1 5 5 7) 6)
+;-> ((1 5) (1 5) (7 -1))
+(find-coppie2 '(2 5 17 -1) 7)
+;-> (2 5)
+(find-coppie2 '(3 5 6 -1) 10)
+;-> ()
+(find-coppie2 '(2 3 4 -2 6 8 9 11) 6)
+;-> ((2 4) (-2 8))
+(find-coppie2 (sequence 1 10) 6)
+;-> ((1 5) (2 4))
+
+Vediamo quale metodo è più veloce:
+
+(time (find-coppie (sequence 1 1000) 500) 10)
+;-> 7642.239
+
+(time (find-coppie2 (sequence 1 1000) 500) 10)
+;-> 31.981
+
+La complessità temporale del secondo metodo non è calcolabile esattamente, poichè utilizziamo la funzione "sort" di newLISP (che dovrebbe utilizzare il merge-sort O(n log n)). Comunque è il metodo più veloce proprio perchè utilizziamo la versione integrata (compilata) della funzione "sort".
+
+
+---------------------
+Mescolamento perfetto
+---------------------
+
+A perfect shuffle, also known as a faro shuffle, splits a deck of cards into equal halves (there must be an even number of cards), then perfectly interleaves them. Eventually a series of perfect shuffles returns a deck to its original order. For instance, with a deck of 8 cards named (1 2 3 4 5 6 7 8), the first shuffle rearranges the cards to (1 5 2 6 3 7 4 8), the second shuffle rearranges the cards to (1 3 5 7 2 4 6 8), and the third shuffle restores the original order (1 2 3 4 5 6 7 8).
+
+Your task is to write a program that performs a perfect shuffle and use it to determine how many perfect shuffles are required to return an n-card deck to its original order; how many perfect shuffles are required for a standard 52-card deck?
+
+Un mescolamento (shuffle) perfetto, divide un mazzo di carte in due metà uguali (deve esserci un numero pari di carte), quindi le interfoglia perfettamente. Alla fine una serie di mescolamenti perfetti riporta un mazzo al suo ordine originale. Ad esempio, con un mazzo di 8 carte (1 2 3 4 5 6 7 8), il primo mescolamento riordina le carte in (1 5 2 6 3 7 4 8), il secondo mescolamento riordina le carte in (1 3 5 7 2 4 6 8) e il terzo mescolamento ripristina l'ordine originale (1 2 3 4 5 6 7 8).
+Scrivere una funzione che esegue un mescolamento perfetto. Scrivere una funzione che calcola quanti mescolamenti perfetti sono necessari per riportare un mazzo di n carte all'ordine originale.
+Quante mescolamenti perfetti sono necessari per un mazzo da 52 carte?
+
+(setq lst '(1 2 3 4 5 6 7 8))
+
+Funzione che esegue un mescolamento perfetto:
+
+(define (shuffle lst)
+  (let ((out '()) (len (length lst)))
+    (for (i 0 (- (/ len 2) 1))
+      (push (lst i) out -1) ; inserisce il valore i-esimo
+      (push (lst (+ i (/ len 2))) out -1) ; inserisce il valore (i + len/2)-esimo
+    )
+    out))
+
+(shuffle lst)
+;-> (1 5 2 6 3 7 4 8)
+
+(shuffle (shuffle (shuffle lst)))
+;-> (1 2 3 4 5 6 7 8)
+
+Funzione che calcola il numero di mescolamenti perfetti per avere nuovamente la lista originale:
+
+(define (shuffle-number lst)
+  (local (number calc)
+    (setq number 1)
+    (setq calc (shuffle lst))
+    ; fino a che le liste non sono uguali...
+    (while (!= lst calc)
+      ; calcola un altro mescolamento perfetto
+      (setq calc (shuffle calc))
+      (++ number)
+    )
+    (list (length lst) number)
+  ))
+
+(shuffle-number lst)
+;-> (8 3)
+(shuffle-number (sequence 1 52))
+;-> (52 8)
+
+Funzione che calcola il numero di mescolamenti perfetti per tutte le liste fino al valore num:
+
+(define (shuffle-list num)
+  (let (out '())
+    (for (i 2 num 2)
+      (push (shuffle-number (sequence 1 i)) out -1)
+    )
+    out))
+
+(shuffle-list 128)
+;-> ((2 1) (4 2) (6 4) (8 3) (10 6) (12 10) (14 12) (16 4)
+;->  (18 8) (20 18) (22 6) (24 11) (26 20) (28 18) (30 28) (32 5)
+;->  (34 10) (36 12) (38 36) (40 12) (42 20) (44 14) (46 12) (48 23)
+;->  (50 21) (52 8) (54 52) (56 20) (58 18) (60 58) (62 60) (64 6)
+;->  (66 12) (68 66) (70 22) (72 35) (74 9) (76 20) (78 30) (80 39)
+;->  (82 54) (84 82) (86 8) (88 28) (90 11) (92 12) (94 10) (96 36)
+;->  (98 48) (100 30) (102 100) (104 51) (106 12) (108 106) (110 36)
+;->  (112 36) (114 28) (116 44) (118 12) (120 24) (122 110) (124 20)
+;->  (126 100) (128 7))
+
+Notiamo che risulta: (2 1), (4 2), (8 3), (16 4), (32 5), (64 6), (128 7).
+
+Disegniamo un grafico (spartano) con questi dati:
+
+(setq data (shuffle-list 128))
+
+(dolist (el data) (println (el 0) { - } (dup "*" (el 1))))
+
+ 2 - *
+ 4 - **
+ 6 - ****
+ 8 - ***
+ 10 - ******
+ 12 - **********
+ 14 - ************
+ 16 - ****
+ 18 - ********
+ 20 - ******************
+ 22 - ******
+ 24 - ***********
+ 26 - ********************
+ 28 - ******************
+ 30 - ****************************
+ 32 - *****
+ 34 - **********
+ 36 - ************
+ 38 - ************************************
+ 40 - ************
+ 42 - ********************
+ 44 - **************
+ 46 - ************
+ 48 - ***********************
+ 50 - *********************
+ 52 - ********
+ 54 - ****************************************************
+ 56 - ********************
+ 58 - ******************
+ 60 - **********************************************************
+ 62 - ************************************************************
+ 64 - ******
+ 66 - ************
+ 68 - ******************************************************************
+ 70 - **********************
+ 72 - ***********************************
+ 74 - *********
+ 76 - ********************
+ 78 - ******************************
+ 80 - ***************************************
+ 82 - ******************************************************
+ 84 - **********************************************************************************
+ 86 - ********
+ 88 - ****************************
+ 90 - ***********
+ 92 - ************
+ 94 - **********
+ 96 - ************************************
+ 98 - ************************************************
+100 - ******************************
+102 - ****************************************************************************************************
+104 - ***************************************************
+106 - ************
+108 - **********************************************************************************************************
+110 - ************************************
+112 - ************************************
+114 - ****************************
+116 - ********************************************
+118 - ************
+120 - ************************
+122 - **************************************************************************************************************
+124 - ********************
+126 - ****************************************************************************************************
+128 - *******
+
+Proviamo a migliorare la funzione "shuffle" scrivendola in stile lisp per renderla più veloce.
+
+La funzione "take" restituisce i primi n elementi di una lista:
+
+(define (take n lst) (slice lst 0 n))
+
+La funzione "drop" restituisce tutti gli elementi di una lista tranne i primi n:
+
+(define (drop n lst) (slice lst n))
+
+(setq lst '(1 2 3 4 5 6 7 8))
+
+(setq lun (length lst))
+;-> 8
+
+(take (/ lun 2) lst)
+;-> (1 2 3 4)
+
+(drop (/ lun 2) lst)
+;-> (5 6 7 8)
+
+(define (shuf lst)
+  (let (len (length lst))
+    (flat (map (fn(x y) (cons x y)) (take (/ len 2) lst) (drop (/ len 2) lst)))))
+    ;(flat (map (fn(x y) (list x y)) (take (/ len 2) lst) (drop (/ len 2) lst)))))
+
+(shuf lst)
+;-> (1 5 2 6 3 7 4 8)
+
+(shuf (shuf (shuf lst)))
+;-> (1 2 3 4 5 6 7 8)
+
+Test di velocità:
+
+(silent (setq a (sequence 1 10000)))
+
+(time (shuffle a) 10)
+;-> 5313.681
+
+(time (shuf a) 10)
+;-> 52.914
+
+La funzione "shuf" è 100 volte più veloce della funzione "shuffle".
+
+(map (fn(x y) (cons x y)) (take (/ len 2) lst) (drop (/ len 2) lst))
+
+(map + '(1 2) '(3 4))
+;-> (4 6)
+(map (fn(x y) (list x y)) '(1 2) '(3 4))
+
+
