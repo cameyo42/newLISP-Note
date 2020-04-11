@@ -151,9 +151,9 @@ I simboli definiti nella lista degli argomenti della funzione sono locali alla f
 ===========================
 
 Il carattere virgola "," è un simbolo.
-In newLISP viene usato (per convenzione) come separatore tra:
+In newLISP viene usato (per convenzione e opzionale) come separatore tra:
 gli argomenti di una funzione e le variabili locali di una funzione.
-In questo modo si aumenta la leggibilità del programma.
+In questo modo si aumenta la leggibilità del programma (e non bisogna ridefinire le variabili locali).
 Nella funzione test t1 e t2 sono variabili interne alla funzione, mentre out è il valore restituito dalla funzione. Questo è possibile perchè newLISP permette di chiamare una funzione con un numero di argomenti diverso da quello stabilito dalla sua definizione.
 Tutti gli argomenti che non possono essere associati hanno valore nil.
 I simboli degli argomenti sono locali alla funzione, anche se esistono al di fuori della funzione.

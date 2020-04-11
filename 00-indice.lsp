@@ -361,6 +361,8 @@ DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Unione di liste (LinkedIn)
   Tripla crescente (LeetCode)
   Stringhe isomorfe (Facebook)
+  Raggruppamento codici (Google)
+  Caratteri differenti (Amazon)
 
 LIBRERIE
 ========
@@ -448,6 +450,11 @@ NOTE LIBERE
   Quadrato di una lista ordinata
   Somma da due numeri
   Mescolamento perfetto
+  Mergesort
+  Cifre crescenti e decrescenti
+  Somma di numeri
+  Operatori logici
+
 
 APPENDICI
 =========

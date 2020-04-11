@@ -4866,3 +4866,63 @@ Possiamo usare due hashmap che tengono traccia delle mappature char-char. Se un 
 ;-> true
 
 
+------------------------------
+Raggruppamento codici (Google)
+------------------------------
+
+Data una lista di soli caratteri 'R', 'G' e 'B', separa i valori
+della lista in modo che tutte le R vengano al primo posto, le G al secondo posto e le B al terzo posto.
+Ad esempio, dato l'array (G B R R B R G) il risultato vale (R R R G G B B).
+La funzione deve risolvere il problema in tempo lineare O(n).
+
+Il seguente algoritmo scorre la lista una volta (quando conta i caratteri), quindi la complessità temporale vale O(n).
+
+(define (gruppo lst)
+  (setq c (count '(R G B) lst))
+  (extend (dup 'R (first c)) (dup 'G (first (rest c))) (dup 'B (last c))))
+
+(gruppo '(G B R R B R G))
+;-> (R R R G G B B)
+
+
+-----------------------------
+Caratteri differenti (Amazon)
+-----------------------------
+
+Dato un intero k e una stringa s, trovare la lunghezza della sottostringa più lunga che contiene al massimo k caratteri distinti.
+
+Ad esempio, data s = "abcba" e k = 2, la sottostringa più lunga con k distinti caratteri vale 3 ed è "bcb".
+
+(define (find-len s k)
+  (local (start end max-len dist-char test)
+    (setq start 0)
+    (setq end k)
+    (setq max-len k)
+    (setq test true)
+    (while (< end (length s))
+      (++ end)
+      (while test
+        (setq dist-char (length (unique (explode (slice s start (- end start))))))
+        (if (<= dist-char k) 
+           (setq test nil)
+           (++ start)
+        )  
+      )
+      (setq test true)
+      (setq max-len (max max-len (- end start)))
+    )
+    max-len))
+
+(find-len "abcba" 2)
+;-> 3
+
+(find-len "abcbbba" 2)
+;-> 5
+
+(find-len "abcbcbccaaa" 2)
+;-> 7
+
+(find-len "abababccccccc" 2)
+;-> 8
+
+
