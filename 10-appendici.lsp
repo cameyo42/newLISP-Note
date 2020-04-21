@@ -4075,10 +4075,10 @@ newLISP non ha problemi di funarg perché segue una semplice regola: le variabil
 
 La cella LISP e cons
 --------------------
-In Common Lisp and Scheme, la parte cdr (rest) della cella Lisp può essere utilizzata per contenere un altro oggetto LISPoggetto, nel qual caso abbiamo una coppia puntata. In newLISP, non ci sono coppie puntate. Invece, ciascuna cella di newLISP contiene un oggetto e un puntatore ad un altro oggetto se la cella fa parte di una lista. Come risultato in newLISP la funzione "cons" si comporta diversamente dagli altri LISP.
+In Common Lisp e Scheme, la parte cdr (rest) della cella Lisp può essere utilizzata per contenere un altro oggetto LISP, nel qual caso abbiamo una coppia puntata. In newLISP, non ci sono coppie puntate. Invece, ciascuna cella di newLISP contiene un oggetto e un puntatore ad un altro oggetto se la cella fa parte di una lista. Come risultato in newLISP la funzione "cons" si comporta diversamente dagli altri LISP.
 
 Common Lisp e Scheme
-(cons 'a' b) => (a. b)  ;una coppia puntata
+(cons 'a' b) => (a . b)  ;una coppia puntata
 [a | b]
 
 newLISP

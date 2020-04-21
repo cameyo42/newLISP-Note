@@ -361,6 +361,8 @@ DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Unione di liste (LinkedIn)
   Tripla crescente (LeetCode)
   Stringhe isomorfe (Facebook)
+  Raggruppamento codici (Google)
+  Caratteri differenti (Amazon)
 
 LIBRERIE
 ========
@@ -448,6 +450,11 @@ NOTE LIBERE
   Quadrato di una lista ordinata
   Somma da due numeri
   Mescolamento perfetto
+  Mergesort
+  Cifre crescenti e decrescenti
+  Somma di numeri
+  Operatori logici
+
 
 APPENDICI
 =========
@@ -664,9 +671,9 @@ I simboli definiti nella lista degli argomenti della funzione sono locali alla f
 ===========================
 
 Il carattere virgola "," è un simbolo.
-In newLISP viene usato (per convenzione) come separatore tra:
+In newLISP viene usato (per convenzione e opzionale) come separatore tra:
 gli argomenti di una funzione e le variabili locali di una funzione.
-In questo modo si aumenta la leggibilità del programma.
+In questo modo si aumenta la leggibilità del programma (e non bisogna ridefinire le variabili locali).
 Nella funzione test t1 e t2 sono variabili interne alla funzione, mentre out è il valore restituito dalla funzione. Questo è possibile perchè newLISP permette di chiamare una funzione con un numero di argomenti diverso da quello stabilito dalla sua definizione.
 Tutti gli argomenti che non possono essere associati hanno valore nil.
 I simboli degli argomenti sono locali alla funzione, anche se esistono al di fuori della funzione.
@@ -41545,6 +41552,66 @@ Possiamo usare due hashmap che tengono traccia delle mappature char-char. Se un 
 ;-> true
 
 
+------------------------------
+Raggruppamento codici (Google)
+------------------------------
+
+Data una lista di soli caratteri 'R', 'G' e 'B', separa i valori
+della lista in modo che tutte le R vengano al primo posto, le G al secondo posto e le B al terzo posto.
+Ad esempio, dato l'array (G B R R B R G) il risultato vale (R R R G G B B).
+La funzione deve risolvere il problema in tempo lineare O(n).
+
+Il seguente algoritmo scorre la lista una volta (quando conta i caratteri), quindi la complessità temporale vale O(n).
+
+(define (gruppo lst)
+  (setq c (count '(R G B) lst))
+  (extend (dup 'R (first c)) (dup 'G (first (rest c))) (dup 'B (last c))))
+
+(gruppo '(G B R R B R G))
+;-> (R R R G G B B)
+
+
+-----------------------------
+Caratteri differenti (Amazon)
+-----------------------------
+
+Dato un intero k e una stringa s, trovare la lunghezza della sottostringa più lunga che contiene al massimo k caratteri distinti.
+
+Ad esempio, data s = "abcba" e k = 2, la sottostringa più lunga con k distinti caratteri vale 3 ed è "bcb".
+
+(define (find-len s k)
+  (local (start end max-len dist-char test)
+    (setq start 0)
+    (setq end k)
+    (setq max-len k)
+    (setq test true)
+    (while (< end (length s))
+      (++ end)
+      (while test
+        (setq dist-char (length (unique (explode (slice s start (- end start))))))
+        (if (<= dist-char k) 
+           (setq test nil)
+           (++ start)
+        )  
+      )
+      (setq test true)
+      (setq max-len (max max-len (- end start)))
+    )
+    max-len))
+
+(find-len "abcba" 2)
+;-> 3
+
+(find-len "abcbbba" 2)
+;-> 5
+
+(find-len "abcbcbccaaa" 2)
+;-> 7
+
+(find-len "abababccccccc" 2)
+;-> 8
+
+
 ==========
 
  LIBRERIE
@@ -44515,6 +44582,7 @@ Funzioni di primo ordine
 Tutte le funzioni di primo ordine devono iniziare dalla colonna 1.
 
 Chiusura parentesi
+------------------
 Le parentesi chiuse non devono essere precedute dal carattere newline.
 
 Esempio:
@@ -45810,7 +45878,7 @@ Definiamo una funzione per calcolare i numeri di Fibonacci:
   )
 )
 
-(fibo-i 3)
+(fibo-i 10)
 ;-> 55L
 
 Definiamo una funzione per verificare se un numero è primo:
@@ -50953,10 +51021,10 @@ Disegniamo un grafico (spartano) con questi dati:
 
 (dolist (el data) (println (el 0) { - } (dup "*" (el 1))))
 
- 2 - *
- 4 - **
- 6 - ****
- 8 - ***
+  2 - *
+  4 - **
+  6 - ****
+  8 - ***
  10 - ******
  12 - **********
  14 - ************
@@ -51062,11 +51130,250 @@ Test di velocità:
 
 La funzione "shuf" è 100 volte più veloce della funzione "shuffle".
 
-(map (fn(x y) (cons x y)) (take (/ len 2) lst) (drop (/ len 2) lst))
 
-(map + '(1 2) '(3 4))
-;-> (4 6)
-(map (fn(x y) (list x y)) '(1 2) '(3 4))
+---------
+Mergesort
+---------
+
+Il merge sort è un algoritmo di ordinamento basato su confronti che utilizza un processo di risoluzione ricorsivo, sfruttando la tecnica del Divide et Impera, che consiste nella suddivisione del problema in sottoproblemi della stessa natura di dimensione via via più piccola. Fu inventato da John von Neumann nel 1945.
+Concettualmente, l'algoritmo funziona nel seguente modo:
+1. Se la lista da ordinare ha lunghezza 0 oppure 1, è già ordinata. Altrimenti:
+2. La lista viene divisa (divide) in due metà (se la lista contiene un numero dispari di elementi, viene divisa in due sottoliste di cui la prima ha un elemento in più della seconda)
+3. Ognuna di queste sottoliste viene ordinata, applicando ricorsivamente l'algoritmo (impera)
+4. Le due sottoliste ordinate vengono fuse (combinate). Per fare questo, si estrae ripetutamente il minimo delle due sottoliste e lo si pone nella lista in uscita, che risulterà ordinata.
+
+Nota: le funzioni utilizzano le variabili locali definite durante la chiamata della funzione (sono quelle che compaiono dopo la virgola). In newLISP le funzioni possono essere chiamate con un numero inferiore di argomenti: le variabili non passate dalla chiamata vengono inizializzate a nil e possiamo usarle come variabili locali. Il carattere "," è un simbolo che viene usato per separare le variabili passate da quelle locali.
+
+Questa funzione combina due liste ordinate:
+
+(define (merge a b , c)
+  (while (and a b)
+    (if (> (a 0) (b 0))
+      (begin (push (b 0) c -1) (pop b))
+      (begin (push (a 0) c -1) (pop a))
+    )
+  )
+  (while a
+    (push (a 0) c -1)
+    (pop a))
+  (while b
+    (push (b 0) c -1)
+    (pop b))
+  c
+)
+
+(merge '(1 7 15) '(2 8 16))
+;-> (1 2 7 8 15 16)
+
+Questa funzione esegue il sort:
+
+(define (mergesort a , n l1 l2)
+  (set 'n (length a))
+  (if (<= n 1)
+    a
+    (begin
+      (dotimes (i (/ n 2))
+        (push (pop a) l1 -1))
+      (while a
+        (push (pop a) l2 -1))
+      (set 'l1 (mergesort l1))
+      (set 'l2 (mergesort l2))
+      (merge l1 l2)
+    )
+  )
+)
+
+(mergesort '(1 3 8 4 2 10 3))
+;-> (1 2 3 3 4 8 10)
+
+(mergesort (randomize (sequence 1 100)))
+;-> (1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 
+;->  26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 
+;->  48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 
+;->  70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 
+;->  92 93 94 95 96 97 98 99 100)
+
+Proviamo a scrivere una versione leggermente diversa:
+
+(define (merge1 a b , c)
+  (while (and a b)
+    (if (> (a 0) (b 0))
+        (push (pop b) c -1)
+        (push (pop a) c -1)
+    )
+  )
+  (while a (push (pop a) c -1))
+  (while b (push (pop b) c -1))
+  c
+)
+
+(merge1 '(1 7 15) '(2 8 16))
+;-> (1 2 7 8 15 16)
+
+(define (mergesort1 a , n l1 l2)
+  (set 'n (length a))
+  (if (<= n 1)
+    a
+    (merge1 (mergesort(0 (/ n 2) a) ) (mergesort ((/ n 2) a)))
+  )
+)
+
+(mergesort1 (randomize (sequence 1 100)))
+;-> (1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 
+;->  26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 
+;->  48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 
+;->  70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 
+;->  92 93 94 95 96 97 98 99 100)
+
+Vediamo la differenza di velocità:
+
+(silent (setq data (randomize (sequence 1 100000))))
+
+(time (mergesort data) 10)
+;-> 7724.649
+
+(time (mergesort1 data) 10)
+;-> 7466.869
+
+Proviamo la funzione "sort" di newLisp:
+
+(time (sort data) 10)
+;-> 406.836
+
+Nota: Questo algoritmo ha complessità temporale O(n log n) (sempre!).
+
+
+-----------------------------
+Cifre crescenti e decrescenti
+-----------------------------
+
+Scrivere un programma che genera una lista con le cifre da 1 a n e quelle da (n - 1) a 1. Ad esempio, se n = 5, il programma dovrebbe generare (1 2 3 4 5 4 3 2 1). È consentito utilizzare solo un singolo ciclo e 0 < n < 10.
+
+Nella prima soluzione sfruttiamo il fatto che newLISP permette di aggiungere un elemento sia all'inizio che alla fine di una lista:
+
+(define (cifre1 n)
+  (let (out '())
+    (push n out)
+    ; ciclo unico
+    (for (i (- n 1) 1 -1)
+      (push i out)    ; aggiunge all'inizio della lista
+      (push i out -1) ; aggiunge alla fine della lista
+    )
+    out))
+
+(cifre1 5)
+;-> (1 2 3 4 5 4 3 2 1)
+
+Nella seconda soluzione utilizziamo la funzione "sequence":
+
+(define (cifre2 n)
+  (let (out '())
+  (extend out (sequence 1 n) (sequence (- n 1) 1))))
+
+(cifre2 5)
+;-> (1 2 3 4 5 4 3 2 1)
+
+Vediamo la velocità delle due funzioni:
+
+(time (cifre1 9) 100000)
+;-> 155.373
+
+(time (cifre2 9) 100000)
+;-> 79.931
+
+
+---------------
+Somma di numeri
+---------------
+
+Dati due interi positivi M e N, trovare N numeri che si sommano a M e la differenza tra il più alto e il più basso di questi numeri non dove essere più di uno. Ad esempio: con M = 26 e N = 7, il risultato è (4 4 4 4 4 3 3).
+
+(define (somma n m)
+  (let ((q (/ m n))
+        (r (% m n)))
+    (append (dup (+ q 1) r)
+            (dup q (- n r)))))
+
+(somma 7 26)
+;-> (4 4 4 4 4 3 3)
+
+(somma 2 10)
+;-> (5 5)
+
+(somma 5 11)
+;-> (3 2 2 2 2)
+
+(somma 11 3)
+;-> (1 1 1 0 0 0 0 0 0 0 0)
+
+
+----------------
+Operatori logici
+----------------
+
+newLISP mette a disposizione gli operatori logici AND, OR e NOT. Possiamo scrivere altri operatori logici utilizzando quelli disponibili:
+
+Funzioni booleane:
+
+(define (nand a b) (not (and a b)))
+(define (nor a b) (not (or a b)))
+(define (xor a b) (if (nand a b) (or a b) nil))
+(define (xnor a b) (not (xor a b)))
+
+Funzioni bitwise:
+
+(define (~& a b) (~ (& a b))) ; nand, bitwise
+(define (~| a b) (~ (| a b))) ; nor, bitwise
+
+Lo xor is è disponibile come funzione integratea "^":
+
+(define (~^ a b) (~ (^ a b))) ; xnor, bitwise
+
+Proviamo le funzioni:
+
+(setq lst1 '(true true nil nil))
+(setq lst2 '(true nil true nil))
+
+(map and lst1 lst2)
+;-> (true nil nil nil)
+
+(map or lst1 lst2)
+;-> (true true true nil)
+
+(map nand lst1 lst2)
+;-> (nil true true true)
+
+(map nor lst1 lst2)
+;-> (nil nil nil true)
+
+(map xor lst1 lst2)
+;-> (nil true true nil)
+
+(map xnor lst1 lst2)
+;-> (true nil nil true)
+
+newLISP non opera una valutazione completa delle espressioni che contengono più di un operatore logico se una bvalutazione parziale è sufficiente per valutare correttamente il risultato:
+Ad esempio:
+
+(setq a nil)
+(if (or (> 4 3) (setq a 10)))
+;-> true
+
+Poichè la prima espressione è vera (> 4 3) newLISP non valuta la successiva espressione (setq a 10) poichè non è necessaria per valutare l'intera espressione a "true":
+
+a
+;-> nil
+
+Lo stesso con l'operatore AND:
+
+(setq b nil)
+(if (and (< 4 3) (setq b 10)))
+;-> nil
+
+Poichè la prima espressione è vera (< 4 3) newLISP non valuta la successiva espressione (setq b 10) poichè non è necessaria per valutare l'intera espressione a "nil":
+
+b
+;-> nil
 
 
 ===========
@@ -55146,10 +55453,10 @@ newLISP non ha problemi di funarg perché segue una semplice regola: le variabil
 
 La cella LISP e cons
 --------------------
-In Common Lisp and Scheme, la parte cdr (rest) della cella Lisp può essere utilizzata per contenere un altro oggetto LISPoggetto, nel qual caso abbiamo una coppia puntata. In newLISP, non ci sono coppie puntate. Invece, ciascuna cella di newLISP contiene un oggetto e un puntatore ad un altro oggetto se la cella fa parte di una lista. Come risultato in newLISP la funzione "cons" si comporta diversamente dagli altri LISP.
+In Common Lisp e Scheme, la parte cdr (rest) della cella Lisp può essere utilizzata per contenere un altro oggetto LISP, nel qual caso abbiamo una coppia puntata. In newLISP, non ci sono coppie puntate. Invece, ciascuna cella di newLISP contiene un oggetto e un puntatore ad un altro oggetto se la cella fa parte di una lista. Come risultato in newLISP la funzione "cons" si comporta diversamente dagli altri LISP.
 
 Common Lisp e Scheme
-(cons 'a' b) => (a. b)  ;una coppia puntata
+(cons 'a' b) => (a . b)  ;una coppia puntata
 [a | b]
 
 newLISP

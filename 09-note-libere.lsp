@@ -165,6 +165,7 @@ Funzioni di primo ordine
 Tutte le funzioni di primo ordine devono iniziare dalla colonna 1.
 
 Chiusura parentesi
+------------------
 Le parentesi chiuse non devono essere precedute dal carattere newline.
 
 Esempio:
