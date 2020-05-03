@@ -454,6 +454,7 @@ NOTE LIBERE
   Cifre crescenti e decrescenti
   Somma di numeri
   Operatori logici
+  Quick select
 
 
 APPENDICI
@@ -51373,6 +51374,87 @@ Lo stesso con l'operatore AND:
 Poichè la prima espressione è vera (< 4 3) newLISP non valuta la successiva espressione (setq b 10) poichè non è necessaria per valutare l'intera espressione a "nil":
 
 b
+;-> nil
+
+
+------------
+Quick Select
+------------
+QuickSelect è un algoritmo di selezione per trovare l'elemento K-esimo più piccolo in un elenco non ordinato.
+
+Algoritmo
+Dopo aver trovato il pivot (una posizione (indice) che suddivide la lista in due parti: ogni elemento a sinistra è inferiore al pivot e ogni elemento a destra è più grande del pivot) l'algoritmo ricorre solo per la parte che contiene il k-esimo elemento più piccolo.
+Se l'indice dell'elemento partizionato (pivot) è superiore a k, l'algoritmo ricorre per la parte sinistra. 
+Se l'indice (pivot) è uguale a k, allora abbiamo trovato il k-esimo elemento più piccolo e viene restituito. 
+Se l'indice (pivot) è inferiore a k, l'algoritmo ricorre per la parte destra
+
+Vediamo lo pseudocodice:
+
+A) Selezione
+quickSelect(list, left, right, k)
+   if left = right
+      return list[left]
+   // Select a pivotIndex between left and right
+   pivotIndex := partition(list, left, right, pivotIndex)
+   if k = pivotIndex
+      return list[k]
+   else if k < pivotIndex
+      right := pivotIndex - 1
+   else
+      left := pivotIndex + 1
+
+B) Partizione
+La partizione è trovare il pivot come menzionato sopra. (Ogni elemento a sinistra è inferiore al pivot e ogni elemento a destra è più grande del pivot) Esistono due algoritmi per trovare il pivot della partizione: Lomuto e Hoare
+
+Partizione Lomuto
+Questa partizione sceglie un pivot che in genere è l'ultimo elemento della lista. L'algoritmo mantiene l'indice i mentre esegue la scansione della lista utilizzando un altro indice j in modo tale che gli elementi da i (compresi) siano minori o uguali al pivot e che gli elementi da i+1 a j-1 (inclusi) siano maggiori del pivot.
+Questo schema degrada a O (n^2) quando la lista è ordinata.
+
+Lomuto(A, lo, hi) is
+   pivot := A[hi]
+   i := lo    
+   for j := lo to hi - 1 do
+       if A[j] < pivot then
+           if i != j then
+               swap A[i] with A[j]
+           i := i + 1
+   swap A[i] with A[hi]
+   return i
+
+Partizione Hoare
+Hoare utilizza due indici che iniziano alle estremità della lista da partizionare, quindi si muovono l'uno verso l'altro fino a quando non rilevano un'inversione: una coppia di elementi, uno maggiore o uguale al pivot, uno inferiore o uguale al pivot, che sono nell'ordine sbagliato l'uno rispetto all'altro.
+Gli elementi invertiti vengono quindi scambiati. Quando gli indici si incontrano, l'algoritmo si interrompe e restituisce l'indice finale. Esistono molte varianti di questo algoritmo.
+
+Hoare(A, lo, hi) is
+   pivot := A[lo]
+   i := lo - 1
+   j := hi + 1
+   loop forever
+       do
+           i := i + 1
+       while A[i] < pivot
+       do
+           j := j - 1
+       while A[j] > pivot
+       if i >= j then
+           return j
+       swap A[i] with A[j]
+
+Implementazione
+Per definire questa funzione non seguiremo lo pseudocodice, ma utilizzeremo le primitive di newLISP perchè sono più veloci (in particolare la funzione "sort").
+Il parametro k può variare da 1 fino alla lunghezza della lista.
+
+(define (kthsmall lst k)
+  (cond ((or (> k (length lst)) (< k 1)) nil)
+        (true ((sort lst) (- k 1)))))
+
+(kthsmall '(7 10 4 3 20 15) 1)
+;-> 3
+(kthsmall '(7 10 4 3 20 15) 6)
+;-> 20
+(kthsmall '(7 10 4 3 20 15) 0)
+;-> nil
+(kthsmall '(7 10 4 3 20 15) 7)
 ;-> nil
 
 

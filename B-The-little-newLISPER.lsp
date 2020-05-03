@@ -1,4 +1,5 @@
 (load "_newlisper.lsp")
+
  +======================+
  | The little newLISPER |
  +======================+
@@ -66,6 +67,14 @@ La cella LISP in in newLISP
                        \
                        [*] -> [4] -> [3]
 
+------------------------
+Operatori di uguaglianza
+------------------------
+In newLISP esiste un solo operatore di uguaglianza per numeri, atomi, liste, S-espressioni che è "=".
+Quosto operatore sostituisce tutti gli operatori definiti:
+"eq?", "o=", "eqan?", "equal?", "eqlist?" "eqset?"
+
+-----------
 Definizioni
 -----------
 
@@ -662,6 +671,8 @@ Semplifichiamo la funzione "multirember":
 ;-> (b c d)
 (multirember 'a '(a a a a))
 ;-> ()
+(multirember 'a '(1 a 2 a 3))
+;-> (1 2 3)
 
 Come funziona ?
 ((null? lst) nil)
@@ -1153,7 +1164,7 @@ Utilizzando la funzione "uno?" possiamo riscrivere la funzione "rempick":
 * CAPITOLO 5: *Oh My Gawd*: It's Full of Stars *
 ************************************************
 
-In questo capitolo scriviamo funzioni che hanno S-espressioni come argomenti.
+Adesso scriviamo funzioni che hanno S-espressioni come argomenti.
 
 Scriviamo una funzione "rember*" che rimuove un atomo da una S-espressione:
 
@@ -1412,7 +1423,7 @@ Scriviamo la funzione "rember":
 (define (rember S lst)
     (cond
      ((null? lst) '())
-     ((equal? (first lst) S) (rest lst))
+     ((= (first lst) S) (rest lst))
      (true
       (cons (first lst)
         (rember S (rest lst))))))
@@ -1429,6 +1440,8 @@ Scriviamo la funzione "rember":
 ;-> (x y z)
 (rember 'a '(b (a) c))
 ;-> (b (a) c))
+(rember 'a '(1 2 3 a 4))
+;-> (1 2 3 4)
 (rember 'a '())
 ;-> ()
 (rember 'mint '(lamb chops and mint jelly))
@@ -1623,8 +1636,1112 @@ Occorre fare attenzione alle ombre (shadows).
 * CAPITOLO 7: Friends and Relations *
 *************************************
 
-Un "insieme" (set) è una lista di atomi univoci (non sono ripetuti nella lista).
+Un "set" (insieme) è una lista di atomi univoci (non sono ripetuti nella lista).
+La lista vuota '() è un "set".
 
+Un "l-set" è:
+- ()
+- (cons [set] [l-set])
+
+Una "pair" (coppia) è:
+- (cons [s-exp] [s-exp])
+
+Una "rel" (relazione) è:
+- [set di pair]
+
+Una funzione "fun" è:
+- [set di pair] dove (firsts rel) è un [set]
+
+Una funzione "fullfun" è:
+- [set di pair] dove (seconds rel) è un [set]
+
+Vediamo quali funzioni precedenti ci servono:
+
+Funzione "firsts"
+
+(define (firsts l)
+    (cond
+     ((null? l) '())
+     (true (cons (first (first l))
+             (firsts (rest l))))))
+
+(firsts '((a 1) (b 2)))
+;-> (a b))
+(firsts '(((f) a) ((g) b)))
+;-> ((f) (g)))
+(firsts '((a) (b)))
+;-> (a b)
+(firsts '())
+;-> ()
+(firsts '((a b) (c) (d)))
+;-> (a c d)
+(firsts '(((a b) c) (d e f) ((g) h)))
+;-> ((a b) d (g))
+(firsts '((apple peach pumpkin)
+          (plum pear cherry)
+          (grape raisin pea)
+          (bean carrot eggplant)))
+;-> (apple plum grape bean))
+(firsts '((a b) (c d) (e f)))
+;-> (a c e)
+(firsts '((five plums)
+          (four)
+          (eleven green organges)))
+;-> (five four eleven)
+(firsts '(((five plums) four)
+          (eleven green organges)
+          ((no) more)))
+;-> five plums) eleven (no)))
+
+Funzione "member?"
+
+(define (member? a lat)
+    (cond
+     ((null? lat) nil)
+     (true (or (= (first lat) a)
+               (member? a (rest lat))))))
+
+(member? 'x '(a b c))
+;-> nil
+(member? 'x '(a x c))
+;-> true
+(member? 'x '(x b c))
+;-> true
+(member? 'x '(a b x))
+;-> true
+(member? '2 '(a 2 c))
+;-> true
+(member? 'b '(a (b) c))
+;-> nil
+(member? 'x '())
+;-> nil
+
+(define (multirember a lat)
+    (cond
+     ((null? lat) '())
+     ((= (first lat) a) (multirember a (rest lat)))
+     (true (cons (first lat) (multirember a (rest lat))))))
+
+(multirember 'a '())
+;-> ()
+(multirember 'x '(x a b x c d x))
+;-> (a b c d))
+(multirember '(a b) '(x y (a b) z (a b)))
+;-> (x y z))
+
+Scriviamo la funzione "set?":
+
+(define (set? lat)
+    (cond
+     ((null? lat) true)
+     ((member? (first lat) (rest lat)) nil)
+     (true (set? (rest lat)))))
+
+(set? '(apple peaches apple plum))
+;-> nil
+(set? '(apple peaches pears plums))
+;-> true
+(set? '())
+;-> true
+(set? '(apple 3 pear 4 9 apple 3 4))
+;-> nil
+(set? '(apple banana apple))
+;-> nil
+(set? '(apple banana peaches banana))
+;-> nil
+
+Scriviamo la funzione "makeset?" con "member?":
+
+(define (makeset lat)
+    (cond
+     ((null? lat) '())
+     ((member? (first lat) (rest lat)) (makeset (rest lat)))
+     (true (cons (first lat) (makeset (rest lat))))))
+
+(makeset '(apple peach pear peach plum apple lemon peach))
+;-> (pear plum apple lemon peach)
+(makeset '(banana peach banana))
+;-> (peach banana)
+(makeset '(apple 3 pear 4 9 apple 3 4))
+;-> (pear 9 apple 3 4)
+
+Scriviamo la funzione "makeset?" con "multirember?":
+
+(define (makeset lat)
+    (cond
+     ((null? lat) '())
+     (true (cons (first lat)
+             (makeset
+              (multirember (first lat) (rest lat)))))))
+
+(makeset '(apple peach pear peach plum apple lemon peach))
+;-> (apple peach pear plum lemon))
+(makeset '(banana peach banana))
+;-> (banana peach))
+(makeset '(apple 3 pear 4 9 apple 3 4))
+;-> (apple 3 pear 4 9))
+
+Scriviamo la funzione "subset?"
+
+(define (subset? s1 s2)
+    (cond
+     ((null? s1) true)
+     ((member? (first s1) s2) (subset? (rest s1) s2))
+     (true nil)))
+
+(subset? '(5 chicken wings) '(5 hamburgers 2 pieces fried chicken and light duckling wings))
+;-> true
+(subset? '(4 pounds of horseradish) '(four pounds chicken and 5 ounces horseradish))
+nil
+
+Scriviamo la funzione "subset?" con la funzione "and":
+
+(define (subset? s1 s2)
+    (cond
+     ((null? s1) true)
+     (true
+      (and (member? (first s1) s2) (subset? (rest s1) s2)))))
+
+(subset? '(5 chicken wings) '(5 hamburgers 2 pieces fried chicken and light duckling wings))
+;-> true
+(subset? '(4 pounds of horseradish) '(four pounds chicken and 5 ounces horseradish))
+;-> nil
+
+Scriviamo la funzione "eqset?":
+Due set, set1 e set2, sono uguali se set1 è un sottoinsieme di set2 e set2 è un sottoinsieme di set1.
+
+(define (eqset? set1 set2)
+    (and (subset? set1 set2) (subset? set2 set1)))
+
+(eqset? '(6 large chickens with wings) '(6 chickens with large wings))
+;-> true
+(eqset? '(6 large chickens with wings) '(6 chickens with wings))
+;-> nil
+
+Scriviamo la funzione "intersect?":
+Un'intersezione di due insiemi è un insieme i cui membri sono membri di entrambi i set. 
+"intersect?" restituisce true se 'set1' ha elementi che sono anche membri di 'set2'.
+
+(define (intersect? set1 set2)
+    (cond
+     ((null? set1) nil)
+     (true (or (member? (first set1) set2)
+               (intersect? (rest set1) set2)))))
+
+(intersect? '(stewed tomatoes and macaroni) '(macaroni and cheese))
+;-> true
+(intersect? '(a b c) '(x y z))
+;-> nil
+(intersect? '(a b c) '())
+;-> nil
+(intersect? '() '(a b c))
+;-> nil
+(intersect? '() '())
+;-> nil
+
+Scriviamo la funzione "intersects":
+
+(define (intersects set1 set2)
+    (cond
+     ((null? set1) '())
+     ((member? (first set1) set2)
+      (cons (first set1) (intersects (rest set1) set2)))
+     (true (intersects (rest set1) set2))))
+
+(intersect '(stewed tomatoes and macaroni) '(macaroni and cheese))
+;-> (and macaroni)
+(intersect '(a b c) '())
+;-> ()
+(intersect '() '(x y z))
+;-> ()
+(intersect '() '(x y z))
+;-> ()
+
+Scriviamo la funzione "unions":
+
+(define (unions set1 set2)
+    (cond
+     ((null? set1) set2)
+     ((member? (first set1) set2) (unions (rest set1) set2))
+     (true (cons (first set1) (unions (rest set1) set2)))))
+
+(unions '(stewed tomatoes and macaroni casserole) '(macaroni and cheese))
+;-> (stewed tomatoes casserole macaroni and cheese)
+
+(unions '(a b c) '())
+;-> (a b c)
+(unions '() '(x y z))
+;-> (x y z))
+(unions '() '())
+;-> ())
+
+Scriviamo la funzione "differences":
+
+(define (differences  set1 set2)
+    (cond
+     ((null? set1) '())
+     ((member? (first set1) set2) (differences (rest set1) set2))
+     (true (cons (first set1) (differences (rest set1) set2)))))
+
+(difference '(a b c) '(b c))
+;-> (a)
+(difference '(a b c) '(a b c))
+;-> ()
+(difference '(a b c) '(d e))
+;-> (a b c)
+
+Scriviamo la funzione "intersectall":
+Restituisce l'intersezione di tutti gli insiemi in 'l-set'. Invece di (null? L-set), testiamo (null? (rest l-set)) e restituiamo (first l-set) come valore perché (intersects '(a b c)' ()) restituisce '().
+
+(define (intersectall l-set)
+    (cond
+     ((null? (rest l-set)) (first l-set))
+     (true (intersect (first l-set) (intersectall (rest l-set))))))
+
+(intersectall '((6 pears and)
+                (3 peaches and 6 peppers)
+                (8 pears and 6 plums)
+                (and 6 prunes with some apples)))
+;-> (6 and)
+(intersectall '((6 pears and)
+                (3 peaches and 6 peppers)
+                ()
+                (and 6 prunes with some apples)))
+;-> ()
+
+Una coppia (pair) è una lista che contiene due S-espressioni.
+
+Scriviamo la funzione "pair?":
+
+(define (a-pair? l)
+    (cond
+     ((atom? l) nil)
+     ((null? l) nil)
+     ((null? (rest l)) nil)
+     ((null? (rest (rest l))) true)
+     (true nil)))
+
+(a-pair? '(pear pear))
+;-> true
+(a-pair? '(3 7))
+;-> true
+(a-pair? '((2) (pair)))
+;-> true
+(a-pair? '())
+;-> nil
+(a-pair? 'a)
+;-> nil
+
+Scriviamo la funzione "firstp" che estrae il primo elemento di una coppia (pair) o lista :
+
+(define (firstp p) (first p))
+
+(firstp '(a b))
+;-> a
+
+Scriviamo la funzione "secondp" che estrae il secondo elemento di una coppia (pair) o lista:
+
+(define (secondp p) (first (rest p)))
+
+(secondp '(a b))
+;-> b
+
+Scriviamo la funzione "build" che crea una coppia (pair) con due S-espressioni:
+
+(define (build s1 s2) (cons s1 (cons s2 '())))
+
+(build 'a 'b)
+;-> (a b)
+
+Scriviamo la funzione "thirdp" che estrae il terzo elemento di una lista:
+
+(define (thirdp l) (first (rest (rest l))))
+
+(thirdp '(a b c d e))
+;-> c
+
+Una relazione (rel) è una lista di coppie (list of pairs).
+
+Una funzione finita (fun) è una lista di coppie in cui i primi elementi delle coppie sono univoci tra loro.
+
+Scriviamo la funzione "fun?":
+
+(define (fun? rel) (set? (firsts rel)))
+
+(fun? '((8 3) (4 2) (7 6) (6 2) (3 4)))
+;-> true
+(fun? '((d 4) (b 0) (b 9) (e 5) (g 4)))
+;-> nil
+
+Scriviamo la funzione "revrel" che restituisce una relazione con tutti gli elementi delle coppie invertiti:
+
+(define (revrel rel)
+    (cond
+     ((null? rel) '())
+     (true (cons (build (secondp (first rel))
+                        (firstp (first rel)))
+             (revrel (rest rel))))))
+
+(revrel '((8 a) (pumpkin pie) (got sick)))
+;-> '((a 8) (pie pumpkin) (sick got)))
+(revrel '((a 1) (b 2) (c 3)))
+;-> ((1 a) (2 b) (3 c)))
+
+Riscriviamo "revrel" senza le funzioni "build", "firstp" and "secondp":
+
+(define (revrel rel)
+    (cond
+     ((null? rel) '())
+     (true (cons (cons (first (rest (first rel)))
+                   (cons (first (first rel)) '()))
+             (revrel (rest rel))))))
+
+(revrel '((8 a) (pumpkin pie) (got sick)))
+;-> ((a 8) (pie pumpkin) (sick got)))
+(revrel '((a 1) (b 2) (c 3)))
+;-> ((1 a) (2 b) (3 c)))
+
+Scriviamo la funzione "revpair" che inverte i due elementi di una coppia (pair):
+
+(define (revpair p)
+    (build (secondp p) (first p)))
+
+(revpair '(a b))
+;-> (b a)
+
+Riscriviamo "revrel" con la funzione "revpair":
+
+(define (revrel rel)
+    (cond
+     ((null? rel) '())
+     (true (cons (revpair (first rel))
+             (revrel (rest rel))))))
+
+(revrel '((8 a) (pumpkin pie) (got sick)))
+;-> ((a 8) (pie pumpkin) (sick got)))
+
+(revrel '((a 1) (b 2) (c 3)))
+;-> ((1 a) (2 b) (3 c)))
+
+Scriviamo la funzione "seconds":
+
+(define (seconds s)
+    (cond
+     ((null? s) '())
+     (true (cons (first (rest (first s)))
+             (seconds (rest s))))))
+
+(seconds '((a 1) (b 2) (c 3)))
+;-> (1 2 3))
+
+Scriviamo la funzione "fullfun?" che restituisce true se una S-espressione formata da coppie ha tutti i secondi elementi delle coppie diversi:
+
+(define (fullfun? fun)
+    (set? (seconds fun)))
+
+(fullfun? '((8 3) (4 8) (7 6) (6 2) (3 4)))
+;-> true
+(fullfun? '((grape raisin) (plum prune) (stewed prune)))
+;-> nil
+
+;; one-to-one?: [rel] -> boolean
+;; This is another implementation of fullfun?.
+;; Page 122
+
+Scriviamo la funzione "one-to-one?" che è analoga a "fullfun?":
+
+(define (one-to-one? fun)
+    (fun? (revrel fun)))
+
+(fullfun? '((8 3) (4 8) (7 6) (6 2) (3 4)))
+;-> true
+(fullfun? '((grape raisin) (plum prune) (stewed prune)))
+;-> nil
+
+
+***********************************
+* CAPITOLO 8: Lambda the Ultimate *
+***********************************
+
+;; rember-f: fun [atom] [lat] -> [lat]
+;; Page 126
+
+(define (rember-f test? a lst)
+    (cond
+     ((null? lst) '())
+     (true (cond
+            ((test? (first lst) a) (rest lst))
+            (true (cons (first lst)
+                    (rember-f test? a (rest lst))))))))
+
+(rember-f = 5 '(6 5 2 3))
+;-> (6 2 3)
+
+(test "rember-f"
+      (rember-f eq? 'jelly '(jelly beans are good))
+      '(beans are good))
+
+(test "rember-f"
+      (rember-f equal? '(pop corn) '(lemonade (pop corn) and (cake)))
+      '(lemonade and (cake)))
+
+;; rember-f: fun [atom] [lat] -> [lat]
+;; 1. revision of rember-f
+;; Page 126
+(define rember-f
+  (lambda (test? a l)
+    (cond
+     ((null? l) '())
+     ((test? (car l) a) (cdr l))
+     (else (cons (car l)
+             (rember-f test? a (cdr l)))))))
+
+(test "rember-f - 1.revision"
+      (rember-f = 5 '(6 5 2 3))
+      '(6 2 3))
+
+(test "rember-f - 1.revision"
+      (rember-f eq? 'jelly '(jelly beans are good))
+      '(beans  are good))
+
+(test "rember-f - 1.revision"
+      (rember-f equal? '(pop corn) '(lemonade (pop corn) and (cake)))
+      '(lemonade and (cake)))
+
+;; eq?-c: [atom] -> fun
+;; Page 127
+(define eq?-c
+  (lambda (a)
+    (lambda (x)
+      (eq? x a))))
+
+(test "eq?-c"
+      ((eq?-c 'x) 'x) #t)
+
+(test "eq?-c"
+      ((eq?-c 'x) 'b) #f)
+
+;; eq?-salad: [atom] -> boolean
+;; Page 128
+(define eq?-salad (eq?-c 'salad))
+
+(test "eq?-salad"
+      (eq?-salad 'salad) #t)
+
+(test "eq?-salad"
+      (eq?-salad 'tuna) #f)
+
+;; rember-f: fun -> fun
+;; Returns a procedure which returns a [listof sexp] where  atom 'a'
+;; is removed if 'test?' is #t.
+;; 2. revision of rember-f
+;;
+;; Page 129
+(define rember-f
+  (lambda (test?)
+    ;; [atom] [listof sexp] -> [listof sexp]
+    (lambda (a l)
+      (cond
+       ((null? l) '())
+       ((test? (car l) a) (cdr l))
+       (else (cons (car l) ((rember-f test?) a (cdr l))))))))
+
+(test "rember-f - 2.revision"
+      ((rember-f =) 5 '(6 5 2 3))
+      '(6 2 3))
+
+(test "rember-f - 2.revision"
+      ((rember-f eq?) 'jelly '(jelly beans are good))
+      '(beans  are good))
+
+(test "rember-f - 2.revision"
+      ((rember-f equal?) '(pop corn) '(lemonade (pop corn) and (cake)))
+      '(lemonade and (cake)))
+
+(test "rember-f - 2.revision"
+      ((rember-f eq?) 'tuna '(shrimp salad and tuna salad))
+      '(shrimp salad and salad))
+
+(test "rember-f - 2.revision"
+      ((rember-f eq?) 'eq? '(equal? eq? equan? eqlist? eqpair?))
+      '(equal? equan? eqlist? eqpair?))
+
+;; rember-eq?: [atom] [lat] -> boolean
+;; Page 129
+(define rember-eq? (rember-f eq?))
+
+(test "rember-eq?"
+      (rember-eq? 'tuna '(tuna salad is good))
+      '(salad is good))
+
+(test "rember-eq?"
+      (rember-eq? 'x '(a b x c d))
+      '(a b c d))
+
+;; insertL-f: fun -> fun
+;; Page 130
+(define insertL-f
+  (lambda (test?)
+    ;; [atom] [atom] [listof s-exp] -> [listof s-exp]
+    (lambda (new old l)
+      (cond
+       ((null? l) '())
+       ((test? (car l) old) (cons new (cons old (cdr l))))
+       (else (cons (car l) ((insertL-f test?) new old (cdr l))))))))
+
+(test "insertL-f"
+      ((insertL-f =) 2 0 '(1 2 0 3 4 0))
+      '(1 2 2 0 3 4 0))
+
+;; insertR-f: fun -> fun
+;; Page 130
+(define insertR-f
+  (lambda (test?)
+    ;; [atom] [atom] [listof s-exp] -> [listof s-exp]
+    (lambda (new old l)
+      (cond
+       ((null? l) '())
+       ((test? (car l) old) (cons old (cons new (cdr l))))
+       (else (cons (car l) ((insertR-f test?) new old (cdr l))))))))
+
+(test "insertR-f"
+      ((insertR-f =) 7 0 '(1 2 0 6 5 0))
+      '(1 2 0 7 6 5 0))
+
+;; seqL: [atom] [atom] [listof s-exp] -> fun
+;; Page 131
+(define seqL
+  (lambda (new old l)
+    (cons new (cons old l))))
+
+(test "seqL"
+      (seqL 'x 'a '(b c))
+      '(x a b c))
+
+;; seqR: [atom] [atom] [listof s-exp] -> fun
+;; Page 131
+(define seqR
+  (lambda (new old l)
+    (cons old (cons new l))))
+
+(test "seqR"
+      (seqR 'x 'a '(b c))
+      '(a x b c))
+
+;; insert-g: fun -> fun
+;; Page 132
+(define insert-g
+  (lambda (seq)
+    ;; [atom] [atom] [listof s-exp] -> [listof s-exp]
+    (lambda (new old l)
+      (cond
+       ((null? l) '())
+       ((eq? (car l) old) (seq new old (cdr l)))
+       (else (cons (car l) ((insert-g seq) new old (cdr l))))))))
+
+(test "insert-g with seqL"
+      ((insert-g seqL) 'x 'o '(a b o c d o f))
+      '(a b x o c d o f))
+
+(test "insert-g with seqR"
+      ((insert-g seqR) 'x 'o '(a b o c d o f))
+      '(a b o x c d o f))
+
+
+;; insertRg: [atom] [atom] [listof s-exp] -> [listof s-exp]
+;; Page 132
+(define insertRg (insert-g seqR))
+
+(test "insertRg"
+      (insertRg 'x 'o '(a b o c d o f))
+      '(a b o x c d o f))
+
+;; insertLg: [atom] [atom] [listof s-exp] -> [listof s-exp]
+;; Page 132
+(define insertLg (insert-g
+                    (lambda (new old l)
+                      (cons new (cons old l)))))
+
+(test "insertLg"
+      (insertLg 'x 'o '(a b o c d o f))
+      '(a b x o c d o f))
+
+;; subst: [atom] [atom] [listof s-exp] -> [listof s-exp]
+;; Returns a new [listof s-exp] with [atom] 'old' replaced with [atom]
+;; 'new'
+;;
+;; Page 133
+(define subst
+  (lambda (new old l)
+    (cond
+     ((null? l) '())
+     ((eq? (car l) old) (cons new (cdr l)))
+     (else (cons (car l) (subst new old (cdr l)))))))
+
+(test "subst"
+      (subst 'x 'o '(a b o c d o))
+      '(a b x c d o))
+
+;; seqS: [atom] [atom] [listof s-exp] -> [listof s-exp]
+;; Page 133
+(define seqS
+  (lambda (new old l)
+    (cons new l)))
+
+(test "seqS"
+      (seqS 'a 'b '(x y z))
+      '(a x y z))
+
+;; subst: [atom] [atom] [listof s-exp] -> [listof s-exp]
+;; subst implemented with insert-g and seqS
+;; 1. revision of subst
+;;
+;; Page 133
+(define subst (insert-g seqS))
+
+(test "subst - 1.revision"
+      (subst 'x 'o '(a b o c d o))
+      '(a b x c d o))
+
+;; segrem: [atom] [atom] [listof s-exp] -> [listof s-exp]
+;; Page 133
+(define seqrem
+  (lambda (new old l) l))
+
+(test "seqrem"
+      (seqrem 'a 'b '(x y z))
+      '(x y z))
+
+;; rember: [atom] [listof s-exp] -> [listof s-exp]
+;; rember implemented with insert-g.
+;;
+;; Page 133
+(define rember
+  (lambda (a l)
+    ((insert-g seqrem) #f a l)))
+
+(test "rember" (rember 'a '(a b c)) '(b c))
+(test "rember" (rember 'a '(b a c)) '(b c))
+(test "rember" (rember 'a '(c b a)) '(c b))
+(test "rember" (rember 'a '(a b a)) '(b a))
+(test "rember" (rember 'a '(x y z)) '(x y z))
+(test "rember" (rember 'a '(b (a) c)) '(b (a) c))
+(test "rember" (rember 'a '()) '())
+
+;; first-sub-exp: [aexp] -> [aexp]
+;; Page 105, Chapter 6
+(define first-sub-exp
+  (lambda (aexp)
+    (car (cdr aexp))))
+
+(test "first-sub-exp"
+      (first-sub-exp '(o+ 1 3)) 1)
+
+;; second-sub-exp: [aexp] -> [aexp]
+;; Page 106, Chapter 6
+(define second-sub-exp
+  (lambda (aexp)
+    (car (cdr (cdr aexp)))))
+
+(test "second-sub-exp"
+      (second-sub-exp '(o+ 1 3)) 3)
+
+;; operator: [aexp] -> [s-exp]
+;; Page 106, Chapter 6
+(define operator
+  (lambda (aexp)
+    (car aexp)))
+
+(test "operator"
+      (operator '(o* 1 3)) 'o*)
+
+;; value: [aexp] -> [number]
+;; Page 134
+(define value
+  (lambda (nexp)
+    (cond
+     ((atom? nexp) nexp)
+     ((eq? (operator nexp) 'o+)
+      (o+ (value (first-sub-exp nexp))
+          (value (second-sub-exp nexp))))
+     ((eq? (operator nexp) 'o*)
+      (o* (value (first-sub-exp nexp))
+          (value (second-sub-exp nexp))))
+     (else
+      (oexpt (value (first-sub-exp nexp))
+             (value (second-sub-exp nexp)))))))
+
+(test "value"
+      (value '(o+ 1 3)) 4)
+
+(test "value"
+      (value '(o+ 1 (oexpt 3 4))) 82)
+
+;; atom-to-function: [atom] -> fun
+;; Page 134
+(define atom-to-function
+  (lambda (a)
+    (cond
+     ((eq? a 'o+) o+)
+     ((eq? a 'o*) o*)
+     (else oexpt))))
+
+(test "atom-to-function"
+      (atom-to-function 'o*) o*)
+
+(test "atom-to-function"
+      (atom-to-function 'o+) o+)
+
+;; value: [aexp] -> [number]
+;; 1. revision of value
+;; Page 135
+(define value
+  (lambda (nexp)
+    (cond
+     ((atom? nexp) nexp)
+     (else ((atom-to-function (operator nexp))
+            (value (first-sub-exp nexp))
+            (value (second-sub-exp nexp)))))))
+
+(test "value - 1.revision"
+      (value '(o+ 1 3)) 4)
+
+(test "value - 1.revision"
+      (value '(o+ 1 (oexpt 3 4))) 82)
+
+;; multirember: [atom] [lat] -> [lat]
+;; Page 135
+(define multirember
+  (lambda (a lat)
+    (cond
+     ((null? lat) '())
+     ((eq? (car lat) a) (multirember a (cdr lat)))
+     (else (cons (car lat) (multirember a (cdr lat)))))))
+
+(test "multirember"
+      (multirember 'a '())
+      '())
+
+(test "multirember"
+      (multirember 'x '(x a b x c d x))
+      '(a b c d))
+
+(test "multirember"
+      (multirember '(a b) '(x y (a b) z (a b)))
+      '(x y (a b) z (a b)))
+
+;; multirember-f: fun -> fun
+;; Page 135
+(define multirember-f
+  (lambda (test?)
+    ;; [atom] [lat] -> [lat]
+    (lambda (a lat)
+      (cond
+       ((null? lat) '())
+       ((test? (car lat) a) ((multirember-f test?) a (cdr lat)))
+       (else (cons (car lat) ((multirember-f test?) a (cdr lat))))))))
+
+
+(test "multirember-f"
+      ((multirember-f eq?) 'a '())
+      '())
+
+(test "multirember-f"
+      ((multirember-f eq?) 'x '(x a b x c d x))
+      '(a b c d))
+
+(test "multirember-f"
+      ((multirember-f eq?) '(a b) '(x y (a b) z (a b)))
+      '(x y (a b) z (a b)))
+
+(test "multirember-f"
+      ((multirember-f equal?) '(a b) '(x y (a b) z (a b)))
+      '(x y z))
+
+;; multirember-eq?: [atom] [lat] -> [lat]
+;; Page 136
+(define multirember-eq? (multirember-f eq?))
+
+(test "multirember-eq?"
+      (multirember 'a '())
+      '())
+
+(test "multirember-eq?"
+      (multirember 'x '(x a b x c d x))
+      '(a b c d))
+
+(test "multirember-eq?"
+      (multirember '(a b) '(x y (a b) z (a b)))
+      '(x y (a b) z (a b)))
+
+;; eq?-tuna: [atom] -> boolean
+;; Page 136
+(define eq?-tuna (eq?-c 'tuna))
+
+(test "eq?-tuna"
+      (eq?-tuna 'tuna) #t)
+
+(test "eq?-tuna"
+      (eq?-tuna 'pie) #f)
+
+;; multiremberT: func [lat] -> [lat]
+;; Page 137
+(define multiremberT
+  (lambda (test? lat)
+    (cond
+     ((null? lat) '())
+     ((test? (car lat)) (multiremberT test? (cdr lat)))
+     (else (cons (car lat) (multiremberT test? (cdr lat)))))))
+
+(test "multiremberT"
+      (multiremberT eq?-tuna '(shrimp salad tuna salad and tuna))
+      '(shrimp salad salad and))
+
+;; multirember&co: [atom] [lat] k -> [lat]
+;; col is short for "collector". A collector is sometimes called a
+;; "continuation".
+;; Page 137
+(define multirember&co
+  (lambda (a lat col)
+    (cond
+     ((null? lat) (col '() '()))
+     ((eq? (car lat) a)
+      (multirember&co a (cdr lat) (lambda (newlat seen)
+                                    (col newlat (cons (car lat) seen)))))
+     (else
+      (multirember&co a (cdr lat) (lambda (newlat seen)
+                                    (col (cons (car lat) newlat) seen)))))))
+
+;; a-friend: any any -> boolean
+;; Page 138
+(define a-friend
+  (lambda (x y)
+    (null? y)))
+
+(test "a-friend"
+      (a-friend '(a b c) '()) #t)
+
+(test "a-friend"
+      (a-friend '(a b) '(x)) #f)
+
+(test "multirember&co"
+      (multirember&co 'tuna '(strawberries tuna and swordfish) a-friend)
+      #f)
+
+(test "multirember&co"
+      (multirember&co 'tuna '(tuna) a-friend)
+      #f)
+
+;; new-friend: [lat] [s-exp] -> boolean
+;; Page 139
+(define new-friend
+  (lambda (newlat seen)
+    (a-friend newlat (cons '(tuna) seen))))
+
+(test "new-friend"
+      (new-friend '(a b c) '(x y z))
+      #f)
+
+(test "new-friend"
+      (new-friend '(a b c) '(x y z))
+      #f)
+
+(test "new-friend"
+      (new-friend '(a b c) '())
+      #f)
+
+;; latest-friend: [lat] [lat] -> boolean
+;; Page 139
+(define latest-friend
+  (lambda (newlat seen)
+    (a-friend (cons 'and newlat) seen)))
+
+(test "latest-friend"
+      (latest-friend '(a b c) '(x y))
+      #f)
+
+;; last-friend: [lat] [lat] -> [number]
+;; Page 140
+(define last-friend
+  (lambda (x y)
+    (length x)))
+
+(test "last-friend"
+      (last-friend '(a b c) '(x y z)) 3)
+
+(test "last-friend"
+      (last-friend '() '(x y z)) 0)
+
+;; multiinsertL: [atom] [atom] [lat] -> [lat]
+;; Page 141
+(define multiinsertL
+  (lambda (new old lat)
+    (cond
+     ((null? lat) '())
+     ((eq? (car lat) old) (cons new
+                            (cons old
+                              (multiinsertL new old (cdr lat)))))
+     (else (cons (car lat)
+             (multiinsertL new old (cdr lat)))))))
+
+(test "multiinsertL"
+      (multiinsertL 'x 'o '(a b o c d o))
+      '(a b x o c d x o))
+
+;; multiinsertR: [atom] [atom] [lat] -> [lat]
+;; Page 141
+(define multiinsertR
+  (lambda (new old lat)
+    (cond
+     ((null? lat) '())
+     ((eq? (car lat) old) (cons old
+                            (cons new
+                              (multiinsertR new old (cdr lat)))))
+     (else (cons (car lat)
+             (multiinsertR new old (cdr lat)))))))
+
+(test "multiinsertR"
+      (multiinsertR 'x 'o '(a b o c d o))
+      '(a b o x c d o x))
+
+;; multiinsertLR: [atom] [atom] [atom] [lat] -> [lat]
+;; Returns a [lat] with [atom] 'new' inserted to the left of
+;; 'oldL' and to the right of 'oldR'
+;;
+;; Page 141
+(define multiinsertLR
+  (lambda (new oldL oldR lat)
+    (cond
+     ((null? lat) '())
+     ((eq? (car lat) oldL)
+      (cons new (cons oldL (multiinsertLR new oldL oldR (cdr lat)))))
+     ((eq? (car lat) oldR)
+      (cons oldR (cons new (multiinsertLR new oldL oldR (cdr lat)))))
+     (else
+      (cons (car lat) (multiinsertLR new oldL oldR (cdr lat)))))))
+
+(test "multiinsertLR"
+      (multiinsertLR 'x 'o 'd '(a b o c d o))
+      '(a b x o c d x x o))
+
+;; multiinsertLR&co: [atom] [atom] [atom] [lat] k -> [lat]
+;; Example:
+;; (multiinsertLR&co 'salty 'fish 'chips '(chips and fish or fish and chips) list)
+;; -> ((chips salty and salty fish or salty fish and chips salty) 2 2)
+;; (multiinsertLR&co 'salty 'fish 'chips '(chips and fish or fish and chips) (lambda (x y z) (list y z)))
+;; -> (2 2)
+;; 
+;; Page 134
+(define multiinsertLR&co
+  (lambda (new oldL oldR lat col)
+    (cond
+     ((null? lat) (col '() 0 0))
+     ((eq? (car lat) oldL)
+      (multiinsertLR&co new oldL oldR (cdr lat)
+                        (lambda (newlat L R)
+                          (col (cons new (cons oldL newlat)) (add1 L) R))))
+     ((eq? (car lat) oldR)
+      (multiinsertLR&co new oldL oldR (cdr lat)
+                        (lambda (newlat L R)
+                          (col (cons oldR (cons new newlat)) L (add1 R)))))
+     (else
+      (multiinsertLR&co new oldL oldR (cdr lat)
+                        (lambda (newlat L R) (col (cons (car lat) newlat) L R)))))))
+
+(test "multiinsertLR&co"
+      (multiinsertLR&co 'salty 'fish 'chips
+                        '(chips and fish or fish and chips)
+                        list)
+      '((chips salty and salty fish or salty fish and chips salty) 2 2))
+
+(test "multiinsertLR&co"
+      (multiinsertLR&co 'salty 'fish 'chips
+                        '(chips and fish or fish and chips)
+                        (lambda (x y z) (list y z)))
+      '(2 2))
+
+;; even?: [number] -> boolean
+;; Page 144
+(define even?
+  (lambda (n)
+    (= (o* (oquotient n 2) 2) n)))
+
+(test "even?"
+      (even? 3) #f)
+
+(test "even?"
+      (even? 4) #t)
+
+;; evens-only*: [sexp-of number] -> [sexp-of number]
+;; Returns a [sexp-of number] with all odd numbers removed.
+;; Page 144
+(define evens-only*
+  (lambda (l)
+    (cond
+     ((null? l) '())
+     ((atom? (car l))
+      (cond
+       ((even? (car l)) (cons (car l) (evens-only* (cdr l))))
+       (else (evens-only* (cdr l)))))
+     (else (cons (evens-only* (car l)) (evens-only* (cdr l)))))))
+
+(test "evens-only*"
+      (evens-only* '(1 2 3 4 5 6 7 8))
+      '(2 4 6 8))
+
+(test "evens-only*"
+      (evens-only* '(1 2 (3 4 (5 6)) 7 8))
+      '(2 (4 (6)) 8))
+
+;; evens-only*&co: [sexp-of number] k -> [sexp-of number] [number] [number]
+;; Returns a [sexp-of number] with all odd numbers removed, the sum of
+;; the odd numbers and the result of multiplying the even numbers.
+;; 1.revision of evens-only*&co
+;; Page 145
+(define evens-only*&co
+  (lambda (l col)
+    (cond
+     ((null? l) (col '() 1 0))
+     ((atom? (car l))
+      (cond
+       ((even? (car l))
+        (evens-only*&co (cdr l)
+                        (lambda (newl p s)
+                          (col (cons (car l) newl)
+                               (o* (car l) p)
+                               s))))
+       (else
+        (evens-only*&co (cdr l)
+                        (lambda (newl p s)
+                          (col newl
+                               p
+                               (o+ (car l) s)))))))
+     (else
+      (evens-only*&co (car l)
+                      (lambda (al ap as)
+                        (evens-only*&co (cdr l)
+                                        (lambda (dl dp ds)
+                                          (col (cons al dl)
+                                               (o* ap dp)
+                                               (o+ as ds))))))))))
+
+(test "evens-only*&co"
+      (evens-only*&co '(1 2 3 4 5 6 7 8) list)
+      '((2 4 6 8) 384 16))
+
+;; [sexp-of number] [number] [number] -> [sexp-of number]
+;; Page 146
+(define the-last-friend
+  (lambda (newl product sum)
+    (cons sum (cons product newl))))
+
+(test "the-last-friend"
+      (the-last-friend '(a b) '(x y) '(e f))
+      '((e f) (x y) a b))
+
+(test "evens-only*&co with the-last-friend"
+      (evens-only*&co '((9 1 2 8) 3 10 ((9 9) 7 6) 2) the-last-friend)
+      '(38 1920 (2 8) 10 (() 6) 2))
 
 
 
@@ -1640,9 +2757,7 @@ The Ten Commandments
 The First Commandment
 ---------------------
 When recurring on a list of atoms, lat, ask two questions about it: (null? lat) and else.
-
 When recurring on a number, n, ask two questions about it: (zero? n) and else.
-
 When recurring on a list of S-expressions, l, ask three question about it: (null? l), (atom? (car l)), and else.
 
 
@@ -1659,12 +2774,10 @@ When building a list, describe the first typical element, and then cons it onto 
 The Fourth Commandment
 ----------------------
 Always change at least one argument while recurring.
-
 When recurring on a list of atoms, lat, use (cdr lat).
 When recurring on a number, n, use (sub1 n).
 And when recurring on a list of S-expressions, l, use (car l) and (cdr l) if neither (null? l) nor (atom? (car l)) are true.
 It must be changed to be closer to termination. The changing argument must be tested in the termination condition:
-
 When using cdr, test termination with null?
 When using sub1, test termination with zero?
 
@@ -1672,9 +2785,7 @@ When using sub1, test termination with zero?
 The Fifth Commandment
 ---------------------
 When building a value with +, always use 0 for the value of the terminating line, for adding 0 does not change the value of an addition.
-
 When building a value with x, always use 1 for the value of the terminating line, for multiplying by 1 does not change the value of a multiplication.
-
 When building a value with cons, always consider () for the value of the terminating line.
 
 

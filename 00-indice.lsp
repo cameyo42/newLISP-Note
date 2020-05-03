@@ -454,6 +454,7 @@ NOTE LIBERE
   Cifre crescenti e decrescenti
   Somma di numeri
   Operatori logici
+  Quick select
 
 
 APPENDICI
