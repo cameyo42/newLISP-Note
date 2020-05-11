@@ -2801,3 +2801,470 @@ http://en.feautec.pp.ru/store/libs/funlib.lsp
         '++ '-- 'p++ 'p-- 'second)
 
 
+; ========================
+;  LITTLE SCHEMER LIBRARY
+; ========================
+
+; Nome del file: "_newlisper.lsp"
+; Questa libreria contiene tutte le funzioni (finali) definite dal libro
+; "Little Schemer" di Friedman e Felleisen convertite in newLISP.
+
+; Per caricare la libreria: (load "_newlisper.lsp")
+
+(define (flat? lst)
+  (cond
+    ((null? lst) true)
+    ((atom? (first lst)) (flat? (rest lst)))
+    (true nil)))
+
+(define (member? atm lst)
+  (cond
+    ((null? lst) nil)
+    (true (or (= (first lst) atm)
+              (member? atm (rest lst))))))
+
+(define (rember atm lst)
+  (cond
+    ((null? lst) '())
+    ((= (first lst) atm) (rest lst))
+    (true (cons (first lst) (rember atm (rest lst))))))
+
+(define (firsts lst)
+  (cond
+      ((null? lst) '())
+      (true (cons (first (first lst)) (firsts (rest lst))))))
+
+(define (firsts2 lst)
+  (if (null? lst) '()
+    (let (L '())
+      (dolist (x lst)
+        (cond
+            ((null? x) (push '() L))
+            ((atom? x) (push x L))
+            ((atom? (first x)) (push (first x) L))
+            ((list? (first x)) (push (first x) L))
+        )
+      )
+      (reverse L))))
+
+(define (insertR nuovo vecchio lst)
+  (cond
+    ((null? lst) '())
+    (true (cond
+            ((= (first lst) vecchio)
+                (cons vecchio (cons nuovo (rest lst))))
+            (true (cons (first lst) (insertR nuovo vecchio (rest lst))))))))
+
+(define (insertL nuovo vecchio lst)
+  (cond
+    ((null? lst) '())
+    (true (cond
+            ((= (first lst) vecchio)
+                (cons nuovo (cons vecchio (rest lst))))
+            (true (cons (first lst) (insertL nuovo vecchio (rest lst))))))))
+
+(define (subst nuovo vecchio lst)
+    (cond
+     ((null? lst) '())
+     ((= (first lst) vecchio) (cons nuovo (rest lst)))
+     (true (cons (first lst) (subst nuovo vecchio (rest lst))))))
+
+(define (subst2 nuovo vecchio1 vecchio2 lst)
+    (cond
+      ((null? lst) '())
+      ((or (= (first lst) vecchio1) (= (first lst) vecchio2))
+       (cons nuovo (rest lst)))
+      (true (cons (first lst) (subst2 nuovo vecchio1 vecchio2 (rest lst))))))
+
+(define (multirember atm lst)
+  (cond
+    ((null? lst) '())
+    ((= (first lst) atm) (multirember atm (rest lst)))
+    (true (cons (first lst) (multirember atm (rest lst))))
+  )
+)
+
+(define (multiinsertR nuovo vecchio lst)
+    (cond
+     ((null? lst) '())
+     ((= (first lst) vecchio) (cons vecchio (cons nuovo (multiinsertR nuovo vecchio (rest lst)))))
+     (true (cons (first lst) (multiinsertR nuovo vecchio (rest lst))))))
+
+(define (multiinsertL nuovo vecchio lst)
+    (cond
+     ((null? lst) '())
+     ((= (first lst) vecchio) (cons nuovo (cons vecchio (multiinsertL nuovo vecchio (rest lst)))))
+     (true (cons (first lst) (multiinsertL nuovo vecchio (rest lst))))))
+
+(define (multisubst nuovo vecchio lst)
+    (cond
+     ((null? lst) '())
+     ((= (first lst) vecchio) (cons nuovo (multisubst nuovo vecchio (rest lst))))
+     (true (cons (first lst) (multisubst nuovo vecchio (rest lst))))))
+
+(define (add1 n) (++ n))
+
+(define (sub1 n) (-- n))
+
+(define (o+ n m)
+    (cond
+     ((zero? m) n)
+     (true (add1 (o+ n (sub1 m))))))
+
+(define (o- n m)
+    (cond
+     ((zero? m) n)
+     (true (sub1 (o- n (sub1 m))))))
+
+(define (addtup tup)
+    (cond
+     ((null? tup) 0)
+     (true (o+ (first tup) (addtup (rest tup))))))
+
+(define (o* n m)
+    (cond
+     ((zero? m) 0)
+     (true (o+ n (o* n (sub1 m))))))
+
+(define (tup+ tup1 tup2)
+    (cond
+     ((null? tup1) tup2)
+     ((null? tup2) tup1)
+     (true (cons (o+ (first tup1) (first tup2))
+             (tup+ (rest tup1) (rest tup2))))))
+
+(define (o> n m)
+    (cond
+     ((zero? n) nil)
+     ((zero? m) true)
+     (true (o> (sub1 n) (sub1 m)))))
+
+(define (o< n m)
+    (cond
+     ((zero? m) nil)
+     ((zero? n) true)
+     (true (o< (sub1 n) (sub1 m)))))
+
+(define (o= n m)
+    (cond
+     ((o> n m) nil)
+     ((o< n m) nil)
+     (else true)))
+
+(define (oexpt n m)
+    (cond
+     ((zero? m) 1)
+     (true (o* n (oexpt n (sub1 m))))))
+
+(define (oquotient n m)
+    (cond
+     ((o< n m) 0)
+     (true (add1 (oquotient (o- n m) m)))))
+
+(define (length- lst)
+    (cond
+     ((null? lst) 0)
+     (true (add1 (length- (rest lst))))))
+
+(define (pick n lst)
+    (cond
+     ((zero? (sub1 n)) (first lst))
+     (true (pick (sub1 n) (rest lst)))))
+
+(define (rempick n lst)
+    (cond
+     ((zero? (sub1 n)) (rest lst))
+     (true (cons (first lst) (rempick (sub1 n) (rest lst))))))
+
+(define (no-nums lst)
+    (cond
+     ((null? lst) '())
+     (true
+      (cond
+       ((number? (first lst)) (no-nums (rest lst)))
+       (true (cons (first lst) (no-nums (rest lst))))))))
+
+(define (all-nums lst)
+    (cond
+     ((null? lst) '())
+     ((number? (first lst)) (cons (first lst) (all-nums (rest lst))))
+     (true (all-nums (rest lst)))))
+
+(define (eqan? a1 a2)
+    (cond
+     ((and (number? a1) (number? a2)) (o= a1 a2))
+     ((and (number? a1) (number? a2)) (o= a1 a2))
+     ((or (number? a1) (number? a2) nil))
+     (true (= a1 a2))))
+
+(define (occur a lst)
+    (cond
+     ((null? lst) 0)
+     ((= (first lst) a) (add1 (occur a (rest lst))))
+     (true (occur a (rest lst)))))
+
+(define (one? n) (= n 1))
+
+(define (rempick n lst)
+    (cond
+     ((one? n) (rest lst))
+     (true (cons (first lst) (rempick (sub1 n) (rest lst))))))
+
+(define (rember* a S)
+    (cond
+     ((null? S) '())
+     ((atom? (first S))
+      (cond
+       ((= (first S) a) (rember* a (rest S)))
+       (true (cons (first S) (rember* a (rest S))))))
+     (true (cons (rember* a (first S)) (rember* a (rest S))))))
+
+(define (insertR* nuovo vecchio S)
+    (cond
+     ((null? S) '())
+     ((atom? (first S))
+      (cond
+       ((= (first S) vecchio) (cons vecchio (cons nuovo (insertR* nuovo vecchio (rest S)))))
+       (true (cons (first S) (insertR* nuovo vecchio (rest S))))))
+     (true (cons (insertR* nuovo vecchio (first S)) (insertR* nuovo vecchio (rest S))))))
+
+(define (occur* a S)
+    (cond
+     ((null? S) 0)
+     ((atom? (first S))
+      (cond
+       ((= (first S) a) (add1 (occur* a (rest S))))
+       (true (occur* a (rest S)))))
+     (true (o+ (occur* a (first S)) (occur* a (rest S))))))
+
+(define (subst* nuovo vecchio S)
+    (cond
+     ((null? S) '())
+     ((atom? (first S))
+      (cond
+       ((= (first S) vecchio) (cons nuovo (subst* nuovo vecchio (rest S))))
+       (true (cons (first S) (subst* nuovo vecchio (rest S))))))
+     (true (cons (subst* nuovo vecchio (first S)) (subst* nuovo vecchio (rest S))))))
+
+(define (insertL* nuovo vecchio S)
+    (cond
+     ((null? S) '())
+     ((atom? (first S))
+      (cond
+       ((= (first S) vecchio) (cons nuovo (cons vecchio (insertL* nuovo vecchio (rest S)))))
+       (true (cons (first S) (insertL* nuovo vecchio (rest S))))))
+     (true (cons (insertL* nuovo vecchio (first S)) (insertL* nuovo vecchio (rest S))))))
+
+(define (member* a S)
+    (cond
+     ((null? S) nil)
+     ((atom? (first S))
+      (or (= (first S) a) (member* a (rest S))))
+     (true (or (member* a (first S)) (member* a (rest S))))))
+
+(define (leftmost S)
+    (cond
+     ((atom? S) S)
+     (true (leftmost (first S)))))
+
+(define (eqan? a1 a2)
+    (cond
+     ((and (number? a1) (number? a2)) (= a1 a2))
+     ((or (number? a1) (number? a2) nil))
+     (true (= a1 a2))))
+
+(define (equal? s1 s2)
+    (cond
+     ((and (atom? s1) (atom? s2)) (eqan? s1 s2))
+     ((or (atom? s1) (atom? s2)) nil)
+     (true (eqlist? s1 s2))))
+
+(define (eqlist? lst1 lst2)
+    (cond
+     ((and (null? lst1) (null? lst2)) true)
+     ((or (null? lst1) (null? lst2)) nil)
+     (true
+      (and (equal? (first lst1) (first lst2))
+           (eqlist? (rest lst1) (rest lst2))))))
+
+(define (rember S lst)
+    (cond
+     ((null? lst) '())
+     ((equal? (first lst) S) (rest lst))
+     (true
+      (cons (first lst)
+        (rember S (rest lst))))))
+
+(define (numbered? aexp)
+    (cond
+     ((atom? aexp) (number? aexp))
+     (true
+      (and (numbered? (first aexp))
+           (numbered? (first (rest (rest aexp))))))))
+
+(define (value nexp)
+    (cond
+     ((atom? nexp) nexp)
+     ((= (first (rest nexp)) 'o+)
+      (o+ (value (first nexp))
+          (value (first (rest (rest nexp))))))
+     ((= (first (rest nexp)) 'o*)
+      (o* (value (first nexp))
+          (value (first (rest (rest nexp))))))
+     (true
+      (oexpt (value (first nexp))
+             (value (first (rest (rest nexp))))))))
+
+(define (first-sub-exp aexp)
+    (first (rest aexp)))
+
+(define (second-sub-exp aexp)
+    (first (rest (rest aexp))))
+
+(define (operator aexp)
+    (first aexp))
+
+(define (value nexp)
+    (cond
+     ((atom? nexp) nexp)
+     ((= (operator nexp) 'o+)
+      (o+ (value (first-sub-exp nexp))
+          (value (second-sub-exp nexp))))
+     ((= (operator nexp) 'o*)
+      (o* (value (first-sub-exp nexp))
+          (value (second-sub-exp nexp))))
+     (true
+      (oexpt (value (first-sub-exp nexp))
+             (value (second-sub-exp nexp))))))
+
+(define (first-sub-exp aexp)
+    (first aexp))
+
+(define (operator aexp)
+    (first (rest aexp)))
+
+(define (sero? n) (null? n))
+
+(define (edd1 n)  (cons '() n))
+
+(define (zub1 n) (rest n))
+
+(define (o+ n m)
+    (cond
+     ((sero? m) n)
+     (true (edd1 (o+ n (zub1 m))))))
+
+(define (lat? lst)
+  (cond
+    ((null? lst) true)
+    ((atom? (first lst)) (lat? (rest lst)))
+    (true nil)))
+
+(define (set? lat)
+    (cond
+     ((null? lat) true)
+     ((member? (first lat) (rest lat)) nil)
+     (true (set? (rest lat)))))
+
+(define (makeset lat)
+    (cond
+     ((null? lat) '())
+     (true (cons (first lat)
+             (makeset
+              (multirember (first lat) (rest lat)))))))
+
+(define (subset? s1 s2)
+    (cond
+     ((null? s1) true)
+     (true
+      (and (member? (first s1) s2) (subset? (rest s1) s2)))))
+
+(define (eqset? set1 set2)
+    (and (subset? set1 set2) (subset? set2 set1)))
+
+(define (intersect? set1 set2)
+    (cond
+     ((null? set1) nil)
+     (true (or (member? (first set1) set2)
+               (intersect? (rest set1) set2)))))
+
+(define (intersects set1 set2)
+    (cond
+     ((null? set1) '())
+     ((member? (first set1) set2)
+      (cons (first set1) (intersects (rest set1) set2)))
+     (true (intersects (rest set1) set2))))
+
+(define (unions set1 set2)
+    (cond
+     ((null? set1) set2)
+     ((member? (first set1) set2) (unions (rest set1) set2))
+     (true (cons (first set1) (unions (rest set1) set2)))))
+
+(define (differences  set1 set2)
+    (cond
+     ((null? set1) '())
+     ((member? (first set1) set2) (differences (rest set1) set2))
+     (true (cons (first set1) (differences (rest set1) set2)))))
+
+(define (intersectall l-set)
+    (cond
+     ((null? (rest l-set)) (first l-set))
+     (true (intersect (first l-set) (intersectall (rest l-set))))))
+
+(define (a-pair? l)
+    (cond
+     ((atom? l) nil)
+     ((null? l) nil)
+     ((null? (rest l)) nil)
+     ((null? (rest (rest l))) true)
+     (true nil)))
+
+(define (firstp p) (first p))
+
+(define (secondp p) (first (rest p)))
+
+(define (build s1 s2) (cons s1 (cons s2 '())))
+
+(define (thirdp l) (first (rest (rest l))))
+
+(define (fun? rel) (set? (firsts rel)))
+
+(define (revrel rel)
+    (cond
+     ((null? rel) '())
+     (true (cons (build (secondp (first rel))
+                        (firstp (first rel)))
+             (revrel (rest rel))))))
+
+(define (revrel rel)
+    (cond
+     ((null? rel) '())
+     (true (cons (cons (first (rest (first rel)))
+                   (cons (first (first rel)) '()))
+             (revrel (rest rel))))))
+
+(define (revpair p)
+    (build (secondp p) (first p)))
+
+(define (revrel rel)
+    (cond
+     ((null? rel) '())
+     (true (cons (revpair (first rel))
+             (revrel (rest rel))))))
+
+(define (seconds s)
+    (cond
+     ((null? s) '())
+     (true (cons (first (rest (first s)))
+             (seconds (rest s))))))
+
+(define (fullfun? fun)
+    (set? (seconds fun)))
+
+(define (one-to-one? fun)
+    (fun? (revrel fun)))
+
+'library-schemer-loaded
+
+

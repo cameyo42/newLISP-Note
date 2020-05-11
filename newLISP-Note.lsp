@@ -231,6 +231,7 @@ ROSETTA CODE
   Fibonacci sequenze di n-numeri
   Il problema dei matrimoni stabili
   Test Primi Miller-Rabin
+  Il problema di Giuseppe
 
 PROJECT EULERO
 ==============
@@ -363,6 +364,8 @@ DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Stringhe isomorfe (Facebook)
   Raggruppamento codici (Google)
   Caratteri differenti (Amazon)
+  Triple con una data somma (Uber)
+  Somma perfetta (Amazon)
 
 LIBRERIE
 ========
@@ -373,6 +376,7 @@ LIBRERIE
   Funzioni winapi
   Operazioni con gli alberi binari
   funlisp.lsp (by Dmitry Chernyak)
+  The Little newLISPER (newlisper.lsp )
 
 NOTE LIBERE
 ===========
@@ -455,6 +459,7 @@ NOTE LIBERE
   Somma di numeri
   Operatori logici
   Quick select
+  Macchina di Turing
 
 
 APPENDICI
@@ -487,8 +492,8 @@ BIBLIOGRAFIA / WEB
 DOCUMENTAZIONE EXTRA
 ====================
   A) Introduction to newLISP (by Cormullion)
-  B) The Little newLISPER (wip)
-  C) Primality Testing (wip)
+  B) The Little newLISPER
+  C) Primality Testing
 
 ==========================================================================
 
@@ -22594,6 +22599,70 @@ Vediamo al differenza di velocità tra le due funzioni:
 Purtroppo la funzione "rand" non gestisce i numeri big-integer.
 
 
+-----------------------
+IL PROBLEMA DI GIUSEPPE
+-----------------------
+
+Il problema di Giuseppe (Josephus problem) o la permutazione di Giuseppe è un problema collegato ad un episodio raccontato dallo storico Flavio Giuseppe nella sua opera "Guerra giudaica" (composta tra il 93 e il 94 d.C.).
+Il problema presenta n persone disposte in circolo in attesa di una esecuzione. Scelta una persona iniziale e un senso di rotazione, si saltano k-1 persone, raggiungendo così la k-esima persona, che viene giustiziata ed eliminata dal cerchio. Poi si saltano k-1 persone e si giustizia la k-esima persona. Le esecuzioni proseguono e il cerchio si restringe sempre più, finché non rimane che una sola persona, la quale viene graziata. Dati n e k, determinare la posizione del sopravvissuto all'interno del cerchio iniziale. In altre parole il problema è scegliere il posto nel cerchio iniziale che assicura la sopravvivenza.
+
+Soluzione ricorsiva
+Il problema ha la seguente struttura ricorsiva.
+
+   giuseppe (n, k) = (giuseppe (n - 1, k) + k - 1) % n + 1
+   giuseppe (1, k) = 1
+
+Dopo che la prima persona (kth dall'inizio) viene uccisa, rimangono n-1 persone. Quindi chiamiamo giuseppe (n - 1, k) per ottenere la posizione con n-1 persone. Ma la posizione restituita da giuseppe (n - 1, k) considererà la posizione a partire da k%n + 1. Quindi dobbiamo apportare modifiche alla posizione restituita da giuseppe (n - 1, k).
+
+(define (giuseppe n k)
+  (if (= n 1) 1
+      ; La posizione restituita da (giuseppe (n - 1) k)
+      ; viene aggiustata perché la chiamata ricorsiva
+      ; (giuseppe (n - 1) k) considera l'originale
+      ; posizione (k % n) + 1 come posizione 1
+      (+ (% (+ (giuseppe (- n 1) k) k -1) n) 1)))
+
+(giuseppe 14 2)
+;-> 13
+(giuseppe 5 2)
+;-> 3
+(giuseppe 7 4)
+;-> 2
+
+Soluzione iterativa
+Nell'algoritmo, utilizziamo la variabile somma per determinare la persona da rimuovere. La posizione corrente della persona viene calcolata aggiungendo il conteggio della persona K alla posizione precedente, ovvero la somma e il modulo della somma.
+
+(define (giuseppe n k)
+  (let (somma 0)
+    (for (i 2 n)
+      (setq somma (% (+ somma k) i)))
+    (+ somma 1)))
+
+(giuseppe 14 2)
+;-> 13
+(giuseppe 5 2)
+;-> 3
+(giuseppe 7 4)
+;-> 2
+
+Nel caso k sia sempre uguale a 2, allora possiamo utilizzare un altro metodo:
+
+(define (giuseppe n)
+  ; trova il valore di 2 ^ (1 + floor (Log n))
+  ; che è una potenza di 2 il cui valore
+  ; è appena sopra n.
+  (let (p 1)
+    (while (<= p n)
+      (setq p (* p 2)))
+    ; restituisce 2n - 2^(1+floor(Log n)) + 1
+    (+ (- (* 2 n) p) 1)))
+
+(giuseppe 14)
+;-> 13
+(giuseppe 5)
+;-> 3
+
+
 ================
 
  PROJECT EULERO
@@ -41613,6 +41682,112 @@ Ad esempio, data s = "abcba" e k = 2, la sottostringa più lunga con k distinti 
 ;-> 8
 
 
+--------------------------------
+Triple con una data somma (Uber)
+--------------------------------
+
+Data una lista di numeri distinti, trovare tutte le triple di numeri la cui somma è uguale a un dato numero.
+
+Algoritmo:
+1) Ordina la lista e per ogni elemento lst[i] cerca gli altri due elementi lst[l], lst[r] in modo tale che lst[i] + lst[l] + lst[r] = Somma.
+2) La ricerca degli altri due elementi può essere eseguita in modo efficiente utilizzando la tecnica a due puntatori quando la lista è ordinata.
+3) Esegui un ciclo esterno prendendo la variabile di controllo i e per ogni iterazione inizializza un valore l che è il primo puntatore con i+1 e r con l'ultimo indice.
+4) Ora entra in un ciclo while che verrà eseguito fino al valore di l < r.
+5) Se lst[i] + lst[l] + lst[r]> Somma, decrementa r ​​di 1 in quanto la somma richiesta 6) è inferiore alla somma corrente.
+7) Se lst[i] + lst[l] + lst[r] < Somma, incrementa l di 1 in quanto la somma richiesta è inferiore alla somma corrente.
+8) Se lst[i] + lst[l] + lst[r] == Somma abbiamo trovato una soluzione (tre valori).
+9) Incrementa i Vai al passo 3.
+
+Complessità temporale dell'algoritmo: O(n^2).
+
+Pseudocodice:
+1. Ordinare tutti gli elementi dell'lista
+2. Eseguire il loop da i = 0 a n-2.
+     Inizializza due variabili indice l = i + 1 e r = n-1
+4. while (l < r)
+     Controlla se la somma di lst[i], lst[l], lst[r] è uguale al valore Somma,
+     allora memorizza il risultato e aggiorna gli indici (l++) e (r--).
+5. Se la somma è inferiore alla somma indicata, allora l++
+6. Se la somma è maggiore della somma data, allora r--
+7. Se non esiste nella lista, soluzione non trovata.
+
+Scriviamo la funzione "tripla":
+
+(define (tripla lst somma)
+  (local (l r x n out)
+    (setq out '())
+    (setq n (length lst))
+    (sort lst)
+    (for (i 0 (- n 2))
+      (setq l (+ i 1))
+      (setq r (- n 1))
+      (setq x (lst i))
+      (while (< l r)
+        (cond ((= (+ x (lst l) (lst r)) somma)
+               ;(println x { } (lst l) { } (lst r))
+               (push (list x (lst l) (lst r)) out -1)
+               (++ l)
+               (-- r))
+              ((< (+ x (lst l) (lst r)) somma)
+               (++ l))
+              (true (-- r))
+        )
+      )
+    )
+    out))
+
+(tripla '(0 -1 2 -3 1 ) -2)
+;-> ((-3 -1 2) (-3 0 1))
+(tripla '(0 1 2 3 4 5 6 7 8 9 -9 -8 -7 -6 -5 -4 -3 -2 -1) 5)
+;-> ((-9 5 9) (-9 6 8) (-8 4 9) (-8 5 8) (-8 6 7) (-7 3 9) (-7 4 8) (-7 5 7) 
+;->  (-6 2 9) (-6 3 8) (-6 4 7) (-6 5 6) (-5 1 9) (-5 2 8) (-5 3 7) (-5 4 6)
+;->  (-4 0 9) (-4 1 8) (-4 2 7) (-4 3 6) (-4 4 5) (-3 -1 9) (-3 0 8) (-3 1 7)
+;->  (-3 2 6) (-3 3 5) (-2 -1 8) (-2 0 7) (-2 1 6) (-2 2 5) (-2 3 4) (-1 0 6)
+;->  (-1 1 5) (-1 2 4) (0 1 4) (0 2 3))
+
+
+-----------------------
+Somma perfetta (Amazon)
+-----------------------
+
+Data una lista di numeri interi e un numero intero K, trovare tutti i sottoinsiemi della lista data i cui elementi sommano esattamente al numero K.
+
+Utilizziamo la funzione "powerset" che genera tutte le sottoliste di una lista e poi verifichiamo se la loro somma è uguale a K.
+
+(define (powerset lst)
+  (if (empty? lst)
+      (list '())
+      (let ( (element (first lst))
+             (p (powerset (rest lst))))
+           (append (map (fn (subset) (cons element subset)) p) p) )))
+
+(powerset '(1 3 4 2))
+;-> ((1 3 4 2) (1 3 4) (1 3 2) (1 3) (1 4 2) (1 4) (1 2) 
+;->  (1) (3 4 2) (3 4) (3 2) (3) (4 2) (4) (2) ())
+
+Utilizzeremo la funzione "apply":
+(apply + '(1 2 3))
+;-> 6
+(apply + '())
+;-> 0
+
+Scriviamo la funzione:
+
+(define (trova-somma lst somma)
+  (local (ps out)
+    (setq out '())
+    (setq ps (powerset lst))
+    (dolist (el ps)
+       (if (= (apply + el) somma)
+           (push el out -1)))
+    out))
+
+(trova-somma '(1 2 3 -3 -2 -1) 5)
+;-> ((1 2 3 -1) (2 3))
+(trova-somma '(1 2 3 -3 -2 -1) 4)
+;-> ((1 2 3 -2) (1 3) (2 3 -1))
+
+
 ==========
 
  LIBRERIE
@@ -44414,6 +44589,473 @@ http://en.feautec.pp.ru/store/libs/funlib.lsp
   'append-one 'dirname 'strip-end 'newlisp-version 'int10 'doc
   'make-k-permutations 'remove-from-list 'compose
         '++ '-- 'p++ 'p-- 'second)
+
+
+; ========================
+;  LITTLE SCHEMER LIBRARY
+; ========================
+
+; Nome del file: "_newlisper.lsp"
+; Questa libreria contiene tutte le funzioni (finali) definite dal libro
+; "Little Schemer" di Friedman e Felleisen convertite in newLISP.
+
+; Per caricare la libreria: (load "_newlisper.lsp")
+
+(define (flat? lst)
+  (cond
+    ((null? lst) true)
+    ((atom? (first lst)) (flat? (rest lst)))
+    (true nil)))
+
+(define (member? atm lst)
+  (cond
+    ((null? lst) nil)
+    (true (or (= (first lst) atm)
+              (member? atm (rest lst))))))
+
+(define (rember atm lst)
+  (cond
+    ((null? lst) '())
+    ((= (first lst) atm) (rest lst))
+    (true (cons (first lst) (rember atm (rest lst))))))
+
+(define (firsts lst)
+  (cond
+      ((null? lst) '())
+      (true (cons (first (first lst)) (firsts (rest lst))))))
+
+(define (firsts2 lst)
+  (if (null? lst) '()
+    (let (L '())
+      (dolist (x lst)
+        (cond
+            ((null? x) (push '() L))
+            ((atom? x) (push x L))
+            ((atom? (first x)) (push (first x) L))
+            ((list? (first x)) (push (first x) L))
+        )
+      )
+      (reverse L))))
+
+(define (insertR nuovo vecchio lst)
+  (cond
+    ((null? lst) '())
+    (true (cond
+            ((= (first lst) vecchio)
+                (cons vecchio (cons nuovo (rest lst))))
+            (true (cons (first lst) (insertR nuovo vecchio (rest lst))))))))
+
+(define (insertL nuovo vecchio lst)
+  (cond
+    ((null? lst) '())
+    (true (cond
+            ((= (first lst) vecchio)
+                (cons nuovo (cons vecchio (rest lst))))
+            (true (cons (first lst) (insertL nuovo vecchio (rest lst))))))))
+
+(define (subst nuovo vecchio lst)
+    (cond
+     ((null? lst) '())
+     ((= (first lst) vecchio) (cons nuovo (rest lst)))
+     (true (cons (first lst) (subst nuovo vecchio (rest lst))))))
+
+(define (subst2 nuovo vecchio1 vecchio2 lst)
+    (cond
+      ((null? lst) '())
+      ((or (= (first lst) vecchio1) (= (first lst) vecchio2))
+       (cons nuovo (rest lst)))
+      (true (cons (first lst) (subst2 nuovo vecchio1 vecchio2 (rest lst))))))
+
+(define (multirember atm lst)
+  (cond
+    ((null? lst) '())
+    ((= (first lst) atm) (multirember atm (rest lst)))
+    (true (cons (first lst) (multirember atm (rest lst))))
+  )
+)
+
+(define (multiinsertR nuovo vecchio lst)
+    (cond
+     ((null? lst) '())
+     ((= (first lst) vecchio) (cons vecchio (cons nuovo (multiinsertR nuovo vecchio (rest lst)))))
+     (true (cons (first lst) (multiinsertR nuovo vecchio (rest lst))))))
+
+(define (multiinsertL nuovo vecchio lst)
+    (cond
+     ((null? lst) '())
+     ((= (first lst) vecchio) (cons nuovo (cons vecchio (multiinsertL nuovo vecchio (rest lst)))))
+     (true (cons (first lst) (multiinsertL nuovo vecchio (rest lst))))))
+
+(define (multisubst nuovo vecchio lst)
+    (cond
+     ((null? lst) '())
+     ((= (first lst) vecchio) (cons nuovo (multisubst nuovo vecchio (rest lst))))
+     (true (cons (first lst) (multisubst nuovo vecchio (rest lst))))))
+
+(define (add1 n) (++ n))
+
+(define (sub1 n) (-- n))
+
+(define (o+ n m)
+    (cond
+     ((zero? m) n)
+     (true (add1 (o+ n (sub1 m))))))
+
+(define (o- n m)
+    (cond
+     ((zero? m) n)
+     (true (sub1 (o- n (sub1 m))))))
+
+(define (addtup tup)
+    (cond
+     ((null? tup) 0)
+     (true (o+ (first tup) (addtup (rest tup))))))
+
+(define (o* n m)
+    (cond
+     ((zero? m) 0)
+     (true (o+ n (o* n (sub1 m))))))
+
+(define (tup+ tup1 tup2)
+    (cond
+     ((null? tup1) tup2)
+     ((null? tup2) tup1)
+     (true (cons (o+ (first tup1) (first tup2))
+             (tup+ (rest tup1) (rest tup2))))))
+
+(define (o> n m)
+    (cond
+     ((zero? n) nil)
+     ((zero? m) true)
+     (true (o> (sub1 n) (sub1 m)))))
+
+(define (o< n m)
+    (cond
+     ((zero? m) nil)
+     ((zero? n) true)
+     (true (o< (sub1 n) (sub1 m)))))
+
+(define (o= n m)
+    (cond
+     ((o> n m) nil)
+     ((o< n m) nil)
+     (else true)))
+
+(define (oexpt n m)
+    (cond
+     ((zero? m) 1)
+     (true (o* n (oexpt n (sub1 m))))))
+
+(define (oquotient n m)
+    (cond
+     ((o< n m) 0)
+     (true (add1 (oquotient (o- n m) m)))))
+
+(define (length- lst)
+    (cond
+     ((null? lst) 0)
+     (true (add1 (length- (rest lst))))))
+
+(define (pick n lst)
+    (cond
+     ((zero? (sub1 n)) (first lst))
+     (true (pick (sub1 n) (rest lst)))))
+
+(define (rempick n lst)
+    (cond
+     ((zero? (sub1 n)) (rest lst))
+     (true (cons (first lst) (rempick (sub1 n) (rest lst))))))
+
+(define (no-nums lst)
+    (cond
+     ((null? lst) '())
+     (true
+      (cond
+       ((number? (first lst)) (no-nums (rest lst)))
+       (true (cons (first lst) (no-nums (rest lst))))))))
+
+(define (all-nums lst)
+    (cond
+     ((null? lst) '())
+     ((number? (first lst)) (cons (first lst) (all-nums (rest lst))))
+     (true (all-nums (rest lst)))))
+
+(define (eqan? a1 a2)
+    (cond
+     ((and (number? a1) (number? a2)) (o= a1 a2))
+     ((and (number? a1) (number? a2)) (o= a1 a2))
+     ((or (number? a1) (number? a2) nil))
+     (true (= a1 a2))))
+
+(define (occur a lst)
+    (cond
+     ((null? lst) 0)
+     ((= (first lst) a) (add1 (occur a (rest lst))))
+     (true (occur a (rest lst)))))
+
+(define (one? n) (= n 1))
+
+(define (rempick n lst)
+    (cond
+     ((one? n) (rest lst))
+     (true (cons (first lst) (rempick (sub1 n) (rest lst))))))
+
+(define (rember* a S)
+    (cond
+     ((null? S) '())
+     ((atom? (first S))
+      (cond
+       ((= (first S) a) (rember* a (rest S)))
+       (true (cons (first S) (rember* a (rest S))))))
+     (true (cons (rember* a (first S)) (rember* a (rest S))))))
+
+(define (insertR* nuovo vecchio S)
+    (cond
+     ((null? S) '())
+     ((atom? (first S))
+      (cond
+       ((= (first S) vecchio) (cons vecchio (cons nuovo (insertR* nuovo vecchio (rest S)))))
+       (true (cons (first S) (insertR* nuovo vecchio (rest S))))))
+     (true (cons (insertR* nuovo vecchio (first S)) (insertR* nuovo vecchio (rest S))))))
+
+(define (occur* a S)
+    (cond
+     ((null? S) 0)
+     ((atom? (first S))
+      (cond
+       ((= (first S) a) (add1 (occur* a (rest S))))
+       (true (occur* a (rest S)))))
+     (true (o+ (occur* a (first S)) (occur* a (rest S))))))
+
+(define (subst* nuovo vecchio S)
+    (cond
+     ((null? S) '())
+     ((atom? (first S))
+      (cond
+       ((= (first S) vecchio) (cons nuovo (subst* nuovo vecchio (rest S))))
+       (true (cons (first S) (subst* nuovo vecchio (rest S))))))
+     (true (cons (subst* nuovo vecchio (first S)) (subst* nuovo vecchio (rest S))))))
+
+(define (insertL* nuovo vecchio S)
+    (cond
+     ((null? S) '())
+     ((atom? (first S))
+      (cond
+       ((= (first S) vecchio) (cons nuovo (cons vecchio (insertL* nuovo vecchio (rest S)))))
+       (true (cons (first S) (insertL* nuovo vecchio (rest S))))))
+     (true (cons (insertL* nuovo vecchio (first S)) (insertL* nuovo vecchio (rest S))))))
+
+(define (member* a S)
+    (cond
+     ((null? S) nil)
+     ((atom? (first S))
+      (or (= (first S) a) (member* a (rest S))))
+     (true (or (member* a (first S)) (member* a (rest S))))))
+
+(define (leftmost S)
+    (cond
+     ((atom? S) S)
+     (true (leftmost (first S)))))
+
+(define (eqan? a1 a2)
+    (cond
+     ((and (number? a1) (number? a2)) (= a1 a2))
+     ((or (number? a1) (number? a2) nil))
+     (true (= a1 a2))))
+
+(define (equal? s1 s2)
+    (cond
+     ((and (atom? s1) (atom? s2)) (eqan? s1 s2))
+     ((or (atom? s1) (atom? s2)) nil)
+     (true (eqlist? s1 s2))))
+
+(define (eqlist? lst1 lst2)
+    (cond
+     ((and (null? lst1) (null? lst2)) true)
+     ((or (null? lst1) (null? lst2)) nil)
+     (true
+      (and (equal? (first lst1) (first lst2))
+           (eqlist? (rest lst1) (rest lst2))))))
+
+(define (rember S lst)
+    (cond
+     ((null? lst) '())
+     ((equal? (first lst) S) (rest lst))
+     (true
+      (cons (first lst)
+        (rember S (rest lst))))))
+
+(define (numbered? aexp)
+    (cond
+     ((atom? aexp) (number? aexp))
+     (true
+      (and (numbered? (first aexp))
+           (numbered? (first (rest (rest aexp))))))))
+
+(define (value nexp)
+    (cond
+     ((atom? nexp) nexp)
+     ((= (first (rest nexp)) 'o+)
+      (o+ (value (first nexp))
+          (value (first (rest (rest nexp))))))
+     ((= (first (rest nexp)) 'o*)
+      (o* (value (first nexp))
+          (value (first (rest (rest nexp))))))
+     (true
+      (oexpt (value (first nexp))
+             (value (first (rest (rest nexp))))))))
+
+(define (first-sub-exp aexp)
+    (first (rest aexp)))
+
+(define (second-sub-exp aexp)
+    (first (rest (rest aexp))))
+
+(define (operator aexp)
+    (first aexp))
+
+(define (value nexp)
+    (cond
+     ((atom? nexp) nexp)
+     ((= (operator nexp) 'o+)
+      (o+ (value (first-sub-exp nexp))
+          (value (second-sub-exp nexp))))
+     ((= (operator nexp) 'o*)
+      (o* (value (first-sub-exp nexp))
+          (value (second-sub-exp nexp))))
+     (true
+      (oexpt (value (first-sub-exp nexp))
+             (value (second-sub-exp nexp))))))
+
+(define (first-sub-exp aexp)
+    (first aexp))
+
+(define (operator aexp)
+    (first (rest aexp)))
+
+(define (sero? n) (null? n))
+
+(define (edd1 n)  (cons '() n))
+
+(define (zub1 n) (rest n))
+
+(define (o+ n m)
+    (cond
+     ((sero? m) n)
+     (true (edd1 (o+ n (zub1 m))))))
+
+(define (lat? lst)
+  (cond
+    ((null? lst) true)
+    ((atom? (first lst)) (lat? (rest lst)))
+    (true nil)))
+
+(define (set? lat)
+    (cond
+     ((null? lat) true)
+     ((member? (first lat) (rest lat)) nil)
+     (true (set? (rest lat)))))
+
+(define (makeset lat)
+    (cond
+     ((null? lat) '())
+     (true (cons (first lat)
+             (makeset
+              (multirember (first lat) (rest lat)))))))
+
+(define (subset? s1 s2)
+    (cond
+     ((null? s1) true)
+     (true
+      (and (member? (first s1) s2) (subset? (rest s1) s2)))))
+
+(define (eqset? set1 set2)
+    (and (subset? set1 set2) (subset? set2 set1)))
+
+(define (intersect? set1 set2)
+    (cond
+     ((null? set1) nil)
+     (true (or (member? (first set1) set2)
+               (intersect? (rest set1) set2)))))
+
+(define (intersects set1 set2)
+    (cond
+     ((null? set1) '())
+     ((member? (first set1) set2)
+      (cons (first set1) (intersects (rest set1) set2)))
+     (true (intersects (rest set1) set2))))
+
+(define (unions set1 set2)
+    (cond
+     ((null? set1) set2)
+     ((member? (first set1) set2) (unions (rest set1) set2))
+     (true (cons (first set1) (unions (rest set1) set2)))))
+
+(define (differences  set1 set2)
+    (cond
+     ((null? set1) '())
+     ((member? (first set1) set2) (differences (rest set1) set2))
+     (true (cons (first set1) (differences (rest set1) set2)))))
+
+(define (intersectall l-set)
+    (cond
+     ((null? (rest l-set)) (first l-set))
+     (true (intersect (first l-set) (intersectall (rest l-set))))))
+
+(define (a-pair? l)
+    (cond
+     ((atom? l) nil)
+     ((null? l) nil)
+     ((null? (rest l)) nil)
+     ((null? (rest (rest l))) true)
+     (true nil)))
+
+(define (firstp p) (first p))
+
+(define (secondp p) (first (rest p)))
+
+(define (build s1 s2) (cons s1 (cons s2 '())))
+
+(define (thirdp l) (first (rest (rest l))))
+
+(define (fun? rel) (set? (firsts rel)))
+
+(define (revrel rel)
+    (cond
+     ((null? rel) '())
+     (true (cons (build (secondp (first rel))
+                        (firstp (first rel)))
+             (revrel (rest rel))))))
+
+(define (revrel rel)
+    (cond
+     ((null? rel) '())
+     (true (cons (cons (first (rest (first rel)))
+                   (cons (first (first rel)) '()))
+             (revrel (rest rel))))))
+
+(define (revpair p)
+    (build (secondp p) (first p)))
+
+(define (revrel rel)
+    (cond
+     ((null? rel) '())
+     (true (cons (revpair (first rel))
+             (revrel (rest rel))))))
+
+(define (seconds s)
+    (cond
+     ((null? s) '())
+     (true (cons (first (rest (first s)))
+             (seconds (rest s))))))
+
+(define (fullfun? fun)
+    (set? (seconds fun)))
+
+(define (one-to-one? fun)
+    (fun? (revrel fun)))
+
+'library-schemer-loaded
 
 
 =============
@@ -51456,6 +52098,116 @@ Il parametro k può variare da 1 fino alla lunghezza della lista.
 ;-> nil
 (kthsmall '(7 10 4 3 20 15) 7)
 ;-> nil
+
+Con questo metodo possiamo anche definire la funzione "kthbig":
+
+(define (kthbig lst k)
+  (cond ((or (> k (length lst)) (< k 1)) nil)
+        (true ((sort lst >) (- k 1)))))
+
+(kthbig '(7 10 4 3 20 15) 1)
+;-> 20
+(kthbig '(7 10 4 3 20 15) 6)
+;-> 3
+(kthbig '(7 10 4 3 20 15) 0)
+;-> nil
+(kthbig '(7 10 4 3 20 15) 7)
+;-> nil
+
+
+------------------
+Macchina di Turing
+------------------
+
+Una macchina di Turing (o più brevemente MdT) è una macchina ideale che manipola i dati contenuti su un nastro di lunghezza potenzialmente infinita, secondo un insieme prefissato di regole ben definite. In altre parole, è un modello astratto che definisce una macchina in grado di eseguire algoritmi e dotata di un nastro potenzialmente infinito su cui vengono letti o scritti dei simboli.
+
+È un potente strumento teorico che viene usato nella teoria della calcolabilità e nello studio della complessità degli algoritmi, in quanto è di notevole aiuto nel comprendere i limiti del calcolo meccanico. La sua importanza è tale che oggi, per definire in modo formalmente preciso la nozione di algoritmo, si tende a ricondurlo alle elaborazioni effettuabili con macchine di Turing.
+
+La MdT come modello di calcolo è stata introdotta nel 1936 da Alan Turing per dare risposta all'Entscheidungsproblem (problema di decisione) proposto da Hilbert nel suo programma di fondazione formalista della matematica.
+La questione di Hilbert era la seguente: «esiste sempre, almeno in linea di principio, un metodo meccanico (cioè una metodo rigoroso) attraverso cui, dato un qualsiasi enunciato matematico, si possa stabilire se esso sia vero o falso?»
+
+Nel 1936 Turing pubblicò un articolo intitolato "On computable numbers, with an application to the Entscheidungsproblem", in cui l'autore risolveva negativamente l'Entscheidungsproblem o problema della decidibilità lanciato nel 1900 da David Hilbert e Wilhelm Ackermann.
+
+La soluzione proposta da Turing consiste nell'utilizzo di un modello matematico capace di simulare il processo di calcolo umano, scomponendolo nei suoi passi ultimi.
+La macchina è formata da una testina di lettura e scrittura con cui è in grado di leggere e scrivere su un nastro potenzialmente infinito partizionato, in maniera discreta, in caselle. Ad ogni istante di tempo t1, la macchina si trova in uno stato interno s1 ben determinato, risultato dell'elaborazione compiuta sui dati letti.
+
+Lo stato interno, o configurazione, di un sistema è la condizione in cui si trovano le componenti della macchina ad un determinato istante di tempo t. Le componenti da considerare sono:
+
+- il numero della cella osservata
+- il suo contenuto
+- l'istruzione da eseguire
+
+Tra tutti i possibili stati, si distinguono:
+
+- una configurazione iniziale, per t=t0 (prima dell'esecuzione del programma)
+- una configurazione finale, per t=tn (al termine dell'esecuzione del programma)
+- delle configurazioni intermedie, per t=ti (prima dell'esecuzione dell'istruzione oi)
+
+Implementare un algoritmo in questo contesto significa effettuare una delle quattro operazioni elementari:
+
+- spostarsi di una casella a destra
+- spostarsi di una casella a sinistra
+- scrivere un simbolo preso da un insieme di simboli a sua disposizione su una casella
+- cancellare un simbolo già scritto sulla casella che sta osservando
+- oppure fermarsi
+
+Eseguire un'operazione o1, tra gli istanti di tempo t1 e t2, vuol dire passare dallo stato interno s1 allo stato s2. Più formalmente questo si esprime in simboli come: {s1,a1,o1,s2} da leggersi come: nello stato interno s1 la macchina osserva il simbolo a1, esegue l'operazione o1 e si ritrova nello stato interno s2.
+Turing poté dimostrare che un tale strumento è in grado di svolgere un qualsiasi calcolo, ma non si fermò qui: egli capì che la calcolabilità era parente stretta della dimostrabilità e dunque, così come Gödel aveva distrutto i sogni di gloria dei Principia Mathematica di Russell e Whitehead, così le sue macchine potevano definitivamente chiudere la questione dell'Entscheidungsproblem.
+
+L'importanza della MdT deriva dal fatto che permette di compiere tutte le elaborazioni effettuate da tutte le macchine (elettroniche o meccaniche) apparse nella storia dell'umanità, incluse le elaborazioni degli odierni computer, e perfino tutte le dimostrazioni matematiche conosciute.
+Infatti, tutte le macchine che si conoscono possono essere ricondotte al modello estremamente semplice di Turing.
+
+Per ogni problema calcolabile esista una MdT in grado di risolverlo: questa è la cosiddetta congettura di Church-Turing, la quale postula in sostanza che per ogni funzione calcolabile esista una macchina di Turing equivalente, ossia che l'insieme delle funzioni calcolabili coincida con quello delle funzioni ricorsive (tuttavia, questa congettura riguarda la calcolabilità degli algoritmi, e non la loro trattabilità).
+
+Gli algoritmi che possono essere implementati da una MdT si dicono "algoritmi Turing-computabili".
+
+Si conoscono diverse varianti della MdT, ma sono tutte equivalenti. Noi useremo una macchina di Turing deterministica formata da un nastro con istruzioni a cinque campi.
+
+Spiegazione informale
+---------------------
+La macchina può agire sopra un nastro che si presenta come una sequenza di caselle nelle quali possono essere registrati simboli di un ben determinato alfabeto finito. Essa è dotata di una testina di lettura e scrittura (I/O) con cui è in grado di effettuare operazioni di lettura e scrittura su una casella del nastro. La macchina si evolve nel tempo e ad ogni istante si può trovare in uno stato interno ben determinato facente parte di un insieme finito di stati. Inizialmente sul nastro viene posta una stringa che rappresenta i dati che caratterizzano il problema che viene sottoposto alla macchina. La macchina è dotata anche di un repertorio finito di istruzioni che determinano la sua elaborazione in conseguenza dei dati iniziali. L'elaborazione si sviluppa per passi successivi che corrispondono a una sequenza discreta di istanti successivi. Le proprietà precedenti sono comuni a molte macchine formali (automa a stati finiti, automa a pila, ...). Caratteristica delle MdT è quella di disporre di un nastro potenzialmente infinito, cioè estendibile quanto si vuole qualora questo si renda necessario.
+
+Ogni passo dell'elaborazione viene determinato dallo stato attuale s nel quale la macchina si trova e dal carattere c che la testina di I/O trova sulla casella del nastro su cui è posizionata e si concretizza nell'eventuale modifica del contenuto della casella, nell'eventuale spostamento della testina di una posizione verso destra o verso sinistra e nell'eventuale cambiamento dello stato. Quali azioni vengono effettuate a ogni passo viene determinato dalla istruzione, che supponiamo unica, che ha come prime due componenti s e c. Le altre tre componenti dell'istruzione forniscono nell'ordine il nuovo stato, il nuovo carattere e una richiesta di spostamento verso sinistra, nullo o verso destra.
+
+Un'elaborazione della macchina consiste in una sequenza di sue possibili "configurazioni", ogni configurazione essendo costituita dallo stato interno attuale, dal contenuto del nastro (una stringa di lunghezza finita) e dalla posizione sul nastro della testina di I/O. Nei casi più semplici l'elaborazione ad un certo punto si arresta in quanto non si trova nessuna istruzione in grado di farla proseguire. Si può avere un arresto in una configurazione "utile" dal punto di vista del problema che si vuole risolvere, in tal caso quello che si trova registrato sul nastro all'atto dell'arresto rappresenta il risultato dell'elaborazione. Si può avere però anche un arresto "inutile" che va considerato come una conclusione erronea dell'elaborazione. Può anche accadere che un'elaborazione non abbia mai fine (Problema della fermata).
+
+Spiegazione formale
+-------------------
+Si definisce macchina di Turing deterministica a un nastro e istruzioni a cinque campi, termine che abbreviamo con MdT1n5i, una macchina formale della seguente forma:
+
+T = <S, s0, F, A, β, δ> dove
+
+S è un insieme finito detto insieme degli stati della macchina;
+
+s0 è un elemento di S detto stato iniziale della T;
+
+F è un sottoinsieme di S detto insieme degli stati finali della T;
+
+A è un alfabeto finito detto alfabeto del nastro della T
+β è un carattere dell'alfabeto A detto segno di casella vuota del nastro della T
+
+δ : S x A -> S x A x {-1, 0, +1} è detta funzione di transizione della macchina.
+
+Se δ(s,a) = <t,b,m>, la corrispondente quintupla <s,a,t,b,m> può considerarsi come l'istruzione che viene eseguita quando la macchina si trova nello stato "s" e la testina di I/O legge "a" sulla casella sulla quale è posizionata. Essa comporta la transizione allo stato "t", la scrittura del carattere "b" e:
+
+- quando m = -1 lo spostamento della testina di una posizione a sinistra,
+- quando m = 0 nessuno spostamento della testina,
+- quando m = +1 lo spostamento della testina di una posizione a destra.
+
+Il problema dell'arresto e la sua indecidibilità
+------------------------------------------------
+In talune circostanze può essere utile considerare una MdT che presenta un'evoluzione illimitata (infatti si considerano infinite le risorse di spazio e tempo a disposizione della macchina). Ad esempio interessa far procedere "illimitatamente" (cioè "quanto risulta utile") una MdT che genera gli elementi di una successione di oggetti (ad es. i successivi numeri primi, o i successivi numeri di Mersenne, o le successive cifre decimali di un numero irrazionale come pi greco). In altri casi invece un'evoluzione illimitata di una MdT è considerata un insuccesso. Quando si vuole che una MdT ricerchi in un insieme numerabile un elemento con determinate caratteristiche ed essa procede nella ricerca senza fornire alcuna indicazione, ci si trova in una situazione decisamente insoddisfacente: non si sa se interrompere un'elaborazione inutile oppure attendere ancora un risultato che potrebbe essere fornito dopo un ulteriore lavoro in tempi accettabili.
+
+È dunque importante poter stabilire se una MdT, o un altro sistema formale equivalente ("lambda-calcolo" di Church, ad es.), quando le si sottopone una stringa (di dati) si arresti o meno. Questo è detto problema della fermata o problema dell'arresto della macchina di Turing. Si trovano casi nei quali si dimostra o si verifica che si ha l'arresto, casi per i quali si dimostra che l'evoluzione non si arresta (ma potrebbe procedere all'infinito) e casi per i quali non si sa dare risposta.
+
+Sembra ragionevole cercare un procedimento generale per decidere uno di questi problemi. Dato che le MdT si rivelano in grado di risolvere tutti i problemi che si sanno risolvere con gli altri procedimenti noti, è sensato chiedersi se esiste una macchina di Turing in grado di decidere per una qualsiasi coppia (M, d) costituita da una MdT M e da una stringa di dati d se, quando si fornisce d a M, questa si evolve fino ad arrestarsi o meno. Questa richiesta è resa ancor più significativa dall'esistenza, dimostrata dallo stesso Turing, di una cosiddetta macchina di Turing universale, macchina in grado di simulare qualsiasi evoluzione di qualsiasi MdT (anche le evoluzioni di se stessa!). Ebbene Turing ha dimostrato che la macchina di Turing universale non è in grado di decidere in ogni caso il problema dell'arresto. Quindi nessuna macchina di Turing può farlo. Questo risultato negativo si esprime dicendo che il problema dell'arresto è Turing-indecidibile. Se si accetta la congettura di Church-Turing sulla portata della macchina di Turing, si conclude che il problema dell'arresto della macchina di Turing è indecidibile.
+
+Questo risultato negativo costituisce un limite per tutti i meccanismi computazionali: esso costituisce un risultato limitativo di grande importanza generale e per lo studio degli algoritmi. L'importanza generale dipende dal fatto che ogni procedimento dimostrativo automatico si trova equivalente a una computazione che può effettuarsi con una macchina di Turing. Va posto in rilievo che la Turing-indecidibilità del problema dell'arresto si dimostra equivalente al teorema di incompletezza di Gödel, il primo fondamentale risultato limitativo per la matematica. Si trova inoltre nello studio degli algoritmi e della loro complessità che dalla indecidibilità dell'arresto si deducono abbastanza agevolmente molti altri risultati limitativi.
+
+Macchina di Turing Universale
+-----------------------------
+Il problema con le MdT è che è necessario costruirne una diversa per ogni nuovo calcolo da eseguire, per ogni relazione di input/output.
+Questo è il motivo per cui introduciamo l'idea di una macchina di turing universale (MdTU), che prende come parametri di ingresso sia i dati di input sul nastro che la descrizione di una MdT. La MdTU può continuare quindi a simulare la MdT sul resto del contenuto del nastro di input. Una macchina di turing universale può quindi simulare qualsiasi altra macchina.
 
 
 ===========

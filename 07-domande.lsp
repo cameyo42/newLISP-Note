@@ -4926,3 +4926,109 @@ Ad esempio, data s = "abcba" e k = 2, la sottostringa più lunga con k distinti 
 ;-> 8
 
 
+--------------------------------
+Triple con una data somma (Uber)
+--------------------------------
+
+Data una lista di numeri distinti, trovare tutte le triple di numeri la cui somma è uguale a un dato numero.
+
+Algoritmo:
+1) Ordina la lista e per ogni elemento lst[i] cerca gli altri due elementi lst[l], lst[r] in modo tale che lst[i] + lst[l] + lst[r] = Somma.
+2) La ricerca degli altri due elementi può essere eseguita in modo efficiente utilizzando la tecnica a due puntatori quando la lista è ordinata.
+3) Esegui un ciclo esterno prendendo la variabile di controllo i e per ogni iterazione inizializza un valore l che è il primo puntatore con i+1 e r con l'ultimo indice.
+4) Ora entra in un ciclo while che verrà eseguito fino al valore di l < r.
+5) Se lst[i] + lst[l] + lst[r]> Somma, decrementa r ​​di 1 in quanto la somma richiesta 6) è inferiore alla somma corrente.
+7) Se lst[i] + lst[l] + lst[r] < Somma, incrementa l di 1 in quanto la somma richiesta è inferiore alla somma corrente.
+8) Se lst[i] + lst[l] + lst[r] == Somma abbiamo trovato una soluzione (tre valori).
+9) Incrementa i Vai al passo 3.
+
+Complessità temporale dell'algoritmo: O(n^2).
+
+Pseudocodice:
+1. Ordinare tutti gli elementi dell'lista
+2. Eseguire il loop da i = 0 a n-2.
+     Inizializza due variabili indice l = i + 1 e r = n-1
+4. while (l < r)
+     Controlla se la somma di lst[i], lst[l], lst[r] è uguale al valore Somma,
+     allora memorizza il risultato e aggiorna gli indici (l++) e (r--).
+5. Se la somma è inferiore alla somma indicata, allora l++
+6. Se la somma è maggiore della somma data, allora r--
+7. Se non esiste nella lista, soluzione non trovata.
+
+Scriviamo la funzione "tripla":
+
+(define (tripla lst somma)
+  (local (l r x n out)
+    (setq out '())
+    (setq n (length lst))
+    (sort lst)
+    (for (i 0 (- n 2))
+      (setq l (+ i 1))
+      (setq r (- n 1))
+      (setq x (lst i))
+      (while (< l r)
+        (cond ((= (+ x (lst l) (lst r)) somma)
+               ;(println x { } (lst l) { } (lst r))
+               (push (list x (lst l) (lst r)) out -1)
+               (++ l)
+               (-- r))
+              ((< (+ x (lst l) (lst r)) somma)
+               (++ l))
+              (true (-- r))
+        )
+      )
+    )
+    out))
+
+(tripla '(0 -1 2 -3 1 ) -2)
+;-> ((-3 -1 2) (-3 0 1))
+(tripla '(0 1 2 3 4 5 6 7 8 9 -9 -8 -7 -6 -5 -4 -3 -2 -1) 5)
+;-> ((-9 5 9) (-9 6 8) (-8 4 9) (-8 5 8) (-8 6 7) (-7 3 9) (-7 4 8) (-7 5 7) 
+;->  (-6 2 9) (-6 3 8) (-6 4 7) (-6 5 6) (-5 1 9) (-5 2 8) (-5 3 7) (-5 4 6)
+;->  (-4 0 9) (-4 1 8) (-4 2 7) (-4 3 6) (-4 4 5) (-3 -1 9) (-3 0 8) (-3 1 7)
+;->  (-3 2 6) (-3 3 5) (-2 -1 8) (-2 0 7) (-2 1 6) (-2 2 5) (-2 3 4) (-1 0 6)
+;->  (-1 1 5) (-1 2 4) (0 1 4) (0 2 3))
+
+
+-----------------------
+Somma perfetta (Amazon)
+-----------------------
+
+Data una lista di numeri interi e un numero intero K, trovare tutti i sottoinsiemi della lista data i cui elementi sommano esattamente al numero K.
+
+Utilizziamo la funzione "powerset" che genera tutte le sottoliste di una lista e poi verifichiamo se la loro somma è uguale a K.
+
+(define (powerset lst)
+  (if (empty? lst)
+      (list '())
+      (let ( (element (first lst))
+             (p (powerset (rest lst))))
+           (append (map (fn (subset) (cons element subset)) p) p) )))
+
+(powerset '(1 3 4 2))
+;-> ((1 3 4 2) (1 3 4) (1 3 2) (1 3) (1 4 2) (1 4) (1 2) 
+;->  (1) (3 4 2) (3 4) (3 2) (3) (4 2) (4) (2) ())
+
+Utilizzeremo la funzione "apply":
+(apply + '(1 2 3))
+;-> 6
+(apply + '())
+;-> 0
+
+Scriviamo la funzione:
+
+(define (trova-somma lst somma)
+  (local (ps out)
+    (setq out '())
+    (setq ps (powerset lst))
+    (dolist (el ps)
+       (if (= (apply + el) somma)
+           (push el out -1)))
+    out))
+
+(trova-somma '(1 2 3 -3 -2 -1) 5)
+;-> ((1 2 3 -1) (2 3))
+(trova-somma '(1 2 3 -3 -2 -1) 4)
+;-> ((1 2 3 -2) (1 3) (2 3 -1))
+
+

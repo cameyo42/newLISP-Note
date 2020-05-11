@@ -8,18 +8,18 @@ Appunti sul linguaggio newLISP
 01) newLISP in generale (58)  
 02) Funzioni varie (72)  
 03) newLISP 99 problemi (28)  
-04) Rosetta code (51)  
+04) Rosetta code (52)  
 05) Project eulero (60)  
 06) Problemi vari (64)  
-07) Domande programmatori (58)  
-08) Librerie (7)  
-09) Note libere (79)  
+07) Domande programmatori (60)  
+08) Librerie (8)  
+09) Note libere (80)  
 10) Appendici (21)  
 11) Bibliografia  
 
 Documentazione Extra:  
 A) Introduction to newLISP (by Cormullion)  
-B) The Little newLISPER (wip cap.8)  
-C) Primality Testing (wip)
+B) The Little newLISPER
+C) Primality Testing
 
 

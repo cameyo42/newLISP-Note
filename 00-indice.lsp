@@ -231,6 +231,7 @@ ROSETTA CODE
   Fibonacci sequenze di n-numeri
   Il problema dei matrimoni stabili
   Test Primi Miller-Rabin
+  Il problema di Giuseppe
 
 PROJECT EULERO
 ==============
@@ -363,6 +364,8 @@ DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Stringhe isomorfe (Facebook)
   Raggruppamento codici (Google)
   Caratteri differenti (Amazon)
+  Triple con una data somma (Uber)
+  Somma perfetta (Amazon)
 
 LIBRERIE
 ========
@@ -373,6 +376,7 @@ LIBRERIE
   Funzioni winapi
   Operazioni con gli alberi binari
   funlisp.lsp (by Dmitry Chernyak)
+  The Little newLISPER (newlisper.lsp )
 
 NOTE LIBERE
 ===========
@@ -455,6 +459,7 @@ NOTE LIBERE
   Somma di numeri
   Operatori logici
   Quick select
+  Macchina di Turing
 
 
 APPENDICI
@@ -487,8 +492,8 @@ BIBLIOGRAFIA / WEB
 DOCUMENTAZIONE EXTRA
 ====================
   A) Introduction to newLISP (by Cormullion)
-  B) The Little newLISPER (wip)
-  C) Primality Testing (wip)
+  B) The Little newLISPER
+  C) Primality Testing
 
 ==========================================================================
 

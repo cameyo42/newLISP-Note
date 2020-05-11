@@ -7039,4 +7039,114 @@ Il parametro k può variare da 1 fino alla lunghezza della lista.
 (kthsmall '(7 10 4 3 20 15) 7)
 ;-> nil
 
+Con questo metodo possiamo anche definire la funzione "kthbig":
+
+(define (kthbig lst k)
+  (cond ((or (> k (length lst)) (< k 1)) nil)
+        (true ((sort lst >) (- k 1)))))
+
+(kthbig '(7 10 4 3 20 15) 1)
+;-> 20
+(kthbig '(7 10 4 3 20 15) 6)
+;-> 3
+(kthbig '(7 10 4 3 20 15) 0)
+;-> nil
+(kthbig '(7 10 4 3 20 15) 7)
+;-> nil
+
+
+------------------
+Macchina di Turing
+------------------
+
+Una macchina di Turing (o più brevemente MdT) è una macchina ideale che manipola i dati contenuti su un nastro di lunghezza potenzialmente infinita, secondo un insieme prefissato di regole ben definite. In altre parole, è un modello astratto che definisce una macchina in grado di eseguire algoritmi e dotata di un nastro potenzialmente infinito su cui vengono letti o scritti dei simboli.
+
+È un potente strumento teorico che viene usato nella teoria della calcolabilità e nello studio della complessità degli algoritmi, in quanto è di notevole aiuto nel comprendere i limiti del calcolo meccanico. La sua importanza è tale che oggi, per definire in modo formalmente preciso la nozione di algoritmo, si tende a ricondurlo alle elaborazioni effettuabili con macchine di Turing.
+
+La MdT come modello di calcolo è stata introdotta nel 1936 da Alan Turing per dare risposta all'Entscheidungsproblem (problema di decisione) proposto da Hilbert nel suo programma di fondazione formalista della matematica.
+La questione di Hilbert era la seguente: «esiste sempre, almeno in linea di principio, un metodo meccanico (cioè una metodo rigoroso) attraverso cui, dato un qualsiasi enunciato matematico, si possa stabilire se esso sia vero o falso?»
+
+Nel 1936 Turing pubblicò un articolo intitolato "On computable numbers, with an application to the Entscheidungsproblem", in cui l'autore risolveva negativamente l'Entscheidungsproblem o problema della decidibilità lanciato nel 1900 da David Hilbert e Wilhelm Ackermann.
+
+La soluzione proposta da Turing consiste nell'utilizzo di un modello matematico capace di simulare il processo di calcolo umano, scomponendolo nei suoi passi ultimi.
+La macchina è formata da una testina di lettura e scrittura con cui è in grado di leggere e scrivere su un nastro potenzialmente infinito partizionato, in maniera discreta, in caselle. Ad ogni istante di tempo t1, la macchina si trova in uno stato interno s1 ben determinato, risultato dell'elaborazione compiuta sui dati letti.
+
+Lo stato interno, o configurazione, di un sistema è la condizione in cui si trovano le componenti della macchina ad un determinato istante di tempo t. Le componenti da considerare sono:
+
+- il numero della cella osservata
+- il suo contenuto
+- l'istruzione da eseguire
+
+Tra tutti i possibili stati, si distinguono:
+
+- una configurazione iniziale, per t=t0 (prima dell'esecuzione del programma)
+- una configurazione finale, per t=tn (al termine dell'esecuzione del programma)
+- delle configurazioni intermedie, per t=ti (prima dell'esecuzione dell'istruzione oi)
+
+Implementare un algoritmo in questo contesto significa effettuare una delle quattro operazioni elementari:
+
+- spostarsi di una casella a destra
+- spostarsi di una casella a sinistra
+- scrivere un simbolo preso da un insieme di simboli a sua disposizione su una casella
+- cancellare un simbolo già scritto sulla casella che sta osservando
+- oppure fermarsi
+
+Eseguire un'operazione o1, tra gli istanti di tempo t1 e t2, vuol dire passare dallo stato interno s1 allo stato s2. Più formalmente questo si esprime in simboli come: {s1,a1,o1,s2} da leggersi come: nello stato interno s1 la macchina osserva il simbolo a1, esegue l'operazione o1 e si ritrova nello stato interno s2.
+Turing poté dimostrare che un tale strumento è in grado di svolgere un qualsiasi calcolo, ma non si fermò qui: egli capì che la calcolabilità era parente stretta della dimostrabilità e dunque, così come Gödel aveva distrutto i sogni di gloria dei Principia Mathematica di Russell e Whitehead, così le sue macchine potevano definitivamente chiudere la questione dell'Entscheidungsproblem.
+
+L'importanza della MdT deriva dal fatto che permette di compiere tutte le elaborazioni effettuate da tutte le macchine (elettroniche o meccaniche) apparse nella storia dell'umanità, incluse le elaborazioni degli odierni computer, e perfino tutte le dimostrazioni matematiche conosciute.
+Infatti, tutte le macchine che si conoscono possono essere ricondotte al modello estremamente semplice di Turing.
+
+Per ogni problema calcolabile esista una MdT in grado di risolverlo: questa è la cosiddetta congettura di Church-Turing, la quale postula in sostanza che per ogni funzione calcolabile esista una macchina di Turing equivalente, ossia che l'insieme delle funzioni calcolabili coincida con quello delle funzioni ricorsive (tuttavia, questa congettura riguarda la calcolabilità degli algoritmi, e non la loro trattabilità).
+
+Gli algoritmi che possono essere implementati da una MdT si dicono "algoritmi Turing-computabili".
+
+Si conoscono diverse varianti della MdT, ma sono tutte equivalenti. Noi useremo una macchina di Turing deterministica formata da un nastro con istruzioni a cinque campi.
+
+Spiegazione informale
+---------------------
+La macchina può agire sopra un nastro che si presenta come una sequenza di caselle nelle quali possono essere registrati simboli di un ben determinato alfabeto finito. Essa è dotata di una testina di lettura e scrittura (I/O) con cui è in grado di effettuare operazioni di lettura e scrittura su una casella del nastro. La macchina si evolve nel tempo e ad ogni istante si può trovare in uno stato interno ben determinato facente parte di un insieme finito di stati. Inizialmente sul nastro viene posta una stringa che rappresenta i dati che caratterizzano il problema che viene sottoposto alla macchina. La macchina è dotata anche di un repertorio finito di istruzioni che determinano la sua elaborazione in conseguenza dei dati iniziali. L'elaborazione si sviluppa per passi successivi che corrispondono a una sequenza discreta di istanti successivi. Le proprietà precedenti sono comuni a molte macchine formali (automa a stati finiti, automa a pila, ...). Caratteristica delle MdT è quella di disporre di un nastro potenzialmente infinito, cioè estendibile quanto si vuole qualora questo si renda necessario.
+
+Ogni passo dell'elaborazione viene determinato dallo stato attuale s nel quale la macchina si trova e dal carattere c che la testina di I/O trova sulla casella del nastro su cui è posizionata e si concretizza nell'eventuale modifica del contenuto della casella, nell'eventuale spostamento della testina di una posizione verso destra o verso sinistra e nell'eventuale cambiamento dello stato. Quali azioni vengono effettuate a ogni passo viene determinato dalla istruzione, che supponiamo unica, che ha come prime due componenti s e c. Le altre tre componenti dell'istruzione forniscono nell'ordine il nuovo stato, il nuovo carattere e una richiesta di spostamento verso sinistra, nullo o verso destra.
+
+Un'elaborazione della macchina consiste in una sequenza di sue possibili "configurazioni", ogni configurazione essendo costituita dallo stato interno attuale, dal contenuto del nastro (una stringa di lunghezza finita) e dalla posizione sul nastro della testina di I/O. Nei casi più semplici l'elaborazione ad un certo punto si arresta in quanto non si trova nessuna istruzione in grado di farla proseguire. Si può avere un arresto in una configurazione "utile" dal punto di vista del problema che si vuole risolvere, in tal caso quello che si trova registrato sul nastro all'atto dell'arresto rappresenta il risultato dell'elaborazione. Si può avere però anche un arresto "inutile" che va considerato come una conclusione erronea dell'elaborazione. Può anche accadere che un'elaborazione non abbia mai fine (Problema della fermata).
+
+Spiegazione formale
+-------------------
+Si definisce macchina di Turing deterministica a un nastro e istruzioni a cinque campi, termine che abbreviamo con MdT1n5i, una macchina formale della seguente forma:
+
+T = <S, s0, F, A, β, δ> dove
+
+S è un insieme finito detto insieme degli stati della macchina;
+
+s0 è un elemento di S detto stato iniziale della T;
+
+F è un sottoinsieme di S detto insieme degli stati finali della T;
+
+A è un alfabeto finito detto alfabeto del nastro della T
+β è un carattere dell'alfabeto A detto segno di casella vuota del nastro della T
+
+δ : S x A -> S x A x {-1, 0, +1} è detta funzione di transizione della macchina.
+
+Se δ(s,a) = <t,b,m>, la corrispondente quintupla <s,a,t,b,m> può considerarsi come l'istruzione che viene eseguita quando la macchina si trova nello stato "s" e la testina di I/O legge "a" sulla casella sulla quale è posizionata. Essa comporta la transizione allo stato "t", la scrittura del carattere "b" e:
+
+- quando m = -1 lo spostamento della testina di una posizione a sinistra,
+- quando m = 0 nessuno spostamento della testina,
+- quando m = +1 lo spostamento della testina di una posizione a destra.
+
+Il problema dell'arresto e la sua indecidibilità
+------------------------------------------------
+In talune circostanze può essere utile considerare una MdT che presenta un'evoluzione illimitata (infatti si considerano infinite le risorse di spazio e tempo a disposizione della macchina). Ad esempio interessa far procedere "illimitatamente" (cioè "quanto risulta utile") una MdT che genera gli elementi di una successione di oggetti (ad es. i successivi numeri primi, o i successivi numeri di Mersenne, o le successive cifre decimali di un numero irrazionale come pi greco). In altri casi invece un'evoluzione illimitata di una MdT è considerata un insuccesso. Quando si vuole che una MdT ricerchi in un insieme numerabile un elemento con determinate caratteristiche ed essa procede nella ricerca senza fornire alcuna indicazione, ci si trova in una situazione decisamente insoddisfacente: non si sa se interrompere un'elaborazione inutile oppure attendere ancora un risultato che potrebbe essere fornito dopo un ulteriore lavoro in tempi accettabili.
+
+È dunque importante poter stabilire se una MdT, o un altro sistema formale equivalente ("lambda-calcolo" di Church, ad es.), quando le si sottopone una stringa (di dati) si arresti o meno. Questo è detto problema della fermata o problema dell'arresto della macchina di Turing. Si trovano casi nei quali si dimostra o si verifica che si ha l'arresto, casi per i quali si dimostra che l'evoluzione non si arresta (ma potrebbe procedere all'infinito) e casi per i quali non si sa dare risposta.
+
+Sembra ragionevole cercare un procedimento generale per decidere uno di questi problemi. Dato che le MdT si rivelano in grado di risolvere tutti i problemi che si sanno risolvere con gli altri procedimenti noti, è sensato chiedersi se esiste una macchina di Turing in grado di decidere per una qualsiasi coppia (M, d) costituita da una MdT M e da una stringa di dati d se, quando si fornisce d a M, questa si evolve fino ad arrestarsi o meno. Questa richiesta è resa ancor più significativa dall'esistenza, dimostrata dallo stesso Turing, di una cosiddetta macchina di Turing universale, macchina in grado di simulare qualsiasi evoluzione di qualsiasi MdT (anche le evoluzioni di se stessa!). Ebbene Turing ha dimostrato che la macchina di Turing universale non è in grado di decidere in ogni caso il problema dell'arresto. Quindi nessuna macchina di Turing può farlo. Questo risultato negativo si esprime dicendo che il problema dell'arresto è Turing-indecidibile. Se si accetta la congettura di Church-Turing sulla portata della macchina di Turing, si conclude che il problema dell'arresto della macchina di Turing è indecidibile.
+
+Questo risultato negativo costituisce un limite per tutti i meccanismi computazionali: esso costituisce un risultato limitativo di grande importanza generale e per lo studio degli algoritmi. L'importanza generale dipende dal fatto che ogni procedimento dimostrativo automatico si trova equivalente a una computazione che può effettuarsi con una macchina di Turing. Va posto in rilievo che la Turing-indecidibilità del problema dell'arresto si dimostra equivalente al teorema di incompletezza di Gödel, il primo fondamentale risultato limitativo per la matematica. Si trova inoltre nello studio degli algoritmi e della loro complessità che dalla indecidibilità dell'arresto si deducono abbastanza agevolmente molti altri risultati limitativi.
+
+Macchina di Turing Universale
+-----------------------------
+Il problema con le MdT è che è necessario costruirne una diversa per ogni nuovo calcolo da eseguire, per ogni relazione di input/output.
+Questo è il motivo per cui introduciamo l'idea di una macchina di turing universale (MdTU), che prende come parametri di ingresso sia i dati di input sul nastro che la descrizione di una MdT. La MdTU può continuare quindi a simulare la MdT sul resto del contenuto del nastro di input. Una macchina di turing universale può quindi simulare qualsiasi altra macchina.
+
 
