@@ -14,12 +14,13 @@ Appunti sul linguaggio newLISP
 07) Domande programmatori (60)  
 08) Librerie (8)  
 09) Note libere (80)  
-10) Appendici (21)  
-11) Bibliografia  
+10) Note libere 2 (8)  
+11) Appendici (21)  
+12) Bibliografia  
 
 Documentazione Extra:  
 A) Introduction to newLISP (by Cormullion)  
-B) The Little newLISPER
-C) Primality Testing
+B) The Little newLISPER  
+C) Primality Testing  
 
 

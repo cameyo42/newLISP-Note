@@ -5543,6 +5543,56 @@ Per recuperare il valore del simbolo utilizziamo "eval":
 (eval (sym {"name"}))
 ;-> 3
 
+Per cancellare un simbolo dobbiamo usare la funzione "delete".
+
+******************
+>>>funzione DELETE
+******************
+sintassi: (delete symbol [bool])
+sintassi: (delete sym-context [bool])
+
+Nella prima sintassi elimina un simbolo simbolo e i riferimenti al simbolo che si trovano in altre espressioni vengono posti al valore nil.
+
+Nella seconda sintassi tutti i simboli dello spazio dei nomi (contesto) a cui fa riferimento sym-context verranno eliminati e i riferimenti ad essi che si trovano in altre espressioni verranno posti a nil. Il simbolo di contesto sym-context verrà modificato in un simbolo normale con valore nil.
+
+Quando l'espressione in bool vale true, i simboli vengono eliminati solo quando non sono referenziati in altre espressioni.
+
+Quando l'espressione in bool vale nil, i simboli verranno eliminati senza alcun controllo di riferimento. Si noti che questa modalità deve essere utilizzata solo se non esistono riferimenti al simbolo al di fuori del suo spazio dei nomi. Se esistono riferimenti esterni, questa modalità può causare arresti anomali del sistema, poiché il riferimento esterno non è impostato a nil quando si utilizza questa modalità. Questa modalità può essere utilizzata per eliminare gli hash dello spazio dei nomi e per eliminare gli spazi dei nomi nei sistemi a oggetti, dove le variabili sono trattate come private.
+
+I simboli protetti di funzioni integrate e simboli speciali come nil e true non possono essere eliminati.
+
+delete restituisce true se il simbolo è stato eliminato correttamente o nil se il simbolo non è stato eliminato.
+
+Quando si elimina un simbolo di contesto, la prima chiamata a delete rimuove il contenuto dello spazio dei nomi di contesto e riduce il simbolo di contesto in un normale simbolo mono-variabile. Una seconda chiamata di delete rimuoverà il simbolo dalla tabella dei simboli.
+
+(set 'lst '(a b aVar c d))
+(delete 'aVar)  ; aVar deleted, references marked nil
+lst
+;-> (a b nil c d)
+
+(set 'lst '(a b aVar c d))
+(delete 'aVar true)  
+;-> nil ; protect aVar if referenced
+
+lst
+;-> (a b aVar c d)
+
+;; delete all symbols in a context
+(set 'foo:x 123)
+(set 'foo:y "hello")
+(delete 'foo)  
+;-> nil  ; foo:x, foo:y deleted
+
+Nell'ultimo esempio verranno eliminati solo i simboli all'interno del contesto foo, ma non il simbolo contestuale stesso. Verrà convertito in un normale simbolo non protetto e conterrà nil.
+
+Si noti che l'eliminazione di un simbolo che fa parte di un'espressione che è attualmente in esecuzione può causare l'arresto anomalo del sistema o avere altri effetti imprevisti.
+
+Per cancellare tutti i simboli di un contesto X possiamo utilizzare la seguente espressione:
+
+(map delete (symbols 'X))
+
+che elimina tutti i simboli contenuti nel contesto X.
+
 
 -------------------
 Funzioni e contesti
@@ -5861,7 +5911,7 @@ Nota: la funzione è lenta per numeri superiore a poche decine perchè le string
 Assegnazione parallela
 ----------------------
 
-newLISP non ha alcun meccanismo per l'assegnazione parallela delle variabili. Vediamo la differenza tra assegnazione sequenziale e assegnazione parallela.
+newLISP non ha alcuna funzione per l'assegnazione parallela delle variabili. Vediamo la differenza tra assegnazione sequenziale e assegnazione parallela.
 
 (setq a 1 b 1)
 
@@ -6049,6 +6099,18 @@ Vediamo alcuni esempi:
 ;-> 4
 ;-> 4
 ;-> (2 3 4)
+
+Nel forum di newLISP newBert ha proposto un altro metodo che utilizza la funzione "map":
+
+(setq x 2 y 3)
+;-> 3
+(map set '(x y) (list (+ 1 y) (+ 1 x)))
+;-> (4 3)
+
+(setq x 1 y 2 z 3)
+;-> 3
+(map set '(x y z) (list (+ x y z) (- z y x) (- x y z)))
+;-> (6 0 -4)
 
 
 ----------------------------

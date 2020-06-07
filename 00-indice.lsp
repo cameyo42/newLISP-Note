@@ -332,7 +332,7 @@ DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Stanze e riunioni (Snapchat)
   Bilanciamento parentesi (Facebook)
   K punti più vicini - K Nearest points (LinkedIn)
-  Ordinamento Colori (LeetCode) 
+  Ordinamento Colori (LeetCode)
   Unione di intervalli (Google)
   Somma dei numeri unici (Google)
   Unione di due liste ordinate (Google)
@@ -461,6 +461,16 @@ NOTE LIBERE
   Quick select
   Macchina di Turing
 
+NOTE LIBERE 2
+=============
+  Creare una lista di frequenza
+  Approssimazione razionale di un numero
+  Modificare le liste annidate
+  Criptare un file sorgente o un contesto
+  Leggere e stampare un file
+  Lisp reader
+  Liste e vettori annidati
+  Conversione di un numero da una base ad un'altra
 
 APPENDICI
 =========

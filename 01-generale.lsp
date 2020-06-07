@@ -25,9 +25,9 @@ Caratteristiche del sistema utilizzato
 --------------------------------------
 S.O. Windows 10 Professional 64-bit
 Linguaggio: newLISP 10.7.5 UTF-8
-Motherboard: ASUS GTX750-PH
-CPU: Intel Core i5-4460
-RAM: 16Gb DDR3 800mHz
+Motherboard: ASUS GTX750-PH/ASUS TUF Z390-PLUS
+CPU: Intel Core i5-4460/Intel Core i7-9700
+RAM: 16Gb DDR3 800mHz/32Gb DDR4 1330mHz
 GPU: NVIDIA Geforce GTX 750 SDRAM: 2Gb GDDR5
 
 Nota:
@@ -4294,7 +4294,7 @@ In caso di fallimento la funzione ritorna nil. Per informazioni sull'errore, uti
 (write-file "myfile.enc"
     (encrypt (read-file "/home/lisp/myFile") "secret"))
 
-Il file myfile viene prima letto, poi criptato usando la password "secret" e infine sritto con un nuovo nome "myfile.enc" nella cartella corrente.
+Il file myfile viene prima letto, poi criptato usando la password "secret" e infine scritto con un nuovo nome "myfile.enc" nella cartella corrente.
 
 read-file può usare http:// oppure file:// URL in str-file-name. Quando il prefisso vale http:// read-file funziona esattamente come get-url e può avere gli stessi parametri addizionali.
 
@@ -4750,7 +4750,7 @@ Vediamo un esempio:
 
 ; works with previous expansion of free variable
 (for (i 1 5)
-     (letex (e i) (define (f x) (pow x e))) ; expansion of free variable 
+     (letex (e i) (define (f x) (pow x e))) ; expansion of free variable
      (println i ": " (sum f 10)))
 
 produce:
@@ -5103,7 +5103,7 @@ Un altro modulo molto utile è quello che gestisce il protocollo ftp (File Trans
 
 
 ======================
- HASH MAP E DIZIONARI
+ HASH-MAP E DIZIONARI
 ======================
 
 Vediamo come simulare la struttura dati hash map con i contesti (namespace).
@@ -5702,14 +5702,93 @@ Per ottimizzare le funzioni sarebbe meglio scrivere:
 
 In questo modo newLISP lavora molto più velocemente:
 
-(define (car1 x)    (first x))
-(define (cdr1 x)    (rest x))
+(define (car1 x) (first x))
+(define (cdr1 x) (rest x))
 
 (time (car '(1 2 3 4 5 6 7 8 9 0)) 10000000)
 ;-> 171.873
 
 (time (car1 '(1 2 3 4 5 6 7 8 9 0)) 10000000)
 ;-> 1468.897
+
+È possibile generare/definire queste funzioni in maniera automatica con una funzione (fornita da Kazimir Majorinc):
+
+(define (car x) (first x))
+(define (cdr x) (rest x))
+
+(define (cdadderize x)
+  (inc 'x)
+  (set 'results '())
+  (until (= x 0)
+     (push   (% x 2) results)
+     (set 'x (/ x 2)))
+  (set 'results (rest results) 'f-name results)
+  (map (fn (a b) (replace a results b)) '(0 1) '("(car " "(cdr "))
+  (push (string "x"  (dup ")" (length results))) results -1)
+  (set 'results (join results))
+  (map (fn (a b) (replace a f-name b)) '(0 1) '("a" "d"))
+  (letex ((fnm   (sym (string "c" (join f-name) "r")))
+          (body results))
+    (define (fnm x) (eval-string body))
+    fnm))
+
+Eseguiamo questa funzione:
+
+(cdadderize 14)
+;-> (lambda (x) (eval-string "(cdr (cdr (car x)))"))
+
+Verifichiamo quali funzione sono state aggiunte controllando la tabella dei simboli:
+
+(define (list-car-cdr)
+  (filter (fn (s)
+      (and (starts-with (string s) "ca|cd" 0)
+          (ends-with (string s) "r")))
+      (symbols)))
+
+(list-car-cdr)
+;-> (car cddar cdr)
+
+Per generare le funzioni car e cdr fino ad un certo limite:
+
+; genera tutte le funzioni cXXXr:
+(for (i 3 14) (cdadderize i)) ; 1 e 2 sono già definite
+;-> (lambda (x) (eval-string "(cdr (cdr (car x)))"))
+(list-car-cdr)
+;-> (caaar caadr caar cadar caddr cadr car cdaar cdadr cdar cddar cddr cdr)
+
+; genera tutte le funzioni cXXXXr:
+(for (i 3 30) (cdadderize i))
+;-> (lambda (x) (eval-string "(cdr (cdr (cdr (car x))))"))
+(list-car-cdr)
+;-> (caaaar caaadr caaar caadar caaddr caadr caar cadaar cadadr cadar 
+;->  caddar cadddr caddr cadr car cdaaar cdaadr cdaar cdadar cdaddr 
+;->  cdadr cdar cddaar cddadr cddar cdddar cdddr cddr cdr)
+
+; genera tutte le funzioni cXXXXXXXXXr:
+(for (i 3 1022) (cdadderize i))
+;-> (lambda (x) (eval-string "(cdr (cdr (cdr (cdr (cdr (cdr (cdr (cdr (car x)))))))))"))
+(list-car-cdr)
+
+Proviamo alcune di queste le funzioni:
+
+(setq lst '((a (b (c (d)) (e) (f (g (h (i)) (j)) (k (l (m (n)) (o)))))) 
+           (p (q (r (s)) (t) (u (v (x (y)) (w)) (z (z (z (z)) (z))))))))
+
+(caar lst)
+;-> a
+
+(cadr lst)
+;-> ((b (c (d)) (e) (f (g (h (i)) (j)) (k (l (m (n)) (o))))))
+
+(cadadr lst)
+;-> (q (r (s)) (t) (u (v (x (y)) (w)) (z (z (z (z)) (z)))))
+
+(cadadadr lst)
+;-> (r (s))
+
+(cadaddar lst)
+;-> ERR: list is empty : (cdr (cdr (car x)))
+;-> called from user function (cadaddar lst)
 
 
 ======================
@@ -6045,13 +6124,13 @@ Marcatori (flag)
 I marcatori (flag) rappresentano un aspetto fondamentale delle espressioni regolari.
 Una regex di solito si presenta nella forma /abc/, dove il modello di ricerca è delimitato da due caratteri barra /. Alla fine possiamo specificare un flag con questi valori (possiamo anche combinarli tra loro):
 
-g (globale) 
+g (globale)
 non ritorna dopo la prima corrispondenza, riavviando le ricerche successive dalla fine della corrispondenza precedente
 
-m (multilinea) 
+m (multilinea)
 quando abilitato, "^" e "$" corrisponderanno all'inizio e alla fine di una riga, anziché all'intera stringa
 
-i (insensibile) 
+i (insensibile)
 rende l'intera espressione senza distinzione tra maiuscole e minuscole (ad esempio /aBc/ corrisponde con AbC)
 
 Argomenti intermedi
@@ -6062,10 +6141,10 @@ Raggruppare e catturare: "()"
 a(bc)
 parentheses create a capturing group with value bc
 
-a(?:bc)*        
+a(?:bc)*
 using ?: we disable the capturing group
 
-a(?<foo>bc)     
+a(?<foo>bc)
 using ?<foo> we put a name to the group
 
 Questo operatore è molto utile quando abbiamo bisogno di estrarre informazioni da stringhe o dati usando il linguaggio di programmazione preferito. Eventuali ricorrenze multiple catturate da più gruppi saranno esposte sotto forma di un classico vettore/lista: accederemo ai loro valori specificando un indice del risultato della corrispondenza.
@@ -6074,19 +6153,19 @@ Se assegniamo un nome ai gruppi (usando (?<nome> ...)) saremo in grado di recupe
 
 Espressioni con parentesi: "[]"
 -------------------------------
-[abc]            
+[abc]
 matches a string that has either an a or a b or a c -> is the same as a|b|c
 
-[a-c]            
+[a-c]
 same as previous
 
-[a-fA-F0-9]      
+[a-fA-F0-9]
 a string that represents a single hexadecimal digit, case insensitively
 
-[0-9]%           
+[0-9]%
 a string that has a character from 0 to 9 before a % sign
 
-[^a-zA-Z]        
+[^a-zA-Z]
 a string that has not a letter from a to z or from A to Z
 In this case the ^ is used as negation of the expression
 
@@ -6098,12 +6177,12 @@ I quantificatori (* + {}) sono operatori golosi, nel senso che espandono la corr
 
 Ad esempio, "<. +>" corrisponde a "<div>simple div</div>" nel testo "This is a <div> simple div</div>". Per catturare solo il tag div possiamo usare un "?" per renderlo pigro:
 
-<.+?>            
+<.+?>
 matches any character one or more times included inside < and >, expanding as needed
 
 Si noti che una soluzione migliore dovrebbe evitare l'utilizzo di "." a favore di una regex più rigorosa:
 
-<[^<>]+>         
+<[^<>]+>
 matches any character except < or > one or more times included inside < and >
 
 Argomenti avanzati
@@ -6111,41 +6190,41 @@ Argomenti avanzati
 
 Confini (Boundaries): "\b" e "\B"
 ---------------------------------
-\babc\b          
+\babc\b
 performs a "whole words only" search
 
 \b rappresenta un punto di ancoraggio come il punto di inserimento (è simile a $ e ^) in corrispondenza delle posizioni in cui un lato è un carattere di una parola (come \w) e l'altro lato non è un carattere di parola (ad esempio potrebbe essere l'inizio della stringa o un carattere spazio).
 
 Esiste anche la sua negazione, \B. Questo corrisponde a tutte le posizioni in cui \b non corrisponde e rappresenta un modello per la ricerca di pattern racchiusi da altri caratteri.
 
-\Babc\B          
+\Babc\B
 matches only if the pattern is fully surrounded by word characters
 
 Riferimento all'indietro (Back-references): "\1"
 ------------------------------------------------
-([abc])\1              
+([abc])\1
 using \1 it matches the same text that was matched by the first capturing group
 
-([abc])([de])\2\1      
+([abc])([de])\2\1
 we can use \2 (\3, \4, etc.) to identify the same text that was matched by the second (third, fourth, etc.) capturing group
 
-(?<foo>[abc])\k<foo>   
+(?<foo>[abc])\k<foo>
 we put the name foo to the group and we reference it later (\k<foo>). The result is the same of the first regex
 
 Guarda-avanti (look-ahead) e (look-behind): "(?=)" e "(?<=)"
 ------------------------------------------------------------
-d(?=r)       
+d(?=r)
 matches a d only if is followed by r, but r will not be part of the overall regex match
 
-(?<=r)d      
+(?<=r)d
 matches a d only if is preceded by an r, but r will not be part of the overall regex match
 
 Possiamo anche usare l'operatore di negazione "!":
 
-d(?!r)       
+d(?!r)
 matches a d only if is not followed by r, but r will not be part of the overall regex match
 
-(?<!r)d      
+(?<!r)d
 matches a d only if is not preceded by an r, but r will not be part of the overall regex match
 
 Adesso vediamo alcuni esempi di regex e delle funzioni di newLISP che la utilizzano.
@@ -6315,7 +6394,7 @@ Con 'define-macro' è possibile creare funzioni che si comportano e sembrano fiu
 
 Un altro esempio è: (dolist (item mylist) .....). L'espressione (item mylist) non viene valutata ma passata in "dolist" per gestirla. Altrimenti, dovremmo citare facendo (dolist '(item mylist) ...).
 
-Le macro non vengono utilizzate molto spesso, ma quando vengono utilizzate possono essere utili e importanti. 
+Le macro non vengono utilizzate molto spesso, ma quando vengono utilizzate possono essere utili e importanti.
 
 Abbiamo bisogno delle macro solo quando non vogliamo che una funzione valuti immediatamente i suoi argomenti. Per esempio:
 
@@ -7845,7 +7924,7 @@ Questa macro implementa una struttura di controllo iterativa.
 La sintassi è la seguente:
 
 (each '(ruby is not a lisp) do |item| (println item) end)
-;-> ruby 
+;-> ruby
 ;-> is
 ;-> not
 ;-> a
@@ -7920,7 +7999,7 @@ Altra versione che ritorna anche il risultato della funzione:
 Esempi:
 
 (define (f (x 10) y) (+ x y))
-;-> (lambda ((x 10) y) (println "[" 'f "] params: " (list x y) " args: " (args)) 
+;-> (lambda ((x 10) y) (println "[" 'f "] params: " (list x y) " args: " (args))
   ;-> (println "[" 'f "] result: "  (begin  (+ x y))))
 (f 2 3)
 ;-> [f] params: (2 3) args: ()
@@ -7957,7 +8036,7 @@ Questa macro permette di determinare il tipo dell'argomento.
 Un piccolo problema:
 
 (type type)
-;-> "symbol" 
+;-> "symbol"
 (macro? type)
 ;-> true
 
@@ -8061,7 +8140,7 @@ Ecco un esempio di fattoriale (da Ansi Common Lisp) che usa questo "do". Non ha 
 
 Sintassi:
 
-(do ((sym1 init-form1 update-form1) [(sym2 init-form2 update-form2) ...]) 
+(do ((sym1 init-form1 update-form1) [(sym2 init-form2 update-form2) ...])
      (exp-break sym-result) (expr-body*))
 
 In altre parole, questa macro fa semplicemente la stessa cosa del ciclo "for", ma su più variabili, con una condizione di arresto e controllo sul valore restituito.
@@ -8096,7 +8175,7 @@ La programmazione orientata agli oggetti funzionali (FOOP - Functional Object Or
 I seguenti paragrafi sono una breve introduzione alla FOOP progettata da Michael Michaels:
 http://neglook.com/
 
-Al seguente indirizzo web potete trovare alcuni tutorial video sull'utilizzo della FOOP in newLISP: 
+Al seguente indirizzo web potete trovare alcuni tutorial video sull'utilizzo della FOOP in newLISP:
 
 http://neglook.com/index.cgi?page=newLISP
 
@@ -8105,7 +8184,7 @@ Classi e costruttori FOOP
 Gli attributi e i metodi della classe sono memorizzati nello spazio dei nomi della classe di oggetti. Nessun dato dell'istanza di un oggetto è memorizzato in questo spazio dei nomi/contesto. Le variabili di dati nello spazio dei nomi della classe descrivono solo la classe di oggetti nel suo insieme, ma non contengono alcuna informazione specifica sull'oggetto. Un costruttore di oggetti FOOP generico può essere utilizzato come modello (template) per specifici costruttori di oggetti quando si creano nuove classi di oggetti con la funzione "new":
 
 ; built-in generic FOOP object constructor
-(define (Class:Class) 
+(define (Class:Class)
     (cons (context) (args)))
 
 ; create some new classes
@@ -8140,10 +8219,10 @@ La creazione delle classi nello spazio dei nomi usando new riserva il nome della
 
 In alcuni casi, può essere utile sovrascrivere il costruttore semplice, creato durante la creazione della classe, con "new":
 
-; overwrite simple constructor 
+; overwrite simple constructor
 (define (Circle:Circle x y radius)
     (list Circle x y radius))
-    
+
 Un costruttore può anche specificare i valori predefiniti:
 
 ; costruttore con valori predefiniti
@@ -8198,7 +8277,7 @@ Il codice seguente definisce due funzioni chiamate area, ognuna appartenente a u
     (mul (self 3) (self 4)))
 
 (define (Rectangle:move dx dy)
-    (inc (self 1) dx) 
+    (inc (self 1) dx)
     (inc (self 2) dy))
 
 ;; class methods for circles
@@ -8207,9 +8286,9 @@ Il codice seguente definisce due funzioni chiamate area, ognuna appartenente a u
     (mul (pow (self 3) 2) (acos 0) 2))
 
 (define (Circle:move dx dy)
-    (inc (self 1) dx) 
+    (inc (self 1) dx)
     (inc (self 2) dy))
-    
+
 Prefissando il simbolo area con il carattere ":" (due punti), possiamo chiamare queste funzioni per ciascuna classe di oggetti. Sebbene non vi sia spazio tra i due punti e il simbolo che lo segue, newLISP li analizza come entità distinte. I due punti possono essere visti come una funzione che processa i parametri:
 
 (:area myrect) → 200 ; same as (: area myrect)
@@ -8219,12 +8298,12 @@ Prefissando il simbolo area con il carattere ":" (due punti), possiamo chiamare 
 
 (map (curry :area) (list myrect mycircle)) → (200 314.1592654)
 
-(map (curry :area) '((Rectangle 5 5 10 20) (Circle 1 2 10))) → (200 314.1592654) 
+(map (curry :area) '((Rectangle 5 5 10 20) (Circle 1 2 10))) → (200 314.1592654)
 
 ;; objects are mutable (since v10.1.8)
 
 (:move myrect 2 3)
-(:move mycircle 4 5) 
+(:move mycircle 4 5)
 
 myrect    → (Rectangle 7 8 10 20)
 mycircle  → (Circle 5 7 10)
@@ -8265,7 +8344,7 @@ Ogni classe si trova in un file separato:
 (mul (self 3) (self 4)))
 
 (define (Rectangle:move dx dy)
-(inc (self 1) dx) 
+(inc (self 1) dx)
 (inc (self 2) dy))
 
 ; end of file
@@ -8280,7 +8359,7 @@ Segue la classe Circle:
     (mul (pow (self 3) 2) (acos 0) 2))
 
 (define (Circle:move dx dy)
-    (inc (self 1) dx) 
+    (inc (self 1) dx)
     (inc (self 2) dy))
 
 ; end of file

@@ -3,68 +3,68 @@
  PROJECT EULERO
 
 ================
-
-  Problema    Soluzione     Tempo (msec)
-|    1     |  233168       |         0  |
-|    2     |  4613732      |         0  |
-|    3     |  6857         |         0  |
-|    4     |  906609       |       297  |
-|    5     |  232792560    |         0  |
-|    6     |  25164150     |         0  |
-|    7     |  104743       |        78  |
-|    8     |  235146240    |       110  |
-|    9     |  31875000     |        62  |
-|    10    |  142913828    |      1563  |
-|    11    |  70600674     |         0  |
-|    12    |  76576500     |      5445  |
-|    13    |  5537376230   |         0  |
-|    14    |  837799       |     22487  |
-|    15    |  137846528    |         0  |
-|    16    |  1366         |         0  |
-|    17    |  21124        |         0  |
-|    18    |  1074         |        32  |
-|    19    |  171          |         3  |
-|    20    |  648          |         0  |
-|    21    |  31626        |       122  |
-|    22    |  871198282    |        20  |
-|    23    |  4179871      |     40900  |
-|    24    |  278391546    |     25309  |
-|    25    |  4782         |      4926  |
-|    26    |  983          |       488  |
-|    27    |  -59231       |      2000  |
-|    28    |  669171001    |         0  |
-|    29    |  9183         |       141  |
-|    30    |  443839       |       516  |
-|    31    |  73682        |         1  |
-|    32    |  45228        |      1625  |
-|    33    |  100          |         0  |
-|    34    |  40730        |      3797  |
-|    35    |  55           |      1267  |
-|    36    |  872187       |      1443  |
-|    37    |  748317       |       778  |
-|    38    |  932718654    |        94  |
-|    39    |  840          |     13486  |
-|    40    |  210          |       141  |
-|    41    |  7652413      |       125  |
-|    42    |  162          |        31  |
-|    43    |  16695334890  |      1749  |
-|    44    |  5482660      |      5589  |
-|    45    |  1533776805   |       115  |
-|    46    |  5777         |        31  |
-|    47    |  134043       |         0  |
-|    48    |  9110846700   |       266  |
-|    49    |  296962999629 |        19  |
-|    50    |  997651       |     27113  |
-|    51    |  121313       |       269  |
-|    52    |  142857       |       313  |
-|    53    |  4075         |        25  |
-|    54    |  376          |       154  |
-|    55    |  249          |       116  |
-|    56    |  972          |       186  |
-|    57    |  153          |        10  |
-|    58    |  26241        |       630  |
-|    59    |  107359       |        15  |
-|    60    |  26033        |     55055  |
+                            Intel i5     Intel i7
+  Problema    Soluzione     Tempo (msec) Tempo (msec)
+|    1     |  233168       |         0  |         0  |
+|    2     |  4613732      |         0  |         0  |
+|    3     |  6857         |         0  |         0  |
+|    4     |  906609       |       297  |       203  |
+|    5     |  232792560    |         0  |         0  |
+|    6     |  25164150     |         0  |         0  |
+|    7     |  104743       |        78  |        31  |
+|    8     |  235146240    |       110  |        62  |
+|    9     |  31875000     |        62  |        31  |
+|    10    |  142913828    |      1563  |      1078  |
+|    11    |  70600674     |         0  |         0  |
+|    12    |  76576500     |      5445  |      4022  |
+|    13    |  5537376230   |         0  |         0  |
+|    14    |  837799       |     22487  |     15408  |
+|    15    |  137846528    |         0  |         0  |
+|    16    |  1366         |         0  |         0  |
+|    17    |  21124        |         0  |         0  |
+|    18    |  1074         |        32  |         7  |
+|    19    |  171          |         3  |         0  |
+|    20    |  648          |         0  |         0  |
+|    21    |  31626        |       122  |        78  |
+|    22    |  871198282    |        20  |        16  |
+|    23    |  4179871      |     40900  |     27534  |
+|    24    |  278391546    |     25309  |     12282  |
+|    25    |  4782         |      4926  |      3469  |
+|    26    |  983          |       488  |       266  |
+|    27    |  -59231       |      2000  |      1532  |
+|    28    |  669171001    |         0  |         0  |
+|    29    |  9183         |       141  |        94  |
+|    30    |  443839       |       516  |       344  |
+|    31    |  73682        |         1  |         0  |
+|    32    |  45228        |      1625  |      1079  |
+|    33    |  100          |         0  |         0  |
+|    34    |  40730        |      3797  |      2625  |
+|    35    |  55           |      1267  |       902  |
+|    36    |  872187       |      1443  |       945  |
+|    37    |  748317       |       778  |       651  |
+|    38    |  932718654    |        94  |        48  |
+|    39    |  840          |     13486  |      9561  |
+|    40    |  210          |       141  |       433  |
+|    41    |  7652413      |       125  |        64  |
+|    42    |  162          |        31  |         4  |
+|    43    |  16695334890  |      1749  |      1321  |
+|    44    |  5482660      |      5589  |      4182  |
+|    45    |  1533776805   |       115  |        63  |
+|    46    |  5777         |        31  |         5  |
+|    47    |  134043       |         0  |         0  |
+|    48    |  9110846700   |       266  |       186  |
+|    49    |  296962999629 |        19  |         5  |
+|    50    |  997651       |     27113  |     18871  |
+|    51    |  121313       |       269  |       180  |
+|    52    |  142857       |       313  |       204  |
+|    53    |  4075         |        25  |         5  |
+|    54    |  376          |       154  |        91  |
+|    55    |  249          |       116  |        69  |
+|    56    |  972          |       186  |       119  |
+|    57    |  153          |        10  |         1  |
+|    58    |  26241        |       630  |       432  |
+|    59    |  107359       |        15  |         1  |
+|    60    |  26033        |     55055  |     38926  |
 
 Sito web: https://projecteuler.net/archives
 
@@ -2208,12 +2208,17 @@ Definiamo la funzione che genera le permutazioni:
       (list end)
       (cons start (seq (+ start 1) end))))
 
+(define (insert l n e)
+  (if (= 0 n)
+      (cons e l)
+      (cons (first l)
+            (insert (rest l) (- n 1) e))))
+
 (define (permute l)
   (if (null? l) '(())
       (apply append (map (lambda (p)
                            (map (lambda (n) (insert p n (first l))) (seq 0 (length p))))
                          (permute (rest l))))))
-
 
 Scriviamo la funzione finale:
 
@@ -3946,7 +3951,6 @@ P(n) = N  ==>  (3*n*n - n - 2*N) = 0  ==>  n = (1 + sqrt(24*N + 1))/6
 Prima versione:
 
 (define (penta? n)
-; molto più veloce che cercare nella lista dei numeri pentagonali
   (let (i (div (add (sqrt (add 1 (mul 24 n))) 1) 6))
     (if (= 0 (sub i (int i))) true nil)
   )
@@ -4066,7 +4070,7 @@ Possiamo scrivere la soluzione controllando per ogni valore dell'indice del nume
     (setq i 287)
     (setq stop nil)
     (while (= stop nil)
-      (setq x (xx i))
+      (setq x (xidx i))
       ;(if (ref (esa x) penta) (begin (println i { } x { } (ref (esa x) penta) { } (esa x)) (setq stop true)))
       (if (ref (tri i) penta) (begin (println i { } x { } (ref (esa x) penta) { } (esa x)) (setq stop true)))
       (if (zero? (% i 1000))  (println i))
@@ -4265,7 +4269,7 @@ Scriviamo la funzione:
 )
 
 (e048)
-;-> 9110846700
+;-> "9110846700"
 
 (time (e048))
 ;-> 265.614
@@ -4839,30 +4843,30 @@ Vediamo i passi della soluzione con il file "poker.txt" (che ha solo 10 mani):
 Usiamo la funzione "parse" per ottenere solo una stringa che rappresenta una mano:
 
 (setq data (parse raw "\r\n"))
-("8C TS KC 9H 4S 7D 2S 5D 3S AC"
- "5C AD 5D AC 9C 7C 5H 8D TD KS"
- "3H 7H 6S KC JS QH TD JC 2D 8S"
- "TH 8H 5C QS TC 9H 4D JC KS JS"
- "7C 5H KC QH JD AS KH 4C AD 4S"
- "5H KS 9C 7D 9H 8D 3S 5D 5C AH"
- "6H 4H 5C 3H 2H 3S QH 5S 6S AS"
- "TD 8C 4H 7C TC KC 4C 3H 7S KS"
- "7C 9C 6D KD 3H 4C QS QC AC KH"
- "JC 6S 5H 2H 2D KD 9D 7C AS JS")
+;-> ("8C TS KC 9H 4S 7D 2S 5D 3S AC"
+;->  "5C AD 5D AC 9C 7C 5H 8D TD KS"
+;->  "3H 7H 6S KC JS QH TD JC 2D 8S"
+;->  "TH 8H 5C QS TC 9H 4D JC KS JS"
+;->  "7C 5H KC QH JD AS KH 4C AD 4S"
+;->  "5H KS 9C 7D 9H 8D 3S 5D 5C AH"
+;->  "6H 4H 5C 3H 2H 3S QH 5S 6S AS"
+;->  "TD 8C 4H 7C TC KC 4C 3H 7S KS"
+;->  "7C 9C 6D KD 3H 4C QS QC AC KH"
+;->  "JC 6S 5H 2H 2D KD 9D 7C AS JS")
 
 Adesso se vogliamo ottenere una lista per ogni riga, basta mappare la funzione "list" sugli elementi della lista data:
 
 (setq data (map list data))
-(("8C TS KC 9H 4S 7D 2S 5D 3S AC")
- ("5C AD 5D AC 9C 7C 5H 8D TD KS")
- ("3H 7H 6S KC JS QH TD JC 2D 8S")
- ("TH 8H 5C QS TC 9H 4D JC KS JS")
- ("7C 5H KC QH JD AS KH 4C AD 4S")
- ("5H KS 9C 7D 9H 8D 3S 5D 5C AH")
- ("6H 4H 5C 3H 2H 3S QH 5S 6S AS")
- ("TD 8C 4H 7C TC KC 4C 3H 7S KS")
- ("7C 9C 6D KD 3H 4C QS QC AC KH")
- ("JC 6S 5H 2H 2D KD 9D 7C AS JS"))
+;-> (("8C TS KC 9H 4S 7D 2S 5D 3S AC")
+;->  ("5C AD 5D AC 9C 7C 5H 8D TD KS")
+;->  ("3H 7H 6S KC JS QH TD JC 2D 8S")
+;->  ("TH 8H 5C QS TC 9H 4D JC KS JS")
+;->  ("7C 5H KC QH JD AS KH 4C AD 4S")
+;->  ("5H KS 9C 7D 9H 8D 3S 5D 5C AH")
+;->  ("6H 4H 5C 3H 2H 3S QH 5S 6S AS")
+;->  ("TD 8C 4H 7C TC KC 4C 3H 7S KS")
+;->  ("7C 9C 6D KD 3H 4C QS QC AC KH")
+;->  ("JC 6S 5H 2H 2D KD 9D 7C AS JS"))
 
 Dobbiamo cambiare i valori dei caratteri:
 ('A','14')
@@ -5788,13 +5792,13 @@ http://www.data-compression.com/english.html
  (0.0145984 "y") (0.0007836 "z") (0.1918182 " ")))
 
 (sort af >)
-((0.1918182 " ") (0.1041442 "e") (0.0729357 "t") (0.0651738 "a") 
- (0.0596302 "o") (0.0564513 "n") (0.0558094 "i") (0.051576 "s")
- (0.0497563 "r") (0.0492888 "h") (0.0349835 "d") (0.033149 "l")
- (0.0225134 "u") (0.0217339 "c") (0.0202124 "m") (0.0197881 "f")
- (0.0171272 "w") (0.015861 "g")  (0.0145984 "y") (0.0137645 "p")
- (0.0124248 "b") (0.0082903 "v") (0.0050529 "k") (0.0013692 "x")
- (0.0009033 "j") (0.0008606 "q") (0.0007836 "z"))
+;-> ((0.1918182 " ") (0.1041442 "e") (0.0729357 "t") (0.0651738 "a") 
+;->  (0.0596302 "o") (0.0564513 "n") (0.0558094 "i") (0.051576 "s")
+;->  (0.0497563 "r") (0.0492888 "h") (0.0349835 "d") (0.033149 "l")
+;->  (0.0225134 "u") (0.0217339 "c") (0.0202124 "m") (0.0197881 "f")
+;->  (0.0171272 "w") (0.015861 "g")  (0.0145984 "y") (0.0137645 "p")
+;->  (0.0124248 "b") (0.0082903 "v") (0.0050529 "k") (0.0013692 "x")
+;->  (0.0009033 "j") (0.0008606 "q") (0.0007836 "z"))
 
 Quindi il carattere spazio " " è quello di gran lunga più frequente (quasi il 20%). Per il nostro algoritmo sarà sufficiente utilizzare questo carattere.
  
@@ -5877,7 +5881,7 @@ In questo caso otteniamo un testo illeggibile.
 Proviamo con "god":
 
 (setq testo (join (map char (crypt-text tc "god"))))
-"(The Gospel of John, chapter 1) 1 In the beginning the Word already existed. He was with God, and he was God. 2 He was in the beginning with God. 3 He created everything there is. Nothing exists that he didn't make. 4 Life itself was in him, and this life gives light to everyone. 5 The light shines through the darkness, and the darkness can never extinguish it. 6 God sent John the Baptist 7 to tell everyone about the light so that everyone might believe because of his testimony. 8 John himself was not the light; he was only a witness to the light. 9 The one who is the true light, who gives light to everyone, was going to come into the world. 10 But although the world was made through him, the world didn't recognize him when he came. 11 Even in his own land and among his own people, he was not accepted. 12 But to all who believed him and accepted him, he gave the right to become children of God. 13 They are reborn! This is not a physical birth resulting from human passion or plan, this rebirth comes from God.14 So the Word became human and lived here on earth among us. He was full of unfailing love and faithfulness. And we have seen his glory, the glory of the only Son of the Father."
+;-> "(The Gospel of John, chapter 1) 1 In the beginning the Word already existed. He was with God, and he was God. 2 He was in the beginning with God. 3 He created everything there is. Nothing exists that he didn't make. 4 Life itself was in him, and this life gives light to everyone. 5 The light shines through the darkness, and the darkness can never extinguish it. 6 God sent John the Baptist 7 to tell everyone about the light so that everyone might believe because of his testimony. 8 John himself was not the light; he was only a witness to the light. 9 The one who is the true light, who gives light to everyone, was going to come into the world. 10 But although the world was made through him, the world didn't recognize him when he came. 11 Even in his own land and among his own people, he was not accepted. 12 But to all who believed him and accepted him, he gave the right to become children of God. 13 They are reborn! This is not a physical birth resulting from human passion or plan, this rebirth comes from God.14 So the Word became human and lived here on earth among us. He was full of unfailing love and faithfulness. And we have seen his glory, the glory of the only Son of the Father."
 
 Testo decifrato correttamente. Vediamo la somma dei valori ASCII del testo decifrato:
 
@@ -6043,14 +6047,18 @@ Facciamo alcuni tentativi:
 
 (setq testo (join (map char (crypt-text tc1 "xpe"))))
 In questo caso otteniamo un testo illeggibile.
+
 (setq testo (join (map char (crypt-text tc1 "pex"))))
 In questo caso otteniamo un testo illeggibile.
+
 (setq testo (join (map char (crypt-text tc1 "pxe"))))
 In questo caso otteniamo un testo illeggibile.
+
 (setq testo (join (map char (crypt-text tc1 "xep"))))
 In questo caso otteniamo un testo illeggibile.
+
 (setq testo (join (map char (crypt-text tc1 "exp"))))
-"An extract taken from the introduction of one of Euler's most celebrated papers, \"De summis serierum reciprocarum\" [On the sums of series of reciprocals]: I have recently found, quite unexpectedly, an elegant expression for the entire sum of this series 1 + 1/4 + 1/9 + 1/16 + etc., which depends on the quadrature of the circle, so that if the true sum of this series is obtained, from it at once the quadrature of the circle follows. Namely, I have found that the sum of this series is a sixth part of the square of the perimeter of the circle whose diameter is 1; or by putting the sum of this series equal to s, it has the ratio sqrt(6) multiplied by s to 1 of the perimeter to the diameter. I will soon show that the sum of this series to be approximately 1.644934066842264364; and from multiplying this number by six, and then taking the square root, the number 3.141592653589793238 is indeed produced, which expresses the perimeter of a circle whose diameter is 1. Following again the same steps by which I had arrived at this sum, I have discovered that the sum of the series 1 + 1/16 + 1/81 + 1/256 + 1/625 + etc. also depends on the quadrature of the circle. Namely, the sum of this multiplied by 90 gives the biquadrate (fourth power) of the circumference of the perimeter of a circle whose diameter is 1. And by similar reasoning I have likewise been able to determine the sums of the subsequent series in which the exponents are even numbers."
+;-> "An extract taken from the introduction of one of Euler's most celebrated papers, \"De summis serierum reciprocarum\" [On the sums of series of reciprocals]: I have recently found, quite unexpectedly, an elegant expression for the entire sum of this series 1 + 1/4 + 1/9 + 1/16 + etc., which depends on the quadrature of the circle, so that if the true sum of this series is obtained, from it at once the quadrature of the circle follows. Namely, I have found that the sum of this series is a sixth part of the square of the perimeter of the circle whose diameter is 1; or by putting the sum of this series equal to s, it has the ratio sqrt(6) multiplied by s to 1 of the perimeter to the diameter. I will soon show that the sum of this series to be approximately 1.644934066842264364; and from multiplying this number by six, and then taking the square root, the number 3.141592653589793238 is indeed produced, which expresses the perimeter of a circle whose diameter is 1. Following again the same steps by which I had arrived at this sum, I have discovered that the sum of the series 1 + 1/16 + 1/81 + 1/256 + 1/625 + etc. also depends on the quadrature of the circle. Namely, the sum of this multiplied by 90 gives the biquadrate (fourth power) of the circumference of the perimeter of a circle whose diameter is 1. And by similar reasoning I have likewise been able to determine the sums of the subsequent series in which the exponents are even numbers."
 
 Testo decifrato correttamente. 
 La chiave vale "exp".

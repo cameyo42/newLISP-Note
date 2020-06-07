@@ -332,7 +332,7 @@ DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Stanze e riunioni (Snapchat)
   Bilanciamento parentesi (Facebook)
   K punti più vicini - K Nearest points (LinkedIn)
-  Ordinamento Colori (LeetCode) 
+  Ordinamento Colori (LeetCode)
   Unione di intervalli (Google)
   Somma dei numeri unici (Google)
   Unione di due liste ordinate (Google)
@@ -461,6 +461,16 @@ NOTE LIBERE
   Quick select
   Macchina di Turing
 
+NOTE LIBERE 2
+=============
+  Creare una lista di frequenza
+  Approssimazione razionale di un numero
+  Modificare le liste annidate
+  Criptare un file sorgente o un contesto
+  Leggere e stampare un file
+  Lisp reader
+  Liste e vettori annidati
+  Conversione di un numero da una base ad un'altra
 
 APPENDICI
 =========
@@ -551,9 +561,9 @@ Caratteristiche del sistema utilizzato
 --------------------------------------
 S.O. Windows 10 Professional 64-bit
 Linguaggio: newLISP 10.7.5 UTF-8
-Motherboard: ASUS GTX750-PH
-CPU: Intel Core i5-4460
-RAM: 16Gb DDR3 800mHz
+Motherboard: ASUS GTX750-PH/ASUS TUF Z390-PLUS
+CPU: Intel Core i5-4460/Intel Core i7-9700
+RAM: 16Gb DDR3 800mHz/32Gb DDR4 1330mHz
 GPU: NVIDIA Geforce GTX 750 SDRAM: 2Gb GDDR5
 
 Nota:
@@ -4820,7 +4830,7 @@ In caso di fallimento la funzione ritorna nil. Per informazioni sull'errore, uti
 (write-file "myfile.enc"
     (encrypt (read-file "/home/lisp/myFile") "secret"))
 
-Il file myfile viene prima letto, poi criptato usando la password "secret" e infine sritto con un nuovo nome "myfile.enc" nella cartella corrente.
+Il file myfile viene prima letto, poi criptato usando la password "secret" e infine scritto con un nuovo nome "myfile.enc" nella cartella corrente.
 
 read-file può usare http:// oppure file:// URL in str-file-name. Quando il prefisso vale http:// read-file funziona esattamente come get-url e può avere gli stessi parametri addizionali.
 
@@ -5276,7 +5286,7 @@ Vediamo un esempio:
 
 ; works with previous expansion of free variable
 (for (i 1 5)
-     (letex (e i) (define (f x) (pow x e))) ; expansion of free variable 
+     (letex (e i) (define (f x) (pow x e))) ; expansion of free variable
      (println i ": " (sum f 10)))
 
 produce:
@@ -5629,7 +5639,7 @@ Un altro modulo molto utile è quello che gestisce il protocollo ftp (File Trans
 
 
 ======================
- HASH MAP E DIZIONARI
+ HASH-MAP E DIZIONARI
 ======================
 
 Vediamo come simulare la struttura dati hash map con i contesti (namespace).
@@ -6228,14 +6238,93 @@ Per ottimizzare le funzioni sarebbe meglio scrivere:
 
 In questo modo newLISP lavora molto più velocemente:
 
-(define (car1 x)    (first x))
-(define (cdr1 x)    (rest x))
+(define (car1 x) (first x))
+(define (cdr1 x) (rest x))
 
 (time (car '(1 2 3 4 5 6 7 8 9 0)) 10000000)
 ;-> 171.873
 
 (time (car1 '(1 2 3 4 5 6 7 8 9 0)) 10000000)
 ;-> 1468.897
+
+È possibile generare/definire queste funzioni in maniera automatica con una funzione (fornita da Kazimir Majorinc):
+
+(define (car x) (first x))
+(define (cdr x) (rest x))
+
+(define (cdadderize x)
+  (inc 'x)
+  (set 'results '())
+  (until (= x 0)
+     (push   (% x 2) results)
+     (set 'x (/ x 2)))
+  (set 'results (rest results) 'f-name results)
+  (map (fn (a b) (replace a results b)) '(0 1) '("(car " "(cdr "))
+  (push (string "x"  (dup ")" (length results))) results -1)
+  (set 'results (join results))
+  (map (fn (a b) (replace a f-name b)) '(0 1) '("a" "d"))
+  (letex ((fnm   (sym (string "c" (join f-name) "r")))
+          (body results))
+    (define (fnm x) (eval-string body))
+    fnm))
+
+Eseguiamo questa funzione:
+
+(cdadderize 14)
+;-> (lambda (x) (eval-string "(cdr (cdr (car x)))"))
+
+Verifichiamo quali funzione sono state aggiunte controllando la tabella dei simboli:
+
+(define (list-car-cdr)
+  (filter (fn (s)
+      (and (starts-with (string s) "ca|cd" 0)
+          (ends-with (string s) "r")))
+      (symbols)))
+
+(list-car-cdr)
+;-> (car cddar cdr)
+
+Per generare le funzioni car e cdr fino ad un certo limite:
+
+; genera tutte le funzioni cXXXr:
+(for (i 3 14) (cdadderize i)) ; 1 e 2 sono già definite
+;-> (lambda (x) (eval-string "(cdr (cdr (car x)))"))
+(list-car-cdr)
+;-> (caaar caadr caar cadar caddr cadr car cdaar cdadr cdar cddar cddr cdr)
+
+; genera tutte le funzioni cXXXXr:
+(for (i 3 30) (cdadderize i))
+;-> (lambda (x) (eval-string "(cdr (cdr (cdr (car x))))"))
+(list-car-cdr)
+;-> (caaaar caaadr caaar caadar caaddr caadr caar cadaar cadadr cadar 
+;->  caddar cadddr caddr cadr car cdaaar cdaadr cdaar cdadar cdaddr 
+;->  cdadr cdar cddaar cddadr cddar cdddar cdddr cddr cdr)
+
+; genera tutte le funzioni cXXXXXXXXXr:
+(for (i 3 1022) (cdadderize i))
+;-> (lambda (x) (eval-string "(cdr (cdr (cdr (cdr (cdr (cdr (cdr (cdr (car x)))))))))"))
+(list-car-cdr)
+
+Proviamo alcune di queste le funzioni:
+
+(setq lst '((a (b (c (d)) (e) (f (g (h (i)) (j)) (k (l (m (n)) (o)))))) 
+           (p (q (r (s)) (t) (u (v (x (y)) (w)) (z (z (z (z)) (z))))))))
+
+(caar lst)
+;-> a
+
+(cadr lst)
+;-> ((b (c (d)) (e) (f (g (h (i)) (j)) (k (l (m (n)) (o))))))
+
+(cadadr lst)
+;-> (q (r (s)) (t) (u (v (x (y)) (w)) (z (z (z (z)) (z)))))
+
+(cadadadr lst)
+;-> (r (s))
+
+(cadaddar lst)
+;-> ERR: list is empty : (cdr (cdr (car x)))
+;-> called from user function (cadaddar lst)
 
 
 ======================
@@ -6571,13 +6660,13 @@ Marcatori (flag)
 I marcatori (flag) rappresentano un aspetto fondamentale delle espressioni regolari.
 Una regex di solito si presenta nella forma /abc/, dove il modello di ricerca è delimitato da due caratteri barra /. Alla fine possiamo specificare un flag con questi valori (possiamo anche combinarli tra loro):
 
-g (globale) 
+g (globale)
 non ritorna dopo la prima corrispondenza, riavviando le ricerche successive dalla fine della corrispondenza precedente
 
-m (multilinea) 
+m (multilinea)
 quando abilitato, "^" e "$" corrisponderanno all'inizio e alla fine di una riga, anziché all'intera stringa
 
-i (insensibile) 
+i (insensibile)
 rende l'intera espressione senza distinzione tra maiuscole e minuscole (ad esempio /aBc/ corrisponde con AbC)
 
 Argomenti intermedi
@@ -6588,10 +6677,10 @@ Raggruppare e catturare: "()"
 a(bc)
 parentheses create a capturing group with value bc
 
-a(?:bc)*        
+a(?:bc)*
 using ?: we disable the capturing group
 
-a(?<foo>bc)     
+a(?<foo>bc)
 using ?<foo> we put a name to the group
 
 Questo operatore è molto utile quando abbiamo bisogno di estrarre informazioni da stringhe o dati usando il linguaggio di programmazione preferito. Eventuali ricorrenze multiple catturate da più gruppi saranno esposte sotto forma di un classico vettore/lista: accederemo ai loro valori specificando un indice del risultato della corrispondenza.
@@ -6600,19 +6689,19 @@ Se assegniamo un nome ai gruppi (usando (?<nome> ...)) saremo in grado di recupe
 
 Espressioni con parentesi: "[]"
 -------------------------------
-[abc]            
+[abc]
 matches a string that has either an a or a b or a c -> is the same as a|b|c
 
-[a-c]            
+[a-c]
 same as previous
 
-[a-fA-F0-9]      
+[a-fA-F0-9]
 a string that represents a single hexadecimal digit, case insensitively
 
-[0-9]%           
+[0-9]%
 a string that has a character from 0 to 9 before a % sign
 
-[^a-zA-Z]        
+[^a-zA-Z]
 a string that has not a letter from a to z or from A to Z
 In this case the ^ is used as negation of the expression
 
@@ -6624,12 +6713,12 @@ I quantificatori (* + {}) sono operatori golosi, nel senso che espandono la corr
 
 Ad esempio, "<. +>" corrisponde a "<div>simple div</div>" nel testo "This is a <div> simple div</div>". Per catturare solo il tag div possiamo usare un "?" per renderlo pigro:
 
-<.+?>            
+<.+?>
 matches any character one or more times included inside < and >, expanding as needed
 
 Si noti che una soluzione migliore dovrebbe evitare l'utilizzo di "." a favore di una regex più rigorosa:
 
-<[^<>]+>         
+<[^<>]+>
 matches any character except < or > one or more times included inside < and >
 
 Argomenti avanzati
@@ -6637,41 +6726,41 @@ Argomenti avanzati
 
 Confini (Boundaries): "\b" e "\B"
 ---------------------------------
-\babc\b          
+\babc\b
 performs a "whole words only" search
 
 \b rappresenta un punto di ancoraggio come il punto di inserimento (è simile a $ e ^) in corrispondenza delle posizioni in cui un lato è un carattere di una parola (come \w) e l'altro lato non è un carattere di parola (ad esempio potrebbe essere l'inizio della stringa o un carattere spazio).
 
 Esiste anche la sua negazione, \B. Questo corrisponde a tutte le posizioni in cui \b non corrisponde e rappresenta un modello per la ricerca di pattern racchiusi da altri caratteri.
 
-\Babc\B          
+\Babc\B
 matches only if the pattern is fully surrounded by word characters
 
 Riferimento all'indietro (Back-references): "\1"
 ------------------------------------------------
-([abc])\1              
+([abc])\1
 using \1 it matches the same text that was matched by the first capturing group
 
-([abc])([de])\2\1      
+([abc])([de])\2\1
 we can use \2 (\3, \4, etc.) to identify the same text that was matched by the second (third, fourth, etc.) capturing group
 
-(?<foo>[abc])\k<foo>   
+(?<foo>[abc])\k<foo>
 we put the name foo to the group and we reference it later (\k<foo>). The result is the same of the first regex
 
 Guarda-avanti (look-ahead) e (look-behind): "(?=)" e "(?<=)"
 ------------------------------------------------------------
-d(?=r)       
+d(?=r)
 matches a d only if is followed by r, but r will not be part of the overall regex match
 
-(?<=r)d      
+(?<=r)d
 matches a d only if is preceded by an r, but r will not be part of the overall regex match
 
 Possiamo anche usare l'operatore di negazione "!":
 
-d(?!r)       
+d(?!r)
 matches a d only if is not followed by r, but r will not be part of the overall regex match
 
-(?<!r)d      
+(?<!r)d
 matches a d only if is not preceded by an r, but r will not be part of the overall regex match
 
 Adesso vediamo alcuni esempi di regex e delle funzioni di newLISP che la utilizzano.
@@ -6841,7 +6930,7 @@ Con 'define-macro' è possibile creare funzioni che si comportano e sembrano fiu
 
 Un altro esempio è: (dolist (item mylist) .....). L'espressione (item mylist) non viene valutata ma passata in "dolist" per gestirla. Altrimenti, dovremmo citare facendo (dolist '(item mylist) ...).
 
-Le macro non vengono utilizzate molto spesso, ma quando vengono utilizzate possono essere utili e importanti. 
+Le macro non vengono utilizzate molto spesso, ma quando vengono utilizzate possono essere utili e importanti.
 
 Abbiamo bisogno delle macro solo quando non vogliamo che una funzione valuti immediatamente i suoi argomenti. Per esempio:
 
@@ -8371,7 +8460,7 @@ Questa macro implementa una struttura di controllo iterativa.
 La sintassi è la seguente:
 
 (each '(ruby is not a lisp) do |item| (println item) end)
-;-> ruby 
+;-> ruby
 ;-> is
 ;-> not
 ;-> a
@@ -8446,7 +8535,7 @@ Altra versione che ritorna anche il risultato della funzione:
 Esempi:
 
 (define (f (x 10) y) (+ x y))
-;-> (lambda ((x 10) y) (println "[" 'f "] params: " (list x y) " args: " (args)) 
+;-> (lambda ((x 10) y) (println "[" 'f "] params: " (list x y) " args: " (args))
   ;-> (println "[" 'f "] result: "  (begin  (+ x y))))
 (f 2 3)
 ;-> [f] params: (2 3) args: ()
@@ -8483,7 +8572,7 @@ Questa macro permette di determinare il tipo dell'argomento.
 Un piccolo problema:
 
 (type type)
-;-> "symbol" 
+;-> "symbol"
 (macro? type)
 ;-> true
 
@@ -8587,7 +8676,7 @@ Ecco un esempio di fattoriale (da Ansi Common Lisp) che usa questo "do". Non ha 
 
 Sintassi:
 
-(do ((sym1 init-form1 update-form1) [(sym2 init-form2 update-form2) ...]) 
+(do ((sym1 init-form1 update-form1) [(sym2 init-form2 update-form2) ...])
      (exp-break sym-result) (expr-body*))
 
 In altre parole, questa macro fa semplicemente la stessa cosa del ciclo "for", ma su più variabili, con una condizione di arresto e controllo sul valore restituito.
@@ -8622,7 +8711,7 @@ La programmazione orientata agli oggetti funzionali (FOOP - Functional Object Or
 I seguenti paragrafi sono una breve introduzione alla FOOP progettata da Michael Michaels:
 http://neglook.com/
 
-Al seguente indirizzo web potete trovare alcuni tutorial video sull'utilizzo della FOOP in newLISP: 
+Al seguente indirizzo web potete trovare alcuni tutorial video sull'utilizzo della FOOP in newLISP:
 
 http://neglook.com/index.cgi?page=newLISP
 
@@ -8631,7 +8720,7 @@ Classi e costruttori FOOP
 Gli attributi e i metodi della classe sono memorizzati nello spazio dei nomi della classe di oggetti. Nessun dato dell'istanza di un oggetto è memorizzato in questo spazio dei nomi/contesto. Le variabili di dati nello spazio dei nomi della classe descrivono solo la classe di oggetti nel suo insieme, ma non contengono alcuna informazione specifica sull'oggetto. Un costruttore di oggetti FOOP generico può essere utilizzato come modello (template) per specifici costruttori di oggetti quando si creano nuove classi di oggetti con la funzione "new":
 
 ; built-in generic FOOP object constructor
-(define (Class:Class) 
+(define (Class:Class)
     (cons (context) (args)))
 
 ; create some new classes
@@ -8666,10 +8755,10 @@ La creazione delle classi nello spazio dei nomi usando new riserva il nome della
 
 In alcuni casi, può essere utile sovrascrivere il costruttore semplice, creato durante la creazione della classe, con "new":
 
-; overwrite simple constructor 
+; overwrite simple constructor
 (define (Circle:Circle x y radius)
     (list Circle x y radius))
-    
+
 Un costruttore può anche specificare i valori predefiniti:
 
 ; costruttore con valori predefiniti
@@ -8724,7 +8813,7 @@ Il codice seguente definisce due funzioni chiamate area, ognuna appartenente a u
     (mul (self 3) (self 4)))
 
 (define (Rectangle:move dx dy)
-    (inc (self 1) dx) 
+    (inc (self 1) dx)
     (inc (self 2) dy))
 
 ;; class methods for circles
@@ -8733,9 +8822,9 @@ Il codice seguente definisce due funzioni chiamate area, ognuna appartenente a u
     (mul (pow (self 3) 2) (acos 0) 2))
 
 (define (Circle:move dx dy)
-    (inc (self 1) dx) 
+    (inc (self 1) dx)
     (inc (self 2) dy))
-    
+
 Prefissando il simbolo area con il carattere ":" (due punti), possiamo chiamare queste funzioni per ciascuna classe di oggetti. Sebbene non vi sia spazio tra i due punti e il simbolo che lo segue, newLISP li analizza come entità distinte. I due punti possono essere visti come una funzione che processa i parametri:
 
 (:area myrect) → 200 ; same as (: area myrect)
@@ -8745,12 +8834,12 @@ Prefissando il simbolo area con il carattere ":" (due punti), possiamo chiamare 
 
 (map (curry :area) (list myrect mycircle)) → (200 314.1592654)
 
-(map (curry :area) '((Rectangle 5 5 10 20) (Circle 1 2 10))) → (200 314.1592654) 
+(map (curry :area) '((Rectangle 5 5 10 20) (Circle 1 2 10))) → (200 314.1592654)
 
 ;; objects are mutable (since v10.1.8)
 
 (:move myrect 2 3)
-(:move mycircle 4 5) 
+(:move mycircle 4 5)
 
 myrect    → (Rectangle 7 8 10 20)
 mycircle  → (Circle 5 7 10)
@@ -8791,7 +8880,7 @@ Ogni classe si trova in un file separato:
 (mul (self 3) (self 4)))
 
 (define (Rectangle:move dx dy)
-(inc (self 1) dx) 
+(inc (self 1) dx)
 (inc (self 2) dy))
 
 ; end of file
@@ -8806,7 +8895,7 @@ Segue la classe Circle:
     (mul (pow (self 3) 2) (acos 0) 2))
 
 (define (Circle:move dx dy)
-    (inc (self 1) dx) 
+    (inc (self 1) dx)
     (inc (self 2) dy))
 
 ; end of file
@@ -22668,68 +22757,68 @@ Nel caso k sia sempre uguale a 2, allora possiamo utilizzare un altro metodo:
  PROJECT EULERO
 
 ================
-
-  Problema    Soluzione     Tempo (msec)
-|    1     |  233168       |         0  |
-|    2     |  4613732      |         0  |
-|    3     |  6857         |         0  |
-|    4     |  906609       |       297  |
-|    5     |  232792560    |         0  |
-|    6     |  25164150     |         0  |
-|    7     |  104743       |        78  |
-|    8     |  235146240    |       110  |
-|    9     |  31875000     |        62  |
-|    10    |  142913828    |      1563  |
-|    11    |  70600674     |         0  |
-|    12    |  76576500     |      5445  |
-|    13    |  5537376230   |         0  |
-|    14    |  837799       |     22487  |
-|    15    |  137846528    |         0  |
-|    16    |  1366         |         0  |
-|    17    |  21124        |         0  |
-|    18    |  1074         |        32  |
-|    19    |  171          |         3  |
-|    20    |  648          |         0  |
-|    21    |  31626        |       122  |
-|    22    |  871198282    |        20  |
-|    23    |  4179871      |     40900  |
-|    24    |  278391546    |     25309  |
-|    25    |  4782         |      4926  |
-|    26    |  983          |       488  |
-|    27    |  -59231       |      2000  |
-|    28    |  669171001    |         0  |
-|    29    |  9183         |       141  |
-|    30    |  443839       |       516  |
-|    31    |  73682        |         1  |
-|    32    |  45228        |      1625  |
-|    33    |  100          |         0  |
-|    34    |  40730        |      3797  |
-|    35    |  55           |      1267  |
-|    36    |  872187       |      1443  |
-|    37    |  748317       |       778  |
-|    38    |  932718654    |        94  |
-|    39    |  840          |     13486  |
-|    40    |  210          |       141  |
-|    41    |  7652413      |       125  |
-|    42    |  162          |        31  |
-|    43    |  16695334890  |      1749  |
-|    44    |  5482660      |      5589  |
-|    45    |  1533776805   |       115  |
-|    46    |  5777         |        31  |
-|    47    |  134043       |         0  |
-|    48    |  9110846700   |       266  |
-|    49    |  296962999629 |        19  |
-|    50    |  997651       |     27113  |
-|    51    |  121313       |       269  |
-|    52    |  142857       |       313  |
-|    53    |  4075         |        25  |
-|    54    |  376          |       154  |
-|    55    |  249          |       116  |
-|    56    |  972          |       186  |
-|    57    |  153          |        10  |
-|    58    |  26241        |       630  |
-|    59    |  107359       |        15  |
-|    60    |  26033        |     55055  |
+                            Intel i5     Intel i7
+  Problema    Soluzione     Tempo (msec) Tempo (msec)
+|    1     |  233168       |         0  |         0  |
+|    2     |  4613732      |         0  |         0  |
+|    3     |  6857         |         0  |         0  |
+|    4     |  906609       |       297  |       203  |
+|    5     |  232792560    |         0  |         0  |
+|    6     |  25164150     |         0  |         0  |
+|    7     |  104743       |        78  |        31  |
+|    8     |  235146240    |       110  |        62  |
+|    9     |  31875000     |        62  |        31  |
+|    10    |  142913828    |      1563  |      1078  |
+|    11    |  70600674     |         0  |         0  |
+|    12    |  76576500     |      5445  |      4022  |
+|    13    |  5537376230   |         0  |         0  |
+|    14    |  837799       |     22487  |     15408  |
+|    15    |  137846528    |         0  |         0  |
+|    16    |  1366         |         0  |         0  |
+|    17    |  21124        |         0  |         0  |
+|    18    |  1074         |        32  |         7  |
+|    19    |  171          |         3  |         0  |
+|    20    |  648          |         0  |         0  |
+|    21    |  31626        |       122  |        78  |
+|    22    |  871198282    |        20  |        16  |
+|    23    |  4179871      |     40900  |     27534  |
+|    24    |  278391546    |     25309  |     12282  |
+|    25    |  4782         |      4926  |      3469  |
+|    26    |  983          |       488  |       266  |
+|    27    |  -59231       |      2000  |      1532  |
+|    28    |  669171001    |         0  |         0  |
+|    29    |  9183         |       141  |        94  |
+|    30    |  443839       |       516  |       344  |
+|    31    |  73682        |         1  |         0  |
+|    32    |  45228        |      1625  |      1079  |
+|    33    |  100          |         0  |         0  |
+|    34    |  40730        |      3797  |      2625  |
+|    35    |  55           |      1267  |       902  |
+|    36    |  872187       |      1443  |       945  |
+|    37    |  748317       |       778  |       651  |
+|    38    |  932718654    |        94  |        48  |
+|    39    |  840          |     13486  |      9561  |
+|    40    |  210          |       141  |       433  |
+|    41    |  7652413      |       125  |        64  |
+|    42    |  162          |        31  |         4  |
+|    43    |  16695334890  |      1749  |      1321  |
+|    44    |  5482660      |      5589  |      4182  |
+|    45    |  1533776805   |       115  |        63  |
+|    46    |  5777         |        31  |         5  |
+|    47    |  134043       |         0  |         0  |
+|    48    |  9110846700   |       266  |       186  |
+|    49    |  296962999629 |        19  |         5  |
+|    50    |  997651       |     27113  |     18871  |
+|    51    |  121313       |       269  |       180  |
+|    52    |  142857       |       313  |       204  |
+|    53    |  4075         |        25  |         5  |
+|    54    |  376          |       154  |        91  |
+|    55    |  249          |       116  |        69  |
+|    56    |  972          |       186  |       119  |
+|    57    |  153          |        10  |         1  |
+|    58    |  26241        |       630  |       432  |
+|    59    |  107359       |        15  |         1  |
+|    60    |  26033        |     55055  |     38926  |
 
 Sito web: https://projecteuler.net/archives
 
@@ -24873,12 +24962,17 @@ Definiamo la funzione che genera le permutazioni:
       (list end)
       (cons start (seq (+ start 1) end))))
 
+(define (insert l n e)
+  (if (= 0 n)
+      (cons e l)
+      (cons (first l)
+            (insert (rest l) (- n 1) e))))
+
 (define (permute l)
   (if (null? l) '(())
       (apply append (map (lambda (p)
                            (map (lambda (n) (insert p n (first l))) (seq 0 (length p))))
                          (permute (rest l))))))
-
 
 Scriviamo la funzione finale:
 
@@ -26611,7 +26705,6 @@ P(n) = N  ==>  (3*n*n - n - 2*N) = 0  ==>  n = (1 + sqrt(24*N + 1))/6
 Prima versione:
 
 (define (penta? n)
-; molto più veloce che cercare nella lista dei numeri pentagonali
   (let (i (div (add (sqrt (add 1 (mul 24 n))) 1) 6))
     (if (= 0 (sub i (int i))) true nil)
   )
@@ -26731,7 +26824,7 @@ Possiamo scrivere la soluzione controllando per ogni valore dell'indice del nume
     (setq i 287)
     (setq stop nil)
     (while (= stop nil)
-      (setq x (xx i))
+      (setq x (xidx i))
       ;(if (ref (esa x) penta) (begin (println i { } x { } (ref (esa x) penta) { } (esa x)) (setq stop true)))
       (if (ref (tri i) penta) (begin (println i { } x { } (ref (esa x) penta) { } (esa x)) (setq stop true)))
       (if (zero? (% i 1000))  (println i))
@@ -26930,7 +27023,7 @@ Scriviamo la funzione:
 )
 
 (e048)
-;-> 9110846700
+;-> "9110846700"
 
 (time (e048))
 ;-> 265.614
@@ -27504,30 +27597,30 @@ Vediamo i passi della soluzione con il file "poker.txt" (che ha solo 10 mani):
 Usiamo la funzione "parse" per ottenere solo una stringa che rappresenta una mano:
 
 (setq data (parse raw "\r\n"))
-("8C TS KC 9H 4S 7D 2S 5D 3S AC"
- "5C AD 5D AC 9C 7C 5H 8D TD KS"
- "3H 7H 6S KC JS QH TD JC 2D 8S"
- "TH 8H 5C QS TC 9H 4D JC KS JS"
- "7C 5H KC QH JD AS KH 4C AD 4S"
- "5H KS 9C 7D 9H 8D 3S 5D 5C AH"
- "6H 4H 5C 3H 2H 3S QH 5S 6S AS"
- "TD 8C 4H 7C TC KC 4C 3H 7S KS"
- "7C 9C 6D KD 3H 4C QS QC AC KH"
- "JC 6S 5H 2H 2D KD 9D 7C AS JS")
+;-> ("8C TS KC 9H 4S 7D 2S 5D 3S AC"
+;->  "5C AD 5D AC 9C 7C 5H 8D TD KS"
+;->  "3H 7H 6S KC JS QH TD JC 2D 8S"
+;->  "TH 8H 5C QS TC 9H 4D JC KS JS"
+;->  "7C 5H KC QH JD AS KH 4C AD 4S"
+;->  "5H KS 9C 7D 9H 8D 3S 5D 5C AH"
+;->  "6H 4H 5C 3H 2H 3S QH 5S 6S AS"
+;->  "TD 8C 4H 7C TC KC 4C 3H 7S KS"
+;->  "7C 9C 6D KD 3H 4C QS QC AC KH"
+;->  "JC 6S 5H 2H 2D KD 9D 7C AS JS")
 
 Adesso se vogliamo ottenere una lista per ogni riga, basta mappare la funzione "list" sugli elementi della lista data:
 
 (setq data (map list data))
-(("8C TS KC 9H 4S 7D 2S 5D 3S AC")
- ("5C AD 5D AC 9C 7C 5H 8D TD KS")
- ("3H 7H 6S KC JS QH TD JC 2D 8S")
- ("TH 8H 5C QS TC 9H 4D JC KS JS")
- ("7C 5H KC QH JD AS KH 4C AD 4S")
- ("5H KS 9C 7D 9H 8D 3S 5D 5C AH")
- ("6H 4H 5C 3H 2H 3S QH 5S 6S AS")
- ("TD 8C 4H 7C TC KC 4C 3H 7S KS")
- ("7C 9C 6D KD 3H 4C QS QC AC KH")
- ("JC 6S 5H 2H 2D KD 9D 7C AS JS"))
+;-> (("8C TS KC 9H 4S 7D 2S 5D 3S AC")
+;->  ("5C AD 5D AC 9C 7C 5H 8D TD KS")
+;->  ("3H 7H 6S KC JS QH TD JC 2D 8S")
+;->  ("TH 8H 5C QS TC 9H 4D JC KS JS")
+;->  ("7C 5H KC QH JD AS KH 4C AD 4S")
+;->  ("5H KS 9C 7D 9H 8D 3S 5D 5C AH")
+;->  ("6H 4H 5C 3H 2H 3S QH 5S 6S AS")
+;->  ("TD 8C 4H 7C TC KC 4C 3H 7S KS")
+;->  ("7C 9C 6D KD 3H 4C QS QC AC KH")
+;->  ("JC 6S 5H 2H 2D KD 9D 7C AS JS"))
 
 Dobbiamo cambiare i valori dei caratteri:
 ('A','14')
@@ -28453,13 +28546,13 @@ http://www.data-compression.com/english.html
  (0.0145984 "y") (0.0007836 "z") (0.1918182 " ")))
 
 (sort af >)
-((0.1918182 " ") (0.1041442 "e") (0.0729357 "t") (0.0651738 "a") 
- (0.0596302 "o") (0.0564513 "n") (0.0558094 "i") (0.051576 "s")
- (0.0497563 "r") (0.0492888 "h") (0.0349835 "d") (0.033149 "l")
- (0.0225134 "u") (0.0217339 "c") (0.0202124 "m") (0.0197881 "f")
- (0.0171272 "w") (0.015861 "g")  (0.0145984 "y") (0.0137645 "p")
- (0.0124248 "b") (0.0082903 "v") (0.0050529 "k") (0.0013692 "x")
- (0.0009033 "j") (0.0008606 "q") (0.0007836 "z"))
+;-> ((0.1918182 " ") (0.1041442 "e") (0.0729357 "t") (0.0651738 "a") 
+;->  (0.0596302 "o") (0.0564513 "n") (0.0558094 "i") (0.051576 "s")
+;->  (0.0497563 "r") (0.0492888 "h") (0.0349835 "d") (0.033149 "l")
+;->  (0.0225134 "u") (0.0217339 "c") (0.0202124 "m") (0.0197881 "f")
+;->  (0.0171272 "w") (0.015861 "g")  (0.0145984 "y") (0.0137645 "p")
+;->  (0.0124248 "b") (0.0082903 "v") (0.0050529 "k") (0.0013692 "x")
+;->  (0.0009033 "j") (0.0008606 "q") (0.0007836 "z"))
 
 Quindi il carattere spazio " " è quello di gran lunga più frequente (quasi il 20%). Per il nostro algoritmo sarà sufficiente utilizzare questo carattere.
  
@@ -28542,7 +28635,7 @@ In questo caso otteniamo un testo illeggibile.
 Proviamo con "god":
 
 (setq testo (join (map char (crypt-text tc "god"))))
-"(The Gospel of John, chapter 1) 1 In the beginning the Word already existed. He was with God, and he was God. 2 He was in the beginning with God. 3 He created everything there is. Nothing exists that he didn't make. 4 Life itself was in him, and this life gives light to everyone. 5 The light shines through the darkness, and the darkness can never extinguish it. 6 God sent John the Baptist 7 to tell everyone about the light so that everyone might believe because of his testimony. 8 John himself was not the light; he was only a witness to the light. 9 The one who is the true light, who gives light to everyone, was going to come into the world. 10 But although the world was made through him, the world didn't recognize him when he came. 11 Even in his own land and among his own people, he was not accepted. 12 But to all who believed him and accepted him, he gave the right to become children of God. 13 They are reborn! This is not a physical birth resulting from human passion or plan, this rebirth comes from God.14 So the Word became human and lived here on earth among us. He was full of unfailing love and faithfulness. And we have seen his glory, the glory of the only Son of the Father."
+;-> "(The Gospel of John, chapter 1) 1 In the beginning the Word already existed. He was with God, and he was God. 2 He was in the beginning with God. 3 He created everything there is. Nothing exists that he didn't make. 4 Life itself was in him, and this life gives light to everyone. 5 The light shines through the darkness, and the darkness can never extinguish it. 6 God sent John the Baptist 7 to tell everyone about the light so that everyone might believe because of his testimony. 8 John himself was not the light; he was only a witness to the light. 9 The one who is the true light, who gives light to everyone, was going to come into the world. 10 But although the world was made through him, the world didn't recognize him when he came. 11 Even in his own land and among his own people, he was not accepted. 12 But to all who believed him and accepted him, he gave the right to become children of God. 13 They are reborn! This is not a physical birth resulting from human passion or plan, this rebirth comes from God.14 So the Word became human and lived here on earth among us. He was full of unfailing love and faithfulness. And we have seen his glory, the glory of the only Son of the Father."
 
 Testo decifrato correttamente. Vediamo la somma dei valori ASCII del testo decifrato:
 
@@ -28708,14 +28801,18 @@ Facciamo alcuni tentativi:
 
 (setq testo (join (map char (crypt-text tc1 "xpe"))))
 In questo caso otteniamo un testo illeggibile.
+
 (setq testo (join (map char (crypt-text tc1 "pex"))))
 In questo caso otteniamo un testo illeggibile.
+
 (setq testo (join (map char (crypt-text tc1 "pxe"))))
 In questo caso otteniamo un testo illeggibile.
+
 (setq testo (join (map char (crypt-text tc1 "xep"))))
 In questo caso otteniamo un testo illeggibile.
+
 (setq testo (join (map char (crypt-text tc1 "exp"))))
-"An extract taken from the introduction of one of Euler's most celebrated papers, \"De summis serierum reciprocarum\" [On the sums of series of reciprocals]: I have recently found, quite unexpectedly, an elegant expression for the entire sum of this series 1 + 1/4 + 1/9 + 1/16 + etc., which depends on the quadrature of the circle, so that if the true sum of this series is obtained, from it at once the quadrature of the circle follows. Namely, I have found that the sum of this series is a sixth part of the square of the perimeter of the circle whose diameter is 1; or by putting the sum of this series equal to s, it has the ratio sqrt(6) multiplied by s to 1 of the perimeter to the diameter. I will soon show that the sum of this series to be approximately 1.644934066842264364; and from multiplying this number by six, and then taking the square root, the number 3.141592653589793238 is indeed produced, which expresses the perimeter of a circle whose diameter is 1. Following again the same steps by which I had arrived at this sum, I have discovered that the sum of the series 1 + 1/16 + 1/81 + 1/256 + 1/625 + etc. also depends on the quadrature of the circle. Namely, the sum of this multiplied by 90 gives the biquadrate (fourth power) of the circumference of the perimeter of a circle whose diameter is 1. And by similar reasoning I have likewise been able to determine the sums of the subsequent series in which the exponents are even numbers."
+;-> "An extract taken from the introduction of one of Euler's most celebrated papers, \"De summis serierum reciprocarum\" [On the sums of series of reciprocals]: I have recently found, quite unexpectedly, an elegant expression for the entire sum of this series 1 + 1/4 + 1/9 + 1/16 + etc., which depends on the quadrature of the circle, so that if the true sum of this series is obtained, from it at once the quadrature of the circle follows. Namely, I have found that the sum of this series is a sixth part of the square of the perimeter of the circle whose diameter is 1; or by putting the sum of this series equal to s, it has the ratio sqrt(6) multiplied by s to 1 of the perimeter to the diameter. I will soon show that the sum of this series to be approximately 1.644934066842264364; and from multiplying this number by six, and then taking the square root, the number 3.141592653589793238 is indeed produced, which expresses the perimeter of a circle whose diameter is 1. Following again the same steps by which I had arrived at this sum, I have discovered that the sum of the series 1 + 1/16 + 1/81 + 1/256 + 1/625 + etc. also depends on the quadrature of the circle. Namely, the sum of this multiplied by 90 gives the biquadrate (fourth power) of the circumference of the perimeter of a circle whose diameter is 1. And by similar reasoning I have likewise been able to determine the sums of the subsequent series in which the exponents are even numbers."
 
 Testo decifrato correttamente. 
 La chiave vale "exp".
@@ -50603,6 +50700,56 @@ Per recuperare il valore del simbolo utilizziamo "eval":
 (eval (sym {"name"}))
 ;-> 3
 
+Per cancellare un simbolo dobbiamo usare la funzione "delete".
+
+******************
+>>>funzione DELETE
+******************
+sintassi: (delete symbol [bool])
+sintassi: (delete sym-context [bool])
+
+Nella prima sintassi elimina un simbolo simbolo e i riferimenti al simbolo che si trovano in altre espressioni vengono posti al valore nil.
+
+Nella seconda sintassi tutti i simboli dello spazio dei nomi (contesto) a cui fa riferimento sym-context verranno eliminati e i riferimenti ad essi che si trovano in altre espressioni verranno posti a nil. Il simbolo di contesto sym-context verrà modificato in un simbolo normale con valore nil.
+
+Quando l'espressione in bool vale true, i simboli vengono eliminati solo quando non sono referenziati in altre espressioni.
+
+Quando l'espressione in bool vale nil, i simboli verranno eliminati senza alcun controllo di riferimento. Si noti che questa modalità deve essere utilizzata solo se non esistono riferimenti al simbolo al di fuori del suo spazio dei nomi. Se esistono riferimenti esterni, questa modalità può causare arresti anomali del sistema, poiché il riferimento esterno non è impostato a nil quando si utilizza questa modalità. Questa modalità può essere utilizzata per eliminare gli hash dello spazio dei nomi e per eliminare gli spazi dei nomi nei sistemi a oggetti, dove le variabili sono trattate come private.
+
+I simboli protetti di funzioni integrate e simboli speciali come nil e true non possono essere eliminati.
+
+delete restituisce true se il simbolo è stato eliminato correttamente o nil se il simbolo non è stato eliminato.
+
+Quando si elimina un simbolo di contesto, la prima chiamata a delete rimuove il contenuto dello spazio dei nomi di contesto e riduce il simbolo di contesto in un normale simbolo mono-variabile. Una seconda chiamata di delete rimuoverà il simbolo dalla tabella dei simboli.
+
+(set 'lst '(a b aVar c d))
+(delete 'aVar)  ; aVar deleted, references marked nil
+lst
+;-> (a b nil c d)
+
+(set 'lst '(a b aVar c d))
+(delete 'aVar true)  
+;-> nil ; protect aVar if referenced
+
+lst
+;-> (a b aVar c d)
+
+;; delete all symbols in a context
+(set 'foo:x 123)
+(set 'foo:y "hello")
+(delete 'foo)  
+;-> nil  ; foo:x, foo:y deleted
+
+Nell'ultimo esempio verranno eliminati solo i simboli all'interno del contesto foo, ma non il simbolo contestuale stesso. Verrà convertito in un normale simbolo non protetto e conterrà nil.
+
+Si noti che l'eliminazione di un simbolo che fa parte di un'espressione che è attualmente in esecuzione può causare l'arresto anomalo del sistema o avere altri effetti imprevisti.
+
+Per cancellare tutti i simboli di un contesto X possiamo utilizzare la seguente espressione:
+
+(map delete (symbols 'X))
+
+che elimina tutti i simboli contenuti nel contesto X.
+
 
 -------------------
 Funzioni e contesti
@@ -50921,7 +51068,7 @@ Nota: la funzione è lenta per numeri superiore a poche decine perchè le string
 Assegnazione parallela
 ----------------------
 
-newLISP non ha alcun meccanismo per l'assegnazione parallela delle variabili. Vediamo la differenza tra assegnazione sequenziale e assegnazione parallela.
+newLISP non ha alcuna funzione per l'assegnazione parallela delle variabili. Vediamo la differenza tra assegnazione sequenziale e assegnazione parallela.
 
 (setq a 1 b 1)
 
@@ -51109,6 +51256,18 @@ Vediamo alcuni esempi:
 ;-> 4
 ;-> 4
 ;-> (2 3 4)
+
+Nel forum di newLISP newBert ha proposto un altro metodo che utilizza la funzione "map":
+
+(setq x 2 y 3)
+;-> 3
+(map set '(x y) (list (+ 1 y) (+ 1 x)))
+;-> (4 3)
+
+(setq x 1 y 2 z 3)
+;-> 3
+(map set '(x y z) (list (+ x y z) (- z y x) (- x y z)))
+;-> (6 0 -4)
 
 
 ----------------------------
@@ -52208,6 +52367,807 @@ Macchina di Turing Universale
 -----------------------------
 Il problema con le MdT è che è necessario costruirne una diversa per ogni nuovo calcolo da eseguire, per ogni relazione di input/output.
 Questo è il motivo per cui introduciamo l'idea di una macchina di turing universale (MdTU), che prende come parametri di ingresso sia i dati di input sul nastro che la descrizione di una MdT. La MdTU può continuare quindi a simulare la MdT sul resto del contenuto del nastro di input. Una macchina di turing universale può quindi simulare qualsiasi altra macchina.
+
+
+===============
+
+ NOTE LIBERE 2
+
+===============
+
+-----------------------------
+Creare una lista di frequenza
+-----------------------------
+
+Data una lista di lettere dell'alfabeto, costruire la lista delle frequenze.
+Esempio:
+input  -> (a b g f a f g f g h)
+output -> ((a 2) (b 1) (g 3) (f 3) (h 1))
+
+Usiamo una hashmap e vediamo le operazioni fondamentali.
+
+Creiamo una hashmap:
+(new Tree 'myHash)
+
+Inserimento di un valore 1 (value) associato ad una chiave K (key) -> (myHash "key" value):
+(myHash "K" 1)
+;-> 1
+Recuperiamo il valore tramite la chiave:
+(myHash "K")
+;-> 1
+
+Inserimento di un nuovo valore 2 (value) associato ad una chiave W (key) -> (myHash "key" value):
+(myHash "W" 2)
+;-> 2
+
+Elenco di tutti gli elementi (chiave valore) della hashmap:
+(myHash)
+;-> (("K" 1) ("W" 2))
+
+Se una chiave non esiste, allora newLISP restituisce nil:
+(myHash "X")
+;-> nil
+(myHash "X")
+;-> nil
+
+Per eliminare un valore occorre assegnare il valore nil:
+(myHash "K" nil)
+;-> nil
+(myHash)
+;-> (("W" 2))
+
+Aggiorniamo il valore associato ad una chiave esistente ($it = valore precedente):
+(myHash "W" (+ $it 3))
+;-> 5
+(myHash)
+;-> (("W" 5))
+
+Adesso scriviamo la funzione che calcola le frequenze:
+
+(define (freq lst)
+  (local (out)
+    (setq out '())
+    (new Tree 'myHash)
+    (dolist (el lst)
+      ;(println (string el))
+      ; se la chiave non esiste nella hashmap...
+      (if (null? (myHash (string el)))
+          ; allora inserisce la chiave con il valore 1
+          (myHash (string el) 1)
+          ; altrimenti aggiunge uno al valore associato alla chiave (che esiste)
+          (myHash (string el) (+ $it 1))
+      )
+    )
+    ; assegna la hashmap ad una lista
+    (setq out (myHash))
+    ; elimina la hashmap
+    (delete 'myHash)
+    out))
+
+(freq '(a b g f a f g f g h))
+;-> (("a" 2) ("b" 1) ("f" 3) ("g" 3) ("h" 1))
+(freq '(1 2 3 4 5 5 4 3 2 1))
+;-> (("1" 2) ("2" 2) ("3" 2) ("4" 2) ("5" 2))
+
+
+--------------------------------------
+Approssimazione razionale di un numero
+--------------------------------------
+ 
+Supponiamo di avere un numero x compreso tra 0 e 1. Vogliamo trovare un'approssimazione razionale per x, ma si desidera considerare solo le frazioni con denominatori al di sotto di un determinato valore N.
+Ad esempio, supponiamo che x = 1/e = 0.367879... 
+Le approssimazioni razionali con potenze di 10 nel denominatore sono banali da trovare: 3/10, 36/100, 367/1000, ecc. Ma supponiamo di limitare il valore del denominatore ad un numero intero N=10. Esiste un'approssimazione migliore di 3/10? Sì, 3/8 = 0.375 è un'approssimazione migliore. Quando N=100, allora la frazione migliore vale 32/87 = 0,36781 (che è molto meglio di 36/100).
+Come trovare la migliore approssimazione? 
+Per iniziare usiamo la ricerca con la forza bruta. Ad esempio, se la dimensione massima del denominatore è N, possiamo provare tutte le frazioni con denominatori inferiori o uguali a N.
+
+La funzione è la seguente:
+
+(define (frac x N)
+  (local (num den err val)
+    (setq err 999999)
+    (for (i 1 N)
+      (for (j (+ i 1) N)
+        (setq val (abs (sub x (div i j))))
+        (if (< val err)
+            (begin
+              (setq err val)
+              (setq num i)
+              (setq den j)
+            ))
+      )
+    )
+    (list num den)
+  )
+)
+
+(frac 0.367879 100)
+;-> (32 87)
+(div 32 87)
+;-> 0.367816091954023
+
+(frac 0.605551 30)
+;-> (17 28)
+
+(frac 0.36 100)
+;-> (9 25)
+(div 9 25)
+;-> 0.36
+
+Nota: se abbiamo un numero x maggiore di 1 allora possiamo calcolare la frazione approssimatrice del suo inverso. Ad esempio se vogliamo calcolare una frazione per approssimare pi greco:
+
+(setq pi (mul 2.0 (acos 0.0)))
+;-> 3.141592653589793
+
+Il suo inverso vale:
+
+(div 1 3.141592653589793)
+;-> 0.3183098861837907
+
+L'inverso di un numero può essere calcolato più velocemente se non inseriamo 1 nella divisione:
+
+(div 3.141592653589793)
+;-> 0.3183098861837907
+
+(frac 0.3183098861837907 1000)
+;-> (113 355)
+
+Vediamo quanto vale questa frazione (o meglio, il suo inverso):
+
+(div 355 113)
+;-> 3.141592920353983
+
+L'errore vale:
+
+(sub pi (div 355 113))
+;-> -2.667641894049666e-007
+
+Possiamo migliorare la precisione della frazione utilizzando un valore di N maggiore (ma non sempre):
+
+(frac 0.3183098861837907 10000)
+;-> (113 355)
+
+In questo caso abbiamo ottenuto la stessa frazione approssimatrice. Anche con N=30000 otteniamo lo stesso risultato:
+
+(frac 0.3183098861837907 50000)
+;-> (113 355)
+
+Proviamo con il primo esempio (1/e = 0.367879...) e poniamo N=10000:
+
+(frac 0.367879 10000)
+;-> (1143 3107)
+
+Con N=1000 avevamo ottenuto:
+
+(frac 0.367879 1000)
+;-> (323 878)
+
+Vediamo il valore degli errori in entrambi i casi:
+
+(abs (sub 0.367879 (div 1143 3107)))
+;-> 1.705825558584451e-008
+
+(abs (sub 0.367879 (div 323 878)))
+;-> 2.548974943061833e-006
+
+Come previsto con N=10000 il risultato è più preciso.
+
+Con questo metodo otteniamo sempre il risultato ottimo, ma possiamo usare solo valori di N minori di 100000, altrimenti il tempo di calcolo diventa molto lungo.
+Esiste un algoritmo molto più efficiente che è correlato alla sequenza di Farey.
+L'idea è di iniziare con due frazioni, a/b = 0/1 e c/d = 1/1. Aggiorniamo a/b oppure c/d ad ogni passaggio in modo che a/b sia il limite inferiore migliore di x con denominatore non più grande di b, e c/d sarà il limite superiore migliore con denominatore non più grande di d. Ad ogni passo facciamo una sorta di ricerca binaria introducendo il valore "mediant" dei limiti superiore e inferiore. Il valore di "mediant" di a/b e c/d è la frazione (a + c)/(b + d) che si trova sempre tra a/b e c/d.
+
+Scriviamo la funzione:
+
+(define (fraction x N)
+  (catch
+  (local (a b c d mediant)
+    (setq a 0 b 1)
+    (setq c 1 d 1)
+    (while (and (<= b N) (<= d N))
+      (setq mediant (div (+ a c) (+ b d)))
+      (cond ((= x mediant)
+             (if (<= (+ b d) N)
+                 (throw (list (+ a c) (+ b d)))
+                 (if (> d b)
+                     (throw (list c d))
+                     (throw (list a b)))))
+            ((> x mediant)
+             (setq a (+ a c))
+             (setq b (+ b d)))
+            (true 
+             (setq c (+ a c))
+             (setq d (+ b d)))
+      )
+    )
+    (if (> b N)
+        (throw (list c d))
+        (throw (list a b)))
+  )))
+
+Questo algoritmo è molto più veloce, ma non produce sempre il risultato ottimo:
+
+(fraction 0.367879 100)
+;-> (32 87)
+
+(fraction 0.605551 30)
+;-> (3 5)
+
+Questo non è il risultato ottimo, infatti con la funzione "frac" avevamo ottenuto (17 28), che è un'approssimazione migliore per il numero 0.605551.
+Inoltre possiamo migliorare l'espressione (= x mediant) con l'espressione:
+
+(< (abs (sub x mediant)) epsilon)
+
+dove epsilon (per esempio 1e-6) rappresenta il valore di accuratezza (infatti non si può determinare correttamente l'uguaglianza tra due numeri in virgola mobile).
+
+Vediamo un altro esempio con il numero "e":
+
+(exp 1)
+;-> 2.718281828459045
+(div (exp 1))
+;-> 0.3678794411714423
+
+(frac (div (exp 1)) 100)
+;-> (32 87)
+(div 87 32)
+;-> 2.71875
+
+(frac (div (exp 1)) 1000)
+;-> (323 878)
+(div 878 323)
+;-> 2.718266253869969
+
+(frac (div (exp 1)) 10000)
+;-> (1001 2721)
+(div 2721 1001)
+;-> 2.718281718281718
+
+Esistono altri metodi per calcolare l'approsimazione razionale di un numero (ad esempio utilizzando le frazioni continue), ma la scelta del metodo dipende dall'uso che vogliamo fare del risultato. In genere ricorriamo ad una frazione quando i numeri in virgola mobile non hanno la precisione che ci serve oppure per velocizzare il calcolo (usando numeri interi i calcoli sono molto più veloci).
+
+
+----------------------------
+Modificare le liste annidate
+----------------------------
+
+Per modificare una lista annidata possiamo usare la funzione "setf":
+
+(setq lst '(a 0 (a 1 (b 2 3 4 (c 5 6 7)))))
+;-> (a 0 (a 1 (b 2 3 4 (c 5 6 7))))
+
+Adesso per modificare il valore del simbolo "c" possiamo calcolare il suo indice nella lista:
+
+(setq r (ref 'c lst))
+;-> (2 2 4 0)
+
+E poi usare l'indicizzazione implicita:
+
+(setf (lst r) 1311234123)
+;-> 1311234123
+
+lst
+;-> (a 0 (a 1 (b 2 3 4 (1311234123 5 6 7))))
+
+
+---------------------------------------
+Criptare un file sorgente o un contesto
+---------------------------------------
+
+Supponiamo di avere un file "fenc.lsp" che contiene le seguenti funzioni:
+
+(define (showinfo) (println "demo encrypt file"))
+
+(define (somma x y) (add x y))
+
+Per criptare questo file possiamo utilizzare la seguente espressione:
+
+(write-file "fenc.enc" (encrypt (read-file "fenc.lsp") "password"))
+;-> 106 ;numero di caratteri del file
+
+Adesso possiamo eseguire una funzione dal file criptato nel modo seguente:
+
+(eval-string (encrypt (read-file "fenc.enc") "password"))
+;-> (lambda (x y) (add x y))
+
+Viene restitutia solo l'ultima funzione valutata, ma possiamo eseguire qualunque funzione contenuta nel file "fenc.enc":
+
+(showinfo)
+;-> demo encrypt file
+;-> "demo encrypt file"
+
+(somma 10 4)
+;-> 14
+
+Per verificare se un simbolo esiste in un contesto possiamo usare la seguente espressione:
+
+(sym "somma" 'MAIN nil)
+;-> somma
+
+(sym "showinfo" 'MAIN nil)
+;-> showinfo
+
+(sym "aaabbb" MAIN nil)
+;-> nil
+
+Per eliminare tutti i simboli (creati dall'utente) di un contesto possiamo scrivere:
+
+(map delete (symbols 'MAIN))
+
+In questo modo vengono cancellati solo i simboli del contesto che sono stati definiti dall'utente:
+(sym "somma" 'MAIN nil)
+;-> nil
+(sym "showinfo" 'MAIN nil)
+;-> nil
+(sym "aaabbb" MAIN nil)
+;-> nil
+(sym "sin" MAIN nil)
+;-> sin
+
+Scriviamo due funzioni che salvano/caricano un contesto in/da un file criptato:
+
+;;
+;; Salva un contesto in un file criptato con password
+;;
+;; esempio:
+;;
+;; (save-encrypted "mycontext.enc" "password" 'MyCTX)
+;;
+(define (save-encrypted file-name pwd ctx)
+  (save ".enctmp" ctx)
+  (write-file file-name (encrypt (read-file ".enctmp") pwd))
+  (delete-file ".enctmp"))
+
+;;
+;; Carica/valuta un file sorgente criptato
+;;
+;; esempio:
+;;
+;; (load-encrypted "mycontext.enc" "password")
+;;
+(define (load-encrypted file-name pwd)
+  (write-file ".enctmp" (encrypt (read-file file-name) pwd))
+  (load ".enctmp")
+  (delete-file ".enctmp"))
+
+Nota: il contesto caricato non deve contenere la funzione "load-encrypted".
+L'overload di una funzione in esecuzione provoca l'arresto anomalo del sistema. Inoltre, per un breve periodo di tempo i dati si trovano in un file ".enctmp" in forma non crittografata durante il salvataggio o il caricamento, ma questo file viene eliminato in seguito.
+
+
+--------------------------
+Leggere e stampare un file
+--------------------------
+
+Per stampare un file possiamo usare il codice seguente:
+
+(setq fh (open "fenc.lsp" "read"))
+(while (read-line fh)
+  (setq tl (current-line))
+  (println tl)
+)
+(close fh)
+;-> 3
+;-> ; demo encrypt file
+;-> (define (showinfo) (println "demo encrypt file"))
+;-> 
+;-> (define (somma x y) (add x y))
+;-> "(define (somma x y) (add x y))"
+;-> true
+
+Se vogliamo estrarre solo le linee uniche da un file di testo possiamo usare la seguente funzione:
+
+(set 'uniqueLines '())
+  (while (read-line inFile)
+    (if (not (member (current-line) uniqueLines))
+        (set 'uniqueLines (append uniqueLines (list (current-line))))))
+  (close inFile)
+  (map (lambda (aLine) (write-line aLine outFile)) uniqueLines)
+  (close outFile)
+
+
+-----------
+Lisp reader
+-----------
+
+Un "Lisp reader" si riferisce a una procedura Lisp, vale a dire la funzione "read", che legge i caratteri da un flusso di input e li interpreta e li converte come rappresentazioni di oggetti Lisp (AST Abstract Syntax Tree).
+
+In newLISP per valutare un file di testo possiamo usare due metodi:
+
+1) (load "file.lsp")
+2) (eval-string (read-file "file.lsp"))
+
+L'unica differenza tra questi due metodi è che la funzione "load" legge il file e allo stesso tempo valuta le espressioni, mentre il secondo metodo legge interamente il file in una stringa e poi la valuta. In altre parole, "load" gestisce senza problemi anche file molto grandi perchè valuta le S-espressioni appena vengono lette, convertendo ed valutando al volo.
+
+newLISP ha anche una funzione "eval" che funziona soltanto con il formato interno delle S-espressioni e non con le stringhe:
+
+(setq x '(+ 3 4))
+;-> (+ 3 4)
+x
+;-> (+ 3 4)
+(eval x)
+;-> 7
+
+(eval-string "(+ 3 4)")
+;-> 7
+
+La seguente funzione simula (in modo semplificato) il comportamento della funzione "read" in Common Lisp:
+
+(define (read readstr readret)
+   (cond
+      ((float readstr)
+       (if (find "." readstr)
+         (setq readret (float readstr))
+         (setq readret (integer readstr))
+       )
+      )
+      ((=(slice readstr 0 1)"(")
+         (setq readret(eval-string(append "'" readstr)))
+      )
+      (true
+         (setq readret (symbol readstr))
+      )
+   )
+)
+
+
+------------------------
+Liste e vettori annidati
+------------------------
+La struttura dati di base è la lista, ma newLISP permette di utilizzare anche i vettori.
+I vettori vengono dichiarati con la funzione "array".
+
+*******************
+>>> funzione ARRAY
+*******************
+sintassi: (array int-n1 [int-n2 ...] [list-init])
+Crea un vettore con elementi int-n1, inizializzandolo facoltativamente con il contenuto di list-init. È possibile specificare fino a sedici dimensioni per matrici multidimensionali.
+
+Internamente, newLISP crea vettori multidimensionali usando vettori come elementi di un vettore. I vettori/matrici in newLISP devono essere utilizzati ogni volta che l'indicizzazione casuale in un grande lista diventa troppo lenta. Non tutte le funzioni delle liste possono essere utilizzate sui vettori. Per una discussione più dettagliata, consultare il capitolo sui vettori.
+
+(array 5)
+;-> (nil nil nil nil nil)
+
+(array 5 (sequence 1  5))
+;-> (1 2 3 4 5)
+
+(array 10 '(1 2))
+;-> (1 2 1 2 1 2 1 2 1 2)
+
+I vettori possono essere inizializzati con oggetti di qualsiasi tipo. Se vengono forniti meno inizializzatori rispetto agli elementi, l'elenco viene ripetuto fino a quando non vengono inizializzati tutti gli elementi del vettore.
+
+(set 'myarray (array 3 4 (sequence 1 12)))
+;-> ((1 2 3 4) (5 6 7 8) (9 10 11 12))
+
+I vettori vengono modificati e sono accessibili utilizzando la maggior parte delle stesse funzioni utilizzate per modificare le litse:
+
+(setf (myarray 2 3) 99) → 99)
+myarray
+;-> ((1 2 3 4) (5 6 7 8) (9 10 11 99))
+
+(setf (myarray 1 1) "hello")
+;-> "hello"
+myarray
+;-> ((1 2 3 4) (5 "hello" 7 8) (9 10 11 99))
+
+(setf (myarray 1) '(a b c d))
+;-> (a b c d)
+myarray
+;-> ((1 2 3 4) (a b c d) (9 10 11 99))
+
+(nth 1 myarray)
+;-> (a b c d)  ; access a whole row
+
+;; use implicit indexing and slicing on arrays
+
+(myarray 1)
+;-> (a b c d)
+
+(myarray 0 -1)
+;-> 4
+
+(2 myarray)
+;-> ((9 10 11 99))
+
+(-3 2 myarray)
+;-> ((1 2 3 4) (a b c d))
+
+Bisogna fare attenzione ad usare un vettore quando si sostituisce un'intera riga. La funzione "array-list" può essere usata per riconvertire i vettori in liste:
+
+(array-list myarray)
+;-> ((1 2 3 4) (a b c d) (1 2 3 99))
+
+Per riconvertire un elenco in una lista, applicare la funzione "flat" alla lista:
+
+(set 'aList '((1 2) (3 4)))
+;-> ((1 2) (3 4))
+
+(set 'aArray (array 2 2 (flat aList)))
+;-> ((1 2) (3 4))
+
+La funzione "array?" viene usata per determinare se un'espressione è un vettore:
+
+(array? myarray)
+;-> true
+
+(array? (array-list myarray))
+;-> nil
+
+Quando si serializzano i vettori usando la funzione "source" o "save", il codice generato include l'istruzione array necessaria per crearli. In questo modo, le variabili che contengono il vettore vengono serializzate correttamente quando si salva con "save" o si creano stringhe di sorgente usando "source".
+
+(set 'myarray (array 3 4 (sequence 1 12)))
+
+(save "array.lsp" 'myarray)
+
+;; Contenuto del file array.lsp ;;
+
+(set 'myarray (array 3 4 (flat '(
+  (1 2 3 4)
+  (5 6 7 8)
+  (9 10 11 12)))))
+
+I vettori possono contenere tipi di dati diversi:
+
+(setq vet (array 10 '(1 2)))
+;-> (1 2 1 2 1 2 1 2 1 2)
+(vet 1)
+;-> 2
+(setf (vet 1) "a")
+;-> "a"
+vet
+;-> (1 "a" 1 2 1 2 1 2 1 2)
+
+Considerando le strutture dati annidate possiamo avere i seguenti accoppiamenti di base:
+
+1) lista di liste
+2) lista di vettori
+3) vettore di liste
+4) vettore di vettori (matrici)
+
+Vediamo con semplici esempi il loro uso caso per caso.
+
+Lista di Liste
+--------------
+Definiamo una lista di liste:
+
+(setq lst-lst '((1 2) (a b) ("c" "d")))
+
+Possiamo accedere agli elementi di questa struttura con l'indicizzazione implicita:
+
+(lst-lst 1)
+;-> (a b)
+
+(lst-lst 2 0)
+;-> "c"
+
+Per modificare un elemento usiamo ancora l'indicizzazione implicita con la funzione "setf":
+
+(setf (lst-lst 1) 9)
+;-> 9
+lst-lst
+;-> ((1 2) 9 ("c" "d"))
+
+(setf (lst-lst 2 0) "z")
+;-> "z"
+lst-lst
+;-> ((1 2) 9 ("z" "d"))
+
+Per aggiungere un elemento alla lista usiamo la funzione "push":
+
+(push '(k1 k2) lst-lst -1)
+;-> ((1 2) 9 ("z" "d") (k1 k2))
+
+Lista di Vettori
+----------------
+Definiamo tre vettori:
+
+(setq vet1 (array 2 '(1 2)))
+;-> (1 2)
+
+(setq vet2 (array 2 '(a b)))
+;-> (a b)
+
+(setq vet3 (array 2 '("c" "d")))
+;-> ("c" "d")
+
+Definiamo una lista che contiene i tre vettori:
+
+(setq lst-vet (list vet1 vet2 vet3))
+;-> ((1 2) (a b) ("c" "d"))
+
+(lst-vet 1)
+;-> (a b)
+
+Comunque in questo modo i vettori vengono trasformati in liste all'interno della lista che li contiene:
+
+(array? (lst-vet 1))
+;-> nil
+(list? (lst-vet 1))
+;-> true
+
+Proviamo ad utilizzare la funzione "push" per creare la lista:
+
+(setq lst-vet '())
+;-> ()
+(push vet1 lst-vet -1)
+;-> ((1 2))
+(push vet2 lst-vet -1)
+;-> ((1 2) (a b))
+(push vet3 lst-vet -1)
+;-> ((1 2) (a b) ("c" "d"))
+lst-vet
+;-> ((1 2) (a b) ("c" "d"))
+
+In questo modo i vettori rimangono tali all'interno della lista globale:
+
+(array? (lst-vet 1))
+;-> true
+(list? (lst-vet 1))
+;-> nil
+
+Anche in questo caso possiamo accedere agli elementi di questa struttura con l'indicizzazione implicita (anche se con una sintassi leggermente diversa dovuta al fatto che usiamo i vettori):
+
+(lst-vet 1)
+;-> (a b)
+
+((lst-vet 1) 0)
+;-> a
+
+Per modificare un elemento usiamo ancora l'indicizzazione implicita con la funzione "setf":
+
+(setf ((lst-vet 1) 0) 'z)
+;-> z
+lst-vet
+;-> ((1 2) (z b) ("c" "d"))
+
+(setf ((lst-vet 2) 0) "z")
+;-> "z"
+lst-vet
+;-> ((1 2) (z b) ("z" "d"))
+
+Per aggiungere un elemento alla lista usiamo la funzione "push":
+
+(push '(k1 k2) lst-vet -1)
+;-> ((1 2) 9 ("z" "d") (k1 k2))
+
+(lst-vet 3)
+;-> (k1 k2))
+
+Attenzione, in questo modo abbiamo aggiunto una lista (k1 k2), non un vettore:
+
+(list? (lst-vet 3))
+;-> true
+
+Vettore di Liste
+----------------
+
+Definiamo un vettore di liste inizializzando il vettore direttamente con il valore delle liste:
+
+(setq vet-lst (array 4 '((1 2) (a b) (8 9) ("c" "d"))))
+;-> ((1 2) (a b) (8 9) ("c" "d"))
+(vet-lst 0)
+;-> (1 2)
+
+Verifichiamo che gli elementi del vettore siano delle liste:
+
+(array? vet-lst)
+;-> true
+(list? (vet-lst 0))
+;-> true
+
+Per accedere ad un valore di una lista contenuta nel vettore usiamo l'indicizzazione implicita:
+
+((vet-lst 0) 0)
+;-> 1
+
+Per modificare un valore di una lista contenuta nel vettore usiamo l'indicizzazione implicita:
+
+(setf ((vet-lst 0) 0) "0")
+;-> "0"
+
+vet-lst
+;-> (("0" 2) (a b) (8 9) ("c" "d"))
+
+Per aggiungere un valore ad una lista contenuta nel vettore usiamo l'indicizzazione implicita:
+
+(vet-lst 1)
+;-> (a b)
+
+(push 'c (vet-lst 1) -1)
+;-> (a b c)
+vet-lst
+;-> (("0" 2) (a b c) (8 9) ("c" "d"))
+
+Vettore di vettori
+------------------
+In questo caso stiamo parlando di una matrice, che viene gestita come un vettore con i relativi indici.
+
+
+------------------------------------------------
+Conversione di un numero da una base ad un'altra
+------------------------------------------------
+
+https://cs.stackexchange.com/questions/10318/the-math-behind-converting-from-any-base-to-any-base-without-going-through-base/10321
+
+Per convertire un numero da una base ad un'altra base dobbiamo fare una considerazione astratta: un numero non è la sua rappresentazione numerica. 
+Un numero è un oggetto matematico astratto, mentre la sua rappresentazione numerica è una cosa concreta, vale a dire una sequenza di simboli su un foglio (o una sequenza di bit in memoria, o una sequenza di suoni che emettiamo quando comunichiamo un numero). Ciò che confonde è il fatto che non vediamo mai un numero, ma sempre la sua rappresentazione numerica. Quindi finiamo per pensare che il numero sia la rappresentazione.
+
+Pertanto, la domanda corretta da porre non è "come convertire da una base all'altra", ma piuttosto "come faccio a scoprire quale numero è rappresentato da una determinata lista di cifre" e "come trovo la rappresentazione delle cifre di un dato il numero ".
+
+Scriviamo due funzioni, una per convertire una rappresentazione numerica in un numero e un'altra per fare il contrario. 
+Nota: quando eseguiamo la funzione sullo schermo verrà visualizzato il numero ottenuto nella base 10, ma questo non significa che il computer mantenga i numeri nella base 10 (infatti non è così). Non è rilevante il modo in cui il computer rappresenta i numeri.
+
+(define (todigits n b)
+; Converte un numero positivo n nelle cifre della rappresentazione in base b
+  (let (digits '())
+    (while (> n 0)
+      (push (% n b) digits)
+      (setq n (/ n b))
+    )
+    digits))
+
+(todigits 10 2)
+;-> (1 0 1 0)
+
+(define (fromdigits digits b)
+; Calcola il numero rappresentato dalle cifre (digits) in base b
+  (let (n 0)
+    (dolist (x digits)
+      (setq n (+ (* b n) x))
+    )))
+
+(todigits 84 2)
+;-> (1 0 1 0 1 0 0)
+(todigits 84 3)
+;-> (1 0 0 1 0)
+(fromdigits '(1 0 0 1 0) 3)
+;-> 84
+
+(todigits 92 3)
+;-> (1 0 1 0 2)
+(fromdigits '(1 0 1 0 2) 3)
+;-> 92
+
+(fromdigits '(1 0 1 0 2) 4)
+;-> 274
+(todigits 274 4)
+;-> (1 0 1 0 2)
+
+Utilizzando queste due funzioni possiamo scrivere la funzione che risolve il problema:
+
+(define (convert-base digits b c)
+; Converte le cifre che rappresentano un numero in base b
+; nele cifre che rappresentano il numero in base c
+  (todigits (fromdigits digits b) c))
+
+(convert-base '(1 1 2 0) 3 2)
+;-> (1 0 1 0 1 0)
+
+Nota: la conversione non passa attraverso una rappresentazione in base 10. Abbiamo convertito la rappresentazione di base b nel numero, quindi il numero in base c. Il numero non era in nessuna rappresentazione (a parte quella interna del computer).
+
+Per rappresentare le cifre contenute in digits in una simbologia standard (0..Z) possiamo usare la funzione seguente:
+
+(define (tosymbol digits b)
+; Rappresenta la rappresentazione delle cifre in base b in un simbolo
+; valore massimo per la base b = 36
+  (local (alfabeto simbolo)
+    (setq alfabeto '(0 1 2 3 4 5 6 7 8 9 A B C D E F G H I J K L M N O P Q R S T U V W X Y Z))
+    (setq simbolo "")
+    (dolist (s digits)
+      (setq simbolo (string simbolo (alfabeto s)))
+    )
+    simbolo))
+
+(length alfabeto)
+(todigits 10 2)
+;-> (1 0 1 0)
+(tosymbol '(1 0 1 0) 2)
+"1010"
+
+(todigits 31 16)
+;-> (1 15)
+(tosymbol '(1 15) 16)
+"1F"
+
+(todigits 255 16)
+;-> (15 15)
+(tosymbol '(15 15) 16)
+"FF"
 
 
 ===========

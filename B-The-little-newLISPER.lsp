@@ -2093,19 +2093,6 @@ Definiamo la funzione in newLISP:
 (define (eq?-c a)
      (letex (a a) (lambda (x) (= x a))))
 
-(setq k 'salad)
-(eq?-c k)
-;-> (lambda (x) (= x salad))
-(eq?-c 'salad)
-(setq eq?-salad (eq-c? 'salad))
-(define (eq?-salad (eq-c? 'salad)))
-eq?-salad
-(eq?-salad 'salad)
-
-
-
-
-
 ===========
  APPENDICE
 ===========
