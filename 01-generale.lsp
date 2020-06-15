@@ -8,7 +8,7 @@
  INTRODUZIONE
 ==============
 
-Questi appunti introducono all'uso del linguaggio newLISP per le elaborazioni numeriche (e anche per altre cose). È necessaria una conoscenza di base della programmazione in newLISP. Un ottima scelta per imparare questo linguaggio è il libro "Introduction to newLISP" disponibile come WikiBooks all'indirizzo:  http://en.wikibooks.org/wiki/Introduction_to_newLISP
+Questi appunti introducono all'uso del linguaggio newLISP per le elaborazioni numeriche (e anche per altre cose). È necessaria una conoscenza di base della programmazione in newLISP. Un'ottima scelta per imparare questo linguaggio è il libro "Introduction to newLISP" disponibile come WikiBooks all'indirizzo:  http://en.wikibooks.org/wiki/Introduction_to_newLISP
 Comunque per avere una panoramica sul linguaggio potete anche consultare "newLISP in 21 minuti" di John W. Small oppure "newLISP per programmatori" di Dmitry Chernyak entrambi riportati in appendice.
 Maggiori informazioni sono reperibili al sito ufficiale del linguaggio:
 
@@ -178,6 +178,37 @@ Esecuzione della funzione con sei parametri:
 ;-> 42
 ;-> 36
 
+Come detto prima, in genere la virgola viene usata come separatore tra gli argomenti di una funzione e le variabili locali di una funzione. In questo modo le variabili locali sono inizializzate al valore nil e non devono essere dichiarate nuovamente all'interno della funzione (per esempio con "let" o "local"):
+
+(define (test a b , t1 t2)
+  (println t1 " " t2)
+  (if t1
+    (setq t1 (* a t1))
+    (setq t1 a)
+  )
+  (if t2
+    (setq t2 (* b t2))
+    (setq t2 b)
+  )
+  (list t1 t2)
+)
+
+Proviamo la funzione con due parametri:
+
+(test 1 2)
+;-> nil nil
+;-> (1 2)
+(list t1 t2)
+;-> (nil nil)
+
+Proviamo la funzione con 5 parametri (la virgola è un parametro!):
+
+(test 1 2 , 10 20)
+;-> 10 20
+;-> (10 40)
+(list t1 t2)
+;-> (nil nil)
+
 Possiamo scrivere funzioni che accettano un numero variabile di argomenti:
 
 (define (test v1)
@@ -321,7 +352,7 @@ Non possiamo calcolare il MCD per tre o piu' numeri:
 (MCD 15 5 21)
 ;-> 5
 
-Risultato errato: newLISP associa solo i primi due argomenti 15 e 5.
+Risultato errato: newLISP associa solo i primi due argomenti 15 e 5 e non considera 21.
 
 Per poter applicare alla funzione un numero arbitrario di argomenti, possiamo utilizzare una macro che applica tutti gli argomenti, chiamando la funzione originale con il corretto numero di parametri.
 
@@ -469,7 +500,7 @@ Il numero di argomenti utilizzati è determinato dalla lunghezza della prima lis
 
 *****************
 >>>funzione EVAL
-****************
+*****************
 sintassi: (eval exp)
 
 "eval" calcola il risultato della valutazione dell'espressione "exp".
@@ -3225,7 +3256,7 @@ La funzione "nth" accede ad un elemento di una stringa, di una lista o di un vet
 
 ****************
 >>>funzione NTH
-*****************
+****************
 sintassi: (nth int-index list)
 sintassi: (nth int-index array)
 sintassi: (nth int-index str)
@@ -3690,7 +3721,7 @@ L'interruzione dei cicli loop funziona in modo simile:
 
 L'esempio mostra come è possibile uscire da un ciclo iterativo prima di essere eseguito N volte.
 
-Punti di ritorno multipli possono essere codificati usando il "throw":
+Punti di ritorno multipli possono essere codificati usando l'espressione "throw":
 
 (catch (begin
     (foo1)
@@ -3703,7 +3734,7 @@ Punti di ritorno multipli possono essere codificati usando il "throw":
 
 Se la condizione-A è vera, x sarà restituito dall'espressione "catch", se la condizione-B è vera, il valore restituito è y. In caso contrario, il risultato di foo5 verrà utilizzato come valore di ritorno.
 
-Esempio di catch as "continue" in dolist:
+Esempio di catch che simula l'espressione "continue" nella funzione "dolist":
 
 (dolist (el lst)
   (catch
@@ -4236,9 +4267,9 @@ write-char restituisce il numero di byte scritti.
 
 Utilizzare le funzioni print e device per scrivere grandi porzioni di dati alla volta. Notare che newLISP fornisce già una funzione integrata più veloce chiamata copy-file. Notare che newLISP fornisce una funzione predefinita molto veloce per copiare i file (copy-file).
 
-******************
+*****************
 >>>funzione READ
-******************
+*****************
 sintassi: (read int-file sym-buffer int-size [str-wait])
 
 Legge al massimo int-size byte da un file specificato dall'handle int-file nel buffer sym-buffer. Tutti i dati a cui fa riferimento il simbolo sym-buffer prima della lettura vengono cancellati. L'handle int-file è ottenuto da una precedente istruzione open. Il simbolo sym-buffer contiene dati di tipo stringa dopo l'operazione di lettura. sym-buffer può anche essere un funtore predefinito specificato da un simbolo di contesto per il passaggio per riferimento di funzioni definite dall'utente.
@@ -4816,14 +4847,15 @@ Creare contesti
 ---------------
 I contesti possono essere creati usando la funzione di contesto o tramite la creazione implicita. Il primo metodo è usato quando si scrivono porzioni più grandi di codice appartenenti allo stesso contesto:
 
-(contesto 'FOO)
+(context 'FOO)
 
-(imposta 'var 123)
+(setq 'var 123)
 
 (define (func x y z)
     ...)
 
-(contesto PRINCIPALE)
+(context MAIN)
+
 Se il contesto non esiste ancora, il simbolo di contesto deve essere citato. Se il simbolo non è quotato, newLISP assume che il simbolo sia una variabile che contiene il simbolo del contesto da creare. Poiché un contesto valuta se stesso, i contesti già esistenti come MAIN non richiedono la citazione.
 
 Quando newLISP legge il codice sopra, leggerà, quindi valuterà la prima affermazione: (context 'FOO). Ciò fa sì che newLISP cambi lo spazio dei nomi in FOO ei seguenti simboli var, x, y e z verranno tutti creati nel contesto FOO durante la lettura e la valutazione delle espressioni rimanenti.
@@ -4836,11 +4868,12 @@ FOO: var
 ;-> 123
 
 (FOO: func p q r)
+
 Si noti che nell'esempio sopra, solo func appartiene allo spazio dei nomi FOO, i simboli p q r fanno tutti parte del contesto corrente da cui viene effettuata la chiamata FOO: func.
 
 La funzione simboli è usata per mostrare tutti i simboli appartenenti ad un contesto:
 
-(simboli FOO)
+(symbols FOO)
 ;-> (FOO: func FOO: var FOO: x FOO: y FOO: z)
 
 ; o dall'interno del contesto i simboli sono mostrati senza prefisso di contesto
@@ -5760,8 +5793,8 @@ Per generare le funzioni car e cdr fino ad un certo limite:
 (for (i 3 30) (cdadderize i))
 ;-> (lambda (x) (eval-string "(cdr (cdr (cdr (car x))))"))
 (list-car-cdr)
-;-> (caaaar caaadr caaar caadar caaddr caadr caar cadaar cadadr cadar 
-;->  caddar cadddr caddr cadr car cdaaar cdaadr cdaar cdadar cdaddr 
+;-> (caaaar caaadr caaar caadar caaddr caadr caar cadaar cadadr cadar
+;->  caddar cadddr caddr cadr car cdaaar cdaadr cdaar cdadar cdaddr
 ;->  cdadr cdar cddaar cddadr cddar cdddar cdddr cddr cdr)
 
 ; genera tutte le funzioni cXXXXXXXXXr:
@@ -5771,7 +5804,7 @@ Per generare le funzioni car e cdr fino ad un certo limite:
 
 Proviamo alcune di queste le funzioni:
 
-(setq lst '((a (b (c (d)) (e) (f (g (h (i)) (j)) (k (l (m (n)) (o)))))) 
+(setq lst '((a (b (c (d)) (e) (f (g (h (i)) (j)) (k (l (m (n)) (o))))))
            (p (q (r (s)) (t) (u (v (x (y)) (w)) (z (z (z (z)) (z))))))))
 
 (caar lst)
@@ -6229,9 +6262,9 @@ matches a d only if is not preceded by an r, but r will not be part of the overa
 
 Adesso vediamo alcuni esempi di regex e delle funzioni di newLISP che la utilizzano.
 
-*******************
+********************
 >>>funzione REPLACE
-*******************
+********************
 sintassi: (replace str-pattern str-data exp-replacement regex-option)
 
 La presenza di un quarto parametro indica che è necessario eseguire una ricerca di espressioni regolari con un modello di espressione regolare specificato in str-pattern e un numero di opzione specificato in regex-option (ad es. 1 (uno) o "i" per la ricerca senza distinzione tra maiuscole e minuscole o 0 (zero) per una ricerca standard Perl compatibile con espressione regolare (PCRE) senza opzioni). Vedi regex sopra per i dettagli.
@@ -6274,9 +6307,9 @@ $count → 2
 
 Un'altra funzione che può usare le espressioni regolari è "search".
 
-******************
+*******************
 >>>funzione SEARCH
-******************
+*******************
 sintassi: (search int-file str-search [bool-flag [regex-option]])
 
 Cerca un file specificato dal suo handle in int-file per una stringa in str-search. int-file può essere ottenuto da un precedente file aperto. Dopo la ricerca, il puntatore del file viene posizionato all'inizio o alla fine della stringa cercata o alla fine del file se non viene trovato nulla.
@@ -8365,5 +8398,289 @@ Segue la classe Circle:
 ; end of file
 
 Tutti gli insiemi delle funzioni di ogni classe sono ora separati lessicamente l'uno dall'altro.
+
+
+-------------------
+XML e S-espressioni
+-------------------
+
+newLISP ha alcune funzioni che permettono di lavorare con i file XML. Vediamo la definizione di queste funzioni dal manuale ("xml-parse", "xml-type-tags" e "xml-error"):
+
+***********************
+>>>funzione XML-PARSE
+***********************
+sintassi: (xml-parse string-xml [int-options [sym-context [func-callback]]])
+
+Analizza una stringa contenente XML ben formato, conforme a XML 1.0. xml-parse non esegue la convalida DTD. Viene saltata DTD (Document Type Declarations) e le relative istruzioni di elaborazione. Vengono analizzati i nodi di tipo ELEMENT, TEXT, CDATA e COMMENT e viene restituita una struttura lista newLISP. Quando un nodo elemento non ha attributi o nodi figlio, contiene invece una lista vuota. Gli attributi vengono restituiti come liste di associazioni, a cui è possibile accedere utilizzando "assoc". Quando xml-parse fallisce a causa di XML non valido, viene restituito nil e si può usare "xml-error" per accedere alle informazioni di errore.
+
+(set 'xml 
+  "<person name='John Doe' tel='555-1212'>nice guy</person>")
+
+(xml-parse xml) 
+;-> (("ELEMENT" "person" 
+;->   (("name" "John Doe") 
+;->    ("tel" "555-1212"))
+;->   (("TEXT" "nice guy"))))
+
+Modifica del processo di traduzione
+-----------------------------------
+Facoltativamente, è possibile specificare il parametro int-options per eliminare spazi bianchi, liste di attributi vuote e commenti. Può anche essere usato per trasformare i tag da stringhe in simboli. Un'altra funzione, xml-type-tags, serve per tradurre i tag XML. È possibile utilizzare le varie opzioni tramite i seguenti numeri:
+
+opzione   descrizione
+   1      suppress whitespace text tags
+   2      suppress empty attribute lists
+   4      suppress comment tags
+   8      translate string tags into symbols
+  16      add SXML (S-expression XML) attribute tags (@ ...)
+
+Le opzioni possono essere combinate aggiungendo i numeri (ad esempio, 3 combina le opzioni per sopprimere gli spazi bianchi dei tag/informazioni di testo e le liste che hanno attributi vuoti).
+
+I seguenti esempi mostrano come utilizzare le diverse opzioni:
+
+XML source:
+<?xml version="1.0" ?>
+<DATABASE name="example.xml">
+<!--This is a database of fruits-->
+    <FRUIT>
+        <NAME>apple</NAME>
+        <COLOR>red</COLOR>
+        <PRICE>0.80</PRICE>
+    </FRUIT>
+
+    <FRUIT>
+        <NAME>orange</NAME>
+        <COLOR>orange</COLOR>
+        <PRICE>1.00</PRICE>
+    </FRUIT>
+
+    <FRUIT>
+       <NAME>banana</NAME>
+       <COLOR>yellow</COLOR>
+       <PRICE>0.60</PRICE>
+    </FRUIT>
+</DATABASE>
+
+Parsing senza alcuna opzione:
+
+(xml-parse (read-file "example.xml"))
+;-> (("ELEMENT" "DATABASE" (("name" "example.xml")) (("TEXT" "\r\n\t") 
+;->   ("COMMENT" "This is a database of fruits") 
+;->   ("TEXT" "\r\n\t") 
+;->   ("ELEMENT" "FRUIT" () (("TEXT" "\r\n\t\t") ("ELEMENT" "NAME" () 
+;->      (("TEXT" "apple"))) 
+;->     ("TEXT" "\r\n\t\t") 
+;->     ("ELEMENT" "COLOR" () (("TEXT" "red"))) 
+;->     ("TEXT" "\r\n\t\t") 
+;->     ("ELEMENT" "PRICE" () (("TEXT" "0.80"))) 
+;->     ("TEXT" "\r\n\t"))) 
+;->   ("TEXT" "\r\n\r\n\t") 
+;->   ("ELEMENT" "FRUIT" () (("TEXT" "\r\n\t\t") ("ELEMENT" "NAME" () 
+;->      (("TEXT" "orange"))) 
+;->     ("TEXT" "\r\n\t\t") 
+;->     ("ELEMENT" "COLOR" () (("TEXT" "orange"))) 
+;->     ("TEXT" "\r\n\t\t") 
+;->     ("ELEMENT" "PRICE" () (("TEXT" "1.00"))) 
+;->     ("TEXT" "\r\n\t"))) 
+;->   ("TEXT" "\r\n\r\n\t") 
+;->   ("ELEMENT" "FRUIT" () (("TEXT" "\r\n\t\t") ("ELEMENT" "NAME" () 
+;->      (("TEXT" "banana"))) 
+;->     ("TEXT" "\r\n\t\t") 
+;->     ("ELEMENT" "COLOR" () (("TEXT" "yellow"))) 
+;->     ("TEXT" "\r\n\t\t") 
+;->     ("ELEMENT" "PRICE" () (("TEXT" "0.60"))) 
+;->     ("TEXT" "\r\n\t"))) 
+;->   ("TEXT" "\r\n"))))
+
+The TEXT elements containing only whitespace make the output very confusing. As the database in example.xml only contains data, we can suppress whitespace, empty attribute lists and comments with option (+ 1 2 4):
+
+Filtrare gli spazi vuoti in TEXT, i COMMENT tag, e le liste con attributi vuoti:
+
+(xml-parse (read-file "example.xml") (+ 1 2 4))
+;-> (("ELEMENT" "DATABASE" (("name" "example.xml")) ( 
+;->    ("ELEMENT" "FRUIT" (
+;->      ("ELEMENT" "NAME" (("TEXT" "apple"))) 
+;->      ("ELEMENT" "COLOR" (("TEXT" "red"))) 
+;->      ("ELEMENT" "PRICE" (("TEXT" "0.80"))))) 
+;->    ("ELEMENT" "FRUIT" (
+;->      ("ELEMENT" "NAME" (("TEXT" "orange"))) 
+;->      ("ELEMENT" "COLOR" (("TEXT" "orange"))) 
+;->      ("ELEMENT" "PRICE" (("TEXT" "1.00"))))) 
+;->    ("ELEMENT" "FRUIT" (
+;->      ("ELEMENT" "NAME" (("TEXT" "banana"))) 
+;->      ("ELEMENT" "COLOR" (("TEXT" "yellow"))) 
+;->      ("ELEMENT" "PRICE" (("TEXT" "0.60"))))))))
+
+L'output risultante sembra molto più leggibile, ma può ancora essere migliorato utilizzando simboli anziché stringhe per i tag "FRUIT", "NAME", "COLOR" e "PRICE", nonché eliminando i tag di tipo XML "ELEMENT" e "TEXT" completamente utilizzando la funzione "xml-type-tags".
+
+Soppressione dei tag XML con "xml-type-tags" e traduzione dei tag di stringhe in tag di simboli:
+
+;; suppress all XML type tags for TEXT and ELEMENT
+;; instead of "CDATA", use cdata and instead of "COMMENT", use !--
+
+(xml-type-tags nil 'cdata '!-- nil) 
+
+;; turn on all options for suppressing whitespace and empty
+;; attributes, translate tags to symbols
+
+(xml-parse (read-file "example.xml") (+ 1 2 8))
+→ ((DATABASE (("name" "example.xml")) 
+     (!-- "This is a database of fruits") 
+     (FRUIT (NAME "apple") (COLOR "red") (PRICE "0.80")) 
+     (FRUIT (NAME "orange") (COLOR "orange") (PRICE "1.00")) 
+     (FRUIT (NAME "banana") (COLOR "yellow") (PRICE "0.60"))))
+
+Quando i tag vengono tradotti in simboli utilizzando l'opzione 8, è possibile specificare un contesto in sym-context. Se non viene specificato alcun contesto, tutti i simboli verranno creati all'interno del contesto corrente.
+
+(xml-type-tags nil nil nil nil)
+(xml-parse "<msg>Hello World</msg>" (+ 1 2 4 8 16) 'CTX)
+;-> ((CTX:msg "Hello World"))
+
+Se si specifica nil per i tag XLM di tipo TEXT ed ELEMENT, questi scompaiono. Allo stesso tempo, le parentesi delle liste di nodi figli rimosse in modo che i nodi figlio vengano ora visualizzati come membri della lista, a partire dal simbolo tag tradotto dai tag stringa "FRUIT", "NAME", eccetera.
+
+Parsing in formato SXML (S-espressioni XML):
+
+Utilizzando xml-type-tags per sopprimere tutti i tag di tipo XML, insieme ai numeri di opzione 1, 2, 4, 8 e 16, è possibile generare output in formato SXML:
+
+(xml-type-tags nil nil nil nil)
+(xml-parse (read-file "example.xml") (+ 1 2 4 8 16))
+;-> ((DATABASE (@ (name "example.xml")) 
+;->   (FRUIT (NAME "apple") (COLOR "red") (PRICE "0.80")) 
+;->   (FRUIT (NAME "orange") (COLOR "orange") (PRICE "1.00")) 
+;->   (FRUIT (NAME "banana") (COLOR "yellow") (PRICE "0.6
+
+Se i tag XML originali contengono uno spazio di nomi (namespace) separato da un ":", i due 
+punti verranno tradotti in un "." (dot) nel simbolo newLISP risultante.
+
+Si noti che l'utilizzo dell'opzione numero 16 comporta l'aggiunta di un simbolo "@" (simbolo "at") alla lista degli attributi.
+
+Vedi anche la funzione "xml-type-tags" per ulteriori informazioni sul parsing XML.
+
+Parsing in un contesto specifico:
+
+Durante i parsing delle espressioni XML, i tag XML vengono tradotti in simboli newLISP, quando viene specificata l'opzione 8. L'opzione "sym-context" specifica il contesto di destinazione per la creazione del simbolo:
+
+(xml-type-tags nil nil nil nil)
+(xml-parse (read-file "example.xml") (+ 1 2 4 8 16) 'CTX)
+;-> ((CTX:DATABASE (@ (CTX:name "example.xml")) 
+;->    (CTX:FRUIT (CTX:NAME "apple") (CTX:COLOR "red") (CTX:PRICE "0.80")) 
+;->    (CTX:FRUIT (CTX:NAME "orange") (CTX:COLOR "orange") (CTX:PRICE "1.00")) 
+;->    (CTX:FRUIT (CTX:NAME "banana") (CTX:COLOR "yellow") (CTX:PRICE "0.60"))))
+
+Se il contesto non esiste, verrà creato. Se esiste, il carattere quiote "'" può essere omesso o il contesto può essere indicato da una variabile.
+
+Utilizzare una funzione call back
+---------------------------------
+Normalmente, xml-parse non ritorna fino al termine del parsing. Usando l'opzione func-callback, xml-parse ritornerà, dopo ogni tag che si chiude, con la S-espressione generata e una posizione iniziale e lunghezza nell'XML sorgente:
+
+;; demo callback feature
+(define (xml-callback s-expr start size)
+    (if (or (= (s-expr 0) 'NAME) (= (s-expr 0) 'COLOR) (= (s-expr 0) 'PRICE))
+        (begin
+            (print "parsed expression:" s-expr)
+            (println ", source:" (start size example-xml))
+        )
+    )
+)
+
+(xml-type-tags nil 'cdata '!-- nil)
+(xml-parse  (read-file "example.xml") (+ 1 2 8) MAIN xml-callback)
+
+Il seguente output verrà generato dalla funzione call back "xml-callback":
+
+parsed expression:(NAME "apple"), source:<NAME>apple</NAME>
+parsed expression:(COLOR "red"), source:<COLOR>red</COLOR>
+parsed expression:(PRICE "0.80"), source:<PRICE>0.80</PRICE>
+parsed expression:(NAME "orange"), source:<NAME>orange</NAME>
+parsed expression:(COLOR "orange"), source:<COLOR>orange</COLOR>
+parsed expression:(PRICE "1.00"), source:<PRICE>1.00</PRICE>
+parsed expression:(NAME "banana"), source:<NAME>banana</NAME>
+parsed expression:(COLOR "yellow"), source:<COLOR>yellow</COLOR>
+parsed expression:(PRICE "0.60"), source:<PRICE>0.60</PRICE>
+
+La funzione di callback dell'esempio filtra i tag di interesse e li elabora man mano che si verificano.
+
+**************************
+>>>funzione XML-TYPE-TAGS
+**************************
+sintassi: (xml-type-tags [exp-text-tag exp-cdata-tag exp-comment-tag exp-element-tags])
+
+Può sopprimere completamente o sostituire i tag di tipo XML "TEXT", "CDATA", "COMMENT" e "ELEMENT" con qualcos'altro specificato nei parametri.
+
+Si noti che xml-type-tag eliminano o traducono solo i tag stessi, ma non sopprimono o modificano le informazioni taggate. Quest'ultimo viene fatto usando i numeri delle opzioni in xml-parse.
+
+L'uso di xml-type-tags senza argomenti restituisce i tag di tipo correnti:
+
+(xml-type-tags)
+;-> ("TEXT" "CDATA" "COMMENT" "ELEMENT")
+
+(xml-type-tags nil 'cdata '!-- nil)
+
+Il primo esempio mostra solo i tag di tipo attualmente utilizzati. Il secondo esempio specifica la soppressione dei tag "TEXT" ed "ELEMENT" e mostra "cdata" e "!--" invece di CDATA e COMMENT.
+
+**************************
+>>>funzione XML-ERROR
+**************************
+sintassi: (xml-error)
+
+Restituisce una lista di informazioni sull'errore dall'ultima operazione di "xml-parse". In caso contrario, restituisce nil se non si è verificato alcun errore. Il primo elemento contiene il testo che descrive l'errore e il secondo elemento è un numero che indica l'ultima posizione di scansione nel sorgente XML di origine, a partire da 0 (zero).
+
+(xml-parse "<atag>hello</atag><fin")
+;-> nil
+
+(xml-error)
+;-> ("expected closing tag: >" 18)
+
+Convertire le S-espressioni in XML
+----------------------------------
+
+Come abbiamo visto, newLISP ha il supporto integrato per convertire un file in S-espressioni usando "xml-parse", ma non possiede la funzione inversa, cioè la possibilità di convertire una S-espressione in XML.
+La seguente funzione può essere utilizzata per tradurre una S-espressione in XML:
+
+;; translate s-expr to XML
+;;
+(define (expr2xml expr (level 0))
+ (cond
+   ((or (atom? expr) (quote? expr))
+       (print (dup "  " level))
+       (println expr))
+   ((list? (first expr))
+       (expr2xml (first expr) (+ level 1))
+       (dolist (s (rest expr)) (expr2xml s (+ level 1))))
+   ((symbol? (first expr))
+       (print (dup "  " level))
+       (println "<" (first expr) ">")
+       (dolist (s (rest expr)) (expr2xml s (+ level 1)))
+       (print (dup "  " level))
+       (println "</" (first expr) ">"))
+   (true
+      (print (dup "  " level)
+      (println "<error>" (string expr) "<error>")))
+ ))
+
+;; a lisp expression for a person
+
+(set 'expr '(person
+              (name "John Doe")
+              (address (street "Main Street") (city "Anytown"))))
+
+;; translate to XML with default indentation 0
+
+(expr2xml expr)   =>
+
+<person>
+   <name>
+     John Doe
+   </name>
+   <address>
+       <street>
+         Main Street
+       </street>
+       <city>
+         Anytown
+       </city>
+   </address>
+</person>
+
+Il secondo parametro 0 è il livello di indentazione per l'espressione di tag più esterna.
 
 

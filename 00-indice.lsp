@@ -71,6 +71,7 @@ newLISP IN GENERALE
   Espressioni regolari
   Macro
   FOOP - Programmazione funzionale orientata agli oggetti
+  XML e S-espressioni
 
 FUNZIONI VARIE
 ==============
@@ -146,6 +147,7 @@ FUNZIONI VARIE
   random sample
   Funzioni di Mobius e di Mertens
   Quadruple pitagoriche
+  Lista dei contesti attivi
 
 newLISP 99 PROBLEMI (28)
 ========================
@@ -471,6 +473,11 @@ NOTE LIBERE 2
   Lisp reader
   Liste e vettori annidati
   Conversione di un numero da una base ad un'altra
+  Convertire una stringa in un numero univoco
+  Reduce
+  Quadrati nascosti
+  Push, cons e list
+  Append esteso
 
 APPENDICI
 =========

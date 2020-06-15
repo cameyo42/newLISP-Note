@@ -5074,3 +5074,18 @@ Test del risultato:
     (println el)))
 
 
+-------------------------
+Lista dei contesti attivi
+-------------------------
+
+Per generare la lista di tutti i contesti (context) definiti nella sessione corrente possiamo utilizzare la seguente funzione:
+
+(define (contexts-lst)
+  (filter context? (map eval (symbols))))
+
+(contexts-lst)
+;-> (Class MAIN Tree)
+
+Nota: i simboli che rappresentano i contesti si trovano nel contesto MAIN.
+
+

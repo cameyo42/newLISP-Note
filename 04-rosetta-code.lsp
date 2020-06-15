@@ -1460,6 +1460,13 @@ La sequenza di numeri di Collatz (o Hailstone) può essere generata da un numero
 (collatz-lenght 13123)
 ;-> 77
 
+Ecco una espressione che prende un numero e calcola la relativa lunghezza della sequenza di Collatz (scritta da Cormullion):
+
+(let(f(fn(x)(cond((= x 1)0)((odd? x)(++(f(++(* 3 x)))))(1(++(f(>> x)))))))(f(int(read-line))))
+
+10
+;-> 6
+
 
 ------------
 PERMUTAZIONI

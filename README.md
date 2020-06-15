@@ -5,8 +5,8 @@ MIT License
 Appunti sul linguaggio newLISP  
   
 00) Indice  
-01) newLISP in generale (58)  
-02) Funzioni varie (72)  
+01) newLISP in generale (59)  
+02) Funzioni varie (73)  
 03) newLISP 99 problemi (28)  
 04) Rosetta code (52)  
 05) Project eulero (60)  
@@ -14,7 +14,7 @@ Appunti sul linguaggio newLISP
 07) Domande programmatori (60)  
 08) Librerie (8)  
 09) Note libere (80)  
-10) Note libere 2 (8)  
+10) Note libere 2 (13)  
 11) Appendici (21)  
 12) Bibliografia  
 

@@ -123,7 +123,9 @@ Per commentare una sezione di codice (gruppo di righe) racchiudere la sezione co
 (test)
 ;-> 2 5
 
-Per commentare una sezione di codice (gruppo di righe) racchiudere la sezione con i caratteri"{" e "}"
+Questo metodo è molto comodo quando dobbiamo commentare una grande quantità di codice.
+
+Per commentare una sezione di codice (gruppo di righe) possiamo anche racchiudere la sezione con i caratteri "{" e "}"
 
 (define (test1)
 ;  (println 1 { })
@@ -1346,6 +1348,39 @@ script 1 2 3
 ;-> ("/usr/local/bin/newlisp" "./script" "1" "2" "3")
 
 Prova a eseguire questo script con diversi parametri della riga di comando.
+
+Con lo stesso metodo possiamo scrivere altre funzioni di sistema:
+
+CAT
+;;  cat
+;;  concatena file
+;;  c:> cat file1 file2 file3 ... >stdout
+;;
+;;  cat.make
+;;  (load {c:\newlisp\link.lsp})
+;;  (link {c:\newlisp\newlisp.exe} "cat.exe" "cat.lsp")
+
+(map (fn (F) (write-line (read-file F))) (rest (main-args)))
+(exit)
+
+newlisp -x cat.lsp cat.exe
+
+TAIL
+1) legge tutto il file il cui nome è (nth 1 (main-args))
+2) parse in linee
+3) usa 'slice' per estrarre le ultime (nth 2 (main-args)) linee (come integer)
+4) join e print il risultato
+
+;;  tail
+;;
+(print (join
+        (slice
+            (parse (read-file (nth 1 (main-args))) "\r\n")
+            (- (integer (nth 2 (main-args)))))
+        "\r\n"))
+(exit)
+
+newlisp -x tail.lsp tail.exe
 
 
 ----------------------------

@@ -438,6 +438,7 @@ La seguente funzione simula (in modo semplificato) il comportamento della funzio
 ------------------------
 Liste e vettori annidati
 ------------------------
+
 La struttura dati di base è la lista, ma newLISP permette di utilizzare anche i vettori.
 I vettori vengono dichiarati con la funzione "array".
 
@@ -664,7 +665,6 @@ Attenzione, in questo modo abbiamo aggiunto una lista (k1 k2), non un vettore:
 
 Vettore di Liste
 ----------------
-
 Definiamo un vettore di liste inizializzando il vettore direttamente con il valore delle liste:
 
 (setq vet-lst (array 4 '((1 2) (a b) (8 9) ("c" "d"))))
@@ -705,6 +705,52 @@ vet-lst
 Vettore di vettori
 ------------------
 In questo caso stiamo parlando di una matrice, che viene gestita come un vettore con i relativi indici.
+
+Infine scriviamo una funzione che permette di accedere a tutti gli elementi di una lista annidata (uno x uno):
+
+(define (walk-tree tree-list)
+    (dolist (elmnt tree-list)
+        (if (list? elmnt)
+            (walk-tree elmnt)
+            (do-something-to elmnt))))
+
+Sostituiamo "do-something-to" con la funzione "print":
+
+(define (walk-tree tree-list)
+    (dolist (elmnt tree-list)
+        (if (list? elmnt)
+            (walk-tree elmnt)
+            (print elmnt { }))))
+
+(walk-tree '(a b (c d (e f) g) h i))
+;-> a b c d e f g h i " "
+
+(walk-tree '(a (b (c (d (e (f (g (h (i))))))))))
+;-> a b c d e f g h i " "
+
+Il nome della funzione "walk-tree" è dovuto al fatto che la lista può rappresentare un albero, come nel seguente esempio:
+
+           A
+          / \
+         /   \
+        /     \
+       B       C
+      / \     / \
+     /   \   /   \
+    D     E ()    F
+                 / \
+                /   \
+               G    ()
+
+(setq tree '(A (B (D () ()) (E () ())) (C () (F (G () ()) ()))))
+
+(walk-tree tree)
+;-> A B D E C F G nil
+
+La funzione "walk-tree" attraversa l'albero nello stesso ordine della funzione "(bst-traverse-preorder tree)" che abbiamo visto nella sezione dedicata agli alberi binari:
+
+(bst-traverse-preorder tree)
+;-> (A B D E C F G)
 
 
 ------------------------------------------------
@@ -797,5 +843,339 @@ Per rappresentare le cifre contenute in digits in una simbologia standard (0..Z)
 ;-> (15 15)
 (tosymbol '(15 15) 16)
 "FF"
+
+
+-------------------------------------------
+Convertire una stringa in un numero univoco
+-------------------------------------------
+
+Data una stringa di lunghezza n costituita da alcuni dei seguenti caratteri  0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ determinare un algoritmo che converte la stringa in un numero univoco. In altre parole, due stringhe differenti devono produrre numeri differenti.
+
+Naturalmente, poichè i numeri interi sono limitati (MAXINT 9223372036854775807) la lunghezza della stringa deve essere inferiore ad un certo valore.
+
+Il nostro algoritmo assegna il numero nel modo seguente:
+
+(setq alfabeto '(0 1 2 3 4 5 6 7 8 9 A B C D E F G H I J K L M N O P Q R S T U V W X Y Z))
+
+La stringa "A6HJ92B" si trasforma nel numero:
+
+10×36⁶ + 6×36⁵ + 17×36⁴ + 19×36³ + 9×36² + 2×36 + 11 = 22160072099.
+
+Quindi la funzione è la seguente:
+
+(define (str-int str)
+  (local (alfabeto pot n)
+    ; valore massimo della potenza
+    (setq pot (- (length str) 1))
+    (setq alfabeto '("0" "1" "2" "3" "4" "5" "6" "7" "8" "9" "A" "B" "C" "D" "E" "F" "G" "H" "I" "J" "K" "L" "M" "N" "O" "P" "Q" "R" "S" "T" "U" "V" "W" "X" "Y" "Z"))
+    (setq n 0)
+    (dolist (ch (explode str))
+      (setq n (+ n (* (find ch alfabeto) (pow 36 (- pot $idx)))))
+    )
+    n
+  )
+)
+
+(str-int "A6HJ92B")
+;-> 22160072099
+
+(str-int "MASSIMO")
+;-> 48542232912
+
+Un numero negativo come risultato indica un overflow nella conversione:
+
+(str-int "DFHASFHASFGHASDFJASDHASDDF")
+;-> -3908018479449362464
+
+
+------
+Reduce
+------
+
+Il LISP ha la funzione "reduce" che applica una funzione "tra" gli elementi di una lista. Prende il nome dal fatto che riduce la lista ad un singolo elemento. Questo risultato viene ottenuto applicando la funzione ai primi due elementi della lista, poi applicando la funzione al risultato e al terzo elemento della lista, ecc.
+
+In newLISP possiamo scrivere (funzione è stata proposta da nigelbrown):
+
+(define (reduce funct lst)
+  (cond
+    ;;no elements - return nil
+    ((not lst) nil)
+    ;; one element - return it
+    ((not (rest lst)) (first lst))
+    ;; more than one element - recurse
+    (true (apply funct (list (first lst) (my-reduce funct (rest lst)))))))
+
+(reduce 'append '((A B) (C D) (E F G) () (H I)))
+;-> (A B C D E F G H I)
+
+(reduce '+ '(1 3 4 5))
+;-> 13
+
+(reduce 'gcd '(12 32 16))
+;-> 4
+
+Attualmente newLISP ha integrato la funzionalità di "reduce" nella funzione "apply":
+
+(apply 'append '((A B) (C D) (E F G) () (H I)))
+
+(apply '+ '(1 3 4 5))
+;-> 13
+
+(apply 'gcd '(12 32 16))
+;-> 4
+
+(apply 'append '((A B) (C D) (E F G) () (H I)))
+
+Inoltre, possiamo anche specificare il numero di parametri che utilizza la funzione ogni volta che applica la riduzione. Per esempio, se vogliamo usare una funzione che utilizza tre parametri possiamo scrivere:
+
+(define (tri a b c) (+ a b c))
+
+(tri 1 2 3)
+;-> 6
+
+Adesso riduciamo la lista utilizzando tre parametri (elementi) per volta:
+
+(apply 'tri '(1 2 3 4 5 6 7) 3)
+;-> 28
+
+(1 + 2 + 3) = 6
+6 + (4 + 5) = 15
+15 + (6 + 7) = 28
+
+Attenzione, la funzione "tri" vuole sempre tre parametri:
+
+(apply 'tri '(1 2 3 4 5 6 7) 2)
+;-> ERR: value expected in function + : c
+;-> called from user function (tri 1 2)
+
+
+-----------------
+Quadrati nascosti
+-----------------
+
+Dato un numero intero n non negativo, determinare quanti quadrati perfetti esistono leggendo le cifre da sinistra a destra.
+
+Esempio:
+
+n = 1625649
+quadrati perfetti: (165649 169 16 169 16 1 625 64 256 25 64 49 4 9)
+
+165649 -> (1)(6)2(5)(6)(4)(9)
+169    -> (1)(6)2564(9)
+16     -> (1)(6)25649
+169    -> (1)625(6)4(9)
+16     -> (1)(6)25649
+1      -> (1)625649
+625    -> 1(6)(2)(5)649
+64     -> 1(6)256(4)9
+256    -> 16(2)(5)(6)49
+25     -> 16(2)(5)649
+64     -> 1625(6)(4)9
+49     -> 16256(4)(9)
+4      -> 16256(4)9
+9      -> 162564(9)
+
+Da notare che un quadrato perfetto può comparire più di una volta (16, 64 e 169)
+
+La funzione che calcola l'insieme potenza genera tutti i numeri:
+
+(define (powerset lst)
+  (if (empty? lst)
+      (list '())
+      (let ( (element (first lst))
+             (p (powerset (rest lst))))
+           (append (map (fn (subset) (cons element subset)) p) p) )))
+
+(powerset '(a b c))
+;-> ((a b c) (a b) (a c) (a) (b c) (b) (c) ())
+
+Prima dobbiamo scomporre il numero in una lista di cifre-stringa:
+
+(powerset (explode (string 162)))
+;-> (("1" "6" "2") ("1" "6") ("1" "2") ("1") ("6" "2") ("6") ("2") ())
+
+Poi ci serve una funzione che ricompone ogni numero rappresenta come cifra-stringa:
+
+(define (lst2int lst) (int (join lst)))
+
+(lst2int '("1" "2" "3"))
+;-> 123
+
+(lst2int '())
+;-> nil
+
+Poi utilizziamo una funzione che verifica se un numero è un quadrato perfetto:
+
+(define (square? n)
+  (let (v (+ (sqrt n 0.5)))
+    (= n (* v v))))
+
+(square? 25)
+;-> true
+(square? 0)
+;-> true
+
+Adesso possiamo scrivere la funzione finale:
+
+(define (hidden-square n)
+  (local (lst num out)
+    (setq out '())
+    (setq lst (powerset (explode (string n))))
+    (dolist (el lst)
+      ;(println el)
+      (setq num (lst2int el))
+      (if (and num (square? num))
+        (push num out -1)
+      )
+    )
+    out))
+
+Proviamo con il numero dell'esempio:
+
+(hidden-square 1625649)
+;-> (165649 169 16 169 16 1 625 64 256 25 64 49 4 9)
+
+(hidden-square 1234567890)
+;-> (13456 134689 13689 1369 169 16 1 256 25 289 36 49 4 9 0)
+
+Attenzione ai numeri con diversi 1 e 0:
+
+(hidden-square 11110000)
+;-> (10000 100 100 100 100 100 100 1 10000 100 100 100 100 
+;->  100 100 1 10000 100 100 100 100 100 100 1 10000 100 100 
+;->  100 100 100 100 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
+
+
+-----------------
+Push, cons e list
+-----------------
+
+Vediamo alcune differenze nell'applicazione delle funzioni "push", "cons" e "list". Consideriamo le seguenti operazioni:
+1) aggiunta di un elemento ad una lista
+2) aggiunta di una lista ad un'altra lista
+
+Primo caso
+----------
+Aggiungiamo un elemento all'inizio di una lista:
+
+(push 1 '(2 3))
+;-> (1 2 3)
+(cons 1 '(2 3))
+;-> (1 2 3)
+(list 1 '(2 3))
+;-> (1 (2 3))
+
+Aggiungiamo un elemento in fondo ad una lista:
+
+(push 1 '(2 3) -1)
+;-> (2 3 1)
+(cons '(2 3) 1)
+;-> ((2 3) 1)
+(list '(2 3) 1)
+;-> ((2 3) 1)
+
+Secondo caso
+------------
+Aggiungiamo una lista ad un'altra lista:
+
+(push '(1 2) '(3 4))
+;-> ((1 2) 3 4)
+(cons '(1 2) '(3 4))
+;-> ((1 2) 3 4)
+(list '(1 2) '(3 4))
+;-> ((1 2) (3 4))
+
+
+-------------
+Append esteso
+-------------
+
+Vediamo la definizione del manuale della funzione "append":
+
+*******************
+>>>funzione APPEND
+*******************
+sintassi: (append list-1 [list-2 ... ])
+sintassi: (append array-1 [array-2 ... ])
+sintassi: (append str-1 [str-2 ... ])
+
+Nella prima forma, append funziona con le liste, appendendo le liste list-1 fino a list-nn per formare una nuova lista. Le liste originali non vengono modificate.
+
+(append '(1 2 3) '(4 5 6) '(a b))
+;-> (1 2 3 4 5 6 a b)
+
+(set 'aList '("hello" "world"))
+;-> ("hello" "world")
+
+(append aList '("here" "I am"))
+;-> ("hello" "world" "here" "I am")
+
+Nella seconda forma "append" funziona con i vettori:
+
+(set 'A (array 3 2 (sequence 1 6)))
+;-> ((1 2) (3 4) (5 6))
+(set 'B (array 2 2 (sequence 7 10)))
+;-> ((7 8) (9 10))
+
+(append A B)
+;-> ((1 2) (3 4) (5 6) (7 8) (9 10))
+
+(append B B B)
+;-> ((7 8) (9 10) (7 8) (9 10) (7 8) (9 10))
+
+Nella terza forma, "append" funziona con le stringhe. Le stringhe in str-n vengono concatenate in una nuova stringa e poi viene restituita.
+
+(set 'more " how are you")
+;-> " how are you"
+
+(append "Hello " "world," more)
+;-> "Hello world, how are you"
+
+"append" è anche adatta per l'elaborazione di stringhe binarie contenenti zeri. La funzione "string" taglierà le stringhe con zero byte.
+
+È possibile unire caratteri o stringhe utilizzando la funzione "join". Utilizzare la funzione "string" per convertire gli argomenti in stringhe e appenderle in un solo passaggio.
+
+Utilizzare le funzioni "extend" e "push" per appendere ad una lista esistente o ad una stringa modificando la destinazione.
+
+Questa funzione non permette di inserire liste nulle:
+
+(setq a '(1 2))
+(append a '(3) '(4) '(5))
+;-> (1 2 3 4 5)
+
+(append b '(3) '(4) '(5))
+;-> ERR: array, list or string expected in function append : nil
+
+Scriviamo una funzione che permette di utilizzare liste nulle (nil):
+
+(define (append-nil alist )
+   (if alist
+      (begin
+      (setq _nlst alist)
+      (dolist (_lst (args))(setq _nlst(append _nlst _lst))))
+      (begin
+      (setq _nlst (list ))
+      (dolist (_lst (args))(setq _nlst(append _nlst _lst))))
+   ))
+
+(setq a '(1 2))
+;-> (1 2)
+(append-nil a '(3)'(4)'(5))
+;-> (1 2 3 4 5)
+(append-nil b '(3)'(4)'(5))
+;-> (3 4 5)
+
+Oppure, utilizzando 'apply append' al posto di 'dolist':
+
+(define (append-nil alist)
+  (if alist (append alist (apply append (args)))
+            (apply append (args))))
+
+(setq a '(1 2))
+;-> (1 2)
+(append-nil a '(3)'(4)'(5))
+;-> (1 2 3 4 5)
+(append-nil b '(3)'(4)'(5))
+;-> (3 4 5)
 
 
