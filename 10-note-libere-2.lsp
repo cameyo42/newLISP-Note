@@ -1179,3 +1179,369 @@ Oppure, utilizzando 'apply append' al posto di 'dolist':
 ;-> (3 4 5)
 
 
+-----------------------------------
+newLISP Keywords (Parole riservate)
+-----------------------------------
+
+Possiamo ottenere la lista delle parole riservate (keywords) di newLISP con la seguente funzione:Ecco un modo semplice per ottenere un elenco completo di parole chiave senza utilizzare il manuale:
+
+(define (keywords)
+  (let (k '())
+    (dolist (s (symbols)) (if (primitive? (eval s)) (push s k)))
+    ; dobbiamo aggiungere "nil" e "true" perchè:
+    ; (primitive? (eval nil))  -> nil
+    ; (primitive? (eval true)) -> nil
+    (push 'true k)
+    (push 'nil k)
+    (sort k)))
+
+(keywords)
+
+Nota: i simboli "nil" e "true" non vengono ordinati
+
+(setq a '(nil true b a))
+(sort a)
+;-> (nil true a b)
+
+
+--------------------------------------
+Estrazione di dati da un file di testo
+--------------------------------------
+
+Supponiamo di voler estrarre tutti i numeri contenuti in un testo (file o stringa).
+Un trucco è quello di utlizzare la funzione "replace" con una espressione regolare nel modo seguente:
+
+; Impostare il testo da analizzare
+; per un file
+(setq txt (read-file "myfile.txt"))
+; per una stringa
+(setq txt "11 testo 11n1 1000 01 numeri 28 39 20 non 56")
+; per una riga csv
+(setq txt "11,testo,11,n,1,1000,01,numeri,28,39,20,non,56")
+
+; Impostare il modello (pattern) dell'espressione regolare
+; Solo numeri (anche quelli che iniziano con 0)
+(setq expr {[0-9]+})
+; Solo numeri (senza quelli che iniziano con 0)
+(setq expr {[1-9][0-9]+})
+
+; Inizializzare la lista che conterrà i numeri (stringa)
+(setq tokens '())
+
+; Utilizzare la funzione "replace"
+(replace expr txt (push $0 tokens -1) 0)
+
+; Visualizzare il risultato
+; la lista tokens contiene tutti i numeri (token) trovati
+tokens
+
+L'elaborazione viene eseguita dall'espressione "replace" che inserisce il numero (token) trovato alla fine della lista e restituisce il numero stesso, quindi "txt" rimarrà invariato al termine.
+In altri termini, "replace" è la funzione che analizza il testo.
+
+Vediamo un esempio completo:
+
+(setq txt "11,testo,11,n,1,1000,01,numeri,28,39,20,non,56")
+(setq expr {[0-9]+})
+(setq tokens '())
+(replace expr txt (push $0 tokens -1) 0)
+tokens
+;-> ("11" "11" "1" "1000" "01" "28" "39" "20" "56")
+
+
+----------------------------
+File di testo windows e unix
+----------------------------
+
+In windows il terminatore di ogni linea di un file di testo vale "\r\n".
+In unix/linux il terminatore di ogni linea di un file di testo vale "\n".
+Per scrivere un file di testo in windows con il terminatore di unix possiamo usare la seguente macro proposta da Lutz:
+
+(define-macro (println-unix)
+    (apply print (map eval (args)))
+    (print "\n"))
+
+Proviamo:
+
+(device (open "newfile.txt" "write"))
+;-> 3
+(println-unix "prima riga")
+;-> "\n"
+(println-unix "seconda riga")
+(close (device))
+;-> true
+
+Adesso il file "newfile.txt" ha il terminatore di linea di tipo unix. Con notepad++ possiamo verificarlo tramite il menu Edit -> EOL Conversion.
+
+
+-----
+CRC32
+-----
+
+Il "cyclic redundancy check" (ovvero controllo di ridondanza ciclico, acronimo CRC) è un metodo per il calcolo di somme di controllo (checksum in inglese). Il controllo CRC viene usato per l'individuazione di errori casuali nella trasmissione dati (a causa di interferenze, rumore di linea, distorsione). Il metodo non è invece affidabile per verificare la completa correttezza dei dati contro tentativi intenzionali di manomissione. A questo scopo è meglio usare altri algoritmi di hash quali MD5 e SHA1.
+
+NewLISP ha una funzione integrata per il calcolo del CRC:
+
+******************
+>>>funzione CRC32
+******************
+sintassi: (crc32 str-data)
+Calcula il CRC a 32-bit dal buffer di str-data, iniziando con un valore di CRC uguale a 0xffffffff per il primo byte. "crc32" usa un algoritmo pubblicvato da www.w3.org.
+
+(crc32 "abcdefghijklmnopqrstuvwxyz")
+;-> 1277644989
+
+La funzione "crc32" viene spesso utilizzato per verificare l'integrità dei dati nelle trasmissioni di dati non sicure.
+
+Nel forum di newLISP l'utente Sammo ha proposto la seguente versione:
+
+;;   crc32
+;;   adapted from CMUCL code written by R. Matthew Emerson
+;;   <rme@acm.org> in August 1999 and placed in the public domain
+;;
+;;   examples and test cases
+;;   (format "%08X" (crc "ABC")) --> A3830348
+;;   (format "%08X" (crc "abc")) --> 352441C2
+;;   (format "%08X" (crc "123456789")) --> CBF43926
+;;
+
+(define (my-crc32 buf)
+   (update-crc32 0 buf) )
+
+(define (update-crc32 crc buf , i)
+   (set 'crc (^ crc 0xFFFFFFFF))
+   (dotimes (n (length buf))
+      (set 'i (& 0xFF (^ crc (char buf n))))
+      (set 'crc (^ (nth i CRC32-TABLE) (>> (& 0x7FFFFFFF (>> crc 1)) 7))) )
+   (^ crc 0xFFFFFFFF) )
+
+(setq CRC32-TABLE
+   '(0x00000000 0x77073096 0xEE0E612C 0x990951BA 0x076DC419 0x706AF48F
+     0xE963A535 0x9E6495A3 0x0EDB8832 0x79DCB8A4 0xE0D5E91E 0x97D2D988
+     0x09B64C2B 0x7EB17CBD 0xE7B82D07 0x90BF1D91 0x1DB71064 0x6AB020F2
+     0xF3B97148 0x84BE41DE 0x1ADAD47D 0x6DDDE4EB 0xF4D4B551 0x83D385C7
+     0x136C9856 0x646BA8C0 0xFD62F97A 0x8A65C9EC 0x14015C4F 0x63066CD9
+     0xFA0F3D63 0x8D080DF5 0x3B6E20C8 0x4C69105E 0xD56041E4 0xA2677172
+     0x3C03E4D1 0x4B04D447 0xD20D85FD 0xA50AB56B 0x35B5A8FA 0x42B2986C
+     0xDBBBC9D6 0xACBCF940 0x32D86CE3 0x45DF5C75 0xDCD60DCF 0xABD13D59
+     0x26D930AC 0x51DE003A 0xC8D75180 0xBFD06116 0x21B4F4B5 0x56B3C423
+     0xCFBA9599 0xB8BDA50F 0x2802B89E 0x5F058808 0xC60CD9B2 0xB10BE924
+     0x2F6F7C87 0x58684C11 0xC1611DAB 0xB6662D3D 0x76DC4190 0x01DB7106
+     0x98D220BC 0xEFD5102A 0x71B18589 0x06B6B51F 0x9FBFE4A5 0xE8B8D433
+     0x7807C9A2 0x0F00F934 0x9609A88E 0xE10E9818 0x7F6A0DBB 0x086D3D2D
+     0x91646C97 0xE6635C01 0x6B6B51F4 0x1C6C6162 0x856530D8 0xF262004E
+     0x6C0695ED 0x1B01A57B 0x8208F4C1 0xF50FC457 0x65B0D9C6 0x12B7E950
+     0x8BBEB8EA 0xFCB9887C 0x62DD1DDF 0x15DA2D49 0x8CD37CF3 0xFBD44C65
+     0x4DB26158 0x3AB551CE 0xA3BC0074 0xD4BB30E2 0x4ADFA541 0x3DD895D7
+     0xA4D1C46D 0xD3D6F4FB 0x4369E96A 0x346ED9FC 0xAD678846 0xDA60B8D0
+     0x44042D73 0x33031DE5 0xAA0A4C5F 0xDD0D7CC9 0x5005713C 0x270241AA
+     0xBE0B1010 0xC90C2086 0x5768B525 0x206F85B3 0xB966D409 0xCE61E49F
+     0x5EDEF90E 0x29D9C998 0xB0D09822 0xC7D7A8B4 0x59B33D17 0x2EB40D81
+     0xB7BD5C3B 0xC0BA6CAD 0xEDB88320 0x9ABFB3B6 0x03B6E20C 0x74B1D29A
+     0xEAD54739 0x9DD277AF 0x04DB2615 0x73DC1683 0xE3630B12 0x94643B84
+     0x0D6D6A3E 0x7A6A5AA8 0xE40ECF0B 0x9309FF9D 0x0A00AE27 0x7D079EB1
+     0xF00F9344 0x8708A3D2 0x1E01F268 0x6906C2FE 0xF762575D 0x806567CB
+     0x196C3671 0x6E6B06E7 0xFED41B76 0x89D32BE0 0x10DA7A5A 0x67DD4ACC
+     0xF9B9DF6F 0x8EBEEFF9 0x17B7BE43 0x60B08ED5 0xD6D6A3E8 0xA1D1937E
+     0x38D8C2C4 0x4FDFF252 0xD1BB67F1 0xA6BC5767 0x3FB506DD 0x48B2364B
+     0xD80D2BDA 0xAF0A1B4C 0x36034AF6 0x41047A60 0xDF60EFC3 0xA867DF55
+     0x316E8EEF 0x4669BE79 0xCB61B38C 0xBC66831A 0x256FD2A0 0x5268E236
+     0xCC0C7795 0xBB0B4703 0x220216B9 0x5505262F 0xC5BA3BBE 0xB2BD0B28
+     0x2BB45A92 0x5CB36A04 0xC2D7FFA7 0xB5D0CF31 0x2CD99E8B 0x5BDEAE1D
+     0x9B64C2B0 0xEC63F226 0x756AA39C 0x026D930A 0x9C0906A9 0xEB0E363F
+     0x72076785 0x05005713 0x95BF4A82 0xE2B87A14 0x7BB12BAE 0x0CB61B38
+     0x92D28E9B 0xE5D5BE0D 0x7CDCEFB7 0x0BDBDF21 0x86D3D2D4 0xF1D4E242
+     0x68DDB3F8 0x1FDA836E 0x81BE16CD 0xF6B9265B 0x6FB077E1 0x18B74777
+     0x88085AE6 0xFF0F6A70 0x66063BCA 0x11010B5C 0x8F659EFF 0xF862AE69
+     0x616BFFD3 0x166CCF45 0xA00AE278 0xD70DD2EE 0x4E048354 0x3903B3C2
+     0xA7672661 0xD06016F7 0x4969474D 0x3E6E77DB 0xAED16A4A 0xD9D65ADC
+     0x40DF0B66 0x37D83BF0 0xA9BCAE53 0xDEBB9EC5 0x47B2CF7F 0x30B5FFE9
+     0xBDBDF21C 0xCABAC28A 0x53B39330 0x24B4A3A6 0xBAD03605 0xCDD70693
+     0x54DE5729 0x23D967BF 0xB3667A2E 0xC4614AB8 0x5D681B02 0x2A6F2B94
+     0xB40BBE37 0xC30C8EA1 0x5A05DF1B 0x2D02EF8D))
+
+Proviamo:
+
+(my-crc32 "abcdefghijklmnopqrstuvwxyz")
+;-> 1277644989
+
+
+-------------------
+Mescolare le parole
+-------------------
+
+Una ricerca dell'Universita di Cambridge, ha scoperto che non è importante in quale ordine appaiono le lettere di una parola o di una frase, ma l'unica cosa importante è che la prima e l'ultima lettera siano al posto giusto. Il resto può essere totalmente casuale e saremmo in grado di leggere la parola o la frase senza problemi. Questo perchè la mente umana non legge le singole lettere, ma l'intera parola.
+
+Per verificare questa ricerca usiamo due funzioni: la prima che cambia l'ordine dei caratteri di una parola e la seconda che fa lo stesso con tutte le parole di una frase.
+
+; mescola i caratteri di una parola (es. "hello" -> "hlelo")
+; written by Fanda
+(define (mix str)
+  (if (> (length str) 3)
+    (append (str 0) (join (randomize (explode (1 (- (length str) 2) str)))) (str -1))
+    str))
+
+; mescola i caratteri delle parole di una frase
+; written by Fanda
+(define (jumble str)
+  (let (w "" break ",. -:?!()[]{}+/\|=*&^%$#@!~`'<>" result "")
+    (dolist (c (explode str))
+      (if (find c break)
+        (begin
+          (write-buffer result (append (mix w) c))
+          (setq w ""))
+        (write-buffer w c)))
+    (write-buffer result (mix w))
+    result))
+
+(setq str "Una ricerca dell'Universita di Cambridge, ha scoperto che non è importante in quale ordine appaiono le lettere di una parola o di una frase, ma l'unica cosa importante è che la prima e l'ultima lettera siano al posto giusto. Il resto può essere totalmente casuale e saremmo in grado di leggere la parola o la frase senza problemi. Questo perchè la mente umana non legge le singole lettere, ma l'intera parola.")
+
+(println "\n" (jumble str) "\n")
+;-> Una rirccea dlel'Unrvtseiia di Crdmibage, ha sropetco che non è iprtmantoe in qlaue odnrie ainaoppo le ltteere di una poarla o di una fsrae, ma l'uicna csoa intaotpmre è che la pimra e l'uimtla ltetera sinao al pstoo gituso. Il rtseo può eersse ttaontmele casaule e srmmaeo in gdaro di lergege la proala o la fsare szena preolbmi. Qetuso pcehrè la metne unama non legge le soginle leertte, ma l'iertna porala.
+
+
+-------------------
+Parsing di stringhe
+-------------------
+
+Per fare il parsing di stringhe newLISP mette a disposizione la funzione "parse".
+
+******************
+>>>funzione PARSE
+******************
+sintassi: (parse str-data [str-break [regex-option]])
+
+Divide la stringa risultante dalla valutazione di str-data in token stringa, che vengono quindi restituiti in una lista. Quando non viene fornita alcuna interruzione di stringa "str-break", l'analisi tokenizza secondo le regole di analisi interne di newLISP. Una stringa può essere specificata in "str-break" per la tokenizzare solo al verificarsi di una stringa. Se viene specificato un numero di "regex-regex" o una stringa, è possibile utilizzare un modello di espressione regolare in str-break.
+
+Quando "str-break" non è specificato, la dimensione massima del token è 2048 per le stringhe tra virgolette e 256 per gli identificatori. In questo caso, newLISP utilizza lo stesso tokenizzatore veloce che utilizza per l'analisi dei sorgenti di newLISP. Se si specifica "str-break", non ci sono limiti alla lunghezza dei token. Viene utilizzato un algoritmo diverso che suddivide i dati della stringa di origine "str-data" quando si verifica la stringa "str-break".
+
+; no break string specified
+(parse "hello how are you")     → ("hello" "how" "are" "you")
+
+; strings break after spaces, parentheses, commas, colons and numbers. 
+; Spaces and the colon are swollowed
+(parse "weight is 10lbs")       →
+(parse "one:two:three" ":")     → ("one" "two" "three")
+
+;; specifying a break string
+(parse "one--two--three" "--")  → ("one" "two" "three")
+
+; a regex option causes regex parsing
+(parse "one-two--three---four" "-+" 0) 
+→ ("one" "two" "three" "four")
+
+(parse "hello regular   expression 1, 2, 3" {,\s*|\s+} 0)
+→ ("hello" "regular" "expression" "1" "2" "3")
+
+Gli ultimi due esempi mostrano un'espressione regolare come stringa di interruzione con l'opzione predefinita 0 (zero). Invece di { e } (parentesi graffe sinistra e destra), è possibile utilizzare virgolette doppie per limitare il modello/pattern. In questo caso, è necessario utilizzare doppie barre rovesciate all'interno del modello. L'ultimo modello potrebbe essere utilizzato per l'analisi dei file CSV (Comma Separated Values). Per i numeri relativi alle opzioni delle espressioni regolari, vedere regex.
+
+L'analisi/parsing restituirà i campi vuoti attorno ai separatori come stringhe vuote:
+
+; empty fields around separators returned as empty strings
+(parse "1,2,3," ",") → ("1" "2" "3" "")
+(parse "1,,,4" ",")  → ("1" "" "" "4")
+(parse "," ",")      → ("" "")
+
+(parse "")      → ()
+(parse "" " ")  → ()
+
+Questo comportamento è necessario durante l'analisi dei record con campi vuoti.
+
+L'analisi di una stringa vuota comporterà sempre una lista vuota.
+
+Utilizzare la funzione regex per spezzare le stringhe e le funzioni directory, find, find-all, regex, replace e search per utilizzare le espressioni regolari.
+
+Possiamo anche usare la seguente funzione per fare il parsing di una stringa:
+
+; Funzione Split
+; written by Fanda
+
+(define (parse-no-empty str c)
+  (filter (lambda (x) (not (empty? x))) (parse str c)))
+
+(define (split str-data str-break)
+  (if (empty? str-break)
+    (explode str-data)
+    (begin
+      (setq str-data (list str-data))
+      (dolist (c (explode str-break))
+        (setq str-data (flat (map (lambda (s) (parse-no-empty s c)) str-data)))))))
+
+
+(split "Simple sentence, but useful!" ",! ")
+;-> ("Simple" "sentence" "but" "useful")
+
+(split "http://www.yahoo.com" ":/.")
+;-> ("http" "www" "yahoo" "com")
+
+(split "Hi++++Hello-----Bye!" "+-!")
+;-> ("Hi" "Hello" "Bye")
+
+
+--------------------------------------
+Formattazione di elementi di una lista
+--------------------------------------
+
+Quando abbiamo una lista dei valori o variabili possiamo formattare la stampa di questi elementi (alcuni o tutti) utilizzando l'indicizzazione implicita nel modo seguente:
+
+(setq lst '("bob" "this" "that" 3 2 10 "a" 96 "----" 456))
+(println (format "%s,%d,%s,%d\n" (lst 0) (lst 4) (lst 1) (lst 7)))
+;-> bob,2,this,96
+
+Comunque possiamo anche usare la seguente funzione (scritta da Sammo) che permette di usare "select":
+
+(define (myformat str) (apply format (cons str (flat (args)))))
+(println (format "%s,%d,%s,%d\n" (select lst 0 4 1 7)))
+;-> bob,2,this,96
+
+
+-------------
+Slice mapping
+-------------
+
+Il funzionamento della funzione "map" è il seguente:
+
+(setq data '((1 2) (2 3) (3 4)))
+;-> ((1 2) (2 3) (3 4))
+(println (map first data))
+;-> (1 2 3)
+
+Adesso proviamo un'altra espressione:
+
+(println (map 0 data))
+;-> ((1 2) (2 3) (3 4))
+
+e ancora
+
+(println (map 1 data))
+;-> ((2) (3) (4))
+
+Per capire gli ultimi due risultati occorre sapere che la forma (idx lst) non rappresenta l'indicizzazione implicita (nth), ma lo "slice" implicito:
+
+(0 '(1 2 3 4))
+;-> (1 2 3 4)
+(1 '(1 2 3 4))
+;-> (2 3 4)
+(1 2 '(1 2 3 4))
+;-> (2 3)
+
+Quindi (idx lst) applica la funzione "slice" alla lista lst partendo dall'indice idx.
+
+L'indicizzazione implicita ha la forma (lst idx):
+
+(setq data '(1 2 3 4 5))
+;-> (1 2 3 4 5)
+(data 0)
+;-> 1
+(data 1)
+;-> 2
+
+La funzione "map" applica sempre il primo parametro ad ogni elemento della lista che segue. Comunque è sempre possibile scrivere:
+
+(setq data '(a b c d))
+(map 'data '(3 2 1 0))
+;-> (d c b a)
+
+Notare che la lista data viene quotata perchè "map" valuta sempre il primo parametro prima di applicarlo (come fa anche l'indicizzazione implicita).
+Lo "slice mapping" è utile per raccogliere tutti i primi elementi di una serie di liste e raccoglierli in un'altra lista.
+
+

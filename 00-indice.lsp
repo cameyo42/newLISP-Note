@@ -478,6 +478,14 @@ NOTE LIBERE 2
   Quadrati nascosti
   Push, cons e list
   Append esteso
+  newLISP keywords (Parole riservate)
+  Estrazione di dati da un file di testo
+  File di testo windows e unix
+  CRC32
+  Mescolare le parole
+  Parsing di stringhe
+  Formattazione di elementi di una lista
+  Slice mapping
 
 APPENDICI
 =========

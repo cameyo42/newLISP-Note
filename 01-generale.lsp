@@ -6333,8 +6333,27 @@ Il file init.lsp viene aperto e cercata la stringa "define" e viene stampata la 
 
 Il secondo esempio cerca tutte le righe nel file program.c che iniziano con la stringa "#define" e stampa il resto della riga dopo la stringa "#define".
 
-Vediamo adesso alcuni esempi di espressioni regolari presi dal forum di newLISP.
-...
+Vediamo adesso alcuni esempi di espressioni regolari:
+
+Esempio 1
+---------
+(setq str "xyzabcXYZ")
+; questo non funziona
+(replace "x|y" str "e")
+;-> "abcXYZ"
+
+(setq str "xyzabcXYZ")
+; funziona case insensitive
+(replace "x|y" str "O" 0)
+;-> "OOzabcXYZ"
+
+; funziona case sensitive
+(setq str "xyzabcXYZ")
+(replace "x|y" str "O" 1)
+;-> "OOzabcOOZ"
+
+Esempio 2
+----------
 
 
 =======
