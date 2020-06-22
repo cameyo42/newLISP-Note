@@ -148,6 +148,8 @@ FUNZIONI VARIE
   Funzioni di Mobius e di Mertens
   Quadruple pitagoriche
   Lista dei contesti attivi
+  Conversione lista <--> stringa
+  Funzione butlast
 
 newLISP 99 PROBLEMI (28)
 ========================
@@ -234,6 +236,7 @@ ROSETTA CODE
   Il problema dei matrimoni stabili
   Test Primi Miller-Rabin
   Il problema di Giuseppe
+  ROT-13
 
 PROJECT EULERO
 ==============
@@ -378,11 +381,11 @@ LIBRERIE
   Funzioni winapi
   Operazioni con gli alberi binari
   funlisp.lsp (by Dmitry Chernyak)
-  The Little newLISPER (newlisper.lsp )
+  The Little newLISPER (newlisper.lsp)
 
 NOTE LIBERE
 ===========
-  Perchè newLISP?
+  Perchè newLISP ?
   newLISP facile
   Apprendere newLISP
   Commentare righe di codice
@@ -390,7 +393,7 @@ NOTE LIBERE
   Considerazioni sulle parentesi del LISP
   Controllare l'output della REPL (prettyprint)
   File e cartelle
-  Funzioni e liste
+  Funzioni come liste
   4-4 Puzzle
   Il primo Primo
   Uso delle date
@@ -486,6 +489,7 @@ NOTE LIBERE 2
   Parsing di stringhe
   Formattazione di elementi di una lista
   Slice mapping
+  Valore minimo/massimo di una lista di numeri
 
 APPENDICI
 =========
@@ -5048,6 +5052,17 @@ Si noti che non è possibile utilizzare la stampa fine per impedire la stampa de
 ;; print without formatting
 
 (print (string my-expression))
+
+Nota: Quando vogliamo salvare delle liste di simboli occorre ricordare che i simboli devono avere un nome valido. Supponiamo di scrivere la seguente lista:
+
+(setq lst '(aa bb 1c 1d))
+;-> (aa bb 1 c 1 d)
+
+Il risultato non è quello voluto perchè i nomi "1c" e "1d" non sono validi, quindi newLISP li analizza e modifica il loro nome. Questa analisi si verifica anche quando usiamo la funzione "LOAD".
+Se i simboli "1c" e "1d" rappresentano dei valori esadecimali, allora dobbiamo scrivere:
+
+(setq lst '(aa bb 0x1c 0x1d))
+;-> (a bb 28 29)
 
 
 ===========================
@@ -14344,6 +14359,40 @@ Per generare la lista di tutti i contesti (context) definiti nella sessione corr
 
 Nota: i simboli che rappresentano i contesti si trovano nel contesto MAIN.
 
+------------------------------
+Conversione lista <--> stringa
+------------------------------
+
+(setq lst '(1 a 2 b 3 c))
+
+(define (lst2str lst)
+  (join (map string lst) " "))
+
+(lst2str lst)
+;-> "1 a 2 b 3 c"
+
+(define (str2lst str)
+  (map sym (parse str)))
+
+(str2lst "1 a 2 b 3 c")
+;-> (1 a 2 b 3 c)
+
+
+----------------
+Funzione butlast
+----------------
+
+Questa funzione restituisce la lista o la stringa passata senza gli ultimi n elementi (default n=1):
+
+(define (butlast list-or-string n)
+  (chop list-or-string (or n 1)))
+
+(butlast "pippo" 2)
+;-> "pip"
+
+(butlast '(1 2 3 4 5))
+;-> (1 2 3 4)
+
 
 ==========================
 
@@ -21864,7 +21913,7 @@ Esempio di posizione iniziale:
       | | |        riga: 1 - elementi: 3
     | | | | |      riga: 2 - elementi: 5
   | | | | | | |    riga: 3 - elementi: 7
-  
+
 La strategia di gioco è la seguente:
 
 1) se (n1 xor n2 xor ... nk = 0), scegliere una mossa casuale valida (poichè non esiste una mossa vincente)
@@ -22092,7 +22141,7 @@ Scrivere una funzione per generare le sequenze di Fibonacci in base al valore di
  9   nonanacci    1 1 2 4 8 16 32 64 128 256 511 1021 2040 4076 8144 ...
 10   decanacci    1 1 2 4 8 16 32 64 128 256 512 1023 2045 4088 8172 ...
 
-La funzione "iterate" crea una lista applicando n volte una funzione ad una lista iniziale. 
+La funzione "iterate" crea una lista applicando n volte una funzione ad una lista iniziale.
 Vediamo il funzionamento in particolare con un esempio:
 
 - la lista iniziale vale (1 2 3)
@@ -22101,7 +22150,7 @@ Vediamo il funzionamento in particolare con un esempio:
 
 1. applichiamo la funzione alla lista: (apply + '(1 2 3)) = 4
 2. aggiungiamo il valore (4) alla lista: (1 2 3 4)
-3. applichiamo la funzione alla lista, 
+3. applichiamo la funzione alla lista,
    prendendo solo gli ultimi 3 elementi della lista: (apply + '(2 3 4)) = 9
    (perchè la lista iniziale aveva tre elementi)
 4. continua come al punto 2 per la prossima iterazione.
@@ -22131,14 +22180,14 @@ Vediamo il nostro esempio:
 
 (iterate 5 + '(1 2 3))
 ;-> (1 2 3 6 11 20 37 68)
- 
+
 Invece per calcolare i numeri Pentabonacci:
 
 (iterate 10 + '(0 1 1 2 4))
 ;-> (0 1 1 2 4 8 16 31 61 120 236 464 912 1793 3525)
 
 (iterate 20 + '(0 1 1 2 4))
-;-> (0 1 1 2 4 8 16 31 61 120 236 464 912 1793 3525 6930 13624 
+;-> (0 1 1 2 4 8 16 31 61 120 236 464 912 1793 3525 6930 13624
 ;->  26784 52656 103519 203513 400096 786568 1546352 3040048)
 
 Numeri di Fibonacci:
@@ -22161,7 +22210,7 @@ Per utilizzare i numeri big-integer:
 (iterate 100 + '(0L 1L 1L 2L 4L))
 ;-> (0L 1L 1L 2L 4L 8L 16L 31L 61L 120L 236L 464L
 ;->  ...
-;->  930350798981478627292926391581L) 
+;->  930350798981478627292926391581L)
 
 Vediamo le sequenze di Fibonacci:
 n = 2
@@ -22611,7 +22660,7 @@ Per seguire meglio il metodo di soluzione modifichiamo e stampiamo i dati:
 
 (define (check-sol sol mmp wwp)
   (local (i j k stable men women theman thewoman pos-woman pos-men idx-m idx-w
-          uomini donne prefU prefD link pos ind-uomo ind-donna 
+          uomini donne prefU prefD link pos ind-uomo ind-donna
           ind-uomo ind-uomo-accoppiato)
     (setq stable true)
     (sort sol)
@@ -22696,7 +22745,7 @@ Adesso possiamo scrivere la funzione che controlla la stabilità:
 
 (define (check-sol sol mmp wwp)
   (local (i j k stable men women theman thewoman pos-woman pos-men idx-m idx-w
-          uomini donne prefU prefD link pos ind-uomo ind-donna 
+          uomini donne prefU prefD link pos ind-uomo ind-donna
           ind-uomo ind-uomo-accoppiato)
     (setq stable true)
     (sort sol)
@@ -22776,7 +22825,7 @@ Adesso possiamo scrivere la funzione che controlla la stabilità:
            )
            (println "valore uomo accoppiato per donna migliore: " ind-uomo-accoppiato)
            ;controllo stabilità
-           (if (< ind-uomo ind-uomo-accoppiato) 
+           (if (< ind-uomo ind-uomo-accoppiato)
              (begin
                (setq stable nil)
                (println "coppia instabile")
@@ -23123,6 +23172,173 @@ Nel caso k sia sempre uguale a 2, allora possiamo utilizzare un altro metodo:
 ;-> 13
 (giuseppe 5)
 ;-> 3
+
+
+------
+ROT-13
+------
+
+Il ROT-13 (rotate by 13 places) è un cifrario monoalfabetico. Il ROT13 è una variante del cifrario di Cesare, ma con chiave 13: ogni lettera viene sostituita con quella situata 13 posizioni più avanti nell'alfabeto.
+
+Originale:  A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
+Criptato:   N O P Q R S T U V W X Y Z A B C D E F G H I J K L M
+
+La scelta della chiave non è casuale, perché è la metà del numero di lettere dell'alfabeto internazionale, 26: in questo modo si può utilizzare lo stesso algoritmo sia per la cifratura che per la decifratura.
+
+Ecco un esempio:
+
+Originale LA SCENA IN CUI IL PERSONAGGIO PRINCIPALE MUORE NON MI PIACE
+Criptato  YN FPRAN VA PHV VY CREFBANTTVB CEVAPVCNYR ZHBER ABA ZV CVNPR
+
+Si tratta di un cifrario monoalfabeticio molto facile da decifrare e non viene più utilizzato in crittografia. Ad oggi, il ROT-13 viene usato per offuscare un testo che contiene informazioni (es. una soluzione o un suggerimento) che il lettore potrebbe non voler conoscere immediatamente.
+
+Metodo 1:
+
+(define (rot13-1 txt)
+  (join
+   (map
+    (fn(c)
+      (cond
+       ((<= "A" (upper-case c) "M") (char (+ (char c) 13)))
+       ((<= "N" (upper-case c) "Z") (char (- (char c) 13)))
+       (true c)))
+    (explode txt))))
+
+(rot13-1 "LA SCENA IN CUI IL PERSONAGGIO PRINCIPALE MUORE NON MI PIACE")
+;-> "YN FPRAN VA PHV VY CREFBANTTVB CEVAPVCNYR ZHBER ABA ZV CVNPR"
+(rot13-1 "YN FPRAN VA PHV VY CREFBANTTVB CEVAPVCNYR ZHBER ABA ZV CVNPR")
+;-> "LA SCENA IN CUI IL PERSONAGGIO PRINCIPALE MUORE NON MI PIACE"
+
+Metodo 2:
+
+(define (rot13-2 txt)
+ (for (y 0 (- (length txt) 1))
+      (setf (txt y) (slurp (nth y txt))))
+ txt)
+
+(define (slurp x)
+  (if
+    (or (and (>= (char x)(char "a")) (<= (char x)(char "m")))
+        (and (>= (char x)(char "A")) (<= (char x)(char "M"))))
+        (char (+ (char x) 13))
+    (or (and (>= (char x)(char "n")) (<= (char x)(char "z")))
+        (and (>= (char x)(char "N")) (<= (char x)(char "Z"))))
+        (char (- (char x) 13))
+  x))
+
+(rot13-2 "LA SCENA IN CUI IL PERSONAGGIO PRINCIPALE MUORE NON MI PIACE")
+;-> "YN FPRAN VA PHV VY CREFBANTTVB CEVAPVCNYR ZHBER ABA ZV CVNPR"
+(rot13-2 "YN FPRAN VA PHV VY CREFBANTTVB CEVAPVCNYR ZHBER ABA ZV CVNPR")
+;-> "LA SCENA IN CUI IL PERSONAGGIO PRINCIPALE MUORE NON MI PIACE"
+
+Metodo 3:
+
+(define (rot13-3 txt)
+  (let ((rot13from "NOPQRSTUVWXYZABCDEFGHIJKLMnopqrstuvwxyzabcdefghijklm")
+        (rot13goto "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz")
+        (enc ""))
+    (while (> (length txt) 0)
+      (if (!= (find (nth 0 txt) rot13from) nil)
+        (setq enc(append enc(nth (find (nth 0 txt) rot13from) rot13goto)))
+        (setq enc(append enc(nth 0 txt))))
+      (setq txt (rest txt))
+    )
+    enc))
+
+(rot13-3 "LA SCENA IN CUI IL PERSONAGGIO PRINCIPALE MUORE NON MI PIACE")
+;-> "YN FPRAN VA PHV VY CREFBANTTVB CEVAPVCNYR ZHBER ABA ZV CVNPR"
+(rot13-3 "YN FPRAN VA PHV VY CREFBANTTVB CEVAPVCNYR ZHBER ABA ZV CVNPR")
+;-> "LA SCENA IN CUI IL PERSONAGGIO PRINCIPALE MUORE NON MI PIACE"
+
+Metodo 4:
+
+(define (rot13-4 txt)
+  (for (y 0 (- (length txt) 1))
+    (setf (txt y) (char (slurp (char (nth y txt))))))
+txt)
+
+(define (slurp x)
+  (if
+    (or (and (>= x 97) (<= x 109))
+        (and (>= x 65) (<= x 77)))
+        (+ x 13)
+    (or (and (>= x 110)(<= x 122))
+        (and (>= x 78) (<= x 90)))
+        (- x 13)
+  x))
+
+(rot13-4 "LA SCENA IN CUI IL PERSONAGGIO PRINCIPALE MUORE NON MI PIACE")
+;-> "YN FPRAN VA PHV VY CREFBANTTVB CEVAPVCNYR ZHBER ABA ZV CVNPR"
+(rot13-4 "YN FPRAN VA PHV VY CREFBANTTVB CEVAPVCNYR ZHBER ABA ZV CVNPR")
+;-> "LA SCENA IN CUI IL PERSONAGGIO PRINCIPALE MUORE NON MI PIACE"
+
+Metodo 5:
+
+(define (rot13-5 txt , rotarray)
+  (setq rotarray (array 256
+  '(0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24
+    25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46
+    47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 78 79 80 81
+    82 83 84 85 86 87 88 89 90 65 66 67 68 69 70 71 72 73 74 75 76 77
+    91 92 93 94 95 96 110 111 112 113 114 115 116 117 118 119 120 121
+    122 97 98 99 100 101 102 103 104 105 106 107 108 109 123 124 125
+    126 127 128 129 130 131 132 133 134 135 136 137 138 139 140 141
+    142 143 144 145 146 147 148 149 150 151 152 153 154 155 156 157
+    158 159 160 161 162 163 164 165 166 167 168 169 170 171 172 173
+    174 175 176 177 178 179 180 181 182 183 184 185 186 187 188 189
+    190 191 192 193 194 195 196 197 198 199 200 201 202 203 204 205
+    206 207 208 209 210 211 212 213 214 215 216 217 218 219 220 221
+    222 223 224 225 226 227 228 229 230 231 232 233 234 235 236 237
+    238 239 240 241 242 243 244 245 246 247 248 249 250 251 252 253
+    254 255)))
+  (join (map (fn (x) (char (nth (char x) rotarray))) (explode txt))))
+
+(rot13-5 "LA SCENA IN CUI IL PERSONAGGIO PRINCIPALE MUORE NON MI PIACE")
+;-> "YN FPRAN VA PHV VY CREFBANTTVB CEVAPVCNYR ZHBER ABA ZV CVNPR"
+(rot13-5 "YN FPRAN VA PHV VY CREFBANTTVB CEVAPVCNYR ZHBER ABA ZV CVNPR")
+;-> "LA SCENA IN CUI IL PERSONAGGIO PRINCIPALE MUORE NON MI PIACE"
+
+Metodo 6:
+
+(define (rot13-6 txt , rotarray)
+  (setq rotarray (array 256
+  '(0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24
+    25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46
+    47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 78 79 80 81
+    82 83 84 85 86 87 88 89 90 65 66 67 68 69 70 71 72 73 74 75 76 77
+    91 92 93 94 95 96 110 111 112 113 114 115 116 117 118 119 120 121
+    122 97 98 99 100 101 102 103 104 105 106 107 108 109 123 124 125
+    126 127 128 129 130 131 132 133 134 135 136 137 138 139 140 141
+    142 143 144 145 146 147 148 149 150 151 152 153 154 155 156 157
+    158 159 160 161 162 163 164 165 166 167 168 169 170 171 172 173
+    174 175 176 177 178 179 180 181 182 183 184 185 186 187 188 189
+    190 191 192 193 194 195 196 197 198 199 200 201 202 203 204 205
+    206 207 208 209 210 211 212 213 214 215 216 217 218 219 220 221
+    222 223 224 225 226 227 228 229 230 231 232 233 234 235 236 237
+    238 239 240 241 242 243 244 245 246 247 248 249 250 251 252 253
+    254 255)))
+  (dotimes (i (length txt))
+    (setf (txt i) (char (nth (char (nth i txt)) rotarray)))) txt)
+
+(rot13-6 "LA SCENA IN CUI IL PERSONAGGIO PRINCIPALE MUORE NON MI PIACE")
+;-> "YN FPRAN VA PHV VY CREFBANTTVB CEVAPVCNYR ZHBER ABA ZV CVNPR"
+(rot13-6 "YN FPRAN VA PHV VY CREFBANTTVB CEVAPVCNYR ZHBER ABA ZV CVNPR")
+;-> "LA SCENA IN CUI IL PERSONAGGIO PRINCIPALE MUORE NON MI PIACE"
+
+Metodo 7:
+
+(define (rot13:aux ch , i)
+  (if (set 'i (find ch "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"))
+    ("nopqrstuvwxyzabcdefghijklmNOPQRSTUVWXYZABCDEFGHIJKLM" i)
+    ch ))
+
+(define (rot13-7:rot13-7 txt)
+  (join (map rot13:aux (explode txt))))
+
+(rot13-7 "LA SCENA IN CUI IL PERSONAGGIO PRINCIPALE MUORE NON MI PIACE")
+;-> "YN FPRAN VA PHV VY CREFBANTTVB CEVAPVCNYR ZHBER ABA ZV CVNPR"
+(rot13-7 "YN FPRAN VA PHV VY CREFBANTTVB CEVAPVCNYR ZHBER ABA ZV CVNPR")
+;-> "LA SCENA IN CUI IL PERSONAGGIO PRINCIPALE MUORE NON MI PIACE"
 
 
 ================
@@ -46041,10 +46257,23 @@ Vediamo ora alcune funzioni per stampare la lista dei file e delle cartelle.
 (show-file "C:\\newlisp\\util")
 (show-file "C:/newlisp/util")
 
+Per visualizzare solo determinati file possiamo usare la funzione seguente:
 
-----------------
-Funzioni e liste
-----------------
+(filter (fn (f) (ends-with f ".ahk")) (directory))
+;-> ("npp-newlisp.ahk" "test.ahk" "_npp-newlisp.ahk" "_vscode.ahk")
+
+Oppure possiamo usare la shell in due modi:
+
+(exec "dir *.ahk /b")
+;-> ("npp-newlisp.ahk" "test.ahk" "_npp-newlisp.ahk" "_vscode.ahk")
+
+(exec "cmd /c dir *.ahk /b")
+;-> ("npp-newlisp.ahk" "test.ahk" "_npp-newlisp.ahk" "_vscode.ahk")
+
+
+-------------------
+Funzioni come liste
+-------------------
 
 Definiamo una funzione che somma due numeri:
 
@@ -46121,7 +46350,40 @@ I parametri di funcall non devono essere valutati quando viene chiamata, quindi 
 (funcall '(sin 12))
 ;-> -0.5365729180004349
 
+Nota: Le parole chiave "lambda" e "fn" incorporate come attributi di una liste e non sono simboli, per esempio:
+
+(first (lambda (x) (+ x x)))
+;-> (x) ; non lambda
+
+Quando abbiamo una funzione (o una macro) del tipo:
+
+(define (double x) (+ x x))
+;-> (lambda (x) (+ x x))
+
+Possiamo accedere facilamente al corpo della funzione (o della macro):
+
+(last double)
+;-> (+ x x)
+
+e modificarlo:
+
+(setf (last double) '(+ x x x))
+;-> (+ x x x)
+
+double
+;-> (lambda (x) (+ x x x))
+
+Eseguendo la funzione viene eseguito il nuovo corpo della funzione:
+
+(double 3)
+;-> 9
+
+Il corpo di una funzione è sempre accessibile ed è un oggetto di prima classe (ordine) in newLISP. In Common LISP o Scheme dopo la valutazione delle funzioni e delle macro (define/defun/lambda/) le espressioni che definiscono le funzioni/macro non sono più accessibili e le parole chiave "lambda" o "macro" sono dei simboli come "print", "map", ecc.
+In newLISP la parola "lambda" individua un tipo speciale di lista: la "lambda list". Possiamo utilizzare "cons" su di essa o "append" ad essa e valuta su se stessa.
+Le macro funzionano in modo molto diverso in newLISP rispetto al Common LISP o Scheme.
+
 Questo è uno dei motivi per cui mi piace newLISP.
+
 
 
 ----------
@@ -51311,7 +51573,8 @@ Verifichiamo i risultati con una simulazione.
 ;-> (100000000 51774196 0.51774196)
 
 Nota:
-se per ogni lancio le vittorie sono il numero di 6 ottenuti, allora la prob di vittoria vale 2/3.
+se per ogni lancio le vittorie sono il numero di 6 ottenuti, allora la probabilità di vittoria vale 2/3.
+
 (define (game1 n)
   (let ((mere 0) (break nil))
     (for (i 1 n)
@@ -51390,7 +51653,7 @@ La distribuzione dai numeri da 1 a 12 non è uniforme. Questo è corretto ed è 
 (time (game2 1e7))
 ;-> 60520.989
 
-Nota: nel 1933 una monografia del matematico russo A. Kolmogorov delinea un approccio assiomatico che costituisce la base per la moderna teoria della probabilità ("Foundations of Probability Theory", Chelsea, New York, 1950).
+Nota: nel 1933 una monografia del matematico russo A. Kolmogorov sviluppa un approccio assiomatico che costituisce la base per la moderna teoria della probabilità ("Foundations of Probability Theory", Chelsea, New York, 1950).
 
 
 -----------------
@@ -52861,11 +53124,11 @@ Adesso scriviamo la funzione che calcola le frequenze:
 --------------------------------------
 Approssimazione razionale di un numero
 --------------------------------------
- 
+
 Supponiamo di avere un numero x compreso tra 0 e 1. Vogliamo trovare un'approssimazione razionale per x, ma si desidera considerare solo le frazioni con denominatori al di sotto di un determinato valore N.
-Ad esempio, supponiamo che x = 1/e = 0.367879... 
+Ad esempio, supponiamo che x = 1/e = 0.367879...
 Le approssimazioni razionali con potenze di 10 nel denominatore sono banali da trovare: 3/10, 36/100, 367/1000, ecc. Ma supponiamo di limitare il valore del denominatore ad un numero intero N=10. Esiste un'approssimazione migliore di 3/10? Sì, 3/8 = 0.375 è un'approssimazione migliore. Quando N=100, allora la frazione migliore vale 32/87 = 0,36781 (che è molto meglio di 36/100).
-Come trovare la migliore approssimazione? 
+Come trovare la migliore approssimazione?
 Per iniziare usiamo la ricerca con la forza bruta. Ad esempio, se la dimensione massima del denominatore è N, possiamo provare tutte le frazioni con denominatori inferiori o uguali a N.
 
 La funzione è la seguente:
@@ -52981,7 +53244,7 @@ Scriviamo la funzione:
             ((> x mediant)
              (setq a (+ a c))
              (setq b (+ b d)))
-            (true 
+            (true
              (setq c (+ a c))
              (setq d (+ b d)))
       )
@@ -53153,7 +53416,7 @@ Per stampare un file possiamo usare il codice seguente:
 ;-> 3
 ;-> ; demo encrypt file
 ;-> (define (showinfo) (println "demo encrypt file"))
-;-> 
+;->
 ;-> (define (somma x y) (add x y))
 ;-> "(define (somma x y) (add x y))"
 ;-> true
@@ -53538,12 +53801,12 @@ Conversione di un numero da una base ad un'altra
 
 https://cs.stackexchange.com/questions/10318/the-math-behind-converting-from-any-base-to-any-base-without-going-through-base/10321
 
-Per convertire un numero da una base ad un'altra base dobbiamo fare una considerazione astratta: un numero non è la sua rappresentazione numerica. 
+Per convertire un numero da una base ad un'altra base dobbiamo fare una considerazione astratta: un numero non è la sua rappresentazione numerica.
 Un numero è un oggetto matematico astratto, mentre la sua rappresentazione numerica è una cosa concreta, vale a dire una sequenza di simboli su un foglio (o una sequenza di bit in memoria, o una sequenza di suoni che emettiamo quando comunichiamo un numero). Ciò che confonde è il fatto che non vediamo mai un numero, ma sempre la sua rappresentazione numerica. Quindi finiamo per pensare che il numero sia la rappresentazione.
 
 Pertanto, la domanda corretta da porre non è "come convertire da una base all'altra", ma piuttosto "come faccio a scoprire quale numero è rappresentato da una determinata lista di cifre" e "come trovo la rappresentazione delle cifre di un dato il numero ".
 
-Scriviamo due funzioni, una per convertire una rappresentazione numerica in un numero e un'altra per fare il contrario. 
+Scriviamo due funzioni, una per convertire una rappresentazione numerica in un numero e un'altra per fare il contrario.
 Nota: quando eseguiamo la funzione sullo schermo verrà visualizzato il numero ottenuto nella base 10, ma questo non significa che il computer mantenga i numeri nella base 10 (infatti non è così). Non è rilevante il modo in cui il computer rappresenta i numeri.
 
 (define (todigits n b)
@@ -53820,8 +54083,8 @@ Proviamo con il numero dell'esempio:
 Attenzione ai numeri con diversi 1 e 0:
 
 (hidden-square 11110000)
-;-> (10000 100 100 100 100 100 100 1 10000 100 100 100 100 
-;->  100 100 1 10000 100 100 100 100 100 100 1 10000 100 100 
+;-> (10000 100 100 100 100 100 100 1 10000 100 100 100 100
+;->  100 100 1 10000 100 100 100 100 100 100 1 10000 100 100
 ;->  100 100 100 100 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
 
 
@@ -53962,7 +54225,7 @@ Oppure, utilizzando 'apply append' al posto di 'dolist':
 newLISP Keywords (Parole riservate)
 -----------------------------------
 
-Possiamo ottenere la lista delle parole riservate (keywords) di newLISP con la seguente funzione:Ecco un modo semplice per ottenere un elenco completo di parole chiave senza utilizzare il manuale:
+Possiamo ottenere la lista delle parole riservate (keywords) di newLISP con la seguente funzione:
 
 (define (keywords)
   (let (k '())
@@ -53981,6 +54244,12 @@ Nota: i simboli "nil" e "true" non vengono ordinati
 (setq a '(nil true b a))
 (sort a)
 ;-> (nil true a b)
+
+Possiamo superare il problema nel modo seguente:
+
+(setq lst '(true nil true b a))
+(map sym (sort (map string lst)))
+;-> (a b nil true true)
 
 
 --------------------------------------
@@ -54196,7 +54465,7 @@ Quando "str-break" non è specificato, la dimensione massima del token è 2048 p
 ; no break string specified
 (parse "hello how are you")     → ("hello" "how" "are" "you")
 
-; strings break after spaces, parentheses, commas, colons and numbers. 
+; strings break after spaces, parentheses, commas, colons and numbers.
 ; Spaces and the colon are swollowed
 (parse "weight is 10lbs")       →
 (parse "one:two:three" ":")     → ("one" "two" "three")
@@ -54205,7 +54474,7 @@ Quando "str-break" non è specificato, la dimensione massima del token è 2048 p
 (parse "one--two--three" "--")  → ("one" "two" "three")
 
 ; a regex option causes regex parsing
-(parse "one-two--three---four" "-+" 0) 
+(parse "one-two--three---four" "-+" 0)
 → ("one" "two" "three" "four")
 
 (parse "hello regular   expression 1, 2, 3" {,\s*|\s+} 0)
@@ -54322,6 +54591,82 @@ La funzione "map" applica sempre il primo parametro ad ogni elemento della lista
 
 Notare che la lista data viene quotata perchè "map" valuta sempre il primo parametro prima di applicarlo (come fa anche l'indicizzazione implicita).
 Lo "slice mapping" è utile per raccogliere tutti i primi elementi di una serie di liste e raccoglierli in un'altra lista.
+
+
+--------------------------------------------
+Valore minimo/massimo di una lista di numeri
+--------------------------------------------
+
+Il metodo standard per trovare il valore massimo di una lista di numeri è quello di usare la funzione "apply":
+
+(setq num '(3 4 1 6 8 2 34 12 5 8 9 42 3))
+(apply max num)
+;-> 42
+
+Ma esiste anche un altro metodo (unortodosso):
+
+Inseriamo il simbolo max nella lista num:
+
+(push max num)
+;-> (max@40D985 3 4 1 6 8 2 34 12 5 8 9 42 3)
+
+Valutiamo la lista (e troviamo il numero massimo):
+
+(eval num)
+;-> 42
+
+Adesso dobbiamo togliere il simbolo "max" dalla lista:
+
+(pop num)
+;-> max@40D985
+num
+;-> (3 4 1 6 8 2 34 12 5 8 9 42 3)
+
+Proviamo con la funzione "min":
+
+(push min num)
+;-> (min@40D972 3 4 1 6 8 2 34 12 5 8 9 42 3)
+(eval num)
+;-> 1
+(pop num)
+;-> min@40D972
+num
+;-> (3 4 1 6 8 2 34 12 5 8 9 42 3)
+
+Misuriamo la velocità dei due metodi:
+
+(define (test lst)
+    (push max lst 0) 
+    (eval lst)
+    (pop lst))
+
+(time (test num) 1000000)
+;-> 234.71
+
+(time (apply max num) 1000000)
+;-> 187.861
+
+Inoltre se vogliamo usare una funzione dobbiamo anche restituire il valore, quindi dobbiamo scrivere:
+
+(define (mymax lst)
+  (let (out nil)
+    (push max lst 0) 
+    (setq out (eval lst))
+    (pop lst)
+    out))
+
+(mymax num)
+;-> 42
+
+(time (mymax num) 1000000)
+;-> 359.282
+num
+;-> (3 4 1 6 8 2 34 12 5 8 9 42 3)
+
+(time (apply max num) 1000000)
+;-> 187.45
+
+Il metodo normale è più veloce, ma il metodo unortodosso è interessante.
 
 
 ===========

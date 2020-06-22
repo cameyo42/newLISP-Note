@@ -4498,6 +4498,17 @@ Si noti che non è possibile utilizzare la stampa fine per impedire la stampa de
 
 (print (string my-expression))
 
+Nota: Quando vogliamo salvare delle liste di simboli occorre ricordare che i simboli devono avere un nome valido. Supponiamo di scrivere la seguente lista:
+
+(setq lst '(aa bb 1c 1d))
+;-> (aa bb 1 c 1 d)
+
+Il risultato non è quello voluto perchè i nomi "1c" e "1d" non sono validi, quindi newLISP li analizza e modifica il loro nome. Questa analisi si verifica anche quando usiamo la funzione "LOAD".
+Se i simboli "1c" e "1d" rappresentano dei valori esadecimali, allora dobbiamo scrivere:
+
+(setq lst '(aa bb 0x1c 0x1d))
+;-> (a bb 28 29)
+
 
 ===========================
  STRUTTURA DATI: IL RECORD

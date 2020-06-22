@@ -5088,4 +5088,38 @@ Per generare la lista di tutti i contesti (context) definiti nella sessione corr
 
 Nota: i simboli che rappresentano i contesti si trovano nel contesto MAIN.
 
+------------------------------
+Conversione lista <--> stringa
+------------------------------
+
+(setq lst '(1 a 2 b 3 c))
+
+(define (lst2str lst)
+  (join (map string lst) " "))
+
+(lst2str lst)
+;-> "1 a 2 b 3 c"
+
+(define (str2lst str)
+  (map sym (parse str)))
+
+(str2lst "1 a 2 b 3 c")
+;-> (1 a 2 b 3 c)
+
+
+----------------
+Funzione butlast
+----------------
+
+Questa funzione restituisce la lista o la stringa passata senza gli ultimi n elementi (default n=1):
+
+(define (butlast list-or-string n)
+  (chop list-or-string (or n 1)))
+
+(butlast "pippo" 2)
+;-> "pip"
+
+(butlast '(1 2 3 4 5))
+;-> (1 2 3 4)
+
 

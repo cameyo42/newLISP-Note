@@ -148,6 +148,8 @@ FUNZIONI VARIE
   Funzioni di Mobius e di Mertens
   Quadruple pitagoriche
   Lista dei contesti attivi
+  Conversione lista <--> stringa
+  Funzione butlast
 
 newLISP 99 PROBLEMI (28)
 ========================
@@ -234,6 +236,7 @@ ROSETTA CODE
   Il problema dei matrimoni stabili
   Test Primi Miller-Rabin
   Il problema di Giuseppe
+  ROT-13
 
 PROJECT EULERO
 ==============
@@ -378,11 +381,11 @@ LIBRERIE
   Funzioni winapi
   Operazioni con gli alberi binari
   funlisp.lsp (by Dmitry Chernyak)
-  The Little newLISPER (newlisper.lsp )
+  The Little newLISPER (newlisper.lsp)
 
 NOTE LIBERE
 ===========
-  Perchè newLISP?
+  Perchè newLISP ?
   newLISP facile
   Apprendere newLISP
   Commentare righe di codice
@@ -390,7 +393,7 @@ NOTE LIBERE
   Considerazioni sulle parentesi del LISP
   Controllare l'output della REPL (prettyprint)
   File e cartelle
-  Funzioni e liste
+  Funzioni come liste
   4-4 Puzzle
   Il primo Primo
   Uso delle date
@@ -486,6 +489,7 @@ NOTE LIBERE 2
   Parsing di stringhe
   Formattazione di elementi di una lista
   Slice mapping
+  Valore minimo/massimo di una lista di numeri
 
 APPENDICI
 =========

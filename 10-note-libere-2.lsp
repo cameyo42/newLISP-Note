@@ -82,11 +82,11 @@ Adesso scriviamo la funzione che calcola le frequenze:
 --------------------------------------
 Approssimazione razionale di un numero
 --------------------------------------
- 
+
 Supponiamo di avere un numero x compreso tra 0 e 1. Vogliamo trovare un'approssimazione razionale per x, ma si desidera considerare solo le frazioni con denominatori al di sotto di un determinato valore N.
-Ad esempio, supponiamo che x = 1/e = 0.367879... 
+Ad esempio, supponiamo che x = 1/e = 0.367879...
 Le approssimazioni razionali con potenze di 10 nel denominatore sono banali da trovare: 3/10, 36/100, 367/1000, ecc. Ma supponiamo di limitare il valore del denominatore ad un numero intero N=10. Esiste un'approssimazione migliore di 3/10? Sì, 3/8 = 0.375 è un'approssimazione migliore. Quando N=100, allora la frazione migliore vale 32/87 = 0,36781 (che è molto meglio di 36/100).
-Come trovare la migliore approssimazione? 
+Come trovare la migliore approssimazione?
 Per iniziare usiamo la ricerca con la forza bruta. Ad esempio, se la dimensione massima del denominatore è N, possiamo provare tutte le frazioni con denominatori inferiori o uguali a N.
 
 La funzione è la seguente:
@@ -202,7 +202,7 @@ Scriviamo la funzione:
             ((> x mediant)
              (setq a (+ a c))
              (setq b (+ b d)))
-            (true 
+            (true
              (setq c (+ a c))
              (setq d (+ b d)))
       )
@@ -374,7 +374,7 @@ Per stampare un file possiamo usare il codice seguente:
 ;-> 3
 ;-> ; demo encrypt file
 ;-> (define (showinfo) (println "demo encrypt file"))
-;-> 
+;->
 ;-> (define (somma x y) (add x y))
 ;-> "(define (somma x y) (add x y))"
 ;-> true
@@ -759,12 +759,12 @@ Conversione di un numero da una base ad un'altra
 
 https://cs.stackexchange.com/questions/10318/the-math-behind-converting-from-any-base-to-any-base-without-going-through-base/10321
 
-Per convertire un numero da una base ad un'altra base dobbiamo fare una considerazione astratta: un numero non è la sua rappresentazione numerica. 
+Per convertire un numero da una base ad un'altra base dobbiamo fare una considerazione astratta: un numero non è la sua rappresentazione numerica.
 Un numero è un oggetto matematico astratto, mentre la sua rappresentazione numerica è una cosa concreta, vale a dire una sequenza di simboli su un foglio (o una sequenza di bit in memoria, o una sequenza di suoni che emettiamo quando comunichiamo un numero). Ciò che confonde è il fatto che non vediamo mai un numero, ma sempre la sua rappresentazione numerica. Quindi finiamo per pensare che il numero sia la rappresentazione.
 
 Pertanto, la domanda corretta da porre non è "come convertire da una base all'altra", ma piuttosto "come faccio a scoprire quale numero è rappresentato da una determinata lista di cifre" e "come trovo la rappresentazione delle cifre di un dato il numero ".
 
-Scriviamo due funzioni, una per convertire una rappresentazione numerica in un numero e un'altra per fare il contrario. 
+Scriviamo due funzioni, una per convertire una rappresentazione numerica in un numero e un'altra per fare il contrario.
 Nota: quando eseguiamo la funzione sullo schermo verrà visualizzato il numero ottenuto nella base 10, ma questo non significa che il computer mantenga i numeri nella base 10 (infatti non è così). Non è rilevante il modo in cui il computer rappresenta i numeri.
 
 (define (todigits n b)
@@ -1041,8 +1041,8 @@ Proviamo con il numero dell'esempio:
 Attenzione ai numeri con diversi 1 e 0:
 
 (hidden-square 11110000)
-;-> (10000 100 100 100 100 100 100 1 10000 100 100 100 100 
-;->  100 100 1 10000 100 100 100 100 100 100 1 10000 100 100 
+;-> (10000 100 100 100 100 100 100 1 10000 100 100 100 100
+;->  100 100 1 10000 100 100 100 100 100 100 1 10000 100 100
 ;->  100 100 100 100 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
 
 
@@ -1183,7 +1183,7 @@ Oppure, utilizzando 'apply append' al posto di 'dolist':
 newLISP Keywords (Parole riservate)
 -----------------------------------
 
-Possiamo ottenere la lista delle parole riservate (keywords) di newLISP con la seguente funzione:Ecco un modo semplice per ottenere un elenco completo di parole chiave senza utilizzare il manuale:
+Possiamo ottenere la lista delle parole riservate (keywords) di newLISP con la seguente funzione:
 
 (define (keywords)
   (let (k '())
@@ -1202,6 +1202,12 @@ Nota: i simboli "nil" e "true" non vengono ordinati
 (setq a '(nil true b a))
 (sort a)
 ;-> (nil true a b)
+
+Possiamo superare il problema nel modo seguente:
+
+(setq lst '(true nil true b a))
+(map sym (sort (map string lst)))
+;-> (a b nil true true)
 
 
 --------------------------------------
@@ -1417,7 +1423,7 @@ Quando "str-break" non è specificato, la dimensione massima del token è 2048 p
 ; no break string specified
 (parse "hello how are you")     → ("hello" "how" "are" "you")
 
-; strings break after spaces, parentheses, commas, colons and numbers. 
+; strings break after spaces, parentheses, commas, colons and numbers.
 ; Spaces and the colon are swollowed
 (parse "weight is 10lbs")       →
 (parse "one:two:three" ":")     → ("one" "two" "three")
@@ -1426,7 +1432,7 @@ Quando "str-break" non è specificato, la dimensione massima del token è 2048 p
 (parse "one--two--three" "--")  → ("one" "two" "three")
 
 ; a regex option causes regex parsing
-(parse "one-two--three---four" "-+" 0) 
+(parse "one-two--three---four" "-+" 0)
 → ("one" "two" "three" "four")
 
 (parse "hello regular   expression 1, 2, 3" {,\s*|\s+} 0)
@@ -1543,5 +1549,81 @@ La funzione "map" applica sempre il primo parametro ad ogni elemento della lista
 
 Notare che la lista data viene quotata perchè "map" valuta sempre il primo parametro prima di applicarlo (come fa anche l'indicizzazione implicita).
 Lo "slice mapping" è utile per raccogliere tutti i primi elementi di una serie di liste e raccoglierli in un'altra lista.
+
+
+--------------------------------------------
+Valore minimo/massimo di una lista di numeri
+--------------------------------------------
+
+Il metodo standard per trovare il valore massimo di una lista di numeri è quello di usare la funzione "apply":
+
+(setq num '(3 4 1 6 8 2 34 12 5 8 9 42 3))
+(apply max num)
+;-> 42
+
+Ma esiste anche un altro metodo (unortodosso):
+
+Inseriamo il simbolo max nella lista num:
+
+(push max num)
+;-> (max@40D985 3 4 1 6 8 2 34 12 5 8 9 42 3)
+
+Valutiamo la lista (e troviamo il numero massimo):
+
+(eval num)
+;-> 42
+
+Adesso dobbiamo togliere il simbolo "max" dalla lista:
+
+(pop num)
+;-> max@40D985
+num
+;-> (3 4 1 6 8 2 34 12 5 8 9 42 3)
+
+Proviamo con la funzione "min":
+
+(push min num)
+;-> (min@40D972 3 4 1 6 8 2 34 12 5 8 9 42 3)
+(eval num)
+;-> 1
+(pop num)
+;-> min@40D972
+num
+;-> (3 4 1 6 8 2 34 12 5 8 9 42 3)
+
+Misuriamo la velocità dei due metodi:
+
+(define (test lst)
+    (push max lst 0) 
+    (eval lst)
+    (pop lst))
+
+(time (test num) 1000000)
+;-> 234.71
+
+(time (apply max num) 1000000)
+;-> 187.861
+
+Inoltre se vogliamo usare una funzione dobbiamo anche restituire il valore, quindi dobbiamo scrivere:
+
+(define (mymax lst)
+  (let (out nil)
+    (push max lst 0) 
+    (setq out (eval lst))
+    (pop lst)
+    out))
+
+(mymax num)
+;-> 42
+
+(time (mymax num) 1000000)
+;-> 359.282
+num
+;-> (3 4 1 6 8 2 34 12 5 8 9 42 3)
+
+(time (apply max num) 1000000)
+;-> 187.45
+
+Il metodo normale è più veloce, ma il metodo unortodosso è interessante.
 
 

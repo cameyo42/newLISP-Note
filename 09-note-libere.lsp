@@ -511,10 +511,23 @@ Vediamo ora alcune funzioni per stampare la lista dei file e delle cartelle.
 (show-file "C:\\newlisp\\util")
 (show-file "C:/newlisp/util")
 
+Per visualizzare solo determinati file possiamo usare la funzione seguente:
 
-----------------
-Funzioni e liste
-----------------
+(filter (fn (f) (ends-with f ".ahk")) (directory))
+;-> ("npp-newlisp.ahk" "test.ahk" "_npp-newlisp.ahk" "_vscode.ahk")
+
+Oppure possiamo usare la shell in due modi:
+
+(exec "dir *.ahk /b")
+;-> ("npp-newlisp.ahk" "test.ahk" "_npp-newlisp.ahk" "_vscode.ahk")
+
+(exec "cmd /c dir *.ahk /b")
+;-> ("npp-newlisp.ahk" "test.ahk" "_npp-newlisp.ahk" "_vscode.ahk")
+
+
+-------------------
+Funzioni come liste
+-------------------
 
 Definiamo una funzione che somma due numeri:
 
@@ -591,7 +604,40 @@ I parametri di funcall non devono essere valutati quando viene chiamata, quindi 
 (funcall '(sin 12))
 ;-> -0.5365729180004349
 
+Nota: Le parole chiave "lambda" e "fn" incorporate come attributi di una liste e non sono simboli, per esempio:
+
+(first (lambda (x) (+ x x)))
+;-> (x) ; non lambda
+
+Quando abbiamo una funzione (o una macro) del tipo:
+
+(define (double x) (+ x x))
+;-> (lambda (x) (+ x x))
+
+Possiamo accedere facilamente al corpo della funzione (o della macro):
+
+(last double)
+;-> (+ x x)
+
+e modificarlo:
+
+(setf (last double) '(+ x x x))
+;-> (+ x x x)
+
+double
+;-> (lambda (x) (+ x x x))
+
+Eseguendo la funzione viene eseguito il nuovo corpo della funzione:
+
+(double 3)
+;-> 9
+
+Il corpo di una funzione è sempre accessibile ed è un oggetto di prima classe (ordine) in newLISP. In Common LISP o Scheme dopo la valutazione delle funzioni e delle macro (define/defun/lambda/) le espressioni che definiscono le funzioni/macro non sono più accessibili e le parole chiave "lambda" o "macro" sono dei simboli come "print", "map", ecc.
+In newLISP la parola "lambda" individua un tipo speciale di lista: la "lambda list". Possiamo utilizzare "cons" su di essa o "append" ad essa e valuta su se stessa.
+Le macro funzionano in modo molto diverso in newLISP rispetto al Common LISP o Scheme.
+
 Questo è uno dei motivi per cui mi piace newLISP.
+
 
 
 ----------
@@ -5781,7 +5827,8 @@ Verifichiamo i risultati con una simulazione.
 ;-> (100000000 51774196 0.51774196)
 
 Nota:
-se per ogni lancio le vittorie sono il numero di 6 ottenuti, allora la prob di vittoria vale 2/3.
+se per ogni lancio le vittorie sono il numero di 6 ottenuti, allora la probabilità di vittoria vale 2/3.
+
 (define (game1 n)
   (let ((mere 0) (break nil))
     (for (i 1 n)
@@ -5860,7 +5907,7 @@ La distribuzione dai numeri da 1 a 12 non è uniforme. Questo è corretto ed è 
 (time (game2 1e7))
 ;-> 60520.989
 
-Nota: nel 1933 una monografia del matematico russo A. Kolmogorov delinea un approccio assiomatico che costituisce la base per la moderna teoria della probabilità ("Foundations of Probability Theory", Chelsea, New York, 1950).
+Nota: nel 1933 una monografia del matematico russo A. Kolmogorov sviluppa un approccio assiomatico che costituisce la base per la moderna teoria della probabilità ("Foundations of Probability Theory", Chelsea, New York, 1950).
 
 
 -----------------

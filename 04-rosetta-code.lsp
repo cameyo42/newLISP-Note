@@ -6041,7 +6041,7 @@ Esempio di posizione iniziale:
       | | |        riga: 1 - elementi: 3
     | | | | |      riga: 2 - elementi: 5
   | | | | | | |    riga: 3 - elementi: 7
-  
+
 La strategia di gioco è la seguente:
 
 1) se (n1 xor n2 xor ... nk = 0), scegliere una mossa casuale valida (poichè non esiste una mossa vincente)
@@ -6269,7 +6269,7 @@ Scrivere una funzione per generare le sequenze di Fibonacci in base al valore di
  9   nonanacci    1 1 2 4 8 16 32 64 128 256 511 1021 2040 4076 8144 ...
 10   decanacci    1 1 2 4 8 16 32 64 128 256 512 1023 2045 4088 8172 ...
 
-La funzione "iterate" crea una lista applicando n volte una funzione ad una lista iniziale. 
+La funzione "iterate" crea una lista applicando n volte una funzione ad una lista iniziale.
 Vediamo il funzionamento in particolare con un esempio:
 
 - la lista iniziale vale (1 2 3)
@@ -6278,7 +6278,7 @@ Vediamo il funzionamento in particolare con un esempio:
 
 1. applichiamo la funzione alla lista: (apply + '(1 2 3)) = 4
 2. aggiungiamo il valore (4) alla lista: (1 2 3 4)
-3. applichiamo la funzione alla lista, 
+3. applichiamo la funzione alla lista,
    prendendo solo gli ultimi 3 elementi della lista: (apply + '(2 3 4)) = 9
    (perchè la lista iniziale aveva tre elementi)
 4. continua come al punto 2 per la prossima iterazione.
@@ -6308,14 +6308,14 @@ Vediamo il nostro esempio:
 
 (iterate 5 + '(1 2 3))
 ;-> (1 2 3 6 11 20 37 68)
- 
+
 Invece per calcolare i numeri Pentabonacci:
 
 (iterate 10 + '(0 1 1 2 4))
 ;-> (0 1 1 2 4 8 16 31 61 120 236 464 912 1793 3525)
 
 (iterate 20 + '(0 1 1 2 4))
-;-> (0 1 1 2 4 8 16 31 61 120 236 464 912 1793 3525 6930 13624 
+;-> (0 1 1 2 4 8 16 31 61 120 236 464 912 1793 3525 6930 13624
 ;->  26784 52656 103519 203513 400096 786568 1546352 3040048)
 
 Numeri di Fibonacci:
@@ -6338,7 +6338,7 @@ Per utilizzare i numeri big-integer:
 (iterate 100 + '(0L 1L 1L 2L 4L))
 ;-> (0L 1L 1L 2L 4L 8L 16L 31L 61L 120L 236L 464L
 ;->  ...
-;->  930350798981478627292926391581L) 
+;->  930350798981478627292926391581L)
 
 Vediamo le sequenze di Fibonacci:
 n = 2
@@ -6788,7 +6788,7 @@ Per seguire meglio il metodo di soluzione modifichiamo e stampiamo i dati:
 
 (define (check-sol sol mmp wwp)
   (local (i j k stable men women theman thewoman pos-woman pos-men idx-m idx-w
-          uomini donne prefU prefD link pos ind-uomo ind-donna 
+          uomini donne prefU prefD link pos ind-uomo ind-donna
           ind-uomo ind-uomo-accoppiato)
     (setq stable true)
     (sort sol)
@@ -6873,7 +6873,7 @@ Adesso possiamo scrivere la funzione che controlla la stabilità:
 
 (define (check-sol sol mmp wwp)
   (local (i j k stable men women theman thewoman pos-woman pos-men idx-m idx-w
-          uomini donne prefU prefD link pos ind-uomo ind-donna 
+          uomini donne prefU prefD link pos ind-uomo ind-donna
           ind-uomo ind-uomo-accoppiato)
     (setq stable true)
     (sort sol)
@@ -6953,7 +6953,7 @@ Adesso possiamo scrivere la funzione che controlla la stabilità:
            )
            (println "valore uomo accoppiato per donna migliore: " ind-uomo-accoppiato)
            ;controllo stabilità
-           (if (< ind-uomo ind-uomo-accoppiato) 
+           (if (< ind-uomo ind-uomo-accoppiato)
              (begin
                (setq stable nil)
                (println "coppia instabile")
@@ -7300,5 +7300,172 @@ Nel caso k sia sempre uguale a 2, allora possiamo utilizzare un altro metodo:
 ;-> 13
 (giuseppe 5)
 ;-> 3
+
+
+------
+ROT-13
+------
+
+Il ROT-13 (rotate by 13 places) è un cifrario monoalfabetico. Il ROT13 è una variante del cifrario di Cesare, ma con chiave 13: ogni lettera viene sostituita con quella situata 13 posizioni più avanti nell'alfabeto.
+
+Originale:  A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
+Criptato:   N O P Q R S T U V W X Y Z A B C D E F G H I J K L M
+
+La scelta della chiave non è casuale, perché è la metà del numero di lettere dell'alfabeto internazionale, 26: in questo modo si può utilizzare lo stesso algoritmo sia per la cifratura che per la decifratura.
+
+Ecco un esempio:
+
+Originale LA SCENA IN CUI IL PERSONAGGIO PRINCIPALE MUORE NON MI PIACE
+Criptato  YN FPRAN VA PHV VY CREFBANTTVB CEVAPVCNYR ZHBER ABA ZV CVNPR
+
+Si tratta di un cifrario monoalfabeticio molto facile da decifrare e non viene più utilizzato in crittografia. Ad oggi, il ROT-13 viene usato per offuscare un testo che contiene informazioni (es. una soluzione o un suggerimento) che il lettore potrebbe non voler conoscere immediatamente.
+
+Metodo 1:
+
+(define (rot13-1 txt)
+  (join
+   (map
+    (fn(c)
+      (cond
+       ((<= "A" (upper-case c) "M") (char (+ (char c) 13)))
+       ((<= "N" (upper-case c) "Z") (char (- (char c) 13)))
+       (true c)))
+    (explode txt))))
+
+(rot13-1 "LA SCENA IN CUI IL PERSONAGGIO PRINCIPALE MUORE NON MI PIACE")
+;-> "YN FPRAN VA PHV VY CREFBANTTVB CEVAPVCNYR ZHBER ABA ZV CVNPR"
+(rot13-1 "YN FPRAN VA PHV VY CREFBANTTVB CEVAPVCNYR ZHBER ABA ZV CVNPR")
+;-> "LA SCENA IN CUI IL PERSONAGGIO PRINCIPALE MUORE NON MI PIACE"
+
+Metodo 2:
+
+(define (rot13-2 txt)
+ (for (y 0 (- (length txt) 1))
+      (setf (txt y) (slurp (nth y txt))))
+ txt)
+
+(define (slurp x)
+  (if
+    (or (and (>= (char x)(char "a")) (<= (char x)(char "m")))
+        (and (>= (char x)(char "A")) (<= (char x)(char "M"))))
+        (char (+ (char x) 13))
+    (or (and (>= (char x)(char "n")) (<= (char x)(char "z")))
+        (and (>= (char x)(char "N")) (<= (char x)(char "Z"))))
+        (char (- (char x) 13))
+  x))
+
+(rot13-2 "LA SCENA IN CUI IL PERSONAGGIO PRINCIPALE MUORE NON MI PIACE")
+;-> "YN FPRAN VA PHV VY CREFBANTTVB CEVAPVCNYR ZHBER ABA ZV CVNPR"
+(rot13-2 "YN FPRAN VA PHV VY CREFBANTTVB CEVAPVCNYR ZHBER ABA ZV CVNPR")
+;-> "LA SCENA IN CUI IL PERSONAGGIO PRINCIPALE MUORE NON MI PIACE"
+
+Metodo 3:
+
+(define (rot13-3 txt)
+  (let ((rot13from "NOPQRSTUVWXYZABCDEFGHIJKLMnopqrstuvwxyzabcdefghijklm")
+        (rot13goto "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz")
+        (enc ""))
+    (while (> (length txt) 0)
+      (if (!= (find (nth 0 txt) rot13from) nil)
+        (setq enc(append enc(nth (find (nth 0 txt) rot13from) rot13goto)))
+        (setq enc(append enc(nth 0 txt))))
+      (setq txt (rest txt))
+    )
+    enc))
+
+(rot13-3 "LA SCENA IN CUI IL PERSONAGGIO PRINCIPALE MUORE NON MI PIACE")
+;-> "YN FPRAN VA PHV VY CREFBANTTVB CEVAPVCNYR ZHBER ABA ZV CVNPR"
+(rot13-3 "YN FPRAN VA PHV VY CREFBANTTVB CEVAPVCNYR ZHBER ABA ZV CVNPR")
+;-> "LA SCENA IN CUI IL PERSONAGGIO PRINCIPALE MUORE NON MI PIACE"
+
+Metodo 4:
+
+(define (rot13-4 txt)
+  (for (y 0 (- (length txt) 1))
+    (setf (txt y) (char (slurp (char (nth y txt))))))
+txt)
+
+(define (slurp x)
+  (if
+    (or (and (>= x 97) (<= x 109))
+        (and (>= x 65) (<= x 77)))
+        (+ x 13)
+    (or (and (>= x 110)(<= x 122))
+        (and (>= x 78) (<= x 90)))
+        (- x 13)
+  x))
+
+(rot13-4 "LA SCENA IN CUI IL PERSONAGGIO PRINCIPALE MUORE NON MI PIACE")
+;-> "YN FPRAN VA PHV VY CREFBANTTVB CEVAPVCNYR ZHBER ABA ZV CVNPR"
+(rot13-4 "YN FPRAN VA PHV VY CREFBANTTVB CEVAPVCNYR ZHBER ABA ZV CVNPR")
+;-> "LA SCENA IN CUI IL PERSONAGGIO PRINCIPALE MUORE NON MI PIACE"
+
+Metodo 5:
+
+(define (rot13-5 txt , rotarray)
+  (setq rotarray (array 256
+  '(0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24
+    25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46
+    47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 78 79 80 81
+    82 83 84 85 86 87 88 89 90 65 66 67 68 69 70 71 72 73 74 75 76 77
+    91 92 93 94 95 96 110 111 112 113 114 115 116 117 118 119 120 121
+    122 97 98 99 100 101 102 103 104 105 106 107 108 109 123 124 125
+    126 127 128 129 130 131 132 133 134 135 136 137 138 139 140 141
+    142 143 144 145 146 147 148 149 150 151 152 153 154 155 156 157
+    158 159 160 161 162 163 164 165 166 167 168 169 170 171 172 173
+    174 175 176 177 178 179 180 181 182 183 184 185 186 187 188 189
+    190 191 192 193 194 195 196 197 198 199 200 201 202 203 204 205
+    206 207 208 209 210 211 212 213 214 215 216 217 218 219 220 221
+    222 223 224 225 226 227 228 229 230 231 232 233 234 235 236 237
+    238 239 240 241 242 243 244 245 246 247 248 249 250 251 252 253
+    254 255)))
+  (join (map (fn (x) (char (nth (char x) rotarray))) (explode txt))))
+
+(rot13-5 "LA SCENA IN CUI IL PERSONAGGIO PRINCIPALE MUORE NON MI PIACE")
+;-> "YN FPRAN VA PHV VY CREFBANTTVB CEVAPVCNYR ZHBER ABA ZV CVNPR"
+(rot13-5 "YN FPRAN VA PHV VY CREFBANTTVB CEVAPVCNYR ZHBER ABA ZV CVNPR")
+;-> "LA SCENA IN CUI IL PERSONAGGIO PRINCIPALE MUORE NON MI PIACE"
+
+Metodo 6:
+
+(define (rot13-6 txt , rotarray)
+  (setq rotarray (array 256
+  '(0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24
+    25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46
+    47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 78 79 80 81
+    82 83 84 85 86 87 88 89 90 65 66 67 68 69 70 71 72 73 74 75 76 77
+    91 92 93 94 95 96 110 111 112 113 114 115 116 117 118 119 120 121
+    122 97 98 99 100 101 102 103 104 105 106 107 108 109 123 124 125
+    126 127 128 129 130 131 132 133 134 135 136 137 138 139 140 141
+    142 143 144 145 146 147 148 149 150 151 152 153 154 155 156 157
+    158 159 160 161 162 163 164 165 166 167 168 169 170 171 172 173
+    174 175 176 177 178 179 180 181 182 183 184 185 186 187 188 189
+    190 191 192 193 194 195 196 197 198 199 200 201 202 203 204 205
+    206 207 208 209 210 211 212 213 214 215 216 217 218 219 220 221
+    222 223 224 225 226 227 228 229 230 231 232 233 234 235 236 237
+    238 239 240 241 242 243 244 245 246 247 248 249 250 251 252 253
+    254 255)))
+  (dotimes (i (length txt))
+    (setf (txt i) (char (nth (char (nth i txt)) rotarray)))) txt)
+
+(rot13-6 "LA SCENA IN CUI IL PERSONAGGIO PRINCIPALE MUORE NON MI PIACE")
+;-> "YN FPRAN VA PHV VY CREFBANTTVB CEVAPVCNYR ZHBER ABA ZV CVNPR"
+(rot13-6 "YN FPRAN VA PHV VY CREFBANTTVB CEVAPVCNYR ZHBER ABA ZV CVNPR")
+;-> "LA SCENA IN CUI IL PERSONAGGIO PRINCIPALE MUORE NON MI PIACE"
+
+Metodo 7:
+
+(define (rot13:aux ch , i)
+  (if (set 'i (find ch "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"))
+    ("nopqrstuvwxyzabcdefghijklmNOPQRSTUVWXYZABCDEFGHIJKLM" i)
+    ch ))
+
+(define (rot13-7:rot13-7 txt)
+  (join (map rot13:aux (explode txt))))
+
+(rot13-7 "LA SCENA IN CUI IL PERSONAGGIO PRINCIPALE MUORE NON MI PIACE")
+;-> "YN FPRAN VA PHV VY CREFBANTTVB CEVAPVCNYR ZHBER ABA ZV CVNPR"
+(rot13-7 "YN FPRAN VA PHV VY CREFBANTTVB CEVAPVCNYR ZHBER ABA ZV CVNPR")
+;-> "LA SCENA IN CUI IL PERSONAGGIO PRINCIPALE MUORE NON MI PIACE"
 
 
