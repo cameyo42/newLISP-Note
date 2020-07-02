@@ -5123,3 +5123,88 @@ Questa funzione restituisce la lista o la stringa passata senza gli ultimi n ele
 ;-> (1 2 3 4)
 
 
+-----------------------------------------
+Lista di tutte le partizioni di un numero
+-----------------------------------------
+
+Dato un numero intero positivo n, generare tutti i modi unici possibili per rappresentare n come somma di numeri interi positivi.
+
+La soluzione crea una lista con tutte le partizioni ordinate (anche i numeri di ogni partizione sono ordinati). Il metodo è quello di ottenere la partizione successiva usando i valori della partizione corrente. Memorizziamo ogni partizione in un vettore "part". Inizializziamo part[0] a n, dove n è il numero di input. Ad ogni iterazione inseriamo la partizione corrente (cioè il vettore "part") nella lista e quindi aggiorniamo il vettore "part" per memorizzare la partizione successiva. Quindi il problema principale è ottenere la partizione successiva da una determinata partizione.
+
+I passaggi per ottenere la partizione successiva dalla partizione corrente sono i seguenti:
+- Ci viene data la partizione corrente in "part" e le sue dimensioni. 
+- Dobbiamo aggiornare "part" per memorizzare la prossima partizione. 
+- I valori in "part" devono essere ordinati in ordine non crescente.
+
+1) Trovare il valore (non-uno) (cioè diverso da 1) più a destra in "part" e memorizza il conteggio di 1 incontrati prima di un valore non-uno in una variabile temp-value (Indica la somma dei valori sul lato destro che devono essere aggiornati). Assegna alla variabile k il valore dell'indice relativo al numero non-uno.
+
+2) Diminuire il valore di part[k] di 1 e aumentare temp-value di 1.
+Ora ci possono essere due casi:
+a) Se part[k] è maggiore o uguale a temp-value. Questo è un caso semplice (abbiamo il corretto ordine in una nuova partizione). Assegnare temp-value a part[k + 1] e part[0..(k + 1)] è la nostra nuova partizione.
+b) Altrimenti (questo è un caso interessante, considera part[] iniziale come [3, 1, 1, 1], part[k] è diminuito da 3 a 2, temp-value è aumentato da 3 a 4, la partizione successiva vale essere [2, 2, 2]).
+
+3) Copia part[k] nella posizione successiva, incrementa k e riduci il conteggio di part[k] fino a che part[k] è inferiore a temp-value. Infine, assegnare temp-value a part[k + 1] e part[0..(k + 1)] è la nostra nuova partizione. Questo passaggio è come dividere temp-value in termini di part[k] (4 è diviso in 2 parti).
+
+Vediamo l'implementazione dell'algoritmo:
+
+(define (partnumber n)
+  (catch
+  (local (part k temp-value out)
+    (setq out '())
+    (setq part (array n '(0)))
+    (setq k 0)
+    (setf (part k) n)
+    ; Questo ciclo prima aggiunge la partizione corrente alla lista
+    ; poi genera la partizione successiva.
+    ; Il ciclo termina quando la partizione corrente è costituita da tutti 1.
+    (while true
+      ; Aggiunge la partizione corrente alla lista delle soluzioni
+      (push (slice part 0 (+ k 1)) out -1)
+      ;
+      ; Generare la partizione successiva
+      ;
+      ; Trova il valore non-uno più a destra di part[]
+      ; Aggiorna anche il valore di temp-value 
+      ; (cioè quanti valori possono essere inseriti)
+      (setq temp-value 0)
+      (while (and (>= k 0) (= (part k) 1))
+        (setq temp-value (+ temp-value (part k)))
+        (-- k)
+      )
+      ; se k < 0, tutti i valori valgono 1 
+      ; quindi non ci sono altre partizioni da generare
+      (if (< k 0) (throw out))
+      ; Decrementa part[k] trovato sopra e calcola il valore di temp-value
+      (setf (part k) (- (part k) 1))
+      (++ temp-value)
+      ; Se rem_val è maggiore, allora l'ordine è violato. 
+      ; Divide temp-value in diversi valori di dimensione part[k] e
+      ; copia questi valori in posizioni diverse dopo part[k]
+      (while (> temp-value (part k))
+        (setf (part (+ k 1)) (part k))
+        (setq temp-value (- temp-value (part k)))
+        (++ k)
+      )
+      ; Copiare rem_val nella posizione successiva e incrementa la posizione
+      (setf (part (+ k 1)) temp-value)
+      (++ k)
+    )
+  );local
+  );catch
+)
+
+Proviamo la funzione:
+
+(partnumber 1)
+;-> ((1))
+
+(partnumber 3)
+;-> ((3) (2 1) (1 1 1))
+
+(partnumber 5)
+;-> ((5) (4 1) (3 2) (3 1 1) (2 2 1) (2 1 1 1) (1 1 1 1 1))
+
+(length (partnumber 50))
+;-> 204226
+
+

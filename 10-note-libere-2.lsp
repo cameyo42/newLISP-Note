@@ -1627,3 +1627,331 @@ num
 Il metodo normale è più veloce, ma il metodo unortodosso è interessante.
 
 
+-------------------
+Sommare una stringa
+-------------------
+
+In una stringa composta da cifre e altri caratteri non numerici, le cifre formano una serie di numeri interi positivi. Ad esempio, la stringa "123abc45def" contiene gli interi 123 e 45, la cui somma corrisponde a 168.
+Scrivere un programma che accetta una stringa e restituisce la somma degli interi incorporati nella stringa.
+
+; la stringa
+(setq str "o123p010iru5")
+; la lista che contiene i numeri della stringa
+(setq numeri '())
+; espressione regolare per individuare i numeri
+(setq expr {[0-9]+})
+; espressione che estrae i numeri dalla stringa
+; e li inserisce nella lista numeri
+(replace expr str (push $0 numeri -1) 0)
+numeri
+;-> ("123" "010" "5")
+
+; conversione delle stringhe in interi e somma di tutti i numeri
+; da notare che (int "010") -> 8 (ottale)
+(apply + (map (fn (x) (int x 0 10)) numeri))
+;-> 138
+
+Adesso scriviamo la funzione finale:
+
+(define (sumstr str)
+  (local (numeri expr)
+    (setq numeri '())
+    (setq expr {[0-9]+})
+    (replace expr str (push $0 numeri -1) 0)
+    (apply + (map (fn (x) (int x 0 10)) numeri))
+  ))
+
+(sumstr "o123p010iru5")
+;-> 138
+
+(sumstr "0a0b0c0d")
+;-> 0
+
+(sumstr "")
+;-> 0
+
+Nel forum di newLISp l'utente fdb ha proposto queste due funzioni:
+
+(define (parse-str str)
+  (apply + (map int (clean empty? (parse str {[^0-9]} 0)))))
+
+(parse-str "o123p010iru5")
+;-> 136
+
+(define (parse-str str)
+	(let (total 0)
+		(dolist (s (parse str {[^0-9]} 0))
+			(unless (empty? s)
+				(inc total (int s))))
+		total))
+
+Purtroppo queste non funzionano correttamente ci sono numeri con lo 0 iniziale (che vengono convertiti dalla funzione "int" in base ottale, invece che in base decimale).
+
+Comunque l'ultima funzione di fdb è più veloce.
+
+(time (parse-str "o123p010iru5") 100000)
+;-> 184.9
+(time (sumstr "o123p010iru5") 100000)
+;-> 254.863
+
+
+-----------------
+Numeri palindromi
+-----------------
+
+Trovare il numero palindromo più grande che sia il prodotto di due numeri con tre cifre ognuno.
+Un palindromo è un numero in cui l'ordine delle cifre è lo stesso quando viene letto da sinistra o da destra, per esempio 104401, 9023209 ecc.
+Nel nostro caso: 111111 è un palindromo che è il prodotto di 777 e 143.
+
+Soluzione forza bruta (brute-force)
+
+Funzione che verifica se un numero è palindromo:
+
+(define (palindromo? num)
+  (let (str (string num))
+    (= str (reverse (copy str)))))
+
+Numero massimo di numeri da verificare:
+
+(* 999 999)
+;-> 998001
+
+Ma, poichè i numeri hanno tre cifre, il numero massimo vale:
+
+(* (- 999 100) (- 999 100))
+;-> 808201
+
+Inoltre, per evitare ripetizioni, l'indice del secondo ciclo (j) inizia con il valore corrente dell'indice primo ciclo (i).
+
+(define (palnum1)
+  (local (num big a b)
+    (setq big 0)
+    (setq a 100)
+    (setq b 100)
+    (for (i 100 999)
+      (for (j i 999)
+        (setq num (* i j))
+        (if (palindromo? num)
+            (if (> num big) (begin
+              (setq big num)
+              (setq a i)
+              (setq b j))
+            )
+        )
+      )
+    )
+    (list a b big)
+  )
+)
+
+(palnum1)
+;-> (906609 913 993)
+
+Ottimizzazione della funzione
+La soluzione (il più grande palindromo) deve avere almeno 6 cifre poiché stiamo moltiplicando 2 numeri a tre cifre, quindi il numero deve avere almeno 3 cifre univoche che indichiamo con X, Y e Z.
+ 
+Sol = 100000 * X + 10000 * Y + 1000 * Z + 100 * Z + 10 * Y + X
+
+Possiamo semplificarlo come:
+
+Sol = 100001 * X + 10010 * Y + 1100 * Z
+
+Sol = 11 * (9091 * X + 910 * Y + 100 * Z)
+
+Quindi la soluzione deve essere un multiplo di 11. Dato che 11 è un numero primo, uno dei due numeri moltiplicati deve essere un multiplo di 11. Per questo, se il numero del loop esterno non è un multiplo di 11, il loop interno deve essere un multiplo di 11 e, quindi, possiamo scartare diverse possibilità.
+
+la funzione è la seguente:
+
+(define (palnum2)
+  (local (num a b big step)
+    (setq big 0)
+    (setq step 1)
+    (for (i 100 999)
+      (setq j 0)
+      (if (zero? (% i 11))
+          (setq step 1 j 1)
+          (setq step 11 j (- i (% i 11)))
+      )
+      (while (> j 99)
+        (setq num (* i j))
+        (if (palindromo? num)
+            (if (> num big) (begin
+              (setq big num)
+              (setq a i)
+              (setq b j))
+            )
+        )
+        (setq j (- j step))
+      )
+    )
+    (list a b big)
+  )
+)
+
+(palnum2)
+;-> (993 913 906609)
+
+Vediamo la differenza di velocità:
+
+(time (palnum1) 10)
+;-> 2417.706
+
+(time (palnum2) 10)
+;-> 218.113
+
+La versione ottimizzata è 10 volte più veloce.
+
+
+-----------------
+Frazioni continue
+-----------------
+
+Il calcolo della frazione continua di un numero reale consiste nella ripetizione di due operazioni: prendere la parte intera di un numero e prendere il reciproco della sua parte frazionaria.
+
+Ovvero, dato un numero reale "r", ponendo "i" la sua parte intera e "f" la sua parte frazionaria, si ha:
+
+r = i + f = i + 1/(1/f)
+
+Ora 1/f è un numero maggiore di 1, e quindi si può prendere la sua parte intera, e calcolare successivamente gli altri coefficienti. Se in un qualunque momento f è 0, l'algoritmo si ferma: questo avviene se e solo se r è razionale.
+
+Esempio: ricerca della frazione continua di 3.245:
+
+3  |   (3.245 - 3) = 0.245 | 1/0.245 = 4.082
+   |                       |
+4  |   (4.082 - 4) = 0.082 | 1/0.082 = 12.250
+   |                       |
+12 | (12.250 - 12) = 0.250 | 1/0.250 = 4.000
+   |                       |
+4  |   (4.000 - 4) = 0.000 | stop
+
+Questo algoritmo è adatto per i numeri reali, ma può condurre a risultati errati se vengono utilizzati i numeri a virgola mobile (floating point), in quanto piccoli errori nella parte frazionaria possono generare (tramite l'operazione di inversione) grandi differenze nel termine successivo.
+
+Per esempio:
+
+(define (num2fc x)
+  (local (out i f)
+    (setq out '())
+    (setq i (int x))
+    (setq f (sub x i))
+    (println i { } f { } (div 1 f))
+    (while (!= f 0)
+      (push i out -1)
+      (setq i (int (div 1 f)))
+      (setq f (sub (div 1 f) i))
+      (println i { } f { } (div 1 f))
+      (read-line)
+    )
+    out
+  )
+)
+
+(num2fc 3.245)
+;-> 3 0.2450000000000001 4.081632653061223
+;-> 4 0.0816326530612228 12.25000000000025
+;-> 12 0.2500000000002522 3.999999999995964
+;-> 3 0.9999999999959641 1.000000000004036
+;-> 1 4.035882739117369e-012 247777268231.2113
+
+Come si nota, la frazione continua non converge al valore corretto.
+
+Possiamo lavorare con i numeri interi se utilizziamo l'algoritmo di euclide, infatti i quozienti che compaiono quando applichiamo l'algoritmo ai valori di input a e b sono proprio i numeri che compaiono nella rappresentazione in frazione continua della frazione a/b. Per esempio con a = 1071 e b = 1029 otteniamo:
+
+1071 = 1029 × 1 + 42
+              -
+1029 = 42 × 24 + 21
+            --
+42 = 21 × 2 + 0
+          -
+
+Quindi la frazione continua di 1071/1029 vale (1 24 2), cioè:
+
+1071            1
+----- = 1 + ----------
+1029               1
+             24 + ---
+                   2
+Se a/b è irrazionale allora l'algoritmo euclideo non ha termine, ma la sequenza di quozienti che si calcola costituisce sempre la rappresentazione (ora infinita) di a/b in frazione continua.
+
+Quindi con una variante dell'algoritmo di euclide si ottengono i risultati corretti, ma dobbiamo utilizzare come input il numeratore e il denominatore della frazione che rappresenta il numero razionale (es. 3.245 -> 3245/1000):
+
+(define (fract2fc a b)
+  (local (fc r out)
+    (setq out '())
+    (while (!= 0 r)
+      (setq r (% a b))
+      (setq fc (/ a b))
+      (push fc out -1)
+      (setq a b)
+      (setq b r)
+    )
+    (println a)
+    out
+  )
+)
+
+(fract2fc 3245 1000)
+;-> (3 4 12 4)
+
+3245              1
+----- = 3 + ---------------
+1000                 1
+             4 + ----------
+                        1
+                  12 + ---
+                        4
+
+(fract2fc 1071 1029)
+;-> (1 24 2)
+
+1071            1         51
+----- = 1 + ---------- = ----
+1029               1      49
+             24 + ---
+                   2
+
+Il valore reale vale:
+
+(div 1071 1029)
+;-> 1.040816326530612
+
+Adesso dobbiamo scrivere una funzione che converte una frazione continua in un numero fratto (numeratore e denominatore).
+Utilizziamo le seguenti funzioni per calcolare la somma di due frazioni:
+
+(define (rat n d)
+  (let (g (gcd n d))
+    (map (curry * 1L)
+         (list (/ n g) (/ d g)))))
+
+(define (+rat r1 r2)
+  (rat (+ (* (r1 0) (r2 1))
+          (* (r2 0) (r1 1)))
+       (* (r1 1) (r2 1))))
+
+(define (fc2fract lst)
+  (local (num den frac tempfrac)
+    (setq tempfrac '())
+    (setq fc (reverse lst))
+    (setq tempfrac (list 1 (first fc)))
+    (for (i 1 (- (length fc) 2))
+      (setq tempfrac (+rat tempfrac (list (fc i) 1)))
+    )
+    (setq tempfrac (+rat (list (last fc) 1) (list (last tempfrac) (first tempfrac))))
+    (list tempfrac (div (first tempfrac) (last tempfrac)))
+  )
+)
+
+(fc2fract '(1 24 2))
+;-> ((51L 49L) 1.040816326530612)
+
+Infatti risulta:
+
+(gcd 1071 1029)
+;-> 21
+
+(/ 1071 (gcd 1071 1029))
+;-> 51
+
+(/ 1029 (gcd 1071 1029))
+;-> 49
+
+

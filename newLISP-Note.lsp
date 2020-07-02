@@ -150,6 +150,7 @@ FUNZIONI VARIE
   Lista dei contesti attivi
   Conversione lista <--> stringa
   Funzione butlast
+  Lista di tutte le partizioni di un numero
 
 newLISP 99 PROBLEMI (28)
 ========================
@@ -490,6 +491,9 @@ NOTE LIBERE 2
   Formattazione di elementi di una lista
   Slice mapping
   Valore minimo/massimo di una lista di numeri
+  Sommare una stringa
+  Numeri palindromi
+  Frazioni continue
 
 APPENDICI
 =========
@@ -14394,6 +14398,91 @@ Questa funzione restituisce la lista o la stringa passata senza gli ultimi n ele
 ;-> (1 2 3 4)
 
 
+-----------------------------------------
+Lista di tutte le partizioni di un numero
+-----------------------------------------
+
+Dato un numero intero positivo n, generare tutti i modi unici possibili per rappresentare n come somma di numeri interi positivi.
+
+La soluzione crea una lista con tutte le partizioni ordinate (anche i numeri di ogni partizione sono ordinati). Il metodo è quello di ottenere la partizione successiva usando i valori della partizione corrente. Memorizziamo ogni partizione in un vettore "part". Inizializziamo part[0] a n, dove n è il numero di input. Ad ogni iterazione inseriamo la partizione corrente (cioè il vettore "part") nella lista e quindi aggiorniamo il vettore "part" per memorizzare la partizione successiva. Quindi il problema principale è ottenere la partizione successiva da una determinata partizione.
+
+I passaggi per ottenere la partizione successiva dalla partizione corrente sono i seguenti:
+- Ci viene data la partizione corrente in "part" e le sue dimensioni. 
+- Dobbiamo aggiornare "part" per memorizzare la prossima partizione. 
+- I valori in "part" devono essere ordinati in ordine non crescente.
+
+1) Trovare il valore (non-uno) (cioè diverso da 1) più a destra in "part" e memorizza il conteggio di 1 incontrati prima di un valore non-uno in una variabile temp-value (Indica la somma dei valori sul lato destro che devono essere aggiornati). Assegna alla variabile k il valore dell'indice relativo al numero non-uno.
+
+2) Diminuire il valore di part[k] di 1 e aumentare temp-value di 1.
+Ora ci possono essere due casi:
+a) Se part[k] è maggiore o uguale a temp-value. Questo è un caso semplice (abbiamo il corretto ordine in una nuova partizione). Assegnare temp-value a part[k + 1] e part[0..(k + 1)] è la nostra nuova partizione.
+b) Altrimenti (questo è un caso interessante, considera part[] iniziale come [3, 1, 1, 1], part[k] è diminuito da 3 a 2, temp-value è aumentato da 3 a 4, la partizione successiva vale essere [2, 2, 2]).
+
+3) Copia part[k] nella posizione successiva, incrementa k e riduci il conteggio di part[k] fino a che part[k] è inferiore a temp-value. Infine, assegnare temp-value a part[k + 1] e part[0..(k + 1)] è la nostra nuova partizione. Questo passaggio è come dividere temp-value in termini di part[k] (4 è diviso in 2 parti).
+
+Vediamo l'implementazione dell'algoritmo:
+
+(define (partnumber n)
+  (catch
+  (local (part k temp-value out)
+    (setq out '())
+    (setq part (array n '(0)))
+    (setq k 0)
+    (setf (part k) n)
+    ; Questo ciclo prima aggiunge la partizione corrente alla lista
+    ; poi genera la partizione successiva.
+    ; Il ciclo termina quando la partizione corrente è costituita da tutti 1.
+    (while true
+      ; Aggiunge la partizione corrente alla lista delle soluzioni
+      (push (slice part 0 (+ k 1)) out -1)
+      ;
+      ; Generare la partizione successiva
+      ;
+      ; Trova il valore non-uno più a destra di part[]
+      ; Aggiorna anche il valore di temp-value 
+      ; (cioè quanti valori possono essere inseriti)
+      (setq temp-value 0)
+      (while (and (>= k 0) (= (part k) 1))
+        (setq temp-value (+ temp-value (part k)))
+        (-- k)
+      )
+      ; se k < 0, tutti i valori valgono 1 
+      ; quindi non ci sono altre partizioni da generare
+      (if (< k 0) (throw out))
+      ; Decrementa part[k] trovato sopra e calcola il valore di temp-value
+      (setf (part k) (- (part k) 1))
+      (++ temp-value)
+      ; Se rem_val è maggiore, allora l'ordine è violato. 
+      ; Divide temp-value in diversi valori di dimensione part[k] e
+      ; copia questi valori in posizioni diverse dopo part[k]
+      (while (> temp-value (part k))
+        (setf (part (+ k 1)) (part k))
+        (setq temp-value (- temp-value (part k)))
+        (++ k)
+      )
+      ; Copiare rem_val nella posizione successiva e incrementa la posizione
+      (setf (part (+ k 1)) temp-value)
+      (++ k)
+    )
+  );local
+  );catch
+)
+
+Proviamo la funzione:
+
+(partnumber 1)
+;-> ((1))
+
+(partnumber 3)
+;-> ((3) (2 1) (1 1 1))
+
+(partnumber 5)
+;-> ((5) (4 1) (3 2) (3 1 1) (2 2 1) (2 1 1 1) (1 1 1 1 1))
+
+(length (partnumber 50))
+;-> 204226
+
+
 ==========================
 
  newLISP 99 PROBLEMI (28)
@@ -22571,7 +22660,7 @@ Di fatto l’algoritmo garantisce che ogni coppia formata non possa "trovare di 
 
 Nota: nei problemi pratici occorre considerare anche i casi generali in cui gli insiemi sono di cardinalità differente e/o le liste di preferenza sono incomplete.
 
-L'algoritmo di Gale-Shapley è usato in tutto il mondo: in Danimarca per l'assegnazione di bambini agli asili, in Ungheria per l'iscrizione di bambini alle scuole, a New York per la scelta dei rabbini alle sinagoghe, in Cina, Germania e Spagna per gli studenti delle università, nel Regno Unito l'algoritmo è stato il punto di partenza per elaborare un metodo ottimale per associare organi a pazienti bisognosi di trapianti...
+L'algoritmo di Gale-Shapley viene usato in tutto il mondo: in Danimarca per l'assegnazione di bambini agli asili, in Ungheria per l'iscrizione di bambini alle scuole, a New York per la scelta dei rabbini alle sinagoghe, in Cina, Germania e Spagna per gli studenti delle università, nel Regno Unito l'algoritmo è stato il punto di partenza per elaborare un metodo ottimale per associare organi a pazienti bisognosi di trapianti...
 
 Vediamo un altro esempio (Rosetta code):
 
@@ -23213,10 +23302,10 @@ Metodo 2:
 
 (define (rot13-2 txt)
  (for (y 0 (- (length txt) 1))
-      (setf (txt y) (slurp (nth y txt))))
+      (setf (txt y) (slurp-2 (nth y txt))))
  txt)
 
-(define (slurp x)
+(define (slurp-2 x)
   (if
     (or (and (>= (char x)(char "a")) (<= (char x)(char "m")))
         (and (>= (char x)(char "A")) (<= (char x)(char "M"))))
@@ -23254,10 +23343,10 @@ Metodo 4:
 
 (define (rot13-4 txt)
   (for (y 0 (- (length txt) 1))
-    (setf (txt y) (char (slurp (char (nth y txt))))))
+    (setf (txt y) (char (slurp-4 (char (nth y txt))))))
 txt)
 
-(define (slurp x)
+(define (slurp-4 x)
   (if
     (or (and (>= x 97) (<= x 109))
         (and (>= x 65) (<= x 77)))
@@ -23298,7 +23387,7 @@ Metodo 5:
 (rot13-5 "YN FPRAN VA PHV VY CREFBANTTVB CEVAPVCNYR ZHBER ABA ZV CVNPR")
 ;-> "LA SCENA IN CUI IL PERSONAGGIO PRINCIPALE MUORE NON MI PIACE"
 
-Metodo 6:
+Metodo 6 (iterativo):
 
 (define (rot13-6 txt , rotarray)
   (setq rotarray (array 256
@@ -23327,18 +23416,41 @@ Metodo 6:
 
 Metodo 7:
 
+(context 'rot13)
+
 (define (rot13:aux ch , i)
   (if (set 'i (find ch "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"))
     ("nopqrstuvwxyzabcdefghijklmNOPQRSTUVWXYZABCDEFGHIJKLM" i)
     ch ))
 
-(define (rot13-7:rot13-7 txt)
+(define (rot13:rot13-7 txt)
   (join (map rot13:aux (explode txt))))
+
+(context 'MAIN)
 
 (rot13-7 "LA SCENA IN CUI IL PERSONAGGIO PRINCIPALE MUORE NON MI PIACE")
 ;-> "YN FPRAN VA PHV VY CREFBANTTVB CEVAPVCNYR ZHBER ABA ZV CVNPR"
 (rot13-7 "YN FPRAN VA PHV VY CREFBANTTVB CEVAPVCNYR ZHBER ABA ZV CVNPR")
 ;-> "LA SCENA IN CUI IL PERSONAGGIO PRINCIPALE MUORE NON MI PIACE"
+
+Vediamo la velocità delle varie funzioni:
+
+(setq testo "LA SCENA IN CUI IL PERSONAGGIO PRINCIPALE MUORE NON MI PIACE")
+
+(time (rot13-1 (rot13-1 testo)) 10000)
+;-> 874.66
+(time (rot13-2 (rot13-2 testo)) 10000)
+;-> 1173.892
+(time (rot13-3 (rot13-3 testo)) 10000)
+;-> 1042.892
+(time (rot13-4 (rot13-4 testo)) 10000)
+;-> 958.038
+(time (rot13-5 (rot13-5 testo)) 10000)
+;-> 474.13
+(time (rot13-6 (rot13-6 testo)) 10000)
+;-> 827.441
+(time (rot13-7 (rot13-7 testo)) 10000)
+;-> 470.769
 
 
 ================
@@ -54667,6 +54779,334 @@ num
 ;-> 187.45
 
 Il metodo normale è più veloce, ma il metodo unortodosso è interessante.
+
+
+-------------------
+Sommare una stringa
+-------------------
+
+In una stringa composta da cifre e altri caratteri non numerici, le cifre formano una serie di numeri interi positivi. Ad esempio, la stringa "123abc45def" contiene gli interi 123 e 45, la cui somma corrisponde a 168.
+Scrivere un programma che accetta una stringa e restituisce la somma degli interi incorporati nella stringa.
+
+; la stringa
+(setq str "o123p010iru5")
+; la lista che contiene i numeri della stringa
+(setq numeri '())
+; espressione regolare per individuare i numeri
+(setq expr {[0-9]+})
+; espressione che estrae i numeri dalla stringa
+; e li inserisce nella lista numeri
+(replace expr str (push $0 numeri -1) 0)
+numeri
+;-> ("123" "010" "5")
+
+; conversione delle stringhe in interi e somma di tutti i numeri
+; da notare che (int "010") -> 8 (ottale)
+(apply + (map (fn (x) (int x 0 10)) numeri))
+;-> 138
+
+Adesso scriviamo la funzione finale:
+
+(define (sumstr str)
+  (local (numeri expr)
+    (setq numeri '())
+    (setq expr {[0-9]+})
+    (replace expr str (push $0 numeri -1) 0)
+    (apply + (map (fn (x) (int x 0 10)) numeri))
+  ))
+
+(sumstr "o123p010iru5")
+;-> 138
+
+(sumstr "0a0b0c0d")
+;-> 0
+
+(sumstr "")
+;-> 0
+
+Nel forum di newLISp l'utente fdb ha proposto queste due funzioni:
+
+(define (parse-str str)
+  (apply + (map int (clean empty? (parse str {[^0-9]} 0)))))
+
+(parse-str "o123p010iru5")
+;-> 136
+
+(define (parse-str str)
+	(let (total 0)
+		(dolist (s (parse str {[^0-9]} 0))
+			(unless (empty? s)
+				(inc total (int s))))
+		total))
+
+Purtroppo queste non funzionano correttamente ci sono numeri con lo 0 iniziale (che vengono convertiti dalla funzione "int" in base ottale, invece che in base decimale).
+
+Comunque l'ultima funzione di fdb è più veloce.
+
+(time (parse-str "o123p010iru5") 100000)
+;-> 184.9
+(time (sumstr "o123p010iru5") 100000)
+;-> 254.863
+
+
+-----------------
+Numeri palindromi
+-----------------
+
+Trovare il numero palindromo più grande che sia il prodotto di due numeri con tre cifre ognuno.
+Un palindromo è un numero in cui l'ordine delle cifre è lo stesso quando viene letto da sinistra o da destra, per esempio 104401, 9023209 ecc.
+Nel nostro caso: 111111 è un palindromo che è il prodotto di 777 e 143.
+
+Soluzione forza bruta (brute-force)
+
+Funzione che verifica se un numero è palindromo:
+
+(define (palindromo? num)
+  (let (str (string num))
+    (= str (reverse (copy str)))))
+
+Numero massimo di numeri da verificare:
+
+(* 999 999)
+;-> 998001
+
+Ma, poichè i numeri hanno tre cifre, il numero massimo vale:
+
+(* (- 999 100) (- 999 100))
+;-> 808201
+
+Inoltre, per evitare ripetizioni, l'indice del secondo ciclo (j) inizia con il valore corrente dell'indice primo ciclo (i).
+
+(define (palnum1)
+  (local (num big a b)
+    (setq big 0)
+    (setq a 100)
+    (setq b 100)
+    (for (i 100 999)
+      (for (j i 999)
+        (setq num (* i j))
+        (if (palindromo? num)
+            (if (> num big) (begin
+              (setq big num)
+              (setq a i)
+              (setq b j))
+            )
+        )
+      )
+    )
+    (list a b big)
+  )
+)
+
+(palnum1)
+;-> (906609 913 993)
+
+Ottimizzazione della funzione
+La soluzione (il più grande palindromo) deve avere almeno 6 cifre poiché stiamo moltiplicando 2 numeri a tre cifre, quindi il numero deve avere almeno 3 cifre univoche che indichiamo con X, Y e Z.
+ 
+Sol = 100000 * X + 10000 * Y + 1000 * Z + 100 * Z + 10 * Y + X
+
+Possiamo semplificarlo come:
+
+Sol = 100001 * X + 10010 * Y + 1100 * Z
+
+Sol = 11 * (9091 * X + 910 * Y + 100 * Z)
+
+Quindi la soluzione deve essere un multiplo di 11. Dato che 11 è un numero primo, uno dei due numeri moltiplicati deve essere un multiplo di 11. Per questo, se il numero del loop esterno non è un multiplo di 11, il loop interno deve essere un multiplo di 11 e, quindi, possiamo scartare diverse possibilità.
+
+la funzione è la seguente:
+
+(define (palnum2)
+  (local (num a b big step)
+    (setq big 0)
+    (setq step 1)
+    (for (i 100 999)
+      (setq j 0)
+      (if (zero? (% i 11))
+          (setq step 1 j 1)
+          (setq step 11 j (- i (% i 11)))
+      )
+      (while (> j 99)
+        (setq num (* i j))
+        (if (palindromo? num)
+            (if (> num big) (begin
+              (setq big num)
+              (setq a i)
+              (setq b j))
+            )
+        )
+        (setq j (- j step))
+      )
+    )
+    (list a b big)
+  )
+)
+
+(palnum2)
+;-> (993 913 906609)
+
+Vediamo la differenza di velocità:
+
+(time (palnum1) 10)
+;-> 2417.706
+
+(time (palnum2) 10)
+;-> 218.113
+
+La versione ottimizzata è 10 volte più veloce.
+
+
+-----------------
+Frazioni continue
+-----------------
+
+Il calcolo della frazione continua di un numero reale consiste nella ripetizione di due operazioni: prendere la parte intera di un numero e prendere il reciproco della sua parte frazionaria.
+
+Ovvero, dato un numero reale "r", ponendo "i" la sua parte intera e "f" la sua parte frazionaria, si ha:
+
+r = i + f = i + 1/(1/f)
+
+Ora 1/f è un numero maggiore di 1, e quindi si può prendere la sua parte intera, e calcolare successivamente gli altri coefficienti. Se in un qualunque momento f è 0, l'algoritmo si ferma: questo avviene se e solo se r è razionale.
+
+Esempio: ricerca della frazione continua di 3.245:
+
+3  |   (3.245 - 3) = 0.245 | 1/0.245 = 4.082
+   |                       |
+4  |   (4.082 - 4) = 0.082 | 1/0.082 = 12.250
+   |                       |
+12 | (12.250 - 12) = 0.250 | 1/0.250 = 4.000
+   |                       |
+4  |   (4.000 - 4) = 0.000 | stop
+
+Questo algoritmo è adatto per i numeri reali, ma può condurre a risultati errati se vengono utilizzati i numeri a virgola mobile (floating point), in quanto piccoli errori nella parte frazionaria possono generare (tramite l'operazione di inversione) grandi differenze nel termine successivo.
+
+Per esempio:
+
+(define (num2fc x)
+  (local (out i f)
+    (setq out '())
+    (setq i (int x))
+    (setq f (sub x i))
+    (println i { } f { } (div 1 f))
+    (while (!= f 0)
+      (push i out -1)
+      (setq i (int (div 1 f)))
+      (setq f (sub (div 1 f) i))
+      (println i { } f { } (div 1 f))
+      (read-line)
+    )
+    out
+  )
+)
+
+(num2fc 3.245)
+;-> 3 0.2450000000000001 4.081632653061223
+;-> 4 0.0816326530612228 12.25000000000025
+;-> 12 0.2500000000002522 3.999999999995964
+;-> 3 0.9999999999959641 1.000000000004036
+;-> 1 4.035882739117369e-012 247777268231.2113
+
+Come si nota, la frazione continua non converge al valore corretto.
+
+Possiamo lavorare con i numeri interi se utilizziamo l'algoritmo di euclide, infatti i quozienti che compaiono quando applichiamo l'algoritmo ai valori di input a e b sono proprio i numeri che compaiono nella rappresentazione in frazione continua della frazione a/b. Per esempio con a = 1071 e b = 1029 otteniamo:
+
+1071 = 1029 × 1 + 42
+              -
+1029 = 42 × 24 + 21
+            --
+42 = 21 × 2 + 0
+          -
+
+Quindi la frazione continua di 1071/1029 vale (1 24 2), cioè:
+
+1071            1
+----- = 1 + ----------
+1029               1
+             24 + ---
+                   2
+Se a/b è irrazionale allora l'algoritmo euclideo non ha termine, ma la sequenza di quozienti che si calcola costituisce sempre la rappresentazione (ora infinita) di a/b in frazione continua.
+
+Quindi con una variante dell'algoritmo di euclide si ottengono i risultati corretti, ma dobbiamo utilizzare come input il numeratore e il denominatore della frazione che rappresenta il numero razionale (es. 3.245 -> 3245/1000):
+
+(define (fract2fc a b)
+  (local (fc r out)
+    (setq out '())
+    (while (!= 0 r)
+      (setq r (% a b))
+      (setq fc (/ a b))
+      (push fc out -1)
+      (setq a b)
+      (setq b r)
+    )
+    (println a)
+    out
+  )
+)
+
+(fract2fc 3245 1000)
+;-> (3 4 12 4)
+
+3245              1
+----- = 3 + ---------------
+1000                 1
+             4 + ----------
+                        1
+                  12 + ---
+                        4
+
+(fract2fc 1071 1029)
+;-> (1 24 2)
+
+1071            1         51
+----- = 1 + ---------- = ----
+1029               1      49
+             24 + ---
+                   2
+
+Il valore reale vale:
+
+(div 1071 1029)
+;-> 1.040816326530612
+
+Adesso dobbiamo scrivere una funzione che converte una frazione continua in un numero fratto (numeratore e denominatore).
+Utilizziamo le seguenti funzioni per calcolare la somma di due frazioni:
+
+(define (rat n d)
+  (let (g (gcd n d))
+    (map (curry * 1L)
+         (list (/ n g) (/ d g)))))
+
+(define (+rat r1 r2)
+  (rat (+ (* (r1 0) (r2 1))
+          (* (r2 0) (r1 1)))
+       (* (r1 1) (r2 1))))
+
+(define (fc2fract lst)
+  (local (num den frac tempfrac)
+    (setq tempfrac '())
+    (setq fc (reverse lst))
+    (setq tempfrac (list 1 (first fc)))
+    (for (i 1 (- (length fc) 2))
+      (setq tempfrac (+rat tempfrac (list (fc i) 1)))
+    )
+    (setq tempfrac (+rat (list (last fc) 1) (list (last tempfrac) (first tempfrac))))
+    (list tempfrac (div (first tempfrac) (last tempfrac)))
+  )
+)
+
+(fc2fract '(1 24 2))
+;-> ((51L 49L) 1.040816326530612)
+
+Infatti risulta:
+
+(gcd 1071 1029)
+;-> 21
+
+(/ 1071 (gcd 1071 1029))
+;-> 51
+
+(/ 1029 (gcd 1071 1029))
+;-> 49
 
 
 ===========

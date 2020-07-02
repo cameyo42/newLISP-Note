@@ -150,6 +150,7 @@ FUNZIONI VARIE
   Lista dei contesti attivi
   Conversione lista <--> stringa
   Funzione butlast
+  Lista di tutte le partizioni di un numero
 
 newLISP 99 PROBLEMI (28)
 ========================
@@ -490,6 +491,9 @@ NOTE LIBERE 2
   Formattazione di elementi di una lista
   Slice mapping
   Valore minimo/massimo di una lista di numeri
+  Sommare una stringa
+  Numeri palindromi
+  Frazioni continue
 
 APPENDICI
 =========

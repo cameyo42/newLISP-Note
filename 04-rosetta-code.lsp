@@ -6699,7 +6699,7 @@ Di fatto l’algoritmo garantisce che ogni coppia formata non possa "trovare di 
 
 Nota: nei problemi pratici occorre considerare anche i casi generali in cui gli insiemi sono di cardinalità differente e/o le liste di preferenza sono incomplete.
 
-L'algoritmo di Gale-Shapley è usato in tutto il mondo: in Danimarca per l'assegnazione di bambini agli asili, in Ungheria per l'iscrizione di bambini alle scuole, a New York per la scelta dei rabbini alle sinagoghe, in Cina, Germania e Spagna per gli studenti delle università, nel Regno Unito l'algoritmo è stato il punto di partenza per elaborare un metodo ottimale per associare organi a pazienti bisognosi di trapianti...
+L'algoritmo di Gale-Shapley viene usato in tutto il mondo: in Danimarca per l'assegnazione di bambini agli asili, in Ungheria per l'iscrizione di bambini alle scuole, a New York per la scelta dei rabbini alle sinagoghe, in Cina, Germania e Spagna per gli studenti delle università, nel Regno Unito l'algoritmo è stato il punto di partenza per elaborare un metodo ottimale per associare organi a pazienti bisognosi di trapianti...
 
 Vediamo un altro esempio (Rosetta code):
 
@@ -7341,10 +7341,10 @@ Metodo 2:
 
 (define (rot13-2 txt)
  (for (y 0 (- (length txt) 1))
-      (setf (txt y) (slurp (nth y txt))))
+      (setf (txt y) (slurp-2 (nth y txt))))
  txt)
 
-(define (slurp x)
+(define (slurp-2 x)
   (if
     (or (and (>= (char x)(char "a")) (<= (char x)(char "m")))
         (and (>= (char x)(char "A")) (<= (char x)(char "M"))))
@@ -7382,10 +7382,10 @@ Metodo 4:
 
 (define (rot13-4 txt)
   (for (y 0 (- (length txt) 1))
-    (setf (txt y) (char (slurp (char (nth y txt))))))
+    (setf (txt y) (char (slurp-4 (char (nth y txt))))))
 txt)
 
-(define (slurp x)
+(define (slurp-4 x)
   (if
     (or (and (>= x 97) (<= x 109))
         (and (>= x 65) (<= x 77)))
@@ -7426,7 +7426,7 @@ Metodo 5:
 (rot13-5 "YN FPRAN VA PHV VY CREFBANTTVB CEVAPVCNYR ZHBER ABA ZV CVNPR")
 ;-> "LA SCENA IN CUI IL PERSONAGGIO PRINCIPALE MUORE NON MI PIACE"
 
-Metodo 6:
+Metodo 6 (iterativo):
 
 (define (rot13-6 txt , rotarray)
   (setq rotarray (array 256
@@ -7455,17 +7455,40 @@ Metodo 6:
 
 Metodo 7:
 
+(context 'rot13)
+
 (define (rot13:aux ch , i)
   (if (set 'i (find ch "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"))
     ("nopqrstuvwxyzabcdefghijklmNOPQRSTUVWXYZABCDEFGHIJKLM" i)
     ch ))
 
-(define (rot13-7:rot13-7 txt)
+(define (rot13:rot13-7 txt)
   (join (map rot13:aux (explode txt))))
+
+(context 'MAIN)
 
 (rot13-7 "LA SCENA IN CUI IL PERSONAGGIO PRINCIPALE MUORE NON MI PIACE")
 ;-> "YN FPRAN VA PHV VY CREFBANTTVB CEVAPVCNYR ZHBER ABA ZV CVNPR"
 (rot13-7 "YN FPRAN VA PHV VY CREFBANTTVB CEVAPVCNYR ZHBER ABA ZV CVNPR")
 ;-> "LA SCENA IN CUI IL PERSONAGGIO PRINCIPALE MUORE NON MI PIACE"
+
+Vediamo la velocità delle varie funzioni:
+
+(setq testo "LA SCENA IN CUI IL PERSONAGGIO PRINCIPALE MUORE NON MI PIACE")
+
+(time (rot13-1 (rot13-1 testo)) 10000)
+;-> 874.66
+(time (rot13-2 (rot13-2 testo)) 10000)
+;-> 1173.892
+(time (rot13-3 (rot13-3 testo)) 10000)
+;-> 1042.892
+(time (rot13-4 (rot13-4 testo)) 10000)
+;-> 958.038
+(time (rot13-5 (rot13-5 testo)) 10000)
+;-> 474.13
+(time (rot13-6 (rot13-6 testo)) 10000)
+;-> 827.441
+(time (rot13-7 (rot13-7 testo)) 10000)
+;-> 470.769
 
 
