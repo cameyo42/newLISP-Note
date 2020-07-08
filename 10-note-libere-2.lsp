@@ -1594,7 +1594,7 @@ num
 Misuriamo la velocità dei due metodi:
 
 (define (test lst)
-    (push max lst 0) 
+    (push max lst 0)
     (eval lst)
     (pop lst))
 
@@ -1608,7 +1608,7 @@ Inoltre se vogliamo usare una funzione dobbiamo anche restituire il valore, quin
 
 (define (mymax lst)
   (let (out nil)
-    (push max lst 0) 
+    (push max lst 0)
     (setq out (eval lst))
     (pop lst)
     out))
@@ -1679,11 +1679,11 @@ Nel forum di newLISp l'utente fdb ha proposto queste due funzioni:
 ;-> 136
 
 (define (parse-str str)
-	(let (total 0)
-		(dolist (s (parse str {[^0-9]} 0))
-			(unless (empty? s)
-				(inc total (int s))))
-		total))
+  (let (total 0)
+    (dolist (s (parse str {[^0-9]} 0))
+      (unless (empty? s)
+        (inc total (int s))))
+    total))
 
 Purtroppo queste non funzionano correttamente ci sono numeri con lo 0 iniziale (che vengono convertiti dalla funzione "int" in base ottale, invece che in base decimale).
 
@@ -1749,7 +1749,7 @@ Inoltre, per evitare ripetizioni, l'indice del secondo ciclo (j) inizia con il v
 
 Ottimizzazione della funzione
 La soluzione (il più grande palindromo) deve avere almeno 6 cifre poiché stiamo moltiplicando 2 numeri a tre cifre, quindi il numero deve avere almeno 3 cifre univoche che indichiamo con X, Y e Z.
- 
+
 Sol = 100000 * X + 10000 * Y + 1000 * Z + 100 * Z + 10 * Y + X
 
 Possiamo semplificarlo come:
@@ -1870,6 +1870,33 @@ Quindi la frazione continua di 1071/1029 vale (1 24 2), cioè:
 1029               1
              24 + ---
                    2
+
+Per capire come viene usato l'algoritmo di Euclide per calcolare le frazioni continue possiamo calcolare il massimo comun divisore fra a e b nel modo seguente:
+
+ a          r0           1              1
+--- = q0 + ---- = q0 + ----- = q0 + ---------- =
+ b          m0           m0                r1
+                        ----         q1 + ----
+                         r0                r0
+
+              1                          1
+= q0 + ----------------  = q0 + ---------------------- = ...
+                 1                          1
+        q1 + ----------          q1 + ----------------
+                    r2                          1
+              q2 + ----                q2 + ----------
+                    r1                             r3
+                                             q3 + ----
+                                                   r3
+
+in cui m0 > r0 > r1 > r2 > r3 > ... > 0. Per semplicità si scrive:
+
+a/b = [q0, q1, ..., q(n-1), qn] 
+
+Osserviamo che se qn >= 2, allora risulta:
+
+[q0, q1, ..., q(n-1), qn] = [q0, q1, ..., q(n-1), qn-1, 1]
+
 Se a/b è irrazionale allora l'algoritmo euclideo non ha termine, ma la sequenza di quozienti che si calcola costituisce sempre la rappresentazione (ora infinita) di a/b in frazione continua.
 
 Quindi con una variante dell'algoritmo di euclide si ottengono i risultati corretti, ma dobbiamo utilizzare come input il numeratore e il denominatore della frazione che rappresenta il numero razionale (es. 3.245 -> 3245/1000):
@@ -1884,7 +1911,7 @@ Quindi con una variante dell'algoritmo di euclide si ottengono i risultati corre
       (setq a b)
       (setq b r)
     )
-    (println a)
+    ;(println a)
     out
   )
 )
@@ -1900,6 +1927,8 @@ Quindi con una variante dell'algoritmo di euclide si ottengono i risultati corre
                   12 + ---
                         4
 
+Un altro esempio: 
+
 (fract2fc 1071 1029)
 ;-> (1 24 2)
 
@@ -1913,6 +1942,11 @@ Il valore reale vale:
 
 (div 1071 1029)
 ;-> 1.040816326530612
+
+Un altro esempio:
+
+(fract2fc 79 22)
+;-> (3 1 1 2 4)
 
 Adesso dobbiamo scrivere una funzione che converte una frazione continua in un numero fratto (numeratore e denominatore).
 Utilizziamo le seguenti funzioni per calcolare la somma di due frazioni:
@@ -1932,10 +1966,13 @@ Utilizziamo le seguenti funzioni per calcolare la somma di due frazioni:
     (setq tempfrac '())
     (setq fc (reverse lst))
     (setq tempfrac (list 1 (first fc)))
+    (println tempfrac) ; prima frazione convergente
     (for (i 1 (- (length fc) 2))
       (setq tempfrac (+rat tempfrac (list (fc i) 1)))
+      (swap (tempfrac 0) (tempfrac 1))
+      (println tempfrac) ; i-esima frazione convergente
     )
-    (setq tempfrac (+rat (list (last fc) 1) (list (last tempfrac) (first tempfrac))))
+    (setq tempfrac (+rat (list (last fc) 1) tempfrac))
     (list tempfrac (div (first tempfrac) (last tempfrac)))
   )
 )
@@ -1953,5 +1990,776 @@ Infatti risulta:
 
 (/ 1029 (gcd 1071 1029))
 ;-> 49
+
+(fract2fc 159 49)
+;-> (3 4 12)
+(fc2fract '(3 4 12))
+;-> ((159L 49L) 3.244897959183673)
+
+(fract2fc 79 22)
+;-> (3 1 1 2 4)
+(div 79 22)
+;-> 3.590909090909091
+(fc2fract '(3 1 1 2 4))
+;-> ((79L 22L) 3.590909090909091)
+
+(fract2fc 3245 1000)
+;-> (3 4 12 4)
+(fc2fract '(3 4 12 4))
+;-> ((649L 200L) 3.245)
+(fc2fract '(3 4 12 3 1))
+;-> ((649L 200L) 3.245)
+
+Nota: 
+numero aureo = (1 + sqrt(5))/2 =
+1.6180339887498948482045868343656381177203091798057628621354486227052...
+
+(fc2fract '(1 1 1 1 1 1 1 1 1 1 1 1))
+;-> ((233L 144L) 1.618055555555556)
+(fc2fract '(1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1))
+;-> ((514229L 317811L) 1.618033988754323)
+
+
+-----------------------------------
+Liste formate da coppie di elementi
+-----------------------------------
+
+Quando abbiamo una lista di elementi e vogliamo lavorare con coppie di elementi è possibile accoppiare gli elementi prima di operare su di essi. Per esempio, data la lista:
+
+(setq lst '(a b c d e f g h))
+
+Possiamo accoppiare gli elementi con la seguente funzione:
+
+;; pair - raggruppa gli elementi di una lista in coppie
+;;
+;; (pair '(a b c d e f)) => ((a b) (c d) (e f))
+;;
+(define (pair lst)
+  (array-list (array (/ (length lst) 2) 2 lst)))
+
+(pair '(a b c d e f g h))
+;-> ((a b) (c d) (e f) (g h))
+
+Se gli elementi da accoppiare si trovano in due liste diverse possiamo usare la funzione "map":
+
+(setq lst1 '(1 2 3 4))
+(setq lst2 '(a b c d))
+(map list lst1 lst2)
+;-> ((1 a) (2 b) (3 c) (4 d))
+
+Adesso possiamo usare una funzione che usa i due valori:
+
+(define (use x y) (string "Params:" x "," y))
+(use x y)
+;-> "Params:nil,nil"
+
+Esempio: iterazione su una lista di coppie
+
+Sintassi newLISP (non valida):
+(dolist ((x y) '(x1 y1 x2 y2)) (use x y))
+
+(map (lambda (z) (apply use z)) '((x1 y1) (x2 y2)))
+;-> ("Params:x1,y1" "Params:x2,y2")
+
+Sintassi newLISP (non valida):
+(dolist ((name age) '("John" 32 "Richard" 41 "Lucy" 37)) (use name age))
+
+(map (lambda (x) (apply use x)) '(("John" 32) ("Richard" 41) ("Lucy" 37)))
+;-> ("Params:John,32" "Params:Richard,41" "Params:Lucy,37")
+
+Esempio: iterazione con due liste
+
+Sintassi newLISP (non valida):
+(dolist (a '(a1 a2 a3) b '(b1 b2 b3)) (use a b))
+
+(map use '(a1 a2 a3) '(b1 b2 b3))
+;-> ("Params:a1,b1" "Params:a2,b2" "Params:a3,b3")
+
+Esempio: iterazione su una lista di coppie con due indici
+
+Sintassi newLISP (non valida):
+(dolist ((x y) '((1 2) (3 4) (5 6))) (use x y))
+
+(map (lambda (x) (apply use x)) '((1 2) (3 4) (5 6)))
+;-> ("Params:1,2" "Params:3,4" "Params:5,6")
+
+Nota: "apply" non valuta gli argomenti prima di applicare l'operazione, ma possiamo forzare newLISP a farlo nel modo seguente:
+
+(apply use (map eval '(x1 x2)))
+
+Se vogliamo raggruppare gli elementi di una lista con un numero di elementi variabile possiamo usare la seguente funzione:
+
+(define (group lst n)
+  (map (lambda (i) (slice lst i n)) (sequence 0 (sub (length lst) 1) n)))
+
+(group '(1 2 3 4 5 6) 2)
+;-> ((1 2) (3 4) (5 6))
+
+(group '(1 2 3 4 5 6 7 8 9) 4)
+;-> ((1 2 3 4) (5 6 7 8) (9))
+
+Oppure possiamo usare la funzione integrata "explode":
+
+(explode '(1 2 3 4 5 6) 2)
+;-> ((1 2) (3 4) (5 6))
+
+(explode '(1 2 3 4 5 6 7 8 9) 4)
+;-> ((1 2 3 4) (5 6 7 8) (9))
+
+Vediamo una funzione che raggruppa con alcuni parametri supplementari:
+
+;; This function performs a multiple slice on a given list
+;; One supplies a list and an integer n. The list is broken into a list of sublists of
+;; length n. If n is negative the list items are collected going from the end of the list
+;; to the beginning. If the optional bool argument is supplied then remaining elements are
+;; included in the result.
+;; (group '(1 2 3 4 5 6 7) 3)       -> ((1 2 3)(4 5 6))
+;; (group '(1 2 3 4 5 6 7) 3 true)  -> ((1 2 3)(4 5 6)(7))
+;; (group '(1 2 3 4 5 6 7) -3 true) -> ((1)(2 3 4)(5 6 7))
+(define (group lst n bool , len num rep rem start)
+  (setq num (abs n))
+  (if (< n 0)
+      (reverse (map reverse (group (reverse lst) num bool)))
+      (= n 0)
+      nil
+      (begin
+        (setq len   (length lst)
+              rep   (/ len num)
+              rem   (% len num)
+              start '()
+        )
+        (if (< num len)
+            (begin
+              (dotimes (x rep)
+                (setq start (cons (slice lst (* x num) num) start)))
+              (if (and bool (> rem 0))
+                  (setq start (cons (slice lst (* num rep) rem) start)))
+              (reverse start))
+            (list lst)))))
+
+(group '(1 2 3 4 5 6 7) 3)
+;-> ((1 2 3)(4 5 6))
+(group '(1 2 3 4 5 6 7) 3 true)
+;-> ((1 2 3)(4 5 6)(7))
+(group '(1 2 3 4 5 6 7) -3 true)
+;-> ((1)(2 3 4)(5 6 7))
+(group '(1 2 3 4 5 6 7) -3)
+;-> ((2 3 4) (5 6 7))
+
+Nota: "dolist" itera su una lista, "map" itera su una lista e colleziona i risultati.
+Esempi:
+
+(setq L '((1 2) (3 4) (5 6)))
+(map first L)
+;-> (1 3 5)
+
+(time (dotimes (i 1000000) (map first L)))
+;-> 200.49
+(time (dotimes (i 1000000) (map (lambda (x) (nth 0 x)) L)))
+;-> 420.015
+(time (dotimes (i 1000000) (setq r '())(dolist (x L)(push (x 0) r -1))))
+;-> 287.697
+(time (dotimes (i 1000000) (dolist (x L) (first x))))
+;-> 199.496
+
+Infine, vediamo la funzione "dispose" che ragruppa gli elementi di più liste:
+
+(define (dispose) (transpose (args)))
+
+(dispose '(1 2 3) '(4 5 6))
+;-> ((1 4) (2 5) (3 6))
+
+(dispose '(1 2 3) '(4 5 6) '(7 8 9))
+;-> ((1 4 7) (2 5 8) (3 6 9))
+
+(setq m '(1 2 3 4 5 6 7))
+(setq n '(7 6 5 4 3 2 1))
+(dispose m n)
+;-> ((1 7) (2 6) (3 5) (4 4) (5 3) (6 2) (7 1))
+
+
+-------------
+Liste quotate
+-------------
+
+Supponiamo di avere la seguente lista:
+
+(setq L '(1 '(2 3 4)))
+(L 0)
+;-> 1
+(L 1)
+;-> '(2 3 4)
+
+Adesso incontriamo uno strano comportamento:
+
+(first (L 1))
+;-> ERR: array, list or string expected in function first : (L 1)
+
+Invece la seguente espressione è valida:
+
+(first '(2 3 4))
+;-> 2
+
+Proviamo con la funzione "quote" al posto del carattere "'":
+
+(setq Q (quote (1 (quote (2 3 4)))))
+(Q 0)
+;-> 1
+(Q 1)
+;-> (quote (2 3 4))
+
+(first (Q 1))
+;-> quote
+
+Verifichiamo se la lista interna è quotata:
+
+(quote? (L 1))
+;-> true
+
+(quote? (Q 1))
+;-> nil
+
+La sottolista '(2 3 4) è un tipo di dato speciale: "quoted-list" (che è un sottotipo del tipo "list"). È simile al sottotipo "lambda" di una lista.
+
+La funzione "quote" e il carattere "'" sono equivalenti quando avviene la valutazione:
+in newLISP similar to lambda-type sub-type of list.
+
+(= 'x (quote x))
+;-> true
+
+e
+
+(quote? (quote 'x))
+;-> true
+
+Ma nelle espressioni seguenti l'espressione (quote x) non viene valutata:
+
+(quote? '(quote x))
+;-> nil
+
+e
+
+(list? '(quote x))
+;-> true
+
+Proprio come "lambda" il carattere "'" vien risolto durante la traduzione del codice (source parsing). Questo è il perchè abbiamo i predicati "quote?" e "lamba?".
+
+Sia il carattere "'" che la funzione "quote" hanno lo stesso scopo: proteggere una espressione dalla valutazione. Comunque "'" è processato molto più velocemente perchè viene tradotto durante il caricamento del sorgente. La funzione "quote" è necessaria quando vogliamo proteggere una espressione durante il runtime.
+
+Per questo motivo, quando si desidera riscrivere la definizione originale di McCarthy di LISP in newLISP, è necessario utilizzare la funzione "quote" anziché il carattere "'":
+
+(first (first (rest (quote (1 (quote 2 3 4))))))
+;-> quote
+
+ottenendo gli stessi risultati di Scheme e del Common Lisp.
+
+Vedi anche il capitolo "La funzione quote e il simbolo '".
+
+
+------------------------
+Il limite sulle stringhe
+------------------------
+
+newLISP pone un limite all'utilizzo di stringhe: massimo 2048 caratteri.
+Questo crea dei vincoli a diverse operazioni:
+
+- una espressione non può superare 2048 caratteri
+- un input da stdin con la funzione "read-line" non può superare 2048 caratteri.
+- la funzione "print" non può usare stringhe con più di 2048 caratteri.
+- la funzione "parse" non può usare token-size maggiori di 2048 caratteri
+- ecc.
+
+Questo limite è stato imposto per ottenere una maggiore velocità nel trattamento delle stringhe, ma può risultare un problema in certi casi. Fortunatamente newLISP offre la possibilità di superare questo problema a scapito di una diminuzione della velocità delle operazioni: utilizzare il tag [text] e [/text].
+
+Creiamo una stringa maggiore di 2048 cartteri e stampiamola:
+
+(setq str (dup "01" 1025))
+
+newLISP crea automaticamente la stringa delimitata dal tag:
+
+[text]01010101.......[/text]
+
+quindi possiamo stamparla senza ulteriori accorgimenti:
+
+(println str)
+
+Se invece vogliamo stampare un testo creato internamente alla funzione "print", dobbiamo usare i tag:
+
+(print
+[text]
+  <html>
+  long long text
+  </html>
+[/text])
+
+I tag [text] e [/ text] sono usati per delimitare stringhe lunghe (> 2048 char) e sopprimere la traduzione dei caratteri di escape.
+
+Nota: Il trattamento di stringhe maggiori di 2048 caratteri rallenta molto la velocità di esecuzione dei programmi.
+
+
+-----------------
+Aggiunta di liste
+-----------------
+
+Se vogliamo aggiungere tutti gli elementi di una lista ad un'altra lista possiamo utilizzare diversi metodi:
+
+(setq lst1 '(a b c d))
+(setq lst2 '(1 2 3 4))
+
+Uso di "append":
+(setq lst-all (append lst1 lst2))
+;-> (a b c d 1 2 3 4)
+
+Uso di "extend"
+(setq lst-all (extend lst1 lst2))
+;-> (a b c d 1 2 3 4)
+
+In questo ultimo esempio la funzione "extend" aggiunge lst2 a lst1, quindi dopo aver eseguito l'espressione abbiamo lst1 = lst-all (lst1 viene modificato).
+
+Uso di "push":
+(setq lst-all '())
+(setq lst1 '(a b c d))
+(setq lst2 '(1 2 3 4))
+(map (fn(x) (push x lst-all -1)) lst1)
+;-> ((a) (a b) (a b c) (a b c d))
+lst-all
+;-> (a b c d)
+(map (fn(x) (push x lst-all -1)) lst2)
+;-> ((a b c d 1) (a b c d 1 2) (a b c d 1 2 3) (a b c d 1 2 3 4))
+lst-all
+;-> (a b c d 1 2 3 4)
+
+
+----------------------
+Liberare una variabile
+----------------------
+
+Supponiamo di avere una lista L che occupa diversi megabyte di memoria.
+Qual'è il modo corretto di liberare quella memoria da uno script in esecuzione?
+
+Basta assegnare il valore nil alla variabile in questione: 
+
+(setq L nil)
+
+Il momento che la memoria liberata verrà assegnata alla memoria generale del sistema dipende dal sistema operativo utilizzato. Potrebbe rimanere assegnata al processo fino a che il sistema operativo non la reclamerà, ma newLISP la libera nello stesso momento in cui avviene l'assegnazione a nil.
+Se la variabile è locale in una funzione definita dall'utente (con local o let), allora la variabile verrà assegnata a nil al termine della funzione.
+
+
+------------------------------
+Massimo prodotto di due numeri
+------------------------------
+
+Trovare i due numeri distinti che formano il prodotto massimo in una lista di numeri interi non negativi.
+Input: una lista di n numeri interi non negativi.
+Output: il valore massimo che può essere ottenuto moltiplicando due elementi diversi della lista.
+In termini matematici, data una lista di numeri interi non negativi (a1, a2, ... an), calcolare:
+
+ max(ai*aj) dove 1<=i<=n e 1<=j<=n
+
+da notare che deve risultare i<>j, ma può essere ai = aj.
+
+Il problema è abbastanza semplice, ma la soluzione ottima (in termini di numero di operazioni dell'algoritmo utilizzato) non è immediata.
+
+La soluzione esaustiva (forza bruta) è quella di calcolare i prodotti di tutte le coppie possibili di numeri e trovare il prodotto maggiore.
+
+(define (maxprod1 lst)
+  (let (prodotto 0)
+    (for (i 0 (- (length lst) 1))
+      (for (j 0 (- (length lst) 1))
+        (if (!= i j)
+            (if (< prodotto (* (lst i) (lst j)))
+                (setq prodotto (* (lst i) (lst j)))
+            )
+        )
+      )
+    )
+    prodotto
+  )
+)
+
+(maxprod1 '(1 2 3 4 5 6))
+;-> 30
+
+Possiamo migliorare l'algoritmo iniziando il secondo ciclo con j = i + 1.
+Purtroppo (o per fortuna) newLISP ha un ciclo "for" che non funziona esattamente come quello degli altri linguaggi. Infatti se il valore dell'indice è superiore a quello del numero limite, allora le espressioni all'interno del ciclo vengono eseguite ugualmente perchè newlisp considera che il ciclo abbia un indice che va all'indietro (-1). Quando l'indice è uguale al numero limite, allora il ciclo termina.
+
+(define (test-for n)
+    (for (i 0 n)
+      (for (j (+ i 1) n)
+        (println i { } j)
+      )))
+
+(test-for 2)
+;-> 0 1
+;-> 0 2
+;-> 1 2
+;-> 2 3 ; in questo caso risulta j > n, ma newLISP lo esegue lo stesso
+;-> 2 2 ; perchè considera che il passo dellindice sia negativo (-1).
+
+Quindi dobbiamo usare "while" nel secondo ciclo:
+
+(define (maxprod2 lst)
+  (let (prodotto 0)
+    (for (i 0 (- (length lst) 1))
+      (setq j (+ i 1))
+      (while (<= j (- (length lst) 1))
+        (if (< prodotto (* (lst i) (lst j)))
+            (setq prodotto (* (lst i) (lst j)))
+        )
+        (++ j)
+      )
+    )
+    prodotto
+  )
+)
+
+(maxprod2 '(1 2 3 4 5 6))
+;-> 30
+
+Possiamo anche eliminare l'espressione "if" utilizzando la funzione "max":
+
+(define (maxprod3 lst)
+  (let (prodotto 0)
+    (for (i 0 (- (length lst) 1))
+      (setq j (+ i 1))
+      (while (<= j (- (length lst) 1))
+        (setq prodotto (max prodotto (* (lst i) (lst j))))
+        (++ j)
+      )
+    )
+    prodotto
+  )
+)
+
+(maxprod3 '(1 2 3 4 5 6))
+;-> 30
+
+La complessità temporale delle tre funzioni vale O(n^2) (perchè abbiamo due cicli innestati). Verifichiamo le funzioni calcolando i tempi di esecuzione:
+
+(time (maxprod1 (sequence 1 100)) 1000)
+;-> 1820.132
+(time (maxprod2 (sequence 1 100)) 1000)
+;-> 1669.535
+(time (maxprod3 (sequence 1 100)) 1000)
+;-> 1632.634
+
+Cerchiamo un algoritmo migliore.
+Considerando che il massimo prodotto si ottiene moltiplicando i due valori maggiori della lista, possiamo pensare di cercare questi due valori con l'utilizzo di due cicli: un ciclo per trovare l'elemento maggiore e un secondo ciclo per trovare il secondo elemento maggiore.
+La funzione che utilizza questo algoritmo è la seguente:
+
+(define (maxprod4 lst)
+  (local (idx1 idx2)
+    (setq idx1 0)
+    (for (i 1 (- (length lst) 1))
+      (if (> (lst i) (lst idx1))
+          (setq idx1 i))
+    )
+    (if (= idx1 0)
+        (setq idx2 1)
+        (setq idx2 0))
+    (for (i 0 (- (length lst) 1))
+         (if (and (!= i idx1) (> (lst i) (lst idx2)))
+             (setq idx2 i))
+    )
+    (* (lst idx1) (lst idx2))
+  )
+)
+
+(maxprod4 '(1 2 3 4 5 6))
+;-> 30
+
+Questa funzione ha complessità temporale pari a O(2*n) (perchè i due cicli "for" usati sono in serie e non innestati come nei casi precedenti).
+
+(time (maxprod4 (sequence 1 100)) 1000)
+;-> 32.91
+
+La funzione "maxprod4" è 50 volte più veloce delle precedenti.
+
+Proviamo ad utilizzare le funzioni integrate di newLISP per risolvere il problema, in particolare la funzione "sort":
+
+(define (maxprod5 lst)
+  (sort lst >)
+  (* (lst 0) (lst 1)))
+
+(maxprod5 '(1 2 3 4 5 6))
+;-> 30
+
+(time (maxprod5 (sequence 1 100)) 1000)
+;-> 25.906
+
+Come si vede, la funzione "sort" (che fa molto di più che cercare i due numeri maggiori) è molto veloce. Spesso le soluzioni che utilizzano le funzioni integrate sono molto più semplici da scrivere, anche se non sono le migliori dal punto di vista della complessità computazionale.
+
+
+----------------
+Test di funzioni
+----------------
+
+Ok, abbiamo scritto una funzione per risolvere il nostro problema: ma come possiamo assicurarci che sia una soluzione corretta?
+Possiamo affidarci a dei test specifici, ma nessuno può effettuare dei test rispetto a tutti i casi che si possono presentare nella vita reale. Inoltre, con l'esperienza, si impara che i nostri programmi non sono quasi mai corretti quando li eseguiamo per la prima volta. Per rendere "solido" un programma dovremo provarlo con una serie di test/casi attentamente progettati. 
+Nota: Imparare come implementare algoritmi, nonché testare ed eseguire il debug dei programmi sono delle abilità fondamentali per un programmatore.
+La capacità di creare "test specifici" dipende fortemente dall'esperienza del programmatore e dalla conoscenza delle strutture dati che vengono utilizzate nella soluzione.
+
+Un metodo che si affianca a quello dei "test specifici" è lo "stress-test", che utilizza la creazione di test in modo automatico per ricercare un eventuale errore nel programma.
+Uno "stress-test" consiste di quattro parti:
+
+1. Una implementazione corretta di un algoritmo (anche banale e lenta)
+
+2. Un'implementazione alternativa che vogliamo testare
+
+3. Un generatore casuale di test (input del programma)
+
+4. Un ciclo di tutti i test generati per consentire il confronto tra i risultati delle due implementazioni dell'algoritmo: se i risultati di un qualunque test differiscono, allora dobbiamo visualizzare i valori di input e i valori dell'output.
+
+L'idea alla base dello stress test è che due implementazioni corrette dovrebbe dare la stessa risposta per ogni test (a condizione che la risposta al il problema sia univoca). Se, tuttavia, una delle implementazioni non è corretta, esisterà un test in cui le loro risposte sono diverse. L'unico caso in cui questo non si verifica è quando le implementazioni hanno lo stesso errore (ma questo è molto improbabile).
+La generazione automatica dei test (cioè di valori diversi di unput) permette di effettuare migliaia di verifiche/confronti sulle nostre funzioni.
+
+Prendiamo ad esempio le funzioni "maxprod" del capitolo precedente e proviamo a scrivere un generatore automatico di test. In questo caso ogni test necessita di una lista di numeri come input che viene generata in modo casuale:
+
+(setq num-rnd (+ 100 (rand 1000)))
+;-> 293
+(setq input (sequence 0 num-rnd))
+;-> (0 1 ... 293)
+(extend input input)
+;-> (0 1 ... 293 0 1 ... 293)
+(setq test (slice (randomize input) 0 num-rnd))
+;-> (181 50 283 207 233 190 146 ...)
+
+La funzione finale:
+
+(define (test n)
+  (local (input test nun-rnd)
+    ; lunghezza della sequenza 
+    (setq num-rnd (+ 100 (rand 1000)))
+    ; creazione sequenza di numeri
+    (setq input (sequence 0 num-rnd))
+    ; raddoppiamo la sequenza per avere anche numeri doppi nella lista di input
+    (extend input input)
+    ; ciclo dei test
+    (for (i 1 n)
+      (print i { })
+      ; generiamo un test: un valore per la lista di input
+      (setq test (slice (randomize input) 0 num-rnd))
+      ; verifichiamo i risultati delle funzioni
+      (if (or (!= (maxprod1 test) (maxprod2 test))
+              (!= (maxprod2 test) (maxprod3 test))
+              (!= (maxprod3 test) (maxprod4 test))
+              (!= (maxprod4 test) (maxprod5 test)))
+          ; stampa input e output quando i risultati sono diversi
+          (println (maxprod1 test) { } (maxprod2 test) { } 
+                   (maxprod3 test) { } (maxprod4 test) { }
+                   (maxprod5 test) { } test)
+      )
+    )
+    'end-test
+  )
+)
+
+(test 100)
+;->  1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25
+;->  26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47
+;->  48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69
+;->  70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91
+;->  92 93 94 95 96 97 98 99 100 end-test
+
+Nota: la correttezza dei risultati dello "stress-test" dipende dalla correttezza della funzione "test".
+
+
+-----------------------------------------
+Sostituzioni multiple in liste o stringhe
+-----------------------------------------
+
+newLISP ha una funzione integrata per modificare liste o stringhe: "replace". Vediamo la definizione del manuale:
+
+*******************
+>>>funzione REPLACE
+*******************
+liste
+sintassi: (replace exp-key list exp-replacement [func-compare])
+sintassi: (replace exp-key list)
+
+stringhe
+sintassi: (replace str-key str-data exp-replacement)
+sintassi: (replace str-pattern str-data exp-replacement regex-option)
+
+Sostituzione nelle liste
+------------------------
+Se il secondo argomento è una lista, "replace" sostituisce tutti gli elementi nella lista list che sono uguali all'espressione in exp-key. L'elemento viene sostituito con exp-replacement. Se manca exp-replacement, tutte le istanze di exp-key verranno eliminate dalla lista.
+
+Si noti che "replace" è distruttiva. Cambia la lista passato ad esso e restituisce la lista modificata. Il numero di sostituzioni effettuate è contenuto nella variabile di sistema $count quando la funzione ritorna. Durante l'esecuzione delle sostituzioni delle espressioni, la variabile di sistema anaforica $it è impostata sull'espressione da sostituire.
+
+Facoltativamente, func-compare può specificare un operatore di confronto o una funzione definita dall'utente. Per impostazione predefinita, func-compare è il = (segno di uguale).
+
+;; list replacement
+
+(set 'aList '(a b c d e a b c d))
+
+(replace 'b aList 'B)
+;-> (a B c d e a B c d)
+aList
+;-> (a B c d e a B c d)
+$count
+;-> 2  ; number of replacements
+
+;; list replacement with special compare functor/function
+
+; replace all numbers where 10 < number
+(set 'L '(1 4 22 5 6 89 2 3 24))
+
+(replace 10 L 10 <)
+;-> (1 4 10 5 6 10 2 3 10)
+$count
+;-> 3
+
+; same as:
+
+(replace 10 L 10 (fn (x y) (< x y)))
+;-> (1 4 10 5 6 10 2 3 10)
+
+; change name-string to symbol, x is ignored as nil
+
+(set 'AL '((john 5 6 4) ("mary" 3 4 7) (bob 4 2 7 9) ("jane" 3)))
+
+(replace nil AL (cons (sym ($it 0)) (rest $it)) 
+                (fn (x y) (string? (y 0)))) ; parameter x = nil not used
+;-> ((john 5 6 4) (mary 3 4 7) (bob 4 2 7 9) (jane 3))
+
+; use $count in the replacement expression
+(replace 'a '(a b a b a b) (list $count $it) =)
+;-> ((1 a) b (2 a) b (3 a) b)
+
+Utilizzando le funzioni "match" e "unify" è possibile formulare ricerche sulla lista che sono potenti come le ricerche con le espressioni regolari sulle stringhe:
+
+; calculate the sum in all associations with 'mary
+
+(set 'AL '((john 5 6 4) (mary 3 4 7) (bob 4 2 7 9) (jane 3)))
+
+(replace '(mary *)  AL (list 'mary (apply + (rest $it))) match)
+;-> ((john 5 6 4) (mary 14) (bob 4 2 7 9) (jane 3))
+$count
+;-> 1
+
+; make sum in all expressions
+
+(set 'AL '((john 5 6 4) (mary 3 4 7) (bob 4 2 7 9) (jane 3)))
+
+(replace '(*) AL (list ($it 0) (apply + (rest $it))) match)
+;-> ((john 15) (mary 14) (bob 22) (jane 3))
+$count
+;-> 4
+
+; using unify, replace only if elements are equal
+(replace '(X X) '((3 10) (2 5) (4 4) (6 7) (8 8)) (list ($it 0) 'double ($it 1)) unify)
+;-> ((3 10) (2 5) (4 double 4) (6 7) (8 double 8))
+ 
+Eliminazione nelle liste
+------------------------
+L'ultima forma di "replace" per le liste ha solo due argomenti: l'espressione exp e la lista list. Questa forma rimuove tutte le espressioni exp trovate nella lista.
+
+;; removing elements from a list
+
+(set 'lst '(a b a a c d a f g))
+(replace 'a lst)
+;-> (b c d f g)
+lst 
+;-> (b c d f g)
+
+$count
+;-> 4
+
+Sostituzione nelle stringhe senza espressioni regolari
+------------------------------------------------------
+Se tutti gli argomenti sono stringhe, "replace" sostituisce tutte le occorrenzw di str-key in str-data con l'espressione valutata exp-replacement e ritorna la stringa modificata. L'espressione in exp-replacement viene valutata per ogni sostituzione. Il numero di sostituzioni effettuate è contenuto nella variabile di sistema $count. Questa forma di "replace" può processare anche gli 0 (zero) binari
+If all arguments are strings, replace replaces all occurrences of str-key in str-data with the evaluated exp-replacement, returning the changed string. The expression in exp-replacement is evaluated for every replacement. The number of replacements made is contained in the system variable $count. This form of replace can also process binary 0s (zeros).
+
+;; string replacement
+(set 'str "this isa sentence")
+(replace "isa" str "is a")  
+;-> "this is a sentence"
+$count
+;-> 1
+
+Sostituzione con le espressioni regolari
+----------------------------------------
+La presenza di un quarto parametro indica che deve essere effettuata una ricerca con le espressioni regolari il cui modello/pattern viene specificato da str-pattern e da un numero, regex-option, che specifica l'opzione della regex (es. 1 (one) o "i" per ricerche case-insensitive o 0 (zero) per una ricerca standard PCRE (Perl Compatible Regular Expression) senza opzioni). Vedi anche "regex" per maggiori dettagli.
+
+Per default, "replace" sostituisce tutte le occorrenze nella stringa anche se viene inclusa la specifica di beginning-of-line nel modello/pattern di ricerca. Dopo ogni sostituzione, parte una nuova ricerca dalla nuova posizione in str-data. Impostare il bit di opzione a 0x8000 in regex-option costringe "replace" ad sostituire solo la prima occorrenza. La stringa modificata viene restituita.
+
+"replace" con le espressioni regolari imposta anche le variabili di sistema $0, $1 e $2 con il contenuto della espressione e delle sotto-espressioni trovate. La variabile anaforica di sistema $it ha lo stesso valore di $0. Queste variabili possono essere usate per sostituzioni che dipendono dal contenuto dell'espressione trovata durante la sostituzione. I simboli $0, $1, $2 e $it possono essere usati nelle espressioni come tutti gli altri simboli. L'espressione di sostituzione valuta su un valore diverso da una stringa, allora non viene effettuata alcuna sostituzione. In alternativa, si può accedere al contenuto di queste variabili utilizzando ($ 0), ($ 1), ($ 2), ecc. Questo metodo permette l'accesso indicizzato (es ($ i), dove i è un intero) .
+
+Dopo che sono state effettuate tutte le sostituzioni, il numero di sostituzioni è contenuto nella variabile di sistema $count.
+
+;; using the option parameter to employ regular expressions
+
+(set 'str "ZZZZZxZZZZyy")
+;-> "ZZZZZxZZZZyy"
+(replace "x|y" str "PP" 0)
+;-> "ZZZZZPPZZZZPPPP"
+str
+;-> "ZZZZZPPZZZZPPPP"
+
+;; using system variables for dynamic replacement
+
+(set 'str "---axb---ayb---")
+(replace "(a)(.)(b)" str (append $3 $2 $1) 0) 
+;-> "---bxa---bya---"
+
+str
+;-> "---bxa---bya---"
+
+;; using the 'replace once' option bit 0x8000
+
+(replace "a" "aaa" "X" 0)
+;-> "XXX"
+
+(replace "a" "aaa" "X" 0x8000)
+;-> "Xaa"
+
+;; URL translation of hex codes with dynamic replacement
+
+(set 'str "xxx%41xxx%42")
+(replace "%([0-9A-F][0-9A-F])" str 
+               (char (int (append "0x" $1))) 1)
+;-> xxxAxxxB               
+str
+;-> "xxxAxxxB"
+
+$count
+;-> 2
+
+La funzione "setf" insieme a "nth", "first" o "last" possono anche essere usate per modificare gli elementi in una lista.
+
+Vedi anche "directory", "find", "find-all", "parse", "regex" e "search" per le altre funzioni che usano le espressioni regolari.
+
+Come abbiamo visto la funzione "replace" sostituisce gli elementi utilizzando una stringa di ricerca. Quando dobbiamo effettuare sostituzioni con diverse stringhe di ricerca occorre applicare la funzione "replace" per ognuna di queste stringhe. Per esempio:
+
+(setq text "albero mela cucina pesce")
+(replace "albero" text "pera" 0)
+;-> "pera mela cucina pesce"
+(replace "cucina" text "formaggio" 0)
+;-> "pera mela formaggio pesce"
+
+Possiamo accopiare e mettere tutte le stringhe di ricerca e modifica in una lista e poi utilizzare la seguente espressione:
+
+(setq text "albero mela cucina pesce")
+(setq repls '(("albero" "pera") ("cucina" "formaggio")))
+
+(dolist (r repls)
+    (replace (first r) text (last r)))
+;-> "pera mela formaggio pesce"
+
+Per utilizzare questo metodo, Lutz ha fornito la seguente macro:
+
+(define-macro (replace-all)
+    (dolist (r (eval (args 0)))
+        (replace (first r) (eval (args 1)) (last r))))
+
+(setq text "albero mela cucina pesce")
+;-> "albero mela cucina pesce"
+(replace-all repls text)
+;-> "pera mela formaggio pesce"
+text
+"pera mela formaggio pesce"
+
+Risulta comodo accoppiare le modifiche nel caso ci siano parecchie modifiche da effettuare.
 
 

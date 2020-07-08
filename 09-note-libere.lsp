@@ -524,6 +524,39 @@ Oppure possiamo usare la shell in due modi:
 (exec "cmd /c dir *.ahk /b")
 ;-> ("npp-newlisp.ahk" "test.ahk" "_npp-newlisp.ahk" "_vscode.ahk")
 
+Per estrarre il percorso completo di un file:
+
+Unix
+(join (chop (parse (real-path "_TODO.txt") "/")) "/")
+Windows
+(join (chop (parse (real-path "_TODO.txt") "\\")) "\\")
+;-> "f:\\Lisp-Scheme\\newLisp\\MAX"
+
+Per creare cartelle (anche annidate) possiamo usare la seguente funzione:
+
+(define (makedir path)
+  (let (old-path (real-path))
+        (dolist (p (parse path "/"))
+                (make-dir p)
+                (change-dir p))
+        (change-dir old-path)))
+
+(makedir "one/two/three")
+;-> true
+
+Oppure questa:
+
+(define (mkdirs path , p)
+  (dolist (l (parse path "/"))
+    (push l p -1)
+    (unless (empty? l) (make-dir (join p "/")))))
+
+(mkdirs "/uno/due/tre")
+;-> true
+
+(mkdirs "uno/due/tre")
+;-> true
+
 
 -------------------
 Funzioni come liste

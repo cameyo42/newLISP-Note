@@ -1500,6 +1500,8 @@ I numeri in virgola mobile possono essere rappresentati anche in notazione scien
 1.23 → 1.23    virgola mobile
 123e-3 → 0.123 virgola mobile in notazione scientifica
 
+Nota: sebbene i numeri interi siano a 64 bit, se utilizziamo newLISP a 32 bit i puntatori di indirizzi di memoria rimangono a 32 bit.
+
 
 ===================================
  PUNTO DECIMALE O VIRGOLA DECIMALE
@@ -1663,6 +1665,26 @@ In newLISP possiamo usare le parentesi graffe al posto dei doppi apici.
 
 (format {%f %s %d} 3.14 "maggiore di" 3)
 ;-> "3.140000 maggiore di 3"
+
+Vediamo un altro esempio:
+
+(define (pow2 n)
+    (println (trim (format "%16.f" (pow 2 n))))
+    (format "%16.f" (pow 2 n)))
+
+(pow2 38)
+;-> 274877906944
+;-> "    274877906944"
+
+(pow2 52)
+;-> 4503599627370496
+;-> "4503599627370496"
+
+L'ultimo esempio mostra la massima risoluzione che possiamo avere con i numeri double float di newLISP.
+
+La funzione "trim" rimuove gli spazi davanti per numeri inferiori a 16 cifre.
+Se si stampa senza formattare newLISP sceglierà il formato "%g" e fornisce 9 cifre di precisione. Quando formattiamo a destra otteniamo fino a 15/16 cifre di precisione (52 bit)
+quando si utilizzano double float a 64 bit.
 
 
 ===================================
@@ -5413,6 +5435,32 @@ Possiamo fare lo stesso con un ciclo dolist:
 
 (hasKey? "#1234" myHash)
 ;-> true
+
+Quindi esistono due metodi per iterare in una hash map:
+
+; crea un dizionario
+(context 'pippo "A" 111)
+(context 'pippo "B" 222)
+(context 'pippo "C" 333)
+
+metodo 1:
+; mostra tutte le coppie di valori/chiave in ordine alfabetico
+(dotree (s pippo)
+     (println s "->" (eval s)))
+;-> pippo:A->111
+;-> pippo:B->222
+;-> pippo:C->333
+
+metodo 2:
+; metodo alternativo
+(dolist (s (symbols pippo))
+     (println s "->" (eval s)))
+;-> pippo:A->111
+;-> pippo:B->222
+;-> pippo:C->333
+
+Invece di "context" è possibile usare "sym" per creare/testare/modificare simboli.
+A volte è più conveniente, dipende dalla situazione.
 
 Definiamo alcune funzioni per gestire le hash map (dizionario).
 

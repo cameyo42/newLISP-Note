@@ -509,6 +509,22 @@ Conversione decimale --> romano
            (    4 "IV" )
            (    1  "I" )))
 
+In versione ricorsiva:
+
+(define (->roman n)
+    (let (roman-a '((1000 "M") (100  "C") (99 "IC") (90 "XC") (50  "L") (49 "IL")
+                    (40 "XL")  (10  "X") (9 "IX") (5  "V") (4 "IV") (1  "I")))
+      (define (roman-aux result n pair remaining)
+          (roman-aux-2 result n (pair 0) (pair 1) remaining))
+      (define (roman-aux-2 result n val rep remaining)
+          (if (= n 0)  result
+              (< n val) (roman-aux result n (remaining 0) (1 remaining))
+              (roman-aux-2 (append result rep) (- n val) val rep remaining)))
+      (roman-aux "" n (roman-a 0) (1 roman-a))))
+
+(->roman 1234)
+;-> "MCCXXXIV"
+
 
 ------------------------------------
 Conversione numero intero <--> lista
@@ -5086,7 +5102,7 @@ Per generare la lista di tutti i contesti (context) definiti nella sessione corr
 (contexts-lst)
 ;-> (Class MAIN Tree)
 
-Nota: i simboli che rappresentano i contesti si trovano nel contesto MAIN.
+Nota: i simboli che rappresentano i contesti si trovano sempre nel contesto MAIN.
 
 ------------------------------
 Conversione lista <--> stringa
@@ -5136,14 +5152,14 @@ I passaggi per ottenere la partizione successiva dalla partizione corrente sono 
 - Dobbiamo aggiornare "part" per memorizzare la prossima partizione. 
 - I valori in "part" devono essere ordinati in ordine non crescente.
 
-1) Trovare il valore (non-uno) (cioè diverso da 1) più a destra in "part" e memorizza il conteggio di 1 incontrati prima di un valore non-uno in una variabile temp-value (Indica la somma dei valori sul lato destro che devono essere aggiornati). Assegna alla variabile k il valore dell'indice relativo al numero non-uno.
+1) Trovare il valore (non-uno) (cioè diverso da 1) più a destra in "part" e memorizzare il conteggio di 1 incontrati prima di un valore non-uno in una variabile temp-value (Indica la somma dei valori sul lato destro che devono essere aggiornati). Assegna alla variabile k il valore dell'indice relativo al numero non-uno.
 
 2) Diminuire il valore di part[k] di 1 e aumentare temp-value di 1.
 Ora ci possono essere due casi:
 a) Se part[k] è maggiore o uguale a temp-value. Questo è un caso semplice (abbiamo il corretto ordine in una nuova partizione). Assegnare temp-value a part[k + 1] e part[0..(k + 1)] è la nostra nuova partizione.
 b) Altrimenti (questo è un caso interessante, considera part[] iniziale come [3, 1, 1, 1], part[k] è diminuito da 3 a 2, temp-value è aumentato da 3 a 4, la partizione successiva vale essere [2, 2, 2]).
 
-3) Copia part[k] nella posizione successiva, incrementa k e riduci il conteggio di part[k] fino a che part[k] è inferiore a temp-value. Infine, assegnare temp-value a part[k + 1] e part[0..(k + 1)] è la nostra nuova partizione. Questo passaggio è come dividere temp-value in termini di part[k] (4 è diviso in 2 parti).
+3) Copiare part[k] nella posizione successiva, incrementare k e ridurre il conteggio di part[k] fino a che part[k] è inferiore a temp-value. Infine, assegnare temp-value a part[k + 1] e part[0..(k + 1)] è la nostra nuova partizione. Questo passaggio è come dividere temp-value in termini di part[k] (4 è diviso in 2 parti).
 
 Vediamo l'implementazione dell'algoritmo:
 
@@ -5161,7 +5177,7 @@ Vediamo l'implementazione dell'algoritmo:
       ; Aggiunge la partizione corrente alla lista delle soluzioni
       (push (slice part 0 (+ k 1)) out -1)
       ;
-      ; Generare la partizione successiva
+      ; Genera la partizione successiva
       ;
       ; Trova il valore non-uno più a destra di part[]
       ; Aggiorna anche il valore di temp-value 
@@ -5185,7 +5201,7 @@ Vediamo l'implementazione dell'algoritmo:
         (setq temp-value (- temp-value (part k)))
         (++ k)
       )
-      ; Copiare rem_val nella posizione successiva e incrementa la posizione
+      ; Copia rem_val nella posizione successiva e incrementa la posizione
       (setf (part (+ k 1)) temp-value)
       (++ k)
     )

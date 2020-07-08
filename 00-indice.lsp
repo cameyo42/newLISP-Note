@@ -494,6 +494,14 @@ NOTE LIBERE 2
   Sommare una stringa
   Numeri palindromi
   Frazioni continue
+  Liste formate da coppie di elementi
+  Liste quotate
+  Il limite sulle stringhe
+  Aggiunta di liste
+  Liberare una variabile
+  Massimo prodotto di due numeri
+  Test di funzioni
+  Sostituzioni multiple in liste o stringhe
 
 APPENDICI
 =========
