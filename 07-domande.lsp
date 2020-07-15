@@ -5032,3 +5032,178 @@ Scriviamo la funzione:
 ;-> ((1 2 3 -2) (1 3) (2 3 -1))
 
 
+------------------------------
+Mescolare una lista (LeetCode)
+------------------------------
+
+Data una lista composta da 2n elementi nella seguente forma:
+
+(x1 x2 ... xn y1 y2 ... yn)
+
+Restituire una lista della forma:
+
+(x1 y1 x2 y2 ... xn yn).
+
+(define (mescola1 lst)
+  (local (mid out)
+    (setq out '())
+    (setq mid (/ (length lst) 2))
+    (for (i 0 (- mid 1))
+      (push (lst i) out -1)
+      (push (lst (+ i mid)) out -1)
+    )
+    out
+  )
+)
+
+(mescola1 '(1 2 3 4 5 6 7 8))
+;-> (1 5 2 6 3 7 4 8)
+
+(define (mescola2 lst)
+  (local (len mid)
+    (setq len (length lst))
+    (setq mid (/ len 2))
+    ;(map list (slice lst 0 mid) (slice lst mid len))
+    (flat (map cons (slice lst 0 mid) (slice lst mid len)))
+  )
+)
+
+(mescola2 '(1 2 3 4 5 6 7 8))
+;-> (1 5 2 6 3 7 4 8)
+
+(setq lst (sequence 1 1000))
+(time (mescola1 lst) 1000)
+;-> 961.217
+
+(setq lst (sequence 1 1000))
+(time (mescola2 lst) 1000)
+;-> 45.003
+
+
+-------------------------
+Lista somma (geeks4geeks)
+-------------------------
+Data una lista di numeri interi, creare una nuova lista in cui ogni elemento è la somma di tutti gli altri elementi. Per ogni elemento, deve risultare:
+
+lst[i] = sumOfListElements – lst[i]
+
+(define (somma-lst lst)
+  (let (sum (apply + lst))
+    (map (fn (x) (- sum x)) lst)))
+
+(somma-lst '(2 3 4 -5 -4 6 7))
+;-> (11 10 9 18 17 7 6)
+
+(somma-lst '(0 0 0 0 0 0))
+;-> (0 0 0 0 0 0)
+
+Data una lista di numeri interi, sostituire ogni elemento con la somma di tutti gli altri elementi. Anche in questo caso deve risultare:
+
+lst[i] = sumOfListElements – lst[i]
+
+(define (somma2-lst lst)
+  (let (sum (apply + lst))
+    (dolist (el lst)
+      (setf (lst $idx) (- sum el)))
+    lst))
+
+(somma2-lst '(2 3 4 -5 -4 6 7))
+;-> (11 10 9 18 17 7 6)
+
+(somma2-lst '(0 0 0 0 0 0))
+;-> (0 0 0 0 0 0)
+
+
+--------------------------------------------
+Ordinare una lista di 0, 1 e 2 (geeks4geeks)
+--------------------------------------------
+
+Dato una lista composta da 0, 1 e 2. Scrivere una funzione che ordina la lista. L'ordinamento deve mettere prima gli 0 (zero, Le funzioni dovrebbero mettere prima tutti i valori 0 (zero), quindi tutti i valori 1 (uno) e infine tutti i valori 2 (due).
+
+Attraversiamo la lista, contiamo i valori 0, 1 e 2, infine ricostruiamo la lista.
+
+(define (sort-012 lst)
+  (local (a b c)
+    (setq a 0 b 0 c 0)
+    ; contiamo i valori 0, 1 e 2
+    (dolist (el lst)
+      (cond ((if (= el 0) (++ a)))
+            ((if (= el 1) (++ b)))
+            ((if (= el 2) (++ c)))
+      )
+    )
+    ;ricostruzione della lista
+    (for (i 0 (- a 1)) (setf (lst i) 0))
+    (for (i a (- (+ a b) 1)) (setf (lst i) 1))
+    (for (i (+ a b) (- (+ a b c) 1)) (setf (lst i) 2))
+    lst
+  )
+)
+
+(sort-012 '(0 2 2 2 1 0 0 2 0 1 1 2 ))
+;-> (0 0 0 0 1 1 1 2 2 2 2 2)
+
+
+------------------------------
+Stipendio giusto (geeks4geeks)
+------------------------------
+
+Ci sono N dipendenti in un'azienda e ogni dipendente ha una valutazione. I dipendenti ricevono uno stipendio in base alla loro valutazione, cioè, i dipendenti con valutazione   più alta riceveranno uno stipendio maggiore. Un dipendente conosce solo lo stipendio e la valutazione dei suoi vicini, cioè quello a sinistra e quello a destra del dipendente.
+Data una lista di N numeri interi positivi, che indica la valutazione di N dipendenti, trovare il minimo stipendio S che dovrebbe essere assegnato per ciascun dipendente, in modo tale che ogni dipendente venga trattato equamente.
+
+Nota: gli stipendi sono solo numeri interi positivi e le valutazioni sono sempre maggiori di zero.
+
+Possono verificarsi i seguenti casi:
+
+Tipo 1: S(i-1) > S(i) < S(i+1)
+Tipo 2: S(i-1) < S(i) < S(i+1)
+Tipo 3: S(i-1) > S(i) > S(i+1)
+Tipo 4: S(i-1) < S(i) > S(i+1)
+
+Per ogni dipendente, in base ai casi precedenti, impostare lo Stipendio basandosi sulle regole seguenti:
+
+Per il tipo 1: porre lo Stipendio a 1
+Per il tipo 2: porre lo Stipendio a S(i-1) + 1.
+Per il tipo 3: porre lo Stipendio a S(i+1) + 1.
+Per il tipo 4: porre lo Stipendio a max(S(i-1), S(i+1)) + 1
+
+(define (salario lst)
+  (local (s n)
+    (setq n (length lst))
+    (setq s (array (+ 2 n) '(0)))
+    (push 1e9 lst)
+    (push 1e9 lst -1)
+    ; tipo 1
+    (for (i 1 n)
+      (if (and (>= (lst (- i 1)) (lst i))
+               (<= (lst i) (lst (+ i 1))))
+          (setf (s i) 1)
+      ))
+    ; tipo 2
+    (for (i 1 n)
+      (if (and (< (lst (- i 1)) (lst i))
+               (<= (lst i) (lst (+ i 1))))
+          (setf (s i) (+ (s (- i 1)) 1))
+      ))
+    ; tipo 3
+    (for (i 1 n)
+      (if (and (>= (lst (- i 1)) (lst i))
+               (> (lst i) (lst (+ i 1))))
+          (setf (s i) (+ (s (+ i 1)) 1))
+      ))
+    ; tipo 4
+    (for (i 1 n)
+      (if (and (< (lst (- i 1)) (lst i))
+               (> (lst i) (lst (+ i 1))))
+          (setf (s i) (+ 1 (max (s (- i 1)) (s (+ i 1)))))
+      ))
+    (slice s 1 n)
+  ))
+
+(salario '(1 3 5 4))
+;-> (1 2 3 1)
+
+(salario '(5 3 4 2 1 6))
+;-> (2 1 3 2 1 2)
+
+

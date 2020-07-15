@@ -557,6 +557,26 @@ Oppure questa:
 (mkdirs "uno/due/tre")
 ;-> true
 
+Per cambiare cartella partendo dal percorso di un file:
+
+(define (.. f)
+  (join (chop (parse (real-path f) "\\") 2) "\\") )
+
+(define (. f)
+  (join (chop (parse (real-path f) "\\") 1) "\\") )
+
+Adesso possiamo cambiare la cartella corrente in due modi:
+
+(change-dir (.. "f:\\Lisp-Scheme\\newLisp\\MAX\\_TODO.txt"))
+;-> true
+(real-path)
+;-> "f:\\Lisp-Scheme\\newLisp"
+
+(change-dir (. "f:\\Lisp-Scheme\\newLisp\\MAX\\_TODO.txt"))
+;-> true
+(real-path)
+;-> "f:\\Lisp-Scheme\\newLisp\\MAX"
+
 
 -------------------
 Funzioni come liste

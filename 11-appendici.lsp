@@ -6067,4 +6067,7 @@ Frasi Famose sulla Programmazione e sul Linguaggio Lisp
 "It pays to know the dark corners of your language."
 - unknown
 
+"Learning from your mistakes is one of the best ways to learn."
+- unknown
+
 

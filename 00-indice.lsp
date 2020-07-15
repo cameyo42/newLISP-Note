@@ -372,6 +372,10 @@ DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Caratteri differenti (Amazon)
   Triple con una data somma (Uber)
   Somma perfetta (Amazon)
+  Mescolare una lista (LeetCode)
+  Lista somma (geeks4geeks)
+  Ordinare una lista di 0, 1 e 2 (geeks4geeks)
+  Stipendio giusto (geeks4geeks)
 
 LIBRERIE
 ========
@@ -502,6 +506,10 @@ NOTE LIBERE 2
   Massimo prodotto di due numeri
   Test di funzioni
   Sostituzioni multiple in liste o stringhe
+  Cambio monete
+  Funzione Harakiri
+  Ciclo for con numeri float
+  Nascondere la finestra DOS
 
 APPENDICI
 =========

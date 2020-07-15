@@ -1955,6 +1955,32 @@ Definite la seguente funzione in una nuova sessione di newLISP (una nuova REPL) 
 (user-symbols)
 ;-> ((module user-symbols) (el func other))
 
+Versione modificata:
+
+(define (user-symbols)
+  (local (_func _other)
+    (setq _func '())
+    (setq _other '())
+    (dolist (_el (symbols))
+      (if (and (lambda? (eval _el))  
+               (not (= _el 'user-symbols)))
+          (push _el _func -1))
+      (if (and (not (lambda? (eval _el)))
+               (not (primitive? (eval _el)))
+               (not (protected? _el))
+               (not (global? _el))
+               (not (= _el '_func))
+               (not (= _el '_other))
+               (not (= _el '_el)))
+          (push _el _other -1))
+    )
+    (list _func _other)
+  )
+)
+
+(user-symbols)
+;-> ((module) ()) ; from a fresh REPL of newLISP
+
 
 -------------------------------------------------
 Il programma è in esecuzione ? (progress display)

@@ -1670,7 +1670,7 @@ Adesso scriviamo la funzione finale:
 (sumstr "")
 ;-> 0
 
-Nel forum di newLISp l'utente fdb ha proposto queste due funzioni:
+Nel forum di newLISP l'utente fdb ha proposto queste due funzioni:
 
 (define (parse-str str)
   (apply + (map int (clean empty? (parse str {[^0-9]} 0)))))
@@ -1693,6 +1693,19 @@ Comunque l'ultima funzione di fdb è più veloce.
 ;-> 184.9
 (time (sumstr "o123p010iru5") 100000)
 ;-> 254.863
+
+Altre funzione proposta da newBert:
+
+ (apply + (map (fn (x) (int (if (starts-with x "0") (rest x) x))) (find-all {[0-9]+} "o123p010iru5")))
+;-> 138
+
+Altre funzioni (corrette) proposte da fdb:
+
+(apply + (map int (find-all {[1-9][0-9]*} "o123p010iru5")))
+;-> 138
+
+(apply (fn(x y) (+ (int x) (int y))) (find-all {[1-9]\d*} "o123p0010iru5") 2) 
+;-> 138
 
 
 -----------------
@@ -2762,4 +2775,167 @@ text
 
 Risulta comodo accoppiare le modifiche nel caso ci siano parecchie modifiche da effettuare.
 
+
+-------------
+Cambio monete
+-------------
+
+Calcolare il numero minimo di monete necessarie per cambiare un valore dato in monete da 1, 5 e 10.
+
+Fino a che il totale è maggiore di zero (totale > 0), prendere una moneta con il valore più grande possibile che non superi il totale, sottrarre il valore della moneta al totale e aggiungere uno al numero che conteggia la quantità di quel taglio di moneta.
+
+return int(money/10) + int((money mod 10)/5) + (money mod 5)
+
+(define (cambio tot)
+  (local (m10 m5 m1)
+    (setq m10 0 m5 0 m1 0)
+    (while (> tot 0)
+      (cond ((>= tot 10)
+             (setq tot (- tot 10) m10 (+ m10 1)))
+            ((>= tot 5)
+             (setq tot (- tot 5) m5 (+ m5 1)))
+            (true
+             (setq tot (- tot 1) m1 (+ m1 1)))
+      )
+    )
+    (list m10 m5 m1 (+ (* m10 10) (* m5 5) (* m1 1)))
+  )
+)
+
+(cambio 11)
+;-> (1 0 1 11)
+
+Se volessimo sapere solo quante monete sono necessarie per cambiare un certo totale, è sufficiente la seguente funzione:
+
+(define (cambionum tot) (+ (/ tot 10) (/ (% tot 10) 5) (% tot 5)))
+
+(cambionum 11)
+;-> 2
+
+
+-----------------
+Funzione Harakiri
+-----------------
+
+Il titolo non è proprio corretto, perchè non è possibile scrivere una funzione autodistruttiva, ma newLISP permette di scrivere una macro che svolge il compito di "distruzione":
+
+(define-macro (killme)
+    (let (temp (eval (args)))
+      (delete (args 0))
+      temp))
+
+(define (ei-fu x) (+ x x))
+
+(killme ei-fu 21)
+;-> 42
+
+Vediamo se la funzione esiste nei simboli di newLISP:
+
+(sym "ei-fu" MAIN nil)
+;-> nil 
+
+No...la funzione non esiste più!
+
+
+--------------------------
+Ciclo for con numeri float
+--------------------------
+
+newLISP permette di utilizzare i numeri floating point come indici per il ciclo for:
+
+(for (t 1 0.0 0.1) (println t))
+;-> 1
+;-> 0.9
+;-> 0.8
+;-> 0.7
+;-> 0.6
+;-> 0.5
+;-> 0.3999999999999999
+;-> 0.2999999999999999
+;-> 0.2
+;-> 0.09999999999999998
+;-> 0
+
+Questo è dovuto al fatto che non esiste un modo preciso per convertire esattamente un numero da decimale a binario e viceversa.
+Quando si confrontano i float è sempre necessario confrontare la differenza dei numeri
+contro qualche altra piccola quantità.
+La differenza tra:
+
+(setq x 1)
+(for (i 1 10) (println (dec 'x 0.1)))
+;-> 0.9
+;-> 0.8
+;-> 0.7000000000000001
+;-> 0.6000000000000001
+;-> 0.5000000000000001
+;-> 0.4000000000000001
+;-> 0.3000000000000002
+;-> 0.2000000000000002
+;-> 0.1000000000000001
+;-> 1.387778780781446e-016
+
+e
+
+(for (i 1 0.0 0.1) (println i))
+;-> 1
+;-> 0.9
+;-> 0.8
+;-> 0.7
+;-> 0.6
+;-> 0.5
+;-> 0.3999999999999999
+;-> 0.2999999999999999
+;-> 0.2
+;-> 0.09999999999999998
+;-> 0
+
+è che newLISP quando esegue cicli "for" e sequenze cerca di evitare l'accumulo
+dell'errore di arrotondamento calcolando prima il numero totale di iterazioni,
+quindi calcola la variabile del ciclo "i" come prodotto di "step * count"
+e non come un incremento ripetuto come nel primo esempio.
+In questo modo newLISP non crea mai errori di underrun o overrun nei cicli.
+
+Comunque se vogliamo utilizzare i valori della variabile del ciclo possiamo arrotondarla con le cifre desiderate:
+
+(for (i 1 0.0 0.1) (println (round i -1)))
+;-> 1
+;-> 0.9
+;-> 0.8
+;-> 0.7
+;-> 0.6
+;-> 0.5
+;-> 0.4
+;-> 0.3
+;-> 0.2
+;-> 0.1
+;-> 0
+
+
+--------------------------
+Nascondere la finestra DOS
+--------------------------
+
+Possiamo nascondere la finestrea DOS quando eseguiamo uno script newLISP.
+Il seguente esempio mostra le funzioni necessarie per questo problema. 
+
+Salvare il seguente script in un file (es. hide.lsp) e poi eseguire dal prompt del DOS:
+
+newlisp hide.lsp
+
+In questo modo la console di newLISP viene nascosta.
+
+; Esempio di script che nasconde la console del DOS (console)
+; import functions
+(import "kernel32.dll" "FreeConsole")
+(import "user32.dll" "MessageBoxA")
+; hide console
+(FreeConsole)
+; function to show messageBox
+(define (message-box text (title "newLISP"))
+  (let ((MB_OK 0))
+    (MessageBoxA 0 text title MB_OK)))
+; show a message
+(message-box "Ciao da windows")
+;(read-line)
+(exit)
 

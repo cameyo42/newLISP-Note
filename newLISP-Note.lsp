@@ -372,6 +372,10 @@ DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Caratteri differenti (Amazon)
   Triple con una data somma (Uber)
   Somma perfetta (Amazon)
+  Mescolare una lista (LeetCode)
+  Lista somma (geeks4geeks)
+  Ordinare una lista di 0, 1 e 2 (geeks4geeks)
+  Stipendio giusto (geeks4geeks)
 
 LIBRERIE
 ========
@@ -502,6 +506,10 @@ NOTE LIBERE 2
   Massimo prodotto di due numeri
   Test di funzioni
   Sostituzioni multiple in liste o stringhe
+  Cambio monete
+  Funzione Harakiri
+  Ciclo for con numeri float
+  Nascondere la finestra DOS
 
 APPENDICI
 =========
@@ -11285,6 +11293,32 @@ Definite la seguente funzione in una nuova sessione di newLISP (una nuova REPL) 
 
 (user-symbols)
 ;-> ((module user-symbols) (el func other))
+
+Versione modificata:
+
+(define (user-symbols)
+  (local (_func _other)
+    (setq _func '())
+    (setq _other '())
+    (dolist (_el (symbols))
+      (if (and (lambda? (eval _el))  
+               (not (= _el 'user-symbols)))
+          (push _el _func -1))
+      (if (and (not (lambda? (eval _el)))
+               (not (primitive? (eval _el)))
+               (not (protected? _el))
+               (not (global? _el))
+               (not (= _el '_func))
+               (not (= _el '_other))
+               (not (= _el '_el)))
+          (push _el _other -1))
+    )
+    (list _func _other)
+  )
+)
+
+(user-symbols)
+;-> ((module) ()) ; from a fresh REPL of newLISP
 
 
 -------------------------------------------------
@@ -42658,6 +42692,181 @@ Scriviamo la funzione:
 ;-> ((1 2 3 -2) (1 3) (2 3 -1))
 
 
+------------------------------
+Mescolare una lista (LeetCode)
+------------------------------
+
+Data una lista composta da 2n elementi nella seguente forma:
+
+(x1 x2 ... xn y1 y2 ... yn)
+
+Restituire una lista della forma:
+
+(x1 y1 x2 y2 ... xn yn).
+
+(define (mescola1 lst)
+  (local (mid out)
+    (setq out '())
+    (setq mid (/ (length lst) 2))
+    (for (i 0 (- mid 1))
+      (push (lst i) out -1)
+      (push (lst (+ i mid)) out -1)
+    )
+    out
+  )
+)
+
+(mescola1 '(1 2 3 4 5 6 7 8))
+;-> (1 5 2 6 3 7 4 8)
+
+(define (mescola2 lst)
+  (local (len mid)
+    (setq len (length lst))
+    (setq mid (/ len 2))
+    ;(map list (slice lst 0 mid) (slice lst mid len))
+    (flat (map cons (slice lst 0 mid) (slice lst mid len)))
+  )
+)
+
+(mescola2 '(1 2 3 4 5 6 7 8))
+;-> (1 5 2 6 3 7 4 8)
+
+(setq lst (sequence 1 1000))
+(time (mescola1 lst) 1000)
+;-> 961.217
+
+(setq lst (sequence 1 1000))
+(time (mescola2 lst) 1000)
+;-> 45.003
+
+
+-------------------------
+Lista somma (geeks4geeks)
+-------------------------
+Data una lista di numeri interi, creare una nuova lista in cui ogni elemento è la somma di tutti gli altri elementi. Per ogni elemento, deve risultare:
+
+lst[i] = sumOfListElements – lst[i]
+
+(define (somma-lst lst)
+  (let (sum (apply + lst))
+    (map (fn (x) (- sum x)) lst)))
+
+(somma-lst '(2 3 4 -5 -4 6 7))
+;-> (11 10 9 18 17 7 6)
+
+(somma-lst '(0 0 0 0 0 0))
+;-> (0 0 0 0 0 0)
+
+Data una lista di numeri interi, sostituire ogni elemento con la somma di tutti gli altri elementi. Anche in questo caso deve risultare:
+
+lst[i] = sumOfListElements – lst[i]
+
+(define (somma2-lst lst)
+  (let (sum (apply + lst))
+    (dolist (el lst)
+      (setf (lst $idx) (- sum el)))
+    lst))
+
+(somma2-lst '(2 3 4 -5 -4 6 7))
+;-> (11 10 9 18 17 7 6)
+
+(somma2-lst '(0 0 0 0 0 0))
+;-> (0 0 0 0 0 0)
+
+
+--------------------------------------------
+Ordinare una lista di 0, 1 e 2 (geeks4geeks)
+--------------------------------------------
+
+Dato una lista composta da 0, 1 e 2. Scrivere una funzione che ordina la lista. L'ordinamento deve mettere prima gli 0 (zero, Le funzioni dovrebbero mettere prima tutti i valori 0 (zero), quindi tutti i valori 1 (uno) e infine tutti i valori 2 (due).
+
+Attraversiamo la lista, contiamo i valori 0, 1 e 2, infine ricostruiamo la lista.
+
+(define (sort-012 lst)
+  (local (a b c)
+    (setq a 0 b 0 c 0)
+    ; contiamo i valori 0, 1 e 2
+    (dolist (el lst)
+      (cond ((if (= el 0) (++ a)))
+            ((if (= el 1) (++ b)))
+            ((if (= el 2) (++ c)))
+      )
+    )
+    ;ricostruzione della lista
+    (for (i 0 (- a 1)) (setf (lst i) 0))
+    (for (i a (- (+ a b) 1)) (setf (lst i) 1))
+    (for (i (+ a b) (- (+ a b c) 1)) (setf (lst i) 2))
+    lst
+  )
+)
+
+(sort-012 '(0 2 2 2 1 0 0 2 0 1 1 2 ))
+;-> (0 0 0 0 1 1 1 2 2 2 2 2)
+
+
+------------------------------
+Stipendio giusto (geeks4geeks)
+------------------------------
+
+Ci sono N dipendenti in un'azienda e ogni dipendente ha una valutazione. I dipendenti ricevono uno stipendio in base alla loro valutazione, cioè, i dipendenti con valutazione   più alta riceveranno uno stipendio maggiore. Un dipendente conosce solo lo stipendio e la valutazione dei suoi vicini, cioè quello a sinistra e quello a destra del dipendente.
+Data una lista di N numeri interi positivi, che indica la valutazione di N dipendenti, trovare il minimo stipendio S che dovrebbe essere assegnato per ciascun dipendente, in modo tale che ogni dipendente venga trattato equamente.
+
+Nota: gli stipendi sono solo numeri interi positivi e le valutazioni sono sempre maggiori di zero.
+
+Possono verificarsi i seguenti casi:
+
+Tipo 1: S(i-1) > S(i) < S(i+1)
+Tipo 2: S(i-1) < S(i) < S(i+1)
+Tipo 3: S(i-1) > S(i) > S(i+1)
+Tipo 4: S(i-1) < S(i) > S(i+1)
+
+Per ogni dipendente, in base ai casi precedenti, impostare lo Stipendio basandosi sulle regole seguenti:
+
+Per il tipo 1: porre lo Stipendio a 1
+Per il tipo 2: porre lo Stipendio a S(i-1) + 1.
+Per il tipo 3: porre lo Stipendio a S(i+1) + 1.
+Per il tipo 4: porre lo Stipendio a max(S(i-1), S(i+1)) + 1
+
+(define (salario lst)
+  (local (s n)
+    (setq n (length lst))
+    (setq s (array (+ 2 n) '(0)))
+    (push 1e9 lst)
+    (push 1e9 lst -1)
+    ; tipo 1
+    (for (i 1 n)
+      (if (and (>= (lst (- i 1)) (lst i))
+               (<= (lst i) (lst (+ i 1))))
+          (setf (s i) 1)
+      ))
+    ; tipo 2
+    (for (i 1 n)
+      (if (and (< (lst (- i 1)) (lst i))
+               (<= (lst i) (lst (+ i 1))))
+          (setf (s i) (+ (s (- i 1)) 1))
+      ))
+    ; tipo 3
+    (for (i 1 n)
+      (if (and (>= (lst (- i 1)) (lst i))
+               (> (lst i) (lst (+ i 1))))
+          (setf (s i) (+ (s (+ i 1)) 1))
+      ))
+    ; tipo 4
+    (for (i 1 n)
+      (if (and (< (lst (- i 1)) (lst i))
+               (> (lst i) (lst (+ i 1))))
+          (setf (s i) (+ 1 (max (s (- i 1)) (s (+ i 1)))))
+      ))
+    (slice s 1 n)
+  ))
+
+(salario '(1 3 5 4))
+;-> (1 2 3 1)
+
+(salario '(5 3 4 2 1 6))
+;-> (2 1 3 2 1 2)
+
+
 ==========
 
  LIBRERIE
@@ -46486,6 +46695,26 @@ Oppure questa:
 
 (mkdirs "uno/due/tre")
 ;-> true
+
+Per cambiare cartella partendo dal percorso di un file:
+
+(define (.. f)
+  (join (chop (parse (real-path f) "\\") 2) "\\") )
+
+(define (. f)
+  (join (chop (parse (real-path f) "\\") 1) "\\") )
+
+Adesso possiamo cambiare la cartella corrente in due modi:
+
+(change-dir (.. "f:\\Lisp-Scheme\\newLisp\\MAX\\_TODO.txt"))
+;-> true
+(real-path)
+;-> "f:\\Lisp-Scheme\\newLisp"
+
+(change-dir (. "f:\\Lisp-Scheme\\newLisp\\MAX\\_TODO.txt"))
+;-> true
+(real-path)
+;-> "f:\\Lisp-Scheme\\newLisp\\MAX"
 
 
 -------------------
@@ -54929,7 +55158,7 @@ Adesso scriviamo la funzione finale:
 (sumstr "")
 ;-> 0
 
-Nel forum di newLISp l'utente fdb ha proposto queste due funzioni:
+Nel forum di newLISP l'utente fdb ha proposto queste due funzioni:
 
 (define (parse-str str)
   (apply + (map int (clean empty? (parse str {[^0-9]} 0)))))
@@ -54952,6 +55181,19 @@ Comunque l'ultima funzione di fdb è più veloce.
 ;-> 184.9
 (time (sumstr "o123p010iru5") 100000)
 ;-> 254.863
+
+Altre funzione proposta da newBert:
+
+ (apply + (map (fn (x) (int (if (starts-with x "0") (rest x) x))) (find-all {[0-9]+} "o123p010iru5")))
+;-> 138
+
+Altre funzioni (corrette) proposte da fdb:
+
+(apply + (map int (find-all {[1-9][0-9]*} "o123p010iru5")))
+;-> 138
+
+(apply (fn(x y) (+ (int x) (int y))) (find-all {[1-9]\d*} "o123p0010iru5") 2) 
+;-> 138
 
 
 -----------------
@@ -56021,6 +56263,169 @@ text
 
 Risulta comodo accoppiare le modifiche nel caso ci siano parecchie modifiche da effettuare.
 
+
+-------------
+Cambio monete
+-------------
+
+Calcolare il numero minimo di monete necessarie per cambiare un valore dato in monete da 1, 5 e 10.
+
+Fino a che il totale è maggiore di zero (totale > 0), prendere una moneta con il valore più grande possibile che non superi il totale, sottrarre il valore della moneta al totale e aggiungere uno al numero che conteggia la quantità di quel taglio di moneta.
+
+return int(money/10) + int((money mod 10)/5) + (money mod 5)
+
+(define (cambio tot)
+  (local (m10 m5 m1)
+    (setq m10 0 m5 0 m1 0)
+    (while (> tot 0)
+      (cond ((>= tot 10)
+             (setq tot (- tot 10) m10 (+ m10 1)))
+            ((>= tot 5)
+             (setq tot (- tot 5) m5 (+ m5 1)))
+            (true
+             (setq tot (- tot 1) m1 (+ m1 1)))
+      )
+    )
+    (list m10 m5 m1 (+ (* m10 10) (* m5 5) (* m1 1)))
+  )
+)
+
+(cambio 11)
+;-> (1 0 1 11)
+
+Se volessimo sapere solo quante monete sono necessarie per cambiare un certo totale, è sufficiente la seguente funzione:
+
+(define (cambionum tot) (+ (/ tot 10) (/ (% tot 10) 5) (% tot 5)))
+
+(cambionum 11)
+;-> 2
+
+
+-----------------
+Funzione Harakiri
+-----------------
+
+Il titolo non è proprio corretto, perchè non è possibile scrivere una funzione autodistruttiva, ma newLISP permette di scrivere una macro che svolge il compito di "distruzione":
+
+(define-macro (killme)
+    (let (temp (eval (args)))
+      (delete (args 0))
+      temp))
+
+(define (ei-fu x) (+ x x))
+
+(killme ei-fu 21)
+;-> 42
+
+Vediamo se la funzione esiste nei simboli di newLISP:
+
+(sym "ei-fu" MAIN nil)
+;-> nil 
+
+No...la funzione non esiste più!
+
+
+--------------------------
+Ciclo for con numeri float
+--------------------------
+
+newLISP permette di utilizzare i numeri floating point come indici per il ciclo for:
+
+(for (t 1 0.0 0.1) (println t))
+;-> 1
+;-> 0.9
+;-> 0.8
+;-> 0.7
+;-> 0.6
+;-> 0.5
+;-> 0.3999999999999999
+;-> 0.2999999999999999
+;-> 0.2
+;-> 0.09999999999999998
+;-> 0
+
+Questo è dovuto al fatto che non esiste un modo preciso per convertire esattamente un numero da decimale a binario e viceversa.
+Quando si confrontano i float è sempre necessario confrontare la differenza dei numeri
+contro qualche altra piccola quantità.
+La differenza tra:
+
+(setq x 1)
+(for (i 1 10) (println (dec 'x 0.1)))
+;-> 0.9
+;-> 0.8
+;-> 0.7000000000000001
+;-> 0.6000000000000001
+;-> 0.5000000000000001
+;-> 0.4000000000000001
+;-> 0.3000000000000002
+;-> 0.2000000000000002
+;-> 0.1000000000000001
+;-> 1.387778780781446e-016
+
+e
+
+(for (i 1 0.0 0.1) (println i))
+;-> 1
+;-> 0.9
+;-> 0.8
+;-> 0.7
+;-> 0.6
+;-> 0.5
+;-> 0.3999999999999999
+;-> 0.2999999999999999
+;-> 0.2
+;-> 0.09999999999999998
+;-> 0
+
+è che newLISP quando esegue cicli "for" e sequenze cerca di evitare l'accumulo
+dell'errore di arrotondamento calcolando prima il numero totale di iterazioni,
+quindi calcola la variabile del ciclo "i" come prodotto di "step * count"
+e non come un incremento ripetuto come nel primo esempio.
+In questo modo newLISP non crea mai errori di underrun o overrun nei cicli.
+
+Comunque se vogliamo utilizzare i valori della variabile del ciclo possiamo arrotondarla con le cifre desiderate:
+
+(for (i 1 0.0 0.1) (println (round i -1)))
+;-> 1
+;-> 0.9
+;-> 0.8
+;-> 0.7
+;-> 0.6
+;-> 0.5
+;-> 0.4
+;-> 0.3
+;-> 0.2
+;-> 0.1
+;-> 0
+
+
+--------------------------
+Nascondere la finestra DOS
+--------------------------
+
+Possiamo nascondere la finestrea DOS quando eseguiamo uno script newLISP.
+Il seguente esempio mostra le funzioni necessarie per questo problema. 
+
+Salvare il seguente script in un file (es. hide.lsp) e poi eseguire dal prompt del DOS:
+
+newlisp hide.lsp
+
+In questo modo la console di newLISP viene nascosta.
+
+; Esempio di script che nasconde la console del DOS (console)
+; import functions
+(import "kernel32.dll" "FreeConsole")
+(import "user32.dll" "MessageBoxA")
+; hide console
+(FreeConsole)
+; function to show messageBox
+(define (message-box text (title "newLISP"))
+  (let ((MB_OK 0))
+    (MessageBoxA 0 text title MB_OK)))
+; show a message
+(message-box "Ciao da windows")
+;(read-line)
+(exit)
 
 ===========
 
@@ -62089,6 +62494,9 @@ Frasi Famose sulla Programmazione e sul Linguaggio Lisp
 - Lutz Mueller  (creator of newLISP)
 
 "It pays to know the dark corners of your language."
+- unknown
+
+"Learning from your mistakes is one of the best ways to learn."
 - unknown
 
 
