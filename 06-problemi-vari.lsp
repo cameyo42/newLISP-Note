@@ -7838,6 +7838,7 @@ x^9 - 2x^8 + 3x^7 + 0x^6 + 5x^5 - 4x^4 + 7x^3 + 8x^2 + 9x + 3 = 0
 ;->  ((1.053720393127137 1.34449644051663) 
 ;->   (1.053720393127137 -1.34449644051663))
 ;->  (-0.4091943713384922))
+
 WolframAlpha
 x≈-0.361222 + 0.691348 i
 x≈-0.361222 - 0.691348 i
@@ -7854,5 +7855,164 @@ x^9 - 2 x^8 + 3 x^7 + 0 x^6 + 5 x^5 - 4 x^4 + 7 x^3 + 8 x^2 + 9 x + 3
 dove x = 1.251229097959007 - 1.099346245887554 i
 Risultato:
 2.99×10^-14 + 6.8×10^-15 i
+
+
+-------------
+Nomi ordinati
+-------------
+
+Abbiamo una lista con alcuni nomi in ordine alfabetico:
+
+(andrea bea carla eva francesca marco pietro roberta sandra)
+
+Se mischiamo i nomi della lista:
+
+1) qual'è la probabilità che la lista mischiata sia ordinata come quella iniziale?
+2) qual'è la probabilità che almeno un nome sia allo stesso posto della lista iniziale?
+3) qual'è la probabilità limite del punto 2) al tendere di n all'infinito (n = numero dei nomi)?
+
+Vediamo di calcolare queste probabilità prima con delle simulazioni e poi matematicamente.
+
+1) qual'è la probabilità che la lista mischiata sia ordinata come quella iniziale?
+
+(define (prob1 n)
+  (local (base test conta)
+    (setq conta 0)
+    (setq base '(andrea bea carla eva francesca marco pietro roberta sandra))
+    (setq test (randomize base))
+    (for (i 1 n)
+      (setq test (randomize test))
+      (if (= base test) (++ conta))
+    )
+    (list conta n (div conta n))
+  )
+)
+
+(prob1 1000000)
+;-> (3 1000000 3e-006)
+
+(prob1 10000000)
+;-> (28 10000000 2.8e-006)
+
+(prob1 100000000)
+;-> (251 100000000 2.51e-006)
+
+Matematicamante risulta che esistono 9!=362880 possibilità di ordinare la lista. Quindi la probabilità cercata vale:
+
+prob1 = 1 / 9! = (div 1 362880) = 2.755731922398589e-006
+
+2) qual'è la probabilità che almeno un nome sia allo stesso posto della lista iniziale?
+Per semplificare il codice consideriamo una lista costituita da soli numeri:
+
+(1 2 3 4 5 6 7 8 9)
+
+In questo modo due liste hanno un elemento in comune se troviamo almeno uno 0 nella differenza tra gli elementi delle due liste:
+
+(if (find 0 (map - base test)) (++ conta))
+
+(define (prob2 n)
+  (local (base test conta)
+    (setq conta 0)
+    (setq base '(1 2 3 4 5 6 7 8 9))
+    (setq test (randomize base))
+    (for (i 1 n)
+      (setq test (randomize test))
+      (if (find 0 (map - base test)) (++ conta))
+    )
+    (list conta n (div conta n))
+  )
+)
+
+(prob2 100)
+;-> (60 100 0.6)
+(prob2 1000)
+;-> (632 1000 0.632)
+(prob2 10000)
+;-> (6238 10000 0.6238)
+(prob2 100000)
+;-> (63361 100000 0.63361)
+(prob2 1000000)
+;-> (632357 1000000 0.632357)
+(prob2 10000000)
+;-> (6320110 10000000 0.632011)
+
+Dal punto di vista matematico considerando una lista con i primi 5 numeri abbiamo:
+
+P(1) = 1/5 e
+
+P(1 e 2) = 1/5 * 1/4
+
+Utilizziamo il principio di inclusione-esclusione per calcolare la probabilità che il numero 1 o 2 o 3 o 4 o 5 sia piazzato correttamente (almeno uno).
+
+P(1 o 2 o 3 ... o 5) = P(1) + P(2) + P(3) + P(4) + P(5)
+                       - P(1 e 2) - P(2 e 3) - ...
+                       + P(1 e 2 e 3) + P(2 e 3 e 4) + ...
+                       - P(1 e 2 e 3 e 4) - P(2 e 3 e 4 e 5) - ...
+                       + P(1 e 2 e 3 e 4 e 5)
+
+                     = 5*(1/5)
+                       - 5*2*(1/5)(1/4)
+                       + 5*3*(1/5)(1/4)(1/3)
+                       - 5*4*(1/5)(1/4)(1/3)(1/2)
+                       + (1/5)*(1/4)*(1/3)*(1/2)*(1/1)
+
+        5*4    1    5*4*3     1      5*4*3*2       1          1
+  = 1 - --- * --- + ----- * ----- - --------- * ------- + ---------
+        1*2   5*4   1*2*3   5*4*3    1*2*3*4    5*4*3*2   5*4*3*2*1
+
+  = 1 - 1/2! + 1/3! - 1/4! + 1/5! =
+
+  = 1 - 0.5 + 0.166666667 - 0.041666667 + 0.008333333 = 0.633333333
+
+Questa è la probabilità che almeno uno dei 5 numeri sia piazzato correttamente.
+
+La formula generalizzata per n numeri è la seguente:
+
+P = 1 - (-1)^n 1/n!
+
+Nel caso di nove elementi risulta:
+
+P(nove) = 1 - 0.5 + 0.166666667 - 0.041666667 + 0.008333333
+          - 0.001388889 + 0.000198413 - 2.48016E-05 + 2.75573E-06 = 0.632120811
+
+Quindi il valore calcolato matematicamente corrisponde al valore della simulazione.
+
+3) qual'è la probabilità che almeno un nome sia allo stesso posto della lista iniziale quando il numero n dei nomi/elementi tende all'infinito?
+
+La formula da considerare è la seguente:
+
+sum[2 <= n <= ∞] (1 - (-1)^n/(n!))
+
+Scriviamo la funzione che calcola la probabilità per una lista con n elementi:
+
+; funzione fattoriale per biginteger
+(define (fact n) (apply * (map bigint (sequence 1 n))))
+
+(define (prob3 n)
+  (local (val)
+    (setq val 1L)
+    (for (i 2 n)
+      (setq val (sub val (div (pow -1 i) (fact i))))
+    )
+    val))
+
+Controlliamo il risultato del secondo quesito:
+
+(prob3 9)
+;-> 0.632120811287478
+
+Vediamo cosa accade quando cresce il valore di n:
+
+(prob3 50)
+;-> 0.6321205588285578
+(prob3 100)
+;-> 0.6321205588285578
+(prob3 200)
+;-> 0.6321205588285578
+
+Nota: (1 - 1/e) = 0.6321205588285578
+
+(sub 1 (div 1 (exp 1)))
+;-> 0.6321205588285577
 
 

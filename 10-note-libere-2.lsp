@@ -2939,3 +2939,362 @@ In questo modo la console di newLISP viene nascosta.
 ;(read-line)
 (exit)
 
+
+-----------------------
+Funzioni come parametri
+-----------------------
+
+In newLISP possiamo passare delle funzioni come parametri:
+
+(define (do-func func arg) (func arg))
+
+(do-func upper-case "hello")
+;-> "HELLO"
+
+Per le funzioni definite dall'utente:
+
+(define (stampa txt) (println txt))
+
+(do-func stampa "pippo")
+;-> pippo
+
+Se la funzione da passare si trova all'interno di una lista (come simbolo):
+
+(define (do-func func arg) (setq func (eval (first func))) (func arg))
+
+(do-func '(upper-case lower-case) "hello")
+;-> "HELLO"
+
+
+------------------------
+Valutazione input utente
+------------------------
+
+newLISP ha due funzioni di valutazione: "eval" e "eval-string".
+La prima, "eval", accetta un'espressione e la valuta:
+
+(set 'expr '(+ 1 2))
+(eval expr)
+;-> 3
+
+La seconda, "eval-string", accetta una stringa e la valuta:
+
+(set 'expr "(+ 1 2)")
+(eval-string expr)
+;-> 3
+
+In realtà ne esiste anche una terza, "read-expr", che prende una stringa e la converte in una espressione (non valutata):
+
+(read-expr "(+ 3 4)")
+;-> (+ 3 4)
+(eval (read-expr "(+ 3 4)"))
+;-> 7
+
+Quindi "eval-string" è una combinazione di "read-expr" e "eval".
+
+Un modo per valutare l'input dell'utente potrebbe essere questo:
+
+(print "Enter the 1st number: ")
+(set 'num1 (int (read-line)))
+(print "Enter the 2nd number: ")
+(set 'num2 (int (read-line)))
+(print "Enter an operator [+ - * /]: ")
+(set 'op (eval-string (read-line)))
+(set 'result (op num1 num2))
+(print result)
+(exit)
+
+oppure:
+
+(set 'op (eval (sym (read-line))))
+
+La parte fondamentale è l'espressione:
+
+(op num1 num2)
+
+dove op è ovviamente un simbolo.
+Bisogna assicurarsi che questo simbolo sia valutato come una funzione,
+in questo caso alla funzione built-in della moltiplicazione fra interi "*".
+Il carattere "*" di per sé non è la funzione built-in, ma è il simbolo che valuta alla funzione primitiva della moltiplicazione (analogamente a (set 'f (lambda (x) x)), dove f è un simbolo che valuta alla lista lambda).
+Occorre definire op in modo che la sua valutazione sia la stessa di "*" (non al simbolo "*"). Possiamo farlo nei modi seguenti:
+
+(set 'op *)
+
+che è equivalente a:
+
+(set 'op (eval '*)) ;
+
+che è equivalente a:
+
+(set 'op (eval (sym "*")));
+
+che è equivalente a:
+
+(set 'op (eval-string "*"))
+
+Invece, (set 'op' *) non funziona, poichè imposta il valore del simbolo op al simbolo "*" (e non alla sua valutazione).
+
+Vediamo la descrizione delle funzioni "eval", "eval-string" e "read-expr" dal manuale:
+
+*****************
+>>>funzione EVAL
+*****************
+sintassi: (eval exp)
+
+"eval" calcola il risultato della valutazione dell'espressione "exp".
+La valutazione viene effettuata nel contesto corrente delle variabili.
+
+Esempi:
+
+(set 'expr '(+ 3 4))
+;-> (+ 3 4)
+(eval expr)
+;-> 7
+(eval (list + 3 4))
+;-> 7
+(eval ''x)
+;-> x
+(set 'y 123)
+(set 'x 'y)
+;-> y
+(eval x)
+;-> 123
+
+La valutazione delle variabili avviene nel contesto corrente:
+
+(set 'x 3 'y 4)
+(eval '(+ x y))
+;-> 7
+
+Vediamo "eval" in un contesto locale:
+
+(let ( (x 33) (y 44) )
+    (eval '(+ x y)))
+;-> 77
+
+Ancora "eval" nel vecchio contesto dopo essere usciti dal contesto locale:
+
+(eval '(+ x y))
+;-> 7
+
+newLISP passa tutti gli argomenti per valore. Utilizzando un simbolo quotato, le espressioni possono essere passate per riferimento attraverso il simbolo. eval può essere utilizzato per accedere al contenuto originale del simbolo:
+
+(define (change-list aList) (push 999 (eval aList)))
+
+(set 'data '(1 2 3 4 5))
+
+(change-list 'data)
+;-> (999 1 2 3 4 5)
+
+Nell'esempio, il parametro 'data è quotato, quindi push lavora sulla lista originale.
+
+newLISP permette un metodo più sicuro per passare argomenti per riferimento racchiudendo i dati all'interno di oggetti contesto. Passare i riferimenti nella funzione definita dall'utente usando gli id dello spazio dei nomi evita la cattura della variabile del simbolo passato, nel caso in cui il simbolo passato sia lo stesso di quello usato come parametro nella funzione. Vedi il paragrafo successivo "Passare dati per riferimento".
+
+************************
+>>>funzione EVAL-STRING
+************************
+sintassi: (eval-string str-source [sym-context [exp-error [int-offset]]])
+
+int-offset specifies an optional offset into str-source, where to start evaluation.
+
+La stringa in str-source viene compilata nel formato interno di newLISP e quindi valutata. Il risultato della valutazione viene restituito. Se la stringa contiene più di un'espressione, allora viene restituito il risultato dell'ultima valutazione.
+
+Un secondo argomento facoltativo può essere utilizzato per specificare il contesto in cui la stringa deve essere analizzata e tradotta.
+
+Se si verifica un errore durante l'analisi e la valutazione di str-source, verrà valutato exp-error e verrà restituito il suo risultato.
+
+int-offset specifica un offset opzionale in str-source, da dove iniziare la valutazione.
+
+(eval-string "(+ 3 4)")
+;-> 7
+(set 'X 123)
+;-> 123
+(eval-string "X")
+;-> 123
+
+(define (repl) ; read print eval loop
+  (while true
+    (println "=> " (eval-string (read-line) MAIN (last-error)))
+  )
+)
+
+(set 'a 10)
+(set 'b 20)
+(set 'foo:a 11)
+(set 'foo:b 22)
+
+(eval-string "(+ a b)")
+;-> 30
+(eval-string "(+ a b)" 'foo)
+;-> 33
+
+Il secondo esempio mostra un semplice ciclo eval dell'interprete newLISP.
+
+L'ultimo esempio mostra come specificare un contesto di destinazione per la traduzione. I simboli a e b si riferiscono ora ai simboli e ai loro valori nel contesto foo anziché MAIN.
+
+**********************
+>>>funzione READ-EXPR
+**********************
+sintassi: (read-expr str-source [sym-context [exp-error [int-offset]]])
+
+read-expr analizza le prime espressioni che trova in str-source e restituisce l'espressione tradotta senza valutarla. Un contesto opzionale in sym-context specifica uno spazio dei nomi per l'espressione tradotta.
+
+Dopo una chiamata a read-expr, la variabile di sistema $count contiene il numero di caratteri scansionati.
+
+Se si verifica un errore durante la traduzione di str-source, l'espressione in exp-error viene valutata e il risultato restituito.
+
+int-offset specifica un offset opzionale in str-source dove dovrebbe iniziare l'elaborazione. Quando si chiama ripetutamente read-expr questo numero può essere aggiornato usando $count, il numero di caratteri elaborati.
+
+(set 'code "; a statement\n(define (double x) (+ x x))")
+
+(read-expr code) → (define (double x) (+ x x))
+
+$count
+;-> 41
+
+read-expr si comporta in modo simile a eval-string, ma senza il passaggio di valutazione:
+
+(read-expr "(+ 3 4)")
+;-> (+ 3 4)
+
+(eval-string "(+ 3 4)")
+;-> 7
+
+Utilizzando read-expr è possibile programmare un pre-elaboratore di espressioni di codice personalizzato prima della loro valutazione. 
+
+Vedere anche event-reader per il processamento di espressioni basate su eventi.
+
+
+----------------------------
+Passare dati per riferimento
+----------------------------
+
+Un funtore di default di un contesto può essere usato per contenere dati. Se questi dato contiene una lista o una stringa, allora possiamo usare il nome del contesto come un riferimento al dato stesso:
+
+;; the default functor for holding data
+
+(define Mylist:Mylist '(a b c d e f g))
+
+(Mylist 3) → d
+
+(setf (Mylist 3) 'D) → D
+
+Mylist:Mylist → (a b c D e f g)
+
+;; access list or string data from a default functor
+
+(first Mylist) → a
+
+(reverse Mylist) → (g f e D c b a)
+
+(set 'Str:Str "acdefghijklmnop")
+
+(upper-case Str) → "ACDEFGHIJKLMNOP"
+
+Il più delle volte, newLISP passa i parametri per copia del valore. Ciò rappresenta un potenziale problema quando si passano liste o stringhe di grandi dimensioni a funzioni o macro definite dall'utente. Le stringhe e le liste che vengono inglobate in uno spazio dei nomi utilizzando i funtori di default vengono passati automaticamente per riferimento:
+
+;; use a default functor to hold a list
+
+(set 'Mydb:Mydb (sequence 1 100000))
+
+(define (change-db obj idx value)
+    (setf (obj idx) value))
+
+; pass by context reference
+(change-db Mydb 1234 "abcdefg")
+
+(Mydb 1234)
+;-> "abcdefg"
+
+Qualsiasi argomento di una funzione built-in che richiede una lista o una stringa, ma nessun altro tipo di dati, può ricevere dati passati per riferimento. Qualsiasi funzione definita dall'utente può accettare qualsiasi normale argomento. Qualsiasi funzione definita dall'utente può accettare variabili normali o può accettare un nome di contesto per passare un riferimento al funtore predefinito contenente una lista o una stringa.
+
+Si noti che nelle liste con meno di circa 100 elementi o stringhe di meno di circa 50000 caratteri, la differenza di velocità tra passaggio per riferimento e passaggio per valore è trascurabile. Ma con oggetti (dati) più grandi, le differenze di velocità e di utilizzo della memoria tra passaggio per riferimento e passaggio per valore possono essere significative.
+
+Le funzioni integrate e definite dall'utente sono adatte per entrambi i tipi di argomenti, ma quando si passano i nomi di contesto, i dati verranno passati per riferimento.
+
+I simboli tra virgolette possono anche essere utilizzati per passare i dati per riferimento, ma questo metodo presenta degli svantaggi:
+
+(define (change-list aList) (push 999 (eval aList)))
+
+(set 'data '(1 2 3 4 5))
+
+; note the quote ' in front of data
+(change-list 'data)
+;-> (999 1 2 3 4 5)
+
+data
+;-> (999 1 2 3 4 5)
+
+Sebbene questo metodo sia semplice da comprendere e utilizzare, pone il potenziale problema della cattura della variabile quando si passa lo stesso simbolo utilizzato come parametro di funzione:
+
+;; pass data by symbol reference
+
+(set 'aList '(a b c d))
+;-> (a b c d)
+(change-list 'aList)
+;-> ERR: list or string expected : (eval aList)
+;-> called from user defined function change-list
+
+Prima abbiamo visto come inserire i dati in uno spazio dei nomi (contesto) usando il funtore predefinito. Oltre al funtore predefinito è possibile utilizzare qualsiasi simbolo del contesto per memorizzare i dati. Lo svantaggio è che la funzione chiamante deve avere conoscenza del simbolo utilizzato:
+
+;; pass data by context reference
+
+(set 'Mydb:data (sequence 1 100000))
+
+(define (change-db obj idx value)
+    (setf (obj:data idx) value))
+
+(change-db Mydb 1234 "abcdefg")
+
+(nth 1234 Mydb:data)
+;-> "abcdefg"
+; or
+(Mydb:data 1234)
+;-> "abcdefg"
+
+La funzione riceve lo spazio dei nomi nella variabile obj, ma deve avere la consapevolezza che la lista a cui accedere è contenuta nel simbolo dei dati di quello spazio dei nomi (contesto).
+
+
+---------------------
+Pagamento giornaliero
+---------------------
+
+Abbiamo un lingotto d'oro massiccio, contrassegnato con 7 divisioni uguali come segue:
+
+| - | - | - | - | - | - | - |
+
+Bisogna pagare un dipendente ogni giorno per una settimana con un pezzo di lingotto al giorno. È possibile fare questo utilizzando solo due tagli del lingotto?
+
+Possiamo pagare il dipendente se numeriamo il lingotto e poi lo nella maniera seguente:
+
+lingotto numerato
+
+| 1 | 2 | 3 | 4 | 5 | 6 | 7 |
+
+lingotto tagliato in tre parti (taglio tra 12 e 2 e taglio tra 4 e 5):
+
+| 1 |     | 2 | 3 |     | 4 | 5 | 6 | 7 |
+
+Abbiamo ottenuto un pezzo da 1 blocco, un pezzo da 2 blocchi e un pezzo di 4 blocchi.
+Per pagare il dipendente dobbiamo operare nel modo seguente:
+
+1° giorno: consegnare il pezzo da 1 blocco
+noi: 6 - dipendente: 1
+2° giorno: consegnare il pezzo da 2 blocchi e riprendere il pezzo da 1 blocco
+noi: 5 - dipendente: 2
+3° giorno: consegnare il pezzo da 1 blocco
+noi: 4 - dipendente: 3
+4° giorno: consegnare il pezzo da 4 blocchi e riprendere i pezzi da 1 e 2 blocchi
+noi: 3 - dipendente: 4
+5° giorno: consegnare il pezzo da 1 blocco
+noi: 2 - dipendente: 5
+6° giorno: consegnare il pezzo pezzo da 2 blocchi e riprendere il pezzo da 1 blocco
+noi: 1 - dipendente: 6
+7° giorno: consegnare il pezzo da 1 blocco
+noi: 0 - dipendente: 7
+
+Con questo metodo abbiamo pagato il dipendente 1 blocco d'oro al giorno.
+
+Nota: in altre parole abbiamo utilizzato l'aritmetica binaria.
+
+

@@ -198,7 +198,7 @@ x y | out
 1 0 |  1
 1 1 |  0
 
-Quando si applica lo XOR a due variabili, i bit della prima variabile vengono utilizzati per alternare i bit nell'altro. A causa della natura di questo cambiamento, non importa quale variabile venga usata per alternare l'atra poichè i risultati sono gli stessi. Lo stesso bit nella stessa posizione in entrambi i numeri produce uno 0 in quella posizione nel risultato. I bit opposti producono un 1 in quella posizione.
+Quando si applica lo XOR a due variabili, i bit della prima variabile vengono utilizzati per alternare i bit nell'altro. A causa della natura di questo cambiamento, non importa quale variabile venga usata per alternare l'altra poichè i risultati sono gli stessi. Lo stesso bit nella stessa posizione in entrambi i numeri produce uno 0 in quella posizione nel risultato. I bit opposti producono un 1 in quella posizione.
 
 (setq a (^ a b))
 a è ora impostato sulla maschera di bit combinata di a e b. b ha ancora il valore originale.
@@ -320,7 +320,51 @@ Ad esempio, dati (10 15 3 7) e k di 17, restituisce true da 10 + 7 che vale 17.
 Bonus: puoi farlo in un solo passaggio?
 
 Se vogliamo trovare la somma di ogni combinazione di due elementi di una lista il metodo più ovvio è quello di creare due for..loop sulla lista e verificare se soddisfano la nostra condizione.
-Tuttavia, in questi casi, puoi sempre ridurre la complessità O(n^2) a O(log(n)) avviando il secondo ciclo dal corrente elemento della lista, perché, ad ogni passo del primo ciclo, tutti gli elementi precedenti sono già confrontati tra loro.
+Tuttavia, in questi casi, puoi sempre ridurre il numero di iterazioni avviando il secondo ciclo dal corrente elemento della lista, perché, ad ogni passo del primo ciclo, tutti gli elementi precedenti sono già confrontati tra loro.
+Per esempio:
+
+(define (test n , k)
+  (for (i 1 n)
+    (for (j 1 n)
+      (++ k)))
+  (println n { } k))
+
+(test 100)
+;-> 100 10000
+(test 1000)
+;-> 1000 1000000
+(test 10000)
+;-> 10000 100000000
+
+(div 10000 100)
+;-> 100
+(div 1000000 1000)
+;-> 1000
+(div 100000000 10000)
+;-> 10000
+
+(define (test2 n , k)
+  (for (i 1 n)
+    (for (j i n)
+      (++ k)))
+  (println n { } k))
+
+(test2 100)
+;-> 100 5050
+(test2 1000)
+;-> 1000 500500
+(test2 10000)
+;-> 10000 50005000
+
+(div 5050 100)
+;-> 50.5
+(div 500500 1000)
+;-> 500.5
+(div 50005000 10000)
+;-> 5000.5
+
+Comunque la complessità temporale rimane sempre O(n^2).
+
 Quindi la soluzione è iterare sulla lista e per ogni elemento cercare se qualsiasi elemento della lista successiva somma fino a 17.
 
 (define (sol lst n)
@@ -5083,13 +5127,14 @@ Restituire una lista della forma:
 -------------------------
 Lista somma (geeks4geeks)
 -------------------------
-Data una lista di numeri interi, creare una nuova lista in cui ogni elemento è la somma di tutti gli altri elementi. Per ogni elemento, deve risultare:
+
+Data una lista di numeri interi, sostituire ogni elemento con la somma di tutti gli altri elementi. Per ogni elemento, deve risultare:
 
 lst[i] = sumOfListElements – lst[i]
 
 (define (somma-lst lst)
   (let (sum (apply + lst))
-    (map (fn (x) (- sum x)) lst)))
+    (setq lst (map (fn (x) (- sum x)) lst))))
 
 (somma-lst '(2 3 4 -5 -4 6 7))
 ;-> (11 10 9 18 17 7 6)
@@ -5097,21 +5142,64 @@ lst[i] = sumOfListElements – lst[i]
 (somma-lst '(0 0 0 0 0 0))
 ;-> (0 0 0 0 0 0)
 
-Data una lista di numeri interi, sostituire ogni elemento con la somma di tutti gli altri elementi. Anche in questo caso deve risultare:
-
-lst[i] = sumOfListElements – lst[i]
+Funzione simile che usa "curry":
 
 (define (somma2-lst lst)
   (let (sum (apply + lst))
-    (dolist (el lst)
-      (setf (lst $idx) (- sum el)))
-    lst))
+    (setq lst (map (curry - sum) lst))))
 
 (somma2-lst '(2 3 4 -5 -4 6 7))
 ;-> (11 10 9 18 17 7 6)
 
 (somma2-lst '(0 0 0 0 0 0))
 ;-> (0 0 0 0 0 0)
+
+Prima funzione iterativa:
+
+(define (somma3-lst lst)
+  (let (sum (apply + lst))
+    (dolist (el lst)
+      (setf (lst $idx) (- sum el)))
+    lst))
+
+(somma3-lst '(2 3 4 -5 -4 6 7))
+;-> (11 10 9 18 17 7 6)
+
+(somma3-lst '(0 0 0 0 0 0))
+;-> (0 0 0 0 0 0)
+
+Seconda funzione iterativa che usa "push":
+
+(define (somma4-lst lst)
+  (let ((sum (apply + lst)) (out '()))
+    (dolist (el lst)
+       (push (- sum el) out -1)
+    )
+    (setq lst out)))
+
+(somma4-lst '(2 3 4 -5 -4 6 7))
+;-> (11 10 9 18 17 7 6)
+
+(somma4-lst '(0 0 0 0 0 0))
+;-> (0 0 0 0 0 0)
+
+Vediamo la velocità delle funzioni:
+
+(setq lst (sequence 1 1000))
+(time (somma-lst lst) 10000)
+;-> 857.979
+
+(time (somma2-lst lst) 10000)
+;-> 853.820
+
+(time (somma3-lst lst) 10000)
+;-> 9807.386
+
+(time (somma4-lst lst) 10000)
+;-> 899.060
+
+La prima funzione iterativa è molto lenta perchè per modificare l'elemento i-esimo viene usata l'indicizzazione della lista (lst $idx).
+
 
 
 --------------------------------------------
@@ -5205,5 +5293,216 @@ Per il tipo 4: porre lo Stipendio a max(S(i-1), S(i+1)) + 1
 
 (salario '(5 3 4 2 1 6))
 ;-> (2 1 3 2 1 2)
+
+
+----------------------------------
+Volo completo (Programming Praxis)
+----------------------------------
+
+Su un volo esaurito, 100 persone si mettono in fila per salire sull'aereo. Il primo passeggero della linea ha perso la carta d'imbarco ma è stato autorizzato a entrare, indipendentemente. Si siede a caso. Ogni passeggero successivo prende il proprio posto assegnato, se disponibile, o un posto libero non occupato, altrimenti. Qual è la probabilità che l'ultimo passeggero a bordo dell'aereo trovi il suo posto libero?
+
+Simuliamo il processo con 10 passeggeri:
+
+; posti assegnati ad ogni passeggero
+(setq assign (randomize (sequence 0 9)))
+; posti liberi
+(setq free (sequence 0 9))
+; il primo passeggero prende un posto a caso
+(println (pop free (rand 10)))
+(println (pop assign 0))
+assign
+free
+; Un passeggero prende posto
+; se il posto è libero, allora prende quello
+; altrimenti ne prende uno a caso (il primo libero)
+(dolist (el assign)
+  (cond ((= $idx 8)
+         (println "Ultimo passeggero: " el)
+         (println "posti liberi :" free)
+         (if (not (null? (ref el free)))
+             true
+             nil)
+        )
+        (true
+         (if (ref el free)
+             (begin
+              (println "il passeggero: " $idx " con posto " el " posto ok " free)
+              (pop free (ref el free))
+             )
+             (begin
+              (println "il passeggero: " $idx " con posto " el " posto a caso " (pop free 0)))
+             )
+        )
+  )
+)
+
+;-> (1 7 6 4 9 5 0 8 2 3)
+;-> (0 1 2 3 4 5 6 7 8 9)
+;-> 6
+;-> 6
+;-> 1
+;-> 1
+;-> (7 6 4 9 5 0 8 2 3)
+;-> (0 1 2 3 4 5 7 8 9)
+;-> il passeggero: 0 con posto 7 posto ok (0 1 2 3 4 5 7 8 9)
+;-> il passeggero: 1 con posto 6 posto a caso 0
+;-> il passeggero: 2 con posto 4 posto ok (1 2 3 4 5 8 9)
+;-> il passeggero: 3 con posto 9 posto ok (1 2 3 5 8 9)
+;-> il passeggero: 4 con posto 5 posto ok (1 2 3 5 8)
+;-> il passeggero: 5 con posto 0 posto a caso 1
+;-> il passeggero: 6 con posto 8 posto ok (2 3 8)
+;-> il passeggero: 7 con posto 2 posto ok (2 3)
+;-> Ultimo passeggero: 3
+;-> posti liberi :(3)
+;-> true
+
+Scriviamo la funzione di simulazione:
+
+(define (place)
+  (local (assign free)
+    (setq assign (randomize (sequence 0 99)))
+    (setq free (sequence 0 99))
+    ; il primo passeggero prende un posto a caso
+    (pop free (rand 100))
+    (pop assign 0)
+    ; Prendere un posto
+    ; se il posto è libero, allora prende quello
+    ; altrimenti ne prende uno a caso (il primo libero)
+    (dolist (el assign)
+      (cond ((= $idx 98) ; verifica sull'ultimo passeggero
+              ;(println "Ultimo passeggero: " el)
+              ;(println "posti liberi :" free)
+              (if (not (null? (ref el free)))
+                  true
+                  nil)
+            )
+            (true
+              (if (ref el free)
+                    (pop free (ref el free))
+                    (pop free 0)
+              )
+            )
+      )
+    )
+  )
+)
+
+(place)
+;-> nil
+(place)
+;-> nil
+(place)
+;-> true
+
+Scriviamo una funzione che esegue n volte la simulazione:
+
+(define (test n)
+  (let (ok 0)
+    (for (i 1 n)
+      (if (place) (++ ok)))
+    (mul 100 (div ok n))))
+
+Calcoliamo la probabilità simulata:
+
+(test 100000)
+;-> 50.078999
+
+(test 100000)
+;-> 49.897
+
+(test 1000000)
+;-> 49.8934
+
+La simulazione produce un valore di probabilità intorno al 50%.
+
+Vediamo la teoria matematica:
+
+Per ogni passeggero, dopo lo 0-esimo passeggero iniziale, la probabilità di prendere il 99-esimo posto (ultimo) è la probabilità che un passeggero precedente abbia preso il suo posto moltiplicato per la probabilità che prendano il 99-esimo posto del passeggero dai posti rimanenti.
+
+Il passeggero 0-esimo ha una probabilità 1/100 di prendere il posto del 99-esimo passeggero.
+
+Il passeggero 1-esimo ha una probabilità (1/100 * 1/99 = 1/9900) di prendere il posto del  99-esimo passeggero, che è la probabilità che lo 0-esimo passeggero abbia preso il posto del 1-esimo passeggero, moltiplicato per la probabilità che il 1-esimo passeggero prenda il posto del 99-esimo passeggero dai 99 posti rimanenti.
+
+La probabilità che venga preso il posto del secondo passeggero è (1/100 + 1/9900 = 1/99), la probabilità che sia il passeggero 0 o il passeggero 1 si trovino al loro posto. Data la intrinseca simmetria del problema, 1/100 e 1/9900 sono le stesse probabilità dai precedenti calcoli. Poiché gli eventi si escludono a vicenda, è possibile aggiungere le probabilità. Pertanto, il secondo passeggero ha una probabilità (1/99 * 1/98 = 1/9702) di prendere il posto del 99-esimo passeggero, che è la probabilità che lo 0-esimo passeggero o il 1-esimo passeggero abbia preso il posto del secondo passeggero, moltiplicato per la probabilità che il secondo passeggero prenda il posto del 99-esimo passeggero dai 98 posti rimanenti.
+
+Emerge un modello in cui per (x > 0), la probabilità che il sedile del passeggero x sia preso è 1/(100 - x + 1) e la probabilità che l'x-esimo passeggero si trovi nel posto del 99-esimo passeggero è (1/(100 - x + 1)) * (1/(100 - x)).
+
+Ecco la sequenza corrispondente che mostra la probabilità che l'x-esimo passeggero sia al posto del 99-esimo passeggero:
+
+1/100, (1/100) * (1/99), (1/99) * (1/98), (1/98) * (1/97), ..., (1/3) * (1/2), (1/2) (1/1)
+
+Un ragionamento simile può essere utilizzato per un numero diverso di posti iniziali, dove 1/2 sarebbe comunque la probabilità risultante che venga preso il posto dell'ultimo passeggero.
+
+Per trovare la soluzione useremo alcune funzioni per il calcolo con le frazioni e calcoleremo la sequenza delle probabilità di ogni paseggero di trovarsi nel posto del 99-esimo passeggero.
+L'ultimo valore è la probabilità che l'ultimo passeggero occupi il proprio posto (la risposta alla domanda).
+
+Funzioni per il calcolo con le frazioni:
+
+(define (rat n d)
+  (let (g (gcd n d))
+    (map (curry * 1L)
+         (list (/ n g) (/ d g)))))
+
+(define (+rat r1 r2)
+  (rat (+ (* (r1 0) (r2 1))
+          (* (r2 0) (r1 1)))
+       (* (r1 1) (r2 1))))
+
+(define (-rat r1 r2)
+  (rat (- (* (r1 0) (r2 1))
+          (* (r2 0) (r1 1)))
+       (* (r1 1) (r2 1))))
+
+(define (*rat r1 r2)
+  (rat (* (r1 0) (r2 0))
+       (* (r1 1) (r2 1))))
+
+(define (/rat r1 r2)
+  (rat (* (r1 0) (r2 1))
+       (* (r1 1) (r2 0))))
+
+Funzione che calcola le probabilità:
+
+(define (volo n)
+  (local (a b prob)
+    (setq prob '())
+    (push (list 1 n) prob)
+    (for (i 1 (- n 1))
+      (setq a (list 1 (- 101 i)))
+      (setq b (list 1 (- 100 i)))
+      (push (*rat a b) prob -1)
+    )
+    (dolist (el prob)
+      (println $idx ": " el { } (div (el 0) (el 1)))
+    )
+  ))
+
+(volo 100)
+;-> 0: (1 100) 0.01
+;-> 1: (1L 9900L) 0.000101010101010101
+;-> 2: (1L 9702L) 0.0001030715316429602
+;-> 3: (1L 9506L) 0.0001051967178624027
+;-> 4: (1L 9312L) 0.0001073883161512028
+;-> 5: (1L 9120L) 0.0001096491228070176
+;-> 6: (1L 8930L) 0.0001119820828667413
+;-> 7: (1L 8742L) 0.0001143902997025852
+;-> 8: (1L 8556L) 0.0001168770453482936
+;-> 9: (1L 8372L) 0.0001194457716196847
+;-> 10: (1L 8190L) 0.0001221001221001221
+;-> ...
+;-> 88: (1L 156L) 0.00641025641025641
+;-> 89: (1L 132L) 0.007575757575757576
+;-> 90: (1L 110L) 0.009090909090909091
+;-> 91: (1L 90L) 0.01111111111111111
+;-> 92: (1L 72L) 0.01388888888888889
+;-> 93: (1L 56L) 0.01785714285714286
+;-> 94: (1L 42L) 0.02380952380952381
+;-> 95: (1L 30L) 0.03333333333333333
+;-> 96: (1L 20L) 0.05
+;-> 97: (1L 12L) 0.08333333333333333
+;-> 98: (1L 6L) 0.1666666666666667
+;-> 99: (1L 2L) 0.5
+
+La teoria conferma che il valore di probabilità vale 1/2.
 
 

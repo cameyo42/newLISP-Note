@@ -309,6 +309,7 @@ PROBLEMI VARI
   Problema dei travasi ed equazioni diofantee
   Primi circolari
   Radici di un polinomio (Bairstow)
+  Nomi ordinati
 
 DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
 ==================================================
@@ -376,6 +377,7 @@ DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Lista somma (geeks4geeks)
   Ordinare una lista di 0, 1 e 2 (geeks4geeks)
   Stipendio giusto (geeks4geeks)
+  Volo completo (Programming Praxis)
 
 LIBRERIE
 ========
@@ -510,6 +512,10 @@ NOTE LIBERE 2
   Funzione Harakiri
   Ciclo for con numeri float
   Nascondere la finestra DOS
+  Funzioni come parametri
+  Valutazione input utente
+  Passare dati per riferimento
+  Pagamento giornaliero
 
 APPENDICI
 =========
@@ -37640,6 +37646,7 @@ x^9 - 2x^8 + 3x^7 + 0x^6 + 5x^5 - 4x^4 + 7x^3 + 8x^2 + 9x + 3 = 0
 ;->  ((1.053720393127137 1.34449644051663) 
 ;->   (1.053720393127137 -1.34449644051663))
 ;->  (-0.4091943713384922))
+
 WolframAlpha
 x≈-0.361222 + 0.691348 i
 x≈-0.361222 - 0.691348 i
@@ -37656,6 +37663,165 @@ x^9 - 2 x^8 + 3 x^7 + 0 x^6 + 5 x^5 - 4 x^4 + 7 x^3 + 8 x^2 + 9 x + 3
 dove x = 1.251229097959007 - 1.099346245887554 i
 Risultato:
 2.99×10^-14 + 6.8×10^-15 i
+
+
+-------------
+Nomi ordinati
+-------------
+
+Abbiamo una lista con alcuni nomi in ordine alfabetico:
+
+(andrea bea carla eva francesca marco pietro roberta sandra)
+
+Se mischiamo i nomi della lista:
+
+1) qual'è la probabilità che la lista mischiata sia ordinata come quella iniziale?
+2) qual'è la probabilità che almeno un nome sia allo stesso posto della lista iniziale?
+3) qual'è la probabilità limite del punto 2) al tendere di n all'infinito (n = numero dei nomi)?
+
+Vediamo di calcolare queste probabilità prima con delle simulazioni e poi matematicamente.
+
+1) qual'è la probabilità che la lista mischiata sia ordinata come quella iniziale?
+
+(define (prob1 n)
+  (local (base test conta)
+    (setq conta 0)
+    (setq base '(andrea bea carla eva francesca marco pietro roberta sandra))
+    (setq test (randomize base))
+    (for (i 1 n)
+      (setq test (randomize test))
+      (if (= base test) (++ conta))
+    )
+    (list conta n (div conta n))
+  )
+)
+
+(prob1 1000000)
+;-> (3 1000000 3e-006)
+
+(prob1 10000000)
+;-> (28 10000000 2.8e-006)
+
+(prob1 100000000)
+;-> (251 100000000 2.51e-006)
+
+Matematicamante risulta che esistono 9!=362880 possibilità di ordinare la lista. Quindi la probabilità cercata vale:
+
+prob1 = 1 / 9! = (div 1 362880) = 2.755731922398589e-006
+
+2) qual'è la probabilità che almeno un nome sia allo stesso posto della lista iniziale?
+Per semplificare il codice consideriamo una lista costituita da soli numeri:
+
+(1 2 3 4 5 6 7 8 9)
+
+In questo modo due liste hanno un elemento in comune se troviamo almeno uno 0 nella differenza tra gli elementi delle due liste:
+
+(if (find 0 (map - base test)) (++ conta))
+
+(define (prob2 n)
+  (local (base test conta)
+    (setq conta 0)
+    (setq base '(1 2 3 4 5 6 7 8 9))
+    (setq test (randomize base))
+    (for (i 1 n)
+      (setq test (randomize test))
+      (if (find 0 (map - base test)) (++ conta))
+    )
+    (list conta n (div conta n))
+  )
+)
+
+(prob2 100)
+;-> (60 100 0.6)
+(prob2 1000)
+;-> (632 1000 0.632)
+(prob2 10000)
+;-> (6238 10000 0.6238)
+(prob2 100000)
+;-> (63361 100000 0.63361)
+(prob2 1000000)
+;-> (632357 1000000 0.632357)
+(prob2 10000000)
+;-> (6320110 10000000 0.632011)
+
+Dal punto di vista matematico considerando una lista con i primi 5 numeri abbiamo:
+
+P(1) = 1/5 e
+
+P(1 e 2) = 1/5 * 1/4
+
+Utilizziamo il principio di inclusione-esclusione per calcolare la probabilità che il numero 1 o 2 o 3 o 4 o 5 sia piazzato correttamente (almeno uno).
+
+P(1 o 2 o 3 ... o 5) = P(1) + P(2) + P(3) + P(4) + P(5)
+                       - P(1 e 2) - P(2 e 3) - ...
+                       + P(1 e 2 e 3) + P(2 e 3 e 4) + ...
+                       - P(1 e 2 e 3 e 4) - P(2 e 3 e 4 e 5) - ...
+                       + P(1 e 2 e 3 e 4 e 5)
+
+                     = 5*(1/5)
+                       - 5*2*(1/5)(1/4)
+                       + 5*3*(1/5)(1/4)(1/3)
+                       - 5*4*(1/5)(1/4)(1/3)(1/2)
+                       + (1/5)*(1/4)*(1/3)*(1/2)*(1/1)
+
+        5*4    1    5*4*3     1      5*4*3*2       1          1
+  = 1 - --- * --- + ----- * ----- - --------- * ------- + ---------
+        1*2   5*4   1*2*3   5*4*3    1*2*3*4    5*4*3*2   5*4*3*2*1
+
+  = 1 - 1/2! + 1/3! - 1/4! + 1/5! =
+
+  = 1 - 0.5 + 0.166666667 - 0.041666667 + 0.008333333 = 0.633333333
+
+Questa è la probabilità che almeno uno dei 5 numeri sia piazzato correttamente.
+
+La formula generalizzata per n numeri è la seguente:
+
+P = 1 - (-1)^n 1/n!
+
+Nel caso di nove elementi risulta:
+
+P(nove) = 1 - 0.5 + 0.166666667 - 0.041666667 + 0.008333333
+          - 0.001388889 + 0.000198413 - 2.48016E-05 + 2.75573E-06 = 0.632120811
+
+Quindi il valore calcolato matematicamente corrisponde al valore della simulazione.
+
+3) qual'è la probabilità che almeno un nome sia allo stesso posto della lista iniziale quando il numero n dei nomi/elementi tende all'infinito?
+
+La formula da considerare è la seguente:
+
+sum[2 <= n <= ∞] (1 - (-1)^n/(n!))
+
+Scriviamo la funzione che calcola la probabilità per una lista con n elementi:
+
+; funzione fattoriale per biginteger
+(define (fact n) (apply * (map bigint (sequence 1 n))))
+
+(define (prob3 n)
+  (local (val)
+    (setq val 1L)
+    (for (i 2 n)
+      (setq val (sub val (div (pow -1 i) (fact i))))
+    )
+    val))
+
+Controlliamo il risultato del secondo quesito:
+
+(prob3 9)
+;-> 0.632120811287478
+
+Vediamo cosa accade quando cresce il valore di n:
+
+(prob3 50)
+;-> 0.6321205588285578
+(prob3 100)
+;-> 0.6321205588285578
+(prob3 200)
+;-> 0.6321205588285578
+
+Nota: (1 - 1/e) = 0.6321205588285578
+
+(sub 1 (div 1 (exp 1)))
+;-> 0.6321205588285577
 
 
 ====================================================
@@ -37858,7 +38024,7 @@ x y | out
 1 0 |  1
 1 1 |  0
 
-Quando si applica lo XOR a due variabili, i bit della prima variabile vengono utilizzati per alternare i bit nell'altro. A causa della natura di questo cambiamento, non importa quale variabile venga usata per alternare l'atra poichè i risultati sono gli stessi. Lo stesso bit nella stessa posizione in entrambi i numeri produce uno 0 in quella posizione nel risultato. I bit opposti producono un 1 in quella posizione.
+Quando si applica lo XOR a due variabili, i bit della prima variabile vengono utilizzati per alternare i bit nell'altro. A causa della natura di questo cambiamento, non importa quale variabile venga usata per alternare l'altra poichè i risultati sono gli stessi. Lo stesso bit nella stessa posizione in entrambi i numeri produce uno 0 in quella posizione nel risultato. I bit opposti producono un 1 in quella posizione.
 
 (setq a (^ a b))
 a è ora impostato sulla maschera di bit combinata di a e b. b ha ancora il valore originale.
@@ -37980,7 +38146,51 @@ Ad esempio, dati (10 15 3 7) e k di 17, restituisce true da 10 + 7 che vale 17.
 Bonus: puoi farlo in un solo passaggio?
 
 Se vogliamo trovare la somma di ogni combinazione di due elementi di una lista il metodo più ovvio è quello di creare due for..loop sulla lista e verificare se soddisfano la nostra condizione.
-Tuttavia, in questi casi, puoi sempre ridurre la complessità O(n^2) a O(log(n)) avviando il secondo ciclo dal corrente elemento della lista, perché, ad ogni passo del primo ciclo, tutti gli elementi precedenti sono già confrontati tra loro.
+Tuttavia, in questi casi, puoi sempre ridurre il numero di iterazioni avviando il secondo ciclo dal corrente elemento della lista, perché, ad ogni passo del primo ciclo, tutti gli elementi precedenti sono già confrontati tra loro.
+Per esempio:
+
+(define (test n , k)
+  (for (i 1 n)
+    (for (j 1 n)
+      (++ k)))
+  (println n { } k))
+
+(test 100)
+;-> 100 10000
+(test 1000)
+;-> 1000 1000000
+(test 10000)
+;-> 10000 100000000
+
+(div 10000 100)
+;-> 100
+(div 1000000 1000)
+;-> 1000
+(div 100000000 10000)
+;-> 10000
+
+(define (test2 n , k)
+  (for (i 1 n)
+    (for (j i n)
+      (++ k)))
+  (println n { } k))
+
+(test2 100)
+;-> 100 5050
+(test2 1000)
+;-> 1000 500500
+(test2 10000)
+;-> 10000 50005000
+
+(div 5050 100)
+;-> 50.5
+(div 500500 1000)
+;-> 500.5
+(div 50005000 10000)
+;-> 5000.5
+
+Comunque la complessità temporale rimane sempre O(n^2).
+
 Quindi la soluzione è iterare sulla lista e per ogni elemento cercare se qualsiasi elemento della lista successiva somma fino a 17.
 
 (define (sol lst n)
@@ -42743,13 +42953,14 @@ Restituire una lista della forma:
 -------------------------
 Lista somma (geeks4geeks)
 -------------------------
-Data una lista di numeri interi, creare una nuova lista in cui ogni elemento è la somma di tutti gli altri elementi. Per ogni elemento, deve risultare:
+
+Data una lista di numeri interi, sostituire ogni elemento con la somma di tutti gli altri elementi. Per ogni elemento, deve risultare:
 
 lst[i] = sumOfListElements – lst[i]
 
 (define (somma-lst lst)
   (let (sum (apply + lst))
-    (map (fn (x) (- sum x)) lst)))
+    (setq lst (map (fn (x) (- sum x)) lst))))
 
 (somma-lst '(2 3 4 -5 -4 6 7))
 ;-> (11 10 9 18 17 7 6)
@@ -42757,21 +42968,64 @@ lst[i] = sumOfListElements – lst[i]
 (somma-lst '(0 0 0 0 0 0))
 ;-> (0 0 0 0 0 0)
 
-Data una lista di numeri interi, sostituire ogni elemento con la somma di tutti gli altri elementi. Anche in questo caso deve risultare:
-
-lst[i] = sumOfListElements – lst[i]
+Funzione simile che usa "curry":
 
 (define (somma2-lst lst)
   (let (sum (apply + lst))
-    (dolist (el lst)
-      (setf (lst $idx) (- sum el)))
-    lst))
+    (setq lst (map (curry - sum) lst))))
 
 (somma2-lst '(2 3 4 -5 -4 6 7))
 ;-> (11 10 9 18 17 7 6)
 
 (somma2-lst '(0 0 0 0 0 0))
 ;-> (0 0 0 0 0 0)
+
+Prima funzione iterativa:
+
+(define (somma3-lst lst)
+  (let (sum (apply + lst))
+    (dolist (el lst)
+      (setf (lst $idx) (- sum el)))
+    lst))
+
+(somma3-lst '(2 3 4 -5 -4 6 7))
+;-> (11 10 9 18 17 7 6)
+
+(somma3-lst '(0 0 0 0 0 0))
+;-> (0 0 0 0 0 0)
+
+Seconda funzione iterativa che usa "push":
+
+(define (somma4-lst lst)
+  (let ((sum (apply + lst)) (out '()))
+    (dolist (el lst)
+       (push (- sum el) out -1)
+    )
+    (setq lst out)))
+
+(somma4-lst '(2 3 4 -5 -4 6 7))
+;-> (11 10 9 18 17 7 6)
+
+(somma4-lst '(0 0 0 0 0 0))
+;-> (0 0 0 0 0 0)
+
+Vediamo la velocità delle funzioni:
+
+(setq lst (sequence 1 1000))
+(time (somma-lst lst) 10000)
+;-> 857.979
+
+(time (somma2-lst lst) 10000)
+;-> 853.820
+
+(time (somma3-lst lst) 10000)
+;-> 9807.386
+
+(time (somma4-lst lst) 10000)
+;-> 899.060
+
+La prima funzione iterativa è molto lenta perchè per modificare l'elemento i-esimo viene usata l'indicizzazione della lista (lst $idx).
+
 
 
 --------------------------------------------
@@ -42865,6 +43119,217 @@ Per il tipo 4: porre lo Stipendio a max(S(i-1), S(i+1)) + 1
 
 (salario '(5 3 4 2 1 6))
 ;-> (2 1 3 2 1 2)
+
+
+----------------------------------
+Volo completo (Programming Praxis)
+----------------------------------
+
+Su un volo esaurito, 100 persone si mettono in fila per salire sull'aereo. Il primo passeggero della linea ha perso la carta d'imbarco ma è stato autorizzato a entrare, indipendentemente. Si siede a caso. Ogni passeggero successivo prende il proprio posto assegnato, se disponibile, o un posto libero non occupato, altrimenti. Qual è la probabilità che l'ultimo passeggero a bordo dell'aereo trovi il suo posto libero?
+
+Simuliamo il processo con 10 passeggeri:
+
+; posti assegnati ad ogni passeggero
+(setq assign (randomize (sequence 0 9)))
+; posti liberi
+(setq free (sequence 0 9))
+; il primo passeggero prende un posto a caso
+(println (pop free (rand 10)))
+(println (pop assign 0))
+assign
+free
+; Un passeggero prende posto
+; se il posto è libero, allora prende quello
+; altrimenti ne prende uno a caso (il primo libero)
+(dolist (el assign)
+  (cond ((= $idx 8)
+         (println "Ultimo passeggero: " el)
+         (println "posti liberi :" free)
+         (if (not (null? (ref el free)))
+             true
+             nil)
+        )
+        (true
+         (if (ref el free)
+             (begin
+              (println "il passeggero: " $idx " con posto " el " posto ok " free)
+              (pop free (ref el free))
+             )
+             (begin
+              (println "il passeggero: " $idx " con posto " el " posto a caso " (pop free 0)))
+             )
+        )
+  )
+)
+
+;-> (1 7 6 4 9 5 0 8 2 3)
+;-> (0 1 2 3 4 5 6 7 8 9)
+;-> 6
+;-> 6
+;-> 1
+;-> 1
+;-> (7 6 4 9 5 0 8 2 3)
+;-> (0 1 2 3 4 5 7 8 9)
+;-> il passeggero: 0 con posto 7 posto ok (0 1 2 3 4 5 7 8 9)
+;-> il passeggero: 1 con posto 6 posto a caso 0
+;-> il passeggero: 2 con posto 4 posto ok (1 2 3 4 5 8 9)
+;-> il passeggero: 3 con posto 9 posto ok (1 2 3 5 8 9)
+;-> il passeggero: 4 con posto 5 posto ok (1 2 3 5 8)
+;-> il passeggero: 5 con posto 0 posto a caso 1
+;-> il passeggero: 6 con posto 8 posto ok (2 3 8)
+;-> il passeggero: 7 con posto 2 posto ok (2 3)
+;-> Ultimo passeggero: 3
+;-> posti liberi :(3)
+;-> true
+
+Scriviamo la funzione di simulazione:
+
+(define (place)
+  (local (assign free)
+    (setq assign (randomize (sequence 0 99)))
+    (setq free (sequence 0 99))
+    ; il primo passeggero prende un posto a caso
+    (pop free (rand 100))
+    (pop assign 0)
+    ; Prendere un posto
+    ; se il posto è libero, allora prende quello
+    ; altrimenti ne prende uno a caso (il primo libero)
+    (dolist (el assign)
+      (cond ((= $idx 98) ; verifica sull'ultimo passeggero
+              ;(println "Ultimo passeggero: " el)
+              ;(println "posti liberi :" free)
+              (if (not (null? (ref el free)))
+                  true
+                  nil)
+            )
+            (true
+              (if (ref el free)
+                    (pop free (ref el free))
+                    (pop free 0)
+              )
+            )
+      )
+    )
+  )
+)
+
+(place)
+;-> nil
+(place)
+;-> nil
+(place)
+;-> true
+
+Scriviamo una funzione che esegue n volte la simulazione:
+
+(define (test n)
+  (let (ok 0)
+    (for (i 1 n)
+      (if (place) (++ ok)))
+    (mul 100 (div ok n))))
+
+Calcoliamo la probabilità simulata:
+
+(test 100000)
+;-> 50.078999
+
+(test 100000)
+;-> 49.897
+
+(test 1000000)
+;-> 49.8934
+
+La simulazione produce un valore di probabilità intorno al 50%.
+
+Vediamo la teoria matematica:
+
+Per ogni passeggero, dopo lo 0-esimo passeggero iniziale, la probabilità di prendere il 99-esimo posto (ultimo) è la probabilità che un passeggero precedente abbia preso il suo posto moltiplicato per la probabilità che prendano il 99-esimo posto del passeggero dai posti rimanenti.
+
+Il passeggero 0-esimo ha una probabilità 1/100 di prendere il posto del 99-esimo passeggero.
+
+Il passeggero 1-esimo ha una probabilità (1/100 * 1/99 = 1/9900) di prendere il posto del  99-esimo passeggero, che è la probabilità che lo 0-esimo passeggero abbia preso il posto del 1-esimo passeggero, moltiplicato per la probabilità che il 1-esimo passeggero prenda il posto del 99-esimo passeggero dai 99 posti rimanenti.
+
+La probabilità che venga preso il posto del secondo passeggero è (1/100 + 1/9900 = 1/99), la probabilità che sia il passeggero 0 o il passeggero 1 si trovino al loro posto. Data la intrinseca simmetria del problema, 1/100 e 1/9900 sono le stesse probabilità dai precedenti calcoli. Poiché gli eventi si escludono a vicenda, è possibile aggiungere le probabilità. Pertanto, il secondo passeggero ha una probabilità (1/99 * 1/98 = 1/9702) di prendere il posto del 99-esimo passeggero, che è la probabilità che lo 0-esimo passeggero o il 1-esimo passeggero abbia preso il posto del secondo passeggero, moltiplicato per la probabilità che il secondo passeggero prenda il posto del 99-esimo passeggero dai 98 posti rimanenti.
+
+Emerge un modello in cui per (x > 0), la probabilità che il sedile del passeggero x sia preso è 1/(100 - x + 1) e la probabilità che l'x-esimo passeggero si trovi nel posto del 99-esimo passeggero è (1/(100 - x + 1)) * (1/(100 - x)).
+
+Ecco la sequenza corrispondente che mostra la probabilità che l'x-esimo passeggero sia al posto del 99-esimo passeggero:
+
+1/100, (1/100) * (1/99), (1/99) * (1/98), (1/98) * (1/97), ..., (1/3) * (1/2), (1/2) (1/1)
+
+Un ragionamento simile può essere utilizzato per un numero diverso di posti iniziali, dove 1/2 sarebbe comunque la probabilità risultante che venga preso il posto dell'ultimo passeggero.
+
+Per trovare la soluzione useremo alcune funzioni per il calcolo con le frazioni e calcoleremo la sequenza delle probabilità di ogni paseggero di trovarsi nel posto del 99-esimo passeggero.
+L'ultimo valore è la probabilità che l'ultimo passeggero occupi il proprio posto (la risposta alla domanda).
+
+Funzioni per il calcolo con le frazioni:
+
+(define (rat n d)
+  (let (g (gcd n d))
+    (map (curry * 1L)
+         (list (/ n g) (/ d g)))))
+
+(define (+rat r1 r2)
+  (rat (+ (* (r1 0) (r2 1))
+          (* (r2 0) (r1 1)))
+       (* (r1 1) (r2 1))))
+
+(define (-rat r1 r2)
+  (rat (- (* (r1 0) (r2 1))
+          (* (r2 0) (r1 1)))
+       (* (r1 1) (r2 1))))
+
+(define (*rat r1 r2)
+  (rat (* (r1 0) (r2 0))
+       (* (r1 1) (r2 1))))
+
+(define (/rat r1 r2)
+  (rat (* (r1 0) (r2 1))
+       (* (r1 1) (r2 0))))
+
+Funzione che calcola le probabilità:
+
+(define (volo n)
+  (local (a b prob)
+    (setq prob '())
+    (push (list 1 n) prob)
+    (for (i 1 (- n 1))
+      (setq a (list 1 (- 101 i)))
+      (setq b (list 1 (- 100 i)))
+      (push (*rat a b) prob -1)
+    )
+    (dolist (el prob)
+      (println $idx ": " el { } (div (el 0) (el 1)))
+    )
+  ))
+
+(volo 100)
+;-> 0: (1 100) 0.01
+;-> 1: (1L 9900L) 0.000101010101010101
+;-> 2: (1L 9702L) 0.0001030715316429602
+;-> 3: (1L 9506L) 0.0001051967178624027
+;-> 4: (1L 9312L) 0.0001073883161512028
+;-> 5: (1L 9120L) 0.0001096491228070176
+;-> 6: (1L 8930L) 0.0001119820828667413
+;-> 7: (1L 8742L) 0.0001143902997025852
+;-> 8: (1L 8556L) 0.0001168770453482936
+;-> 9: (1L 8372L) 0.0001194457716196847
+;-> 10: (1L 8190L) 0.0001221001221001221
+;-> ...
+;-> 88: (1L 156L) 0.00641025641025641
+;-> 89: (1L 132L) 0.007575757575757576
+;-> 90: (1L 110L) 0.009090909090909091
+;-> 91: (1L 90L) 0.01111111111111111
+;-> 92: (1L 72L) 0.01388888888888889
+;-> 93: (1L 56L) 0.01785714285714286
+;-> 94: (1L 42L) 0.02380952380952381
+;-> 95: (1L 30L) 0.03333333333333333
+;-> 96: (1L 20L) 0.05
+;-> 97: (1L 12L) 0.08333333333333333
+;-> 98: (1L 6L) 0.1666666666666667
+;-> 99: (1L 2L) 0.5
+
+La teoria conferma che il valore di probabilità vale 1/2.
 
 
 ==========
@@ -56426,6 +56891,365 @@ In questo modo la console di newLISP viene nascosta.
 (message-box "Ciao da windows")
 ;(read-line)
 (exit)
+
+
+-----------------------
+Funzioni come parametri
+-----------------------
+
+In newLISP possiamo passare delle funzioni come parametri:
+
+(define (do-func func arg) (func arg))
+
+(do-func upper-case "hello")
+;-> "HELLO"
+
+Per le funzioni definite dall'utente:
+
+(define (stampa txt) (println txt))
+
+(do-func stampa "pippo")
+;-> pippo
+
+Se la funzione da passare si trova all'interno di una lista (come simbolo):
+
+(define (do-func func arg) (setq func (eval (first func))) (func arg))
+
+(do-func '(upper-case lower-case) "hello")
+;-> "HELLO"
+
+
+------------------------
+Valutazione input utente
+------------------------
+
+newLISP ha due funzioni di valutazione: "eval" e "eval-string".
+La prima, "eval", accetta un'espressione e la valuta:
+
+(set 'expr '(+ 1 2))
+(eval expr)
+;-> 3
+
+La seconda, "eval-string", accetta una stringa e la valuta:
+
+(set 'expr "(+ 1 2)")
+(eval-string expr)
+;-> 3
+
+In realtà ne esiste anche una terza, "read-expr", che prende una stringa e la converte in una espressione (non valutata):
+
+(read-expr "(+ 3 4)")
+;-> (+ 3 4)
+(eval (read-expr "(+ 3 4)"))
+;-> 7
+
+Quindi "eval-string" è una combinazione di "read-expr" e "eval".
+
+Un modo per valutare l'input dell'utente potrebbe essere questo:
+
+(print "Enter the 1st number: ")
+(set 'num1 (int (read-line)))
+(print "Enter the 2nd number: ")
+(set 'num2 (int (read-line)))
+(print "Enter an operator [+ - * /]: ")
+(set 'op (eval-string (read-line)))
+(set 'result (op num1 num2))
+(print result)
+(exit)
+
+oppure:
+
+(set 'op (eval (sym (read-line))))
+
+La parte fondamentale è l'espressione:
+
+(op num1 num2)
+
+dove op è ovviamente un simbolo.
+Bisogna assicurarsi che questo simbolo sia valutato come una funzione,
+in questo caso alla funzione built-in della moltiplicazione fra interi "*".
+Il carattere "*" di per sé non è la funzione built-in, ma è il simbolo che valuta alla funzione primitiva della moltiplicazione (analogamente a (set 'f (lambda (x) x)), dove f è un simbolo che valuta alla lista lambda).
+Occorre definire op in modo che la sua valutazione sia la stessa di "*" (non al simbolo "*"). Possiamo farlo nei modi seguenti:
+
+(set 'op *)
+
+che è equivalente a:
+
+(set 'op (eval '*)) ;
+
+che è equivalente a:
+
+(set 'op (eval (sym "*")));
+
+che è equivalente a:
+
+(set 'op (eval-string "*"))
+
+Invece, (set 'op' *) non funziona, poichè imposta il valore del simbolo op al simbolo "*" (e non alla sua valutazione).
+
+Vediamo la descrizione delle funzioni "eval", "eval-string" e "read-expr" dal manuale:
+
+*****************
+>>>funzione EVAL
+*****************
+sintassi: (eval exp)
+
+"eval" calcola il risultato della valutazione dell'espressione "exp".
+La valutazione viene effettuata nel contesto corrente delle variabili.
+
+Esempi:
+
+(set 'expr '(+ 3 4))
+;-> (+ 3 4)
+(eval expr)
+;-> 7
+(eval (list + 3 4))
+;-> 7
+(eval ''x)
+;-> x
+(set 'y 123)
+(set 'x 'y)
+;-> y
+(eval x)
+;-> 123
+
+La valutazione delle variabili avviene nel contesto corrente:
+
+(set 'x 3 'y 4)
+(eval '(+ x y))
+;-> 7
+
+Vediamo "eval" in un contesto locale:
+
+(let ( (x 33) (y 44) )
+    (eval '(+ x y)))
+;-> 77
+
+Ancora "eval" nel vecchio contesto dopo essere usciti dal contesto locale:
+
+(eval '(+ x y))
+;-> 7
+
+newLISP passa tutti gli argomenti per valore. Utilizzando un simbolo quotato, le espressioni possono essere passate per riferimento attraverso il simbolo. eval può essere utilizzato per accedere al contenuto originale del simbolo:
+
+(define (change-list aList) (push 999 (eval aList)))
+
+(set 'data '(1 2 3 4 5))
+
+(change-list 'data)
+;-> (999 1 2 3 4 5)
+
+Nell'esempio, il parametro 'data è quotato, quindi push lavora sulla lista originale.
+
+newLISP permette un metodo più sicuro per passare argomenti per riferimento racchiudendo i dati all'interno di oggetti contesto. Passare i riferimenti nella funzione definita dall'utente usando gli id dello spazio dei nomi evita la cattura della variabile del simbolo passato, nel caso in cui il simbolo passato sia lo stesso di quello usato come parametro nella funzione. Vedi il paragrafo successivo "Passare dati per riferimento".
+
+************************
+>>>funzione EVAL-STRING
+************************
+sintassi: (eval-string str-source [sym-context [exp-error [int-offset]]])
+
+int-offset specifies an optional offset into str-source, where to start evaluation.
+
+La stringa in str-source viene compilata nel formato interno di newLISP e quindi valutata. Il risultato della valutazione viene restituito. Se la stringa contiene più di un'espressione, allora viene restituito il risultato dell'ultima valutazione.
+
+Un secondo argomento facoltativo può essere utilizzato per specificare il contesto in cui la stringa deve essere analizzata e tradotta.
+
+Se si verifica un errore durante l'analisi e la valutazione di str-source, verrà valutato exp-error e verrà restituito il suo risultato.
+
+int-offset specifica un offset opzionale in str-source, da dove iniziare la valutazione.
+
+(eval-string "(+ 3 4)")
+;-> 7
+(set 'X 123)
+;-> 123
+(eval-string "X")
+;-> 123
+
+(define (repl) ; read print eval loop
+  (while true
+    (println "=> " (eval-string (read-line) MAIN (last-error)))
+  )
+)
+
+(set 'a 10)
+(set 'b 20)
+(set 'foo:a 11)
+(set 'foo:b 22)
+
+(eval-string "(+ a b)")
+;-> 30
+(eval-string "(+ a b)" 'foo)
+;-> 33
+
+Il secondo esempio mostra un semplice ciclo eval dell'interprete newLISP.
+
+L'ultimo esempio mostra come specificare un contesto di destinazione per la traduzione. I simboli a e b si riferiscono ora ai simboli e ai loro valori nel contesto foo anziché MAIN.
+
+**********************
+>>>funzione READ-EXPR
+**********************
+sintassi: (read-expr str-source [sym-context [exp-error [int-offset]]])
+
+read-expr analizza le prime espressioni che trova in str-source e restituisce l'espressione tradotta senza valutarla. Un contesto opzionale in sym-context specifica uno spazio dei nomi per l'espressione tradotta.
+
+Dopo una chiamata a read-expr, la variabile di sistema $count contiene il numero di caratteri scansionati.
+
+Se si verifica un errore durante la traduzione di str-source, l'espressione in exp-error viene valutata e il risultato restituito.
+
+int-offset specifica un offset opzionale in str-source dove dovrebbe iniziare l'elaborazione. Quando si chiama ripetutamente read-expr questo numero può essere aggiornato usando $count, il numero di caratteri elaborati.
+
+(set 'code "; a statement\n(define (double x) (+ x x))")
+
+(read-expr code) → (define (double x) (+ x x))
+
+$count
+;-> 41
+
+read-expr si comporta in modo simile a eval-string, ma senza il passaggio di valutazione:
+
+(read-expr "(+ 3 4)")
+;-> (+ 3 4)
+
+(eval-string "(+ 3 4)")
+;-> 7
+
+Utilizzando read-expr è possibile programmare un pre-elaboratore di espressioni di codice personalizzato prima della loro valutazione. 
+
+Vedere anche event-reader per il processamento di espressioni basate su eventi.
+
+
+----------------------------
+Passare dati per riferimento
+----------------------------
+
+Un funtore di default di un contesto può essere usato per contenere dati. Se questi dato contiene una lista o una stringa, allora possiamo usare il nome del contesto come un riferimento al dato stesso:
+
+;; the default functor for holding data
+
+(define Mylist:Mylist '(a b c d e f g))
+
+(Mylist 3) → d
+
+(setf (Mylist 3) 'D) → D
+
+Mylist:Mylist → (a b c D e f g)
+
+;; access list or string data from a default functor
+
+(first Mylist) → a
+
+(reverse Mylist) → (g f e D c b a)
+
+(set 'Str:Str "acdefghijklmnop")
+
+(upper-case Str) → "ACDEFGHIJKLMNOP"
+
+Il più delle volte, newLISP passa i parametri per copia del valore. Ciò rappresenta un potenziale problema quando si passano liste o stringhe di grandi dimensioni a funzioni o macro definite dall'utente. Le stringhe e le liste che vengono inglobate in uno spazio dei nomi utilizzando i funtori di default vengono passati automaticamente per riferimento:
+
+;; use a default functor to hold a list
+
+(set 'Mydb:Mydb (sequence 1 100000))
+
+(define (change-db obj idx value)
+    (setf (obj idx) value))
+
+; pass by context reference
+(change-db Mydb 1234 "abcdefg")
+
+(Mydb 1234)
+;-> "abcdefg"
+
+Qualsiasi argomento di una funzione built-in che richiede una lista o una stringa, ma nessun altro tipo di dati, può ricevere dati passati per riferimento. Qualsiasi funzione definita dall'utente può accettare qualsiasi normale argomento. Qualsiasi funzione definita dall'utente può accettare variabili normali o può accettare un nome di contesto per passare un riferimento al funtore predefinito contenente una lista o una stringa.
+
+Si noti che nelle liste con meno di circa 100 elementi o stringhe di meno di circa 50000 caratteri, la differenza di velocità tra passaggio per riferimento e passaggio per valore è trascurabile. Ma con oggetti (dati) più grandi, le differenze di velocità e di utilizzo della memoria tra passaggio per riferimento e passaggio per valore possono essere significative.
+
+Le funzioni integrate e definite dall'utente sono adatte per entrambi i tipi di argomenti, ma quando si passano i nomi di contesto, i dati verranno passati per riferimento.
+
+I simboli tra virgolette possono anche essere utilizzati per passare i dati per riferimento, ma questo metodo presenta degli svantaggi:
+
+(define (change-list aList) (push 999 (eval aList)))
+
+(set 'data '(1 2 3 4 5))
+
+; note the quote ' in front of data
+(change-list 'data)
+;-> (999 1 2 3 4 5)
+
+data
+;-> (999 1 2 3 4 5)
+
+Sebbene questo metodo sia semplice da comprendere e utilizzare, pone il potenziale problema della cattura della variabile quando si passa lo stesso simbolo utilizzato come parametro di funzione:
+
+;; pass data by symbol reference
+
+(set 'aList '(a b c d))
+;-> (a b c d)
+(change-list 'aList)
+;-> ERR: list or string expected : (eval aList)
+;-> called from user defined function change-list
+
+Prima abbiamo visto come inserire i dati in uno spazio dei nomi (contesto) usando il funtore predefinito. Oltre al funtore predefinito è possibile utilizzare qualsiasi simbolo del contesto per memorizzare i dati. Lo svantaggio è che la funzione chiamante deve avere conoscenza del simbolo utilizzato:
+
+;; pass data by context reference
+
+(set 'Mydb:data (sequence 1 100000))
+
+(define (change-db obj idx value)
+    (setf (obj:data idx) value))
+
+(change-db Mydb 1234 "abcdefg")
+
+(nth 1234 Mydb:data)
+;-> "abcdefg"
+; or
+(Mydb:data 1234)
+;-> "abcdefg"
+
+La funzione riceve lo spazio dei nomi nella variabile obj, ma deve avere la consapevolezza che la lista a cui accedere è contenuta nel simbolo dei dati di quello spazio dei nomi (contesto).
+
+
+---------------------
+Pagamento giornaliero
+---------------------
+
+Abbiamo un lingotto d'oro massiccio, contrassegnato con 7 divisioni uguali come segue:
+
+| - | - | - | - | - | - | - |
+
+Bisogna pagare un dipendente ogni giorno per una settimana con un pezzo di lingotto al giorno. È possibile fare questo utilizzando solo due tagli del lingotto?
+
+Possiamo pagare il dipendente se numeriamo il lingotto e poi lo nella maniera seguente:
+
+lingotto numerato
+
+| 1 | 2 | 3 | 4 | 5 | 6 | 7 |
+
+lingotto tagliato in tre parti (taglio tra 12 e 2 e taglio tra 4 e 5):
+
+| 1 |     | 2 | 3 |     | 4 | 5 | 6 | 7 |
+
+Abbiamo ottenuto un pezzo da 1 blocco, un pezzo da 2 blocchi e un pezzo di 4 blocchi.
+Per pagare il dipendente dobbiamo operare nel modo seguente:
+
+1° giorno: consegnare il pezzo da 1 blocco
+noi: 6 - dipendente: 1
+2° giorno: consegnare il pezzo da 2 blocchi e riprendere il pezzo da 1 blocco
+noi: 5 - dipendente: 2
+3° giorno: consegnare il pezzo da 1 blocco
+noi: 4 - dipendente: 3
+4° giorno: consegnare il pezzo da 4 blocchi e riprendere i pezzi da 1 e 2 blocchi
+noi: 3 - dipendente: 4
+5° giorno: consegnare il pezzo da 1 blocco
+noi: 2 - dipendente: 5
+6° giorno: consegnare il pezzo pezzo da 2 blocchi e riprendere il pezzo da 1 blocco
+noi: 1 - dipendente: 6
+7° giorno: consegnare il pezzo da 1 blocco
+noi: 0 - dipendente: 7
+
+Con questo metodo abbiamo pagato il dipendente 1 blocco d'oro al giorno.
+
+Nota: in altre parole abbiamo utilizzato l'aritmetica binaria.
+
 
 ===========
 

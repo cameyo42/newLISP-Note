@@ -309,6 +309,7 @@ PROBLEMI VARI
   Problema dei travasi ed equazioni diofantee
   Primi circolari
   Radici di un polinomio (Bairstow)
+  Nomi ordinati
 
 DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
 ==================================================
@@ -376,6 +377,7 @@ DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Lista somma (geeks4geeks)
   Ordinare una lista di 0, 1 e 2 (geeks4geeks)
   Stipendio giusto (geeks4geeks)
+  Volo completo (Programming Praxis)
 
 LIBRERIE
 ========
@@ -510,6 +512,10 @@ NOTE LIBERE 2
   Funzione Harakiri
   Ciclo for con numeri float
   Nascondere la finestra DOS
+  Funzioni come parametri
+  Valutazione input utente
+  Passare dati per riferimento
+  Pagamento giornaliero
 
 APPENDICI
 =========
