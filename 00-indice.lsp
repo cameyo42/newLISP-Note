@@ -238,6 +238,8 @@ ROSETTA CODE
   Test Primi Miller-Rabin
   Il problema di Giuseppe
   ROT-13
+  Sudoku
+  Chess960
 
 PROJECT EULERO
 ==============
@@ -310,6 +312,7 @@ PROBLEMI VARI
   Primi circolari
   Radici di un polinomio (Bairstow)
   Nomi ordinati
+  Distanza di numeri in una lista
 
 DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
 ==================================================
@@ -516,6 +519,7 @@ NOTE LIBERE 2
   Valutazione input utente
   Passare dati per riferimento
   Pagamento giornaliero
+  Differenze tra let e letn
 
 APPENDICI
 =========

@@ -7951,6 +7951,12 @@ P(1 o 2 o 3 ... o 5) = P(1) + P(2) + P(3) + P(4) + P(5)
                        + P(1 e 2 e 3 e 4 e 5)
 
                      = 5*(1/5)
+                       - 5C2*(1/5)(1/4)
+                       + 5C3*(1/5)(1/4)(1/3)
+                       - 5C4*(1/5)(1/4)(1/3)(1/2)
+                       + (1/5)(1/4)(1/3)(1/2)(1/1)                       
+
+                     = 5*(1/5)
                        - 5*2*(1/5)(1/4)
                        + 5*3*(1/5)(1/4)(1/3)
                        - 5*4*(1/5)(1/4)(1/3)(1/2)
@@ -8014,5 +8020,154 @@ Nota: (1 - 1/e) = 0.6321205588285578
 
 (sub 1 (div 1 (exp 1)))
 ;-> 0.6321205588285577
+
+
+-------------------------------
+Distanza di numeri in una lista
+-------------------------------
+
+Data una lista di numeri interi e un numero intero restituire una lista con tutte le distanze di quel numero con se stesso. Se il numero non esiste restituire la lista vuota. Se il numero compare solo una volta restituire il valore dell'indice.
+
+Per esempio:
+
+lista input = (2 1 3 5 4 2 1 4 1 6 5 6 7 8 4 1 2 4 1)
+numero = 1
+lista output = (4 1 6 2)
+
+dove:
+1 3 5 4 2 1      ->  4 posti di distanza tra i primi due 1
+1 4 1            ->  1 posto di distanza tra i secondi due 1
+1 6 5 6 7 8 4 1  ->  6 posti di distanza tra i terzi due 1
+1 2 4 1          ->  2 posti di distanza tra i quarti due 1
+
+Metodo procedurale:
+
+(setq lst '(2 1 3 5 4 2 1 4 1 6 5 6 7 8 4 1 2 4 1))
+(setq num 1)
+
+(define (segment1 num lst)
+  (local (idx1 idx2 conta out)
+    (setq idx1 -1 idx2 -1 conta 0 out '())
+    (dolist (el lst)
+      (if (= el num) ; quando i numeri sono uguali
+          (begin
+            (if (= idx1 -1) ; se il primo indice è vuoto...
+              (setq idx1 $idx) ; allora prendiamo l'indice attuale ($idx)
+              (begin ; altrimenti $idx è il secondo indice
+                (push (- $idx idx1 1) out -1)
+                (++ conta)
+                ; il primo indice diventa l'indice attuale
+                (setq idx1 $idx)
+              )
+            )
+          )
+      )
+    )
+    (if (and (= conta 0) (>= idx1 0))
+       idx1
+       out
+    )
+    ;(println out { } idx1 { } idx2 { } conta)
+  ))
+
+(segment1 num lst)
+;-> (4 1 6 2)
+
+(segment1 8 lst)
+;-> 13
+
+(segment1 1 '(1 0 3 4))
+;-> 0
+
+(segment1 9 lst)
+;-> ()
+
+(segment1 9 '())
+;-> '()
+
+Metodo funzionale:
+
+(setq lst '(2 1 3 5 4 2 1 4 1 6 5 6 7 8 4 1 2 4 1))
+(setq num 1)
+
+Troviamo tutti gli indici di un elemento in una lista:
+
+(ref-all num lst)
+;-> ((1) (6) (8) (15) (18))
+
+Poi rendiamo piatta la lista:
+
+(flat (ref-all num lst))
+;-> (1 6 8 15 18)
+
+Per calcolare la differenza tra gli elementi consecutivi di una lista lista usiamo la funzione seguente:
+
+(define (dist lst) (map - (rest lst) (chop lst)))
+(dist lst)
+;-> (-1 2 2 -1 -2 -1 3 -3 5 -1 1 1 1 -4 -3 1 2 -3)
+
+Infine dobbiamo togliere il valore 1 ad ogni elemento:
+
+(map -- (dist (flat (ref-all num lst))))
+;-> (4 1 6 2)
+
+Adesso vediamo il caso in cui il numero non esiste nella lista:
+
+(ref-all 22 lst)
+;-> ()
+
+Quindi scriviamo la funzione finale:
+
+(define (segment2 num lst)
+  (cond ( (= (ref-all num lst) '())
+          '()
+        )
+        ( (= (length (flat (ref-all num lst))) 1)
+          (first (flat (ref-all num lst)))
+        )
+        (true (map -- (dist (flat (ref-all num lst)))))
+  ))
+
+Semplifichiamo:
+
+(define (segment2 num lst)
+  (let (idx (flat(ref-all num lst)))
+    (cond ( (= idx '())
+          '()
+          )
+          ( (= (length idx) 1)
+            (first idx)
+          )
+          (true (map -- (dist idx)))
+    )))
+
+(segment2 num lst)
+;-> (4 1 6 2)
+
+(segment2 8 lst)
+;-> 13
+
+(segment2 1 '(1 0 3 4))
+;-> 0
+
+(segment2 9 lst)
+;-> ()
+
+(segment2 9 '())
+;-> '()
+
+Test di velocità
+
+(setq lst '(2 1 3 5 4 2 1 4 1 6 5 6 7 8 4 1 2 4 1
+            2 1 3 5 4 2 1 4 1 6 5 6 7 8 4 1 2 4 1
+            2 1 3 5 4 2 1 4 1 6 5 6 7 8 4 1 2 4 1
+            2 1 3 5 4 2 1 4 1 6 5 6 7 8 4 1 2 4 1
+            2 1 3 5 4 2 1 4 1 6 5 6 7 8 4 1 2 4 1))
+
+(time (segment1 1 lst) 50000)
+;-> 402.887
+
+(time (segment2 1 lst) 50000)
+;-> 187.527
 
 

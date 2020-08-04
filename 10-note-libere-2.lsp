@@ -3254,6 +3254,18 @@ Prima abbiamo visto come inserire i dati in uno spazio dei nomi (contesto) usand
 
 La funzione riceve lo spazio dei nomi nella variabile obj, ma deve avere la consapevolezza che la lista a cui accedere è contenuta nel simbolo dei dati di quello spazio dei nomi (contesto).
 
+Vediamo la differenza di velocità tra passaggio per riferimento e passaggio per valore:
+
+(silent (setq refer:refer (sequence 1 100000)))
+(silent (setq value (sequence 1 100000)))
+
+(define (somma lst) (apply + lst))
+
+(time (somma value) 1000)
+;-> 3135.194
+(time (somma refer) 1000)
+;-> 1916.157
+
 
 ---------------------
 Pagamento giornaliero
@@ -3296,5 +3308,82 @@ noi: 0 - dipendente: 7
 Con questo metodo abbiamo pagato il dipendente 1 blocco d'oro al giorno.
 
 Nota: in altre parole abbiamo utilizzato l'aritmetica binaria.
+
+
+-------------------------
+Differenze tra let e letn
+-------------------------
+
+In Common Lisp abbiamo le primitive "let" e "let*", in newLISP abbiamo "let" e "letn".
+La differenza tra "let" e "letn": associazione parallela rispetto all'associazione sequenziale.
+
+Sequenziale. Significa che le associazioni vengono fatte una dopo l'altra e possono vedere le associazioni precedenti.
+
+Parallelo. Significa che le associazioni prendono vita allo stesso tempo e non vedono le altre associazioni (no shadow).
+
+Supponiamo di avere il seguente codice:
+
+CommonLisp:
+
+(print (let ((c 1))
+         (let ((c 2)
+               (a (+ c 1)))
+           a)))
+
+(print (let ((c 1))
+         (let* ((c 2)
+                (a (+ c 1)))
+           a)))
+
+newLISP:
+
+(let ((c 1))
+  (let ((c 2) (a (+ c 1)))
+   a))
+;-> 2
+
+(let ((c 1))
+  (letn ((c 2) (a (+ c 1)))
+   a))
+;-> 3
+
+Nel primo esempio, l'associazione (bindings) di "a" si riferisce al valore esterno di "c" cioè 1).
+
+Nel secondo esempio, dove letn consente alle associazioni di fare riferimento alle associazioni precedenti, il legame di "a" si riferisce al valore interno di c (cioè 2).
+
+La funzione "let" può essere simulata con la funzione "lambda" in questo modo:
+
+(let ((a1 b1) (a2 b2) ... (an bn))
+  (some-code a1 a2 ... an))
+
+è uguale a:
+
+((lambda (a1 a2 ... an)
+   (some-code a1 a2 ... an))
+ b1 b2 ... bn)
+
+Invece "letn" può essere simulata in un altro modo:
+
+(letn ((a1 b1) (a2 b2) ... (an bn))
+  (some-code a1 a2 ... an))
+
+è uguale a:
+
+((lambda (a1)
+    ((lambda (a2)
+       ...
+       ((lambda (an)
+          (some-code a1 a2 ... an))
+        bn))
+      b2))
+   b1)
+
+Quindi "let" è più semplice di "letn" (almeno per il compilatore/interprete).
+
+"let" semplifica la comprensione del codice. Tutte le associazioni possono essere lette singolarmente senza la necessità di comprendere il flusso top-down/left-right degli "effetti" delle associazioni (rebindings). L'uso di "letn" segnala al programmatore (quello che legge il codice) che le associazioni non sono indipendenti, ma esiste un di flusso top/down che complica le cose.
+
+Il Lisp ha la regola che i valori per le associazioni (binding) in "let" sono calcolati da sinistra a destra. Come vengono valutati gli argomenti di una chiamata di funzione, da sinistra a destra. Quindi, "let" è l'istruzione concettualmente più semplice e dovrebbe essere utilizzata per impostazione predefinita.
+
+La differenza non è importante solo per il compilatore. Uso "let" e "letn" come suggerimento per me stesso di ciò che sta succedendo. Quando vedo "let" nel mio codice, so che le associazioni (binding) sono indipendenti e quando vedo "letn", so che le associazioni (binding) dipendono una dall'altra. Ma lo so solo perché mi assicuro di usare "let" e "letn" in modo coerente.
 
 

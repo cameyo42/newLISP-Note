@@ -238,6 +238,8 @@ ROSETTA CODE
   Test Primi Miller-Rabin
   Il problema di Giuseppe
   ROT-13
+  Sudoku
+  Chess960
 
 PROJECT EULERO
 ==============
@@ -310,6 +312,7 @@ PROBLEMI VARI
   Primi circolari
   Radici di un polinomio (Bairstow)
   Nomi ordinati
+  Distanza di numeri in una lista
 
 DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
 ==================================================
@@ -516,6 +519,7 @@ NOTE LIBERE 2
   Valutazione input utente
   Passare dati per riferimento
   Pagamento giornaliero
+  Differenze tra let e letn
 
 APPENDICI
 =========
@@ -23565,6 +23569,348 @@ Vediamo la velocità delle varie funzioni:
 ;-> 470.769
 
 
+------
+SUDOKU
+------
+
+Il sudoku è un gioco di logica rappresentato da una matrice di 9×9 celle, ciascuna delle quali può contenere un numero da 1 a 9, oppure essere vuota (zero). La matrice è suddivisa in 9 righe orizzontali, 9 colonne verticali e in 9 "sottomatrici" di 3×3 celle contigue chiamate regioni. Lo scopo del gioco è quello di riempire le caselle vuote con numeri da 1 a 9 in modo tale che in ogni riga, in ogni colonna e in ogni regione siano presenti tutte le cifre da 1 a 9, quindi senza ripetizioni. Una volta riempita correttamente, la matrice appare appare come un quadrato latino.
+Il gioco fu inventato dal matematico svizzero Eulero (1707-1783).
+
+Un esempio di puzzle sudoku è il seguente:
+
+  Puzzle sudoku:                 Soluzione:
+
+  3 0 6 | 5 0 8 | 4 0 0          3 1 6 | 5 7 8 | 4 9 2
+  5 2 0 | 0 0 0 | 0 0 0          5 2 9 | 1 3 4 | 7 6 8
+  0 8 7 | 0 0 0 | 0 3 1          4 8 7 | 6 2 9 | 5 3 1
+  ------+-------+------          ------+-------+------
+  0 0 3 | 0 1 0 | 0 8 0          2 6 3 | 4 1 5 | 9 8 7
+  9 0 0 | 8 6 3 | 0 0 5          9 7 4 | 8 6 3 | 1 2 5
+  0 5 0 | 0 9 0 | 6 0 0          8 5 1 | 7 9 2 | 6 4 3
+  ------+-------+------          ------+-------+------
+  1 3 0 | 0 0 0 | 2 5 0          1 3 8 | 9 4 7 | 2 5 6
+  0 0 0 | 0 0 0 | 0 7 4          6 9 2 | 3 5 1 | 8 7 4
+  0 0 5 | 2 0 6 | 3 0 0          7 4 5 | 2 8 6 | 3 1 9
+
+In pseudocodice, la nostra strategia usa il backtracking ricorsivo:
+
+Trovare (riga,colonna) di una cella non assegnata
+Se non ce n'è nessuna, ritorna vero (puzzle risolto)
+Per ogni cifra da 1 a 9
+     se non vi è alcun conflitto per la cifra alla (riga,colonna)
+     assegnare la cifra a (riga,colonna) e provare ricorsivamente a riempire il resto della matrice
+     se la ricorsione ha esito positivo, restituire vero
+     in caso di insuccesso, rimuovere la cifra e provarne un'altra
+se tutte le cifre sono state provate e nulla ha funzionato, restituire falso per attivare il backtracking
+
+Funzione che verifica se un numero è compatibile con la matrice:
+
+; (con la variabile "safe")
+(define (isSafe board row col num)
+  (local (safe regionRowStart regionColStart)
+    (setq safe true)
+    ; numero unico sulla riga (row-clash)
+    (for (d 0 (- (length board) 1))
+      ; Se il numero che stiamo provando
+      ; è presente in quella riga
+      ; restituire falso (nil)
+      (if (= (board row d) num)
+          (setq safe nil)
+      )
+    )
+    (if safe (begin
+    ; numero unico sulla colonna (column-clash)
+    (for (r 0 (- (length board) 1))
+      ; Se il numero che stiamo provando
+      ; è presente in quella colonna
+      ; restituire falso (nil)
+      (if (= (board r col) num)
+          (setq safe nil)
+      )
+    )))
+    (if safe (begin
+    ; numero unico in ogni regione 3x3 (region-clash)
+    (setq regionRowStart (- row (% row 3)))
+    (setq regionColStart (- col (% col 3)))
+    (for (r regionRowStart (+ regionRowStart 2))
+          (for (d regionColStart (+ regionColStart 2))
+        (if (= (board r d) num)
+            (setq safe nil)
+        )
+      )
+    )))
+    ; se non c'è conflitto, allora è sicuro
+    safe
+  )
+)
+
+;(con la funzione "catch")
+(define (isSafe board row col num)
+(catch
+  (local (regionRowStart regionColStart)
+    ; numero unico sulla riga (row-clash)
+    (for (d 0 (- (length board) 1))
+      ; Se il numero che stiamo provando
+      ; è presente in quella riga
+      ; restituire falso (nil)
+      (if (= (board row d) num)
+          (throw nil)
+      )
+    )
+    ; numero unico sulla colonna (column-clash)
+    (for (r 0 (- (length board) 1))
+      ; Se il numero che stiamo provando
+      ; è presente in quella colonna
+      ; restituire falso (nil)
+      (if (= (board r col) num)
+          (throw nil)
+      )
+    )
+    ; numero unico in ogni region 3x3 (region-clash)
+    (setq regionRowStart (- row (% row 3)))
+    (setq regionColStart (- col (% col 3)))
+    (for (r regionRowStart (+ regionRowStart 2))
+      (for (d regionColStart (+ regionColStart 2))
+        (if (= (board r d) num)
+            (throw nil)
+        )
+      )
+    )
+    ; se non c'è conflitto, allora è sicuro
+    true
+  )
+))
+
+Definiamo la funzione che risolve il sudoku:
+
+(define (solveSudoku board)
+(catch
+  (local (i j row col isEmpty solved)
+    (setq row -1 col -1)
+    (setq isEmpty true)
+    (setq i 0 j 0)
+    (while (and isEmpty (< i (length board)))
+      (while (and isEmpty (< j (length board)))
+        (if (= (board i j) 0)
+            ; Esistono ancora dei valori nulli nel puzzle
+            (setq row i col j isEmpty nil)
+        )
+        (++ j)
+      )
+      (setq j 0)
+      (++ i)
+    )
+    (if isEmpty (begin (println board) (throw true)))
+    ;else
+    (for (num 1 (length board))
+        (cond ((isSafe board row col num)
+                 (setf (board row col) num)
+                 (if (solveSudoku board) (throw true))
+                 (setf (board row col) 0)
+              )
+        )
+    )
+    nil
+  )
+))
+
+Proviamo la funzione:
+
+(setq puzzle
+'((3 0 6 5 0 8 4 0 0)
+  (5 2 0 0 0 0 0 0 0)
+  (0 8 7 0 0 0 0 3 1)
+  (0 0 3 0 1 0 0 8 0)
+  (9 0 0 8 6 3 0 0 5)
+  (0 5 0 0 9 0 6 0 0)
+  (1 3 0 0 0 0 2 5 0)
+  (0 0 0 0 0 0 0 7 4)
+  (0 0 5 2 0 6 3 0 0)))
+
+(solveSudoku puzzle)
+;-> ((3 1 6 5 7 8 4 9 2)
+;->  (5 2 9 1 3 4 7 6 8)
+;->  (4 8 7 6 2 9 5 3 1)
+;->  (2 6 3 4 1 5 9 8 7)
+;->  (9 7 4 8 6 3 1 2 5)
+;->  (8 5 1 7 9 2 6 4 3)
+;->  (1 3 8 9 4 7 2 5 6)
+;->  (6 9 2 3 5 1 8 7 4)
+;->  (7 4 5 2 8 6 3 1 9))
+;-> true
+
+I puzzle sudoku più difficili del Dottor Arto Inkala:
+
+Sudoku 1:
+
+8 5 . |. . 2 |4 . .        8 5 9 |6 1 2 |4 3 7
+7 2 . |. . . |. . 9        7 2 3 |8 5 4 |1 6 9
+. . 4 |. . . |. . .        1 6 4 |3 7 9 |5 2 8
+------+------+-----        ------+------+-----
+. . . |1 . 7 |. . 2        9 8 6 |1 4 7 |3 5 2
+3 . 5 |. . . |9 . .        3 7 5 |2 6 8 |9 1 4
+. 4 . |. . . |. . .        2 4 1 |5 9 3 |7 8 6
+------+------+-----        ------+------+-----
+. . . |. 8 . |. 7 .        4 3 2 |9 8 1 |6 7 5
+. 1 7 |. . . |. . .        6 1 7 |4 2 5 |8 9 3
+. . . |. 3 6 |. 4 .        5 9 8 |7 3 6 |2 4 1
+
+(setq sudoku1
+'((8 5 0 0 0 2 4 0 0)
+  (7 2 0 0 0 0 0 0 9)
+  (0 0 4 0 0 0 0 0 0)
+  (0 0 0 1 0 7 0 0 2)
+  (3 0 5 0 0 0 9 0 0)
+  (0 4 0 0 0 0 0 0 0)
+  (0 0 0 0 8 0 0 7 0)
+  (0 1 7 0 0 0 0 0 0)
+  (0 0 0 0 3 6 0 4 0)))
+
+(solveSudoku sudoku1)
+;-> ((8 5 9 6 1 2 4 3 7)
+;->  (7 2 3 8 5 4 1 6 9)
+;->  (1 6 4 3 7 9 5 2 8)
+;->  (9 8 6 1 4 7 3 5 2)
+;->  (3 7 5 2 6 8 9 1 4)
+;->  (2 4 1 5 9 3 7 8 6)
+;->  (4 3 2 9 8 1 6 7 5)
+;->  (6 1 7 4 2 5 8 9 3)
+;->  (5 9 8 7 3 6 2 4 1))
+;-> true
+
+; (con la variabile "safe")
+(time (solveSudoku sudoku1))
+;-> 7734.897
+
+; (con la funzione "catch")
+(time (solveSudoku sudoku1))
+;-> 8969.888
+
+Sudoku 2:
+
+. . 5 |3 . . |. . .        1 4 5 |3 2 7 |6 9 8
+8 . . |. . . |. 2 .        8 3 9 |6 5 4 |1 2 7
+. 7 . |. 1 . |5 . .        6 7 2 |9 1 8 |5 4 3
+------+------+-----        ------+------+-----
+4 . . |. . 5 |3 . .        4 9 6 |1 8 5 |3 7 2
+. 1 . |. 7 . |. . 6        2 1 8 |4 7 3 |9 5 6
+. . 3 |2 . . |. 8 .        7 5 3 |2 9 6 |4 8 1
+------+------+-----        ------+------+-----
+. 6 . |5 . . |. . 9        3 6 7 |5 4 2 |8 1 9
+. . 4 |. . . |. 3 .        9 8 4 |7 6 1 |2 3 5
+. . . |. . 9 |7 . .        5 2 1 |8 3 9 |7 6 4
+
+(setq sudoku2
+'((0 0 5 3 0 0 0 0 0)
+  (8 0 0 0 0 0 0 2 0)
+  (0 7 0 0 1 0 5 0 0)
+  (4 0 0 0 0 5 3 0 0)
+  (0 1 0 0 7 0 0 0 6)
+  (0 0 3 2 0 0 0 8 0)
+  (0 6 0 5 0 0 0 0 9)
+  (0 0 4 0 0 0 0 3 0)
+  (0 0 0 0 0 9 7 0 0)))
+
+(solveSudoku sudoku2)
+;-> ((1 4 5 3 2 7 6 9 8)
+;->  (8 3 9 6 5 4 1 2 7)
+;->  (6 7 2 9 1 8 5 4 3)
+;->  (4 9 6 1 8 5 3 7 2)
+;->  (2 1 8 4 7 3 9 5 6)
+;->  (7 5 3 2 9 6 4 8 1)
+;->  (3 6 7 5 4 2 8 1 9)
+;->  (9 8 4 7 6 1 2 3 5)
+;->  (5 2 1 8 3 9 7 6 4))
+;-> true
+
+; (con la variabile "safe")
+(time (solveSudoku sudoku2))
+;-> 234.297
+
+; (con la funzione "catch")
+(time (solveSudoku sudoku2))
+;-> 265.557
+
+
+--------
+CHESS960
+--------
+
+Chess960 è una variante degli scacchi creata dal campione del mondo Bobby Fischer. Questa variante non richiede un materiale diverso, ma si basa su una posizione iniziale casuale, con alcuni vincoli:
+
+A) come nella partita a scacchi standard, tutte e otto i pedoni bianchi devono essere piazzati sulla seconda riga.
+
+B) I pezzi bianchi devono stare nella prima riga come nel gioco standard, in ordine casuale di colonne ma con i due seguenti vincoli:
+  1) gli alfieri devono essere posizionati su case di colore opposto (cioè deve esserci un numero pari di spazi tra loro)
+  2) il re deve trovarsi tra due torri (con un numero qualsiasi di altri pezzi tra loro)
+
+C) Pedoni e pezzi neri devono essere posizionati rispettivamente sulla settima e sull'ottava riga, rispecchiando i pedoni e i pezzi bianchi, proprio come nel gioco standard. (Cioè, le loro posizioni non sono casuali in modo indipendente.)
+
+Con questi vincoli ci sono 960 possibili posizioni di partenza, quindi il nome della variante.
+
+I pezzi sono definiti nel modo seguente:
+
+ITA        ENG       CHAR
+-------    ------    ----
+Pedone     Pawn      P
+Torre      Rook      R
+Cavallo    Knight    N
+Alfiere    Bishop    B
+Regina     Queen     Q
+Re         King      K
+
+Nel file "chess960-lst.lsp" sono memorizzate in una lista tutte le 960 posizioni iniziali.
+Il modo più semplice per generare una posizione è quello di prenderne casualmente una da questa lista:
+
+(define (get960)
+  (load "chess960-lst.lsp")
+  (chess960 (rand 960)))
+
+(get960)
+;-> (B Q N B N R K R)
+
+Se invece vogliamo generare una posizione ex-novo possiamo scrivere due funzioni.
+
+Funzione che controlla la correttezza di una posizione casuale:
+
+(define (legal-pos lst)
+  (and
+    ; re a destra di una torre?
+    (> (find 'K lst) (find 'R lst))
+    ; re a sinistra dell'altra torre?
+    (> (find 'K (reverse (copy lst))) (find 'R (reverse (copy lst))))
+    ; alfieri di colore contrario?
+    (even? (- (find 'B lst) (find 'B (reverse (copy lst)))))))
+
+Funzione che genre una posizione chess960 corretta:
+
+(define (get960)
+  (setq start '(R N B Q K B N R))
+  (setq prova (randomize start))
+  (while (not (legal-pos prova))
+    (setq prova (randomize start))
+  )
+  prova)
+
+(get960)
+;-> (N B R Q K N B R)
+(get960)
+;-> (R K R B N N B Q)
+(get960)
+;-> (R B B N N K Q R)
+
+Controlliamo la correttezza della funzione generando n posizioni e controllando che esistano nella lista di tutte le posizioni chess960:
+
+(define (control n)
+  (load "chess960-lst.lsp")
+  (for (i 1 n)
+    (setq a (get960))
+    (if (nil? (find a chess960)) (println "error:" a))))
+
+(control 10000)
+;-> nil
+
+
 ================
 
  PROJECT EULERO
@@ -37759,6 +38105,12 @@ P(1 o 2 o 3 ... o 5) = P(1) + P(2) + P(3) + P(4) + P(5)
                        + P(1 e 2 e 3 e 4 e 5)
 
                      = 5*(1/5)
+                       - 5C2*(1/5)(1/4)
+                       + 5C3*(1/5)(1/4)(1/3)
+                       - 5C4*(1/5)(1/4)(1/3)(1/2)
+                       + (1/5)(1/4)(1/3)(1/2)(1/1)                       
+
+                     = 5*(1/5)
                        - 5*2*(1/5)(1/4)
                        + 5*3*(1/5)(1/4)(1/3)
                        - 5*4*(1/5)(1/4)(1/3)(1/2)
@@ -37822,6 +38174,155 @@ Nota: (1 - 1/e) = 0.6321205588285578
 
 (sub 1 (div 1 (exp 1)))
 ;-> 0.6321205588285577
+
+
+-------------------------------
+Distanza di numeri in una lista
+-------------------------------
+
+Data una lista di numeri interi e un numero intero restituire una lista con tutte le distanze di quel numero con se stesso. Se il numero non esiste restituire la lista vuota. Se il numero compare solo una volta restituire il valore dell'indice.
+
+Per esempio:
+
+lista input = (2 1 3 5 4 2 1 4 1 6 5 6 7 8 4 1 2 4 1)
+numero = 1
+lista output = (4 1 6 2)
+
+dove:
+1 3 5 4 2 1      ->  4 posti di distanza tra i primi due 1
+1 4 1            ->  1 posto di distanza tra i secondi due 1
+1 6 5 6 7 8 4 1  ->  6 posti di distanza tra i terzi due 1
+1 2 4 1          ->  2 posti di distanza tra i quarti due 1
+
+Metodo procedurale:
+
+(setq lst '(2 1 3 5 4 2 1 4 1 6 5 6 7 8 4 1 2 4 1))
+(setq num 1)
+
+(define (segment1 num lst)
+  (local (idx1 idx2 conta out)
+    (setq idx1 -1 idx2 -1 conta 0 out '())
+    (dolist (el lst)
+      (if (= el num) ; quando i numeri sono uguali
+          (begin
+            (if (= idx1 -1) ; se il primo indice è vuoto...
+              (setq idx1 $idx) ; allora prendiamo l'indice attuale ($idx)
+              (begin ; altrimenti $idx è il secondo indice
+                (push (- $idx idx1 1) out -1)
+                (++ conta)
+                ; il primo indice diventa l'indice attuale
+                (setq idx1 $idx)
+              )
+            )
+          )
+      )
+    )
+    (if (and (= conta 0) (>= idx1 0))
+       idx1
+       out
+    )
+    ;(println out { } idx1 { } idx2 { } conta)
+  ))
+
+(segment1 num lst)
+;-> (4 1 6 2)
+
+(segment1 8 lst)
+;-> 13
+
+(segment1 1 '(1 0 3 4))
+;-> 0
+
+(segment1 9 lst)
+;-> ()
+
+(segment1 9 '())
+;-> '()
+
+Metodo funzionale:
+
+(setq lst '(2 1 3 5 4 2 1 4 1 6 5 6 7 8 4 1 2 4 1))
+(setq num 1)
+
+Troviamo tutti gli indici di un elemento in una lista:
+
+(ref-all num lst)
+;-> ((1) (6) (8) (15) (18))
+
+Poi rendiamo piatta la lista:
+
+(flat (ref-all num lst))
+;-> (1 6 8 15 18)
+
+Per calcolare la differenza tra gli elementi consecutivi di una lista lista usiamo la funzione seguente:
+
+(define (dist lst) (map - (rest lst) (chop lst)))
+(dist lst)
+;-> (-1 2 2 -1 -2 -1 3 -3 5 -1 1 1 1 -4 -3 1 2 -3)
+
+Infine dobbiamo togliere il valore 1 ad ogni elemento:
+
+(map -- (dist (flat (ref-all num lst))))
+;-> (4 1 6 2)
+
+Adesso vediamo il caso in cui il numero non esiste nella lista:
+
+(ref-all 22 lst)
+;-> ()
+
+Quindi scriviamo la funzione finale:
+
+(define (segment2 num lst)
+  (cond ( (= (ref-all num lst) '())
+          '()
+        )
+        ( (= (length (flat (ref-all num lst))) 1)
+          (first (flat (ref-all num lst)))
+        )
+        (true (map -- (dist (flat (ref-all num lst)))))
+  ))
+
+Semplifichiamo:
+
+(define (segment2 num lst)
+  (let (idx (flat(ref-all num lst)))
+    (cond ( (= idx '())
+          '()
+          )
+          ( (= (length idx) 1)
+            (first idx)
+          )
+          (true (map -- (dist idx)))
+    )))
+
+(segment2 num lst)
+;-> (4 1 6 2)
+
+(segment2 8 lst)
+;-> 13
+
+(segment2 1 '(1 0 3 4))
+;-> 0
+
+(segment2 9 lst)
+;-> ()
+
+(segment2 9 '())
+;-> '()
+
+Test di velocità
+
+(setq lst '(2 1 3 5 4 2 1 4 1 6 5 6 7 8 4 1 2 4 1
+            2 1 3 5 4 2 1 4 1 6 5 6 7 8 4 1 2 4 1
+            2 1 3 5 4 2 1 4 1 6 5 6 7 8 4 1 2 4 1
+            2 1 3 5 4 2 1 4 1 6 5 6 7 8 4 1 2 4 1
+            2 1 3 5 4 2 1 4 1 6 5 6 7 8 4 1 2 4 1))
+
+(time (segment1 1 lst) 50000)
+;-> 402.887
+
+(time (segment2 1 lst) 50000)
+;-> 187.527
 
 
 ====================================================
@@ -57207,6 +57708,18 @@ Prima abbiamo visto come inserire i dati in uno spazio dei nomi (contesto) usand
 
 La funzione riceve lo spazio dei nomi nella variabile obj, ma deve avere la consapevolezza che la lista a cui accedere è contenuta nel simbolo dei dati di quello spazio dei nomi (contesto).
 
+Vediamo la differenza di velocità tra passaggio per riferimento e passaggio per valore:
+
+(silent (setq refer:refer (sequence 1 100000)))
+(silent (setq value (sequence 1 100000)))
+
+(define (somma lst) (apply + lst))
+
+(time (somma value) 1000)
+;-> 3135.194
+(time (somma refer) 1000)
+;-> 1916.157
+
 
 ---------------------
 Pagamento giornaliero
@@ -57249,6 +57762,83 @@ noi: 0 - dipendente: 7
 Con questo metodo abbiamo pagato il dipendente 1 blocco d'oro al giorno.
 
 Nota: in altre parole abbiamo utilizzato l'aritmetica binaria.
+
+
+-------------------------
+Differenze tra let e letn
+-------------------------
+
+In Common Lisp abbiamo le primitive "let" e "let*", in newLISP abbiamo "let" e "letn".
+La differenza tra "let" e "letn": associazione parallela rispetto all'associazione sequenziale.
+
+Sequenziale. Significa che le associazioni vengono fatte una dopo l'altra e possono vedere le associazioni precedenti.
+
+Parallelo. Significa che le associazioni prendono vita allo stesso tempo e non vedono le altre associazioni (no shadow).
+
+Supponiamo di avere il seguente codice:
+
+CommonLisp:
+
+(print (let ((c 1))
+         (let ((c 2)
+               (a (+ c 1)))
+           a)))
+
+(print (let ((c 1))
+         (let* ((c 2)
+                (a (+ c 1)))
+           a)))
+
+newLISP:
+
+(let ((c 1))
+  (let ((c 2) (a (+ c 1)))
+   a))
+;-> 2
+
+(let ((c 1))
+  (letn ((c 2) (a (+ c 1)))
+   a))
+;-> 3
+
+Nel primo esempio, l'associazione (bindings) di "a" si riferisce al valore esterno di "c" cioè 1).
+
+Nel secondo esempio, dove letn consente alle associazioni di fare riferimento alle associazioni precedenti, il legame di "a" si riferisce al valore interno di c (cioè 2).
+
+La funzione "let" può essere simulata con la funzione "lambda" in questo modo:
+
+(let ((a1 b1) (a2 b2) ... (an bn))
+  (some-code a1 a2 ... an))
+
+è uguale a:
+
+((lambda (a1 a2 ... an)
+   (some-code a1 a2 ... an))
+ b1 b2 ... bn)
+
+Invece "letn" può essere simulata in un altro modo:
+
+(letn ((a1 b1) (a2 b2) ... (an bn))
+  (some-code a1 a2 ... an))
+
+è uguale a:
+
+((lambda (a1)
+    ((lambda (a2)
+       ...
+       ((lambda (an)
+          (some-code a1 a2 ... an))
+        bn))
+      b2))
+   b1)
+
+Quindi "let" è più semplice di "letn" (almeno per il compilatore/interprete).
+
+"let" semplifica la comprensione del codice. Tutte le associazioni possono essere lette singolarmente senza la necessità di comprendere il flusso top-down/left-right degli "effetti" delle associazioni (rebindings). L'uso di "letn" segnala al programmatore (quello che legge il codice) che le associazioni non sono indipendenti, ma esiste un di flusso top/down che complica le cose.
+
+Il Lisp ha la regola che i valori per le associazioni (binding) in "let" sono calcolati da sinistra a destra. Come vengono valutati gli argomenti di una chiamata di funzione, da sinistra a destra. Quindi, "let" è l'istruzione concettualmente più semplice e dovrebbe essere utilizzata per impostazione predefinita.
+
+La differenza non è importante solo per il compilatore. Uso "let" e "letn" come suggerimento per me stesso di ciò che sta succedendo. Quando vedo "let" nel mio codice, so che le associazioni (binding) sono indipendenti e quando vedo "letn", so che le associazioni (binding) dipendono una dall'altra. Ma lo so solo perché mi assicuro di usare "let" e "letn" in modo coerente.
 
 
 ===========
