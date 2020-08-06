@@ -243,7 +243,7 @@ ROSETTA CODE
 
 PROJECT EULERO
 ==============
-  Problemi 1..60
+  Problemi 1..60,92
 
 PROBLEMI VARI
 =============
@@ -381,6 +381,11 @@ DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Ordinare una lista di 0, 1 e 2 (geeks4geeks)
   Stipendio giusto (geeks4geeks)
   Volo completo (Programming Praxis)
+  Benzina e stazioni (Uber)
+  Aggiungere uno (Google)
+  Numeri romani (LeetCode)
+  Numero singolo (McAfee)
+  Matrici a spirale (Google)
 
 LIBRERIE
 ========

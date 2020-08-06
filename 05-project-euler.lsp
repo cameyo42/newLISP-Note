@@ -65,6 +65,7 @@
 |    58    |  26241        |       630  |       432  |
 |    59    |  107359       |        15  |         1  |
 |    60    |  26033        |     55055  |     38926  |
+|    92    |  24702        |            |     27084  |
 
 Sito web: https://projecteuler.net/archives
 
@@ -6237,5 +6238,124 @@ Proviamo ad usare un vettore per i numeri primi. In questo modo possiamo evitare
 ;-> 55055.913
 
 I tempi di calcolo delle due funzioni sono quasi uguali.
+
+
+===========
+Problema 92
+===========
+
+Su Doku (giapponese che significa luogo del numero) è il nome di un concetto di puzzle popolare. La sua origine non è chiara, ma il merito viene attribuito a Leonhard Euler che ha inventato un puzzle simile e molto più difficile, chiamato Quadrati Latini. L'obiettivo dei puzzle di Su Doku è quello di sostituire gli spazi vuoti (o zeri) in una griglia 9 per 9 in modo tale che ogni riga, colonna e regione 3x3 contenga ciascuna delle cifre da 1 a 9. Di seguito è riportato un esempio di una tipica griglia di puzzle iniziale e della sua griglia di soluzione.
+
+  0 0 3 | 0 2 0 | 6 0 0          4 8 3 | 9 2 1 | 6 5 7
+  9 0 0 | 3 0 5 | 0 0 1          9 0 0 | 3 4 5 | 8 2 1
+  0 0 1 | 8 0 6 | 4 0 0          2 5 1 | 8 7 6 | 4 9 3
+  ------+-------+------          ------+-------+------
+  0 0 8 | 1 0 2 | 9 0 0          5 4 8 | 1 3 2 | 9 7 6
+  7 0 0 | 0 0 0 | 0 0 8          7 2 9 | 5 6 4 | 1 3 8
+  0 0 6 | 7 0 8 | 2 0 0          1 3 6 | 7 9 8 | 2 4 5
+  ------+-------+------          ------+-------+------
+  0 0 2 | 6 0 9 | 5 0 0          3 7 2 | 6 8 9 | 5 1 4
+  8 0 0 | 2 0 3 | 0 0 9          8 1 4 | 2 5 3 | 7 6 9
+  0 0 5 | 0 1 0 | 3 0 0          6 9 5 | 4 1 7 | 3 8 2
+
+Un puzzle di Su Doku ben costruito ha una soluzione unica e può essere risolto dalla logica, anche se potrebbe essere necessario impiegare metodi di "indovinare e testare" per eliminare le opzioni (questo è un'opinione molto contestata). La complessità della ricerca determina la difficoltà del puzzle. L'esempio sopra è considerato facile perché può essere risolto con una semplice deduzione diretta.
+
+Il file di testo 6K, sudoku.txt (e092.lsp), contiene cinquanta diversi puzzle di Su Doku che variano in difficoltà, ma tutti con soluzioni uniche (il primo puzzle nel file è l'esempio sopra).
+
+Risolvendo tutti e cinquanta i puzzle, trova la somma di tutti i numeri a 3 cifre che si trovano nell'angolo in alto a sinistra di ogni griglia della soluzione. Ad esempio, 483 è il numero di 3 cifre che si trova nell'angolo in alto a sinistra della griglia della soluzione sopra.
+
+(define (isSafe board row col num)
+  (local (safe regionRowStart regionColStart)
+    (setq safe true)
+    ; numero unico sulla riga (row-clash)
+    (for (d 0 (- (length board) 1))
+      ; Se il numero che stiamo provando
+      ; è presente in quella riga
+      ; restituire falso (nil)
+      (if (= (board row d) num)
+          (setq safe nil)
+      )
+    )
+    (if safe (begin
+    ; numero unico sulla colonna (column-clash)
+    (for (r 0 (- (length board) 1))
+      ; Se il numero che stiamo provando
+      ; è presente in quella colonna
+      ; restituire falso (nil)
+      (if (= (board r col) num)
+          (setq safe nil)
+      )
+    )))
+    (if safe (begin
+    ; numero unico in ogni regione 3x3 (region-clash)
+    (setq regionRowStart (- row (% row 3)))
+    (setq regionColStart (- col (% col 3)))
+    (for (r regionRowStart (+ regionRowStart 2))
+          (for (d regionColStart (+ regionColStart 2))
+        (if (= (board r d) num)
+            (setq safe nil)
+        )
+      )
+    )))
+    ; se non c'è conflitto, allora è sicuro
+    safe
+  )
+)
+
+(define (solveSudoku board)
+(catch
+  (local (i j row col isEmpty solved)
+    (setq row -1 col -1)
+    (setq isEmpty true)
+    (setq i 0 j 0)
+    (while (and isEmpty (< i (length board)))
+      (while (and isEmpty (< j (length board)))
+        (if (= (board i j) 0)
+            ; Esistono ancora dei valori nulli nel puzzle
+            (setq row i col j isEmpty nil)
+        )
+        (++ j)
+      )
+      (setq j 0)
+      (++ i)
+    )
+    ; stampa la soluzione
+    ;(if isEmpty (begin (println board) (throw true)))
+    ; salva la soluzione su una variabile globale
+    (if isEmpty (begin (setq *sol* board) (throw true)))
+    ;else
+    (for (num 1 (length board))
+        (cond ((isSafe board row col num)
+                 (setf (board row col) num)
+                 (if (solveSudoku board) (throw true))
+                 (setf (board row col) 0)
+              )
+        )
+    )
+    nil
+  )
+))
+
+(define (e092)
+  (local (out)
+    (setq out 0)
+    (load "e096.lsp")
+    (setq base "(solveSudoku gridX)")
+    (for (i 1 50)
+      (setq expr (replace "X" (copy base) (string i)))
+      (setq out (+ out (* 100 (*sol* 0 0)) (* 10 (*sol* 0 1)) (*sol* 0 2)))
+      ;(println expr)
+      (eval-string expr)
+      ;(println i { } out)
+    )
+    out
+  )
+)
+
+(e092)
+;-> 24702
+
+(time (e092))
+;-> 27084.701
 
 

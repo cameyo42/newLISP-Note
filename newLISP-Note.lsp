@@ -243,7 +243,7 @@ ROSETTA CODE
 
 PROJECT EULERO
 ==============
-  Problemi 1..60
+  Problemi 1..60,92
 
 PROBLEMI VARI
 =============
@@ -381,6 +381,11 @@ DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Ordinare una lista di 0, 1 e 2 (geeks4geeks)
   Stipendio giusto (geeks4geeks)
   Volo completo (Programming Praxis)
+  Benzina e stazioni (Uber)
+  Aggiungere uno (Google)
+  Numeri romani (LeetCode)
+  Numero singolo (McAfee)
+  Matrici a spirale (Google)
 
 LIBRERIE
 ========
@@ -23700,7 +23705,10 @@ Definiamo la funzione che risolve il sudoku:
       (setq j 0)
       (++ i)
     )
+    ; stampa la soluzione
     (if isEmpty (begin (println board) (throw true)))
+    ; salva la soluzione su una variabile globale
+    ;(if isEmpty (begin (setq *sol* board) (throw true)))
     ;else
     (for (num 1 (length board))
         (cond ((isSafe board row col num)
@@ -23910,6 +23918,8 @@ Controlliamo la correttezza della funzione generando n posizioni e controllando 
 (control 10000)
 ;-> nil
 
+Sembra tutto corretto.
+
 
 ================
 
@@ -23978,6 +23988,7 @@ Controlliamo la correttezza della funzione generando n posizioni e controllando 
 |    58    |  26241        |       630  |       432  |
 |    59    |  107359       |        15  |         1  |
 |    60    |  26033        |     55055  |     38926  |
+|    92    |  24702        |            |     27084  |
 
 Sito web: https://projecteuler.net/archives
 
@@ -30152,6 +30163,125 @@ Proviamo ad usare un vettore per i numeri primi. In questo modo possiamo evitare
 I tempi di calcolo delle due funzioni sono quasi uguali.
 
 
+===========
+Problema 92
+===========
+
+Su Doku (giapponese che significa luogo del numero) è il nome di un concetto di puzzle popolare. La sua origine non è chiara, ma il merito viene attribuito a Leonhard Euler che ha inventato un puzzle simile e molto più difficile, chiamato Quadrati Latini. L'obiettivo dei puzzle di Su Doku è quello di sostituire gli spazi vuoti (o zeri) in una griglia 9 per 9 in modo tale che ogni riga, colonna e regione 3x3 contenga ciascuna delle cifre da 1 a 9. Di seguito è riportato un esempio di una tipica griglia di puzzle iniziale e della sua griglia di soluzione.
+
+  0 0 3 | 0 2 0 | 6 0 0          4 8 3 | 9 2 1 | 6 5 7
+  9 0 0 | 3 0 5 | 0 0 1          9 0 0 | 3 4 5 | 8 2 1
+  0 0 1 | 8 0 6 | 4 0 0          2 5 1 | 8 7 6 | 4 9 3
+  ------+-------+------          ------+-------+------
+  0 0 8 | 1 0 2 | 9 0 0          5 4 8 | 1 3 2 | 9 7 6
+  7 0 0 | 0 0 0 | 0 0 8          7 2 9 | 5 6 4 | 1 3 8
+  0 0 6 | 7 0 8 | 2 0 0          1 3 6 | 7 9 8 | 2 4 5
+  ------+-------+------          ------+-------+------
+  0 0 2 | 6 0 9 | 5 0 0          3 7 2 | 6 8 9 | 5 1 4
+  8 0 0 | 2 0 3 | 0 0 9          8 1 4 | 2 5 3 | 7 6 9
+  0 0 5 | 0 1 0 | 3 0 0          6 9 5 | 4 1 7 | 3 8 2
+
+Un puzzle di Su Doku ben costruito ha una soluzione unica e può essere risolto dalla logica, anche se potrebbe essere necessario impiegare metodi di "indovinare e testare" per eliminare le opzioni (questo è un'opinione molto contestata). La complessità della ricerca determina la difficoltà del puzzle. L'esempio sopra è considerato facile perché può essere risolto con una semplice deduzione diretta.
+
+Il file di testo 6K, sudoku.txt (e092.lsp), contiene cinquanta diversi puzzle di Su Doku che variano in difficoltà, ma tutti con soluzioni uniche (il primo puzzle nel file è l'esempio sopra).
+
+Risolvendo tutti e cinquanta i puzzle, trova la somma di tutti i numeri a 3 cifre che si trovano nell'angolo in alto a sinistra di ogni griglia della soluzione. Ad esempio, 483 è il numero di 3 cifre che si trova nell'angolo in alto a sinistra della griglia della soluzione sopra.
+
+(define (isSafe board row col num)
+  (local (safe regionRowStart regionColStart)
+    (setq safe true)
+    ; numero unico sulla riga (row-clash)
+    (for (d 0 (- (length board) 1))
+      ; Se il numero che stiamo provando
+      ; è presente in quella riga
+      ; restituire falso (nil)
+      (if (= (board row d) num)
+          (setq safe nil)
+      )
+    )
+    (if safe (begin
+    ; numero unico sulla colonna (column-clash)
+    (for (r 0 (- (length board) 1))
+      ; Se il numero che stiamo provando
+      ; è presente in quella colonna
+      ; restituire falso (nil)
+      (if (= (board r col) num)
+          (setq safe nil)
+      )
+    )))
+    (if safe (begin
+    ; numero unico in ogni regione 3x3 (region-clash)
+    (setq regionRowStart (- row (% row 3)))
+    (setq regionColStart (- col (% col 3)))
+    (for (r regionRowStart (+ regionRowStart 2))
+          (for (d regionColStart (+ regionColStart 2))
+        (if (= (board r d) num)
+            (setq safe nil)
+        )
+      )
+    )))
+    ; se non c'è conflitto, allora è sicuro
+    safe
+  )
+)
+
+(define (solveSudoku board)
+(catch
+  (local (i j row col isEmpty solved)
+    (setq row -1 col -1)
+    (setq isEmpty true)
+    (setq i 0 j 0)
+    (while (and isEmpty (< i (length board)))
+      (while (and isEmpty (< j (length board)))
+        (if (= (board i j) 0)
+            ; Esistono ancora dei valori nulli nel puzzle
+            (setq row i col j isEmpty nil)
+        )
+        (++ j)
+      )
+      (setq j 0)
+      (++ i)
+    )
+    ; stampa la soluzione
+    ;(if isEmpty (begin (println board) (throw true)))
+    ; salva la soluzione su una variabile globale
+    (if isEmpty (begin (setq *sol* board) (throw true)))
+    ;else
+    (for (num 1 (length board))
+        (cond ((isSafe board row col num)
+                 (setf (board row col) num)
+                 (if (solveSudoku board) (throw true))
+                 (setf (board row col) 0)
+              )
+        )
+    )
+    nil
+  )
+))
+
+(define (e092)
+  (local (out)
+    (setq out 0)
+    (load "e096.lsp")
+    (setq base "(solveSudoku gridX)")
+    (for (i 1 50)
+      (setq expr (replace "X" (copy base) (string i)))
+      (setq out (+ out (* 100 (*sol* 0 0)) (* 10 (*sol* 0 1)) (*sol* 0 2)))
+      ;(println expr)
+      (eval-string expr)
+      ;(println i { } out)
+    )
+    out
+  )
+)
+
+(e092)
+;-> 24702
+
+(time (e092))
+;-> 27084.701
+
+
 ===============
 
  PROBLEMI VARI
@@ -35455,7 +35585,7 @@ Vediamo la differenza del numero di cicli tra due for innestati (i = 0 e j = 0) 
 ;-> 10000 100000000 50005000
 ;-> 100000 10000000000 5000050000
 
-Il primo ciclo ha n^2 cicli, il secondo ha (n^2)/2 cicli.
+Il primo ciclo ha n^2 cicli, il secondo ha (n^2)/2 cicli (la complessità temporale è la stessa).
 
 
 --------------------------------------------
@@ -35493,6 +35623,9 @@ Il creatore di newLISP (Lutz Mueller) ha scritto la seguente funzione che moltip
     (join (map string P))
     )
 )
+
+(big* "12345678" "12345678")
+;-> "152415765279684"
 
 
 ------------------
@@ -36121,7 +36254,7 @@ Problemi patologici dei numeri floating point
 ---------------------------------------------
 
 La Chaotic Bank Society offre questo investimento ai propri clienti.
-Per prima cosa depositi $ e - 1 dove e è 2.7182818 ... la base dei logaritmi naturali.
+Per prima cosa depositi $(e - 1) dove e è 2.7182818 ... la base dei logaritmi naturali.
 
 Dopo ogni anno, il saldo del tuo account verrà moltiplicato per il numero di anni che sono passati e verranno rimossi $ 1 in costi di servizio.
 
@@ -37164,7 +37297,7 @@ Adesso scriviamo la funzione di test:
 
 Come possiamo vedere, i risultati calcolati confermano la teoria, cioè il taglio ottimo è circa il 37%.
 
-Per definire meglio la validità del metodo sarebbe interessante vedere quanto siamo lontani dal punteggio massimo, quando non selezioniamo la segretaria migliore utilizxzando il taglio ottimo. Per fare questo modifichiamo la funzione "secretary":
+Per definire meglio la validità del metodo sarebbe interessante vedere quanto siamo lontani dal punteggio massimo, quando non selezioniamo la segretaria migliore utilizzando il taglio ottimo. Per fare questo modifichiamo la funzione "secretary":
 
 (define (secretary2 n prove)
   (local (cand taglio m1 m2 success found delta)
@@ -43831,6 +43964,454 @@ Funzione che calcola le probabilità:
 ;-> 99: (1L 2L) 0.5
 
 La teoria conferma che il valore di probabilità vale 1/2.
+
+
+-------------------------
+Benzina e stazioni (Uber)
+-------------------------
+
+In un percorso chiuso ci sono N stazioni di benzina.
+Ogni i-esima stazione ha gas(i) carburante.
+Il viaggio dalla stazione i-esima alla stazione successiva consuma carburante pari a cost(i).
+Abbiamo a disposizione una macchina con il serbatoio vuoto (ma illimitato) che parte dalla iesima-stazione
+Dobbiamo verificare se possiamo ritornare alla stazione di partenza oppure se non esiste alcuna stazione di partenza che permette il giro completo del percorso.
+
+Esempio:
+
+ 7           2          12
+  A----------B---------C
+   \   10        9    /
+    \                /
+     \ 8          7 /
+      \     5      /
+       E----------D
+      8            10
+
+N    Stazione    Carburante    Percorso    Costo
+0     A            7          A <-> B      10
+1     B            2          B <-> C       9
+2     C           12          C <-> D       7
+3     D           10          D <-> E       5
+4     E            8          E <-> A       8
+
+Simuliamo il percorso partendo da ogni stazione:
+
+start A (0)
+A -> B  Serbatoio=7        Costo=10   --> Serbatoio=7-10=-3 (impossibile)
+
+start B (1)
+B -> C  Serbatoio=2        Costo=9    --> Serbatoio=2-9=-7 (impossibile)
+
+start C (2)
+C -> D  Serbatoio=12       Costo=7    --> Serbatoio=12-7=5
+D -> E  Serbatoio=5+10     Costo=5    --> Serbatoio=15-5=10
+E -> A  Serbatoio=10+8=18  Costo=8    --> Serbatoio=18-8=10
+A -> B  Serbatoio=10+7=17  Costo=10   --> Serbatoio=17-10=7
+B -> C  Serbatoio=7+2=9    Costo=9    --> Serbatoio=9-9=0 (possibile)
+
+start D (3)
+D -> E  Serbatoio=10       Costo=5    --> Serbatoio=10-5=5
+E -> A  Serbatoio=5+8=13   Costo=8    --> Serbatoio=13-8=5
+A -> B  Serbatoio=5+7=12   Costo=10   --> Serbatoio=12-10=2
+B -> C  Serbatoio=2+2=4    Costo=8    --> Serbatoio=4-8=-4 (impossibile)
+
+start E (4)
+E -> A  Serbatoio=8        Costo=8    -->Serbatoio=8-8=0
+A -> B  Serbatoio=0+2=2    Costo=10   -->Serbatoio=2-10=-8 (impossibile)
+
+Poniamo i dati in due liste:
+
+(setq gas '(7 2 12 10 8))
+(setq cost '(10 9 7 5 8))
+
+Per ogni stazione calcoliamo la differenza tra il Carburante disponibile e il Costo per arrivarci.
+
+(setq diff (map - gas cost))
+;-> (-2 -7 5 5 0)
+
+Un percorso completo è possibile se: Sum[0..n](diff(i)) >= 0
+
+(if (>= (apply + diff) 0)
+    (println "possibile")
+    (println "impossibile"))
+;-> possibile
+
+Adesso dobbiamo calcolare da quale stazione occorre partire per completare il giro.
+Se controlliamo ogni stazione di partenza la complessità temporale dell'algoritmo vale O(n^2).
+Notiamo che attraversando la lista "diff" possiamo calcolare la stazione di partenza.
+Per esempio:
+0) partendo da A abbiamo subito il valore negativo -2 che indica che tale stazione non può essere quella iniziale
+1) partendo da B abbiamo subito il valore negativo -7 che indica che tale stazione non può essere quella iniziale
+2) partendo da C abbiamo 5, poi arriviamo in D e aggiungiamo 5 (5+5=10), poi arriviamo in E e aggiungiamo 0 (10+0=10), poi arriviamo in A e aggiungiamo -2 (10-2=8), poi arriviamo in B e aggiungiamo -7 (8-7=1)
+3) partendo da D abbiamo 5, poi arriviamo in E e aggiungiamo 0 (5+0=0), poi arriviamo in A e aggiungiamo -2 (5-2=3), poi arriviamo in B e aggiungiamo -7 (3-7=-4), quindi D non può essere la stazione iniziale
+4) partendo da E abbiamo 0, poi arriviamo in A e aggiungiamo -2 (0-2=-2), quindi E non può essere la stazione di partenza.
+
+Quindi è sufficiente analizzare la lista "diff" per determinare da quale stazione dobbiamo partire per terminare il percorso chiuso. Questo può essere fatto con un ciclo soltanto, quindi la complessità temporale vale O(n).
+
+(define (percorso gas cost)
+  (local (diff leftGas sum startnode)
+    (setq leftGas 0 sum 0 startnode 0)
+    (setq diff (map - gas cost))
+    (for (i 0 (- (length gas) 1))
+      (setq leftGas (+ leftGas (diff i)))
+      (setq sum (+ sum (diff i)))
+      ; se la somma è minore di 0,
+      ; allora scartiamo quella stazione
+      (if (< sum 0)
+        (setq startnode (+ i 1) sum 0))
+    )
+    (if (< leftGas 0)
+        nil
+        startnode)
+  )
+)
+
+(percorso gas cost)
+;-> 2
+
+La stazione di partenza è la 2, cioè C.
+
+
+-----------------------
+Aggiungere uno (Google)
+-----------------------
+
+Data una lista che rappresenta un numero intero, scrivere una funzione che aggiunge 1 al numero rappresentato dalla lista tenendo conto del riporto (carry).
+
+(define (add1 lst)
+  (local (carry sum out)
+    (setq carry 1 sum 0)
+    (for (i (- (length lst) 1) 0 -1)
+      (setq sum (+ carry (lst i)))
+      (setq carry (/ sum 10))
+      (push (% sum 10) out)
+    )
+    (if (> carry 0) (push carry out))
+    out))
+
+(setq lst '(1 2 3 4))
+(add1 lst)
+;-> (1 2 3 4 5)
+
+(setq lst '(9 8 8 9))
+(add1 lst)
+;-> (9 8 9 0)
+
+(setq lst '(9 9 9 9))
+(add1 lst)
+;-> (1 0 0 0 0)
+
+
+------------------------
+Numeri romani (LeetCode)
+------------------------
+
+Scrivere due funzioni che convertono da numero intero a numero romano e viceversa.
+Le funzioni che implementeremo sono valide per i numeri interi nell'intervallo 1..3999.
+
+Conversione da intero a romano
+------------------------------
+
+La strategia è quella di convertire il numero utilizzando intervalli differenti:
+
+a) 1<= cifra <=3
+b) cifra = 4
+c) cifra = 5
+d) 5 < cifra <=8
+e) cifra = 9
+
+(define (integer2roman num)
+  (local (simboli roman scale digit)
+    (setq simboli '("I" "V" "X" "L" "C" "D" "M"))
+    (setq roman "")
+    (setq scale 1000)
+    (for (i 6 0 -2)
+      (setq digit (/ num scale))
+      (if (!= digit 0)
+        (cond ((<= digit 3)
+                (for (k 1 digit)
+                  (push (simboli i) roman -1)
+                ))
+              ((= digit 4)
+                (push (simboli i) roman -1)
+                (push (simboli (+ i 1)) roman -1))
+              ((= digit 5)
+                (push (simboli (+ i 1)) roman -1))
+              ((<= digit 8)
+                (push (simboli (+ i 1)) roman -1)
+                (for (k 1 (- digit 5))
+                  (push (simboli i) roman -1)
+                ))
+              ((= digit 9)
+                (push (simboli i) roman -1)
+                (push (simboli (+ i 2)) roman -1))
+
+        );cond
+      )
+      (setq num (% num scale))
+      (setq scale (/ scale 10))
+    )
+    roman
+  ))
+
+(integer2roman 3)
+;-> "III"
+
+(integer2roman 1234)
+;-> "MCCXXXIV"
+
+(integer2roman 4000)
+;-> ERR: invalid list index
+;-> called from user function (integer2roman 4000)
+
+Conversione da romano a intero
+------------------------------
+
+Utilizziamo una tabella di conversione tra cifra romana e cifra numerica.
+Poi attraversiamo la stringa romana da sinistra a destra:
+a) se la cifra/carattere corrente è maggiore di quella precedente, allora le due cifre formano un numero combinato. Il valore di questo numero (che deve essere aggiunto al risultato corrente) è dato dalla sottrazione della cifra precedente dalla cifra corrente (es. IX = 10 - 1 = 9).
+b) altrimenti aggiungere la cifra corrente al risultato e processare la cifra/carattere successivo
+
+Tabella di conversione:
+
+(lookup "I" table)
+;-> 1
+
+(define (roman2integer str)
+  (let ((out 0)
+        (table '(("I" 1) ("V" 5) ("X" 10) ("L" 50) ("C" 100) ("D" 500) ("M" 1000))))
+    (for (i 0 (- (length str) 1))
+      (if (and (> i 0) (> (lookup (str i) table) (lookup (str (- i 1)) table)))
+          (setq out (+ out (lookup (str i) table) (- (* 2 (lookup (str (- i 1)) table)))))
+          ;else
+          (setq out (+ out (lookup (str i) table)))
+      )
+    )
+    out))
+
+(roman2integer "IX")
+;-> 9
+
+(roman2integer "MCCXXXIV")
+;-> 1234
+
+(roman2integer (integer2roman 3999))
+;-> 3999
+
+Test di correttezza:
+
+(for (i 1 3999)
+  (if (!= i (roman2integer (integer2roman i)))
+    (println "error: " i)))
+;-> nil
+
+
+-----------------------
+Numero singolo (McAfee)
+-----------------------
+
+Data una lista di numeri interi positivi ogni numero compare due volte tranne un numero. Trovare il numero singolo.
+Nota: la funzione deve attraversare la lista una sola volta O(n).
+
+Usiamo l'operatore XOR (OR esclusivo) che restituisce zero quando viene applicato a due numeri uguali:
+
+(^ 10 10)
+;-> 0
+
+Quindi applichiamo lo XOR in maniera iterativa a tutti i numeri della lista. Il valore finale rappresenta il numero singolo.
+
+lst = (1 2 3 2 3)
+numero = (1 XOR 2 XOR 3 XOR 2 XOR 3) = 1
+
+(define (singolo lst)
+  (let (solo (lst 0))
+    (for (i 1 (- (length lst) 1))
+      (setq solo (^ solo (lst i)))
+    )
+    solo))
+
+(singolo '(1 3 3))
+;-> 1
+(singolo '(1 3 3 1 2 2 4 5 6 4 6))
+;-> 5
+(singolo '(1 3 3 4 1 2 2 4 8 7 7))
+;-> 8
+
+Possiamo utilizzare la funzione "apply":
+
+(define (singolo lst) (apply ^ lst))
+
+(singolo '(1 3 3))
+;-> 1
+(singolo '(1 3 3 1 2 2 4 5 6 4 6))
+;-> 5
+(singolo '(1 3 3 4 1 2 2 4 8 7 7))
+;-> 8
+
+
+--------------------------
+Matrici a spirale (Google)
+--------------------------
+
+Problema 1
+----------
+Data una matrice di (m x n) elementi, ritornare una lista con tutti gli elementi della matrice in ordine spirale.
+In altre parole, visitare in ordine spirale gli elementi della matrice.
+Esempi:
+
+Matrice:
+ |1 2 3|
+ |4 5 6|
+ |7 8 9|  =>  Lista: (1 2 3 6 9 8 7 4 5)
+
+Matrice:
+ |1  2  3  4|
+ |5  6  7  8|
+ |9 10 11 12|  => Lista: (1 2 3 4 8 12 11 10 9 5 6 7)
+
+(define (leggi-spirale matrix)
+  (local (row_len col_len output)
+    (setq output '())
+    (setq row_len (length matrix))
+    (setq col_len (length (matrix 0)))
+    (order-read matrix 0 row_len 0 col_len output)
+  ))
+
+(define (order-read matrix row_s row_len col_s col_len output)
+  (let (return nil)
+    (cond ((or (<= row_len 0) (<= col_len 0)) (setq return true)))
+    (if (not return)
+      (cond ((= row_len 1)
+             (for (i col_s (+ col_s col_len -1))
+               (push (matrix row_s i) output -1)
+             )
+             (setq return true))
+      )
+    )
+    (if (not return)
+      (cond ((= col_len 1)
+             (for (i row_s (+ row_s row_len -1))
+               (push (matrix i col_s) output -1)
+             )
+             (setq return true))
+      )
+    )
+    (if (not return)
+      (begin
+      ; up
+      (for (i col_s (+ col_s col_len -2))
+        (push (matrix row_s i) output -1)
+      )
+      ; right
+      (for (i row_s (+ row_s row_len -2))
+        (push (matrix i (+ col_s col_len -1)) output -1)
+      )
+      ; down
+      (for (i col_s (+ col_s col_len -2))
+        (push (matrix (+ row_s row_len -1) (+ (* 2 col_s) col_len -1 (- i))) output -1)
+      )
+      ; left
+      (for (i row_s (+ row_s row_len -2))
+        (push (matrix (+ (* 2 row_s) row_len -1 (- i)) col_s) output -1)
+      )
+      (order-read matrix (+ row_s 1) (+ row_len -2) (+ col_s 1) (+ col_len -2) output)
+      )
+    ;else
+      output
+   )
+  ))
+
+(leggi-spirale '((1 2 3) (4 5 6) (7 8 9)))
+;-> (1 2 3 6 9 8 7 4 5)
+
+(leggi-spirale '((1 2 3 4) (5 6 7 8) (9 10 11 12)))
+;-> (1 2 3 4 8 12 11 10 9 5 6 7)
+
+Problema 2
+----------
+Dato un numero intero positivo n, generare una matrice quadrata di ordine n con tutti i numeri da 1 a n^2 disposti in ordine spirale.
+Esempi:
+                     |1 2 3|
+ n = 3  =>  Matrice: |8 9 4|
+                     |7 6 5|
+
+                     | 1  2  3 4|
+ n = 4  =>  Matrice: |10 11 12 5|
+                     | 9  8  7 6|
+
+La soluzione è analoga alla precedente, l'unica differenza sta nel fatto che invece di "leggere" a spirale questa volta "scriviamo" a spirale.
+
+(define (crea-spirale n)
+  (local (row_len col_len val matrix)
+    (setq row_len n)
+    (setq col_len n)
+    (setq val 1)
+    (setq matrix (array n n '()))
+    (order-write matrix 0 row_len 0 col_len val)
+  ))
+
+(define (order-write matrix row_s row_len col_s col_len val)
+  (let (return nil)
+    (cond ((or (<= row_len 0) (<= col_len 0)) (setq return true)))
+    (if (not return)
+      (cond ((= row_len 1)
+             (for (i col_s (+ col_s col_len -1))
+               (setf (matrix row_s i) val)
+               (++ val)
+             )
+             (setq return true))
+      )
+    )
+    (if (not return)
+      (cond ((= col_len 1)
+             (for (i row_s (+ row_s row_len -1))
+               (setf (matrix i col_s) val)
+               (++ val)
+             )
+             (setq return true))
+      )
+    )
+    (if (not return)
+      (begin
+      ; up
+      (for (i col_s (+ col_s col_len -2))
+        (setf (matrix row_s i) val)
+        (++ val)
+      )
+      ; right
+      (for (i row_s (+ row_s row_len -2))
+        (setf (matrix i (+ col_s col_len -1)) val)
+        (++ val)
+      )
+      ; down
+      (for (i col_s (+ col_s col_len -2))
+        (setf (matrix (+ row_s row_len -1) (+ (* 2 col_s) col_len -1 (- i))) val)
+        (++ val)
+      )
+      ; left
+      (for (i row_s (+ row_s row_len -2))
+        (setf (matrix (+ (* 2 row_s) row_len -1 (- i)) col_s) val)
+        (++ val)
+      )
+      (order-write matrix (+ row_s 1) (+ row_len -2) (+ col_s 1) (+ col_len -2) val)
+      )
+    ;else
+      matrix
+   )
+  ))
+
+(crea-spirale 3)
+;-> ((1 2 3) (8 9 4) (7 6 5))
+(1 2 3) 
+(8 9 4) 
+(7 6 5)
+
+(crea-spirale 4)
+;-> ((1 2 3 4) (12 13 14 5) (11 16 15 6) (10 9 8 7))
+( 1  2  3 4) 
+(12 13 14 5) 
+(11 16 15 6) 
+(10  9  8 7)
 
 
 ==========

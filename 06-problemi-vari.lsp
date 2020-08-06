@@ -5301,7 +5301,7 @@ Vediamo la differenza del numero di cicli tra due for innestati (i = 0 e j = 0) 
 ;-> 10000 100000000 50005000
 ;-> 100000 10000000000 5000050000
 
-Il primo ciclo ha n^2 cicli, il secondo ha (n^2)/2 cicli.
+Il primo ciclo ha n^2 cicli, il secondo ha (n^2)/2 cicli (la complessità temporale è la stessa).
 
 
 --------------------------------------------
@@ -5339,6 +5339,9 @@ Il creatore di newLISP (Lutz Mueller) ha scritto la seguente funzione che moltip
     (join (map string P))
     )
 )
+
+(big* "12345678" "12345678")
+;-> "152415765279684"
 
 
 ------------------
@@ -5967,7 +5970,7 @@ Problemi patologici dei numeri floating point
 ---------------------------------------------
 
 La Chaotic Bank Society offre questo investimento ai propri clienti.
-Per prima cosa depositi $ e - 1 dove e è 2.7182818 ... la base dei logaritmi naturali.
+Per prima cosa depositi $(e - 1) dove e è 2.7182818 ... la base dei logaritmi naturali.
 
 Dopo ogni anno, il saldo del tuo account verrà moltiplicato per il numero di anni che sono passati e verranno rimossi $ 1 in costi di servizio.
 
@@ -7010,7 +7013,7 @@ Adesso scriviamo la funzione di test:
 
 Come possiamo vedere, i risultati calcolati confermano la teoria, cioè il taglio ottimo è circa il 37%.
 
-Per definire meglio la validità del metodo sarebbe interessante vedere quanto siamo lontani dal punteggio massimo, quando non selezioniamo la segretaria migliore utilizxzando il taglio ottimo. Per fare questo modifichiamo la funzione "secretary":
+Per definire meglio la validità del metodo sarebbe interessante vedere quanto siamo lontani dal punteggio massimo, quando non selezioniamo la segretaria migliore utilizzando il taglio ottimo. Per fare questo modifichiamo la funzione "secretary":
 
 (define (secretary2 n prove)
   (local (cand taglio m1 m2 success found delta)

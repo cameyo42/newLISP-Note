@@ -7623,7 +7623,10 @@ Definiamo la funzione che risolve il sudoku:
       (setq j 0)
       (++ i)
     )
+    ; stampa la soluzione
     (if isEmpty (begin (println board) (throw true)))
+    ; salva la soluzione su una variabile globale
+    ;(if isEmpty (begin (setq *sol* board) (throw true)))
     ;else
     (for (num 1 (length board))
         (cond ((isSafe board row col num)
@@ -7832,5 +7835,7 @@ Controlliamo la correttezza della funzione generando n posizioni e controllando 
 
 (control 10000)
 ;-> nil
+
+Sembra tutto corretto.
 
 
