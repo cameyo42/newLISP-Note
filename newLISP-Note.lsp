@@ -240,6 +240,7 @@ ROSETTA CODE
   ROT-13
   Sudoku
   Chess960
+  Percorso del cavallo
 
 PROJECT EULERO
 ==============
@@ -525,6 +526,8 @@ NOTE LIBERE 2
   Passare dati per riferimento
   Pagamento giornaliero
   Differenze tra let e letn
+  Tecnica RAID
+  Crypto XOR
 
 APPENDICI
 =========
@@ -23919,6 +23922,211 @@ Controlliamo la correttezza della funzione generando n posizioni e controllando 
 ;-> nil
 
 Sembra tutto corretto.
+
+
+--------------------
+Percorso del cavallo
+--------------------
+
+In questo problema un cavallo è posizionato in una qualunque casella sulla scacchiera vuota e, spostandosi secondo le regole degli scacchi (cioè ad L), deve passare per tutte le altre caselle esattamente una sola volta. Un percorso del cavallo si dice "chiuso" se l'ultima casa su cui si posiziona il cavallo è vicina alla casa da cui è partito (ad esempio, se il cavallo inizia in d8 e conclude il suo percorso in f7). In caso contrario il percorso del cavallo è detto "aperto". Questo problema è un esempio del più generale "problema del cammino hamiltoniano" nella teoria dei grafi.                     
+
+Vediamo la soluzione ricorsiva con backtracking:
+
+(define (knight side x y)
+  (local (n board result counter res_counter sx sy)
+    (setq n side)
+    (setq sx x sy y)
+    (setq board (array n n '(0)))
+    (setq result (array n n '(0)))
+    (setq counter 0)
+    (setq res_counter 0)
+    (if (knight-tour board sx sy) result nil)
+  ))
+
+(define (knight-tour board curr-x curr-y)
+(catch
+  (local (temp)
+  ;(println counter)
+  ; n*n mosse --> risolto
+  (if (= counter (* n n)) (throw true))
+  (cond ((or (> curr-x (- n 1)) (< curr-x 0) (> curr-y (- n 1)) (< curr-y 0) (= (board curr-x curr-y) 1))
+         (throw nil))
+        (true (++ counter) (++ res-counter))
+  )
+  (setf (board curr-x curr-y) 1)
+  (cond ((knight-tour board (+ curr-x 2) (+ curr-y 1)) ; down_right 
+         (setf (result curr-x curr-y) res-counter)
+         (setq res-counter (- res-counter 1))
+         (throw true)
+        )
+        ((knight-tour board (+ curr-x 1) (+ curr-y 2)) ; right_down
+         (setf (result curr-x curr-y) res-counter)
+         (setq res-counter (- res-counter 1))
+         (throw true)
+        )
+        ((knight-tour board (+ curr-x -1) (+ curr-y 2)) ; right-up
+         (setf (result curr-x curr-y) res-counter)
+         (setq res-counter (- res-counter 1))
+         (throw true)
+        )
+        ((knight-tour board (+ curr-x -2) (+ curr-y 1)) ; up-right
+         (setf (result curr-x curr-y) res-counter)
+         (setq res-counter (- res-counter 1))
+         (throw true)
+        )
+        ((knight-tour board (+ curr-x -2) (+ curr-y -1)) ; up-left
+         (setf (result curr-x curr-y) res-counter)
+         (setq res-counter (- res-counter 1))
+         (throw true)
+        )
+        ((knight-tour board (+ curr-x -1) (+ curr-y -2)) ; left-up
+         (setf (result curr-x curr-y) res-counter)
+         (setq res-counter (- res-counter 1))
+         (throw true)
+        )
+        ((knight-tour board (+ curr-x 1) (+ curr-y -2)) ; left-down
+         (setf (result curr-x curr-y) res-counter)
+         (setq res-counter (- res-counter 1))
+         (throw true)
+        )
+        ((knight-tour board (+ curr-x 2) (+ curr-y -1)) ; down-left
+         (setf (result curr-x curr-y) res-counter)
+         (setq res-counter (- res-counter 1))
+         (throw true)
+        )
+        (true
+          ; nessuna mossa possibile --> backtracking
+          (if (or (> curr-x (- n 1)) (< curr-x 0) (> curr-y (- n 1)) (< curr-y 0) (= (board curr-x curr-y) 1))
+            (begin
+              (setq counter (- counter 1))
+              (setq res-counter (- res-counter 1))
+              (setf (board curr-x curr-y) 0)
+            )
+          )
+          (throw nil)
+        )
+  )
+  )
+))
+
+(knight 6 0 0)
+;-> (( 1 16  7 26 11 14) 
+;->  (34 25 12 15  6 27) 
+;->  (17  2 33  8 13 10) 
+;->  (32 35 24 21 28  5) 
+;->  (23 18  3 30  9 20)
+;->  (36 31 22 19  4 29))
+
+(time (knight 6 0 0))
+;-> 3437.779
+
+(knight 8 0 0)
+;-> (( 1 60 39 34 31 18  9 64) 
+;->  (38 35 32 61 10 63 30 17) 
+;->  (59  2 37 40 33 28 19  8) 
+;->  (36 49 42 27 62 11 16 29)
+;->  (43 58  3 50 41 24  7 20)
+;->  (48 51 46 55 26 21 12 15)
+;->  (57 44 53  4 23 14 25  6)
+;->  (52 47 56 45 54  5 22 13))
+
+(time (knight 8 0 0))
+;-> 142474.658
+
+(knight 8 7 7)
+;-> ((47 34 21 30  5 14 19 64) 
+;->  (36 31 48 33 20 63  4 13) 
+;->  (49 46 35 22 29  6 15 18) 
+;->  (60 37 32 51 62 17 12  3)
+;->  (45 50 61 38 23 28  7 16)
+;->  (56 59 42 25 52  9  2 11)
+;->  (41 44 57 54 39 24 27  8)
+;->  (58 55 40 43 26 53 10  1))
+
+(time (knight 8 7 7))
+;-> 4232650.162 ; circa 70 minuti
+
+Vediamo lo stesso algoritmo di backtracking codificato in modo più strutturato.
+
+(define (is_valid i j)
+  (if (and (>= i 0) (< i n) (>= j 0) (< j n))
+      (if (= (board i j) -1)
+          true
+          nil)))
+
+(define (knight_tour i j step_count)
+(catch
+  (local (next_i next_j)
+    (if (= step_count (* n n)) (throw true))
+    (for (k 0 7)
+      (setq next_i (+ i (x_move k)))
+      (setq next_j (+ j (y_move k)))
+      (if (is_valid next_i next_j)
+          (begin
+            (setf (board next_i next_j) step_count)
+            ;(println next_i { } next_j { } step_count)
+            (if (knight_tour next_i next_j (+ step_count 1))
+                (throw true)
+            )
+            (setf (board next_i next_j) -1) ; backtracking
+          )
+      )
+    )
+    nil
+  )
+))
+
+(define (start_knight_tour side x y)
+  (local (n board x_move y_move step_count sx sy)
+    (setq n side)
+    (setq sx x sy y)
+    (setq step_count 1)
+    (setq board (array n n '(-1)))
+    (setq x_move '(2 1 -1 -2 -2 -1 1 2))
+    (setq y_move '(1 2 2 1 -1 -2 -2 -1))
+    (setf (board sx sy) 0) ; cavallo nella cella (x,y)
+    (if (knight_tour sx sy step_count) board nil
+    )))
+
+(start_knight_tour 6 0 0)
+;-> (( 0 15  6 25 10 13) 
+;->  (33 24 11 14  5 26) 
+;->  (16  1 32  7 12  9) 
+;->  (31 34 23 20 27  4) 
+;->  (22 17  2 29  8 19)
+;->  (35 30 21 18  3 28))
+
+(time (start_knight_tour 6 0 0))
+;-> 672.085
+
+(start_knight_tour 8 0 0)
+;-> (( 0 59 38 33 30 17  8 63) 
+;->  (37 34 31 60  9 62 29 16) 
+;->  (58  1 36 39 32 27 18  7) 
+;->  (35 48 41 26 61 10 15 28)
+;->  (42 57  2 49 40 23  6 19)
+;->  (47 50 45 54 25 20 11 14)
+;->  (56 43 52  3 22 13 24  5)
+;->  (51 46 55 44 53  4 21 12))
+
+(time (start_knight_tour 8 0 0))
+;-> 23314.636
+
+(start_knight_tour 8 7 7)
+;-> ((46 33 20 29  4 13 18 63) 
+;->  (35 30 47 32 19 62  3 12) 
+;->  (48 45 34 21 28  5 14 17) 
+;->  (59 36 31 50 61 16 11  2)
+;->  (44 49 60 37 22 27  6 15)
+;->  (55 58 41 24 51  8  1 10)
+;->  (40 43 56 53 38 23 26  7)
+;->  (57 54 39 42 25 52  9  0))
+ 
+(time (start_knight_tour 8 7 7))
+;-> 705835.03 ; circa 11 minuti
+
+
+Nota: cambiando l'ordine delle mosse di ricerca (x_move e y_move) si ottiene un'altra soluzione (e cambia anche il tempo di calcolo).
 
 
 ================
@@ -58420,6 +58628,109 @@ Quindi "let" è più semplice di "letn" (almeno per il compilatore/interprete).
 Il Lisp ha la regola che i valori per le associazioni (binding) in "let" sono calcolati da sinistra a destra. Come vengono valutati gli argomenti di una chiamata di funzione, da sinistra a destra. Quindi, "let" è l'istruzione concettualmente più semplice e dovrebbe essere utilizzata per impostazione predefinita.
 
 La differenza non è importante solo per il compilatore. Uso "let" e "letn" come suggerimento per me stesso di ciò che sta succedendo. Quando vedo "let" nel mio codice, so che le associazioni (binding) sono indipendenti e quando vedo "letn", so che le associazioni (binding) dipendono una dall'altra. Ma lo so solo perché mi assicuro di usare "let" e "letn" in modo coerente.
+
+
+------------
+Tecnica RAID
+------------
+
+RAID, acronimo di "Redundant Array of Independent Disks" ovvero insieme ridondante di dischi indipendenti, (originariamente "Redundant Array of Inexpensive Disks", insieme ridondante di dischi economici), è una tecnica di installazione in un computer di diversi dischi rigidi in modo che appaiano e siano utilizzabili come se fossero un unico volume di memorizzazione.
+Il principio di base della tecnica RAID si basa sulla funzione XOR. 
+
+Tabella di verità XOR
+Input A   Input B   Output
+  0         0         0
+  0         1         1
+  1         0         1
+  1         1         0
+
+Proprietà dello XOR
+Commutativa: A xor B = B xor A
+L'ordine dei parametri non modifica il risultato
+
+Associativa: A xor ( B xor C ) = ( A xor B ) xor C
+Questo significa che le operazioni XOR possono essere concatenate e l'ordine non ha importanza.
+
+Elemento identità: A xor 0 = A
+Questo significa che lo xor di qualsiasi valore con zero rimane invariato.
+
+Auto-inverso: A xor A = 0
+Questo significa che qualsiasi valore XOR con se stesso produce zero.
+
+Supponiamo di avere N dischi e di memorizzare su un altro disco (N+1) il valore XOR di tutti gli altri dischi:
+
+D = D1 xor D2 xor … xor Dn
+
+Questa viene chiamata "ridondanza": se accade un errore in un disco (per esempio D1), allora possiamo recuperare i dati utilizzando tutti gli altri dischi:
+
+  D2 xor … xor Dn xor D  
+= D2 xor … xor Dn xor (D1 xor D2 xor … xor Dn)  (definizione di D)
+
+= D1 xor (D2 xor D2) xor… xor (Dn xor Dn) (commutativa e associativa: arrangiando i termini)
+
+= D1 xor 0 xor… xor 0 (auto-inverso)
+
+= D1  (elemento identità)
+
+Vediamo un esempio con delle liste che simulano i valori contenuti nei dischi:
+
+(setq d1 '(1 1 3))
+(setq d2 '(6 5 6))
+(setq d3 '(7 8 8))
+
+Calcoliamo i valori xor di tutti i dischi:
+
+(apply ^ '(1 6 7))
+;-> 0
+(apply ^ '(1 5 8))
+;-> 12
+(apply ^ '(3 6 8))
+;-> 13
+
+In modo equivalente:
+(setq d (map (fn (x) (apply ^ x)) (map list d1 d2 d3)))
+;-> (0 12 13)
+
+Supponiamo di perdere il valore "5" dalla lista d2, allora possiamo recuperarlo nel modo seguente:
+
+d2(1) = (xor (d1(1) xor d3(1)) d(1) = (xor (xor 1 8) 12) = 5
+
+Verifichiamo:
+
+(^ (^ 1 8) 12)
+;-> 5
+
+Nel caso (altamente improbabile) in cui due dischi si guastassero contemporaneamente, con questa tecnica non ci sarebbe modo di recuperare i dati.
+
+
+----------
+Crypto XOR
+----------
+
+La funzione XOR può essere usata per cifrare/decifrare un messaggio.
+
+(define (cryptoXOR msg key)
+  (local (k len-key out)
+    (setq k 0)
+    (setq len-key (length key))
+    (dolist (el (explode msg))
+      (push (^ (char el) (char (key k))) out -1)
+      (++ k)
+      (setq k (% k len-key))
+    )
+    (join (map char out))
+  ))
+
+(cryptoXOR "messaggio cifrato" "chiave")
+;-> "\014\r\026\018\023\002\004\001\006A\021\f\005\026\b\021\025"
+
+(cryptoXOR "\014\r\026\018\023\002\004\001\006A\021\f\005\026\b\021\025" "chiave")
+;-> "messaggio cifrato"
+
+(cryptoXOR (cryptoXOR "domani" "key") "key")
+;-> "domani"
+
+La forza della criptazione dipende dalla lunghezza della chiave, più è lunga la chiave e maggiore sarà la sicurezza.
 
 
 ===========

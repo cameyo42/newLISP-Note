@@ -240,6 +240,7 @@ ROSETTA CODE
   ROT-13
   Sudoku
   Chess960
+  Percorso del cavallo
 
 PROJECT EULERO
 ==============
@@ -525,6 +526,8 @@ NOTE LIBERE 2
   Passare dati per riferimento
   Pagamento giornaliero
   Differenze tra let e letn
+  Tecnica RAID
+  Crypto XOR
 
 APPENDICI
 =========

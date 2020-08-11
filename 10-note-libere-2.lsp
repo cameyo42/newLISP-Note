@@ -3387,3 +3387,106 @@ Il Lisp ha la regola che i valori per le associazioni (binding) in "let" sono ca
 La differenza non è importante solo per il compilatore. Uso "let" e "letn" come suggerimento per me stesso di ciò che sta succedendo. Quando vedo "let" nel mio codice, so che le associazioni (binding) sono indipendenti e quando vedo "letn", so che le associazioni (binding) dipendono una dall'altra. Ma lo so solo perché mi assicuro di usare "let" e "letn" in modo coerente.
 
 
+------------
+Tecnica RAID
+------------
+
+RAID, acronimo di "Redundant Array of Independent Disks" ovvero insieme ridondante di dischi indipendenti, (originariamente "Redundant Array of Inexpensive Disks", insieme ridondante di dischi economici), è una tecnica di installazione in un computer di diversi dischi rigidi in modo che appaiano e siano utilizzabili come se fossero un unico volume di memorizzazione.
+Il principio di base della tecnica RAID si basa sulla funzione XOR. 
+
+Tabella di verità XOR
+Input A   Input B   Output
+  0         0         0
+  0         1         1
+  1         0         1
+  1         1         0
+
+Proprietà dello XOR
+Commutativa: A xor B = B xor A
+L'ordine dei parametri non modifica il risultato
+
+Associativa: A xor ( B xor C ) = ( A xor B ) xor C
+Questo significa che le operazioni XOR possono essere concatenate e l'ordine non ha importanza.
+
+Elemento identità: A xor 0 = A
+Questo significa che lo xor di qualsiasi valore con zero rimane invariato.
+
+Auto-inverso: A xor A = 0
+Questo significa che qualsiasi valore XOR con se stesso produce zero.
+
+Supponiamo di avere N dischi e di memorizzare su un altro disco (N+1) il valore XOR di tutti gli altri dischi:
+
+D = D1 xor D2 xor … xor Dn
+
+Questa viene chiamata "ridondanza": se accade un errore in un disco (per esempio D1), allora possiamo recuperare i dati utilizzando tutti gli altri dischi:
+
+  D2 xor … xor Dn xor D  
+= D2 xor … xor Dn xor (D1 xor D2 xor … xor Dn)  (definizione di D)
+
+= D1 xor (D2 xor D2) xor… xor (Dn xor Dn) (commutativa e associativa: arrangiando i termini)
+
+= D1 xor 0 xor… xor 0 (auto-inverso)
+
+= D1  (elemento identità)
+
+Vediamo un esempio con delle liste che simulano i valori contenuti nei dischi:
+
+(setq d1 '(1 1 3))
+(setq d2 '(6 5 6))
+(setq d3 '(7 8 8))
+
+Calcoliamo i valori xor di tutti i dischi:
+
+(apply ^ '(1 6 7))
+;-> 0
+(apply ^ '(1 5 8))
+;-> 12
+(apply ^ '(3 6 8))
+;-> 13
+
+In modo equivalente:
+(setq d (map (fn (x) (apply ^ x)) (map list d1 d2 d3)))
+;-> (0 12 13)
+
+Supponiamo di perdere il valore "5" dalla lista d2, allora possiamo recuperarlo nel modo seguente:
+
+d2(1) = (xor (d1(1) xor d3(1)) d(1) = (xor (xor 1 8) 12) = 5
+
+Verifichiamo:
+
+(^ (^ 1 8) 12)
+;-> 5
+
+Nel caso (altamente improbabile) in cui due dischi si guastassero contemporaneamente, con questa tecnica non ci sarebbe modo di recuperare i dati.
+
+
+----------
+Crypto XOR
+----------
+
+La funzione XOR può essere usata per cifrare/decifrare un messaggio.
+
+(define (cryptoXOR msg key)
+  (local (k len-key out)
+    (setq k 0)
+    (setq len-key (length key))
+    (dolist (el (explode msg))
+      (push (^ (char el) (char (key k))) out -1)
+      (++ k)
+      (setq k (% k len-key))
+    )
+    (join (map char out))
+  ))
+
+(cryptoXOR "messaggio cifrato" "chiave")
+;-> "\014\r\026\018\023\002\004\001\006A\021\f\005\026\b\021\025"
+
+(cryptoXOR "\014\r\026\018\023\002\004\001\006A\021\f\005\026\b\021\025" "chiave")
+;-> "messaggio cifrato"
+
+(cryptoXOR (cryptoXOR "domani" "key") "key")
+;-> "domani"
+
+La forza della criptazione dipende dalla lunghezza della chiave, più è lunga la chiave e maggiore sarà la sicurezza.
+
+
