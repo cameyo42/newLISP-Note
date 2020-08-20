@@ -14,7 +14,7 @@ Appunti sul linguaggio newLISP
 07) Domande programmatori (70)  
 08) Librerie (8)  
 09) Note libere (80)  
-10) Note libere 2 (44)  
+10) Note libere 2 (49)  
 11) Appendici (21)  
 12) Bibliografia  
 

@@ -5732,7 +5732,6 @@ Adesso scriviamo una funzione che cripta una stringa con una data password.
 ;-> "=\022\003\004\025\026\031"
 
 (crypt-text "=\022\003\004\025\026\031" "pwd")
-(crypt-text "=\022\003\004\025\026\031" "pwd")
 ;-> Massimo
 
 Per il nostro scopo è più conveniente avere in input una lista di codici ASCII la nostra lista tc):

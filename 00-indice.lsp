@@ -528,6 +528,11 @@ NOTE LIBERE 2
   Differenze tra let e letn
   Tecnica RAID
   Crypto XOR
+  Lancio di una moneta
+  Area massima
+  Sole o pioggia
+  Roulette russa
+  Common LISP Quicksort
 
 APPENDICI
 =========

@@ -5761,7 +5761,8 @@ Usiamo l'operatore XOR (OR esclusivo) che restituisce zero quando viene applicat
 Quindi applichiamo lo XOR in maniera iterativa a tutti i numeri della lista. Il valore finale rappresenta il numero singolo.
 
 lst = (1 2 3 2 3)
-numero = (1 XOR 2 XOR 3 XOR 2 XOR 3) = 1
+
+numero = ((((1 XOR 2) XOR 3) XOR 2) XOR 3) = 1
 
 (define (singolo lst)
   (let (solo (lst 0))
@@ -5787,6 +5788,24 @@ Possiamo utilizzare la funzione "apply":
 ;-> 5
 (singolo '(1 3 3 4 1 2 2 4 8 7 7))
 ;-> 8
+
+Vediamo la soluzione proposta da fdb:
+
+(define (find-number lst)
+	(define Myhash:Myhash)  ; hash table creation, O(1) lookup time
+	(set 'total 0)
+	(dolist (n lst)
+	(if (Myhash n)
+		(dec total n)    ; decrease when already added before
+		(begin
+			(Myhash n true)
+			(inc total n))))  ; if not in hash table increase
+	(delete 'Myhash)  ; first to delete contents and namespace
+	(delete 'Myhash)  ; second to delete symbol
+	total)
+
+(find-number '(1 2 3 4 5 3 2 1 5))
+;-> 4
 
 
 --------------------------

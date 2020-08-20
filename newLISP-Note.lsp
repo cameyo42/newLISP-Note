@@ -528,6 +528,11 @@ NOTE LIBERE 2
   Differenze tra let e letn
   Tecnica RAID
   Crypto XOR
+  Lancio di una moneta
+  Area massima
+  Sole o pioggia
+  Roulette russa
+  Common LISP Quicksort
 
 APPENDICI
 =========
@@ -29863,7 +29868,6 @@ Adesso scriviamo una funzione che cripta una stringa con una data password.
 ;-> "=\022\003\004\025\026\031"
 
 (crypt-text "=\022\003\004\025\026\031" "pwd")
-(crypt-text "=\022\003\004\025\026\031" "pwd")
 ;-> Massimo
 
 Per il nostro scopo è più conveniente avere in input una lista di codici ASCII la nostra lista tc):
@@ -44429,7 +44433,8 @@ Usiamo l'operatore XOR (OR esclusivo) che restituisce zero quando viene applicat
 Quindi applichiamo lo XOR in maniera iterativa a tutti i numeri della lista. Il valore finale rappresenta il numero singolo.
 
 lst = (1 2 3 2 3)
-numero = (1 XOR 2 XOR 3 XOR 2 XOR 3) = 1
+
+numero = ((((1 XOR 2) XOR 3) XOR 2) XOR 3) = 1
 
 (define (singolo lst)
   (let (solo (lst 0))
@@ -44455,6 +44460,24 @@ Possiamo utilizzare la funzione "apply":
 ;-> 5
 (singolo '(1 3 3 4 1 2 2 4 8 7 7))
 ;-> 8
+
+Vediamo la soluzione proposta da fdb:
+
+(define (find-number lst)
+	(define Myhash:Myhash)  ; hash table creation, O(1) lookup time
+	(set 'total 0)
+	(dolist (n lst)
+	(if (Myhash n)
+		(dec total n)    ; decrease when already added before
+		(begin
+			(Myhash n true)
+			(inc total n))))  ; if not in hash table increase
+	(delete 'Myhash)  ; first to delete contents and namespace
+	(delete 'Myhash)  ; second to delete symbol
+	total)
+
+(find-number '(1 2 3 4 5 3 2 1 5))
+;-> 4
 
 
 --------------------------
@@ -58693,7 +58716,7 @@ In modo equivalente:
 
 Supponiamo di perdere il valore "5" dalla lista d2, allora possiamo recuperarlo nel modo seguente:
 
-d2(1) = (xor (d1(1) xor d3(1)) d(1) = (xor (xor 1 8) 12) = 5
+d2(1) = (xor (d1(1) xor d3(1)) d(1)) = (xor (xor 1 8) 12) = 5
 
 Verifichiamo:
 
@@ -58731,6 +58754,378 @@ La funzione XOR può essere usata per cifrare/decifrare un messaggio.
 ;-> "domani"
 
 La forza della criptazione dipende dalla lunghezza della chiave, più è lunga la chiave e maggiore sarà la sicurezza.
+
+
+--------------------
+Lancio di una moneta
+--------------------
+
+Abbiamo una moneta con due facce: "testa" e "croce".
+In teoria lanciando/girando la moneta n volte, dovremmo ottenere il 50% "testa" e il 50% "croce" (circa).
+Purtoppo dopo 1000 prove la nostra moneta produce il seguente risultato: 750 volte "testa" e 250 volte "croce".
+Come possiamo ottenere una probabilità equa (50% "testa" e 50% "croce") da questa moneta?
+
+Possiamo utilizzare una tecnica indicata da vonNeumann:
+
+Passo 1. Lanciare/girare la moneta due volte.
+Passo 2. Se i due risultati sono diversi,
+         prendere come evento il primo risultato:
+         TC diventa l'evento "testa",
+         CT diventa l'evento "croce".
+         La procedura è terminata.
+Passo 3. Se i due risultati sono gli stessi (TT o CC),
+         scartare la prova e tornare al passo 1.
+
+In questo modo i risultati TC e CT sono simmetrici e quindi hanno uguale probabilità.
+
+Vediamo come funziona:
+supponiamo che il risultato "testa" abbia il 75% di probabilità e "croce" abbia il 25% di probabilità.
+Poichè ogni lancio di moneta è un evento indipendente possiamo calcolare direttamente la probabilità delle coppie:
+
+ TC si verifica (0.75)*(0.25) = 0.1875
+ CT si verifica (0.25)*(0.75) = 0.1875
+
+Come si nota, i due eventi coppia sono ugualmente probabili e quindi le possibilità sono pari.
+
+Vediamo di simulare la funzione di vonNeumann:
+
+(define (faircoin)
+  (local (a b res)
+    (setq res nil)
+    (while (= res nil)
+      (setq a (rand 2))
+      (setq b (rand 2))
+      (if (!= a b)
+          (setq res a))) res))
+
+(faircoin)
+;-> 0
+
+Eseguiamo la funzione n volte:
+
+(define (test n)
+  (let ((t 0) (c 0))
+    (dotimes (i n)
+      (if (= (faircoin) 0)
+          (++ t)
+          (++ c)))
+    (println "testa: " t { - } "croce: "c)))
+
+(test 10000000)
+;-> testa: 5001000 - croce: 4999000
+(test 100000000)
+;-> testa: 49999363 - croce: 50000637
+
+Vediamo il risultato con una simulazione standard (usando direttamente la funzione "rand"):
+
+(define (testreal n)
+  (let ((t 0) (c 0))
+    (dotimes (i n)
+      (if (= (rand 2) 0)
+          (++ t)
+          (++ c)))
+    (println "testa: " t { - } "croce: "c)))
+
+(testreal 10000000)
+;-> testa: 5001680 - croce: 4998320
+(testreal 100000000)
+;-> testa: 50001412 - croce: 49998588
+
+Per vedere se la funzione "faircoin" restiutisce il risultato corretto proviamo a modificare la funzione assegnando a "testa" la probabilità del 75% e a "croce" la probabilità del 25%.
+
+(define (faircoin)
+  (local (a b res)
+    (setq res nil)
+    (while (= res nil)
+      (setq a (rand 100))
+      (if (> a 25)
+          (setq a 0)
+          (setq a 1)
+      )
+      (setq b (rand 100))
+      (if (> b 25)
+          (setq b 0)
+          (setq b 1)
+      )
+      (if (!= a b)
+          (setq res a))) res))
+
+(faircoin)
+;-> 0
+
+Proviamo la nuova funzione con n lanci:
+
+(test 10000000)
+;-> testa: 4997544 - croce: 5002456
+(test 100000000)
+;-> testa: 50002280 - croce: 49997720
+
+La procedura di vonNeumann produce risultati equi.
+
+Nota: nella vita reale una moneta non è mai equa, questo è dovuto sia a motivi geometrici/fisici della moneta stessa, sia al modo con cui vengono eseguite le prove (lancio e cattura della moneta oppure rotazione della moneta su un piano). Quindi sarebbe meglio usare la procedura di vonNeumann o utilizzare un generatore di numeri casuali per ottenere una probabilità equa.
+
+Nota: analizziamo il lancio e la cattura di una moneta. Si consideri una moneta, lanciata dalla posizione "testa" per un certo numero di volte, che gira testa-croce attraverso l'aria (con tempi diversi):
+
+lancio 1: T C T C T C T C T C T C T C T C T C T C    ==> (10 T e 10 C)
+lancio 2: T C T C T C T C T C T C T C T C T C T      ==> (10 T e 9 C)
+lancio 3: T C T C T C T C T C T C                    ==> (6 T e 6 C)
+lancio 4: T C T C T C T C T C T C T C T              ==> (8 T e 7 C)
+
+Come si nota, se partiamo dalla posizione "testa" non possiamo mai ottenere un lancio in cui il numero delle croci è superiore al numero delle teste. Invece abbiamo dei lanci in cui il numero delle teste supera di una unità il numero delle croci. In altre parole, in un dato momento, o la moneta avrà trascorso lo stesso tempo negli stati di "testa" e "croce", oppure avrà trascorso più tempo nello stato di "testa". Nel complesso, è leggermente più probabile che la moneta mostri "testa" in un dato momento, incluso il momento in cui la moneta viene catturata. Questo indica che la probabilità dell'evento "testa" è maggiore (anche se di poco) del 50%. Vediamo una simulazione di questo processo:
+
+(define (lancio n)
+  (local (t c res)
+    (setq t 0 c 0)
+    (dotimes (x n)
+      ; crea una lista di 0 e 1 alternati di lunghezza casuale (da 3 a 22)
+      ; che inizia con 0 (testa).
+      ; Restituisce una lista con il numero di 0 e di 1.
+      (setq res (count '(0 1) (slice (flat (dup '(0 1) 11)) 0 (+ (rand 19) 3))))
+      (setq t (+ t (first res)))
+      (setq c (+ c (last res)))
+    )
+    (println "testa: " t " - " (mul 100 (div t (add t c))))
+    (println "croce: " c " - " (mul 100 (div c (add t c))))))
+
+(lancio 100000)
+;-> testa: 628056 - 52.19116884498278
+;-> croce: 575320 - 47.80883115501722
+(lancio 10000000)
+;-> testa: 62623070 - 52.19285897839979
+;-> croce: 57360911 - 47.80714102160021
+
+
+------------
+Area massima
+------------
+
+Data una corda di 4 metri di lunghezza, tagliandola in due possiamo costruire una circonferenza (con il primo pezzo) e un quadrato con il secondo pezzo. Determinare il taglio ottimo che massimizza la somma delle aree della circonferenza e del quadrato.
+
+Risolviamo il problema con una simulazione.
+
+(define (taglio step)
+  (setq pi 3.1415926535)
+  (setq corda 4)
+  (for (i 0 4 step)
+    (setq t1 i)
+    (setq t2 (sub corda i))
+    (setq l (div t1 4))
+    (setq quad (mul l l))
+    (setq r (div t2 (mul 2 pi)))
+    (setq circle (mul r r pi))
+    (println i ": t1=" t1 " t2=" t2 " area=" (add quad circle))
+  )
+)
+
+(taglio 0.1)
+;-> 0: t1=0 t2=4 area=1.273239544771555
+;-> 0.1: t1=0.1 t2=3.9 area=1.210998342248459
+;-> 0.2: t1=0.2 t2=3.8 area=1.151598689156328
+;-> 0.3: t1=0.3 t2=3.7 area=1.095040585495162
+;-> 0.4: t1=0.4 t2=3.6 area=1.041324031264959
+;-> 0.5: t1=0.5 t2=3.5 area=0.9904490264657215
+;-> 0.6: t1=0.6 t2=3.4 area=0.9424155710974482
+;-> 0.7: t1=0.7 t2=3.3 area=0.8972236651601393
+;-> 0.8: t1=0.8 t2=3.2 area=0.8548733086537949
+;-> 0.9: t1=0.9 t2=3.1 area=0.815364501578415
+;-> 1: t1=1 t2=3 area=0.7786972439339993
+;-> 1.1: t1=1.1 t2=2.9 area=0.7448715357205482
+;-> 1.2: t1=1.2 t2=2.8 area=0.7138873769380616
+;-> 1.3: t1=1.3 t2=2.7 area=0.6857447675865397
+;-> 1.4: t1=1.4 t2=2.6 area=0.6604437076659817
+;-> 1.5: t1=1.5 t2=2.5 area=0.6379841971763884
+;-> 1.6: t1=1.6 t2=2.4 area=0.6183662361177595
+;-> 1.7: t1=1.7 t2=2.3 area=0.6015898244900951
+;-> 1.8: t1=1.8 t2=2.2 area=0.5876549622933953
+;-> 1.9: t1=1.9 t2=2.1 area=0.5765616495276595
+;-> 2: t1=2 t2=2 area=0.5683098861928886
+;-> 2.1: t1=2.1 t2=1.9 area=0.562899672289082
+;-> 2.2: t1=2.2 t2=1.8 area=0.5603310078162398
+;-> 2.3: t1=2.3 t2=1.7 area=0.560603892774362
+;-> 2.4: t1=2.4 t2=1.6 area=0.5637183271634487
+;-> 2.5: t1=2.5 t2=1.5 area=0.5696743109834999
+;-> 2.6: t1=2.6 t2=1.4 area=0.5784718442345155
+;-> 2.7: t1=2.7 t2=1.3 area=0.5901109269164955
+;-> 2.8: t1=2.8 t2=1.2 area=0.60459155902944
+;-> 2.9: t1=2.9 t2=1.1 area=0.6219137405733488
+;-> 3: t1=3 t2=1 area=0.6420774715482222
+;-> 3.1: t1=3.1 t2=0.8999999999999999 area=0.66508275195406
+;-> 3.2: t1=3.2 t2=0.7999999999999998 area=0.6909295817908623
+;-> 3.3: t1=3.3 t2=0.6999999999999997 area=0.719617961058629
+;-> 3.4: t1=3.4 t2=0.5999999999999996 area=0.7511478897573601
+;-> 3.5: t1=3.5 t2=0.5 area=0.7855193678870556
+;-> 3.6: t1=3.6 t2=0.3999999999999999 area=0.8227323954477156
+;-> 3.7: t1=3.7 t2=0.2999999999999998 area=0.8627869724393401
+;-> 3.8: t1=3.8 t2=0.1999999999999997 area=0.905683098861929
+;-> 3.9: t1=3.9 t2=0.09999999999999965 area=0.9514207747154824
+;-> 4: t1=4 t2=0 area=1
+
+Quindi conviene avere la maggior corda possibile per il cerchio.
+Nota: fra tutte le curve chiuse nel piano di fissato perimetro, la circonferenza massimizza l'area della regione inclusa (problema isoperimetrico).
+
+
+--------------
+Sole o pioggia
+--------------
+
+In un certo posto il tempo è soleggiato o piovoso, niente in mezzo.
+In una giornata di sole, ci sono le stesse possibilità che il giorno successivo pioverà o sarà soleggiato.
+In una giornata piovosa, invece, c'è un 70 per cento di possibilità che il giorno successivo pioverà contro una probabilità del 30% che sarà soleggiato.
+In media, quante volte piove in questo posto?
+
+(define (test n)
+  (local (prob_sole prob_pioggia day dole pioggia)
+    ; 0=sole 1=pioggia
+    (setq sole 0 pioggia 0)
+    (setq day (rand 2))
+    (if (= 0 day) (++ sole) (++ pioggia))
+    (for (i 2 n)
+      (cond ((= day 0) ; se il giorno prima c'era il sole
+             (setq day (rand 2))
+             (if (= 0 day) (++ sole) (++ pioggia))
+            )
+            ((= day 1) ; se il giorno prima c'era la pioggia
+             (if (< (rand 100) 30)
+                 ; se minore di 30 allora giorno di sole
+                 (setq sole (+ sole 1) day 0)
+                 ; altrimenti giorno di pioggia
+                 (setq pioggia (+ pioggia 1) day 1)
+             )
+            )
+      )
+    )
+    (println "sole: " sole)
+    (println "pioggia: " pioggia)
+    (println "totale: " (+ sole pioggia))
+    (println "%pioggia = " (mul 100 (div pioggia (+ sole pioggia))))
+  )
+)
+
+(test 10000000)
+;-> sole: 3749166
+;-> pioggia: 6250834
+;-> totale: 10000000
+;-> %pioggia = 62.50834
+
+Quindi in quel posto piove il 62.5% dei giorni.
+
+
+--------------
+Roulette russa
+--------------
+
+Facciamo una partita alla roulette russa. Si tratta di un gioco d'azzardo che consiste nel posizionare un solo proiettile in una pistola, ruotare il tamburo senza guardare, puntarla verso la propria testa e premere il grilletto. Nel caso in cui il primo colpo non sia mortale, puoi decidere se sparare subito un secondo colpo oppure ruotare (rullare) il tamburo una seconda volta prima di sparare.
+Dal punto di vista delle probabilità di sopravvivenza, cosa conviene scegliere?
+
+Dal punto di vista matematico risulta:
+
+% sopravvivenza con un rullaggio:
+(setq v (div 4 6))
+;-> 0.6666666666666666
+
+% sopravvivenza con due rullaggi:
+(setq v (mul (div 5 6) (div 5 6)))
+;-> 0.6944444444444445
+
+Cerchiamo di verificare questa soluzione con una simulazione.
+
+(define (russa n)
+  (local (gun vivo morto morto1 morto2)
+    ; morto1 conta le morti al primo colpo
+    ; morto2 conta le morti al secondo colpo
+    ; test con un solo rullaggio (due colpi consecutivi)
+    (setq vivo 0 morto 0 morto1 0 morto2 0)
+    (for (i 1 n)
+      (setq gun (rand 6))
+      (if (> gun 1) ; se gun=0 o gun=1, allora morto
+          (++ vivo)
+          (if (= gun 0)
+              (++ morto1)
+              (++ morto2)
+          )
+      )
+    )
+    (println "Un rullaggio: vivo = " vivo " & morto1 = " morto1 " & morto2 = " morto2)
+    (println "totale: " (+ vivo morto1 morto2))
+    (println "%vivo: " (mul 100 (div vivo (add vivo morto1 morto2))))
+    (setq vivo 0 morto 0 morto1 0 morto2 0)
+    ; test con due rullaggi (un colpo dopo ogni rullaggio)
+    (for (i 1 n)
+      ; primo rullaggio e colpo
+      (setq gun (rand 6))
+      (if (= gun 0)
+          (++ morto1)
+          (begin ; se vivo allora
+            ; secondo rullaggio e colpo
+            (setq gun (rand 6))
+            (if (= gun 0)
+                (++ morto2)
+                (++ vivo)
+            )
+         )
+      )
+    )
+    (println "Due rullaggi: vivo = " vivo " & morto1 = " morto1 " & morto2 = " morto2)
+    (println "totale: " (+ vivo morto1 morto2))
+    (println "%vivo: " (mul 100 (div vivo (add vivo morto1 morto2))))
+  )
+)
+
+(russa 10000000)
+;-> Un rullaggio: vivo = 6669793 & morto1 = 1665755 & morto2 = 1664452
+;-> totale: 10000000
+;-> %vivo: 66.69793
+;-> Due rullaggi: vivo = 6942370 & morto1 = 1666709 & morto2 = 1390921
+;-> totale: 10000000
+;-> %vivo: 69.4237
+
+Quindi conviene scegliere di rullare il tamburo due volte.
+La teoria della probabilità può salvarti la vita.
+
+
+---------------------
+Common LISP Quicksort
+---------------------
+
+La seguente funzione, scritta in Common LISP, implementa l'algoritmo di ordinamento Quicksort.
+Vediamo come convertirla in newLISP.
+
+(defun qsort (lst)
+   (when lst
+     (let* ((x  (car lst))
+	          (xs (cdr lst))
+	          (lt  (loop for y in xs when (< y x) collect y))
+	          (gte (loop for y in xs when (>= y x) collect y)))
+     (append (qsort lt) (list x) (qsort gte)))))
+
+La funzione "defun" diventa "define".
+La funzione "let*" diventa "letn".
+Le funzioni "loop" e "collect" vengono sostituite con "dolist".
+
+(define (qsort lst)
+   (when lst
+     (letn ((x (first lst))
+	          (xs (rest lst))
+            (lt '())
+            (gte '()))
+     (dolist (y xs) (if (< y x) (push y lt -1)))
+     (dolist (y xs) (if (>= y x) (push y gte -1)))
+     ;(println lt) ;(println gte)
+     (append (qsort lt) (list x) (qsort gte))
+   )))
+
+(qsort (randomize (sequence 1 100)))
+;-> (1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25
+;->  26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47
+;->  48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69
+;->  70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91
+;->  92 93 94 95 96 97 98 99 100)
+
+Proviamo la velocità:
+
+(silent (setq lst (rand 10000 100000)))
+(time (qsort lst))
+;-> 374.831
 
 
 ===========
