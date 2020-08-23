@@ -3862,3 +3862,146 @@ Proviamo la velocità:
 ;-> 374.831
 
 
+------------------------------------------
+Ambito dinamico e parametri delle funzioni
+------------------------------------------
+
+Vediamo alcuni esempi per capire meglio come funziona la "visibilità" delle variabili e dei parametri delle funzioni in newLISP (che utilizza l'ambito dinamico).
+Un aspetto fondamentale è il seguente:
+la funzione chiamata "vede" tutte le variabili locali della funzione chiamante (a meno che la funzione chiamata non abbia variabili locali con nomi/simboli uguali a quelli della funzione chiamante (shadowing)).
+L'output degli esempi è autoesplicativo sul funzionamento della visibilità delle variabili.
+
+Esempio 1
+---------
+
+(define (f1)
+  (local (a b)
+    (println "f1-pre: a=" a " e b=" b)
+    (f2)
+    (println "f1-post: a=" a " e b=" b)))
+
+(define (f2)
+  (println "f2-pre: a=" a " e b=" b)
+  (setq a 10 b 20)
+  (println "f2-post: a=" a " e b=" b)
+  (println "f2-pre: c=" c " e d=" d)
+  (f3)
+  (println "f2-post: c=" c " e d=" d))
+
+(define (f3)
+  (local (c d)
+    (println "f3-pre: a=" a " e b=" b)
+    (println "f3-pre: c=" c " e d=" d)
+    (setq c 30 d 40)
+    (println "f3-post: c=" c " e d=" d)))
+
+(f1)
+;-> f1-pre: a=nil e b=nil
+;-> f2-pre: a=nil e b=nil
+;-> f2-post: a=10 e b=20
+;-> f2-pre: c=nil e d=nil
+;-> f3-pre: a=10 e b=20
+;-> f3-pre: c=nil e d=nil
+;-> f3-post: c=30 e d=40
+;-> f2-post: c=nil e d=nil
+;-> f1-post: a=10 e b=20
+
+Esempio 2
+---------
+
+(define (f1)
+  (local (a b)
+    (println "f1-pre: a=" a " e b=" b)
+    (f2)
+    (println "f1-post: a=" a " e b=" b)))
+
+(define (f2)
+  (local (aa bb)
+    (println "f2-pre: a=" a " e b=" b)
+    (println "f2-pre: c=" c " e d=" d)
+    (setq a 10 b 20)
+    (f3 a b)
+    (println "f2-post: a=" a " e b=" b)
+    (println "f2-post: c=" c " e d=" d)
+    (println "f2-post: x=" x " e y=" y)))
+
+(define (f3 x y)
+  (local (c d)
+    (println "f3-pre: a=" a " e b=" b)
+    (println "f3-pre: c=" c " e d=" d)
+    (println "f3-pre: x=" x " e y=" y)
+    (setq c 30 d 40)
+    (setq x 88 y 99)
+    (println "f3-post: a=" a " e b=" b)
+    (println "f3-post: c=" c " e d=" d)
+    (println "f3-post: x=" x " e y=" y)))
+
+(f1)
+;-> f1-pre: a=nil e b=nil
+;-> f2-pre: a=nil e b=nil
+;-> f2-pre: c=nil e d=nil
+;-> f3-pre: a=10 e b=20
+;-> f3-pre: c=nil e d=nil
+;-> f3-pre: x=10 e y=20
+;-> f3-post: a=10 e b=20
+;-> f3-post: c=30 e d=40
+;-> f3-post: x=88 e y=99
+;-> f2-post: a=10 e b=20
+;-> f2-post: c=nil e d=nil
+;-> f2-post: x=nil e y=nil
+;-> f1-post: a=10 e b=20
+
+Esempio 3
+---------
+
+(define (f1 x y)
+  (local (a b)
+    (println "f1-pre: a=" a " e b=" b)
+    (println "f1-pre: x=" x " e y=" y)
+    (setq a x b y)
+    (f2)
+    (println "f1-post: a=" a " e b=" b)
+    (println "f1-post: x=" x " e y=" y)))
+
+(define (f2)
+    (println "f2-pre: a=" a " e b=" b)
+    (println "f2-pre: x=" x " e y=" y)
+    (setq a 10 b 20)
+    (setq x 11 y 22)
+    (println "f2-post: a=" a " e b=" b)
+    (println "f2-post: x=" x " e y=" y))
+
+(f1 1 2)
+;-> f1-pre: a=nil e b=nil
+;-> f1-pre: x=1 e y=2
+;-> f2-pre: a=1 e b=2
+;-> f2-pre: x=1 e y=2
+;-> f2-post: a=10 e b=20
+;-> f2-post: x=11 e y=22
+;-> f1-post: a=10 e b=20
+;-> f1-post: x=11 e y=22
+
+Esempio 4
+---------
+Shadowing delle variabili a e b
+
+(define (f1)
+  (local (a b)
+    (println "f1-pre: a=" a " e b=" b)
+    (setq a 1 b 2)
+    (f2)
+    (println "f1-post: a=" a " e b=" b)))
+
+(define (f2)
+  (local (a b)
+    (println "f2-pre: a=" a " e b=" b)
+    (setq a 10 b 20)
+    (println "f2-post: a=" a " e b=" b)))
+
+(f1)
+;-> f1-pre: a=nil e b=nil
+;-> f2-pre: a=nil e b=nil
+;-> f2-post: a=10 e b=20
+;-> f1-post: a=1 e b=2
+
+

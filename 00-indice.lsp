@@ -533,6 +533,7 @@ NOTE LIBERE 2
   Sole o pioggia
   Roulette russa
   Common LISP Quicksort
+  Ambito dinamico e parametri delle funzioni
 
 APPENDICI
 =========

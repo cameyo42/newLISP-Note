@@ -533,6 +533,7 @@ NOTE LIBERE 2
   Sole o pioggia
   Roulette russa
   Common LISP Quicksort
+  Ambito dinamico e parametri delle funzioni
 
 APPENDICI
 =========
@@ -23898,7 +23899,7 @@ Funzione che controlla la correttezza di una posizione casuale:
     ; alfieri di colore contrario?
     (even? (- (find 'B lst) (find 'B (reverse (copy lst)))))))
 
-Funzione che genre una posizione chess960 corretta:
+Funzione che genera una posizione chess960 corretta:
 
 (define (get960)
   (setq start '(R N B Q K B N R))
@@ -23930,7 +23931,7 @@ Sembra tutto corretto.
 
 
 --------------------
-Percorso del cavallo
+PERCORSO DEL CAVALLO
 --------------------
 
 In questo problema un cavallo è posizionato in una qualunque casella sulla scacchiera vuota e, spostandosi secondo le regole degli scacchi (cioè ad L), deve passare per tutte le altre caselle esattamente una sola volta. Un percorso del cavallo si dice "chiuso" se l'ultima casa su cui si posiziona il cavallo è vicina alla casa da cui è partito (ad esempio, se il cavallo inizia in d8 e conclude il suo percorso in f7). In caso contrario il percorso del cavallo è detto "aperto". Questo problema è un esempio del più generale "problema del cammino hamiltoniano" nella teoria dei grafi.                     
@@ -24130,8 +24131,176 @@ Vediamo lo stesso algoritmo di backtracking codificato in modo più strutturato.
 (time (start_knight_tour 8 7 7))
 ;-> 705835.03 ; circa 11 minuti
 
-
 Nota: cambiando l'ordine delle mosse di ricerca (x_move e y_move) si ottiene un'altra soluzione (e cambia anche il tempo di calcolo).
+
+Un algoritmo molto più veloce è quello di Warnsdorff (1823) che permette di trovare un percorso chiuso partendo da qualunqe casa della scacchiera.
+
+Regola di Warnsdorff:
+1) Partire da qualsiasi posizione iniziale del cavallo sulla scacchiera.
+2) Spostarsi sempre in una casella non visitata che possiede grado minimo (numero minimo di caselle adiacenti non visitate).
+
+(define (print-board lst)
+  (local (s space)
+  (for (i 0 (- n 1))
+    (setq s "")
+    (for (j 0 (- n 1))
+      (if (> (lst (+ (* j n) i)) 9)
+          (setq space "  ")
+          (setq space "   ")
+      )
+      (extend s space (string (lst (+ (* j n) i))))
+    )
+    (println s)
+  )
+  'end))
+
+; Restricts the knight to remain within
+; the 8x8 chessboard
+(define (limits x y)
+  (and (>= x 0) (>= y 0) (< x n) (< y n)))
+
+; Checks whether a square is valid and empty or not
+(define (isempty b x y)
+  (and (limits x y) (< (b (+ (* y n) x)) 0)))
+
+; Returns the number of empty squares adjacent to (x, y)
+(define (getDegree b x y)
+  (let (conta 0)
+    (for (i 0 (- n 1))
+      (if (isempty b (+ x (cx i)) (+ y (cy i)))
+          (++ conta)
+      )
+    )
+    conta))
+
+; Picks next point using Warnsdorff's heuristic.
+; Returns false if it is not possible to pick next point.
+(define (nextMove)
+(catch
+  (local (minDegIdx c minDeg nx ny start i)
+    (setq minDegIdx -1)
+    (setq minDeg (+ n 1))
+    ; Try all N adjacent of (*x, *y) starting
+    ; from a random adjacent. Find the adjacent
+    ; with minimum degree.
+    (setq start (rand n))
+    (for (conta 0 (- n 1))
+      (setq i (% (+ start conta) n))
+      (setq nx (+ gx (cx i)))
+      (setq ny (+ gy (cy i)))
+      (setq c (getDegree board nx ny))
+      (if (and (isempty board nx ny) (< c minDeg))
+          (setq minDegIdx i minDeg c)
+      )
+    )
+    ; if we could not find a next cell
+    (if (= minDegIdx -1) (throw nil))
+    ; Store coordinates of next point
+    (setq nx (+ gx (cx minDegIdx)))
+    (setq ny (+ gy (cy minDegIdx)))
+    ; Mark next move
+    (setf (board (+ (* ny n) nx)) (+ (board (+ (* gy n) gx)) 1))
+    ; Update next point
+    (setq gx nx)
+    (setq gy ny)
+    true
+  )
+))
+
+; checks its neighbouring squares
+; If the knight ends on a square that is one
+; knight's move from the beginning square, 
+; then tour is closed
+(define (neighbour x y xx yy)
+  (let (found nil)
+    (for (i 0 (- n 1) 1 found)
+      (if (and (= (+ x (cx i)) xx) (= (+ y (cy i)) yy))
+          (setq found true)
+      )
+    )
+    found))
+
+; Generates the legal moves using warnsdorff's heuristics.
+; Returns false if not possible
+(define (findClosedTour)
+(catch
+  (local (temp)
+  ; fill board
+  (setq board (array (* n n) '(-1)))
+  ; Current points are same as initial points
+  (setq gx sx gy sy)
+  ; Mark first move
+  (setf (board (+ (* gy n) gx)) 1)
+  ; Keep picking next points using Warnsdorff's heuristic
+  (for (i 0 (- (* n n) 2))
+    (if (nil? (nextMove)) (throw nil))
+  )
+  ; Check if tour is closed
+  (if (not (neighbour gx gy sx sy)) (throw nil))
+  (print-board board)
+  true
+  )
+))
+
+(define (warnsdorff x y)
+    (setq n 8)
+    ; start position
+    (setq sx x sy y)
+    ; current position
+    (setq gx sx gy sy)
+    ; Move pattern on basis of the change of
+    ; x coordinates and y coordinates respectively
+    (setq cx '(1 1 2 2 -1 -1 -2 -2))
+    (setq cy '(2 -2 1 -1 2 -2 1 -1))
+    ; define board
+    (setq board (array (* n n) '(-1)))
+    ; While we don't get a solution
+    (while (not (findClosedTour)))
+    'stop
+)
+
+(warnsdorff 0 0)
+;->    1   4  61  20  51   6  53  22
+;->   34  19   2   5  62  21  50   7
+;->    3  64  35  60  37  52  23  54
+;->   18  33  38  63  56  59   8  49
+;->   39  14  57  36  43  48  55  24
+;->   32  17  42  47  58  27  44   9
+;->   13  40  15  30  11  46  25  28
+;->   16  31  12  41  26  29  10  45
+;-> stop
+
+(warnsdorff 1 1)
+;->   53  50  15  20  63  24  13  22
+;->   16   1  54  51  14  21  58  25
+;->   49  52  19  64  59  62  23  12
+;->    2  17  60  55  46  33  26  57
+;->   43  48  45  18  61  56  11  32
+;->    6   3  42  47  34  29  38  27
+;->   41  44   5   8  39  36  31  10
+;->    4   7  40  35  30   9  28  37
+;-> stop
+
+(warnsdorff 7 7)
+;->    7  10  25  40  59  12  27  30
+;->   24  39   8  11  26  29  62  13
+;->    9   6  41  60  47  58  31  28
+;->   38  23  46  43  50  61  14  63
+;->    5  42  55  48  57  44  51  32
+;->   22  37  20  45  54  49  64  15
+;->   19   4  35  56  17   2  33  52
+;->   36  21  18   3  34  53  16   1
+
+(time (warnsdorff 7 7))
+;-> 12.965
+(time (warnsdorff 7 7))
+;-> 53.121
+(time (warnsdorff 7 7))
+;-> 477.722
+(time (warnsdorff 7 7))
+;-> 69.916
+(time (warnsdorff 7 7))
+;-> 541.521
 
 
 ================
@@ -59126,6 +59295,149 @@ Proviamo la velocità:
 (silent (setq lst (rand 10000 100000)))
 (time (qsort lst))
 ;-> 374.831
+
+
+------------------------------------------
+Ambito dinamico e parametri delle funzioni
+------------------------------------------
+
+Vediamo alcuni esempi per capire meglio come funziona la "visibilità" delle variabili e dei parametri delle funzioni in newLISP (che utilizza l'ambito dinamico).
+Un aspetto fondamentale è il seguente:
+la funzione chiamata "vede" tutte le variabili locali della funzione chiamante (a meno che la funzione chiamata non abbia variabili locali con nomi/simboli uguali a quelli della funzione chiamante (shadowing)).
+L'output degli esempi è autoesplicativo sul funzionamento della visibilità delle variabili.
+
+Esempio 1
+---------
+
+(define (f1)
+  (local (a b)
+    (println "f1-pre: a=" a " e b=" b)
+    (f2)
+    (println "f1-post: a=" a " e b=" b)))
+
+(define (f2)
+  (println "f2-pre: a=" a " e b=" b)
+  (setq a 10 b 20)
+  (println "f2-post: a=" a " e b=" b)
+  (println "f2-pre: c=" c " e d=" d)
+  (f3)
+  (println "f2-post: c=" c " e d=" d))
+
+(define (f3)
+  (local (c d)
+    (println "f3-pre: a=" a " e b=" b)
+    (println "f3-pre: c=" c " e d=" d)
+    (setq c 30 d 40)
+    (println "f3-post: c=" c " e d=" d)))
+
+(f1)
+;-> f1-pre: a=nil e b=nil
+;-> f2-pre: a=nil e b=nil
+;-> f2-post: a=10 e b=20
+;-> f2-pre: c=nil e d=nil
+;-> f3-pre: a=10 e b=20
+;-> f3-pre: c=nil e d=nil
+;-> f3-post: c=30 e d=40
+;-> f2-post: c=nil e d=nil
+;-> f1-post: a=10 e b=20
+
+Esempio 2
+---------
+
+(define (f1)
+  (local (a b)
+    (println "f1-pre: a=" a " e b=" b)
+    (f2)
+    (println "f1-post: a=" a " e b=" b)))
+
+(define (f2)
+  (local (aa bb)
+    (println "f2-pre: a=" a " e b=" b)
+    (println "f2-pre: c=" c " e d=" d)
+    (setq a 10 b 20)
+    (f3 a b)
+    (println "f2-post: a=" a " e b=" b)
+    (println "f2-post: c=" c " e d=" d)
+    (println "f2-post: x=" x " e y=" y)))
+
+(define (f3 x y)
+  (local (c d)
+    (println "f3-pre: a=" a " e b=" b)
+    (println "f3-pre: c=" c " e d=" d)
+    (println "f3-pre: x=" x " e y=" y)
+    (setq c 30 d 40)
+    (setq x 88 y 99)
+    (println "f3-post: a=" a " e b=" b)
+    (println "f3-post: c=" c " e d=" d)
+    (println "f3-post: x=" x " e y=" y)))
+
+(f1)
+;-> f1-pre: a=nil e b=nil
+;-> f2-pre: a=nil e b=nil
+;-> f2-pre: c=nil e d=nil
+;-> f3-pre: a=10 e b=20
+;-> f3-pre: c=nil e d=nil
+;-> f3-pre: x=10 e y=20
+;-> f3-post: a=10 e b=20
+;-> f3-post: c=30 e d=40
+;-> f3-post: x=88 e y=99
+;-> f2-post: a=10 e b=20
+;-> f2-post: c=nil e d=nil
+;-> f2-post: x=nil e y=nil
+;-> f1-post: a=10 e b=20
+
+Esempio 3
+---------
+
+(define (f1 x y)
+  (local (a b)
+    (println "f1-pre: a=" a " e b=" b)
+    (println "f1-pre: x=" x " e y=" y)
+    (setq a x b y)
+    (f2)
+    (println "f1-post: a=" a " e b=" b)
+    (println "f1-post: x=" x " e y=" y)))
+
+(define (f2)
+    (println "f2-pre: a=" a " e b=" b)
+    (println "f2-pre: x=" x " e y=" y)
+    (setq a 10 b 20)
+    (setq x 11 y 22)
+    (println "f2-post: a=" a " e b=" b)
+    (println "f2-post: x=" x " e y=" y))
+
+(f1 1 2)
+;-> f1-pre: a=nil e b=nil
+;-> f1-pre: x=1 e y=2
+;-> f2-pre: a=1 e b=2
+;-> f2-pre: x=1 e y=2
+;-> f2-post: a=10 e b=20
+;-> f2-post: x=11 e y=22
+;-> f1-post: a=10 e b=20
+;-> f1-post: x=11 e y=22
+
+Esempio 4
+---------
+Shadowing delle variabili a e b
+
+(define (f1)
+  (local (a b)
+    (println "f1-pre: a=" a " e b=" b)
+    (setq a 1 b 2)
+    (f2)
+    (println "f1-post: a=" a " e b=" b)))
+
+(define (f2)
+  (local (a b)
+    (println "f2-pre: a=" a " e b=" b)
+    (setq a 10 b 20)
+    (println "f2-post: a=" a " e b=" b)))
+
+(f1)
+;-> f1-pre: a=nil e b=nil
+;-> f2-pre: a=nil e b=nil
+;-> f2-post: a=10 e b=20
+;-> f1-post: a=1 e b=2
 
 
 ===========
