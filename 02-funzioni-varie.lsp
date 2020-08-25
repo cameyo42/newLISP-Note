@@ -5250,3 +5250,150 @@ Proviamo la funzione:
 ;-> 204226
 
 
+---------------------------
+Algoritmo di Euclide esteso
+---------------------------
+
+MCD -> Massimo Comun Divisore
+GCD -> Greatest Common divisor
+
+Mentre l'algoritmo euclideo calcola solo il massimo comune divisore (MCD) di due interi a e b, la versione estesa trova anche un modo per rappresentare MCD in termini di aeb, cioè coefficienti xey per i quali:
+
+a*x + b*y = mcd(a, b)
+
+Da notare che possiamo sempre trovare una tale rappresentazione, ad esempio mcd(55,80) = 5 quindi possiamo rappresentare 5 come una combinazione lineare con i termini 55 e 80: 
+55*3 + 80*(−2) = 5
+
+Versione generale:
+
+(define (gcdex a b)
+  (local (x y lastx lasty temp)
+    (setq x 0)
+    (setq y 1)
+    (setq lastx 1)
+    (setq lasty 0)
+    (while (not (zero? b))
+      (setq q (div a b))
+      (setq r (% a b))
+      (setq a b)
+      (setq b r)
+      (setq temp x)
+      (setq x (- lastx (* q x)))
+      (setq lastx temp)
+      (setq temp y)
+      (setq y (- lasty (* q y)))
+      (setq lasty temp)
+    )
+    ; Adesso la variabile a contiene il valore di gcd
+    ;(println a { } b { } x { } y { } lastx { } lasty)
+    (list a lastx lasty)))
+    
+(gcdex 120 23)
+;-> (1 -9 47)
+
+(gcdex 8 -6)
+;-> (2 1 1)
+
+Versione ricorsiva:
+
+(define (gcd-ext a b)
+    (cond ((zero? b)
+           (setq x 1 y 0)
+           a)
+          (true
+           (setq g (gcd-ext b (% a b)))
+           (setq x1 x y1 y)
+           (setq x y1)
+           (setq y (- x1 (mul y1 (div a b))))
+           (abs g)
+    ))
+
+(gcd-ext 18 24)
+;-> 6
+
+Versione iterativa:
+
+(define (gcd-ext a b)
+  (local (x y x1 y1 a1 b1 q)
+    (setq x 1 y 0 x1 0 y1 1 a1 a b1 b)
+    (while (!= b1 0)
+      (setq q (/ a1 b1))
+      (map set '(x x1) (list x1 (- x (* q x1))))
+      (map set '(y y1) (list y1 (- y (* q y1))))
+      (map set '(a1 b1) (list b1 (- a1 (* q b1))))
+    )
+    (abs a1)))
+
+(gcd-ext 18 24)
+;-> 6
+
+(gcd-ext 18 -24)
+;-> 6
+
+(gcd-ext 15 -18)
+;-> 3
+
+(gcd-ext 4 -12)
+;-> 4
+
+(gcd-ext 0 12)
+;-> 12
+
+(gcd-ext -2 0)
+;-> 2
+
+Nota: Il gcd non cambia in caso di cambio di segno dei numeri:
+
+gcd (a,b) = gcd (a,-b)= gcd (-a,b) = gcd (-a,-b)
+
+
+----------------------------------
+Punti casuali in una circonferenza
+----------------------------------
+
+La seguente funzione genera n punti casuali (x,y) interni ad un cerchio di raggio predefinito con centro in C(raggio, raggio).
+
+(define (rand-xy-circle raggio n)
+  (local (x y cx cy out i)
+    (setq out '())
+    (setq i 1)
+    (while (<= i n)
+      (setq x (mul (random) (mul raggio 2)))
+      (setq y (mul (random) (mul raggio 2)))
+      (if (< (add (mul (sub x raggio) (sub x raggio))
+                  (mul (sub y raggio) (sub y raggio)))
+              (mul raggio raggio))
+          (begin
+            (push (list x y) out -1)
+            (++ i)))
+    )
+    out))
+
+Possiamo verificare il risultato utilizzando un foglio elettronico:
+1) generare e salvare n punti casuali
+   (setq punti (rand-xy-circle 5 100))
+   (save "punti.txt" 'punti)
+2) importare il file punti.txt su un foglio elettronico
+3) modificare il foglio in modo che ci siamo due colonne (una per la coordinata x e una per la coordinata y)
+3) generare un grafico scatter-plot (x,y) con le coordinate dei punti.
+
+Potremmo calcolare questi punti casuali utilizzando le coordinate polari (r,theta):
+
+(define (rand-xy-circle raggio n)
+  (local (x y cx cy r theta out)
+    (setq out '())
+    (for (i 1 n)
+      (setq r (mul (random) raggio))
+      (setq theta (mul (random) (mul 2 3.141592653589793)))
+      (setq x (add raggio (mul r (cos theta))))
+      (setq y (add raggio (mul r (sin theta))))
+      (push (list x y) out -1)
+    )
+    out))
+
+(setq punti (rand-xy-circle 5 10000))
+(save "punti-polar.txt" 'punti)
+
+Purtroppo questo metodo non è corretto, in quanto i punti tendono a concentrarsi intorno al centro della circonferenza (vedi immagine "punti-cerchio.png").
+
+

@@ -8174,3 +8174,231 @@ Test di velocità
 ;-> 187.527
 
 
+-------------------------------------------
+Ascensore difettoso ed equazioni diofantine
+-------------------------------------------
+
+Un ascensore in edificio di 65 piani è difettoso.
+Ogni volta che qualcuno vuole salire, l'ascensore sale di 8 piani se può. Se l'ascensore non può salire di 8 piani, rimane nello stesso punto (se siamo al 63° piano e premiamo "su", l'ascensore rimane al 63° piano).
+E ogni volta che qualcuno vuole scendere, l'ascensore scende di 11 piani se può.
+In caso contrario, l'ascensore rimane nello stesso punto. (se premiamo "giù" dal piano 9, l'ascensore rimane al piano 9).
+L'ascensore parte dal primo piano. È possibile raggiungere tutti i piani dell'edificio?
+
+Nella tabella sottostante, ogni piano può essere raggiunto da una combinazione di salita di 8 piani e discesa di 11 piani.
+Le righe orizzontali mostrano l'ascensore che sale di 8 piani alla volta e le colonne verticali sono quando l'ascensore scende di 11 piani alla volta. Questi sono tutti i piani raggiungibili.
+Se in questa matrice esistono tutti i numeri da 1 a 65, allora i piani sono tutti raggiungibili.
+
+1 9 17 25 33 41 49 57 65
+     6 14 22 30 38 46 54 62
+        3 11 19 27 35 43 51 59
+              8 16 24 32 49 48 56 64
+                 5 13 21 29 37 45 53 61
+                    2 10 18 26 34 42 50 58
+                          7 15 23 31 39 47 55 63
+                             4 12 20 28 36 44 52 60
+
+Scriviamo la funzione che costruisce la matrice e poi verifichiamo la sua completezza.
+
+(define (up start)
+  (if (<= (+ start 8) 65)
+      (+ start 8)
+      start))
+
+(up 60)
+;-> 60
+(up 56)
+;-> 64
+
+(define (down start)
+  (if (>=  (- start 11) 1)
+      (- start 11)
+      start))
+
+(down 1)
+;-> 1
+(down 12)
+;-> 1
+(down 11)
+;-> 11
+
+(define (line-up start)
+  (local (val out)
+    (setq out '())
+    (setq val start)
+    (push val out -1)
+    (while (<= (+ val 8) 65)
+      (setq val (+ val 8))
+      (push val out -1)
+    )
+    out))
+
+(line-up 1)
+;-> (1 9 17 25 33 41 49 57 65)
+(line-up 63)
+;-> (63)
+
+(define (controllo-piani)
+  (local (piano base curline lista-piani)
+    (setq lista-piani '())
+    (setq base (line-up 1))
+    (setq curline base)
+    (push base lista-piani -1)
+    ; affinchè non otteniamo una linea uguale
+    ; a quella iniziale
+    (do-until (= curline base)
+      (setq piano nil)
+      ; cerchiamo il primo valore utile (maggiore di 11)
+      (dolist (el curline piano)
+        (if (> el 11) (setq piano (- el 11)))
+      )
+      ; costruiamo la linea di piani corrente
+      (setq curline (line-up piano))
+      ; e la aggiungiamo al risultato
+      (push curline lista-piani -1)
+    )
+    ; lista-piani contiene tutti i piani raggiungibili
+    ; (anche con valori multipli)
+    ; controllo di completezza (esistono tutti i piani da 1 a 65?)
+    (difference (unique (flat lista-piani)) (sequence 1 65))
+    ))
+
+(controllo-piani)
+;-> ()
+
+Quindi tutti i piani sono raggiungibili.
+
+Nota: per spostarsi da un piano x ad un piano y occorre partire dal numero x e seguire il percorso nella matrice (destra --> su) (basso --> giù).
+Esempio: dal piano 6 al piano 10
+
+6 14 22 30 38 46 54
+                 43
+                 32
+                 21
+                 10
+
+Dal punto di vista matematico stiamo essenzialmente cercando soluzioni intere alla seguente equazione:
+
+ 8x – 11y = piano
+
+Questi tipi di equazioni sono noti come "equazioni lineari diofantee (diofantine)"
+Per un'equazione generale, ax + by = c, le soluzioni esistono se e solo se
+c è un multiplo del massimo comune divisore di a e b. Più precisamente:
+l'equazione diofantina ha una soluzione (dove x e y sono numeri interi) se e solo se c è un multiplo del massimo comune divisore di a e b. Inoltre, se (x, y) è una soluzione, allora le altre soluzioni hanno la forma (x + k*v, y - k*u), dove k è un numero intero arbitrario e u e v sono i quozienti di a e b (rispettivamente) dal massimo comune divisore di a e b.
+
+Nel nostro caso MCD(8, -11) = 1, quindi, poichè qualunque numero di piano (da 1 a 65) è multiplo di 1, significa che tutte le 65 equazioni diofantine sono risolvibili e, di consegunenza, tutti i piani sono raggiungibili.
+
+Per finire scriviamo una funzione che trova (se esite) una soluzione di ogni equazione diofantina lineare:
+
+; algoritmo di Euclide esteso
+; per il calcolo del Massimo Comun Divisore (GCD)
+(define (gcd-ext a b)
+    (cond ((zero? b)
+           (setq x 1 y 0)
+           a)
+          (true
+           (setq g (gcd-ext b (% a b)))
+           (setq x1 x y1 y)
+           (setq x y1)
+           (setq y (- x1 (mul y1 (div a b))))
+           g)
+    ))
+
+(gcd-ext 18 24)
+;-> 6
+
+Funzione che calcola una soluzione dell'equazione lineare diofantea:
+
+(define (diofanto-base a b c)
+  (local (x y x1 y1 val)
+    (setq val (gcd-ext a b))
+    (cond ((!= (% c val) 0)
+           '()
+          )
+          (true
+            (list (mul x (div c val)) (mul y (div c val)))
+          )
+    )))
+
+(diofanto-base 4 18 10)
+;-> (-20 5)
+
+(diofanto-base 8 -11 1)
+;-> (-5 -6)
+
+
+----------------
+Monete e griglie
+----------------
+
+Abbiamo una moneta di diametro D e un tavolo su cui è disegnata una griglia quadrata di lato L (con L > D). Lanciando la moneta sul tavolo, qual'è la probabilità che la moneta non intersechi la griglia? (cioè cada interamente in un quadrato della griglia).
+
+Affinchè la moneta non intersechi nessuna linea della griglia, il centro del cerchio deve essere posizionato sufficientemente lontano dalle linee della griglia. Questo luogo di punti rappresenta tutti i punti di non-intersezione. Possiamo trovare l'area di questo luogo e dividerlo per l'area totale di un quadrato della griglia per calcolare la probabilità cercata.
+I punti di non-intersezione sono il quadrato di lato (L - D). Questo perché il centro del cerchio
+deve essere a più di L/2 di distanza da tutti i lati di un quadrato della griglia. Quindi il centro del cerchio deve trovarsi in un quadrato di lato (L - 2*(D/2)) = (L - D).
+
+          L
+   +---------------+
+   |     (L-D)     |
+   |    +-----+    |
+   |    |     |    | L
+   |    |     |    |
+   |    +-----+    |
+   |               |
+   +---------------+
+
+L'area di questo quadrato vale (L - D)^2. L'area di un quadrato della griglia vale S^2.
+La probabilità di non-intersezione è il rapporto di queste aree: ((L-D)/L)^2.
+
+Vediamo di verificarlo con una simulazione.
+
+(define (rand-xy vmax)
+  (list (mul (random) vmax) (mul (random) vmax)))
+
+(rand-xy 10 10)
+;-> (6.168401135288553 4.876857814264351)
+
+(define (lancio lato diametro)
+  (local (xy xcur ycur)
+    (setq xy (rand-xy lato))
+    (setq xcur (first xy))
+    (setq ycur (last xy))
+    (if (and (> xcur (div diametro 2))
+            (< xcur (sub lato (div diametro 2)))
+            (> ycur (div diametro 2))
+            (< ycur (sub lato (div diametro 2))))
+    )
+  )
+)
+
+(lancio 10 5)
+2.587359233375042 0.02258369701223792
+
+(lancio 10 5)
+6.757103183080538 6.714987640003662
+
+(define (test n l d)
+  (local (dentro fuori)
+    (for (i 1 n)
+      (if (lancio l d)
+          (++ dentro)
+          (++ fuori)
+      )
+    )
+    (println "dentro = " dentro " - " (div dentro (add dentro fuori)) "%")
+    (println "fuori = " fuori " - " (div fuori (add dentro fuori)) "%")
+    (println "% dentro (teorica) = " (pow (div (sub l d) l)) "%")
+  ))
+
+(test 100000 10 5)
+;-> dentro = 25007 - 0.25007%
+;-> fuori = 74993 - 0.74993%
+;-> % dentro (teorica) = 0.25%
+
+(test 100000 1.5 1)
+;-> dentro = 11165 - 0.11165%
+;-> fuori = 88835 - 0.88835%
+;-> % dentro (teorica) = 0.1111111111111111%
+
+La simulazione produce risultati in linea con la teoria.
+
+

@@ -151,6 +151,8 @@ FUNZIONI VARIE
   Conversione lista <--> stringa
   Funzione butlast
   Lista di tutte le partizioni di un numero
+  Algoritmo di Euclide esteso
+  Punti casuali in una circonferenza
 
 newLISP 99 PROBLEMI (28)
 ========================
@@ -314,6 +316,8 @@ PROBLEMI VARI
   Radici di un polinomio (Bairstow)
   Nomi ordinati
   Distanza di numeri in una lista
+  Ascensore difettoso ed equazioni diofantine
+  Monete e griglie
 
 DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
 ==================================================
@@ -534,6 +538,7 @@ NOTE LIBERE 2
   Roulette russa
   Common LISP Quicksort
   Ambito dinamico e parametri delle funzioni
+  Torte e tagli
 
 APPENDICI
 =========

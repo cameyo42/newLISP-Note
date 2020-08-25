@@ -151,6 +151,8 @@ FUNZIONI VARIE
   Conversione lista <--> stringa
   Funzione butlast
   Lista di tutte le partizioni di un numero
+  Algoritmo di Euclide esteso
+  Punti casuali in una circonferenza
 
 newLISP 99 PROBLEMI (28)
 ========================
@@ -314,6 +316,8 @@ PROBLEMI VARI
   Radici di un polinomio (Bairstow)
   Nomi ordinati
   Distanza di numeri in una lista
+  Ascensore difettoso ed equazioni diofantine
+  Monete e griglie
 
 DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
 ==================================================
@@ -534,6 +538,7 @@ NOTE LIBERE 2
   Roulette russa
   Common LISP Quicksort
   Ambito dinamico e parametri delle funzioni
+  Torte e tagli
 
 APPENDICI
 =========
@@ -14611,6 +14616,153 @@ Proviamo la funzione:
 
 (length (partnumber 50))
 ;-> 204226
+
+
+---------------------------
+Algoritmo di Euclide esteso
+---------------------------
+
+MCD -> Massimo Comun Divisore
+GCD -> Greatest Common divisor
+
+Mentre l'algoritmo euclideo calcola solo il massimo comune divisore (MCD) di due interi a e b, la versione estesa trova anche un modo per rappresentare MCD in termini di aeb, cioè coefficienti xey per i quali:
+
+a*x + b*y = mcd(a, b)
+
+Da notare che possiamo sempre trovare una tale rappresentazione, ad esempio mcd(55,80) = 5 quindi possiamo rappresentare 5 come una combinazione lineare con i termini 55 e 80: 
+55*3 + 80*(−2) = 5
+
+Versione generale:
+
+(define (gcdex a b)
+  (local (x y lastx lasty temp)
+    (setq x 0)
+    (setq y 1)
+    (setq lastx 1)
+    (setq lasty 0)
+    (while (not (zero? b))
+      (setq q (div a b))
+      (setq r (% a b))
+      (setq a b)
+      (setq b r)
+      (setq temp x)
+      (setq x (- lastx (* q x)))
+      (setq lastx temp)
+      (setq temp y)
+      (setq y (- lasty (* q y)))
+      (setq lasty temp)
+    )
+    ; Adesso la variabile a contiene il valore di gcd
+    ;(println a { } b { } x { } y { } lastx { } lasty)
+    (list a lastx lasty)))
+    
+(gcdex 120 23)
+;-> (1 -9 47)
+
+(gcdex 8 -6)
+;-> (2 1 1)
+
+Versione ricorsiva:
+
+(define (gcd-ext a b)
+    (cond ((zero? b)
+           (setq x 1 y 0)
+           a)
+          (true
+           (setq g (gcd-ext b (% a b)))
+           (setq x1 x y1 y)
+           (setq x y1)
+           (setq y (- x1 (mul y1 (div a b))))
+           (abs g)
+    ))
+
+(gcd-ext 18 24)
+;-> 6
+
+Versione iterativa:
+
+(define (gcd-ext a b)
+  (local (x y x1 y1 a1 b1 q)
+    (setq x 1 y 0 x1 0 y1 1 a1 a b1 b)
+    (while (!= b1 0)
+      (setq q (/ a1 b1))
+      (map set '(x x1) (list x1 (- x (* q x1))))
+      (map set '(y y1) (list y1 (- y (* q y1))))
+      (map set '(a1 b1) (list b1 (- a1 (* q b1))))
+    )
+    (abs a1)))
+
+(gcd-ext 18 24)
+;-> 6
+
+(gcd-ext 18 -24)
+;-> 6
+
+(gcd-ext 15 -18)
+;-> 3
+
+(gcd-ext 4 -12)
+;-> 4
+
+(gcd-ext 0 12)
+;-> 12
+
+(gcd-ext -2 0)
+;-> 2
+
+Nota: Il gcd non cambia in caso di cambio di segno dei numeri:
+
+gcd (a,b) = gcd (a,-b)= gcd (-a,b) = gcd (-a,-b)
+
+
+----------------------------------
+Punti casuali in una circonferenza
+----------------------------------
+
+La seguente funzione genera n punti casuali (x,y) interni ad un cerchio di raggio predefinito con centro in C(raggio, raggio).
+
+(define (rand-xy-circle raggio n)
+  (local (x y cx cy out i)
+    (setq out '())
+    (setq i 1)
+    (while (<= i n)
+      (setq x (mul (random) (mul raggio 2)))
+      (setq y (mul (random) (mul raggio 2)))
+      (if (< (add (mul (sub x raggio) (sub x raggio))
+                  (mul (sub y raggio) (sub y raggio)))
+              (mul raggio raggio))
+          (begin
+            (push (list x y) out -1)
+            (++ i)))
+    )
+    out))
+
+Possiamo verificare il risultato utilizzando un foglio elettronico:
+1) generare e salvare n punti casuali
+   (setq punti (rand-xy-circle 5 100))
+   (save "punti.txt" 'punti)
+2) importare il file punti.txt su un foglio elettronico
+3) modificare il foglio in modo che ci siamo due colonne (una per la coordinata x e una per la coordinata y)
+3) generare un grafico scatter-plot (x,y) con le coordinate dei punti.
+
+Potremmo calcolare questi punti casuali utilizzando le coordinate polari (r,theta):
+
+(define (rand-xy-circle raggio n)
+  (local (x y cx cy r theta out)
+    (setq out '())
+    (for (i 1 n)
+      (setq r (mul (random) raggio))
+      (setq theta (mul (random) (mul 2 3.141592653589793)))
+      (setq x (add raggio (mul r (cos theta))))
+      (setq y (add raggio (mul r (sin theta))))
+      (push (list x y) out -1)
+    )
+    out))
+
+(setq punti (rand-xy-circle 5 10000))
+(save "punti-polar.txt" 'punti)
+
+Purtroppo questo metodo non è corretto, in quanto i punti tendono a concentrarsi intorno al centro della circonferenza (vedi immagine "punti-cerchio.png").
 
 
 ==========================
@@ -38839,6 +38991,234 @@ Test di velocità
 ;-> 187.527
 
 
+-------------------------------------------
+Ascensore difettoso ed equazioni diofantine
+-------------------------------------------
+
+Un ascensore in edificio di 65 piani è difettoso.
+Ogni volta che qualcuno vuole salire, l'ascensore sale di 8 piani se può. Se l'ascensore non può salire di 8 piani, rimane nello stesso punto (se siamo al 63° piano e premiamo "su", l'ascensore rimane al 63° piano).
+E ogni volta che qualcuno vuole scendere, l'ascensore scende di 11 piani se può.
+In caso contrario, l'ascensore rimane nello stesso punto. (se premiamo "giù" dal piano 9, l'ascensore rimane al piano 9).
+L'ascensore parte dal primo piano. È possibile raggiungere tutti i piani dell'edificio?
+
+Nella tabella sottostante, ogni piano può essere raggiunto da una combinazione di salita di 8 piani e discesa di 11 piani.
+Le righe orizzontali mostrano l'ascensore che sale di 8 piani alla volta e le colonne verticali sono quando l'ascensore scende di 11 piani alla volta. Questi sono tutti i piani raggiungibili.
+Se in questa matrice esistono tutti i numeri da 1 a 65, allora i piani sono tutti raggiungibili.
+
+1 9 17 25 33 41 49 57 65
+     6 14 22 30 38 46 54 62
+        3 11 19 27 35 43 51 59
+              8 16 24 32 49 48 56 64
+                 5 13 21 29 37 45 53 61
+                    2 10 18 26 34 42 50 58
+                          7 15 23 31 39 47 55 63
+                             4 12 20 28 36 44 52 60
+
+Scriviamo la funzione che costruisce la matrice e poi verifichiamo la sua completezza.
+
+(define (up start)
+  (if (<= (+ start 8) 65)
+      (+ start 8)
+      start))
+
+(up 60)
+;-> 60
+(up 56)
+;-> 64
+
+(define (down start)
+  (if (>=  (- start 11) 1)
+      (- start 11)
+      start))
+
+(down 1)
+;-> 1
+(down 12)
+;-> 1
+(down 11)
+;-> 11
+
+(define (line-up start)
+  (local (val out)
+    (setq out '())
+    (setq val start)
+    (push val out -1)
+    (while (<= (+ val 8) 65)
+      (setq val (+ val 8))
+      (push val out -1)
+    )
+    out))
+
+(line-up 1)
+;-> (1 9 17 25 33 41 49 57 65)
+(line-up 63)
+;-> (63)
+
+(define (controllo-piani)
+  (local (piano base curline lista-piani)
+    (setq lista-piani '())
+    (setq base (line-up 1))
+    (setq curline base)
+    (push base lista-piani -1)
+    ; affinchè non otteniamo una linea uguale
+    ; a quella iniziale
+    (do-until (= curline base)
+      (setq piano nil)
+      ; cerchiamo il primo valore utile (maggiore di 11)
+      (dolist (el curline piano)
+        (if (> el 11) (setq piano (- el 11)))
+      )
+      ; costruiamo la linea di piani corrente
+      (setq curline (line-up piano))
+      ; e la aggiungiamo al risultato
+      (push curline lista-piani -1)
+    )
+    ; lista-piani contiene tutti i piani raggiungibili
+    ; (anche con valori multipli)
+    ; controllo di completezza (esistono tutti i piani da 1 a 65?)
+    (difference (unique (flat lista-piani)) (sequence 1 65))
+    ))
+
+(controllo-piani)
+;-> ()
+
+Quindi tutti i piani sono raggiungibili.
+
+Nota: per spostarsi da un piano x ad un piano y occorre partire dal numero x e seguire il percorso nella matrice (destra --> su) (basso --> giù).
+Esempio: dal piano 6 al piano 10
+
+6 14 22 30 38 46 54
+                 43
+                 32
+                 21
+                 10
+
+Dal punto di vista matematico stiamo essenzialmente cercando soluzioni intere alla seguente equazione:
+
+ 8x – 11y = piano
+
+Questi tipi di equazioni sono noti come "equazioni lineari diofantee (diofantine)"
+Per un'equazione generale, ax + by = c, le soluzioni esistono se e solo se
+c è un multiplo del massimo comune divisore di a e b. Più precisamente:
+l'equazione diofantina ha una soluzione (dove x e y sono numeri interi) se e solo se c è un multiplo del massimo comune divisore di a e b. Inoltre, se (x, y) è una soluzione, allora le altre soluzioni hanno la forma (x + k*v, y - k*u), dove k è un numero intero arbitrario e u e v sono i quozienti di a e b (rispettivamente) dal massimo comune divisore di a e b.
+
+Nel nostro caso MCD(8, -11) = 1, quindi, poichè qualunque numero di piano (da 1 a 65) è multiplo di 1, significa che tutte le 65 equazioni diofantine sono risolvibili e, di consegunenza, tutti i piani sono raggiungibili.
+
+Per finire scriviamo una funzione che trova (se esite) una soluzione di ogni equazione diofantina lineare:
+
+; algoritmo di Euclide esteso
+; per il calcolo del Massimo Comun Divisore (GCD)
+(define (gcd-ext a b)
+    (cond ((zero? b)
+           (setq x 1 y 0)
+           a)
+          (true
+           (setq g (gcd-ext b (% a b)))
+           (setq x1 x y1 y)
+           (setq x y1)
+           (setq y (- x1 (mul y1 (div a b))))
+           g)
+    ))
+
+(gcd-ext 18 24)
+;-> 6
+
+Funzione che calcola una soluzione dell'equazione lineare diofantea:
+
+(define (diofanto-base a b c)
+  (local (x y x1 y1 val)
+    (setq val (gcd-ext a b))
+    (cond ((!= (% c val) 0)
+           '()
+          )
+          (true
+            (list (mul x (div c val)) (mul y (div c val)))
+          )
+    )))
+
+(diofanto-base 4 18 10)
+;-> (-20 5)
+
+(diofanto-base 8 -11 1)
+;-> (-5 -6)
+
+
+----------------
+Monete e griglie
+----------------
+
+Abbiamo una moneta di diametro D e un tavolo su cui è disegnata una griglia quadrata di lato L (con L > D). Lanciando la moneta sul tavolo, qual'è la probabilità che la moneta non intersechi la griglia? (cioè cada interamente in un quadrato della griglia).
+
+Affinchè la moneta non intersechi nessuna linea della griglia, il centro del cerchio deve essere posizionato sufficientemente lontano dalle linee della griglia. Questo luogo di punti rappresenta tutti i punti di non-intersezione. Possiamo trovare l'area di questo luogo e dividerlo per l'area totale di un quadrato della griglia per calcolare la probabilità cercata.
+I punti di non-intersezione sono il quadrato di lato (L - D). Questo perché il centro del cerchio
+deve essere a più di L/2 di distanza da tutti i lati di un quadrato della griglia. Quindi il centro del cerchio deve trovarsi in un quadrato di lato (L - 2*(D/2)) = (L - D).
+
+          L
+   +---------------+
+   |     (L-D)     |
+   |    +-----+    |
+   |    |     |    | L
+   |    |     |    |
+   |    +-----+    |
+   |               |
+   +---------------+
+
+L'area di questo quadrato vale (L - D)^2. L'area di un quadrato della griglia vale S^2.
+La probabilità di non-intersezione è il rapporto di queste aree: ((L-D)/L)^2.
+
+Vediamo di verificarlo con una simulazione.
+
+(define (rand-xy vmax)
+  (list (mul (random) vmax) (mul (random) vmax)))
+
+(rand-xy 10 10)
+;-> (6.168401135288553 4.876857814264351)
+
+(define (lancio lato diametro)
+  (local (xy xcur ycur)
+    (setq xy (rand-xy lato))
+    (setq xcur (first xy))
+    (setq ycur (last xy))
+    (if (and (> xcur (div diametro 2))
+            (< xcur (sub lato (div diametro 2)))
+            (> ycur (div diametro 2))
+            (< ycur (sub lato (div diametro 2))))
+    )
+  )
+)
+
+(lancio 10 5)
+2.587359233375042 0.02258369701223792
+
+(lancio 10 5)
+6.757103183080538 6.714987640003662
+
+(define (test n l d)
+  (local (dentro fuori)
+    (for (i 1 n)
+      (if (lancio l d)
+          (++ dentro)
+          (++ fuori)
+      )
+    )
+    (println "dentro = " dentro " - " (div dentro (add dentro fuori)) "%")
+    (println "fuori = " fuori " - " (div fuori (add dentro fuori)) "%")
+    (println "% dentro (teorica) = " (pow (div (sub l d) l)) "%")
+  ))
+
+(test 100000 10 5)
+;-> dentro = 25007 - 0.25007%
+;-> fuori = 74993 - 0.74993%
+;-> % dentro (teorica) = 0.25%
+
+(test 100000 1.5 1)
+;-> dentro = 11165 - 0.11165%
+;-> fuori = 88835 - 0.88835%
+;-> % dentro (teorica) = 0.1111111111111111%
+
+La simulazione produce risultati in linea con la teoria.
+
+
 ====================================================
 
  DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
@@ -59438,6 +59818,48 @@ Shadowing delle variabili a e b
 ;-> f2-pre: a=nil e b=nil
 ;-> f2-post: a=10 e b=20
 ;-> f1-post: a=1 e b=2
+
+
+-------------
+Torte e tagli
+-------------
+
+Un numero poligonale centrale designa il numero massimo di pezzi in cui può essere diviso una torta con n tagli. La formula generatrice è: n*(n + 1)/2 + 1.
+
+Quando un cerchio viene tagliato n volte per produrre il numero massimo di pezzi, rappresentato come p = f(n), si deve considerare l'ennesimo taglio: il numero di pezzi prima dell'ultimo taglio è f(n - 1), mentre il numero di pezzi aggiunti dall'ultimo taglio è n.
+Per ottenere il numero massimo di pezzi, l'ennesima linea di taglio deve attraversare tutte le altre linee di taglio precedenti all'interno del cerchio, ma non incrociare alcuna intersezione delle linee di taglio precedenti. Pertanto, l'ennesima linea stessa viene tagliata in n - 1 punti e in n segmenti di linea. Ogni segmento divide ogni pezzo del pancake ((n - 1) pezzi) in 2 parti, aggiungendo esattamente n al numero di pezzi. La nuova linea non può avere più segmenti poiché può attraversare ogni linea precedente solo una volta. Una linea di taglio può sempre attraversare tutte le linee di taglio precedenti, poiché ruotando il coltello di un piccolo angolo attorno a un punto che non è un'intersezione esistente, e se l'angolo è abbastanza piccolo, intersecheremo tutte le linee precedenti, inclusa l'ultima aggiunta.
+
+Pertanto, il numero totale di pezzi dopo n tagli vale:
+
+f(n) = n + f(n − 1)
+
+Questa relazione di ricorrenza può essere risolta.
+
+Se f(n − 1) si espande di un termine la relazione diventa:
+
+f(n) = n + (n − 1) + f(n − 2)
+
+L'espansione del termine f(n - 2) può continuare fino a quando l'ultimo termine non viene ridotto a f(0), quindi:
+
+f(n) = n + (n − 1) + (n − 2) + ... + 1 + f(0)
+
+Poichè f(0) = 1, perchè c'è un pezzo prima di eseguire qualsiasi taglio, questo può essere riscritto come:
+
+f(n) = 1 + ( 1 + 2 + 3 + ... + n ) .   
+
+Questo può essere semplificato, utilizzando la formula per la somma di una progressione aritmetica:
+
+f(n) = 1 + n*(n + 1)/2 = (n^2 + n + 2)/2
+
+La funzione in newLISP è semplice:
+
+(define (torta tagli) (/ (+ (* tagli tagli) tagli 2)2))
+
+(torta 5)
+;-> 16
+
+(torta 12)
+;-> 79
 
 
 ===========

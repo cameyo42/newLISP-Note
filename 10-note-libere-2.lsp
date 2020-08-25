@@ -4005,3 +4005,45 @@ Shadowing delle variabili a e b
 ;-> f1-post: a=1 e b=2
 
 
+-------------
+Torte e tagli
+-------------
+
+Un numero poligonale centrale designa il numero massimo di pezzi in cui può essere diviso una torta con n tagli. La formula generatrice è: n*(n + 1)/2 + 1.
+
+Quando un cerchio viene tagliato n volte per produrre il numero massimo di pezzi, rappresentato come p = f(n), si deve considerare l'ennesimo taglio: il numero di pezzi prima dell'ultimo taglio è f(n - 1), mentre il numero di pezzi aggiunti dall'ultimo taglio è n.
+Per ottenere il numero massimo di pezzi, l'ennesima linea di taglio deve attraversare tutte le altre linee di taglio precedenti all'interno del cerchio, ma non incrociare alcuna intersezione delle linee di taglio precedenti. Pertanto, l'ennesima linea stessa viene tagliata in n - 1 punti e in n segmenti di linea. Ogni segmento divide ogni pezzo del pancake ((n - 1) pezzi) in 2 parti, aggiungendo esattamente n al numero di pezzi. La nuova linea non può avere più segmenti poiché può attraversare ogni linea precedente solo una volta. Una linea di taglio può sempre attraversare tutte le linee di taglio precedenti, poiché ruotando il coltello di un piccolo angolo attorno a un punto che non è un'intersezione esistente, e se l'angolo è abbastanza piccolo, intersecheremo tutte le linee precedenti, inclusa l'ultima aggiunta.
+
+Pertanto, il numero totale di pezzi dopo n tagli vale:
+
+f(n) = n + f(n − 1)
+
+Questa relazione di ricorrenza può essere risolta.
+
+Se f(n − 1) si espande di un termine la relazione diventa:
+
+f(n) = n + (n − 1) + f(n − 2)
+
+L'espansione del termine f(n - 2) può continuare fino a quando l'ultimo termine non viene ridotto a f(0), quindi:
+
+f(n) = n + (n − 1) + (n − 2) + ... + 1 + f(0)
+
+Poichè f(0) = 1, perchè c'è un pezzo prima di eseguire qualsiasi taglio, questo può essere riscritto come:
+
+f(n) = 1 + ( 1 + 2 + 3 + ... + n ) .   
+
+Questo può essere semplificato, utilizzando la formula per la somma di una progressione aritmetica:
+
+f(n) = 1 + n*(n + 1)/2 = (n^2 + n + 2)/2
+
+La funzione in newLISP è semplice:
+
+(define (torta tagli) (/ (+ (* tagli tagli) tagli 2)2))
+
+(torta 5)
+;-> 16
+
+(torta 12)
+;-> 79
+
+
