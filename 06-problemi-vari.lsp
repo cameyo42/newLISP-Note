@@ -8330,7 +8330,7 @@ Funzione che calcola una soluzione dell'equazione lineare diofantea:
 Monete e griglie
 ----------------
 
-Abbiamo una moneta di diametro D e un tavolo su cui è disegnata una griglia quadrata di lato L (con L > D). Lanciando la moneta sul tavolo, qual'è la probabilità che la moneta non intersechi la griglia? (cioè cada interamente in un quadrato della griglia).
+Abbiamo una moneta di diametro D e un tavolo su cui è disegnata una griglia di quadrati che hanno lato L (con L > D). Lanciando la moneta sul tavolo, qual'è la probabilità che la moneta non intersechi la griglia? (cioè cada interamente in un quadrato della griglia).
 
 Affinchè la moneta non intersechi nessuna linea della griglia, il centro del cerchio deve essere posizionato sufficientemente lontano dalle linee della griglia. Questo luogo di punti rappresenta tutti i punti di non-intersezione. Possiamo trovare l'area di questo luogo e dividerlo per l'area totale di un quadrato della griglia per calcolare la probabilità cercata.
 I punti di non-intersezione sono il quadrato di lato (L - D). Questo perché il centro del cerchio

@@ -5397,3 +5397,392 @@ Potremmo calcolare questi punti casuali utilizzando le coordinate polari (r,thet
 Purtroppo questo metodo non è corretto, in quanto i punti tendono a concentrarsi intorno al centro della circonferenza (vedi immagine "punti-cerchio.png").
 
 
+---------------------------------
+Esponenziazione (potenza) binaria
+---------------------------------
+
+L'esponenziazione binaria (nota anche come esponenziazione per quadratura) è un trucco che consente di calcolare una potenza utilizzando solo O(log n) moltiplicazioni (invece delle O(n) richieste dall'approccio normale).
+Questo metodo può essere utilizzato con qualsiasi operazione che abbia la proprietà dell'associatività:
+
+(X op Y) op Z = X op (Y op Z)
+
+Elevare a alla potenza di n è espresso ingenuamente come moltiplicazione per a fatto n − 1 volte: a*n = a*a* ... *a. Tuttavia, questo approccio non è pratico per grandi valori di a o n.
+
+a^(b+c) = a^b * a^c  e  a^(2b) = a^b * a^b = (a^b)^2
+
+L'idea dell'esponenziazione binaria è quella di suddividere le operazioni usando la rappresentazione binaria dell'esponente.
+
+Scriviamo n in base 2, ad esempio:
+
+3^13 = 3^(1101) = 3^8 * 3^4 * 3^1
+
+Poiché il numero n ha esattamente |log2 n| + 1 cifre in base 2, dobbiamo solo eseguire O(log n) moltiplicazioni, se conosciamo le potenze a^1, a^2, a^4, a^8,…, a^|(log n)|.
+
+Quindi abbiamo solo bisogno di conoscere un modo veloce per calcolarli. Fortunatamente questo è molto semplice, poiché un elemento nella sequenza è solo il quadrato dell'elemento precedente.
+
+3^1 = 3 
+3^2 = (3^1)^2 = 3^2 = 9
+3^4 = (3^2)^2 = 9^2 = 81 
+3^8 = (3^4)^2 = 81^2 = 6561
+
+Quindi, per ottenere la risposta finale per 3^13, dobbiamo solo moltiplicarne tre di loro (saltando 3^2 perché il bit corrispondente in n non è impostato): 313 = 6561 * 81 * 3 = 1594323
+
+La complessità finale di questo algoritmo è O(log n): dobbiamo calcolare (log n) potenze di a, quindi dobbiamo fare al massimo (log n) moltiplicazioni per ottenere la risposta finale.
+
+Il seguente approccio ricorsivo esprime la stessa idea:
+
+se n=0             ==>   a^n = 1 
+                         
+se n>0 e pari      ==>   a^n = (a^(n/2))^2
+                         
+se n>0 e dispari   ==>   a^n = (a^((n-1)/2))^2
+
+Versione ricorsiva:
+
+(define (bin-pow-rec a b)
+  (let (res 1L)
+  (cond ((= b 0) 1)
+        (true
+          (setq res (bigint (bin-pow-rec a (/ b 2))))
+          (if (= (% b 2) 1)
+              (* res res a)
+              (* res res))))))
+
+(bin-pow-rec 2L 4L)
+;-> 16L
+(bin-pow-rec 7L 253L)
+;-> 64536309039243386456273720567782680383746852777261605536920302
+;-> 93074941615183644305679310302734520060591237478898870576089992
+;-> 31319516198255060066433347506256253995870956010633721063187612
+;-> 1518137796636277520794018407L
+
+Versione iterativa:
+
+(define (bin-pow a b)
+  (let (res 1L)
+    (while (> b 0)
+      (if (= (% b 2) 1)
+          (setq res (* res a)))
+      (setq a (* a a))
+      (setq b (/ b 2))
+    )
+  res))
+
+(bin-pow 7L 253L)
+;-> 64536309039243386456273720567782680383746852777261605536920302
+;-> 93074941615183644305679310302734520060591237478898870576089992
+;-> 31319516198255060066433347506256253995870956010633721063187612
+;-> 1518137796636277520794018407L
+
+Vediamo un'applicazione di questo metodo calcolando in modo efficiente una potenza modulo un numero. In altre parole, il problema è quello di calcolare (a^b mod m).
+
+Poiché l'operatore modulo non interferisce con la moltiplicazione:
+
+(a*b mod m) = ((a mod m) * (b mod m)) mod m)
+
+(% (* 5 6) 4)
+;-> 2
+(* (% 5 4) (% 6 4))
+;-> 2
+
+(% (* 11 76) 14)
+;-> 10
+(% (* (% 11 14) (% 76 14)) 14)
+;-> 10
+
+possiamo utilizzare direttamente lo stesso codice della versione iterativa e sostituire semplicemente ogni moltiplicazione con una moltiplicazione modulare:
+
+(define (bin-pow-mod a b m)
+  (let (res 1L)
+    (setq a (% a m))
+    (while (> b 0)
+      (if (= (% b 2) 1)
+          (setq res (* res (% a m))))
+      (setq a (* a (% a m)))
+      (setq b (/ b 2))
+    )
+  res))
+
+Per ottenere il risultato come big-integer occorre passare gli argomenti come big-integer.
+
+(bin-pow-mod 7L 111L 6L)
+;-> 1L
+
+
+----------------------
+Permutazioni circolari
+----------------------
+
+Le permutazioni circolari sono un tipo particolare di permutazioni semplici. Quando gli elementi di una permutazione sono disposti in maniera circolare, in modo che non sia possibile individuare il primo e l ultimo elemento, si parla di permutazione ciclica o circolare o in linea chiusa.
+
+Il numero delle permutazioni circolari di n oggetti vale: (n - 1)!
+
+Vediamo la dimostrazione seguendo un esempio:
+
+lista = A B C
+permutazioni semplici = (A B C) (B A C) (B C A) (A C B) (C A B) (C B A)
+
+Se rappresentiamo queste permutazioni intorno ad un cerchio, notiamo che alcune di loro sono equivalenti:
+
+      A           B           B           A           C           C
+    C   B       C   A       A   C       B   C       B   A       A   B
+     (1)         (2)         (3)         (4)         (5)         (6)
+
+La (1), la (3) e la (5) sono equivalenti (sono tutte rotazioni una dell'altra).
+La (2), la (4) e la (6) sono equivalenti (sono tutte rotazioni una dell'altra).
+
+Quindi abbiamo solo due permutazioni circolari uniche. Poichè il numero di permutazioni semplici vale n!, ed ogni permutazione semplice ha n permutazioni circolari equivalenti, possiamo calcolare il numero di permutazioni circolari in questo modo:
+
+numero_permutazioni_circolari(n) = numero_permutazioni_semplici(n) / n = n!/n = (n - 1)!
+
+Le permutazioni circolari possono essere generate tenendo fisso un elemento e calcolando le permutazioni semplici degli altri elementi. Questo metodo produce il seguente algoritmo:
+
+1) estrarre il primo elemento della lista originale
+2) calcolare tutte le permutazioni della lista senza il primo elemento
+3) aggiungere il primo elemento della lista originale di fronte ad ogni permutazione semplice.
+
+Funzione che calcola le permutazioni semplici:
+
+(define (perm lst)
+  (local (i indici out)
+    (setq indici (dup 0 (length lst)))
+    (setq i 0)
+    ; aggiungiamo la lista iniziale alla soluzione
+    (setq out (list lst))
+    (while (< i (length lst))
+      (if (< (indici i) i)
+          (begin
+            (if (zero? (% i 2))
+              (swap (lst 0) (lst i))
+              (swap (lst (indici i)) (lst i))
+            )
+            (push lst out -1)
+            (++ (indici i))
+            (setq i 0)
+          )
+          (begin
+            (setf (indici i) 0)
+            (++ i)
+          )
+       )
+    )
+    out))
+
+(perm '(A B C))
+;-> ((A B C) (B A C) (C A B) (A C B) (B C A) (C B A))
+
+Adesso scriviamo la funzione per il calcolo delle permutazioni circolari:
+
+(define (perm-circ lst)
+  (let (head (pop lst))
+    (sort (map (fn(x) (push head x)) (sort (perm lst))))))
+
+(perm-circ '(A B C))
+;-> ((A B C) (A C B))
+
+Verifichiamo i risultati della nostra funzione confrontandoli con quelli esatti contenuti nelle liste test4, test5 e test6.
+
+(setq test4 '((A B C D) (A B D C) (A C B D) (A C D B) (A D B C) (A D C B)))
+
+(= (perm-circ '(A B C D)) test4)
+;-> true
+
+(setq test5 '((A B C D E) (A B C E D) (A B D C E) (A B D E C) (A B E C D) (A B E D C) (A C B D E)
+(A C B E D) (A C D B E) (A C D E B) (A C E B D) (A C E D B) (A D B C E) (A D B E C) (A D C B E)
+(A D C E B) (A D E B C) (A D E C B) (A E B C D) (A E B D C) (A E C B D) (A E C D B) (A E D B C) (A E D C B)))
+
+(= (perm-circ '(A B C D E)) test5)
+;-> true
+
+(setq test6
+'((A B C D E F) (A B C D F E) (A B C E D F) (A B C E F D) (A B C F D E)
+  (A B C F E D) (A B D C E F) (A B D C F E) (A B D E C F) (A B D E F C)
+  (A B D F C E) (A B D F E C) (A B E C D F) (A B E C F D) (A B E D C F)
+  (A B E D F C) (A B E F C D) (A B E F D C) (A B F C D E) (A B F C E D)
+  (A B F D C E) (A B F D E C) (A B F E C D) (A B F E D C) (A C B D E F)
+  (A C B D F E) (A C B E D F) (A C B E F D) (A C B F D E) (A C B F E D)
+  (A C D B E F) (A C D B F E) (A C D E B F) (A C D E F B) (A C D F B E)
+  (A C D F E B) (A C E B D F) (A C E B F D) (A C E D B F) (A C E D F B)
+  (A C E F B D) (A C E F D B) (A C F B D E) (A C F B E D) (A C F D B E)
+  (A C F D E B) (A C F E B D) (A C F E D B) (A D B C E F) (A D B C F E)
+  (A D B E C F) (A D B E F C) (A D B F C E) (A D B F E C) (A D C B E F)
+  (A D C B F E) (A D C E B F) (A D C E F B) (A D C F B E) (A D C F E B)
+  (A D E B C F) (A D E B F C) (A D E C B F) (A D E C F B) (A D E F B C)
+  (A D E F C B) (A D F B C E) (A D F B E C) (A D F C B E) (A D F C E B)
+  (A D F E B C) (A D F E C B) (A E B C D F) (A E B C F D) (A E B D C F)
+  (A E B D F C) (A E B F C D) (A E B F D C) (A E C B D F) (A E C B F D)
+  (A E C D B F) (A E C D F B) (A E C F B D) (A E C F D B) (A E D B C F)
+  (A E D B F C) (A E D C B F) (A E D C F B) (A E D F B C) (A E D F C B)
+  (A E F B C D) (A E F B D C) (A E F C B D) (A E F C D B) (A E F D B C)
+  (A E F D C B) (A F B C D E) (A F B C E D) (A F B D C E) (A F B D E C)
+  (A F B E C D) (A F B E D C) (A F C B D E) (A F C B E D) (A F C D B E)
+  (A F C D E B) (A F C E B D) (A F C E D B) (A F D B C E) (A F D B E C)
+  (A F D C B E) (A F D C E B) (A F D E B C) (A F D E C B) (A F E B C D)
+  (A F E B D C) (A F E C B D) (A F E C D B) (A F E D B C) (A F E D C B)))
+
+(= (perm-circ '(A B C D E F)) test6)
+;-> true
+
+
+------------------------------
+Crivello di Eratostene Lineare
+------------------------------
+
+Vediamo un algoritmo che utilizza il crivello Eratostene per calcolare tutti i numeri primi fino a n.
+L'algoritmo è stato preso dal seguente articolo:
+David Gries, Jayadev Misra. A Linear Sieve Algorithm for Finding Prime Numbers [1978]
+
+(define (euclide-linear n)
+  (local (lp pr j)
+    (setq lp (array (+ n 1) '(0)))
+    (setq pr '())
+    (for (i 2 n)
+      (if (zero? (lp i))
+        (begin
+          (setf (lp i) i)
+          (push i pr -1)
+        )
+      )
+      ;(println "lp= " lp)
+      ;(println "pr= " pr)
+      (setq j 0)
+      (while (and (< j (length pr)) (<= (pr j) (lp i)) (<= (* i (pr j)) n))
+        (setf (lp (* i (pr j))) (pr j))
+        (++ j)
+      )
+    )
+    (println lp)
+    pr))
+
+(euclide-linear 100)
+;-> (0 0 2 3 2 5 2 7 2 3 2 11 2 13 2 3 2 17 2 19 2 3 2 23 2 5 2 3 2 29
+;->  2 31 2 3 2 5 2 37 2 3 2 41 2 43 2 3 2 47 2 7 2 3 2 53 2 5 2 3 2 59
+;->  2 61 2 3 2 5 2 67 2 3 2 71 2 73 2 3 2 7 2 79 2 3 2 83 2 5 2 3 2 89
+;->  2 7 2 3 2 5 2 97 2 3 2)
+;-> (2 3 5 7 11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71 73 79 83 89 97)
+
+L'implementazione è lenta per (n > 1e5), perchè anche se l'algoritmo è lineare (cioè O(n)) noi utilizziamo una lista che ha un tempo di accesso non lineare.
+
+Per verificare questa affermazione è sufficiente analizzare i tempi di esecuzione del seguente esempio:
+
+1) Lista
+
+; Assegnazione di un valore a tutti i 100000 elementi di una lista
+(define (lista)
+  (let  (lst (sequence 1 100000))
+    (for (i 0 99999)
+      (setf (lst i) i)
+    )
+  ))
+
+(time (lista))
+;-> 8006.047
+
+Proviamo definendo la lista come variabile globale:
+
+(silent (setq lst (dup 0 100000)))
+
+(define (lista) (for (i 0 99999) (setf (lst i) i)))
+
+(time (lista))
+;-> 6824.776
+
+2) Vettore
+
+; Assegnazione di un valore a tutti i 100000 elementi di un vettore
+(define (vettore)
+  (let  (vet (array 100000 (sequence 1 100000)))
+    (for (i 0 99999)
+      (setf (vet i) i)
+    )
+  ))
+
+(time (vettore))
+;-> 5.984
+
+Proviamo definendo il vettore come variabile globale:
+
+(silent (setq vet (array 100000 '(0))))
+
+(define (vettore) (for (i 0 99999) (setf (vet i) i)))
+
+(time (vettore))
+;-> 0
+
+Come si può notare il vettore è estremamente più veloce di una lista.
+
+Questo risultato porta a considerare un ulteriore aspetto nell'analisi della complessità temporale di un algoritmo: il tempo delle operazioni di lettura e scrittura delle strutture dati utilizzate per implementare l'algoritmo.
+
+
+----------------------------
+Area di un poligono semplice
+----------------------------
+
+Calcolare l'area di un poligono semplice (cioè senza autointersezioni) conoscendo tutte le coordinate dei vertici (ordinate in sequenza clockway (cw) o counterclockway (ccw)).
+
+Possiamo attraversare tutti i lati e aggiungere le aree trapezoidali delimitate da ciascun lato e l'asse x. L'area deve essere calcolata con il segno in modo che l'area extra sarà sottratta. La formula è la seguente:
+
+A = ∑(p,q)[(px−qx)*(py+qy)/2]
+
+Rappresentiamo il poligono come una lista di punti. Ogni punto è una lista (x y).
+
+(define (area polygon)
+  (local (res)
+    (setq res 0)
+    (for (i 0 (- (length polygon) 2))
+      (setq res (add res
+                     (mul (sub (polygon i 0) (polygon (+ i 1) 0))
+                          (add (polygon i 1) (polygon (+ i 1) 1)))))
+    )
+    (abs (div res 2))))
+
+(setq poly '((0 0) (5 0) (5 5) (0 5)))
+(area poly)
+;-> 25
+
+(setq poly '((4 9) (8 9) (14 3) (7 3) (7 6) (4 6)))
+(area poly)
+;-> 33
+
+(setq poly '((2 6) (4 4) (6 6) (8 4) (10 4) (10 1) (9 1) (7 3) (4 3) (2 1)))
+(area poly)
+;-> 20
+(area (reverse poly))
+;-> 20
+
+Proviamo con due poligoni cartografici in proiezione Gauss-Boaga Fuso Est:
+
+(setq poly
+'((2520848.18 4800614.41)
+(2520030.65 4800291.95)
+(2520382.42 4799998.81)
+(2520460.58 4800207.27)
+(2520454.07 4799529.79)
+(2520600.65 4799777.33)
+(2520828.64 4799552.59)
+(2521219.49 4799767.56)
+(2521151.09 4800148.64)
+(2520854.7 4800217.04 )
+(2521112 4800389.67   )
+(2520587.62 4800327.78)
+(2521447.49 4800679.55)
+(2520900.3 4800770.75 )
+(2520848.18 4800614.41)))
+
+(area poly)
+;-> 731651.7139001787
+
+(setq poly
+'((2522369.25 4801321.2 )
+(2521502.86 4801946.56)
+(2521079.44 4801444.97)
+(2522232.45 4800526.46)
+(2521926.29 4801184.4 )
+(2522714.5 4800291.95 )
+(2522356.22 4800936.86)
+(2522369.25 4801321.2 )))
+
+(area poly)
+;-> 882538.1518998221
+
+

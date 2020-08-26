@@ -153,6 +153,10 @@ FUNZIONI VARIE
   Lista di tutte le partizioni di un numero
   Algoritmo di Euclide esteso
   Punti casuali in una circonferenza
+  Esponenziazione (potenza) binaria
+  Permutazioni circolari
+  Crivello di Eratostene Lineare
+  Area di un poligono semplice
 
 newLISP 99 PROBLEMI (28)
 ========================
