@@ -5724,6 +5724,8 @@ Possiamo attraversare tutti i lati e aggiungere le aree trapezoidali delimitate 
 
 A = ∑(p,q)[(px−qx)*(py+qy)/2]
 
+Questo formula viene chiamata teorema di Shoelace.
+
 Rappresentiamo il poligono come una lista di punti. Ogni punto è una lista (x y).
 
 (define (area polygon)
@@ -5736,15 +5738,15 @@ Rappresentiamo il poligono come una lista di punti. Ogni punto è una lista (x y
     )
     (abs (div res 2))))
 
-(setq poly '((0 0) (5 0) (5 5) (0 5)))
+(setq poly '((0 0) (5 0) (5 5) (0 5) (0 0)))
 (area poly)
 ;-> 25
 
-(setq poly '((4 9) (8 9) (14 3) (7 3) (7 6) (4 6)))
+(setq poly '((4 9) (8 9) (14 3) (7 3) (7 6) (4 6) (4 9)))
 (area poly)
 ;-> 33
 
-(setq poly '((2 6) (4 4) (6 6) (8 4) (10 4) (10 1) (9 1) (7 3) (4 3) (2 1)))
+(setq poly '((2 6) (4 4) (6 6) (8 4) (10 4) (10 1) (9 1) (7 3) (4 3) (2 1) (2 6)))
 (area poly)
 ;-> 20
 (area (reverse poly))
@@ -5784,5 +5786,66 @@ Proviamo con due poligoni cartografici in proiezione Gauss-Boaga Fuso Est:
 
 (area poly)
 ;-> 882538.1518998221
+
+
+--------------------
+Rango di una matrice
+--------------------
+
+Il rango di una matrice è il maggior numero di righe/colonne linearmente indipendenti della matrice. Il rango non è definito solo per le matrici quadrate. Il rango di una matrice può anche essere definito come l'ordine più grande di qualsiasi minore diverso da zero nella matrice.
+Lascia che la matrice sia rettangolare e abbia dimensione N × M. Nota che se la matrice è quadrata e il suo determinante è diverso da zero, il rango è N (= M), altrimenti sarà inferiore.
+Algoritmo
+Cerchiamo il rango usando l'eliminazione gaussiana. Eseguiremo le stesse operazioni di quando vogliamo risolvere il sistema o trovare il suo determinante. Ma se in qualsiasi passaggio nella colonna i-esima non ci sono righe con una elemento non vuota tra quelle che non abbiamo già selezionato, allora saltiamo questo passaggio. Altrimenti, se abbiamo trovato una riga con un elemento diverso da zero nella i-esima colonna durante l'i-esima fase, allora contrassegniamo questa riga come selezionata, aumentiamo il rango di uno (inizialmente il rango è impostato uguale a 0) ed eseguiamo le normali operazioni di rimozione di questa riga dal resto.
+Questo algoritmo viene eseguito in O(n3).
+
+(define (rango matrix)
+  (local (n m j p rank row-sel eps break)
+    (setq eps 1e-9)
+    (setq n (length matrix)) ;righe
+    (setq m (length (matrix 0))) ;colonne
+    (println "n, m = " n {, } m)
+    (setq row-sel (array n '(nil)))
+    (setq rank 0)
+    (for (i 0 (- m 1))
+      (setq j 0)
+      (setq break nil)
+      (while (and (< j n) (not break))
+        (if (and (not (row-sel j)) (> (abs(matrix j i)) eps))
+            (setq break true)
+            (++ j)
+        )
+      )
+      (if (!= j n)
+          (begin
+            (++ rank)
+            (setf (row-sel j) true)
+            (if (< i (- m 1))
+              (for (p (+ i 1) (- m 1))
+                ;(println "j p i: " j { } p { } i)
+                (setf (matrix j p) (div (matrix j p) (matrix j i)))
+              )
+            )
+            (for (k 0 (- n 1))
+              (if (and (!= k j) (> (abs(matrix k i)) eps))
+                  (if (< i (- m 1))
+                    (for (p (+ i 1) (- m 1))
+                      (setf (matrix k p) (sub (matrix k p) (mul (matrix j p) (matrix k i))))
+                    )
+                  )
+              )
+            )
+          )
+      )
+    )
+    rank))
+
+(rango '((1 1 1) (2 2 2) (3 3 3)))
+;-> 1
+
+(rango '((1 1 2) (4 2 2) (3 8 9)))
+;-> 3
+
+(rango '((10 2 -4 -2) (4 2 2 1) (6 0 -6 -3)))
+;-> 2
 
 

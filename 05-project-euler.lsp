@@ -5715,18 +5715,15 @@ Adesso scriviamo una funzione che cripta una stringa con una data password.
   (local (k lst len out)
     (setq out '())
     (setq numchar (- (length pwd) 1))
-    ;converto il testo in una lista di numeri ASCII
-    ;(setq lst (map char (explode text)))
-    (setq lst (explode text))
+    ;(setq lst (explode text)) ; non UTF-8
+    (setq lst (unpack (dup "s" (length text)) text)) ; UTF-8    
     (setq k 0)
     (dolist (el lst)
       (push (crypt el (pwd k)) out -1)
       (++ k)
       (if (= k numchar) (setq k 0))
     )
-    (join out)
-  )
-)
+    (join out)))
 
 (crypt-text "Massimo" "pwd")
 ;-> "=\022\003\004\025\026\031"
@@ -5734,7 +5731,10 @@ Adesso scriviamo una funzione che cripta una stringa con una data password.
 (crypt-text "=\022\003\004\025\026\031" "pwd")
 ;-> Massimo
 
-Per il nostro scopo è più conveniente avere in input una lista di codici ASCII la nostra lista tc):
+(crypt-text (crypt-text "cryptomessage" "password") "password")
+;-> cryptomessage
+
+Per il nostro scopo è più conveniente avere in input una lista di codici ASCII (la nostra lista tc):
 
 (define (crypt-text text pwd)
   ; text: testo in una lista di numeri ASCII

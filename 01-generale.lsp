@@ -3286,7 +3286,7 @@ sintassi: (nth int-index str)
 sintassi: (nth list-indices list)
 sintassi: (nth list-indices array)
 
-Nel primo gruppo di sintassi nth usa il valore di int-index per individuare un indice in una lista, un vettore o una stringa e restituisce l'elemento trovato a quell'indice.
+Nel primo gruppo di sintassi "nth" usa il valore di int-index per individuare un indice in una lista, un vettore o una stringa e restituisce l'elemento trovato a quell'indice.
 È possibile specificare più indici per accedere in modo ricorsivo a elementi in liste o vettori annidati. Se ci sono più indici che livelli di annidamento, gli indici extra vengono ignorati. Quando vengono utilizzati più indici, devono essere inseriti in una lista come mostrato nel secondo gruppo di sintassi.
 
 (set 'L '(a b c))

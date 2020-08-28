@@ -157,6 +157,7 @@ FUNZIONI VARIE
   Permutazioni circolari
   Crivello di Eratostene Lineare
   Area di un poligono semplice
+  Rango di una matrice
 
 newLISP 99 PROBLEMI (28)
 ========================
@@ -322,6 +323,7 @@ PROBLEMI VARI
   Distanza di numeri in una lista
   Ascensore difettoso ed equazioni diofantine
   Monete e griglie
+  Teorema di Pick
 
 DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
 ==================================================
@@ -543,6 +545,7 @@ NOTE LIBERE 2
   Common LISP Quicksort
   Ambito dinamico e parametri delle funzioni
   Torte e tagli
+  Il ciclo for
 
 APPENDICI
 =========
@@ -15096,6 +15099,8 @@ Possiamo attraversare tutti i lati e aggiungere le aree trapezoidali delimitate 
 
 A = ∑(p,q)[(px−qx)*(py+qy)/2]
 
+Questo formula viene chiamata teorema di Shoelace.
+
 Rappresentiamo il poligono come una lista di punti. Ogni punto è una lista (x y).
 
 (define (area polygon)
@@ -15108,15 +15113,15 @@ Rappresentiamo il poligono come una lista di punti. Ogni punto è una lista (x y
     )
     (abs (div res 2))))
 
-(setq poly '((0 0) (5 0) (5 5) (0 5)))
+(setq poly '((0 0) (5 0) (5 5) (0 5) (0 0)))
 (area poly)
 ;-> 25
 
-(setq poly '((4 9) (8 9) (14 3) (7 3) (7 6) (4 6)))
+(setq poly '((4 9) (8 9) (14 3) (7 3) (7 6) (4 6) (4 9)))
 (area poly)
 ;-> 33
 
-(setq poly '((2 6) (4 4) (6 6) (8 4) (10 4) (10 1) (9 1) (7 3) (4 3) (2 1)))
+(setq poly '((2 6) (4 4) (6 6) (8 4) (10 4) (10 1) (9 1) (7 3) (4 3) (2 1) (2 6)))
 (area poly)
 ;-> 20
 (area (reverse poly))
@@ -15156,6 +15161,67 @@ Proviamo con due poligoni cartografici in proiezione Gauss-Boaga Fuso Est:
 
 (area poly)
 ;-> 882538.1518998221
+
+
+--------------------
+Rango di una matrice
+--------------------
+
+Il rango di una matrice è il maggior numero di righe/colonne linearmente indipendenti della matrice. Il rango non è definito solo per le matrici quadrate. Il rango di una matrice può anche essere definito come l'ordine più grande di qualsiasi minore diverso da zero nella matrice.
+Lascia che la matrice sia rettangolare e abbia dimensione N × M. Nota che se la matrice è quadrata e il suo determinante è diverso da zero, il rango è N (= M), altrimenti sarà inferiore.
+Algoritmo
+Cerchiamo il rango usando l'eliminazione gaussiana. Eseguiremo le stesse operazioni di quando vogliamo risolvere il sistema o trovare il suo determinante. Ma se in qualsiasi passaggio nella colonna i-esima non ci sono righe con una elemento non vuota tra quelle che non abbiamo già selezionato, allora saltiamo questo passaggio. Altrimenti, se abbiamo trovato una riga con un elemento diverso da zero nella i-esima colonna durante l'i-esima fase, allora contrassegniamo questa riga come selezionata, aumentiamo il rango di uno (inizialmente il rango è impostato uguale a 0) ed eseguiamo le normali operazioni di rimozione di questa riga dal resto.
+Questo algoritmo viene eseguito in O(n3).
+
+(define (rango matrix)
+  (local (n m j p rank row-sel eps break)
+    (setq eps 1e-9)
+    (setq n (length matrix)) ;righe
+    (setq m (length (matrix 0))) ;colonne
+    (println "n, m = " n {, } m)
+    (setq row-sel (array n '(nil)))
+    (setq rank 0)
+    (for (i 0 (- m 1))
+      (setq j 0)
+      (setq break nil)
+      (while (and (< j n) (not break))
+        (if (and (not (row-sel j)) (> (abs(matrix j i)) eps))
+            (setq break true)
+            (++ j)
+        )
+      )
+      (if (!= j n)
+          (begin
+            (++ rank)
+            (setf (row-sel j) true)
+            (if (< i (- m 1))
+              (for (p (+ i 1) (- m 1))
+                ;(println "j p i: " j { } p { } i)
+                (setf (matrix j p) (div (matrix j p) (matrix j i)))
+              )
+            )
+            (for (k 0 (- n 1))
+              (if (and (!= k j) (> (abs(matrix k i)) eps))
+                  (if (< i (- m 1))
+                    (for (p (+ i 1) (- m 1))
+                      (setf (matrix k p) (sub (matrix k p) (mul (matrix j p) (matrix k i))))
+                    )
+                  )
+              )
+            )
+          )
+      )
+    )
+    rank))
+
+(rango '((1 1 1) (2 2 2) (3 3 3)))
+;-> 1
+
+(rango '((1 1 2) (4 2 2) (3 8 9)))
+;-> 3
+
+(rango '((10 2 -4 -2) (4 2 2 1) (6 0 -6 -3)))
+;-> 2
 
 
 ==========================
@@ -30565,18 +30631,15 @@ Adesso scriviamo una funzione che cripta una stringa con una data password.
   (local (k lst len out)
     (setq out '())
     (setq numchar (- (length pwd) 1))
-    ;converto il testo in una lista di numeri ASCII
-    ;(setq lst (map char (explode text)))
-    (setq lst (explode text))
+    ;(setq lst (explode text)) ; non UTF-8
+    (setq lst (unpack (dup "s" (length text)) text)) ; UTF-8    
     (setq k 0)
     (dolist (el lst)
       (push (crypt el (pwd k)) out -1)
       (++ k)
       (if (= k numchar) (setq k 0))
     )
-    (join out)
-  )
-)
+    (join out)))
 
 (crypt-text "Massimo" "pwd")
 ;-> "=\022\003\004\025\026\031"
@@ -30584,7 +30647,10 @@ Adesso scriviamo una funzione che cripta una stringa con una data password.
 (crypt-text "=\022\003\004\025\026\031" "pwd")
 ;-> Massimo
 
-Per il nostro scopo è più conveniente avere in input una lista di codici ASCII la nostra lista tc):
+(crypt-text (crypt-text "cryptomessage" "password") "password")
+;-> cryptomessage
+
+Per il nostro scopo è più conveniente avere in input una lista di codici ASCII (la nostra lista tc):
 
 (define (crypt-text text pwd)
   ; text: testo in una lista di numeri ASCII
@@ -39610,6 +39676,114 @@ Vediamo di verificarlo con una simulazione.
 ;-> % dentro (teorica) = 0.1111111111111111%
 
 La simulazione produce risultati in linea con la teoria.
+
+
+---------------
+Teorema di Pick
+---------------
+
+Il teorema di Pick è un teorema di geometria che permette di calcolare l'area di un poligono semplice i cui vertici hanno coordinate intere.
+Dato un poligono semplice i cui vertici hanno coordinate intere (poligono lattice), abbiamo:
+
+I il numero di punti con coordinate intere interni al poligono;
+B il numero di punti con coordinate intere sul perimetro del poligono (vertici compresi).
+
+L'area A del poligono può essere calcolata tramite la formula:
+
+A = I + B/2 - 1
+
+Possiamo usare questa formula per calcolare quanti sono i punti con coordinate intere interni al poligono.
+
+La funzione per il calcolo dell'area di un poligono è la seguente:
+
+(define (area polygon)
+  (local (res)
+    (setq res 0)
+    (for (i 0 (- (length polygon) 2))
+      (setq res (add res
+                     (mul (sub (polygon i 0) (polygon (+ i 1) 0))
+                          (add (polygon i 1) (polygon (+ i 1) 1)))))
+    )
+    (abs (div res 2))))
+
+Funzione che calcola il numero dei punti con coordinate intere che si trovano sul perimetro del poligono:
+
+(define (bound-point polygon)
+  (local (dx dy size bb)
+    ; i vertici del poligono sono tutti sul perimetro
+    (setq size (length polygon)) 
+    (setq bb size)
+    ; ciclo per tutti i lati del poligono
+    (for (i 0 (- size 1))
+      (setq dx (- (polygon i 0) (polygon (% (+ i 1) size) 0)))
+      (setq dy (- (polygon i 1) (polygon (% (+ i 1) size) 1)))
+      ; gcd + 1 produce i punti sul perimetro, quindi gcd - 1 produce tutti i punti 
+      ; che si trovano sul segmento tranne i due punti estremi
+      (setq bb (+ bb (abs (gcd dx dy)) -1))
+    )
+    bb))
+
+Il numero di punti che hanno coordinate intere lungo un segmento di linea vale: GCD(dx,dy) + 1
+dove MCD è il Massimo Comun Divisore (Greatest Common Divisor - GCD)
+dx è la distanza tra le coordinate x dei punti
+dy è la distanza tra le coordinate y dei punti
+
+Vediamo il perchè:
+supponiamo che il nostro segmento inizi nel punto (x1, y1) con coordinate intere e termini nel punto (x2, y2) con coordinate intere. La pendenza di questo segmento vale (y1-y2)/(x1-x2)
+Possiamo semplificare questa frazione in a/b in modo tale che MCD (a, b) = 1
+Ora se iniziamo dal punto (x1, y1) e aumentiamo x1 di b e y1 di a, cosa succederà?
+Il nostro nuovo punto sarà: (x1 + b, y1 + a)
+Avrà coordinate intere e la sua pendenza sarà (y1 + a-y1)/(x1 + b-x1) = a/b quindi è ancora sulla stessa pendenza del nostro segmento di linea.
+E possiamo ripetere tale procedura per generare tali punti fino a quando (x1 + b * k, y1 + a * k) = (x2, y2)
+Quindi quanti punti di questo tipo ci sono in totale? (x1-x2)/b + 1 oppure (y1-y2)/a + 1
+prendiamo come soluzione (y1-y2)/a + 1
+E (y1-y2)/(x1-x2) = a/b
+Come semplificare di nuovo le frazioni? Utilizzando il MCD.
+
+a = (y1-y2)/MCD(abs (y1-y2), abs (x1-x2))
+b = (x1-x2)/MCD(abs (y1-y2), abs (x1-x2))
+
+Quindi (y1-y2)/a + 1 = (y1-y2)/((y1-y2)/MCD(abs(y1-y2), abs(x1-x2))) + 1 = MCD(abs(y1-y2), abs(x1-x2)) + 1
+
+Per calcolare i punti interni al poligono usiamo il teorema di Pick:
+
+(define (interior-point polygon)
+  (+ (- (area polygon) (/ (bound-point polygon) 2)) 1))
+
+Adesso proviamo le funzioni che abbiamo scritto. Possiamo verificare i risultati disegnando i poligoni di esempio su un foglio di carta a quadretti.
+
+; un quadrato
+(setq poly '((0 0) (5 0) (5 5) (0 5) (0 0)))
+(area poly)
+;-> 25
+(bound-point poly)
+;-> 20
+(interior-point poly)
+;-> 16
+
+(setq poly '((4 9) (8 9) (14 3) (7 3) (7 6) (4 6) (4 9)))
+(area poly)
+;-> 33
+(bound-point poly)
+;-> 26
+(interior-point poly)
+;-> 21
+
+(setq poly '((2 6) (4 4) (6 6) (8 4) (10 4) (10 1) (9 1) (7 3) (4 3) (2 1) (2 6)))
+(area poly)
+;-> 20
+(bound-point poly)
+;-> 26
+(interior-point poly)
+;-> 9
+
+(setq poly '((3 2) (6 5) (6 7) (2 5) (3 2)))
+(area poly)
+;-> 10
+(bound-point poly)
+;-> 8
+(interior-point poly)
+;-> 7
 
 
 ====================================================
@@ -59678,11 +59852,14 @@ La funzione XOR può essere usata per cifrare/decifrare un messaggio.
   (local (k len-key out)
     (setq k 0)
     (setq len-key (length key))
-    (dolist (el (explode msg))
+    ;(dolist (el (explode msg)) ; non UTF-8
+    (dolist (el (unpack (dup "s" (length msg)) msg)) ; UTF-8
+      ;(println (^ (char el) (char (key k))) { } (char el) { } (char (key k)))
       (push (^ (char el) (char (key k))) out -1)
       (++ k)
       (setq k (% k len-key))
     )
+    ;(println out)
     (join (map char out))
   ))
 
@@ -59694,6 +59871,9 @@ La funzione XOR può essere usata per cifrare/decifrare un messaggio.
 
 (cryptoXOR (cryptoXOR "domani" "key") "key")
 ;-> "domani"
+
+(cryptoXOR (cryptoXOR "cryptomessage" "password") "password")
+;-> cryptomessage
 
 La forza della criptazione dipende dalla lunghezza della chiave, più è lunga la chiave e maggiore sarà la sicurezza.
 
@@ -60253,6 +60433,125 @@ La funzione in newLISP è semplice:
 
 (torta 12)
 ;-> 79
+
+
+------------
+Il ciclo for
+------------
+
+Vediamo la definizione della funzione "for" dal manuale di riferimento:
+
+****************
+>>>funzione FOR
+****************
+sintassi: (for (sym num-from num-to [num-step [exp-break]]) body)
+
+Valuta ripetutamente le espressioni nel corpo (body) per un intervallo di valori specificato in num-from e num-to, inclusi. È possibile specificare una dimensione del passo con num-passo. Se non viene specificata alcuna dimensione del passo, si assume 1.
+
+Facoltativamente, una condizione per l'uscita anticipata dal ciclo può essere definita in exp-break. Se l'espressione break restituisce un valore diverso da zero, il ciclo for restituisce il valore di exp-break. La condizione di rottura viene testata prima di valutare il corpo. Se viene definita una condizione di interruzione, è necessario definire anche num-step.
+
+Il simbolo sym è locale in ambito dinamico rispetto all'espressione for. Assume ogni valore successivamente nell'intervallo specificato come valore intero se non viene specificata alcuna dimensione del passo o come valore in virgola mobile quando è presente una dimensione del passo. Dopo la valutazione dell'istruzione for sym assume il valore precedente.
+
+(for (x 1 10 2) (println x))
+;-> 1
+;-> 3
+;-> 5
+;-> 7
+;-> 9
+
+(for (x 8 6 0,5) (println x))
+;-> 8
+;-> 7.5
+;-> 7
+;-> 6.5
+;-> 6
+
+(for (x 1100 2 (> (* x x) 30)) (println x))
+;-> 1
+;-> 3
+;-> 5
+;-> true
+
+Il secondo esempio utilizza un intervallo di numeri dal più alto al più basso. Notare che la dimensione del passo è sempre un numero positivo. Nel terzo esempio, viene verificata una condizione di interruzione.
+
+Usare la funzione "sequence" per creare una sequenza di numeri.
+
+Sembra che il ciclo "for" di newLISP sia simile a quello di altri linguaggi (ad esempio il C), invece ci sono alcune importanti differenze. Vediamo alcuni esempi:
+
+Esempio 1
+---------
+(setq i 10)
+(for (i 1 3) (print i { }))
+;-> 1 2 3 " "
+(println i)
+;-> 10
+
+La variabile del ciclo "i" è locale alla funzione "for", quindi non possiamo usarla "fuori" della funzione a meno di utilizzare una seconda variabile:
+
+(setq j 0)
+(setq i 10)
+(for (i 1 3) (setq j i) (print i { }))
+;-> 1 2 3 " "
+(setq i j)
+;-> 3
+(println i)
+;-> 3
+
+Esempio 2
+---------
+(for (i 1 5 1 (> i 2)) (print i { }))
+;-> 1 2 true
+
+Quando inseriamo una condizione di uscita (break) dobbiamo specificare anche il passo del ciclo. Inoltre il ciclo "for" restituisce true se la condizione di uscita viene verificata (altrimenti restituisce l'ultima espressione valutata).
+
+(for (i 1 5 1 (> i 10)) (print i { }))
+;-> 1 2 3 4 5 " "
+
+Anche se la condizione di uscita viene verificata all'inizio del ciclo viene restituito true:
+
+(for (i 1 5 1 (< i 3)) (print i { }))
+;-> true
+
+Esempio 3
+---------
+(for (i 5 1 1) (print i { }))
+;-> 5 4 3 2 1 " "
+
+Notare che il valore del passo vale 1 ed è sempre positivo. Sembra più logico scrivere (for i 5 1 -1), cioè partire dal numero cinque e arrivare al numero 1 utilizzando un passo uguale a -1, ma newLISP "ragiona" in un modo leggermente diverso: quello che è importante è la differenza tra il valore di arrivo e quello di partenza. Se la differenza è negativa, allora utilizza un passo negativo, altrimenti utilizza un passo positivo.
+Nel nostro esempio abbiamo:
+
+(arrivo - partenza) = (1 - 5) = -4, quindi newLISP utilizza un passo negativo (di valore 1)
+
+Se specifichiamo un passo negativo, newLISP prende il valore assoluto e poi calcola la direzione del ciclo con il suo metodo:
+
+(for (i 1 5 -1) (print i { }))
+;-> 1 2 3 4 5 " "
+
+Questo comporta che newLISP esegue sempre il corpo del ciclo (indipendentemente dal valore logico che si ottiene inizialmente confrontando il valore di partenza, quello di arrivo e il passo):
+
+; partenza = arrivo
+(for (i 1 1) (print i { }))
+;-> 1 " "
+
+; partenza > arrivo e passo positivo
+; in altri linguaggi il corpo del ciclo non viene eseguito
+; perchè non possiamo arrivare a 1 partendo da 3 con un passo positivo di valore 1
+; invece newLISP...
+(for (i 3 1 1) (print i { }))
+;-> 3 2 1 " "
+(for (i 3 1 -1) (print i { }))
+;-> 3 2 1 " "
+
+; partenza < arrivo e passo negativo
+; in altri linguaggi il corpo del ciclo non viene eseguito
+; perchè non possiamo arrivare a 3 partendo da 1 con un passo negativo di valore 1
+; invece newLISP...
+(for (i 1 3 -1) (print i { }))
+;-> 1 2 3 " "
+(for (i 1 3 1) (print i { }))
+;-> 1 2 3 " "
+
+Ricordare che il segno del passo non viene considerato da newLISP, quindi il corpo del ciclo "for" viene sempre eseguito (almeno una volta).
 
 
 ===========

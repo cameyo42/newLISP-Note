@@ -3470,11 +3470,14 @@ La funzione XOR può essere usata per cifrare/decifrare un messaggio.
   (local (k len-key out)
     (setq k 0)
     (setq len-key (length key))
-    (dolist (el (explode msg))
+    ;(dolist (el (explode msg)) ; non UTF-8
+    (dolist (el (unpack (dup "s" (length msg)) msg)) ; UTF-8
+      ;(println (^ (char el) (char (key k))) { } (char el) { } (char (key k)))
       (push (^ (char el) (char (key k))) out -1)
       (++ k)
       (setq k (% k len-key))
     )
+    ;(println out)
     (join (map char out))
   ))
 
@@ -3486,6 +3489,9 @@ La funzione XOR può essere usata per cifrare/decifrare un messaggio.
 
 (cryptoXOR (cryptoXOR "domani" "key") "key")
 ;-> "domani"
+
+(cryptoXOR (cryptoXOR "cryptomessage" "password") "password")
+;-> cryptomessage
 
 La forza della criptazione dipende dalla lunghezza della chiave, più è lunga la chiave e maggiore sarà la sicurezza.
 
@@ -4045,5 +4051,124 @@ La funzione in newLISP è semplice:
 
 (torta 12)
 ;-> 79
+
+
+------------
+Il ciclo for
+------------
+
+Vediamo la definizione della funzione "for" dal manuale di riferimento:
+
+****************
+>>>funzione FOR
+****************
+sintassi: (for (sym num-from num-to [num-step [exp-break]]) body)
+
+Valuta ripetutamente le espressioni nel corpo (body) per un intervallo di valori specificato in num-from e num-to, inclusi. È possibile specificare una dimensione del passo con num-passo. Se non viene specificata alcuna dimensione del passo, si assume 1.
+
+Facoltativamente, una condizione per l'uscita anticipata dal ciclo può essere definita in exp-break. Se l'espressione break restituisce un valore diverso da zero, il ciclo for restituisce il valore di exp-break. La condizione di rottura viene testata prima di valutare il corpo. Se viene definita una condizione di interruzione, è necessario definire anche num-step.
+
+Il simbolo sym è locale in ambito dinamico rispetto all'espressione for. Assume ogni valore successivamente nell'intervallo specificato come valore intero se non viene specificata alcuna dimensione del passo o come valore in virgola mobile quando è presente una dimensione del passo. Dopo la valutazione dell'istruzione for sym assume il valore precedente.
+
+(for (x 1 10 2) (println x))
+;-> 1
+;-> 3
+;-> 5
+;-> 7
+;-> 9
+
+(for (x 8 6 0,5) (println x))
+;-> 8
+;-> 7.5
+;-> 7
+;-> 6.5
+;-> 6
+
+(for (x 1100 2 (> (* x x) 30)) (println x))
+;-> 1
+;-> 3
+;-> 5
+;-> true
+
+Il secondo esempio utilizza un intervallo di numeri dal più alto al più basso. Notare che la dimensione del passo è sempre un numero positivo. Nel terzo esempio, viene verificata una condizione di interruzione.
+
+Usare la funzione "sequence" per creare una sequenza di numeri.
+
+Sembra che il ciclo "for" di newLISP sia simile a quello di altri linguaggi (ad esempio il C), invece ci sono alcune importanti differenze. Vediamo alcuni esempi:
+
+Esempio 1
+---------
+(setq i 10)
+(for (i 1 3) (print i { }))
+;-> 1 2 3 " "
+(println i)
+;-> 10
+
+La variabile del ciclo "i" è locale alla funzione "for", quindi non possiamo usarla "fuori" della funzione a meno di utilizzare una seconda variabile:
+
+(setq j 0)
+(setq i 10)
+(for (i 1 3) (setq j i) (print i { }))
+;-> 1 2 3 " "
+(setq i j)
+;-> 3
+(println i)
+;-> 3
+
+Esempio 2
+---------
+(for (i 1 5 1 (> i 2)) (print i { }))
+;-> 1 2 true
+
+Quando inseriamo una condizione di uscita (break) dobbiamo specificare anche il passo del ciclo. Inoltre il ciclo "for" restituisce true se la condizione di uscita viene verificata (altrimenti restituisce l'ultima espressione valutata).
+
+(for (i 1 5 1 (> i 10)) (print i { }))
+;-> 1 2 3 4 5 " "
+
+Anche se la condizione di uscita viene verificata all'inizio del ciclo viene restituito true:
+
+(for (i 1 5 1 (< i 3)) (print i { }))
+;-> true
+
+Esempio 3
+---------
+(for (i 5 1 1) (print i { }))
+;-> 5 4 3 2 1 " "
+
+Notare che il valore del passo vale 1 ed è sempre positivo. Sembra più logico scrivere (for i 5 1 -1), cioè partire dal numero cinque e arrivare al numero 1 utilizzando un passo uguale a -1, ma newLISP "ragiona" in un modo leggermente diverso: quello che è importante è la differenza tra il valore di arrivo e quello di partenza. Se la differenza è negativa, allora utilizza un passo negativo, altrimenti utilizza un passo positivo.
+Nel nostro esempio abbiamo:
+
+(arrivo - partenza) = (1 - 5) = -4, quindi newLISP utilizza un passo negativo (di valore 1)
+
+Se specifichiamo un passo negativo, newLISP prende il valore assoluto e poi calcola la direzione del ciclo con il suo metodo:
+
+(for (i 1 5 -1) (print i { }))
+;-> 1 2 3 4 5 " "
+
+Questo comporta che newLISP esegue sempre il corpo del ciclo (indipendentemente dal valore logico che si ottiene inizialmente confrontando il valore di partenza, quello di arrivo e il passo):
+
+; partenza = arrivo
+(for (i 1 1) (print i { }))
+;-> 1 " "
+
+; partenza > arrivo e passo positivo
+; in altri linguaggi il corpo del ciclo non viene eseguito
+; perchè non possiamo arrivare a 1 partendo da 3 con un passo positivo di valore 1
+; invece newLISP...
+(for (i 3 1 1) (print i { }))
+;-> 3 2 1 " "
+(for (i 3 1 -1) (print i { }))
+;-> 3 2 1 " "
+
+; partenza < arrivo e passo negativo
+; in altri linguaggi il corpo del ciclo non viene eseguito
+; perchè non possiamo arrivare a 3 partendo da 1 con un passo negativo di valore 1
+; invece newLISP...
+(for (i 1 3 -1) (print i { }))
+;-> 1 2 3 " "
+(for (i 1 3 1) (print i { }))
+;-> 1 2 3 " "
+
+Ricordare che il segno del passo non viene considerato da newLISP, quindi il corpo del ciclo "for" viene sempre eseguito (almeno una volta).
 
 

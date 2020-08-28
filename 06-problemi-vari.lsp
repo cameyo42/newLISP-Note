@@ -8402,3 +8402,111 @@ Vediamo di verificarlo con una simulazione.
 La simulazione produce risultati in linea con la teoria.
 
 
+---------------
+Teorema di Pick
+---------------
+
+Il teorema di Pick è un teorema di geometria che permette di calcolare l'area di un poligono semplice i cui vertici hanno coordinate intere.
+Dato un poligono semplice i cui vertici hanno coordinate intere (poligono lattice), abbiamo:
+
+I il numero di punti con coordinate intere interni al poligono;
+B il numero di punti con coordinate intere sul perimetro del poligono (vertici compresi).
+
+L'area A del poligono può essere calcolata tramite la formula:
+
+A = I + B/2 - 1
+
+Possiamo usare questa formula per calcolare quanti sono i punti con coordinate intere interni al poligono.
+
+La funzione per il calcolo dell'area di un poligono è la seguente:
+
+(define (area polygon)
+  (local (res)
+    (setq res 0)
+    (for (i 0 (- (length polygon) 2))
+      (setq res (add res
+                     (mul (sub (polygon i 0) (polygon (+ i 1) 0))
+                          (add (polygon i 1) (polygon (+ i 1) 1)))))
+    )
+    (abs (div res 2))))
+
+Funzione che calcola il numero dei punti con coordinate intere che si trovano sul perimetro del poligono:
+
+(define (bound-point polygon)
+  (local (dx dy size bb)
+    ; i vertici del poligono sono tutti sul perimetro
+    (setq size (length polygon)) 
+    (setq bb size)
+    ; ciclo per tutti i lati del poligono
+    (for (i 0 (- size 1))
+      (setq dx (- (polygon i 0) (polygon (% (+ i 1) size) 0)))
+      (setq dy (- (polygon i 1) (polygon (% (+ i 1) size) 1)))
+      ; gcd + 1 produce i punti sul perimetro, quindi gcd - 1 produce tutti i punti 
+      ; che si trovano sul segmento tranne i due punti estremi
+      (setq bb (+ bb (abs (gcd dx dy)) -1))
+    )
+    bb))
+
+Il numero di punti che hanno coordinate intere lungo un segmento di linea vale: GCD(dx,dy) + 1
+dove MCD è il Massimo Comun Divisore (Greatest Common Divisor - GCD)
+dx è la distanza tra le coordinate x dei punti
+dy è la distanza tra le coordinate y dei punti
+
+Vediamo il perchè:
+supponiamo che il nostro segmento inizi nel punto (x1, y1) con coordinate intere e termini nel punto (x2, y2) con coordinate intere. La pendenza di questo segmento vale (y1-y2)/(x1-x2)
+Possiamo semplificare questa frazione in a/b in modo tale che MCD (a, b) = 1
+Ora se iniziamo dal punto (x1, y1) e aumentiamo x1 di b e y1 di a, cosa succederà?
+Il nostro nuovo punto sarà: (x1 + b, y1 + a)
+Avrà coordinate intere e la sua pendenza sarà (y1 + a-y1)/(x1 + b-x1) = a/b quindi è ancora sulla stessa pendenza del nostro segmento di linea.
+E possiamo ripetere tale procedura per generare tali punti fino a quando (x1 + b * k, y1 + a * k) = (x2, y2)
+Quindi quanti punti di questo tipo ci sono in totale? (x1-x2)/b + 1 oppure (y1-y2)/a + 1
+prendiamo come soluzione (y1-y2)/a + 1
+E (y1-y2)/(x1-x2) = a/b
+Come semplificare di nuovo le frazioni? Utilizzando il MCD.
+
+a = (y1-y2)/MCD(abs (y1-y2), abs (x1-x2))
+b = (x1-x2)/MCD(abs (y1-y2), abs (x1-x2))
+
+Quindi (y1-y2)/a + 1 = (y1-y2)/((y1-y2)/MCD(abs(y1-y2), abs(x1-x2))) + 1 = MCD(abs(y1-y2), abs(x1-x2)) + 1
+
+Per calcolare i punti interni al poligono usiamo il teorema di Pick:
+
+(define (interior-point polygon)
+  (+ (- (area polygon) (/ (bound-point polygon) 2)) 1))
+
+Adesso proviamo le funzioni che abbiamo scritto. Possiamo verificare i risultati disegnando i poligoni di esempio su un foglio di carta a quadretti.
+
+; un quadrato
+(setq poly '((0 0) (5 0) (5 5) (0 5) (0 0)))
+(area poly)
+;-> 25
+(bound-point poly)
+;-> 20
+(interior-point poly)
+;-> 16
+
+(setq poly '((4 9) (8 9) (14 3) (7 3) (7 6) (4 6) (4 9)))
+(area poly)
+;-> 33
+(bound-point poly)
+;-> 26
+(interior-point poly)
+;-> 21
+
+(setq poly '((2 6) (4 4) (6 6) (8 4) (10 4) (10 1) (9 1) (7 3) (4 3) (2 1) (2 6)))
+(area poly)
+;-> 20
+(bound-point poly)
+;-> 26
+(interior-point poly)
+;-> 9
+
+(setq poly '((3 2) (6 5) (6 7) (2 5) (3 2)))
+(area poly)
+;-> 10
+(bound-point poly)
+;-> 8
+(interior-point poly)
+;-> 7
+
+

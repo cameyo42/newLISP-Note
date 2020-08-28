@@ -157,6 +157,7 @@ FUNZIONI VARIE
   Permutazioni circolari
   Crivello di Eratostene Lineare
   Area di un poligono semplice
+  Rango di una matrice
 
 newLISP 99 PROBLEMI (28)
 ========================
@@ -322,6 +323,7 @@ PROBLEMI VARI
   Distanza di numeri in una lista
   Ascensore difettoso ed equazioni diofantine
   Monete e griglie
+  Teorema di Pick
 
 DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
 ==================================================
@@ -543,6 +545,7 @@ NOTE LIBERE 2
   Common LISP Quicksort
   Ambito dinamico e parametri delle funzioni
   Torte e tagli
+  Il ciclo for
 
 APPENDICI
 =========

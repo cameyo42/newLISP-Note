@@ -422,7 +422,7 @@ Funzione che calcola la potenza di una frazione "^f"
 (^f '(3 5) 2)
 ;-> (9 25)
 
-Sul forum di newLISP, rickyboy ha fornito le seguenti funzioni equivalenti:
+Sul forum di newLISP, rickyboy ha fornito le seguenti funzioni equivalenti (che sono molto più compatte):
 
 (define (rat n d)
   (let (g (gcd n d))
