@@ -6071,3 +6071,162 @@ Frasi Famose sulla Programmazione e sul Linguaggio Lisp
 - unknown
 
 
+============================================================================
+Codice ASCII
+============================================================================
+L'American Standard Code for Information Interchange, o codice ASCII, è stato creato nel 1963 dal Comitato "American Standards Association" o "ASA", l'agenzia ha cambiato il suo nome nel 1969 in "American National Standards Institute" o "ANSI" così com'è conosciuto da allora.
+Questo codice nasce dal riordino e dall'espansione del set di simboli e caratteri già utilizzati in telegrafia a quel tempo dalla società Bell.
+All'inizio includeva solo lettere maiuscole e numeri, ma nel 1967 furono aggiunte le lettere minuscole e alcuni caratteri di controllo, formando ciò che è noto come US-ASCII, cioè i caratteri da 0 a 127.
+Quindi con questo set di soli 128 caratteri è stato pubblicato nel 1967 come standard, contenente tutto il necessario per scrivere in lingua inglese.
+Nel 1981 IBM sviluppò un'estensione del codice ASCII a 8 bit, chiamata "code page 437", in questa versione furono sostituiti alcuni caratteri di controllo obsoleti con i caratteri grafici. Inoltre sono stati aggiunti 128 caratteri, con nuovi simboli, segni, grafici e lettere latine, tutti i segni di punteggiatura e i caratteri necessari per scrivere testi in altre lingue, come lo spagnolo. In questo modo sono stati aggiunti i caratteri ASCII compresi tra 128 e 255.
+IBM include il supporto per questa tabella codici nell'hardware del suo modello 5150, noto come "IBM-PC", considerato il primo personal computer. Anche il sistema operativo di questo modello, "MS-DOS", utilizzava questo codice ASCII esteso.
+Quasi tutti i sistemi informatici di oggi utilizzano il codice ASCII per rappresentare caratteri e testi.
+
+ASCII control characters
+-------------------------------------------
+00   |   NULL   |  (Null character)       |
+01   |   SOH    |  (Start of Header)      |
+02   |   STX    |  (Start of Text)        |
+03   |   ETX    |  (End of Text)          |
+04   |   EOT    |  (End of Trans.)        |
+05   |   ENQ    |  (Enquiry)              |
+06   |   ACK    |  (Acknowledgement)      |
+07   |   BEL    |  (Bell)                 |
+08   |   BS     |  (Backspace)            |
+09   |   HT     |  (Horizontal Tab)       |
+10   |   LF     |  (Line feed)            |
+11   |   VT     |  (Vertical Tab)         |
+12   |   FF     |  (Form feed)            |
+13   |   CR     |  (Carriage return)      |
+14   |   SO     |  (Shift Out)            |
+15   |   SI     |  (Shift In)             |
+16   |   DLE    |  (Data link escape)     |
+17   |   DC1    |  (Device control 1)     |
+18   |   DC2    |  (Device control 2)     |
+19   |   DC3    |  (Device control 3)     |
+20   |   DC4    |  (Device control 4)     |
+21   |   NAK    |  (Negative acknowl.)    |
+22   |   SYN    |  (Synchronous idle)     |
+23   |   ETB    |  (End of trans. block)  |
+24   |   CAN    |  (Cancel)               |
+25   |   EM     |  (End of medium)        |
+26   |   SUB    |  (Substitute)           |
+27   |   ESC    |  (Escape)               |
+28   |   FS     |  (File separator)       |
+29   |   GS     |  (Group separator)      |
+30   |   RS     |  (Record separator)     |
+31   |   US     |  (Unit separator)       |
+127  |   DEL    |  (Delete)               |
+
+ASCII printable characters
+------------------------------------------
+|  32  | space |  64  |  @  |  96  |  `  |
+|  33  |   !   |  65  |  A  |  97  |  a  |
+|  34  |   "   |  66  |  B  |  98  |  b  |
+|  35  |   #   |  67  |  C  |  99  |  c  |
+|  36  |   $   |  68  |  D  |  100 |  d  |
+|  37  |   %   |  69  |  E  |  101 |  e  |
+|  38  |   &   |  70  |  F  |  102 |  f  |
+|  39  |   '   |  71  |  G  |  103 |  g  |
+|  40  |   (   |  72  |  H  |  104 |  h  |
+|  41  |   )   |  73  |  I  |  105 |  i  |
+|  42  |   *   |  74  |  J  |  106 |  j  |
+|  43  |   +   |  75  |  K  |  107 |  k  |
+|  44  |   ,   |  76  |  L  |  108 |  l  |
+|  45  |   -   |  77  |  M  |  109 |  m  |
+|  46  |   .   |  78  |  N  |  110 |  n  |
+|  47  |   /   |  79  |  O  |  111 |  o  |
+|  48  |   0   |  80  |  P  |  112 |  p  |
+|  49  |   1   |  81  |  Q  |  113 |  q  |
+|  50  |   2   |  82  |  R  |  114 |  r  |
+|  51  |   3   |  83  |  S  |  115 |  s  |
+|  52  |   4   |  84  |  T  |  116 |  t  |
+|  53  |   5   |  85  |  U  |  117 |  u  |
+|  54  |   6   |  86  |  V  |  118 |  v  |
+|  55  |   7   |  87  |  W  |  119 |  w  |
+|  56  |   8   |  88  |  X  |  120 |  x  |
+|  57  |   9   |  89  |  Y  |  121 |  y  |
+|  58  |   :   |  90  |  Z  |  122 |  z  |
+|  59  |   ;   |  91  |  [  |  123 |  {  |
+|  60  |   <   |  92  |  \  |  124 |  |  |
+|  61  |   =   |  93  |  ]  |  125 |  }  |
+|  62  |   >   |  94  |  ^  |  126 |  ~  |
+|  63  |   ?   |  95  |  _  |
+
+Extended ASCII characters
+--------------------------------------------
+|  128  |  Ç  |  171  |  ½  |  214  |   Í  |
+|  129  |  ü  |  172  |  ¼  |  215  |   Î  |
+|  130  |  é  |  173  |  ¡  |  216  |   Ï  |
+|  131  |  â  |  174  |  «  |  217  |   ┘  |
+|  132  |  ä  |  175  |  »  |  218  |   ┌  |
+|  133  |  à  |  176  |  ░  |  219  |   █  |
+|  134  |  å  |  177  |  ▒  |  220  |   ▄  |
+|  135  |  ç  |  178  |  ▓  |  221  |   ¦  |
+|  136  |  ê  |  179  |  │  |  222  |   Ì  |
+|  137  |  ë  |  180  |  ┤  |  223  |   ▀  |
+|  138  |  è  |  181  |  Á  |  224  |   Ó  |
+|  139  |  ï  |  182  |  Â  |  225  |   ß  |
+|  140  |  î  |  183  |  À  |  226  |   Ô  |
+|  141  |  ì  |  184  |  ©  |  227  |   Ò  |
+|  142  |  Ä  |  185  |  ╣  |  228  |   õ  |
+|  143  |  Å  |  186  |  ║  |  229  |   Õ  |
+|  144  |  É  |  187  |  ╗  |  230  |   µ  |
+|  145  |  æ  |  188  |  ╝  |  231  |   þ  |
+|  146  |  Æ  |  189  |  ¢  |  232  |   Þ  |
+|  147  |  ô  |  190  |  ¥  |  233  |   Ú  |
+|  148  |  ö  |  191  |  ┐  |  234  |   Û  |
+|  149  |  ò  |  192  |  └  |  235  |   Ù  |
+|  150  |  û  |  193  |  ┴  |  236  |   ý  |
+|  151  |  ù  |  194  |  ┬  |  237  |   Ý  |
+|  152  |  ÿ  |  195  |  ├  |  238  |   ¯  |
+|  153  |  Ö  |  196  |  ─  |  239  |   ´  |
+|  154  |  Ü  |  197  |  ┼  |  240  |   ≡  |
+|  155  |  ø  |  198  |  ã  |  241  |   ±  |
+|  156  |  £  |  199  |  Ã  |  242  |   ‗  |
+|  157  |  Ø  |  200  |  ╚  |  243  |   ¾  |
+|  158  |  ×  |  201  |  ╔  |  244  |   ¶  |
+|  159  |  ƒ  |  202  |  ╩  |  245  |   §  |
+|  160  |  á  |  203  |  ╦  |  246  |   ÷  |
+|  161  |  í  |  204  |  ╠  |  247  |   ¸  |
+|  162  |  ó  |  205  |  ═  |  248  |   °  |
+|  163  |  ú  |  206  |  ╬  |  249  |   ¨  |
+|  164  |  ñ  |  207  |  ¤  |  250  |   ·  |
+|  165  |  Ñ  |  208  |  ð  |  251  |   ¹  |
+|  166  |  ª  |  209  |  Ð  |  252  |   ³  |
+|  167  |  º  |  210  |  Ê  |  253  |   ²  |
+|  168  |  ¿  |  211  |  Ë  |  254  |   ■  |
+|  169  |  ®  |  212  |  È  |  255  | nbsp |
+|  170  |  ¬  |  213  |  ı  |
+
+Print characters in Windows
+---------------------------
+
+Vowels grave accent      Vowels acute accent      Vowels with diaresis
+---------------------    ---------------------    ---------------------
+|  à  |  alt + 133  |    |  á  |  alt + 160  |    |  ä  |  alt + 132  |
+|  è  |  alt + 138  |    |  é  |  alt + 130  |    |  ë  |  alt + 137  |
+|  ì  |  alt + 141  |    |  í  |  alt + 161  |    |  ï  |  alt + 139  |
+|  ò  |  alt + 149  |    |  ó  |  alt + 162  |    |  ö  |  alt + 148  |
+|  ù  |  alt + 151  |    |  ú  |  alt + 163  |    |  ü  |  alt + 129  |
+|  À  |  alt + 0192 |    |  Á  |  alt + 181  |    |  Ä  |  alt + 142  |
+|  È  |  alt + 0200 |    |  É  |  alt + 144  |    |  Ë  |  alt + 211  |
+|  Ì  |  alt + 0204 |    |  Í  |  alt + 214  |    |  Ï  |  alt + 216  |
+|  Ò  |  alt + 0210 |    |  Ó  |  alt + 224  |    |  Ö  |  alt + 153  |
+|  Ù  |  alt + 0217 |    |  Ú  |  alt + 233  |    |  Ü  |  alt + 154  |
+
+Mathematical symbols     Commercial symbols       Quotes and parenthesis
+---------------------    ---------------------    ----------------------
+|  ½  |  alt + 171  |    |  @  |  alt + 64   |    |  "  |  alt + 34   |
+|  ¼  |  alt + 172  |    |  $  |  alt + 36   |    |  '  |  alt + 39   |
+|  ¾  |  alt + 243  |    |  £  |  alt + 156  |    |  (  |  alt + 40   |
+|  ¹  |  alt + 251  |    |  ¥  |  alt + 190  |    |  )  |  alt + 41   |
+|  ³  |  alt + 252  |    |  ¢  |  alt + 189  |    |  [  |  alt + 91   |
+|  ²  |  alt + 253  |    |  ¤  |  alt + 207  |    |  ]  |  alt + 93   |
+|  ƒ  |  alt + 159  |    |  ®  |  alt + 169  |    |  {  |  alt + 123  |
+|  ±  |  alt + 241  |    |  ©  |  alt + 184  |    |  }  |  alt + 125  |
+|  ×  |  alt + 158  |    |  ª  |  alt + 166  |    |  «  |  alt + 174  |
+|  ÷  |  alt + 246  |    |  º  |  alt + 167  |    |  »  |  alt + 175  |
+|  ≡  |  alt + 240  |    |  °  |  alt + 248  |
+
+

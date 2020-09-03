@@ -118,7 +118,7 @@ FUNZIONI VARIE
   Trasformare una lista di stringhe in lista di simboli
   Trasformare una lista di simboli in lista di stringhe
   Simboli creati dall'utente
-  Il programma è in esecuzione ? (progress display)
+  Il programma è in esecuzione? (progress display)
   Ispezionare una cella newLISP
   Informazioni sul sistema (sys-info)
   Valutazione di elementi di una lista
@@ -158,6 +158,7 @@ FUNZIONI VARIE
   Crivello di Eratostene Lineare
   Area di un poligono semplice
   Rango di una matrice
+  Operazioni tra coppie di elementi di una lista
 
 newLISP 99 PROBLEMI (28)
 ========================
@@ -248,6 +249,7 @@ ROSETTA CODE
   Sudoku
   Chess960
   Percorso del cavallo
+  Teorema cinese dei resti
 
 PROJECT EULERO
 ==============
@@ -324,6 +326,7 @@ PROBLEMI VARI
   Ascensore difettoso ed equazioni diofantine
   Monete e griglie
   Teorema di Pick
+  Problema dei fiammiferi di Banach
 
 DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
 ==================================================
@@ -411,7 +414,7 @@ LIBRERIE
 
 NOTE LIBERE
 ===========
-  Perchè newLISP ?
+  Perchè newLISP?
   newLISP facile
   Apprendere newLISP
   Commentare righe di codice
@@ -546,6 +549,8 @@ NOTE LIBERE 2
   Ambito dinamico e parametri delle funzioni
   Torte e tagli
   Il ciclo for
+  Perché uno specchio inverte destra e sinistra invece che su e giù?
+  Treni e mosche
 
 APPENDICI
 =========
@@ -570,6 +575,7 @@ APPENDICI
   Gestione Automatica della Memoria in newLISP (Lutz Mueller)
   Benchmarking newLISP
   Frasi Famose sulla Programmazione e sul Linguaggio Lisp
+  Codice ASCII
 
 BIBLIOGRAFIA / WEB
 ==================

@@ -528,9 +528,8 @@ Funzione (Eratostene) che calcola i numeri primi fino a n:
 Funzione che applica una operazione ad ogni coppia di elementi di una lista:
 el(1) op el(2), el(2) op el(3), el(3) op el(4), ..., el(n-1) op (el n)
 
-(define (funlist lst func)
-  (local (skip)
-  (if skip
+(define (funlist lst func rev)
+  (if rev
       (map func (chop lst) (rest lst))
       (map func (rest lst) (chop lst)))))
 
@@ -4932,7 +4931,7 @@ Verifichiamo che le due funzioni "coprimi" e "farey" generano le stesse sequenze
 (= (coprimi 100) (sort (farey 100)))
 ;-> true
 
-Vediamo la differenza delle due funzioni in termin di velocità
+Vediamo la differenza delle due funzioni in termini di velocità:
 
 (time (map coprimi (sequence 10 500)))
 ;-> 6391.329
@@ -4969,6 +4968,14 @@ Ottimizziamo un pò la funzione "farey":
 ;-> 6469.966
 
 Le due funzioni hanno la stessa velocità.
+
+Insiemi di numeri coprimi
+-------------------------
+Un insieme di interi S = {a1, a2, .... an} può anche essere chiamato coprimo o "setwise coprimo" se il massimo comune divisore di tutti gli elementi dell'insieme è 1. Ad esempio, gli interi 6, 10, 15 sono coprimi perché 1 è l'unico numero intero positivo che li divide tutti.
+Se ogni coppia in un insieme di interi è coprimo, allora l'insieme è detto coprimo a coppie o "pairwise coprimo". Un insieme di interi S = {a1, a2, .... an} è "pairwise coprimo" se il minimo comune multiplo di tutti i numeri è uguale al prodotto di tutti i numeri.
+La condizione paiwise coprimo è più forte della condizione setwise coprimo. Ogni insieme finito pairwise coprimo è anche setwise coprimo, ma non è vero il contrario. Ad esempio, gli interi 4, 5, 6 sono (setwise) coprimi (perché l'unico intero positivo che li divide tutti è 1), ma non sono coprimi a coppie (perché mcd (4, 6) = 2).
+Il concetto di coprimalità a coppie è importante come ipotesi in molti risultati nella teoria dei numeri, come il teorema cinese dei resti.
+È possibile che un insieme infinito di interi sia coprimo a coppie, ad esempio l'insieme di tutti i numeri primi.
 
 
 -------------------------------------------------
@@ -8210,5 +8217,176 @@ Regola di Warnsdorff:
 ;-> 69.916
 (time (warnsdorff 7 7))
 ;-> 541.521
+
+
+------------------------
+TEOREMA CINESE DEI RESTI
+------------------------
+
+Siano (n1, n2,..., nk) k interi a due a due coprimi e siano (b1, b2,..., bk) k interi relativi. 
+Allora il sistema di congruenze:
+
+x ≡ b1(mod n1)
+x ≡ b2(mod n2)
+...
+x ≡ b2(mod nk)
+
+Ammette soluzioni. Inoltre se x0 è una soluzione del sistema, tutte le soluzioni di tale sistema saranno date da:
+
+x = x0 + h*N  dove h appartiene all'insieme dei numeri interi relativi (Z) e N = n1*n2*...*nk.
+
+Nota: la condizione che (n1, n2,..., nk) siano coprimi a coppie, è solo una condizione sufficiente per la risolubilità del sistema. Può capitare che i moduli non siano a due a due coprimi, ma il sistema abbia comunque soluzione.
+
+Vediamo come si calcola la soluzione di un sistema di congruenze con un esempio:
+
+x ≡ 2 (mod 5)
+x ≡ 0 (mod 4)
+x ≡ 4 (mod 7)
+
+Poiché mcd(5,4) = mcd(5,7) = mcd(4,7) = 1 per il Teorema Cinese dei resti, il sistema ammette soluzione.
+
+Siano:
+
+b1=2, b2=0, b3=4
+
+n1=5, n2=4, n3=7
+
+N = n1*n2*n3 = 140
+
+N1 = n2*n3 = 28
+
+N2 = n1*n3 = 35
+
+N3 = n1*n2 = 20
+
+Iniziamo col determinare una soluzione particolare y1 della congruenza:
+
+N1*y2 ≡ 1 (mod n1)   ==>   28*y1 ≡ 1 (mod 5)   ==>   y1 = 2
+
+Determiniamo una soluzione particolare y2 della congruenza:
+
+N2*y2 ≡ 1 (mod n2)   ==>   35*y2 ≡ 1 (mod 4)   ==>   y2 = 3
+
+Determiniamo una soluzione particolare y3 della congruenza:
+
+N3*y3 ≡ 1 (mod n3)   ==>   20*y2 ≡ 1 (mod 7)   ==>   y2 = 6
+
+La soluzione particolare x0 del sistema è data da:
+
+x0 = b1*N1*y1 + b2*N2*y2 + b3*N3*y3 = 112 + 0 + 480 = 592 = 32 (mod N) = 32 (mod 140)
+
+Quindi le soluzioni del sistema sono date da: x = 32 + 140*h.
+
+Algoritmo del teorema cinese dei resti
+--------------------------------------
+L'algoritmo seguente è applicabile solo se l'insieme dei numeri n è coprimo a coppie (coprimo pairwise).
+
+Dato il sistema di congruenze:
+
+x ≡ ai (mod ni) dove i=1,...k
+
+Definiamo il prodotto N = n1*n2*...*nk
+
+Per ogni i, gli interi ni e N/ni sono coprimi.
+
+Usando l'algoritmo di Euclide Esteso possiamo trovare gli interi ri e si tali che: ri*ni + si*N/ni = 1.
+
+La soluzione vale: x = Sum[1,k](ai*si*N/ni)
+
+E la soluzione minima vale: x (mod N)
+
+; ritorna il valore di x, dove (a * x) % b == 1
+(define (mul-inv a b)
+  (local (b0 t q x0 x1)
+    (setq b0 b x0 0 x1 1)
+    (cond ((= b 1) 1)
+          (true
+            (while (> a 1)
+              (setq q (/ a b))
+              (setq t b b (% a b) a t)
+              (setq t x0 x0 (- x1 (* q x0)) x1 t)
+            )
+            (if (< x1 0) (setq x1 (+ x1 b0)))
+            x1
+          ))))
+
+(mul-inv 3 2)
+;-> 1
+(mul-inv 5 3)
+;-> 2
+(mul-inv 7 2)
+;-> 1
+
+Funzione che calcola la soluzione con il Teorema Cinese dei Resti:
+
+(define (chinese divisori resti)
+  (local (p prod sum)
+    (setq prod 1 sum 0)
+    (for (i 0 (- (length divisori) 1))
+      (setq prod (* prod (divisori i)))
+    )
+    (for (i 0 (- (length divisori) 1))
+      (setq p (/ prod (divisori i)))
+      (setq sum (+ sum (* (resti i) (mul-inv p (divisori i)) p)))
+    )
+    (list (% sum prod) prod)
+  )
+)
+
+Funzione per il calcolo del minimo comune multiplo:
+
+(define (lcm_ a b) (/ (* a b) (gcd a b)))
+(define-macro (lcm) (apply lcm_ (args) 2))
+
+(lcm 3 5 7)
+;-> 105
+(apply lcm '(3 5 7))
+;-> 105
+
+Funzione finale per il Teorema Cinese dei Resti:
+
+(define (trc divisori resti)
+    ;se tutte le coppie di numeri sono coprimi tra loro
+    ;(minimo comune multiplo(numeri) = prodotto(numeri))
+    (if (= (apply * divisori) (apply lcm divisori))
+        ;allora cerchiamo la soluzione
+        (chinese divisori resti)
+        ; altrimenti nessuna soluzione 
+        nil))
+
+(trc '(3 5 7) '(2 3 2))
+;-> (23 105)
+
+La soluzione vale (23 + k*105) dove k=...,-2,-1,0,1,2,...
+
+(trc '(3 5 10) '(2 3 2))
+;-> nil
+
+Esempio di applicazione del teorema:
+
+Un generale deve contare i suoi soldati. Invece di contarli uno ad uno, li fa disporre in diversi modi:
+1) se messi in fila per 5, allora l'ultima fila ha 1 soldato
+2) se messi in fila per 8, allora l'ultima fila ha 7 soldati
+3) se messi in fila per 7, allora l'ultima fila ha 6 soldati
+
+A questo punto il generale applica il Teorema Cinese dei Resti e calcola il numero dei soldati:
+
+(chinese '(5 8 7) '(1 7 6))
+;-> (111 280)
+
+Infatti risulta:
+(% 111 5)
+;-> 1
+(% 111 8)
+;-> 7
+(% 111 7)
+;-> 6
+
+Applicazioni del teorema cinese dei resti
+-----------------------------------------
+La maggior parte delle implementazioni di RSA utilizza il teorema cinese del resto durante la firma dei certificati HTTPS e durante la decrittografia.
+Il teorema cinese del resto può essere utilizzato anche nella condivisione segreta, che consiste nel distribuire un insieme di dati tra un gruppo di persone che, tutti insieme (ma nessuno da solo), possono recuperare un certo valore dall'insieme dei dati. Ciascuna delle parti è rappresentata da una congruenza e la soluzione del sistema di congruenze utilizzando il teorema cinese dei resti è il numero segreto da recuperare. La condivisione segreta che utilizza il teorema cinese del resto utilizza anche speciali sequenze di interi che garantiscono l'impossibilità di recuperare il numero da un insieme di dati con meno di una certa cardinalità.
+
+Il teorema cinese dei resti è stato utilizzato per costruire una numerazione di Gödel per le sequenze, che è coinvolta nella dimostrazione dei teoremi di incompletezza di Gödel.
 
 

@@ -1983,7 +1983,7 @@ Versione modificata:
 
 
 -------------------------------------------------
-Il programma è in esecuzione ? (progress display)
+Il programma è in esecuzione? (progress display)
 -------------------------------------------------
 
 Qualche volta abbiamo bisogno di sapere se un programma è in esecuzione (e a che punto si trova) oppure si è bloccato in qualche parte del nostro codice. Ci sono due metodi per questo:
@@ -5847,5 +5847,43 @@ Questo algoritmo viene eseguito in O(n3).
 
 (rango '((10 2 -4 -2) (4 2 2 1) (6 0 -6 -3)))
 ;-> 2
+
+
+----------------------------------------------
+Operazioni tra coppie di elementi di una lista
+----------------------------------------------
+
+La seguente funzione applica l'operatore op ad ogni coppia di elementi di una lista:
+el(1) op el(2), el(2) op el(3), el(3) op el(4), ..., el(n-1) op el(n)
+
+(define (do-pair lst func rev)
+  (if rev
+      (map func (chop lst) (rest lst))
+      (map func (rest lst) (chop lst))))
+
+quando rev = true:
+el(1) op el(2), el(2) op el(3), el(3) op el(4), ..., el(n-1) op el(n)
+
+quando rev = nil:
+el(2) op el(1), el(3) op el(2), el(4) op el(3), ..., el(n) op el(n-1)
+
+(do-pair '(4 7 11 16 18) -)
+;-> (3 4 5 2)
+3 = 7 - 4 
+4 = 11 - 7
+...
+
+(do-pair '(4 7 11 16 18) - true)
+;-> (-3 -4 -5 -2)
+-3 = 4 - 7
+-4 = 7 - 11
+...
+
+Possiamo anche passare una funzione utente come operatore:
+
+(define (quad x y) (+ (* x x) (* y y)))
+
+(do-pair '(1 2 3 4) quad)
+;-> (5 13 25)
 
 

@@ -118,7 +118,7 @@ FUNZIONI VARIE
   Trasformare una lista di stringhe in lista di simboli
   Trasformare una lista di simboli in lista di stringhe
   Simboli creati dall'utente
-  Il programma è in esecuzione ? (progress display)
+  Il programma è in esecuzione? (progress display)
   Ispezionare una cella newLISP
   Informazioni sul sistema (sys-info)
   Valutazione di elementi di una lista
@@ -158,6 +158,7 @@ FUNZIONI VARIE
   Crivello di Eratostene Lineare
   Area di un poligono semplice
   Rango di una matrice
+  Operazioni tra coppie di elementi di una lista
 
 newLISP 99 PROBLEMI (28)
 ========================
@@ -248,6 +249,7 @@ ROSETTA CODE
   Sudoku
   Chess960
   Percorso del cavallo
+  Teorema cinese dei resti
 
 PROJECT EULERO
 ==============
@@ -324,6 +326,7 @@ PROBLEMI VARI
   Ascensore difettoso ed equazioni diofantine
   Monete e griglie
   Teorema di Pick
+  Problema dei fiammiferi di Banach
 
 DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
 ==================================================
@@ -411,7 +414,7 @@ LIBRERIE
 
 NOTE LIBERE
 ===========
-  Perchè newLISP ?
+  Perchè newLISP?
   newLISP facile
   Apprendere newLISP
   Commentare righe di codice
@@ -546,6 +549,8 @@ NOTE LIBERE 2
   Ambito dinamico e parametri delle funzioni
   Torte e tagli
   Il ciclo for
+  Perché uno specchio inverte destra e sinistra invece che su e giù?
+  Treni e mosche
 
 APPENDICI
 =========
@@ -570,6 +575,7 @@ APPENDICI
   Gestione Automatica della Memoria in newLISP (Lutz Mueller)
   Benchmarking newLISP
   Frasi Famose sulla Programmazione e sul Linguaggio Lisp
+  Codice ASCII
 
 BIBLIOGRAFIA / WEB
 ==================
@@ -3897,7 +3903,7 @@ sintassi: (nth int-index str)
 sintassi: (nth list-indices list)
 sintassi: (nth list-indices array)
 
-Nel primo gruppo di sintassi nth usa il valore di int-index per individuare un indice in una lista, un vettore o una stringa e restituisce l'elemento trovato a quell'indice.
+Nel primo gruppo di sintassi "nth" usa il valore di int-index per individuare un indice in una lista, un vettore o una stringa e restituisce l'elemento trovato a quell'indice.
 È possibile specificare più indici per accedere in modo ricorsivo a elementi in liste o vettori annidati. Se ci sono più indici che livelli di annidamento, gli indici extra vengono ignorati. Quando vengono utilizzati più indici, devono essere inseriti in una lista come mostrato nel secondo gruppo di sintassi.
 
 (set 'L '(a b c))
@@ -11358,7 +11364,7 @@ Versione modificata:
 
 
 -------------------------------------------------
-Il programma è in esecuzione ? (progress display)
+Il programma è in esecuzione? (progress display)
 -------------------------------------------------
 
 Qualche volta abbiamo bisogno di sapere se un programma è in esecuzione (e a che punto si trova) oppure si è bloccato in qualche parte del nostro codice. Ci sono due metodi per questo:
@@ -15224,6 +15230,44 @@ Questo algoritmo viene eseguito in O(n3).
 ;-> 2
 
 
+----------------------------------------------
+Operazioni tra coppie di elementi di una lista
+----------------------------------------------
+
+La seguente funzione applica l'operatore op ad ogni coppia di elementi di una lista:
+el(1) op el(2), el(2) op el(3), el(3) op el(4), ..., el(n-1) op el(n)
+
+(define (do-pair lst func rev)
+  (if rev
+      (map func (chop lst) (rest lst))
+      (map func (rest lst) (chop lst))))
+
+quando rev = true:
+el(1) op el(2), el(2) op el(3), el(3) op el(4), ..., el(n-1) op el(n)
+
+quando rev = nil:
+el(2) op el(1), el(3) op el(2), el(4) op el(3), ..., el(n) op el(n-1)
+
+(do-pair '(4 7 11 16 18) -)
+;-> (3 4 5 2)
+3 = 7 - 4 
+4 = 11 - 7
+...
+
+(do-pair '(4 7 11 16 18) - true)
+;-> (-3 -4 -5 -2)
+-3 = 4 - 7
+-4 = 7 - 11
+...
+
+Possiamo anche passare una funzione utente come operatore:
+
+(define (quad x y) (+ (* x x) (* y y)))
+
+(do-pair '(1 2 3 4) quad)
+;-> (5 13 25)
+
+
 ==========================
 
  newLISP 99 PROBLEMI (28)
@@ -15819,7 +15863,7 @@ Cominciamo con la versione imperativa (iterativa).
 Adesso scriviamo la stessa funzione in stile funzionale (ricorsiva).
 
 Abbiamo bisogno di una funzione di supporto (helper) che ha come argomento aggiuntivo il conteggio degli elementi duplicati. Si controllano i primi due elementi l'uno con l'altro:
-- se sono uguali si richiama la funzione di supporto sul resto della lista e aumentando il conteggio
+- se sono uguali si richiama la funzione di supporto sul resto della lista aumentando il conteggio
 - se sono diversi si costruisce (con la funzione cons) il risultato parziale e poi si richiama la funzione di appoggio sul resto della lista con il conteggio pari a uno.
 
 (define (encode lst)
@@ -17230,9 +17274,8 @@ Funzione (Eratostene) che calcola i numeri primi fino a n:
 Funzione che applica una operazione ad ogni coppia di elementi di una lista:
 el(1) op el(2), el(2) op el(3), el(3) op el(4), ..., el(n-1) op (el n)
 
-(define (funlist lst func)
-  (local (skip)
-  (if skip
+(define (funlist lst func rev)
+  (if rev
       (map func (chop lst) (rest lst))
       (map func (rest lst) (chop lst)))))
 
@@ -21634,7 +21677,7 @@ Verifichiamo che le due funzioni "coprimi" e "farey" generano le stesse sequenze
 (= (coprimi 100) (sort (farey 100)))
 ;-> true
 
-Vediamo la differenza delle due funzioni in termin di velocità
+Vediamo la differenza delle due funzioni in termini di velocità:
 
 (time (map coprimi (sequence 10 500)))
 ;-> 6391.329
@@ -21671,6 +21714,14 @@ Ottimizziamo un pò la funzione "farey":
 ;-> 6469.966
 
 Le due funzioni hanno la stessa velocità.
+
+Insiemi di numeri coprimi
+-------------------------
+Un insieme di interi S = {a1, a2, .... an} può anche essere chiamato coprimo o "setwise coprimo" se il massimo comune divisore di tutti gli elementi dell'insieme è 1. Ad esempio, gli interi 6, 10, 15 sono coprimi perché 1 è l'unico numero intero positivo che li divide tutti.
+Se ogni coppia in un insieme di interi è coprimo, allora l'insieme è detto coprimo a coppie o "pairwise coprimo". Un insieme di interi S = {a1, a2, .... an} è "pairwise coprimo" se il minimo comune multiplo di tutti i numeri è uguale al prodotto di tutti i numeri.
+La condizione paiwise coprimo è più forte della condizione setwise coprimo. Ogni insieme finito pairwise coprimo è anche setwise coprimo, ma non è vero il contrario. Ad esempio, gli interi 4, 5, 6 sono (setwise) coprimi (perché l'unico intero positivo che li divide tutti è 1), ma non sono coprimi a coppie (perché mcd (4, 6) = 2).
+Il concetto di coprimalità a coppie è importante come ipotesi in molti risultati nella teoria dei numeri, come il teorema cinese dei resti.
+È possibile che un insieme infinito di interi sia coprimo a coppie, ad esempio l'insieme di tutti i numeri primi.
 
 
 -------------------------------------------------
@@ -24912,6 +24963,177 @@ Regola di Warnsdorff:
 ;-> 69.916
 (time (warnsdorff 7 7))
 ;-> 541.521
+
+
+------------------------
+TEOREMA CINESE DEI RESTI
+------------------------
+
+Siano (n1, n2,..., nk) k interi a due a due coprimi e siano (b1, b2,..., bk) k interi relativi. 
+Allora il sistema di congruenze:
+
+x ≡ b1(mod n1)
+x ≡ b2(mod n2)
+...
+x ≡ b2(mod nk)
+
+Ammette soluzioni. Inoltre se x0 è una soluzione del sistema, tutte le soluzioni di tale sistema saranno date da:
+
+x = x0 + h*N  dove h appartiene all'insieme dei numeri interi relativi (Z) e N = n1*n2*...*nk.
+
+Nota: la condizione che (n1, n2,..., nk) siano coprimi a coppie, è solo una condizione sufficiente per la risolubilità del sistema. Può capitare che i moduli non siano a due a due coprimi, ma il sistema abbia comunque soluzione.
+
+Vediamo come si calcola la soluzione di un sistema di congruenze con un esempio:
+
+x ≡ 2 (mod 5)
+x ≡ 0 (mod 4)
+x ≡ 4 (mod 7)
+
+Poiché mcd(5,4) = mcd(5,7) = mcd(4,7) = 1 per il Teorema Cinese dei resti, il sistema ammette soluzione.
+
+Siano:
+
+b1=2, b2=0, b3=4
+
+n1=5, n2=4, n3=7
+
+N = n1*n2*n3 = 140
+
+N1 = n2*n3 = 28
+
+N2 = n1*n3 = 35
+
+N3 = n1*n2 = 20
+
+Iniziamo col determinare una soluzione particolare y1 della congruenza:
+
+N1*y2 ≡ 1 (mod n1)   ==>   28*y1 ≡ 1 (mod 5)   ==>   y1 = 2
+
+Determiniamo una soluzione particolare y2 della congruenza:
+
+N2*y2 ≡ 1 (mod n2)   ==>   35*y2 ≡ 1 (mod 4)   ==>   y2 = 3
+
+Determiniamo una soluzione particolare y3 della congruenza:
+
+N3*y3 ≡ 1 (mod n3)   ==>   20*y2 ≡ 1 (mod 7)   ==>   y2 = 6
+
+La soluzione particolare x0 del sistema è data da:
+
+x0 = b1*N1*y1 + b2*N2*y2 + b3*N3*y3 = 112 + 0 + 480 = 592 = 32 (mod N) = 32 (mod 140)
+
+Quindi le soluzioni del sistema sono date da: x = 32 + 140*h.
+
+Algoritmo del teorema cinese dei resti
+--------------------------------------
+L'algoritmo seguente è applicabile solo se l'insieme dei numeri n è coprimo a coppie (coprimo pairwise).
+
+Dato il sistema di congruenze:
+
+x ≡ ai (mod ni) dove i=1,...k
+
+Definiamo il prodotto N = n1*n2*...*nk
+
+Per ogni i, gli interi ni e N/ni sono coprimi.
+
+Usando l'algoritmo di Euclide Esteso possiamo trovare gli interi ri e si tali che: ri*ni + si*N/ni = 1.
+
+La soluzione vale: x = Sum[1,k](ai*si*N/ni)
+
+E la soluzione minima vale: x (mod N)
+
+; ritorna il valore di x, dove (a * x) % b == 1
+(define (mul-inv a b)
+  (local (b0 t q x0 x1)
+    (setq b0 b x0 0 x1 1)
+    (cond ((= b 1) 1)
+          (true
+            (while (> a 1)
+              (setq q (/ a b))
+              (setq t b b (% a b) a t)
+              (setq t x0 x0 (- x1 (* q x0)) x1 t)
+            )
+            (if (< x1 0) (setq x1 (+ x1 b0)))
+            x1
+          ))))
+
+(mul-inv 3 2)
+;-> 1
+(mul-inv 5 3)
+;-> 2
+(mul-inv 7 2)
+;-> 1
+
+Funzione che calcola la soluzione con il Teorema Cinese dei Resti:
+
+(define (chinese divisori resti)
+  (local (p prod sum)
+    (setq prod 1 sum 0)
+    (for (i 0 (- (length divisori) 1))
+      (setq prod (* prod (divisori i)))
+    )
+    (for (i 0 (- (length divisori) 1))
+      (setq p (/ prod (divisori i)))
+      (setq sum (+ sum (* (resti i) (mul-inv p (divisori i)) p)))
+    )
+    (list (% sum prod) prod)
+  )
+)
+
+Funzione per il calcolo del minimo comune multiplo:
+
+(define (lcm_ a b) (/ (* a b) (gcd a b)))
+(define-macro (lcm) (apply lcm_ (args) 2))
+
+(lcm 3 5 7)
+;-> 105
+(apply lcm '(3 5 7))
+;-> 105
+
+Funzione finale per il Teorema Cinese dei Resti:
+
+(define (trc divisori resti)
+    ;se tutte le coppie di numeri sono coprimi tra loro
+    ;(minimo comune multiplo(numeri) = prodotto(numeri))
+    (if (= (apply * divisori) (apply lcm divisori))
+        ;allora cerchiamo la soluzione
+        (chinese divisori resti)
+        ; altrimenti nessuna soluzione 
+        nil))
+
+(trc '(3 5 7) '(2 3 2))
+;-> (23 105)
+
+La soluzione vale (23 + k*105) dove k=...,-2,-1,0,1,2,...
+
+(trc '(3 5 10) '(2 3 2))
+;-> nil
+
+Esempio di applicazione del teorema:
+
+Un generale deve contare i suoi soldati. Invece di contarli uno ad uno, li fa disporre in diversi modi:
+1) se messi in fila per 5, allora l'ultima fila ha 1 soldato
+2) se messi in fila per 8, allora l'ultima fila ha 7 soldati
+3) se messi in fila per 7, allora l'ultima fila ha 6 soldati
+
+A questo punto il generale applica il Teorema Cinese dei Resti e calcola il numero dei soldati:
+
+(chinese '(5 8 7) '(1 7 6))
+;-> (111 280)
+
+Infatti risulta:
+(% 111 5)
+;-> 1
+(% 111 8)
+;-> 7
+(% 111 7)
+;-> 6
+
+Applicazioni del teorema cinese dei resti
+-----------------------------------------
+La maggior parte delle implementazioni di RSA utilizza il teorema cinese del resto durante la firma dei certificati HTTPS e durante la decrittografia.
+Il teorema cinese del resto può essere utilizzato anche nella condivisione segreta, che consiste nel distribuire un insieme di dati tra un gruppo di persone che, tutti insieme (ma nessuno da solo), possono recuperare un certo valore dall'insieme dei dati. Ciascuna delle parti è rappresentata da una congruenza e la soluzione del sistema di congruenze utilizzando il teorema cinese dei resti è il numero segreto da recuperare. La condivisione segreta che utilizza il teorema cinese del resto utilizza anche speciali sequenze di interi che garantiscono l'impossibilità di recuperare il numero da un insieme di dati con meno di una certa cardinalità.
+
+Il teorema cinese dei resti è stato utilizzato per costruire una numerazione di Gödel per le sequenze, che è coinvolta nella dimostrazione dei teoremi di incompletezza di Gödel.
 
 
 ================
@@ -39786,6 +40008,162 @@ Adesso proviamo le funzioni che abbiamo scritto. Possiamo verificare i risultati
 ;-> 7
 
 
+---------------------------------
+Problema dei fiammiferi di Banach
+---------------------------------
+
+Una persona ha due scatole di fiammiferi nello zaino. Ogni volta che ha bisogno di un fiammifero lo prende da una delle due scatole (cioè, ha la stessa probabilità di prenderlo da una delle due scatole). Ad un certo punto sceglierà una scatola che non contiene alcun fiammifero: qual è la probabilità che ci siano esattamente k fiammiferi nell'altra scatola?
+
+La soluzione matematica (senza dimostrazione) è la seguente:
+
+               (2*n - k)!
+p(k,n) = -----------------------
+          n!*(n - k)!*2^(2*n-k)
+
+Vediamo di scrivere un programma che simula questo problema e poi confrontiamo i risultati con quelli generati dalla formula sopra.
+
+La seguente funzione simula lo svuotamento di una delle due scatole e restituisce il numero di fiammiferi dell'altra scatola:
+
+(define (box m)
+  (local (box1 box2)
+    (setq box1 m box2 m)
+    (while (and (>= box1 0) (>= box2 0))
+      (if (zero? (rand 2))
+          (-- box1)
+          (-- box2)
+      )
+    )
+    ;(println box1 { - } box2)
+    ; il ciclo si ferma con box1=-1 oppure box2=-1
+    (if (= box1 -1)
+        box2
+        box1
+    )
+  )
+)
+
+(box 40)
+;-> 5
+(box 40)
+;-> 0
+
+Adesso vediamo la funzione che calcola la probabilità per valori di k da 1 a n (numero dei fiammiferi):
+
+(define (banach n prove)
+  (local (sol res)
+    (setq sol (array (+ n 1) '(0)))
+    (for (i 1 prove)
+      (setq res (box n))
+      ;(print res { })
+      (setf (sol res) (+ (sol res) 1))
+    )
+    ;(println sol)
+    (map (fn(x) (mul 100 (div x (apply + sol)))) sol)
+  )
+)
+
+Vediamo cosa accade con un milione di prove:
+
+(banach 40 1000000)
+;-> (8.8874 8.9236 8.756500000000001 8.5153 8.262600000000001
+;->  7.7165 7.2776 6.6639 6.0641 5.3545 4.7031 4.0201 3.3735
+;->  2.7765 2.2529 1.7751 1.3587 1.0171 0.7549 0.5440999999999999
+;->  0.3697 0.2397 0.1619 0.1025 0.05860000000000001 0.0335 0.0198
+;->  0.0086 0.0043 0.0021 0.0006000000000000001 0.0004 9.999999999999999e-005
+;->  9.999999999999999e-005 9.999999999999999e-005 0 0 0 0 0 0)
+
+Il risultato è un distribuzione di probabilità e ci mostra che:
+
+8.8874% è la probabilità che rimangano "0" fiammiferi
+8.9236% è la probabilità che rimanga "1" fiammifero
+8.7565% è la probabilità che rimangano "2" fiammiferi
+...
+0% è la probabilità che rimangano "40" fiammiferi
+
+Vediamo cosa accade con 10 milioni di prove:
+
+(banach 40 10000000)
+;-> (8.887029999999999 8.898639999999999 8.78139 8.553900000000001 8.22129 7.79082 7.28017
+;->  6.680590000000001 6.04414 5.3579 4.679980000000001 4.01594 3.37442 2.78878 2.24326
+;->  1.76941 1.35602 1.02151 0.74282 0.52745 0.36279 0.24164 0.15645 0.09701 0.05805
+;->  0.03308 0.01864 0.008880000000000001 0.0044 0.00206 0.00087 0.00042 0.00014 8.999999999999999e-005
+;->  2e-005 0 0 0 0 0 0)
+
+E con 100 milioni di prove:
+
+(banach 40 100000000)
+;-> (8.893085000000001 8.890554 8.779613999999999 8.54871 8.226092 7.793252000000001
+;->  7.276094 6.683678 6.034226 5.357866 4.686191 4.021178 3.376403 2.787189 2.243892
+;->  1.766746 1.356101 1.018071 0.746408 0.530042 0.362362 0.24248 0.156536 0.09760199999999999
+;->  0.057683 0.032535 0.018259 0.009047000000000001 0.004389000000000001 0.002141 0.0009069999999999999
+;->  0.000444 0.000133 6.9e-005 2.1e-005 0 0 0 0 0 0)
+
+Adesso scriviamo la funzione che risolve il problema con la formula matematica:
+
+(define (binomiale n k)
+  (local (M q)
+    (setq M (array (+ n 1) (+ k 1) '(0)))
+    (for (i 0 n)
+      (setq q (min i k))
+      (for (j 0 q)
+        (if (or (= j 0) (= j i))
+          (setq (M i j) 1)
+          (setq (M i j) (+ (M (- i 1) (- j 1)) (M (- i 1) j)))
+        )
+      )
+    )
+    (M n k)
+  );local
+)
+
+(binomiale 10 4)
+;-> 210
+
+(define (fact n)
+  (if (zero? n)
+      1L
+      (apply * (map bigint (sequence 1 n)))))
+
+(fact 0)
+;-> 1L
+(fact 3)
+;-> 6L
+
+               (2*n - k)!
+p(k,n) = -----------------------
+          n!*(n - k)!*2^(2*n-k)
+
+(define (banach-p n)
+  (local (num den sol)
+    (setq sol '())
+    (for (k 0 n)
+      (setq num (fact (- (* 2 n) k)))
+      (setq den (* (fact n) (fact (- n k)) (pow 2 (- (* 2 n) k))))
+      ;(setq sol (mul 100 (div num den)))
+      ;(println (format "%2.3f" sol))
+      (push (mul 100 (div num den)) sol -1)
+    )
+    sol
+  )
+)
+
+(banach-p 40)
+;-> (8.89278787739072 8.892787877390719 8.780220942233877 8.555087071920188
+;->  8.221771991196025 7.789047149554129 7.269777339583854 6.680335933671648
+;->  6.039755775648342 5.368671800576303 4.688135938531419 4.018402233026928
+;->  3.377787384283506 2.781707257645241 2.241973013624522 1.766402980431442
+;->  1.358771523408802 1.019078642556601 0.7440891675810103 0.5280632802187816
+;->  0.3635845535932595 0.2423897023955064 0.1561154015428685
+;->  0.09689921475074599 0.05779953160570813 0.03302830377469035
+;->  0.01801543842255837 0.009341338441326565 0.004582543386311143
+;->  0.002115020024451297 0.0009123615791750694 0.0003649446316700277
+;->  0.0001340612932665408 4.468709775551359e-005 1.331105039525937e-005
+;->  3.472447929198096e-006 7.716550953773547e-007 1.403009264322463e-007
+;->  1.957687345566229e-008 1.864464138634503e-009 9.094947017729285e-011)
+
+I risultati della simulazione sono simili a quelli calcolati matematicamente, anche se sui valori nulli e/o piccolissimi abbiamo gli errori relativi maggiori.
+
+
 ====================================================
 
  DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
@@ -46185,7 +46563,7 @@ Funzione che calcola la potenza di una frazione "^f"
 (^f '(3 5) 2)
 ;-> (9 25)
 
-Sul forum di newLISP, rickyboy ha fornito le seguenti funzioni equivalenti:
+Sul forum di newLISP, rickyboy ha fornito le seguenti funzioni equivalenti (che sono molto più compatte):
 
 (define (rat n d)
   (let (g (gcd n d))
@@ -49037,9 +49415,9 @@ http://en.feautec.pp.ru/store/libs/funlib.lsp
 
 =============
 
-----------------
-Perchè newLISP ?
-----------------
+---------------
+Perchè newLISP?
+---------------
 
 LISP è uno dei linguaggi di programmazione più antichi del mondo, risalente agli anni '50 (progettato da John MacCarthy e sviluppato da Steve Russel nel 1958). Sorprendentemente è sopravvissuto fino ai giorni nostri, ed è ancora vivo e vegeto, anche dopo la nascita di nuovi linguaggi come Python, Ruby o Julia. newLISP è una versione di LISP rivolta principalmente allo scripting, ma in grado di realizzare anche programmi completi. Ecco le principali caratteristiche del linguaggio:
 
@@ -58086,7 +58464,7 @@ Altre funzioni (corrette) proposte da fdb:
 (apply + (map int (find-all {[1-9][0-9]*} "o123p010iru5")))
 ;-> 138
 
-(apply (fn(x y) (+ (int x) (int y))) (find-all {[1-9]\d*} "o123p0010iru5") 2) 
+(apply (fn(x y) (+ (int x) (int y))) (find-all {[1-9]\d*} "o123p0010iru5") 2)
 ;-> 138
 
 
@@ -58286,7 +58664,7 @@ Per capire come viene usato l'algoritmo di Euclide per calcolare le frazioni con
 
 in cui m0 > r0 > r1 > r2 > r3 > ... > 0. Per semplicità si scrive:
 
-a/b = [q0, q1, ..., q(n-1), qn] 
+a/b = [q0, q1, ..., q(n-1), qn]
 
 Osserviamo che se qn >= 2, allora risulta:
 
@@ -58322,7 +58700,7 @@ Quindi con una variante dell'algoritmo di euclide si ottengono i risultati corre
                   12 + ---
                         4
 
-Un altro esempio: 
+Un altro esempio:
 
 (fract2fc 1071 1029)
 ;-> (1 24 2)
@@ -58405,7 +58783,7 @@ Infatti risulta:
 (fc2fract '(3 4 12 3 1))
 ;-> ((649L 200L) 3.245)
 
-Nota: 
+Nota:
 numero aureo = (1 + sqrt(5))/2 =
 1.6180339887498948482045868343656381177203091798057628621354486227052...
 
@@ -58732,7 +59110,7 @@ Liberare una variabile
 Supponiamo di avere una lista L che occupa diversi megabyte di memoria.
 Qual'è il modo corretto di liberare quella memoria da uno script in esecuzione?
 
-Basta assegnare il valore nil alla variabile in questione: 
+Basta assegnare il valore nil alla variabile in questione:
 
 (setq L nil)
 
@@ -58890,7 +59268,7 @@ Test di funzioni
 ----------------
 
 Ok, abbiamo scritto una funzione per risolvere il nostro problema: ma come possiamo assicurarci che sia una soluzione corretta?
-Possiamo affidarci a dei test specifici, ma nessuno può effettuare dei test rispetto a tutti i casi che si possono presentare nella vita reale. Inoltre, con l'esperienza, si impara che i nostri programmi non sono quasi mai corretti quando li eseguiamo per la prima volta. Per rendere "solido" un programma dovremo provarlo con una serie di test/casi attentamente progettati. 
+Possiamo affidarci a dei test specifici, ma nessuno può effettuare dei test rispetto a tutti i casi che si possono presentare nella vita reale. Inoltre, con l'esperienza, si impara che i nostri programmi non sono quasi mai corretti quando li eseguiamo per la prima volta. Per rendere "solido" un programma dovremo provarlo con una serie di test/casi attentamente progettati.
 Nota: Imparare come implementare algoritmi, nonché testare ed eseguire il debug dei programmi sono delle abilità fondamentali per un programmatore.
 La capacità di creare "test specifici" dipende fortemente dall'esperienza del programmatore e dalla conoscenza delle strutture dati che vengono utilizzate nella soluzione.
 
@@ -58923,7 +59301,7 @@ La funzione finale:
 
 (define (test n)
   (local (input test nun-rnd)
-    ; lunghezza della sequenza 
+    ; lunghezza della sequenza
     (setq num-rnd (+ 100 (rand 1000)))
     ; creazione sequenza di numeri
     (setq input (sequence 0 num-rnd))
@@ -58940,7 +59318,7 @@ La funzione finale:
               (!= (maxprod3 test) (maxprod4 test))
               (!= (maxprod4 test) (maxprod5 test)))
           ; stampa input e output quando i risultati sono diversi
-          (println (maxprod1 test) { } (maxprod2 test) { } 
+          (println (maxprod1 test) { } (maxprod2 test) { }
                    (maxprod3 test) { } (maxprod4 test) { }
                    (maxprod5 test) { } test)
       )
@@ -59014,7 +59392,7 @@ $count
 
 (set 'AL '((john 5 6 4) ("mary" 3 4 7) (bob 4 2 7 9) ("jane" 3)))
 
-(replace nil AL (cons (sym ($it 0)) (rest $it)) 
+(replace nil AL (cons (sym ($it 0)) (rest $it))
                 (fn (x y) (string? (y 0)))) ; parameter x = nil not used
 ;-> ((john 5 6 4) (mary 3 4 7) (bob 4 2 7 9) (jane 3))
 
@@ -59045,7 +59423,7 @@ $count
 ; using unify, replace only if elements are equal
 (replace '(X X) '((3 10) (2 5) (4 4) (6 7) (8 8)) (list ($it 0) 'double ($it 1)) unify)
 ;-> ((3 10) (2 5) (4 double 4) (6 7) (8 double 8))
- 
+
 Eliminazione nelle liste
 ------------------------
 L'ultima forma di "replace" per le liste ha solo due argomenti: l'espressione exp e la lista list. Questa forma rimuove tutte le espressioni exp trovate nella lista.
@@ -59055,7 +59433,7 @@ L'ultima forma di "replace" per le liste ha solo due argomenti: l'espressione ex
 (set 'lst '(a b a a c d a f g))
 (replace 'a lst)
 ;-> (b c d f g)
-lst 
+lst
 ;-> (b c d f g)
 
 $count
@@ -59068,7 +59446,7 @@ If all arguments are strings, replace replaces all occurrences of str-key in str
 
 ;; string replacement
 (set 'str "this isa sentence")
-(replace "isa" str "is a")  
+(replace "isa" str "is a")
 ;-> "this is a sentence"
 $count
 ;-> 1
@@ -59095,7 +59473,7 @@ str
 ;; using system variables for dynamic replacement
 
 (set 'str "---axb---ayb---")
-(replace "(a)(.)(b)" str (append $3 $2 $1) 0) 
+(replace "(a)(.)(b)" str (append $3 $2 $1) 0)
 ;-> "---bxa---bya---"
 
 str
@@ -59112,9 +59490,9 @@ str
 ;; URL translation of hex codes with dynamic replacement
 
 (set 'str "xxx%41xxx%42")
-(replace "%([0-9A-F][0-9A-F])" str 
+(replace "%([0-9A-F][0-9A-F])" str
                (char (int (append "0x" $1))) 1)
-;-> xxxAxxxB               
+;-> xxxAxxxB
 str
 ;-> "xxxAxxxB"
 
@@ -59214,7 +59592,7 @@ Il titolo non è proprio corretto, perchè non è possibile scrivere una funzion
 Vediamo se la funzione esiste nei simboli di newLISP:
 
 (sym "ei-fu" MAIN nil)
-;-> nil 
+;-> nil
 
 No...la funzione non esiste più!
 
@@ -59298,7 +59676,7 @@ Nascondere la finestra DOS
 --------------------------
 
 Possiamo nascondere la finestrea DOS quando eseguiamo uno script newLISP.
-Il seguente esempio mostra le funzioni necessarie per questo problema. 
+Il seguente esempio mostra le funzioni necessarie per questo problema.
 
 Salvare il seguente script in un file (es. hide.lsp) e poi eseguire dal prompt del DOS:
 
@@ -59542,7 +59920,7 @@ read-expr si comporta in modo simile a eval-string, ma senza il passaggio di val
 (eval-string "(+ 3 4)")
 ;-> 7
 
-Utilizzando read-expr è possibile programmare un pre-elaboratore di espressioni di codice personalizzato prima della loro valutazione. 
+Utilizzando read-expr è possibile programmare un pre-elaboratore di espressioni di codice personalizzato prima della loro valutazione.
 
 Vedere anche event-reader per il processamento di espressioni basate su eventi.
 
@@ -59774,7 +60152,7 @@ Tecnica RAID
 ------------
 
 RAID, acronimo di "Redundant Array of Independent Disks" ovvero insieme ridondante di dischi indipendenti, (originariamente "Redundant Array of Inexpensive Disks", insieme ridondante di dischi economici), è una tecnica di installazione in un computer di diversi dischi rigidi in modo che appaiano e siano utilizzabili come se fossero un unico volume di memorizzazione.
-Il principio di base della tecnica RAID si basa sulla funzione XOR. 
+Il principio di base della tecnica RAID si basa sulla funzione XOR.
 
 Tabella di verità XOR
 Input A   Input B   Output
@@ -59802,7 +60180,7 @@ D = D1 xor D2 xor … xor Dn
 
 Questa viene chiamata "ridondanza": se accade un errore in un disco (per esempio D1), allora possiamo recuperare i dati utilizzando tutti gli altri dischi:
 
-  D2 xor … xor Dn xor D  
+  D2 xor … xor Dn xor D
 = D2 xor … xor Dn xor (D1 xor D2 xor … xor Dn)  (definizione di D)
 
 = D1 xor (D2 xor D2) xor… xor (Dn xor Dn) (commutativa e associativa: arrangiando i termini)
@@ -60418,7 +60796,7 @@ f(n) = n + (n − 1) + (n − 2) + ... + 1 + f(0)
 
 Poichè f(0) = 1, perchè c'è un pezzo prima di eseguire qualsiasi taglio, questo può essere riscritto come:
 
-f(n) = 1 + ( 1 + 2 + 3 + ... + n ) .   
+f(n) = 1 + ( 1 + 2 + 3 + ... + n ) .
 
 Questo può essere semplificato, utilizzando la formula per la somma di una progressione aritmetica:
 
@@ -60552,6 +60930,82 @@ Questo comporta che newLISP esegue sempre il corpo del ciclo (indipendentemente 
 ;-> 1 2 3 " "
 
 Ricordare che il segno del passo non viene considerato da newLISP, quindi il corpo del ciclo "for" viene sempre eseguito (almeno una volta).
+
+
+------------------------------------------------------------------
+Perché uno specchio inverte destra e sinistra invece che su e giù?
+------------------------------------------------------------------
+
+GLi specchi non invertono sinistra e destra: questa è solo la nostra interpretazione di ciò che accade.
+Il nostro riflesso nello specchio è in realtà invertito da davanti a dietro: se hai un neo sul lato sinistro del tuo viso, appare ancora sul lato sinistro del riflesso. Ma siamo abituati a vedere i volti di altre persone e istintivamente eseguiamo la rotazione mentale perché sappiamo che si sono girati di 180 gradi per fronteggiarci. L'immagine nello specchio viene riflessa, non ruotata, quindi quando la ruotiamo indietro nella nostra testa, appare invertita.
+Ogni sezione dello specchio riflette semplicemente ciò che è direttamente di fronte ad esso. Quindi qualunque cosa sia alla mia destra mentre guardo nello specchio sarà alla mia destra nello specchio. Niente è stato invertito, è solo una riflessione, tutto qui.
+
+
+--------------
+Treni e mosche
+--------------
+
+Si racconta che sia stato chiesto a John von Neumann di risolvere un problema del seguente tipo:
+Due treni sono diretti l'uno verso l'altro sullo stesso binario, ciascuno viaggiando a 60 km/ora. Quando sono a 2 km di distanza, una mosca parte dall'inizio del primo treno e viaggia a 90 km/ora fino alla parte anteriore dell'altro treno. Quindi torna al primo treno, e così via, avanti e indietro fino a che i due treni si scontrano tra loro. Quanto spazio ha coperto viaggia la mosca?
+
+Esiste un modo rapido e un modo analitico per risolvere questo problema.
+
+Il modo analitico è quello di calcolare la somma di una serie geometrica infinita.
+La mosca completa la prima tappa del suo viaggio (viaggiando da un treno all'altro) in 4/5 di un minuto, poiché in questo tempo il treno in arrivo percorre 4/5 di km e la mosca vola per 6/5 di un km. Pertanto, dopo 4/5 di minuto, abbiamo una versione simile del problema originale, ma con i treni alla distanza di 2 - 2 x 4/5 = 2/5 km, o 1/5 della distanza originale, a parte. Questo schema continua, formando una serie geometrica infinita di distanze, la cui somma la distanza totale percorsa dalla mosca:
+
+  6/5 * (1 + 1/5 + (1/5)^2 + (1/5)^3 + ...)
+
+Dobbiamo trovare la somma delle serie geometriche infinite del tipo:
+
+  S = 1 + r + r^2 + r^3 + ...
+
+dove r è un numero reale con -1 < r < 1. (Abbiamo bisogno di questi limiti su r in modo che la serie
+converga).
+Moltiplicando per r, otteniamo:
+
+  S*r =  r +  r^2 + r^3 + r^4 + ...
+
+Sottraendo la seconda equazione dalla prima si ottiene:
+
+  S - S*r = 1   ==>   S*(1 - r) = 1
+
+e quindi:
+
+  S = 1/(1 - r),
+
+Ponendo r = 1/5, completiamo il nostro calcolo della distanza percorsa dalla mosca:
+
+6/5 * 1/(1 - 1/5) = 3/2 km = 1.5 km
+
+In newLISP possiamo calcolare una serie infinita nel modo seguente:
+
+(define (sum r n)
+  (let (s 1)
+    (for (i 1 n)
+      (setq s (add s (pow r i)))
+    )
+    s))
+
+Oppure:
+
+(define (sum r n)
+  (add 1 (apply add (map (fn(x) (pow r x)) (sequence 1 n)))))
+
+Proviamo il calcolo con 20 termini:
+
+(sum .2 20)
+;-> 1.249999999999998
+
+Adesso moltiplichiamo per la costante 6/5 ed otteniamo la soluzione:
+
+(mul (div 6 5) (sum .2 20))
+;-> 1.499999999999997
+
+In newLISP otteniamo una soluzione approssimata (dipende da quanti termini della serie calcoliamo).
+
+Il modo più veloce di risolvere il problema è rendersi conto che i treni si scontrano dopo 1 minuto (dato che partono a 2 km di distanza e viaggiano alla velocità di 1 km al minuto). Poiché la mosca viaggia alla velocità di 1.5 km al minuto, allora in questo tempo (1 minuto) percorre 1.5 km.
+
+La storia racconta che von Neumann rispose correttamente al problema... calcolando a mente il valore della serie infinita. E solo dopo si rese conto che esisteva un modo più semplice di ottenere la soluzione.
 
 
 ===========
@@ -66625,6 +67079,165 @@ Frasi Famose sulla Programmazione e sul Linguaggio Lisp
 
 "Learning from your mistakes is one of the best ways to learn."
 - unknown
+
+
+============================================================================
+Codice ASCII
+============================================================================
+L'American Standard Code for Information Interchange, o codice ASCII, è stato creato nel 1963 dal Comitato "American Standards Association" o "ASA", l'agenzia ha cambiato il suo nome nel 1969 in "American National Standards Institute" o "ANSI" così com'è conosciuto da allora.
+Questo codice nasce dal riordino e dall'espansione del set di simboli e caratteri già utilizzati in telegrafia a quel tempo dalla società Bell.
+All'inizio includeva solo lettere maiuscole e numeri, ma nel 1967 furono aggiunte le lettere minuscole e alcuni caratteri di controllo, formando ciò che è noto come US-ASCII, cioè i caratteri da 0 a 127.
+Quindi con questo set di soli 128 caratteri è stato pubblicato nel 1967 come standard, contenente tutto il necessario per scrivere in lingua inglese.
+Nel 1981 IBM sviluppò un'estensione del codice ASCII a 8 bit, chiamata "code page 437", in questa versione furono sostituiti alcuni caratteri di controllo obsoleti con i caratteri grafici. Inoltre sono stati aggiunti 128 caratteri, con nuovi simboli, segni, grafici e lettere latine, tutti i segni di punteggiatura e i caratteri necessari per scrivere testi in altre lingue, come lo spagnolo. In questo modo sono stati aggiunti i caratteri ASCII compresi tra 128 e 255.
+IBM include il supporto per questa tabella codici nell'hardware del suo modello 5150, noto come "IBM-PC", considerato il primo personal computer. Anche il sistema operativo di questo modello, "MS-DOS", utilizzava questo codice ASCII esteso.
+Quasi tutti i sistemi informatici di oggi utilizzano il codice ASCII per rappresentare caratteri e testi.
+
+ASCII control characters
+-------------------------------------------
+00   |   NULL   |  (Null character)       |
+01   |   SOH    |  (Start of Header)      |
+02   |   STX    |  (Start of Text)        |
+03   |   ETX    |  (End of Text)          |
+04   |   EOT    |  (End of Trans.)        |
+05   |   ENQ    |  (Enquiry)              |
+06   |   ACK    |  (Acknowledgement)      |
+07   |   BEL    |  (Bell)                 |
+08   |   BS     |  (Backspace)            |
+09   |   HT     |  (Horizontal Tab)       |
+10   |   LF     |  (Line feed)            |
+11   |   VT     |  (Vertical Tab)         |
+12   |   FF     |  (Form feed)            |
+13   |   CR     |  (Carriage return)      |
+14   |   SO     |  (Shift Out)            |
+15   |   SI     |  (Shift In)             |
+16   |   DLE    |  (Data link escape)     |
+17   |   DC1    |  (Device control 1)     |
+18   |   DC2    |  (Device control 2)     |
+19   |   DC3    |  (Device control 3)     |
+20   |   DC4    |  (Device control 4)     |
+21   |   NAK    |  (Negative acknowl.)    |
+22   |   SYN    |  (Synchronous idle)     |
+23   |   ETB    |  (End of trans. block)  |
+24   |   CAN    |  (Cancel)               |
+25   |   EM     |  (End of medium)        |
+26   |   SUB    |  (Substitute)           |
+27   |   ESC    |  (Escape)               |
+28   |   FS     |  (File separator)       |
+29   |   GS     |  (Group separator)      |
+30   |   RS     |  (Record separator)     |
+31   |   US     |  (Unit separator)       |
+127  |   DEL    |  (Delete)               |
+
+ASCII printable characters
+------------------------------------------
+|  32  | space |  64  |  @  |  96  |  `  |
+|  33  |   !   |  65  |  A  |  97  |  a  |
+|  34  |   "   |  66  |  B  |  98  |  b  |
+|  35  |   #   |  67  |  C  |  99  |  c  |
+|  36  |   $   |  68  |  D  |  100 |  d  |
+|  37  |   %   |  69  |  E  |  101 |  e  |
+|  38  |   &   |  70  |  F  |  102 |  f  |
+|  39  |   '   |  71  |  G  |  103 |  g  |
+|  40  |   (   |  72  |  H  |  104 |  h  |
+|  41  |   )   |  73  |  I  |  105 |  i  |
+|  42  |   *   |  74  |  J  |  106 |  j  |
+|  43  |   +   |  75  |  K  |  107 |  k  |
+|  44  |   ,   |  76  |  L  |  108 |  l  |
+|  45  |   -   |  77  |  M  |  109 |  m  |
+|  46  |   .   |  78  |  N  |  110 |  n  |
+|  47  |   /   |  79  |  O  |  111 |  o  |
+|  48  |   0   |  80  |  P  |  112 |  p  |
+|  49  |   1   |  81  |  Q  |  113 |  q  |
+|  50  |   2   |  82  |  R  |  114 |  r  |
+|  51  |   3   |  83  |  S  |  115 |  s  |
+|  52  |   4   |  84  |  T  |  116 |  t  |
+|  53  |   5   |  85  |  U  |  117 |  u  |
+|  54  |   6   |  86  |  V  |  118 |  v  |
+|  55  |   7   |  87  |  W  |  119 |  w  |
+|  56  |   8   |  88  |  X  |  120 |  x  |
+|  57  |   9   |  89  |  Y  |  121 |  y  |
+|  58  |   :   |  90  |  Z  |  122 |  z  |
+|  59  |   ;   |  91  |  [  |  123 |  {  |
+|  60  |   <   |  92  |  \  |  124 |  |  |
+|  61  |   =   |  93  |  ]  |  125 |  }  |
+|  62  |   >   |  94  |  ^  |  126 |  ~  |
+|  63  |   ?   |  95  |  _  |
+
+Extended ASCII characters
+--------------------------------------------
+|  128  |  Ç  |  171  |  ½  |  214  |   Í  |
+|  129  |  ü  |  172  |  ¼  |  215  |   Î  |
+|  130  |  é  |  173  |  ¡  |  216  |   Ï  |
+|  131  |  â  |  174  |  «  |  217  |   ┘  |
+|  132  |  ä  |  175  |  »  |  218  |   ┌  |
+|  133  |  à  |  176  |  ░  |  219  |   █  |
+|  134  |  å  |  177  |  ▒  |  220  |   ▄  |
+|  135  |  ç  |  178  |  ▓  |  221  |   ¦  |
+|  136  |  ê  |  179  |  │  |  222  |   Ì  |
+|  137  |  ë  |  180  |  ┤  |  223  |   ▀  |
+|  138  |  è  |  181  |  Á  |  224  |   Ó  |
+|  139  |  ï  |  182  |  Â  |  225  |   ß  |
+|  140  |  î  |  183  |  À  |  226  |   Ô  |
+|  141  |  ì  |  184  |  ©  |  227  |   Ò  |
+|  142  |  Ä  |  185  |  ╣  |  228  |   õ  |
+|  143  |  Å  |  186  |  ║  |  229  |   Õ  |
+|  144  |  É  |  187  |  ╗  |  230  |   µ  |
+|  145  |  æ  |  188  |  ╝  |  231  |   þ  |
+|  146  |  Æ  |  189  |  ¢  |  232  |   Þ  |
+|  147  |  ô  |  190  |  ¥  |  233  |   Ú  |
+|  148  |  ö  |  191  |  ┐  |  234  |   Û  |
+|  149  |  ò  |  192  |  └  |  235  |   Ù  |
+|  150  |  û  |  193  |  ┴  |  236  |   ý  |
+|  151  |  ù  |  194  |  ┬  |  237  |   Ý  |
+|  152  |  ÿ  |  195  |  ├  |  238  |   ¯  |
+|  153  |  Ö  |  196  |  ─  |  239  |   ´  |
+|  154  |  Ü  |  197  |  ┼  |  240  |   ≡  |
+|  155  |  ø  |  198  |  ã  |  241  |   ±  |
+|  156  |  £  |  199  |  Ã  |  242  |   ‗  |
+|  157  |  Ø  |  200  |  ╚  |  243  |   ¾  |
+|  158  |  ×  |  201  |  ╔  |  244  |   ¶  |
+|  159  |  ƒ  |  202  |  ╩  |  245  |   §  |
+|  160  |  á  |  203  |  ╦  |  246  |   ÷  |
+|  161  |  í  |  204  |  ╠  |  247  |   ¸  |
+|  162  |  ó  |  205  |  ═  |  248  |   °  |
+|  163  |  ú  |  206  |  ╬  |  249  |   ¨  |
+|  164  |  ñ  |  207  |  ¤  |  250  |   ·  |
+|  165  |  Ñ  |  208  |  ð  |  251  |   ¹  |
+|  166  |  ª  |  209  |  Ð  |  252  |   ³  |
+|  167  |  º  |  210  |  Ê  |  253  |   ²  |
+|  168  |  ¿  |  211  |  Ë  |  254  |   ■  |
+|  169  |  ®  |  212  |  È  |  255  | nbsp |
+|  170  |  ¬  |  213  |  ı  |
+
+Print characters in Windows
+---------------------------
+
+Vowels grave accent      Vowels acute accent      Vowels with diaresis
+---------------------    ---------------------    ---------------------
+|  à  |  alt + 133  |    |  á  |  alt + 160  |    |  ä  |  alt + 132  |
+|  è  |  alt + 138  |    |  é  |  alt + 130  |    |  ë  |  alt + 137  |
+|  ì  |  alt + 141  |    |  í  |  alt + 161  |    |  ï  |  alt + 139  |
+|  ò  |  alt + 149  |    |  ó  |  alt + 162  |    |  ö  |  alt + 148  |
+|  ù  |  alt + 151  |    |  ú  |  alt + 163  |    |  ü  |  alt + 129  |
+|  À  |  alt + 0192 |    |  Á  |  alt + 181  |    |  Ä  |  alt + 142  |
+|  È  |  alt + 0200 |    |  É  |  alt + 144  |    |  Ë  |  alt + 211  |
+|  Ì  |  alt + 0204 |    |  Í  |  alt + 214  |    |  Ï  |  alt + 216  |
+|  Ò  |  alt + 0210 |    |  Ó  |  alt + 224  |    |  Ö  |  alt + 153  |
+|  Ù  |  alt + 0217 |    |  Ú  |  alt + 233  |    |  Ü  |  alt + 154  |
+
+Mathematical symbols     Commercial symbols       Quotes and parenthesis
+---------------------    ---------------------    ----------------------
+|  ½  |  alt + 171  |    |  @  |  alt + 64   |    |  "  |  alt + 34   |
+|  ¼  |  alt + 172  |    |  $  |  alt + 36   |    |  '  |  alt + 39   |
+|  ¾  |  alt + 243  |    |  £  |  alt + 156  |    |  (  |  alt + 40   |
+|  ¹  |  alt + 251  |    |  ¥  |  alt + 190  |    |  )  |  alt + 41   |
+|  ³  |  alt + 252  |    |  ¢  |  alt + 189  |    |  [  |  alt + 91   |
+|  ²  |  alt + 253  |    |  ¤  |  alt + 207  |    |  ]  |  alt + 93   |
+|  ƒ  |  alt + 159  |    |  ®  |  alt + 169  |    |  {  |  alt + 123  |
+|  ±  |  alt + 241  |    |  ©  |  alt + 184  |    |  }  |  alt + 125  |
+|  ×  |  alt + 158  |    |  ª  |  alt + 166  |    |  «  |  alt + 174  |
+|  ÷  |  alt + 246  |    |  º  |  alt + 167  |    |  »  |  alt + 175  |
+|  ≡  |  alt + 240  |    |  °  |  alt + 248  |
 
 
 ====================

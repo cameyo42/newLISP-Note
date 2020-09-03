@@ -8510,3 +8510,159 @@ Adesso proviamo le funzioni che abbiamo scritto. Possiamo verificare i risultati
 ;-> 7
 
 
+---------------------------------
+Problema dei fiammiferi di Banach
+---------------------------------
+
+Una persona ha due scatole di fiammiferi nello zaino. Ogni volta che ha bisogno di un fiammifero lo prende da una delle due scatole (cioè, ha la stessa probabilità di prenderlo da una delle due scatole). Ad un certo punto sceglierà una scatola che non contiene alcun fiammifero: qual è la probabilità che ci siano esattamente k fiammiferi nell'altra scatola?
+
+La soluzione matematica (senza dimostrazione) è la seguente:
+
+               (2*n - k)!
+p(k,n) = -----------------------
+          n!*(n - k)!*2^(2*n-k)
+
+Vediamo di scrivere un programma che simula questo problema e poi confrontiamo i risultati con quelli generati dalla formula sopra.
+
+La seguente funzione simula lo svuotamento di una delle due scatole e restituisce il numero di fiammiferi dell'altra scatola:
+
+(define (box m)
+  (local (box1 box2)
+    (setq box1 m box2 m)
+    (while (and (>= box1 0) (>= box2 0))
+      (if (zero? (rand 2))
+          (-- box1)
+          (-- box2)
+      )
+    )
+    ;(println box1 { - } box2)
+    ; il ciclo si ferma con box1=-1 oppure box2=-1
+    (if (= box1 -1)
+        box2
+        box1
+    )
+  )
+)
+
+(box 40)
+;-> 5
+(box 40)
+;-> 0
+
+Adesso vediamo la funzione che calcola la probabilità per valori di k da 1 a n (numero dei fiammiferi):
+
+(define (banach n prove)
+  (local (sol res)
+    (setq sol (array (+ n 1) '(0)))
+    (for (i 1 prove)
+      (setq res (box n))
+      ;(print res { })
+      (setf (sol res) (+ (sol res) 1))
+    )
+    ;(println sol)
+    (map (fn(x) (mul 100 (div x (apply + sol)))) sol)
+  )
+)
+
+Vediamo cosa accade con un milione di prove:
+
+(banach 40 1000000)
+;-> (8.8874 8.9236 8.756500000000001 8.5153 8.262600000000001
+;->  7.7165 7.2776 6.6639 6.0641 5.3545 4.7031 4.0201 3.3735
+;->  2.7765 2.2529 1.7751 1.3587 1.0171 0.7549 0.5440999999999999
+;->  0.3697 0.2397 0.1619 0.1025 0.05860000000000001 0.0335 0.0198
+;->  0.0086 0.0043 0.0021 0.0006000000000000001 0.0004 9.999999999999999e-005
+;->  9.999999999999999e-005 9.999999999999999e-005 0 0 0 0 0 0)
+
+Il risultato è un distribuzione di probabilità e ci mostra che:
+
+8.8874% è la probabilità che rimangano "0" fiammiferi
+8.9236% è la probabilità che rimanga "1" fiammifero
+8.7565% è la probabilità che rimangano "2" fiammiferi
+...
+0% è la probabilità che rimangano "40" fiammiferi
+
+Vediamo cosa accade con 10 milioni di prove:
+
+(banach 40 10000000)
+;-> (8.887029999999999 8.898639999999999 8.78139 8.553900000000001 8.22129 7.79082 7.28017
+;->  6.680590000000001 6.04414 5.3579 4.679980000000001 4.01594 3.37442 2.78878 2.24326
+;->  1.76941 1.35602 1.02151 0.74282 0.52745 0.36279 0.24164 0.15645 0.09701 0.05805
+;->  0.03308 0.01864 0.008880000000000001 0.0044 0.00206 0.00087 0.00042 0.00014 8.999999999999999e-005
+;->  2e-005 0 0 0 0 0 0)
+
+E con 100 milioni di prove:
+
+(banach 40 100000000)
+;-> (8.893085000000001 8.890554 8.779613999999999 8.54871 8.226092 7.793252000000001
+;->  7.276094 6.683678 6.034226 5.357866 4.686191 4.021178 3.376403 2.787189 2.243892
+;->  1.766746 1.356101 1.018071 0.746408 0.530042 0.362362 0.24248 0.156536 0.09760199999999999
+;->  0.057683 0.032535 0.018259 0.009047000000000001 0.004389000000000001 0.002141 0.0009069999999999999
+;->  0.000444 0.000133 6.9e-005 2.1e-005 0 0 0 0 0 0)
+
+Adesso scriviamo la funzione che risolve il problema con la formula matematica:
+
+(define (binomiale n k)
+  (local (M q)
+    (setq M (array (+ n 1) (+ k 1) '(0)))
+    (for (i 0 n)
+      (setq q (min i k))
+      (for (j 0 q)
+        (if (or (= j 0) (= j i))
+          (setq (M i j) 1)
+          (setq (M i j) (+ (M (- i 1) (- j 1)) (M (- i 1) j)))
+        )
+      )
+    )
+    (M n k)
+  );local
+)
+
+(binomiale 10 4)
+;-> 210
+
+(define (fact n)
+  (if (zero? n)
+      1L
+      (apply * (map bigint (sequence 1 n)))))
+
+(fact 0)
+;-> 1L
+(fact 3)
+;-> 6L
+
+               (2*n - k)!
+p(k,n) = -----------------------
+          n!*(n - k)!*2^(2*n-k)
+
+(define (banach-p n)
+  (local (num den sol)
+    (setq sol '())
+    (for (k 0 n)
+      (setq num (fact (- (* 2 n) k)))
+      (setq den (* (fact n) (fact (- n k)) (pow 2 (- (* 2 n) k))))
+      ;(setq sol (mul 100 (div num den)))
+      ;(println (format "%2.3f" sol))
+      (push (mul 100 (div num den)) sol -1)
+    )
+    sol
+  )
+)
+
+(banach-p 40)
+;-> (8.89278787739072 8.892787877390719 8.780220942233877 8.555087071920188
+;->  8.221771991196025 7.789047149554129 7.269777339583854 6.680335933671648
+;->  6.039755775648342 5.368671800576303 4.688135938531419 4.018402233026928
+;->  3.377787384283506 2.781707257645241 2.241973013624522 1.766402980431442
+;->  1.358771523408802 1.019078642556601 0.7440891675810103 0.5280632802187816
+;->  0.3635845535932595 0.2423897023955064 0.1561154015428685
+;->  0.09689921475074599 0.05779953160570813 0.03302830377469035
+;->  0.01801543842255837 0.009341338441326565 0.004582543386311143
+;->  0.002115020024451297 0.0009123615791750694 0.0003649446316700277
+;->  0.0001340612932665408 4.468709775551359e-005 1.331105039525937e-005
+;->  3.472447929198096e-006 7.716550953773547e-007 1.403009264322463e-007
+;->  1.957687345566229e-008 1.864464138634503e-009 9.094947017729285e-011)
+
+I risultati della simulazione sono simili a quelli calcolati matematicamente, anche se sui valori nulli e/o piccolissimi abbiamo gli errori relativi maggiori.
+
+

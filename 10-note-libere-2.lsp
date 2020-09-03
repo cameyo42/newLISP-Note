@@ -1704,7 +1704,7 @@ Altre funzioni (corrette) proposte da fdb:
 (apply + (map int (find-all {[1-9][0-9]*} "o123p010iru5")))
 ;-> 138
 
-(apply (fn(x y) (+ (int x) (int y))) (find-all {[1-9]\d*} "o123p0010iru5") 2) 
+(apply (fn(x y) (+ (int x) (int y))) (find-all {[1-9]\d*} "o123p0010iru5") 2)
 ;-> 138
 
 
@@ -1904,7 +1904,7 @@ Per capire come viene usato l'algoritmo di Euclide per calcolare le frazioni con
 
 in cui m0 > r0 > r1 > r2 > r3 > ... > 0. Per semplicità si scrive:
 
-a/b = [q0, q1, ..., q(n-1), qn] 
+a/b = [q0, q1, ..., q(n-1), qn]
 
 Osserviamo che se qn >= 2, allora risulta:
 
@@ -1940,7 +1940,7 @@ Quindi con una variante dell'algoritmo di euclide si ottengono i risultati corre
                   12 + ---
                         4
 
-Un altro esempio: 
+Un altro esempio:
 
 (fract2fc 1071 1029)
 ;-> (1 24 2)
@@ -2023,7 +2023,7 @@ Infatti risulta:
 (fc2fract '(3 4 12 3 1))
 ;-> ((649L 200L) 3.245)
 
-Nota: 
+Nota:
 numero aureo = (1 + sqrt(5))/2 =
 1.6180339887498948482045868343656381177203091798057628621354486227052...
 
@@ -2350,7 +2350,7 @@ Liberare una variabile
 Supponiamo di avere una lista L che occupa diversi megabyte di memoria.
 Qual'è il modo corretto di liberare quella memoria da uno script in esecuzione?
 
-Basta assegnare il valore nil alla variabile in questione: 
+Basta assegnare il valore nil alla variabile in questione:
 
 (setq L nil)
 
@@ -2508,7 +2508,7 @@ Test di funzioni
 ----------------
 
 Ok, abbiamo scritto una funzione per risolvere il nostro problema: ma come possiamo assicurarci che sia una soluzione corretta?
-Possiamo affidarci a dei test specifici, ma nessuno può effettuare dei test rispetto a tutti i casi che si possono presentare nella vita reale. Inoltre, con l'esperienza, si impara che i nostri programmi non sono quasi mai corretti quando li eseguiamo per la prima volta. Per rendere "solido" un programma dovremo provarlo con una serie di test/casi attentamente progettati. 
+Possiamo affidarci a dei test specifici, ma nessuno può effettuare dei test rispetto a tutti i casi che si possono presentare nella vita reale. Inoltre, con l'esperienza, si impara che i nostri programmi non sono quasi mai corretti quando li eseguiamo per la prima volta. Per rendere "solido" un programma dovremo provarlo con una serie di test/casi attentamente progettati.
 Nota: Imparare come implementare algoritmi, nonché testare ed eseguire il debug dei programmi sono delle abilità fondamentali per un programmatore.
 La capacità di creare "test specifici" dipende fortemente dall'esperienza del programmatore e dalla conoscenza delle strutture dati che vengono utilizzate nella soluzione.
 
@@ -2541,7 +2541,7 @@ La funzione finale:
 
 (define (test n)
   (local (input test nun-rnd)
-    ; lunghezza della sequenza 
+    ; lunghezza della sequenza
     (setq num-rnd (+ 100 (rand 1000)))
     ; creazione sequenza di numeri
     (setq input (sequence 0 num-rnd))
@@ -2558,7 +2558,7 @@ La funzione finale:
               (!= (maxprod3 test) (maxprod4 test))
               (!= (maxprod4 test) (maxprod5 test)))
           ; stampa input e output quando i risultati sono diversi
-          (println (maxprod1 test) { } (maxprod2 test) { } 
+          (println (maxprod1 test) { } (maxprod2 test) { }
                    (maxprod3 test) { } (maxprod4 test) { }
                    (maxprod5 test) { } test)
       )
@@ -2632,7 +2632,7 @@ $count
 
 (set 'AL '((john 5 6 4) ("mary" 3 4 7) (bob 4 2 7 9) ("jane" 3)))
 
-(replace nil AL (cons (sym ($it 0)) (rest $it)) 
+(replace nil AL (cons (sym ($it 0)) (rest $it))
                 (fn (x y) (string? (y 0)))) ; parameter x = nil not used
 ;-> ((john 5 6 4) (mary 3 4 7) (bob 4 2 7 9) (jane 3))
 
@@ -2663,7 +2663,7 @@ $count
 ; using unify, replace only if elements are equal
 (replace '(X X) '((3 10) (2 5) (4 4) (6 7) (8 8)) (list ($it 0) 'double ($it 1)) unify)
 ;-> ((3 10) (2 5) (4 double 4) (6 7) (8 double 8))
- 
+
 Eliminazione nelle liste
 ------------------------
 L'ultima forma di "replace" per le liste ha solo due argomenti: l'espressione exp e la lista list. Questa forma rimuove tutte le espressioni exp trovate nella lista.
@@ -2673,7 +2673,7 @@ L'ultima forma di "replace" per le liste ha solo due argomenti: l'espressione ex
 (set 'lst '(a b a a c d a f g))
 (replace 'a lst)
 ;-> (b c d f g)
-lst 
+lst
 ;-> (b c d f g)
 
 $count
@@ -2686,7 +2686,7 @@ If all arguments are strings, replace replaces all occurrences of str-key in str
 
 ;; string replacement
 (set 'str "this isa sentence")
-(replace "isa" str "is a")  
+(replace "isa" str "is a")
 ;-> "this is a sentence"
 $count
 ;-> 1
@@ -2713,7 +2713,7 @@ str
 ;; using system variables for dynamic replacement
 
 (set 'str "---axb---ayb---")
-(replace "(a)(.)(b)" str (append $3 $2 $1) 0) 
+(replace "(a)(.)(b)" str (append $3 $2 $1) 0)
 ;-> "---bxa---bya---"
 
 str
@@ -2730,9 +2730,9 @@ str
 ;; URL translation of hex codes with dynamic replacement
 
 (set 'str "xxx%41xxx%42")
-(replace "%([0-9A-F][0-9A-F])" str 
+(replace "%([0-9A-F][0-9A-F])" str
                (char (int (append "0x" $1))) 1)
-;-> xxxAxxxB               
+;-> xxxAxxxB
 str
 ;-> "xxxAxxxB"
 
@@ -2832,7 +2832,7 @@ Il titolo non è proprio corretto, perchè non è possibile scrivere una funzion
 Vediamo se la funzione esiste nei simboli di newLISP:
 
 (sym "ei-fu" MAIN nil)
-;-> nil 
+;-> nil
 
 No...la funzione non esiste più!
 
@@ -2916,7 +2916,7 @@ Nascondere la finestra DOS
 --------------------------
 
 Possiamo nascondere la finestrea DOS quando eseguiamo uno script newLISP.
-Il seguente esempio mostra le funzioni necessarie per questo problema. 
+Il seguente esempio mostra le funzioni necessarie per questo problema.
 
 Salvare il seguente script in un file (es. hide.lsp) e poi eseguire dal prompt del DOS:
 
@@ -3160,7 +3160,7 @@ read-expr si comporta in modo simile a eval-string, ma senza il passaggio di val
 (eval-string "(+ 3 4)")
 ;-> 7
 
-Utilizzando read-expr è possibile programmare un pre-elaboratore di espressioni di codice personalizzato prima della loro valutazione. 
+Utilizzando read-expr è possibile programmare un pre-elaboratore di espressioni di codice personalizzato prima della loro valutazione.
 
 Vedere anche event-reader per il processamento di espressioni basate su eventi.
 
@@ -3392,7 +3392,7 @@ Tecnica RAID
 ------------
 
 RAID, acronimo di "Redundant Array of Independent Disks" ovvero insieme ridondante di dischi indipendenti, (originariamente "Redundant Array of Inexpensive Disks", insieme ridondante di dischi economici), è una tecnica di installazione in un computer di diversi dischi rigidi in modo che appaiano e siano utilizzabili come se fossero un unico volume di memorizzazione.
-Il principio di base della tecnica RAID si basa sulla funzione XOR. 
+Il principio di base della tecnica RAID si basa sulla funzione XOR.
 
 Tabella di verità XOR
 Input A   Input B   Output
@@ -3420,7 +3420,7 @@ D = D1 xor D2 xor … xor Dn
 
 Questa viene chiamata "ridondanza": se accade un errore in un disco (per esempio D1), allora possiamo recuperare i dati utilizzando tutti gli altri dischi:
 
-  D2 xor … xor Dn xor D  
+  D2 xor … xor Dn xor D
 = D2 xor … xor Dn xor (D1 xor D2 xor … xor Dn)  (definizione di D)
 
 = D1 xor (D2 xor D2) xor… xor (Dn xor Dn) (commutativa e associativa: arrangiando i termini)
@@ -4036,7 +4036,7 @@ f(n) = n + (n − 1) + (n − 2) + ... + 1 + f(0)
 
 Poichè f(0) = 1, perchè c'è un pezzo prima di eseguire qualsiasi taglio, questo può essere riscritto come:
 
-f(n) = 1 + ( 1 + 2 + 3 + ... + n ) .   
+f(n) = 1 + ( 1 + 2 + 3 + ... + n ) .
 
 Questo può essere semplificato, utilizzando la formula per la somma di una progressione aritmetica:
 
@@ -4170,5 +4170,81 @@ Questo comporta che newLISP esegue sempre il corpo del ciclo (indipendentemente 
 ;-> 1 2 3 " "
 
 Ricordare che il segno del passo non viene considerato da newLISP, quindi il corpo del ciclo "for" viene sempre eseguito (almeno una volta).
+
+
+------------------------------------------------------------------
+Perché uno specchio inverte destra e sinistra invece che su e giù?
+------------------------------------------------------------------
+
+GLi specchi non invertono sinistra e destra: questa è solo la nostra interpretazione di ciò che accade.
+Il nostro riflesso nello specchio è in realtà invertito da davanti a dietro: se hai un neo sul lato sinistro del tuo viso, appare ancora sul lato sinistro del riflesso. Ma siamo abituati a vedere i volti di altre persone e istintivamente eseguiamo la rotazione mentale perché sappiamo che si sono girati di 180 gradi per fronteggiarci. L'immagine nello specchio viene riflessa, non ruotata, quindi quando la ruotiamo indietro nella nostra testa, appare invertita.
+Ogni sezione dello specchio riflette semplicemente ciò che è direttamente di fronte ad esso. Quindi qualunque cosa sia alla mia destra mentre guardo nello specchio sarà alla mia destra nello specchio. Niente è stato invertito, è solo una riflessione, tutto qui.
+
+
+--------------
+Treni e mosche
+--------------
+
+Si racconta che sia stato chiesto a John von Neumann di risolvere un problema del seguente tipo:
+Due treni sono diretti l'uno verso l'altro sullo stesso binario, ciascuno viaggiando a 60 km/ora. Quando sono a 2 km di distanza, una mosca parte dall'inizio del primo treno e viaggia a 90 km/ora fino alla parte anteriore dell'altro treno. Quindi torna al primo treno, e così via, avanti e indietro fino a che i due treni si scontrano tra loro. Quanto spazio ha coperto viaggia la mosca?
+
+Esiste un modo rapido e un modo analitico per risolvere questo problema.
+
+Il modo analitico è quello di calcolare la somma di una serie geometrica infinita.
+La mosca completa la prima tappa del suo viaggio (viaggiando da un treno all'altro) in 4/5 di un minuto, poiché in questo tempo il treno in arrivo percorre 4/5 di km e la mosca vola per 6/5 di un km. Pertanto, dopo 4/5 di minuto, abbiamo una versione simile del problema originale, ma con i treni alla distanza di 2 - 2 x 4/5 = 2/5 km, o 1/5 della distanza originale, a parte. Questo schema continua, formando una serie geometrica infinita di distanze, la cui somma la distanza totale percorsa dalla mosca:
+
+  6/5 * (1 + 1/5 + (1/5)^2 + (1/5)^3 + ...)
+
+Dobbiamo trovare la somma delle serie geometriche infinite del tipo:
+
+  S = 1 + r + r^2 + r^3 + ...
+
+dove r è un numero reale con -1 < r < 1. (Abbiamo bisogno di questi limiti su r in modo che la serie
+converga).
+Moltiplicando per r, otteniamo:
+
+  S*r =  r +  r^2 + r^3 + r^4 + ...
+
+Sottraendo la seconda equazione dalla prima si ottiene:
+
+  S - S*r = 1   ==>   S*(1 - r) = 1
+
+e quindi:
+
+  S = 1/(1 - r),
+
+Ponendo r = 1/5, completiamo il nostro calcolo della distanza percorsa dalla mosca:
+
+6/5 * 1/(1 - 1/5) = 3/2 km = 1.5 km
+
+In newLISP possiamo calcolare una serie infinita nel modo seguente:
+
+(define (sum r n)
+  (let (s 1)
+    (for (i 1 n)
+      (setq s (add s (pow r i)))
+    )
+    s))
+
+Oppure:
+
+(define (sum r n)
+  (add 1 (apply add (map (fn(x) (pow r x)) (sequence 1 n)))))
+
+Proviamo il calcolo con 20 termini:
+
+(sum .2 20)
+;-> 1.249999999999998
+
+Adesso moltiplichiamo per la costante 6/5 ed otteniamo la soluzione:
+
+(mul (div 6 5) (sum .2 20))
+;-> 1.499999999999997
+
+In newLISP otteniamo una soluzione approssimata (dipende da quanti termini della serie calcoliamo).
+
+Il modo più veloce di risolvere il problema è rendersi conto che i treni si scontrano dopo 1 minuto (dato che partono a 2 km di distanza e viaggiano alla velocità di 1 km al minuto). Poiché la mosca viaggia alla velocità di 1.5 km al minuto, allora in questo tempo (1 minuto) percorre 1.5 km.
+
+La storia racconta che von Neumann rispose correttamente al problema... calcolando a mente il valore della serie infinita. E solo dopo si rese conto che esisteva un modo più semplice di ottenere la soluzione.
 
 
