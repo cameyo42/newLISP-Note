@@ -4248,3 +4248,242 @@ Il modo più veloce di risolvere il problema è rendersi conto che i treni si sc
 La storia racconta che von Neumann rispose correttamente al problema... calcolando a mente il valore della serie infinita. E solo dopo si rese conto che esisteva un modo più semplice di ottenere la soluzione.
 
 
+---------------------
+Gestione degli errori
+---------------------
+
+Vediamo la definizione delle funzioni per la gestione degli errori dal manuale di riferimento.
+
+************************
+>>>funzione ERROR-EVENT
+************************
+sintassi: (error-event sym-event-handler | func-event-handler)
+sintassi: (error-event nil)
+
+sym-event-handler contiene una funzione utente per la gestione degli errori (error handler) . Quando si verifica un errore, il sistema esegue la funzione "reset" ed esegue la funzione utente per la gestione degli errori. Questa funzione può utilizzare la funzione predefinita "last-error" per recuperare il numero e il testo dell'errore. La funzione per la gestione degli errori può essere specificata come simbolo quotato o come funzione lambda
+
+Per disabilitare "error-event" utilizare la seconda sintassi.
+
+(define (my-handler)
+  (print "error # " (first (last-error)) " has occurred\n") )
+
+(error-event 'my-handler)  → my-handler
+
+;; specify a function directly
+
+(error-event my-handler)  → $error-event
+
+(error-event
+  (fn () (print "error # " (first (last-error)) " has occurred\n")))
+
+(error-event exit)  → $error-event
+
+Vedi anche la funzione "catch" che fornisce un modo diverso per gestire gli errori. Utilizzare "throw-error" per gestire gli errori dell'utente.
+
+***********************
+>>>funzione LAST-ERROR
+***********************
+sintassi: (last-error)
+sintassi: (last-error int-error)
+
+Riporta l'ultimo errore generato da newLISP a causa di errori di sintassi o esaurimento di alcune risorse. Per un riepilogo di tutti i possibili errori, vedere il capitolo Codici di errore in appendice del manuale di riferimento.
+
+Se non si è verificato alcun errore dall'avvio della sessione newLISP, viene restituito nil. 
+Quando viene specificato int-error, viene restituito una lista contenente numero e testo dell'errore.
+
+(last-error)  → nil
+
+(abc)
+
+ERR: invalid function : (abc)
+
+(last-error) → (24 "ERR: invalid function : (abc)")
+
+(last-error 24) → (24 "invalid function")
+(last-error 1) → (1 "not enough memory")
+(last-error 12345) → (12345 "Unknown error")
+
+Per i numeri di errore fuori intervallo, viene fornita la stringa "Unknown error" per il testo dell'errore.
+
+Gli errori possono essere intercettati da "error-event" e gestori di errori definiti dall'utente.
+
+Vedere anche "net-error" per gli errori generati dalle condizioni di rete e "sys-error" per gli errori generati dal sistema operativo.
+
+(last-error 1000)
+;-> (1000 "Unknown error")
+(last-error 0)
+;-> nil
+
+Lista degli errori
+------------------
+
+(define (get-errors)
+  (let (err '())
+    (for (i 1 100)
+      (if (!= (list i "Unknown error") (last-error i))
+          (push (last-error i) err -1)))
+    (for (i 0 (- (length err) 1) 2)
+      (println (err i) { } (err (+ i 1))))
+  ))
+
+(get-errors)
+(1 "not enough memory")                (39 "regular expression")
+(2 "environment stack overflow")       (40 "end of text [/text] tag")
+(3 "call or result stack overflow")    (41 "mismatch in number of arguments")
+(4 "problem accessing file")           (42 "problem in format string")
+(5 "illegal token or expression")      (43 "data type and format don't match")
+(6 "missing parenthesis")              (44 "invalid parameter")
+(7 "string token too long")            (45 "invalid parameter: 0.0")
+(8 "missing argument")                 (46 "invalid parameter: NaN")
+(9 "number or string expected")        (47 "invalid UTF8 string")
+(10 "value expected")                  (48 "illegal parameter type")
+(11 "string expected")                 (49 "symbol not in MAIN context")
+(12 "symbol expected")                 (50 "symbol not in current context")
+(13 "context expected")                (51 "target cannot be MAIN")
+(14 "symbol or context expected")      (52 "invalid list index")
+(15 "list expected")                   (53 "array index out of bounds")
+(16 "list or array expected")          (54 "invalid string index")
+(17 "list or symbol expected")         (55 "nesting level to deep")
+(18 "list or string expected")         (56 "list reference changed")
+(19 "list or number expected")         (57 "invalid syntax")
+(20 "array expected")                  (58 "user error")
+(21 "array, list or string expected")  (59 "user reset -")
+(22 "lambda expected")                 (60 "received SIGINT -")
+(23 "lambda-macro expected")           (61 "function is not reentrant")
+(24 "invalid function")                (62 "not allowed on local symbol")
+(25 "invalid lambda expression")       (63 "no reference found")
+(26 "invalid macro expression")        (64 "list is empty")
+(27 "invalid let parameter list")      (65 "I/O error")
+(28 "problem saving file")             (66 "no working directory found")
+(29 "division by zero")                (67 "invalid PID")
+(30 "matrix expected")                 (68 "cannot open socket pair")
+(31 "wrong dimensions")                (69 "cannot fork process")
+(32 "matrix is singular")              (70 "no comm channel found")
+(33 "invalid option")                  (71 "ffi preparation failed")
+(34 "throw without catch")             (72 "invalid ffi type")
+(35 "problem loading library")         (73 "ffi struct expected")
+(36 "import function not found")       (74 "bigint type not applicable")
+(37 "symbol is protected")             (75 "not a number or infinite")
+(38 "number out of range")             (76 "cannot convert NULL to string")
+
+Definiamo una funzione utente per la gestione degli errori:
+
+(define (error-handler)
+  (print "Verificato errore # " (first (last-error)) "\n"))
+
+Attiviamo la gestione degli errori da parte della funzione utente:
+
+(error-event 'error-handler)
+
+Proviamo:
+
+(/ 10 0)
+;-> Verificato errore # 29
+(a 1)
+;-> Verificato errore # 24
+
+Disabilitiamo la gestione degli errori da parte della funzione utente:
+(error-event nil)
+;-> nil
+
+La gestione degli errori è tornata al sistema:
+
+(/ 20 0)
+;-> ERR: division by zero in function /
+
+Vediamo cosa accade quando si verifica un errore durante l'esecuzione di una funzione:
+
+(define (error-handler)
+  (print "Verificato errore # " (first (last-error)) "\n")
+  (println a)
+  (error-event nil))
+
+(define (test)
+  ; abilita la gestione degli errori
+  ; da parte di una funzione utente
+  (error-event 'error-handler)
+  (setq a 10)
+  ; questa istruzione genera un errore ==> esegue "error-handler" e poi esce
+  (/ 10 0)
+  ; questa istruzione non viene eseguita
+  (println a))
+
+(test)
+;-> Verificato errore # 29
+10
+
+Per finire vediamo la definizione della funzione "reset".
+
+******************
+>>>funzione RESET
+******************
+sintassi: (reset)
+
+"reset" torna al livello di valutazione superiore, disattiva la modalità di trace e passa al contesto/spazio dei nomi MAIN. "reset" ripristina l'ambiente delle variabili di primo livello utilizzando le variabili dell'ambiente salvate nello stack. Inoltre genera un errore "user-reset no error" che può essere segnalato con gestori di errori definiti dall'utente. Dalla versione 10.5.5 "reset" interrompe anche l'elaborazione dei parametri della riga di comando.
+
+reset percorre l'intero spazio delle celle, operazione che potrebbe richiedere alcuni secondi in un sistema molto carico.
+
+"reset" avviene automaticamente dopo una condizione di errore.
+
+
+-------------------
+Effetto percentuali
+-------------------
+
+La banca ci comunica che oggi il valore delle nostre azioni è aumentato del 10%. Comunque ieri era diminuito del 10%, quindi siamo in pareggio... o no?
+Purtroppo siamo in perdita, infatti, supponendo che il valore originale fosse 1000 euro, abbiamo:
+
+ieri: val = 1000 - 10% = 1000 - 100 = 900
+oggi: val = 900 + 10% = 900 + 90 = 990
+
+Anche viceversa (prima guadagno e poi perdita) saremmo in perdita (della stessa quantità):
+
+ieri: val = 1000 + 10% = 1000 + 100 = 1100
+oggi: val = 1100 - 10% = 1100 - 110 = 990
+
+Quindi quanto dovrebbe valere la percentuale (di oggi) per recuperare la perdita di ieri?
+
+Poniamo: 
+
+f = p/100
+
+ad esempio: p = 20%   ==>   f = 20/100 = 0.2
+
+val = x      ==>  x + p     = x + x*f              = x*(1 + f)  
+val = 1000   ==>  val + 20% = 1000 + 1000*(20/100) = 1000 + 1000*0.2
+
+Il valore originale vale:         x
+
+Il valore dopo la perdita vale:   x*(1 + f1)
+
+Il valore dopo il guadagno vale: (x*(1 + f1)) * (1 + f2)
+
+Quindi deve risultare:
+
+x = (x*(1 + f1)) - (x*(1 + f1)) * (1 + f2)
+x = x + f1*x - (x + x*f1)*(1 + f2)
+x = x + f1*x - (x + x*f2 + x*f1 + x*f1*f2)
+x = x + f1*x - x - x*f2 - x*f1 - x*f1*f2
+x = - x*f2 - x*f1*f2
+x + x*f2 + x*f1*f2 = 0
+x + f2*(x +x*f1) = 0   ==>   f2 = -x/(x +x*f1)
+
+Con la formula di f2 possiamo scrivere la funzione:
+
+(define (perc2 x perc1) (div x (add x (mul x (div perc1 100)))))
+
+(perc2 1000 -10)
+;-> 1.111111111111111
+(mul 900 (perc2 1000 -10))
+;-> 1000
+Cioè, se perdiamo il 10%, poi dobbiamo gudagnare l'11.1% per ritornare allo stesso valore (1000).
+
+(perc2 1000 10)
+;-> 0.9090909090909091
+(mul 1100 (perc2 1000 10))
+;-> 1000
+Cioè, se guadagniamo il 10%, poi dobbiamo perdere il 9.09% per ritornare allo stesso valore (1000).
+
+Attenzione alle percentuali!
+
+

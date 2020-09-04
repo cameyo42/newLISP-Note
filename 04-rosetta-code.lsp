@@ -1703,6 +1703,15 @@ Adesso la scriviamo in stile iterativo:
 (horner-i '(-19 7 -4 6) '3)
 ;-> 128
 
+Vediamo un altro modo di scrivere la funzione in stile funzionale:
+
+(define (horner-f lst x) 
+  (cond ((null? lst) '0)
+        (true (+ (first lst) (* x (horner-f (rest lst) x))))))
+
+(horner-f '(-19 7 -4 6) '3)
+;-> 128
+
 
 -------------------------------
 PROBLEMA DELLO ZAINO (KNAPSACK)

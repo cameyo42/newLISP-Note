@@ -159,6 +159,7 @@ FUNZIONI VARIE
   Area di un poligono semplice
   Rango di una matrice
   Operazioni tra coppie di elementi di una lista
+  Polinomio interpolatore di Lagrange
 
 newLISP 99 PROBLEMI (28)
 ========================
@@ -551,6 +552,8 @@ NOTE LIBERE 2
   Il ciclo for
   Perché uno specchio inverte destra e sinistra invece che su e giù?
   Treni e mosche
+  Gestione degli errori
+  Effetto percentuali
 
 APPENDICI
 =========
