@@ -5903,7 +5903,49 @@ e Li(x) = Prod[j 0 n, j != i] ((x - xj) / (xi - xj))
 
 Possiamo quindi calcolare la coordinata y di un generico valore x utilizzando il polinomio interpolatore di Lagrange:
 
-Vediamo di implementare una funzione che trova questo valore y partendo da una lista di punti e da un valore x.
+Vediamo di implementare un programma che trova questo valore y partendo da una lista di punti e da un valore x.
+
+; Funzione che calcola Li(x)
+(define (li i n xcoord x)
+  (let (prod 1)
+    (for (j 0 n)
+      (if (!= j i)
+        (setq prod (mul prod (div (sub x (xcoord j)) (sub (xcoord i) (xcoord j)))))
+      )
+    )
+    prod))
+
+; Funzione per calcolare Pn(x) 
+; dove Pn è il polinomio interpolatore di Lagrange di grado n
+(define (pn n xcoord ycoord x)
+  (let (sum 0)
+    (for (i 0 n)
+      (setq sum (add sum (mul (li i n xcoord x) (ycoord i))))
+    )
+    sum))
+
+(define (lagrange xcoord ycoord x)
+  (pn (- (length xcoord) 1) xcoord ycoord x))
+
+Proviamo la funzione:
+
+(setq xval '(5 7 11 13 17))
+(setq yval '(150 392 1452 2366 5202))
+(lagrange xval yval 9.0)
+;-> 810
+
+(setq xval '(2 2.75 4))
+(setq yval '(0.5 0.363636 0.25))
+(lagrange xval yval 3.0)
+;-> 0.3295450666666667
+
+(setq pt '((1 1) (2 4) (3 9)))
+(setq xval '(1 2 3))
+(setq yval '(1 4 9))
+(lagrange xval yval 2.5)
+;-> 6.25
+
+Adesso possiamo riunire il tutto in una funzione unica:
 
 (define (lagrange lst-pt x)
   (local (sum u l)
@@ -6007,5 +6049,179 @@ Proviamo con un polinomio conosciuto a priori: 3x^3 - 2x^2 + 5x + 4
 
 (lagrange-coeff '((0 4) (1 10) (2 30) (3 82)))
 ;-> (4 5 -2 2.999999999999998)
+
+
+-------------------------------
+Moltiplicativo modulare inverso
+-------------------------------
+
+Un moltiplicativo modulare inverso di un intero a è un intero x tale che a*x è congruente a 1 rispetto al modulo m.  Nella notazione standard dell'aritmetica modulare questa congruenza è scritta come:
+
+a*x ≡ 1 (mod m)
+
+che è il modo abbreviato di scrivere l'affermazione che m divide (esattamente) la quantità a*x - 1, o, in altre parole, il resto dopo aver diviso a*x per l'intero m è 1. In altre parole:
+
+a*x = 1 + k*m (dove k è un numero intero)
+
+Se a ha un modulo inverso m, allora ci sono un numero infinito di soluzioni di questa congruenza che formano una classe di congruenza rispetto a questo modulo.
+Si può dimostrare che un tale inverso esiste se e solo se a e m sono coprimi.
+
+(define (modular-multiplicative-inverse a n)
+  (local (t nt r nr q tmp out)
+    (if (< n 0)
+        (setq n (abs n)))
+    (if (< a 0)
+        (setq a (- n (% (- 0 a) n))))
+    (setq t 0)
+    (setq nt 1)
+    (setq r n)
+    (setq nr (mod a n))
+    (while (not (zero? nr))
+        (setq q (int (div r nr)))
+        (setq tmp nt)
+        (setq nt (sub t (mul q nt)))
+        (setq t tmp)
+        (setq tmp nr)
+        (setq nr (sub r (mul q nr)))
+        (setq r tmp))
+    (if (> r 1)
+        (setq out nil))
+    (if (< t 0)
+        (setq out (add t n))
+        (setq out t))
+    out))
+
+(modular-multiplicative-inverse 42 2017)
+;-> 1969
+
+
+---------------------------
+Radice n-esima di un numero
+---------------------------
+
+(define (nth-root n a)
+  (let ((x1 a)
+	(x2 (div a n)))
+  (until (= x1 x2)
+    (setq x1 x2
+	        x2 (div (add (mul x1 (- n 1)) (div a (pow x1 (- n 1))))
+		              n))
+  )
+  x2))
+
+(nth-root 3 8)
+;-> 2
+(pow 8 (div 3))
+;-> 2
+
+(nth-root 25 100)
+;-> 1.202264434617413
+(pow 100 (div 25))
+;-> 1.202264434617413
+
+(nth-root 4 30.5)
+;-> 2.350038405769921
+(pow 30.5 (div 4))
+;-> 2.350038405769921
+
+
+------------------------------
+Prodotto scalare (dot product)
+------------------------------
+
+Crea una funzione per calcolare il prodotto scalare, noto anche come dot product, di due vettori di lunghezza arbitraria.
+
+(define (dot-product x y)
+  (apply add (map mul x y)))
+
+(println (dot-product '(1 3 -5) '(4 -2 -1)))
+;-> 3
+
+
+----------------------------------
+Angolo tra due direzioni (bearing)
+----------------------------------
+
+Trovare l'angolo che è il risultato della sottrazione b2 - b1, dove b1 e b2 sono gli angoli delle direzioni.
+Gli angoli di input sono espressi nell'intervallo da -180 a +180 gradi.
+Il risultato è espresso nell'intervallo compreso tra -180 e +180 gradi.
+
+(define (bearing b1 b2) (sub (mod (add (mod (sub b1 b2) 360.0) 540.0) 360.0) 180.0))
+
+(bearing- 20 45)
+;-> -25
+(bearing- -45 45)
+;-> -90
+(bearing- 85 90)
+;-> -5
+(bearing- -95 90)
+;-> 175
+
+Per la navigazione, potremmo voler sapere se b1 è a sinistra o a destra di b2. (Si presume che esattamente 0 non sia un caso d'uso)
+
+(define (bearings-left-right b1 b2)
+  (if (> (sub (mod (sub (add b1 540) b2) 360) 180) 0)
+      'left
+      'right))
+
+(bearings-left-right 20 35)
+;-> right
+(bearings-left-right -95 90)
+;-> left
+
+
+-------------------
+URL encoder/decoder
+-------------------
+
+URL encoder
+-----------
+Fornire una funzione per convertire una stringa fornita in una rappresentazione di codifica URL (encode).
+Nella codifica URL, caratteri speciali, caratteri di controllo e caratteri estesi vengono convertiti in un simbolo di percentuale seguito da un codice esadecimale a due cifre. Quindi un carattere spazio codifica in %20 all'interno della stringa.
+
+Per gli scopi di questa attività, tutti i caratteri tranne 0-9, A-Z e a-z richiedono la conversione, quindi i seguenti caratteri richiedono tutti la conversione per impostazione predefinita:
+
+Codici di controllo ASCII (intervalli di caratteri 00-1F esadecimale (0-31 decimale) e 7F (127 decimale).
+Simboli ASCII (intervalli di caratteri 32-47 decimali (20-2F hex))
+Simboli ASCII (intervalli di caratteri 58-64 decimali (3A-40 hex))
+Simboli ASCII (intervalli di caratteri 91-96 decimali (5B-60 hex))
+Simboli ASCII (intervalli di caratteri 123-126 decimali (7B-7E hex))
+Caratteri estesi con codici carattere da 128 decimali (80 esadecimale) e superiori.
+
+Esempio
+La stringa "http://foo bar/" verrebbe codificata come "http%3A%2F%2Ffoo%20bar%2F".
+
+;; simple encoder
+;; (source http://www.newlisp.org/index.cgi?page=Code_Snippets)
+(define (url-encode str)
+  (replace {([^a-zA-Z0-9])} str (format "%%%2X" (char $1)) 0))
+
+(url-encode "http://foo bar/")
+;-> "http%3A%2F%2Ffoo%20bar%2F"
+(url-encode "google.com/search?q=`Abdu'l-Bahá")
+;-> "google%2Ecom%2Fsearch%3Fq%3D%60Abdu%27l%2DBah%A0"
+(url-decode "google%2Ecom%2Fsearch%3Fq%3D%60Abdu%27l%2DBah%A0")
+"google.com/search?q=`Abdu'l-Bahá"
+
+
+URL decoder
+-----------
+Il problema (l'opposto della codifica (encode) URL e distinto dal parser URL) è fornire una funzione per convertire una stringa codificata in URL nella sua forma originale non codificata (decode).
+
+Esempi
+   La stringa codificata "http% 3A% 2F% 2Ffoo% 20bar% 2F" dovrebbe essere ripristinata nel formato non codificato "http: // foo bar /".
+   La stringa codificata "google.com/search?q=%60Abdu%27l-Bah%C3%A1" dovrebbe tornare alla forma non codificata "google.com/search?q=`Abdu'l-Bahá".
+
+;; universal decoder, works for ASCII and UTF-8
+;; (source http://www.newlisp.org/index.cgi?page=Code_Snippets)
+
+(define (url-decode url (opt nil))
+  (if opt (replace "+" url " "))
+  (replace "%([0-9a-f][0-9a-f])" url (pack "b" (int $1 0 16)) 1))
+
+(url-decode "http%3A%2F%2Ffoo%20bar%2F")
+;-> "http://foo bar/"
+(url-decode "google.com/search?q=%60Abdu%27l-Bah%C3%A1")
+;-> "google.com/search?q=`Abdu'l-Bah├í"
 
 

@@ -160,6 +160,11 @@ FUNZIONI VARIE
   Rango di una matrice
   Operazioni tra coppie di elementi di una lista
   Polinomio interpolatore di Lagrange
+  Moltiplicativo modulare inverso
+  Radice n-esima di un numero
+  Prodotto scalare (dot product)
+  Angolo tra due direzioni (bearing)
+  URL encoder/decoder
 
 newLISP 99 PROBLEMI (28)
 ========================
@@ -251,6 +256,12 @@ ROSETTA CODE
   Chess960
   Percorso del cavallo
   Teorema cinese dei resti
+  Numeri attraenti
+  IBAN
+  Estendere il linguaggio
+  Composizione di funzioni
+  Calcolo di una serie
+  Numeri gapful
 
 PROJECT EULERO
 ==============
@@ -554,6 +565,8 @@ NOTE LIBERE 2
   Treni e mosche
   Gestione degli errori
   Effetto percentuali
+  Teorema di Euclide (infinità dei numeri primi)
+  Il programma più corto
 
 APPENDICI
 =========
@@ -15287,7 +15300,49 @@ e Li(x) = Prod[j 0 n, j != i] ((x - xj) / (xi - xj))
 
 Possiamo quindi calcolare la coordinata y di un generico valore x utilizzando il polinomio interpolatore di Lagrange:
 
-Vediamo di implementare una funzione che trova questo valore y partendo da una lista di punti e da un valore x.
+Vediamo di implementare un programma che trova questo valore y partendo da una lista di punti e da un valore x.
+
+; Funzione che calcola Li(x)
+(define (li i n xcoord x)
+  (let (prod 1)
+    (for (j 0 n)
+      (if (!= j i)
+        (setq prod (mul prod (div (sub x (xcoord j)) (sub (xcoord i) (xcoord j)))))
+      )
+    )
+    prod))
+
+; Funzione per calcolare Pn(x) 
+; dove Pn è il polinomio interpolatore di Lagrange di grado n
+(define (pn n xcoord ycoord x)
+  (let (sum 0)
+    (for (i 0 n)
+      (setq sum (add sum (mul (li i n xcoord x) (ycoord i))))
+    )
+    sum))
+
+(define (lagrange xcoord ycoord x)
+  (pn (- (length xcoord) 1) xcoord ycoord x))
+
+Proviamo la funzione:
+
+(setq xval '(5 7 11 13 17))
+(setq yval '(150 392 1452 2366 5202))
+(lagrange xval yval 9.0)
+;-> 810
+
+(setq xval '(2 2.75 4))
+(setq yval '(0.5 0.363636 0.25))
+(lagrange xval yval 3.0)
+;-> 0.3295450666666667
+
+(setq pt '((1 1) (2 4) (3 9)))
+(setq xval '(1 2 3))
+(setq yval '(1 4 9))
+(lagrange xval yval 2.5)
+;-> 6.25
+
+Adesso possiamo riunire il tutto in una funzione unica:
 
 (define (lagrange lst-pt x)
   (local (sum u l)
@@ -15391,6 +15446,180 @@ Proviamo con un polinomio conosciuto a priori: 3x^3 - 2x^2 + 5x + 4
 
 (lagrange-coeff '((0 4) (1 10) (2 30) (3 82)))
 ;-> (4 5 -2 2.999999999999998)
+
+
+-------------------------------
+Moltiplicativo modulare inverso
+-------------------------------
+
+Un moltiplicativo modulare inverso di un intero a è un intero x tale che a*x è congruente a 1 rispetto al modulo m.  Nella notazione standard dell'aritmetica modulare questa congruenza è scritta come:
+
+a*x ≡ 1 (mod m)
+
+che è il modo abbreviato di scrivere l'affermazione che m divide (esattamente) la quantità a*x - 1, o, in altre parole, il resto dopo aver diviso a*x per l'intero m è 1. In altre parole:
+
+a*x = 1 + k*m (dove k è un numero intero)
+
+Se a ha un modulo inverso m, allora ci sono un numero infinito di soluzioni di questa congruenza che formano una classe di congruenza rispetto a questo modulo.
+Si può dimostrare che un tale inverso esiste se e solo se a e m sono coprimi.
+
+(define (modular-multiplicative-inverse a n)
+  (local (t nt r nr q tmp out)
+    (if (< n 0)
+        (setq n (abs n)))
+    (if (< a 0)
+        (setq a (- n (% (- 0 a) n))))
+    (setq t 0)
+    (setq nt 1)
+    (setq r n)
+    (setq nr (mod a n))
+    (while (not (zero? nr))
+        (setq q (int (div r nr)))
+        (setq tmp nt)
+        (setq nt (sub t (mul q nt)))
+        (setq t tmp)
+        (setq tmp nr)
+        (setq nr (sub r (mul q nr)))
+        (setq r tmp))
+    (if (> r 1)
+        (setq out nil))
+    (if (< t 0)
+        (setq out (add t n))
+        (setq out t))
+    out))
+
+(modular-multiplicative-inverse 42 2017)
+;-> 1969
+
+
+---------------------------
+Radice n-esima di un numero
+---------------------------
+
+(define (nth-root n a)
+  (let ((x1 a)
+	(x2 (div a n)))
+  (until (= x1 x2)
+    (setq x1 x2
+	        x2 (div (add (mul x1 (- n 1)) (div a (pow x1 (- n 1))))
+		              n))
+  )
+  x2))
+
+(nth-root 3 8)
+;-> 2
+(pow 8 (div 3))
+;-> 2
+
+(nth-root 25 100)
+;-> 1.202264434617413
+(pow 100 (div 25))
+;-> 1.202264434617413
+
+(nth-root 4 30.5)
+;-> 2.350038405769921
+(pow 30.5 (div 4))
+;-> 2.350038405769921
+
+
+------------------------------
+Prodotto scalare (dot product)
+------------------------------
+
+Crea una funzione per calcolare il prodotto scalare, noto anche come dot product, di due vettori di lunghezza arbitraria.
+
+(define (dot-product x y)
+  (apply add (map mul x y)))
+
+(println (dot-product '(1 3 -5) '(4 -2 -1)))
+;-> 3
+
+
+----------------------------------
+Angolo tra due direzioni (bearing)
+----------------------------------
+
+Trovare l'angolo che è il risultato della sottrazione b2 - b1, dove b1 e b2 sono gli angoli delle direzioni.
+Gli angoli di input sono espressi nell'intervallo da -180 a +180 gradi.
+Il risultato è espresso nell'intervallo compreso tra -180 e +180 gradi.
+
+(define (bearing b1 b2) (sub (mod (add (mod (sub b1 b2) 360.0) 540.0) 360.0) 180.0))
+
+(bearing- 20 45)
+;-> -25
+(bearing- -45 45)
+;-> -90
+(bearing- 85 90)
+;-> -5
+(bearing- -95 90)
+;-> 175
+
+Per la navigazione, potremmo voler sapere se b1 è a sinistra o a destra di b2. (Si presume che esattamente 0 non sia un caso d'uso)
+
+(define (bearings-left-right b1 b2)
+  (if (> (sub (mod (sub (add b1 540) b2) 360) 180) 0)
+      'left
+      'right))
+
+(bearings-left-right 20 35)
+;-> right
+(bearings-left-right -95 90)
+;-> left
+
+
+-------------------
+URL encoder/decoder
+-------------------
+
+URL encoder
+-----------
+Fornire una funzione per convertire una stringa fornita in una rappresentazione di codifica URL (encode).
+Nella codifica URL, caratteri speciali, caratteri di controllo e caratteri estesi vengono convertiti in un simbolo di percentuale seguito da un codice esadecimale a due cifre. Quindi un carattere spazio codifica in %20 all'interno della stringa.
+
+Per gli scopi di questa attività, tutti i caratteri tranne 0-9, A-Z e a-z richiedono la conversione, quindi i seguenti caratteri richiedono tutti la conversione per impostazione predefinita:
+
+Codici di controllo ASCII (intervalli di caratteri 00-1F esadecimale (0-31 decimale) e 7F (127 decimale).
+Simboli ASCII (intervalli di caratteri 32-47 decimali (20-2F hex))
+Simboli ASCII (intervalli di caratteri 58-64 decimali (3A-40 hex))
+Simboli ASCII (intervalli di caratteri 91-96 decimali (5B-60 hex))
+Simboli ASCII (intervalli di caratteri 123-126 decimali (7B-7E hex))
+Caratteri estesi con codici carattere da 128 decimali (80 esadecimale) e superiori.
+
+Esempio
+La stringa "http://foo bar/" verrebbe codificata come "http%3A%2F%2Ffoo%20bar%2F".
+
+;; simple encoder
+;; (source http://www.newlisp.org/index.cgi?page=Code_Snippets)
+(define (url-encode str)
+  (replace {([^a-zA-Z0-9])} str (format "%%%2X" (char $1)) 0))
+
+(url-encode "http://foo bar/")
+;-> "http%3A%2F%2Ffoo%20bar%2F"
+(url-encode "google.com/search?q=`Abdu'l-Bahá")
+;-> "google%2Ecom%2Fsearch%3Fq%3D%60Abdu%27l%2DBah%A0"
+(url-decode "google%2Ecom%2Fsearch%3Fq%3D%60Abdu%27l%2DBah%A0")
+"google.com/search?q=`Abdu'l-Bahá"
+
+
+URL decoder
+-----------
+Il problema (l'opposto della codifica (encode) URL e distinto dal parser URL) è fornire una funzione per convertire una stringa codificata in URL nella sua forma originale non codificata (decode).
+
+Esempi
+   La stringa codificata "http% 3A% 2F% 2Ffoo% 20bar% 2F" dovrebbe essere ripristinata nel formato non codificato "http: // foo bar /".
+   La stringa codificata "google.com/search?q=%60Abdu%27l-Bah%C3%A1" dovrebbe tornare alla forma non codificata "google.com/search?q=`Abdu'l-Bahá".
+
+;; universal decoder, works for ASCII and UTF-8
+;; (source http://www.newlisp.org/index.cgi?page=Code_Snippets)
+
+(define (url-decode url (opt nil))
+  (if opt (replace "+" url " "))
+  (replace "%([0-9a-f][0-9a-f])" url (pack "b" (int $1 0 16)) 1))
+
+(url-decode "http%3A%2F%2Ffoo%20bar%2F")
+;-> "http://foo bar/"
+(url-decode "google.com/search?q=%60Abdu%27l-Bah%C3%A1")
+;-> "google.com/search?q=`Abdu'l-Bah├í"
 
 
 ==========================
@@ -24359,6 +24588,23 @@ Metodo 7:
 (rot13-7 "YN FPRAN VA PHV VY CREFBANTTVB CEVAPVCNYR ZHBER ABA ZV CVNPR")
 ;-> "LA SCENA IN CUI IL PERSONAGGIO PRINCIPALE MUORE NON MI PIACE"
 
+Metodo 8:
+
+(define (rot13-8 str)
+  (join
+   (map
+    (fn(c)
+      (cond
+       ((<= "A" (upper-case c) "M") (char (+ (char c) 13)))
+       ((<= "N" (upper-case c) "Z") (char (- (char c) 13)))
+       (true c)))
+    (explode str))))
+
+(rot13-8 "LA SCENA IN CUI IL PERSONAGGIO PRINCIPALE MUORE NON MI PIACE")
+;-> "YN FPRAN VA PHV VY CREFBANTTVB CEVAPVCNYR ZHBER ABA ZV CVNPR"
+(rot13-8 "YN FPRAN VA PHV VY CREFBANTTVB CEVAPVCNYR ZHBER ABA ZV CVNPR")
+;-> "LA SCENA IN CUI IL PERSONAGGIO PRINCIPALE MUORE NON MI PIACE"
+
 Vediamo la velocità delle varie funzioni:
 
 (setq testo "LA SCENA IN CUI IL PERSONAGGIO PRINCIPALE MUORE NON MI PIACE")
@@ -24377,6 +24623,8 @@ Vediamo la velocità delle varie funzioni:
 ;-> 827.441
 (time (rot13-7 (rot13-7 testo)) 10000)
 ;-> 470.769
+(time (rot13-8 (rot13-8 testo)) 10000)
+;-> 854.569
 
 
 ------
@@ -25268,6 +25516,281 @@ La maggior parte delle implementazioni di RSA utilizza il teorema cinese del res
 Il teorema cinese del resto può essere utilizzato anche nella condivisione segreta, che consiste nel distribuire un insieme di dati tra un gruppo di persone che, tutti insieme (ma nessuno da solo), possono recuperare un certo valore dall'insieme dei dati. Ciascuna delle parti è rappresentata da una congruenza e la soluzione del sistema di congruenze utilizzando il teorema cinese dei resti è il numero segreto da recuperare. La condivisione segreta che utilizza il teorema cinese del resto utilizza anche speciali sequenze di interi che garantiscono l'impossibilità di recuperare il numero da un insieme di dati con meno di una certa cardinalità.
 
 Il teorema cinese dei resti è stato utilizzato per costruire una numerazione di Gödel per le sequenze, che è coinvolta nella dimostrazione dei teoremi di incompletezza di Gödel.
+
+
+----------------
+NUMERI ATTRAENTI
+----------------
+
+Un numero viene detto attraente se il numero dei suoi fattori primi (distinti o meno) è primo. Per esempio, il numero 20, la cui scomposizione prima è 2 × 2 × 5, è un numero attraente perché anche il numero dei suoi fattori primi (3) è primo.
+
+(define (prime? n) (= (length (factor n)) 1))
+(define (attractive? n) (prime? (length (factor n))))
+(filter attractive? (sequence 2 120))
+
+Output:
+;-> (4 6 8 9 10 12 14 15 18 20 21 22 25 26 27 28 30 32 33 34 35 38
+;->  39 42 44 45 46 48 49 50 51 52 55 57 58 62 63 65 66 68 69 70 72
+;->  74 75 76 77 78 80 82 85 86 87 91 92 93 94 95 98 99 102 105 106
+;->  108 110 111 112 114 115 116 117 118 119 120)
+
+
+----
+IBAN
+----
+
+Scrivere una funzione che controlla se un codice dato rappresenta un numero IBAN (International Bank Account Number).
+
+(setq *iban-code-length* '((15  ("NO"))
+                             (16  ("BE"))
+                             (18  ("DK" "FO" "FI" "GL" "NL"))
+                             (19  ("MK" "SI"))
+                             (20  ("AT" "BA" "EE" "KZ" "LT" "LU"))
+                             (21  ("CR" "HR" "LV" "LI" "CH"))
+                             (22  ("BH" "BG" "GE" "DE" "IE" "ME" "RS" "GB"))
+                             (23  ("GI" "IL" "AE"))
+                             (24  ("AD" "CZ" "MD" "PK" "RO" "SA" "SK" "ES" "SE" "TN" "VG"))
+                             (25  ("PT"))
+                             (26  ("IS" "TR"))
+                             (27  ("FR" "GR" "IT" "MR" "MC" "SM"))
+                             (28  ("AL" "AZ" "CY" "DO" "GT" "HU" "LB" "PL"))
+                             (29  ("BR" "PS"))
+                             (30  ("KW" "MU"))
+                             (31  ("MT"))))
+
+;; Remove spaces and set upper case.
+(define (sanitize-iban iban)
+   (upper-case (replace " " iban ""))
+)
+
+;; Check that only A-Z and 0-9 are used.
+(define (valid-chars? iban)
+	(setq rx (string "[A-Z0-9]{" (length iban) "}" ))
+	(regex rx iban 1)
+)
+
+;; Check that the length is correct for the country.
+(define (valid-length? iban)
+	(setq countries-found (lookup (int (length iban)) *iban-code-length*))
+	(if (not (nil? countries-found))
+		(member (0 2 iban) countries-found)
+	)
+)
+
+;; Convert the IBAN to integer following the rules from Wikipedia.
+(define (iban-to-integer iban)
+    (setq country-code (0 2 iban))
+    (setq checksum (2 2 iban))
+    (setq iban (string (4 iban) country-code))
+    (setq iban (join (map (lambda (x) (if (regex "[0-9]" x) x (string (- (char x) 55)))) (explode iban))))
+    (bigint (string iban checksum))
+)
+
+;; Test if IBAN is correct (true) or not (nil):
+;; (valid-iban? "GB82 WEST 1234 5698 7654 32") ==> true
+;; (valid-iban? "GB82 TEST 1234 5698 7654 32") ==> nil
+(define (valid-iban? iban)
+    (setq iban (sanitize-iban iban))
+    (and
+        (valid-chars? iban)
+        (valid-length? iban)
+        (= 1L (% (iban-to-integer iban) 97))
+    )
+)
+
+(valid-iban? "GB82 WEST 1234 5698 7654 32")
+;-> true
+
+(valid-iban? "GB82 TEST 1234 5698 7654 32")
+;-> nil
+
+
+-----------------------
+ESTENDERE IL LINGUAGGIO
+-----------------------
+
+Introdurre un nuovo meccanismo di controllo del flusso. Un esempio pratico e utile è un ramo a quattro vie (four-way branch): alle volte, è necessario scrivere codice che dipende da due condizioni, risultando in un massimo di quattro rami (a seconda che entrambe, solo la prima, solo la seconda o nessuna delle condizioni siano "vere"). In un linguaggio simile al C questo potrebbe essere il seguente:
+
+  if (condition1isTrue) {
+     if (condition2isTrue)
+        bothConditionsAreTrue();
+     else
+        firstConditionIsTrue();
+  }
+  else if (condition2isTrue)
+     secondConditionIsTrue();
+  else
+     noConditionIsTrue();
+
+Oltre ad essere piuttosto ingombrante, le espressioni per 'condition2isTrue' devono essere scritte due volte. Se 'condition2isTrue' fosse un'espressione lunga e complessa, sarebbe abbastanza illeggibile e il codice generato dal compilatore potrebbe essere inutilmente grande.
+
+Questo può essere migliorato introducendo una nuova parola chiave if2. È simile a if, ma accetta due istruzioni condizionali invece di una e fino a tre istruzioni "else". Una proposta (in sintassi pseudo-C) potrebbe essere:
+
+  if2 (condition1isTrue) (condition2isTrue)
+     bothConditionsAreTrue();
+  else1
+     firstConditionIsTrue();
+  else2
+     secondConditionIsTrue();
+  else
+     noConditionIsTrue();
+
+Scegli la sintassi che si adatta al tuo linguaggio. Le parole chiave "else1" e "else2" sono solo esempi. La nuova espressione condizionale dovrebbe apparire, annidarsi e comportarsi in modo analogo all'istruzione "if" incorporata nel linguaggio.
+
+(context 'if2)
+
+(define-macro (if2:if2 cond1 cond2 both-true first-true second-true neither)
+  (cond
+    ((eval cond1)
+      (if (eval cond2)
+            (eval both-true)
+            (eval first-true)))
+    ((eval cond2)
+      (eval second-true))
+    (true
+      (eval neither))))
+
+(context MAIN)
+
+(if2 true true 'bothTrue 'firstTrue 'secondTrue 'else)
+;-> bothTrue
+(if2 true false 'bothTrue 'firstTrue 'secondTrue 'else)
+;-> firstTrue
+(if2 false true 'bothTrue 'firstTrue 'secondTrue 'else)
+;-> secondTrue
+(if2 false false 'bothTrue 'firstTrue 'secondTrue 'else)
+;-> else
+
+
+------------------------
+COMPOSIZIONE DI FUNZIONI
+------------------------
+
+Creare una funzione "compose" i cui due argomenti f e g sono entrambi funzioni con un argomento.
+Il risultato di compose deve essere una funzione di un argomento, (chiamiamo l'argomento x), che applica la funzione f al risultato dell'applicazione della funzione g a x: compose(f, g) (x) = f(g(x)).
+
+(define (compose f g) (expand (lambda (x) (f (g x))) 'f 'g))
+
+((compose sin asin) 0.5)
+;-> 0.5
+((compose sqrt pow) 3)
+;-> 3
+
+
+--------------------
+CALCOLO DI UNA SERIE
+--------------------
+
+Calcolare l'ennesimo termine di una serie, cioè la somma degli n primi termini della sequenza corrispondente.
+Questo valore, o il suo limite quando n tende all'infinito, è anche chiamato la somma della serie.
+
+Definiamo una funzione che accetta tre parametri:
+1) la funzione da calcolare
+2) il valore iniziale dell'indice
+3) il valore finale dell'indice
+
+(define (sum-series func from to)
+  (let (s 0)
+    (for (i from to)
+      (inc s (func i))
+    )
+    s))
+
+Adesso per calcolare la serie di una funzione occorre prima definire la funzione matematica e poi usare "sum-series". Ad esempio:
+
+Sum[x 1 n] (1/x^2) = π²/6
+(define (f x) (div 1 (* x x)))
+(sum-series f 1 1000)
+;-> 1.643934566681562
+
+Sum[x 0 n] (1/2^x) = 2
+(define (g x) (div (pow 2 x)))
+(sum-series g 0 1000)
+;-> 2
+
+Serie con segni alternati
+Sum[x 1 n] (-1)^(n-1)/n = ln(2)
+(define (h x) (div (pow -1 (- x 1)) x))
+(sum-series h 1 1000)
+;-> 0.6931471805599453
+(log 2)
+;-> 0.6931471805599453
+
+Sum[x 0 n] 1/x! = e
+(define (fact n) 
+  (if (zero? n)
+      1
+      (apply * (map bigint (sequence 1 n)))))
+(define (o x) (div (fact x)))
+(sum-series o 0 100)
+;-> 2.718281828459046
+
+
+-------------
+NUMERI GAPFUL
+-------------
+
+I numeri (interi positivi espressi in base dieci) che sono (esattamente) divisibili per il numero formato dalla prima e dall'ultima cifra sono noti come numeri gapful. Esattamente divisibile significa divisibile senza resto.
+Tutti i numeri a una e due cifre hanno questa proprietà e sono banalmente esclusi. Solo i numeri ≥ 100 saranno considerati.
+Esempio
+187 è un numero gapful perché è esattamente divisibile per il numero 17 che è formato dalla prima e dall'ultima cifra decimale di 187.
+Circa il 7,46% degli interi positivi è gapful.
+
+;; Create an integer out of the first and last digits of a given integer
+(define (first-and-last-digits number)
+ (local (digits first-digit last-digit)
+  (set 'digits (format "%d" number))
+  (set 'first-digit (first digits))
+  (set 'last-digit (last digits))
+  (int (append first-digit last-digit))))
+
+;; Divisibility test
+(define (divisible-by? num1 num2)
+ (zero? (% num1 num2)))
+
+;; Gapfulness test
+(define (gapful? number)
+ (divisible-by? number (first-and-last-digits number)))
+
+;; Increment until a gapful number is found
+(define (next-gapful-after number)
+ (do-until (gapful? number)
+  (++ number)))
+
+;; Return a list of gapful numbers beyond some (excluded) lower limit.
+(define (gapful-numbers quantity lower-limit)
+ (let ((gapfuls '()) (number lower-limit))
+  (dotimes (counter quantity)
+   (set 'number (next-gapful-after number))
+   (push number gapfuls))
+  (reverse gapfuls)))
+
+;; Format a list of numbers together into decimal notation.
+(define (format-many numbers)
+ (map (curry format "%d") numbers))
+
+;; Format a list of integers on one line with commas
+(define (format-one-line numbers)
+ (join (format-many numbers) ", "))
+
+;; Display a quantity of gapful numbers beyond some (excluded) lower limit.
+(define (show-gapfuls quantity lower-limit)
+ (println "The first " quantity " gapful numbers beyond " lower-limit " are:")
+ (println (format-one-line (gapful-numbers quantity lower-limit))))
+
+; Example: calculate gapful numbers
+(show-gapfuls 30 99)
+;-> The first 30 gapful numbers beyond 99 are:
+;-> 100, 105, 108, 110, 120, 121, 130, 132, 135, 140, 143, 150, 154, 160, 165,
+;-> 170, 176, 180, 187, 190, 192, 195, 198, 200, 220, 225, 231, 240, 242, 253
+(show-gapfuls 15 999999)
+;-> The first 15 gapful numbers beyond 999999 are:
+;-> 1000000, 1000005, 1000008, 1000010, 1000016, 1000020, 1000021, 1000030,
+;-> 1000032, 1000034, 1000035, 1000040, 1000050, 1000060, 1000065
+(show-gapfuls 10 999999999)
+;-> The first 10 gapful numbers beyond 999999999 are:
+;-> 1000000000, 1000000001, 1000000005, 1000000008, 1000000010,
+;-> 1000000016, 1000000020, 1000000027, 1000000030, 1000000032
 
 
 ================
@@ -61189,9 +61712,9 @@ Quando viene specificato int-error, viene restituito una lista contenente numero
 
 (abc)
 
-ERR: invalid function : (abc)
+ERR: invalid function: (abc)
 
-(last-error) → (24 "ERR: invalid function : (abc)")
+(last-error) → (24 "ERR: invalid function: (abc)")
 
 (last-error 24) → (24 "invalid function")
 (last-error 1) → (1 "not enough memory")
@@ -61306,7 +61829,7 @@ Vediamo cosa accade quando si verifica un errore durante l'esecuzione di una fun
 ;-> Verificato errore # 29
 10
 
-Per finire vediamo la definizione della funzione "reset".
+Adesso vediamo la definizione della funzione "reset".
 
 ******************
 >>>funzione RESET
@@ -61314,10 +61837,26 @@ Per finire vediamo la definizione della funzione "reset".
 sintassi: (reset)
 
 "reset" torna al livello di valutazione superiore, disattiva la modalità di trace e passa al contesto/spazio dei nomi MAIN. "reset" ripristina l'ambiente delle variabili di primo livello utilizzando le variabili dell'ambiente salvate nello stack. Inoltre genera un errore "user-reset no error" che può essere segnalato con gestori di errori definiti dall'utente. Dalla versione 10.5.5 "reset" interrompe anche l'elaborazione dei parametri della riga di comando.
-
 reset percorre l'intero spazio delle celle, operazione che potrebbe richiedere alcuni secondi in un sistema molto carico.
-
 "reset" avviene automaticamente dopo una condizione di errore.
+
+Per finire vediamo come gestire gli errori con la funzione "catch":
+
+(define (check-division x y)
+    (catch (/ x y) 'check-zero)
+    (if (not (integer? check-zero))
+        (setq check-zero "Division by zero."))
+     check-zero
+)
+
+(println (check-division 10 4))
+;-> 2
+(println (check-division 4 0))
+;-> Division by zero
+(println (check-division 20 5))
+;-> 4
+(println (check-division 11 0))
+;-> Division by zero
 
 
 -------------------
@@ -61379,6 +61918,47 @@ Cioè, se perdiamo il 10%, poi dobbiamo gudagnare l'11.1% per ritornare allo ste
 Cioè, se guadagniamo il 10%, poi dobbiamo perdere il 9.09% per ritornare allo stesso valore (1000).
 
 Attenzione alle percentuali!
+
+
+----------------------------------------------
+Teorema di Euclide (infinità dei numeri primi)
+----------------------------------------------
+
+Teorema: Esistono infiniti numeri primi.
+In altre parole, per quanto grande si scelga un numero naturale n, esiste sempre un numero primo maggiore di n.
+
+Dimostrazione per assurdo
+Si supponga che i numeri primi non siano infiniti, ma solo P=(p1,p2,... ,pn). pn sarebbe allora il più grande dei numeri primi.
+Poniamo M = p1*p2*...*pn (prodotto degli n numeri primi).
+Consideriamo il valore (M + 1) = (p1*p2*...*pn) + 1: è un numero primo o è un numero composto?
+
+Per completare il ragionamento abbiamo bisogno del Teorema Fondamentale dell’Aritmetica:
+un numero o è primo o è ottenuto univocamente dal prodotto di numeri primi (composto).
+
+Inoltre possiamo notare che per ogni numero primo pi risulta che la divisione (M + 1)/pi ha sempre resto 1.
+
+Adesso abbiamo due possibilità:
+1) il numero (M + 1) è primo
+Abbiamo però che (M + 1) > pn, ma ciò contraddice la nostra ipotesi che pn sia il massimo dei numeri primi. Ne consegue che, se (M + 1) è primo, allora pn non è il massimo dei numeri primi.
+
+2) il numero (M + 1) è composto
+Se (M + 1) è un numero composto, deve essere per forza divisibile per un divisore. Ma abbiamo visto che, per costruzione, (M + 1) non può essere diviso né da p1, né da p2, né da pn, perché la divisione di un numero così costruito per questi fattori da sempre resto 1.
+Se (M + 1) è composto, allora deve esistere un altro numero primo pm che deve essere forzatamente maggiore di pm perché diverso da tutti gli altri primi (questo è dovuto al teorema fondamentale dell'aritmetica).
+Ma se pm > pn allora vuol dire che pn non è il massimo dei numeri primi.
+
+In entrambi i casi abbiamo una contraddizione e si può affermare che:
+supponendo che i numeri primi siano finiti si ottiene sempre una contraddizione e di conseguenza i numeri primi devono essere necessariamente infiniti.
+
+
+----------------------
+Il programma più corto
+----------------------
+
+In newLISP il programma più corto che può essere eseguito nella REPL è il seguente:
+
+;
+
+Il carattere che rappresenta l'inizio di un commento.
 
 
 ===========

@@ -4295,9 +4295,9 @@ Quando viene specificato int-error, viene restituito una lista contenente numero
 
 (abc)
 
-ERR: invalid function : (abc)
+ERR: invalid function: (abc)
 
-(last-error) → (24 "ERR: invalid function : (abc)")
+(last-error) → (24 "ERR: invalid function: (abc)")
 
 (last-error 24) → (24 "invalid function")
 (last-error 1) → (1 "not enough memory")
@@ -4412,7 +4412,7 @@ Vediamo cosa accade quando si verifica un errore durante l'esecuzione di una fun
 ;-> Verificato errore # 29
 10
 
-Per finire vediamo la definizione della funzione "reset".
+Adesso vediamo la definizione della funzione "reset".
 
 ******************
 >>>funzione RESET
@@ -4420,10 +4420,26 @@ Per finire vediamo la definizione della funzione "reset".
 sintassi: (reset)
 
 "reset" torna al livello di valutazione superiore, disattiva la modalità di trace e passa al contesto/spazio dei nomi MAIN. "reset" ripristina l'ambiente delle variabili di primo livello utilizzando le variabili dell'ambiente salvate nello stack. Inoltre genera un errore "user-reset no error" che può essere segnalato con gestori di errori definiti dall'utente. Dalla versione 10.5.5 "reset" interrompe anche l'elaborazione dei parametri della riga di comando.
-
 reset percorre l'intero spazio delle celle, operazione che potrebbe richiedere alcuni secondi in un sistema molto carico.
-
 "reset" avviene automaticamente dopo una condizione di errore.
+
+Per finire vediamo come gestire gli errori con la funzione "catch":
+
+(define (check-division x y)
+    (catch (/ x y) 'check-zero)
+    (if (not (integer? check-zero))
+        (setq check-zero "Division by zero."))
+     check-zero
+)
+
+(println (check-division 10 4))
+;-> 2
+(println (check-division 4 0))
+;-> Division by zero
+(println (check-division 20 5))
+;-> 4
+(println (check-division 11 0))
+;-> Division by zero
 
 
 -------------------
@@ -4485,5 +4501,46 @@ Cioè, se perdiamo il 10%, poi dobbiamo gudagnare l'11.1% per ritornare allo ste
 Cioè, se guadagniamo il 10%, poi dobbiamo perdere il 9.09% per ritornare allo stesso valore (1000).
 
 Attenzione alle percentuali!
+
+
+----------------------------------------------
+Teorema di Euclide (infinità dei numeri primi)
+----------------------------------------------
+
+Teorema: Esistono infiniti numeri primi.
+In altre parole, per quanto grande si scelga un numero naturale n, esiste sempre un numero primo maggiore di n.
+
+Dimostrazione per assurdo
+Si supponga che i numeri primi non siano infiniti, ma solo P=(p1,p2,... ,pn). pn sarebbe allora il più grande dei numeri primi.
+Poniamo M = p1*p2*...*pn (prodotto degli n numeri primi).
+Consideriamo il valore (M + 1) = (p1*p2*...*pn) + 1: è un numero primo o è un numero composto?
+
+Per completare il ragionamento abbiamo bisogno del Teorema Fondamentale dell’Aritmetica:
+un numero o è primo o è ottenuto univocamente dal prodotto di numeri primi (composto).
+
+Inoltre possiamo notare che per ogni numero primo pi risulta che la divisione (M + 1)/pi ha sempre resto 1.
+
+Adesso abbiamo due possibilità:
+1) il numero (M + 1) è primo
+Abbiamo però che (M + 1) > pn, ma ciò contraddice la nostra ipotesi che pn sia il massimo dei numeri primi. Ne consegue che, se (M + 1) è primo, allora pn non è il massimo dei numeri primi.
+
+2) il numero (M + 1) è composto
+Se (M + 1) è un numero composto, deve essere per forza divisibile per un divisore. Ma abbiamo visto che, per costruzione, (M + 1) non può essere diviso né da p1, né da p2, né da pn, perché la divisione di un numero così costruito per questi fattori da sempre resto 1.
+Se (M + 1) è composto, allora deve esistere un altro numero primo pm che deve essere forzatamente maggiore di pm perché diverso da tutti gli altri primi (questo è dovuto al teorema fondamentale dell'aritmetica).
+Ma se pm > pn allora vuol dire che pn non è il massimo dei numeri primi.
+
+In entrambi i casi abbiamo una contraddizione e si può affermare che:
+supponendo che i numeri primi siano finiti si ottiene sempre una contraddizione e di conseguenza i numeri primi devono essere necessariamente infiniti.
+
+
+----------------------
+Il programma più corto
+----------------------
+
+In newLISP il programma più corto che può essere eseguito nella REPL è il seguente:
+
+;
+
+Il carattere che rappresenta l'inizio di un commento.
 
 

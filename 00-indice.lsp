@@ -160,6 +160,11 @@ FUNZIONI VARIE
   Rango di una matrice
   Operazioni tra coppie di elementi di una lista
   Polinomio interpolatore di Lagrange
+  Moltiplicativo modulare inverso
+  Radice n-esima di un numero
+  Prodotto scalare (dot product)
+  Angolo tra due direzioni (bearing)
+  URL encoder/decoder
 
 newLISP 99 PROBLEMI (28)
 ========================
@@ -251,6 +256,12 @@ ROSETTA CODE
   Chess960
   Percorso del cavallo
   Teorema cinese dei resti
+  Numeri attraenti
+  IBAN
+  Estendere il linguaggio
+  Composizione di funzioni
+  Calcolo di una serie
+  Numeri gapful
 
 PROJECT EULERO
 ==============
@@ -554,6 +565,8 @@ NOTE LIBERE 2
   Treni e mosche
   Gestione degli errori
   Effetto percentuali
+  Teorema di Euclide (infinità dei numeri primi)
+  Il programma più corto
 
 APPENDICI
 =========

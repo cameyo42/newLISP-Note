@@ -7488,6 +7488,23 @@ Metodo 7:
 (rot13-7 "YN FPRAN VA PHV VY CREFBANTTVB CEVAPVCNYR ZHBER ABA ZV CVNPR")
 ;-> "LA SCENA IN CUI IL PERSONAGGIO PRINCIPALE MUORE NON MI PIACE"
 
+Metodo 8:
+
+(define (rot13-8 str)
+  (join
+   (map
+    (fn(c)
+      (cond
+       ((<= "A" (upper-case c) "M") (char (+ (char c) 13)))
+       ((<= "N" (upper-case c) "Z") (char (- (char c) 13)))
+       (true c)))
+    (explode str))))
+
+(rot13-8 "LA SCENA IN CUI IL PERSONAGGIO PRINCIPALE MUORE NON MI PIACE")
+;-> "YN FPRAN VA PHV VY CREFBANTTVB CEVAPVCNYR ZHBER ABA ZV CVNPR"
+(rot13-8 "YN FPRAN VA PHV VY CREFBANTTVB CEVAPVCNYR ZHBER ABA ZV CVNPR")
+;-> "LA SCENA IN CUI IL PERSONAGGIO PRINCIPALE MUORE NON MI PIACE"
+
 Vediamo la velocità delle varie funzioni:
 
 (setq testo "LA SCENA IN CUI IL PERSONAGGIO PRINCIPALE MUORE NON MI PIACE")
@@ -7506,6 +7523,8 @@ Vediamo la velocità delle varie funzioni:
 ;-> 827.441
 (time (rot13-7 (rot13-7 testo)) 10000)
 ;-> 470.769
+(time (rot13-8 (rot13-8 testo)) 10000)
+;-> 854.569
 
 
 ------
@@ -8397,5 +8416,280 @@ La maggior parte delle implementazioni di RSA utilizza il teorema cinese del res
 Il teorema cinese del resto può essere utilizzato anche nella condivisione segreta, che consiste nel distribuire un insieme di dati tra un gruppo di persone che, tutti insieme (ma nessuno da solo), possono recuperare un certo valore dall'insieme dei dati. Ciascuna delle parti è rappresentata da una congruenza e la soluzione del sistema di congruenze utilizzando il teorema cinese dei resti è il numero segreto da recuperare. La condivisione segreta che utilizza il teorema cinese del resto utilizza anche speciali sequenze di interi che garantiscono l'impossibilità di recuperare il numero da un insieme di dati con meno di una certa cardinalità.
 
 Il teorema cinese dei resti è stato utilizzato per costruire una numerazione di Gödel per le sequenze, che è coinvolta nella dimostrazione dei teoremi di incompletezza di Gödel.
+
+
+----------------
+NUMERI ATTRAENTI
+----------------
+
+Un numero viene detto attraente se il numero dei suoi fattori primi (distinti o meno) è primo. Per esempio, il numero 20, la cui scomposizione prima è 2 × 2 × 5, è un numero attraente perché anche il numero dei suoi fattori primi (3) è primo.
+
+(define (prime? n) (= (length (factor n)) 1))
+(define (attractive? n) (prime? (length (factor n))))
+(filter attractive? (sequence 2 120))
+
+Output:
+;-> (4 6 8 9 10 12 14 15 18 20 21 22 25 26 27 28 30 32 33 34 35 38
+;->  39 42 44 45 46 48 49 50 51 52 55 57 58 62 63 65 66 68 69 70 72
+;->  74 75 76 77 78 80 82 85 86 87 91 92 93 94 95 98 99 102 105 106
+;->  108 110 111 112 114 115 116 117 118 119 120)
+
+
+----
+IBAN
+----
+
+Scrivere una funzione che controlla se un codice dato rappresenta un numero IBAN (International Bank Account Number).
+
+(setq *iban-code-length* '((15  ("NO"))
+                             (16  ("BE"))
+                             (18  ("DK" "FO" "FI" "GL" "NL"))
+                             (19  ("MK" "SI"))
+                             (20  ("AT" "BA" "EE" "KZ" "LT" "LU"))
+                             (21  ("CR" "HR" "LV" "LI" "CH"))
+                             (22  ("BH" "BG" "GE" "DE" "IE" "ME" "RS" "GB"))
+                             (23  ("GI" "IL" "AE"))
+                             (24  ("AD" "CZ" "MD" "PK" "RO" "SA" "SK" "ES" "SE" "TN" "VG"))
+                             (25  ("PT"))
+                             (26  ("IS" "TR"))
+                             (27  ("FR" "GR" "IT" "MR" "MC" "SM"))
+                             (28  ("AL" "AZ" "CY" "DO" "GT" "HU" "LB" "PL"))
+                             (29  ("BR" "PS"))
+                             (30  ("KW" "MU"))
+                             (31  ("MT"))))
+
+;; Remove spaces and set upper case.
+(define (sanitize-iban iban)
+   (upper-case (replace " " iban ""))
+)
+
+;; Check that only A-Z and 0-9 are used.
+(define (valid-chars? iban)
+	(setq rx (string "[A-Z0-9]{" (length iban) "}" ))
+	(regex rx iban 1)
+)
+
+;; Check that the length is correct for the country.
+(define (valid-length? iban)
+	(setq countries-found (lookup (int (length iban)) *iban-code-length*))
+	(if (not (nil? countries-found))
+		(member (0 2 iban) countries-found)
+	)
+)
+
+;; Convert the IBAN to integer following the rules from Wikipedia.
+(define (iban-to-integer iban)
+    (setq country-code (0 2 iban))
+    (setq checksum (2 2 iban))
+    (setq iban (string (4 iban) country-code))
+    (setq iban (join (map (lambda (x) (if (regex "[0-9]" x) x (string (- (char x) 55)))) (explode iban))))
+    (bigint (string iban checksum))
+)
+
+;; Test if IBAN is correct (true) or not (nil):
+;; (valid-iban? "GB82 WEST 1234 5698 7654 32") ==> true
+;; (valid-iban? "GB82 TEST 1234 5698 7654 32") ==> nil
+(define (valid-iban? iban)
+    (setq iban (sanitize-iban iban))
+    (and
+        (valid-chars? iban)
+        (valid-length? iban)
+        (= 1L (% (iban-to-integer iban) 97))
+    )
+)
+
+(valid-iban? "GB82 WEST 1234 5698 7654 32")
+;-> true
+
+(valid-iban? "GB82 TEST 1234 5698 7654 32")
+;-> nil
+
+
+-----------------------
+ESTENDERE IL LINGUAGGIO
+-----------------------
+
+Introdurre un nuovo meccanismo di controllo del flusso. Un esempio pratico e utile è un ramo a quattro vie (four-way branch): alle volte, è necessario scrivere codice che dipende da due condizioni, risultando in un massimo di quattro rami (a seconda che entrambe, solo la prima, solo la seconda o nessuna delle condizioni siano "vere"). In un linguaggio simile al C questo potrebbe essere il seguente:
+
+  if (condition1isTrue) {
+     if (condition2isTrue)
+        bothConditionsAreTrue();
+     else
+        firstConditionIsTrue();
+  }
+  else if (condition2isTrue)
+     secondConditionIsTrue();
+  else
+     noConditionIsTrue();
+
+Oltre ad essere piuttosto ingombrante, le espressioni per 'condition2isTrue' devono essere scritte due volte. Se 'condition2isTrue' fosse un'espressione lunga e complessa, sarebbe abbastanza illeggibile e il codice generato dal compilatore potrebbe essere inutilmente grande.
+
+Questo può essere migliorato introducendo una nuova parola chiave if2. È simile a if, ma accetta due istruzioni condizionali invece di una e fino a tre istruzioni "else". Una proposta (in sintassi pseudo-C) potrebbe essere:
+
+  if2 (condition1isTrue) (condition2isTrue)
+     bothConditionsAreTrue();
+  else1
+     firstConditionIsTrue();
+  else2
+     secondConditionIsTrue();
+  else
+     noConditionIsTrue();
+
+Scegli la sintassi che si adatta al tuo linguaggio. Le parole chiave "else1" e "else2" sono solo esempi. La nuova espressione condizionale dovrebbe apparire, annidarsi e comportarsi in modo analogo all'istruzione "if" incorporata nel linguaggio.
+
+(context 'if2)
+
+(define-macro (if2:if2 cond1 cond2 both-true first-true second-true neither)
+  (cond
+    ((eval cond1)
+      (if (eval cond2)
+            (eval both-true)
+            (eval first-true)))
+    ((eval cond2)
+      (eval second-true))
+    (true
+      (eval neither))))
+
+(context MAIN)
+
+(if2 true true 'bothTrue 'firstTrue 'secondTrue 'else)
+;-> bothTrue
+(if2 true false 'bothTrue 'firstTrue 'secondTrue 'else)
+;-> firstTrue
+(if2 false true 'bothTrue 'firstTrue 'secondTrue 'else)
+;-> secondTrue
+(if2 false false 'bothTrue 'firstTrue 'secondTrue 'else)
+;-> else
+
+
+------------------------
+COMPOSIZIONE DI FUNZIONI
+------------------------
+
+Creare una funzione "compose" i cui due argomenti f e g sono entrambi funzioni con un argomento.
+Il risultato di compose deve essere una funzione di un argomento, (chiamiamo l'argomento x), che applica la funzione f al risultato dell'applicazione della funzione g a x: compose(f, g) (x) = f(g(x)).
+
+(define (compose f g) (expand (lambda (x) (f (g x))) 'f 'g))
+
+((compose sin asin) 0.5)
+;-> 0.5
+((compose sqrt pow) 3)
+;-> 3
+
+
+--------------------
+CALCOLO DI UNA SERIE
+--------------------
+
+Calcolare l'ennesimo termine di una serie, cioè la somma degli n primi termini della sequenza corrispondente.
+Questo valore, o il suo limite quando n tende all'infinito, è anche chiamato la somma della serie.
+
+Definiamo una funzione che accetta tre parametri:
+1) la funzione da calcolare
+2) il valore iniziale dell'indice
+3) il valore finale dell'indice
+
+(define (sum-series func from to)
+  (let (s 0)
+    (for (i from to)
+      (inc s (func i))
+    )
+    s))
+
+Adesso per calcolare la serie di una funzione occorre prima definire la funzione matematica e poi usare "sum-series". Ad esempio:
+
+Sum[x 1 n] (1/x^2) = π²/6
+(define (f x) (div 1 (* x x)))
+(sum-series f 1 1000)
+;-> 1.643934566681562
+
+Sum[x 0 n] (1/2^x) = 2
+(define (g x) (div (pow 2 x)))
+(sum-series g 0 1000)
+;-> 2
+
+Serie con segni alternati
+Sum[x 1 n] (-1)^(n-1)/n = ln(2)
+(define (h x) (div (pow -1 (- x 1)) x))
+(sum-series h 1 1000)
+;-> 0.6931471805599453
+(log 2)
+;-> 0.6931471805599453
+
+Sum[x 0 n] 1/x! = e
+(define (fact n) 
+  (if (zero? n)
+      1
+      (apply * (map bigint (sequence 1 n)))))
+(define (o x) (div (fact x)))
+(sum-series o 0 100)
+;-> 2.718281828459046
+
+
+-------------
+NUMERI GAPFUL
+-------------
+
+I numeri (interi positivi espressi in base dieci) che sono (esattamente) divisibili per il numero formato dalla prima e dall'ultima cifra sono noti come numeri gapful. Esattamente divisibile significa divisibile senza resto.
+Tutti i numeri a una e due cifre hanno questa proprietà e sono banalmente esclusi. Solo i numeri ≥ 100 saranno considerati.
+Esempio
+187 è un numero gapful perché è esattamente divisibile per il numero 17 che è formato dalla prima e dall'ultima cifra decimale di 187.
+Circa il 7,46% degli interi positivi è gapful.
+
+;; Create an integer out of the first and last digits of a given integer
+(define (first-and-last-digits number)
+ (local (digits first-digit last-digit)
+  (set 'digits (format "%d" number))
+  (set 'first-digit (first digits))
+  (set 'last-digit (last digits))
+  (int (append first-digit last-digit))))
+
+;; Divisibility test
+(define (divisible-by? num1 num2)
+ (zero? (% num1 num2)))
+
+;; Gapfulness test
+(define (gapful? number)
+ (divisible-by? number (first-and-last-digits number)))
+
+;; Increment until a gapful number is found
+(define (next-gapful-after number)
+ (do-until (gapful? number)
+  (++ number)))
+
+;; Return a list of gapful numbers beyond some (excluded) lower limit.
+(define (gapful-numbers quantity lower-limit)
+ (let ((gapfuls '()) (number lower-limit))
+  (dotimes (counter quantity)
+   (set 'number (next-gapful-after number))
+   (push number gapfuls))
+  (reverse gapfuls)))
+
+;; Format a list of numbers together into decimal notation.
+(define (format-many numbers)
+ (map (curry format "%d") numbers))
+
+;; Format a list of integers on one line with commas
+(define (format-one-line numbers)
+ (join (format-many numbers) ", "))
+
+;; Display a quantity of gapful numbers beyond some (excluded) lower limit.
+(define (show-gapfuls quantity lower-limit)
+ (println "The first " quantity " gapful numbers beyond " lower-limit " are:")
+ (println (format-one-line (gapful-numbers quantity lower-limit))))
+
+; Example: calculate gapful numbers
+(show-gapfuls 30 99)
+;-> The first 30 gapful numbers beyond 99 are:
+;-> 100, 105, 108, 110, 120, 121, 130, 132, 135, 140, 143, 150, 154, 160, 165,
+;-> 170, 176, 180, 187, 190, 192, 195, 198, 200, 220, 225, 231, 240, 242, 253
+(show-gapfuls 15 999999)
+;-> The first 15 gapful numbers beyond 999999 are:
+;-> 1000000, 1000005, 1000008, 1000010, 1000016, 1000020, 1000021, 1000030,
+;-> 1000032, 1000034, 1000035, 1000040, 1000050, 1000060, 1000065
+(show-gapfuls 10 999999999)
+;-> The first 10 gapful numbers beyond 999999999 are:
+;-> 1000000000, 1000000001, 1000000005, 1000000008, 1000000010,
+;-> 1000000016, 1000000020, 1000000027, 1000000030, 1000000032
 
 
