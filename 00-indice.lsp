@@ -262,6 +262,7 @@ ROSETTA CODE
   Composizione di funzioni
   Calcolo di una serie
   Numeri gapful
+  Valutazione di una espressione RPN
 
 PROJECT EULERO
 ==============
@@ -567,6 +568,9 @@ NOTE LIBERE 2
   Effetto percentuali
   Teorema di Euclide (infinità dei numeri primi)
   Il programma più corto
+  Frequenza cifre pi greco
+  Conversione a big-integer
+  Congettura 8424432925592889329288197322308900672459420460792433L
 
 APPENDICI
 =========

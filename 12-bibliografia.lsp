@@ -57,8 +57,7 @@
 
   "Structure and Interpretation of Computer Programs",  Abelson-Sussman, 2ed, 1996
 
-  "Special Forms in Lisp" Kent Pitman, Conference Record of the 1980 Lisp Conference,
-  Stanford University, August 25-27, 1980
+  "Special Forms in Lisp" Kent Pitman, Conference Record of the 1980 Lisp Conference, Stanford University, August 25-27, 1980
   http://www.nhplace.com/kent/Papers/Special-Forms.html
 
   Computer e Matematica:
@@ -88,4 +87,9 @@
   Fermat's Library: a platform for illuminating academic papers. Publish an annotated paper every week.
   https://twitter.com/fermatslibrary?lang=en
 
-
+  Search the history of over 468 billion web pages on the Internet.
+  Internet Archive is a non-profit library of millions of free books, movies, software, music, websites, and more.
+  https://archive.org/
+  
+  
+  

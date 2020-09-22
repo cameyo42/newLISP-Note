@@ -8693,3 +8693,158 @@ Circa il 7,46% degli interi positivi è gapful.
 ;-> 1000000016, 1000000020, 1000000027, 1000000030, 1000000032
 
 
+----------------------------------
+VALUTAZIONE DI UNA ESPRESSIONE RPN
+----------------------------------
+
+Valutare il valore di un'espressione aritmetica nella notazione polacca inversa (Reverse Polish Notation). Gli operatori validi sono:
+
+"+" "-" "*" "/" "%" 
+"add" "sub" "mul" "div" "mod" "pow"
+"abs" "sqrt" "exp"
+"sin" "cos" "tan"
+"asin" "acos" "atan" "atan2"
+
+Ogni operando può essere un numero intero o un'altra espressione. Per esempio:
+
+Questo problema può essere risolto utilizzando una pila (stack). Valutiamo ogni elemento dell'espressione (lista):
+quando è un numero, lo mettiamo nella pila (push).
+quando è un operatore, prendiamo (pop) i numeri che servono dalla pila, eseguiamo il calcolo e mettiamo (push) il risultato nella pila (per decidere quanti sono "i numeri che servono dalla pila" basta vedere quanti numeri servono all'operatore corrente).
+
+Per capire come funziona, scriviamo una versione che accetta solo le quattro operazioni "+" "-" "*" "/":
+
+(define (eval-rpn lst)
+  (local (stack a b)
+    (setq stack '())
+    (dolist (el lst)
+      (if (number? el) ; se è un numero...
+          (push el stack) ; lo metto nella pila
+          (begin ; altrimenti è un operatore
+            ; prendo due numeri dalla pila
+            (setq a (pop stack))
+            (setq b (pop stack))
+            ; applico l'operatore e
+            ; inserisco il risultato nella pila
+            (cond ((= el '+) (push (+ a b) stack))
+                  ((= el '-) (push (- b a) stack))
+                  ((= el '*) (push (* a b) stack))
+                  ((= el '/) (push (/ b a) stack))
+                  (true (println "error"))
+            )
+          )
+      )
+    )
+    ;restituisco il valore in cima alla pila
+    (pop stack)
+  )
+)
+
+Adesso scriviamo la funzione che accetta tutti gli operatori:
+
+(define (eval-rpn lst)
+  (local (stack a b op op1 op2)
+    (setq stack '())
+    ; lista operatori con un argomento
+    (setq op1 '(abs sqrt exp sin cos tan asin acos atan))
+    ; lista operatori con due argomenti
+    (setq op2 '(+ - * / % add sub mul div mod pow atan2))
+    ; Per ogni simbolo della lista...
+    (dolist (el lst)
+      (cond ((number? el)     ; se è un numero...
+             (push el stack)) ; lo metto nella pila
+            (true ; altrimenti è un operatore
+             (cond ((find el op1) ; se è un operatore unario...
+                    (setq a (pop stack))    ; prendo numero dalla pila
+                    (setq op (eval el))     ; calcolo operazione
+                    (push (op a) stack))    ; inserisco risultato nella pila
+                   ((find el op2) ; se è un operatore binario...
+                    (setq a (pop stack))    ; prendo primo numero dalla pila
+                    (setq b (pop stack))    ; prendo secondo numero dalla pila
+                    (setq op (eval el))     ; calcolo operazione e
+                    (push (op b a) stack))  ; inserisco risultato nella pila
+                   (true (println "operator error:" el))
+             ))
+      )
+    )
+    ;restituisco il valore in cima alla pila
+    (pop stack)
+  )
+)
+
+(eval-rpn '(3 2 + 7 * 4 / ))
+;-> 8
+(eval-rpn '(3 2 + 7 * 4 / 2.5 add))
+;-> 10.5
+(eval-rpn '(4 13 5 / +))
+;-> 6
+(eval-rpn '(3 2 pow))
+;-> 9
+(eval-rpn '(3 4 - abs))
+;-> 1
+(eval-rpn '(10 4 %))
+;-> 2
+(eval-rpn '(3 4 2 * 1 5 - 2 3 pow pow / +))
+;-> 3
+
+Proviamo a scrivere un'altra funzione che accetta anche le variabili globali. Per fare questo valutiamo gli elementi dell'espressione rpn e sostituiamo i valori, per esempio:
+
+(setq q 3 t 5)
+(setq expr '(q t 2 * 1 5 - 2 3 pow pow / +))
+(map eval expr)
+;-> (3 5 2 *@414964 1 5 -@414951 2 3 pow@40D998 pow@40D998 /@414977 +@41493E)
+
+Questo non va bene perchè valutiamo anche gli operatori (i numeri vengono valutati su se stessi), allora usiamo una funzione specifica:
+
+(map (fn (x) (if (not (protected? x)) (eval x) x)) expr)
+;-> (3 5 2 * 1 5 - 2 3 pow pow / +)
+
+Come si vede le variabili "q" e "t" sono state sostituite dai loro valori. Se abbiamo una variabile non inizializzata questa non viene valutata:
+
+(setq expr '(x q t 2 * 1 5 - 2 3 pow pow / +))
+(map (fn (x) (if (not (protected? x)) (eval x) x)) expr)
+;-> (x 3 5 2 * 1 5 - 2 3 pow pow / +)
+
+e genererà un errore nella funzione "eval-rpn".
+
+Adesso possiamo scrivere la funzione che utilizza le variabili globali:
+
+(define (eval-rpn lst)
+  (local (_stack _a _b _op _op1 _op2)
+    (setq _stack '())
+    ; lista operatori con un argomento
+    (setq _op1 '(abs sqrt exp sin cos tan asin acos atan))
+    ; lista operatori con due argomenti
+    (setq _op2 '(+ - * / % add sub mul div mod pow atan2))
+    ; Valuto gli elementi della lista (espressione rpn) e
+    ; assegno il valore alle variabili
+    (setq lst (map (fn (x) (if (not (protected? x)) (eval x) x)) lst))
+    ; Per ogni simbolo della lista...
+    (dolist (el lst)
+      (cond ((number? el)      ; se è un numero...
+             (push el _stack)) ; lo metto nella pila
+            (true ; altrimenti è un operatore
+             (cond ((find el _op1) ;operatore unario
+                    (setq _a (pop _stack))    ; prendo numeri dalla pila
+                    (setq _op (eval el))     ; calcolo operazione
+                    (push (_op _a) _stack))    ; inserisco risultato nella pila
+                   ((find el _op2) ;operatore binario
+                    (setq _a (pop _stack))    ; prendo numeri dalla pila
+                    (setq _b (pop _stack))    ; prendo numeri dalla pila
+                    (setq _op (eval el))     ; calcolo operazione
+                    (push (_op _b _a) _stack))  ; inserisco risultato nella pila
+                   (true (println "operator error:" el))
+             ))
+      )
+    )
+    ;restituisco il valore in cima alla pila
+    (pop _stack)
+  )
+)
+
+(eval-rpn '(3 4 2 * 1 5 - 2 3 pow pow / +))
+;-> 3
+(setq a 10 b 20)
+(setq c (eval-rpn '(a b +)))
+;-> 30
+
+

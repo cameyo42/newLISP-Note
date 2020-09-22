@@ -262,6 +262,7 @@ ROSETTA CODE
   Composizione di funzioni
   Calcolo di una serie
   Numeri gapful
+  Valutazione di una espressione RPN
 
 PROJECT EULERO
 ==============
@@ -567,6 +568,9 @@ NOTE LIBERE 2
   Effetto percentuali
   Teorema di Euclide (infinità dei numeri primi)
   Il programma più corto
+  Frequenza cifre pi greco
+  Conversione a big-integer
+  Congettura 8424432925592889329288197322308900672459420460792433L
 
 APPENDICI
 =========
@@ -25791,6 +25795,161 @@ Circa il 7,46% degli interi positivi è gapful.
 ;-> The first 10 gapful numbers beyond 999999999 are:
 ;-> 1000000000, 1000000001, 1000000005, 1000000008, 1000000010,
 ;-> 1000000016, 1000000020, 1000000027, 1000000030, 1000000032
+
+
+----------------------------------
+VALUTAZIONE DI UNA ESPRESSIONE RPN
+----------------------------------
+
+Valutare il valore di un'espressione aritmetica nella notazione polacca inversa (Reverse Polish Notation). Gli operatori validi sono:
+
+"+" "-" "*" "/" "%" 
+"add" "sub" "mul" "div" "mod" "pow"
+"abs" "sqrt" "exp"
+"sin" "cos" "tan"
+"asin" "acos" "atan" "atan2"
+
+Ogni operando può essere un numero intero o un'altra espressione. Per esempio:
+
+Questo problema può essere risolto utilizzando una pila (stack). Valutiamo ogni elemento dell'espressione (lista):
+quando è un numero, lo mettiamo nella pila (push).
+quando è un operatore, prendiamo (pop) i numeri che servono dalla pila, eseguiamo il calcolo e mettiamo (push) il risultato nella pila (per decidere quanti sono "i numeri che servono dalla pila" basta vedere quanti numeri servono all'operatore corrente).
+
+Per capire come funziona, scriviamo una versione che accetta solo le quattro operazioni "+" "-" "*" "/":
+
+(define (eval-rpn lst)
+  (local (stack a b)
+    (setq stack '())
+    (dolist (el lst)
+      (if (number? el) ; se è un numero...
+          (push el stack) ; lo metto nella pila
+          (begin ; altrimenti è un operatore
+            ; prendo due numeri dalla pila
+            (setq a (pop stack))
+            (setq b (pop stack))
+            ; applico l'operatore e
+            ; inserisco il risultato nella pila
+            (cond ((= el '+) (push (+ a b) stack))
+                  ((= el '-) (push (- b a) stack))
+                  ((= el '*) (push (* a b) stack))
+                  ((= el '/) (push (/ b a) stack))
+                  (true (println "error"))
+            )
+          )
+      )
+    )
+    ;restituisco il valore in cima alla pila
+    (pop stack)
+  )
+)
+
+Adesso scriviamo la funzione che accetta tutti gli operatori:
+
+(define (eval-rpn lst)
+  (local (stack a b op op1 op2)
+    (setq stack '())
+    ; lista operatori con un argomento
+    (setq op1 '(abs sqrt exp sin cos tan asin acos atan))
+    ; lista operatori con due argomenti
+    (setq op2 '(+ - * / % add sub mul div mod pow atan2))
+    ; Per ogni simbolo della lista...
+    (dolist (el lst)
+      (cond ((number? el)     ; se è un numero...
+             (push el stack)) ; lo metto nella pila
+            (true ; altrimenti è un operatore
+             (cond ((find el op1) ; se è un operatore unario...
+                    (setq a (pop stack))    ; prendo numero dalla pila
+                    (setq op (eval el))     ; calcolo operazione
+                    (push (op a) stack))    ; inserisco risultato nella pila
+                   ((find el op2) ; se è un operatore binario...
+                    (setq a (pop stack))    ; prendo primo numero dalla pila
+                    (setq b (pop stack))    ; prendo secondo numero dalla pila
+                    (setq op (eval el))     ; calcolo operazione e
+                    (push (op b a) stack))  ; inserisco risultato nella pila
+                   (true (println "operator error:" el))
+             ))
+      )
+    )
+    ;restituisco il valore in cima alla pila
+    (pop stack)
+  )
+)
+
+(eval-rpn '(3 2 + 7 * 4 / ))
+;-> 8
+(eval-rpn '(3 2 + 7 * 4 / 2.5 add))
+;-> 10.5
+(eval-rpn '(4 13 5 / +))
+;-> 6
+(eval-rpn '(3 2 pow))
+;-> 9
+(eval-rpn '(3 4 - abs))
+;-> 1
+(eval-rpn '(10 4 %))
+;-> 2
+(eval-rpn '(3 4 2 * 1 5 - 2 3 pow pow / +))
+;-> 3
+
+Proviamo a scrivere un'altra funzione che accetta anche le variabili globali. Per fare questo valutiamo gli elementi dell'espressione rpn e sostituiamo i valori, per esempio:
+
+(setq q 3 t 5)
+(setq expr '(q t 2 * 1 5 - 2 3 pow pow / +))
+(map eval expr)
+;-> (3 5 2 *@414964 1 5 -@414951 2 3 pow@40D998 pow@40D998 /@414977 +@41493E)
+
+Questo non va bene perchè valutiamo anche gli operatori (i numeri vengono valutati su se stessi), allora usiamo una funzione specifica:
+
+(map (fn (x) (if (not (protected? x)) (eval x) x)) expr)
+;-> (3 5 2 * 1 5 - 2 3 pow pow / +)
+
+Come si vede le variabili "q" e "t" sono state sostituite dai loro valori. Se abbiamo una variabile non inizializzata questa non viene valutata:
+
+(setq expr '(x q t 2 * 1 5 - 2 3 pow pow / +))
+(map (fn (x) (if (not (protected? x)) (eval x) x)) expr)
+;-> (x 3 5 2 * 1 5 - 2 3 pow pow / +)
+
+e genererà un errore nella funzione "eval-rpn".
+
+Adesso possiamo scrivere la funzione che utilizza le variabili globali:
+
+(define (eval-rpn lst)
+  (local (_stack _a _b _op _op1 _op2)
+    (setq _stack '())
+    ; lista operatori con un argomento
+    (setq _op1 '(abs sqrt exp sin cos tan asin acos atan))
+    ; lista operatori con due argomenti
+    (setq _op2 '(+ - * / % add sub mul div mod pow atan2))
+    ; Valuto gli elementi della lista (espressione rpn) e
+    ; assegno il valore alle variabili
+    (setq lst (map (fn (x) (if (not (protected? x)) (eval x) x)) lst))
+    ; Per ogni simbolo della lista...
+    (dolist (el lst)
+      (cond ((number? el)      ; se è un numero...
+             (push el _stack)) ; lo metto nella pila
+            (true ; altrimenti è un operatore
+             (cond ((find el _op1) ;operatore unario
+                    (setq _a (pop _stack))    ; prendo numeri dalla pila
+                    (setq _op (eval el))     ; calcolo operazione
+                    (push (_op _a) _stack))    ; inserisco risultato nella pila
+                   ((find el _op2) ;operatore binario
+                    (setq _a (pop _stack))    ; prendo numeri dalla pila
+                    (setq _b (pop _stack))    ; prendo numeri dalla pila
+                    (setq _op (eval el))     ; calcolo operazione
+                    (push (_op _b _a) _stack))  ; inserisco risultato nella pila
+                   (true (println "operator error:" el))
+             ))
+      )
+    )
+    ;restituisco il valore in cima alla pila
+    (pop _stack)
+  )
+)
+
+(eval-rpn '(3 4 2 * 1 5 - 2 3 pow pow / +))
+;-> 3
+(setq a 10 b 20)
+(setq c (eval-rpn '(a b +)))
+;-> 30
 
 
 ================
@@ -57438,6 +57597,7 @@ Creiamo una hashmap:
 Inserimento di un valore 1 (value) associato ad una chiave K (key) -> (myHash "key" value):
 (myHash "K" 1)
 ;-> 1
+
 Recuperiamo il valore tramite la chiave:
 (myHash "K")
 ;-> 1
@@ -61959,6 +62119,336 @@ In newLISP il programma più corto che può essere eseguito nella REPL è il seg
 ;
 
 Il carattere che rappresenta l'inizio di un commento.
+
+
+------------------------
+Frequenza cifre pi greco
+------------------------
+
+pi greco = (acos -1) = 3.141592653589793...
+
+Pi greco è un numero con cifre casuali. Per verificare questa affermazione prendiamo n cifre del numero pi greco e calcoliamo la loro frequenza. I file di testo con milioni di cifre per pi greco sono disponibili al seguente indirizzo:
+
+https://archive.org/details/Math_Constants
+
+Per spezzare un file possiamo usare la seguente funzione:
+
+(define (file-copy from-file to-file from-char to-char)
+    (setq i 1)
+    (set 'in-file (open from-file "read"))
+    (set 'out-file (open to-file "write"))
+    (while (and (set 'chr (read-char in-file)) (<= i to-char))
+        (if (>= i from-char) (write-char out-file chr))
+        (++ i))
+    (close in-file)
+    (close out-file)
+    "finished")
+
+Partendo da un file con 1 miliardo (1000 milioni) di cifre:
+
+file con 1 milione di cifre (senza 3.):
+(file-copy "pi_dec_1000m.txt" "pi_dec_1m.txt" 3 1000002)
+;-> "finished"
+file con 10 milioni di cifre (senza 3.):
+(file-copy "pi_dec_1000m.txt" "pi_dec_10m.txt" 3 10000002)
+;-> "finished"
+file con 100 milioni di cifre (senza 3.):
+(file-copy "pi_dec_1000m.txt" "pi_dec_100m.txt" 3 100000002)
+;-> "finished"
+
+Adesso scriviamo la funzione che calcola la frequenza delle cifre per un file:
+
+(define (freq-file file)
+  (local (data chr freq)
+    (setq freq (array 10 '(0)))
+    (setq data (open file "read"))
+    (while (setq num (eval-string (char (read-char data))))
+        (if (number? num) (++ (freq num)))
+    )
+    (close data)
+    freq
+  ))
+
+Vediamo cosa succede:
+
+(freq-file "pi_dec_1m.txt")
+;-> (99959 99758 100026 100229 100230 100359 99548 99800 99985 100106)
+(freq-file "pi_dec_10m.txt")
+;-> (999440 999333 1000306 999964 1001093 1000466 999337 1000207 999814 1000040)
+(freq-file "pi_dec_100m.txt")
+;-> (9999922 10002475 10001092 9998442 10003863 9993478 9999417 9999610 10002180 9999521)
+
+Sembra proprio che le cifre di pi greco siano casuali...
+
+Provate a trovare una data nelle cifre di pi greco con la seguente funzione:
+
+(define (pi-birthday num-date)
+  (setq file (open "pi_dec_100m.txt" "r"))
+  (setq idx (search file (string num-date)))
+  (close file)
+  idx)
+
+Cerchiamo la data 21 settembre 1980:
+(pi-birthday 19800921)
+;-> 9165287
+
+Cerchiamo il giorno dello sbarco sulla luna 21 luglio 1969:
+(pi-birthday 19690721)
+;-> 2035915
+
+
+-------------------------
+Conversione a big-integer
+-------------------------
+
+Per definire un numero big-integer occorre aggiungere il carattere "L" al numero:
+
+(+ 10L 20L)
+;-> 30L
+
+Per convertire un numero intero in big-integer possiamo usare la funzione integrata "bigint":
+
+(bigint 10)
+;-> 10L
+
+Oppure utilizzare la conversione implicita (il tipo del risultato dipende dal primo operando):
+
+(+ 0L 10)
+;-> 10L
+
+(+ 0 10L)
+;-> 10
+
+(++ 9L)
+;-> 10L
+
+Se passiamo un numero superiore a int64 viene convertito in big-integer (anche se non specifichiamo la lettera finale "L":
+
+(+ 12378461278940612789346127804678120463871246234612784612545 1)
+;-> 12378461278940612789346127804678120463871246234612784612546L
+
+(+ 12378461278940612789346127804678120463871246234612784612545L 1)
+;-> 12378461278940612789346127804678120463871246234612784612546L
+
+Ma non vale se il primo operando è un int64 (e il secondo è un big-integer):
+
+(+ 1 12378461278940612789346127804678120463871246234612784612545)
+;-> ERR: number out of range in function +
+
+(+ 1 12378461278940612789346127804678120463871246234612784612545L)
+;-> ERR: number out of range in function +
+
+La funzione "gcd" supporta con i big-integer:
+
+(gcd 12378461278940612789346127804678120463871246234612784612545L
+     66432828761348769123496764312340293782893478962349320991193L)
+;-> 3L
+
+(gcd 12378461278940612789346127804678120463871246234612784612545
+     66432828761348769123496764312340293782893478962349320991193)
+;-> 3L
+
+(gcd 134 321)
+;-> 1
+
+(gcd 134L 321L)
+;-> 1L
+
+Anche in questo caso se il primo operando è un int64 (e il secondo un big-integer) otteniamo un errore:
+
+(gcd 134 66432828761348769123496764312340293782893478962349320991193)
+;-> ERR: number out of range in function gcd
+
+
+----------------------------------------------------------------
+Congettura 8424432925592889329288197322308900672459420460792433L
+----------------------------------------------------------------
+
+Si congettura che i due numeri prodotti dalle equazioni n^17 + 9 e (n+1)^17 + 9 per un dato n siano sempre coprimi (cioè, il loro massimo comune divisore è 1).
+
+Funzione che calcola la potenza intera di due numeri interi (biginteger):
+
+(define (** x p)
+  (let (y 1L)
+    (dotimes (i p)
+      (setq y (* y x)))))
+
+Funzione che calcola i due numeri e il loro Massimo Comun Divisore (gcd):
+
+(define (f n)
+  (local (a b)
+    (setq a (+ (** n 17) 9))
+    (setq b (+ (** (+ n 1) 17) 9))
+    ;(println a { - } b)
+    (gcd a b)))
+
+(define (test n)
+  (for (i 1 n)
+    (if (!= (f i) 1) (println i))))
+
+(test 100)
+;-> nil
+
+(time (test 1000000))
+;-> 35222.204
+
+Proviamo ad usare un'altra versione della funzione che calcola la potenza di due numeri interi:
+
+(define (ipow x n)
+  (local (pot out)
+    (if (zero? n)
+        (setq out 1L)
+        (begin
+          (setq pot (ipow x (/ n 2)))
+          (if (odd? n) (setq out (* x pot pot))
+                       (setq out (* pot pot)))
+        )
+    )
+    out))
+
+(ipow (bigint 12) (bigint 101))
+;-> 9938156942641746031009010831488421976193473742246733225
+;-> 570422369239059031961454676453243399562296232626880512L
+
+(define (g n)
+  (local (a b)
+    ;(bigint n)
+    (setq a (+ (ipow (bigint n) 17L) 9L))
+    (setq b (+ (ipow (+ 1L n) 17L) 9L))
+    ;(setq a (+ (ipow n 17L) 9L))
+    ;(setq b (+ (ipow (+ 1L n) 17L) 9L))
+    ;(println a { - } b)
+    (gcd a b)))
+
+(g 25)
+;-> 1L
+
+(define (test1 n)
+  (for (i 1 n)
+    (if (!= (g i) 1) (println i))))
+
+(test1 100)
+;-> nil
+
+(time (test1 1000000))
+;-> 37550.083
+
+Fino a n=1000000 i due numeri sono coprimi, ma, indipendentemente da quanto ottimizziamo le funzioni, non possiamo mai arrivare a calcolare se la congettura sia corretta o meno. Infatti il primo controesempio si ha per:
+
+n = 8424432925592889329288197322308900672459420460792433
+
+(f 8424432925592889329288197322308900672459420460792433L)
+;-> 8936582237915716659950962253358945635793453256935559L
+(g 8424432925592889329288197322308900672459420460792433L)
+;-> 8936582237915716659950962253358945635793453256935559L
+
+a = 54223994342646179058380356618237600945332452744447783811633226444
+706840145560253543265726036832145128177789432208521052474357871396552
+883725682145297321498918218354478800485735694975861256807297728953769
+893103929230098025052894514403466394770904990028864878976324044044821
+592051416751962701035874218121600183036261502732591815729434037884804
+160927983508505810505709192305952680056837370387376148379793216718560
+488169006176612685719519514795214718954001125189050831787603289426211
+911180030081853896340397250694989280033195161440928768764775227010883
+495154027281535795894248762159201471694414123617755674247339993539066
+734119817112437829533591829524422255729623239462090029154069350527783
+184704923865907347725268780279846639423625020376803594419176767107084
+931496192777949752067359482586926753862402083283934355276863776930054
+10063448224075882352899690251043898231682422328806149679482L
+
+b = 54223994342646179058380356618237600945332452744447893232399225375
+209266712078431719483738073648487224059383831697999678327408100141336
+991025881588579477964498533991409989912763419887691604377050455544019
+054574804855529430469982522730989408672965187161333391643781413916588
+545511024186259721689804571708801881316258497013141186296413148273718
+400779029194737615474809188738518912788375420535118546429527937700302
+149462398156084100850976785997309801553853766736897061232608205624871
+298724159587383286059335663902625524582680124910168097058456424147988
+880721305500824538567368687499354308989937809076241065086298676278672
+263416684098360012514500425402719785361771648158147911462496374525910
+033905217420022640052099451351878592869628864404070519454212140328594
+703336995154486215002765901658624392447143569841733943999245865859272
+00563811508612111669423809712025508253890314787725191020553L
+
+Vediamo la velocità della funzione quando usiamo i big-integer:
+
+(define (testbig start end)
+  (for (i start end)
+    (if (!= (f i) 1) (println i))))
+
+(testbig 8424432925592889329288197322308900672459420460792430L 8424432925592889329288197322308900672459420460792433L)
+;-> ERR: number out of range in function for
+;-> called from user function (testbig ...
+
+La funzione "for" non supporta i big-integer come indice, allora usiamo la funzione "while":
+
+(define (testbig start end)
+  (while (< start end)
+    (if (!= (f start) 1) (println start))
+    (++ start)))
+
+(testbig 8424432925592889329288197322308900672459420460792430L 8424432925592889329288197322308900672459420460792433L)
+;-> 8424432925592889329288197322308900672459420460792433L
+
+Vediamo quanto tempo occorre per calcolare 100000 di valori con i numeri big-integer:
+
+(- 8424432925592889329288197322308900672459420460792433L 100000L)
+;-> 8424432925592889329288197322308900672459420460692433L
+
+(time (testbig 8424432925592889329288197322308900672459420460692433L 8424432925592889329288197322308900672459420460792433L))
+;-> 37737.671
+
+Quanto tempo ci vuole per arrivare a questo numero partendo da 1?
+
+(* 37737L (/ 8424432925592889329288197322308900672459420460792433L 100000L))
+;-> 3179128253130988646193487023519709846766011499254359L ;millisecondi
+
+Trasformiamo i millisecondi in anni:
+
+(define (ms2time ms)
+  (letn ((mins (/ ms 1000 60))
+        (secs (% (/ ms 1000) 60))
+       ;(println (format "%d millisec = %d minuti e %d secondi." ms mins secs))
+       ;(println mins secs))
+        (hours (/ mins 60))
+        (days (/ hours 24))
+        (years (/ days 365)))
+        years))
+
+(ms2time 3179128253130988646193487023519709846766011499254359L)
+;-> 100809495596492536979752886336875629336821L ;anni!!!
+
+Ci vogliono 1.008094955964925e+041 anni.
+
+L'età dell'universo è 13.8 miliardi di anni (1.38e+010)...
+
+In realtà non hanno calcolato il numero, ma hanno costruito il problema in modo che la soluzione fosse quella desiderata. Nella teoria dei numeri, ci sono vari teoremi che ti dicono come si relazioneranno due numeri e, se vengono usati in modo intelligente, è possibile creare problemi come questo.
+
+Un altro esempio è il seguente:
+
+(n^19 + 6) e (n+1)^16 + 9
+
+n = 1578270389554680057141787800241971645032008710129107338825798
+
+(define (f n)
+  (local (a b)
+    (setq a (+ (** n 19) 6))
+    (setq b (+ (** (+ n 1) 19) 6))
+    ;(println a { - } b)
+    (gcd a b)))
+
+(define (test n)
+  (for (i 1 n)
+    (if (!= (f i) 1) (println i))))
+
+(test 100)
+;-> nil
+
+(time (test 1000000))
+;-> 43908.677
+
+(f 1578270389554680057141787800241971645032008710129107338825798L)
+;-> 5299875888670549565548724808121659894902032916925752559262837L
 
 
 ===========
@@ -68252,8 +68742,7 @@ Mathematical symbols     Commercial symbols       Quotes and parenthesis
 
   "Structure and Interpretation of Computer Programs",  Abelson-Sussman, 2ed, 1996
 
-  "Special Forms in Lisp" Kent Pitman, Conference Record of the 1980 Lisp Conference,
-  Stanford University, August 25-27, 1980
+  "Special Forms in Lisp" Kent Pitman, Conference Record of the 1980 Lisp Conference, Stanford University, August 25-27, 1980
   http://www.nhplace.com/kent/Papers/Special-Forms.html
 
   Computer e Matematica:
@@ -68283,4 +68772,9 @@ Mathematical symbols     Commercial symbols       Quotes and parenthesis
   Fermat's Library: a platform for illuminating academic papers. Publish an annotated paper every week.
   https://twitter.com/fermatslibrary?lang=en
 
-
+  Search the history of over 468 billion web pages on the Internet.
+  Internet Archive is a non-profit library of millions of free books, movies, software, music, websites, and more.
+  https://archive.org/
+  
+  
+  
