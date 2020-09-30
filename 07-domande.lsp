@@ -5973,3 +5973,106 @@ La soluzione è analoga alla precedente, l'unica differenza sta nel fatto che in
 (10  9  8 7)
 
 
+------------------------------------------------------------------------
+Lunghezza della sottostringa più lunga senza caratteri ripetuti (Amazon)
+------------------------------------------------------------------------
+
+Data una stringa, trova la lunghezza della sottostringa più lunga senza caratteri ripeturi.
+Esempi:
+"ABDEFGABEF" -> le sottostringhe più lunghe sono "BDEFGA" e "DEFGAB", con lunghezza 6.
+"BBBB"       -> la sottostringa più lunga è "B", con lunghezza 1.
+
+L'approccio più semplice consiste nell'estrarre tutte le sottostringhe da una stringa e quindi calcolare la lunghezza delle sottostringhe con solo caratteri distinti. Ci saranno [(n * (n + 1)) / 2] sottostringhe in una stringa di n caratteri. Questo metodo ha una complessità temporale pessima, ovvero O(n^3).
+
+Possiamo risurre la complessità temporale in tempo lineare O(n) con la tecnica di "window sliding". Questo algoritmo utilizza una variabile per mantenere l'ultimo indice dei caratteri visitati. Si parte dal primo indice e ci spostiamo verso la fine della stringa: teniamo traccia della lunghezza massima della sottostringa con caratteri non ripetuti visitati finora. Quando la stringa viene attraversata, ogni nuovo carattere viene cercato nella parte già visitata della stringa (per questo viene utilizzato un vettore temporaneo). Se il carattere non è presente, la lunghezza corrente viene incrementata di 1. Se il carattere è già presente, possiamo avere due casi:
+
+Caso 1: l'occorrenza precedente di questo carattere non fa parte della sottostringa corrente più lunga. Se questo è vero, la lunghezza corrente viene semplicemente incrementata di 1.
+
+Caso 2: se l'occorrenza precedente di questo carattere fa parte della sottostringa corrente di caratteri non ripetuti, la sottostringa corrente più lunga cambia. Ora, inizia dal carattere che viene subito dopo la precedente occorrenza del carattere attualmente elaborato.
+
+(define (unique-substr str)
+  (local (n cur-len max-len prev-idx visited)
+    (setq n (length str))
+    ; length of current running substring
+    (setq cur-len 1)
+    ; Initialize the visited array as -1
+    ; -1 indicates that the character was not visited
+    (setq visited (array 256 '(-1)))
+    ; Mark first character as visited with 0
+    (setf (visited (char (str 0) 0 true)) 0)
+    ; Start from the second character
+    (for (i 1 (- n 1))
+      (setq prev-idx (visited (char (str i) 0 true)))
+      (if (or (= prev-idx -1) (> (- i cur-len) prev-idx))
+          ; case 1
+          (++ cur-len)
+          ; case 2
+          (begin
+          ; Check if the length of previous running substring 
+          ; was more than the current or not
+          (if (> cur-len max-len)
+              (setq max-len cur-len))
+          (setq cur-len (- i prev-idx))
+          )
+      )
+      ; Index update of current character
+      (setf (visited (char (str i) 0 true)) i)
+    )
+    ; Compare the length of last current running longest substring 
+    ; with max-len and update max-len if needed
+    (if (> cur-len max-len)
+        (setq max-len cur-len)
+    )
+    max-len))
+
+(unique-substr "ABDEFGABEF")
+;-> 6
+
+(unique-substr "BBBB")
+;-> 1
+
+(unique-substr "ABCADE")
+;-> 5
+
+(time (unique-substr "segfhkqslrkgfhljerhygfqjegrhfqjsrhgfqegrhjfjq") 10000)
+;-> 269.309
+
+La seguente funzione utilizza un algoritmo simile al precedente:
+
+(define (unique-substr str)
+  (local (last-index len res-num res-str max-char idx cur-idx)
+    (setq max-char 256)
+    ; Initialize the last index array as -1, 
+    ; -1 is used to store last index of every character
+    (setq last-index (array max-char '(-1)))
+    (setq len (length str))
+    (setq res-num 0)
+    (setq res-str "")
+    (setq idx 0)
+    (for (j 0 (- len 1))
+      ; Find the last index of str[j]
+      ; Update i - starting index of current window -
+      ; as maximum of current value of i and last
+      ; index plus 1
+      (setq cur-idx (char (str j) 0 true)) ; for UTF-8
+      (setq idx (max idx (+ (last-index cur-idx) 1)))
+      ; Update result if we get a larger window
+      (setq res-num (max res-num (- (+ j 1) idx)))
+      ; Update last index of j
+      (setf (last-index cur-idx) j)
+    )
+    res-num))
+
+(unique-substr "ABDEFGABEF")
+;-> 6
+
+(unique-substr "BBBB")
+;-> 1
+
+(unique-substr "ABCADE")
+;-> 5
+
+(time (unique-substr "segfhkqslrkgfhljerhygfqjegrhfqjsrhgfqegrhjfjq") 10000)
+;-> 259.333
+
+

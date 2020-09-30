@@ -4483,7 +4483,7 @@ x = x + f1*x - (x + x*f2 + x*f1 + x*f1*f2)
 x = x + f1*x - x - x*f2 - x*f1 - x*f1*f2
 x = - x*f2 - x*f1*f2
 x + x*f2 + x*f1*f2 = 0
-x + f2*(x +x*f1) = 0   ==>   f2 = -x/(x +x*f1)
+x + f2*(x + x*f1) = 0   ==>   f2 = -x/(x + x*f1)
 
 Con la formula di f2 possiamo scrivere la funzione:
 
@@ -4493,7 +4493,7 @@ Con la formula di f2 possiamo scrivere la funzione:
 ;-> 1.111111111111111
 (mul 900 (perc2 1000 -10))
 ;-> 1000
-Cioè, se perdiamo il 10%, poi dobbiamo gudagnare l'11.1% per ritornare allo stesso valore (1000).
+Cioè, se perdiamo il 10%, poi dobbiamo guadagnare l'11.1% per ritornare allo stesso valore (1000).
 
 (perc2 1000 10)
 ;-> 0.9090909090909091

@@ -8666,3 +8666,265 @@ p(k,n) = -----------------------
 I risultati della simulazione sono simili a quelli calcolati matematicamente, anche se sui valori nulli e/o piccolissimi abbiamo gli errori relativi maggiori.
 
 
+--------------
+Window sliding
+--------------
+
+Questa tecnica mostra come un ciclo for annidato possa essere convertito (in alcuni problemi) in un singolo ciclo for per ridurre la complessità temporale.
+Vediamo un problema illustrativo in cui possiamo applicare questa tecnica:
+
+Dato una lista di numeri interi di dimensione "n". Il nostro scopo è calcolare la somma massima di "k" elementi consecutivi nella lista.
+Input  : lst = (100 200 300 400)
+         k = 2
+Output : 700
+
+Input  : lst = (1 4 2 10 23 3 1 0 20)
+         k = 4
+Output : 39
+Si ottiene la somma massima con la sottolista (4 2 10 23) di lunghezza 4.
+
+Input  : lst = (2 3)
+         k = 3
+Output : nil
+Non esiste una sottolista di dimensione 3 poiché la dimensione dell'intera lista è 2.
+
+Analizziamo prima il problema con l'approccio della forza bruta. Iniziamo con il primo indice e sommiamo fino al k-esimo elemento. Lo facciamo per tutti i possibili blocchi consecutivi o gruppi di k elementi. Questo metodo richiede un ciclo for annidato, il ciclo for esterno inizia con l'elemento iniziale del blocco di k elementi e il ciclo interno o annidato si sommerà fino all'elemento k-esimo.
+
+(define (max-sub-sum lst k)
+  (local (max-sum curr-sum)
+    (setq max-sum -9223372036854775808)
+    (for (i 0 (- (length lst) k))
+      (setq curr-sum 0)
+      (for (j 0 (- k 1))
+        (setq curr-sum (add curr-sum (lst (+ i j))))
+        ; Aggiorno il risultato se richiesto
+        (setq max-sum (max curr-sum max-sum))
+      )
+    )
+    max-sum))
+
+(max-sub-sum '(3 2 5 6 1) 3)
+;-> 13
+
+(max-sub-sum '(1 10 4 7 11 3 1 15 5 6) 3)
+;-> 26
+
+(max-sub-sum '(1 10 4 7 11 3 1 15 5 6) 4)
+;-> 32
+
+(max-sub-sum '(20 10 4 7 11 3 1 15 5 6) 4)
+;-> 41
+
+Questo algoritmo ha complessità temporale O(k*n) perchè contiene due cicli for.
+
+Possiamo ridurre la complessità temporale utilizzando la tecnica "window sliding" (finestra scorrevole):
+
+si consideri una finestra di lunghezza n (che rappresenta l'intera lista) e un pannello di vetro che vi è fissato di lunghezza k. Inizialmente il pannello si trova all'estrema sinistra della finestra (ovvero inizia all'indice 0) e copre k indici/elementi. Ora correliamo i valori della finestra con quelli coperti dal pannello calcolando la somma dei k elementi coperti dal pannello (curr-sum). Ora applichiamo una forza sul pannello in modo che si sposti di una distanza unitaria in avanti: il pannello coprirà i prossimi k elementi consecutivi, quindi calcoliamo il valore di curr-sum per questi k elementi e andiamo avanti scorrendo in questo modo fine al raggiungimento della fine della finestra (lista).
+
+Applichiamo la tecnica "window sliding" al nostro problema:
+
+Calcoliamo la somma dei primi k elementi su n termini utilizzando un ciclo lineare e memorizziamo la somma nella variabile window-sum.
+Quindi attraversiamo linearmente la lista fino a raggiungere la fine e contemporaneamente teniamo traccia della somma massima.
+Per ottenere la somma corrente del blocco di k elementi basta sottrarre il primo elemento del blocco precedente e aggiungere l'ultimo elemento del blocco corrente.
+La seguente rappresentazione grafica rende chiaro come la finestra scorre atraverso la lista.
+
+lst = (3 2 5 6 1)
+k = 3
+
+| windowsum | = 3 + 2 + 5 = 10
+---------------------
+| 3 | 2 | 5 | 6 | 1 |
+---------------------
+
+    | curr-sum  | = windowsum - 3 + 6 = 10 - 3 + 6 = 13
+---------------------
+| 3 | 2 | 5 | 6 | 1 |
+---------------------
+
+        | curr-sum  | = windowsum - 2 + 1 = 13 - 2 + 1 = 12
+---------------------
+| 3 | 2 | 5 | 6 | 1 |
+---------------------
+
+(define (max-sub-sum lst k)
+  (local (max-sum window-sum)
+    (setq max-sum 0)
+    ; calcola la somma della prima finestra
+    (for (i 0 (- k 1))
+        (setq max-sum (add max-sum (lst i)))
+    )
+    ; Calcola le somme delle finestre rimanenti
+    ; rimuovendo il primo elemento della precedente finestra e
+    ; aggiungendo l'ultimo elemento della finestra corrente.
+    (setq window-sum max-sum)
+    (for (i k (- (length lst) 1))
+      (setq window-sum (sub (add window-sum (lst i)) (lst (- i k))))
+      (setq max-sum (max max-sum window-sum))
+    )
+    max-sum))
+
+(max-sub-sum '(3 2 5 6 1) 3)
+;-> 13
+
+(max-sub-sum '(3 2 5 -6 1) 3)
+;-> 10
+
+Come funziona?
+
+| windowsum | = 3 + 2 + 5 = 10
+---------------------
+| 3 | 2 | 5 | 6 | 1 |
+---------------------
+
+    | curr-sum  | = windowsum - 3 + 6 = 10 - 3 + 6 = 13
+---------------------
+| 3 | 2 | 5 | 6 | 1 |
+---------------------
+
+        | curr-sum  | = windowsum - 2 + 1 = 13 - 2 + 1 = 12
+---------------------
+| 3 | 2 | 5 | 6 | 1 |
+---------------------
+
+Se volessimo conoscere anche gli elementi della sotto-lista che sommano al valore massimo dobbiamo modificare la funzione:
+
+(define (max-sub-sum lst k)
+  (local (max-sum window-sum sub-val)
+    (setq max-sum 0)
+    ; calcola la somma della prima finestra
+    (for (i 0 (- k 1))
+        (setq max-sum (add max-sum (lst i)))
+    )
+    (setq sub-val (slice lst 0 k))
+    ; Calcola le somme delle finestre rimanenti
+    ; rimuovendo il primo elemento della precedente finestra e
+    ; aggiungendo l'ultimo elemento della finestra corrente.
+    (setq window-sum max-sum)
+    (for (i k (- (length lst) 1))
+      (setq window-sum (sub (add window-sum (lst i)) (lst (- i k))))
+      (if (> window-sum max-sum)
+        (begin
+        (setq max-sum window-sum)
+        ; valori sotto-lista con somma massima
+        (setq sub-val (slice lst (- (+ i 1) k) k)))
+      )
+    )
+    (list max-sum sub-val)))
+
+(max-sub-sum '(3 2 5 6 1) 3)
+;-> (13 (2 5 6))
+
+(max-sub-sum '(3 2 5 -6 1) 3)
+;-> (10 (3 2 5))
+
+(max-sub-sum '(1 10 4 7 11 3 1 15 5 6) 3)
+;-> (26 (15 5 6))
+
+(max-sub-sum '(1 10 4 7 11 3 1 15 5 6) 4)
+;-> (32 (10 4 7 11))
+
+(max-sub-sum '(20 10 4 7 11 3 1 15 5 6) 4)
+;-> (41 (20 10 4 7))
+
+Poichè abbiamo un solo ciclo "for" all'interno della funzione, la complessità temporale vale O(n).
+
+Window sliding con lunghezza variabile
+--------------------------------------
+Questa tecnica può essere implementata anche utilizzando un pannello scorrevole di lunghezza variabile.
+Vediamo un altro problema in cui possiamo applicare questa tecnica.
+
+Data una stringare, trova la lunghezza della sotto-stringa (finestra) più piccola che contiene tutti i caratteri distinti della stringa data. Per esempio per la stringa "aabcbcdbca", il risultato sarebbe 4 poiché la finestra più piccola vale "dbca".
+
+Approccio: Fondamentalmente un pannello di caratteri viene mantenuto utilizzando due puntatori, ovvero "Inizio" e "Fine". Questi puntatori di "Inizio" e "Fine" possono essere utilizzati rispettivamente per ridurre e aumentare la dimensione del pannello. Ogni volta che il pannello contiene tutti i caratteri di una determinata stringa, il pannello viene rimpicciolito dal lato sinistro per rimuovere i caratteri extra e quindi la sua lunghezza viene confrontata con il pannello più piccolo trovato finora.
+Se nel pannello attuale non è possibile cancellare più caratteri allora iniziamo ad aumentare la dimensione del pannello partendo dalla fine fino a quando tutti i caratteri distinti presenti nella stringa sono presenti anche nel pannello. Infine, troviamo la dimensione minima di ogni pannello.
+
+  I                       F
+-----------------------------------------
+| a | a | b | c | b | c | d | b | c | a |
+-----------------------------------------
+
+      I                   F
+-----------------------------------------
+| a | a | b | c | b | c | d | b | c | a |
+-----------------------------------------
+
+      I                       F
+-----------------------------------------
+| a | a | b | c | b | c | d | b | c | a |
+-----------------------------------------
+
+      I                           F
+-----------------------------------------
+| a | a | b | c | b | c | d | b | c | a |
+-----------------------------------------
+
+      I                           F
+-----------------------------------------
+| a | a | b | c | b | c | d | b | c | a |
+-----------------------------------------
+
+                          I           F
+-----------------------------------------
+| a | a | b | c | b | c | d | b | c | a |
+-----------------------------------------
+
+(define (find-min-sub str)
+  (local (dist-conta visited
+          start start-idx min-len
+          conta curr-conta len-win)
+    (setq visited (array 256 '(nil)))
+    ; conta tutti i caratteri distinti
+    (setq dist-conta 0)
+    (for (i 0 (- (length str) 1))
+      (if (null? (visited (char (str i) 0 true)))
+        (begin
+        (setf (visited (char (str i) 0 true)) true)
+        (++ dist-conta))
+      )
+    )
+    ; fondamentalmente manteniamo una finestra di caratteri
+    ; che contiene tutti i caratteri della stringa data
+    (setq start 0 start-idx -1 conta 0
+          min-len 9223372036854775807)
+    (setq curr-conta (array 256 '(0)))
+    (for (j 0 (- (length str) 1))
+      ; conta tutte le occorrenze dei caratteri della stringa
+      (setf (curr-conta (char (str j) 0 true)) (+ (curr-conta (char (str j) 0 true)) 1))
+      ; se troviamo un carattere distinto, 
+      ; allora incrementiamo il conto
+      (if (= (curr-conta (char (str j) 0 true)) 1)
+          (++ conta)
+      )
+      ; se tutti i caratteri corrispondono...
+      (if (= conta dist-conta)
+          (begin
+          ; proviamo a ridurre la finestra:
+          ; controlla se un qualsiasi carattere si verifica più volte
+          ; rispetto alla sua occorrenza nel pattern, 
+          ; se sì allora rimuoverlo dall'inizio 
+          ; e rimuovere anche i caratteri che non servono.          
+          (while (> (curr-conta (char (str start) 0 true)) 1)
+            (if (> (curr-conta (char (str start) 0 true)) 1)
+                (setf (curr-conta (char (str start) 0 true)) (- (curr-conta (char (str start) 0 true)) 1))
+            )
+            (++ start)
+          )
+          ; Update window size
+          (setq len-win (- (+ j 1) start))
+          (if (> min-len len-win)
+              (setq min-len len-win
+                    start-idx start)
+          ))
+      )
+    )
+    ; restituisce la sotto-stringa da start-idx
+    ; a lunga min-len
+    (slice str start-idx min-len)))
+
+(find-min-sub "aabcbcdbca")
+;-> "dbca"
+
+(find-min-sub "sdajkghasdghjkfadfsjh")
+;-> "asdghjkf"
+
+

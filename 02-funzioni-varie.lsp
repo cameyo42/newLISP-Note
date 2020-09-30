@@ -5257,11 +5257,12 @@ Algoritmo di Euclide esteso
 MCD -> Massimo Comun Divisore
 GCD -> Greatest Common divisor
 
-Mentre l'algoritmo euclideo calcola solo il massimo comune divisore (MCD) di due interi a e b, la versione estesa trova anche un modo per rappresentare MCD in termini di aeb, cioè coefficienti xey per i quali:
+Mentre l'algoritmo euclideo calcola solo il massimo comune divisore (MCD) di due interi a e b, la versione estesa trova anche un modo per rappresentare MCD in termini di a e b, cioè coefficienti x e y per i quali:
 
 a*x + b*y = mcd(a, b)
 
 Da notare che possiamo sempre trovare una tale rappresentazione, ad esempio mcd(55,80) = 5 quindi possiamo rappresentare 5 come una combinazione lineare con i termini 55 e 80: 
+
 55*3 + 80*(−2) = 5
 
 Versione generale:
@@ -6157,7 +6158,7 @@ Il risultato è espresso nell'intervallo compreso tra -180 e +180 gradi.
 (bearing- -95 90)
 ;-> 175
 
-Per la navigazione, potremmo voler sapere se b1 è a sinistra o a destra di b2. (Si presume che esattamente 0 non sia un caso d'uso)
+Per la navigazione, potremmo voler sapere se b1 è a sinistra o a destra di b2. (Si presume che esattamente 0 non sia un caso valido)
 
 (define (bearings-left-right b1 b2)
   (if (> (sub (mod (sub (add b1 540) b2) 360) 180) 0)
@@ -6223,5 +6224,70 @@ Esempi
 ;-> "http://foo bar/"
 (url-decode "google.com/search?q=%60Abdu%27l-Bah%C3%A1")
 ;-> "google.com/search?q=`Abdu'l-Bah├í"
+
+
+-----------------
+Funzione gamma-ln
+-----------------
+
+newLISP fornisce una funzione predefinita per la funzione Gamma.
+
+********************
+>>>funzione gammaln
+********************
+sintassi: (gammaln num-x)
+
+Calcola il logaritmo della funzione Gamma in num-x.
+
+(exp (gammaln 6))
+;-> 119.9999999999998
+
+L'esempio utilizza l'uguaglianza di n! = gamma (n + 1) per calcolare il valore fattoriale di 5.
+
+La funzione Log Gamma è anche correlata alla funzione Beta, da cui si può derivare:
+
+Beta(z,w) = Exp(Gammaln(z) + Gammaln(w) - Gammaln(z+w))
+
+L'implementazione che segue è stata presa dal libro "Numerical Recipes in C" e convertita in newLISP:
+
+(define (gamma-ln xx)
+  (local (x tmp y ser cof)
+    (setq cof '(57.1562356658629235 -59.5979603554754912
+	14.1360979747417471 -0.491913816097620199 .339946499848118887e-4
+	.465236289270485756e-4 -.983744753048795646e-4 .158088703224912494e-3
+	-.210264441724104883e-3 .217439618115212643e-3 -.164318106536763890e-3
+	.844182239838527433e-4 -.261908384015814087e-4 .368991826595316234e-5))
+    (setq x xx y xx)
+	  (setq tmp (add x 5.24218750000000000))
+	  (setq tmp (sub (mul (add x 0.5) (log tmp)) tmp))
+	  (setq ser 0.999999999999997092)
+    (for (j 0 13) (setq ser (add ser (div (cof j) (setq y (add y 1))))))
+    (add tmp (log (div (mul 2.5066282746310005 ser) x)))
+  ))
+
+(gamma-ln 10)
+;-> 12.80182748008147
+(gammaln 10)
+;-> 12.80182748008196
+
+(exp (gamma-ln 6))
+;-> 119.9999999999998
+
+Vediamo se le due funzioni danno risultati uguali:
+
+(for (i 1 1000000)
+  (if (> (abs (sub (gammaln i) (gamma-ln i))) 1e-8)
+   (println i)))
+;-> nil
+
+Nota: con l'aumentare del valore dell'argomento, aumenta la differenza tra le due funzioni.
+
+Come al solito la funzione predefinita è molto più veloce:
+
+(time (map gammaln (sequence 1 1000000)))
+;-> 80.842
+
+(time (map gamma-ln (sequence 1 1000000)))
+;-> 2410.738
 
 

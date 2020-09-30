@@ -165,6 +165,7 @@ FUNZIONI VARIE
   Prodotto scalare (dot product)
   Angolo tra due direzioni (bearing)
   URL encoder/decoder
+  Funzione gamma-ln
 
 newLISP 99 PROBLEMI (28)
 ========================
@@ -340,6 +341,7 @@ PROBLEMI VARI
   Monete e griglie
   Teorema di Pick
   Problema dei fiammiferi di Banach
+  Window sliding
 
 DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
 ==================================================
@@ -413,6 +415,7 @@ DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Numeri romani (LeetCode)
   Numero singolo (McAfee)
   Matrici a spirale (Google)
+  Lunghezza della sottostringa più lunga senza caratteri ripetuti (Amazon)
 
 LIBRERIE
 ========
@@ -14658,11 +14661,12 @@ Algoritmo di Euclide esteso
 MCD -> Massimo Comun Divisore
 GCD -> Greatest Common divisor
 
-Mentre l'algoritmo euclideo calcola solo il massimo comune divisore (MCD) di due interi a e b, la versione estesa trova anche un modo per rappresentare MCD in termini di aeb, cioè coefficienti xey per i quali:
+Mentre l'algoritmo euclideo calcola solo il massimo comune divisore (MCD) di due interi a e b, la versione estesa trova anche un modo per rappresentare MCD in termini di a e b, cioè coefficienti x e y per i quali:
 
 a*x + b*y = mcd(a, b)
 
 Da notare che possiamo sempre trovare una tale rappresentazione, ad esempio mcd(55,80) = 5 quindi possiamo rappresentare 5 come una combinazione lineare con i termini 55 e 80: 
+
 55*3 + 80*(−2) = 5
 
 Versione generale:
@@ -15558,7 +15562,7 @@ Il risultato è espresso nell'intervallo compreso tra -180 e +180 gradi.
 (bearing- -95 90)
 ;-> 175
 
-Per la navigazione, potremmo voler sapere se b1 è a sinistra o a destra di b2. (Si presume che esattamente 0 non sia un caso d'uso)
+Per la navigazione, potremmo voler sapere se b1 è a sinistra o a destra di b2. (Si presume che esattamente 0 non sia un caso valido)
 
 (define (bearings-left-right b1 b2)
   (if (> (sub (mod (sub (add b1 540) b2) 360) 180) 0)
@@ -15624,6 +15628,71 @@ Esempi
 ;-> "http://foo bar/"
 (url-decode "google.com/search?q=%60Abdu%27l-Bah%C3%A1")
 ;-> "google.com/search?q=`Abdu'l-Bah├í"
+
+
+-----------------
+Funzione gamma-ln
+-----------------
+
+newLISP fornisce una funzione predefinita per la funzione Gamma.
+
+********************
+>>>funzione gammaln
+********************
+sintassi: (gammaln num-x)
+
+Calcola il logaritmo della funzione Gamma in num-x.
+
+(exp (gammaln 6))
+;-> 119.9999999999998
+
+L'esempio utilizza l'uguaglianza di n! = gamma (n + 1) per calcolare il valore fattoriale di 5.
+
+La funzione Log Gamma è anche correlata alla funzione Beta, da cui si può derivare:
+
+Beta(z,w) = Exp(Gammaln(z) + Gammaln(w) - Gammaln(z+w))
+
+L'implementazione che segue è stata presa dal libro "Numerical Recipes in C" e convertita in newLISP:
+
+(define (gamma-ln xx)
+  (local (x tmp y ser cof)
+    (setq cof '(57.1562356658629235 -59.5979603554754912
+	14.1360979747417471 -0.491913816097620199 .339946499848118887e-4
+	.465236289270485756e-4 -.983744753048795646e-4 .158088703224912494e-3
+	-.210264441724104883e-3 .217439618115212643e-3 -.164318106536763890e-3
+	.844182239838527433e-4 -.261908384015814087e-4 .368991826595316234e-5))
+    (setq x xx y xx)
+	  (setq tmp (add x 5.24218750000000000))
+	  (setq tmp (sub (mul (add x 0.5) (log tmp)) tmp))
+	  (setq ser 0.999999999999997092)
+    (for (j 0 13) (setq ser (add ser (div (cof j) (setq y (add y 1))))))
+    (add tmp (log (div (mul 2.5066282746310005 ser) x)))
+  ))
+
+(gamma-ln 10)
+;-> 12.80182748008147
+(gammaln 10)
+;-> 12.80182748008196
+
+(exp (gamma-ln 6))
+;-> 119.9999999999998
+
+Vediamo se le due funzioni danno risultati uguali:
+
+(for (i 1 1000000)
+  (if (> (abs (sub (gammaln i) (gamma-ln i))) 1e-8)
+   (println i)))
+;-> nil
+
+Nota: con l'aumentare del valore dell'argomento, aumenta la differenza tra le due funzioni.
+
+Come al solito la funzione predefinita è molto più veloce:
+
+(time (map gammaln (sequence 1 1000000)))
+;-> 80.842
+
+(time (map gamma-ln (sequence 1 1000000)))
+;-> 2410.738
 
 
 ==========================
@@ -25957,69 +26026,71 @@ Adesso possiamo scrivere la funzione che utilizza le variabili globali:
  PROJECT EULERO
 
 ================
-                            Intel i5     Intel i7
-  Problema    Soluzione     Tempo (msec) Tempo (msec)
-|    1     |  233168       |         0  |         0  |
-|    2     |  4613732      |         0  |         0  |
-|    3     |  6857         |         0  |         0  |
-|    4     |  906609       |       297  |       203  |
-|    5     |  232792560    |         0  |         0  |
-|    6     |  25164150     |         0  |         0  |
-|    7     |  104743       |        78  |        31  |
-|    8     |  235146240    |       110  |        62  |
-|    9     |  31875000     |        62  |        31  |
-|    10    |  142913828    |      1563  |      1078  |
-|    11    |  70600674     |         0  |         0  |
-|    12    |  76576500     |      5445  |      4022  |
-|    13    |  5537376230   |         0  |         0  |
-|    14    |  837799       |     22487  |     15408  |
-|    15    |  137846528    |         0  |         0  |
-|    16    |  1366         |         0  |         0  |
-|    17    |  21124        |         0  |         0  |
-|    18    |  1074         |        32  |         7  |
-|    19    |  171          |         3  |         0  |
-|    20    |  648          |         0  |         0  |
-|    21    |  31626        |       122  |        78  |
-|    22    |  871198282    |        20  |        16  |
-|    23    |  4179871      |     40900  |     27534  |
-|    24    |  278391546    |     25309  |     12282  |
-|    25    |  4782         |      4926  |      3469  |
-|    26    |  983          |       488  |       266  |
-|    27    |  -59231       |      2000  |      1532  |
-|    28    |  669171001    |         0  |         0  |
-|    29    |  9183         |       141  |        94  |
-|    30    |  443839       |       516  |       344  |
-|    31    |  73682        |         1  |         0  |
-|    32    |  45228        |      1625  |      1079  |
-|    33    |  100          |         0  |         0  |
-|    34    |  40730        |      3797  |      2625  |
-|    35    |  55           |      1267  |       902  |
-|    36    |  872187       |      1443  |       945  |
-|    37    |  748317       |       778  |       651  |
-|    38    |  932718654    |        94  |        48  |
-|    39    |  840          |     13486  |      9561  |
-|    40    |  210          |       141  |       433  |
-|    41    |  7652413      |       125  |        64  |
-|    42    |  162          |        31  |         4  |
-|    43    |  16695334890  |      1749  |      1321  |
-|    44    |  5482660      |      5589  |      4182  |
-|    45    |  1533776805   |       115  |        63  |
-|    46    |  5777         |        31  |         5  |
-|    47    |  134043       |         0  |         0  |
-|    48    |  9110846700   |       266  |       186  |
-|    49    |  296962999629 |        19  |         5  |
-|    50    |  997651       |     27113  |     18871  |
-|    51    |  121313       |       269  |       180  |
-|    52    |  142857       |       313  |       204  |
-|    53    |  4075         |        25  |         5  |
-|    54    |  376          |       154  |        91  |
-|    55    |  249          |       116  |        69  |
-|    56    |  972          |       186  |       119  |
-|    57    |  153          |        10  |         1  |
-|    58    |  26241        |       630  |       432  |
-|    59    |  107359       |        15  |         1  |
-|    60    |  26033        |     55055  |     38926  |
-|    92    |  24702        |            |     27084  |
+
+                            Intel i5     Intel i7      Intel i7
+  Problema    Soluzione     Tempo (msec) Tempo (msec)  Tempo (msec)
+                            Algorithm 1  Algorithm 1   Algorithm 2
+|    1     |  233168       |         0  |         0  |          0  |
+|    2     |  4613732      |         0  |         0  |          0  |
+|    3     |  6857         |         0  |         0  |          0  |
+|    4     |  906609       |       297  |       203  |          0  |
+|    5     |  232792560    |         0  |         0  |          0  |
+|    6     |  25164150     |         0  |         0  |          0  |
+|    7     |  104743       |        78  |        31  |         16  |
+|    8     |  23514624000  |       110  |        62  |          0  |
+|    9     |  31875000     |        62  |        31  |          0  |
+|    10    |  142913828    |      1563  |      1078  |        546  |
+|    11    |  70600674     |         0  |         0  |          3  |
+|    12    |  76576500     |      5445  |      4022  |          0  |
+|    13    |  5537376230   |         0  |         0  |             |
+|    14    |  837799       |     22487  |     15408  |       7563  |
+|    15    |  137846528    |         0  |         0  |          0  |
+|    16    |  1366         |         0  |         0  |             |
+|    17    |  21124        |         0  |         0  |             |
+|    18    |  1074         |        32  |         7  |             |
+|    19    |  171          |         3  |         0  |             |
+|    20    |  648          |         0  |         0  |             |
+|    21    |  31626        |       122  |        78  |             |
+|    22    |  871198282    |        20  |        16  |             |
+|    23    |  4179871      |     40900  |     27534  |             |
+|    24    |  278391546    |     25309  |     12282  |             |
+|    25    |  4782         |      4926  |      3469  |             |
+|    26    |  983          |       488  |       266  |             |
+|    27    |  -59231       |      2000  |      1532  |             |
+|    28    |  669171001    |         0  |         0  |             |
+|    29    |  9183         |       141  |        94  |             |
+|    30    |  443839       |       516  |       344  |             |
+|    31    |  73682        |         1  |         0  |             |
+|    32    |  45228        |      1625  |      1079  |             |
+|    33    |  100          |         0  |         0  |             |
+|    34    |  40730        |      3797  |      2625  |             |
+|    35    |  55           |      1267  |       902  |             |
+|    36    |  872187       |      1443  |       945  |             |
+|    37    |  748317       |       778  |       651  |             |
+|    38    |  932718654    |        94  |        48  |             |
+|    39    |  840          |     13486  |      9561  |             |
+|    40    |  210          |       141  |       433  |             |
+|    41    |  7652413      |       125  |        64  |             |
+|    42    |  162          |        31  |         4  |             |
+|    43    |  16695334890  |      1749  |      1321  |             |
+|    44    |  5482660      |      5589  |      4182  |             |
+|    45    |  1533776805   |       115  |        63  |             |
+|    46    |  5777         |        31  |         5  |             |
+|    47    |  134043       |         0  |         0  |             |
+|    48    |  9110846700   |       266  |       186  |             |
+|    49    |  296962999629 |        19  |         5  |             |
+|    50    |  997651       |     27113  |     18871  |             |
+|    51    |  121313       |       269  |       180  |             |
+|    52    |  142857       |       313  |       204  |             |
+|    53    |  4075         |        25  |         5  |             |
+|    54    |  376          |       154  |        91  |             |
+|    55    |  249          |       116  |        69  |             |
+|    56    |  972          |       186  |       119  |             |
+|    57    |  153          |        10  |         1  |             |
+|    58    |  26241        |       630  |       432  |             |
+|    59    |  107359       |        15  |         1  |             |
+|    60    |  26033        |     55055  |     38926  |             |
+|    92    |  24702        |            |     27084  |             |
 
 Sito web: https://projecteuler.net/archives
 
@@ -26093,6 +26164,7 @@ E la funzione inversa a factor-group che genera il numero partendo dalla fattori
 (inv-factor-group (factor-group 232792560))
 ;-> 232792560
 
+Nota: Alcuni problemi sono risolti con due algoritmi diversi. In genere il secondo algoritmo ha un approccio più matematico.
 
 ==========
 Problema 1
@@ -26158,6 +26230,9 @@ Adesso possiamo scrivere la funzione:
 (time (e001))
 ;-> 0
 
+(time (e001) 10000)
+;-> 2453.466
+
 Soluzione alternativa:
 
 generiamo due sequenze (una con i multipli di 3 e l'altra con i multipli di 5)
@@ -26165,9 +26240,11 @@ generiamo due sequenze (una con i multipli di 3 e l'altra con i multipli di 5)
 ;-> (3 6 9 12 15 18)
 (setq b (sequence 5 20 5))
 ;-> (5 10 15 20)
+
 uniamo le sequenze (la funzione union mantiene solo valori unici)
 (setq c (union a b))
 ;-> (3 6 9 12 15 18 5 10 20)
+
 infine sommiamo tutti i numeri:
 (apply + c)
 ;-> 18
@@ -26178,8 +26255,65 @@ Ed ecco la funzione:
     (apply + (union (sequence 3 999 3) (sequence 5 999 5)))
 )
 
+(e001)
+;-> 233168
+
 (time (e001))
 ;-> 0
+
+(time (e001) 10000)
+;-> 796.682
+
+Dal punto di vista matematico possiamo notare che:
+
+Sum[1..n] (i) = (1/2)*n*(n + 1) (Formula di Gauss)
+
+Se vogliamo sapere quanti numeri sono divisibili per 3 possiamo scrivere:
+
+D(n 3) = 3 * Sum[1 (floor n/3)] (i) = 3*(1/2)*(floor n/3)*((floor n/3) + 1)
+
+Perchè contiamo fino a (floor n/3)? Applichiamo la formula:
+
+(3) * (1 + 2 + 3 + ... 999) ==> (3 6 9 12 ... 2997)
+
+Quanti sono i divisori di 3 fino a 999:
+
+(for (i 1 999) (if (zero? (% i 3)) (++ d))) d
+;-> 333
+
+Quindi:
+
+(floor (div 999 3))
+;-> 333
+
+E per un generico valore k (invece di 3):
+
+D(n k) = k*Sum[1 (floor n/k)] (i) = k*(1/2)*(floor n/k)*((floor n/k) + 1)
+
+Adesso sommiamo i divisori di 3 e i divisori di 5 e sottraiamo i divisori 15 (perchè (lcm 5 3 = 15)):
+
+sol = D(999 3) + D(999 5) - D(999 15)
+
+(define (e001-2 n)
+  (local (a b c)
+    (setq a (floor (div n 3)))
+    (setq b (floor (div n 5)))
+    (setq c (floor (div n 15)))
+    (div (- (+ (* 3 a (+ a 1)) (* 5 b (+ b 1))) (* 15 c (+ c 1))) 2)))
+
+(e001-2 999)
+;-> 233168
+
+(time (e001-2 999))
+;-> 0
+
+(time (e001-2 999) 10000)
+;-> 15.586
+
+Il tempo di questa funzione non dipende da n (diversamente dalle prime due funzioni).
+
+(time (e001-2 10000) 10000)
+;-> 15.587
 
 
 ==========
@@ -26193,7 +26327,7 @@ Partendo da 1 e 2, i primi 10 termini valgono:
 
 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, ...
 
-Considerando i termini della sequenza di Fibonacci i cui valori non superano quttro milioni, trovare la somma dei termini pari.
+Considerando i termini della sequenza di Fibonacci i cui valori non superano quattro milioni, trovare la somma dei termini pari.
 ============================================================================
 
 Questa è la funzione per il calcolo dei numeri di fibonacci:
@@ -26237,6 +26371,9 @@ Inoltre aggiorniamo il valore del risultato (res) quando il numero calcolato è 
 (time (e002))
 ;-> 0
 
+(time (e002) 100000)
+;-> 671.918
+
 Soluzione alternativa:
 
 (define (e002)
@@ -26253,6 +26390,54 @@ Soluzione alternativa:
 
 (time (e002))
 ;-> 0
+
+(time (e002) 100000)
+;-> 343.627
+
+Dal punto di vista matematico:
+
+Formula di Binet (relazione tra i numeri di fibonacci e il rapporto aureo):
+
+Fib(n) = (phi^n - psi^n)/sqrt(5)
+
+dove: phi = (1 + sqrt(5))/2 e psi = (1 - sqrt(5))/2
+
+Invertendo la formula troviamo l'indice n per il numero di fibonacci Fib(n) dato:
+
+n = floor (log[phi](F*sqrt(5) + (1/2)))
+
+Inoltre utilizziamo la seguente identità (la somma dei primi n numeri di fibonacci vale (F(n+2) - 1):
+
+Sum[0 n] F(i) = F(n+2) - 1
+
+Usiamo queste formule per scrivere la funzione:
+
+(define (setval)
+  (setq sr (sqrt 5))
+  (setq phi (div (add 1 sr) 2))
+  (setq psi (div (sub 1 sr) 2)))
+
+(define (f n) (div (sub (pow phi n) (pow psi n)) sr))
+(define (idx fib) (floor (div (log (add (mul fib sr) 0.5)) (log phi))))
+(define (sumfib n) (sub (f (+ n 2)) 1))
+
+(define (e002-2 n)
+    (setval)
+    (round (div (sumfib (idx n)) 2)))
+
+(e002-2 3999999)
+;-> 4613732
+
+(time (e002-2 3999999))
+;-> 0
+
+(time (e002-2 3999999) 100000)
+;-> 78.098
+
+Il tempo di questa funzione non dipende da n (diversamente dalle prime due funzioni).
+
+(time (e002-2 9999999) 100000)
+;-> 78.096
 
 
 ==========
@@ -26288,6 +26473,30 @@ Definiamo la funzione:
 (time (e003))
 ;-> 0
 
+(time (e003) 100000)
+;-> 496.8
+
+Se vogliamo implementare la fattorizzazione, possiamo scrivere:
+
+(define (e003-2 n)
+  (let (i 2)
+    (while (<= (* i i) n)
+      (while (= (% n i) 0)
+        (setq n (/ n i))
+      )
+      (++ i)
+    )
+    n))
+
+(e003-2 600851475143)
+;-> 6857
+
+(time (e003-2 600851475143))
+;-> 0
+
+(time (e003-2 600851475143) 100000)
+;-> 18174.285
+
 
 ==========
 Problema 4
@@ -26318,7 +26527,97 @@ Trova il più grande numero palindromo ottenuto dal prodotto di due numeri da tr
 ;-> 906609
 
 (time (e004))
-;-> 296.849
+;-> 204.069
+
+(time (e004) 100)
+;-> 19220.569
+
+Dal punto di vista matematico:
+
+La prima osservazione è che il numero deve essere compreso tra 100^2 e 999^2 o nell'intervallo (10000, 998001). 1]. Poiché la maggior parte dei numeri ha 6 cifre e stiamo cercando il più grande, ignoriamo i numeri a 5 cifre. Sulla base di questo, possiamo costruire un numero palindromo come:
+
+'abccba' = 100000a + 10000b + 1000c + 100c + 10b + a
+         = 100001a + 10010b + 1100c
+         11*(9091a + 910b + 100c)
+
+Pertanto, stiamo cercando i due numeri più grandi p, q:
+
+p*q = 11*(9091a + 910b + 100c) ≤ 999^2
+
+Questa equazione ci mostra che p o q, ma non entrambi, devono avere un fattore 11. Per massimizzare le due incognite, iniziamo la ricerca con p = 9 e per ogni p decrescente cerchiamo un massimo q per costruire un palindromo. Possiamo fare un'ottimizzazione basata sull'osservazione precedente: se p non è divisibile per 11, q lo deve essere, e come tale possiamo iniziare la ricerca con 990 come maggior multiplo di 11 e cercare solo multipli di 11. Un'altra ottimizzazione è, che non abbiamo bisogno di lasciare che q vadaal di sotto di p poiché possiamo scambiare i numeri. Vediamo un'implementazione:
+
+(define (palindromo? num)
+  (let (str (string num))
+    (= str (reverse (copy str)))))
+
+(define (e004-2)
+  (local (r s t q p found)
+    (setq r 0)
+    (setq p 999)
+    (while (>= p 100)
+      (if (zero? (% p 11))
+          (setq q 999 s 1)
+          (setq q 990 s 11)
+      )
+      (setq found nil)
+      (while (and (> q 99) (not found))
+        (setq t (* p q))
+        (if (and (< r t) (palindromo? t))
+            (setq r t found true)
+            ;(begin (println p { } q { } t) (setq r t found true))
+        )
+        (setq q (- q s))
+      )
+      (-- p)
+    )
+    r))
+
+(e004-2)
+;-> 906609
+
+993 * 913 = 906609
+
+(time (e004-2))
+31.237
+
+(time (e004-2) 100)
+;-> 2187.681
+
+Questa funzione è circe 10 volte più veloce della prima funzione.
+
+Possiamo migliorare la funzione invertendo di nuovo p e q. In questo modo possiamo usare un ciclo con p da 990 attraverso i multipli di 11 e usare q per trovare un palindromo.
+
+(define (e004-2)
+  (local (r t q p found)
+    (setq r 0)
+    (for (p 990 100 -11)
+      (setq found nil)
+      (for (q 999 100 -1 found)
+        (setq t (* p q))
+        (if (and (< r t) (palindromo? t))
+            (setq r t found true)
+            (if (< t r) (setq found true))
+        )
+      )
+    )
+    r))
+
+(e004-2)
+;-> 906609
+
+(time (e004-2))
+;-> 0
+
+(time (e004-2) 100)
+;-> 109.373
+
+Quest'ultima funzione è 20 volte più veloce della precedente (seconda) funzione.
+(div 2187.681 109.373)
+;-> 20.002
+
+Quest'ultima funzione è 175 volte più veloce della prima funzione.
+(div 19220.569 109.373)
+;-> 175.734
 
 
 ==========
@@ -26495,7 +26794,8 @@ Scriviamo la funzione finale:
 (time (e005))
 ;-> 0
 
-Dopo tutti questi ragionamenti per trovare la soluzione notiamo che il problema richiedeva semplicemente di trovare il minimo comune multiplo dei primi venti numeri interi...
+Dal punto di vista matematico, dopo tutti questi ragionamenti per trovare la soluzione notiamo che il problema richiedeva semplicemente di trovare il minimo comune multiplo dei primi venti numeri interi...
+
 Quindi utilizzando la seguente funzione che calcola il Minimo Comune Multiplo di una serie di numeri:
 
 (define-macro (mcm)
@@ -26505,6 +26805,14 @@ Potevamo calcolare la soluzione con:
 
 (mcm 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20)
 ;-> 232792560
+
+(define (e005-2) (apply mcm (sequence 2 20)))
+
+(e005-2)
+;-> 232792560
+
+(time (e005-2))
+;-> 0
 
 
 ==========
@@ -26574,12 +26882,57 @@ Scriviamo la funzione:
 (time (e006))
 ;-> 0
 
+(time (e006) 100000)
+;-> 640.678
+
 Soluzione alternativa:
 
 (define (e006)
     (let (lst (sequence 1 100))
         (- (pow (apply + lst)) (apply + (map * lst lst))) )
 )
+
+(e006)
+;-> 25164150
+
+(time (e006))
+;-> 0
+
+(time (e006) 100000)
+;-> 640.467
+
+Dal punto di vista matematico abbiamo:
+
+Somma dei Quadrati
+
+f(n) = Sum[1..n] i^2 = (1/6)*n*(n - 1)*(2*n - 1)
+
+Quadrato della Somma
+
+g(n) = (Sum[1..n] i)^2 = (1/4)*n^2*(n + 1)^2
+
+La loro differenza:
+
+g(n) - f(n) = (1/12)*n*(n + 1)*(3*n^2 - n - 2)
+
+Possiamo scrivere la funzione:
+
+(define (e006-2 n)
+  (/ (* n (+ n 1) (sub (* 3 (pow n)) n 2)) 12))
+
+(e006-2 100)
+;-> 25164150
+
+(time (e006-2 100))
+;-> 0
+
+(time (e006-2 100) 100000)
+;-> 31.237
+
+Il tempo di questa funzione non dipende da n (diversamente dalle prime due funzioni).
+
+(time (e006-2 10000) 100000)
+;-> 31.235
 
 
 ==========
@@ -26608,7 +26961,32 @@ La soluzione con la forza bruta è semplice, cerchiamo progressivamente tutti i 
 ;-> 104743
 
 (time (e007))
-;-> 78.133
+;-> 31.235
+
+(time (e007) 100)
+;-> 2625.219
+
+Dal punto di vista matematico possiamo sfruttare il fatto che tutti i numeri primi (tranne il 2 e il 3) sono nella forma (6*k ± 1):
+
+(define (e007-2 n)
+  (local (conta i)
+    (setq conta 2 i 0)
+    (while (< conta n)
+      (++ i 6)
+      (if (isprime? (+ i 1)) (++ conta))
+      (if (isprime? (- i 1)) (++ conta))
+    )
+    ; l'aggiungo l'ultimo primo che è nella forma 6*k + 1
+    (+ i 1)))
+
+(e007-2 10001)
+;-> 104743
+
+(time (e007-2 10001))
+;-> 15.587
+
+(time (e007-2 10001) 100)
+;-> 1875.206
 
 
 ==========
@@ -26645,7 +27023,8 @@ Trovare, nel numero da 1000 cifre, le tredici cifre adiacenti che hanno il più 
 
 Assegniamo il numero ad una variabile di tipo stringa:
 
-(set 'x "7316717653133062491922511967442657474235534919493496983520312774506326239578318016984801869478851843858615607891129494954595017379583319528532088055111254069874715852386305071569329096329522744304355766896648950445244523161731856403098711121722383113622298934233803081353362766142828064444866452387493035890729629049156044077239071381051585930796086670172427121883998797908792274921901699720888093776657273330010533678812202354218097512545405947522435258490771167055601360483958644670632441572215539753697817977846174064955149290862569321978468622482839722413756570560574902614079729686524145351004748216637048440319989000889524345065854122758866688116427171479924442928230863465674813919123162824586178664583591245665294765456828489128831426076900422421902267105562632111110937054421750694165896040807198403850962455444362981230987879927244284909188845801561660979191338754992005240636899125607176060588611646710940507754100225698315520005593572972571636269561882670428252483600823257530420752963450")
+(setq x
+"7316717653133062491922511967442657474235534919493496983520312774506326239578318016984801869478851843858615607891129494954595017379583319528532088055111254069874715852386305071569329096329522744304355766896648950445244523161731856403098711121722383113622298934233803081353362766142828064444866452387493035890729629049156044077239071381051585930796086670172427121883998797908792274921901699720888093776657273330010533678812202354218097512545405947522435258490771167055601360483958644670632441572215539753697817977846174064955149290862569321978468622482839722413756570560574902614079729686524145351004748216637048440319989000889524345065854122758866688116427171479924442928230863465674813919123162824586178664583591245665294765456828489128831426076900422421902267105562632111110937054421750694165896040807198403850962455444362981230987879927244284909188845801561660979191338754992005240636899125607176060588611646710940507754100225698315520005593572972571636269561882670428252483600823257530420752963450")
 
 (length x)
 ;-> 1000
@@ -26727,8 +27106,10 @@ Infine troviamo il valore massimo delle moltiplicazioni:
 
 Possiamo scrivere la funzione:
 
+(setq x
+"7316717653133062491922511967442657474235534919493496983520312774506326239578318016984801869478851843858615607891129494954595017379583319528532088055111254069874715852386305071569329096329522744304355766896648950445244523161731856403098711121722383113622298934233803081353362766142828064444866452387493035890729629049156044077239071381051585930796086670172427121883998797908792274921901699720888093776657273330010533678812202354218097512545405947522435258490771167055601360483958644670632441572215539753697817977846174064955149290862569321978468622482839722413756570560574902614079729686524145351004748216637048440319989000889524345065854122758866688116427171479924442928230863465674813919123162824586178664583591245665294765456828489128831426076900422421902267105562632111110937054421750694165896040807198403850962455444362981230987879927244284909188845801561660979191338754992005240636899125607176060588611646710940507754100225698315520005593572972571636269561882670428252483600823257530420752963450")
+
 (define (e008)
-  (set 'x "7316717653133062491922511967442657474235534919493496983520312774506326239578318016984801869478851843858615607891129494954595017379583319528532088055111254069874715852386305071569329096329522744304355766896648950445244523161731856403098711121722383113622298934233803081353362766142828064444866452387493035890729629049156044077239071381051585930796086670172427121883998797908792274921901699720888093776657273330010533678812202354218097512545405947522435258490771167055601360483958644670632441572215539753697817977846174064955149290862569321978468622482839722413756570560574902614079729686524145351004748216637048440319989000889524345065854122758866688116427171479924442928230863465674813919123162824586178664583591245665294765456828489128831426076900422421902267105562632111110937054421750694165896040807198403850962455444362981230987879927244284909188845801561660979191338754992005240636899125607176060588611646710940507754100225698315520005593572972571636269561882670428252483600823257530420752963450")
   ;(setq a (map join (map (fn (i) (slice (explode x) i 4)) ; for test: 5832
   ;                       (sequence 0 996))))
   (setq a (map join (map (fn (i) (slice (explode x) i 13)); for final result
@@ -26736,7 +27117,7 @@ Possiamo scrivere la funzione:
   (setq b (map (fn (i) (map int i)) (map explode a)))
   (setq c (map (fn (i) (apply * i)) b))
   (setq _res (apply max c))
-  (println (nth (ref _res c) b)) ;-> (5 5 7 6 6 8 9 6 6 4 8 9 5)
+  ;(println (nth (ref _res c) b)) ;-> (5 5 7 6 6 8 9 6 6 4 8 9 5)
   ;(println (last b)) ;-> (0 4 2 0 7 5 2 9 6 3 4 5 0)
   _res
 )
@@ -26752,8 +27133,49 @@ Possiamo scrivere la funzione:
 ;-> 23514624000
 
 (time (e008))
-;-> 109.557
+;-> 62.476
 
+(time (e008) 500)
+;-> 27315.46
+
+Possiamo scrivere la funzione utilizzando la tecnica "window sliding". La finestra di 13 caratteri simuove lungo la stringa il nuovo valore della moltiplicazione dei 13 caratteri è data dal valore precedente moltiplicato per l'ultimo carattere della nuova finestra e diviso per il primo carattere della finestra precedente. L'unico problema è quando tgroviamo il valore 0 come prima cifra della finestra precedente (non è possibile dividere per zero): questo caso deve essere trattato a parte.
+
+(define (e008-2 str n)
+  (local (vet prod maxp pre cur)
+    ; trasformo la stringa in un vettore
+    (setq vet (array (length str) (map int (explode str))))
+    ; il primo prodotto è il prodotto dei primi n numeri
+    (setq prod (apply * (slice vet 0 n)))
+    (setq maxp prod)
+    (for (i n (- (length vet) 1))
+      (setq pre (vet (- i n)))
+      (setq cur (vet i))
+      (if (= pre 0)
+          ; se la prima cifra 0, allora calcolo il prodotto esteso
+          (setq prod (apply * (slice vet (+ i 1 (- n)) n)))
+          ; altrimenti moltiplico e divido
+          (setq prod (/ (* prod cur) pre))
+      )
+      (setq maxp (max prod maxp))
+    )
+    maxp))
+
+(setq x
+"7316717653133062491922511967442657474235534919493496983520312774506326239578318016984801869478851843858615607891129494954595017379583319528532088055111254069874715852386305071569329096329522744304355766896648950445244523161731856403098711121722383113622298934233803081353362766142828064444866452387493035890729629049156044077239071381051585930796086670172427121883998797908792274921901699720888093776657273330010533678812202354218097512545405947522435258490771167055601360483958644670632441572215539753697817977846174064955149290862569321978468622482839722413756570560574902614079729686524145351004748216637048440319989000889524345065854122758866688116427171479924442928230863465674813919123162824586178664583591245665294765456828489128831426076900422421902267105562632111110937054421750694165896040807198403850962455444362981230987879927244284909188845801561660979191338754992005240636899125607176060588611646710940507754100225698315520005593572972571636269561882670428252483600823257530420752963450")
+
+(e008-2 x 13)
+;-> 23514624000
+
+(time (e008-2 x 13))
+;-> 0
+
+(time (e008-2 x 13) 500)
+;-> 218.696
+
+Quest'ultima funzione è 125 volte più veloce della prima:
+
+(div 27315.46 218.696)
+;-> 124.9015071148992
 
 ==========
 Problema 9
@@ -26780,7 +27202,7 @@ Trovare il prodotto a*b*c.
                 (when (and
                       (= (add a b c) 1000)
                       (< a b c)) ; a < b < c
-                    (println a { } b { } c)
+                    ;(println a { } b { } c)
                     (throw (* a b c))
                  )
              )
@@ -26794,7 +27216,66 @@ Trovare il prodotto a*b*c.
 ;-> 31875000
 
 (time (e009))
-;-> 62.491
+;-> 31.208
+
+(time (e009) 1000)
+;-> 30908.208
+
+Dal punto di vista matematico, poniamo c = n - a - b.
+
+Poichè (a < b < c) e (a + b + c = n), possiamo concludere che:
+
+valore massimo per a: a < (n/3) - 1
+valore massimo per b: b < (n/2) - 1
+
+Adesso partendo da (a + b) = (n - c) e (a^2 + b^2 = c^2):
+
+      a^2 + b^2 = c^2
+a^2 + b^2 + 2ab = c^2 + 2ab
+      (a + b)^2 = c^2 + 2ab
+      (n - c)^2 = c^2 + 2ab  ==>  2ab = (n - c)^2 - c^2
+
+Sottraiamo 2ab dalla prima equazione (a^2 + b^2 = c^2):
+
+      a^2 + b^2 = c^2
+a^2 + b^2 - 2ab = c^2 - 2ab
+(a - b)^2 = c^2 - (n - c)^2 + c^2
+(a - b)^2 = c^2 - n^2 - c^2 + 2nc + c^2
+(a - b)^2 = c^2 - n^2 + 2nc
+
+Poichè (c^2 - n^2 + 2nc) deve essere un quadrato perfetto, possiamo ignorare a e b e verificare solo se è un quadrato perfetto.
+
+Una possibile implementazione è la seguente:
+
+(define (e009-2 n)
+  (local (a b ab sq-ab res found)
+    (setq found nil)
+    (setq res nil)
+    (for (c (floor (+ (/ n 3) 1)) (- (/ n 2) 1) 1 found)
+      (setq sq-ab (- (+ (* c c) (* 2 n c)) (* n n)))
+      (setq ab (floor (sqrt sq-ab)))
+      (if (= (* ab ab) sq-ab)
+          (setq b (/ (- n (+ c ab)) 2)
+                a (- n b c)
+                found true
+                res (list (sort (list a b c)) (+ a b c) (* a b c)))
+      )
+    )
+    res))
+
+(e009-2 1000)
+;-> ((200 375 425) 1000 31875000)
+
+(time (e009-2 1000))
+;-> 0
+
+(time (e009-2 1000) 1000)
+;-> 31.208
+
+Quest'ultima funzione è 990 volte più veloce della prima:
+
+(div 30908.208 31.208)
+;-> 990.3937451935401
 
 
 ===========
@@ -26861,7 +27342,39 @@ Proviamo con una funzione iterativa:
 ;-> 142913828922
 
 (time (e010))
-;-> 1562.567
+;-> 1077.866
+
+Dal punto di vista matematico possiamo implementare una versione del crivello di eratostene ottimizzata per questo problema, inoltre calcoliamo la somma dei numeri primi fino a n come la differenza tra la somma di tutti i numeri primi fino a n e la somma di tutti i numeri composti (non-primi) fino a n:
+
+Sum[1..n]primi(i) = Sum[1..n](i) - Sum[1..n]composti(i)
+
+dove: Sum[1..n](i) = n*(n + 1)/2
+
+(define (e010-2 n)
+  (local (sum bound data start step)
+    (setq sum 0)
+    (setq bound (floor (sqrt n)))
+    (setq data (array (+ n 1) '(0)))
+    (setf (data 1) 1)
+    (setf (data 0) 1)
+    (for (i 2 bound)
+      (if (zero? (data i))
+          (for (j (+ i i) n i)
+            (if (zero? (data j))
+              (begin
+              (setf (data j) 1)
+              (++ sum j))
+            )
+          )
+       )
+    )
+    (- (/ (* n (+ n 1)) 2) sum 1)))
+
+(e010-2 1999999)
+;-> 142913828922
+
+(time (e010-2 1999999))
+;-> 546.907
 
 
 ===========
@@ -26952,6 +27465,70 @@ Qual'è il valore più grande del prodotto di quattro numeri adiacenti nella ste
 (time (e011))
 ;-> 0
 
+(time (e011) 1000)
+;-> 501.021
+
+Per migliorare la velocità proviamo ad utilizzare un vettore al posto di una lista, cicli "for" al posto di "map" e moltiplicazioni dirette al posto di "apply":
+
+(setq arr (array 20 20 grid))
+;-> ((8 2 22 97 38 15 0 40 0 75 4 5 7 78 52 12 50 77 91 8)
+;->  (49 49 99 40 17 81 18 57 60 87 17 40 98 43 69 48 4 56 62 0)
+;->  (81 49 31 73 55 79 14 29 93 71 40 67 53 88 30 3 49 13 36 65)
+;->  (52 70 95 23 4 60 11 42 69 24 68 56 1 32 56 71 37 2 36 91)
+;->  (22 31 16 71 51 67 63 89 41 92 36 54 22 4 40 28 66 33 13 80)
+;->  (24 47 32 60 99 3 45 2 44 75 33 53 78 36 84 20 35 17 12 50)
+;->  (32 98 81 28 64 23 67 10 26 38 40 67 59 54 70 66 18 38 64 70)
+;->  (67 26 20 68 2 62 12 20 95 63 94 39 63 8 40 91 66 49 94 21)
+;->  (24 55 58 5 66 73 99 26 97 17 78 78 96 83 14 88 34 89 63 72)
+;->  (21 36 23 9 75 0 76 44 20 45 35 14 0 61 33 97 34 31 33 95)
+;->  (78 17 53 28 22 75 31 67 15 94 3 80 4 62 16 14 9 53 56 92)
+;->  (16 39 5 42 96 35 31 47 55 58 88 24 0 17 54 24 36 29 85 57)
+;->  (86 56 0 48 35 71 89 7 5 44 44 37 44 60 21 58 51 54 17 58)
+;->  (19 80 81 68 5 94 47 69 28 73 92 13 86 52 17 77 4 89 55 40)
+;->  (4 52 8 83 97 35 99 16 7 97 57 32 16 26 26 79 33 27 98 66)
+;->  (88 36 68 87 57 62 20 72 3 46 33 67 46 55 12 32 63 93 53 69)
+;->  (4 42 16 73 38 25 39 11 24 94 72 18 8 46 29 32 40 62 76 36)
+;->  (20 69 36 41 72 30 23 88 34 62 99 69 82 67 59 85 74 4 36 16)
+;->  (20 73 35 29 78 31 90 1 74 31 49 71 48 86 81 16 23 57 5 54)
+;->  (1 70 54 71 83 51 54 69 16 92 33 48 61 43 52 1 89 19 67 48))
+
+(define (get-el y x)
+  (if (and (>= y 0) (< y 20) (>= x 0) (< x 20))
+      (arr y x)
+      0))
+
+(get-el 2 2)
+;-> 31
+
+(define (e011-2)
+  (local (dx dy val max-val)
+    (setq max-val 0)
+    (setq dx '(1 0 1 -1))
+    (setq dy '(0 1 1  1))
+    (for (y 0 19)
+      (for (x 0 19)
+        (for (d 0 3)
+          (setq val 1)
+          (for (i 0 3)
+            (setq val (* val (get-el (+ y (* i (dy d))) (+ x (* i (dx d))))))
+          )
+          (setq max-val (max val max-val))
+        )
+      )
+    )
+    max-val))
+
+(e011-2)
+;-> 70600674
+
+(time (e011-2))
+;-> 2.992
+
+(time (e011-2) 1000)
+;-> 2496.241
+
+Questa volta la velocità è peggiorata (probabilmente la funzione "get-el" è la responsabile).
+
 
 ===========
 Problema 12
@@ -26963,7 +27540,7 @@ La sequenza di numeri triangolari viene generata aggiungendo i numeri naturali. 
 
 1, 3, 6, 10, 15, 21, 28, 36, 45, 55, ...
 
-Cerchiamo di elencare i fattori dei primi sette numeri di triangolo:
+Cerchiamo di elencare i fattori dei primi sette numeri triangolare:
 
   1: 1
   3: 1,3
@@ -26973,9 +27550,9 @@ Cerchiamo di elencare i fattori dei primi sette numeri di triangolo:
 21: 1,3,7,21
 28: 1,2,4,7,14,28
 
-Possiamo vedere che 28 è il primo numero di triangolo ad avere più di cinque divisori.
+Possiamo vedere che 28 è il primo numero triangolare ad avere più di cinque divisori.
 
-Qual'è il valore del primo numero di triangolo per avere oltre cinquecento divisori?
+Qual'è il valore del primo numero triangolare che ha oltre cinquecento divisori?
 ============================================================================
 
 Funzione che calcola l'n-esimo numero triangolare:
@@ -27009,6 +27586,9 @@ Funzione cha calcola il numero di divisori di un numero n:
 (numdivisors 64) ;(1 2 4 8 16 32 64)
 ;-> 7
 
+(numdivisors 76576500)
+;-> 576
+
 (define (e012)
   (let (look true)
     (for (i 1 99999 2 (not look))
@@ -27030,6 +27610,82 @@ Funzione cha calcola il numero di divisori di un numero n:
 
 (time (e012))
 ;-> 5444.521
+
+Dal punto di vista matematico, il numero di divisori di un numero naturale n è dato da tau(n) o τ(n) o talvolta  delta(n) o δ(n). Ogni numero naturale può essere espresso come il prodotto dei loro fattori primi k in questo modo:
+
+n = Prod[1..k] p(i)^e(i)
+​
+Quindi il numero di divisori è dato da:
+
+tau(n) = Prod[1..k] e(i) + 1
+
+Quindi abbiamo bisogno della scomposizione in fattori primi e del prodotto dei suoi esponenti.
+
+Prima scriviamo la funzione che calcola tau(n):
+
+(define (tau num)
+  (local (n i p c)
+    (setq n num i 2 p 1)
+    (cond ((= num 1) (setq p 1))
+          (true
+            (while (<= (* i i) n)
+              (setq c 1)
+              (while (zero? (% n i))
+                (setq n (/ n i))
+                (++ c)
+              )
+              (++ i)
+              (setq p (* p c))
+            )
+            (if (or (= n num) (> n 1)) (setq p (* p 2)))
+          )
+     )
+     p))
+
+(tau 20)
+;-> 6
+
+Vediamo se la funzione "tau" e "numdivisors" danno gli stessi risultati:
+(for (i 1 10000)
+  (if (!= (numdivisors i) (tau i)) (println i { } (numdivisors i) { } (tau i))))
+  ;-> nil
+
+Inoltre occorre la seguente funzione che calcola i numeri triangolari fino ad un certo valore num:
+
+(define (tri num)
+  (setq n 1)
+  (setq d 1)
+  (println d)
+  (while (< d num)
+    (++ n)
+    (++ d n)
+    (println d)
+  )
+  d)
+
+(tri 21)
+;-> 1
+;-> 3
+;-> 6
+;-> 10
+;-> 15
+;-> 21
+
+La funzione finale è la seguente:
+
+(define (e012-2 x)
+  (let ((n 1) (d 1))
+    (while (<= (tau d) x)
+      (++ n)
+      (++ d n)
+    )
+    d))
+
+(e012-2 500)
+;-> 76576500
+
+(time (e012-2))
+;-> 0
 
 
 ===========
@@ -27254,7 +27910,7 @@ Proviamo a scrivere una funzione unica che calcola la lunghezza di collatz senza
          (if (even? c) (setq c (/ c 2))
                        (setq c (+ 1 (* 3 c)))
          )
-         (inc lun)
+         (++ lun)
       )
       (if (> lun maxlun) ; se la sequenza è più lunga di quella massima,
           (begin         ; allora aggiorno il valore massimo e il relativo numero di collatz
@@ -27271,7 +27927,122 @@ Proviamo a scrivere una funzione unica che calcola la lunghezza di collatz senza
 ;-> (837799 525)
 
 (time (e014))
-;-> 22486.695 ; 22.4 secondi
+;-> 15376.695 ; 15.4 secondi
+
+Possiamo riscrivere la funzione in modo diverso:
+
+(define (len-collatz n)
+  (let (c 1)
+    (while (> n 1)
+      (if (even? n)
+          (setq n (/ n 2))
+          (setq n (+ (* 3 n) 1))
+      )
+      (++ c)
+    )
+    c))
+
+(len-collatz 24)
+;-> 11
+
+(define (e014 n)
+  (local (max-len max-num)
+    (setq max-len 0 max-num 0)
+    (for (i 1 n)
+      (setq c (len-collatz i))
+      (if (> c max-len)
+          (setq max-len c max-num i)
+      )
+    )
+    (list max-num max-len)))
+
+(e014 999999)
+;-> (837799 525)
+
+(time (e014 999999))
+;-> 15157.284
+
+Non abbiamo migliorato la velocità...
+
+Allora proviamo ad utilizzare una hash-map per contenere i valori delle lunghezze di Collatz di ogni numero:
+
+; crea hash
+(new Tree 'hash)
+
+; assegna hash (hash chiave valore)
+(hash 4 2)
+;-> 2
+
+; recupero valore con chiave
+(hash 4)
+;-> 2
+
+; valore nil se non esiste la chiave
+(hash 3)
+;-> nil
+
+; elimina hash
+(delete 'hash)
+
+Scriviamo la funzione:
+
+(define (e014-2 n)
+  (local (maxlun lun num c found)
+    ;(delete 'hash)
+    (new Tree 'hash)
+    (setq maxlun 0)
+    (setq num 0)
+    (for (i 1 n)
+      (if (= (length (hash)) n) (println i { } n))
+      (setq c i)
+      (setq lun 1)
+      ; calcolo della lunghezza della sequenza
+      (setq found nil)
+      (while (and (!= c 1) (not found))
+        ; se non trovo il valore della lunghezza nella hashmap
+        (if (nil? (hash (string c)))
+            ; calcolo la lunghezza normalmente
+            (begin
+            (if (even? c)
+                (setq c (/ c 2))
+
+                (setq c (+ 1 (* 3 c)))
+            )
+            (++ lun))
+            ;else
+            ; altrimenti la recupero dalla hashmap
+            (begin
+            (setq found true)
+            (setq lun (+ lun (hash (string c)) (- 1))))
+        )
+      )
+      ; inserisco nella hashmap il valore della lunghezza trovata
+      (hash i lun)
+      (if (> lun maxlun) ; se la sequenza è più lunga di quella massima,
+          (begin         ; allora aggiorno il valore massimo e il relativo numero di collatz
+            (setq maxlun lun)
+            (setq num i)
+          )
+      )
+    )
+    (list num maxlun (length (hash)))
+  )
+)
+
+(e014-2 999999)
+;-> (837799 525)
+
+Per calcolare la velocità della funzione occorre eliminare l'hashmap perchè contiene tutti i valori delle lunghezze fino al numero 999999:
+
+(delete 'hash)
+
+(time (e014-2 999999))
+;-> 7563.103
+
+Se non eliminiamo l'hashmap:
+
+(time (e014-2 999999))
+;-> 2015.606
 
 
 ===========
@@ -27322,15 +28093,42 @@ Definiamo la funzione fattoriale:
 
 Calcoliamo il numero di percorsi:
 
-(define (e015)
-  (div (fact 40) (mul (fact 20) (fact 20)))
+(define (e015 n)
+  (/ (fact (+ n n)) (* (fact n) (fact n)))
 )
 
-(e015)
+(e015 20)
+;-> 137846528820L
+
+(time (e015 20))
+;-> 0
+
+(time (e015 20) 10000)
+;-> 180.548
+
+Dal punto di vista non-matematico, notiamo che:
+
+(for (i 1 10) (print (e015 i) { }))
+;-> 2L 6L 20L 70L 252L 924L 3432L 12870L 48620L 184756L
+
+Guardando su oesis.org si trova che questa sequenza è la A000984 (Central binomial coefficients).
+Questa sequenza può essere calcolata nel modo seguente:
+
+(define (e015-2 n)
+  (let (c 1)
+    (for (i 1 n)
+      (setq c (/ (* c (+ n i)) i)))))
+
+(e015-2 20)
 ;-> 137846528820
 
-(time (e015))
+(time (e015-2 20))
 ;-> 0
+
+(time (e015-2 20) 10000)
+;-> 18.95
+
+Questa funzione è 10 volte più veloce della precedente.
 
 
 ===========
@@ -27414,6 +28212,9 @@ La soluzione è tediosa.
 
 (e017)
 ;-> 21124
+
+(time (e017))
+;-> 0
 
 
 ===========
@@ -30601,7 +31402,7 @@ Esistono esattamente dieci modi per selezionare tre cifre tra cinque cifre 1, 2,
 In combinatoria, si usa la notazione, ( ) = 10.
                                       (3)
 
-In generale, 
+In generale,
 
 (n)         n!
 ( ) = --------------- , dove r <= n
@@ -30754,17 +31555,17 @@ Considera le seguenti cinque mani distribuite a due giocatori:
 Hand   Player 1             Player 2               Winner
 1      5H 5C 6S 7S KD       2C 3S 8S 8D TD         Player 2
        Pair of Fives        Pair of Eights
-       
+
 2      5D 8C 9S JS AC       2C 5C 7D 8S QH         Player 1
        Highest card Ace     Highest card Queen
-       
+
 3      2D 9C AS AH AC       3D 6D 7D TD QD         Player 2
        Flush with Diamonds  Three Aces
-       
+
 4      4D 6S 9H QH QC       3D 6D 7H QD QS         Player 1
        Pair of Queens       Pair of Queens
        Highest card Nine    Highest card Seven
-       
+
 5      2H 2D 4C 4D 4S       3C 3D 3S 9S 9D         Player 1
        Full House           Full House
        With Three Fours     with Three Threes
@@ -30883,17 +31684,17 @@ Esempi di utilizzo della funzione "calcola":
 Input
   numeri = (2 3 4 8 10) ; numeri è ordinato
   semi = "CHCCC"
-Output 
+Output
   ((1 10 8 4 3 2) "High Card")
-  dove 1 è il valore della mano 
+  dove 1 è il valore della mano
   e 10,8,4,3,2 sono i valori delle ordinati carte
 
 Input
   numeri = (2 2 2 8 8) ; numeri è ordinato
   semi = "CHCCC"
-Output 
+Output
   ((7 2 8) "Full House")
-  dove 7 è il valore della mano 
+  dove 7 è il valore della mano
   2 è il valore del tris e
   8 è il valore della coppia
 
@@ -31159,7 +31960,7 @@ Adesso possiamo scrivere la funzione finale:
   (dolist (el mani)
     (setq p1 (first (calcola (el 0) (el 1))))
     (setq p2 (first (calcola (el 2) (el 3))))
-    (if (maggiore p1 p2) 
+    (if (maggiore p1 p2)
         (begin
           ;(println (el 0) { } (el 1))
           ;(println (el 2) { } (el 3))
@@ -31273,7 +32074,7 @@ Funzione finale (versione 1):
 
 (e053 10000)
 ;-> 249
-(time (e053 10000))    
+(time (e053 10000))
 ;-> 116.877
 
 Funzione finale (versione 2):
@@ -31346,13 +32147,13 @@ Funzione soluzione:
 (time (e056))
 ;-> 199.794
 
-Possiamo scrivere la funzione anche in stile funzionale. 
+Possiamo scrivere la funzione anche in stile funzionale.
 
 Questa funzione calcola tutte le potenza di ogni elemento della prima lista elevato ad ogni elemento della seconda lista (prodotto cartesiano):
 
 (define (cp lst1 lst2)
   (let (out '())
-    (if (or (null? lst1) (null? lst2)) 
+    (if (or (null? lst1) (null? lst2))
         nil
         (dolist (el1 lst1)
           (dolist (el2 lst2)
@@ -31393,10 +32194,10 @@ Nelle prime mille espansioni, quante frazioni contengono un numeratore con più 
 
 La sequenza a(k) inizia con a(0) = 1 + 1/2 e a(1) = (1 + (1 / (2 + 1/2))), sostituendo a(0) in a(1) otteniamo a(1) = 1 + (1 / (1 + a(0))). Quindi possiamo scrivere:
 
-                                        1  
+                                        1
 a(k+1) = 1 + (1 / (1 + a(k))) = 1 + ----------
                                      1 + a(k)
-                                   
+
 Invece di utilizzare la libreria delle frazioni per calcolare il numeratore e il denominatore di ogni iterazione, possiamo espandere a(k+1):
 
 a(k+1) = 1 + (1 / (1 + a(k))) = 1 + (1 / (1 + nk/dk)) =
@@ -31670,7 +32471,7 @@ Adesso scriviamo una funzione che cripta una stringa con una data password.
     (setq out '())
     (setq numchar (- (length pwd) 1))
     ;(setq lst (explode text)) ; non UTF-8
-    (setq lst (unpack (dup "s" (length text)) text)) ; UTF-8    
+    (setq lst (unpack (dup "s" (length text)) text)) ; UTF-8
     (setq k 0)
     (dolist (el lst)
       (push (crypt el (pwd k)) out -1)
@@ -31737,7 +32538,7 @@ http://www.data-compression.com/english.html
  0.0082903 0.0171272 0.0013692 0.0145984 0.0007836 0.1918182
 
 (setq af '(
- (0.0651738 "a") (0.0124248 "b") (0.0217339 "c") (0.0349835 "d") 
+ (0.0651738 "a") (0.0124248 "b") (0.0217339 "c") (0.0349835 "d")
  (0.1041442 "e") (0.0197881 "f") (0.0158610 "g") (0.0492888 "h")
  (0.0558094 "i") (0.0009033 "j") (0.0050529 "k") (0.0331490 "l")
  (0.0202124 "m") (0.0564513 "n") (0.0596302 "o") (0.0137645 "p")
@@ -31746,7 +32547,7 @@ http://www.data-compression.com/english.html
  (0.0145984 "y") (0.0007836 "z") (0.1918182 " ")))
 
 (sort af >)
-;-> ((0.1918182 " ") (0.1041442 "e") (0.0729357 "t") (0.0651738 "a") 
+;-> ((0.1918182 " ") (0.1041442 "e") (0.0729357 "t") (0.0651738 "a")
 ;->  (0.0596302 "o") (0.0564513 "n") (0.0558094 "i") (0.051576 "s")
 ;->  (0.0497563 "r") (0.0492888 "h") (0.0349835 "d") (0.033149 "l")
 ;->  (0.0225134 "u") (0.0217339 "c") (0.0202124 "m") (0.0197881 "f")
@@ -31755,7 +32556,7 @@ http://www.data-compression.com/english.html
 ;->  (0.0009033 "j") (0.0008606 "q") (0.0007836 "z"))
 
 Quindi il carattere spazio " " è quello di gran lunga più frequente (quasi il 20%). Per il nostro algoritmo sarà sufficiente utilizzare questo carattere.
- 
+
 Vediamo quali sono i valori più frequenti nel testo cifrato:
 
 (apply max tc)
@@ -31790,7 +32591,7 @@ Posizione (valore ASCII criptato):
 
 Associo il valore 79 al carattere " " (che è il più frequente in lingua inglese). Quindi trovo il carattere della chiave che restituisce uno spazio " ":
 
-(dolist (el (explode "abcdefghijlklmnopqrstuvwxyz ")) 
+(dolist (el (explode "abcdefghijlklmnopqrstuvwxyz "))
   (if (= " " (char (^ 79 (char el))))
     (println el)))
 ;-> o
@@ -31805,7 +32606,7 @@ Posizione (valore ASCII criptato):
 (ref 77 f)
 ;-> (68)
 
-(dolist (el (explode "abcdefghijlklmnopqrstuvwxyz ")) 
+(dolist (el (explode "abcdefghijlklmnopqrstuvwxyz "))
   (if (= " " (char (^ 68 (char el))))
     (println el)))
 ;-> d
@@ -31819,7 +32620,7 @@ Posizione (valore ASCII criptato):
 (ref 70 f)
 ;-> (71)
 
-(dolist (el (explode "abcdefghijlklmnopqrstuvwxyz ")) 
+(dolist (el (explode "abcdefghijlklmnopqrstuvwxyz "))
   (if (= " " (char (^ 71 (char el))))
     (println el)))
 ;-> g
@@ -31860,71 +32661,71 @@ Proviamo il nostro metodo con questo nuovo file.
 Assegniamo i valori contenuti nel file ad una lista:
 
 (setq tc1 '(
- 36 22 80 0 0 4 23 25 19 17 88 4 4 19 21 11 88 22 23 23 29 69 
- 12 24 0 88 25 11 12 2 10 28 5 6 12 25 10 22 80 10 30 80 10 22 
- 21 69 23 22 69 61 5 9 29 2 66 11 80 8 23 3 17 88 19 0 20 21 
- 7 10 17 17 29 20 69 8 17 21 29 2 22 84 80 71 60 21 69 11 5 8 
- 21 25 22 88 3 0 10 25 0 10 5 8 88 2 0 27 25 21 10 31 6 25 
- 2 16 21 82 69 35 63 11 88 4 13 29 80 22 13 29 22 88 31 3 88 3 
- 0 10 25 0 11 80 10 30 80 23 29 19 12 8 2 10 27 17 9 11 45 95 
- 88 57 69 16 17 19 29 80 23 29 19 0 22 4 9 1 80 3 23 5 11 28 
- 92 69 9 5 12 12 21 69 13 30 0 0 0 0 27 4 0 28 28 28 84 80 
- 4 22 80 0 20 21 2 25 30 17 88 21 29 8 2 0 11 3 12 23 30 69 
- 30 31 23 88 4 13 29 80 0 22 4 12 10 21 69 11 5 8 88 31 3 88 
- 4 13 17 3 69 11 21 23 17 21 22 88 65 69 83 80 84 87 68 69 83 80 
- 84 87 73 69 83 80 84 87 65 83 88 91 69 29 4 6 86 92 69 15 24 12 
- 27 24 69 28 21 21 29 30 1 11 80 10 22 80 17 16 21 69 9 5 4 28 
- 2 4 12 5 23 29 80 10 30 80 17 16 21 69 27 25 23 27 28 0 84 80 
- 22 23 80 17 16 17 17 88 25 3 88 4 13 29 80 17 10 5 0 88 3 16 
- 21 80 10 30 80 17 16 25 22 88 3 0 10 25 0 11 80 12 11 80 10 26 
- 4 4 17 30 0 28 92 69 30 2 10 21 80 12 12 80 4 12 80 10 22 19 
- 0 88 4 13 29 80 20 13 17 1 10 17 17 13 2 0 88 31 3 88 4 13 
- 29 80 6 17 2 6 20 21 69 30 31 9 20 31 18 11 94 69 54 17 8 29 
- 28 28 84 80 44 88 24 4 14 21 69 30 31 16 22 20 69 12 24 4 12 80 
- 17 16 21 69 11 5 8 88 31 3 88 4 13 17 3 69 11 21 23 17 21 22 
- 88 25 22 88 17 69 11 25 29 12 24 69 8 17 23 12 80 10 30 80 17 16 
- 21 69 11 1 16 25 2 0 88 31 3 88 4 13 29 80 21 29 2 12 21 21 
- 17 29 2 69 23 22 69 12 24 0 88 19 12 10 19 9 29 80 18 16 31 22 
- 29 80 1 17 17 8 29 4 0 10 80 12 11 80 84 67 80 10 10 80 7 1 
- 80 21 13 4 17 17 30 2 88 4 13 29 80 22 13 29 69 23 22 69 12 24 
- 12 11 80 22 29 2 12 29 3 69 29 1 16 25 28 69 12 31 69 11 92 69 
- 17 4 69 16 17 22 88 4 13 29 80 23 25 4 12 23 80 22 9 2 17 80 
- 70 76 88 29 16 20 4 12 8 28 12 29 20 69 26 9 69 11 80 17 23 80 
- 84 88 31 3 88 4 13 29 80 21 29 2 12 21 21 17 29 2 69 12 31 69 
- 12 24 0 88 20 12 25 29 0 12 21 23 86 80 44 88 7 12 20 28 69 11 
- 31 10 22 80 22 16 31 18 88 4 13 25 4 69 12 24 0 88 3 16 21 80 
- 10 30 80 17 16 25 22 88 3 0 10 25 0 11 80 17 23 80 7 29 80 4 
- 8 0 23 23 8 12 21 17 17 29 28 28 88 65 75 78 68 81 65 67 81 72 
- 70 83 64 68 87 74 70 81 75 70 81 67 80 4 22 20 69 30 2 10 21 80 
- 8 13 28 17 17 0 9 1 25 11 31 80 17 16 25 22 88 30 16 21 18 0 
- 10 80 7 1 80 22 17 8 73 88 17 11 28 80 17 16 21 11 88 4 4 19 
- 25 11 31 80 17 16 21 69 11 1 16 25 2 0 88 2 10 23 4 73 88 4 
- 13 29 80 11 13 29 7 29 2 69 75 94 84 76 65 80 65 66 83 77 67 80 
- 64 73 82 65 67 87 75 72 69 17 3 69 17 30 1 29 21 1 88 0 23 23 
- 20 16 27 21 1 84 80 18 16 25 6 16 80 0 0 0 23 29 3 22 29 3 
- 69 12 24 0 88 0 0 10 25 8 29 4 0 10 80 10 30 80 4 88 19 12 
- 10 19 9 29 80 18 16 31 22 29 80 1 17 17 8 29 4 0 10 80 12 11 
- 80 84 86 80 35 23 28 9 23 7 12 22 23 69 25 23 4 17 30 69 12 24 
- 0 88 3 4 21 21 69 11 4 0 8 3 69 26 9 69 15 24 12 27 24 69 
- 49 80 13 25 20 69 25 2 23 17 6 0 28 80 4 12 80 17 16 25 22 88 
- 3 16 21 92 69 49 80 13 25 6 0 88 20 12 11 19 10 14 21 23 29 20 
- 69 12 24 4 12 80 17 16 21 69 11 5 8 88 31 3 88 4 13 29 80 22 
- 29 2 12 29 3 69 73 80 78 88 65 74 73 70 69 83 80 84 87 72 84 88 
- 91 69 73 95 87 77 70 69 83 80 84 87 70 87 77 80 78 88 21 17 27 94 
- 69 25 28 22 23 80 1 29 0 0 22 20 22 88 31 11 88 4 13 29 80 20 
- 13 17 1 10 17 17 13 2 0 88 31 3 88 4 13 29 80 6 17 2 6 20 
- 21 75 88 62 4 21 21 9 1 92 69 12 24 0 88 3 16 21 80 10 30 80 
- 17 16 25 22 88 29 16 20 4 12 8 28 12 29 20 69 26 9 69 65 64 69 
- 31 25 19 29 3 69 12 24 0 88 18 12 9 5 4 28 2 4 12 21 69 80 
- 22 10 13 2 17 16 80 21 23 7 0 10 89 69 23 22 69 12 24 0 88 19 
- 12 10 19 16 21 22 0 10 21 11 27 21 69 23 22 69 12 24 0 88 0 0 
- 10 25 8 29 4 0 10 80 10 30 80 4 88 19 12 10 19 9 29 80 18 16 
- 31 22 29 80 1 17 17 8 29 4 0 10 80 12 11 80 84 86 80 36 22 20 
- 69 26 9 69 11 25 8 17 28 4 10 80 23 29 17 22 23 30 12 22 23 69 
- 49 80 13 25 6 0 88 28 12 19 21 18 17 3 0 88 18 0 29 30 69 25 
- 18 9 29 80 17 23 80 1 29 4 0 10 29 12 22 21 69 12 24 0 88 3 
- 16 21 3 69 23 22 69 12 24 0 88 3 16 26 3 0 9 5 0 22 4 69 
- 11 21 23 17 21 22 88 25 11 88 7 13 17 19 13 88 4 13 29 80 0 0 
+ 36 22 80 0 0 4 23 25 19 17 88 4 4 19 21 11 88 22 23 23 29 69
+ 12 24 0 88 25 11 12 2 10 28 5 6 12 25 10 22 80 10 30 80 10 22
+ 21 69 23 22 69 61 5 9 29 2 66 11 80 8 23 3 17 88 19 0 20 21
+ 7 10 17 17 29 20 69 8 17 21 29 2 22 84 80 71 60 21 69 11 5 8
+ 21 25 22 88 3 0 10 25 0 10 5 8 88 2 0 27 25 21 10 31 6 25
+ 2 16 21 82 69 35 63 11 88 4 13 29 80 22 13 29 22 88 31 3 88 3
+ 0 10 25 0 11 80 10 30 80 23 29 19 12 8 2 10 27 17 9 11 45 95
+ 88 57 69 16 17 19 29 80 23 29 19 0 22 4 9 1 80 3 23 5 11 28
+ 92 69 9 5 12 12 21 69 13 30 0 0 0 0 27 4 0 28 28 28 84 80
+ 4 22 80 0 20 21 2 25 30 17 88 21 29 8 2 0 11 3 12 23 30 69
+ 30 31 23 88 4 13 29 80 0 22 4 12 10 21 69 11 5 8 88 31 3 88
+ 4 13 17 3 69 11 21 23 17 21 22 88 65 69 83 80 84 87 68 69 83 80
+ 84 87 73 69 83 80 84 87 65 83 88 91 69 29 4 6 86 92 69 15 24 12
+ 27 24 69 28 21 21 29 30 1 11 80 10 22 80 17 16 21 69 9 5 4 28
+ 2 4 12 5 23 29 80 10 30 80 17 16 21 69 27 25 23 27 28 0 84 80
+ 22 23 80 17 16 17 17 88 25 3 88 4 13 29 80 17 10 5 0 88 3 16
+ 21 80 10 30 80 17 16 25 22 88 3 0 10 25 0 11 80 12 11 80 10 26
+ 4 4 17 30 0 28 92 69 30 2 10 21 80 12 12 80 4 12 80 10 22 19
+ 0 88 4 13 29 80 20 13 17 1 10 17 17 13 2 0 88 31 3 88 4 13
+ 29 80 6 17 2 6 20 21 69 30 31 9 20 31 18 11 94 69 54 17 8 29
+ 28 28 84 80 44 88 24 4 14 21 69 30 31 16 22 20 69 12 24 4 12 80
+ 17 16 21 69 11 5 8 88 31 3 88 4 13 17 3 69 11 21 23 17 21 22
+ 88 25 22 88 17 69 11 25 29 12 24 69 8 17 23 12 80 10 30 80 17 16
+ 21 69 11 1 16 25 2 0 88 31 3 88 4 13 29 80 21 29 2 12 21 21
+ 17 29 2 69 23 22 69 12 24 0 88 19 12 10 19 9 29 80 18 16 31 22
+ 29 80 1 17 17 8 29 4 0 10 80 12 11 80 84 67 80 10 10 80 7 1
+ 80 21 13 4 17 17 30 2 88 4 13 29 80 22 13 29 69 23 22 69 12 24
+ 12 11 80 22 29 2 12 29 3 69 29 1 16 25 28 69 12 31 69 11 92 69
+ 17 4 69 16 17 22 88 4 13 29 80 23 25 4 12 23 80 22 9 2 17 80
+ 70 76 88 29 16 20 4 12 8 28 12 29 20 69 26 9 69 11 80 17 23 80
+ 84 88 31 3 88 4 13 29 80 21 29 2 12 21 21 17 29 2 69 12 31 69
+ 12 24 0 88 20 12 25 29 0 12 21 23 86 80 44 88 7 12 20 28 69 11
+ 31 10 22 80 22 16 31 18 88 4 13 25 4 69 12 24 0 88 3 16 21 80
+ 10 30 80 17 16 25 22 88 3 0 10 25 0 11 80 17 23 80 7 29 80 4
+ 8 0 23 23 8 12 21 17 17 29 28 28 88 65 75 78 68 81 65 67 81 72
+ 70 83 64 68 87 74 70 81 75 70 81 67 80 4 22 20 69 30 2 10 21 80
+ 8 13 28 17 17 0 9 1 25 11 31 80 17 16 25 22 88 30 16 21 18 0
+ 10 80 7 1 80 22 17 8 73 88 17 11 28 80 17 16 21 11 88 4 4 19
+ 25 11 31 80 17 16 21 69 11 1 16 25 2 0 88 2 10 23 4 73 88 4
+ 13 29 80 11 13 29 7 29 2 69 75 94 84 76 65 80 65 66 83 77 67 80
+ 64 73 82 65 67 87 75 72 69 17 3 69 17 30 1 29 21 1 88 0 23 23
+ 20 16 27 21 1 84 80 18 16 25 6 16 80 0 0 0 23 29 3 22 29 3
+ 69 12 24 0 88 0 0 10 25 8 29 4 0 10 80 10 30 80 4 88 19 12
+ 10 19 9 29 80 18 16 31 22 29 80 1 17 17 8 29 4 0 10 80 12 11
+ 80 84 86 80 35 23 28 9 23 7 12 22 23 69 25 23 4 17 30 69 12 24
+ 0 88 3 4 21 21 69 11 4 0 8 3 69 26 9 69 15 24 12 27 24 69
+ 49 80 13 25 20 69 25 2 23 17 6 0 28 80 4 12 80 17 16 25 22 88
+ 3 16 21 92 69 49 80 13 25 6 0 88 20 12 11 19 10 14 21 23 29 20
+ 69 12 24 4 12 80 17 16 21 69 11 5 8 88 31 3 88 4 13 29 80 22
+ 29 2 12 29 3 69 73 80 78 88 65 74 73 70 69 83 80 84 87 72 84 88
+ 91 69 73 95 87 77 70 69 83 80 84 87 70 87 77 80 78 88 21 17 27 94
+ 69 25 28 22 23 80 1 29 0 0 22 20 22 88 31 11 88 4 13 29 80 20
+ 13 17 1 10 17 17 13 2 0 88 31 3 88 4 13 29 80 6 17 2 6 20
+ 21 75 88 62 4 21 21 9 1 92 69 12 24 0 88 3 16 21 80 10 30 80
+ 17 16 25 22 88 29 16 20 4 12 8 28 12 29 20 69 26 9 69 65 64 69
+ 31 25 19 29 3 69 12 24 0 88 18 12 9 5 4 28 2 4 12 21 69 80
+ 22 10 13 2 17 16 80 21 23 7 0 10 89 69 23 22 69 12 24 0 88 19
+ 12 10 19 16 21 22 0 10 21 11 27 21 69 23 22 69 12 24 0 88 0 0
+ 10 25 8 29 4 0 10 80 10 30 80 4 88 19 12 10 19 9 29 80 18 16
+ 31 22 29 80 1 17 17 8 29 4 0 10 80 12 11 80 84 86 80 36 22 20
+ 69 26 9 69 11 25 8 17 28 4 10 80 23 29 17 22 23 30 12 22 23 69
+ 49 80 13 25 6 0 88 28 12 19 21 18 17 3 0 88 18 0 29 30 69 25
+ 18 9 29 80 17 23 80 1 29 4 0 10 29 12 22 21 69 12 24 0 88 3
+ 16 21 3 69 23 22 69 12 24 0 88 3 16 26 3 0 9 5 0 22 4 69
+ 11 21 23 17 21 22 88 25 11 88 7 13 17 19 13 88 4 13 29 80 0 0
  0 10 22 21 11 12 3 69 25 2 0 88 21 19 29 30 69 22 5 8 26 21 23 11 94))
 
 (apply max tc1)
@@ -31934,8 +32735,8 @@ Assegniamo i valori contenuti nel file ad una lista:
 (dolist (el tc1) (setf (freq1 el) (+ (freq1 el) 1)))
 freq1
 ;-> (75 19 31 36 61 15 11 9 25 20 52 43 65 33 2 2 38 73 11 21 22 65
-;->  56 46 21 42 7 10 25 70 26 24 0 0 0 2 2 0 0 0 0 0 0 0 2 1 0 0 0 
-;->  3 0 0 0 0 1 0 0 1 0 0 1 1 1 1 3 9 2 5 3 86 7 1 3 7 2 5 2 3 3 0 
+;->  56 46 21 42 7 10 25 70 26 24 0 0 0 2 2 0 0 0 0 0 0 0 2 1 0 0 0
+;->  3 0 0 0 0 1 0 0 1 0 0 1 1 1 1 3 9 2 5 3 86 7 1 3 7 2 5 2 3 3 0
 ;->  107 4 2 8 16 0 4 9 77 1 0 2 6 0 4 2)
 
 Converto il vettore in lista:
@@ -31946,9 +32747,9 @@ f1
 Lista di frequenze ordinata:
 
 (sort (copy f1) >)
-;-> (107 86 77 75 73 70 65 65 61 56 52 46 43 42 38 36 33 31 26 25 25 24 
-;->  22 21 21 20 19 16 15 11 11 10 9 9 9 8 7 7 7 6 5 5 4 4 4 3 3 3 3 3 
-;->  3 2 2 2 2 2 2 2 2 2 2 2 1 1 1 1 1 1 1 1 1 0 0 0 0 0 0 0 0 0 0 0 0 
+;-> (107 86 77 75 73 70 65 65 61 56 52 46 43 42 38 36 33 31 26 25 25 24
+;->  22 21 21 20 19 16 15 11 11 10 9 9 9 8 7 7 7 6 5 5 4 4 4 3 3 3 3 3
+;->  3 2 2 2 2 2 2 2 2 2 2 2 1 1 1 1 1 1 1 1 1 0 0 0 0 0 0 0 0 0 0 0 0
 ;->  0 0 0 0 0 0 0 0 0 0 0 0 0)
 
 Il valore più frequente del testo cifrato è 107.
@@ -31960,7 +32761,7 @@ Posizione (valore ASCII criptato):
 
 Associo il valore 80 al carattere " " (che è il più frequente in lingua inglese). Quindi trovo il carattere della chiave che restituisce uno spazio " ":
 
-(dolist (el (explode "abcdefghijlklmnopqrstuvwxyz ")) 
+(dolist (el (explode "abcdefghijlklmnopqrstuvwxyz "))
   (if (= " " (char (^ 80 (char el))))
     (println el)))
 ;-> p
@@ -31974,7 +32775,7 @@ Posizione (valore ASCII criptato):
 (ref 86 f1)
 ;-> (69)
 
-(dolist (el (explode "abcdefghijlklmnopqrstuvwxyz ")) 
+(dolist (el (explode "abcdefghijlklmnopqrstuvwxyz "))
   (if (= " " (char (^ 69 (char el))))
     (println el)))
 ;-> e
@@ -31988,14 +32789,14 @@ Posizione (valore ASCII criptato):
 (ref 77 f1)
 ;-> (88)
 
-(dolist (el (explode "abcdefghijlklmnopqrstuvwxyz ")) 
+(dolist (el (explode "abcdefghijlklmnopqrstuvwxyz "))
   (if (= " " (char (^ 88 (char el))))
     (println el)))
 ;-> x
 
 Il terzo carattere della chiave è "x".
 
-La chiave è composta dai caratteri "p", "e" e "x". 
+La chiave è composta dai caratteri "p", "e" e "x".
 
 Facciamo alcuni tentativi:
 
@@ -32014,7 +32815,7 @@ In questo caso otteniamo un testo illeggibile.
 (setq testo (join (map char (crypt-text tc1 "exp"))))
 ;-> "An extract taken from the introduction of one of Euler's most celebrated papers, \"De summis serierum reciprocarum\" [On the sums of series of reciprocals]: I have recently found, quite unexpectedly, an elegant expression for the entire sum of this series 1 + 1/4 + 1/9 + 1/16 + etc., which depends on the quadrature of the circle, so that if the true sum of this series is obtained, from it at once the quadrature of the circle follows. Namely, I have found that the sum of this series is a sixth part of the square of the perimeter of the circle whose diameter is 1; or by putting the sum of this series equal to s, it has the ratio sqrt(6) multiplied by s to 1 of the perimeter to the diameter. I will soon show that the sum of this series to be approximately 1.644934066842264364; and from multiplying this number by six, and then taking the square root, the number 3.141592653589793238 is indeed produced, which expresses the perimeter of a circle whose diameter is 1. Following again the same steps by which I had arrived at this sum, I have discovered that the sum of the series 1 + 1/16 + 1/81 + 1/256 + 1/625 + etc. also depends on the quadrature of the circle. Namely, the sum of this multiplied by 90 gives the biquadrate (fourth power) of the circumference of the perimeter of a circle whose diameter is 1. And by similar reasoning I have likewise been able to determine the sums of the subsequent series in which the exponents are even numbers."
 
-Testo decifrato correttamente. 
+Testo decifrato correttamente.
 La chiave vale "exp".
 
 Vediamo la somma dei valori ASCII del testo decifrato:
@@ -32038,7 +32839,7 @@ L'algoritmo di soluzione è del tipo brute-force:
 
 Generare N numeri primi.
 Il primo numero della lista dei numeri primi è "a", il secondo numero della lista è "b" (b > a).
-Controllare se "ab" e "ba" sono numeri primi, 
+Controllare se "ab" e "ba" sono numeri primi,
 se sono numeri primi, allora prendere il terzo numero dalla lista "c" (c > b).
    controllare se "ac", "ca", "bc", "ca" sono tutti numeri primi,
    se sono numeri primi, allora prendere un quarto numero dalla lista "d" (d > c).
@@ -32167,22 +32968,22 @@ Proviamo ad usare un vettore per i numeri primi. In questo modo possiamo evitare
             ; c è il terzo numero
             (for (k (+ j 1) (- up 3))
               ; check se (a,c) e (b,c) soddisfano la condizione
-              (if (and (check (primi i) (primi k)) 
+              (if (and (check (primi i) (primi k))
                        (check (primi j) (primi k)))
                   ; d è il quarto numero
                   (for (x (+ k 1) (- up 4))
                     # check se (a,d), (b,d) e (c,d) soddisfano la condizione
                     (if (and (check (primi i) (primi x))
-                             (check (primi j) (primi x)) 
+                             (check (primi j) (primi x))
                              (check (primi k) (primi x)))
                         ; e è il quinto numero
                         (for (y (+ x 1) (- up 5))
                           ; check se (a,e), (b,e), (c,e) e (d,e) soddisfano la condizione
                           (if (and (check (primi i) (primi y))
-                                   (check (primi j) (primi y)) 
-                                   (check (primi k) (primi y)) 
+                                   (check (primi j) (primi y))
+                                   (check (primi k) (primi y))
                                    (check (primi x) (primi y)))
-                              (println (+ (primi i) (primi j) (primi k) (primi x) (primi y)) { } 
+                              (println (+ (primi i) (primi j) (primi k) (primi x) (primi y)) { }
                                        (primi i) { } (primi j) { } (primi k) { } (primi x) { } (primi y))
                           )))))))))))
 
@@ -32196,6 +32997,8 @@ I tempi di calcolo delle due funzioni sono quasi uguali.
 ===========
 Problema 92
 ===========
+
+Su Doku
 
 Su Doku (giapponese che significa luogo del numero) è il nome di un concetto di puzzle popolare. La sua origine non è chiara, ma il merito viene attribuito a Leonhard Euler che ha inventato un puzzle simile e molto più difficile, chiamato Quadrati Latini. L'obiettivo dei puzzle di Su Doku è quello di sostituire gli spazi vuoti (o zeri) in una griglia 9 per 9 in modo tale che ogni riga, colonna e regione 3x3 contenga ciascuna delle cifre da 1 a 9. Di seguito è riportato un esempio di una tipica griglia di puzzle iniziale e della sua griglia di soluzione.
 
@@ -32216,6 +33019,8 @@ Un puzzle di Su Doku ben costruito ha una soluzione unica e può essere risolto 
 Il file di testo 6K, sudoku.txt (e092.lsp), contiene cinquanta diversi puzzle di Su Doku che variano in difficoltà, ma tutti con soluzioni uniche (il primo puzzle nel file è l'esempio sopra).
 
 Risolvendo tutti e cinquanta i puzzle, trova la somma di tutti i numeri a 3 cifre che si trovano nell'angolo in alto a sinistra di ogni griglia della soluzione. Ad esempio, 483 è il numero di 3 cifre che si trova nell'angolo in alto a sinistra della griglia della soluzione sopra.
+============================================================================
+
 
 (define (isSafe board row col num)
   (local (safe regionRowStart regionColStart)
@@ -40980,6 +41785,268 @@ p(k,n) = -----------------------
 I risultati della simulazione sono simili a quelli calcolati matematicamente, anche se sui valori nulli e/o piccolissimi abbiamo gli errori relativi maggiori.
 
 
+--------------
+Window sliding
+--------------
+
+Questa tecnica mostra come un ciclo for annidato possa essere convertito (in alcuni problemi) in un singolo ciclo for per ridurre la complessità temporale.
+Vediamo un problema illustrativo in cui possiamo applicare questa tecnica:
+
+Dato una lista di numeri interi di dimensione "n". Il nostro scopo è calcolare la somma massima di "k" elementi consecutivi nella lista.
+Input  : lst = (100 200 300 400)
+         k = 2
+Output : 700
+
+Input  : lst = (1 4 2 10 23 3 1 0 20)
+         k = 4
+Output : 39
+Si ottiene la somma massima con la sottolista (4 2 10 23) di lunghezza 4.
+
+Input  : lst = (2 3)
+         k = 3
+Output : nil
+Non esiste una sottolista di dimensione 3 poiché la dimensione dell'intera lista è 2.
+
+Analizziamo prima il problema con l'approccio della forza bruta. Iniziamo con il primo indice e sommiamo fino al k-esimo elemento. Lo facciamo per tutti i possibili blocchi consecutivi o gruppi di k elementi. Questo metodo richiede un ciclo for annidato, il ciclo for esterno inizia con l'elemento iniziale del blocco di k elementi e il ciclo interno o annidato si sommerà fino all'elemento k-esimo.
+
+(define (max-sub-sum lst k)
+  (local (max-sum curr-sum)
+    (setq max-sum -9223372036854775808)
+    (for (i 0 (- (length lst) k))
+      (setq curr-sum 0)
+      (for (j 0 (- k 1))
+        (setq curr-sum (add curr-sum (lst (+ i j))))
+        ; Aggiorno il risultato se richiesto
+        (setq max-sum (max curr-sum max-sum))
+      )
+    )
+    max-sum))
+
+(max-sub-sum '(3 2 5 6 1) 3)
+;-> 13
+
+(max-sub-sum '(1 10 4 7 11 3 1 15 5 6) 3)
+;-> 26
+
+(max-sub-sum '(1 10 4 7 11 3 1 15 5 6) 4)
+;-> 32
+
+(max-sub-sum '(20 10 4 7 11 3 1 15 5 6) 4)
+;-> 41
+
+Questo algoritmo ha complessità temporale O(k*n) perchè contiene due cicli for.
+
+Possiamo ridurre la complessità temporale utilizzando la tecnica "window sliding" (finestra scorrevole):
+
+si consideri una finestra di lunghezza n (che rappresenta l'intera lista) e un pannello di vetro che vi è fissato di lunghezza k. Inizialmente il pannello si trova all'estrema sinistra della finestra (ovvero inizia all'indice 0) e copre k indici/elementi. Ora correliamo i valori della finestra con quelli coperti dal pannello calcolando la somma dei k elementi coperti dal pannello (curr-sum). Ora applichiamo una forza sul pannello in modo che si sposti di una distanza unitaria in avanti: il pannello coprirà i prossimi k elementi consecutivi, quindi calcoliamo il valore di curr-sum per questi k elementi e andiamo avanti scorrendo in questo modo fine al raggiungimento della fine della finestra (lista).
+
+Applichiamo la tecnica "window sliding" al nostro problema:
+
+Calcoliamo la somma dei primi k elementi su n termini utilizzando un ciclo lineare e memorizziamo la somma nella variabile window-sum.
+Quindi attraversiamo linearmente la lista fino a raggiungere la fine e contemporaneamente teniamo traccia della somma massima.
+Per ottenere la somma corrente del blocco di k elementi basta sottrarre il primo elemento del blocco precedente e aggiungere l'ultimo elemento del blocco corrente.
+La seguente rappresentazione grafica rende chiaro come la finestra scorre atraverso la lista.
+
+lst = (3 2 5 6 1)
+k = 3
+
+| windowsum | = 3 + 2 + 5 = 10
+---------------------
+| 3 | 2 | 5 | 6 | 1 |
+---------------------
+
+    | curr-sum  | = windowsum - 3 + 6 = 10 - 3 + 6 = 13
+---------------------
+| 3 | 2 | 5 | 6 | 1 |
+---------------------
+
+        | curr-sum  | = windowsum - 2 + 1 = 13 - 2 + 1 = 12
+---------------------
+| 3 | 2 | 5 | 6 | 1 |
+---------------------
+
+(define (max-sub-sum lst k)
+  (local (max-sum window-sum)
+    (setq max-sum 0)
+    ; calcola la somma della prima finestra
+    (for (i 0 (- k 1))
+        (setq max-sum (add max-sum (lst i)))
+    )
+    ; Calcola le somme delle finestre rimanenti
+    ; rimuovendo il primo elemento della precedente finestra e
+    ; aggiungendo l'ultimo elemento della finestra corrente.
+    (setq window-sum max-sum)
+    (for (i k (- (length lst) 1))
+      (setq window-sum (sub (add window-sum (lst i)) (lst (- i k))))
+      (setq max-sum (max max-sum window-sum))
+    )
+    max-sum))
+
+(max-sub-sum '(3 2 5 6 1) 3)
+;-> 13
+
+(max-sub-sum '(3 2 5 -6 1) 3)
+;-> 10
+
+Come funziona?
+
+| windowsum | = 3 + 2 + 5 = 10
+---------------------
+| 3 | 2 | 5 | 6 | 1 |
+---------------------
+
+    | curr-sum  | = windowsum - 3 + 6 = 10 - 3 + 6 = 13
+---------------------
+| 3 | 2 | 5 | 6 | 1 |
+---------------------
+
+        | curr-sum  | = windowsum - 2 + 1 = 13 - 2 + 1 = 12
+---------------------
+| 3 | 2 | 5 | 6 | 1 |
+---------------------
+
+Se volessimo conoscere anche gli elementi della sotto-lista che sommano al valore massimo dobbiamo modificare la funzione:
+
+(define (max-sub-sum lst k)
+  (local (max-sum window-sum sub-val)
+    (setq max-sum 0)
+    ; calcola la somma della prima finestra
+    (for (i 0 (- k 1))
+        (setq max-sum (add max-sum (lst i)))
+    )
+    (setq sub-val (slice lst 0 k))
+    ; Calcola le somme delle finestre rimanenti
+    ; rimuovendo il primo elemento della precedente finestra e
+    ; aggiungendo l'ultimo elemento della finestra corrente.
+    (setq window-sum max-sum)
+    (for (i k (- (length lst) 1))
+      (setq window-sum (sub (add window-sum (lst i)) (lst (- i k))))
+      (if (> window-sum max-sum)
+        (begin
+        (setq max-sum window-sum)
+        ; valori sotto-lista con somma massima
+        (setq sub-val (slice lst (- (+ i 1) k) k)))
+      )
+    )
+    (list max-sum sub-val)))
+
+(max-sub-sum '(3 2 5 6 1) 3)
+;-> (13 (2 5 6))
+
+(max-sub-sum '(3 2 5 -6 1) 3)
+;-> (10 (3 2 5))
+
+(max-sub-sum '(1 10 4 7 11 3 1 15 5 6) 3)
+;-> (26 (15 5 6))
+
+(max-sub-sum '(1 10 4 7 11 3 1 15 5 6) 4)
+;-> (32 (10 4 7 11))
+
+(max-sub-sum '(20 10 4 7 11 3 1 15 5 6) 4)
+;-> (41 (20 10 4 7))
+
+Poichè abbiamo un solo ciclo "for" all'interno della funzione, la complessità temporale vale O(n).
+
+Window sliding con lunghezza variabile
+--------------------------------------
+Questa tecnica può essere implementata anche utilizzando un pannello scorrevole di lunghezza variabile.
+Vediamo un altro problema in cui possiamo applicare questa tecnica.
+
+Data una stringare, trova la lunghezza della sotto-stringa (finestra) più piccola che contiene tutti i caratteri distinti della stringa data. Per esempio per la stringa "aabcbcdbca", il risultato sarebbe 4 poiché la finestra più piccola vale "dbca".
+
+Approccio: Fondamentalmente un pannello di caratteri viene mantenuto utilizzando due puntatori, ovvero "Inizio" e "Fine". Questi puntatori di "Inizio" e "Fine" possono essere utilizzati rispettivamente per ridurre e aumentare la dimensione del pannello. Ogni volta che il pannello contiene tutti i caratteri di una determinata stringa, il pannello viene rimpicciolito dal lato sinistro per rimuovere i caratteri extra e quindi la sua lunghezza viene confrontata con il pannello più piccolo trovato finora.
+Se nel pannello attuale non è possibile cancellare più caratteri allora iniziamo ad aumentare la dimensione del pannello partendo dalla fine fino a quando tutti i caratteri distinti presenti nella stringa sono presenti anche nel pannello. Infine, troviamo la dimensione minima di ogni pannello.
+
+  I                       F
+-----------------------------------------
+| a | a | b | c | b | c | d | b | c | a |
+-----------------------------------------
+
+      I                   F
+-----------------------------------------
+| a | a | b | c | b | c | d | b | c | a |
+-----------------------------------------
+
+      I                       F
+-----------------------------------------
+| a | a | b | c | b | c | d | b | c | a |
+-----------------------------------------
+
+      I                           F
+-----------------------------------------
+| a | a | b | c | b | c | d | b | c | a |
+-----------------------------------------
+
+      I                           F
+-----------------------------------------
+| a | a | b | c | b | c | d | b | c | a |
+-----------------------------------------
+
+                          I           F
+-----------------------------------------
+| a | a | b | c | b | c | d | b | c | a |
+-----------------------------------------
+
+(define (find-min-sub str)
+  (local (dist-conta visited
+          start start-idx min-len
+          conta curr-conta len-win)
+    (setq visited (array 256 '(nil)))
+    ; conta tutti i caratteri distinti
+    (setq dist-conta 0)
+    (for (i 0 (- (length str) 1))
+      (if (null? (visited (char (str i) 0 true)))
+        (begin
+        (setf (visited (char (str i) 0 true)) true)
+        (++ dist-conta))
+      )
+    )
+    ; fondamentalmente manteniamo una finestra di caratteri
+    ; che contiene tutti i caratteri della stringa data
+    (setq start 0 start-idx -1 conta 0
+          min-len 9223372036854775807)
+    (setq curr-conta (array 256 '(0)))
+    (for (j 0 (- (length str) 1))
+      ; conta tutte le occorrenze dei caratteri della stringa
+      (setf (curr-conta (char (str j) 0 true)) (+ (curr-conta (char (str j) 0 true)) 1))
+      ; se troviamo un carattere distinto, 
+      ; allora incrementiamo il conto
+      (if (= (curr-conta (char (str j) 0 true)) 1)
+          (++ conta)
+      )
+      ; se tutti i caratteri corrispondono...
+      (if (= conta dist-conta)
+          (begin
+          ; proviamo a ridurre la finestra:
+          ; controlla se un qualsiasi carattere si verifica più volte
+          ; rispetto alla sua occorrenza nel pattern, 
+          ; se sì allora rimuoverlo dall'inizio 
+          ; e rimuovere anche i caratteri che non servono.          
+          (while (> (curr-conta (char (str start) 0 true)) 1)
+            (if (> (curr-conta (char (str start) 0 true)) 1)
+                (setf (curr-conta (char (str start) 0 true)) (- (curr-conta (char (str start) 0 true)) 1))
+            )
+            (++ start)
+          )
+          ; Update window size
+          (setq len-win (- (+ j 1) start))
+          (if (> min-len len-win)
+              (setq min-len len-win
+                    start-idx start)
+          ))
+      )
+    )
+    ; restituisce la sotto-stringa da start-idx
+    ; a lunga min-len
+    (slice str start-idx min-len)))
+
+(find-min-sub "aabcbcdbca")
+;-> "dbca"
+
+(find-min-sub "sdajkghasdghjkfadfsjh")
+;-> "asdghjkf"
+
+
 ====================================================
 
  DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
@@ -46953,6 +48020,109 @@ La soluzione è analoga alla precedente, l'unica differenza sta nel fatto che in
 (12 13 14 5) 
 (11 16 15 6) 
 (10  9  8 7)
+
+
+------------------------------------------------------------------------
+Lunghezza della sottostringa più lunga senza caratteri ripetuti (Amazon)
+------------------------------------------------------------------------
+
+Data una stringa, trova la lunghezza della sottostringa più lunga senza caratteri ripeturi.
+Esempi:
+"ABDEFGABEF" -> le sottostringhe più lunghe sono "BDEFGA" e "DEFGAB", con lunghezza 6.
+"BBBB"       -> la sottostringa più lunga è "B", con lunghezza 1.
+
+L'approccio più semplice consiste nell'estrarre tutte le sottostringhe da una stringa e quindi calcolare la lunghezza delle sottostringhe con solo caratteri distinti. Ci saranno [(n * (n + 1)) / 2] sottostringhe in una stringa di n caratteri. Questo metodo ha una complessità temporale pessima, ovvero O(n^3).
+
+Possiamo risurre la complessità temporale in tempo lineare O(n) con la tecnica di "window sliding". Questo algoritmo utilizza una variabile per mantenere l'ultimo indice dei caratteri visitati. Si parte dal primo indice e ci spostiamo verso la fine della stringa: teniamo traccia della lunghezza massima della sottostringa con caratteri non ripetuti visitati finora. Quando la stringa viene attraversata, ogni nuovo carattere viene cercato nella parte già visitata della stringa (per questo viene utilizzato un vettore temporaneo). Se il carattere non è presente, la lunghezza corrente viene incrementata di 1. Se il carattere è già presente, possiamo avere due casi:
+
+Caso 1: l'occorrenza precedente di questo carattere non fa parte della sottostringa corrente più lunga. Se questo è vero, la lunghezza corrente viene semplicemente incrementata di 1.
+
+Caso 2: se l'occorrenza precedente di questo carattere fa parte della sottostringa corrente di caratteri non ripetuti, la sottostringa corrente più lunga cambia. Ora, inizia dal carattere che viene subito dopo la precedente occorrenza del carattere attualmente elaborato.
+
+(define (unique-substr str)
+  (local (n cur-len max-len prev-idx visited)
+    (setq n (length str))
+    ; length of current running substring
+    (setq cur-len 1)
+    ; Initialize the visited array as -1
+    ; -1 indicates that the character was not visited
+    (setq visited (array 256 '(-1)))
+    ; Mark first character as visited with 0
+    (setf (visited (char (str 0) 0 true)) 0)
+    ; Start from the second character
+    (for (i 1 (- n 1))
+      (setq prev-idx (visited (char (str i) 0 true)))
+      (if (or (= prev-idx -1) (> (- i cur-len) prev-idx))
+          ; case 1
+          (++ cur-len)
+          ; case 2
+          (begin
+          ; Check if the length of previous running substring 
+          ; was more than the current or not
+          (if (> cur-len max-len)
+              (setq max-len cur-len))
+          (setq cur-len (- i prev-idx))
+          )
+      )
+      ; Index update of current character
+      (setf (visited (char (str i) 0 true)) i)
+    )
+    ; Compare the length of last current running longest substring 
+    ; with max-len and update max-len if needed
+    (if (> cur-len max-len)
+        (setq max-len cur-len)
+    )
+    max-len))
+
+(unique-substr "ABDEFGABEF")
+;-> 6
+
+(unique-substr "BBBB")
+;-> 1
+
+(unique-substr "ABCADE")
+;-> 5
+
+(time (unique-substr "segfhkqslrkgfhljerhygfqjegrhfqjsrhgfqegrhjfjq") 10000)
+;-> 269.309
+
+La seguente funzione utilizza un algoritmo simile al precedente:
+
+(define (unique-substr str)
+  (local (last-index len res-num res-str max-char idx cur-idx)
+    (setq max-char 256)
+    ; Initialize the last index array as -1, 
+    ; -1 is used to store last index of every character
+    (setq last-index (array max-char '(-1)))
+    (setq len (length str))
+    (setq res-num 0)
+    (setq res-str "")
+    (setq idx 0)
+    (for (j 0 (- len 1))
+      ; Find the last index of str[j]
+      ; Update i - starting index of current window -
+      ; as maximum of current value of i and last
+      ; index plus 1
+      (setq cur-idx (char (str j) 0 true)) ; for UTF-8
+      (setq idx (max idx (+ (last-index cur-idx) 1)))
+      ; Update result if we get a larger window
+      (setq res-num (max res-num (- (+ j 1) idx)))
+      ; Update last index of j
+      (setf (last-index cur-idx) j)
+    )
+    res-num))
+
+(unique-substr "ABDEFGABEF")
+;-> 6
+
+(unique-substr "BBBB")
+;-> 1
+
+(unique-substr "ABCADE")
+;-> 5
+
+(time (unique-substr "segfhkqslrkgfhljerhygfqjegrhfqjsrhgfqegrhjfjq") 10000)
+;-> 259.333
 
 
 ==========
@@ -62059,7 +63229,7 @@ x = x + f1*x - (x + x*f2 + x*f1 + x*f1*f2)
 x = x + f1*x - x - x*f2 - x*f1 - x*f1*f2
 x = - x*f2 - x*f1*f2
 x + x*f2 + x*f1*f2 = 0
-x + f2*(x +x*f1) = 0   ==>   f2 = -x/(x +x*f1)
+x + f2*(x + x*f1) = 0   ==>   f2 = -x/(x + x*f1)
 
 Con la formula di f2 possiamo scrivere la funzione:
 
@@ -62069,7 +63239,7 @@ Con la formula di f2 possiamo scrivere la funzione:
 ;-> 1.111111111111111
 (mul 900 (perc2 1000 -10))
 ;-> 1000
-Cioè, se perdiamo il 10%, poi dobbiamo gudagnare l'11.1% per ritornare allo stesso valore (1000).
+Cioè, se perdiamo il 10%, poi dobbiamo guadagnare l'11.1% per ritornare allo stesso valore (1000).
 
 (perc2 1000 10)
 ;-> 0.9090909090909091
@@ -68741,6 +69911,8 @@ Mathematical symbols     Commercial symbols       Quotes and parenthesis
   "Land of Lisp", Conrad Barsky, 2011
 
   "Structure and Interpretation of Computer Programs",  Abelson-Sussman, 2ed, 1996
+  
+  "Numerical Recipes in C: The Art of Scientific Computing", 2ed, Press-Teukolsky-Vetterling-Flannery
 
   "Special Forms in Lisp" Kent Pitman, Conference Record of the 1980 Lisp Conference, Stanford University, August 25-27, 1980
   http://www.nhplace.com/kent/Papers/Special-Forms.html

@@ -165,6 +165,7 @@ FUNZIONI VARIE
   Prodotto scalare (dot product)
   Angolo tra due direzioni (bearing)
   URL encoder/decoder
+  Funzione gamma-ln
 
 newLISP 99 PROBLEMI (28)
 ========================
@@ -340,6 +341,7 @@ PROBLEMI VARI
   Monete e griglie
   Teorema di Pick
   Problema dei fiammiferi di Banach
+  Window sliding
 
 DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
 ==================================================
@@ -413,6 +415,7 @@ DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Numeri romani (LeetCode)
   Numero singolo (McAfee)
   Matrici a spirale (Google)
+  Lunghezza della sottostringa più lunga senza caratteri ripetuti (Amazon)
 
 LIBRERIE
 ========

@@ -56,6 +56,8 @@
   "Land of Lisp", Conrad Barsky, 2011
 
   "Structure and Interpretation of Computer Programs",  Abelson-Sussman, 2ed, 1996
+  
+  "Numerical Recipes in C: The Art of Scientific Computing", 2ed, Press-Teukolsky-Vetterling-Flannery
 
   "Special Forms in Lisp" Kent Pitman, Conference Record of the 1980 Lisp Conference, Stanford University, August 25-27, 1980
   http://www.nhplace.com/kent/Papers/Special-Forms.html
