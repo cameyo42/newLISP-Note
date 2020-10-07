@@ -6291,3 +6291,231 @@ Come al solito la funzione predefinita è molto più veloce:
 ;-> 2410.738
 
 
+--------------------
+select per i vettori
+--------------------
+
+La funzione primitiva "select" funziona solo con le liste e le stringhe. Scriviamo una funzione analoga per i vettori:
+
+(setq lst '(3 5 6 7 1 9))
+(select lst '(2 4))
+;-> (6 1)
+(select lst '(-1 0))
+;-> (9 3)
+
+(setq vet (array (length lst) lst))
+;-> (3 5 6 7 1 9)
+
+Versione iterativa:
+
+(define (select-array arr lst-idx)
+  (let (lst-val '())
+    (dolist (idx lst-idx)
+      (push (arr idx) lst-val -1)
+    )
+    (array (length lst-val) lst-val)
+  )
+)
+
+(select-array vet '(0 1))
+;-> (3 5)
+
+(select-array vet '(0 1 -1))
+;-> (3 5 9)
+
+(select-array vet '(-1 -2 -3 0 1 2))
+;-> (9 1 7 3 5 6)
+
+(select-array vet '(3 3 3))
+;-> (7 7 7)
+
+(select-array vet '(0 1 6))
+;-> ERR: array index out of bounds in function push : 6
+;-> called from user function (select-array vet '(0 1 6))
+
+(array? (select-array vet '(4 1)))
+;-> true
+
+Versione funzionale:
+
+(define (select-array2 arr lst-idx)
+    (array (length lst-idx)
+           (map (fn(x) (arr x)) lst-idx))
+)
+
+(select-array2 vet '(0 1))
+;-> (3 5)
+
+(select-array2 vet '(0 1 -1))
+;-> (3 5 9)
+
+(select-array2 vet '(-1 -2 -3 0 1 2))
+;-> (9 1 7 3 5 6)
+
+(select-array2 vet '(3 3 3))
+;-> (7 7 7)
+
+(select-array2 vet '(0 1 6))
+;-> ERR: array index out of bounds in function map : 6
+;-> called from user function (select-array2 vet '(0 1 6))
+
+(array? (select-array2 vet '(4 1)))
+;-> true
+
+Versione che utilizza "select":
+
+(define (select-array3 arr lst-idx)
+  (array (length lst-idx) (select (array-list arr) lst-idx)))
+
+(select-array3 vet '(0 1))
+;-> (3 5)
+
+(select-array3 vet '(0 1 -1))
+;-> (3 5 9)
+
+(select-array3 vet '(-1 -2 -3 0 1 2))
+;-> (9 1 7 3 5 6)
+
+(select-array3 vet '(3 3 3))
+;-> (7 7 7)
+
+(select-array3 vet '(0 1 6))
+;-> ERR: invalid list index
+;-> called from user function (select-array3 vet '(0 1 6))
+
+(array? (select-array3 vet '(4 1)))
+;-> true
+
+Vediamo quale delle tre funzioni è la più veloce:
+
+Vettore con centomila elementi (da 1 a 100000)
+(silent (setq t (array 100000 (sequence 1 100000))))
+
+Lista con diecimila indici (da 0 a 9999 mischiati)
+(silent (setq ind (randomize (sequence 0 9999))))
+
+(time (select-array t ind) 100)
+;-> 187.451
+
+(time (select-array2 t ind) 100)
+;-> 187.449
+
+(time (select-array3 t ind) 100)
+;-> 6375.477
+
+La funzione "select-array3" è molto lenta, allora proviamo la velocità della funzione primitiva "select":
+
+Lista con centomila elementi (da 1 a 100000)
+(silent (setq tlist (sequence 1 100000)))
+
+(time (select tlist ind) 100)
+;-> 4297.146
+
+Scriviamo una versione di "select" che usa "select-array":
+
+(define (select-list lst lst-idx)
+  (array-list (select-array (array (length lst) lst) lst-idx)))
+
+(setq lst '(3 5 6 7 1 9))
+
+(select-list lst '(0 1))
+;-> (3 5)
+
+(select-list lst '(0 1 -1))
+;-> (3 5 9)
+
+(select-list lst '(-1 -2 -3 0 1 2))
+;-> (9 1 7 3 5 6)
+
+(select-list lst '(3 3 3))
+;-> (7 7 7)
+
+(select-list lst '(0 1 6))
+;-> ERR: array index out of bounds in function push : 6
+;-> called from user function (select-array (array (length lst) lst) lst-idx)
+;-> called from user function (select-list lst '(0 1 6))
+
+(list? (select-list lst '(4 1)))
+;-> true
+
+(time (select-list tlist ind) 100)
+;-> 281.184
+
+(div 4297.146 281.184)
+;-> 15.282327
+
+La funzione-utente "select-list" è 15 volte più veloce della funzione primitiva "select".
+
+Il risultato è abbastanza strano, quindi facciamo un test con una lista con pochi valori (100):
+
+Lista con cento elementi (da 1 a 100)
+(setq alist (sequence 1 100))
+
+Lista con cento indici (da 0 a 99 mischiati)
+(setq aind (randomize (sequence 0 99)))
+
+Proviamo la nostra funzione "select-list":
+(time (select-list alist aind) 100000)
+;-> 1116.293
+
+Proviamo la funzione integrata "select":
+(time (select alist aind) 100000)
+;-> 294.371
+
+Questa volta è più veloce la funzione integrata. 
+Quindi con pochi elementi conviene usare "select", mentre con tanti elementi conviene usare "select-list".
+
+
+-----------------------------
+Lunghezza di un numero intero
+-----------------------------
+
+Chiamiamo L(n) la lunghezza di un numero intero n.
+
+       10^(d-1) <= n < 10^d
+(d - 1)*log(10) <= log(n) < d*log(10)
+        (d - 1) <= log(n)/log(10) < d
+              d <= log10(n) + 1 < d + 1
+              d = floor(1 + log10(n))
+           L(n) = floor(1 + log10(n))
+
+Scriviamo la funzione:
+
+(define (len-num n)
+  (floor (+ (log (abs n) 10) 1)))
+
+(setq x 1234525454553452)
+(len-num x)
+;-> 16
+La funzione integrata "length" calcola anche la lunghezza di un numero intero:
+(length x)
+;-> 16
+
+(len-num (- x))
+;-> 16
+(length (- x))
+;-> 16
+
+Se passiamo un numero in virgola mobile, allora viene restituita solo la lunghezza della parte intera:
+(length 1.345)
+;-> 1
+(len-num 1.345)
+;-> 1
+(length 0.345)
+;-> 1
+(len-num 0.345)
+;-> 1
+(length 10.345)
+;-> 2
+(len-num 10.345)
+;-> 2
+
+Vediamo la differenza di velocità:
+
+(time (len-num x) 1000000)
+;-> 140.583
+
+(time (length x) 1000000)
+;-> 78.098
+
+

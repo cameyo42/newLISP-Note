@@ -4875,3 +4875,52 @@ n = 1578270389554680057141787800241971645032008710129107338825798
 ;-> 5299875888670549565548724808121659894902032916925752559262837L
 
 
+-------------------
+floor, ceil e fract
+-------------------
+
+Definizioni:
+
+(floor x) = max (m ≤ x) dove m è intero
+(ceil x) = min (n ≥ x) dove n è intero
+(fract x) = x - (floor x)
+
+QUindi risulta:
+
+(x - 1) < m ≤ x ≤ n < (x + 1)
+
+(x mod y) = x - y*(floor x/y)
+
+|  x   | Floor | Ceiling | Fractional |
++------+-------+---------+------------+
+|  2   |   2   |   2     |   0        |
+|  2.4 |   2   |   3     |   0.4      |
+|  2.9 |   2   |   3     |   0.9      |
+| −2.7 |  −3   |  −2     |   0.3      |
+| −2   |  −2   |  −2     |   0        |
+
+La notazione matematica è la seguente:
+
+(floor x) con trattino basso "˩"
+(ceil x) con trattino basso "˥"
+(fract x) con parentesi graffe "{}"
+
+Vediamo alcuni esempi:
+(ceil -10.3)
+;-> -10
+(ceil 10.3)
+;-> 11
+(ceil -10.6)
+;-> -10
+(ceil 10.6)
+;-> 11
+(floor -10.3)
+;-> -11
+(floor 10.3)
+;-> 10
+(floor -10.6)
+;-> -11
+(floor 10.6)
+;-> 10
+
+

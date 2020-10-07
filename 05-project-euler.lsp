@@ -2114,7 +2114,7 @@ Problema 16
 
 Somma cifre di una potenza
 
-215 = 32768 e la somma delle sue cifre vale 3 + 2 + 7 + 6 + 8 = 26.
+2^15 = 32768 e la somma delle sue cifre vale 3 + 2 + 7 + 6 + 8 = 26.
 
 Quanto vale la somma delle cifre del numero 2^1000?
 ============================================================================
@@ -2506,8 +2506,8 @@ Adesso scriviamo la funzione che calcola i numeri amicabili:
 ;-> 220.022
 
 Una soluzione più efficiente si ottiene usando la seguente formula:
-Siano p1, p2, … pk i fattori primi del numero n.
-Siano a1, a2, .. ak le potenze massime rispettivamente di p1, p2, .. pk che dividono n (es. n = (p1^a1)*(p2^a2)*...*(pk^ak)).
+Siano p1, p2, ..., pk i fattori primi del numero n.
+Siano a1, a2, ..., ak le potenze massime rispettivamente di p1, p2, ..., pk che dividono n (es. n = (p1^a1)*(p2^a2)*...*(pk^ak)).
 
 Somma dei divisori = (1 + p1 + p1^2 ... p1^a1) *
                      (1 + p2 + p2^2 ... p2^a2) *
@@ -6155,14 +6155,14 @@ Problema 57
 
 È possibile dimostrare che la radice quadrata di due può essere espressa come una frazione continua infinita.
 
-sqrt(2) = 1 + 1 / (2 + 1 / (2 + 1 / (2 +…))) = 1.414213…
+sqrt(2) = 1 + 1 / (2 + 1 / (2 + 1 / (2 +...))) = 1.414213...
 
 Espandendo questo per le prime quattro iterazioni, otteniamo:
 
 1 + 1/2 = 3/2 = 1.5
 1 + 1 / (2 + 1/2) = 7/5 = 1.4
-1 + 1 / (2 + 1 / (2 + 1/2)) = 17/12 = 1.41666…
-1 + 1 / (2 + 1 / (2 + 1 / (2 + 1/2))) = 41/29 = 1.41379…
+1 + 1 / (2 + 1 / (2 + 1/2)) = 17/12 = 1.41666...
+1 + 1 / (2 + 1 / (2 + 1 / (2 + 1/2))) = 41/29 = 1.41379...
 
 Le tre espansioni successive sono 99/70, 239/169 e 577/408, ma l'ottava espansione, 1393/985, è il primo esempio in cui il numero di cifre nel numeratore supera il numero di cifre nel denominatore.
 

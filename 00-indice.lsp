@@ -166,6 +166,8 @@ FUNZIONI VARIE
   Angolo tra due direzioni (bearing)
   URL encoder/decoder
   Funzione gamma-ln
+  select per i vettori
+  Lunghezza di un numero intero
 
 newLISP 99 PROBLEMI (28)
 ========================
@@ -416,6 +418,7 @@ DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Numero singolo (McAfee)
   Matrici a spirale (Google)
   Lunghezza della sottostringa più lunga senza caratteri ripetuti (Amazon)
+  Rendere palindroma una stringa (Google)
 
 LIBRERIE
 ========
@@ -574,6 +577,7 @@ NOTE LIBERE 2
   Frequenza cifre pi greco
   Conversione a big-integer
   Congettura 8424432925592889329288197322308900672459420460792433L
+  floor, ceil e fract
 
 APPENDICI
 =========

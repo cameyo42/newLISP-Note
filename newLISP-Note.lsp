@@ -166,6 +166,8 @@ FUNZIONI VARIE
   Angolo tra due direzioni (bearing)
   URL encoder/decoder
   Funzione gamma-ln
+  select per i vettori
+  Lunghezza di un numero intero
 
 newLISP 99 PROBLEMI (28)
 ========================
@@ -416,6 +418,7 @@ DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Numero singolo (McAfee)
   Matrici a spirale (Google)
   Lunghezza della sottostringa più lunga senza caratteri ripetuti (Amazon)
+  Rendere palindroma una stringa (Google)
 
 LIBRERIE
 ========
@@ -574,6 +577,7 @@ NOTE LIBERE 2
   Frequenza cifre pi greco
   Conversione a big-integer
   Congettura 8424432925592889329288197322308900672459420460792433L
+  floor, ceil e fract
 
 APPENDICI
 =========
@@ -15695,6 +15699,234 @@ Come al solito la funzione predefinita è molto più veloce:
 ;-> 2410.738
 
 
+--------------------
+select per i vettori
+--------------------
+
+La funzione primitiva "select" funziona solo con le liste e le stringhe. Scriviamo una funzione analoga per i vettori:
+
+(setq lst '(3 5 6 7 1 9))
+(select lst '(2 4))
+;-> (6 1)
+(select lst '(-1 0))
+;-> (9 3)
+
+(setq vet (array (length lst) lst))
+;-> (3 5 6 7 1 9)
+
+Versione iterativa:
+
+(define (select-array arr lst-idx)
+  (let (lst-val '())
+    (dolist (idx lst-idx)
+      (push (arr idx) lst-val -1)
+    )
+    (array (length lst-val) lst-val)
+  )
+)
+
+(select-array vet '(0 1))
+;-> (3 5)
+
+(select-array vet '(0 1 -1))
+;-> (3 5 9)
+
+(select-array vet '(-1 -2 -3 0 1 2))
+;-> (9 1 7 3 5 6)
+
+(select-array vet '(3 3 3))
+;-> (7 7 7)
+
+(select-array vet '(0 1 6))
+;-> ERR: array index out of bounds in function push : 6
+;-> called from user function (select-array vet '(0 1 6))
+
+(array? (select-array vet '(4 1)))
+;-> true
+
+Versione funzionale:
+
+(define (select-array2 arr lst-idx)
+    (array (length lst-idx)
+           (map (fn(x) (arr x)) lst-idx))
+)
+
+(select-array2 vet '(0 1))
+;-> (3 5)
+
+(select-array2 vet '(0 1 -1))
+;-> (3 5 9)
+
+(select-array2 vet '(-1 -2 -3 0 1 2))
+;-> (9 1 7 3 5 6)
+
+(select-array2 vet '(3 3 3))
+;-> (7 7 7)
+
+(select-array2 vet '(0 1 6))
+;-> ERR: array index out of bounds in function map : 6
+;-> called from user function (select-array2 vet '(0 1 6))
+
+(array? (select-array2 vet '(4 1)))
+;-> true
+
+Versione che utilizza "select":
+
+(define (select-array3 arr lst-idx)
+  (array (length lst-idx) (select (array-list arr) lst-idx)))
+
+(select-array3 vet '(0 1))
+;-> (3 5)
+
+(select-array3 vet '(0 1 -1))
+;-> (3 5 9)
+
+(select-array3 vet '(-1 -2 -3 0 1 2))
+;-> (9 1 7 3 5 6)
+
+(select-array3 vet '(3 3 3))
+;-> (7 7 7)
+
+(select-array3 vet '(0 1 6))
+;-> ERR: invalid list index
+;-> called from user function (select-array3 vet '(0 1 6))
+
+(array? (select-array3 vet '(4 1)))
+;-> true
+
+Vediamo quale delle tre funzioni è la più veloce:
+
+Vettore con centomila elementi (da 1 a 100000)
+(silent (setq t (array 100000 (sequence 1 100000))))
+
+Lista con diecimila indici (da 0 a 9999 mischiati)
+(silent (setq ind (randomize (sequence 0 9999))))
+
+(time (select-array t ind) 100)
+;-> 187.451
+
+(time (select-array2 t ind) 100)
+;-> 187.449
+
+(time (select-array3 t ind) 100)
+;-> 6375.477
+
+La funzione "select-array3" è molto lenta, allora proviamo la velocità della funzione primitiva "select":
+
+Lista con centomila elementi (da 1 a 100000)
+(silent (setq tlist (sequence 1 100000)))
+
+(time (select tlist ind) 100)
+;-> 4297.146
+
+Scriviamo una versione di "select" che usa "select-array":
+
+(define (select-list lst lst-idx)
+  (array-list (select-array (array (length lst) lst) lst-idx)))
+
+(setq lst '(3 5 6 7 1 9))
+
+(select-list lst '(0 1))
+;-> (3 5)
+
+(select-list lst '(0 1 -1))
+;-> (3 5 9)
+
+(select-list lst '(-1 -2 -3 0 1 2))
+;-> (9 1 7 3 5 6)
+
+(select-list lst '(3 3 3))
+;-> (7 7 7)
+
+(select-list lst '(0 1 6))
+;-> ERR: array index out of bounds in function push : 6
+;-> called from user function (select-array (array (length lst) lst) lst-idx)
+;-> called from user function (select-list lst '(0 1 6))
+
+(list? (select-list lst '(4 1)))
+;-> true
+
+(time (select-list tlist ind) 100)
+;-> 281.184
+
+(div 4297.146 281.184)
+;-> 15.282327
+
+La funzione-utente "select-list" è 15 volte più veloce della funzione primitiva "select".
+
+Il risultato è abbastanza strano, quindi facciamo un test con una lista con pochi valori (100):
+
+Lista con cento elementi (da 1 a 100)
+(setq alist (sequence 1 100))
+
+Lista con cento indici (da 0 a 99 mischiati)
+(setq aind (randomize (sequence 0 99)))
+
+Proviamo la nostra funzione "select-list":
+(time (select-list alist aind) 100000)
+;-> 1116.293
+
+Proviamo la funzione integrata "select":
+(time (select alist aind) 100000)
+;-> 294.371
+
+Questa volta è più veloce la funzione integrata. 
+Quindi con pochi elementi conviene usare "select", mentre con tanti elementi conviene usare "select-list".
+
+
+-----------------------------
+Lunghezza di un numero intero
+-----------------------------
+
+Chiamiamo L(n) la lunghezza di un numero intero n.
+
+       10^(d-1) <= n < 10^d
+(d - 1)*log(10) <= log(n) < d*log(10)
+        (d - 1) <= log(n)/log(10) < d
+              d <= log10(n) + 1 < d + 1
+              d = floor(1 + log10(n))
+           L(n) = floor(1 + log10(n))
+
+Scriviamo la funzione:
+
+(define (len-num n)
+  (floor (+ (log (abs n) 10) 1)))
+
+(setq x 1234525454553452)
+(len-num x)
+;-> 16
+La funzione integrata "length" calcola anche la lunghezza di un numero intero:
+(length x)
+;-> 16
+
+(len-num (- x))
+;-> 16
+(length (- x))
+;-> 16
+
+Se passiamo un numero in virgola mobile, allora viene restituita solo la lunghezza della parte intera:
+(length 1.345)
+;-> 1
+(len-num 1.345)
+;-> 1
+(length 0.345)
+;-> 1
+(len-num 0.345)
+;-> 1
+(length 10.345)
+;-> 2
+(len-num 10.345)
+;-> 2
+
+Vediamo la differenza di velocità:
+
+(time (len-num x) 1000000)
+;-> 140.583
+
+(time (length x) 1000000)
+;-> 78.098
+
+
 ==========================
 
  newLISP 99 PROBLEMI (28)
@@ -28137,7 +28369,7 @@ Problema 16
 
 Somma cifre di una potenza
 
-215 = 32768 e la somma delle sue cifre vale 3 + 2 + 7 + 6 + 8 = 26.
+2^15 = 32768 e la somma delle sue cifre vale 3 + 2 + 7 + 6 + 8 = 26.
 
 Quanto vale la somma delle cifre del numero 2^1000?
 ============================================================================
@@ -28529,8 +28761,8 @@ Adesso scriviamo la funzione che calcola i numeri amicabili:
 ;-> 220.022
 
 Una soluzione più efficiente si ottiene usando la seguente formula:
-Siano p1, p2, … pk i fattori primi del numero n.
-Siano a1, a2, .. ak le potenze massime rispettivamente di p1, p2, .. pk che dividono n (es. n = (p1^a1)*(p2^a2)*...*(pk^ak)).
+Siano p1, p2, ..., pk i fattori primi del numero n.
+Siano a1, a2, ..., ak le potenze massime rispettivamente di p1, p2, ..., pk che dividono n (es. n = (p1^a1)*(p2^a2)*...*(pk^ak)).
 
 Somma dei divisori = (1 + p1 + p1^2 ... p1^a1) *
                      (1 + p2 + p2^2 ... p2^a2) *
@@ -32178,14 +32410,14 @@ Problema 57
 
 È possibile dimostrare che la radice quadrata di due può essere espressa come una frazione continua infinita.
 
-sqrt(2) = 1 + 1 / (2 + 1 / (2 + 1 / (2 +…))) = 1.414213…
+sqrt(2) = 1 + 1 / (2 + 1 / (2 + 1 / (2 +...))) = 1.414213...
 
 Espandendo questo per le prime quattro iterazioni, otteniamo:
 
 1 + 1/2 = 3/2 = 1.5
 1 + 1 / (2 + 1/2) = 7/5 = 1.4
-1 + 1 / (2 + 1 / (2 + 1/2)) = 17/12 = 1.41666…
-1 + 1 / (2 + 1 / (2 + 1 / (2 + 1/2))) = 41/29 = 1.41379…
+1 + 1 / (2 + 1 / (2 + 1/2)) = 17/12 = 1.41666...
+1 + 1 / (2 + 1 / (2 + 1 / (2 + 1/2))) = 41/29 = 1.41379...
 
 Le tre espansioni successive sono 99/70, 239/169 e 577/408, ma l'ottava espansione, 1393/985, è il primo esempio in cui il numero di cifre nel numeratore supera il numero di cifre nel denominatore.
 
@@ -48125,6 +48357,71 @@ La seguente funzione utilizza un algoritmo simile al precedente:
 ;-> 259.333
 
 
+---------------------------------------
+Rendere palindroma una stringa (Google)
+---------------------------------------
+
+Data una stringa, trovare il minor numero di caratteri da aggiungere all'inizio della stringa per renderla palindroma.
+Restituire la stringa palindroma ottenuta.
+Esempi:
+Stringa: "abc"
+Output: "cbabc"
+
+La stringa "abc" diventa palindroma aggiungendo "c" e "b" all'inizio della stringa.
+
+L'algoritmo è il seguente:
+Fino a che la stringa non è nulla e la stringa corrente non è palindroma:
+  se la stringa è palindroma, uscire dal ciclo
+  in caso contrario, eliminare l'ultimo carattere della stringa e aggiungerlo alla fine del risultato parziale.
+Infine unire la stringa iniziale e il risultato parziale.
+
+Esempio:
+stringa: "eva"
+risultato: ""
+"eva" non è palindroma, allora tolgo l'ultimo carattere "a" e lo aggiungo alla fine del risultato parziale:
+stringa: "ev"
+risultato parziale: "a"
+
+"ev" non è palindroma, allora tolgo l'ultimo carattere "v" e lo aggiungo alla fine del risultato parziale:
+stringa: "ev"
+risultato parziale: "av"
+
+"e" è palindroma, allora unisco il risultato parziale e la stringa iniziale:
+stringa iniziale: "eva"
+risultato parziale: "av"
+unione della stringa iniziale con risultato parziale: "av" + "eva" = "aveva"
+
+Vediamo una possibile implementazione:
+
+(define (palindroma? str)
+  (= str (reverse (copy str))))
+
+(define (make-palindrome-front str)
+  (local (s found out)
+    (setq s str)
+    (setq out '())
+    (while (and (> (length s) 0) (not found))
+      ; se la stringa è palindroma, allora stop
+      (if (palindroma? s)
+          (setq found true)
+      ;else
+      ; altrimenti toglie l'ultimo carattere della stringa
+      ; e lo aggiunge all'inizio della stringa soluzione
+          (push (pop s (- (length s) 1)) out -1)
+      )
+    )
+    (append (join out) str)))
+
+(make-palindrome-front "abc")
+;-> "cbabc"
+
+(make-palindrome-front "anna")
+;-> "anna"
+
+(make-palindrome-front "eva")
+;-> "aveva"
+
+
 ==========
 
  LIBRERIE
@@ -63619,6 +63916,55 @@ n = 1578270389554680057141787800241971645032008710129107338825798
 
 (f 1578270389554680057141787800241971645032008710129107338825798L)
 ;-> 5299875888670549565548724808121659894902032916925752559262837L
+
+
+-------------------
+floor, ceil e fract
+-------------------
+
+Definizioni:
+
+(floor x) = max (m ≤ x) dove m è intero
+(ceil x) = min (n ≥ x) dove n è intero
+(fract x) = x - (floor x)
+
+QUindi risulta:
+
+(x - 1) < m ≤ x ≤ n < (x + 1)
+
+(x mod y) = x - y*(floor x/y)
+
+|  x   | Floor | Ceiling | Fractional |
++------+-------+---------+------------+
+|  2   |   2   |   2     |   0        |
+|  2.4 |   2   |   3     |   0.4      |
+|  2.9 |   2   |   3     |   0.9      |
+| −2.7 |  −3   |  −2     |   0.3      |
+| −2   |  −2   |  −2     |   0        |
+
+La notazione matematica è la seguente:
+
+(floor x) con trattino basso "˩"
+(ceil x) con trattino basso "˥"
+(fract x) con parentesi graffe "{}"
+
+Vediamo alcuni esempi:
+(ceil -10.3)
+;-> -10
+(ceil 10.3)
+;-> 11
+(ceil -10.6)
+;-> -10
+(ceil 10.6)
+;-> 11
+(floor -10.3)
+;-> -11
+(floor 10.3)
+;-> 10
+(floor -10.6)
+;-> -11
+(floor 10.6)
+;-> 10
 
 
 ===========

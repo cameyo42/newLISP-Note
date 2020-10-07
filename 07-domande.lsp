@@ -6076,3 +6076,68 @@ La seguente funzione utilizza un algoritmo simile al precedente:
 ;-> 259.333
 
 
+---------------------------------------
+Rendere palindroma una stringa (Google)
+---------------------------------------
+
+Data una stringa, trovare il minor numero di caratteri da aggiungere all'inizio della stringa per renderla palindroma.
+Restituire la stringa palindroma ottenuta.
+Esempi:
+Stringa: "abc"
+Output: "cbabc"
+
+La stringa "abc" diventa palindroma aggiungendo "c" e "b" all'inizio della stringa.
+
+L'algoritmo è il seguente:
+Fino a che la stringa non è nulla e la stringa corrente non è palindroma:
+  se la stringa è palindroma, uscire dal ciclo
+  in caso contrario, eliminare l'ultimo carattere della stringa e aggiungerlo alla fine del risultato parziale.
+Infine unire la stringa iniziale e il risultato parziale.
+
+Esempio:
+stringa: "eva"
+risultato: ""
+"eva" non è palindroma, allora tolgo l'ultimo carattere "a" e lo aggiungo alla fine del risultato parziale:
+stringa: "ev"
+risultato parziale: "a"
+
+"ev" non è palindroma, allora tolgo l'ultimo carattere "v" e lo aggiungo alla fine del risultato parziale:
+stringa: "ev"
+risultato parziale: "av"
+
+"e" è palindroma, allora unisco il risultato parziale e la stringa iniziale:
+stringa iniziale: "eva"
+risultato parziale: "av"
+unione della stringa iniziale con risultato parziale: "av" + "eva" = "aveva"
+
+Vediamo una possibile implementazione:
+
+(define (palindroma? str)
+  (= str (reverse (copy str))))
+
+(define (make-palindrome-front str)
+  (local (s found out)
+    (setq s str)
+    (setq out '())
+    (while (and (> (length s) 0) (not found))
+      ; se la stringa è palindroma, allora stop
+      (if (palindroma? s)
+          (setq found true)
+      ;else
+      ; altrimenti toglie l'ultimo carattere della stringa
+      ; e lo aggiunge all'inizio della stringa soluzione
+          (push (pop s (- (length s) 1)) out -1)
+      )
+    )
+    (append (join out) str)))
+
+(make-palindrome-front "abc")
+;-> "cbabc"
+
+(make-palindrome-front "anna")
+;-> "anna"
+
+(make-palindrome-front "eva")
+;-> "aveva"
+
+
