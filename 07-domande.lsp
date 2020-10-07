@@ -4181,6 +4181,7 @@ To understand this solution, you can use s="aab" and p="*ab".
 ------------------------------
 Percorsi su una griglia (Uber)
 ------------------------------
+
 Data una matrice M per N composta da valori 0 e 1 che rappresenta una griglia. Ogni valore 0 rappresenta un muro. Ogni valore 1 rappresenta una cella libera.
 Data questa matrice, una coordinata iniziale e una coordinata finale, restituire il numero minimo di passi necessari per raggiungere la coordinata finale partendo dall'inizio. Se non è possibile alcun percorso, restituire nil. Possiamo spostarci verso l'alto, a sinistra, in basso e a destra. Non possiamo attraversare i muri. Non possiamo attraversare i bordi della griglia.
 Il percorso risolutivo può essere costruito solo da celle con valore 1 e in un dato momento, possiamo muovere solo di un passo in una delle quattro direzioni. Le mosse valide sono:
@@ -4203,7 +4204,7 @@ Ad esempio, consideriamo la matrice binaria sotto. Se origine = (0, 0) e destina
 (1 1 1 1 1 0 0 1 1 1)
 (0 0 1 0 0 1 1 0 0 1)
 
-La soluzione utilizza l'algoritmo di Lee che è una buona scelta nella maggior parte dei problemi di ricerca di percorsi minimi, infatti fornisce sempre la soluzione ottimale, anche se è un pò lento e richiede molta memoria.Questo algoritmo è uguale a Breadth First Search (BFS), ma teniamo traccia della distanza e valutiamo la distanza più breve tra l'insieme delle distanze.
+La soluzione utilizza l'algoritmo di Lee che è una buona scelta nella maggior parte dei problemi di ricerca di percorsi minimi, infatti fornisce sempre la soluzione ottimale, anche se è un pò lento e richiede molta memoria. Questo algoritmo è uguale a Breadth First Search (BFS), ma teniamo traccia della distanza e valutiamo la distanza più breve tra l'insieme delle distanze.
 
 I passaggi fondamentali sono i seguenti:
 1. Scegli un punto di partenza e aggiungilo alla coda.

@@ -269,7 +269,7 @@ ROSETTA CODE
 
 PROJECT EULERO
 ==============
-  Problemi 1..60,92
+  Problemi 1..60,63,92
 
 PROBLEMI VARI
 =============
@@ -344,6 +344,7 @@ PROBLEMI VARI
   Teorema di Pick
   Problema dei fiammiferi di Banach
   Window sliding
+  Il gioco di Wythoff
 
 DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
 ==================================================
@@ -26322,6 +26323,7 @@ Adesso possiamo scrivere la funzione che utilizza le variabili globali:
 |    58    |  26241        |       630  |       432  |             |
 |    59    |  107359       |        15  |         1  |             |
 |    60    |  26033        |     55055  |     38926  |             |
+|    63    |  49           |            |         0  |           0 |
 |    92    |  24702        |            |     27084  |             |
 
 Sito web: https://projecteuler.net/archives
@@ -33224,6 +33226,94 @@ Proviamo ad usare un vettore per i numeri primi. In questo modo possiamo evitare
 ;-> 55055.913
 
 I tempi di calcolo delle due funzioni sono quasi uguali.
+
+
+===========
+Problema 63
+===========
+
+Conteggio di cifre di potenze
+
+Il numero di 5 cifre, 16807 = 7^5, è anche una quinta potenza. Allo stesso modo, il numero di 9 cifre, 134217728 = 8^9, è una nona potenza.
+
+Quanti numeri interi positivi di n cifre esistono che sono anche un'ennesima potenza?
+============================================================================
+Cerchiamo un numero n tale che la lunghezza di n elevato a k sia k:  L(n^k) = k
+
+Calcoliamo il limite superiore di n:
+
+k = L(n^k)
+k = floor(1 + log10(k^k))
+k - 1 <= k*log10(n) < k
+log10(n) < 1
+n < 10
+
+Quindi il valore massimo per n è 9.
+
+Calcoliamo il limite superiore di k:
+
+L(n^k) > k
+floor(1 + k*log10(n^k)) > k
+1 + k*log10(n) > k
+log10(n) > (k - 1)/k = 1 - 1/k
+1/k > 1 - log10(n)
+k > 1/(1 - log10(n))
+
+Con n=9 il valore massimo per k è 21:
+
+(div (sub 1 (log 9 10)))
+;-> 21.85434532678283
+
+(define (e063)
+  (let (c  0)
+    (for (n 1 9)
+      (for (k 1 21)
+        (if (= (floor (add 1 (mul k (log n 10)))) k)
+          (++ c)
+        )
+      )
+    )
+    c))
+
+(e063)
+;-> 49
+
+(time (e063))
+;-> 0
+
+Dal punto di vista matematico possiamo notare che dalla definizione della lunghezza di  un numero L risulta:
+
+10^(k-1) <= n^k < 10^k
+
+Poichè n < 10, risulta che 10^(k-1) cresce più velocemente di n^k e ad un certo punto lo sorpasserà. Quindi troviamo il punto in cui queste quantità sono uguali:
+
+10^(k-1) = n^k
+(1/10)*10^k = n^k
+k*log(10) - log(10) = k*log(n)
+k = log(10)/(log(10 - log(n)))
+
+Questa volta k rappresenta il numero di volte in cui le quantità considerate sono uguali (prendiamo floor(k)). La funzione è la seguente:
+
+(define (e063-2)
+  (let (res 0)
+    (for (i 1 9)
+      (setq res (add res (floor (div (log 10) (log (div 10 i))))))
+    )
+    res))
+
+(e063-2)
+;-> 49
+
+(time (e063-2))
+;-> 0
+
+Questa seconda soluzione è molto più veloce:
+
+(time (e063) 10000)
+;-> 392.976
+
+(time (e063-2) 10000)
+;-> 20.965
 
 
 ===========
@@ -42279,6 +42369,116 @@ Se nel pannello attuale non è possibile cancellare più caratteri allora inizia
 ;-> "asdghjkf"
 
 
+-------------------
+Il gioco di Wythoff
+-------------------
+
+Il gioco di Wythoff è un gioco di sottrazione matematica per due giocatori, giocato con due pile di monete. I giocatori, a turno, rimuovono alcune monete da una o entrambe le pile. Quando si rimuovono le monete da entrambe le pile, allora le monete rimosse da ogni pila deve essere uguale. Il gioco termina con la vittoria del giocatore che rimuove l'ultima moneta.
+
+Una descrizione equivalente del gioco è quello di una regina degli scacchi che viene posizionata in una casella di una scacchiera e ogni giocatore può spostare la regina verso l'angolo in basso a sinistra della scacchiera (a1): sud, ovest o sud e ovest, per un qualsiasi numero di caselle. Il vincitore è il giocatore che riesce a posizionare la regina nell'angolo.
+
+Una qualunque posizione nel gioco può essere descritta da una coppia di numeri interi (n, m) con n ≤ m, che rappresentano la quantità di monete di entrambe le pile o le coordinate della regina. La strategia del gioco ruota attorno a posizioni "fredde" e posizioni "calde": in una posizione fredda, il giocatore a cui spetta di muovere perderà anche con la miglior giocata, mentre in una posizione calda, il giocatore a cui spetta di muoversi vincerà con la migliore giocata. La strategia ottimale da una posizione "calda" è quella di spostarsi in qualsiasi posizione "fredda" raggiungibile.
+
+La classificazione delle posizioni "calde" e "fredde" può essere eseguita in modo ricorsivo con le seguenti tre regole:
+
+1) (0,0) è una posizione fredda.
+
+2) Qualsiasi posizione dalla quale è possibile raggiungere una posizione fredda con un solo movimento è una posizione calda.
+
+3) Se ogni mossa porta a una posizione calda, allora una posizione è fredda.
+
+Ad esempio, tutte le posizioni della forma (0, m) e (m, m) con m > 0 sono calde, per la regola 2. 
+Tuttavia, la posizione (1,2) è fredda, perché le uniche posizioni che possono essere raggiunte da essa, (0,1), (0,2), (1,0) e (1,1), sono tutti calde. Le posizioni fredde (n, m) con i valori più piccoli di ne m sono (0, 0), (1, 2), (3, 5), (4, 7), (6, 10) e (8, 13).
+
+Wythoff ha scoperto che le posizioni fredde seguono uno schema regolare determinato dal rapporto aureo φ (sezione aurea). In particolare:
+
+se k è un numero naturale e
+
+n(k) = floor(k*φ) = floor(m(k)*φ) - n(k)
+m(k) = floor(k*φ²) = floor(n(k)*φ) = n(k) + k
+
+dove φ è il rapporto aureo, allora (nk, mk) è la k-esima posizione fredda.
+
+Ricordiamo che il rapporto aureo vale:
+
+φ = (sqrt(5) + 1)/2 = 1.618033988749895
+
+Proviamo a scrivere due funzioni che calcolano queste sequenze:
+
+n(k)=floor(k*(sqrt(5)+1)/2)
+
+In altre parole, la sequenza n(k) è formata da numeri che sono multipli del rapporto aureo arrotondati all'intero minore.
+
+m(k)=floor(k*(sqrt(5)+3)/2)
+
+In altre parole, la sequenza m(k) è formata dai numeri dei corrispondenti n(k) sommati al valore di k.
+
+Vediamo una tabella con i valori:
+
+|--------------|-----|-------|-------|-------|--------|--------|--------|--------|--------|
+|      k       |  0  | 1     | 2     | 3     | 4      | 5      | 6      |  7     |  8     |
+|--------------|-----|-------|-------|-------|--------|--------|--------|--------|--------|     
+|     k*φ      |  0  | 1.618 | 3.236 | 4.854 | 6.472  | 8.090  | 9.708  | 11.326 | 12.944 |
+|--------------|-----|-------|-------|-------|--------|--------|--------|--------|--------|    
+| (floor k*φ)  |  0  | 1     | 3     | 4     | 6      | 8      | 9      | 11     | 12     |
+|--------------|-----|-------|-------|-------|--------|--------|--------|--------|--------|
+|     k*φ²     |  0  | 2.618 | 5.236 | 7.854 | 10.472 | 13.090 | 15.708 | 18.326 | 20.944 |
+|--------------|-----|-------|-------|-------|--------|--------|--------|--------|--------|    
+| (floor k*φ²) |  0 -| 2     | 5     | 7     | 10     | 13     | 15     | 18     | 20     |
+|--------------|-----|-------|-------|-------|--------|--------|--------|--------|--------|
+
+(define (nk k) (floor (mul k (div (add (sqrt 5) 1) 2))))
+(define (mk k) (floor (mul k (div (add (sqrt 5) 3) 2))))
+
+(define (fredde k)
+  (let (out '())
+    (for (i 1 k)
+      (push (list (nk i) (mk i)) out -1))
+    out))
+
+(fredde 10)
+;-> ((1 2) (3 5) (4 7) (6 10) (8 13) (9 15) (11 18) (12 20) (14 23) (16 26))
+
+Vediamo dove si trovano queste posizioni nel caso della regina nella scacchiera:
+
+▄ = posizioni fredde
+
+   +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+15 |   |   |   |   |   |   |   |   |   | ▄ |   |   |   |   |   |   |
+   +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+14 |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+   +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+13 |   |   |   |   |   |   |   |   | ▄ |   |   |   |   |   |   |   |
+   +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+12 |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+   +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+11 |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+   +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+10 |   |   |   |   |   |   | ▄ |   |   |   |   |   |   |   |   |   |
+   +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+ 9 |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   | ▄ |
+   +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+ 8 |   |   |   |   |   |   |   |   |   |   |   |   |   | ▄ |   |   |
+   +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+ 7 |   |   |   |   | ▄ |   |   |   |   |   |   |   |   |   |   |   |
+   +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+ 6 |   |   |   |   |   |   |   |   |   |   | ▄ |   |   |   |   |   |
+   +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+ 5 |   |   |   | ▄ |   |   |   |   |   |   |   |   |   |   |   |   |
+   +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+ 4 |   |   |   |   |   |   |   | ▄ |   |   |   |   |   |   |   |   |
+   +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+ 3 |   |   |   |   |   | ▄ |   |   |   |   |   |   |   |   |   |   |
+   +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+ 2 |   | ▄ |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+   +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+ 1 |   |   | ▄ |   |   |   |   |   |   |   |   |   |   |   |   |   |
+   +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+ 0 | ▄ |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+   +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+   
+     0   1   2   3   4   5   6   7   8   9   10  11  12  13  14  15
+
+
 ====================================================
 
  DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
@@ -46462,6 +46662,7 @@ To understand this solution, you can use s="aab" and p="*ab".
 ------------------------------
 Percorsi su una griglia (Uber)
 ------------------------------
+
 Data una matrice M per N composta da valori 0 e 1 che rappresenta una griglia. Ogni valore 0 rappresenta un muro. Ogni valore 1 rappresenta una cella libera.
 Data questa matrice, una coordinata iniziale e una coordinata finale, restituire il numero minimo di passi necessari per raggiungere la coordinata finale partendo dall'inizio. Se non è possibile alcun percorso, restituire nil. Possiamo spostarci verso l'alto, a sinistra, in basso e a destra. Non possiamo attraversare i muri. Non possiamo attraversare i bordi della griglia.
 Il percorso risolutivo può essere costruito solo da celle con valore 1 e in un dato momento, possiamo muovere solo di un passo in una delle quattro direzioni. Le mosse valide sono:
@@ -46484,7 +46685,7 @@ Ad esempio, consideriamo la matrice binaria sotto. Se origine = (0, 0) e destina
 (1 1 1 1 1 0 0 1 1 1)
 (0 0 1 0 0 1 1 0 0 1)
 
-La soluzione utilizza l'algoritmo di Lee che è una buona scelta nella maggior parte dei problemi di ricerca di percorsi minimi, infatti fornisce sempre la soluzione ottimale, anche se è un pò lento e richiede molta memoria.Questo algoritmo è uguale a Breadth First Search (BFS), ma teniamo traccia della distanza e valutiamo la distanza più breve tra l'insieme delle distanze.
+La soluzione utilizza l'algoritmo di Lee che è una buona scelta nella maggior parte dei problemi di ricerca di percorsi minimi, infatti fornisce sempre la soluzione ottimale, anche se è un pò lento e richiede molta memoria. Questo algoritmo è uguale a Breadth First Search (BFS), ma teniamo traccia della distanza e valutiamo la distanza più breve tra l'insieme delle distanze.
 
 I passaggi fondamentali sono i seguenti:
 1. Scegli un punto di partenza e aggiungilo alla coda.

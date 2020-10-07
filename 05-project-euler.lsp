@@ -67,6 +67,7 @@
 |    58    |  26241        |       630  |       432  |             |
 |    59    |  107359       |        15  |         1  |             |
 |    60    |  26033        |     55055  |     38926  |             |
+|    63    |  49           |            |         0  |           0 |
 |    92    |  24702        |            |     27084  |             |
 
 Sito web: https://projecteuler.net/archives
@@ -6969,6 +6970,94 @@ Proviamo ad usare un vettore per i numeri primi. In questo modo possiamo evitare
 ;-> 55055.913
 
 I tempi di calcolo delle due funzioni sono quasi uguali.
+
+
+===========
+Problema 63
+===========
+
+Conteggio di cifre di potenze
+
+Il numero di 5 cifre, 16807 = 7^5, è anche una quinta potenza. Allo stesso modo, il numero di 9 cifre, 134217728 = 8^9, è una nona potenza.
+
+Quanti numeri interi positivi di n cifre esistono che sono anche un'ennesima potenza?
+============================================================================
+Cerchiamo un numero n tale che la lunghezza di n elevato a k sia k:  L(n^k) = k
+
+Calcoliamo il limite superiore di n:
+
+k = L(n^k)
+k = floor(1 + log10(k^k))
+k - 1 <= k*log10(n) < k
+log10(n) < 1
+n < 10
+
+Quindi il valore massimo per n è 9.
+
+Calcoliamo il limite superiore di k:
+
+L(n^k) > k
+floor(1 + k*log10(n^k)) > k
+1 + k*log10(n) > k
+log10(n) > (k - 1)/k = 1 - 1/k
+1/k > 1 - log10(n)
+k > 1/(1 - log10(n))
+
+Con n=9 il valore massimo per k è 21:
+
+(div (sub 1 (log 9 10)))
+;-> 21.85434532678283
+
+(define (e063)
+  (let (c  0)
+    (for (n 1 9)
+      (for (k 1 21)
+        (if (= (floor (add 1 (mul k (log n 10)))) k)
+          (++ c)
+        )
+      )
+    )
+    c))
+
+(e063)
+;-> 49
+
+(time (e063))
+;-> 0
+
+Dal punto di vista matematico possiamo notare che dalla definizione della lunghezza di  un numero L risulta:
+
+10^(k-1) <= n^k < 10^k
+
+Poichè n < 10, risulta che 10^(k-1) cresce più velocemente di n^k e ad un certo punto lo sorpasserà. Quindi troviamo il punto in cui queste quantità sono uguali:
+
+10^(k-1) = n^k
+(1/10)*10^k = n^k
+k*log(10) - log(10) = k*log(n)
+k = log(10)/(log(10 - log(n)))
+
+Questa volta k rappresenta il numero di volte in cui le quantità considerate sono uguali (prendiamo floor(k)). La funzione è la seguente:
+
+(define (e063-2)
+  (let (res 0)
+    (for (i 1 9)
+      (setq res (add res (floor (div (log 10) (log (div 10 i))))))
+    )
+    res))
+
+(e063-2)
+;-> 49
+
+(time (e063-2))
+;-> 0
+
+Questa seconda soluzione è molto più veloce:
+
+(time (e063) 10000)
+;-> 392.976
+
+(time (e063-2) 10000)
+;-> 20.965
 
 
 ===========

@@ -8928,3 +8928,113 @@ Se nel pannello attuale non è possibile cancellare più caratteri allora inizia
 ;-> "asdghjkf"
 
 
+-------------------
+Il gioco di Wythoff
+-------------------
+
+Il gioco di Wythoff è un gioco di sottrazione matematica per due giocatori, giocato con due pile di monete. I giocatori, a turno, rimuovono alcune monete da una o entrambe le pile. Quando si rimuovono le monete da entrambe le pile, allora le monete rimosse da ogni pila deve essere uguale. Il gioco termina con la vittoria del giocatore che rimuove l'ultima moneta.
+
+Una descrizione equivalente del gioco è quello di una regina degli scacchi che viene posizionata in una casella di una scacchiera e ogni giocatore può spostare la regina verso l'angolo in basso a sinistra della scacchiera (a1): sud, ovest o sud e ovest, per un qualsiasi numero di caselle. Il vincitore è il giocatore che riesce a posizionare la regina nell'angolo.
+
+Una qualunque posizione nel gioco può essere descritta da una coppia di numeri interi (n, m) con n ≤ m, che rappresentano la quantità di monete di entrambe le pile o le coordinate della regina. La strategia del gioco ruota attorno a posizioni "fredde" e posizioni "calde": in una posizione fredda, il giocatore a cui spetta di muovere perderà anche con la miglior giocata, mentre in una posizione calda, il giocatore a cui spetta di muoversi vincerà con la migliore giocata. La strategia ottimale da una posizione "calda" è quella di spostarsi in qualsiasi posizione "fredda" raggiungibile.
+
+La classificazione delle posizioni "calde" e "fredde" può essere eseguita in modo ricorsivo con le seguenti tre regole:
+
+1) (0,0) è una posizione fredda.
+
+2) Qualsiasi posizione dalla quale è possibile raggiungere una posizione fredda con un solo movimento è una posizione calda.
+
+3) Se ogni mossa porta a una posizione calda, allora una posizione è fredda.
+
+Ad esempio, tutte le posizioni della forma (0, m) e (m, m) con m > 0 sono calde, per la regola 2. 
+Tuttavia, la posizione (1,2) è fredda, perché le uniche posizioni che possono essere raggiunte da essa, (0,1), (0,2), (1,0) e (1,1), sono tutti calde. Le posizioni fredde (n, m) con i valori più piccoli di ne m sono (0, 0), (1, 2), (3, 5), (4, 7), (6, 10) e (8, 13).
+
+Wythoff ha scoperto che le posizioni fredde seguono uno schema regolare determinato dal rapporto aureo φ (sezione aurea). In particolare:
+
+se k è un numero naturale e
+
+n(k) = floor(k*φ) = floor(m(k)*φ) - n(k)
+m(k) = floor(k*φ²) = floor(n(k)*φ) = n(k) + k
+
+dove φ è il rapporto aureo, allora (nk, mk) è la k-esima posizione fredda.
+
+Ricordiamo che il rapporto aureo vale:
+
+φ = (sqrt(5) + 1)/2 = 1.618033988749895
+
+Proviamo a scrivere due funzioni che calcolano queste sequenze:
+
+n(k)=floor(k*(sqrt(5)+1)/2)
+
+In altre parole, la sequenza n(k) è formata da numeri che sono multipli del rapporto aureo arrotondati all'intero minore.
+
+m(k)=floor(k*(sqrt(5)+3)/2)
+
+In altre parole, la sequenza m(k) è formata dai numeri dei corrispondenti n(k) sommati al valore di k.
+
+Vediamo una tabella con i valori:
+
+|--------------|-----|-------|-------|-------|--------|--------|--------|--------|--------|
+|      k       |  0  | 1     | 2     | 3     | 4      | 5      | 6      |  7     |  8     |
+|--------------|-----|-------|-------|-------|--------|--------|--------|--------|--------|     
+|     k*φ      |  0  | 1.618 | 3.236 | 4.854 | 6.472  | 8.090  | 9.708  | 11.326 | 12.944 |
+|--------------|-----|-------|-------|-------|--------|--------|--------|--------|--------|    
+| (floor k*φ)  |  0  | 1     | 3     | 4     | 6      | 8      | 9      | 11     | 12     |
+|--------------|-----|-------|-------|-------|--------|--------|--------|--------|--------|
+|     k*φ²     |  0  | 2.618 | 5.236 | 7.854 | 10.472 | 13.090 | 15.708 | 18.326 | 20.944 |
+|--------------|-----|-------|-------|-------|--------|--------|--------|--------|--------|    
+| (floor k*φ²) |  0 -| 2     | 5     | 7     | 10     | 13     | 15     | 18     | 20     |
+|--------------|-----|-------|-------|-------|--------|--------|--------|--------|--------|
+
+(define (nk k) (floor (mul k (div (add (sqrt 5) 1) 2))))
+(define (mk k) (floor (mul k (div (add (sqrt 5) 3) 2))))
+
+(define (fredde k)
+  (let (out '())
+    (for (i 1 k)
+      (push (list (nk i) (mk i)) out -1))
+    out))
+
+(fredde 10)
+;-> ((1 2) (3 5) (4 7) (6 10) (8 13) (9 15) (11 18) (12 20) (14 23) (16 26))
+
+Vediamo dove si trovano queste posizioni nel caso della regina nella scacchiera:
+
+▄ = posizioni fredde
+
+   +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+15 |   |   |   |   |   |   |   |   |   | ▄ |   |   |   |   |   |   |
+   +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+14 |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+   +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+13 |   |   |   |   |   |   |   |   | ▄ |   |   |   |   |   |   |   |
+   +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+12 |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+   +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+11 |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+   +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+10 |   |   |   |   |   |   | ▄ |   |   |   |   |   |   |   |   |   |
+   +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+ 9 |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   | ▄ |
+   +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+ 8 |   |   |   |   |   |   |   |   |   |   |   |   |   | ▄ |   |   |
+   +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+ 7 |   |   |   |   | ▄ |   |   |   |   |   |   |   |   |   |   |   |
+   +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+ 6 |   |   |   |   |   |   |   |   |   |   | ▄ |   |   |   |   |   |
+   +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+ 5 |   |   |   | ▄ |   |   |   |   |   |   |   |   |   |   |   |   |
+   +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+ 4 |   |   |   |   |   |   |   | ▄ |   |   |   |   |   |   |   |   |
+   +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+ 3 |   |   |   |   |   | ▄ |   |   |   |   |   |   |   |   |   |   |
+   +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+ 2 |   | ▄ |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+   +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+ 1 |   |   | ▄ |   |   |   |   |   |   |   |   |   |   |   |   |   |
+   +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+ 0 | ▄ |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+   +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+   
+     0   1   2   3   4   5   6   7   8   9   10  11  12  13  14  15
+
+

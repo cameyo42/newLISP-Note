@@ -269,7 +269,7 @@ ROSETTA CODE
 
 PROJECT EULERO
 ==============
-  Problemi 1..60,92
+  Problemi 1..60,63,92
 
 PROBLEMI VARI
 =============
@@ -344,6 +344,7 @@ PROBLEMI VARI
   Teorema di Pick
   Problema dei fiammiferi di Banach
   Window sliding
+  Il gioco di Wythoff
 
 DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
 ==================================================
