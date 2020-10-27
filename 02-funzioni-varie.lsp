@@ -18,7 +18,7 @@ Scriviamo una funzione che crea una lista dei caratteri ASCII stmapabili.
 
 (define (asciiTable)
   (let (out '())
-    (for (i 32 126)
+    (for (i 32 1024)
       (push (list i (char i)) out -1)
     )
     out
@@ -1270,6 +1270,20 @@ Estrazione dei bit di un numero
 (bit 6 123) ;-> 1
 (bit 7 123) ;-> 1
 
+Per i big-integer possiamo usare la seguente funzione:
+
+; Compute "bits" for bigint and int
+(constant 'MAXINT (pow 2 62))
+(define (prep s) (string (dup "0" (- 62 (length s))) s))
+(define (bitsL n)
+    (if (<= n MAXINT) (bits (int n))
+      (string (bitsL (/ n MAXINT))
+              (prep (bits (int (% n MAXINT)))))))
+
+(bitsL 191934985723489057239845792384579823475981L)
+;->"100011010000001011110101011010001101010110100111011110110000000110001010
+;-> 110011011000001001000100010111101011011011010101000001110100001101"
+
 
 ---------------------------------------------------
 Conversione gradi decimali <--> gradi sessagesimali
@@ -1325,6 +1339,9 @@ Conversione RGB <--> HSV
 Conversione di un colore dallo spazio RGB (Red, Green, Blu) allo spazio HSV (Hue Saturation Value) e viceversa. Per ulteriori informazioni consultare il sito:
 
 http://www.easyrgb.com/en/math.php
+
+R, G e B input range  = 0 ÷ 255
+H, S e V output range = 0 ÷ 1.0
 
 Conversione RGB -> HSV:
 
@@ -3625,12 +3642,13 @@ Poi scriviamo due funzioni separate "primo+" e "primo-".
 ----------------------------
 Giorno Giuliano (Julian day)
 ----------------------------
-Il giorno giuliano (Julian Day, JD) è il numero di giorni passati dal mezzogiorno del lunedì 1 gennaio 4713 a.C. (-4012 1 1), che viene considerato il giorno 0 (zero) del calendario giuliano.
+
+Il giorno giuliano (Julian Day, JD) è il numero di giorni passati dal mezzogiorno del lunedì 1 gennaio 4713 a.C. (-4712 1 1), che viene considerato il giorno 0 (zero) del calendario giuliano.
 Il sistema dei giorni giuliani fornisce un singolo sistema di datazione che permette di lavorare con differenti calendari (in pratica è un metodo di normalizzazione delle date).
 
 La formula per il calcolo del giorno giuliano è la seguente:
 
-  JDN = (1461 × (Y + 4800 + (M − 14)/12))/4 +(367 × (M − 2 − 12 × ((M − 14)/12)))/12 − (3 × ((Y + 4900 + (M - 14)/12)/100))/4 + D − 32075
+  JDN = (1461 × (Y + 4800 + (M − 14)/12))/4 + (367 × (M − 2 − 12 × ((M − 14)/12)))/12 − (3 × ((Y + 4900 + (M - 14)/12)/100))/4 + D − 32075
 
 dove Y = Year  (anno)
      M = Month (mese)
@@ -3758,7 +3776,7 @@ Scriviamo la funzione che converte da giorno giuliano a data Gregoriana (anno me
 (julian-g 2019 11 11)
 ;-> 2458799
 (date-g 2458799)
-;-> (11 11 2019)
+;-> (2019 11 11)
 
 (julian-g 2019 11 12)
 ;-> 2458800
@@ -4057,9 +4075,9 @@ https://stackoverflow.com/questions/217578/how-can-i-determine-whether-a-2d-poin
 Prodotto cartesiano
 -------------------
 
-In matematica il prodotto cartesiano di due insiemi A e B è l'insieme delle coppie ordinate (a,b) cona in A e b in B:
+In matematica il prodotto cartesiano di due insiemi A e B è l'insieme delle coppie ordinate (a,b) con a in A e b in B:
 
-A x B = [(a,b): a in A AND b in B]
+A x B = [(a,b): a in A e b in B]
 
 Per esempiop, date due liste A = (1 2) e B = (3 4) il loro prodotto cartesiano vale:
 
@@ -4134,9 +4152,26 @@ Scriviamo la funzione che calcola il prodotto cartesiano di tutte le sotto-liste
 ;->  (5 2 3 9) (5 2 7 4) (5 2 7 8) (5 2 7 9) (5 6 3 4) (5 6 3 8) (5 6 3 9)
 ;->  (5 6 7 4) (5 6 7 8) (5 6 7 9))
 
-(prodotto-cartesiano '((1 2 3) () (500 100)))
+(prodotto-cartesiano '((1 2 3) (1) (500 100)))
+;-> ((1 1 500) (1 1 100) (2 1 500) (2 1 100) (3 1 500) (3 1 100))
+
+(prodotto-cartesiano '((1 2) (3 4)))
+;-> ((1 3) (1 4) (2 3) (2 4))
+
+Da notare che i risultati sono diversi nel caso di liste annidate:
+
+(cp '(1 2 (3 4)) '((4 (3)) (5) (6)))
+;-> ((1 (4 (3))) (1 (5)) (1 (6)) (2 (4 (3))) (2 (5)) 
+;-> (2 (6)) ((3 4) (4 (3))) ((3 4) (5)) ((3 4) (6)))
+
+(prodotto-cartesiano '((1 2 (3 4)) ((4 (3)) (5) (6))))
+;-> ((1 4 3) (1 5) (1 6) (2 4 3) (2 5) (2 6) (3 4 4 3) (3 4 5) (3 4 6))
+(prodotto-cartesiano '((1 2 3 4) (4 3 5 6)))
+;-> ((1 4) (1 3) (1 5) (1 6) (2 4) (2 3) (2 5) (2 6) 
+;-> (3 4) (3 3) (3 5) (3 6) (4 4) (4 3) (4 5) (4 6))
 
 Prodotto cartesiano di funzioni
+-------------------------------
 Se f è una funzione da A in B e g una funzione da C in }D, si definisce come loro prodotto cartesiano e si denota con f x g la funzione da A x C in B x D data da:
 
 [f x g](a,c) = [f(a), g(c)]
@@ -4183,7 +4218,7 @@ Scriviamo una funzione ricorsiva cha calcola l'insieme potenza:
              (p (powerset (rest lst))))
            (append (map (fn (subset) (cons element subset)) p) p) )))
 
-(powerset '(a b c d))
+(powerset '(a b c))
 ;-> ((a b c) (a b) (a c) (a) (b c) (b) (c) ())
 
 Adesso scriviamo una funzione iterativa cha calcola l'insieme potenza:
@@ -4388,6 +4423,15 @@ Usiamo la funzione "rand-range" per generare un numero compreso tra "a" e "b":
 (define (rand-range a b)
   (if (> a b) (swap a b))
   (+ a (rand (+ (- b a) 1))))
+  
+Crea una lista con tutti i valori di una hashmap:
+
+(define (getValues hash)
+  (local (out)
+    (dolist (cp (hash))
+      (push (cp 1) out -1)
+    )
+  out))
 
 Poi scriviamo la funzione richiesta:
 
@@ -4451,6 +4495,23 @@ Adesso quando risulta n > (b - a + 1) la funzione restituisce la lista vuota:
 (sample 10 1 9)
 ;-> ()
 
+Un metodo generico per estrarre n elementi casuali diversi da una lista di elementi è quello di mischiare gli elementi della lista e poi prendere i primi n:
+
+(define (samples num lst)
+  (if (> num (length lst)) '()
+      (sort (slice (randomize lst) 0 num ))))
+
+(samples 5 (sequence 1 10))
+;-> (1 2 5 8 10)
+
+(samples 11 (sequence 1 10))
+;-> (1 2 3 4 5 6 7 8 9 10)
+
+(samples 5 (explode "abcdefghijklmnopqrstuvwxyz"))
+;-> ("a" "f" "m" "n" "t")
+
+Questo metodo è molto veloce, ma richiede una lista con tutti gli elementi.
+
 
 -----------------------------------------------------
 Numeri casuali con distribuzione discreta predefinita
@@ -4471,13 +4532,13 @@ Definiamo gli intervalli:
 
 Adesso generiamo un numero casuale R:
 
-- se R cade nell'intervallo 1 (0.00, 0.05),
+- se R cade nell'intervallo 1 [0.00, 0.05],
   allora si verifica l'evento "a" --> indice 0
-- se R cade nell'intervallo 2 (0.05, 0.20),
+- se R cade nell'intervallo 2 (0.05, 0.20],
   allora si verifica l'evento "b" --> indice 1
-- se R cade nell'intervallo 3 (0.20, 0.55),
+- se R cade nell'intervallo 3 (0.20, 0.55],
   allora si verifica l'evento "c" --> indice 2
-- se R cade nell'intervallo 4 (0.55, 1.00),
+- se R cade nell'intervallo 4 (0.55, 1.00],
   allora si verifica l'evento "d" --> indice 3
 
 La funzione genera un numero da 0 a (n-1) che rappresenta l'indice del valore di probabilità nella lista delle probabilità:
@@ -4494,6 +4555,7 @@ La funzione genera un numero da 0 a (n-1) che rappresenta l'indice del valore di
     )
     ; l'ultimo valore della lista degli intervalli deve valere 1
     (if (!= (last inter) 1) (println "Errore: somma probabilita diversa da 1"))
+    ;(print inter)
     ; generazione numero random con probabilità predefinite
     (setq val (random))
     (setq out nil)
@@ -4511,11 +4573,13 @@ La funzione genera un numero da 0 a (n-1) che rappresenta l'indice del valore di
 Proviamo con l'esempio iniziale:
 
 (setq p '(0.05 0.15 0.35 0.45))
+(setq p '(0.02 0.08 0.7 0.2))
+(setq p '(0.0212 0.0828 0.722 0.174))
 
 (rand-prob p)
 ;-> 2
 
-Verifichiamo la funzione generando 1000000 di valori che popolano un vettore di frequenze:
+Verifichiamo la funzione generando 1000000 valori che popolano un vettore di frequenze:
 
 (setq vet (array 4 '(0)))
 ;-> (0 0 0 0)
@@ -5514,7 +5578,7 @@ Per ottenere il risultato come big-integer occorre passare gli argomenti come bi
 Permutazioni circolari
 ----------------------
 
-Le permutazioni circolari sono un tipo particolare di permutazioni semplici. Quando gli elementi di una permutazione sono disposti in maniera circolare, in modo che non sia possibile individuare il primo e l ultimo elemento, si parla di permutazione ciclica o circolare o in linea chiusa.
+Le permutazioni circolari sono un tipo particolare di permutazioni semplici. Quando gli elementi di una permutazione sono disposti in maniera circolare, in modo che non sia possibile individuare il primo e l'ultimo elemento, si parla di permutazione ciclica o circolare o in linea chiusa.
 
 Il numero delle permutazioni circolari di n oggetti vale: (n - 1)!
 
@@ -5727,7 +5791,7 @@ A = ∑(p,q)[(px−qx)*(py+qy)/2]
 
 Questo formula viene chiamata teorema di Shoelace.
 
-Rappresentiamo il poligono come una lista di punti. Ogni punto è una lista (x y).
+Rappresentiamo il poligono come una lista di punti. Ogni punto è una sottolista (x y).
 
 (define (area polygon)
   (local (res)
@@ -6165,6 +6229,7 @@ Per la navigazione, potremmo voler sapere se b1 è a sinistra o a destra di b2. 
       'left
       'right))
 
+(bearings-left-right -20 -21)
 (bearings-left-right 20 35)
 ;-> right
 (bearings-left-right -95 90)
@@ -6517,5 +6582,152 @@ Vediamo la differenza di velocità:
 
 (time (length x) 1000000)
 ;-> 78.098
+
+
+---------------
+Normalizzazione
+---------------
+
+Formula generale per normalizzare una lista di numeri nell'intervallo (a,b):
+
+              (val - min-val)*(b - a)
+new-val = a + -----------------------
+                (max-val - min-val)
+
+Con a=0 e b=1 la formula diventa:
+
+              (val - min-val)
+new-val = -----------------------
+            (max-val - min-val)
+
+(setq nums '(2 4 10 6 8 4))
+
+(define (normalizza01 lst)
+  (local (hi lo out)
+    (setq out '())
+    (setq hi (apply max lst))
+    (setq lo (apply min lst))
+    (dolist (val lst)
+      (push (div (mul (sub val lo) ((sub hi lo)) out -1))
+    out))
+
+(normalizza01 nums)
+;-> (0 0.25 1 0.5 0.75 0.25)
+
+Adesso scriviamo la funzione generale:
+
+(define (normalizza lst a b)
+  (local (hi lo out)
+    (setq out '())
+    (setq hi (apply max lst))
+    (setq lo (apply min lst))
+    (dolist (val lst)
+      (push (add a (div (mul (sub val lo) (sub b a)) (sub hi lo))) out -1))
+    out))
+
+(normalizza nums 0 1)
+;-> (0 0.25 1 0.5 0.75 0.25)
+
+(normalizza nums 100 200)
+;-> (100 125 200 150 175 125)
+
+(time (normalizza nums 100 200) 100000)
+;-> 171.568
+
+Questo è corretto, ma non efficiente. È una trasformazione lineare, quindi possiamo precalcolare la parte costante e riscrivere la formula:
+
+                                       (b - a)
+new-val = a + (val - min-val) * -----------------------
+                                  (max-val - min-val)
+
+(define (normalizza lst a b)
+  (local (hi lo k out)
+    (setq out '())
+    (setq hi (apply max lst))
+    (setq lo (apply min lst))
+    (setq k (div (sub b a) (sub hi lo)))
+    (dolist (val lst)
+      (push (add a (mul (sub val lo) k)) out -1))
+    out))
+
+(normalizza nums 0 1)
+;-> (0 0.25 1 0.5 0.75 0.25)
+
+(normalizza nums 100 200)
+;-> (100 125 200 150 175 125)
+
+(time (normalizza nums 100 200) 100000)
+;-> 128.655
+
+
+---------
+Papersize
+---------
+
+Una funzione per calcolare le dimensioni standard dei fogli di carta per la stampa. I risultati sono in milllimetri.
+
+; side: misura del lato (float)
+; k: numero del formato (int)
+(define (side k)
+    (if (< k 2)
+        (if (= k 0) s0 s1)       ; misure conosciute
+        (div (side (- k 2)) 2))) ; piegando due volte la lunghezza dei lati si dimezza
+
+(define (papersize type k)
+  (local (s0 s1)
+    (cond ((= type 'A)
+           (setq s0 (mul 1000 (pow 2 (div 1 4))))
+           (setq s1 (div s0 (sqrt 2))))
+          ((= type 'B)
+           (setq s0 (mul 1000 (sqrt 2)))
+           ;(setq s1 (div s0 (sqrt 2)))
+           (setq s1 (mul 1000 1)))
+          ((= type 'C)
+           (setq s0 (mul 1000 (pow 8 (div 1 8))))
+           (setq s1 (div s0 (sqrt 2))))
+    )
+    (list (side (+ k 1)) (side k))))
+
+(papersize 'A 4)
+;-> (210.2241038134286 297.3017787506803)
+
+(for (i 0 10) (println (format "%d %d" ((papersize 'A i) 0) ((papersize 'A i) 1))))
+;-> 840 1189
+;-> 594 840
+;-> 420 594
+;-> 297 420
+;-> 210 297
+;-> 148 210
+;-> 105 148
+;-> 74 105
+;-> 52 74
+;-> 37 52
+;-> 26 37
+
+(for (i 0 10) (println (format "%d %d" ((papersize 'B i) 0) ((papersize 'B i) 1))))
+;-> 1000 1414
+;-> 707 1000
+;-> 500 707
+;-> 353 500
+;-> 250 353
+;-> 176 250
+;-> 125 176
+;-> 88 125
+;-> 62 88
+;-> 44 62
+;-> 31 44
+
+(for (i 0 10) (println (format "%d %d" ((papersize 'C i) 0) ((papersize 'C i) 1))))
+;-> 917 1296
+;-> 648 917
+;-> 458 648
+;-> 324 458
+;-> 229 324
+;-> 162 229
+;-> 114 162
+;-> 81 114
+;-> 57 81
+;-> 40 57
+;-> 28 40
 
 

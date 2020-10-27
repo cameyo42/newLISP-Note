@@ -1448,10 +1448,10 @@ Usiamo la funzione apply per applicare tutti gli operatori di confronto alla lis
 
 (define (order? lst)
   (cond ((apply =  lst) '= ) ;lista con elementi uguali
-        ((apply >  lst) '> ) ;lista decrescente
-        ((apply <  lst) '< ) ;lista decrescente
-        ((apply >= lst) '>=) ;lista strettamente decrescente
-        ((apply <= lst) '<=) ;lista strettamente crescente
+        ((apply >  lst) '> ) ;lista strettamente decrescente
+        ((apply <  lst) '< ) ;lista strettamente crescente
+        ((apply >= lst) '>=) ;lista decrescente
+        ((apply <= lst) '<=) ;lista crescente
         (true nil)           ;lista non ordinata
   )
 )

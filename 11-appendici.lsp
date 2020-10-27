@@ -3546,7 +3546,7 @@ Con le seguenti funzionalità:
 ;; @syntax una riga per il modello di sintassi (syntax pattern)
 ;; @param una riga per il nome e la descrizione del parametro
 ;; @return una riga per descrizione del risultato (output)
-;; @esempio esempio di codice multilinea a partire dalla riga successiva
+;; @example esempio di codice multilinea a partire dalla riga successiva
 
 L'unico tag richiesto è il tag @module o in alternativa il tag @index. Se nessuno di questi tag è presente nel file, allora non verrà elaborato. Tutti gli altri tag sono opzionali. Solo le righe che iniziano con ";;" (2 punti e virgola) vengono elaborate. Il testo del commento del programma che non dovrebbe apparire nella documentazione dovrebbe iniziare con un solo punto e virgola.
 

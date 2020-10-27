@@ -1471,9 +1471,13 @@ Ecco una espressione che prende un numero e calcola la relativa lunghezza della 
 PERMUTAZIONI
 ------------
 
+Una permutazione è un modo di ordinare in successione oggetti distinti. 
+Il numero delle permutazioni di n elementi vale: n!.
+
 ; =====================================================
-; (permutations lst)
-; Permutazioni di n elementi
+; (permutazioni lst)
+; Permutazioni di n elementi 
+; senza ripetizioni
 ; =====================================================
 
 (define (remove x lst)
@@ -1482,13 +1486,13 @@ PERMUTAZIONI
     ((= x (first lst))(remove x (rest lst)))
     (true (cons (first lst) (remove x (rest lst))))))
 
-(define (permutations lst)
+(define (permutazioni lst)
   (cond
     ((= (length lst) 1)(list lst))
     (true (apply append(map(lambda (i) (map (lambda (j)(cons i j))
-                                            (permutations (remove i lst)))) lst)))))
+                                            (permutazioni (remove i lst)))) lst)))))
 
-(permutations '(1 2 3))
+(permutazioni '(1 2 3))
 ;-> ((1 2 3) (2 1 3) (2 3 1) (1 3 2) (3 1 2) (3 2 1))
 
 Come funziona?
@@ -1509,16 +1513,16 @@ Osservando il caso (1 2 3) si conferma che questo è vero - abbiamo 1 che prece 
 
 e l'operazione per applicarlo a tutte le permutazioni della sottolista potrebbe essere:
 
-(map prepend (permutations sublist))
+(map prepend (permutazioni sublist))
 
 Questa operazione è molto onerosa (considerando che hanno tutti la stessa forma), quindi utilizziamo un approccio lambda che cattura il valore dell'elemento considerato. L'operazione che vogliamo diventa:
 
-(map (lambda (j) (cons element j)) (permutations sublist))
+(map (lambda (j) (cons element j)) (permutazioni sublist))
 
 Adesso vogliamo applicare questa operazione ad ogni elemento della lista, quindi utilizziamo la funzione map con un'altra funzione lambda:
 
 (map (lambda (element)
-       (lambda (j) (cons element j) (permutations sublist)))
+       (lambda (j) (cons element j) (permutazioni sublist)))
      list)
 
 Sembra che vada tutto bene, ma c'è un problema: ogni ciclo di ricorsione prende un elemento e lo converte in una lista. Questo va bene per una lista di lunghezza 1, ma per liste più lunghe ogni elemento genera un annidamento della lista. Per inserire allo stesso livello ogni permutazione generata dobbiamo utilizzare la funzione (apply append...).
@@ -1531,32 +1535,32 @@ La funzione "remove" elimina l'elemento x dalla lista lst:
 In definitiva l'istruzione completa è la seguente:
 
 (apply append (map (lambda (i) (lambda (j) (cons i j))
-                               (permutations (remove i lst))) lst))
+                               (permutazioni (remove i lst))) lst))
 
 che risove tutti i casi tranne quello base che viene preso in conasiderazione da:
 
 ((= (length lst) 1)(list lst))
 
-Questo è tutto, ma per capire meglio la funzione "permutations" facciamo un esempio partendo dall'interno e proseguendo verso l'esterno.
-Applichiamo l'espressione interna (permutations (remove i lst)) ad uno degli elementi:
+Questo è tutto, ma per capire meglio la funzione "permutazioni" facciamo un esempio partendo dall'interno e proseguendo verso l'esterno.
+Applichiamo l'espressione interna (permutazioni (remove i lst)) ad uno degli elementi:
 
 (define lst '(1 2 3))
 (define i 1)
-(permutations (remove i lst))
+(permutazioni (remove i lst))
 ;-> ((2 3) (3 2))
 
 L'espressione rimuove un elemento e genera, ricorsivamente, le permutazioni del resto della lista.
 Adesso applichiamo map con la funzione lambda sulle permutazioni ottenute:
 
 (define j 1)
-(map (lambda (j) (cons i j)) (permutations (remove i lst)))
+(map (lambda (j) (cons i j)) (permutazioni (remove i lst)))
 ;-> ((1 2 3) (1 3 2))
 
 Quindi il map interno produce tutte le permutazioni per un dato i (in questo caso i=1)
 Il map esterno assicura che tutte le permutazioni sono generate considerando tutti gli elementi della lista lst come primo elemento:
 
 (map (lambda (i) (map (lambda (j) (cons i j))
-                      (permutations (remove i lst))))
+                      (permutazioni (remove i lst))))
      lst)
 ;-> (((1 2 3) (1 3 2)) ((2 1 3) (2 3 1)) ((3 1 2) (3 2 1)))
 
@@ -1578,15 +1582,15 @@ Anche la seguente funzione calcola le permutazioni, ma con un metodo diverso:
       (cons (first lst)
             (insert (rest lst) (- n 1) e))))
 
-(define (permutations l)
+(define (permutazioni l)
   (if (null? l) '(())
       (apply append (map (lambda (p)
                            (map (lambda (n)
                                   (insert p n (first l)))
                                 (sequence 0 (length p))))
-                         (permutations (rest l))))))
+                         (permutazioni (rest l))))))
 
-(permutations '(1 2 3))
+(permutazioni '(1 2 3))
 ;-> ((1 2 3) (2 1 3) (2 3 1) (1 3 2) (3 1 2) (3 2 1))
 
 Possiamo creare le permutazioni utilizzando l'algoritmo di Heap ( https://en.wikipedia.org/wiki/Heap%27s_algorithm ).
@@ -1620,11 +1624,57 @@ Questo algoritmo produce tutte le permutazioni scambiando un elemento ad ogni it
   )
 )
 
+(perm '(a b c))
+;-> ((a b c) (b a c) (c a b) (a c b) (b c a) (c b a))
+
+(perm '(a b b))
+;-> ((a b b) (b a b) (b a b) (a b b) (b b a) (b b a))
+
 (length (perm '(0 1 2 3 4 5 6 7 8 9)))
 ;-> 36628800
 
 (time (length (perm '(0 1 2 3 4 5 6 7 8 9))))
 ;-> 3928.519
+
+; =====================================================
+; (perm-rep k lst)
+; Permutazioni di k elementi su n elementi
+; con ripetizioni
+; =====================================================
+
+Il numero di permutazioni con ripetizione di n elementi distinti presi a k vale: n!/(n - k)!
+
+Per trovare un metodo può essere utile scrivere alcuni risultati per valori piccoli di N e vedere se riesciamo a estrapolare uno schema:
+
+LISTA = (a b)
+DIMENSIONE  (ELEMENTI DELLA PERMUTAZIONE)
+0           ( () )
+1           ( (a) (b) )
+2           ( (a a) (a b) (b a) (b b) )
+3           ( (a a a) (a a b) (a b a) (a b b) (b a a) ... )
+
+Quindi fondamentalmente quello che vogliamo fare è, dato R = (permutazioni n elementi), ottenere (permutazioni (+ n 1) elementi) prendendo ogni permutazione P in R, e quindi per ogni elemento E in LISTA, uniamo E a P per creare una nuova permutazione e la memorizziamo in una lista. Questo possiamo farlo con MAP annidate:
+
+(define (perm-rep k lst)
+  (if (zero? k) '(())
+      (flat (map (lambda (p)          ; For each permutation we already have:
+                 (map (lambda (e)     ; For each element in the set:
+                        (cons e p))   ; Add the element to the perm'n.
+                      elements))
+               (permutations (- k 1) elements))))
+
+Dobbiamo usare "flat" per la funzione esterna "map", perché la MAP interna crea liste di nuove permutazioni e dobbiamo unire queste liste insieme per creare un'unica lista (piatta) delle permutazioni che vogliamo.
+
+(define (perm-rep k lst)
+  (if (zero? k) '(())
+      (flat (map (lambda (p) (map (lambda (e) (cons e p)) lst))
+                         (perm-rep (- k 1) lst)) 1)))
+
+(perm-rep 2 '(a b c))
+;-> ((a a) (b a) (c a) (a b) (b b) (c b) (a c) (b c) (c c))
+
+(perm-rep 2 '(a b b))
+((a a) (b a) (b a) (a b) (b b) (b b) (a b) (b b) (b b))
 
 
 ------------
@@ -1659,6 +1709,26 @@ COMBINAZIONI
 
 (combinazioni 3 '(a b c))
 ;-> ((a b c))
+
+; =====================================================
+; (comb-rep k nlst)
+; Calcola le combinazioni di k elementi da n elementi
+; con ripetizione
+; =====================================================
+(define (comb-rep k lst)
+  (cond ((= k 0) '(()))
+        ((null? lst) '())
+        (true
+         (append (map (lambda (x) (cons (first lst) x))
+                      (comb-rep (- k 1) lst))
+                 (comb-rep k (rest lst))))))
+
+(comb-rep 2 '(a b))
+;-> ((a a) (a b) (b b))
+(comb-rep 2 '(1 2 3 4))
+;-> ((1 1) (1 2) (1 3) (1 4) (2 2) (2 3) (2 4) (3 3) (3 4) (4 4))
+(comb-rep 2 '(1 2 3))
+;-> ((1 1) (1 2) (1 3) (2 2) (2 3) (3 3))
 
 
 ----------------
@@ -2909,26 +2979,33 @@ Il primo dei due algoritmi è stato fornito da Sam Cox e funziona direttamente s
 ;->  "slip" "spil" "spli" "ilps" "ilsp" "ipsl" "ipls" "islp" "ispl"
 ;->  "lpsi" "lpis" "lsip" "lspi" "lips" "lisp")
 
-Il secondo algoritmo è un po 'più lento ma si basa, su un algoritmo di permutazioni generalmente applicabile. La funzione permutazioni genera tutte le possibili permutazioni di offset nella stringa, quindi applica tali permutazioni.
+(time (anagrams "newLISP") 100)
+;-> 1979.796
+
+Il secondo algoritmo si basa su un algoritmo di permutazioni generalmente applicabile. La funzione permutazioni genera tutte le possibili permutazioni di offset nella stringa, quindi applica tali permutazioni.
 
 (define (permutations lst)
   (if (= (length lst) 1)
    lst
-   (apply append (map (fn (rot) (map (fn (perm) (cons (first rot) perm))
-      (permutations (rest rot))))
-    (rotations lst)))))
+   (apply append (map (fn (rot) 
+                      (map (fn (perm) (cons (first rot) perm))
+                           (permutations (rest rot))))
+                      (rotations lst)))))
 
 (define (rotations lst)
   (map (fn (x) (rotate lst)) (sequence 1 (length lst))))
 
 (define (anagrams str)
   (map (fn (perm) (select str perm))
-     (permutations (sequence 0 (- (length str) 1)))))
+       (permutations (sequence 0 (- (length str) 1)))))
 
 (anagrams "lisp")
 ;-> ("psil" "psli" "pils" "pisl" "plsi" "plis" "silp" "sipl" "slpi"
 ;->  "slip" "spil" "spli" "ilps" "ilsp" "ipsl" "ipls" "islp" "ispl"
 ;->  "lpsi" "lpis" "lsip" "lspi" "lips" "lisp")
+
+(time (anagrams "newLISP") 100)
+;-> 1571.798
 
 Nota: numero di anagrammi = fattoriale(numero di caratteri)
 
@@ -3009,7 +3086,7 @@ DATA DI PASQUA
 
 Calcolo della data di pasqua per gli anni 1583 a 4099
 La domenica di Pasqua è la domenica successiva alla luna piena Paschal (PFM).
-Questo algoritmo è un'interpretazione aritmetica del metod EDS "Easter Dating Method" sviluppato da Ron Mallen 1985.
+Questo algoritmo è un'interpretazione aritmetica del metodo EDS "Easter Dating Method" sviluppato da Ron Mallen 1985.
 Poichè i valori vengono ricavati in modo sequenziale da calcoli inter-dipendenti, non modificare l'ordine dei calcoli !
 L'operatore / rappresenta la divisione intera, ad esempio: 30 / 7 = 4
 Tutte le variabili sono tipi di dati interi.
@@ -3253,11 +3330,11 @@ PUNTEGGIO NUMERICO (RANKING)
 Il punteggio numerico dei concorrenti (ranking) mostra se uno è migliore, uguale o peggiore di un altro in base ai risultati ottenuti in una  o più competizioni.
 Il punteggio numerico di un concorrente può essere assegnato in diversi modi:
 
-1) Ordinale. (I concorrenti prendono il successivo numero intero disponibile. I punteggi uguali non sono trattati diversamente).
+1) Ordinale (I concorrenti prendono il successivo numero intero disponibile. I punteggi uguali non sono trattati diversamente).
 
 2) Standard (I punteggi uguali condividono quello che sarebbe stato il loro primo numero ordinale).
 
-3) Denso. (I punteggi uguali condividono il successivo numero intero disponibile).
+3) Denso (I punteggi uguali condividono il successivo numero intero disponibile).
 
 Scrivere una funzione per ognuno dei tre metodi di calcolo elencati.
 
@@ -4311,6 +4388,12 @@ Verifichiamo la correttezza della funzione:
 
 Questi errori sono dovuti alla mancanza di precisione dei numeri floating-point, non a bug della  funzione "ilog".
 
+(for (i 1 1e6)
+  (if (!= (ilog i 10) (int (add 0.5 (log i 10))))
+    (println "error: " i { } (ilog i 10) { } (log i 10))
+  )
+)
+
 Vediamo la velocità della funzione:
 
 (time (for (i 1 1000000) (ilog i 10)))
@@ -4484,7 +4567,7 @@ Terzo metodo:
 
 Test di correttezza:
 
-(for (i 2 1e6) (if (!= (isqrt (* i i)) (sqrt (* i i))) (println "error: " (* i i)) ))
+(for (i 2 1e6) (if (!= (isqrt3 (* i i)) (sqrt (* i i))) (println "error: " (* i i)) ))
 ;-> nil
 
 Quarto metodo (big integer):
@@ -5733,7 +5816,7 @@ dove p(1), p(2), ... p(r) sono i fattori primi distinti del numero n.
 Utilizzando la fattorizzazione, il problema ha la stessa complessità temporale di quella della fattorizzazione di un numero O(sqrt n).
 
 (define (toziente-factor num)
-  (let ((result num) (i 2))
+  (let ((result num) (p 2))
     ; Per ogni fattore primo di n (fattore p),
     ; moltiplica il risultato per (1 - 1/p)
     (while (<= (* p p) num)
@@ -5804,7 +5887,8 @@ I passi da seguire sono i seguenti:
 Adesso scriviamo una nuova funzione per il calcolo del toziente utilizzando le primitive di newLISP (in stile LISP):
 
 (define (toziente num)
-    (round (mul num (apply mul (map (fn (x) (sub 1 (div 1 x))) (unique (factor num))))) 0))
+    (if (= num 1) 1
+    (round (mul num (apply mul (map (fn (x) (sub 1 (div 1 x))) (unique (factor num))))) 0)))
 
 Calcola la lista dei fattori unici:
 (unique (factor num))
@@ -5825,7 +5909,7 @@ Moltiplica n e tutti gli elementi della lista
 Non ci resta che verificare quale funzione è la più veloce.
 
 (time (toziente-coprimi 5e6))
-;-> 1884.903
+;-> 1325.904
 (time (toziente-factor 5e6))
 ;-> 0
 (time (toziente-factor-int 5e6))
@@ -5836,11 +5920,11 @@ Non ci resta che verificare quale funzione è la più veloce.
 Le ultime tre funzioni devono essere differenziate ripetendo il calcolo per un certo numero di volte (50000):
 
 (time (toziente-factor 5e6) 50000)
-;-> 175.132
+;-> 119.114
 (time (toziente-factor-int 5e6) 50000)
-;-> 164.518
+;-> 109.032
 (time (toziente 5e6) 50000)
-;-> 144.019
+;-> 67.039
 
 Il risultato è conforme alle aspettative logiche.
 
@@ -7241,7 +7325,7 @@ Verifichiamo la correttezza dell'algoritmo per i primi 100000 numeri:
 (= (map primo? (sequence 1 100000)) (map mil-rab (sequence 1 100000)))
 ;-> true
 
-Nota: all'aumentare di k aumenta l'affidabilità della funzione , ma diminuisce la velocità di esecuzione.
+Nota: all'aumentare di k aumenta l'affidabilità della funzione, ma diminuisce la velocità di esecuzione.
 
 Vediamo al differenza di velocità tra le due funzioni:
 
@@ -8251,13 +8335,13 @@ Regola di Warnsdorff:
 TEOREMA CINESE DEI RESTI
 ------------------------
 
-Siano (n1, n2,..., nk) k interi a due a due coprimi e siano (b1, b2,..., bk) k interi relativi. 
+Siano (n1, n2,..., nk) k interi a due a due coprimi (divisori) e siano (b1, b2,..., bk) k interi relativi (resti). 
 Allora il sistema di congruenze:
 
-x ≡ b1(mod n1)
-x ≡ b2(mod n2)
-...
-x ≡ b2(mod nk)
+x ≡ b1 (mod n1)   --> x mod n1 = b1
+x ≡ b2 (mod n2)   --> x mod n2 = b2  
+...    
+x ≡ bk (mod nk)   --> x mod nk = bk
 
 Ammette soluzioni. Inoltre se x0 è una soluzione del sistema, tutte le soluzioni di tale sistema saranno date da:
 
@@ -8705,11 +8789,11 @@ Valutare il valore di un'espressione aritmetica nella notazione polacca inversa 
 "sin" "cos" "tan"
 "asin" "acos" "atan" "atan2"
 
-Ogni operando può essere un numero intero o un'altra espressione. Per esempio:
+Ogni operando può essere un numero o un'altra espressione. Per esempio:
 
 Questo problema può essere risolto utilizzando una pila (stack). Valutiamo ogni elemento dell'espressione (lista):
-quando è un numero, lo mettiamo nella pila (push).
-quando è un operatore, prendiamo (pop) i numeri che servono dalla pila, eseguiamo il calcolo e mettiamo (push) il risultato nella pila (per decidere quanti sono "i numeri che servono dalla pila" basta vedere quanti numeri servono all'operatore corrente).
+- quando è un numero, lo mettiamo nella pila (push).
+- quando è un operatore, prendiamo (pop) i numeri che servono dalla pila, eseguiamo il calcolo e mettiamo (push) il risultato nella pila (per decidere quanti sono "i numeri che servono dalla pila" basta vedere quanti numeri servono all'operatore corrente).
 
 Per capire come funziona, scriviamo una versione che accetta solo le quattro operazioni "+" "-" "*" "/":
 
@@ -8800,9 +8884,9 @@ Questo non va bene perchè valutiamo anche gli operatori (i numeri vengono valut
 
 Come si vede le variabili "q" e "t" sono state sostituite dai loro valori. Se abbiamo una variabile non inizializzata questa non viene valutata:
 
-(setq expr '(x q t 2 * 1 5 - 2 3 pow pow / +))
+(setq expr '(z q t 2 * 1 5 - 2 3 pow pow / +))
 (map (fn (x) (if (not (protected? x)) (eval x) x)) expr)
-;-> (x 3 5 2 * 1 5 - 2 3 pow pow / +)
+;-> (z 3 5 2 * 1 5 - 2 3 pow pow / +)
 
 e genererà un errore nella funzione "eval-rpn".
 
@@ -8847,4 +8931,264 @@ Adesso possiamo scrivere la funzione che utilizza le variabili globali:
 (setq c (eval-rpn '(a b +)))
 ;-> 30
 
+(eval-rpn '(a b + 5 - sqrt))
+;-> 5
+
+
+---------------
+IL GIOCO DEL 24
+---------------
+
+Dati quattro numeri distinti da 1 a 9, costruire un'espressione con questi numeri e le quattro operazioni (+, -, *, /) che valuti a 24. Per esempio, con i numeri 2, 4, 5, e 6 possiamo scrivere: (((6 - 2) * 5) + 4) = 24
+
+Risolviamo il problema creando e valutando tutte le possibili espressioni. La valutazione delle espressioni viene fatta in modo rpn.
+
+(define (eval-rpn lst)
+  (local (stack a b op op1 op2)
+    (setq stack '())
+    (setq op1 '(abs sqrt exp sin cos tan asin acos atan))
+    (setq op2 '(+ - * / % add sub mul div mod pow atan2))
+    (dolist (el lst)
+      (cond ((number? el)
+             (push el stack))
+            (true
+             (cond ((find el op1)
+                    (setq a (pop stack))
+                    (setq op (eval el))
+                    (push (op a) stack))
+                   ((find el op2)
+                    (setq a (pop stack))
+                    (setq b (pop stack))
+                    (setq op (eval el))
+                    (push (op b a) stack))
+                   (true (println "operator error:" el))))))
+    (pop stack)))
+
+(eval-rpn '(3 2 + 7 * 4 / ))
+;-> 8
+
+Per creare le espressioni da valutare occorrono due funzioni di calcolo combinatorio: le permutazioni senza ripetizioni e le permutazioni con ripetizione.
+
+Permutazioni senza ripetizione (n!):
+
+(define (perm lst)
+  (local (i indici out)
+    (setq indici (dup 0 (length lst)))
+    (setq i 0)
+    (setq out (list lst))
+    (while (< i (length lst))
+      (if (< (indici i) i)
+          (begin
+            (if (zero? (% i 2))
+              (swap (lst 0) (lst i))
+              (swap (lst (indici i)) (lst i))
+            )
+            (push lst out -1)
+            (++ (indici i))
+            (setq i 0)
+          )
+          (begin
+            (setf (indici i) 0)
+            (++ i)
+          )
+       )
+    ) out))
+
+(perm '(a b c))
+;-> ((a b c) (b a c) (c a b) (a c b) (b c a) (c b a))
+
+(perm '(a b b))
+;-> ((a b b) (b a b) (b a b) (a b b) (b b a) (b b a))
+
+Permutazioni con ripetizione (n^k):
+
+(define (perm-rep k lst)
+  (if (zero? k) '(())
+      (flat (map (lambda (p) (map (lambda (e) (cons e p)) lst))
+                         (perm-rep (- k 1) lst)) 1)))
+
+(perm-rep 2 '(a b c))
+;-> ((a a) (b a) (c a) (a b) (b b) (c b) (a c) (b c) (c c))
+
+(perm-rep 2 '(a b b))
+;-> ((a a) (b a) (b a) (a b) (b b) (b b) (a b) (b b) (b b))
+
+Lista delle operazioni:
+(setq op '(add sub mul div))
+
+Lista delle operazioni possibili (n^k) = 4^3 = 64:
+(setq operats (perm-rep 3 op))
+;-> ((add add add) (sub add add) (mul add add) (div add add) 
+;->  (add sub add) (sub sub add) (mul sub add) (div sub add)
+;->  ...
+;->  (add div div) (sub div div) (mul div div) (div div div))
+
+(length operats);-> 64
+(pow 4 3);-> 64
+
+Lista dei numeri singoli:
+(setq num '(3 7 1 8))
+
+Lista dei numeri possibili (n! = 4! = 24):
+(setq digits (perm num))
+;-> ((3 7 1 8) (7 3 1 8) (1 3 7 8) (3 1 7 8) (7 1 3 8) (1 7 3 8) (8 7 3 1) 
+;->  (7 8 3 1) (3 8 7 1) (8 3 7 1) (7 3 8 1) (3 7 8 1) (3 1 8 7) (1 3 8 7)
+;->  (8 3 1 7) (3 8 1 7) (1 8 3 7) (8 1 3 7) (8 1 7 3) (1 8 7 3) (7 8 1 3)
+;->  (8 7 1 3) (1 7 8 3) (7 1 8 3))
+
+(length digits)
+;-> 24
+
+Adesso possiamo unire le due liste per creare una espressione da valutare.
+
+Creazione dell'espressione da valutare:
+(setq expr (append (digits 0) (operats 0)))
+;-> (3 7 1 8 add add add)
+
+Valutazione dell'espressione:
+(eval-rpn expr)
+;-> 19
+
+Adesso scriviamo la funzione finale:
+
+(define (game24 lst)
+(local (op operats num digits out)
+  (setq out '())
+  (setq op '(add sub mul div))
+  (setq operats (perm-rep 3 op))
+  (setq digits (perm lst))
+  (dolist (digit digits)
+    (dolist (oper operats)
+      (setq expr (append digit oper))
+      (if (= 24 (eval-rpn expr))
+          (begin
+          ;(println expr)
+          (replace 'add expr '+)
+          (replace 'sub expr '-)
+          (replace 'mul expr '*)
+          (replace 'div expr '/)
+          (println expr)
+          (push expr out -1)
+          )
+      )
+    )
+  )
+  out))
+
+(game24 '(2 4 5 6))
+;-> (4 5 2 6 - * -)
+;-> (6 2 4 5 + * +)
+;-> (6 2 4 5 * - -)
+;-> (6 2 5 4 + * +)
+;-> (6 2 5 4 * - -)
+;-> (4 5 6 2 - * +)
+;-> ((4 5 2 6 - * -) (6 2 4 5 + * +) (6 2 4 5 * - -)
+;->  (6 2 5 4 + * +) (6 2 5 4 * - -) (4 5 6 2 - * +))
+
+Proviamo a generalizzare il gioco  utilizzando fino a 9 numeri iniziali (1..9) e un numero qualunque da raggiungere (goal). Inoltre convertiamo l'espressione rpn in espressione infissa per la stampa.
+
+Routine che converte l'espressione rpn nella corrispondente espressione infissa:
+
+(define (infix lst)
+  (local (s c)
+    (setq s "")
+    (setq c (/ (length lst) 2))
+    (setq lst (map string lst))
+    (dotimes (i c)
+      (push "(" s -1)
+      (push (lst i) s -1)
+      (push " " s -1)
+      (push (lst (- (length lst) 1 i)) s -1)
+      (push " " s -1)
+    )
+    (push (lst c) s -1)
+    (push (dup ")" c) s -1)
+    s))
+
+(infix '(2 1 4 3 5 6 7 8 9 * * - + + * - +))
+;-> "(2 + (1 - (4 * (3 + (5 + (6 - (7 * (8 * 9))))))))"
+
+(define (game-number lst goal)
+(local (op operats digits out)
+  (setq out '())
+  (setq op '(add sub mul div))
+  (setq operats (perm-rep (- (length lst) 1) op))
+  (setq digits (perm lst))
+  (dolist (digit digits)
+    (dolist (oper operats)
+      (setq expr (append digit oper))
+      (if (= goal (eval-rpn expr))
+          (begin
+          ;(println expr)
+          (replace 'add expr '+)
+          (replace 'sub expr '-)
+          (replace 'mul expr '*)
+          (replace 'div expr '/)
+          (println (infix expr))
+          (push (list expr (infix expr)) out -1)
+          )
+      )
+    )
+  )
+  out))
+
+Proviamo con il gioco del 24:
+
+(game-number '(2 4 5 6) 24)
+;-> (4 - (5 * (2 - 6)))
+;-> (6 + (2 * (4 + 5)))
+;-> (6 - (2 - (4 * 5)))
+;-> (6 + (2 * (5 + 4)))
+;-> (6 - (2 - (5 * 4)))
+;-> (4 + (5 * (6 - 2)))
+;-> ((4 5 2 6 - * -) (6 2 4 5 + * +) (6 2 4 5 * - -) 
+;->  (6 2 5 4 + * +) (6 2 5 4 * - -) (4 5 6 2 - * +))
+
+Proviamo un insieme di numeri che non hanno soluzione:
+
+(game-number '(5 7 5 1) 24)
+;-> () 
+
+Proviamo con altri numeri:
+
+(game-number '(1 2 3 4 5 6 7 8 9) 1963)
+(2 + (1 - (4 * (3 + (5 + (6 - (7 * (8 * 9))))))))
+(1 + (2 - (4 * (3 + (5 + (6 - (7 * (8 * 9))))))))
+(3 - (4 * (1 + (2 + (5 + (6 - (7 * (8 * 9))))))))
+(3 - (4 * (2 + (1 + (5 + (6 - (7 * (8 * 9))))))))
+(3 + (5 * (4 - (1 * (2 + (6 * (7 - (8 * 9))))))))
+......
+
+Per verifica prendiamo il primo risultato:
+(eval-rpn '(2 1 4 3 5 6 7 8 9 * * - + + * - +))
+;-> 1963
+(2 + (1 - (4 * (3 + (5 + (6 - (7 * (8 * 9))))))))
+(2 + (1 - (4 * (3 + (5 + (6 - (7 * (72))))))))
+(2 + (1 - (4 * (3 + (5 + (6 - (504)))))))
+(2 + (1 - (4 * (3 + (5 + (-498))))))
+(2 + (1 - (4 * (3 + (-493)))))
+(2 + (1 - (4 * (-490))))
+(2 + (1 - (-1960)))
+(2 + 1961)
+1963
+
+(game-number '(1 2 3 4 5 6 7 8 9) 2020)
+;-> (4 / (3 * (2 / (1 + (5 + (6 * (7 * (8 * 9))))))))
+;-> (4 / (3 * (2 / (1 + (5 + (6 * (7 * (8 * 9))))))))
+;-> ......
+
+(game-number '(1 2 3 4 5 6 7 8 9) 666)
+;-> (3 * (1 * (2 - (4 * (5 + (6 * (7 - (8 + 9))))))))
+;-> (3 / (1 / (2 - (4 * (5 + (6 * (7 - (8 + 9))))))))
+;-> (1 * (3 * (2 - (4 * (5 + (6 * (7 - (8 + 9))))))))
+;-> (3 * (2 - (1 * (4 * (5 + (6 * (7 - (8 + 9))))))))
+;-> (2 + (4 * (1 - (3 * (5 + (6 * (7 - (8 + 9))))))))
+;-> (2 * (1 + (4 * (3 + (5 * (6 - (7 - (8 + 9))))))))
+;-> ......
+
+Nota: 
+Con 9 cifre (da 1 a 9) abbiamo n! = 9! = 362880 modi di disporre le cifre nell'espressione
+Con 9 cifre abbiamo 8 operazioni con 4 operatori n^k = 4^8 = 65536 modi di disporre gli operatori nell'espressione.
+(* 362880 65536)
+;-> 23781703680 ; (23 miliardi 781 milioni 703 mila 680) espressioni
 

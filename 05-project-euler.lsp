@@ -19,16 +19,16 @@
 |    10    |  142913828    |      1563  |      1078  |        546  |
 |    11    |  70600674     |         0  |         0  |          3  |
 |    12    |  76576500     |      5445  |      4022  |          0  |
-|    13    |  5537376230   |         0  |         0  |             |
+|    13    |  5537376230   |         0  |         0  |          -  |
 |    14    |  837799       |     22487  |     15408  |       7563  |
 |    15    |  137846528    |         0  |         0  |          0  |
-|    16    |  1366         |         0  |         0  |             |
-|    17    |  21124        |         0  |         0  |             |
-|    18    |  1074         |        32  |         7  |             |
-|    19    |  171          |         3  |         0  |             |
-|    20    |  648          |         0  |         0  |             |
-|    21    |  31626        |       122  |        78  |             |
-|    22    |  871198282    |        20  |        16  |             |
+|    16    |  1366         |         0  |         0  |         32  |
+|    17    |  21124        |         0  |         0  |          -  |
+|    18    |  1074         |        32  |         7  |          0  |
+|    19    |  171          |         3  |         1  |          1  |
+|    20    |  648          |         0  |         0  |          -  |
+|    21    |  31626        |       220  |       134  |         87  |
+|    22    |  871198282    |        20  |        10  |             |
 |    23    |  4179871      |     40900  |     27534  |             |
 |    24    |  278391546    |     25309  |     12282  |             |
 |    25    |  4782         |      4926  |      3469  |             |
@@ -67,8 +67,8 @@
 |    58    |  26241        |       630  |       432  |             |
 |    59    |  107359       |        15  |         1  |             |
 |    60    |  26033        |     55055  |     38926  |             |
-|    63    |  49           |            |         0  |           0 |
-|    92    |  24702        |            |     27084  |             |
+|    63    |  49           |         -  |         0  |           0 |
+|    92    |  24702        |         -  |     27084  |             |
 
 Sito web: https://projecteuler.net/archives
 
@@ -1551,8 +1551,7 @@ Funzione cha calcola il numero di divisori di un numero n:
   (local (ndiv)
     (setq ndiv 0)
     (for (i 1 (+ n 1))
-      (if (zero? (mod (div n i) 1) 0) (++ ndiv))
-      ;(if (= (mod (div n i) 1) 0) (begin (++ ndiv) (println i)))
+      (if (zero? (% n i)) (++ ndiv))
     )
     ndiv
   )
@@ -2145,6 +2144,44 @@ Quanto vale la somma delle cifre del numero 2^1000?
 (time (e016))
 ;-> 0
 
+Dal punto di vista matematico possiamo utilizzare la formula per la lunghezza di un numero intero n:
+
+L(n) = floor(1 + log10(n))
+
+Quindi il numero 2^1000 è lungo:
+
+d = 1 + floor(log10(2^1000)) = 1 + floor(1000*log10(2))
+
+(add 1 (floor (mul 1000 (log 2 10))))
+;-> 302
+
+Quindi possiamo moltiplicare il numero 2 per 1000 volte utilizzando il normale algoritmo per la moltiplicazione e memorizzare il risultato in un vettore di 320 elementi. Potremmo usare una lista per memorizzare il risultato, ma un vettore è più veloce.
+
+(define (e016-2 esp)
+  (local (product carry order digits number)
+    (setq order 0)
+    (setq digits (add 1 (floor (mul 1000 (log 2 10)))))
+    (setq number (array digits '(1)))
+    (setf (number 0) 1)
+    (for (i 0 (- esp 1))
+      (setq carry 0)
+      (for (j 0 order)
+        (setq product (+ (* 2 (number j)) carry))
+        (setf (number j) (% product 10))
+        (setq carry (/ product 10))
+        (if (and (= j order) (> carry 0))
+          (++ order)
+        )
+      )
+    )
+    (apply + (array-list number))))
+
+(e016-2 1000)
+;-> 1366
+
+(time (e016-2 1000))
+;-> 31.947
+
 
 ===========
 Problema 17
@@ -2281,6 +2318,61 @@ La seguente soluzione è veramente "brutale".
 (time (e018))
 ;-> 31.248
 
+Una soluzione generica può essere ottenuta con la programmazione dinamica. In pratica per trovare la soluzione, ogni riga deve essere aggiunta a qualsiasi riga successiva, dal basso verso l'alto. Poiché ogni cella ha due predecessori, prendiamo il valore massimo delle due. Con questo metodo, la soluzione si trova nella cella superiore del triangolo:
+
+var triangle = [
+  [75],
+  [95, 64],
+  [17, 47, 82],
+  [18, 35, 87, 10],
+  [20, 04, 82, 47, 65],
+  [19, 01, 23, 75, 03, 34],
+  [88, 02, 77, 73, 07, 63, 67],
+  [99, 65, 04, 28, 06, 16, 70, 92],
+  [41, 41, 26, 56, 83, 40, 80, 70, 33],
+  [41, 48, 72, 33, 47, 32, 37, 16, 94, 29],
+  [53, 71, 44, 65, 25, 43, 91, 52, 97, 51, 14],
+  [70, 11, 33, 28, 77, 73, 17, 78, 39, 68, 17, 57],
+  [91, 71, 52, 38, 17, 14, 91, 43, 58, 50, 27, 29, 48],
+  [63, 66, 04, 68, 89, 53, 67, 30, 73, 16, 69, 87, 40, 31],
+  [04, 62, 98, 27, 23, 09, 70, 98, 73, 93, 38, 53, 60, 04, 23],
+];
+
+(define (e018-2)
+  (let (tri '(
+             (75)
+             (95 64)
+             (17 47 82)
+             (18 35 87 10)
+             (20 4 82 47 65)
+             (19 1 23 75 3 34)
+             (88 2 77 73 7 63 67)
+             (99 65 4 28 6 16 70 92)
+             (41 41 26 56 83 40 80 70 33)
+             (41 48 72 33 47 32 37 16 94 29)
+             (53 71 44 65 25 43 91 52 97 51 14)
+             (70 11 33 28 77 73 17 78 39 68 17 57)
+             (91 71 52 38 17 14 91 43 58 50 27 29 48)
+             (63 66 4 68 89 53 67 30 73 16 69 87 40 31)
+             (4 62 98 27 23 9 70 98 73 93 38 53 60 4 23)))
+  (for (i (- (length tri) 2) 0 -1)
+    (for (j 0 i)
+      (setf (tri i j) (+ (tri i j) (max (tri (+ i 1) j) (tri (+ i 1) (+ j 1)))))
+    )
+  )
+  (tri 0 0)))
+
+(e018-2)
+;-> 1074
+
+(time (e018) 100)
+;-> 655.032
+
+(time (e018-2) 100)
+;-> 3.021
+
+La seconda funzione è 200 volte più veloce.
+
 
 ===========
 Problema 19
@@ -2334,6 +2426,41 @@ Adesso la soluzione è abbastanza semplice:
 
 (time (e019))
 ;-> 2.997
+
+Adesso utilizziamo l'algoritmo di Zeller per calcolare il giorno della settimana di una certa data:
+
+(define (dayZ year month day)
+  (local (adjust mm yy d)
+    (setq adjust (/ (- 14 month) 12))
+    (setq mm (+ month (* 12 adjust) (- 2)))
+    (setq yy (- year adjust))
+    (setq d (% (+ day (/ (- (* 13 mm) 1) 5) yy (/ yy 4) (- (/ yy 100)) (/ yy 400)) 7))
+  )
+)
+
+(define (e019-2)
+  (local (somma)
+    (setq somma 0)
+    (for (anno 1901 2000)
+      (for (mese 1 12)
+        (if (zero? (dayZ anno mese 1)) (++ somma))
+      )
+    )
+    somma
+  )
+)
+
+(e019-2)
+;-> 171
+
+(time (e019-2))
+;-> 1.021
+
+(time (e019) 1000)
+;-> 854.296
+
+(time (e019-2) 1000)
+;-> 816.062
 
 
 ===========
@@ -2633,7 +2760,7 @@ Adesso possiamo scrivere la funzione che calcola i numeri amicabili:
 
 Scriviamo la funzione richiesta dal problema:
 
-(define (e021-fast)
+(define (e021-2)
   (setq _res 0)
   (for (j 2 9999)
       (setq spd (somma-divisori-propri-fast j))
@@ -2648,10 +2775,10 @@ Scriviamo la funzione richiesta dal problema:
   (/ _res 2)
 )
 
-(e021-fast)
+(e021-2)
 ;-> 31626
 
-(time (e021-fast))
+(time (e021-2))
 ;-> 122.883
 
 la funzione "e021-fast" è tre volte più veloce della funzione "e021".
@@ -2996,7 +3123,7 @@ F12 = 144
 
 Il dodicesimo termine, F12, è il primo termine a contenere tre cifre.
 
-Qual è l'indice del primo termine nella sequenza di Fibonacci per contenere 1000 cifre?
+Qual è l'indice del primo termine nella sequenza di Fibonacci che contiene 1000 cifre?
 ============================================================================
 
 Funzione per calcolare i numeri di Fibonacci:
@@ -3014,14 +3141,15 @@ Funzione per calcolare i numeri di Fibonacci:
 )
 
 (fibo-i 12)
-;-> 144
+;-> 144L
+(length (fibo-i 12))
+;-> 3
 
 (define (e025)
   (local (trovato num)
     (setq num 1)
     (while (not trovato)
-      ; maggiore di 1000 (non 999), perchè i big integer finiscono con L
-      (if (> (length (string (fibo-i num))) 1000)
+      (if (> (length (fibo-i num)) 999)
         (setq trovato true)
       )
       (++ num)
@@ -3046,13 +3174,13 @@ Periodo dei numeri reciproci
 Una frazione unitaria contiene 1 nel numeratore. La rappresentazione decimale delle frazioni unitarie con i denominatori da 2 a 10 è data:
 
 1/2 =  0.5
-1/3 =  0. (3)
+1/3 =  0.(3)
 1/4 =  0.25
 1/5 =  0.2
-1/6 =  0.1 (6)
-1/7 =  0. (142857)
+1/6 =  0.1(6)
+1/7 =  0.(142857)
 1/8 =  0.125
-1/9 =  0. (1)
+1/9 =  0.(1)
 1/10 = 0.1
 
 Dove 0.1 (6) significa 0.166666 ... e ha un ciclo ricorrente di 1 cifra. Si può vedere che 1/7 ha un ciclo ricorrente di 6 cifre.
@@ -3170,10 +3298,8 @@ Trova il prodotto dei coefficienti, a e b, per l'espressione quadratica che prod
 ============================================================================
 
 (define (primo? n)
-  (if (= n 2) true
-      (if (even? n) nil
-          (if (< n 2) nil
-              (= 1 (length (factor n)))))))
+        (if (< n 2) nil
+            (= 1 (length (factor n)))))
 
 (define (e027)
   (local (aa bb num min_a max_a min_b max_b max_len primo lst)
@@ -3185,7 +3311,7 @@ Trova il prodotto dei coefficienti, a e b, per l'espressione quadratica che prod
       (for (b min_b max_b)
         (setq primo true)
         (setq lst '())
-        (setq num 0)
+        (setq num 1)
         (while primo
           (if (primo? (add (mul num num) (mul a num) b))
             (begin
@@ -3265,7 +3391,7 @@ Facciamo un controllo:
 (define (f1 n)
   (list (primo? (+ (* n n) (* (- 79) n) 1601)) (+ (* n n) (* (- 79) n) 1601)))
 
-Proviamo ad eliminare la lista dei numeri primi ed usare solo un contatore per cercare di migliorare la velocità di esecuzione:
+Proviamo ad eliminare la lista dei numeri primi ed usare solo un contatore per cercare di migliorare la velocità di esecuzione, inoltre :
 
 (define (e027-2)
   (local (aa bb num min_a max_a min_b max_b max_len primo lst_len)
@@ -3622,7 +3748,6 @@ La seguente funzione verifica se un numero è pandigitale (1-9):
   )
 )
 
-
 (pan? 391867254)
 ;-> true
 
@@ -3676,7 +3801,6 @@ Ecco tutti i prodotti pandigitali:
 39 *  186 = 7254
 42 *  138 = 5796 (a)
 48 *  159 = 7632
-
 
 (+ 6952 7852 5796 5346 4396 7254 7632)
 ;-> 45228
@@ -3877,10 +4001,8 @@ Abbiamo bisogno delle seguenti funzioni ausiliarie:
 Verifica se un numero è primo:
 
 (define (primo? n)
-  (if (= n 2) true
-      (if (even? n) nil
-          (if (< n 2) nil
-              (= 1 (length (factor n)))))))
+        (if (< n 2) nil
+            (= 1 (length (factor n)))))
 
 Converte un numero intero in una lista:
 
@@ -3916,6 +4038,8 @@ Crea una lista con tutte le rotazioni della lista passata:
   )
 )
 
+(apply + '(1 2 3 1 2 3) 3)
+;-> 15
 (creaRotate '(2))
 ;-> ((2))
 
@@ -6982,6 +7106,7 @@ Il numero di 5 cifre, 16807 = 7^5, è anche una quinta potenza. Allo stesso modo
 
 Quanti numeri interi positivi di n cifre esistono che sono anche un'ennesima potenza?
 ============================================================================
+
 Cerchiamo un numero n tale che la lunghezza di n elevato a k sia k:  L(n^k) = k
 
 Calcoliamo il limite superiore di n:
@@ -7086,7 +7211,6 @@ Il file di testo 6K, sudoku.txt (e092.lsp), contiene cinquanta diversi puzzle di
 
 Risolvendo tutti e cinquanta i puzzle, trova la somma di tutti i numeri a 3 cifre che si trovano nell'angolo in alto a sinistra di ogni griglia della soluzione. Ad esempio, 483 è il numero di 3 cifre che si trova nell'angolo in alto a sinistra della griglia della soluzione sopra.
 ============================================================================
-
 
 (define (isSafe board row col num)
   (local (safe regionRowStart regionColStart)

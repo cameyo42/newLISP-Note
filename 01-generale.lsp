@@ -2038,8 +2038,8 @@ oppure (prefisso "0"):
 (int "035")
 ;-> 29
 
-Alcune funzioni convertono automaticamente numeri floating-point in numeri interi e viceversa.
-Se utilizziamo operatori composti da lettere dell'alfabeto, allora newLISP converte i numeri in floating-point.
+Alcune funzioni convertono automaticamente i numeri floating-point in numeri interi e viceversa.
+Se utilizziamo operatori composti da lettere dell'alfabeto (es. "add", "sub", etc)  allora newLISP converte i numeri in floating-point.
 Se utilizziamo operatori speciali (es. +, -, *, /), allora newLISP converte i numeri in interi.
 
 (setq reale (sqrt 2))
@@ -2080,7 +2080,7 @@ Risultato di tipo floating-point:
 ;-> nil
 
 Nella maggior parte dei casi le conversioni implicite non creano problemi.
-Comunque in alcuni casi è possibile perdere precisione, per esempio se utilizziamo un numero intero molto grande con una funzione che lo converte in floating-point:
+Comunque in alcuni casi è possibile perdere in precisione, per esempio se utilizziamo un numero intero molto grande con una funzione che lo converte in floating-point:
 
 (format {%15.15f} (add 1 746575847474723219))
 ;-> "746575847474723200.000000000000000"
@@ -2851,6 +2851,7 @@ bit patterns OK
 
 >>>>> Floating point tests SUCCESSFUL
 -----------------------------------------------
+
 
 ========================
  UNA STRANA SUCCESSIONE

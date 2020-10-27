@@ -664,8 +664,15 @@ Metodo newLISP:
 ;-> 46859296389521759999322991560894146397615651828625369
 ;-> 7920827223758251185210916864000000000000000000000000L
 
+(time (fact1 113) 10000)
+;-> 180.544
+
+(time (fact2 113) 10000)
+;-> 258.308
+
 I fattoriali sono importanti nel calcolo combinatorio.
 Per esempio, vi sono n! diverse sequenze formate da n oggetti distinti, cioè ci sono n! permutazioni di n oggetti.
+
 
 
 ----------------------
@@ -775,8 +782,22 @@ La seguente funzione fornisce il risultato corretto:
   (+ num-dadi (apply + (rand num-facce num-dadi)))
 )
 
-(lancio-dadi 2 6)
-;-> 9
+(lancio-dadi 3 6)
+;-> 16
+
+(define (test)
+  (for (i 1 10000000)
+    (setq dadi  (+ 1 (rand 10)))
+    (setq facce (+ 1 (rand 36)))
+    ;(println i { } dadi { } facce)
+    (setq lancio (lancio-dadi dadi facce))
+    (if (< lancio dadi) (println "error: minore"))
+    (if (> lancio (* dadi facce)) (println "error: maggiore"))
+))
+
+(test)
+;-> nil
+
 
 Per capire meglio la differenza dei risultati tra le due funzioni, creiamo due liste con le frequenze di 10000 valori generati da ognuna delle due funzioni, poi disegniamo un istogramma per ogni lista.
 
@@ -1710,13 +1731,13 @@ Aggiungiamo un parametro che ci permette di specificare l'ordinamento della list
       (setq indice (>> (+ basso alto))) ;; right shift
       (cond ((> (lst indice) num)
              (if (= op >) ;controllo dell'ordinamento della lista
-                (setq alto (- indice 1))
                 (setq basso (+ indice 1))
+                (setq alto (- indice 1))
              ))
             ((< (lst indice) num)
              (if (= op >) ;controllo dell'ordinamento della lista
-                (setq basso (+ indice 1))
                 (setq alto (- indice 1))
+                (setq basso (+ indice 1))
              ))
             (true (setq out indice))
       )
@@ -1725,13 +1746,13 @@ Aggiungiamo un parametro che ci permette di specificare l'ordinamento della list
   );local
 )
 
-(bs 2 '(-31 0 1 2 3 4 65 83 99 782) >)
+(bs 2 '(-31 0 1 2 3 4 65 83 99 782) <)
 ;-> 3
 
 (bs -2 '(-31 0 1 2 2 4 65 83 99 782) >)
 ;-> -1
 
-(bs 2 '(782 99 83 65 4 3 2 1 0 -31) <)
+(bs 2 '(782 99 83 65 4 3 2 1 0 -31) >)
 ;-> 6
 
 (bs -2 '(782 99 83 65 4 3 2 1 0 -31) <)
@@ -1833,8 +1854,8 @@ N = 142708 - 142
 D = 99900 (perchè periodo di 3 cifre --> 999 e antiperiodo di 2 cifre --> 00)
 
 La nostra funzione avrà tre parametri:
-
-1) il numero "n" (1.42703)
+                     ___ 
+1) il numero "n" 1.42703
 2) in numero di cifre del periodo "np" (3)
 3) in numero di cifre dell'antiperiodo "na" (2)
 
@@ -1864,6 +1885,9 @@ La nostra funzione avrà tre parametri:
   )
 )
 
+(fraz-gen 1.625 2 1)
+;-> (1609 990 1.625252525252525)
+
 (fraz-gen 1.42703 3 2)
 ;-> (3853 2700 1.427037037037037)
 
@@ -1883,8 +1907,15 @@ Infatti matematicamente 1.999... = 2.
 (fraz-gen 1.9 1 0)
 ;-> (2 1 2)
 
-(frac-gen 3.14159 1 4)
+(fraz-gen 3.14159 1 4)
 ;-> (3927 1250 3.1416)
+
+Nota: per un numero non periodico consideriamo lo 0 finale come periodo, per esempio:
+
+1.625 => 1.625(0) con periodo (0) lungo 1 e antiperiodo (625) lungo 3
+
+(fraz-gen 1.625 1 3)
+;-> (13 8 1.625)
 
 
 ---------------
@@ -2025,6 +2056,7 @@ Scriviamo una funzione che calcola le soluzioni di una equazione di terzo grado:
 ; Equazione di terzo grado: (a*x^3 + b*x^2 + c*x + d = 0)
 ; Per l'algoritmo di soluzione vedere i seguenti link:
 ; http://mathworld.wolfram.com/CubicFormula.html
+; https://courses.cs.washington.edu/courses/cse590b/13au/lecture_notes/cubic.pdf
 ; https://courses.cs.washington.edu/courses/cse590b/13au/lecture_notes/solvecubic_p2.pdf
 
 (define (solve-cubic a b c d)
@@ -2099,15 +2131,25 @@ Scriviamo una funzione che calcola le soluzioni di una equazione di terzo grado:
             (setq x3 (add T (mul Q (sub R S)))))
           (true (println "errore"))
     );cond
-    (list x1 i1 x2 i2 x3 i3)
+    (list (list x1 i1) (list x2 i2) (list x3 i3))
   );local
 )
 
-; calcola anche le potenze di numeri negativi
+; calcola anche le potenze di numeri negativi con esponenti non interi
 (define (my-pow x n)
   (if (< x 0)
-      (sub 0 (pow (sub 0 x) n)) ;cambio segno a x, calcolo la potenza, cambio segno al risultato
+      ; cambio segno a x, calcolo la potenza, cambio segno al risultato
+      (sub 0 (pow (sub 0 x) n)) 
       (pow x n)))
+
+(pow 3 0.33)
+;-> 1.436977652184852
+(pow -3 0.33)
+;-> 1.#IND
+(my-pow 3 0.33)
+;-> 1.436977652184852
+(my-pow -3 0.33)
+;-> -1.442249570307408
 
 Vediamo alcuni esempi:
 
@@ -2115,24 +2157,26 @@ Vediamo alcuni esempi:
 ; (x-2)*(x-(2+8i))*(x-(2-8i)) = 0
 ; x^3 - 6x^2 + 76x - 136 = 0
 (solve-cubic 1 -6 76 -136)
-;-> (2 0 2 7.999999999999999 2 -7.999999999999999)
+;-> ((2 0) (2 7.999999999999999) (2 -7.999999999999999))
 
 ; tre radici reali coincidenti
 ; (x - 2)*(x - 2)*(x - 2) = 0
 ; x^3 - 6 x^2 + 12 x - 8 = 0
 (solve-cubic 1 -6 12 -8)
-;-> (2 0 2 0 2 0)
+;-> ((2 0) (2 0) (2 0))
 
 ; tre radici reali distinte
 ; (x-1)*(x+4)*(x-2) = 0
 ; x^3 + x^2 - 10 x + 8 = 0
 (solve-cubic 1 1 -10 8)
-;-> (2 0 -4 0 1 0)
+;-> ((2 0) (-4 0) (1 0))
 
 ; una radice reale e due radici complesse
 ; 3x^3 - 2x^2 + 4x - 3 = 0
 (solve-cubic 3 -2 4 -3)
-;-> (0.7263732804864121 0 -0.02985330690987276 1.172949872052025 -0.02985330690987276 -1.172949872052025)
+;-> ((0.7263732804864121 0)
+;->  (-0.02985330690987276 1.172949872052025)
+;->  (-0.02985330690987276 -1.172949872052025))
 
 
 ------------------------
@@ -2803,7 +2847,7 @@ Adesso scriviamo la funzione che tiene sempre la prima scelta (non cambia mai la
 (monty-tieneporta 10000)
 ;-> 33.42  ;il risultato teorico vale 1/3 = 0.333333 [33.33 %]
 
-Teoricamente cambiare la porta migliora la probabilità del giocatore di vincere il premio, portandola da 1/3 a 2/3.
+Quindi cambiare la porta migliora la probabilità del giocatore di vincere il premio, portandola da 1/3 a 2/3.
 
 
 --------------------------
@@ -3100,7 +3144,7 @@ Lato minore formato A0 in cm:
 (setq s1 (mul 100 (pow 2 (div -1 4))))
 ;-> 84.08964152537145
 
-Lato maggiore dei fogli in formato Ak:  s(k)
+Lato maggiore dei fogli in formato Ak: s(k)
 
   s(k+2) = s(k) / 2
   s(0) = s0 = 118.9207115002721
@@ -3134,6 +3178,9 @@ Esempio: lati formato A2
 Esempio: lati formato A0
 (formato 0)
 ;-> (84.08964152537145 118.9207115002721)
+
+(formato 3)
+;-> (29.73017787506803 42.04482076268572)
 
 
 -----------------------------------
@@ -3404,7 +3451,7 @@ The Game of Pig
 Il gioco è stato inventato da John Scarne nel 1945.
 Ad ogni turno, ogni giocatore lancia ripetutamente un dado finché non viene tirato un 1 o il giocatore decide di "passare":
 Se il giocatore lancia un 1, il punteggio del turno è nullo e passa la mano al prossimo giocatore.
-Se il giocatore lancia un altro numero (2..6), il numero viene aggiunto al punteggio del turno  e il turno del giocatore continua.
+Se il giocatore lancia un altro numero (2..6), il numero viene aggiunto al punteggio del turno e il turno del giocatore continua.
 Se un giocatore decide di "passare", il suo punteggio del turno viene aggiunto al suo punteggio totale, e diventa il turno del prossimo giocatore.
 Vince il giocatore che arriva o supera 100 (poichè il turno deve terminare per tutti i giocatori, potrebbero esserci più giocatori che superano 100, allora il vincitore è quello con il punteggio più alto).
 
@@ -6442,7 +6489,9 @@ Sul forum di newLISP, raph.ronnquist ha fornito la seguente funzione per creare 
                                 (true (list 'mul (list 'pow 'x rank) k))))))
     (push (cons 'add (reverse (map polyterm coeff))) (copy '(fn (x))) -1)))
 
-(setq poly3 (make-poly '(4 5 7 10)))
+(setq poly3 (make-poly '(3 7 5)))
+;-> (lambda (x) (add 5 (mul x 7) (mul (pow x 2) 3)))
+(setq poly-x (make-poly '(4 5 7 10)))
 ;-> (lambda (x) (add 10 (mul x 7) (mul (pow x 2) 5) (mul (pow x 3) 4)))
 
 Sul forum di newLISP, rickyboy ha fornito la seguente funzione per creare polinomi con la regola di Horner:
@@ -6450,18 +6499,38 @@ Sul forum di newLISP, rickyboy ha fornito la seguente funzione per creare polino
 (define (make-poly-horner coeffs)
   (push (if (< (length coeffs) 2)
             (first coeffs)
-          (apply (fn (acc c)
-                   (list 'add c (cons 'mul (list 'x acc))))
-                 coeffs
-                 2))
-        (copy '(fn (x)))
-        -1))
+            (apply (fn (acc c) (list 'add c (cons 'mul (list 'x acc))))
+                   coeffs 2))
+        (copy '(fn (x))) -1))
 
 (setq poly4 (make-poly-horner '(3 7 5)))
 ;-> (lambda (x) (add 5 (mul x (add 7 (mul x 3)))))
 
 (poly4 0)
 ;-> 5
+
+I due metodi danno risultati leggermente diversi perchè i polinomi non sono uguali, quindi le operazioni sui numeri floating producono approssimazioni diverse.
+(setq poly2 (crea-polinomio '(3.2 7.2 -1.5 -2.2)))
+(setq poly4 (make-poly-horner '(3.2 7.2 -1.5 -2.2)))
+
+(for (x 0 10 0.5) 
+  (if (!= (poly2 x) (poly4 x))
+      (println x { } (poly2 x) { } (poly4 x))))
+;-> 0.5 -0.7500000000000001 -0.75
+;-> 3 144.5 144.5
+;-> 3.5 217.95 217.9500000000001
+;-> 6.5 1171.05 1171.05
+;-> 7 1437.7 1437.7
+;-> 8 2085 2085.000000000001
+
+In questo caso l'errore è molto piccolo:
+(setq eps 1e-3)
+
+(for (x 0 10 0.5) 
+  (if (> (abs (sub (poly2 x) (poly4 x))) eps)
+      (println x { } (poly2 x) { } (poly4 x))))
+;-> nil
+
 
 
 ------------------------------
@@ -7681,11 +7750,11 @@ https://github.com/DipakMajhi/Roots_of_a_Polynomial
 
 in cui potete trovare anche un articolo (pdf) con tutte le spiegazioni sull'algoritmo.
 
-(define (linear a0 a1)
+(define (linear-aux a0 a1)
   ;(println (sub (div a0 a1)))
   (push (list (sub (div a0 a1))) sol -1))
 
-(define (quadratic t r s)
+(define (quadratic-aux t r s)
   (local (deter x1 x2 x1r x1i x2r x2i)
     (setq deter (sub (mul r r) (mul 4 s t)))
     ;(println t { } r { } s)
@@ -7703,6 +7772,8 @@ in cui potete trovare anche un articolo (pdf) con tutte le spiegazioni sull'algo
            ;(println "x1r: " x1r { , } "x1i: " x1i)
            ;(println "x2r: " x2r { , } "x2i: " x2i)
            (push (list (list x1r x1i) (list x2r x2i)) sol -1)
+           ;(push (list x1r x1i) sol -1)
+           ;(push (list x2r x2i) sol -1)
           ))))
 
 (define (bairstow coeff)
@@ -7727,8 +7798,8 @@ in cui potete trovare anche un articolo (pdf) con tutte le spiegazioni sull'algo
     ;(println a)
     (setq n (- (length coeff) 1))
     (setq w n)
-    (cond ((= w 1) (linear (a 0) (a 1)) (-- w))
-          ((= w 2) (quadratic (a 2) (a 1) (a 0)) (setq w (- w 2)))
+    (cond ((= w 1) (linear-aux (a 0) (a 1)) (-- w))
+          ((= w 2) (quadratic-aux (a 2) (a 1) (a 0)) (setq w (- w 2)))
           (true
            (while (>= w 3)
              (for (j 1 50)
@@ -7762,7 +7833,7 @@ in cui potete trovare anche un articolo (pdf) con tutte le spiegazioni sull'algo
                (setq s q)
             )
             (setq t 1)
-            (quadratic t r s)
+            (quadratic-aux t r s)
             (setq w (- w 2))
             (for (i n 0 -1)
               (setq (a (- n i)) (b (- n i)))
@@ -7771,8 +7842,8 @@ in cui potete trovare anche un articolo (pdf) con tutte le spiegazioni sull'algo
               (setq (a (- n i)) (a (+ (- n i) 2)))
             )
           )
-          (cond ((= w 2) (quadratic (b 4) (b 3) (b 2)) (setq w (- w 2)))
-                ((= w 1) (linear (b 2) (b 3)) (-- w))
+          (cond ((= w 2) (quadratic-aux (b 4) (b 3) (b 2)) (setq w (- w 2)))
+                ((= w 1) (linear-aux (b 2) (b 3)) (-- w))
           )
         )
     )

@@ -168,6 +168,8 @@ FUNZIONI VARIE
   Funzione gamma-ln
   select per i vettori
   Lunghezza di un numero intero
+  Normalizzazione
+  Papersize
 
 newLISP 99 PROBLEMI (28)
 ========================
@@ -266,6 +268,7 @@ ROSETTA CODE
   Calcolo di una serie
   Numeri gapful
   Valutazione di una espressione RPN
+  Il gioco del 24
 
 PROJECT EULERO
 ==============
@@ -579,6 +582,10 @@ NOTE LIBERE 2
   Conversione a big-integer
   Congettura 8424432925592889329288197322308900672459420460792433L
   floor, ceil e fract
+  Multipli di nove
+  fizzbuzz esteso
+  Conversione tra liste, stringhe, caratteri e simboli
+  Divisori di un numero
 
 APPENDICI
 =========

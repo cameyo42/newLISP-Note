@@ -59,7 +59,6 @@ Adesso scriviamo la funzione che calcola le frequenze:
     (setq out '())
     (new Tree 'myHash)
     (dolist (el lst)
-      ;(println (string el))
       ; se la chiave non esiste nella hashmap...
       (if (null? (myHash (string el)))
           ; allora inserisce la chiave con il valore 1
@@ -78,6 +77,10 @@ Adesso scriviamo la funzione che calcola le frequenze:
 ;-> (("a" 2) ("b" 1) ("f" 3) ("g" 3) ("h" 1))
 (freq '(1 2 3 4 5 5 4 3 2 1))
 ;-> (("1" 2) ("2" 2) ("3" 2) ("4" 2) ("5" 2))
+(freq '())
+;-> ()
+
+
 
 
 --------------------------------------
@@ -1497,6 +1500,9 @@ Quando abbiamo una lista dei valori o variabili possiamo formattare la stampa di
 Comunque possiamo anche usare la seguente funzione (scritta da Sammo) che permette di usare "select":
 
 (define (myformat str) (apply format (cons str (flat (args)))))
+(println (myformat "%s,%d,%s,%d\n" (select lst 0 4 1 7)))
+;-> bob,2,this,96
+
 (println (format "%s,%d,%s,%d\n" (select lst 0 4 1 7)))
 ;-> bob,2,this,96
 
@@ -4289,7 +4295,7 @@ sintassi: (last-error int-error)
 
 Riporta l'ultimo errore generato da newLISP a causa di errori di sintassi o esaurimento di alcune risorse. Per un riepilogo di tutti i possibili errori, vedere il capitolo Codici di errore in appendice del manuale di riferimento.
 
-Se non si è verificato alcun errore dall'avvio della sessione newLISP, viene restituito nil. 
+Se non si è verificato alcun errore dall'avvio della sessione newLISP, viene restituito nil.
 Quando viene specificato int-error, viene restituito una lista contenente numero e testo dell'errore.
 
 (last-error)  → nil
@@ -4460,13 +4466,13 @@ oggi: val = 1100 - 10% = 1100 - 110 = 990
 
 Quindi quanto dovrebbe valere la percentuale (di oggi) per recuperare la perdita di ieri?
 
-Poniamo: 
+Poniamo:
 
 f = p/100
 
 ad esempio: p = 20%   ==>   f = 20/100 = 0.2
 
-val = x      ==>  x + p     = x + x*f              = x*(1 + f)  
+val = x      ==>  x + p     = x + x*f              = x*(1 + f)
 val = 1000   ==>  val + 20% = 1000 + 1000*(20/100) = 1000 + 1000*0.2
 
 Il valore originale vale:         x
@@ -4922,5 +4928,327 @@ Vediamo alcuni esempi:
 ;-> -11
 (floor 10.6)
 ;-> 10
+
+
+----------------
+Multipli di nove
+----------------
+Un fatto noto nella teoria dei numeri è che se prendiamo un intero positivo e sottraiamo la somma delle sue cifre da quel numero, otteniamo un multiplo di 9.
+
+(define (mul9 n)
+  (- n (apply + (map int (explode (string n))))))
+
+(mul9 12375621)
+;-> 12375594
+
+(% 12375594 9)
+;-> 0
+
+Verifichiamo il teorema:
+
+(define (test num)
+  (if (!= 0 (% (mul9 num) 9)) (println num)))
+
+(test 100000)
+;-> nil
+
+
+---------------
+fizzbuzz esteso
+---------------
+
+Problema:
+Stampare i numeri da 1 a 100, tranne nei seguenti casi
+1) se il numero è divisibile per 3, allora scrivi "fizz"
+2) se il numero è divisibile per 5, scrivi invece "buzz"
+3) se il numero è divisibile per 15, scrivi invece "fizzbuzz".
+
+Questo problema, nato come un gioco per bambini, è diventato un test di base per la valutazione dei programmatori di computer.
+
+Versione 1 (naif)
+-----------------
+
+(setq fb
+'(1  2 fizz  4 buzz fizz  7  8 fizz buzz 11 fizz 13 14 fizzbuzz
+ 16 17 fizz 19 buzz fizz 22 23 fizz buzz 26 fizz 28 29 fizzbuzz
+ 31 32 fizz 34 buzz fizz 37 38 fizz buzz 41 fizz 43 44 fizzbuzz
+ 46 47 fizz 49 buzz fizz 52 53 fizz buzz 56 fizz 58 59 fizzbuzz
+ 61 62 fizz 64 buzz fizz 67 68 fizz buzz 71 fizz 73 74 fizzbuzz
+ 76 77 fizz 79 buzz fizz 82 83 fizz buzz 86 fizz 88 89 fizzbuzz
+ 91 92 fizz 94 buzz fizz 97 98 fizz buzz))
+
+(define (fizzbuzz1)
+  (dolist (num fb) (print num { })))
+
+(fizzbuzz1)
+
+Versione 2 (base)
+-----------------
+
+(define (fizzbuzz2)
+  (for (num 1 100)
+    (cond ((zero? (% num 15)) (print "fizzbuzz "))
+          ((zero? (% num 5))  (print "buzz "))
+          ((zero? (% num 3))  (print "fizz "))
+          (true (print num { })))))
+
+(fizzbuzz2)
+
+Versione 3 (ciclica)
+--------------------
+
+(setq ciclo15 '(fizzbuzz 0 0 fizz 0 buzz fizz 0 0 fizz buzz 0 fizz 0 0))
+
+(define (fizzbuzz3)
+  (for (num 1 100)
+    (if (zero? (ciclo15 (% num 15)))
+        (print num { })
+        (print (ciclo15 (% num 15)) { }))))
+
+(fizzbuzz3)
+
+Versione 4 (euclide)
+--------------------
+
+(define (fizzbuzz4)
+  (local (alto basso)
+    (for (num 1 100)
+      (setq alto (max num 15))
+      (setq basso (min num 15))
+      (while (> (% alto basso) 0)
+        (map set '(alto basso) (list (+ basso) (% alto basso))))
+      ;(println basso)
+      (cond ((= basso 15) (print "fizzbuzz "))
+            ((= basso 5) (print "buzz "))
+            ((= basso 3) (print "fizz "))
+            ((= basso 1) (print num { }))
+            (true (print "ERRORE "))
+            ))))
+
+(fizzbuzz4)
+
+Versione 5 (trigonometria)
+--------------------------
+
+(define (fizzbuzz5)
+  (local (f b)
+    (for (num 1 100)
+      (setq f (cos (div (mul num 2 PI) 3)))
+      (setq b (cos (div (mul num 2 PI) 5)))
+      (cond ((and (= f 1) (= b 1)) (print "fizzbuzz "))
+            ((= b 1) (print "buzz "))
+            ((= f 1) (print "fizz "))
+            (true (print num { }))))))
+
+(fizzbuzz5)
+
+Versione 6 (moltiplicazione matrici)
+------------------------------------
+
+(define (fizzbuzz6)
+  (local (a b ab val)
+    (setq a '((1 0 0) (2 -2 0) (2 0 -2) (3 -3 -3)))
+    (for (num 1 100)
+      (setq b (list (list 1 (% num 3) (% num 5))))
+      (setq ab (multiply a (transpose b)))
+      (setq val (ref (apply max (flat ab)) (flat ab)))
+      (cond ((= val '(3)) (print "fizzbuzz "))
+            ((= val '(2)) (print "buzz "))
+            ((= val '(1)) (print "fizz "))
+            ((= val '(0)) (print num { }))
+            (true (print "ERRORE "))))))
+
+(fizzbuzz6)
+
+Versione 7 (stringhe)
+---------------------
+
+(define (fizzbuzz7)
+  (local (vec)
+    (setq vec (array 101 '("")))
+    (for (num 1 100)
+      (if (zero? (% num 3)) (setf (vec num) (append (vec num) "fizz")))
+      (if (zero? (% num 5)) (setf (vec num) (append (vec num) "buzz")))
+      (if (and (!= (% num 3) 0) (!= (% num 5) 0) (setf (vec num) (string num))))
+    )
+    (for (i 1 100) (print (vec i) { }))))
+
+(fizzbuzz7)
+
+Tutte le versioni stampano il seguente risultato:
+;-> 1 2 fizz 4 buzz fizz 7 8 fizz buzz 11 fizz 13 14 fizzbuzz
+;-> 16 17 fizz 19 buzz fizz 22 23 fizz buzz 26 fizz 28 29 fizzbuzz
+;-> 31 32 fizz 34 buzz fizz 37 38 fizz buzz 41 fizz 43 44 fizzbuzz
+;-> 46 47 fizz 49 buzz fizz 52 53 fizz buzz 56 fizz 58 59 fizzbuzz
+;-> 61 62 fizz 64 buzz fizz 67 68 fizz buzz 71 fizz 73 74 fizzbuzz
+;-> 76 77 fizz 79 buzz fizz 82 83 fizz buzz 86 fizz 88 89 fizzbuzz
+;-> 91 92 fizz 94 buzz fizz 97 98 fizz buzz
+
+
+----------------------------------------------------
+Conversione tra liste, stringhe, caratteri e simboli
+----------------------------------------------------
+
+Definiamo due funzioni che convertono una stringa in una lista di caratteri e vicerversa.
+
+Stringa --> lista di caratteri
+------------------------------
+(define (str-chars str) (explode str))
+
+(str-chars "explode")
+;-> ("e" "x" "p" "l" "o" "d" "e")
+(str-chars "0123")
+;-> ("0" "1" "2" "3")
+
+Lista di caratteri --> stringa
+------------------------------
+(define (chars-str lst) (join lst))
+
+(chars-str '("j" "o" "i" "n"))
+;-> "join"
+(chars-str '("0" "1" "2" "3"))
+;-> "0123"
+
+(str-chars (chars-str '("e" "x" "p" "l" "o" "d" "e")))
+;-> ("e" "x" "p" "l" "o" "d" "e")
+(chars-str (str-chars "explode"))
+;-> "explode"
+
+Adesso definiamo due funzioni che convertono una lista di simboli in una stringa.
+
+Lista di simboli --> stringa
+----------------------------
+(define (lst-str lst merge)
+  (if merge
+      (join (map string lst))
+      (join (map string lst) " ")))
+
+Il parametro "merge" permette di riunire tutti gli elementi della lista in una stringa unica.
+
+(lst-str '(a f 3 t h u))
+;-> "a f 3 t h u"
+(lst-str '(a f 3 t h u) true)
+;-> "af3thu"
+(lst-str '(af3thu))
+;-> "af3thu"
+(lst-str '(af3thu) true)
+;-> "af3thu"
+
+Stringa -> lista di simboli
+(define (str-lst str merge)
+  (if (or merge (find " " str))
+      (map sym (parse str))
+      (map sym (explode str))))
+
+Il parametro "merge" permette di creare una lista con un unico simbolo (tutta la stringa).
+
+(str-lst "af3thu")
+;-> (a f 3 t h u)
+(str-lst "af3thu" true)
+;-> (af3thu)
+(str-lst "a f 3 t h u"))
+;-> (a f 3 t h u)
+(str-lst "a f 3 t h u" true)
+;-> (a f 3 t h u)
+
+Nota: La funzione "sym" crea un simbolo anche per il carattere spazio " ".
+Utilizzare il carattere " " come simbolo nei programmi è una delle strade per diventare matti.
+
+(setq lista (map sym (explode "a b c")))
+;-> (a   b   c)
+(length lista)
+;-> 5
+(string (lista 1) (lista 2))
+;-> " b"
+
+
+---------------------
+Divisori di un numero
+---------------------
+
+Abbiamo visto diverse funzioni che calcolano i divisori di un numero, la somma dei divisori o il numero dei divisori. Riportiamo le funzioni che consideriamo più veloci e i relativi algoritmi. Da notare che gli algoritmi usati non sono quelli migliori/ottimali, ma quelli che risultano più veloci all'interno di newLISP. In questo caso sfruttiamo il fatto che la funzione "factor" è integrata in newLISP, quindi è molto veloce.
+
+Scomposizione in fattori primi di un numero:
+
+num = p(1)^a(1) * p(2)^a(2) * ... * p(k)^a(k)
+
+p(i) = numero primo
+a(i) = esponente
+
+numero dei divisori = (a(1) + 1) * (a(2) + 1) * ... * (a(k) + 1)
+
+somma dei divisori = (1 + p(1) + p(1)^2 + ... + p(1)^a(1)) *
+                     (1 + p(2) + p(2)^2 + ... + p(2)^a(2)) * ... *
+                     (1 + p(k) + p(k)^2 + ... + p(k)^a(k))
+lista divisori
+I divisori possono essere generati ricorsivamente utilizzando tutti i primi p(i) e le loro occorrenze a(i). Ogni fattore primo p(i), può essere incluso x volte dove 0 ≤ x ≤ a(i).
+
+Lista dei divisori
+------------------
+
+(define (divisors-aux cur-index cur-divisor)
+  (cond ((= cur-index (length f))
+         (push cur-divisor out -1)
+        )
+        (true
+         (for (i 0 (f cur-index 1))
+           (divisors-aux (+ cur-index 1) cur-divisor)
+           (setq cur-divisor (* cur-divisor (f cur-index 0)))
+         ))))
+
+(define (divisors num)
+  (local (f out)
+    (cond ((= num 1) '(1))
+          (true
+           (setq f (factor-group num))
+           (setq out '())
+           (divisors-aux 0 1)
+           (sort out)))))
+
+(divisors 1)
+;-> (1)
+(divisors 360)
+;-> (1 2 3 4 5 6 8 9 10 12 15 18 20 24 30 36 40 45 60 72 90 120 180 360)
+(divisors 123456789)
+;-> (1 3 9 3607 3803 10821 11409 32463 34227 13717421 41152263 123456789)
+
+Numero di divisori
+------------------
+
+(define (divisors-count num)
+  (if (= num 1) '1
+      (begin
+        (setq lst (factor-group num))
+        (apply * (map (fn(x) (+ 1 (last x))) lst)))))
+
+(divisors-count 1)
+;-> 1
+(divisors-count 360)
+;-> 24
+(divisors-count 123456789)
+;-> 12
+
+Somma dei divisori
+------------------
+
+(define (divisors-sum num)
+  (local (sum out)
+    (if (= num 1) '1
+        (begin
+          (setq out 1)
+          (setq lst (factor-group num))
+          (dolist (el lst)
+            (setq sum 0)
+            (for (i 0 (last el))
+              (setq sum (+ sum (pow (first el) i)))
+            )
+            (setq out (* out sum)))))))
+
+(divisors-sum 1)
+;-> 1
+(divisors-sum 360)
+;-> 1170
+(divisors-sum 123456789)
+;-> 178422816
 
 
