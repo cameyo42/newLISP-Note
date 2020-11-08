@@ -1729,6 +1729,8 @@ COMBINAZIONI
 ;-> ((1 1) (1 2) (1 3) (1 4) (2 2) (2 3) (2 4) (3 3) (3 4) (4 4))
 (comb-rep 2 '(1 2 3))
 ;-> ((1 1) (1 2) (1 3) (2 2) (2 3) (3 3))
+(comb-rep 3 '(1 2 3))
+;-> ((1 1 1) (1 1 2) (1 1 3) (1 2 2) (1 2 3) (1 3 3) (2 2 2) (2 2 3) (2 3 3) (3 3 3))
 
 
 ----------------
@@ -8940,6 +8942,7 @@ IL GIOCO DEL 24
 ---------------
 
 Dati quattro numeri distinti da 1 a 9, costruire un'espressione con questi numeri e le quattro operazioni (+, -, *, /) che valuti a 24. Per esempio, con i numeri 2, 4, 5, e 6 possiamo scrivere: (((6 - 2) * 5) + 4) = 24
+Occorre utilizzare tutti i numeri della lista, ma non è necessario utilizzare tutte e quattro le operazioni nell'espressione finale.
 
 Risolviamo il problema creando e valutando tutte le possibili espressioni. La valutazione delle espressioni viene fatta in modo rpn.
 
@@ -9108,6 +9111,32 @@ Routine che converte l'espressione rpn nella corrispondente espressione infissa:
 (infix '(2 1 4 3 5 6 7 8 9 * * - + + * - +))
 ;-> "(2 + (1 - (4 * (3 + (5 + (6 - (7 * (8 * 9))))))))"
 
+Routine che converte l'espressione rpn nella corrispondente espressione prefissa:
+
+(define (pre-fix lst)
+  (local (s c)
+    (setq s "")
+    (setq c (/ (length lst) 2))
+    (setq lst (map string lst))
+    (dotimes (i c)
+      (push "(" s -1)
+      (push (lst (- (length lst) 1 i)) s -1)
+      (push " " s -1)
+      (push (lst i) s -1)
+      (push " " s -1)
+    )
+    (push (lst c) s -1)
+    (push (dup ")" c) s -1)
+    s))
+
+(pre-fix '(2 1 4 3 5 6 7 8 9 * * - + + * - +))
+;-> "(+ 2 (- 1 (* 4 (+ 3 (+ 5 (- 6 (* 7 (* 8 9))))))))"
+
+(eval-string (pre-fix '(2 1 4 3 5 6 7 8 9 * * - + + * - +)))
+;-> 1963
+
+Funzione finale:
+
 (define (game-number lst goal)
 (local (op operats digits out)
   (setq out '())
@@ -9150,6 +9179,19 @@ Proviamo un insieme di numeri che non hanno soluzione:
 ;-> () 
 
 Proviamo con altri numeri:
+
+(game-number '(1 3 7 10 25 50) 831)
+;-> ()
+
+(game-number '(1 3 7 10 25 50) 765)
+(25 + (10 * (50 + (3 * (1 + 7)))))
+(50 / (10 / (3 - (25 * (1 - 7)))))
+(50 / (10 / (3 + (25 * (7 - 1)))))
+(25 + (10 * (50 + (3 * (7 + 1)))))
+;-> (((25 10 50 3 1 7 + * + * +) "(25 + (10 * (50 + (3 * (1 + 7)))))") 
+;->  ((50 10 3 25 1 7 - * - / /) "(50 / (10 / (3 - (25 * (1 - 7)))))")
+;->  ((50 10 3 25 7 1 - * + / /) "(50 / (10 / (3 + (25 * (7 - 1)))))")
+;->  ((25 10 50 3 7 1 + * + * +) "(25 + (10 * (50 + (3 * (7 + 1)))))"))
 
 (game-number '(1 2 3 4 5 6 7 8 9) 1963)
 (2 + (1 - (4 * (3 + (5 + (6 - (7 * (8 * 9))))))))

@@ -2178,13 +2178,13 @@ valore descrizione
   8     Numero della versione come costante intera
   9     Costanti del sistema operativo:
         linux = 1, bsd = 2, osx = 3, solaris = 4, windows = 6, os/2 = 7, cygwin = 8, tru64 unix = 9, aix = 10, android = 11
-        il bit 11 è impostato per le versioni ffilib (Extended Import / Callback API) (aggiungere 1024)
+        il bit 11 è impostato per le versioni ffilib (Extended Import/Callback API) (aggiungere 1024)
         il bit 10 è impostato per le versioni IPv6 (aggiungere 512)
         il bit  9 è impostato per le versioni a 64 bit (modificabili a runtime) (aggiungere 256)
         il bit  8 è impostato per le versioni UTF-8 (aggiungere 128)
         il bit  7 è aggiunto per le versioni di libreria (aggiungere 64)
 
-I numeri da 0 a 9 indicano il valore l'indice int-idx (opzionale) nella lista restituita.
+I numeri da 0 a 9 indicano il valore dell'indice int-idx (opzionale) nella lista restituita.
 
 Si consiglia di utilizzare gli indici da 0 a 5 (includendo) "Numero massimo di chiamate allo stack costante") e utilizzare gli offset negativi da -1 a -4 per accedere alle ultime quattro voci nella lista delle informazioni di sistema. Le future nuove voci verranno inserite dopo l'indice 5. In questo modo i programmi scritti precedentemente non dovranno essere modificati.
 
@@ -2248,16 +2248,16 @@ Per rendere più leggibili le informazioni scriviamo la funzione "sysinfo":
     ; 64 bit -> bit 9
     (print "64 bit: ")
     (if (zero? (& (>> num 8) 1)) (println "no") (println "yes"))
-    ; library -> bit 8
+    ; utf8 -> bit 8
     (print "UTF-8: ")
     (if (zero? (& (>> num 7) 1)) (println "no") (println "yes"))
-    ; library -> bit 6
+    ; library -> bit 7
     (print "library: ")
     (if (zero? (& (>> num 6) 1)) (println "no") (println "yes"))
     info
   )
 )
-
+(sys-info)
 (sysinfo)
 ;-> Number of Lisp cells: 983
 ;-> Maximum number of Lisp cells constant: 576460752303423488
@@ -6729,5 +6729,85 @@ Una funzione per calcolare le dimensioni standard dei fogli di carta per la stam
 ;-> 57 81
 ;-> 40 57
 ;-> 28 40
+
+
+----------------------------------------------
+Verificare se due numeri hanno lo stesso segno
+----------------------------------------------
+
+Due numeri hanno lo stesso segno se la loro moltiplicazione è maggiore di zero.
+Oppure controllando se il test "maggiori di zero" è uguale per entrambi i numeri.
+
+(define (same-sign x y) (= (> x 0) (> y 0)))
+
+(same-sign 2 2)
+;-> true
+(same-sign -2 2)
+;-> nil
+(same-sign -2 -2)
+;-> true
+(same-sign 2 -2)
+;-> nil
+
+
+-------------------------
+Suddivisione di una lista
+-------------------------
+
+Una funzione per dividere una lista in sotto-liste: data una lista di input da dividere e una lista di lunghezze delle sotto-liste, restituire una lista di sotto-liste che hanno le lunghezze richieste. Ad esempio: dividendo la lista (1 2 2 3 3 3) in sotto-liste di lunghezze (1 2 3) restituire la lista delle sotto-liste ((1) (2 2) (3 3 3)).
+Gli eventuali elementi aggiuntivi finali della lista di input vengono ignorati.
+Gli eventuali elementi mancanti alla fine della lista di input vengono ignorati.
+
+Vediamo passo-passo come funziona (i = indice iniziale, q = quanti elementi prendere):
+
+(setq lst '(a b c d e))
+(setq d '(2 1 2))
+(setq i 0 q (d 0))
+(slice lst i q)
+;-> (a b)
+
+(setq i (+ i q) q (d 1))
+(slice lst i q)
+;-> (c)
+
+(setq i (+ i q) q (d 2))
+(slice lst i q)
+;-> (d e)
+
+Adesso possiamo scrivere la funzione finale:
+
+(define (subdivide lst lst-len)
+  (let ((i 0) (q 0) (out '()))
+    (dolist (el lst-len)
+      (setq i (+ i q))
+      (setq q el)
+      (push (slice lst i q) out -1)
+    )
+    out))
+
+(setq lst '(a b c d e f))
+(setq d '(2 1 2))
+(subdivide lst d)
+;-> ((a b) (c) (d e))
+
+(setq lst '(a b c d))
+(setq d '(2 1 2))
+(subdivide lst d)
+;-> ((a b) (c) (d))
+
+(setq lst '(a b c d))
+(setq d '(5))
+(subdivide lst d)
+;-> ((a b c d))
+
+(setq lst '(a b c d))
+(setq d '(2))
+(subdivide lst d)
+;-> ((a b))
+
+(setq lst '(a b c d e f g h i j))
+(setq d '(1 2 3 4))
+(subdivide lst d)
+;-> ((a) (b c) (d e f) (g h i j))
 
 

@@ -797,6 +797,11 @@ Nota: quando eseguiamo la funzione sullo schermo verrà visualizzato il numero o
 (fromdigits '(1 0 0 1 0) 3)
 ;-> 84
 
+(todigits 100 16)
+;-> (6 4)
+(fromdigits '(6 4) 16)
+;-> 100
+
 (todigits 92 3)
 ;-> (1 0 1 0 2)
 (fromdigits '(1 0 1 0 2) 3)
@@ -840,6 +845,8 @@ Per rappresentare le cifre contenute in digits in una simbologia standard (0..Z)
 
 (todigits 31 16)
 ;-> (1 15)
+(fromdigits '(1 15) 16)
+;-> 31
 (tosymbol '(1 15) 16)
 "1F"
 
@@ -5180,6 +5187,7 @@ numero dei divisori = (a(1) + 1) * (a(2) + 1) * ... * (a(k) + 1)
 somma dei divisori = (1 + p(1) + p(1)^2 + ... + p(1)^a(1)) *
                      (1 + p(2) + p(2)^2 + ... + p(2)^a(2)) * ... *
                      (1 + p(k) + p(k)^2 + ... + p(k)^a(k))
+
 lista divisori
 I divisori possono essere generati ricorsivamente utilizzando tutti i primi p(i) e le loro occorrenze a(i). Ogni fattore primo p(i), può essere incluso x volte dove 0 ≤ x ≤ a(i).
 
@@ -5250,5 +5258,348 @@ Somma dei divisori
 ;-> 1170
 (divisors-sum 123456789)
 ;-> 178422816
+
+
+-------------------
+Sequenza di Collatz
+-------------------
+
+Vediamo alcune funzioni per giocare con la sequenza di collatz:
+
+Funzionale:
+
+(define (collatzf n)
+  (if (= n 1) '(1)
+    (cons n (collatzf (if (even? n) (/ n 2) (+ 1 (* 3 n)))))))
+
+(collatzf 50)
+;-> (50 25 76 38 19 58 29 88 44 22 11 34 17 52 26 13 40 20 10 5 16 8 4 2 1)
+
+(time (collatzf 123456789) 1000)
+;-> 106.748
+
+(define (collatzf-length n)
+  (if (= n 1) 1
+    (+ 1 (collatzf-length (if (even? n) (/ n 2) (+ 1 (* 3 n)))))))
+
+(collatzf-length 123456789)
+;-> 178
+
+(time (collatzf-length 123456789) 10000)
+;-> 317.179
+
+Iterativo:
+
+(define (collatzi n)
+  (let (out (list n))
+    (while (!= n 1)
+      (if (even? n)
+          (setq n (/ n 2))
+          (setq n (+ (* 3 n) 1))
+      )
+      (push n out -1)
+    )
+    out))
+
+(collatzi 50)
+;-> (50 25 76 38 19 58 29 88 44 22 11 34 17 52 26 13 40 20 10 5 16 8 4 2 1)
+
+(time (collatzi 123456789) 1000)
+;-> 23.965
+
+(define (collatzi-length n)
+  (let (c 1)
+    (while (!= n 1)
+      (if (even? n)
+          (setq n (/ n 2))
+          (setq n (+ (* 3 n) 1))
+      )
+      (++ c)
+    )
+    c))
+
+(collatzi-length 123456789)
+;-> 178
+
+(time (collatzi-length 123456789) 10000)
+;-> 207.01
+
+Le funzioni iterative sono più veloci di quelle funzionali.
+
+Test di correttezza:
+
+(for (i 1 10000) (if (!= (collatzf i) (collatzi i)) (println i)))
+;-> nil
+(for (i 1 10000) (if (!= (collatzf-length i) (collatzi-length i)) (println i)))
+;-> nil
+
+
+----------
+Generatore
+----------
+
+Vediamo come possiamo creare un generatore di elementi di una lista. Quando gli elementi sono finiti il generatore produce nil.
+
+(context 'list-gen)
+
+(define (list-gen:init lst)
+  (let (n (length lst))
+    (setq
+          list-gen:items (array n lst)
+          list-gen:i 0
+          list-gen:end n)))
+
+(define (list-gen:next)
+  (if (= list-gen:i list-gen:end)
+      nil
+      (begin (++ list-gen:i) (list-gen:items (- list-gen:i 1)))))
+
+(context MAIN)
+(list-gen:init (sequence 10 12))
+;-> 3 ; numero di elementi della lista
+(list-gen:next)
+;-> 10
+(list-gen:next)
+;-> 11
+(list-gen:next)
+;-> 12
+(list-gen:next)
+;-> nil
+
+Il numero di elementi della lista ci dice quante volte possiamo chiamare la funzione "list-gen:next" prima di ottenere nil.
+
+
+------------------------
+Multiplo con tutti 1 e 0
+------------------------
+
+Un teorema afferma che per ogni numero intero positivo N, esiste un multiplo di N che consiste solo di cifre 1 e 0.
+Scrivere una funzione che dato un numero N calcola il multiplo di N che contiene solo cifre 1 e 0.
+
+La soluzione più semplice è quella di moltiplicare ripetutamente il numero e verificare se il valore è costituito solo da 1 e 0.
+
+Scriviamo una funzione che verifica se un numero è costituito solo da 1 e 0:
+
+(define (check-num num)
+  (let (out true)
+    (while (and (!= num 0) out)
+      (if (> (% num 10) 1) (setq out nil))
+      (setq num (/ num 10))) out))
+
+(check-num 123)
+;-> nil
+(check-num 1010)
+;-> true
+(check-num 10101011L)
+;-> true
+
+Adesso scriviamo la funzione che calcola il numero costituito solo da 1 e 0:
+
+(define (uno-zero num iter)
+  (catch
+    (let (a (bigint num))
+    (for (i 1 iter)
+      (if (check-num (* a i)) (throw (list a i (* a i))))))))
+
+(uno-zero 3 100)
+;-> (3L 37 111L)
+(uno-zero 12 1000)
+;-> (12L 925 11100L)
+(uno-zero 21 1000)
+;-> (21L 481 10101L)
+(uno-zero 12345 1000000)
+;-> (12345L 891058 11000111010L)
+(uno-zero 123456 10000000)
+;-> nil
+
+Come si nota, dobbiamo specificare il numero di moltiplicazioni (iterazioni) e quindi non sempre otteniamo un risultato. Inoltre dobbiamo utilizzare i big-integer. Proviamo con un ciclo infinito:
+
+(define (uno-zero num)
+  (catch
+    (let ((a (bigint num)) (i 1))
+    (while true
+      (if (check-num (* a i)) (throw (list a i (* a i))))
+      (++ i)))))
+
+(uno-zero 3)
+;-> (3L 37 111L)
+(uno-zero 12)
+;-> (12L 925 11100L)
+(uno-zero 21)
+;-> (21L 481 10101L)
+(uno-zero 12345)
+;-> (12345L 891058 11000111010L)
+
+Putroppo (uno-zero 123456) non finisce in un tempo ragionevole...
+
+Per trovare un'altro metodo facciamo il seguente ragionamento:
+Consideriamo gli (N + 1) numeri interi 1, 11, 111, ... , 111...1, (N+1 1).
+Quando vengono divisi per N, lasciano (N + 1) resti. Secondo il principio dei cassetti o della piccionaia (pigeonhole principle), due di questi resti sono uguali, quindi la differenza tra i due interi corrispondenti è un intero costituito solo da cifre 1 e 0 che è divisibile per N. Per inciso, questa è anche una dimostrazione del teorema.
+
+Esempio 1:
+N = 3
+; lista di 3+1 numeri con tutti 1
+(setq one '(1 11 111 1111))
+; calcolo dei resti
+(map (fn(x) (% x 3)) one)
+;-> (1 2 0 1)
+Abbiamo due resti uguale a 1, che corrispondono ai numeri 1 e 1111. 
+Calcoliamo la differenza tra questi due numeri:
+(- 1111 1)
+;-> 1110
+Abbiamo ottenuto un numero "1110" composto solo da 1 e 0.
+Dividiamo il numero per verificare la correttezza:
+(div 1110 3)
+;-> 370
+Quindi il numero 3 moltiplicato per 370 genera il numero 1110 che è costituito solo da 1 e 0.
+
+Esempio 2:
+N=12
+(setq one '(1 11 111 1111 11111 111111 1111111 11111111 111111111 1111111111 11111111111 111111111111 1111111111111))
+(map (fn(x) (% x 12)) one)
+;-> (1 11 3 7 11 3 7 11 3 7 11 3 7)
+Prendiamo i due numeri che hanno resto 11 (il secondo e il quinto):
+(- 11111 11)
+;-> 11100
+(div 11100 12)
+;-> 925
+Quindi il numero 12 moltiplicato per 925 genera il numero 111100 che è costituito solo da 1 e 0.
+
+Quindi il nostro algoritmo sarà il seguente:
+
+0. creare una hash-map (che conterrà elementi con chiave uguale al resto e valore uguale al relativo numero con tutti 1).
+1. generare il prossimo numero con tutti 1 (numero one)
+2. calcolare il resto della divisione tra il numero one e il numero dato
+3. se il resto non esiste nella hash-map, 
+      allora inserirlo nella hash-map (resto one) e andare al passo 1
+      altrimenti recuperare il numero nella hash-map che ha la chiave uguale a resto e sottrarlo al numero one attuale.
+      Fine.
+
+Scriviamo la funzione in forma estesa:
+
+(define (uz num)
+  (let ((out 0L) (val 1L) (dv 0) (primo 0) (secondo 0))
+    (new Tree 'myHash)
+    (myHash "1L" 1L)
+    (for (i 1 num 1 (!= out 0))
+      ;calcola il prossimo numero con tutti 1 (11, 111, 1111, ...)
+      (setq val (+ (pow-i 10L i) val))
+      ; calcola il resto della divisione tra il numero con tutti 1 e il numero dato
+      (setq dv (% val num))
+      ;(println "val: " val { } "dv: " dv)
+      (cond ((= dv 0) (setq out val))
+            (true
+              ; se la chiave non esiste nella hashmap...
+              (if (null? (myHash (string dv)))
+                  (begin
+                    ; allora inserisce la chiave (dv) con il valore (val)
+                    ;(println "insert: " dv { } val)
+                    (myHash (string dv) val)
+                  )
+                  ; altrimenti calcoliamo il risultato
+                  (begin
+                    ;(println "calcolo...")
+                    ; prendo il primo valore con lo stesso resto dala hash map
+                    (setq primo (myHash (string dv)))
+                    ; prendo il secondo valore con lo stesso resto (ultimo valore)
+                    (setq secondo val)
+                    ;(println "primo: " primo { } "secondo: " secondo)
+                    ; calcolo la differenza
+                    (setq out (- secondo primo))
+                    ;(println "out: " out)
+                  )
+              )
+              ;(read-line)
+            )
+      )
+    )
+    ; elimina la hashmap
+    (delete 'myHash)
+    (list out (/ out num))))
+
+(uz 3)
+;-> (111L 37L)
+(* 37 3)
+;-> 111
+(uz 12)
+;-> (11100L 925L)
+(uz 10)
+;-> (10L 1L)
+(uz 21)
+;-> (111111L 5291L)
+(uz 1234)
+;-> (11111111111111111111111111111111111111111111111111111111111111111111111111111111111111110L
+;->  9004141905276427156491986313704303979830722132180803169457950657302359085179182423915L)
+(div 11111111111111111111111111111111111111111111111111111111111111111111111111111111111111110L
+     9004141905276427156491986313704303979830722132180803169457950657302359085179182423915L)
+;-> 1234
+
+Le funzioni (uno-zero e uz) producono due risultati differenti, ma entrambi sono corretti (cioè sono multipli di N e contengono solo cifre 1 e 0). La seconda funzione produce numeri più grandi.
+
+La funzione (uz 12345) produce un numero molto lungo:
+
+(length (last (uz 12345))) 
+;-> 818
+
+Riscriviamo la funzione in maniera più compatta:
+
+(define (uz num)
+  (let ((out 0L) (val 1L) (dv 0L))
+    (new Tree 'myHash)
+    (myHash "1L" 1L)
+    (for (i 1 num 1 (!= out 0))
+      ; calcola il prossimo numero con tutti 1 (11, 111, 1111, ...)
+      (setq val (+ (pow-i 10L i) val))
+      ; calcola il resto della divisione tra il numero con tutti 1 e il numero dato
+      (setq dv (% val num))
+      (cond ((= dv 0) (setq out val))
+            (true
+              ; se la chiave non esiste nella hashmap...
+              (if (null? (myHash (string dv)))
+                  ; allora inserisce la chiave (dv) con il valore (val)
+                  (myHash (string dv) val)
+                  ; altrimenti calcoliamo il risultato...
+                  ; che è la differenza tra il valore attuale del numero one (val)
+                  ; e il valore del numero one (nella hash-map) che ha lo stesso resto 
+                  ; del numero one attuale (myHash (string dv))
+                  (setq out (- val (myHash (string dv))))
+              )
+            )
+      )
+    )
+    ; elimina la hashmap
+    (delete 'myHash)
+    (list out (/ out num))))
+
+(uz 3)
+;-> (111L 37L)
+(* 37 3)
+;-> 111
+(uz 10)
+;-> (10L 1L)
+(uz 123)
+;-> (111111111111111L 903342366757L)
+(uz 1234)
+;-> (11111111111111111111111111111111111111111111111111111111111111111111111111111111111111110L
+(11111111111111111111111111111111111111111111111111111111111111111111111111111111111111110L
+ 9004141905276427156491986313704303979830722132180803169457950657302359085179182423915L)
+(div 11111111111111111111111111111111111111111111111111111111111111111111111111111111111111110L
+ 9004141905276427156491986313704303979830722132180803169457950657302359085179182423915L)
+ ;-> 1234
+ 
+Con questa ultima funzione possiamo usare come parametro dei numeri maggiori:
+
+(length (last (uz 12345)))
+;-> ;-> 818
+(length (last (uz 123456)))
+;-> 321
+
+Ma anche in questo caso i numeri raggiungono presto dei valori praticamente intrattabili:
+
+(time (println (length (last (uz 1234567)))))
+;-> 34013      ; cifre del multiplo di 1234567 che contiene solo 1 e 0.
+;-> 99618.592  ; circa 100 secondi
+
+Comunque è interessante la dimostrazione del teorema.
 
 

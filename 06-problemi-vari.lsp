@@ -705,12 +705,12 @@ Per calcolare il coefficiente binomiale, usiamo una matrice M[][] che memorizza 
 
 (define (binomiale n k)
   (local (M q)
-    (setq M (array (+ n 1) (+ k 1) '(0)))
+    (setq M (array (+ n 1) (+ k 1) '(0L)))
     (for (i 0 n)
       (setq q (min i k))
       (for (j 0 q)
         (if (or (= j 0) (= j i))
-          (setq (M i j) 1)
+          (setq (M i j) 1L)
           (setq (M i j) (+ (M (- i 1) (- j 1)) (M (- i 1) j)))
         )
       )
@@ -719,16 +719,36 @@ Per calcolare il coefficiente binomiale, usiamo una matrice M[][] che memorizza 
   );local
 )
 
-(debug (binomiale 5 2))
 (binomiale 5 2)
-;-> 10
+;-> 10L
 
 (binomiale 100 5)
-;-> 75287520
+;-> 75287520L
 
 Complessità temporale: O(n*k)
 Complessità spaziale: O(n*k)
 
+La seguente funzione è stata scritta da TedWalther e si basa su un algoritmo trovato in "Lilavati", un trattato di aritmetica scritto nel 1150 in India.
+
+(define (binomial-coefficient n k)
+  (if (> k n)
+    0
+    (let (r 1L)
+      (for (d 1 k)
+        (setq r (/ (* r n) d)) (-- n))
+      r)))
+
+(time (binomial-coefficient 12345 4) 10000)
+;-> 16.981
+(time (binomiale 12345 4) 100)
+;-> 2620.148
+
+Test di correttezza:
+
+(for (i 100 2000)
+  (for (j 2 10)
+    (if (!= (binomial-coefficient i j) (binomiale i j)) (println " error: " i { } j))))
+;-> nil
 
 --------------
 Lancio di dadi
@@ -1854,7 +1874,7 @@ N = 142708 - 142
 D = 99900 (perchè periodo di 3 cifre --> 999 e antiperiodo di 2 cifre --> 00)
 
 La nostra funzione avrà tre parametri:
-                     ___ 
+                     ___
 1) il numero "n" 1.42703
 2) in numero di cifre del periodo "np" (3)
 3) in numero di cifre dell'antiperiodo "na" (2)
@@ -2139,7 +2159,7 @@ Scriviamo una funzione che calcola le soluzioni di una equazione di terzo grado:
 (define (my-pow x n)
   (if (< x 0)
       ; cambio segno a x, calcolo la potenza, cambio segno al risultato
-      (sub 0 (pow (sub 0 x) n)) 
+      (sub 0 (pow (sub 0 x) n))
       (pow x n)))
 
 (pow 3 0.33)
@@ -2546,38 +2566,38 @@ Proviamo con un sistea 16x16:
 (setq noti '(10 -2 13 -5 12 11 9 -8 -10 12 -18 10 20 16 8 6))
 
 (cramer matrice noti)
-;-> (6.073265713499919 
-;-> -7.895511516493116 
-;-> 1.832360106508081 
-;-> 3.230429811886619 
+;-> (6.073265713499919
+;-> -7.895511516493116
+;-> 1.832360106508081
+;-> 3.230429811886619
 ;-> -1.455619886107596
-;-> -6.476253322763236 
-;-> 3.679036826897333 
-;-> 2.718120581717722 
-;-> 6.958059613240136 
+;-> -6.476253322763236
+;-> 3.679036826897333
+;-> 2.718120581717722
+;-> 6.958059613240136
 ;-> -3.641846643266388
-;-> 2.958481343355023 
-;-> -12.86237050078677 
-;-> -2.628371168374938 
-;-> 4.849669122127303 
+;-> 2.958481343355023
+;-> -12.86237050078677
+;-> -2.628371168374938
+;-> 4.849669122127303
 ;-> 0.6839772385617239
 ;-> -0.8092477063837188)
 
 (gauss matrice noti)
-;-> (6.073265713499932 
-;->  -7.895511516493109 
-;->  1.832360106508014 
-;->  3.230429811886656 
+;-> (6.073265713499932
+;->  -7.895511516493109
+;->  1.832360106508014
+;->  3.230429811886656
 ;->  -1.455619886107596
-;->  -6.476253322763209 
-;->  3.679036826897329 
-;->  2.718120581717728 
-;->  6.958059613240156 
+;->  -6.476253322763209
+;->  3.679036826897329
+;->  2.718120581717728
+;->  6.958059613240156
 ;->  -3.641846643266435
-;->  2.958481343355025 
-;->  -12.86237050078677 
-;->  -2.628371168374938 
-;->  4.849669122127305 
+;->  2.958481343355025
+;->  -12.86237050078677
+;->  -2.628371168374938
+;->  4.849669122127305
 ;->  0.6839772385617227
 ;->  -0.8092477063837177)
 
@@ -6513,7 +6533,7 @@ I due metodi danno risultati leggermente diversi perchè i polinomi non sono ugu
 (setq poly2 (crea-polinomio '(3.2 7.2 -1.5 -2.2)))
 (setq poly4 (make-poly-horner '(3.2 7.2 -1.5 -2.2)))
 
-(for (x 0 10 0.5) 
+(for (x 0 10 0.5)
   (if (!= (poly2 x) (poly4 x))
       (println x { } (poly2 x) { } (poly4 x))))
 ;-> 0.5 -0.7500000000000001 -0.75
@@ -6526,7 +6546,7 @@ I due metodi danno risultati leggermente diversi perchè i polinomi non sono ugu
 In questo caso l'errore è molto piccolo:
 (setq eps 1e-3)
 
-(for (x 0 10 0.5) 
+(for (x 0 10 0.5)
   (if (> (abs (sub (poly2 x) (poly4 x))) eps)
       (println x { } (poly2 x) { } (poly4 x))))
 ;-> nil
@@ -6790,6 +6810,8 @@ Non è vero il contrario, cioè esistono tanti numeri che hanno come somma delle
 
 Possiamo generalizzare la funzione per determinare se un numero m è potenza del numero n.
 
+Versione funzionale (può generare un errore di stack-overflow):
+
 (define (power-of? n m)
   (if (zero? (% m n))
         (power-of? n (/ m n))
@@ -6805,8 +6827,94 @@ Possiamo generalizzare la funzione per determinare se un numero m è potenza del
 ;-> nil
 (power-of? 7 2401)
 ;-> true
-(power-of-3? 847288609443)
+(power-of? 3 847288609443)
 ;-> true
+
+Versione iterativa:
+
+Con la divisione:
+
+(define (power-of-div? x y)
+  (cond ((or (zero? x) (zero? y)) nil)
+        ((= x 1) (= y 1))
+        ((= x -1) (or (= y 1) (= y -1)))
+        (true
+          (while (zero? (% y x))
+            (setq y (/ y x))
+          )
+          (= y 1))))
+
+Con la moltiplicazione:
+
+(define (power-of-mul? x y)
+  (let (num x)
+    (while (< (abs num) (abs y))
+      (setq num (* num x))
+    )
+    (= num y)))
+
+(time (power-of-div? 3 847288609443) 100000)
+;-> 217.472
+(time (power-of-mul? 3 847288609443) 100000)
+;-> 227.419.609
+
+(power-of-div? 3 117)
+;-> nil
+(power-of-mul? 3 117)
+;-> nil
+(power-of-div? 4 4096)
+;-> true
+(power-of-mul? 4 4096)
+;-> true
+(power-of-div? 4 20)
+;-> nil
+(power-of-mul? 4 20)
+;-> nil
+(power-of-div? 7 2401)
+;-> true
+(power-of-mul? 7 2401)
+;-> true
+(power-of-div? 3 847288609443)
+;-> true
+(power-of-mul? 3 847288609443)
+;-> true
+(power-of-div? -2 -8)
+;-> true
+(power-of-mul? -2 -8)
+;-> true
+(power-of-div? -2 8)
+;-> nil
+(power-of-mul? -2 8)
+;-> nil
+(power-of-div? -2 -16)
+;-> nil
+(power-of-mul? -2 -16)
+;-> nil
+(power-of-div? -2 16)
+;-> true
+(power-of-mul? -2 16)
+;-> true
+
+(power-of-div?  1  1)
+;-> true
+(power-of-mul?  1  1)
+;-> true
+(power-of-div?  1 -1)
+;-> nil
+(power-of-mul?  1 -1)
+;-> nil
+(power-of-div? -1  1)
+;-> true               CORRETTO
+(power-of-mul? -1  1)
+;-> nil ;              ERRORE: (pow -1 2) ;-> 1
+(power-of-div? -1 -1)
+;-> true
+(power-of-mul? -1 -1)
+;-> true
+
+(pow -1 2)
+(pow -1 2)
+
 
 Un altro metodo è quello di utilizzare i logaritmi. L'idea è di calcolare il logaritmo di y in base x. Se risulta essere un numero intero, allora il numero y è una potenza perfetta, altrimenti non lo è.
 Ricordiamo che matematicamente risulta:
@@ -6821,12 +6929,34 @@ Quindi la funzione è la seguente:
 
 (define (ispower? x y) (= (log y x) (int (log y x))))
 
+oppure nel modo seguente:
+
+(define (ispower? x y) (= (log y x) (ceil (log y x))))
+
 (ispower? 2 16)
 ;-> true
-
 (ispower? 3 81)
 ;-> true
 
+Test di correttezza delle due funzioni:
+(for (x 2 100)
+  (for (y x 1000)
+    (if (> y x)
+        (if (!= (ispower? x y) (power-of? x y)) (println x { } y)))))
+;-> 3 243
+;-> 5 125
+;-> 6 216
+;-> 10 1000
+
+Il test è fallito infatti risulta (per esempio):
+
+(log 243 3) 
+;-> 4.999999999999999
+
+(ceil (log 243 3))
+;-> 5
+(int (log 243 3))
+;-> 4
 
 Per finire, scriviamo una funzione che calcola se un numero intero n è potenza di un qualsiasi numero intero.
 Un numero n viene detto una potenza perfetta quando n = m^k è un numero intero e m>1 e k>=2.
@@ -7372,11 +7502,11 @@ Adesso scriviamo la funzione che cerca la coppia di numeri primi che sommati val
   (local (primi stop out)
     (setq primi (sieve n))
     (setq stop nil)
-    ; attraversiamo la lista per trovare la prima coppia 
+    ; attraversiamo la lista per trovare la prima coppia
     ; di numeri primi che sommati valgono n
     (dolist (el primi stop)
        (if (and el (primi (- n $idx)))
-           (begin 
+           (begin
             (setq stop true)
             (setq out (list $idx (- n $idx)))
            )
@@ -7399,7 +7529,7 @@ Verifichiamo la congettura per valori fino a n:
       (setq stop nil)
       (dolist (el primi stop)
         (if (and el (primi (- i $idx)))
-            (begin 
+            (begin
               (setq stop true)
               ; se vogliamo stampare le coppie
               ;(println (list $idx (- i $idx)))
@@ -7427,7 +7557,7 @@ Infine scriviamo la funzione che genera tutte le coppie di numeri primi che somm
   (local (primi out)
     (setq out '())
     (setq primi (sieve n))
-    ; attraversiamo la lista per trovare la prima coppia 
+    ; attraversiamo la lista per trovare la prima coppia
     ; di numeri primi che sommati valgono n
     (dolist (el primi)
        (if (and el (primi (- n $idx)))
@@ -7676,7 +7806,7 @@ Questo metodo funziona anche quando a e/o b sono negativi.
     out))
 
 (diofanto 8 -6 26)
-;-> 2 1 1 
+;-> 2 1 1
 ;-> (13 13)
 
 Infatti risulta:
@@ -7867,7 +7997,7 @@ x^2 -3x + 2 = 0
 
 4x^3 + 2x^2 -4*x + 10 = 0
 (bairstow '(4 2 -4 10))
-;-> (((0.6563019928818721 0.9739090873711072) 
+;-> (((0.6563019928818721 0.9739090873711072)
 ;->   (0.6563019928818721 -0.9739090873711072))
 ;->  (-1.812603985763744))
 WolframAlpha
@@ -7877,9 +8007,9 @@ x≈-1.81260398576374
 
 3x^4 - 2x^3 - x^2 + 4x + 10 = 0
 (bairstow '(3 -2 -1 4 10))
-;-> (((-0.871136997600388 0.7358894057211269) 
+;-> (((-0.871136997600388 0.7358894057211269)
 ;->   (-0.871136997600388 -0.7358894057211269))
-;->  ((1.204470330933721 1.054769962446627) 
+;->  ((1.204470330933721 1.054769962446627)
 ;->   (1.204470330933721 -1.054769962446627)))
 WolframAlpha
 x≈-0.871136997600388 + 0.735889405721127 i
@@ -7889,9 +8019,9 @@ x≈1.20447033093372 - 1.05476996244663 i
 
 5x^5 - 4x^4 + 7x^3 + 8x^2 + 9x + 3 = 0
 (bairstow '(5 -4 7 8 9 3))
-;-> (((-0.3480864445180198 0.6520958216175604) 
+;-> (((-0.3480864445180198 0.6520958216175604)
 ;->   (-0.3480864445180198 -0.6520958216175604))
-;->  ((0.9531760543651267 1.329888453606416) 
+;->  ((0.9531760543651267 1.329888453606416)
 ;->   (0.9531760543651267 -1.329888453606416))
 ;->  (-0.4101792196942135))
 WolframAlpha
@@ -7903,13 +8033,13 @@ x≈-0.410179
 
 x^9 - 2x^8 + 3x^7 + 0x^6 + 5x^5 - 4x^4 + 7x^3 + 8x^2 + 9x + 3 = 0
 (bairstow '(1 -2 3 0 5 -4 7 8 9 3))
-;-> (((-0.3612218566283093 0.6913476051961196) 
+;-> (((-0.3612218566283093 0.6913476051961196)
 ;->   (-0.3612218566283093 -0.6913476051961196))
-;->  ((-0.739130448788589 0.9706810141091354) 
+;->  ((-0.739130448788589 0.9706810141091354)
 ;->   (-0.739130448788589 -0.9706810141091354))
-;->  ((1.251229097959007 1.099346245887554) 
+;->  ((1.251229097959007 1.099346245887554)
 ;->   (1.251229097959007 -1.099346245887554))
-;->  ((1.053720393127137 1.34449644051663) 
+;->  ((1.053720393127137 1.34449644051663)
 ;->   (1.053720393127137 -1.34449644051663))
 ;->  (-0.4091943713384922))
 
@@ -7925,7 +8055,7 @@ x≈1.05372 - 1.3445 i
 x≈-0.409194
 
 Calcoliamo il valore del polinomio per una radice:
-x^9 - 2 x^8 + 3 x^7 + 0 x^6 + 5 x^5 - 4 x^4 + 7 x^3 + 8 x^2 + 9 x + 3 
+x^9 - 2 x^8 + 3 x^7 + 0 x^6 + 5 x^5 - 4 x^4 + 7 x^3 + 8 x^2 + 9 x + 3
 dove x = 1.251229097959007 - 1.099346245887554 i
 Risultato:
 2.99×10^-14 + 6.8×10^-15 i
@@ -8028,7 +8158,7 @@ P(1 o 2 o 3 ... o 5) = P(1) + P(2) + P(3) + P(4) + P(5)
                        - 5C2*(1/5)(1/4)
                        + 5C3*(1/5)(1/4)(1/3)
                        - 5C4*(1/5)(1/4)(1/3)(1/2)
-                       + (1/5)(1/4)(1/3)(1/2)(1/1)                       
+                       + (1/5)(1/4)(1/3)(1/2)(1/1)
 
                      = 5*(1/5)
                        - 5*2*(1/5)(1/4)
@@ -8506,13 +8636,13 @@ Funzione che calcola il numero dei punti con coordinate intere che si trovano su
 (define (bound-point polygon)
   (local (dx dy size bb)
     ; i vertici del poligono sono tutti sul perimetro
-    (setq size (length polygon)) 
+    (setq size (length polygon))
     (setq bb size)
     ; ciclo per tutti i lati del poligono
     (for (i 0 (- size 1))
       (setq dx (- (polygon i 0) (polygon (% (+ i 1) size) 0)))
       (setq dy (- (polygon i 1) (polygon (% (+ i 1) size) 1)))
-      ; gcd + 1 produce i punti sul perimetro, quindi gcd - 1 produce tutti i punti 
+      ; gcd + 1 produce i punti sul perimetro, quindi gcd - 1 produce tutti i punti
       ; che si trovano sul segmento tranne i due punti estremi
       (setq bb (+ bb (abs (gcd dx dy)) -1))
     )
@@ -8961,7 +9091,7 @@ Se nel pannello attuale non è possibile cancellare più caratteri allora inizia
     (for (j 0 (- (length str) 1))
       ; conta tutte le occorrenze dei caratteri della stringa
       (setf (curr-conta (char (str j) 0 true)) (+ (curr-conta (char (str j) 0 true)) 1))
-      ; se troviamo un carattere distinto, 
+      ; se troviamo un carattere distinto,
       ; allora incrementiamo il conto
       (if (= (curr-conta (char (str j) 0 true)) 1)
           (++ conta)
@@ -8971,9 +9101,9 @@ Se nel pannello attuale non è possibile cancellare più caratteri allora inizia
           (begin
           ; proviamo a ridurre la finestra:
           ; controlla se un qualsiasi carattere si verifica più volte
-          ; rispetto alla sua occorrenza nel pattern, 
-          ; se sì allora rimuoverlo dall'inizio 
-          ; e rimuovere anche i caratteri che non servono.          
+          ; rispetto alla sua occorrenza nel pattern,
+          ; se sì allora rimuoverlo dall'inizio
+          ; e rimuovere anche i caratteri che non servono.
           (while (> (curr-conta (char (str start) 0 true)) 1)
             (if (> (curr-conta (char (str start) 0 true)) 1)
                 (setf (curr-conta (char (str start) 0 true)) (- (curr-conta (char (str start) 0 true)) 1))
@@ -9017,7 +9147,7 @@ La classificazione delle posizioni "calde" e "fredde" può essere eseguita in mo
 
 3) Se ogni mossa porta a una posizione calda, allora una posizione è fredda.
 
-Ad esempio, tutte le posizioni della forma (0, m) e (m, m) con m > 0 sono calde, per la regola 2. 
+Ad esempio, tutte le posizioni della forma (0, m) e (m, m) con m > 0 sono calde, per la regola 2.
 Tuttavia, la posizione (1,2) è fredda, perché le uniche posizioni che possono essere raggiunte da essa, (0,1), (0,2), (1,0) e (1,1), sono tutti calde. Le posizioni fredde (n, m) con i valori più piccoli di ne m sono (0, 0), (1, 2), (3, 5), (4, 7), (6, 10) e (8, 13).
 
 Wythoff ha scoperto che le posizioni fredde seguono uno schema regolare determinato dal rapporto aureo φ (sezione aurea). In particolare:
@@ -9047,13 +9177,13 @@ Vediamo una tabella con i valori:
 
 |--------------|-----|-------|-------|-------|--------|--------|--------|--------|--------|
 |      k       |  0  | 1     | 2     | 3     | 4      | 5      | 6      |  7     |  8     |
-|--------------|-----|-------|-------|-------|--------|--------|--------|--------|--------|     
+|--------------|-----|-------|-------|-------|--------|--------|--------|--------|--------|
 |     k*φ      |  0  | 1.618 | 3.236 | 4.854 | 6.472  | 8.090  | 9.708  | 11.326 | 12.944 |
-|--------------|-----|-------|-------|-------|--------|--------|--------|--------|--------|    
+|--------------|-----|-------|-------|-------|--------|--------|--------|--------|--------|
 | (floor k*φ)  |  0  | 1     | 3     | 4     | 6      | 8      | 9      | 11     | 12     |
 |--------------|-----|-------|-------|-------|--------|--------|--------|--------|--------|
 |     k*φ²     |  0  | 2.618 | 5.236 | 7.854 | 10.472 | 13.090 | 15.708 | 18.326 | 20.944 |
-|--------------|-----|-------|-------|-------|--------|--------|--------|--------|--------|    
+|--------------|-----|-------|-------|-------|--------|--------|--------|--------|--------|
 | (floor k*φ²) |  0 -| 2     | 5     | 7     | 10     | 13     | 15     | 18     | 20     |
 |--------------|-----|-------|-------|-------|--------|--------|--------|--------|--------|
 
@@ -9105,7 +9235,7 @@ Vediamo dove si trovano queste posizioni nel caso della regina nella scacchiera:
  1 |   |   | ▄ |   |   |   |   |   |   |   |   |   |   |   |   |   |
    +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
  0 | ▄ |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
-   +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+   
+   +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
      0   1   2   3   4   5   6   7   8   9   10  11  12  13  14  15
 
 

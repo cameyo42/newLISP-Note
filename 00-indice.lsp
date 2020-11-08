@@ -1,7 +1,7 @@
 
 ============================================================================
  Note su newLISP
- © copyright Massimo Corinaldesi aka cameyo
+ © copyright 2019-2020 Massimo Corinaldesi aka cameyo
  MIT License
 ============================================================================
 
@@ -170,6 +170,8 @@ FUNZIONI VARIE
   Lunghezza di un numero intero
   Normalizzazione
   Papersize
+  Verificare se due numeri hanno lo stesso segno
+  Suddivisione di una lista
 
 newLISP 99 PROBLEMI (28)
 ========================
@@ -586,6 +588,9 @@ NOTE LIBERE 2
   fizzbuzz esteso
   Conversione tra liste, stringhe, caratteri e simboli
   Divisori di un numero
+  Sequenza di Collatz
+  Generatore
+  Multiplo con tutti 1 e 0
 
 APPENDICI
 =========
