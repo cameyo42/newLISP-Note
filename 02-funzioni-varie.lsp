@@ -5109,7 +5109,7 @@ Sequenza OESIS: A008683
 
 La funzione di Mertens indicata con M(x) è la sommatoria della funzione di Mobius:
 
-M(x) = Sum[mu(n)] (per tutti i valori n <= x)
+M(x) = Sum[mu(n)] (per 1 <= n <= x)
 
 Sequenza OESIS: A002321
 

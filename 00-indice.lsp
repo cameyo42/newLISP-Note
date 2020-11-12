@@ -591,6 +591,9 @@ NOTE LIBERE 2
   Sequenza di Collatz
   Generatore
   Multiplo con tutti 1 e 0
+  Risolvere i sistemi lineari
+  Sudoku test
+  Integrali definiti
 
 APPENDICI
 =========

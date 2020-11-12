@@ -2282,7 +2282,7 @@ E  •           R  • − •       4  • • • • −     =  − • • 
 F  • • − •     S  • • •       5  • • • • •     -  − • • • • −
 G  − − •       T  −           6  − • • • •     (  − • − − •
 H  • • • •     U  • • −       7  − − • • •     )  − • − − • −
-I  • •         V  • • • −     8  − − − • •     {"}  • − • • − •
+I  • •         V  • • • −     8  − − − • •    {"} • − • • − •
 J  • − − −     W  • − −       9  − − − − •     '  • − − − − •
 K  − • −       X  − • • −                      /  − • • − •
 L  • − • •     Y  − • − −                      @  • − − • − •
@@ -2371,7 +2371,7 @@ Per scrivere le funzioni di conversione abbiamo bisogno di creare due liste di a
 (" "  "       ")))
 
 Sottolineato  ". . - - . -"
-
+. - . . - .
 ; Lista di associazione codice morse --> carattere
 (setq morse-alfa (map (fn (n) (list (last n) (first n))) alfa-morse))
 
@@ -2404,7 +2404,7 @@ Adesso possiamo scrivere la funzione che converte un messaggio di testo in una l
 ;-> ("-" "." ". . ." "-" "- - -" "       " "- . ." ". -" "       " "-" ". - ." ". -"
 ;->  "- . ." ". . -" ". - ." ". - ." "." ". - . - . -")
 
-Definiamo la funzione inversa che converta da una lista di codici morse ad una lista di caratteri:
+Definiamo la funzione inversa che converte da una lista di codici morse ad una lista di caratteri:
 
 (define (alfa2morse msg)
   (let (out '())
@@ -2420,6 +2420,13 @@ Definiamo la funzione inversa che converta da una lista di codici morse ad una l
 
 (join (alfa2morse (morse2alfa msg)))
 ;-> "TESTO DA TRADURRE."
+
+(setq msg {Testo "da tradurre})
+(setq msg (upper-case msg))
+(println (join (alfa2morse (morse2alfa msg))))
+;-> "TESTO \"DA TRADURRE"
+(println (join (alfa2morse (morse2alfa msg))))
+;-> TESTO "DA TRADURRE
 
 
 -------------------

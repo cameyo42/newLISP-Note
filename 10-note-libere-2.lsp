@@ -5603,3 +5603,930 @@ Ma anche in questo caso i numeri raggiungono presto dei valori praticamente intr
 Comunque è interessante la dimostrazione del teorema.
 
 
+---------------------------
+Risolvere i sistemi lineari
+---------------------------
+
+Funzioni per la soluzione di un sistema lineare:
+1) sislin-g (metodo di eliminazione di Gauss)
+1) sislin-c (metodo di Cramer)
+
+;; @syntax (sislin-g matrix terms)
+;; @description Solve a linear system with Gauss's method (elimination with pivot and backwards substitution)
+;; @param <matrix> matrix of the linear system
+;; @param <terms> known terms
+;; @return list of solutions (sol1 sol2...soln) (float) or nil
+;; @example
+;; (sislin-g '((2 1 1) (4 -1 1) (-1 1 2)) '(1 -5 5))   ==> (-1 2 1)
+;; (sislin-g '((1 2 3) (-3 -2 3) (4 -5 2)) '(1 -1 1))  ==> (0.3620689655172414 0.1379310344827586 0.1206896551724138)
+;; (sislin-g '((2 1 1) (4 -1 1) (4 2 2)) '(1 -5 5))    ==> nil
+(define (sislin-g matrix terms)
+  (local (n m p rowx amax xfac temp temp1 x)
+    (setq rowx 0) ;conta il numero di scambio righe
+    (setq n (length matrix))
+    ;(setq x (dup '0 n))
+    (setq x (array n (dup '0 n)))
+    (for (k 0 (- n 2))
+      (setq amax (abs (matrix k k)))
+      (setq m k)
+      ; trova la riga con il pivot più grande
+      (for (i (+ k 1) (- n 1))
+        (setq xfac (abs (matrix i k)))
+        (if (> xfac amax) (setq amax xfac m i))
+      )
+      ; scambio delle righe
+      (if (!= m k) (begin
+          (++ rowx)
+          (setq temp1 (terms k))
+          (setq (terms k) (terms m))
+          (setq (terms m) temp1)
+          (for (j k (- n 1))
+            (setq temp (matrix k j))
+            (setq (matrix k j) (matrix m j))
+            (setq (matrix m j) temp)
+          ))
+      )
+      (for (i (+ k 1) (- n 1))
+        (setq xfac (div (matrix i k) (matrix k k)))
+        (for (j (+ k 1) (- n 1))
+          (setq (matrix i j) (sub (matrix i j) (mul xfac (matrix k j))))
+        )
+        (setq (terms i) (sub (terms i) (mul xfac (terms k))))
+      )
+    )
+    ; sostituzione all'indietro (backward sostitution)
+    (for (j 0 (- n 1))
+      (setq p (sub n j 1))
+      (setq (x p) (terms p))
+      (if (<= (+ p 1) (- n 1))
+        (for (i (+ p 1) (- n 1))
+          (setq (x p) (sub (x p) (mul (matrix p i) (x i))))
+        )
+      )
+      (setq (x p) (div (x p) (matrix p p)))
+    )
+    (if (or (find true (map inf? x)) (find true (map NaN? x)))
+        nil
+        x)))
+
+;; @syntax (sislin-c matrix terms)
+;; @description Solve a linear system with Cramer's method (determinant)
+;; @param <matrix> matrix of the linear system
+;; @param <terms> known terms
+;; @return list of solutions (sol1 sol2...soln) (float) or nil
+;; @example
+;; (sislin-c '((2 1 1) (4 -1 1) (-1 1 2)) '(1 -5 5))   ==> (-1 2 1)
+;; (sislin-c '((1 2 3) (-3 -2 3) (4 -5 2)) '(1 -1 1))  ==> (0.3620689655172414 0.1379310344827586 0.1206896551724138)
+;; (sislin-c '((2 1 1) (4 -1 1) (4 2 2)) '(1 -5 5))    ==> nil
+(define (sislin-c matrix terms)
+  (local (dim detm det-i sol copia)
+    (setq dim (length matrix))
+    (setq sol '())
+    (setq copia matrix)
+    (setq detm (det copia 0.0))
+    ; la soluzione è indeterminata se il determinante vale zero.
+    (if (= detm 0) (setq sol nil)
+    ;(println detm)
+      (for (i 0 (- dim 1))
+        (for (j 0 (- dim 1))
+          (setf (copia j i) (terms j))
+        )
+        ; 0.0 -> restituisce 0 (invece di nil),
+        ; quando la matrix è singolare
+        (setq det-i (det copia 0.0))
+        (push (div det-i detm) sol -1)
+        (setq copia matrix)
+      )
+    )
+    sol))
+
+Funzione per il controllo della soluzione del sistema:
+
+(define (check-sislin matrix terms sol)
+  (let (err '())
+    (dolist (row matrix)
+      (push (sub (terms $idx) (apply add (map mul row sol))) err -1))))
+
+Come funziona? Sostituisce la soluzione alle incognite e calcola il valore di ogni equazione:
+
+(sub (first '(1 -5 5)) (apply add (map mul '(2 1 1) '(-1 2 1))))
+;-> 0
+(sub (first (rest '(-1 -5 5))) (apply add (map mul '(4 -1 1) '(-1 2 1))))
+;-> 0
+(sub (last '(-1 -5 5)) (apply add (map mul '(-1 1 2) '(-1 2 1))))
+;-> 0
+
+(check-sislin '((2 1 1) (4 -1 1) (-1 1 2)) '(1 -5 5) '(-1 2 1))
+;-> (0 0 0)
+
+Funzione che elimina l'output automatico della REPL:
+
+(define (noecho expr) (silent expr) (print "\r\n>"))
+
+Sistema con 51 equazioni:
+
+(setq m '())
+(for (i 1 51)
+  (push (map (fn(x) (if (zero? (rand 2)) (- x) (+ x))) (randomize (sequence 100 150))) m -1))
+(length m)
+;-> 51
+(length (first m))
+;-> 51
+
+(setq t (map (fn(x) (if (zero? (rand 2)) (- x) (+ x))) (randomize (sequence 100 150))))
+(length t)
+;-> 51
+
+(det m)
+;-> -2.455307809771113e+138
+
+(sislin-c m t)
+
+(sislin-g m t)
+
+Differenza tra le soluzioni:
+
+(map sub (sislin-c m t) (sislin-c m t))
+;-> (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;->  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
+
+Sistema con 200 incognite:
+
+(setq m '())
+(for (i 1 200)
+  (push (map (fn(x) (if (zero? (rand 2)) (- x) (+ x))) (randomize (sequence 1000 1199))) m -1))
+(length m)
+;-> 200
+(length (first m))
+;-> 200
+
+(setq t (map (fn(x) (if (zero? (rand 2)) (- x) (+ x))) (randomize (sequence 1000 1199))))
+(length t)
+;-> 200
+
+(sislin-c m t)
+;-> (-1.#IND -1.#IND -1.#IND -1.#IND -1.#IND -1.#IND -1.#IND
+;->  ...
+;->  -1.#IND -1.#IND -1.#IND -1.#IND -1.#IND -1.#IND -1.#IND)
+
+Il metodo di Cramer fallisce perchè non riesce a calcolare il determinante (probabilmente perchè il numero è troppo grande):
+
+(det m)
+;-> -1.#INF
+
+(sislin-g m t)
+;-> (0.4363372503633707 -2.648733303674789 -3.608251827329319
+;->  ...
+;->  0.8024036199836556 1.712882404517861 -0.8461290786683825)
+
+(time (sislin-g m t))
+;-> 3328.499
+
+Convertiamo la lista m in vettore:
+
+(setq mvec (array 200 200 (flat m)))
+(length mvec)
+;-> 200
+(length (first mvec))
+;-> 200
+
+(setq tvec (array 200 t))
+(length tvec)
+;-> 200
+
+Con i vettori il calcolo è molto più veloce:
+
+(time (sislin-g mvec tvec))
+;-> 298.122
+
+Sistema con 500 incognite:
+
+(noecho
+(setq m '())
+(for (i 1 500)
+  (push (map (fn(x) (if (zero? (rand 2)) (- x) (+ x))) (randomize (sequence 1 500))) m -1))
+)
+(length m)
+;-> 500
+(length (first m))
+;-> 500
+
+(noecho
+(setq t (map (fn(x) (if (zero? (rand 2)) (- x) (+ x))) (randomize (sequence 1 500))))
+(length t))
+;-> 500
+
+Convertiamo la lista m in vettore:
+
+(noecho (setq mvec (array 500 500 (flat m))))
+(length mvec)
+;-> 500
+(length (first mvec))
+;-> 500
+
+(setq tvec (array 500 t))
+(length tvec)
+;-> 500
+
+(time (println (sislin-g mvec tvec)))
+;-> 4437.562
+
+Sistema con 1000 incognite:
+
+(noecho
+(setq m '())
+(for (i 1 1000)
+  (push (map (fn(x) (if (zero? (rand 2)) (- x) (+ x))) (randomize (sequence 1 1000))) m -1))
+)
+(length m)
+;-> 1000
+(length (first m))
+;-> 1000
+
+(setq t (map (fn(x) (if (zero? (rand 2)) (- x) (+ x))) (randomize (sequence 1 1000))))
+(length t)
+;-> 1000
+
+Convertiamo la lista m in vettore:
+
+(noecho (setq mvec (array 1000 1000 (flat m))))
+(length mvec)
+;-> 1000
+(length (first mvec))
+;-> 1000
+
+(setq tvec (array 1000 t))
+(length tvec)
+;-> 1000
+
+(time (println (sislin-g mvec tvec)))
+;-> 35597.271
+
+Occorrono quasi 36 secondi per risolvere un sistema di 1000 equazioni (non male).
+
+Controllo soluzioni:
+
+(silent (setq soluz (sislin-g mvec tvec)))
+(setq errors (check-sislin mvec tvec soluz))
+
+Calcolo errore massimo:
+
+(apply max errors)
+;-> 6.141362973721698e-009
+
+
+-----------
+Sudoku test
+-----------
+
+Vediamo alcuni puzzle sudoku considerati difficili da risolvere, prima però scriviamo la funzione per risolverli.
+
+(define (sudoku board)
+  (let (sol nil)
+    (if (valid? board) (solveSudoku board)
+        (setq sol '(nil)))
+    sol))
+
+(define (solveSudoku board)
+(catch
+  (local (i j row col is-empty solved)
+    (setq row -1 col -1)
+    (setq is-empty true)
+    (setq i 0 j 0)
+    (while (and is-empty (< i (length board)))
+      (while (and is-empty (< j (length board)))
+        (if (= (board i j) 0)
+            ; Esistono ancora dei valori nulli nel puzzle
+            (setq row i col j is-empty nil)
+        )
+        (++ j)
+      )
+      (setq j 0)
+      (++ i)
+    )
+    (if is-empty (begin (setq sol board) (throw true)))
+    ;else
+    (for (num 1 (length board))
+        (cond ((safe? board row col num)
+                 (setf (board row col) num)
+                 (if (solveSudoku board) (throw true))
+                 (setf (board row col) 0)
+              )
+        )
+    )
+    nil)))
+
+(define (valid? pos)
+  (local (safe blk)
+    (setq safe true)
+    ; numeri compresi tra 0 (casella vuota) e 9
+    (for (r 0 8)
+      (for (c 0 8)
+        (if (or (< (pos r c) 0) (> (pos r c) 9))
+            (setq safe nil))))
+    ; numero unico sulla riga (row-clash)
+    (if safe (begin
+      (for (r 0 8)
+        (if (find 1 (count '(1 2 3 4 5 6 7 8 9) (pos r)) <)
+          (setq safe nil)))))
+    ; numero unico sulla colonna (row-clash)
+    (if safe (begin
+      (for (c 0 8)
+        (if (find 1 (count '(1 2 3 4 5 6 7 8 9) ((transpose pos) c)) <)
+          (setq safe nil)))))
+    ; numero unico sui 9 blocchi 3x3 (block-clash)
+    (if safe (begin
+        (setq blk (list (pos 0 0) (pos 0 1) (pos 0 2) (pos 1 0) (pos 1 1) (pos 1 2) (pos 2 0) (pos 2 1) (pos 2 2)))
+        (if (find 1 (count '(1 2 3 4 5 6 7 8 9) blk) <) (setq safe nil))))
+    (if safe (begin
+        (setq blk (list (pos 0 3) (pos 0 4) (pos 0 5) (pos 1 3) (pos 1 4) (pos 1 5) (pos 2 3) (pos 2 4) (pos 2 5)))
+        (if (find 1 (count '(1 2 3 4 5 6 7 8 9) blk) <) (setq safe nil))))
+    (if safe (begin
+        (setq blk (list (pos 0 6) (pos 0 7) (pos 0 8) (pos 1 6) (pos 1 7) (pos 1 8) (pos 2 6) (pos 2 7) (pos 2 8)))
+        (if (find 1 (count '(1 2 3 4 5 6 7 8 9) blk) <) (setq safe nil))))
+    (if safe (begin
+        (setq blk (list (pos 3 0) (pos 3 1) (pos 3 2) (pos 4 0) (pos 4 1) (pos 4 2) (pos 5 0) (pos 5 1) (pos 5 2)))
+        (if (find 1 (count '(1 2 3 4 5 6 7 8 9) blk) <) (setq safe nil))))
+    (if safe (begin
+        (setq blk (list (pos 3 3) (pos 3 4) (pos 3 5) (pos 4 3) (pos 4 4) (pos 4 5) (pos 5 3) (pos 5 4) (pos 5 5)))
+        (if (find 1 (count '(1 2 3 4 5 6 7 8 9) blk) <) (setq safe nil))))
+    (if safe (begin
+        (setq blk (list (pos 3 6) (pos 3 7) (pos 3 8) (pos 4 6) (pos 4 7) (pos 4 8) (pos 5 6) (pos 5 7) (pos 5 8)))
+        (if (find 1 (count '(1 2 3 4 5 6 7 8 9) blk) <) (setq safe nil))))
+    (if safe (begin
+        (setq blk (list (pos 6 0) (pos 6 1) (pos 6 2) (pos 7 0) (pos 7 1) (pos 7 2) (pos 8 0) (pos 8 1) (pos 8 2)))
+        (if (find 1 (count '(1 2 3 4 5 6 7 8 9) blk) <) (setq safe nil))))
+    (if safe (begin
+        (setq blk (list (pos 6 3) (pos 6 4) (pos 6 5) (pos 7 3) (pos 7 4) (pos 7 5) (pos 8 3) (pos 8 4) (pos 8 5)))
+        (if (find 1 (count '(1 2 3 4 5 6 7 8 9) blk) <) (setq safe nil))))
+    (if safe (begin
+        (setq blk (list (pos 6 6) (pos 6 7) (pos 6 8) (pos 7 6) (pos 7 7) (pos 7 8) (pos 8 6) (pos 8 7) (pos 8 8)))
+        (if (find 1 (count '(1 2 3 4 5 6 7 8 9) blk) <) (setq safe nil))))
+    safe))
+
+(define (safe? board row col num)
+  (local (safe blk-row blk-col)
+    (setq safe true)
+    ; numero unico sulla riga (row-clash)
+    (for (c 0 (- (length board) 1))
+      ; Se il numero che stiamo provando
+      ; è presente in quella riga
+      ; restituire falso (nil)
+      (if (= (board row c) num)
+          (setq safe nil)
+      )
+    )
+    (if safe (begin
+    ; numero unico sulla colonna (column-clash)
+    (for (r 0 (- (length board) 1))
+      ; Se il numero che stiamo provando
+      ; è presente in quella colonna
+      ; restituire falso (nil)
+      (if (= (board r col) num)
+          (setq safe nil)
+      )
+    )))
+    (if safe (begin
+    ; numero unico in ogni blocco 3x3 (block-clash)
+    (setq blk-row (- row (% row 3)))
+    (setq blk-col (- col (% col 3)))
+    (for (r blk-row (+ blk-row 2))
+      (for (c blk-col (+ blk-col 2))
+        (if (= (board r c) num)
+            (setq safe nil)
+        )
+      )
+    )))
+    ; se non c'è conflitto, allora è sicuro
+    safe))
+
+Un sudoku vuoto...
+
+(setq x
+'((0 0 0 0 0 0 0 0 0)
+  (0 0 0 0 0 0 0 0 0)
+  (0 0 0 0 0 0 0 0 0)
+  (0 0 0 0 0 0 0 0 0)
+  (0 0 0 0 0 0 0 0 0)
+  (0 0 0 0 0 0 0 0 0)
+  (0 0 0 0 0 0 0 0 0)
+  (0 0 0 0 0 0 0 0 0)
+  (0 0 0 0 0 0 0 0 0)))
+
+(time (println (sudoku x)))
+;-> ((1 2 3 4 5 6 7 8 9)
+;->  (4 5 6 7 8 9 1 2 3)
+;->  (7 8 9 1 2 3 4 5 6)
+;->  (2 1 4 3 6 5 8 9 7)
+;->  (3 6 5 8 9 7 2 1 4)
+;->  (8 9 7 2 1 4 3 6 5)
+;->  (5 3 1 6 4 2 9 7 8)
+;->  (6 4 2 9 7 8 5 3 1)
+;->  (9 7 8 5 3 1 6 4 2))
+;-> 13.968
+
+I dieci sudoku più difficili:
+
+(setq escargot
+'((1 0 0 0 0 7 0 9 0)
+  (0 3 0 0 2 0 0 0 8)
+  (0 0 9 6 0 0 5 0 0)
+  (0 0 5 3 0 0 9 0 0)
+  (0 1 0 0 8 0 0 0 2)
+  (6 0 0 0 0 4 0 0 0)
+  (3 0 0 0 0 0 0 1 0)
+  (0 4 0 0 0 0 0 0 7)
+  (0 0 7 0 0 0 3 0 0)))
+
+(time (println (sudoku escargot)))
+;-> ((1 6 2 8 5 7 4 9 3)
+;->  (5 3 4 1 2 9 6 7 8)
+;->  (7 8 9 6 4 3 5 2 1)
+;->  (4 7 5 3 1 2 9 8 6)
+;->  (9 1 3 5 8 6 7 4 2)
+;->  (6 2 8 7 9 4 1 3 5)
+;->  (3 5 6 4 7 8 2 1 9)
+;->  (2 4 1 9 3 5 8 6 7)
+;->  (8 9 7 2 6 1 3 5 4))
+;-> 211.984
+
+(setq killer
+'((0 0 0 0 0 0 0 7 0)
+  (0 6 0 0 1 0 0 0 4)
+  (0 0 3 4 0 0 2 0 0)
+  (8 0 0 0 0 3 0 5 0)
+  (0 0 2 9 0 0 7 0 0)
+  (0 4 0 0 8 0 0 0 9)
+  (0 2 0 0 6 0 0 0 7)
+  (0 0 0 1 0 0 9 0 0)
+  (7 0 0 0 0 8 0 6 0)))
+
+(time (println (sudoku killer)))
+;-> ((9 5 4 8 2 6 1 7 3)
+;->  (2 6 8 3 1 7 5 9 4)
+;->  (1 7 3 4 9 5 2 8 6)
+;->  (8 1 9 7 4 3 6 5 2)
+;->  (6 3 2 9 5 1 7 4 8)
+;->  (5 4 7 6 8 2 3 1 9)
+;->  (4 2 1 5 6 9 8 3 7)
+;->  (3 8 6 1 7 4 9 2 5)
+;->  (7 9 5 2 3 8 4 6 1))
+;-> 2681.012
+
+(setq diamond
+'((1 0 0 5 0 0 4 0 0)
+  (0 0 9 0 3 0 0 0 0)
+  (0 7 0 0 0 8 0 0 5)
+  (0 0 1 0 0 0 0 3 0)
+  (8 0 0 6 0 0 5 0 0)
+  (0 9 0 0 0 7 0 0 8)
+  (0 0 4 0 2 0 0 1 0)
+  (2 0 0 8 0 0 6 0 0)
+  (0 0 0 0 0 1 0 0 2)))
+
+(time (println (sudoku diamond)))
+;-> ((1 2 8 5 7 6 4 9 3)
+;->  (5 4 9 1 3 2 7 8 6)
+;->  (3 7 6 9 4 8 1 2 5)
+;->  (7 6 1 2 8 5 9 3 4)
+;->  (8 3 2 6 9 4 5 7 1)
+;->  (4 9 5 3 1 7 2 6 8)
+;->  (6 5 4 7 2 3 8 1 9)
+;->  (2 1 3 8 5 9 6 4 7)
+;->  (9 8 7 4 6 1 3 5 2))
+;-> 294.358
+
+(setq wormhole
+'((0 8 0 0 0 0 0 0 1)
+  (0 0 7 0 0 4 0 2 0)
+  (6 0 0 3 0 0 7 0 0)
+  (0 0 2 0 0 9 0 0 0)
+  (1 0 0 0 6 0 0 0 8)
+  (0 3 0 4 0 0 0 0 0)
+  (0 0 1 7 0 0 6 0 0)
+  (0 9 0 0 0 8 0 0 5)
+  (0 0 0 0 0 0 0 4 0)))
+
+(time (println (sudoku wormhole)))
+;-> ((9 8 4 2 7 6 3 5 1)
+;->  (3 1 7 9 5 4 8 2 6)
+;->  (6 2 5 3 8 1 7 9 4)
+;->  (5 6 2 8 3 9 4 1 7)
+;->  (1 4 9 5 6 7 2 3 8)
+;->  (7 3 8 4 1 2 5 6 9)
+;->  (4 5 1 7 9 3 6 8 2)
+;->  (2 9 3 6 4 8 1 7 5)
+;->  (8 7 6 1 2 5 9 4 3))
+;-> 3833.182
+
+(setq labyrinth
+'((1 0 0 4 0 0 8 0 0)
+  (0 4 0 0 3 0 0 0 9)
+  (0 0 9 0 0 6 0 5 0)
+  (0 5 0 3 0 0 0 0 0)
+  (0 0 0 0 0 1 6 0 0)
+  (0 0 0 0 7 0 0 0 2)
+  (0 0 4 0 1 0 9 0 0)
+  (7 0 0 8 0 0 0 0 4)
+  (0 2 0 0 0 4 0 8 0)))
+
+(time (println (sudoku labyrinth)))
+;-> ((1 6 5 4 9 7 8 2 3)
+;->  (2 4 7 5 3 8 1 6 9)
+;->  (8 3 9 1 2 6 4 5 7)
+;->  (6 5 1 3 4 2 7 9 8)
+;->  (3 7 2 9 8 1 6 4 5)
+;->  (4 9 8 6 7 5 3 1 2)
+;->  (5 8 4 2 1 3 9 7 6)
+;->  (7 1 6 8 5 9 2 3 4)
+;->  (9 2 3 7 6 4 5 8 1))
+;-> 1983.587
+
+(setq circles
+'((0 0 5 0 0 9 7 0 0)
+  (0 6 0 0 0 0 0 2 0)
+  (1 0 0 8 0 0 0 0 6)
+  (0 1 0 7 0 0 0 0 4)
+  (0 0 7 0 6 0 0 3 0)
+  (6 0 0 0 0 3 2 0 0)
+  (0 0 0 0 0 6 0 4 0)
+  (0 9 0 0 5 0 1 0 0)
+  (8 0 0 1 0 0 0 0 2)))
+
+(time (println (sudoku circles)))
+;-> ((4 8 5 6 2 9 7 1 3)
+;->  (7 6 9 3 4 1 8 2 5)
+;->  (1 3 2 8 7 5 4 9 6)
+;->  (5 1 3 7 9 2 6 8 4)
+;->  (9 2 7 4 6 8 5 3 1)
+;->  (6 4 8 5 1 3 2 7 9)
+;->  (2 5 1 9 8 6 3 4 7)
+;->  (3 9 4 2 5 7 1 6 8)
+;->  (8 7 6 1 3 4 9 5 2))
+;-> 2424.274
+
+(setq squadron
+'((6 0 0 0 0 0 2 0 0)
+  (0 9 0 0 0 1 0 0 5)
+  (0 0 8 0 3 0 0 4 0)
+  (0 0 0 0 0 2 0 0 1)
+  (5 0 0 6 0 0 9 0 0)
+  (0 0 7 0 9 0 0 0 0)
+  (0 7 0 0 0 3 0 0 2)
+  (0 0 0 4 0 0 5 0 0)
+  (0 0 6 0 7 0 0 8 0)))
+
+(time (println (sudoku squadron)))
+;-> ((6 5 3 7 4 9 2 1 8)
+;->  (7 9 4 8 2 1 6 3 5)
+;->  (1 2 8 5 3 6 7 4 9)
+;->  (4 6 9 3 5 2 8 7 1)
+;->  (5 3 1 6 8 7 9 2 4)
+;->  (2 8 7 1 9 4 3 5 6)
+;->  (8 7 5 9 1 3 4 6 2)
+;->  (3 1 2 4 6 8 5 9 7)
+;->  (9 4 6 2 7 5 1 8 3))
+;-> 2702.114
+
+(setq honeypot
+'((1 0 0 0 0 0 0 6 0)
+  (0 0 0 1 0 0 0 0 3)
+  (0 0 5 0 0 2 9 0 0)
+  (0 0 9 0 0 1 0 0 0)
+  (7 0 0 0 4 0 0 8 0)
+  (0 3 0 5 0 0 0 0 2)
+  (5 0 0 4 0 0 0 0 6)
+  (0 0 8 0 6 0 0 7 0)
+  (0 7 0 0 0 5 0 0 0)))
+
+(time (println (sudoku honeypot)))
+;-> ((1 8 2 3 9 4 5 6 7)
+;->  (9 6 7 1 5 8 2 4 3)
+;->  (3 4 5 6 7 2 9 1 8)
+;->  (8 2 9 7 3 1 6 5 4)
+;->  (7 5 6 2 4 9 3 8 1)
+;->  (4 3 1 5 8 6 7 9 2)
+;->  (5 9 3 4 1 7 8 2 6)
+;->  (2 1 8 9 6 3 4 7 5)
+;->  (6 7 4 8 2 5 1 3 9))
+;-> 5773.664
+
+(setq tweezers
+'((1 0 0 0 0 0 0 6 0)
+  (0 0 0 1 0 0 0 0 3)
+  (0 0 5 0 0 2 9 0 0)
+  (0 0 9 0 0 1 0 0 0)
+  (7 0 0 0 4 0 0 8 0)
+  (0 3 0 5 0 0 0 0 2)
+  (5 0 0 4 0 0 0 0 6)
+  (0 0 8 0 6 0 0 7 0)
+  (0 7 0 0 0 5 0 0 0)))
+
+(time (println (sudoku tweezers)))
+;-> ((1 8 2 3 9 4 5 6 7)
+;->  (9 6 7 1 5 8 2 4 3)
+;->  (3 4 5 6 7 2 9 1 8)
+;->  (8 2 9 7 3 1 6 5 4)
+;->  (7 5 6 2 4 9 3 8 1)
+;->  (4 3 1 5 8 6 7 9 2)
+;->  (5 9 3 4 1 7 8 2 6)
+;->  (2 1 8 9 6 3 4 7 5)
+;->  (6 7 4 8 2 5 1 3 9))
+;-> 5714.483
+
+(setq brokenbrick
+'((4 0 0 0 6 0 0 7 0)
+  (0 0 0 0 0 0 6 0 0)
+  (0 3 0 0 0 2 0 0 1)
+  (7 0 0 0 0 8 5 0 0)
+  (0 1 0 4 0 0 0 0 0)
+  (0 2 0 9 5 0 0 0 0)
+  (0 0 0 0 0 0 7 0 5)
+  (0 0 9 1 0 0 0 3 0)
+  (0 0 3 0 4 0 0 8 0)))
+
+(time (println (sudoku brokenbrick)))
+;-> 137.515
+
+The World's Hardest Sudoku:
+
+(setq world
+'((8 0 0 0 0 0 0 0 0)
+  (0 0 3 6 0 0 0 0 0)
+  (0 7 0 0 9 0 2 0 0)
+  (0 5 0 0 0 7 0 0 0)
+  (0 0 0 0 4 5 7 0 0)
+  (0 0 0 1 0 0 0 3 0)
+  (0 0 1 0 0 0 0 6 8)
+  (0 0 8 5 0 0 0 1 0)
+  (0 9 0 0 0 0 4 0 0)))
+
+(time (println (sudoku world)))
+;-> ((8 1 2 7 5 3 6 4 9)
+;->  (9 4 3 6 8 2 1 7 5)
+;->  (6 7 5 4 9 1 2 8 3)
+;->  (1 5 4 2 3 7 8 9 6)
+;->  (3 6 9 8 4 5 7 2 1)
+;->  (2 8 7 1 6 9 5 3 4)
+;->  (5 2 1 9 7 4 3 6 8)
+;->  (4 3 8 5 2 6 9 1 7)
+;->  (7 9 6 3 1 8 4 5 2))
+;-> 1122.131
+
+In genere i puzzle più difficili per gli umani vengono risolti in breve tempo (pochi secondi) con la nostra funzione brute-force. Adesso vediamo un puzzle considerato difficile per il metodo brute-force:
+
+(setq beast
+'((0 0 0 0 0 0 0 0 0)
+  (0 0 0 0 0 3 0 8 5)
+  (0 0 1 0 2 0 0 0 0)
+  (0 0 0 5 0 7 0 0 0)
+  (0 0 4 0 0 0 1 0 0)
+  (0 9 0 0 0 0 0 0 0)
+  (5 0 0 0 0 0 0 7 3)
+  (0 0 2 0 1 0 0 0 0)
+  (0 0 0 0 4 0 0 0 9)))
+
+(time (print (sudoku beast)))
+;-> ((9 8 7 6 5 4 3 2 1)
+;->  (2 4 6 1 7 3 9 8 5)
+;->  (3 5 1 9 2 8 7 4 6)
+;->  (1 2 8 5 3 7 6 9 4)
+;->  (6 3 4 8 9 2 1 5 7)
+;->  (7 9 5 4 6 1 8 3 2)
+;->  (5 1 9 2 8 6 4 7 3)
+;->  (4 7 2 3 1 9 5 6 8)
+;->  (8 6 3 7 4 5 2 1 9))
+;-> 1619210.766 ; 27 minuti
+(div (div 1619210.766 1000) 60)
+;-> 26.9868461
+
+In effetti, ci sono voluti 27 minuti per risolverlo.
+
+Un altro sudoku difficile con la tecnica brute-force:
+
+(setq hell
+'((9 0 0 8 0 0 0 0 0)
+  (0 0 0 0 0 0 5 0 0)
+  (0 0 0 0 0 0 0 0 0)
+  (0 2 0 0 1 0 0 0 3)
+  (0 1 0 0 0 0 0 6 0)
+  (0 0 0 4 0 0 0 7 0)
+  (7 0 8 6 0 0 0 0 0)
+  (0 0 0 0 3 0 1 0 0)
+  (4 0 0 0 0 0 2 0 0)))
+
+(time (print (sudoku hell)))
+((9 7 2 8 5 3 6 1 4)
+ (1 4 6 2 7 9 5 3 8)
+ (5 8 3 1 4 6 7 2 9)
+ (6 2 4 7 1 8 9 5 3)
+ (8 1 7 3 9 5 4 6 2)
+ (3 5 9 4 6 2 8 7 1)
+ (7 9 8 6 2 1 3 4 5)
+ (2 6 5 9 3 4 1 8 7)
+ (4 3 1 5 8 7 2 9 6))
+;-> 54630842.335 ; 910 minuti (tutta la notte)
+(div (div 54630842.335 1000) 60)
+;-> 910.5140389166667
+
+
+------------------
+Integrali definiti
+------------------
+
+Gli integrali... proprio quelli delle superiori e (per qualcuno) dell'università. Vediamo alcuni metodi per calcolare l'integrale definito di una funzione nell'intervallo [a,b]. Ricordiamo che per calcolare l'integrale definito la funzione deve essere continua in tutto l'intervallo [a,b].
+
+Metodo del trapezio
+-------------------
+La regola del trapezio approssima l'integrale, cioè l'area della regione piana compresa fra il grafico della funzione f(x) e l'asse delle ascisse, con l'area del trapezio di vertici (a,f(a)),(b,f(b)),(b,0),(a,0). Quindi si ottiene:
+
+ b                   f(a) + f(b)
+∫ f(x)dx ≈ (b - a)*---------------
+a                         2
+
+Questa approssimazione è accettabile se nell'intervallo di integrazione la funzione ha un andamento quasi sempre lineare. Se questo non accade si può suddividere l'intervallo complessivo [a,b] in un numero n di sottointervalli: in questo modo in ciascun sottointervallo accade (in genere) che la funzione ha un andamento quasi lineare. Quindi la regola del trapezio applicata a tutti i sottointervalli genera la seguente formula:
+
+
+ b                      f(a) + f(b)                          (b - a)
+∫ f(x)dx ≈ (b - a) * (--------------- + Sum[1..n-1] f(a + k*---------))
+a                            2                                  n
+
+Questo metodo è generalmente efficace, ma non approssima molto bene le funzioni che variano velocemente (es. e^x).
+Maggiore è la pendenza della funzione, maggiore è l'errore che dobbiamo aspettarci dall'utilizzo del metodo trapezioale. Comunque possiamo sempre aumentare il numero di iterazioni per migliorare il risultato.
+
+(define (trapezio func a b iter)
+  (local (h s x)
+    (setq h (div (sub b a) iter))
+    (setq s (mul 0.5 (func a) (func b)))
+    (for (i 1 (- iter 1))
+      (setq x (add a (mul i h)))
+      (setq s (add s (func x)))
+    )
+    (mul s h)))
+
+Metodo di Romberg
+-----------------
+L'algoritmo di romberg è l'applicazione dell'interpolazione di Richardson a ciascuna iterazione delle approssimazioni trapezioali. Questo permette di ottenere un'interpolazione di ordine superiore e quindi un risultato più preciso.
+
+(define (romberg func a b iter)
+  (local (r h sum)
+    (setq r (array (+ iter 1) (+ iter 1) '(0)))
+    (setq h (sub b a))
+    (setq (r 1 1) (mul (mul h 0.5) (add (func a) (func b))))
+    (for (i 2 iter)
+      (setq h (mul h 0.5))
+      (setq sum 0)
+      (for (k 1 (- (pow 2 (- i 1)) 1) 2)
+        (setq sum (add sum (func (add a (mul k h)))))
+      )
+      (setq (r i 1) (add (mul 0.5 (r (- i 1) 1)) (mul sum h)))
+      (for (j 2 i)
+        (setq (r i j) (add (r i (- j 1))
+                          (div (sub (r i (- j 1)) (r (- i 1) (- j 1)))
+                                (sub (pow 4 (- j 1)) 1))))
+      )
+    )
+    (r iter iter)))
+
+Quadratura gaussiana
+--------------------
+Le formule gaussiane di quadratura a n punti sono formule di quadratura numerica con alto grado di precisione, utilizzate per l'approssimazione di un integrale definito della funzione f(x) conoscendo n+1 valori della funzione f nell'intervallo [a,b].
+
+Quadratura gaussiana a 2 punti:
+
+(define (gauss-quad2p func a b iter)
+  (local (h x0 x1 x2 x3 sum)
+    (setq h (div (sub b a) iter))
+    (setq sum 0)
+    (for (i 1 (- iter 1))
+      (setq x0 (add a (mul i h)))
+      (setq x1 (add x0 (mul 0.5 h (sub 1 (sqrt (div 3))))))
+      (setq x2 (add x0 (mul 0.5 h (add 1 (sqrt (div 3))))))
+      (setq sum (add sum (func x1) (func x2)))
+    )
+    (setq sum (mul sum 0.5 h))))
+
+Quadratura gaussiana a 3 punti:
+
+(define (gauss-quad3p func a b iter)
+  (local (h x0 x1 x2 x3 sum)
+    (setq h (div (sub b a) iter))
+    (setq sum 0)
+    (for (i 1 (- iter 1))
+      (setq x0 (add a (mul i h)))
+      (setq x1 (add x0 (mul 0.5 h (sub 1 (sqrt (div 3 5))))))
+      (setq x2 (add x0 (mul 0.5 h)))
+      (setq x3 (add x0 (mul 0.5 h (add 1 (sqrt (div 3 5))))))
+      (setq sum (add sum
+                     (mul (div 5 9) (func x1))
+                     (mul (div 8 9) (func x2))
+                     (mul (div 5 9) (func x3))))
+    )
+    (setq sum (mul sum 0.5 h))))
+
+Proviamo a calcolare alcuni integrali:
+
+(setq PI 3.1415926535897931)
+
+(define (f x) (sin x))
+(trapezio f 0 PI 10000)
+;-> 1.999999983550661
+(romberg f 0 PI 10)
+;-> 2
+(gauss-quad2p f 0 PI 100)
+;-> 1.99950655991486
+(gauss-quad3p f 0 PI 100)
+;-> 1.999506560365733
+Valore reale: 2
+
+(define (f1 x) (div 4 (add 1 (mul x x))))
+(trapezio f1 0 1 10000)
+;-> 3.14169265192314
+(romberg f1 0 1 10)
+;-> 3.141592653589793
+(gauss-quad2p f1 0 1 100000)
+;-> 3.141552653589758
+(gauss-quad3p f1 0 1 100000)
+;-> 3.141552653589891
+Valore reale: 3.1415926535897931 (pi greco)
+
+(define (g x) (pow x 5))
+(trapezio g 0 1 10000)
+;-> 0.1666166708333333
+(romberg g 0 1 10)
+;-> 0.1666666666666667
+(gauss-quad2p g 0 1 100)
+;-> 0.166666666527625
+(gauss-quad3p g 0 1 100)
+;-> 0.1666666666665
+Valore vero: 1.(6) (1.6666666...)
+
+(define (g1 x) (pow x 2))
+(trapezio g1 1 2 10000)
+;-> 2.333283334999989
+(romberg g1 1 2 10)
+;-> 2.333333333333334
+(gauss-quad2p g1 1 2 10000)
+;-> 2.333233323333007
+(gauss-quad3p g1 1 2 10000)
+;-> 2.333233323333004
+Valore vero: 2.(3)
+
+(define (g2 x) (mul (cos x) (cos x)))
+(trapezio g2 0 (mul 2 PI) 100000)
+;-> 3.141561237663232
+(romberg g2 0 (mul 2 PI) 10)
+;-> 3.141592653589793
+(gauss-quad2p g2 0 (mul 2 PI) 100000)
+;-> 3.141529821736828
+(gauss-quad3p g2 0 (mul 2 PI) 100000)
+;-> 3.141529821736874
+Valore vero: 3.1415926535897931 (pi greco)
+
+(define (g3 x) (div (mul 4 x) (sub 2 (mul 8 (pow x 2)))))
+(trapezio g3 3 5 100000)
+;-> -0.259940049615719
+(romberg g3 3 5 10)
+;-> -0.259942947161294
+(gauss-quad2p g3 3 5 100000)
+;-> -0.2599395186019513
+(gauss-quad3p g3 3 5 100000)
+;-> -0.2599395186019479
+Valore vero: -0.259942947161294
+(div (sub (log 70) (log 198)) 4)
+;-> -0.259942947161294
+
+(define (g3 x) (div (mul 4 x) (sub 2 (mul 8 (pow x 2)))))
+(trapezio g3 -1 1 100000)
+;-> -1.#INF
+(romberg g3 -1 1 10)
+;-> -1.#IND
+(gauss-quad2p g3 -1 1 100000)
+;-> -1.333349378033419e-005
+(gauss-quad3p g3 -1 1 100000)
+;-> -1.333343700649166e-005
+Valore vero: divergente per x = 1/2 e x = -1/2
+
+(define (g4 x) (sin x))
+(trapezio g4 0 PI 10000)
+;-> 1.999999983550661
+(romberg g4 0 PI 10)
+;-> 2
+(gauss-quad2p g4 0 PI 10000)
+;-> 1.999999950651962
+(gauss-quad3p g4 0 PI 10000)
+;-> 1.999999950651979
+Valore vero: 2
+
+(define (g5 x) (div 4 (add 1 (mul x x))))
+(trapezio g5 0 1 100000)
+;-> 3.141602653573153
+(romberg g5 0 1 10)
+;-> 3.141592653589793
+(gauss-quad2p g5 0 1 100000)
+;-> 3.141552653589758
+(gauss-quad3p g5 0 1 100000)
+;-> 3.141552653589891
+Valore vero: 3.1415926535897931 (pi greco)
+
+
