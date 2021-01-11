@@ -964,7 +964,7 @@ Adesso possiamo scrivere la funzione "raggruppa":
 (raggruppa 2 (raggruppa 2 lst))
 ;-> (((1 2) (3 4)) ((5 6) (7 8)) ((9 10) (11 12)))
 
-Con newLISP possiamo utilizzare la funzione "explode".
+Con newLISP possiamo utilizzare anche la funzione "explode".
 
 
 -----------------------------------
@@ -5109,7 +5109,7 @@ Sequenza OESIS: A008683
 
 La funzione di Mertens indicata con M(x) è la sommatoria della funzione di Mobius:
 
-M(x) = Sum[mu(n)] (per 1 <= n <= x)
+M(x) = Sum[n 1 x] (mu(n))
 
 Sequenza OESIS: A002321
 
@@ -5960,7 +5960,7 @@ Dato un insieme di n + 1 punti (xi, yi), il polinomio interpolatore di Lagrange 
 
 Viene calcolato come:
 
-Pn (x) = Sum[i 0 n] (Li(x) * yi)
+Pn(x) = Sum[i 0 n] (Li(x) * yi)
 
 dove (x0, y0), (x1, y1), ..., (xn, yn) sono gli n + 1 punti dati.
 

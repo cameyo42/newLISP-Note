@@ -5443,7 +5443,7 @@ N = 3
 ; calcolo dei resti
 (map (fn(x) (% x 3)) one)
 ;-> (1 2 0 1)
-Abbiamo due resti uguale a 1, che corrispondono ai numeri 1 e 1111. 
+Abbiamo due resti uguale a 1, che corrispondono ai numeri 1 e 1111.
 Calcoliamo la differenza tra questi due numeri:
 (- 1111 1)
 ;-> 1110
@@ -5470,7 +5470,7 @@ Quindi il nostro algoritmo sarà il seguente:
 0. creare una hash-map (che conterrà elementi con chiave uguale al resto e valore uguale al relativo numero con tutti 1).
 1. generare il prossimo numero con tutti 1 (numero one)
 2. calcolare il resto della divisione tra il numero one e il numero dato
-3. se il resto non esiste nella hash-map, 
+3. se il resto non esiste nella hash-map,
       allora inserirlo nella hash-map (resto one) e andare al passo 1
       altrimenti recuperare il numero nella hash-map che ha la chiave uguale a resto e sottrarlo al numero one attuale.
       Fine.
@@ -5538,7 +5538,7 @@ Le funzioni (uno-zero e uz) producono due risultati differenti, ma entrambi sono
 
 La funzione (uz 12345) produce un numero molto lungo:
 
-(length (last (uz 12345))) 
+(length (last (uz 12345)))
 ;-> 818
 
 Riscriviamo la funzione in maniera più compatta:
@@ -5560,7 +5560,7 @@ Riscriviamo la funzione in maniera più compatta:
                   (myHash (string dv) val)
                   ; altrimenti calcoliamo il risultato...
                   ; che è la differenza tra il valore attuale del numero one (val)
-                  ; e il valore del numero one (nella hash-map) che ha lo stesso resto 
+                  ; e il valore del numero one (nella hash-map) che ha lo stesso resto
                   ; del numero one attuale (myHash (string dv))
                   (setq out (- val (myHash (string dv))))
               )
@@ -5586,7 +5586,7 @@ Riscriviamo la funzione in maniera più compatta:
 (div 11111111111111111111111111111111111111111111111111111111111111111111111111111111111111110L
  9004141905276427156491986313704303979830722132180803169457950657302359085179182423915L)
  ;-> 1234
- 
+
 Con questa ultima funzione possiamo usare come parametro dei numeri maggiori:
 
 (length (last (uz 12345)))
@@ -6528,5 +6528,112 @@ Valore vero: 2
 (gauss-quad3p g5 0 1 100000)
 ;-> 3.141552653589891
 Valore vero: 3.1415926535897931 (pi greco)
+
+
+---------------
+Fattorizzazione
+---------------
+
+Per fattorizzare un numero intero abbiamo la funzione integrata "factor":
+
+(factor 1372000)
+;-> (2 2 2 2 2 5 5 5 7 7 7)
+
+In cui compaiono tutti i fattori del numero. Se volessimo raggruppare i fattori in comune dobbiamo scrivere una funzione. Vediamo diversi metodi per trovare quello più veloce.
+
+Funzione 1:
+
+(define (factor-g1 num)
+  (if (< num 2) nil
+      (letn (fattori (factor num)
+            unici (unique fattori))
+            (transpose (list unici (count unici fattori))))))
+
+(factor-g1 1372000)
+;-> ((2 5) (5 3) (7 3))
+
+Funzione 2:
+
+(define (factor-g2 x)
+  (letn (fattori (factor x)
+         unici (unique fattori))
+        (map list unici (count unici fattori))))
+
+(factor-g2 1372000)
+;-> ((2 5) (5 3) (7 3))
+
+Funzione 3:
+
+(define (factor-g3 num)
+  (if (< num 2) nil
+      (let (factorlist (factor num) factorlist-grouped '())
+        (dolist (y (unique factorlist))
+           (push (append (list y) (count (list y) factorlist)) factorlist-grouped -1))
+        factorlist-grouped)))
+
+(factor-g3 1372000)
+;-> ((2 5) (5 3) (7 3))
+
+Funzione 4:
+il quarto metodo usa la tecnica Run Lenght Encode (infatti applicando l'algoritmo RLE al risultato della funzione "factor" si ottiene il risultato):
+
+(define (factor-g4 num)
+  (if (< num 2) nil
+      (letn ((out '()) (lst (factor num)) (cur-val (first lst)) (cur-count 0))
+        (dolist (el lst)
+          (if (= el cur-val) (++ cur-count)
+              (begin
+                (push (list cur-val cur-count) out -1)
+                (setq cur-count 1 cur-val el))))
+        (push (list cur-val cur-count) out -1))))
+
+(factor-g4 1372000)
+;-> ((2 5) (5 3) (7 3))
+
+Vediamo se le quattro funzioni producono gli stessi risultati:
+
+(= (map factor-g1 (sequence 2 10000))
+   (map factor-g2 (sequence 2 10000))
+   (map factor-g3 (sequence 2 10000))
+   (map factor-g4 (sequence 2 10000)))
+;-> true
+
+Vediamo i tempi di esecuzione:
+
+(silent (setq seq (sequence 1e6 1e7)))
+(time (map factor-g1 seq))
+;-> 28214.053
+(time (map factor-g2 seq))
+;-> 28532.154
+(time (map factor-g3 seq))
+;-> 40389.041
+(time (map factor-g4 seq))
+;-> 23980.14
+
+L'ultima funzione è quella più veloce.
+
+
+----------------------------
+"setq" è più veloce di "set"
+----------------------------
+
+Notiamo che "setq" è più veloce di "set":
+
+(time (setq a 10 b 20 c 30) 10000000)
+;-> 382.001
+(time (set 'a 10 'b 20 'c 30) 10000000)
+;-> 479.744
+
+(time (for (i 1 10000) (setq a 10)) 10000)
+;-> 2287.881
+(time (for (i 1 10000) (set 'd 10)) 10000)
+;-> 2638.974
+
+E possiamo sempre divertirci scrivendo:
+
+(setq --> setq)
+(--> a 3)
+a
+;-> 3
 
 

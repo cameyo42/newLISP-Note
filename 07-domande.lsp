@@ -24,7 +24,7 @@ Valori della notazione Big-O in funzione del numero di ingresso
 Contare i bit di un numero (McAfee)
 -----------------------------------
 
-Dato un numero intero positivo n, contare il numero di bit che valgono 1 nella sua rappresentazione binaria.
+Dato un numero intero positivo n, contare il numero di bit che hanno valore 1 nella sua rappresentazione binaria.
 
 Possiamo trasformare il numero in binario e contare quanti bit hanno valore 1.
 Le funzioni di conversione decimale e binario sono le seguenti:

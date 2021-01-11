@@ -271,6 +271,7 @@ ROSETTA CODE
   Numeri gapful
   Valutazione di una espressione RPN
   Il gioco del 24
+  Sequenza fusc
 
 PROJECT EULERO
 ==============
@@ -509,7 +510,7 @@ NOTE LIBERE
   Generatore di numeri casuali
   Liste di associazione
   Funzione Z e ipotesi di Riemann
-  Rotazione di stringhe e liste
+  Rotazione di stringhe, liste e numeri
   Quadrato di una lista ordinata
   Somma da due numeri
   Mescolamento perfetto
@@ -594,6 +595,7 @@ NOTE LIBERE 2
   Risolvere i sistemi lineari
   Sudoku test
   Integrali definiti
+  Fattorizzazione
 
 APPENDICI
 =========

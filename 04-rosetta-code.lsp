@@ -9241,3 +9241,143 @@ Con 9 cifre abbiamo 8 operazioni con 4 operatori n^k = 4^8 = 65536 modi di dispo
 (* 362880 65536)
 ;-> 23781703680 ; (23 miliardi 781 milioni 703 mila 680) espressioni
 
+
+-------------
+SEQUENZA FUSC
+-------------
+
+La sequenza "fusc" (chiamata anche sequenza di Stern) è definita nel modo seguente:
+
+  fusc(0) = 0
+  fusc(1) = 1
+  per n > 1, fusc(n) vale:
+  se n è pari:     fusc(n) = fusc(n/2)
+  se n è dispari:  fusc(n) = fusc((n-1)/2) + fusc((n+1)/2)
+
+Questa è la sequenza OEIS A2487.
+
+Vediamo prima di tutto la versione ricorsiva:
+
+(define (fusc n)
+  (cond ((or (zero? n) (= 1 n)) n)
+        ((even? n) (fusc (/ n 2)))
+        (true (+ (fusc (/ (- n 1) 2)) (fusc(/ (+ n 1) 2))))))
+
+(fusc 10)
+;-> 3
+
+(map fusc (sequence 0 100))
+;-> (0 1 1 2 1 3 2 3 1 4 3 5 2 5 3 4 1 5 4 7 3 8 5 7 2 7 5 8 3
+;->  7 4 5 1 6 5 9 4 11 7 10 3 11 8 13 5 12 7 9 2 9 7 12 5 13
+;->  8 11 3 10 7 11 4 9 5 6 1 7 6 11 5 14 9 13 4 15 11 18 7 17
+;->  10 13 3 14 11 19 8 21 13 18 5 17 12 19 7 16 9 11 2 11 9 16 7)
+
+Adesso vediamo la versione iterativa.
+Possiamo evitare completamente la ricorsione poiché possiamo sempre esprimere fusc(n) nella forma a*fusc(m) + b*fusc(m + 1) riducendo il valore di m a 0. Abbiamo il seguente schema:
+
+se m è dispari:
+a*fusc(m) + b*fusc(m+1) = a*fusc((m-1)/2) + (b+a)*fusc((m+1)/2)
+
+se m è pari:
+a*fusc(m) + b*fusc(m+1) = (a+b)*fusc(m/2) + b*fusc((m/2)+1)
+
+Pertanto è possibile utilizzare un ciclo per risolvere il problema in tempo O(log n):
+
+(define (fusc-i n)
+  (local (a b)
+    (setq a 1 b 0)
+    (cond ((zero? n) 0)
+          (true (while (> n 0)
+                  (if (odd? n)
+                      (setq b (+ b a) n (/ (- n 1) 2))
+                      (setq a (+ a b) n (/ n 2)))
+                )
+          )
+    )
+    b))
+
+(fusc-i 10)
+;-> 3
+
+(map fusc-i (sequence 0 100))
+;-> (0 1 1 2 1 3 2 3 1 4 3 5 2 5 3 4 1 5 4 7 3 8 5 7 2 7 5 8 3
+;->  7 4 5 1 6 5 9 4 11 7 10 3 11 8 13 5 12 7 9 2 9 7 12 5 13
+;->  8 11 3 10 7 11 4 9 5 6 1 7 6 11 5 14 9 13 4 15 11 18 7 17
+;->  10 13 3 14 11 19 8 21 13 18 5 17 12 19 7 16 9 11 2 11 9 16 7)
+
+Adesso risolviamo il problema con la programmazione dinamica.
+Memorizziamo i due casi base di fs(0) = 0, fs(1) = 1, e poi attraversiamo il vettore dall'indice 2 a n calcolando fs(i) come da definizione. Infine restituiamo il valore di fs(n).
+
+(define (fusc-dp n)
+  (let (fs (array (+ n 2) '(0)))
+    (setf (fs 0) 0)
+    (setf (fs 1) 1)
+    (if (> n 1)
+      (for (i 2 n)
+        (if (even? i)
+            (setf (fs i) (fs (/ i 2)))
+            (setf (fs i) (+ (fs (/ (- i 1) 2)) (fs (/ (+ i 1) 2))))
+        )
+      )
+    )
+    (fs n)))
+
+(fusc-dp 10)
+;-> 10
+
+(map fusc-dp (sequence 0 100)))
+;-> (0 1 1 2 1 3 2 3 1 4 3 5 2 5 3 4 1 5 4 7 3 8 5 7 2 7 5 8 3
+;->  7 4 5 1 6 5 9 4 11 7 10 3 11 8 13 5 12 7 9 2 9 7 12 5 13
+;->  8 11 3 10 7 11 4 9 5 6 1 7 6 11 5 14 9 13 4 15 11 18 7 17
+;->  10 13 3 14 11 19 8 21 13 18 5 17 12 19 7 16 9 11 2 11 9 16 7)
+
+Vediamo se le tre funzioni producono risultati uguali:
+
+(= (map fusc (sequence 0 100)) 
+   (map fusc-i (sequence 0 100))
+   (map fusc-dp (sequence 0 100)))
+;-> true
+
+Vediamo i tempi di esecuzione delle funzioni:
+
+(time (map fusc (sequence 0 10000)))
+;-> 622.346
+
+(time (map fusc-i (sequence 0 10000)))
+;-> 17.959
+
+(time (map fusc-dp (sequence 0 10000)))
+;-> 8244.964
+
+La versione iterativa è quella più veloce, ma la versione con la programmazione dinamica calcola tutti i valori della funzione da 0 a n. Quindi il confronto dovrebbe essere fatto nel modo seguente.
+Riscriviamo fusc-dp in modo che restituisca una lista con tutti i valori:
+
+(define (fusc-n n)
+  (let (fs (array (+ n 2) '(0)))
+    (setf (fs 0) 0)
+    (setf (fs 1) 1)
+    (if (> n 1)
+      (for (i 2 n)
+        (if (even? i)
+            (setf (fs i) (fs (/ i 2)))
+            (setf (fs i) (+ (fs (/ (- i 1) 2)) (fs (/ (+ i 1) 2))))
+        )
+      )
+    )
+    (slice fs 0 (+ n 1))))
+
+Vediamo se le funzioni producono risultati uguali:
+
+(= (map fusc-i (sequence 0 100000)) (array-list (fusc-n 100000)))
+;-> true
+
+Adesso facciamo il confronto:
+
+(time (map fusc-i (sequence 0 100000)))
+;-> 217.446
+(time (fusc-n 100000))
+;-> 18.937
+
+In questo caso (cioè quando vogliamo tutti i valori della funzione fusc da 0 a n) la funzione fusc-n è molto più veloce.
+
+

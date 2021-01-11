@@ -53,7 +53,7 @@ Dato il numero complesso z = |z|*e^it:
 a = Re(z) = |z|*cos(t)
 b = Im(z) = |z|*sin(t)
 
-Adesso dobbiamo scrivere due funzioni che convertono un numero complesso tra le forme cartesiana ed esponenziale. Anche il numero complesso in forma esponenziale può essere rappresentato da una lista con due valori:
+Adesso dobbiamo scrivere due funzioni che convertono un numero complesso tra le due forme cartesiana ed esponenziale. Anche il numero complesso in forma esponenziale può essere rappresentato da una lista con due valori:
 
  |z|e^it  -->  (z t)
 

@@ -5565,7 +5565,6 @@ Seconda versione:
   )
 )
 
-
 Terza versione:
 
 (define (factor-group x)
@@ -9133,7 +9132,7 @@ Se nel pannello attuale non è possibile cancellare più caratteri allora inizia
 Il gioco di Wythoff
 -------------------
 
-Il gioco di Wythoff è un gioco di sottrazione matematica per due giocatori, giocato con due pile di monete. I giocatori, a turno, rimuovono alcune monete da una o entrambe le pile. Quando si rimuovono le monete da entrambe le pile, allora le monete rimosse da ogni pila deve essere uguale. Il gioco termina con la vittoria del giocatore che rimuove l'ultima moneta.
+Il gioco di Wythoff è un gioco di sottrazione matematica per due giocatori, giocato con due pile di monete. I giocatori, a turno, rimuovono alcune monete da una o entrambe le pile. Quando si rimuovono le monete da entrambe le pile, allora il numero di monete rimosse da ogni pila deve essere uguale. Il gioco termina con la vittoria del giocatore che rimuove l'ultima moneta.
 
 Una descrizione equivalente del gioco è quello di una regina degli scacchi che viene posizionata in una casella di una scacchiera e ogni giocatore può spostare la regina verso l'angolo in basso a sinistra della scacchiera (a1): sud, ovest o sud e ovest, per un qualsiasi numero di caselle. Il vincitore è il giocatore che riesce a posizionare la regina nell'angolo.
 

@@ -6579,9 +6579,9 @@ Per finire scriviamo una funzione che calcola Z(s) con numeri floating-point:
 ;-> 1.082323233710861
 
 
------------------------------
-Rotazione di stringhe e liste
------------------------------
+-------------------------------------
+Rotazione di stringhe, liste e numeri
+-------------------------------------
 
 Scrivere una funzione che produce tutte le rotazioni di una stringa (e di una lista)
 Esempio: "abc" -> "abc" "bca" "cab"
@@ -6632,6 +6632,36 @@ Vediamo la differenza di velocità:
 ;-> 164.827
 
 Quindi con le stringhe è meglio usare "ruota", mentre con le liste è meglio "ruota2".
+
+Per i numeri possiamo utilizzare un algoritmo diverso notando che risulta:
+
+r(n) = (n + (10^(L(n)) - 1)*(n mod 10))/10
+
+dove L(n) è la lunghezza del numero n.
+
+La funzione che ruota una cifra di un numero:
+
+(define (rotate-num n)
+  (/ (+ n (* (- (pow 10 (length n)) 1) (% n 10))) 10))
+
+(rotate-num 123)
+;-> 312
+
+Funzione che crea la lista di tutti i numeri ruotati di n (n compreso):
+
+(define (ruota-num num)
+  (local (val out)
+    (setq val num)
+    (setq out '())
+    (push val out)
+    (for (i 1 (- (length num) 1))
+      (setq val (rotate-num val))
+      (push val out -1)
+    )
+    out))
+
+(ruota-num 123456)
+;-> (123456 612345 561234 456123 345612 234561)
 
 
 ------------------------------

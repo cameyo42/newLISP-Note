@@ -545,7 +545,7 @@ http://www.newLISP.org/index.cgi?FAQ
 
 1. Cos'è newLISP e cosa posso fare con questo linguaggio?
 ---------------------------------------------------------
-newLISP è un linguaggio di scripting simile a LISP per fare quelle cose che si fanno tipicamente con linguaggi di scripting: programmazione per internet, amministrazione di sistema, elaborazione testi, incollare diversi altri programmi insieme, ecc. newLISP è un LISP di scripting per persone che sono affascinate dalla bellezza e dal potere espressivo del LISP, ma che hanno bisogno di una versione ridotta per imparare facilmente l'essenziale.
+newLISP è un linguaggio di scripting simile al LISP per fare quelle cose che si fanno tipicamente con linguaggi di scripting: programmazione per internet, amministrazione di sistema, elaborazione testi, incollare diversi altri programmi insieme, ecc. newLISP è un LISP di scripting per persone che sono affascinate dalla bellezza e dal potere espressivo del LISP, ma che hanno bisogno di una versione ridotta per imparare facilmente l'essenziale.
 
 2. Perché newLISP, perché non uno degli altri LISP standard?
 ------------------------------------------------------------

@@ -209,6 +209,23 @@ Proviamo la funzione con 5 parametri (la virgola è un parametro!):
 (list t1 t2)
 ;-> (nil nil)
 
+Le funzioni di incremento e decremento "inc", "++" ,"dec" e "--" considerano il valore nil come 0:
+
+(define (test a , b) (inc b))
+(test)
+;-> 1
+
+(define (test a , b) (++ b))
+(test)
+;-> 1
+
+Altre funzioni generano un errore con una variabile di valore nil:
+
+(define (test a , b)  (setq a (+ b 1)))
+(test)
+;-> ERR: value expected in function + : nil
+;-> called from user function (test)
+
 Possiamo scrivere funzioni che accettano un numero variabile di argomenti:
 
 (define (test v1)

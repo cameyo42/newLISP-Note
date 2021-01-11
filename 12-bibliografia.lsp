@@ -67,6 +67,9 @@
 
   Mathematica on-line:
   https://www.wolframalpha.com
+  
+  La più grande risorsa sulla matematica nel web
+  https://mathworld.wolfram.com/
 
   Enciclopedia on-line delle sequenze dei numeri interi:
   https://oeis.org

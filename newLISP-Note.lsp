@@ -271,6 +271,7 @@ ROSETTA CODE
   Numeri gapful
   Valutazione di una espressione RPN
   Il gioco del 24
+  Sequenza fusc
 
 PROJECT EULERO
 ==============
@@ -509,7 +510,7 @@ NOTE LIBERE
   Generatore di numeri casuali
   Liste di associazione
   Funzione Z e ipotesi di Riemann
-  Rotazione di stringhe e liste
+  Rotazione di stringhe, liste e numeri
   Quadrato di una lista ordinata
   Somma da due numeri
   Mescolamento perfetto
@@ -594,6 +595,7 @@ NOTE LIBERE 2
   Risolvere i sistemi lineari
   Sudoku test
   Integrali definiti
+  Fattorizzazione
 
 APPENDICI
 =========
@@ -868,6 +870,23 @@ Proviamo la funzione con 5 parametri (la virgola è un parametro!):
 ;-> (10 40)
 (list t1 t2)
 ;-> (nil nil)
+
+Le funzioni di incremento e decremento "inc", "++" ,"dec" e "--" considerano il valore nil come 0:
+
+(define (test a , b) (inc b))
+(test)
+;-> 1
+
+(define (test a , b) (++ b))
+(test)
+;-> 1
+
+Altre funzioni generano un errore con una variabile di valore nil:
+
+(define (test a , b)  (setq a (+ b 1)))
+(test)
+;-> ERR: value expected in function + : nil
+;-> called from user function (test)
 
 Possiamo scrivere funzioni che accettano un numero variabile di argomenti:
 
@@ -10389,7 +10408,7 @@ Adesso possiamo scrivere la funzione "raggruppa":
 (raggruppa 2 (raggruppa 2 lst))
 ;-> (((1 2) (3 4)) ((5 6) (7 8)) ((9 10) (11 12)))
 
-Con newLISP possiamo utilizzare la funzione "explode".
+Con newLISP possiamo utilizzare anche la funzione "explode".
 
 
 -----------------------------------
@@ -14534,7 +14553,7 @@ Sequenza OESIS: A008683
 
 La funzione di Mertens indicata con M(x) è la sommatoria della funzione di Mobius:
 
-M(x) = Sum[mu(n)] (per 1 <= n <= x)
+M(x) = Sum[n 1 x] (mu(n))
 
 Sequenza OESIS: A002321
 
@@ -15385,7 +15404,7 @@ Dato un insieme di n + 1 punti (xi, yi), il polinomio interpolatore di Lagrange 
 
 Viene calcolato come:
 
-Pn (x) = Sum[i 0 n] (Li(x) * yi)
+Pn(x) = Sum[i 0 n] (Li(x) * yi)
 
 dove (x0, y0), (x1, y1), ..., (xn, yn) sono gli n + 1 punti dati.
 
@@ -16249,7 +16268,7 @@ Potete trovare l'elenco completo dei problemi al sito:
 https://www.ic.unicamp.br/~meidanis/courses/mc336/2006s2/funcional/L-99_Ninety-Nine_Lisp_Problems.html
 http://beta-reduction.blogspot.com/search/label/L-99%3A%20Ninety-Nine%20Lisp%20Problems
 
-In questo capitolo vengono risolti solo i primi 28 problemi relativi alla elaborazione di liste. Molti problemi successivi al numero 28 sono risolti in altre parti di questo documento.
+In questo capitolo vengono risolti solo i primi 28 problemi relativi alla elaborazione di liste. Molti problemi successivi al numero 28 sono risolti in altri capitoli di questo documento.
 
 Elenco problemi
 ---------------
@@ -26955,6 +26974,146 @@ Con 9 cifre abbiamo 8 operazioni con 4 operatori n^k = 4^8 = 65536 modi di dispo
 (* 362880 65536)
 ;-> 23781703680 ; (23 miliardi 781 milioni 703 mila 680) espressioni
 
+
+-------------
+SEQUENZA FUSC
+-------------
+
+La sequenza "fusc" (chiamata anche sequenza di Stern) è definita nel modo seguente:
+
+  fusc(0) = 0
+  fusc(1) = 1
+  per n > 1, fusc(n) vale:
+  se n è pari:     fusc(n) = fusc(n/2)
+  se n è dispari:  fusc(n) = fusc((n-1)/2) + fusc((n+1)/2)
+
+Questa è la sequenza OEIS A2487.
+
+Vediamo prima di tutto la versione ricorsiva:
+
+(define (fusc n)
+  (cond ((or (zero? n) (= 1 n)) n)
+        ((even? n) (fusc (/ n 2)))
+        (true (+ (fusc (/ (- n 1) 2)) (fusc(/ (+ n 1) 2))))))
+
+(fusc 10)
+;-> 3
+
+(map fusc (sequence 0 100))
+;-> (0 1 1 2 1 3 2 3 1 4 3 5 2 5 3 4 1 5 4 7 3 8 5 7 2 7 5 8 3
+;->  7 4 5 1 6 5 9 4 11 7 10 3 11 8 13 5 12 7 9 2 9 7 12 5 13
+;->  8 11 3 10 7 11 4 9 5 6 1 7 6 11 5 14 9 13 4 15 11 18 7 17
+;->  10 13 3 14 11 19 8 21 13 18 5 17 12 19 7 16 9 11 2 11 9 16 7)
+
+Adesso vediamo la versione iterativa.
+Possiamo evitare completamente la ricorsione poiché possiamo sempre esprimere fusc(n) nella forma a*fusc(m) + b*fusc(m + 1) riducendo il valore di m a 0. Abbiamo il seguente schema:
+
+se m è dispari:
+a*fusc(m) + b*fusc(m+1) = a*fusc((m-1)/2) + (b+a)*fusc((m+1)/2)
+
+se m è pari:
+a*fusc(m) + b*fusc(m+1) = (a+b)*fusc(m/2) + b*fusc((m/2)+1)
+
+Pertanto è possibile utilizzare un ciclo per risolvere il problema in tempo O(log n):
+
+(define (fusc-i n)
+  (local (a b)
+    (setq a 1 b 0)
+    (cond ((zero? n) 0)
+          (true (while (> n 0)
+                  (if (odd? n)
+                      (setq b (+ b a) n (/ (- n 1) 2))
+                      (setq a (+ a b) n (/ n 2)))
+                )
+          )
+    )
+    b))
+
+(fusc-i 10)
+;-> 3
+
+(map fusc-i (sequence 0 100))
+;-> (0 1 1 2 1 3 2 3 1 4 3 5 2 5 3 4 1 5 4 7 3 8 5 7 2 7 5 8 3
+;->  7 4 5 1 6 5 9 4 11 7 10 3 11 8 13 5 12 7 9 2 9 7 12 5 13
+;->  8 11 3 10 7 11 4 9 5 6 1 7 6 11 5 14 9 13 4 15 11 18 7 17
+;->  10 13 3 14 11 19 8 21 13 18 5 17 12 19 7 16 9 11 2 11 9 16 7)
+
+Adesso risolviamo il problema con la programmazione dinamica.
+Memorizziamo i due casi base di fs(0) = 0, fs(1) = 1, e poi attraversiamo il vettore dall'indice 2 a n calcolando fs(i) come da definizione. Infine restituiamo il valore di fs(n).
+
+(define (fusc-dp n)
+  (let (fs (array (+ n 2) '(0)))
+    (setf (fs 0) 0)
+    (setf (fs 1) 1)
+    (if (> n 1)
+      (for (i 2 n)
+        (if (even? i)
+            (setf (fs i) (fs (/ i 2)))
+            (setf (fs i) (+ (fs (/ (- i 1) 2)) (fs (/ (+ i 1) 2))))
+        )
+      )
+    )
+    (fs n)))
+
+(fusc-dp 10)
+;-> 10
+
+(map fusc-dp (sequence 0 100)))
+;-> (0 1 1 2 1 3 2 3 1 4 3 5 2 5 3 4 1 5 4 7 3 8 5 7 2 7 5 8 3
+;->  7 4 5 1 6 5 9 4 11 7 10 3 11 8 13 5 12 7 9 2 9 7 12 5 13
+;->  8 11 3 10 7 11 4 9 5 6 1 7 6 11 5 14 9 13 4 15 11 18 7 17
+;->  10 13 3 14 11 19 8 21 13 18 5 17 12 19 7 16 9 11 2 11 9 16 7)
+
+Vediamo se le tre funzioni producono risultati uguali:
+
+(= (map fusc (sequence 0 100)) 
+   (map fusc-i (sequence 0 100))
+   (map fusc-dp (sequence 0 100)))
+;-> true
+
+Vediamo i tempi di esecuzione delle funzioni:
+
+(time (map fusc (sequence 0 10000)))
+;-> 622.346
+
+(time (map fusc-i (sequence 0 10000)))
+;-> 17.959
+
+(time (map fusc-dp (sequence 0 10000)))
+;-> 8244.964
+
+La versione iterativa è quella più veloce, ma la versione con la programmazione dinamica calcola tutti i valori della funzione da 0 a n. Quindi il confronto dovrebbe essere fatto nel modo seguente.
+Riscriviamo fusc-dp in modo che restituisca una lista con tutti i valori:
+
+(define (fusc-n n)
+  (let (fs (array (+ n 2) '(0)))
+    (setf (fs 0) 0)
+    (setf (fs 1) 1)
+    (if (> n 1)
+      (for (i 2 n)
+        (if (even? i)
+            (setf (fs i) (fs (/ i 2)))
+            (setf (fs i) (+ (fs (/ (- i 1) 2)) (fs (/ (+ i 1) 2))))
+        )
+      )
+    )
+    (slice fs 0 (+ n 1))))
+
+Vediamo se le funzioni producono risultati uguali:
+
+(= (map fusc-i (sequence 0 100000)) (array-list (fusc-n 100000)))
+;-> true
+
+Adesso facciamo il confronto:
+
+(time (map fusc-i (sequence 0 100000)))
+;-> 217.446
+(time (fusc-n 100000))
+;-> 18.937
+
+In questo caso (cioè quando vogliamo tutti i valori della funzione fusc da 0 a n) la funzione fusc-n è molto più veloce.
+
+
 ================
 
  PROJECT EULERO
@@ -27041,9 +27200,9 @@ Chiunque può risolvere i problemi?
 I problemi sono di diversa difficoltà e per molti l'esperienza è l'apprendimento a catena induttivo. Cioè, risolvendo un problema ti esporrà ad un nuovo concetto che ti permette di intraprendere un problema precedentemente inaccessibile. Quindi il partecipante determinato lentamente ma sicuramente farà il suo lavoro attraverso ogni problema.
 
 Cosa fare in seguito?
-Per tenere traccia dei tuoi progressi è necessario impostare un account e abilitare i cookie. Se hai già un account, accedi, altrimenti devi registrati - è completamente gratuito!
+Per tenere traccia dei tuoi progressi è necessario impostare un account e abilitare i cookie. Se hai già un account puoi accedere senza problemi, altrimenti devi registrati - è completamente gratuito!
 
-Tuttavia, poiché alcuni problemi sono difficili, potresti voler visualizzare i Problemi prima di registrarti.
+Tuttavia, poiché alcuni problemi sono difficili, potresti voler visualizzare i problemi prima di registrarti.
 
 "Il progetto Eulero esiste per incoraggiare, sfidare e sviluppare le capacità e il divertimento di chiunque abbia un interesse per l'affascinante mondo della matematica."
 
@@ -39831,7 +39990,6 @@ Seconda versione:
   )
 )
 
-
 Terza versione:
 
 (define (factor-group x)
@@ -43399,7 +43557,7 @@ Se nel pannello attuale non è possibile cancellare più caratteri allora inizia
 Il gioco di Wythoff
 -------------------
 
-Il gioco di Wythoff è un gioco di sottrazione matematica per due giocatori, giocato con due pile di monete. I giocatori, a turno, rimuovono alcune monete da una o entrambe le pile. Quando si rimuovono le monete da entrambe le pile, allora le monete rimosse da ogni pila deve essere uguale. Il gioco termina con la vittoria del giocatore che rimuove l'ultima moneta.
+Il gioco di Wythoff è un gioco di sottrazione matematica per due giocatori, giocato con due pile di monete. I giocatori, a turno, rimuovono alcune monete da una o entrambe le pile. Quando si rimuovono le monete da entrambe le pile, allora il numero di monete rimosse da ogni pila deve essere uguale. Il gioco termina con la vittoria del giocatore che rimuove l'ultima moneta.
 
 Una descrizione equivalente del gioco è quello di una regina degli scacchi che viene posizionata in una casella di una scacchiera e ogni giocatore può spostare la regina verso l'angolo in basso a sinistra della scacchiera (a1): sud, ovest o sud e ovest, per un qualsiasi numero di caselle. Il vincitore è il giocatore che riesce a posizionare la regina nell'angolo.
 
@@ -43531,7 +43689,7 @@ Valori della notazione Big-O in funzione del numero di ingresso
 Contare i bit di un numero (McAfee)
 -----------------------------------
 
-Dato un numero intero positivo n, contare il numero di bit che valgono 1 nella sua rappresentazione binaria.
+Dato un numero intero positivo n, contare il numero di bit che hanno valore 1 nella sua rappresentazione binaria.
 
 Possiamo trasformare il numero in binario e contare quanti bit hanno valore 1.
 Le funzioni di conversione decimale e binario sono le seguenti:
@@ -49704,7 +49862,7 @@ Dato il numero complesso z = |z|*e^it:
 a = Re(z) = |z|*cos(t)
 b = Im(z) = |z|*sin(t)
 
-Adesso dobbiamo scrivere due funzioni che convertono un numero complesso tra le forme cartesiana ed esponenziale. Anche il numero complesso in forma esponenziale può essere rappresentato da una lista con due valori:
+Adesso dobbiamo scrivere due funzioni che convertono un numero complesso tra le due forme cartesiana ed esponenziale. Anche il numero complesso in forma esponenziale può essere rappresentato da una lista con due valori:
 
  |z|e^it  -->  (z t)
 
@@ -59500,9 +59658,9 @@ Per finire scriviamo una funzione che calcola Z(s) con numeri floating-point:
 ;-> 1.082323233710861
 
 
------------------------------
-Rotazione di stringhe e liste
------------------------------
+-------------------------------------
+Rotazione di stringhe, liste e numeri
+-------------------------------------
 
 Scrivere una funzione che produce tutte le rotazioni di una stringa (e di una lista)
 Esempio: "abc" -> "abc" "bca" "cab"
@@ -59553,6 +59711,36 @@ Vediamo la differenza di velocità:
 ;-> 164.827
 
 Quindi con le stringhe è meglio usare "ruota", mentre con le liste è meglio "ruota2".
+
+Per i numeri possiamo utilizzare un algoritmo diverso notando che risulta:
+
+r(n) = (n + (10^(L(n)) - 1)*(n mod 10))/10
+
+dove L(n) è la lunghezza del numero n.
+
+La funzione che ruota una cifra di un numero:
+
+(define (rotate-num n)
+  (/ (+ n (* (- (pow 10 (length n)) 1) (% n 10))) 10))
+
+(rotate-num 123)
+;-> 312
+
+Funzione che crea la lista di tutti i numeri ruotati di n (n compreso):
+
+(define (ruota-num num)
+  (local (val out)
+    (setq val num)
+    (setq out '())
+    (push val out)
+    (for (i 1 (- (length num) 1))
+      (setq val (rotate-num val))
+      (push val out -1)
+    )
+    out))
+
+(ruota-num 123456)
+;-> (123456 612345 561234 456123 345612 234561)
 
 
 ------------------------------
@@ -65713,7 +65901,7 @@ N = 3
 ; calcolo dei resti
 (map (fn(x) (% x 3)) one)
 ;-> (1 2 0 1)
-Abbiamo due resti uguale a 1, che corrispondono ai numeri 1 e 1111. 
+Abbiamo due resti uguale a 1, che corrispondono ai numeri 1 e 1111.
 Calcoliamo la differenza tra questi due numeri:
 (- 1111 1)
 ;-> 1110
@@ -65740,7 +65928,7 @@ Quindi il nostro algoritmo sarà il seguente:
 0. creare una hash-map (che conterrà elementi con chiave uguale al resto e valore uguale al relativo numero con tutti 1).
 1. generare il prossimo numero con tutti 1 (numero one)
 2. calcolare il resto della divisione tra il numero one e il numero dato
-3. se il resto non esiste nella hash-map, 
+3. se il resto non esiste nella hash-map,
       allora inserirlo nella hash-map (resto one) e andare al passo 1
       altrimenti recuperare il numero nella hash-map che ha la chiave uguale a resto e sottrarlo al numero one attuale.
       Fine.
@@ -65808,7 +65996,7 @@ Le funzioni (uno-zero e uz) producono due risultati differenti, ma entrambi sono
 
 La funzione (uz 12345) produce un numero molto lungo:
 
-(length (last (uz 12345))) 
+(length (last (uz 12345)))
 ;-> 818
 
 Riscriviamo la funzione in maniera più compatta:
@@ -65830,7 +66018,7 @@ Riscriviamo la funzione in maniera più compatta:
                   (myHash (string dv) val)
                   ; altrimenti calcoliamo il risultato...
                   ; che è la differenza tra il valore attuale del numero one (val)
-                  ; e il valore del numero one (nella hash-map) che ha lo stesso resto 
+                  ; e il valore del numero one (nella hash-map) che ha lo stesso resto
                   ; del numero one attuale (myHash (string dv))
                   (setq out (- val (myHash (string dv))))
               )
@@ -65856,7 +66044,7 @@ Riscriviamo la funzione in maniera più compatta:
 (div 11111111111111111111111111111111111111111111111111111111111111111111111111111111111111110L
  9004141905276427156491986313704303979830722132180803169457950657302359085179182423915L)
  ;-> 1234
- 
+
 Con questa ultima funzione possiamo usare come parametro dei numeri maggiori:
 
 (length (last (uz 12345)))
@@ -66800,6 +66988,113 @@ Valore vero: 2
 Valore vero: 3.1415926535897931 (pi greco)
 
 
+---------------
+Fattorizzazione
+---------------
+
+Per fattorizzare un numero intero abbiamo la funzione integrata "factor":
+
+(factor 1372000)
+;-> (2 2 2 2 2 5 5 5 7 7 7)
+
+In cui compaiono tutti i fattori del numero. Se volessimo raggruppare i fattori in comune dobbiamo scrivere una funzione. Vediamo diversi metodi per trovare quello più veloce.
+
+Funzione 1:
+
+(define (factor-g1 num)
+  (if (< num 2) nil
+      (letn (fattori (factor num)
+            unici (unique fattori))
+            (transpose (list unici (count unici fattori))))))
+
+(factor-g1 1372000)
+;-> ((2 5) (5 3) (7 3))
+
+Funzione 2:
+
+(define (factor-g2 x)
+  (letn (fattori (factor x)
+         unici (unique fattori))
+        (map list unici (count unici fattori))))
+
+(factor-g2 1372000)
+;-> ((2 5) (5 3) (7 3))
+
+Funzione 3:
+
+(define (factor-g3 num)
+  (if (< num 2) nil
+      (let (factorlist (factor num) factorlist-grouped '())
+        (dolist (y (unique factorlist))
+           (push (append (list y) (count (list y) factorlist)) factorlist-grouped -1))
+        factorlist-grouped)))
+
+(factor-g3 1372000)
+;-> ((2 5) (5 3) (7 3))
+
+Funzione 4:
+il quarto metodo usa la tecnica Run Lenght Encode (infatti applicando l'algoritmo RLE al risultato della funzione "factor" si ottiene il risultato):
+
+(define (factor-g4 num)
+  (if (< num 2) nil
+      (letn ((out '()) (lst (factor num)) (cur-val (first lst)) (cur-count 0))
+        (dolist (el lst)
+          (if (= el cur-val) (++ cur-count)
+              (begin
+                (push (list cur-val cur-count) out -1)
+                (setq cur-count 1 cur-val el))))
+        (push (list cur-val cur-count) out -1))))
+
+(factor-g4 1372000)
+;-> ((2 5) (5 3) (7 3))
+
+Vediamo se le quattro funzioni producono gli stessi risultati:
+
+(= (map factor-g1 (sequence 2 10000))
+   (map factor-g2 (sequence 2 10000))
+   (map factor-g3 (sequence 2 10000))
+   (map factor-g4 (sequence 2 10000)))
+;-> true
+
+Vediamo i tempi di esecuzione:
+
+(silent (setq seq (sequence 1e6 1e7)))
+(time (map factor-g1 seq))
+;-> 28214.053
+(time (map factor-g2 seq))
+;-> 28532.154
+(time (map factor-g3 seq))
+;-> 40389.041
+(time (map factor-g4 seq))
+;-> 23980.14
+
+L'ultima funzione è quella più veloce.
+
+
+----------------------------
+"setq" è più veloce di "set"
+----------------------------
+
+Notiamo che "setq" è più veloce di "set":
+
+(time (setq a 10 b 20 c 30) 10000000)
+;-> 382.001
+(time (set 'a 10 'b 20 'c 30) 10000000)
+;-> 479.744
+
+(time (for (i 1 10000) (setq a 10)) 10000)
+;-> 2287.881
+(time (for (i 1 10000) (set 'd 10)) 10000)
+;-> 2638.974
+
+E possiamo sempre divertirci scrivendo:
+
+(setq --> setq)
+(--> a 3)
+a
+;-> 3
+
+
 ===========
 
  APPENDICI
@@ -67347,7 +67642,7 @@ http://www.newLISP.org/index.cgi?FAQ
 
 1. Cos'è newLISP e cosa posso fare con questo linguaggio?
 ---------------------------------------------------------
-newLISP è un linguaggio di scripting simile a LISP per fare quelle cose che si fanno tipicamente con linguaggi di scripting: programmazione per internet, amministrazione di sistema, elaborazione testi, incollare diversi altri programmi insieme, ecc. newLISP è un LISP di scripting per persone che sono affascinate dalla bellezza e dal potere espressivo del LISP, ma che hanno bisogno di una versione ridotta per imparare facilmente l'essenziale.
+newLISP è un linguaggio di scripting simile al LISP per fare quelle cose che si fanno tipicamente con linguaggi di scripting: programmazione per internet, amministrazione di sistema, elaborazione testi, incollare diversi altri programmi insieme, ecc. newLISP è un LISP di scripting per persone che sono affascinate dalla bellezza e dal potere espressivo del LISP, ma che hanno bisogno di una versione ridotta per imparare facilmente l'essenziale.
 
 2. Perché newLISP, perché non uno degli altri LISP standard?
 ------------------------------------------------------------
@@ -73101,6 +73396,9 @@ Mathematical symbols     Commercial symbols       Quotes and parenthesis
 
   Mathematica on-line:
   https://www.wolframalpha.com
+  
+  La più grande risorsa sulla matematica nel web
+  https://mathworld.wolfram.com/
 
   Enciclopedia on-line delle sequenze dei numeri interi:
   https://oeis.org

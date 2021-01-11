@@ -84,9 +84,9 @@ Chiunque può risolvere i problemi?
 I problemi sono di diversa difficoltà e per molti l'esperienza è l'apprendimento a catena induttivo. Cioè, risolvendo un problema ti esporrà ad un nuovo concetto che ti permette di intraprendere un problema precedentemente inaccessibile. Quindi il partecipante determinato lentamente ma sicuramente farà il suo lavoro attraverso ogni problema.
 
 Cosa fare in seguito?
-Per tenere traccia dei tuoi progressi è necessario impostare un account e abilitare i cookie. Se hai già un account, accedi, altrimenti devi registrati - è completamente gratuito!
+Per tenere traccia dei tuoi progressi è necessario impostare un account e abilitare i cookie. Se hai già un account puoi accedere senza problemi, altrimenti devi registrati - è completamente gratuito!
 
-Tuttavia, poiché alcuni problemi sono difficili, potresti voler visualizzare i Problemi prima di registrarti.
+Tuttavia, poiché alcuni problemi sono difficili, potresti voler visualizzare i problemi prima di registrarti.
 
 "Il progetto Eulero esiste per incoraggiare, sfidare e sviluppare le capacità e il divertimento di chiunque abbia un interesse per l'affascinante mondo della matematica."
 
