@@ -9238,3 +9238,75 @@ Vediamo dove si trovano queste posizioni nel caso della regina nella scacchiera:
      0   1   2   3   4   5   6   7   8   9   10  11  12  13  14  15
 
 
+--------------------
+Ordinamento per rime
+--------------------
+
+L'ordinamento per rime (rhyming sort) consiste nell'ordinare una lista di parole in base alla rima. Si tratta semplicemente di ordinare le parole da destra a sinistra.
+
+(define (rimesort lst)
+  (map reverse (sort (map reverse lst))))
+
+(rimesort '("sasso" "masso" "gradasso" "spasso" "grasso"))
+;-> ("gradasso" "masso" "spasso" "grasso" "sasso")
+
+
+---------------
+Lista circolare
+---------------
+
+Implementiamo una struttura dati che si comporta come una lista circolare.
+
+; creiamo un contesto per la struttura
+(context 'circ-list)
+; inizializzazione della lista circolare
+(define (circ-list:init lst)
+  (let (n (length lst))
+    (setq
+          circ-list:items (array n lst)
+          circ-list:i 0
+          circ-list:end n)))
+; valore elemento corrente della lista circolare (con avanzamento)
+(define (circ-list:next)
+  (cond ((= circ-list:i circ-list:end)
+          (setq circ-list:i 0)
+          (++ circ-list:i)
+          (circ-list:items (- circ-list:i 1)))
+        (true
+          (++ circ-list:i)
+          (circ-list:items (- circ-list:i 1)))))
+; valore elemento corrente della lista circolare (senza avanzamento)
+(define (circ-list:cur) (circ-list:items (- circ-list:i 1)))
+; indice del prossimo elemento della lista circolare
+(define (circ-list:index) circ-list:i)
+; lunghezza della lista circolare
+(define (circ-list:len) circ-list:end)
+;valore della lista circolare
+(define (circ-list:values) circ-list:items)
+; ritorniamo al contesto principale
+(context MAIN)
+
+proviamo la nostra struttura:
+
+(circ-list:init (sequence 1 3))
+;-> 3 ; numero di elementi della lista
+(circ-list:next)
+;-> 1
+(circ-list:next)
+;-> 2
+(circ-list:next)
+;-> 3
+(circ-list:next)
+;-> 1
+(circ-list:next)
+;-> 2
+(circ-list:cur)
+;-> 2 ;valore attuale
+(circ-list:index)
+;-> 2 ;indice del prossimo numero
+(circ-list:len)
+;-> 3 ;lunghezza della lista
+(circ-list:values)
+;-> (1 2 3) ; valori della lista
+
+

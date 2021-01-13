@@ -272,6 +272,7 @@ ROSETTA CODE
   Valutazione di una espressione RPN
   Il gioco del 24
   Sequenza fusc
+  Algoritmo Damm
 
 PROJECT EULERO
 ==============
@@ -351,6 +352,8 @@ PROBLEMI VARI
   Problema dei fiammiferi di Banach
   Window sliding
   Il gioco di Wythoff
+  Ordinamento per rime
+  Lista circolare
 
 DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
 ==================================================
@@ -596,7 +599,10 @@ NOTE LIBERE 2
   Sudoku test
   Integrali definiti
   Fattorizzazione
-
+  "setq" o "set"
+  Memfrob
+  Generatore di sequenze
+  
 APPENDICI
 =========
   Lista delle funzioni newLISP
@@ -18090,7 +18096,6 @@ Adesso scriviamo una funzione che converte il risultato di "fattorizza" nel risu
 (fattorizza-factor (fattorizza 29))
 ;-> (29)
 
-(fattorizza 11)
 Per finire scriviamo una funzione "fattori-primi" che fa lo stesso lavoro di "factor":
 
 (define (fattori-primi numero)
@@ -27112,6 +27117,48 @@ Adesso facciamo il confronto:
 ;-> 18.937
 
 In questo caso (cioè quando vogliamo tutti i valori della funzione fusc da 0 a n) la funzione fusc-n è molto più veloce.
+
+
+--------------
+ALGORITMO DAMM
+--------------
+
+Nel rilevamento degli errori, l'algoritmo di Damm è un algoritmo di cifre di controllo che rileva tutti gli errori di una cifra e tutti gli errori di trasposizione adiacenti. È stato presentato da H. Michael Damm nel 2004.
+L'algoritmo di Damm rileva tutte le occorrenze dei due tipi di errori di trascrizione più frequenti, vale a dire l'alterazione di una singola cifra e la trasposizione di due cifre adiacenti (inclusa la trasposizione della cifra di controllo finale e della cifra precedente).
+
+(define (damm-encode number)
+  (local (dm out)
+    (setq dm
+      '((0 3 1 7 5 9 8 6 4 2)
+        (7 0 9 2 1 5 4 8 6 3)
+        (4 2 0 6 8 7 1 3 5 9)
+        (1 7 5 0 9 8 3 4 2 6)
+        (6 1 2 3 0 4 5 9 7 8)
+        (3 6 7 4 2 0 9 5 8 1)
+        (5 8 6 9 7 2 0 1 3 4)
+        (8 9 4 5 3 6 2 0 1 7)
+        (9 4 3 8 6 1 7 2 0 5)
+        (2 5 8 1 4 3 6 7 9 0)))
+    (setq out 0)
+    (dostring (el (string number))
+      (setq out (dm out (int (char el))))
+    )
+    out))
+
+(define (check-damm-encode number)
+  (zero? (damm-encode number)))
+
+(damm-encode 572)
+;-> 4
+
+(check-damm-encode 5724)
+;-> true
+
+(damm-encode 43881234567)
+;-> 9
+
+(check-damm-encode 438812345679)
+;-> true
 
 
 ================
@@ -43661,6 +43708,78 @@ Vediamo dove si trovano queste posizioni nel caso della regina nella scacchiera:
  0 | ▄ |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
    +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
      0   1   2   3   4   5   6   7   8   9   10  11  12  13  14  15
+
+
+--------------------
+Ordinamento per rime
+--------------------
+
+L'ordinamento per rime (rhyming sort) consiste nell'ordinare una lista di parole in base alla rima. Si tratta semplicemente di ordinare le parole da destra a sinistra.
+
+(define (rimesort lst)
+  (map reverse (sort (map reverse lst))))
+
+(rimesort '("sasso" "masso" "gradasso" "spasso" "grasso"))
+;-> ("gradasso" "masso" "spasso" "grasso" "sasso")
+
+
+---------------
+Lista circolare
+---------------
+
+Implementiamo una struttura dati che si comporta come una lista circolare.
+
+; creiamo un contesto per la struttura
+(context 'circ-list)
+; inizializzazione della lista circolare
+(define (circ-list:init lst)
+  (let (n (length lst))
+    (setq
+          circ-list:items (array n lst)
+          circ-list:i 0
+          circ-list:end n)))
+; valore elemento corrente della lista circolare (con avanzamento)
+(define (circ-list:next)
+  (cond ((= circ-list:i circ-list:end)
+          (setq circ-list:i 0)
+          (++ circ-list:i)
+          (circ-list:items (- circ-list:i 1)))
+        (true
+          (++ circ-list:i)
+          (circ-list:items (- circ-list:i 1)))))
+; valore elemento corrente della lista circolare (senza avanzamento)
+(define (circ-list:cur) (circ-list:items (- circ-list:i 1)))
+; indice del prossimo elemento della lista circolare
+(define (circ-list:index) circ-list:i)
+; lunghezza della lista circolare
+(define (circ-list:len) circ-list:end)
+;valore della lista circolare
+(define (circ-list:values) circ-list:items)
+; ritorniamo al contesto principale
+(context MAIN)
+
+proviamo la nostra struttura:
+
+(circ-list:init (sequence 1 3))
+;-> 3 ; numero di elementi della lista
+(circ-list:next)
+;-> 1
+(circ-list:next)
+;-> 2
+(circ-list:next)
+;-> 3
+(circ-list:next)
+;-> 1
+(circ-list:next)
+;-> 2
+(circ-list:cur)
+;-> 2 ;valore attuale
+(circ-list:index)
+;-> 2 ;indice del prossimo numero
+(circ-list:len)
+;-> 3 ;lunghezza della lista
+(circ-list:values)
+;-> (1 2 3) ; valori della lista
 
 
 ====================================================
@@ -65646,7 +65765,6 @@ somma dei divisori = (1 + p(1) + p(1)^2 + ... + p(1)^a(1)) *
                      (1 + p(2) + p(2)^2 + ... + p(2)^a(2)) * ... *
                      (1 + p(k) + p(k)^2 + ... + p(k)^a(k))
 
-lista divisori
 I divisori possono essere generati ricorsivamente utilizzando tutti i primi p(i) e le loro occorrenze a(i). Ogni fattore primo p(i), può essere incluso x volte dove 0 ≤ x ≤ a(i).
 
 Lista dei divisori
@@ -67071,9 +67189,9 @@ Vediamo i tempi di esecuzione:
 L'ultima funzione è quella più veloce.
 
 
-----------------------------
-"setq" è più veloce di "set"
-----------------------------
+--------------
+"setq" o "set"
+--------------
 
 Notiamo che "setq" è più veloce di "set":
 
@@ -67093,6 +67211,169 @@ E possiamo sempre divertirci scrivendo:
 (--> a 3)
 a
 ;-> 3
+
+
+-------
+Memfrob
+-------
+
+Memfrob è un algoritmo di crittografia leggero che funziona facendo lo xor tra il numero 42(10) = 00101010(2) con ogni (carattere (byte) di input per creare un output crittografato. La decrittazione è simmetrica alla crittografia. Memfrob è più o meno equivalente a ROT13 nella sicurezza crittografica.
+
+Codifica di un carattere:
+(char (^ (char "a") 42))
+;-> "K"
+
+Decodifica del carattere:
+(char (^ (char "K") 42))
+;-> "a"
+
+Le funzioni di codifica e decodifica di un carattere sono uguali:
+
+(define (frob c) (char (^ (char c) 42)))
+
+Scriviamo la funzione per criptare/decriptare una stringa:
+
+(define (memfrob str) (join (map frob (explode str))))
+
+(memfrob "pippo")
+;-> "ZCZZE"
+
+(memfrob "ZCZZE")
+;-> "pippo"
+
+(memfrob (memfrob "newLISP is fun"))
+;-> "newLISP is fun"
+
+Nota: il numero 42 ricorda il libro "Guida Galattica per Autostoppisti" di Douglas Adams.
+
+
+----------------------
+Generatore di sequenze
+----------------------
+
+Scriviamo un programma che genera la seguente sequenza:
+
+1, 5, 10, 50, 100, 500, 1000, 5000, 10000
+
+La sequenza si ottiene partendo da 1 e moltiplicando il numero alternativamente per 5 e per 2:
+
+1
+1*5    -> 5
+5*2    -> 10
+10*5   -> 50
+50*2   -> 100
+100*5  -> 500
+500*2  -> 1000
+...
+
+Una possibile soluzione è la seguente:
+
+(define (seq1 n)
+  (local (out m1 m2 val flip)
+    (setq out '(1))
+    (setq val 1)
+    (setq m1 5 m2 2)
+    (setq flip nil)
+    (while (<= (* val m2) n)
+      (if flip
+          (setq val (* val m2) flip nil)
+          (setq val (* val m1) flip true)
+      )
+      (push val out -1)
+    )
+    out))
+
+(seq1 50001)
+;-> (1 5 10 50 100 500 1000 5000 10000 50000)
+
+Possiamo scrivere una funzione più generale per generare questo tipo di sequenze utilizzando una lista circolare e parametrizzando l'operatore aritmetico. La lista circolare contiene i valori dei moltiplicatori e l'operatore aritmetico "+" oppure "*" viene passato come parametro alla funzione.
+
+Funzioni per la gestione di una lista circolare:
+
+; creiamo un contesto per la struttura
+(context 'circ-list)
+; inizializzazione della lista circolare
+(define (circ-list:init lst)
+  (let (n (length lst))
+    (setq
+          circ-list:items (array n lst)
+          circ-list:i 0
+          circ-list:end n)))
+; valore elemento corrente della lista circolare (con avanzamento)
+(define (circ-list:next)
+  (cond ((= circ-list:i circ-list:end)
+          (setq circ-list:i 0)
+          (++ circ-list:i)
+          (circ-list:items (- circ-list:i 1)))
+        (true
+          (++ circ-list:i)
+          (circ-list:items (- circ-list:i 1)))))
+; valore elemento corrente della lista circolare (senza avanzamento)
+(define (circ-list:cur) (circ-list:items (- circ-list:i 1)))
+; indice del prossimo elemento della lista circolare
+(define (circ-list:index) circ-list:i)
+; lunghezza della lista circolare
+(define (circ-list:len) circ-list:end)
+;valore della lista circolare
+(define (circ-list:values) circ-list:items)
+; ritorniamo al contesto principale
+(context MAIN)
+
+Adesso definiamo la nostra funzione per generare sequenze:
+
+(define (sequenza start n val-lst op)
+  (local (out val)
+    ; inizializziamo la lista circolare
+    (circ-list:init val-lst)
+    (setq out (list start))
+    (setq val start)
+    (while (<= val n) ; calcola qualche elemento di troppo...
+      (setq val ((eval op) val (circ-list:next)))
+      (push val out -1)
+    )
+    ; ...elimina gli elementi di troppo.
+    (filter (fn(x) (<= x n)) out)))
+
+Verifichiamo la funzione con la sequenza iniziale:
+
+(sequenza 1 100001 '(5 2) '*)
+;-> (1 5 10 50 100 500 1000 5000 10000 50000 100000)
+
+Adeesso possiamo generare altre sequenze:
+
+(sequenza 1 10 '(2 1) '+)
+;-> (1 3 4 6 7 9 10)
+(sequenza 10 200 '(2 1) '*)
+;-> (10 20 20 40 40 80 80 160 160)
+
+Non possiamo utilizzare gli operatori aritmetici "-" e "/" perchè non permettono di definire un limite per n. Però possiamo definire un'altra funzione che genera una sequenza di n numeri (invece che fino al numero n).
+
+(define (sequenza-n start num val-lst op)
+  (local (out val)
+    ; inizializziamo la lista circolare
+    (circ-list:init val-lst)
+    (setq out (list start))
+    (setq val start)
+    (for (i 2 num)
+      (setq val ((eval op) val (circ-list:next)))
+      (push val out -1)
+    )
+    out))
+
+(sequenza-n 1 7 '(2 1) '+)
+;-> (1 3 4 6 7 9 10)
+
+(sequenza-n 10 9 '(2 1) '*)
+;-> (10 20 20 40 40 80 80 160 160)
+
+(sequenza-n 10 9 '(2 1) '-)
+;-> (10 8 7 5 4 2 1 -1 -2)
+
+(sequenza-n 1000 9 '(4 3) '/)
+;-> (1000 250 83 20 6 1 0 0 0)
+
+(sequenza-n 0 10 '(1 2 3) '+)
+;-> (0 1 3 6 7 9 12 13 15 18)
 
 
 ===========

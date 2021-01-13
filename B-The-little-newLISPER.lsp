@@ -2093,6 +2093,124 @@ Definiamo la funzione in newLISP:
 (define (eq?-c a)
      (letex (a a) (lambda (x) (= x a))))
 
+(setq k 'salad)
+(eq?-c k)
+;-> (lambda (x) (= x salad))
+(eq?-c 'salad)
+(setq eq?-salad (eq-c? 'salad))
+(define (eq?-salad (eq-c? 'salad)))
+eq?-salad
+(eq?-salad 'salad)
+
+(define (eq?-c a)
+  (lambda (x) (= x a)))
+
+(define eq?-c
+  (lambda (a)
+    (lambda (x)
+      (= x a))))
+
+(setq k 10)
+(eq?-c k)
+
+(setq eq?-10 (eq?-c k))
+
+(eq?-10 10)
+(eq?-10 20)
+
+(setq salad "val")
+
+(setq z salad)
+z
+(eq?-c z)
+(eq?-c salad)
+(setq eq?-salad (eq?-c salad))
+
+(eq?-salad)
+(eq?-salad salad)
+;-> true
+(eq?-salad tuna)
+
+(define rember-f
+  (lambda (test?)
+    ;; [atom] [listof sexp] -> [listof sexp]
+    (lambda (a l)
+      (cond
+       ((null? l) '())
+       ((test? (first l) a) (rest l))
+       (true (cons (first l) ((rember-f test?) a (rest l))))))))
+
+(define (rember-f test?)
+    (lambda (a l)
+      (cond
+       ((null? l) '())
+       ((test? (first l) a) (rest l))
+       (true (cons (first l) ((rember-f test?) a (rest l)))))))
+
+
+(test "rember-f - 2.revision"
+      ((rember-f =) 5 '(6 5 2 3))
+      '(6 2 3))
+
+(define rember-f
+  (lambda (test?)
+    (lambda (a l)
+      (cond
+        ((null? l) '())
+        ((test? (car l) a) (cdr l))
+        (else (cons (car l) ((rember-f test?) a (cdr l))))))))
+;
+((rember-f =) 'tuna '(shrimp salad and tuna salad))
+
+
+(define (eq?-c a)
+    (lambda (x)
+      (= x a)))
+
+(setq k 'salad)
+k
+
+(eq?-c k)
+
+(define (eq?-salad ))
+(setq eq?-salad (eq?-c 'salad))
+
+(eq?-salad salad)
+(eq?-salad pippo)
+
+
+(test "eq?-c"
+      ((eq?-c 'x) 'x) #t)
+
+(test "eq?-c"
+      ((eq?-c 'x) 'b) #f)
+
+(define (eq?-c a)
+    (lambda (x)
+      (eq? x a)))
+
+((eq?-c 'x) 'x)
+
+(test "eq?-c"
+      ((eq?-c 'x) 'x) #t)
+
+(test "eq?-c"
+      ((eq?-c 'x) 'b) #f)
+
+;; eq?-salad: [atom] -> boolean
+;; Page 128
+(define (eq?-salad (eq?-c 'salad)))
+
+(test "eq?-salad"
+      (eq?-salad 'salad) #t)
+
+(test "eq?-salad"
+      (eq?-salad 'tuna) #f)
+
+
+=====================================================
+
+
 ===========
  APPENDICE
 ===========

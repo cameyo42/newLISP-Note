@@ -357,7 +357,6 @@ Adesso scriviamo una funzione che converte il risultato di "fattorizza" nel risu
 (fattorizza-factor (fattorizza 29))
 ;-> (29)
 
-(fattorizza 11)
 Per finire scriviamo una funzione "fattori-primi" che fa lo stesso lavoro di "factor":
 
 (define (fattori-primi numero)
@@ -9379,5 +9378,47 @@ Adesso facciamo il confronto:
 ;-> 18.937
 
 In questo caso (cioè quando vogliamo tutti i valori della funzione fusc da 0 a n) la funzione fusc-n è molto più veloce.
+
+
+--------------
+ALGORITMO DAMM
+--------------
+
+Nel rilevamento degli errori, l'algoritmo di Damm è un algoritmo di cifre di controllo che rileva tutti gli errori di una cifra e tutti gli errori di trasposizione adiacenti. È stato presentato da H. Michael Damm nel 2004.
+L'algoritmo di Damm rileva tutte le occorrenze dei due tipi di errori di trascrizione più frequenti, vale a dire l'alterazione di una singola cifra e la trasposizione di due cifre adiacenti (inclusa la trasposizione della cifra di controllo finale e della cifra precedente).
+
+(define (damm-encode number)
+  (local (dm out)
+    (setq dm
+      '((0 3 1 7 5 9 8 6 4 2)
+        (7 0 9 2 1 5 4 8 6 3)
+        (4 2 0 6 8 7 1 3 5 9)
+        (1 7 5 0 9 8 3 4 2 6)
+        (6 1 2 3 0 4 5 9 7 8)
+        (3 6 7 4 2 0 9 5 8 1)
+        (5 8 6 9 7 2 0 1 3 4)
+        (8 9 4 5 3 6 2 0 1 7)
+        (9 4 3 8 6 1 7 2 0 5)
+        (2 5 8 1 4 3 6 7 9 0)))
+    (setq out 0)
+    (dostring (el (string number))
+      (setq out (dm out (int (char el))))
+    )
+    out))
+
+(define (check-damm-encode number)
+  (zero? (damm-encode number)))
+
+(damm-encode 572)
+;-> 4
+
+(check-damm-encode 5724)
+;-> true
+
+(damm-encode 43881234567)
+;-> 9
+
+(check-damm-encode 438812345679)
+;-> true
 
 

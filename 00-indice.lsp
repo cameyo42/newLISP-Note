@@ -272,6 +272,7 @@ ROSETTA CODE
   Valutazione di una espressione RPN
   Il gioco del 24
   Sequenza fusc
+  Algoritmo Damm
 
 PROJECT EULERO
 ==============
@@ -351,6 +352,8 @@ PROBLEMI VARI
   Problema dei fiammiferi di Banach
   Window sliding
   Il gioco di Wythoff
+  Ordinamento per rime
+  Lista circolare
 
 DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
 ==================================================
@@ -596,7 +599,10 @@ NOTE LIBERE 2
   Sudoku test
   Integrali definiti
   Fattorizzazione
-
+  "setq" o "set"
+  Memfrob
+  Generatore di sequenze
+  
 APPENDICI
 =========
   Lista delle funzioni newLISP
