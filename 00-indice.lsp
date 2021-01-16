@@ -602,6 +602,8 @@ NOTE LIBERE 2
   "setq" o "set"
   Memfrob
   Generatore di sequenze
+  Massimo gap
+  Simulazione di un cannone
   
 APPENDICI
 =========

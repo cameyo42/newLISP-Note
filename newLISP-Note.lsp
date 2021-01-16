@@ -602,6 +602,8 @@ NOTE LIBERE 2
   "setq" o "set"
   Memfrob
   Generatore di sequenze
+  Massimo gap
+  Simulazione di un cannone
   
 APPENDICI
 =========
@@ -67374,6 +67376,44 @@ Non possiamo utilizzare gli operatori aritmetici "-" e "/" perchè non permetton
 
 (sequenza-n 0 10 '(1 2 3) '+)
 ;-> (0 1 3 6 7 9 12 13 15 18)
+
+
+-----------
+Massimo gap
+-----------
+
+Data una lista non ordinata di interi positivi, trovare la differenza massima tra gli elementi successivi nella sua forma ordinata e gli indici dei relativi valori. Restituire la differenza massima, gli indici dei relativi valori e la lista ordinata.
+
+Funzione che applica un operatore matematico ad ogni coppia di elementi di una lista:
+
+(define (do-pair lst func rev)
+  (if rev
+      (map func (chop lst) (rest lst))
+      (map func (rest lst) (chop lst))))
+
+(do-pair '(1 4 5 10 12) -)
+;-> (3 1 5 2)
+
+Funzione che restituisce il valore massimo di una lista e il relativo indice:
+
+(define (max-with-idx lst)
+  (let ((m -1) (i nil))
+    (dolist (el lst)
+      (if (> el m) (setq m el i $idx))
+    )
+    (list m i)))
+
+(max-with-idx '(3 1 5 2))
+;-> (5 2)
+
+Funzione che trova la soluzione finale:
+
+(define (max-gap lst)
+  (let (out (max-with-idx (do-pair (sort lst) -)))
+    (list (push (+ (last out) 1) out -1) lst)))
+
+(max-gap '(1 5 12 10 4))
+;-> ((5 2 3) (1 4 5 10 12))
 
 
 ===========
