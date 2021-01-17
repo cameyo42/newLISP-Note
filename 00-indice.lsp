@@ -273,6 +273,7 @@ ROSETTA CODE
   Il gioco del 24
   Sequenza fusc
   Algoritmo Damm
+  Distanza tra due punti della terra
 
 PROJECT EULERO
 ==============

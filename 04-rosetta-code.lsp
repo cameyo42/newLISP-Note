@@ -9422,3 +9422,29 @@ L'algoritmo di Damm rileva tutte le occorrenze dei due tipi di errori di trascri
 ;-> true
 
 
+----------------------------------
+DISTANZA TRA DUE PUNTI DELLA TERRA 
+----------------------------------
+
+Utilizziamo la formula "haversine" per calcolare la distanza minima tra due punti di una sfera (tale distanza viene chiamata "ortodromia"). Si tratta quindi della distanza più breve tra due punti della superficie terrestre (in linea d'aria e ignorando l'orografia).
+Le coordinate per la latitudine e la longitudine sono espresse in gradi decimali.
+
+(define (deg-rad deg) (div (mul deg 3.1415926535897931) 180))
+
+(define (dist-earth lat1 lon1 lat2 lon2) 
+  (local (r dLat dLon a c d)
+  (setq r 6371) ; raggio medio della terra in km
+  (setq dLat (deg-rad (sub lat2 lat1))) ; delta lat (in radianti)
+  (setq dLon (deg-rad (sub lon2 lon1))) ; delta lon (in radianti)
+  (setq a (add (mul (sin (div dLat 2)) (sin (div dLat 2)))
+               (mul (cos (deg-rad lat1)) (cos (deg-rad lat2))
+                    (sin (div dLon 2)) (sin (div dLon 2)))))
+  (setq c (mul 2 (atan2 (sqrt a) (sqrt (sub 1 a)))))
+  (setq d (mul r c)))) ; distanza in km
+
+(dist-earth 42.123456 13.123456 54.654321 8.654321)
+;-> 1431.173709679866
+(dist-earth 42.123456 -10.123456 54.654321 -2.654321)
+;-> 1496.522788559527
+
+La formula di haversine produce un errore massimo dello 0.5% (poichè la terra è un elissoide e non una sfera).

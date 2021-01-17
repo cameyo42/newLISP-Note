@@ -273,6 +273,7 @@ ROSETTA CODE
   Il gioco del 24
   Sequenza fusc
   Algoritmo Damm
+  Distanza tra due punti della terra
 
 PROJECT EULERO
 ==============
@@ -27163,6 +27164,32 @@ L'algoritmo di Damm rileva tutte le occorrenze dei due tipi di errori di trascri
 ;-> true
 
 
+----------------------------------
+DISTANZA TRA DUE PUNTI DELLA TERRA 
+----------------------------------
+
+Utilizziamo la formula "haversine" per calcolare la distanza minima tra due punti di una sfera (tale distanza viene chiamata "ortodromia"). Si tratta quindi della distanza più breve tra due punti della superficie terrestre (in linea d'aria e ignorando l'orografia).
+Le coordinate per la latitudine e la longitudine sono espresse in gradi decimali.
+
+(define (deg-rad deg) (div (mul deg 3.1415926535897931) 180))
+
+(define (dist-earth lat1 lon1 lat2 lon2) 
+  (local (r dLat dLon a c d)
+  (setq r 6371) ; raggio medio della terra in km
+  (setq dLat (deg-rad (sub lat2 lat1))) ; delta lat (in radianti)
+  (setq dLon (deg-rad (sub lon2 lon1))) ; delta lon (in radianti)
+  (setq a (add (mul (sin (div dLat 2)) (sin (div dLat 2)))
+               (mul (cos (deg-rad lat1)) (cos (deg-rad lat2))
+                    (sin (div dLon 2)) (sin (div dLon 2)))))
+  (setq c (mul 2 (atan2 (sqrt a) (sqrt (sub 1 a)))))
+  (setq d (mul r c)))) ; distanza in km
+
+(dist-earth 42.123456 13.123456 54.654321 8.654321)
+;-> 1431.173709679866
+(dist-earth 42.123456 -10.123456 54.654321 -2.654321)
+;-> 1496.522788559527
+
+La formula di haversine produce un errore massimo dello 0.5% (poichè la terra è un elissoide e non una sfera).
 ================
 
  PROJECT EULERO
@@ -67414,6 +67441,175 @@ Funzione che trova la soluzione finale:
 
 (max-gap '(1 5 12 10 4))
 ;-> ((5 2 3) (1 4 5 10 12))
+
+
+-------------------------
+Simulazione di un cannone
+-------------------------
+
+Vediamo come simulare la traiettoria di una palla sparata da un cannone.
+Impostiamo i parametri della simulazione 2D:
+
+x     -> valore corrente della posizione della palla lungo direzione orizzontale
+z     -> valore corrente della posizione della palla lungo direzione verticale
+theta -> angolo del cannone (in gradi) con la direzione orizzontale (asse x)
+vel   -> velocità della palla dove vel = |v| (magnitudine)
+vx    -> velocità lungo l'asse x dove vx = |v|·cos(theta)
+vz    -> velocità lungo l'asse z dove vz = |v|·sin(theta)
+t     -> valore corrente del tempo
+g     -> accelerazione di gravità dove  g = -9.81
+dt    -> intervallo di tempo tra due posizioni
+quota -> altezza del cannone
+
+Inoltre la palla di cannone parte al tempo t = 0 con coordinate (x=0 z=0), ma possiamo specificare anche un'altezza di lancio (quota).
+
+Rappresentiamo la traiettoria con un lista del tipo seguente:
+
+((t0 x0 z0) (t1 x1 z1) ... (tn xn zn))
+
+dove (ti xi zi) rappresenta la i-esima posizione della palla (al tempo ti nella posizione (xi zi)).
+Da notare che zn deve risultare uguale (o poco minore) a zero.
+
+Rappresentazione 2D:  
+
+   z
+   |
+   |  direzione di tiro del cannone
+   |    /
+   |   /
+   |  /
+   | /
+   |/ theta = angolo del cannone con asse x
+ 0 +---------------------x
+   0
+
+Traiettoria del proiettile:
+
+   z
+   |              *  
+   |         *         *
+   |      *               *
+   |   *                     *
+   | *                         *
+ 0 +--------------------------------x
+   0
+
+Per calcolare la simulazione utilizzeremo il metodo di Eulero che consiste nell'iniziare con un valore iniziale di una quantità (come la posizione) e un'equazione che descrive le sue derivate (come la velocità e l'accelerazione). Il calcolo delle derivate ci permette di aggiornare i valori passo per passo. Maggiori spiegazioni nei commenti della funzione.
+
+(define (cannone vel theta quota dt g)
+  (local (ts xs zs vx vz t x z)
+    ; liste che contengono tutti i valori della traiettoria (x, z, t)
+    (setq ts '() xs '() zs '())
+    ; calcola la velocita iniziale x (converte theta in radianti)
+    ; (vx = 0 quando theta = 90)
+    (if (= theta 90) 
+        (setq vx 0)
+        (setq vx (mul vel (cos (div (mul 3.1415926535897931 theta) 180))))
+    )
+    ; calcola la velocita iniziale z (converte theta in radianti)
+    ; (vz = 0 quando theta = 0 o 180)
+    (if (or (= theta 0) (= theta 180))
+        (setq vz 0)    
+        (setq vz (mul vel (sin (div (mul 3.1415926535897931 theta) 180))))
+    )
+    ;(println "vx =" vx)
+    ;(println "vz =" vz)
+    ;(read-line)
+    ; initializza tempo, posizione x, posizione z
+    (setq t 0 x 0 z quota)
+    (while (>= z 0)
+      ; aggiorna il tempo
+      (setq t (add t dt))
+      ; aggiorna la velocita vz (la velocita vx non cambia)
+      (setq vz (add vz (mul g dt)))
+      ; aggiorna la posizione x
+      (setq x (add x (mul vx dt)))
+      ; aggiorna la posizione z
+      (setq z (add z (mul vz dt)))
+      ; inserisce i valori correnti nelle liste
+      (push t ts -1)
+      (push x xs -1)
+      (push z zs -1)
+    )
+    (map list ts xs zs)))
+
+Vediamo alcuni esempi riportando solo l'ultima riga della lista:
+
+(cannone 20 30 0 0.01 -9.81)
+;-> (2.030000000000001 35.16063139364815 -0.01258599999999832))
+
+(cannone 20 45 0 0.01 -9.81)
+;-> (2.879999999999983 40.72935059634507 -0.0959454036549173))
+
+(cannone 20 60 0 0.01 -9.81)
+;-> (3.529999999999969 35.30000000000023 -0.1524674928186893))
+
+Spariamo all'indietro (theta = 135):
+
+(cannone 20 135 0 0.01 -9.81)
+;-> (2.879999999999983 -40.72935059634507 -0.09594540365491522))
+
+Spariamo in verticale (theta = 90):
+
+(cannone 20 90 0 0.01 -9.81)
+;-> (4.069999999999958 0 -0.0504679999999175))
+
+Spariamo in orizzontale (theta = 0):
+
+(cannone 20 0 0 0.01 -9.81)
+;-> ((0.01 0.2 -0.0009810000000000001))
+In questo caso abbiamo un solo elemento nella lista.
+
+Spariamo in orizzontale (theta = 180):
+
+(cannone 20 180 0 0.01 -9.81)
+;-> ((0.01 0.2 -0.0009810000000000001))
+In questo caso abbiamo un solo elemento nella lista.
+
+Per visualizzare la traiettoria utilizziamo il modulo "plot.lsp" che permette di creare alcuni tipi di grafici.
+Questo modulo utilizza guiserver.jar che deve essere installato sulla cartella di newLISP.
+
+Importiamo il modulo:
+
+(module "plot.lsp")
+
+Adesso scriviamo la funzione che visualizza la traiettoria del proiettile:
+
+(define (plot-tra lst-txz theta)
+  (local (xx zz)
+    ; azzera parametri della funzione plot
+    (plot:reset)
+    ; opzionale title, sub-title, labels e legend, data min/max per Y
+    (set 'plot:title "Simulazione cannone")
+    (set 'plot:sub-title (string "Angolo = " theta))
+    (set 'plot:unit-x "distanza")
+    (set 'plot:unit-y "quota")
+    ; crea il file dei dati (lista dei valori x e lista dei valori z)
+    (setq xx '())
+    (setq zz '())
+    (dolist (el lst-txz)
+      (push (first (rest el)) xx -1)
+      (push (last el) zz -1 ))
+    ; plot data      
+    (plot:XY xx zz)
+    ; salva il plot su un file
+    (plot:export (string "traiettoria-" theta ".png"))))
+
+Proviamo a creare alcuni grafici:
+
+(plot-tra (cannone 20 30 0 0.01 -9.81) 30)
+
+(plot-tra (cannone 20 45 0 0.01 -9.81) 45)
+
+(plot-tra (cannone 20 60 0 0.01 -9.81) 60)
+
+Spariamo da una altezza di 10 metri:
+
+(plot-tra (cannone 20 45 10 0.01 -9.81) 40)
+
+Le immagini dei grafici si trovano nella cartella "data".
+
+Per sparare dalla luna occorre cambiare il valore dell'accelerazione gravitazionale.
 
 
 ===========
