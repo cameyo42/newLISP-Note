@@ -1,7 +1,7 @@
 
 ============================================================================
  Note su newLISP
- © copyright 2019-2020 Massimo Corinaldesi aka cameyo
+ © copyright 2019-2020-2021 Massimo Corinaldesi aka cameyo
  MIT License
 ============================================================================
 
@@ -274,6 +274,7 @@ ROSETTA CODE
   Sequenza fusc
   Algoritmo Damm
   Distanza tra due punti della terra
+  Algoritmo Soundex
 
 PROJECT EULERO
 ==============
@@ -27196,6 +27197,98 @@ Le coordinate per la latitudine e la longitudine sono espresse in gradi decimali
 ;-> 1496.522788559527
 
 La formula di haversine produce un errore massimo dello 0.5% (poichè la terra è un elissoide e non una sfera).
+
+
+-----------------
+ALGORITMO SOUNDEX
+-----------------
+
+Soundex è un algoritmo fonetico per l'indicizzazione dei nomi in base al suono (come pronunciati in inglese). L'obiettivo è che gli omofoni (parole che hanno la stessa pronuncia, ma differiscono nella grafia) siano codificati nella stessa rappresentazione in modo che possano essere riconosciuti come simili nonostante piccole differenze di ortografia. L'algoritmo codifica principalmente le consonanti, una vocale non viene codificata a meno che non sia la prima lettera. Soundex è il più conosciuto di tutti gli algoritmi fonetici ed è la base di molti algoritmi fonetici moderni.
+
+I passi dell'algoritmo ufficiale sono i seguenti:
+
+1) Conserva la prima lettera del nome e eleimina tutte le altre occorrenze di a, e, i, o, u, y, h, w.
+2) Sostituisci le consonanti con le cifre come segue (dopo la prima lettera):
+   b, f, p, v → 1
+   c, g, j, k, q, s, x, z → 2
+   d, t → 3
+   l → 4
+   m, n → 5
+   r → 6
+3) Se due o più lettere con lo stesso numero sono adiacenti nel nome originale (prima del passaggio 1), conservare solo la prima lettera. Anche due lettere con lo stesso numero separate da "h" o "w" sono codificate come un numero unico, mentre tali lettere separate da una vocale sono codificate due volte. Questa regola si applica anche alla prima lettera.
+4) Se hai poche lettere nel nome e non puoi assegnare tre numeri, aggiungi degli zeri fino a quando non ci sono tre numeri. Se hai quattro o più numeri, conserva solo i primi tre.
+
+Funzione che formatta una stringa in una determinata lunghezza con un carattere predefinito:
+
+(define (pad-string str ch len)
+  (local (out len-str)
+    (setq out "")
+    (setq len-str (length str))
+    (cond ((zero? len-str) (setq out (dup ch len)))
+          ((= len-str len) (setq out str))
+          ((> len-str len) (setq out (slice str 0 len)))
+          ((< len-str len) (setq out (push (dup ch (- len len-str)) str -1))))))
+
+(pad-string "" "0" 2)
+;-> 00
+(pad-string "ABC" "0" 5)
+;-> "ABC00"
+(pad-string "ABC" "0" 3)
+;-> "ABC"
+(pad-str "ABC" "0" 2)
+;-> "AB"
+(pad-str "ABC" "0" 0)
+;-> ""
+
+Funzione di decodifica dei caratteri:
+
+(define (getcode ch)
+  (letn ((lst '(("B" "1") ("F" "1") ("P" "1") ("V" "1")
+                ("C" "2") ("G" "2") ("J" "2") ("K" "2")
+                ("Q" "2") ("S" "2") ("X" "2") ("Z" "2")
+                ("D" "3") ("T" "3")
+                ("L" "4")
+                ("M" "5") ("N" "5")
+                ("R" "6")
+                ("H" "-") ("W" "-")))
+        (out (lookup ch lst)))
+        (if (nil? out) (setq out ""))
+        out))
+
+(getcode "B")
+;-> "1"
+(getcode "A")
+;-> ""
+(getcode "H")
+;-> "-"
+
+Adesso possiamo scrive la funzione finale "soundex":
+
+(define (soundex str)
+  (local (out prev curr)
+    (setq str (upper-case str))
+    (setq out (str 0))
+    (setq prev (getcode (out 0)))
+    (dostring (el str)
+      (setq curr (getcode (char el)))
+      (if (and (!= curr "") (!= curr "-") (!= curr prev))
+        (push curr out -1)
+      )
+      (if (!= curr "-") (setq prev curr))
+    )
+    (pad-string out "0" 4)))
+
+(soundex "Ashcroft")
+;-> A261
+
+(setq lista '("Ashcraft" "Ashcroft" "Gauss" "Ghosh" "Hilbert" "Heilbronn" "Lee" "Lloyd"
+              "Moses" "Pfister" "Robert" "Rupert" "Rubin" "Tymczak" "Soundex" "Example"))
+
+(map soundex lista)
+;-> ("A261" "A261" "G200" "G200" "H416" "H416" "L000" "L300"
+;->  "M220" "P236" "R163" "R163" "R150" "T522" "S532" "E251")
+
+Nota: la maggior parte dei database SQL usa un algoritmo leggermente diverso.
 
 
 ================

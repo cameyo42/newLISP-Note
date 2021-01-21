@@ -274,6 +274,7 @@ ROSETTA CODE
   Sequenza fusc
   Algoritmo Damm
   Distanza tra due punti della terra
+  Algoritmo Soundex
 
 PROJECT EULERO
 ==============
