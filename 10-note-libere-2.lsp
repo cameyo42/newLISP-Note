@@ -37,8 +37,6 @@ Elenco di tutti gli elementi (chiave valore) della hashmap:
 Se una chiave non esiste, allora newLISP restituisce nil:
 (myHash "X")
 ;-> nil
-(myHash "X")
-;-> nil
 
 Per eliminare un valore occorre assegnare il valore nil:
 (myHash "K" nil)
@@ -79,8 +77,6 @@ Adesso scriviamo la funzione che calcola le frequenze:
 ;-> (("1" 2) ("2" 2) ("3" 2) ("4" 2) ("5" 2))
 (freq '())
 ;-> ()
-
-
 
 
 --------------------------------------
@@ -7004,5 +7000,201 @@ Spariamo da una altezza di 10 metri:
 Le immagini dei grafici si trovano nella cartella "data".
 
 Per sparare dalla luna occorre cambiare il valore dell'accelerazione gravitazionale.
+
+
+--------------------------------
+Ottimizzare il taglio di un tubo
+--------------------------------
+
+Data un tubo di acciaio di una certa lunghezza e una lista di prezzi per ogni lunghezza, come dovremmo tagliare il tubo in modo da massimizzare il profitto (ogni taglio deve produrre due tubi con lunghezze intere). Ad esempio:
+
+Lunghezza 1 2 3 4  5  6  7  8
+Prezzo    1 5 8 9 10 17 18 20
+
+con un tubo di lunghezza 4, il valore è 9. Se tagliamo il tubo in due abbiamo due tubi lunghi 1 che valgono 5+5 = 10.
+Ma non siamo sicuri se quest'ultima sia la soluzione ottimale oppure no, perché non abbiamo visto tutti i valori possibili.
+La tabella seguente elenca tutti i modi possibili di tagliare il tubo e il relativo valore ottenuto:
+
+Lunghezza delle parti     Valore totale
+4                         9
+1, 3                      1 + 8 = 9
+1, 1, 2                   1 + 1 + 5 = 7
+1, 1, 1, 1                1 + 1 + 1 + 1 = 4
+2, 2                      5 + 5 = 10
+
+La prima soluzione utilizza la tecnica della ricorsione. 
+La soluzione ricorsiva si basa sul calcolo di tutte le possibili combinazioni e dei valori associati a ciascuna combinazione e restituisce il massimo di tutti questi valori.
+
+La lista lst-val contiene il valore di ogni lunghezza.
+La variabile len contierne la lunghezza totale del tubo.
+Occorrono tanti valori di lst-val fino alla lunghezza len.
+
+Versione ricorsiva:
+
+(define (tubo-r lst-val len)
+  (local (maxval)
+  (cond ((<= len 0) 0)
+        (true
+          (setq maxval -99999999)
+          (for (i 0 (- len 1))
+            (setq maxval (max maxval (+ (lst-val i) (tubo-r lst-val (- len i 1)))))
+          )))))
+
+(tubo-r '(1 5 8 9) 4)
+;-> 10 (un pezzo lungo 2 e un pezzo lungo 2 --> 5 + 5 = 10)
+(tubo-r '(1 5) 2)
+;-> 5 (un pezzo lungo 2 --> 5)
+(tubo-r '(1 5 8 9 10 17 18 20) 8)
+;-> 22 (un pezzo lungo 2 e un pezzo lungo 6 --> 5 + 17 = 22)
+
+Questa funzione fornisce il risultato corretto, ma calcoliamo alcuni valori di maxval diverse volte. Questo comporta che occorre un tempo esponenziale per ottenere la soluzione.
+
+Vediamo la velocità della funzione:
+
+(time (tubo-r '(1 5 8 9 10 17 18 20) 8) 10000)
+;-> 939.16
+
+La seconda soluzione usa la tecnica memoization.
+Con la memoization memorizziamo il risultato del sottoproblema quando viene calcolato la prima volta e quindi riutilizziamo questo risultato quando incontriamo lo stesso sottoproblema. Per memorizzare i risultati dei sottoproblemi utilizziamo una lista maxval di lunghezza len. L'indice i-esimo di questa lista contiene il maxval per un tubo di lunghezza i. Prima di calcolare il maxval per la lunghezza i, verrà verificato nella lista se il valore per i è già calcolato o meno. Se il valore esiste nella lista, allora viene restituito e non viene calcolato di nuovo.
+La funzione restituisce il valore massimo e la lista maxval.
+
+Versione memoization:
+
+(define (tubo-aux lst-val len)
+  (cond ((<= len 0) 0)
+        ((!= (maxval (- len 1)) 0) (maxval (- len 1)))
+        (true
+          (setf (maxval (- len 1)) -99999999)
+          (for (i 0 (- len 1))
+            (setf (maxval (- len 1)) (max (maxval (- len 1)) (+ (lst-val i) (tubo-aux lst-val (- len i 1)))))
+          )
+          (maxval (- len 1)))))
+
+(define (tubo-m lst-val len)
+  (let (maxval (dup 0 len))
+  (tubo-aux lst-val len)
+  (list (maxval (- len 1)) maxval)))
+
+(tubo-m '(1 5) 2)
+;-> (5 (1 5)) (un pezzo lungo 2 --> 5)
+
+(tubo-m '(1 5 8 9 10 17 18 20) 8)
+;-> (22 (1 5 8 10 13 17 18 22)) (un pezzo lungo 2 e un pezzo lungo 6 --> 5 + 17 = 22)
+
+Questa funzione impiega un tempo polinomiale per calcolare la soluzione, ma non è ancora ottimizzato perché utilizza la ricorsione. 
+
+Vediamo la velocità della funzione:
+
+(time (tubo-m '(1 5 8 9 10 17 18 20) 8) 10000)
+;-> 174.101
+
+La seconda soluzione usa la tecnica chiamata programmazione dinamica.
+In questo caso risolviamo il problema partendo da una lunghezza 0 e ci muoviamo in avanti fino alla lunghezza len.
+
+Versione programmazione dinamica:
+
+(define (tubo-dp lst-val len)
+  (let (maxval (dup 0 (+ len 1)))
+    (setf (maxval 0) 0)
+    (for (i 1 len)
+      (setf (maxval i) -99999999)
+      (for (j 0 (- i 1))
+        (setf (maxval i) (max (maxval i) (+ (lst-val j) (maxval (- i j 1)))))
+      )
+    )
+    (list (maxval len) maxval)))
+
+(tubo-dp '(1 5) 2)
+;-> (5 (0 1 5))
+
+(tubo-dp '(1 5 8 9 10 17 18 20) 8)
+;-> (22 (0 1 5 8 10 13 17 18 22))
+
+Nell'ultimo esempio abbiamo:
+
+Lunghezza 1 2 3 4  5  6  7  8
+Prezzo    1 5 8 9 10 17 17 20
+
+Con la lista maxval che contiene i seguenti valori:
+
+Lunghezza 0 1 2 3 4  5  6  7  8
+Prezzo    0 1 5 8 10 13 17 18 22
+
+Questa funzione ha una complessità O(n^2) ed è più veloce delle soluzioni ricorsive precedenti.
+
+Vediamo la velocità della funzione:
+
+(time (tubo-dp '(1 5 8 9 10 17 18 20) 8) 10000)
+;-> 76.795
+
+
+--------------------------------------
+Generazione automatica di una hash-map
+--------------------------------------
+
+Per generare automaticamente una hash-map utilizziamo la funzione "uuid" che costruisce e ritorna un identificatore unico (stringa) chiamato UUID (Universally Unique IDentifier).
+
+(uuid)
+;-> "3FD45C9C-1313-4ACF-B720-C42CF6319E0C"
+
+Purtroppo non è un simbolo legale per newLISP (perchè inizia con un numero):
+
+(legal? (uuid))
+;-> nil
+
+Allora scriviamo una funzione per generare un simbolo univoco legale:
+
+(define (gensym)
+  (sym (string "g-" (uuid)))) ; 'g-*** è un simbolo legale
+
+(gensym)
+;-> g-7E31347F-6EEB-477E-BFF0-4868BE374F6B
+
+Adesso possiamo generare una hash-map univoca ed associarla ad una variabile:
+
+(setq hash (new Tree (gensym) true))
+
+In questo modo possiamo usare tutte le operazioni delle hash-map utilizzando la variabile.
+
+Inserimento di un valore 1 (value) associato ad una chiave K (key) -> (myHash "key" value):
+(hash "K" 1)
+;-> 1
+
+Recuperiamo il valore tramite la chiave:
+(hash "K")
+;-> 1
+
+Inserimento di un nuovo valore 2 (value) associato ad una chiave W (key) -> (hash "key" value):
+(hash "W" 2)
+;-> 2
+
+Elenco di tutti gli elementi (chiave valore) della hashmap:
+(hash)
+;-> (("K" 1) ("W" 2))
+
+Se una chiave non esiste, allora newLISP restituisce nil:
+(hash "X")
+;-> nil
+
+Per eliminare un valore occorre assegnare il valore nil:
+(hash "K" nil)
+;-> nil
+(hash)
+;-> (("W" 2))
+
+Aggiorniamo il valore associato ad una chiave esistente ($it = valore precedente):
+(hash "W" (+ $it 3))
+;-> 5
+(hash)
+;-> (("W" 5))
+
+Eliminiamo la hash-map:
+;(delete 'hash)
+(delete (quote hash))
+;-> true
+
+Verifichiamo che la hash-map non esiste più:
+(hash)
+;-> ERR: invalid function : (hash)
 
 

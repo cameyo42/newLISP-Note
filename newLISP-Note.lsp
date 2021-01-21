@@ -605,6 +605,12 @@ NOTE LIBERE 2
   Generatore di sequenze
   Massimo gap
   Simulazione di un cannone
+  Ottimizzare il taglio di un tubo
+  Generazione automatica di una hash-map
+
+NOTE LIBERE 3
+=============
+  Compromessi tra tempo e spazio  
   
 APPENDICI
 =========
@@ -27190,6 +27196,8 @@ Le coordinate per la latitudine e la longitudine sono espresse in gradi decimali
 ;-> 1496.522788559527
 
 La formula di haversine produce un errore massimo dello 0.5% (poichè la terra è un elissoide e non una sfera).
+
+
 ================
 
  PROJECT EULERO
@@ -60643,8 +60651,6 @@ Elenco di tutti gli elementi (chiave valore) della hashmap:
 Se una chiave non esiste, allora newLISP restituisce nil:
 (myHash "X")
 ;-> nil
-(myHash "X")
-;-> nil
 
 Per eliminare un valore occorre assegnare il valore nil:
 (myHash "K" nil)
@@ -60685,8 +60691,6 @@ Adesso scriviamo la funzione che calcola le frequenze:
 ;-> (("1" 2) ("2" 2) ("3" 2) ("4" 2) ("5" 2))
 (freq '())
 ;-> ()
-
-
 
 
 --------------------------------------
@@ -67610,6 +67614,405 @@ Spariamo da una altezza di 10 metri:
 Le immagini dei grafici si trovano nella cartella "data".
 
 Per sparare dalla luna occorre cambiare il valore dell'accelerazione gravitazionale.
+
+
+--------------------------------
+Ottimizzare il taglio di un tubo
+--------------------------------
+
+Data un tubo di acciaio di una certa lunghezza e una lista di prezzi per ogni lunghezza, come dovremmo tagliare il tubo in modo da massimizzare il profitto (ogni taglio deve produrre due tubi con lunghezze intere). Ad esempio:
+
+Lunghezza 1 2 3 4  5  6  7  8
+Prezzo    1 5 8 9 10 17 18 20
+
+con un tubo di lunghezza 4, il valore è 9. Se tagliamo il tubo in due abbiamo due tubi lunghi 1 che valgono 5+5 = 10.
+Ma non siamo sicuri se quest'ultima sia la soluzione ottimale oppure no, perché non abbiamo visto tutti i valori possibili.
+La tabella seguente elenca tutti i modi possibili di tagliare il tubo e il relativo valore ottenuto:
+
+Lunghezza delle parti     Valore totale
+4                         9
+1, 3                      1 + 8 = 9
+1, 1, 2                   1 + 1 + 5 = 7
+1, 1, 1, 1                1 + 1 + 1 + 1 = 4
+2, 2                      5 + 5 = 10
+
+La prima soluzione utilizza la tecnica della ricorsione. 
+La soluzione ricorsiva si basa sul calcolo di tutte le possibili combinazioni e dei valori associati a ciascuna combinazione e restituisce il massimo di tutti questi valori.
+
+La lista lst-val contiene il valore di ogni lunghezza.
+La variabile len contierne la lunghezza totale del tubo.
+Occorrono tanti valori di lst-val fino alla lunghezza len.
+
+Versione ricorsiva:
+
+(define (tubo-r lst-val len)
+  (local (maxval)
+  (cond ((<= len 0) 0)
+        (true
+          (setq maxval -99999999)
+          (for (i 0 (- len 1))
+            (setq maxval (max maxval (+ (lst-val i) (tubo-r lst-val (- len i 1)))))
+          )))))
+
+(tubo-r '(1 5 8 9) 4)
+;-> 10 (un pezzo lungo 2 e un pezzo lungo 2 --> 5 + 5 = 10)
+(tubo-r '(1 5) 2)
+;-> 5 (un pezzo lungo 2 --> 5)
+(tubo-r '(1 5 8 9 10 17 18 20) 8)
+;-> 22 (un pezzo lungo 2 e un pezzo lungo 6 --> 5 + 17 = 22)
+
+Questa funzione fornisce il risultato corretto, ma calcoliamo alcuni valori di maxval diverse volte. Questo comporta che occorre un tempo esponenziale per ottenere la soluzione.
+
+Vediamo la velocità della funzione:
+
+(time (tubo-r '(1 5 8 9 10 17 18 20) 8) 10000)
+;-> 939.16
+
+La seconda soluzione usa la tecnica memoization.
+Con la memoization memorizziamo il risultato del sottoproblema quando viene calcolato la prima volta e quindi riutilizziamo questo risultato quando incontriamo lo stesso sottoproblema. Per memorizzare i risultati dei sottoproblemi utilizziamo una lista maxval di lunghezza len. L'indice i-esimo di questa lista contiene il maxval per un tubo di lunghezza i. Prima di calcolare il maxval per la lunghezza i, verrà verificato nella lista se il valore per i è già calcolato o meno. Se il valore esiste nella lista, allora viene restituito e non viene calcolato di nuovo.
+La funzione restituisce il valore massimo e la lista maxval.
+
+Versione memoization:
+
+(define (tubo-aux lst-val len)
+  (cond ((<= len 0) 0)
+        ((!= (maxval (- len 1)) 0) (maxval (- len 1)))
+        (true
+          (setf (maxval (- len 1)) -99999999)
+          (for (i 0 (- len 1))
+            (setf (maxval (- len 1)) (max (maxval (- len 1)) (+ (lst-val i) (tubo-aux lst-val (- len i 1)))))
+          )
+          (maxval (- len 1)))))
+
+(define (tubo-m lst-val len)
+  (let (maxval (dup 0 len))
+  (tubo-aux lst-val len)
+  (list (maxval (- len 1)) maxval)))
+
+(tubo-m '(1 5) 2)
+;-> (5 (1 5)) (un pezzo lungo 2 --> 5)
+
+(tubo-m '(1 5 8 9 10 17 18 20) 8)
+;-> (22 (1 5 8 10 13 17 18 22)) (un pezzo lungo 2 e un pezzo lungo 6 --> 5 + 17 = 22)
+
+Questa funzione impiega un tempo polinomiale per calcolare la soluzione, ma non è ancora ottimizzato perché utilizza la ricorsione. 
+
+Vediamo la velocità della funzione:
+
+(time (tubo-m '(1 5 8 9 10 17 18 20) 8) 10000)
+;-> 174.101
+
+La seconda soluzione usa la tecnica chiamata programmazione dinamica.
+In questo caso risolviamo il problema partendo da una lunghezza 0 e ci muoviamo in avanti fino alla lunghezza len.
+
+Versione programmazione dinamica:
+
+(define (tubo-dp lst-val len)
+  (let (maxval (dup 0 (+ len 1)))
+    (setf (maxval 0) 0)
+    (for (i 1 len)
+      (setf (maxval i) -99999999)
+      (for (j 0 (- i 1))
+        (setf (maxval i) (max (maxval i) (+ (lst-val j) (maxval (- i j 1)))))
+      )
+    )
+    (list (maxval len) maxval)))
+
+(tubo-dp '(1 5) 2)
+;-> (5 (0 1 5))
+
+(tubo-dp '(1 5 8 9 10 17 18 20) 8)
+;-> (22 (0 1 5 8 10 13 17 18 22))
+
+Nell'ultimo esempio abbiamo:
+
+Lunghezza 1 2 3 4  5  6  7  8
+Prezzo    1 5 8 9 10 17 17 20
+
+Con la lista maxval che contiene i seguenti valori:
+
+Lunghezza 0 1 2 3 4  5  6  7  8
+Prezzo    0 1 5 8 10 13 17 18 22
+
+Questa funzione ha una complessità O(n^2) ed è più veloce delle soluzioni ricorsive precedenti.
+
+Vediamo la velocità della funzione:
+
+(time (tubo-dp '(1 5 8 9 10 17 18 20) 8) 10000)
+;-> 76.795
+
+
+--------------------------------------
+Generazione automatica di una hash-map
+--------------------------------------
+
+Per generare automaticamente una hash-map utilizziamo la funzione "uuid" che costruisce e ritorna un identificatore unico (stringa) chiamato UUID (Universally Unique IDentifier).
+
+(uuid)
+;-> "3FD45C9C-1313-4ACF-B720-C42CF6319E0C"
+
+Purtroppo non è un simbolo legale per newLISP (perchè inizia con un numero):
+
+(legal? (uuid))
+;-> nil
+
+Allora scriviamo una funzione per generare un simbolo univoco legale:
+
+(define (gensym)
+  (sym (string "g-" (uuid)))) ; 'g-*** è un simbolo legale
+
+(gensym)
+;-> g-7E31347F-6EEB-477E-BFF0-4868BE374F6B
+
+Adesso possiamo generare una hash-map univoca ed associarla ad una variabile:
+
+(setq hash (new Tree (gensym) true))
+
+In questo modo possiamo usare tutte le operazioni delle hash-map utilizzando la variabile.
+
+Inserimento di un valore 1 (value) associato ad una chiave K (key) -> (myHash "key" value):
+(hash "K" 1)
+;-> 1
+
+Recuperiamo il valore tramite la chiave:
+(hash "K")
+;-> 1
+
+Inserimento di un nuovo valore 2 (value) associato ad una chiave W (key) -> (hash "key" value):
+(hash "W" 2)
+;-> 2
+
+Elenco di tutti gli elementi (chiave valore) della hashmap:
+(hash)
+;-> (("K" 1) ("W" 2))
+
+Se una chiave non esiste, allora newLISP restituisce nil:
+(hash "X")
+;-> nil
+
+Per eliminare un valore occorre assegnare il valore nil:
+(hash "K" nil)
+;-> nil
+(hash)
+;-> (("W" 2))
+
+Aggiorniamo il valore associato ad una chiave esistente ($it = valore precedente):
+(hash "W" (+ $it 3))
+;-> 5
+(hash)
+;-> (("W" 5))
+
+Eliminiamo la hash-map:
+;(delete 'hash)
+(delete (quote hash))
+;-> true
+
+Verifichiamo che la hash-map non esiste più:
+(hash)
+;-> ERR: invalid function : (hash)
+
+
+===============
+
+ NOTE LIBERE 3
+
+===============
+
+------------------------------
+Compromessi tra tempo e spazio
+------------------------------
+
+Supponiamo di dover scrivere una funzione che verifica se ci sono duplicati in una lista.
+Il primo metodo che viene in mente è quello di attraversare la lista con due cicli e verificare se i valori correnti sono uguali.
+
+(define (dup1? lst)
+  (let ((found nil) (idx1 -1) (idx2 -1))
+    (dolist (el1 lst)
+      (setq idx1 $idx)
+      (dolist (el2 lst)
+        (setq idx2 $idx) ;per semplicità
+        (if (and (!= idx1 idx2) (= el1 el2))
+            (setq found true))))
+    found))
+
+(dup1? '(1 2 3 4 5 6 7 8 9 10 11 1))
+;-> true
+(dup1? '(1 1 2 3 4 5 6 7 8 9 10 11))
+;-> true
+(dup1? '(1 2 3 4 5 6 7 8 9 10 11 12))
+;-> nil
+
+Il tempo di esecuzione non dipende dall'ordine dei valori nella lista.
+
+(time (dup1? '(1 2 3 4 5 6 7 8 9 10 11 1)) 100000)
+;-> 1458.268
+(time (dup1? '(1 1 2 3 4 5 6 7 8 9 10 11)) 100000)
+;-> 1444.711
+(time (dup1? '(1 2 3 4 5 6 7 8 9 10 11 12)) 100000)
+;-> 1443.694
+
+Questa funzione ha complessità temporale O(n^2).
+Possiamo migliorare la velocità della funzione uscendo dal ciclo quando incontriamo la prima coppia di valori uguali. Per fare questo aggiungiamo la condizione "found" ad ogni ciclo "dolist":
+
+(define (dup2? lst)
+  (let ((found nil) (idx1 -1) (idx2 -1))
+    (dolist (el1 lst found) ;esce dal ciclo quando found diventa true
+      (setq idx1 $idx)
+      (dolist (el2 lst found) ;esce dal ciclo quando found diventa true
+        (setq idx2 $idx) ;per semplicità
+        (if (and (!= idx1 idx2) (= el1 el2))
+            (setq found true))))
+    found))
+
+(dup2? '(1 2 3 4 5 6 7 8 9 10 11 1))
+;-> true
+(dup2? '(1 1 2 3 4 5 6 7 8 9 10 11))
+;-> true
+(dup2? '(1 2 3 4 5 6 7 8 9 10 11 12))
+;-> nil
+
+Questa funzione ha complessità temporale che varia a seconda che la lista contenga duplicati o meno. Quando ci sono duplicati ha complessità temporale O(n), viceversa, quando non ci sono duplicati ha complessità temporale O(n^2). Comunque la complessità temporale vale O(n^2), anche se la funzione è (in media) più veloce.
+
+(time (dup2? '(1 2 3 4 5 6 7 8 9 10 11 1)) 100000)
+;-> 147.633
+(time (dup2? '(1 1 2 3 4 5 6 7 8 9 10 11)) 100000)
+;-> 55.011 ; più veloce perchè il duplicato (1) si trova all'inizio della lista
+(time (dup2? '(1 2 3 4 5 6 7 8 9 10 11 12)) 100000)
+;-> 1507.185
+
+Possiamo scrivere un'altra funzione che utilizza una hash-map:
+
+(define (dup3? lst)
+  (let ((found nil))
+    (new Tree 'myHash)
+    (dolist (el lst found)
+      ; se l'elemento corrente non esiste nella hash-map...
+      (if (nil? (myHash el))
+          (myHash el el)    ; allora inseriscilo
+          (setq found true) ; altrimenti è un duplicato
+      )
+    )
+    (delete 'myHash) ; eliminiamo l'hash-map
+    found))
+
+(dup3? '(1 2 3 4 5 6 7 8 9 10 11 1))
+;-> true
+(dup3? '(1 1 2 3 4 5 6 7 8 9 10 11))
+;-> true
+(dup3? '(1 2 3 4 5 6 7 8 9 10 11 12))
+;-> nil
+
+Questa funzione ha complessità temporale O(n) poichè utilizza soltanto un ciclo (supponendo che le operazioni di "get" e "put" della hash-map siano O(1)).
+Vediamo i tempi di esecuzione:
+
+(time (dup3? '(1 2 3 4 5 6 7 8 9 10 11 1)) 100000)
+;-> 1096.76
+(time (dup3? '(1 1 2 3 4 5 6 7 8 9 10 11)) 100000)
+;-> 675.509
+(time (dup3? '(1 2 3 4 5 6 7 8 9 10 11 12)) 100000)
+;-> 1121.185
+
+Come mai i tempi di esecuzione sono sono superiori di quelli della funzione "dup2?" ?
+Il problema si trova nell'operazione di cancellazione della hash-map che richiede tanto tempo. Possiamo evitare la cancellazione se generiamo ogni volta una hash-map diversa (vedi la sezione "Generazione automatica di una hash-map"):
+
+Funzione per creare un simbolo legale in newLISP:
+
+(define (gensym)
+  (sym (string "g-" (uuid))))
+
+(define (dup4? lst)
+  (let ((found nil) (hm nil))
+    ;(new Tree 'myHash)
+    (setq hm (new Tree (gensym) true))
+    (dolist (el lst found)
+      ; se l'elemento corrente non esiste nella hash-map...
+      (if (nil? (hm el))
+          (hm el el)    ; allora inseriscilo
+          (setq found true) ; altrimenti è un duplicato
+      )
+    )
+    ;(delete 'myHash) ; non eliminiamo l'hash-map
+    found))
+
+(dup4? '(1 2 3 4 5 6 7 8 9 10 11 1))
+;-> true
+(dup4? '(1 1 2 3 4 5 6 7 8 9 10 11))
+;-> true
+(dup4? '(1 2 3 4 5 6 7 8 9 10 11 12))
+;-> nil
+
+Questa funzione, come la precedente, ha complessità temporale O(n), ma impiega funzioni primitive complesse (es. uuid) che rallentano l'esecuzione:
+
+(time (dup4? '(1 2 3 4 5 6 7 8 9 10 11 1)) 100000)
+;-> 730.16
+(time (dup4? '(1 1 2 3 4 5 6 7 8 9 10 11)) 100000)
+;-> 349.212
+(time (dup4? '(1 2 3 4 5 6 7 8 9 10 11 12)) 100000)
+;-> 803.067
+
+Possiamo scrivere un'altra funzione utilizzando la funzione integrata "sort":
+
+(define (dup5? lst)
+  (let (found nil)
+    (sort lst)
+    (for (i 0 (- (length lst) 2))
+      (if (= (lst i) (lst (+ i 1)))
+          (setq found true)))
+    found))
+
+(dup5? '(1 2 3 4 5 6 7 8 9 10 11 1))
+;-> true
+(dup5? '(1 1 2 3 4 5 6 7 8 9 10 11))
+;-> true
+(dup5? '(1 2 3 4 5 6 7 8 9 10 11 12))
+;-> nil
+
+Questa funzione ha complessità temporale O(n*log(n)) in quanto l'operazione di sort ha complessità O(n*log(n)) (il ciclo for aumenta i tempi di esecuzione, ma non modifica la complessità):
+
+(time (dup5? '(1 2 3 4 5 6 7 8 9 10 11 1)) 100000)
+;-> 154.001
+(time (dup5? '(1 1 2 3 4 5 6 7 8 9 10 11)) 100000)
+;-> 156.054
+(time (dup5? '(1 2 3 4 5 6 7 8 9 10 11 12)) 100000)
+;-> 155.701
+
+Infine, utilizziamo la funzione integrata "unique" per scrivere un'altra funzione:
+
+(define (dup6? lst) (!= (unique lst) lst))
+
+(dup6? '(1 2 3 4 5 6 7 8 9 10 11 1))
+;-> true
+(dup6? '(1 1 2 3 4 5 6 7 8 9 10 11))
+;-> true
+(dup6? '(1 2 3 4 5 6 7 8 9 10 11 12))
+;-> nil
+
+Per capire la complessità temporale di questa funzione occorrerebbe analizzare i sorgenti di newLISP, ma dovrebbe essere simile a O(n*log(n). Vediamo i tempi di esecuzione:
+
+(time (dup6? '(1 2 3 4 5 6 7 8 9 10 11 1)) 100000)
+;-> 96.755
+(time (dup6? '(1 1 2 3 4 5 6 7 8 9 10 11)) 100000)
+;-> 93.268
+(time (dup6? '(1 2 3 4 5 6 7 8 9 10 11 12)) 100000)
+;-> 96.36
+
+Adesso vediamo la complessità spaziale delle funzioni, considerando lo spazio addizionale che viene richiesto.
+Le funzioni dup1? e dup2? non richiedono spazio aggiuntivo in memoria, quindi la complessità spaziale vale O(1).
+Le funzioni dup3? e dup4? richiedono una hash-map con n valori, quindi la complessità spaziale vale O(n).
+Presumiamo che le funzioni dup5? e dup6? abbiano una complessità spaziale O(log(n)) (questa è la complessità spaziale dell'algoritmo di ordinamento Quicksort).
+
+Ricapitoliamo le caratteristiche delle funzioni:
+
+           Complessità   Tempi             Complessità
+Funzione   temporale     di esecuzione     spaziale
+ dup1?      O(n^2)        1458 1444 1443    O(1)
+ dup2?      O(n^2)         147   55 1507    O(1)
+ dup3?      O(n)          1096  675 1121    O(n)
+ dup4?      O(n)           730  349  803    O(n)
+ dup5?      O(n*log(n))    154  156  155    O(log(n))
+ dup6?      O(n*log(n))     96   93   96    O(log(n))
+
+Quindi per scrivere una funzione efficiente in termini di tempo di esecuzione l'algoritmo è molto importante, ma occorre preferire l'uso di funzioni integrate (se presenti). Un'altra considerazione fondamentale riguarda lo spazio di memoria utilizzato in quanto non sempre la funzione più veloce è anche quella che consuma meno spazio. La scelta della funzione finale dipende dall'analisi e dalla valutazione di queste caratteristiche.
 
 
 ===========

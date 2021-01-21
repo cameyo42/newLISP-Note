@@ -1,7 +1,7 @@
 
 ============================================================================
  Note su newLISP
- © copyright 2019-2020 Massimo Corinaldesi aka cameyo
+ © copyright 2019-2020-2021 Massimo Corinaldesi aka cameyo
  MIT License
 ============================================================================
 
@@ -605,6 +605,12 @@ NOTE LIBERE 2
   Generatore di sequenze
   Massimo gap
   Simulazione di un cannone
+  Ottimizzare il taglio di un tubo
+  Generazione automatica di una hash-map
+
+NOTE LIBERE 3
+=============
+  Compromessi tra tempo e spazio  
   
 APPENDICI
 =========
