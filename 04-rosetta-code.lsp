@@ -1470,12 +1470,12 @@ Ecco una espressione che prende un numero e calcola la relativa lunghezza della 
 PERMUTAZIONI
 ------------
 
-Una permutazione è un modo di ordinare in successione oggetti distinti. 
+Una permutazione è un modo di ordinare in successione oggetti distinti.
 Il numero delle permutazioni di n elementi vale: n!.
 
 ; =====================================================
 ; (permutazioni lst)
-; Permutazioni di n elementi 
+; Permutazioni di n elementi
 ; senza ripetizioni
 ; =====================================================
 
@@ -1776,7 +1776,7 @@ Adesso la scriviamo in stile iterativo:
 
 Vediamo un altro modo di scrivere la funzione in stile funzionale:
 
-(define (horner-f lst x) 
+(define (horner-f lst x)
   (cond ((null? lst) '0)
         (true (+ (first lst) (* x (horner-f (rest lst) x))))))
 
@@ -2995,7 +2995,7 @@ Il secondo algoritmo si basa su un algoritmo di permutazioni generalmente applic
 (define (permutations lst)
   (if (= (length lst) 1)
    lst
-   (apply append (map (fn (rot) 
+   (apply append (map (fn (rot)
                       (map (fn (perm) (cons (first rot) perm))
                            (permutations (rest rot))))
                       (rotations lst)))))
@@ -7970,7 +7970,7 @@ Sembra tutto corretto.
 PERCORSO DEL CAVALLO
 --------------------
 
-In questo problema un cavallo è posizionato in una qualunque casella sulla scacchiera vuota e, spostandosi secondo le regole degli scacchi (cioè ad L), deve passare per tutte le altre caselle esattamente una sola volta. Un percorso del cavallo si dice "chiuso" se l'ultima casa su cui si posiziona il cavallo è vicina alla casa da cui è partito (ad esempio, se il cavallo inizia in d8 e conclude il suo percorso in f7). In caso contrario il percorso del cavallo è detto "aperto". Questo problema è un esempio del più generale "problema del cammino hamiltoniano" nella teoria dei grafi.                     
+In questo problema un cavallo è posizionato in una qualunque casella sulla scacchiera vuota e, spostandosi secondo le regole degli scacchi (cioè ad L), deve passare per tutte le altre caselle esattamente una sola volta. Un percorso del cavallo si dice "chiuso" se l'ultima casa su cui si posiziona il cavallo è vicina alla casa da cui è partito (ad esempio, se il cavallo inizia in d8 e conclude il suo percorso in f7). In caso contrario il percorso del cavallo è detto "aperto". Questo problema è un esempio del più generale "problema del cammino hamiltoniano" nella teoria dei grafi.
 
 Vediamo la soluzione ricorsiva con backtracking:
 
@@ -7996,7 +7996,7 @@ Vediamo la soluzione ricorsiva con backtracking:
         (true (++ counter) (++ res-counter))
   )
   (setf (board curr-x curr-y) 1)
-  (cond ((knight-tour board (+ curr-x 2) (+ curr-y 1)) ; down_right 
+  (cond ((knight-tour board (+ curr-x 2) (+ curr-y 1)) ; down_right
          (setf (result curr-x curr-y) res-counter)
          (setq res-counter (- res-counter 1))
          (throw true)
@@ -8052,10 +8052,10 @@ Vediamo la soluzione ricorsiva con backtracking:
 ))
 
 (knight 6 0 0)
-;-> (( 1 16  7 26 11 14) 
-;->  (34 25 12 15  6 27) 
-;->  (17  2 33  8 13 10) 
-;->  (32 35 24 21 28  5) 
+;-> (( 1 16  7 26 11 14)
+;->  (34 25 12 15  6 27)
+;->  (17  2 33  8 13 10)
+;->  (32 35 24 21 28  5)
 ;->  (23 18  3 30  9 20)
 ;->  (36 31 22 19  4 29))
 
@@ -8063,9 +8063,9 @@ Vediamo la soluzione ricorsiva con backtracking:
 ;-> 3437.779
 
 (knight 8 0 0)
-;-> (( 1 60 39 34 31 18  9 64) 
-;->  (38 35 32 61 10 63 30 17) 
-;->  (59  2 37 40 33 28 19  8) 
+;-> (( 1 60 39 34 31 18  9 64)
+;->  (38 35 32 61 10 63 30 17)
+;->  (59  2 37 40 33 28 19  8)
 ;->  (36 49 42 27 62 11 16 29)
 ;->  (43 58  3 50 41 24  7 20)
 ;->  (48 51 46 55 26 21 12 15)
@@ -8076,9 +8076,9 @@ Vediamo la soluzione ricorsiva con backtracking:
 ;-> 142474.658
 
 (knight 8 7 7)
-;-> ((47 34 21 30  5 14 19 64) 
-;->  (36 31 48 33 20 63  4 13) 
-;->  (49 46 35 22 29  6 15 18) 
+;-> ((47 34 21 30  5 14 19 64)
+;->  (36 31 48 33 20 63  4 13)
+;->  (49 46 35 22 29  6 15 18)
 ;->  (60 37 32 51 62 17 12  3)
 ;->  (45 50 61 38 23 28  7 16)
 ;->  (56 59 42 25 52  9  2 11)
@@ -8131,10 +8131,10 @@ Vediamo lo stesso algoritmo di backtracking codificato in modo più strutturato.
     )))
 
 (start_knight_tour 6 0 0)
-;-> (( 0 15  6 25 10 13) 
-;->  (33 24 11 14  5 26) 
-;->  (16  1 32  7 12  9) 
-;->  (31 34 23 20 27  4) 
+;-> (( 0 15  6 25 10 13)
+;->  (33 24 11 14  5 26)
+;->  (16  1 32  7 12  9)
+;->  (31 34 23 20 27  4)
 ;->  (22 17  2 29  8 19)
 ;->  (35 30 21 18  3 28))
 
@@ -8142,9 +8142,9 @@ Vediamo lo stesso algoritmo di backtracking codificato in modo più strutturato.
 ;-> 672.085
 
 (start_knight_tour 8 0 0)
-;-> (( 0 59 38 33 30 17  8 63) 
-;->  (37 34 31 60  9 62 29 16) 
-;->  (58  1 36 39 32 27 18  7) 
+;-> (( 0 59 38 33 30 17  8 63)
+;->  (37 34 31 60  9 62 29 16)
+;->  (58  1 36 39 32 27 18  7)
 ;->  (35 48 41 26 61 10 15 28)
 ;->  (42 57  2 49 40 23  6 19)
 ;->  (47 50 45 54 25 20 11 14)
@@ -8155,15 +8155,15 @@ Vediamo lo stesso algoritmo di backtracking codificato in modo più strutturato.
 ;-> 23314.636
 
 (start_knight_tour 8 7 7)
-;-> ((46 33 20 29  4 13 18 63) 
-;->  (35 30 47 32 19 62  3 12) 
-;->  (48 45 34 21 28  5 14 17) 
+;-> ((46 33 20 29  4 13 18 63)
+;->  (35 30 47 32 19 62  3 12)
+;->  (48 45 34 21 28  5 14 17)
 ;->  (59 36 31 50 61 16 11  2)
 ;->  (44 49 60 37 22 27  6 15)
 ;->  (55 58 41 24 51  8  1 10)
 ;->  (40 43 56 53 38 23 26  7)
 ;->  (57 54 39 42 25 52  9  0))
- 
+
 (time (start_knight_tour 8 7 7))
 ;-> 705835.03 ; circa 11 minuti
 
@@ -8245,7 +8245,7 @@ Regola di Warnsdorff:
 
 ; checks its neighbouring squares
 ; If the knight ends on a square that is one
-; knight's move from the beginning square, 
+; knight's move from the beginning square,
 ; then tour is closed
 (define (neighbour x y xx yy)
   (let (found nil)
@@ -8343,12 +8343,12 @@ Regola di Warnsdorff:
 TEOREMA CINESE DEI RESTI
 ------------------------
 
-Siano (n1, n2,..., nk) k interi a due a due coprimi (divisori) e siano (b1, b2,..., bk) k interi relativi (resti). 
+Siano (n1, n2,..., nk) k interi a due a due coprimi (divisori) e siano (b1, b2,..., bk) k interi relativi (resti).
 Allora il sistema di congruenze:
 
 x ≡ b1 (mod n1)   --> x mod n1 = b1
-x ≡ b2 (mod n2)   --> x mod n2 = b2  
-...    
+x ≡ b2 (mod n2)   --> x mod n2 = b2
+...
 x ≡ bk (mod nk)   --> x mod nk = bk
 
 Ammette soluzioni. Inoltre se x0 è una soluzione del sistema, tutte le soluzioni di tale sistema saranno date da:
@@ -8471,7 +8471,7 @@ Funzione finale per il Teorema Cinese dei Resti:
     (if (= (apply * divisori) (apply lcm divisori))
         ;allora cerchiamo la soluzione
         (chinese divisori resti)
-        ; altrimenti nessuna soluzione 
+        ; altrimenti nessuna soluzione
         nil))
 
 (trc '(3 5 7) '(2 3 2))
@@ -8709,7 +8709,7 @@ Sum[x 1 n] (-1)^(n-1)/n = ln(2)
 ;-> 0.6931471805599453
 
 Sum[x 0 n] 1/x! = e
-(define (fact n) 
+(define (fact n)
   (if (zero? n)
       1
       (apply * (map bigint (sequence 1 n)))))
@@ -8791,7 +8791,7 @@ VALUTAZIONE DI UNA ESPRESSIONE RPN
 
 Valutare il valore di un'espressione aritmetica nella notazione polacca inversa (Reverse Polish Notation). Gli operatori validi sono:
 
-"+" "-" "*" "/" "%" 
+"+" "-" "*" "/" "%"
 "add" "sub" "mul" "div" "mod" "pow"
 "abs" "sqrt" "exp"
 "sin" "cos" "tan"
@@ -9027,7 +9027,7 @@ Lista delle operazioni:
 
 Lista delle operazioni possibili (n^k) = 4^3 = 64:
 (setq operats (perm-rep 3 op))
-;-> ((add add add) (sub add add) (mul add add) (div add add) 
+;-> ((add add add) (sub add add) (mul add add) (div add add)
 ;->  (add sub add) (sub sub add) (mul sub add) (div sub add)
 ;->  ...
 ;->  (add div div) (sub div div) (mul div div) (div div div))
@@ -9040,7 +9040,7 @@ Lista dei numeri singoli:
 
 Lista dei numeri possibili (n! = 4! = 24):
 (setq digits (perm num))
-;-> ((3 7 1 8) (7 3 1 8) (1 3 7 8) (3 1 7 8) (7 1 3 8) (1 7 3 8) (8 7 3 1) 
+;-> ((3 7 1 8) (7 3 1 8) (1 3 7 8) (3 1 7 8) (7 1 3 8) (1 7 3 8) (8 7 3 1)
 ;->  (7 8 3 1) (3 8 7 1) (8 3 7 1) (7 3 8 1) (3 7 8 1) (3 1 8 7) (1 3 8 7)
 ;->  (8 3 1 7) (3 8 1 7) (1 8 3 7) (8 1 3 7) (8 1 7 3) (1 8 7 3) (7 8 1 3)
 ;->  (8 7 1 3) (1 7 8 3) (7 1 8 3))
@@ -9176,13 +9176,13 @@ Proviamo con il gioco del 24:
 ;-> (6 + (2 * (5 + 4)))
 ;-> (6 - (2 - (5 * 4)))
 ;-> (4 + (5 * (6 - 2)))
-;-> ((4 5 2 6 - * -) (6 2 4 5 + * +) (6 2 4 5 * - -) 
+;-> ((4 5 2 6 - * -) (6 2 4 5 + * +) (6 2 4 5 * - -)
 ;->  (6 2 5 4 + * +) (6 2 5 4 * - -) (4 5 6 2 - * +))
 
 Proviamo un insieme di numeri che non hanno soluzione:
 
 (game-number '(5 7 5 1) 24)
-;-> () 
+;-> ()
 
 Proviamo con altri numeri:
 
@@ -9194,7 +9194,7 @@ Proviamo con altri numeri:
 (50 / (10 / (3 - (25 * (1 - 7)))))
 (50 / (10 / (3 + (25 * (7 - 1)))))
 (25 + (10 * (50 + (3 * (7 + 1)))))
-;-> (((25 10 50 3 1 7 + * + * +) "(25 + (10 * (50 + (3 * (1 + 7)))))") 
+;-> (((25 10 50 3 1 7 + * + * +) "(25 + (10 * (50 + (3 * (1 + 7)))))")
 ;->  ((50 10 3 25 1 7 - * - / /) "(50 / (10 / (3 - (25 * (1 - 7)))))")
 ;->  ((50 10 3 25 7 1 - * + / /) "(50 / (10 / (3 + (25 * (7 - 1)))))")
 ;->  ((25 10 50 3 7 1 + * + * +) "(25 + (10 * (50 + (3 * (7 + 1)))))"))
@@ -9234,7 +9234,7 @@ Per verifica prendiamo il primo risultato:
 ;-> (2 * (1 + (4 * (3 + (5 * (6 - (7 - (8 + 9))))))))
 ;-> ......
 
-Nota: 
+Nota:
 Con 9 cifre (da 1 a 9) abbiamo n! = 9! = 362880 modi di disporre le cifre nell'espressione
 Con 9 cifre abbiamo 8 operazioni con 4 operatori n^k = 4^8 = 65536 modi di disporre gli operatori nell'espressione.
 (* 362880 65536)
@@ -9332,7 +9332,7 @@ Memorizziamo i due casi base di fs(0) = 0, fs(1) = 1, e poi attraversiamo il vet
 
 Vediamo se le tre funzioni producono risultati uguali:
 
-(= (map fusc (sequence 0 100)) 
+(= (map fusc (sequence 0 100))
    (map fusc-i (sequence 0 100))
    (map fusc-dp (sequence 0 100)))
 ;-> true
@@ -9423,7 +9423,7 @@ L'algoritmo di Damm rileva tutte le occorrenze dei due tipi di errori di trascri
 
 
 ----------------------------------
-DISTANZA TRA DUE PUNTI DELLA TERRA 
+DISTANZA TRA DUE PUNTI DELLA TERRA
 ----------------------------------
 
 Utilizziamo la formula "haversine" per calcolare la distanza minima tra due punti di una sfera (tale distanza viene chiamata "ortodromia"). Si tratta quindi della distanza più breve tra due punti della superficie terrestre (in linea d'aria e ignorando l'orografia).
@@ -9431,7 +9431,7 @@ Le coordinate per la latitudine e la longitudine sono espresse in gradi decimali
 
 (define (deg-rad deg) (div (mul deg 3.1415926535897931) 180))
 
-(define (dist-earth lat1 lon1 lat2 lon2) 
+(define (dist-earth lat1 lon1 lat2 lon2)
   (local (r dLat dLon a c d)
   (setq r 6371) ; raggio medio della terra in km
   (setq dLat (deg-rad (sub lat2 lat1))) ; delta lat (in radianti)
@@ -9541,4 +9541,12 @@ Adesso possiamo scrive la funzione finale "soundex":
 
 Nota: la maggior parte dei database SQL usa un algoritmo leggermente diverso.
 
+Vediamo cosa accade con dei nomi italiani:
+
+(setq lista '("Mario" "Marco" "Sara" "Lara" "Luca" "Luisa" "Lisa"
+              "Massimo" "Massimiliano" "Maria" "Marta"))
+
+(map soundex lista)
+;-> ("M600" "M620" "S600" "L600" "L200" "L200" "L200" 
+;->  "M250" "M254" "M600" "M630")
 

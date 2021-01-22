@@ -611,7 +611,10 @@ NOTE LIBERE 2
 
 NOTE LIBERE 3
 =============
+  Generazione di un simbolo univoco
   Compromessi tra tempo e spazio  
+  Scambio di somme
+  Evitare begin nella condizione if
   
 APPENDICI
 =========

@@ -611,7 +611,10 @@ NOTE LIBERE 2
 
 NOTE LIBERE 3
 =============
+  Generazione di un simbolo univoco
   Compromessi tra tempo e spazio  
+  Scambio di somme
+  Evitare begin nella condizione if
   
 APPENDICI
 =========
@@ -19219,12 +19222,12 @@ Ecco una espressione che prende un numero e calcola la relativa lunghezza della 
 PERMUTAZIONI
 ------------
 
-Una permutazione è un modo di ordinare in successione oggetti distinti. 
+Una permutazione è un modo di ordinare in successione oggetti distinti.
 Il numero delle permutazioni di n elementi vale: n!.
 
 ; =====================================================
 ; (permutazioni lst)
-; Permutazioni di n elementi 
+; Permutazioni di n elementi
 ; senza ripetizioni
 ; =====================================================
 
@@ -19525,7 +19528,7 @@ Adesso la scriviamo in stile iterativo:
 
 Vediamo un altro modo di scrivere la funzione in stile funzionale:
 
-(define (horner-f lst x) 
+(define (horner-f lst x)
   (cond ((null? lst) '0)
         (true (+ (first lst) (* x (horner-f (rest lst) x))))))
 
@@ -20744,7 +20747,7 @@ Il secondo algoritmo si basa su un algoritmo di permutazioni generalmente applic
 (define (permutations lst)
   (if (= (length lst) 1)
    lst
-   (apply append (map (fn (rot) 
+   (apply append (map (fn (rot)
                       (map (fn (perm) (cons (first rot) perm))
                            (permutations (rest rot))))
                       (rotations lst)))))
@@ -25719,7 +25722,7 @@ Sembra tutto corretto.
 PERCORSO DEL CAVALLO
 --------------------
 
-In questo problema un cavallo è posizionato in una qualunque casella sulla scacchiera vuota e, spostandosi secondo le regole degli scacchi (cioè ad L), deve passare per tutte le altre caselle esattamente una sola volta. Un percorso del cavallo si dice "chiuso" se l'ultima casa su cui si posiziona il cavallo è vicina alla casa da cui è partito (ad esempio, se il cavallo inizia in d8 e conclude il suo percorso in f7). In caso contrario il percorso del cavallo è detto "aperto". Questo problema è un esempio del più generale "problema del cammino hamiltoniano" nella teoria dei grafi.                     
+In questo problema un cavallo è posizionato in una qualunque casella sulla scacchiera vuota e, spostandosi secondo le regole degli scacchi (cioè ad L), deve passare per tutte le altre caselle esattamente una sola volta. Un percorso del cavallo si dice "chiuso" se l'ultima casa su cui si posiziona il cavallo è vicina alla casa da cui è partito (ad esempio, se il cavallo inizia in d8 e conclude il suo percorso in f7). In caso contrario il percorso del cavallo è detto "aperto". Questo problema è un esempio del più generale "problema del cammino hamiltoniano" nella teoria dei grafi.
 
 Vediamo la soluzione ricorsiva con backtracking:
 
@@ -25745,7 +25748,7 @@ Vediamo la soluzione ricorsiva con backtracking:
         (true (++ counter) (++ res-counter))
   )
   (setf (board curr-x curr-y) 1)
-  (cond ((knight-tour board (+ curr-x 2) (+ curr-y 1)) ; down_right 
+  (cond ((knight-tour board (+ curr-x 2) (+ curr-y 1)) ; down_right
          (setf (result curr-x curr-y) res-counter)
          (setq res-counter (- res-counter 1))
          (throw true)
@@ -25801,10 +25804,10 @@ Vediamo la soluzione ricorsiva con backtracking:
 ))
 
 (knight 6 0 0)
-;-> (( 1 16  7 26 11 14) 
-;->  (34 25 12 15  6 27) 
-;->  (17  2 33  8 13 10) 
-;->  (32 35 24 21 28  5) 
+;-> (( 1 16  7 26 11 14)
+;->  (34 25 12 15  6 27)
+;->  (17  2 33  8 13 10)
+;->  (32 35 24 21 28  5)
 ;->  (23 18  3 30  9 20)
 ;->  (36 31 22 19  4 29))
 
@@ -25812,9 +25815,9 @@ Vediamo la soluzione ricorsiva con backtracking:
 ;-> 3437.779
 
 (knight 8 0 0)
-;-> (( 1 60 39 34 31 18  9 64) 
-;->  (38 35 32 61 10 63 30 17) 
-;->  (59  2 37 40 33 28 19  8) 
+;-> (( 1 60 39 34 31 18  9 64)
+;->  (38 35 32 61 10 63 30 17)
+;->  (59  2 37 40 33 28 19  8)
 ;->  (36 49 42 27 62 11 16 29)
 ;->  (43 58  3 50 41 24  7 20)
 ;->  (48 51 46 55 26 21 12 15)
@@ -25825,9 +25828,9 @@ Vediamo la soluzione ricorsiva con backtracking:
 ;-> 142474.658
 
 (knight 8 7 7)
-;-> ((47 34 21 30  5 14 19 64) 
-;->  (36 31 48 33 20 63  4 13) 
-;->  (49 46 35 22 29  6 15 18) 
+;-> ((47 34 21 30  5 14 19 64)
+;->  (36 31 48 33 20 63  4 13)
+;->  (49 46 35 22 29  6 15 18)
 ;->  (60 37 32 51 62 17 12  3)
 ;->  (45 50 61 38 23 28  7 16)
 ;->  (56 59 42 25 52  9  2 11)
@@ -25880,10 +25883,10 @@ Vediamo lo stesso algoritmo di backtracking codificato in modo più strutturato.
     )))
 
 (start_knight_tour 6 0 0)
-;-> (( 0 15  6 25 10 13) 
-;->  (33 24 11 14  5 26) 
-;->  (16  1 32  7 12  9) 
-;->  (31 34 23 20 27  4) 
+;-> (( 0 15  6 25 10 13)
+;->  (33 24 11 14  5 26)
+;->  (16  1 32  7 12  9)
+;->  (31 34 23 20 27  4)
 ;->  (22 17  2 29  8 19)
 ;->  (35 30 21 18  3 28))
 
@@ -25891,9 +25894,9 @@ Vediamo lo stesso algoritmo di backtracking codificato in modo più strutturato.
 ;-> 672.085
 
 (start_knight_tour 8 0 0)
-;-> (( 0 59 38 33 30 17  8 63) 
-;->  (37 34 31 60  9 62 29 16) 
-;->  (58  1 36 39 32 27 18  7) 
+;-> (( 0 59 38 33 30 17  8 63)
+;->  (37 34 31 60  9 62 29 16)
+;->  (58  1 36 39 32 27 18  7)
 ;->  (35 48 41 26 61 10 15 28)
 ;->  (42 57  2 49 40 23  6 19)
 ;->  (47 50 45 54 25 20 11 14)
@@ -25904,15 +25907,15 @@ Vediamo lo stesso algoritmo di backtracking codificato in modo più strutturato.
 ;-> 23314.636
 
 (start_knight_tour 8 7 7)
-;-> ((46 33 20 29  4 13 18 63) 
-;->  (35 30 47 32 19 62  3 12) 
-;->  (48 45 34 21 28  5 14 17) 
+;-> ((46 33 20 29  4 13 18 63)
+;->  (35 30 47 32 19 62  3 12)
+;->  (48 45 34 21 28  5 14 17)
 ;->  (59 36 31 50 61 16 11  2)
 ;->  (44 49 60 37 22 27  6 15)
 ;->  (55 58 41 24 51  8  1 10)
 ;->  (40 43 56 53 38 23 26  7)
 ;->  (57 54 39 42 25 52  9  0))
- 
+
 (time (start_knight_tour 8 7 7))
 ;-> 705835.03 ; circa 11 minuti
 
@@ -25994,7 +25997,7 @@ Regola di Warnsdorff:
 
 ; checks its neighbouring squares
 ; If the knight ends on a square that is one
-; knight's move from the beginning square, 
+; knight's move from the beginning square,
 ; then tour is closed
 (define (neighbour x y xx yy)
   (let (found nil)
@@ -26092,12 +26095,12 @@ Regola di Warnsdorff:
 TEOREMA CINESE DEI RESTI
 ------------------------
 
-Siano (n1, n2,..., nk) k interi a due a due coprimi (divisori) e siano (b1, b2,..., bk) k interi relativi (resti). 
+Siano (n1, n2,..., nk) k interi a due a due coprimi (divisori) e siano (b1, b2,..., bk) k interi relativi (resti).
 Allora il sistema di congruenze:
 
 x ≡ b1 (mod n1)   --> x mod n1 = b1
-x ≡ b2 (mod n2)   --> x mod n2 = b2  
-...    
+x ≡ b2 (mod n2)   --> x mod n2 = b2
+...
 x ≡ bk (mod nk)   --> x mod nk = bk
 
 Ammette soluzioni. Inoltre se x0 è una soluzione del sistema, tutte le soluzioni di tale sistema saranno date da:
@@ -26220,7 +26223,7 @@ Funzione finale per il Teorema Cinese dei Resti:
     (if (= (apply * divisori) (apply lcm divisori))
         ;allora cerchiamo la soluzione
         (chinese divisori resti)
-        ; altrimenti nessuna soluzione 
+        ; altrimenti nessuna soluzione
         nil))
 
 (trc '(3 5 7) '(2 3 2))
@@ -26458,7 +26461,7 @@ Sum[x 1 n] (-1)^(n-1)/n = ln(2)
 ;-> 0.6931471805599453
 
 Sum[x 0 n] 1/x! = e
-(define (fact n) 
+(define (fact n)
   (if (zero? n)
       1
       (apply * (map bigint (sequence 1 n)))))
@@ -26540,7 +26543,7 @@ VALUTAZIONE DI UNA ESPRESSIONE RPN
 
 Valutare il valore di un'espressione aritmetica nella notazione polacca inversa (Reverse Polish Notation). Gli operatori validi sono:
 
-"+" "-" "*" "/" "%" 
+"+" "-" "*" "/" "%"
 "add" "sub" "mul" "div" "mod" "pow"
 "abs" "sqrt" "exp"
 "sin" "cos" "tan"
@@ -26776,7 +26779,7 @@ Lista delle operazioni:
 
 Lista delle operazioni possibili (n^k) = 4^3 = 64:
 (setq operats (perm-rep 3 op))
-;-> ((add add add) (sub add add) (mul add add) (div add add) 
+;-> ((add add add) (sub add add) (mul add add) (div add add)
 ;->  (add sub add) (sub sub add) (mul sub add) (div sub add)
 ;->  ...
 ;->  (add div div) (sub div div) (mul div div) (div div div))
@@ -26789,7 +26792,7 @@ Lista dei numeri singoli:
 
 Lista dei numeri possibili (n! = 4! = 24):
 (setq digits (perm num))
-;-> ((3 7 1 8) (7 3 1 8) (1 3 7 8) (3 1 7 8) (7 1 3 8) (1 7 3 8) (8 7 3 1) 
+;-> ((3 7 1 8) (7 3 1 8) (1 3 7 8) (3 1 7 8) (7 1 3 8) (1 7 3 8) (8 7 3 1)
 ;->  (7 8 3 1) (3 8 7 1) (8 3 7 1) (7 3 8 1) (3 7 8 1) (3 1 8 7) (1 3 8 7)
 ;->  (8 3 1 7) (3 8 1 7) (1 8 3 7) (8 1 3 7) (8 1 7 3) (1 8 7 3) (7 8 1 3)
 ;->  (8 7 1 3) (1 7 8 3) (7 1 8 3))
@@ -26925,13 +26928,13 @@ Proviamo con il gioco del 24:
 ;-> (6 + (2 * (5 + 4)))
 ;-> (6 - (2 - (5 * 4)))
 ;-> (4 + (5 * (6 - 2)))
-;-> ((4 5 2 6 - * -) (6 2 4 5 + * +) (6 2 4 5 * - -) 
+;-> ((4 5 2 6 - * -) (6 2 4 5 + * +) (6 2 4 5 * - -)
 ;->  (6 2 5 4 + * +) (6 2 5 4 * - -) (4 5 6 2 - * +))
 
 Proviamo un insieme di numeri che non hanno soluzione:
 
 (game-number '(5 7 5 1) 24)
-;-> () 
+;-> ()
 
 Proviamo con altri numeri:
 
@@ -26943,7 +26946,7 @@ Proviamo con altri numeri:
 (50 / (10 / (3 - (25 * (1 - 7)))))
 (50 / (10 / (3 + (25 * (7 - 1)))))
 (25 + (10 * (50 + (3 * (7 + 1)))))
-;-> (((25 10 50 3 1 7 + * + * +) "(25 + (10 * (50 + (3 * (1 + 7)))))") 
+;-> (((25 10 50 3 1 7 + * + * +) "(25 + (10 * (50 + (3 * (1 + 7)))))")
 ;->  ((50 10 3 25 1 7 - * - / /) "(50 / (10 / (3 - (25 * (1 - 7)))))")
 ;->  ((50 10 3 25 7 1 - * + / /) "(50 / (10 / (3 + (25 * (7 - 1)))))")
 ;->  ((25 10 50 3 7 1 + * + * +) "(25 + (10 * (50 + (3 * (7 + 1)))))"))
@@ -26983,7 +26986,7 @@ Per verifica prendiamo il primo risultato:
 ;-> (2 * (1 + (4 * (3 + (5 * (6 - (7 - (8 + 9))))))))
 ;-> ......
 
-Nota: 
+Nota:
 Con 9 cifre (da 1 a 9) abbiamo n! = 9! = 362880 modi di disporre le cifre nell'espressione
 Con 9 cifre abbiamo 8 operazioni con 4 operatori n^k = 4^8 = 65536 modi di disporre gli operatori nell'espressione.
 (* 362880 65536)
@@ -27081,7 +27084,7 @@ Memorizziamo i due casi base di fs(0) = 0, fs(1) = 1, e poi attraversiamo il vet
 
 Vediamo se le tre funzioni producono risultati uguali:
 
-(= (map fusc (sequence 0 100)) 
+(= (map fusc (sequence 0 100))
    (map fusc-i (sequence 0 100))
    (map fusc-dp (sequence 0 100)))
 ;-> true
@@ -27172,7 +27175,7 @@ L'algoritmo di Damm rileva tutte le occorrenze dei due tipi di errori di trascri
 
 
 ----------------------------------
-DISTANZA TRA DUE PUNTI DELLA TERRA 
+DISTANZA TRA DUE PUNTI DELLA TERRA
 ----------------------------------
 
 Utilizziamo la formula "haversine" per calcolare la distanza minima tra due punti di una sfera (tale distanza viene chiamata "ortodromia"). Si tratta quindi della distanza più breve tra due punti della superficie terrestre (in linea d'aria e ignorando l'orografia).
@@ -27180,7 +27183,7 @@ Le coordinate per la latitudine e la longitudine sono espresse in gradi decimali
 
 (define (deg-rad deg) (div (mul deg 3.1415926535897931) 180))
 
-(define (dist-earth lat1 lon1 lat2 lon2) 
+(define (dist-earth lat1 lon1 lat2 lon2)
   (local (r dLat dLon a c d)
   (setq r 6371) ; raggio medio della terra in km
   (setq dLat (deg-rad (sub lat2 lat1))) ; delta lat (in radianti)
@@ -27290,6 +27293,14 @@ Adesso possiamo scrive la funzione finale "soundex":
 
 Nota: la maggior parte dei database SQL usa un algoritmo leggermente diverso.
 
+Vediamo cosa accade con dei nomi italiani:
+
+(setq lista '("Mario" "Marco" "Sara" "Lara" "Luca" "Luisa" "Lisa"
+              "Massimo" "Massimiliano" "Maria" "Marta"))
+
+(map soundex lista)
+;-> ("M600" "M620" "S600" "L600" "L200" "L200" "L200" 
+;->  "M250" "M254" "M600" "M630")
 
 ================
 
@@ -67911,6 +67922,35 @@ Verifichiamo che la hash-map non esiste più:
 
 ===============
 
+---------------------------------
+Generazione di un simbolo univoco
+---------------------------------
+
+Se abbiamo la necessità di generare un simbolo univoco utilizziamo la funzione "uuid" che costruisce e ritorna un identificatore unico (stringa) chiamato UUID (Universally Unique IDentifier).
+
+(uuid)
+;-> "3FD45C9C-1313-4ACF-B720-C42CF6319E0C"
+
+Purtroppo non è un simbolo legale per newLISP (perchè inizia con un numero):
+
+(legal? (uuid))
+;-> nil
+
+Allora scriviamo una funzione per generare un simbolo univoco legale:
+
+(define (gensym)
+  (sym (string "g-" (uuid)))) ; 'g-*** è un simbolo legale
+
+(gensym)
+;-> g-7E31347F-6EEB-477E-BFF0-4868BE374F6B
+(gensym)
+;-> g-4DE95DAB-4A11-431F-9EBE-D267E9646C4C
+(gensym)
+;-> g-5ECA1A6B-6E8B-4ADB-9189-D352CE488876
+
+La funzione "gensym" genera sempre un simbolo univoco.
+
+
 ------------------------------
 Compromessi tra tempo e spazio
 ------------------------------
@@ -68091,7 +68131,8 @@ Per capire la complessità temporale di questa funzione occorrerebbe analizzare 
 
 Adesso vediamo la complessità spaziale delle funzioni, considerando lo spazio addizionale che viene richiesto.
 Le funzioni dup1? e dup2? non richiedono spazio aggiuntivo in memoria, quindi la complessità spaziale vale O(1).
-Le funzioni dup3? e dup4? richiedono una hash-map con n valori, quindi la complessità spaziale vale O(n).
+La funzione dup3? richie una hash-map con n valori, quindi la complessità spaziale vale O(n).
+La funzione dup4? richiede una hash-map con n valori per n volte (perchè ogni volta creiamo una hash-map diversa), quindi la complessità spaziale vale O(n^2).
 Presumiamo che le funzioni dup5? e dup6? abbiano una complessità spaziale O(log(n)) (questa è la complessità spaziale dell'algoritmo di ordinamento Quicksort).
 
 Ricapitoliamo le caratteristiche delle funzioni:
@@ -68101,11 +68142,241 @@ Funzione   temporale     di esecuzione     spaziale
  dup1?      O(n^2)        1458 1444 1443    O(1)
  dup2?      O(n^2)         147   55 1507    O(1)
  dup3?      O(n)          1096  675 1121    O(n)
- dup4?      O(n)           730  349  803    O(n)
+ dup4?      O(n)           730  349  803    O(n^2) 
  dup5?      O(n*log(n))    154  156  155    O(log(n))
  dup6?      O(n*log(n))     96   93   96    O(log(n))
 
 Quindi per scrivere una funzione efficiente in termini di tempo di esecuzione l'algoritmo è molto importante, ma occorre preferire l'uso di funzioni integrate (se presenti). Un'altra considerazione fondamentale riguarda lo spazio di memoria utilizzato in quanto non sempre la funzione più veloce è anche quella che consuma meno spazio. La scelta della funzione finale dipende dall'analisi e dalla valutazione di queste caratteristiche.
+
+
+----------------
+Scambio di somme
+----------------
+
+Date due liste di numeri interi i cui relativi elementi sommano ad una certa cifra, determinare due numeri (ognuno in una lista) che scambiati tra loro producono somme uguali per le due liste. Esempio:
+
+lista1: (5 3 2 9 1)  Somma = 5 + 3 + 2 + 9 + 1 = 20
+lista2: (1 12 5)     Somma = 1 + 12 + 5 = 18
+
+Scambiando il numero 2 della lista1 con il numero 1 della lista2 entrambe le liste sommano a 19.
+
+Se non è possibile ottenere due liste con somme uguali allora la funzione deve restituire nil.
+
+La soluzione più semplice è quella di utilizzare due cicli che attraversano le liste e verificano se scambiando gli elementi correnti si ottengono due somme uguali per le liste.
+
+(define (scambio lst1 lst2)
+  (local (out idx1 idx2 found)
+    (setq out nil found nil)
+    (dolist (el1 lst1 found)
+      (setq idx1 $idx)
+      (dolist (el2 lst2 found)
+        (setq idx2 $idx)
+        ; se scambiando questi valori le somme sono uguali...
+        (if (= (+ (- (apply + lst1) el1) el2) (+ (- (apply + lst2) el2) el1))
+            ; allora salviamo gli indici
+            (setq out (list idx1 idx2) found true)
+        )
+      )
+    )
+    (if (nil? out) out
+        (begin
+        (swap (lst1 (first out)) (lst2 (last out)))
+        (setq out (list out (apply + lst1) (apply + lst2)))))
+    out))
+
+(scambio lst1 lst2)
+;-> ((2 0) 19 19)
+
+(scambio '(1 -1 2 4) '(2 3 4 -1))
+;-> ((0 0) 7 7)
+
+(scambio '(1 -1 2 5) '(2 3 8 -1))
+;-> nil
+
+La complessità temporale vale O(n*m), dove n e m sono le lunghezze delle liste.
+
+Per cercare un algoritmo migliore dobbiamo analizzare alcuni casi:
+
+(setq lst1 '(5 3 3 7))  Somma = 18
+(setq lst2 '(4 1 1 6))  Somma = 12
+(scambio lst1 lst2)
+;-> ((3 0) 15 15)
+Scambiamo il 7 con il 4:
+(setq lst1 '(5 3 3 4))  Somma = 15
+(setq lst2 '(7 1 1 6))  Somma = 15
+
+(setq lst1 '(1 2 3 4 5)) Somma = 15
+(setq lst2 '(6 7 8))     Somma = 21
+(scambio lst1 lst2)
+;-> ((2 0) 18 18)
+Scambiamo il 3 con il 6:
+(setq lst1 '(1 2 6 4 5)) Somma = 18
+(setq lst2 '(3 7 8))     Somma = 18
+
+(setq lst1 '(10 15 20)) Somma = 45
+(setq lst2 '(5 30))     Somma = 35
+(scambio lst1 lst2)
+;-> ((0 0) 40 40)
+Scambiamo il 10 con il 5:
+(setq lst1 '(5 15 20))  Somma = 40
+(setq lst2 '(10 30))    Somma = 40
+
+Possiamo notare queste caratteristiche:
+
+1) per ottenere somme uguali, la lista più lunga deve scambiare un numero maggiore con un numero minore della lista più corta.
+
+2) Lo scambio provoca una modifica delle somme della stessa quantità (dopo lo scambio la somma di una lista vale (somma-iniziale + x) e la somma dell'altra lista vale (somma_iniziale - x)
+
+3) Dopo lo scambio le somme delle liste sono la media delle somme iniziali:
+(somma = somma-iniziale-lista1 + somma-iniziale-lista2)/2
+Poichè le liste contengono solo numeri interi, allora la differenza delle somme deve essere un numero pari (altrimenti la divisione per 2 produrrebbe un numero con la virgola).
+
+Facciamo un esempio e applichiamo la terza caratteristica:
+
+lst1 = (5 3 3 7)  Somma = 18
+lst2 = (4 1 1 6)  Somma = 12
+
+La media tra le due somme vale: (18 + 12)/2 = 15. In altre parole, la lista1 deve diminuire di 3 e la lista2 deve aumentare di 3. Questo accade quando la differenza tra l'elemento della lista1 e l'elemento della lista2 vale 3.
+Anche in questo modo dobbiamo sempre utilizzare due cicli per attraversare le liste, notiamo una differenza: questa volta non dobbiamo verificare l'uguaglianza delle somme, ma verificare se esiste un numero predeterminato sulla lista2. Infatti, per esempio, quando abbiamo il numero 5 della lista1, allora dobbiamo cercare se esiste il numero (5 - 3) = 2 nella lista2.
+Questo fatto ci permette di utilizzare una hash-map con i valori della lista2, dove la chiave è il numero e l'indice è l'indice del numero nella lista.
+
+Funzione che copia una lista in una hash-map dove la chiave della hash-map è il valore dell'elemento della lista e l'indice della hash-map è l'indice dell'elemento della lista:
+
+(define (list-hashmap lst hash)
+  (dolist (el lst) (hash (string el) $idx)))
+
+(new Tree 'myhash)
+(setq lst '(10 15 20 35))
+
+(list-hashmap lst myhash)
+;-> 3
+(myhash)
+;-> (("10" 0) ("15" 1) ("20" 2) ("35" 3))
+
+Oppure (più velocemente):
+
+(myhash (map (fn(x) (list x $idx)) lst))
+
+Esempio di ricerca di un valore:
+
+(myhash "10")
+;-> 0
+(myhash 10)
+;-> 0
+(myhash "11")
+;-> nil
+(myhash 11)
+;-> nil
+
+Proviamo a scrivere la nuova funzione:
+
+(define (scambio2 lst1 lst2)
+  (local (out sum1 sum2 gap val found)
+    (setq sum1 (apply + lst1))
+    (setq sum2 (apply + lst2))
+    (cond ((odd? (+ sum1 sum2)) (setq out nil))
+          (true
+            (new Tree 'myhash) ; crea hash-map
+            (myhash (map (fn(x) (list x $idx)) lst2))     ; copia lista2 su hash-map
+            ;(dolist (el lst2) (myhash (string el) $idx)) ; copia lista2 su hash-map
+            ;(println (myhash))
+            (setq gap (/ (- sum1 sum2) 2))
+            (setq out nil found nil)
+            (dolist (el1 lst1 found)
+              ;(println "elemento: " el1 " --- cerco: " (- el1 gap))
+              (setq val (myhash (string (- el1 gap))))
+              ;(println "trovato: " val)
+              (if val (setq out (list $idx val) found true))
+            )
+            (if (nil? out) out
+                (begin
+                (swap (lst1 (first out)) (lst2 (last out)))
+                (setq out (list out (apply + lst1) (apply + lst2)))))
+            (delete 'myhash)
+          )
+    )
+    out))
+
+(setq lst1 '(5 3 3 7))
+(setq lst2 '(4 1 1 6))
+(scambio2 lst1 lst2)
+;-> ((3 0) 15 15)
+
+(setq lst1 '(1 2 3 4 5))
+(setq lst2 '(6 7 8))
+(scambio2 lst1 lst2)
+;-> ((2 0) 18 18)
+
+(setq lst1 '(10 15 20))
+(setq lst2 '(5 30))
+(scambio2 lst1 lst2)
+;-> ((0 0) 40 40)
+
+Vediamo la velocità delle due funzioni:
+
+(setq lst1 '(sequence 1 1000))
+
+(apply + (sequence 1 1000))
+;-> 500500
+
+(apply + (sequence -110 1010))
+
+(/ (- (apply + (sequence 1 1000)) (apply + (sequence -150 1010))) 2)
+
+(setq lst1 (sequence 1 50))
+(setq lst2 (sequence -50 71))
+
+(time (scambio lst1 lst2) 10000)
+;-> 1095.098
+(time (scambio2 lst1 lst2) 10000)
+;-> 767.13
+
+Questa funzione ha complessità temporale O(n+m) ed è più veloce nonostante la necessità di copiare la lista sulla hash-map e di eliminare la hash-map.
+
+
+---------------------------------
+Evitare begin nella condizione if
+---------------------------------
+
+L'istruzione "if" ha la seguente sintassi:
+
+(if (exp-condition)
+    (expression-when-true)
+    (expression-when-nil)
+)
+
+Se dobbiamo usare più di una espressione in (expression-when-true) oppure in (expression-when-nil) dobbiamo utilizzare la parola riservata "begin":
+
+(if (exp-condition)
+    (begin
+      (expression1-when-true)
+      (expression2-when-true)
+      ...
+      (expressionN-when-true)
+    )
+    (begin
+      (expression1-when-nil)
+      (expression2-when-nil)
+      ...
+      (expressionN-when-nil)
+    )
+)
+
+In alcuni casi possiamo evitare l'uso di "begin". 
+
+Ad esempio se le espressioni sono limitate a pochi assegnamenti di variabili possiamo usare l'assegnamento multiplo di "setq":
+
+(setq val1 10 val2 -3 val3 "a")
+
+Oppure, se le espressioni che dobbiamo eseguire sono diverse tra loro, allora possiamo usare la funzione "let" o "letn":
+
+(let ((a 10) (b 20) (c 30))
+     (++ a)
+     (if (> a b) (setq c (+ a b c)))
+     ...
+)
+
+In questo modo "let" racchiude tutte le espressioni in un'unica espressione che non necessita di "begin".
 
 
 ===========
