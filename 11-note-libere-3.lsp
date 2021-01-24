@@ -305,7 +305,7 @@ Scambiamo il 10 con il 5:
 
 Possiamo notare queste caratteristiche:
 
-1) per ottenere somme uguali, la lista più lunga deve scambiare un numero maggiore con un numero minore della lista più corta.
+1) per ottenere somme uguali, la lista con la somma più grande deve scambiare un numero maggiore con un numero minore della lista con la somma più piccola.
 
 2) Lo scambio provoca una modifica delle somme della stessa quantità (dopo lo scambio la somma di una lista vale (somma-iniziale + x) e la somma dell'altra lista vale (somma_iniziale - x)
 
@@ -449,6 +449,8 @@ In alcuni casi possiamo evitare l'uso di "begin".
 Ad esempio se le espressioni sono limitate a pochi assegnamenti di variabili possiamo usare l'assegnamento multiplo di "setq":
 
 (setq val1 10 val2 -3 val3 "a")
+
+In questo modo "setq" racchiude tutte le assegnazioni in un'unica espressione che non necessita di "begin".
 
 Oppure, se le espressioni che dobbiamo eseguire sono diverse tra loro, allora possiamo usare la funzione "let" o "letn":
 

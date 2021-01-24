@@ -67,7 +67,10 @@
 |    58    |  26241        |       630  |       432  |             |
 |    59    |  107359       |        15  |         1  |             |
 |    60    |  26033        |     55055  |     38926  |             |
+|    62    |  127035954683 |         -  |      6348  |          83 |
 |    63    |  49           |         -  |         0  |           0 |
+|    67    |  661          |         -  |         0  |           - |
+|    67    |  7273         |         -  |         1  |           - |
 |    92    |  24702        |         -  |     27084  |             |
 
 Sito web: https://projecteuler.net/archives
@@ -7097,6 +7100,202 @@ I tempi di calcolo delle due funzioni sono quasi uguali.
 
 
 ===========
+Problema 62
+===========
+
+Permutazioni cubiche
+
+Il cubo, 41063625 (3453), può essere permutato per produrre altri due cubi: 56623104 (3843) e 66430125 (4053). In effetti, 41063625 è il cubo più piccolo che ha esattamente tre permutazioni delle sue cifre che sono anche cubi.
+
+Trova il cubo più piccolo per il quale esattamente cinque permutazioni delle sue cifre sono cubi.
+
+Concetto di base:
+Due liste con gli stessi elementi, ma in ordine diverso, producono le stesse permutazioni.
+
+Esempio:
+(setq lst1 '(1 2 3))
+(setq lst2 '(2 3 1))
+
+(sort (perm lst1))
+;-> ((1 2 3) (1 3 2) (2 1 3) (2 3 1) (3 1 2) (3 2 1))
+
+(sort (perm lst2))
+;-> ((1 2 3) (1 3 2) (2 1 3) (2 3 1) (3 1 2) (3 2 1))
+
+I numeri che possono essere permutati per produrre uno o più cubi hanno tutti le stesse cifre. Ordinando in modo decrescente le cifre di questi numeri notiamo che il risultato è lo stesso per i tutti i valori che, elevati al cubo, li generano. Vediamo un esempio:
+
+valore   cubo                  ordinamento/codifica    risultato
+3453 --> 3453^3 = 41063625 --> (digit-sort 41063625) = 66543210
+3843 --> 3453^3 = 56623104 --> (digit-sort 56623104) = 66543210
+4053 --> 4053^3 = 56623104 --> (digit-sort 66430125) = 66543210
+
+In altre parole, i numeri 3453, 3843 e 4053 (che generano tutti un cubo con le stesse cifre) hanno la stessa codifica.  Per risolvere il problema occorre cercare una codifica che si ripete per 5 volte.
+Quindi uno pseudo-algoritmo è il seguente:
+
+1. valore = 0
+2. codifica il valore.
+3. inserisci la codifica in una lista.
+4. se la codifica è presente 5 volte nella lista,
+   allora il risultato vale (primo indice della codifica)^3. Stop.
+   altrimenti aumenta di 1 il valore e vai al passo 3.
+
+La prima codifica che utilizziamo è la seguente:
+
+(setq i 27)
+(setq cubo (explode (string (* i i i))))
+;-> ("1" "9" "6" "8" "3")
+(setq cubo (sort (explode (string (* i i i)))))
+;-> ("1" "3" "6" "8" "9")
+
+Quindi la lista contiene elementi del tipo: ("1" "3" "6" "8" "9")
+
+Scriviamo la funzione:
+
+(define (e062)
+  (local (cubo lst num found out)
+    (setq num 0 found nil)
+    (until found
+      ; calcoliamo la codifica
+      (setq cubo (sort (explode (string (* num num num)))))
+      ; inseriamo la codifica nella lista
+      (push cubo lst -1)
+      ; se la codifica corrente è presente 5 volte nella lista...
+      (if (= (count (list cubo) lst) '(5))
+          ; allora abbiamo trovato la soluzione
+          (setq out (pow (first (ref cubo lst)) 3) found true)
+      )
+      (++ num)
+    )
+    out))
+
+(e062)
+;-> 127035954683
+
+(time (e062))
+;-> 23831.307
+
+Proviamo a semplificare l'elemento della lista utilizzando un'altra codifica:
+
+(setq i 27)
+(setq cubo (explode (string (* i i i))))
+;-> ("1" "9" "6" "8" "3")
+(setq cubo (sort (explode (string (* i i i))) >))
+;-> ("9" "8" "6" "3" "1")
+(setq num 0)
+(dolist (el cubo) (setq num (+ (int el) (* num 10))))
+;-> 98631
+
+Quindi la lista contiene elementi del tipo: 98631
+
+Funzione che ordina in modo decrescente (per preservare lo zero) le cifre di un numero:
+
+(define (digit-sort num)
+  (let (out 0)
+    (dolist (el (sort (explode (string num)) >))
+      (setq out (+ (int el) (* out 10))))))
+
+Scriviamo la funzione:
+
+(define (e062)
+  (local (cubo lst num found out)
+    (setq num 0 found nil)
+    (until found
+      (setq cubo (digit-sort (* num num num)))
+      (push cubo lst -1)
+      (if (= (count (list cubo) lst) '(5))
+          (setq out (pow (first (ref cubo lst)) 3) found true)
+      )
+      (++ num)
+    )
+    out))
+
+(e062)
+;-> 127035954683
+
+(time (e062))
+;-> 6348.037
+
+Proviamo con un altra funzione "digit-sort" che ordina in modo decrescente (per preservare lo zero) le cifre di un numero:
+
+(define (digit-sort num)
+  (local (lst out)
+    (setq lst (dup 0 10))
+    (setq out 0)
+    (while (> num 0)
+      (++ (lst (% num 10)))
+      (setq num (/ num 10))
+    )
+    (for (i 9 0 -1)
+      (setq out (/ (- (* (pow 10 (lst i)) (+ i (* 9 out))) i) 9))
+    )
+    out))
+
+(digit-sort 12340)
+;-> 43210
+
+(digit-sort 130987345354322)
+;-> 987554433332210
+
+Eseguiamo di nuovo la funzione:
+
+(e062)
+;-> 127035954683
+
+(time (e062))
+;-> 6305.131
+
+I tempi di esecuzione delle due funzioni sono uguali.
+
+Il secondo algoritmo utilizza una hash-map con la seguente struttura:
+
+ chiave                       valore  
+((digit-sort (* num num num)) (num ripetizioni))
+
+In questo modo la soluzione si trova quando le ripetizioni di una chiave vale 5. Maggiori spiegazioni nei commenti della funzione.
+
+(define (e062-2)
+  (local (cubo lst num found out)
+    (new Tree 'myHash)
+    (setq num 0 found nil)
+    (until found
+      ; calcola il valore della chiave
+      ; es. num=5 -> num*num*num = 125 -> cubo = 521
+      (setq cubo (digit-sort (* num num num)))
+      ; se la chiave non esiste nella hashmap...
+      (if (null? (myHash cubo))
+          ; allora inserisce il cubo (chiave) con la lista (num 1) (valore)
+          ; nella lista (num 1), 1 rappresenta il numero di ripetizioni del cubo
+          ; mentre num rappresenta il numero da elevare a potenza
+          (myHash cubo (list num 1))
+          ; altrimenti aggiunge 1 al numero di ripetizioni nella lista (valore)
+          (begin
+            ; occorre ricostruire tutta la lista associata alla valore di cubo (chiave)
+            (myHash cubo (list (first $it) (+ (last $it) 1)))
+            ; se il numero di ripetizioni vale 5 
+            (if (= 5 (last (myHash cubo)))
+                ; allora abbiamo trovato la soluzione
+                (setq out (pow (first (myHash cubo)) 3) found true)
+            )
+          )
+      )
+      (++ num)
+    )
+    ; elimina la hash-map
+    (delete 'myHash)
+    out))
+
+Vediamo come si comporta questa funzione:
+
+(e062-2)
+;-> 127035954683
+
+(time (e062-2))
+;-> 83.742
+
+L'utilizzo di una hash-map fornisce la soluzione immediatamente.
+
+
+===========
 Problema 63
 ===========
 
@@ -7183,6 +7382,145 @@ Questa seconda soluzione è molto più veloce:
 
 (time (e063-2) 10000)
 ;-> 20.965
+
+
+===========
+Problema 66
+===========
+
+# Equazione di Pell
+# x^2 - D*y^2 = 1
+#
+# Espandere sqrt(D) in frazione continua
+# sqrt(D) = [q0,q1,q2,...,qn,2*q0]
+# Periodo della frazione continua = n
+# Calcolare l'n-esimo convergente della frazione continua (Pn/Qn).
+# Se n è dispari allora Pn e Qn sono la soluzione.
+# Se n è pari occorre:
+#    Espandere sqrt(D) in frazione continua fino al termine (2n+1)
+#    Calcolare i convergenti fino al termine (2n+1).
+#    P(2*n+1) e Q(2*n+1) sono le soluzioni. 
+       	
+(define (Pell n)
+  (local (z r x y e1 e2 f1 f2 A B t1 t2)
+    (setq x (bigint (int (sqrt n))))
+    (setq y x)
+    (setq z 1L)
+    (setq r (* x 2))
+    (setq e1 1L e2 0L)
+    (setq f1 0L f2 1L)
+    (catch
+      (while true
+        (setq y (bigint (- (* r z) y)))
+        (setq z (bigint (/ (- n (* y y)) z)))
+        (setq r (bigint (/ (+ x y) z)))
+        (setq t1 e1) (setq t2 e2)
+        (setq e1 t2)
+        (setq e2 (bigint (+ (* t2 r) t1)))
+        (setq t1 f1) (setq t2 f2)
+        (setq f1 t2)
+        (setq f2 (bigint (+ (* t2 r) t1)))
+        (setq A f2)
+        (setq B e2)
+        (setq t1 A) (setq t2 B)
+        (setq B t1)
+        (setq A (bigint (+ (* t1 x) t2)))
+        (if (= (- (* A A) (* B B n)) 1) (throw (list A B)))
+        ;(println (format "z = %s\nr = %s\nx = %s\ny = %s" (string z) (string r) (string x) (string y)))
+        ;(println (format "e1 = %s\ne2 = %s\nf1 = %s\nf2 = %s" (string e1) (string e2) (string f1) (string f2)))
+        ;(println (format "A = %s\nB = %s" (string A) (string B)))
+        ;(read-line)
+      );while
+    );catch
+  );local
+)
+
+(Pell 61)
+;-> (1766319049L 226153980L)
+
+(Pell 109)
+;-> (158070671986249L 15140424455100L)
+
+(Pell 181)
+;-> (2469645423824185801L 183567298683461940L)
+
+(Pell 277)
+;-> (159150073798980475849L 9562401173878027020L)
+
+Se passiamo un numero quadrato, otteniamo un errore:
+
+(Pell 4)
+;-> ERR: division by zero
+;-> called from user function (Pell 4)
+
+Scriviamo la funzione finale per risolvere il problema:
+
+(define (e066)
+  (let ((maxval -1) (out 0))
+    (for (i 1 1000)
+      (if (!= (sqrt i) (int (sqrt i)))
+          (if (> (first (Pell i)) maxval)
+              (setq maxval (first (Pell i)) out i))))
+    out))
+
+(e066)
+;-> 661
+
+(time e066)
+;-> 0
+
+
+===========
+Problema 67
+===========
+
+Percorso con somma massima II
+
+Iniziando dalla parte superiore del triangolo in basso e passando ai numeri adiacenti sulla riga sottostante, il totale massimo dall'alto verso il basso è 23.
+
+   3
+  7 4
+ 2 4 6
+8 5 9 3
+
+Cioè, 3 + 7 + 4 + 9 = 23.
+
+Trovare il totale massimo dall'alto verso il basso utilizzando "triangle.txt", un file di testo di 15K contenente un triangolo con cento righe.
+
+NOTA: questa è una versione molto più difficile del problema 18. Non è possibile provare tutti i percorsi per risolvere questo problema, poiché ce ne sono 2^99 in tutto! Potendo controllare un trilione (10^12) di percorsi ogni secondo, ci vorrebbero oltre venti miliardi di anni per controllarli tutti. C'è un algoritmo efficiente per risolverlo.
+============================================================================
+
+Il file "triangle.txt" è stato trasformato in "e067.lsp" che ha il seguente formato:
+
+(setq tri (dup 0 100))
+(setf (tri 0 ) '(59)) 
+(setf (tri 1 ) '(73 41)) 
+(setf (tri 2 ) '(52 40 9)) 
+(setf (tri 3 ) '(26 53 6 34)) 
+...
+
+Per caricare il file:
+
+(load "e067.lsp")
+
+Una soluzione generica può essere ottenuta con la programmazione dinamica. In pratica per trovare la soluzione, ogni riga deve essere aggiunta a qualsiasi riga successiva, dal basso verso l'alto. Poiché ogni cella ha due predecessori, prendiamo il valore massimo delle due. Con questo metodo, la soluzione si trova nella cella superiore del triangolo:
+
+
+(load "e067.lsp")
+
+(define (e067)
+    (for (i (- (length tri) 2) 0 -1)
+      (for (j 0 i)
+        (setf (tri i j) (+ (tri i j) (max (tri (+ i 1) j) (tri (+ i 1) (+ j 1)))))
+      )
+    )
+    (tri 0 0))
+
+(e067)
+;-> 7273
+
+(time (e067))
+;-> 1.995
 
 
 ===========

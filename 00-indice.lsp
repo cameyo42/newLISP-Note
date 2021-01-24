@@ -278,7 +278,7 @@ ROSETTA CODE
 
 PROJECT EULERO
 ==============
-  Problemi 1..60,63,92
+  Problemi 1..60,62,63,66,67,92
 
 PROBLEMI VARI
 =============
@@ -656,7 +656,7 @@ LICENSE
 
 MIT License
 
-Copyright (c) 2019-2020 Massimo Corinaldesi aka cameyo
+Copyright (c) 2019-2020-2021 Massimo Corinaldesi aka cameyo
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
