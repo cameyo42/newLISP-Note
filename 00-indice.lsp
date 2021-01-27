@@ -275,10 +275,11 @@ ROSETTA CODE
   Algoritmo Damm
   Distanza tra due punti della terra
   Algoritmo Soundex
+  Trasformata Discreta di Fourier (DFT)
 
 PROJECT EULERO
 ==============
-  Problemi 1..60,62,63,66,67,92
+  Problemi 1..60,62,63,66,67,96,97
 
 PROBLEMI VARI
 =============
@@ -431,6 +432,7 @@ DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Matrici a spirale (Google)
   Lunghezza della sottostringa più lunga senza caratteri ripetuti (Amazon)
   Rendere palindroma una stringa (Google)
+  Cifre diverse (Visa)
 
 LIBRERIE
 ========
@@ -615,6 +617,7 @@ NOTE LIBERE 3
   Compromessi tra tempo e spazio  
   Scambio di somme
   Evitare begin nella condizione if
+  Frazioni continue (funzioni)
   
 APPENDICI
 =========

@@ -69,9 +69,11 @@
 |    60    |  26033        |     55055  |     38926  |             |
 |    62    |  127035954683 |         -  |      6348  |          83 |
 |    63    |  49           |         -  |         0  |           0 |
-|    67    |  661          |         -  |         0  |           - |
+|    66    |  661          |         -  |         0  |           - |
 |    67    |  7273         |         -  |         1  |           - |
-|    92    |  24702        |         -  |     27084  |             |
+|    92    |  8581146      |         -  |     51582  |           - |
+|    96    |  24702        |         -  |     27084  |           - |
+|    97    |  8739992577   |         -  |       497  |           - |
 
 Sito web: https://projecteuler.net/archives
 
@@ -7493,10 +7495,10 @@ NOTA: questa è una versione molto più difficile del problema 18. Non è possib
 Il file "triangle.txt" è stato trasformato in "e067.lsp" che ha il seguente formato:
 
 (setq tri (dup 0 100))
-(setf (tri 0 ) '(59)) 
-(setf (tri 1 ) '(73 41)) 
-(setf (tri 2 ) '(52 40 9)) 
-(setf (tri 3 ) '(26 53 6 34)) 
+(setf (tri 0) '(59)) 
+(setf (tri 1) '(73 41)) 
+(setf (tri 2) '(52 40 9)) 
+(setf (tri 3) '(26 53 6 34)) 
 ...
 
 Per caricare il file:
@@ -7504,7 +7506,6 @@ Per caricare il file:
 (load "e067.lsp")
 
 Una soluzione generica può essere ottenuta con la programmazione dinamica. In pratica per trovare la soluzione, ogni riga deve essere aggiunta a qualsiasi riga successiva, dal basso verso l'alto. Poiché ogni cella ha due predecessori, prendiamo il valore massimo delle due. Con questo metodo, la soluzione si trova nella cella superiore del triangolo:
-
 
 (load "e067.lsp")
 
@@ -7527,6 +7528,175 @@ Una soluzione generica può essere ottenuta con la programmazione dinamica. In p
 Problema 92
 ===========
 
+Catena del quadrato delle cifre
+
+Una catena di numeri viene creata aggiungendo continuamente il quadrato delle cifre in un numero per formare un nuovo numero fino a quando non è stato visto prima.
+
+Per esempio,
+
+44 → 32 → 13 → 10 → 1 → 1
+85 → 89 → 145 → 42 → 20 → 4 → 16 → 37 → 58 → 89
+
+Pertanto qualsiasi catena che arriva a 1 o 89 rimarrà bloccata in un ciclo infinito. La cosa più sorprendente è che OGNI numero di partenza alla fine arriverà a 1 o 89.
+
+Quanti numeri di partenza sotto i dieci milioni arriveranno a 89?
+============================================================================
+
+Prima di definire la funzione cha calcola la catena, dobbiamo scrivere la funzione cha calcola la somma dei quadrati delle cifre di un numero:
+
+Prima versione "sum-sq-digit":
+
+(define (int-lst num)
+  (let (out '())
+    (while (!= num 0)
+      (push (% num 10) out)
+      (setq num (/ num 10))) out))
+
+(define (sum-sq-digit num)
+  (apply + (map (fn(x) (* x x)) (int-lst num))))
+
+(sum-sq-digit 32)
+;-> 13
+(sum-sq-digit 456)
+;-> 77
+(time (sum-sq-digit 12345678901234567890) 100000)
+;-> 1554.87
+
+Seconda versione "sum-sq-digit":
+
+(define (sum-sq-digit num)
+  (let ((cifra 0) (tot 0))
+  (while (> num 0)
+    (setq cifra (% num 10))
+    (setq num (/ (- num cifra) 10))
+    (setq tot (+ tot (* cifra cifra)))
+  )
+  tot))
+
+(sum-sq-digit 32)
+;-> 13
+(sum-sq-digit 456)
+;-> 77
+(time (sum-sq-digit 12345678901234567890) 100000)
+;-> 1263.057
+;-> 140.624
+
+Terza versione "sum-sq-digit":
+
+(define (sum-sq-digit num)
+  (let ((cifra 0) (tot 0))
+  (while (> num 0)
+    (setq cifra (% num 10))
+    (setq tot (+ tot (* cifra cifra)))
+    (setq num (/ num 10))
+  )
+  tot))
+
+(sum-sq-digit 32)
+;-> 13
+(sum-sq-digit 456)
+;-> 77
+(time (sum-sq-digit 12345678901234567890) 100000)
+;-> 1112.057
+
+Quarta versione "sum-sq-digit":
+
+(define (sum-sq-digit num)
+  (let ((cifra 0) (tot 0))
+  (while (> num 0)
+    (setq cifra (% num 10))
+    (if cifra
+      (setq tot (+ tot (* cifra cifra))))
+    (setq num (/ num 10))
+  )
+  tot))
+
+(sum-sq-digit 32)
+;-> 13
+(sum-sq-digit 456)
+;-> 77
+(time (sum-sq-digit 12345678901234567890) 100000)
+;-> 1106.45
+
+Adesso scriviamo la funzione che calcola la catena di un numero:
+
+(define (chain num)
+  (local (chain-lst num-lst val found out)
+    (setq val num found nil)
+    (until found
+      (setq num (sum-sq-digit num))
+      (push num chain-lst -1)
+      (if (or (= num 1) (= num 89))
+          (setq out (list val num (length chain-lst) chain-lst) found true)
+      )
+    )
+    out))
+
+Vediamo alcuni esempi di catene:
+
+(chain 100)
+;-> (100 1 1 (1))
+(chain 1)
+;-> (1 1 1 (1))
+(chain 89)
+;-> (89 89 8 (145 42 20 4 16 37 58 89))
+(chain 44)
+;-> (44 1 4 (32 13 10 1))
+(chain 85)
+;-> (85 89 1 (89))
+
+(for (i 1 20) (println (chain i)))
+;-> (1 1 1 (1))
+;-> (2 89 5 (4 16 37 58 89))
+;-> (3 89 7 (9 81 65 61 37 58 89))
+;-> (4 89 4 (16 37 58 89))
+;-> (5 89 4 (25 29 85 89))
+;-> (6 89 9 (36 45 41 17 50 25 29 85 89))
+;-> (7 1 5 (49 97 130 10 1))
+;-> (8 89 5 (64 52 29 85 89))
+;-> (9 89 6 (81 65 61 37 58 89))
+;-> (10 1 1 (1))
+;-> (11 89 6 (2 4 16 37 58 89))
+;-> (12 89 5 (5 25 29 85 89))
+;-> (13 1 2 (10 1))
+;-> (14 89 6 (17 50 25 29 85 89))
+;-> (15 89 6 (26 40 16 37 58 89))
+;-> (16 89 3 (37 58 89))
+;-> (17 89 5 (50 25 29 85 89))
+;-> (18 89 5 (65 61 37 58 89))
+;-> (19 1 4 (82 68 100 1))
+;-> (20 89 5 (4 16 37 58 89))
+
+Scriviamo la funzione che calcola la soluzione con la forza bruta:
+
+(define (e092)
+  (local (num n89 found)
+    (setq num 9999999 n89 0)
+    (for (i 1 num)
+      (setq found nil)
+      (setq k i)
+      (until found
+        ;(setq k (apply + (map (fn(x) (* x x)) (int-lst k))))
+        (setq k (sum-sq-digit k))
+        (if (= k 89) (setq n89 (+ n89 1) found true))
+        (if (= k 1)  (setq found true))
+      )
+    )
+    n89))
+
+(e092)
+;-> 8581146
+
+(time (e092))
+;-> 51582.689
+
+Il tempo di esecuzione non è molto soddisfacente.
+
+
+===========
+Problema 96
+===========
+
 Su Doku
 
 Su Doku (giapponese che significa luogo del numero) è il nome di un concetto di puzzle popolare. La sua origine non è chiara, ma il merito viene attribuito a Leonhard Euler che ha inventato un puzzle simile e molto più difficile, chiamato Quadrati Latini. L'obiettivo dei puzzle di Su Doku è quello di sostituire gli spazi vuoti (o zeri) in una griglia 9 per 9 in modo tale che ogni riga, colonna e regione 3x3 contenga ciascuna delle cifre da 1 a 9. Di seguito è riportato un esempio di una tipica griglia di puzzle iniziale e della sua griglia di soluzione.
@@ -7545,7 +7715,7 @@ Su Doku (giapponese che significa luogo del numero) è il nome di un concetto di
 
 Un puzzle di Su Doku ben costruito ha una soluzione unica e può essere risolto dalla logica, anche se potrebbe essere necessario impiegare metodi di "indovinare e testare" per eliminare le opzioni (questo è un'opinione molto contestata). La complessità della ricerca determina la difficoltà del puzzle. L'esempio sopra è considerato facile perché può essere risolto con una semplice deduzione diretta.
 
-Il file di testo 6K, sudoku.txt (e092.lsp), contiene cinquanta diversi puzzle di Su Doku che variano in difficoltà, ma tutti con soluzioni uniche (il primo puzzle nel file è l'esempio sopra).
+Il file di testo 6K, sudoku.txt (e096.lsp), contiene cinquanta diversi puzzle di Su Doku che variano in difficoltà, ma tutti con soluzioni uniche (il primo puzzle nel file è l'esempio sopra).
 
 Risolvendo tutti e cinquanta i puzzle, trova la somma di tutti i numeri a 3 cifre che si trovano nell'angolo in alto a sinistra di ogni griglia della soluzione. Ad esempio, 483 è il numero di 3 cifre che si trova nell'angolo in alto a sinistra della griglia della soluzione sopra.
 ============================================================================
@@ -7622,7 +7792,7 @@ Risolvendo tutti e cinquanta i puzzle, trova la somma di tutti i numeri a 3 cifr
   )
 ))
 
-(define (e092)
+(define (e096)
   (local (out)
     (setq out 0)
     (load "e096.lsp")
@@ -7638,10 +7808,77 @@ Risolvendo tutti e cinquanta i puzzle, trova la somma di tutti i numeri a 3 cifr
   )
 )
 
-(e092)
+(e096)
 ;-> 24702
 
-(time (e092))
+(time (e096))
 ;-> 27084.701
+
+
+===========
+Problema 97
+===========
+
+Il più grande primo non-Mersenne
+
+Il primo numero primo noto che supera il milione di cifre è stato scoperto nel 1999 ed è un numero primo di Mersenne della forma 2 ^ 6972593-1. Contiene esattamente 2.098.960 cifre. Successivamente sono stati trovati altri numeri primi di Mersenne, della forma (2^p − 1), che contengono più cifre.
+
+Tuttavia, nel 2004 è stato trovato un enorme numero primo non Mersenne che contiene 2.357.207 cifre: 28433 × 2^7830457 + 1.
+
+Trova le ultime dieci cifre di questo numero primo.
+============================================================================
+
+Le ultime 10 cifre di un numero n si ottengono applicando l'operatore modulo: (n % 10000000000).
+Il problema è come calcolare velocemente 2^7830457. Cercando di risolvere direttamente l'espressione,  newLISP impiega un tempo lunghissimo. Infatti:
+
+Funzione per calcolare la potenza (intera) di un numero intero:
+
+(define (** num power)
+    (let (out 1L)
+        (dotimes (i power)
+            (setq out (* out num)))))
+
+Scriviamo la funzione:
+
+(define (e097) (% (+ (* (** 2L 7830456L) 28433) 1) 10000000000L))
+
+Attenzione, la seguente funzione impiega moltissimo tempo:
+
+(e097)
+
+Abbiamo visto che per estrapolare le ultime 10 cifre occorre calcolare (n mod 10000000000). Poichè per  l'operazione modulo (mod) vale la proprietà distributiva:
+
+a*b mod n = ((a mod n)*(b mod n)) mod n
+
+possiamo calcolare 2^7830457 utilizzando la moltiplicazione in un ciclo e utilizzando il modulo dopo ogni moltiplicazione. In questo modo non abbiamo neanche bisogno di utilizzare i big-integer:
+
+(define (e097)
+  (let (val 2L)
+    (for (i 1 7830456)
+      (setq val (% (* 2L val) 10000000000L))
+    )
+    (setq val (* val 28433L))
+    (setq val (+ val 1L))
+    (setq val (% val 10000000000L))))
+
+(e097)
+;-> 8739992577L
+
+(define (e097)
+  (let (val 2)
+    (for (i 1 7830456)
+      (setq val (% (* 2 val) 10000000000))
+    )
+    (setq val (* val 28433))
+    (setq val (+ val 1))
+    (setq val (% val 10000000000))))
+
+(e097)
+;-> 8739992577
+
+Inoltre il tempo di esecuzione è accettabile:
+
+(time (e097))
+;-> 497.573
 
 

@@ -1971,7 +1971,7 @@ Un altro esempio:
 (fract2fc 79 22)
 ;-> (3 1 1 2 4)
 
-Adesso dobbiamo scrivere una funzione che converte una frazione continua in un numero fratto (numeratore e denominatore).
+Adesso dobbiamo scrivere una funzione che converte una frazione continua in un numero fratto (numeratore e denominatore). In altre parole si tratta del calcolo dei convergenti di una frazione continua.
 Utilizziamo le seguenti funzioni per calcolare la somma di due frazioni:
 
 (define (rat n d)

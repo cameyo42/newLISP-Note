@@ -3880,7 +3880,7 @@ La soluzione usa la tecnica ricorsiva di backtracking:
       (cond ((< end 0) nil)
             ((zero? resto) (push cur-out out -1))
             ((>= resto (monete end))
-              (cambio-min-aux end 
+              (cambio-min-aux end
                               (- resto (monete end))
                               (push (monete end) cur-out -1)))
             (true (cambio-min-aux (- end 1) resto cur-out))
@@ -4510,7 +4510,7 @@ Destinazione: (7 5)
 ;-> (0 1 1 1 2 2 1 1 0 0)
 ;-> (1 1 1 1 1 0 0 1 1 1)
 ;-> (0 0 1 0 0 1 1 0 0 1)
-;-> (12 (0 0) (0 1) (1 1) (1 2) (2 2) (3 2) (3 3) 
+;-> (12 (0 0) (0 1) (1 1) (1 2) (2 2) (3 2) (3 3)
 ;->     (4 3) (5 3) (5 4) (6 4) (7 4) (7 5))
 
 
@@ -4586,7 +4586,7 @@ Lista di tutti gli eventi possibili (ogni elemento della lista rappresenta un la
 ;->  (2 5) (2 6) (3 1) (3 2) (3 3) (3 4) (3 5) (3 6) (4 1) (4 2)
 ;->  (4 3) (4 4) (4 5) (4 6) (5 1) (5 2) (5 3) (5 4) (5 5) (5 6)
 ;->  (6 1) (6 2) (6 3) (6 4) (6 5) (6 6))
- 
+
 Calcolo gli eventi favorevoli a p1, quelli favorevoli a p2 e quelli in parità:
 
 (setq p1 0)
@@ -4815,7 +4815,7 @@ Usiamo un dizionario (hash-map) che ci permette di inserire automaticamente solo
     ; inserisce i valori della lista 2 sull'hash-map
     ; (solo quelli non presenti nell'hash-map)
     (dolist (el lst2) (Hash el el))
-    ; creazione della lista di output 
+    ; creazione della lista di output
     (dolist (el (Hash)) (push (el 1) out -1))
     ; occorre eliminare i valori dalla hash-map
     ; perchè è una variabile globale (è un contesto)
@@ -4833,7 +4833,7 @@ Tripla crescente (LeetCode)
 ---------------------------
 
 Data una lista non ordinata restituire, se esiste, una sottosequenza crescente di lunghezza 3.
-I numeri non devono essere necessariamente consecutivi. 
+I numeri non devono essere necessariamente consecutivi.
 Il problema non richiede di trovare la sottosequenza, ma verificare solo la sua esistenza.
 
 Dal punto di vista formale occorre trovare una sequenza x, y e z, tale che x < y < z.
@@ -4851,7 +4851,7 @@ Dal punto di vista formale occorre trovare una sequenza x, y e z, tale che x < y
             (true (setq out true))
       )
     )
-    ; I valori memorizzati in x,y,z non sono 
+    ; I valori memorizzati in x,y,z non sono
     ; necessariamente la sottosequenza crescente
     ;(println x { } y { } z)
     out
@@ -4948,10 +4948,10 @@ Ad esempio, data s = "abcba" e k = 2, la sottostringa più lunga con k distinti 
       (++ end)
       (while test
         (setq dist-char (length (unique (explode (slice s start (- end start))))))
-        (if (<= dist-char k) 
+        (if (<= dist-char k)
            (setq test nil)
            (++ start)
-        )  
+        )
       )
       (setq test true)
       (setq max-len (max max-len (- end start)))
@@ -5028,7 +5028,7 @@ Scriviamo la funzione "tripla":
 (tripla '(0 -1 2 -3 1 ) -2)
 ;-> ((-3 -1 2) (-3 0 1))
 (tripla '(0 1 2 3 4 5 6 7 8 9 -9 -8 -7 -6 -5 -4 -3 -2 -1) 5)
-;-> ((-9 5 9) (-9 6 8) (-8 4 9) (-8 5 8) (-8 6 7) (-7 3 9) (-7 4 8) (-7 5 7) 
+;-> ((-9 5 9) (-9 6 8) (-8 4 9) (-8 5 8) (-8 6 7) (-7 3 9) (-7 4 8) (-7 5 7)
 ;->  (-6 2 9) (-6 3 8) (-6 4 7) (-6 5 6) (-5 1 9) (-5 2 8) (-5 3 7) (-5 4 6)
 ;->  (-4 0 9) (-4 1 8) (-4 2 7) (-4 3 6) (-4 4 5) (-3 -1 9) (-3 0 8) (-3 1 7)
 ;->  (-3 2 6) (-3 3 5) (-2 -1 8) (-2 0 7) (-2 1 6) (-2 2 5) (-2 3 4) (-1 0 6)
@@ -5051,7 +5051,7 @@ Utilizziamo la funzione "powerset" che genera tutte le sottoliste di una lista e
            (append (map (fn (subset) (cons element subset)) p) p) )))
 
 (powerset '(1 3 4 2))
-;-> ((1 3 4 2) (1 3 4) (1 3 2) (1 3) (1 4 2) (1 4) (1 2) 
+;-> ((1 3 4 2) (1 3 4) (1 3 2) (1 3) (1 4 2) (1 4) (1 2)
 ;->  (1) (3 4 2) (3 4) (3 2) (3) (4 2) (4) (2) ())
 
 Utilizzeremo la funzione "apply":
@@ -5962,15 +5962,15 @@ La soluzione è analoga alla precedente, l'unica differenza sta nel fatto che in
 
 (crea-spirale 3)
 ;-> ((1 2 3) (8 9 4) (7 6 5))
-(1 2 3) 
-(8 9 4) 
+(1 2 3)
+(8 9 4)
 (7 6 5)
 
 (crea-spirale 4)
 ;-> ((1 2 3 4) (12 13 14 5) (11 16 15 6) (10 9 8 7))
-( 1  2  3 4) 
-(12 13 14 5) 
-(11 16 15 6) 
+( 1  2  3 4)
+(12 13 14 5)
+(11 16 15 6)
 (10  9  8 7)
 
 
@@ -6009,7 +6009,7 @@ Caso 2: se l'occorrenza precedente di questo carattere fa parte della sottostrin
           (++ cur-len)
           ; case 2
           (begin
-          ; Check if the length of previous running substring 
+          ; Check if the length of previous running substring
           ; was more than the current or not
           (if (> cur-len max-len)
               (setq max-len cur-len))
@@ -6019,7 +6019,7 @@ Caso 2: se l'occorrenza precedente di questo carattere fa parte della sottostrin
       ; Index update of current character
       (setf (visited (char (str i) 0 true)) i)
     )
-    ; Compare the length of last current running longest substring 
+    ; Compare the length of last current running longest substring
     ; with max-len and update max-len if needed
     (if (> cur-len max-len)
         (setq max-len cur-len)
@@ -6043,7 +6043,7 @@ La seguente funzione utilizza un algoritmo simile al precedente:
 (define (unique-substr str)
   (local (last-index len res-num res-str max-char idx cur-idx)
     (setq max-char 256)
-    ; Initialize the last index array as -1, 
+    ; Initialize the last index array as -1,
     ; -1 is used to store last index of every character
     (setq last-index (array max-char '(-1)))
     (setq len (length str))
@@ -6140,5 +6140,69 @@ Vediamo una possibile implementazione:
 
 (make-palindrome-front "eva")
 ;-> "aveva"
+
+
+--------------------
+Cifre diverse (Visa)
+--------------------
+
+Quanti numeri hanno cifre diverse da 1 a un milione?
+
+Per vedere se due numeri hanno le stesse cifre possiamo ordinare le cifre in modo decrescente e poi verificare se l'ordinamento è lo stesso per entrambi i numeri. Per fare questa codifica usiamo la funzione "digit-sort":
+
+(define (digit-sort num)
+  (let (out 0)
+    (dolist (el (sort (explode (string num)) >))
+      (setq out (+ (* out 10) (int el))))))
+
+Per esempio i due numeri 45637028 e 65782043 hanno le stesse cifre e quindi producono la stessa codifica:
+
+(digit-sort 45637028)
+;-> 87654320
+(digit-sort 65782043)
+;-> 87654320
+
+Le cifre devono essere uguali anche nella molteplicità, ad esempio 123 è diverso da 1223:
+
+(digit-sort 123)
+;-> 321
+(digit-sort 1223)
+;-> 3221
+
+Possiamo inserire tutte le codifiche in una lista e poi eliminare gli elementi multipli:
+
+(define (unici num)
+  (let (out '())
+    (for (i 1 num)
+      (push (digit-sort i) out -1)
+    )
+    (length (unique out))))
+
+(unici 1000000)
+;-> 8002
+
+(time (unici 1000000))
+;-> 4466.223
+
+Proviamo ad utilizzare una hash-map:
+
+(define (unici2 num)
+  (let ((key 0) (out '()))
+    (new Tree 'myHash)
+    (for (i 1 num)
+      (setq key (digit-sort i))
+      (myHash key key)
+    )
+    (println (length (myHash)))
+    (delete 'myHash)
+  ))
+
+(unici2 1000000)
+;-> 8002
+
+(time (unici2 1000000))
+;-> 4247.46
+
+Le due funzioni hanno tempi simili perchè nella prima funzione la primitiva "unique" è molto veloce e non facciamo nessun accesso random alla lista.
 
 

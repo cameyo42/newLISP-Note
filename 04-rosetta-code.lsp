@@ -9458,7 +9458,7 @@ Soundex è un algoritmo fonetico per l'indicizzazione dei nomi in base al suono 
 
 I passi dell'algoritmo ufficiale sono i seguenti:
 
-1) Conserva la prima lettera del nome e eleimina tutte le altre occorrenze di a, e, i, o, u, y, h, w.
+1) Conserva la prima lettera del nome e elimina tutte le altre occorrenze di a, e, i, o, u, y, h, w.
 2) Sostituisci le consonanti con le cifre come segue (dopo la prima lettera):
    b, f, p, v → 1
    c, g, j, k, q, s, x, z → 2
@@ -9549,4 +9549,111 @@ Vediamo cosa accade con dei nomi italiani:
 (map soundex lista)
 ;-> ("M600" "M620" "S600" "L600" "L200" "L200" "L200" 
 ;->  "M250" "M254" "M600" "M630")
+
+
+=====================================
+TRASFORMATA DISCRETA DI FOURIER (DFT)
+=====================================
+
+Calcola la trasformata discreta di Fourier (DFT) della lista/vettore di numeri complessi in ingresso.
+
+La lista/vettore ha la seguente struttura:
+
+((real1 img1) (real2 img2) ... (realN imgN))
+
+(setq PI 3.1415926535897931)
+
+(define (dft input)
+  (local (len sum-real sum-img angle)
+    (setq len (length input))
+    (setq output (array len '(0)))
+    (for (k 0 (- len 1))
+      (setq sum-real 0 sum-img 0)
+      (for (t 0 (- len 1))
+        (setq angle (div (mul 2 PI t k) len))
+        (setq sum-real (add sum-real (add (mul (first (input t)) (cos angle))
+                                          (mul (last (input t)) (sin angle)))))
+        (setq sum-img  (add sum-img  (sub (mul (last (input t)) (cos angle))
+                                          (mul (first (input t)) (sin angle)))))
+      )
+      ;(println sum-real { } sum-img)
+      (setf (output k) (list sum-real sum-img))
+    )
+    output))
+
+Vediamo alcuni esempi:
+
+(setq in '((1 0) (4 0) (3 0) (2 0)))
+(dft in)
+;-> ((10 0) (-2 -2) (-2 -4.898425415289509e-016) (-2 1.999999999999999))
+
+(setq in '((8 0) (4 0) (8 0) (0 0)))
+(dft in)
+;-> ((20 0) (0 -4.000000000000001) 
+;->  (12 1.469527624586853e-015) 
+;->  (-8.881784197001252e-016 3.999999999999997))
+
+(setq in '(
+  (0.4967  0) (-0.1383 0) ( 0.6477 0) ( 1.523  0) (-0.2342 0) (-0.2341 0) ( 1.5792 0)
+  ( 0.7674 0) (-0.4695 0) ( 0.5426 0) (-0.4634 0) (-0.4657 0) ( 0.242  0) (-1.9133 0)
+  (-1.7249 0) (-0.5623 0) (-1.0128 0) ( 0.3142 0) (-0.908  0) (-1.4123 0) ( 1.4656 0)
+  (-0.2258 0) ( 0.0675 0) (-1.4247 0) (-0.5444 0) ( 0.1109 0) (-1.151  0) ( 0.3757 0)
+  (-0.6006 0) (-0.2917 0) (-0.6017 0) ( 1.8523 0)))
+
+(setq out (dft in))
+
+Formattiamo meglio il risultato:
+
+(setq outf
+  (map list (map (fn(x) (format "%5.4f" (first x))) out)
+            (map (fn(x) (format "%5.4f" (last x))) out)))
+
+(dolist (el outf) (println (first el) { } (last el) "i"))
+;-> -4.3939 0.0000i
+;-> 9.0217 -3.7036i
+;-> -0.5874 -6.2268i
+;-> 2.5184 3.7749i
+;-> 0.5008 -0.8433i
+;-> 1.2904 -0.4024i
+;-> 4.3391 0.8079i
+;-> -6.2614 2.1596i
+;-> 1.8974 2.4889i
+;-> 0.1042 7.6169i
+;-> 0.3606 5.1620i
+;-> 4.7965 0.0755i
+;-> -5.3064 -3.2329i
+;-> 4.6237 1.5287i
+;-> -2.1211 4.4873i
+;-> -4.0175 -0.3712i
+;-> -2.0297 -0.0000i
+;-> -4.0175 0.3712i
+;-> -2.1211 -4.4873i
+;-> 4.6237 -1.5287i
+;-> -5.3064 3.2329i
+;-> 4.7965 -0.0755i
+;-> 0.3606 -5.1620i
+;-> 0.1042 -7.6169i
+;-> 1.8974 -2.4889i
+;-> -6.2614 -2.1596i
+;-> 4.3391 -0.8079i
+;-> 1.2904 0.4024i
+;-> 0.5008 0.8433i
+;-> 2.5184 -3.7749i
+;-> -0.5874 6.2268i
+;-> 9.0217 3.7036i
+
+L'esempio di wikipedia produce risultati differenti:
+
+(setq in '((1 0) (2 -1) (0 -1) (1 2)))
+
+(setq out (dft in))
+(setq outf
+  (map list (map (fn(x) (format "%5.4f" (first x))) out)
+            (map (fn(x) (format "%5.4f" (last x))) out)))
+(dolist (el outf) (println (first el) { } (last el) "i"))
+;-> 4.0000  0.0000i
+;-> -2.0000 -0.0000i
+;-> -2.0000 -2.0000i
+;-> 4.0000  2.0000i
+
 

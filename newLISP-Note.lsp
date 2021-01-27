@@ -275,10 +275,11 @@ ROSETTA CODE
   Algoritmo Damm
   Distanza tra due punti della terra
   Algoritmo Soundex
+  Trasformata Discreta di Fourier (DFT)
 
 PROJECT EULERO
 ==============
-  Problemi 1..60,62,63,66,67,92
+  Problemi 1..60,62,63,66,67,96,97
 
 PROBLEMI VARI
 =============
@@ -431,6 +432,7 @@ DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Matrici a spirale (Google)
   Lunghezza della sottostringa più lunga senza caratteri ripetuti (Amazon)
   Rendere palindroma una stringa (Google)
+  Cifre diverse (Visa)
 
 LIBRERIE
 ========
@@ -615,6 +617,7 @@ NOTE LIBERE 3
   Compromessi tra tempo e spazio  
   Scambio di somme
   Evitare begin nella condizione if
+  Frazioni continue (funzioni)
   
 APPENDICI
 =========
@@ -27210,7 +27213,7 @@ Soundex è un algoritmo fonetico per l'indicizzazione dei nomi in base al suono 
 
 I passi dell'algoritmo ufficiale sono i seguenti:
 
-1) Conserva la prima lettera del nome e eleimina tutte le altre occorrenze di a, e, i, o, u, y, h, w.
+1) Conserva la prima lettera del nome e elimina tutte le altre occorrenze di a, e, i, o, u, y, h, w.
 2) Sostituisci le consonanti con le cifre come segue (dopo la prima lettera):
    b, f, p, v → 1
    c, g, j, k, q, s, x, z → 2
@@ -27302,6 +27305,113 @@ Vediamo cosa accade con dei nomi italiani:
 ;-> ("M600" "M620" "S600" "L600" "L200" "L200" "L200" 
 ;->  "M250" "M254" "M600" "M630")
 
+
+=====================================
+TRASFORMATA DISCRETA DI FOURIER (DFT)
+=====================================
+
+Calcola la trasformata discreta di Fourier (DFT) della lista/vettore di numeri complessi in ingresso.
+
+La lista/vettore ha la seguente struttura:
+
+((real1 img1) (real2 img2) ... (realN imgN))
+
+(setq PI 3.1415926535897931)
+
+(define (dft input)
+  (local (len sum-real sum-img angle)
+    (setq len (length input))
+    (setq output (array len '(0)))
+    (for (k 0 (- len 1))
+      (setq sum-real 0 sum-img 0)
+      (for (t 0 (- len 1))
+        (setq angle (div (mul 2 PI t k) len))
+        (setq sum-real (add sum-real (add (mul (first (input t)) (cos angle))
+                                          (mul (last (input t)) (sin angle)))))
+        (setq sum-img  (add sum-img  (sub (mul (last (input t)) (cos angle))
+                                          (mul (first (input t)) (sin angle)))))
+      )
+      ;(println sum-real { } sum-img)
+      (setf (output k) (list sum-real sum-img))
+    )
+    output))
+
+Vediamo alcuni esempi:
+
+(setq in '((1 0) (4 0) (3 0) (2 0)))
+(dft in)
+;-> ((10 0) (-2 -2) (-2 -4.898425415289509e-016) (-2 1.999999999999999))
+
+(setq in '((8 0) (4 0) (8 0) (0 0)))
+(dft in)
+;-> ((20 0) (0 -4.000000000000001) 
+;->  (12 1.469527624586853e-015) 
+;->  (-8.881784197001252e-016 3.999999999999997))
+
+(setq in '(
+  (0.4967  0) (-0.1383 0) ( 0.6477 0) ( 1.523  0) (-0.2342 0) (-0.2341 0) ( 1.5792 0)
+  ( 0.7674 0) (-0.4695 0) ( 0.5426 0) (-0.4634 0) (-0.4657 0) ( 0.242  0) (-1.9133 0)
+  (-1.7249 0) (-0.5623 0) (-1.0128 0) ( 0.3142 0) (-0.908  0) (-1.4123 0) ( 1.4656 0)
+  (-0.2258 0) ( 0.0675 0) (-1.4247 0) (-0.5444 0) ( 0.1109 0) (-1.151  0) ( 0.3757 0)
+  (-0.6006 0) (-0.2917 0) (-0.6017 0) ( 1.8523 0)))
+
+(setq out (dft in))
+
+Formattiamo meglio il risultato:
+
+(setq outf
+  (map list (map (fn(x) (format "%5.4f" (first x))) out)
+            (map (fn(x) (format "%5.4f" (last x))) out)))
+
+(dolist (el outf) (println (first el) { } (last el) "i"))
+;-> -4.3939 0.0000i
+;-> 9.0217 -3.7036i
+;-> -0.5874 -6.2268i
+;-> 2.5184 3.7749i
+;-> 0.5008 -0.8433i
+;-> 1.2904 -0.4024i
+;-> 4.3391 0.8079i
+;-> -6.2614 2.1596i
+;-> 1.8974 2.4889i
+;-> 0.1042 7.6169i
+;-> 0.3606 5.1620i
+;-> 4.7965 0.0755i
+;-> -5.3064 -3.2329i
+;-> 4.6237 1.5287i
+;-> -2.1211 4.4873i
+;-> -4.0175 -0.3712i
+;-> -2.0297 -0.0000i
+;-> -4.0175 0.3712i
+;-> -2.1211 -4.4873i
+;-> 4.6237 -1.5287i
+;-> -5.3064 3.2329i
+;-> 4.7965 -0.0755i
+;-> 0.3606 -5.1620i
+;-> 0.1042 -7.6169i
+;-> 1.8974 -2.4889i
+;-> -6.2614 -2.1596i
+;-> 4.3391 -0.8079i
+;-> 1.2904 0.4024i
+;-> 0.5008 0.8433i
+;-> 2.5184 -3.7749i
+;-> -0.5874 6.2268i
+;-> 9.0217 3.7036i
+
+L'esempio di wikipedia produce risultati differenti:
+
+(setq in '((1 0) (2 -1) (0 -1) (1 2)))
+
+(setq out (dft in))
+(setq outf
+  (map list (map (fn(x) (format "%5.4f" (first x))) out)
+            (map (fn(x) (format "%5.4f" (last x))) out)))
+(dolist (el outf) (println (first el) { } (last el) "i"))
+;-> 4.0000  0.0000i
+;-> -2.0000 -0.0000i
+;-> -2.0000 -2.0000i
+;-> 4.0000  2.0000i
+
+
 ================
 
  PROJECT EULERO
@@ -27373,9 +27483,11 @@ Vediamo cosa accade con dei nomi italiani:
 |    60    |  26033        |     55055  |     38926  |             |
 |    62    |  127035954683 |         -  |      6348  |          83 |
 |    63    |  49           |         -  |         0  |           0 |
-|    67    |  661          |         -  |         0  |           - |
+|    66    |  661          |         -  |         0  |           - |
 |    67    |  7273         |         -  |         1  |           - |
-|    92    |  24702        |         -  |     27084  |             |
+|    92    |  8581146      |         -  |     51582  |           - |
+|    96    |  24702        |         -  |     27084  |           - |
+|    97    |  8739992577   |         -  |       497  |           - |
 
 Sito web: https://projecteuler.net/archives
 
@@ -34797,10 +34909,10 @@ NOTA: questa è una versione molto più difficile del problema 18. Non è possib
 Il file "triangle.txt" è stato trasformato in "e067.lsp" che ha il seguente formato:
 
 (setq tri (dup 0 100))
-(setf (tri 0 ) '(59)) 
-(setf (tri 1 ) '(73 41)) 
-(setf (tri 2 ) '(52 40 9)) 
-(setf (tri 3 ) '(26 53 6 34)) 
+(setf (tri 0) '(59)) 
+(setf (tri 1) '(73 41)) 
+(setf (tri 2) '(52 40 9)) 
+(setf (tri 3) '(26 53 6 34)) 
 ...
 
 Per caricare il file:
@@ -34808,7 +34920,6 @@ Per caricare il file:
 (load "e067.lsp")
 
 Una soluzione generica può essere ottenuta con la programmazione dinamica. In pratica per trovare la soluzione, ogni riga deve essere aggiunta a qualsiasi riga successiva, dal basso verso l'alto. Poiché ogni cella ha due predecessori, prendiamo il valore massimo delle due. Con questo metodo, la soluzione si trova nella cella superiore del triangolo:
-
 
 (load "e067.lsp")
 
@@ -34831,6 +34942,175 @@ Una soluzione generica può essere ottenuta con la programmazione dinamica. In p
 Problema 92
 ===========
 
+Catena del quadrato delle cifre
+
+Una catena di numeri viene creata aggiungendo continuamente il quadrato delle cifre in un numero per formare un nuovo numero fino a quando non è stato visto prima.
+
+Per esempio,
+
+44 → 32 → 13 → 10 → 1 → 1
+85 → 89 → 145 → 42 → 20 → 4 → 16 → 37 → 58 → 89
+
+Pertanto qualsiasi catena che arriva a 1 o 89 rimarrà bloccata in un ciclo infinito. La cosa più sorprendente è che OGNI numero di partenza alla fine arriverà a 1 o 89.
+
+Quanti numeri di partenza sotto i dieci milioni arriveranno a 89?
+============================================================================
+
+Prima di definire la funzione cha calcola la catena, dobbiamo scrivere la funzione cha calcola la somma dei quadrati delle cifre di un numero:
+
+Prima versione "sum-sq-digit":
+
+(define (int-lst num)
+  (let (out '())
+    (while (!= num 0)
+      (push (% num 10) out)
+      (setq num (/ num 10))) out))
+
+(define (sum-sq-digit num)
+  (apply + (map (fn(x) (* x x)) (int-lst num))))
+
+(sum-sq-digit 32)
+;-> 13
+(sum-sq-digit 456)
+;-> 77
+(time (sum-sq-digit 12345678901234567890) 100000)
+;-> 1554.87
+
+Seconda versione "sum-sq-digit":
+
+(define (sum-sq-digit num)
+  (let ((cifra 0) (tot 0))
+  (while (> num 0)
+    (setq cifra (% num 10))
+    (setq num (/ (- num cifra) 10))
+    (setq tot (+ tot (* cifra cifra)))
+  )
+  tot))
+
+(sum-sq-digit 32)
+;-> 13
+(sum-sq-digit 456)
+;-> 77
+(time (sum-sq-digit 12345678901234567890) 100000)
+;-> 1263.057
+;-> 140.624
+
+Terza versione "sum-sq-digit":
+
+(define (sum-sq-digit num)
+  (let ((cifra 0) (tot 0))
+  (while (> num 0)
+    (setq cifra (% num 10))
+    (setq tot (+ tot (* cifra cifra)))
+    (setq num (/ num 10))
+  )
+  tot))
+
+(sum-sq-digit 32)
+;-> 13
+(sum-sq-digit 456)
+;-> 77
+(time (sum-sq-digit 12345678901234567890) 100000)
+;-> 1112.057
+
+Quarta versione "sum-sq-digit":
+
+(define (sum-sq-digit num)
+  (let ((cifra 0) (tot 0))
+  (while (> num 0)
+    (setq cifra (% num 10))
+    (if cifra
+      (setq tot (+ tot (* cifra cifra))))
+    (setq num (/ num 10))
+  )
+  tot))
+
+(sum-sq-digit 32)
+;-> 13
+(sum-sq-digit 456)
+;-> 77
+(time (sum-sq-digit 12345678901234567890) 100000)
+;-> 1106.45
+
+Adesso scriviamo la funzione che calcola la catena di un numero:
+
+(define (chain num)
+  (local (chain-lst num-lst val found out)
+    (setq val num found nil)
+    (until found
+      (setq num (sum-sq-digit num))
+      (push num chain-lst -1)
+      (if (or (= num 1) (= num 89))
+          (setq out (list val num (length chain-lst) chain-lst) found true)
+      )
+    )
+    out))
+
+Vediamo alcuni esempi di catene:
+
+(chain 100)
+;-> (100 1 1 (1))
+(chain 1)
+;-> (1 1 1 (1))
+(chain 89)
+;-> (89 89 8 (145 42 20 4 16 37 58 89))
+(chain 44)
+;-> (44 1 4 (32 13 10 1))
+(chain 85)
+;-> (85 89 1 (89))
+
+(for (i 1 20) (println (chain i)))
+;-> (1 1 1 (1))
+;-> (2 89 5 (4 16 37 58 89))
+;-> (3 89 7 (9 81 65 61 37 58 89))
+;-> (4 89 4 (16 37 58 89))
+;-> (5 89 4 (25 29 85 89))
+;-> (6 89 9 (36 45 41 17 50 25 29 85 89))
+;-> (7 1 5 (49 97 130 10 1))
+;-> (8 89 5 (64 52 29 85 89))
+;-> (9 89 6 (81 65 61 37 58 89))
+;-> (10 1 1 (1))
+;-> (11 89 6 (2 4 16 37 58 89))
+;-> (12 89 5 (5 25 29 85 89))
+;-> (13 1 2 (10 1))
+;-> (14 89 6 (17 50 25 29 85 89))
+;-> (15 89 6 (26 40 16 37 58 89))
+;-> (16 89 3 (37 58 89))
+;-> (17 89 5 (50 25 29 85 89))
+;-> (18 89 5 (65 61 37 58 89))
+;-> (19 1 4 (82 68 100 1))
+;-> (20 89 5 (4 16 37 58 89))
+
+Scriviamo la funzione che calcola la soluzione con la forza bruta:
+
+(define (e092)
+  (local (num n89 found)
+    (setq num 9999999 n89 0)
+    (for (i 1 num)
+      (setq found nil)
+      (setq k i)
+      (until found
+        ;(setq k (apply + (map (fn(x) (* x x)) (int-lst k))))
+        (setq k (sum-sq-digit k))
+        (if (= k 89) (setq n89 (+ n89 1) found true))
+        (if (= k 1)  (setq found true))
+      )
+    )
+    n89))
+
+(e092)
+;-> 8581146
+
+(time (e092))
+;-> 51582.689
+
+Il tempo di esecuzione non è molto soddisfacente.
+
+
+===========
+Problema 96
+===========
+
 Su Doku
 
 Su Doku (giapponese che significa luogo del numero) è il nome di un concetto di puzzle popolare. La sua origine non è chiara, ma il merito viene attribuito a Leonhard Euler che ha inventato un puzzle simile e molto più difficile, chiamato Quadrati Latini. L'obiettivo dei puzzle di Su Doku è quello di sostituire gli spazi vuoti (o zeri) in una griglia 9 per 9 in modo tale che ogni riga, colonna e regione 3x3 contenga ciascuna delle cifre da 1 a 9. Di seguito è riportato un esempio di una tipica griglia di puzzle iniziale e della sua griglia di soluzione.
@@ -34849,7 +35129,7 @@ Su Doku (giapponese che significa luogo del numero) è il nome di un concetto di
 
 Un puzzle di Su Doku ben costruito ha una soluzione unica e può essere risolto dalla logica, anche se potrebbe essere necessario impiegare metodi di "indovinare e testare" per eliminare le opzioni (questo è un'opinione molto contestata). La complessità della ricerca determina la difficoltà del puzzle. L'esempio sopra è considerato facile perché può essere risolto con una semplice deduzione diretta.
 
-Il file di testo 6K, sudoku.txt (e092.lsp), contiene cinquanta diversi puzzle di Su Doku che variano in difficoltà, ma tutti con soluzioni uniche (il primo puzzle nel file è l'esempio sopra).
+Il file di testo 6K, sudoku.txt (e096.lsp), contiene cinquanta diversi puzzle di Su Doku che variano in difficoltà, ma tutti con soluzioni uniche (il primo puzzle nel file è l'esempio sopra).
 
 Risolvendo tutti e cinquanta i puzzle, trova la somma di tutti i numeri a 3 cifre che si trovano nell'angolo in alto a sinistra di ogni griglia della soluzione. Ad esempio, 483 è il numero di 3 cifre che si trova nell'angolo in alto a sinistra della griglia della soluzione sopra.
 ============================================================================
@@ -34926,7 +35206,7 @@ Risolvendo tutti e cinquanta i puzzle, trova la somma di tutti i numeri a 3 cifr
   )
 ))
 
-(define (e092)
+(define (e096)
   (local (out)
     (setq out 0)
     (load "e096.lsp")
@@ -34942,11 +35222,78 @@ Risolvendo tutti e cinquanta i puzzle, trova la somma di tutti i numeri a 3 cifr
   )
 )
 
-(e092)
+(e096)
 ;-> 24702
 
-(time (e092))
+(time (e096))
 ;-> 27084.701
+
+
+===========
+Problema 97
+===========
+
+Il più grande primo non-Mersenne
+
+Il primo numero primo noto che supera il milione di cifre è stato scoperto nel 1999 ed è un numero primo di Mersenne della forma 2 ^ 6972593-1. Contiene esattamente 2.098.960 cifre. Successivamente sono stati trovati altri numeri primi di Mersenne, della forma (2^p − 1), che contengono più cifre.
+
+Tuttavia, nel 2004 è stato trovato un enorme numero primo non Mersenne che contiene 2.357.207 cifre: 28433 × 2^7830457 + 1.
+
+Trova le ultime dieci cifre di questo numero primo.
+============================================================================
+
+Le ultime 10 cifre di un numero n si ottengono applicando l'operatore modulo: (n % 10000000000).
+Il problema è come calcolare velocemente 2^7830457. Cercando di risolvere direttamente l'espressione,  newLISP impiega un tempo lunghissimo. Infatti:
+
+Funzione per calcolare la potenza (intera) di un numero intero:
+
+(define (** num power)
+    (let (out 1L)
+        (dotimes (i power)
+            (setq out (* out num)))))
+
+Scriviamo la funzione:
+
+(define (e097) (% (+ (* (** 2L 7830456L) 28433) 1) 10000000000L))
+
+Attenzione, la seguente funzione impiega moltissimo tempo:
+
+(e097)
+
+Abbiamo visto che per estrapolare le ultime 10 cifre occorre calcolare (n mod 10000000000). Poichè per  l'operazione modulo (mod) vale la proprietà distributiva:
+
+a*b mod n = ((a mod n)*(b mod n)) mod n
+
+possiamo calcolare 2^7830457 utilizzando la moltiplicazione in un ciclo e utilizzando il modulo dopo ogni moltiplicazione. In questo modo non abbiamo neanche bisogno di utilizzare i big-integer:
+
+(define (e097)
+  (let (val 2L)
+    (for (i 1 7830456)
+      (setq val (% (* 2L val) 10000000000L))
+    )
+    (setq val (* val 28433L))
+    (setq val (+ val 1L))
+    (setq val (% val 10000000000L))))
+
+(e097)
+;-> 8739992577L
+
+(define (e097)
+  (let (val 2)
+    (for (i 1 7830456)
+      (setq val (% (* 2 val) 10000000000))
+    )
+    (setq val (* val 28433))
+    (setq val (+ val 1))
+    (setq val (% val 10000000000))))
+
+(e097)
+;-> 8739992577
+
+Inoltre il tempo di esecuzione è accettabile:
+
+(time (e097))
+;-> 497.573
 
 
 ===============
@@ -48143,7 +48490,7 @@ La soluzione usa la tecnica ricorsiva di backtracking:
       (cond ((< end 0) nil)
             ((zero? resto) (push cur-out out -1))
             ((>= resto (monete end))
-              (cambio-min-aux end 
+              (cambio-min-aux end
                               (- resto (monete end))
                               (push (monete end) cur-out -1)))
             (true (cambio-min-aux (- end 1) resto cur-out))
@@ -48773,7 +49120,7 @@ Destinazione: (7 5)
 ;-> (0 1 1 1 2 2 1 1 0 0)
 ;-> (1 1 1 1 1 0 0 1 1 1)
 ;-> (0 0 1 0 0 1 1 0 0 1)
-;-> (12 (0 0) (0 1) (1 1) (1 2) (2 2) (3 2) (3 3) 
+;-> (12 (0 0) (0 1) (1 1) (1 2) (2 2) (3 2) (3 3)
 ;->     (4 3) (5 3) (5 4) (6 4) (7 4) (7 5))
 
 
@@ -48849,7 +49196,7 @@ Lista di tutti gli eventi possibili (ogni elemento della lista rappresenta un la
 ;->  (2 5) (2 6) (3 1) (3 2) (3 3) (3 4) (3 5) (3 6) (4 1) (4 2)
 ;->  (4 3) (4 4) (4 5) (4 6) (5 1) (5 2) (5 3) (5 4) (5 5) (5 6)
 ;->  (6 1) (6 2) (6 3) (6 4) (6 5) (6 6))
- 
+
 Calcolo gli eventi favorevoli a p1, quelli favorevoli a p2 e quelli in parità:
 
 (setq p1 0)
@@ -49078,7 +49425,7 @@ Usiamo un dizionario (hash-map) che ci permette di inserire automaticamente solo
     ; inserisce i valori della lista 2 sull'hash-map
     ; (solo quelli non presenti nell'hash-map)
     (dolist (el lst2) (Hash el el))
-    ; creazione della lista di output 
+    ; creazione della lista di output
     (dolist (el (Hash)) (push (el 1) out -1))
     ; occorre eliminare i valori dalla hash-map
     ; perchè è una variabile globale (è un contesto)
@@ -49096,7 +49443,7 @@ Tripla crescente (LeetCode)
 ---------------------------
 
 Data una lista non ordinata restituire, se esiste, una sottosequenza crescente di lunghezza 3.
-I numeri non devono essere necessariamente consecutivi. 
+I numeri non devono essere necessariamente consecutivi.
 Il problema non richiede di trovare la sottosequenza, ma verificare solo la sua esistenza.
 
 Dal punto di vista formale occorre trovare una sequenza x, y e z, tale che x < y < z.
@@ -49114,7 +49461,7 @@ Dal punto di vista formale occorre trovare una sequenza x, y e z, tale che x < y
             (true (setq out true))
       )
     )
-    ; I valori memorizzati in x,y,z non sono 
+    ; I valori memorizzati in x,y,z non sono
     ; necessariamente la sottosequenza crescente
     ;(println x { } y { } z)
     out
@@ -49211,10 +49558,10 @@ Ad esempio, data s = "abcba" e k = 2, la sottostringa più lunga con k distinti 
       (++ end)
       (while test
         (setq dist-char (length (unique (explode (slice s start (- end start))))))
-        (if (<= dist-char k) 
+        (if (<= dist-char k)
            (setq test nil)
            (++ start)
-        )  
+        )
       )
       (setq test true)
       (setq max-len (max max-len (- end start)))
@@ -49291,7 +49638,7 @@ Scriviamo la funzione "tripla":
 (tripla '(0 -1 2 -3 1 ) -2)
 ;-> ((-3 -1 2) (-3 0 1))
 (tripla '(0 1 2 3 4 5 6 7 8 9 -9 -8 -7 -6 -5 -4 -3 -2 -1) 5)
-;-> ((-9 5 9) (-9 6 8) (-8 4 9) (-8 5 8) (-8 6 7) (-7 3 9) (-7 4 8) (-7 5 7) 
+;-> ((-9 5 9) (-9 6 8) (-8 4 9) (-8 5 8) (-8 6 7) (-7 3 9) (-7 4 8) (-7 5 7)
 ;->  (-6 2 9) (-6 3 8) (-6 4 7) (-6 5 6) (-5 1 9) (-5 2 8) (-5 3 7) (-5 4 6)
 ;->  (-4 0 9) (-4 1 8) (-4 2 7) (-4 3 6) (-4 4 5) (-3 -1 9) (-3 0 8) (-3 1 7)
 ;->  (-3 2 6) (-3 3 5) (-2 -1 8) (-2 0 7) (-2 1 6) (-2 2 5) (-2 3 4) (-1 0 6)
@@ -49314,7 +49661,7 @@ Utilizziamo la funzione "powerset" che genera tutte le sottoliste di una lista e
            (append (map (fn (subset) (cons element subset)) p) p) )))
 
 (powerset '(1 3 4 2))
-;-> ((1 3 4 2) (1 3 4) (1 3 2) (1 3) (1 4 2) (1 4) (1 2) 
+;-> ((1 3 4 2) (1 3 4) (1 3 2) (1 3) (1 4 2) (1 4) (1 2)
 ;->  (1) (3 4 2) (3 4) (3 2) (3) (4 2) (4) (2) ())
 
 Utilizzeremo la funzione "apply":
@@ -50225,15 +50572,15 @@ La soluzione è analoga alla precedente, l'unica differenza sta nel fatto che in
 
 (crea-spirale 3)
 ;-> ((1 2 3) (8 9 4) (7 6 5))
-(1 2 3) 
-(8 9 4) 
+(1 2 3)
+(8 9 4)
 (7 6 5)
 
 (crea-spirale 4)
 ;-> ((1 2 3 4) (12 13 14 5) (11 16 15 6) (10 9 8 7))
-( 1  2  3 4) 
-(12 13 14 5) 
-(11 16 15 6) 
+( 1  2  3 4)
+(12 13 14 5)
+(11 16 15 6)
 (10  9  8 7)
 
 
@@ -50272,7 +50619,7 @@ Caso 2: se l'occorrenza precedente di questo carattere fa parte della sottostrin
           (++ cur-len)
           ; case 2
           (begin
-          ; Check if the length of previous running substring 
+          ; Check if the length of previous running substring
           ; was more than the current or not
           (if (> cur-len max-len)
               (setq max-len cur-len))
@@ -50282,7 +50629,7 @@ Caso 2: se l'occorrenza precedente di questo carattere fa parte della sottostrin
       ; Index update of current character
       (setf (visited (char (str i) 0 true)) i)
     )
-    ; Compare the length of last current running longest substring 
+    ; Compare the length of last current running longest substring
     ; with max-len and update max-len if needed
     (if (> cur-len max-len)
         (setq max-len cur-len)
@@ -50306,7 +50653,7 @@ La seguente funzione utilizza un algoritmo simile al precedente:
 (define (unique-substr str)
   (local (last-index len res-num res-str max-char idx cur-idx)
     (setq max-char 256)
-    ; Initialize the last index array as -1, 
+    ; Initialize the last index array as -1,
     ; -1 is used to store last index of every character
     (setq last-index (array max-char '(-1)))
     (setq len (length str))
@@ -50403,6 +50750,70 @@ Vediamo una possibile implementazione:
 
 (make-palindrome-front "eva")
 ;-> "aveva"
+
+
+--------------------
+Cifre diverse (Visa)
+--------------------
+
+Quanti numeri hanno cifre diverse da 1 a un milione?
+
+Per vedere se due numeri hanno le stesse cifre possiamo ordinare le cifre in modo decrescente e poi verificare se l'ordinamento è lo stesso per entrambi i numeri. Per fare questa codifica usiamo la funzione "digit-sort":
+
+(define (digit-sort num)
+  (let (out 0)
+    (dolist (el (sort (explode (string num)) >))
+      (setq out (+ (* out 10) (int el))))))
+
+Per esempio i due numeri 45637028 e 65782043 hanno le stesse cifre e quindi producono la stessa codifica:
+
+(digit-sort 45637028)
+;-> 87654320
+(digit-sort 65782043)
+;-> 87654320
+
+Le cifre devono essere uguali anche nella molteplicità, ad esempio 123 è diverso da 1223:
+
+(digit-sort 123)
+;-> 321
+(digit-sort 1223)
+;-> 3221
+
+Possiamo inserire tutte le codifiche in una lista e poi eliminare gli elementi multipli:
+
+(define (unici num)
+  (let (out '())
+    (for (i 1 num)
+      (push (digit-sort i) out -1)
+    )
+    (length (unique out))))
+
+(unici 1000000)
+;-> 8002
+
+(time (unici 1000000))
+;-> 4466.223
+
+Proviamo ad utilizzare una hash-map:
+
+(define (unici2 num)
+  (let ((key 0) (out '()))
+    (new Tree 'myHash)
+    (for (i 1 num)
+      (setq key (digit-sort i))
+      (myHash key key)
+    )
+    (println (length (myHash)))
+    (delete 'myHash)
+  ))
+
+(unici2 1000000)
+;-> 8002
+
+(time (unici2 1000000))
+;-> 4247.46
+
+Le due funzioni hanno tempi simili perchè nella prima funzione la primitiva "unique" è molto veloce e non facciamo nessun accesso random alla lista.
 
 
 ==========
@@ -63027,7 +63438,7 @@ Un altro esempio:
 (fract2fc 79 22)
 ;-> (3 1 1 2 4)
 
-Adesso dobbiamo scrivere una funzione che converte una frazione continua in un numero fratto (numeratore e denominatore).
+Adesso dobbiamo scrivere una funzione che converte una frazione continua in un numero fratto (numeratore e denominatore). In altre parole si tratta del calcolo dei convergenti di una frazione continua.
 Utilizziamo le seguenti funzioni per calcolare la somma di due frazioni:
 
 (define (rat n d)
@@ -68717,6 +69128,164 @@ Oppure, se le espressioni che dobbiamo eseguire sono diverse tra loro, allora po
 )
 
 In questo modo "let" racchiude tutte le espressioni in un'unica espressione che non necessita di "begin".
+
+
+----------------------------
+Frazioni continue (funzioni)
+----------------------------
+
+Funzione che calcola i primi n termini della frazione continua di un numero:
+
+(define (num2cf x n)
+  (local (cf xi stop)
+    (setq cf '())
+    (setq stop nil)
+    (for (k 0 (- n 1) 1 stop)
+      (setq xi (floor x))
+      (push xi cf -1)
+      (if (zero? (sub x xi) )
+          (setq stop true)
+          (setq x (div 1 (sub x xi)))
+      )
+    )
+    cf))
+
+Facciamo alcune prove:
+
+(num2cf (sqrt 2) 10)
+;-> (1 2 2 2 2 2 2 2 2 2)
+
+(setq PI 3.1415926535897931)
+(num2cf PI 25)
+;-> (3 7 15 1 292 1 1 1 2 1 3 1 14 3 3 23 1 1 7 4 35 1 1 1 2)
+
+(num2cf 1.5 10)
+;-> (1 2)
+(num2cf 0.5 10)
+;-> (0 2)
+(num2cf 2 10)
+;-> (2)
+
+Il prossimo esempio produce un risutato errato a causa degli arrotondamenti dei numeri in virgola mobile:
+
+(num2cf 3.245 10)
+;-> (3 4 12 3 1 247777268231 4 1 2 1)
+
+Funzione che calcola tutti i termini della frazione continua di una frazione:
+
+(define (fract2cf a b)
+  (local (fc r out)
+    (setq out '())
+    (while (!= 0 r)
+      (setq r (% a b))
+      (setq fc (/ a b))
+      (push fc out -1)
+      (setq a b)
+      (setq b r)
+    )
+    out))
+
+(fract2cf 3245 1000)
+;-> '(3 4 12 4)
+
+(fract2cf 31415926535897931 10000000000000000)
+;-> (3 7 15 1 292 1 1 1 2 1 3 1 14 3 2 2 1 1 1 1 2 2 12 24 1 1 6 2 4 1 3 3)
+
+Funzione che calcola il numero di una frazione continua:
+
+(define (cf2num cf)
+  (local (x)
+    (cond ((= (length cf) 1) (setq x (first cf)))
+          (true
+           (setq x (cf -1))
+           (for (k (- (length cf) 2) 0 -1)
+             (setq x (add (cf k) (div 1 x)))
+           )))
+    x))
+
+Facciamo alcune prove:
+
+(cf2num '(1 2 2 2 2 2 2 2 2 2))
+;-> 1.41421362489487
+(sqrt 2)
+;-> 1.414213562373095
+
+(cf2num '(3 7 15 1 292 1 1 1 2 1 3 1 14 3 3 23 1 1 7 4 35 1 1 1 2))
+;-> 3.141592653589793
+
+(cf2num '(1 2))
+;-> 1.5
+(cf2num '(0 2))
+;-> 0.5
+(cf2num '(2))
+;-> 2
+
+(cf2num '(3 4 12 4))
+;-> 3.245
+
+Funzione che calcola i convergenti di una frazione continua:
+
+(define (cf2conv cf)
+  (local (p0 q0 p1 q1 p2 q2)
+    (setq p0 1 q0 0)
+    (setq p1 (cf 0) q1 1)
+    (for (k 1 (- (length cf) 1))
+      (setq p2 (+ (* (cf k) p1) p0))
+      (setq q2 (+ (* (cf k) q1) q0))
+      (println (list p2 q2 (div p2 q2)))
+      (setq p0 p1 q0 q1 p1 p2 q1 q2)
+    )
+    (list p2 q2 (div p2 q2))))
+
+(cf2conv '(2 1 2 1 1 4 1 1 6 1))
+;-> (3 1 3)
+;-> (8 3 2.666666666666667)
+;-> (11 4 2.75)
+;-> (19 7 2.714285714285714)
+;-> (87 32 2.71875)
+;-> (106 39 2.717948717948718)
+;-> (193 71 2.71830985915493)
+;-> (1264 465 2.718279569892473)
+;-> (1457 536 2.718283582089552)
+;-> (1457 536 2.718283582089552)
+
+(cf2conv '(3 4 12 4))
+;-> (13 4 3.25)
+;-> (159 49 3.244897959183673)
+;-> (649 200 3.245)
+
+(cf2conv '(3 7 15 1 292 1 1 1 2 1 3 1 14 3 2 2 1 1 1 1 2 2 12 24 1 1 6 2 4 1 3 3))
+;-> (22 7 3.142857142857143)
+;-> (333 106 3.141509433962264)
+;-> (355 113 3.141592920353983)
+;-> (103993 33102 3.141592653011903)
+;-> (104348 33215 3.141592653921421)
+;-> (208341 66317 3.141592653467437)
+;-> (312689 99532 3.141592653618937)
+;-> (833719 265381 3.141592653581078)
+;-> (1146408 364913 3.141592653591404)
+;-> (4272943 1360120 3.141592653589389)
+;-> (5419351 1725033 3.141592653589815)
+;-> (80143857 25510582 3.141592653589793)
+;-> (245850922 78256779 3.141592653589793)
+;-> (571845701 182024140 3.141592653589793)
+;-> (1389542324 442305059 3.141592653589793)
+;-> (1961388025 624329199 3.141592653589793)
+;-> (3350930349 1066634258 3.141592653589793)
+;-> (5312318374 1690963457 3.141592653589793)
+;-> (8663248723 2757597715 3.141592653589793)
+;-> (22638815820 7206158887 3.141592653589793)
+;-> (53940880363 17169915489 3.141592653589793)
+;-> (669929380176 213245144755 3.141592653589793)
+;-> (16132246004587 5135053389609 3.141592653589793)
+;-> (16802175384763 5348298534364 3.141592653589793)
+;-> (32934421389350 10483351923973 3.141592653589793)
+;-> (214408703720863 68248410078202 3.141592653589793)
+;-> (461751828831076 146980172080377 3.141592653589793)
+;-> (2061416019045167 656169098399710 3.141592653589793)
+;-> (2523167847876243 803149270480087 3.141592653589793)
+;-> (9630919562673896 3065616909839971 3.141592653589793)
+;-> (31415926535897931 10000000000000000 3.141592653589793)
 
 
 ===========
