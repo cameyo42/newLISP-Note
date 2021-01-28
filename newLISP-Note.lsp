@@ -27487,7 +27487,7 @@ L'esempio di wikipedia produce risultati differenti:
 |    63    |  49           |         -  |         0  |           0 |
 |    66    |  661          |         -  |         0  |           - |
 |    67    |  7273         |         -  |         1  |           - |
-|    92    |  8581146      |         -  |     51582  |           - |
+|    92    |  8581146      |         -  |     51582  |         116 |
 |    96    |  24702        |         -  |     27084  |           - |
 |    97    |  8739992577   |         -  |       497  |           - |
 
@@ -27515,6 +27515,8 @@ Nota: i problemi devono essere risolti con la "regola del minuto", cioè i progr
 
 In questo paragrafo affronteremo e risolveremo alcuni di questi problemi. Comunque prima di vedere la soluzione dovresti provare a risolverli per conto proprio in modo da migliorare le tue capacità di problem-solver e di programmatore.
 
+Nota: La maggior parte delle soluzioni contiene una spiegazione dell'algoritmo utilizzato e alcuni problemi sono risolti con due algoritmi diversi. In genere il secondo algoritmo ha un approccio più matematico ed è più veloce.
+
 Vengono prima presentate alcune funzioni comuni che servono per la soluzione di diversi problemi.
 
 ;=============================================
@@ -27523,7 +27525,6 @@ Vengono prima presentate alcune funzioni comuni che servono per la soluzione di 
 ; Non funziona con i big integer
 ; numero massimo (int64): 9223372036854775807
 ;=============================================
-
 (define (isprime? n)
    (if (< n 2) nil
        (= 1 (length (factor n)))))
@@ -27535,7 +27536,6 @@ Vengono prima presentate alcune funzioni comuni che servono per la soluzione di 
 ; Non funziona con i big integer
 ; numero massimo (int64): 9223372036854775807
 ;=============================================
-
 (define (factor-group x)
   (if (= x 1) '(1 1)
     (letn (fattori (factor x)
@@ -27562,8 +27562,6 @@ E la funzione inversa a factor-group che genera il numero partendo dalla fattori
 
 (inv-factor-group (factor-group 232792560))
 ;-> 232792560
-
-Nota: Alcuni problemi sono risolti con due algoritmi diversi. In genere il secondo algoritmo ha un approccio più matematico.
 
 ==========
 Problema 1
@@ -35107,6 +35105,132 @@ Scriviamo la funzione che calcola la soluzione con la forza bruta:
 ;-> 51582.689
 
 Il tempo di esecuzione non è molto soddisfacente.
+
+Per trovare un algoritmo migliore dobbiamo fare alcune considerazioni.
+
+Notiamo che due numeri che hanno le stesse cifre hanno la stessa catena perchè calcoliamo la somma dei quadrati delle cifre. Per esempio i numeri 4666777 e 6767674 hanno la stessa catena:
+
+(chain 4666777)
+;-> (4666777 89 9 (271 54 41 17 50 25 29 85 89))
+
+(chain 6767674)
+;-> (6767674 89 9 (271 54 41 17 50 25 29 85 89))
+
+Quindi tutti i numeri che hanno le stesse cifre (non considerando lo 0 perchè facciamo il quadrato di ogni cifra) hanno la stessa catena.
+
+Inoltre, la più grande somma possibile di quadrati è creata dal numero 9999999, che vale 7^9 = 567.
+Possiamo usare questo numero come dimensione di una lista che contiene tutti i valori generati dal calcolo della somma dei quadrati delle cifre per i numeri inferiori 10 milioni (questo perchè tutti gli altri numeri inferiori a 10 milioni sono solo permutazioni con una somma minore).
+
+Prima scriviamo una funzione che restituisce true se la catena di un dato numero termina con 89, altrimenti restituisce nil:
+
+(define (end89? n)
+  (local (sum x)
+    (while (and (!= n 1) (!= n 89))
+      (setq sum 0)
+      (while (> n 0)
+        (setq x (% n 10))
+        (setq sum (+ sum (* x x)))
+        (setq n (/ n 10))
+      )
+      (setq n sum)
+    )
+    (= n 89)))
+
+(end89? 1)
+;-> nil
+(end89? 89)
+;-> true
+(end89? 4666777)
+;-> true
+(end89? 6767674)
+;-> true
+
+Poi possiamo creare la lista che contiene le somme:
+
+(setq lst-sum '(0))
+(for (i 1 567) (push (end89? i) lst-sum -1))
+
+I valori delle somme non coprono tutti i numeri da 1 a 567:
+
+(count '(true) lst-sum)
+;-> 486
+
+Adesso dobbiamo sapere quante volte un dato insieme di cifre può verificarsi sotto i 10 milioni. Questo è semplicemente il fattoriale del numero totale di elementi (cioè quante cifre, 7) diviso per il prodotto dei fattoriali dei conteggi degli elementi unici (quante volte compare ogni cifra):
+
+(numero-elementi-gruppo = 7! / (c1! * c2! * ... * c9!))
+
+Per esempio, per il numero 4666777 otteniamo che il numero di elementi vale (coefficiente multinomiale):
+
+numero-elementi-gruppo(4666777) = 7! / (1! * 3! * 3!) = 140
+
+Vediamo quante combinazioni di cifre univoche ci sono da 1 a 9999999 (combinazioni con ripetizione):
+
+(define (comb-rep k lst)
+  (cond ((zero? k 0) '(()))
+        ((null? lst) '())
+        (true
+         (append (map (lambda (x) (cons (first lst) x))
+                      (comb-rep (- k 1) lst))
+                 (comb-rep k (rest lst))))))
+
+(setq numeri (comb-rep 7 '(1 2 3 4 5 6 7 8 9 0)))
+(length numeri)
+;-> 11440
+
+Esistono solo 11.440 combinazioni di cifre univoche comprese tra 1 e 9999999.
+
+Quindi dobbiamo trovare un modo per calcolare la catena solo di questi numeri.
+Potremmo utilizzare 9 cicli "for" per generare numeri del tipo "abcdefg" e quando le cifre soddisfano a≤b≤c≤d≤e≤f≤g, allora controllare la somma nella lista delle somme (lst-sum). Se la catena termina con 89, dobbiamo aggiungere tutte le possibili combinazioni (calcolate con il coefficiente multinomiale) al risultato.
+
+Per velocizzare i calcoli utilizziamo una lista precalcolata per i fattoriali da 0 a 7:
+
+fact = (1 1 2 6 24 120 720 5040)
+
+Oppure possiamo utilizzare direttamente i numeri della lista "numeri", verificare se la sua catena di ogni termina con 89 ed eventualmente aggiungere al totale il numero degli elementi del suo gruppo (cioè tutti i numeri che conducono a 89) calcolando il relativo coefficiente multinomiale.
+
+Proviamo a scrivere una funzione con quest'ultimo algoritmo.
+
+Funzione che converte una lista in un intero:
+
+(define (lst-int lst)
+  (let (num 0)
+    (dolist (el lst) (setq num (+ el (* num 10))))))
+
+Funzione finale:
+
+(define (e092)
+  (local (fact numeri num out)
+    (setq out 0)
+    (setq fact '(1 1 2 6 24 120 720 5040))
+    ; creazione dei 11440 numeri univoci
+    (setq numeri (comb-rep 7 '(1 2 3 4 5 6 7 8 9 0)))
+    ;(setq numeri (map lst-int (comb-rep 7 '(1 2 3 4 5 6 7 8 9 0))))
+    (dolist (el numeri)
+      ;(println $idx { } el)
+      (setq num (lst-int el))
+      ; se la catena del numero corrente finisce con 89
+      (if (and (> num 0) (end89? num))
+          ; allora aggiorniamo la somma totale
+          ; sommando il coefficiente multinomiale
+                 ; contiamo la molteplicità delle cifre del numero
+          (letn ((conta (count '(1 2 3 4 5 6 7 8 9 0) el))
+                 ; e poi calcoliamo il coefficiente multinomiale
+                 (coeff (/ (fact 7) (apply * (map (fn(x) (fact x)) conta)))))
+                ; aggiorniamo il totale
+                (setq out (+ out coeff))
+          )
+      )
+    )
+    out))
+
+(e092)
+;-> 8581146
+
+(time (e092))
+;-> 116.715
+
+La prima soluzione processa 9999999 di numeri, mentre la seconda soluzione processa 11440 numeri. Il rapporto vale: (/ 9999999 11440) = 874.
+Per i tempi di esecuzione abbiamo il seguente rapporto: (/ 51582 116) = 444, cioè la seconda funzione è circa 450 volte più veloce.
 
 
 ===========
