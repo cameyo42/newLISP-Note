@@ -279,7 +279,7 @@ ROSETTA CODE
 
 PROJECT EULERO
 ==============
-  Problemi 1..60,62,63,66,67,96,97
+  Problemi 1..60,62,63,66,67,92,96,97
 
 PROBLEMI VARI
 =============
@@ -618,6 +618,8 @@ NOTE LIBERE 3
   Scambio di somme
   Evitare begin nella condizione if
   Frazioni continue (funzioni)
+  Redditi e tasse
+  Numero di eulero o di nepero
   
 APPENDICI
 =========

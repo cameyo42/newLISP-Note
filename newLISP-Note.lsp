@@ -279,7 +279,7 @@ ROSETTA CODE
 
 PROJECT EULERO
 ==============
-  Problemi 1..60,62,63,66,67,96,97
+  Problemi 1..60,62,63,66,67,92,96,97
 
 PROBLEMI VARI
 =============
@@ -618,6 +618,8 @@ NOTE LIBERE 3
   Scambio di somme
   Evitare begin nella condizione if
   Frazioni continue (funzioni)
+  Redditi e tasse
+  Numero di eulero o di nepero
   
 APPENDICI
 =========
@@ -69286,6 +69288,186 @@ Funzione che calcola i convergenti di una frazione continua:
 ;-> (2523167847876243 803149270480087 3.141592653589793)
 ;-> (9630919562673896 3065616909839971 3.141592653589793)
 ;-> (31415926535897931 10000000000000000 3.141592653589793)
+
+
+---------------
+Redditi e tasse
+---------------
+
+In genere le tasse sui redditi vengono definite per "scaglioni" (classe di reddito). Ad esempio in Italia valgono le seguenti classi:
+
+fino a 15000 euro il 23%
+(23% del reddito)
+
+da 15001 fino a 28000 euro il 27%
+(3450.00 + 27% sulla parte oltre i 15000 euro)
+
+da 28.001 fino a 55.000 euro il 38%
+(6960.00 + 38% sulla parte oltre i 28000 euro
+
+da 55.001 fino a 75.000 euro il 41%
+(17220.00 + 41% sulla parte oltre i 55000 euro)
+
+oltre 75.000 euro il 43%
+(25420.00 + 43% sulla parte oltre i 75000 euro
+
+Esempio:
+Reddito = 27000 euro
+15000 * 23% = 3450
+più il 27% sulla parte oltre i 15000 (27000 - 15000 = 12000) = 3240, 
+per un totale di (3450 + 3240 = 6690).
+
+Scrivere una funzione che calcola le tasse da pagare dato un determinato reddito.
+
+Questo problema permette una soluzione elegante utilizzando la ricorsione.
+
+La tabella viene codificata nel modo seguente:
+
+(setq tabella '((75000 0.43) (55000 0.41) (28000 0.38) (15000 0.27) (0 0.23)))
+
+Definiamo alcune funzione tipiche del LISP:
+
+(define car first)
+;-> first@4071B9
+(define cdr rest)
+;-> rest@4072CA
+(define (caar x)   (first (first x)))
+(define (cadar x)  (first (rest (first x))))
+
+Vediamo cosa estraggono dalla lista le funzioni "caar" e "cadar":
+
+(caar tabella)
+;-> 75000
+(cadar tabella)
+;-> 0.43
+
+(define (tasse reddito tabella)
+   (if (null? tabella) 0
+     (add (mul (max (sub reddito (caar tabella)) 0) (cadar tabella))
+               (tasse (min reddito (caar tabella)) (cdr tabella)))))
+
+Da notare che la ricorsione viene applicata sommando le tasse e diminuendo la lunghezza della tabella ad ogni passo. Possiamo capire meglio il funzionamento se calcoliamo le seguenti espressioni (che rappresentano il primo passo della ricorsione):
+
+(mul (max (sub 27000 (caar tabella)) 0) (cadar tabella))
+;-> 0
+
+(min 27000 (caar tabella))
+;-> 27000
+
+(cdr tabella)
+;-> ((55000 0.41) (28000 0.38) (15000 0.27) (0 0.23))
+
+Applichiamo la funzione all'esempio:
+
+(tasse 27000 tabella)
+;-> 6690
+
+E verifichiamo altri casi:
+
+(tasse 0)
+;-> 0
+(tasse 15000 tabella)
+;-> 3450
+(tasse 15001 tabella)
+;-> 3450.27
+(tasse 75000 tabella)
+;-> 25420
+(tasse 75001 tabella)
+;-> 25420.43
+
+Adesso vediamo come variano le tasse in funzione del reddito:
+
+(define (curva tabella reddito step)
+  (let (out '())
+    (for (i step reddito step)
+      (push (list i (tasse i tabella)) out -1))
+    out))
+
+(setq data (curva tabella 200000 1000))
+
+Adesso scriviamo una funzione che crea un file grafico ("tasse.png") che visualizza relazione reddito/tasse:
+
+(module "plot.lsp")
+
+(define (plotXY lst)
+  (local (xx zz)
+    ; azzera parametri della funzione plot
+    (plot:reset)
+    ; opzionale title, sub-title, labels e legend, data min/max per Y
+    (set 'plot:title "Tasse sul reddito")
+    (set 'plot:sub-title "IRPEF 2020")
+    (set 'plot:unit-x "reddito")
+    (set 'plot:unit-y "tasse")
+    ; crea il file dei dati 
+    ; lista dei valori x (reddito) e lista dei valori z (tasse)
+    (setq xx '())
+    (setq zz '())
+    (dolist (el lst)
+      (push (first el) xx -1)
+      (push (last el) zz -1 ))
+    ; plot data      
+    (plot:XY xx zz)
+    ; salva il plot su un file
+    (plot:export (string "tasse.png"))))
+
+Creiamo il grafico:
+
+(plotXY data)
+
+Potete trovare il file nella cartella "data".
+
+
+----------------------------
+Numero di eulero o di nepero
+----------------------------
+e = 2.7182818284590451
+
+(exp 1)
+;-> 2.718281828459045
+
+Supponiamo di avere depositato un certo capitale C al tasso di interesse annuo di x per cento, cioè al tasso assoluto di r = x/100.
+
+Dopo un anno il nostro capitale è diventato C(1) = C*(1+r). Dopo un altro anno: C(2) = C1*(1+r) = C*(1+r)^2, dopo tre anni C(3) = C*(1+r)^3 e dopo n anni C(n) = C*(1+r)^n. La crescita esponenziale è dovuta agli interessi maturati precedentemente che maturano altri interessi.
+
+Supponiamo che dopo 6 mesi (1/2 anno) il capitale si sia rivalutato di r/2 (in realtà non è così perché altrimenti risulterebbe (dopo n anni): C(n) =C*(1+n*r) invece di C(n) = C*(1+r)^n).
+Dopo un semestre il capitale sarà diventato C(1/2) = C*(1+r/2) e dopo un anno C1 = C*(1+r/2)^2 .
+
+Per ogni quadrimestre (1/3 di anno) al tasso di r/3 avrei C(1/3) = C*(1+r/3) e dopo un anno C(1) = C*(1+r/3)^3.
+
+Se gli interessi maturassero ogni 1/n di anno al tasso di r/n dopo ogni m frazioni di anno avremmo C(m/n) = C(1+r/n)^m e dopo un anno C1 = C*(1+r/n)n.
+
+Per una maturazione continua (interesse composto) basta passare al limite per n tendente all’infinito e dopo un anno avremmo un capitale di: C(1) = C*lim(1+r/n)^n.
+
+Se poniamo r = 1 questo limite è proprio il numero di Eulero "e".
+
+Calcoliamo questo limite (facendo assumere ad n valori sempre maggiori):
+
+(define (limite n) (pow (add 1 (div n)) n))
+
+(limite 1000)
+;-> 2.71692393223552
+(limite 10000)
+;-> 2.718145926824356
+(limite 100000)
+;-> 2.718268237197528
+(limite 1000000)
+;-> 2.718280469156428
+
+Vediamo la differenza con il numero "e":
+
+(sub (exp 1) (limite 1000000))
+;-> 1.359302617576219e-006
+
+Invece, se r è diverso da 1 con il cambio di variabile m = n/r si ha:
+
+lim(1+r/n)^n = lim(1+1/m)^(m*r) = (lim(1+1/m)^m)^r = e^r
+
+Anche questa volta abbiamo ritrovato il numero di Eulero "e".
+
+Quindi dopo un anno sarà C(1) = C*e^r e dopo t anni (con t non necessariamente intero): C(t) = C*e^(t*r).
+
+Da notare che il numero "e" è scaturito naturalmente, non è stato introdotto artificiosamente.
+Purtroppo le banche non concedono un tasso assoluto di interesse continuo.
 
 
 ===========
