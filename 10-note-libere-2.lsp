@@ -3222,7 +3222,7 @@ Si noti che nelle liste con meno di circa 100 elementi o stringhe di meno di cir
 
 Le funzioni integrate e definite dall'utente sono adatte per entrambi i tipi di argomenti, ma quando si passano i nomi di contesto, i dati verranno passati per riferimento.
 
-I simboli tra virgolette possono anche essere utilizzati per passare i dati per riferimento, ma questo metodo presenta degli svantaggi:
+I simboli quotati possono anche essere utilizzati per passare i dati per riferimento, ma questo metodo presenta degli svantaggi:
 
 (define (change-list aList) (push 999 (eval aList)))
 
@@ -3630,7 +3630,10 @@ Come si nota, se partiamo dalla posizione "testa" non possiamo mai ottenere un l
       ; crea una lista di 0 e 1 alternati di lunghezza casuale (da 3 a 22)
       ; che inizia con 0 (testa).
       ; Restituisce una lista con il numero di 0 e di 1.
+      ; inizia con testa 0
       (setq res (count '(0 1) (slice (flat (dup '(0 1) 11)) 0 (+ (rand 19) 3))))
+      ; inizia con croce 1
+      ;(setq res (count '(0 1) (slice (flat (dup '(1 0) 11)) 0 (+ (rand 19) 3))))
       (setq t (+ t (first res)))
       (setq c (+ c (last res)))
     )
@@ -4855,7 +4858,7 @@ Ci vogliono 1.008094955964925e+041 anni.
 
 L'età dell'universo è 13.8 miliardi di anni (1.38e+010)...
 
-In realtà non hanno calcolato il numero, ma hanno costruito il problema in modo che la soluzione fosse quella desiderata. Nella teoria dei numeri, ci sono vari teoremi che ti dicono come si relazioneranno due numeri e, se vengono usati in modo intelligente, è possibile creare problemi come questo.
+In realtà non hanno calcolato il numero, ma hanno costruito il problema in modo che la soluzione fosse quella desiderata. Nella teoria dei numeri, ci sono vari teoremi che definiscono come si relazioneranno due numeri e, se vengono usati in modo opportuno, è possibile creare problemi come questo.
 
 Un altro esempio è il seguente:
 
@@ -4894,7 +4897,7 @@ Definizioni:
 (ceil x) = min (n ≥ x) dove n è intero
 (fract x) = x - (floor x)
 
-QUindi risulta:
+Quindi risulta:
 
 (x - 1) < m ≤ x ≤ n < (x + 1)
 
@@ -4936,6 +4939,7 @@ Vediamo alcuni esempi:
 ----------------
 Multipli di nove
 ----------------
+
 Un fatto noto nella teoria dei numeri è che se prendiamo un intero positivo e sottraiamo la somma delle sue cifre da quel numero, otteniamo un multiplo di 9.
 
 (define (mul9 n)
@@ -5092,7 +5096,7 @@ Tutte le versioni stampano il seguente risultato:
 Conversione tra liste, stringhe, caratteri e simboli
 ----------------------------------------------------
 
-Definiamo due funzioni che convertono una stringa in una lista di caratteri e vicerversa.
+Definiamo due funzioni che convertono una stringa in una lista di caratteri e viceversa.
 
 Stringa --> lista di caratteri
 ------------------------------

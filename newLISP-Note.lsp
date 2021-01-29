@@ -279,7 +279,7 @@ ROSETTA CODE
 
 PROJECT EULERO
 ==============
-  Problemi 1..60,62,63,66,67,92,96,97
+  Problemi 1..60,62..67,87,89,92,96,97
 
 PROBLEMI VARI
 =============
@@ -27485,8 +27485,12 @@ L'esempio di wikipedia produce risultati differenti:
 |    60    |  26033        |     55055  |     38926  |             |
 |    62    |  127035954683 |         -  |      6348  |          83 |
 |    63    |  49           |         -  |         0  |           0 |
+|    64    |  1322         |         -  |        81  |           - |
+|    65    |  272          |         -  |         0  |           - |
 |    66    |  661          |         -  |         0  |           - |
 |    67    |  7273         |         -  |         1  |           - |
+|    87    |  1097343      |         -  |      1153  |           - |
+|    89    |  743          |         -  |         0  |           - |
 |    92    |  8581146      |         -  |     51582  |         116 |
 |    96    |  24702        |         -  |     27084  |           - |
 |    97    |  8739992577   |         -  |       497  |           - |
@@ -34801,6 +34805,180 @@ Questa seconda soluzione è molto più veloce:
 
 
 ===========
+Problema 64
+===========
+
+Ogni radice quadrata può essere rappresentata con una frazione continua.
+
+La frazione continua di sqrt(23) vale [4, (1,3,1,8)]. 
+La notazione indica che la frazione continua inizia con 4 e il blocco (1,3,1,8) si ripete indefinitamente.
+
+Le prime dieci rappresentazioni di frazione continua di radici quadrate (irrazionali) sono:
+
+sqrt( 2) = (1, (2)],         periodo = 1
+sqrt( 3) = (1, (1,2)],       periodo = 2
+sqrt( 4) = (2, (4)],         periodo = 1
+sqrt( 6) = (2, (2,4)],       periodo = 2
+sqrt( 7) = (2, (1,1,1,1)],   periodo = 4
+sqrt( 8) = (2, (1,4)],       periodo = 2
+sqrt(10) = (3, (6)],         periodo = 1
+sqrt(11) = (3, (3,6)],       periodo = 2
+sqrt(12) = (3, (2,6)],       periodo = 2
+sqrt(13) = (3, (1,1,1,1,6)], periodo = 5
+
+Esattamente quattro frazioni continue hanno un periodo dispari.
+
+Quante frazioni continue per N <= 10000 hanno un periodo dispari?
+============================================================================
+
+L'algoritmo presentato dall'articolo "Methods of computing square roots" di wikipedia è il seguente:
+
+Start:
+ m[0] = 0
+ d[0] = 1
+ a[0] = floor(sqrt(n))
+ k = a[0]
+Loop:
+ m[i] = a[i-1]*d[i-1] - m[i-1]
+ d[i] = (n-m[i]*m[i])/d[i-1]
+ a[i] = floor((k + m[i])/d[i])
+Stop: quando la i-esima tripla è stata generata precedentemente.
+
+Note: m[i],d[i],a[i] sono sempre interi.
+
+L'articolo di Alexandra Ioana Gliga "On continued fractions of the square root of prime numbers" dimostra che per ogni numero intero positivo che non è un quadrato perfetto risulta:
+
+  sqrt(n) = [a1, (a2 a3 ... an 2*a1)]
+
+Questo ci permette di fermare il ciclo quando l'i-esimo valore vale 2*a1.
+
+Scriviamo la funzione:
+
+(define (e064)
+  (local (max-val out limite)
+    (setq max-val 10000)
+    (setq out 0)
+    (for (n 2 max-val)
+      (setq limite (int (sqrt n)))
+      (if (!= (* limite limite ) n)
+          (let ((periodo 0) (d 1) (m 0) (a limite))
+            (do-while (!= a (* 2 limite))
+              (setq m (- (* d a) m))
+              (setq d (/ (- n (* m m)) d))
+              (setq a (/ (+ limite m) d))
+              (++ periodo)
+            )
+            (if (odd? periodo) (++ out))
+          )
+      )
+    )
+    out))
+
+(e064)
+;-> 1322
+
+(time (e064))
+;-> 81.294
+
+
+===========
+Problema 65
+===========
+
+Convergenti di e
+
+La radice quadrata di 2 può essere scritta come una frazione continua infinita.
+                       1
+sqrt(2) = 1 + --------------------
+                         1
+              2 + ----------------
+                           1
+                  2 + ------------
+                             1
+                      2 + --------
+                          2 + ...
+
+La frazione continua infinita può essere scritta come sqrt(2) = [1, (2)] indica che 2 si ripete all'infinito. In un modo simile, sqrt(23) = [4, (1,3,1,8)].
+
+Risulta che la sequenza dei valori parziali delle frazioni continue per le radici quadrate fornisce le migliori approssimazioni razionali. Consideriamo i convergenti per sqrt(2):
+
+1 + 1/2 = 3/2
+1 + 1/(2 + 1/2) = 7/5
+1 + 1/(2 + 1/(2 + 1/2)) = 17/12
+1 + 1/(2 + 1/(2 + 1/(2 + 1/2))) = 41/29
+
+Quindi la sequenza dei primi dieci convergenti per sqrt(2) sono:
+
+1, 3/2, 7/5, 17/12, 41/29, 99/70 239/169, 577/408, 1393/985, 3363/2378, ...
+
+La cosa più sorprendente è che per l'importante costante matematica "e" risulta:
+
+e = [2,1,2,1,1,4,1,1,6,1...1,2k,1...]
+
+I primi dieci termini nella sequenza di convergenti per e sono:
+
+2, 3, 8/3, 11/4, 19/7, 87/32, 106/39, 193/71, 1264/465, 1457/536, ...
+
+La somma delle cifre al numeratore del decimo convergente è 1 + 4 + 5 + 7 = 17.
+
+Trova la somma delle cifre del numeratore del centesimo convergente della frazione continua per "e".
+============================================================================
+
+Calcoliamo i primi n termini della frazione continua del numero tenendo conto che il pattern ...1,2n,1... si ripete all'infinito: cf(e) = [2, 1,2,1, 1,4,1, 1,6,1, 1,8,1, 1,10,1, ...]
+
+(define (cf_e n)
+  (let (cfe '(2))
+    (for (i 1 (- n 1))
+      (extend cfe (list 1 (* 2 i) 1)))
+    (slice cfe 0 n)))
+
+(cf_e 20)
+;-> (2 1 2 1 1 4 1 1 6 1 1 8 1 1 10 1 1 12 1 1)
+
+Poi scriviamo una funzione che calcola i convergenti partendo da una frazione continua e restituisce l'ultima delle frazioni convergenti Pn/Qn (dobbiamo usare i big-integer perchè il numeratore e il denominatore delle frazioni convergenti crescono velocemente):
+
+(define (cf2conv cf)
+  (local (p0 q0 p1 q1 p2 q2)
+    (cond ((= (length cf) 1) (setq p2 (first cf) q2 1))
+          (true
+           (setq p0 1L q0 0L)
+           (setq p1 (bigint (cf 0)) q1 1L)
+           (for (k 1 (- (length cf) 1))
+             (setq p2 (+ (* p1 (cf k)) p0))
+             (setq q2 (+ (* q1 (cf k)) q0))
+             ; k-esima frazione convergente
+             ;(println (list p2 q2 (div p2 q2)))
+             (setq p0 p1 q0 q1 p1 p2 q1 q2)
+           ))
+    )
+    (list p2 q2)))
+
+(cf2conv (cf_e 20))
+;-> (28245729L 10391023L)
+
+Poi ci serve una funzione che converte un numero in una lista:
+
+(define (int2lst num)
+  (let (out '())
+    (while (!= num 0)
+      (push (% num 10) out)
+      (setq num (/ num 10))) out))
+
+Adesso possiamo scrivere la funzione finale:
+
+(define (e065)
+  (local (numer)
+    (setq numer (first (cf2conv (cf_e 100))))
+    (apply + (int2lst numer))))
+
+(e065)
+;-> 272L
+
+(time (e065))
+;-> 0
+
+
+===========
 Problema 66
 ===========
 
@@ -34936,6 +35114,182 @@ Una soluzione generica può essere ottenuta con la programmazione dinamica. In p
 
 (time (e067))
 ;-> 1.995
+
+
+===========
+Problema 87
+===========
+
+Triple potenze di primi
+
+Il numero più piccolo esprimibile come la somma di un quadrato primo, un cubo primo e una quarta potenza primo è 28. In effetti, ci sono esattamente quattro numeri inferiori a cinquanta che possono essere espressi in questo modo:
+
+28 = 2^2 + 2^3 + 2^4
+33 = 3^2 + 2^3 + 2^4
+49 = 5^2 + 2^3 + 2^4
+47 = 2^2 + 3^3 + 2^4
+
+Quanti numeri inferiori a cinquanta milioni possono essere espressi come la somma di un quadrato primo, un cubo primo e una quarta potenza primo?
+============================================================================
+
+Funzione per calcolare i numeri primi fino a n:
+
+(define (primes-to num)
+  (cond ((= num 1) '())
+        ((= num 2) '(2))
+        (true
+         (let (lst '(2))
+          (setq arr (array (+ num 1)))
+          (for (x 3 num 2)
+                (when (not (arr x))
+                  (push x lst -1)
+                  (for (y (* x x) num (* 2 x) (> y num))
+                      (setf (arr y) true)))) lst))))
+
+L'algoritmo è abbastanza semplice e può essere estrapolato dai commenti della funzione:
+
+(define (e087)
+  (local (val primi primi2 primi3 primi4 limite out)
+    (setq out '())
+    (setq limite 50000000)
+    # calcola i primi fino a sqrt(limite)
+    (setq primi (primes-to (int (sqrt limite))))
+    ; calcola i quadrati di questi primi (< limite)
+    (setq primi2 (filter (fn(x) (< x limite)) (map (fn(x) (* x x)) primi)))
+    ; calcola i cubi di questi primi (< limite)
+    (setq primi3 (filter (fn(x) (< x limite)) (map (fn(x) (* x x x)) primi)))
+    ; calcola le quarte potenze di questi primi (< limite)
+    (setq primi4 (filter (fn(x) (< x limite)) (map (fn(x) (* x x x x)) primi)))
+    ;(println "p= " primi {-} "p2= " primi2 {-} "p3= " primi3 {-} "p4= " primi4)
+    ; crea una lista con le somme di tutti i numeri delle tre liste
+    (dolist (a primi2)
+      (dolist (b primi3)
+        (dolist (c primi4)
+          (setq val (+ a b c))
+          (if (< val limite) 
+              (push val out -1)
+          ))))
+    ; elimina i numeri multipli dalla lista
+    (length (unique out))))
+
+(e087)
+;-> 1097343
+
+(time (e087))
+;-> 1153.946
+
+Per ottimizzare la funzione potremmo:
+1) Generare primi2, primi3 e primi4 fino ai numeri i cui quadrati, cubi e quarte potenze sono inferiori al limite
+2) fermare il ciclo b quando (a + b) > limite
+3) fermare il ciclo c quando (a + b + c) > limite
+4) inserire i valori in una hash-map
+
+Comunque il tempo di esecuzione è soddisfacente.
+
+
+===========
+Problema 89
+===========
+
+Numeri romani
+
+Affinché un numero scritto in numeri romani sia considerato valido, ci sono regole di base che devono essere seguite. Anche se le regole consentono di esprimere alcuni numeri in più di un modo, esiste sempre un modo "migliore" per scrivere un numero particolare.
+
+Ad esempio, sembrerebbe che ci siano almeno sei modi per scrivere il numero sedici:
+
+IIIIIIIIIIIIIIII
+VIIIIIIIIIII
+VVIIIIII
+XIIIIII
+VVVI
+XVI
+
+Tuttavia, secondo le regole sono validi solo XIIIIII e XVI, e l'ultimo esempio è considerato il più efficiente, poiché utilizza il minor numero di numeri.
+
+Il file di testo 11K, roman.txt, contiene mille numeri scritti in numeri romani validi, ma non necessariamente minimi. V`edi Informazioni sui Numeri romani per le regole definitive di questo problema (.
+
+Trova il numero di caratteri salvati scrivendo ciascuno di questi nella loro forma minima.
+
+Nota: si può presumere che tutti i numeri romani nel file non contengano più di quattro unità identiche consecutive.
+============================================================================
+
+Funzione di conversione da numero intero a numero romano:
+
+(define (integer2roman num)
+  (local (table roman k)
+    (setq table '(("M" 1000) ("CM" 900) ("D" 500) ("CD" 400)
+          ("C" 100)("XC" 90)("L" 50)("XL" 40) ("X" 10) ("IX" 9) ("V" 5)
+          ("IV" 4) ("I" 1)))
+    (setq roman "")
+    (dolist (el table)
+      (setq k (/ num (last el)))
+      (setq num (% num (last el)))
+      (extend roman (dup (first el) k))
+    )
+    roman))
+
+(integer2roman 4444)
+;-> "MMMMCDXLIV"
+
+(integer2roman 16)
+;-> "XVI"
+
+Funzione di conversione da numero romano a numero intero:
+
+(define (roman2integer roman)
+  (local (table curr prev num)
+    (setq table '(("I" 1) ("V" 5) ("X" 10) ("L" 50) ("C" 100) ("D" 500) ("M" 1000)))
+    (setq prev 0 num 0)
+    ; iterate through all characters
+    (dostring (ch roman)
+      ; converts the current character into an integer
+      (setq curr (lookup (char ch) table))
+      ; pick the right case to add or substract
+      (if (>= prev curr) 
+          (setq num (+ num prev))
+          (setq num (- num prev))
+      )
+      (setq prev curr)
+    )
+    ; add the last value
+    (setq num (+ num curr))))
+
+(roman2integer "MMMMCDXLIV")
+;-> 4444
+
+(roman2integer "XIIIIII")
+;-> 16
+
+Il file "roman.txt" è stato trasformato nel file "e089.lsp" che ha la seguente struttura:
+
+(setq roma '("MMMMDCLXXII" "MMDCCCLXXXIII" "MMMDLXVIIII" ...)
+
+Scriviamo la funzione finale:
+
+(define (e089)
+  (local (somma len1 len2)
+    (setq somma 0)
+    (dolist (el roma)
+      (setq len1 (length el))
+      (setq len2 (length (integer2roman (roman2integer el))))
+      (setq somma (+ somma (- len1 len2)))
+      ;(println (list el (length el)) { }
+      ;         (list (integer2roman (roman2integer el)) (length (integer2roman (roman2integer el)))))
+      ;(read-line)
+    )
+    somma))
+
+Carichiamo il file ed eseguiamo la funzione:
+
+(load "roma.lsp")
+(length roma)
+;-> 1000
+
+(e089)
+;-> 743
+
+(time e089)
+;-> 0
 
 
 ===========
@@ -64815,7 +65169,7 @@ Si noti che nelle liste con meno di circa 100 elementi o stringhe di meno di cir
 
 Le funzioni integrate e definite dall'utente sono adatte per entrambi i tipi di argomenti, ma quando si passano i nomi di contesto, i dati verranno passati per riferimento.
 
-I simboli tra virgolette possono anche essere utilizzati per passare i dati per riferimento, ma questo metodo presenta degli svantaggi:
+I simboli quotati possono anche essere utilizzati per passare i dati per riferimento, ma questo metodo presenta degli svantaggi:
 
 (define (change-list aList) (push 999 (eval aList)))
 
@@ -65223,7 +65577,10 @@ Come si nota, se partiamo dalla posizione "testa" non possiamo mai ottenere un l
       ; crea una lista di 0 e 1 alternati di lunghezza casuale (da 3 a 22)
       ; che inizia con 0 (testa).
       ; Restituisce una lista con il numero di 0 e di 1.
+      ; inizia con testa 0
       (setq res (count '(0 1) (slice (flat (dup '(0 1) 11)) 0 (+ (rand 19) 3))))
+      ; inizia con croce 1
+      ;(setq res (count '(0 1) (slice (flat (dup '(1 0) 11)) 0 (+ (rand 19) 3))))
       (setq t (+ t (first res)))
       (setq c (+ c (last res)))
     )
@@ -66448,7 +66805,7 @@ Ci vogliono 1.008094955964925e+041 anni.
 
 L'età dell'universo è 13.8 miliardi di anni (1.38e+010)...
 
-In realtà non hanno calcolato il numero, ma hanno costruito il problema in modo che la soluzione fosse quella desiderata. Nella teoria dei numeri, ci sono vari teoremi che ti dicono come si relazioneranno due numeri e, se vengono usati in modo intelligente, è possibile creare problemi come questo.
+In realtà non hanno calcolato il numero, ma hanno costruito il problema in modo che la soluzione fosse quella desiderata. Nella teoria dei numeri, ci sono vari teoremi che definiscono come si relazioneranno due numeri e, se vengono usati in modo opportuno, è possibile creare problemi come questo.
 
 Un altro esempio è il seguente:
 
@@ -66487,7 +66844,7 @@ Definizioni:
 (ceil x) = min (n ≥ x) dove n è intero
 (fract x) = x - (floor x)
 
-QUindi risulta:
+Quindi risulta:
 
 (x - 1) < m ≤ x ≤ n < (x + 1)
 
@@ -66529,6 +66886,7 @@ Vediamo alcuni esempi:
 ----------------
 Multipli di nove
 ----------------
+
 Un fatto noto nella teoria dei numeri è che se prendiamo un intero positivo e sottraiamo la somma delle sue cifre da quel numero, otteniamo un multiplo di 9.
 
 (define (mul9 n)
@@ -66685,7 +67043,7 @@ Tutte le versioni stampano il seguente risultato:
 Conversione tra liste, stringhe, caratteri e simboli
 ----------------------------------------------------
 
-Definiamo due funzioni che convertono una stringa in una lista di caratteri e vicerversa.
+Definiamo due funzioni che convertono una stringa in una lista di caratteri e viceversa.
 
 Stringa --> lista di caratteri
 ------------------------------
