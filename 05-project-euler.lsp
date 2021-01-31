@@ -7444,6 +7444,8 @@ Scriviamo la funzione:
     (setq out 0)
     (for (n 2 max-val)
       (setq limite (int (sqrt n)))
+      ; l'algortimo non funziona quando abbiamo un quadrato perfetto
+      ; quindi saltiamo questi casi che non influenzano il risultato finale
       (if (!= (* limite limite ) n)
           (let ((periodo 0) (d 1) (m 0) (a limite))
             (do-while (!= a (* 2 limite))

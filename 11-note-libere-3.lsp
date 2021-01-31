@@ -224,7 +224,7 @@ Funzione   temporale     di esecuzione     spaziale
  dup1?      O(n^2)        1458 1444 1443    O(1)
  dup2?      O(n^2)         147   55 1507    O(1)
  dup3?      O(n)          1096  675 1121    O(n)
- dup4?      O(n)           730  349  803    O(n^2) 
+ dup4?      O(n)           730  349  803    O(n^2)
  dup5?      O(n*log(n))    154  156  155    O(log(n))
  dup6?      O(n*log(n))     96   93   96    O(log(n))
 
@@ -444,7 +444,7 @@ Se dobbiamo usare più di una espressione in (expression-when-true) oppure in (e
     )
 )
 
-In alcuni casi possiamo evitare l'uso di "begin". 
+In alcuni casi possiamo evitare l'uso di "begin".
 
 Ad esempio se le espressioni sono limitate a pochi assegnamenti di variabili possiamo usare l'assegnamento multiplo di "setq":
 
@@ -645,7 +645,7 @@ oltre 75.000 euro il 43%
 Esempio:
 Reddito = 27000 euro
 15000 * 23% = 3450
-più il 27% sulla parte oltre i 15000 (27000 - 15000 = 12000) = 3240, 
+più il 27% sulla parte oltre i 15000 (27000 - 15000 = 12000) = 3240,
 per un totale di (3450 + 3240 = 6690).
 
 Scrivere una funzione che calcola le tasse da pagare dato un determinato reddito.
@@ -729,14 +729,14 @@ Adesso scriviamo una funzione che crea un file grafico ("tasse.png") che visuali
     (set 'plot:sub-title "IRPEF 2020")
     (set 'plot:unit-x "reddito")
     (set 'plot:unit-y "tasse")
-    ; crea il file dei dati 
+    ; crea il file dei dati
     ; lista dei valori x (reddito) e lista dei valori z (tasse)
     (setq xx '())
     (setq zz '())
     (dolist (el lst)
       (push (first el) xx -1)
       (push (last el) zz -1 ))
-    ; plot data      
+    ; plot data
     (plot:XY xx zz)
     ; salva il plot su un file
     (plot:export (string "tasse.png"))))
@@ -744,6 +744,8 @@ Adesso scriviamo una funzione che crea un file grafico ("tasse.png") che visuali
 Creiamo il grafico:
 
 (plotXY data)
+
+Il grafico mostra che le tasse sono, grosso modo, direttamente proporzionali al reddito.
 
 Potete trovare il file nella cartella "data".
 
@@ -758,12 +760,12 @@ e = 2.7182818284590451
 
 Supponiamo di avere depositato un certo capitale C al tasso di interesse annuo di x per cento, cioè al tasso assoluto di r = x/100.
 
-Dopo un anno il nostro capitale è diventato C(1) = C*(1+r). Dopo un altro anno: C(2) = C1*(1+r) = C*(1+r)^2, dopo tre anni C(3) = C*(1+r)^3 e dopo n anni C(n) = C*(1+r)^n. La crescita esponenziale è dovuta agli interessi maturati precedentemente che maturano altri interessi.
+Dopo un anno il nostro capitale è diventato C(1) = C*(1+r). Dopo un altro anno: C(2) = C1*(1+r) = C*(1+r)^2, dopo tre anni C(3) = C*(1+r)^3 e dopo n anni C(n) = C*(1+r)^n. La crescita esponenziale è dovuta agli interessi maturati precedentemente che concorrono nel maturare altri interessi.
 
 Supponiamo che dopo 6 mesi (1/2 anno) il capitale si sia rivalutato di r/2 (in realtà non è così perché altrimenti risulterebbe (dopo n anni): C(n) =C*(1+n*r) invece di C(n) = C*(1+r)^n).
 Dopo un semestre il capitale sarà diventato C(1/2) = C*(1+r/2) e dopo un anno C1 = C*(1+r/2)^2 .
 
-Per ogni quadrimestre (1/3 di anno) al tasso di r/3 avrei C(1/3) = C*(1+r/3) e dopo un anno C(1) = C*(1+r/3)^3.
+Per ogni quadrimestre (1/3 di anno) al tasso di r/3 avremmo C(1/3) = C*(1+r/3) e dopo un anno C(1) = C*(1+r/3)^3.
 
 Se gli interessi maturassero ogni 1/n di anno al tasso di r/n dopo ogni m frazioni di anno avremmo C(m/n) = C(1+r/n)^m e dopo un anno C1 = C*(1+r/n)n.
 
@@ -798,6 +800,328 @@ Anche questa volta abbiamo ritrovato il numero di Eulero "e".
 Quindi dopo un anno sarà C(1) = C*e^r e dopo t anni (con t non necessariamente intero): C(t) = C*e^(t*r).
 
 Da notare che il numero "e" è scaturito naturalmente, non è stato introdotto artificiosamente.
+
 Purtroppo le banche non concedono un tasso assoluto di interesse continuo.
+
+
+---------------------
+map e filter multiplo
+---------------------
+
+Qualche volta abbiamo la necessità di applicare la funzione "map" più volte su una stessa lista, ad esempio per applicare tre funzioni func1, func2 e func2 ad una lista lst dobbiamo scrivere:
+
+(map func3 (map func2 (map func1 lst)))
+
+Possiamo scrivere una funzione per utilizzare un'espressione più elegante:
+
+(define (nmap lst)
+  (let (res lst)
+    ; per ogni predicato
+    (dolist (func (args))
+      ; applica il predicato agli elementi della lista
+      (setq res (map func res)))))
+
+Adesso il nostro esempio può essere scritto nel modo seguente:
+
+(nmap lst func1 func2 func3)
+
+Vediamo un esempio concreto:
+
+(nmap '(-4 36 81 49) abs sqrt)
+;-> (2 6 9 7)
+
+Possiamo anche usare una funzione definita dall'utente:
+
+(nmap (explode "newLISP") upper-case (fn(x) (char x)))
+;-> (78 69 87 76 73 83 80)
+
+Vediamo la differenza di velocità:
+
+(setq lst (sequence -5000 5000))
+
+(time (nmap lst abs sqrt) 1000)
+;-> 1221.763
+
+(time (map sqrt (map abs lst)) 1000)
+;-> 607.408
+
+Nota: il tempo di esecuzione della nostra funzione è il doppio di quello del metodo standard.
+
+Possiamo utilizzare la stessa tecnica anche per la funzione "filter":
+
+(define (nfilter lst)
+  (let (res lst)
+    ; per ogni predicato
+    (dolist (func (args))
+      ; applica il predicato agli elementi della lista
+      (setq res (filter func res)))))
+
+(setq lst '(1 2 3 4 a b c 5 6 7 8 9 ))
+
+(filter odd? (filter integer? lst))
+;-> (1 3 5 7 9)
+
+(nfilter lst integer? odd?)
+;-> (1 3 5 7 9)
+
+Vediamo la velocità:
+
+(setq lst (sequence 1 10000))
+(time (nfilter lst integer? odd?) 1000)
+;-> 1325.484
+
+(time (filter odd? (filter integer? lst)) 1000)
+;-> 967.444
+
+Anche in questo caso possiamo anche usare una funzione definita dall'utente al posto del predicato.
+
+Nota: i predicati vengono valutati da sinistra a destra, quindi nell'esempio la loro inversione provoca un errore perchè non possiamo applicare "odd?" all'elemento "a":
+
+(nfilter lst odd? integer?)
+;-> ERR: value expected in function odd? : a
+;-> called from user function (nfilter lst odd? integer?)
+
+La funzione "nfilter" applica i predicati in sequenza, cioè ogni elemento della lista deve rispettare tutti i predicati per essere selezionato (and):
+
+  elemento selezionato se rispetta (func1 and func2 and ... and funcN)
+
+Può risultare utile una funzione che seleziona un elemento anche se un solo predicato viene rispettato (or):
+
+  elemento selezionato se rispetta (func1 or func2 or ... or funcN)
+
+Vediamo come potrebbe essere implementata:
+
+(define (nfilter-or lst)
+  (let ((stop nil) (res '()))
+    ; per ogni elemento della lista
+    (dolist (el lst)
+      ; per ogni predicato
+      (setq stop nil)
+      (dolist (func (args) stop)
+        ; applica il predicato all'elemento
+        ; se il risultato è vero (true)
+        (if (func el)
+          (begin
+          ; allora lo inserisce nella lista res
+          (push el res -1)
+          ; e non occorre applicare
+          ; gli altri predicati all'elemento corrente
+          (setq stop true))
+        )
+      )
+    )
+    res))
+
+(setq lst '(1 2 3 4 5 6 7 8 9))
+
+(nfilter-or lst integer? odd?)
+;-> (1 2 3 4 5 6 7 8 9)
+
+Usiamo una funzione definita dall'utente:
+
+(define (big5? x) (> x 5))
+
+(nfilter-or lst big5? odd?)
+;-> (1 3 5 6 7 8 9)
+
+Vediamo la velocità:
+
+(setq test (sequence 1 10000))
+(time (nfilter-or test integer? odd?) 100)
+;-> 221.408
+
+Nota: Nel caso della funzione "nfilter-or" i predicati devono poter essere applicati a tutti gli elementi senza errore.
+
+Vediamo un altro modo di implementare la funzione "nfilter-or":
+
+(define (nfilter-or lst)
+  (let ((bool '()) (res '()))
+    ; per ogni predicato
+    (dolist (func (args))
+      ; applica il predicato a tutta la lista
+      ; creando una lista di true e nil
+      ; e la aggiunge alla lista bool
+      ; es. bool = ((true nil) (true nil) (nil nil))
+      (push (map func lst) bool -1)
+    )
+    ; per ogni elemento della trasposta di bool
+    ; es. traposta bool = ((true true nil) (nil nil nil))
+    (dolist (b (transpose bool))
+      ; se "or" = true per elemento corrente
+      (if (apply or b)
+          ; inserisco il relativo elemento della lista lst
+          ; nella lista risultato
+          (push (lst $idx) res -1)
+      )
+    )
+    res))
+
+(setq lst '(abc 1 "a" 2 "b" 3 "c" lst))
+
+(nfilter-or lst integer? string?)
+;-> (1 "a" 2 "b" 3 "c")
+
+Vediamo la velocità:
+
+(setq test (sequence 1 10000))
+(time (nfilter-or test integer? odd?) 100)
+;-> 7057.166
+
+L'ultima funzione è molto lenta perchè crea altre liste che vengono attraversate diverse volte.
+
+Come al solito la cosa migliore da fare è utilizzare le primitive di newLISP:
+
+Per "filter":
+
+Con una funzione utente:
+(setq lst (sequence -5000 5000))
+(define (test? x) (or (integer? x) (odd? x)))
+(time (filter test? lst) 1000)
+;-> 1465.309
+
+Direttamente:
+(setq lst (sequence -5000 5000))
+(time (filter odd? (filter integer? lst)) 1000)
+;-> 913.119
+
+Per "map":
+
+Con una funzione utente:
+(setq lst (sequence -5000 5000))
+(define (func x) (sqrt (abs x)))
+(time (map func lst) 1000)
+;-> 850.763
+
+Direttamente:
+(setq lst (sequence -5000 5000))
+(time (map sqrt (map abs lst)) 1000)
+;-> 564.408
+
+
+--------
+Toziente
+--------
+
+La funzione φ (phi) di Eulero o funzione toziente, è una funzione definita, per ogni intero positivo n, come il numero degli interi compresi tra 1 e n che sono coprimi con n. Ad esempio, phi(8) = 4 poiché i numeri coprimi di 8 sono quattro: 1, 3, 5 e 7.
+
+n = p1^a1 * p2^a2 *... * pk^ak
+
+phi(n) = n* (1 - 1/p1)*(1 - 1/p2)*...*(1 - 1/pk)
+
+Per calcolare il toziente di un numero scriviamo tre funzioni, due che utilizzano la primitiva di newLISP "factor" e una che calcola la fattorizzazione (quindi utilizzabile anche per i big-integer):
+
+Funzione 1:
+
+(define (toziente1 num)
+    (if (= num 1) 1
+    (round (mul num (apply mul (map (fn (x) (sub 1 (div 1 x))) (unique (factor num))))) 0)))
+
+(toziente1 222)
+;-> 72
+(toziente1 123456)
+;-> 41088
+(toziente1 9223372036854775807)
+;-> 7.713001620195509e+018
+
+Funzione 2:
+
+(define (toziente2 num)
+  (if (= num 1) 1
+    (let (res num)
+      (dolist (f (unique (factor num)))
+        (setq res (- res (/ res f))))
+      res)))
+
+(toziente2 222)
+;-> 72
+(toziente2 123456)
+;-> 41088
+(toziente2 9223372036854775807)
+;-> 7713001620195508224
+
+Funzione 3 (big-integer):
+
+(define (toziente-i num)
+  (if (= num 1) 1
+    (let ((res num) (i 2L))
+      (while (<= (* i i) num)
+        (if (zero? (% num i))
+            (begin
+              (while (zero? (% num i))
+                (setq num (/ num i))
+              )
+              (setq res (- res (/ res i))))
+        )
+        (++ i)
+      )
+      (if (> num 1)
+        (setq res (- res (/ res num)))
+      )
+      res)))
+
+(toziente-i 222)
+;-> 72
+(toziente-i 123456)
+;-> 41088
+(toziente-i 9223372036854775807)
+;-> 7713001620195508224
+
+Se passiamo un numero big-integer, allora la soluzione sarà un big-integer:
+
+(toziente-i 9223372036854775808L)
+;-> 4611686018427387904L
+
+Verifichiamo che le funzioni producano lo stesso risultato:
+
+(= (map toziente1 (sequence 1 1000)) (map toziente2 (sequence 1 1000)) (map toziente-i (sequence 1 1000)))
+;-> true
+
+Vediamo la velocità delle funzioni:
+
+(setq lst (sequence 1 10000))
+(time (map toziente1 lst) 100)
+;-> 1401.418
+(time (map toziente2 lst) 100)
+;-> 1156.911
+(time (map toziente-i lst) 100)
+;-> 11216.188
+
+Se abbiamo bisogno di tutti i totienti di tutti i numeri compresi tra 1 e n, la fattorizzazione di tutti gli n numeri non è efficiente. Possiamo usare la stessa idea del crivello di Eratostene: troviamo tutti i numeri primi e per ciascuno aggiorniamo i risultati temporanei di tutti i numeri che sono divisibili per quel numero primo.
+
+(array (+ 3 1) '(0))
+
+(define (totients-to num)
+  (let (phi (array (+ num 1) '(0)))
+    (setf (phi 0) 0)
+    (setf (phi 1) 1)
+    (for (i 2 num)
+      (setf (phi i) i)
+    )
+    (for (i 2 num)
+      (if (= (phi i) i)
+          (for (j i num i)
+            (setf (phi j) (- (phi j) (/ (phi j) i)))
+          )
+      )
+    )
+    (slice phi 1 num)))
+
+(totients-to 10)
+;-> (1 1 2 2 4 2 6 4 6 4)
+
+Verifichiamo il risultato:
+
+(= (array-list (totients-to 10000)) (map toziente2 (sequence 1 10000)))
+;-> true
+
+Vediamo la differenza di velocità:
+
+(time (totients-to 10000) 100)
+;-> 349.067
+
+(time (map toziente2 (sequence 1 10000)) 100)
+;-> 1250.951
+
+Per calcolare i tozienti dei numeri da 1 a n conviene utilizzare la funzione "totients-to".
 
 

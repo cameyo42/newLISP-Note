@@ -620,6 +620,7 @@ NOTE LIBERE 3
   Frazioni continue (funzioni)
   Redditi e tasse
   Numero di eulero o di nepero
+  map e filter multiplo
   
 APPENDICI
 =========
@@ -646,8 +647,12 @@ APPENDICI
   Frasi Famose sulla Programmazione e sul Linguaggio Lisp
   Codice ASCII
 
-BIBLIOGRAFIA / WEB
+BIBLIOGRAFIA/WEB
 ==================
+
+YO LIBRARY
+==========
+Libreria per matematica ricreativa (112 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================

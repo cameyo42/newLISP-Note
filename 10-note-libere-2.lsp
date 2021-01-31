@@ -6640,7 +6640,7 @@ a
 Memfrob
 -------
 
-Memfrob è un algoritmo di crittografia leggero che funziona facendo lo xor tra il numero 42(10) = 00101010(2) con ogni (carattere (byte) di input per creare un output crittografato. La decrittazione è simmetrica alla crittografia. Memfrob è più o meno equivalente a ROT13 nella sicurezza crittografica.
+Memfrob è un algoritmo di crittografia leggero che funziona facendo lo xor tra il numero 42(10) = 00101010(2) con ogni carattere (byte) di input per creare un output crittografato. La decrittazione è simmetrica alla crittografia. Memfrob è più o meno equivalente a ROT13 nella sicurezza crittografica.
 
 Codifica di un carattere:
 (char (^ (char "a") 42))
