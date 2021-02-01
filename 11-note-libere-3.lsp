@@ -1125,3 +1125,364 @@ Vediamo la differenza di velocità:
 Per calcolare i tozienti dei numeri da 1 a n conviene utilizzare la funzione "totients-to".
 
 
+--------------------------
+Direct Acyclic Graph (DAG)
+--------------------------
+
+Un grafo aciclico diretto (Directed acyclic graph, DAG) è un grafo diretto che non ha cicli (circuiti), ovvero comunque scegliamo un vertice del grafo non possiamo tornare ad esso percorrendo gli archi del grafo. Un grafo diretto può dirsi aciclico (cioè è un DAG) se una visita in profondità non presenta archi all'indietro.
+
+Un esempio di DAG è il seguente:
+
+  +---------+-        +---------+        +---------+          +---------+
+  |         |         |         |        |         |          |         |
+  |    A    |-------->|    C    |------->|    D    |--------->|    E    |
+  |         |   ----->|         |        |         |------    |         |
+  +---------+   |     +---------+        +---------+     |    +---------+
+                |         |                              |
+  +---------+   |         |                              |    +---------+
+  |         |   |         |                              |    |         |
+  |    B    |----         |        +---------+           ---->|    F    |
+  |         |             |        |         |                |         |
+  +---------+             -------->|    G    |                +---------+
+                                   |         |
+                                   +---------+
+
+A e B sono nodi iniziali. Ogni nodo ha proprietà, ogni vertice ha proprietà. E, G e F sono nodi finali.
+
+Il codice seguente è stato scritto da rickyboy ed è anche un ottimo esempio di programmazione ad oggetti in newLISP (FOOP).
+
+;;;
+;;; Find dependencies ((grand)*parents) in a DAG.
+;;;
+
+(define (mappend) (apply append (apply map (args))))
+
+(define (Class:Class) (cons (context) (args)))
+
+The three principal types of objects we need are nodes, edges, and DAGs.
+
+(new Class 'Node)
+(new Class 'Edge)
+(new Class 'DAG)
+
+Naturally, DAGs will contain nodes and edges. Here is a helper function to create a DAG.
+Besides nodes and edges, DAGS contain a "parents-alist", an adjacency list matching nodes (node names, actually) to a list of their parents (names). 
+The create function will compute the "parents-alist" for you, as a convenience.
+
+;; Warning: no error checking is done, e.g. checking for no cycles.
+(define (DAG:create nodes edges)
+  "Create a DAG object from Nodes and Edges."
+  (let ((simple-nodes (map (fn (n) (n 1)) nodes))
+        (simple-edges (map (fn (e) (list (e 1) (e 2))) edges)))
+    (DAG nodes
+         edges
+         ;; parents-alist: assocs look like (node (parent-node ...))
+         (map (fn (sn)
+                (list sn
+                      (map first
+                           (filter (fn (se) (= sn (last se)))
+                                   simple-edges))))
+              simple-nodes)
+         ;; children-alist: assocs look like (node (child-node ...))
+         (map (fn (sn)
+                (list sn
+                      (map last
+                           (filter (fn (se) (= sn (first se)))
+                                   simple-edges))))
+              simple-nodes))))
+
+Let's see it in action on our DAG:
+
+(define my-dag
+  (DAG:create (list (Node "A" 'happy)
+                    (Node "B" 'sad)
+                    (Node "C" 'happy)
+                    (Node "D" 'indifferent)
+                    (Node "E" 'surly)
+                    (Node "F" 'happy)
+                    (Node "G" 'sad))
+              (list (Edge "A" "C" 3)
+                    (Edge "B" "C" 4)
+                    (Edge "C" "D" 8)
+                    (Edge "C" "G" 1)
+                    (Edge "D" "E" 4)
+                    (Edge "D" "F" 9))))
+
+Here's what it looks like:
+
+my-dag
+;-> (DAG ((Node "A" happy) (Node "B" sad) (Node "C" happy)
+;->       (Node "D" indifferent) (Node  "E" surly)
+;->       (Node "F" happy) (Node "G" sad))
+;->      ((Edge "A" "C" 3) (Edge "B" "C" 4) (Edge "C" "D" 8)
+;->       (Edge "C" "G" 1) (Edge "D" "E"  4) (Edge "D" "F" 9))
+;->      (("A" ()) ("B" ()) ("C" ("A" "B")) ("D" ("C"))
+;->       ("E" ("D")) ("F" ("D")) ("G" ("C"))))
+
+Nodes and edges must contain properties. The convention I'm using here is that, when defining a Node, the first "slot" contains the name and the remaining "slots" contain any number of properties that you want to add. So, (Node "A" 'happy) is a node with the name "A" and one property value (namely, 'happy). The same idea applies to edges, except that the first 2 slots contain node names and the remaining slots can be properties. Hence, (Edge "A" "C" 3) is an edge starting from node "A", ending at node "C" and containing the property value 3 (which could be an edge weight/cost, for example). These are the properties.
+
+Now, here are some accessor functions for DAGs:
+
+(define (DAG:nodes) (self 1))
+(define (DAG:edges) (self 2))
+(define (DAG:parents node-name)
+  (let ((parents-alist (self 3)))
+    (if node-name
+        (if (assoc node-name parents-alist) (last $it) '())
+        parents-alist)))
+
+;; Example usage:
+;; (:parents my-dag) => (("A" ()) ("B" ()) ("C" ("A" "B")) ("D" ("C")) ("E" ("D")) ("F" ("D")) ("G" ("C")))
+;; (:parents my-dag "C") => ("A" "B")
+;; (:parents my-dag "B") => ()
+;; (:parents my-dag "Does not exist") => ()
+
+Here's a function to compute a node's children:
+
+(define (DAG:children node-name)
+  (let ((children-alist (self 4)))
+    (if node-name
+        (if (assoc node-name children-alist) (last $it) '())
+        children-alist)))
+
+;; Example usage:
+;; (:children my-dag) => (("A" ("C")) ("B" ("C")) ("C" ("D" "G")) ("D" ("E" "F")) ("E" ()) ("F" ()) ("G" ()))
+;; (:children my-dag "C") => ("D" "G")
+;; (:children my-dag "B") => ("C")
+;; (:children my-dag "E") => ()
+;; (:children my-dag "Does not exist") => ()
+
+Here's a function to compute a node's ancestors (i.e. parents, grandparents, ...):
+
+(define (DAG:ancestors node-name)
+  (let ((parents (:parents (self) node-name)))
+    (and parents
+         (append parents
+                 (mappend (fn (p) (:ancestors (self) p))
+                      parents)))))
+
+;; Example usage:
+;; (:ancestors my-dag "D") => ("C" "A" "B")
+
+Here's a function to compute a node's descendants:
+
+(define (DAG:descendants node-name)
+  (let ((children (:children (self) node-name)))
+    (and children
+         (append children
+                 (mappend (fn (p) (:descendants (self) p))
+                          children)))))
+
+;; Example usage:
+;; (:descendants my-dag "C") => ("D" "G" "E" "F")
+
+;; If you want to get a Node out of the DAG (e.g. in order the extract
+;; its properties), then use the following function to get it by name.
+
+(define (DAG:get-node node-name)
+  (and (find (list 'Node node-name '*)
+             (:nodes (self))
+             match)
+       $0))
+
+;; Example usage:
+;; (:get-node my-dag "G") => (Node "G" sad)
+;; (:get-node my-dag "Does not exist") => nil
+
+;; Same goes for getting an Edge, expect you provide a list of two
+;; node names, e.g. '("A" "B").
+
+(define (DAG:get-edge edge-name)
+  (and (find (append '(Edge) edge-name '(*))
+             (:edges (self))
+             match)
+       $0))
+
+;; Example usage:
+;; (:get-edge my-dag '("C" "D")) => (Edge "C" "D" 8)
+;; (:get-edge my-dag '("Does" "Not Exist")) => nil
+
+(define (find-all-dependencies dag node-name)
+  (:ancestors dag node-name))
+
+;; (find-all-dependencies my-dag "D") => ("C" "A" "B")
+
+(define (get-all-dependencies dag node-name)
+   (map (fn (name) (:get-node dag name))
+        (:ancestors dag node-name)))
+
+;; (get-all-dependencies my-dag "D") => ((Node "C" happy) (Node "A" happy) (Node "B" sad))
+
+
+---------------
+Corde e cerchio
+---------------
+
+Se una corda è selezionata a caso su un cerchio, qual è la probabilità che la sua lunghezza (l) superi il raggio (r) del cerchio?
+"A caso" indica che i punti finali della corda sono distribuiti uniformemente sul cerchio.
+
+La lunghezza di una corda AB vale:
+
+corda = diametro * sin(alfa)
+
+dove alfa è l'angolo che insiste sulla corda AB
+
+0° <= alfa <= 180°
+
+Se poniamo (corda = r) ==> r = 2 * r * sin(alfa) ==> sin(alfa) = 1/2 ==> asin(1/2) = 60°
+
+Quindi la lunghezza della corda è pari al raggio r quando alfa = 60°.
+
+Allora per alfa compreso tra 0° e 60°, la corda è minore del raggio,
+       per alfa compreso tra 60° e 180°, la corda è maggiore del raggio.
+
+Quindi la probabilità che la lunghezza della corda superi il raggio vele (180 - 60/180) = 2/3 = 0.666666...
+
+Scriviamo una funzione che effettua la simulazione:
+
+(setq PI 3.1415926535897931)
+
+(define (corda step)
+  (local (tot magg r alfa)
+  (setq tot 0 magg 0 r 1)
+  (for (alfa 0 (div PI 2) step)
+    (if (> (mul 2 r (sin alfa)) r) (++ magg))
+    (++ tot)
+  )
+  (div magg tot)))
+
+(corda 0.01)
+;-> 0.6645569620253164
+(corda 0.001)
+;-> 0.6664544875875239
+(corda 0.0001)
+;-> 0.6666666666666666
+
+
+--------
+Toziente
+--------
+
+La funzione φ (phi) di Eulero o funzione toziente, è una funzione definita, per ogni intero positivo n, come il numero degli interi compresi tra 1 e n che sono coprimi con n. Ad esempio, phi(8) = 4 poiché i numeri coprimi di 8 sono quattro: 1, 3, 5 e 7.
+
+n = p1^a1 * p2^a2 *... * pk^ak
+
+phi(n) = n* (1 - 1/p1)*(1 - 1/p2)*...*(1 - 1/pk)
+
+Per calcolare il toziente di un numero scriviamo tre funzioni, due che utilizzano la primitiva di newLISP "factor" e una che calcola la fattorizzazione (quindi utilizzabile anche per i big-integer):
+
+Funzione 1:
+
+(define (toziente1 num)
+    (if (= num 1) 1
+    (round (mul num (apply mul (map (fn (x) (sub 1 (div 1 x))) (unique (factor num))))) 0)))
+
+(toziente1 222)
+;-> 72
+(toziente1 123456)
+;-> 41088
+(toziente1 9223372036854775807)
+;-> 7.713001620195509e+018
+
+Funzione 2:
+
+(define (toziente2 num)
+  (if (= num 1) 1
+    (let (res num)
+      (dolist (f (unique (factor num)))
+        (setq res (- res (/ res f))))
+      res)))
+
+(toziente2 222)
+;-> 72
+(toziente2 123456)
+;-> 41088
+(toziente2 9223372036854775807)
+;-> 7713001620195508224
+
+Funzione 3 (big-integer):
+
+(define (toziente-i num)
+  (if (= num 1) 1
+    (let ((res num) (i 2L))
+      (while (<= (* i i) num)
+        (if (zero? (% num i))
+            (begin
+              (while (zero? (% num i))
+                (setq num (/ num i))
+              )
+              (setq res (- res (/ res i))))
+        )
+        (++ i)
+      )
+      (if (> num 1)
+        (setq res (- res (/ res num)))
+      )
+      res)))
+
+(toziente-i 222)
+;-> 72
+(toziente-i 123456)
+;-> 41088
+(toziente-i 9223372036854775807)
+;-> 7713001620195508224
+
+Se passiamo un numero big-integer, allora la soluzione sarà un big-integer:
+
+(toziente-i 9223372036854775808L)
+;-> 4611686018427387904L
+
+Verifichiamo che le funzioni producano lo stesso risultato:
+
+(= (map toziente1 (sequence 1 1000)) (map toziente2 (sequence 1 1000)) (map toziente-i (sequence 1 1000)))
+;-> true
+
+Vediamo la velocità delle funzioni:
+
+(setq lst (sequence 1 10000))
+(time (map toziente1 lst) 100)
+;-> 1401.418
+(time (map toziente2 lst) 100)
+;-> 1156.911
+(time (map toziente-i lst) 100)
+;-> 11216.188
+
+Se abbiamo bisogno di tutti i totienti di tutti i numeri compresi tra 1 e n, la fattorizzazione di tutti gli n numeri non è efficiente. Possiamo usare la stessa idea del crivello di Eratostene: troviamo tutti i numeri primi e per ciascuno aggiorniamo i risultati temporanei di tutti i numeri che sono divisibili per quel numero primo.
+
+(array (+ 3 1) '(0))
+
+(define (totients-to num)
+  (let (phi (array (+ num 1) '(0)))
+    (setf (phi 0) 0)
+    (setf (phi 1) 1)
+    (for (i 2 num)
+      (setf (phi i) i)
+    )
+    (for (i 2 num)
+      (if (= (phi i) i)
+          (for (j i num i)
+            (setf (phi j) (- (phi j) (/ (phi j) i)))
+          )
+      )
+    )
+    (slice phi 1 num)))
+
+(totients-to 10)
+;-> (0 1 1 2 2 4 2 6 4 6 4)
+
+Verifichiamo il risultato:
+
+(= (array-list (totients-to 10000)) (map toziente2 (sequence 1 10000)))
+;-> true
+
+Vediamo la differenza di velocità:
+
+(time (totients-to 10000) 100)
+;-> 349.067
+
+(time (map toziente2 (sequence 1 10000)) 100)
+;-> 1250.951
+
+Per calcolare i tozienti dei numeri da 1 a n conviene utilizzare la funzione "totients-to".
+
+

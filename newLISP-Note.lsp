@@ -279,7 +279,7 @@ ROSETTA CODE
 
 PROJECT EULERO
 ==============
-  Problemi 1..60,62..67,87,89,92,96,97
+  Problemi 1..68,71,72,76,87,89,92,96,97
 
 PROBLEMI VARI
 =============
@@ -621,6 +621,9 @@ NOTE LIBERE 3
   Redditi e tasse
   Numero di eulero o di nepero
   map e filter multiplo
+  Direct Acyclic Graph (DAG)
+  Corde e cerchio
+  Toziente
   
 APPENDICI
 =========
@@ -27425,85 +27428,90 @@ L'esempio di wikipedia produce risultati differenti:
 
 ================
 
-                            Intel i5     Intel i7      Intel i7
-  Problema    Soluzione     Tempo (msec) Tempo (msec)  Tempo (msec)
-                            Algorithm 1  Algorithm 1   Algorithm 2
-|    1     |  233168       |         0  |         0  |          0  |
-|    2     |  4613732      |         0  |         0  |          0  |
-|    3     |  6857         |         0  |         0  |          0  |
-|    4     |  906609       |       297  |       203  |          0  |
-|    5     |  232792560    |         0  |         0  |          0  |
-|    6     |  25164150     |         0  |         0  |          0  |
-|    7     |  104743       |        78  |        31  |         16  |
-|    8     |  23514624000  |       110  |        62  |          0  |
-|    9     |  31875000     |        62  |        31  |          0  |
-|    10    |  142913828    |      1563  |      1078  |        546  |
-|    11    |  70600674     |         0  |         0  |          3  |
-|    12    |  76576500     |      5445  |      4022  |          0  |
-|    13    |  5537376230   |         0  |         0  |          -  |
-|    14    |  837799       |     22487  |     15408  |       7563  |
-|    15    |  137846528    |         0  |         0  |          0  |
-|    16    |  1366         |         0  |         0  |         32  |
-|    17    |  21124        |         0  |         0  |          -  |
-|    18    |  1074         |        32  |         7  |          0  |
-|    19    |  171          |         3  |         1  |          1  |
-|    20    |  648          |         0  |         0  |          -  |
-|    21    |  31626        |       220  |       134  |         87  |
-|    22    |  871198282    |        20  |        10  |             |
-|    23    |  4179871      |     40900  |     27534  |             |
-|    24    |  278391546    |     25309  |     12282  |             |
-|    25    |  4782         |      4926  |      3469  |             |
-|    26    |  983          |       488  |       266  |             |
-|    27    |  -59231       |      2000  |      1532  |             |
-|    28    |  669171001    |         0  |         0  |             |
-|    29    |  9183         |       141  |        94  |             |
-|    30    |  443839       |       516  |       344  |             |
-|    31    |  73682        |         1  |         0  |             |
-|    32    |  45228        |      1625  |      1079  |             |
-|    33    |  100          |         0  |         0  |             |
-|    34    |  40730        |      3797  |      2625  |             |
-|    35    |  55           |      1267  |       902  |             |
-|    36    |  872187       |      1443  |       945  |             |
-|    37    |  748317       |       778  |       651  |             |
-|    38    |  932718654    |        94  |        48  |             |
-|    39    |  840          |     13486  |      9561  |             |
-|    40    |  210          |       141  |       433  |             |
-|    41    |  7652413      |       125  |        64  |             |
-|    42    |  162          |        31  |         4  |             |
-|    43    |  16695334890  |      1749  |      1321  |             |
-|    44    |  5482660      |      5589  |      4182  |             |
-|    45    |  1533776805   |       115  |        63  |             |
-|    46    |  5777         |        31  |         5  |             |
-|    47    |  134043       |         0  |         0  |             |
-|    48    |  9110846700   |       266  |       186  |             |
-|    49    |  296962999629 |        19  |         5  |             |
-|    50    |  997651       |     27113  |     18871  |             |
-|    51    |  121313       |       269  |       180  |             |
-|    52    |  142857       |       313  |       204  |             |
-|    53    |  4075         |        25  |         5  |             |
-|    54    |  376          |       154  |        91  |             |
-|    55    |  249          |       116  |        69  |             |
-|    56    |  972          |       186  |       119  |             |
-|    57    |  153          |        10  |         1  |             |
-|    58    |  26241        |       630  |       432  |             |
-|    59    |  107359       |        15  |         1  |             |
-|    60    |  26033        |     55055  |     38926  |             |
-|    62    |  127035954683 |         -  |      6348  |          83 |
-|    63    |  49           |         -  |         0  |           0 |
-|    64    |  1322         |         -  |        81  |           - |
-|    65    |  272          |         -  |         0  |           - |
-|    66    |  661          |         -  |         0  |           - |
-|    67    |  7273         |         -  |         1  |           - |
-|    87    |  1097343      |         -  |      1153  |           - |
-|    89    |  743          |         -  |         0  |           - |
-|    92    |  8581146      |         -  |     51582  |         116 |
-|    96    |  24702        |         -  |     27084  |           - |
-|    97    |  8739992577   |         -  |       497  |           - |
+                                Intel i5     Intel i7     Intel i7
+  Problema    Soluzione         Tempo (msec) Tempo (msec) Tempo (msec)
+                                Algorithm 1  Algorithm 1  Algorithm 2
+|    1     |  233168            |         0  |         0  |         0  |
+|    2     |  4613732           |         0  |         0  |         0  |
+|    3     |  6857              |         0  |         0  |         0  |
+|    4     |  906609            |       297  |       203  |         0  |
+|    5     |  232792560         |         0  |         0  |         0  |
+|    6     |  25164150          |         0  |         0  |         0  |
+|    7     |  104743            |        78  |        31  |        16  |
+|    8     |  23514624000       |       110  |        62  |         0  |
+|    9     |  31875000          |        62  |        31  |         0  |
+|    10    |  142913828         |      1563  |      1078  |       546  |
+|    11    |  70600674          |         0  |         0  |         3  |
+|    12    |  76576500          |      5445  |      4022  |         0  |
+|    13    |  5537376230        |         0  |         0  |         -  |
+|    14    |  837799            |     22487  |     15408  |      7563  |
+|    15    |  137846528         |         0  |         0  |         0  |
+|    16    |  1366              |         0  |         0  |        32  |
+|    17    |  21124             |         0  |         0  |         -  |
+|    18    |  1074              |        32  |         7  |         0  |
+|    19    |  171               |         3  |         1  |         1  |
+|    20    |  648               |         0  |         0  |         -  |
+|    21    |  31626             |       220  |       134  |        87  |
+|    22    |  871198282         |        20  |        10  |            |
+|    23    |  4179871           |     40900  |     27534  |            |
+|    24    |  278391546         |     25309  |     12282  |            |
+|    25    |  4782              |      4926  |      3469  |            |
+|    26    |  983               |       488  |       266  |            |
+|    27    |  -59231            |      2000  |      1532  |            |
+|    28    |  669171001         |         0  |         0  |            |
+|    29    |  9183              |       141  |        94  |            |
+|    30    |  443839            |       516  |       344  |            |
+|    31    |  73682             |         1  |         0  |            |
+|    32    |  45228             |      1625  |      1079  |            |
+|    33    |  100               |         0  |         0  |            |
+|    34    |  40730             |      3797  |      2625  |            |
+|    35    |  55                |      1267  |       902  |            |
+|    36    |  872187            |      1443  |       945  |            |
+|    37    |  748317            |       778  |       651  |            |
+|    38    |  932718654         |        94  |        48  |            |
+|    39    |  840               |     13486  |      9561  |            |
+|    40    |  210               |       141  |       433  |            |
+|    41    |  7652413           |       125  |        64  |            |
+|    42    |  162               |        31  |         4  |            |
+|    43    |  16695334890       |      1749  |      1321  |            |
+|    44    |  5482660           |      5589  |      4182  |            |
+|    45    |  1533776805        |       115  |        63  |            |
+|    46    |  5777              |        31  |         5  |            |
+|    47    |  134043            |         0  |         0  |            |
+|    48    |  9110846700        |       266  |       186  |            |
+|    49    |  296962999629      |        19  |         5  |            |
+|    50    |  997651            |     27113  |     18871  |            |
+|    51    |  121313            |       269  |       180  |            |
+|    52    |  142857            |       313  |       204  |            |
+|    53    |  4075              |        25  |         5  |            |
+|    54    |  376               |       154  |        91  |            |
+|    55    |  249               |       116  |        69  |            |
+|    56    |  972               |       186  |       119  |            |
+|    57    |  153               |        10  |         1  |            |
+|    58    |  26241             |       630  |       432  |            |
+|    59    |  107359            |        15  |         1  |            |
+|    60    |  26033             |     55055  |     38926  |            |
+|    61    |  28684             |         -  |        85  |         -  |
+|    62    |  127035954683      |         -  |      6348  |        83  |
+|    63    |  49                |         -  |         0  |         0  |
+|    64    |  1322              |         -  |        81  |         -  |
+|    65    |  272               |         -  |         0  |         -  |
+|    66    |  661               |         -  |         0  |         -  |
+|    67    |  7273              |         -  |         1  |         -  |
+|    68    |  6531031914842725  |         -  |        21  |         -  |
+|    71    |  428570            |         -  |       191  |         -  |
+|    72    |  303963552391      |         -  |      2060  |         -  |
+|    76    |  190569291         |         -  |         0  |         -  |
+|    87    |  1097343           |         -  |      1153  |         -  |
+|    89    |  743               |         -  |         0  |         -  |
+|    92    |  8581146           |         -  |     51582  |        16  |
+|    96    |  24702             |         -  |     27084  |         -  |
+|    97    |  8739992577        |         -  |       497  |         -  |
 
 Sito web: https://projecteuler.net/archives
 
 Cos'è Project Euler?
-Project Euler è una serie di stimolanti problemi di programmazione matematica/informatica che richiedono molto più di semplici approfondimenti matematici da risolvere. Sebbene la matematica ti aiuti ad arrivare a metodi eleganti ed efficienti, per risolvere la maggior parte dei problemi sarà necessario l'uso di un computer e competenze di programmazione.
+Project Euler è una serie di stimolanti problemi di programmazione matematica/informatica che richiedono molto più di semplici approfondimenti matematici per essere risolti. Sebbene la matematica aiuti ad arrivare a metodi eleganti ed efficienti, per risolvere la maggior parte dei problemi sarà necessario l'uso di un computer e competenze di programmazione.
 
 La motivazione per l'avvio di Project Euler, e la sua continuazione, è di fornire una piattaforma per la mente indagatrice per addentrarsi in aree non familiari e apprendere nuovi concetti in un contesto divertente e ricreativo.
 
@@ -34525,6 +34533,148 @@ I tempi di calcolo delle due funzioni sono quasi uguali.
 
 
 ===========
+Problema 61
+===========
+
+I numeri triangolari, quadrati, pentagonali, esagonali, ettagonali e ottagonali sono tutti numeri figurati (poligonali) e sono generati dalle seguenti formule:
+
+Triangolo   P3,n = n(n + 1)/2     1, 3,  6, 10, 15, ...
+Quadrato    P4,n = n^2            1, 4,  9, 16, 25, ...
+Pentagonale P5,n = n(3n − 1)/2    1, 5, 12, 22, 35, ...
+Esagonale   P6,n = n(2n − 1)      1, 6, 15, 28, 45, ...
+Eptagonale  P7,n = n(5n − 3)/2    1, 7, 18, 34, 55, ...
+Ottagonale  P8,n = n(3n − 2)      1, 8, 21, 40, 65, ...
+
+L'insieme ordinato di tre numeri a 4 cifre: 8128, 2882, 8281, ha tre proprietà interessanti.
+
+1) Il set è ciclico, in quanto le ultime due cifre di ogni numero sono le prime due cifre del numero successivo (compreso l'ultimo numero con il primo).
+2) Ogni tipo poligonale: triangolo (P3,127 = 8128), quadrato (P4,91 = 8281) e pentagonale (P5,44 = 2882), è rappresentato da un numero diverso nell'insieme.
+3) Questo è l'unico set di numeri a 4 cifre con questa proprietà.
+
+Trova la somma dell'unico insieme ordinato di sei numeri ciclici a 4 cifre per i quali ogni tipo poligonale: triangolo, quadrato, pentagonale, esagonale, ettagonale e ottagonale, è rappresentato da un numero diverso nell'insieme.
+============================================================================
+
+L'algoritmo è abbastanza semplice, ma tedioso:
+
+Creiamo le liste per ogni numero pentagonale (non possiamo avere un numero con lo 0 nella terza cifra ==> no ciclo).
+Creiamo una lista totale con elementi univoci e ordinata.
+Costruiamo una catena ciclica (valida) di numeri (percorrendo tutta la lista).
+Se la catena contiene numeri da tutte le liste di numeri poligonali, allora abbiamo trovato la soluzione.
+
+(define (do-tri)
+  (let ((val 0) out '())
+    (for (i 45 141)
+      (setq val (/ (* i (+ i 1)) 2))
+      (if (!= ((string val) 2) "0") (push val out -1)))
+    out))
+
+(define (do-square)
+  (let ((val 0) out '())
+    (for (i 32 99)
+      (setq val (* i i))
+      (if (!= ((string val) 2) "0") (push val out -1)))
+    out))
+
+(define (do-penta)
+  (let ((val 0) out '())
+    (for (i 26 81)
+      (setq val (/ (* i (- (* 3 i) 1)) 2))
+      (if (!= ((string val) 2) "0") (push val out -1)))
+    out))
+
+(define (do-hexa)
+  (let ((val 0) out '())
+    (for (i 23 71)
+      (setq val (* i (- (* 2 i) 1)))
+      (if (!= ((string val) 2) "0") (push val out -1)))
+    out))
+
+(define (do-hepta)
+  (let ((val 0) out '())
+    (for (i 21 63)
+      (setq val (/ (* i (- (* 5 i) 3)) 2))
+      (if (!= ((string val) 2) "0") (push val out -1)))
+    out))
+
+(define (do-octa)
+  (let ((val 0) out '())
+    (for (i 19 58)
+      (setq val (* i (- (* 3 i) 2)))
+      (if (!= ((string val) 2) "0") (push val out -1)))
+    out))
+
+(define (e061)
+(catch
+  (local (numeri chain all tri square penta hexa hepta octa
+          ax1 ax2 ax3 ax4 ax5 ax6 bx1 bx2 bx3 bx4 bx5 bx6)
+    (setq numeri (list 3 4 5 6 7 8))
+    (setq chain '() all '())
+    (setq tri (do-tri))
+    (setq square (do-square))
+    (setq penta (do-penta))
+    (setq hexa (do-hexa))
+    (setq hepta (do-hepta))
+    (setq octa (do-octa))
+    (setq all (apply extend (list tri square penta hexa hepta octa)))
+    (setq all (sort (unique all)))
+    ; costruisce la catena di numeri
+    (dolist (x1 all)
+      (setq ax1 (/ x1 100))
+      (setq bx1 (% x1 100))
+      (dolist (x2 all)
+        (cond ((!= x1 x2)
+               (setq ax2 (/ x2 100))
+               (setq bx2 (% x2 100))
+               (cond ((> ax2 bx1) nil)
+                     ((= bx1 ax2)
+                      (dolist (x3 all)
+                        (cond ((!= x1 x2 x3)
+                               (setq ax3 (/ x3 100))
+                               (setq bx3 (% x3 100))
+                               (cond ((> ax3 bx2) nil)
+                                     ((= bx2 ax3)
+                                      (dolist (x4 all)
+                                        (cond ((!= x1 x2 x3 x4)
+                                               (setq ax4 (/ x4 100))
+                                               (setq bx4 (% x4 100))
+                                               (cond ((> ax4 bx3) nil)
+                                                     ((= bx3 ax4)
+                                                      (dolist (x5 all)
+                                                        (cond ((!= x1 x2 x3 x4 x5 x)
+                                                               (setq ax5 (/ x5 100))
+                                                               (setq bx5 (% x5 100))
+                                                               (cond ((> ax5 bx4) nil)
+                                                                     ((= bx4 ax5)
+                                                                      (dolist (x6 all)
+                                                                        (cond ((!= x1 x2 x3 x4 x5 x6)
+                                                                               (setq ax6 (/ x6 100))
+                                                                               (setq bx6 (% x6 100))
+                                                                               (cond ((> ax6 bx5) nil)
+                                                                                     ((and (= bx5 ax6) (= bx6 ax1))
+                                                                                      ; creazione e controllo catena corrente
+                                                                                      (setq chain (list x1 x2 x3 x4 x5 x6))
+                                                                                      (setq lista '())
+                                                                                      (dolist (x chain)
+                                                                                        (cond ((find x octa) (push 8 lista))
+                                                                                              ((find x hepta) (push 7 lista))
+                                                                                              ((find x hexa) (push 6 lista))
+                                                                                              ((find x penta) (push 5 lista))
+                                                                                              ((find x square) (push 4 lista))
+                                                                                              ((find x tri) (push 3 lista))
+                                                                                        )
+                                                                                        (setq lista (sort (unique lista)))
+                                                                                        ; catena trovata
+                                                                                        (if (= lista numeri) (throw (apply + chain)))
+                                                                                      ))))))))))))))))))))))))))))))
+
+(e061)
+;-> 28684
+
+(time (e061))
+;-> 85.8
+
+
+===========
 Problema 62
 ===========
 
@@ -35124,6 +35274,309 @@ Una soluzione generica può essere ottenuta con la programmazione dinamica. In p
 
 
 ===========
+Problema 68
+===========
+
+Considera il seguente anello "magico" 3-gon, riempito con i numeri da 1 a 6 e ogni riga somma a nove.
+
+       4  
+        \
+         3 
+        / \    
+       1---2---6
+      /
+     5
+     
+Lavorando in senso orario, e partendo dal gruppo di tre con il nodo esterno numericamente più basso (4,3,2 in questo esempio), ogni soluzione può essere descritta in modo univoco. Ad esempio, la soluzione di cui sopra può essere descritta dall'insieme: 4,3,2 - 6,2,1 - 5,1,3.
+
+È possibile completare l'anello con quattro diversi totali: 9, 10, 11 e 12. Ci sono otto soluzioni in totale.
+
+Totale   Soluzioni
+   9     4,2,3 - 5,3,1 - 6,1,2
+   9     4,3,2 - 6,2,1 - 5,1,3
+  10     2,3,5 - 4,5,1 - 6,1,3
+  10     2,5,3 - 6,3,1 - 4,1,5
+  11     1,4,6 - 3,6,2 - 5,2,4
+  11     1,6,4 - 5,4,2 - 3,2,6
+  12     1,5,6 - 2,6,4 - 3,4,5
+  12     1,6,5 - 3,5,4 - 2,4,6
+  
+Concatenando ogni gruppo è possibile formare stringhe di 9 cifre: la stringa massima per un anello 3-gon è 432621513.
+
+Utilizzando i numeri da 1 a 10, a seconda degli arrangiamenti, è possibile formare stringhe di 16 e 17 cifre. Qual è il numero massimo di 16 cifre per un anello "magico" 5-gon?
+============================================================================
+
+Funzione che calcola le permutazioni:
+
+(define (perm lst)
+  (local (i indici out)
+    (setq indici (dup 0 (length lst)))
+    (setq i 0)
+    ; aggiungiamo la lista iniziale alla soluzione
+    (setq out (list lst))
+    (while (< i (length lst))
+      (if (< (indici i) i)
+          (begin
+            (if (zero? (% i 2))
+              (swap (lst 0) (lst i))
+              (swap (lst (indici i)) (lst i))
+            )
+            ;(println lst);
+            (push lst out -1)
+            (++ (indici i))
+            (setq i 0)
+          )
+          (begin
+            (setf (indici i) 0)
+            (++ i)
+          )
+       )
+    )
+    out))
+
+(define (gon lst)
+  (local (is-gon gonL pL6 pL7 pL8 pL9 pL10 p6 p7 p8 p9 p10)
+    (setq is-gon nil)
+    (setq gonL '() pL6 '() pL7 '() pL8 '() pL9 '() pL10 '())
+    (setq p6  (+ (lst 6)  (lst 1) (lst 2)))
+    (setq p7  (+ (lst 7)  (lst 2) (lst 3)))
+    (setq p8  (+ (lst 8)  (lst 3) (lst 4)))
+    (setq p9  (+ (lst 9)  (lst 4) (lst 5)))
+    (setq p10 (+ (lst 10) (lst 5) (lst 1)))
+    ; Controllo se le somme sono uguali
+    (cond ((and (= p6 p7) (= p7 p8) (= p8 p10) (= p9 p10))
+           (setq is-gon true)
+           ; Cerco l'indice del valore minimo esterno
+           ; cioè cerco il numero 6, perchè all'esterno ci devono
+           ; stare i numeri 6,7,8,9,10.
+           (setq indice (find 6 lst))
+           ; Costruisco la lista soluzione
+           (setq pL6  (list (lst 6)  (lst 1) (lst 2)))
+           (setq pL7  (list (lst 7)  (lst 2) (lst 3)))
+           (setq pL8  (list (lst 8)  (lst 3) (lst 4)))
+           (setq pL9  (list (lst 9)  (lst 4) (lst 5)))
+           (setq pL10 (list (lst 10) (lst 5) (lst 1)))
+           (cond ((= indice 6)  (setq gonL (apply extend (list pL6  pL7  pL8  pL9  pL10))))
+                 ((= indice 7)  (setq gonL (apply extend (list pL7  pL8  pL9  pL10 pL6))))
+                 ((= indice 8)  (setq gonL (apply extend (list pL8  pL9  pL10 pL6  pL7))))
+                 ((= indice 9)  (setq gonL (apply extend (list pL9  pL10 pL6  pL7  pL8))))
+                 ((= indice 10) (setq gonL (apply extend (list pL10 pL6  pL7  pL8  pL9))))
+           ))
+    )
+    (if is-gon
+        (list gonL p6)
+        (list '() 0))))
+
+(define (e068)
+  (local (vmax pa pb val go x y)
+    (setq vmax 0)
+    (setq pa (perm '(1 2 3 4 5)))
+    (setq pb (perm '(6 7 8 9 10)))
+    (dolist (a pa)
+      (setq val '())
+      (dolist (b pb)
+        (setq val (apply extend (list '(0) a b)))
+        (setq go (gon val))
+        (setq x (first go))
+        (setq y (last go))
+        (if (!= y 0)
+          (begin
+           ;(println x { } y)
+           (if (> (int (join (map string x))) vmax)
+               (setq vmax (int (join (map string x))))
+           ))
+        )
+      )
+    )
+    vmax))
+
+(e068)
+;-> 6531031914842725
+
+(time (e068))
+;-> 21.97
+
+
+===========
+Problema 71
+===========
+
+Frazioni ordinate
+
+Considera la frazione, n/d, dove n e d sono numeri interi positivi. Se n < d e HCF(n,d) = 1, si parla di frazione propria ridotta.
+
+Se elenchiamo l'insieme delle frazioni proprie ridotte per d ≤ 8 in ordine crescente di dimensione, otteniamo:
+
+1/8, 1/7, 1/6, 1/5, 1/4, 2/7, 1/3, 3/8, 2/5, 3/7, 1/2, 4/7, 3/5, 5/8, 2/3, 5/7, 3/4, 4/5, 5/6, 6/7, 7/8
+
+Si può vedere che 2/5 è la frazione immediatamente a sinistra di 3/7.
+
+Elencando l'insieme delle frazioni proprie ridotte per d ≤ 1.000.000 in ordine crescente di dimensione, trova il numeratore della frazione immediatamente a sinistra di 3/7.
+============================================================================
+
+Nota: HCF = High Common Factor (fattore comune maggiore)
+
+(define (find-upper n base)
+  (let ((a 1) (cont true))
+    (while (and (< a n) cont)
+      (if (> (div a n) base)
+          (setq cont nil)
+          (++ a)))
+    a))
+
+(find-upper 8 (div 3 7))
+;-> 4
+(find-upper 1000000 (div 3 7))
+;-> 428572
+
+(define (e071)
+  (local (n num den minimo base limite a b)
+    (setq n 1000000)
+    (++ n)
+    (setq num 1 den 1)
+    (setq minimo 0)
+    (setq base (div 3 7))
+    (setq limite (find-upper n base))
+    (setq a (- limite 2))
+    (while (< a limite)
+      (setq b (+ a 1))
+      (while (< b n)
+        (setq v (div a b))
+        (if (and (< v base) ( > v minimo))
+            (setq num a den b minimo (div num den))
+        )
+        (++ b)
+      )
+      (++ a)
+    )
+    ;(list num den (div num den))
+    num))
+
+(e071 1000000)
+;-> 428570
+
+(time (e071))
+;-> 191.169
+
+
+===========
+Problema 72
+===========
+
+Conteggio delle frazioni
+
+Considera la frazione, n/d, dove n e d sono numeri interi positivi. Se n <de HCF (n, d) = 1, si parla di frazione propria ridotta.
+
+Se elenchiamo l'insieme delle frazioni proprie ridotte per d ≤ 8 in ordine crescente di dimensione, otteniamo:
+
+1/8, 1/7, 1/6, 1/5, 1/4, 2/7, 1/3, 3/8, 2/5, 3/7, 1/2, 4/7, 3/5, 5/8, 2/3, 5/7, 3/4, 4/5, 5/6, 6/7, 7/8
+
+Si può vedere che ci sono 21 elementi in questo set.
+
+Quanti elementi sarebbero contenuti nell'insieme delle frazioni proprie ridotte per d ≤ 1.000.000?
+============================================================================
+
+Ordinando le frazioni in una matrice si ottiene il seguente risultato (n=10):
+
+  1/2   1/3   1/4   1/5   1/6   1/7   1/8   1/9  1/10
+    0   2/3   1/2   2/5   1/3   2/7   1/4   2/9   1/5
+    0     0   3/4   3/5   1/2   3/7   3/8   1/3  3/10
+    0     0     0   4/5   2/3   4/7   1/2   4/9   2/5
+    0     0     0     0   5/6   5/7   5/8   5/9   1/2
+    0     0     0     0     0   6/7   3/4   2/3   3/5
+    0     0     0     0     0     0   7/8   7/9  7/10
+    0     0     0     0     0     0     0   8/9   4/5
+    0     0     0     0     0     0     0     0  9/10
+    0     0     0     0     0     0     0     0     0
+
+(1/2, 1/3, 1/4, 1/5, 1/6, 1/7, 1/8, 1/9, 1/10, 2/3, 2/5, 2/7, 2/9,
+3/4, 3/5, 3/7, 3/8, 3/10, 4/5, 4/7, 4/9, 5/6, 5/7, 5/8, 5/9, 6/7,
+7/8, 7/9, 7/10, 8/9, 9/10)
+
+Notiamo che:
+a) le colonne con denominatore numero primo hanno (denominatore - 1) termini.
+b) le colonne con denominatore non primo hanno toziente(denominatore) termini.
+(dove toziente(n) è il numero di interi minori di n che sono primi rispetto a n)
+
+Funzione che verifica se un numero è primo:
+
+(define (prime? num)
+   (if (< num 2) nil
+       (= 1 (length (factor num)))))
+
+Funzione che calcola il toziente di un numero:
+
+(define (toziente num)
+  (if (= num 1) 1
+    (let (res num)
+      (dolist (f (unique (factor num)))
+        (setq res (- res (/ res f))))
+      res)))
+
+Scriviamo la funzione finale:
+
+(define (e072)
+  (let ((num 1000000) (somma 0))
+    (for (i 2 num)
+      (if (prime? i)
+          (setq somma (+ somma (- i 1)))
+          (setq somma (+ somma (toziente i)))
+      )
+    )
+    somma))
+
+(e072)
+;-> 303963552391
+
+(time (e072))
+;-> 2060.973
+
+
+===========
+Problema 76
+===========
+
+Conteggio delle somme
+
+È possibile scrivere cinque come somma in esattamente sei modi diversi:
+
+4 + 1
+3 + 2
+3 + 1 + 1
+2 + 2 + 1
+2 + 1 + 1 + 1
+1 + 1 + 1 + 1 + 1
+
+In quanti modi diversi si può scrivere cento come somma di almeno due numeri interi positivi?
+============================================================================
+
+La soluzione è simile a quella del problema 31. Le uniche differenze sono:
+1) il totale vale 100 (invece di 200)
+2) le monete (gli interi in questo caso) vanno da 1 a 99 (invece che (1 2 5 10 20 50 100 200))
+
+(define (e076)
+  (local (totale monete modi)
+    ; valore obiettivo
+    (setq totale 100)
+    ; lista dei tagli di monete disponibili
+    (setq monete (sequence 1 99))
+    ; crea un vettore di totale elementi con tutti valori 0 tranne il primo (modi[0]) che vale 1
+    (setq modi (array (+ totale 1) (extend '(1) (dup 0 totale))))
+    (dolist (el monete)
+      (for (i el totale)
+        (setq (modi i) (+ (modi i) (modi (- i el))))
+      )
+    )
+    (modi totale)))
+
+(e076)
+;-> 190569291
+
+(time (e076))
+;-> 0
+
+
+===========
 Problema 87
 ===========
 
@@ -35577,8 +36030,8 @@ Funzione finale:
           (letn ((conta (count '(1 2 3 4 5 6 7 8 9 0) el))
                  ; e poi calcoliamo il coefficiente multinomiale
                  (coeff (/ (fact 7) (apply * (map (fn(x) (fact x)) conta)))))
-                ; aggiorniamo il totale
-                (setq out (+ out coeff))
+                 ; aggiorniamo il totale
+                 (setq out (+ out coeff))
           )
       )
     )
@@ -70266,6 +70719,367 @@ Se abbiamo bisogno di tutti i totienti di tutti i numeri compresi tra 1 e n, la 
 
 (totients-to 10)
 ;-> (1 1 2 2 4 2 6 4 6 4)
+
+Verifichiamo il risultato:
+
+(= (array-list (totients-to 10000)) (map toziente2 (sequence 1 10000)))
+;-> true
+
+Vediamo la differenza di velocità:
+
+(time (totients-to 10000) 100)
+;-> 349.067
+
+(time (map toziente2 (sequence 1 10000)) 100)
+;-> 1250.951
+
+Per calcolare i tozienti dei numeri da 1 a n conviene utilizzare la funzione "totients-to".
+
+
+--------------------------
+Direct Acyclic Graph (DAG)
+--------------------------
+
+Un grafo aciclico diretto (Directed acyclic graph, DAG) è un grafo diretto che non ha cicli (circuiti), ovvero comunque scegliamo un vertice del grafo non possiamo tornare ad esso percorrendo gli archi del grafo. Un grafo diretto può dirsi aciclico (cioè è un DAG) se una visita in profondità non presenta archi all'indietro.
+
+Un esempio di DAG è il seguente:
+
+  +---------+-        +---------+        +---------+          +---------+
+  |         |         |         |        |         |          |         |
+  |    A    |-------->|    C    |------->|    D    |--------->|    E    |
+  |         |   ----->|         |        |         |------    |         |
+  +---------+   |     +---------+        +---------+     |    +---------+
+                |         |                              |
+  +---------+   |         |                              |    +---------+
+  |         |   |         |                              |    |         |
+  |    B    |----         |        +---------+           ---->|    F    |
+  |         |             |        |         |                |         |
+  +---------+             -------->|    G    |                +---------+
+                                   |         |
+                                   +---------+
+
+A e B sono nodi iniziali. Ogni nodo ha proprietà, ogni vertice ha proprietà. E, G e F sono nodi finali.
+
+Il codice seguente è stato scritto da rickyboy ed è anche un ottimo esempio di programmazione ad oggetti in newLISP (FOOP).
+
+;;;
+;;; Find dependencies ((grand)*parents) in a DAG.
+;;;
+
+(define (mappend) (apply append (apply map (args))))
+
+(define (Class:Class) (cons (context) (args)))
+
+The three principal types of objects we need are nodes, edges, and DAGs.
+
+(new Class 'Node)
+(new Class 'Edge)
+(new Class 'DAG)
+
+Naturally, DAGs will contain nodes and edges. Here is a helper function to create a DAG.
+Besides nodes and edges, DAGS contain a "parents-alist", an adjacency list matching nodes (node names, actually) to a list of their parents (names). 
+The create function will compute the "parents-alist" for you, as a convenience.
+
+;; Warning: no error checking is done, e.g. checking for no cycles.
+(define (DAG:create nodes edges)
+  "Create a DAG object from Nodes and Edges."
+  (let ((simple-nodes (map (fn (n) (n 1)) nodes))
+        (simple-edges (map (fn (e) (list (e 1) (e 2))) edges)))
+    (DAG nodes
+         edges
+         ;; parents-alist: assocs look like (node (parent-node ...))
+         (map (fn (sn)
+                (list sn
+                      (map first
+                           (filter (fn (se) (= sn (last se)))
+                                   simple-edges))))
+              simple-nodes)
+         ;; children-alist: assocs look like (node (child-node ...))
+         (map (fn (sn)
+                (list sn
+                      (map last
+                           (filter (fn (se) (= sn (first se)))
+                                   simple-edges))))
+              simple-nodes))))
+
+Let's see it in action on our DAG:
+
+(define my-dag
+  (DAG:create (list (Node "A" 'happy)
+                    (Node "B" 'sad)
+                    (Node "C" 'happy)
+                    (Node "D" 'indifferent)
+                    (Node "E" 'surly)
+                    (Node "F" 'happy)
+                    (Node "G" 'sad))
+              (list (Edge "A" "C" 3)
+                    (Edge "B" "C" 4)
+                    (Edge "C" "D" 8)
+                    (Edge "C" "G" 1)
+                    (Edge "D" "E" 4)
+                    (Edge "D" "F" 9))))
+
+Here's what it looks like:
+
+my-dag
+;-> (DAG ((Node "A" happy) (Node "B" sad) (Node "C" happy)
+;->       (Node "D" indifferent) (Node  "E" surly)
+;->       (Node "F" happy) (Node "G" sad))
+;->      ((Edge "A" "C" 3) (Edge "B" "C" 4) (Edge "C" "D" 8)
+;->       (Edge "C" "G" 1) (Edge "D" "E"  4) (Edge "D" "F" 9))
+;->      (("A" ()) ("B" ()) ("C" ("A" "B")) ("D" ("C"))
+;->       ("E" ("D")) ("F" ("D")) ("G" ("C"))))
+
+Nodes and edges must contain properties. The convention I'm using here is that, when defining a Node, the first "slot" contains the name and the remaining "slots" contain any number of properties that you want to add. So, (Node "A" 'happy) is a node with the name "A" and one property value (namely, 'happy). The same idea applies to edges, except that the first 2 slots contain node names and the remaining slots can be properties. Hence, (Edge "A" "C" 3) is an edge starting from node "A", ending at node "C" and containing the property value 3 (which could be an edge weight/cost, for example). These are the properties.
+
+Now, here are some accessor functions for DAGs:
+
+(define (DAG:nodes) (self 1))
+(define (DAG:edges) (self 2))
+(define (DAG:parents node-name)
+  (let ((parents-alist (self 3)))
+    (if node-name
+        (if (assoc node-name parents-alist) (last $it) '())
+        parents-alist)))
+
+;; Example usage:
+;; (:parents my-dag) => (("A" ()) ("B" ()) ("C" ("A" "B")) ("D" ("C")) ("E" ("D")) ("F" ("D")) ("G" ("C")))
+;; (:parents my-dag "C") => ("A" "B")
+;; (:parents my-dag "B") => ()
+;; (:parents my-dag "Does not exist") => ()
+
+Here's a function to compute a node's children:
+
+(define (DAG:children node-name)
+  (let ((children-alist (self 4)))
+    (if node-name
+        (if (assoc node-name children-alist) (last $it) '())
+        children-alist)))
+
+;; Example usage:
+;; (:children my-dag) => (("A" ("C")) ("B" ("C")) ("C" ("D" "G")) ("D" ("E" "F")) ("E" ()) ("F" ()) ("G" ()))
+;; (:children my-dag "C") => ("D" "G")
+;; (:children my-dag "B") => ("C")
+;; (:children my-dag "E") => ()
+;; (:children my-dag "Does not exist") => ()
+
+Here's a function to compute a node's ancestors (i.e. parents, grandparents, ...):
+
+(define (DAG:ancestors node-name)
+  (let ((parents (:parents (self) node-name)))
+    (and parents
+         (append parents
+                 (mappend (fn (p) (:ancestors (self) p))
+                      parents)))))
+
+;; Example usage:
+;; (:ancestors my-dag "D") => ("C" "A" "B")
+
+Here's a function to compute a node's descendants:
+
+(define (DAG:descendants node-name)
+  (let ((children (:children (self) node-name)))
+    (and children
+         (append children
+                 (mappend (fn (p) (:descendants (self) p))
+                          children)))))
+
+;; Example usage:
+;; (:descendants my-dag "C") => ("D" "G" "E" "F")
+
+;; If you want to get a Node out of the DAG (e.g. in order the extract
+;; its properties), then use the following function to get it by name.
+
+(define (DAG:get-node node-name)
+  (and (find (list 'Node node-name '*)
+             (:nodes (self))
+             match)
+       $0))
+
+;; Example usage:
+;; (:get-node my-dag "G") => (Node "G" sad)
+;; (:get-node my-dag "Does not exist") => nil
+
+;; Same goes for getting an Edge, expect you provide a list of two
+;; node names, e.g. '("A" "B").
+
+(define (DAG:get-edge edge-name)
+  (and (find (append '(Edge) edge-name '(*))
+             (:edges (self))
+             match)
+       $0))
+
+;; Example usage:
+;; (:get-edge my-dag '("C" "D")) => (Edge "C" "D" 8)
+;; (:get-edge my-dag '("Does" "Not Exist")) => nil
+
+(define (find-all-dependencies dag node-name)
+  (:ancestors dag node-name))
+
+;; (find-all-dependencies my-dag "D") => ("C" "A" "B")
+
+(define (get-all-dependencies dag node-name)
+   (map (fn (name) (:get-node dag name))
+        (:ancestors dag node-name)))
+
+;; (get-all-dependencies my-dag "D") => ((Node "C" happy) (Node "A" happy) (Node "B" sad))
+
+
+---------------
+Corde e cerchio
+---------------
+
+Se una corda è selezionata a caso su un cerchio, qual è la probabilità che la sua lunghezza (l) superi il raggio (r) del cerchio?
+"A caso" indica che i punti finali della corda sono distribuiti uniformemente sul cerchio.
+
+La lunghezza di una corda AB vale:
+
+corda = diametro * sin(alfa)
+
+dove alfa è l'angolo che insiste sulla corda AB
+
+0° <= alfa <= 180°
+
+Se poniamo (corda = r) ==> r = 2 * r * sin(alfa) ==> sin(alfa) = 1/2 ==> asin(1/2) = 60°
+
+Quindi la lunghezza della corda è pari al raggio r quando alfa = 60°.
+
+Allora per alfa compreso tra 0° e 60°, la corda è minore del raggio,
+       per alfa compreso tra 60° e 180°, la corda è maggiore del raggio.
+
+Quindi la probabilità che la lunghezza della corda superi il raggio vele (180 - 60/180) = 2/3 = 0.666666...
+
+Scriviamo una funzione che effettua la simulazione:
+
+(setq PI 3.1415926535897931)
+
+(define (corda step)
+  (local (tot magg r alfa)
+  (setq tot 0 magg 0 r 1)
+  (for (alfa 0 (div PI 2) step)
+    (if (> (mul 2 r (sin alfa)) r) (++ magg))
+    (++ tot)
+  )
+  (div magg tot)))
+
+(corda 0.01)
+;-> 0.6645569620253164
+(corda 0.001)
+;-> 0.6664544875875239
+(corda 0.0001)
+;-> 0.6666666666666666
+
+
+--------
+Toziente
+--------
+
+La funzione φ (phi) di Eulero o funzione toziente, è una funzione definita, per ogni intero positivo n, come il numero degli interi compresi tra 1 e n che sono coprimi con n. Ad esempio, phi(8) = 4 poiché i numeri coprimi di 8 sono quattro: 1, 3, 5 e 7.
+
+n = p1^a1 * p2^a2 *... * pk^ak
+
+phi(n) = n* (1 - 1/p1)*(1 - 1/p2)*...*(1 - 1/pk)
+
+Per calcolare il toziente di un numero scriviamo tre funzioni, due che utilizzano la primitiva di newLISP "factor" e una che calcola la fattorizzazione (quindi utilizzabile anche per i big-integer):
+
+Funzione 1:
+
+(define (toziente1 num)
+    (if (= num 1) 1
+    (round (mul num (apply mul (map (fn (x) (sub 1 (div 1 x))) (unique (factor num))))) 0)))
+
+(toziente1 222)
+;-> 72
+(toziente1 123456)
+;-> 41088
+(toziente1 9223372036854775807)
+;-> 7.713001620195509e+018
+
+Funzione 2:
+
+(define (toziente2 num)
+  (if (= num 1) 1
+    (let (res num)
+      (dolist (f (unique (factor num)))
+        (setq res (- res (/ res f))))
+      res)))
+
+(toziente2 222)
+;-> 72
+(toziente2 123456)
+;-> 41088
+(toziente2 9223372036854775807)
+;-> 7713001620195508224
+
+Funzione 3 (big-integer):
+
+(define (toziente-i num)
+  (if (= num 1) 1
+    (let ((res num) (i 2L))
+      (while (<= (* i i) num)
+        (if (zero? (% num i))
+            (begin
+              (while (zero? (% num i))
+                (setq num (/ num i))
+              )
+              (setq res (- res (/ res i))))
+        )
+        (++ i)
+      )
+      (if (> num 1)
+        (setq res (- res (/ res num)))
+      )
+      res)))
+
+(toziente-i 222)
+;-> 72
+(toziente-i 123456)
+;-> 41088
+(toziente-i 9223372036854775807)
+;-> 7713001620195508224
+
+Se passiamo un numero big-integer, allora la soluzione sarà un big-integer:
+
+(toziente-i 9223372036854775808L)
+;-> 4611686018427387904L
+
+Verifichiamo che le funzioni producano lo stesso risultato:
+
+(= (map toziente1 (sequence 1 1000)) (map toziente2 (sequence 1 1000)) (map toziente-i (sequence 1 1000)))
+;-> true
+
+Vediamo la velocità delle funzioni:
+
+(setq lst (sequence 1 10000))
+(time (map toziente1 lst) 100)
+;-> 1401.418
+(time (map toziente2 lst) 100)
+;-> 1156.911
+(time (map toziente-i lst) 100)
+;-> 11216.188
+
+Se abbiamo bisogno di tutti i totienti di tutti i numeri compresi tra 1 e n, la fattorizzazione di tutti gli n numeri non è efficiente. Possiamo usare la stessa idea del crivello di Eratostene: troviamo tutti i numeri primi e per ciascuno aggiorniamo i risultati temporanei di tutti i numeri che sono divisibili per quel numero primo.
+
+(array (+ 3 1) '(0))
+
+(define (totients-to num)
+  (let (phi (array (+ num 1) '(0)))
+    (setf (phi 0) 0)
+    (setf (phi 1) 1)
+    (for (i 2 num)
+      (setf (phi i) i)
+    )
+    (for (i 2 num)
+      (if (= (phi i) i)
+          (for (j i num i)
+            (setf (phi j) (- (phi j) (/ (phi j) i)))
+          )
+      )
+    )
+    (slice phi 1 num)))
+
+(totients-to 10)
+;-> (0 1 1 2 2 4 2 6 4 6 4)
 
 Verifichiamo il risultato:
 

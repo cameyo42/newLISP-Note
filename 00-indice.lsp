@@ -279,7 +279,7 @@ ROSETTA CODE
 
 PROJECT EULERO
 ==============
-  Problemi 1..60,62..67,87,89,92,96,97
+  Problemi 1..68,71,72,76,87,89,92,96,97
 
 PROBLEMI VARI
 =============
@@ -621,6 +621,9 @@ NOTE LIBERE 3
   Redditi e tasse
   Numero di eulero o di nepero
   map e filter multiplo
+  Direct Acyclic Graph (DAG)
+  Corde e cerchio
+  Toziente
   
 APPENDICI
 =========
