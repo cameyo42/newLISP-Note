@@ -1486,3 +1486,117 @@ Vediamo la differenza di velocità:
 Per calcolare i tozienti dei numeri da 1 a n conviene utilizzare la funzione "totients-to".
 
 
+----------------
+Numeri permutati
+----------------
+
+Scrivere una funzione che verifica se due numeri sono la permutazione uno dell'altro, cioè se i due numeri contengono le stesse identiche cifre.
+
+Funzione che converte un intero in una lista:
+
+(define (int-lst num)
+  (let (out '())
+    (while (!= num 0)
+      (push (% num 10) out)
+      (setq num (/ num 10))) out))
+
+Prima funzione:
+
+(define (perm1? n1 n2) (= (sort (int-lst n1)) (sort (int-lst n2))))
+
+(perm1? 112233 123123)
+;-> true
+(perm1? 112233 223123)
+
+Seconda funzione: 
+usiamo due vettori che vengono aggiornati (+ 1) con le cifre dei due numeri.
+Al termine confrontiamo i due vettori.
+
+(define (perm2? n1 n2)
+  (if (!= (length n1) (length n2))
+      nil
+      (let (ar1 (array 10 '(0)) (ar2 (array 10 '(0))))
+        (while (!= n1 0)
+            (++ (ar1 (% n1 10)))
+            (setq n1 (/ n1 10))
+        )
+        (while (!= n2 0)
+            (++ (ar2 (% n2 10)))
+            (setq n2 (/ n2 10))
+        )
+        (= ar1 ar2))))
+
+(perm2? 112233 123123)
+;-> true
+(perm2? 112233 223123)
+;-> nil
+
+Terza funzione:
+usiamo un vettore che viene aggiornato (+ 1 e -1) con le cifre dei due numeri.
+Al termine verifichiamo se il vettore contiene tutti 0.
+
+(define (perm3? n1 n2)
+  (if (!= (length n1) (length n2))
+      nil
+      (let (ar (array 10 '(0)))
+        (while (!= n1 0)
+            (++ (ar (% n1 10)))
+            (setq n1 (/ n1 10))
+        )
+        ;(println ar)
+        (while (!= n2 0)
+            (-- (ar (% n2 10)))
+            (setq n2 (/ n2 10))
+        )
+        ;(println ar)
+        (= (count '(0) (array-list ar)) '(10)))))
+
+(perm3? 112233 123123)
+;-> true
+(perm3? 112233 223123)
+;-> nil
+
+Quarta funzione:
+questa funzione è presa da un vecchio libro sul linguaggio C.
+
+(define (perm4? n1 n2)
+  (if (!= (length n1) (length n2))
+      nil
+      (let ((nn1 n1) (nn2 n2) (tot1 0) (tot2 0))
+        (while (and (> nn1 0) (> nn2 0))
+          (setq nn1 (/ nn1 10) nn2 (/ nn2 10)))
+        (while (!= n1 0)
+          (setq tot1 (+ tot1 (<< 1 (* (% n1 10) 6))))
+          (setq tot2 (+ tot2 (<< 1 (* (% n2 10) 6))))
+          (setq n1 (/ n1 10))
+          (setq n2 (/ n2 10)))
+        (= tot1 tot2))))
+
+Nota: L'operazione di left-shift (x << y) è equivalente a moltiplicare x per 2^y (2 elevato alla potenza y).
+
+(perm4? 112233 123123)
+;-> true
+(perm4? 112233 223123)
+;-> nil
+
+Vediamo la velocità delle funzioni:
+
+(time (perm1? 9223372036854775807 7223372036854775809) 100000)
+;-> 587.222
+(time (perm2? 9223372036854775807 7223372036854775809) 100000)
+;-> 557.205
+(time (perm3? 9223372036854775807 7223372036854775809) 100000)
+;-> 611.291
+(time (perm4? 9223372036854775807 7223372036854775809) 100000)
+;-> 945.856
+
+Per i big-integer:
+
+(time (perm1? 92233720368547758079223372036854775807L 72233720368547758097223372036854775809L) 100000)
+;-> 4832.083
+(time (perm2? 92233720368547758079223372036854775807L 72233720368547758097223372036854775809L) 100000)
+;-> 4063.133
+(time (perm3? 92233720368547758079223372036854775807L 72233720368547758097223372036854775809L) 100000)
+;-> 4131.988
+
+

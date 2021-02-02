@@ -75,6 +75,7 @@
 |    66    |  661               |         -  |         0  |         -  |
 |    67    |  7273              |         -  |         1  |         -  |
 |    68    |  6531031914842725  |         -  |        21  |         -  |
+|    70    |  8319823           |         -  |      9621  |         7  |
 |    71    |  428570            |         -  |       191  |         -  |
 |    72    |  303963552391      |         -  |      2060  |         -  |
 |    76    |  190569291         |         -  |         0  |         -  |
@@ -7971,6 +7972,134 @@ Funzione che calcola le permutazioni:
 
 (time (e068))
 ;-> 21.97
+
+
+===========
+Problema 70
+===========
+
+Pemutazione toziente
+
+La funzione toziente di Eulero, φ(n) (a volte chiamata funzione phi), è usata per determinare il numero di numeri positivi minori o uguali a n che sono primi relativamente a n. Ad esempio, poiché 1, 2, 4, 5, 7 e 8 sono tutti inferiori a nove e primi relativamente a nove, φ(9) = 6.
+Il numero 1 è considerato relativamente primo rispetto a ogni numero positivo, quindi φ(1)= 1.
+
+È interessante notare che φ(87109) = 79180, e si può vedere che 87109 è una permutazione di 79180.
+
+Trova il valore di n, 1 < n < 10^7, per cui φ(n) è una permutazione di ne il rapporto n/φ(n) produce un minimo.
+============================================================================
+
+Utilizziamo un approccio con la forza bruta.
+
+Funzione che verifica se due numeri hanno le stesse cifre:
+
+(define (perm? n1 n2)
+  (if (!= (length n1) (length n2))
+      nil
+      (let (ar (array 10 '(0)))
+        (while (!= n1 0)
+            (++ (ar (% n1 10)))
+            (setq n1 (/ n1 10))
+        )
+        ;(println ar)
+        (while (!= n2 0)
+            (-- (ar (% n2 10)))
+            (setq n2 (/ n2 10))
+        )
+        ;(println ar)
+        (= (count '(0) (array-list ar)) '(10)))))
+
+(perm? 123123 112233)
+;-> true
+
+Funzione che calcola il toziente da 0 fino a n numeri:
+
+(define (totients-to num)
+  (let (phi (array (+ num 1) '(0)))
+    (setf (phi 0) 0)
+    (setf (phi 1) 1)
+    (for (i 2 num)
+      (setf (phi i) i))
+    (for (i 2 num)
+      (if (= (phi i) i)
+          (for (j i num i)
+            (setf (phi j) (- (phi j) (/ (phi j) i))))))
+     phi))
+
+(totients-to 10)
+;-> (0 1 1 2 2 4 2 6 4 6 4)
+
+Scriviamo la funzione finale:
+
+(define (e070)
+  (local (t idx cur-val min-val)
+    (setq t (totients-to 9999999))
+    (setq min-val 999999)
+    (setq idx-val nil)
+    ; cerca il valore minimo
+    (for (i 2 9999999)
+      (setq cur-val (t i))
+      (if (< (div i cur-val) min-val)
+          (if (perm? cur-val i)
+                  (setq idx-val i min-val (div i cur-val))
+              )
+          )
+    )
+    idx-val))
+
+(e070)
+;-> 8319823
+
+(time (e070))
+;-> 9621.575
+
+Dal punto di vistta matematico possimo notare che:
+
+1) Rendere minimo n/φ(n) equivale a massimizzare φ(n)/n, che si verifica quando n ha il minor numero di fattori primi possibile.
+2) φ(n) = n - 1 dove n è primo, poiché tutti i numeri sotto sono coprimi per definizione
+3) φ(n) = φ(pq) = (p - 1) (q - 1) dove n è semiprimo e p e q sono i suoi fattori e p <> q.
+4) φ(n) = φ(p2) = (p - 1) p dove n è semiprime ep è il suo unico fattore distinto.
+5) n - 1 non può essere una permutazione di n, quindi il nostro n non può essere un primo, ma è probabilmente il prodotto di due numeri primi (semiprimi).
+
+Funzone che calcola tutti i numeri primi da 1 fino a un dato numero:
+
+(define (primes-to num)
+  (cond ((= num 1) '())
+        ((= num 2) '(2))
+        (true
+         (let (lst '(2))
+          (setq arr (array (+ num 1)))
+          (for (x 3 num 2)
+                (when (not (arr x))
+                  (push x lst -1)
+                  (for (y (* x x) num (* 2 x) (> y num))
+                      (setf (arr y) true)))) lst))))
+
+Le considerazioni precedenti portano (dopo molti tentativi) alla seguente funzione:
+
+(define (e070)
+(catch
+  (local (num primi min-q min-n q n totient)
+  (setq num 10000000)
+  (setq primi (primes-to (int (mul 1.25 (sqrt num)))))
+  (setq primi (slice primi (int (mul 0.5 (length primi)))))
+  (setq min-q 2 min-n 0 i 0)
+  (dolist (p1 primi)
+    (dolist (p2 (slice primi i))
+      (cond ((!= (% (+ p1 p2) 9) 1) nil)
+            (true
+             (setq n (* p1 p2))
+             (if (> n num) (throw min-n)) ; soluzione trovata
+             (setq totient (* (- p1 1) (- p2 1)))
+             (setq q (div n totient))
+             (if (and (> min-q q) (perm? totient n))
+                 (setq min-q q min-n n))))))
+  'not-found)))
+
+(e070)
+;-> 8319823
+
+(time (e070))
+;-> 7.012
 
 
 ===========
