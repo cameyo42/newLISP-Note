@@ -1704,3 +1704,43 @@ Esempi:
 In questo modo possiamo avere un help sulle funzioni scritte dall'utente.
 
 
+--------------
+Numeri sfenici
+--------------
+
+Sono chiamati “sfenici” (dal greco σφήν, cuneo) i numeri naturali che sono il prodotto di tre primi distinti.
+
+I numeri sfenici minori di 500 sono: 
+ 30, 42, 66, 70, 78, 102, 105, 110, 114, 130, 138, 154, 165, 170, 174, 182, 
+ 186, 190, 195, 222, 230, 231, 238, 246, 255, 258, 266, 273, 282, 285, 286, 
+ 290, 310, 318, 322, 345, 354, 357, 366, 370, 374, 385, 399, 402, 406, 410, 
+ 418, 426, 429, 430, 434, 435, 438, 442, 455, 465, 470, 474, 483, 494, 498
+
+Possiamo scrivere una funzione che verifica se un numero è sfenico:
+
+(define (sfenico? num)
+  (let (f (factor num))
+    (and (= (length f) 3) (!= (f 0) (f 1) (f 2)))))
+
+(sfenico? 30)
+;-> true
+
+(filter true? (map (fn(x) (if x $idx)) sf))
+;-> (30 42 66 70 78 102 105 110 114 130 138 154 165 170 174 182 186 190 195 222 230 231
+;->  238 246 255 258 266 273 282 285 286 290 310 318 322 345 354 357 366 370 374 385
+;->  399 402 406 410 418 426 429 430 434 435 438 442 455 465 470 474 483 494 498 506
+;->  518 530 534 555 561 574 582 590 595 598 602 606 609 610 615 618 627 638 642 645
+;->  646 651 654 658 663 665 670 678 682 705 710 715 730 741 742 754 759 762 777 782
+;->  786 790 795 805 806 814 822 826 830 834 854 861 874 885 890 894 897 902 903 906
+;->  915 935 938 942 946 957 962 969 970 978 986 987 994)
+
+Vediamo la velocità:
+
+(time (map sfenico? (sequence 0 100000)))
+;-> 44.88
+(time (map sfenico? (sequence 0 1000000)))
+;-> 794.902
+(time (map sfenico? (sequence 0 10000000)))
+;-> 17351.718
+
+

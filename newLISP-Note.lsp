@@ -276,6 +276,7 @@ ROSETTA CODE
   Distanza tra due punti della terra
   Algoritmo Soundex
   Trasformata Discreta di Fourier (DFT)
+  Numeri di Harshad
 
 PROJECT EULERO
 ==============
@@ -627,6 +628,7 @@ NOTE LIBERE 3
   Numeri permutati
   Numeri bouncy
   docstring
+  Numeri sfenici
   
 APPENDICI
 =========
@@ -27475,6 +27477,37 @@ L'esempio di wikipedia produce risultati differenti:
 ;-> -2.0000 -0.0000i
 ;-> -2.0000 -2.0000i
 ;-> 4.0000  2.0000i
+
+
+-----------------
+NUMERI DI HARSHAD
+-----------------
+
+Un numero di Harshad in una data base è un numero intero positivo divisibile per la somma delle proprie cifre.
+La definizione è stata data dal matematico indiano Dattatreya Ramachandra Kaprekar. Il termine Harshad deriva dal sanscrito "harṣa" che significa "grande gioia". A volte ci si riferisce a questi numeri anche come numeri di Niven, in onore del matematico Ivan Morton Niven.
+
+(define (digit-sum num)
+  (let (out 0)
+    (while (!= num 0)
+      (setq out (+ out (% num 10)))
+      (setq num (/ num 10)))
+    out))
+
+(define (harshad? num)
+  (zero? (% num (digit-sum num))))
+
+(setq hd (map harshad? (sequence 1 50)))
+(filter true? (map (fn(x) (if x (+ $idx 1))) hd))
+;-> (1 2 3 4 5 6 7 8 9 10 12 18 20 21 24 27 30 36 40 42 45 48 50)
+
+Vediamo la velocità:
+
+(time (map harshad? (sequence 1 100000)))
+;-> 85.214
+(time (map harshad? (sequence 1 1000000)))
+;-> 992.429
+(time (map harshad? (sequence 1 10000000)))
+;-> 10963.707
 
 
 ================
@@ -71730,6 +71763,46 @@ Esempi:
 "(doc f) - display function f's doc string, if present"
 
 In questo modo possiamo avere un help sulle funzioni scritte dall'utente.
+
+
+--------------
+Numeri sfenici
+--------------
+
+Sono chiamati “sfenici” (dal greco σφήν, cuneo) i numeri naturali che sono il prodotto di tre primi distinti.
+
+I numeri sfenici minori di 500 sono: 
+ 30, 42, 66, 70, 78, 102, 105, 110, 114, 130, 138, 154, 165, 170, 174, 182, 
+ 186, 190, 195, 222, 230, 231, 238, 246, 255, 258, 266, 273, 282, 285, 286, 
+ 290, 310, 318, 322, 345, 354, 357, 366, 370, 374, 385, 399, 402, 406, 410, 
+ 418, 426, 429, 430, 434, 435, 438, 442, 455, 465, 470, 474, 483, 494, 498
+
+Possiamo scrivere una funzione che verifica se un numero è sfenico:
+
+(define (sfenico? num)
+  (let (f (factor num))
+    (and (= (length f) 3) (!= (f 0) (f 1) (f 2)))))
+
+(sfenico? 30)
+;-> true
+
+(filter true? (map (fn(x) (if x $idx)) sf))
+;-> (30 42 66 70 78 102 105 110 114 130 138 154 165 170 174 182 186 190 195 222 230 231
+;->  238 246 255 258 266 273 282 285 286 290 310 318 322 345 354 357 366 370 374 385
+;->  399 402 406 410 418 426 429 430 434 435 438 442 455 465 470 474 483 494 498 506
+;->  518 530 534 555 561 574 582 590 595 598 602 606 609 610 615 618 627 638 642 645
+;->  646 651 654 658 663 665 670 678 682 705 710 715 730 741 742 754 759 762 777 782
+;->  786 790 795 805 806 814 822 826 830 834 854 861 874 885 890 894 897 902 903 906
+;->  915 935 938 942 946 957 962 969 970 978 986 987 994)
+
+Vediamo la velocità:
+
+(time (map sfenico? (sequence 0 100000)))
+;-> 44.88
+(time (map sfenico? (sequence 0 1000000)))
+;-> 794.902
+(time (map sfenico? (sequence 0 10000000)))
+;-> 17351.718
 
 
 ===========

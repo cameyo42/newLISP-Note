@@ -276,6 +276,7 @@ ROSETTA CODE
   Distanza tra due punti della terra
   Algoritmo Soundex
   Trasformata Discreta di Fourier (DFT)
+  Numeri di Harshad
 
 PROJECT EULERO
 ==============
@@ -627,6 +628,7 @@ NOTE LIBERE 3
   Numeri permutati
   Numeri bouncy
   docstring
+  Numeri sfenici
   
 APPENDICI
 =========

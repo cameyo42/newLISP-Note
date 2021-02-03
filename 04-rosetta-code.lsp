@@ -9657,3 +9657,34 @@ L'esempio di wikipedia produce risultati differenti:
 ;-> 4.0000  2.0000i
 
 
+-----------------
+NUMERI DI HARSHAD
+-----------------
+
+Un numero di Harshad in una data base è un numero intero positivo divisibile per la somma delle proprie cifre.
+La definizione è stata data dal matematico indiano Dattatreya Ramachandra Kaprekar. Il termine Harshad deriva dal sanscrito "harṣa" che significa "grande gioia". A volte ci si riferisce a questi numeri anche come numeri di Niven, in onore del matematico Ivan Morton Niven.
+
+(define (digit-sum num)
+  (let (out 0)
+    (while (!= num 0)
+      (setq out (+ out (% num 10)))
+      (setq num (/ num 10)))
+    out))
+
+(define (harshad? num)
+  (zero? (% num (digit-sum num))))
+
+(setq hd (map harshad? (sequence 1 50)))
+(filter true? (map (fn(x) (if x (+ $idx 1))) hd))
+;-> (1 2 3 4 5 6 7 8 9 10 12 18 20 21 24 27 30 36 40 42 45 48 50)
+
+Vediamo la velocità:
+
+(time (map harshad? (sequence 1 100000)))
+;-> 85.214
+(time (map harshad? (sequence 1 1000000)))
+;-> 992.429
+(time (map harshad? (sequence 1 10000000)))
+;-> 10963.707
+
+
