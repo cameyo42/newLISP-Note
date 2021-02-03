@@ -28,6 +28,7 @@
 |    19    |  171               |         3  |         1  |         1  |
 |    20    |  648               |         0  |         0  |         -  |
 |    21    |  31626             |       220  |       134  |        87  |
+<<<<<<< HEAD
 |    22    |  871198282         |        20  |        10  |         -  |
 |    23    |  4179871           |     40900  |     27534  |         -  |
 |    24    |  278391546         |     25309  |     12282  |         -  |
@@ -67,6 +68,47 @@
 |    58    |  26241             |       630  |       432  |         -  |
 |    59    |  107359            |        15  |         1  |         -  |
 |    60    |  26033             |     55055  |     38926  |         -  |
+=======
+|    22    |  871198282         |        20  |        10  |            |
+|    23    |  4179871           |     40900  |     27534  |            |
+|    24    |  278391546         |     25309  |     12282  |            |
+|    25    |  4782              |      4926  |      3469  |            |
+|    26    |  983               |       488  |       266  |            |
+|    27    |  -59231            |      2000  |      1532  |            |
+|    28    |  669171001         |         0  |         0  |            |
+|    29    |  9183              |       141  |        94  |            |
+|    30    |  443839            |       516  |       344  |            |
+|    31    |  73682             |         1  |         0  |            |
+|    32    |  45228             |      1625  |      1079  |            |
+|    33    |  100               |         0  |         0  |            |
+|    34    |  40730             |      3797  |      2625  |            |
+|    35    |  55                |      1267  |       902  |            |
+|    36    |  872187            |      1443  |       945  |            |
+|    37    |  748317            |       778  |       651  |            |
+|    38    |  932718654         |        94  |        48  |            |
+|    39    |  840               |     13486  |      9561  |            |
+|    40    |  210               |       141  |       433  |            |
+|    41    |  7652413           |       125  |        64  |            |
+|    42    |  162               |        31  |         4  |            |
+|    43    |  16695334890       |      1749  |      1321  |            |
+|    44    |  5482660           |      5589  |      4182  |            |
+|    45    |  1533776805        |       115  |        63  |            |
+|    46    |  5777              |        31  |         5  |            |
+|    47    |  134043            |         0  |         0  |            |
+|    48    |  9110846700        |       266  |       186  |            |
+|    49    |  296962999629      |        19  |         5  |            |
+|    50    |  997651            |     27113  |     18871  |            |
+|    51    |  121313            |       269  |       180  |            |
+|    52    |  142857            |       313  |       204  |            |
+|    53    |  4075              |        25  |         5  |            |
+|    54    |  376               |       154  |        91  |            |
+|    55    |  249               |       116  |        69  |            |
+|    56    |  972               |       186  |       119  |            |
+|    57    |  153               |        10  |         1  |            |
+|    58    |  26241             |       630  |       432  |            |
+|    59    |  107359            |        15  |         1  |            |
+|    60    |  26033             |     55055  |     38926  |            |
+>>>>>>> f2acca20c0b15972390864b1078897d6e663f0b3
 |    61    |  28684             |         -  |        85  |         -  |
 |    62    |  127035954683      |         -  |      6348  |        83  |
 |    63    |  49                |         -  |         0  |         0  |
@@ -75,19 +117,28 @@
 |    66    |  661               |         -  |         0  |         -  |
 |    67    |  7273              |         -  |         1  |         -  |
 |    68    |  6531031914842725  |         -  |        21  |         -  |
+<<<<<<< HEAD
 |    69    |  510510            |         -  |       642  |         -  |
+=======
+>>>>>>> f2acca20c0b15972390864b1078897d6e663f0b3
 |    70    |  8319823           |         -  |      9621  |         7  |
 |    71    |  428570            |         -  |       191  |         -  |
 |    72    |  303963552391      |         -  |      2060  |         -  |
 |    76    |  190569291         |         -  |         0  |         -  |
+<<<<<<< HEAD
 |    78    |  55374             |         -  |      7918  |         -  |
+=======
+>>>>>>> f2acca20c0b15972390864b1078897d6e663f0b3
 |    87    |  1097343           |         -  |      1153  |         -  |
 |    89    |  743               |         -  |         0  |         -  |
 |    92    |  8581146           |         -  |     51582  |        16  |
 |    96    |  24702             |         -  |     27084  |         -  |
 |    97    |  8739992577        |         -  |       497  |         -  |
+<<<<<<< HEAD
 |    99    |  709               |         -  |         0  |         -  |
 |   100    |  756872327473      |         -  |         0  |         -  |
+=======
+>>>>>>> f2acca20c0b15972390864b1078897d6e663f0b3
 
 Sito web: https://projecteuler.net/archives
 
@@ -7542,6 +7593,11 @@ Questa seconda soluzione è molto più veloce:
 
 ===========
 Problema 64
+<<<<<<< HEAD
+===========
+
+Ogni radice quadrata può essere rappresentata con una frazione continua.
+=======
 ===========
 
 Ogni radice quadrata può essere rappresentata con una frazione continua.
@@ -7767,6 +7823,1242 @@ Problema 66
   );local
 )
 
+(Pell 61)
+;-> (1766319049L 226153980L)
+
+(Pell 109)
+;-> (158070671986249L 15140424455100L)
+
+(Pell 181)
+;-> (2469645423824185801L 183567298683461940L)
+
+(Pell 277)
+;-> (159150073798980475849L 9562401173878027020L)
+
+Se passiamo un numero quadrato, otteniamo un errore:
+
+(Pell 4)
+;-> ERR: division by zero
+;-> called from user function (Pell 4)
+
+Scriviamo la funzione finale per risolvere il problema:
+
+(define (e066)
+  (let ((maxval -1) (out 0))
+    (for (i 1 1000)
+      (if (!= (sqrt i) (int (sqrt i)))
+          (if (> (first (Pell i)) maxval)
+              (setq maxval (first (Pell i)) out i))))
+    out))
+
+(e066)
+;-> 661
+
+(time e066)
+;-> 0
+
+
+===========
+Problema 67
+===========
+
+Percorso con somma massima II
+
+Iniziando dalla parte superiore del triangolo in basso e passando ai numeri adiacenti sulla riga sottostante, il totale massimo dall'alto verso il basso è 23.
+
+   3
+  7 4
+ 2 4 6
+8 5 9 3
+
+Cioè, 3 + 7 + 4 + 9 = 23.
+
+Trovare il totale massimo dall'alto verso il basso utilizzando "triangle.txt", un file di testo di 15K contenente un triangolo con cento righe.
+
+NOTA: questa è una versione molto più difficile del problema 18. Non è possibile provare tutti i percorsi per risolvere questo problema, poiché ce ne sono 2^99 in tutto! Potendo controllare un trilione (10^12) di percorsi ogni secondo, ci vorrebbero oltre venti miliardi di anni per controllarli tutti. C'è un algoritmo efficiente per risolverlo.
+============================================================================
+
+Il file "triangle.txt" è stato trasformato in "e067.lsp" che ha il seguente formato:
+
+(setq tri (dup 0 100))
+(setf (tri 0) '(59)) 
+(setf (tri 1) '(73 41)) 
+(setf (tri 2) '(52 40 9)) 
+(setf (tri 3) '(26 53 6 34)) 
+...
+
+Per caricare il file:
+
+(load "e067.lsp")
+
+Una soluzione generica può essere ottenuta con la programmazione dinamica. In pratica per trovare la soluzione, ogni riga deve essere aggiunta a qualsiasi riga successiva, dal basso verso l'alto. Poiché ogni cella ha due predecessori, prendiamo il valore massimo delle due. Con questo metodo, la soluzione si trova nella cella superiore del triangolo:
+
+(load "e067.lsp")
+
+(define (e067)
+    (for (i (- (length tri) 2) 0 -1)
+      (for (j 0 i)
+        (setf (tri i j) (+ (tri i j) (max (tri (+ i 1) j) (tri (+ i 1) (+ j 1)))))
+      )
+    )
+    (tri 0 0))
+
+(e067)
+;-> 7273
+
+(time (e067))
+;-> 1.995
+
+
+===========
+Problema 68
+===========
+
+Considera il seguente anello "magico" 3-gon, riempito con i numeri da 1 a 6 e ogni riga somma a nove.
+
+       4  
+        \
+         3 
+        / \    
+       1---2---6
+      /
+     5
+     
+Lavorando in senso orario, e partendo dal gruppo di tre con il nodo esterno numericamente più basso (4,3,2 in questo esempio), ogni soluzione può essere descritta in modo univoco. Ad esempio, la soluzione di cui sopra può essere descritta dall'insieme: 4,3,2 - 6,2,1 - 5,1,3.
+
+È possibile completare l'anello con quattro diversi totali: 9, 10, 11 e 12. Ci sono otto soluzioni in totale.
+
+Totale   Soluzioni
+   9     4,2,3 - 5,3,1 - 6,1,2
+   9     4,3,2 - 6,2,1 - 5,1,3
+  10     2,3,5 - 4,5,1 - 6,1,3
+  10     2,5,3 - 6,3,1 - 4,1,5
+  11     1,4,6 - 3,6,2 - 5,2,4
+  11     1,6,4 - 5,4,2 - 3,2,6
+  12     1,5,6 - 2,6,4 - 3,4,5
+  12     1,6,5 - 3,5,4 - 2,4,6
+  
+Concatenando ogni gruppo è possibile formare stringhe di 9 cifre: la stringa massima per un anello 3-gon è 432621513.
+
+Utilizzando i numeri da 1 a 10, a seconda degli arrangiamenti, è possibile formare stringhe di 16 e 17 cifre. Qual è il numero massimo di 16 cifre per un anello "magico" 5-gon?
+============================================================================
+
+Funzione che calcola le permutazioni:
+
+(define (perm lst)
+  (local (i indici out)
+    (setq indici (dup 0 (length lst)))
+    (setq i 0)
+    ; aggiungiamo la lista iniziale alla soluzione
+    (setq out (list lst))
+    (while (< i (length lst))
+      (if (< (indici i) i)
+          (begin
+            (if (zero? (% i 2))
+              (swap (lst 0) (lst i))
+              (swap (lst (indici i)) (lst i))
+            )
+            ;(println lst);
+            (push lst out -1)
+            (++ (indici i))
+            (setq i 0)
+          )
+          (begin
+            (setf (indici i) 0)
+            (++ i)
+          )
+       )
+    )
+    out))
+
+(define (gon lst)
+  (local (is-gon gonL pL6 pL7 pL8 pL9 pL10 p6 p7 p8 p9 p10)
+    (setq is-gon nil)
+    (setq gonL '() pL6 '() pL7 '() pL8 '() pL9 '() pL10 '())
+    (setq p6  (+ (lst 6)  (lst 1) (lst 2)))
+    (setq p7  (+ (lst 7)  (lst 2) (lst 3)))
+    (setq p8  (+ (lst 8)  (lst 3) (lst 4)))
+    (setq p9  (+ (lst 9)  (lst 4) (lst 5)))
+    (setq p10 (+ (lst 10) (lst 5) (lst 1)))
+    ; Controllo se le somme sono uguali
+    (cond ((and (= p6 p7) (= p7 p8) (= p8 p10) (= p9 p10))
+           (setq is-gon true)
+           ; Cerco l'indice del valore minimo esterno
+           ; cioè cerco il numero 6, perchè all'esterno ci devono
+           ; stare i numeri 6,7,8,9,10.
+           (setq indice (find 6 lst))
+           ; Costruisco la lista soluzione
+           (setq pL6  (list (lst 6)  (lst 1) (lst 2)))
+           (setq pL7  (list (lst 7)  (lst 2) (lst 3)))
+           (setq pL8  (list (lst 8)  (lst 3) (lst 4)))
+           (setq pL9  (list (lst 9)  (lst 4) (lst 5)))
+           (setq pL10 (list (lst 10) (lst 5) (lst 1)))
+           (cond ((= indice 6)  (setq gonL (apply extend (list pL6  pL7  pL8  pL9  pL10))))
+                 ((= indice 7)  (setq gonL (apply extend (list pL7  pL8  pL9  pL10 pL6))))
+                 ((= indice 8)  (setq gonL (apply extend (list pL8  pL9  pL10 pL6  pL7))))
+                 ((= indice 9)  (setq gonL (apply extend (list pL9  pL10 pL6  pL7  pL8))))
+                 ((= indice 10) (setq gonL (apply extend (list pL10 pL6  pL7  pL8  pL9))))
+           ))
+    )
+    (if is-gon
+        (list gonL p6)
+        (list '() 0))))
+
+(define (e068)
+  (local (vmax pa pb val go x y)
+    (setq vmax 0)
+    (setq pa (perm '(1 2 3 4 5)))
+    (setq pb (perm '(6 7 8 9 10)))
+    (dolist (a pa)
+      (setq val '())
+      (dolist (b pb)
+        (setq val (apply extend (list '(0) a b)))
+        (setq go (gon val))
+        (setq x (first go))
+        (setq y (last go))
+        (if (!= y 0)
+          (begin
+           ;(println x { } y)
+           (if (> (int (join (map string x))) vmax)
+               (setq vmax (int (join (map string x))))
+           ))
+        )
+      )
+    )
+    vmax))
+
+(e068)
+;-> 6531031914842725
+
+(time (e068))
+;-> 21.97
+
+
+===========
+Problema 70
+===========
+
+Pemutazione toziente
+
+La funzione toziente di Eulero, φ(n) (a volte chiamata funzione phi), è usata per determinare il numero di numeri positivi minori o uguali a n che sono primi relativamente a n. Ad esempio, poiché 1, 2, 4, 5, 7 e 8 sono tutti inferiori a nove e primi relativamente a nove, φ(9) = 6.
+Il numero 1 è considerato relativamente primo rispetto a ogni numero positivo, quindi φ(1)= 1.
+
+È interessante notare che φ(87109) = 79180, e si può vedere che 87109 è una permutazione di 79180.
+
+Trova il valore di n, 1 < n < 10^7, per cui φ(n) è una permutazione di ne il rapporto n/φ(n) produce un minimo.
+============================================================================
+
+Utilizziamo un approccio con la forza bruta.
+
+Funzione che verifica se due numeri hanno le stesse cifre:
+
+(define (perm? n1 n2)
+  (if (!= (length n1) (length n2))
+      nil
+      (let (ar (array 10 '(0)))
+        (while (!= n1 0)
+            (++ (ar (% n1 10)))
+            (setq n1 (/ n1 10))
+        )
+        ;(println ar)
+        (while (!= n2 0)
+            (-- (ar (% n2 10)))
+            (setq n2 (/ n2 10))
+        )
+        ;(println ar)
+        (= (count '(0) (array-list ar)) '(10)))))
+
+(perm? 123123 112233)
+;-> true
+
+Funzione che calcola il toziente da 0 fino a n numeri:
+
+(define (totients-to num)
+  (let (phi (array (+ num 1) '(0)))
+    (setf (phi 0) 0)
+    (setf (phi 1) 1)
+    (for (i 2 num)
+      (setf (phi i) i))
+    (for (i 2 num)
+      (if (= (phi i) i)
+          (for (j i num i)
+            (setf (phi j) (- (phi j) (/ (phi j) i))))))
+     phi))
+
+(totients-to 10)
+;-> (0 1 1 2 2 4 2 6 4 6 4)
+
+Scriviamo la funzione finale:
+
+(define (e070)
+  (local (t idx cur-val min-val)
+    (setq t (totients-to 9999999))
+    (setq min-val 999999)
+    (setq idx-val nil)
+    ; cerca il valore minimo
+    (for (i 2 9999999)
+      (setq cur-val (t i))
+      (if (< (div i cur-val) min-val)
+          (if (perm? cur-val i)
+                  (setq idx-val i min-val (div i cur-val))
+              )
+          )
+    )
+    idx-val))
+
+(e070)
+;-> 8319823
+
+(time (e070))
+;-> 9621.575
+
+Dal punto di vistta matematico possimo notare che:
+
+1) Rendere minimo n/φ(n) equivale a massimizzare φ(n)/n, che si verifica quando n ha il minor numero di fattori primi possibile.
+2) φ(n) = n - 1 dove n è primo, poiché tutti i numeri sotto sono coprimi per definizione
+3) φ(n) = φ(pq) = (p - 1) (q - 1) dove n è semiprimo e p e q sono i suoi fattori e p <> q.
+4) φ(n) = φ(p2) = (p - 1) p dove n è semiprime ep è il suo unico fattore distinto.
+5) n - 1 non può essere una permutazione di n, quindi il nostro n non può essere un primo, ma è probabilmente il prodotto di due numeri primi (semiprimi).
+
+Funzone che calcola tutti i numeri primi da 1 fino a un dato numero:
+
+(define (primes-to num)
+  (cond ((= num 1) '())
+        ((= num 2) '(2))
+        (true
+         (let (lst '(2))
+          (setq arr (array (+ num 1)))
+          (for (x 3 num 2)
+                (when (not (arr x))
+                  (push x lst -1)
+                  (for (y (* x x) num (* 2 x) (> y num))
+                      (setf (arr y) true)))) lst))))
+
+Le considerazioni precedenti portano (dopo molti tentativi) alla seguente funzione:
+
+(define (e070)
+(catch
+  (local (num primi min-q min-n q n totient)
+  (setq num 10000000)
+  (setq primi (primes-to (int (mul 1.25 (sqrt num)))))
+  (setq primi (slice primi (int (mul 0.5 (length primi)))))
+  (setq min-q 2 min-n 0 i 0)
+  (dolist (p1 primi)
+    (dolist (p2 (slice primi i))
+      (cond ((!= (% (+ p1 p2) 9) 1) nil)
+            (true
+             (setq n (* p1 p2))
+             (if (> n num) (throw min-n)) ; soluzione trovata
+             (setq totient (* (- p1 1) (- p2 1)))
+             (setq q (div n totient))
+             (if (and (> min-q q) (perm? totient n))
+                 (setq min-q q min-n n))))))
+  'not-found)))
+
+(e070)
+;-> 8319823
+
+(time (e070))
+;-> 7.012
+
+
+===========
+Problema 71
+===========
+
+Frazioni ordinate
+
+Considera la frazione, n/d, dove n e d sono numeri interi positivi. Se n < d e HCF(n,d) = 1, si parla di frazione propria ridotta.
+
+Se elenchiamo l'insieme delle frazioni proprie ridotte per d ≤ 8 in ordine crescente di dimensione, otteniamo:
+
+1/8, 1/7, 1/6, 1/5, 1/4, 2/7, 1/3, 3/8, 2/5, 3/7, 1/2, 4/7, 3/5, 5/8, 2/3, 5/7, 3/4, 4/5, 5/6, 6/7, 7/8
+
+Si può vedere che 2/5 è la frazione immediatamente a sinistra di 3/7.
+
+Elencando l'insieme delle frazioni proprie ridotte per d ≤ 1.000.000 in ordine crescente di dimensione, trova il numeratore della frazione immediatamente a sinistra di 3/7.
+============================================================================
+
+Nota: HCF = High Common Factor (fattore comune maggiore)
+
+(define (find-upper n base)
+  (let ((a 1) (cont true))
+    (while (and (< a n) cont)
+      (if (> (div a n) base)
+          (setq cont nil)
+          (++ a)))
+    a))
+
+(find-upper 8 (div 3 7))
+;-> 4
+(find-upper 1000000 (div 3 7))
+;-> 428572
+
+(define (e071)
+  (local (n num den minimo base limite a b)
+    (setq n 1000000)
+    (++ n)
+    (setq num 1 den 1)
+    (setq minimo 0)
+    (setq base (div 3 7))
+    (setq limite (find-upper n base))
+    (setq a (- limite 2))
+    (while (< a limite)
+      (setq b (+ a 1))
+      (while (< b n)
+        (setq v (div a b))
+        (if (and (< v base) ( > v minimo))
+            (setq num a den b minimo (div num den))
+        )
+        (++ b)
+      )
+      (++ a)
+    )
+    ;(list num den (div num den))
+    num))
+
+(e071 1000000)
+;-> 428570
+
+(time (e071))
+;-> 191.169
+
+
+===========
+Problema 72
+===========
+
+Conteggio delle frazioni
+
+Considera la frazione, n/d, dove n e d sono numeri interi positivi. Se n <de HCF (n, d) = 1, si parla di frazione propria ridotta.
+
+Se elenchiamo l'insieme delle frazioni proprie ridotte per d ≤ 8 in ordine crescente di dimensione, otteniamo:
+
+1/8, 1/7, 1/6, 1/5, 1/4, 2/7, 1/3, 3/8, 2/5, 3/7, 1/2, 4/7, 3/5, 5/8, 2/3, 5/7, 3/4, 4/5, 5/6, 6/7, 7/8
+
+Si può vedere che ci sono 21 elementi in questo set.
+
+Quanti elementi sarebbero contenuti nell'insieme delle frazioni proprie ridotte per d ≤ 1.000.000?
+============================================================================
+
+Ordinando le frazioni in una matrice si ottiene il seguente risultato (n=10):
+
+  1/2   1/3   1/4   1/5   1/6   1/7   1/8   1/9  1/10
+    0   2/3   1/2   2/5   1/3   2/7   1/4   2/9   1/5
+    0     0   3/4   3/5   1/2   3/7   3/8   1/3  3/10
+    0     0     0   4/5   2/3   4/7   1/2   4/9   2/5
+    0     0     0     0   5/6   5/7   5/8   5/9   1/2
+    0     0     0     0     0   6/7   3/4   2/3   3/5
+    0     0     0     0     0     0   7/8   7/9  7/10
+    0     0     0     0     0     0     0   8/9   4/5
+    0     0     0     0     0     0     0     0  9/10
+    0     0     0     0     0     0     0     0     0
+
+(1/2, 1/3, 1/4, 1/5, 1/6, 1/7, 1/8, 1/9, 1/10, 2/3, 2/5, 2/7, 2/9,
+3/4, 3/5, 3/7, 3/8, 3/10, 4/5, 4/7, 4/9, 5/6, 5/7, 5/8, 5/9, 6/7,
+7/8, 7/9, 7/10, 8/9, 9/10)
+
+Notiamo che:
+a) le colonne con denominatore numero primo hanno (denominatore - 1) termini.
+b) le colonne con denominatore non primo hanno toziente(denominatore) termini.
+(dove toziente(n) è il numero di interi minori di n che sono primi rispetto a n)
+
+Funzione che verifica se un numero è primo:
+
+(define (prime? num)
+   (if (< num 2) nil
+       (= 1 (length (factor num)))))
+
+Funzione che calcola il toziente di un numero:
+
+(define (toziente num)
+  (if (= num 1) 1
+    (let (res num)
+      (dolist (f (unique (factor num)))
+        (setq res (- res (/ res f))))
+      res)))
+
+Scriviamo la funzione finale:
+
+(define (e072)
+  (let ((num 1000000) (somma 0))
+    (for (i 2 num)
+      (if (prime? i)
+          (setq somma (+ somma (- i 1)))
+          (setq somma (+ somma (toziente i)))
+      )
+    )
+    somma))
+
+(e072)
+;-> 303963552391
+
+(time (e072))
+;-> 2060.973
+
+
+===========
+Problema 76
+===========
+
+Conteggio delle somme
+
+È possibile scrivere cinque come somma in esattamente sei modi diversi:
+
+4 + 1
+3 + 2
+3 + 1 + 1
+2 + 2 + 1
+2 + 1 + 1 + 1
+1 + 1 + 1 + 1 + 1
+
+In quanti modi diversi si può scrivere cento come somma di almeno due numeri interi positivi?
+============================================================================
+
+La soluzione è simile a quella del problema 31. Le uniche differenze sono:
+1) il totale vale 100 (invece di 200)
+2) le monete (gli interi in questo caso) vanno da 1 a 99 (invece che (1 2 5 10 20 50 100 200))
+
+(define (e076)
+  (local (totale monete modi)
+    ; valore obiettivo
+    (setq totale 100)
+    ; lista dei tagli di monete disponibili
+    (setq monete (sequence 1 99))
+    ; crea un vettore di totale elementi con tutti valori 0 tranne il primo (modi[0]) che vale 1
+    (setq modi (array (+ totale 1) (extend '(1) (dup 0 totale))))
+    (dolist (el monete)
+      (for (i el totale)
+        (setq (modi i) (+ (modi i) (modi (- i el))))
+      )
+    )
+    (modi totale)))
+
+(e076)
+;-> 190569291
+
+(time (e076))
+;-> 0
+
+
+===========
+Problema 87
+===========
+
+Triple potenze di primi
+
+Il numero più piccolo esprimibile come la somma di un quadrato primo, un cubo primo e una quarta potenza primo è 28. In effetti, ci sono esattamente quattro numeri inferiori a cinquanta che possono essere espressi in questo modo:
+
+28 = 2^2 + 2^3 + 2^4
+33 = 3^2 + 2^3 + 2^4
+49 = 5^2 + 2^3 + 2^4
+47 = 2^2 + 3^3 + 2^4
+
+Quanti numeri inferiori a cinquanta milioni possono essere espressi come la somma di un quadrato primo, un cubo primo e una quarta potenza primo?
+============================================================================
+
+Funzione per calcolare i numeri primi fino a n:
+
+(define (primes-to num)
+  (cond ((= num 1) '())
+        ((= num 2) '(2))
+        (true
+         (let (lst '(2))
+          (setq arr (array (+ num 1)))
+          (for (x 3 num 2)
+                (when (not (arr x))
+                  (push x lst -1)
+                  (for (y (* x x) num (* 2 x) (> y num))
+                      (setf (arr y) true)))) lst))))
+
+L'algoritmo è abbastanza semplice e può essere estrapolato dai commenti della funzione:
+
+(define (e087)
+  (local (val primi primi2 primi3 primi4 limite out)
+    (setq out '())
+    (setq limite 50000000)
+    # calcola i primi fino a sqrt(limite)
+    (setq primi (primes-to (int (sqrt limite))))
+    ; calcola i quadrati di questi primi (< limite)
+    (setq primi2 (filter (fn(x) (< x limite)) (map (fn(x) (* x x)) primi)))
+    ; calcola i cubi di questi primi (< limite)
+    (setq primi3 (filter (fn(x) (< x limite)) (map (fn(x) (* x x x)) primi)))
+    ; calcola le quarte potenze di questi primi (< limite)
+    (setq primi4 (filter (fn(x) (< x limite)) (map (fn(x) (* x x x x)) primi)))
+    ;(println "p= " primi {-} "p2= " primi2 {-} "p3= " primi3 {-} "p4= " primi4)
+    ; crea una lista con le somme di tutti i numeri delle tre liste
+    (dolist (a primi2)
+      (dolist (b primi3)
+        (dolist (c primi4)
+          (setq val (+ a b c))
+          (if (< val limite) 
+              (push val out -1)
+          ))))
+    ; elimina i numeri multipli dalla lista
+    (length (unique out))))
+
+(e087)
+;-> 1097343
+
+(time (e087))
+;-> 1153.946
+
+Per ottimizzare la funzione potremmo:
+1) Generare primi2, primi3 e primi4 fino ai numeri i cui quadrati, cubi e quarte potenze sono inferiori al limite
+2) fermare il ciclo b quando (a + b) > limite
+3) fermare il ciclo c quando (a + b + c) > limite
+4) inserire i valori in una hash-map
+
+Comunque il tempo di esecuzione è soddisfacente.
+
+
+===========
+Problema 89
+===========
+
+Numeri romani
+
+Affinché un numero scritto in numeri romani sia considerato valido, ci sono regole di base che devono essere seguite. Anche se le regole consentono di esprimere alcuni numeri in più di un modo, esiste sempre un modo "migliore" per scrivere un numero particolare.
+
+Ad esempio, sembrerebbe che ci siano almeno sei modi per scrivere il numero sedici:
+
+IIIIIIIIIIIIIIII
+VIIIIIIIIIII
+VVIIIIII
+XIIIIII
+VVVI
+XVI
+
+Tuttavia, secondo le regole sono validi solo XIIIIII e XVI, e l'ultimo esempio è considerato il più efficiente, poiché utilizza il minor numero di numeri.
+
+Il file di testo 11K, roman.txt, contiene mille numeri scritti in numeri romani validi, ma non necessariamente minimi. V`edi Informazioni sui Numeri romani per le regole definitive di questo problema (.
+
+Trova il numero di caratteri salvati scrivendo ciascuno di questi nella loro forma minima.
+
+Nota: si può presumere che tutti i numeri romani nel file non contengano più di quattro unità identiche consecutive.
+============================================================================
+
+Funzione di conversione da numero intero a numero romano:
+
+(define (integer2roman num)
+  (local (table roman k)
+    (setq table '(("M" 1000) ("CM" 900) ("D" 500) ("CD" 400)
+          ("C" 100)("XC" 90)("L" 50)("XL" 40) ("X" 10) ("IX" 9) ("V" 5)
+          ("IV" 4) ("I" 1)))
+    (setq roman "")
+    (dolist (el table)
+      (setq k (/ num (last el)))
+      (setq num (% num (last el)))
+      (extend roman (dup (first el) k))
+    )
+    roman))
+
+(integer2roman 4444)
+;-> "MMMMCDXLIV"
+
+(integer2roman 16)
+;-> "XVI"
+
+Funzione di conversione da numero romano a numero intero:
+
+(define (roman2integer roman)
+  (local (table curr prev num)
+    (setq table '(("I" 1) ("V" 5) ("X" 10) ("L" 50) ("C" 100) ("D" 500) ("M" 1000)))
+    (setq prev 0 num 0)
+    ; iterate through all characters
+    (dostring (ch roman)
+      ; converts the current character into an integer
+      (setq curr (lookup (char ch) table))
+      ; pick the right case to add or substract
+      (if (>= prev curr) 
+          (setq num (+ num prev))
+          (setq num (- num prev))
+      )
+      (setq prev curr)
+    )
+    ; add the last value
+    (setq num (+ num curr))))
+
+(roman2integer "MMMMCDXLIV")
+;-> 4444
+
+(roman2integer "XIIIIII")
+;-> 16
+
+Il file "roman.txt" è stato trasformato nel file "e089.lsp" che ha la seguente struttura:
+
+(setq roma '("MMMMDCLXXII" "MMDCCCLXXXIII" "MMMDLXVIIII" ...)
+
+Scriviamo la funzione finale:
+
+(define (e089)
+  (local (somma len1 len2)
+    (setq somma 0)
+    (dolist (el roma)
+      (setq len1 (length el))
+      (setq len2 (length (integer2roman (roman2integer el))))
+      (setq somma (+ somma (- len1 len2)))
+      ;(println (list el (length el)) { }
+      ;         (list (integer2roman (roman2integer el)) (length (integer2roman (roman2integer el)))))
+      ;(read-line)
+    )
+    somma))
+
+Carichiamo il file ed eseguiamo la funzione:
+
+(load "roma.lsp")
+(length roma)
+;-> 1000
+
+(e089)
+;-> 743
+
+(time e089)
+;-> 0
+
+
+===========
+Problema 92
+===========
+
+Catena del quadrato delle cifre
+
+Una catena di numeri viene creata aggiungendo continuamente il quadrato delle cifre in un numero per formare un nuovo numero fino a quando non è stato visto prima.
+
+Per esempio,
+
+44 → 32 → 13 → 10 → 1 → 1
+85 → 89 → 145 → 42 → 20 → 4 → 16 → 37 → 58 → 89
+
+Pertanto qualsiasi catena che arriva a 1 o 89 rimarrà bloccata in un ciclo infinito. La cosa più sorprendente è che OGNI numero di partenza alla fine arriverà a 1 o 89.
+
+Quanti numeri di partenza sotto i dieci milioni arriveranno a 89?
+============================================================================
+
+Prima di definire la funzione cha calcola la catena, dobbiamo scrivere la funzione cha calcola la somma dei quadrati delle cifre di un numero:
+
+Prima versione "sum-sq-digit":
+
+(define (int-lst num)
+  (let (out '())
+    (while (!= num 0)
+      (push (% num 10) out)
+      (setq num (/ num 10))) out))
+
+(define (sum-sq-digit num)
+  (apply + (map (fn(x) (* x x)) (int-lst num))))
+
+(sum-sq-digit 32)
+;-> 13
+(sum-sq-digit 456)
+;-> 77
+(time (sum-sq-digit 12345678901234567890) 100000)
+;-> 1554.87
+
+Seconda versione "sum-sq-digit":
+
+(define (sum-sq-digit num)
+  (let ((cifra 0) (tot 0))
+  (while (> num 0)
+    (setq cifra (% num 10))
+    (setq num (/ (- num cifra) 10))
+    (setq tot (+ tot (* cifra cifra)))
+  )
+  tot))
+
+(sum-sq-digit 32)
+;-> 13
+(sum-sq-digit 456)
+;-> 77
+(time (sum-sq-digit 12345678901234567890) 100000)
+;-> 1263.057
+;-> 140.624
+
+Terza versione "sum-sq-digit":
+
+(define (sum-sq-digit num)
+  (let ((cifra 0) (tot 0))
+  (while (> num 0)
+    (setq cifra (% num 10))
+    (setq tot (+ tot (* cifra cifra)))
+    (setq num (/ num 10))
+  )
+  tot))
+
+(sum-sq-digit 32)
+;-> 13
+(sum-sq-digit 456)
+;-> 77
+(time (sum-sq-digit 12345678901234567890) 100000)
+;-> 1112.057
+
+Quarta versione "sum-sq-digit":
+
+(define (sum-sq-digit num)
+  (let ((cifra 0) (tot 0))
+  (while (> num 0)
+    (setq cifra (% num 10))
+    (if cifra
+      (setq tot (+ tot (* cifra cifra))))
+    (setq num (/ num 10))
+  )
+  tot))
+
+(sum-sq-digit 32)
+;-> 13
+(sum-sq-digit 456)
+;-> 77
+(time (sum-sq-digit 12345678901234567890) 100000)
+;-> 1106.45
+
+Adesso scriviamo la funzione che calcola la catena di un numero:
+
+(define (chain num)
+  (local (chain-lst num-lst val found out)
+    (setq val num found nil)
+    (until found
+      (setq num (sum-sq-digit num))
+      (push num chain-lst -1)
+      (if (or (= num 1) (= num 89))
+          (setq out (list val num (length chain-lst) chain-lst) found true)
+      )
+    )
+    out))
+
+Vediamo alcuni esempi di catene:
+
+(chain 100)
+;-> (100 1 1 (1))
+(chain 1)
+;-> (1 1 1 (1))
+(chain 89)
+;-> (89 89 8 (145 42 20 4 16 37 58 89))
+(chain 44)
+;-> (44 1 4 (32 13 10 1))
+(chain 85)
+;-> (85 89 1 (89))
+
+(for (i 1 20) (println (chain i)))
+;-> (1 1 1 (1))
+;-> (2 89 5 (4 16 37 58 89))
+;-> (3 89 7 (9 81 65 61 37 58 89))
+;-> (4 89 4 (16 37 58 89))
+;-> (5 89 4 (25 29 85 89))
+;-> (6 89 9 (36 45 41 17 50 25 29 85 89))
+;-> (7 1 5 (49 97 130 10 1))
+;-> (8 89 5 (64 52 29 85 89))
+;-> (9 89 6 (81 65 61 37 58 89))
+;-> (10 1 1 (1))
+;-> (11 89 6 (2 4 16 37 58 89))
+;-> (12 89 5 (5 25 29 85 89))
+;-> (13 1 2 (10 1))
+;-> (14 89 6 (17 50 25 29 85 89))
+;-> (15 89 6 (26 40 16 37 58 89))
+;-> (16 89 3 (37 58 89))
+;-> (17 89 5 (50 25 29 85 89))
+;-> (18 89 5 (65 61 37 58 89))
+;-> (19 1 4 (82 68 100 1))
+;-> (20 89 5 (4 16 37 58 89))
+
+Scriviamo la funzione che calcola la soluzione con la forza bruta:
+
+(define (e092)
+  (local (num n89 found)
+    (setq num 9999999 n89 0)
+    (for (i 1 num)
+      (setq found nil)
+      (setq k i)
+      (until found
+        ;(setq k (apply + (map (fn(x) (* x x)) (int-lst k))))
+        (setq k (sum-sq-digit k))
+        (if (= k 89) (setq n89 (+ n89 1) found true))
+        (if (= k 1)  (setq found true))
+      )
+    )
+    n89))
+
+(e092)
+;-> 8581146
+
+(time (e092))
+;-> 51582.689
+
+Il tempo di esecuzione non è molto soddisfacente.
+
+Per trovare un algoritmo migliore dobbiamo fare alcune considerazioni.
+
+Notiamo che due numeri che hanno le stesse cifre hanno la stessa catena perchè calcoliamo la somma dei quadrati delle cifre. Per esempio i numeri 4666777 e 6767674 hanno la stessa catena:
+
+(chain 4666777)
+;-> (4666777 89 9 (271 54 41 17 50 25 29 85 89))
+
+(chain 6767674)
+;-> (6767674 89 9 (271 54 41 17 50 25 29 85 89))
+
+Quindi tutti i numeri che hanno le stesse cifre (non considerando lo 0 perchè facciamo il quadrato di ogni cifra) hanno la stessa catena.
+
+Inoltre, la più grande somma possibile di quadrati è creata dal numero 9999999, che vale 7^9 = 567.
+Possiamo usare questo numero come dimensione di una lista che contiene tutti i valori generati dal calcolo della somma dei quadrati delle cifre per i numeri inferiori 10 milioni (questo perchè tutti gli altri numeri inferiori a 10 milioni sono solo permutazioni con una somma minore).
+
+Prima scriviamo una funzione che restituisce true se la catena di un dato numero termina con 89, altrimenti restituisce nil:
+
+(define (end89? n)
+  (local (sum x)
+    (while (and (!= n 1) (!= n 89))
+      (setq sum 0)
+      (while (> n 0)
+        (setq x (% n 10))
+        (setq sum (+ sum (* x x)))
+        (setq n (/ n 10))
+      )
+      (setq n sum)
+    )
+    (= n 89)))
+
+(end89? 1)
+;-> nil
+(end89? 89)
+;-> true
+(end89? 4666777)
+;-> true
+(end89? 6767674)
+;-> true
+
+Poi possiamo creare la lista che contiene le somme:
+
+(setq lst-sum '(0))
+(for (i 1 567) (push (end89? i) lst-sum -1))
+
+I valori delle somme non coprono tutti i numeri da 1 a 567:
+
+(count '(true) lst-sum)
+;-> 486
+
+Adesso dobbiamo sapere quante volte un dato insieme di cifre può verificarsi sotto i 10 milioni. Questo è semplicemente il fattoriale del numero totale di elementi (cioè quante cifre, 7) diviso per il prodotto dei fattoriali dei conteggi degli elementi unici (quante volte compare ogni cifra):
+
+(numero-elementi-gruppo = 7! / (c1! * c2! * ... * c9!))
+
+Per esempio, per il numero 4666777 otteniamo che il numero di elementi vale (coefficiente multinomiale):
+
+numero-elementi-gruppo(4666777) = 7! / (1! * 3! * 3!) = 140
+
+Vediamo quante combinazioni di cifre univoche ci sono da 1 a 9999999 (combinazioni con ripetizione):
+
+(define (comb-rep k lst)
+  (cond ((zero? k 0) '(()))
+        ((null? lst) '())
+        (true
+         (append (map (lambda (x) (cons (first lst) x))
+                      (comb-rep (- k 1) lst))
+                 (comb-rep k (rest lst))))))
+
+(setq numeri (comb-rep 7 '(1 2 3 4 5 6 7 8 9 0)))
+(length numeri)
+;-> 11440
+
+Esistono solo 11.440 combinazioni di cifre univoche comprese tra 1 e 9999999.
+
+Quindi dobbiamo trovare un modo per calcolare la catena solo di questi numeri.
+Potremmo utilizzare 9 cicli "for" per generare numeri del tipo "abcdefg" e quando le cifre soddisfano a≤b≤c≤d≤e≤f≤g, allora controllare la somma nella lista delle somme (lst-sum). Se la catena termina con 89, dobbiamo aggiungere tutte le possibili combinazioni (calcolate con il coefficiente multinomiale) al risultato.
+
+Per velocizzare i calcoli utilizziamo una lista precalcolata per i fattoriali da 0 a 7:
+
+fact = (1 1 2 6 24 120 720 5040)
+
+Oppure possiamo utilizzare direttamente i numeri della lista "numeri", verificare se la sua catena di ogni termina con 89 ed eventualmente aggiungere al totale il numero degli elementi del suo gruppo (cioè tutti i numeri che conducono a 89) calcolando il relativo coefficiente multinomiale.
+
+Proviamo a scrivere una funzione con quest'ultimo algoritmo.
+
+Funzione che converte una lista in un intero:
+
+(define (lst-int lst)
+  (let (num 0)
+    (dolist (el lst) (setq num (+ el (* num 10))))))
+
+Funzione finale:
+
+(define (e092)
+  (local (fact numeri num out)
+    (setq out 0)
+    (setq fact '(1 1 2 6 24 120 720 5040))
+    ; creazione dei 11440 numeri univoci
+    (setq numeri (comb-rep 7 '(1 2 3 4 5 6 7 8 9 0)))
+    ;(setq numeri (map lst-int (comb-rep 7 '(1 2 3 4 5 6 7 8 9 0))))
+    (dolist (el numeri)
+      ;(println $idx { } el)
+      (setq num (lst-int el))
+      ; se la catena del numero corrente finisce con 89
+      (if (and (> num 0) (end89? num))
+          ; allora aggiorniamo la somma totale
+          ; sommando il coefficiente multinomiale
+                 ; contiamo la molteplicità delle cifre del numero
+          (letn ((conta (count '(1 2 3 4 5 6 7 8 9 0) el))
+                 ; e poi calcoliamo il coefficiente multinomiale
+                 (coeff (/ (fact 7) (apply * (map (fn(x) (fact x)) conta)))))
+                 ; aggiorniamo il totale
+                 (setq out (+ out coeff))
+          )
+      )
+    )
+    out))
+
+(e092)
+;-> 8581146
+
+(time (e092))
+;-> 116.715
+
+La prima soluzione processa 9999999 di numeri, mentre la seconda soluzione processa 11440 numeri. Il rapporto vale: (/ 9999999 11440) = 874.
+Per i tempi di esecuzione abbiamo il seguente rapporto: (/ 51582 116) = 444, cioè la seconda funzione è circa 450 volte più veloce.
+
+
+===========
+Problema 96
+===========
+
+Su Doku
+>>>>>>> f2acca20c0b15972390864b1078897d6e663f0b3
+
+La frazione continua di sqrt(23) vale [4, (1,3,1,8)]. 
+La notazione indica che la frazione continua inizia con 4 e il blocco (1,3,1,8) si ripete indefinitamente.
+
+Le prime dieci rappresentazioni di frazione continua di radici quadrate (irrazionali) sono:
+
+sqrt( 2) = (1, (2)],         periodo = 1
+sqrt( 3) = (1, (1,2)],       periodo = 2
+sqrt( 4) = (2, (4)],         periodo = 1
+sqrt( 6) = (2, (2,4)],       periodo = 2
+sqrt( 7) = (2, (1,1,1,1)],   periodo = 4
+sqrt( 8) = (2, (1,4)],       periodo = 2
+sqrt(10) = (3, (6)],         periodo = 1
+sqrt(11) = (3, (3,6)],       periodo = 2
+sqrt(12) = (3, (2,6)],       periodo = 2
+sqrt(13) = (3, (1,1,1,1,6)], periodo = 5
+
+<<<<<<< HEAD
+Esattamente quattro frazioni continue hanno un periodo dispari.
+=======
+Il file di testo 6K, sudoku.txt (e096.lsp), contiene cinquanta diversi puzzle di Su Doku che variano in difficoltà, ma tutti con soluzioni uniche (il primo puzzle nel file è l'esempio sopra).
+>>>>>>> f2acca20c0b15972390864b1078897d6e663f0b3
+
+Quante frazioni continue per N <= 10000 hanno un periodo dispari?
+============================================================================
+
+L'algoritmo presentato dall'articolo "Methods of computing square roots" di wikipedia è il seguente:
+
+Start:
+ m[0] = 0
+ d[0] = 1
+ a[0] = floor(sqrt(n))
+ k = a[0]
+Loop:
+ m[i] = a[i-1]*d[i-1] - m[i-1]
+ d[i] = (n-m[i]*m[i])/d[i-1]
+ a[i] = floor((k + m[i])/d[i])
+Stop: quando la i-esima tripla è stata generata precedentemente.
+
+Note: m[i],d[i],a[i] sono sempre interi.
+
+L'articolo di Alexandra Ioana Gliga "On continued fractions of the square root of prime numbers" dimostra che per ogni numero intero positivo che non è un quadrato perfetto risulta:
+
+  sqrt(n) = [a1, (a2 a3 ... an 2*a1)]
+
+Questo ci permette di fermare il ciclo quando l'i-esimo valore vale 2*a1.
+
+Scriviamo la funzione:
+
+(define (e064)
+  (local (max-val out limite)
+    (setq max-val 10000)
+    (setq out 0)
+    (for (n 2 max-val)
+      (setq limite (int (sqrt n)))
+      ; l'algortimo non funziona quando abbiamo un quadrato perfetto
+      ; quindi saltiamo questi casi che non influenzano il risultato finale
+      (if (!= (* limite limite ) n)
+          (let ((periodo 0) (d 1) (m 0) (a limite))
+            (do-while (!= a (* 2 limite))
+              (setq m (- (* d a) m))
+              (setq d (/ (- n (* m m)) d))
+              (setq a (/ (+ limite m) d))
+              (++ periodo)
+            )
+            (if (odd? periodo) (++ out))
+          )
+      )
+    )
+    out))
+
+<<<<<<< HEAD
+(e064)
+;-> 1322
+
+(time (e064))
+;-> 81.294
+
+
+===========
+Problema 65
+===========
+
+Convergenti di e
+
+La radice quadrata di 2 può essere scritta come una frazione continua infinita.
+                       1
+sqrt(2) = 1 + --------------------
+                         1
+              2 + ----------------
+                           1
+                  2 + ------------
+                             1
+                      2 + --------
+                          2 + ...
+
+La frazione continua infinita può essere scritta come sqrt(2) = [1, (2)] indica che 2 si ripete all'infinito. In un modo simile, sqrt(23) = [4, (1,3,1,8)].
+
+Risulta che la sequenza dei valori parziali delle frazioni continue per le radici quadrate fornisce le migliori approssimazioni razionali. Consideriamo i convergenti per sqrt(2):
+
+1 + 1/2 = 3/2
+1 + 1/(2 + 1/2) = 7/5
+1 + 1/(2 + 1/(2 + 1/2)) = 17/12
+1 + 1/(2 + 1/(2 + 1/(2 + 1/2))) = 41/29
+
+Quindi la sequenza dei primi dieci convergenti per sqrt(2) sono:
+
+1, 3/2, 7/5, 17/12, 41/29, 99/70 239/169, 577/408, 1393/985, 3363/2378, ...
+
+La cosa più sorprendente è che per l'importante costante matematica "e" risulta:
+
+e = [2,1,2,1,1,4,1,1,6,1...1,2k,1...]
+
+I primi dieci termini nella sequenza di convergenti per e sono:
+
+2, 3, 8/3, 11/4, 19/7, 87/32, 106/39, 193/71, 1264/465, 1457/536, ...
+
+La somma delle cifre al numeratore del decimo convergente è 1 + 4 + 5 + 7 = 17.
+
+Trova la somma delle cifre del numeratore del centesimo convergente della frazione continua per "e".
+============================================================================
+
+Calcoliamo i primi n termini della frazione continua del numero tenendo conto che il pattern ...1,2n,1... si ripete all'infinito: cf(e) = [2, 1,2,1, 1,4,1, 1,6,1, 1,8,1, 1,10,1, ...]
+
+(define (cf_e n)
+  (let (cfe '(2))
+    (for (i 1 (- n 1))
+      (extend cfe (list 1 (* 2 i) 1)))
+    (slice cfe 0 n)))
+
+(cf_e 20)
+;-> (2 1 2 1 1 4 1 1 6 1 1 8 1 1 10 1 1 12 1 1)
+
+Poi scriviamo una funzione che calcola i convergenti partendo da una frazione continua e restituisce l'ultima delle frazioni convergenti Pn/Qn (dobbiamo usare i big-integer perchè il numeratore e il denominatore delle frazioni convergenti crescono velocemente):
+
+(define (cf2conv cf)
+  (local (p0 q0 p1 q1 p2 q2)
+    (cond ((= (length cf) 1) (setq p2 (first cf) q2 1))
+          (true
+           (setq p0 1L q0 0L)
+           (setq p1 (bigint (cf 0)) q1 1L)
+           (for (k 1 (- (length cf) 1))
+             (setq p2 (+ (* p1 (cf k)) p0))
+             (setq q2 (+ (* q1 (cf k)) q0))
+             ; k-esima frazione convergente
+             ;(println (list p2 q2 (div p2 q2)))
+             (setq p0 p1 q0 q1 p1 p2 q1 q2)
+           ))
+=======
+(define (e096)
+  (local (out)
+    (setq out 0)
+    (load "e096.lsp")
+    (setq base "(solveSudoku gridX)")
+    (for (i 1 50)
+      (setq expr (replace "X" (copy base) (string i)))
+      (setq out (+ out (* 100 (*sol* 0 0)) (* 10 (*sol* 0 1)) (*sol* 0 2)))
+      ;(println expr)
+      (eval-string expr)
+      ;(println i { } out)
+>>>>>>> f2acca20c0b15972390864b1078897d6e663f0b3
+    )
+    (list p2 q2)))
+
+(cf2conv (cf_e 20))
+;-> (28245729L 10391023L)
+
+Poi ci serve una funzione che converte un numero in una lista:
+
+(define (int2lst num)
+  (let (out '())
+    (while (!= num 0)
+      (push (% num 10) out)
+      (setq num (/ num 10))) out))
+
+Adesso possiamo scrivere la funzione finale:
+
+(define (e065)
+  (local (numer)
+    (setq numer (first (cf2conv (cf_e 100))))
+    (apply + (int2lst numer))))
+
+(e065)
+;-> 272L
+
+(time (e065))
+;-> 0
+
+
+===========
+Problema 66
+===========
+
+# Equazione di Pell
+# x^2 - D*y^2 = 1
+#
+# Espandere sqrt(D) in frazione continua
+# sqrt(D) = [q0,q1,q2,...,qn,2*q0]
+# Periodo della frazione continua = n
+# Calcolare l'n-esimo convergente della frazione continua (Pn/Qn).
+# Se n è dispari allora Pn e Qn sono la soluzione.
+# Se n è pari occorre:
+#    Espandere sqrt(D) in frazione continua fino al termine (2n+1)
+#    Calcolare i convergenti fino al termine (2n+1).
+#    P(2*n+1) e Q(2*n+1) sono le soluzioni. 
+       	
+(define (Pell n)
+  (local (z r x y e1 e2 f1 f2 A B t1 t2)
+    (setq x (bigint (int (sqrt n))))
+    (setq y x)
+    (setq z 1L)
+    (setq r (* x 2))
+    (setq e1 1L e2 0L)
+    (setq f1 0L f2 1L)
+    (catch
+      (while true
+        (setq y (bigint (- (* r z) y)))
+        (setq z (bigint (/ (- n (* y y)) z)))
+        (setq r (bigint (/ (+ x y) z)))
+        (setq t1 e1) (setq t2 e2)
+        (setq e1 t2)
+        (setq e2 (bigint (+ (* t2 r) t1)))
+        (setq t1 f1) (setq t2 f2)
+        (setq f1 t2)
+        (setq f2 (bigint (+ (* t2 r) t1)))
+        (setq A f2)
+        (setq B e2)
+        (setq t1 A) (setq t2 B)
+        (setq B t1)
+        (setq A (bigint (+ (* t1 x) t2)))
+        (if (= (- (* A A) (* B B n)) 1) (throw (list A B)))
+        ;(println (format "z = %s\nr = %s\nx = %s\ny = %s" (string z) (string r) (string x) (string y)))
+        ;(println (format "e1 = %s\ne2 = %s\nf1 = %s\nf2 = %s" (string e1) (string e2) (string f1) (string f2)))
+        ;(println (format "A = %s\nB = %s" (string A) (string B)))
+        ;(read-line)
+      );while
+    );catch
+  );local
+)
+
+<<<<<<< HEAD
 (Pell 61)
 ;-> (1766319049L 226153980L)
 
@@ -9172,5 +10464,79 @@ Adesso possiamo scrivere la funzione:
 ;-> 0
 
 ============================================================================
+=======
+(e096)
+;-> 24702
+
+(time (e096))
+;-> 27084.701
+>>>>>>> f2acca20c0b15972390864b1078897d6e663f0b3
+
+
+===========
+Problema 97
+===========
+
+Il più grande primo non-Mersenne
+
+Il primo numero primo noto che supera il milione di cifre è stato scoperto nel 1999 ed è un numero primo di Mersenne della forma 2 ^ 6972593-1. Contiene esattamente 2.098.960 cifre. Successivamente sono stati trovati altri numeri primi di Mersenne, della forma (2^p − 1), che contengono più cifre.
+
+Tuttavia, nel 2004 è stato trovato un enorme numero primo non Mersenne che contiene 2.357.207 cifre: 28433 × 2^7830457 + 1.
+
+Trova le ultime dieci cifre di questo numero primo.
+============================================================================
+
+Le ultime 10 cifre di un numero n si ottengono applicando l'operatore modulo: (n % 10000000000).
+Il problema è come calcolare velocemente 2^7830457. Cercando di risolvere direttamente l'espressione,  newLISP impiega un tempo lunghissimo. Infatti:
+
+Funzione per calcolare la potenza (intera) di un numero intero:
+
+(define (** num power)
+    (let (out 1L)
+        (dotimes (i power)
+            (setq out (* out num)))))
+
+Scriviamo la funzione:
+
+(define (e097) (% (+ (* (** 2L 7830456L) 28433) 1) 10000000000L))
+
+Attenzione, la seguente funzione impiega moltissimo tempo:
+
+(e097)
+
+Abbiamo visto che per estrapolare le ultime 10 cifre occorre calcolare (n mod 10000000000). Poichè per  l'operazione modulo (mod) vale la proprietà distributiva:
+
+a*b mod n = ((a mod n)*(b mod n)) mod n
+
+possiamo calcolare 2^7830457 utilizzando la moltiplicazione in un ciclo e utilizzando il modulo dopo ogni moltiplicazione. In questo modo non abbiamo neanche bisogno di utilizzare i big-integer:
+
+(define (e097)
+  (let (val 2L)
+    (for (i 1 7830456)
+      (setq val (% (* 2L val) 10000000000L))
+    )
+    (setq val (* val 28433L))
+    (setq val (+ val 1L))
+    (setq val (% val 10000000000L))))
+
+(e097)
+;-> 8739992577L
+
+(define (e097)
+  (let (val 2)
+    (for (i 1 7830456)
+      (setq val (% (* 2 val) 10000000000))
+    )
+    (setq val (* val 28433))
+    (setq val (+ val 1))
+    (setq val (% val 10000000000))))
+
+(e097)
+;-> 8739992577
+
+Inoltre il tempo di esecuzione è accettabile:
+
+(time (e097))
+;-> 497.573
 
 

@@ -1600,6 +1600,7 @@ Per i big-integer:
 ;-> 4131.988
 
 
+<<<<<<< HEAD
 -------------
 Numeri bouncy
 -------------
@@ -1704,3 +1705,5 @@ Esempi:
 In questo modo possiamo avere un help sulle funzioni scritte dall'utente.
 
 
+=======
+>>>>>>> f2acca20c0b15972390864b1078897d6e663f0b3
