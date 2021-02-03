@@ -279,7 +279,7 @@ ROSETTA CODE
 
 PROJECT EULERO
 ==============
-  Problemi 1..68,70,71,72,76,87,89,92,96,97
+  Problemi 1..72,76,78,87,89,92,96,97,99,100
 
 PROBLEMI VARI
 =============
@@ -625,6 +625,8 @@ NOTE LIBERE 3
   Corde e cerchio
   Toziente
   Numeri permutati
+  Numeri bouncy
+  docstring
   
 APPENDICI
 =========

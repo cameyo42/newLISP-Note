@@ -1600,3 +1600,107 @@ Per i big-integer:
 ;-> 4131.988
 
 
+-------------
+Numeri bouncy
+-------------
+
+Un numero "bouncy" (che rimbalza) è un numero intero positivo le cui cifre non sono in ordine strettamente crescente o strettamente decrescente. Ad esempio, 1235 è un numero crescente, 5321 è un numero decrescente e 2351 è un numero bouncy. Per definizione, tutti i numeri inferiori a 100 sono non-bouncy e 101 è il primo numero bouncy.
+
+Scrivere una funzione che verifica se un numero è bouncy.
+
+Funzione iterativa:
+
+(define (bouncy1 num)
+  (local (incr decr ultimo prossimo continua)
+    (setq continua true)
+    (setq incr nil decr nil)
+    (setq ultimo (% num 10))
+    (setq num (/ num 10))
+    (while (and (> num 0) continua)
+      (setq prossimo (% num 10))
+      (setq num (/ num 10))
+      (if (< prossimo ultimo)
+          (setq incr true)
+          (if (> prossimo ultimo)
+              (setq decr true)))
+      (setq ultimo prossimo)
+      (if (and decr incr) (setq continua nil))
+    )
+    (and decr incr)))
+
+(bouncy1 123456)
+;-> nil
+(bouncy1 123451)
+;-> true
+(bouncy1 123455)
+;-> nil
+(bouncy1 111111)
+;-> nil
+(bouncy1 211111)
+;-> nil
+
+Funzione funzionale:
+
+(define (int-lst num)
+  (let (out '())
+    (while (!= num 0)
+      (push (% num 10) out)
+      (setq num (/ num 10))) out))
+
+(define (bouncy2 num)
+  (let (digits (int-lst num))
+    (not (or (apply >= digits) (apply <= digits)))))
+
+(bouncy2 123456)
+;-> nil
+(bouncy2 123451)
+;-> true
+(bouncy2 123455)
+;-> nil
+(bouncy2 111111)
+;-> nil
+(bouncy2 211111)
+;-> nil
+
+Vediamo se le due funzioni producono risultati uguali:
+
+(= (map bouncy1 (sequence 1 10000)) (map bouncy2 (sequence 1 10000)))
+;-> true
+
+Vediamo la velocità delle funzioni:
+
+(setq numeri (sequence 1 100000))
+(time (map bouncy1 numeri) 10)
+;-> 934.53
+(time (map bouncy2 numeri) 10)
+;-> 975.42
+
+
+---------
+docstring
+---------
+
+Una docstring è una stringa letterale specificata nel codice sorgente che viene utilizzata, come un commento, per documentare uno specifico segmento di codice.
+newLISP supporta l'inserimento di una docstring nelle funzione, ma non ha alcun metodo per recuperarla. Possiamo scrivere una funzione che estrae la docstring, se presente, di una funzione. Sul forum di newLISP Nigel Brown e HPW hanno proposto la seguente funzione:
+
+(define (doc f)
+  "(doc f) - display function f's doc string, if present"
+  (if (and (or (lambda? f) (macro? f)) (string? (nth 1 f)))
+      (nth 1 f)
+      nil))
+
+Esempi:
+
+(define (somma a b)
+"(somma a b) - somma due numeri interi"
+(+ a b))
+
+(doc somma)
+;-> "(somma a b) - somma due numeri interi"
+
+(doc doc)
+"(doc f) - display function f's doc string, if present"
+
+In questo modo possiamo avere un help sulle funzioni scritte dall'utente.
+
+

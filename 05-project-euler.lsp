@@ -28,45 +28,45 @@
 |    19    |  171               |         3  |         1  |         1  |
 |    20    |  648               |         0  |         0  |         -  |
 |    21    |  31626             |       220  |       134  |        87  |
-|    22    |  871198282         |        20  |        10  |            |
-|    23    |  4179871           |     40900  |     27534  |            |
-|    24    |  278391546         |     25309  |     12282  |            |
-|    25    |  4782              |      4926  |      3469  |            |
-|    26    |  983               |       488  |       266  |            |
-|    27    |  -59231            |      2000  |      1532  |            |
-|    28    |  669171001         |         0  |         0  |            |
-|    29    |  9183              |       141  |        94  |            |
-|    30    |  443839            |       516  |       344  |            |
-|    31    |  73682             |         1  |         0  |            |
-|    32    |  45228             |      1625  |      1079  |            |
-|    33    |  100               |         0  |         0  |            |
-|    34    |  40730             |      3797  |      2625  |            |
-|    35    |  55                |      1267  |       902  |            |
-|    36    |  872187            |      1443  |       945  |            |
-|    37    |  748317            |       778  |       651  |            |
-|    38    |  932718654         |        94  |        48  |            |
-|    39    |  840               |     13486  |      9561  |            |
-|    40    |  210               |       141  |       433  |            |
-|    41    |  7652413           |       125  |        64  |            |
-|    42    |  162               |        31  |         4  |            |
-|    43    |  16695334890       |      1749  |      1321  |            |
-|    44    |  5482660           |      5589  |      4182  |            |
-|    45    |  1533776805        |       115  |        63  |            |
-|    46    |  5777              |        31  |         5  |            |
-|    47    |  134043            |         0  |         0  |            |
-|    48    |  9110846700        |       266  |       186  |            |
-|    49    |  296962999629      |        19  |         5  |            |
-|    50    |  997651            |     27113  |     18871  |            |
-|    51    |  121313            |       269  |       180  |            |
-|    52    |  142857            |       313  |       204  |            |
-|    53    |  4075              |        25  |         5  |            |
-|    54    |  376               |       154  |        91  |            |
-|    55    |  249               |       116  |        69  |            |
-|    56    |  972               |       186  |       119  |            |
-|    57    |  153               |        10  |         1  |            |
-|    58    |  26241             |       630  |       432  |            |
-|    59    |  107359            |        15  |         1  |            |
-|    60    |  26033             |     55055  |     38926  |            |
+|    22    |  871198282         |        20  |        10  |         -  |
+|    23    |  4179871           |     40900  |     27534  |         -  |
+|    24    |  278391546         |     25309  |     12282  |         -  |
+|    25    |  4782              |      4926  |      3469  |         -  |
+|    26    |  983               |       488  |       266  |         -  |
+|    27    |  -59231            |      2000  |      1532  |         -  |
+|    28    |  669171001         |         0  |         0  |         -  |
+|    29    |  9183              |       141  |        94  |         -  |
+|    30    |  443839            |       516  |       344  |         -  |
+|    31    |  73682             |         1  |         0  |         -  |
+|    32    |  45228             |      1625  |      1079  |         -  |
+|    33    |  100               |         0  |         0  |         -  |
+|    34    |  40730             |      3797  |      2625  |         -  |
+|    35    |  55                |      1267  |       902  |         -  |
+|    36    |  872187            |      1443  |       945  |         -  |
+|    37    |  748317            |       778  |       651  |         -  |
+|    38    |  932718654         |        94  |        48  |         -  |
+|    39    |  840               |     13486  |      9561  |         -  |
+|    40    |  210               |       141  |       433  |         -  |
+|    41    |  7652413           |       125  |        64  |         -  |
+|    42    |  162               |        31  |         4  |         -  |
+|    43    |  16695334890       |      1749  |      1321  |         -  |
+|    44    |  5482660           |      5589  |      4182  |         -  |
+|    45    |  1533776805        |       115  |        63  |         -  |
+|    46    |  5777              |        31  |         5  |         -  |
+|    47    |  134043            |         0  |         0  |         -  |
+|    48    |  9110846700        |       266  |       186  |         -  |
+|    49    |  296962999629      |        19  |         5  |         -  |
+|    50    |  997651            |     27113  |     18871  |         -  |
+|    51    |  121313            |       269  |       180  |         -  |
+|    52    |  142857            |       313  |       204  |         -  |
+|    53    |  4075              |        25  |         5  |         -  |
+|    54    |  376               |       154  |        91  |         -  |
+|    55    |  249               |       116  |        69  |         -  |
+|    56    |  972               |       186  |       119  |         -  |
+|    57    |  153               |        10  |         1  |         -  |
+|    58    |  26241             |       630  |       432  |         -  |
+|    59    |  107359            |        15  |         1  |         -  |
+|    60    |  26033             |     55055  |     38926  |         -  |
 |    61    |  28684             |         -  |        85  |         -  |
 |    62    |  127035954683      |         -  |      6348  |        83  |
 |    63    |  49                |         -  |         0  |         0  |
@@ -75,15 +75,19 @@
 |    66    |  661               |         -  |         0  |         -  |
 |    67    |  7273              |         -  |         1  |         -  |
 |    68    |  6531031914842725  |         -  |        21  |         -  |
+|    69    |  510510            |         -  |       642  |         -  |
 |    70    |  8319823           |         -  |      9621  |         7  |
 |    71    |  428570            |         -  |       191  |         -  |
 |    72    |  303963552391      |         -  |      2060  |         -  |
 |    76    |  190569291         |         -  |         0  |         -  |
+|    78    |  55374             |         -  |      7918  |         -  |
 |    87    |  1097343           |         -  |      1153  |         -  |
 |    89    |  743               |         -  |         0  |         -  |
 |    92    |  8581146           |         -  |     51582  |        16  |
 |    96    |  24702             |         -  |     27084  |         -  |
 |    97    |  8739992577        |         -  |       497  |         -  |
+|    99    |  709               |         -  |         0  |         -  |
+|   100    |  756872327473      |         -  |         0  |         -  |
 
 Sito web: https://projecteuler.net/archives
 
@@ -7975,6 +7979,72 @@ Funzione che calcola le permutazioni:
 
 
 ===========
+Problema 69
+===========
+
+La funzione toziente di Eulero, φ(n) (a volte chiamata funzione phi), è usata per determinare il numero di numeri positivi minori o uguali a n che sono primi relativamente a n. Ad esempio, poiché 1, 2, 4, 5, 7 e 8 sono tutti inferiori a nove e primi relativamente a nove, φ(9) = 6.
+Il numero 1 è considerato relativamente primo rispetto a ogni numero positivo, quindi φ(1)= 1.
+
+ n | Relatively Prime | φ(n) | n/φ(n)    |
+ -----------------------------------------
+ 2 | 1                | 1    | 2         |
+ 3 | 1,2              | 2    | 1.5       |
+ 4 | 1,3              | 2    | 2         |
+ 5 | 1,2,3,4          | 4    | 1.25      |
+ 6 | 1,5              | 2    | 3         |
+ 7 | 1,2,3,4,5,6      | 6    | 1.1666... |
+ 8 | 1,3,5,7          | 4    | 2         |
+ 9 | 1,2,4,5,7,8      | 6    | 1.5       |
+10 | 1,3,7,9          | 4    | 2.5       |
+
+Si può vedere che n = 6 produce un massimo n/φ(n) per n ≤ 10.
+
+Trova il valore di n ≤ 1000000 per cui il rapporto n/φ(n) è massimo.
+============================================================================
+
+Utilizziamo un approccio con la forza bruta.
+
+Funzione che calcola il toziente da 0 fino a n numeri:
+
+(define (totients-to num)
+  (let (phi (array (+ num 1) '(0)))
+    (setf (phi 0) 0)
+    (setf (phi 1) 1)
+    (for (i 2 num)
+      (setf (phi i) i))
+    (for (i 2 num)
+      (if (= (phi i) i)
+          (for (j i num i)
+            (setf (phi j) (- (phi j) (/ (phi j) i))))))
+     phi))
+
+(totients-to 10)
+;-> (0 1 1 2 2 4 2 6 4 6 4)
+
+Scriviamo la funzione finale:
+
+(define (e069)
+  (local (t idx cur-val max-val)
+    (setq t (totients-to 1000000))
+    (setq max-val -1)
+    (setq idx-val nil)
+    ; cerca il valore massimo
+    (for (i 0 1000000)
+      (setq cur-val (t i))
+      (if (> (div i cur-val) max-val)
+          (setq idx-val i max-val (div i cur-val))
+      )    
+    )
+    idx-val))
+
+(e069)
+;-> 510510
+
+(time (e069))
+;-> 642.279
+
+
+===========
 Problema 70
 ===========
 
@@ -8279,6 +8349,84 @@ La soluzione è simile a quella del problema 31. Le uniche differenze sono:
 
 (time (e076))
 ;-> 0
+
+
+===========
+Problema 78
+===========
+
+Partizioni di monete
+
+Sia p(n) il numero dei diversi modi in cui n monete possono essere separate in pile. Ad esempio, cinque monete possono essere separate in pile in esattamente sette modi diversi, quindi p(5) = 7.
+
+OOOOO
+OOOO   O
+OOO   OO
+OOO   O   O
+OO   OO   O
+OO   O   O   O
+O   O   O   O   O
+
+Trova il valore minimo di n per cui p(n) è divisibile per un milione.
+============================================================================
+
+Su wikipedia si trova che la funzione generatrice per p(n) vale:
+
+p(n) = p(n - 1) + p(k - 2) - p(k - 5) - p(k - 7) + p(k - 12) + p(k - 15) - p(k - 22) ...
+
+dove p(0) = 1 e p(n) = 0 per n < 0.
+
+La sequenza dei numeri k da utilizzare è data dalla formula dei numeri pentagonali generalizzati:
+
+f(k) = k*(3k-1)/2 che vale sia per k negativo che per k positivo. 
+
+Questa formula può essere generata nel modo seguente:
+
+    | (m/2 + 1)    se (k mod 2) = 0,
+k = |
+    | (-m/2 - 1)   altrimenti
+
+I segni della funzione seguono lo schema +, +, -, -, +, +, -, -,...
+
+Quindi partendo dal primo valore della sequenza possiamo calcolare quella successiva e cosi via.
+
+(define (penta k) (/ (* k (- (* 3 k) 1)) 2))
+
+(define (e078)
+  (local (n p-vec segno penta continua i j val)
+    (setq p-vec (array 100000 '(0)))
+    (setq n 1)
+    (setf (p-vec 0) 1)
+    (setq continua true)
+    (while continua
+      (setq i 0)
+      (setq penta 1)
+      (while (<= penta n)
+        (if (> (% i 4) 1)
+            (setq segno -1)
+            (setq segno 1))
+        (setf (p-vec n) (+ (p-vec n) (* segno (p-vec (- n penta)))))
+        (setf (p-vec n) (% (p-vec n) 1000000))
+        (++ i)
+        (if (zero? (% i 2))
+            (setq j (+ (/ i 2) 1))
+            (setq j (- (+ (/ i 2) 1))))
+        (setq penta (/ (* j (- (* 3 j) 1)) 2))
+      )
+      (if (zero? (p-vec n)) 
+          (setq continua nil)
+          (++ n))
+      ;(if (zero? (% n 10000)) (println n))
+    )
+    n))
+
+(e078)
+;-> 55374
+
+(time (e078))
+;-> 7918.736
+
+Il tempo di esecuzione non è entusiasmante, ma non è che abbia capito molto bene come funziona tutta la matematica dietro il partizionamento degli interi. Mi accontento che il risultato sia corretto.
 
 
 ===========
@@ -8939,5 +9087,90 @@ Inoltre il tempo di esecuzione è accettabile:
 
 (time (e097))
 ;-> 497.573
+
+
+===========
+Problema 99
+===========
+
+Massimo esponenziale
+
+Confrontare due numeri scritti in forma di indice come 2^11 e 3^7 non è difficile, poiché qualsiasi calcolatrice confermerebbe che 2^11 = 2048 < 3^7 = 2187.
+
+Tuttavia, confermare che 632382^518061 > 519432^525806 sarebbe molto più difficile, poiché entrambi i numeri contengono oltre tre milioni di cifre.
+
+Utilizzando "base_exp.txt", un file di testo da 22 KB contenente mille righe con una coppia base / esponente su ciascuna riga, determinare quale numero di riga ha il valore numerico maggiore.
+
+NOTA: le prime due righe nel file rappresentano i numeri nell'esempio fornito sopra.
+============================================================================
+
+Il file "base_exp.txt" è stato trasformato nel file "e099.lsp".
+
+Non è necessario calcolare le potenze. Possiamo usare i logaritmi utilizzando le seguenti proprietà:
+
+1) log(x) < (log(y) implica che x < y e viceversa (perchè log(x) è una funzione crescente).
+2) log(x^y) = y*log(x)
+
+In questo modo dobbiamo trovare il massimo dei valori: y*(log(x).
+
+Carichiamo il file che contiene la lista "lst" con tutte le coppie di numeri (x y):
+
+(load "e099.lsp")
+
+(define (e099)
+  (let ((max-val 0) (riga 0))
+    (dolist (el lst)
+      (if (> (mul (last el) (log (first el))) max-val)
+          (setq riga (+ 1 $idx) max-val (mul (last el) (log (first el))))))
+    riga))
+
+(e099)
+;-> 709
+
+(time (e099))
+;-> 0
+
+
+============
+Problema 100
+============
+
+Probabilità stabilite
+
+Se una scatola contiene ventuno dischi colorati, composti da quindici dischi blu e sei dischi rossi, e due dischi sono stati presi a caso, si può vedere che la probabilità di prendere due dischi blu, P (BB) = (15/21) × (14/20) = 1/2.
+
+La successiva disposizione di questo tipo, per la quale c'è esattamente il 50% di possibilità di prendere due dischi blu a caso, è una scatola contenente ottantacinque dischi blu e trentacinque dischi rossi.
+
+Trova la prima disposizione che contenga più di 10^12 = 1.000.000.000.000 dischi in totale, determinare il numero di dischi blu che la confezione deve contenere.
+============================================================================
+
+                                 b     (b - 1)
+Bisogna risolvere l'equazione:  --- * --------- = 1/2.
+                                 n     (n - 1)
+
+Sviluppando si ottiene: 2b^2 - 2b - n^2 + n = 0 che è una equazione quadratica diofantina. Risolvendo per b otteniamo le due soluzioni: b = (2 + sqrt (4 + 8n^2 - 8n)) / 4 = (1 + sqrt (1 + 2n^2 - 2n))/2. Quindi, è sufficiente trovare valori di n tali che 2n^2 - 2n + 1 = c^2 per qualche intero c. Risolvendo per n, otteniamo n = (2 + sqrt (8c^2 - 4))/4 = (1 + sqrt(2c^2 - 1))/2. Quindi, è sufficiente trovare valori di c tali che d^2 - 2c^2 = -1 per qualche intero d. Se (d, c) è una soluzione, (3*d + 4*c, 2*d + 3*c) è la prossima soluzione. Pertanto, le soluzioni intere per c possono essere generate ricorsivamente e ciascuna può essere tradotta in una soluzione distinta per il valore di b. Questo ragionamento porta alla coppia di equazioni ricorsive:
+
+b(k+1) = 3*b(k) + 2*n(k) - 2
+n(k+1) = 4*b(k) + 3*n(k) - 3
+
+Adesso possiamo scrivere la funzione:
+756872327473
+
+(define (e100)
+  (let ((n 21) (b 15) (b1 0) (n1 0))
+    (while (< n 1000000000000)
+      (setq b1 (+ (* 3 b) (* 2 n) (- 2)))
+      (setq n1 (+ (* 4 b) (* 3 n) (- 3)))
+      (setq b b1 n n1)
+    )
+    b))
+
+(e100)
+;-> 756872327473
+
+(time (e100))
+;-> 0
+
+============================================================================
 
 
