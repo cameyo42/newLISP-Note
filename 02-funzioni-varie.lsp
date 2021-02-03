@@ -964,7 +964,7 @@ Adesso possiamo scrivere la funzione "raggruppa":
 (raggruppa 2 (raggruppa 2 lst))
 ;-> (((1 2) (3 4)) ((5 6) (7 8)) ((9 10) (11 12)))
 
-Con newLISP possiamo utilizzare la funzione "explode".
+Con newLISP possiamo utilizzare anche la funzione "explode".
 
 
 -----------------------------------
@@ -5109,7 +5109,7 @@ Sequenza OESIS: A008683
 
 La funzione di Mertens indicata con M(x) è la sommatoria della funzione di Mobius:
 
-M(x) = Sum[mu(n)] (per 1 <= n <= x)
+M(x) = Sum[n 1 x] (mu(n))
 
 Sequenza OESIS: A002321
 
@@ -5310,8 +5310,60 @@ Proviamo la funzione:
 (partnumber 5)
 ;-> ((5) (4 1) (3 2) (3 1 1) (2 2 1) (2 1 1 1) (1 1 1 1 1))
 
-(length (partnumber 50))
+(length (partnumber 80))
 ;-> 204226
+
+Se vogliamo trovare solo il numero di partizioni (senza generarle tutte) la situazione è abbastanza complicata. Non si conosce un metodo per calcolare esattamente il numero di partizioni di un dato numero n, cioè una funzione o un algoritmo per calcolare p(n) direttamente. Comunque esiste una definizione ricorsiva di p(n) che permette di calcolarla utilizzando i valori precedenti.
+
+Su wikipedia si trova che la funzione generatrice per p(n) vale:
+
+p(n) = p(n - 1) + p(k - 2) - p(k - 5) - p(k - 7) + p(k - 12) + p(k - 15) - p(k - 22) ...
+
+dove p(0) = 1 e p(n) = 0 per n < 0.
+
+La sequenza dei numeri k da utilizzare è data dalla formula dei numeri pentagonali generalizzati:
+
+f(k) = k*(3k-1)/2 che vale sia per k negativo che per k positivo. 
+
+Questa formula può essere generata nel modo seguente:
+
+    | (m/2 + 1)    se (k mod 2) = 0,
+k = |
+    | (-m/2 - 1)   altrimenti
+
+I segni della funzione seguono lo schema +, +, -, -, +, +, -, -,...
+
+Quindi partendo dal primo valore della sequenza possiamo calcolare quella successiva e cosi via.
+
+(define (part-num num)
+  (local (n p-vec segno penta continua i j val)
+    (setq p-vec (array (+ num 1) '(0)))
+    (setf (p-vec 0) 1)
+    (setq continua true)
+    (setq n 1)
+    (while (<= n num)
+      (setq i 0)
+      (setq penta 1)
+      (while (<= penta n)
+        (if (> (% i 4) 1)
+            (setq segno -1)
+            (setq segno 1))
+        (setf (p-vec n) (+ (p-vec n) (* segno (p-vec (- n penta)))))
+        (++ i)
+        (if (zero? (% i 2))
+            (setq j (+ (/ i 2) 1))
+            (setq j (- (+ (/ i 2) 1))))
+        (setq penta (/ (* j (- (* 3 j) 1)) 2))
+      )
+      (++ n)
+    )
+    p-vec))
+
+(part-num 50)
+;-> (1 1 2 3 5 7 11 15 22 30 42 56 77 101 135 176 231 297 385 490
+;->  627 792 1002 1255 1575 1958 2436 3010 3718 4565 5604 6842 
+;->  8349 10143 12310 14883 17977 21637 26015 31185 37338 44583 
+;->  53174 63261 75175 89134 105558 124754 147273 173525 204226)
 
 
 ---------------------------
@@ -5960,7 +6012,7 @@ Dato un insieme di n + 1 punti (xi, yi), il polinomio interpolatore di Lagrange 
 
 Viene calcolato come:
 
-Pn (x) = Sum[i 0 n] (Li(x) * yi)
+Pn(x) = Sum[i 0 n] (Li(x) * yi)
 
 dove (x0, y0), (x1, y1), ..., (xn, yn) sono gli n + 1 punti dati.
 

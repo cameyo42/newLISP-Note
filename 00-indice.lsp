@@ -1,7 +1,7 @@
 
 ============================================================================
  Note su newLISP
- © copyright 2019-2020 Massimo Corinaldesi aka cameyo
+ © copyright 2019-2020-2021 Massimo Corinaldesi aka cameyo
  MIT License
 ============================================================================
 
@@ -271,10 +271,15 @@ ROSETTA CODE
   Numeri gapful
   Valutazione di una espressione RPN
   Il gioco del 24
+  Sequenza fusc
+  Algoritmo Damm
+  Distanza tra due punti della terra
+  Algoritmo Soundex
+  Trasformata Discreta di Fourier (DFT)
 
 PROJECT EULERO
 ==============
-  Problemi 1..60,63,92
+  Problemi 1..72,76,78,87,89,92,96,97,99,100
 
 PROBLEMI VARI
 =============
@@ -350,6 +355,8 @@ PROBLEMI VARI
   Problema dei fiammiferi di Banach
   Window sliding
   Il gioco di Wythoff
+  Ordinamento per rime
+  Lista circolare
 
 DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
 ==================================================
@@ -425,6 +432,7 @@ DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Matrici a spirale (Google)
   Lunghezza della sottostringa più lunga senza caratteri ripetuti (Amazon)
   Rendere palindroma una stringa (Google)
+  Cifre diverse (Visa)
 
 LIBRERIE
 ========
@@ -509,7 +517,7 @@ NOTE LIBERE
   Generatore di numeri casuali
   Liste di associazione
   Funzione Z e ipotesi di Riemann
-  Rotazione di stringhe e liste
+  Rotazione di stringhe, liste e numeri
   Quadrato di una lista ordinata
   Somma da due numeri
   Mescolamento perfetto
@@ -594,7 +602,32 @@ NOTE LIBERE 2
   Risolvere i sistemi lineari
   Sudoku test
   Integrali definiti
+  Fattorizzazione
+  "setq" o "set"
+  Memfrob
+  Generatore di sequenze
+  Massimo gap
+  Simulazione di un cannone
+  Ottimizzare il taglio di un tubo
+  Generazione automatica di una hash-map
 
+NOTE LIBERE 3
+=============
+  Generazione di un simbolo univoco
+  Compromessi tra tempo e spazio  
+  Scambio di somme
+  Evitare begin nella condizione if
+  Frazioni continue (funzioni)
+  Redditi e tasse
+  Numero di eulero o di nepero
+  map e filter multiplo
+  Direct Acyclic Graph (DAG)
+  Corde e cerchio
+  Toziente
+  Numeri permutati
+  Numeri bouncy
+  docstring
+  
 APPENDICI
 =========
   Lista delle funzioni newLISP
@@ -620,8 +653,12 @@ APPENDICI
   Frasi Famose sulla Programmazione e sul Linguaggio Lisp
   Codice ASCII
 
-BIBLIOGRAFIA / WEB
+BIBLIOGRAFIA/WEB
 ==================
+
+YO LIBRARY
+==========
+Libreria per matematica ricreativa (112 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================
@@ -635,7 +672,7 @@ LICENSE
 
 MIT License
 
-Copyright (c) 2019-2020 Massimo Corinaldesi aka cameyo
+Copyright (c) 2019-2020-2021 Massimo Corinaldesi aka cameyo
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

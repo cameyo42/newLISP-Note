@@ -1,7 +1,7 @@
 
 ============================================================================
  Note su newLISP
- © copyright 2019-2020 Massimo Corinaldesi aka cameyo
+ © copyright 2019-2020-2021 Massimo Corinaldesi aka cameyo
  MIT License
 ============================================================================
 
@@ -271,10 +271,15 @@ ROSETTA CODE
   Numeri gapful
   Valutazione di una espressione RPN
   Il gioco del 24
+  Sequenza fusc
+  Algoritmo Damm
+  Distanza tra due punti della terra
+  Algoritmo Soundex
+  Trasformata Discreta di Fourier (DFT)
 
 PROJECT EULERO
 ==============
-  Problemi 1..60,63,92
+  Problemi 1..72,76,78,87,89,92,96,97,99,100
 
 PROBLEMI VARI
 =============
@@ -350,6 +355,8 @@ PROBLEMI VARI
   Problema dei fiammiferi di Banach
   Window sliding
   Il gioco di Wythoff
+  Ordinamento per rime
+  Lista circolare
 
 DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
 ==================================================
@@ -425,6 +432,7 @@ DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Matrici a spirale (Google)
   Lunghezza della sottostringa più lunga senza caratteri ripetuti (Amazon)
   Rendere palindroma una stringa (Google)
+  Cifre diverse (Visa)
 
 LIBRERIE
 ========
@@ -509,7 +517,7 @@ NOTE LIBERE
   Generatore di numeri casuali
   Liste di associazione
   Funzione Z e ipotesi di Riemann
-  Rotazione di stringhe e liste
+  Rotazione di stringhe, liste e numeri
   Quadrato di una lista ordinata
   Somma da due numeri
   Mescolamento perfetto
@@ -594,7 +602,32 @@ NOTE LIBERE 2
   Risolvere i sistemi lineari
   Sudoku test
   Integrali definiti
+  Fattorizzazione
+  "setq" o "set"
+  Memfrob
+  Generatore di sequenze
+  Massimo gap
+  Simulazione di un cannone
+  Ottimizzare il taglio di un tubo
+  Generazione automatica di una hash-map
 
+NOTE LIBERE 3
+=============
+  Generazione di un simbolo univoco
+  Compromessi tra tempo e spazio  
+  Scambio di somme
+  Evitare begin nella condizione if
+  Frazioni continue (funzioni)
+  Redditi e tasse
+  Numero di eulero o di nepero
+  map e filter multiplo
+  Direct Acyclic Graph (DAG)
+  Corde e cerchio
+  Toziente
+  Numeri permutati
+  Numeri bouncy
+  docstring
+  
 APPENDICI
 =========
   Lista delle funzioni newLISP
@@ -620,8 +653,12 @@ APPENDICI
   Frasi Famose sulla Programmazione e sul Linguaggio Lisp
   Codice ASCII
 
-BIBLIOGRAFIA / WEB
+BIBLIOGRAFIA/WEB
 ==================
+
+YO LIBRARY
+==========
+Libreria per matematica ricreativa (112 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================
@@ -635,7 +672,7 @@ LICENSE
 
 MIT License
 
-Copyright (c) 2019-2020 Massimo Corinaldesi aka cameyo
+Copyright (c) 2019-2020-2021 Massimo Corinaldesi aka cameyo
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -868,6 +905,23 @@ Proviamo la funzione con 5 parametri (la virgola è un parametro!):
 ;-> (10 40)
 (list t1 t2)
 ;-> (nil nil)
+
+Le funzioni di incremento e decremento "inc", "++" ,"dec" e "--" considerano il valore nil come 0:
+
+(define (test a , b) (inc b))
+(test)
+;-> 1
+
+(define (test a , b) (++ b))
+(test)
+;-> 1
+
+Altre funzioni generano un errore con una variabile di valore nil:
+
+(define (test a , b)  (setq a (+ b 1)))
+(test)
+;-> ERR: value expected in function + : nil
+;-> called from user function (test)
 
 Possiamo scrivere funzioni che accettano un numero variabile di argomenti:
 
@@ -10389,7 +10443,7 @@ Adesso possiamo scrivere la funzione "raggruppa":
 (raggruppa 2 (raggruppa 2 lst))
 ;-> (((1 2) (3 4)) ((5 6) (7 8)) ((9 10) (11 12)))
 
-Con newLISP possiamo utilizzare la funzione "explode".
+Con newLISP possiamo utilizzare anche la funzione "explode".
 
 
 -----------------------------------
@@ -14534,7 +14588,7 @@ Sequenza OESIS: A008683
 
 La funzione di Mertens indicata con M(x) è la sommatoria della funzione di Mobius:
 
-M(x) = Sum[mu(n)] (per 1 <= n <= x)
+M(x) = Sum[n 1 x] (mu(n))
 
 Sequenza OESIS: A002321
 
@@ -14735,8 +14789,60 @@ Proviamo la funzione:
 (partnumber 5)
 ;-> ((5) (4 1) (3 2) (3 1 1) (2 2 1) (2 1 1 1) (1 1 1 1 1))
 
-(length (partnumber 50))
+(length (partnumber 80))
 ;-> 204226
+
+Se vogliamo trovare solo il numero di partizioni (senza generarle tutte) la situazione è abbastanza complicata. Non si conosce un metodo per calcolare esattamente il numero di partizioni di un dato numero n, cioè una funzione o un algoritmo per calcolare p(n) direttamente. Comunque esiste una definizione ricorsiva di p(n) che permette di calcolarla utilizzando i valori precedenti.
+
+Su wikipedia si trova che la funzione generatrice per p(n) vale:
+
+p(n) = p(n - 1) + p(k - 2) - p(k - 5) - p(k - 7) + p(k - 12) + p(k - 15) - p(k - 22) ...
+
+dove p(0) = 1 e p(n) = 0 per n < 0.
+
+La sequenza dei numeri k da utilizzare è data dalla formula dei numeri pentagonali generalizzati:
+
+f(k) = k*(3k-1)/2 che vale sia per k negativo che per k positivo. 
+
+Questa formula può essere generata nel modo seguente:
+
+    | (m/2 + 1)    se (k mod 2) = 0,
+k = |
+    | (-m/2 - 1)   altrimenti
+
+I segni della funzione seguono lo schema +, +, -, -, +, +, -, -,...
+
+Quindi partendo dal primo valore della sequenza possiamo calcolare quella successiva e cosi via.
+
+(define (part-num num)
+  (local (n p-vec segno penta continua i j val)
+    (setq p-vec (array (+ num 1) '(0)))
+    (setf (p-vec 0) 1)
+    (setq continua true)
+    (setq n 1)
+    (while (<= n num)
+      (setq i 0)
+      (setq penta 1)
+      (while (<= penta n)
+        (if (> (% i 4) 1)
+            (setq segno -1)
+            (setq segno 1))
+        (setf (p-vec n) (+ (p-vec n) (* segno (p-vec (- n penta)))))
+        (++ i)
+        (if (zero? (% i 2))
+            (setq j (+ (/ i 2) 1))
+            (setq j (- (+ (/ i 2) 1))))
+        (setq penta (/ (* j (- (* 3 j) 1)) 2))
+      )
+      (++ n)
+    )
+    p-vec))
+
+(part-num 50)
+;-> (1 1 2 3 5 7 11 15 22 30 42 56 77 101 135 176 231 297 385 490
+;->  627 792 1002 1255 1575 1958 2436 3010 3718 4565 5604 6842 
+;->  8349 10143 12310 14883 17977 21637 26015 31185 37338 44583 
+;->  53174 63261 75175 89134 105558 124754 147273 173525 204226)
 
 
 ---------------------------
@@ -15385,7 +15491,7 @@ Dato un insieme di n + 1 punti (xi, yi), il polinomio interpolatore di Lagrange 
 
 Viene calcolato come:
 
-Pn (x) = Sum[i 0 n] (Li(x) * yi)
+Pn(x) = Sum[i 0 n] (Li(x) * yi)
 
 dove (x0, y0), (x1, y1), ..., (xn, yn) sono gli n + 1 punti dati.
 
@@ -16249,7 +16355,7 @@ Potete trovare l'elenco completo dei problemi al sito:
 https://www.ic.unicamp.br/~meidanis/courses/mc336/2006s2/funcional/L-99_Ninety-Nine_Lisp_Problems.html
 http://beta-reduction.blogspot.com/search/label/L-99%3A%20Ninety-Nine%20Lisp%20Problems
 
-In questo capitolo vengono risolti solo i primi 28 problemi relativi alla elaborazione di liste. Molti problemi successivi al numero 28 sono risolti in altre parti di questo documento.
+In questo capitolo vengono risolti solo i primi 28 problemi relativi alla elaborazione di liste. Molti problemi successivi al numero 28 sono risolti in altri capitoli di questo documento.
 
 Elenco problemi
 ---------------
@@ -18071,7 +18177,6 @@ Adesso scriviamo una funzione che converte il risultato di "fattorizza" nel risu
 (fattorizza-factor (fattorizza 29))
 ;-> (29)
 
-(fattorizza 11)
 Per finire scriviamo una funzione "fattori-primi" che fa lo stesso lavoro di "factor":
 
 (define (fattori-primi numero)
@@ -19185,12 +19290,12 @@ Ecco una espressione che prende un numero e calcola la relativa lunghezza della 
 PERMUTAZIONI
 ------------
 
-Una permutazione è un modo di ordinare in successione oggetti distinti. 
+Una permutazione è un modo di ordinare in successione oggetti distinti.
 Il numero delle permutazioni di n elementi vale: n!.
 
 ; =====================================================
 ; (permutazioni lst)
-; Permutazioni di n elementi 
+; Permutazioni di n elementi
 ; senza ripetizioni
 ; =====================================================
 
@@ -19491,7 +19596,7 @@ Adesso la scriviamo in stile iterativo:
 
 Vediamo un altro modo di scrivere la funzione in stile funzionale:
 
-(define (horner-f lst x) 
+(define (horner-f lst x)
   (cond ((null? lst) '0)
         (true (+ (first lst) (* x (horner-f (rest lst) x))))))
 
@@ -20710,7 +20815,7 @@ Il secondo algoritmo si basa su un algoritmo di permutazioni generalmente applic
 (define (permutations lst)
   (if (= (length lst) 1)
    lst
-   (apply append (map (fn (rot) 
+   (apply append (map (fn (rot)
                       (map (fn (perm) (cons (first rot) perm))
                            (permutations (rest rot))))
                       (rotations lst)))))
@@ -25685,7 +25790,7 @@ Sembra tutto corretto.
 PERCORSO DEL CAVALLO
 --------------------
 
-In questo problema un cavallo è posizionato in una qualunque casella sulla scacchiera vuota e, spostandosi secondo le regole degli scacchi (cioè ad L), deve passare per tutte le altre caselle esattamente una sola volta. Un percorso del cavallo si dice "chiuso" se l'ultima casa su cui si posiziona il cavallo è vicina alla casa da cui è partito (ad esempio, se il cavallo inizia in d8 e conclude il suo percorso in f7). In caso contrario il percorso del cavallo è detto "aperto". Questo problema è un esempio del più generale "problema del cammino hamiltoniano" nella teoria dei grafi.                     
+In questo problema un cavallo è posizionato in una qualunque casella sulla scacchiera vuota e, spostandosi secondo le regole degli scacchi (cioè ad L), deve passare per tutte le altre caselle esattamente una sola volta. Un percorso del cavallo si dice "chiuso" se l'ultima casa su cui si posiziona il cavallo è vicina alla casa da cui è partito (ad esempio, se il cavallo inizia in d8 e conclude il suo percorso in f7). In caso contrario il percorso del cavallo è detto "aperto". Questo problema è un esempio del più generale "problema del cammino hamiltoniano" nella teoria dei grafi.
 
 Vediamo la soluzione ricorsiva con backtracking:
 
@@ -25711,7 +25816,7 @@ Vediamo la soluzione ricorsiva con backtracking:
         (true (++ counter) (++ res-counter))
   )
   (setf (board curr-x curr-y) 1)
-  (cond ((knight-tour board (+ curr-x 2) (+ curr-y 1)) ; down_right 
+  (cond ((knight-tour board (+ curr-x 2) (+ curr-y 1)) ; down_right
          (setf (result curr-x curr-y) res-counter)
          (setq res-counter (- res-counter 1))
          (throw true)
@@ -25767,10 +25872,10 @@ Vediamo la soluzione ricorsiva con backtracking:
 ))
 
 (knight 6 0 0)
-;-> (( 1 16  7 26 11 14) 
-;->  (34 25 12 15  6 27) 
-;->  (17  2 33  8 13 10) 
-;->  (32 35 24 21 28  5) 
+;-> (( 1 16  7 26 11 14)
+;->  (34 25 12 15  6 27)
+;->  (17  2 33  8 13 10)
+;->  (32 35 24 21 28  5)
 ;->  (23 18  3 30  9 20)
 ;->  (36 31 22 19  4 29))
 
@@ -25778,9 +25883,9 @@ Vediamo la soluzione ricorsiva con backtracking:
 ;-> 3437.779
 
 (knight 8 0 0)
-;-> (( 1 60 39 34 31 18  9 64) 
-;->  (38 35 32 61 10 63 30 17) 
-;->  (59  2 37 40 33 28 19  8) 
+;-> (( 1 60 39 34 31 18  9 64)
+;->  (38 35 32 61 10 63 30 17)
+;->  (59  2 37 40 33 28 19  8)
 ;->  (36 49 42 27 62 11 16 29)
 ;->  (43 58  3 50 41 24  7 20)
 ;->  (48 51 46 55 26 21 12 15)
@@ -25791,9 +25896,9 @@ Vediamo la soluzione ricorsiva con backtracking:
 ;-> 142474.658
 
 (knight 8 7 7)
-;-> ((47 34 21 30  5 14 19 64) 
-;->  (36 31 48 33 20 63  4 13) 
-;->  (49 46 35 22 29  6 15 18) 
+;-> ((47 34 21 30  5 14 19 64)
+;->  (36 31 48 33 20 63  4 13)
+;->  (49 46 35 22 29  6 15 18)
 ;->  (60 37 32 51 62 17 12  3)
 ;->  (45 50 61 38 23 28  7 16)
 ;->  (56 59 42 25 52  9  2 11)
@@ -25846,10 +25951,10 @@ Vediamo lo stesso algoritmo di backtracking codificato in modo più strutturato.
     )))
 
 (start_knight_tour 6 0 0)
-;-> (( 0 15  6 25 10 13) 
-;->  (33 24 11 14  5 26) 
-;->  (16  1 32  7 12  9) 
-;->  (31 34 23 20 27  4) 
+;-> (( 0 15  6 25 10 13)
+;->  (33 24 11 14  5 26)
+;->  (16  1 32  7 12  9)
+;->  (31 34 23 20 27  4)
 ;->  (22 17  2 29  8 19)
 ;->  (35 30 21 18  3 28))
 
@@ -25857,9 +25962,9 @@ Vediamo lo stesso algoritmo di backtracking codificato in modo più strutturato.
 ;-> 672.085
 
 (start_knight_tour 8 0 0)
-;-> (( 0 59 38 33 30 17  8 63) 
-;->  (37 34 31 60  9 62 29 16) 
-;->  (58  1 36 39 32 27 18  7) 
+;-> (( 0 59 38 33 30 17  8 63)
+;->  (37 34 31 60  9 62 29 16)
+;->  (58  1 36 39 32 27 18  7)
 ;->  (35 48 41 26 61 10 15 28)
 ;->  (42 57  2 49 40 23  6 19)
 ;->  (47 50 45 54 25 20 11 14)
@@ -25870,15 +25975,15 @@ Vediamo lo stesso algoritmo di backtracking codificato in modo più strutturato.
 ;-> 23314.636
 
 (start_knight_tour 8 7 7)
-;-> ((46 33 20 29  4 13 18 63) 
-;->  (35 30 47 32 19 62  3 12) 
-;->  (48 45 34 21 28  5 14 17) 
+;-> ((46 33 20 29  4 13 18 63)
+;->  (35 30 47 32 19 62  3 12)
+;->  (48 45 34 21 28  5 14 17)
 ;->  (59 36 31 50 61 16 11  2)
 ;->  (44 49 60 37 22 27  6 15)
 ;->  (55 58 41 24 51  8  1 10)
 ;->  (40 43 56 53 38 23 26  7)
 ;->  (57 54 39 42 25 52  9  0))
- 
+
 (time (start_knight_tour 8 7 7))
 ;-> 705835.03 ; circa 11 minuti
 
@@ -25960,7 +26065,7 @@ Regola di Warnsdorff:
 
 ; checks its neighbouring squares
 ; If the knight ends on a square that is one
-; knight's move from the beginning square, 
+; knight's move from the beginning square,
 ; then tour is closed
 (define (neighbour x y xx yy)
   (let (found nil)
@@ -26058,12 +26163,12 @@ Regola di Warnsdorff:
 TEOREMA CINESE DEI RESTI
 ------------------------
 
-Siano (n1, n2,..., nk) k interi a due a due coprimi (divisori) e siano (b1, b2,..., bk) k interi relativi (resti). 
+Siano (n1, n2,..., nk) k interi a due a due coprimi (divisori) e siano (b1, b2,..., bk) k interi relativi (resti).
 Allora il sistema di congruenze:
 
 x ≡ b1 (mod n1)   --> x mod n1 = b1
-x ≡ b2 (mod n2)   --> x mod n2 = b2  
-...    
+x ≡ b2 (mod n2)   --> x mod n2 = b2
+...
 x ≡ bk (mod nk)   --> x mod nk = bk
 
 Ammette soluzioni. Inoltre se x0 è una soluzione del sistema, tutte le soluzioni di tale sistema saranno date da:
@@ -26186,7 +26291,7 @@ Funzione finale per il Teorema Cinese dei Resti:
     (if (= (apply * divisori) (apply lcm divisori))
         ;allora cerchiamo la soluzione
         (chinese divisori resti)
-        ; altrimenti nessuna soluzione 
+        ; altrimenti nessuna soluzione
         nil))
 
 (trc '(3 5 7) '(2 3 2))
@@ -26424,7 +26529,7 @@ Sum[x 1 n] (-1)^(n-1)/n = ln(2)
 ;-> 0.6931471805599453
 
 Sum[x 0 n] 1/x! = e
-(define (fact n) 
+(define (fact n)
   (if (zero? n)
       1
       (apply * (map bigint (sequence 1 n)))))
@@ -26506,7 +26611,7 @@ VALUTAZIONE DI UNA ESPRESSIONE RPN
 
 Valutare il valore di un'espressione aritmetica nella notazione polacca inversa (Reverse Polish Notation). Gli operatori validi sono:
 
-"+" "-" "*" "/" "%" 
+"+" "-" "*" "/" "%"
 "add" "sub" "mul" "div" "mod" "pow"
 "abs" "sqrt" "exp"
 "sin" "cos" "tan"
@@ -26742,7 +26847,7 @@ Lista delle operazioni:
 
 Lista delle operazioni possibili (n^k) = 4^3 = 64:
 (setq operats (perm-rep 3 op))
-;-> ((add add add) (sub add add) (mul add add) (div add add) 
+;-> ((add add add) (sub add add) (mul add add) (div add add)
 ;->  (add sub add) (sub sub add) (mul sub add) (div sub add)
 ;->  ...
 ;->  (add div div) (sub div div) (mul div div) (div div div))
@@ -26755,7 +26860,7 @@ Lista dei numeri singoli:
 
 Lista dei numeri possibili (n! = 4! = 24):
 (setq digits (perm num))
-;-> ((3 7 1 8) (7 3 1 8) (1 3 7 8) (3 1 7 8) (7 1 3 8) (1 7 3 8) (8 7 3 1) 
+;-> ((3 7 1 8) (7 3 1 8) (1 3 7 8) (3 1 7 8) (7 1 3 8) (1 7 3 8) (8 7 3 1)
 ;->  (7 8 3 1) (3 8 7 1) (8 3 7 1) (7 3 8 1) (3 7 8 1) (3 1 8 7) (1 3 8 7)
 ;->  (8 3 1 7) (3 8 1 7) (1 8 3 7) (8 1 3 7) (8 1 7 3) (1 8 7 3) (7 8 1 3)
 ;->  (8 7 1 3) (1 7 8 3) (7 1 8 3))
@@ -26891,13 +26996,13 @@ Proviamo con il gioco del 24:
 ;-> (6 + (2 * (5 + 4)))
 ;-> (6 - (2 - (5 * 4)))
 ;-> (4 + (5 * (6 - 2)))
-;-> ((4 5 2 6 - * -) (6 2 4 5 + * +) (6 2 4 5 * - -) 
+;-> ((4 5 2 6 - * -) (6 2 4 5 + * +) (6 2 4 5 * - -)
 ;->  (6 2 5 4 + * +) (6 2 5 4 * - -) (4 5 6 2 - * +))
 
 Proviamo un insieme di numeri che non hanno soluzione:
 
 (game-number '(5 7 5 1) 24)
-;-> () 
+;-> ()
 
 Proviamo con altri numeri:
 
@@ -26909,7 +27014,7 @@ Proviamo con altri numeri:
 (50 / (10 / (3 - (25 * (1 - 7)))))
 (50 / (10 / (3 + (25 * (7 - 1)))))
 (25 + (10 * (50 + (3 * (7 + 1)))))
-;-> (((25 10 50 3 1 7 + * + * +) "(25 + (10 * (50 + (3 * (1 + 7)))))") 
+;-> (((25 10 50 3 1 7 + * + * +) "(25 + (10 * (50 + (3 * (1 + 7)))))")
 ;->  ((50 10 3 25 1 7 - * - / /) "(50 / (10 / (3 - (25 * (1 - 7)))))")
 ;->  ((50 10 3 25 7 1 - * + / /) "(50 / (10 / (3 + (25 * (7 - 1)))))")
 ;->  ((25 10 50 3 7 1 + * + * +) "(25 + (10 * (50 + (3 * (7 + 1)))))"))
@@ -26949,11 +27054,428 @@ Per verifica prendiamo il primo risultato:
 ;-> (2 * (1 + (4 * (3 + (5 * (6 - (7 - (8 + 9))))))))
 ;-> ......
 
-Nota: 
+Nota:
 Con 9 cifre (da 1 a 9) abbiamo n! = 9! = 362880 modi di disporre le cifre nell'espressione
 Con 9 cifre abbiamo 8 operazioni con 4 operatori n^k = 4^8 = 65536 modi di disporre gli operatori nell'espressione.
 (* 362880 65536)
 ;-> 23781703680 ; (23 miliardi 781 milioni 703 mila 680) espressioni
+
+
+-------------
+SEQUENZA FUSC
+-------------
+
+La sequenza "fusc" (chiamata anche sequenza di Stern) è definita nel modo seguente:
+
+  fusc(0) = 0
+  fusc(1) = 1
+  per n > 1, fusc(n) vale:
+  se n è pari:     fusc(n) = fusc(n/2)
+  se n è dispari:  fusc(n) = fusc((n-1)/2) + fusc((n+1)/2)
+
+Questa è la sequenza OEIS A2487.
+
+Vediamo prima di tutto la versione ricorsiva:
+
+(define (fusc n)
+  (cond ((or (zero? n) (= 1 n)) n)
+        ((even? n) (fusc (/ n 2)))
+        (true (+ (fusc (/ (- n 1) 2)) (fusc(/ (+ n 1) 2))))))
+
+(fusc 10)
+;-> 3
+
+(map fusc (sequence 0 100))
+;-> (0 1 1 2 1 3 2 3 1 4 3 5 2 5 3 4 1 5 4 7 3 8 5 7 2 7 5 8 3
+;->  7 4 5 1 6 5 9 4 11 7 10 3 11 8 13 5 12 7 9 2 9 7 12 5 13
+;->  8 11 3 10 7 11 4 9 5 6 1 7 6 11 5 14 9 13 4 15 11 18 7 17
+;->  10 13 3 14 11 19 8 21 13 18 5 17 12 19 7 16 9 11 2 11 9 16 7)
+
+Adesso vediamo la versione iterativa.
+Possiamo evitare completamente la ricorsione poiché possiamo sempre esprimere fusc(n) nella forma a*fusc(m) + b*fusc(m + 1) riducendo il valore di m a 0. Abbiamo il seguente schema:
+
+se m è dispari:
+a*fusc(m) + b*fusc(m+1) = a*fusc((m-1)/2) + (b+a)*fusc((m+1)/2)
+
+se m è pari:
+a*fusc(m) + b*fusc(m+1) = (a+b)*fusc(m/2) + b*fusc((m/2)+1)
+
+Pertanto è possibile utilizzare un ciclo per risolvere il problema in tempo O(log n):
+
+(define (fusc-i n)
+  (local (a b)
+    (setq a 1 b 0)
+    (cond ((zero? n) 0)
+          (true (while (> n 0)
+                  (if (odd? n)
+                      (setq b (+ b a) n (/ (- n 1) 2))
+                      (setq a (+ a b) n (/ n 2)))
+                )
+          )
+    )
+    b))
+
+(fusc-i 10)
+;-> 3
+
+(map fusc-i (sequence 0 100))
+;-> (0 1 1 2 1 3 2 3 1 4 3 5 2 5 3 4 1 5 4 7 3 8 5 7 2 7 5 8 3
+;->  7 4 5 1 6 5 9 4 11 7 10 3 11 8 13 5 12 7 9 2 9 7 12 5 13
+;->  8 11 3 10 7 11 4 9 5 6 1 7 6 11 5 14 9 13 4 15 11 18 7 17
+;->  10 13 3 14 11 19 8 21 13 18 5 17 12 19 7 16 9 11 2 11 9 16 7)
+
+Adesso risolviamo il problema con la programmazione dinamica.
+Memorizziamo i due casi base di fs(0) = 0, fs(1) = 1, e poi attraversiamo il vettore dall'indice 2 a n calcolando fs(i) come da definizione. Infine restituiamo il valore di fs(n).
+
+(define (fusc-dp n)
+  (let (fs (array (+ n 2) '(0)))
+    (setf (fs 0) 0)
+    (setf (fs 1) 1)
+    (if (> n 1)
+      (for (i 2 n)
+        (if (even? i)
+            (setf (fs i) (fs (/ i 2)))
+            (setf (fs i) (+ (fs (/ (- i 1) 2)) (fs (/ (+ i 1) 2))))
+        )
+      )
+    )
+    (fs n)))
+
+(fusc-dp 10)
+;-> 10
+
+(map fusc-dp (sequence 0 100)))
+;-> (0 1 1 2 1 3 2 3 1 4 3 5 2 5 3 4 1 5 4 7 3 8 5 7 2 7 5 8 3
+;->  7 4 5 1 6 5 9 4 11 7 10 3 11 8 13 5 12 7 9 2 9 7 12 5 13
+;->  8 11 3 10 7 11 4 9 5 6 1 7 6 11 5 14 9 13 4 15 11 18 7 17
+;->  10 13 3 14 11 19 8 21 13 18 5 17 12 19 7 16 9 11 2 11 9 16 7)
+
+Vediamo se le tre funzioni producono risultati uguali:
+
+(= (map fusc (sequence 0 100))
+   (map fusc-i (sequence 0 100))
+   (map fusc-dp (sequence 0 100)))
+;-> true
+
+Vediamo i tempi di esecuzione delle funzioni:
+
+(time (map fusc (sequence 0 10000)))
+;-> 622.346
+
+(time (map fusc-i (sequence 0 10000)))
+;-> 17.959
+
+(time (map fusc-dp (sequence 0 10000)))
+;-> 8244.964
+
+La versione iterativa è quella più veloce, ma la versione con la programmazione dinamica calcola tutti i valori della funzione da 0 a n. Quindi il confronto dovrebbe essere fatto nel modo seguente.
+Riscriviamo fusc-dp in modo che restituisca una lista con tutti i valori:
+
+(define (fusc-n n)
+  (let (fs (array (+ n 2) '(0)))
+    (setf (fs 0) 0)
+    (setf (fs 1) 1)
+    (if (> n 1)
+      (for (i 2 n)
+        (if (even? i)
+            (setf (fs i) (fs (/ i 2)))
+            (setf (fs i) (+ (fs (/ (- i 1) 2)) (fs (/ (+ i 1) 2))))
+        )
+      )
+    )
+    (slice fs 0 (+ n 1))))
+
+Vediamo se le funzioni producono risultati uguali:
+
+(= (map fusc-i (sequence 0 100000)) (array-list (fusc-n 100000)))
+;-> true
+
+Adesso facciamo il confronto:
+
+(time (map fusc-i (sequence 0 100000)))
+;-> 217.446
+(time (fusc-n 100000))
+;-> 18.937
+
+In questo caso (cioè quando vogliamo tutti i valori della funzione fusc da 0 a n) la funzione fusc-n è molto più veloce.
+
+
+--------------
+ALGORITMO DAMM
+--------------
+
+Nel rilevamento degli errori, l'algoritmo di Damm è un algoritmo di cifre di controllo che rileva tutti gli errori di una cifra e tutti gli errori di trasposizione adiacenti. È stato presentato da H. Michael Damm nel 2004.
+L'algoritmo di Damm rileva tutte le occorrenze dei due tipi di errori di trascrizione più frequenti, vale a dire l'alterazione di una singola cifra e la trasposizione di due cifre adiacenti (inclusa la trasposizione della cifra di controllo finale e della cifra precedente).
+
+(define (damm-encode number)
+  (local (dm out)
+    (setq dm
+      '((0 3 1 7 5 9 8 6 4 2)
+        (7 0 9 2 1 5 4 8 6 3)
+        (4 2 0 6 8 7 1 3 5 9)
+        (1 7 5 0 9 8 3 4 2 6)
+        (6 1 2 3 0 4 5 9 7 8)
+        (3 6 7 4 2 0 9 5 8 1)
+        (5 8 6 9 7 2 0 1 3 4)
+        (8 9 4 5 3 6 2 0 1 7)
+        (9 4 3 8 6 1 7 2 0 5)
+        (2 5 8 1 4 3 6 7 9 0)))
+    (setq out 0)
+    (dostring (el (string number))
+      (setq out (dm out (int (char el))))
+    )
+    out))
+
+(define (check-damm-encode number)
+  (zero? (damm-encode number)))
+
+(damm-encode 572)
+;-> 4
+
+(check-damm-encode 5724)
+;-> true
+
+(damm-encode 43881234567)
+;-> 9
+
+(check-damm-encode 438812345679)
+;-> true
+
+
+----------------------------------
+DISTANZA TRA DUE PUNTI DELLA TERRA
+----------------------------------
+
+Utilizziamo la formula "haversine" per calcolare la distanza minima tra due punti di una sfera (tale distanza viene chiamata "ortodromia"). Si tratta quindi della distanza più breve tra due punti della superficie terrestre (in linea d'aria e ignorando l'orografia).
+Le coordinate per la latitudine e la longitudine sono espresse in gradi decimali.
+
+(define (deg-rad deg) (div (mul deg 3.1415926535897931) 180))
+
+(define (dist-earth lat1 lon1 lat2 lon2)
+  (local (r dLat dLon a c d)
+  (setq r 6371) ; raggio medio della terra in km
+  (setq dLat (deg-rad (sub lat2 lat1))) ; delta lat (in radianti)
+  (setq dLon (deg-rad (sub lon2 lon1))) ; delta lon (in radianti)
+  (setq a (add (mul (sin (div dLat 2)) (sin (div dLat 2)))
+               (mul (cos (deg-rad lat1)) (cos (deg-rad lat2))
+                    (sin (div dLon 2)) (sin (div dLon 2)))))
+  (setq c (mul 2 (atan2 (sqrt a) (sqrt (sub 1 a)))))
+  (setq d (mul r c)))) ; distanza in km
+
+(dist-earth 42.123456 13.123456 54.654321 8.654321)
+;-> 1431.173709679866
+(dist-earth 42.123456 -10.123456 54.654321 -2.654321)
+;-> 1496.522788559527
+
+La formula di haversine produce un errore massimo dello 0.5% (poichè la terra è un elissoide e non una sfera).
+
+
+-----------------
+ALGORITMO SOUNDEX
+-----------------
+
+Soundex è un algoritmo fonetico per l'indicizzazione dei nomi in base al suono (come pronunciati in inglese). L'obiettivo è che gli omofoni (parole che hanno la stessa pronuncia, ma differiscono nella grafia) siano codificati nella stessa rappresentazione in modo che possano essere riconosciuti come simili nonostante piccole differenze di ortografia. L'algoritmo codifica principalmente le consonanti, una vocale non viene codificata a meno che non sia la prima lettera. Soundex è il più conosciuto di tutti gli algoritmi fonetici ed è la base di molti algoritmi fonetici moderni.
+
+I passi dell'algoritmo ufficiale sono i seguenti:
+
+1) Conserva la prima lettera del nome e elimina tutte le altre occorrenze di a, e, i, o, u, y, h, w.
+2) Sostituisci le consonanti con le cifre come segue (dopo la prima lettera):
+   b, f, p, v → 1
+   c, g, j, k, q, s, x, z → 2
+   d, t → 3
+   l → 4
+   m, n → 5
+   r → 6
+3) Se due o più lettere con lo stesso numero sono adiacenti nel nome originale (prima del passaggio 1), conservare solo la prima lettera. Anche due lettere con lo stesso numero separate da "h" o "w" sono codificate come un numero unico, mentre tali lettere separate da una vocale sono codificate due volte. Questa regola si applica anche alla prima lettera.
+4) Se hai poche lettere nel nome e non puoi assegnare tre numeri, aggiungi degli zeri fino a quando non ci sono tre numeri. Se hai quattro o più numeri, conserva solo i primi tre.
+
+Funzione che formatta una stringa in una determinata lunghezza con un carattere predefinito:
+
+(define (pad-string str ch len)
+  (local (out len-str)
+    (setq out "")
+    (setq len-str (length str))
+    (cond ((zero? len-str) (setq out (dup ch len)))
+          ((= len-str len) (setq out str))
+          ((> len-str len) (setq out (slice str 0 len)))
+          ((< len-str len) (setq out (push (dup ch (- len len-str)) str -1))))))
+
+(pad-string "" "0" 2)
+;-> 00
+(pad-string "ABC" "0" 5)
+;-> "ABC00"
+(pad-string "ABC" "0" 3)
+;-> "ABC"
+(pad-str "ABC" "0" 2)
+;-> "AB"
+(pad-str "ABC" "0" 0)
+;-> ""
+
+Funzione di decodifica dei caratteri:
+
+(define (getcode ch)
+  (letn ((lst '(("B" "1") ("F" "1") ("P" "1") ("V" "1")
+                ("C" "2") ("G" "2") ("J" "2") ("K" "2")
+                ("Q" "2") ("S" "2") ("X" "2") ("Z" "2")
+                ("D" "3") ("T" "3")
+                ("L" "4")
+                ("M" "5") ("N" "5")
+                ("R" "6")
+                ("H" "-") ("W" "-")))
+        (out (lookup ch lst)))
+        (if (nil? out) (setq out ""))
+        out))
+
+(getcode "B")
+;-> "1"
+(getcode "A")
+;-> ""
+(getcode "H")
+;-> "-"
+
+Adesso possiamo scrive la funzione finale "soundex":
+
+(define (soundex str)
+  (local (out prev curr)
+    (setq str (upper-case str))
+    (setq out (str 0))
+    (setq prev (getcode (out 0)))
+    (dostring (el str)
+      (setq curr (getcode (char el)))
+      (if (and (!= curr "") (!= curr "-") (!= curr prev))
+        (push curr out -1)
+      )
+      (if (!= curr "-") (setq prev curr))
+    )
+    (pad-string out "0" 4)))
+
+(soundex "Ashcroft")
+;-> A261
+
+(setq lista '("Ashcraft" "Ashcroft" "Gauss" "Ghosh" "Hilbert" "Heilbronn" "Lee" "Lloyd"
+              "Moses" "Pfister" "Robert" "Rupert" "Rubin" "Tymczak" "Soundex" "Example"))
+
+(map soundex lista)
+;-> ("A261" "A261" "G200" "G200" "H416" "H416" "L000" "L300"
+;->  "M220" "P236" "R163" "R163" "R150" "T522" "S532" "E251")
+
+Nota: la maggior parte dei database SQL usa un algoritmo leggermente diverso.
+
+Vediamo cosa accade con dei nomi italiani:
+
+(setq lista '("Mario" "Marco" "Sara" "Lara" "Luca" "Luisa" "Lisa"
+              "Massimo" "Massimiliano" "Maria" "Marta"))
+
+(map soundex lista)
+;-> ("M600" "M620" "S600" "L600" "L200" "L200" "L200" 
+;->  "M250" "M254" "M600" "M630")
+
+
+=====================================
+TRASFORMATA DISCRETA DI FOURIER (DFT)
+=====================================
+
+Calcola la trasformata discreta di Fourier (DFT) della lista/vettore di numeri complessi in ingresso.
+
+La lista/vettore ha la seguente struttura:
+
+((real1 img1) (real2 img2) ... (realN imgN))
+
+(setq PI 3.1415926535897931)
+
+(define (dft input)
+  (local (len sum-real sum-img angle)
+    (setq len (length input))
+    (setq output (array len '(0)))
+    (for (k 0 (- len 1))
+      (setq sum-real 0 sum-img 0)
+      (for (t 0 (- len 1))
+        (setq angle (div (mul 2 PI t k) len))
+        (setq sum-real (add sum-real (add (mul (first (input t)) (cos angle))
+                                          (mul (last (input t)) (sin angle)))))
+        (setq sum-img  (add sum-img  (sub (mul (last (input t)) (cos angle))
+                                          (mul (first (input t)) (sin angle)))))
+      )
+      ;(println sum-real { } sum-img)
+      (setf (output k) (list sum-real sum-img))
+    )
+    output))
+
+Vediamo alcuni esempi:
+
+(setq in '((1 0) (4 0) (3 0) (2 0)))
+(dft in)
+;-> ((10 0) (-2 -2) (-2 -4.898425415289509e-016) (-2 1.999999999999999))
+
+(setq in '((8 0) (4 0) (8 0) (0 0)))
+(dft in)
+;-> ((20 0) (0 -4.000000000000001) 
+;->  (12 1.469527624586853e-015) 
+;->  (-8.881784197001252e-016 3.999999999999997))
+
+(setq in '(
+  (0.4967  0) (-0.1383 0) ( 0.6477 0) ( 1.523  0) (-0.2342 0) (-0.2341 0) ( 1.5792 0)
+  ( 0.7674 0) (-0.4695 0) ( 0.5426 0) (-0.4634 0) (-0.4657 0) ( 0.242  0) (-1.9133 0)
+  (-1.7249 0) (-0.5623 0) (-1.0128 0) ( 0.3142 0) (-0.908  0) (-1.4123 0) ( 1.4656 0)
+  (-0.2258 0) ( 0.0675 0) (-1.4247 0) (-0.5444 0) ( 0.1109 0) (-1.151  0) ( 0.3757 0)
+  (-0.6006 0) (-0.2917 0) (-0.6017 0) ( 1.8523 0)))
+
+(setq out (dft in))
+
+Formattiamo meglio il risultato:
+
+(setq outf
+  (map list (map (fn(x) (format "%5.4f" (first x))) out)
+            (map (fn(x) (format "%5.4f" (last x))) out)))
+
+(dolist (el outf) (println (first el) { } (last el) "i"))
+;-> -4.3939 0.0000i
+;-> 9.0217 -3.7036i
+;-> -0.5874 -6.2268i
+;-> 2.5184 3.7749i
+;-> 0.5008 -0.8433i
+;-> 1.2904 -0.4024i
+;-> 4.3391 0.8079i
+;-> -6.2614 2.1596i
+;-> 1.8974 2.4889i
+;-> 0.1042 7.6169i
+;-> 0.3606 5.1620i
+;-> 4.7965 0.0755i
+;-> -5.3064 -3.2329i
+;-> 4.6237 1.5287i
+;-> -2.1211 4.4873i
+;-> -4.0175 -0.3712i
+;-> -2.0297 -0.0000i
+;-> -4.0175 0.3712i
+;-> -2.1211 -4.4873i
+;-> 4.6237 -1.5287i
+;-> -5.3064 3.2329i
+;-> 4.7965 -0.0755i
+;-> 0.3606 -5.1620i
+;-> 0.1042 -7.6169i
+;-> 1.8974 -2.4889i
+;-> -6.2614 -2.1596i
+;-> 4.3391 -0.8079i
+;-> 1.2904 0.4024i
+;-> 0.5008 0.8433i
+;-> 2.5184 -3.7749i
+;-> -0.5874 6.2268i
+;-> 9.0217 3.7036i
+
+L'esempio di wikipedia produce risultati differenti:
+
+(setq in '((1 0) (2 -1) (0 -1) (1 2)))
+
+(setq out (dft in))
+(setq outf
+  (map list (map (fn(x) (format "%5.4f" (first x))) out)
+            (map (fn(x) (format "%5.4f" (last x))) out)))
+(dolist (el outf) (println (first el) { } (last el) "i"))
+;-> 4.0000  0.0000i
+;-> -2.0000 -0.0000i
+;-> -2.0000 -2.0000i
+;-> 4.0000  2.0000i
+
 
 ================
 
@@ -26961,76 +27483,95 @@ Con 9 cifre abbiamo 8 operazioni con 4 operatori n^k = 4^8 = 65536 modi di dispo
 
 ================
 
-                            Intel i5     Intel i7      Intel i7
-  Problema    Soluzione     Tempo (msec) Tempo (msec)  Tempo (msec)
-                            Algorithm 1  Algorithm 1   Algorithm 2
-|    1     |  233168       |         0  |         0  |          0  |
-|    2     |  4613732      |         0  |         0  |          0  |
-|    3     |  6857         |         0  |         0  |          0  |
-|    4     |  906609       |       297  |       203  |          0  |
-|    5     |  232792560    |         0  |         0  |          0  |
-|    6     |  25164150     |         0  |         0  |          0  |
-|    7     |  104743       |        78  |        31  |         16  |
-|    8     |  23514624000  |       110  |        62  |          0  |
-|    9     |  31875000     |        62  |        31  |          0  |
-|    10    |  142913828    |      1563  |      1078  |        546  |
-|    11    |  70600674     |         0  |         0  |          3  |
-|    12    |  76576500     |      5445  |      4022  |          0  |
-|    13    |  5537376230   |         0  |         0  |          -  |
-|    14    |  837799       |     22487  |     15408  |       7563  |
-|    15    |  137846528    |         0  |         0  |          0  |
-|    16    |  1366         |         0  |         0  |         32  |
-|    17    |  21124        |         0  |         0  |          -  |
-|    18    |  1074         |        32  |         7  |          0  |
-|    19    |  171          |         3  |         1  |          1  |
-|    20    |  648          |         0  |         0  |          -  |
-|    21    |  31626        |       220  |       134  |         87  |
-|    22    |  871198282    |        20  |        10  |             |
-|    23    |  4179871      |     40900  |     27534  |             |
-|    24    |  278391546    |     25309  |     12282  |             |
-|    25    |  4782         |      4926  |      3469  |             |
-|    26    |  983          |       488  |       266  |             |
-|    27    |  -59231       |      2000  |      1532  |             |
-|    28    |  669171001    |         0  |         0  |             |
-|    29    |  9183         |       141  |        94  |             |
-|    30    |  443839       |       516  |       344  |             |
-|    31    |  73682        |         1  |         0  |             |
-|    32    |  45228        |      1625  |      1079  |             |
-|    33    |  100          |         0  |         0  |             |
-|    34    |  40730        |      3797  |      2625  |             |
-|    35    |  55           |      1267  |       902  |             |
-|    36    |  872187       |      1443  |       945  |             |
-|    37    |  748317       |       778  |       651  |             |
-|    38    |  932718654    |        94  |        48  |             |
-|    39    |  840          |     13486  |      9561  |             |
-|    40    |  210          |       141  |       433  |             |
-|    41    |  7652413      |       125  |        64  |             |
-|    42    |  162          |        31  |         4  |             |
-|    43    |  16695334890  |      1749  |      1321  |             |
-|    44    |  5482660      |      5589  |      4182  |             |
-|    45    |  1533776805   |       115  |        63  |             |
-|    46    |  5777         |        31  |         5  |             |
-|    47    |  134043       |         0  |         0  |             |
-|    48    |  9110846700   |       266  |       186  |             |
-|    49    |  296962999629 |        19  |         5  |             |
-|    50    |  997651       |     27113  |     18871  |             |
-|    51    |  121313       |       269  |       180  |             |
-|    52    |  142857       |       313  |       204  |             |
-|    53    |  4075         |        25  |         5  |             |
-|    54    |  376          |       154  |        91  |             |
-|    55    |  249          |       116  |        69  |             |
-|    56    |  972          |       186  |       119  |             |
-|    57    |  153          |        10  |         1  |             |
-|    58    |  26241        |       630  |       432  |             |
-|    59    |  107359       |        15  |         1  |             |
-|    60    |  26033        |     55055  |     38926  |             |
-|    63    |  49           |         -  |         0  |           0 |
-|    92    |  24702        |         -  |     27084  |             |
+                                Intel i5     Intel i7     Intel i7
+  Problema    Soluzione         Tempo (msec) Tempo (msec) Tempo (msec)
+                                Algorithm 1  Algorithm 1  Algorithm 2
+|    1     |  233168            |         0  |         0  |         0  |
+|    2     |  4613732           |         0  |         0  |         0  |
+|    3     |  6857              |         0  |         0  |         0  |
+|    4     |  906609            |       297  |       203  |         0  |
+|    5     |  232792560         |         0  |         0  |         0  |
+|    6     |  25164150          |         0  |         0  |         0  |
+|    7     |  104743            |        78  |        31  |        16  |
+|    8     |  23514624000       |       110  |        62  |         0  |
+|    9     |  31875000          |        62  |        31  |         0  |
+|    10    |  142913828         |      1563  |      1078  |       546  |
+|    11    |  70600674          |         0  |         0  |         3  |
+|    12    |  76576500          |      5445  |      4022  |         0  |
+|    13    |  5537376230        |         0  |         0  |         -  |
+|    14    |  837799            |     22487  |     15408  |      7563  |
+|    15    |  137846528         |         0  |         0  |         0  |
+|    16    |  1366              |         0  |         0  |        32  |
+|    17    |  21124             |         0  |         0  |         -  |
+|    18    |  1074              |        32  |         7  |         0  |
+|    19    |  171               |         3  |         1  |         1  |
+|    20    |  648               |         0  |         0  |         -  |
+|    21    |  31626             |       220  |       134  |        87  |
+|    22    |  871198282         |        20  |        10  |         -  |
+|    23    |  4179871           |     40900  |     27534  |         -  |
+|    24    |  278391546         |     25309  |     12282  |         -  |
+|    25    |  4782              |      4926  |      3469  |         -  |
+|    26    |  983               |       488  |       266  |         -  |
+|    27    |  -59231            |      2000  |      1532  |         -  |
+|    28    |  669171001         |         0  |         0  |         -  |
+|    29    |  9183              |       141  |        94  |         -  |
+|    30    |  443839            |       516  |       344  |         -  |
+|    31    |  73682             |         1  |         0  |         -  |
+|    32    |  45228             |      1625  |      1079  |         -  |
+|    33    |  100               |         0  |         0  |         -  |
+|    34    |  40730             |      3797  |      2625  |         -  |
+|    35    |  55                |      1267  |       902  |         -  |
+|    36    |  872187            |      1443  |       945  |         -  |
+|    37    |  748317            |       778  |       651  |         -  |
+|    38    |  932718654         |        94  |        48  |         -  |
+|    39    |  840               |     13486  |      9561  |         -  |
+|    40    |  210               |       141  |       433  |         -  |
+|    41    |  7652413           |       125  |        64  |         -  |
+|    42    |  162               |        31  |         4  |         -  |
+|    43    |  16695334890       |      1749  |      1321  |         -  |
+|    44    |  5482660           |      5589  |      4182  |         -  |
+|    45    |  1533776805        |       115  |        63  |         -  |
+|    46    |  5777              |        31  |         5  |         -  |
+|    47    |  134043            |         0  |         0  |         -  |
+|    48    |  9110846700        |       266  |       186  |         -  |
+|    49    |  296962999629      |        19  |         5  |         -  |
+|    50    |  997651            |     27113  |     18871  |         -  |
+|    51    |  121313            |       269  |       180  |         -  |
+|    52    |  142857            |       313  |       204  |         -  |
+|    53    |  4075              |        25  |         5  |         -  |
+|    54    |  376               |       154  |        91  |         -  |
+|    55    |  249               |       116  |        69  |         -  |
+|    56    |  972               |       186  |       119  |         -  |
+|    57    |  153               |        10  |         1  |         -  |
+|    58    |  26241             |       630  |       432  |         -  |
+|    59    |  107359            |        15  |         1  |         -  |
+|    60    |  26033             |     55055  |     38926  |         -  |
+|    61    |  28684             |         -  |        85  |         -  |
+|    62    |  127035954683      |         -  |      6348  |        83  |
+|    63    |  49                |         -  |         0  |         0  |
+|    64    |  1322              |         -  |        81  |         -  |
+|    65    |  272               |         -  |         0  |         -  |
+|    66    |  661               |         -  |         0  |         -  |
+|    67    |  7273              |         -  |         1  |         -  |
+|    68    |  6531031914842725  |         -  |        21  |         -  |
+|    69    |  510510            |         -  |       642  |         -  |
+|    70    |  8319823           |         -  |      9621  |         7  |
+|    71    |  428570            |         -  |       191  |         -  |
+|    72    |  303963552391      |         -  |      2060  |         -  |
+|    76    |  190569291         |         -  |         0  |         -  |
+|    78    |  55374             |         -  |      7918  |         -  |
+|    87    |  1097343           |         -  |      1153  |         -  |
+|    89    |  743               |         -  |         0  |         -  |
+|    92    |  8581146           |         -  |     51582  |        16  |
+|    96    |  24702             |         -  |     27084  |         -  |
+|    97    |  8739992577        |         -  |       497  |         -  |
+|    99    |  709               |         -  |         0  |         -  |
+|   100    |  756872327473      |         -  |         0  |         -  |
 
 Sito web: https://projecteuler.net/archives
 
 Cos'è Project Euler?
-Project Euler è una serie di stimolanti problemi di programmazione matematica/informatica che richiedono molto più di semplici approfondimenti matematici da risolvere. Sebbene la matematica ti aiuti ad arrivare a metodi eleganti ed efficienti, per risolvere la maggior parte dei problemi sarà necessario l'uso di un computer e competenze di programmazione.
+Project Euler è una serie di stimolanti problemi di programmazione matematica/informatica che richiedono molto più di semplici approfondimenti matematici per essere risolti. Sebbene la matematica aiuti ad arrivare a metodi eleganti ed efficienti, per risolvere la maggior parte dei problemi sarà necessario l'uso di un computer e competenze di programmazione.
 
 La motivazione per l'avvio di Project Euler, e la sua continuazione, è di fornire una piattaforma per la mente indagatrice per addentrarsi in aree non familiari e apprendere nuovi concetti in un contesto divertente e ricreativo.
 
@@ -27041,15 +27582,17 @@ Chiunque può risolvere i problemi?
 I problemi sono di diversa difficoltà e per molti l'esperienza è l'apprendimento a catena induttivo. Cioè, risolvendo un problema ti esporrà ad un nuovo concetto che ti permette di intraprendere un problema precedentemente inaccessibile. Quindi il partecipante determinato lentamente ma sicuramente farà il suo lavoro attraverso ogni problema.
 
 Cosa fare in seguito?
-Per tenere traccia dei tuoi progressi è necessario impostare un account e abilitare i cookie. Se hai già un account, accedi, altrimenti devi registrati - è completamente gratuito!
+Per tenere traccia dei tuoi progressi è necessario impostare un account e abilitare i cookie. Se hai già un account puoi accedere senza problemi, altrimenti devi registrati - è completamente gratuito!
 
-Tuttavia, poiché alcuni problemi sono difficili, potresti voler visualizzare i Problemi prima di registrarti.
+Tuttavia, poiché alcuni problemi sono difficili, potresti voler visualizzare i problemi prima di registrarti.
 
 "Il progetto Eulero esiste per incoraggiare, sfidare e sviluppare le capacità e il divertimento di chiunque abbia un interesse per l'affascinante mondo della matematica."
 
 Nota: i problemi devono essere risolti con la "regola del minuto", cioè i programmi devono trovare la soluzione entro un minuto.
 
 In questo paragrafo affronteremo e risolveremo alcuni di questi problemi. Comunque prima di vedere la soluzione dovresti provare a risolverli per conto proprio in modo da migliorare le tue capacità di problem-solver e di programmatore.
+
+Nota: La maggior parte delle soluzioni contiene una spiegazione dell'algoritmo utilizzato e alcuni problemi sono risolti con due algoritmi diversi. In genere il secondo algoritmo ha un approccio più matematico ed è più veloce.
 
 Vengono prima presentate alcune funzioni comuni che servono per la soluzione di diversi problemi.
 
@@ -27059,7 +27602,6 @@ Vengono prima presentate alcune funzioni comuni che servono per la soluzione di 
 ; Non funziona con i big integer
 ; numero massimo (int64): 9223372036854775807
 ;=============================================
-
 (define (isprime? n)
    (if (< n 2) nil
        (= 1 (length (factor n)))))
@@ -27071,7 +27613,6 @@ Vengono prima presentate alcune funzioni comuni che servono per la soluzione di 
 ; Non funziona con i big integer
 ; numero massimo (int64): 9223372036854775807
 ;=============================================
-
 (define (factor-group x)
   (if (= x 1) '(1 1)
     (letn (fattori (factor x)
@@ -27098,8 +27639,6 @@ E la funzione inversa a factor-group che genera il numero partendo dalla fattori
 
 (inv-factor-group (factor-group 232792560))
 ;-> 232792560
-
-Nota: Alcuni problemi sono risolti con due algoritmi diversi. In genere il secondo algoritmo ha un approccio più matematico.
 
 ==========
 Problema 1
@@ -34054,6 +34593,344 @@ I tempi di calcolo delle due funzioni sono quasi uguali.
 
 
 ===========
+Problema 61
+===========
+
+I numeri triangolari, quadrati, pentagonali, esagonali, ettagonali e ottagonali sono tutti numeri figurati (poligonali) e sono generati dalle seguenti formule:
+
+Triangolo   P3,n = n(n + 1)/2     1, 3,  6, 10, 15, ...
+Quadrato    P4,n = n^2            1, 4,  9, 16, 25, ...
+Pentagonale P5,n = n(3n − 1)/2    1, 5, 12, 22, 35, ...
+Esagonale   P6,n = n(2n − 1)      1, 6, 15, 28, 45, ...
+Eptagonale  P7,n = n(5n − 3)/2    1, 7, 18, 34, 55, ...
+Ottagonale  P8,n = n(3n − 2)      1, 8, 21, 40, 65, ...
+
+L'insieme ordinato di tre numeri a 4 cifre: 8128, 2882, 8281, ha tre proprietà interessanti.
+
+1) Il set è ciclico, in quanto le ultime due cifre di ogni numero sono le prime due cifre del numero successivo (compreso l'ultimo numero con il primo).
+2) Ogni tipo poligonale: triangolo (P3,127 = 8128), quadrato (P4,91 = 8281) e pentagonale (P5,44 = 2882), è rappresentato da un numero diverso nell'insieme.
+3) Questo è l'unico set di numeri a 4 cifre con questa proprietà.
+
+Trova la somma dell'unico insieme ordinato di sei numeri ciclici a 4 cifre per i quali ogni tipo poligonale: triangolo, quadrato, pentagonale, esagonale, ettagonale e ottagonale, è rappresentato da un numero diverso nell'insieme.
+============================================================================
+
+L'algoritmo è abbastanza semplice, ma tedioso:
+
+Creiamo le liste per ogni numero pentagonale (non possiamo avere un numero con lo 0 nella terza cifra ==> no ciclo).
+Creiamo una lista totale con elementi univoci e ordinata.
+Costruiamo una catena ciclica (valida) di numeri (percorrendo tutta la lista).
+Se la catena contiene numeri da tutte le liste di numeri poligonali, allora abbiamo trovato la soluzione.
+
+(define (do-tri)
+  (let ((val 0) out '())
+    (for (i 45 141)
+      (setq val (/ (* i (+ i 1)) 2))
+      (if (!= ((string val) 2) "0") (push val out -1)))
+    out))
+
+(define (do-square)
+  (let ((val 0) out '())
+    (for (i 32 99)
+      (setq val (* i i))
+      (if (!= ((string val) 2) "0") (push val out -1)))
+    out))
+
+(define (do-penta)
+  (let ((val 0) out '())
+    (for (i 26 81)
+      (setq val (/ (* i (- (* 3 i) 1)) 2))
+      (if (!= ((string val) 2) "0") (push val out -1)))
+    out))
+
+(define (do-hexa)
+  (let ((val 0) out '())
+    (for (i 23 71)
+      (setq val (* i (- (* 2 i) 1)))
+      (if (!= ((string val) 2) "0") (push val out -1)))
+    out))
+
+(define (do-hepta)
+  (let ((val 0) out '())
+    (for (i 21 63)
+      (setq val (/ (* i (- (* 5 i) 3)) 2))
+      (if (!= ((string val) 2) "0") (push val out -1)))
+    out))
+
+(define (do-octa)
+  (let ((val 0) out '())
+    (for (i 19 58)
+      (setq val (* i (- (* 3 i) 2)))
+      (if (!= ((string val) 2) "0") (push val out -1)))
+    out))
+
+(define (e061)
+(catch
+  (local (numeri chain all tri square penta hexa hepta octa
+          ax1 ax2 ax3 ax4 ax5 ax6 bx1 bx2 bx3 bx4 bx5 bx6)
+    (setq numeri (list 3 4 5 6 7 8))
+    (setq chain '() all '())
+    (setq tri (do-tri))
+    (setq square (do-square))
+    (setq penta (do-penta))
+    (setq hexa (do-hexa))
+    (setq hepta (do-hepta))
+    (setq octa (do-octa))
+    (setq all (apply extend (list tri square penta hexa hepta octa)))
+    (setq all (sort (unique all)))
+    ; costruisce la catena di numeri
+    (dolist (x1 all)
+      (setq ax1 (/ x1 100))
+      (setq bx1 (% x1 100))
+      (dolist (x2 all)
+        (cond ((!= x1 x2)
+               (setq ax2 (/ x2 100))
+               (setq bx2 (% x2 100))
+               (cond ((> ax2 bx1) nil)
+                     ((= bx1 ax2)
+                      (dolist (x3 all)
+                        (cond ((!= x1 x2 x3)
+                               (setq ax3 (/ x3 100))
+                               (setq bx3 (% x3 100))
+                               (cond ((> ax3 bx2) nil)
+                                     ((= bx2 ax3)
+                                      (dolist (x4 all)
+                                        (cond ((!= x1 x2 x3 x4)
+                                               (setq ax4 (/ x4 100))
+                                               (setq bx4 (% x4 100))
+                                               (cond ((> ax4 bx3) nil)
+                                                     ((= bx3 ax4)
+                                                      (dolist (x5 all)
+                                                        (cond ((!= x1 x2 x3 x4 x5 x)
+                                                               (setq ax5 (/ x5 100))
+                                                               (setq bx5 (% x5 100))
+                                                               (cond ((> ax5 bx4) nil)
+                                                                     ((= bx4 ax5)
+                                                                      (dolist (x6 all)
+                                                                        (cond ((!= x1 x2 x3 x4 x5 x6)
+                                                                               (setq ax6 (/ x6 100))
+                                                                               (setq bx6 (% x6 100))
+                                                                               (cond ((> ax6 bx5) nil)
+                                                                                     ((and (= bx5 ax6) (= bx6 ax1))
+                                                                                      ; creazione e controllo catena corrente
+                                                                                      (setq chain (list x1 x2 x3 x4 x5 x6))
+                                                                                      (setq lista '())
+                                                                                      (dolist (x chain)
+                                                                                        (cond ((find x octa) (push 8 lista))
+                                                                                              ((find x hepta) (push 7 lista))
+                                                                                              ((find x hexa) (push 6 lista))
+                                                                                              ((find x penta) (push 5 lista))
+                                                                                              ((find x square) (push 4 lista))
+                                                                                              ((find x tri) (push 3 lista))
+                                                                                        )
+                                                                                        (setq lista (sort (unique lista)))
+                                                                                        ; catena trovata
+                                                                                        (if (= lista numeri) (throw (apply + chain)))
+                                                                                      ))))))))))))))))))))))))))))))
+
+(e061)
+;-> 28684
+
+(time (e061))
+;-> 85.8
+
+
+===========
+Problema 62
+===========
+
+Permutazioni cubiche
+
+Il cubo, 41063625 (3453), può essere permutato per produrre altri due cubi: 56623104 (3843) e 66430125 (4053). In effetti, 41063625 è il cubo più piccolo che ha esattamente tre permutazioni delle sue cifre che sono anche cubi.
+
+Trova il cubo più piccolo per il quale esattamente cinque permutazioni delle sue cifre sono cubi.
+
+Concetto di base:
+Due liste con gli stessi elementi, ma in ordine diverso, producono le stesse permutazioni.
+
+Esempio:
+(setq lst1 '(1 2 3))
+(setq lst2 '(2 3 1))
+
+(sort (perm lst1))
+;-> ((1 2 3) (1 3 2) (2 1 3) (2 3 1) (3 1 2) (3 2 1))
+
+(sort (perm lst2))
+;-> ((1 2 3) (1 3 2) (2 1 3) (2 3 1) (3 1 2) (3 2 1))
+
+I numeri che possono essere permutati per produrre uno o più cubi hanno tutti le stesse cifre. Ordinando in modo decrescente le cifre di questi numeri notiamo che il risultato è lo stesso per i tutti i valori che, elevati al cubo, li generano. Vediamo un esempio:
+
+valore   cubo                  ordinamento/codifica    risultato
+3453 --> 3453^3 = 41063625 --> (digit-sort 41063625) = 66543210
+3843 --> 3453^3 = 56623104 --> (digit-sort 56623104) = 66543210
+4053 --> 4053^3 = 56623104 --> (digit-sort 66430125) = 66543210
+
+In altre parole, i numeri 3453, 3843 e 4053 (che generano tutti un cubo con le stesse cifre) hanno la stessa codifica.  Per risolvere il problema occorre cercare una codifica che si ripete per 5 volte.
+Quindi uno pseudo-algoritmo è il seguente:
+
+1. valore = 0
+2. codifica il valore.
+3. inserisci la codifica in una lista.
+4. se la codifica è presente 5 volte nella lista,
+   allora il risultato vale (primo indice della codifica)^3. Stop.
+   altrimenti aumenta di 1 il valore e vai al passo 3.
+
+La prima codifica che utilizziamo è la seguente:
+
+(setq i 27)
+(setq cubo (explode (string (* i i i))))
+;-> ("1" "9" "6" "8" "3")
+(setq cubo (sort (explode (string (* i i i)))))
+;-> ("1" "3" "6" "8" "9")
+
+Quindi la lista contiene elementi del tipo: ("1" "3" "6" "8" "9")
+
+Scriviamo la funzione:
+
+(define (e062)
+  (local (cubo lst num found out)
+    (setq num 0 found nil)
+    (until found
+      ; calcoliamo la codifica
+      (setq cubo (sort (explode (string (* num num num)))))
+      ; inseriamo la codifica nella lista
+      (push cubo lst -1)
+      ; se la codifica corrente è presente 5 volte nella lista...
+      (if (= (count (list cubo) lst) '(5))
+          ; allora abbiamo trovato la soluzione
+          (setq out (pow (first (ref cubo lst)) 3) found true)
+      )
+      (++ num)
+    )
+    out))
+
+(e062)
+;-> 127035954683
+
+(time (e062))
+;-> 23831.307
+
+Proviamo a semplificare l'elemento della lista utilizzando un'altra codifica:
+
+(setq i 27)
+(setq cubo (explode (string (* i i i))))
+;-> ("1" "9" "6" "8" "3")
+(setq cubo (sort (explode (string (* i i i))) >))
+;-> ("9" "8" "6" "3" "1")
+(setq num 0)
+(dolist (el cubo) (setq num (+ (int el) (* num 10))))
+;-> 98631
+
+Quindi la lista contiene elementi del tipo: 98631
+
+Funzione che ordina in modo decrescente (per preservare lo zero) le cifre di un numero:
+
+(define (digit-sort num)
+  (let (out 0)
+    (dolist (el (sort (explode (string num)) >))
+      (setq out (+ (int el) (* out 10))))))
+
+Scriviamo la funzione:
+
+(define (e062)
+  (local (cubo lst num found out)
+    (setq num 0 found nil)
+    (until found
+      (setq cubo (digit-sort (* num num num)))
+      (push cubo lst -1)
+      (if (= (count (list cubo) lst) '(5))
+          (setq out (pow (first (ref cubo lst)) 3) found true)
+      )
+      (++ num)
+    )
+    out))
+
+(e062)
+;-> 127035954683
+
+(time (e062))
+;-> 6348.037
+
+Proviamo con un altra funzione "digit-sort" che ordina in modo decrescente (per preservare lo zero) le cifre di un numero:
+
+(define (digit-sort num)
+  (local (lst out)
+    (setq lst (dup 0 10))
+    (setq out 0)
+    (while (> num 0)
+      (++ (lst (% num 10)))
+      (setq num (/ num 10))
+    )
+    (for (i 9 0 -1)
+      (setq out (/ (- (* (pow 10 (lst i)) (+ i (* 9 out))) i) 9))
+    )
+    out))
+
+(digit-sort 12340)
+;-> 43210
+
+(digit-sort 130987345354322)
+;-> 987554433332210
+
+Eseguiamo di nuovo la funzione:
+
+(e062)
+;-> 127035954683
+
+(time (e062))
+;-> 6305.131
+
+I tempi di esecuzione delle due funzioni sono uguali.
+
+Il secondo algoritmo utilizza una hash-map con la seguente struttura:
+
+ chiave                       valore  
+((digit-sort (* num num num)) (num ripetizioni))
+
+In questo modo la soluzione si trova quando le ripetizioni di una chiave vale 5. Maggiori spiegazioni nei commenti della funzione.
+
+(define (e062-2)
+  (local (cubo lst num found out)
+    (new Tree 'myHash)
+    (setq num 0 found nil)
+    (until found
+      ; calcola il valore della chiave
+      ; es. num=5 -> num*num*num = 125 -> cubo = 521
+      (setq cubo (digit-sort (* num num num)))
+      ; se la chiave non esiste nella hashmap...
+      (if (null? (myHash cubo))
+          ; allora inserisce il cubo (chiave) con la lista (num 1) (valore)
+          ; nella lista (num 1), 1 rappresenta il numero di ripetizioni del cubo
+          ; mentre num rappresenta il numero da elevare a potenza
+          (myHash cubo (list num 1))
+          ; altrimenti aggiunge 1 al numero di ripetizioni nella lista (valore)
+          (begin
+            ; occorre ricostruire tutta la lista associata alla valore di cubo (chiave)
+            (myHash cubo (list (first $it) (+ (last $it) 1)))
+            ; se il numero di ripetizioni vale 5 
+            (if (= 5 (last (myHash cubo)))
+                ; allora abbiamo trovato la soluzione
+                (setq out (pow (first (myHash cubo)) 3) found true)
+            )
+          )
+      )
+      (++ num)
+    )
+    ; elimina la hash-map
+    (delete 'myHash)
+    out))
+
+Vediamo come si comporta questa funzione:
+
+(e062-2)
+;-> 127035954683
+
+(time (e062-2))
+;-> 83.742
+
+L'utilizzo di una hash-map fornisce la soluzione immediatamente.
+
+
+===========
 Problema 63
 ===========
 
@@ -34143,7 +35020,1367 @@ Questa seconda soluzione è molto più veloce:
 
 
 ===========
+Problema 64
+===========
+
+Ogni radice quadrata può essere rappresentata con una frazione continua.
+
+La frazione continua di sqrt(23) vale [4, (1,3,1,8)]. 
+La notazione indica che la frazione continua inizia con 4 e il blocco (1,3,1,8) si ripete indefinitamente.
+
+Le prime dieci rappresentazioni di frazione continua di radici quadrate (irrazionali) sono:
+
+sqrt( 2) = (1, (2)],         periodo = 1
+sqrt( 3) = (1, (1,2)],       periodo = 2
+sqrt( 4) = (2, (4)],         periodo = 1
+sqrt( 6) = (2, (2,4)],       periodo = 2
+sqrt( 7) = (2, (1,1,1,1)],   periodo = 4
+sqrt( 8) = (2, (1,4)],       periodo = 2
+sqrt(10) = (3, (6)],         periodo = 1
+sqrt(11) = (3, (3,6)],       periodo = 2
+sqrt(12) = (3, (2,6)],       periodo = 2
+sqrt(13) = (3, (1,1,1,1,6)], periodo = 5
+
+Esattamente quattro frazioni continue hanno un periodo dispari.
+
+Quante frazioni continue per N <= 10000 hanno un periodo dispari?
+============================================================================
+
+L'algoritmo presentato dall'articolo "Methods of computing square roots" di wikipedia è il seguente:
+
+Start:
+ m[0] = 0
+ d[0] = 1
+ a[0] = floor(sqrt(n))
+ k = a[0]
+Loop:
+ m[i] = a[i-1]*d[i-1] - m[i-1]
+ d[i] = (n-m[i]*m[i])/d[i-1]
+ a[i] = floor((k + m[i])/d[i])
+Stop: quando la i-esima tripla è stata generata precedentemente.
+
+Note: m[i],d[i],a[i] sono sempre interi.
+
+L'articolo di Alexandra Ioana Gliga "On continued fractions of the square root of prime numbers" dimostra che per ogni numero intero positivo che non è un quadrato perfetto risulta:
+
+  sqrt(n) = [a1, (a2 a3 ... an 2*a1)]
+
+Questo ci permette di fermare il ciclo quando l'i-esimo valore vale 2*a1.
+
+Scriviamo la funzione:
+
+(define (e064)
+  (local (max-val out limite)
+    (setq max-val 10000)
+    (setq out 0)
+    (for (n 2 max-val)
+      (setq limite (int (sqrt n)))
+      ; l'algortimo non funziona quando abbiamo un quadrato perfetto
+      ; quindi saltiamo questi casi che non influenzano il risultato finale
+      (if (!= (* limite limite ) n)
+          (let ((periodo 0) (d 1) (m 0) (a limite))
+            (do-while (!= a (* 2 limite))
+              (setq m (- (* d a) m))
+              (setq d (/ (- n (* m m)) d))
+              (setq a (/ (+ limite m) d))
+              (++ periodo)
+            )
+            (if (odd? periodo) (++ out))
+          )
+      )
+    )
+    out))
+
+(e064)
+;-> 1322
+
+(time (e064))
+;-> 81.294
+
+
+===========
+Problema 65
+===========
+
+Convergenti di e
+
+La radice quadrata di 2 può essere scritta come una frazione continua infinita.
+                       1
+sqrt(2) = 1 + --------------------
+                         1
+              2 + ----------------
+                           1
+                  2 + ------------
+                             1
+                      2 + --------
+                          2 + ...
+
+La frazione continua infinita può essere scritta come sqrt(2) = [1, (2)] indica che 2 si ripete all'infinito. In un modo simile, sqrt(23) = [4, (1,3,1,8)].
+
+Risulta che la sequenza dei valori parziali delle frazioni continue per le radici quadrate fornisce le migliori approssimazioni razionali. Consideriamo i convergenti per sqrt(2):
+
+1 + 1/2 = 3/2
+1 + 1/(2 + 1/2) = 7/5
+1 + 1/(2 + 1/(2 + 1/2)) = 17/12
+1 + 1/(2 + 1/(2 + 1/(2 + 1/2))) = 41/29
+
+Quindi la sequenza dei primi dieci convergenti per sqrt(2) sono:
+
+1, 3/2, 7/5, 17/12, 41/29, 99/70 239/169, 577/408, 1393/985, 3363/2378, ...
+
+La cosa più sorprendente è che per l'importante costante matematica "e" risulta:
+
+e = [2,1,2,1,1,4,1,1,6,1...1,2k,1...]
+
+I primi dieci termini nella sequenza di convergenti per e sono:
+
+2, 3, 8/3, 11/4, 19/7, 87/32, 106/39, 193/71, 1264/465, 1457/536, ...
+
+La somma delle cifre al numeratore del decimo convergente è 1 + 4 + 5 + 7 = 17.
+
+Trova la somma delle cifre del numeratore del centesimo convergente della frazione continua per "e".
+============================================================================
+
+Calcoliamo i primi n termini della frazione continua del numero tenendo conto che il pattern ...1,2n,1... si ripete all'infinito: cf(e) = [2, 1,2,1, 1,4,1, 1,6,1, 1,8,1, 1,10,1, ...]
+
+(define (cf_e n)
+  (let (cfe '(2))
+    (for (i 1 (- n 1))
+      (extend cfe (list 1 (* 2 i) 1)))
+    (slice cfe 0 n)))
+
+(cf_e 20)
+;-> (2 1 2 1 1 4 1 1 6 1 1 8 1 1 10 1 1 12 1 1)
+
+Poi scriviamo una funzione che calcola i convergenti partendo da una frazione continua e restituisce l'ultima delle frazioni convergenti Pn/Qn (dobbiamo usare i big-integer perchè il numeratore e il denominatore delle frazioni convergenti crescono velocemente):
+
+(define (cf2conv cf)
+  (local (p0 q0 p1 q1 p2 q2)
+    (cond ((= (length cf) 1) (setq p2 (first cf) q2 1))
+          (true
+           (setq p0 1L q0 0L)
+           (setq p1 (bigint (cf 0)) q1 1L)
+           (for (k 1 (- (length cf) 1))
+             (setq p2 (+ (* p1 (cf k)) p0))
+             (setq q2 (+ (* q1 (cf k)) q0))
+             ; k-esima frazione convergente
+             ;(println (list p2 q2 (div p2 q2)))
+             (setq p0 p1 q0 q1 p1 p2 q1 q2)
+           ))
+    )
+    (list p2 q2)))
+
+(cf2conv (cf_e 20))
+;-> (28245729L 10391023L)
+
+Poi ci serve una funzione che converte un numero in una lista:
+
+(define (int2lst num)
+  (let (out '())
+    (while (!= num 0)
+      (push (% num 10) out)
+      (setq num (/ num 10))) out))
+
+Adesso possiamo scrivere la funzione finale:
+
+(define (e065)
+  (local (numer)
+    (setq numer (first (cf2conv (cf_e 100))))
+    (apply + (int2lst numer))))
+
+(e065)
+;-> 272L
+
+(time (e065))
+;-> 0
+
+
+===========
+Problema 66
+===========
+
+# Equazione di Pell
+# x^2 - D*y^2 = 1
+#
+# Espandere sqrt(D) in frazione continua
+# sqrt(D) = [q0,q1,q2,...,qn,2*q0]
+# Periodo della frazione continua = n
+# Calcolare l'n-esimo convergente della frazione continua (Pn/Qn).
+# Se n è dispari allora Pn e Qn sono la soluzione.
+# Se n è pari occorre:
+#    Espandere sqrt(D) in frazione continua fino al termine (2n+1)
+#    Calcolare i convergenti fino al termine (2n+1).
+#    P(2*n+1) e Q(2*n+1) sono le soluzioni. 
+       	
+(define (Pell n)
+  (local (z r x y e1 e2 f1 f2 A B t1 t2)
+    (setq x (bigint (int (sqrt n))))
+    (setq y x)
+    (setq z 1L)
+    (setq r (* x 2))
+    (setq e1 1L e2 0L)
+    (setq f1 0L f2 1L)
+    (catch
+      (while true
+        (setq y (bigint (- (* r z) y)))
+        (setq z (bigint (/ (- n (* y y)) z)))
+        (setq r (bigint (/ (+ x y) z)))
+        (setq t1 e1) (setq t2 e2)
+        (setq e1 t2)
+        (setq e2 (bigint (+ (* t2 r) t1)))
+        (setq t1 f1) (setq t2 f2)
+        (setq f1 t2)
+        (setq f2 (bigint (+ (* t2 r) t1)))
+        (setq A f2)
+        (setq B e2)
+        (setq t1 A) (setq t2 B)
+        (setq B t1)
+        (setq A (bigint (+ (* t1 x) t2)))
+        (if (= (- (* A A) (* B B n)) 1) (throw (list A B)))
+        ;(println (format "z = %s\nr = %s\nx = %s\ny = %s" (string z) (string r) (string x) (string y)))
+        ;(println (format "e1 = %s\ne2 = %s\nf1 = %s\nf2 = %s" (string e1) (string e2) (string f1) (string f2)))
+        ;(println (format "A = %s\nB = %s" (string A) (string B)))
+        ;(read-line)
+      );while
+    );catch
+  );local
+)
+
+(Pell 61)
+;-> (1766319049L 226153980L)
+
+(Pell 109)
+;-> (158070671986249L 15140424455100L)
+
+(Pell 181)
+;-> (2469645423824185801L 183567298683461940L)
+
+(Pell 277)
+;-> (159150073798980475849L 9562401173878027020L)
+
+Se passiamo un numero quadrato, otteniamo un errore:
+
+(Pell 4)
+;-> ERR: division by zero
+;-> called from user function (Pell 4)
+
+Scriviamo la funzione finale per risolvere il problema:
+
+(define (e066)
+  (let ((maxval -1) (out 0))
+    (for (i 1 1000)
+      (if (!= (sqrt i) (int (sqrt i)))
+          (if (> (first (Pell i)) maxval)
+              (setq maxval (first (Pell i)) out i))))
+    out))
+
+(e066)
+;-> 661
+
+(time e066)
+;-> 0
+
+
+===========
+Problema 67
+===========
+
+Percorso con somma massima II
+
+Iniziando dalla parte superiore del triangolo in basso e passando ai numeri adiacenti sulla riga sottostante, il totale massimo dall'alto verso il basso è 23.
+
+   3
+  7 4
+ 2 4 6
+8 5 9 3
+
+Cioè, 3 + 7 + 4 + 9 = 23.
+
+Trovare il totale massimo dall'alto verso il basso utilizzando "triangle.txt", un file di testo di 15K contenente un triangolo con cento righe.
+
+NOTA: questa è una versione molto più difficile del problema 18. Non è possibile provare tutti i percorsi per risolvere questo problema, poiché ce ne sono 2^99 in tutto! Potendo controllare un trilione (10^12) di percorsi ogni secondo, ci vorrebbero oltre venti miliardi di anni per controllarli tutti. C'è un algoritmo efficiente per risolverlo.
+============================================================================
+
+Il file "triangle.txt" è stato trasformato in "e067.lsp" che ha il seguente formato:
+
+(setq tri (dup 0 100))
+(setf (tri 0) '(59)) 
+(setf (tri 1) '(73 41)) 
+(setf (tri 2) '(52 40 9)) 
+(setf (tri 3) '(26 53 6 34)) 
+...
+
+Per caricare il file:
+
+(load "e067.lsp")
+
+Una soluzione generica può essere ottenuta con la programmazione dinamica. In pratica per trovare la soluzione, ogni riga deve essere aggiunta a qualsiasi riga successiva, dal basso verso l'alto. Poiché ogni cella ha due predecessori, prendiamo il valore massimo delle due. Con questo metodo, la soluzione si trova nella cella superiore del triangolo:
+
+(load "e067.lsp")
+
+(define (e067)
+    (for (i (- (length tri) 2) 0 -1)
+      (for (j 0 i)
+        (setf (tri i j) (+ (tri i j) (max (tri (+ i 1) j) (tri (+ i 1) (+ j 1)))))
+      )
+    )
+    (tri 0 0))
+
+(e067)
+;-> 7273
+
+(time (e067))
+;-> 1.995
+
+
+===========
+Problema 68
+===========
+
+Considera il seguente anello "magico" 3-gon, riempito con i numeri da 1 a 6 e ogni riga somma a nove.
+
+       4  
+        \
+         3 
+        / \    
+       1---2---6
+      /
+     5
+     
+Lavorando in senso orario, e partendo dal gruppo di tre con il nodo esterno numericamente più basso (4,3,2 in questo esempio), ogni soluzione può essere descritta in modo univoco. Ad esempio, la soluzione di cui sopra può essere descritta dall'insieme: 4,3,2 - 6,2,1 - 5,1,3.
+
+È possibile completare l'anello con quattro diversi totali: 9, 10, 11 e 12. Ci sono otto soluzioni in totale.
+
+Totale   Soluzioni
+   9     4,2,3 - 5,3,1 - 6,1,2
+   9     4,3,2 - 6,2,1 - 5,1,3
+  10     2,3,5 - 4,5,1 - 6,1,3
+  10     2,5,3 - 6,3,1 - 4,1,5
+  11     1,4,6 - 3,6,2 - 5,2,4
+  11     1,6,4 - 5,4,2 - 3,2,6
+  12     1,5,6 - 2,6,4 - 3,4,5
+  12     1,6,5 - 3,5,4 - 2,4,6
+  
+Concatenando ogni gruppo è possibile formare stringhe di 9 cifre: la stringa massima per un anello 3-gon è 432621513.
+
+Utilizzando i numeri da 1 a 10, a seconda degli arrangiamenti, è possibile formare stringhe di 16 e 17 cifre. Qual è il numero massimo di 16 cifre per un anello "magico" 5-gon?
+============================================================================
+
+Funzione che calcola le permutazioni:
+
+(define (perm lst)
+  (local (i indici out)
+    (setq indici (dup 0 (length lst)))
+    (setq i 0)
+    ; aggiungiamo la lista iniziale alla soluzione
+    (setq out (list lst))
+    (while (< i (length lst))
+      (if (< (indici i) i)
+          (begin
+            (if (zero? (% i 2))
+              (swap (lst 0) (lst i))
+              (swap (lst (indici i)) (lst i))
+            )
+            ;(println lst);
+            (push lst out -1)
+            (++ (indici i))
+            (setq i 0)
+          )
+          (begin
+            (setf (indici i) 0)
+            (++ i)
+          )
+       )
+    )
+    out))
+
+(define (gon lst)
+  (local (is-gon gonL pL6 pL7 pL8 pL9 pL10 p6 p7 p8 p9 p10)
+    (setq is-gon nil)
+    (setq gonL '() pL6 '() pL7 '() pL8 '() pL9 '() pL10 '())
+    (setq p6  (+ (lst 6)  (lst 1) (lst 2)))
+    (setq p7  (+ (lst 7)  (lst 2) (lst 3)))
+    (setq p8  (+ (lst 8)  (lst 3) (lst 4)))
+    (setq p9  (+ (lst 9)  (lst 4) (lst 5)))
+    (setq p10 (+ (lst 10) (lst 5) (lst 1)))
+    ; Controllo se le somme sono uguali
+    (cond ((and (= p6 p7) (= p7 p8) (= p8 p10) (= p9 p10))
+           (setq is-gon true)
+           ; Cerco l'indice del valore minimo esterno
+           ; cioè cerco il numero 6, perchè all'esterno ci devono
+           ; stare i numeri 6,7,8,9,10.
+           (setq indice (find 6 lst))
+           ; Costruisco la lista soluzione
+           (setq pL6  (list (lst 6)  (lst 1) (lst 2)))
+           (setq pL7  (list (lst 7)  (lst 2) (lst 3)))
+           (setq pL8  (list (lst 8)  (lst 3) (lst 4)))
+           (setq pL9  (list (lst 9)  (lst 4) (lst 5)))
+           (setq pL10 (list (lst 10) (lst 5) (lst 1)))
+           (cond ((= indice 6)  (setq gonL (apply extend (list pL6  pL7  pL8  pL9  pL10))))
+                 ((= indice 7)  (setq gonL (apply extend (list pL7  pL8  pL9  pL10 pL6))))
+                 ((= indice 8)  (setq gonL (apply extend (list pL8  pL9  pL10 pL6  pL7))))
+                 ((= indice 9)  (setq gonL (apply extend (list pL9  pL10 pL6  pL7  pL8))))
+                 ((= indice 10) (setq gonL (apply extend (list pL10 pL6  pL7  pL8  pL9))))
+           ))
+    )
+    (if is-gon
+        (list gonL p6)
+        (list '() 0))))
+
+(define (e068)
+  (local (vmax pa pb val go x y)
+    (setq vmax 0)
+    (setq pa (perm '(1 2 3 4 5)))
+    (setq pb (perm '(6 7 8 9 10)))
+    (dolist (a pa)
+      (setq val '())
+      (dolist (b pb)
+        (setq val (apply extend (list '(0) a b)))
+        (setq go (gon val))
+        (setq x (first go))
+        (setq y (last go))
+        (if (!= y 0)
+          (begin
+           ;(println x { } y)
+           (if (> (int (join (map string x))) vmax)
+               (setq vmax (int (join (map string x))))
+           ))
+        )
+      )
+    )
+    vmax))
+
+(e068)
+;-> 6531031914842725
+
+(time (e068))
+;-> 21.97
+
+
+===========
+Problema 69
+===========
+
+La funzione toziente di Eulero, φ(n) (a volte chiamata funzione phi), è usata per determinare il numero di numeri positivi minori o uguali a n che sono primi relativamente a n. Ad esempio, poiché 1, 2, 4, 5, 7 e 8 sono tutti inferiori a nove e primi relativamente a nove, φ(9) = 6.
+Il numero 1 è considerato relativamente primo rispetto a ogni numero positivo, quindi φ(1)= 1.
+
+ n | Relatively Prime | φ(n) | n/φ(n)    |
+ -----------------------------------------
+ 2 | 1                | 1    | 2         |
+ 3 | 1,2              | 2    | 1.5       |
+ 4 | 1,3              | 2    | 2         |
+ 5 | 1,2,3,4          | 4    | 1.25      |
+ 6 | 1,5              | 2    | 3         |
+ 7 | 1,2,3,4,5,6      | 6    | 1.1666... |
+ 8 | 1,3,5,7          | 4    | 2         |
+ 9 | 1,2,4,5,7,8      | 6    | 1.5       |
+10 | 1,3,7,9          | 4    | 2.5       |
+
+Si può vedere che n = 6 produce un massimo n/φ(n) per n ≤ 10.
+
+Trova il valore di n ≤ 1000000 per cui il rapporto n/φ(n) è massimo.
+============================================================================
+
+Utilizziamo un approccio con la forza bruta.
+
+Funzione che calcola il toziente da 0 fino a n numeri:
+
+(define (totients-to num)
+  (let (phi (array (+ num 1) '(0)))
+    (setf (phi 0) 0)
+    (setf (phi 1) 1)
+    (for (i 2 num)
+      (setf (phi i) i))
+    (for (i 2 num)
+      (if (= (phi i) i)
+          (for (j i num i)
+            (setf (phi j) (- (phi j) (/ (phi j) i))))))
+     phi))
+
+(totients-to 10)
+;-> (0 1 1 2 2 4 2 6 4 6 4)
+
+Scriviamo la funzione finale:
+
+(define (e069)
+  (local (t idx cur-val max-val)
+    (setq t (totients-to 1000000))
+    (setq max-val -1)
+    (setq idx-val nil)
+    ; cerca il valore massimo
+    (for (i 0 1000000)
+      (setq cur-val (t i))
+      (if (> (div i cur-val) max-val)
+          (setq idx-val i max-val (div i cur-val))
+      )    
+    )
+    idx-val))
+
+(e069)
+;-> 510510
+
+(time (e069))
+;-> 642.279
+
+
+===========
+Problema 70
+===========
+
+Pemutazione toziente
+
+La funzione toziente di Eulero, φ(n) (a volte chiamata funzione phi), è usata per determinare il numero di numeri positivi minori o uguali a n che sono primi relativamente a n. Ad esempio, poiché 1, 2, 4, 5, 7 e 8 sono tutti inferiori a nove e primi relativamente a nove, φ(9) = 6.
+Il numero 1 è considerato relativamente primo rispetto a ogni numero positivo, quindi φ(1)= 1.
+
+È interessante notare che φ(87109) = 79180, e si può vedere che 87109 è una permutazione di 79180.
+
+Trova il valore di n, 1 < n < 10^7, per cui φ(n) è una permutazione di ne il rapporto n/φ(n) produce un minimo.
+============================================================================
+
+Utilizziamo un approccio con la forza bruta.
+
+Funzione che verifica se due numeri hanno le stesse cifre:
+
+(define (perm? n1 n2)
+  (if (!= (length n1) (length n2))
+      nil
+      (let (ar (array 10 '(0)))
+        (while (!= n1 0)
+            (++ (ar (% n1 10)))
+            (setq n1 (/ n1 10))
+        )
+        ;(println ar)
+        (while (!= n2 0)
+            (-- (ar (% n2 10)))
+            (setq n2 (/ n2 10))
+        )
+        ;(println ar)
+        (= (count '(0) (array-list ar)) '(10)))))
+
+(perm? 123123 112233)
+;-> true
+
+Funzione che calcola il toziente da 0 fino a n numeri:
+
+(define (totients-to num)
+  (let (phi (array (+ num 1) '(0)))
+    (setf (phi 0) 0)
+    (setf (phi 1) 1)
+    (for (i 2 num)
+      (setf (phi i) i))
+    (for (i 2 num)
+      (if (= (phi i) i)
+          (for (j i num i)
+            (setf (phi j) (- (phi j) (/ (phi j) i))))))
+     phi))
+
+(totients-to 10)
+;-> (0 1 1 2 2 4 2 6 4 6 4)
+
+Scriviamo la funzione finale:
+
+(define (e070)
+  (local (t idx cur-val min-val)
+    (setq t (totients-to 9999999))
+    (setq min-val 999999)
+    (setq idx-val nil)
+    ; cerca il valore minimo
+    (for (i 2 9999999)
+      (setq cur-val (t i))
+      (if (< (div i cur-val) min-val)
+          (if (perm? cur-val i)
+                  (setq idx-val i min-val (div i cur-val))
+              )
+          )
+    )
+    idx-val))
+
+(e070)
+;-> 8319823
+
+(time (e070))
+;-> 9621.575
+
+Dal punto di vistta matematico possimo notare che:
+
+1) Rendere minimo n/φ(n) equivale a massimizzare φ(n)/n, che si verifica quando n ha il minor numero di fattori primi possibile.
+2) φ(n) = n - 1 dove n è primo, poiché tutti i numeri sotto sono coprimi per definizione
+3) φ(n) = φ(pq) = (p - 1) (q - 1) dove n è semiprimo e p e q sono i suoi fattori e p <> q.
+4) φ(n) = φ(p2) = (p - 1) p dove n è semiprime ep è il suo unico fattore distinto.
+5) n - 1 non può essere una permutazione di n, quindi il nostro n non può essere un primo, ma è probabilmente il prodotto di due numeri primi (semiprimi).
+
+Funzone che calcola tutti i numeri primi da 1 fino a un dato numero:
+
+(define (primes-to num)
+  (cond ((= num 1) '())
+        ((= num 2) '(2))
+        (true
+         (let (lst '(2))
+          (setq arr (array (+ num 1)))
+          (for (x 3 num 2)
+                (when (not (arr x))
+                  (push x lst -1)
+                  (for (y (* x x) num (* 2 x) (> y num))
+                      (setf (arr y) true)))) lst))))
+
+Le considerazioni precedenti portano (dopo molti tentativi) alla seguente funzione:
+
+(define (e070)
+(catch
+  (local (num primi min-q min-n q n totient)
+  (setq num 10000000)
+  (setq primi (primes-to (int (mul 1.25 (sqrt num)))))
+  (setq primi (slice primi (int (mul 0.5 (length primi)))))
+  (setq min-q 2 min-n 0 i 0)
+  (dolist (p1 primi)
+    (dolist (p2 (slice primi i))
+      (cond ((!= (% (+ p1 p2) 9) 1) nil)
+            (true
+             (setq n (* p1 p2))
+             (if (> n num) (throw min-n)) ; soluzione trovata
+             (setq totient (* (- p1 1) (- p2 1)))
+             (setq q (div n totient))
+             (if (and (> min-q q) (perm? totient n))
+                 (setq min-q q min-n n))))))
+  'not-found)))
+
+(e070)
+;-> 8319823
+
+(time (e070))
+;-> 7.012
+
+
+===========
+Problema 71
+===========
+
+Frazioni ordinate
+
+Considera la frazione, n/d, dove n e d sono numeri interi positivi. Se n < d e HCF(n,d) = 1, si parla di frazione propria ridotta.
+
+Se elenchiamo l'insieme delle frazioni proprie ridotte per d ≤ 8 in ordine crescente di dimensione, otteniamo:
+
+1/8, 1/7, 1/6, 1/5, 1/4, 2/7, 1/3, 3/8, 2/5, 3/7, 1/2, 4/7, 3/5, 5/8, 2/3, 5/7, 3/4, 4/5, 5/6, 6/7, 7/8
+
+Si può vedere che 2/5 è la frazione immediatamente a sinistra di 3/7.
+
+Elencando l'insieme delle frazioni proprie ridotte per d ≤ 1.000.000 in ordine crescente di dimensione, trova il numeratore della frazione immediatamente a sinistra di 3/7.
+============================================================================
+
+Nota: HCF = High Common Factor (fattore comune maggiore)
+
+(define (find-upper n base)
+  (let ((a 1) (cont true))
+    (while (and (< a n) cont)
+      (if (> (div a n) base)
+          (setq cont nil)
+          (++ a)))
+    a))
+
+(find-upper 8 (div 3 7))
+;-> 4
+(find-upper 1000000 (div 3 7))
+;-> 428572
+
+(define (e071)
+  (local (n num den minimo base limite a b)
+    (setq n 1000000)
+    (++ n)
+    (setq num 1 den 1)
+    (setq minimo 0)
+    (setq base (div 3 7))
+    (setq limite (find-upper n base))
+    (setq a (- limite 2))
+    (while (< a limite)
+      (setq b (+ a 1))
+      (while (< b n)
+        (setq v (div a b))
+        (if (and (< v base) ( > v minimo))
+            (setq num a den b minimo (div num den))
+        )
+        (++ b)
+      )
+      (++ a)
+    )
+    ;(list num den (div num den))
+    num))
+
+(e071 1000000)
+;-> 428570
+
+(time (e071))
+;-> 191.169
+
+
+===========
+Problema 72
+===========
+
+Conteggio delle frazioni
+
+Considera la frazione, n/d, dove n e d sono numeri interi positivi. Se n <de HCF (n, d) = 1, si parla di frazione propria ridotta.
+
+Se elenchiamo l'insieme delle frazioni proprie ridotte per d ≤ 8 in ordine crescente di dimensione, otteniamo:
+
+1/8, 1/7, 1/6, 1/5, 1/4, 2/7, 1/3, 3/8, 2/5, 3/7, 1/2, 4/7, 3/5, 5/8, 2/3, 5/7, 3/4, 4/5, 5/6, 6/7, 7/8
+
+Si può vedere che ci sono 21 elementi in questo set.
+
+Quanti elementi sarebbero contenuti nell'insieme delle frazioni proprie ridotte per d ≤ 1.000.000?
+============================================================================
+
+Ordinando le frazioni in una matrice si ottiene il seguente risultato (n=10):
+
+  1/2   1/3   1/4   1/5   1/6   1/7   1/8   1/9  1/10
+    0   2/3   1/2   2/5   1/3   2/7   1/4   2/9   1/5
+    0     0   3/4   3/5   1/2   3/7   3/8   1/3  3/10
+    0     0     0   4/5   2/3   4/7   1/2   4/9   2/5
+    0     0     0     0   5/6   5/7   5/8   5/9   1/2
+    0     0     0     0     0   6/7   3/4   2/3   3/5
+    0     0     0     0     0     0   7/8   7/9  7/10
+    0     0     0     0     0     0     0   8/9   4/5
+    0     0     0     0     0     0     0     0  9/10
+    0     0     0     0     0     0     0     0     0
+
+(1/2, 1/3, 1/4, 1/5, 1/6, 1/7, 1/8, 1/9, 1/10, 2/3, 2/5, 2/7, 2/9,
+3/4, 3/5, 3/7, 3/8, 3/10, 4/5, 4/7, 4/9, 5/6, 5/7, 5/8, 5/9, 6/7,
+7/8, 7/9, 7/10, 8/9, 9/10)
+
+Notiamo che:
+a) le colonne con denominatore numero primo hanno (denominatore - 1) termini.
+b) le colonne con denominatore non primo hanno toziente(denominatore) termini.
+(dove toziente(n) è il numero di interi minori di n che sono primi rispetto a n)
+
+Funzione che verifica se un numero è primo:
+
+(define (prime? num)
+   (if (< num 2) nil
+       (= 1 (length (factor num)))))
+
+Funzione che calcola il toziente di un numero:
+
+(define (toziente num)
+  (if (= num 1) 1
+    (let (res num)
+      (dolist (f (unique (factor num)))
+        (setq res (- res (/ res f))))
+      res)))
+
+Scriviamo la funzione finale:
+
+(define (e072)
+  (let ((num 1000000) (somma 0))
+    (for (i 2 num)
+      (if (prime? i)
+          (setq somma (+ somma (- i 1)))
+          (setq somma (+ somma (toziente i)))
+      )
+    )
+    somma))
+
+(e072)
+;-> 303963552391
+
+(time (e072))
+;-> 2060.973
+
+
+===========
+Problema 76
+===========
+
+Conteggio delle somme
+
+È possibile scrivere cinque come somma in esattamente sei modi diversi:
+
+4 + 1
+3 + 2
+3 + 1 + 1
+2 + 2 + 1
+2 + 1 + 1 + 1
+1 + 1 + 1 + 1 + 1
+
+In quanti modi diversi si può scrivere cento come somma di almeno due numeri interi positivi?
+============================================================================
+
+La soluzione è simile a quella del problema 31. Le uniche differenze sono:
+1) il totale vale 100 (invece di 200)
+2) le monete (gli interi in questo caso) vanno da 1 a 99 (invece che (1 2 5 10 20 50 100 200))
+
+(define (e076)
+  (local (totale monete modi)
+    ; valore obiettivo
+    (setq totale 100)
+    ; lista dei tagli di monete disponibili
+    (setq monete (sequence 1 99))
+    ; crea un vettore di totale elementi con tutti valori 0 tranne il primo (modi[0]) che vale 1
+    (setq modi (array (+ totale 1) (extend '(1) (dup 0 totale))))
+    (dolist (el monete)
+      (for (i el totale)
+        (setq (modi i) (+ (modi i) (modi (- i el))))
+      )
+    )
+    (modi totale)))
+
+(e076)
+;-> 190569291
+
+(time (e076))
+;-> 0
+
+
+===========
+Problema 78
+===========
+
+Partizioni di monete
+
+Sia p(n) il numero dei diversi modi in cui n monete possono essere separate in pile. Ad esempio, cinque monete possono essere separate in pile in esattamente sette modi diversi, quindi p(5) = 7.
+
+OOOOO
+OOOO   O
+OOO   OO
+OOO   O   O
+OO   OO   O
+OO   O   O   O
+O   O   O   O   O
+
+Trova il valore minimo di n per cui p(n) è divisibile per un milione.
+============================================================================
+
+Su wikipedia si trova che la funzione generatrice per p(n) vale:
+
+p(n) = p(n - 1) + p(k - 2) - p(k - 5) - p(k - 7) + p(k - 12) + p(k - 15) - p(k - 22) ...
+
+dove p(0) = 1 e p(n) = 0 per n < 0.
+
+La sequenza dei numeri k da utilizzare è data dalla formula dei numeri pentagonali generalizzati:
+
+f(k) = k*(3k-1)/2 che vale sia per k negativo che per k positivo. 
+
+Questa formula può essere generata nel modo seguente:
+
+    | (m/2 + 1)    se (k mod 2) = 0,
+k = |
+    | (-m/2 - 1)   altrimenti
+
+I segni della funzione seguono lo schema +, +, -, -, +, +, -, -,...
+
+Quindi partendo dal primo valore della sequenza possiamo calcolare quella successiva e cosi via.
+
+(define (penta k) (/ (* k (- (* 3 k) 1)) 2))
+
+(define (e078)
+  (local (n p-vec segno penta continua i j val)
+    (setq p-vec (array 100000 '(0)))
+    (setq n 1)
+    (setf (p-vec 0) 1)
+    (setq continua true)
+    (while continua
+      (setq i 0)
+      (setq penta 1)
+      (while (<= penta n)
+        (if (> (% i 4) 1)
+            (setq segno -1)
+            (setq segno 1))
+        (setf (p-vec n) (+ (p-vec n) (* segno (p-vec (- n penta)))))
+        (setf (p-vec n) (% (p-vec n) 1000000))
+        (++ i)
+        (if (zero? (% i 2))
+            (setq j (+ (/ i 2) 1))
+            (setq j (- (+ (/ i 2) 1))))
+        (setq penta (/ (* j (- (* 3 j) 1)) 2))
+      )
+      (if (zero? (p-vec n)) 
+          (setq continua nil)
+          (++ n))
+      ;(if (zero? (% n 10000)) (println n))
+    )
+    n))
+
+(e078)
+;-> 55374
+
+(time (e078))
+;-> 7918.736
+
+Il tempo di esecuzione non è entusiasmante, ma non è che abbia capito molto bene come funziona tutta la matematica dietro il partizionamento degli interi. Mi accontento che il risultato sia corretto.
+
+
+===========
+Problema 87
+===========
+
+Triple potenze di primi
+
+Il numero più piccolo esprimibile come la somma di un quadrato primo, un cubo primo e una quarta potenza primo è 28. In effetti, ci sono esattamente quattro numeri inferiori a cinquanta che possono essere espressi in questo modo:
+
+28 = 2^2 + 2^3 + 2^4
+33 = 3^2 + 2^3 + 2^4
+49 = 5^2 + 2^3 + 2^4
+47 = 2^2 + 3^3 + 2^4
+
+Quanti numeri inferiori a cinquanta milioni possono essere espressi come la somma di un quadrato primo, un cubo primo e una quarta potenza primo?
+============================================================================
+
+Funzione per calcolare i numeri primi fino a n:
+
+(define (primes-to num)
+  (cond ((= num 1) '())
+        ((= num 2) '(2))
+        (true
+         (let (lst '(2))
+          (setq arr (array (+ num 1)))
+          (for (x 3 num 2)
+                (when (not (arr x))
+                  (push x lst -1)
+                  (for (y (* x x) num (* 2 x) (> y num))
+                      (setf (arr y) true)))) lst))))
+
+L'algoritmo è abbastanza semplice e può essere estrapolato dai commenti della funzione:
+
+(define (e087)
+  (local (val primi primi2 primi3 primi4 limite out)
+    (setq out '())
+    (setq limite 50000000)
+    # calcola i primi fino a sqrt(limite)
+    (setq primi (primes-to (int (sqrt limite))))
+    ; calcola i quadrati di questi primi (< limite)
+    (setq primi2 (filter (fn(x) (< x limite)) (map (fn(x) (* x x)) primi)))
+    ; calcola i cubi di questi primi (< limite)
+    (setq primi3 (filter (fn(x) (< x limite)) (map (fn(x) (* x x x)) primi)))
+    ; calcola le quarte potenze di questi primi (< limite)
+    (setq primi4 (filter (fn(x) (< x limite)) (map (fn(x) (* x x x x)) primi)))
+    ;(println "p= " primi {-} "p2= " primi2 {-} "p3= " primi3 {-} "p4= " primi4)
+    ; crea una lista con le somme di tutti i numeri delle tre liste
+    (dolist (a primi2)
+      (dolist (b primi3)
+        (dolist (c primi4)
+          (setq val (+ a b c))
+          (if (< val limite) 
+              (push val out -1)
+          ))))
+    ; elimina i numeri multipli dalla lista
+    (length (unique out))))
+
+(e087)
+;-> 1097343
+
+(time (e087))
+;-> 1153.946
+
+Per ottimizzare la funzione potremmo:
+1) Generare primi2, primi3 e primi4 fino ai numeri i cui quadrati, cubi e quarte potenze sono inferiori al limite
+2) fermare il ciclo b quando (a + b) > limite
+3) fermare il ciclo c quando (a + b + c) > limite
+4) inserire i valori in una hash-map
+
+Comunque il tempo di esecuzione è soddisfacente.
+
+
+===========
+Problema 89
+===========
+
+Numeri romani
+
+Affinché un numero scritto in numeri romani sia considerato valido, ci sono regole di base che devono essere seguite. Anche se le regole consentono di esprimere alcuni numeri in più di un modo, esiste sempre un modo "migliore" per scrivere un numero particolare.
+
+Ad esempio, sembrerebbe che ci siano almeno sei modi per scrivere il numero sedici:
+
+IIIIIIIIIIIIIIII
+VIIIIIIIIIII
+VVIIIIII
+XIIIIII
+VVVI
+XVI
+
+Tuttavia, secondo le regole sono validi solo XIIIIII e XVI, e l'ultimo esempio è considerato il più efficiente, poiché utilizza il minor numero di numeri.
+
+Il file di testo 11K, roman.txt, contiene mille numeri scritti in numeri romani validi, ma non necessariamente minimi. V`edi Informazioni sui Numeri romani per le regole definitive di questo problema (.
+
+Trova il numero di caratteri salvati scrivendo ciascuno di questi nella loro forma minima.
+
+Nota: si può presumere che tutti i numeri romani nel file non contengano più di quattro unità identiche consecutive.
+============================================================================
+
+Funzione di conversione da numero intero a numero romano:
+
+(define (integer2roman num)
+  (local (table roman k)
+    (setq table '(("M" 1000) ("CM" 900) ("D" 500) ("CD" 400)
+          ("C" 100)("XC" 90)("L" 50)("XL" 40) ("X" 10) ("IX" 9) ("V" 5)
+          ("IV" 4) ("I" 1)))
+    (setq roman "")
+    (dolist (el table)
+      (setq k (/ num (last el)))
+      (setq num (% num (last el)))
+      (extend roman (dup (first el) k))
+    )
+    roman))
+
+(integer2roman 4444)
+;-> "MMMMCDXLIV"
+
+(integer2roman 16)
+;-> "XVI"
+
+Funzione di conversione da numero romano a numero intero:
+
+(define (roman2integer roman)
+  (local (table curr prev num)
+    (setq table '(("I" 1) ("V" 5) ("X" 10) ("L" 50) ("C" 100) ("D" 500) ("M" 1000)))
+    (setq prev 0 num 0)
+    ; iterate through all characters
+    (dostring (ch roman)
+      ; converts the current character into an integer
+      (setq curr (lookup (char ch) table))
+      ; pick the right case to add or substract
+      (if (>= prev curr) 
+          (setq num (+ num prev))
+          (setq num (- num prev))
+      )
+      (setq prev curr)
+    )
+    ; add the last value
+    (setq num (+ num curr))))
+
+(roman2integer "MMMMCDXLIV")
+;-> 4444
+
+(roman2integer "XIIIIII")
+;-> 16
+
+Il file "roman.txt" è stato trasformato nel file "e089.lsp" che ha la seguente struttura:
+
+(setq roma '("MMMMDCLXXII" "MMDCCCLXXXIII" "MMMDLXVIIII" ...)
+
+Scriviamo la funzione finale:
+
+(define (e089)
+  (local (somma len1 len2)
+    (setq somma 0)
+    (dolist (el roma)
+      (setq len1 (length el))
+      (setq len2 (length (integer2roman (roman2integer el))))
+      (setq somma (+ somma (- len1 len2)))
+      ;(println (list el (length el)) { }
+      ;         (list (integer2roman (roman2integer el)) (length (integer2roman (roman2integer el)))))
+      ;(read-line)
+    )
+    somma))
+
+Carichiamo il file ed eseguiamo la funzione:
+
+(load "roma.lsp")
+(length roma)
+;-> 1000
+
+(e089)
+;-> 743
+
+(time e089)
+;-> 0
+
+
+===========
 Problema 92
+===========
+
+Catena del quadrato delle cifre
+
+Una catena di numeri viene creata aggiungendo continuamente il quadrato delle cifre in un numero per formare un nuovo numero fino a quando non è stato visto prima.
+
+Per esempio,
+
+44 → 32 → 13 → 10 → 1 → 1
+85 → 89 → 145 → 42 → 20 → 4 → 16 → 37 → 58 → 89
+
+Pertanto qualsiasi catena che arriva a 1 o 89 rimarrà bloccata in un ciclo infinito. La cosa più sorprendente è che OGNI numero di partenza alla fine arriverà a 1 o 89.
+
+Quanti numeri di partenza sotto i dieci milioni arriveranno a 89?
+============================================================================
+
+Prima di definire la funzione cha calcola la catena, dobbiamo scrivere la funzione cha calcola la somma dei quadrati delle cifre di un numero:
+
+Prima versione "sum-sq-digit":
+
+(define (int-lst num)
+  (let (out '())
+    (while (!= num 0)
+      (push (% num 10) out)
+      (setq num (/ num 10))) out))
+
+(define (sum-sq-digit num)
+  (apply + (map (fn(x) (* x x)) (int-lst num))))
+
+(sum-sq-digit 32)
+;-> 13
+(sum-sq-digit 456)
+;-> 77
+(time (sum-sq-digit 12345678901234567890) 100000)
+;-> 1554.87
+
+Seconda versione "sum-sq-digit":
+
+(define (sum-sq-digit num)
+  (let ((cifra 0) (tot 0))
+  (while (> num 0)
+    (setq cifra (% num 10))
+    (setq num (/ (- num cifra) 10))
+    (setq tot (+ tot (* cifra cifra)))
+  )
+  tot))
+
+(sum-sq-digit 32)
+;-> 13
+(sum-sq-digit 456)
+;-> 77
+(time (sum-sq-digit 12345678901234567890) 100000)
+;-> 1263.057
+;-> 140.624
+
+Terza versione "sum-sq-digit":
+
+(define (sum-sq-digit num)
+  (let ((cifra 0) (tot 0))
+  (while (> num 0)
+    (setq cifra (% num 10))
+    (setq tot (+ tot (* cifra cifra)))
+    (setq num (/ num 10))
+  )
+  tot))
+
+(sum-sq-digit 32)
+;-> 13
+(sum-sq-digit 456)
+;-> 77
+(time (sum-sq-digit 12345678901234567890) 100000)
+;-> 1112.057
+
+Quarta versione "sum-sq-digit":
+
+(define (sum-sq-digit num)
+  (let ((cifra 0) (tot 0))
+  (while (> num 0)
+    (setq cifra (% num 10))
+    (if cifra
+      (setq tot (+ tot (* cifra cifra))))
+    (setq num (/ num 10))
+  )
+  tot))
+
+(sum-sq-digit 32)
+;-> 13
+(sum-sq-digit 456)
+;-> 77
+(time (sum-sq-digit 12345678901234567890) 100000)
+;-> 1106.45
+
+Adesso scriviamo la funzione che calcola la catena di un numero:
+
+(define (chain num)
+  (local (chain-lst num-lst val found out)
+    (setq val num found nil)
+    (until found
+      (setq num (sum-sq-digit num))
+      (push num chain-lst -1)
+      (if (or (= num 1) (= num 89))
+          (setq out (list val num (length chain-lst) chain-lst) found true)
+      )
+    )
+    out))
+
+Vediamo alcuni esempi di catene:
+
+(chain 100)
+;-> (100 1 1 (1))
+(chain 1)
+;-> (1 1 1 (1))
+(chain 89)
+;-> (89 89 8 (145 42 20 4 16 37 58 89))
+(chain 44)
+;-> (44 1 4 (32 13 10 1))
+(chain 85)
+;-> (85 89 1 (89))
+
+(for (i 1 20) (println (chain i)))
+;-> (1 1 1 (1))
+;-> (2 89 5 (4 16 37 58 89))
+;-> (3 89 7 (9 81 65 61 37 58 89))
+;-> (4 89 4 (16 37 58 89))
+;-> (5 89 4 (25 29 85 89))
+;-> (6 89 9 (36 45 41 17 50 25 29 85 89))
+;-> (7 1 5 (49 97 130 10 1))
+;-> (8 89 5 (64 52 29 85 89))
+;-> (9 89 6 (81 65 61 37 58 89))
+;-> (10 1 1 (1))
+;-> (11 89 6 (2 4 16 37 58 89))
+;-> (12 89 5 (5 25 29 85 89))
+;-> (13 1 2 (10 1))
+;-> (14 89 6 (17 50 25 29 85 89))
+;-> (15 89 6 (26 40 16 37 58 89))
+;-> (16 89 3 (37 58 89))
+;-> (17 89 5 (50 25 29 85 89))
+;-> (18 89 5 (65 61 37 58 89))
+;-> (19 1 4 (82 68 100 1))
+;-> (20 89 5 (4 16 37 58 89))
+
+Scriviamo la funzione che calcola la soluzione con la forza bruta:
+
+(define (e092)
+  (local (num n89 found)
+    (setq num 9999999 n89 0)
+    (for (i 1 num)
+      (setq found nil)
+      (setq k i)
+      (until found
+        ;(setq k (apply + (map (fn(x) (* x x)) (int-lst k))))
+        (setq k (sum-sq-digit k))
+        (if (= k 89) (setq n89 (+ n89 1) found true))
+        (if (= k 1)  (setq found true))
+      )
+    )
+    n89))
+
+(e092)
+;-> 8581146
+
+(time (e092))
+;-> 51582.689
+
+Il tempo di esecuzione non è molto soddisfacente.
+
+Per trovare un algoritmo migliore dobbiamo fare alcune considerazioni.
+
+Notiamo che due numeri che hanno le stesse cifre hanno la stessa catena perchè calcoliamo la somma dei quadrati delle cifre. Per esempio i numeri 4666777 e 6767674 hanno la stessa catena:
+
+(chain 4666777)
+;-> (4666777 89 9 (271 54 41 17 50 25 29 85 89))
+
+(chain 6767674)
+;-> (6767674 89 9 (271 54 41 17 50 25 29 85 89))
+
+Quindi tutti i numeri che hanno le stesse cifre (non considerando lo 0 perchè facciamo il quadrato di ogni cifra) hanno la stessa catena.
+
+Inoltre, la più grande somma possibile di quadrati è creata dal numero 9999999, che vale 7^9 = 567.
+Possiamo usare questo numero come dimensione di una lista che contiene tutti i valori generati dal calcolo della somma dei quadrati delle cifre per i numeri inferiori 10 milioni (questo perchè tutti gli altri numeri inferiori a 10 milioni sono solo permutazioni con una somma minore).
+
+Prima scriviamo una funzione che restituisce true se la catena di un dato numero termina con 89, altrimenti restituisce nil:
+
+(define (end89? n)
+  (local (sum x)
+    (while (and (!= n 1) (!= n 89))
+      (setq sum 0)
+      (while (> n 0)
+        (setq x (% n 10))
+        (setq sum (+ sum (* x x)))
+        (setq n (/ n 10))
+      )
+      (setq n sum)
+    )
+    (= n 89)))
+
+(end89? 1)
+;-> nil
+(end89? 89)
+;-> true
+(end89? 4666777)
+;-> true
+(end89? 6767674)
+;-> true
+
+Poi possiamo creare la lista che contiene le somme:
+
+(setq lst-sum '(0))
+(for (i 1 567) (push (end89? i) lst-sum -1))
+
+I valori delle somme non coprono tutti i numeri da 1 a 567:
+
+(count '(true) lst-sum)
+;-> 486
+
+Adesso dobbiamo sapere quante volte un dato insieme di cifre può verificarsi sotto i 10 milioni. Questo è semplicemente il fattoriale del numero totale di elementi (cioè quante cifre, 7) diviso per il prodotto dei fattoriali dei conteggi degli elementi unici (quante volte compare ogni cifra):
+
+(numero-elementi-gruppo = 7! / (c1! * c2! * ... * c9!))
+
+Per esempio, per il numero 4666777 otteniamo che il numero di elementi vale (coefficiente multinomiale):
+
+numero-elementi-gruppo(4666777) = 7! / (1! * 3! * 3!) = 140
+
+Vediamo quante combinazioni di cifre univoche ci sono da 1 a 9999999 (combinazioni con ripetizione):
+
+(define (comb-rep k lst)
+  (cond ((zero? k 0) '(()))
+        ((null? lst) '())
+        (true
+         (append (map (lambda (x) (cons (first lst) x))
+                      (comb-rep (- k 1) lst))
+                 (comb-rep k (rest lst))))))
+
+(setq numeri (comb-rep 7 '(1 2 3 4 5 6 7 8 9 0)))
+(length numeri)
+;-> 11440
+
+Esistono solo 11.440 combinazioni di cifre univoche comprese tra 1 e 9999999.
+
+Quindi dobbiamo trovare un modo per calcolare la catena solo di questi numeri.
+Potremmo utilizzare 9 cicli "for" per generare numeri del tipo "abcdefg" e quando le cifre soddisfano a≤b≤c≤d≤e≤f≤g, allora controllare la somma nella lista delle somme (lst-sum). Se la catena termina con 89, dobbiamo aggiungere tutte le possibili combinazioni (calcolate con il coefficiente multinomiale) al risultato.
+
+Per velocizzare i calcoli utilizziamo una lista precalcolata per i fattoriali da 0 a 7:
+
+fact = (1 1 2 6 24 120 720 5040)
+
+Oppure possiamo utilizzare direttamente i numeri della lista "numeri", verificare se la sua catena di ogni termina con 89 ed eventualmente aggiungere al totale il numero degli elementi del suo gruppo (cioè tutti i numeri che conducono a 89) calcolando il relativo coefficiente multinomiale.
+
+Proviamo a scrivere una funzione con quest'ultimo algoritmo.
+
+Funzione che converte una lista in un intero:
+
+(define (lst-int lst)
+  (let (num 0)
+    (dolist (el lst) (setq num (+ el (* num 10))))))
+
+Funzione finale:
+
+(define (e092)
+  (local (fact numeri num out)
+    (setq out 0)
+    (setq fact '(1 1 2 6 24 120 720 5040))
+    ; creazione dei 11440 numeri univoci
+    (setq numeri (comb-rep 7 '(1 2 3 4 5 6 7 8 9 0)))
+    ;(setq numeri (map lst-int (comb-rep 7 '(1 2 3 4 5 6 7 8 9 0))))
+    (dolist (el numeri)
+      ;(println $idx { } el)
+      (setq num (lst-int el))
+      ; se la catena del numero corrente finisce con 89
+      (if (and (> num 0) (end89? num))
+          ; allora aggiorniamo la somma totale
+          ; sommando il coefficiente multinomiale
+                 ; contiamo la molteplicità delle cifre del numero
+          (letn ((conta (count '(1 2 3 4 5 6 7 8 9 0) el))
+                 ; e poi calcoliamo il coefficiente multinomiale
+                 (coeff (/ (fact 7) (apply * (map (fn(x) (fact x)) conta)))))
+                 ; aggiorniamo il totale
+                 (setq out (+ out coeff))
+          )
+      )
+    )
+    out))
+
+(e092)
+;-> 8581146
+
+(time (e092))
+;-> 116.715
+
+La prima soluzione processa 9999999 di numeri, mentre la seconda soluzione processa 11440 numeri. Il rapporto vale: (/ 9999999 11440) = 874.
+Per i tempi di esecuzione abbiamo il seguente rapporto: (/ 51582 116) = 444, cioè la seconda funzione è circa 450 volte più veloce.
+
+
+===========
+Problema 96
 ===========
 
 Su Doku
@@ -34164,7 +36401,7 @@ Su Doku (giapponese che significa luogo del numero) è il nome di un concetto di
 
 Un puzzle di Su Doku ben costruito ha una soluzione unica e può essere risolto dalla logica, anche se potrebbe essere necessario impiegare metodi di "indovinare e testare" per eliminare le opzioni (questo è un'opinione molto contestata). La complessità della ricerca determina la difficoltà del puzzle. L'esempio sopra è considerato facile perché può essere risolto con una semplice deduzione diretta.
 
-Il file di testo 6K, sudoku.txt (e092.lsp), contiene cinquanta diversi puzzle di Su Doku che variano in difficoltà, ma tutti con soluzioni uniche (il primo puzzle nel file è l'esempio sopra).
+Il file di testo 6K, sudoku.txt (e096.lsp), contiene cinquanta diversi puzzle di Su Doku che variano in difficoltà, ma tutti con soluzioni uniche (il primo puzzle nel file è l'esempio sopra).
 
 Risolvendo tutti e cinquanta i puzzle, trova la somma di tutti i numeri a 3 cifre che si trovano nell'angolo in alto a sinistra di ogni griglia della soluzione. Ad esempio, 483 è il numero di 3 cifre che si trova nell'angolo in alto a sinistra della griglia della soluzione sopra.
 ============================================================================
@@ -34241,7 +36478,7 @@ Risolvendo tutti e cinquanta i puzzle, trova la somma di tutti i numeri a 3 cifr
   )
 ))
 
-(define (e092)
+(define (e096)
   (local (out)
     (setq out 0)
     (load "e096.lsp")
@@ -34257,11 +36494,163 @@ Risolvendo tutti e cinquanta i puzzle, trova la somma di tutti i numeri a 3 cifr
   )
 )
 
-(e092)
+(e096)
 ;-> 24702
 
-(time (e092))
+(time (e096))
 ;-> 27084.701
+
+
+===========
+Problema 97
+===========
+
+Il più grande primo non-Mersenne
+
+Il primo numero primo noto che supera il milione di cifre è stato scoperto nel 1999 ed è un numero primo di Mersenne della forma 2 ^ 6972593-1. Contiene esattamente 2.098.960 cifre. Successivamente sono stati trovati altri numeri primi di Mersenne, della forma (2^p − 1), che contengono più cifre.
+
+Tuttavia, nel 2004 è stato trovato un enorme numero primo non Mersenne che contiene 2.357.207 cifre: 28433 × 2^7830457 + 1.
+
+Trova le ultime dieci cifre di questo numero primo.
+============================================================================
+
+Le ultime 10 cifre di un numero n si ottengono applicando l'operatore modulo: (n % 10000000000).
+Il problema è come calcolare velocemente 2^7830457. Cercando di risolvere direttamente l'espressione,  newLISP impiega un tempo lunghissimo. Infatti:
+
+Funzione per calcolare la potenza (intera) di un numero intero:
+
+(define (** num power)
+    (let (out 1L)
+        (dotimes (i power)
+            (setq out (* out num)))))
+
+Scriviamo la funzione:
+
+(define (e097) (% (+ (* (** 2L 7830456L) 28433) 1) 10000000000L))
+
+Attenzione, la seguente funzione impiega moltissimo tempo:
+
+(e097)
+
+Abbiamo visto che per estrapolare le ultime 10 cifre occorre calcolare (n mod 10000000000). Poichè per  l'operazione modulo (mod) vale la proprietà distributiva:
+
+a*b mod n = ((a mod n)*(b mod n)) mod n
+
+possiamo calcolare 2^7830457 utilizzando la moltiplicazione in un ciclo e utilizzando il modulo dopo ogni moltiplicazione. In questo modo non abbiamo neanche bisogno di utilizzare i big-integer:
+
+(define (e097)
+  (let (val 2L)
+    (for (i 1 7830456)
+      (setq val (% (* 2L val) 10000000000L))
+    )
+    (setq val (* val 28433L))
+    (setq val (+ val 1L))
+    (setq val (% val 10000000000L))))
+
+(e097)
+;-> 8739992577L
+
+(define (e097)
+  (let (val 2)
+    (for (i 1 7830456)
+      (setq val (% (* 2 val) 10000000000))
+    )
+    (setq val (* val 28433))
+    (setq val (+ val 1))
+    (setq val (% val 10000000000))))
+
+(e097)
+;-> 8739992577
+
+Inoltre il tempo di esecuzione è accettabile:
+
+(time (e097))
+;-> 497.573
+
+
+===========
+Problema 99
+===========
+
+Massimo esponenziale
+
+Confrontare due numeri scritti in forma di indice come 2^11 e 3^7 non è difficile, poiché qualsiasi calcolatrice confermerebbe che 2^11 = 2048 < 3^7 = 2187.
+
+Tuttavia, confermare che 632382^518061 > 519432^525806 sarebbe molto più difficile, poiché entrambi i numeri contengono oltre tre milioni di cifre.
+
+Utilizzando "base_exp.txt", un file di testo da 22 KB contenente mille righe con una coppia base / esponente su ciascuna riga, determinare quale numero di riga ha il valore numerico maggiore.
+
+NOTA: le prime due righe nel file rappresentano i numeri nell'esempio fornito sopra.
+============================================================================
+
+Il file "base_exp.txt" è stato trasformato nel file "e099.lsp".
+
+Non è necessario calcolare le potenze. Possiamo usare i logaritmi utilizzando le seguenti proprietà:
+
+1) log(x) < (log(y) implica che x < y e viceversa (perchè log(x) è una funzione crescente).
+2) log(x^y) = y*log(x)
+
+In questo modo dobbiamo trovare il massimo dei valori: y*(log(x).
+
+Carichiamo il file che contiene la lista "lst" con tutte le coppie di numeri (x y):
+
+(load "e099.lsp")
+
+(define (e099)
+  (let ((max-val 0) (riga 0))
+    (dolist (el lst)
+      (if (> (mul (last el) (log (first el))) max-val)
+          (setq riga (+ 1 $idx) max-val (mul (last el) (log (first el))))))
+    riga))
+
+(e099)
+;-> 709
+
+(time (e099))
+;-> 0
+
+
+============
+Problema 100
+============
+
+Probabilità stabilite
+
+Se una scatola contiene ventuno dischi colorati, composti da quindici dischi blu e sei dischi rossi, e due dischi sono stati presi a caso, si può vedere che la probabilità di prendere due dischi blu, P (BB) = (15/21) × (14/20) = 1/2.
+
+La successiva disposizione di questo tipo, per la quale c'è esattamente il 50% di possibilità di prendere due dischi blu a caso, è una scatola contenente ottantacinque dischi blu e trentacinque dischi rossi.
+
+Trova la prima disposizione che contenga più di 10^12 = 1.000.000.000.000 dischi in totale, determinare il numero di dischi blu che la confezione deve contenere.
+============================================================================
+
+                                 b     (b - 1)
+Bisogna risolvere l'equazione:  --- * --------- = 1/2.
+                                 n     (n - 1)
+
+Sviluppando si ottiene: 2b^2 - 2b - n^2 + n = 0 che è una equazione quadratica diofantina. Risolvendo per b otteniamo le due soluzioni: b = (2 + sqrt (4 + 8n^2 - 8n)) / 4 = (1 + sqrt (1 + 2n^2 - 2n))/2. Quindi, è sufficiente trovare valori di n tali che 2n^2 - 2n + 1 = c^2 per qualche intero c. Risolvendo per n, otteniamo n = (2 + sqrt (8c^2 - 4))/4 = (1 + sqrt(2c^2 - 1))/2. Quindi, è sufficiente trovare valori di c tali che d^2 - 2c^2 = -1 per qualche intero d. Se (d, c) è una soluzione, (3*d + 4*c, 2*d + 3*c) è la prossima soluzione. Pertanto, le soluzioni intere per c possono essere generate ricorsivamente e ciascuna può essere tradotta in una soluzione distinta per il valore di b. Questo ragionamento porta alla coppia di equazioni ricorsive:
+
+b(k+1) = 3*b(k) + 2*n(k) - 2
+n(k+1) = 4*b(k) + 3*n(k) - 3
+
+Adesso possiamo scrivere la funzione:
+756872327473
+
+(define (e100)
+  (let ((n 21) (b 15) (b1 0) (n1 0))
+    (while (< n 1000000000000)
+      (setq b1 (+ (* 3 b) (* 2 n) (- 2)))
+      (setq n1 (+ (* 4 b) (* 3 n) (- 3)))
+      (setq b b1 n n1)
+    )
+    b))
+
+(e100)
+;-> 756872327473
+
+(time (e100))
+;-> 0
+
+============================================================================
 
 
 ===============
@@ -39831,7 +42220,6 @@ Seconda versione:
   )
 )
 
-
 Terza versione:
 
 (define (factor-group x)
@@ -43399,7 +45787,7 @@ Se nel pannello attuale non è possibile cancellare più caratteri allora inizia
 Il gioco di Wythoff
 -------------------
 
-Il gioco di Wythoff è un gioco di sottrazione matematica per due giocatori, giocato con due pile di monete. I giocatori, a turno, rimuovono alcune monete da una o entrambe le pile. Quando si rimuovono le monete da entrambe le pile, allora le monete rimosse da ogni pila deve essere uguale. Il gioco termina con la vittoria del giocatore che rimuove l'ultima moneta.
+Il gioco di Wythoff è un gioco di sottrazione matematica per due giocatori, giocato con due pile di monete. I giocatori, a turno, rimuovono alcune monete da una o entrambe le pile. Quando si rimuovono le monete da entrambe le pile, allora il numero di monete rimosse da ogni pila deve essere uguale. Il gioco termina con la vittoria del giocatore che rimuove l'ultima moneta.
 
 Una descrizione equivalente del gioco è quello di una regina degli scacchi che viene posizionata in una casella di una scacchiera e ogni giocatore può spostare la regina verso l'angolo in basso a sinistra della scacchiera (a1): sud, ovest o sud e ovest, per un qualsiasi numero di caselle. Il vincitore è il giocatore che riesce a posizionare la regina nell'angolo.
 
@@ -43505,6 +45893,78 @@ Vediamo dove si trovano queste posizioni nel caso della regina nella scacchiera:
      0   1   2   3   4   5   6   7   8   9   10  11  12  13  14  15
 
 
+--------------------
+Ordinamento per rime
+--------------------
+
+L'ordinamento per rime (rhyming sort) consiste nell'ordinare una lista di parole in base alla rima. Si tratta semplicemente di ordinare le parole da destra a sinistra.
+
+(define (rimesort lst)
+  (map reverse (sort (map reverse lst))))
+
+(rimesort '("sasso" "masso" "gradasso" "spasso" "grasso"))
+;-> ("gradasso" "masso" "spasso" "grasso" "sasso")
+
+
+---------------
+Lista circolare
+---------------
+
+Implementiamo una struttura dati che si comporta come una lista circolare.
+
+; creiamo un contesto per la struttura
+(context 'circ-list)
+; inizializzazione della lista circolare
+(define (circ-list:init lst)
+  (let (n (length lst))
+    (setq
+          circ-list:items (array n lst)
+          circ-list:i 0
+          circ-list:end n)))
+; valore elemento corrente della lista circolare (con avanzamento)
+(define (circ-list:next)
+  (cond ((= circ-list:i circ-list:end)
+          (setq circ-list:i 0)
+          (++ circ-list:i)
+          (circ-list:items (- circ-list:i 1)))
+        (true
+          (++ circ-list:i)
+          (circ-list:items (- circ-list:i 1)))))
+; valore elemento corrente della lista circolare (senza avanzamento)
+(define (circ-list:cur) (circ-list:items (- circ-list:i 1)))
+; indice del prossimo elemento della lista circolare
+(define (circ-list:index) circ-list:i)
+; lunghezza della lista circolare
+(define (circ-list:len) circ-list:end)
+;valore della lista circolare
+(define (circ-list:values) circ-list:items)
+; ritorniamo al contesto principale
+(context MAIN)
+
+proviamo la nostra struttura:
+
+(circ-list:init (sequence 1 3))
+;-> 3 ; numero di elementi della lista
+(circ-list:next)
+;-> 1
+(circ-list:next)
+;-> 2
+(circ-list:next)
+;-> 3
+(circ-list:next)
+;-> 1
+(circ-list:next)
+;-> 2
+(circ-list:cur)
+;-> 2 ;valore attuale
+(circ-list:index)
+;-> 2 ;indice del prossimo numero
+(circ-list:len)
+;-> 3 ;lunghezza della lista
+(circ-list:values)
+;-> (1 2 3) ; valori della lista
+
+
 ====================================================
 
  DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
@@ -43531,7 +45991,7 @@ Valori della notazione Big-O in funzione del numero di ingresso
 Contare i bit di un numero (McAfee)
 -----------------------------------
 
-Dato un numero intero positivo n, contare il numero di bit che valgono 1 nella sua rappresentazione binaria.
+Dato un numero intero positivo n, contare il numero di bit che hanno valore 1 nella sua rappresentazione binaria.
 
 Possiamo trasformare il numero in binario e contare quanti bit hanno valore 1.
 Le funzioni di conversione decimale e binario sono le seguenti:
@@ -47387,7 +49847,7 @@ La soluzione usa la tecnica ricorsiva di backtracking:
       (cond ((< end 0) nil)
             ((zero? resto) (push cur-out out -1))
             ((>= resto (monete end))
-              (cambio-min-aux end 
+              (cambio-min-aux end
                               (- resto (monete end))
                               (push (monete end) cur-out -1)))
             (true (cambio-min-aux (- end 1) resto cur-out))
@@ -48017,7 +50477,7 @@ Destinazione: (7 5)
 ;-> (0 1 1 1 2 2 1 1 0 0)
 ;-> (1 1 1 1 1 0 0 1 1 1)
 ;-> (0 0 1 0 0 1 1 0 0 1)
-;-> (12 (0 0) (0 1) (1 1) (1 2) (2 2) (3 2) (3 3) 
+;-> (12 (0 0) (0 1) (1 1) (1 2) (2 2) (3 2) (3 3)
 ;->     (4 3) (5 3) (5 4) (6 4) (7 4) (7 5))
 
 
@@ -48093,7 +50553,7 @@ Lista di tutti gli eventi possibili (ogni elemento della lista rappresenta un la
 ;->  (2 5) (2 6) (3 1) (3 2) (3 3) (3 4) (3 5) (3 6) (4 1) (4 2)
 ;->  (4 3) (4 4) (4 5) (4 6) (5 1) (5 2) (5 3) (5 4) (5 5) (5 6)
 ;->  (6 1) (6 2) (6 3) (6 4) (6 5) (6 6))
- 
+
 Calcolo gli eventi favorevoli a p1, quelli favorevoli a p2 e quelli in parità:
 
 (setq p1 0)
@@ -48322,7 +50782,7 @@ Usiamo un dizionario (hash-map) che ci permette di inserire automaticamente solo
     ; inserisce i valori della lista 2 sull'hash-map
     ; (solo quelli non presenti nell'hash-map)
     (dolist (el lst2) (Hash el el))
-    ; creazione della lista di output 
+    ; creazione della lista di output
     (dolist (el (Hash)) (push (el 1) out -1))
     ; occorre eliminare i valori dalla hash-map
     ; perchè è una variabile globale (è un contesto)
@@ -48340,7 +50800,7 @@ Tripla crescente (LeetCode)
 ---------------------------
 
 Data una lista non ordinata restituire, se esiste, una sottosequenza crescente di lunghezza 3.
-I numeri non devono essere necessariamente consecutivi. 
+I numeri non devono essere necessariamente consecutivi.
 Il problema non richiede di trovare la sottosequenza, ma verificare solo la sua esistenza.
 
 Dal punto di vista formale occorre trovare una sequenza x, y e z, tale che x < y < z.
@@ -48358,7 +50818,7 @@ Dal punto di vista formale occorre trovare una sequenza x, y e z, tale che x < y
             (true (setq out true))
       )
     )
-    ; I valori memorizzati in x,y,z non sono 
+    ; I valori memorizzati in x,y,z non sono
     ; necessariamente la sottosequenza crescente
     ;(println x { } y { } z)
     out
@@ -48455,10 +50915,10 @@ Ad esempio, data s = "abcba" e k = 2, la sottostringa più lunga con k distinti 
       (++ end)
       (while test
         (setq dist-char (length (unique (explode (slice s start (- end start))))))
-        (if (<= dist-char k) 
+        (if (<= dist-char k)
            (setq test nil)
            (++ start)
-        )  
+        )
       )
       (setq test true)
       (setq max-len (max max-len (- end start)))
@@ -48535,7 +50995,7 @@ Scriviamo la funzione "tripla":
 (tripla '(0 -1 2 -3 1 ) -2)
 ;-> ((-3 -1 2) (-3 0 1))
 (tripla '(0 1 2 3 4 5 6 7 8 9 -9 -8 -7 -6 -5 -4 -3 -2 -1) 5)
-;-> ((-9 5 9) (-9 6 8) (-8 4 9) (-8 5 8) (-8 6 7) (-7 3 9) (-7 4 8) (-7 5 7) 
+;-> ((-9 5 9) (-9 6 8) (-8 4 9) (-8 5 8) (-8 6 7) (-7 3 9) (-7 4 8) (-7 5 7)
 ;->  (-6 2 9) (-6 3 8) (-6 4 7) (-6 5 6) (-5 1 9) (-5 2 8) (-5 3 7) (-5 4 6)
 ;->  (-4 0 9) (-4 1 8) (-4 2 7) (-4 3 6) (-4 4 5) (-3 -1 9) (-3 0 8) (-3 1 7)
 ;->  (-3 2 6) (-3 3 5) (-2 -1 8) (-2 0 7) (-2 1 6) (-2 2 5) (-2 3 4) (-1 0 6)
@@ -48558,7 +51018,7 @@ Utilizziamo la funzione "powerset" che genera tutte le sottoliste di una lista e
            (append (map (fn (subset) (cons element subset)) p) p) )))
 
 (powerset '(1 3 4 2))
-;-> ((1 3 4 2) (1 3 4) (1 3 2) (1 3) (1 4 2) (1 4) (1 2) 
+;-> ((1 3 4 2) (1 3 4) (1 3 2) (1 3) (1 4 2) (1 4) (1 2)
 ;->  (1) (3 4 2) (3 4) (3 2) (3) (4 2) (4) (2) ())
 
 Utilizzeremo la funzione "apply":
@@ -49469,15 +51929,15 @@ La soluzione è analoga alla precedente, l'unica differenza sta nel fatto che in
 
 (crea-spirale 3)
 ;-> ((1 2 3) (8 9 4) (7 6 5))
-(1 2 3) 
-(8 9 4) 
+(1 2 3)
+(8 9 4)
 (7 6 5)
 
 (crea-spirale 4)
 ;-> ((1 2 3 4) (12 13 14 5) (11 16 15 6) (10 9 8 7))
-( 1  2  3 4) 
-(12 13 14 5) 
-(11 16 15 6) 
+( 1  2  3 4)
+(12 13 14 5)
+(11 16 15 6)
 (10  9  8 7)
 
 
@@ -49516,7 +51976,7 @@ Caso 2: se l'occorrenza precedente di questo carattere fa parte della sottostrin
           (++ cur-len)
           ; case 2
           (begin
-          ; Check if the length of previous running substring 
+          ; Check if the length of previous running substring
           ; was more than the current or not
           (if (> cur-len max-len)
               (setq max-len cur-len))
@@ -49526,7 +51986,7 @@ Caso 2: se l'occorrenza precedente di questo carattere fa parte della sottostrin
       ; Index update of current character
       (setf (visited (char (str i) 0 true)) i)
     )
-    ; Compare the length of last current running longest substring 
+    ; Compare the length of last current running longest substring
     ; with max-len and update max-len if needed
     (if (> cur-len max-len)
         (setq max-len cur-len)
@@ -49550,7 +52010,7 @@ La seguente funzione utilizza un algoritmo simile al precedente:
 (define (unique-substr str)
   (local (last-index len res-num res-str max-char idx cur-idx)
     (setq max-char 256)
-    ; Initialize the last index array as -1, 
+    ; Initialize the last index array as -1,
     ; -1 is used to store last index of every character
     (setq last-index (array max-char '(-1)))
     (setq len (length str))
@@ -49649,6 +52109,70 @@ Vediamo una possibile implementazione:
 ;-> "aveva"
 
 
+--------------------
+Cifre diverse (Visa)
+--------------------
+
+Quanti numeri hanno cifre diverse da 1 a un milione?
+
+Per vedere se due numeri hanno le stesse cifre possiamo ordinare le cifre in modo decrescente e poi verificare se l'ordinamento è lo stesso per entrambi i numeri. Per fare questa codifica usiamo la funzione "digit-sort":
+
+(define (digit-sort num)
+  (let (out 0)
+    (dolist (el (sort (explode (string num)) >))
+      (setq out (+ (* out 10) (int el))))))
+
+Per esempio i due numeri 45637028 e 65782043 hanno le stesse cifre e quindi producono la stessa codifica:
+
+(digit-sort 45637028)
+;-> 87654320
+(digit-sort 65782043)
+;-> 87654320
+
+Le cifre devono essere uguali anche nella molteplicità, ad esempio 123 è diverso da 1223:
+
+(digit-sort 123)
+;-> 321
+(digit-sort 1223)
+;-> 3221
+
+Possiamo inserire tutte le codifiche in una lista e poi eliminare gli elementi multipli:
+
+(define (unici num)
+  (let (out '())
+    (for (i 1 num)
+      (push (digit-sort i) out -1)
+    )
+    (length (unique out))))
+
+(unici 1000000)
+;-> 8002
+
+(time (unici 1000000))
+;-> 4466.223
+
+Proviamo ad utilizzare una hash-map:
+
+(define (unici2 num)
+  (let ((key 0) (out '()))
+    (new Tree 'myHash)
+    (for (i 1 num)
+      (setq key (digit-sort i))
+      (myHash key key)
+    )
+    (println (length (myHash)))
+    (delete 'myHash)
+  ))
+
+(unici2 1000000)
+;-> 8002
+
+(time (unici2 1000000))
+;-> 4247.46
+
+Le due funzioni hanno tempi simili perchè nella prima funzione la primitiva "unique" è molto veloce e non facciamo nessun accesso random alla lista.
+
+
 ==========
 
  LIBRERIE
@@ -49704,7 +52228,7 @@ Dato il numero complesso z = |z|*e^it:
 a = Re(z) = |z|*cos(t)
 b = Im(z) = |z|*sin(t)
 
-Adesso dobbiamo scrivere due funzioni che convertono un numero complesso tra le forme cartesiana ed esponenziale. Anche il numero complesso in forma esponenziale può essere rappresentato da una lista con due valori:
+Adesso dobbiamo scrivere due funzioni che convertono un numero complesso tra le due forme cartesiana ed esponenziale. Anche il numero complesso in forma esponenziale può essere rappresentato da una lista con due valori:
 
  |z|e^it  -->  (z t)
 
@@ -59500,9 +62024,9 @@ Per finire scriviamo una funzione che calcola Z(s) con numeri floating-point:
 ;-> 1.082323233710861
 
 
------------------------------
-Rotazione di stringhe e liste
------------------------------
+-------------------------------------
+Rotazione di stringhe, liste e numeri
+-------------------------------------
 
 Scrivere una funzione che produce tutte le rotazioni di una stringa (e di una lista)
 Esempio: "abc" -> "abc" "bca" "cab"
@@ -59553,6 +62077,36 @@ Vediamo la differenza di velocità:
 ;-> 164.827
 
 Quindi con le stringhe è meglio usare "ruota", mentre con le liste è meglio "ruota2".
+
+Per i numeri possiamo utilizzare un algoritmo diverso notando che risulta:
+
+r(n) = (n + (10^(L(n)) - 1)*(n mod 10))/10
+
+dove L(n) è la lunghezza del numero n.
+
+La funzione che ruota una cifra di un numero:
+
+(define (rotate-num n)
+  (/ (+ n (* (- (pow 10 (length n)) 1) (% n 10))) 10))
+
+(rotate-num 123)
+;-> 312
+
+Funzione che crea la lista di tutti i numeri ruotati di n (n compreso):
+
+(define (ruota-num num)
+  (local (val out)
+    (setq val num)
+    (setq out '())
+    (push val out)
+    (for (i 1 (- (length num) 1))
+      (setq val (rotate-num val))
+      (push val out -1)
+    )
+    out))
+
+(ruota-num 123456)
+;-> (123456 612345 561234 456123 345612 234561)
 
 
 ------------------------------
@@ -60307,8 +62861,6 @@ Elenco di tutti gli elementi (chiave valore) della hashmap:
 Se una chiave non esiste, allora newLISP restituisce nil:
 (myHash "X")
 ;-> nil
-(myHash "X")
-;-> nil
 
 Per eliminare un valore occorre assegnare il valore nil:
 (myHash "K" nil)
@@ -60349,8 +62901,6 @@ Adesso scriviamo la funzione che calcola le frequenze:
 ;-> (("1" 2) ("2" 2) ("3" 2) ("4" 2) ("5" 2))
 (freq '())
 ;-> ()
-
-
 
 
 --------------------------------------
@@ -62245,7 +64795,7 @@ Un altro esempio:
 (fract2fc 79 22)
 ;-> (3 1 1 2 4)
 
-Adesso dobbiamo scrivere una funzione che converte una frazione continua in un numero fratto (numeratore e denominatore).
+Adesso dobbiamo scrivere una funzione che converte una frazione continua in un numero fratto (numeratore e denominatore). In altre parole si tratta del calcolo dei convergenti di una frazione continua.
 Utilizziamo le seguenti funzioni per calcolare la somma di due frazioni:
 
 (define (rat n d)
@@ -63496,7 +66046,7 @@ Si noti che nelle liste con meno di circa 100 elementi o stringhe di meno di cir
 
 Le funzioni integrate e definite dall'utente sono adatte per entrambi i tipi di argomenti, ma quando si passano i nomi di contesto, i dati verranno passati per riferimento.
 
-I simboli tra virgolette possono anche essere utilizzati per passare i dati per riferimento, ma questo metodo presenta degli svantaggi:
+I simboli quotati possono anche essere utilizzati per passare i dati per riferimento, ma questo metodo presenta degli svantaggi:
 
 (define (change-list aList) (push 999 (eval aList)))
 
@@ -63904,7 +66454,10 @@ Come si nota, se partiamo dalla posizione "testa" non possiamo mai ottenere un l
       ; crea una lista di 0 e 1 alternati di lunghezza casuale (da 3 a 22)
       ; che inizia con 0 (testa).
       ; Restituisce una lista con il numero di 0 e di 1.
+      ; inizia con testa 0
       (setq res (count '(0 1) (slice (flat (dup '(0 1) 11)) 0 (+ (rand 19) 3))))
+      ; inizia con croce 1
+      ;(setq res (count '(0 1) (slice (flat (dup '(1 0) 11)) 0 (+ (rand 19) 3))))
       (setq t (+ t (first res)))
       (setq c (+ c (last res)))
     )
@@ -65129,7 +67682,7 @@ Ci vogliono 1.008094955964925e+041 anni.
 
 L'età dell'universo è 13.8 miliardi di anni (1.38e+010)...
 
-In realtà non hanno calcolato il numero, ma hanno costruito il problema in modo che la soluzione fosse quella desiderata. Nella teoria dei numeri, ci sono vari teoremi che ti dicono come si relazioneranno due numeri e, se vengono usati in modo intelligente, è possibile creare problemi come questo.
+In realtà non hanno calcolato il numero, ma hanno costruito il problema in modo che la soluzione fosse quella desiderata. Nella teoria dei numeri, ci sono vari teoremi che definiscono come si relazioneranno due numeri e, se vengono usati in modo opportuno, è possibile creare problemi come questo.
 
 Un altro esempio è il seguente:
 
@@ -65168,7 +67721,7 @@ Definizioni:
 (ceil x) = min (n ≥ x) dove n è intero
 (fract x) = x - (floor x)
 
-QUindi risulta:
+Quindi risulta:
 
 (x - 1) < m ≤ x ≤ n < (x + 1)
 
@@ -65210,6 +67763,7 @@ Vediamo alcuni esempi:
 ----------------
 Multipli di nove
 ----------------
+
 Un fatto noto nella teoria dei numeri è che se prendiamo un intero positivo e sottraiamo la somma delle sue cifre da quel numero, otteniamo un multiplo di 9.
 
 (define (mul9 n)
@@ -65366,7 +67920,7 @@ Tutte le versioni stampano il seguente risultato:
 Conversione tra liste, stringhe, caratteri e simboli
 ----------------------------------------------------
 
-Definiamo due funzioni che convertono una stringa in una lista di caratteri e vicerversa.
+Definiamo due funzioni che convertono una stringa in una lista di caratteri e viceversa.
 
 Stringa --> lista di caratteri
 ------------------------------
@@ -65458,7 +68012,6 @@ somma dei divisori = (1 + p(1) + p(1)^2 + ... + p(1)^a(1)) *
                      (1 + p(2) + p(2)^2 + ... + p(2)^a(2)) * ... *
                      (1 + p(k) + p(k)^2 + ... + p(k)^a(k))
 
-lista divisori
 I divisori possono essere generati ricorsivamente utilizzando tutti i primi p(i) e le loro occorrenze a(i). Ogni fattore primo p(i), può essere incluso x volte dove 0 ≤ x ≤ a(i).
 
 Lista dei divisori
@@ -65713,7 +68266,7 @@ N = 3
 ; calcolo dei resti
 (map (fn(x) (% x 3)) one)
 ;-> (1 2 0 1)
-Abbiamo due resti uguale a 1, che corrispondono ai numeri 1 e 1111. 
+Abbiamo due resti uguale a 1, che corrispondono ai numeri 1 e 1111.
 Calcoliamo la differenza tra questi due numeri:
 (- 1111 1)
 ;-> 1110
@@ -65740,7 +68293,7 @@ Quindi il nostro algoritmo sarà il seguente:
 0. creare una hash-map (che conterrà elementi con chiave uguale al resto e valore uguale al relativo numero con tutti 1).
 1. generare il prossimo numero con tutti 1 (numero one)
 2. calcolare il resto della divisione tra il numero one e il numero dato
-3. se il resto non esiste nella hash-map, 
+3. se il resto non esiste nella hash-map,
       allora inserirlo nella hash-map (resto one) e andare al passo 1
       altrimenti recuperare il numero nella hash-map che ha la chiave uguale a resto e sottrarlo al numero one attuale.
       Fine.
@@ -65808,7 +68361,7 @@ Le funzioni (uno-zero e uz) producono due risultati differenti, ma entrambi sono
 
 La funzione (uz 12345) produce un numero molto lungo:
 
-(length (last (uz 12345))) 
+(length (last (uz 12345)))
 ;-> 818
 
 Riscriviamo la funzione in maniera più compatta:
@@ -65830,7 +68383,7 @@ Riscriviamo la funzione in maniera più compatta:
                   (myHash (string dv) val)
                   ; altrimenti calcoliamo il risultato...
                   ; che è la differenza tra il valore attuale del numero one (val)
-                  ; e il valore del numero one (nella hash-map) che ha lo stesso resto 
+                  ; e il valore del numero one (nella hash-map) che ha lo stesso resto
                   ; del numero one attuale (myHash (string dv))
                   (setq out (- val (myHash (string dv))))
               )
@@ -65856,7 +68409,7 @@ Riscriviamo la funzione in maniera più compatta:
 (div 11111111111111111111111111111111111111111111111111111111111111111111111111111111111111110L
  9004141905276427156491986313704303979830722132180803169457950657302359085179182423915L)
  ;-> 1234
- 
+
 Con questa ultima funzione possiamo usare come parametro dei numeri maggiori:
 
 (length (last (uz 12345)))
@@ -66800,6 +69353,2385 @@ Valore vero: 2
 Valore vero: 3.1415926535897931 (pi greco)
 
 
+---------------
+Fattorizzazione
+---------------
+
+Per fattorizzare un numero intero abbiamo la funzione integrata "factor":
+
+(factor 1372000)
+;-> (2 2 2 2 2 5 5 5 7 7 7)
+
+In cui compaiono tutti i fattori del numero. Se volessimo raggruppare i fattori in comune dobbiamo scrivere una funzione. Vediamo diversi metodi per trovare quello più veloce.
+
+Funzione 1:
+
+(define (factor-g1 num)
+  (if (< num 2) nil
+      (letn (fattori (factor num)
+            unici (unique fattori))
+            (transpose (list unici (count unici fattori))))))
+
+(factor-g1 1372000)
+;-> ((2 5) (5 3) (7 3))
+
+Funzione 2:
+
+(define (factor-g2 x)
+  (letn (fattori (factor x)
+         unici (unique fattori))
+        (map list unici (count unici fattori))))
+
+(factor-g2 1372000)
+;-> ((2 5) (5 3) (7 3))
+
+Funzione 3:
+
+(define (factor-g3 num)
+  (if (< num 2) nil
+      (let (factorlist (factor num) factorlist-grouped '())
+        (dolist (y (unique factorlist))
+           (push (append (list y) (count (list y) factorlist)) factorlist-grouped -1))
+        factorlist-grouped)))
+
+(factor-g3 1372000)
+;-> ((2 5) (5 3) (7 3))
+
+Funzione 4:
+il quarto metodo usa la tecnica Run Lenght Encode (infatti applicando l'algoritmo RLE al risultato della funzione "factor" si ottiene il risultato):
+
+(define (factor-g4 num)
+  (if (< num 2) nil
+      (letn ((out '()) (lst (factor num)) (cur-val (first lst)) (cur-count 0))
+        (dolist (el lst)
+          (if (= el cur-val) (++ cur-count)
+              (begin
+                (push (list cur-val cur-count) out -1)
+                (setq cur-count 1 cur-val el))))
+        (push (list cur-val cur-count) out -1))))
+
+(factor-g4 1372000)
+;-> ((2 5) (5 3) (7 3))
+
+Vediamo se le quattro funzioni producono gli stessi risultati:
+
+(= (map factor-g1 (sequence 2 10000))
+   (map factor-g2 (sequence 2 10000))
+   (map factor-g3 (sequence 2 10000))
+   (map factor-g4 (sequence 2 10000)))
+;-> true
+
+Vediamo i tempi di esecuzione:
+
+(silent (setq seq (sequence 1e6 1e7)))
+(time (map factor-g1 seq))
+;-> 28214.053
+(time (map factor-g2 seq))
+;-> 28532.154
+(time (map factor-g3 seq))
+;-> 40389.041
+(time (map factor-g4 seq))
+;-> 23980.14
+
+L'ultima funzione è quella più veloce.
+
+
+--------------
+"setq" o "set"
+--------------
+
+Notiamo che "setq" è più veloce di "set":
+
+(time (setq a 10 b 20 c 30) 10000000)
+;-> 382.001
+(time (set 'a 10 'b 20 'c 30) 10000000)
+;-> 479.744
+
+(time (for (i 1 10000) (setq a 10)) 10000)
+;-> 2287.881
+(time (for (i 1 10000) (set 'd 10)) 10000)
+;-> 2638.974
+
+E possiamo sempre divertirci scrivendo:
+
+(setq --> setq)
+(--> a 3)
+a
+;-> 3
+
+
+-------
+Memfrob
+-------
+
+Memfrob è un algoritmo di crittografia leggero che funziona facendo lo xor tra il numero 42(10) = 00101010(2) con ogni carattere (byte) di input per creare un output crittografato. La decrittazione è simmetrica alla crittografia. Memfrob è più o meno equivalente a ROT13 nella sicurezza crittografica.
+
+Codifica di un carattere:
+(char (^ (char "a") 42))
+;-> "K"
+
+Decodifica del carattere:
+(char (^ (char "K") 42))
+;-> "a"
+
+Le funzioni di codifica e decodifica di un carattere sono uguali:
+
+(define (frob c) (char (^ (char c) 42)))
+
+Scriviamo la funzione per criptare/decriptare una stringa:
+
+(define (memfrob str) (join (map frob (explode str))))
+
+(memfrob "pippo")
+;-> "ZCZZE"
+
+(memfrob "ZCZZE")
+;-> "pippo"
+
+(memfrob (memfrob "newLISP is fun"))
+;-> "newLISP is fun"
+
+Nota: il numero 42 ricorda il libro "Guida Galattica per Autostoppisti" di Douglas Adams.
+
+
+----------------------
+Generatore di sequenze
+----------------------
+
+Scriviamo un programma che genera la seguente sequenza:
+
+1, 5, 10, 50, 100, 500, 1000, 5000, 10000
+
+La sequenza si ottiene partendo da 1 e moltiplicando il numero alternativamente per 5 e per 2:
+
+1
+1*5    -> 5
+5*2    -> 10
+10*5   -> 50
+50*2   -> 100
+100*5  -> 500
+500*2  -> 1000
+...
+
+Una possibile soluzione è la seguente:
+
+(define (seq1 n)
+  (local (out m1 m2 val flip)
+    (setq out '(1))
+    (setq val 1)
+    (setq m1 5 m2 2)
+    (setq flip nil)
+    (while (<= (* val m2) n)
+      (if flip
+          (setq val (* val m2) flip nil)
+          (setq val (* val m1) flip true)
+      )
+      (push val out -1)
+    )
+    out))
+
+(seq1 50001)
+;-> (1 5 10 50 100 500 1000 5000 10000 50000)
+
+Possiamo scrivere una funzione più generale per generare questo tipo di sequenze utilizzando una lista circolare e parametrizzando l'operatore aritmetico. La lista circolare contiene i valori dei moltiplicatori e l'operatore aritmetico "+" oppure "*" viene passato come parametro alla funzione.
+
+Funzioni per la gestione di una lista circolare:
+
+; creiamo un contesto per la struttura
+(context 'circ-list)
+; inizializzazione della lista circolare
+(define (circ-list:init lst)
+  (let (n (length lst))
+    (setq
+          circ-list:items (array n lst)
+          circ-list:i 0
+          circ-list:end n)))
+; valore elemento corrente della lista circolare (con avanzamento)
+(define (circ-list:next)
+  (cond ((= circ-list:i circ-list:end)
+          (setq circ-list:i 0)
+          (++ circ-list:i)
+          (circ-list:items (- circ-list:i 1)))
+        (true
+          (++ circ-list:i)
+          (circ-list:items (- circ-list:i 1)))))
+; valore elemento corrente della lista circolare (senza avanzamento)
+(define (circ-list:cur) (circ-list:items (- circ-list:i 1)))
+; indice del prossimo elemento della lista circolare
+(define (circ-list:index) circ-list:i)
+; lunghezza della lista circolare
+(define (circ-list:len) circ-list:end)
+;valore della lista circolare
+(define (circ-list:values) circ-list:items)
+; ritorniamo al contesto principale
+(context MAIN)
+
+Adesso definiamo la nostra funzione per generare sequenze:
+
+(define (sequenza start n val-lst op)
+  (local (out val)
+    ; inizializziamo la lista circolare
+    (circ-list:init val-lst)
+    (setq out (list start))
+    (setq val start)
+    (while (<= val n) ; calcola qualche elemento di troppo...
+      (setq val ((eval op) val (circ-list:next)))
+      (push val out -1)
+    )
+    ; ...elimina gli elementi di troppo.
+    (filter (fn(x) (<= x n)) out)))
+
+Verifichiamo la funzione con la sequenza iniziale:
+
+(sequenza 1 100001 '(5 2) '*)
+;-> (1 5 10 50 100 500 1000 5000 10000 50000 100000)
+
+Adeesso possiamo generare altre sequenze:
+
+(sequenza 1 10 '(2 1) '+)
+;-> (1 3 4 6 7 9 10)
+(sequenza 10 200 '(2 1) '*)
+;-> (10 20 20 40 40 80 80 160 160)
+
+Non possiamo utilizzare gli operatori aritmetici "-" e "/" perchè non permettono di definire un limite per n. Però possiamo definire un'altra funzione che genera una sequenza di n numeri (invece che fino al numero n).
+
+(define (sequenza-n start num val-lst op)
+  (local (out val)
+    ; inizializziamo la lista circolare
+    (circ-list:init val-lst)
+    (setq out (list start))
+    (setq val start)
+    (for (i 2 num)
+      (setq val ((eval op) val (circ-list:next)))
+      (push val out -1)
+    )
+    out))
+
+(sequenza-n 1 7 '(2 1) '+)
+;-> (1 3 4 6 7 9 10)
+
+(sequenza-n 10 9 '(2 1) '*)
+;-> (10 20 20 40 40 80 80 160 160)
+
+(sequenza-n 10 9 '(2 1) '-)
+;-> (10 8 7 5 4 2 1 -1 -2)
+
+(sequenza-n 1000 9 '(4 3) '/)
+;-> (1000 250 83 20 6 1 0 0 0)
+
+(sequenza-n 0 10 '(1 2 3) '+)
+;-> (0 1 3 6 7 9 12 13 15 18)
+
+
+-----------
+Massimo gap
+-----------
+
+Data una lista non ordinata di interi positivi, trovare la differenza massima tra gli elementi successivi nella sua forma ordinata e gli indici dei relativi valori. Restituire la differenza massima, gli indici dei relativi valori e la lista ordinata.
+
+Funzione che applica un operatore matematico ad ogni coppia di elementi di una lista:
+
+(define (do-pair lst func rev)
+  (if rev
+      (map func (chop lst) (rest lst))
+      (map func (rest lst) (chop lst))))
+
+(do-pair '(1 4 5 10 12) -)
+;-> (3 1 5 2)
+
+Funzione che restituisce il valore massimo di una lista e il relativo indice:
+
+(define (max-with-idx lst)
+  (let ((m -1) (i nil))
+    (dolist (el lst)
+      (if (> el m) (setq m el i $idx))
+    )
+    (list m i)))
+
+(max-with-idx '(3 1 5 2))
+;-> (5 2)
+
+Funzione che trova la soluzione finale:
+
+(define (max-gap lst)
+  (let (out (max-with-idx (do-pair (sort lst) -)))
+    (list (push (+ (last out) 1) out -1) lst)))
+
+(max-gap '(1 5 12 10 4))
+;-> ((5 2 3) (1 4 5 10 12))
+
+
+-------------------------
+Simulazione di un cannone
+-------------------------
+
+Vediamo come simulare la traiettoria di una palla sparata da un cannone.
+Impostiamo i parametri della simulazione 2D:
+
+x     -> valore corrente della posizione della palla lungo direzione orizzontale
+z     -> valore corrente della posizione della palla lungo direzione verticale
+theta -> angolo del cannone (in gradi) con la direzione orizzontale (asse x)
+vel   -> velocità della palla dove vel = |v| (magnitudine)
+vx    -> velocità lungo l'asse x dove vx = |v|·cos(theta)
+vz    -> velocità lungo l'asse z dove vz = |v|·sin(theta)
+t     -> valore corrente del tempo
+g     -> accelerazione di gravità dove  g = -9.81
+dt    -> intervallo di tempo tra due posizioni
+quota -> altezza del cannone
+
+Inoltre la palla di cannone parte al tempo t = 0 con coordinate (x=0 z=0), ma possiamo specificare anche un'altezza di lancio (quota).
+
+Rappresentiamo la traiettoria con un lista del tipo seguente:
+
+((t0 x0 z0) (t1 x1 z1) ... (tn xn zn))
+
+dove (ti xi zi) rappresenta la i-esima posizione della palla (al tempo ti nella posizione (xi zi)).
+Da notare che zn deve risultare uguale (o poco minore) a zero.
+
+Rappresentazione 2D:  
+
+   z
+   |
+   |  direzione di tiro del cannone
+   |    /
+   |   /
+   |  /
+   | /
+   |/ theta = angolo del cannone con asse x
+ 0 +---------------------x
+   0
+
+Traiettoria del proiettile:
+
+   z
+   |              *  
+   |         *         *
+   |      *               *
+   |   *                     *
+   | *                         *
+ 0 +--------------------------------x
+   0
+
+Per calcolare la simulazione utilizzeremo il metodo di Eulero che consiste nell'iniziare con un valore iniziale di una quantità (come la posizione) e un'equazione che descrive le sue derivate (come la velocità e l'accelerazione). Il calcolo delle derivate ci permette di aggiornare i valori passo per passo. Maggiori spiegazioni nei commenti della funzione.
+
+(define (cannone vel theta quota dt g)
+  (local (ts xs zs vx vz t x z)
+    ; liste che contengono tutti i valori della traiettoria (x, z, t)
+    (setq ts '() xs '() zs '())
+    ; calcola la velocita iniziale x (converte theta in radianti)
+    ; (vx = 0 quando theta = 90)
+    (if (= theta 90) 
+        (setq vx 0)
+        (setq vx (mul vel (cos (div (mul 3.1415926535897931 theta) 180))))
+    )
+    ; calcola la velocita iniziale z (converte theta in radianti)
+    ; (vz = 0 quando theta = 0 o 180)
+    (if (or (= theta 0) (= theta 180))
+        (setq vz 0)    
+        (setq vz (mul vel (sin (div (mul 3.1415926535897931 theta) 180))))
+    )
+    ;(println "vx =" vx)
+    ;(println "vz =" vz)
+    ;(read-line)
+    ; initializza tempo, posizione x, posizione z
+    (setq t 0 x 0 z quota)
+    (while (>= z 0)
+      ; aggiorna il tempo
+      (setq t (add t dt))
+      ; aggiorna la velocita vz (la velocita vx non cambia)
+      (setq vz (add vz (mul g dt)))
+      ; aggiorna la posizione x
+      (setq x (add x (mul vx dt)))
+      ; aggiorna la posizione z
+      (setq z (add z (mul vz dt)))
+      ; inserisce i valori correnti nelle liste
+      (push t ts -1)
+      (push x xs -1)
+      (push z zs -1)
+    )
+    (map list ts xs zs)))
+
+Vediamo alcuni esempi riportando solo l'ultima riga della lista:
+
+(cannone 20 30 0 0.01 -9.81)
+;-> (2.030000000000001 35.16063139364815 -0.01258599999999832))
+
+(cannone 20 45 0 0.01 -9.81)
+;-> (2.879999999999983 40.72935059634507 -0.0959454036549173))
+
+(cannone 20 60 0 0.01 -9.81)
+;-> (3.529999999999969 35.30000000000023 -0.1524674928186893))
+
+Spariamo all'indietro (theta = 135):
+
+(cannone 20 135 0 0.01 -9.81)
+;-> (2.879999999999983 -40.72935059634507 -0.09594540365491522))
+
+Spariamo in verticale (theta = 90):
+
+(cannone 20 90 0 0.01 -9.81)
+;-> (4.069999999999958 0 -0.0504679999999175))
+
+Spariamo in orizzontale (theta = 0):
+
+(cannone 20 0 0 0.01 -9.81)
+;-> ((0.01 0.2 -0.0009810000000000001))
+In questo caso abbiamo un solo elemento nella lista.
+
+Spariamo in orizzontale (theta = 180):
+
+(cannone 20 180 0 0.01 -9.81)
+;-> ((0.01 0.2 -0.0009810000000000001))
+In questo caso abbiamo un solo elemento nella lista.
+
+Per visualizzare la traiettoria utilizziamo il modulo "plot.lsp" che permette di creare alcuni tipi di grafici.
+Questo modulo utilizza guiserver.jar che deve essere installato sulla cartella di newLISP.
+
+Importiamo il modulo:
+
+(module "plot.lsp")
+
+Adesso scriviamo la funzione che visualizza la traiettoria del proiettile:
+
+(define (plot-tra lst-txz theta)
+  (local (xx zz)
+    ; azzera parametri della funzione plot
+    (plot:reset)
+    ; opzionale title, sub-title, labels e legend, data min/max per Y
+    (set 'plot:title "Simulazione cannone")
+    (set 'plot:sub-title (string "Angolo = " theta))
+    (set 'plot:unit-x "distanza")
+    (set 'plot:unit-y "quota")
+    ; crea il file dei dati (lista dei valori x e lista dei valori z)
+    (setq xx '())
+    (setq zz '())
+    (dolist (el lst-txz)
+      (push (first (rest el)) xx -1)
+      (push (last el) zz -1 ))
+    ; plot data      
+    (plot:XY xx zz)
+    ; salva il plot su un file
+    (plot:export (string "traiettoria-" theta ".png"))))
+
+Proviamo a creare alcuni grafici:
+
+(plot-tra (cannone 20 30 0 0.01 -9.81) 30)
+
+(plot-tra (cannone 20 45 0 0.01 -9.81) 45)
+
+(plot-tra (cannone 20 60 0 0.01 -9.81) 60)
+
+Spariamo da una altezza di 10 metri:
+
+(plot-tra (cannone 20 45 10 0.01 -9.81) 40)
+
+Le immagini dei grafici si trovano nella cartella "data".
+
+Per sparare dalla luna occorre cambiare il valore dell'accelerazione gravitazionale.
+
+
+--------------------------------
+Ottimizzare il taglio di un tubo
+--------------------------------
+
+Data un tubo di acciaio di una certa lunghezza e una lista di prezzi per ogni lunghezza, come dovremmo tagliare il tubo in modo da massimizzare il profitto (ogni taglio deve produrre due tubi con lunghezze intere). Ad esempio:
+
+Lunghezza 1 2 3 4  5  6  7  8
+Prezzo    1 5 8 9 10 17 18 20
+
+con un tubo di lunghezza 4, il valore è 9. Se tagliamo il tubo in due abbiamo due tubi lunghi 1 che valgono 5+5 = 10.
+Ma non siamo sicuri se quest'ultima sia la soluzione ottimale oppure no, perché non abbiamo visto tutti i valori possibili.
+La tabella seguente elenca tutti i modi possibili di tagliare il tubo e il relativo valore ottenuto:
+
+Lunghezza delle parti     Valore totale
+4                         9
+1, 3                      1 + 8 = 9
+1, 1, 2                   1 + 1 + 5 = 7
+1, 1, 1, 1                1 + 1 + 1 + 1 = 4
+2, 2                      5 + 5 = 10
+
+La prima soluzione utilizza la tecnica della ricorsione. 
+La soluzione ricorsiva si basa sul calcolo di tutte le possibili combinazioni e dei valori associati a ciascuna combinazione e restituisce il massimo di tutti questi valori.
+
+La lista lst-val contiene il valore di ogni lunghezza.
+La variabile len contierne la lunghezza totale del tubo.
+Occorrono tanti valori di lst-val fino alla lunghezza len.
+
+Versione ricorsiva:
+
+(define (tubo-r lst-val len)
+  (local (maxval)
+  (cond ((<= len 0) 0)
+        (true
+          (setq maxval -99999999)
+          (for (i 0 (- len 1))
+            (setq maxval (max maxval (+ (lst-val i) (tubo-r lst-val (- len i 1)))))
+          )))))
+
+(tubo-r '(1 5 8 9) 4)
+;-> 10 (un pezzo lungo 2 e un pezzo lungo 2 --> 5 + 5 = 10)
+(tubo-r '(1 5) 2)
+;-> 5 (un pezzo lungo 2 --> 5)
+(tubo-r '(1 5 8 9 10 17 18 20) 8)
+;-> 22 (un pezzo lungo 2 e un pezzo lungo 6 --> 5 + 17 = 22)
+
+Questa funzione fornisce il risultato corretto, ma calcoliamo alcuni valori di maxval diverse volte. Questo comporta che occorre un tempo esponenziale per ottenere la soluzione.
+
+Vediamo la velocità della funzione:
+
+(time (tubo-r '(1 5 8 9 10 17 18 20) 8) 10000)
+;-> 939.16
+
+La seconda soluzione usa la tecnica memoization.
+Con la memoization memorizziamo il risultato del sottoproblema quando viene calcolato la prima volta e quindi riutilizziamo questo risultato quando incontriamo lo stesso sottoproblema. Per memorizzare i risultati dei sottoproblemi utilizziamo una lista maxval di lunghezza len. L'indice i-esimo di questa lista contiene il maxval per un tubo di lunghezza i. Prima di calcolare il maxval per la lunghezza i, verrà verificato nella lista se il valore per i è già calcolato o meno. Se il valore esiste nella lista, allora viene restituito e non viene calcolato di nuovo.
+La funzione restituisce il valore massimo e la lista maxval.
+
+Versione memoization:
+
+(define (tubo-aux lst-val len)
+  (cond ((<= len 0) 0)
+        ((!= (maxval (- len 1)) 0) (maxval (- len 1)))
+        (true
+          (setf (maxval (- len 1)) -99999999)
+          (for (i 0 (- len 1))
+            (setf (maxval (- len 1)) (max (maxval (- len 1)) (+ (lst-val i) (tubo-aux lst-val (- len i 1)))))
+          )
+          (maxval (- len 1)))))
+
+(define (tubo-m lst-val len)
+  (let (maxval (dup 0 len))
+  (tubo-aux lst-val len)
+  (list (maxval (- len 1)) maxval)))
+
+(tubo-m '(1 5) 2)
+;-> (5 (1 5)) (un pezzo lungo 2 --> 5)
+
+(tubo-m '(1 5 8 9 10 17 18 20) 8)
+;-> (22 (1 5 8 10 13 17 18 22)) (un pezzo lungo 2 e un pezzo lungo 6 --> 5 + 17 = 22)
+
+Questa funzione impiega un tempo polinomiale per calcolare la soluzione, ma non è ancora ottimizzato perché utilizza la ricorsione. 
+
+Vediamo la velocità della funzione:
+
+(time (tubo-m '(1 5 8 9 10 17 18 20) 8) 10000)
+;-> 174.101
+
+La seconda soluzione usa la tecnica chiamata programmazione dinamica.
+In questo caso risolviamo il problema partendo da una lunghezza 0 e ci muoviamo in avanti fino alla lunghezza len.
+
+Versione programmazione dinamica:
+
+(define (tubo-dp lst-val len)
+  (let (maxval (dup 0 (+ len 1)))
+    (setf (maxval 0) 0)
+    (for (i 1 len)
+      (setf (maxval i) -99999999)
+      (for (j 0 (- i 1))
+        (setf (maxval i) (max (maxval i) (+ (lst-val j) (maxval (- i j 1)))))
+      )
+    )
+    (list (maxval len) maxval)))
+
+(tubo-dp '(1 5) 2)
+;-> (5 (0 1 5))
+
+(tubo-dp '(1 5 8 9 10 17 18 20) 8)
+;-> (22 (0 1 5 8 10 13 17 18 22))
+
+Nell'ultimo esempio abbiamo:
+
+Lunghezza 1 2 3 4  5  6  7  8
+Prezzo    1 5 8 9 10 17 17 20
+
+Con la lista maxval che contiene i seguenti valori:
+
+Lunghezza 0 1 2 3 4  5  6  7  8
+Prezzo    0 1 5 8 10 13 17 18 22
+
+Questa funzione ha una complessità O(n^2) ed è più veloce delle soluzioni ricorsive precedenti.
+
+Vediamo la velocità della funzione:
+
+(time (tubo-dp '(1 5 8 9 10 17 18 20) 8) 10000)
+;-> 76.795
+
+
+--------------------------------------
+Generazione automatica di una hash-map
+--------------------------------------
+
+Per generare automaticamente una hash-map utilizziamo la funzione "uuid" che costruisce e ritorna un identificatore unico (stringa) chiamato UUID (Universally Unique IDentifier).
+
+(uuid)
+;-> "3FD45C9C-1313-4ACF-B720-C42CF6319E0C"
+
+Purtroppo non è un simbolo legale per newLISP (perchè inizia con un numero):
+
+(legal? (uuid))
+;-> nil
+
+Allora scriviamo una funzione per generare un simbolo univoco legale:
+
+(define (gensym)
+  (sym (string "g-" (uuid)))) ; 'g-*** è un simbolo legale
+
+(gensym)
+;-> g-7E31347F-6EEB-477E-BFF0-4868BE374F6B
+
+Adesso possiamo generare una hash-map univoca ed associarla ad una variabile:
+
+(setq hash (new Tree (gensym) true))
+
+In questo modo possiamo usare tutte le operazioni delle hash-map utilizzando la variabile.
+
+Inserimento di un valore 1 (value) associato ad una chiave K (key) -> (myHash "key" value):
+(hash "K" 1)
+;-> 1
+
+Recuperiamo il valore tramite la chiave:
+(hash "K")
+;-> 1
+
+Inserimento di un nuovo valore 2 (value) associato ad una chiave W (key) -> (hash "key" value):
+(hash "W" 2)
+;-> 2
+
+Elenco di tutti gli elementi (chiave valore) della hashmap:
+(hash)
+;-> (("K" 1) ("W" 2))
+
+Se una chiave non esiste, allora newLISP restituisce nil:
+(hash "X")
+;-> nil
+
+Per eliminare un valore occorre assegnare il valore nil:
+(hash "K" nil)
+;-> nil
+(hash)
+;-> (("W" 2))
+
+Aggiorniamo il valore associato ad una chiave esistente ($it = valore precedente):
+(hash "W" (+ $it 3))
+;-> 5
+(hash)
+;-> (("W" 5))
+
+Eliminiamo la hash-map:
+;(delete 'hash)
+(delete (quote hash))
+;-> true
+
+Verifichiamo che la hash-map non esiste più:
+(hash)
+;-> ERR: invalid function : (hash)
+
+
+===============
+
+ NOTE LIBERE 3
+
+===============
+
+---------------------------------
+Generazione di un simbolo univoco
+---------------------------------
+
+Se abbiamo la necessità di generare un simbolo univoco utilizziamo la funzione "uuid" che costruisce e ritorna un identificatore unico (stringa) chiamato UUID (Universally Unique IDentifier).
+
+(uuid)
+;-> "3FD45C9C-1313-4ACF-B720-C42CF6319E0C"
+
+Purtroppo non è un simbolo legale per newLISP (perchè inizia con un numero):
+
+(legal? (uuid))
+;-> nil
+
+Allora scriviamo una funzione per generare un simbolo univoco legale:
+
+(define (gensym)
+  (sym (string "g-" (uuid)))) ; 'g-*** è un simbolo legale
+
+(gensym)
+;-> g-7E31347F-6EEB-477E-BFF0-4868BE374F6B
+(gensym)
+;-> g-4DE95DAB-4A11-431F-9EBE-D267E9646C4C
+(gensym)
+;-> g-5ECA1A6B-6E8B-4ADB-9189-D352CE488876
+
+La funzione "gensym" genera sempre un simbolo univoco.
+
+
+------------------------------
+Compromessi tra tempo e spazio
+------------------------------
+
+Supponiamo di dover scrivere una funzione che verifica se ci sono duplicati in una lista.
+Il primo metodo che viene in mente è quello di attraversare la lista con due cicli e verificare se i valori correnti sono uguali.
+
+(define (dup1? lst)
+  (let ((found nil) (idx1 -1) (idx2 -1))
+    (dolist (el1 lst)
+      (setq idx1 $idx)
+      (dolist (el2 lst)
+        (setq idx2 $idx) ;per semplicità
+        (if (and (!= idx1 idx2) (= el1 el2))
+            (setq found true))))
+    found))
+
+(dup1? '(1 2 3 4 5 6 7 8 9 10 11 1))
+;-> true
+(dup1? '(1 1 2 3 4 5 6 7 8 9 10 11))
+;-> true
+(dup1? '(1 2 3 4 5 6 7 8 9 10 11 12))
+;-> nil
+
+Il tempo di esecuzione non dipende dall'ordine dei valori nella lista.
+
+(time (dup1? '(1 2 3 4 5 6 7 8 9 10 11 1)) 100000)
+;-> 1458.268
+(time (dup1? '(1 1 2 3 4 5 6 7 8 9 10 11)) 100000)
+;-> 1444.711
+(time (dup1? '(1 2 3 4 5 6 7 8 9 10 11 12)) 100000)
+;-> 1443.694
+
+Questa funzione ha complessità temporale O(n^2).
+Possiamo migliorare la velocità della funzione uscendo dal ciclo quando incontriamo la prima coppia di valori uguali. Per fare questo aggiungiamo la condizione "found" ad ogni ciclo "dolist":
+
+(define (dup2? lst)
+  (let ((found nil) (idx1 -1) (idx2 -1))
+    (dolist (el1 lst found) ;esce dal ciclo quando found diventa true
+      (setq idx1 $idx)
+      (dolist (el2 lst found) ;esce dal ciclo quando found diventa true
+        (setq idx2 $idx) ;per semplicità
+        (if (and (!= idx1 idx2) (= el1 el2))
+            (setq found true))))
+    found))
+
+(dup2? '(1 2 3 4 5 6 7 8 9 10 11 1))
+;-> true
+(dup2? '(1 1 2 3 4 5 6 7 8 9 10 11))
+;-> true
+(dup2? '(1 2 3 4 5 6 7 8 9 10 11 12))
+;-> nil
+
+Questa funzione ha complessità temporale che varia a seconda che la lista contenga duplicati o meno. Quando ci sono duplicati ha complessità temporale O(n), viceversa, quando non ci sono duplicati ha complessità temporale O(n^2). Comunque la complessità temporale vale O(n^2), anche se la funzione è (in media) più veloce.
+
+(time (dup2? '(1 2 3 4 5 6 7 8 9 10 11 1)) 100000)
+;-> 147.633
+(time (dup2? '(1 1 2 3 4 5 6 7 8 9 10 11)) 100000)
+;-> 55.011 ; più veloce perchè il duplicato (1) si trova all'inizio della lista
+(time (dup2? '(1 2 3 4 5 6 7 8 9 10 11 12)) 100000)
+;-> 1507.185
+
+Possiamo scrivere un'altra funzione che utilizza una hash-map:
+
+(define (dup3? lst)
+  (let ((found nil))
+    (new Tree 'myHash)
+    (dolist (el lst found)
+      ; se l'elemento corrente non esiste nella hash-map...
+      (if (nil? (myHash el))
+          (myHash el el)    ; allora inseriscilo
+          (setq found true) ; altrimenti è un duplicato
+      )
+    )
+    (delete 'myHash) ; eliminiamo l'hash-map
+    found))
+
+(dup3? '(1 2 3 4 5 6 7 8 9 10 11 1))
+;-> true
+(dup3? '(1 1 2 3 4 5 6 7 8 9 10 11))
+;-> true
+(dup3? '(1 2 3 4 5 6 7 8 9 10 11 12))
+;-> nil
+
+Questa funzione ha complessità temporale O(n) poichè utilizza soltanto un ciclo (supponendo che le operazioni di "get" e "put" della hash-map siano O(1)).
+Vediamo i tempi di esecuzione:
+
+(time (dup3? '(1 2 3 4 5 6 7 8 9 10 11 1)) 100000)
+;-> 1096.76
+(time (dup3? '(1 1 2 3 4 5 6 7 8 9 10 11)) 100000)
+;-> 675.509
+(time (dup3? '(1 2 3 4 5 6 7 8 9 10 11 12)) 100000)
+;-> 1121.185
+
+Come mai i tempi di esecuzione sono sono superiori di quelli della funzione "dup2?" ?
+Il problema si trova nell'operazione di cancellazione della hash-map che richiede tanto tempo. Possiamo evitare la cancellazione se generiamo ogni volta una hash-map diversa (vedi la sezione "Generazione automatica di una hash-map"):
+
+Funzione per creare un simbolo legale in newLISP:
+
+(define (gensym)
+  (sym (string "g-" (uuid))))
+
+(define (dup4? lst)
+  (let ((found nil) (hm nil))
+    ;(new Tree 'myHash)
+    (setq hm (new Tree (gensym) true))
+    (dolist (el lst found)
+      ; se l'elemento corrente non esiste nella hash-map...
+      (if (nil? (hm el))
+          (hm el el)    ; allora inseriscilo
+          (setq found true) ; altrimenti è un duplicato
+      )
+    )
+    ;(delete 'myHash) ; non eliminiamo l'hash-map
+    found))
+
+(dup4? '(1 2 3 4 5 6 7 8 9 10 11 1))
+;-> true
+(dup4? '(1 1 2 3 4 5 6 7 8 9 10 11))
+;-> true
+(dup4? '(1 2 3 4 5 6 7 8 9 10 11 12))
+;-> nil
+
+Questa funzione, come la precedente, ha complessità temporale O(n), ma impiega funzioni primitive complesse (es. uuid) che rallentano l'esecuzione:
+
+(time (dup4? '(1 2 3 4 5 6 7 8 9 10 11 1)) 100000)
+;-> 730.16
+(time (dup4? '(1 1 2 3 4 5 6 7 8 9 10 11)) 100000)
+;-> 349.212
+(time (dup4? '(1 2 3 4 5 6 7 8 9 10 11 12)) 100000)
+;-> 803.067
+
+Possiamo scrivere un'altra funzione utilizzando la funzione integrata "sort":
+
+(define (dup5? lst)
+  (let (found nil)
+    (sort lst)
+    (for (i 0 (- (length lst) 2))
+      (if (= (lst i) (lst (+ i 1)))
+          (setq found true)))
+    found))
+
+(dup5? '(1 2 3 4 5 6 7 8 9 10 11 1))
+;-> true
+(dup5? '(1 1 2 3 4 5 6 7 8 9 10 11))
+;-> true
+(dup5? '(1 2 3 4 5 6 7 8 9 10 11 12))
+;-> nil
+
+Questa funzione ha complessità temporale O(n*log(n)) in quanto l'operazione di sort ha complessità O(n*log(n)) (il ciclo for aumenta i tempi di esecuzione, ma non modifica la complessità):
+
+(time (dup5? '(1 2 3 4 5 6 7 8 9 10 11 1)) 100000)
+;-> 154.001
+(time (dup5? '(1 1 2 3 4 5 6 7 8 9 10 11)) 100000)
+;-> 156.054
+(time (dup5? '(1 2 3 4 5 6 7 8 9 10 11 12)) 100000)
+;-> 155.701
+
+Infine, utilizziamo la funzione integrata "unique" per scrivere un'altra funzione:
+
+(define (dup6? lst) (!= (unique lst) lst))
+
+(dup6? '(1 2 3 4 5 6 7 8 9 10 11 1))
+;-> true
+(dup6? '(1 1 2 3 4 5 6 7 8 9 10 11))
+;-> true
+(dup6? '(1 2 3 4 5 6 7 8 9 10 11 12))
+;-> nil
+
+Per capire la complessità temporale di questa funzione occorrerebbe analizzare i sorgenti di newLISP, ma dovrebbe essere simile a O(n*log(n). Vediamo i tempi di esecuzione:
+
+(time (dup6? '(1 2 3 4 5 6 7 8 9 10 11 1)) 100000)
+;-> 96.755
+(time (dup6? '(1 1 2 3 4 5 6 7 8 9 10 11)) 100000)
+;-> 93.268
+(time (dup6? '(1 2 3 4 5 6 7 8 9 10 11 12)) 100000)
+;-> 96.36
+
+Adesso vediamo la complessità spaziale delle funzioni, considerando lo spazio addizionale che viene richiesto.
+Le funzioni dup1? e dup2? non richiedono spazio aggiuntivo in memoria, quindi la complessità spaziale vale O(1).
+La funzione dup3? richie una hash-map con n valori, quindi la complessità spaziale vale O(n).
+La funzione dup4? richiede una hash-map con n valori per n volte (perchè ogni volta creiamo una hash-map diversa), quindi la complessità spaziale vale O(n^2).
+Presumiamo che le funzioni dup5? e dup6? abbiano una complessità spaziale O(log(n)) (questa è la complessità spaziale dell'algoritmo di ordinamento Quicksort).
+
+Ricapitoliamo le caratteristiche delle funzioni:
+
+           Complessità   Tempi             Complessità
+Funzione   temporale     di esecuzione     spaziale
+ dup1?      O(n^2)        1458 1444 1443    O(1)
+ dup2?      O(n^2)         147   55 1507    O(1)
+ dup3?      O(n)          1096  675 1121    O(n)
+ dup4?      O(n)           730  349  803    O(n^2)
+ dup5?      O(n*log(n))    154  156  155    O(log(n))
+ dup6?      O(n*log(n))     96   93   96    O(log(n))
+
+Quindi per scrivere una funzione efficiente in termini di tempo di esecuzione l'algoritmo è molto importante, ma occorre preferire l'uso di funzioni integrate (se presenti). Un'altra considerazione fondamentale riguarda lo spazio di memoria utilizzato in quanto non sempre la funzione più veloce è anche quella che consuma meno spazio. La scelta della funzione finale dipende dall'analisi e dalla valutazione di queste caratteristiche.
+
+
+----------------
+Scambio di somme
+----------------
+
+Date due liste di numeri interi i cui relativi elementi sommano ad una certa cifra, determinare due numeri (ognuno in una lista) che scambiati tra loro producono somme uguali per le due liste. Esempio:
+
+lista1: (5 3 2 9 1)  Somma = 5 + 3 + 2 + 9 + 1 = 20
+lista2: (1 12 5)     Somma = 1 + 12 + 5 = 18
+
+Scambiando il numero 2 della lista1 con il numero 1 della lista2 entrambe le liste sommano a 19.
+
+Se non è possibile ottenere due liste con somme uguali allora la funzione deve restituire nil.
+
+La soluzione più semplice è quella di utilizzare due cicli che attraversano le liste e verificano se scambiando gli elementi correnti si ottengono due somme uguali per le liste.
+
+(define (scambio lst1 lst2)
+  (local (out idx1 idx2 found)
+    (setq out nil found nil)
+    (dolist (el1 lst1 found)
+      (setq idx1 $idx)
+      (dolist (el2 lst2 found)
+        (setq idx2 $idx)
+        ; se scambiando questi valori le somme sono uguali...
+        (if (= (+ (- (apply + lst1) el1) el2) (+ (- (apply + lst2) el2) el1))
+            ; allora salviamo gli indici
+            (setq out (list idx1 idx2) found true)
+        )
+      )
+    )
+    (if (nil? out) out
+        (begin
+        (swap (lst1 (first out)) (lst2 (last out)))
+        (setq out (list out (apply + lst1) (apply + lst2)))))
+    out))
+
+(scambio lst1 lst2)
+;-> ((2 0) 19 19)
+
+(scambio '(1 -1 2 4) '(2 3 4 -1))
+;-> ((0 0) 7 7)
+
+(scambio '(1 -1 2 5) '(2 3 8 -1))
+;-> nil
+
+La complessità temporale vale O(n*m), dove n e m sono le lunghezze delle liste.
+
+Per cercare un algoritmo migliore dobbiamo analizzare alcuni casi:
+
+(setq lst1 '(5 3 3 7))  Somma = 18
+(setq lst2 '(4 1 1 6))  Somma = 12
+(scambio lst1 lst2)
+;-> ((3 0) 15 15)
+Scambiamo il 7 con il 4:
+(setq lst1 '(5 3 3 4))  Somma = 15
+(setq lst2 '(7 1 1 6))  Somma = 15
+
+(setq lst1 '(1 2 3 4 5)) Somma = 15
+(setq lst2 '(6 7 8))     Somma = 21
+(scambio lst1 lst2)
+;-> ((2 0) 18 18)
+Scambiamo il 3 con il 6:
+(setq lst1 '(1 2 6 4 5)) Somma = 18
+(setq lst2 '(3 7 8))     Somma = 18
+
+(setq lst1 '(10 15 20)) Somma = 45
+(setq lst2 '(5 30))     Somma = 35
+(scambio lst1 lst2)
+;-> ((0 0) 40 40)
+Scambiamo il 10 con il 5:
+(setq lst1 '(5 15 20))  Somma = 40
+(setq lst2 '(10 30))    Somma = 40
+
+Possiamo notare queste caratteristiche:
+
+1) per ottenere somme uguali, la lista con la somma più grande deve scambiare un numero maggiore con un numero minore della lista con la somma più piccola.
+
+2) Lo scambio provoca una modifica delle somme della stessa quantità (dopo lo scambio la somma di una lista vale (somma-iniziale + x) e la somma dell'altra lista vale (somma_iniziale - x)
+
+3) Dopo lo scambio le somme delle liste sono la media delle somme iniziali:
+(somma = somma-iniziale-lista1 + somma-iniziale-lista2)/2
+Poichè le liste contengono solo numeri interi, allora la differenza delle somme deve essere un numero pari (altrimenti la divisione per 2 produrrebbe un numero con la virgola).
+
+Facciamo un esempio e applichiamo la terza caratteristica:
+
+lst1 = (5 3 3 7)  Somma = 18
+lst2 = (4 1 1 6)  Somma = 12
+
+La media tra le due somme vale: (18 + 12)/2 = 15. In altre parole, la lista1 deve diminuire di 3 e la lista2 deve aumentare di 3. Questo accade quando la differenza tra l'elemento della lista1 e l'elemento della lista2 vale 3.
+Anche in questo modo dobbiamo sempre utilizzare due cicli per attraversare le liste, notiamo una differenza: questa volta non dobbiamo verificare l'uguaglianza delle somme, ma verificare se esiste un numero predeterminato sulla lista2. Infatti, per esempio, quando abbiamo il numero 5 della lista1, allora dobbiamo cercare se esiste il numero (5 - 3) = 2 nella lista2.
+Questo fatto ci permette di utilizzare una hash-map con i valori della lista2, dove la chiave è il numero e l'indice è l'indice del numero nella lista.
+
+Funzione che copia una lista in una hash-map dove la chiave della hash-map è il valore dell'elemento della lista e l'indice della hash-map è l'indice dell'elemento della lista:
+
+(define (list-hashmap lst hash)
+  (dolist (el lst) (hash (string el) $idx)))
+
+(new Tree 'myhash)
+(setq lst '(10 15 20 35))
+
+(list-hashmap lst myhash)
+;-> 3
+(myhash)
+;-> (("10" 0) ("15" 1) ("20" 2) ("35" 3))
+
+Oppure (più velocemente):
+
+(myhash (map (fn(x) (list x $idx)) lst))
+
+Esempio di ricerca di un valore:
+
+(myhash "10")
+;-> 0
+(myhash 10)
+;-> 0
+(myhash "11")
+;-> nil
+(myhash 11)
+;-> nil
+
+Proviamo a scrivere la nuova funzione:
+
+(define (scambio2 lst1 lst2)
+  (local (out sum1 sum2 gap val found)
+    (setq sum1 (apply + lst1))
+    (setq sum2 (apply + lst2))
+    (cond ((odd? (+ sum1 sum2)) (setq out nil))
+          (true
+            (new Tree 'myhash) ; crea hash-map
+            (myhash (map (fn(x) (list x $idx)) lst2))     ; copia lista2 su hash-map
+            ;(dolist (el lst2) (myhash (string el) $idx)) ; copia lista2 su hash-map
+            ;(println (myhash))
+            (setq gap (/ (- sum1 sum2) 2))
+            (setq out nil found nil)
+            (dolist (el1 lst1 found)
+              ;(println "elemento: " el1 " --- cerco: " (- el1 gap))
+              (setq val (myhash (string (- el1 gap))))
+              ;(println "trovato: " val)
+              (if val (setq out (list $idx val) found true))
+            )
+            (if (nil? out) out
+                (begin
+                (swap (lst1 (first out)) (lst2 (last out)))
+                (setq out (list out (apply + lst1) (apply + lst2)))))
+            (delete 'myhash)
+          )
+    )
+    out))
+
+(setq lst1 '(5 3 3 7))
+(setq lst2 '(4 1 1 6))
+(scambio2 lst1 lst2)
+;-> ((3 0) 15 15)
+
+(setq lst1 '(1 2 3 4 5))
+(setq lst2 '(6 7 8))
+(scambio2 lst1 lst2)
+;-> ((2 0) 18 18)
+
+(setq lst1 '(10 15 20))
+(setq lst2 '(5 30))
+(scambio2 lst1 lst2)
+;-> ((0 0) 40 40)
+
+Vediamo la velocità delle due funzioni:
+
+(setq lst1 '(sequence 1 1000))
+
+(apply + (sequence 1 1000))
+;-> 500500
+
+(apply + (sequence -110 1010))
+
+(/ (- (apply + (sequence 1 1000)) (apply + (sequence -150 1010))) 2)
+
+(setq lst1 (sequence 1 50))
+(setq lst2 (sequence -50 71))
+
+(time (scambio lst1 lst2) 10000)
+;-> 1095.098
+(time (scambio2 lst1 lst2) 10000)
+;-> 767.13
+
+Questa funzione ha complessità temporale O(n+m) ed è più veloce nonostante la necessità di copiare la lista sulla hash-map e di eliminare la hash-map.
+
+
+---------------------------------
+Evitare begin nella condizione if
+---------------------------------
+
+L'istruzione "if" ha la seguente sintassi:
+
+(if (exp-condition)
+    (expression-when-true)
+    (expression-when-nil)
+)
+
+Se dobbiamo usare più di una espressione in (expression-when-true) oppure in (expression-when-nil) dobbiamo utilizzare la parola riservata "begin":
+
+(if (exp-condition)
+    (begin
+      (expression1-when-true)
+      (expression2-when-true)
+      ...
+      (expressionN-when-true)
+    )
+    (begin
+      (expression1-when-nil)
+      (expression2-when-nil)
+      ...
+      (expressionN-when-nil)
+    )
+)
+
+In alcuni casi possiamo evitare l'uso di "begin".
+
+Ad esempio se le espressioni sono limitate a pochi assegnamenti di variabili possiamo usare l'assegnamento multiplo di "setq":
+
+(setq val1 10 val2 -3 val3 "a")
+
+In questo modo "setq" racchiude tutte le assegnazioni in un'unica espressione che non necessita di "begin".
+
+Oppure, se le espressioni che dobbiamo eseguire sono diverse tra loro, allora possiamo usare la funzione "let" o "letn":
+
+(let ((a 10) (b 20) (c 30))
+     (++ a)
+     (if (> a b) (setq c (+ a b c)))
+     ...
+)
+
+In questo modo "let" racchiude tutte le espressioni in un'unica espressione che non necessita di "begin".
+
+
+----------------------------
+Frazioni continue (funzioni)
+----------------------------
+
+Funzione che calcola i primi n termini della frazione continua di un numero:
+
+(define (num2cf x n)
+  (local (cf xi stop)
+    (setq cf '())
+    (setq stop nil)
+    (for (k 0 (- n 1) 1 stop)
+      (setq xi (floor x))
+      (push xi cf -1)
+      (if (zero? (sub x xi) )
+          (setq stop true)
+          (setq x (div 1 (sub x xi)))
+      )
+    )
+    cf))
+
+Facciamo alcune prove:
+
+(num2cf (sqrt 2) 10)
+;-> (1 2 2 2 2 2 2 2 2 2)
+
+(setq PI 3.1415926535897931)
+(num2cf PI 25)
+;-> (3 7 15 1 292 1 1 1 2 1 3 1 14 3 3 23 1 1 7 4 35 1 1 1 2)
+
+(num2cf 1.5 10)
+;-> (1 2)
+(num2cf 0.5 10)
+;-> (0 2)
+(num2cf 2 10)
+;-> (2)
+
+Il prossimo esempio produce un risutato errato a causa degli arrotondamenti dei numeri in virgola mobile:
+
+(num2cf 3.245 10)
+;-> (3 4 12 3 1 247777268231 4 1 2 1)
+
+Funzione che calcola tutti i termini della frazione continua di una frazione:
+
+(define (fract2cf a b)
+  (local (fc r out)
+    (setq out '())
+    (while (!= 0 r)
+      (setq r (% a b))
+      (setq fc (/ a b))
+      (push fc out -1)
+      (setq a b)
+      (setq b r)
+    )
+    out))
+
+(fract2cf 3245 1000)
+;-> '(3 4 12 4)
+
+(fract2cf 31415926535897931 10000000000000000)
+;-> (3 7 15 1 292 1 1 1 2 1 3 1 14 3 2 2 1 1 1 1 2 2 12 24 1 1 6 2 4 1 3 3)
+
+Funzione che calcola il numero di una frazione continua:
+
+(define (cf2num cf)
+  (local (x)
+    (cond ((= (length cf) 1) (setq x (first cf)))
+          (true
+           (setq x (cf -1))
+           (for (k (- (length cf) 2) 0 -1)
+             (setq x (add (cf k) (div 1 x)))
+           )))
+    x))
+
+Facciamo alcune prove:
+
+(cf2num '(1 2 2 2 2 2 2 2 2 2))
+;-> 1.41421362489487
+(sqrt 2)
+;-> 1.414213562373095
+
+(cf2num '(3 7 15 1 292 1 1 1 2 1 3 1 14 3 3 23 1 1 7 4 35 1 1 1 2))
+;-> 3.141592653589793
+
+(cf2num '(1 2))
+;-> 1.5
+(cf2num '(0 2))
+;-> 0.5
+(cf2num '(2))
+;-> 2
+
+(cf2num '(3 4 12 4))
+;-> 3.245
+
+Funzione che calcola i convergenti di una frazione continua:
+
+(define (cf2conv cf)
+  (local (p0 q0 p1 q1 p2 q2)
+    (setq p0 1 q0 0)
+    (setq p1 (cf 0) q1 1)
+    (for (k 1 (- (length cf) 1))
+      (setq p2 (+ (* (cf k) p1) p0))
+      (setq q2 (+ (* (cf k) q1) q0))
+      (println (list p2 q2 (div p2 q2)))
+      (setq p0 p1 q0 q1 p1 p2 q1 q2)
+    )
+    (list p2 q2 (div p2 q2))))
+
+(cf2conv '(2 1 2 1 1 4 1 1 6 1))
+;-> (3 1 3)
+;-> (8 3 2.666666666666667)
+;-> (11 4 2.75)
+;-> (19 7 2.714285714285714)
+;-> (87 32 2.71875)
+;-> (106 39 2.717948717948718)
+;-> (193 71 2.71830985915493)
+;-> (1264 465 2.718279569892473)
+;-> (1457 536 2.718283582089552)
+;-> (1457 536 2.718283582089552)
+
+(cf2conv '(3 4 12 4))
+;-> (13 4 3.25)
+;-> (159 49 3.244897959183673)
+;-> (649 200 3.245)
+
+(cf2conv '(3 7 15 1 292 1 1 1 2 1 3 1 14 3 2 2 1 1 1 1 2 2 12 24 1 1 6 2 4 1 3 3))
+;-> (22 7 3.142857142857143)
+;-> (333 106 3.141509433962264)
+;-> (355 113 3.141592920353983)
+;-> (103993 33102 3.141592653011903)
+;-> (104348 33215 3.141592653921421)
+;-> (208341 66317 3.141592653467437)
+;-> (312689 99532 3.141592653618937)
+;-> (833719 265381 3.141592653581078)
+;-> (1146408 364913 3.141592653591404)
+;-> (4272943 1360120 3.141592653589389)
+;-> (5419351 1725033 3.141592653589815)
+;-> (80143857 25510582 3.141592653589793)
+;-> (245850922 78256779 3.141592653589793)
+;-> (571845701 182024140 3.141592653589793)
+;-> (1389542324 442305059 3.141592653589793)
+;-> (1961388025 624329199 3.141592653589793)
+;-> (3350930349 1066634258 3.141592653589793)
+;-> (5312318374 1690963457 3.141592653589793)
+;-> (8663248723 2757597715 3.141592653589793)
+;-> (22638815820 7206158887 3.141592653589793)
+;-> (53940880363 17169915489 3.141592653589793)
+;-> (669929380176 213245144755 3.141592653589793)
+;-> (16132246004587 5135053389609 3.141592653589793)
+;-> (16802175384763 5348298534364 3.141592653589793)
+;-> (32934421389350 10483351923973 3.141592653589793)
+;-> (214408703720863 68248410078202 3.141592653589793)
+;-> (461751828831076 146980172080377 3.141592653589793)
+;-> (2061416019045167 656169098399710 3.141592653589793)
+;-> (2523167847876243 803149270480087 3.141592653589793)
+;-> (9630919562673896 3065616909839971 3.141592653589793)
+;-> (31415926535897931 10000000000000000 3.141592653589793)
+
+
+---------------
+Redditi e tasse
+---------------
+
+In genere le tasse sui redditi vengono definite per "scaglioni" (classe di reddito). Ad esempio in Italia valgono le seguenti classi:
+
+fino a 15000 euro il 23%
+(23% del reddito)
+
+da 15001 fino a 28000 euro il 27%
+(3450.00 + 27% sulla parte oltre i 15000 euro)
+
+da 28.001 fino a 55.000 euro il 38%
+(6960.00 + 38% sulla parte oltre i 28000 euro
+
+da 55.001 fino a 75.000 euro il 41%
+(17220.00 + 41% sulla parte oltre i 55000 euro)
+
+oltre 75.000 euro il 43%
+(25420.00 + 43% sulla parte oltre i 75000 euro
+
+Esempio:
+Reddito = 27000 euro
+15000 * 23% = 3450
+più il 27% sulla parte oltre i 15000 (27000 - 15000 = 12000) = 3240,
+per un totale di (3450 + 3240 = 6690).
+
+Scrivere una funzione che calcola le tasse da pagare dato un determinato reddito.
+
+Questo problema permette una soluzione elegante utilizzando la ricorsione.
+
+La tabella viene codificata nel modo seguente:
+
+(setq tabella '((75000 0.43) (55000 0.41) (28000 0.38) (15000 0.27) (0 0.23)))
+
+Definiamo alcune funzione tipiche del LISP:
+
+(define car first)
+;-> first@4071B9
+(define cdr rest)
+;-> rest@4072CA
+(define (caar x)   (first (first x)))
+(define (cadar x)  (first (rest (first x))))
+
+Vediamo cosa estraggono dalla lista le funzioni "caar" e "cadar":
+
+(caar tabella)
+;-> 75000
+(cadar tabella)
+;-> 0.43
+
+(define (tasse reddito tabella)
+   (if (null? tabella) 0
+     (add (mul (max (sub reddito (caar tabella)) 0) (cadar tabella))
+               (tasse (min reddito (caar tabella)) (cdr tabella)))))
+
+Da notare che la ricorsione viene applicata sommando le tasse e diminuendo la lunghezza della tabella ad ogni passo. Possiamo capire meglio il funzionamento se calcoliamo le seguenti espressioni (che rappresentano il primo passo della ricorsione):
+
+(mul (max (sub 27000 (caar tabella)) 0) (cadar tabella))
+;-> 0
+
+(min 27000 (caar tabella))
+;-> 27000
+
+(cdr tabella)
+;-> ((55000 0.41) (28000 0.38) (15000 0.27) (0 0.23))
+
+Applichiamo la funzione all'esempio:
+
+(tasse 27000 tabella)
+;-> 6690
+
+E verifichiamo altri casi:
+
+(tasse 0)
+;-> 0
+(tasse 15000 tabella)
+;-> 3450
+(tasse 15001 tabella)
+;-> 3450.27
+(tasse 75000 tabella)
+;-> 25420
+(tasse 75001 tabella)
+;-> 25420.43
+
+Adesso vediamo come variano le tasse in funzione del reddito:
+
+(define (curva tabella reddito step)
+  (let (out '())
+    (for (i step reddito step)
+      (push (list i (tasse i tabella)) out -1))
+    out))
+
+(setq data (curva tabella 200000 1000))
+
+Adesso scriviamo una funzione che crea un file grafico ("tasse.png") che visualizza relazione reddito/tasse:
+
+(module "plot.lsp")
+
+(define (plotXY lst)
+  (local (xx zz)
+    ; azzera parametri della funzione plot
+    (plot:reset)
+    ; opzionale title, sub-title, labels e legend, data min/max per Y
+    (set 'plot:title "Tasse sul reddito")
+    (set 'plot:sub-title "IRPEF 2020")
+    (set 'plot:unit-x "reddito")
+    (set 'plot:unit-y "tasse")
+    ; crea il file dei dati
+    ; lista dei valori x (reddito) e lista dei valori z (tasse)
+    (setq xx '())
+    (setq zz '())
+    (dolist (el lst)
+      (push (first el) xx -1)
+      (push (last el) zz -1 ))
+    ; plot data
+    (plot:XY xx zz)
+    ; salva il plot su un file
+    (plot:export (string "tasse.png"))))
+
+Creiamo il grafico:
+
+(plotXY data)
+
+Il grafico mostra che le tasse sono, grosso modo, direttamente proporzionali al reddito.
+
+Potete trovare il file nella cartella "data".
+
+
+----------------------------
+Numero di eulero o di nepero
+----------------------------
+e = 2.7182818284590451
+
+(exp 1)
+;-> 2.718281828459045
+
+Supponiamo di avere depositato un certo capitale C al tasso di interesse annuo di x per cento, cioè al tasso assoluto di r = x/100.
+
+Dopo un anno il nostro capitale è diventato C(1) = C*(1+r). Dopo un altro anno: C(2) = C1*(1+r) = C*(1+r)^2, dopo tre anni C(3) = C*(1+r)^3 e dopo n anni C(n) = C*(1+r)^n. La crescita esponenziale è dovuta agli interessi maturati precedentemente che concorrono nel maturare altri interessi.
+
+Supponiamo che dopo 6 mesi (1/2 anno) il capitale si sia rivalutato di r/2 (in realtà non è così perché altrimenti risulterebbe (dopo n anni): C(n) =C*(1+n*r) invece di C(n) = C*(1+r)^n).
+Dopo un semestre il capitale sarà diventato C(1/2) = C*(1+r/2) e dopo un anno C1 = C*(1+r/2)^2 .
+
+Per ogni quadrimestre (1/3 di anno) al tasso di r/3 avremmo C(1/3) = C*(1+r/3) e dopo un anno C(1) = C*(1+r/3)^3.
+
+Se gli interessi maturassero ogni 1/n di anno al tasso di r/n dopo ogni m frazioni di anno avremmo C(m/n) = C(1+r/n)^m e dopo un anno C1 = C*(1+r/n)n.
+
+Per una maturazione continua (interesse composto) basta passare al limite per n tendente all’infinito e dopo un anno avremmo un capitale di: C(1) = C*lim(1+r/n)^n.
+
+Se poniamo r = 1 questo limite è proprio il numero di Eulero "e".
+
+Calcoliamo questo limite (facendo assumere ad n valori sempre maggiori):
+
+(define (limite n) (pow (add 1 (div n)) n))
+
+(limite 1000)
+;-> 2.71692393223552
+(limite 10000)
+;-> 2.718145926824356
+(limite 100000)
+;-> 2.718268237197528
+(limite 1000000)
+;-> 2.718280469156428
+
+Vediamo la differenza con il numero "e":
+
+(sub (exp 1) (limite 1000000))
+;-> 1.359302617576219e-006
+
+Invece, se r è diverso da 1 con il cambio di variabile m = n/r si ha:
+
+lim(1+r/n)^n = lim(1+1/m)^(m*r) = (lim(1+1/m)^m)^r = e^r
+
+Anche questa volta abbiamo ritrovato il numero di Eulero "e".
+
+Quindi dopo un anno sarà C(1) = C*e^r e dopo t anni (con t non necessariamente intero): C(t) = C*e^(t*r).
+
+Da notare che il numero "e" è scaturito naturalmente, non è stato introdotto artificiosamente.
+
+Purtroppo le banche non concedono un tasso assoluto di interesse continuo.
+
+
+---------------------
+map e filter multiplo
+---------------------
+
+Qualche volta abbiamo la necessità di applicare la funzione "map" più volte su una stessa lista, ad esempio per applicare tre funzioni func1, func2 e func2 ad una lista lst dobbiamo scrivere:
+
+(map func3 (map func2 (map func1 lst)))
+
+Possiamo scrivere una funzione per utilizzare un'espressione più elegante:
+
+(define (nmap lst)
+  (let (res lst)
+    ; per ogni predicato
+    (dolist (func (args))
+      ; applica il predicato agli elementi della lista
+      (setq res (map func res)))))
+
+Adesso il nostro esempio può essere scritto nel modo seguente:
+
+(nmap lst func1 func2 func3)
+
+Vediamo un esempio concreto:
+
+(nmap '(-4 36 81 49) abs sqrt)
+;-> (2 6 9 7)
+
+Possiamo anche usare una funzione definita dall'utente:
+
+(nmap (explode "newLISP") upper-case (fn(x) (char x)))
+;-> (78 69 87 76 73 83 80)
+
+Vediamo la differenza di velocità:
+
+(setq lst (sequence -5000 5000))
+
+(time (nmap lst abs sqrt) 1000)
+;-> 1221.763
+
+(time (map sqrt (map abs lst)) 1000)
+;-> 607.408
+
+Nota: il tempo di esecuzione della nostra funzione è il doppio di quello del metodo standard.
+
+Possiamo utilizzare la stessa tecnica anche per la funzione "filter":
+
+(define (nfilter lst)
+  (let (res lst)
+    ; per ogni predicato
+    (dolist (func (args))
+      ; applica il predicato agli elementi della lista
+      (setq res (filter func res)))))
+
+(setq lst '(1 2 3 4 a b c 5 6 7 8 9 ))
+
+(filter odd? (filter integer? lst))
+;-> (1 3 5 7 9)
+
+(nfilter lst integer? odd?)
+;-> (1 3 5 7 9)
+
+Vediamo la velocità:
+
+(setq lst (sequence 1 10000))
+(time (nfilter lst integer? odd?) 1000)
+;-> 1325.484
+
+(time (filter odd? (filter integer? lst)) 1000)
+;-> 967.444
+
+Anche in questo caso possiamo anche usare una funzione definita dall'utente al posto del predicato.
+
+Nota: i predicati vengono valutati da sinistra a destra, quindi nell'esempio la loro inversione provoca un errore perchè non possiamo applicare "odd?" all'elemento "a":
+
+(nfilter lst odd? integer?)
+;-> ERR: value expected in function odd? : a
+;-> called from user function (nfilter lst odd? integer?)
+
+La funzione "nfilter" applica i predicati in sequenza, cioè ogni elemento della lista deve rispettare tutti i predicati per essere selezionato (and):
+
+  elemento selezionato se rispetta (func1 and func2 and ... and funcN)
+
+Può risultare utile una funzione che seleziona un elemento anche se un solo predicato viene rispettato (or):
+
+  elemento selezionato se rispetta (func1 or func2 or ... or funcN)
+
+Vediamo come potrebbe essere implementata:
+
+(define (nfilter-or lst)
+  (let ((stop nil) (res '()))
+    ; per ogni elemento della lista
+    (dolist (el lst)
+      ; per ogni predicato
+      (setq stop nil)
+      (dolist (func (args) stop)
+        ; applica il predicato all'elemento
+        ; se il risultato è vero (true)
+        (if (func el)
+          (begin
+          ; allora lo inserisce nella lista res
+          (push el res -1)
+          ; e non occorre applicare
+          ; gli altri predicati all'elemento corrente
+          (setq stop true))
+        )
+      )
+    )
+    res))
+
+(setq lst '(1 2 3 4 5 6 7 8 9))
+
+(nfilter-or lst integer? odd?)
+;-> (1 2 3 4 5 6 7 8 9)
+
+Usiamo una funzione definita dall'utente:
+
+(define (big5? x) (> x 5))
+
+(nfilter-or lst big5? odd?)
+;-> (1 3 5 6 7 8 9)
+
+Vediamo la velocità:
+
+(setq test (sequence 1 10000))
+(time (nfilter-or test integer? odd?) 100)
+;-> 221.408
+
+Nota: Nel caso della funzione "nfilter-or" i predicati devono poter essere applicati a tutti gli elementi senza errore.
+
+Vediamo un altro modo di implementare la funzione "nfilter-or":
+
+(define (nfilter-or lst)
+  (let ((bool '()) (res '()))
+    ; per ogni predicato
+    (dolist (func (args))
+      ; applica il predicato a tutta la lista
+      ; creando una lista di true e nil
+      ; e la aggiunge alla lista bool
+      ; es. bool = ((true nil) (true nil) (nil nil))
+      (push (map func lst) bool -1)
+    )
+    ; per ogni elemento della trasposta di bool
+    ; es. traposta bool = ((true true nil) (nil nil nil))
+    (dolist (b (transpose bool))
+      ; se "or" = true per elemento corrente
+      (if (apply or b)
+          ; inserisco il relativo elemento della lista lst
+          ; nella lista risultato
+          (push (lst $idx) res -1)
+      )
+    )
+    res))
+
+(setq lst '(abc 1 "a" 2 "b" 3 "c" lst))
+
+(nfilter-or lst integer? string?)
+;-> (1 "a" 2 "b" 3 "c")
+
+Vediamo la velocità:
+
+(setq test (sequence 1 10000))
+(time (nfilter-or test integer? odd?) 100)
+;-> 7057.166
+
+L'ultima funzione è molto lenta perchè crea altre liste che vengono attraversate diverse volte.
+
+Come al solito la cosa migliore da fare è utilizzare le primitive di newLISP:
+
+Per "filter":
+
+Con una funzione utente:
+(setq lst (sequence -5000 5000))
+(define (test? x) (or (integer? x) (odd? x)))
+(time (filter test? lst) 1000)
+;-> 1465.309
+
+Direttamente:
+(setq lst (sequence -5000 5000))
+(time (filter odd? (filter integer? lst)) 1000)
+;-> 913.119
+
+Per "map":
+
+Con una funzione utente:
+(setq lst (sequence -5000 5000))
+(define (func x) (sqrt (abs x)))
+(time (map func lst) 1000)
+;-> 850.763
+
+Direttamente:
+(setq lst (sequence -5000 5000))
+(time (map sqrt (map abs lst)) 1000)
+;-> 564.408
+
+
+--------
+Toziente
+--------
+
+La funzione φ (phi) di Eulero o funzione toziente, è una funzione definita, per ogni intero positivo n, come il numero degli interi compresi tra 1 e n che sono coprimi con n. Ad esempio, phi(8) = 4 poiché i numeri coprimi di 8 sono quattro: 1, 3, 5 e 7.
+
+n = p1^a1 * p2^a2 *... * pk^ak
+
+phi(n) = n* (1 - 1/p1)*(1 - 1/p2)*...*(1 - 1/pk)
+
+Per calcolare il toziente di un numero scriviamo tre funzioni, due che utilizzano la primitiva di newLISP "factor" e una che calcola la fattorizzazione (quindi utilizzabile anche per i big-integer):
+
+Funzione 1:
+
+(define (toziente1 num)
+    (if (= num 1) 1
+    (round (mul num (apply mul (map (fn (x) (sub 1 (div 1 x))) (unique (factor num))))) 0)))
+
+(toziente1 222)
+;-> 72
+(toziente1 123456)
+;-> 41088
+(toziente1 9223372036854775807)
+;-> 7.713001620195509e+018
+
+Funzione 2:
+
+(define (toziente2 num)
+  (if (= num 1) 1
+    (let (res num)
+      (dolist (f (unique (factor num)))
+        (setq res (- res (/ res f))))
+      res)))
+
+(toziente2 222)
+;-> 72
+(toziente2 123456)
+;-> 41088
+(toziente2 9223372036854775807)
+;-> 7713001620195508224
+
+Funzione 3 (big-integer):
+
+(define (toziente-i num)
+  (if (= num 1) 1
+    (let ((res num) (i 2L))
+      (while (<= (* i i) num)
+        (if (zero? (% num i))
+            (begin
+              (while (zero? (% num i))
+                (setq num (/ num i))
+              )
+              (setq res (- res (/ res i))))
+        )
+        (++ i)
+      )
+      (if (> num 1)
+        (setq res (- res (/ res num)))
+      )
+      res)))
+
+(toziente-i 222)
+;-> 72
+(toziente-i 123456)
+;-> 41088
+(toziente-i 9223372036854775807)
+;-> 7713001620195508224
+
+Se passiamo un numero big-integer, allora la soluzione sarà un big-integer:
+
+(toziente-i 9223372036854775808L)
+;-> 4611686018427387904L
+
+Verifichiamo che le funzioni producano lo stesso risultato:
+
+(= (map toziente1 (sequence 1 1000)) (map toziente2 (sequence 1 1000)) (map toziente-i (sequence 1 1000)))
+;-> true
+
+Vediamo la velocità delle funzioni:
+
+(setq lst (sequence 1 10000))
+(time (map toziente1 lst) 100)
+;-> 1401.418
+(time (map toziente2 lst) 100)
+;-> 1156.911
+(time (map toziente-i lst) 100)
+;-> 11216.188
+
+Se abbiamo bisogno di tutti i totienti di tutti i numeri compresi tra 1 e n, la fattorizzazione di tutti gli n numeri non è efficiente. Possiamo usare la stessa idea del crivello di Eratostene: troviamo tutti i numeri primi e per ciascuno aggiorniamo i risultati temporanei di tutti i numeri che sono divisibili per quel numero primo.
+
+(array (+ 3 1) '(0))
+
+(define (totients-to num)
+  (let (phi (array (+ num 1) '(0)))
+    (setf (phi 0) 0)
+    (setf (phi 1) 1)
+    (for (i 2 num)
+      (setf (phi i) i)
+    )
+    (for (i 2 num)
+      (if (= (phi i) i)
+          (for (j i num i)
+            (setf (phi j) (- (phi j) (/ (phi j) i)))
+          )
+      )
+    )
+    (slice phi 1 num)))
+
+(totients-to 10)
+;-> (1 1 2 2 4 2 6 4 6 4)
+
+Verifichiamo il risultato:
+
+(= (array-list (totients-to 10000)) (map toziente2 (sequence 1 10000)))
+;-> true
+
+Vediamo la differenza di velocità:
+
+(time (totients-to 10000) 100)
+;-> 349.067
+
+(time (map toziente2 (sequence 1 10000)) 100)
+;-> 1250.951
+
+Per calcolare i tozienti dei numeri da 1 a n conviene utilizzare la funzione "totients-to".
+
+
+--------------------------
+Direct Acyclic Graph (DAG)
+--------------------------
+
+Un grafo aciclico diretto (Directed acyclic graph, DAG) è un grafo diretto che non ha cicli (circuiti), ovvero comunque scegliamo un vertice del grafo non possiamo tornare ad esso percorrendo gli archi del grafo. Un grafo diretto può dirsi aciclico (cioè è un DAG) se una visita in profondità non presenta archi all'indietro.
+
+Un esempio di DAG è il seguente:
+
+  +---------+-        +---------+        +---------+          +---------+
+  |         |         |         |        |         |          |         |
+  |    A    |-------->|    C    |------->|    D    |--------->|    E    |
+  |         |   ----->|         |        |         |------    |         |
+  +---------+   |     +---------+        +---------+     |    +---------+
+                |         |                              |
+  +---------+   |         |                              |    +---------+
+  |         |   |         |                              |    |         |
+  |    B    |----         |        +---------+           ---->|    F    |
+  |         |             |        |         |                |         |
+  +---------+             -------->|    G    |                +---------+
+                                   |         |
+                                   +---------+
+
+A e B sono nodi iniziali. Ogni nodo ha proprietà, ogni vertice ha proprietà. E, G e F sono nodi finali.
+
+Il codice seguente è stato scritto da rickyboy ed è anche un ottimo esempio di programmazione ad oggetti in newLISP (FOOP).
+
+;;;
+;;; Find dependencies ((grand)*parents) in a DAG.
+;;;
+
+(define (mappend) (apply append (apply map (args))))
+
+(define (Class:Class) (cons (context) (args)))
+
+The three principal types of objects we need are nodes, edges, and DAGs.
+
+(new Class 'Node)
+(new Class 'Edge)
+(new Class 'DAG)
+
+Naturally, DAGs will contain nodes and edges. Here is a helper function to create a DAG.
+Besides nodes and edges, DAGS contain a "parents-alist", an adjacency list matching nodes (node names, actually) to a list of their parents (names). 
+The create function will compute the "parents-alist" for you, as a convenience.
+
+;; Warning: no error checking is done, e.g. checking for no cycles.
+(define (DAG:create nodes edges)
+  "Create a DAG object from Nodes and Edges."
+  (let ((simple-nodes (map (fn (n) (n 1)) nodes))
+        (simple-edges (map (fn (e) (list (e 1) (e 2))) edges)))
+    (DAG nodes
+         edges
+         ;; parents-alist: assocs look like (node (parent-node ...))
+         (map (fn (sn)
+                (list sn
+                      (map first
+                           (filter (fn (se) (= sn (last se)))
+                                   simple-edges))))
+              simple-nodes)
+         ;; children-alist: assocs look like (node (child-node ...))
+         (map (fn (sn)
+                (list sn
+                      (map last
+                           (filter (fn (se) (= sn (first se)))
+                                   simple-edges))))
+              simple-nodes))))
+
+Let's see it in action on our DAG:
+
+(define my-dag
+  (DAG:create (list (Node "A" 'happy)
+                    (Node "B" 'sad)
+                    (Node "C" 'happy)
+                    (Node "D" 'indifferent)
+                    (Node "E" 'surly)
+                    (Node "F" 'happy)
+                    (Node "G" 'sad))
+              (list (Edge "A" "C" 3)
+                    (Edge "B" "C" 4)
+                    (Edge "C" "D" 8)
+                    (Edge "C" "G" 1)
+                    (Edge "D" "E" 4)
+                    (Edge "D" "F" 9))))
+
+Here's what it looks like:
+
+my-dag
+;-> (DAG ((Node "A" happy) (Node "B" sad) (Node "C" happy)
+;->       (Node "D" indifferent) (Node  "E" surly)
+;->       (Node "F" happy) (Node "G" sad))
+;->      ((Edge "A" "C" 3) (Edge "B" "C" 4) (Edge "C" "D" 8)
+;->       (Edge "C" "G" 1) (Edge "D" "E"  4) (Edge "D" "F" 9))
+;->      (("A" ()) ("B" ()) ("C" ("A" "B")) ("D" ("C"))
+;->       ("E" ("D")) ("F" ("D")) ("G" ("C"))))
+
+Nodes and edges must contain properties. The convention I'm using here is that, when defining a Node, the first "slot" contains the name and the remaining "slots" contain any number of properties that you want to add. So, (Node "A" 'happy) is a node with the name "A" and one property value (namely, 'happy). The same idea applies to edges, except that the first 2 slots contain node names and the remaining slots can be properties. Hence, (Edge "A" "C" 3) is an edge starting from node "A", ending at node "C" and containing the property value 3 (which could be an edge weight/cost, for example). These are the properties.
+
+Now, here are some accessor functions for DAGs:
+
+(define (DAG:nodes) (self 1))
+(define (DAG:edges) (self 2))
+(define (DAG:parents node-name)
+  (let ((parents-alist (self 3)))
+    (if node-name
+        (if (assoc node-name parents-alist) (last $it) '())
+        parents-alist)))
+
+;; Example usage:
+;; (:parents my-dag) => (("A" ()) ("B" ()) ("C" ("A" "B")) ("D" ("C")) ("E" ("D")) ("F" ("D")) ("G" ("C")))
+;; (:parents my-dag "C") => ("A" "B")
+;; (:parents my-dag "B") => ()
+;; (:parents my-dag "Does not exist") => ()
+
+Here's a function to compute a node's children:
+
+(define (DAG:children node-name)
+  (let ((children-alist (self 4)))
+    (if node-name
+        (if (assoc node-name children-alist) (last $it) '())
+        children-alist)))
+
+;; Example usage:
+;; (:children my-dag) => (("A" ("C")) ("B" ("C")) ("C" ("D" "G")) ("D" ("E" "F")) ("E" ()) ("F" ()) ("G" ()))
+;; (:children my-dag "C") => ("D" "G")
+;; (:children my-dag "B") => ("C")
+;; (:children my-dag "E") => ()
+;; (:children my-dag "Does not exist") => ()
+
+Here's a function to compute a node's ancestors (i.e. parents, grandparents, ...):
+
+(define (DAG:ancestors node-name)
+  (let ((parents (:parents (self) node-name)))
+    (and parents
+         (append parents
+                 (mappend (fn (p) (:ancestors (self) p))
+                      parents)))))
+
+;; Example usage:
+;; (:ancestors my-dag "D") => ("C" "A" "B")
+
+Here's a function to compute a node's descendants:
+
+(define (DAG:descendants node-name)
+  (let ((children (:children (self) node-name)))
+    (and children
+         (append children
+                 (mappend (fn (p) (:descendants (self) p))
+                          children)))))
+
+;; Example usage:
+;; (:descendants my-dag "C") => ("D" "G" "E" "F")
+
+;; If you want to get a Node out of the DAG (e.g. in order the extract
+;; its properties), then use the following function to get it by name.
+
+(define (DAG:get-node node-name)
+  (and (find (list 'Node node-name '*)
+             (:nodes (self))
+             match)
+       $0))
+
+;; Example usage:
+;; (:get-node my-dag "G") => (Node "G" sad)
+;; (:get-node my-dag "Does not exist") => nil
+
+;; Same goes for getting an Edge, expect you provide a list of two
+;; node names, e.g. '("A" "B").
+
+(define (DAG:get-edge edge-name)
+  (and (find (append '(Edge) edge-name '(*))
+             (:edges (self))
+             match)
+       $0))
+
+;; Example usage:
+;; (:get-edge my-dag '("C" "D")) => (Edge "C" "D" 8)
+;; (:get-edge my-dag '("Does" "Not Exist")) => nil
+
+(define (find-all-dependencies dag node-name)
+  (:ancestors dag node-name))
+
+;; (find-all-dependencies my-dag "D") => ("C" "A" "B")
+
+(define (get-all-dependencies dag node-name)
+   (map (fn (name) (:get-node dag name))
+        (:ancestors dag node-name)))
+
+;; (get-all-dependencies my-dag "D") => ((Node "C" happy) (Node "A" happy) (Node "B" sad))
+
+
+---------------
+Corde e cerchio
+---------------
+
+Se una corda è selezionata a caso su un cerchio, qual è la probabilità che la sua lunghezza (l) superi il raggio (r) del cerchio?
+"A caso" indica che i punti finali della corda sono distribuiti uniformemente sul cerchio.
+
+La lunghezza di una corda AB vale:
+
+corda = diametro * sin(alfa)
+
+dove alfa è l'angolo che insiste sulla corda AB
+
+0° <= alfa <= 180°
+
+Se poniamo (corda = r) ==> r = 2 * r * sin(alfa) ==> sin(alfa) = 1/2 ==> asin(1/2) = 60°
+
+Quindi la lunghezza della corda è pari al raggio r quando alfa = 60°.
+
+Allora per alfa compreso tra 0° e 60°, la corda è minore del raggio,
+       per alfa compreso tra 60° e 180°, la corda è maggiore del raggio.
+
+Quindi la probabilità che la lunghezza della corda superi il raggio vele (180 - 60/180) = 2/3 = 0.666666...
+
+Scriviamo una funzione che effettua la simulazione:
+
+(setq PI 3.1415926535897931)
+
+(define (corda step)
+  (local (tot magg r alfa)
+  (setq tot 0 magg 0 r 1)
+  (for (alfa 0 (div PI 2) step)
+    (if (> (mul 2 r (sin alfa)) r) (++ magg))
+    (++ tot)
+  )
+  (div magg tot)))
+
+(corda 0.01)
+;-> 0.6645569620253164
+(corda 0.001)
+;-> 0.6664544875875239
+(corda 0.0001)
+;-> 0.6666666666666666
+
+
+--------
+Toziente
+--------
+
+La funzione φ (phi) di Eulero o funzione toziente, è una funzione definita, per ogni intero positivo n, come il numero degli interi compresi tra 1 e n che sono coprimi con n. Ad esempio, phi(8) = 4 poiché i numeri coprimi di 8 sono quattro: 1, 3, 5 e 7.
+
+n = p1^a1 * p2^a2 *... * pk^ak
+
+phi(n) = n* (1 - 1/p1)*(1 - 1/p2)*...*(1 - 1/pk)
+
+Per calcolare il toziente di un numero scriviamo tre funzioni, due che utilizzano la primitiva di newLISP "factor" e una che calcola la fattorizzazione (quindi utilizzabile anche per i big-integer):
+
+Funzione 1:
+
+(define (toziente1 num)
+    (if (= num 1) 1
+    (round (mul num (apply mul (map (fn (x) (sub 1 (div 1 x))) (unique (factor num))))) 0)))
+
+(toziente1 222)
+;-> 72
+(toziente1 123456)
+;-> 41088
+(toziente1 9223372036854775807)
+;-> 7.713001620195509e+018
+
+Funzione 2:
+
+(define (toziente2 num)
+  (if (= num 1) 1
+    (let (res num)
+      (dolist (f (unique (factor num)))
+        (setq res (- res (/ res f))))
+      res)))
+
+(toziente2 222)
+;-> 72
+(toziente2 123456)
+;-> 41088
+(toziente2 9223372036854775807)
+;-> 7713001620195508224
+
+Funzione 3 (big-integer):
+
+(define (toziente-i num)
+  (if (= num 1) 1
+    (let ((res num) (i 2L))
+      (while (<= (* i i) num)
+        (if (zero? (% num i))
+            (begin
+              (while (zero? (% num i))
+                (setq num (/ num i))
+              )
+              (setq res (- res (/ res i))))
+        )
+        (++ i)
+      )
+      (if (> num 1)
+        (setq res (- res (/ res num)))
+      )
+      res)))
+
+(toziente-i 222)
+;-> 72
+(toziente-i 123456)
+;-> 41088
+(toziente-i 9223372036854775807)
+;-> 7713001620195508224
+
+Se passiamo un numero big-integer, allora la soluzione sarà un big-integer:
+
+(toziente-i 9223372036854775808L)
+;-> 4611686018427387904L
+
+Verifichiamo che le funzioni producano lo stesso risultato:
+
+(= (map toziente1 (sequence 1 1000)) (map toziente2 (sequence 1 1000)) (map toziente-i (sequence 1 1000)))
+;-> true
+
+Vediamo la velocità delle funzioni:
+
+(setq lst (sequence 1 10000))
+(time (map toziente1 lst) 100)
+;-> 1401.418
+(time (map toziente2 lst) 100)
+;-> 1156.911
+(time (map toziente-i lst) 100)
+;-> 11216.188
+
+Se abbiamo bisogno di tutti i totienti di tutti i numeri compresi tra 1 e n, la fattorizzazione di tutti gli n numeri non è efficiente. Possiamo usare la stessa idea del crivello di Eratostene: troviamo tutti i numeri primi e per ciascuno aggiorniamo i risultati temporanei di tutti i numeri che sono divisibili per quel numero primo.
+
+(array (+ 3 1) '(0))
+
+(define (totients-to num)
+  (let (phi (array (+ num 1) '(0)))
+    (setf (phi 0) 0)
+    (setf (phi 1) 1)
+    (for (i 2 num)
+      (setf (phi i) i)
+    )
+    (for (i 2 num)
+      (if (= (phi i) i)
+          (for (j i num i)
+            (setf (phi j) (- (phi j) (/ (phi j) i)))
+          )
+      )
+    )
+    (slice phi 1 num)))
+
+(totients-to 10)
+;-> (0 1 1 2 2 4 2 6 4 6 4)
+
+Verifichiamo il risultato:
+
+(= (array-list (totients-to 10000)) (map toziente2 (sequence 1 10000)))
+;-> true
+
+Vediamo la differenza di velocità:
+
+(time (totients-to 10000) 100)
+;-> 349.067
+
+(time (map toziente2 (sequence 1 10000)) 100)
+;-> 1250.951
+
+Per calcolare i tozienti dei numeri da 1 a n conviene utilizzare la funzione "totients-to".
+
+
+----------------
+Numeri permutati
+----------------
+
+Scrivere una funzione che verifica se due numeri sono la permutazione uno dell'altro, cioè se i due numeri contengono le stesse identiche cifre.
+
+Funzione che converte un intero in una lista:
+
+(define (int-lst num)
+  (let (out '())
+    (while (!= num 0)
+      (push (% num 10) out)
+      (setq num (/ num 10))) out))
+
+Prima funzione:
+
+(define (perm1? n1 n2) (= (sort (int-lst n1)) (sort (int-lst n2))))
+
+(perm1? 112233 123123)
+;-> true
+(perm1? 112233 223123)
+
+Seconda funzione: 
+usiamo due vettori che vengono aggiornati (+ 1) con le cifre dei due numeri.
+Al termine confrontiamo i due vettori.
+
+(define (perm2? n1 n2)
+  (if (!= (length n1) (length n2))
+      nil
+      (let (ar1 (array 10 '(0)) (ar2 (array 10 '(0))))
+        (while (!= n1 0)
+            (++ (ar1 (% n1 10)))
+            (setq n1 (/ n1 10))
+        )
+        (while (!= n2 0)
+            (++ (ar2 (% n2 10)))
+            (setq n2 (/ n2 10))
+        )
+        (= ar1 ar2))))
+
+(perm2? 112233 123123)
+;-> true
+(perm2? 112233 223123)
+;-> nil
+
+Terza funzione:
+usiamo un vettore che viene aggiornato (+ 1 e -1) con le cifre dei due numeri.
+Al termine verifichiamo se il vettore contiene tutti 0.
+
+(define (perm3? n1 n2)
+  (if (!= (length n1) (length n2))
+      nil
+      (let (ar (array 10 '(0)))
+        (while (!= n1 0)
+            (++ (ar (% n1 10)))
+            (setq n1 (/ n1 10))
+        )
+        ;(println ar)
+        (while (!= n2 0)
+            (-- (ar (% n2 10)))
+            (setq n2 (/ n2 10))
+        )
+        ;(println ar)
+        (= (count '(0) (array-list ar)) '(10)))))
+
+(perm3? 112233 123123)
+;-> true
+(perm3? 112233 223123)
+;-> nil
+
+Quarta funzione:
+questa funzione è presa da un vecchio libro sul linguaggio C.
+
+(define (perm4? n1 n2)
+  (if (!= (length n1) (length n2))
+      nil
+      (let ((nn1 n1) (nn2 n2) (tot1 0) (tot2 0))
+        (while (and (> nn1 0) (> nn2 0))
+          (setq nn1 (/ nn1 10) nn2 (/ nn2 10)))
+        (while (!= n1 0)
+          (setq tot1 (+ tot1 (<< 1 (* (% n1 10) 6))))
+          (setq tot2 (+ tot2 (<< 1 (* (% n2 10) 6))))
+          (setq n1 (/ n1 10))
+          (setq n2 (/ n2 10)))
+        (= tot1 tot2))))
+
+Nota: L'operazione di left-shift (x << y) è equivalente a moltiplicare x per 2^y (2 elevato alla potenza y).
+
+(perm4? 112233 123123)
+;-> true
+(perm4? 112233 223123)
+;-> nil
+
+Vediamo la velocità delle funzioni:
+
+(time (perm1? 9223372036854775807 7223372036854775809) 100000)
+;-> 587.222
+(time (perm2? 9223372036854775807 7223372036854775809) 100000)
+;-> 557.205
+(time (perm3? 9223372036854775807 7223372036854775809) 100000)
+;-> 611.291
+(time (perm4? 9223372036854775807 7223372036854775809) 100000)
+;-> 945.856
+
+Per i big-integer:
+
+(time (perm1? 92233720368547758079223372036854775807L 72233720368547758097223372036854775809L) 100000)
+;-> 4832.083
+(time (perm2? 92233720368547758079223372036854775807L 72233720368547758097223372036854775809L) 100000)
+;-> 4063.133
+(time (perm3? 92233720368547758079223372036854775807L 72233720368547758097223372036854775809L) 100000)
+;-> 4131.988
+
+
+-------------
+Numeri bouncy
+-------------
+
+Un numero "bouncy" (che rimbalza) è un numero intero positivo le cui cifre non sono in ordine strettamente crescente o strettamente decrescente. Ad esempio, 1235 è un numero crescente, 5321 è un numero decrescente e 2351 è un numero bouncy. Per definizione, tutti i numeri inferiori a 100 sono non-bouncy e 101 è il primo numero bouncy.
+
+Scrivere una funzione che verifica se un numero è bouncy.
+
+Funzione iterativa:
+
+(define (bouncy1 num)
+  (local (incr decr ultimo prossimo continua)
+    (setq continua true)
+    (setq incr nil decr nil)
+    (setq ultimo (% num 10))
+    (setq num (/ num 10))
+    (while (and (> num 0) continua)
+      (setq prossimo (% num 10))
+      (setq num (/ num 10))
+      (if (< prossimo ultimo)
+          (setq incr true)
+          (if (> prossimo ultimo)
+              (setq decr true)))
+      (setq ultimo prossimo)
+      (if (and decr incr) (setq continua nil))
+    )
+    (and decr incr)))
+
+(bouncy1 123456)
+;-> nil
+(bouncy1 123451)
+;-> true
+(bouncy1 123455)
+;-> nil
+(bouncy1 111111)
+;-> nil
+(bouncy1 211111)
+;-> nil
+
+Funzione funzionale:
+
+(define (int-lst num)
+  (let (out '())
+    (while (!= num 0)
+      (push (% num 10) out)
+      (setq num (/ num 10))) out))
+
+(define (bouncy2 num)
+  (let (digits (int-lst num))
+    (not (or (apply >= digits) (apply <= digits)))))
+
+(bouncy2 123456)
+;-> nil
+(bouncy2 123451)
+;-> true
+(bouncy2 123455)
+;-> nil
+(bouncy2 111111)
+;-> nil
+(bouncy2 211111)
+;-> nil
+
+Vediamo se le due funzioni producono risultati uguali:
+
+(= (map bouncy1 (sequence 1 10000)) (map bouncy2 (sequence 1 10000)))
+;-> true
+
+Vediamo la velocità delle funzioni:
+
+(setq numeri (sequence 1 100000))
+(time (map bouncy1 numeri) 10)
+;-> 934.53
+(time (map bouncy2 numeri) 10)
+;-> 975.42
+
+
+---------
+docstring
+---------
+
+Una docstring è una stringa letterale specificata nel codice sorgente che viene utilizzata, come un commento, per documentare uno specifico segmento di codice.
+newLISP supporta l'inserimento di una docstring nelle funzione, ma non ha alcun metodo per recuperarla. Possiamo scrivere una funzione che estrae la docstring, se presente, di una funzione. Sul forum di newLISP Nigel Brown e HPW hanno proposto la seguente funzione:
+
+(define (doc f)
+  "(doc f) - display function f's doc string, if present"
+  (if (and (or (lambda? f) (macro? f)) (string? (nth 1 f)))
+      (nth 1 f)
+      nil))
+
+Esempi:
+
+(define (somma a b)
+"(somma a b) - somma due numeri interi"
+(+ a b))
+
+(doc somma)
+;-> "(somma a b) - somma due numeri interi"
+
+(doc doc)
+"(doc f) - display function f's doc string, if present"
+
+In questo modo possiamo avere un help sulle funzioni scritte dall'utente.
+
+
 ===========
 
  APPENDICI
@@ -67347,7 +72279,7 @@ http://www.newLISP.org/index.cgi?FAQ
 
 1. Cos'è newLISP e cosa posso fare con questo linguaggio?
 ---------------------------------------------------------
-newLISP è un linguaggio di scripting simile a LISP per fare quelle cose che si fanno tipicamente con linguaggi di scripting: programmazione per internet, amministrazione di sistema, elaborazione testi, incollare diversi altri programmi insieme, ecc. newLISP è un LISP di scripting per persone che sono affascinate dalla bellezza e dal potere espressivo del LISP, ma che hanno bisogno di una versione ridotta per imparare facilmente l'essenziale.
+newLISP è un linguaggio di scripting simile al LISP per fare quelle cose che si fanno tipicamente con linguaggi di scripting: programmazione per internet, amministrazione di sistema, elaborazione testi, incollare diversi altri programmi insieme, ecc. newLISP è un LISP di scripting per persone che sono affascinate dalla bellezza e dal potere espressivo del LISP, ma che hanno bisogno di una versione ridotta per imparare facilmente l'essenziale.
 
 2. Perché newLISP, perché non uno degli altri LISP standard?
 ------------------------------------------------------------
@@ -73101,6 +78033,9 @@ Mathematical symbols     Commercial symbols       Quotes and parenthesis
 
   Mathematica on-line:
   https://www.wolframalpha.com
+  
+  La più grande risorsa sulla matematica nel web
+  https://mathworld.wolfram.com/
 
   Enciclopedia on-line delle sequenze dei numeri interi:
   https://oeis.org

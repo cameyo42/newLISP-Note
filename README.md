@@ -1,5 +1,5 @@
 Note su newLISP  
-© copyright Massimo Corinaldesi  
+© copyright 2019-2020-2021 Massimo Corinaldesi aka cameyo
 MIT License  
     
 Appunti sul linguaggio newLISP  
@@ -8,16 +8,17 @@ Appunti sul linguaggio newLISP
 01) newLISP in generale (59)  
 02) Funzioni varie (97)  
 03) newLISP 99 problemi (28)  
-04) Rosetta code (65)  
-05) Project eulero (62)  
-06) Problemi vari (72)  
-07) Domande programmatori (72)  
+04) Rosetta code (70)  
+05) Project eulero (81)  
+06) Problemi vari (74)  
+07) Domande programmatori (73)  
 08) Librerie (8)  
 09) Note libere (80)  
-10) Note libere 2 (72)  
-11) Appendici (22)  
-12) Bibliografia  
-99) yo library (yo.zip)  
+10) Note libere 2 (80)  
+11) Note libere 3 (14)  
+12) Appendici (22)  
+13) Bibliografia  
+99) yo library (yo.zip) (117)  
   
 Documentazione Extra:  
 A) Introduction to newLISP (by Cormullion)  

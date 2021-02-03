@@ -357,7 +357,6 @@ Adesso scriviamo una funzione che converte il risultato di "fattorizza" nel risu
 (fattorizza-factor (fattorizza 29))
 ;-> (29)
 
-(fattorizza 11)
 Per finire scriviamo una funzione "fattori-primi" che fa lo stesso lavoro di "factor":
 
 (define (fattori-primi numero)
@@ -1471,12 +1470,12 @@ Ecco una espressione che prende un numero e calcola la relativa lunghezza della 
 PERMUTAZIONI
 ------------
 
-Una permutazione è un modo di ordinare in successione oggetti distinti. 
+Una permutazione è un modo di ordinare in successione oggetti distinti.
 Il numero delle permutazioni di n elementi vale: n!.
 
 ; =====================================================
 ; (permutazioni lst)
-; Permutazioni di n elementi 
+; Permutazioni di n elementi
 ; senza ripetizioni
 ; =====================================================
 
@@ -1777,7 +1776,7 @@ Adesso la scriviamo in stile iterativo:
 
 Vediamo un altro modo di scrivere la funzione in stile funzionale:
 
-(define (horner-f lst x) 
+(define (horner-f lst x)
   (cond ((null? lst) '0)
         (true (+ (first lst) (* x (horner-f (rest lst) x))))))
 
@@ -2996,7 +2995,7 @@ Il secondo algoritmo si basa su un algoritmo di permutazioni generalmente applic
 (define (permutations lst)
   (if (= (length lst) 1)
    lst
-   (apply append (map (fn (rot) 
+   (apply append (map (fn (rot)
                       (map (fn (perm) (cons (first rot) perm))
                            (permutations (rest rot))))
                       (rotations lst)))))
@@ -7971,7 +7970,7 @@ Sembra tutto corretto.
 PERCORSO DEL CAVALLO
 --------------------
 
-In questo problema un cavallo è posizionato in una qualunque casella sulla scacchiera vuota e, spostandosi secondo le regole degli scacchi (cioè ad L), deve passare per tutte le altre caselle esattamente una sola volta. Un percorso del cavallo si dice "chiuso" se l'ultima casa su cui si posiziona il cavallo è vicina alla casa da cui è partito (ad esempio, se il cavallo inizia in d8 e conclude il suo percorso in f7). In caso contrario il percorso del cavallo è detto "aperto". Questo problema è un esempio del più generale "problema del cammino hamiltoniano" nella teoria dei grafi.                     
+In questo problema un cavallo è posizionato in una qualunque casella sulla scacchiera vuota e, spostandosi secondo le regole degli scacchi (cioè ad L), deve passare per tutte le altre caselle esattamente una sola volta. Un percorso del cavallo si dice "chiuso" se l'ultima casa su cui si posiziona il cavallo è vicina alla casa da cui è partito (ad esempio, se il cavallo inizia in d8 e conclude il suo percorso in f7). In caso contrario il percorso del cavallo è detto "aperto". Questo problema è un esempio del più generale "problema del cammino hamiltoniano" nella teoria dei grafi.
 
 Vediamo la soluzione ricorsiva con backtracking:
 
@@ -7997,7 +7996,7 @@ Vediamo la soluzione ricorsiva con backtracking:
         (true (++ counter) (++ res-counter))
   )
   (setf (board curr-x curr-y) 1)
-  (cond ((knight-tour board (+ curr-x 2) (+ curr-y 1)) ; down_right 
+  (cond ((knight-tour board (+ curr-x 2) (+ curr-y 1)) ; down_right
          (setf (result curr-x curr-y) res-counter)
          (setq res-counter (- res-counter 1))
          (throw true)
@@ -8053,10 +8052,10 @@ Vediamo la soluzione ricorsiva con backtracking:
 ))
 
 (knight 6 0 0)
-;-> (( 1 16  7 26 11 14) 
-;->  (34 25 12 15  6 27) 
-;->  (17  2 33  8 13 10) 
-;->  (32 35 24 21 28  5) 
+;-> (( 1 16  7 26 11 14)
+;->  (34 25 12 15  6 27)
+;->  (17  2 33  8 13 10)
+;->  (32 35 24 21 28  5)
 ;->  (23 18  3 30  9 20)
 ;->  (36 31 22 19  4 29))
 
@@ -8064,9 +8063,9 @@ Vediamo la soluzione ricorsiva con backtracking:
 ;-> 3437.779
 
 (knight 8 0 0)
-;-> (( 1 60 39 34 31 18  9 64) 
-;->  (38 35 32 61 10 63 30 17) 
-;->  (59  2 37 40 33 28 19  8) 
+;-> (( 1 60 39 34 31 18  9 64)
+;->  (38 35 32 61 10 63 30 17)
+;->  (59  2 37 40 33 28 19  8)
 ;->  (36 49 42 27 62 11 16 29)
 ;->  (43 58  3 50 41 24  7 20)
 ;->  (48 51 46 55 26 21 12 15)
@@ -8077,9 +8076,9 @@ Vediamo la soluzione ricorsiva con backtracking:
 ;-> 142474.658
 
 (knight 8 7 7)
-;-> ((47 34 21 30  5 14 19 64) 
-;->  (36 31 48 33 20 63  4 13) 
-;->  (49 46 35 22 29  6 15 18) 
+;-> ((47 34 21 30  5 14 19 64)
+;->  (36 31 48 33 20 63  4 13)
+;->  (49 46 35 22 29  6 15 18)
 ;->  (60 37 32 51 62 17 12  3)
 ;->  (45 50 61 38 23 28  7 16)
 ;->  (56 59 42 25 52  9  2 11)
@@ -8132,10 +8131,10 @@ Vediamo lo stesso algoritmo di backtracking codificato in modo più strutturato.
     )))
 
 (start_knight_tour 6 0 0)
-;-> (( 0 15  6 25 10 13) 
-;->  (33 24 11 14  5 26) 
-;->  (16  1 32  7 12  9) 
-;->  (31 34 23 20 27  4) 
+;-> (( 0 15  6 25 10 13)
+;->  (33 24 11 14  5 26)
+;->  (16  1 32  7 12  9)
+;->  (31 34 23 20 27  4)
 ;->  (22 17  2 29  8 19)
 ;->  (35 30 21 18  3 28))
 
@@ -8143,9 +8142,9 @@ Vediamo lo stesso algoritmo di backtracking codificato in modo più strutturato.
 ;-> 672.085
 
 (start_knight_tour 8 0 0)
-;-> (( 0 59 38 33 30 17  8 63) 
-;->  (37 34 31 60  9 62 29 16) 
-;->  (58  1 36 39 32 27 18  7) 
+;-> (( 0 59 38 33 30 17  8 63)
+;->  (37 34 31 60  9 62 29 16)
+;->  (58  1 36 39 32 27 18  7)
 ;->  (35 48 41 26 61 10 15 28)
 ;->  (42 57  2 49 40 23  6 19)
 ;->  (47 50 45 54 25 20 11 14)
@@ -8156,15 +8155,15 @@ Vediamo lo stesso algoritmo di backtracking codificato in modo più strutturato.
 ;-> 23314.636
 
 (start_knight_tour 8 7 7)
-;-> ((46 33 20 29  4 13 18 63) 
-;->  (35 30 47 32 19 62  3 12) 
-;->  (48 45 34 21 28  5 14 17) 
+;-> ((46 33 20 29  4 13 18 63)
+;->  (35 30 47 32 19 62  3 12)
+;->  (48 45 34 21 28  5 14 17)
 ;->  (59 36 31 50 61 16 11  2)
 ;->  (44 49 60 37 22 27  6 15)
 ;->  (55 58 41 24 51  8  1 10)
 ;->  (40 43 56 53 38 23 26  7)
 ;->  (57 54 39 42 25 52  9  0))
- 
+
 (time (start_knight_tour 8 7 7))
 ;-> 705835.03 ; circa 11 minuti
 
@@ -8246,7 +8245,7 @@ Regola di Warnsdorff:
 
 ; checks its neighbouring squares
 ; If the knight ends on a square that is one
-; knight's move from the beginning square, 
+; knight's move from the beginning square,
 ; then tour is closed
 (define (neighbour x y xx yy)
   (let (found nil)
@@ -8344,12 +8343,12 @@ Regola di Warnsdorff:
 TEOREMA CINESE DEI RESTI
 ------------------------
 
-Siano (n1, n2,..., nk) k interi a due a due coprimi (divisori) e siano (b1, b2,..., bk) k interi relativi (resti). 
+Siano (n1, n2,..., nk) k interi a due a due coprimi (divisori) e siano (b1, b2,..., bk) k interi relativi (resti).
 Allora il sistema di congruenze:
 
 x ≡ b1 (mod n1)   --> x mod n1 = b1
-x ≡ b2 (mod n2)   --> x mod n2 = b2  
-...    
+x ≡ b2 (mod n2)   --> x mod n2 = b2
+...
 x ≡ bk (mod nk)   --> x mod nk = bk
 
 Ammette soluzioni. Inoltre se x0 è una soluzione del sistema, tutte le soluzioni di tale sistema saranno date da:
@@ -8472,7 +8471,7 @@ Funzione finale per il Teorema Cinese dei Resti:
     (if (= (apply * divisori) (apply lcm divisori))
         ;allora cerchiamo la soluzione
         (chinese divisori resti)
-        ; altrimenti nessuna soluzione 
+        ; altrimenti nessuna soluzione
         nil))
 
 (trc '(3 5 7) '(2 3 2))
@@ -8710,7 +8709,7 @@ Sum[x 1 n] (-1)^(n-1)/n = ln(2)
 ;-> 0.6931471805599453
 
 Sum[x 0 n] 1/x! = e
-(define (fact n) 
+(define (fact n)
   (if (zero? n)
       1
       (apply * (map bigint (sequence 1 n)))))
@@ -8792,7 +8791,7 @@ VALUTAZIONE DI UNA ESPRESSIONE RPN
 
 Valutare il valore di un'espressione aritmetica nella notazione polacca inversa (Reverse Polish Notation). Gli operatori validi sono:
 
-"+" "-" "*" "/" "%" 
+"+" "-" "*" "/" "%"
 "add" "sub" "mul" "div" "mod" "pow"
 "abs" "sqrt" "exp"
 "sin" "cos" "tan"
@@ -9028,7 +9027,7 @@ Lista delle operazioni:
 
 Lista delle operazioni possibili (n^k) = 4^3 = 64:
 (setq operats (perm-rep 3 op))
-;-> ((add add add) (sub add add) (mul add add) (div add add) 
+;-> ((add add add) (sub add add) (mul add add) (div add add)
 ;->  (add sub add) (sub sub add) (mul sub add) (div sub add)
 ;->  ...
 ;->  (add div div) (sub div div) (mul div div) (div div div))
@@ -9041,7 +9040,7 @@ Lista dei numeri singoli:
 
 Lista dei numeri possibili (n! = 4! = 24):
 (setq digits (perm num))
-;-> ((3 7 1 8) (7 3 1 8) (1 3 7 8) (3 1 7 8) (7 1 3 8) (1 7 3 8) (8 7 3 1) 
+;-> ((3 7 1 8) (7 3 1 8) (1 3 7 8) (3 1 7 8) (7 1 3 8) (1 7 3 8) (8 7 3 1)
 ;->  (7 8 3 1) (3 8 7 1) (8 3 7 1) (7 3 8 1) (3 7 8 1) (3 1 8 7) (1 3 8 7)
 ;->  (8 3 1 7) (3 8 1 7) (1 8 3 7) (8 1 3 7) (8 1 7 3) (1 8 7 3) (7 8 1 3)
 ;->  (8 7 1 3) (1 7 8 3) (7 1 8 3))
@@ -9177,13 +9176,13 @@ Proviamo con il gioco del 24:
 ;-> (6 + (2 * (5 + 4)))
 ;-> (6 - (2 - (5 * 4)))
 ;-> (4 + (5 * (6 - 2)))
-;-> ((4 5 2 6 - * -) (6 2 4 5 + * +) (6 2 4 5 * - -) 
+;-> ((4 5 2 6 - * -) (6 2 4 5 + * +) (6 2 4 5 * - -)
 ;->  (6 2 5 4 + * +) (6 2 5 4 * - -) (4 5 6 2 - * +))
 
 Proviamo un insieme di numeri che non hanno soluzione:
 
 (game-number '(5 7 5 1) 24)
-;-> () 
+;-> ()
 
 Proviamo con altri numeri:
 
@@ -9195,7 +9194,7 @@ Proviamo con altri numeri:
 (50 / (10 / (3 - (25 * (1 - 7)))))
 (50 / (10 / (3 + (25 * (7 - 1)))))
 (25 + (10 * (50 + (3 * (7 + 1)))))
-;-> (((25 10 50 3 1 7 + * + * +) "(25 + (10 * (50 + (3 * (1 + 7)))))") 
+;-> (((25 10 50 3 1 7 + * + * +) "(25 + (10 * (50 + (3 * (1 + 7)))))")
 ;->  ((50 10 3 25 1 7 - * - / /) "(50 / (10 / (3 - (25 * (1 - 7)))))")
 ;->  ((50 10 3 25 7 1 - * + / /) "(50 / (10 / (3 + (25 * (7 - 1)))))")
 ;->  ((25 10 50 3 7 1 + * + * +) "(25 + (10 * (50 + (3 * (7 + 1)))))"))
@@ -9235,9 +9234,426 @@ Per verifica prendiamo il primo risultato:
 ;-> (2 * (1 + (4 * (3 + (5 * (6 - (7 - (8 + 9))))))))
 ;-> ......
 
-Nota: 
+Nota:
 Con 9 cifre (da 1 a 9) abbiamo n! = 9! = 362880 modi di disporre le cifre nell'espressione
 Con 9 cifre abbiamo 8 operazioni con 4 operatori n^k = 4^8 = 65536 modi di disporre gli operatori nell'espressione.
 (* 362880 65536)
 ;-> 23781703680 ; (23 miliardi 781 milioni 703 mila 680) espressioni
+
+
+-------------
+SEQUENZA FUSC
+-------------
+
+La sequenza "fusc" (chiamata anche sequenza di Stern) è definita nel modo seguente:
+
+  fusc(0) = 0
+  fusc(1) = 1
+  per n > 1, fusc(n) vale:
+  se n è pari:     fusc(n) = fusc(n/2)
+  se n è dispari:  fusc(n) = fusc((n-1)/2) + fusc((n+1)/2)
+
+Questa è la sequenza OEIS A2487.
+
+Vediamo prima di tutto la versione ricorsiva:
+
+(define (fusc n)
+  (cond ((or (zero? n) (= 1 n)) n)
+        ((even? n) (fusc (/ n 2)))
+        (true (+ (fusc (/ (- n 1) 2)) (fusc(/ (+ n 1) 2))))))
+
+(fusc 10)
+;-> 3
+
+(map fusc (sequence 0 100))
+;-> (0 1 1 2 1 3 2 3 1 4 3 5 2 5 3 4 1 5 4 7 3 8 5 7 2 7 5 8 3
+;->  7 4 5 1 6 5 9 4 11 7 10 3 11 8 13 5 12 7 9 2 9 7 12 5 13
+;->  8 11 3 10 7 11 4 9 5 6 1 7 6 11 5 14 9 13 4 15 11 18 7 17
+;->  10 13 3 14 11 19 8 21 13 18 5 17 12 19 7 16 9 11 2 11 9 16 7)
+
+Adesso vediamo la versione iterativa.
+Possiamo evitare completamente la ricorsione poiché possiamo sempre esprimere fusc(n) nella forma a*fusc(m) + b*fusc(m + 1) riducendo il valore di m a 0. Abbiamo il seguente schema:
+
+se m è dispari:
+a*fusc(m) + b*fusc(m+1) = a*fusc((m-1)/2) + (b+a)*fusc((m+1)/2)
+
+se m è pari:
+a*fusc(m) + b*fusc(m+1) = (a+b)*fusc(m/2) + b*fusc((m/2)+1)
+
+Pertanto è possibile utilizzare un ciclo per risolvere il problema in tempo O(log n):
+
+(define (fusc-i n)
+  (local (a b)
+    (setq a 1 b 0)
+    (cond ((zero? n) 0)
+          (true (while (> n 0)
+                  (if (odd? n)
+                      (setq b (+ b a) n (/ (- n 1) 2))
+                      (setq a (+ a b) n (/ n 2)))
+                )
+          )
+    )
+    b))
+
+(fusc-i 10)
+;-> 3
+
+(map fusc-i (sequence 0 100))
+;-> (0 1 1 2 1 3 2 3 1 4 3 5 2 5 3 4 1 5 4 7 3 8 5 7 2 7 5 8 3
+;->  7 4 5 1 6 5 9 4 11 7 10 3 11 8 13 5 12 7 9 2 9 7 12 5 13
+;->  8 11 3 10 7 11 4 9 5 6 1 7 6 11 5 14 9 13 4 15 11 18 7 17
+;->  10 13 3 14 11 19 8 21 13 18 5 17 12 19 7 16 9 11 2 11 9 16 7)
+
+Adesso risolviamo il problema con la programmazione dinamica.
+Memorizziamo i due casi base di fs(0) = 0, fs(1) = 1, e poi attraversiamo il vettore dall'indice 2 a n calcolando fs(i) come da definizione. Infine restituiamo il valore di fs(n).
+
+(define (fusc-dp n)
+  (let (fs (array (+ n 2) '(0)))
+    (setf (fs 0) 0)
+    (setf (fs 1) 1)
+    (if (> n 1)
+      (for (i 2 n)
+        (if (even? i)
+            (setf (fs i) (fs (/ i 2)))
+            (setf (fs i) (+ (fs (/ (- i 1) 2)) (fs (/ (+ i 1) 2))))
+        )
+      )
+    )
+    (fs n)))
+
+(fusc-dp 10)
+;-> 10
+
+(map fusc-dp (sequence 0 100)))
+;-> (0 1 1 2 1 3 2 3 1 4 3 5 2 5 3 4 1 5 4 7 3 8 5 7 2 7 5 8 3
+;->  7 4 5 1 6 5 9 4 11 7 10 3 11 8 13 5 12 7 9 2 9 7 12 5 13
+;->  8 11 3 10 7 11 4 9 5 6 1 7 6 11 5 14 9 13 4 15 11 18 7 17
+;->  10 13 3 14 11 19 8 21 13 18 5 17 12 19 7 16 9 11 2 11 9 16 7)
+
+Vediamo se le tre funzioni producono risultati uguali:
+
+(= (map fusc (sequence 0 100))
+   (map fusc-i (sequence 0 100))
+   (map fusc-dp (sequence 0 100)))
+;-> true
+
+Vediamo i tempi di esecuzione delle funzioni:
+
+(time (map fusc (sequence 0 10000)))
+;-> 622.346
+
+(time (map fusc-i (sequence 0 10000)))
+;-> 17.959
+
+(time (map fusc-dp (sequence 0 10000)))
+;-> 8244.964
+
+La versione iterativa è quella più veloce, ma la versione con la programmazione dinamica calcola tutti i valori della funzione da 0 a n. Quindi il confronto dovrebbe essere fatto nel modo seguente.
+Riscriviamo fusc-dp in modo che restituisca una lista con tutti i valori:
+
+(define (fusc-n n)
+  (let (fs (array (+ n 2) '(0)))
+    (setf (fs 0) 0)
+    (setf (fs 1) 1)
+    (if (> n 1)
+      (for (i 2 n)
+        (if (even? i)
+            (setf (fs i) (fs (/ i 2)))
+            (setf (fs i) (+ (fs (/ (- i 1) 2)) (fs (/ (+ i 1) 2))))
+        )
+      )
+    )
+    (slice fs 0 (+ n 1))))
+
+Vediamo se le funzioni producono risultati uguali:
+
+(= (map fusc-i (sequence 0 100000)) (array-list (fusc-n 100000)))
+;-> true
+
+Adesso facciamo il confronto:
+
+(time (map fusc-i (sequence 0 100000)))
+;-> 217.446
+(time (fusc-n 100000))
+;-> 18.937
+
+In questo caso (cioè quando vogliamo tutti i valori della funzione fusc da 0 a n) la funzione fusc-n è molto più veloce.
+
+
+--------------
+ALGORITMO DAMM
+--------------
+
+Nel rilevamento degli errori, l'algoritmo di Damm è un algoritmo di cifre di controllo che rileva tutti gli errori di una cifra e tutti gli errori di trasposizione adiacenti. È stato presentato da H. Michael Damm nel 2004.
+L'algoritmo di Damm rileva tutte le occorrenze dei due tipi di errori di trascrizione più frequenti, vale a dire l'alterazione di una singola cifra e la trasposizione di due cifre adiacenti (inclusa la trasposizione della cifra di controllo finale e della cifra precedente).
+
+(define (damm-encode number)
+  (local (dm out)
+    (setq dm
+      '((0 3 1 7 5 9 8 6 4 2)
+        (7 0 9 2 1 5 4 8 6 3)
+        (4 2 0 6 8 7 1 3 5 9)
+        (1 7 5 0 9 8 3 4 2 6)
+        (6 1 2 3 0 4 5 9 7 8)
+        (3 6 7 4 2 0 9 5 8 1)
+        (5 8 6 9 7 2 0 1 3 4)
+        (8 9 4 5 3 6 2 0 1 7)
+        (9 4 3 8 6 1 7 2 0 5)
+        (2 5 8 1 4 3 6 7 9 0)))
+    (setq out 0)
+    (dostring (el (string number))
+      (setq out (dm out (int (char el))))
+    )
+    out))
+
+(define (check-damm-encode number)
+  (zero? (damm-encode number)))
+
+(damm-encode 572)
+;-> 4
+
+(check-damm-encode 5724)
+;-> true
+
+(damm-encode 43881234567)
+;-> 9
+
+(check-damm-encode 438812345679)
+;-> true
+
+
+----------------------------------
+DISTANZA TRA DUE PUNTI DELLA TERRA
+----------------------------------
+
+Utilizziamo la formula "haversine" per calcolare la distanza minima tra due punti di una sfera (tale distanza viene chiamata "ortodromia"). Si tratta quindi della distanza più breve tra due punti della superficie terrestre (in linea d'aria e ignorando l'orografia).
+Le coordinate per la latitudine e la longitudine sono espresse in gradi decimali.
+
+(define (deg-rad deg) (div (mul deg 3.1415926535897931) 180))
+
+(define (dist-earth lat1 lon1 lat2 lon2)
+  (local (r dLat dLon a c d)
+  (setq r 6371) ; raggio medio della terra in km
+  (setq dLat (deg-rad (sub lat2 lat1))) ; delta lat (in radianti)
+  (setq dLon (deg-rad (sub lon2 lon1))) ; delta lon (in radianti)
+  (setq a (add (mul (sin (div dLat 2)) (sin (div dLat 2)))
+               (mul (cos (deg-rad lat1)) (cos (deg-rad lat2))
+                    (sin (div dLon 2)) (sin (div dLon 2)))))
+  (setq c (mul 2 (atan2 (sqrt a) (sqrt (sub 1 a)))))
+  (setq d (mul r c)))) ; distanza in km
+
+(dist-earth 42.123456 13.123456 54.654321 8.654321)
+;-> 1431.173709679866
+(dist-earth 42.123456 -10.123456 54.654321 -2.654321)
+;-> 1496.522788559527
+
+La formula di haversine produce un errore massimo dello 0.5% (poichè la terra è un elissoide e non una sfera).
+
+
+-----------------
+ALGORITMO SOUNDEX
+-----------------
+
+Soundex è un algoritmo fonetico per l'indicizzazione dei nomi in base al suono (come pronunciati in inglese). L'obiettivo è che gli omofoni (parole che hanno la stessa pronuncia, ma differiscono nella grafia) siano codificati nella stessa rappresentazione in modo che possano essere riconosciuti come simili nonostante piccole differenze di ortografia. L'algoritmo codifica principalmente le consonanti, una vocale non viene codificata a meno che non sia la prima lettera. Soundex è il più conosciuto di tutti gli algoritmi fonetici ed è la base di molti algoritmi fonetici moderni.
+
+I passi dell'algoritmo ufficiale sono i seguenti:
+
+1) Conserva la prima lettera del nome e elimina tutte le altre occorrenze di a, e, i, o, u, y, h, w.
+2) Sostituisci le consonanti con le cifre come segue (dopo la prima lettera):
+   b, f, p, v → 1
+   c, g, j, k, q, s, x, z → 2
+   d, t → 3
+   l → 4
+   m, n → 5
+   r → 6
+3) Se due o più lettere con lo stesso numero sono adiacenti nel nome originale (prima del passaggio 1), conservare solo la prima lettera. Anche due lettere con lo stesso numero separate da "h" o "w" sono codificate come un numero unico, mentre tali lettere separate da una vocale sono codificate due volte. Questa regola si applica anche alla prima lettera.
+4) Se hai poche lettere nel nome e non puoi assegnare tre numeri, aggiungi degli zeri fino a quando non ci sono tre numeri. Se hai quattro o più numeri, conserva solo i primi tre.
+
+Funzione che formatta una stringa in una determinata lunghezza con un carattere predefinito:
+
+(define (pad-string str ch len)
+  (local (out len-str)
+    (setq out "")
+    (setq len-str (length str))
+    (cond ((zero? len-str) (setq out (dup ch len)))
+          ((= len-str len) (setq out str))
+          ((> len-str len) (setq out (slice str 0 len)))
+          ((< len-str len) (setq out (push (dup ch (- len len-str)) str -1))))))
+
+(pad-string "" "0" 2)
+;-> 00
+(pad-string "ABC" "0" 5)
+;-> "ABC00"
+(pad-string "ABC" "0" 3)
+;-> "ABC"
+(pad-str "ABC" "0" 2)
+;-> "AB"
+(pad-str "ABC" "0" 0)
+;-> ""
+
+Funzione di decodifica dei caratteri:
+
+(define (getcode ch)
+  (letn ((lst '(("B" "1") ("F" "1") ("P" "1") ("V" "1")
+                ("C" "2") ("G" "2") ("J" "2") ("K" "2")
+                ("Q" "2") ("S" "2") ("X" "2") ("Z" "2")
+                ("D" "3") ("T" "3")
+                ("L" "4")
+                ("M" "5") ("N" "5")
+                ("R" "6")
+                ("H" "-") ("W" "-")))
+        (out (lookup ch lst)))
+        (if (nil? out) (setq out ""))
+        out))
+
+(getcode "B")
+;-> "1"
+(getcode "A")
+;-> ""
+(getcode "H")
+;-> "-"
+
+Adesso possiamo scrive la funzione finale "soundex":
+
+(define (soundex str)
+  (local (out prev curr)
+    (setq str (upper-case str))
+    (setq out (str 0))
+    (setq prev (getcode (out 0)))
+    (dostring (el str)
+      (setq curr (getcode (char el)))
+      (if (and (!= curr "") (!= curr "-") (!= curr prev))
+        (push curr out -1)
+      )
+      (if (!= curr "-") (setq prev curr))
+    )
+    (pad-string out "0" 4)))
+
+(soundex "Ashcroft")
+;-> A261
+
+(setq lista '("Ashcraft" "Ashcroft" "Gauss" "Ghosh" "Hilbert" "Heilbronn" "Lee" "Lloyd"
+              "Moses" "Pfister" "Robert" "Rupert" "Rubin" "Tymczak" "Soundex" "Example"))
+
+(map soundex lista)
+;-> ("A261" "A261" "G200" "G200" "H416" "H416" "L000" "L300"
+;->  "M220" "P236" "R163" "R163" "R150" "T522" "S532" "E251")
+
+Nota: la maggior parte dei database SQL usa un algoritmo leggermente diverso.
+
+Vediamo cosa accade con dei nomi italiani:
+
+(setq lista '("Mario" "Marco" "Sara" "Lara" "Luca" "Luisa" "Lisa"
+              "Massimo" "Massimiliano" "Maria" "Marta"))
+
+(map soundex lista)
+;-> ("M600" "M620" "S600" "L600" "L200" "L200" "L200" 
+;->  "M250" "M254" "M600" "M630")
+
+
+=====================================
+TRASFORMATA DISCRETA DI FOURIER (DFT)
+=====================================
+
+Calcola la trasformata discreta di Fourier (DFT) della lista/vettore di numeri complessi in ingresso.
+
+La lista/vettore ha la seguente struttura:
+
+((real1 img1) (real2 img2) ... (realN imgN))
+
+(setq PI 3.1415926535897931)
+
+(define (dft input)
+  (local (len sum-real sum-img angle)
+    (setq len (length input))
+    (setq output (array len '(0)))
+    (for (k 0 (- len 1))
+      (setq sum-real 0 sum-img 0)
+      (for (t 0 (- len 1))
+        (setq angle (div (mul 2 PI t k) len))
+        (setq sum-real (add sum-real (add (mul (first (input t)) (cos angle))
+                                          (mul (last (input t)) (sin angle)))))
+        (setq sum-img  (add sum-img  (sub (mul (last (input t)) (cos angle))
+                                          (mul (first (input t)) (sin angle)))))
+      )
+      ;(println sum-real { } sum-img)
+      (setf (output k) (list sum-real sum-img))
+    )
+    output))
+
+Vediamo alcuni esempi:
+
+(setq in '((1 0) (4 0) (3 0) (2 0)))
+(dft in)
+;-> ((10 0) (-2 -2) (-2 -4.898425415289509e-016) (-2 1.999999999999999))
+
+(setq in '((8 0) (4 0) (8 0) (0 0)))
+(dft in)
+;-> ((20 0) (0 -4.000000000000001) 
+;->  (12 1.469527624586853e-015) 
+;->  (-8.881784197001252e-016 3.999999999999997))
+
+(setq in '(
+  (0.4967  0) (-0.1383 0) ( 0.6477 0) ( 1.523  0) (-0.2342 0) (-0.2341 0) ( 1.5792 0)
+  ( 0.7674 0) (-0.4695 0) ( 0.5426 0) (-0.4634 0) (-0.4657 0) ( 0.242  0) (-1.9133 0)
+  (-1.7249 0) (-0.5623 0) (-1.0128 0) ( 0.3142 0) (-0.908  0) (-1.4123 0) ( 1.4656 0)
+  (-0.2258 0) ( 0.0675 0) (-1.4247 0) (-0.5444 0) ( 0.1109 0) (-1.151  0) ( 0.3757 0)
+  (-0.6006 0) (-0.2917 0) (-0.6017 0) ( 1.8523 0)))
+
+(setq out (dft in))
+
+Formattiamo meglio il risultato:
+
+(setq outf
+  (map list (map (fn(x) (format "%5.4f" (first x))) out)
+            (map (fn(x) (format "%5.4f" (last x))) out)))
+
+(dolist (el outf) (println (first el) { } (last el) "i"))
+;-> -4.3939 0.0000i
+;-> 9.0217 -3.7036i
+;-> -0.5874 -6.2268i
+;-> 2.5184 3.7749i
+;-> 0.5008 -0.8433i
+;-> 1.2904 -0.4024i
+;-> 4.3391 0.8079i
+;-> -6.2614 2.1596i
+;-> 1.8974 2.4889i
+;-> 0.1042 7.6169i
+;-> 0.3606 5.1620i
+;-> 4.7965 0.0755i
+;-> -5.3064 -3.2329i
+;-> 4.6237 1.5287i
+;-> -2.1211 4.4873i
+;-> -4.0175 -0.3712i
+;-> -2.0297 -0.0000i
+;-> -4.0175 0.3712i
+;-> -2.1211 -4.4873i
+;-> 4.6237 -1.5287i
+;-> -5.3064 3.2329i
+;-> 4.7965 -0.0755i
+;-> 0.3606 -5.1620i
+;-> 0.1042 -7.6169i
+;-> 1.8974 -2.4889i
+;-> -6.2614 -2.1596i
+;-> 4.3391 -0.8079i
+;-> 1.2904 0.4024i
+;-> 0.5008 0.8433i
+;-> 2.5184 -3.7749i
+;-> -0.5874 6.2268i
+;-> 9.0217 3.7036i
+
+L'esempio di wikipedia produce risultati differenti:
+
+(setq in '((1 0) (2 -1) (0 -1) (1 2)))
+
+(setq out (dft in))
+(setq outf
+  (map list (map (fn(x) (format "%5.4f" (first x))) out)
+            (map (fn(x) (format "%5.4f" (last x))) out)))
+(dolist (el outf) (println (first el) { } (last el) "i"))
+;-> 4.0000  0.0000i
+;-> -2.0000 -0.0000i
+;-> -2.0000 -2.0000i
+;-> 4.0000  2.0000i
+
 

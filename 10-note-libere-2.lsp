@@ -37,8 +37,6 @@ Elenco di tutti gli elementi (chiave valore) della hashmap:
 Se una chiave non esiste, allora newLISP restituisce nil:
 (myHash "X")
 ;-> nil
-(myHash "X")
-;-> nil
 
 Per eliminare un valore occorre assegnare il valore nil:
 (myHash "K" nil)
@@ -79,8 +77,6 @@ Adesso scriviamo la funzione che calcola le frequenze:
 ;-> (("1" 2) ("2" 2) ("3" 2) ("4" 2) ("5" 2))
 (freq '())
 ;-> ()
-
-
 
 
 --------------------------------------
@@ -1975,7 +1971,7 @@ Un altro esempio:
 (fract2fc 79 22)
 ;-> (3 1 1 2 4)
 
-Adesso dobbiamo scrivere una funzione che converte una frazione continua in un numero fratto (numeratore e denominatore).
+Adesso dobbiamo scrivere una funzione che converte una frazione continua in un numero fratto (numeratore e denominatore). In altre parole si tratta del calcolo dei convergenti di una frazione continua.
 Utilizziamo le seguenti funzioni per calcolare la somma di due frazioni:
 
 (define (rat n d)
@@ -3226,7 +3222,7 @@ Si noti che nelle liste con meno di circa 100 elementi o stringhe di meno di cir
 
 Le funzioni integrate e definite dall'utente sono adatte per entrambi i tipi di argomenti, ma quando si passano i nomi di contesto, i dati verranno passati per riferimento.
 
-I simboli tra virgolette possono anche essere utilizzati per passare i dati per riferimento, ma questo metodo presenta degli svantaggi:
+I simboli quotati possono anche essere utilizzati per passare i dati per riferimento, ma questo metodo presenta degli svantaggi:
 
 (define (change-list aList) (push 999 (eval aList)))
 
@@ -3634,7 +3630,10 @@ Come si nota, se partiamo dalla posizione "testa" non possiamo mai ottenere un l
       ; crea una lista di 0 e 1 alternati di lunghezza casuale (da 3 a 22)
       ; che inizia con 0 (testa).
       ; Restituisce una lista con il numero di 0 e di 1.
+      ; inizia con testa 0
       (setq res (count '(0 1) (slice (flat (dup '(0 1) 11)) 0 (+ (rand 19) 3))))
+      ; inizia con croce 1
+      ;(setq res (count '(0 1) (slice (flat (dup '(1 0) 11)) 0 (+ (rand 19) 3))))
       (setq t (+ t (first res)))
       (setq c (+ c (last res)))
     )
@@ -4859,7 +4858,7 @@ Ci vogliono 1.008094955964925e+041 anni.
 
 L'età dell'universo è 13.8 miliardi di anni (1.38e+010)...
 
-In realtà non hanno calcolato il numero, ma hanno costruito il problema in modo che la soluzione fosse quella desiderata. Nella teoria dei numeri, ci sono vari teoremi che ti dicono come si relazioneranno due numeri e, se vengono usati in modo intelligente, è possibile creare problemi come questo.
+In realtà non hanno calcolato il numero, ma hanno costruito il problema in modo che la soluzione fosse quella desiderata. Nella teoria dei numeri, ci sono vari teoremi che definiscono come si relazioneranno due numeri e, se vengono usati in modo opportuno, è possibile creare problemi come questo.
 
 Un altro esempio è il seguente:
 
@@ -4898,7 +4897,7 @@ Definizioni:
 (ceil x) = min (n ≥ x) dove n è intero
 (fract x) = x - (floor x)
 
-QUindi risulta:
+Quindi risulta:
 
 (x - 1) < m ≤ x ≤ n < (x + 1)
 
@@ -4940,6 +4939,7 @@ Vediamo alcuni esempi:
 ----------------
 Multipli di nove
 ----------------
+
 Un fatto noto nella teoria dei numeri è che se prendiamo un intero positivo e sottraiamo la somma delle sue cifre da quel numero, otteniamo un multiplo di 9.
 
 (define (mul9 n)
@@ -5096,7 +5096,7 @@ Tutte le versioni stampano il seguente risultato:
 Conversione tra liste, stringhe, caratteri e simboli
 ----------------------------------------------------
 
-Definiamo due funzioni che convertono una stringa in una lista di caratteri e vicerversa.
+Definiamo due funzioni che convertono una stringa in una lista di caratteri e viceversa.
 
 Stringa --> lista di caratteri
 ------------------------------
@@ -5188,7 +5188,6 @@ somma dei divisori = (1 + p(1) + p(1)^2 + ... + p(1)^a(1)) *
                      (1 + p(2) + p(2)^2 + ... + p(2)^a(2)) * ... *
                      (1 + p(k) + p(k)^2 + ... + p(k)^a(k))
 
-lista divisori
 I divisori possono essere generati ricorsivamente utilizzando tutti i primi p(i) e le loro occorrenze a(i). Ogni fattore primo p(i), può essere incluso x volte dove 0 ≤ x ≤ a(i).
 
 Lista dei divisori
@@ -5443,7 +5442,7 @@ N = 3
 ; calcolo dei resti
 (map (fn(x) (% x 3)) one)
 ;-> (1 2 0 1)
-Abbiamo due resti uguale a 1, che corrispondono ai numeri 1 e 1111. 
+Abbiamo due resti uguale a 1, che corrispondono ai numeri 1 e 1111.
 Calcoliamo la differenza tra questi due numeri:
 (- 1111 1)
 ;-> 1110
@@ -5470,7 +5469,7 @@ Quindi il nostro algoritmo sarà il seguente:
 0. creare una hash-map (che conterrà elementi con chiave uguale al resto e valore uguale al relativo numero con tutti 1).
 1. generare il prossimo numero con tutti 1 (numero one)
 2. calcolare il resto della divisione tra il numero one e il numero dato
-3. se il resto non esiste nella hash-map, 
+3. se il resto non esiste nella hash-map,
       allora inserirlo nella hash-map (resto one) e andare al passo 1
       altrimenti recuperare il numero nella hash-map che ha la chiave uguale a resto e sottrarlo al numero one attuale.
       Fine.
@@ -5538,7 +5537,7 @@ Le funzioni (uno-zero e uz) producono due risultati differenti, ma entrambi sono
 
 La funzione (uz 12345) produce un numero molto lungo:
 
-(length (last (uz 12345))) 
+(length (last (uz 12345)))
 ;-> 818
 
 Riscriviamo la funzione in maniera più compatta:
@@ -5560,7 +5559,7 @@ Riscriviamo la funzione in maniera più compatta:
                   (myHash (string dv) val)
                   ; altrimenti calcoliamo il risultato...
                   ; che è la differenza tra il valore attuale del numero one (val)
-                  ; e il valore del numero one (nella hash-map) che ha lo stesso resto 
+                  ; e il valore del numero one (nella hash-map) che ha lo stesso resto
                   ; del numero one attuale (myHash (string dv))
                   (setq out (- val (myHash (string dv))))
               )
@@ -5586,7 +5585,7 @@ Riscriviamo la funzione in maniera più compatta:
 (div 11111111111111111111111111111111111111111111111111111111111111111111111111111111111111110L
  9004141905276427156491986313704303979830722132180803169457950657302359085179182423915L)
  ;-> 1234
- 
+
 Con questa ultima funzione possiamo usare come parametro dei numeri maggiori:
 
 (length (last (uz 12345)))
@@ -6528,5 +6527,678 @@ Valore vero: 2
 (gauss-quad3p g5 0 1 100000)
 ;-> 3.141552653589891
 Valore vero: 3.1415926535897931 (pi greco)
+
+
+---------------
+Fattorizzazione
+---------------
+
+Per fattorizzare un numero intero abbiamo la funzione integrata "factor":
+
+(factor 1372000)
+;-> (2 2 2 2 2 5 5 5 7 7 7)
+
+In cui compaiono tutti i fattori del numero. Se volessimo raggruppare i fattori in comune dobbiamo scrivere una funzione. Vediamo diversi metodi per trovare quello più veloce.
+
+Funzione 1:
+
+(define (factor-g1 num)
+  (if (< num 2) nil
+      (letn (fattori (factor num)
+            unici (unique fattori))
+            (transpose (list unici (count unici fattori))))))
+
+(factor-g1 1372000)
+;-> ((2 5) (5 3) (7 3))
+
+Funzione 2:
+
+(define (factor-g2 x)
+  (letn (fattori (factor x)
+         unici (unique fattori))
+        (map list unici (count unici fattori))))
+
+(factor-g2 1372000)
+;-> ((2 5) (5 3) (7 3))
+
+Funzione 3:
+
+(define (factor-g3 num)
+  (if (< num 2) nil
+      (let (factorlist (factor num) factorlist-grouped '())
+        (dolist (y (unique factorlist))
+           (push (append (list y) (count (list y) factorlist)) factorlist-grouped -1))
+        factorlist-grouped)))
+
+(factor-g3 1372000)
+;-> ((2 5) (5 3) (7 3))
+
+Funzione 4:
+il quarto metodo usa la tecnica Run Lenght Encode (infatti applicando l'algoritmo RLE al risultato della funzione "factor" si ottiene il risultato):
+
+(define (factor-g4 num)
+  (if (< num 2) nil
+      (letn ((out '()) (lst (factor num)) (cur-val (first lst)) (cur-count 0))
+        (dolist (el lst)
+          (if (= el cur-val) (++ cur-count)
+              (begin
+                (push (list cur-val cur-count) out -1)
+                (setq cur-count 1 cur-val el))))
+        (push (list cur-val cur-count) out -1))))
+
+(factor-g4 1372000)
+;-> ((2 5) (5 3) (7 3))
+
+Vediamo se le quattro funzioni producono gli stessi risultati:
+
+(= (map factor-g1 (sequence 2 10000))
+   (map factor-g2 (sequence 2 10000))
+   (map factor-g3 (sequence 2 10000))
+   (map factor-g4 (sequence 2 10000)))
+;-> true
+
+Vediamo i tempi di esecuzione:
+
+(silent (setq seq (sequence 1e6 1e7)))
+(time (map factor-g1 seq))
+;-> 28214.053
+(time (map factor-g2 seq))
+;-> 28532.154
+(time (map factor-g3 seq))
+;-> 40389.041
+(time (map factor-g4 seq))
+;-> 23980.14
+
+L'ultima funzione è quella più veloce.
+
+
+--------------
+"setq" o "set"
+--------------
+
+Notiamo che "setq" è più veloce di "set":
+
+(time (setq a 10 b 20 c 30) 10000000)
+;-> 382.001
+(time (set 'a 10 'b 20 'c 30) 10000000)
+;-> 479.744
+
+(time (for (i 1 10000) (setq a 10)) 10000)
+;-> 2287.881
+(time (for (i 1 10000) (set 'd 10)) 10000)
+;-> 2638.974
+
+E possiamo sempre divertirci scrivendo:
+
+(setq --> setq)
+(--> a 3)
+a
+;-> 3
+
+
+-------
+Memfrob
+-------
+
+Memfrob è un algoritmo di crittografia leggero che funziona facendo lo xor tra il numero 42(10) = 00101010(2) con ogni carattere (byte) di input per creare un output crittografato. La decrittazione è simmetrica alla crittografia. Memfrob è più o meno equivalente a ROT13 nella sicurezza crittografica.
+
+Codifica di un carattere:
+(char (^ (char "a") 42))
+;-> "K"
+
+Decodifica del carattere:
+(char (^ (char "K") 42))
+;-> "a"
+
+Le funzioni di codifica e decodifica di un carattere sono uguali:
+
+(define (frob c) (char (^ (char c) 42)))
+
+Scriviamo la funzione per criptare/decriptare una stringa:
+
+(define (memfrob str) (join (map frob (explode str))))
+
+(memfrob "pippo")
+;-> "ZCZZE"
+
+(memfrob "ZCZZE")
+;-> "pippo"
+
+(memfrob (memfrob "newLISP is fun"))
+;-> "newLISP is fun"
+
+Nota: il numero 42 ricorda il libro "Guida Galattica per Autostoppisti" di Douglas Adams.
+
+
+----------------------
+Generatore di sequenze
+----------------------
+
+Scriviamo un programma che genera la seguente sequenza:
+
+1, 5, 10, 50, 100, 500, 1000, 5000, 10000
+
+La sequenza si ottiene partendo da 1 e moltiplicando il numero alternativamente per 5 e per 2:
+
+1
+1*5    -> 5
+5*2    -> 10
+10*5   -> 50
+50*2   -> 100
+100*5  -> 500
+500*2  -> 1000
+...
+
+Una possibile soluzione è la seguente:
+
+(define (seq1 n)
+  (local (out m1 m2 val flip)
+    (setq out '(1))
+    (setq val 1)
+    (setq m1 5 m2 2)
+    (setq flip nil)
+    (while (<= (* val m2) n)
+      (if flip
+          (setq val (* val m2) flip nil)
+          (setq val (* val m1) flip true)
+      )
+      (push val out -1)
+    )
+    out))
+
+(seq1 50001)
+;-> (1 5 10 50 100 500 1000 5000 10000 50000)
+
+Possiamo scrivere una funzione più generale per generare questo tipo di sequenze utilizzando una lista circolare e parametrizzando l'operatore aritmetico. La lista circolare contiene i valori dei moltiplicatori e l'operatore aritmetico "+" oppure "*" viene passato come parametro alla funzione.
+
+Funzioni per la gestione di una lista circolare:
+
+; creiamo un contesto per la struttura
+(context 'circ-list)
+; inizializzazione della lista circolare
+(define (circ-list:init lst)
+  (let (n (length lst))
+    (setq
+          circ-list:items (array n lst)
+          circ-list:i 0
+          circ-list:end n)))
+; valore elemento corrente della lista circolare (con avanzamento)
+(define (circ-list:next)
+  (cond ((= circ-list:i circ-list:end)
+          (setq circ-list:i 0)
+          (++ circ-list:i)
+          (circ-list:items (- circ-list:i 1)))
+        (true
+          (++ circ-list:i)
+          (circ-list:items (- circ-list:i 1)))))
+; valore elemento corrente della lista circolare (senza avanzamento)
+(define (circ-list:cur) (circ-list:items (- circ-list:i 1)))
+; indice del prossimo elemento della lista circolare
+(define (circ-list:index) circ-list:i)
+; lunghezza della lista circolare
+(define (circ-list:len) circ-list:end)
+;valore della lista circolare
+(define (circ-list:values) circ-list:items)
+; ritorniamo al contesto principale
+(context MAIN)
+
+Adesso definiamo la nostra funzione per generare sequenze:
+
+(define (sequenza start n val-lst op)
+  (local (out val)
+    ; inizializziamo la lista circolare
+    (circ-list:init val-lst)
+    (setq out (list start))
+    (setq val start)
+    (while (<= val n) ; calcola qualche elemento di troppo...
+      (setq val ((eval op) val (circ-list:next)))
+      (push val out -1)
+    )
+    ; ...elimina gli elementi di troppo.
+    (filter (fn(x) (<= x n)) out)))
+
+Verifichiamo la funzione con la sequenza iniziale:
+
+(sequenza 1 100001 '(5 2) '*)
+;-> (1 5 10 50 100 500 1000 5000 10000 50000 100000)
+
+Adeesso possiamo generare altre sequenze:
+
+(sequenza 1 10 '(2 1) '+)
+;-> (1 3 4 6 7 9 10)
+(sequenza 10 200 '(2 1) '*)
+;-> (10 20 20 40 40 80 80 160 160)
+
+Non possiamo utilizzare gli operatori aritmetici "-" e "/" perchè non permettono di definire un limite per n. Però possiamo definire un'altra funzione che genera una sequenza di n numeri (invece che fino al numero n).
+
+(define (sequenza-n start num val-lst op)
+  (local (out val)
+    ; inizializziamo la lista circolare
+    (circ-list:init val-lst)
+    (setq out (list start))
+    (setq val start)
+    (for (i 2 num)
+      (setq val ((eval op) val (circ-list:next)))
+      (push val out -1)
+    )
+    out))
+
+(sequenza-n 1 7 '(2 1) '+)
+;-> (1 3 4 6 7 9 10)
+
+(sequenza-n 10 9 '(2 1) '*)
+;-> (10 20 20 40 40 80 80 160 160)
+
+(sequenza-n 10 9 '(2 1) '-)
+;-> (10 8 7 5 4 2 1 -1 -2)
+
+(sequenza-n 1000 9 '(4 3) '/)
+;-> (1000 250 83 20 6 1 0 0 0)
+
+(sequenza-n 0 10 '(1 2 3) '+)
+;-> (0 1 3 6 7 9 12 13 15 18)
+
+
+-----------
+Massimo gap
+-----------
+
+Data una lista non ordinata di interi positivi, trovare la differenza massima tra gli elementi successivi nella sua forma ordinata e gli indici dei relativi valori. Restituire la differenza massima, gli indici dei relativi valori e la lista ordinata.
+
+Funzione che applica un operatore matematico ad ogni coppia di elementi di una lista:
+
+(define (do-pair lst func rev)
+  (if rev
+      (map func (chop lst) (rest lst))
+      (map func (rest lst) (chop lst))))
+
+(do-pair '(1 4 5 10 12) -)
+;-> (3 1 5 2)
+
+Funzione che restituisce il valore massimo di una lista e il relativo indice:
+
+(define (max-with-idx lst)
+  (let ((m -1) (i nil))
+    (dolist (el lst)
+      (if (> el m) (setq m el i $idx))
+    )
+    (list m i)))
+
+(max-with-idx '(3 1 5 2))
+;-> (5 2)
+
+Funzione che trova la soluzione finale:
+
+(define (max-gap lst)
+  (let (out (max-with-idx (do-pair (sort lst) -)))
+    (list (push (+ (last out) 1) out -1) lst)))
+
+(max-gap '(1 5 12 10 4))
+;-> ((5 2 3) (1 4 5 10 12))
+
+
+-------------------------
+Simulazione di un cannone
+-------------------------
+
+Vediamo come simulare la traiettoria di una palla sparata da un cannone.
+Impostiamo i parametri della simulazione 2D:
+
+x     -> valore corrente della posizione della palla lungo direzione orizzontale
+z     -> valore corrente della posizione della palla lungo direzione verticale
+theta -> angolo del cannone (in gradi) con la direzione orizzontale (asse x)
+vel   -> velocità della palla dove vel = |v| (magnitudine)
+vx    -> velocità lungo l'asse x dove vx = |v|·cos(theta)
+vz    -> velocità lungo l'asse z dove vz = |v|·sin(theta)
+t     -> valore corrente del tempo
+g     -> accelerazione di gravità dove  g = -9.81
+dt    -> intervallo di tempo tra due posizioni
+quota -> altezza del cannone
+
+Inoltre la palla di cannone parte al tempo t = 0 con coordinate (x=0 z=0), ma possiamo specificare anche un'altezza di lancio (quota).
+
+Rappresentiamo la traiettoria con un lista del tipo seguente:
+
+((t0 x0 z0) (t1 x1 z1) ... (tn xn zn))
+
+dove (ti xi zi) rappresenta la i-esima posizione della palla (al tempo ti nella posizione (xi zi)).
+Da notare che zn deve risultare uguale (o poco minore) a zero.
+
+Rappresentazione 2D:  
+
+   z
+   |
+   |  direzione di tiro del cannone
+   |    /
+   |   /
+   |  /
+   | /
+   |/ theta = angolo del cannone con asse x
+ 0 +---------------------x
+   0
+
+Traiettoria del proiettile:
+
+   z
+   |              *  
+   |         *         *
+   |      *               *
+   |   *                     *
+   | *                         *
+ 0 +--------------------------------x
+   0
+
+Per calcolare la simulazione utilizzeremo il metodo di Eulero che consiste nell'iniziare con un valore iniziale di una quantità (come la posizione) e un'equazione che descrive le sue derivate (come la velocità e l'accelerazione). Il calcolo delle derivate ci permette di aggiornare i valori passo per passo. Maggiori spiegazioni nei commenti della funzione.
+
+(define (cannone vel theta quota dt g)
+  (local (ts xs zs vx vz t x z)
+    ; liste che contengono tutti i valori della traiettoria (x, z, t)
+    (setq ts '() xs '() zs '())
+    ; calcola la velocita iniziale x (converte theta in radianti)
+    ; (vx = 0 quando theta = 90)
+    (if (= theta 90) 
+        (setq vx 0)
+        (setq vx (mul vel (cos (div (mul 3.1415926535897931 theta) 180))))
+    )
+    ; calcola la velocita iniziale z (converte theta in radianti)
+    ; (vz = 0 quando theta = 0 o 180)
+    (if (or (= theta 0) (= theta 180))
+        (setq vz 0)    
+        (setq vz (mul vel (sin (div (mul 3.1415926535897931 theta) 180))))
+    )
+    ;(println "vx =" vx)
+    ;(println "vz =" vz)
+    ;(read-line)
+    ; initializza tempo, posizione x, posizione z
+    (setq t 0 x 0 z quota)
+    (while (>= z 0)
+      ; aggiorna il tempo
+      (setq t (add t dt))
+      ; aggiorna la velocita vz (la velocita vx non cambia)
+      (setq vz (add vz (mul g dt)))
+      ; aggiorna la posizione x
+      (setq x (add x (mul vx dt)))
+      ; aggiorna la posizione z
+      (setq z (add z (mul vz dt)))
+      ; inserisce i valori correnti nelle liste
+      (push t ts -1)
+      (push x xs -1)
+      (push z zs -1)
+    )
+    (map list ts xs zs)))
+
+Vediamo alcuni esempi riportando solo l'ultima riga della lista:
+
+(cannone 20 30 0 0.01 -9.81)
+;-> (2.030000000000001 35.16063139364815 -0.01258599999999832))
+
+(cannone 20 45 0 0.01 -9.81)
+;-> (2.879999999999983 40.72935059634507 -0.0959454036549173))
+
+(cannone 20 60 0 0.01 -9.81)
+;-> (3.529999999999969 35.30000000000023 -0.1524674928186893))
+
+Spariamo all'indietro (theta = 135):
+
+(cannone 20 135 0 0.01 -9.81)
+;-> (2.879999999999983 -40.72935059634507 -0.09594540365491522))
+
+Spariamo in verticale (theta = 90):
+
+(cannone 20 90 0 0.01 -9.81)
+;-> (4.069999999999958 0 -0.0504679999999175))
+
+Spariamo in orizzontale (theta = 0):
+
+(cannone 20 0 0 0.01 -9.81)
+;-> ((0.01 0.2 -0.0009810000000000001))
+In questo caso abbiamo un solo elemento nella lista.
+
+Spariamo in orizzontale (theta = 180):
+
+(cannone 20 180 0 0.01 -9.81)
+;-> ((0.01 0.2 -0.0009810000000000001))
+In questo caso abbiamo un solo elemento nella lista.
+
+Per visualizzare la traiettoria utilizziamo il modulo "plot.lsp" che permette di creare alcuni tipi di grafici.
+Questo modulo utilizza guiserver.jar che deve essere installato sulla cartella di newLISP.
+
+Importiamo il modulo:
+
+(module "plot.lsp")
+
+Adesso scriviamo la funzione che visualizza la traiettoria del proiettile:
+
+(define (plot-tra lst-txz theta)
+  (local (xx zz)
+    ; azzera parametri della funzione plot
+    (plot:reset)
+    ; opzionale title, sub-title, labels e legend, data min/max per Y
+    (set 'plot:title "Simulazione cannone")
+    (set 'plot:sub-title (string "Angolo = " theta))
+    (set 'plot:unit-x "distanza")
+    (set 'plot:unit-y "quota")
+    ; crea il file dei dati (lista dei valori x e lista dei valori z)
+    (setq xx '())
+    (setq zz '())
+    (dolist (el lst-txz)
+      (push (first (rest el)) xx -1)
+      (push (last el) zz -1 ))
+    ; plot data      
+    (plot:XY xx zz)
+    ; salva il plot su un file
+    (plot:export (string "traiettoria-" theta ".png"))))
+
+Proviamo a creare alcuni grafici:
+
+(plot-tra (cannone 20 30 0 0.01 -9.81) 30)
+
+(plot-tra (cannone 20 45 0 0.01 -9.81) 45)
+
+(plot-tra (cannone 20 60 0 0.01 -9.81) 60)
+
+Spariamo da una altezza di 10 metri:
+
+(plot-tra (cannone 20 45 10 0.01 -9.81) 40)
+
+Le immagini dei grafici si trovano nella cartella "data".
+
+Per sparare dalla luna occorre cambiare il valore dell'accelerazione gravitazionale.
+
+
+--------------------------------
+Ottimizzare il taglio di un tubo
+--------------------------------
+
+Data un tubo di acciaio di una certa lunghezza e una lista di prezzi per ogni lunghezza, come dovremmo tagliare il tubo in modo da massimizzare il profitto (ogni taglio deve produrre due tubi con lunghezze intere). Ad esempio:
+
+Lunghezza 1 2 3 4  5  6  7  8
+Prezzo    1 5 8 9 10 17 18 20
+
+con un tubo di lunghezza 4, il valore è 9. Se tagliamo il tubo in due abbiamo due tubi lunghi 1 che valgono 5+5 = 10.
+Ma non siamo sicuri se quest'ultima sia la soluzione ottimale oppure no, perché non abbiamo visto tutti i valori possibili.
+La tabella seguente elenca tutti i modi possibili di tagliare il tubo e il relativo valore ottenuto:
+
+Lunghezza delle parti     Valore totale
+4                         9
+1, 3                      1 + 8 = 9
+1, 1, 2                   1 + 1 + 5 = 7
+1, 1, 1, 1                1 + 1 + 1 + 1 = 4
+2, 2                      5 + 5 = 10
+
+La prima soluzione utilizza la tecnica della ricorsione. 
+La soluzione ricorsiva si basa sul calcolo di tutte le possibili combinazioni e dei valori associati a ciascuna combinazione e restituisce il massimo di tutti questi valori.
+
+La lista lst-val contiene il valore di ogni lunghezza.
+La variabile len contierne la lunghezza totale del tubo.
+Occorrono tanti valori di lst-val fino alla lunghezza len.
+
+Versione ricorsiva:
+
+(define (tubo-r lst-val len)
+  (local (maxval)
+  (cond ((<= len 0) 0)
+        (true
+          (setq maxval -99999999)
+          (for (i 0 (- len 1))
+            (setq maxval (max maxval (+ (lst-val i) (tubo-r lst-val (- len i 1)))))
+          )))))
+
+(tubo-r '(1 5 8 9) 4)
+;-> 10 (un pezzo lungo 2 e un pezzo lungo 2 --> 5 + 5 = 10)
+(tubo-r '(1 5) 2)
+;-> 5 (un pezzo lungo 2 --> 5)
+(tubo-r '(1 5 8 9 10 17 18 20) 8)
+;-> 22 (un pezzo lungo 2 e un pezzo lungo 6 --> 5 + 17 = 22)
+
+Questa funzione fornisce il risultato corretto, ma calcoliamo alcuni valori di maxval diverse volte. Questo comporta che occorre un tempo esponenziale per ottenere la soluzione.
+
+Vediamo la velocità della funzione:
+
+(time (tubo-r '(1 5 8 9 10 17 18 20) 8) 10000)
+;-> 939.16
+
+La seconda soluzione usa la tecnica memoization.
+Con la memoization memorizziamo il risultato del sottoproblema quando viene calcolato la prima volta e quindi riutilizziamo questo risultato quando incontriamo lo stesso sottoproblema. Per memorizzare i risultati dei sottoproblemi utilizziamo una lista maxval di lunghezza len. L'indice i-esimo di questa lista contiene il maxval per un tubo di lunghezza i. Prima di calcolare il maxval per la lunghezza i, verrà verificato nella lista se il valore per i è già calcolato o meno. Se il valore esiste nella lista, allora viene restituito e non viene calcolato di nuovo.
+La funzione restituisce il valore massimo e la lista maxval.
+
+Versione memoization:
+
+(define (tubo-aux lst-val len)
+  (cond ((<= len 0) 0)
+        ((!= (maxval (- len 1)) 0) (maxval (- len 1)))
+        (true
+          (setf (maxval (- len 1)) -99999999)
+          (for (i 0 (- len 1))
+            (setf (maxval (- len 1)) (max (maxval (- len 1)) (+ (lst-val i) (tubo-aux lst-val (- len i 1)))))
+          )
+          (maxval (- len 1)))))
+
+(define (tubo-m lst-val len)
+  (let (maxval (dup 0 len))
+  (tubo-aux lst-val len)
+  (list (maxval (- len 1)) maxval)))
+
+(tubo-m '(1 5) 2)
+;-> (5 (1 5)) (un pezzo lungo 2 --> 5)
+
+(tubo-m '(1 5 8 9 10 17 18 20) 8)
+;-> (22 (1 5 8 10 13 17 18 22)) (un pezzo lungo 2 e un pezzo lungo 6 --> 5 + 17 = 22)
+
+Questa funzione impiega un tempo polinomiale per calcolare la soluzione, ma non è ancora ottimizzato perché utilizza la ricorsione. 
+
+Vediamo la velocità della funzione:
+
+(time (tubo-m '(1 5 8 9 10 17 18 20) 8) 10000)
+;-> 174.101
+
+La seconda soluzione usa la tecnica chiamata programmazione dinamica.
+In questo caso risolviamo il problema partendo da una lunghezza 0 e ci muoviamo in avanti fino alla lunghezza len.
+
+Versione programmazione dinamica:
+
+(define (tubo-dp lst-val len)
+  (let (maxval (dup 0 (+ len 1)))
+    (setf (maxval 0) 0)
+    (for (i 1 len)
+      (setf (maxval i) -99999999)
+      (for (j 0 (- i 1))
+        (setf (maxval i) (max (maxval i) (+ (lst-val j) (maxval (- i j 1)))))
+      )
+    )
+    (list (maxval len) maxval)))
+
+(tubo-dp '(1 5) 2)
+;-> (5 (0 1 5))
+
+(tubo-dp '(1 5 8 9 10 17 18 20) 8)
+;-> (22 (0 1 5 8 10 13 17 18 22))
+
+Nell'ultimo esempio abbiamo:
+
+Lunghezza 1 2 3 4  5  6  7  8
+Prezzo    1 5 8 9 10 17 17 20
+
+Con la lista maxval che contiene i seguenti valori:
+
+Lunghezza 0 1 2 3 4  5  6  7  8
+Prezzo    0 1 5 8 10 13 17 18 22
+
+Questa funzione ha una complessità O(n^2) ed è più veloce delle soluzioni ricorsive precedenti.
+
+Vediamo la velocità della funzione:
+
+(time (tubo-dp '(1 5 8 9 10 17 18 20) 8) 10000)
+;-> 76.795
+
+
+--------------------------------------
+Generazione automatica di una hash-map
+--------------------------------------
+
+Per generare automaticamente una hash-map utilizziamo la funzione "uuid" che costruisce e ritorna un identificatore unico (stringa) chiamato UUID (Universally Unique IDentifier).
+
+(uuid)
+;-> "3FD45C9C-1313-4ACF-B720-C42CF6319E0C"
+
+Purtroppo non è un simbolo legale per newLISP (perchè inizia con un numero):
+
+(legal? (uuid))
+;-> nil
+
+Allora scriviamo una funzione per generare un simbolo univoco legale:
+
+(define (gensym)
+  (sym (string "g-" (uuid)))) ; 'g-*** è un simbolo legale
+
+(gensym)
+;-> g-7E31347F-6EEB-477E-BFF0-4868BE374F6B
+
+Adesso possiamo generare una hash-map univoca ed associarla ad una variabile:
+
+(setq hash (new Tree (gensym) true))
+
+In questo modo possiamo usare tutte le operazioni delle hash-map utilizzando la variabile.
+
+Inserimento di un valore 1 (value) associato ad una chiave K (key) -> (myHash "key" value):
+(hash "K" 1)
+;-> 1
+
+Recuperiamo il valore tramite la chiave:
+(hash "K")
+;-> 1
+
+Inserimento di un nuovo valore 2 (value) associato ad una chiave W (key) -> (hash "key" value):
+(hash "W" 2)
+;-> 2
+
+Elenco di tutti gli elementi (chiave valore) della hashmap:
+(hash)
+;-> (("K" 1) ("W" 2))
+
+Se una chiave non esiste, allora newLISP restituisce nil:
+(hash "X")
+;-> nil
+
+Per eliminare un valore occorre assegnare il valore nil:
+(hash "K" nil)
+;-> nil
+(hash)
+;-> (("W" 2))
+
+Aggiorniamo il valore associato ad una chiave esistente ($it = valore precedente):
+(hash "W" (+ $it 3))
+;-> 5
+(hash)
+;-> (("W" 5))
+
+Eliminiamo la hash-map:
+;(delete 'hash)
+(delete (quote hash))
+;-> true
+
+Verifichiamo che la hash-map non esiste più:
+(hash)
+;-> ERR: invalid function : (hash)
 
 

@@ -11,8 +11,7 @@
 
 ; This document is based on:
 ; "Introduction to newLISP" (by Cormullion)
-; (this is a modified/reduced text version 
-;  with max row length = 100)
+; (this is a modified/reduced text version with max row length = 100)
 ; All the errors are mine.
 ; Some infos from:
 ;          "official newLISP forum"
