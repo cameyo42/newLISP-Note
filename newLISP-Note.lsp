@@ -277,6 +277,7 @@ ROSETTA CODE
   Algoritmo Soundex
   Trasformata Discreta di Fourier (DFT)
   Numeri di Harshad
+  Numeri Humble
 
 PROJECT EULERO
 ==============
@@ -4458,7 +4459,7 @@ L'interruzione dei cicli loop funziona in modo simile:
 
 ;-> valore di i quando foo (i) è uguale a 100
 
-L'esempio mostra come è possibile uscire da un ciclo iterativo prima di essere eseguito N volte.
+L'esempio mostra come è possibile uscire da un ciclo iterativo prima che venga eseguito N volte.
 
 Punti di ritorno multipli possono essere codificati usando l'espressione "throw":
 
@@ -13825,7 +13826,13 @@ Definiamo una funzione che calcola il numero di Eulero usando l'algoritmo di Rab
 
 Il numero di Eulero "e" vale (con 500 cifre dopo la virgola):
 
-2.7182818284590452353602874713526624977572470936999595749669676277240766303535475945713821785251664274274663919320030599218174135966290435729003342952605956307381323286279434907632338298807531952510190115738341879307021540891499348841675092447614606680822648001684774118537423454424371075390777449920695517027618386062613313845830007520449338265602976067371132007093287091274437470472306969772093101416928368190255151086574637721112523897844250569536967707854499699679468644549059879316368892300987931
+2.71828182845904523536028747135266249775724709369995957496696762772407663
+0353547594571382178525166427427466391932003059921817413596629043572900334
+2952605956307381323286279434907632338298807531952510190115738341879307021
+5408914993488416750924476146066808226480016847741185374234544243710753907
+7744992069551702761838606261331384583000752044933826560297606737113200709
+3287091274437470472306969772093101416928368190255151086574637721112523897
+844250569536967707854499699679468644549059879316368892300987931
 
 Di seguito lo pseudo-codice dell'algoritmo come riportato nell'articolo di Rabinowitz e Wagon:
 
@@ -16940,7 +16947,7 @@ Adesso scriviamo la stessa funzione in stile funzionale (ricorsiva).
 
 Abbiamo bisogno di una funzione di supporto (helper) che ha come argomento aggiuntivo il conteggio degli elementi duplicati. Si controllano i primi due elementi l'uno con l'altro:
 - se sono uguali si richiama la funzione di supporto sul resto della lista aumentando il conteggio
-- se sono diversi si costruisce (con la funzione cons) il risultato parziale e poi si richiama la funzione di appoggio sul resto della lista con il conteggio pari a uno.
+- se sono diversi si costruisce (con la funzione cons) il risultato parziale e poi si richiama la funzione di supporto sul resto della lista con il conteggio pari a uno.
 
 (define (encode lst)
   (define (helper lst conta)
@@ -27510,6 +27517,212 @@ Vediamo la velocità:
 ;-> 10963.707
 
 
+-------------
+NUMERI HUMBLE
+-------------
+
+I numeri humble (umili) sono numeri interi positivi che non hanno fattori primi > 7.
+Un altro modo per esprimere i numeri Humble è il seguente:
+
+  humble = 2^i × 3^j × 5^k × 7^m
+         dove i, j, k, m ≥ 0
+
+1) Trovare i primi 50 numeri Humble.
+2) Trovare il numero di numeri Humble che hanno x cifre con 1<= x <= 9
+
+Prima scriviamo una funzione per verificare se un dato numero > 1 è un numero Humble.
+Usiamo le primitive di newLISP "factor" e "difference":
+
+(setq ok '(2 3 5 7))
+(setq lst1 '(2 3 4 5 7))
+(setq lst2 '(2 3 5 5 7))
+(setq lst3 '(2))
+
+(difference lst1 ok)
+;-> (4)
+(difference lst2 ok)
+;-> ()
+(difference lst3 ok)
+;-> ()
+
+Ecco la funzione:
+
+(define (humble? num)
+  (null? (difference (factor num) '(2 3 5 7))))
+
+Adesso scriviamo due funzioni che calcolano i numeri di Humble fino a un dato numero:
+
+Prima funzione (iterativa):
+
+(define (humble1-to num)
+  (let (out '(0 1))
+    (for (i 2 num)
+      (if (humble? i)
+          (push i out -1)))
+    out))
+
+(humble1-to 50)
+;-> (0 1 2 3 4 5 6 7 8 9 10 12 14 15 16 18 20 21
+;->  24 25 27 28 30 32 35 36 40 42 45 48 49 50)
+
+Seconda funzione (funzionale):
+
+(define (humble2-to num)
+  (let (out '(0 1))
+    (extend out (map humble? (sequence 2 num)))
+    (filter true? (map (fn(x) (if x $idx)) out))))
+
+(humble2-to 50)
+;-> (0 1 2 3 4 5 6 7 8 9 10 12 14 15 16 18 20 21
+;->  24 25 27 28 30 32 35 36 40 42 45 48 49 50)
+
+Vediamo la velocità delle due funzioni:
+
+(time (humble1-to 1e5))
+;-> 166.582
+(time (humble1-to 1e6))
+;-> 2039.789
+(time (humble1-to 1e7))
+;-> 27098.987
+
+(time (humble2-to 1e5))
+;-> 180.546
+(time (humble2-to 1e6))
+;-> 2142.921
+(time (humble2-to 1e7))
+;-> 28169.361
+
+Ma quanti sono i numeri di Humble fino ad un milione (1e6)?
+
+(length (humble1-to 1e6))
+;-> 1274
+
+(last (humble1-to 1e6))
+;-> 1000000
+
+Cerchiamo di risolvere il secondo problema:
+
+(define (humble-digits num)
+  (let (out (array 10 '(0)))
+    (setq (out 1) 1)
+    (for (i 2 num)
+      (if (humble? i)
+          (++ (out (length i)))))
+    out))
+
+(humble-digits 1e5)
+;-> (0 9 36 95 197 356 1 0 0 0)
+(humble-digits 1e6)
+;-> (0 9 36 95 197 356 579 1 0 0)
+(humble-digits 1e7)
+;-> (0 9 36 95 197 356 579 882 1 0)
+(time (humble-digits 1e7))
+;-> 26933.739
+
+Con questa velocità la funzione non riesce a calcolare la soluzione in tempo ragionevole.
+
+Usiamo un'altro metodo per verificare se un numero è Humble:
+
+(define (humble? num)
+  (while (zero? (% num 2)) (setq num (/ num 2)))
+  (while (zero? (% num 3)) (setq num (/ num 3)))
+  (while (zero? (% num 5)) (setq num (/ num 5)))
+  (while (zero? (% num 7)) (setq num (/ num 7)))
+  (= num 1))
+
+Vediamo la velocità:
+
+(time (humble1-to 1e7))
+;-> 4596.102
+
+(time (print (humble-digits 1e7)))
+;-> (0 9 36 95 197 356 579 882 1 0)
+;-> 4614.613
+
+(time (print (humble-digits (- 1e9 1))))
+(0 9 36 95 197 356 579 882 1272 1768)
+;-> 463139.021 Quasi 8 minuti.
+
+Quindi fino a 1 miliardo (1e9) abbiamo:
+
+    9 numeri Humble hanno 1 cifra
+   36 numeri Humble hanno 2 cifre
+   95 numeri Humble hanno 3 cifre
+  197 numeri Humble hanno 4 cifre
+  356 numeri Humble hanno 5 cifre
+  579 numeri Humble hanno 6 cifre
+  882 numeri Humble hanno 7 cifre
+ 1272 numeri Humble hanno 8 cifre
+ 1768 numeri Humble hanno 9 cifre
+
+Vediamo un approccio migliore.
+Invece di controllare ogni singolo numero possiamo costruire numeri partendo dal primo. I numeri che vogliamo sono fondamentalmente 2^w 3^x 5^y 7^z, per tutti i valori interi di w, x, y, z. L'iterazione non è immediata (come facciamo a sapere quale iterazione viene dopo?). Ma un modo diverso di ragionare è pensare che è ogni numero umile è 2 volte o 3 volte o 5 volte o 7 volte il numero umile precedente.In questo modo l'iterazione è più semplice.
+
+(define (humble-to num)
+  (local (hn w x y z)
+    (setq hn (array num '(0)))
+    (setf (hn 1) 1)
+    (setq w 1 x 1 y 1 z 1)
+    (for (i 2 (- num 1))
+      (setf (hn i) (min (* 2 (hn w)) (* 3 (hn x)) (* 5 (hn y)) (* 7 (hn z))))
+      (if (= (hn i) (* 2 (hn w))) (++ w))
+      (if (= (hn i) (* 3 (hn x))) (++ x))
+      (if (= (hn i) (* 5 (hn y))) (++ y))
+      (if (= (hn i) (* 7 (hn z))) (++ z))
+    )
+    hn))
+
+(array-list (humble-to 47))
+;-> (0 1 2 3 4 5 6 7 8 9 10 12 14 15 16 18 20 21 24 25 27 28 30 32 35 36 40 42 45 48
+;->  49 50 54 56 60 63 64 70 72 75 80 81 84 90 96 98 100 105 108 112 120 125 126 128
+;->  135 140 144 147 150 160 162 168 175 180 189 192 196 200 210 216 224 225 240 243
+;->  245 250 252 256 270 280 288 294 300 315 320 324 336 343 350 360 375 378 384 392
+;->  400 405 420 432 441 448)
+
+Questa funzione "humble-to" calcola "num" numeri di Humble, mentre le funzioni "humble1-to" e "humble2-to" calcolano tutti i numeri di Humble minori o uguali a "num".
+
+Verifichiamo che producono lo stesso risultato:
+
+(= (array-list (humble-to 47)) (humble1-to 100))
+;-> true
+
+Adesso riscriviamo la funzione per risolvere la seconda questione:
+
+(define (humble-digits num-digits)
+  (local (hn i w x y z continua cifre)
+    (setq hn (array 100000 '(0)))
+    (setq cifre (array (+ num-digits 1) '(0)))
+    (setq (cifre 1) 1)
+    (setf (hn 1) 1)
+    (setq w 1 x 1 y 1 z 1)
+    (setq continua true)
+    (setq i 2)
+    (while continua
+      (setf (hn i) (min (* 2 (hn w)) (* 3 (hn x)) (* 5 (hn y)) (* 7 (hn z))))
+      (if (= (hn i) (* 2 (hn w))) (++ w))
+      (if (= (hn i) (* 3 (hn x))) (++ x))
+      (if (= (hn i) (* 5 (hn y))) (++ y))
+      (if (= (hn i) (* 7 (hn z))) (++ z))
+      ; aggiornamento vettore delle cifre
+      (cond ((<= (length (hn i)) num-digits)
+             (++ (cifre (length (hn i)))))
+            (true (setq continua nil))
+      )
+      (++ i)
+    )
+    cifre))
+
+Proviamo:
+
+(humble-digits 16)
+;-> (0 9 36 95 197 356 579 882 1272 1768 2380 3113 3984 5002 6187 7545 9081)
+
+(time (humble-digits 16))
+;-> 44.35
+
+La soluzione è immediata.
+
+
 ================
 
  PROJECT EULERO
@@ -36408,7 +36621,7 @@ Funzione finale:
 (time (e092))
 ;-> 116.715
 
-La prima soluzione processa 9999999 di numeri, mentre la seconda soluzione processa 11440 numeri. Il rapporto vale: (/ 9999999 11440) = 874.
+La prima soluzione processa 9999999 di numeri, mentre la seconda soluzione processa 11440 numeri. Il rapporto vale: (/ 9999999 11440) = 874. 
 Per i tempi di esecuzione abbiamo il seguente rapporto: (/ 51582 116) = 444, cioè la seconda funzione è circa 450 volte più veloce.
 
 
@@ -36618,7 +36831,7 @@ NOTA: le prime due righe nel file rappresentano i numeri nell'esempio fornito so
 
 Il file "base_exp.txt" è stato trasformato nel file "e099.lsp".
 
-Non è necessario calcolare le potenze. Possiamo usare i logaritmi utilizzando le seguenti proprietà:
+Non è necessario calcolare le potenze direttamente. Possiamo usare i logaritmi utilizzando le seguenti proprietà:
 
 1) log(x) < (log(y) implica che x < y e viceversa (perchè log(x) è una funzione crescente).
 2) log(x^y) = y*log(x)
@@ -36713,8 +36926,8 @@ procedure BubbleSort(A:lista di elementi da ordinare)
       if (A[i] > A[i + 1]) then  //sostituire '>' con '<' per ottenere un ordinamento decrescente
         swap ( A[i], A[i+1] )
         ultimoScambiato ← i
-   //ad ogni passaggio si accorcia il ciclo di for
-   //fermandosi in corrispondenza dell'ultimo scambio effettuato
+    //ad ogni passaggio si accorcia il ciclo di for
+    //fermandosi in corrispondenza dell'ultimo scambio effettuato
     n ← ultimoScambiato
 
 Versione ricorsiva:
@@ -46566,7 +46779,7 @@ F ("123") = f ("1") * F ("23 ") + F ("12") * f ("3") = 3
 
 F ("4123") = f ("4") * F ("123") + f ("41") * F ("23") = 3
 
-Inoltre utilizzeremo una funzione (decodifica?) che ritorna "1" se la stringa è decodificabile e "0" altrimenti.
+Inoltre utilizzeremo una funzione "decodifica?" che ritorna "1" se la stringa è decodificabile e "0" altrimenti.
 
 (define (sol s)
   (local (lun p)
@@ -53250,6 +53463,8 @@ Restituisce l'insieme potenza di un insieme.
  FUNZIONI WINAPI
 =================
 
+Esempio di alcune funzioni che utilizzano le libreria di windows:
+
 (context 'Win32API)
 
 (import "user32.dll" "MessageBoxA")
@@ -57476,7 +57691,7 @@ Possiamo scrivere la funzione:
 (mano 1000)
 ;-> indice
 
-Possiamo scrivere la funzione in maniera concisa:
+Possiamo scrivere la funzione in maniera più concisa:
 
 (define (hand n)
   (let ((fingers1 '(pollice indice medio anulare mignolo))
@@ -62866,6 +63081,7 @@ Creare una lista di frequenza
 -----------------------------
 
 Data una lista di lettere dell'alfabeto, costruire la lista delle frequenze.
+
 Esempio:
 input  -> (a b g f a f g f g h)
 output -> ((a 2) (b 1) (g 3) (f 3) (h 1))
@@ -71147,7 +71363,7 @@ Vediamo la velocità delle funzioni:
 (time (map toziente-i lst) 100)
 ;-> 11216.188
 
-Se abbiamo bisogno di tutti i totienti di tutti i numeri compresi tra 1 e n, la fattorizzazione di tutti gli n numeri non è efficiente. Possiamo usare la stessa idea del crivello di Eratostene: troviamo tutti i numeri primi e per ciascuno aggiorniamo i risultati temporanei di tutti i numeri che sono divisibili per quel numero primo.
+Se abbiamo bisogno di tutti i totienti dei numeri compresi tra 1 e n, la fattorizzazione di tutti gli n numeri non è efficiente. Possiamo usare la stessa idea del crivello di Eratostene: troviamo tutti i numeri primi e per ciascuno aggiorniamo i risultati temporanei di tutti i numeri che sono divisibili per quel numero primo.
 
 (array (+ 3 1) '(0))
 
@@ -72320,6 +72536,7 @@ prompt-event      customizes the interactive newLISP shell prompt
 read-expr         reads and translates s-expressions from source
 reader-event      preprocess expressions before evaluation event-driven
 
+Riguardare la lista rinfresca la memoria e aiuta a trovare funzioni... prima sconosciute.
 
 ============================================================================
 Sul linguaggio newLISP - FAQ di Lutz Mueller
@@ -78115,6 +78332,9 @@ Mathematical symbols     Commercial symbols       Quotes and parenthesis
 
   StackOverflow è una sito web in cui studenti e professionisti inviano richieste e rispondono a domande sulla programmazione:
   https://stackoverflow.com
+  
+  Mathematics Stack Exchange è un sito di domande e risposte per persone che studiano matematica a qualsiasi livello.
+  https://math.stackexchange.com/
 
   Enciclopedia libera:
   https://www.wikipedia.org/

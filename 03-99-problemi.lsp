@@ -594,7 +594,7 @@ Adesso scriviamo la stessa funzione in stile funzionale (ricorsiva).
 
 Abbiamo bisogno di una funzione di supporto (helper) che ha come argomento aggiuntivo il conteggio degli elementi duplicati. Si controllano i primi due elementi l'uno con l'altro:
 - se sono uguali si richiama la funzione di supporto sul resto della lista aumentando il conteggio
-- se sono diversi si costruisce (con la funzione cons) il risultato parziale e poi si richiama la funzione di appoggio sul resto della lista con il conteggio pari a uno.
+- se sono diversi si costruisce (con la funzione cons) il risultato parziale e poi si richiama la funzione di supporto sul resto della lista con il conteggio pari a uno.
 
 (define (encode lst)
   (define (helper lst conta)

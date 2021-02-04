@@ -1042,6 +1042,8 @@ Restituisce l'insieme potenza di un insieme.
  FUNZIONI WINAPI
 =================
 
+Esempio di alcune funzioni che utilizzano le libreria di windows:
+
 (context 'Win32API)
 
 (import "user32.dll" "MessageBoxA")

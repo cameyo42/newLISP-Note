@@ -8896,7 +8896,7 @@ Funzione finale:
 (time (e092))
 ;-> 116.715
 
-La prima soluzione processa 9999999 di numeri, mentre la seconda soluzione processa 11440 numeri. Il rapporto vale: (/ 9999999 11440) = 874.
+La prima soluzione processa 9999999 di numeri, mentre la seconda soluzione processa 11440 numeri. Il rapporto vale: (/ 9999999 11440) = 874. 
 Per i tempi di esecuzione abbiamo il seguente rapporto: (/ 51582 116) = 444, cioè la seconda funzione è circa 450 volte più veloce.
 
 
@@ -9106,7 +9106,7 @@ NOTA: le prime due righe nel file rappresentano i numeri nell'esempio fornito so
 
 Il file "base_exp.txt" è stato trasformato nel file "e099.lsp".
 
-Non è necessario calcolare le potenze. Possiamo usare i logaritmi utilizzando le seguenti proprietà:
+Non è necessario calcolare le potenze direttamente. Possiamo usare i logaritmi utilizzando le seguenti proprietà:
 
 1) log(x) < (log(y) implica che x < y e viceversa (perchè log(x) è una funzione crescente).
 2) log(x^y) = y*log(x)

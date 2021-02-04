@@ -566,7 +566,7 @@ F ("123") = f ("1") * F ("23 ") + F ("12") * f ("3") = 3
 
 F ("4123") = f ("4") * F ("123") + f ("41") * F ("23") = 3
 
-Inoltre utilizzeremo una funzione (decodifica?) che ritorna "1" se la stringa è decodificabile e "0" altrimenti.
+Inoltre utilizzeremo una funzione "decodifica?" che ritorna "1" se la stringa è decodificabile e "0" altrimenti.
 
 (define (sol s)
   (local (lun p)

@@ -513,6 +513,7 @@ prompt-event      customizes the interactive newLISP shell prompt
 read-expr         reads and translates s-expressions from source
 reader-event      preprocess expressions before evaluation event-driven
 
+Riguardare la lista rinfresca la memoria e aiuta a trovare funzioni... prima sconosciute.
 
 ============================================================================
 Sul linguaggio newLISP - FAQ di Lutz Mueller

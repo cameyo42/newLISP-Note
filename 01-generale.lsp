@@ -3759,7 +3759,7 @@ L'interruzione dei cicli loop funziona in modo simile:
 
 ;-> valore di i quando foo (i) è uguale a 100
 
-L'esempio mostra come è possibile uscire da un ciclo iterativo prima di essere eseguito N volte.
+L'esempio mostra come è possibile uscire da un ciclo iterativo prima che venga eseguito N volte.
 
 Punti di ritorno multipli possono essere codificati usando l'espressione "throw":
 

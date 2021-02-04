@@ -9688,3 +9688,209 @@ Vediamo la velocità:
 ;-> 10963.707
 
 
+-------------
+NUMERI HUMBLE
+-------------
+
+I numeri humble (umili) sono numeri interi positivi che non hanno fattori primi > 7.
+Un altro modo per esprimere i numeri Humble è il seguente:
+
+  humble = 2^i × 3^j × 5^k × 7^m
+         dove i, j, k, m ≥ 0
+
+1) Trovare i primi 50 numeri Humble.
+2) Trovare il numero di numeri Humble che hanno x cifre con 1<= x <= 9
+
+Prima scriviamo una funzione per verificare se un dato numero > 1 è un numero Humble.
+Usiamo le primitive di newLISP "factor" e "difference":
+
+(setq ok '(2 3 5 7))
+(setq lst1 '(2 3 4 5 7))
+(setq lst2 '(2 3 5 5 7))
+(setq lst3 '(2))
+
+(difference lst1 ok)
+;-> (4)
+(difference lst2 ok)
+;-> ()
+(difference lst3 ok)
+;-> ()
+
+Ecco la funzione:
+
+(define (humble? num)
+  (null? (difference (factor num) '(2 3 5 7))))
+
+Adesso scriviamo due funzioni che calcolano i numeri di Humble fino a un dato numero:
+
+Prima funzione (iterativa):
+
+(define (humble1-to num)
+  (let (out '(0 1))
+    (for (i 2 num)
+      (if (humble? i)
+          (push i out -1)))
+    out))
+
+(humble1-to 50)
+;-> (0 1 2 3 4 5 6 7 8 9 10 12 14 15 16 18 20 21
+;->  24 25 27 28 30 32 35 36 40 42 45 48 49 50)
+
+Seconda funzione (funzionale):
+
+(define (humble2-to num)
+  (let (out '(0 1))
+    (extend out (map humble? (sequence 2 num)))
+    (filter true? (map (fn(x) (if x $idx)) out))))
+
+(humble2-to 50)
+;-> (0 1 2 3 4 5 6 7 8 9 10 12 14 15 16 18 20 21
+;->  24 25 27 28 30 32 35 36 40 42 45 48 49 50)
+
+Vediamo la velocità delle due funzioni:
+
+(time (humble1-to 1e5))
+;-> 166.582
+(time (humble1-to 1e6))
+;-> 2039.789
+(time (humble1-to 1e7))
+;-> 27098.987
+
+(time (humble2-to 1e5))
+;-> 180.546
+(time (humble2-to 1e6))
+;-> 2142.921
+(time (humble2-to 1e7))
+;-> 28169.361
+
+Ma quanti sono i numeri di Humble fino ad un milione (1e6)?
+
+(length (humble1-to 1e6))
+;-> 1274
+
+(last (humble1-to 1e6))
+;-> 1000000
+
+Cerchiamo di risolvere il secondo problema:
+
+(define (humble-digits num)
+  (let (out (array 10 '(0)))
+    (setq (out 1) 1)
+    (for (i 2 num)
+      (if (humble? i)
+          (++ (out (length i)))))
+    out))
+
+(humble-digits 1e5)
+;-> (0 9 36 95 197 356 1 0 0 0)
+(humble-digits 1e6)
+;-> (0 9 36 95 197 356 579 1 0 0)
+(humble-digits 1e7)
+;-> (0 9 36 95 197 356 579 882 1 0)
+(time (humble-digits 1e7))
+;-> 26933.739
+
+Con questa velocità la funzione non riesce a calcolare la soluzione in tempo ragionevole.
+
+Usiamo un'altro metodo per verificare se un numero è Humble:
+
+(define (humble? num)
+  (while (zero? (% num 2)) (setq num (/ num 2)))
+  (while (zero? (% num 3)) (setq num (/ num 3)))
+  (while (zero? (% num 5)) (setq num (/ num 5)))
+  (while (zero? (% num 7)) (setq num (/ num 7)))
+  (= num 1))
+
+Vediamo la velocità:
+
+(time (humble1-to 1e7))
+;-> 4596.102
+
+(time (print (humble-digits 1e7)))
+;-> (0 9 36 95 197 356 579 882 1 0)
+;-> 4614.613
+
+(time (print (humble-digits (- 1e9 1))))
+(0 9 36 95 197 356 579 882 1272 1768)
+;-> 463139.021 Quasi 8 minuti.
+
+Quindi fino a 1 miliardo (1e9) abbiamo:
+
+    9 numeri Humble hanno 1 cifra
+   36 numeri Humble hanno 2 cifre
+   95 numeri Humble hanno 3 cifre
+  197 numeri Humble hanno 4 cifre
+  356 numeri Humble hanno 5 cifre
+  579 numeri Humble hanno 6 cifre
+  882 numeri Humble hanno 7 cifre
+ 1272 numeri Humble hanno 8 cifre
+ 1768 numeri Humble hanno 9 cifre
+
+Vediamo un approccio migliore.
+Invece di controllare ogni singolo numero possiamo costruire numeri partendo dal primo. I numeri che vogliamo sono fondamentalmente 2^w 3^x 5^y 7^z, per tutti i valori interi di w, x, y, z. L'iterazione non è immediata (come facciamo a sapere quale iterazione viene dopo?). Ma un modo diverso di ragionare è pensare che è ogni numero umile è 2 volte o 3 volte o 5 volte o 7 volte il numero umile precedente.In questo modo l'iterazione è più semplice.
+
+(define (humble-to num)
+  (local (hn w x y z)
+    (setq hn (array num '(0)))
+    (setf (hn 1) 1)
+    (setq w 1 x 1 y 1 z 1)
+    (for (i 2 (- num 1))
+      (setf (hn i) (min (* 2 (hn w)) (* 3 (hn x)) (* 5 (hn y)) (* 7 (hn z))))
+      (if (= (hn i) (* 2 (hn w))) (++ w))
+      (if (= (hn i) (* 3 (hn x))) (++ x))
+      (if (= (hn i) (* 5 (hn y))) (++ y))
+      (if (= (hn i) (* 7 (hn z))) (++ z))
+    )
+    hn))
+
+(array-list (humble-to 47))
+;-> (0 1 2 3 4 5 6 7 8 9 10 12 14 15 16 18 20 21 24 25 27 28 30 32 35 36 40 42 45 48
+;->  49 50 54 56 60 63 64 70 72 75 80 81 84 90 96 98 100 105 108 112 120 125 126 128
+;->  135 140 144 147 150 160 162 168 175 180 189 192 196 200 210 216 224 225 240 243
+;->  245 250 252 256 270 280 288 294 300 315 320 324 336 343 350 360 375 378 384 392
+;->  400 405 420 432 441 448)
+
+Questa funzione "humble-to" calcola "num" numeri di Humble, mentre le funzioni "humble1-to" e "humble2-to" calcolano tutti i numeri di Humble minori o uguali a "num".
+
+Verifichiamo che producono lo stesso risultato:
+
+(= (array-list (humble-to 47)) (humble1-to 100))
+;-> true
+
+Adesso riscriviamo la funzione per risolvere la seconda questione:
+
+(define (humble-digits num-digits)
+  (local (hn i w x y z continua cifre)
+    (setq hn (array 100000 '(0)))
+    (setq cifre (array (+ num-digits 1) '(0)))
+    (setq (cifre 1) 1)
+    (setf (hn 1) 1)
+    (setq w 1 x 1 y 1 z 1)
+    (setq continua true)
+    (setq i 2)
+    (while continua
+      (setf (hn i) (min (* 2 (hn w)) (* 3 (hn x)) (* 5 (hn y)) (* 7 (hn z))))
+      (if (= (hn i) (* 2 (hn w))) (++ w))
+      (if (= (hn i) (* 3 (hn x))) (++ x))
+      (if (= (hn i) (* 5 (hn y))) (++ y))
+      (if (= (hn i) (* 7 (hn z))) (++ z))
+      ; aggiornamento vettore delle cifre
+      (cond ((<= (length (hn i)) num-digits)
+             (++ (cifre (length (hn i)))))
+            (true (setq continua nil))
+      )
+      (++ i)
+    )
+    cifre))
+
+Proviamo:
+
+(humble-digits 16)
+;-> (0 9 36 95 197 356 579 882 1272 1768 2380 3113 3984 5002 6187 7545 9081)
+
+(time (humble-digits 16))
+;-> 44.35
+
+La soluzione è immediata.
+
+

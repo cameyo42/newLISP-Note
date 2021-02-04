@@ -277,6 +277,7 @@ ROSETTA CODE
   Algoritmo Soundex
   Trasformata Discreta di Fourier (DFT)
   Numeri di Harshad
+  Numeri Humble
 
 PROJECT EULERO
 ==============

@@ -9,6 +9,7 @@ Creare una lista di frequenza
 -----------------------------
 
 Data una lista di lettere dell'alfabeto, costruire la lista delle frequenze.
+
 Esempio:
 input  -> (a b g f a f g f g h)
 output -> ((a 2) (b 1) (g 3) (f 3) (h 1))

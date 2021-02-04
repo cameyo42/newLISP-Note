@@ -1998,7 +1998,7 @@ Possiamo scrivere la funzione:
 (mano 1000)
 ;-> indice
 
-Possiamo scrivere la funzione in maniera concisa:
+Possiamo scrivere la funzione in maniera più concisa:
 
 (define (hand n)
   (let ((fingers1 '(pollice indice medio anulare mignolo))

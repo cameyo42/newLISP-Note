@@ -76,6 +76,9 @@
 
   StackOverflow è una sito web in cui studenti e professionisti inviano richieste e rispondono a domande sulla programmazione:
   https://stackoverflow.com
+  
+  Mathematics Stack Exchange è un sito di domande e risposte per persone che studiano matematica a qualsiasi livello.
+  https://math.stackexchange.com/
 
   Enciclopedia libera:
   https://www.wikipedia.org/
