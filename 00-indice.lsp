@@ -281,7 +281,7 @@ ROSETTA CODE
 
 PROJECT EULERO
 ==============
-  Problemi 1..72,76,78,87,89,92,96,97,99,100
+  Problemi 1..73,76,78,87,89,92,96,97,99,100
 
 PROBLEMI VARI
 =============
@@ -661,7 +661,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-Libreria per matematica ricreativa (112 funzioni)
+Libreria per matematica ricreativa (117 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================

@@ -58,6 +58,8 @@
   "Structure and Interpretation of Computer Programs",  Abelson-Sussman, 2ed, 1996
   
   "Numerical Recipes in C: The Art of Scientific Computing", 2ed, Press-Teukolsky-Vetterling-Flannery
+  
+  "Il Libro dei Numeri" di Conway-Guy, 1999
 
   "Special Forms in Lisp" Kent Pitman, Conference Record of the 1980 Lisp Conference, Stanford University, August 25-27, 1980
   http://www.nhplace.com/kent/Papers/Special-Forms.html

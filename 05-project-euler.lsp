@@ -79,6 +79,7 @@
 |    70    |  8319823           |         -  |      9621  |         7  |
 |    71    |  428570            |         -  |       191  |         -  |
 |    72    |  303963552391      |         -  |      2060  |         -  |
+|    73    |  7295372           |         -  |      1809  |      2345  |
 |    76    |  190569291         |         -  |         0  |         -  |
 |    78    |  55374             |         -  |      7918  |         -  |
 |    87    |  1097343           |         -  |      1153  |         -  |
@@ -8305,6 +8306,136 @@ Scriviamo la funzione finale:
 
 (time (e072))
 ;-> 2060.973
+
+
+-----------
+Problema 73
+-----------
+
+Conteggio delle frazioni in un intervallo
+
+Considera la frazione, n/d, dove n e d sono numeri interi positivi. Se n < d e HCF(n,d) = 1, si parla di frazione propria ridotta.
+
+Se elenchiamo l'insieme delle frazioni proprie ridotte per d ≤ 8 in ordine crescente di dimensione, otteniamo:
+
+1/8, 1/7, 1/6, 1/5, 1/4, 2/7, 1/3, 3/8, 2/5, 3/7, 1/2, 4/7, 3/5, 5/8, 2/3, 5/7, 3/4, 4/5, 5/6, 6/7, 7/8
+
+Si può vedere che ci sono tre frazioni tra 1/3 e 1/2
+
+Quante frazioni si trovano tra 1/3 e 1/2 nell'insieme ordinato di frazioni proprie ridotte per d ≤ 12.000?.
+============================================================================
+
+Nota: HCF = High Common Factor (fattore comune maggiore)
+
+Soluzione brute-force:
+
+(define (find-upper n x)
+(catch
+  (let (a 1)
+    (while (< a n)
+      (if (> (div a n) x) (throw a))
+      (++ a))
+    a)))
+
+(find-upper 101 2)
+
+(define (e073 n)
+(catch
+  (local (nmin nmax limite a b v continua out)
+    (++ n)
+    (setq out '())
+    (setq nmin (div 1 3))
+    (setq nmax (div 1 2))
+    (setq limite (find-upper n 0.5))
+    (setq a 1)
+    (while (< a limite)
+      (setq b (+ a 1))
+      (setq continua true)
+      (while (and (< b n) continua)
+        (setq v (div a b))
+        ;(println a { } b { } v)
+        (cond ((and (< v nmax) (> v nmin))
+               (push v out -1)
+               (++ somma))
+              ; da qui fino al prossimo valore di 'a' tutte le frazioni sono minori...
+              ((< v nmin)
+               (setq continua nil))
+              ; da qui in poi tutte le frazioni sono maggiori...
+              ((and (> v nmax) (= b (- n 1)))
+               (throw (length (unique out))))
+        )
+        (if continua (++ b))
+      )
+      (++ a)
+    )
+    (length (unique out)))))
+
+(e073 12000)
+;-> 7295372
+
+(time (e073 12000))
+;-> 16306.157
+
+Invece di trovare il limite superiore, possiamo iterare su tutti i possibili denominatori e verificare che i numeratori soddisfino le condizioni.
+
+La funzione diventa la seguente:
+
+(define (e073)
+  (local (a b num den limite somma)
+    (setq a 3 b 2)
+    (setq somma 0 limite 12000)
+    (for (den 5 limite)
+      (setq num (int (+ (div den a) 1)))
+      (for (n num (int (div (- den 1) b)))
+        (if (= (gcd n den) 1) (++ somma))
+      )
+    )
+    somma))
+
+(e073)
+;-> 7295372
+
+(time (e073))
+;-> 1809.163
+
+Dal punto di vista matematico possiamo utilizzare la sequenza di Farey.
+Nel libro "Il libro dei numeri" di Conway e Guy viene spiegato come calcolare la sequenza successiva  di Farey a partire da uno degli n termini:
+inserire la frazione mediante (a + b)/(c + d) tra i termini a/c e b/d quando c + d <= n. Dato 0 <= a/b < c/d <= 1 con b*c-a*d = 1, sia h/k la mediante di a/b e c/d. Allora a/b < h/k < c/d, e queste frazioni soddisfano le relazioni unimodulari
+
+  b*h - a*k = 1
+
+  c*k - d*h = 1
+
+Questo metodo viene implementato nella seguente funzione:
+
+(define (e073)
+  (local (ar idx c d mediant somma continua)
+    (setq ar (array 12000 '(0)))
+    (setq idx 0)
+    (setq c 3 d 2)
+    (setq somma 0)
+    (setq continua true)
+    (while continua
+      (setq mediant (+ c d))
+      (cond ((<= mediant 12000)
+             (++ somma)
+             (setf (ar idx) d)
+             (++ idx)
+             (setq d mediant))
+            (true
+             (if (zero? idx) (setq continua nil))
+             (setq c d)
+             (-- idx)
+             (setq d (ar idx)))
+      )
+    )
+    somma))
+
+(e073)
+;-> 7295372
+
+(time (e073))
+;-> 2345.727
 
 
 ===========
