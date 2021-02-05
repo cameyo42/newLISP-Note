@@ -80,6 +80,8 @@
 |    71    |  428570            |         -  |       191  |         -  |
 |    72    |  303963552391      |         -  |      2060  |         -  |
 |    73    |  7295372           |         -  |      1809  |      2345  |
+|    74    |  402               |         -  |    286059  |         -  |
+|    75    |  161667            |         -  |       822  |         -  |
 |    76    |  190569291         |         -  |         0  |         -  |
 |    78    |  55374             |         -  |      7918  |         -  |
 |    87    |  1097343           |         -  |      1153  |         -  |
@@ -114,7 +116,9 @@ Nota: i problemi devono essere risolti con la "regola del minuto", cioè i progr
 
 In questo paragrafo affronteremo e risolveremo alcuni di questi problemi. Comunque prima di vedere la soluzione dovresti provare a risolverli per conto proprio in modo da migliorare le tue capacità di problem-solver e di programmatore.
 
-Nota: La maggior parte delle soluzioni contiene una spiegazione dell'algoritmo utilizzato e alcuni problemi sono risolti con due algoritmi diversi. In genere il secondo algoritmo ha un approccio più matematico ed è più veloce.
+Nota: La maggior parte delle soluzioni contiene una spiegazione dell'algoritmo utilizzato e alcuni problemi sono risolti con due algoritmi diversi. In genere il secondo algoritmo ha un approccio più matematico ed è più veloce. 
+
+Nota: La soluzione della maggior parte dei problemi comporta (almeno per me) la ricerca di informazioni su internet di argomenti diversi (matematica, algoritmi, problem solving, ecc.).
 
 Vengono prima presentate alcune funzioni comuni che servono per la soluzione di diversi problemi.
 
@@ -8127,7 +8131,7 @@ Dal punto di vistta matematico possimo notare che:
 
 1) Rendere minimo n/φ(n) equivale a massimizzare φ(n)/n, che si verifica quando n ha il minor numero di fattori primi possibile.
 2) φ(n) = n - 1 dove n è primo, poiché tutti i numeri sotto sono coprimi per definizione
-3) φ(n) = φ(pq) = (p - 1) (q - 1) dove n è semiprimo e p e q sono i suoi fattori e p <> q.
+3) φ(n) = φ(p*q) = (p - 1) (q - 1) dove n è semiprimo e p e q sono i suoi fattori e p <> q.
 4) φ(n) = φ(p2) = (p - 1) p dove n è semiprime ep è il suo unico fattore distinto.
 5) n - 1 non può essere una permutazione di n, quindi il nostro n non può essere un primo, ma è probabilmente il prodotto di due numeri primi (semiprimi).
 
@@ -8308,9 +8312,9 @@ Scriviamo la funzione finale:
 ;-> 2060.973
 
 
------------
+===========
 Problema 73
------------
+===========
 
 Conteggio delle frazioni in un intervallo
 
@@ -8336,8 +8340,6 @@ Soluzione brute-force:
       (if (> (div a n) x) (throw a))
       (++ a))
     a)))
-
-(find-upper 101 2)
 
 (define (e073 n)
 (catch
@@ -8436,6 +8438,221 @@ Questo metodo viene implementato nella seguente funzione:
 
 (time (e073))
 ;-> 2345.727
+
+
+===========
+Problema 74
+===========
+
+Il numero 145 è ben noto per la proprietà che la somma del fattoriale delle sue cifre è pari a 145:
+
+1! + 4! + 5! = 1 + 24 + 120 = 145
+
+Forse meno noto è 169, in quanto produce la catena di numeri più lunga che ricollega a 169: si scopre che esistono solo tre di tali loop:
+
+169 → 363601 → 1454 → 169
+871 → 45361 → 871
+872 → 45362 → 872
+
+Non è difficile dimostrare che OGNI numero di partenza alla fine rimarrà bloccato in un ciclo. Per esempio,
+
+69 → 363600 → 1454 → 169 → 363601 (→ 1454)
+78 → 45360 → 871 → 45361 (→ 871)
+540 → 145 (→ 145)
+
+Iniziare con 69 produce una catena di cinque termini non ripetitivi, ma la catena non ripetitiva più lunga con un numero iniziale inferiore a un milione è sessanta termini.
+
+Quante catene, con un numero iniziale inferiore a un milione, contengono esattamente sessanta termini non ripetitivi?
+============================================================================
+
+Scriviamo la funzione che calcola la somma dei fattoriali delle cifre di un numero:
+
+(define (sumfatt num)
+       ; precodifica dei fattoriali da 0 a 9
+  (let ((fact '(1 1 2 6 24 120 720 5040 40320 362880))
+        (temp num) (out 0))
+    (while (> temp 0)
+      (setq out (+ out (fact (% temp 10))))
+      (setq temp (/ temp 10))
+    )
+    out))
+
+(sumfatt 145)
+;-> 145
+(sumfatt 169)
+;-> 363601
+(sumfatt 363601)
+;-> 1454
+
+Utilizziamo la forza bruta: costruiamo la catena per ogni numero (in una lista) e controlliamo se è lunga 60, in tal caso aumentiamo di 1 il conteggio.
+
+(define (e074)
+  (local (limite num chain out)
+    (setq out 0 limite 1000000)
+    (for (i 1 limite)
+      (setq num i)
+      (setq chain '())
+      (until (find num chain)
+        (push num chain -1)
+        (setq num (sumfatt num))
+      )
+      (if (= (length chain) 60) (++ out))
+    )
+    out))
+
+(e074)
+;-> 402
+
+(time (e074))
+;-> 32332.048
+
+Proviamo ad utilizzare una hash-map al posto della lista:
+
+(define (e074)
+  ;(local (limite num chain out)
+  (local (limite num out)
+    (setq out 0 limite 1000000)
+    (for (i 1 limite)
+      (setq num i)
+      ;(setq chain '())
+      (new Tree 'chain)
+      ;(until (find num chain)
+      (until (chain num)
+        ;(push num chain -1)
+        (chain num num)
+        (setq num (sumfatt num))
+      )
+      ;(if (= (length chain) 60) (++ out))
+      (if (= (length (chain)) 60) (++ out))
+      ; l'eliminaziona di una hash-map è lenta
+      (delete 'chain)
+      ; per vedere come sono distribuite le catene da 1 a 1000000
+      ;(if (zero? (% i 50000)) (println i { } out))
+    )
+    out))
+
+(e074)
+;-> 402
+
+(time (e074))
+;-> 76084.168
+
+Credo che il peggioramento del tempo di esecuzione sia dovuto all'operazione di eliminazione della hash-map "delete" che è lenta. Proviamo allora ad utilizzare ogni volta una hash-map diversa utilizzando la funzione "gensym":
+
+(define (gensym)
+  (sym (string "g-" (uuid)))) ; 'g-*** è un simbolo legale
+
+(define (e074)
+  ;(local (limite num chain out)
+  (local (limite num out)
+    (setq out 0 limite 1000000)
+    (for (i 1 limite)
+      (setq num i)
+      ;(setq chain '())
+      ;(new Tree 'chain)
+      (setq chain (new Tree (gensym) true))
+      ;(until (find num chain)
+      (until (chain num)
+        ;(push num chain -1)
+        (chain num num)
+        (setq num (sumfatt num))
+      )
+      ;(if (= (length chain) 60) (++ out))
+      (if (= (length (chain)) 60) (++ out))
+      ;(delete 'chain)
+      ; per vedere come sono distribuite le catene da 1 a 1000000
+      ;(if (zero? (% i 50000)) (println i { } out))
+    )
+    out))
+
+(e074)
+;-> 402
+
+(time (print (e074)))
+;-> 51001.943
+
+Il tempo di esecuzione è migliore della precedente funzione, ma utilizzare una lista è più veloce in questo caso.
+
+Proviamo con un altro algoritmo.
+Consideriamo i numeri di una catena: hanno tutti la stessa lunghezza della catena a cui appartengono.
+Se nella costruzione della catena di un numero raggiungiamo il numero 169 o 871 o 872 sappiamo come termina la catena stessa.
+Utilizzando anche gli altri numeri 363601, 1454,45361 e 45362 possiamo modificare il criterio di arresto del calcolo diretto della catena: ci fermiamo quando incontriamo uno di questi sette numeri oppure quando un numero termina la catena su se stesso.
+
+Scriviamo funzione finale:
+
+(define (e074)
+  (local (limite num ultimo somma out)
+    (setq stop '(169 871 872 1454 45361 45362 363601))
+    (setq out 0 limite 1000000)
+    (for (i 1 1000000)
+      (setq num i)
+      (setq somma 0 ultimo 0)
+      (while (and (!= num ultimo) (not (find num stop)))
+        (setq ultimo num)
+        (setq num (sumfatt num))
+        (++ somma)
+      )
+      (if (and (= somma 57) (or (= num 169) (= num 1454) (= num 363601)))
+          (++ out))
+    )
+    out))
+
+
+(e074)
+;-> 402
+
+(time (e074))
+;-> 28605.673
+
+Questa è la più veloce anche se il tempo non è entusiasmante.
+
+
+===========
+Problema 75
+===========
+
+Risulta che 12 cm è la più piccola lunghezza di filo che può essere piegata per formare un triangolo ad angolo retto con un lato intero esattamente in un modo, ma ci sono molti altri esempi.
+
+12 cm: (3,4,5)
+24 cm: (6,8,10)
+30 cm: (5,12,13)
+36 cm: (9,12,15)
+40 cm: (8,15,17)
+48 cm: (12,16,20)
+
+Al contrario, alcune lunghezze di filo, come 20 cm, non possono essere piegate per formare un triangolo ad angolo retto con un lato intero, e altre lunghezze consentono di trovare più di una soluzione. Ad esempio, utilizzando 120 cm è possibile formare esattamente tre triangoli ad angolo retto con lati interi diversi.
+
+120 cm: (30,40,50), (20,48,52), (24,45,51)
+
+Dato che L è la lunghezza del filo, per quanti valori di L ≤ 1.500.000 si può formare esattamente un triangolo ad angolo retto con un lato intero?
+============================================================================
+
+L'idea centrale è quella di iterare sulle lunghezze dei cateti: se le lunghezze dei lati non sono numeri coprimi, allora abbiamo già contato quella tripla pitagorica. Potete trovare maggiori spiegazioni nell'articolo "Tree of primitive Pythagorean triples" su wikipedia.
+
+(define (e075)
+  (local (limite ar perimetro)
+    (setq limite 1500000)
+    (setq ar (array limite '(0)))
+    (for (i 1 (- (sqrt limite) 1) 2)
+      (for (j 2 (- (sqrt limite) i 1) 2)
+        (if (= (gcd i j) 1)
+            (begin
+            (setq perimetro (+ (abs (- (* j j) (* i i))) (* 2 i j) (* i i) (* j j)))
+            (setq x perimetro)
+            (while (< x limite)
+              (++ (ar x))
+              (setq x (+ x perimetro))
+            ))
+        )
+      )
+    )
+    (first (count '(1) (array-list ar)))))
+
+(e075)
+;-> 161667
+
+(time (e075))
+;-> 822.828
 
 
 ===========
