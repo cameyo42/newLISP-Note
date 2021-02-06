@@ -1744,3 +1744,218 @@ Vediamo la velocità:
 ;-> 17351.718
 
 
+---------------------
+Bilancia a due piatti
+---------------------
+
+Qual'è il minimo numero di pesi (masse campione) e il loro peso per pesare da 1 fino a n in una bilancia a due piatti?
+
+La soluzione si trova nel sistema binario: occorre convertire il numero n in binario ed utilizzare come pesi i valori di tutte le potenze di 2 che si trovano nella conversione
+
+Esempio per n = 10:
+
+(bits 10)
+;-> 1010
+
+Ci servono quattro cifre (0 o 1) per rappresentare 10 in binario:
+
+1*2^3 + 0*2^2 + 1*2^1 + 0*2^0 = 1*8 + 0*4 + 1*2 + 0*1 = 10
+
+I quattro valori che ci servono sono tutte le potenze di 2 coinvolte:
+
+2^0 = 1, 2^1 = 2, 2^2 = 4, 2^3 = 8
+
+Quindi con quattro pesi di valore 1,2,4,8 possiamo pesare qualunque peso da 1 a 10.
+
+Scriviamo una funzione:
+
+(define (pesi? n)
+  (let (out '())
+    (for (i 0 (- (length (bits n)) 1))
+      (push (pow 2 i) out -1))))
+
+(pesi? 100)
+;-> (1 2 4 8 16 32 64)
+
+(pesi? 1000)
+;-> (1 2 4 8 16 32 64 128 256 512)
+
+
+-----------
+Somma di 6s
+-----------
+
+Calcolare per n > 0 la somma della seguente espressione:
+
+S(n) = 6 + 66 + 666 + ... 6(n volte)
+
+Scriviamo una funzione:
+
+(define (s6 n)
+  (local (out)
+    (setq out 0)
+    (setq prev 0)
+    (for (i 1 n)
+      ; s(i) = s(n-1)*10 + 6
+      (setq val (+ (* prev 10) 6))
+      (setq out (+ out val))
+      (setq prev val)
+    )
+    out))
+
+Vediamo i risultati:
+
+(map s6 (sequence 1 11))
+;-> (6 72 738 7404 74070 740736 7407402 74074068 
+;->  740740734 7407407400 74074074066)
+
+(+ 6 66 666 6666 66666 666666)
+;-> 740736
+
+Dal punto di vista matematico:
+
+S(n) = 6 + 66 + 666 + ... + 6[n volte] =
+     = (0+6) + (60+6) + (660 + 6) + ... + (666...60 + 6) =
+     = 10 * (6 + 66 + 666 + ... + 6[n-1 volte]) + 6*n =
+     = 10 * S(n-1) + 6n =
+     = 10 * (S(n) - 6[n volte])
+
+Risolvendo per S(n):
+
+9*S(n) = 6[n volte]0 - 6*n
+       = (2/3)*(9[n volte]0 - 9*n)
+  S(n) = (2/3)*(1[n volte]0 - n)
+
+Adesso poichè risulta:
+
+1[n volte]0 = 10 + 10^2 +...+ 10^n = 10*(10^n - 1)/9
+
+Possiamo scrivere:
+
+S(n) = (2/3)*(10*(10^n - 1)/9 - n) =
+     = (2/27) * (10^(n+1) - 10 - 9n)
+
+Implementiamo una funzione:
+
+(define (s6m n)
+  (/ (* 2 (- (pow 10 (+ n 1)) 10 (* 9 n))) 27))
+
+La divisione "/" per 27 viene applicata per ultima per evitare arrotondamenti.
+
+(map s6m (sequence 1 11))
+;-> (6 72 738 7404 74070 740736 7407402 74074068 
+;->  740740734 7407407400 74074074066)
+
+Le due funzioni producono gli stessi risultati. Per usarle con n più grandi dovremmo usare i big-integer.
+
+Vediamo la differenza di velocità:
+
+(time (map s6 (sequence 1 11)) 100000)
+;-> 961.145
+(time (map s6m (sequence 1 11)) 100000)
+;-> 300.694
+
+La funzione "matematica" è tre volte più veloce (almeno per gli interi a 64 bit).
+
+
+---------------
+Serie ricorsiva
+---------------
+
+Una serie è definita in questo modo:
+
+f[0](x) = 1/(1 - x)
+
+f[n](x) = f0(f[n-1](x)) per n=1,2,3,4...
+
+Calcolare f[1976](1976).
+
+Proviamo a definire una funzione che calcola questa serie utilizzando la primitiva "series".
+
+(series exp-start func num-count)
+
+Partendo da "num-count" usa la funzione "func" per trasformare l'espressione precedente nell'espressione successiva "num-count" volte, in altre parole applica la funzione "func" al valore "exp-start" e il valore risultante viene passato di nuovo a "func" e cosi via per "num-count" volte. Restituisce una lista con tutti i valori calcolati.
+
+Esempio:
+
+(series 2 (fn(x) (div 1 x)) 4)
+;-> (2 0.5 2 0.5)
+primo valore = 2
+secondo valore (fn 2) = 1/2 = 0.5
+terzo valore (fn (fn 2)) = (fn 0.5) = 1/0.5 = 2
+quarto valore (fn (fn (fn 2))) = (fn (fn 0.5)) = (fn 2) = 1/2 = 0.5
+
+Più interessante utilizzare la funzione fn(x) = 1/(1+x) che genera numeri che si avvicinano al valore inverso del rapporto aureo:
+
+(series 1 (fn (x) (div (add 1 x))) 20)
+;-> (1 0.5 0.6666666 0.6 0.625 0.6153846 0.619047 0.6176470 0.6181818
+;->  0.6179775 0.6180555 0.6180257 0.6180371 0.6180327 0.6180344
+;->  0.6180338 0.6180340 0.6180339 0.6180339 0.6180339)
+
+Scriviamo la nostra funzione e applichiamo la funzione "series" verificando i risultati:
+
+(define (f0 x) (div 1 (- 1 x)))
+
+(series (f0 1976) f0 1)
+;-> -0.0005063291139240507
+(f0 1976)
+;-> -0.0005063291139240507
+
+(series (f0 1976) f0 2)
+;-> (-0.0005063291139240507 1)
+(f0 (f0 1976))
+;-> 1
+
+(series (f0 1976) f0 3)
+;-> (-0.0005063291139240507 1 1.#INF)
+(f0 (f0 (f0 1976)))
+;-> 1.#INF
+
+Avendo raggiunto un numero infinito "1.#INF" non possiamo proseguire nel calcolo, cioè non possiamo scrivere:
+
+(series (f0 1976) f0 1976)
+
+per ottenere la soluzione corretta.
+
+Proviamo a sviluppare la serie usando l'espressione della funzione:
+
+  f0(x) = 1/(1-x)
+
+  f1(x) = f0(f0(x)) = 1/(1 - (1/(1-x))) = (1-x)/(-x)
+
+  f2(x) = f0(f1(x)) = 1/(1 - (1-x)/(-x)) = x
+
+  f3(x) = f0(f2(x)) = 1/(1-x) = f0(x)
+
+Questo schema si ripete:
+
+  f4(x) = f1(x)
+  f5(x) = f2(x)
+  f6(x) = f0(x)
+
+Quindi:
+
+  per (n+1) la serie vale f1(x)
+  per (n+2) la serie vale f2(x)
+  per (n+3) la serie vale f0(x)
+
+con n = 0,1,2,3,4,...
+
+Quindi per scrivere la soluzione prima definiamo le tre funzioni:
+
+(define (f0 x) (div 1 (- 1 x)))
+(define (f1 x) (div (- 1 x) (- x)))
+(define (f2 x) x)
+
+Adesso definiamo la nostra procedura utilizzando un vettore che contiene le tre funzioni che vengono chiamate in base al valore di n:
+
+(define (f n x)
+  (let (funcs (array 3 (list f0 f1 f2)))
+    ((funcs (% n 3)) x)))
+
+Proviamo a calcolare quanto richiesto:
+
+(f 1976 1976)
+;-> 1976
+
+

@@ -630,6 +630,9 @@ NOTE LIBERE 3
   Numeri bouncy
   docstring
   Numeri sfenici
+  Bilancia a due piatti
+  Somma di 6s
+  Serie ricorsiva
   
 APPENDICI
 =========
