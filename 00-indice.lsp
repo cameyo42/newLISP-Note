@@ -278,10 +278,12 @@ ROSETTA CODE
   Trasformata Discreta di Fourier (DFT)
   Numeri di Harshad
   Numeri Humble
+  Persistenza di un numero
+  Numeri Taxicab
 
 PROJECT EULERO
 ==============
-  Problemi 1..76,78,87,89,92,96,97,99,100
+  Problemi 1..78,87,89,92,96,97,99,100
 
 PROBLEMI VARI
 =============
@@ -435,6 +437,7 @@ DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Lunghezza della sottostringa più lunga senza caratteri ripetuti (Amazon)
   Rendere palindroma una stringa (Google)
   Cifre diverse (Visa)
+  Rapporto minimo (Wolfram)
 
 LIBRERIE
 ========
@@ -633,6 +636,7 @@ NOTE LIBERE 3
   Bilancia a due piatti
   Somma di 6s
   Serie ricorsiva
+  Sei contro cinque
   
 APPENDICI
 =========
@@ -664,7 +668,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-Libreria per matematica ricreativa (117 funzioni)
+Libreria per matematica ricreativa e problem solving (121 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================

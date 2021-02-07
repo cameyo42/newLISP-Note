@@ -1959,3 +1959,52 @@ Proviamo a calcolare quanto richiesto:
 ;-> 1976
 
 
+-----------------
+Sei contro cinque
+-----------------
+
+Eva lancia 6 monete. Veronica lancia 5 monete.
+Qual'è la probabilità che Eva ottenga più "teste" di Veronica?
+
+Poniamo che 1 sia "testa" e 0 "croce".
+
+(define (test iter)
+  (let (e 0)
+    (for (i 1 iter)
+      (setq eva (rand 2 6))
+      (setq Veronica (rand 2 5))
+      (if (> (count '(1) eva) (count '(1) Veronica))
+          (++ e))
+      ;(println (count '(1) eva) { } (count '(1) Veronica) { } e)
+      ;(read-line)
+    )
+    (list e iter (div e iter))))
+
+(test 1000)
+;-> (489 1000 0.489)
+(test 10000)
+;-> (5028 10000 0.5028)
+(test 100000)
+;-> (49865 100000 0.49865)
+(test 1000000)
+;-> (500251 1000000 0.500251)
+(test 10000000)
+;-> (5000474 10000000 0.5000474)
+
+Come ci aspettavamo la simulazione mostra che Eva ha una probabilità leggermente maggiore del 50% (0.5) di ottenere più teste di Veronica, ma non possiamo essere molto precisi sul valore vero. Inoltre esistono anche le simulazioni con 1000 e 100000 lanci che mostrano una probabilità leggermente inferiore al 50% (0.489 e 0.49865).
+
+Dal punto di vista matematico possiamo ragionare in modo generalizzato:
+
+Eva lancia (n + 1) monete
+Veronica lancia n monete
+
+Ci possono essere due risultati (eventi):
+
+1) Eva ottiene più teste di Veronica, oppure
+2) Eva ottiene più croci di Veronica.
+
+Questi risultati sono autoescludenti (non possono risultare contemporaneamente, o accade l'uno o accade l'altro) e la loro probabilità vale esattamente 1/2 per entrambi.
+
+Quindi la probabilità che Eva ottenga più "teste" di Veronica è del 50%. Strano ma vero.
+
+

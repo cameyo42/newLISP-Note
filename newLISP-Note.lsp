@@ -278,10 +278,12 @@ ROSETTA CODE
   Trasformata Discreta di Fourier (DFT)
   Numeri di Harshad
   Numeri Humble
+  Persistenza di un numero
+  Numeri Taxicab
 
 PROJECT EULERO
 ==============
-  Problemi 1..76,78,87,89,92,96,97,99,100
+  Problemi 1..78,87,89,92,96,97,99,100
 
 PROBLEMI VARI
 =============
@@ -435,6 +437,7 @@ DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Lunghezza della sottostringa più lunga senza caratteri ripetuti (Amazon)
   Rendere palindroma una stringa (Google)
   Cifre diverse (Visa)
+  Rapporto minimo (Wolfram)
 
 LIBRERIE
 ========
@@ -633,6 +636,7 @@ NOTE LIBERE 3
   Bilancia a due piatti
   Somma di 6s
   Serie ricorsiva
+  Sei contro cinque
   
 APPENDICI
 =========
@@ -664,7 +668,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-Libreria per matematica ricreativa (117 funzioni)
+Libreria per matematica ricreativa e problem solving (121 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================
@@ -27383,9 +27387,9 @@ Vediamo cosa accade con dei nomi italiani:
 ;->  "M250" "M254" "M600" "M630")
 
 
-=====================================
+-------------------------------------
 TRASFORMATA DISCRETA DI FOURIER (DFT)
-=====================================
+-------------------------------------
 
 Calcola la trasformata discreta di Fourier (DFT) della lista/vettore di numeri complessi in ingresso.
 
@@ -27659,7 +27663,7 @@ Quindi fino a 1 miliardo (1e9) abbiamo:
  1768 numeri Humble hanno 9 cifre
 
 Vediamo un approccio migliore.
-Invece di controllare ogni singolo numero possiamo costruire numeri partendo dal primo. I numeri che vogliamo sono fondamentalmente 2^w 3^x 5^y 7^z, per tutti i valori interi di w, x, y, z. L'iterazione non è immediata (come facciamo a sapere quale iterazione viene dopo?). Ma un modo diverso di ragionare è pensare che è ogni numero umile è 2 volte o 3 volte o 5 volte o 7 volte il numero umile precedente.In questo modo l'iterazione è più semplice.
+Invece di controllare ogni singolo numero possiamo costruire numeri partendo dal primo. I numeri che vogliamo sono fondamentalmente 2^w 3^x 5^y 7^z, per tutti i valori interi di w, x, y, z. L'iterazione non è immediata (come facciamo a sapere quale iterazione viene dopo?). Ma un modo diverso di ragionare è pensare che è ogni numero Humble è 2 volte o 3 volte o 5 volte o 7 volte il numero umile precedente. In questo modo l'iterazione è più semplice.
 
 (define (humble-to num)
   (local (hn w x y z)
@@ -27724,6 +27728,173 @@ Proviamo:
 ;-> 44.35
 
 La soluzione è immediata.
+
+
+------------------------
+PERSISTENZA DI UN NUMERO
+------------------------
+
+La persistenza di un numero descrive il numero di operazioni che si devono applicare ad un intero per raggiungere un punto fisso, ad esempio fino a quando successive operazioni non cambieranno più il numero.
+Generalmente, questo termine viene riferito alla persistenza additiva o moltiplicativa di un intero, che indica quante volte bisogna sostituire un numero con la somma o con la moltiplicazione delle sue cifre fino a quando si raggiunge un numero con una sola cifra. La cifra finale che si ottiene viene chiamata Multiplicative Digital Root o Additive Digital Root del numero intero iniziale.
+
+Esempio: persistenza moltiplicativa
+
+679 -> (6*7*9)=378 -> (3*7*8)=168 -> (1*6*8)=48 -> (4*2)=32 -> (3*2)=6.
+679 -> 378 -> 168 -> 48 -> 32 -> 6.
+
+Cioè, la persistenza di 679 è 6. La persistenza di un numero a una cifra è 0. Esistono numeri con persistenza di 11. Non è noto se ci siano numeri con la persistenza di 12 ma è noto (perchè è stato verificato con un computer nel 2019) che non esistono numeri con persistenza uguale a 12 che hanno meno di 20000 cifre.
+
+Nota: la persistenza additiva o moltiplicativa dipende dalla base di numerazione in cui si sta operando.
+
+Per la persistenza moltiplicativa:
+
+Funzione cha calcola il prodotto delle cifre di un numero:
+
+(define (digit-mul num)
+  (let (out 1)
+    (while (!= num 0)
+      (setq out (* out (% num 10)))
+      (setq num (/ num 10))
+    )
+    out))
+
+(digit-mul 100)
+;-> 0
+
+Funzione che calcola la persistenza moltiplicativa:
+
+(define (pers-mul n)
+  (let (out 0)
+    (while (> n 9)
+      (setq n (digit-mul n))
+      (++ out)
+    )
+    out))
+
+(pers-mul 28)
+;-> (2)
+
+(map pers-mul (sequence 1 30))
+;-> (0 0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 2 2 2 2 2 1)
+
+I numeri più piccoli con persistenza moltiplicativa di 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,... sono 10, 25, 39, 77, 679, 6788, 68889, 2677889, 26888999, 3778888999, 277777788888899, ...
+
+Verifichiamo:
+
+(map pers-mul '(10 25 39 77 679 6788 68889 2677889 26888999 3778888999 277777788888899))
+;-> (1 2 3 4 5 6 7 8 9 10 11)
+
+Per la persistenza additiva:
+
+Funzione cha calcola la somma delle cifre di un numero:
+
+(define (digit-add num)
+  (let (out 0)
+    (while (!= num 0)
+      (setq out (+ out (% num 10)))
+      (setq num (/ num 10))
+    )
+    out))
+
+Funzione che calcola la persistenza additiva:
+
+(define (pers-add n)
+  (let (out 0)
+    (while (> n 9)
+      (setq n (digit-add n))
+      (++ out)
+    )
+    out))
+
+(pers-add 28)
+;-> 2
+
+(map pers-add (sequence 0 30))
+;-> (0 0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1 1 2 1 1 1 1 1 1 1 1 2 2 1)
+
+I numeri più piccoli con persistenza additiva di 1, 2, 3, 4, ... sono 10, 19, 199, 19999999999999999999999, ...
+
+Verifichiamo:
+
+(map pers-add '(10 19 199 19999999999999999999999))
+;-> (1 2 3 4)
+
+
+--------------
+NUMERI TAXICAB
+--------------
+
+I numeri Taxicab sono numeri che sono la somma di due cubi in due o più modi, i primi dei quali sono 1729, 4104, 13832, 20683, 32832, 39312, 40033, 46683, 64232, ... (OEIS A001235).
+
+Il nome di questi numeri prende origine da un aneddoto, secondo il quale il matematico inglese Godfrey Harold Hardy, recatosi in ospedale in visita al matematico indiano Srinivasa Ramanujan, fece una battuta circa il fatto che il numero del taxi che aveva preso (1729) appariva essere privo di particolare interesse matematico. Ma Ramanujan rispose immediatamente: "No Hardy, è un numero estremamente interessante: è il minimo intero che si può esprimere come somma di due cubi in due modi diversi!"
+
+1729 = 1 ^ 3 + 12 ^ 3 = 9 ^ 3 + 10 ^ 3
+
+Taxicab: 
+1729, 4104, 13832, 20683, 32832, 39312, 40033, 46683, 64232, 65728, 
+110656, 110808, 134379, 149389, 165464, 171288, 195841, 216027, 216125, 
+262656, 314496, 320264, 327763, 373464, 402597, 439101, 443889, 513000, 
+513856, 515375, 525824, 558441, 593047, 684019, 704977, ...
+
+Funzione che calcola tutti i numeri taxicab fino ad un numero dato:
+
+(define (taxicab-to num)
+  (local (i c out)
+  (setq out '())
+    (setq i 1)
+    (while (< i num)
+      (setq c 0)
+      ; Verifica per tutte le coppie (j k) se risulta:
+      ; i = j^3 + k^3
+      (for (j 1 (int (pow i (div 1 3))))
+        (for (k (+ j 1) (int (pow i (div 1 3))))
+          (if (= (+ (* j j j) (* k k k)) i)
+            (++ c)
+          )
+         )
+      )
+      (if (>= c 2) (push i out -1))
+      (++ i)
+    )
+    out))
+
+(taxicab-to 100000)
+;-> (1729 4104 13832 20683 32832 39312 40033 46683 64232 65728)
+
+Funzione che calcola i primi "quanti" numeri taxicab:
+
+(define (taxicab-count quanti)
+  (local (i conta c out)
+  (setq out '())
+    (setq i 1 conta 0)
+    (while (< conta quanti)
+      (setq c 0)
+      (for (j 1 (int (pow i (div 1 3))))
+        (for (k (+ j 1) (int (pow i (div 1 3))))
+          (if (= (+ (* j j j) (* k k k)) i)
+            (++ c)
+          )
+         )
+      )
+      (if (>= c 2) 
+          (begin (push i out -1) (++ conta))
+      )
+      (++ i)
+    )
+    out))
+
+(taxicab-count 6)
+;-> (1729 4104 13832 20683 32832 39312)
+
+Entrambe le funzioni hanno una complessità temporale O(n^3) e non permettono di calcolare numeri taxicab troppo grandi.
+Vediamo quanto tempo impiega per calcolare tutti i numeri taxicab fino ad un milione:
+
+(time (println (taxicab-to 1e6)))
+;-> (1729 4104 13832 20683 32832 39312 40033 46683 64232 65728 110656 110808 134379 149389
+;->  165464 171288 195841 216027 216125 262656 314496 320264 327763 373464 402597 439101
+;->  443889 513000 513856 515375 525824 558441 593047 684019 704977 805688 842751 885248
+;->  886464 920673 955016 984067 994688)
+;-> 321249.471 ; 5 minuti e 21 secondi
 
 
 ================
@@ -27811,6 +27982,7 @@ La soluzione è immediata.
 |    74    |  402               |         -  |    286059  |         -  |
 |    75    |  161667            |         -  |       822  |         -  |
 |    76    |  190569291         |         -  |         0  |         -  |
+|    77    |  71                |         -  |         4  |         -  |
 |    78    |  55374             |         -  |      7918  |         -  |
 |    87    |  1097343           |         -  |      1153  |         -  |
 |    89    |  743               |         -  |         0  |         -  |
@@ -27844,7 +28016,7 @@ Nota: i problemi devono essere risolti con la "regola del minuto", cioè i progr
 
 In questo paragrafo affronteremo e risolveremo alcuni di questi problemi. Comunque prima di vedere la soluzione dovresti provare a risolverli per conto proprio in modo da migliorare le tue capacità di problem-solver e di programmatore.
 
-Nota: La maggior parte delle soluzioni contiene una spiegazione dell'algoritmo utilizzato e alcuni problemi sono risolti con due algoritmi diversi. In genere il secondo algoritmo ha un approccio più matematico ed è più veloce. 
+Nota: La maggior parte delle soluzioni contiene una spiegazione dell'algoritmo utilizzato e alcuni problemi sono risolti con due algoritmi diversi. In genere il secondo algoritmo ha un approccio più matematico ed è più veloce.
 
 Nota: La soluzione della maggior parte dei problemi comporta (almeno per me) la ricerca di informazioni su internet di argomenti diversi (matematica, algoritmi, problem solving, ecc.).
 
@@ -35137,7 +35309,7 @@ I tempi di esecuzione delle due funzioni sono uguali.
 
 Il secondo algoritmo utilizza una hash-map con la seguente struttura:
 
- chiave                       valore  
+ chiave                       valore
 ((digit-sort (* num num num)) (num ripetizioni))
 
 In questo modo la soluzione si trova quando le ripetizioni di una chiave vale 5. Maggiori spiegazioni nei commenti della funzione.
@@ -35160,7 +35332,7 @@ In questo modo la soluzione si trova quando le ripetizioni di una chiave vale 5.
           (begin
             ; occorre ricostruire tutta la lista associata alla valore di cubo (chiave)
             (myHash cubo (list (first $it) (+ (last $it) 1)))
-            ; se il numero di ripetizioni vale 5 
+            ; se il numero di ripetizioni vale 5
             (if (= 5 (last (myHash cubo)))
                 ; allora abbiamo trovato la soluzione
                 (setq out (pow (first (myHash cubo)) 3) found true)
@@ -35279,7 +35451,7 @@ Problema 64
 
 Ogni radice quadrata può essere rappresentata con una frazione continua.
 
-La frazione continua di sqrt(23) vale [4, (1,3,1,8)]. 
+La frazione continua di sqrt(23) vale [4, (1,3,1,8)].
 La notazione indica che la frazione continua inizia con 4 e il blocco (1,3,1,8) si ripete indefinitamente.
 
 Le prime dieci rappresentazioni di frazione continua di radici quadrate (irrazionali) sono:
@@ -35464,8 +35636,8 @@ Problema 66
 # Se n è pari occorre:
 #    Espandere sqrt(D) in frazione continua fino al termine (2n+1)
 #    Calcolare i convergenti fino al termine (2n+1).
-#    P(2*n+1) e Q(2*n+1) sono le soluzioni. 
-       	
+#    P(2*n+1) e Q(2*n+1) sono le soluzioni.
+
 (define (Pell n)
   (local (z r x y e1 e2 f1 f2 A B t1 t2)
     (setq x (bigint (int (sqrt n))))
@@ -35558,10 +35730,10 @@ NOTA: questa è una versione molto più difficile del problema 18. Non è possib
 Il file "triangle.txt" è stato trasformato in "e067.lsp" che ha il seguente formato:
 
 (setq tri (dup 0 100))
-(setf (tri 0) '(59)) 
-(setf (tri 1) '(73 41)) 
-(setf (tri 2) '(52 40 9)) 
-(setf (tri 3) '(26 53 6 34)) 
+(setf (tri 0) '(59))
+(setf (tri 1) '(73 41))
+(setf (tri 2) '(52 40 9))
+(setf (tri 3) '(26 53 6 34))
 ...
 
 Per caricare il file:
@@ -35593,14 +35765,14 @@ Problema 68
 
 Considera il seguente anello "magico" 3-gon, riempito con i numeri da 1 a 6 e ogni riga somma a nove.
 
-       4  
+       4
         \
-         3 
-        / \    
+         3
+        / \
        1---2---6
       /
      5
-     
+
 Lavorando in senso orario, e partendo dal gruppo di tre con il nodo esterno numericamente più basso (4,3,2 in questo esempio), ogni soluzione può essere descritta in modo univoco. Ad esempio, la soluzione di cui sopra può essere descritta dall'insieme: 4,3,2 - 6,2,1 - 5,1,3.
 
 È possibile completare l'anello con quattro diversi totali: 9, 10, 11 e 12. Ci sono otto soluzioni in totale.
@@ -35614,7 +35786,7 @@ Totale   Soluzioni
   11     1,6,4 - 5,4,2 - 3,2,6
   12     1,5,6 - 2,6,4 - 3,4,5
   12     1,6,5 - 3,5,4 - 2,4,6
-  
+
 Concatenando ogni gruppo è possibile formare stringhe di 9 cifre: la stringa massima per un anello 3-gon è 432621513.
 
 Utilizzando i numeri da 1 a 10, a seconda degli arrangiamenti, è possibile formare stringhe di 16 e 17 cifre. Qual è il numero massimo di 16 cifre per un anello "magico" 5-gon?
@@ -35766,7 +35938,7 @@ Scriviamo la funzione finale:
       (setq cur-val (t i))
       (if (> (div i cur-val) max-val)
           (setq idx-val i max-val (div i cur-val))
-      )    
+      )
     )
     idx-val))
 
@@ -36428,6 +36600,57 @@ La soluzione è simile a quella del problema 31. Le uniche differenze sono:
 
 
 ===========
+Problema 77
+===========
+
+Somme di primi
+
+È possibile scrivere dieci come somma dei numeri primi esattamente in cinque modi diversi:
+
+7 + 3
+5 + 5
+5 + 3 + 2
+3 + 3 + 2 + 2
+2 + 2 + 2 + 2 + 2
+
+Qual è il primo valore che può essere scritto come somma di numeri primi in oltre cinquemila modi diversi?
+============================================================================
+
+L'algoritmo di soluzione è simile a quella del problema precedente. Al posto del totale=100 iniziamo da 2 fino a che non troviamo tutte le soluzioni. Inoltre, invece di utilizzare i numeri da 1 a 99, usiamo i numeri primi (preventivamente calcolati).
+
+(define (e077)
+  (local (primi limite iter modi i continua)
+    (setq primi '(2 3 5 7 11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71 73 79))
+    (setq limite 5000)
+    (setq iter 2)
+    (setq continua true)
+    (while continua
+      ;(println iter)
+      (setq modi (array (+ iter 1) (extend '(1) (dup 0 iter))))
+      ;(println modi)
+      ;(read-line)
+      (dolist (p primi)
+        (setq i p)
+        (while (<= i iter)
+          (setf (modi i) (+ (modi i) (modi (- i p))))
+          (++ i)
+        )
+      )
+      (if (> (modi iter) 5000)
+          (setq continua nil)
+          (++ iter)
+      )
+    )
+    iter))
+
+(e077)
+;-> 71
+
+(time (e077))
+;-> 4.015
+
+
+===========
 Problema 78
 ===========
 
@@ -36454,7 +36677,7 @@ dove p(0) = 1 e p(n) = 0 per n < 0.
 
 La sequenza dei numeri k da utilizzare è data dalla formula dei numeri pentagonali generalizzati:
 
-f(k) = k*(3k-1)/2 che vale sia per k negativo che per k positivo. 
+f(k) = k*(3k-1)/2 che vale sia per k negativo che per k positivo.
 
 Questa formula può essere generata nel modo seguente:
 
@@ -36489,7 +36712,7 @@ Quindi partendo dal primo valore della sequenza possiamo calcolare quella succes
             (setq j (- (+ (/ i 2) 1))))
         (setq penta (/ (* j (- (* 3 j) 1)) 2))
       )
-      (if (zero? (p-vec n)) 
+      (if (zero? (p-vec n))
           (setq continua nil)
           (++ n))
       ;(if (zero? (% n 10000)) (println n))
@@ -36555,7 +36778,7 @@ L'algoritmo è abbastanza semplice e può essere estrapolato dai commenti della 
       (dolist (b primi3)
         (dolist (c primi4)
           (setq val (+ a b c))
-          (if (< val limite) 
+          (if (< val limite)
               (push val out -1)
           ))))
     ; elimina i numeri multipli dalla lista
@@ -36634,7 +36857,7 @@ Funzione di conversione da numero romano a numero intero:
       ; converts the current character into an integer
       (setq curr (lookup (char ch) table))
       ; pick the right case to add or substract
-      (if (>= prev curr) 
+      (if (>= prev curr)
           (setq num (+ num prev))
           (setq num (- num prev))
       )
@@ -36972,7 +37195,7 @@ Funzione finale:
 (time (e092))
 ;-> 116.715
 
-La prima soluzione processa 9999999 di numeri, mentre la seconda soluzione processa 11440 numeri. Il rapporto vale: (/ 9999999 11440) = 874. 
+La prima soluzione processa 9999999 di numeri, mentre la seconda soluzione processa 11440 numeri. Il rapporto vale: (/ 9999999 11440) = 874.
 Per i tempi di esecuzione abbiamo il seguente rapporto: (/ 51582 116) = 444, cioè la seconda funzione è circa 450 volte più veloce.
 
 
@@ -52768,6 +52991,56 @@ Proviamo ad utilizzare una hash-map:
 ;-> 4247.46
 
 Le due funzioni hanno tempi simili perchè nella prima funzione la primitiva "unique" è molto veloce e non facciamo nessun accesso random alla lista.
+
+
+-------------------------
+Rapporto minimo (Wolfram)
+-------------------------
+
+Abbiamo un numero intero di 5 cifre n. Eliminando la cifra centrale di n otteniamo un altro numero m.
+Determinare tutti i numeri n per cui risulta intero il numero n/m.
+
+(define (cerca)
+  (let (out '())
+    (for (n 10000 99999)
+      (setq m (+ (* (/ n 1000) 100) (% n 100)))
+      (if (zero? (% n m)) (push (list n m (div n m)) out -1))
+    )
+    out))
+
+;-> ((10000 1000 10) (11000 1100 10) (12000 1200 10) (13000 1300 10) (14000 1400 10)
+;->  (15000 1500 10) (16000 1600 10) (17000 1700 10) (18000 1800 10) (19000 1900 10)
+;->  ...
+;->  (95000 9500 10)
+;->  (96000 9600 10)
+;->  (97000 9700 10)
+;->  (98000 9800 10)
+;->  (99000 9900 10))
+
+(length (cerca))
+;-> 90
+
+Dal punto di vista matematico:
+
+n = x*10^4 + y*10^3 + z*10^2 + u*10 + v
+m = x*10^3 + y*10^2 + u*10 + v
+
+Poichè n/m deve essere intero, anche (10*m - n)/m deve essere intero:
+
+(10*m - n) = (u - z)*10^2 + (v - u)*10 - v
+
+ma (10*m - n) è un numero di tre cifre mentre m è un numero con quattro cifre, quindi deve risultare:
+
+(10*m - n)/m = 0, cioè (10*m - n) = 0. 
+
+Questo implica che deve risultare u = v = z = 0. Quindi i numeri n e m diventano:
+
+n = x*10^4 + y*10^3
+m = x*10^3 + y*10^2
+
+cioè n può essere scritto come n = 10^3*N, dove 10 <= N <= 99.
+
+Tra 10 e 99 compresi esistono 90 numeri, quindi i numeri di cinque cifre per cui n/m è un intero sono 90.
 
 
 ==========
@@ -72585,6 +72858,55 @@ Proviamo a calcolare quanto richiesto:
 
 (f 1976 1976)
 ;-> 1976
+
+
+-----------------
+Sei contro cinque
+-----------------
+
+Eva lancia 6 monete. Veronica lancia 5 monete.
+Qual'è la probabilità che Eva ottenga più "teste" di Veronica?
+
+Poniamo che 1 sia "testa" e 0 "croce".
+
+(define (test iter)
+  (let (e 0)
+    (for (i 1 iter)
+      (setq eva (rand 2 6))
+      (setq Veronica (rand 2 5))
+      (if (> (count '(1) eva) (count '(1) Veronica))
+          (++ e))
+      ;(println (count '(1) eva) { } (count '(1) Veronica) { } e)
+      ;(read-line)
+    )
+    (list e iter (div e iter))))
+
+(test 1000)
+;-> (489 1000 0.489)
+(test 10000)
+;-> (5028 10000 0.5028)
+(test 100000)
+;-> (49865 100000 0.49865)
+(test 1000000)
+;-> (500251 1000000 0.500251)
+(test 10000000)
+;-> (5000474 10000000 0.5000474)
+
+Come ci aspettavamo la simulazione mostra che Eva ha una probabilità leggermente maggiore del 50% (0.5) di ottenere più teste di Veronica, ma non possiamo essere molto precisi sul valore vero. Inoltre esistono anche le simulazioni con 1000 e 100000 lanci che mostrano una probabilità leggermente inferiore al 50% (0.489 e 0.49865).
+
+Dal punto di vista matematico possiamo ragionare in modo generalizzato:
+
+Eva lancia (n + 1) monete
+Veronica lancia n monete
+
+Ci possono essere due risultati (eventi):
+
+1) Eva ottiene più teste di Veronica, oppure
+2) Eva ottiene più croci di Veronica.
+
+Questi risultati sono autoescludenti (non possono risultare contemporaneamente, o accade l'uno o accade l'altro) e la loro probabilità vale esattamente 1/2 per entrambi.
+
+Quindi la probabilità che Eva ottenga più "teste" di Veronica è del 50%. Strano ma vero.
 
 
 ===========

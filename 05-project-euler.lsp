@@ -83,6 +83,7 @@
 |    74    |  402               |         -  |    286059  |         -  |
 |    75    |  161667            |         -  |       822  |         -  |
 |    76    |  190569291         |         -  |         0  |         -  |
+|    77    |  71                |         -  |         4  |         -  |
 |    78    |  55374             |         -  |      7918  |         -  |
 |    87    |  1097343           |         -  |      1153  |         -  |
 |    89    |  743               |         -  |         0  |         -  |
@@ -116,7 +117,7 @@ Nota: i problemi devono essere risolti con la "regola del minuto", cioè i progr
 
 In questo paragrafo affronteremo e risolveremo alcuni di questi problemi. Comunque prima di vedere la soluzione dovresti provare a risolverli per conto proprio in modo da migliorare le tue capacità di problem-solver e di programmatore.
 
-Nota: La maggior parte delle soluzioni contiene una spiegazione dell'algoritmo utilizzato e alcuni problemi sono risolti con due algoritmi diversi. In genere il secondo algoritmo ha un approccio più matematico ed è più veloce. 
+Nota: La maggior parte delle soluzioni contiene una spiegazione dell'algoritmo utilizzato e alcuni problemi sono risolti con due algoritmi diversi. In genere il secondo algoritmo ha un approccio più matematico ed è più veloce.
 
 Nota: La soluzione della maggior parte dei problemi comporta (almeno per me) la ricerca di informazioni su internet di argomenti diversi (matematica, algoritmi, problem solving, ecc.).
 
@@ -7409,7 +7410,7 @@ I tempi di esecuzione delle due funzioni sono uguali.
 
 Il secondo algoritmo utilizza una hash-map con la seguente struttura:
 
- chiave                       valore  
+ chiave                       valore
 ((digit-sort (* num num num)) (num ripetizioni))
 
 In questo modo la soluzione si trova quando le ripetizioni di una chiave vale 5. Maggiori spiegazioni nei commenti della funzione.
@@ -7432,7 +7433,7 @@ In questo modo la soluzione si trova quando le ripetizioni di una chiave vale 5.
           (begin
             ; occorre ricostruire tutta la lista associata alla valore di cubo (chiave)
             (myHash cubo (list (first $it) (+ (last $it) 1)))
-            ; se il numero di ripetizioni vale 5 
+            ; se il numero di ripetizioni vale 5
             (if (= 5 (last (myHash cubo)))
                 ; allora abbiamo trovato la soluzione
                 (setq out (pow (first (myHash cubo)) 3) found true)
@@ -7551,7 +7552,7 @@ Problema 64
 
 Ogni radice quadrata può essere rappresentata con una frazione continua.
 
-La frazione continua di sqrt(23) vale [4, (1,3,1,8)]. 
+La frazione continua di sqrt(23) vale [4, (1,3,1,8)].
 La notazione indica che la frazione continua inizia con 4 e il blocco (1,3,1,8) si ripete indefinitamente.
 
 Le prime dieci rappresentazioni di frazione continua di radici quadrate (irrazionali) sono:
@@ -7736,8 +7737,8 @@ Problema 66
 # Se n è pari occorre:
 #    Espandere sqrt(D) in frazione continua fino al termine (2n+1)
 #    Calcolare i convergenti fino al termine (2n+1).
-#    P(2*n+1) e Q(2*n+1) sono le soluzioni. 
-       	
+#    P(2*n+1) e Q(2*n+1) sono le soluzioni.
+
 (define (Pell n)
   (local (z r x y e1 e2 f1 f2 A B t1 t2)
     (setq x (bigint (int (sqrt n))))
@@ -7830,10 +7831,10 @@ NOTA: questa è una versione molto più difficile del problema 18. Non è possib
 Il file "triangle.txt" è stato trasformato in "e067.lsp" che ha il seguente formato:
 
 (setq tri (dup 0 100))
-(setf (tri 0) '(59)) 
-(setf (tri 1) '(73 41)) 
-(setf (tri 2) '(52 40 9)) 
-(setf (tri 3) '(26 53 6 34)) 
+(setf (tri 0) '(59))
+(setf (tri 1) '(73 41))
+(setf (tri 2) '(52 40 9))
+(setf (tri 3) '(26 53 6 34))
 ...
 
 Per caricare il file:
@@ -7865,14 +7866,14 @@ Problema 68
 
 Considera il seguente anello "magico" 3-gon, riempito con i numeri da 1 a 6 e ogni riga somma a nove.
 
-       4  
+       4
         \
-         3 
-        / \    
+         3
+        / \
        1---2---6
       /
      5
-     
+
 Lavorando in senso orario, e partendo dal gruppo di tre con il nodo esterno numericamente più basso (4,3,2 in questo esempio), ogni soluzione può essere descritta in modo univoco. Ad esempio, la soluzione di cui sopra può essere descritta dall'insieme: 4,3,2 - 6,2,1 - 5,1,3.
 
 È possibile completare l'anello con quattro diversi totali: 9, 10, 11 e 12. Ci sono otto soluzioni in totale.
@@ -7886,7 +7887,7 @@ Totale   Soluzioni
   11     1,6,4 - 5,4,2 - 3,2,6
   12     1,5,6 - 2,6,4 - 3,4,5
   12     1,6,5 - 3,5,4 - 2,4,6
-  
+
 Concatenando ogni gruppo è possibile formare stringhe di 9 cifre: la stringa massima per un anello 3-gon è 432621513.
 
 Utilizzando i numeri da 1 a 10, a seconda degli arrangiamenti, è possibile formare stringhe di 16 e 17 cifre. Qual è il numero massimo di 16 cifre per un anello "magico" 5-gon?
@@ -8038,7 +8039,7 @@ Scriviamo la funzione finale:
       (setq cur-val (t i))
       (if (> (div i cur-val) max-val)
           (setq idx-val i max-val (div i cur-val))
-      )    
+      )
     )
     idx-val))
 
@@ -8700,6 +8701,57 @@ La soluzione è simile a quella del problema 31. Le uniche differenze sono:
 
 
 ===========
+Problema 77
+===========
+
+Somme di primi
+
+È possibile scrivere dieci come somma dei numeri primi esattamente in cinque modi diversi:
+
+7 + 3
+5 + 5
+5 + 3 + 2
+3 + 3 + 2 + 2
+2 + 2 + 2 + 2 + 2
+
+Qual è il primo valore che può essere scritto come somma di numeri primi in oltre cinquemila modi diversi?
+============================================================================
+
+L'algoritmo di soluzione è simile a quella del problema precedente. Al posto del totale=100 iniziamo da 2 fino a che non troviamo tutte le soluzioni. Inoltre, invece di utilizzare i numeri da 1 a 99, usiamo i numeri primi (preventivamente calcolati).
+
+(define (e077)
+  (local (primi limite iter modi i continua)
+    (setq primi '(2 3 5 7 11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71 73 79))
+    (setq limite 5000)
+    (setq iter 2)
+    (setq continua true)
+    (while continua
+      ;(println iter)
+      (setq modi (array (+ iter 1) (extend '(1) (dup 0 iter))))
+      ;(println modi)
+      ;(read-line)
+      (dolist (p primi)
+        (setq i p)
+        (while (<= i iter)
+          (setf (modi i) (+ (modi i) (modi (- i p))))
+          (++ i)
+        )
+      )
+      (if (> (modi iter) 5000)
+          (setq continua nil)
+          (++ iter)
+      )
+    )
+    iter))
+
+(e077)
+;-> 71
+
+(time (e077))
+;-> 4.015
+
+
+===========
 Problema 78
 ===========
 
@@ -8726,7 +8778,7 @@ dove p(0) = 1 e p(n) = 0 per n < 0.
 
 La sequenza dei numeri k da utilizzare è data dalla formula dei numeri pentagonali generalizzati:
 
-f(k) = k*(3k-1)/2 che vale sia per k negativo che per k positivo. 
+f(k) = k*(3k-1)/2 che vale sia per k negativo che per k positivo.
 
 Questa formula può essere generata nel modo seguente:
 
@@ -8761,7 +8813,7 @@ Quindi partendo dal primo valore della sequenza possiamo calcolare quella succes
             (setq j (- (+ (/ i 2) 1))))
         (setq penta (/ (* j (- (* 3 j) 1)) 2))
       )
-      (if (zero? (p-vec n)) 
+      (if (zero? (p-vec n))
           (setq continua nil)
           (++ n))
       ;(if (zero? (% n 10000)) (println n))
@@ -8827,7 +8879,7 @@ L'algoritmo è abbastanza semplice e può essere estrapolato dai commenti della 
       (dolist (b primi3)
         (dolist (c primi4)
           (setq val (+ a b c))
-          (if (< val limite) 
+          (if (< val limite)
               (push val out -1)
           ))))
     ; elimina i numeri multipli dalla lista
@@ -8906,7 +8958,7 @@ Funzione di conversione da numero romano a numero intero:
       ; converts the current character into an integer
       (setq curr (lookup (char ch) table))
       ; pick the right case to add or substract
-      (if (>= prev curr) 
+      (if (>= prev curr)
           (setq num (+ num prev))
           (setq num (- num prev))
       )
@@ -9244,7 +9296,7 @@ Funzione finale:
 (time (e092))
 ;-> 116.715
 
-La prima soluzione processa 9999999 di numeri, mentre la seconda soluzione processa 11440 numeri. Il rapporto vale: (/ 9999999 11440) = 874. 
+La prima soluzione processa 9999999 di numeri, mentre la seconda soluzione processa 11440 numeri. Il rapporto vale: (/ 9999999 11440) = 874.
 Per i tempi di esecuzione abbiamo il seguente rapporto: (/ 51582 116) = 444, cioè la seconda funzione è circa 450 volte più veloce.
 
 

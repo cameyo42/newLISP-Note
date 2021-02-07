@@ -6206,3 +6206,53 @@ Proviamo ad utilizzare una hash-map:
 Le due funzioni hanno tempi simili perchè nella prima funzione la primitiva "unique" è molto veloce e non facciamo nessun accesso random alla lista.
 
 
+-------------------------
+Rapporto minimo (Wolfram)
+-------------------------
+
+Abbiamo un numero intero di 5 cifre n. Eliminando la cifra centrale di n otteniamo un altro numero m.
+Determinare tutti i numeri n per cui risulta intero il numero n/m.
+
+(define (cerca)
+  (let (out '())
+    (for (n 10000 99999)
+      (setq m (+ (* (/ n 1000) 100) (% n 100)))
+      (if (zero? (% n m)) (push (list n m (div n m)) out -1))
+    )
+    out))
+
+;-> ((10000 1000 10) (11000 1100 10) (12000 1200 10) (13000 1300 10) (14000 1400 10)
+;->  (15000 1500 10) (16000 1600 10) (17000 1700 10) (18000 1800 10) (19000 1900 10)
+;->  ...
+;->  (95000 9500 10)
+;->  (96000 9600 10)
+;->  (97000 9700 10)
+;->  (98000 9800 10)
+;->  (99000 9900 10))
+
+(length (cerca))
+;-> 90
+
+Dal punto di vista matematico:
+
+n = x*10^4 + y*10^3 + z*10^2 + u*10 + v
+m = x*10^3 + y*10^2 + u*10 + v
+
+Poichè n/m deve essere intero, anche (10*m - n)/m deve essere intero:
+
+(10*m - n) = (u - z)*10^2 + (v - u)*10 - v
+
+ma (10*m - n) è un numero di tre cifre mentre m è un numero con quattro cifre, quindi deve risultare:
+
+(10*m - n)/m = 0, cioè (10*m - n) = 0. 
+
+Questo implica che deve risultare u = v = z = 0. Quindi i numeri n e m diventano:
+
+n = x*10^4 + y*10^3
+m = x*10^3 + y*10^2
+
+cioè n può essere scritto come n = 10^3*N, dove 10 <= N <= 99.
+
+Tra 10 e 99 compresi esistono 90 numeri, quindi i numeri di cinque cifre per cui n/m è un intero sono 90.
+
+

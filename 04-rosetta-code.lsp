@@ -9551,9 +9551,9 @@ Vediamo cosa accade con dei nomi italiani:
 ;->  "M250" "M254" "M600" "M630")
 
 
-=====================================
+-------------------------------------
 TRASFORMATA DISCRETA DI FOURIER (DFT)
-=====================================
+-------------------------------------
 
 Calcola la trasformata discreta di Fourier (DFT) della lista/vettore di numeri complessi in ingresso.
 
@@ -9827,7 +9827,7 @@ Quindi fino a 1 miliardo (1e9) abbiamo:
  1768 numeri Humble hanno 9 cifre
 
 Vediamo un approccio migliore.
-Invece di controllare ogni singolo numero possiamo costruire numeri partendo dal primo. I numeri che vogliamo sono fondamentalmente 2^w 3^x 5^y 7^z, per tutti i valori interi di w, x, y, z. L'iterazione non è immediata (come facciamo a sapere quale iterazione viene dopo?). Ma un modo diverso di ragionare è pensare che è ogni numero umile è 2 volte o 3 volte o 5 volte o 7 volte il numero umile precedente.In questo modo l'iterazione è più semplice.
+Invece di controllare ogni singolo numero possiamo costruire numeri partendo dal primo. I numeri che vogliamo sono fondamentalmente 2^w 3^x 5^y 7^z, per tutti i valori interi di w, x, y, z. L'iterazione non è immediata (come facciamo a sapere quale iterazione viene dopo?). Ma un modo diverso di ragionare è pensare che è ogni numero Humble è 2 volte o 3 volte o 5 volte o 7 volte il numero umile precedente. In questo modo l'iterazione è più semplice.
 
 (define (humble-to num)
   (local (hn w x y z)
@@ -9892,5 +9892,172 @@ Proviamo:
 ;-> 44.35
 
 La soluzione è immediata.
+
+
+------------------------
+PERSISTENZA DI UN NUMERO
+------------------------
+
+La persistenza di un numero descrive il numero di operazioni che si devono applicare ad un intero per raggiungere un punto fisso, ad esempio fino a quando successive operazioni non cambieranno più il numero.
+Generalmente, questo termine viene riferito alla persistenza additiva o moltiplicativa di un intero, che indica quante volte bisogna sostituire un numero con la somma o con la moltiplicazione delle sue cifre fino a quando si raggiunge un numero con una sola cifra. La cifra finale che si ottiene viene chiamata Multiplicative Digital Root o Additive Digital Root del numero intero iniziale.
+
+Esempio: persistenza moltiplicativa
+
+679 -> (6*7*9)=378 -> (3*7*8)=168 -> (1*6*8)=48 -> (4*2)=32 -> (3*2)=6.
+679 -> 378 -> 168 -> 48 -> 32 -> 6.
+
+Cioè, la persistenza di 679 è 6. La persistenza di un numero a una cifra è 0. Esistono numeri con persistenza di 11. Non è noto se ci siano numeri con la persistenza di 12 ma è noto (perchè è stato verificato con un computer nel 2019) che non esistono numeri con persistenza uguale a 12 che hanno meno di 20000 cifre.
+
+Nota: la persistenza additiva o moltiplicativa dipende dalla base di numerazione in cui si sta operando.
+
+Per la persistenza moltiplicativa:
+
+Funzione cha calcola il prodotto delle cifre di un numero:
+
+(define (digit-mul num)
+  (let (out 1)
+    (while (!= num 0)
+      (setq out (* out (% num 10)))
+      (setq num (/ num 10))
+    )
+    out))
+
+(digit-mul 100)
+;-> 0
+
+Funzione che calcola la persistenza moltiplicativa:
+
+(define (pers-mul n)
+  (let (out 0)
+    (while (> n 9)
+      (setq n (digit-mul n))
+      (++ out)
+    )
+    out))
+
+(pers-mul 28)
+;-> (2)
+
+(map pers-mul (sequence 1 30))
+;-> (0 0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 2 2 2 2 2 1)
+
+I numeri più piccoli con persistenza moltiplicativa di 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,... sono 10, 25, 39, 77, 679, 6788, 68889, 2677889, 26888999, 3778888999, 277777788888899, ...
+
+Verifichiamo:
+
+(map pers-mul '(10 25 39 77 679 6788 68889 2677889 26888999 3778888999 277777788888899))
+;-> (1 2 3 4 5 6 7 8 9 10 11)
+
+Per la persistenza additiva:
+
+Funzione cha calcola la somma delle cifre di un numero:
+
+(define (digit-add num)
+  (let (out 0)
+    (while (!= num 0)
+      (setq out (+ out (% num 10)))
+      (setq num (/ num 10))
+    )
+    out))
+
+Funzione che calcola la persistenza additiva:
+
+(define (pers-add n)
+  (let (out 0)
+    (while (> n 9)
+      (setq n (digit-add n))
+      (++ out)
+    )
+    out))
+
+(pers-add 28)
+;-> 2
+
+(map pers-add (sequence 0 30))
+;-> (0 0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1 1 2 1 1 1 1 1 1 1 1 2 2 1)
+
+I numeri più piccoli con persistenza additiva di 1, 2, 3, 4, ... sono 10, 19, 199, 19999999999999999999999, ...
+
+Verifichiamo:
+
+(map pers-add '(10 19 199 19999999999999999999999))
+;-> (1 2 3 4)
+
+
+--------------
+NUMERI TAXICAB
+--------------
+
+I numeri Taxicab sono numeri che sono la somma di due cubi in due o più modi, i primi dei quali sono 1729, 4104, 13832, 20683, 32832, 39312, 40033, 46683, 64232, ... (OEIS A001235).
+
+Il nome di questi numeri prende origine da un aneddoto, secondo il quale il matematico inglese Godfrey Harold Hardy, recatosi in ospedale in visita al matematico indiano Srinivasa Ramanujan, fece una battuta circa il fatto che il numero del taxi che aveva preso (1729) appariva essere privo di particolare interesse matematico. Ma Ramanujan rispose immediatamente: "No Hardy, è un numero estremamente interessante: è il minimo intero che si può esprimere come somma di due cubi in due modi diversi!"
+
+1729 = 1 ^ 3 + 12 ^ 3 = 9 ^ 3 + 10 ^ 3
+
+Taxicab: 
+1729, 4104, 13832, 20683, 32832, 39312, 40033, 46683, 64232, 65728, 
+110656, 110808, 134379, 149389, 165464, 171288, 195841, 216027, 216125, 
+262656, 314496, 320264, 327763, 373464, 402597, 439101, 443889, 513000, 
+513856, 515375, 525824, 558441, 593047, 684019, 704977, ...
+
+Funzione che calcola tutti i numeri taxicab fino ad un numero dato:
+
+(define (taxicab-to num)
+  (local (i c out)
+  (setq out '())
+    (setq i 1)
+    (while (< i num)
+      (setq c 0)
+      ; Verifica per tutte le coppie (j k) se risulta:
+      ; i = j^3 + k^3
+      (for (j 1 (int (pow i (div 1 3))))
+        (for (k (+ j 1) (int (pow i (div 1 3))))
+          (if (= (+ (* j j j) (* k k k)) i)
+            (++ c)
+          )
+         )
+      )
+      (if (>= c 2) (push i out -1))
+      (++ i)
+    )
+    out))
+
+(taxicab-to 100000)
+;-> (1729 4104 13832 20683 32832 39312 40033 46683 64232 65728)
+
+Funzione che calcola i primi "quanti" numeri taxicab:
+
+(define (taxicab-count quanti)
+  (local (i conta c out)
+  (setq out '())
+    (setq i 1 conta 0)
+    (while (< conta quanti)
+      (setq c 0)
+      (for (j 1 (int (pow i (div 1 3))))
+        (for (k (+ j 1) (int (pow i (div 1 3))))
+          (if (= (+ (* j j j) (* k k k)) i)
+            (++ c)
+          )
+         )
+      )
+      (if (>= c 2) 
+          (begin (push i out -1) (++ conta))
+      )
+      (++ i)
+    )
+    out))
+
+(taxicab-count 6)
+;-> (1729 4104 13832 20683 32832 39312)
+
+Entrambe le funzioni hanno una complessità temporale O(n^3) e non permettono di calcolare numeri taxicab troppo grandi.
+Vediamo quanto tempo impiega per calcolare tutti i numeri taxicab fino ad un milione:
+
+(time (println (taxicab-to 1e6)))
+;-> (1729 4104 13832 20683 32832 39312 40033 46683 64232 65728 110656 110808 134379 149389
+;->  165464 171288 195841 216027 216125 262656 314496 320264 327763 373464 402597 439101
+;->  443889 513000 513856 515375 525824 558441 593047 684019 704977 805688 842751 885248
+;->  886464 920673 955016 984067 994688)
+;-> 321249.471 ; 5 minuti e 21 secondi
 
 
