@@ -283,7 +283,7 @@ ROSETTA CODE
 
 PROJECT EULERO
 ==============
-  Problemi 1..78,80,81,87,89,92,96,97,99,100
+  Problemi 1..81,87,89,92,96,97,99,100
 
 PROBLEMI VARI
 =============
@@ -27984,6 +27984,7 @@ Vediamo quanto tempo impiega per calcolare tutti i numeri taxicab fino ad un mil
 |    76    |  190569291         |         -  |         0  |         -  |
 |    77    |  71                |         -  |         4  |         -  |
 |    78    |  55374             |         -  |      7918  |         -  |
+|    79    |  73162890          |         -  |         0  |         -  |
 |    80    |  40886             |         -  |        29  |         -  |
 |    81    |  427337            |         -  |         3  |         -  |
 |    87    |  1097343           |         -  |      1153  |         -  |
@@ -36806,6 +36807,134 @@ Quindi partendo dal primo valore della sequenza possiamo calcolare quella succes
 ;-> 7918.736
 
 Il tempo di esecuzione non è entusiasmante, ma non è che abbia capito molto bene come funziona tutta la matematica dietro il partizionamento degli interi. Mi accontento che il risultato sia corretto.
+----------------------------------------------------------------------------
+
+
+===========
+Problema 79
+===========
+
+Derivazione del passcode
+
+Un metodo di sicurezza comune utilizzato per l'online banking consiste nel chiedere all'utente tre caratteri casuali da un passcode. Ad esempio, se il codice di accesso era 531278, potrebbero richiedere il 2°, il 3° e il 5° carattere:  la risposta attesa sarebbe 317.
+
+Il file di testo, keylog.txt, contiene cinquanta tentativi di accesso riusciti.
+
+Dato che i tre caratteri vengono sempre richiesti in ordine, analizzare il file in modo da determinare il codice segreto più breve possibile di lunghezza sconosciuta.
+============================================================================
+
+Il file "keylog.txt" è stato trasformato nella lista seguente:
+
+(setq pwd '("319" "680" "180" "690" "129" "620" "762" "689" "318" "368" "710"
+            "720" "629" "168" "160" "716" "731" "736" "729" "316" "769" "290"
+            "719" "389" "162" "289" "718" "790" "890" "362" "760" "380" "728"))
+
+(length pwd)
+;-> 50
+
+Eliminiamo i valori doppi:
+
+(setq pwd (unique pwd))
+;-> ("319" "680" "180" "690" "129" "620" "762" "689" "318" "368" "710"
+;->  "720" "629" "168" "160" "716" "731" "736" "729" "316" "769" "290"
+;->  "719" "389" "162" "289" "718" "790" "890" "362" "760" "380" "728")
+
+(length pwd)
+;-> 33
+
+Definiamo tre liste che conterranno le prime, le seconde e le terze cifre di ogni numero di login (ripetute solo una volta):
+
+(setq prima '())
+(setq seconda '())
+(setq terza '())
+(dolist (login pwd)
+  (push (login 0) prima -1)
+  (push (login 1) seconda -1)
+  (push (login 2) terza -1)
+)
+(setq prima (unique prima))
+;-> ("3" "6" "1" "7" "2" "8")
+(setq seconda (unique seconda))
+;-> ("1" "8" "9" "2" "6" "3")
+(setq terza (unique terza))
+;-> ("9" "0" "2" "8" "6" "1")
+
+Uniamo tutte le cifre:
+
+(setq uniche prima)
+(setq uniche (unique (extend uniche seconda terza)))
+;-> ("3" "6" "1" "7" "2" "8" "9" "0")
+(length uniche)
+;-> 8
+
+Quindi possiamo trarre le seguenti conclusioni:
+
+1) la password minima è lunga quanto la lista "uniche": 8
+2) nella password non ci sono le cifre "4" e "5"
+3) La prima cifra della della password è "7", perchè è l'unica cifra che compare solo nella lista "prima".
+4) L'ultima cifra della password è "0", perchè è l'unica cifra che compare solo nella lista "terza".
+
+Per adesso, la password vale "7xxxxxx0", dove xxxxxx sono occupate, in qualche ordine, da "1" "2" "3" "6" "8" "9".
+
+Dalla lista "pwd" possiamo calcolare, per ogni cifra, tutte le cifre che appaiono prima e tutte le cifre che appaiono dopo:
+
+(define (cifre-dove x lst)
+  (setq prima-di-x '())
+  (setq dopo-di-x '())
+  (dolist (login pwd)
+    (setq pos-x (find x login))
+    (cond ((= 0 pos-x)
+           (push (login 1) dopo-di-x -1)
+           (push (login 2) dopo-di-x -1))
+          ((= 1 pos-x)
+           (push (login 0) prima-di-x -1)
+           (push (login 2) dopo-di-x -1))
+          ((= 2 pos-x)
+           (push (login 0) prima-di-x -1)
+           (push (login 1) prima-di-x -1))
+    )
+  )
+  (setq prima-di-x (unique prima-di-x))
+  (setq dopo-di-x (unique dopo-di-x))
+  (println "Prima di " x " : " prima-di-x)
+  (println "Dopo di " x " : " dopo-di-x))
+
+(cifre-dove "0")
+;-> Prima di 0 : ("6" "8" "1" "9" "2" "7" "3")
+;-> Dopo di 0 : ()
+(cifre-dove "1")
+;-> Prima di 1 : ("3" "7")
+;-> Dopo di 1 : ("9" "8" "0" "2" "6")
+(cifre-dove "2")
+;-> Prima di 2 : ("1" "6" "7" "3")
+;-> Dopo di 2 : ("9" "0" "8")
+(cifre-dove "3")
+;-> Prima di 3 : ("7")
+;-> Dopo di 3 : ("1" "9" "8" "6" "2" "0")
+(cifre-dove "6")
+;-> Prima di 6 : ("7" "3" "1")
+;-> Dopo di 6 : ("8" "0" "9" "2")
+(cifre-dove "7")
+;-> Prima di 7 : ()
+;-> Dopo di 7 : ("6" "2" "1" "0" "3" "9" "8")
+(cifre-dove "8")
+;-> Prima di 8 : ("6" "1" "3" "2" "7")
+;-> Dopo di 8 : ("0" "9")
+(cifre-dove "9")
+;-> Prima di 9 : ("3" "1" "6" "2" "8" "7")
+;-> Dopo di 9 : ("0")
+
+Da una semplice analisi troviamo che:
+prima di 3 c'è solo 7                           ==> 73xxxxx0
+prima di 1 ci sono solo 3 e 7                   ==> 731xxxx0
+prima di 6 ci sono solo 3 e 7 e 1               ==> 7316xxx0
+prima di 2 ci sono solo 3 e 7 e 1 e 6           ==> 73162xx0
+prima di 8 ci sono solo 3 e 7 e 1 e 6 e 2       ==> 731628x0
+prima di 9 ci sono solo 3 e 7 e 1 e 6 e 2 e 8   ==> 73162890
+
+Quindi la soluzione vale: 73162890
+
+L'ultima funzione è sufficiente per definire una procedura che calcola la soluzione.
 ----------------------------------------------------------------------------
 
 
