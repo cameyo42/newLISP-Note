@@ -85,6 +85,8 @@
 |    76    |  190569291         |         -  |         0  |         -  |
 |    77    |  71                |         -  |         4  |         -  |
 |    78    |  55374             |         -  |      7918  |         -  |
+|    80    |  40886             |         -  |        29  |         -  |
+|    81    |  427337            |         -  |         3  |         -  |
 |    87    |  1097343           |         -  |      1153  |         -  |
 |    89    |  743               |         -  |         0  |         -  |
 |    92    |  8581146           |         -  |     51582  |        16  |
@@ -166,6 +168,7 @@ E la funzione inversa a factor-group che genera il numero partendo dalla fattori
 
 (inv-factor-group (factor-group 232792560))
 ;-> 232792560
+----------------------------------------------------------------------------
 
 ==========
 Problema 1
@@ -315,6 +318,7 @@ Il tempo di questa funzione non dipende da n (diversamente dalle prime due funzi
 
 (time (e001-2 10000) 10000)
 ;-> 15.587
+----------------------------------------------------------------------------
 
 
 ==========
@@ -439,6 +443,7 @@ Il tempo di questa funzione non dipende da n (diversamente dalle prime due funzi
 
 (time (e002-2 9999999) 100000)
 ;-> 78.096
+----------------------------------------------------------------------------
 
 
 ==========
@@ -497,6 +502,7 @@ Se vogliamo implementare la fattorizzazione, possiamo scrivere:
 
 (time (e003-2 600851475143) 100000)
 ;-> 18174.285
+----------------------------------------------------------------------------
 
 
 ==========
@@ -619,6 +625,7 @@ Quest'ultima funzione è 20 volte più veloce della precedente (seconda) funzion
 Quest'ultima funzione è 175 volte più veloce della prima funzione.
 (div 19220.569 109.373)
 ;-> 175.734
+----------------------------------------------------------------------------
 
 
 ==========
@@ -814,6 +821,7 @@ Potevamo calcolare la soluzione con:
 
 (time (e005-2))
 ;-> 0
+----------------------------------------------------------------------------
 
 
 ==========
@@ -934,6 +942,7 @@ Il tempo di questa funzione non dipende da n (diversamente dalle prime due funzi
 
 (time (e006-2 10000) 100000)
 ;-> 31.235
+----------------------------------------------------------------------------
 
 
 ==========
@@ -988,6 +997,7 @@ Dal punto di vista matematico possiamo sfruttare il fatto che tutti i numeri pri
 
 (time (e007-2 10001) 100)
 ;-> 1875.206
+----------------------------------------------------------------------------
 
 
 ==========
@@ -1177,6 +1187,8 @@ Quest'ultima funzione è 125 volte più veloce della prima:
 
 (div 27315.46 218.696)
 ;-> 124.9015071148992
+----------------------------------------------------------------------------
+
 
 ==========
 Problema 9
@@ -1277,6 +1289,7 @@ Quest'ultima funzione è 990 volte più veloce della prima:
 
 (div 30908.208 31.208)
 ;-> 990.3937451935401
+----------------------------------------------------------------------------
 
 
 ===========
@@ -1376,6 +1389,7 @@ dove: Sum[1..n](i) = n*(n + 1)/2
 
 (time (e010-2 1999999))
 ;-> 546.907
+----------------------------------------------------------------------------
 
 
 ===========
@@ -1529,6 +1543,7 @@ Per migliorare la velocità proviamo ad utilizzare un vettore al posto di una li
 ;-> 2496.241
 
 Questa volta la velocità è peggiorata (probabilmente la funzione "get-el" è la responsabile).
+----------------------------------------------------------------------------
 
 
 ===========
@@ -1686,6 +1701,7 @@ La funzione finale è la seguente:
 
 (time (e012-2))
 ;-> 0
+----------------------------------------------------------------------------
 
 
 ===========
@@ -1827,6 +1843,7 @@ Il numero  completo vale:
 
 (time (e013))
 ;-> 0
+----------------------------------------------------------------------------
 
 
 ===========
@@ -2043,6 +2060,7 @@ Se non eliminiamo l'hashmap:
 
 (time (e014-2 999999))
 ;-> 2015.606
+----------------------------------------------------------------------------
 
 
 ===========
@@ -2129,7 +2147,7 @@ Questa sequenza può essere calcolata nel modo seguente:
 ;-> 18.95
 
 Questa funzione è 10 volte più veloce della precedente.
-
+----------------------------------------------------------------------------
 
 ===========
 Problema 16
@@ -2204,7 +2222,7 @@ Quindi possiamo moltiplicare il numero 2 per 1000 volte utilizzando il normale a
 
 (time (e016-2 1000))
 ;-> 31.947
-
+----------------------------------------------------------------------------
 
 ===========
 Problema 17
@@ -2253,6 +2271,7 @@ La soluzione è tediosa.
 
 (time (e017))
 ;-> 0
+----------------------------------------------------------------------------
 
 
 ===========
@@ -2395,6 +2414,7 @@ var triangle = [
 ;-> 3.021
 
 La seconda funzione è 200 volte più veloce.
+----------------------------------------------------------------------------
 
 
 ===========
@@ -2484,6 +2504,7 @@ Adesso utilizziamo l'algoritmo di Zeller per calcolare il giorno della settimana
 
 (time (e019-2) 1000)
 ;-> 816.062
+----------------------------------------------------------------------------
 
 
 ===========
@@ -2566,6 +2587,7 @@ Con la seguente soluzione al problema:
 
 (time (e020-Lutz))
 ;-> 32.948
+----------------------------------------------------------------------------
 
 
 ===========
@@ -2805,6 +2827,7 @@ Scriviamo la funzione richiesta dal problema:
 ;-> 122.883
 
 la funzione "e021-fast" è tre volte più veloce della funzione "e021".
+----------------------------------------------------------------------------
 
 
 ===========
@@ -2898,6 +2921,7 @@ Adesso creiamo una lista associativa (association list) tra i caratteri e il num
 
 (time (e022))
 ;-> 20.016
+----------------------------------------------------------------------------
 
 
 ===========
@@ -3070,6 +3094,7 @@ Sopra a 50 i numeri della somma sono tutti dispari, quindi dividiamo il ciclo fo
 
 (time (e023))
 ;-> 40900.186 ; circa 41 secondi
+----------------------------------------------------------------------------
 
 
 ===========
@@ -3118,6 +3143,7 @@ Abbiamo ordinato le permutazioni poichè non vengono create in ordine lessicogra
 
 (time (e024))
 ;-> 25309.091  ;circa 25 secondi
+----------------------------------------------------------------------------
 
 
 ===========
@@ -3186,6 +3212,7 @@ Funzione per calcolare i numeri di Fibonacci:
 
 (time (e025))
 ;-> 4925.875
+----------------------------------------------------------------------------
 
 
 ===========
@@ -3297,6 +3324,7 @@ Adesso possiamo scrivere la funzione che calcola la lunghezza del ciclo del reci
 
 (time (e026))
 ;-> 488.049
+----------------------------------------------------------------------------
 
 
 ===========
@@ -3457,6 +3485,7 @@ Proviamo ad eliminare la lista dei numeri primi ed usare solo un contatore per c
 ;-> 2015.211
 
 Non abbiamo migliorato, sembra che il tempo dipenda quasi esclusivamente dai due cicli for :-)
+----------------------------------------------------------------------------
 
 
 ===========
@@ -3525,6 +3554,7 @@ Con m = 5 e con l'espressione print attiva, otteniamo:
 
 (time (e028))
 ;-> 0
+----------------------------------------------------------------------------
 
 
 ===========
@@ -3573,6 +3603,7 @@ Quanti termini distinti sono nella sequenza generata da a^b per 2 ≤ a ≤ 100 
 
 (time (e029))
 ;-> 140.608
+----------------------------------------------------------------------------
 
 
 ===========
@@ -3662,6 +3693,7 @@ Quindi per essere sicuri di considerare tutti i numeri di cinque cifre formati d
 
 (time (e030))
 ;-> 515.564
+----------------------------------------------------------------------------
 
 
 ===========
@@ -3737,6 +3769,7 @@ Soluzione programmazione dinamica:
 
 (time (e031))
 ;-> 0.971
+----------------------------------------------------------------------------
 
 
 ===========
@@ -3827,6 +3860,8 @@ Ecco tutti i prodotti pandigitali:
 
 (+ 6952 7852 5796 5346 4396 7254 7632)
 ;-> 45228
+----------------------------------------------------------------------------
+
 
 ===========
 Problema 33
@@ -3947,6 +3982,7 @@ d*(10*n + i) = n*(10*i + d)
 
 (time (e033))
 ;-> 0
+----------------------------------------------------------------------------
 
 
 ===========
@@ -4004,6 +4040,7 @@ Provando alcuni valori di "d" notiamo che 9!*7 = 2540160. Non esiste un valore p
 
 (time (e034))
 ;-> 3797.395
+----------------------------------------------------------------------------
 
 
 ===========
@@ -4107,6 +4144,7 @@ Adesso definiamo la funzione che risolve il problema:
 
 (time (e035))
 ;-> 1266.715
+----------------------------------------------------------------------------
 
 
 ===========
@@ -4193,6 +4231,7 @@ I numeri palindromi in entrambe le basi sono:
 53835 - 1101001001001011
 73737 - 10010000000001001
 585585 - 10001110111101110001
+----------------------------------------------------------------------------
 
 
 ===========
@@ -4348,6 +4387,7 @@ Definiamo una funzione che controlla se un numero è truncabile a destra:
 
 (time (e037))
 ;-> 778.216
+----------------------------------------------------------------------------
 
 
 ===========
@@ -4425,6 +4465,7 @@ str(9327*1) + str(9327*2) = "932718654"
 
 (time (e038))
 ;-> 93.757
+----------------------------------------------------------------------------
 
 
 ===========
@@ -4477,6 +4518,7 @@ Per quale valore di p ≤ 1000, il numero di soluzioni è massimizzato?
 
 (time (e039))
 ;-> 13485.51
+----------------------------------------------------------------------------
 
 
 ===========
@@ -4543,6 +4585,7 @@ Proviamo un altro metodo, creiamo una stringa che contiene almeno 1000000 di cif
 
 (time (e040))
 ;-> 140.625
+----------------------------------------------------------------------------
 
 
 ===========
@@ -4600,6 +4643,7 @@ Scriviamo la funzione finale:
 
 (time (e041))
 ;-> 125.004
+----------------------------------------------------------------------------
 
 
 ===========
@@ -4724,6 +4768,7 @@ Possiamo scrivere la funzione finale:
 
 (time (e042))
 ;-> 31.244
+----------------------------------------------------------------------------
 
 
 ===========
@@ -4805,6 +4850,7 @@ Se d(4)d(5)d(6) è divisibile per 5, allora d(6) deve valere 5 (d(5) se zero-bas
 
 (time (e043))
 ;-> 1748.593
+----------------------------------------------------------------------------
 
 
 ===========
@@ -4871,6 +4917,7 @@ Seconda versione (più veloce):
 
 (time (e044))
 ;-> 5588.505
+----------------------------------------------------------------------------
 
 
 ===========
@@ -4984,6 +5031,7 @@ Possiamo usare la funzione "intersect" di newLISP per trovare il risultato:
 ;-> 114.465
 
 Questa soluzione è molto più veloce.
+----------------------------------------------------------------------------
 
 
 ===========
@@ -5057,6 +5105,7 @@ Scriviamo la funzione finale:
 
 (time (e046))
 ;-> 31.247
+----------------------------------------------------------------------------
 
 
 ===========
@@ -5110,6 +5159,7 @@ Possiamo scrivere la funzione finale:
 
 (time (e047))
 ;-> 0
+----------------------------------------------------------------------------
 
 
 ===========
@@ -5154,6 +5204,7 @@ Scriviamo la funzione:
 
 (time (e048))
 ;-> 265.614
+----------------------------------------------------------------------------
 
 
 ===========
@@ -5240,6 +5291,7 @@ Possiamo scrivere la funzione finale:
 
 (time (e049))
 ;-> 9.01
+----------------------------------------------------------------------------
 
 
 ===========
@@ -5360,6 +5412,7 @@ I numeri coinvolti nella soluzione sono i seguenti:
 3691 3697 3701 3709 3719 3727 3733 3739 3761 3767 3769
 3779 3793 3797 3803 3821 3823 3833 3847 3851 3853 3863
 3877 3881 3889 3907 3911 3917 3919 3923 3929 3931))
+----------------------------------------------------------------------------
 
 
 ===========
@@ -5469,6 +5522,7 @@ Infine la funzione soluzione (brute-force):
 (time (e051 999999))
 ;-> Sol: 121313 (121313 222323 323333 424343 525353 626363 828383 929393)
 ;-> 269.946
+----------------------------------------------------------------------------
 
 
 ===========
@@ -5514,6 +5568,7 @@ Funzione che verifica se due numeri hanno le stesse cifre:
 
 (time (e052))
 ;-> 313.15
+----------------------------------------------------------------------------
 
 
 ===========
@@ -5650,6 +5705,7 @@ Adesso riscriviamo la funzione soluzione:
 ;-> 25.013
 
 Questa volta la risposta di newLISP è immediata.
+----------------------------------------------------------------------------
 
 
 ===========
@@ -6105,6 +6161,7 @@ Calcoliamo la soluzione:
 
 (time (e054))
 ;-> 154.756
+----------------------------------------------------------------------------
 
 
 ===========
@@ -6211,6 +6268,7 @@ Funzione finale (versione 2):
 ;-> (249)
 (time (e053 10000))
 ;-> 125.839
+----------------------------------------------------------------------------
 
 
 ===========
@@ -6295,6 +6353,7 @@ Funzione soluzione:
 
 (time (e056))
 ;-> 186.794
+----------------------------------------------------------------------------
 
 
 ===========
@@ -6354,6 +6413,7 @@ Usiamo questa formula per calcolare il numeratore e il denominatore per ogni ite
 
 (time (e057 1000))
 ;-> 10.036
+----------------------------------------------------------------------------
 
 
 ===========
@@ -6459,6 +6519,7 @@ Possiamo scrivere la funzione di soluzione:
 
 (time (e058 50000))
 ;-> 630.190
+----------------------------------------------------------------------------
 
 
 ===========
@@ -6947,6 +7008,7 @@ Vediamo la somma dei valori ASCII del testo decifrato:
 
 (setq sol (apply + (map char (explode testo))))
 ;-> 129448
+----------------------------------------------------------------------------
 
 
 ===========
@@ -7117,6 +7179,7 @@ Proviamo ad usare un vettore per i numeri primi. In questo modo possiamo evitare
 ;-> 55055.913
 
 I tempi di calcolo delle due funzioni sono quasi uguali.
+----------------------------------------------------------------------------
 
 
 ===========
@@ -7259,6 +7322,7 @@ Se la catena contiene numeri da tutte le liste di numeri poligonali, allora abbi
 
 (time (e061))
 ;-> 85.8
+----------------------------------------------------------------------------
 
 
 ===========
@@ -7455,6 +7519,7 @@ Vediamo come si comporta questa funzione:
 ;-> 83.742
 
 L'utilizzo di una hash-map fornisce la soluzione immediatamente.
+----------------------------------------------------------------------------
 
 
 ===========
@@ -7544,6 +7609,7 @@ Questa seconda soluzione è molto più veloce:
 
 (time (e063-2) 10000)
 ;-> 20.965
+----------------------------------------------------------------------------
 
 
 ===========
@@ -7623,6 +7689,7 @@ Scriviamo la funzione:
 
 (time (e064))
 ;-> 81.294
+----------------------------------------------------------------------------
 
 
 ===========
@@ -7720,6 +7787,7 @@ Adesso possiamo scrivere la funzione finale:
 
 (time (e065))
 ;-> 0
+----------------------------------------------------------------------------
 
 
 ===========
@@ -7806,6 +7874,7 @@ Scriviamo la funzione finale per risolvere il problema:
 
 (time e066)
 ;-> 0
+----------------------------------------------------------------------------
 
 
 ===========
@@ -7858,6 +7927,7 @@ Una soluzione generica può essere ottenuta con la programmazione dinamica. In p
 
 (time (e067))
 ;-> 1.995
+----------------------------------------------------------------------------
 
 
 ===========
@@ -7982,6 +8052,7 @@ Funzione che calcola le permutazioni:
 
 (time (e068))
 ;-> 21.97
+----------------------------------------------------------------------------
 
 
 ===========
@@ -8048,6 +8119,7 @@ Scriviamo la funzione finale:
 
 (time (e069))
 ;-> 642.279
+----------------------------------------------------------------------------
 
 
 ===========
@@ -8176,6 +8248,7 @@ Le considerazioni precedenti portano (dopo molti tentativi) alla seguente funzio
 
 (time (e070))
 ;-> 7.012
+----------------------------------------------------------------------------
 
 
 ===========
@@ -8238,6 +8311,7 @@ Nota: HCF = High Common Factor (fattore comune maggiore)
 
 (time (e071))
 ;-> 191.169
+----------------------------------------------------------------------------
 
 
 ===========
@@ -8311,6 +8385,7 @@ Scriviamo la funzione finale:
 
 (time (e072))
 ;-> 2060.973
+----------------------------------------------------------------------------
 
 
 ===========
@@ -8439,6 +8514,7 @@ Questo metodo viene implementato nella seguente funzione:
 
 (time (e073))
 ;-> 2345.727
+----------------------------------------------------------------------------
 
 
 ===========
@@ -8606,6 +8682,7 @@ Scriviamo funzione finale:
 ;-> 28605.673
 
 Questa è la più veloce anche se il tempo non è entusiasmante.
+----------------------------------------------------------------------------
 
 
 ===========
@@ -8654,6 +8731,7 @@ L'idea centrale è quella di iterare sulle lunghezze dei cateti: se le lunghezze
 
 (time (e075))
 ;-> 822.828
+----------------------------------------------------------------------------
 
 
 ===========
@@ -8698,6 +8776,7 @@ La soluzione è simile a quella del problema 31. Le uniche differenze sono:
 
 (time (e076))
 ;-> 0
+----------------------------------------------------------------------------
 
 
 ===========
@@ -8749,6 +8828,7 @@ L'algoritmo di soluzione è simile a quella del problema precedente. Al posto de
 
 (time (e077))
 ;-> 4.015
+----------------------------------------------------------------------------
 
 
 ===========
@@ -8827,6 +8907,147 @@ Quindi partendo dal primo valore della sequenza possiamo calcolare quella succes
 ;-> 7918.736
 
 Il tempo di esecuzione non è entusiasmante, ma non è che abbia capito molto bene come funziona tutta la matematica dietro il partizionamento degli interi. Mi accontento che il risultato sia corretto.
+----------------------------------------------------------------------------
+
+
+===========
+Problema 80
+===========
+
+Espansione digitale della radice quadrata
+
+È noto che se la radice quadrata di un numero naturale non è un intero, allora è irrazionale. L'espansione decimale di tali radici quadrate è infinita senza alcun motivo ripetitivo.
+
+La radice quadrata di due è 1,41421356237309504880 ... e la somma digitale delle prime cento cifre decimali è 475.
+
+Per i primi cento numeri naturali, trova il totale delle somme digitali delle prime cento cifre decimali per tutte le radici quadrate irrazionali.
+============================================================================
+
+(sqrt 2)
+;-> 1.414213562373095
+
+Funzione per calcolare una potenza intera (big-integer):
+
+(define (** num power)
+    (let (out 1L)
+        (dotimes (i power)
+            (setq out (* out num)))))
+
+Funzione per calcolare la somma delle cifre di un numero:
+
+(define (digit-sum num)
+  (let (out 0)
+    (while (!= num 0)
+      (setq out (+ out (% num 10)))
+      (setq num (/ num 10))
+    )
+    out))
+
+Per calcolare la radice quadrata di un numero (specificando il numero di cifre dopo la virgola) utilizziamo l'algoritmo riportato nell'articolo "Square roots by subtraction" di Frazer Jarvis.
+
+(setq limite (** 10 (+ 14 1)))
+(define (sqrt-prec num cifre)
+  (local (a b limite)
+    (setq limite (** 10 (+ cifre 1)))
+    (setq a (* 5L num))
+    (setq b 5L)
+    (while (< b limite)
+      (cond ((>= a b)
+             (setq a (- a b))
+             (setq b (+ b 10))
+            )
+            (true
+             (setq a (* a 100))
+             (setq b (+ (* (/ b 10) 100) 5))
+            )
+      )
+    )
+    (/ b 100)))
+
+(digit-sum (sqrt-prec 2 100))
+;-> 475
+
+(define (e080)
+  (let ((q 1) (out 0))
+    (for (i 1 100)
+      (cond ((= (* q q) i)
+             (++ q)
+            )
+            (true
+              (setq out (+ out (digit-sum (sqrt-prec i 100))))
+            )
+      )
+    )
+    out))
+
+(e080)
+;-> 40886
+
+(time (e080))
+;-> 29.95
+----------------------------------------------------------------------------
+
+
+===========
+Problema 81
+===========
+
+Somma del percorso: due modi
+
+Nella matrice 5 per 5 di seguito, la somma minima del percorso da in alto a sinistra a in basso a destra, spostandosi solo a destra e in basso, è indicata in grassetto rosso ed è uguale a 2427.
+
+    131 673 234 103  18
+    201  96 342 965 150
+    630 803 746 422 111
+    537 699 497 121 956
+    805 732 524  37 331
+
+Trova la somma minima del percorso da in alto a sinistra a in basso a destra spostandoti a destra e in basso in "matrix.txt", un file di testo 31K contenente una matrice 80 per 80.
+============================================================================
+
+Il file "matrix.txt" è stato trasformato nel file "e081.lsp", una lista di nome "matrix" che rappresenta la matrice.
+
+La somma del percorso minimo dall'angolo in alto a sinistra a una data cella è il valore della cella più il minimo della somma del percorso per la cella sopra di essa e la somma del percorso per la cella a sinistra di essa. Questo ci permette di risolvere il problema con la tecnica della programmazione dinamica.
+
+(load "e081.lsp")
+
+(matrix 0 0)
+;-> 4445
+(matrix 79 79)
+;-> 7981
+
+numero righe:
+(length matrix)
+;-> 80
+numero colonne:
+(length (matrix 0))
+;-> 80
+
+(define (e081)
+  (load "e081.lsp")
+  (let (len (- (length matrix) 1))
+    ; calcolo dp della prima riga della matrice
+    (for (i 1 len)
+      (setf (matrix 0 i) (+ (matrix 0 i) (matrix 0 (- i 1))))
+    )
+    ; calcolo dp della prima colonna della matrice
+    (for (i 1 len)
+      (setf (matrix i 0) (+ (matrix i 0) (matrix (- i 1) 0)))
+    )
+    ; calcolo dp del resto della matrice
+    (for (i 1 len)
+      (for (j 1 len)
+        (setf (matrix i j) (+ (matrix i j) (min (matrix (- i 1) j) (matrix i (- j 1)))))
+      )
+    )
+    (matrix len len)))
+
+(e081)
+;-> 427337
+
+(time (e081))
+;-> 3
+----------------------------------------------------------------------------
 
 
 ===========
@@ -8898,6 +9119,7 @@ Per ottimizzare la funzione potremmo:
 4) inserire i valori in una hash-map
 
 Comunque il tempo di esecuzione è soddisfacente.
+----------------------------------------------------------------------------
 
 
 ===========
@@ -9003,6 +9225,7 @@ Carichiamo il file ed eseguiamo la funzione:
 
 (time e089)
 ;-> 0
+----------------------------------------------------------------------------
 
 
 ===========
@@ -9298,6 +9521,7 @@ Funzione finale:
 
 La prima soluzione processa 9999999 di numeri, mentre la seconda soluzione processa 11440 numeri. Il rapporto vale: (/ 9999999 11440) = 874.
 Per i tempi di esecuzione abbiamo il seguente rapporto: (/ 51582 116) = 444, cioè la seconda funzione è circa 450 volte più veloce.
+----------------------------------------------------------------------------
 
 
 ===========
@@ -9420,6 +9644,7 @@ Risolvendo tutti e cinquanta i puzzle, trova la somma di tutti i numeri a 3 cifr
 
 (time (e096))
 ;-> 27084.701
+----------------------------------------------------------------------------
 
 
 ===========
@@ -9487,6 +9712,7 @@ Inoltre il tempo di esecuzione è accettabile:
 
 (time (e097))
 ;-> 497.573
+----------------------------------------------------------------------------
 
 
 ===========
@@ -9529,6 +9755,7 @@ Carichiamo il file che contiene la lista "lst" con tutte le coppie di numeri (x 
 
 (time (e099))
 ;-> 0
+----------------------------------------------------------------------------
 
 
 ============
@@ -9570,7 +9797,7 @@ Adesso possiamo scrivere la funzione:
 
 (time (e100))
 ;-> 0
+----------------------------------------------------------------------------
 
-============================================================================
 
 

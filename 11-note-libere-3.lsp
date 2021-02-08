@@ -1917,7 +1917,7 @@ Avendo raggiunto un numero infinito "1.#INF" non possiamo proseguire nel calcolo
 
 per ottenere la soluzione corretta.
 
-Proviamo a sviluppare la serie usando l'espressione della funzione:
+Proviamo a sviluppare la serie matematicamente usando l'espressione della funzione:
 
   f0(x) = 1/(1-x)
 
@@ -2006,5 +2006,62 @@ Ci possono essere due risultati (eventi):
 Questi risultati sono autoescludenti (non possono risultare contemporaneamente, o accade l'uno o accade l'altro) e la loro probabilità vale esattamente 1/2 per entrambi.
 
 Quindi la probabilità che Eva ottenga più "teste" di Veronica è del 50%. Strano ma vero.
+
+Possiamo anche dimostrarlo calcolando la probabilità reale con la formula:
+
+          numero eventi favorevoli
+P(Eva) = --------------------------
+            numero totale eventi
+
+Generiamo le combinazioni di Eva e quelle di Veronica:
+
+(define (comb-rep k lst)
+  (cond ((zero? k 0) '(()))
+        ((null? lst) '())
+        (true
+         (append (map (lambda (x) (cons (first lst) x))
+                      (comb-rep (- k 1) lst))
+                 (comb-rep k (rest lst))))))
+
+Per Eva:
+(setq lst1 (comb-rep 6 '(1 0)))
+;-> ((1 1 1 1 1 1) (1 1 1 1 1 0) (1 1 1 1 0 0) (1 1 1 0 0 0)
+;->  (1 1 0 0 0 0) (1 0 0 0 0 0) (0 0 0 0 0 0))
+
+Per Veronica:
+(setq lst2 (comb-rep 5 '(1 0)))
+;-> ((1 1 1 1 1) (1 1 1 1 0) (1 1 1 0 0) (1 1 0 0 0) (1 0 0 0 0) (0 0 0 0 0))
+
+Il numero di eventi è dato dal numero di combinazioni di Eva moltiplicato il numero di combinazioni di Veronica (perchè ogni combinazione di Eva va confrontata con ogni combinazione di Veronica):
+
+(setq num-eventi (* (length lst1) (length lst2)))
+;-> 42
+
+Adesso confrontiamo i 42 eventi e verifichiamo quale sia il risultato. 
+Per esempio, i primi due eventi sono:
+
+(1 1 1 1 1 1) contro (1 1 1 1 1) ==> 6 per Eva e 5 per Veronica ==> vince Eva
+(1 1 1 1 1 1) contro (1 1 1 1 0) ==> 6 per Eva e 4 per Veronica ==> vince Eva
+
+Gli ultimi due eventi sono:
+
+(0 0 0 0 0 0) contro (1 0 0 0 0) ==> 0 per Eva e 1 per Veronica ==> vince Veronica
+(0 0 0 0 0 0) contro (0 0 0 0 0) ==> 0 per Eva e 0 per Veronica ==> vince Veronica
+
+In codice:
+
+(setq eva 0)
+(setq eventi 0)
+(dolist (el1 lst1)
+  (dolist (el2 lst2)
+    (if (> (first (count '(1) el1)) (first (count '(1) el2)))
+        (++ eva)
+    )
+    (++ eventi)
+  )
+  (list eventi eva (div eva eventi)))
+;-> (42 21 0.5)
+
+Eva vince 21 eventi su 42, quindi la probabilità è del 50%.
 
 

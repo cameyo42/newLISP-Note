@@ -283,7 +283,7 @@ ROSETTA CODE
 
 PROJECT EULERO
 ==============
-  Problemi 1..78,87,89,92,96,97,99,100
+  Problemi 1..78,80,81,87,89,92,96,97,99,100
 
 PROBLEMI VARI
 =============
