@@ -6256,3 +6256,52 @@ cioè n può essere scritto come n = 10^3*N, dove 10 <= N <= 99.
 Tra 10 e 99 compresi esistono 90 numeri, quindi i numeri di cinque cifre per cui n/m è un intero sono 90.
 
 
+-------------------------
+Quadrato binario (McAfee)
+-------------------------
+
+Dato il numero binario 111...111 composto dalla cifra 1 ripetuta k volte, determinare il suo quadrato (in binario).
+
+Un numero binario con k cifre uguali a 1 può essere scritto:
+
+1 + 2 + 2^2 + 2^3 + ... + 2^(k-1) = 2^k - 1
+
+Il suo quadrato vale:
+
+(2^k - 1)^2 = 2^(2k) - 2^(k+1) + 1 =
+            = 2^(k+1)*(2^(k-1) -1) + 1 =
+            = 2^(k+1)*(2^(k-2) + 2^(k-3) + ... + 1) + 1 =
+            = 2^(2k-1) + 2^(2k-2)+ ... + 2^(k+1) + 1
+
+In binario questo quadrato vale:
+
+111...11 000...000 1
+-------- ---------
+ (k-1)       k
+ 
+Per esempio:
+
+a   = 111     (in decimale a = 7)
+a^2 = 110001  (in decimale a^2 = 49)
+
+Scriviamo la funzione:
+
+(define (quad-bin bnum)
+  (let (ll (length bnum))
+    (extend (slice bnum 1 ll) (dup "0" ll ) "1")))
+
+(quad-bin "111")
+;-> "110001"
+(int "111" 0 2)
+;-> 7
+(int "110001" 0 2)
+;-> 49
+
+(quad-bin "11111111")
+;-> "1111111000000001"
+(int "11111111" 0 2)
+;-> 255
+(int "1111111000000001" 0 2)
+;-> 65025
+
+

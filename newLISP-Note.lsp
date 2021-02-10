@@ -172,6 +172,7 @@ FUNZIONI VARIE
   Papersize
   Verificare se due numeri hanno lo stesso segno
   Suddivisione di una lista
+  Stampo di un numero
 
 newLISP 99 PROBLEMI (28)
 ========================
@@ -438,6 +439,7 @@ DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Rendere palindroma una stringa (Google)
   Cifre diverse (Visa)
   Rapporto minimo (Wolfram)
+  Quadrato binario (McAfee)
 
 LIBRERIE
 ========
@@ -16356,6 +16358,96 @@ Adesso possiamo scrivere la funzione finale:
 (setq d '(1 2 3 4))
 (subdivide lst d)
 ;-> ((a) (b c) (d e f) (g h i j))
+
+
+-------------------
+Stampo di un numero
+-------------------
+
+Questa funzione conta le occorrenze di ogni cifra di un numero. Il risultato è un numero intero da una a dieci cifre che chiameremo "stampo". La n-esima cifra del risultato rappresenta quante volte la cifra "n" si ripete nel numero dato.
+
+Esempio: (number-stamp 121232) = 1320
+perché "3" appare una volta (1) , "2" tre volte (3), "1" due volte (2) e "0" zero volte (0).
+
+Due numeri che sono permutazione uno dell'altro hanno lo stesso "stampo" (e viceversa).
+
+Scriviamo diverse versioni di questa funzione e poi verifichimao quale sia la più veloce.
+
+Prima versione:
+
+(define (number-stamp1 num)
+  (let ((out 0) (digit 0) (pos 0) (i 0))
+    (while (> num 0)
+      (setq digit (% num 10))
+      (setq num (/ num 10))
+      (setq pos 1)
+      (if (> digit 0)
+          (for (i 1 digit)
+            (setq pos (* 10 pos))
+          )
+      )
+      (setq out (+ out pos))
+    )
+    out))
+
+(number-stamp1 121232)
+;-> 1320
+(number-stamp1 1234567890)
+;-> 1111111111
+(number-stamp1 12345678901234567890)
+;-> 2222222222
+
+Seconda versione:
+
+(define (number-stamp2 num)
+  (let ((lst-num '()) (out 0))
+    (while (!= num 0)
+      (push (% num 10) lst-num)
+      (setq num (/ num 10))
+    )
+    ; create output number from list of digit's count
+    (dolist (el (count '(9 8 7 6 5 4 3 2 1 0) lst-num))
+      (setq out (+ el (* out 10)))
+    )
+    out))
+
+Vediamo se producono risultati uguali:
+
+(= (map number-stamp1 (sequence 1 100000)) (map number-stamp2 (sequence 1 100000)))
+;-> true
+
+Terza versione:
+
+(define (number-stamp3 num)
+  (let ((ar (array 10 '(0))) (out 0))
+    ; fill array with the count of digits
+    (while (> num 0)
+      (++ (ar (% num 10)))
+      (setq num (/ num 10))
+    )
+    ; create output number from array
+    (for (i 9 0)
+      (setq out (+ (ar i) (* out 10)))
+    )
+    out))
+
+Vediamo se producono risultati uguali:
+
+(= (map number-stamp2 (sequence 1 100000)) (map number-stamp3 (sequence 1 100000)))
+;-> true
+
+Adesso vediamo i tempi di esecuzione:
+
+(time (map number-stamp1 (sequence 1 1000000)))
+;-> 2534.422
+
+(time (map number-stamp2 (sequence 1 1000000)))
+;-> 2437.09
+
+(time (map number-stamp3 (sequence 1 1000000)))
+;-> 1900.202
+
+La terza versione è la più veloce.
 
 
 ==========================
@@ -53397,6 +53489,55 @@ m = x*10^3 + y*10^2
 cioè n può essere scritto come n = 10^3*N, dove 10 <= N <= 99.
 
 Tra 10 e 99 compresi esistono 90 numeri, quindi i numeri di cinque cifre per cui n/m è un intero sono 90.
+
+
+-------------------------
+Quadrato binario (McAfee)
+-------------------------
+
+Dato il numero binario 111...111 composto dalla cifra 1 ripetuta k volte, determinare il suo quadrato (in binario).
+
+Un numero binario con k cifre uguali a 1 può essere scritto:
+
+1 + 2 + 2^2 + 2^3 + ... + 2^(k-1) = 2^k - 1
+
+Il suo quadrato vale:
+
+(2^k - 1)^2 = 2^(2k) - 2^(k+1) + 1 =
+            = 2^(k+1)*(2^(k-1) -1) + 1 =
+            = 2^(k+1)*(2^(k-2) + 2^(k-3) + ... + 1) + 1 =
+            = 2^(2k-1) + 2^(2k-2)+ ... + 2^(k+1) + 1
+
+In binario questo quadrato vale:
+
+111...11 000...000 1
+-------- ---------
+ (k-1)       k
+ 
+Per esempio:
+
+a   = 111     (in decimale a = 7)
+a^2 = 110001  (in decimale a^2 = 49)
+
+Scriviamo la funzione:
+
+(define (quad-bin bnum)
+  (let (ll (length bnum))
+    (extend (slice bnum 1 ll) (dup "0" ll ) "1")))
+
+(quad-bin "111")
+;-> "110001"
+(int "111" 0 2)
+;-> 7
+(int "110001" 0 2)
+;-> 49
+
+(quad-bin "11111111")
+;-> "1111111000000001"
+(int "11111111" 0 2)
+;-> 255
+(int "1111111000000001" 0 2)
+;-> 65025
 
 
 ==========

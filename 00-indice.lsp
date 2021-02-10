@@ -172,6 +172,7 @@ FUNZIONI VARIE
   Papersize
   Verificare se due numeri hanno lo stesso segno
   Suddivisione di una lista
+  Stampo di un numero
 
 newLISP 99 PROBLEMI (28)
 ========================
@@ -438,6 +439,7 @@ DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Rendere palindroma una stringa (Google)
   Cifre diverse (Visa)
   Rapporto minimo (Wolfram)
+  Quadrato binario (McAfee)
 
 LIBRERIE
 ========
