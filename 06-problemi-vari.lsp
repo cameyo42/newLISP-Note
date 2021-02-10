@@ -9310,3 +9310,68 @@ proviamo la nostra struttura:
 ;-> (1 2 3) ; valori della lista
 
 
+------------------------
+Circuito automobilistico
+------------------------
+
+Unaa pista automobilistica è costituita da un circuito stradale chiuso (es. un cerchio).
+Una quantità di benzina (sufficiente per completare il giro del circuito) viene suddivisa in n quantità diverse che vengono piazzate in modo casuale in n punti lungo la pista.
+Determinare, se esiste, da quale punto occorre partire per poter terminare il giro del circuito (in una direzione o nell'altra).
+
+Definiamo le variabili:
+
+Benzina:  b(1), b(2), ..., b(n)
+Punti:    P(1), P(2), ..., P(n)
+Muove:    m(1), m(2), ..., m(n)
+
+dove b(i) è la quantità di benzina diponibile nel punto P(i)
+e m(i) è la benzina necessaria per passare da P(i) a P(i+1)
+e m(n) è la benzina necessaria per passare da P(n) a P(1)
+
+Poniamo:
+
+ x(i) = b(i) - m(i)
+ s(i) = x(1) + x(2) + ... + x(i)
+ (da notare che s(n) = 0)
+
+ Dall'insieme di numeri di s, scegliamo un indice r tale che s(r) <= s(i) per ogni valore di i.
+ Allora, per ogni i risulta:
+
+ x(r+1)                       = s(r+1) - s(r) >= 0
+ x(r+1) + x(r+2)              = s(r+2) - s(r) >= 0
+ ...
+ x(r+1) + x(r+2) + ... + x(i) = s(i) - s(r) >= 0
+
+ Quindi partendo dalla posizione (r + 1) abbiamo:
+
+ b(r+1) >= m(r+1),
+ b(r+1) + b(r+2) >= m(r+1) + m(r+2),
+ ...
+ e la macchina ha sempre abbastanza benzina per raggiungere il punto successivo e terminare il circuito.
+
+ Esempio:
+
+  (2)          5          (1)         5           (5)  1  (4)  1  (3)     3      (2)
+   x-----------------------x-----------------------x-------x-------x--------------x
+  P1                      P2                      P3      P4      P5             P1
+
+Totale benzina: 15
+; benzina al punto (i)
+(setq b '(2 1 5 4 3))
+; benzina per passare dal punto i al punto i+1
+(setq m '(5 5 1 1 3))
+; lista delle differenze
+(setq x (map - b m))
+;-> (-3 -4 4 3 0)
+; lista delle somme progressive delle differenze
+(setq s '())
+(for (i 1 (- (length x) 1))
+  (push (apply + (slice x 0 i)) s -1))
+;-> (-3 -7 -3 0)
+; cerchiamo il valore minimo:
+(apply min s)
+;-> 7
+
+Nella lista s il numero -7 è minore di tutti gli altri e ha indice 3 (nel circuito), quindi dovremo partire dal punto successivo del circuito, cioè dal punto P4.
+
+

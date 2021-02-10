@@ -2065,3 +2065,132 @@ In codice:
 Eva vince 21 eventi su 42, quindi la probabilità è del 50%.
 
 
+------------------------------
+Torneo ad eliminazione diretta
+------------------------------
+
+Un circolo di scacchi invita 32 giocatori di pari capacità a partecipare ad un torneo ad eliminazione diretta (chi vince va avanti, chi perde va fuori).
+Qual'è la probabilità che due giocatori qualsiasi si scontrino durante il torneo?
+
+Due giocatori, A e B, possono giocare insieme se:
+1) si incontrano al primo turno, oppure
+2) entrambi passano il primo turno e si incontrano al secondo turno, oppure
+3) entrambi passano il secondo turno e si incontrano al terzo turno, oppure
+x) entrambi passano il turno (x - 1) e si incontrano al turno x, oppure
+N) giocano contro in finale
+
+Questi eventi sono mutuamente esclusivi (se ne può verificare soltanto uno).
+
+Quante partite giocano i due finalisti? Ad ogni turno si dimezzano i giocatori: 16, 8, 4, 2, 1. Quindi nel nostro caso i finalisti giocano 5 partite (32 = 2^5).
+
+Si può dimostrare che la probabilità che due giocatori qualsiasi si scontrino vale:
+
+P(n) = 1/2^(k-1), dove n = 2^k (con n giocatori).
+
+Infatti, ci sono (2^n - 1) partite tra tutte le coppie e ci sono binom(2^n 2) coppie di giocatori.
+
+(define (chess n) 
+  (let (k (length (factor n)))
+    (div (pow 2 (- k 1)))))
+
+(chess 2)
+
+(- (length (factor 32)) 1)
+
+Vediamo come definire una simulazione:
+
+(define (torneo players iter)
+  (local (num k g p1 p2 lst1 lst2 conta stop turn out)
+    (setq num players)
+    (setq k (/ num 2))
+    (setq p1 1)
+    (setq p2 2)
+    (setq lst1 (list p1 p2))
+    (setq lst2 (list p2 p1))
+    (setq conta 0)
+    ; ciclo sul numero di simulazioni di un torneo
+    (for (x 1 iter)
+      ; lista giocatori (1..num)
+      (setq g (sequence 1 num))
+      (setq stop nil)
+      ; ciclo sulle partite del torneo
+      (for (i 1 (length (factor num)) 1 stop)
+        ; divido i giocatori in coppie
+        (setq turn (explode (randomize g) 2))
+        ; se i giocatori si scontrano...
+        (cond ((or (find lst1 turn) (find lst2 turn))
+                ; allora aggiorno il contatore e
+                ; termino la simulazione di questo torneo
+                (++ conta)
+                (setq stop true))
+              ; se siamo arrivati alla finale
+              ; termino la simulazione di questo torneo
+              ; (non ci interessa il vincitore)
+              ((= 1 (length turn))
+               (setq stop true))
+              (true
+                ; altrimenti procedo con il prossimo turno del torneo
+                (setq g '())
+                ; ciclo sulla lista turn per determinare i vincitori
+                ; (ognuno dei due giocatori di ogni coppia
+                ; ha il 50% di probabilità di vincere)
+                (dolist (el turn)
+                  (if (zero? (rand 2))
+                      (push (first el) g -1)
+                      (push (last el) g -1))))
+        )
+      )
+    )
+    (div conta iter)))
+
+Facciamo alcune prove: 
+
+(torneo 8 1000000)
+;-> 0.249886
+(chess 8)
+;-> 0.25
+
+(torneo 16 1000000)
+;-> 0.124973124973125
+(chess 16)
+;-> 0.125
+
+(torneo 32 1000000)
+;-> 0.062574
+(chess 32)
+;-> 0.0625
+
+(torneo 64 1000000)
+;-> 0.03146
+(chess 64)
+;-> 0.03125
+
+
+--------
+Roulette
+--------
+
+Un giocatore ha a disposizione un certo capitale C e decide di giocare alla roulette con la strategia di
+puntare sempre sul Rosso la metà del capitale posseduto in quel momento.
+Dal punto di vista probabilistico, dopo n puntate il giocatore ha vinto, perso o pareggiato?
+
+Quando vince il suo capitale diventa C*(3/2), mentre quando perde il capitale diventa C*(1/2). Dopo n puntate (con n numero pari) si avranno n/2 vittorie e n/2 sconfitte, cioè:
+
+C(n) = C*(3/2)^(n/2) * C*(1/2)^(n/2) = C*(3/4)^(n/2)
+
+Quindi il giocatore più gioca e più perde.
+
+(define (cap c n) (mul c (pow (div 3 4) (/ n 2))))
+
+Partendo con un capitale di 1000 otteniamo:
+
+(cap 1000 10)
+;-> 237.3046875
+(cap 1000 20)
+;-> 56.31351470947266
+(cap 1000 30)
+;-> 13.36346101015806
+
+Quindi la strategia del giocatore lo porterà rapidamente in rovina.
+
+

@@ -362,6 +362,7 @@ PROBLEMI VARI
   Il gioco di Wythoff
   Ordinamento per rime
   Lista circolare
+  Circuito automobilistico
 
 DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
 ==================================================
@@ -639,6 +640,8 @@ NOTE LIBERE 3
   Somma di 6s
   Serie ricorsiva
   Sei contro cinque
+  Torneo ad eliminazione diretta
+  Roulette
   
 APPENDICI
 =========
@@ -47233,6 +47236,71 @@ proviamo la nostra struttura:
 ;-> (1 2 3) ; valori della lista
 
 
+------------------------
+Circuito automobilistico
+------------------------
+
+Unaa pista automobilistica è costituita da un circuito stradale chiuso (es. un cerchio).
+Una quantità di benzina (sufficiente per completare il giro del circuito) viene suddivisa in n quantità diverse che vengono piazzate in modo casuale in n punti lungo la pista.
+Determinare, se esiste, da quale punto occorre partire per poter terminare il giro del circuito (in una direzione o nell'altra).
+
+Definiamo le variabili:
+
+Benzina:  b(1), b(2), ..., b(n)
+Punti:    P(1), P(2), ..., P(n)
+Muove:    m(1), m(2), ..., m(n)
+
+dove b(i) è la quantità di benzina diponibile nel punto P(i)
+e m(i) è la benzina necessaria per passare da P(i) a P(i+1)
+e m(n) è la benzina necessaria per passare da P(n) a P(1)
+
+Poniamo:
+
+ x(i) = b(i) - m(i)
+ s(i) = x(1) + x(2) + ... + x(i)
+ (da notare che s(n) = 0)
+
+ Dall'insieme di numeri di s, scegliamo un indice r tale che s(r) <= s(i) per ogni valore di i.
+ Allora, per ogni i risulta:
+
+ x(r+1)                       = s(r+1) - s(r) >= 0
+ x(r+1) + x(r+2)              = s(r+2) - s(r) >= 0
+ ...
+ x(r+1) + x(r+2) + ... + x(i) = s(i) - s(r) >= 0
+
+ Quindi partendo dalla posizione (r + 1) abbiamo:
+
+ b(r+1) >= m(r+1),
+ b(r+1) + b(r+2) >= m(r+1) + m(r+2),
+ ...
+ e la macchina ha sempre abbastanza benzina per raggiungere il punto successivo e terminare il circuito.
+
+ Esempio:
+
+  (2)          5          (1)         5           (5)  1  (4)  1  (3)     3      (2)
+   x-----------------------x-----------------------x-------x-------x--------------x
+  P1                      P2                      P3      P4      P5             P1
+
+Totale benzina: 15
+; benzina al punto (i)
+(setq b '(2 1 5 4 3))
+; benzina per passare dal punto i al punto i+1
+(setq m '(5 5 1 1 3))
+; lista delle differenze
+(setq x (map - b m))
+;-> (-3 -4 4 3 0)
+; lista delle somme progressive delle differenze
+(setq s '())
+(for (i 1 (- (length x) 1))
+  (push (apply + (slice x 0 i)) s -1))
+;-> (-3 -7 -3 0)
+; cerchiamo il valore minimo:
+(apply min s)
+;-> 7
+
+Nella lista s il numero -7 è minore di tutti gli altri e ha indice 3 (nel circuito), quindi dovremo partire dal punto successivo del circuito, cioè dal punto P4.
+
+
 ====================================================
 
  DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
@@ -73461,6 +73529,135 @@ In codice:
 ;-> (42 21 0.5)
 
 Eva vince 21 eventi su 42, quindi la probabilità è del 50%.
+
+
+------------------------------
+Torneo ad eliminazione diretta
+------------------------------
+
+Un circolo di scacchi invita 32 giocatori di pari capacità a partecipare ad un torneo ad eliminazione diretta (chi vince va avanti, chi perde va fuori).
+Qual'è la probabilità che due giocatori qualsiasi si scontrino durante il torneo?
+
+Due giocatori, A e B, possono giocare insieme se:
+1) si incontrano al primo turno, oppure
+2) entrambi passano il primo turno e si incontrano al secondo turno, oppure
+3) entrambi passano il secondo turno e si incontrano al terzo turno, oppure
+x) entrambi passano il turno (x - 1) e si incontrano al turno x, oppure
+N) giocano contro in finale
+
+Questi eventi sono mutuamente esclusivi (se ne può verificare soltanto uno).
+
+Quante partite giocano i due finalisti? Ad ogni turno si dimezzano i giocatori: 16, 8, 4, 2, 1. Quindi nel nostro caso i finalisti giocano 5 partite (32 = 2^5).
+
+Si può dimostrare che la probabilità che due giocatori qualsiasi si scontrino vale:
+
+P(n) = 1/2^(k-1), dove n = 2^k (con n giocatori).
+
+Infatti, ci sono (2^n - 1) partite tra tutte le coppie e ci sono binom(2^n 2) coppie di giocatori.
+
+(define (chess n) 
+  (let (k (length (factor n)))
+    (div (pow 2 (- k 1)))))
+
+(chess 2)
+
+(- (length (factor 32)) 1)
+
+Vediamo come definire una simulazione:
+
+(define (torneo players iter)
+  (local (num k g p1 p2 lst1 lst2 conta stop turn out)
+    (setq num players)
+    (setq k (/ num 2))
+    (setq p1 1)
+    (setq p2 2)
+    (setq lst1 (list p1 p2))
+    (setq lst2 (list p2 p1))
+    (setq conta 0)
+    ; ciclo sul numero di simulazioni di un torneo
+    (for (x 1 iter)
+      ; lista giocatori (1..num)
+      (setq g (sequence 1 num))
+      (setq stop nil)
+      ; ciclo sulle partite del torneo
+      (for (i 1 (length (factor num)) 1 stop)
+        ; divido i giocatori in coppie
+        (setq turn (explode (randomize g) 2))
+        ; se i giocatori si scontrano...
+        (cond ((or (find lst1 turn) (find lst2 turn))
+                ; allora aggiorno il contatore e
+                ; termino la simulazione di questo torneo
+                (++ conta)
+                (setq stop true))
+              ; se siamo arrivati alla finale
+              ; termino la simulazione di questo torneo
+              ; (non ci interessa il vincitore)
+              ((= 1 (length turn))
+               (setq stop true))
+              (true
+                ; altrimenti procedo con il prossimo turno del torneo
+                (setq g '())
+                ; ciclo sulla lista turn per determinare i vincitori
+                ; (ognuno dei due giocatori di ogni coppia
+                ; ha il 50% di probabilità di vincere)
+                (dolist (el turn)
+                  (if (zero? (rand 2))
+                      (push (first el) g -1)
+                      (push (last el) g -1))))
+        )
+      )
+    )
+    (div conta iter)))
+
+Facciamo alcune prove: 
+
+(torneo 8 1000000)
+;-> 0.249886
+(chess 8)
+;-> 0.25
+
+(torneo 16 1000000)
+;-> 0.124973124973125
+(chess 16)
+;-> 0.125
+
+(torneo 32 1000000)
+;-> 0.062574
+(chess 32)
+;-> 0.0625
+
+(torneo 64 1000000)
+;-> 0.03146
+(chess 64)
+;-> 0.03125
+
+
+--------
+Roulette
+--------
+
+Un giocatore ha a disposizione un certo capitale C e decide di giocare alla roulette con la strategia di
+puntare sempre sul Rosso la metà del capitale posseduto in quel momento.
+Dal punto di vista probabilistico, dopo n puntate il giocatore ha vinto, perso o pareggiato?
+
+Quando vince il suo capitale diventa C*(3/2), mentre quando perde il capitale diventa C*(1/2). Dopo n puntate (con n numero pari) si avranno n/2 vittorie e n/2 sconfitte, cioè:
+
+C(n) = C*(3/2)^(n/2) * C*(1/2)^(n/2) = C*(3/4)^(n/2)
+
+Quindi il giocatore più gioca e più perde.
+
+(define (cap c n) (mul c (pow (div 3 4) (/ n 2))))
+
+Partendo con un capitale di 1000 otteniamo:
+
+(cap 1000 10)
+;-> 237.3046875
+(cap 1000 20)
+;-> 56.31351470947266
+(cap 1000 30)
+;-> 13.36346101015806
+
+Quindi la strategia del giocatore lo porterà rapidamente in rovina.
 
 
 ===========

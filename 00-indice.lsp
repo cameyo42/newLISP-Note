@@ -362,6 +362,7 @@ PROBLEMI VARI
   Il gioco di Wythoff
   Ordinamento per rime
   Lista circolare
+  Circuito automobilistico
 
 DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
 ==================================================
@@ -639,6 +640,8 @@ NOTE LIBERE 3
   Somma di 6s
   Serie ricorsiva
   Sei contro cinque
+  Torneo ad eliminazione diretta
+  Roulette
   
 APPENDICI
 =========
