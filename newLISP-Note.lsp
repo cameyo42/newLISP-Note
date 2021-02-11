@@ -284,7 +284,7 @@ ROSETTA CODE
 
 PROJECT EULERO
 ==============
-  Problemi 1..81,87,89,92,96,97,99,100
+  Problemi 1..82,85,87,89,92,96,97,99,100
 
 PROBLEMI VARI
 =============
@@ -441,6 +441,7 @@ DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Cifre diverse (Visa)
   Rapporto minimo (Wolfram)
   Quadrato binario (McAfee)
+  Fattoriale e zeri finali (Wolfram)
 
 LIBRERIE
 ========
@@ -28082,6 +28083,8 @@ Vediamo quanto tempo impiega per calcolare tutti i numeri taxicab fino ad un mil
 |    79    |  73162890          |         -  |         0  |         -  |
 |    80    |  40886             |         -  |        29  |         -  |
 |    81    |  427337            |         -  |         3  |         -  |
+|    82    |  260324            |         -  |         5  |         -  |
+|    85    |  2772              |         -  |         2  |         -  |
 |    87    |  1097343           |         -  |      1153  |         -  |
 |    89    |  743               |         -  |         0  |         -  |
 |    92    |  8581146           |         -  |     51582  |        16  |
@@ -37030,6 +37033,57 @@ prima di 9 ci sono solo 3 e 7 e 1 e 6 e 2 e 8   ==> 73162890
 Quindi la soluzione vale: 73162890
 
 L'ultima funzione è sufficiente per definire una procedura che calcola la soluzione.
+
+Nel 2009 avevo scritto la seguente soluzione in python:
+
+log = [319,680,180,690,129,620,762,689,762,318,368,710,720,710,629,168,160,689,716,
+731,736,729,316,729,729,710,769,290,719,680,318,389,162,289,162,718,729,319,790,680,
+890,362,319,760,316,729,380,319,728,716]
+
+def eulero079(L):
+   a = []
+   for i in range(0,len(L)):
+       iL = int2list(L[i])
+       a.append((iL[0],iL[1]))
+       a.append((iL[1],iL[2]))
+   a.sort()
+   # calcolo, per ogni numero, la lista dei numeri che stanno prima
+   pri = []
+   for x in [0,1,2,3,6,7,8,9]:
+       base = []
+       for i in range(0,len(a)):
+           if a[i][1] == x:
+               base.append(a[i][0])
+       newbase = list(set(base))
+       newbase.sort()
+       pri.append((x,newbase))
+   # aggiorno le liste con i numeri che stanno davanti
+   for k in range(0,10):
+       primaD = {}
+       for i in range(0,len(pri)):
+           primaD[pri[i][0]] = pri[i][1]
+       pri = []
+       for i in primaD.keys():
+           tp = []
+           for val in primaD[i]:
+               tp = tp + primaD[val]
+           tpp = list(set(tp+primaD[i]))
+           tpp.sort
+           pri.append((i,tpp))
+   ma = [(len(pri[i][1]),pri[i][0]) for i in range(0,len(pri))]
+   ma.sort()
+   # "ma" è una lista ordinata per posizione che contiene tuple del tipo:
+   # (posizione,cifra)
+   # Costruzione della soluzione
+   pwd = ''
+   for i in range(len(ma)):
+       pwd = pwd + str(ma[i][1])
+   return(pwd)
+
+eulero079(log)
+;-> 73162890
+
+
 ----------------------------------------------------------------------------
 
 
@@ -37117,14 +37171,19 @@ Problema 81
 
 Somma del percorso: due modi
 
-Nella matrice 5 per 5 di seguito, la somma minima del percorso da in alto a sinistra a in basso a destra, spostandosi solo a destra e in basso, è indicata in grassetto rosso ed è uguale a 2427.
+Nella matrice 5 per 5 di seguito, la somma minima del percorso da in alto a sinistra a in basso a destra, spostandosi solo a destra e in basso, è sottolineata ed è uguale a 2427.
 
     131 673 234 103  18
+    ---
     201  96 342 965 150
+    --- --- ---  
     630 803 746 422 111
+            ---
     537 699 497 121 956
+                ---  
     805 732 524  37 331
-
+                ---
+                
 Trova la somma minima del percorso da in alto a sinistra a in basso a destra spostandoti a destra e in basso in "matrix.txt", un file di testo 31K contenente una matrice 80 per 80.
 ============================================================================
 
@@ -37170,6 +37229,117 @@ numero colonne:
 
 (time (e081))
 ;-> 3
+----------------------------------------------------------------------------
+
+
+===========
+Problema 82
+===========
+
+Somma del percorso: tre modi
+
+La somma del percorso minimo nella matrice 5 per 5 di seguito, iniziando in qualsiasi cella nella colonna di sinistra e finendo in qualsiasi cella nella colonna di destra, e spostandosi solo su, giù e destra, è indicata in rosso e in grassetto: la somma è pari a 994.
+
+ 131 673 234 103  18
+         --- --- ---
+ 201  96 342 965 150
+ --- --- ---
+ 630 803 746 422 111
+ 
+ 537 699 497 121 956
+ 
+ 805 732 524  37 331
+
+Trova la somma minima del percorso dalla colonna di sinistra alla colonna di destra in "matrix.txt", un file di testo 31K contenente una matrice 80 per 80.
+============================================================================
+
+Il file "matrix.txt" è stato trasformato nel file "e082.lsp", una lista di nome "matrix" che rappresenta la matrice.
+
+(load "e082.lsp")
+
+(matrix 0 0)
+;-> 4445
+(matrix 79 79)
+;-> 7981
+
+L'algoritmo è simile a quello del problema 81, ma abbiamo bisogno di un vettore ausiliario per tenere traccia delle soluzioni parziali.
+
+(define (e082)
+(load "e082.lsp")
+  (letn ((len (- (length matrix) 1)) (sp (array (+ len 1) '(0))))
+    ; Soluzione iniziale
+    (for (i 0 len)
+      (setf (sp i) (matrix i len))
+    )
+    ; calcolo dp della prima colonna della matrice
+    (for (i (- len 1) 0)
+      ; analizza in basso
+      (setf (sp 0) (+ (sp 0) (matrix  0 i)))
+      ; calcolo soluzione minima parziale
+      (for (j 1 len)
+        (setf (sp j) (min (+ (sp (- j 1)) (matrix j i)) (+ (sp j) (matrix j i))))
+      )
+      ; analizza in alto
+      (for (j (- len 1) 0)
+        (setf (sp j) (min (sp j) (+ (sp (+ j 1)) (matrix j i))))
+      )
+    )
+    ; soluzione minima assoluta
+    (apply min sp)))
+
+(e082)
+;-> 260324
+
+(time (e082))
+;-> 4
+----------------------------------------------------------------------------
+
+
+===========
+Problema 85
+===========
+
+Contare i rettangoli
+
+Contando attentamente si può vedere che una griglia rettangolare di 3 x 2 contiene diciotto rettangoli:
+
+                        1 da 3x2               2 da 2x2         3 da 1x2
+ ╔════╦════╦════╗       ╔══════════════╗       ╔════════╗       ╔════╗
+ ║    ║    ║    ║       ║              ║       ║        ║       ║    ║
+ ╠════╬════╬════╣  ==>  ║      1       ║   +   ║   2    ║   +   ║ 3  ║   +
+ ║    ║    ║    ║       ║              ║       ║        ║       ║    ║
+ ╚════╩════╩════╝       ╚══════════════╝       ╚════════╝       ╚════╝
+
+                        2 da 3x1               4 da 2x2         6 da 1x1
+                        ╔══════════════╗       ╔════════╗       ╔════╗
+                     +  ║      2       ║   +   ║   4    ║   +   ║ 6  ║   =  18
+                        ╚══════════════╝       ╚════════╝       ╚════╝
+
+Sebbene non esista una griglia rettangolare che contenga esattamente due milioni di rettangoli, trova l'area della griglia con la soluzione più vicina.
+============================================================================
+
+Una griglia N * M può essere rappresentata come (N + 1) linee orizzontali e (M + 1) linee verticali.
+In un rettangolo, abbiamo bisogno di due distinte linee orizzontali e due distinte linee verticali.
+Quindi possiamo scegliere 2 linee verticali e 2 linee orizzontali per formare un rettangolo. Ci sono (N+1) scelte per la larghezza e (M+1) scelte per l'altezza, quindi il numero totale di rettangoli possibili nella griglia vale: 
+
+ binom(N+1,2) * binom(M+1,2) = (N*(N+1)*M*(M+1))/4
+
+(define (e085)
+  (local (diff area numrett adiff erow ecol)
+    (setq diff 2000000 area -1 erow -1 ecol -1)
+    (for (r 1 100)
+      (for (c 1 100)
+        (setq numrett (/ (* r (+ r 1) c (+ c 1)) 4))
+        (setq adiff (abs (- numrett 2000000)))
+        (if (< adiff diff)
+             (setq area (* r c) diff adiff erow r ecol c))))
+    area))
+
+(e085)
+;-> 2772
+
+(time (e085))
+;-> 2
 ----------------------------------------------------------------------------
 
 
@@ -53606,6 +53776,85 @@ Scriviamo la funzione:
 ;-> 255
 (int "1111111000000001" 0 2)
 ;-> 65025
+
+
+----------------------------------
+Fattoriale e zeri finali (Wolfram)
+----------------------------------
+
+Il numero di zeri finali del fattoriale di un numero intero n è dato da:
+ 
+  Numero di zeri finali in n! = 
+= Numero di volte n! è divisibile per 10 = 
+= Potenza massima di 10 che divide n! = 
+= Potenza massima di 5 in n!
+
+Utilizzando l'ultima definizione la formula per il calcolo è la seguente:
+
+int(n/5) + int(n/5^2) + int(n/5^3) + ... + int(n/5^k)
+
+Le divisioni di n terminano quando si ottiene un valore inferiore a 5.
+
+Esempio:
+
+n = 1123
+
+(int (/ 1123 5))
+;-> 224
+
+Adesso possiamo dividere 1123 per 25 oppure continuare a dividere il precedente risultato per 5:
+
+(int (/ 1123 25))
+;-> 44
+(int (/ 224 5))
+;-> 44
+
+Continuiamo dividendo per 5 il risultato:
+
+(int (/ 44 5))
+;-> 8
+
+(int (/ 8 5))
+;-> 1
+
+Abbiamo ottenuto un risultato inferiore a 5 e quindi ci fermiamo. Per ottenere il numero di zeri finali basta sommare i risultati di tutte le divisioni:
+
+numero-zeri-finali(1123!) = 224 + 44 + 8 + 1 = 277
+
+In modo ricorsivo possiamo definire una funzione:
+
+(define (zeri n)
+  (if (< (/ n 5) 5)
+      (/ n 5)
+      (+ (/ n 5) (zeri (/ n 5)))))
+
+(zeri 1123)
+;-> 277
+
+(zeri 10000)
+;-> 2499
+
+Proviamo calcolando il fattoriale e contando gli zeri finali:
+
+(define (fatt n)
+  (let (f 1L)
+    (for (x 1L n)
+      (setq f (* f x)))))
+
+(define (zeri-f x)
+  (let (c 0)
+    (while (zero? (% x 10))
+      (++ c) 
+      (setq x (/ x 10)))
+    c))
+
+(zeri-f (fatt 1123))
+;-> 277
+
+(zeri-f (fatt 10000))
+;-> 2499
+
+I risultati sono identici in entrambi i casi.
 
 
 ==========

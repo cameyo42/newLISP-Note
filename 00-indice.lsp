@@ -284,7 +284,7 @@ ROSETTA CODE
 
 PROJECT EULERO
 ==============
-  Problemi 1..81,87,89,92,96,97,99,100
+  Problemi 1..82,85,87,89,92,96,97,99,100
 
 PROBLEMI VARI
 =============
@@ -441,6 +441,7 @@ DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Cifre diverse (Visa)
   Rapporto minimo (Wolfram)
   Quadrato binario (McAfee)
+  Fattoriale e zeri finali (Wolfram)
 
 LIBRERIE
 ========

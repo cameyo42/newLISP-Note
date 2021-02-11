@@ -6305,3 +6305,82 @@ Scriviamo la funzione:
 ;-> 65025
 
 
+----------------------------------
+Fattoriale e zeri finali (Wolfram)
+----------------------------------
+
+Il numero di zeri finali del fattoriale di un numero intero n è dato da:
+ 
+  Numero di zeri finali in n! = 
+= Numero di volte n! è divisibile per 10 = 
+= Potenza massima di 10 che divide n! = 
+= Potenza massima di 5 in n!
+
+Utilizzando l'ultima definizione la formula per il calcolo è la seguente:
+
+int(n/5) + int(n/5^2) + int(n/5^3) + ... + int(n/5^k)
+
+Le divisioni di n terminano quando si ottiene un valore inferiore a 5.
+
+Esempio:
+
+n = 1123
+
+(int (/ 1123 5))
+;-> 224
+
+Adesso possiamo dividere 1123 per 25 oppure continuare a dividere il precedente risultato per 5:
+
+(int (/ 1123 25))
+;-> 44
+(int (/ 224 5))
+;-> 44
+
+Continuiamo dividendo per 5 il risultato:
+
+(int (/ 44 5))
+;-> 8
+
+(int (/ 8 5))
+;-> 1
+
+Abbiamo ottenuto un risultato inferiore a 5 e quindi ci fermiamo. Per ottenere il numero di zeri finali basta sommare i risultati di tutte le divisioni:
+
+numero-zeri-finali(1123!) = 224 + 44 + 8 + 1 = 277
+
+In modo ricorsivo possiamo definire una funzione:
+
+(define (zeri n)
+  (if (< (/ n 5) 5)
+      (/ n 5)
+      (+ (/ n 5) (zeri (/ n 5)))))
+
+(zeri 1123)
+;-> 277
+
+(zeri 10000)
+;-> 2499
+
+Proviamo calcolando il fattoriale e contando gli zeri finali:
+
+(define (fatt n)
+  (let (f 1L)
+    (for (x 1L n)
+      (setq f (* f x)))))
+
+(define (zeri-f x)
+  (let (c 0)
+    (while (zero? (% x 10))
+      (++ c) 
+      (setq x (/ x 10)))
+    c))
+
+(zeri-f (fatt 1123))
+;-> 277
+
+(zeri-f (fatt 10000))
+;-> 2499
+
+I risultati sono identici in entrambi i casi.
+
+
