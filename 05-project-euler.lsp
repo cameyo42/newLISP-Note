@@ -16,12 +16,12 @@
 |    7     |  104743            |        78  |        31  |        16  |
 |    8     |  23514624000       |       110  |        62  |         0  |
 |    9     |  31875000          |        62  |        31  |         0  |
-|    10    |  142913828         |      1563  |      1078  |       546  |
+|    10    |  142913828922      |      1563  |      1078  |       546  |
 |    11    |  70600674          |         0  |         0  |         3  |
 |    12    |  76576500          |      5445  |      4022  |         0  |
 |    13    |  5537376230        |         0  |         0  |         -  |
 |    14    |  837799            |     22487  |     15408  |      7563  |
-|    15    |  137846528         |         0  |         0  |         0  |
+|    15    |  137846528820      |         0  |         0  |         0  |
 |    16    |  1366              |         0  |         0  |        32  |
 |    17    |  21124             |         0  |         0  |         -  |
 |    18    |  1074              |        32  |         7  |         0  |
@@ -30,7 +30,7 @@
 |    21    |  31626             |       220  |       134  |        87  |
 |    22    |  871198282         |        20  |        10  |         -  |
 |    23    |  4179871           |     40900  |     27534  |         -  |
-|    24    |  278391546         |     25309  |     12282  |         -  |
+|    24    |  2783915460        |     25309  |     12282  |         -  |
 |    25    |  4782              |      4926  |      3469  |         -  |
 |    26    |  983               |       488  |       266  |         -  |
 |    27    |  -59231            |      2000  |      1532  |         -  |
@@ -89,10 +89,12 @@
 |    80    |  40886             |         -  |        29  |         -  |
 |    81    |  427337            |         -  |         3  |         -  |
 |    82    |  260324            |         -  |         5  |         -  |
+|    83    |  425185            |         -  |      6503  |         -  |
 |    85    |  2772              |         -  |         2  |         -  |
 |    87    |  1097343           |         -  |      1153  |         -  |
 |    89    |  743               |         -  |         0  |         -  |
 |    92    |  8581146           |         -  |     51582  |        16  |
+|    94    |  518408346         |         -  |     28946  |         0  |
 |    96    |  24702             |         -  |     27084  |         -  |
 |    97    |  8739992577        |         -  |       497  |         -  |
 |    99    |  709               |         -  |         0  |         -  |
@@ -2152,6 +2154,7 @@ Questa sequenza può essere calcolata nel modo seguente:
 Questa funzione è 10 volte più veloce della precedente.
 ----------------------------------------------------------------------------
 
+
 ===========
 Problema 16
 ===========
@@ -2226,6 +2229,7 @@ Quindi possiamo moltiplicare il numero 2 per 1000 volte utilizzando il normale a
 (time (e016-2 1000))
 ;-> 31.947
 ----------------------------------------------------------------------------
+
 
 ===========
 Problema 17
@@ -9243,17 +9247,17 @@ Problema 82
 
 Somma del percorso: tre modi
 
-La somma del percorso minimo nella matrice 5 per 5 di seguito, iniziando in qualsiasi cella nella colonna di sinistra e finendo in qualsiasi cella nella colonna di destra, e spostandosi solo su, giù e destra, è indicata in rosso e in grassetto: la somma è pari a 994.
+La somma del percorso minimo nella matrice 5 per 5 di seguito, iniziando in qualsiasi cella nella colonna di sinistra e finendo in qualsiasi cella nella colonna di destra, e spostandosi solo su, giù e destra, è sottolineata: la somma è pari a 994.
 
- 131 673 234 103  18
-         --- --- ---
- 201  96 342 965 150
- --- --- ---
- 630 803 746 422 111
- 
- 537 699 497 121 956
- 
- 805 732 524  37 331
+    131 673 234 103  18
+            --- --- ---
+    201  96 342 965 150
+    --- --- ---
+    630 803 746 422 111
+    
+    537 699 497 121 956
+    
+    805 732 524  37 331
 
 Trova la somma minima del percorso dalla colonna di sinistra alla colonna di destra in "matrix.txt", un file di testo 31K contenente una matrice 80 per 80.
 ============================================================================
@@ -9297,6 +9301,94 @@ L'algoritmo è simile a quello del problema 81, ma abbiamo bisogno di un vettore
 
 (time (e082))
 ;-> 4
+----------------------------------------------------------------------------
+
+
+===========
+Problema 83
+===========
+
+Somma del percorso: quattro modi
+
+NOTA: questo problema è una versione notevolmente più impegnativa del problema 81.
+
+Nella matrice 5 per 5 di seguito, la somma del percorso minimo dall'alto a sinistra verso il basso a destra, spostandosi a sinistra, a destra, in alto e in basso, è sottolineata ed è uguale a 2297.
+
+    131 673 234 103  18
+    ---     --- --- ---
+    201  96 342 965 150
+    --- --- ---     ---
+    630 803 746 422 111
+                --- ---
+    537 699 497 121 956
+                ---
+    805 732 524  37 331
+                --- ---
+
+Trova la somma minima del percorso da in alto a sinistra a in basso a destra spostandoti a sinistra, destra, su e giù in "matrix.txt", un file di testo di 31K contenente 80 da 80 matrice.
+============================================================================
+
+Il file "matrix.txt" è stato trasformato nel file "e082.lsp", una lista di nome "matrix" che rappresenta la matrice.
+
+(load "e083.lsp")
+(matrix 0 0)
+;-> 4445
+(matrix 79 79)
+;-> 7981
+
+Algoritmo di soluzione preso da un articolo del sito https://www.programmersought.com/
+
+Considerando la matrice come un grafo diretto in cui ogni numero rappresenta il peso di ogni arco possiamo utilizzare l'algoritmo di Dijkstra. Questo algoritmo trova la distanza più breve da un vertice ad altri vertici in un grafo diretto o non orientato (i pesi del grafo devono avere tutti un valore maggiore di 0). Sul sito https://www.programmersought.com/ ho trovato 
+
+Per risolvere il problema utilizziamo un vettore dist[][2], dist[a][0] rappresenta la lunghezza del percorso più breve da 0 ad "a" che abbiamo trovato (non necessariamente la più breve), dist[a][1] = 1 significa che questo è il più breve, dist[a][1] = 0 significa che non siamo ancora sicuri che questa sia la lunghezza più breve.
+
+Inizializziamo i valori, dist[0][0] = 0, dist[0][1] = 1, dist[i][0](i ≠ 0) = infinito, a[i][1] = 0.
+
+Quindi esaminando i diversi punti adiacenti ad a0, come a1 e a3, possiamo lasciare dist[1][0] = dist[0][0] + P (il peso da a0 a a1) e fare la stessa cosa per dist[3][0].
+
+A questo punto, troviamo il valore minimo di dist[][1] = 0 in dist[][0], ad esempio, dist[3][1], quindi possiamo confermare che questo deve essere il percorso più breve da a0 a a3. Perché se c'è un percorso più breve, deve iniziare da a0 e a3 è il valore minimo in dist, il che costituisce una contraddizione. Quindi il percorso più breve da a0 ad a3 è confermato.
+
+Adesso esaminiamo i vertici adiacenti ad a3 e ripetiamo l'operazione sopra. Dopo un numero limitato di operazioni, è possibile ottenere la lunghezza del percorso più breve da a0 a tutti i vertici e, se il percorso non viene trovato, dist[i][0] ha valore infinito.
+
+(define (e083)
+  ;(load "e083.lsp")
+  (local (dist iter idxm)
+    ; vettore delle distanze 
+    (setq dist (array 6400 2 '(10000000 0)))
+    (setq iter 0)
+    (setq idxm 0)
+    ; inizializzazione vettore delle distanze
+    (setf (dist 0 0) 0)
+    (setf (dist 0 1) 1)
+    (setf (dist 1 0) (matrix 0 1))
+    (setf (dist 80 0) (matrix 1 0))
+    ; 80x80 = 6400
+    (while (< iter 6400)
+      (setq idxm (foundmin dist))
+      ;(println idxm)
+      ;(read-line)
+      ; flag: percorso minimo      
+      (setf (dist idxm 1) 1)
+      ; aggiorna le distanze con i punti adiacenti
+      (if (!= (% idxm 80) 0)
+          (setf (dist (- idxm 1) 0) (min (dist (- idxm 1) 0) (+ (dist idxm 0) (matrix (/ idxm 80) (- (% idxm 80) 1))))))
+      (if (!= (% idxm 80) 79)
+          (setf (dist (+ idxm 1) 0) (min (dist (+ idxm 1) 0) (+ (dist idxm 0) (matrix (/ idxm 80) (+ (% idxm 80) 1))))))
+      (if (!= (/ idxm 80) 0)
+          (setf (dist (- idxm 80) 0) (min (dist (- idxm 80) 0) (+ (dist idxm 0) (matrix (- (/ idxm 80) 1) (% idxm 80))))))
+      (if (!= (/ idxm 80) 79)
+          (setf (dist (+ idxm 80) 0) (min (dist (+ idxm 80) 0) (+ (dist idxm 0) (matrix (+ (/ idxm 80) 1) (% idxm 80))))))
+      ;(println (dist (- idxm 1) 0) { } (dist (+ idxm 1) 0) { } (dist (- idxm 80) 0) { } (dist (+ idxm 80) 0))
+      ;(read-line)
+      (++ iter)
+    )
+    (+ (dist 6399 0) (matrix 0 0))))
+
+(e083)
+;-> 425185
+
+(time (e083))
+;-> 6503.784
 ----------------------------------------------------------------------------
 
 
@@ -9819,6 +9911,99 @@ Funzione finale:
 
 La prima soluzione processa 9999999 di numeri, mentre la seconda soluzione processa 11440 numeri. Il rapporto vale: (/ 9999999 11440) = 874.
 Per i tempi di esecuzione abbiamo il seguente rapporto: (/ 51582 116) = 444, cioè la seconda funzione è circa 450 volte più veloce.
+----------------------------------------------------------------------------
+
+
+===========
+Problema 94
+===========
+
+Triangoli quasi equilateri
+
+È facilmente dimostrato che non esiste alcun triangolo equilatero con lati di lunghezza intera e area intera. Tuttavia, il triangolo quasi equilatero 5-5-6 ha un'area di 12 unità quadrate.
+
+Definiremo un triangolo quasi equilatero come un triangolo per cui due lati sono uguali e il terzo differisce di non più di un'unità.
+
+Trova la somma dei perimetri di tutti i triangoli quasi equilateri con lunghezze laterali e area integrali e i cui perimetri non superano un miliardo (1.000.000.000).
+============================================================================
+
+Possiamo risolvere il problema utilizzando le triple pitagoriche primitive o l'equazione di Pell.
+
+(define (e094)
+  (local (a b c m n limite out)
+  ; a = m^2 - n^2
+  ; b = 2*m*n
+  ; c = m^2 + n^2
+  ; a + b + c = 2*m^2 + 2*m*n = 2*m*(m + n)
+  ; quindi m < sqrt((a+b+c)/2)
+  (setq limite (int (sqrt (div 1e9 2))))
+  ;(setq limite 12000)
+  (setq out 0)
+  (for (n 1 limite)
+    (for (m (+ n 1) limite)
+      ; test tripla primitiva
+      (if (and (= (gcd m n) 1) (!= (% (- m n) 2) 0))
+          (begin
+            ; genera una tripla pitagorica (metodo di euclide)
+            (setq a (- (* m m) (* n n)))
+            (setq b (* 2 m n))
+            (setq c (+ (* m m) (* n n)))
+            ;(println "--> " a { } b { } c)
+            ;(read-line)
+            ; controllo triangolo quasi equilatero
+            (cond ((<= (+ a b c) 1e9)
+                   (if (= (abs (- (* 2 a) c)) 1)
+                       (setq out (+ out (+ (* 2 c) (* 2 a)))))
+                   (if (= (abs (- (* 2 b) c)) 1)
+                       (setq out (+ out (+ (* 2 c) (* 2 b))))))
+            )
+          )
+      )
+    )
+  )
+  out))
+
+(e094)
+;-> 518408346
+
+(time (e094))
+;-> 93751.845
+
+Ponendo il limite uguale a 12000 otteniamo il seguente risultato:
+
+(e094)
+;-> 518408346
+
+(time (e094))
+;-> 28946.177
+
+Con un altro algoritmo (intelligent brute-force):
+
+(define-macro (psetq)
+  (let ((_var '()) (_ex '()))
+    (for (i 0 (- (length (args 1)) 1))
+      (setq _ex (expand (args 1 i) (args 0 0)))
+      (for (j 1 (- (length (args 0)) 1))
+        (setq _ex (expand _ex (args 0 j))))
+      (push _ex _var -1))
+    (dolist (el _var)
+      (set (args 0 $idx) (eval el)))))
+
+(define (e094)
+  (local (lato1 lato2 perim k out)
+    (setq lato1 1 lato2 1 perim 0 k 1 out 0)
+    (while (< perim 1e9)
+      (psetq (lato1 lato2 k) (lato2 (+ (* 4 lato2) (* 2 k) (- lato1)) (- k)))
+      (setq out (+ out perim))
+      (setq perim (- (* 3 lato2) k))
+    )
+    out))
+
+(e094)
+;-> 518408346
+
+(time (e094))
+;-> 0
 ----------------------------------------------------------------------------
 
 

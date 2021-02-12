@@ -623,7 +623,16 @@ In matematica, si definisce fattoriale di un numero naturale n, indicato con n!,
 
 n! = Prod[i], con (1 <= i <= n)
 
-per la convenzione del prodotto vuoto si definisce inoltre: 0! = 1
+per la convenzione del prodotto vuoto risulta inoltre: 0! = 1. Questo può essere dimostrato nel modo seguente:
+
+(n-1)! = n!/n
+
+sostituiamo i valori partendo da n = 4:
+
+3! = 4!/4 = 2*3*4/4 = 2*3 = 6
+2! = 3!/3 = 2*3/3 = 2 = 2
+1! = 2!/2 = 2/2 = 1
+0! = 1!/1 = 1/1 = 0 
 
 Nota: 1 = 1! = 1 * (1-1)! = 1 * 0! = 0!
 
