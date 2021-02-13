@@ -92,6 +92,7 @@
 |    83    |  425185            |         -  |      6503  |         -  |
 |    84    |  101524            |         -  |        66  |         -  |
 |    85    |  2772              |         -  |         2  |         -  |
+|    86    |  1818              |         -  |    233564  |       528  |
 |    87    |  1097343           |         -  |      1153  |         -  |
 |    89    |  743               |         -  |         0  |         -  |
 |    92    |  8581146           |         -  |     51582  |        16  |
@@ -9539,6 +9540,77 @@ Quindi possiamo scegliere 2 linee verticali e 2 linee orizzontali per formare un
 
 (time (e085))
 ;-> 2
+----------------------------------------------------------------------------
+
+
+===========
+Problema 86
+===========
+Un ragno, S, si trova in un angolo di una stanza cuboide (parallelepipedo) che misura 6 per 5 per 3, e una mosca, F, si trova nell'angolo opposto. Percorrendo le superfici della stanza la distanza "retta" più breve da S a F è 10 e il percorso è mostrato nel diagramma "e086p.png".
+
+Tuttavia, ci sono fino a tre candidati di percorso "più breve" per ogni dato cuboide e il percorso più breve non ha sempre una lunghezza intera.
+
+Si può dimostrare che ci sono esattamente 2060 cuboidi distinti, ignorando le rotazioni, con dimensioni intere, fino a una dimensione massima di M per M per M, per cui la rotta più breve ha lunghezza intera quando M = 100. Questo è il valore minimo di M per cui il numero di soluzioni supera il valore duemila. Il numero di soluzioni quando M = 99 è 1975.
+
+Trova il valore minimo di M tale che il numero di soluzioni superi prima un milione.
+============================================================================
+
+Vedi la figura "e086s.png" per capire quale sia il percorso minimo in un cubo aperto.
+
+Presumendo che a <= b <= c esistono tre percorsi più brevi:
+
+percorso1 = (a + b)^2 + c^2
+percorso2 = (a + c)^2 + b^2
+percorso3 = (c + b)^2 + a^2
+
+Espandendo le espressioni si trova che il percorso1 ha il valore minimo. Calcoliamo tutti questi percorsi e contiamo quelli che hanno valore intero.
+
+(define (e086)
+(catch
+  (local (limite conta m a b c percorso sqr)
+    (setq limite 1000000 conta 0 m 1)
+    (for (m 1 10000)
+      (for (a 1 m)
+        (for (b a m)
+          (setq c m)
+          (setq percorso (+ (* (+ a b) (+ a b)) (* c c)))
+          (setq sqr (sqrt percorso))
+          (if (= (* sqr sqr) percorso) (++ conta))
+        )
+      )
+      (if (> conta limite) (throw m))
+    )
+    m)))
+
+(e086)
+;-> 1818
+
+(time (println (e086)))
+;-> 233564.084
+
+Calcolando tutti i percorsi occorre molto tempo per calcolare la soluzione.
+
+Un altro metodo è quello di pensare (a + b) come un unico valore "ab", che varia da 2 a 2*M. In questo modo si fissa il valore "c" al suo valore massimo. Adesso dobbiamo trovare il numero di cubi, corrispondenti al valore "c", che soddisfano la condizione.
+
+(define (e086)
+  (local (limit conta ab c sqr)
+    (setq limit 1000000 conta 0 c 1)
+    (while (< conta limit)
+      (++ c)
+      (for (ab 2 (* 2 c))
+        (setq path (+ (* ab ab) (* c c)))
+        (setq sqr (sqrt path))
+        (if (= (* sqr sqr) path)
+            (if (>= ab c)
+                (setq conta (+ conta 1 (- c (/ (+ ab 1) 2))))
+                (setq conta (+ conta (/ ab 2)))))))
+    c))
+
+(e086)
+;-> 1818
+
+(time (e086))
+;-> 528.583
 ----------------------------------------------------------------------------
 
 
