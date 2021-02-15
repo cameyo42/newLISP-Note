@@ -284,7 +284,7 @@ ROSETTA CODE
 
 PROJECT EULERO
 ==============
-  Problemi 1..87,89,92,94,96,97,99,100
+  Problemi 1..89,92,94,96,97,99,100
 
 PROBLEMI VARI
 =============
@@ -643,6 +643,8 @@ NOTE LIBERE 3
   Sei contro cinque
   Torneo ad eliminazione diretta
   Roulette
+  Daniel Dennet Quinian Crossword
+  Lista delle fattorizzazioni di un numero
   
 APPENDICI
 =========
@@ -708,6 +710,8 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
+==========================================================================
+Klaatu barada nikto
 ==========================================================================
 
 
@@ -28089,6 +28093,7 @@ Vediamo quanto tempo impiega per calcolare tutti i numeri taxicab fino ad un mil
 |    85    |  2772              |         -  |         2  |         -  |
 |    86    |  1818              |         -  |    233564  |       528  |
 |    87    |  1097343           |         -  |      1153  |         -  |
+|    88    |  7587457           |         -  |     24771  |       377  |
 |    89    |  743               |         -  |         0  |         -  |
 |    92    |  8581146           |         -  |     51582  |        16  |
 |    94    |  518408346         |         -  |     28946  |         0  |
@@ -37678,6 +37683,188 @@ Per ottimizzare la funzione potremmo:
 4) inserire i valori in una hash-map
 
 Comunque il tempo di esecuzione è soddisfacente.
+----------------------------------------------------------------------------
+
+
+===========
+Problema 88
+===========
+
+Somma e prodotti di numeri
+
+Un numero naturale, N, che può essere scritto come la somma e il prodotto di un dato insieme di almeno due numeri naturali, {a1, a2, ..., ak} è chiamato numero di somma-prodotto: N = a1 + a2 + ... + ak = a1 × a2 × ... × ak.
+
+Ad esempio, 6 = 1 + 2 + 3 = 1 × 2 × 3.
+
+Per un dato insieme di dimensioni, k, chiameremo il più piccolo N con questa proprietà un numero minimo di somma-prodotto. I numeri minimi della somma-prodotto per gli insiemi di dimensione, k = 2, 3, 4, 5 e 6 sono i seguenti.
+
+k = 2:  4 = 2 × 2 = 2 + 2
+k = 3:  6 = 1 × 2 × 3 = 1 + 2 + 3
+k = 4:  8 = 1 × 1 × 2 × 4 = 1 + 1 + 2 + 4
+k = 5:  8 = 1 × 1 × 2 × 2 × 2 = 1 + 1 + 2 + 2 + 2
+k = 6: 12 = 1 × 1 × 1 × 1 × 2 × 6 = 1 + 1 + 1 + 1 + 2 + 6
+
+Quindi per 2≤k≤6, la somma di tutti i numeri minimi di somma-prodotto è 4 + 6 + 8 + 12 = 30. Si noti che 8 viene conteggiato una sola volta nella somma.
+
+Infatti, poiché l'insieme completo dei numeri minimi di somma del prodotto per 2≤k≤12 è {4, 6, 8, 12, 15, 16}, la somma è 61.
+
+Qual'è la somma di tutti i numeri minimi di somma-prodotto per 2≤k≤12000?
+============================================================================
+
+Per ottenere la somma-prodotto uguale di un numero n occorre utilizzare la fattorizzazione del numero per ottenere il prodotto e aggiungere tanti 1 alla somma per eguagliare il valore del prodotto, poi aggiungiamo lo stesso numero di 1 come moltiplicandi (che non cambiano il valore del prodotto). Per esempio:
+
+(setq n 12)
+(factor n)
+;-> (2 2 3)
+
+prodotto = 2 * 2 * 3 = 12
+   somma = 2 + 2 + 3 + 1 + 1 + 1 + 1 + 1 = 12
+prodotto = 2 * 2 * 3 * 1 * 1 * 1 * 1 = 12
+
+Possiamo anche ricavare una formula per il valore della somma-prodotto di una qualunque lista di fattori:
+
+k = numero-di-fattori + prodotto-dei-fattori - somma-dei-fattori
+
+Per esempio per la lista di fattori (2 2 3) abbiamo:
+
+k = 3 + 12 - 7 = 8
+
+Inoltre la somma-prodotto minima per k è maggiore o uguale a k poiché la somma-prodotto minima consiste di k unità che sommano a k. Il limite superiore per la somma-prodotto minima per k è 2k. Il motivo è che possiamo sempre usare i fattori (2, k) questo ci dà il prodotto 2*k e la somma 2+k. Aggiungendo k-2 unità otteniamo una somma di prodotto valida per k che è uguale a 2k.
+In altre parole, il prodotto-somma minimo (spm) per k è compreso tra k e 2*k (k ≤ spm(k) ≤ 2*k).
+
+(define (get-k f-lst) (+ (length f-lst) (apply * f-lst) (- (apply + f-lst))))
+
+(get-k (factor 6))
+;-> 3
+
+(get-k (factor 8))
+;-> 5
+
+Quindi basta fattorizzare tutti i numeri compresi tra 2 e 24000 per verificare se queste fattorizzazioni sono una somma-prodotto minima di qualche k.
+Purtroppo bisogna considerare tutte le combinazioni di fattorizzazione per ogni numero perchè la somma-prodotto minima di qualche k non viene prodotta dalla scomposizione primitiva. Per esempio prendiamo il numero 8:
+
+Scomposizione primitiva:
+(factor 8) 
+;-> (2 2 2)
+(get-k (factor 8))
+;-> 5
+
+L'altra scomposizione di 8 vale: (2 4)
+(get-k '(2 4))
+;-> 4
+
+Il valore somma-prodotto minimo vale 4 per il numero 8.
+
+Possiamo scrivere una funzione che genera tutte le fattorizzazioni di ogni numero fino a 2*k, ma è molto lenta:
+
+(define (get-factorizations n)
+  (let (afc '())
+    (all-fact n '() n)))
+
+(define (all-fact num parfac parval)
+  (let ((newval parval) (i (- num 1)))
+    (while (>= i 2)
+      (cond ((zero? (% num i))
+              (if (> newval 1) (setq newval i))
+              (if (and (<= (/ num i) parval) (<= i parval) (>= (/ num i) i))
+                  (begin
+                    (push (append parfac (list i (/ num i))) afc -1)
+                    (setq newval (/ num i))
+                  )
+              )
+              (if (<= i parval)
+                  (all-fact (/ num i) (append parfac (list i)) newval)
+              )
+            )
+      )
+      (-- i)
+    )
+    (sort (unique (map sort afc)))))
+
+(get-factorizations 8)
+;-> ((2 2 2) (2 4))
+(get-factorizations 12)
+;-> ((2 2 3) (2 6) (3 4))
+(get-factorizations 24)
+;-> ((2 2 2 3) (2 2 6) (2 3 4) (2 12) (3 8) (4 6))
+(get-factorizations 280)
+;-> ((2 2 2 5 7) (2 2 2 35) (2 2 5 14) (2 2 7 10) (2 2 70)
+;->  (2 4 5 7) (2 4 35) (2 5 28) (2 7 20) (2 10 14) (2 140)
+;->  (4 5 14) (4 7 10) (4 70) (5 7 8) (5 56) (7 40) (8 35)
+;->  (10 28) (14 20))
+(get-factorizations 11)
+;-> ()
+(get-factorizations 577)
+;-> ()
+
+Ma questa funzione è inutilizzabile per valori superiori a 10000:
+
+(time (println (get-factorizations 12000)))
+;->  ....
+;->  (75 160)
+;->  (80 150)
+;->  (96 125)
+;->  (100 120))
+;-> 275880.184
+
+Allora calcoliamo dinamicamente ogni fattorizzazione per ogni numero fino a 24.000 aggiungendo ogni fattore a ciascuna fattorizzazione di numeri più piccoli.
+
+(define (fattorizza n resto fattore-max termine somma)
+  (cond ((= resto 1)
+         (setq termine (+ termine (- n somma)))
+         (if (and (<= termine limite) (< n (spm termine)))
+             (setf (spm termine) n))
+        )
+        (true
+        (for (i 2 fattore-max)
+          (cond ((zero? (% resto i))
+                 (setq fattore i)
+                 (fattorizza n (/ resto fattore) (min fattore fattore-max) (+ termine 1) (+ somma fattore))))))))
+
+(define (e088)
+  (local (limite spm n resto fattore-max fattore somma termine)
+    (setq limite 12000)
+    (setq spm (array (+ limite 1) '(999999999)))
+    (for (i 2 (* limite 2))
+      ;(if (zero? (% i 4000)) (print i { }))
+      (fattorizza i i i 0 0)
+    )
+    (setq out (sort (unique (array-list spm))))
+    (apply + (slice out 1 (- (length out) 2)))))
+
+(e088)
+;-> 7587457
+
+(time (println (e088)))
+;-> 24771.751
+
+Il seguente algoritmo calcola il valore minimo di somma-prodotto ricorsivamente:
+
+(define (cerca prodotto somma i)
+  (catch 
+  (local (valprod valsomma)
+    (setf (out (- prodotto somma)) (min (out (- prodotto somma)) prodotto))
+    (while (<= i (+ n 2))
+      (setq valprod (* prodotto i))
+      (setq valsomma (+ somma i (- 1)))
+      (if (> (- valprod valsomma) n) (throw 'end))
+      (cerca valprod valsomma i)
+      (++ i)))))
+
+(define (e088)
+  (local (limite extra)
+    (setq limite 12000)
+    (setq extra (+ limite 10))
+    (setq out (array extra '(999999999)))
+    (cerca 1 0 2)
+    (apply + (unique (array-list (slice out 2 11999))))))
+
+(e088)
+;-> 7587457
+
+(time (e088))
+;-> 377.014
+
 ----------------------------------------------------------------------------
 
 
@@ -74277,6 +74464,141 @@ Partendo con un capitale di 1000 otteniamo:
 Quindi la strategia del giocatore lo porterà rapidamente in rovina.
 
 
+-------------------------------
+Daniel Dennet Quinian Crossword
+-------------------------------
+
+Questo non c'entra con la programmazione, ma è molto interessante: due cruciverba (crossword) che hanno soluzione doppia. Le definizioni sono in inglese perchè è impossibile tradurle mantenendo anche le doppie soluzioni. Di seguito sono riportate anche le soluzioni.
+
+Crossword 3x3
+-------------
+Across
+1. Suck the resources out of
+2. Epoch
+3. Sleep furniture
+
+Down
+1. Retentive membrane
+2. Earlier
+3. For some kids, a best friend
+
+Solutions:
+
+  W E D
+  E R A
+  B E D
+
+  S A P
+  A G E
+  C O T
+
+
+Crossword 4x4
+-------------
+Across
+1. Dirty stuff
+2. A great human need
+3. To make smooth
+4. Movie actor
+
+Down
+1. Vehicle dependent on H2O
+2. We usually want this
+3. Just above
+4. U.S. state (abbrev.)
+
+Solutions:
+
+S L O P      S M O G
+L O V E      L O V E
+E V E N      E V E N
+D E R N      D E R ?
+
+S M U T
+H O P E
+I R O N
+P E N N
+
+
+----------------------------------------
+Lista delle fattorizzazioni di un numero
+----------------------------------------
+
+Ogni numero intero ha una scomposizione primitiva e altre scomposizioni generate dalle combinazioni dei prodotti dei fattori della scomposizione primitiva.
+Prendiamo per esempio il numero 24:
+
+Scomposizione primitiva: 
+(factor 24)
+;-> (2 2 2 3)
+
+Le altre scomposizioni sono:
+(2 * 2 * (2*3)) = (2 2 6) 
+(2 * (2*2) * 3) = (2 4 3)
+(2 * (2*2*3))   = (12 2) 
+((2*2*2) * 3)   = (8 3)
+((2*2) * (2*3)) = (4 6)
+
+La seguente funzione calcola ricorsivamente tutte le fattorizzazioni di un numero:
+
+(define (get-factorizations n)
+  (let (afc '())
+    (all-fact n '() n)))
+
+(define (all-fact num parfac parval)
+  (let ((newval parval) (i (- num 1)))
+    (while (>= i 2)
+      (cond ((zero? (% num i))
+              (if (> newval 1) (setq newval i))
+              (if (and (<= (/ num i) parval) (<= i parval) (>= (/ num i) i))
+                  (begin
+                    (push (append parfac (list i (/ num i))) afc -1)
+                    (setq newval (/ num i))
+                  )
+              )
+              (if (<= i parval)
+                  (all-fact (/ num i) (append parfac (list i)) newval)
+              )
+            )
+      )
+      (-- i)
+    )
+    (sort (unique (map sort afc)))))
+
+Facciamo alcune prove:
+
+(get-factorizations 8)
+;-> ((2 2 2) (2 4))
+(get-factorizations 12)
+;-> ((2 2 3) (2 6) (3 4))
+(get-factorizations 24)
+;-> ((2 2 2 3) (2 2 6) (2 3 4) (2 12) (3 8) (4 6))
+(get-factorizations 280)
+;-> ((2 2 2 5 7) (2 2 2 35) (2 2 5 14) (2 2 7 10) (2 2 70)
+;->  (2 4 5 7) (2 4 35) (2 5 28) (2 7 20) (2 10 14) (2 140)
+;->  (4 5 14) (4 7 10) (4 70) (5 7 8) (5 56) (7 40) (8 35)
+;->  (10 28) (14 20))
+
+Per i numeri primi non esiiste alcuna fattorizzazione:
+
+(get-factorizations 11)
+;-> ()
+(get-factorizations 577)
+;-> ()
+
+Comunque questa funzione è inutilizzabile per valori che hanno molti fattori nella loro scomposizione primitiva:
+
+(factor 12000)
+;-> (2 2 2 2 2 3 5 5 5)
+
+(time (println (get-factorizations 12000)))
+;->  ....
+;->  (75 160)
+;->  (80 150)
+;->  (96 125)
+;->  (100 120))
+;-> 275880.184
+
+
 ===========
 
  APPENDICI
@@ -80605,6 +80927,9 @@ Mathematical symbols     Commercial symbols       Quotes and parenthesis
 
   GeeksforGeeks - Un portale di computer science per "geeks"
   https://www.geeksforgeeks.org/
+  
+  MathBlog.dk è un blog che tratta la risoluzione di problemi di programmazione utilizzando la matematica
+  https://www.mathblog.dk/
 
   Fermat's Library: a platform for illuminating academic papers. Publish an annotated paper every week.
   https://twitter.com/fermatslibrary?lang=en

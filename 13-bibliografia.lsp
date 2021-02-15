@@ -93,6 +93,9 @@
 
   GeeksforGeeks - Un portale di computer science per "geeks"
   https://www.geeksforgeeks.org/
+  
+  MathBlog.dk è un blog che tratta la risoluzione di problemi di programmazione utilizzando la matematica
+  https://www.mathblog.dk/
 
   Fermat's Library: a platform for illuminating academic papers. Publish an annotated paper every week.
   https://twitter.com/fermatslibrary?lang=en

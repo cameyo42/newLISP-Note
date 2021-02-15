@@ -284,7 +284,7 @@ ROSETTA CODE
 
 PROJECT EULERO
 ==============
-  Problemi 1..87,89,92,94,96,97,99,100
+  Problemi 1..89,92,94,96,97,99,100
 
 PROBLEMI VARI
 =============
@@ -643,6 +643,8 @@ NOTE LIBERE 3
   Sei contro cinque
   Torneo ad eliminazione diretta
   Roulette
+  Daniel Dennet Quinian Crossword
+  Lista delle fattorizzazioni di un numero
   
 APPENDICI
 =========
@@ -708,6 +710,8 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
+==========================================================================
+Klaatu barada nikto
 ==========================================================================
 
 

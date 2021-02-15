@@ -2194,3 +2194,138 @@ Partendo con un capitale di 1000 otteniamo:
 Quindi la strategia del giocatore lo porterà rapidamente in rovina.
 
 
+-------------------------------
+Daniel Dennet Quinian Crossword
+-------------------------------
+
+Questo non c'entra con la programmazione, ma è molto interessante: due cruciverba (crossword) che hanno soluzione doppia. Le definizioni sono in inglese perchè è impossibile tradurle mantenendo anche le doppie soluzioni. Di seguito sono riportate anche le soluzioni.
+
+Crossword 3x3
+-------------
+Across
+1. Suck the resources out of
+2. Epoch
+3. Sleep furniture
+
+Down
+1. Retentive membrane
+2. Earlier
+3. For some kids, a best friend
+
+Solutions:
+
+  W E D
+  E R A
+  B E D
+
+  S A P
+  A G E
+  C O T
+
+
+Crossword 4x4
+-------------
+Across
+1. Dirty stuff
+2. A great human need
+3. To make smooth
+4. Movie actor
+
+Down
+1. Vehicle dependent on H2O
+2. We usually want this
+3. Just above
+4. U.S. state (abbrev.)
+
+Solutions:
+
+S L O P      S M O G
+L O V E      L O V E
+E V E N      E V E N
+D E R N      D E R ?
+
+S M U T
+H O P E
+I R O N
+P E N N
+
+
+----------------------------------------
+Lista delle fattorizzazioni di un numero
+----------------------------------------
+
+Ogni numero intero ha una scomposizione primitiva e altre scomposizioni generate dalle combinazioni dei prodotti dei fattori della scomposizione primitiva.
+Prendiamo per esempio il numero 24:
+
+Scomposizione primitiva: 
+(factor 24)
+;-> (2 2 2 3)
+
+Le altre scomposizioni sono:
+(2 * 2 * (2*3)) = (2 2 6) 
+(2 * (2*2) * 3) = (2 4 3)
+(2 * (2*2*3))   = (12 2) 
+((2*2*2) * 3)   = (8 3)
+((2*2) * (2*3)) = (4 6)
+
+La seguente funzione calcola ricorsivamente tutte le fattorizzazioni di un numero:
+
+(define (get-factorizations n)
+  (let (afc '())
+    (all-fact n '() n)))
+
+(define (all-fact num parfac parval)
+  (let ((newval parval) (i (- num 1)))
+    (while (>= i 2)
+      (cond ((zero? (% num i))
+              (if (> newval 1) (setq newval i))
+              (if (and (<= (/ num i) parval) (<= i parval) (>= (/ num i) i))
+                  (begin
+                    (push (append parfac (list i (/ num i))) afc -1)
+                    (setq newval (/ num i))
+                  )
+              )
+              (if (<= i parval)
+                  (all-fact (/ num i) (append parfac (list i)) newval)
+              )
+            )
+      )
+      (-- i)
+    )
+    (sort (unique (map sort afc)))))
+
+Facciamo alcune prove:
+
+(get-factorizations 8)
+;-> ((2 2 2) (2 4))
+(get-factorizations 12)
+;-> ((2 2 3) (2 6) (3 4))
+(get-factorizations 24)
+;-> ((2 2 2 3) (2 2 6) (2 3 4) (2 12) (3 8) (4 6))
+(get-factorizations 280)
+;-> ((2 2 2 5 7) (2 2 2 35) (2 2 5 14) (2 2 7 10) (2 2 70)
+;->  (2 4 5 7) (2 4 35) (2 5 28) (2 7 20) (2 10 14) (2 140)
+;->  (4 5 14) (4 7 10) (4 70) (5 7 8) (5 56) (7 40) (8 35)
+;->  (10 28) (14 20))
+
+Per i numeri primi non esiiste alcuna fattorizzazione:
+
+(get-factorizations 11)
+;-> ()
+(get-factorizations 577)
+;-> ()
+
+Comunque questa funzione è inutilizzabile per valori che hanno molti fattori nella loro scomposizione primitiva:
+
+(factor 12000)
+;-> (2 2 2 2 2 3 5 5 5)
+
+(time (println (get-factorizations 12000)))
+;->  ....
+;->  (75 160)
+;->  (80 150)
+;->  (96 125)
+;->  (100 120))
+;-> 275880.184
+
+
