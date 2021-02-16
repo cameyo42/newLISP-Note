@@ -284,7 +284,7 @@ ROSETTA CODE
 
 PROJECT EULERO
 ==============
-  Problemi 1..89,92,94,96,97,99,100
+  Problemi 1..89,91,92,94,96,97,99,100
 
 PROBLEMI VARI
 =============
@@ -28095,10 +28095,15 @@ Vediamo quanto tempo impiega per calcolare tutti i numeri taxicab fino ad un mil
 |    87    |  1097343           |         -  |      1153  |         -  |
 |    88    |  7587457           |         -  |     24771  |       377  |
 |    89    |  743               |         -  |         0  |         -  |
+|    90    |  -                 |         -  |         -  |         -  |
+|    91    |  14234             |         -  |      7259  |         1  |
 |    92    |  8581146           |         -  |     51582  |        16  |
+|    93    |  -                 |         -  |         -  |         -  |
 |    94    |  518408346         |         -  |     28946  |         0  |
+|    95    |  -                 |         -  |         -  |         -  |
 |    96    |  24702             |         -  |     27084  |         -  |
 |    97    |  8739992577        |         -  |       497  |         -  |
+|    98    |  -                 |         -  |         -  |         -  |
 |    99    |  709               |         -  |         0  |         -  |
 |   100    |  756872327473      |         -  |         0  |         -  |
 
@@ -37971,6 +37976,85 @@ Carichiamo il file ed eseguiamo la funzione:
 
 (time e089)
 ;-> 0
+----------------------------------------------------------------------------
+
+
+===========
+Problema 91
+===========
+
+Triangoli rettangoli con coordinate intere
+
+I punti P (x1,y1) e Q (x2,y2) sono tracciati in coordinate intere e sono uniti all'origine, O (0,0), per formare ΔOPQ.
+
+Ci sono esattamente quattordici triangoli contenenti un angolo retto che può essere formato quando ciascuna coordinata è compresa tra 0 e 2 inclusi, cioè
+0 ≤ x1, y1, x2, y2 ≤ 2.
+
+Dato che 0 ≤ x1, y1, x2, y2 ≤ 50, quanti triangoli rettangoli possono essere formati?
+============================================================================
+
+Possiamo risolvere il problema con la forza bruta analizzando tutti i possibili triangoli con coordinate x1,y1 e x2,y2 e la terza coordinata da calcolare/verificare.
+
+(define (qdist x1 y1 x2 y2)
+  (let ((d1 (mul (- x1 x2) (- x1 x2))) 
+        (d2 (mul (- y1 y2) (- y1 y2))))
+  (add d1 d2)))
+
+(define (e091)
+  (local (limite x1 y1 x2 y2 d1 d2 d3 out)
+    (setq limite 50)
+    (setq out 0)
+    (for (x1 0 limite)
+      (for (y1 0 limite)
+        (cond ((and (= x1 0) (= y1 0)) nil)
+              (true
+                (for (x2 0 limite)
+                  (for (y2 0 limite)
+                    (cond ((or (and (= x2 0) (= y2 0)) (and (= x1 x2) (= y1 y2))) nil)
+                          (true
+                            (setq d1 (qdist 0 0 x1 y1))
+                            (setq d2 (qdist 0 0 x2 y2))
+                            (setq d3 (qdist x1 y1 x2 y2))
+                            (if (or (= (add d1 d2) d3) (= (add d2 d3) d1) (= (add d1 d3) d2))
+                                (++ out))))))))))
+    (/ out 2)))
+
+(e091)
+;-> 14234
+
+(time (e091))
+;-> 7259.789
+
+Altro algoritmo:
+se entrambe le coordinate si trovano ai lati della griglia, possiamo creare un triangolo rettangolo. Questo triangolo rettangolo può anche essere trasformato in altri due triangoli rettangoli. Poiché ci sono 50 * 50 = 2500 modi per scegliere queste due coordinate, sappiamo già che ci sono almeno 2500 * 3 = 7500 triangoli rettangoli.
+Per trovare il resto dei triangoli facciamo questo ragionamento: se vogliamo trovare un triangolo rettangolo con la coordinata P = (1,2) possiamo tracciare una linea che parte dall'origine O fino a P, la linea avrà una pendenza di 2. Quindi se tracciamo una linea con una pendenza -1/2, il reciproco negativo di 2, sarà perpendicolare a OP. Poiché l'altra coordinata Q deve contenere numeri interi, troveremo Q spostando P 2 blocchi a destra e 1 blocco in basso (usando pendenza = -1/2). Questo triangolo rettangolo sopra può anche essere riflesso lungo la linea y = x per formare un altro triangolo rettangolo.
+triangolo rettangolo con coordinate (2, 1) e (1, 3), a y = x riflesso dell'immagine sopra.
+Inoltre, possiamo estendere PQ di altri 2 blocchi a destra e 1 blocco in basso e creare un triangolo rettangolo diverso con coordinate (1, 2) e (5, 0).
+Avvertenza: le pendenze (frazioni) vanno semplificate altrimenti possiamo perdere alcuni triangoli rettangoli.
+
+(define (e091)
+  (local (limite p val out)
+    (setq limite 50)
+    ; Numero di rettangoli per i punti su entrambi i lati.
+    ; (che hanno 3 possibili trasformazioni)
+    (setq out (* (pow limite 2) 3))
+    ; Calcolo rettangoli rimanenti
+    (for (x 1 50)
+      (for (y 1 50)
+        (setq p (gcd x y))
+        (setq dx (/ x p))
+        (setq dy (/ y p))
+        (setq val (mul 2 (min (/ (- limite x) dy) (/ y dx))))
+        (setq out (+ out val))
+      )
+    )
+    out))
+
+(e091)
+;-> 14234
+
+(time (e091))
+;-> 1
 ----------------------------------------------------------------------------
 
 
