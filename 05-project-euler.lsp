@@ -96,10 +96,10 @@
 |    87    |  1097343           |         -  |      1153  |         -  |
 |    88    |  7587457           |         -  |     24771  |       377  |
 |    89    |  743               |         -  |         0  |         -  |
-|    90    |  -                 |         -  |         -  |         -  |
+|    90    |  1217              |         -  |        31  |         -  |
 |    91    |  14234             |         -  |      7259  |         1  |
 |    92    |  8581146           |         -  |     51582  |        16  |
-|    93    |  -                 |         -  |         -  |         -  |
+|    93    |  1258              |         -  |       389  |         -  |
 |    94    |  518408346         |         -  |     28946  |         0  |
 |    95    |  -                 |         -  |         -  |         -  |
 |    96    |  24702             |         -  |     27084  |         -  |
@@ -107,6 +107,7 @@
 |    98    |  -                 |         -  |         -  |         -  |
 |    99    |  709               |         -  |         0  |         -  |
 |   100    |  756872327473      |         -  |         0  |         -  |
+|   101    |  37076114526       |         -  |        70  |         -  |
 
 Sito web: https://projecteuler.net/archives
 
@@ -8668,7 +8669,7 @@ Il tempo di esecuzione è migliore della precedente funzione, ma utilizzare una 
 Proviamo con un altro algoritmo.
 Consideriamo i numeri di una catena: hanno tutti la stessa lunghezza della catena a cui appartengono.
 Se nella costruzione della catena di un numero raggiungiamo il numero 169 o 871 o 872 sappiamo come termina la catena stessa.
-Utilizzando anche gli altri numeri 363601, 1454,45361 e 45362 possiamo modificare il criterio di arresto del calcolo diretto della catena: ci fermiamo quando incontriamo uno di questi sette numeri oppure quando un numero termina la catena su se stesso.
+Utilizzando anche gli altri numeri 363601, 1454, 45361 e 45362 possiamo modificare il criterio di arresto del calcolo diretto della catena: ci fermiamo quando incontriamo uno di questi sette numeri oppure quando un numero termina la catena su se stesso.
 
 Scriviamo funzione finale:
 
@@ -9099,8 +9100,6 @@ def eulero079(L):
 
 eulero079(log)
 ;-> 73162890
-
-
 ----------------------------------------------------------------------------
 
 
@@ -9193,14 +9192,14 @@ Nella matrice 5 per 5 di seguito, la somma minima del percorso da in alto a sini
     131 673 234 103  18
     ---
     201  96 342 965 150
-    --- --- ---  
+    --- --- ---
     630 803 746 422 111
             ---
     537 699 497 121 956
-                ---  
+                ---
     805 732 524  37 331
                 ---
-                
+
 Trova la somma minima del percorso da in alto a sinistra a in basso a destra spostandoti a destra e in basso in "matrix.txt", un file di testo 31K contenente una matrice 80 per 80.
 ============================================================================
 
@@ -9262,9 +9261,9 @@ La somma del percorso minimo nella matrice 5 per 5 di seguito, iniziando in qual
     201  96 342 965 150
     --- --- ---
     630 803 746 422 111
-    
+
     537 699 497 121 956
-    
+
     805 732 524  37 331
 
 Trova la somma minima del percorso dalla colonna di sinistra alla colonna di destra in "matrix.txt", un file di testo 31K contenente una matrice 80 per 80.
@@ -9346,7 +9345,7 @@ Il file "matrix.txt" è stato trasformato nel file "e082.lsp", una lista di nome
 
 Algoritmo di soluzione preso da un articolo del sito https://www.programmersought.com/
 
-Considerando la matrice come un grafo diretto in cui ogni numero rappresenta il peso di ogni arco possiamo utilizzare l'algoritmo di Dijkstra. Questo algoritmo trova la distanza più breve da un vertice ad altri vertici in un grafo diretto o non orientato (i pesi del grafo devono avere tutti un valore maggiore di 0). Sul sito https://www.programmersought.com/ ho trovato 
+Considerando la matrice come un grafo diretto in cui ogni numero rappresenta il peso di ogni arco possiamo utilizzare l'algoritmo di Dijkstra. Questo algoritmo trova la distanza più breve da un vertice ad altri vertici in un grafo diretto o non orientato (i pesi del grafo devono avere tutti un valore maggiore di 0). Sul sito https://www.programmersought.com/ ho trovato
 
 Per risolvere il problema utilizziamo un vettore dist[][2], dist[a][0] rappresenta la lunghezza del percorso più breve da 0 ad "a" che abbiamo trovato (non necessariamente la più breve), dist[a][1] = 1 significa che questo è il più breve, dist[a][1] = 0 significa che non siamo ancora sicuri che questa sia la lunghezza più breve.
 
@@ -9361,7 +9360,7 @@ Adesso esaminiamo i vertici adiacenti ad a3 e ripetiamo l'operazione sopra. Dopo
 (define (e083)
   ;(load "e083.lsp")
   (local (dist iter idxm)
-    ; vettore delle distanze 
+    ; vettore delle distanze
     (setq dist (array 6400 2 '(10000000 0)))
     (setq iter 0)
     (setq idxm 0)
@@ -9375,7 +9374,7 @@ Adesso esaminiamo i vertici adiacenti ad a3 e ripetiamo l'operazione sopra. Dopo
       (setq idxm (foundmin dist))
       ;(println idxm)
       ;(read-line)
-      ; flag: percorso minimo      
+      ; flag: percorso minimo
       (setf (dist idxm 1) 1)
       ; aggiorna le distanze con i punti adiacenti
       (if (!= (% idxm 80) 0)
@@ -9526,7 +9525,7 @@ Sebbene non esista una griglia rettangolare che contenga esattamente due milioni
 
 Una griglia N * M può essere rappresentata come (N + 1) linee orizzontali e (M + 1) linee verticali.
 In un rettangolo, abbiamo bisogno di due distinte linee orizzontali e due distinte linee verticali.
-Quindi possiamo scegliere 2 linee verticali e 2 linee orizzontali per formare un rettangolo. Ci sono (N+1) scelte per la larghezza e (M+1) scelte per l'altezza, quindi il numero totale di rettangoli possibili nella griglia vale: 
+Quindi possiamo scegliere 2 linee verticali e 2 linee orizzontali per formare un rettangolo. Ci sono (N+1) scelte per la larghezza e (M+1) scelte per l'altezza, quindi il numero totale di rettangoli possibili nella griglia vale:
 
  binom(N+1,2) * binom(M+1,2) = (N*(N+1)*M*(M+1))/4
 
@@ -9750,7 +9749,7 @@ Quindi basta fattorizzare tutti i numeri compresi tra 2 e 24000 per verificare s
 Purtroppo bisogna considerare tutte le combinazioni di fattorizzazione per ogni numero perchè la somma-prodotto minima di qualche k non viene prodotta dalla scomposizione primitiva. Per esempio prendiamo il numero 8:
 
 Scomposizione primitiva:
-(factor 8) 
+(factor 8)
 ;-> (2 2 2)
 (get-k (factor 8))
 ;-> 5
@@ -9847,7 +9846,7 @@ Allora calcoliamo dinamicamente ogni fattorizzazione per ogni numero fino a 24.0
 Il seguente algoritmo calcola il valore minimo di somma-prodotto ricorsivamente:
 
 (define (cerca prodotto somma i)
-  (catch 
+  (catch
   (local (valprod valsomma)
     (setf (out (- prodotto somma)) (min (out (- prodotto somma)) prodotto))
     (while (<= i (+ n 2))
@@ -9870,7 +9869,6 @@ Il seguente algoritmo calcola il valore minimo di somma-prodotto ricorsivamente:
 
 (time (e088))
 ;-> 377.014
-
 ----------------------------------------------------------------------------
 
 
@@ -9931,7 +9929,7 @@ Funzione di conversione da numero romano a numero intero:
     (dostring (ch roman)
       ; converts the current character into an integer
       (setq curr (lookup (char ch) table))
-      ; pick the right case to add or substract
+      ; pick the right case to add or subtract
       (if (>= prev curr)
           (setq num (+ num prev))
           (setq num (- num prev))
@@ -9981,6 +9979,98 @@ Carichiamo il file ed eseguiamo la funzione:
 
 
 ===========
+Problema 90
+===========
+
+Coppie di cubi con cifre
+
+Ciascuna delle sei facce di un cubo ha una cifra diversa (da 0 a 9) scritta su di essa. Lo stesso viene fatto per un secondo cubo. Mettendo i due cubi fianco a fianco in posizioni diverse possiamo formare una varietà di numeri a 2 cifre.
+
+Ad esempio, il numero quadrato 64 potrebbe essere formato con 6 e 4.
+
+Infatti, scegliendo attentamente le cifre su entrambi i cubi è possibile visualizzare tutti i numeri quadrati inferiori al cento: 01, 04, 09, 16, 25, 36, 49, 64 e 81.
+
+Ad esempio, un modo per ottenere questo risultato è posizionare {0, 5, 6, 7, 8, 9} su un cubo e {1, 2, 3, 4, 8, 9} sull'altro cubo.
+
+Tuttavia, per questo problema, permetteremo che il 6 o il 9 siano capovolti in modo che una disposizione come {0, 5, 6, 7, 8, 9} e {1, 2, 3, 4, 6, 7} permette la visualizzazione di tutti i nove numeri quadrati, altrimenti sarebbe impossibile ottenere 09.
+
+Nel determinare una disposizione distinta siamo interessati alle cifre su ogni cubo, non all'ordine.
+
+{1, 2, 3, 4, 5, 6} è equivalente a {3, 6, 4, 1, 2, 5}
+{1, 2, 3, 4, 5, 6} è distinto da {1, 2, 3, 4, 5, 9}
+
+Ma poiché stiamo consentendo l'inversione di 6 e 9, i due insiemi distinti nell'ultimo esempio rappresentano entrambi l'insieme esteso {1, 2, 3, 4, 5, 6, 9} allo scopo di formare numeri a 2 cifre.
+
+Quante disposizioni distinte dei due cubi consentono di visualizzare tutti i numeri quadrati?
+============================================================================
+
+Risolviamo il problema con il metodo brute-force. Le spiegazioni dell'algoritmo si trovano nei commenti alla funzione.
+
+Funzione che calcola il numero di combinazioni:
+
+(define (comb k lst)
+  (cond ((zero? k)   '(()))
+        ((null? lst) '())
+        (true
+          (append (map (lambda (k-1) (cons (first lst) k-1))
+                       (comb (- k 1) (rest lst)))
+                  (comb k (rest lst))))))
+
+(define (e090)
+  (local (quadrati cifre dado out idx1)
+    ; lista delle cifre dove al posto del 9 mettiamo 6
+    ; per evitare di dover capovolgere le due cifre nel controllo
+    (setq cifre '(0 1 2 3 4 5 6 7 8 6))
+    ; lista di tutti i quadrati da creare
+    ; nota: (0 6) invece di (0 9) e (4 6) invece di (4 9)
+    (setq quadrati '((0 1) (0 4) (0 6) (1 6) (2 5) (3 6) (4 6) (8 1)))
+    ; lista di tutte le combinazioni di 6 cifre
+    (setq dado (comb 6 cifre))
+    ; risultato
+    (setq out 0)
+    ; per ogni elemento/combinazione (es. (2 3 4 6 7 6)) in dado
+    (dolist (d1 dado)
+      (setq idx1 $idx)
+      ; per ogni elemento/combinazione (es. (2 3 4 6 7 6)) in dado
+      ; (diverso da se stesso, infatti prendiamo una parte
+      ; della lista "dado" con (slice dado idx1))
+      (dolist (d2 (slice dado idx1))
+        ; controlla se i due elementi/combinazioni verificano i requisiti
+        ; cioè creano tutti i quadrati
+        (if (controlla d1 d2) (++ out))
+      )
+    )
+    out))
+
+(define (controlla c1 c2)
+  (let ((stop nil) (out true))
+    ; Per ogni elemento della lista quadrati
+    (dolist (quad quadrati stop)
+      ; prima cifra del quadrato
+      (setq x (first quad))
+      ; seconda cifra del quadrato
+      (setq y (last quad))
+      ; verifichiamo che può essere creato dalla coppia c1 e c2
+      ; se un solo quadrato non può essere creato restituisce nil
+      ; altrimenti restituisce true, cioè tutti i quadrati
+      ; possono essere creati dalla coppia c1 e c2.
+      ; la verifica consiste nel controllare se x e y
+      ; compaiono in c1 e c2 o viceversa.
+      (if (not (or (and (find x c1) (find y c2)) (and (find x c2) (find y c1))))
+          (setq out nil stop true)
+      )
+    )
+    out))
+
+(e090)
+;-> 1217
+
+(time (e090))
+;-> 31.942
+----------------------------------------------------------------------------
+
+
+===========
 Problema 91
 ===========
 
@@ -9997,7 +10087,7 @@ Dato che 0 ≤ x1, y1, x2, y2 ≤ 50, quanti triangoli rettangoli possono essere
 Possiamo risolvere il problema con la forza bruta analizzando tutti i possibili triangoli con coordinate x1,y1 e x2,y2 e la terza coordinata da calcolare/verificare.
 
 (define (qdist x1 y1 x2 y2)
-  (let ((d1 (mul (- x1 x2) (- x1 x2))) 
+  (let ((d1 (mul (- x1 x2) (- x1 x2)))
         (d2 (mul (- y1 y2) (- y1 y2))))
   (add d1 d2)))
 
@@ -10356,6 +10446,235 @@ Per i tempi di esecuzione abbiamo il seguente rapporto: (/ 51582 116) = 444, cio
 
 
 ===========
+Problema 93
+===========
+
+Espressioni aritmetiche
+
+Utilizzando ciascuna delle cifre dell'insieme, {1, 2, 3, 4}, esattamente una volta, e facendo uso delle quattro operazioni aritmetiche (+, -, *, /) e parentesi, è possibile formare diversi target interi positivi.
+
+Per esempio,
+
+8 = (4 * (1 + 3)) / 2
+14 = 4 * (3 + 1/2)
+19 = 4 * (2 + 3) - 1
+36 = 3 * 4 * (2 + 1)
+
+Si noti che le concatenazioni delle cifre, come 12 + 34, non sono consentite.
+
+Utilizzando l'insieme, {1, 2, 3, 4}, è possibile ottenere trentuno numeri target diversi di cui 36 è il massimo, e ciascuno dei numeri da 1 a 28 può essere ottenuto prima di incontrare il primo numero non esprimibile.
+
+Trova l'insieme di quattro cifre distinte, a < b < c < d, per il quale è possibile ottenere l'insieme più lungo di interi positivi consecutivi, da 1 a n, dando la tua risposta come una stringa: abcd.
+============================================================================
+
+Funzione che valuta le espressioni (rpn):
+
+(define (eval-rpn lst)
+  (local (stack a b op operator)
+    (setq stack '())
+    (setq operator '(+ - * / add sub mul div))
+    (dolist (el lst)
+      (cond ((number? el)
+             (push el stack))
+            (true
+             (cond ((find el operator)
+                    (setq a (pop stack))
+                    (setq b (pop stack))
+                    (setq op (eval el))
+                    ; ritorna 0 se si divide per zero
+                    (if (and (zero? a) (or (= op div) (= op /)))
+                        (push 0 stack )
+                        (push (op b a) stack)))
+                   (true (println "operator error:" el))))))
+    (pop stack)))
+
+Funzione che calcola le combinazioni:
+
+(define (comb k lst)
+  (cond ((zero? k)   '(()))
+        ((null? lst) '())
+        (true
+          (append (map (lambda (k-1) (cons (first lst) k-1))
+                       (comb (- k 1) (rest lst)))
+                  (comb k (rest lst))))))
+
+(setq cifre '(1 2 3 4 5 6 7 8 9))
+
+(setq digit4 (comb 4 cifre))
+
+(length digit4)
+;-> 126
+
+(sort digit4)
+;-> ((1 2 3 4) (1 2 3 5) (1 2 3 6) (1 2 3 7) (1 2 3 8) (1 2 3 9)
+;->  (1 2 4 5) (1 2 4 6) (1 2 4 7) (1 2 4 8) (1 2 4 9) (1 2 5 6)
+;->  ...
+;->  (4 7 8 9) (5 6 7 8) (5 6 7 9) (5 6 8 9) (5 7 8 9) (6 7 8 9))
+
+Adesso occorre calcolare le permutazioni di ogni elemento di digit4:
+
+(define (perm lst)
+  (local (i indici out)
+    (setq indici (dup 0 (length lst)))
+    (setq i 0)
+    ; aggiungiamo la lista iniziale alla soluzione
+    (setq out (list lst))
+    (while (< i (length lst))
+      (if (< (indici i) i)
+          (begin
+            (if (zero? (% i 2))
+              (swap (lst 0) (lst i))
+              (swap (lst (indici i)) (lst i))
+            )
+            ;(println lst);
+            (push lst out -1)
+            (++ (indici i))
+            (setq i 0)
+          )
+          (begin
+            (setf (indici i) 0)
+            (++ i)
+          )
+       )
+    )
+    out))
+
+(setq p1234 (perm '(1 2 3 4)))
+;-> ((1 2 3 4) (2 1 3 4) (3 1 2 4) (1 3 2 4) (2 3 1 4) (3 2 1 4)
+;->  (4 2 1 3) (2 4 1 3) (1 4 2 3) (4 1 2 3) (2 1 4 3) (1 2 4 3)
+;->  (1 3 4 2) (3 1 4 2) (4 1 3 2) (1 4 3 2) (3 4 1 2) (4 3 1 2)
+;->  (4 3 2 1) (3 4 2 1) (2 4 3 1) (4 2 3 1) (3 2 4 1) (2 3 4 1))
+
+(length (perm '(1 2 3 4)))
+;-> 24
+
+(* 24 126)
+;-> 3024 liste di numeri da calcolare
+
+Vediamo la lista delle operazioni:
+
+Permutazioni con ripetizione (n^k):
+
+(define (perm-rep k lst)
+  (if (zero? k) '(())
+      (flat (map (lambda (p) (map (lambda (e) (cons e p)) lst))
+                         (perm-rep (- k 1) lst)) 1)))
+
+(setq op '(add sub mul div))
+
+Lista delle operazioni possibili (n^k) = 4^3 = 64:
+
+(setq operats (perm-rep 3 op))
+;-> ((add add add) (sub add add) (mul add add) (div add add)
+;->  (add sub add) (sub sub add) (mul sub add) (div sub add)
+;->  ...
+;->  (add div div) (sub div div) (mul div div) (div div div))
+
+(length operats)
+;-> 64
+(pow 4 3)
+;-> 64
+
+(* 3024 64)
+;-> 193536 espressioni da valutare
+
+Calcoliamo le sequenze:
+
+Funzione che calcola la sequenza massima (1,n) di una lista:
+
+(define (maxseq lst)
+  (let (out 0)
+    (setq (lst 0 0) 0)
+    (dolist (el lst)
+      (if (= el $idx) (setq out $idx)))
+    out))
+
+(setq valmaxseq 0)
+(setq valmaxseq-numbers '())
+(setq res4 '())
+(setq res '())
+(setq alld4 '())
+(dolist (d4 digit4)
+  (setq alld4 (perm d4))
+  (setq res4 '())
+  ;(println d4)
+  ;(read-line)
+  (dolist (numeri alld4)
+    (dolist (el operats)
+      ; crea e valuta espressione (es. (1 3 2 4 add mul mul))
+      (setq val (abs (eval-rpn (append numeri el))))
+      ;(println val { } numeri)
+      ;(read-line)
+      (if (= val (int val))
+        (push val res4)
+      )
+    )
+  )
+  (setq res4 (unique (sort res4)))
+  ;(println res4)
+  ;(read-line)
+  (setq seqval (maxseq res4))
+  ;(println seqval { } d4)
+  ;(read-line)
+  (if (> seqval valmaxseq)
+      (setq valmaxseq seqval valmaxseq-numbers d4)
+  )
+)
+(println (list valmaxseq valmaxseq-numbers))
+;-> (51 (1 2 5 8))
+
+Adesso possiamo scrivere la funzione finale:
+
+(define (e093)
+  (local (cifre digit4 op)
+    (setq cifre '(1 2 3 4 5 6 7 8 9))
+    (setq digit4 (comb 4 cifre))
+    (sort digit4)
+    (setq op '(add sub mul div))
+    (setq operats (perm-rep 3 op))
+    (setq valmaxseq 0)
+    (setq valmaxseq-numbers '())
+    (setq res4 '())
+    (setq res '())
+    (setq alld4 '())
+    (dolist (d4 digit4)
+      (setq alld4 (perm d4))
+      (setq res4 '())
+      ;(println d4)
+      ;(read-line)
+      (dolist (numeri alld4)
+        (dolist (el operats)
+          ; crea e valuta espressione (es. (1 3 2 4 add mul mul))
+          (setq val (abs (eval-rpn (append numeri el))))
+          ;(println val { } numeri)
+          ;(read-line)
+          (if (= val (int val))
+            (push val res4)
+          )
+        )
+      )
+      (setq res4 (unique (sort res4)))
+      ;(println res4)
+      ;(read-line)
+      (setq seqval (maxseq res4))
+      ;(println seqval { } d4)
+      ;(read-line)
+      (if (> seqval valmaxseq)
+          (setq valmaxseq seqval valmaxseq-numbers d4)
+      )
+    )
+  (list valmaxseq valmaxseq-numbers)
+  (join (map string valmaxseq-numbers))))
+
+(e093)
+;-> "1258"
+
+(time (e093))
+;-> 389.985
+----------------------------------------------------------------------------
+
+
+===========
 Problema 94
 ===========
 
@@ -10705,7 +11024,6 @@ b(k+1) = 3*b(k) + 2*n(k) - 2
 n(k+1) = 4*b(k) + 3*n(k) - 3
 
 Adesso possiamo scrivere la funzione:
-756872327473
 
 (define (e100)
   (let ((n 21) (b 15) (b1 0) (n1 0))
@@ -10723,5 +11041,323 @@ Adesso possiamo scrivere la funzione:
 ;-> 0
 ----------------------------------------------------------------------------
 
+
+============
+Problema 101
+============
+
+Polinomio ottimale
+
+Se ci vengono presentati i primi k termini di una sequenza, è impossibile dire con certezza il valore del termine successivo, poiché ci sono infinite funzioni polinomiali che possono modellare la sequenza.
+
+Ad esempio, consideriamo la sequenza dei numeri dei cubi. Questo è definito dalla funzione generatrice,
+u^n = n^3: 1, 8, 27, 64, 125, 216, ...
+
+Supponiamo che ci siano stati dati solo i primi due termini di questa sequenza. Lavorando sul principio che "semplice è il migliore" dovremmo assumere una relazione lineare e prevedere che il termine successivo sia 15 (differenza comune 7). Anche se ci venissero presentati i primi tre termini, secondo lo stesso principio di semplicità, si dovrebbe assumere una relazione quadratica.
+
+Definiremo OP(k, n) come l'ennesimo termine della funzione generatrice polinomiale ottima per i primi k termini di una sequenza. Dovrebbe essere chiaro che OP(k, n) genererà accuratamente i termini della sequenza per n ≤ k, e potenzialmente il primo termine errato (FIT - First Incorrect Term) sarà OP(k, k + 1): in tal caso lo chiameremo un cattivo OP (BOP - Bad OP).
+
+Come base, se ci fosse dato solo il primo termine di sequenza, sarebbe più sensato assumerlo costante, cioè, per n ≥ 2, OP(1, n) = u1.
+
+Quindi otteniamo i seguenti OP per la sequenza cubica:
+
+OP (1, n) = 1                   1, 1, 1, 1, ...
+                                   -
+OP (2, n) = 7n − 6              1, 8, 15, ...
+                                      --
+OP (3, n) = 6n^2 − 11n + 6      1, 8, 27, 58, ...
+                                          --
+OP (4, n) = n3                  1, 8, 27, 64, 125, ...
+
+Chiaramente non esistono BOP per k ≥ 4.
+
+Considerando la somma dei FIT generati dai BOP (sottolineati sopra), otteniamo 1 + 15 + 58 = 74.
+
+Considera la seguente funzione di generazione del polinomio di decimo grado:
+
+un = 1 - n + n ^ 2 - n ^ 3 + n ^ 4 - n ^ 5 + n ^ 6 - n ^ 7 + n ^ 8 - n ^ 9 + n ^ 10
+
+Trova la somma dei FIT per i BOP.
+============================================================================
+
+Si tratta di un problema prettamente matematico e questa volta ho utilizzato SAGE/python per trovare la soluzione.
+
+def ug(n):
+   y = 1 - n + n^2 - n^3 + n^4 - n^5 + n^6 -n^7 + n^8 - n^9 +  n^10
+   return(y)
+
+def ugLista(n):
+   ugL = []
+   for i in range(1,n+1):
+       ugL.append(ug(i))
+   return(ugL)
+
+ugLista(12)
+
+[1, 683, 44287, 838861, 8138021, 51828151, 247165843, 954437177,
+3138105961, 9090909091, 23775972551, 57154490053]
+
+def eulero101(plotta = False):
+   import numpy as np
+
+   bop = [1]
+
+   grado = 1
+   x = np.array(range(0,grado+1), dtype=float)
+   y = np.array([1,683], dtype=float)
+   coeff = np.polyfit(x,y,grado)
+   poli = np.poly1d(np.polyfit(x,y,grado))
+   coeffL = []
+   for i in range(len(coeff)):
+       coeffL.append(int(round(coeff[i])))
+   print coeffL,
+   html('<pre>' + str(poli)  + '</pre>')
+   for i in range(0,grado+2):
+       print poli(i),
+   bop.append(poli(i))
+   if plotta:
+       P0 = list_plot(zip(x,y), rgbcolor='red')
+       P1 = list_plot([(i,poli(i)) for i in np.linspace(int(0),int(10),100)],plotjoined=True)
+       show(P0 + P1)
+
+   grado = 2
+   x = np.array(range(0,grado+1), dtype=float)
+   y = np.array([1,683,44287], dtype=float)
+   coeff = np.polyfit(x,y,grado)
+   poli = np.poly1d(np.polyfit(x,y,grado))
+   coeffL = []
+   for i in range(len(coeff)):
+       coeffL.append(int(round(coeff[i])))
+   print coeffL,
+   html('<pre>' + str(poli)  + '</pre>')
+   for i in range(0,grado+2):
+       print poli(i),
+   bop.append(poli(i))
+   if plotta:
+       P0 = list_plot(zip(x,y), rgbcolor='red')
+       P1 = list_plot([(i,poli(i)) for i in np.linspace(int(0),int(10),100)],plotjoined=True)
+       show(P0 + P1)
+
+   grado = 3
+   x = np.array(range(0,grado+1), dtype=float)
+   y = np.array([1,683,44287,838861], dtype=float)
+   coeff = np.polyfit(x,y,grado)
+   poli = np.poly1d(np.polyfit(x,y,grado))
+   coeffL = []
+   for i in range(len(coeff)):
+       coeffL.append(int(round(coeff[i])))
+   print coeffL,
+   html('<pre>' + str(poli)  + '</pre>')
+   for i in range(0,grado+2):
+       print poli(i),
+   bop.append(poli(i))
+   if plotta:
+       P0 = list_plot(zip(x,y), rgbcolor='red')
+       P1 = list_plot([(i,poli(i)) for i in np.linspace(int(0),int(10),100)],plotjoined=True)
+       show(P0 + P1)
+
+   grado = 4
+   x = np.array(range(0,grado+1), dtype=float)
+   y = np.array([1,683,44287,838861,8138021], dtype=float)
+   coeff = np.polyfit(x,y,grado)
+   poli = np.poly1d(np.polyfit(x,y,grado))
+   coeffL = []
+   for i in range(len(coeff)):
+       coeffL.append(int(round(coeff[i])))
+   print coeffL,
+   html('<pre>' + str(poli)  + '</pre>')
+   for i in range(0,grado+2):
+       print poli(i),
+   bop.append(poli(i))
+   if plotta:
+       P0 = list_plot(zip(x,y), rgbcolor='red')
+       P1 = list_plot([(i,poli(i)) for i in np.linspace(int(0),int(10),100)],plotjoined=True)
+       show(P0 + P1)
+
+   grado = 5
+   x = np.array(range(0,grado+1), dtype=float)
+   y = np.array([1, 683, 44287, 838861, 8138021, 51828151], dtype=float)
+   coeff = np.polyfit(x,y,grado)
+   poli = np.poly1d(np.polyfit(x,y,grado))
+   coeffL = []
+   for i in range(len(coeff)):
+       coeffL.append(int(round(coeff[i])))
+   print coeffL,
+   html('<pre>' + str(poli)  + '</pre>')
+   for i in range(0,grado+2):
+       print poli(i),
+   bop.append(poli(i))
+   if plotta:
+       P0 = list_plot(zip(x,y), rgbcolor='red')
+       P1 = list_plot([(i,poli(i)) for i in np.linspace(int(0),int(10),100)],plotjoined=True)
+       show(P0 + P1)
+
+   grado = 6
+   x = np.array(range(0,grado+1), dtype=float)
+   y = np.array([1, 683, 44287, 838861, 8138021, 51828151, 247165843], dtype=float)
+   coeff = np.polyfit(x,y,grado)
+   poli = np.poly1d(np.polyfit(x,y,grado))
+   coeffL = []
+   for i in range(len(coeff)):
+       coeffL.append(int(round(coeff[i])))
+   print coeffL,
+   html('<pre>' + str(poli)  + '</pre>')
+   for i in range(0,grado+2):
+       print poli(i),
+   bop.append(poli(i))
+   if plotta:
+       P0 = list_plot(zip(x,y), rgbcolor='red')
+       P1 = list_plot([(i,poli(i)) for i in np.linspace(int(0),int(10),100)],plotjoined=True)
+       show(P0 + P1)
+
+   grado = 7
+   x = np.array(range(0,grado+1), dtype=float)
+   y = np.array([1, 683, 44287, 838861, 8138021, 51828151, 247165843, 954437177], dtype=float)
+   coeff = np.polyfit(x,y,grado)
+   poli = np.poly1d(np.polyfit(x,y,grado))
+   coeffL = []
+   for i in range(len(coeff)):
+       coeffL.append(int(round(coeff[i])))
+   print coeffL,
+   html('<pre>' + str(poli)  + '</pre>')
+   for i in range(0,grado+2):
+       print poli(i),
+   bop.append(poli(i))
+   if plotta:
+       P0 = list_plot(zip(x,y), rgbcolor='red')
+       P1 = list_plot([(i,poli(i)) for i in np.linspace(int(0),int(10),100)],plotjoined=True)
+       show(P0 + P1)
+
+   grado = 8
+   x = np.array(range(0,grado+1), dtype=float)
+   y = np.array([1, 683, 44287, 838861, 8138021, 51828151, 247165843, 954437177, 3138105961], dtype=float)
+   coeff = np.polyfit(x,y,grado)
+   poli = np.poly1d(np.polyfit(x,y,grado))
+   coeffL = []
+   for i in range(len(coeff)):
+       coeffL.append(int(round(coeff[i])))
+   print coeffL,
+   html('<pre>' + str(poli)  + '</pre>')
+   for i in range(0,grado+2):
+       print poli(i),
+   bop.append(poli(i))
+   if plotta:
+       P0 = list_plot(zip(x,y), rgbcolor='red')
+       P1 = list_plot([(i,poli(i)) for i in np.linspace(int(0),int(10),100)],plotjoined=True)
+       show(P0 + P1)
+
+   grado = 9
+   x = np.array(range(0,grado+1), dtype=float)
+   y = np.array([1, 683, 44287, 838861, 8138021, 51828151, 247165843, 954437177, 3138105961, 9090909091], dtype=float)
+   coeff = np.polyfit(x,y,grado)
+   poli = np.poly1d(np.polyfit(x,y,grado))
+   coeffL = []
+   for i in range(len(coeff)):
+       coeffL.append(int(round(coeff[i])))
+   print coeffL,
+   html('<pre>' + str(poli)  + '</pre>')
+   for i in range(0,grado+2):
+       print poli(i),
+   bop.append(poli(i))
+   if plotta:
+       P0 = list_plot(zip(x,y), rgbcolor='red')
+       P1 = list_plot([(i,poli(i)) for i in np.linspace(int(0),int(10),100)],plotjoined=True)
+       show(P0 + P1)
+
+   grado = 10
+   x = np.array(range(0,grado+1), dtype=float)
+   y = np.array([1, 683, 44287, 838861, 8138021, 51828151, 247165843, 954437177, 3138105961, 9090909091, 23775972551], dtype=float)
+   coeff = np.polyfit(x,y,grado)
+   poli = np.poly1d(np.polyfit(x,y,grado))
+   coeffL = []
+   for i in range(len(coeff)):
+       coeffL.append(int(round(coeff[i])))
+   print coeffL,
+   html('<pre>' + str(poli)  + '</pre>')
+   for i in range(0,grado+2):
+       print poli(i),
+   if plotta:
+       P0 = list_plot(zip(x,y), rgbcolor='red')
+       P1 = list_plot([(i,poli(i)) for i in np.linspace(int(0),int(10),100)],plotjoined=True)
+       show(P0 + P1)
+
+   print bop
+   #print int(round(sum(bop)))
+   return(int(round(sum(bop))))
+
+time eulero101(plotta=False)
+
+[682, 1]
+
+682 x + 1
+
+1.0 683.0 1365.0 [21461, -20779, 1]
+           2
+2.146e+04 x - 2.078e+04 x + 1
+
+0.999999999993 683.0 44287.0 130813.0 [118008, -332563, 215237, 1]
+          3             2
+1.18e+05 x - 3.326e+05 x + 2.152e+05 x + 1
+
+1.0 683.0 44287.0 838861.0 3092453.0 [210232, -1143384, 1979989,
+-1046155, 1]
+           4             3            2
+2.102e+05 x - 1.143e+06 x + 1.98e+06 x - 1.046e+06 x + 1
+
+1.0000000149 683.00000001 44287.0 838861.0 8138021.0 32740951.0
+[159060, -1380368, 4423716, -5973011, 2771285, 1]
+           5            4             3             2
+1.591e+05 x - 1.38e+06 x + 4.424e+06 x - 5.973e+06 x + 2.771e+06 x + 1
+
+0.999999880791 683.000000086 44286.9999999 838861.0 8138021.0
+51828151.0 205015603.0 [58542, -719070, 3595702, -8748234, 10067497,
+-4253755, 1]
+           6             5             4             3             2
+5.854e+04 x - 7.191e+05 x + 3.596e+06 x - 8.748e+06 x + 1.007e+07 x - 4.254e+06 x + 1
+
+1.0 682.999999477 44287.0000006 838861.0 8138021.0 51828151.0
+247165843.0 898165577.0 [11165, -175923, 1234805, -4610573, 9383726,
+-9627563, 3785045, 1]
+           7             6             5             4             3
+1.117e+04 x - 1.759e+05 x + 1.235e+06 x - 4.611e+06 x + 9.384e+06 x
+              2
+ - 9.628e+06 x + 3.785e+06 x + 1
+
+1.0 683.000003743 44287.0000004 838861.000003 8138021.0 51828151.0
+247165843.0 954437177.0 3093310441.0 [1111, -19943, 181819, -942755,
+2909786, -5205926, 4890985, -1814395, 1]
+      8             7             6             5            4
+1111 x - 1.994e+04 x + 1.818e+05 x - 9.428e+05 x + 2.91e+06 x
+              3             2
+ - 5.206e+06 x + 4.891e+06 x - 1.814e+06 x + 1
+
+1.00000762939 683.000007528 44286.9999997 838861.000002
+8138021.00001 51828151.0 247165843.0 954437177.0 3138105961.0
+9071313571.0 [54, -833, 9541, -63125, 269491, -723550, 1172770,
+-1026551, 362885, 1]
+    9       8        7             6             5             4
+54 x - 833 x + 9541 x - 6.312e+04 x + 2.695e+05 x - 7.235e+05 x
+              3             2
+ + 1.173e+06 x - 1.027e+06 x + 3.629e+05 x + 1
+
+0.999998092651 682.99998807 44286.9999814 838860.999984
+8138020.99998 51828151.0 247165843.0 954437177.0 3138105961.0
+9090909091.0 23772343751.0 [1, 9, 37, 91, 148, 166, 130, 70, 25, 5,
+1]
+   10     9      8      7       6       5       4      3      2
+1 x  + 9 x + 37 x + 91 x + 148 x + 166 x + 130 x + 70 x + 25 x + 5 x + 1
+
+0.999999046326 682.999999004 44286.9999978 838860.999998 8138021.0
+51828151.0 247165843.0 954437177.0 3138105961.0 9090909091.0
+23775972551.0 57154490053.0 [1, 1365.0, 130812.99999999997,
+3092452.9999999986, 32740951.000000015, 205015603.00000089,
+898165576.99999714, 3093310441.0001335, 9071313571.000391,
+23772343750.999367]
+37076114526L
+Time: CPU 0.07 s, Wall: 0.22 s
+
+Soluzione: 37076114526
+Tempo: 0.07 sec = 70 msec
+----------------------------------------------------------------------------
 
 

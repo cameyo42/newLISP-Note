@@ -6137,7 +6137,7 @@ Ma per adesso basta con i numeri vampiri.
 
 
 ----------------
-Il gioco del Nim
+IL GIOCO DEL NIM
 ----------------
 
 Nim è un gioco in cui due persone alternativamente rimuovono alcuni elementi disposti in una serie di righe partendo da una posizione iniziale. Si inizia con una serie di righe contenenti un certo numero di elementi (il numero delle righe e degli elementi di ogni riga possono essere qualunque numero intero e sono concordati tra i giocatori all'inizio della partita). I giocatori, a turno, tolgono da una qualsiasi riga un numero di elementi a piacere, da uno a tutti. Vince chi toglie l'ultimo elemento presente. Non è possibile passare (saltare la mossa).
