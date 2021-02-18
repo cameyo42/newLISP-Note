@@ -284,7 +284,7 @@ ROSETTA CODE
 
 PROJECT EULERO
 ==============
-  Problemi 1..94,96,97,99,100,101
+  Problemi 1..94,96,97,99,100,101,102
 
 PROBLEMI VARI
 =============
@@ -645,6 +645,7 @@ NOTE LIBERE 3
   Roulette
   Daniel Dennet Quinian Crossword
   Lista delle fattorizzazioni di un numero
+  Algoritmo di Bellman-Ford
   
 APPENDICI
 =========
@@ -28064,7 +28065,7 @@ Vediamo quanto tempo impiega per calcolare tutti i numeri taxicab fino ad un mil
 |    56    |  972               |       186  |       119  |         -  |
 |    57    |  153               |        10  |         1  |         -  |
 |    58    |  26241             |       630  |       432  |         -  |
-|    59    |  107359            |        15  |         1  |         -  |
+|    59    |  129448 / 107359   |        15  |         1  |         -  |
 |    60    |  26033             |     55055  |     38926  |         -  |
 |    61    |  28684             |         -  |        85  |         -  |
 |    62    |  127035954683      |         -  |      6348  |        83  |
@@ -28107,6 +28108,7 @@ Vediamo quanto tempo impiega per calcolare tutti i numeri taxicab fino ad un mil
 |    99    |  709               |         -  |         0  |         -  |
 |   100    |  756872327473      |         -  |         0  |         -  |
 |   101    |  37076114526       |         -  |        70  |         -  |
+|   102    |  228               |         -  |        70  |         0  |
 
 Sito web: https://projecteuler.net/archives
 
@@ -39098,7 +39100,6 @@ ugLista(12)
 
 def eulero101(plotta = False):
    import numpy as np
-
    bop = [1]
 
    grado = 1
@@ -39290,16 +39291,18 @@ time eulero101(plotta=False)
 
 682 x + 1
 
-1.0 683.0 1365.0 [21461, -20779, 1]
+1.0 683.0 1365.0 
+[21461, -20779, 1]
            2
 2.146e+04 x - 2.078e+04 x + 1
 
-0.999999999993 683.0 44287.0 130813.0 [118008, -332563, 215237, 1]
+0.999999999993 683.0 44287.0 130813.0 
+[118008, -332563, 215237, 1]
           3             2
 1.18e+05 x - 3.326e+05 x + 2.152e+05 x + 1
 
-1.0 683.0 44287.0 838861.0 3092453.0 [210232, -1143384, 1979989,
--1046155, 1]
+1.0 683.0 44287.0 838861.0 3092453.0 
+[210232, -1143384, 1979989, -1046155, 1]
            4             3            2
 2.102e+05 x - 1.143e+06 x + 1.98e+06 x - 1.046e+06 x + 1
 
@@ -39308,55 +39311,151 @@ time eulero101(plotta=False)
            5            4             3             2
 1.591e+05 x - 1.38e+06 x + 4.424e+06 x - 5.973e+06 x + 2.771e+06 x + 1
 
-0.999999880791 683.000000086 44286.9999999 838861.0 8138021.0
-51828151.0 205015603.0 [58542, -719070, 3595702, -8748234, 10067497,
--4253755, 1]
+0.999999880791 683.000000086 44286.9999999 838861.0 8138021.0 51828151.0 205015603.0 
+[58542, -719070, 3595702, -8748234, 10067497, -4253755, 1]
            6             5             4             3             2
 5.854e+04 x - 7.191e+05 x + 3.596e+06 x - 8.748e+06 x + 1.007e+07 x - 4.254e+06 x + 1
 
-1.0 682.999999477 44287.0000006 838861.0 8138021.0 51828151.0
-247165843.0 898165577.0 [11165, -175923, 1234805, -4610573, 9383726,
--9627563, 3785045, 1]
-           7             6             5             4             3
-1.117e+04 x - 1.759e+05 x + 1.235e+06 x - 4.611e+06 x + 9.384e+06 x
-              2
- - 9.628e+06 x + 3.785e+06 x + 1
+1.0 682.999999477 44287.0000006 838861.0 8138021.0 51828151.0 247165843.0 898165577.0 
+[11165, -175923, 1234805, -4610573, 9383726, -9627563, 3785045, 1]
+           7             6             5             4             3              2
+1.117e+04 x - 1.759e+05 x + 1.235e+06 x - 4.611e+06 x + 9.384e+06 x - 9.628e+06 x + 3.785e+06 x + 1
 
-1.0 683.000003743 44287.0000004 838861.000003 8138021.0 51828151.0
-247165843.0 954437177.0 3093310441.0 [1111, -19943, 181819, -942755,
-2909786, -5205926, 4890985, -1814395, 1]
-      8             7             6             5            4
-1111 x - 1.994e+04 x + 1.818e+05 x - 9.428e+05 x + 2.91e+06 x
-              3             2
- - 5.206e+06 x + 4.891e+06 x - 1.814e+06 x + 1
+1.0 683.000003743 44287.0000004 838861.000003 8138021.0 51828151.0 247165843.0 954437177.0 3093310441.0 
+[1111, -19943, 181819, -942755, 2909786, -5205926, 4890985, -1814395, 1]
+      8             7             6             5            4             3             2 
+1111 x - 1.994e+04 x + 1.818e+05 x - 9.428e+05 x + 2.91e+06 x - 5.206e+06 x + 4.891e+06 x - 1.814e+06 x + 1 
 
-1.00000762939 683.000007528 44286.9999997 838861.000002
-8138021.00001 51828151.0 247165843.0 954437177.0 3138105961.0
-9071313571.0 [54, -833, 9541, -63125, 269491, -723550, 1172770,
--1026551, 362885, 1]
-    9       8        7             6             5             4
-54 x - 833 x + 9541 x - 6.312e+04 x + 2.695e+05 x - 7.235e+05 x
-              3             2
- + 1.173e+06 x - 1.027e+06 x + 3.629e+05 x + 1
+1.00000762939 683.000007528 44286.9999997 838861.000002 8138021.00001 51828151.0 247165843.0 954437177.0 3138105961.0 9071313571.0 
+[54, -833, 9541, -63125, 269491, -723550, 1172770, -1026551, 362885, 1]
+    9       8        7             6             5             4             3             2
+54 x - 833 x + 9541 x - 6.312e+04 x + 2.695e+05 x - 7.235e+05 x + 1.173e+06 x - 1.027e+06 x + 3.629e+05 x + 1
 
-0.999998092651 682.99998807 44286.9999814 838860.999984
-8138020.99998 51828151.0 247165843.0 954437177.0 3138105961.0
-9090909091.0 23772343751.0 [1, 9, 37, 91, 148, 166, 130, 70, 25, 5,
-1]
+0.999998092651 682.99998807 44286.9999814 838860.999984 8138020.99998 51828151.0 247165843.0 954437177.0 3138105961.0 9090909091.0 23772343751.0 
+[1, 9, 37, 91, 148, 166, 130, 70, 25, 5, 1]
    10     9      8      7       6       5       4      3      2
 1 x  + 9 x + 37 x + 91 x + 148 x + 166 x + 130 x + 70 x + 25 x + 5 x + 1
 
-0.999999046326 682.999999004 44286.9999978 838860.999998 8138021.0
-51828151.0 247165843.0 954437177.0 3138105961.0 9090909091.0
-23775972551.0 57154490053.0 [1, 1365.0, 130812.99999999997,
-3092452.9999999986, 32740951.000000015, 205015603.00000089,
-898165576.99999714, 3093310441.0001335, 9071313571.000391,
-23772343750.999367]
+0.999999046326 682.999999004 44286.9999978 838860.999998 8138021.0 51828151.0 247165843.0 954437177.0 3138105961.0 9090909091.0 23775972551.0 57154490053.0 
+[1, 1365.0, 130812.99999999997, 3092452.9999999986, 32740951.000000015, 205015603.00000089, 898165576.99999714, 3093310441.0001335, 9071313571.000391, 23772343750.999367]
 37076114526L
 Time: CPU 0.07 s, Wall: 0.22 s
 
 Soluzione: 37076114526
 Tempo: 0.07 sec = 70 msec
+----------------------------------------------------------------------------
+
+
+============
+Problema 102
+============
+
+Contenimento del triangolo
+
+Tre punti distinti vengono tracciati a caso su un piano cartesiano, per il quale -1000 ≤ x, y ≤ 1000, in modo tale che si formi un triangolo.
+
+Considera i seguenti due triangoli:
+
+A (-340,495), B (-153, -910), C (835, -947)
+
+X (-175,41), Y (-421, -714), Z (574, -645)
+
+Si può verificare che il triangolo ABC contiene l'origine, mentre il triangolo XYZ no.
+
+Utilizzando "triangles.txt", un file di testo di 27K contenente le coordinate di mille triangoli "casuali", trova il numero di triangoli di cui l'interno contiene l'origine.
+
+NOTA: i primi due esempi nel file rappresentano i triangoli nell'esempio fornito sopra.
+============================================================================
+
+Il file "triangle.txt" è stato trasformato nel file "e102.lsp" che contiene la lista "triangle".
+
+(load "e102.lsp")
+
+(triangle 0)
+;-> (-340 495 -153 -910 835 -947)
+(triangle 1)
+;-> (-175 41 -421 -714 574 -645)
+
+Possiamo usare il teorema di Jordan (che vale anche per qualunque poligono):
+
+1) Calcolare delle intersezioni tra la semiretta x = 0 per y < 0 che passa per 0,0 e i segmenti del triangolo.
+
+2) Se le intersezioni sono pari, allora il punto è esterno.
+
+3) Se le intersezioni sono dispari, allora il punto è interno.
+
+(define (retta x1 y1 x2 y2)
+  ; y = a*x + b
+  (local (a b)
+    ; rette parallele ?
+    (if (zero? (sub x2 x1)) (setq x (add x 0.01)))
+    (setq a (div (sub y2 y1) (sub x2 x1)))
+    (setq b (sub y1 (mul a x1)))
+    (list a b)))
+
+(define (e102)
+  (local (x0 y0 dentro fuori)
+    (setq x0 0 y0 0 dentro 0 fuori 0)
+    (dolist (el triangle)
+      (setq xmax (max (el 0) (el 2) (el 4)))
+      (setq xmin (min (el 0) (el 2) (el 4)))
+      (setq ymax (max (el 1) (el 3) (el 5)))
+      (setq ymin (min (el 1) (el 3) (el 5)))
+      ; Controllo se 0,0 è esterno al rettangolo di contenimento del triangolo
+      (cond ((or (> x0 xmax) (< x0 xmin) (> y0 ymax) (< y0 ymin))
+             (++ fuori))
+            ; Calcolo dei parametri delle rette dei lati del triangolo
+            (true
+             (setq r1 (retta (el 0) (el 1) (el 2) (el 3)))
+             (setq a1 (first r1)) (setq b1 (last r1))
+             (setq r2 (retta (el 2) (el 3) (el 4) (el 5)))
+             (setq a2 (first r2)) (setq b2 (last r2))
+             (setq r3 (retta (el 4) (el 5) (el 0) (el 1)))
+             (setq a3 (first r3)) (setq b3 (last r3))
+             (setq conta 0)
+             ; b1, b2, b3 sono le soluzioni delle intersezioni
+             ; la soluzione deve essere compresa tra y1 e y2 del lato e deve essere minore di 0
+             (if (and (>= b1 (min (el 1) (el 3))) (<= b1 (max (el 1) (el 3))) (< b1 0))
+                 (++ conta))
+             (if (and (>= b2 (min (el 3) (el 5))) (<= b2 (max (el 3) (el 5))) (< b2 0))
+                 (++ conta))
+             (if (and (>= b3 (min (el 5) (el 1))) (<= b3 (max (el 5) (el 1))) (< b3 0))
+                 (++ conta))
+             (if (odd? conta) 
+                 (++ dentro)
+                 (++ fuori))
+            )
+      )
+    )
+    dentro))
+
+(e102)
+;-> 228
+
+(time (e102))
+;-> 2.022
+
+Un altro algoritmo semplice e veloce, chiamato metodo baricentrico, consiste nel controllare su quale lato del semipiano creato dai lati si trova il punto.
+
+(define (e102)
+  (local (a b c out)
+    (setq out 0)
+    (dolist (el triangle)
+      (setq x1 (el 0)) (setq y1 (el 1))
+      (setq x2 (el 2)) (setq y2 (el 3))
+      (setq x3 (el 4)) (setq y3 (el 5))
+      (setq a (> (- (* x1 y2) (* y1 x2)) 0))
+      (setq b (> (- (* x2 y3) (* y2 x3)) 0))
+      (setq c (> (- (* x3 y1) (* y3 x1)) 0))
+      (if (= a b c) (++ out))
+    )
+    out))
+
+(e102)
+;-> 228
+
+(time 102)
+;-> 0
 ----------------------------------------------------------------------------
 
 
@@ -75317,6 +75416,185 @@ Comunque questa funzione è inutilizzabile per valori che hanno molti fattori ne
 ;->  (96 125)
 ;->  (100 120))
 ;-> 275880.184
+
+
+-------------------------
+Algoritmo di Bellman-Ford
+-------------------------
+
+L'algoritmo di Bellman–Ford trova i percorsi più brevi da un nodo iniziale a tutti nodi di un grafo. L'algoritmo può elaborare tutti i tipi di grafo, a condizione che il grafo non contenga un ciclo di lunghezza negativa. Se il grafo contiene un ciclo di lunghezza negativa, l'algoritmo può rilevarlo.
+L'algoritmo tiene traccia delle distanze dal nodo di partenza a tutti i nodi del grafo. Inizialmente, la distanza dal nodo di partenza è 0 e la distanza da tutti gli altri nodi è infinita. L'algoritmo riduce le distanze trovando i archi che accorciano i percorsi fino a quando non è possibile ridurre alcuna distanza.
+
+Vediamo come funziona utilizzando il seguente grafo:
+
+        0        INF
+      +---+  5  +---+
+      | 0 |<--->| 1 |<---\
+      +---+     +---+     \ 2
+        |  \      |        \       INF
+        |   \     |         \     +---+
+      3 |    \7   | 3        |--->| 4 |
+        |     \   |         /     +---+
+        |      \  |        / 
+      +---+     +---+     / 2
+      | 2 |<--->| 3 |<---/
+      +---+  1  +---+
+       INF       INF
+
+Ad ogni nodo del grafico viene assegnata una distanza. Inizialmente, la distanza dal nodo iniziale è 0 e la distanza da tutti gli altri nodi è infinita (INF). L'algoritmo ricerca archi che riducono le distanze. Per primo cosa tutti gli archi del nodo 0 riducono le distanze:  
+
+        0         5
+      +---+  5  +---+
+      | 0 |<--->| 1 |<---\
+      +---+     +---+     \ 2
+        |  \      |        \       INF
+        |   \     |         \     +---+
+      3 |    \7   | 3        |--->| 4 |
+        |     \   |         /     +---+
+        |      \  |        / 
+      +---+     +---+     / 2
+      | 2 |<--->| 3 |<---/
+      +---+  1  +---+
+        3         7
+
+Dopo questo gli archi 1-->4 e 2-->3 riducono la distanza:
+
+        0         5
+      +---+  5  +---+
+      | 0 |<--->| 1 |<---\
+      +---+     +---+     \ 2
+        |  \      |        \        7
+        |   \     |         \     +---+
+      3 |    \7   | 3        |--->| 4 |
+        |     \   |         /     +---+
+        |      \  |        / 
+      +---+     +---+     / 2
+      | 2 |<--->| 3 |<---/
+      +---+  1  +---+
+        3         4
+
+Infine l'arco 3-->4 riduce la distanza:
+
+        0         5
+      +---+  5  +---+
+      | 0 |<--->| 1 |<---\
+      +---+     +---+     \ 2
+        |  \      |        \        6
+        |   \     |         \     +---+
+      3 |    \7   | 3        |--->| 4 |
+        |     \   |         /     +---+
+        |      \  |        / 
+      +---+     +---+     / 2
+      | 2 |<--->| 3 |<---/
+      +---+  1  +---+
+        3         4
+
+A questo punto non è possibile ridurre le distanze e abbiamo calcolato tutte le distanze minime dal nodo di partenza (0) a tutti gli altri nodi.
+
+La seguente implementazione dell'algoritmo determina le distanze più brevi da un nodo iniziale a tutti i nodi del grafo. Il codice presuppone che il grafo sia memorizzato come una lista di archi che consiste in una lista della forma (a, b, w): questo significa che c'è un arco dal nodo a al nodo b con peso w. 
+L'algoritmo consiste di (n-1) cicli e ad ogni ciclo l'algoritmo attraversa tutti gli archi del grafo e cerca di ridurre le distanze. L'algoritmo costruisce una "lista delle distanze" che contiene i valori delle distanze dal nodo iniziale a tutti i nodi del grafo e una "lista di predecessori" che serve per ricostruire tutti i percorsi minimi dal nodo iniziale a tutti i nodi del grafo. La costante INF indica una distanza infinita.
+La complessità temporale dell'algoritmo è O(nm), perché l'algoritmo consiste di n-1 cicli e itera su tutti gli archi per ogni ciclo. Se non ci sono cicli negativi nel grafo, tutte le distanze sono definitive dopo n-1 cicli, perché
+ogni percorso più breve può contenere al massimo n-1 archi.
+In pratica, le distanze finali di solito possono essere trovate prima che si esauriscano tutti gli n-1 cicli, ertanto, un possibile modo per rendere l'algoritmo più efficiente è arrestare l'algoritmo
+se nessuna distanza può essere ridotta durante un ciclo.
+
+(define (bf graph start num-nodi)
+  (local (dist a b w)
+    (setq maxval 999999)
+    (setq dist (array n (list maxval)))
+    (setq pred (array n '(nil)))
+    (setf (dist start) 0)
+    (for (i 1 (- n 1))
+      (for (j 0 (- (length graph) 1))
+        (setq a (graph j 0))
+        (setq b (graph j 1))
+        (setq w (graph j 2))
+        ;(println a { } b { } w)
+        ;(read-line)
+        (if (!= (dist a) maxval)
+            (if (> (dist b) (+ (dist a) w))
+                (begin
+                 (setf (dist b) (+ (dist a) w))
+                 (setf (pred b) a)
+                ))
+        )
+      )
+    )
+    ; cicli negativi?
+    (for (j 0 (- (length graph) 1))
+      (setq a (graph j 0))
+      (setq b (graph j 1))
+      (setq w (graph j 2))
+      (if (and (!= (dist a) maxval) (< (+ (dist a) w) (dist b)))
+          (println "ERRORE: ciclo negativo")
+      )
+    )
+    ; Ricostruzione percorsi completi
+    (for (nodo 0 (- n 1))
+      (setq path '())
+      (print "da: " start " a: " nodo " = ")
+      (cond ((= start nodo)
+             (setq path '(nil)))
+             ;(println "nil"))
+            (true
+             (setq step (pred nodo))
+             (until (= start step)
+               (push step path -1)
+               ;(print step { } )
+               (setq step (pred step))
+             )
+             ; inverte percorso
+             (reverse path)
+             ; inserisce nodo iniziale
+             (push start path)
+             ; inserisce nodo finale
+             (push nodo path -1)
+             ;(println nodo)
+            )
+      )
+      (println path)
+    )
+    (list dist pred)))
+
+Proviamo con il grafo seguente (disegnatelo con carta e penna):
+
+(setq graph '((0 1 50) (0 2 30) (0 3 10)
+              (1 0 50) (1 5 40)
+              (2 0 30) (2 1 10) (2 3 10) (2 4 10)
+              (3 0 10) (3 2 10) (3 6 10)
+              (4 2 10) (4 5 20)
+              (5 1 40) (5 4 20)
+              (6 5 80)))
+
+(bf graph 0)
+;-> da: 0 a: 0 = (nil)
+;-> da: 0 a: 1 = (0 3 2 1)
+;-> da: 0 a: 2 = (0 3 2)
+;-> da: 0 a: 3 = (0 3)
+;-> da: 0 a: 4 = (0 3 2 4)
+;-> da: 0 a: 5 = (0 3 2 4 5)
+;-> da: 0 a: 6 = (0 3 6)
+;-> ((0 30 20 10 30 50 20) (nil 2 3 0 2 4 3))
+
+(bf graph 1)
+;-> da: 1 a: 0 = (1 0)
+;-> da: 1 a: 1 = (nil)
+;-> da: 1 a: 2 = (1 0 3 2)
+;-> da: 1 a: 3 = (1 0 3)
+;-> da: 1 a: 4 = (1 5 4)
+;-> da: 1 a: 5 = (1 5)
+;-> da: 1 a: 6 = (1 0 3 6)
+;-> ((50 0 70 60 60 40 70) (1 nil 3 0 5 1 3))
+
+(bf graph 4)
+;-> da: 4 a: 0 = (4 2 3 0)
+;-> da: 4 a: 1 = (4 2 1)
+;-> da: 4 a: 2 = (4 2)
+;-> da: 4 a: 3 = (4 2 3)
+;-> da: 4 a: 4 = (nil)
+;-> da: 4 a: 5 = (4 5)
+;-> da: 4 a: 6 = (4 2 3 6)
+;-> ((30 20 10 20 0 20 30) (3 2 4 2 nil 4 3))
 
 
 ===========

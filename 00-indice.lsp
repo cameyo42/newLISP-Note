@@ -284,7 +284,7 @@ ROSETTA CODE
 
 PROJECT EULERO
 ==============
-  Problemi 1..94,96,97,99,100,101
+  Problemi 1..94,96,97,99,100,101,102
 
 PROBLEMI VARI
 =============
@@ -645,6 +645,7 @@ NOTE LIBERE 3
   Roulette
   Daniel Dennet Quinian Crossword
   Lista delle fattorizzazioni di un numero
+  Algoritmo di Bellman-Ford
   
 APPENDICI
 =========

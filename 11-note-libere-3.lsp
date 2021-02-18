@@ -2329,3 +2329,182 @@ Comunque questa funzione è inutilizzabile per valori che hanno molti fattori ne
 ;-> 275880.184
 
 
+-------------------------
+Algoritmo di Bellman-Ford
+-------------------------
+
+L'algoritmo di Bellman–Ford trova i percorsi più brevi da un nodo iniziale a tutti nodi di un grafo. L'algoritmo può elaborare tutti i tipi di grafo, a condizione che il grafo non contenga un ciclo di lunghezza negativa. Se il grafo contiene un ciclo di lunghezza negativa, l'algoritmo può rilevarlo.
+L'algoritmo tiene traccia delle distanze dal nodo di partenza a tutti i nodi del grafo. Inizialmente, la distanza dal nodo di partenza è 0 e la distanza da tutti gli altri nodi è infinita. L'algoritmo riduce le distanze trovando i archi che accorciano i percorsi fino a quando non è possibile ridurre alcuna distanza.
+
+Vediamo come funziona utilizzando il seguente grafo:
+
+        0        INF
+      +---+  5  +---+
+      | 0 |<--->| 1 |<---\
+      +---+     +---+     \ 2
+        |  \      |        \       INF
+        |   \     |         \     +---+
+      3 |    \7   | 3        |--->| 4 |
+        |     \   |         /     +---+
+        |      \  |        / 
+      +---+     +---+     / 2
+      | 2 |<--->| 3 |<---/
+      +---+  1  +---+
+       INF       INF
+
+Ad ogni nodo del grafico viene assegnata una distanza. Inizialmente, la distanza dal nodo iniziale è 0 e la distanza da tutti gli altri nodi è infinita (INF). L'algoritmo ricerca archi che riducono le distanze. Per primo cosa tutti gli archi del nodo 0 riducono le distanze:  
+
+        0         5
+      +---+  5  +---+
+      | 0 |<--->| 1 |<---\
+      +---+     +---+     \ 2
+        |  \      |        \       INF
+        |   \     |         \     +---+
+      3 |    \7   | 3        |--->| 4 |
+        |     \   |         /     +---+
+        |      \  |        / 
+      +---+     +---+     / 2
+      | 2 |<--->| 3 |<---/
+      +---+  1  +---+
+        3         7
+
+Dopo questo gli archi 1-->4 e 2-->3 riducono la distanza:
+
+        0         5
+      +---+  5  +---+
+      | 0 |<--->| 1 |<---\
+      +---+     +---+     \ 2
+        |  \      |        \        7
+        |   \     |         \     +---+
+      3 |    \7   | 3        |--->| 4 |
+        |     \   |         /     +---+
+        |      \  |        / 
+      +---+     +---+     / 2
+      | 2 |<--->| 3 |<---/
+      +---+  1  +---+
+        3         4
+
+Infine l'arco 3-->4 riduce la distanza:
+
+        0         5
+      +---+  5  +---+
+      | 0 |<--->| 1 |<---\
+      +---+     +---+     \ 2
+        |  \      |        \        6
+        |   \     |         \     +---+
+      3 |    \7   | 3        |--->| 4 |
+        |     \   |         /     +---+
+        |      \  |        / 
+      +---+     +---+     / 2
+      | 2 |<--->| 3 |<---/
+      +---+  1  +---+
+        3         4
+
+A questo punto non è possibile ridurre le distanze e abbiamo calcolato tutte le distanze minime dal nodo di partenza (0) a tutti gli altri nodi.
+
+La seguente implementazione dell'algoritmo determina le distanze più brevi da un nodo iniziale a tutti i nodi del grafo. Il codice presuppone che il grafo sia memorizzato come una lista di archi che consiste in una lista della forma (a, b, w): questo significa che c'è un arco dal nodo a al nodo b con peso w. 
+L'algoritmo consiste di (n-1) cicli e ad ogni ciclo l'algoritmo attraversa tutti gli archi del grafo e cerca di ridurre le distanze. L'algoritmo costruisce una "lista delle distanze" che contiene i valori delle distanze dal nodo iniziale a tutti i nodi del grafo e una "lista di predecessori" che serve per ricostruire tutti i percorsi minimi dal nodo iniziale a tutti i nodi del grafo. La costante INF indica una distanza infinita.
+La complessità temporale dell'algoritmo è O(nm), perché l'algoritmo consiste di n-1 cicli e itera su tutti gli archi per ogni ciclo. Se non ci sono cicli negativi nel grafo, tutte le distanze sono definitive dopo n-1 cicli, perché
+ogni percorso più breve può contenere al massimo n-1 archi.
+In pratica, le distanze finali di solito possono essere trovate prima che si esauriscano tutti gli n-1 cicli, ertanto, un possibile modo per rendere l'algoritmo più efficiente è arrestare l'algoritmo
+se nessuna distanza può essere ridotta durante un ciclo.
+
+(define (bf graph start num-nodi)
+  (local (dist a b w)
+    (setq maxval 999999)
+    (setq dist (array n (list maxval)))
+    (setq pred (array n '(nil)))
+    (setf (dist start) 0)
+    (for (i 1 (- n 1))
+      (for (j 0 (- (length graph) 1))
+        (setq a (graph j 0))
+        (setq b (graph j 1))
+        (setq w (graph j 2))
+        ;(println a { } b { } w)
+        ;(read-line)
+        (if (!= (dist a) maxval)
+            (if (> (dist b) (+ (dist a) w))
+                (begin
+                 (setf (dist b) (+ (dist a) w))
+                 (setf (pred b) a)
+                ))
+        )
+      )
+    )
+    ; cicli negativi?
+    (for (j 0 (- (length graph) 1))
+      (setq a (graph j 0))
+      (setq b (graph j 1))
+      (setq w (graph j 2))
+      (if (and (!= (dist a) maxval) (< (+ (dist a) w) (dist b)))
+          (println "ERRORE: ciclo negativo")
+      )
+    )
+    ; Ricostruzione percorsi completi
+    (for (nodo 0 (- n 1))
+      (setq path '())
+      (print "da: " start " a: " nodo " = ")
+      (cond ((= start nodo)
+             (setq path '(nil)))
+             ;(println "nil"))
+            (true
+             (setq step (pred nodo))
+             (until (= start step)
+               (push step path -1)
+               ;(print step { } )
+               (setq step (pred step))
+             )
+             ; inverte percorso
+             (reverse path)
+             ; inserisce nodo iniziale
+             (push start path)
+             ; inserisce nodo finale
+             (push nodo path -1)
+             ;(println nodo)
+            )
+      )
+      (println path)
+    )
+    (list dist pred)))
+
+Proviamo con il grafo seguente (disegnatelo con carta e penna):
+
+(setq graph '((0 1 50) (0 2 30) (0 3 10)
+              (1 0 50) (1 5 40)
+              (2 0 30) (2 1 10) (2 3 10) (2 4 10)
+              (3 0 10) (3 2 10) (3 6 10)
+              (4 2 10) (4 5 20)
+              (5 1 40) (5 4 20)
+              (6 5 80)))
+
+(bf graph 0)
+;-> da: 0 a: 0 = (nil)
+;-> da: 0 a: 1 = (0 3 2 1)
+;-> da: 0 a: 2 = (0 3 2)
+;-> da: 0 a: 3 = (0 3)
+;-> da: 0 a: 4 = (0 3 2 4)
+;-> da: 0 a: 5 = (0 3 2 4 5)
+;-> da: 0 a: 6 = (0 3 6)
+;-> ((0 30 20 10 30 50 20) (nil 2 3 0 2 4 3))
+
+(bf graph 1)
+;-> da: 1 a: 0 = (1 0)
+;-> da: 1 a: 1 = (nil)
+;-> da: 1 a: 2 = (1 0 3 2)
+;-> da: 1 a: 3 = (1 0 3)
+;-> da: 1 a: 4 = (1 5 4)
+;-> da: 1 a: 5 = (1 5)
+;-> da: 1 a: 6 = (1 0 3 6)
+;-> ((50 0 70 60 60 40 70) (1 nil 3 0 5 1 3))
+
+(bf graph 4)
+;-> da: 4 a: 0 = (4 2 3 0)
+;-> da: 4 a: 1 = (4 2 1)
+;-> da: 4 a: 2 = (4 2)
+;-> da: 4 a: 3 = (4 2 3)
+;-> da: 4 a: 4 = (nil)
+;-> da: 4 a: 5 = (4 5)
+;-> da: 4 a: 6 = (4 2 3 6)
+;-> ((30 20 10 20 0 20 30) (3 2 4 2 nil 4 3))
+
+
