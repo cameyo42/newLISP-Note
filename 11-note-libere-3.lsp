@@ -2506,3 +2506,130 @@ Proviamo con il grafo seguente (disegnatelo con carta e penna):
 ;-> ((30 20 10 20 0 20 30) (3 2 4 2 nil 4 3))
 
 
+----------------
+Catene di Markov
+----------------
+
+Una catena di Markov è un processo casuale che consiste di stati e transizioni tra di loro. Per ogni stato, conosciamo le probabilità di spostarci in altri stati. Una catena di Markov può essere rappresentata come un grafico i cui nodi sono stati e gli archi sono transizioni. Ad esempio, consideriamo un problema in cui ci troviamo al piano 1 di un edificio di n piani. Ad ogni passo, ci spostiamo casualmente di un piano su o di un piano giù. Qual è la probabilità di trovarsi al piano m dopo k passi?
+In questo problema, ogni piano dell'edificio corrisponde a uno stato in una catena di Markov.
+Ad esempio, se n = 5, il grafico è il seguente:
+
+      --> 1      --> 1/2    --> 1/2    --> 1/2
+   +----------+ +--------+ +--------+ +---------+
+   |          | |        | |        | |         |
+  +---+      +---+      +---+      +---+      +---+
+  | 1 | <--> | 2 | <--> | 3 | <--> | 4 | <--> | 5 |
+  +---+      +---+      +---+      +---+      +---+
+   |          | |        | |        | |         |
+   +----------+ +--------+ +--------+ +---------+
+      1/2 <--     1/2 <--    1/2 <--     1 <--
+
+La distribuzione di probabilità di una catena di Markov è un vettore [p1, p2, ..., pn], dove pk è la probabilità che lo stato corrente sia k. La formula p1 + p2 + ... + pn = 1 vale sempre.
+Nello scenario precedente, la distribuzione iniziale è (1 0 0 0 0), perché iniziamo sempre dal piano 1. La distribuzione successiva è [0,1,0,0,0], perché possiamo solo muoverci dal piano 1 al piano 2. Dopodiché, possiamo spostarci di un piano in alto o di un piano in basso, quindi la distribuzione successiva è (1/2 0 1/2 0 0) e così via.
+
+Una catena Markov si basa sulla proprietà di Markov: la probabilità che un sistema casuale cambi da uno stato particolare al successivo stato di transizione dipende solo dallo stato e dal tempo presente ed è indipendente dagli stati precedenti. Il fatto che il probabile stato futuro di un processo casuale sia indipendente dalla sequenza di stati che esisteva prima di esso rende la catena di Markov un processo senza memoria che dipende solo dallo stato corrente della variabile.
+
+Un modo efficiente per simulare il cammino in una catena di Markov è usare la programmazione dinamica. L'idea è di mantenere il vettore della distribuzione di probabilità e ad ogni passaggio esaminare tutte le possibilità su come possiamo muoverci. Usando questo metodo, possiamo simulare una camminata di m passi in tempo O(n^2*m).
+
+Le transizioni di una catena di Markov possono anche essere rappresentate come una matrice di transizione che aggiorna la distribuzione di probabilità. Per l'esempio precedente, la matrice vale:
+
+  0   1/2   0     0     0
+  1   0     1/2   0     0
+  0   1/2   0     1/2   0
+  0   0     1/2   0     1
+  0   0     0     1/2   0
+
+Quando moltiplichiamo una distribuzione di probabilità per questa matrice, otteniamo la nuova distribuzione dopo aver fatto un passo. Ad esempio, possiamo passare dalla distribuzione (1 0 0 0 0) alla distribuzione (0 1 0 0 0) come segue:
+
+  0   1/2   0     0     0
+  1   0     1/2   0     0
+  0   1/2   0     1/2   0
+  0   0     1/2   0     1
+  0   0     0     1/2   0
+
+Calcolando le potenze della matrice in modo efficiente, possiamo calcolare la distribuzione dopo m passi in tempo O(n^3*log(m)).
+
+In generale, i processi Markoviani (che generano le catene di Markov) sono caratterizzati dalle seguenti proprietà:
+
+1) Rappresentano transizioni tra stati che avvengono in modo probabilistico.
+
+2) Le probabilità di transizione non dipendono dal numero di transizioni effettuate (proprietà di omogeneità).
+
+3) Le probabilità di transizione dipendono unicamente dallo stato attuale (proprietà memoryless, o di assenza di memoria).
+
+Le catene di Markov sono uno strumento matematico essenziale che aiuta a semplificare la previsione dello stato futuro di processi stocastici complessi, infatti questo dipende esclusivamente dallo stato attuale del processo e vede il futuro come indipendente dal passato. Ad esempio vengono utilizzate per le previsioni del tempo, la predizione di parole digitate sul telefono, riconoscimento della scrittura, simulazione di ecosistemi, ecc.
+
+Adesso vediamo una implementazione pratica delle catene di Markov.
+
+Data una catena di Markov G, trovare la probabilità di raggiungere lo stato F all'istante t = T se partiamo dallo stato S all'istante t = 0.
+Una catena di Markov è un processo casuale costituito da vari stati e dalle probabilità di spostarsi da uno stato all'altro. Possiamo rappresentarlo utilizzando un grafo orientato dove i nodi rappresentano gli stati e gli archi rappresentano la probabilità di andare da un nodo all'altro. Ci vuole una unità tempo per spostarsi da un nodo all'altro. La somma delle probabilità associate degli archi uscenti vale 1 per ogni nodo.
+
+Consideriamo la catena di Markov (G) dell'immagine "markov.png".
+Possiamo creare una matrice di adiacenza della catena di Markov per rappresentare le probabilità di transizioni tra gli stati.
+
+La matrice di adiacenza per il nostro grafo vale:
+
+      0      0.09   0      0      0     0
+      0.23   0      0      0      0     0.62
+      0      0.06   0      0      0     0
+      0.77   0      0.63   0      0     0
+      0      0      0      0.65   0     0.38
+      0      0.85   0.37   0.35   1.0   0
+
+Possiamo osservare che la distribuzione di probabilità al tempo t è data da P(t) = M * P(t - 1), e la distribuzione di probabilità iniziale P(0) è un vettore zero con l'elemento S-th che vale 1. Usando questi risultati, possiamo risolvere l'espressione ricorsiva per P(t). Ad esempio, se prendiamo S = 3, allora P(t) è dato da:
+
+             | 0 |
+             | 0 |
+P(t) = M^t * | 1 |
+             | 0 |
+             | 0 |
+             | 0 |
+
+La complessità temporale di questo algoritmo vale O(N^3*log(T)) dove N è il numero di stati e T e il numero di transizioni (tempi).
+
+Funzione per calcolare la potenza di una matrice:
+
+(define (pow-matrix mtx p n)
+  (let (out (array n n '(0)))
+    (for (i 0 (- n 1))
+      (setf (out i i) 1)
+    )
+    (while (> p 0)
+      (if (odd? p) (setq out (multiply out mtx)))
+      (setq mtx (multiply mtx mtx))
+      (setq p (/ p 2))
+    )
+    out))
+
+(setq m '((2 -2 9) (7 -4 4) (1 2 3)))
+(pow-matrix m 2 3)
+;-> ((-1 22 37) (-10 10 59) (19 -4 26))
+
+(define (markov matrix num-stati stato-iniziale stato-finale tempo)
+  (let (out (pow-matrix matrix tempo num-stati))
+    (out (- stato-finale 1) (- stato-iniziale 1))))
+
+Proviamo la funzione:
+
+(setq matrix '((0      0.09   0      0      0     0   )
+               (0.23   0      0      0      0     0.62)
+               (0      0.06   0      0      0     0   )
+               (0.77   0      0.63   0      0     0   )
+               (0      0      0      0.65   0     0.38)
+               (0      0.85   0.37   0.35   1.0   0   )))
+
+(markov matrix 6 1 2 1)
+;-> 0.23
+Input:  stato-iniziale = 1, stato-finale = 2, tempo = 1
+Output: 0.23
+Partiamo dallo stato 1 per t = 0,
+La probabilità di raggiungere lo stato 2 per t = 1 vale 0.23.
+
+(markov matrix 6 4 2 100)
+;-> 0.284991
+Input : stato-iniziale = 4, stato-finale = 2, tempo = 100
+Output : 0.284992
+Partiamo dallo stato 4 per t = 0,
+La probabilità di raggiungere lo stato 2 per t = 100 vale 0.284992.
+
+

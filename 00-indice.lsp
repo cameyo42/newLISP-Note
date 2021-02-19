@@ -646,6 +646,7 @@ NOTE LIBERE 3
   Daniel Dennet Quinian Crossword
   Lista delle fattorizzazioni di un numero
   Algoritmo di Bellman-Ford
+  Catene di Markov
   
 APPENDICI
 =========
@@ -677,7 +678,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (121 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (122 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================
