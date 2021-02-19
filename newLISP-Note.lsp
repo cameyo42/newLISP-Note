@@ -284,7 +284,7 @@ ROSETTA CODE
 
 PROJECT EULERO
 ==============
-  Problemi 1..97,99,100,101,102
+  Problemi 1..102
 
 PROBLEMI VARI
 =============
@@ -678,7 +678,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (122 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (123 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================
@@ -28105,7 +28105,7 @@ Vediamo quanto tempo impiega per calcolare tutti i numeri taxicab fino ad un mil
 |    95    |  14316             |         -  |      1846  |         -  |
 |    96    |  24702             |         -  |     27084  |         -  |
 |    97    |  8739992577        |         -  |       497  |         -  |
-|    98    |  (18769)           |         -  |         -  |         -  |
+|    98    |  18769             |         -  |       136  |         -  |
 |    99    |  709               |         -  |         0  |         -  |
 |   100    |  756872327473      |         -  |         0  |         -  |
 |   101    |  37076114526       |         -  |        70  |         -  |
@@ -39011,6 +39011,421 @@ Inoltre il tempo di esecuzione è accettabile:
 
 (time (e097))
 ;-> 497.573
+----------------------------------------------------------------------------
+
+
+===========
+Problema 98
+===========
+
+Anagrammi quadrati
+
+Sostituendo ciascuna delle lettere della parola CARE con 1, 2, 9 e 6 rispettivamente, formiamo un numero quadrato: 1296 = 36^2. Ciò che è notevole è che, utilizzando le stesse sostituzioni digitali, anche l'anagramma RACE forma un numero quadrato: 9216 = 96^2. Chiameremo CARE (e RACE) una coppia di parole anagrammate quadrate e specificheremo inoltre che gli zeri iniziali non sono consentiti, né una lettera diversa può avere lo stesso valore digitale di un'altra lettera.
+
+Utilizzando "words.txt", un file di testo da 16 KB contenente quasi duemila parole inglesi comuni, trova tutte le coppie di parole anagrammi quadrate (una parola palindromica NON è considerata anagramma di se stesso).
+
+Qual'è il numero quadrato più grande formato da un membro di una tale coppia?
+
+NOTA: Tutti gli anagrammi formati devono essere contenuti nel file di testo specificato.
+============================================================================
+
+(load "e098.lsp")
+(length words)
+;-> 1786
+
+(words 7)
+;-> academic
+
+Definiamo una funzione che ordina le word:
+
+(define (sortword str)
+  (list (length str) (join (sort (explode str))) str))
+
+(sortword (words 7))
+;-> (8 "AACCDEIM" "ACADEMIC")
+
+(setq ord-words (sort (map sortword words)))
+;-> ((1 "A" "A") (1 "I" "I")
+;->  (2 "AN" "AN") (2 "AS" "AS")
+;->  ...
+;->  (13 "AEGIIINNOSTTV" "INVESTIGATION")
+;->  (14 "AACCCEHIIRRSTT" "CHARACTERISTIC")
+;->  (14 "AADIIIMNNORSTT" "ADMINISTRATION")
+;->  (14 "AEEEEINPRRSTTV" "REPRESENTATIVE")
+;->  (14 "AEEEINNOPRRSTT" "REPRESENTATION")
+;->  (14 "AEEIINNOPRRTTT" "INTERPRETATION")
+;->  (14 "BEIIILNOPRSSTY" "RESPONSIBILITY"))
+
+(length ord-words)
+;-> 1786
+
+Struttura elemento della lista ord-words:
+
+(lunghezza-word sorted-word word)
+
+Due parole sono anagramma una dell'altra se hanno la stessa sorted-word (quindi anche la lunghezza è la stessa.
+
+Poichè le word palindrome non devono essere considerate possiamo eliminare tutte le parole con lunghezza minore di 3.
+
+(setq ord-words (filter (fn(x) (> (first x) 2)) ord-words))
+;-> ((3 "ABD" "BAD") (3 "ABG" "BAG") (3 "ABR" "BAR") (3 "ACN" "CAN")
+;->  (3 "ACR" "CAR") (3 "ACT" "ACT") (3 "ACT" "CAT") (3 "ADD" "ADD")
+;->  ...
+;->  (14 "AEEIINNOPRRTTT" "INTERPRETATION")
+;->  (14 "BEIIILNOPRSSTY" "RESPONSIBILITY"))
+
+(length ord-words)
+;-> 1761
+
+Cerca le word che sono anagramma:
+
+(setq ana-words '())
+(setq len-w 0)
+(setq ord-w "")
+(setq w-w   "")
+(dolist (el ord-words)
+  (if (and (= (el 0) len-w) (= (el 1) ord-w))
+      (push (list w-w (el 2)) ana-words -1)
+  )
+  (setq len-w (el 0))
+  (setq ord-w (el 1))
+  (setq w-w   (el 2))
+)
+
+ana-words
+;-> (("ACT" "CAT") ("EAT" "TEA") ("DOG" "GOD") ("HOW" "WHO") ("ITS" "SIT")
+;->  ("NOW" "OWN") ("CARE" "RACE") ("DEAL" "LEAD") ("HATE" "HEAT")
+;->  ("MALE" "MEAL") ("MEAN" "NAME") ("EARN" "NEAR") ("RATE" "TEAR")
+;->  ("EAST" "SEAT") ("FILE" "LIFE") ("ITEM" "TIME") ("NOTE" "TONE")
+;->  ("SURE" "USER") ("FORM" "FROM") ("SIGN" "SING") ("SHUT" "THUS")
+;->  ("POST" "SPOT") ("SPOT" "STOP") ("BOARD" "BROAD") ("PHASE" "SHAPE")
+;->  ("EARTH" "HEART") ("ARISE" "RAISE") ("LEAST" "STEAL") ("SHEET" "THESE")
+;->  ("QUIET" "QUITE") ("NIGHT" "THING") ("THROW" "WORTH") ("SHOUT" "SOUTH")
+;->  ("DANGER" "GARDEN") ("CREDIT" "DIRECT") ("CENTRE" "RECENT")
+;->  ("EXCEPT" "EXPECT") ("COURSE" "SOURCE") ("FORMER" "REFORM")
+;->  ("IGNORE" "REGION") ("CREATION" "REACTION") ("INTRODUCE" "REDUCTION"))
+
+(length ana-words)
+;-> 42
+
+Vediamo se ci sono anagrammi palindromi:
+
+(dolist (el ana-words) (if (= (el 0) (reverse (el 1))) (println el)))
+;-> ("DOG" "GOD")
+
+Lasciamolo stare...se non è la soluzione finale.
+
+Adesso dovremmo provare tutte le combinazioni delle cifre (1..9) per ogni coppia di word. Questo è un calcolo molto oneroso e dobbiamo evitarlo.
+
+Se proviamo tutte le sostituzioni lettera per cifra, allora stiamo cercando coppie di quadrati con queste proprietà:
+
+1) hanno la stessa lunghezza
+
+2) hanno le stesse cifre con il numero di occorrenze della stringa di input.
+
+Quindi è più veloce trovare tutte queste coppie di quadrati.
+
+(setq squares (map (fn(x) (* x x)) (sequence 1 50)))
+;-> (1 4 9 16 25 36 49 64 81 100 121 144 169 196 225 256 289 324 361 400 441 484 529
+;->  576 625 676 729 784 841 900 961 1024 1089 1156 1225 1296 1369 1444 1521 1600 1681
+;->  1764 1849 1936 2025 2116 2209 2304 2401 2500)
+
+(define (number-stamp num)
+  (let ((ar (array 10 '(0))) (out 0))
+    ; fill array with the count of digits
+    (while (> num 0)
+      (++ (ar (% num 10)))
+      (setq num (/ num 10))
+    )
+    ; create output number from array
+    (for (i 9 0)
+      (setq out (+ (ar i) (* out 10)))
+    )
+    out))
+
+(setq squares-stamp (sort (map (fn(x) (list (number-stamp x) x)) squares)))
+;-> ((10 1) (12 100) (120 121) (10000 4) (10002 400) (10111 1024)
+;->  (10111 2401) (11100 324) (11101 2304) (20010 144) (20010 441)
+;->  (30010 1444) (100100 25) (100102 2500) (100120 1521) (100200 225)
+;->  (100201 2025) (100210 1225) (1000010 16) (1000012 1600) (1000120 2116)
+;->  (1001000 36) (1001010 361) (1010000 64) (1100020 1156) (1100100 256)
+;->  (1100100 625) (11010010 1764) (11100000 576) (12000000 676)
+;->  (100000010 81) (100010010 841) (100020000 484) (101000020 1681)
+;->  (110010000 784) (1000000000 9) (1000000002 900) (1000000201 2209)
+;->  (1000010000 49) (1000100100 529) (1001000010 169) (1001000010 196)
+;->  (1001000010 961) (1001000110 1296) (1001001010 1369) (1001001010 1936)
+;->  (1010000100 729) (1100000011 1089) (1100000100 289) (1100010010 1849))
+
+Cerchiamo le coppie che hanno lo stesso "stampo":
+
+(setq squares-pair '())
+(setq stamp-sq 0)
+(setq num-sq 0)
+(dolist (el squares-stamp)
+  (if (= (el 0) stamp-sq)
+      (push (list (el 0) num-sq (el 1)) squares-pair -1)
+  )
+  (setq stamp-sq (el 0))
+  (setq num-sq (el 1))
+)
+
+squares-pair
+;-> ((10111 1024 2401) (20010 144 441) (1100100 256 625)
+;->  (1001000010 169 196) (1001000010 196 961) (1001001010 1369 1936))
+
+Adesso dobbiamo eliminare quelle che hanno cifre doppie (es. la cifra 4 nella coppia 144 e 441), cioè quelle che hanno una (o più) cifra con valore maggiore di 1 nello "stamp" (es. la cifra 2 nell'elemento (20010 144 441).
+
+(define (doppie stamp)
+  (if (find "2|3|4|5|6|7|8|9" (string stamp) 0) true nil))
+
+(setq sq-pair '())
+(dolist (el squares-pair)
+  (if (not (doppie (el 0)))
+      (push el sq-pair -1)))
+
+sq-pair
+;-> ((10111 1024 2401) (1100100 256 625) (1001000010 169 196)
+;->  (1001000010 196 961) (1001001010 1369 1936))
+
+Ma fino a quanto dobbiamo calcolare i quadrati?
+
+La word più lunga ha 9 caratteri ("INTRODUCE" "REDUCTION"), quindi il quadrato più grande non può essere maggiore di 987654321.
+(sqrt 987654321)
+;-> 31426.96805293187
+
+Quindi dobbiamo calcolare il quadrato dei primi 31476 numeri.
+
+Ripetiamo il calcolo:
+
+(setq max-sq 31426)
+(setq squares (map (fn(x) (* x x)) (sequence 1 31426)))
+(setq squares-stamp (sort (map (fn(x) (list (number-stamp x) x)) squares)))
+(setq squares-pair '())
+(setq stamp-sq 0)
+(setq num-sq 0)
+(dolist (el squares-stamp)
+  (if (= (el 0) stamp-sq)
+      (push (list (el 0) num-sq (el 1)) squares-pair -1)
+  )
+  (setq stamp-sq (el 0))
+  (setq num-sq (el 1))
+)
+(setq sq-pair '())
+(dolist (el squares-pair)
+  (if (not (doppie (el 0)))
+      (push (list (el 1) (el 2)) sq-pair -1)))
+
+(length sq-pair)
+;-> 300
+
+(sort sq-pair)
+;-> ((169 196) (196 961) (256 625)
+;->  (1024 2401) (1089 9801) (1296 2916)
+;->  (1369 1936) (1764 4761) (2916 9216)
+;->  (4096 9604) (12769 96721)
+;->  (16384 31684) (17689 18769) (18769 78961)
+;->  (20736 30276) (21904 41209) (23104 32041)
+;->  (23409 39204) (23716 32761) (29584 54289)
+;->  (31684 36481) (32761 72361) (34596 45369)
+;->  ...
+;->  (798401536 803495716)
+;->  (825470361 853107264)
+;->  (842973156 847159236)
+;->  (847159236 923187456))
+
+(sqrt 847159236)
+;-> 29106
+(sqrt 923187456)
+;-> 30384
+
+Quindi dobbiamo confrontare queste 300 coppie di quadrati della lista "sq-pair" con le 42 coppie di word della lista ana-words.
+Il confronto completo va effettuato solo con le coppie di word che hanno la stessa lunghezza delle coppie dei quadrati.
+
+Definiamo una funzione che effettua il check:
+
+(define (square? n)
+  (let (v (+ (sqrt n 0.5)))
+    (= n (* v v))))
+
+(define (int-lst num)
+  (let (out '())
+    (while (!= num 0)
+      (push (% num 10) out)
+      (setq num (/ num 10))) out))
+
+(define (lst-int lst)
+  (let (num 0)
+    (dolist (el lst) (setq num (+ el (* num 10))))))
+
+(setq ww '("CARE" "RACE"))
+(setq qq '(1296 9216))
+
+(setq mappa (map list (explode (ww 0)) (int-lst (qq 0))))
+;-> (("C" 1) ("A" 2) ("R" 9) ("E" 6))
+
+(setq new-num (lst-int (map (fn(x) (lookup x mappa)) (explode (ww 1)))))
+;-> 9216
+
+(define (check w-pair q-pair)
+  (setq out nil)
+  (cond ((!= (length (w-pair 0)) (length (q-pair 0)))
+         (setq out nil))
+        (true
+          (setq mappa (map list (explode (w-pair 0)) (int-lst (qq 0))))
+          (setq new-num (lst-int (map (fn(x) (lookup x mappa)) (explode (w-pair 1)))))
+          (if (= new-num (q-pair 1)) 
+              (setq out true)
+          )
+        )
+  )
+  out)
+
+(check ww qq)
+;-> true
+
+Adesso possiamo confrontare la liste degli anagrammi con la lista dei quadrati:
+
+(setq valmax 0)
+(dolist (ww ana-words)
+  (dolist (qq sq-pair)
+    (cond ((check ww qq)
+           (if (> (qq 0) valmax) 
+             (begin
+               (setq valmax (qq 0))
+               (println ww { } qq { } valmax)
+             ))
+           (if (> (qq 1) valmax) 
+               (begin
+                 (setq valmax (qq 1))
+                 (println ww { } qq { } valmax)
+               )))
+    )
+  )
+)
+;-> ("EAT" "TEA") (256 625) 256
+;-> ("EAT" "TEA") (256 625) 625
+;-> ("NOW" "OWN") (196 961) 961
+;-> ("CARE" "RACE") (1296 2916) 1296
+;-> ("CARE" "RACE") (1296 2916) 2916
+;-> ("DEAL" "LEAD") (1764 4761) 4761
+;-> ("RATE" "TEAR") (4096 9604) 9604
+;-> ("BOARD" "BROAD") (17689 18769) 17689
+;-> ("BOARD" "BROAD") (17689 18769) 18769
+
+valmax
+;-> 18769
+
+Scriviamo la funzione completa:
+
+(load "e098.lsp")
+
+(define (sortword str)
+  (list (length str) (join (sort (explode str))) str))
+
+(define (number-stamp num)
+  (let ((ar (array 10 '(0))) (out 0))
+    ; fill array with the count of digits
+    (while (> num 0)
+      (++ (ar (% num 10)))
+      (setq num (/ num 10))
+    )
+    ; create output number from array
+    (for (i 9 0)
+      (setq out (+ (ar i) (* out 10)))
+    )
+    out))
+
+(define (doppie stamp)
+  (if (find "2|3|4|5|6|7|8|9" (string stamp) 0) true nil))
+  
+(define (square? n)
+  (let (v (+ (sqrt n 0.5)))
+    (= n (* v v))))
+
+(define (int-lst num)
+  (let (out '())
+    (while (!= num 0)
+      (push (% num 10) out)
+      (setq num (/ num 10))) out))
+
+(define (lst-int lst)
+  (let (num 0)
+    (dolist (el lst) (setq num (+ el (* num 10))))))
+
+(define (check w-pair q-pair)
+  (setq out nil)
+  (cond ((!= (length (w-pair 0)) (length (q-pair 0)))
+         (setq out nil))
+        (true
+          (setq mappa (map list (explode (w-pair 0)) (int-lst (qq 0))))
+          (setq new-num (lst-int (map (fn(x) (lookup x mappa)) (explode (w-pair 1)))))
+          (if (= new-num (q-pair 1)) 
+              (setq out true)
+          )
+        )
+  )
+  out)
+
+(define (e098)
+  (local (ord-words ana-words len-w ord-w w-w 
+          max-sq squares squares-stamp squares-pair
+          stamp-sq num-sq sq-pair valmax)
+    (setq ord-words (sort (map sortword words)))
+    (setq ord-words (filter (fn(x) (> (first x) 2)) ord-words))
+    (setq ana-words '())
+    (setq len-w 0)
+    (setq ord-w "")
+    (setq w-w   "")
+    (dolist (el ord-words)
+      (if (and (= (el 0) len-w) (= (el 1) ord-w))
+          (push (list w-w (el 2)) ana-words -1)
+      )
+      (setq len-w (el 0))
+      (setq ord-w (el 1))
+      (setq w-w   (el 2))
+    )
+    (setq max-sq 31426)
+    (setq squares (map (fn(x) (* x x)) (sequence 1 max-sq)))
+    (setq squares-stamp (sort (map (fn(x) (list (number-stamp x) x)) squares)))
+    (setq squares-pair '())
+    (setq stamp-sq 0)
+    (setq num-sq 0)
+    (dolist (el squares-stamp)
+      (if (= (el 0) stamp-sq)
+          (push (list (el 0) num-sq (el 1)) squares-pair -1)
+      )
+      (setq stamp-sq (el 0))
+      (setq num-sq (el 1))
+    )
+    (setq sq-pair '())
+    (dolist (el squares-pair)
+      (if (not (doppie (el 0)))
+          (push (list (el 1) (el 2)) sq-pair -1)))
+    (sort sq-pair)
+    (setq valmax 0)
+    (dolist (ww ana-words)
+      (dolist (qq sq-pair)
+        (cond ((check ww qq)
+              (if (> (qq 0) valmax) 
+                (begin
+                  (setq valmax (qq 0))
+                  ;(println ww { } qq { } valmax)
+                ))
+              (if (> (qq 1) valmax) 
+                  (begin
+                    (setq valmax (qq 1))
+                    ;(println ww { } qq { } valmax)
+                  )))
+        )
+      )
+    )
+    valmax))
+
+(e098)
+;-> 18769
+
+(time (e098))
+;-> 130.677
 ----------------------------------------------------------------------------
 
 
