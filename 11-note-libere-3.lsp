@@ -2404,10 +2404,8 @@ A questo punto non è possibile ridurre le distanze e abbiamo calcolato tutte le
 
 La seguente implementazione dell'algoritmo determina le distanze più brevi da un nodo iniziale a tutti i nodi del grafo. Il codice presuppone che il grafo sia memorizzato come una lista di archi che consiste in una lista della forma (a, b, w): questo significa che c'è un arco dal nodo a al nodo b con peso w. 
 L'algoritmo consiste di (n-1) cicli e ad ogni ciclo l'algoritmo attraversa tutti gli archi del grafo e cerca di ridurre le distanze. L'algoritmo costruisce una "lista delle distanze" che contiene i valori delle distanze dal nodo iniziale a tutti i nodi del grafo e una "lista di predecessori" che serve per ricostruire tutti i percorsi minimi dal nodo iniziale a tutti i nodi del grafo. La costante INF indica una distanza infinita.
-La complessità temporale dell'algoritmo è O(nm), perché l'algoritmo consiste di n-1 cicli e itera su tutti gli archi per ogni ciclo. Se non ci sono cicli negativi nel grafo, tutte le distanze sono definitive dopo n-1 cicli, perché
-ogni percorso più breve può contenere al massimo n-1 archi.
-In pratica, le distanze finali di solito possono essere trovate prima che si esauriscano tutti gli n-1 cicli, ertanto, un possibile modo per rendere l'algoritmo più efficiente è arrestare l'algoritmo
-se nessuna distanza può essere ridotta durante un ciclo.
+La complessità temporale dell'algoritmo è O(nm), perché l'algoritmo consiste di n-1 cicli e itera su tutti gli archi per ogni ciclo. Se non ci sono cicli negativi nel grafo, tutte le distanze sono definitive dopo n-1 cicli, perché ogni percorso più breve può contenere al massimo n-1 archi.
+In pratica, le distanze finali di solito possono essere trovate prima che si esauriscano tutti gli n-1 cicli, ertanto, un possibile modo per rendere l'algoritmo più efficiente è arrestare l'algoritmo se nessuna distanza può essere ridotta durante un ciclo.
 
 (define (bf graph start num-nodi)
   (local (dist a b w)

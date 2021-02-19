@@ -284,7 +284,7 @@ ROSETTA CODE
 
 PROJECT EULERO
 ==============
-  Problemi 1..94,96,97,99,100,101,102
+  Problemi 1..97,99,100,101,102
 
 PROBLEMI VARI
 =============
@@ -28101,10 +28101,10 @@ Vediamo quanto tempo impiega per calcolare tutti i numeri taxicab fino ad un mil
 |    92    |  8581146           |         -  |     51582  |        16  |
 |    93    |  1258              |         -  |       389  |         -  |
 |    94    |  518408346         |         -  |     28946  |         0  |
-|    95    |  -                 |         -  |         -  |         -  |
+|    95    |  14316             |         -  |      1846  |         -  |
 |    96    |  24702             |         -  |     27084  |         -  |
 |    97    |  8739992577        |         -  |       497  |         -  |
-|    98    |  -                 |         -  |         -  |         -  |
+|    98    |  (18769)           |         -  |         -  |         -  |
 |    99    |  709               |         -  |         0  |         -  |
 |   100    |  756872327473      |         -  |         0  |         -  |
 |   101    |  37076114526       |         -  |        70  |         -  |
@@ -38769,6 +38769,60 @@ Con un altro algoritmo (intelligent brute-force):
 
 
 ===========
+Problema 95
+===========
+
+Catene amichevoli
+
+I divisori propri di un numero sono tutti i divisori escluso il numero stesso. Ad esempio, i divisori propri di 28 sono 1, 2, 4, 7 e 14. Poiché la somma di questi divisori è uguale a 28, lo chiamiamo numero perfetto.
+
+È interessante notare che la somma dei divisori propri di 220 è 284 e la somma dei divisori propri di 284 è 220, formando una catena di due numeri. Per questo motivo, 220 e 284 sono chiamati una coppia amichevole.
+
+Forse meno conosciute sono le catene più lunghe. Ad esempio, iniziando con 12496, formiamo una catena di cinque numeri:
+
+        12496 → 14288 → 15472 → 14536 → 14264 (→ 12496 → ...)
+
+Poiché questa catena ritorna al punto di partenza, viene chiamata catena amichevole.
+
+Trova il membro più piccolo della catena amichevole più lunga con nessun elemento superiore a un milione.
+============================================================================
+
+(define (e095)
+  (local (limite dp lcmax catena num tmp idx out)
+    (setq limite 1000000)
+    (setq dp (array limite '(1)))
+    (for (i 2 (- (/ limite 2) 1))
+      (for (j (* 2 i) (- limite 1) i)
+        (setf (dp j) (+ (dp j) i))))
+    (setq lcmax 0)
+    (for (i 2 (- limite 1))
+      (setq num i)
+      (setq catena '())
+      (while (< (dp num) limite)
+        (setq tmp (dp num))
+        (setf (dp num) (+ limite 1))
+        (setq num tmp)
+        (cond ((if (find num catena))
+               (setq idx (find num catena))
+               (if (> (length (slice catena idx)) lcmax)
+                   (setq lcmax (length (slice catena idx))
+                        out (apply min (slice catena idx)))))
+              (true
+               (push num catena -1))
+        )
+      )
+    )
+    out))
+
+(e095)
+;-> 14316
+
+(time (e095))
+;-> 1824.12
+----------------------------------------------------------------------------
+
+
+===========
 Problema 96
 ===========
 
@@ -39394,7 +39448,7 @@ Possiamo usare il teorema di Jordan (che vale anche per qualunque poligono):
     (list a b)))
 
 (define (e102)
-  (local (x0 y0 dentro fuori)
+  (local (x0 y0 xmax xmin ymax ymin r1 a1 b1 r2 a2 b2 r3 a3 b3 conta dentro fuori)
     (setq x0 0 y0 0 dentro 0 fuori 0)
     (dolist (el triangle)
       (setq xmax (max (el 0) (el 2) (el 4)))
@@ -39438,7 +39492,7 @@ Possiamo usare il teorema di Jordan (che vale anche per qualunque poligono):
 Un altro algoritmo semplice e veloce, chiamato metodo baricentrico, consiste nel controllare su quale lato del semipiano creato dai lati si trova il punto.
 
 (define (e102)
-  (local (a b c out)
+  (local (x1 y1 x2 y2 x3 y3 a b c out)
     (setq out 0)
     (dolist (el triangle)
       (setq x1 (el 0)) (setq y1 (el 1))
@@ -75493,10 +75547,8 @@ A questo punto non è possibile ridurre le distanze e abbiamo calcolato tutte le
 
 La seguente implementazione dell'algoritmo determina le distanze più brevi da un nodo iniziale a tutti i nodi del grafo. Il codice presuppone che il grafo sia memorizzato come una lista di archi che consiste in una lista della forma (a, b, w): questo significa che c'è un arco dal nodo a al nodo b con peso w. 
 L'algoritmo consiste di (n-1) cicli e ad ogni ciclo l'algoritmo attraversa tutti gli archi del grafo e cerca di ridurre le distanze. L'algoritmo costruisce una "lista delle distanze" che contiene i valori delle distanze dal nodo iniziale a tutti i nodi del grafo e una "lista di predecessori" che serve per ricostruire tutti i percorsi minimi dal nodo iniziale a tutti i nodi del grafo. La costante INF indica una distanza infinita.
-La complessità temporale dell'algoritmo è O(nm), perché l'algoritmo consiste di n-1 cicli e itera su tutti gli archi per ogni ciclo. Se non ci sono cicli negativi nel grafo, tutte le distanze sono definitive dopo n-1 cicli, perché
-ogni percorso più breve può contenere al massimo n-1 archi.
-In pratica, le distanze finali di solito possono essere trovate prima che si esauriscano tutti gli n-1 cicli, ertanto, un possibile modo per rendere l'algoritmo più efficiente è arrestare l'algoritmo
-se nessuna distanza può essere ridotta durante un ciclo.
+La complessità temporale dell'algoritmo è O(nm), perché l'algoritmo consiste di n-1 cicli e itera su tutti gli archi per ogni ciclo. Se non ci sono cicli negativi nel grafo, tutte le distanze sono definitive dopo n-1 cicli, perché ogni percorso più breve può contenere al massimo n-1 archi.
+In pratica, le distanze finali di solito possono essere trovate prima che si esauriscano tutti gli n-1 cicli, ertanto, un possibile modo per rendere l'algoritmo più efficiente è arrestare l'algoritmo se nessuna distanza può essere ridotta durante un ciclo.
 
 (define (bf graph start num-nodi)
   (local (dist a b w)
