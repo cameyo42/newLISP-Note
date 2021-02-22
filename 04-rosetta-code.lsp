@@ -10061,3 +10061,108 @@ Vediamo quanto tempo impiega per calcolare tutti i numeri taxicab fino ad un mil
 ;-> 321249.471 ; 5 minuti e 21 secondi
 
 
+-----------
+CODICE GRAY
+-----------
+
+Dato un numero N, generare stringhe di bit da 0 a 2^N-1 in modo tale che le stringhe successive differiscano di un bit.
+
+La soluzione a questo problema è il codice Gray.
+
+Per esempio:
+
+Input: N = 2
+Output: 00 01 11 10
+
+Input: N = 3
+Output: 000 001 011 010 110 111 101 100
+
+Algoritmo
+
+I codici Gray a n bit possono essere generati dall'elenco dei codici Gray a (n-1) bit utilizzando i seguenti passaggi.
+
+  Poniamo che la lista dei codici Gray a (N-1) bit sia L1.
+  Creare un'altra lista L2 che è il contrario di L1.
+  Modificare la lista L1 anteponendo "0" in tutti i codici di L1.
+  Modificare la lista L2 anteponendo "1" in tutti i codici di L2.
+  Concatenare L1 e L2.
+  L'elenco concatenato è la lista dei codici Gray a N bit.
+
+Ad esempio, vediamo i passaggi per generare l'elenco dei codici Gray a 3 bit dall'elenco dei codici Gray a 2 bit:
+
+  L1 = (00 01 11 10) (elenco di codici gray a 2 bit)
+  L2 = (10 11 01 00) (inverso di L1)
+  Anteporre "0" a tutti codici di L1, L1 diventa (000 001 011 010)
+  Anteporre "1" a tutti codici di L2, L2 diventa (110 111 101 100)
+  Concatenare L1 e L2: otteniamo (000 001 011 010 110 111 101 100)
+
+Per generare il codice Gray a N bit, partiamo dalla lista dei codici Gray a 1 bit (0 1) e costruiamo tutte le liste successive fino a N.
+
+(define (gray num)
+  (local (lst1 lst2)
+    (cond ((< num 1) '())
+          ((= num 1) '("0" "1"))
+          (true
+          (setq lst1 '("0" "1"))
+          (for (i 2 num)
+            (setq lst2 (map reverse lst1))
+            (setq lst1 (map (fn(x) (string "0" x)) lst1))
+            (setq lst2 (map (fn(x) (string "1" x)) lst2))
+            (setq lst1(extend lst1 lst2))
+          )))))
+
+(gray 3)
+;-> ("000" "001" "010" "011" "100" "110" "101" "111")
+
+Il numero di elementi della sequenza Gray(n) vale 2^n e cresce rapidamente con N:
+
+(for (i 1 20) (print (length (gray i)) { }))
+;-> 2 4 8 16 32 64 128 256 512 1024 2048 4096 8192
+;-> 16384 32768 65536 131072 262144 524288 1048576
+
+(for (i 1 20) (print (pow 2 i) { }))
+;-> 2 4 8 16 32 64 128 256 512 1024 2048 4096 8192
+;-> 16384 32768 65536 131072 262144 524288 1048576
+
+Il codice Gray viene chiamato anche "reflected binary code" (RBC) oppure "reflected binary" (RB). I primi sedici numeri sono codificati nella tabella seguente:
+
+   Decimale  Binario  Gray  Decimale Gray
+       0      0000    0000      0
+       1      0001    0001      1
+       2      0010    0011      3
+       3      0011    0010      2
+       4      0100    0110      6
+       5      0101    0111      7
+       6      0110    0101      5
+       7      0111    0100      4
+       8      1000    1100     12
+       9      1001    1101     13
+      10      1010    1111     15
+      11      1011    1110     14
+      12      1100    1010     10
+      13      1101    1011     11
+      14      1110    1001      9
+      15      1111    1000      8
+
+Per convertire un numero decimale in decimale Gray (OEIS A003188) possiamo usare la seguente funzione:
+
+(define (graycode1 num) (^ num (>> num 1)))
+
+(graycode1 7)
+;-> 4
+(graycode1 10)
+;-> 15
+
+Oppure in maniera equivalente:
+
+(define (graycode2 num) (^ num (floor (/ num 2))))
+
+(graycode2 7)
+;-> 4
+(graycode2 10)
+;-> 15
+
+(= (map graycode1 (sequence 1 10000)) (map graycode2 (sequence 1 10000)))
+;-> true
+
+

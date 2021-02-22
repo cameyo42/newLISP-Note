@@ -8780,3 +8780,304 @@ La seguente funzione può essere utilizzata per tradurre una S-espressione in XM
 Il secondo parametro 0 è il livello di indentazione per l'espressione di tag più esterna.
 
 
+----------------------------------------------
+Analisi dei tempi di esecuzione delle funzioni
+----------------------------------------------
+
+Per analizzare i tempi di esecuzione delle funzioni newLISP mette a disposizione la funzione "time".
+
+*****************
+>>>funzione TIME
+*****************
+sintassi: (time exp [int-count)
+Valuta l'espressione in exp e restituisce il tempo impiegato per la valutazione in millisecondi a virgola mobile. A seconda della piattaforma, vengono visualizzati o meno i decimali dei millisecondi.
+
+(time (myprog x y z)) → 450.340
+(time (myprog x y z) 10) → 4420.021
+
+Nel primo esempio, sono trascorsi 450 millisecondi durante la valutazione (myprog x y z).
+Il secondo esempio restituisce il tempo per dieci valutazioni di (myprog x y z).
+
+Per vedere come utilizzare questa funzione ci serviamo del seguente problema:
+
+Data un lista di n numeri, calcolare la somma massima di una sua sottolista, cioè, la somma più grande possibile di una sequenza di valori consecutivi nella lista. Da notare che possono esserci valori negativi nella lista. Per esempio, la lista (-2 2 4 -3 5 2 -6 2) ha la seguente sottolista con somma massima: (2 4 -3 5 2), la cui somma vale 10.
+
+Possiamo risolvere il problema in tre modi diversi, ognuno con una complessità temporale differente.
+
+Algoritmo A  -->  O(n^3)
+------------------------
+Il modo più semplice per risolvere il problema è passare attraverso tutte le possibili sottoliste, calcolare la somma dei valori di ogni sottolista e mantenere il valore della somma massima.
+
+(define (A lst)
+  (let ((out 0) (somma 0) (fine (- (length lst) 1)))
+    (for (i 0 fine)
+      (for (j i fine)
+        (setq somma 0)
+        (for (k i j)
+          (setq somma (+ somma (lst k)))
+        )
+        (setq out (max out somma))
+      )
+    )
+    out))
+
+(setq lst '(-2 2 4 -3 5 2 -6 2))
+(A lst)
+;-> 10
+
+La complessità temporale dell'algoritmo è O(n^3), perché è costituito da tre cicli annidati che attraversano la lista.
+
+Algoritmo B  -->  O(n^2)
+------------------------
+Possiamo rendere l'algoritmo A più efficiente rimuovendo un ciclo. Ciò è possibile calcolando la somma nello stesso momento in cui l'indice destro della sottolista si muove.
+
+(define (B lst)
+  (let ((out 0) (somma 0) (fine (- (length lst) 1)))
+    (for (i 0 fine)
+      (setq somma 0)
+      (for (j i fine)
+        (setq somma (+ somma (lst j)))
+        (setq out (max out somma))
+      )
+    )
+    out))
+
+(setq lst '(-2 2 4 -3 5 2 -6 2))
+(B lst)
+;-> 10
+
+La complessità temporale dell'algoritmo è O(n^2), perché è costituito da due cicli annidati che attraversano la lista.
+
+Algoritmo C  -->  O(n)
+----------------------
+Possiamo risolvere il problema in tempo O(n), cioè con un solo ciclo. L'idea è di calcolare per ciascuna posizione della lista la somma massima della sottolista che termina in quella posizione. A questo punto la risposta al problema è il massimo di quelle somme.
+Vediamo come trovare la sottolista della somma massima che termina con la posizione k.
+Ci sono due possibilità:
+1. La sottolista contiene solo l'elemento nella posizione k.
+2. La sottolista è costituita da una sottolista che termina in posizione k - 1, seguita dall'elemento in posizione k.
+In quest'ultimo caso, poiché vogliamo trovare un sottolista con somma massima, la sottolista che termina alla posizione k - 1 dovrebbe anche avere la somma massima. Quindi, possiamo risolvere il problema in modo efficiente calcolando la somma massima della sottolista per ciascuna posizione finale da sinistra a destra.
+
+(define (C lst)
+  (let ((out 0) (somma 0) (fine (- (length lst) 1)))
+    (for (i 0 fine)
+        (setq somma (max (lst i) (+ somma (lst i))))
+        (setq out (max out somma))
+    )
+    out))
+
+(setq lst '(-2 2 4 -3 5 2 -6 2))
+(C lst)
+;-> 10
+
+La complessità temporale dell'algoritmo è O(n), perché è costituito solo da un ciclo che attraversa la lista.
+
+Nota: Questo è anche l'algoritmo ottimo perchè dobbiamo attraversare la lista almeno una volta con qualunque algoritmo.
+
+Vediamo di calcolare la velocità delle tre funzioni. Prima prepariamo i dati, altrimenti il tempo di esecuzione calcolato includerebbe anche quello di creazione dei dati stessi.
+
+Nota: per fare dei test di velocità è meglio utilizzare una REPL "nuova", cioè appena lanciata.
+
+(silent
+  ;10
+  (setq lst01 (randomize (sequence -5 5)))
+  ;100
+  (setq lst02 (randomize (sequence -50 50)))
+  ;1000
+  (setq lst03 (randomize (sequence -500 500)))
+  ;10000
+  (setq lst04 (randomize (sequence -5000 5000)))
+  ;100000
+  (setq lst05 (randomize (sequence -50000 50000)))
+  ;1000000
+  (setq lst06 (randomize (sequence -500000 500000)))
+)
+
+Adesso possiamo calcolare i tempi di esecuzione delle tre funzioni, stampando anche il risultato della funzione per verificare che siano tutte corrette:
+
+Funzione A
+----------
+(time (println (A lst01)))
+;-> 14 ; risultato
+;-> 0  ; tempo di esecuzione (msec)
+(time (println (A lst02)))
+;-> 466
+;-> 16.982
+(time (println (A lst03)))
+;-> 8132
+;-> 83572.628
+
+Non proviamo (time (A lst04)) perchè... ci vuole troppo tempo.
+
+Funzione B
+----------
+(time (println (B lst01)))
+;-> 14
+;-> 0
+(time (println (B lst02)))
+;-> 466
+;-> 0.963
+(time (println (B lst03)))
+;-> 8132
+;-> 359.068
+(time (println (B lst04)))
+;-> 315922
+;-> 456891.876
+
+Non proviamo (time (B lst05)) perchè... ci vuole troppo tempo.
+
+Funzione C
+----------
+
+(time (println (C lst01)))
+;-> 14
+;-> 0.984
+(time (println (C lst02)))
+;-> 466
+;-> 0.997
+(time (println (C lst03)))
+;-> 8132
+;-> 2.061
+(time (println (C lst04)))
+;-> 315922
+;-> 456891.442
+(time (println (C lst05)))
+;-> 9871843
+;-> 15751.873
+
+Non proviamo (time (C lst06)) perchè... ci vuole troppo tempo.
+
+Ricapitoliamo i risultati:
+
+|   Numero   | Tempo (msec) | Tempo (msec) | Tempo (msec) |
+|  Elementi  | Algoritmo A  | Algoritmo B  | Algoritmo C  |
+|   Lista    |   O(n^3)     |   O(n^2)     |   O(n)       |
++------------+--------------+--------------+--------------+
+|    10      |         0    |         0    |        1     |
+|    10^2    |        16    |         1    |        1     |
+|    10^3    |     83572    |       359    |        2     |
+|    10^4    |         -    |    456891    |      139     |
+|    10^5    |         -    |         -    |    15751     |
+|    10^6    |         -    |         -    |        -     |
+|    10^7    |         -    |         -    |        -     |
++------------+--------------+--------------+--------------+
+
+La tabella mostra chiaramente che l'algoritmo C è nettamente il migliore.
+
+Comunque, in questo caso, possiamo utilizzare i vettori al posto delle liste con le stesse funzioni. Vediamo quanto migliorano i tempi di esecuzione.
+
+Salviamo le funzioni in un file:
+
+(save "ABC.lsp" 'A 'B 'C)
+
+Partiamo con una REPL nuova e ricarichiamo le funzioni A, B e C:
+
+(load "ABC.lsp")
+
+Creiamo i vettori:
+
+(silent
+  ;10
+  (setq ar01 (array 11 (randomize (sequence -5 5))))
+  ;100
+  (setq ar02 (array 101 (randomize (sequence -50 50))))
+  ;1000
+  (setq ar03 (array 1001 (randomize (sequence -500 500))))
+  ;10000
+  (setq ar04 (array 10001 (randomize (sequence -5000 5000))))
+  ;100000
+  (setq ar05 (array 100001 (randomize (sequence -50000 50000))))
+  ;1000000
+  (setq ar06 (array 1000001 (randomize (sequence -500000 500000))))
+  ;10000000
+  (setq ar07 (array 10000001 (randomize (sequence -5000000 5000000))))
+)
+
+Calcoliamo i tempi di esecuzione:
+
+Funzione A
+----------
+(time (println (A ar01)))
+;-> 14 ; risultato
+;-> 0  ; tempo di esecuzione (msec)
+(time (println (A ar02)))
+;-> 466
+;-> 10.952
+(time (println (A ar03)))
+;-> 8132
+;-> 8519.551
+(time (println (A ar04)))
+
+Non proviamo (time (A ar04)) perchè anche in questo caso... ci vuole troppo tempo.
+
+Funzione B
+----------
+(time (println (B ar01)))
+;-> 14
+;-> 0
+(time (println (B ar02)))
+;-> 466
+;-> 1.066
+(time (println (B ar03)))
+;-> 8132
+;-> 44.144
+(time (println (B ar04)))
+;-> 315922
+;-> 4083.084
+(time (println (B ar05)))
+;-> 9871843
+;-> 578540.698
+
+Non proviamo (time (B ar06)) perchè... ci vuole troppo tempo.
+
+Funzione C
+----------
+
+(time (println (C ar01)))
+;-> 14
+;-> 1.193
+(time (println (C ar02)))
+;-> 466
+;-> 0.992
+(time (println (C ar03)))
+;-> 8132
+;-> 0.985
+(time (println (C ar04)))
+;-> 315922
+;-> 5.2
+(time (println (C ar05)))
+;-> 9871843
+;-> 14.192
+(time (println (C ar06)))
+;-> 289944784
+;-> 248.444
+(time (println (C ar07)))
+;-> 10435936563
+;-> 3083.781
+
+Ricapitoliamo i risultati :
+
+|   Numero   | Tempo (msec) | Tempo (msec) | Tempo (msec) |
+|  Elementi  | Algoritmo A  | Algoritmo B  | Algoritmo C  |
+|   Lista    |   O(n^3)     |   O(n^2)     |   O(n)       |
++------------+--------------+--------------+--------------+
+|    10      |         0    |         0    |        1     |
+|    10^2    |        10    |         1    |        1     |
+|    10^3    |      8519    |        44    |        1     |
+|    10^4    |         -    |      4083    |        5     |
+|    10^5    |         -    |   9871843    |       14     |
+|    10^6    |         -    |         -    |      248     |
+|    10^7    |         -    |         -    |     3083     |
++------------+--------------+--------------+--------------+
+
+I vettori sono molto più veloci delle liste (perchè l'accesso indicizzato delle liste è molto lento rispetto a quello dei vettori).
+
+Per vedere la differenza di velocità tra le funzioni possiamo anche eseguirle un certo numero di volte con lo stesso input. Ad esempio:
+
+(time (A ar02) 100)
+;-> 937.535
+(time (B ar02) 100)
+;-> 46.79
+(time (C ar02) 100)
+;-> 0
+
+

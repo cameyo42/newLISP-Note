@@ -8,16 +8,57 @@
 Notazione Big-O
 ---------------
 
-Valori della notazione Big-O in funzione del numero di ingresso
+Il seguente elenco mostra (in maniera essenzialmente pratica) le complessità temporali degli algoritmi:
 
- n  costante logaritmo  lineare   nlogn      quadrato   cubo    esponenziale
- 1    O(1)   O(log(n))   O(n)   O(n*log(n))   O(n^2)   O(n^3)       O(2^n)
- 2     1        1          1        1             1        1            1
- 4     1        1          2        2             4        8            4
- 8     1        3          8       24            64      512          256
-16     1        4         16       64           256     4096        65536
-32     1        5         32      160          1024    32768   4294967296
-64     1        6         64      384          4096   262144   1.84x10^19
+O(1)
+Il tempo di esecuzione di un algoritmo a tempo costante non dipende dalla dimensione dell'input. Un tipico algoritmo a tempo costante è una formula diretta che calcola il risultato della risposta.
+
+O(log(n))
+Un algoritmo logaritmico spesso dimezza la dimensione dell'input ad ogni passaggio. Il tempo di esecuzione di un tale algoritmo è logaritmico, perché log2(n) è uguale al numero di volte che n deve essere diviso per 2 per ottenere 1.
+
+O(sqrt(n))
+Un algoritmo di radice quadrata è più lento di O(log(n)) ma più veloce di O(n). Una proprietà speciale delle radici quadrate è che sqrt(n) = n/sqrt(n). Quindi n elementi possono essere suddivisi in O(sqrt (n)) blocchi di O(sqrt (n)) elementi.
+
+O(n)
+Un algoritmo lineare passa attraverso l'input un numero costante di volte. Questo è spesso la migliore complessità temporale possibile, perché di solito è necessario accedere ogni elemento di input almeno una volta prima di calcolare la risposta.
+
+O(n * log(n))
+Questa complessità temporale spesso indica che l'algoritmo ordina l'input, perché la complessità temporale degli algoritmi di ordinamento efficienti è O(n * log(n)). Un'altra situazione è che l'algoritmo utilizzi una struttura dati in cui ogni operazione richiede un tempo pari a O(log(n)).
+
+O(n^2)
+Un algoritmo quadratico spesso contiene due cicli annidati. È possibile passare attraverso tutte le coppie degli elementi di input in tempo O(n^2).
+
+O(n^3)
+Un algoritmo cubico contiene spesso tre cicli annidati. È possibile passare attraverso tutte le terne degli elementi di ingresso in tempo O(n^3).
+
+O(2^n)
+Questa complessità temporale spesso indica che l'algoritmo itera tutti i sottoinsiemi degli elementi di input. Ad esempio, i sottoinsiemi di (1 2 3) sono (), (1), (2), (3), (1 2), (1 3), (2 3) e (1 2 3).
+
+O(n!)
+Questa complessità temporale indica spesso che l'algoritmo itera attraverso tutte le permutazioni degli elementi di input. Ad esempio, le permutazioni di (1 2 3) sono (1 2 3), (1 3 2), (2 1 3), (2 3 1), (3 1 2) e (3, 2, 1).
+
+Un algoritmo è polinomiale se la sua complessità temporale è al massimo O(n^k) dove k è una costante. Tutte le complessità temporali elencate sopra, eccetto O(2^n) e O(n!), sono polinomiali. In pratica, la costante k è solitamente piccola, e quindi una complessità temporale polinomiale significa (più o meno) che l'algoritmo può elaborare input di grandi dimensioni.
+Comunque esistono importanti problemi per i quali non si conosce alcun algoritmo polinomiale, cioè non è possibile risolverli in modo efficiente. I problemi NP-hard sono un insieme importante di problemi, per i quali nessun algoritmo polinomiale è noto.
+
+Valori della notazione Big-O in funzione del numero di input:
+
+ n  costante  logaritmo   sqrt(n)   lineare   nlogn      quadrato   cubo    esponenziale
+      O(1)    O(log(n))  O(sqrt(n))   O(n)   O(n*log(n))   O(n^2)   O(n^3)       O(2^n)
+ 1     1         1          1          1        1             1        1            1         
+ 2     1         1          1          2        2             4        8            4
+ 4     1         1          2          4        2            16       64           16
+ 8     1         3          3          8       24            64      512          256
+16     1         4          4         16       64           256     4096        65536
+32     1         5          6         32      160          1024    32768   4294967296
+64     1         6          8         64      384          4096   262144   1.84x10^19
+
+Ma cosa significa esattamente che un algoritmo funziona in tempo O(f(n))?
+
+Vuol dire che ci sono due costanti C e n0 tali che l'algoritmo esegua al massimo c*f(n) operazioni per tutti gli input in cui n ≥ n0. Pertanto, la notazione O fornisce un limite superiore per il tempo di esecuzione dell'algoritmo per input sufficientemente grandi. La notazione O non viene usata per fornire una stima accurata della complessità temporale.
+
+Ci sono anche altre due notazioni comuni. La notazione Omega fornisce un limite inferiore
+per il tempo di esecuzione di un algoritmo. La complessità temporale di un algoritmo è Omega(f(n)),
+se ci sono due costanti C e n0 tali che l'algoritmo esegua almeno operazioni C*f(n) per tutti gli input dove n ≥ n0. Infine, la notazione Theta fornisce un limite esatto, la complessità temporale di un algoritmo è Theta(f(n)) se è sia O(f(n)) che Omega(f(n)). In pratica, Theta(f(n)) è una funzione che si trova compresa tra le funzioni O(f(n)) e Omega(f(n)).
 
 
 -----------------------------------
@@ -6382,5 +6423,272 @@ Proviamo calcolando il fattoriale e contando gli zeri finali:
 ;-> 2499
 
 I risultati sono identici in entrambi i casi.
+
+
+-----------------------------------------------------------
+Massima ripetizione di un carattere in una stringa (Google)
+-----------------------------------------------------------
+
+Sia data una sequenza di DNA: una stringa composta dai caratteri A, C, G e T. Il tuo compito è trovare la ripetizione più lunga nella sequenza. Questa è una sottostringa di lunghezza massima contenente un solo tipo di carattere.
+
+Il problema può essere risolto utilizzando due puntatori in tempo O(n).
+Memorizziamo la lunghezza della sottosequenza ripetuta più lunga che incontriamo e la aggiorniamo quando incontriamo una sottosequenza ripetuta con una lunghezza maggiore di quella salvata in precedenza.
+
+Esempio:
+La stringa vale: "ATAAAGCCCCT"
+Definiamo una variabile "max-len".
+Usiamo un indice "i" partendo dall'inizio della stringa: "i" punta ad "A".
+  _
+  ATAAAGCCCCT
+
+Verifichiamo se l'elemento "i+1" è diverso "i":
+se è vero muoviamo "i" al prossimo carattere.
+Adesso " i" punta a "T".
+  _
+  ATAAAGCCCCT
+
+Ripetendo questo processo, "i" raggiunge "A".
+    _
+  ATAAAGCCCCT
+
+Adesso il carattere puntato da "i+1" non è diverso dal carattere puntato da "i".
+Creiamo un altro puntatore "k" che punta alla stassa posizione nella stringa del puntatore "i".
+    _
+  ATAAAGCCCCT
+
+Ora continuiamo a muovere in avanti "i" fintanto che l'elemento puntato da "i" è uguale all'elemento puntato da "i+1". In questo modo, il puntatore "i" raggiunge la terza "A" nella stringa. Il prossimo elemento è "G" (a "i+1") che è diverso da quello puntato da "i", quindi fermiamo il movimento di "i".
+    _ _
+  ATAAAGCCCCT
+
+Adesso per trovare la lunghezza della sottostringa ripetuta sottraiamo il valore del puntatore "k" dal valore del puntatore "i" e aggiungiamo 1 (per considerare anche il carattere alla posizione i-esima).
+
+Indice di "i" = 5
+Indice di "k" = 3
+Lunghezza-sottostringa = i - k + 1 = 3
+
+Poniamo max-len = Lunghezza-sottostringa (perchè per adesso questa è la lunghezza massima).
+
+Adesso ci muoviamo in avanti e il carattere puntato da "i+1" (che è "G") è diverso dall'elemento puntato da "i" (che è "A"). Continuiamo a muoverci in avanti fino a che "i" punta a "C".
+      _
+  ATAAAGCCCCT
+
+Adesso il carattere puntato da "i+1" è uguale al carattere puntato da "i".
+Come abbiamo fatto prima, poniamo "k" uguale a "i" e incrementiamo "i" fino a che il carattere "i+1" è lo stesso di quello puntato da "i".
+Adesso "i" punta alla quarta "C"
+          _
+  ATAAAGCCCCT
+
+Indice di "i" = 10
+Indice di "k" = 7
+Lunghezza-sottostringa = i - k + 1 = 4
+
+Adesso dobbiamo aggiornare "max-len" con la lunghezza massima:
+
+max-len = max(max-len, Lunghezza-sottostringa) = 4
+
+Il carattere in "i + 1" è diverso dal carattere in "i", quindi spostiamo "i" in avanti.
+
+"i" ora punta alla fine della stringa, il che significa che abbiamo attraversato l'intera stringa e abbiamo trovato la sottosequenza ripetuta più lunga.
+
+Nota: non abbiamo considerato il caso in cui la sottostringa più lunga si ripete fino all'ultimo carattere. In questo caso dobbiamo "muovere in avanti "i" fintanto che l'elemento puntato da "i" è uguale all'elemento puntato da "i+1"" solo se "i+1" non è la fine della stringa. Per fare questo dobbiamo controllare che "i+1" sia minore alla lunghezza della stringa.
+
+Possiamo scrivere la funzione finale:
+
+(define (max-char-rep str)
+  (local (i k max-len len)
+    (setq i 0)
+    (setq max-len 1) ;solo la stringa nulla ha max-len=0
+    (setq len 1)
+    (while (!= (+ i 1) (length str))
+      (cond ((= (str i) (str (+ i 1)))
+              (setq k i)
+              ; ciclo attraverso tutti i caratteri uguali
+              (while (and (< (+ i 1) (length str)) (= (str i) (str (+ i 1))))
+                  (++ i)
+                  ;(println i)
+                  ;(read-line)
+              )
+              (setq len (+ i (- k) 1))
+              (setq max-len (max max-len len))
+            )
+            (true (++ i))
+      )
+    )
+    max-len))
+
+(max-char-rep "ATAAAGCCCCT")
+;-> 4
+(max-char-rep "AAAAA")
+;-> 5
+(max-char-rep "ATAAAGCCCCTATAAAGTTTTTT")
+;-> 6
+(max-char-rep "ATGC")
+;-> 1
+
+
+--------------------
+Leggere libri (Uber)
+--------------------
+
+Ci sono n libri. Eva e Vale le leggeranno tutte. Per ogni libro, conosciamo il tempo necessario per leggerlo.
+Entrambi leggono ogni libro dall'inizio alla fine e non possono leggere un libro allo stesso tempo.
+Qual è il tempo totale minimo richiesto?
+
+La strategia ottimale è che la prima persona inizi dal libro più corto e legga in ordine crescente e la seconda persona inizi dal libro più lungo, quindi vada al libro più corto e legga in ordine crescente. Questo si traduce nel seguente metodo: se puoi leggere tutti gli altri libri mentre leggi il libro più lungo, allora il tempo totale vale il tempo per leggere il libro più lungo moltiplicato due (il doppio), altrimenti il tempo totale vale il tempo per leggere il resto dei libri più il tempo per leggere il libro più lungo.
+In altre parole, la soluzione vale: max(2*tn, somma)
+dove somma = t1 + t2 + ... + tn e tn è il più grande dei t(i).
+
+(define (book lst)
+  (local (somma tb)
+    (setq somma 0 tb 0)
+    (dolist (el lst)
+      (setq somma (+ somma el))
+      (setq tb (max tb el))
+    )
+    (if (>= tb (- somma tb))
+        (* 2 tb)
+        somma)))
+
+(book '(2 8 3))
+;-> 16
+
+
+-------------------------
+Numero mancante (Wolfram)
+-------------------------
+
+Abbiamo una lista di tutti i numeri compresi tra 1,2,…, n tranne uno.
+Trovare il numero mancante.
+
+La somma di tuttti i numeri da 1 a n vale:
+
+Sum[1..n](n) = n*(n + 1)/2
+
+Quindi per trovare il numero mancante basta sottrarre alla somma di tutti i numeri la somma di tutti i numeri della lista:
+
+(define (mancante lst)
+  (let (n (+ (length lst) 1))
+    (- (/ (* n (+ n 1)) 2) (apply + lst))))
+
+(mancante '(1 2 3 4 5 6 8 9 10))
+;-> 7
+
+
+-----------------------------------
+Lista strettamente crescente (Visa)
+-----------------------------------
+
+Sia data una lista di n numeri interi. Si desidera modificare la lista in modo che sia strettamente crescente, ovvero ogni elemento è più grande dell'elemento precedente.
+
+Ad ogni passo, puoi aumentare il valore di qualsiasi elemento di uno. Qual'è il numero minimo di passi richiesti?
+
+(define (adder lst)
+  (local (passi nextval out)
+    (setq out '())
+    ; numero di passi iniziale
+    (setq passi 0)
+    ; valore che deve raggiungere il prossimo numero
+    (setq nextval (+ (lst 0) 1))
+    ; lista di output: il primo valore è uguale
+    ; a quello della lista di input
+    (push (lst 0) out)
+    ; ciclo per ogni valore della lista
+    (for (i 1 (- (length lst) 1))
+      ; se il numero corrente è maggiore del valore da raggiungere
+      (if (> (lst i) nextval)
+          (begin
+            (push (lst i) out -1)
+            ; il numero di passi rimane la stesso
+            ; perchè il valore corrente non cambia
+            (setq passi passi)
+            ; il prossimo valore deve raggiungere il valore corrente + 1
+            (setq nextval (+ (lst i) 1)))
+          ;else
+          (begin
+            (push nextval out -1)
+            ; il numero dei passi viene aumentato dalla
+            ; differenza tra il valore da raggiungere
+            ; e il valore corrente della lista
+            (setq passi (+ passi nextval (- (lst i))))
+            ; il prossimo valore aumenta di 1
+            (setq nextval (+ nextval 1)))
+      )
+      ;(println (lst i) { } nextval { } passi)
+    )
+  (list passi out)))
+
+(adder '(3 2 1 8 1 1 6))
+;-> (28 (3 4 5 8 9 10 11))
+
+(adder '(3 2 5 1 7))
+;-> (7 (3 4 5 6 7))
+
+(adder '(3 2 5 7 1))
+;-> (9 (3 4 5 7 8))
+
+(adder '(1 1 5 5 4 4 11))
+;-> (9 (1 2 5 6 7 8 11))
+
+(adder '(-1 1 -5 5 -4 4))
+;-> (20 (-1 1 2 5 6 7))
+
+(adder '(2 2 2 2 2 2))
+;-> (15 (2 3 4 5 6 7))
+
+
+-------------------------
+Pile di monete (LinkedIn)
+-------------------------
+
+Abbiamo due pile di monete contenenti a e b monete. Ad ogni mossa, possiamo rimuovere una moneta dalla pila di sinistra e due monete dalla pila di destra, oppure due monete dalla pila di sinistra e una moneta dalla pila di destra.
+Dati i numeri a e b, determinare se è possibile svuotare entrambe le pile (true o false).
+
+Diciamo che:
+x volte prendiamo 2 da "a" e 1 da "b" e
+y volte prendiamo 2 da "b" e 1 da "a"
+
+Quindi possiamo scrivere:
+
+a = 2x + 1y
+
+b = 1x + 2y
+
+In altre parole, quando riduciamo "a" di 2, dobbiamo ridurre "b" di 1 e quando riduciamo "a" di 1 dobbiamo ridurre "b" di 2. Quindi, se assumiamo di prendere x volte 2 e y volte 1 per portare "a" a 0, allora dobbiamo prendere x volte 1 e y volte 2 per portare "b" a 0.
+
+Risolvendo le equazioni per x e y otteniamo:
+
+x = (2a - b)/3
+
+y = (2b - a)/3
+
+Adesso x e y devono essere numeri interi, quindi deve risultare:
+
+  (2a - b) % 3 = 0
+e
+  (2a - b) % 3 = 0
+
+Oppure, (a + b) % 3 = 0.
+
+Inoltre, x e y devono essere maggiori di 0, quindi deve risultare:
+
+  (2a <= b)
+e
+  (2b <= a)
+
+Adesso possiamo scrivere la funzione:
+
+(define (pile a b)
+  (and (>= (* 2 a) b) (>= (* 2 b) a) (zero? (% (+ a b) 3))))
+
+(pile 0 0)
+;-> true
+(pile 10 5)
+;-> true
+(pile 13 7)
+;-> nil
+(pile 25 15)
+;-> nil
+(pile 3 3)
+;-> true
 
 

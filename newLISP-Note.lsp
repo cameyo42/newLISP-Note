@@ -72,6 +72,7 @@ newLISP IN GENERALE
   Macro
   FOOP - Programmazione funzionale orientata agli oggetti
   XML e S-espressioni
+  Analisi dei tempi di esecuzione delle funzioni
 
 FUNZIONI VARIE
 ==============
@@ -281,6 +282,7 @@ ROSETTA CODE
   Numeri Humble
   Persistenza di un numero
   Numeri Taxicab
+  Codice Gray
 
 PROJECT EULERO
 ==============
@@ -442,6 +444,11 @@ DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Rapporto minimo (Wolfram)
   Quadrato binario (McAfee)
   Fattoriale e zeri finali (Wolfram)
+  Massima ripetizione di un carattere in una stringa (Google)
+  Leggere libri (Uber)
+  Numero mancante (Wolfram)
+  Lista strettamente crescente (Visa)
+  Pile di monete (LinkedIn)
 
 LIBRERIE
 ========
@@ -9497,6 +9504,307 @@ La seguente funzione può essere utilizzata per tradurre una S-espressione in XM
 </person>
 
 Il secondo parametro 0 è il livello di indentazione per l'espressione di tag più esterna.
+
+
+----------------------------------------------
+Analisi dei tempi di esecuzione delle funzioni
+----------------------------------------------
+
+Per analizzare i tempi di esecuzione delle funzioni newLISP mette a disposizione la funzione "time".
+
+*****************
+>>>funzione TIME
+*****************
+sintassi: (time exp [int-count)
+Valuta l'espressione in exp e restituisce il tempo impiegato per la valutazione in millisecondi a virgola mobile. A seconda della piattaforma, vengono visualizzati o meno i decimali dei millisecondi.
+
+(time (myprog x y z)) → 450.340
+(time (myprog x y z) 10) → 4420.021
+
+Nel primo esempio, sono trascorsi 450 millisecondi durante la valutazione (myprog x y z).
+Il secondo esempio restituisce il tempo per dieci valutazioni di (myprog x y z).
+
+Per vedere come utilizzare questa funzione ci serviamo del seguente problema:
+
+Data un lista di n numeri, calcolare la somma massima di una sua sottolista, cioè, la somma più grande possibile di una sequenza di valori consecutivi nella lista. Da notare che possono esserci valori negativi nella lista. Per esempio, la lista (-2 2 4 -3 5 2 -6 2) ha la seguente sottolista con somma massima: (2 4 -3 5 2), la cui somma vale 10.
+
+Possiamo risolvere il problema in tre modi diversi, ognuno con una complessità temporale differente.
+
+Algoritmo A  -->  O(n^3)
+------------------------
+Il modo più semplice per risolvere il problema è passare attraverso tutte le possibili sottoliste, calcolare la somma dei valori di ogni sottolista e mantenere il valore della somma massima.
+
+(define (A lst)
+  (let ((out 0) (somma 0) (fine (- (length lst) 1)))
+    (for (i 0 fine)
+      (for (j i fine)
+        (setq somma 0)
+        (for (k i j)
+          (setq somma (+ somma (lst k)))
+        )
+        (setq out (max out somma))
+      )
+    )
+    out))
+
+(setq lst '(-2 2 4 -3 5 2 -6 2))
+(A lst)
+;-> 10
+
+La complessità temporale dell'algoritmo è O(n^3), perché è costituito da tre cicli annidati che attraversano la lista.
+
+Algoritmo B  -->  O(n^2)
+------------------------
+Possiamo rendere l'algoritmo A più efficiente rimuovendo un ciclo. Ciò è possibile calcolando la somma nello stesso momento in cui l'indice destro della sottolista si muove.
+
+(define (B lst)
+  (let ((out 0) (somma 0) (fine (- (length lst) 1)))
+    (for (i 0 fine)
+      (setq somma 0)
+      (for (j i fine)
+        (setq somma (+ somma (lst j)))
+        (setq out (max out somma))
+      )
+    )
+    out))
+
+(setq lst '(-2 2 4 -3 5 2 -6 2))
+(B lst)
+;-> 10
+
+La complessità temporale dell'algoritmo è O(n^2), perché è costituito da due cicli annidati che attraversano la lista.
+
+Algoritmo C  -->  O(n)
+----------------------
+Possiamo risolvere il problema in tempo O(n), cioè con un solo ciclo. L'idea è di calcolare per ciascuna posizione della lista la somma massima della sottolista che termina in quella posizione. A questo punto la risposta al problema è il massimo di quelle somme.
+Vediamo come trovare la sottolista della somma massima che termina con la posizione k.
+Ci sono due possibilità:
+1. La sottolista contiene solo l'elemento nella posizione k.
+2. La sottolista è costituita da una sottolista che termina in posizione k - 1, seguita dall'elemento in posizione k.
+In quest'ultimo caso, poiché vogliamo trovare un sottolista con somma massima, la sottolista che termina alla posizione k - 1 dovrebbe anche avere la somma massima. Quindi, possiamo risolvere il problema in modo efficiente calcolando la somma massima della sottolista per ciascuna posizione finale da sinistra a destra.
+
+(define (C lst)
+  (let ((out 0) (somma 0) (fine (- (length lst) 1)))
+    (for (i 0 fine)
+        (setq somma (max (lst i) (+ somma (lst i))))
+        (setq out (max out somma))
+    )
+    out))
+
+(setq lst '(-2 2 4 -3 5 2 -6 2))
+(C lst)
+;-> 10
+
+La complessità temporale dell'algoritmo è O(n), perché è costituito solo da un ciclo che attraversa la lista.
+
+Nota: Questo è anche l'algoritmo ottimo perchè dobbiamo attraversare la lista almeno una volta con qualunque algoritmo.
+
+Vediamo di calcolare la velocità delle tre funzioni. Prima prepariamo i dati, altrimenti il tempo di esecuzione calcolato includerebbe anche quello di creazione dei dati stessi.
+
+Nota: per fare dei test di velocità è meglio utilizzare una REPL "nuova", cioè appena lanciata.
+
+(silent
+  ;10
+  (setq lst01 (randomize (sequence -5 5)))
+  ;100
+  (setq lst02 (randomize (sequence -50 50)))
+  ;1000
+  (setq lst03 (randomize (sequence -500 500)))
+  ;10000
+  (setq lst04 (randomize (sequence -5000 5000)))
+  ;100000
+  (setq lst05 (randomize (sequence -50000 50000)))
+  ;1000000
+  (setq lst06 (randomize (sequence -500000 500000)))
+)
+
+Adesso possiamo calcolare i tempi di esecuzione delle tre funzioni, stampando anche il risultato della funzione per verificare che siano tutte corrette:
+
+Funzione A
+----------
+(time (println (A lst01)))
+;-> 14 ; risultato
+;-> 0  ; tempo di esecuzione (msec)
+(time (println (A lst02)))
+;-> 466
+;-> 16.982
+(time (println (A lst03)))
+;-> 8132
+;-> 83572.628
+
+Non proviamo (time (A lst04)) perchè... ci vuole troppo tempo.
+
+Funzione B
+----------
+(time (println (B lst01)))
+;-> 14
+;-> 0
+(time (println (B lst02)))
+;-> 466
+;-> 0.963
+(time (println (B lst03)))
+;-> 8132
+;-> 359.068
+(time (println (B lst04)))
+;-> 315922
+;-> 456891.876
+
+Non proviamo (time (B lst05)) perchè... ci vuole troppo tempo.
+
+Funzione C
+----------
+
+(time (println (C lst01)))
+;-> 14
+;-> 0.984
+(time (println (C lst02)))
+;-> 466
+;-> 0.997
+(time (println (C lst03)))
+;-> 8132
+;-> 2.061
+(time (println (C lst04)))
+;-> 315922
+;-> 456891.442
+(time (println (C lst05)))
+;-> 9871843
+;-> 15751.873
+
+Non proviamo (time (C lst06)) perchè... ci vuole troppo tempo.
+
+Ricapitoliamo i risultati:
+
+|   Numero   | Tempo (msec) | Tempo (msec) | Tempo (msec) |
+|  Elementi  | Algoritmo A  | Algoritmo B  | Algoritmo C  |
+|   Lista    |   O(n^3)     |   O(n^2)     |   O(n)       |
++------------+--------------+--------------+--------------+
+|    10      |         0    |         0    |        1     |
+|    10^2    |        16    |         1    |        1     |
+|    10^3    |     83572    |       359    |        2     |
+|    10^4    |         -    |    456891    |      139     |
+|    10^5    |         -    |         -    |    15751     |
+|    10^6    |         -    |         -    |        -     |
+|    10^7    |         -    |         -    |        -     |
++------------+--------------+--------------+--------------+
+
+La tabella mostra chiaramente che l'algoritmo C è nettamente il migliore.
+
+Comunque, in questo caso, possiamo utilizzare i vettori al posto delle liste con le stesse funzioni. Vediamo quanto migliorano i tempi di esecuzione.
+
+Salviamo le funzioni in un file:
+
+(save "ABC.lsp" 'A 'B 'C)
+
+Partiamo con una REPL nuova e ricarichiamo le funzioni A, B e C:
+
+(load "ABC.lsp")
+
+Creiamo i vettori:
+
+(silent
+  ;10
+  (setq ar01 (array 11 (randomize (sequence -5 5))))
+  ;100
+  (setq ar02 (array 101 (randomize (sequence -50 50))))
+  ;1000
+  (setq ar03 (array 1001 (randomize (sequence -500 500))))
+  ;10000
+  (setq ar04 (array 10001 (randomize (sequence -5000 5000))))
+  ;100000
+  (setq ar05 (array 100001 (randomize (sequence -50000 50000))))
+  ;1000000
+  (setq ar06 (array 1000001 (randomize (sequence -500000 500000))))
+  ;10000000
+  (setq ar07 (array 10000001 (randomize (sequence -5000000 5000000))))
+)
+
+Calcoliamo i tempi di esecuzione:
+
+Funzione A
+----------
+(time (println (A ar01)))
+;-> 14 ; risultato
+;-> 0  ; tempo di esecuzione (msec)
+(time (println (A ar02)))
+;-> 466
+;-> 10.952
+(time (println (A ar03)))
+;-> 8132
+;-> 8519.551
+(time (println (A ar04)))
+
+Non proviamo (time (A ar04)) perchè anche in questo caso... ci vuole troppo tempo.
+
+Funzione B
+----------
+(time (println (B ar01)))
+;-> 14
+;-> 0
+(time (println (B ar02)))
+;-> 466
+;-> 1.066
+(time (println (B ar03)))
+;-> 8132
+;-> 44.144
+(time (println (B ar04)))
+;-> 315922
+;-> 4083.084
+(time (println (B ar05)))
+;-> 9871843
+;-> 578540.698
+
+Non proviamo (time (B ar06)) perchè... ci vuole troppo tempo.
+
+Funzione C
+----------
+
+(time (println (C ar01)))
+;-> 14
+;-> 1.193
+(time (println (C ar02)))
+;-> 466
+;-> 0.992
+(time (println (C ar03)))
+;-> 8132
+;-> 0.985
+(time (println (C ar04)))
+;-> 315922
+;-> 5.2
+(time (println (C ar05)))
+;-> 9871843
+;-> 14.192
+(time (println (C ar06)))
+;-> 289944784
+;-> 248.444
+(time (println (C ar07)))
+;-> 10435936563
+;-> 3083.781
+
+Ricapitoliamo i risultati :
+
+|   Numero   | Tempo (msec) | Tempo (msec) | Tempo (msec) |
+|  Elementi  | Algoritmo A  | Algoritmo B  | Algoritmo C  |
+|   Lista    |   O(n^3)     |   O(n^2)     |   O(n)       |
++------------+--------------+--------------+--------------+
+|    10      |         0    |         0    |        1     |
+|    10^2    |        10    |         1    |        1     |
+|    10^3    |      8519    |        44    |        1     |
+|    10^4    |         -    |      4083    |        5     |
+|    10^5    |         -    |   9871843    |       14     |
+|    10^6    |         -    |         -    |      248     |
+|    10^7    |         -    |         -    |     3083     |
++------------+--------------+--------------+--------------+
+
+I vettori sono molto più veloci delle liste (perchè l'accesso indicizzato delle liste è molto lento rispetto a quello dei vettori).
+
+Per vedere la differenza di velocità tra le funzioni possiamo anche eseguirle un certo numero di volte con lo stesso input. Ad esempio:
+
+(time (A ar02) 100)
+;-> 937.535
+(time (B ar02) 100)
+;-> 46.79
+(time (C ar02) 100)
+;-> 0
 
 
 ================
@@ -27999,6 +28307,111 @@ Vediamo quanto tempo impiega per calcolare tutti i numeri taxicab fino ad un mil
 ;-> 321249.471 ; 5 minuti e 21 secondi
 
 
+-----------
+CODICE GRAY
+-----------
+
+Dato un numero N, generare stringhe di bit da 0 a 2^N-1 in modo tale che le stringhe successive differiscano di un bit.
+
+La soluzione a questo problema è il codice Gray.
+
+Per esempio:
+
+Input: N = 2
+Output: 00 01 11 10
+
+Input: N = 3
+Output: 000 001 011 010 110 111 101 100
+
+Algoritmo
+
+I codici Gray a n bit possono essere generati dall'elenco dei codici Gray a (n-1) bit utilizzando i seguenti passaggi.
+
+  Poniamo che la lista dei codici Gray a (N-1) bit sia L1.
+  Creare un'altra lista L2 che è il contrario di L1.
+  Modificare la lista L1 anteponendo "0" in tutti i codici di L1.
+  Modificare la lista L2 anteponendo "1" in tutti i codici di L2.
+  Concatenare L1 e L2.
+  L'elenco concatenato è la lista dei codici Gray a N bit.
+
+Ad esempio, vediamo i passaggi per generare l'elenco dei codici Gray a 3 bit dall'elenco dei codici Gray a 2 bit:
+
+  L1 = (00 01 11 10) (elenco di codici gray a 2 bit)
+  L2 = (10 11 01 00) (inverso di L1)
+  Anteporre "0" a tutti codici di L1, L1 diventa (000 001 011 010)
+  Anteporre "1" a tutti codici di L2, L2 diventa (110 111 101 100)
+  Concatenare L1 e L2: otteniamo (000 001 011 010 110 111 101 100)
+
+Per generare il codice Gray a N bit, partiamo dalla lista dei codici Gray a 1 bit (0 1) e costruiamo tutte le liste successive fino a N.
+
+(define (gray num)
+  (local (lst1 lst2)
+    (cond ((< num 1) '())
+          ((= num 1) '("0" "1"))
+          (true
+          (setq lst1 '("0" "1"))
+          (for (i 2 num)
+            (setq lst2 (map reverse lst1))
+            (setq lst1 (map (fn(x) (string "0" x)) lst1))
+            (setq lst2 (map (fn(x) (string "1" x)) lst2))
+            (setq lst1(extend lst1 lst2))
+          )))))
+
+(gray 3)
+;-> ("000" "001" "010" "011" "100" "110" "101" "111")
+
+Il numero di elementi della sequenza Gray(n) vale 2^n e cresce rapidamente con N:
+
+(for (i 1 20) (print (length (gray i)) { }))
+;-> 2 4 8 16 32 64 128 256 512 1024 2048 4096 8192
+;-> 16384 32768 65536 131072 262144 524288 1048576
+
+(for (i 1 20) (print (pow 2 i) { }))
+;-> 2 4 8 16 32 64 128 256 512 1024 2048 4096 8192
+;-> 16384 32768 65536 131072 262144 524288 1048576
+
+Il codice Gray viene chiamato anche "reflected binary code" (RBC) oppure "reflected binary" (RB). I primi sedici numeri sono codificati nella tabella seguente:
+
+   Decimale  Binario  Gray  Decimale Gray
+       0      0000    0000      0
+       1      0001    0001      1
+       2      0010    0011      3
+       3      0011    0010      2
+       4      0100    0110      6
+       5      0101    0111      7
+       6      0110    0101      5
+       7      0111    0100      4
+       8      1000    1100     12
+       9      1001    1101     13
+      10      1010    1111     15
+      11      1011    1110     14
+      12      1100    1010     10
+      13      1101    1011     11
+      14      1110    1001      9
+      15      1111    1000      8
+
+Per convertire un numero decimale in decimale Gray (OEIS A003188) possiamo usare la seguente funzione:
+
+(define (graycode1 num) (^ num (>> num 1)))
+
+(graycode1 7)
+;-> 4
+(graycode1 10)
+;-> 15
+
+Oppure in maniera equivalente:
+
+(define (graycode2 num) (^ num (floor (/ num 2))))
+
+(graycode2 7)
+;-> 4
+(graycode2 10)
+;-> 15
+
+(= (map graycode1 (sequence 1 10000)) (map graycode2 (sequence 1 10000)))
+;-> true
+
+
 ================
 
  PROJECT EULERO
@@ -39190,6 +39603,7 @@ sq-pair
 Ma fino a quanto dobbiamo calcolare i quadrati?
 
 La word più lunga ha 9 caratteri ("INTRODUCE" "REDUCTION"), quindi il quadrato più grande non può essere maggiore di 987654321.
+
 (sqrt 987654321)
 ;-> 31426.96805293187
 
@@ -39314,6 +39728,8 @@ Adesso possiamo confrontare la liste degli anagrammi con la lista dei quadrati:
 
 valmax
 ;-> 18769
+
+Nota: questo metodo trova la soluzione esatta, ma non trova l'esempio citato dal problema (CARE RACE 1296 9216) perchè quando abbiamo cercato le coppie che hanno lo stesso "stampo" non abbiamo considerato l'ipotesi che possano esistere delle triple con lo stesso stampo, in questo caso la tripla: (1296 = 36^2, 2916 = 54, 9216 = 96^2).
 
 Scriviamo la funzione completa:
 
@@ -49325,16 +49741,57 @@ Nella lista s il numero -7 è minore di tutti gli altri e ha indice 3 (nel circu
 Notazione Big-O
 ---------------
 
-Valori della notazione Big-O in funzione del numero di ingresso
+Il seguente elenco mostra (in maniera essenzialmente pratica) le complessità temporali degli algoritmi:
 
- n  costante logaritmo  lineare   nlogn      quadrato   cubo    esponenziale
- 1    O(1)   O(log(n))   O(n)   O(n*log(n))   O(n^2)   O(n^3)       O(2^n)
- 2     1        1          1        1             1        1            1
- 4     1        1          2        2             4        8            4
- 8     1        3          8       24            64      512          256
-16     1        4         16       64           256     4096        65536
-32     1        5         32      160          1024    32768   4294967296
-64     1        6         64      384          4096   262144   1.84x10^19
+O(1)
+Il tempo di esecuzione di un algoritmo a tempo costante non dipende dalla dimensione dell'input. Un tipico algoritmo a tempo costante è una formula diretta che calcola il risultato della risposta.
+
+O(log(n))
+Un algoritmo logaritmico spesso dimezza la dimensione dell'input ad ogni passaggio. Il tempo di esecuzione di un tale algoritmo è logaritmico, perché log2(n) è uguale al numero di volte che n deve essere diviso per 2 per ottenere 1.
+
+O(sqrt(n))
+Un algoritmo di radice quadrata è più lento di O(log(n)) ma più veloce di O(n). Una proprietà speciale delle radici quadrate è che sqrt(n) = n/sqrt(n). Quindi n elementi possono essere suddivisi in O(sqrt (n)) blocchi di O(sqrt (n)) elementi.
+
+O(n)
+Un algoritmo lineare passa attraverso l'input un numero costante di volte. Questo è spesso la migliore complessità temporale possibile, perché di solito è necessario accedere ogni elemento di input almeno una volta prima di calcolare la risposta.
+
+O(n * log(n))
+Questa complessità temporale spesso indica che l'algoritmo ordina l'input, perché la complessità temporale degli algoritmi di ordinamento efficienti è O(n * log(n)). Un'altra situazione è che l'algoritmo utilizzi una struttura dati in cui ogni operazione richiede un tempo pari a O(log(n)).
+
+O(n^2)
+Un algoritmo quadratico spesso contiene due cicli annidati. È possibile passare attraverso tutte le coppie degli elementi di input in tempo O(n^2).
+
+O(n^3)
+Un algoritmo cubico contiene spesso tre cicli annidati. È possibile passare attraverso tutte le terne degli elementi di ingresso in tempo O(n^3).
+
+O(2^n)
+Questa complessità temporale spesso indica che l'algoritmo itera tutti i sottoinsiemi degli elementi di input. Ad esempio, i sottoinsiemi di (1 2 3) sono (), (1), (2), (3), (1 2), (1 3), (2 3) e (1 2 3).
+
+O(n!)
+Questa complessità temporale indica spesso che l'algoritmo itera attraverso tutte le permutazioni degli elementi di input. Ad esempio, le permutazioni di (1 2 3) sono (1 2 3), (1 3 2), (2 1 3), (2 3 1), (3 1 2) e (3, 2, 1).
+
+Un algoritmo è polinomiale se la sua complessità temporale è al massimo O(n^k) dove k è una costante. Tutte le complessità temporali elencate sopra, eccetto O(2^n) e O(n!), sono polinomiali. In pratica, la costante k è solitamente piccola, e quindi una complessità temporale polinomiale significa (più o meno) che l'algoritmo può elaborare input di grandi dimensioni.
+Comunque esistono importanti problemi per i quali non si conosce alcun algoritmo polinomiale, cioè non è possibile risolverli in modo efficiente. I problemi NP-hard sono un insieme importante di problemi, per i quali nessun algoritmo polinomiale è noto.
+
+Valori della notazione Big-O in funzione del numero di input:
+
+ n  costante  logaritmo   sqrt(n)   lineare   nlogn      quadrato   cubo    esponenziale
+      O(1)    O(log(n))  O(sqrt(n))   O(n)   O(n*log(n))   O(n^2)   O(n^3)       O(2^n)
+ 1     1         1          1          1        1             1        1            1         
+ 2     1         1          1          2        2             4        8            4
+ 4     1         1          2          4        2            16       64           16
+ 8     1         3          3          8       24            64      512          256
+16     1         4          4         16       64           256     4096        65536
+32     1         5          6         32      160          1024    32768   4294967296
+64     1         6          8         64      384          4096   262144   1.84x10^19
+
+Ma cosa significa esattamente che un algoritmo funziona in tempo O(f(n))?
+
+Vuol dire che ci sono due costanti C e n0 tali che l'algoritmo esegua al massimo c*f(n) operazioni per tutti gli input in cui n ≥ n0. Pertanto, la notazione O fornisce un limite superiore per il tempo di esecuzione dell'algoritmo per input sufficientemente grandi. La notazione O non viene usata per fornire una stima accurata della complessità temporale.
+
+Ci sono anche altre due notazioni comuni. La notazione Omega fornisce un limite inferiore
+per il tempo di esecuzione di un algoritmo. La complessità temporale di un algoritmo è Omega(f(n)),
+se ci sono due costanti C e n0 tali che l'algoritmo esegua almeno operazioni C*f(n) per tutti gli input dove n ≥ n0. Infine, la notazione Theta fornisce un limite esatto, la complessità temporale di un algoritmo è Theta(f(n)) se è sia O(f(n)) che Omega(f(n)). In pratica, Theta(f(n)) è una funzione che si trova compresa tra le funzioni O(f(n)) e Omega(f(n)).
 
 
 -----------------------------------
@@ -55699,6 +56156,273 @@ Proviamo calcolando il fattoriale e contando gli zeri finali:
 ;-> 2499
 
 I risultati sono identici in entrambi i casi.
+
+
+-----------------------------------------------------------
+Massima ripetizione di un carattere in una stringa (Google)
+-----------------------------------------------------------
+
+Sia data una sequenza di DNA: una stringa composta dai caratteri A, C, G e T. Il tuo compito è trovare la ripetizione più lunga nella sequenza. Questa è una sottostringa di lunghezza massima contenente un solo tipo di carattere.
+
+Il problema può essere risolto utilizzando due puntatori in tempo O(n).
+Memorizziamo la lunghezza della sottosequenza ripetuta più lunga che incontriamo e la aggiorniamo quando incontriamo una sottosequenza ripetuta con una lunghezza maggiore di quella salvata in precedenza.
+
+Esempio:
+La stringa vale: "ATAAAGCCCCT"
+Definiamo una variabile "max-len".
+Usiamo un indice "i" partendo dall'inizio della stringa: "i" punta ad "A".
+  _
+  ATAAAGCCCCT
+
+Verifichiamo se l'elemento "i+1" è diverso "i":
+se è vero muoviamo "i" al prossimo carattere.
+Adesso " i" punta a "T".
+  _
+  ATAAAGCCCCT
+
+Ripetendo questo processo, "i" raggiunge "A".
+    _
+  ATAAAGCCCCT
+
+Adesso il carattere puntato da "i+1" non è diverso dal carattere puntato da "i".
+Creiamo un altro puntatore "k" che punta alla stassa posizione nella stringa del puntatore "i".
+    _
+  ATAAAGCCCCT
+
+Ora continuiamo a muovere in avanti "i" fintanto che l'elemento puntato da "i" è uguale all'elemento puntato da "i+1". In questo modo, il puntatore "i" raggiunge la terza "A" nella stringa. Il prossimo elemento è "G" (a "i+1") che è diverso da quello puntato da "i", quindi fermiamo il movimento di "i".
+    _ _
+  ATAAAGCCCCT
+
+Adesso per trovare la lunghezza della sottostringa ripetuta sottraiamo il valore del puntatore "k" dal valore del puntatore "i" e aggiungiamo 1 (per considerare anche il carattere alla posizione i-esima).
+
+Indice di "i" = 5
+Indice di "k" = 3
+Lunghezza-sottostringa = i - k + 1 = 3
+
+Poniamo max-len = Lunghezza-sottostringa (perchè per adesso questa è la lunghezza massima).
+
+Adesso ci muoviamo in avanti e il carattere puntato da "i+1" (che è "G") è diverso dall'elemento puntato da "i" (che è "A"). Continuiamo a muoverci in avanti fino a che "i" punta a "C".
+      _
+  ATAAAGCCCCT
+
+Adesso il carattere puntato da "i+1" è uguale al carattere puntato da "i".
+Come abbiamo fatto prima, poniamo "k" uguale a "i" e incrementiamo "i" fino a che il carattere "i+1" è lo stesso di quello puntato da "i".
+Adesso "i" punta alla quarta "C"
+          _
+  ATAAAGCCCCT
+
+Indice di "i" = 10
+Indice di "k" = 7
+Lunghezza-sottostringa = i - k + 1 = 4
+
+Adesso dobbiamo aggiornare "max-len" con la lunghezza massima:
+
+max-len = max(max-len, Lunghezza-sottostringa) = 4
+
+Il carattere in "i + 1" è diverso dal carattere in "i", quindi spostiamo "i" in avanti.
+
+"i" ora punta alla fine della stringa, il che significa che abbiamo attraversato l'intera stringa e abbiamo trovato la sottosequenza ripetuta più lunga.
+
+Nota: non abbiamo considerato il caso in cui la sottostringa più lunga si ripete fino all'ultimo carattere. In questo caso dobbiamo "muovere in avanti "i" fintanto che l'elemento puntato da "i" è uguale all'elemento puntato da "i+1"" solo se "i+1" non è la fine della stringa. Per fare questo dobbiamo controllare che "i+1" sia minore alla lunghezza della stringa.
+
+Possiamo scrivere la funzione finale:
+
+(define (max-char-rep str)
+  (local (i k max-len len)
+    (setq i 0)
+    (setq max-len 1) ;solo la stringa nulla ha max-len=0
+    (setq len 1)
+    (while (!= (+ i 1) (length str))
+      (cond ((= (str i) (str (+ i 1)))
+              (setq k i)
+              ; ciclo attraverso tutti i caratteri uguali
+              (while (and (< (+ i 1) (length str)) (= (str i) (str (+ i 1))))
+                  (++ i)
+                  ;(println i)
+                  ;(read-line)
+              )
+              (setq len (+ i (- k) 1))
+              (setq max-len (max max-len len))
+            )
+            (true (++ i))
+      )
+    )
+    max-len))
+
+(max-char-rep "ATAAAGCCCCT")
+;-> 4
+(max-char-rep "AAAAA")
+;-> 5
+(max-char-rep "ATAAAGCCCCTATAAAGTTTTTT")
+;-> 6
+(max-char-rep "ATGC")
+;-> 1
+
+
+--------------------
+Leggere libri (Uber)
+--------------------
+
+Ci sono n libri. Eva e Vale le leggeranno tutte. Per ogni libro, conosciamo il tempo necessario per leggerlo.
+Entrambi leggono ogni libro dall'inizio alla fine e non possono leggere un libro allo stesso tempo.
+Qual è il tempo totale minimo richiesto?
+
+La strategia ottimale è che la prima persona inizi dal libro più corto e legga in ordine crescente e la seconda persona inizi dal libro più lungo, quindi vada al libro più corto e legga in ordine crescente. Questo si traduce nel seguente metodo: se puoi leggere tutti gli altri libri mentre leggi il libro più lungo, allora il tempo totale vale il tempo per leggere il libro più lungo moltiplicato due (il doppio), altrimenti il tempo totale vale il tempo per leggere il resto dei libri più il tempo per leggere il libro più lungo.
+In altre parole, la soluzione vale: max(2*tn, somma)
+dove somma = t1 + t2 + ... + tn e tn è il più grande dei t(i).
+
+(define (book lst)
+  (local (somma tb)
+    (setq somma 0 tb 0)
+    (dolist (el lst)
+      (setq somma (+ somma el))
+      (setq tb (max tb el))
+    )
+    (if (>= tb (- somma tb))
+        (* 2 tb)
+        somma)))
+
+(book '(2 8 3))
+;-> 16
+
+
+-------------------------
+Numero mancante (Wolfram)
+-------------------------
+
+Abbiamo una lista di tutti i numeri compresi tra 1,2,…, n tranne uno.
+Trovare il numero mancante.
+
+La somma di tuttti i numeri da 1 a n vale:
+
+Sum[1..n](n) = n*(n + 1)/2
+
+Quindi per trovare il numero mancante basta sottrarre alla somma di tutti i numeri la somma di tutti i numeri della lista:
+
+(define (mancante lst)
+  (let (n (+ (length lst) 1))
+    (- (/ (* n (+ n 1)) 2) (apply + lst))))
+
+(mancante '(1 2 3 4 5 6 8 9 10))
+;-> 7
+
+
+-----------------------------------
+Lista strettamente crescente (Visa)
+-----------------------------------
+
+Sia data una lista di n numeri interi. Si desidera modificare la lista in modo che sia strettamente crescente, ovvero ogni elemento è più grande dell'elemento precedente.
+
+Ad ogni passo, puoi aumentare il valore di qualsiasi elemento di uno. Qual'è il numero minimo di passi richiesti?
+
+(define (adder lst)
+  (local (passi nextval out)
+    (setq out '())
+    ; numero di passi iniziale
+    (setq passi 0)
+    ; valore che deve raggiungere il prossimo numero
+    (setq nextval (+ (lst 0) 1))
+    ; lista di output: il primo valore è uguale
+    ; a quello della lista di input
+    (push (lst 0) out)
+    ; ciclo per ogni valore della lista
+    (for (i 1 (- (length lst) 1))
+      ; se il numero corrente è maggiore del valore da raggiungere
+      (if (> (lst i) nextval)
+          (begin
+            (push (lst i) out -1)
+            ; il numero di passi rimane la stesso
+            ; perchè il valore corrente non cambia
+            (setq passi passi)
+            ; il prossimo valore deve raggiungere il valore corrente + 1
+            (setq nextval (+ (lst i) 1)))
+          ;else
+          (begin
+            (push nextval out -1)
+            ; il numero dei passi viene aumentato dalla
+            ; differenza tra il valore da raggiungere
+            ; e il valore corrente della lista
+            (setq passi (+ passi nextval (- (lst i))))
+            ; il prossimo valore aumenta di 1
+            (setq nextval (+ nextval 1)))
+      )
+      ;(println (lst i) { } nextval { } passi)
+    )
+  (list passi out)))
+
+(adder '(3 2 1 8 1 1 6))
+;-> (28 (3 4 5 8 9 10 11))
+
+(adder '(3 2 5 1 7))
+;-> (7 (3 4 5 6 7))
+
+(adder '(3 2 5 7 1))
+;-> (9 (3 4 5 7 8))
+
+(adder '(1 1 5 5 4 4 11))
+;-> (9 (1 2 5 6 7 8 11))
+
+(adder '(-1 1 -5 5 -4 4))
+;-> (20 (-1 1 2 5 6 7))
+
+(adder '(2 2 2 2 2 2))
+;-> (15 (2 3 4 5 6 7))
+
+
+-------------------------
+Pile di monete (LinkedIn)
+-------------------------
+
+Abbiamo due pile di monete contenenti a e b monete. Ad ogni mossa, possiamo rimuovere una moneta dalla pila di sinistra e due monete dalla pila di destra, oppure due monete dalla pila di sinistra e una moneta dalla pila di destra.
+Dati i numeri a e b, determinare se è possibile svuotare entrambe le pile (true o false).
+
+Diciamo che:
+x volte prendiamo 2 da "a" e 1 da "b" e
+y volte prendiamo 2 da "b" e 1 da "a"
+
+Quindi possiamo scrivere:
+
+a = 2x + 1y
+
+b = 1x + 2y
+
+In altre parole, quando riduciamo "a" di 2, dobbiamo ridurre "b" di 1 e quando riduciamo "a" di 1 dobbiamo ridurre "b" di 2. Quindi, se assumiamo di prendere x volte 2 e y volte 1 per portare "a" a 0, allora dobbiamo prendere x volte 1 e y volte 2 per portare "b" a 0.
+
+Risolvendo le equazioni per x e y otteniamo:
+
+x = (2a - b)/3
+
+y = (2b - a)/3
+
+Adesso x e y devono essere numeri interi, quindi deve risultare:
+
+  (2a - b) % 3 = 0
+e
+  (2a - b) % 3 = 0
+
+Oppure, (a + b) % 3 = 0.
+
+Inoltre, x e y devono essere maggiori di 0, quindi deve risultare:
+
+  (2a <= b)
+e
+  (2b <= a)
+
+Adesso possiamo scrivere la funzione:
+
+(define (pile a b)
+  (and (>= (* 2 a) b) (>= (* 2 b) a) (zero? (% (+ a b) 3))))
+
+(pile 0 0)
+;-> true
+(pile 10 5)
+;-> true
+(pile 13 7)
+;-> nil
+(pile 25 15)
+;-> nil
+(pile 3 3)
+;-> true
 
 
 ==========

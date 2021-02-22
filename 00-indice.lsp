@@ -72,6 +72,7 @@ newLISP IN GENERALE
   Macro
   FOOP - Programmazione funzionale orientata agli oggetti
   XML e S-espressioni
+  Analisi dei tempi di esecuzione delle funzioni
 
 FUNZIONI VARIE
 ==============
@@ -281,6 +282,7 @@ ROSETTA CODE
   Numeri Humble
   Persistenza di un numero
   Numeri Taxicab
+  Codice Gray
 
 PROJECT EULERO
 ==============
@@ -442,6 +444,11 @@ DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Rapporto minimo (Wolfram)
   Quadrato binario (McAfee)
   Fattoriale e zeri finali (Wolfram)
+  Massima ripetizione di un carattere in una stringa (Google)
+  Leggere libri (Uber)
+  Numero mancante (Wolfram)
+  Lista strettamente crescente (Visa)
+  Pile di monete (LinkedIn)
 
 LIBRERIE
 ========

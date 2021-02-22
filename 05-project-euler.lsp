@@ -11189,6 +11189,7 @@ sq-pair
 Ma fino a quanto dobbiamo calcolare i quadrati?
 
 La word più lunga ha 9 caratteri ("INTRODUCE" "REDUCTION"), quindi il quadrato più grande non può essere maggiore di 987654321.
+
 (sqrt 987654321)
 ;-> 31426.96805293187
 
@@ -11313,6 +11314,8 @@ Adesso possiamo confrontare la liste degli anagrammi con la lista dei quadrati:
 
 valmax
 ;-> 18769
+
+Nota: questo metodo trova la soluzione esatta, ma non trova l'esempio citato dal problema (CARE RACE 1296 9216) perchè quando abbiamo cercato le coppie che hanno lo stesso "stampo" non abbiamo considerato l'ipotesi che possano esistere delle triple con lo stesso stampo, in questo caso la tripla: (1296 = 36^2, 2916 = 54, 9216 = 96^2).
 
 Scriviamo la funzione completa:
 
