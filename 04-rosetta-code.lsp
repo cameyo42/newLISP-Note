@@ -753,7 +753,13 @@ Quindi scriviamo una funzione che utilizza i big integer per il calcolo:
 ;-> 83202123256952806711505149177419849031086149939116975191706558395784192643914160
 ;-> 118616272189452807591091542120727401415762287153293056320L
 
-Possiamo scrivere anche una versione iterativa, ma non possiamo usare i big integer poichè la divisione altera il risultato, quindi dobbiamo usare i floating-point.
+Questa funzione genera un errore di stack-overflow per valori superiori di 512:
+
+(catalan 513L)
+;-> ERR: call or result stack overflow in function * : -
+;-> called from user function (catalan (- n 1L))
+
+Possiamo scrivere anche una versione iterativa, ma non possiamo usare i big-integer poichè la divisione altera il risultato, quindi dobbiamo usare i floating-point.
 Utilizziamo una funzione diversa:
 
 C(0) = C(1) = 1
@@ -779,6 +785,39 @@ Non possiamo usare i big integer poichè la divisione altera il risultato, quind
 
 (catalan-i 500L)
 ;-> 5.394974869170395e+296
+
+Però possiamo usare un'altra definizione dei numeri Catalani per utilizzare i big-integer:
+
+C(n) = binomiale(2n n) / (n + 1)
+
+(define (binom num k)
+  (if (> k num)
+    0
+    (let (r 1L)
+      (for (d 1 k)
+        (setq r (/ (* r num) d))
+        (-- num)
+      )
+      r)))
+
+(define (min-big a b) (if (< a b) a b))
+
+(define (catalan-big n)
+  (/ (binom (* 2 n) n) (+ 1L n)))
+
+(map catalan-big (sequence 1 20))
+;-> (1L 2L 5L 14L 42L 132L 429L 1430L 4862L 16796L
+;->  58786L 208012L 742900L 2674440L 9694845L 35357670L
+;->  129644790L 477638700L 1767263190L 6564120420L)
+
+(time (catalan 500L) 1000)
+;-> 634.693
+
+(time (catalan-big 500L) 1000)
+;-> 540.585
+
+(= (map catalan (sequence 1 100)) (map catalan-big (sequence 1 100)))
+;-> true
 
 
 ------------------
@@ -1821,7 +1860,7 @@ Supponiamo che la lista iniziale sia la seguente:
 (setq k '((a 2 3) (b 3 4) (c 4 5) (d 5 6)))
 ;-> ((a 2 3) (b 3 4) (c 4 5) (d 5 6))
 
-Definizmo tre funzioni che estraggono le liste dei noni, dei pesi e dei valori:
+Definiamo tre funzioni che estraggono le liste dei nomi, dei pesi e dei valori:
 
 (define (getNomi lst) (map (fn(x) (first x)) lst))
 (define (getPesi lst) (map (fn(x) (first (rest x))) lst))
@@ -8557,16 +8596,16 @@ Scrivere una funzione che controlla se un codice dato rappresenta un numero IBAN
 
 ;; Check that only A-Z and 0-9 are used.
 (define (valid-chars? iban)
-	(setq rx (string "[A-Z0-9]{" (length iban) "}" ))
-	(regex rx iban 1)
+  (setq rx (string "[A-Z0-9]{" (length iban) "}" ))
+  (regex rx iban 1)
 )
 
 ;; Check that the length is correct for the country.
 (define (valid-length? iban)
-	(setq countries-found (lookup (int (length iban)) *iban-code-length*))
-	(if (not (nil? countries-found))
-		(member (0 2 iban) countries-found)
-	)
+  (setq countries-found (lookup (int (length iban)) *iban-code-length*))
+  (if (not (nil? countries-found))
+    (member (0 2 iban) countries-found)
+  )
 )
 
 ;; Convert the IBAN to integer following the rules from Wikipedia.
@@ -9547,7 +9586,7 @@ Vediamo cosa accade con dei nomi italiani:
               "Massimo" "Massimiliano" "Maria" "Marta"))
 
 (map soundex lista)
-;-> ("M600" "M620" "S600" "L600" "L200" "L200" "L200" 
+;-> ("M600" "M620" "S600" "L600" "L200" "L200" "L200"
 ;->  "M250" "M254" "M600" "M630")
 
 
@@ -9589,8 +9628,8 @@ Vediamo alcuni esempi:
 
 (setq in '((8 0) (4 0) (8 0) (0 0)))
 (dft in)
-;-> ((20 0) (0 -4.000000000000001) 
-;->  (12 1.469527624586853e-015) 
+;-> ((20 0) (0 -4.000000000000001)
+;->  (12 1.469527624586853e-015)
 ;->  (-8.881784197001252e-016 3.999999999999997))
 
 (setq in '(
@@ -9994,10 +10033,10 @@ Il nome di questi numeri prende origine da un aneddoto, secondo il quale il mate
 
 1729 = 1 ^ 3 + 12 ^ 3 = 9 ^ 3 + 10 ^ 3
 
-Taxicab: 
-1729, 4104, 13832, 20683, 32832, 39312, 40033, 46683, 64232, 65728, 
-110656, 110808, 134379, 149389, 165464, 171288, 195841, 216027, 216125, 
-262656, 314496, 320264, 327763, 373464, 402597, 439101, 443889, 513000, 
+Taxicab:
+1729, 4104, 13832, 20683, 32832, 39312, 40033, 46683, 64232, 65728,
+110656, 110808, 134379, 149389, 165464, 171288, 195841, 216027, 216125,
+262656, 314496, 320264, 327763, 373464, 402597, 439101, 443889, 513000,
 513856, 515375, 525824, 558441, 593047, 684019, 704977, ...
 
 Funzione che calcola tutti i numeri taxicab fino ad un numero dato:
@@ -10040,7 +10079,7 @@ Funzione che calcola i primi "quanti" numeri taxicab:
           )
          )
       )
-      (if (>= c 2) 
+      (if (>= c 2)
           (begin (push i out -1) (++ conta))
       )
       (++ i)

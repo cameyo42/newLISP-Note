@@ -450,6 +450,7 @@ DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Lista strettamente crescente (Visa)
   Pile di monete (LinkedIn)
   Numero più grande formato da una lista (Amazon)
+  Rettagoli e quadrati in una scacchiera (Google)
 
 LIBRERIE
 ========

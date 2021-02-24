@@ -6715,3 +6715,99 @@ Basta convertire i numeri in stringa, ordinarli e infine unire le stringhe (nume
 ;-> "96054854654"
 
 
+-----------------------------------------------
+Rettagoli e quadrati in una scacchiera (Google)
+-----------------------------------------------
+
+A) Quanti rettangoli ci sono in una scacchiera?
+
+B) Quanti quadrati ci sono in una scacchiera?
+
+Soluzione A
+-----------
+Ci sono 9 linee orizzontali sulla scacchiera e 9 linee verticali. Scegliendo due linee orizzontali distinte e due linee verticali distinte detrminiamo un rettangolo unico. E ogni rettangolo determina una coppia di linee orizzontali e una coppia di linee verticali.
+
+Quindi il numero di rettangoli è binomiale(9 2)^2, cioè 1296.
+
+Generalizzando per una scacchiera m x n il numero di rettangoli è dato da:
+
+num-rect = binomiale((m+1) 2)*binomiale((n+1) 2)
+
+dove:
+                      n!
+binomiale(n k) = --------------
+                 k! *  (n - k)!
+
+Funzione per calcolare il coefficiente binomiale:
+
+(define (binomiale num k)
+  (if (> k num)
+    0
+    (let (r 1L)
+      (for (d 1 k)
+        (setq r (/ (* r num) d))
+        (-- num)
+      )
+      r)))
+
+(define (rect-grid m n)
+  (* (binomiale (+ m 1) 2) (binomiale (+ n 1) 2)))
+
+(rect-grid 8 8)
+;-> 1296L
+(rect-grid 4 3)
+;-> 60L
+
+Possiamo anche derivare una formula diretta sviluppando i binomiali:
+
+num-rect = (m+1)!/(2!*(m-1)!) * (n+1)!/(2!*(n-1)!) = m*(m+1)*n*(n+1)/4
+
+(define (rect-grid2 m n)
+  (/ (* m (+ m 1) n (+ n 1)) 4))
+
+(rect-grid2 8 8)
+;-> 1296
+(rect-grid 4 3)
+;-> 60
+
+Soluzione B
+-----------
+In una scacchiera quadrata 8x8 esistono:
+
+8^2 quadrati 1x1
+7^2 quadrati 2x2
+6^2 quadrati 3x3
+5^2 quadrati 4x4
+4^2 quadrati 5x5
+3^2 quadrati 6x6
+2^2 quadrati 7x7
+1^2 quadrati 8x8
+
+Quindi la somma totali dei quadrati vale: 
+
+num-quad = 1^2 + 2^2 + 3^2 + 4^2 + 5^2 + 6^2 + 7^2 + 8^2 =
+
+Generalizzando per una scacchiera nxn otteniamo che il numero di quadrati è dato dalla somma dei primi n quadrati:
+
+num-quad = Sum[1..n] (i^2) = (2*n^3 + 3*n^2 + n)/6
+
+(define (square x) (* x x))
+
+(define (quad-rect n)
+  (apply + (map square (sequence 1 n))))
+
+(quad-rect 8)
+;-> 204
+
+(define (quad-rect2 n)
+  (/ (+ (* 2 n n n) (* 3 n n) n) 6))
+
+(quad-rect2 8)
+;-> 204
+
+(quad-rect 20)
+;-> 2870
+(quad-rect2 20)
+;-> 2870
+
+

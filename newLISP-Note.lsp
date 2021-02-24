@@ -450,6 +450,7 @@ DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Lista strettamente crescente (Visa)
   Pile di monete (LinkedIn)
   Numero più grande formato da una lista (Amazon)
+  Rettagoli e quadrati in una scacchiera (Google)
 
 LIBRERIE
 ========
@@ -19002,7 +19003,13 @@ Quindi scriviamo una funzione che utilizza i big integer per il calcolo:
 ;-> 83202123256952806711505149177419849031086149939116975191706558395784192643914160
 ;-> 118616272189452807591091542120727401415762287153293056320L
 
-Possiamo scrivere anche una versione iterativa, ma non possiamo usare i big integer poichè la divisione altera il risultato, quindi dobbiamo usare i floating-point.
+Questa funzione genera un errore di stack-overflow per valori superiori di 512:
+
+(catalan 513L)
+;-> ERR: call or result stack overflow in function * : -
+;-> called from user function (catalan (- n 1L))
+
+Possiamo scrivere anche una versione iterativa, ma non possiamo usare i big-integer poichè la divisione altera il risultato, quindi dobbiamo usare i floating-point.
 Utilizziamo una funzione diversa:
 
 C(0) = C(1) = 1
@@ -19028,6 +19035,39 @@ Non possiamo usare i big integer poichè la divisione altera il risultato, quind
 
 (catalan-i 500L)
 ;-> 5.394974869170395e+296
+
+Però possiamo usare un'altra definizione dei numeri Catalani per utilizzare i big-integer:
+
+C(n) = binomiale(2n n) / (n + 1)
+
+(define (binom num k)
+  (if (> k num)
+    0
+    (let (r 1L)
+      (for (d 1 k)
+        (setq r (/ (* r num) d))
+        (-- num)
+      )
+      r)))
+
+(define (min-big a b) (if (< a b) a b))
+
+(define (catalan-big n)
+  (/ (binom (* 2 n) n) (+ 1L n)))
+
+(map catalan-big (sequence 1 20))
+;-> (1L 2L 5L 14L 42L 132L 429L 1430L 4862L 16796L
+;->  58786L 208012L 742900L 2674440L 9694845L 35357670L
+;->  129644790L 477638700L 1767263190L 6564120420L)
+
+(time (catalan 500L) 1000)
+;-> 634.693
+
+(time (catalan-big 500L) 1000)
+;-> 540.585
+
+(= (map catalan (sequence 1 100)) (map catalan-big (sequence 1 100)))
+;-> true
 
 
 ------------------
@@ -20070,7 +20110,7 @@ Supponiamo che la lista iniziale sia la seguente:
 (setq k '((a 2 3) (b 3 4) (c 4 5) (d 5 6)))
 ;-> ((a 2 3) (b 3 4) (c 4 5) (d 5 6))
 
-Definizmo tre funzioni che estraggono le liste dei noni, dei pesi e dei valori:
+Definiamo tre funzioni che estraggono le liste dei nomi, dei pesi e dei valori:
 
 (define (getNomi lst) (map (fn(x) (first x)) lst))
 (define (getPesi lst) (map (fn(x) (first (rest x))) lst))
@@ -26806,16 +26846,16 @@ Scrivere una funzione che controlla se un codice dato rappresenta un numero IBAN
 
 ;; Check that only A-Z and 0-9 are used.
 (define (valid-chars? iban)
-	(setq rx (string "[A-Z0-9]{" (length iban) "}" ))
-	(regex rx iban 1)
+  (setq rx (string "[A-Z0-9]{" (length iban) "}" ))
+  (regex rx iban 1)
 )
 
 ;; Check that the length is correct for the country.
 (define (valid-length? iban)
-	(setq countries-found (lookup (int (length iban)) *iban-code-length*))
-	(if (not (nil? countries-found))
-		(member (0 2 iban) countries-found)
-	)
+  (setq countries-found (lookup (int (length iban)) *iban-code-length*))
+  (if (not (nil? countries-found))
+    (member (0 2 iban) countries-found)
+  )
 )
 
 ;; Convert the IBAN to integer following the rules from Wikipedia.
@@ -27796,7 +27836,7 @@ Vediamo cosa accade con dei nomi italiani:
               "Massimo" "Massimiliano" "Maria" "Marta"))
 
 (map soundex lista)
-;-> ("M600" "M620" "S600" "L600" "L200" "L200" "L200" 
+;-> ("M600" "M620" "S600" "L600" "L200" "L200" "L200"
 ;->  "M250" "M254" "M600" "M630")
 
 
@@ -27838,8 +27878,8 @@ Vediamo alcuni esempi:
 
 (setq in '((8 0) (4 0) (8 0) (0 0)))
 (dft in)
-;-> ((20 0) (0 -4.000000000000001) 
-;->  (12 1.469527624586853e-015) 
+;-> ((20 0) (0 -4.000000000000001)
+;->  (12 1.469527624586853e-015)
 ;->  (-8.881784197001252e-016 3.999999999999997))
 
 (setq in '(
@@ -28243,10 +28283,10 @@ Il nome di questi numeri prende origine da un aneddoto, secondo il quale il mate
 
 1729 = 1 ^ 3 + 12 ^ 3 = 9 ^ 3 + 10 ^ 3
 
-Taxicab: 
-1729, 4104, 13832, 20683, 32832, 39312, 40033, 46683, 64232, 65728, 
-110656, 110808, 134379, 149389, 165464, 171288, 195841, 216027, 216125, 
-262656, 314496, 320264, 327763, 373464, 402597, 439101, 443889, 513000, 
+Taxicab:
+1729, 4104, 13832, 20683, 32832, 39312, 40033, 46683, 64232, 65728,
+110656, 110808, 134379, 149389, 165464, 171288, 195841, 216027, 216125,
+262656, 314496, 320264, 327763, 373464, 402597, 439101, 443889, 513000,
 513856, 515375, 525824, 558441, 593047, 684019, 704977, ...
 
 Funzione che calcola tutti i numeri taxicab fino ad un numero dato:
@@ -28289,7 +28329,7 @@ Funzione che calcola i primi "quanti" numeri taxicab:
           )
          )
       )
-      (if (>= c 2) 
+      (if (>= c 2)
           (begin (push i out -1) (++ conta))
       )
       (++ i)
@@ -56449,6 +56489,102 @@ Basta convertire i numeri in stringa, ordinarli e infine unire le stringhe (nume
 
 (largest '(54 9 546 548 60))
 ;-> "96054854654"
+
+
+-----------------------------------------------
+Rettagoli e quadrati in una scacchiera (Google)
+-----------------------------------------------
+
+A) Quanti rettangoli ci sono in una scacchiera?
+
+B) Quanti quadrati ci sono in una scacchiera?
+
+Soluzione A
+-----------
+Ci sono 9 linee orizzontali sulla scacchiera e 9 linee verticali. Scegliendo due linee orizzontali distinte e due linee verticali distinte detrminiamo un rettangolo unico. E ogni rettangolo determina una coppia di linee orizzontali e una coppia di linee verticali.
+
+Quindi il numero di rettangoli è binomiale(9 2)^2, cioè 1296.
+
+Generalizzando per una scacchiera m x n il numero di rettangoli è dato da:
+
+num-rect = binomiale((m+1) 2)*binomiale((n+1) 2)
+
+dove:
+                      n!
+binomiale(n k) = --------------
+                 k! *  (n - k)!
+
+Funzione per calcolare il coefficiente binomiale:
+
+(define (binomiale num k)
+  (if (> k num)
+    0
+    (let (r 1L)
+      (for (d 1 k)
+        (setq r (/ (* r num) d))
+        (-- num)
+      )
+      r)))
+
+(define (rect-grid m n)
+  (* (binomiale (+ m 1) 2) (binomiale (+ n 1) 2)))
+
+(rect-grid 8 8)
+;-> 1296L
+(rect-grid 4 3)
+;-> 60L
+
+Possiamo anche derivare una formula diretta sviluppando i binomiali:
+
+num-rect = (m+1)!/(2!*(m-1)!) * (n+1)!/(2!*(n-1)!) = m*(m+1)*n*(n+1)/4
+
+(define (rect-grid2 m n)
+  (/ (* m (+ m 1) n (+ n 1)) 4))
+
+(rect-grid2 8 8)
+;-> 1296
+(rect-grid 4 3)
+;-> 60
+
+Soluzione B
+-----------
+In una scacchiera quadrata 8x8 esistono:
+
+8^2 quadrati 1x1
+7^2 quadrati 2x2
+6^2 quadrati 3x3
+5^2 quadrati 4x4
+4^2 quadrati 5x5
+3^2 quadrati 6x6
+2^2 quadrati 7x7
+1^2 quadrati 8x8
+
+Quindi la somma totali dei quadrati vale: 
+
+num-quad = 1^2 + 2^2 + 3^2 + 4^2 + 5^2 + 6^2 + 7^2 + 8^2 =
+
+Generalizzando per una scacchiera nxn otteniamo che il numero di quadrati è dato dalla somma dei primi n quadrati:
+
+num-quad = Sum[1..n] (i^2) = (2*n^3 + 3*n^2 + n)/6
+
+(define (square x) (* x x))
+
+(define (quad-rect n)
+  (apply + (map square (sequence 1 n))))
+
+(quad-rect 8)
+;-> 204
+
+(define (quad-rect2 n)
+  (/ (+ (* 2 n n n) (* 3 n n) n) 6))
+
+(quad-rect2 8)
+;-> 204
+
+(quad-rect 20)
+;-> 2870
+(quad-rect2 20)
+;-> 2870
 
 
 ==========
