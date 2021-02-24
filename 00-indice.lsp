@@ -449,6 +449,7 @@ DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Numero mancante (Wolfram)
   Lista strettamente crescente (Visa)
   Pile di monete (LinkedIn)
+  Numero più grande formato da una lista (Amazon)
 
 LIBRERIE
 ========
@@ -654,6 +655,8 @@ NOTE LIBERE 3
   Lista delle fattorizzazioni di un numero
   Algoritmo di Bellman-Ford
   Catene di Markov
+  Contornare una matrice
+  Stringa decimale infinita 12345678910111213141516...
   
 APPENDICI
 =========

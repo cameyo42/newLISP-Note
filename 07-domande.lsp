@@ -5937,8 +5937,9 @@ Esempi:
                      |7 6 5|
 
                      | 1  2  3 4|
- n = 4  =>  Matrice: |10 11 12 5|
-                     | 9  8  7 6|
+ n = 4  =>  Matrice: |12 13 14 5|
+                     |11 16 15 6|
+                     |10  9  8 7|
 
 La soluzione è analoga alla precedente, l'unica differenza sta nel fatto che invece di "leggere" a spirale questa volta "scriviamo" a spirale.
 
@@ -6690,5 +6691,27 @@ Adesso possiamo scrivere la funzione:
 ;-> nil
 (pile 3 3)
 ;-> true
+
+
+-----------------------------------------------
+Numero più grande formato da una lista (Amazon)
+-----------------------------------------------
+
+Dato un elenco di interi non negativi, unirli in modo tale che formino il numero più grande possibile. Restituisci il risultato sotto forma di stringa.
+
+Esempio:
+Input:  (1 28 9 77)
+Output: "977281"
+
+Basta convertire i numeri in stringa, ordinarli e infine unire le stringhe (numeri) ordinate.
+
+(define (largest lst)
+  (join (sort (map string lst) >)))
+
+(largest '(54 546 548 60))
+;-> "6054854654"
+
+(largest '(54 9 546 548 60))
+;-> "96054854654"
 
 

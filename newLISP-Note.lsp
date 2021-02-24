@@ -449,6 +449,7 @@ DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Numero mancante (Wolfram)
   Lista strettamente crescente (Visa)
   Pile di monete (LinkedIn)
+  Numero più grande formato da una lista (Amazon)
 
 LIBRERIE
 ========
@@ -654,6 +655,8 @@ NOTE LIBERE 3
   Lista delle fattorizzazioni di un numero
   Algoritmo di Bellman-Ford
   Catene di Markov
+  Contornare una matrice
+  Stringa decimale infinita 12345678910111213141516...
   
 APPENDICI
 =========
@@ -55670,8 +55673,9 @@ Esempi:
                      |7 6 5|
 
                      | 1  2  3 4|
- n = 4  =>  Matrice: |10 11 12 5|
-                     | 9  8  7 6|
+ n = 4  =>  Matrice: |12 13 14 5|
+                     |11 16 15 6|
+                     |10  9  8 7|
 
 La soluzione è analoga alla precedente, l'unica differenza sta nel fatto che invece di "leggere" a spirale questa volta "scriviamo" a spirale.
 
@@ -56423,6 +56427,28 @@ Adesso possiamo scrivere la funzione:
 ;-> nil
 (pile 3 3)
 ;-> true
+
+
+-----------------------------------------------
+Numero più grande formato da una lista (Amazon)
+-----------------------------------------------
+
+Dato un elenco di interi non negativi, unirli in modo tale che formino il numero più grande possibile. Restituisci il risultato sotto forma di stringa.
+
+Esempio:
+Input:  (1 28 9 77)
+Output: "977281"
+
+Basta convertire i numeri in stringa, ordinarli e infine unire le stringhe (numeri) ordinate.
+
+(define (largest lst)
+  (join (sort (map string lst) >)))
+
+(largest '(54 546 548 60))
+;-> "6054854654"
+
+(largest '(54 9 546 548 60))
+;-> "96054854654"
 
 
 ==========
@@ -76914,6 +76940,294 @@ Input : stato-iniziale = 4, stato-finale = 2, tempo = 100
 Output : 0.284992
 Partiamo dallo stato 4 per t = 0,
 La probabilità di raggiungere lo stato 2 per t = 100 vale 0.284992.
+
+
+----------------------
+Contornare una matrice
+----------------------
+
+Data una matrice NxM contornare la matrice con k righe e colonne con un determinato valore.
+Esempio:
+          |1 1|
+matrice = |1 1|
+          |1 1|
+k = 2
+
+Valore: 0
+
+        |0 0 0 0 0 0|
+        |0 0 0 0 0 0|
+        |0 0 1 1 0 0|
+output: |0 0 1 1 0 0|
+        |0 0 1 1 0 0|
+        |0 0 0 0 0 0|
+        |0 0 0 0 0 0|
+
+Funzione che contorna una matrice:
+
+(define (pad-matrix mtx pad val)
+  (setq out '())
+  (if (array? mtx) (setq mtx (array-list mtx)))
+  (setq row (+ (* 2 pad) (length mtx)))
+  (setq col (+ (* 2 pad) (length (mtx 0))))
+  ; aggiunge pad righe iniziali ad out
+  (for (i 1 pad)
+    (push (dup val col true) out -1)
+  )
+  ; aggiunge le righe centrali ad out
+  (dolist (el mtx)
+    (setq cur (append (dup val pad true) el (dup val pad true)))
+    (push cur out -1)
+  )
+  ; aggiunge pad righe finali ad out
+  (for (i 1 pad)
+    (push (dup val col true) out -1)
+  )
+  out
+)
+
+Funzione per stampare una matrice:
+
+(define (print-matrix matrix)
+  (local (row col nmax nmin digit fmtstr)
+    (if (array? matrix) (setq matrix  (array-list matrix)))
+    (setq row (length matrix))
+    (setq col (length (first matrix)))
+    (setq nmax (string (apply max (flat matrix))))
+    (setq nmin (string (apply min (flat matrix))))
+    (setq digit (add 1 (max (length nmax) (length nmin))))
+    (setq fmtstr (append "%" (string digit) "d"))
+    (for (i 0 (sub row 1))
+      (for (j 0 (sub col 1))
+        (print (format fmtstr (matrix i j)))
+      )
+      (println))
+    '.))
+
+(setq m '((1 1) (1 1) (1 1)))
+(print-matrix (pad-matrix m 2 0))
+;-> |0 0 0 0 0 0|
+;-> |0 0 0 0 0 0|
+;-> |0 0 1 1 0 0|
+;-> |0 0 1 1 0 0|
+;-> |0 0 1 1 0 0|
+;-> |0 0 0 0 0 0|
+;-> |0 0 0 0 0 0|
+
+Esempio:
+
+(setq b '((0)))
+(for (i 1 9)
+  (setq b (pad-matrix b 1 i))
+)
+(print-matrix b)
+;-> 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9
+;-> 9 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 9
+;-> 9 8 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 8 9
+;-> 9 8 7 6 6 6 6 6 6 6 6 6 6 6 6 6 7 8 9
+;-> 9 8 7 6 5 5 5 5 5 5 5 5 5 5 5 6 7 8 9
+;-> 9 8 7 6 5 4 4 4 4 4 4 4 4 4 5 6 7 8 9
+;-> 9 8 7 6 5 4 3 3 3 3 3 3 3 4 5 6 7 8 9
+;-> 9 8 7 6 5 4 3 2 2 2 2 2 3 4 5 6 7 8 9
+;-> 9 8 7 6 5 4 3 2 1 1 1 2 3 4 5 6 7 8 9
+;-> 9 8 7 6 5 4 3 2 1 0 1 2 3 4 5 6 7 8 9
+;-> 9 8 7 6 5 4 3 2 1 1 1 2 3 4 5 6 7 8 9
+;-> 9 8 7 6 5 4 3 2 2 2 2 2 3 4 5 6 7 8 9
+;-> 9 8 7 6 5 4 3 3 3 3 3 3 3 4 5 6 7 8 9
+;-> 9 8 7 6 5 4 4 4 4 4 4 4 4 4 5 6 7 8 9
+;-> 9 8 7 6 5 5 5 5 5 5 5 5 5 5 5 6 7 8 9
+;-> 9 8 7 6 6 6 6 6 6 6 6 6 6 6 6 6 7 8 9
+;-> 9 8 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 8 9
+;-> 9 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 9
+;-> 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9
+
+
+----------------------------------------------------
+Stringa decimale infinita 12345678910111213141516...
+----------------------------------------------------
+
+La stringa decimale infinita viene creata unendo tutti i numeri naturali da 1 a infinito (∞):
+
+"123456789101112131415161718192021222324252627282930..."
+
+Poichè non è possibile memorizzarla interamente in una struttura dati, diventa interessante la soluzione di  due problemi:
+
+1) quale cifra si trova alla posizione K della stringa?
+-------------------------------------------------------
+
+Esempi:
+K = 1     il primo carattere è "1"
+K = 10      10-imo carattere è "1"
+K = 11      11-imo carattere è "0"
+K = 50      50-imo carattere è "3"
+K = 190    190-imo carattere è "1"
+
+Possiamo risolvere questo problema spezzando la stringa in base ai seguenti criteri:
+ I primi 9 decimali hanno lunghezza 1, poi 90 numeri sono di lunghezza 2, poi 900 numeri sono di lunghezza 3 e così via, quindi possiamo saltare questi numeri in base al dato K e poi ricavare il carattere cercato.
+
+La K-esima cifra sarà compresa tra 10^k e 10^(k + 1) per qualche k intero.
+Se la risposta non è compresa tra 10^m e 10^(m + 1) per il valore di m che stiamo
+attualmente verificando, aumentiamo m di 1 e sottraiamo la lunghezza dei numeri da 10^m a 10^(m + 1). Una volta trovata la potenza di 10 dove si trova il numero, tutti i numeri che dobbiamo controllare hanno "ordine" cifre, e possiamo usare la divisione intera per determinare il numero e poi estrarre il carattere con il modulo.
+
+Funzione che calcola la potenza intera di un numero intero:
+
+(define (** num power)
+    (if (zero? power)
+        1
+    (let (out 1)
+        (dotimes (i power)
+            (setq out (* out num))))))
+
+Funzione che trova la cifra alla posizione k della stringa:
+
+(define (find-digit k)
+  (local (ordine intervallo)
+    (setq ordine 1L)
+    (find-digit-aux k ordine)))
+
+(define (find-digit-aux k ordine)
+    (setq intervallo (* 9 ordine (** 10 (- ordine 1))))
+    (if (> k intervallo)
+        (begin
+        (find-digit-aux (- k intervallo) (+ ordine 1)))
+        ;else
+        (begin
+        (setq num (+ (** 10 (- ordine 1)) (/ (- k 1) ordine)))
+        (setq numstr (string num))
+        (numstr (% (- k 1) ordine)))
+    ))
+
+(find-digit 10)
+;-> "1"
+(find-digit 11)
+;-> "0"
+(find-digit 50)
+;-> "3"
+(find-digit 190)
+;-> "1"
+(find-digit 9)
+;-> "9"
+(find-digit 0)
+;-> "0"
+(find-digit 456)
+;-> "8"
+(find-digit 454)
+;-> "1"
+(find-digit 2000)
+;-> "0"
+(find-digit 2001)
+;-> "3"
+(find-digit 1234)
+;-> "8"
+
+2) in quale posizione della stringa inizia un numero N?
+-------------------------------------------------------
+
+Utilizziamo la tecnica di "Window slicing": creiamo una stringa di numeri da 1 a x e cerchiamo al suo interno il numero N, se non lo troviamo costruiamo un'altra stringa lunga da x a (+ x x) aggiungendo all'inizio gli ultimi len(N) caratteri della stringa precedente (per verificare su il numero N si trova in una sovrapposizione di finestre) e verifichiamo se troviamo N, altrimenti continuiamo con una nuova stringa.
+
+Funzione che genera la stringa da a a b:
+
+(define (genera a b) (join (map string (sequence a b))))
+
+(genera 1 20)
+;-> "1234567891011121314151617181920"
+(genera 20 40)
+;-> "202122232425262728293031323334353637383940"
+
+Funzione di ricerca del numero N nella stringa:
+
+(define (find-str str)
+  (setq pos 0)
+  (setq lenstr (length str))
+  (setq lenwin (max 50 lenstr))
+  (setq num1 1)
+  (setq num2 (+ num1 lenwin))
+  (setq curstr (genera num1 num2))
+  (setq indice (find str curstr))
+  (until indice
+    (setq pos (+ pos (length curstr) (- lenstr)))
+    (setq num1 (+ num2 1))
+    (setq num2 (+ num1 lenwin))
+    (setq curstr (append (slice curstr (- lenstr)) (genera num1 num2)))
+    (setq indice (find str curstr))
+  )
+  (+ pos indice))
+
+(find-str "141")
+;-> 17
+(find "141" (genera 11 20))
+;-> 17
+
+(find-str "67")
+;-> 5
+(find "67" (genera 1 10))
+;-> 5
+
+(find-str "454")
+;-> 79
+(find "454" (genera 1 100))
+;-> 79
+
+(find-str "222")
+;-> 33
+(find "222" (genera 1 30))
+;-> 33
+
+(find-str "85")
+;-> 106
+(find "85" (genera 1 60))
+;-> 106
+
+(find-str "81")
+;-> 26
+(find "81" (genera 1 60))
+;-> 26
+
+(find-str "333")
+;-> 55
+(find "333" (genera 1 60))
+;-> 55
+
+(find-str "12345")
+;-> 0
+
+Potremmo usare questa funzione per generare una password, per esempio possiamo passare alla funzione una data speciale ed ottenere un numero che può essere usato come password:
+
+(find-str "19700321")
+;-> 12679113
+
+Vediamo se la larghezza della finestra influenza la velocità della funzione:
+
+(define (find-str str window)
+  (setq pos 0)
+  (setq lenstr (length str))
+  (setq lenwin (max window lenstr))
+  (setq num1 1)
+  (setq num2 (+ num1 lenwin))
+  (setq curstr (genera num1 num2))
+  (setq indice (find str curstr))
+  (until indice
+    (setq pos (+ pos (length curstr) (- lenstr)))
+    (setq num1 (+ num2 1))
+    (setq num2 (+ num1 lenwin))
+    (setq curstr (append (slice curstr (- lenstr)) (genera num1 num2)))
+    (setq indice (find str curstr))
+  )
+  (+ pos indice))
+
+(time (find-str "19700321" 10) 10)
+;-> 7656.259
+
+(time (find-str "19700321" 50) 10)
+;-> 7642.337
+
+(time (find-str "19700321" 255) 10)
+;-> 7647.513
+
+(time (find-str "19700321" 1000) 10)
+;-> 7624.258
+
+Sembra che la larghezza della finestra non influenzi la velocità della funzione.
 
 
 ===========
