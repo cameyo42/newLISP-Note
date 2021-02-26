@@ -451,6 +451,7 @@ DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Pile di monete (LinkedIn)
   Numero più grande formato da una lista (Amazon)
   Rettagoli e quadrati in una scacchiera (Google)
+  Rettangolo perfetto (Google)
 
 LIBRERIE
 ========
@@ -658,6 +659,9 @@ NOTE LIBERE 3
   Catene di Markov
   Contornare una matrice
   Stringa decimale infinita 12345678910111213141516...
+  Zero elevato a zero
+  Fattoriale di zero
+  Somma delle potenze dei primi n numeri
   
 APPENDICI
 =========

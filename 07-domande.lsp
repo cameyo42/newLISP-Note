@@ -6811,3 +6811,69 @@ num-quad = Sum[1..n] (i^2) = (2*n^3 + 3*n^2 + n)/6
 ;-> 2870
 
 
+----------------------------
+Rettangolo perfetto (Google)
+----------------------------
+
+Dati N rettangoli allineati lungo l'asse, dove N > 0, determinare se tutti insieme formano una copertura esatta di una regione rettangolare, cioè formano un rettangolo senza buchi ne sovrapposizioni.
+Ogni rettangolo è rappresentato come un punto in basso a sinistra e un punto in alto a destra. Ad esempio, un quadrato unitario è rappresentato come [1,1,2,2]. (la coordinata del punto in basso a sinistra è (1, 1) e quella del punto in alto a destra è (2, 2)).
+
+Per formare una copertura esatta deve risultare:
+1. L'area della copertura rettangolare deve essere uguale alla somma delle aree di tutti i rettangoli piccoli
+2. I quattro angoli del rettangolo/quadrato devono apparire una sola volta.
+
+(define (rect? lst)
+  (local (x1 y1 x2 y2 areatot area4 p1 p2 p3 p4 lenhash out)
+    (setq out nil)
+    (setq x1 99999999 y1 99999999)
+    (setq x2 -1 y2 -1)
+    ; hash-map per inserire i punti
+    (new Tree 'hash)
+    (setq areatot 0)
+    (dolist (rect lst)
+      ; ricerca valori massimi e minimi delle coordinate dei punti
+      (setq x1 (min (rect 0) x1))
+      (setq y1 (min (rect 1) y1))
+      (setq x2 (max (rect 2) x2))
+      (setq y2 (max (rect 3) y2))
+      ; calcolo area totale
+      (setq areatot (+ areatot (* (- (rect 2) (rect 0)) (- (rect 3) (rect 1)))))
+      ; creazione della stringa di ogni punto
+      (setq p1 (string (list (rect 0) (rect 1))))
+      (setq p2 (string (list (rect 0) (rect 3))))
+      (setq p3 (string (list (rect 2) (rect 3))))
+      (setq p4 (string (list (rect 2) (rect 1))))
+      ; se i punti esistono nella hash-map,
+      ; allora li elimino
+      ; altrimenti li inserisco
+      (if (hash p1) (hash p1 nil) (hash p1 p1))
+      (if (hash p2) (hash p2 nil) (hash p2 p2))
+      (if (hash p3) (hash p3 nil) (hash p3 p3))
+      (if (hash p4) (hash p4 nil) (hash p4 p4))
+    )
+    ; adesso se la hash-map contiene esattamente quattro punti,
+    ; e l'area dei quattro punti è uguale all'area totale,
+    ; e i quattro punti sono uguali ai valori massimi x1,y1,x2,y2
+    ; allora il rettangolo forma una copertura.
+    (setq lenhash (length 'hash))
+    (setq area4 (* (- x2 x1) (- y2 y1)))
+    (setq out (and (= lenhash 4)
+                   (= areatot area4)
+                   (not (nil? (hash (string (list x1 y1)))))
+                   (not (nil? (hash (string (list x1 y2)))))
+                   (not (nil? (hash (string (list x2 y1)))))
+                   (not (nil? (hash (string (list x2 y2)))))))
+    ; eliminazione della hash-map
+    (delete 'hash)
+    out))
+
+(rect? '((1 1 2 2) (2 1 3 2) (2 2 3 3) (1 2 2 3)))
+;-> true
+
+(rect? '((1 0 3 3) (3 0 5 1) (3 1 5 3) (2 3 5 4) (1 3 2 4) (1 4 3 5) (3 4 5 5)))
+;-> true
+
+(rect? '((1 0 3 3) (3 0 5 1) (3 1 5 3) (2 3 5 4) (1 3 2 4) (1 4 3 5) (4 4 6 5)))
+;-> nil
+
+

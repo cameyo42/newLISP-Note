@@ -451,6 +451,7 @@ DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Pile di monete (LinkedIn)
   Numero più grande formato da una lista (Amazon)
   Rettagoli e quadrati in una scacchiera (Google)
+  Rettangolo perfetto (Google)
 
 LIBRERIE
 ========
@@ -658,6 +659,9 @@ NOTE LIBERE 3
   Catene di Markov
   Contornare una matrice
   Stringa decimale infinita 12345678910111213141516...
+  Zero elevato a zero
+  Fattoriale di zero
+  Somma delle potenze dei primi n numeri
   
 APPENDICI
 =========
@@ -56587,6 +56591,72 @@ num-quad = Sum[1..n] (i^2) = (2*n^3 + 3*n^2 + n)/6
 ;-> 2870
 
 
+----------------------------
+Rettangolo perfetto (Google)
+----------------------------
+
+Dati N rettangoli allineati lungo l'asse, dove N > 0, determinare se tutti insieme formano una copertura esatta di una regione rettangolare, cioè formano un rettangolo senza buchi ne sovrapposizioni.
+Ogni rettangolo è rappresentato come un punto in basso a sinistra e un punto in alto a destra. Ad esempio, un quadrato unitario è rappresentato come [1,1,2,2]. (la coordinata del punto in basso a sinistra è (1, 1) e quella del punto in alto a destra è (2, 2)).
+
+Per formare una copertura esatta deve risultare:
+1. L'area della copertura rettangolare deve essere uguale alla somma delle aree di tutti i rettangoli piccoli
+2. I quattro angoli del rettangolo/quadrato devono apparire una sola volta.
+
+(define (rect? lst)
+  (local (x1 y1 x2 y2 areatot area4 p1 p2 p3 p4 lenhash out)
+    (setq out nil)
+    (setq x1 99999999 y1 99999999)
+    (setq x2 -1 y2 -1)
+    ; hash-map per inserire i punti
+    (new Tree 'hash)
+    (setq areatot 0)
+    (dolist (rect lst)
+      ; ricerca valori massimi e minimi delle coordinate dei punti
+      (setq x1 (min (rect 0) x1))
+      (setq y1 (min (rect 1) y1))
+      (setq x2 (max (rect 2) x2))
+      (setq y2 (max (rect 3) y2))
+      ; calcolo area totale
+      (setq areatot (+ areatot (* (- (rect 2) (rect 0)) (- (rect 3) (rect 1)))))
+      ; creazione della stringa di ogni punto
+      (setq p1 (string (list (rect 0) (rect 1))))
+      (setq p2 (string (list (rect 0) (rect 3))))
+      (setq p3 (string (list (rect 2) (rect 3))))
+      (setq p4 (string (list (rect 2) (rect 1))))
+      ; se i punti esistono nella hash-map,
+      ; allora li elimino
+      ; altrimenti li inserisco
+      (if (hash p1) (hash p1 nil) (hash p1 p1))
+      (if (hash p2) (hash p2 nil) (hash p2 p2))
+      (if (hash p3) (hash p3 nil) (hash p3 p3))
+      (if (hash p4) (hash p4 nil) (hash p4 p4))
+    )
+    ; adesso se la hash-map contiene esattamente quattro punti,
+    ; e l'area dei quattro punti è uguale all'area totale,
+    ; e i quattro punti sono uguali ai valori massimi x1,y1,x2,y2
+    ; allora il rettangolo forma una copertura.
+    (setq lenhash (length 'hash))
+    (setq area4 (* (- x2 x1) (- y2 y1)))
+    (setq out (and (= lenhash 4)
+                   (= areatot area4)
+                   (not (nil? (hash (string (list x1 y1)))))
+                   (not (nil? (hash (string (list x1 y2)))))
+                   (not (nil? (hash (string (list x2 y1)))))
+                   (not (nil? (hash (string (list x2 y2)))))))
+    ; eliminazione della hash-map
+    (delete 'hash)
+    out))
+
+(rect? '((1 1 2 2) (2 1 3 2) (2 2 3 3) (1 2 2 3)))
+;-> true
+
+(rect? '((1 0 3 3) (3 0 5 1) (3 1 5 3) (2 3 5 4) (1 3 2 4) (1 4 3 5) (3 4 5 5)))
+;-> true
+
+(rect? '((1 0 3 3) (3 0 5 1) (3 1 5 3) (2 3 5 4) (1 3 2 4) (1 4 3 5) (4 4 6 5)))
+;-> nil
+
+
 ==========
 
  LIBRERIE
@@ -77364,6 +77434,226 @@ Vediamo se la larghezza della finestra influenza la velocità della funzione:
 ;-> 7624.258
 
 Sembra che la larghezza della finestra non influenzi la velocità della funzione.
+
+
+-------------------
+Zero elevato a zero
+-------------------
+
+Quanto vale 0^0 ?
+
+Proviamo a calcolarlo come limite:
+
+limite(x^x)
+ x->0
+
+(define (lim x) (pow x x))
+
+(for (i 1 0.1 -0.1) (println (round i -3) { } (round (lim i) -3)))
+;-> 1 1
+;-> 0.9 0.91
+;-> 0.8 0.837
+;-> 0.7 0.779
+;-> 0.6 0.736
+;-> 0.5 0.707
+               <------- inversione di tendenza
+;-> 0.4 0.693
+;-> 0.3 0.697
+;-> 0.2 0.725
+;-> 0.1 0.794
+
+(for (i 0.1 0.001 -0.005) (println (round i -5) { } (round (lim i) -5)))
+;-> 0.1   0.79433
+;-> 0.095 0.79962
+;-> 0.090 0.80516
+;-> 0.085 0.81096
+;-> 0.080 0.81705
+;-> 0.075 0.82344
+;-> 0.070 0.83015
+;-> 0.065 0.83722
+;-> 0.060 0.84467
+;-> 0.055 0.85255
+;-> 0.050 0.86089
+;-> 0.045 0.86975
+;-> 0.040 0.87919
+;-> 0.035 0.88929
+;-> 0.030 0.90015
+;-> 0.025 0.9119
+;-> 0.020 0.92474
+;-> 0.015 0.93895
+;-> 0.010 0.95499
+;-> 0.005 0.97386
+
+Poichè il limite tende a 1, allora 0^0 = 1.
+
+Per quale valore si inverte la tendenza (cioè si ha un minimo della funzione)?
+
+La derivata di x^x vale: x^x*(1 + ln(x))
+
+Il minimo si ha nel punto in cui la derivata vale 0:
+  
+  x^x*(1+ln(x)) = 0 quando (1 + ln(x)) = 0, 
+  
+  cioè per x = e^(-1) = 1/e = 0.3678794411714423
+
+
+------------------
+Fattoriale di zero
+------------------
+
+Perchè 0! = 1 ?
+
+Il fattoriale di un numero può essere scritto nel modo seguente:
+
+     (x + 1)!
+x! = --------
+     (x + 1)     
+
+Adesso sostituiamo x con alcuni numeri:
+
+3! = 4!/4 = 24/4 = 6
+2! = 3!/3 = 6/3  = 2
+1! = 2!/2 = 2/2  = 1
+0! = 1!/1 = 1/1  = 1
+
+Quindi 0! = 1.
+
+
+--------------------------------------
+Somma delle potenze dei primi n numeri
+--------------------------------------
+
+Per trovare la somma dei primi n numeri possiamo usare la formula seguente:
+
+Sum[1..n] (i) = (n*(n+1))/2 = (n^2 + n)/2
+
+(define (sumpot1 n)
+  (/ (+ (** n 2) n) 2))
+
+Vediamo come l'ha risolto Gauss a 8 anni (con n = 100):
+
+Esempio: n = 10
+
+1 + 10 = 11
+2 +  9 = 11
+3 +  8 = 11
+4 +  7 = 11
+5 +  6 = 11
+
+(n + 1) = 11
+n/2 = 5
+
+11 * 5 = 55
+
+Esempio: n = 5
+
+1 + 5 = 6
+2 + 4 = 6
+3
+
+(12 + 3) = 15
+
+Funzione che calcola la potenza intera di un numero intero (big-integer):
+
+(define (** num power)
+    (let (out 1L)
+        (dotimes (i power)
+            (setq out (* out num)))))
+
+Somma dei primi n quadrati (numeri piramidali)
+----------------------------------------------
+Sum[1..n] (i^2) = (2*n^3 + 3*n^2 + n)/6
+
+(define (sumpot2 n)
+  (/ (+ (* 2 (** n 3)) (* 3 (** n 2)) n) 6))
+
+Assumendo che esista una formula per la somma dei quadrati, la pendenza di quella funzione deve essere quadratica, quindi la funzione che cerchiamo deve essere di terzo grado. Quindi sappiamo che la formula ha la seguente struttura:
+
+   a*n^3 + b*n^2 + c*n + d*n
+
+Con 4 equazioni questo problema è risolto (es. Poniamo n = 0, troviamo che d = 0. Con n = 1, n = 2 e n = 3 otteniamo un sistema lineare di equazioni che risolto produce a = 1/3 , b = 1/2 e c = 1/6).
+Con lo stesso metodo possiamo calcolare le sommatorie delle potenze successive.
+
+Somma dei primi n cubi
+----------------------
+Sum[1..n] (i^3) = (n^4 + 2*n^3 + n^2)/4
+
+(define (sumpot3 n)
+  (/ (+ (** n 4) (* 2L (** n 3)) (** n 2)) 4))
+
+Somma delle prime quarte potenze
+--------------------------------
+Sum[1..n] (i^4) = (6*n^5 + 15*n^4 + 10*n^3 + n)/30
+
+(define (sumpot4 n)
+  (/ (+ (* 6L (** n 5)) (* 15L (** n 4)) (* 10L (** n 3)) (- n)) 30))
+
+Somma delle prime quinte potenze
+--------------------------------
+Sum[1..n] (i^5) = (2*n^6 + 6*n^5 + 5*n^4 - n^2)/12
+
+(define (sumpot5 n)
+  (/ (+ (* 2L (** n 6)) (* 6L (** n 5)) (* 5L (** n 4)) (- (** n 2))) 12))
+
+Somma delle prime seste potenze
+-------------------------------
+Sum[1..n] (i^6) = (6*n^7 + 21*n^6 + 21*n^5 - 7*n^3 + n)/42
+
+(define (sumpot6 n)
+  (/ (+ (* 6L (** n 7)) (* 21L (** n 6)) (* 21L (** n 5)) 
+     (- (* 7L (** n 3))) n) 42))
+
+Somma delle prime settime potenze
+---------------------------------
+Sum[1..n] (i^7) = (3*n^8 + 12*n^7 + 14*n^6 - 7*n^4 + 2*n^2)/24
+
+(define (sumpot7 n)
+  (/ (+ (* 3L (** n 8)) (* 12L (** n 7)) (* 14L (** n 6)) 
+        (- (* 7L (** n 4))) (* 2L (** n 2))) 24))
+
+Somma delle prime ottave potenze
+--------------------------------
+Sum[1..n] (i^8) = (10*n^9 + 45*n^8 + 60*n^7 - 42*n^5 + 20*n^3 - 3*n)/90
+
+(define (sumpot8 n)
+  (/ (+ (* 10L (** n 9)) (* 45L (** n 8)) (* 60L (** n 7))
+        (* (- 42L) (** n 5)) (* 20L (** n 3)) (* (- 3L) n)) 90))
+
+Somma delle prime none potenze
+------------------------------
+Sum[1..n] (i^9) = (2*n^10 + 10*n^9 + 15*n^8 - 14*n^6 + 10*n^4 - 3*n^2)/20
+
+(define (sumpot9 n)
+  (/ (+ (* 2L (** n 10)) (* 10L (** n 9)) (* 15L (** n 8))
+        (* (- 14L) (** n 6)) (* 10L (** n 4)) (* (- 3L) (** n 2))) 20))
+
+Somma delle prime decime potenze
+--------------------------------
+Sum[1..n] (i^10) = (6*n^11 + 33*n^10 + 55*n^9 - 66*n^7 + 66*n^5 - 33*n^3 + 5*n)/66
+
+(define (sumpot10 n)
+  (/ (+ (* 6L (** n 11)) (* 33L (** n 10)) (* 55L (** n 9)) (* (- 66L) (** n 7))
+        (* 66L (** n 5)) (* (- 33L) (** n 3)) (* 5 n)) 66))
+
+Per le verifiche possiamo usare la seguente funzione per il confronto dei risultati:
+
+(define (somma pot num)
+  (apply + (map (fn(x) (** x pot)) (sequence 1 num))))
+
+Facciamo un test per i primi 100 numeri di tutte le formule:
+
+(for (num 1 100)
+  (if (!= (somma 2  num) (sumpot2  num)) (println "ERROR 2: "  num))
+  (if (!= (somma 3  num) (sumpot3  num)) (println "ERROR 3: "  num))
+  (if (!= (somma 4  num) (sumpot4  num)) (println "ERROR 4: "  num))
+  (if (!= (somma 5  num) (sumpot5  num)) (println "ERROR 5: "  num))
+  (if (!= (somma 6  num) (sumpot6  num)) (println "ERROR 6: "  num))
+  (if (!= (somma 7  num) (sumpot7  num)) (println "ERROR 7: "  num))
+  (if (!= (somma 8  num) (sumpot8  num)) (println "ERROR 8: "  num))
+  (if (!= (somma 9  num) (sumpot9  num)) (println "ERROR 9: "  num))
+  (if (!= (somma 10 num) (sumpot10 num)) (println "ERROR 10: " num))
+)
+;-> nil
 
 
 ===========
