@@ -662,6 +662,7 @@ NOTE LIBERE 3
   Zero elevato a zero
   Fattoriale di zero
   Somma delle potenze dei primi n numeri
+  Cercaparole
   
 APPENDICI
 =========
@@ -77172,25 +77173,25 @@ output: |0 0 1 1 0 0|
 Funzione che contorna una matrice:
 
 (define (pad-matrix mtx pad val)
-  (setq out '())
-  (if (array? mtx) (setq mtx (array-list mtx)))
-  (setq row (+ (* 2 pad) (length mtx)))
-  (setq col (+ (* 2 pad) (length (mtx 0))))
-  ; aggiunge pad righe iniziali ad out
-  (for (i 1 pad)
-    (push (dup val col true) out -1)
-  )
-  ; aggiunge le righe centrali ad out
-  (dolist (el mtx)
-    (setq cur (append (dup val pad true) el (dup val pad true)))
-    (push cur out -1)
-  )
-  ; aggiunge pad righe finali ad out
-  (for (i 1 pad)
-    (push (dup val col true) out -1)
-  )
-  out
-)
+  (local (row col out)
+    (setq out '())
+    (if (array? mtx) (setq mtx (array-list mtx)))
+    (setq row (+ (* 2 pad) (length mtx)))
+    (setq col (+ (* 2 pad) (length (mtx 0))))
+    ; aggiunge pad righe iniziali ad out
+    (for (i 1 pad)
+      (push (dup val col true) out -1)
+    )
+    ; aggiunge le righe centrali ad out
+    (dolist (el mtx)
+      (setq cur (append (dup val pad true) el (dup val pad true)))
+      (push cur out -1)
+    )
+    ; aggiunge pad righe finali ad out
+    (for (i 1 pad)
+      (push (dup val col true) out -1)
+    )
+    out))
 
 Funzione per stampare una matrice:
 
@@ -77211,6 +77212,7 @@ Funzione per stampare una matrice:
     '.))
 
 (setq m '((1 1) (1 1) (1 1)))
+
 (print-matrix (pad-matrix m 2 0))
 ;-> |0 0 0 0 0 0|
 ;-> |0 0 0 0 0 0|
@@ -77219,6 +77221,8 @@ Funzione per stampare una matrice:
 ;-> |0 0 1 1 0 0|
 ;-> |0 0 0 0 0 0|
 ;-> |0 0 0 0 0 0|
+
+Il primo indice (0 0) del primo valore (1) della matrice "m" si trova all'indice (pad pad) della matrice "out" di output.
 
 Esempio:
 
@@ -77654,6 +77658,231 @@ Facciamo un test per i primi 100 numeri di tutte le formule:
   (if (!= (somma 10 num) (sumpot10 num)) (println "ERROR 10: " num))
 )
 ;-> nil
+
+
+-----------
+Cercaparole
+-----------
+
+Il "Cercaparole" è un gioco che consiste nel cercare alcune parole inglobate in una matrice di caratteri. Per esempio,
+
+Matrice di caratteri:
+
+(setq matrice
+'(("F" "A" "V" "J" "L" "Y" "O" "C" "A" "N" "O" "A" "C" "A" "R")
+  ("O" "D" "O" "R" "O" "T" "E" "G" "V" "U" "X" "G" "A" "T" "B")
+  ("A" "C" "Y" "L" "O" "G" "N" "L" "T" "F" "O" "R" "L" "A" "V")
+  ("C" "O" "R" "U" "I" "I" "G" "E" "L" "L" "N" "G" "C" "C" "X")
+  ("S" "R" "N" "A" "K" "M" "N" "I" "F" "O" "N" "Q" "I" "I" "G")
+  ("E" "S" "N" "K" "L" "N" "P" "G" "N" "I" "V" "A" "O" "P" "F")
+  ("P" "E" "E" "M" "I" "L" "B" "I" "H" "G" "T" "I" "R" "M" "R")
+  ("O" "R" "T" "S" "E" "N" "A" "C" "A" "L" "L" "A" "P" "A" "E")
+  ("T" "I" "O" "D" "U" "J" "T" "O" "E" "D" "A" "G" "A" "R" "C")
+  ("Z" "C" "B" "G" "A" "E" "V" "T" "R" "F" "I" "G" "R" "R" "C")
+  ("R" "S" "Y" "D" "R" "N" "I" "L" "X" "I" "X" "P" "O" "A" "E")
+  ("F" "L" "Y" "T" "O" "C" "Z" "K" "C" "R" "T" "T" "Y" "Y" "T")
+  ("C" "V" "S" "K" "A" "L" "L" "A" "B" "E" "S" "A" "B" "V" "T")
+  ("P" "U" "G" "I" "L" "A" "T" "O" "Y" "E" "K" "C" "O" "H" "E")
+  ("S" "J" "J" "G" "I" "N" "N" "A" "S" "T" "I" "C" "A" "Q" "O")))
+
+Lista delle parole da cercare:
+
+(setq lista-parole '("ARRAMPICATA" "ATLETICA" "BASEBALL"
+                     "CALCIO" "CANOA" "CORSE" "DANZA"
+                     "FRECCETTE" "GINNASTICA" "GOLF"
+                     "HOCKEY" "JOGGING" "JUDO" "NUOTO"
+                     "OLIMPIADI" "PALLACANESTRO"
+                     "PESCA" "PUGILATO" "SCI" "STRETCHING"
+                     "TENNIS" "TIRO" "ARCO"
+                     "TREKKING" "VOLLEY" "YOGA"))
+
+Funzione per contornare la matrice di caratteri con un carattere:
+
+(define (pad-matrix mtx pad val)
+  (local (row col out)
+    (setq out '())
+    (if (array? mtx) (setq mtx (array-list mtx)))
+    (setq row (+ (* 2 pad) (length mtx)))
+    (setq col (+ (* 2 pad) (length (mtx 0))))
+    ; aggiunge pad righe iniziali ad out
+    (for (i 1 pad)
+      (push (dup val col true) out -1)
+    )
+    ; aggiunge le righe centrali ad out
+    (dolist (el mtx)
+      (setq cur (append (dup val pad true) el (dup val pad true)))
+      (push cur out -1)
+    )
+    ; aggiunge pad righe finali ad out
+    (for (i 1 pad)
+      (push (dup val col true) out -1)
+    )
+    out))
+
+Funzione che cerca tutte le parole:
+
+(define (cercaparole matrice parole)
+  (local (word matrix word-list row col err out)
+    (setq matrix (pad-matrix matrice 1 "#"))
+    (dolist (parola parole)
+      (find-word parola)
+    )
+    (list out err)))
+
+Funzione che cerca una parola:
+
+(define (find-word word)
+  (setq stop nil)
+  (setq row (length matrix))
+  (setq col (length (matrix 0)))
+  (setq word-list (explode word))
+  (for (i 0 (- row 1) 1 stop)
+    (for (j 0 (- col 1) 1 stop)
+      (cond ((find-nord)      (push (list word i j "N") out -1)  (setq stop true))
+            ((find-sud)       (push (list word i j "S") out -1)  (setq stop true))
+            ((find-est)       (push (list word i j "E") out -1)  (setq stop true))
+            ((find-ovest)     (push (list word i j "O") out -1)  (setq stop true))
+            ((find-nordest)   (push (list word i j "NE") out -1) (setq stop true))
+            ((find-nordovest) (push (list word i j "NO") out -1) (setq stop true))
+            ((find-sudest)    (push (list word i j "SE") out -1) (setq stop true))
+            ((find-sudovest)  (push (list word i j "SO") out -1) (setq stop true))
+      )
+    )
+  )
+  (if (= stop nil) (push (list word -1) err -1)))
+
+(define (find-nord)
+(catch
+  (let ((r i) (c j))
+    (dolist (ch word-list)
+      (cond ((= (matrix r c) "#") (throw nil))
+            ((!= ch (matrix r c)) (throw nil))
+            (true (-- r))
+      )
+    )
+    true)))
+(define (find-sud)
+(catch
+  (let ((r i) (c j))
+    (dolist (ch word-list)
+      (cond ((= (matrix r c) "#") (throw nil))
+            ((!= ch (matrix r c)) (throw nil))
+            (true (++ r))
+      )
+    )
+    true)))
+(define (find-est)
+(catch
+  (let ((r i) (c j))
+    (dolist (ch word-list)
+      (cond ((= (matrix r c) "#") (throw nil))
+            ((!= ch (matrix r c)) (throw nil))
+            (true (++ c))
+      )
+    )
+    true)))
+(define (find-ovest)
+(catch
+  (let ((r i) (c j))
+    (dolist (ch word-list)
+      (cond ((= (matrix r c) "#") (throw nil))
+            ((!= ch (matrix r c)) (throw nil))
+            (true (-- c))
+      )
+    )
+    true)))
+(define (find-nordest)
+(catch
+  (let ((r i) (c j))
+    (dolist (ch word-list)
+      (cond ((= (matrix r c) "#") (throw nil))
+            ((!= ch (matrix r c)) (throw nil))
+            (true (++ c) (-- r))
+      )
+    )
+    true)))
+(define (find-nordovest)
+(catch
+  (let ((r i) (c j))
+    (dolist (ch word-list)
+      (cond ((= (matrix r c) "#") (throw nil))
+            ((!= ch (matrix r c)) (throw nil))
+            (true (-- c) (-- r))
+      )
+    )
+    true)))
+(define (find-sudest)
+(catch
+  (let ((r i) (c j))
+    (dolist (ch word-list)
+      (cond ((= (matrix r c) "#") (throw nil))
+            ((!= ch (matrix r c)) (throw nil))
+            (true (++ c) (++ r))
+      )
+    )
+    true)))
+(define (find-sudovest)
+(catch
+  (let ((r i) (c j))
+    (dolist (ch word-list)
+      (cond ((= (matrix r c) "#") (throw nil))
+            ((!= ch (matrix r c)) (throw nil))
+            (true (-- c) (++ r))
+      )
+    )
+    true)))
+
+Proviamo la funzione con l'esempio riportato prima:
+
+(cercaparole matrice lista-parole)
+;-> ((("ARRAMPICATA" 11 14 "N") ("ATLETICA" 6 12 "SO") 
+;->   ("BASEBALL" 13 13 "O") ("CALCIO" 1 13 "S")
+;->   ("CANOA" 1 8 "E") ("CORSE" 3 2 "S")
+;->   ("DANZA" 9 4 "SE") ("FRECCETTE" 6 15 "S")
+;->   ("GINNASTICA" 15 4 "E") ("GOLF" 2 12 "SO")
+;->   ("HOCKEY" 14 14 "O") ("JOGGING" 1 4 "SE")
+;->   ("JUDO" 9 6 "O") ("NUOTO" 5 3 "NE")
+;->   ("OLIMPIADI" 2 3 "SE") ("PALLACANESTRO" 8 13 "O")
+;->   ("PESCA" 7 1 "N") ("PUGILATO" 14 1 "E")
+;->   ("SCI" 11 2 "N") ("STRETCHING" 13 3 "NE")
+;->   ("TENNIS" 3 9 "SO") ("TIRO" 12 11 "NO")
+;->   ("ARCO" 5 4 "NO") ("TREKKING" 9 1 "NE")
+;->   ("VOLLEY" 6 11 "NO") ("YOGA" 12 14 "NO"))
+;->   nil)
+
+Proviamo la funzione con un cercaparole in inglese:
+
+(setq matrice
+      '(("R" "E" "S" "O" "C" "C" "C" "I" "N" "S" "T" "U" "H" "H" "N")
+        ("F" "M" "F" "E" "H" "O" "A" "I" "R" "F" "M" "S" "D" "O" "T")
+        ("R" "I" "O" "M" "C" "C" "U" "R" "L" "Y" "H" "A" "E" "S" "E")
+        ("N" "T" "H" "I" "L" "I" "A" "R" "R" "R" "B" "C" "E" "G" "C")
+        ("Y" "H" "S" "O" "A" "O" "P" "N" "G" "O" "A" "J" "T" "T" "U")
+        ("P" "O" "T" "A" "T" "O" "E" "S" "I" "E" "T" "G" "I" "T" "T")
+        ("F" "V" "Y" "O" "C" "A" "R" "O" "R" "P" "T" "P" "O" "R" "T")
+        ("G" "P" "F" "R" "U" "E" "I" "R" "D" "M" "S" "T" "E" "S" "E")
+        ("E" "T" "T" "C" "A" "U" "L" "I" "F" "L" "O" "W" "E" "R" "L")
+        ("I" "S" "O" "E" "E" "M" "L" "T" "U" "A" "I" "O" "L" "T" "S")
+        ("O" "I" "T" "A" "E" "G" "E" "T" "B" "A" "N" "E" "T" "S" "E")
+        ("E" "T" "O" "O" "T" "O" "N" "S" "D" "I" "N" "D" "A" "E" "A")
+        ("T" "N" "A" "L" "P" "G" "G" "E" "O" "N" "R" "L" "A" "H" "D")
+        ("E" "T" "N" "E" "T" "U" "N" "N" "E" "R" "A" "H" "R" "F" "O")
+        ("A" "E" "C" "E" "O" "S" "P" "F" "H" "D" "O" "N" "O" "M" "R")))
+
+(setq lista-parole '("CAULIFLOWER" "CARROT" "COURGETTE" "BAD"
+                     "EGGPLANT" "FENNEL" "GARLIC" "LETTUCE"
+                     "PIETRA" "ONION" "POTATOES" "ROSEMARY"
+                     "SALAD" "SPICES" "SPINACH"))
+
+(cercaparole matrice lista-parole)
+;-> ((("CAULIFLOWER" 9 4 "E") ("CARROT" 1 6 "SE")
+;->   ("COURGETTE" 1 5 "SE") ("BAD" 4 11"NE")
+;->   ("EGGPLANT" 13 8 "O") ("FENNEL" 15 8 "NE")
+;->   ("GARLIC" 6 12 "NO") ("LETTUCE" 9 15 "N")
+;->   ("ONION" 10 12 "SO") ("POTATOES" 6 1 "E")
+;->   ("ROSEMARY" 14 10 "NO") ("SALAD" 11 14 "SO")
+;->   ("SPICES" 6 8 "NO") ("SPINACH" 8 11 "NO"))
+;->  (("PIETRA" -1)))
 
 
 ===========
