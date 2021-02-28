@@ -659,10 +659,12 @@ NOTE LIBERE 3
   Catene di Markov
   Contornare una matrice
   Stringa decimale infinita 12345678910111213141516...
+  Numeri early-bird
   Zero elevato a zero
   Fattoriale di zero
   Somma delle potenze dei primi n numeri
   Cercaparole
+  Generare frazioni proprie
   
 APPENDICI
 =========

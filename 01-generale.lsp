@@ -5190,8 +5190,9 @@ Un altro modulo molto utile è quello che gestisce il protocollo ftp (File Trans
  HASH-MAP E DIZIONARI
 ======================
 
+Per newLISP una hash-map è un dizionario e viceversa.
 Vediamo come simulare la struttura dati hash map con i contesti (namespace).
-Un funtore predefinito di un contesto che contiene nil e si trova nella posizione di operatore simula a una funzione di hash per la costruzione di dizionari con (chiave associativa → accesso al valore).
+Un funtore predefinito di un contesto che contiene nil e si trova nella posizione di operatore simula una funzione di hash per la costruzione di dizionari con (chiave associativa → accesso al valore).
 
 Crea un contesto (namespace) e un funtore di default di nome myHash che contiene il valore nil:
 
@@ -5207,7 +5208,7 @@ Entrambi i metodi producono lo stesso risultato, ma il secondo metodo protegge a
 
 Adesso possiamo usare il contesto definito come una hash map.
 
-Creaiamo la chiave key con valore 123:
+Creiamo la chiave key con valore 123:
 
 (myHash "var" 123)
 ;-> 123
@@ -5301,7 +5302,7 @@ Ma myHash non è una lista:
 (list? myHash)
 ;-> nil
 
-Però possiamo usare lo stesso dolist su un contesto hash per elencare tutte le coppie chiave-valore del dizionario::
+Però possiamo usare lo stesso dolist su un contesto hash per elencare tutte le coppie chiave-valore del dizionario:
 
 (dolist (cp (myHash)) (println (list (cp 0) (cp 1))))
 ;-> ("#1234" "hello world")
@@ -5331,6 +5332,25 @@ Per popolare un dizionario possiamo anche usare una lista:
 ;->  ("il numero" 123) ("var" (a b c d)) ("x" "stringa"))
 
 Nota: le chiavi del dizionario sono ordinate in maniera lessicografica.
+
+Cosa accade alle liste che hanno valori della chiave ripetuti?
+
+Nella lista seguente le chiavi "1" e "3" sono ripetute:
+
+(setq lst '(("4" 4) ("1" 0) ("2" 2) ("3" 0) ("1" 1) ("3" 3) ("5" 5)))
+
+Quando assegniamo la lista ad una hash-map i valori con chiave multipla vengono memorizzati soltanto una volta...ma quali elementi sceglie e quali elimina newLISP?
+Facciamo una prova:
+
+(new Tree 'hash)
+(hash lst)
+;-> hash
+(hash)
+;-> (("1" 1) ("2" 2) ("3" 3) ("4" 4) ("5" 5))
+
+Gli elementi ("1" 0) e ("3" 0) sono stati eliminati... cioè quelli che si trovavano prima.
+In newLISP la hash-map inserisce gli elementi partendo dal fondo della lista (poi nella hash-map gli elementi sono ordinati in base alla chiave). Quindi quando incontra elementi multipli prende l'ultimo che compare nella lista (cioè il primo partendo dal fondo della lista).
+
 
 Come molte delle funzioni integrate, le espressioni hash restituiscono un riferimento al loro contenuto che può essere modificato direttamente:
 

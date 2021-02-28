@@ -659,10 +659,12 @@ NOTE LIBERE 3
   Catene di Markov
   Contornare una matrice
   Stringa decimale infinita 12345678910111213141516...
+  Numeri early-bird
   Zero elevato a zero
   Fattoriale di zero
   Somma delle potenze dei primi n numeri
   Cercaparole
+  Generare frazioni proprie
   
 APPENDICI
 =========
@@ -5925,8 +5927,9 @@ Un altro modulo molto utile è quello che gestisce il protocollo ftp (File Trans
  HASH-MAP E DIZIONARI
 ======================
 
+Per newLISP una hash-map è un dizionario e viceversa.
 Vediamo come simulare la struttura dati hash map con i contesti (namespace).
-Un funtore predefinito di un contesto che contiene nil e si trova nella posizione di operatore simula a una funzione di hash per la costruzione di dizionari con (chiave associativa → accesso al valore).
+Un funtore predefinito di un contesto che contiene nil e si trova nella posizione di operatore simula una funzione di hash per la costruzione di dizionari con (chiave associativa → accesso al valore).
 
 Crea un contesto (namespace) e un funtore di default di nome myHash che contiene il valore nil:
 
@@ -5942,7 +5945,7 @@ Entrambi i metodi producono lo stesso risultato, ma il secondo metodo protegge a
 
 Adesso possiamo usare il contesto definito come una hash map.
 
-Creaiamo la chiave key con valore 123:
+Creiamo la chiave key con valore 123:
 
 (myHash "var" 123)
 ;-> 123
@@ -6036,7 +6039,7 @@ Ma myHash non è una lista:
 (list? myHash)
 ;-> nil
 
-Però possiamo usare lo stesso dolist su un contesto hash per elencare tutte le coppie chiave-valore del dizionario::
+Però possiamo usare lo stesso dolist su un contesto hash per elencare tutte le coppie chiave-valore del dizionario:
 
 (dolist (cp (myHash)) (println (list (cp 0) (cp 1))))
 ;-> ("#1234" "hello world")
@@ -6066,6 +6069,25 @@ Per popolare un dizionario possiamo anche usare una lista:
 ;->  ("il numero" 123) ("var" (a b c d)) ("x" "stringa"))
 
 Nota: le chiavi del dizionario sono ordinate in maniera lessicografica.
+
+Cosa accade alle liste che hanno valori della chiave ripetuti?
+
+Nella lista seguente le chiavi "1" e "3" sono ripetute:
+
+(setq lst '(("4" 4) ("1" 0) ("2" 2) ("3" 0) ("1" 1) ("3" 3) ("5" 5)))
+
+Quando assegniamo la lista ad una hash-map i valori con chiave multipla vengono memorizzati soltanto una volta...ma quali elementi sceglie e quali elimina newLISP?
+Facciamo una prova:
+
+(new Tree 'hash)
+(hash lst)
+;-> hash
+(hash)
+;-> (("1" 1) ("2" 2) ("3" 3) ("4" 4) ("5" 5))
+
+Gli elementi ("1" 0) e ("3" 0) sono stati eliminati... cioè quelli che si trovavano prima.
+In newLISP la hash-map inserisce gli elementi partendo dal fondo della lista (poi nella hash-map gli elementi sono ordinati in base alla chiave). Quindi quando incontra elementi multipli prende l'ultimo che compare nella lista (cioè il primo partendo dal fondo della lista).
+
 
 Come molte delle funzioni integrate, le espressioni hash restituiscono un riferimento al loro contenuto che può essere modificato direttamente:
 
@@ -50139,7 +50161,7 @@ Somma di numeri in una lista (Google)
 
 Data una lista di numeri e un numero k, restituire se due numeri dalla lista si sommano a k.
 Ad esempio, dati (10 15 3 7) e k di 17, restituisce true da 10 + 7 che vale 17.
-Bonus: puoi farlo in un solo passaggio?
+Bonus: puoi farlo in un solo passaggio (cioè O(n))?
 
 Se vogliamo trovare la somma di ogni combinazione di due elementi di una lista il metodo più ovvio è quello di creare due for..loop sulla lista e verificare se soddisfano la nostra condizione.
 Tuttavia, in questi casi, puoi sempre ridurre il numero di iterazioni avviando il secondo ciclo dal corrente elemento della lista, perché, ad ogni passo del primo ciclo, tutti gli elementi precedenti sono già confrontati tra loro.
@@ -50200,9 +50222,7 @@ Quindi la soluzione è iterare sulla lista e per ogni elemento cercare se qualsi
         )
       )
     )
-    out
-  )
-)
+    out))
 
 (sol '(10 15 3 7) 17)
 ;-> true
@@ -50212,6 +50232,39 @@ Quindi la soluzione è iterare sulla lista e per ogni elemento cercare se qualsi
 
 (sol '(3 15 10 7) 21)
 ;-> nil
+
+Possiamo risolvere il problema in O(n) utilizzando una hash-map per verificare se, per il valore corrente "val" della lista, esiste un valore "somma - val" che sommato al primo produce il valore della "somma". Poichè attraversiamo la lista una sola volta il tempo vale O(n). Questa volta la funzione restituisce una lista con tutte le coppie di valori che formano la somma.
+
+Algoritmo:
+1) Creare una hash-map
+2) Per ogni elemento val della lista lst
+    Se (somma - val) esiste nella hash-map,
+       allora aggiungere la coppia ((somma - val), val) nella lista soluzione
+    Aggiungere val alla hash-map
+3) Restituire la lista soluzione
+
+(define (sol1 lst somma)
+  (local (temp out)
+    (setq out '())
+    (new Tree 'hash)
+    (dolist (val lst)
+      (setq temp (- somma val))
+      (if (hash (string temp))
+          (push (list temp val) out -1)
+      )
+      (hash (string val) val)
+    )
+    (delete 'hash)
+    out))
+
+(sol1 '(10 15 3 7) 17)
+;-> ((7 10))
+
+(sol1 '(-2 3 7 -9 2) 5)
+;-> ((-2 7) (3 2))
+
+(sol1 '(3 -2 15 10 7 -4 -11) 21)
+;-> ()
 
 
 ---------------------------------
@@ -75682,7 +75735,7 @@ The three principal types of objects we need are nodes, edges, and DAGs.
 (new Class 'DAG)
 
 Naturally, DAGs will contain nodes and edges. Here is a helper function to create a DAG.
-Besides nodes and edges, DAGS contain a "parents-alist", an adjacency list matching nodes (node names, actually) to a list of their parents (names). 
+Besides nodes and edges, DAGS contain a "parents-alist", an adjacency list matching nodes (node names, actually) to a list of their parents (names).
 The create function will compute the "parents-alist" for you, as a convenience.
 
 ;; Warning: no error checking is done, e.g. checking for no cycles.
@@ -76024,7 +76077,7 @@ Prima funzione:
 ;-> true
 (perm1? 112233 223123)
 
-Seconda funzione: 
+Seconda funzione:
 usiamo due vettori che vengono aggiornati (+ 1) con le cifre dei due numeri.
 Al termine confrontiamo i due vettori.
 
@@ -76226,10 +76279,10 @@ Numeri sfenici
 
 Sono chiamati “sfenici” (dal greco σφήν, cuneo) i numeri naturali che sono il prodotto di tre primi distinti.
 
-I numeri sfenici minori di 500 sono: 
- 30, 42, 66, 70, 78, 102, 105, 110, 114, 130, 138, 154, 165, 170, 174, 182, 
- 186, 190, 195, 222, 230, 231, 238, 246, 255, 258, 266, 273, 282, 285, 286, 
- 290, 310, 318, 322, 345, 354, 357, 366, 370, 374, 385, 399, 402, 406, 410, 
+I numeri sfenici minori di 500 sono:
+ 30, 42, 66, 70, 78, 102, 105, 110, 114, 130, 138, 154, 165, 170, 174, 182,
+ 186, 190, 195, 222, 230, 231, 238, 246, 255, 258, 266, 273, 282, 285, 286,
+ 290, 310, 318, 322, 345, 354, 357, 366, 370, 374, 385, 399, 402, 406, 410,
  418, 426, 429, 430, 434, 435, 438, 442, 455, 465, 470, 474, 483, 494, 498
 
 Possiamo scrivere una funzione che verifica se un numero è sfenico:
@@ -76322,7 +76375,7 @@ Scriviamo una funzione:
 Vediamo i risultati:
 
 (map s6 (sequence 1 11))
-;-> (6 72 738 7404 74070 740736 7407402 74074068 
+;-> (6 72 738 7404 74070 740736 7407402 74074068
 ;->  740740734 7407407400 74074074066)
 
 (+ 6 66 666 6666 66666 666666)
@@ -76359,7 +76412,7 @@ Implementiamo una funzione:
 La divisione "/" per 27 viene applicata per ultima per evitare arrotondamenti.
 
 (map s6m (sequence 1 11))
-;-> (6 72 738 7404 74070 740736 7407402 74074068 
+;-> (6 72 738 7404 74070 740736 7407402 74074068
 ;->  740740734 7407407400 74074074066)
 
 Le due funzioni producono gli stessi risultati. Per usarle con n più grandi dovremmo usare i big-integer.
@@ -76553,7 +76606,7 @@ Il numero di eventi è dato dal numero di combinazioni di Eva moltiplicato il nu
 (setq num-eventi (* (length lst1) (length lst2)))
 ;-> 42
 
-Adesso confrontiamo i 42 eventi e verifichiamo quale sia il risultato. 
+Adesso confrontiamo i 42 eventi e verifichiamo quale sia il risultato.
 Per esempio, i primi due eventi sono:
 
 (1 1 1 1 1 1) contro (1 1 1 1 1) ==> 6 per Eva e 5 per Veronica ==> vince Eva
@@ -76605,7 +76658,7 @@ P(n) = 1/2^(k-1), dove n = 2^k (con n giocatori).
 
 Infatti, ci sono (2^n - 1) partite tra tutte le coppie e ci sono binom(2^n 2) coppie di giocatori.
 
-(define (chess n) 
+(define (chess n)
   (let (k (length (factor n)))
     (div (pow 2 (- k 1)))))
 
@@ -76659,7 +76712,7 @@ Vediamo come definire una simulazione:
     )
     (div conta iter)))
 
-Facciamo alcune prove: 
+Facciamo alcune prove:
 
 (torneo 8 1000000)
 ;-> 0.249886
@@ -76773,14 +76826,14 @@ Lista delle fattorizzazioni di un numero
 Ogni numero intero ha una scomposizione primitiva e altre scomposizioni generate dalle combinazioni dei prodotti dei fattori della scomposizione primitiva.
 Prendiamo per esempio il numero 24:
 
-Scomposizione primitiva: 
+Scomposizione primitiva:
 (factor 24)
 ;-> (2 2 2 3)
 
 Le altre scomposizioni sono:
-(2 * 2 * (2*3)) = (2 2 6) 
+(2 * 2 * (2*3)) = (2 2 6)
 (2 * (2*2) * 3) = (2 4 3)
-(2 * (2*2*3))   = (12 2) 
+(2 * (2*2*3))   = (12 2)
 ((2*2*2) * 3)   = (8 3)
 ((2*2) * (2*3)) = (4 6)
 
@@ -76862,13 +76915,13 @@ Vediamo come funziona utilizzando il seguente grafo:
         |   \     |         \     +---+
       3 |    \7   | 3        |--->| 4 |
         |     \   |         /     +---+
-        |      \  |        / 
+        |      \  |        /
       +---+     +---+     / 2
       | 2 |<--->| 3 |<---/
       +---+  1  +---+
        INF       INF
 
-Ad ogni nodo del grafico viene assegnata una distanza. Inizialmente, la distanza dal nodo iniziale è 0 e la distanza da tutti gli altri nodi è infinita (INF). L'algoritmo ricerca archi che riducono le distanze. Per primo cosa tutti gli archi del nodo 0 riducono le distanze:  
+Ad ogni nodo del grafico viene assegnata una distanza. Inizialmente, la distanza dal nodo iniziale è 0 e la distanza da tutti gli altri nodi è infinita (INF). L'algoritmo ricerca archi che riducono le distanze. Per primo cosa tutti gli archi del nodo 0 riducono le distanze:
 
         0         5
       +---+  5  +---+
@@ -76878,7 +76931,7 @@ Ad ogni nodo del grafico viene assegnata una distanza. Inizialmente, la distanza
         |   \     |         \     +---+
       3 |    \7   | 3        |--->| 4 |
         |     \   |         /     +---+
-        |      \  |        / 
+        |      \  |        /
       +---+     +---+     / 2
       | 2 |<--->| 3 |<---/
       +---+  1  +---+
@@ -76894,7 +76947,7 @@ Dopo questo gli archi 1-->4 e 2-->3 riducono la distanza:
         |   \     |         \     +---+
       3 |    \7   | 3        |--->| 4 |
         |     \   |         /     +---+
-        |      \  |        / 
+        |      \  |        /
       +---+     +---+     / 2
       | 2 |<--->| 3 |<---/
       +---+  1  +---+
@@ -76910,7 +76963,7 @@ Infine l'arco 3-->4 riduce la distanza:
         |   \     |         \     +---+
       3 |    \7   | 3        |--->| 4 |
         |     \   |         /     +---+
-        |      \  |        / 
+        |      \  |        /
       +---+     +---+     / 2
       | 2 |<--->| 3 |<---/
       +---+  1  +---+
@@ -76918,7 +76971,7 @@ Infine l'arco 3-->4 riduce la distanza:
 
 A questo punto non è possibile ridurre le distanze e abbiamo calcolato tutte le distanze minime dal nodo di partenza (0) a tutti gli altri nodi.
 
-La seguente implementazione dell'algoritmo determina le distanze più brevi da un nodo iniziale a tutti i nodi del grafo. Il codice presuppone che il grafo sia memorizzato come una lista di archi che consiste in una lista della forma (a, b, w): questo significa che c'è un arco dal nodo a al nodo b con peso w. 
+La seguente implementazione dell'algoritmo determina le distanze più brevi da un nodo iniziale a tutti i nodi del grafo. Il codice presuppone che il grafo sia memorizzato come una lista di archi che consiste in una lista della forma (a, b, w): questo significa che c'è un arco dal nodo a al nodo b con peso w.
 L'algoritmo consiste di (n-1) cicli e ad ogni ciclo l'algoritmo attraversa tutti gli archi del grafo e cerca di ridurre le distanze. L'algoritmo costruisce una "lista delle distanze" che contiene i valori delle distanze dal nodo iniziale a tutti i nodi del grafo e una "lista di predecessori" che serve per ricostruire tutti i percorsi minimi dal nodo iniziale a tutti i nodi del grafo. La costante INF indica una distanza infinita.
 La complessità temporale dell'algoritmo è O(nm), perché l'algoritmo consiste di n-1 cicli e itera su tutti gli archi per ogni ciclo. Se non ci sono cicli negativi nel grafo, tutte le distanze sono definitive dopo n-1 cicli, perché ogni percorso più breve può contenere al massimo n-1 archi.
 In pratica, le distanze finali di solito possono essere trovate prima che si esauriscano tutti gli n-1 cicli, ertanto, un possibile modo per rendere l'algoritmo più efficiente è arrestare l'algoritmo se nessuna distanza può essere ridotta durante un ciclo.
@@ -77328,6 +77381,44 @@ Funzione che trova la cifra alla posizione k della stringa:
 (find-digit 2001)
 ;-> "3"
 (find-digit 1234)
+;-> "4"
+
+Possiamo usare anche un metodo iterativo:
+
+(define (find-cifra k)
+  (local (lun conta num strnum)
+    (setq lun 1 conta 9 num 1)
+    (while (> k (* lun conta))
+      (setq k (- k (* lun conta)))
+      (++ lun)
+      (setq conta (* conta 10))
+      (setq num (* num 10))
+    )
+    (setq num (+ num (/ (- k 1) lun)))
+    (setq strnum (string num))
+    (int (strnum (% (- k 1) lun)))))
+
+(find-cifra 10)
+;-> "1"
+(find-cifra 11)
+;-> "0"
+(find-cifra 50)
+;-> "3"
+(find-cifra 190)
+;-> "1"
+(find-cifra 9)
+;-> "9"
+(find-cifra 0)
+;-> "0"
+(find-cifra 456)
+;-> "8"
+(find-cifra 454)
+;-> "1"
+(find-cifra 2000)
+;-> "0"
+(find-cifra 2001)
+;-> "3"
+(find-cifra 1234)
 ;-> "8"
 
 2) in quale posizione della stringa inizia un numero N?
@@ -77440,6 +77531,116 @@ Vediamo se la larghezza della finestra influenza la velocità della funzione:
 Sembra che la larghezza della finestra non influenzi la velocità della funzione.
 
 
+-----------------
+Numeri early-bird
+-----------------
+
+Consideriamo la stringa decimale infinita:
+
+"123456789101112131415161718192021222324252627282930..."
+
+La funzione "(find-cifra k)" trova la cifra che si trova alla posizione k della stringa, ma determina anche il numero corrente della stringa infinita.
+Quindi la usiamo per scrivere la nuova funzione "(trova-num k)"che trova il numero corrente della stringa infinita all'indice k.
+
+(define (trova-num k)
+  (local (lun conta num strnum)
+    (setq lun 1 conta 9 num 1)
+    (while (> k (* lun conta))
+      (setq k (- k (* lun conta)))
+      (++ lun)
+      (setq conta (* conta 10))
+      (setq num (* num 10))
+    )
+    (setq num (+ num (/ (- k 1) lun)))
+    (setq strnum (string num))
+    (int (strnum (% (- k 1) lun)))
+    num))
+
+La funzione "(find-str str)" trova la posizione della stringa in cui inizia un numero (passato in formato stringa):
+
+(define (genera a b) (join (map string (sequence a b))))
+
+(define (find-str str)
+  (setq pos 0)
+  (setq lenstr (length str))
+  (setq lenwin (max 50 lenstr))
+  (setq num1 1)
+  (setq num2 (+ num1 lenwin))
+  (setq curstr (genera num1 num2))
+  (setq indice (find str curstr))
+  (until indice
+    (setq pos (+ pos (length curstr) (- lenstr)))
+    (setq num1 (+ num2 1))
+    (setq num2 (+ num1 lenwin))
+    (setq curstr (append (slice curstr (- lenstr)) (genera num1 num2)))
+    (setq indice (find str curstr))
+  )
+  (+ pos indice))
+
+Combinando queste due funzioni possiamo trovare i numeri early-bird.
+Per capire cosa sono i numeri early-bird facciamo un esempio:
+
+Vediamo a quale carattere della stringa infinita incontriamo il numero 141:
+
+(find-str "141")
+;-> 17
+
+Il numero 141 si incontra al 17-esimo carattere della stringa infinita, infatti:
+
+(genera 1 46)
+                  ___
+"1234567891011121314151617181920..."
+
+Adesso vediamo quale numero inizia al carattere successivo:
+
+(trova-num 18)
+;-> 14
+
+Al 18-esimo carattere inizia il numero 14.
+
+Quindi il numero 141 compare quando inizia il numero 14 nella stringa infinita, cioè  compare prima di quando inizia il numero 141 nella stringa infinita.
+Quindi 141 è un numero "early bird" (nato prima).
+
+Possiamo scrivere una funzione che calcola tutti i numeri early-bird fino ad un determinato numero:
+
+(define (early-bird num)
+  (let (out '())
+    (for (i 1 num)
+      (if (< (trova-num (+ (find-str (string i)) 1)) i)
+          (push i out -1)))
+    out))
+
+(early-bird 50)
+;-> (12 21 23 31 32 34 41 42 43 45)
+
+Proviamo la correttezza dei risultati confrontandoli con la sequenza OEIS A116700:
+
+(setq A116700 '(12 21 23 31 32 34 41 42 43 45
+      51 52 53 54 56 61 62 63 64 65 67 71 72
+      73 74 75 76 78 81 82 83 84 85 86 87 89
+      91 92 93 94 95 96 97 98 99 101 110 111
+      112 121 122 123 131 132 141 142 151 152
+      161 162 171))
+
+(= (early-bird 171) A116700)
+;-> true
+
+Vediamo dove possiamo arrivare:
+
+(time (println (length (early-bird 5000))))
+;-> 2805
+;-> 2694.607
+(time (println (length (early-bird 10000))))
+;-> 7571
+;-> 7400.475
+(time (println (length (early-bird 20000))))
+;-> 10400
+;-> 49163.784
+(time (println (length (early-bird 40000))))
+;-> 23214
+;-> 183631.179
+
+
 -------------------
 Zero elevato a zero
 -------------------
@@ -77460,8 +77661,8 @@ limite(x^x)
 ;-> 0.7 0.779
 ;-> 0.6 0.736
 ;-> 0.5 0.707
-               <------- inversione di tendenza
 ;-> 0.4 0.693
+              <------- inversione di tendenza
 ;-> 0.3 0.697
 ;-> 0.2 0.725
 ;-> 0.1 0.794
@@ -77495,9 +77696,9 @@ Per quale valore si inverte la tendenza (cioè si ha un minimo della funzione)?
 La derivata di x^x vale: x^x*(1 + ln(x))
 
 Il minimo si ha nel punto in cui la derivata vale 0:
-  
-  x^x*(1+ln(x)) = 0 quando (1 + ln(x)) = 0, 
-  
+
+  x^x*(1+ln(x)) = 0 quando (1 + ln(x)) = 0,
+
   cioè per x = e^(-1) = 1/e = 0.3678794411714423
 
 
@@ -77511,7 +77712,7 @@ Il fattoriale di un numero può essere scritto nel modo seguente:
 
      (x + 1)!
 x! = --------
-     (x + 1)     
+     (x + 1)
 
 Adesso sostituiamo x con alcuni numeri:
 
@@ -77604,7 +77805,7 @@ Somma delle prime seste potenze
 Sum[1..n] (i^6) = (6*n^7 + 21*n^6 + 21*n^5 - 7*n^3 + n)/42
 
 (define (sumpot6 n)
-  (/ (+ (* 6L (** n 7)) (* 21L (** n 6)) (* 21L (** n 5)) 
+  (/ (+ (* 6L (** n 7)) (* 21L (** n 6)) (* 21L (** n 5))
      (- (* 7L (** n 3))) n) 42))
 
 Somma delle prime settime potenze
@@ -77612,7 +77813,7 @@ Somma delle prime settime potenze
 Sum[1..n] (i^7) = (3*n^8 + 12*n^7 + 14*n^6 - 7*n^4 + 2*n^2)/24
 
 (define (sumpot7 n)
-  (/ (+ (* 3L (** n 8)) (* 12L (** n 7)) (* 14L (** n 6)) 
+  (/ (+ (* 3L (** n 8)) (* 12L (** n 7)) (* 14L (** n 6))
         (- (* 7L (** n 4))) (* 2L (** n 2))) 24))
 
 Somma delle prime ottave potenze
@@ -77696,7 +77897,9 @@ Lista delle parole da cercare:
                      "TENNIS" "TIRO" "ARCO"
                      "TREKKING" "VOLLEY" "YOGA"))
 
-Funzione per contornare la matrice di caratteri con un carattere:
+Le parole possono trovarsi in orizzontale o in verticale o in diagonale, inoltre possono essere scritte al contrario.
+
+Funzione per contornare la matrice di caratteri con un carattere speciale che ci serve per delimitare la ricerca:
 
 (define (pad-matrix mtx pad val)
   (local (row col out)
@@ -77832,10 +78035,15 @@ Funzione che cerca una parola:
     )
     true)))
 
+Il risultato è una lista con elementi del tipo:
+
+a) ("parola" riga colonna direzione) per le parole trovate
+b) ("parola" -1) per le parole non trovate
+
 Proviamo la funzione con l'esempio riportato prima:
 
 (cercaparole matrice lista-parole)
-;-> ((("ARRAMPICATA" 11 14 "N") ("ATLETICA" 6 12 "SO") 
+;-> ((("ARRAMPICATA" 11 14 "N") ("ATLETICA" 6 12 "SO")
 ;->   ("BASEBALL" 13 13 "O") ("CALCIO" 1 13 "S")
 ;->   ("CANOA" 1 8 "E") ("CORSE" 3 2 "S")
 ;->   ("DANZA" 9 4 "SE") ("FRECCETTE" 6 15 "S")
@@ -77883,6 +78091,157 @@ Proviamo la funzione con un cercaparole in inglese:
 ;->   ("ROSEMARY" 14 10 "NO") ("SALAD" 11 14 "SO")
 ;->   ("SPICES" 6 8 "NO") ("SPINACH" 8 11 "NO"))
 ;->  (("PIETRA" -1)))
+
+
+-------------------------
+Generare frazioni proprie
+-------------------------
+
+Vediamo come generare tutte le frazioni proprie fino ad un certo denominatore.
+Le frazioni proprie sono, per definizione, frazioni in cui il numeratore è minore (più piccolo) del denominatore (cioè sono frazioni con valore minore di 1).
+
+Partiamo con la seguente funzione:
+
+(define (genera n)
+  (local (out)
+    (setq out '())
+    (for (a 1 n)
+      (for (b (+ a 1) n)
+        ;(println a "/" b)
+        (push (list (string (div a b)) (string a "/" b)) out -1)
+      )
+    )
+    ; gli ultimi due elementi non sono validi:
+    ; n/n non è una frazione propria
+    ; n/(n + 1) ha il denominatore maggiore di n
+    (chop out 2)))
+
+(genera 5)
+;-> (("0.5" "1/2")
+;->  ("0.3333333333333333" "1/3")
+;->  ("0.25" "1/4")
+;->  ("0.2" "1/5")
+;->  ("0.6666666666666666" "2/3")
+;->  ("0.5" "2/4")
+;->  ("0.4" "2/5")
+;->  ("0.75" "3/4")
+;->  ("0.6" "3/5")
+;->  ("0.8" "4/5"))
+
+Ci sono elementi doppi ("0.5" "1/2") e ("0.5" "2/4") e la lista non è ordinata per valore della frazione.
+
+Per eliminare gli elementi doppi inserriamo la lista in una hash-map. Quando assegniamo una lista ad una hash-map gli elementi multipli (con la stessa chiave) vengono presi solo una volta. In newLISP la hash-map inserisce gli elementi partendo dal fondo della lista (poi nella hash-map gli elementi sono ordinati in base alla chiave). Quindi quando incontra elementi multipli prende l'ultimo che compare nella lista (cioè il primo partendo dal fondo della lista). Qiindi prima dobbiamo ordinare la lista in modo da mantenere la frazione che è ai minimi termini (cioè vogliamo mantenere la frazione 1/2 e non 2/4).
+
+Generiamo e ordiniamo la lista in ordine decrescente:
+
+(setq lst (sort (genera 5) >))
+;-> (("0.8" "4/5") 
+;->  ("0.75" "3/4") 
+;->  ("0.6666666666666666" "2/3") 
+;->  ("0.6" "3/5") 
+;->  ("0.5" "2/4")
+;->  ("0.5" "1/2")
+;->  ("0.4" "2/5")
+;->  ("0.3333333333333333" "1/3")
+;->  ("0.25" "1/4")
+;->  ("0.2" "1/5"))
+
+E poi la inseriamo in una hash-map:
+
+(new Tree 'hash)
+(hash lst)
+;-> hash
+
+(hash)
+;-> (("0.2" "1/5") 
+;->  ("0.25" "1/4") 
+;->  ("0.3333333333333333" "1/3") 
+;->  ("0.4" "2/5") 
+;->  ("0.5" "1/2")
+;->  ("0.6" "3/5")
+;->  ("0.6666666666666666" "2/3")
+;->  ("0.75" "3/4")
+;->  ("0.8" "4/5"))
+
+Adesso copiamo la hash-map in una lista:
+
+(setq lst (hash))
+;-> (("0.2" "1/5") 
+;->  ("0.25" "1/4") 
+;->  ("0.3333333333333333" "1/3") 
+;->  ("0.4" "2/5") 
+;->  ("0.5" "1/2")
+;->  ("0.6" "3/5")
+;->  ("0.6666666666666666" "2/3")
+;->  ("0.75" "3/4")
+;->  ("0.8" "4/5"))
+
+E cancelliamo la hash-map:
+
+(delete 'hash)
+;-> true
+
+Adesso possiamo ricercare una frazione nella lista nel modo seguente:
+
+(find "3/5" lst (fn(x y) (= x (last y))))
+;-> 5
+
+(lst 5)
+;-> (0.6 "3/5")
+
+Scriviamo la funzione finale:
+
+(define (genera-frazioni-proprie n)
+  (local (out)
+    (setq out '())
+    (for (a 1 n)
+      (for (b (+ a 1) n)
+        ;(println a "/" b)
+        (push (list (string (div a b)) (string a "/" b)) out -1)
+      )
+    )
+    ; gli ultimi due elementi non sono validi:
+    ; n/n non è una frazione propria
+    ; n/(n + 1) ha il denominatore maggiore di n
+    (setq out (sort (chop out 2) >))
+    (new Tree 'hash)
+    (hash out)
+    (setq out (hash))
+    (delete 'hash)
+    out))
+
+(genera-frazioni-proprie 20)
+;-> (("0.1" "1/10")
+;->  ("0.1111111111111111" "1/9")
+;->  ("0.125" "1/8")
+;->  ("0.1428571428571429" "1/7")
+;->  ("0.1666666666666667" "1/6")
+;->  ("0.2" "1/5")
+;->  ("0.2222222222222222" "2/9")
+;->  ("0.25" "1/4")
+;->  ("0.2857142857142857" "2/7")
+;->  ("0.3" "3/10")
+;->  ("0.3333333333333333" "1/3")
+;->  ("0.375" "3/8")
+;->  ("0.4" "2/5")
+;->  ("0.4285714285714286" "3/7")
+;->  ("0.4444444444444444" "4/9")
+;->  ("0.5" "1/2")
+;->  ("0.5555555555555556" "5/9")
+;->  ("0.5714285714285714" "4/7")
+;->  ("0.6" "3/5")
+;->  ("0.625" "5/8")
+;->  ("0.6666666666666666" "2/3")
+;->  ("0.7" "7/10")
+;->  ("0.7142857142857143" "5/7")
+;->  ("0.75" "3/4")
+;->  ("0.7777777777777778" "7/9")
+;->  ("0.8" "4/5")
+;->  ("0.8333333333333334" "5/6")
+;->  ("0.8571428571428571" "6/7")
+;->  ("0.875" "7/8")
+;->  ("0.8888888888888888" "8/9")
+;->  ("0.9" "9/10"))
 
 
 ===========

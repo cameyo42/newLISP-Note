@@ -358,7 +358,7 @@ Somma di numeri in una lista (Google)
 
 Data una lista di numeri e un numero k, restituire se due numeri dalla lista si sommano a k.
 Ad esempio, dati (10 15 3 7) e k di 17, restituisce true da 10 + 7 che vale 17.
-Bonus: puoi farlo in un solo passaggio?
+Bonus: puoi farlo in un solo passaggio (cioè O(n))?
 
 Se vogliamo trovare la somma di ogni combinazione di due elementi di una lista il metodo più ovvio è quello di creare due for..loop sulla lista e verificare se soddisfano la nostra condizione.
 Tuttavia, in questi casi, puoi sempre ridurre il numero di iterazioni avviando il secondo ciclo dal corrente elemento della lista, perché, ad ogni passo del primo ciclo, tutti gli elementi precedenti sono già confrontati tra loro.
@@ -419,9 +419,7 @@ Quindi la soluzione è iterare sulla lista e per ogni elemento cercare se qualsi
         )
       )
     )
-    out
-  )
-)
+    out))
 
 (sol '(10 15 3 7) 17)
 ;-> true
@@ -431,6 +429,39 @@ Quindi la soluzione è iterare sulla lista e per ogni elemento cercare se qualsi
 
 (sol '(3 15 10 7) 21)
 ;-> nil
+
+Possiamo risolvere il problema in O(n) utilizzando una hash-map per verificare se, per il valore corrente "val" della lista, esiste un valore "somma - val" che sommato al primo produce il valore della "somma". Poichè attraversiamo la lista una sola volta il tempo vale O(n). Questa volta la funzione restituisce una lista con tutte le coppie di valori che formano la somma.
+
+Algoritmo:
+1) Creare una hash-map
+2) Per ogni elemento val della lista lst
+    Se (somma - val) esiste nella hash-map,
+       allora aggiungere la coppia ((somma - val), val) nella lista soluzione
+    Aggiungere val alla hash-map
+3) Restituire la lista soluzione
+
+(define (sol1 lst somma)
+  (local (temp out)
+    (setq out '())
+    (new Tree 'hash)
+    (dolist (val lst)
+      (setq temp (- somma val))
+      (if (hash (string temp))
+          (push (list temp val) out -1)
+      )
+      (hash (string val) val)
+    )
+    (delete 'hash)
+    out))
+
+(sol1 '(10 15 3 7) 17)
+;-> ((7 10))
+
+(sol1 '(-2 3 7 -9 2) 5)
+;-> ((-2 7) (3 2))
+
+(sol1 '(3 -2 15 10 7 -4 -11) 21)
+;-> ()
 
 
 ---------------------------------
