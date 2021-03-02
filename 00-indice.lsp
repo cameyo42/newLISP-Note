@@ -452,6 +452,8 @@ DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Numero più grande formato da una lista (Amazon)
   Rettagoli e quadrati in una scacchiera (Google)
   Rettangolo perfetto (Google)
+  Addizione per intervalli (Range addition) (Google)
+  Ordinamento Wiggle (Google)
 
 LIBRERIE
 ========
@@ -665,6 +667,10 @@ NOTE LIBERE 3
   Somma delle potenze dei primi n numeri
   Cercaparole
   Generare frazioni proprie
+  Somma di quadrati
+  Somma di cubi (Taxicab)
+  Somma numeri dispari (pari)
+  Cavo sospeso
   
 APPENDICI
 =========

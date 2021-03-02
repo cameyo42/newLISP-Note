@@ -452,6 +452,8 @@ DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Numero più grande formato da una lista (Amazon)
   Rettagoli e quadrati in una scacchiera (Google)
   Rettangolo perfetto (Google)
+  Addizione per intervalli (Range addition) (Google)
+  Ordinamento Wiggle (Google)
 
 LIBRERIE
 ========
@@ -665,6 +667,10 @@ NOTE LIBERE 3
   Somma delle potenze dei primi n numeri
   Cercaparole
   Generare frazioni proprie
+  Somma di quadrati
+  Somma di cubi (Taxicab)
+  Somma numeri dispari (pari)
+  Cavo sospeso
   
 APPENDICI
 =========
@@ -56711,6 +56717,158 @@ Per formare una copertura esatta deve risultare:
 ;-> nil
 
 
+--------------------------------------------------
+Addizione per intervalli (Range addition) (Google)
+--------------------------------------------------
+
+Supponiamo di avere una lista (o un vettore) di lunghezza n inizializzata con tutti gli 0 e di ricevere k operazioni di aggiornamento.
+
+Ogni operazione è rappresentata come una tripletta: [startIndex, endIndex, val] che incrementa ogni elemento della sottolista A[startIndex ... endIndex] (startIndex e endIndex inclusi) con val.
+
+Restituire la lista modificata dopo che tutte le k operazioni sono state eseguite.
+
+Esempio:
+
+lunghezza = 5
+
+aggiornamenti = ((1  3  2)
+                 (2  4  3)
+                 (0  2 -2))
+
+Risultato: (-2 0 3 5 3)
+
+Funzionamento:
+Indici:                        0  1  2  3  4
+Lista iniziale:              ( 0  0  0  0  0 )
+
+dopo l'operazione (1  3  2): ( 0  2  2  2  0 )
+
+dopo l'operazione (2  4  3): ( 0  2  5  5  3 )
+
+dopo l'operazione (0  2 -2): (-2  0  3  5  3 )
+
+Il problema è abbastanza semplice, ma forse esiste un algoritmo più efficace di quello che applica in sequenza le operazioni di aggiornamento.
+
+La maggior parte delle operazioni di aggiornamento vengono applicate sugli stessi indici diverse volte. Abbiamo  davvero bisogno di aggiornare tutti gli elementi tra startIndex e endIndex?
+
+Proviamo il seguente algoritmo:
+
+1) Aggiorniamo solo il valore a startIndex con +val e il valore a (startIndex + 1) con -val, cioè:
+   lista[start]   = lista[start] + val;
+   lista[end + 1] = lista[end + 1] - val
+
+2) Alla fine di tutti gli aggiornamenti applichiamo la somma cumulativa ad ogni elemento della lista:
+   lista[i] = lista[i] + lista[i-1]
+
+Vediamo il funzionamento:
+
+Indici:                        0  1  2  3  4
+Lista iniziale:              ( 0  0  0  0  0 )
+
+dopo l'operazione (1  3  2): ( 0  2  0  0 -2 )
+
+dopo l'operazione (2  4  3): ( 0  2  3  0 -2 )
+
+dopo l'operazione (0  2 -2): (-2  2  3  2 -2 )
+
+dopo la somma              : (-2  0  3  5  3 )
+
+Per ogni aggiornamento (start, end, val) sulla lista, l'obiettivo è ottenere il risultato:
+
+lista(i) = lista(i) + val, per ogni indice da inizio a fine.
+
+L'applicazione della somma finale effettua due cose:
+
+1) Riporta l'incremento val su ogni elemento lista(i) per ogni i >= start
+
+2) Trasferisce l'incremento −val su ogni elemento lista(j) per ogni j > end.
+
+In altre parole, la somma finale aggiorna correttamente tutti i valori degli indici intermedi che non abbiamo modificato durante i singoli aggiornamenti.
+
+La complessità temporale di questo algoritmo vale O(n+k).
+
+Scriviamo la funzione finale:
+
+(define (update-list len update)
+  (local (out start end val)
+    (setq out (array len '(0)))
+    (dolist (upd update)
+      (setq val   (upd 2))
+      (setq start (upd 0))
+      (setq end   (upd 1))
+      (setq (out start) (+ (out start) val))
+      (if (< end (- len 1))
+          (setq (out (+ end 1)) (- (out (+ end 1)) val))
+      )
+    )
+    (for (i 1 (- len 1))
+      (setq (out i) (+ (out i) (out (- i 1))))
+    )
+    out))
+
+Proviamo:
+
+(update-list 5 '((1  3  2) (2  4  3) (0  2 -2)))
+;-> (-2 0 3 5 3)
+
+
+---------------------------
+Ordinamento Wiggle (Google)
+---------------------------
+
+Data una lista non ordinata, ordinarla in modo che risulti lst[0] <= lst[1] >= lst[2] <= lst[3]....
+Ad esempio, data lst = (3 5 2 1 6 4), una possibile risposta è (1 6 2 5 3 4).
+
+Notiamo che è richiesto il seguente ordinamento: il numero negli indici dispari è maggiore dei numeri che si trovano ai due lati (destra e sinistra). Ad esempio lst[1] > lst[0] e lst[1] > lst[2].
+
+Prima soluzione
+---------------
+Secondo la definizione ci sono molti modi per ordinare in modo Wiggle. Possiamo prima ordinare la lista, quindi iniziamo con il terzo elemento e scambiarlo con il secondo elemento. Poi scambiamo il quinto e il quarto elemento, e così via.
+
+Complessità temporale: O(n*log(n))
+
+(define (wiggle1 lst)
+  (sort lst)
+  (for (i 2 (- (length lst) 1) 2)
+    (swap (lst i) (lst (- i 1)))
+  )
+  lst)
+
+(setq lst '(3 5 2 1 6 4))
+(wiggle1 lst)
+;-> (1 3 2 5 4 6)
+
+Seconda soluzione
+-----------------
+L'ordinamento wiggle ha le seguenti due regole:
+
+  1) se i è dispari, allora lst[i] >= lst[i-1]
+
+  2) se i è pari,    allora lst[i] <= lst[i-1]
+
+Quindi dobbiamo attraversare la lista una sola volta e scambiare le coppie che non rispettano le regole. In particolare, se lst[i] > lst[i-1], dopo lo scambio deve risultare lst[i] <= lst[i-1].
+
+Complessità temporale: O(n)
+
+(define (wiggle2 lst)
+  (for (i 1 (- (length lst) 1))
+    ; Occorre scambiare:
+    ; nums[i] < nums[i-1] per gli indici dispari e
+    ; nums[i] > nums[i-1] for gli indici pari
+    (if (or (and (= (% i 2) 1) (< (lst i) (lst (- i 1))))
+            (and (= (% i 2) 0) (> (lst i) (lst (- i 1)))))
+        (swap (lst i) (lst (- i 1)))
+    )
+    lst))
+
+(setq lst '(3 5 2 1 6 4))
+(wiggle2 lst)
+;-> (3 5 1 6 2 4)
+
+(wiggle2 '(1 2 3 4 5 6 7 8 9))
+;-> (1 3 2 5 4 7 6 9 8)
+
+
 ==========
 
  LIBRERIE
@@ -78242,6 +78400,484 @@ Scriviamo la funzione finale:
 ;->  ("0.875" "7/8")
 ;->  ("0.8888888888888888" "8/9")
 ;->  ("0.9" "9/10"))
+
+
+-----------------
+Somma di quadrati
+-----------------
+
+Dato un numero intero non negativo c, determinare se esistono due numeri interi a e b tali che a^2 + b^2 = c.
+
+Per la teoria: "On numbers which are the sum of two squares" Leonhard Euler
+
+Conviene cercare a^2 = c - b^2. Con un ciclo per "a" che va da 0 a int(sqrt c) inseriamo il valore a^2 in una hash-map e verifichiamo se nella hash-map esiste il valore b^2 = (c - a^2), in questo caso inseriamo la coppia di valori nella lista delle soluzioni.
+
+(define (sommaquad c)
+  (local (a b2 out)
+    (setq out '())
+    (new Tree 'hash)
+    (for (a 0 (int (sqrt c)))
+      (hash (string (* a a)) (* a a))
+      (setq b2 (- c (* a a)))
+      (if (hash (string b2))
+          (push (list a (sqrt b2)) out -1)
+      )
+    )
+    (delete 'hash)
+    out))
+
+(sommaquad 16)
+;-> ((4 0))
+
+(sommaquad 25)
+;-> ((4 3) (5 0))
+
+(sommaquad 50)
+;-> ((5 5) (7 1))
+
+Vediamo quanti numeri esistono fino a 10000 che hanno più di 5 scomposizioni come somma di quadrati:
+
+(for (i 1 10000)
+  (if (> (length (sommaquad i)) 5)
+      (println i": " (sommaquad i))))
+
+;-> 5525: ((55 50) (62 41) (70 25) (71 22) (73 14) (74 7))
+;-> 9425: ((73 64) (80 55) (88 41) (92 31) (95 20) (97 4))
+
+Scriviamo una funzione cha calcola il numero che ha più scomposizioni fino ad un determinato numero.
+
+(define (sommaquad-max num)
+  (local (a b2 tot max-tot out)
+    (setq max-tot -1)
+    (for (c 1 num)
+        (setq tot 0)
+        (new Tree 'hash)
+        (for (a 0 (int (sqrt c)))
+          (hash (string (* a a)) (* a a))
+          (setq b2 (- c (* a a)))
+          (if (hash (string b2)) (++ tot))
+        )
+        (delete 'hash)
+        (if (> tot max-tot)
+            (setq max-tot tot out c)
+        )
+    )
+    (list out max-tot)))
+
+Vediamo nei primi 10000 numeri:
+
+(sommaquad-max 10000)
+;-> (5525 6)
+(time (sommaquad-max 10000))
+;-> 842.939
+
+Vediamo nei primi 100000 numeri:
+
+(sommaquad-max 100000)
+;-> (71825 9)
+(time (sommaquad-max 100000))
+;-> 26785.705
+(sommaquad 71825)
+;-> ((191 188) (208 169) (215 160) (236 127) (247 104) 
+;->  (257 76) (260 65) (265 40) (268 1))
+
+
+-----------------------
+Somma di cubi (Taxicab)
+-----------------------
+
+Dato un numero intero non negativo c, determinare se esistono due numeri interi a e b tali che a^3 + b^3 = c.
+I numeri che si possono esprimere come somma di due cubi in più di un modo diverso vengono chiamati numeri Taxicab.
+
+(define (sommacubi c)
+  (local (a b3 out)
+    (setq out '())
+    (new Tree 'hash)
+    (for (a 0 (int (pow c (div 3))))
+      (hash (string (* a a a)) (* a a a))
+      (setq b3 (- c (* a a a)))
+      (if (hash (string b3))
+          (push (list a (round (pow b3 (div 3)) -4)) out -1)
+      )
+    )
+    (delete 'hash)
+    out))
+
+Proviamo con 1729, il numero di Ramanujan:
+
+(sommacubi 1729)
+;-> ((10 9) (12 1))
+
+(+ (* 10 10 10) (* 9 9 9))
+;-> 1729
+(+ (* 12 12 12) (* 1 1 1))
+;-> 1729
+
+Vediamo quanti numeri esistono fino a 10000 che hanno più di una scomposizione come somma di cubi:
+
+(for (i 1 10000)
+  (if (> (length (sommacubi i)) 1)
+      (println i": " (sommacubi i))))
+
+;-> 1729: ((10 9) (12 1))
+;-> 4104: ((15 9) (16 2))
+
+Scriviamo una funzione cha calcola tutti i numeri Taxicab (con le relative scomposizioni) fino ad un determinato numero:
+
+(define (taxicab num)
+  (local (a b3 lst out)
+    (setq out '())
+    (for (c 1 num)
+      (setq lst '())
+      (new Tree 'hash)
+      (for (a 0 (int (pow c (div 3))))
+        (hash (string (* a a a)) (* a a a))
+        (setq b3 (- c (* a a a)))
+        (if (hash (string b3))
+            (push (list a (round (pow b3 (div 3)) -4)) lst -1)
+        )
+      )
+      (delete 'hash)
+      (if (> (length lst) 1) (push (list c lst) out -1))
+    )
+    out))
+
+(taxicab 10000)
+;-> ((1729 ((10 9) (12 1))) (4104 ((15 9) (16 2))))
+
+Vediamo quanti numeri taxicab ci sono fino a 100000:
+
+(length (taxicab 100000))
+;-> 10
+
+Vediamo quali numeri taxicab ci sono fino a 1 milione:
+
+(time (setq tx (taxicab 1000000)))
+;-> 96643.946 ; 96 secondi
+
+tx
+;-> ((1729 ((10 9) (12 1))) 
+;->  (4104 ((15 9) (16 2))) 
+;->  (13832 ((20 18) (24 2))) 
+;->  (20683 ((24 19) (27 10)))
+;->  (32832 ((30 18) (32 4)))
+;->  (39312 ((33 15) (34 2)))
+;->  (40033 ((33 16) (34 9)))
+;->  (46683 ((30 27) (36 3)))
+;->  (64232 ((36 26) (39 17)))
+;->  (65728 ((33 31) (40 12)))
+;->  (110656 ((40 36) (48 4)))
+;->  (110808 ((45 27) (48 6)))
+;->  (134379 ((43 38) (51 12)))
+;->  (149389 ((50 29) (53 8)))
+;->  (165464 ((48 38) (54 20)))
+;->  (171288 ((54 24) (55 17)))
+;->  (195841 ((57 22) (58 9)))
+;->  (216027 ((59 22) (60 3)))
+;->  (216125 ((50 45) (60 5)))
+;->  (262656 ((60 36) (64 8)))
+;->  (314496 ((66 30) (68 4)))
+;->  (320264 ((66 32) (68 18)))
+;->  (327763 ((58 51) (67 30)))
+;->  (373464 ((60 54) (72 6)))
+;->  (402597 ((61 56) (69 42)))
+;->  (439101 ((69 48) (76 5)))
+;->  (443889 ((73 38) (76 17)))
+;->  (513000 ((75 45) (80 10)))
+;->  (513856 ((72 52) (78 34)))
+;->  (515375 ((71 54) (80 15)))
+;->  (525824 ((66 62) (80 24)))
+;->  (558441 ((72 57) (81 30)))
+;->  (593047 ((70 63) (84 7)))
+;->  (684019 ((75 64) (82 51)))
+;->  (704977 ((86 41) (89 2)))
+;->  (805688 ((92 30) (93 11)))
+;->  (842751 ((84 63) (94 23)))
+;->  (885248 ((80 72) (96 8)))
+;->  (886464 ((90 54) (96 12)))
+;->  (920673 ((96 33) (97 20)))
+;->  (955016 ((89 63) (98 24)))
+;->  (984067 ((92 59) (98 35)))
+;->  (994688 ((92 60) (99 29))))
+
+(length tx)
+;-> 43
+
+
+---------------------------
+Somma numeri dispari (pari)
+---------------------------
+
+Dati due numeri a e b (con a < b) determinare la somma dei numeri dispari compresi nell'intervallo tra a e b (a e b inclusi, se sono dispari).
+
+Vediamo la soluzione più semplice:
+
+(define (sommadispari1 a b)
+  (let (somma 0)
+    ; per ogni numero tra a e b
+    (for (i a b)
+      ; se è dispari lo aggiungiamo ala somma
+      (if (odd? i) (++ somma i))
+    )
+    somma))
+
+(sommadispari1 1 10)
+;-> 25
+(sommadispari1 11 20)
+;-> 75
+
+La seconda soluzione utilizza il fatto che i numeri dispari distano di 2:
+
+numero_dispari(n+1) = numero_dispari(n) + 2
+
+(define (sommadispari2 a b)
+  (let (somma 0)
+    ; se a è pari, allora il primo
+    ; numero dispari vale (a + 1)
+    (if (even? a) (++ a))
+    ; per ogni numero tra a e b con passo 2
+    (for (i a b 2)
+      ; aggiungiamo alla somma il numero
+      (++ somma i)
+    )
+    somma))
+
+(sommadispari2 1 10)
+;-> 25
+(sommadispari2 11 20)
+;-> 75
+
+Una versione simile alla precedente che usa le primitive di newLISP:
+
+(define (sommadispari3 a b)
+    ; se a è pari, allora il primo
+    ; numero dispari vale (a + 1)
+    (if (even? a) (++ a))
+    ; se b è pari, allora l'ultimo
+    ; numero dispari vale (b - 1)
+    (if (even? b) (-- b))
+    ; somma i valori della sequenza
+    (apply + (sequence a b 2))
+)
+
+(sommadispari3 1 10)
+;-> 25
+(sommadispari3 11 20)
+;-> 75
+
+L'ultima soluzione utilizza il fatto che i numeri dispari sono in progressione aritmetica. Una progressione aritmetica è una successione di numeri tali che la differenza tra ciascun termine della successione e il suo precedente sia una costante. Tale costante viene detta ragione della progressione. Per esempio, la successione dei numeri dispari 3, 5, 7, 9, 11, ... è una progressione aritmetica di ragione 2.
+La somma dei numeri di una progressione aritmetica finita si chiama serie aritmetica. La somma S dei primi n valori di una progressione aritmetica è uguale a:
+
+            (a1 + an)
+S(n) = n * -----------
+                2
+dove a1 è il primo termine della serie e an è l'n-esimo (ultimo) termine della serie.
+
+(define (sommadispari4 a b)
+  (let (n 0)
+    ; se a è pari, allora il primo
+    ; numero dispari vale (a + 1)
+    (if (even? a) (++ a))
+    ; se b è pari, allora l'ultimo
+    ; numero dispari vale (b - 1)
+    (if (even? b) (-- b))
+    ; calcolo di n: numero dei valori dispari
+    (setq n (/ (+ (- b a) 2) 2))
+    ; calcoliamo la somma con la formula
+    (/ (* n (+ a b)) 2)))
+
+(sommadispari4 1 10)
+;-> 25
+(sommadispari4 11 20)
+;-> 75
+
+Test per verificare la correttezza:
+
+(= (sommadispari1 2000 2345678)
+   (sommadispari2 2000 2345678)
+   (sommadispari3 2000 2345678)
+   (sommadispari4 2000 2345678))
+;-> true
+
+Vediamo i tempi di esecuzione:
+
+(time (sommadispari1 1234 123456789))
+;-> 5062.233
+(time (sommadispari1 1234 123456789) 10)
+;-> 51041.947
+(time (sommadispari2 1234 123456789))
+;-> 2039.792
+(time (sommadispari2 1234 123456789) 10)
+;-> 20435.561
+(time (sommadispari3 1234 123456789))
+;-> 1938.445
+(time (sommadispari3 1234 123456789) 10)
+;-> 12659.818
+(time (sommadispari4 1234 123456789))
+;-> 0
+(time (sommadispari4 1234 123456789) 10)
+;-> 0
+(time (sommadispari4 1234 123456789) 100000)
+;-> 33.091
+
+L'ultima funzione è la più veloce perchè non effettua alcun ciclo attraverso i numeri.
+
+Possiamo anche scrivere una funzione che somma i numeri pari:
+
+(define (sommapari a b)
+  (let (n 0)
+    ; se a è dispari, allora il primo
+    ; numero pari vale (a + 1)
+    (if (odd? a) (++ a))
+    ; se b è dispari, allora l'ultimo
+    ; numero pari vale (b - 1)
+    (if (odd? b) (-- b))
+    ; calcolo di n: numero dei valori pari
+    (setq n (/ (+ (- b a) 2) 2))
+    ; calcoliamo la somma con la formula
+    (/ (* n (+ a b)) 2)))
+
+(sommapari 3 9)
+;-> 18
+(sommapari 2 10)
+;-> 30
+
+Nota: la somma dei primi n numeri dispari è sempre un quadrato. Infatti la figura seguente mostra che:
+
+1 + 3 =          4   (2 quadrati x 2 quadrati)
+1 + 3 + 5 =      9   (3 quadrati x 3 quadrati)
+1 + 3 + 5 + 7 = 16   (4 quadrati x 4 quadrati)
+...
+
+       +-----+-----+-----+-----+
+       |  1  |  3  |  5  |  7  |
+       |     |     |     |     |
+       +-----+-----+-----+-----+
+       |  3  |  3  |  5  |  7  |
+       |     |     |     |     |
+       +-----+-----+-----+-----+
+       |  5  |  5  |  5  |  7  |
+       |     |     |     |     |
+       +-----+-----+-----+-----+
+       |  7  |  7  |  7  |  7  |
+       |     |     |     |     |
+       +-----+-----+-----+-----+
+    
+
+------------
+Cavo sospeso
+------------
+
+In molte applicazioni pratiche è necessario determinare il rapporto tra la lunghezza di un cavo appeso a due pali verticali, l'altezza dei pali e la minima distanza tra il cavo e il suolo (ad esempio nella posa di cavi elettrici o telefonici).
+
+Per la teoria completa vedere il seguente articolo:
+"The hanging cable problem for practical applications"
+di Neil Chatterjee e Bogdan G. Nita
+
+Un cavo perfettamente flessibile e inestensibile di densità e sezione trasversale uniformi appeso liberamente a due pali assume la forma di una catenaria. L'equazione di una catenaria in coordinate cartesiane è la seguente:
+
+  y = a*cosh(x/a)
+
+dove cosh è la funzione del coseno iperbolico.
+
+Il fattore di scala "a" viene solitamente interpretato come il rapporto tra la componente orizzontale della tensione sul cavo e il peso del cavo per unità di lunghezza. Per un dato valore del parametro "a" la forma della catenaria è nota. Tuttavia nei problemi pratici "a" è sconosciuto e dipende dalla distanza tra i poli da cui pende il cavo.
+
+Quando la catenaria è tangente all'asse x (il suolo) dobbiamo sottrarre "a" all'equazione sopra:
+
+  y = a*cosh(x/a) - a
+
+Primo caso: pali di altezza uguale
+----------------------------------
+Supponiamo che la lunghezza del cavo sia 120 m e i due pali hanno la stessa altezza di 50 m. Assumiamo anche che ogni polo si trovi alla distanza x dal punto medio che si presume sia l'asse y.
+Calcolare la distanza tra i pali (2x) affinchè il cavo sia tangente al suolo.
+
+                  asse y
+                    |
+     |.             |             .|
+     | .            |            . |
+     |  .           |        60 .  |
+     |   .          |          .   | 50
+     |     .        |        .     |
+     |       .      |      .       |
+     |           .  |  .           |
+   -----------------|------------------ asse x
+
+                  asse y
+                    |
+     |.             |             .|
+     | .            |            . |
+     |  .           |           .  |
+     |   .          |        y .   | z
+     |     .        |        .     |
+     |       .      |      .       |
+     |           .  |  .           |
+   -----------------|------------------ asse x
+                            x
+La costante "a" vale:
+
+       y² - z²
+  a = ---------
+         2z
+
+La distanza 2x vale:
+
+  2x = 2*a*ln(y/a + sqrt((y/a)² + 1))
+
+Sostituendo il valore di "a" otteniamo:
+
+       (y² - z²)ln(2*y*z/(y² - z²) + sqrt(4*y²*z²/(y^4 - 2*y²*z² + z^4) + 1))
+ 2x = ------------------------------------------------------------------------
+                                       z
+
+Secondo caso: pali di altezza diversa
+-------------------------------------
+Adesso esaminiamo un problema simile, ma con pali di diverse altezze. Supponiamo che la lunghezza del cavo sia 140 m e che i due poli abbiano altezze di 50 m e 70 m (vedi Figura 3). Determinare la distanza minima tra i due poli in modo che il cavo sia tangente al suolo.
+
+     |.
+     | .             asse y
+     |  .              |
+     |   .             |             .|
+  70 |    .  y2        |        y1  . |
+     |     .           |           .  |
+     |      .          |          .   | 50
+     |        .        |        .     |
+     |          .      |      .       |
+     |              .  |  .           |
+   --------------------|------------------ asse x
+            x2                 x1
+
+     |.
+     | .             asse y
+     |  .              |
+     |   .             |             .|
+  z2 |    .  y2        |        y1  . |
+     |     .           |           .  |
+     |      .          |          .   | z1
+     |        .        |        .     |
+     |          .      |      .       |
+     |              .  |  .           |
+   --------------------|------------------ asse x
+            x2                 x1
+
+  y1 + y2 = 140
+
+Questa volta "a" vale:
+
+       (z1 + z2)*[y² - (z1 - z2)²] -2*y*sqrt(z1*z2*[y² (z1 - z2)²])
+  a = --------------------------------------------------------------
+                              2*(z1 - z2)²
+
+  y1 = sqrt(z1² + 2*z1*a)
+  
+  y2 = sqrt(z2² + 2*z2*a)
+  
+              z1 + y1 + a
+  x1 = a*ln(-------------)
+                  a
+  
+              z2 + y2 + a
+  x2 = a*ln(-------------)
+                a
 
 
 ===========

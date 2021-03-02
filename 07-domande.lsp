@@ -6908,3 +6908,155 @@ Per formare una copertura esatta deve risultare:
 ;-> nil
 
 
+--------------------------------------------------
+Addizione per intervalli (Range addition) (Google)
+--------------------------------------------------
+
+Supponiamo di avere una lista (o un vettore) di lunghezza n inizializzata con tutti gli 0 e di ricevere k operazioni di aggiornamento.
+
+Ogni operazione è rappresentata come una tripletta: [startIndex, endIndex, val] che incrementa ogni elemento della sottolista A[startIndex ... endIndex] (startIndex e endIndex inclusi) con val.
+
+Restituire la lista modificata dopo che tutte le k operazioni sono state eseguite.
+
+Esempio:
+
+lunghezza = 5
+
+aggiornamenti = ((1  3  2)
+                 (2  4  3)
+                 (0  2 -2))
+
+Risultato: (-2 0 3 5 3)
+
+Funzionamento:
+Indici:                        0  1  2  3  4
+Lista iniziale:              ( 0  0  0  0  0 )
+
+dopo l'operazione (1  3  2): ( 0  2  2  2  0 )
+
+dopo l'operazione (2  4  3): ( 0  2  5  5  3 )
+
+dopo l'operazione (0  2 -2): (-2  0  3  5  3 )
+
+Il problema è abbastanza semplice, ma forse esiste un algoritmo più efficace di quello che applica in sequenza le operazioni di aggiornamento.
+
+La maggior parte delle operazioni di aggiornamento vengono applicate sugli stessi indici diverse volte. Abbiamo  davvero bisogno di aggiornare tutti gli elementi tra startIndex e endIndex?
+
+Proviamo il seguente algoritmo:
+
+1) Aggiorniamo solo il valore a startIndex con +val e il valore a (startIndex + 1) con -val, cioè:
+   lista[start]   = lista[start] + val;
+   lista[end + 1] = lista[end + 1] - val
+
+2) Alla fine di tutti gli aggiornamenti applichiamo la somma cumulativa ad ogni elemento della lista:
+   lista[i] = lista[i] + lista[i-1]
+
+Vediamo il funzionamento:
+
+Indici:                        0  1  2  3  4
+Lista iniziale:              ( 0  0  0  0  0 )
+
+dopo l'operazione (1  3  2): ( 0  2  0  0 -2 )
+
+dopo l'operazione (2  4  3): ( 0  2  3  0 -2 )
+
+dopo l'operazione (0  2 -2): (-2  2  3  2 -2 )
+
+dopo la somma              : (-2  0  3  5  3 )
+
+Per ogni aggiornamento (start, end, val) sulla lista, l'obiettivo è ottenere il risultato:
+
+lista(i) = lista(i) + val, per ogni indice da inizio a fine.
+
+L'applicazione della somma finale effettua due cose:
+
+1) Riporta l'incremento val su ogni elemento lista(i) per ogni i >= start
+
+2) Trasferisce l'incremento −val su ogni elemento lista(j) per ogni j > end.
+
+In altre parole, la somma finale aggiorna correttamente tutti i valori degli indici intermedi che non abbiamo modificato durante i singoli aggiornamenti.
+
+La complessità temporale di questo algoritmo vale O(n+k).
+
+Scriviamo la funzione finale:
+
+(define (update-list len update)
+  (local (out start end val)
+    (setq out (array len '(0)))
+    (dolist (upd update)
+      (setq val   (upd 2))
+      (setq start (upd 0))
+      (setq end   (upd 1))
+      (setq (out start) (+ (out start) val))
+      (if (< end (- len 1))
+          (setq (out (+ end 1)) (- (out (+ end 1)) val))
+      )
+    )
+    (for (i 1 (- len 1))
+      (setq (out i) (+ (out i) (out (- i 1))))
+    )
+    out))
+
+Proviamo:
+
+(update-list 5 '((1  3  2) (2  4  3) (0  2 -2)))
+;-> (-2 0 3 5 3)
+
+
+---------------------------
+Ordinamento Wiggle (Google)
+---------------------------
+
+Data una lista non ordinata, ordinarla in modo che risulti lst[0] <= lst[1] >= lst[2] <= lst[3]....
+Ad esempio, data lst = (3 5 2 1 6 4), una possibile risposta è (1 6 2 5 3 4).
+
+Notiamo che è richiesto il seguente ordinamento: il numero negli indici dispari è maggiore dei numeri che si trovano ai due lati (destra e sinistra). Ad esempio lst[1] > lst[0] e lst[1] > lst[2].
+
+Prima soluzione
+---------------
+Secondo la definizione ci sono molti modi per ordinare in modo Wiggle. Possiamo prima ordinare la lista, quindi iniziamo con il terzo elemento e scambiarlo con il secondo elemento. Poi scambiamo il quinto e il quarto elemento, e così via.
+
+Complessità temporale: O(n*log(n))
+
+(define (wiggle1 lst)
+  (sort lst)
+  (for (i 2 (- (length lst) 1) 2)
+    (swap (lst i) (lst (- i 1)))
+  )
+  lst)
+
+(setq lst '(3 5 2 1 6 4))
+(wiggle1 lst)
+;-> (1 3 2 5 4 6)
+
+Seconda soluzione
+-----------------
+L'ordinamento wiggle ha le seguenti due regole:
+
+  1) se i è dispari, allora lst[i] >= lst[i-1]
+
+  2) se i è pari,    allora lst[i] <= lst[i-1]
+
+Quindi dobbiamo attraversare la lista una sola volta e scambiare le coppie che non rispettano le regole. In particolare, se lst[i] > lst[i-1], dopo lo scambio deve risultare lst[i] <= lst[i-1].
+
+Complessità temporale: O(n)
+
+(define (wiggle2 lst)
+  (for (i 1 (- (length lst) 1))
+    ; Occorre scambiare:
+    ; nums[i] < nums[i-1] per gli indici dispari e
+    ; nums[i] > nums[i-1] for gli indici pari
+    (if (or (and (= (% i 2) 1) (< (lst i) (lst (- i 1))))
+            (and (= (% i 2) 0) (> (lst i) (lst (- i 1)))))
+        (swap (lst i) (lst (- i 1)))
+    )
+    lst))
+
+(setq lst '(3 5 2 1 6 4))
+(wiggle2 lst)
+;-> (3 5 1 6 2 4)
+
+(wiggle2 '(1 2 3 4 5 6 7 8 9))
+;-> (1 3 2 5 4 7 6 9 8)
+
+
