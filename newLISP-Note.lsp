@@ -283,6 +283,8 @@ ROSETTA CODE
   Persistenza di un numero
   Numeri Taxicab
   Codice Gray
+  Game of Life
+  Ackermann
 
 PROJECT EULERO
 ==============
@@ -454,6 +456,7 @@ DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Rettangolo perfetto (Google)
   Addizione per intervalli (Range addition) (Google)
   Ordinamento Wiggle (Google)
+  Generare parentesi (Amazon)
 
 LIBRERIE
 ========
@@ -475,7 +478,7 @@ NOTE LIBERE
   Stile del codice newLISP
   Considerazioni sulle parentesi del LISP
   Controllare l'output della REPL (prettyprint)
-  File e cartelle
+  Gestione di file e cartelle
   Funzioni come liste
   4-4 Puzzle
   Il primo Primo
@@ -671,6 +674,9 @@ NOTE LIBERE 3
   Somma di cubi (Taxicab)
   Somma numeri dispari (pari)
   Cavo sospeso
+  Numeri automorfici
+  Numeri trimorfici
+  Funzioni come Stringhe
   
 APPENDICI
 =========
@@ -16812,7 +16818,7 @@ La terza versione è la più veloce.
 ==========================
 
 Questi problemi sono stati creati per essere risolti con il linguaggio Prolog.
-Poi è stata la volta dei linguaggi Lisp, Haskell e Scheme.
+Poi è stata la volta dei linguaggi Lisp, Haskell e Scheme... e adesso newLISP.
 Potete trovare l'elenco completo dei problemi al sito:
 
 https://www.ic.unicamp.br/~meidanis/courses/mc336/2006s2/funcional/L-99_Ninety-Nine_Lisp_Problems.html
@@ -16824,6 +16830,7 @@ Elenco problemi
 ---------------
 
 Elaborazione di liste
+---------------------
 N-99-01 Estrarre l'ultimo elemento di una lista
 N-99-02 Estrarre il penultimo elemento di una lista
 N-99-03 Estrarre il k-esimo elemento di una lista
@@ -16854,6 +16861,7 @@ N-99-27 Raggruppare gli elementi di un insieme in sottoinsiemi disgiunti.
 N-99-28 Ordinare una lista in base alla lunghezza delle sottoliste
 
 Arithmetic (Aritmetica)
+-----------------------
 N-99-31  Determine whether a given integer number is prime
 N-99-32  Determine the greatest common divisor of two positive integer numbers
 N-99-33  Determine whether two positive integer numbers are coprime
@@ -16867,6 +16875,7 @@ N-99-40  Goldbach's conjecture
 N-99-41  A list of Goldbach compositions
 
 Logic and Codes (Logica e Codici)
+---------------------------------
 N-99-46  Truth tables for logical expressions
 N-99-47  Truth tables for logical expressions (2)
 N-99-48  Truth tables for logical expressions (3)
@@ -16874,6 +16883,7 @@ N-99-49  Gray code
 N-99-50  Huffman code
 
 Binary trees (Alberi Binari)
+----------------------------
 N-99-54A Check whether a given term represents a binary tree
 N-99-55  Construct completely balanced binary trees
 N-99-56  Symmetric binary trees
@@ -16895,6 +16905,7 @@ N-99-69  Dotstring representation of binary trees
 N-99-70  Tree construction from a node string
 
 Multiway Trees (Alberi n-ari)
+-----------------------------
 N-99-70B Check whether a given term represents a multiway tree
 N-99-70C Count the nodes of a multiway tree
 N-99-71  Determine the internal path length of a tree
@@ -16902,6 +16913,7 @@ N-99-72  Construct the bottom-up order sequence of the tree nodes
 N-99-73  Lisp-like tree representation
 
 Graphs (Grafi)
+--------------
 N-99-80  Conversions
 N-99-81  Path from one node to another one
 N-99-82  Cycle from a given node
@@ -16914,6 +16926,7 @@ N-99-88  Connected components (alternative solution)
 N-99-89  Bipartite graphs
 
 Miscellaneous Problems (Problemi Vari)
+--------------------------------------
 N-99-90  Eight queens problem
 N-99-91  Knight's tour
 N-99-92  Von Koch's conjecture
@@ -28488,6 +28501,600 @@ Oppure in maniera equivalente:
 ;-> true
 
 
+------------
+GAME OF LIFE
+------------
+
+Il Gioco della Vita (The Game of Life), noto anche semplicemente come Life, è un automa cellulare ideato dal matematico britannico John Horton Conway nel 1970. È un gioco la cui evoluzione è determinata dal suo stato iniziale e non richiede ulteriori input. Si interagisce con il gioco della vita creando una configurazione iniziale e osservando come si evolve passo dopo passo. Il gioco è Turing completo e può simulare qualsiasi macchina di Turing.
+
+Regole del gioco
+----------------
+L'universo del Gioco della Vita è una griglia ortogonale bidimensionale infinita di celle quadrate, ognuna delle quali si trova in uno dei due possibili stati, vivo o morto (o popolato e non popolato, rispettivamente). Ogni cella interagisce con i suoi otto vicini, che sono le celle adiacenti orizzontalmente, verticalmente o diagonalmente. Ad ogni passaggio nel tempo, si verificano le seguenti transizioni:
+
+  - Qualsiasi cellula viva con meno di due vicini vivi muore, come per sottopopolazione.
+  - Qualsiasi cellula viva con due o tre vicini vivi sopravvive alla generazione successiva.
+  - Qualsiasi cellula viva con più di tre vicini vivi muore, come per sovrappopolazione.
+  - Qualsiasi cellula morta con esattamente tre vicini vivi diventa una cellula viva, come per riproduzione.
+
+Queste regole, che confrontano il comportamento dell'automa con la vita reale, possono essere condensate come segue:
+
+  - Qualsiasi cellula viva con due o tre vicini vivi sopravvive.
+  - Qualsiasi cellula morta con tre vicini vivi diventa una cellula viva.
+  - Tutte le altre cellule vive muoiono nella generazione successiva. Allo stesso modo, tutte le altre cellule morte rimangono morte.
+
+Il modello iniziale costituisce il seme del sistema. La prima generazione viene creata applicando le regole di cui sopra simultaneamente a ogni cellula del seme: nascite e morti avvengono simultaneamente e il momento discreto in cui ciò accade è talvolta chiamato passo (tick o step). Ogni generazione è una funzione pura della precedente. Le regole continuano ad essere applicate ripetutamente per creare nuove generazioni.
+
+Implementazione
+---------------
+Il nostro universo è finito e viene rappresentato con una matrice quadrata NxN.
+
+La stato "vivo" vale 1.
+Lo stato "morto" vale 0.
+
+In questo modo possiamo sommare i valori dei vicini per applicare le regole:
+
+Per le celle vive (1):
+- (somma < 2) o (somma > 3) ==> la cella muore
+- (somma = 2) o (somma = 3) ==> la cella continua a vivere
+
+Per le celle morte (0):
+- (somma == 3) ==> la cella nasce (vive)
+
+Invece di iterare su una matrice usiamo un vettore, per esempio la seguente matrice 4x4:
+
+0 1 0 1
+0 1 0 0
+0 0 0 0
+1 1 0 1
+
+viene rappresentata con il vettore di 16 elementi:
+
+0 1 0 1 0 1 0 0 0 0 0 0 1 1 0 1
+
+dove gli indici della matrice sono determinati da:
+
+riga    = i % 4
+colonna = i / 4
+
+Questo ci permette di calcolare più facilmente i vicini di una cella. Per esempio, nel nostro caso N = 4 e i vicini della cella i-esima sono i seguenti:
+
+sinistra: (i - 1)
+destra:   (i + 1)
+sopra:    (i - N) = (i - 4)
+sotto:    (i + N) = (i + 4)
+alto-sx:  (i - (N + 1)) = (i - 5)
+alto-dx:  (i - (N - 1)) = (i - 3)
+basso-sx: (i + (N - 1)) = (i + 3)
+basso-dx: (i + (N + 1)) = (i + 5)
+
+Per evitare il controllo degli indici quando visitiamo/sommiamo le celle vicine contorniamo la matrice con valori 0 che la delimitano (in questo modo la somma non viene modificata dai valori di contorno che valgono 0).
+
+Supponiamo di avere una matrice 10x10 di celle. Poichè la matrice viene contornata la matrice finale ha dimensioni 12x12.
+
+Definiamo il vettore:
+
+(setq dim 12)
+(setq board (array (* dim dim) '(0)))
+
+Scriviamo una funzione che stampa il gioco:
+
+(define (print-board board size)
+  (for (i 0 (- (length board) 1))
+    (cond ((= i 0) (print"╔"))
+          ((< i (- size 1)) (print "══"))
+          ((= i (- size 1)) (print"╗"))
+          ((= i (* size (- size 1))) (print "╚"))
+          ((= i (- (length board) 1)) (print"╝"))
+          ((or (zero? (% i size)) (zero? (% (+ i 1) size))) (print "║"))
+          ((and (> i (* size (- size 1))) (< i (- (* size size) 1))) (print "══"))
+          ((zero? (board i)) (print "  "))
+          ((= 1 (board i)) (print "██"))
+    )
+    (if (zero? (% (+ i 1) size))
+        (println))
+  ))
+
+(print-board board dim)
+
+Scriviamo una funzione che data una generazione calcola la successiva:
+
+(define (next board size)
+  (local (temp-board somma)
+    ; crea matrice temporanea
+    (setq temp-board board)
+    ; per ogni cella della matrice di life
+    (for (i (+ size 1) (- (length board) (+ size 2)))
+      ; se l'indice è fuori dalla matrice (nel contorno)
+      (if (or (zero? (% i size)) (zero? (% (+ i 1) size)))
+          nil
+          (begin
+            ; calcolo del numero dei vicini della cella
+            (setq somma (+ (board (- i 1))
+                           (board (+ i 1))
+                           (board (- i size))
+                           (board (+ i size))
+                           (board (- i (+ size 1)))
+                           (board (- i (- size 1)))
+                           (board (+ i (+ size 1)))
+                           (board (+ i (- size 1)))))
+                  ; (> 3) la cella muore
+            (cond ((> somma 3) (setf (temp-board i) 0))
+                  ; (= 3) la cella vive o nasce
+                  ((= somma 3) (setf (temp-board i) 1))
+                  ; (= 2 e viva) la cella vive
+                  ((and (= somma 2) (= (temp-board i) 1)) (setf (temp-board i) 1))
+                  ; altrimenti la cella muore
+                  (true (setf (temp-board i) 0))
+            )
+          )
+       )
+    )
+  temp-board))
+
+Adesso definiamo un "glider" nella matrice iniziale. Un "glider" è una configurazione che si muove indefinitamente nella matrice (a meno che non incroci altre celle vive).
+
+(setf (board 15) 1)
+(setf (board 27) 1)
+(setf (board 39) 1)
+(setf (board 38) 1)
+(setf (board 25) 1)
+
+Stampiamo la matrice:
+
+(print-board board dim)
+ ╔════════════════════╗
+ ║    ██              ║
+ ║██  ██              ║
+ ║  ████              ║
+ ║                    ║
+ ║                    ║
+ ║                    ║
+ ║                    ║
+ ║                    ║
+ ║                    ║
+ ║                    ║
+ ╚════════════════════╝
+
+Adesso calcoliamo le generazioni successive con un ciclo:
+
+(while true
+  (setq board (next board dim))
+  (print-board board dim)
+  (print "Premi Invio per la prossima generazione:")
+  (read-line))
+
+╔════════════════════╗ ╔════════════════════╗ ╔════════════════════╗
+║  ██                ║ ║    ██              ║ ║                    ║
+║    ████            ║ ║      ██            ║ ║  ██  ██            ║
+║  ████              ║ ║  ██████            ║ ║    ████            ║
+║                    ║ ║                    ║ ║    ██              ║
+║                    ║ ║                    ║ ║                    ║
+║                    ║ ║                    ║ ║                    ║
+║                    ║ ║                    ║ ║                    ║
+║                    ║ ║                    ║ ║                    ║
+║                    ║ ║                    ║ ║                    ║
+║                    ║ ║                    ║ ║                    ║
+╚════════════════════╝ ╚════════════════════╝ ╚════════════════════╝
+╔════════════════════╗ ╔════════════════════╗
+║    ██              ║ ║                    ║
+║      ██            ║ ║      ██            ║
+║  ██████            ║ ║  ██  ██            ║
+║                    ║ ║    ████            ║
+║                    ║ ║                    ║
+║                    ║ ║                    ║
+║                    ║ ║                    ║
+║                    ║ ║                    ║
+║                    ║ ║                    ║
+║                    ║ ║                    ║
+╚════════════════════╝ ╚════════════════════╝
+
+L'ultima generazione è uguale alla prima tranne il fatto che il "glider" si è spostato in basso a sinistra della matrice.
+
+Esistono tante configurazioni particolari nel gioco della vita.
+
+Adesso scriviamo una funzione che prende una matrice in ingresso (configurazione iniziale) e calcola le generazioni successive.
+
+La matrice ha la seguente struttura:
+
+(setq gen0 '((0 1 0 0 1 0 0)
+             (1 1 1 0 1 0 1)
+             (1 0 1 0 1 1 0)
+             (0 1 0 0 0 0 1)
+             (1 1 1 1 1 0 1)
+             (0 1 0 1 0 1 1)
+             (1 1 0 1 0 1 1)))
+
+Prima dobbiamo scrivere una funzione che contorna la matrice di 0:
+
+(define (pad matrix)
+  (local (row col out)
+    (setq out '())
+    (if (array? matrix) (setq matrix (array-list matrix)))
+    (setq row (+ 2 (length matrix)))
+    (setq col (+ 2 (length (matrix 0))))
+    ; aggiunge una riga iniziale ad out
+    (push (dup 0 col true) out -1)
+    ; aggiunge le righe centrali ad out
+    (dolist (el matrix)
+      (setq cur (append '(0) el '(0)))
+      (push cur out -1)
+    )
+    ; aggiunge una riga finale ad out
+    (push (dup 0 col true) out -1)
+    (array (* col row) (flat out))))
+
+(setq matrice '((0 0 1 0 0)
+                (1 0 1 0 1)
+                (0 0 1 1 1)
+                (0 0 0 0 1)
+                (0 1 1 1 1)))
+
+(print-board (pad matrice) 7)
+╔══════════╗
+║    ██    ║
+║██  ██  ██║
+║    ██████║
+║        ██║
+║  ████████║
+╚══════════╝
+
+Adesso scriviamo la funzione finale:
+
+(define (life start)
+  (local (board dim)
+    (setq board (pad start))
+    (setq dim (sqrt (length board)))
+    (while true
+      (setq board (next board dim))
+      (print-board board dim)
+      (println "Premi Invio per la prossima generazione")
+      (println "       Premi Ctrl-C per uscire")
+      (read-line))))
+
+Generiamo una generazione iniziale casuale con una matrice 32x32:
+
+(setq gen0 (explode (rand 2 1024) 32))
+
+Facciamo partire la simulazione:
+
+(life gen0)
+╔════════════════════════════════════════════════════════════════╗
+║  ██████      ██████  ██████████    ██████    ████  ██        ██║
+║██          ██        ██          ██                            ║
+║██                    ██              ██                        ║
+║██  ██      ██                                    ██          ██║
+║██        ████████                ██  ██      ████        ██████║
+║  ████    ██                      ██  ██  ██                ████║
+║██        ████                    ████        ████          ██  ║
+║██      ████                    ██                            ██║
+║██          ██            ██                                  ██║
+║      ████                ██                                    ║
+║████                    ████    ██                ██  ██    ██  ║
+║      ██                    ██                    ██  ████      ║
+║      ██  ██  ██  ████████████  ████      ████    ██  ██  ██  ██║
+║██        ██  ████                    ██████      ██  ██  ██  ██║
+║██              ██████    ██                      ██  ██      ██║
+║  ████    ██    ████                ██  ██            ████████  ║
+║      ██  ██                ██  ██    ████  ██        ████    ██║
+║  ████      ██    ██        ██                            ██  ██║
+║██          ██        ██        ██    ████            ████      ║
+║██                              ██                          ████║
+║██                                                      ██  ██  ║
+║██      ██                          ██          ██      ██  ██  ║
+║██    ████  ██        ██            ██  ██          ██    ██    ║
+║          ██                            ██  ██  ██        ██    ║
+║████        ████      ██          ████  ██  ██  ██  ██        ██║
+║██            ██                            ████                ║
+║██        ██    ████      ██      ████        ██                ║
+║        ████████      ████  ██        ██                        ║
+║  ████  ████████        ████  ██                ██          ████║
+║      ████    ██████████████                          ██        ║
+║      ██        ██        ██                                    ║
+║                    ██████    ██  ████      ████  ██  ██  ██    ║
+╚════════════════════════════════════════════════════════════════╝
+Premi Invio per la prossima generazione
+       Premi Ctrl-C per uscire
+
+---------------------
+
+Adesso vediamo un altro metodo per simulare il gioco della vita. Questa volta utilizziamo una matrice n x m anche nel programma (e non un vettore come prima). Comunque i bordi della matrice (prima e ultima riga con prima e ultima colonna) hanno tutti valore 0 perchè rappresentano il limite/contorno della matrice (come nel caso precedente).
+
+Funzione che stampa la matrice:
+
+(define (print-griglia griglia m n)
+  (for (i 0 (- m 1))
+    (for (j 0 (- n 1))
+      (if (zero? (griglia i j))
+          (print "·")
+          (print "×")
+      )
+    )
+    (println "")
+  ))
+
+Funzione che calcola la generazione successiva:
+
+(define (next-gen griglia m n)
+  (local (vivi gen)
+    (setq gen (array m n '(0)))
+    ; per ogni cella della matrice
+    (for (r 1 (- m 2))
+      (for (c 1 (- n 2))
+        (setq vivi 0)
+        ; calcola i vicini che sono vivi
+        (for (i -1 1)
+          (for (j -1 1)
+            (setq vivi (+ vivi (griglia (+ r i) (+ c j))))
+          )
+        )
+        ; sottrae il valore della cella corrente
+        ; (che non deve rientrare nei vicini)
+        (setq vivi (- vivi (griglia r c)))
+        ; Applica le regole del gioco della vita:
+              ; solitudine: la cella muore
+        (cond ((and (= (griglia r c) 1) (< vivi 2))
+              (setf (gen r c) 0))
+              ; sovrappopolazione: cella muore
+              ((and (= (griglia r c) 1) (> vivi 3))
+              (setf (gen r c) 0))
+              ; nascita: cella nasce/vive
+              ((and (= (griglia r c) 0) (= vivi 3))
+              (setf (gen r c) 1))
+              ; nessun cambiamento: la cella rimane nel suo stato
+              (true (setf (gen r c) (griglia r c)))
+        )))
+     gen))
+
+Funzione finale:
+
+(define (vita griglia m n)
+  (local (tempgrid)
+    (setq tempgrid griglia)
+    (print-griglia tempgrid m n)
+    (println "Generazione iniziale")
+    (println "Premere Invio per la prossima generazione")
+    (println "oppure Ctrl-C per uscire")
+    (while true
+      (setq tempgrid (next-gen tempgrid m n))
+      (print-griglia tempgrid m n)
+      (println "Premere Invio per la prossima generazione")
+      (println "oppure Ctrl-C per uscire")
+      (read-line))))
+
+Proviamo con una matrice 10 x 14:
+
+(setq board '((0 0 0 0 0 0 0 0 0 0 0 0 0 0)
+              (0 0 0 1 0 0 0 0 0 0 1 0 0 0)
+              (0 1 0 1 0 0 0 0 0 0 1 0 0 0)
+              (0 0 1 1 0 0 0 0 0 0 1 0 0 0)
+              (0 0 0 0 0 0 0 0 0 0 0 0 0 0)
+              (0 0 0 0 0 0 0 0 0 0 0 0 0 0)
+              (0 0 0 0 0 0 0 0 0 0 0 0 0 0)
+              (0 1 1 0 0 0 0 0 0 0 0 0 0 0)
+              (0 1 1 0 0 0 0 0 0 0 0 0 0 0)
+              (0 0 0 0 0 0 0 0 0 0 0 0 0 0)))
+
+Lanciamo la simulazione:
+
+(vita board 10 14)
+
+··············  ··············  ··············  ··············
+···x······x···  ··x···········  ···x······x···  ··············
+·x·x······x···  ···xx····xxx··  ····x·····x···  ··x·x····xxx··
+··xx······x···  ··xx··········  ··xxx·····x···  ···xx·········
+··············  ··············  ··············  ···x··········
+··············  ··············  ··············  ··············
+··············  ··············  ··············  ··············
+·xx···········  ·xx···········  ·xx···········  ·xx···········
+·xx···········  ·xx···········  ·xx···········  ·xx···········
+··············  ··············  ··············  ··············
+Generazione 0   Generazione 1   Generazione 2   Generazione 3
+
+··············
+··········x···
+····x·····x···
+··x·x·····x···
+···xx·········
+··············
+··············
+·xx···········
+·xx···········
+··············
+Generazione 4
+
+Nota: il miglior programma (open-source e multi-piattaforma) per "giocare" con Life e altri automi cellulari è "golly" (http://golly.sourceforge.net/).
+
+
+---------
+ACKERMANN
+---------
+
+Nella teoria della computabilità la funzione di Ackermann (da Wilhelm Ackermann) è uno degli esempi più semplici e scoperti per primi di una funzione totalmente calcolabile che non è ricorsiva in modo primitivo. Tutte le funzioni ricorsive primitive sono totali e calcolabili, ma la funzione di Ackermann illustra che non tutte le funzioni computabili totali sono ricorsive primitive.
+Una versione comune, la funzione Ackermann – Péter a due argomenti, è definita per gli interi non negativi m e n nel modo seguente:
+
+A(0, n) = n + 1
+A(m, 0) = A(m-1, 1)
+A(m, n) = A(m-1, A(m n-1))
+
+Il suo valore cresce rapidamente, anche per valori piccoli di input.
+
+Versione di base:
+
+(define (ackermann m n)
+  (cond ((zero? m) (+ n 1))
+        ((zero? n) (ackermann (- m 1) 1))
+        (true (ackermann (- m 1) (ackermann m (- n 1))))))
+
+(for (m 0 3)
+  (for (n 0 3)
+    (println (format "Ack(%d,%d): %d" m n (ackermann m n)))))
+;-> Ack(0,0): 1
+;-> Ack(0,1): 2
+;-> Ack(0,2): 3
+;-> Ack(0,3): 4
+;-> Ack(1,0): 2
+;-> Ack(1,1): 3
+;-> Ack(1,2): 4
+;-> Ack(1,3): 5
+;-> Ack(2,0): 3
+;-> Ack(2,1): 5
+;-> Ack(2,2): 7
+;-> Ack(2,3): 9
+;-> Ack(3,0): 5
+;-> Ack(3,1): 13
+;-> Ack(3,2): 29
+;-> Ack(3,3): 61
+
+Versione migliorata:
+
+(define (pow-i num power)
+  (local (pot out)
+    (if (zero? power)
+        (setq out 1L)
+        (begin
+          (setq pot (pow-i num (/ power 2)))
+          (if (odd? power)
+              (setq out (* num pot pot))
+              (setq out (* pot pot)))))
+    out))
+
+(define (ack m n)
+  (case m
+    (0 (+ n 1))
+    (1 (+ n 2))
+    (2 (+ n n 3))
+    (3 (- (pow-i 2L (+ 3L n)) 3))
+    (true (ack (- m 1) (if (zero? n) 1 (ack m (- n 1)))))))
+
+(for (m 0 3)
+  (for (n 0 3)
+    (println (format "Ack(%d,%d): %d" m n (ack m n)))))
+;-> Ack(0,0): 1
+;-> Ack(0,1): 2
+;-> Ack(0,2): 3
+;-> Ack(0,3): 4
+;-> Ack(1,0): 2
+;-> Ack(1,1): 3
+;-> Ack(1,2): 4
+;-> Ack(1,3): 5
+;-> Ack(2,0): 3
+;-> Ack(2,1): 5
+;-> Ack(2,2): 7
+;-> Ack(2,3): 9
+;-> Ack(3,0): 5
+;-> Ack(3,1): 13
+;-> Ack(3,2): 29
+;-> Ack(3,3): 61
+
+Possiamo anche calcolare:
+
+(ack 4L 1L)
+;-> 65533
+
+Il seguente output ha 20221 cifre:
+
+(ack 4L 2L)
+;-> 200352993040684646497907235156025575044782547556...
+;-> ...337539755822087777506072339445587895905719156733L
+
+Non provate a calcolare:
+
+(ack 4L 3L)
+
+ci vuole troppo tempo.
+
+La funzione di Ackermann può essere calcolata anche in modo iterativo, ma dobbiamo simulare la ricorsione con una pila (stack), inserendo (push) ed estraendo (pop) i valori di input e di output per ogni chiamata di funzione (che è quello che fa il linguaggio nel runtime):
+
+(define (ack2 m n)
+  (local (stack lst out q)
+    (setq stack (list (list m n 0)))
+    (setq out -1)
+    (while (> (length stack) 0)
+      (setq lst (pop stack))
+      (setq m (lst 0))
+      (setq n (lst 1))
+      (setq q (lst 2))
+      (cond ((zero? q)
+             (cond ((zero? m) (setq out (+ n 1)))
+                   ((zero? n) (push (list (- m 1) 1 0) stack))
+                   (true (push (list m n 1) stack)
+                         (push (list m (- n 1) 0) stack)))
+            )
+            ((= q 1) (push (list (- m 1) out 0) stack))
+            (true (println "nil"))
+      )
+    )
+    out))
+
+(for (m 0 3)
+  (for (n 0 3)
+    (println (format "Ack(%d,%d): %d" m n (ack2 m n)))))
+;-> Ack(0,0): 1
+;-> Ack(0,1): 2
+;-> Ack(0,2): 3
+;-> Ack(0,3): 4
+;-> Ack(1,0): 2
+;-> Ack(1,1): 3
+;-> Ack(1,2): 4
+;-> Ack(1,3): 5
+;-> Ack(2,0): 3
+;-> Ack(2,1): 5
+;-> Ack(2,2): 7
+;-> Ack(2,3): 9
+;-> Ack(3,0): 5
+;-> Ack(3,1): 13
+;-> Ack(3,2): 29
+;-> Ack(3,3): 61
+
+Nota: (ack2 4 1) non è calcolabile.
+
+La prossima funzione differisce da quella precedente in quanto inserisce nello stack solo il valore di m e non una tripla di valori:
+
+(define (ack3 m n)
+  (local (stack lst out q)
+    (setq stack (list m))
+    (while (> (length stack) 0)
+      (setq m (pop stack))
+      (cond ((zero? m) (setq n (+ n m 1)))
+            ((zero? n)
+             (setq n (+ n 1))
+             (setq m (- m 1))
+             (push m stack))
+            (true
+             (setq m (- m 1))
+             (push m stack)
+             (setq m (+ m 1))
+             (push m stack)
+             (setq n (- n 1)))
+      )
+    )
+    n))
+
+(for (m 0 3)
+  (for (n 0 3)
+    (println (format "Ack(%d,%d): %d" m n (ack3 m n)))))
+;-> Ack(0,0): 1
+;-> Ack(0,1): 2
+;-> Ack(0,2): 3
+;-> Ack(0,3): 4
+;-> Ack(1,0): 2
+;-> Ack(1,1): 3
+;-> Ack(1,2): 4
+;-> Ack(1,3): 5
+;-> Ack(2,0): 3
+;-> Ack(2,1): 5
+;-> Ack(2,2): 7
+;-> Ack(2,3): 9
+;-> Ack(3,0): 5
+;-> Ack(3,1): 13
+;-> Ack(3,2): 29
+;-> Ack(3,3): 61
+
+Nota: (ack3 4 1) non è calcolabile.
+
+Le ultime due funzioni "ack2" e "ack3" sono molto lente perchè la simulazione della ricorsione con una coda è molto lenta.
+
+
 ================
 
  PROJECT EULERO
@@ -28598,7 +29205,7 @@ Oppure in maniera equivalente:
 |    99    |  709               |         -  |         0  |         -  |
 |   100    |  756872327473      |         -  |         0  |         -  |
 |   101    |  37076114526       |         -  |        70  |         -  |
-|   102    |  228               |         -  |        70  |         0  |
+|   102    |  228               |         -  |         2  |         0  |
 
 Sito web: https://projecteuler.net/archives
 
@@ -56869,6 +57476,42 @@ Complessità temporale: O(n)
 ;-> (1 3 2 5 4 7 6 9 8)
 
 
+---------------------------
+Generare parentesi (Amazon)
+---------------------------
+
+Date n coppie di parentesi, scrivere una funzione per generare tutte le combinazioni di parentesi ben formate. Ad esempio, per n = 3, un insieme di soluzioni è:
+
+"[[[]]]", "[[][]]", "[[]][]", "[][[]]", "[][][]"
+
+L'idea è che se abbiamo ancora una parentesi sinistra, abbiamo due scelte: inserire una parentesi sinistra o una parentesi destra. Ma la condizione per inserire le parentesi destra è che quelle di sinistra presenti siano di più di quelle di destra presenti. 
+In altre parole, l'i-esimo carattere può essere "[" se e solo se il conteggio di "[" fino a i-esimo è minore di n e i-esimo carattere può essere "]" se e solo se il conteggio di "[" è maggiore rispetto al conteggio di "]" fino all'indice i. Se seguiamo queste due regole, la combinazione risultante sarà sempre bilanciata.
+Usiamo una funzione ricorsiva che segue queste due regole.
+
+(define (parentesi num)
+  (local (str out)
+    (setq str "")
+    (setq out '())
+    (aux-parentesi "" num num)
+    out))
+
+(define (aux-parentesi str sx dx)
+  (cond ((and (zero? sx) (zero? dx))
+         (push str out -1)
+         (setq str ""))
+        (true
+         (if (> sx 0)  (aux-parentesi (string str "[") (- sx 1) dx))
+         (if (< sx dx) (aux-parentesi (string str "]") sx (- dx 1))))))
+
+(parentesi 3)
+;-> ("[[[]]]" "[[][]]" "[[]][]" "[][[]]" "[][][]")
+
+(parentesi 4)
+;-> ("[[[[]]]]" "[[[][]]]" "[[[]][]]" "[[[]]][]" "[[][[]]]" 
+;->  "[[][][]]" "[[][]][]" "[[]][[]]" "[[]][][]" "[][[[]]]" 
+;->  "[][[][]]" "[][[]][]" "[][][[]]" "[][][][]")
+
+
 ==========
 
  LIBRERIE
@@ -60575,21 +61218,82 @@ Esempio base:
 ;-> (70 " " "%1.16g")
 
 
-----------------
-File e cartelle
-----------------
+---------------------------
+Gestione di file e cartelle
+---------------------------
 
-Cartella --> Directory o Folder
+Vediamo alcune funzioni per gestire file e cartelle (folder/directory). Queste funzioni si basano sulle seguenti primitive:
+
+  change-dir      changes to a different drive and directory
+  copy-file       copies a file
+  delete-file     deletes a file
+  directory       returns a list of directory entries
+  file-info       gets file size, date, time, and attributes
+  make-dir        makes a new directory
+  real-path       returns the full path of the relative file path
+  remove-dir      removes an empty directory
+  rename-file     renames a file or directory
+
+e i predicati "directory?" e "file?".
+
+Vediamo le definizioni del manuale delle funzioni "directory", "directory?" e "file?".
+
+**********************
+>>>funzione DIRECTORY
+**********************
+sintassi: (directory [str-path])
+sintassi: (directory str-path str-pattern [regex-option])
+
+Viene restituita una lista di nomi di cartelle per il percorso specificato in str-path. In caso di fallimento, viene restituito nil. Quando str-path viene omesso, viene restituito l'elenco delle cartelle della cartella corrente.
+
+(directory "/ bin")
+
+(directory "c: /")
+
+Il primo esempio restituisce la cartella di / bin, il secondo restituisce una lista di cartelle della cartella  principale (root) dell'unità C:. Notare che sui sistemi MS Windows, è possibile includere una barra (/) nei nomi dei percorsi. Quando viene usata, una barra rovesciata (\) deve essere preceduta da una seconda barra rovesciata (\\).
+
+Nella seconda sintassi, directory può accettare un modello di espressione regolare in str-pattern. Solo i nomi di file che corrispondono al modello verranno restituiti nella lista delle cartelle. In regex-option, possono essere specificate opzioni di espressioni regolari speciali (vedi regex per i dettagli).
+
+(directory "." "\\. c") → ("foo.c" "bar.c")
+;; o utilizzando le parentesi graffe come delimitatori del modello di stringa
+(directory "." {\ .c}) → ("foo.c" "bar.c")
+
+; mostra solo i file nascosti (che iniziano con il punto)
+(directory "." "^ [.]") → ("." ".." ".profile" ".rnd" ".ssh")
+
+L'espressione regolare forza la directory a restituire solo i nomi di file contenenti la stringa ".c".
+
+***********************
+>>>funzione DIRECTORY?
+***********************
+sintassi: (directory? str-path)
+
+Controlla se str-path è una cartella. Restituisce true o nil a seconda del risultato.
+
+(directory? "/etc")
+;-> true
+(directory? "/usr/local/bin/emacs/")
+;-> nil
+
+*****************
+>>>funzione FILE?
+*****************
+syntax: (file? str-path-name [bool])
+
+Verifica l'esistenza di un file in str-name. Restituisce true se il file esiste, in caso contrario, restituisce nil. Questa funzione restituirà true anche per le cartelle. Se il valore facoltativo bool è true, il file non deve essere una cartella e viene restituito str-path-name o nil se il file è una cartella. L'esistenza di un file non implica nulla sulle sue autorizzazioni di lettura o scrittura per l'utente corrente.
+
+(if (file? "afile") (set 'fileNo (open "afile" "read")))
+
+(file? "/usr/local/bin/newlisp" true)
+;-> "/usr/local/bin/newlisp"
+(file? "/usr/bin/foo" true)
+;-> nil
+-------------------------------------------------------------------
 
 Per vedere la cartella corrente della REPL di newLISP:
 
-!cd
-;-> f:\Lisp-Scheme\newLisp\MAX
-
-oppure con una funzione:
-
 (real-path)
-;-> f:\Lisp-Scheme\newLisp\MAX
+;-> f:\\Lisp-Scheme\\newLisp\\MAX
 
 Per cambiare la cartella corrente della REPL di newLISP:
 
@@ -60612,9 +61316,7 @@ Ritorniamo alla cartella precedente:
 (change-dir "f:/Lisp-Scheme/newLisp/MAX")
 ;-> true
 
-Vediamo ora alcune funzioni per stampare la lista dei file e delle cartelle.
-
-"show-tree" mostra tutti i file e le cartelle ricorsivamente:
+La funzione "show-tree" mostra tutti i file e le cartelle ricorsivamente a partire da un cartella predefinita:
 
 (define (show-tree dir)
   (dolist (nde (directory dir))
@@ -60622,16 +61324,42 @@ Vediamo ora alcune funzioni per stampare la lista dei file e delle cartelle.
           (show-tree (append dir "/" nde))
           (println (append dir "/" nde)))))
 
-(show-tree "c:\\")
+(show-tree "f:\\Lisp-Scheme\\newLisp\\MAX")
 
 (show-tree "c:/")
 
+Possiamo anche inserire un contatore per il livello delle cartelle:
+
+(define (show-tree dir counter)
+ (dolist (nde (directory dir))
+   (if (and (directory? (append dir "/" nde)) (!= nde ".") (!= nde ".."))
+        (show-tree (append dir "/" nde) (+ counter 1))
+        (println counter ": "(append dir "/" nde)))))
+
+(show-tree "c:/Borland" 0)
+;-> 0: c:/Borland/.
+;-> 0: c:/Borland/..
+;-> 1: c:/Borland/BCC55/.
+;-> 1: c:/Borland/BCC55/..
+;-> 2: c:/Borland/BCC55/Bin/.
+;-> 2: c:/Borland/BCC55/Bin/..
+;-> 2: c:/Borland/BCC55/Bin/bcc32.cfg
+;-> 2: c:/Borland/BCC55/Bin/bcc32.exe
+
+La funzione primitiva "env" recupera il valore di una variabile d'ambiente del s.o.:
+
+(env "PATH")
+;-> "c:\\Program Files (x86)\\Common Files\\..."
+(env "USERNAME")
+;-> "u42"
+(env "PATH")
+;-> "c:\\Program Files (x86)\\Common Files\\..."
+
 (env "newLISPDIR")
 ;-> "C:\\newlisp"
+(show-tree (env "newLISPDIR"))
 
-(show-tree (env "newLISPDIR")) ;; also works on Win32
-
-"show-dir" mostra cartelle dalla cartella corrente:
+La funzione "show-dir" mostra tutte le cartelle della cartella passata come parametro:
 
 (define (show-dir dir)
   (dolist (nde (directory dir))
@@ -60640,26 +61368,25 @@ Vediamo ora alcune funzioni per stampare la lista dei file e delle cartelle.
             (println (append dir "/" nde))))))
 
 (show-dir (env "newLISPDIR"))
+(show-dir (real-path))
 
-"show-file" mostra file e cartelle dalla cartella corrente:
+La funzione "show-file" mostra tutti i file e le cartelle della cartella passata come parametro:
 
 (define (show-file dir)
   (dolist (nde (directory dir))
     (println (append dir "/" nde))))
 
 (show-file (env "newLISPDIR"))
+(show-file (real-path))
 
-(show-file "c:\\")
-
-(show-file "C:\\newlisp\\util")
-(show-file "C:/newlisp/util")
-
-Per visualizzare solo determinati file possiamo usare la funzione seguente:
+Per visualizzare/filtrare solo determinati file possiamo usare la funzione seguente:
 
 (filter (fn (f) (ends-with f ".ahk")) (directory))
 ;-> ("npp-newlisp.ahk" "test.ahk" "_npp-newlisp.ahk" "_vscode.ahk")
 
-Oppure possiamo usare la shell in due modi:
+(filter (fn (f) (ends-with f ".ahk")) (directory))
+
+Oppure possiamo usare i comandi della shell in due modi:
 
 (exec "dir *.ahk /b")
 ;-> ("npp-newlisp.ahk" "test.ahk" "_npp-newlisp.ahk" "_vscode.ahk")
@@ -60671,11 +61398,12 @@ Per estrarre il percorso completo di un file:
 
 Unix
 (join (chop (parse (real-path "_TODO.txt") "/")) "/")
+
 Windows
 (join (chop (parse (real-path "_TODO.txt") "\\")) "\\")
 ;-> "f:\\Lisp-Scheme\\newLisp\\MAX"
 
-Per creare cartelle (anche annidate) possiamo usare la seguente funzione:
+Per creare cartelle (anche annidate) possiamo usare la funzione "makedir":
 
 (define (makedir path)
   (let (old-path (real-path))
@@ -60687,9 +61415,9 @@ Per creare cartelle (anche annidate) possiamo usare la seguente funzione:
 (makedir "one/two/three")
 ;-> true
 
-Oppure questa:
+Oppure la funzione "mkdirs":
 
-(define (mkdirs path , p)
+(define (mkdirs path  p)
   (dolist (l (parse path "/"))
     (push l p -1)
     (unless (empty? l) (make-dir (join p "/")))))
@@ -60708,7 +61436,7 @@ Per cambiare cartella partendo dal percorso di un file:
 (define (. f)
   (join (chop (parse (real-path f) "\\") 1) "\\") )
 
-Adesso possiamo cambiare la cartella corrente in due modi:
+Adesso possiamo cambiare la cartella in due modi:
 
 (change-dir (.. "f:\\Lisp-Scheme\\newLisp\\MAX\\_TODO.txt"))
 ;-> true
@@ -60719,6 +61447,77 @@ Adesso possiamo cambiare la cartella corrente in due modi:
 ;-> true
 (real-path)
 ;-> "f:\\Lisp-Scheme\\newLisp\\MAX"
+
+Per verificare se una cartella è vuota:
+
+(define (empty-dir? path-to-check)
+  (empty? (clean (lambda (x) (or (= "." x) (= ".." x))) (directory path-to-check)))
+)
+
+Per verificare se un file esiste all'interno della cartella corrente:
+
+(define (file-exists? file bool) (file? file bool))
+
+(file-exists? "_TODO.txt")
+;-> true
+(file-exists? "O.txt")
+;-> nil
+(file-exists? "_TODO.txt" true)
+;-> "_TODO.txt"
+
+Per verificare se una cartella esiste all'interno della cartella corrente:
+
+(define (directory-exists? folder) (directory? folder bool))
+
+(directory-exists? "newLISP-Note")
+;-> true
+(directory-exists? "newLISP-No")
+;-> nil
+(directory-exists? "MAX")
+;-> nil
+
+Per ottenere informazioni su un file o su una cartella usiamo la funzione primitiva "file-info".
+
+**********************
+>>>funzione FILE-INFO
+**********************
+sintassi: (file-info str-name [int-index [bool-flag]])
+
+Restituisce una lista di informazioni sul file o sulla cartella in str_name. L'indice facoltativo int-index specifica il membro della lista da restituire. Quando non viene specificato alcun bool-flag o quando il bool-flag vale nil, vengono restituite informazioni sul collegamento se il file è un collegamento a un file originale. Se bool-flag è diverso da nil, allora vengono restituite le informazioni sul file originale a cui fa riferimento il collegamento.
+
+Offset  Contents
+------  --------
+  0     size
+  1     mode (differs with true flag)
+  2     device mode
+  3     user ID
+  4     group ID
+  5     access time
+  6     modification time
+  7     status change time
+
+A seconda del flag di bool impostato, la funzione riporta sul collegamento (nessun flag o flag nil) o sul file collegato originale (flag vero).
+
+(file-info ".bashrc")
+;-> (124 33188 0 500 0 920951022 920951022 920953074)
+
+(file-info ".bashrc" 0)
+;-> 124
+
+Nel secondo esempio, viene recuperata l'ultima data di modifica dello stato per la cartella /etc. 
+
+file-info fornisce le statistiche del file (dimensione) per un file collegato, non il collegamento, ad eccezione per il campo mode.
+
+(date (file-info "_TODO.txt" 7))
+;-> "Wed May 08 17:07:39 2020"
+
+Comandi shell
+-------------
+Se un ! (punto esclamativo) viene inserito come primo carattere sulla riga di comando seguito da un comando di shell, il comando verrà eseguito. Ad esempio, !ls su Unix o !dir su MS Windows mostrerà un elenco della cartella di lavoro corrente. Non sono consentiti spazi tra il ! e il comando della shell. Simboli che iniziano con ! sono ancora consentiti all'interno delle espressioni o sulla riga di comando se preceduti da uno spazio. Nota: questa modalità funziona solo quando è in esecuzione nella shell e non funziona quando si controlla newLISP da un'altra applicazione.
+
+Per uscire dalla shell newLISP su Linux / Unix, premere Ctrl-D. Su MS Windows, digita (esci) o Ctrl-C, quindi il tasto x.
+
+Utilizzare la funzione exec per accedere ai comandi della shell da altre applicazioni o per passare i risultati a newLISP.
 
 
 -------------------
@@ -60833,7 +61632,6 @@ In newLISP la parola "lambda" individua un tipo speciale di lista: la "lambda li
 Le macro funzionano in modo molto diverso in newLISP rispetto al Common LISP o Scheme.
 
 Questo è uno dei motivi per cui mi piace newLISP.
-
 
 
 ----------
@@ -78871,13 +79669,155 @@ Questa volta "a" vale:
   
   y2 = sqrt(z2² + 2*z2*a)
   
-              z1 + y1 + a
+             z1 + y1 + a
   x1 = a*ln(-------------)
                   a
   
-              z2 + y2 + a
+             z2 + y2 + a
   x2 = a*ln(-------------)
                 a
+
+
+------------------
+Numeri automorfici
+------------------
+
+In matematica si dice numero automorfo o anche intero automorfo un intero positivo che nelle notazioni decimali ha il quadrato che presenta nella sua parte finale il numero stesso. 
+Esempi: 5^2 = 25, 76^2 = 5776, 890625^2 = 793212890625.
+
+(define (automorfico? num)
+(catch
+  (let (quadrato (* num num))
+    ; confronto delle cifre
+    (while (> num 0)
+      ; se le cifre di num e le ultime di quadrato non sono uguali
+      ; allora num non è automorfico
+      (if (!= (% num 10) (% quadrato 10))
+          (throw nil))
+      (setq num (/ num 10))
+      (setq quadrato (/ quadrato 10))
+    )
+    true)))
+
+(automorfico? 890625)
+;-> true
+
+Vediamo i numeri automorfici fino a 100 milioni:
+
+(for (i 0 1e8) (if (automorfico? (bigint i)) (print i { })))
+;-> 0 1 5 6 25 76 376 625 9376 90625 109376 
+;-> 890625 2890625 7109376 12890625 87109376
+
+
+-----------------
+Numeri trimorfici
+-----------------
+
+Un numero è chiamato numero trimorfico se e solo se il suo cubo termina con le stesse cifre del numero stesso. In altre parole, è trimorfico se il numero appare alla fine del suo cubo.
+
+Esempi di numeri trimorfici:
+
+5 --> 5*5*5 = 125
+
+24 --> 24*24*24 = 13824
+
+(define (trimorfico? num)
+(catch
+  (let (cubo (* num num num))
+    ; confronto delle cifre
+    (while (> num 0)
+      ; se le cifre di num e le ultime di cubo non sono uguali
+      ; allora num non è trimorfico
+      (if (!= (% num 10) (% cubo 10))
+          (throw nil))
+      (setq num (/ num 10))
+      (setq cubo (/ cubo 10))
+    )
+    true)))
+
+(trimorfico? 534857623847562384756238745623L)
+;-> true
+
+(trimorfico? 24)
+;-> true
+
+Vediamo i numeri trimorfici fino a 100 milioni:
+
+(for (i 0 1e8) (if (trimorfico? (bigint i)) (print i { })))
+;-> 0 1 4 5 6 9 24 25 49 51 75 76 99 125 249 251 375 376 499 501 
+;-> 624 625 749 751 875 999 1249 3751 4375 4999 5001 5625 6249 
+;-> 8751 9375 9376 9999 18751 31249 40625 49999 50001 59375 
+;-> 68751 81249 90624 90625 99999 109375 109376 218751 281249 
+;-> 390625 499999 500001 609375 718751 781249 890624 890625 
+;-> 999999 2109375 2890624 2890625 4218751 4999999 5000001 5781249 
+;-> 7109375 7109376 7890625 9218751 9999999 12890624 12890625 
+;-> 24218751 25781249 37109375 49999999 50000001 62890625 74218751 
+;-> 75781249 87109375 87109376 99999999
+
+
+----------------------
+Funzioni come Stringhe
+----------------------
+
+Nel paragrafo "Funzioni come liste" abbiamo visto che in newLISP le funzioni sono delle liste particolari che cominciano con la parola-chiave "lambda":
+
+(define (test a b) (+ a b))
+;-> (lambda (a b) (+ a b))
+
+Verifichiamo che "test" sia una lista e vediamo come è composta:
+
+(list? test)
+;-> true
+
+(length test)
+;-> 2
+
+Il primo elemento è la lista degli argomenti della funzione/lista:
+
+(nth 0 test)
+;-> (a b)
+
+Il secondo elemento è il corpo della funzione/lista:
+
+(nth 1 test)
+(+ a b)
+
+Adesso mostriamo brevemente che una funzione può essere trasformata in una stringa, la quale può essere modificata e poi riconvertita in una funzione.
+
+Per esempio, prendiamo la nostra funzione "test" e applichiamola a due numeri:
+
+(test 5 3)
+;-> 8
+
+Adesso assegniamo la funzione "test" ad una stringa:
+
+(setq fs (string test))
+;-> "(lambda (a b) (+ a b))"
+
+Troviamo la posizione del segno "+" e sostituiamolo con il segno "-":
+
+(find "+" fs)
+;-> 15
+
+(setf (fs 15) "-")
+;-> "-"
+
+La stringa "fs" è diventata:
+
+(println fs)
+;-> (lambda (a b) (- a b))
+
+Adesso possiamo utilizzare la funzione primitiva "eval-string", che valuta l'espressione contenuta in una stringa, per convertire la stringa "fs" in una nuova funzione:
+
+(setq test2 (eval-string fs))
+;-> (lambda (a b) (- a b))
+
+Proviamo la nuova funzione:
+
+(test2 5 3)
+;-> 2
+
+Quindi è possibile convertire una funzione in una stringa e viceversa.
 
 
 ===========

@@ -10205,3 +10205,597 @@ Oppure in maniera equivalente:
 ;-> true
 
 
+------------
+GAME OF LIFE
+------------
+
+Il Gioco della Vita (The Game of Life), noto anche semplicemente come Life, è un automa cellulare ideato dal matematico britannico John Horton Conway nel 1970. È un gioco la cui evoluzione è determinata dal suo stato iniziale e non richiede ulteriori input. Si interagisce con il gioco della vita creando una configurazione iniziale e osservando come si evolve passo dopo passo. Il gioco è Turing completo e può simulare qualsiasi macchina di Turing.
+
+Regole del gioco
+----------------
+L'universo del Gioco della Vita è una griglia ortogonale bidimensionale infinita di celle quadrate, ognuna delle quali si trova in uno dei due possibili stati, vivo o morto (o popolato e non popolato, rispettivamente). Ogni cella interagisce con i suoi otto vicini, che sono le celle adiacenti orizzontalmente, verticalmente o diagonalmente. Ad ogni passaggio nel tempo, si verificano le seguenti transizioni:
+
+  - Qualsiasi cellula viva con meno di due vicini vivi muore, come per sottopopolazione.
+  - Qualsiasi cellula viva con due o tre vicini vivi sopravvive alla generazione successiva.
+  - Qualsiasi cellula viva con più di tre vicini vivi muore, come per sovrappopolazione.
+  - Qualsiasi cellula morta con esattamente tre vicini vivi diventa una cellula viva, come per riproduzione.
+
+Queste regole, che confrontano il comportamento dell'automa con la vita reale, possono essere condensate come segue:
+
+  - Qualsiasi cellula viva con due o tre vicini vivi sopravvive.
+  - Qualsiasi cellula morta con tre vicini vivi diventa una cellula viva.
+  - Tutte le altre cellule vive muoiono nella generazione successiva. Allo stesso modo, tutte le altre cellule morte rimangono morte.
+
+Il modello iniziale costituisce il seme del sistema. La prima generazione viene creata applicando le regole di cui sopra simultaneamente a ogni cellula del seme: nascite e morti avvengono simultaneamente e il momento discreto in cui ciò accade è talvolta chiamato passo (tick o step). Ogni generazione è una funzione pura della precedente. Le regole continuano ad essere applicate ripetutamente per creare nuove generazioni.
+
+Implementazione
+---------------
+Il nostro universo è finito e viene rappresentato con una matrice quadrata NxN.
+
+La stato "vivo" vale 1.
+Lo stato "morto" vale 0.
+
+In questo modo possiamo sommare i valori dei vicini per applicare le regole:
+
+Per le celle vive (1):
+- (somma < 2) o (somma > 3) ==> la cella muore
+- (somma = 2) o (somma = 3) ==> la cella continua a vivere
+
+Per le celle morte (0):
+- (somma == 3) ==> la cella nasce (vive)
+
+Invece di iterare su una matrice usiamo un vettore, per esempio la seguente matrice 4x4:
+
+0 1 0 1
+0 1 0 0
+0 0 0 0
+1 1 0 1
+
+viene rappresentata con il vettore di 16 elementi:
+
+0 1 0 1 0 1 0 0 0 0 0 0 1 1 0 1
+
+dove gli indici della matrice sono determinati da:
+
+riga    = i % 4
+colonna = i / 4
+
+Questo ci permette di calcolare più facilmente i vicini di una cella. Per esempio, nel nostro caso N = 4 e i vicini della cella i-esima sono i seguenti:
+
+sinistra: (i - 1)
+destra:   (i + 1)
+sopra:    (i - N) = (i - 4)
+sotto:    (i + N) = (i + 4)
+alto-sx:  (i - (N + 1)) = (i - 5)
+alto-dx:  (i - (N - 1)) = (i - 3)
+basso-sx: (i + (N - 1)) = (i + 3)
+basso-dx: (i + (N + 1)) = (i + 5)
+
+Per evitare il controllo degli indici quando visitiamo/sommiamo le celle vicine contorniamo la matrice con valori 0 che la delimitano (in questo modo la somma non viene modificata dai valori di contorno che valgono 0).
+
+Supponiamo di avere una matrice 10x10 di celle. Poichè la matrice viene contornata la matrice finale ha dimensioni 12x12.
+
+Definiamo il vettore:
+
+(setq dim 12)
+(setq board (array (* dim dim) '(0)))
+
+Scriviamo una funzione che stampa il gioco:
+
+(define (print-board board size)
+  (for (i 0 (- (length board) 1))
+    (cond ((= i 0) (print"╔"))
+          ((< i (- size 1)) (print "══"))
+          ((= i (- size 1)) (print"╗"))
+          ((= i (* size (- size 1))) (print "╚"))
+          ((= i (- (length board) 1)) (print"╝"))
+          ((or (zero? (% i size)) (zero? (% (+ i 1) size))) (print "║"))
+          ((and (> i (* size (- size 1))) (< i (- (* size size) 1))) (print "══"))
+          ((zero? (board i)) (print "  "))
+          ((= 1 (board i)) (print "██"))
+    )
+    (if (zero? (% (+ i 1) size))
+        (println))
+  ))
+
+(print-board board dim)
+
+Scriviamo una funzione che data una generazione calcola la successiva:
+
+(define (next board size)
+  (local (temp-board somma)
+    ; crea matrice temporanea
+    (setq temp-board board)
+    ; per ogni cella della matrice di life
+    (for (i (+ size 1) (- (length board) (+ size 2)))
+      ; se l'indice è fuori dalla matrice (nel contorno)
+      (if (or (zero? (% i size)) (zero? (% (+ i 1) size)))
+          nil
+          (begin
+            ; calcolo del numero dei vicini della cella
+            (setq somma (+ (board (- i 1))
+                           (board (+ i 1))
+                           (board (- i size))
+                           (board (+ i size))
+                           (board (- i (+ size 1)))
+                           (board (- i (- size 1)))
+                           (board (+ i (+ size 1)))
+                           (board (+ i (- size 1)))))
+                  ; (> 3) la cella muore
+            (cond ((> somma 3) (setf (temp-board i) 0))
+                  ; (= 3) la cella vive o nasce
+                  ((= somma 3) (setf (temp-board i) 1))
+                  ; (= 2 e viva) la cella vive
+                  ((and (= somma 2) (= (temp-board i) 1)) (setf (temp-board i) 1))
+                  ; altrimenti la cella muore
+                  (true (setf (temp-board i) 0))
+            )
+          )
+       )
+    )
+  temp-board))
+
+Adesso definiamo un "glider" nella matrice iniziale. Un "glider" è una configurazione che si muove indefinitamente nella matrice (a meno che non incroci altre celle vive).
+
+(setf (board 15) 1)
+(setf (board 27) 1)
+(setf (board 39) 1)
+(setf (board 38) 1)
+(setf (board 25) 1)
+
+Stampiamo la matrice:
+
+(print-board board dim)
+ ╔════════════════════╗
+ ║    ██              ║
+ ║██  ██              ║
+ ║  ████              ║
+ ║                    ║
+ ║                    ║
+ ║                    ║
+ ║                    ║
+ ║                    ║
+ ║                    ║
+ ║                    ║
+ ╚════════════════════╝
+
+Adesso calcoliamo le generazioni successive con un ciclo:
+
+(while true
+  (setq board (next board dim))
+  (print-board board dim)
+  (print "Premi Invio per la prossima generazione:")
+  (read-line))
+
+╔════════════════════╗ ╔════════════════════╗ ╔════════════════════╗
+║  ██                ║ ║    ██              ║ ║                    ║
+║    ████            ║ ║      ██            ║ ║  ██  ██            ║
+║  ████              ║ ║  ██████            ║ ║    ████            ║
+║                    ║ ║                    ║ ║    ██              ║
+║                    ║ ║                    ║ ║                    ║
+║                    ║ ║                    ║ ║                    ║
+║                    ║ ║                    ║ ║                    ║
+║                    ║ ║                    ║ ║                    ║
+║                    ║ ║                    ║ ║                    ║
+║                    ║ ║                    ║ ║                    ║
+╚════════════════════╝ ╚════════════════════╝ ╚════════════════════╝
+╔════════════════════╗ ╔════════════════════╗
+║    ██              ║ ║                    ║
+║      ██            ║ ║      ██            ║
+║  ██████            ║ ║  ██  ██            ║
+║                    ║ ║    ████            ║
+║                    ║ ║                    ║
+║                    ║ ║                    ║
+║                    ║ ║                    ║
+║                    ║ ║                    ║
+║                    ║ ║                    ║
+║                    ║ ║                    ║
+╚════════════════════╝ ╚════════════════════╝
+
+L'ultima generazione è uguale alla prima tranne il fatto che il "glider" si è spostato in basso a sinistra della matrice.
+
+Esistono tante configurazioni particolari nel gioco della vita.
+
+Adesso scriviamo una funzione che prende una matrice in ingresso (configurazione iniziale) e calcola le generazioni successive.
+
+La matrice ha la seguente struttura:
+
+(setq gen0 '((0 1 0 0 1 0 0)
+             (1 1 1 0 1 0 1)
+             (1 0 1 0 1 1 0)
+             (0 1 0 0 0 0 1)
+             (1 1 1 1 1 0 1)
+             (0 1 0 1 0 1 1)
+             (1 1 0 1 0 1 1)))
+
+Prima dobbiamo scrivere una funzione che contorna la matrice di 0:
+
+(define (pad matrix)
+  (local (row col out)
+    (setq out '())
+    (if (array? matrix) (setq matrix (array-list matrix)))
+    (setq row (+ 2 (length matrix)))
+    (setq col (+ 2 (length (matrix 0))))
+    ; aggiunge una riga iniziale ad out
+    (push (dup 0 col true) out -1)
+    ; aggiunge le righe centrali ad out
+    (dolist (el matrix)
+      (setq cur (append '(0) el '(0)))
+      (push cur out -1)
+    )
+    ; aggiunge una riga finale ad out
+    (push (dup 0 col true) out -1)
+    (array (* col row) (flat out))))
+
+(setq matrice '((0 0 1 0 0)
+                (1 0 1 0 1)
+                (0 0 1 1 1)
+                (0 0 0 0 1)
+                (0 1 1 1 1)))
+
+(print-board (pad matrice) 7)
+╔══════════╗
+║    ██    ║
+║██  ██  ██║
+║    ██████║
+║        ██║
+║  ████████║
+╚══════════╝
+
+Adesso scriviamo la funzione finale:
+
+(define (life start)
+  (local (board dim)
+    (setq board (pad start))
+    (setq dim (sqrt (length board)))
+    (while true
+      (setq board (next board dim))
+      (print-board board dim)
+      (println "Premi Invio per la prossima generazione")
+      (println "       Premi Ctrl-C per uscire")
+      (read-line))))
+
+Generiamo una generazione iniziale casuale con una matrice 32x32:
+
+(setq gen0 (explode (rand 2 1024) 32))
+
+Facciamo partire la simulazione:
+
+(life gen0)
+╔════════════════════════════════════════════════════════════════╗
+║  ██████      ██████  ██████████    ██████    ████  ██        ██║
+║██          ██        ██          ██                            ║
+║██                    ██              ██                        ║
+║██  ██      ██                                    ██          ██║
+║██        ████████                ██  ██      ████        ██████║
+║  ████    ██                      ██  ██  ██                ████║
+║██        ████                    ████        ████          ██  ║
+║██      ████                    ██                            ██║
+║██          ██            ██                                  ██║
+║      ████                ██                                    ║
+║████                    ████    ██                ██  ██    ██  ║
+║      ██                    ██                    ██  ████      ║
+║      ██  ██  ██  ████████████  ████      ████    ██  ██  ██  ██║
+║██        ██  ████                    ██████      ██  ██  ██  ██║
+║██              ██████    ██                      ██  ██      ██║
+║  ████    ██    ████                ██  ██            ████████  ║
+║      ██  ██                ██  ██    ████  ██        ████    ██║
+║  ████      ██    ██        ██                            ██  ██║
+║██          ██        ██        ██    ████            ████      ║
+║██                              ██                          ████║
+║██                                                      ██  ██  ║
+║██      ██                          ██          ██      ██  ██  ║
+║██    ████  ██        ██            ██  ██          ██    ██    ║
+║          ██                            ██  ██  ██        ██    ║
+║████        ████      ██          ████  ██  ██  ██  ██        ██║
+║██            ██                            ████                ║
+║██        ██    ████      ██      ████        ██                ║
+║        ████████      ████  ██        ██                        ║
+║  ████  ████████        ████  ██                ██          ████║
+║      ████    ██████████████                          ██        ║
+║      ██        ██        ██                                    ║
+║                    ██████    ██  ████      ████  ██  ██  ██    ║
+╚════════════════════════════════════════════════════════════════╝
+Premi Invio per la prossima generazione
+       Premi Ctrl-C per uscire
+
+---------------------
+
+Adesso vediamo un altro metodo per simulare il gioco della vita. Questa volta utilizziamo una matrice n x m anche nel programma (e non un vettore come prima). Comunque i bordi della matrice (prima e ultima riga con prima e ultima colonna) hanno tutti valore 0 perchè rappresentano il limite/contorno della matrice (come nel caso precedente).
+
+Funzione che stampa la matrice:
+
+(define (print-griglia griglia m n)
+  (for (i 0 (- m 1))
+    (for (j 0 (- n 1))
+      (if (zero? (griglia i j))
+          (print "·")
+          (print "×")
+      )
+    )
+    (println "")
+  ))
+
+Funzione che calcola la generazione successiva:
+
+(define (next-gen griglia m n)
+  (local (vivi gen)
+    (setq gen (array m n '(0)))
+    ; per ogni cella della matrice
+    (for (r 1 (- m 2))
+      (for (c 1 (- n 2))
+        (setq vivi 0)
+        ; calcola i vicini che sono vivi
+        (for (i -1 1)
+          (for (j -1 1)
+            (setq vivi (+ vivi (griglia (+ r i) (+ c j))))
+          )
+        )
+        ; sottrae il valore della cella corrente
+        ; (che non deve rientrare nei vicini)
+        (setq vivi (- vivi (griglia r c)))
+        ; Applica le regole del gioco della vita:
+              ; solitudine: la cella muore
+        (cond ((and (= (griglia r c) 1) (< vivi 2))
+              (setf (gen r c) 0))
+              ; sovrappopolazione: cella muore
+              ((and (= (griglia r c) 1) (> vivi 3))
+              (setf (gen r c) 0))
+              ; nascita: cella nasce/vive
+              ((and (= (griglia r c) 0) (= vivi 3))
+              (setf (gen r c) 1))
+              ; nessun cambiamento: la cella rimane nel suo stato
+              (true (setf (gen r c) (griglia r c)))
+        )))
+     gen))
+
+Funzione finale:
+
+(define (vita griglia m n)
+  (local (tempgrid)
+    (setq tempgrid griglia)
+    (print-griglia tempgrid m n)
+    (println "Generazione iniziale")
+    (println "Premere Invio per la prossima generazione")
+    (println "oppure Ctrl-C per uscire")
+    (while true
+      (setq tempgrid (next-gen tempgrid m n))
+      (print-griglia tempgrid m n)
+      (println "Premere Invio per la prossima generazione")
+      (println "oppure Ctrl-C per uscire")
+      (read-line))))
+
+Proviamo con una matrice 10 x 14:
+
+(setq board '((0 0 0 0 0 0 0 0 0 0 0 0 0 0)
+              (0 0 0 1 0 0 0 0 0 0 1 0 0 0)
+              (0 1 0 1 0 0 0 0 0 0 1 0 0 0)
+              (0 0 1 1 0 0 0 0 0 0 1 0 0 0)
+              (0 0 0 0 0 0 0 0 0 0 0 0 0 0)
+              (0 0 0 0 0 0 0 0 0 0 0 0 0 0)
+              (0 0 0 0 0 0 0 0 0 0 0 0 0 0)
+              (0 1 1 0 0 0 0 0 0 0 0 0 0 0)
+              (0 1 1 0 0 0 0 0 0 0 0 0 0 0)
+              (0 0 0 0 0 0 0 0 0 0 0 0 0 0)))
+
+Lanciamo la simulazione:
+
+(vita board 10 14)
+
+··············  ··············  ··············  ··············
+···x······x···  ··x···········  ···x······x···  ··············
+·x·x······x···  ···xx····xxx··  ····x·····x···  ··x·x····xxx··
+··xx······x···  ··xx··········  ··xxx·····x···  ···xx·········
+··············  ··············  ··············  ···x··········
+··············  ··············  ··············  ··············
+··············  ··············  ··············  ··············
+·xx···········  ·xx···········  ·xx···········  ·xx···········
+·xx···········  ·xx···········  ·xx···········  ·xx···········
+··············  ··············  ··············  ··············
+Generazione 0   Generazione 1   Generazione 2   Generazione 3
+
+··············
+··········x···
+····x·····x···
+··x·x·····x···
+···xx·········
+··············
+··············
+·xx···········
+·xx···········
+··············
+Generazione 4
+
+Nota: il miglior programma (open-source e multi-piattaforma) per "giocare" con Life e altri automi cellulari è "golly" (http://golly.sourceforge.net/).
+
+
+---------
+ACKERMANN
+---------
+
+Nella teoria della computabilità la funzione di Ackermann (da Wilhelm Ackermann) è uno degli esempi più semplici e scoperti per primi di una funzione totalmente calcolabile che non è ricorsiva in modo primitivo. Tutte le funzioni ricorsive primitive sono totali e calcolabili, ma la funzione di Ackermann illustra che non tutte le funzioni computabili totali sono ricorsive primitive.
+Una versione comune, la funzione Ackermann – Péter a due argomenti, è definita per gli interi non negativi m e n nel modo seguente:
+
+A(0, n) = n + 1
+A(m, 0) = A(m-1, 1)
+A(m, n) = A(m-1, A(m n-1))
+
+Il suo valore cresce rapidamente, anche per valori piccoli di input.
+
+Versione di base:
+
+(define (ackermann m n)
+  (cond ((zero? m) (+ n 1))
+        ((zero? n) (ackermann (- m 1) 1))
+        (true (ackermann (- m 1) (ackermann m (- n 1))))))
+
+(for (m 0 3)
+  (for (n 0 3)
+    (println (format "Ack(%d,%d): %d" m n (ackermann m n)))))
+;-> Ack(0,0): 1
+;-> Ack(0,1): 2
+;-> Ack(0,2): 3
+;-> Ack(0,3): 4
+;-> Ack(1,0): 2
+;-> Ack(1,1): 3
+;-> Ack(1,2): 4
+;-> Ack(1,3): 5
+;-> Ack(2,0): 3
+;-> Ack(2,1): 5
+;-> Ack(2,2): 7
+;-> Ack(2,3): 9
+;-> Ack(3,0): 5
+;-> Ack(3,1): 13
+;-> Ack(3,2): 29
+;-> Ack(3,3): 61
+
+Versione migliorata:
+
+(define (pow-i num power)
+  (local (pot out)
+    (if (zero? power)
+        (setq out 1L)
+        (begin
+          (setq pot (pow-i num (/ power 2)))
+          (if (odd? power)
+              (setq out (* num pot pot))
+              (setq out (* pot pot)))))
+    out))
+
+(define (ack m n)
+  (case m
+    (0 (+ n 1))
+    (1 (+ n 2))
+    (2 (+ n n 3))
+    (3 (- (pow-i 2L (+ 3L n)) 3))
+    (true (ack (- m 1) (if (zero? n) 1 (ack m (- n 1)))))))
+
+(for (m 0 3)
+  (for (n 0 3)
+    (println (format "Ack(%d,%d): %d" m n (ack m n)))))
+;-> Ack(0,0): 1
+;-> Ack(0,1): 2
+;-> Ack(0,2): 3
+;-> Ack(0,3): 4
+;-> Ack(1,0): 2
+;-> Ack(1,1): 3
+;-> Ack(1,2): 4
+;-> Ack(1,3): 5
+;-> Ack(2,0): 3
+;-> Ack(2,1): 5
+;-> Ack(2,2): 7
+;-> Ack(2,3): 9
+;-> Ack(3,0): 5
+;-> Ack(3,1): 13
+;-> Ack(3,2): 29
+;-> Ack(3,3): 61
+
+Possiamo anche calcolare:
+
+(ack 4L 1L)
+;-> 65533
+
+Il seguente output ha 20221 cifre:
+
+(ack 4L 2L)
+;-> 200352993040684646497907235156025575044782547556...
+;-> ...337539755822087777506072339445587895905719156733L
+
+Non provate a calcolare:
+
+(ack 4L 3L)
+
+ci vuole troppo tempo.
+
+La funzione di Ackermann può essere calcolata anche in modo iterativo, ma dobbiamo simulare la ricorsione con una pila (stack), inserendo (push) ed estraendo (pop) i valori di input e di output per ogni chiamata di funzione (che è quello che fa il linguaggio nel runtime):
+
+(define (ack2 m n)
+  (local (stack lst out q)
+    (setq stack (list (list m n 0)))
+    (setq out -1)
+    (while (> (length stack) 0)
+      (setq lst (pop stack))
+      (setq m (lst 0))
+      (setq n (lst 1))
+      (setq q (lst 2))
+      (cond ((zero? q)
+             (cond ((zero? m) (setq out (+ n 1)))
+                   ((zero? n) (push (list (- m 1) 1 0) stack))
+                   (true (push (list m n 1) stack)
+                         (push (list m (- n 1) 0) stack)))
+            )
+            ((= q 1) (push (list (- m 1) out 0) stack))
+            (true (println "nil"))
+      )
+    )
+    out))
+
+(for (m 0 3)
+  (for (n 0 3)
+    (println (format "Ack(%d,%d): %d" m n (ack2 m n)))))
+;-> Ack(0,0): 1
+;-> Ack(0,1): 2
+;-> Ack(0,2): 3
+;-> Ack(0,3): 4
+;-> Ack(1,0): 2
+;-> Ack(1,1): 3
+;-> Ack(1,2): 4
+;-> Ack(1,3): 5
+;-> Ack(2,0): 3
+;-> Ack(2,1): 5
+;-> Ack(2,2): 7
+;-> Ack(2,3): 9
+;-> Ack(3,0): 5
+;-> Ack(3,1): 13
+;-> Ack(3,2): 29
+;-> Ack(3,3): 61
+
+Nota: (ack2 4 1) non è calcolabile.
+
+La prossima funzione differisce da quella precedente in quanto inserisce nello stack solo il valore di m e non una tripla di valori:
+
+(define (ack3 m n)
+  (local (stack lst out q)
+    (setq stack (list m))
+    (while (> (length stack) 0)
+      (setq m (pop stack))
+      (cond ((zero? m) (setq n (+ n m 1)))
+            ((zero? n)
+             (setq n (+ n 1))
+             (setq m (- m 1))
+             (push m stack))
+            (true
+             (setq m (- m 1))
+             (push m stack)
+             (setq m (+ m 1))
+             (push m stack)
+             (setq n (- n 1)))
+      )
+    )
+    n))
+
+(for (m 0 3)
+  (for (n 0 3)
+    (println (format "Ack(%d,%d): %d" m n (ack3 m n)))))
+;-> Ack(0,0): 1
+;-> Ack(0,1): 2
+;-> Ack(0,2): 3
+;-> Ack(0,3): 4
+;-> Ack(1,0): 2
+;-> Ack(1,1): 3
+;-> Ack(1,2): 4
+;-> Ack(1,3): 5
+;-> Ack(2,0): 3
+;-> Ack(2,1): 5
+;-> Ack(2,2): 7
+;-> Ack(2,3): 9
+;-> Ack(3,0): 5
+;-> Ack(3,1): 13
+;-> Ack(3,2): 29
+;-> Ack(3,3): 61
+
+Nota: (ack3 4 1) non è calcolabile.
+
+Le ultime due funzioni "ack2" e "ack3" sono molto lente perchè la simulazione della ricorsione con una coda è molto lenta.
+
+

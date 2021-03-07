@@ -7060,3 +7060,39 @@ Complessità temporale: O(n)
 ;-> (1 3 2 5 4 7 6 9 8)
 
 
+---------------------------
+Generare parentesi (Amazon)
+---------------------------
+
+Date n coppie di parentesi, scrivere una funzione per generare tutte le combinazioni di parentesi ben formate. Ad esempio, per n = 3, un insieme di soluzioni è:
+
+"[[[]]]", "[[][]]", "[[]][]", "[][[]]", "[][][]"
+
+L'idea è che se abbiamo ancora una parentesi sinistra, abbiamo due scelte: inserire una parentesi sinistra o una parentesi destra. Ma la condizione per inserire le parentesi destra è che quelle di sinistra presenti siano di più di quelle di destra presenti. 
+In altre parole, l'i-esimo carattere può essere "[" se e solo se il conteggio di "[" fino a i-esimo è minore di n e i-esimo carattere può essere "]" se e solo se il conteggio di "[" è maggiore rispetto al conteggio di "]" fino all'indice i. Se seguiamo queste due regole, la combinazione risultante sarà sempre bilanciata.
+Usiamo una funzione ricorsiva che segue queste due regole.
+
+(define (parentesi num)
+  (local (str out)
+    (setq str "")
+    (setq out '())
+    (aux-parentesi "" num num)
+    out))
+
+(define (aux-parentesi str sx dx)
+  (cond ((and (zero? sx) (zero? dx))
+         (push str out -1)
+         (setq str ""))
+        (true
+         (if (> sx 0)  (aux-parentesi (string str "[") (- sx 1) dx))
+         (if (< sx dx) (aux-parentesi (string str "]") sx (- dx 1))))))
+
+(parentesi 3)
+;-> ("[[[]]]" "[[][]]" "[[]][]" "[][[]]" "[][][]")
+
+(parentesi 4)
+;-> ("[[[[]]]]" "[[[][]]]" "[[[]][]]" "[[[]]][]" "[[][[]]]" 
+;->  "[[][][]]" "[[][]][]" "[[]][[]]" "[[]][][]" "[][[[]]]" 
+;->  "[][[][]]" "[][[]][]" "[][][[]]" "[][][][]")
+
+

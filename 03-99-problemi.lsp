@@ -5,7 +5,7 @@
 ==========================
 
 Questi problemi sono stati creati per essere risolti con il linguaggio Prolog.
-Poi è stata la volta dei linguaggi Lisp, Haskell e Scheme.
+Poi è stata la volta dei linguaggi Lisp, Haskell e Scheme... e adesso newLISP.
 Potete trovare l'elenco completo dei problemi al sito:
 
 https://www.ic.unicamp.br/~meidanis/courses/mc336/2006s2/funcional/L-99_Ninety-Nine_Lisp_Problems.html
@@ -17,6 +17,7 @@ Elenco problemi
 ---------------
 
 Elaborazione di liste
+---------------------
 N-99-01 Estrarre l'ultimo elemento di una lista
 N-99-02 Estrarre il penultimo elemento di una lista
 N-99-03 Estrarre il k-esimo elemento di una lista
@@ -47,6 +48,7 @@ N-99-27 Raggruppare gli elementi di un insieme in sottoinsiemi disgiunti.
 N-99-28 Ordinare una lista in base alla lunghezza delle sottoliste
 
 Arithmetic (Aritmetica)
+-----------------------
 N-99-31  Determine whether a given integer number is prime
 N-99-32  Determine the greatest common divisor of two positive integer numbers
 N-99-33  Determine whether two positive integer numbers are coprime
@@ -60,6 +62,7 @@ N-99-40  Goldbach's conjecture
 N-99-41  A list of Goldbach compositions
 
 Logic and Codes (Logica e Codici)
+---------------------------------
 N-99-46  Truth tables for logical expressions
 N-99-47  Truth tables for logical expressions (2)
 N-99-48  Truth tables for logical expressions (3)
@@ -67,6 +70,7 @@ N-99-49  Gray code
 N-99-50  Huffman code
 
 Binary trees (Alberi Binari)
+----------------------------
 N-99-54A Check whether a given term represents a binary tree
 N-99-55  Construct completely balanced binary trees
 N-99-56  Symmetric binary trees
@@ -88,6 +92,7 @@ N-99-69  Dotstring representation of binary trees
 N-99-70  Tree construction from a node string
 
 Multiway Trees (Alberi n-ari)
+-----------------------------
 N-99-70B Check whether a given term represents a multiway tree
 N-99-70C Count the nodes of a multiway tree
 N-99-71  Determine the internal path length of a tree
@@ -95,6 +100,7 @@ N-99-72  Construct the bottom-up order sequence of the tree nodes
 N-99-73  Lisp-like tree representation
 
 Graphs (Grafi)
+--------------
 N-99-80  Conversions
 N-99-81  Path from one node to another one
 N-99-82  Cycle from a given node
@@ -107,6 +113,7 @@ N-99-88  Connected components (alternative solution)
 N-99-89  Bipartite graphs
 
 Miscellaneous Problems (Problemi Vari)
+--------------------------------------
 N-99-90  Eight queens problem
 N-99-91  Knight's tour
 N-99-92  Von Koch's conjecture

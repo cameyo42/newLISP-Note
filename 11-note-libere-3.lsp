@@ -4144,12 +4144,154 @@ Questa volta "a" vale:
   
   y2 = sqrt(z2² + 2*z2*a)
   
-              z1 + y1 + a
+             z1 + y1 + a
   x1 = a*ln(-------------)
                   a
   
-              z2 + y2 + a
+             z2 + y2 + a
   x2 = a*ln(-------------)
                 a
+
+
+------------------
+Numeri automorfici
+------------------
+
+In matematica si dice numero automorfo o anche intero automorfo un intero positivo che nelle notazioni decimali ha il quadrato che presenta nella sua parte finale il numero stesso. 
+Esempi: 5^2 = 25, 76^2 = 5776, 890625^2 = 793212890625.
+
+(define (automorfico? num)
+(catch
+  (let (quadrato (* num num))
+    ; confronto delle cifre
+    (while (> num 0)
+      ; se le cifre di num e le ultime di quadrato non sono uguali
+      ; allora num non è automorfico
+      (if (!= (% num 10) (% quadrato 10))
+          (throw nil))
+      (setq num (/ num 10))
+      (setq quadrato (/ quadrato 10))
+    )
+    true)))
+
+(automorfico? 890625)
+;-> true
+
+Vediamo i numeri automorfici fino a 100 milioni:
+
+(for (i 0 1e8) (if (automorfico? (bigint i)) (print i { })))
+;-> 0 1 5 6 25 76 376 625 9376 90625 109376 
+;-> 890625 2890625 7109376 12890625 87109376
+
+
+-----------------
+Numeri trimorfici
+-----------------
+
+Un numero è chiamato numero trimorfico se e solo se il suo cubo termina con le stesse cifre del numero stesso. In altre parole, è trimorfico se il numero appare alla fine del suo cubo.
+
+Esempi di numeri trimorfici:
+
+5 --> 5*5*5 = 125
+
+24 --> 24*24*24 = 13824
+
+(define (trimorfico? num)
+(catch
+  (let (cubo (* num num num))
+    ; confronto delle cifre
+    (while (> num 0)
+      ; se le cifre di num e le ultime di cubo non sono uguali
+      ; allora num non è trimorfico
+      (if (!= (% num 10) (% cubo 10))
+          (throw nil))
+      (setq num (/ num 10))
+      (setq cubo (/ cubo 10))
+    )
+    true)))
+
+(trimorfico? 534857623847562384756238745623L)
+;-> true
+
+(trimorfico? 24)
+;-> true
+
+Vediamo i numeri trimorfici fino a 100 milioni:
+
+(for (i 0 1e8) (if (trimorfico? (bigint i)) (print i { })))
+;-> 0 1 4 5 6 9 24 25 49 51 75 76 99 125 249 251 375 376 499 501 
+;-> 624 625 749 751 875 999 1249 3751 4375 4999 5001 5625 6249 
+;-> 8751 9375 9376 9999 18751 31249 40625 49999 50001 59375 
+;-> 68751 81249 90624 90625 99999 109375 109376 218751 281249 
+;-> 390625 499999 500001 609375 718751 781249 890624 890625 
+;-> 999999 2109375 2890624 2890625 4218751 4999999 5000001 5781249 
+;-> 7109375 7109376 7890625 9218751 9999999 12890624 12890625 
+;-> 24218751 25781249 37109375 49999999 50000001 62890625 74218751 
+;-> 75781249 87109375 87109376 99999999
+
+
+----------------------
+Funzioni come Stringhe
+----------------------
+
+Nel paragrafo "Funzioni come liste" abbiamo visto che in newLISP le funzioni sono delle liste particolari che cominciano con la parola-chiave "lambda":
+
+(define (test a b) (+ a b))
+;-> (lambda (a b) (+ a b))
+
+Verifichiamo che "test" sia una lista e vediamo come è composta:
+
+(list? test)
+;-> true
+
+(length test)
+;-> 2
+
+Il primo elemento è la lista degli argomenti della funzione/lista:
+
+(nth 0 test)
+;-> (a b)
+
+Il secondo elemento è il corpo della funzione/lista:
+
+(nth 1 test)
+(+ a b)
+
+Adesso mostriamo brevemente che una funzione può essere trasformata in una stringa, la quale può essere modificata e poi riconvertita in una funzione.
+
+Per esempio, prendiamo la nostra funzione "test" e applichiamola a due numeri:
+
+(test 5 3)
+;-> 8
+
+Adesso assegniamo la funzione "test" ad una stringa:
+
+(setq fs (string test))
+;-> "(lambda (a b) (+ a b))"
+
+Troviamo la posizione del segno "+" e sostituiamolo con il segno "-":
+
+(find "+" fs)
+;-> 15
+
+(setf (fs 15) "-")
+;-> "-"
+
+La stringa "fs" è diventata:
+
+(println fs)
+;-> (lambda (a b) (- a b))
+
+Adesso possiamo utilizzare la funzione primitiva "eval-string", che valuta l'espressione contenuta in una stringa, per convertire la stringa "fs" in una nuova funzione:
+
+(setq test2 (eval-string fs))
+;-> (lambda (a b) (- a b))
+
+Proviamo la nuova funzione:
+
+(test2 5 3)
+;-> 2
+
+Quindi è possibile convertire una funzione in una stringa e viceversa.
 
 

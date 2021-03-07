@@ -283,6 +283,8 @@ ROSETTA CODE
   Persistenza di un numero
   Numeri Taxicab
   Codice Gray
+  Game of Life
+  Ackermann
 
 PROJECT EULERO
 ==============
@@ -454,6 +456,7 @@ DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Rettangolo perfetto (Google)
   Addizione per intervalli (Range addition) (Google)
   Ordinamento Wiggle (Google)
+  Generare parentesi (Amazon)
 
 LIBRERIE
 ========
@@ -475,7 +478,7 @@ NOTE LIBERE
   Stile del codice newLISP
   Considerazioni sulle parentesi del LISP
   Controllare l'output della REPL (prettyprint)
-  File e cartelle
+  Gestione di file e cartelle
   Funzioni come liste
   4-4 Puzzle
   Il primo Primo
@@ -671,6 +674,9 @@ NOTE LIBERE 3
   Somma di cubi (Taxicab)
   Somma numeri dispari (pari)
   Cavo sospeso
+  Numeri automorfici
+  Numeri trimorfici
+  Funzioni come Stringhe
   
 APPENDICI
 =========

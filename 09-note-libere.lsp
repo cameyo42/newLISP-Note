@@ -432,21 +432,82 @@ Esempio base:
 ;-> (70 " " "%1.16g")
 
 
-----------------
-File e cartelle
-----------------
+---------------------------
+Gestione di file e cartelle
+---------------------------
 
-Cartella --> Directory o Folder
+Vediamo alcune funzioni per gestire file e cartelle (folder/directory). Queste funzioni si basano sulle seguenti primitive:
+
+  change-dir      changes to a different drive and directory
+  copy-file       copies a file
+  delete-file     deletes a file
+  directory       returns a list of directory entries
+  file-info       gets file size, date, time, and attributes
+  make-dir        makes a new directory
+  real-path       returns the full path of the relative file path
+  remove-dir      removes an empty directory
+  rename-file     renames a file or directory
+
+e i predicati "directory?" e "file?".
+
+Vediamo le definizioni del manuale delle funzioni "directory", "directory?" e "file?".
+
+**********************
+>>>funzione DIRECTORY
+**********************
+sintassi: (directory [str-path])
+sintassi: (directory str-path str-pattern [regex-option])
+
+Viene restituita una lista di nomi di cartelle per il percorso specificato in str-path. In caso di fallimento, viene restituito nil. Quando str-path viene omesso, viene restituito l'elenco delle cartelle della cartella corrente.
+
+(directory "/ bin")
+
+(directory "c: /")
+
+Il primo esempio restituisce la cartella di / bin, il secondo restituisce una lista di cartelle della cartella  principale (root) dell'unità C:. Notare che sui sistemi MS Windows, è possibile includere una barra (/) nei nomi dei percorsi. Quando viene usata, una barra rovesciata (\) deve essere preceduta da una seconda barra rovesciata (\\).
+
+Nella seconda sintassi, directory può accettare un modello di espressione regolare in str-pattern. Solo i nomi di file che corrispondono al modello verranno restituiti nella lista delle cartelle. In regex-option, possono essere specificate opzioni di espressioni regolari speciali (vedi regex per i dettagli).
+
+(directory "." "\\. c") → ("foo.c" "bar.c")
+;; o utilizzando le parentesi graffe come delimitatori del modello di stringa
+(directory "." {\ .c}) → ("foo.c" "bar.c")
+
+; mostra solo i file nascosti (che iniziano con il punto)
+(directory "." "^ [.]") → ("." ".." ".profile" ".rnd" ".ssh")
+
+L'espressione regolare forza la directory a restituire solo i nomi di file contenenti la stringa ".c".
+
+***********************
+>>>funzione DIRECTORY?
+***********************
+sintassi: (directory? str-path)
+
+Controlla se str-path è una cartella. Restituisce true o nil a seconda del risultato.
+
+(directory? "/etc")
+;-> true
+(directory? "/usr/local/bin/emacs/")
+;-> nil
+
+*****************
+>>>funzione FILE?
+*****************
+syntax: (file? str-path-name [bool])
+
+Verifica l'esistenza di un file in str-name. Restituisce true se il file esiste, in caso contrario, restituisce nil. Questa funzione restituirà true anche per le cartelle. Se il valore facoltativo bool è true, il file non deve essere una cartella e viene restituito str-path-name o nil se il file è una cartella. L'esistenza di un file non implica nulla sulle sue autorizzazioni di lettura o scrittura per l'utente corrente.
+
+(if (file? "afile") (set 'fileNo (open "afile" "read")))
+
+(file? "/usr/local/bin/newlisp" true)
+;-> "/usr/local/bin/newlisp"
+(file? "/usr/bin/foo" true)
+;-> nil
+-------------------------------------------------------------------
 
 Per vedere la cartella corrente della REPL di newLISP:
 
-!cd
-;-> f:\Lisp-Scheme\newLisp\MAX
-
-oppure con una funzione:
-
 (real-path)
-;-> f:\Lisp-Scheme\newLisp\MAX
+;-> f:\\Lisp-Scheme\\newLisp\\MAX
 
 Per cambiare la cartella corrente della REPL di newLISP:
 
@@ -469,9 +530,7 @@ Ritorniamo alla cartella precedente:
 (change-dir "f:/Lisp-Scheme/newLisp/MAX")
 ;-> true
 
-Vediamo ora alcune funzioni per stampare la lista dei file e delle cartelle.
-
-"show-tree" mostra tutti i file e le cartelle ricorsivamente:
+La funzione "show-tree" mostra tutti i file e le cartelle ricorsivamente a partire da un cartella predefinita:
 
 (define (show-tree dir)
   (dolist (nde (directory dir))
@@ -479,16 +538,42 @@ Vediamo ora alcune funzioni per stampare la lista dei file e delle cartelle.
           (show-tree (append dir "/" nde))
           (println (append dir "/" nde)))))
 
-(show-tree "c:\\")
+(show-tree "f:\\Lisp-Scheme\\newLisp\\MAX")
 
 (show-tree "c:/")
 
+Possiamo anche inserire un contatore per il livello delle cartelle:
+
+(define (show-tree dir counter)
+ (dolist (nde (directory dir))
+   (if (and (directory? (append dir "/" nde)) (!= nde ".") (!= nde ".."))
+        (show-tree (append dir "/" nde) (+ counter 1))
+        (println counter ": "(append dir "/" nde)))))
+
+(show-tree "c:/Borland" 0)
+;-> 0: c:/Borland/.
+;-> 0: c:/Borland/..
+;-> 1: c:/Borland/BCC55/.
+;-> 1: c:/Borland/BCC55/..
+;-> 2: c:/Borland/BCC55/Bin/.
+;-> 2: c:/Borland/BCC55/Bin/..
+;-> 2: c:/Borland/BCC55/Bin/bcc32.cfg
+;-> 2: c:/Borland/BCC55/Bin/bcc32.exe
+
+La funzione primitiva "env" recupera il valore di una variabile d'ambiente del s.o.:
+
+(env "PATH")
+;-> "c:\\Program Files (x86)\\Common Files\\..."
+(env "USERNAME")
+;-> "u42"
+(env "PATH")
+;-> "c:\\Program Files (x86)\\Common Files\\..."
+
 (env "newLISPDIR")
 ;-> "C:\\newlisp"
+(show-tree (env "newLISPDIR"))
 
-(show-tree (env "newLISPDIR")) ;; also works on Win32
-
-"show-dir" mostra cartelle dalla cartella corrente:
+La funzione "show-dir" mostra tutte le cartelle della cartella passata come parametro:
 
 (define (show-dir dir)
   (dolist (nde (directory dir))
@@ -497,26 +582,25 @@ Vediamo ora alcune funzioni per stampare la lista dei file e delle cartelle.
             (println (append dir "/" nde))))))
 
 (show-dir (env "newLISPDIR"))
+(show-dir (real-path))
 
-"show-file" mostra file e cartelle dalla cartella corrente:
+La funzione "show-file" mostra tutti i file e le cartelle della cartella passata come parametro:
 
 (define (show-file dir)
   (dolist (nde (directory dir))
     (println (append dir "/" nde))))
 
 (show-file (env "newLISPDIR"))
+(show-file (real-path))
 
-(show-file "c:\\")
-
-(show-file "C:\\newlisp\\util")
-(show-file "C:/newlisp/util")
-
-Per visualizzare solo determinati file possiamo usare la funzione seguente:
+Per visualizzare/filtrare solo determinati file possiamo usare la funzione seguente:
 
 (filter (fn (f) (ends-with f ".ahk")) (directory))
 ;-> ("npp-newlisp.ahk" "test.ahk" "_npp-newlisp.ahk" "_vscode.ahk")
 
-Oppure possiamo usare la shell in due modi:
+(filter (fn (f) (ends-with f ".ahk")) (directory))
+
+Oppure possiamo usare i comandi della shell in due modi:
 
 (exec "dir *.ahk /b")
 ;-> ("npp-newlisp.ahk" "test.ahk" "_npp-newlisp.ahk" "_vscode.ahk")
@@ -528,11 +612,12 @@ Per estrarre il percorso completo di un file:
 
 Unix
 (join (chop (parse (real-path "_TODO.txt") "/")) "/")
+
 Windows
 (join (chop (parse (real-path "_TODO.txt") "\\")) "\\")
 ;-> "f:\\Lisp-Scheme\\newLisp\\MAX"
 
-Per creare cartelle (anche annidate) possiamo usare la seguente funzione:
+Per creare cartelle (anche annidate) possiamo usare la funzione "makedir":
 
 (define (makedir path)
   (let (old-path (real-path))
@@ -544,9 +629,9 @@ Per creare cartelle (anche annidate) possiamo usare la seguente funzione:
 (makedir "one/two/three")
 ;-> true
 
-Oppure questa:
+Oppure la funzione "mkdirs":
 
-(define (mkdirs path , p)
+(define (mkdirs path  p)
   (dolist (l (parse path "/"))
     (push l p -1)
     (unless (empty? l) (make-dir (join p "/")))))
@@ -565,7 +650,7 @@ Per cambiare cartella partendo dal percorso di un file:
 (define (. f)
   (join (chop (parse (real-path f) "\\") 1) "\\") )
 
-Adesso possiamo cambiare la cartella corrente in due modi:
+Adesso possiamo cambiare la cartella in due modi:
 
 (change-dir (.. "f:\\Lisp-Scheme\\newLisp\\MAX\\_TODO.txt"))
 ;-> true
@@ -576,6 +661,77 @@ Adesso possiamo cambiare la cartella corrente in due modi:
 ;-> true
 (real-path)
 ;-> "f:\\Lisp-Scheme\\newLisp\\MAX"
+
+Per verificare se una cartella è vuota:
+
+(define (empty-dir? path-to-check)
+  (empty? (clean (lambda (x) (or (= "." x) (= ".." x))) (directory path-to-check)))
+)
+
+Per verificare se un file esiste all'interno della cartella corrente:
+
+(define (file-exists? file bool) (file? file bool))
+
+(file-exists? "_TODO.txt")
+;-> true
+(file-exists? "O.txt")
+;-> nil
+(file-exists? "_TODO.txt" true)
+;-> "_TODO.txt"
+
+Per verificare se una cartella esiste all'interno della cartella corrente:
+
+(define (directory-exists? folder) (directory? folder bool))
+
+(directory-exists? "newLISP-Note")
+;-> true
+(directory-exists? "newLISP-No")
+;-> nil
+(directory-exists? "MAX")
+;-> nil
+
+Per ottenere informazioni su un file o su una cartella usiamo la funzione primitiva "file-info".
+
+**********************
+>>>funzione FILE-INFO
+**********************
+sintassi: (file-info str-name [int-index [bool-flag]])
+
+Restituisce una lista di informazioni sul file o sulla cartella in str_name. L'indice facoltativo int-index specifica il membro della lista da restituire. Quando non viene specificato alcun bool-flag o quando il bool-flag vale nil, vengono restituite informazioni sul collegamento se il file è un collegamento a un file originale. Se bool-flag è diverso da nil, allora vengono restituite le informazioni sul file originale a cui fa riferimento il collegamento.
+
+Offset  Contents
+------  --------
+  0     size
+  1     mode (differs with true flag)
+  2     device mode
+  3     user ID
+  4     group ID
+  5     access time
+  6     modification time
+  7     status change time
+
+A seconda del flag di bool impostato, la funzione riporta sul collegamento (nessun flag o flag nil) o sul file collegato originale (flag vero).
+
+(file-info ".bashrc")
+;-> (124 33188 0 500 0 920951022 920951022 920953074)
+
+(file-info ".bashrc" 0)
+;-> 124
+
+Nel secondo esempio, viene recuperata l'ultima data di modifica dello stato per la cartella /etc. 
+
+file-info fornisce le statistiche del file (dimensione) per un file collegato, non il collegamento, ad eccezione per il campo mode.
+
+(date (file-info "_TODO.txt" 7))
+;-> "Wed May 08 17:07:39 2020"
+
+Comandi shell
+-------------
+Se un ! (punto esclamativo) viene inserito come primo carattere sulla riga di comando seguito da un comando di shell, il comando verrà eseguito. Ad esempio, !ls su Unix o !dir su MS Windows mostrerà un elenco della cartella di lavoro corrente. Non sono consentiti spazi tra il ! e il comando della shell. Simboli che iniziano con ! sono ancora consentiti all'interno delle espressioni o sulla riga di comando se preceduti da uno spazio. Nota: questa modalità funziona solo quando è in esecuzione nella shell e non funziona quando si controlla newLISP da un'altra applicazione.
+
+Per uscire dalla shell newLISP su Linux / Unix, premere Ctrl-D. Su MS Windows, digita (esci) o Ctrl-C, quindi il tasto x.
+
+Utilizzare la funzione exec per accedere ai comandi della shell da altre applicazioni o per passare i risultati a newLISP.
 
 
 -------------------
@@ -690,7 +846,6 @@ In newLISP la parola "lambda" individua un tipo speciale di lista: la "lambda li
 Le macro funzionano in modo molto diverso in newLISP rispetto al Common LISP o Scheme.
 
 Questo è uno dei motivi per cui mi piace newLISP.
-
 
 
 ----------
