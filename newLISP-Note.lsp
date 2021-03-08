@@ -677,6 +677,7 @@ NOTE LIBERE 3
   Numeri automorfici
   Numeri trimorfici
   Funzioni come Stringhe
+  Assegnazione multipla
   
 APPENDICI
 =========
@@ -708,7 +709,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (123 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (128 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================
@@ -11435,6 +11436,55 @@ Stampare una matrice
   )
 )
 
+Con alcune modifiche la funzione può essere usata per stampare matrici di interi, floating-point e/o stringhe:
+
+(define (print-matrix matrix)
+  (local (row col lenmax digit fmtstr)
+    ; converto matrice in lista?
+    (if (array? matrix) (setq matrix  (array-list matrix)))
+    ; righe della matrice
+    (setq row (length matrix))
+    ; colonne della matrice
+    (setq col (length (first matrix)))
+    ; valore massimo della lunghezza di un elemento (come stringa)
+    (setq lenmax (apply max (map length (map string (flat matrix)))))
+    ; calcolo spazio per gli elementi
+    (setq digit (+ 1 lenmax))
+    ; creo stringa di formattazione
+    (setq fmtstr (append "%" (string digit) "s"))
+    ; stampa la matrice
+    (for (i 0 (- row 1))
+      (for (j 0 (- col 1))
+        (print (format fmtstr (string (matrix i j))))
+      )
+      (println)
+    )
+  nil))
+
+(setq m '((1 2 3) (4 5 6) (7 8 9)))
+(print-matrix m)
+;-> 1 2 3
+;-> 4 5 6
+;-> 7 8 9
+
+(setq m '((1111 -20000 3) (4 5 66) (7 8 999)))
+(print-matrix m)
+;-> 1111 -20000      3
+;->    4      5     66
+;->    7      8    999
+
+(setq m '(("11.11" "2" "3") ("4" "55.555" "66") ("7" "8" "999")))
+(print-matrix m)
+;-> 11.11      2      3
+;->     4 55.555     66
+;->     7      8    999
+
+(setq m '((1234.5 "bb" "ccc") (111 "lungo" "f") ("hh" "kkk" "zzzz")))
+(print-matrix m)
+;-> 1234.5     bb    ccc
+;->    111  lungo      f
+;->     hh    kkk   zzzz
+
 
 ----------------------------
 Retta passante per due punti
@@ -14811,6 +14861,24 @@ Terzo metodo (standard):
 ;-> 1484.471
 
 Praticamente, il terzo metodo è inutilizzabile.
+
+Quarto metodo:
+
+(define (pm a b q)
+  (let (out 1L)
+    (while (> b 0)
+      (if (odd? b)
+          (setq out (% (* out a) q)))
+      (setq a (% (* a a) q))
+      (setq b (/ b 2)))
+    out))
+
+(time (modexpt 1234L 955555456844L 7344L) 100000)
+;-> 3107.794
+(time (powmod 1234L 955555456844L 7344L) 100000)
+;-> 3129.95
+(time (pm 1234L 955555456844L 7344L) 100000)
+;-> 2195.76
 
 
 -------------
@@ -77833,7 +77901,7 @@ Facciamo alcune prove:
 ;->  (4 5 14) (4 7 10) (4 70) (5 7 8) (5 56) (7 40) (8 35)
 ;->  (10 28) (14 20))
 
-Per i numeri primi non esiiste alcuna fattorizzazione:
+Per i numeri primi non esiste alcuna fattorizzazione:
 
 (get-factorizations 11)
 ;-> ()
@@ -79818,6 +79886,67 @@ Proviamo la nuova funzione:
 ;-> 2
 
 Quindi è possibile convertire una funzione in una stringa e viceversa.
+
+
+---------------------
+Assegnazione multipla
+---------------------
+
+Qualche volta abbiamo bisogno di assegnare i valori di una lista di ritorno di una funzione a delle variabili. Ad esempio, la seguente funzione restituisce un punto e vogliamo assegnare i valori alle variabili a e b:
+
+(define (midpoint p1 p2)
+  (let ((x (div (add (p1 0) (p2 0)) 2))
+        (y (div (add (p1 1) (p2 1)) 2)))
+    (list x y)))
+
+(midpoint '(2 2) '(3 3))
+;-> (2.5 2.5)
+
+Per assegnare i valori di ritorno della funzione alle variabili a e b dobbiamo scrivere:
+
+(setq lst (midpoint '(2 2) '(3 3)))
+(setq a (lst 0))
+;-> 2.5
+(setq b (lst 1))
+;-> 2.5
+
+Possiamo scrivere una macro che ci semplifica il lavoro (simile alla macro psetq):
+
+(define-macro (msetq)
+    ; Assegna ad ogni variabile di (args 0)
+    ; la relativa variabile ottenuta dalla 
+    ; valutazione della funzione in (args 1)
+    ; (cioè dei valori della lista ritornata dalla funzione)
+    (dolist (_el (eval (args 1)))
+      (set (args 0 $idx) (eval _el))))
+
+Questa macro prende due argomenti:
+1) <lst-var> la lista delle variabili che devono essere associate
+2) <func> la funzione da valutare
+
+Esempio:
+
+(msetq (a b) (midpoint '(2 2) '(3 3)))
+
+Adesso le variabili a e b hanno il valore 2.5 e 2.5:
+
+(list a b)
+;-> (2.5 2.5)
+
+Possiamo assegnare qualunque valore di ritorno alle variabili (anche una funzione):
+
+(define (test a b f) (list a (sin b) f))
+
+(msetq (x y z) (test 3 4 'add))
+;-> add@40D926
+
+(list x y z)
+;-> (3 -0.7568024953079282 add@40D926)
+
+Adesso "z" si comporta come la funzione "add":
+
+(z 1 2)
+;-> 3
 
 
 ===========

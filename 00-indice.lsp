@@ -677,6 +677,7 @@ NOTE LIBERE 3
   Numeri automorfici
   Numeri trimorfici
   Funzioni come Stringhe
+  Assegnazione multipla
   
 APPENDICI
 =========
@@ -708,7 +709,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (123 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (128 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================

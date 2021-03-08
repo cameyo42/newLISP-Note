@@ -1583,6 +1583,55 @@ Stampare una matrice
   )
 )
 
+Con alcune modifiche la funzione può essere usata per stampare matrici di interi, floating-point e/o stringhe:
+
+(define (print-matrix matrix)
+  (local (row col lenmax digit fmtstr)
+    ; converto matrice in lista?
+    (if (array? matrix) (setq matrix  (array-list matrix)))
+    ; righe della matrice
+    (setq row (length matrix))
+    ; colonne della matrice
+    (setq col (length (first matrix)))
+    ; valore massimo della lunghezza di un elemento (come stringa)
+    (setq lenmax (apply max (map length (map string (flat matrix)))))
+    ; calcolo spazio per gli elementi
+    (setq digit (+ 1 lenmax))
+    ; creo stringa di formattazione
+    (setq fmtstr (append "%" (string digit) "s"))
+    ; stampa la matrice
+    (for (i 0 (- row 1))
+      (for (j 0 (- col 1))
+        (print (format fmtstr (string (matrix i j))))
+      )
+      (println)
+    )
+  nil))
+
+(setq m '((1 2 3) (4 5 6) (7 8 9)))
+(print-matrix m)
+;-> 1 2 3
+;-> 4 5 6
+;-> 7 8 9
+
+(setq m '((1111 -20000 3) (4 5 66) (7 8 999)))
+(print-matrix m)
+;-> 1111 -20000      3
+;->    4      5     66
+;->    7      8    999
+
+(setq m '(("11.11" "2" "3") ("4" "55.555" "66") ("7" "8" "999")))
+(print-matrix m)
+;-> 11.11      2      3
+;->     4 55.555     66
+;->     7      8    999
+
+(setq m '((1234.5 "bb" "ccc") (111 "lungo" "f") ("hh" "kkk" "zzzz")))
+(print-matrix m)
+;-> 1234.5     bb    ccc
+;->    111  lungo      f
+;->     hh    kkk   zzzz
+
 
 ----------------------------
 Retta passante per due punti
@@ -4959,6 +5008,24 @@ Terzo metodo (standard):
 ;-> 1484.471
 
 Praticamente, il terzo metodo è inutilizzabile.
+
+Quarto metodo:
+
+(define (pm a b q)
+  (let (out 1L)
+    (while (> b 0)
+      (if (odd? b)
+          (setq out (% (* out a) q)))
+      (setq a (% (* a a) q))
+      (setq b (/ b 2)))
+    out))
+
+(time (modexpt 1234L 955555456844L 7344L) 100000)
+;-> 3107.794
+(time (powmod 1234L 955555456844L 7344L) 100000)
+;-> 3129.95
+(time (pm 1234L 955555456844L 7344L) 100000)
+;-> 2195.76
 
 
 -------------

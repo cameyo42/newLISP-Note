@@ -2308,7 +2308,7 @@ Facciamo alcune prove:
 ;->  (4 5 14) (4 7 10) (4 70) (5 7 8) (5 56) (7 40) (8 35)
 ;->  (10 28) (14 20))
 
-Per i numeri primi non esiiste alcuna fattorizzazione:
+Per i numeri primi non esiste alcuna fattorizzazione:
 
 (get-factorizations 11)
 ;-> ()
@@ -4293,5 +4293,66 @@ Proviamo la nuova funzione:
 ;-> 2
 
 Quindi è possibile convertire una funzione in una stringa e viceversa.
+
+
+---------------------
+Assegnazione multipla
+---------------------
+
+Qualche volta abbiamo bisogno di assegnare i valori di una lista di ritorno di una funzione a delle variabili. Ad esempio, la seguente funzione restituisce un punto e vogliamo assegnare i valori alle variabili a e b:
+
+(define (midpoint p1 p2)
+  (let ((x (div (add (p1 0) (p2 0)) 2))
+        (y (div (add (p1 1) (p2 1)) 2)))
+    (list x y)))
+
+(midpoint '(2 2) '(3 3))
+;-> (2.5 2.5)
+
+Per assegnare i valori di ritorno della funzione alle variabili a e b dobbiamo scrivere:
+
+(setq lst (midpoint '(2 2) '(3 3)))
+(setq a (lst 0))
+;-> 2.5
+(setq b (lst 1))
+;-> 2.5
+
+Possiamo scrivere una macro che ci semplifica il lavoro (simile alla macro psetq):
+
+(define-macro (msetq)
+    ; Assegna ad ogni variabile di (args 0)
+    ; la relativa variabile ottenuta dalla 
+    ; valutazione della funzione in (args 1)
+    ; (cioè dei valori della lista ritornata dalla funzione)
+    (dolist (_el (eval (args 1)))
+      (set (args 0 $idx) (eval _el))))
+
+Questa macro prende due argomenti:
+1) <lst-var> la lista delle variabili che devono essere associate
+2) <func> la funzione da valutare
+
+Esempio:
+
+(msetq (a b) (midpoint '(2 2) '(3 3)))
+
+Adesso le variabili a e b hanno il valore 2.5 e 2.5:
+
+(list a b)
+;-> (2.5 2.5)
+
+Possiamo assegnare qualunque valore di ritorno alle variabili (anche una funzione):
+
+(define (test a b f) (list a (sin b) f))
+
+(msetq (x y z) (test 3 4 'add))
+;-> add@40D926
+
+(list x y z)
+;-> (3 -0.7568024953079282 add@40D926)
+
+Adesso "z" si comporta come la funzione "add":
+
+(z 1 2)
+;-> 3
 
 
