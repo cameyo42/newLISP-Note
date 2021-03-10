@@ -285,6 +285,7 @@ ROSETTA CODE
   Codice Gray
   Game of Life
   Ackermann
+  Sequenza Q di Hofstadter
 
 PROJECT EULERO
 ==============
@@ -678,6 +679,7 @@ NOTE LIBERE 3
   Numeri trimorfici
   Funzioni come Stringhe
   Assegnazione multipla
+  Doppio fattoriale
   
 APPENDICI
 =========
@@ -28986,7 +28988,7 @@ A(m, n) = A(m-1, A(m n-1))
 
 Il suo valore cresce rapidamente, anche per valori piccoli di input.
 
-Versione di base:
+Versione ricorsiva:
 
 (define (ackermann m n)
   (cond ((zero? m) (+ n 1))
@@ -29071,7 +29073,7 @@ Non provate a calcolare:
 
 ci vuole troppo tempo.
 
-La funzione di Ackermann può essere calcolata anche in modo iterativo, ma dobbiamo simulare la ricorsione con una pila (stack), inserendo (push) ed estraendo (pop) i valori di input e di output per ogni chiamata di funzione (che è quello che fa il linguaggio nel runtime):
+Il fatto che la funzione di Ackermann sia ricorsiva in modo non primitivo, comporta l'impossibilità di calcolarla utilizzando solo dei cicli (loop). Comunque può essere calcolata anche in modo iterativo, simulando la ricorsione con una pila (stack), inserendo (push) ed estraendo (pop) i valori di input e di output per ogni chiamata di funzione (che è quello che fa il linguaggio nel runtime):
 
 (define (ack2 m n)
   (local (stack lst out q)
@@ -29160,7 +29162,131 @@ La prossima funzione differisce da quella precedente in quanto inserisce nello s
 
 Nota: (ack3 4 1) non è calcolabile.
 
-Le ultime due funzioni "ack2" e "ack3" sono molto lente perchè la simulazione della ricorsione con una coda è molto lenta.
+Le ultime due funzioni "ack2" e "ack3" sono molto lente perchè la simulazione della ricorsione viene fatta con una coda/lista.
+
+
+------------------------
+SEQUENZA Q DI HOFSTADTER
+------------------------
+
+La sequenza di Hofstadter Q è definita come:
+
+Q(1) = Q(2) = 1
+Q(n) = Q(n-Q(n-1)) + Q(n-Q(n-2)) per n > 2.
+
+È simile alla sequenza di Fibonacci, ma mentre il termine successivo nella sequenza di Fibonacci è la somma dei due termini precedenti, nella sequenza Q i due termini precedenti dicono di quanto tornare indietro nella sequenza Q per trovare i due numeri da sommare per calcolare il termine successivo della sequenza.
+
+Nella OEIS questa sequenza è la A005185:
+
+(setq A005185 '(1 1 2 3 3 4 5 5 6 6 6 8 8 8 10 9 10 11 11
+                12 12 12 12 16 14 14 16 16 16 16 20 17 17 20
+                21 19 20 22 21 22 23 23 24 24 24 24 24 32 24
+                25 30 28 26 30 30 28 32 30 32 32 32 32 40 33
+                31 38 35 33 39 40 37 38 40 39))
+
+Definiamo direttamente la funzione utilizzando la ricorsione:
+
+(define (qh num)
+  (cond ((= num 1) 1)
+        ((= num 2) 1)
+        (true (+ (qh (- num (qh (- num 1)))) (qh (- num (qh (- num 2))))))))
+
+(map qh (sequence 1 10))
+;-> (1 1 2 3 3 4 5 5 6 6)
+
+(qh 30)
+;-> 16
+(qh 34)
+;-> 20
+(qh 40)
+;-> 22
+
+La funzione è molto lenta:
+
+(time (qh 34))
+;-> 7950.982
+(time (qh 40))
+;-> 142933.365
+
+Possiamo provare ad utilizzare la tecnica memoization:
+
+(define-macro (memoize mem-func func)
+  (set (sym mem-func mem-func)
+    (letex (f func c mem-func)
+      (lambda ()
+        (or (context c (string (args)))
+        (context c (string (args)) (apply f (args))))))))
+
+(memoize qh-m
+  (lambda (num)
+  (cond ((= num 1) 1)
+        ((= num 2) 1)
+        (true (+ (qh-m (- num (qh-m (- num 1)))) (qh-m (- num (qh-m (- num 2)))))))))
+
+(map qh-m (sequence 1 10))
+;-> (1 1 2 3 3 4 5 5 6 6)
+
+(qh-m 30)
+;-> 16
+(qh-m 34)
+;-> 20
+(qh-m 40)
+;-> 22
+(qh-m 100)
+;-> 56
+
+In questo caso la funzione è molto più veloce:
+
+(time (qh-m 40))
+;-> 0
+
+ma abbiamo il problema con i numeri più grandi perchè la ricorsione è molto profonda e provoca l'errore di stack overflow:
+
+(qh-m 1000)
+;-> ERR: call or result stack overflow : cond
+
+Allora utilizziamo un vettore per memorizzare tutti i valori della sequenza mentre li calcoliamo. In questo modo calcoliamo tutti i valori q(i) con i = 1,..,n:
+
+(define (hof num)
+  (let (qq (array (+ num 1) '(0)))
+    (setf (qq 1) 1)
+    (setf (qq 2) 1)
+    (for (i 3 num)
+      (setf (qq i) (+ (qq (- i (qq (- i 1)))) (qq (- i (qq (- i 2))))))
+    )
+    qq))
+
+(hof 10)
+;-> (0 1 1 2 3 3 4 5 5 6 6)
+
+(last (hof 1000))
+;-> 502
+
+(length (hof 1000))
+;-> 1001
+
+Confrontiamo il risultato con la sequenza OEIS:
+
+(length A005185)
+;-> 74
+
+(= A005185 (slice (array-list (hof 74)) 1 74))
+;-> true
+
+Vediamo quanto è veloce quest'ultima funzione:
+
+(time (println (last (hof 1e6))))
+;-> 5124632
+;-> 248.364
+
+Vediamo quanto tempo occorre per calcolare la sequenza dei primi 100 milioni di numeri:
+
+(time (println (last (hof 100000000))))
+;-> 50166508
+;-> 33357.835
+    34 secondi
+
+La funzione è molto veloce, ma il vettore che definiamo utilizza tanta memoria.
 
 
 ================
@@ -79947,6 +80073,59 @@ Adesso "z" si comporta come la funzione "add":
 
 (z 1 2)
 ;-> 3
+
+
+-----------------
+Doppio fattoriale
+-----------------
+
+Il doppio fattoriale o semifattoriale di un numero n, indicato con n‼, è il prodotto di tutti gli interi da 1 a n che hanno la stessa parità (pari o dispari) di n (sequenze A000165 e A001147 nell'OEIS).
+Il doppio fattoriale non deve essere confuso con la funzione fattoriale ripetuta due volte (sequenza A000197 nell'OEIS), che è scritta come (n!)! e non n!!.
+
+Il doppio fattoriale di un numero n vale:
+
+n!!(0) = 1
+
+n!! = Prod[k=0..(ceil(n/2) - 1)] (n - 2*k)
+
+Oppure separando il caso pari e dispari:
+
+Numeri pari:
+
+n!! = Prod[k=1..(n/2)] (2*k)
+
+Numeri dispari:
+
+n!! = Prod[k=1..(n+1)/2)] (2*k - 1)
+
+La sequenza dei doppi fattoriali per i numeri pari n = 0, 2, 4, 6, 8, ... inizia come:
+
+1, 2, 8, 48, 384, 3840, 46080, 645120, ... (sequenza A000165 nell'OEIS)
+
+La sequenza dei doppi fattoriali per dispari n = 1, 3, 5, 7, 9, ... inizia come:
+
+1, 3, 15, 105, 945, 10395, 135135, ... (sequenza A001147 nell'OEIS)
+
+(define (double-fact num)
+  (let (df 1)
+    (cond ((zero? num) (setq df 1))
+          ((= 1 num) (setq df 1))
+          ((even? num)
+           (for (k 1 (/ num 2))
+             (setq df (* df 2 k))))
+          ((odd? num)
+           (for (k 1 (/ (+ num 1) 2))
+             (setq df (* df (- (* 2 k) 1)))))
+    )
+    df))
+
+Numeri pari:
+(map double-fact (sequence 0 14 2))
+;-> (1 2 8 48 384 3840 46080 645120)
+
+Numeri dispari:
+(map double-fact (sequence 1 13 2))
+;-> (1 3 15 105 945 10395 135135)
 
 
 ===========

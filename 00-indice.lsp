@@ -285,6 +285,7 @@ ROSETTA CODE
   Codice Gray
   Game of Life
   Ackermann
+  Sequenza Q di Hofstadter
 
 PROJECT EULERO
 ==============
@@ -678,6 +679,7 @@ NOTE LIBERE 3
   Numeri trimorfici
   Funzioni come Stringhe
   Assegnazione multipla
+  Doppio fattoriale
   
 APPENDICI
 =========

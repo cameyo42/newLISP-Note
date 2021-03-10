@@ -4356,3 +4356,56 @@ Adesso "z" si comporta come la funzione "add":
 ;-> 3
 
 
+-----------------
+Doppio fattoriale
+-----------------
+
+Il doppio fattoriale o semifattoriale di un numero n, indicato con n‼, è il prodotto di tutti gli interi da 1 a n che hanno la stessa parità (pari o dispari) di n (sequenze A000165 e A001147 nell'OEIS).
+Il doppio fattoriale non deve essere confuso con la funzione fattoriale ripetuta due volte (sequenza A000197 nell'OEIS), che è scritta come (n!)! e non n!!.
+
+Il doppio fattoriale di un numero n vale:
+
+n!!(0) = 1
+
+n!! = Prod[k=0..(ceil(n/2) - 1)] (n - 2*k)
+
+Oppure separando il caso pari e dispari:
+
+Numeri pari:
+
+n!! = Prod[k=1..(n/2)] (2*k)
+
+Numeri dispari:
+
+n!! = Prod[k=1..(n+1)/2)] (2*k - 1)
+
+La sequenza dei doppi fattoriali per i numeri pari n = 0, 2, 4, 6, 8, ... inizia come:
+
+1, 2, 8, 48, 384, 3840, 46080, 645120, ... (sequenza A000165 nell'OEIS)
+
+La sequenza dei doppi fattoriali per dispari n = 1, 3, 5, 7, 9, ... inizia come:
+
+1, 3, 15, 105, 945, 10395, 135135, ... (sequenza A001147 nell'OEIS)
+
+(define (double-fact num)
+  (let (df 1)
+    (cond ((zero? num) (setq df 1))
+          ((= 1 num) (setq df 1))
+          ((even? num)
+           (for (k 1 (/ num 2))
+             (setq df (* df 2 k))))
+          ((odd? num)
+           (for (k 1 (/ (+ num 1) 2))
+             (setq df (* df (- (* 2 k) 1)))))
+    )
+    df))
+
+Numeri pari:
+(map double-fact (sequence 0 14 2))
+;-> (1 2 8 48 384 3840 46080 645120)
+
+Numeri dispari:
+(map double-fact (sequence 1 13 2))
+;-> (1 3 15 105 945 10395 135135)
+
+
