@@ -947,7 +947,7 @@ Esistono tre tipi di quadrati magici (catalogati in base alla dimensione del lat
 
 - dispari (dove n = 3, 5, 7, 9, 11, ecc.)
 
-- singolarmente pari (dove n è multiplodi di 2, ma non di 4, n = 6, 10, 14, 18, 22, ...)
+- singolarmente pari (dove n è multiplo di 2, ma non di 4, n = 6, 10, 14, 18, 22, ...)
 
 - doppiamente pari (dove n è un multiplo di quattro, n = 4, 8, 12, ...
 

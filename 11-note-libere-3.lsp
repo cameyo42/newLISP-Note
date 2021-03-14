@@ -4409,3 +4409,383 @@ Numeri dispari:
 ;-> (1 3 15 105 945 10395 135135)
 
 
+--------------
+0.999999999...
+--------------
+
+In matematica il numero N = 0.999999999... (che può essere scritto come 0.(9)) vale 1.
+
+Dimostrazione
+
+1 = 1/3 + 2/3 =
+  = 0.333333333... + 0.666666666... =
+  = 0.999999999...
+
+In newLISP:
+
+(add (div 1 3) (div 2 3))
+;-> 1
+
+Un altro metodo di dimostrazione:
+
+Moltiplichiamo N = 0.999999999... per 10 e poi lo sottraiamo al risultato della moltiplicazione:
+
+10 * 0.999999999... = 9.999999999...
+
+10*N = 9.999999999... -
+   N = 0.999999999... =
+-----------------------
+       9
+
+Cioè, 10*N - N = 9 ==> N = 1
+
+
+-----------------------
+Quadrati magici curiosi
+-----------------------
+
+Il quadrato magico Apocalittico
+-------------------------------
+Tutti i numeri del seguente quadrato magico sono primi e la somma delle righe, delle colonne, delle diagonali e delle diagonali spezzate vale 666 (il numero della Bestia). Le diagonali spezzate (di lunghezza 6) sono quelle che si ottengono piegando il quadrato su se stesso lungo le diagonali.
+
+    3  107    5  131  109  311
+    7  331  193   11   83   41
+  103   53   71   89  151  199
+  113   61   97  197  167   31
+  367   13  173   59   17   37
+   73  101  127  179  139   47
+
+Diagonali spezzate:
+
+(113 + 13 + 127) + (131 83 199) = 666
+
+(5 + 331 + 103) + (31 + 17 + 179) = 666
+
+Scriviamo una funzione per verificare la proprietà della somma lungo le righe, le colonne e le diagonali:
+
+(define (checksum qm n somma)
+  (local (ok srow scol)
+    (setq ok true)
+    ; controllo diagonali
+    (setq srow 0 scol 0)
+    (for (i 0 (- n 1))
+      (setq srow (add srow (qm i i)))
+      (setq scol (add scol (qm i (sub n i 1))))
+    )
+    (if (or (!= srow somma) (!= scol somma))
+        (setq ok nil))
+    ;controllo righe e colonne
+    (for (i 0 (- n 1) 1 ok)
+      (setq srow 0 scol 0)
+      (for (j 0 (- n 1) 1 ok )
+        (setq srow (add srow (qm i j)))
+        (setq scol (add scol (qm j i)))
+      )
+      (if (or (!= srow somma) (!= scol somma))
+          (setq ok nil)
+      )
+    )
+    ok))
+
+Verifichiamo:
+
+(setq a '((  3   107     5   131   109   311)
+          (  7   331   193    11    83    41)
+          (103    53    71    89   151   199)
+          (113    61    97   197   167    31)
+          (367    13   173    59    17    37)
+          ( 73   101   127   179   139    47)))
+
+(checksum a 6 666)
+;-> true
+
+Adesso verifichiamo se i numeri del quadrato sono tutti primi:
+
+(define (primi lst)
+  (let (out true)
+    (dolist (el (flat lst))
+      (if (> (length (factor el)) 1)
+        (setq out nil)))
+    out))
+
+(primi a)
+;-> true
+
+Il quadrato magico Specchio
+---------------------------
+Nel quadrato magico seguente la somma di ogni riga, di ogni colonna e di ogni diagonale vale 242.
+
+  96 64 37 45
+  39 43 98 62
+  84 76 25 57
+  23 59 82 78
+
+(setq s '((96 64 37 45)
+          (39 43 98 62)
+          (84 76 25 57)
+          (23 59 82 78)))
+
+Verifichiamo:
+
+(checksum s 4 242)
+;-> true
+
+Invertiamo le cifre di ogni numero del quadrato:
+
+(define (mirror qm)
+  (let (out '())
+    (dolist (el qm)
+      (push (map (fn(x) (int (reverse (string x)))) el) out -1))
+    out))
+
+(setq s1 (mirror s))
+;-> ((69 46 73 54) (93 34 89 26) (48 67 52 75) (32 95 28 87))
+
+Otteniamo un altro quadrato magico con la stesso valore della somma:
+
+  69 46 73 54
+  93 34 89 26
+  48 67 52 75
+  32 95 28 87
+
+Verifichiamo:
+
+(checksum s1 4 242)
+;-> true
+
+Il quadrato magico Kurchan
+--------------------------
+
+pandigital sum is 4,129,607,358:
+Un altro incredibile quadrato magico è quello di Kurchan (scoperto da Rodolfo Marcelo Kurchan, di Buenos Aires, Argentina). Si pensa che sia il più piccolo quadrato magico non banale con 16 numeri interi pandigitali distinti con la più piccola somma magica pandigitale (Pandigitale significa che tutte e dieci le cifre sono utilizzato e 0 non è la cifra iniziale. La somma pandigitale è 4.129.607.358:
+
+  1037956284 1026857394 1036847295 1027946385
+  1036947285 1027846395 1037856294 1026957384
+  1027856394 1036957284 1026947385 1037846295
+  1026847395 1037946285 1027956384 1036857294
+
+Vediamo se esiste un modo per ricavarlo.
+
+Calcoliamo tutte le permutazioni (numeri) delle cifre (0 1 2 3 4 5 6 7 8 9):
+
+(define (perm lst)
+  (local (i indici out)
+    (setq indici (dup 0 (length lst)))
+    (setq i 0)
+    ; aggiungiamo la lista iniziale alla soluzione
+    (setq out (list lst))
+    (while (< i (length lst))
+      (if (< (indici i) i)
+          (begin
+            (if (zero? (% i 2))
+              (swap (lst 0) (lst i))
+              (swap (lst (indici i)) (lst i))
+            )
+            ;(println lst);
+            (push lst out -1)
+            (++ (indici i))
+            (setq i 0)
+          )
+          (begin
+            (setf (indici i) 0)
+            (++ i)
+          )
+       )
+    )
+    out))
+
+(silent (setq all (perm '(0 1 2 3 4 5 6 7 8 9))))
+
+Prendiamo solo le permutazioni che passano il seguente filtro:
+
+(define (filtro lst)
+  (and (= (lst 0) 1)
+       (= (lst 1) 0)
+       (or (= (lst 2) 2) (= (lst 2) 3))
+       (or (= (lst 3) 6) (= (lst 3) 7))
+       (or (= (lst 4) 8) (= (lst 4) 9))
+       (or (= (lst 5) 4) (= (lst 5) 5))
+       (or (= (lst 6) 6) (= (lst 6) 7))
+       (or (= (lst 7) 2) (= (lst 7) 3))
+       (or (= (lst 8) 8) (= (lst 8) 9))
+       (or (= (lst 9) 4) (= (lst 9) 5))))
+
+(silent (setq nums (filter filtro all)))
+(length nums)
+;-> 16
+(nums 10)
+;-> (1 0 2 7 8 4 6 3 9 5)
+
+Convertiamo gli elementi della lista delle permutazioni in una lista di numeri:
+
+(define (lst-int lst)
+  (let (num 0)
+    (dolist (el lst) (setq num (+ el (* num 10))))))
+
+(silent (setq numeri (map lst-int nums)))
+(length numeri)
+;-> 16
+(nums 10)
+;-> (1 0 2 7 8 4 6 3 9 5)
+(numeri 10)
+;-> 1027846395
+
+In quanti modi possiamo disporre 16 numeri in una matrice 4x4?
+Si tratta del numero di permutazioni, quindi vale: 16!
+
+(define (fact-i num)
+  (let (out 1L)
+    (for (x 1L num)
+      (setq out (* out x)))))
+
+(fact-i 16)
+;-> 20922789888000L
+
+Non le possiamo calcolare tutte...
+
+Allora ricaviamo il valore della somma del quadrato magico dividendo per 4 la somma di tutti i valori:
+
+(setq kur '(1037956284
+            1026857394
+            1036847295
+            1027946385
+            1036947285
+            1027846395
+            1037856294
+            1026957384
+            1027856394
+            1036957284
+            1026947385
+            1037846295
+            1026847395
+            1037946285
+            1027956384
+            1036857294))
+
+(apply + kur)
+;-> 16518429432
+
+(setq somma (/ (apply + kur) 4))
+;-> 4129607358 ; somma del quadrato magico
+
+Quindi dobbiamo trovare 4 numeri che sommano al valore di "somma"
+
+Una soluzione ingenua per stampare tutte le combinazioni  di 4 elementi in una lista "lst" che hanno somma uguale a "sum":
+
+(define (findsum4 lst sum)
+  (local (len vet out)
+    (setq len (length lst))
+    (setq vet (array len lst))
+    (setq out '())
+    (for (i 0 (- len 4))
+      (for (j (+ i 1) (- len 3))
+        (for (k (+ j 1) (- len 2))
+          (for (p (+ k 1) (- len 1))
+            ;(println (vet i) { } (vet j) { } (vet k) { } (vet p))
+            ;(println (+ (vet i) (vet j) (vet k) (vet p)) { } sum)
+            ;(read-line)
+            (if (= (+ (vet i) (vet j) (vet k) (vet p)) sum)
+                (push (list (vet i) (vet j) (vet k) (vet p)) out -1))))))
+    out))
+
+(findsum4 '(10 2 3 4 5 9 7 8) 21)
+;-> ((10 2 4 5) (2 3 9 7) (2 4 7 8) (3 4 5 9))
+
+(setq quad (findsum4 kur somma))
+(length quad)
+;-> 52
+
+52 quadruple di numeri da mettere in una matrice 4x4 con tutti i numeri diversi...
+
+(binom 52 4)
+;-> 270725L
+
+Adesso possiamo calcolarle...
+
+(define (comb k lst)
+  (cond ((zero? k)   '(()))
+        ((null? lst) '())
+        (true
+          (append (map (lambda (k-1) (cons (first lst) k-1))
+                       (comb (- k 1) (rest lst)))
+                  (comb k (rest lst))))))
+
+(silent (setq matrici (comb 4 quad)))
+(length matrici)
+;-> 270725
+
+Vediamo un elemento della lista "matrici" :
+
+(matrici 0)
+;-> ((1037956284 1026857394 1036847295 1027946385)
+;->  (1037956284 1026857394 1036947285 1027846395)
+;->  (1037956284 1026857394 1026947385 1037846295)
+;->  (1037956284 1026857394 1026847395 1037946285))
+
+Quindi dobbiamo controllare ogni elemento della lista "matrici" per verificare se è un quadrato magico.
+
+(checksum (matrici 10) 4 somma)
+;-> nil
+
+(define (test)
+  (local (out)
+    (setq out '())
+    (dolist (el matrici)
+      (if (checksum el 4 somma)
+          (begin
+            (println el)
+            (push el out -1)))
+      (if (zero? (% $idx 10000)) (println $idx))
+    )
+    out))
+
+(setq sol (test))
+(length sol)
+;-> 258
+
+Vediamo una matrice:
+
+(sol 10)
+;-> ((1037956284 1026857394 1036847295 1027946385) 
+;->  (1026857394 1027846395 1036957284 1037946285)
+;->  (1026857394 1037856294 1026947385 1037946285)
+;->  (1026847395 1037946285 1027956384 1036857294))
+
+Notiamo che ci sono numeri uguali, quindi il quadrato magico è triviale.
+
+Eliminiamo tutte le matrici (quadrati magici) che hanno numeri uguali:
+
+(define (unici lst)
+  (= (unique (flat lst)) (flat lst)))
+
+(setq qmagic (filter unici sol))
+(length qmagic)
+;-> 7
+
+Vediamo se in questi 7 quadrati magici esiste quello di Kurchan:
+
+(ref (explode kur 4) qmagic)
+;-> (0)
+
+Esiste e si trova all'indice 0:
+
+(qmagic 0)
+((1037956284 1026857394 1036847295 1027946385) 
+ (1036947285 1027846395 1037856294 1026957384)
+ (1027856394 1036957284 1026947385 1037846295)
+ (1026847395 1037946285 1027956384 1036857294))
+
+Vediamone un altro:
+
+(qmagic 1)
+((1037956284 1026857394 1036947285 1027846395) 
+ (1036847295 1027946385 1037856294 1026957384)
+ (1027856394 1036957284 1026847395 1037946285)
+ (1026947385 1037846295 1027956384 1036857294))
+
+Il quinto quadrato magico è la trasposta di quello di Kurchan:
+
+(= (qmagic 0) (transpose (qmagic 4)))
+;-> true
+
+

@@ -10923,3 +10923,176 @@ Vediamo quanto tempo occorre per calcolare la sequenza dei primi 100 milioni di 
 La funzione è molto veloce, ma il vettore che definiamo utilizza tanta memoria.
 
 
+------------------------------------
+SEQUENZA FIGURA-FIGURA DI HOFSTADTER
+------------------------------------
+
+La sequenza Figura-Figura (R e S) di Hofstadter sono una coppia di sequenze intere complementari definite come segue:
+
+R(1) = 1
+S(1) = 2
+R(n) = R(n-1) + S(n-1), per n>1
+
+con la sequenza S(n) definita come una serie strettamente crescente di interi positivi non presenti in R(n). I primi termini di queste sequenze sono:
+
+R: 1, 3, 7, 12, 18, 26, 35, 45, 56, 69, 83, 98, 114, 131, 150, 170, 191, 213, 236, 260, ... (A005228 OEIS)
+S: 2, 4, 5, 6, 8, 9, 10, 11, 13, 14, 15, 16, 17, 19, 20, 21, 22, 23, 24, 25, ... (A030124 OEIS)
+
+(define (ffh num)
+  (local (r s)
+    (setq r '(0 1))
+    (setq s '(0 2))
+    (for (i 2 num)
+      ;(println i)
+      (ffr i)
+      (ffs i)
+    )
+    (list r s)))
+
+(define (ffr n)
+  (push (+ (r (- n 1)) (s (- n 1))) r -1))
+
+(define (ffs n)
+  (local (idx stop)
+    (setq stop nil)
+    (setq idx (+ (s (- n 1)) 1))
+    (do-until stop
+      (cond ((ref idx r)
+             (++ idx))
+            (true
+             (push idx s -1)
+             (setq stop true))
+      ))))
+
+(ffh 20)
+;-> ((0 1 3 7 12 18 26 35 45 56 69 83 98 114 131 150 170 191 213 236 260)
+;->  (0 2 4 5 6 8 9 10 11 13 14 15 16 17 19 20 21 22 23 24 25))
+
+Vediamo i tempi di esecuzione:
+
+(time (ffh 10000))
+;-> 1481.927
+(time (ffh 100000))
+;-> 211800.307
+
+Proviamo ad utilizzare una hash-map per inserire e controllare i valori di r (invece di controllarli sulla lista dei valori di r):
+
+(define (ffh num)
+  (local (r s)
+    (new Tree 'rhash)
+    (setq r '(0 1))
+    (setq s '(0 2))
+    (rhash "1" 1)
+    (for (i 2 num)
+      ;(println i)
+      (ffr i)
+      (ffs i)
+    )
+    (delete 'rhash)
+    (list r s)))
+
+(define (ffr n)
+  (local (val)
+    (setq val (+ (r (- n 1)) (s (- n 1))))
+    (push val r -1)
+    (rhash (string val) val)))
+
+(define (ffs n)
+  (local (idx stop)
+    (setq stop nil)
+    (setq idx (+ (s (- n 1)) 1))
+    (do-until stop
+      (cond ((nil? (rhash idx))
+             (push idx s -1)
+             (setq stop true))
+            (true
+             (++ idx))
+      ))))
+
+(ffh 20)
+;-> ((0 1 3 7 12 18 26 35 45 56 69 83 98 114 131 150 170 191 213 236 260)
+;->  (0 2 4 5 6 8 9 10 11 13 14 15 16 17 19 20 21 22 23 24 25))
+
+(time (ffh 10000))
+;-> 1211.927
+(time (ffh 100000))
+;-> 199469.585
+
+Abbiamo ottenuto solo un piccolo miglioramento di velocità.
+
+
+------------------------
+SEQUENZA G DI HOFSTADTER
+------------------------
+
+La sequenza G di Hofstadter è definita come segue:
+
+G(0) = 0
+G(n) = n - G(G(n-1)), per n>0
+
+I primi termini di questa sequenza sono:
+
+0, 1, 1, 2, 3, 3, 4, 4, 5, 6, 6, 7, 8, 8, 9, 9, 10, 11, 11, 12, 12, ... (A005206 OEIS)
+
+Per calcolare i valori utilizziamo un vettore che viene riempito sequenzialmente (non usiamo la ricorsione perchè è più lenta:
+
+(define (gh num)
+  (let (g (array (+ num 1) '(0)))
+    (setf (g 0) 0)
+    (setf (g 1) 1)
+    (for (i 2 num)
+      (setq (g i) (- i (g (g (- i 1)))))
+    )
+    g))
+
+(gh 20)
+;-> (0 1 1 2 3 3 4 4 5 6 6 7 8 8 9 9 10 11 11 12 12)
+
+Vediamo quanto tempo occorre per calcolare i primi 100 milioni di termini:
+
+(time (println (last (gh 100000000))))
+;-> 61803399
+;-> 12495.63  
+    12.5 secondi
+
+Nota: per una rappresentazione visiva di questa sequenza vedi "A combinatorial interpretation of hofstadter’s G-sequence" di Mustazee Rahman.
+
+----------------------------------------------
+SEQUENZA FEMMINA (F) MASCHIO (M) DI HOFSTADTER
+----------------------------------------------
+
+Le sequenze Hofstadter Female (F) e Male (M) sono definite come segue:
+
+F(0) = 1
+M(0) = 0
+F(n) = n - M(F(n-1)), per n>0
+M(n) = n - F(M(n-1)), per n>0
+
+I primi termini di questa sequenze sono:
+
+F: 1, 1, 2, 2, 3, 3, 4, 5, 5, 6, 6, 7, 8, 8, 9, 9, 10, 11, 11, 12, 13, ... (A005378 OEIS)
+M: 0, 0, 1, 2, 2, 3, 4, 4, 5, 6, 6, 7, 7, 8, 9, 9, 10, 11, 11, 12, 12, ... (A005379 OEIS)
+
+(define (fmh num)
+  (local (f m)
+    (setq f (array (+ num 1) '(0)))
+    (setq m (array (+ num 1) '(0)))
+    (setf (f 0) 1)
+    (setf (m 0) 0)
+    (for (i 1 num)
+      (setq (f i) (- i (m (f (- i 1)))))
+      (setq (m i) (- i (f (m (- i 1)))))
+    )
+    (list f m)))
+
+(fmh 20)
+;-> ((1 1 2 2 3 3 4 5 5 6 6 7 8 8 9 9 10 11 11 12 13) 
+;->  (0 0 1 2 2 3 4 4 5 6 6 7 7 8 9 9 10 11 11 12 12))
+
+Vediamo quanto tempo occorre per calcolare i primi 100 milioni di termini:
+
+(time (fmh 100000000))
+;-> 26554.548
+    26.5 secondi
+
+

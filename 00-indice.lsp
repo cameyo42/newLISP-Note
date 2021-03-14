@@ -174,6 +174,8 @@ FUNZIONI VARIE
   Verificare se due numeri hanno lo stesso segno
   Suddivisione di una lista
   Stampo di un numero
+  one?
+  Conversione vettore <--> lista
 
 newLISP 99 PROBLEMI (28)
 ========================
@@ -286,6 +288,10 @@ ROSETTA CODE
   Game of Life
   Ackermann
   Sequenza Q di Hofstadter
+  Sequenza Figura-Figura di Hofstadter
+  Sequenza G di Hofstadter
+  Sequenza Femmina (F) Maschio (M) di Hofstadter
+  
 
 PROJECT EULERO
 ==============
@@ -458,6 +464,7 @@ DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Addizione per intervalli (Range addition) (Google)
   Ordinamento Wiggle (Google)
   Generare parentesi (Amazon)
+  Maggiori a destra (Visa)
 
 LIBRERIE
 ========
@@ -680,6 +687,9 @@ NOTE LIBERE 3
   Funzioni come Stringhe
   Assegnazione multipla
   Doppio fattoriale
+  0.999999999...
+  Quadrati magici curiosi
+  
   
 APPENDICI
 =========

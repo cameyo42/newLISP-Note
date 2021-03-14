@@ -7026,3 +7026,57 @@ Adesso vediamo i tempi di esecuzione:
 La terza versione è la più veloce.
 
 
+------------------------------
+Conversione vettore <--> lista
+------------------------------
+
+Per convertire un vettore in una lista abbiamo una funzione primitiva "array-list":
+
+(setq vet (array 6 '(1 3 3 9 2 8)))
+(setq lst (array-list vet))
+;-> (1 3 3 9 2 8)
+
+(list? lst)
+;-> true
+(array? lst)
+;-> nil
+(list? vet)
+;-> nil
+(array? vet)
+;-> true
+
+Per convertire una lista in un vettore scriviamo una funzione "list-array" utilizzando il metodo di assegnazione di valori ad un vettore durante la sua creazione:
+
+(define (list-array lst)
+  (array (length lst) lst))
+
+(setq lst '(1 2 3 4 5))
+(setq vet (list-array lst))
+;-> (1 2 3 4 5)
+
+(list? lst)
+;-> true
+(array? lst)
+;-> nil
+(list? vet)
+;-> nil
+(array? vet)
+;-> true
+
+
+----
+one?
+----
+
+La seguente funzione non serve a niente, è solo per estetica, ma a me piace.
+
+(define (one? num) (= num 1))
+
+(one? 1)
+;-> true
+(one? 1.0)
+;-> true
+(one? 0)
+;-> nil
+
+

@@ -1652,14 +1652,13 @@ Gli unici modi per arrivare a N = 3, è di arrivare prima a N = 1, e poi salire 
 
 Questo vale per N = 4? Sì. Dal momento che possiamo arrivare al 4° scalino solo partendo dal 3° scalino e salendo di uno oppure partendo dal 2° scalino e salendo di due. Quindi f(4) = f(3) + f(2).
 
-Generalizziamo, f (n) = f (n - 1) + f (n - 2). Questa è la nota sequenza di Fibonacci.
+Generalizziamo, f(n) = f(n - 1) + f(n - 2). Questa è la nota sequenza di Fibonacci.
 
 Versione ricorsiva:
 
 (define (fibo n)
   (if (< n 2) 1
     (+ (fibo (- n 1)) (fibo (- n 2)))))
-
 
 (fibo 35)
 ;-> 14930352
@@ -3187,7 +3186,6 @@ Soluzione proposta da "fdb":
 
 (f (f 0))
 ;-> 0
-
 
 
 ------------------------------------------
@@ -5274,7 +5272,6 @@ Vediamo la velocità delle funzioni:
 La prima funzione iterativa è molto lenta perchè per modificare l'elemento i-esimo viene usata l'indicizzazione della lista (lst $idx).
 
 
-
 --------------------------------------------
 Ordinare una lista di 0, 1 e 2 (geeks4geeks)
 --------------------------------------------
@@ -7094,5 +7091,160 @@ Usiamo una funzione ricorsiva che segue queste due regole.
 ;-> ("[[[[]]]]" "[[[][]]]" "[[[]][]]" "[[[]]][]" "[[][[]]]" 
 ;->  "[[][][]]" "[[][]][]" "[[]][[]]" "[[]][][]" "[][[[]]]" 
 ;->  "[][[][]]" "[][[]][]" "[][][[]]" "[][][][]")
+
+
+------------------------
+Maggiori a destra (Visa)
+------------------------
+
+Dato una lista di numeri interi, calcolare una lista di interi che contiene, in ogni elemento della lista, il conteggio degli interi nell'elenco originale che sono a destra e sono minori dell'elemento nella posizione corrente della lista originale. Ad esempio, data la lista di input (10 12 8 17 3 24 19), l'output desiderato è (4 3 3 2 2 0 0), perché dal primo elemento della lista, 10, ci sono quattro elementi a destra (12 17 24 19) maggiori di 10, al secondo elemento della lista, 12, ci sono tre elementi (17 24 19) maggiori di 12, al terzo elemento della lista, 8, ci sono tre elementi (17 24 19) maggiori di 8, al quarto elemento della lista, 17, ci sono due elementi (24 19) maggiori di 17, al quinto elemento della lista, 3, ci sono due elementi (24 19) maggiori di 3, al sesto elemento della lista, 24, ci sono 0 elementi maggiori di 24 e al settimo elemento della lista, 19, ci sono 0 elementi maggiori di 19.
+
+Scrivere una funzione per calcolare la lista dei conteggi degli elementi maggiori di ogni elemento.
+
+Il primo metodo che viene in mente è quello di utilizzare due cicli innestati, per ogni elemento calcoliamo quanti elementi maggiori ci sono a destra:
+
+(define (bigger-dx lst)
+  (local (len conta)
+    (setq len (length lst))
+    ; Usiamo un vettore per migliorare la velocità
+    (setq arr (array len lst))
+    (setq out '())
+    ; per ogni elemento
+    (for (i 0 (- len 1))
+      (setq conta 0)
+      ; contiamo i numeri maggiori a destra
+      (for (j i (- len 1))
+        (if (> (arr j) (arr i)) (++ conta))
+      )
+      (push conta out -1)
+    )
+    out))
+
+(setq a '(10 12 8 17 3 24 19))
+(bigger-dx a)
+
+(bigger-dx '(-1 -1))
+;-> (0 0)
+
+(setq b '(10 12 8 17 8 3 24 19))
+(bigger-dx b)
+;-> (4 3 3 2 2 2 0 0)
+
+Vediamo i tempi di esecuzione:
+
+(silent (setq t0 (randomize (sequence 1 1000))))
+(silent (setq t (randomize (sequence 1 10000))))
+
+(time (bigger-dx t0))
+;-> 33.936
+(time (bigger-dx t0) 10)
+;-> 337.097
+
+(time (bigger-dx t))
+;-> 3326.111
+(time (bigger-dx t) 10)
+;-> 33188.273
+
+Con un metodo simile utilizzando le primitive di newLISP:
+
+(define (bigger1-dx lst)
+  (let (out '())
+    ; per ogni elemento della lista...
+    (dolist (el lst)
+      ; calcola quanti sono i numeri a destra
+      ; che sono maggiori dell'elemento corrente
+      ; e lo inserisco nella lista di output
+      (push (length (ref-all el (slice lst $idx) <)) out -1)
+    )
+    out))
+
+(bigger1-dx a)
+;-> (4 3 3 2 2 0 0)
+
+(bigger1-dx '(-1 -1))
+;-> (0 0)
+
+(bigger1-dx b)
+;-> (4 3 3 2 2 2 0 0)
+
+Vediamo i tempi di esecuzione:
+
+(time (bigger1-dx t0))
+;-> 40.891
+(time (bigger1-dx t0) 10)
+;-> 400.958
+
+(time (bigger1-dx t))
+;-> 4380.316
+(time (bigger1-dx t) 10)
+;-> 54381.611
+
+Nota: in questa ultima funzione non possiamo utilizzare un vettore perchè la funzione "ref-all" si applica solo alle liste.
+
+Queste due soluzioni hanno complessità temporale O(n^2).
+
+Un altro metodo si basa sui seguenti passi:
+
+- trovare l'indice a destra il cui valore è uguale a quello corrente
+- calcolare il valore tra questi due e aggiungere il risultato di quell'indice
+
+(define (bigger2-dx lst)
+  (local (arr lst-vec res out conta len)
+    (new Tree 'hashmap)
+    (setq len (length lst))
+    (setq arr (array len '(0)))
+    (setq lst-vec (array len lst))
+    (for (i (- len 1) 0)
+      (if (nil? (hashmap (string (lst-vec i))))
+          (setf (arr i) -1)
+          (setf (arr i) (hashmap (string (lst-vec i))))
+      )
+      (hashmap (string (lst-vec i)) i)
+    )
+    (setq res (array len '(0)))
+    (for (i (- len 1) 0)
+      (setq conta 0)
+      (if (= (arr i) -1)
+          (begin
+            (for (j i (- len 1) -1)
+              (if (< (lst-vec i) (lst-vec j))
+                  (++ conta)
+              )
+            )
+            (setf (res i) conta))
+          (begin ;else
+            (for (j i (- (arr i) 1))
+              (if (< (lst-vec i) (lst-vec j))
+                  (++ conta)
+              )
+            )
+            (setf (res i) (+ conta (res (arr i)))))
+      )
+    )
+    (delete 'hashmap)
+    (setq out (array-list res))))
+
+(bigger2-dx a)
+;-> (4 3 3 2 2 0 0)
+
+(bigger2-dx '(-1 -1))
+;-> (0 0)
+
+(bigger2-dx b)
+;-> (4 3 3 2 2 2 0 0)
+
+Vediamo i tempi di esecuzione:
+
+(time (bigger2-dx t0))
+;-> 37.927
+(time (bigger2-dx t0) 10)
+;-> 375.01
+
+(time (bigger2-dx t))
+;-> 3627.274
+(time (bigger2-dx t) 10)
+;-> 36286.99
+
+Una soluzione in tempo O(n*log(n)) può essere ottenuta utilizzando la tecnica merge-sort oppure con la manipolazione dei bit oppure con gli alberi binari di ricerca oppure con i segment tree oppure con la ricerca binaria oppure con gli alberi binari indicizzati. Non esiste una soluzione in tempo O(n).
 
 

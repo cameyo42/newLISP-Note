@@ -174,6 +174,8 @@ FUNZIONI VARIE
   Verificare se due numeri hanno lo stesso segno
   Suddivisione di una lista
   Stampo di un numero
+  one?
+  Conversione vettore <--> lista
 
 newLISP 99 PROBLEMI (28)
 ========================
@@ -286,6 +288,10 @@ ROSETTA CODE
   Game of Life
   Ackermann
   Sequenza Q di Hofstadter
+  Sequenza Figura-Figura di Hofstadter
+  Sequenza G di Hofstadter
+  Sequenza Femmina (F) Maschio (M) di Hofstadter
+  
 
 PROJECT EULERO
 ==============
@@ -458,6 +464,7 @@ DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Addizione per intervalli (Range addition) (Google)
   Ordinamento Wiggle (Google)
   Generare parentesi (Amazon)
+  Maggiori a destra (Visa)
 
 LIBRERIE
 ========
@@ -680,6 +687,9 @@ NOTE LIBERE 3
   Funzioni come Stringhe
   Assegnazione multipla
   Doppio fattoriale
+  0.999999999...
+  Quadrati magici curiosi
+  
   
 APPENDICI
 =========
@@ -16881,6 +16891,60 @@ Adesso vediamo i tempi di esecuzione:
 La terza versione è la più veloce.
 
 
+------------------------------
+Conversione vettore <--> lista
+------------------------------
+
+Per convertire un vettore in una lista abbiamo una funzione primitiva "array-list":
+
+(setq vet (array 6 '(1 3 3 9 2 8)))
+(setq lst (array-list vet))
+;-> (1 3 3 9 2 8)
+
+(list? lst)
+;-> true
+(array? lst)
+;-> nil
+(list? vet)
+;-> nil
+(array? vet)
+;-> true
+
+Per convertire una lista in un vettore scriviamo una funzione "list-array" utilizzando il metodo di assegnazione di valori ad un vettore durante la sua creazione:
+
+(define (list-array lst)
+  (array (length lst) lst))
+
+(setq lst '(1 2 3 4 5))
+(setq vet (list-array lst))
+;-> (1 2 3 4 5)
+
+(list? lst)
+;-> true
+(array? lst)
+;-> nil
+(list? vet)
+;-> nil
+(array? vet)
+;-> true
+
+
+----
+one?
+----
+
+La seguente funzione non serve a niente, è solo per estetica, ma a me piace.
+
+(define (one? num) (= num 1))
+
+(one? 1)
+;-> true
+(one? 1.0)
+;-> true
+(one? 0)
+;-> nil
+
+
 ==========================
 
  newLISP 99 PROBLEMI (28)
@@ -29287,6 +29351,179 @@ Vediamo quanto tempo occorre per calcolare la sequenza dei primi 100 milioni di 
     34 secondi
 
 La funzione è molto veloce, ma il vettore che definiamo utilizza tanta memoria.
+
+
+------------------------------------
+SEQUENZA FIGURA-FIGURA DI HOFSTADTER
+------------------------------------
+
+La sequenza Figura-Figura (R e S) di Hofstadter sono una coppia di sequenze intere complementari definite come segue:
+
+R(1) = 1
+S(1) = 2
+R(n) = R(n-1) + S(n-1), per n>1
+
+con la sequenza S(n) definita come una serie strettamente crescente di interi positivi non presenti in R(n). I primi termini di queste sequenze sono:
+
+R: 1, 3, 7, 12, 18, 26, 35, 45, 56, 69, 83, 98, 114, 131, 150, 170, 191, 213, 236, 260, ... (A005228 OEIS)
+S: 2, 4, 5, 6, 8, 9, 10, 11, 13, 14, 15, 16, 17, 19, 20, 21, 22, 23, 24, 25, ... (A030124 OEIS)
+
+(define (ffh num)
+  (local (r s)
+    (setq r '(0 1))
+    (setq s '(0 2))
+    (for (i 2 num)
+      ;(println i)
+      (ffr i)
+      (ffs i)
+    )
+    (list r s)))
+
+(define (ffr n)
+  (push (+ (r (- n 1)) (s (- n 1))) r -1))
+
+(define (ffs n)
+  (local (idx stop)
+    (setq stop nil)
+    (setq idx (+ (s (- n 1)) 1))
+    (do-until stop
+      (cond ((ref idx r)
+             (++ idx))
+            (true
+             (push idx s -1)
+             (setq stop true))
+      ))))
+
+(ffh 20)
+;-> ((0 1 3 7 12 18 26 35 45 56 69 83 98 114 131 150 170 191 213 236 260)
+;->  (0 2 4 5 6 8 9 10 11 13 14 15 16 17 19 20 21 22 23 24 25))
+
+Vediamo i tempi di esecuzione:
+
+(time (ffh 10000))
+;-> 1481.927
+(time (ffh 100000))
+;-> 211800.307
+
+Proviamo ad utilizzare una hash-map per inserire e controllare i valori di r (invece di controllarli sulla lista dei valori di r):
+
+(define (ffh num)
+  (local (r s)
+    (new Tree 'rhash)
+    (setq r '(0 1))
+    (setq s '(0 2))
+    (rhash "1" 1)
+    (for (i 2 num)
+      ;(println i)
+      (ffr i)
+      (ffs i)
+    )
+    (delete 'rhash)
+    (list r s)))
+
+(define (ffr n)
+  (local (val)
+    (setq val (+ (r (- n 1)) (s (- n 1))))
+    (push val r -1)
+    (rhash (string val) val)))
+
+(define (ffs n)
+  (local (idx stop)
+    (setq stop nil)
+    (setq idx (+ (s (- n 1)) 1))
+    (do-until stop
+      (cond ((nil? (rhash idx))
+             (push idx s -1)
+             (setq stop true))
+            (true
+             (++ idx))
+      ))))
+
+(ffh 20)
+;-> ((0 1 3 7 12 18 26 35 45 56 69 83 98 114 131 150 170 191 213 236 260)
+;->  (0 2 4 5 6 8 9 10 11 13 14 15 16 17 19 20 21 22 23 24 25))
+
+(time (ffh 10000))
+;-> 1211.927
+(time (ffh 100000))
+;-> 199469.585
+
+Abbiamo ottenuto solo un piccolo miglioramento di velocità.
+
+
+------------------------
+SEQUENZA G DI HOFSTADTER
+------------------------
+
+La sequenza G di Hofstadter è definita come segue:
+
+G(0) = 0
+G(n) = n - G(G(n-1)), per n>0
+
+I primi termini di questa sequenza sono:
+
+0, 1, 1, 2, 3, 3, 4, 4, 5, 6, 6, 7, 8, 8, 9, 9, 10, 11, 11, 12, 12, ... (A005206 OEIS)
+
+Per calcolare i valori utilizziamo un vettore che viene riempito sequenzialmente (non usiamo la ricorsione perchè è più lenta:
+
+(define (gh num)
+  (let (g (array (+ num 1) '(0)))
+    (setf (g 0) 0)
+    (setf (g 1) 1)
+    (for (i 2 num)
+      (setq (g i) (- i (g (g (- i 1)))))
+    )
+    g))
+
+(gh 20)
+;-> (0 1 1 2 3 3 4 4 5 6 6 7 8 8 9 9 10 11 11 12 12)
+
+Vediamo quanto tempo occorre per calcolare i primi 100 milioni di termini:
+
+(time (println (last (gh 100000000))))
+;-> 61803399
+;-> 12495.63  
+    12.5 secondi
+
+Nota: per una rappresentazione visiva di questa sequenza vedi "A combinatorial interpretation of hofstadter’s G-sequence" di Mustazee Rahman.
+
+----------------------------------------------
+SEQUENZA FEMMINA (F) MASCHIO (M) DI HOFSTADTER
+----------------------------------------------
+
+Le sequenze Hofstadter Female (F) e Male (M) sono definite come segue:
+
+F(0) = 1
+M(0) = 0
+F(n) = n - M(F(n-1)), per n>0
+M(n) = n - F(M(n-1)), per n>0
+
+I primi termini di questa sequenze sono:
+
+F: 1, 1, 2, 2, 3, 3, 4, 5, 5, 6, 6, 7, 8, 8, 9, 9, 10, 11, 11, 12, 13, ... (A005378 OEIS)
+M: 0, 0, 1, 2, 2, 3, 4, 4, 5, 6, 6, 7, 7, 8, 9, 9, 10, 11, 11, 12, 12, ... (A005379 OEIS)
+
+(define (fmh num)
+  (local (f m)
+    (setq f (array (+ num 1) '(0)))
+    (setq m (array (+ num 1) '(0)))
+    (setf (f 0) 1)
+    (setf (m 0) 0)
+    (for (i 1 num)
+      (setq (f i) (- i (m (f (- i 1)))))
+      (setq (m i) (- i (f (m (- i 1)))))
+    )
+    (list f m)))
+
+(fmh 20)
+;-> ((1 1 2 2 3 3 4 5 5 6 6 7 8 8 9 9 10 11 11 12 13) 
+;->  (0 0 1 2 2 3 4 4 5 6 6 7 7 8 9 9 10 11 11 12 12))
+
+Vediamo quanto tempo occorre per calcolare i primi 100 milioni di termini:
+
+(time (fmh 100000000))
+;-> 26554.548
+    26.5 secondi
 
 
 ================
@@ -52262,14 +52499,13 @@ Gli unici modi per arrivare a N = 3, è di arrivare prima a N = 1, e poi salire 
 
 Questo vale per N = 4? Sì. Dal momento che possiamo arrivare al 4° scalino solo partendo dal 3° scalino e salendo di uno oppure partendo dal 2° scalino e salendo di due. Quindi f(4) = f(3) + f(2).
 
-Generalizziamo, f (n) = f (n - 1) + f (n - 2). Questa è la nota sequenza di Fibonacci.
+Generalizziamo, f(n) = f(n - 1) + f(n - 2). Questa è la nota sequenza di Fibonacci.
 
 Versione ricorsiva:
 
 (define (fibo n)
   (if (< n 2) 1
     (+ (fibo (- n 1)) (fibo (- n 2)))))
-
 
 (fibo 35)
 ;-> 14930352
@@ -53797,7 +54033,6 @@ Soluzione proposta da "fdb":
 
 (f (f 0))
 ;-> 0
-
 
 
 ------------------------------------------
@@ -55884,7 +56119,6 @@ Vediamo la velocità delle funzioni:
 La prima funzione iterativa è molto lenta perchè per modificare l'elemento i-esimo viene usata l'indicizzazione della lista (lst $idx).
 
 
-
 --------------------------------------------
 Ordinare una lista di 0, 1 e 2 (geeks4geeks)
 --------------------------------------------
@@ -57704,6 +57938,161 @@ Usiamo una funzione ricorsiva che segue queste due regole.
 ;-> ("[[[[]]]]" "[[[][]]]" "[[[]][]]" "[[[]]][]" "[[][[]]]" 
 ;->  "[[][][]]" "[[][]][]" "[[]][[]]" "[[]][][]" "[][[[]]]" 
 ;->  "[][[][]]" "[][[]][]" "[][][[]]" "[][][][]")
+
+
+------------------------
+Maggiori a destra (Visa)
+------------------------
+
+Dato una lista di numeri interi, calcolare una lista di interi che contiene, in ogni elemento della lista, il conteggio degli interi nell'elenco originale che sono a destra e sono minori dell'elemento nella posizione corrente della lista originale. Ad esempio, data la lista di input (10 12 8 17 3 24 19), l'output desiderato è (4 3 3 2 2 0 0), perché dal primo elemento della lista, 10, ci sono quattro elementi a destra (12 17 24 19) maggiori di 10, al secondo elemento della lista, 12, ci sono tre elementi (17 24 19) maggiori di 12, al terzo elemento della lista, 8, ci sono tre elementi (17 24 19) maggiori di 8, al quarto elemento della lista, 17, ci sono due elementi (24 19) maggiori di 17, al quinto elemento della lista, 3, ci sono due elementi (24 19) maggiori di 3, al sesto elemento della lista, 24, ci sono 0 elementi maggiori di 24 e al settimo elemento della lista, 19, ci sono 0 elementi maggiori di 19.
+
+Scrivere una funzione per calcolare la lista dei conteggi degli elementi maggiori di ogni elemento.
+
+Il primo metodo che viene in mente è quello di utilizzare due cicli innestati, per ogni elemento calcoliamo quanti elementi maggiori ci sono a destra:
+
+(define (bigger-dx lst)
+  (local (len conta)
+    (setq len (length lst))
+    ; Usiamo un vettore per migliorare la velocità
+    (setq arr (array len lst))
+    (setq out '())
+    ; per ogni elemento
+    (for (i 0 (- len 1))
+      (setq conta 0)
+      ; contiamo i numeri maggiori a destra
+      (for (j i (- len 1))
+        (if (> (arr j) (arr i)) (++ conta))
+      )
+      (push conta out -1)
+    )
+    out))
+
+(setq a '(10 12 8 17 3 24 19))
+(bigger-dx a)
+
+(bigger-dx '(-1 -1))
+;-> (0 0)
+
+(setq b '(10 12 8 17 8 3 24 19))
+(bigger-dx b)
+;-> (4 3 3 2 2 2 0 0)
+
+Vediamo i tempi di esecuzione:
+
+(silent (setq t0 (randomize (sequence 1 1000))))
+(silent (setq t (randomize (sequence 1 10000))))
+
+(time (bigger-dx t0))
+;-> 33.936
+(time (bigger-dx t0) 10)
+;-> 337.097
+
+(time (bigger-dx t))
+;-> 3326.111
+(time (bigger-dx t) 10)
+;-> 33188.273
+
+Con un metodo simile utilizzando le primitive di newLISP:
+
+(define (bigger1-dx lst)
+  (let (out '())
+    ; per ogni elemento della lista...
+    (dolist (el lst)
+      ; calcola quanti sono i numeri a destra
+      ; che sono maggiori dell'elemento corrente
+      ; e lo inserisco nella lista di output
+      (push (length (ref-all el (slice lst $idx) <)) out -1)
+    )
+    out))
+
+(bigger1-dx a)
+;-> (4 3 3 2 2 0 0)
+
+(bigger1-dx '(-1 -1))
+;-> (0 0)
+
+(bigger1-dx b)
+;-> (4 3 3 2 2 2 0 0)
+
+Vediamo i tempi di esecuzione:
+
+(time (bigger1-dx t0))
+;-> 40.891
+(time (bigger1-dx t0) 10)
+;-> 400.958
+
+(time (bigger1-dx t))
+;-> 4380.316
+(time (bigger1-dx t) 10)
+;-> 54381.611
+
+Nota: in questa ultima funzione non possiamo utilizzare un vettore perchè la funzione "ref-all" si applica solo alle liste.
+
+Queste due soluzioni hanno complessità temporale O(n^2).
+
+Un altro metodo si basa sui seguenti passi:
+
+- trovare l'indice a destra il cui valore è uguale a quello corrente
+- calcolare il valore tra questi due e aggiungere il risultato di quell'indice
+
+(define (bigger2-dx lst)
+  (local (arr lst-vec res out conta len)
+    (new Tree 'hashmap)
+    (setq len (length lst))
+    (setq arr (array len '(0)))
+    (setq lst-vec (array len lst))
+    (for (i (- len 1) 0)
+      (if (nil? (hashmap (string (lst-vec i))))
+          (setf (arr i) -1)
+          (setf (arr i) (hashmap (string (lst-vec i))))
+      )
+      (hashmap (string (lst-vec i)) i)
+    )
+    (setq res (array len '(0)))
+    (for (i (- len 1) 0)
+      (setq conta 0)
+      (if (= (arr i) -1)
+          (begin
+            (for (j i (- len 1) -1)
+              (if (< (lst-vec i) (lst-vec j))
+                  (++ conta)
+              )
+            )
+            (setf (res i) conta))
+          (begin ;else
+            (for (j i (- (arr i) 1))
+              (if (< (lst-vec i) (lst-vec j))
+                  (++ conta)
+              )
+            )
+            (setf (res i) (+ conta (res (arr i)))))
+      )
+    )
+    (delete 'hashmap)
+    (setq out (array-list res))))
+
+(bigger2-dx a)
+;-> (4 3 3 2 2 0 0)
+
+(bigger2-dx '(-1 -1))
+;-> (0 0)
+
+(bigger2-dx b)
+;-> (4 3 3 2 2 2 0 0)
+
+Vediamo i tempi di esecuzione:
+
+(time (bigger2-dx t0))
+;-> 37.927
+(time (bigger2-dx t0) 10)
+;-> 375.01
+
+(time (bigger2-dx t))
+;-> 3627.274
+(time (bigger2-dx t) 10)
+;-> 36286.99
+
+Una soluzione in tempo O(n*log(n)) può essere ottenuta utilizzando la tecnica merge-sort oppure con la manipolazione dei bit oppure con gli alberi binari di ricerca oppure con i segment tree oppure con la ricerca binaria oppure con gli alberi binari indicizzati. Non esiste una soluzione in tempo O(n).
 
 
 ==========
@@ -80126,6 +80515,386 @@ Numeri pari:
 Numeri dispari:
 (map double-fact (sequence 1 13 2))
 ;-> (1 3 15 105 945 10395 135135)
+
+
+--------------
+0.999999999...
+--------------
+
+In matematica il numero N = 0.999999999... (che può essere scritto come 0.(9)) vale 1.
+
+Dimostrazione
+
+1 = 1/3 + 2/3 =
+  = 0.333333333... + 0.666666666... =
+  = 0.999999999...
+
+In newLISP:
+
+(add (div 1 3) (div 2 3))
+;-> 1
+
+Un altro metodo di dimostrazione:
+
+Moltiplichiamo N = 0.999999999... per 10 e poi lo sottraiamo al risultato della moltiplicazione:
+
+10 * 0.999999999... = 9.999999999...
+
+10*N = 9.999999999... -
+   N = 0.999999999... =
+-----------------------
+       9
+
+Cioè, 10*N - N = 9 ==> N = 1
+
+
+-----------------------
+Quadrati magici curiosi
+-----------------------
+
+Il quadrato magico Apocalittico
+-------------------------------
+Tutti i numeri del seguente quadrato magico sono primi e la somma delle righe, delle colonne, delle diagonali e delle diagonali spezzate vale 666 (il numero della Bestia). Le diagonali spezzate (di lunghezza 6) sono quelle che si ottengono piegando il quadrato su se stesso lungo le diagonali.
+
+    3  107    5  131  109  311
+    7  331  193   11   83   41
+  103   53   71   89  151  199
+  113   61   97  197  167   31
+  367   13  173   59   17   37
+   73  101  127  179  139   47
+
+Diagonali spezzate:
+
+(113 + 13 + 127) + (131 83 199) = 666
+
+(5 + 331 + 103) + (31 + 17 + 179) = 666
+
+Scriviamo una funzione per verificare la proprietà della somma lungo le righe, le colonne e le diagonali:
+
+(define (checksum qm n somma)
+  (local (ok srow scol)
+    (setq ok true)
+    ; controllo diagonali
+    (setq srow 0 scol 0)
+    (for (i 0 (- n 1))
+      (setq srow (add srow (qm i i)))
+      (setq scol (add scol (qm i (sub n i 1))))
+    )
+    (if (or (!= srow somma) (!= scol somma))
+        (setq ok nil))
+    ;controllo righe e colonne
+    (for (i 0 (- n 1) 1 ok)
+      (setq srow 0 scol 0)
+      (for (j 0 (- n 1) 1 ok )
+        (setq srow (add srow (qm i j)))
+        (setq scol (add scol (qm j i)))
+      )
+      (if (or (!= srow somma) (!= scol somma))
+          (setq ok nil)
+      )
+    )
+    ok))
+
+Verifichiamo:
+
+(setq a '((  3   107     5   131   109   311)
+          (  7   331   193    11    83    41)
+          (103    53    71    89   151   199)
+          (113    61    97   197   167    31)
+          (367    13   173    59    17    37)
+          ( 73   101   127   179   139    47)))
+
+(checksum a 6 666)
+;-> true
+
+Adesso verifichiamo se i numeri del quadrato sono tutti primi:
+
+(define (primi lst)
+  (let (out true)
+    (dolist (el (flat lst))
+      (if (> (length (factor el)) 1)
+        (setq out nil)))
+    out))
+
+(primi a)
+;-> true
+
+Il quadrato magico Specchio
+---------------------------
+Nel quadrato magico seguente la somma di ogni riga, di ogni colonna e di ogni diagonale vale 242.
+
+  96 64 37 45
+  39 43 98 62
+  84 76 25 57
+  23 59 82 78
+
+(setq s '((96 64 37 45)
+          (39 43 98 62)
+          (84 76 25 57)
+          (23 59 82 78)))
+
+Verifichiamo:
+
+(checksum s 4 242)
+;-> true
+
+Invertiamo le cifre di ogni numero del quadrato:
+
+(define (mirror qm)
+  (let (out '())
+    (dolist (el qm)
+      (push (map (fn(x) (int (reverse (string x)))) el) out -1))
+    out))
+
+(setq s1 (mirror s))
+;-> ((69 46 73 54) (93 34 89 26) (48 67 52 75) (32 95 28 87))
+
+Otteniamo un altro quadrato magico con la stesso valore della somma:
+
+  69 46 73 54
+  93 34 89 26
+  48 67 52 75
+  32 95 28 87
+
+Verifichiamo:
+
+(checksum s1 4 242)
+;-> true
+
+Il quadrato magico Kurchan
+--------------------------
+
+pandigital sum is 4,129,607,358:
+Un altro incredibile quadrato magico è quello di Kurchan (scoperto da Rodolfo Marcelo Kurchan, di Buenos Aires, Argentina). Si pensa che sia il più piccolo quadrato magico non banale con 16 numeri interi pandigitali distinti con la più piccola somma magica pandigitale (Pandigitale significa che tutte e dieci le cifre sono utilizzato e 0 non è la cifra iniziale. La somma pandigitale è 4.129.607.358:
+
+  1037956284 1026857394 1036847295 1027946385
+  1036947285 1027846395 1037856294 1026957384
+  1027856394 1036957284 1026947385 1037846295
+  1026847395 1037946285 1027956384 1036857294
+
+Vediamo se esiste un modo per ricavarlo.
+
+Calcoliamo tutte le permutazioni (numeri) delle cifre (0 1 2 3 4 5 6 7 8 9):
+
+(define (perm lst)
+  (local (i indici out)
+    (setq indici (dup 0 (length lst)))
+    (setq i 0)
+    ; aggiungiamo la lista iniziale alla soluzione
+    (setq out (list lst))
+    (while (< i (length lst))
+      (if (< (indici i) i)
+          (begin
+            (if (zero? (% i 2))
+              (swap (lst 0) (lst i))
+              (swap (lst (indici i)) (lst i))
+            )
+            ;(println lst);
+            (push lst out -1)
+            (++ (indici i))
+            (setq i 0)
+          )
+          (begin
+            (setf (indici i) 0)
+            (++ i)
+          )
+       )
+    )
+    out))
+
+(silent (setq all (perm '(0 1 2 3 4 5 6 7 8 9))))
+
+Prendiamo solo le permutazioni che passano il seguente filtro:
+
+(define (filtro lst)
+  (and (= (lst 0) 1)
+       (= (lst 1) 0)
+       (or (= (lst 2) 2) (= (lst 2) 3))
+       (or (= (lst 3) 6) (= (lst 3) 7))
+       (or (= (lst 4) 8) (= (lst 4) 9))
+       (or (= (lst 5) 4) (= (lst 5) 5))
+       (or (= (lst 6) 6) (= (lst 6) 7))
+       (or (= (lst 7) 2) (= (lst 7) 3))
+       (or (= (lst 8) 8) (= (lst 8) 9))
+       (or (= (lst 9) 4) (= (lst 9) 5))))
+
+(silent (setq nums (filter filtro all)))
+(length nums)
+;-> 16
+(nums 10)
+;-> (1 0 2 7 8 4 6 3 9 5)
+
+Convertiamo gli elementi della lista delle permutazioni in una lista di numeri:
+
+(define (lst-int lst)
+  (let (num 0)
+    (dolist (el lst) (setq num (+ el (* num 10))))))
+
+(silent (setq numeri (map lst-int nums)))
+(length numeri)
+;-> 16
+(nums 10)
+;-> (1 0 2 7 8 4 6 3 9 5)
+(numeri 10)
+;-> 1027846395
+
+In quanti modi possiamo disporre 16 numeri in una matrice 4x4?
+Si tratta del numero di permutazioni, quindi vale: 16!
+
+(define (fact-i num)
+  (let (out 1L)
+    (for (x 1L num)
+      (setq out (* out x)))))
+
+(fact-i 16)
+;-> 20922789888000L
+
+Non le possiamo calcolare tutte...
+
+Allora ricaviamo il valore della somma del quadrato magico dividendo per 4 la somma di tutti i valori:
+
+(setq kur '(1037956284
+            1026857394
+            1036847295
+            1027946385
+            1036947285
+            1027846395
+            1037856294
+            1026957384
+            1027856394
+            1036957284
+            1026947385
+            1037846295
+            1026847395
+            1037946285
+            1027956384
+            1036857294))
+
+(apply + kur)
+;-> 16518429432
+
+(setq somma (/ (apply + kur) 4))
+;-> 4129607358 ; somma del quadrato magico
+
+Quindi dobbiamo trovare 4 numeri che sommano al valore di "somma"
+
+Una soluzione ingenua per stampare tutte le combinazioni  di 4 elementi in una lista "lst" che hanno somma uguale a "sum":
+
+(define (findsum4 lst sum)
+  (local (len vet out)
+    (setq len (length lst))
+    (setq vet (array len lst))
+    (setq out '())
+    (for (i 0 (- len 4))
+      (for (j (+ i 1) (- len 3))
+        (for (k (+ j 1) (- len 2))
+          (for (p (+ k 1) (- len 1))
+            ;(println (vet i) { } (vet j) { } (vet k) { } (vet p))
+            ;(println (+ (vet i) (vet j) (vet k) (vet p)) { } sum)
+            ;(read-line)
+            (if (= (+ (vet i) (vet j) (vet k) (vet p)) sum)
+                (push (list (vet i) (vet j) (vet k) (vet p)) out -1))))))
+    out))
+
+(findsum4 '(10 2 3 4 5 9 7 8) 21)
+;-> ((10 2 4 5) (2 3 9 7) (2 4 7 8) (3 4 5 9))
+
+(setq quad (findsum4 kur somma))
+(length quad)
+;-> 52
+
+52 quadruple di numeri da mettere in una matrice 4x4 con tutti i numeri diversi...
+
+(binom 52 4)
+;-> 270725L
+
+Adesso possiamo calcolarle...
+
+(define (comb k lst)
+  (cond ((zero? k)   '(()))
+        ((null? lst) '())
+        (true
+          (append (map (lambda (k-1) (cons (first lst) k-1))
+                       (comb (- k 1) (rest lst)))
+                  (comb k (rest lst))))))
+
+(silent (setq matrici (comb 4 quad)))
+(length matrici)
+;-> 270725
+
+Vediamo un elemento della lista "matrici" :
+
+(matrici 0)
+;-> ((1037956284 1026857394 1036847295 1027946385)
+;->  (1037956284 1026857394 1036947285 1027846395)
+;->  (1037956284 1026857394 1026947385 1037846295)
+;->  (1037956284 1026857394 1026847395 1037946285))
+
+Quindi dobbiamo controllare ogni elemento della lista "matrici" per verificare se è un quadrato magico.
+
+(checksum (matrici 10) 4 somma)
+;-> nil
+
+(define (test)
+  (local (out)
+    (setq out '())
+    (dolist (el matrici)
+      (if (checksum el 4 somma)
+          (begin
+            (println el)
+            (push el out -1)))
+      (if (zero? (% $idx 10000)) (println $idx))
+    )
+    out))
+
+(setq sol (test))
+(length sol)
+;-> 258
+
+Vediamo una matrice:
+
+(sol 10)
+;-> ((1037956284 1026857394 1036847295 1027946385) 
+;->  (1026857394 1027846395 1036957284 1037946285)
+;->  (1026857394 1037856294 1026947385 1037946285)
+;->  (1026847395 1037946285 1027956384 1036857294))
+
+Notiamo che ci sono numeri uguali, quindi il quadrato magico è triviale.
+
+Eliminiamo tutte le matrici (quadrati magici) che hanno numeri uguali:
+
+(define (unici lst)
+  (= (unique (flat lst)) (flat lst)))
+
+(setq qmagic (filter unici sol))
+(length qmagic)
+;-> 7
+
+Vediamo se in questi 7 quadrati magici esiste quello di Kurchan:
+
+(ref (explode kur 4) qmagic)
+;-> (0)
+
+Esiste e si trova all'indice 0:
+
+(qmagic 0)
+((1037956284 1026857394 1036847295 1027946385) 
+ (1036947285 1027846395 1037856294 1026957384)
+ (1027856394 1036957284 1026947385 1037846295)
+ (1026847395 1037946285 1027956384 1036857294))
+
+Vediamone un altro:
+
+(qmagic 1)
+((1037956284 1026857394 1036947285 1027846395) 
+ (1036847295 1027946385 1037856294 1026957384)
+ (1027856394 1036957284 1026847395 1037946285)
+ (1026947385 1037846295 1027956384 1036857294))
+
+Il quinto quadrato magico è la trasposta di quello di Kurchan:
+
+(= (qmagic 0) (transpose (qmagic 4)))
+;-> true
 
 
 ===========
