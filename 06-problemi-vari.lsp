@@ -3703,7 +3703,12 @@ Giochiamo con i parametri (maxvalA maxlanciA maxvalB maxlanciB):
 Come si vede sembra che utilizzando 20 e 25 come valori massimi per ogni giocata (maxval) si massimizzano la probabilità di vittoria. Dalle prove effettuate sembra che 25 sia leggermente migliore che 20.
 L'articolo "Practical Play of the Dice Game Pig" di Neller e Presser:
 http://cs.gettysburg.edu/~tneller/papers/umap10.pdf
-affronta il gioco matematicamente e raggiunge le stesse conclusioni: il numero 20 e il numero 25 massimizzano le probabilità di vittoria.
+affronta il gioco matematicamente e raggiunge le stesse conclusioni: il numero 20 e il numero 25 massimizzano le probabilità di vittoria. Comunque l'articolo suggerisce una strategia migliore che può essere sintetizzata nelle seguenti due regole (supponiamo per il giocatore A a cui tocca la mossa):
+
+1) se il punteggio di A è maggiore o uguale a 71, allora deve lanciare i dadi per raggiungere 100.
+2) altrimenti deve lanciare i dadi per raggiungere il valore:
+
+  21 + int((PuntiB - PuntiA)/8)
 
 
 ------------------

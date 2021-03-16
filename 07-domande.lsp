@@ -4826,7 +4826,7 @@ Dato un numero n, trovare i primi tre numeri a, b e c, maggiori o uguali a n, ta
 
 Nota: due numeri sono coprimi se e solo se essi non hanno nessun divisore comune eccetto 1 e -1 o, in modo equivalente, se il loro massimo comune divisore è 1.
 
-Dato qualsiasi numero naturale x, questo è certamente coprimo a x + 1. Inoltre, due numeri pari non sono mai coprimi, perché condividono un fattore 2. Quindi, se n è pari, n, n + 1 e lo + 2 formano una tripla corretta, e se lo è dispari, n + 1, n + 2 e n + 3 formano una tripla adatta.
+Dato qualsiasi numero naturale x, questo è certamente coprimo a x + 1. Inoltre, due numeri pari non sono mai coprimi, perché condividono un fattore 2. Quindi, se n è pari, n, n + 1 e n + 2 formano una tripla corretta, e se n è dispari, n + 1, n + 2 e n + 3 formano una tripla adatta.
 
 Sciviamo una funzione che calcola e verifica la soluzione:
 
@@ -4945,26 +4945,26 @@ Possiamo usare due hashmap che tengono traccia delle mappature char-char. Se un 
 (define (isomorfe str1 str2)
   (let (out true)
     (cond ((!= (length str1) (length str2))
-          (setq out nil))
+           (setq out nil))
           ((or (null? str1) (null? str2))
-          (setq out nil))
+           (setq out nil))
           (true
-            (new Tree 'map1)
-            (new Tree 'map2)
-            (for (i 0 (- (length str1) 1) 1 (not out))
-              (setq c1 (str1 i))
-              (setq c2 (str2 i))
-              (if (map1 c1)
-                (if (!= c2 (map1 c1))
-                    (setq out nil)
-                )
-                (if (map2 c2)
-                    (setq out nil)
-                )
-              )
-              (map1 c1 c2)
-              (map2 c2 c1)
-            )
+           (new Tree 'map1)
+           (new Tree 'map2)
+           (for (i 0 (- (length str1) 1) 1 (not out))
+             (setq c1 (str1 i))
+             (setq c2 (str2 i))
+             (if (map1 c1)
+               (if (!= c2 (map1 c1))
+                   (setq out nil)
+               )
+               (if (map2 c2)
+                   (setq out nil)
+               )
+             )
+             (map1 c1 c2)
+             (map2 c2 c1)
+           )
           )
     )
     (delete 'map1)

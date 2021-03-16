@@ -3566,10 +3566,10 @@ Per eliminare gli elementi doppi inserriamo la lista in una hash-map. Quando ass
 Generiamo e ordiniamo la lista in ordine decrescente:
 
 (setq lst (sort (genera 5) >))
-;-> (("0.8" "4/5") 
-;->  ("0.75" "3/4") 
-;->  ("0.6666666666666666" "2/3") 
-;->  ("0.6" "3/5") 
+;-> (("0.8" "4/5")
+;->  ("0.75" "3/4")
+;->  ("0.6666666666666666" "2/3")
+;->  ("0.6" "3/5")
 ;->  ("0.5" "2/4")
 ;->  ("0.5" "1/2")
 ;->  ("0.4" "2/5")
@@ -3584,10 +3584,10 @@ E poi la inseriamo in una hash-map:
 ;-> hash
 
 (hash)
-;-> (("0.2" "1/5") 
-;->  ("0.25" "1/4") 
-;->  ("0.3333333333333333" "1/3") 
-;->  ("0.4" "2/5") 
+;-> (("0.2" "1/5")
+;->  ("0.25" "1/4")
+;->  ("0.3333333333333333" "1/3")
+;->  ("0.4" "2/5")
 ;->  ("0.5" "1/2")
 ;->  ("0.6" "3/5")
 ;->  ("0.6666666666666666" "2/3")
@@ -3597,10 +3597,10 @@ E poi la inseriamo in una hash-map:
 Adesso copiamo la hash-map in una lista:
 
 (setq lst (hash))
-;-> (("0.2" "1/5") 
-;->  ("0.25" "1/4") 
-;->  ("0.3333333333333333" "1/3") 
-;->  ("0.4" "2/5") 
+;-> (("0.2" "1/5")
+;->  ("0.25" "1/4")
+;->  ("0.3333333333333333" "1/3")
+;->  ("0.4" "2/5")
 ;->  ("0.5" "1/2")
 ;->  ("0.6" "3/5")
 ;->  ("0.6666666666666666" "2/3")
@@ -3751,7 +3751,7 @@ Vediamo nei primi 100000 numeri:
 (time (sommaquad-max 100000))
 ;-> 26785.705
 (sommaquad 71825)
-;-> ((191 188) (208 169) (215 160) (236 127) (247 104) 
+;-> ((191 188) (208 169) (215 160) (236 127) (247 104)
 ;->  (257 76) (260 65) (265 40) (268 1))
 
 
@@ -3829,9 +3829,9 @@ Vediamo quali numeri taxicab ci sono fino a 1 milione:
 ;-> 96643.946 ; 96 secondi
 
 tx
-;-> ((1729 ((10 9) (12 1))) 
-;->  (4104 ((15 9) (16 2))) 
-;->  (13832 ((20 18) (24 2))) 
+;-> ((1729 ((10 9) (12 1)))
+;->  (4104 ((15 9) (16 2)))
+;->  (13832 ((20 18) (24 2)))
 ;->  (20683 ((24 19) (27 10)))
 ;->  (32832 ((30 18) (32 4)))
 ;->  (39312 ((33 15) (34 2)))
@@ -4035,7 +4035,7 @@ Nota: la somma dei primi n numeri dispari è sempre un quadrato. Infatti la figu
        |  7  |  7  |  7  |  7  |
        |     |     |     |     |
        +-----+-----+-----+-----+
-    
+
 
 ------------
 Cavo sospeso
@@ -4141,13 +4141,13 @@ Questa volta "a" vale:
                               2*(z1 - z2)²
 
   y1 = sqrt(z1² + 2*z1*a)
-  
+
   y2 = sqrt(z2² + 2*z2*a)
-  
+
              z1 + y1 + a
   x1 = a*ln(-------------)
                   a
-  
+
              z2 + y2 + a
   x2 = a*ln(-------------)
                 a
@@ -4157,7 +4157,7 @@ Questa volta "a" vale:
 Numeri automorfici
 ------------------
 
-In matematica si dice numero automorfo o anche intero automorfo un intero positivo che nelle notazioni decimali ha il quadrato che presenta nella sua parte finale il numero stesso. 
+In matematica si dice numero automorfo o anche intero automorfo un intero positivo che nelle notazioni decimali ha il quadrato che presenta nella sua parte finale il numero stesso.
 Esempi: 5^2 = 25, 76^2 = 5776, 890625^2 = 793212890625.
 
 (define (automorfico? num)
@@ -4180,7 +4180,7 @@ Esempi: 5^2 = 25, 76^2 = 5776, 890625^2 = 793212890625.
 Vediamo i numeri automorfici fino a 100 milioni:
 
 (for (i 0 1e8) (if (automorfico? (bigint i)) (print i { })))
-;-> 0 1 5 6 25 76 376 625 9376 90625 109376 
+;-> 0 1 5 6 25 76 376 625 9376 90625 109376
 ;-> 890625 2890625 7109376 12890625 87109376
 
 
@@ -4219,14 +4219,14 @@ Esempi di numeri trimorfici:
 Vediamo i numeri trimorfici fino a 100 milioni:
 
 (for (i 0 1e8) (if (trimorfico? (bigint i)) (print i { })))
-;-> 0 1 4 5 6 9 24 25 49 51 75 76 99 125 249 251 375 376 499 501 
-;-> 624 625 749 751 875 999 1249 3751 4375 4999 5001 5625 6249 
-;-> 8751 9375 9376 9999 18751 31249 40625 49999 50001 59375 
-;-> 68751 81249 90624 90625 99999 109375 109376 218751 281249 
-;-> 390625 499999 500001 609375 718751 781249 890624 890625 
-;-> 999999 2109375 2890624 2890625 4218751 4999999 5000001 5781249 
-;-> 7109375 7109376 7890625 9218751 9999999 12890624 12890625 
-;-> 24218751 25781249 37109375 49999999 50000001 62890625 74218751 
+;-> 0 1 4 5 6 9 24 25 49 51 75 76 99 125 249 251 375 376 499 501
+;-> 624 625 749 751 875 999 1249 3751 4375 4999 5001 5625 6249
+;-> 8751 9375 9376 9999 18751 31249 40625 49999 50001 59375
+;-> 68751 81249 90624 90625 99999 109375 109376 218751 281249
+;-> 390625 499999 500001 609375 718751 781249 890624 890625
+;-> 999999 2109375 2890624 2890625 4218751 4999999 5000001 5781249
+;-> 7109375 7109376 7890625 9218751 9999999 12890624 12890625
+;-> 24218751 25781249 37109375 49999999 50000001 62890625 74218751
 ;-> 75781249 87109375 87109376 99999999
 
 
@@ -4309,7 +4309,7 @@ Qualche volta abbiamo bisogno di assegnare i valori di una lista di ritorno di u
 (midpoint '(2 2) '(3 3))
 ;-> (2.5 2.5)
 
-Per assegnare i valori di ritorno della funzione alle variabili a e b dobbiamo scrivere:
+Per assegnare i valori di ritorno della funzione alle variabili a e b possiamo scrivere:
 
 (setq lst (midpoint '(2 2) '(3 3)))
 (setq a (lst 0))
@@ -4317,11 +4317,19 @@ Per assegnare i valori di ritorno della funzione alle variabili a e b dobbiamo s
 (setq b (lst 1))
 ;-> 2.5
 
+Oppure possiamo scrivere:
+
+(map set '(c d) (midpoint '(2 2) '(3 3)))
+c
+;-> 2.5
+d
+;-> 2.5
+
 Possiamo scrivere una macro che ci semplifica il lavoro (simile alla macro psetq):
 
 (define-macro (msetq)
     ; Assegna ad ogni variabile di (args 0)
-    ; la relativa variabile ottenuta dalla 
+    ; la relativa variabile ottenuta dalla
     ; valutazione della funzione in (args 1)
     ; (cioè dei valori della lista ritornata dalla funzione)
     (dolist (_el (eval (args 1)))
@@ -4333,11 +4341,11 @@ Questa macro prende due argomenti:
 
 Esempio:
 
-(msetq (a b) (midpoint '(2 2) '(3 3)))
+(msetq (x y) (midpoint '(2 2) '(3 3)))
 
-Adesso le variabili a e b hanno il valore 2.5 e 2.5:
+Adesso le variabili x e y hanno il valore 2.5 e 2.5:
 
-(list a b)
+(list x y)
 ;-> (2.5 2.5)
 
 Possiamo assegnare qualunque valore di ritorno alle variabili (anche una funzione):
@@ -4354,6 +4362,29 @@ Adesso "z" si comporta come la funzione "add":
 
 (z 1 2)
 ;-> 3
+
+Vediamo i tempi di esecuzione dei tre metodi:
+
+(define (t)
+  (setq lst (midpoint '(2 2) '(3 3)))
+  (setq a (lst 0) b (lst 1)))
+
+(time t 1e8)
+;-> 312.193
+
+(define (t1)
+  (map set '(c d) (midpoint '(2 2) '(3 3))))
+
+(time t1 1e8)
+;-> 310.305
+
+(define (t2)
+  (msetq (x y) (midpoint '(2 2) '(3 3))))
+
+(time t2 1e8)
+;-> 310.174
+
+I tempi di esecuzione sono equivalenti.
 
 
 -----------------
@@ -4556,8 +4587,7 @@ Verifichiamo:
 Il quadrato magico Kurchan
 --------------------------
 
-pandigital sum is 4,129,607,358:
-Un altro incredibile quadrato magico è quello di Kurchan (scoperto da Rodolfo Marcelo Kurchan, di Buenos Aires, Argentina). Si pensa che sia il più piccolo quadrato magico non banale con 16 numeri interi pandigitali distinti con la più piccola somma magica pandigitale (Pandigitale significa che tutte e dieci le cifre sono utilizzato e 0 non è la cifra iniziale. La somma pandigitale è 4.129.607.358:
+Un altro incredibile quadrato magico è quello di Kurchan (scoperto da Rodolfo Marcelo Kurchan, di Buenos Aires, Argentina). Si pensa che sia il più piccolo quadrato magico non banale con 16 numeri interi pandigitali distinti con la più piccola somma magica pandigitale (Pandigitale significa che tutte e dieci le cifre sono utilizzato e 0 non è la cifra iniziale). La somma pandigitale è 4.129.607.358:
 
   1037956284 1026857394 1036847295 1027946385
   1036947285 1027846395 1037856294 1026957384
@@ -4670,7 +4700,7 @@ Allora ricaviamo il valore della somma del quadrato magico dividendo per 4 la so
 
 Quindi dobbiamo trovare 4 numeri che sommano al valore di "somma"
 
-Una soluzione ingenua per stampare tutte le combinazioni  di 4 elementi in una lista "lst" che hanno somma uguale a "sum":
+Una soluzione base per trovare tutte le combinazioni  di 4 elementi in una lista "lst" che hanno somma uguale a "sum":
 
 (define (findsum4 lst sum)
   (local (len vet out)
@@ -4681,9 +4711,6 @@ Una soluzione ingenua per stampare tutte le combinazioni  di 4 elementi in una l
       (for (j (+ i 1) (- len 3))
         (for (k (+ j 1) (- len 2))
           (for (p (+ k 1) (- len 1))
-            ;(println (vet i) { } (vet j) { } (vet k) { } (vet p))
-            ;(println (+ (vet i) (vet j) (vet k) (vet p)) { } sum)
-            ;(read-line)
             (if (= (+ (vet i) (vet j) (vet k) (vet p)) sum)
                 (push (list (vet i) (vet j) (vet k) (vet p)) out -1))))))
     out))
@@ -4746,7 +4773,7 @@ Quindi dobbiamo controllare ogni elemento della lista "matrici" per verificare s
 Vediamo una matrice:
 
 (sol 10)
-;-> ((1037956284 1026857394 1036847295 1027946385) 
+;-> ((1037956284 1026857394 1036847295 1027946385)
 ;->  (1026857394 1027846395 1036957284 1037946285)
 ;->  (1026857394 1037856294 1026947385 1037946285)
 ;->  (1026847395 1037946285 1027956384 1036857294))
@@ -4770,22 +4797,371 @@ Vediamo se in questi 7 quadrati magici esiste quello di Kurchan:
 Esiste e si trova all'indice 0:
 
 (qmagic 0)
-((1037956284 1026857394 1036847295 1027946385) 
- (1036947285 1027846395 1037856294 1026957384)
- (1027856394 1036957284 1026947385 1037846295)
- (1026847395 1037946285 1027956384 1036857294))
+;-> ((1037956284 1026857394 1036847295 1027946385)
+;->  (1036947285 1027846395 1037856294 1026957384)
+;->  (1027856394 1036957284 1026947385 1037846295)
+;->  (1026847395 1037946285 1027956384 1036857294))
 
 Vediamone un altro:
 
 (qmagic 1)
-((1037956284 1026857394 1036947285 1027846395) 
- (1036847295 1027946385 1037856294 1026957384)
- (1027856394 1036957284 1026847395 1037946285)
- (1026947385 1037846295 1027956384 1036857294))
+;-> ((1037956284 1026857394 1036947285 1027846395)
+;->  (1036847295 1027946385 1037856294 1026957384)
+;->  (1027856394 1036957284 1026847395 1037946285)
+;->  (1026947385 1037846295 1027956384 1036857294))
 
 Il quinto quadrato magico è la trasposta di quello di Kurchan:
 
 (= (qmagic 0) (transpose (qmagic 4)))
 ;-> true
+
+Adesso vediamo se esiste un quadrato magico simile con una somma pandigitale minore di quello di Kurchan.
+
+Calcoliamo tutte le permutazioni (numeri) delle cifre (0 1 2 3 4 5 6 7 8 9):
+
+(silent (setq all (perm '(0 1 2 3 4 5 6 7 8 9))))
+
+Questa volta modifichiamo il filtro::
+
+(define (filtro lst)
+  (and (= (lst 0) 1)
+       (= (lst 1) 0)
+       (or (= (lst 2) 2) (= (lst 2) 3))
+       (or (= (lst 3) 4) (= (lst 3) 5))
+       (or (= (lst 4) 6) (= (lst 4) 7))
+       (or (= (lst 5) 2) (= (lst 5) 3))
+       (or (= (lst 6) 8) (= (lst 6) 9))
+       (or (= (lst 7) 6) (= (lst 7) 7))
+       (or (= (lst 8) 8) (= (lst 8) 9))
+       (or (= (lst 9) 4) (= (lst 9) 5))))
+
+(silent (setq nums (filter filtro all)))
+(length nums)
+;-> 16
+(nums 10)
+;-> (1 0 3 4 7 2 8 6 9 5)
+
+Convertiamo gli elementi della lista delle permutazioni in una lista di numeri:
+
+(silent (setq numeri (map lst-int nums)))
+(length numeri)
+;-> 16
+(nums 10)
+;-> (1 0 3 4 7 2 8 6 9 5)
+(numeri 10)
+;-> 1034728695
+
+Ricaviamo il valore della somma del quadrato magico dividendo per 4 la somma di tutti i valori:
+
+(setq somma (div (apply + numeri) 4))
+;-> 4120736958
+
+La somma è pentadigitale...andiamo avanti.
+
+Quindi dobbiamo trovare 4 numeri che sommano al valore di "somma"
+
+(findsum4 '(10 2 3 4 5 9 7 8) 21)
+;-> ((10 2 4 5) (2 3 9 7) (2 4 7 8) (3 4 5 9))
+
+(setq quad (findsum4 numeri somma))
+(length quad)
+;-> 52
+
+52 quadruple di numeri da mettere in una matrice 4x4 con tutti i numeri diversi...
+
+(binom 52 4)
+;-> 270725L
+
+Adesso possiamo calcolarle...
+
+(define (comb k lst)
+  (cond ((zero? k)   '(()))
+        ((null? lst) '())
+        (true
+          (append (map (lambda (k-1) (cons (first lst) k-1))
+                       (comb (- k 1) (rest lst)))
+                  (comb k (rest lst))))))
+
+(silent (setq matrici (comb 4 quad)))
+(length matrici)
+;-> 270725
+
+Vediamo un elemento della lista "matrici" :
+
+(matrici 0)
+;-> ((1035629784 1025639784 1034728695 1024738695) 
+;->  (1035629784 1035729684 1024638795 1024738695)
+;->  (1035629784 1025739684 1034628795 1024738695)
+;->  (1035629784 1025739684 1024638795 1034728695))
+
+Quindi dobbiamo controllare ogni elemento della lista "matrici" per verificare se è un quadrato magico.
+
+(checksum (matrici 10) 4 somma)
+;-> nil
+
+(define (test)
+  (local (out)
+    (setq out '())
+    (dolist (el matrici)
+      (if (checksum el 4 somma)
+          (begin
+            (println el)
+            (push el out -1)))
+      (if (zero? (% $idx 10000)) (println $idx))
+    )
+    out))
+
+(setq sol (test))
+(length sol)
+;-> 1082
+
+Vediamo una matrice:
+
+(sol 10)
+;-> ((1035629784 1035729684 1024638795 1024738695) 
+;->  (1035629784 1025738694 1034628795 1024739685)
+;->  (1025639784 1035729684 1024638795 1034728695)
+;->  (1025639784 1035728694 1024638795 1034729685))
+
+Notiamo che ci sono numeri uguali, quindi il quadrato magico è triviale.
+
+Eliminiamo tutte le matrici (quadrati magici) che hanno numeri uguali:
+
+(define (unici lst)
+  (= (unique (flat lst)) (flat lst)))
+
+(setq qmagic (filter unici sol))
+(length qmagic)
+;-> 5
+
+(qmagic 0)
+;-> ((1035629784 1035728694 1024638795 1024739685) 
+;->  (1025639784 1025738694 1034628795 1034729685)
+;->  (1035729684 1035628794 1024738695 1024639785)
+;->  (1025739684 1025638794 1034728695 1034629785))
+
+(checksum (qmagic 0) 4 somma)
+;-> true
+
+Verifichiamo che i numeri siano tutti diversi:
+
+(= (unique (flat (qmagic 0))) (flat (qmagic 0)))
+
+Probabilmente qualcuno di questi 5 quadrati magici sono trasposti e/o simmetrici tra loro, ma sicuramente almeno uno (qmagic 0) è un quadrato magico con una somma pandigitale (minore di quella del quadrato magico di Kurchan), tutti i numeri sono pandigitali e diversi tra loro. Quindi abbiamo trovato un quadrato magico con le stesse proprietà di quelle di Kurchan, ma con una somma minore.
+
+
+--------------
+Serie infinite
+--------------
+
+La serie di Grandi
+------------------
+
+SG = 1 - 1 + 1 - 1 + 1 - 1 + ...
+
+Qual'è il valore della serie SG?
+
+(1 - SG) = 1 - (1 - 1 + 1 - 1 + 1 - 1 + ...)
+
+(1 - SG) = SG  
+
+1 = 2*SG  ==>  SG = 1/2
+
+La serie dei numeri naturali alternati
+--------------------------------------
+
+SA = 1 - 2 + 3 - 4 + 5 - 6 + ...
+
+Qual'è il valore della serie SA?
+
+2*SA = 1 - 2 + 3 - 4 + 5 - 6 + ...
+         + 1 - 2 + 3 - 4 + 5 - ...
+
+2*SA = 1 - 1 + 1 - 1 + 1 - 1 + 1 = SG
+
+2*SA = 1/2  ==>  SA = 1/4
+         
+La serie dei numeri naturali
+----------------------------
+
+SN = 1 + 2 + 3 + 4 + 5 + 6 + 7 + 8 + ...
+
+Qual'è il valore della serie SN?
+
+(SN - SA) = 1 + 2 + 3 + 4 + 5 + 6 + 7 + 8 + ...
+         - (1 + 2 - 3 + 4 - 5 + 6 - 7 + 8 + ...)
+
+(SN - SA) = 4 + 8 + 12 + 16 = 4*SN
+
+(SN - 1/4) = 4*SN
+
+-1/4 = 3*SN  ==> SN = -1/12
+
+Nota: i procedimenti non sono matematicamente ortodossi, ma i risultati sono corretti (in un certo senso).
+
+
+----------------
+Il gioco del Pig
+----------------
+
+Ad ogni turno, ogni giocatore lancia ripetutamente un dado finché non esce un 1 oppure il giocatore decide di "passare".
+Se il giocatore ottiene un 1, il punteggio del turno è nullo e passa la mano al prossimo giocatore.
+se il giocatore ottine un altro numero (2..6), il numero viene aggiunto al punteggio del turno e il turno del giocatore continua.
+Se un giocatore decide di "passare", il suo punteggio del turno viene aggiunto al suo punteggio totale, e diventa il turno del prossimo giocatore.
+Vince il giocatore che arriva o supera 100 (poichè il turno deve terminare per tutti i giocatori, potrebbero esserci più giocatori che superano 100, allora il vincitore è quello con il punteggio più alto).
+
+Scriviamo un programma per giocare contro il computer. La strategia del computer è la seguente:
+
+0) se il punteggio dell'altro giocatore è maggiore o uguale a 100, allora lanciare i dadi per raggiungere tale punteggio.
+1) se il punteggio del computer è maggiore o uguale a 71, allora lancia i dadi per provare a raggiungere 100.
+2) altrimenti lancia i dadi per raggiungere il valore: 21 + int((Punti-Giocatore - Punti-Computer)/8)
+
+Nota: se ci sono N giocatori possiamo applicare la strategia con una sola differenza: il punteggio da considerare per calcolare il valore da raggiungere ad ogni turno è quello massimo tra tutti gli altri giocatori.
+
+(define (game-pig)
+  (local (score1 score2 turn winner endgame)
+    (setq winner -1)
+    (setq endgame nil)
+    (setq score1 0 score2 0)
+    (setq turn 1)
+    (do-until endgame
+      (println "")
+      (println "Turno: " turn)
+      (println "Punteggio: UMANO    = " score1)
+      (println "           COMPUTER = " score2)
+      (println "")
+      (human)
+      (println "")
+      (println "Premi Invio per la mossa del computer...")
+      (read-line)
+      (computer)
+      (setq winner (checkwinner score1 score2))
+      (cond ((= winner 1) (println "Fine del gioco l'umano vince: " score1 " - " score2))
+            ((= winner 2) (println "Fine del gioco il computer vince: " score2 " - " score1))
+            ((= winner 3) (println "Fine del gioco in pareggio: " score1 " - " score2))
+      )
+      (++ turn)
+    )
+  ))
+
+(define (human)
+  (local (t1 val input continua)
+    (setq t1 0)
+    (setq val 0)
+    (setq continua true)
+    (println "Mossa all'Umano: ")
+    (println "1 (per lanciare i dadi)")
+    (println "0 (per passare la mano)")
+    (while continua
+      (setq input (read-line))
+      (cond ((= "1" input)
+             (setq val (+ (rand 6) 1))
+             (if (= val 1)
+                 (setq t1 0 continua nil)
+             ;else
+                 (setq t1 (+ t1 val)))
+            )
+            ((= "0" input)
+             (setq continua nil))
+      )
+      (println "Dado = " val)
+      (println "Parziale = " t1)
+    )
+    (setq score1 (+ score1 t1))
+    (println "Umano: Parziale = " t1)
+    (println "       Totale = " score1)
+  )
+)
+
+(define (computer)
+  (local (t2 val goal continua)
+    (cond ((>= score1 100) (setq goal score1))
+          ((>= score2 71)  (setq goal (- 100 score2)))
+          (true            (setq goal (+ 21 (int (div (- score1 score2) 8)))))
+    )
+    (println "goal: "goal)
+    (setq continua true)
+    (setq t2 0)
+    (while (and (< t2 goal) continua)
+      (setq val (+ (rand 6) 1))
+      (if (= val 1)
+          (setq t2 0 continua nil)
+      ;else
+          (setq t2 (+ t2 val))
+      )
+      (println "Dado = " val)
+      (println "Parziale = " t2)
+    )
+    (setq score2 (+ score2 t2))
+    (println "Computer: Parziale = " t2)
+    (println "          Totale = " score2)
+    ))
+
+(define (checkwinner p1 p2)
+  (let (out 0)
+    (if (or (>= p1 100) (>= p2 100))
+        (begin
+          (cond ((> p1 p2) (setq out 1))
+                ((> p2 p1) (setq out 2))
+                ((= p1 p2) (setq out 3))
+          )
+          (setq endgame true))
+    )
+    out))
+
+
+Proviamo a giocare:
+
+(game-pig)
+
+Turno: 1
+Punteggio: UMANO    = 0
+           COMPUTER = 0
+
+Mossa all'Umano:
+1 (per lanciare i dadi)
+0 (per passare la mano)
+1
+Dado = 1
+Parziale = 0
+Umano: Parziale = 0
+       Totale = 0
+
+Premi Invio per la mossa del computer...
+
+goal: 21
+Dado = 4
+Parziale = 4
+Dado = 2
+Parziale = 6
+Dado = 5
+Parziale = 11
+Dado = 4
+Parziale = 15
+Dado = 3
+Parziale = 18
+Dado = 3
+Parziale = 21
+Computer: Parziale = 21
+          Totale = 21
+
+Turno: 2
+Punteggio: UMANO    = 0
+           COMPUTER = 21
+
+Mossa all'Umano:
+1 (per lanciare i dadi)
+0 (per passare la mano)
+...
+...
+...
+Premi Invio per la mossa del computer...
+
+goal: 5
+Dado = 5
+Parziale = 5
+Computer: Parziale = 5
+          Totale = 100
+Fine del gioco il computer vince: 100 - 92
 
 

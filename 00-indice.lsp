@@ -689,6 +689,8 @@ NOTE LIBERE 3
   Doppio fattoriale
   0.999999999...
   Quadrati magici curiosi
+  Serie infinite
+  Il gioco del Pig
   
   
 APPENDICI
