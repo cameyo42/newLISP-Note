@@ -5338,7 +5338,14 @@ Esempio: L = ((1 3) (4 4) (1 1) (2 5) (6 3) (8 5) (6 1) (6 5) (3 2) (2 4)
 (setq lst '((1 3) (4 4) (1 1) (2 5) (6 3) (8 5) (6 1) (6 5) (3 2) (2 4)))
 (closestPairs lst)
 ;-> 1
-;-> ((2 4) (2 5))
+;-> ((2 5) (2 4))
+
+Vediamo un altro esempio:
+
+(setq lst '((-1 -3) (-4 -4) (1 1) (-2 -5) (6 3) (8 5) (6 1) (6 5) (3 2) (2 4)))
+(closestPairs lst)
+;-> 4
+;-> ((6 3) (6 1))
 
 Vediamo con una lista di 10000 punti:
 
@@ -5349,11 +5356,12 @@ Vediamo con una lista di 10000 punti:
   (setq d (unique c))
 )
 
-(time (closestPairs d))
+(time (println (closestPairs d)))
 ;-> 1
-;-> 31187.104
+;-> ((2815 1408) (2815 1409))
+;-> 22071.601
 
-La funzione è lenta. Complessità temporale O(n^2)).
+La funzione è lenta (22 secondi) perchè ha una complessità temporale O(n^2)).
 
 Vediamo la differenza del numero di cicli tra due for innestati (i = 0 e j = 0) e due for con il secondo ciclo che inizia da i = j:
 
@@ -5376,13 +5384,121 @@ Vediamo la differenza del numero di cicli tra due for innestati (i = 0 e j = 0) 
   )
   (println el { } num { } num1)
 )
-
 ;-> 100 10000 5050
 ;-> 1000 1000000 500500
 ;-> 10000 100000000 50005000
 ;-> 100000 10000000000 5000050000
 
 Il primo ciclo ha n^2 cicli, il secondo ha (n^2)/2 cicli (la complessità temporale è la stessa).
+
+Comunque per risolvere questo problema esistono diversi algoritmi con tempo O(n*log(n), ad esempio "sweep-line" oppure "divide and conquer".
+Esiste anche un algoritmo casuale che, in linea teorica, ha tempo O(n). In pratica è leggermente migliore dell'algoritmo sweep-line, ma è più semplice da implementare.
+
+L'algoritmo funziona in fasi successive. L'idea è che in ogni fase abbiamo già scoperto una coppia di punti a una distanza d e possiamo chiederci se un'altra coppia esiste a una distanza minore. Per questo, dividiamo lo spazio in una griglia con il passo di d/2 in entrambe le direzioni. La scelta di un passo della griglia di d/2 invece di d garantisce la presenza, al massimo, di un elemento per cella, facilitando l'elaborazione. Ogni punto appartiene quindi ad una cella della griglia. Sia P l'insieme di punti per i quali abbiamo già verificato che le distanze tra ogni coppia di punti di P è almeno d. Quindi, ogni cella della griglia contiene al massimo un punto di P.
+La griglia è rappresentata da una hash-map che associa ad ogni cella non vuota il punto di P che contiene. Al momento di aggiungere un punto p a P e alla hash-map, è sufficiente testare la sua distanza con i punti q contenuti nelle celle 5×5 attorno alla cella p.
+
+Nota: Ogni cella della griglia contiene al massimo un punto. Quando consideriamo un nuovo punto p è sufficiente misurarne la distanza con i punti contenuti nelle celle vicine.
+
+Se viene rilevata una coppia di punti alla distanza d' < d, la procedura viene riavviata dall'inizio con una nuova griglia di passo d'/2.
+
+Nota: per calcolare la cella associata a un punto (x, y) nella griglia con un dato passo, è sufficiente dividere ogni coordinata per il passo e poi arrotondare per difetto (floor).
+
+Supponiamo che l'accesso alla hash-map richieda un tempo costante, così come il calcolo di quale cella contiene un dato punto. Se i punti in input sono scelto in un ordine uniformemente casuale, allora quando viene elaborato il punto i-esimo (3 ≤ i ≤ n),
+miglioriamo la distanza d con probabilità 1/(i −1). Quindi la complessità attesa è nell'ordine di:
+
+Sum[i=3..n] (i/(i - 1))
+
+quindi lineare in n.
+
+Adesso possiamo scriviamo la funzione finale.
+
+Funzione che calcola la distanza tra due punti:
+
+(define (dist p1 p2)
+  (sqrt (+ (* (- (p1 0) (p2 0)) (- (p1 0) (p2 0)))
+           (* (- (p1 1) (p2 1)) (- (p1 1) (p2 1))))))
+
+(dist '(2 2) '(3 3))
+;-> 1.414213562373095
+
+Funzione che calcola la cella di un punto:
+
+(define (cell punto passo)
+  (let ((x (punto 0)) (y (punto 1)))
+    (list (int (floor (div x passo))) (int (floor (div y passo))))))
+
+Funzione che cerca di minimizzare la distanza:
+
+(define (migliora lst d)
+(catch
+  (local (x y cella q pq)
+    (new Tree 'hash)
+    (dolist (p lst)
+      (setq cella (cell p (div d 2)))
+      (setq x (cella 0) y (cella 1))
+      (for (x1 (- x 2) (+ x 2))
+        (for (y1 (- y 2) (+ y 2))
+          (if (true? (hash (string (list x1 y1))))
+              (begin
+                (setq q (hash (string (list x1 y1))))
+                (setq pq (dist p q))
+                (if (< pq d)
+                  (begin 
+                    (delete 'hash)
+                    (throw (list pq p q))
+                  )
+                )
+              )
+          )
+        )
+      )
+      (hash (string (list x y)) p)
+    )
+    (delete 'hash)
+    nil)))
+
+(define (closest-pairs lst)
+  (local (p q d tri)
+    (setq p (lst 0))
+    (setq q (lst 1))
+    (setq d (dist p q))
+    (while (> d 0)
+      (setq tri (migliora lst d))
+      (if tri
+          (setq d (tri 0) p (tri 1) q (tri 2))
+      ;else
+          (setq d -1)
+      )
+    )
+    (list p q)))
+
+Proviamo la funzione:
+
+(setq lst '((1 3) (4 4) (1 1) (2 5) (6 3) (8 5) (6 1) (6 5) (3 2) (2 4)))
+(closest-pairs lst)
+;-> ((2 4) (2 5))
+
+Vediamo un altro esempio:
+
+(setq lst '((-1 -3) (-4 -4) (1 1) (-2 -5) (6 3) (8 5) (6 1) (6 5) (3 2) (2 4)))
+(closest-pairs lst)
+;-> ((6 1) (6 3))
+
+Vediamo con la lista di 10000 punti che avevamo generato precedentemente:
+
+(time (println (closest-pairs d)))
+;-> ((1363 5070) (1363 5071))
+;-> 745.132
+
+(dist '(1363 5070) '(1363 5071))
+;-> 1
+
+Il tempo di esecuzione è passato da 22 secondi a meno di un secondo.
+
+La precedente funzione "closest-Pairs" aveva un output con punti diversi ((2815 1408) (2815 1409)), ma la distanza minima vale 1 in entrambi i casi. Questo accade perchè il secondo algoritmo è basato sulla casualità, infatti se mischiamo i punti della lista d è probabile che si ottenga lo stesso risultato del primo algoritmo:
+
+(println (closest-pairs (randomize d)))
+;-> ((2815 1409) (2815 1408))
 
 
 --------------------------------------------

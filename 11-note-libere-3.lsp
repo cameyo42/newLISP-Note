@@ -4754,6 +4754,8 @@ Quindi dobbiamo controllare ogni elemento della lista "matrici" per verificare s
 (checksum (matrici 10) 4 somma)
 ;-> nil
 
+La funzione "test" seleziona solo i qudrati magici:
+
 (define (test)
   (local (out)
     (setq out '())
@@ -4874,14 +4876,6 @@ Quindi dobbiamo trovare 4 numeri che sommano al valore di "somma"
 
 Adesso possiamo calcolarle...
 
-(define (comb k lst)
-  (cond ((zero? k)   '(()))
-        ((null? lst) '())
-        (true
-          (append (map (lambda (k-1) (cons (first lst) k-1))
-                       (comb (- k 1) (rest lst)))
-                  (comb k (rest lst))))))
-
 (silent (setq matrici (comb 4 quad)))
 (length matrici)
 ;-> 270725
@@ -4898,6 +4892,8 @@ Quindi dobbiamo controllare ogni elemento della lista "matrici" per verificare s
 
 (checksum (matrici 10) 4 somma)
 ;-> nil
+
+La funzione "test" seleziona solo i qudrati magici:
 
 (define (test)
   (local (out)
@@ -4966,6 +4962,21 @@ Qual'è il valore della serie SG?
 (1 - SG) = SG  
 
 1 = 2*SG  ==>  SG = 1/2
+
+Nota: i metodi algebrici utilizzati non dovrebbero essere applicati a serie non convergenti, tuttavia la somma di Cesaro per questa serie vale 1/2. La somma di Cesaro è un'estensione del concetto classico di serie convergente basata sulle somme parziali.
+Data una serie:
+
+Sum[1..INF] a(n)
+
+con somme parziali:
+
+s(n) = a(1) + a(2) + ... + a(n)
+
+la somma di Cesàro è il limite (quando esiste) della media aritmetica delle somme parziali:
+
+        s(1) + s(2) + ... + s(n)
+  lim  --------------------------
+ n->INF            n
 
 La serie dei numeri naturali alternati
 --------------------------------------
@@ -5163,5 +5174,78 @@ Parziale = 5
 Computer: Parziale = 5
           Totale = 100
 Fine del gioco il computer vince: 100 - 92
+
+
+----------
+Mandelbrot
+----------
+
+L'insieme di Mandelbrot o frattale di Mandelbrot è uno dei frattali più popolari ed definito come l'insieme dei numeri complessi c per i quali la successione definita da:
+
+  z(0) = 0
+  z(n+1) = z(n)^2 + c
+
+è limitata. Nonostante la semplicità della definizione, l'insieme ha una forma complessa il cui contorno è un frattale. Solo con l'avvento del computer è stato possibile visualizzarlo.
+
+Vediamo un modo spartano di visualizzare questo frattale in una pagina html con una funzione che utilizza l'aritmetica dei numeri complessi:
+
+;;; This program requires v.10.2.0 (or later) of newLISP and
+;;; will not run on the original FOOP as introduced in 10.0
+; open html file
+(device (open "mandelbrot.html" "write"))
+(print "<!doctype html>\r\n\r\n")
+(println [text]
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Mandelbrot Fractal</title>
+  <meta name="description" content="Mandelbrot">
+  <meta name="author" content="cameyo">
+  <link rel="stylesheet" href="css/styles.css?v=1.0">
+</head>
+[/text])
+(println " </CENTER> <br><center><h4>Mandelbrot Fractal</h4></center></html>")
+(println "<CENTER>")
+(set ' colors '(
+  "800000" "800080" "8000FF" "808000" "808080" "8080FF" "80FF00" "80FF80"
+  "80FFFF" "FF0000" "FF0080" "FF00FF" "FF8000" "FF8080" "FF80FF" "FFFF00"))
+;; adapted from a program written by Michael Michaels and Cormullion
+;; this is a FOOP (Functional Object Oriented Programming) application
+; (define (Class:Class) (cons (context) (args))) ; predefined since version 10.0
+(new Class 'Complex)
+(define (Complex:rad)
+	(sqrt (add (pow (self 1) ) (pow (self 2))))
+)
+(define (Complex:add b)
+	(Complex (add (self 1) (b 1)) (add (self 2) (b 2)))
+)
+(define (Complex:mul b)
+	(let (a-re (self 1) a-im (self 2) b-re (b 1) b-im (b 2))
+		(Complex
+			(sub (mul a-re b-re) (mul a-im b-im))
+			(add (mul a-re b-im) (mul a-im b-re)) )
+))
+(define (draw)
+	(print "<table bgcolor=#f0f0f0>\n")
+	(for (y -1 1.1 0.08)
+		(for (x -2 1 0.04)
+			(set 'z (Complex x y) 'c 85 'a z )
+			(while (and (< (abs (:rad (set 'z (:add (:mul z z) a)))) 2) (> (dec c) 32)) )
+			(if (= c 32)
+				(print "<td bgcolor=#000000>&nbsp;</td>")
+				(print "<td bgcolor=#" (colors (% c  16)) ">&nbsp;</td>"))
+		)
+		(println "</tr>") )
+	(println "</table>")
+)
+(draw)
+(print " </CENTER> <br><center><h4>created with newLISP v." (sys-info -2) "</h4></center></html>")
+; close file
+(close (device))
+;; eof
+
+Adesso possiamo visualizzare la pagina nel browser predefinito:
+
+(exec "mandelbrot.html")
 
 

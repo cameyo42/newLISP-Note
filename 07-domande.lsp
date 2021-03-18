@@ -4980,6 +4980,58 @@ Possiamo usare due hashmap che tengono traccia delle mappature char-char. Se un 
 (isomorfe "nonna" "lilla")
 ;-> true
 
+Questa soluzione risolve questo problema in tempo O(n). Un altro metodo è quello di utilizzare un vettore per memorizzare le mappature dei caratteri elaborati (al posto di due hash-map).
+
+1) Se le lunghezze di str1 e str2 non sono uguali, restituire Falso.
+2) Per ogni carattere in str1 e str2
+    a) Se questo carattere viene visto per la prima volta in str1,
+       allora il carattere corrente di str2 non è apparso prima.
+       (i) Se il carattere corrente di str2 è stato visto prima, restituisce Falso.
+           Contrassegna il carattere corrente di str2 come visitato.
+       (ii) Memorizza la mappatura dei caratteri correnti.
+    b) Altrimenti controlla se la precedente occorrenza di str1[i] è stata mappata
+       allo stesso carattere.
+
+(define (isomorfe? str1 str2)
+(catch
+  (local (max-len m n marked mapp idx)
+    ; lunghezza massima delle stringhe
+    (setq max-len 256)
+    (setq m (length str1))
+    (setq n (length str2))
+    ; le stringhe devono avere la stessa lunghezza
+    (if (!= m n) (throw nil))
+    ; memorizza i caratteri visitati di str1
+    (setq marked (array max-len '("0")))
+    ; memorizza le corrispondenze di ogni carattere di str1
+    ; in quelle di str2
+    (setq mapp (array max-len '(-1)))
+    (for (i 0 (- n 1))
+      (cond ((= (mapp (char (str1 i))) -1)
+             (if (= (marked (char (str2 i))) "1")
+                 (throw nil))
+             ; the next expression don't work...
+             ; 
+             ;(setf (marked (char (str2 i))) "1")
+             (setq idx (char (str2 i)))
+             (setf (marked idx) "1")
+             ; the next expression don't work...
+             ;(setf (mapp (char (str1 i))) (str2 i)))
+             (setq idx (char (str1 i)))
+             (setf (mapp idx) (str2 i)))
+            ((!= (mapp (char (str1 i))) (str2 i))
+             (throw nil))
+      )
+    )
+    true)))
+
+(isomorfe? "egg" "add")
+;-> true
+(isomorfe? "foo" "bar")
+;-> nil
+(isomorfe? "nonna" "lilla")
+;-> true
+
 
 ------------------------------
 Raggruppamento codici (Google)
@@ -7246,5 +7298,142 @@ Vediamo i tempi di esecuzione:
 ;-> 36286.99
 
 Una soluzione in tempo O(n*log(n)) può essere ottenuta utilizzando la tecnica merge-sort oppure con la manipolazione dei bit oppure con gli alberi binari di ricerca oppure con i segment tree oppure con la ricerca binaria oppure con gli alberi binari indicizzati. Non esiste una soluzione in tempo O(n).
+
+
+------------------------------
+Numero che raddoppia (Wolfram)
+------------------------------
+
+Quale numero positivo raddoppia quando l'ultima cifra si sposta sulla prima?
+
+Esempio:
+Numero: 152
+Spostiamo l'ultima cifra (2) sulla prima: 215
+Ma 215 non è il doppio di 152.
+
+Proviamo un approccio brute-force.
+
+(setq num 152)
+Estraiamo l'ultima cifra:
+(% num 10)
+;-> 2
+Estraiamo le altre cifre:
+(/ num 10)
+;-> 15
+Calcoliamo il numero ottenuto:
+(setq val  (+ (* (% num 10) (pow 10 (- (length num) 1))) (/ num 10)))
+;-> 215
+
+Scriviamo la funzione:
+
+(define (solve num)
+  (let (val 0)
+    (for (i 1 num)
+      (setq val (+ (* (% i 10) (pow 10 (- (length i) 1))) (/ i 10)))
+      ;(println i { } val { } (* 2 i))
+      ;(read-line)
+      (if (= val (* i 2)) (println i { } val)))))
+
+Proviamo a cercare il numero fino ad 1 milione:
+
+(solve 1000000)
+;-> nil
+(time (solve 1000000))
+;-> 356.791
+
+Proviamo con 100 milioni:
+
+(solve 1e8)
+;-> nil
+(time (solve 1e8))
+;-> 35797.039
+
+Sembra che il numero non sia alla portata di un approccio brute-force. Analizzando le proprietà del numero da trovare possiamo notare che, se esiste, la sua ultima cifra è sufficiente per costruirlo.
+Infatti, l'ultima cifra non può essere 1, perché in tal caso il numero non può essere raddoppiato inserendo un 1 davanti senza modificare il numero di cifre.
+Quindi, proviamo con 2. Il numero finisce con 2 e quando mettiamo questo 2 davanti, raddoppia. Il doppio di un numero che termina con 2 finisce con 4, quindi sappiamo che il numero finisce con 42. Il suo doppio deve finire con 84, il che significa che il numero finisce con 842 e così via (attenzione ai riporti e al numero 10). Dopo un pò incontriamo un 1, a questo punto sappiamo che il numero vale 157894736842, ma se lo  raddoppiamo otteniamo 315789473684, che non ha il 2 davanti, quindi dobbiamo andare avanti. La prossima fermata (cioè quando incontriamo un altro 1) è 105263157894736842, che rispetta la condizione. Infatti:
+
+105263157894736842 * 2 = 210526315789473684
+
+(= (* 105263157894736842 2) 210526315789473684)
+;-> true
+
+Ora, iniziando il numero con 3 e fermandosi quando incontriamo un 1, otteniamo 157894736842105263, che è un altro numero che soddisfa la condizione:
+
+(= (* 157894736842105263 2) 315789473684210526)
+;-> true
+
+Questo algoritmo viene codificato nella seguente funzione (che utilizza i big-integer).
+
+(define (solve start)
+  (local (num doppio carry stop)
+    (setq num (bigint start))
+    (setq doppio num)
+    (setq carry 0L)
+    (setq stop nil)
+    (until stop
+      ;raddoppio la cifra corrente
+      (setq doppio (* 2L doppio))
+      ; controllo se esiste un riporto precedente
+      (if (= carry 1) (setq doppio (+ doppio carry)))
+      ; creo il numero
+      ;(setq num (int (string (% doppio 10) num)))
+      ; se doppio = 10, allora occorre inserire 10 davanti a num e non 0.
+      (if (= doppio 10)
+          (setq num (+ num (* doppio (** 10 (length num)))))
+          (setq num (+ num (* (% doppio 10) (** 10 (length num)))))
+      )
+      (println num)
+      ; controllo se doppio ha un riporto
+      (cond ((= doppio 10) 
+             (setq carry 0L) 
+             (setq doppio 1L))
+            ((> doppio 9)
+             (setq carry 1L)
+             (setq doppio (% doppio 10)))
+            (true
+             (setq carry 0L))
+      )
+      (println "doppio: " doppio)
+      (read-line)
+      (if (check num) (setq stop true))
+      ;(if (or (= doppio 1L) (= doppio 10L))
+      ;    (println "check: " num)
+      ;    (if (check num) (setq stop true))
+      ;)
+    )
+    num))
+
+Funzione che controlla la condizione:
+
+(define (check num)
+  (= (* num 2)
+     (+ (* (% num 10) (** 10 (- (length num) 1))) (/ num 10))))
+
+Funzione che calcola la potenza intera di un numero intero:
+
+(define (** num power)
+    (let (out 1L)
+        (dotimes (i power)
+            (setq out (* out num)))))
+        15263157894736842L
+       105263157894736842L        
+       105263157894736842L       
+(check 105263157894736842)
+;-> true
+
+Proviamo con il numero 2:
+
+(solve 2)
+;-> 105263157894736842L
+
+Proviamo con il numero 3:
+
+(solve 3)
+;-> 157894736842105263L
+
+Proviamo con il numero 4:
+
+(solve 4)
+;-> 210526315789473684L
 
 

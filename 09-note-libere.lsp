@@ -6842,7 +6842,7 @@ Somma da due numeri
 -------------------
 
 Dato una lista di numeri interi e un numero intero s, trovare tutte le coppie di numeri interi nella lista che si sommano all'intero s oppure restituire che non esistono coppie di questo tipo.
-O(n²), O(n log n), O(n).
+Consideriamo tre algoritmi con le seguenti complessità temporali: O(n²), O(n*log(n)) e O(n).
 
 Il metodo più semplice è quello di considerare ogni elemento della lista sommandolo a tutti gli altri e controllare se sommano al valore s. Complessità temporale O(n²).
 
@@ -6866,7 +6866,7 @@ Il metodo più semplice è quello di considerare ogni elemento della lista somma
 (find-coppie (sequence 1 10) 6)
 ;-> ((1 5) (2 4))
 
-Un altro è quello di ordinare la lista e poi con due indici (basso e alto) attraversiamo la lista:
+Un altro metodo è quello di ordinare la lista e poi con due indici (basso e alto) attraversiamo la lista:
 
 (define (find-coppie2 lst somma)
   (local (out alto basso)
@@ -6886,26 +6886,67 @@ Un altro è quello di ordinare la lista e poi con due indici (basso e alto) attr
     out))
 
 (find-coppie2 '(1 5 7 -1 5) 6)
+;-> ((-1 7) (1 5))
 (find-coppie2 '(-1 1 5 5 7) 6)
-;-> ((1 5) (1 5) (7 -1))
+;-> ((-1 7) (1 5))
 (find-coppie2 '(2 5 17 -1) 7)
-;-> (2 5)
+;-> ((2 5))
 (find-coppie2 '(3 5 6 -1) 10)
 ;-> ()
 (find-coppie2 '(2 3 4 -2 6 8 9 11) 6)
-;-> ((2 4) (-2 8))
+;-> ((-2 8) (2 4))
 (find-coppie2 (sequence 1 10) 6)
 ;-> ((1 5) (2 4))
+
+La complessità temporale di questo secondo metodo non è calcolabile esattamente, poichè utilizziamo la funzione "sort" di newLISP (che dovrebbe utilizzare il merge-sort O(n*log(n)). Comunque è il metodo più veloce proprio perchè utilizziamo la versione integrata (compilata) della funzione "sort".
+
+Il terzo metodo è quello di utilizzare una hash-map con il seguente algoritmo:
+
+  Creare una hash-map
+  Per ogni numero della lista
+    Se il numero corrente si trova nella hash-map,
+        allora inserire il numero corrente e (somma - numero corrente) nella soluzione
+    Aggiungere (somma - numero corrente) nella hash-map
+  Restituire la soluzione
+
+(define (find-coppie3 lst somma)
+  (local (out)
+    (setq out '())
+    (new Tree 'hash)
+    (dolist (el lst)
+      (if (hash el)
+        (push (list (- somma el) el) out -1)
+      )
+      (hash (string (- somma el)) (- somma el))
+    )
+    (delete 'hash)
+    out))
+
+(find-coppie3 '(1 5 7 -1 5) 6)
+;-> ((1 5) (7 -1) (1 5))
+(find-coppie3 '(-1 1 5 5 7) 6)
+;-> ((1 5) (1 5) (-1 7))
+(find-coppie3 '(2 5 17 -1) 7)
+;-> ((2 5))
+(find-coppie3 '(3 5 6 -1) 10)
+;-> ()
+(find-coppie3 '(2 3 4 -2 6 8 9 11) 6)
+;-> ((2 4) (-2 8))
+(find-coppie3 (sequence 1 10) 6)
+;-> ((2 4) (1 5))
+
+Questo algoritmo ha complessità temporale O(n).
 
 Vediamo quale metodo è più veloce:
 
 (time (find-coppie (sequence 1 1000) 500) 10)
-;-> 7642.239
+;-> 5126.398
 
 (time (find-coppie2 (sequence 1 1000) 500) 10)
-;-> 31.981
+;-> 17.951
 
-La complessità temporale del secondo metodo non è calcolabile esattamente, poichè utilizziamo la funzione "sort" di newLISP (che dovrebbe utilizzare il merge-sort O(n log n)). Comunque è il metodo più veloce proprio perchè utilizziamo la versione integrata (compilata) della funzione "sort".
+(time (find-coppie3 (sequence 1 1000) 500) 10)
+;-> 11.001
 
 
 ---------------------

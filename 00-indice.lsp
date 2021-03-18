@@ -465,6 +465,7 @@ DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Ordinamento Wiggle (Google)
   Generare parentesi (Amazon)
   Maggiori a destra (Visa)
+  Numero che raddoppia (Wolfram)
 
 LIBRERIE
 ========
@@ -691,6 +692,7 @@ NOTE LIBERE 3
   Quadrati magici curiosi
   Serie infinite
   Il gioco del Pig
+  Mandelbrot
   
   
 APPENDICI

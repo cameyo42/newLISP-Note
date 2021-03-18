@@ -11,11 +11,11 @@ Appunti sul linguaggio newLISP
 04) Rosetta code (81)  
 05) Project eulero (102)  
 06) Problemi vari (75)  
-07) Domande programmatori (88)  
+07) Domande programmatori (89)  
 08) Librerie (8)  
 09) Note libere (80)  
 10) Note libere 2 (80)  
-11) Note libere 3 (46)  
+11) Note libere 3 (47)  
 12) Appendici (22)  
 13) Bibliografia  
 99) yo library (yo.zip) (128)  

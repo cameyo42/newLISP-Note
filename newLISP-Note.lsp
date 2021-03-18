@@ -465,6 +465,7 @@ DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Ordinamento Wiggle (Google)
   Generare parentesi (Amazon)
   Maggiori a destra (Visa)
+  Numero che raddoppia (Wolfram)
 
 LIBRERIE
 ========
@@ -691,6 +692,7 @@ NOTE LIBERE 3
   Quadrati magici curiosi
   Serie infinite
   Il gioco del Pig
+  Mandelbrot
   
   
 APPENDICI
@@ -46801,7 +46803,14 @@ Esempio: L = ((1 3) (4 4) (1 1) (2 5) (6 3) (8 5) (6 1) (6 5) (3 2) (2 4)
 (setq lst '((1 3) (4 4) (1 1) (2 5) (6 3) (8 5) (6 1) (6 5) (3 2) (2 4)))
 (closestPairs lst)
 ;-> 1
-;-> ((2 4) (2 5))
+;-> ((2 5) (2 4))
+
+Vediamo un altro esempio:
+
+(setq lst '((-1 -3) (-4 -4) (1 1) (-2 -5) (6 3) (8 5) (6 1) (6 5) (3 2) (2 4)))
+(closestPairs lst)
+;-> 4
+;-> ((6 3) (6 1))
 
 Vediamo con una lista di 10000 punti:
 
@@ -46812,11 +46821,12 @@ Vediamo con una lista di 10000 punti:
   (setq d (unique c))
 )
 
-(time (closestPairs d))
+(time (println (closestPairs d)))
 ;-> 1
-;-> 31187.104
+;-> ((2815 1408) (2815 1409))
+;-> 22071.601
 
-La funzione è lenta. Complessità temporale O(n^2)).
+La funzione è lenta (22 secondi) perchè ha una complessità temporale O(n^2)).
 
 Vediamo la differenza del numero di cicli tra due for innestati (i = 0 e j = 0) e due for con il secondo ciclo che inizia da i = j:
 
@@ -46839,13 +46849,121 @@ Vediamo la differenza del numero di cicli tra due for innestati (i = 0 e j = 0) 
   )
   (println el { } num { } num1)
 )
-
 ;-> 100 10000 5050
 ;-> 1000 1000000 500500
 ;-> 10000 100000000 50005000
 ;-> 100000 10000000000 5000050000
 
 Il primo ciclo ha n^2 cicli, il secondo ha (n^2)/2 cicli (la complessità temporale è la stessa).
+
+Comunque per risolvere questo problema esistono diversi algoritmi con tempo O(n*log(n), ad esempio "sweep-line" oppure "divide and conquer".
+Esiste anche un algoritmo casuale che, in linea teorica, ha tempo O(n). In pratica è leggermente migliore dell'algoritmo sweep-line, ma è più semplice da implementare.
+
+L'algoritmo funziona in fasi successive. L'idea è che in ogni fase abbiamo già scoperto una coppia di punti a una distanza d e possiamo chiederci se un'altra coppia esiste a una distanza minore. Per questo, dividiamo lo spazio in una griglia con il passo di d/2 in entrambe le direzioni. La scelta di un passo della griglia di d/2 invece di d garantisce la presenza, al massimo, di un elemento per cella, facilitando l'elaborazione. Ogni punto appartiene quindi ad una cella della griglia. Sia P l'insieme di punti per i quali abbiamo già verificato che le distanze tra ogni coppia di punti di P è almeno d. Quindi, ogni cella della griglia contiene al massimo un punto di P.
+La griglia è rappresentata da una hash-map che associa ad ogni cella non vuota il punto di P che contiene. Al momento di aggiungere un punto p a P e alla hash-map, è sufficiente testare la sua distanza con i punti q contenuti nelle celle 5×5 attorno alla cella p.
+
+Nota: Ogni cella della griglia contiene al massimo un punto. Quando consideriamo un nuovo punto p è sufficiente misurarne la distanza con i punti contenuti nelle celle vicine.
+
+Se viene rilevata una coppia di punti alla distanza d' < d, la procedura viene riavviata dall'inizio con una nuova griglia di passo d'/2.
+
+Nota: per calcolare la cella associata a un punto (x, y) nella griglia con un dato passo, è sufficiente dividere ogni coordinata per il passo e poi arrotondare per difetto (floor).
+
+Supponiamo che l'accesso alla hash-map richieda un tempo costante, così come il calcolo di quale cella contiene un dato punto. Se i punti in input sono scelto in un ordine uniformemente casuale, allora quando viene elaborato il punto i-esimo (3 ≤ i ≤ n),
+miglioriamo la distanza d con probabilità 1/(i −1). Quindi la complessità attesa è nell'ordine di:
+
+Sum[i=3..n] (i/(i - 1))
+
+quindi lineare in n.
+
+Adesso possiamo scriviamo la funzione finale.
+
+Funzione che calcola la distanza tra due punti:
+
+(define (dist p1 p2)
+  (sqrt (+ (* (- (p1 0) (p2 0)) (- (p1 0) (p2 0)))
+           (* (- (p1 1) (p2 1)) (- (p1 1) (p2 1))))))
+
+(dist '(2 2) '(3 3))
+;-> 1.414213562373095
+
+Funzione che calcola la cella di un punto:
+
+(define (cell punto passo)
+  (let ((x (punto 0)) (y (punto 1)))
+    (list (int (floor (div x passo))) (int (floor (div y passo))))))
+
+Funzione che cerca di minimizzare la distanza:
+
+(define (migliora lst d)
+(catch
+  (local (x y cella q pq)
+    (new Tree 'hash)
+    (dolist (p lst)
+      (setq cella (cell p (div d 2)))
+      (setq x (cella 0) y (cella 1))
+      (for (x1 (- x 2) (+ x 2))
+        (for (y1 (- y 2) (+ y 2))
+          (if (true? (hash (string (list x1 y1))))
+              (begin
+                (setq q (hash (string (list x1 y1))))
+                (setq pq (dist p q))
+                (if (< pq d)
+                  (begin 
+                    (delete 'hash)
+                    (throw (list pq p q))
+                  )
+                )
+              )
+          )
+        )
+      )
+      (hash (string (list x y)) p)
+    )
+    (delete 'hash)
+    nil)))
+
+(define (closest-pairs lst)
+  (local (p q d tri)
+    (setq p (lst 0))
+    (setq q (lst 1))
+    (setq d (dist p q))
+    (while (> d 0)
+      (setq tri (migliora lst d))
+      (if tri
+          (setq d (tri 0) p (tri 1) q (tri 2))
+      ;else
+          (setq d -1)
+      )
+    )
+    (list p q)))
+
+Proviamo la funzione:
+
+(setq lst '((1 3) (4 4) (1 1) (2 5) (6 3) (8 5) (6 1) (6 5) (3 2) (2 4)))
+(closest-pairs lst)
+;-> ((2 4) (2 5))
+
+Vediamo un altro esempio:
+
+(setq lst '((-1 -3) (-4 -4) (1 1) (-2 -5) (6 3) (8 5) (6 1) (6 5) (3 2) (2 4)))
+(closest-pairs lst)
+;-> ((6 1) (6 3))
+
+Vediamo con la lista di 10000 punti che avevamo generato precedentemente:
+
+(time (println (closest-pairs d)))
+;-> ((1363 5070) (1363 5071))
+;-> 745.132
+
+(dist '(1363 5070) '(1363 5071))
+;-> 1
+
+Il tempo di esecuzione è passato da 22 secondi a meno di un secondo.
+
+La precedente funzione "closest-Pairs" aveva un output con punti diversi ((2815 1408) (2815 1409)), ma la distanza minima vale 1 in entrambi i casi. Questo accade perchè il secondo algoritmo è basato sulla casualità, infatti se mischiamo i punti della lista d è probabile che si ottenga lo stesso risultato del primo algoritmo:
+
+(println (closest-pairs (randomize d)))
+;-> ((2815 1409) (2815 1408))
 
 
 --------------------------------------------
@@ -55834,6 +55952,58 @@ Possiamo usare due hashmap che tengono traccia delle mappature char-char. Se un 
 (isomorfe "nonna" "lilla")
 ;-> true
 
+Questa soluzione risolve questo problema in tempo O(n). Un altro metodo è quello di utilizzare un vettore per memorizzare le mappature dei caratteri elaborati (al posto di due hash-map).
+
+1) Se le lunghezze di str1 e str2 non sono uguali, restituire Falso.
+2) Per ogni carattere in str1 e str2
+    a) Se questo carattere viene visto per la prima volta in str1,
+       allora il carattere corrente di str2 non è apparso prima.
+       (i) Se il carattere corrente di str2 è stato visto prima, restituisce Falso.
+           Contrassegna il carattere corrente di str2 come visitato.
+       (ii) Memorizza la mappatura dei caratteri correnti.
+    b) Altrimenti controlla se la precedente occorrenza di str1[i] è stata mappata
+       allo stesso carattere.
+
+(define (isomorfe? str1 str2)
+(catch
+  (local (max-len m n marked mapp idx)
+    ; lunghezza massima delle stringhe
+    (setq max-len 256)
+    (setq m (length str1))
+    (setq n (length str2))
+    ; le stringhe devono avere la stessa lunghezza
+    (if (!= m n) (throw nil))
+    ; memorizza i caratteri visitati di str1
+    (setq marked (array max-len '("0")))
+    ; memorizza le corrispondenze di ogni carattere di str1
+    ; in quelle di str2
+    (setq mapp (array max-len '(-1)))
+    (for (i 0 (- n 1))
+      (cond ((= (mapp (char (str1 i))) -1)
+             (if (= (marked (char (str2 i))) "1")
+                 (throw nil))
+             ; the next expression don't work...
+             ; 
+             ;(setf (marked (char (str2 i))) "1")
+             (setq idx (char (str2 i)))
+             (setf (marked idx) "1")
+             ; the next expression don't work...
+             ;(setf (mapp (char (str1 i))) (str2 i)))
+             (setq idx (char (str1 i)))
+             (setf (mapp idx) (str2 i)))
+            ((!= (mapp (char (str1 i))) (str2 i))
+             (throw nil))
+      )
+    )
+    true)))
+
+(isomorfe? "egg" "add")
+;-> true
+(isomorfe? "foo" "bar")
+;-> nil
+(isomorfe? "nonna" "lilla")
+;-> true
+
 
 ------------------------------
 Raggruppamento codici (Google)
@@ -58100,6 +58270,143 @@ Vediamo i tempi di esecuzione:
 ;-> 36286.99
 
 Una soluzione in tempo O(n*log(n)) può essere ottenuta utilizzando la tecnica merge-sort oppure con la manipolazione dei bit oppure con gli alberi binari di ricerca oppure con i segment tree oppure con la ricerca binaria oppure con gli alberi binari indicizzati. Non esiste una soluzione in tempo O(n).
+
+
+------------------------------
+Numero che raddoppia (Wolfram)
+------------------------------
+
+Quale numero positivo raddoppia quando l'ultima cifra si sposta sulla prima?
+
+Esempio:
+Numero: 152
+Spostiamo l'ultima cifra (2) sulla prima: 215
+Ma 215 non è il doppio di 152.
+
+Proviamo un approccio brute-force.
+
+(setq num 152)
+Estraiamo l'ultima cifra:
+(% num 10)
+;-> 2
+Estraiamo le altre cifre:
+(/ num 10)
+;-> 15
+Calcoliamo il numero ottenuto:
+(setq val  (+ (* (% num 10) (pow 10 (- (length num) 1))) (/ num 10)))
+;-> 215
+
+Scriviamo la funzione:
+
+(define (solve num)
+  (let (val 0)
+    (for (i 1 num)
+      (setq val (+ (* (% i 10) (pow 10 (- (length i) 1))) (/ i 10)))
+      ;(println i { } val { } (* 2 i))
+      ;(read-line)
+      (if (= val (* i 2)) (println i { } val)))))
+
+Proviamo a cercare il numero fino ad 1 milione:
+
+(solve 1000000)
+;-> nil
+(time (solve 1000000))
+;-> 356.791
+
+Proviamo con 100 milioni:
+
+(solve 1e8)
+;-> nil
+(time (solve 1e8))
+;-> 35797.039
+
+Sembra che il numero non sia alla portata di un approccio brute-force. Analizzando le proprietà del numero da trovare possiamo notare che, se esiste, la sua ultima cifra è sufficiente per costruirlo.
+Infatti, l'ultima cifra non può essere 1, perché in tal caso il numero non può essere raddoppiato inserendo un 1 davanti senza modificare il numero di cifre.
+Quindi, proviamo con 2. Il numero finisce con 2 e quando mettiamo questo 2 davanti, raddoppia. Il doppio di un numero che termina con 2 finisce con 4, quindi sappiamo che il numero finisce con 42. Il suo doppio deve finire con 84, il che significa che il numero finisce con 842 e così via (attenzione ai riporti e al numero 10). Dopo un pò incontriamo un 1, a questo punto sappiamo che il numero vale 157894736842, ma se lo  raddoppiamo otteniamo 315789473684, che non ha il 2 davanti, quindi dobbiamo andare avanti. La prossima fermata (cioè quando incontriamo un altro 1) è 105263157894736842, che rispetta la condizione. Infatti:
+
+105263157894736842 * 2 = 210526315789473684
+
+(= (* 105263157894736842 2) 210526315789473684)
+;-> true
+
+Ora, iniziando il numero con 3 e fermandosi quando incontriamo un 1, otteniamo 157894736842105263, che è un altro numero che soddisfa la condizione:
+
+(= (* 157894736842105263 2) 315789473684210526)
+;-> true
+
+Questo algoritmo viene codificato nella seguente funzione (che utilizza i big-integer).
+
+(define (solve start)
+  (local (num doppio carry stop)
+    (setq num (bigint start))
+    (setq doppio num)
+    (setq carry 0L)
+    (setq stop nil)
+    (until stop
+      ;raddoppio la cifra corrente
+      (setq doppio (* 2L doppio))
+      ; controllo se esiste un riporto precedente
+      (if (= carry 1) (setq doppio (+ doppio carry)))
+      ; creo il numero
+      ;(setq num (int (string (% doppio 10) num)))
+      ; se doppio = 10, allora occorre inserire 10 davanti a num e non 0.
+      (if (= doppio 10)
+          (setq num (+ num (* doppio (** 10 (length num)))))
+          (setq num (+ num (* (% doppio 10) (** 10 (length num)))))
+      )
+      (println num)
+      ; controllo se doppio ha un riporto
+      (cond ((= doppio 10) 
+             (setq carry 0L) 
+             (setq doppio 1L))
+            ((> doppio 9)
+             (setq carry 1L)
+             (setq doppio (% doppio 10)))
+            (true
+             (setq carry 0L))
+      )
+      (println "doppio: " doppio)
+      (read-line)
+      (if (check num) (setq stop true))
+      ;(if (or (= doppio 1L) (= doppio 10L))
+      ;    (println "check: " num)
+      ;    (if (check num) (setq stop true))
+      ;)
+    )
+    num))
+
+Funzione che controlla la condizione:
+
+(define (check num)
+  (= (* num 2)
+     (+ (* (% num 10) (** 10 (- (length num) 1))) (/ num 10))))
+
+Funzione che calcola la potenza intera di un numero intero:
+
+(define (** num power)
+    (let (out 1L)
+        (dotimes (i power)
+            (setq out (* out num)))))
+        15263157894736842L
+       105263157894736842L        
+       105263157894736842L       
+(check 105263157894736842)
+;-> true
+
+Proviamo con il numero 2:
+
+(solve 2)
+;-> 105263157894736842L
+
+Proviamo con il numero 3:
+
+(solve 3)
+;-> 157894736842105263L
+
+Proviamo con il numero 4:
+
+(solve 4)
+;-> 210526315789473684L
 
 
 ==========
@@ -68218,7 +68525,7 @@ Somma da due numeri
 -------------------
 
 Dato una lista di numeri interi e un numero intero s, trovare tutte le coppie di numeri interi nella lista che si sommano all'intero s oppure restituire che non esistono coppie di questo tipo.
-O(n²), O(n log n), O(n).
+Consideriamo tre algoritmi con le seguenti complessità temporali: O(n²), O(n*log(n)) e O(n).
 
 Il metodo più semplice è quello di considerare ogni elemento della lista sommandolo a tutti gli altri e controllare se sommano al valore s. Complessità temporale O(n²).
 
@@ -68242,7 +68549,7 @@ Il metodo più semplice è quello di considerare ogni elemento della lista somma
 (find-coppie (sequence 1 10) 6)
 ;-> ((1 5) (2 4))
 
-Un altro è quello di ordinare la lista e poi con due indici (basso e alto) attraversiamo la lista:
+Un altro metodo è quello di ordinare la lista e poi con due indici (basso e alto) attraversiamo la lista:
 
 (define (find-coppie2 lst somma)
   (local (out alto basso)
@@ -68262,26 +68569,67 @@ Un altro è quello di ordinare la lista e poi con due indici (basso e alto) attr
     out))
 
 (find-coppie2 '(1 5 7 -1 5) 6)
+;-> ((-1 7) (1 5))
 (find-coppie2 '(-1 1 5 5 7) 6)
-;-> ((1 5) (1 5) (7 -1))
+;-> ((-1 7) (1 5))
 (find-coppie2 '(2 5 17 -1) 7)
-;-> (2 5)
+;-> ((2 5))
 (find-coppie2 '(3 5 6 -1) 10)
 ;-> ()
 (find-coppie2 '(2 3 4 -2 6 8 9 11) 6)
-;-> ((2 4) (-2 8))
+;-> ((-2 8) (2 4))
 (find-coppie2 (sequence 1 10) 6)
 ;-> ((1 5) (2 4))
+
+La complessità temporale di questo secondo metodo non è calcolabile esattamente, poichè utilizziamo la funzione "sort" di newLISP (che dovrebbe utilizzare il merge-sort O(n*log(n)). Comunque è il metodo più veloce proprio perchè utilizziamo la versione integrata (compilata) della funzione "sort".
+
+Il terzo metodo è quello di utilizzare una hash-map con il seguente algoritmo:
+
+  Creare una hash-map
+  Per ogni numero della lista
+    Se il numero corrente si trova nella hash-map,
+        allora inserire il numero corrente e (somma - numero corrente) nella soluzione
+    Aggiungere (somma - numero corrente) nella hash-map
+  Restituire la soluzione
+
+(define (find-coppie3 lst somma)
+  (local (out)
+    (setq out '())
+    (new Tree 'hash)
+    (dolist (el lst)
+      (if (hash el)
+        (push (list (- somma el) el) out -1)
+      )
+      (hash (string (- somma el)) (- somma el))
+    )
+    (delete 'hash)
+    out))
+
+(find-coppie3 '(1 5 7 -1 5) 6)
+;-> ((1 5) (7 -1) (1 5))
+(find-coppie3 '(-1 1 5 5 7) 6)
+;-> ((1 5) (1 5) (-1 7))
+(find-coppie3 '(2 5 17 -1) 7)
+;-> ((2 5))
+(find-coppie3 '(3 5 6 -1) 10)
+;-> ()
+(find-coppie3 '(2 3 4 -2 6 8 9 11) 6)
+;-> ((2 4) (-2 8))
+(find-coppie3 (sequence 1 10) 6)
+;-> ((2 4) (1 5))
+
+Questo algoritmo ha complessità temporale O(n).
 
 Vediamo quale metodo è più veloce:
 
 (time (find-coppie (sequence 1 1000) 500) 10)
-;-> 7642.239
+;-> 5126.398
 
 (time (find-coppie2 (sequence 1 1000) 500) 10)
-;-> 31.981
+;-> 17.951
 
-La complessità temporale del secondo metodo non è calcolabile esattamente, poichè utilizziamo la funzione "sort" di newLISP (che dovrebbe utilizzare il merge-sort O(n log n)). Comunque è il metodo più veloce proprio perchè utilizziamo la versione integrata (compilata) della funzione "sort".
+(time (find-coppie3 (sequence 1 1000) 500) 10)
+;-> 11.001
 
 
 ---------------------
@@ -80869,6 +81217,8 @@ Quindi dobbiamo controllare ogni elemento della lista "matrici" per verificare s
 (checksum (matrici 10) 4 somma)
 ;-> nil
 
+La funzione "test" seleziona solo i qudrati magici:
+
 (define (test)
   (local (out)
     (setq out '())
@@ -80989,14 +81339,6 @@ Quindi dobbiamo trovare 4 numeri che sommano al valore di "somma"
 
 Adesso possiamo calcolarle...
 
-(define (comb k lst)
-  (cond ((zero? k)   '(()))
-        ((null? lst) '())
-        (true
-          (append (map (lambda (k-1) (cons (first lst) k-1))
-                       (comb (- k 1) (rest lst)))
-                  (comb k (rest lst))))))
-
 (silent (setq matrici (comb 4 quad)))
 (length matrici)
 ;-> 270725
@@ -81013,6 +81355,8 @@ Quindi dobbiamo controllare ogni elemento della lista "matrici" per verificare s
 
 (checksum (matrici 10) 4 somma)
 ;-> nil
+
+La funzione "test" seleziona solo i qudrati magici:
 
 (define (test)
   (local (out)
@@ -81081,6 +81425,21 @@ Qual'è il valore della serie SG?
 (1 - SG) = SG  
 
 1 = 2*SG  ==>  SG = 1/2
+
+Nota: i metodi algebrici utilizzati non dovrebbero essere applicati a serie non convergenti, tuttavia la somma di Cesaro per questa serie vale 1/2. La somma di Cesaro è un'estensione del concetto classico di serie convergente basata sulle somme parziali.
+Data una serie:
+
+Sum[1..INF] a(n)
+
+con somme parziali:
+
+s(n) = a(1) + a(2) + ... + a(n)
+
+la somma di Cesàro è il limite (quando esiste) della media aritmetica delle somme parziali:
+
+        s(1) + s(2) + ... + s(n)
+  lim  --------------------------
+ n->INF            n
 
 La serie dei numeri naturali alternati
 --------------------------------------
@@ -81278,6 +81637,79 @@ Parziale = 5
 Computer: Parziale = 5
           Totale = 100
 Fine del gioco il computer vince: 100 - 92
+
+
+----------
+Mandelbrot
+----------
+
+L'insieme di Mandelbrot o frattale di Mandelbrot è uno dei frattali più popolari ed definito come l'insieme dei numeri complessi c per i quali la successione definita da:
+
+  z(0) = 0
+  z(n+1) = z(n)^2 + c
+
+è limitata. Nonostante la semplicità della definizione, l'insieme ha una forma complessa il cui contorno è un frattale. Solo con l'avvento del computer è stato possibile visualizzarlo.
+
+Vediamo un modo spartano di visualizzare questo frattale in una pagina html con una funzione che utilizza l'aritmetica dei numeri complessi:
+
+;;; This program requires v.10.2.0 (or later) of newLISP and
+;;; will not run on the original FOOP as introduced in 10.0
+; open html file
+(device (open "mandelbrot.html" "write"))
+(print "<!doctype html>\r\n\r\n")
+(println [text]
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Mandelbrot Fractal</title>
+  <meta name="description" content="Mandelbrot">
+  <meta name="author" content="cameyo">
+  <link rel="stylesheet" href="css/styles.css?v=1.0">
+</head>
+[/text])
+(println " </CENTER> <br><center><h4>Mandelbrot Fractal</h4></center></html>")
+(println "<CENTER>")
+(set ' colors '(
+  "800000" "800080" "8000FF" "808000" "808080" "8080FF" "80FF00" "80FF80"
+  "80FFFF" "FF0000" "FF0080" "FF00FF" "FF8000" "FF8080" "FF80FF" "FFFF00"))
+;; adapted from a program written by Michael Michaels and Cormullion
+;; this is a FOOP (Functional Object Oriented Programming) application
+; (define (Class:Class) (cons (context) (args))) ; predefined since version 10.0
+(new Class 'Complex)
+(define (Complex:rad)
+	(sqrt (add (pow (self 1) ) (pow (self 2))))
+)
+(define (Complex:add b)
+	(Complex (add (self 1) (b 1)) (add (self 2) (b 2)))
+)
+(define (Complex:mul b)
+	(let (a-re (self 1) a-im (self 2) b-re (b 1) b-im (b 2))
+		(Complex
+			(sub (mul a-re b-re) (mul a-im b-im))
+			(add (mul a-re b-im) (mul a-im b-re)) )
+))
+(define (draw)
+	(print "<table bgcolor=#f0f0f0>\n")
+	(for (y -1 1.1 0.08)
+		(for (x -2 1 0.04)
+			(set 'z (Complex x y) 'c 85 'a z )
+			(while (and (< (abs (:rad (set 'z (:add (:mul z z) a)))) 2) (> (dec c) 32)) )
+			(if (= c 32)
+				(print "<td bgcolor=#000000>&nbsp;</td>")
+				(print "<td bgcolor=#" (colors (% c  16)) ">&nbsp;</td>"))
+		)
+		(println "</tr>") )
+	(println "</table>")
+)
+(draw)
+(print " </CENTER> <br><center><h4>created with newLISP v." (sys-info -2) "</h4></center></html>")
+; close file
+(close (device))
+;; eof
+
+Adesso possiamo visualizzare la pagina nel browser predefinito:
+
+(exec "mandelbrot.html")
 
 
 ===========
