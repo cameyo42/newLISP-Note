@@ -694,7 +694,9 @@ NOTE LIBERE 3
   Serie infinite
   Il gioco del Pig
   Mandelbrot
-  
+  find per vettori
+  Variabili libere
+  Debug spartano
   
 APPENDICI
 =========

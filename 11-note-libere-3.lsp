@@ -4883,7 +4883,7 @@ Adesso possiamo calcolarle...
 Vediamo un elemento della lista "matrici" :
 
 (matrici 0)
-;-> ((1035629784 1025639784 1034728695 1024738695) 
+;-> ((1035629784 1025639784 1034728695 1024738695)
 ;->  (1035629784 1035729684 1024638795 1024738695)
 ;->  (1035629784 1025739684 1034628795 1024738695)
 ;->  (1035629784 1025739684 1024638795 1034728695))
@@ -4914,7 +4914,7 @@ La funzione "test" seleziona solo i qudrati magici:
 Vediamo una matrice:
 
 (sol 10)
-;-> ((1035629784 1035729684 1024638795 1024738695) 
+;-> ((1035629784 1035729684 1024638795 1024738695)
 ;->  (1035629784 1025738694 1034628795 1024739685)
 ;->  (1025639784 1035729684 1024638795 1034728695)
 ;->  (1025639784 1035728694 1024638795 1034729685))
@@ -4931,7 +4931,7 @@ Eliminiamo tutte le matrici (quadrati magici) che hanno numeri uguali:
 ;-> 5
 
 (qmagic 0)
-;-> ((1035629784 1035728694 1024638795 1024739685) 
+;-> ((1035629784 1035728694 1024638795 1024739685)
 ;->  (1025639784 1025738694 1034628795 1034729685)
 ;->  (1035729684 1035628794 1024738695 1024639785)
 ;->  (1025739684 1025638794 1034728695 1034629785))
@@ -4959,7 +4959,7 @@ Qual'è il valore della serie SG?
 
 (1 - SG) = 1 - (1 - 1 + 1 - 1 + 1 - 1 + ...)
 
-(1 - SG) = SG  
+(1 - SG) = SG
 
 1 = 2*SG  ==>  SG = 1/2
 
@@ -4991,7 +4991,7 @@ Qual'è il valore della serie SA?
 2*SA = 1 - 1 + 1 - 1 + 1 - 1 + 1 = SG
 
 2*SA = 1/2  ==>  SA = 1/4
-         
+
 La serie dei numeri naturali
 ----------------------------
 
@@ -5247,5 +5247,265 @@ Vediamo un modo spartano di visualizzare questo frattale in una pagina html con 
 Adesso possiamo visualizzare la pagina nel browser predefinito:
 
 (exec "mandelbrot.html")
+
+Potete trovare il file "mandelbrot.html" nella cartella "data".
+
+
+----------------
+find per vettori
+----------------
+
+Per ricercare un elemento in una lista possiamo usare la funzione "find":
+
+******************
+>>> funzione FIND
+******************
+sintassi: (find exp-key list [func-compare | regex-option])
+sintassi: (find str-key str-data [regex-option [int-offset]])
+
+Trova un'espressione in una lista
+Se il secondo argomento restituisce è una lista, allora find restituisce la posizione dell'indice (offset) dell'elemento derivato dalla valutazione di exp-key.
+
+Facoltativamente, è possibile specificare un operatore o una funzione definita dall'utente in func-compare. Se exp-key è una stringa, è possibile specificare un'opzione di espressione regolare con il parametro regex-option.
+
+Quando si utilizzano espressioni regolari o funtori di confronto, la variabile di sistema $0 è impostata sull'ultimo elemento trovato.
+
+; find an expression in a list
+(find '(1 2) '((1 4) 5 6 (1 2) (8 9)))  → 3
+
+(find "world" '("hello" "world"))       → 1
+(find "hi" '("hello" "world"))          → nil
+
+(find "newlisp" '("Perl" "Python" "newLISP") 1)  → 2
+; same with string option
+(find "newlisp" '("Perl" "Python" "newLISP") "i")  → 2
+
+; use the comparison functor
+(find 3 '(8 4 3  7 2 6) >)  → 4
+$0 → 2
+
+(find "newlisp" '("Perl" "Python" "newLISP") 
+                 (fn (x y) (regex x y 1))) → 2
+$0 → "newLISP"
+
+(find 5 '((l 3) (k 5) (a 10) (z 22)) 
+         (fn (x y) (= x (last y))))  → 1
+$0 → (k 5)
+
+(find '(a ?) '((l 3) (k 5) (a 10) (z 22)) match)  → 2
+$0 → (a 10)
+
+(find '(X X) '((a b) (c d) (e e) (f g)) unify)  → 2
+$0 → (e e)
+
+; define the comparison functor first for better readability
+(define (has-it-as-last x y) (= x (last y)))
+
+(find 22 '((l 3) (k 5) (a 10) (z 22)) has-it-as-last)  → 3
+$0 → (z 22)
+
+Nota: in questo caso tralasciamo la spiegazione dell'uso di find con le stringhe (vedi manuale).
+
+Per esempio:
+
+(setq a '(1 3 (2 3) 4 (3 5 (6))))
+(find 4 a)
+;-> 3
+(a 3)
+;-> 4
+
+Possiamo trovare solo un elemento completo, cioè non possiamo trovare un elemento annidato (es. 5):
+(find 5 a)
+;-> nil
+
+Per trovare gli elementi annidati occorre usare la funzione "ref" o "ref-all":
+
+(ref 5 a)
+;-> (4 1)
+(a 4 1)
+;-> 5
+
+Purtroppo "find" non è applicabile ai vettori, quindi scriviamo una funzione che rimedia (almeno in parte) a questa mancanza:
+
+(define (find-array el arr)
+(catch
+  (for (i 0 (- (length arr) 1))
+    (if (= el (arr i)) (throw i)))))
+
+(find-array 4 a)
+;-> 3
+
+(find-array '(2 3) a)
+;-> 2
+
+Vediamo un test di velocità tra "find" e "find-array":
+
+(setq t (sequence 1 10000))
+(time (find 5000 t) 10000)
+;-> 259.333
+
+(setq arr (array 10000 t))
+(time (find-array 5000 arr) 10000)
+;-> 3093.758
+
+Possiamo usare in modo efficiente questa funzione solo con vettori non troppo grandi.
+
+
+----------------
+Variabili libere
+----------------
+
+Quando si scrivono le funzioni può capitare di dimenticarsi di dichiarare una o più variabili locali. In questo caso la variabile utilizzata mantiene il suo valore anche quando la funzione in cui è contenuta è terminata. Queste variabili possono causare errori nell'esecuzione del programma perchè sono "viste" da tutte le funzioni che vengono eseguite. Per semplicità chiamiamo "libere" queste variabili.
+
+La seguente funzioni visualizza tutte le "variabili libere" che hanno un valore diverso da nil (non è possibile, tramite le primitive di newLISP, determinare se una variabile che vale nil sia libera o meno).
+
+(define (free-vars _ctx)
+  (local (_vars)
+    (if (= _ctx nil) (setq _ctx (context)))
+    (setq _vars '())
+    (dolist (_el (symbols _ctx))
+      (if (and (not (lambda? (eval _el)))
+               (not (primitive? (eval _el)))
+               (not (protected? _el))
+               (not (global? _el))
+               (not (= _el '_ctx))
+               (not (= _el '_vars))
+               (not (= _el '_el))
+               (not (= _el '_v)))
+          (push _el _vars -1))
+    )
+    (dolist (_v _vars)
+      (if (eval _v)
+        (println _v { } (eval _v))))))
+
+Partiamo con una REPL nuova e, dopo aver valutato la funzione "free-vars", scriviamo la seguente funzione:
+
+(define (test a b) (setq c (+ a b)))
+
+In questa funzione la variabile "d" è libera:
+
+(test 5 10)
+;-> 15
+
+Verifichiamo con la funzione "free-vars":
+
+(free-vars)
+;-> c 15
+
+In questo modo possiamo correggere la dichiarazione delle variabili e ottenere un programma più stabile.
+
+
+--------------
+Debug spartano
+--------------
+
+Molte volte, prima di utilizzare il debugger di newLISP, utilizzo la vecchia scuola dei "println" per controllare i valori delle variabili durante l'esecuzione del programma. Il metodo è abbastanza tedioso soprattutto se dobbiamo controllare diverse variabili e se vogliamo che vengano visualizzate solo al verificarsi di certe condizioni.
+
+La funzione "break" aiuta a semplificare questo problema utilizzando due parametri:
+1) sym-lst: la lista dei simboli/variabili da visualizzare
+2) cond-str: una espressione (stringa) newLISP che rappresenta una condizione (true o nil)
+
+Quando la condizione "cond-str" viene valutata true, allora vengono stampati i simboli/variabili con i relativi valori contenuti nella lista "sym-lst". A questo punto l'utente può fare tre scelte:
+1) premere "Invio" per far continuare l'esecuzione della funzione chiamante.
+2) inserire e valutare una espressione direttamente nella REPL.
+3) premere "Ctrl+C" per interrompere l'esecuzione del programma.
+
+Scriviamo la funzione e poi vediamo come si applica:
+
+(define (break sym-lst cond-str)
+        ;se la condizione viene valutata true
+  (cond ((eval-string cond-str)
+          ; allora stampiamo tutti i simboli con i relativi valori
+          ; contenuti nella list sym-lst
+          (dolist (el sym-lst)
+            (print el " = " (eval el) "; ")
+          )
+          (println "")
+          ; aspetta un comando/espressione:
+          ; 1) Invio continua l'esecuzione della funzione chiamante
+          ; 2) espressione da valutare
+          (read-line)
+          (while (> (length (current-line)) 0)
+            (println (eval-string (current-line)))
+            (read-line)
+          ))))
+
+Supponiamo di voler fare il debug della seguente funzione:
+
+(define (prova a b)
+  (let ((c 0) (d 0) (out '()))
+    (for (i 1 20)
+      (setq c (+ a c 10))
+      (setq d (+ b d 3))
+      (push c out -1)
+      (break '(c d) "(or (> c 20) (> d 100))")
+      ;(break '(out) "(or (> c 20) (> d 100))")
+      ;(break '(out) "(> (length out) 5)")
+      ;(break '(c d out) "true")
+    )
+    (+ c d)))
+
+Abbiamo inserito quattro funzioni "break" e i quattro esempi seguenti si riferiscono ad una sola funzione di "break" attiva (ogni volta diversa).
+
+Condizione: (break '(c d) "(or (> c 20) (> d 100))")
+(prova 10 20)
+;-> c = 40; d = 46;
+out
+;-> (20 40)
+(setq c 20)
+;-> 20
+c
+;-> 20
+(+ a b)
+;-> 30
+
+;-> c = 60; d = 69;
+
+;-> c = 80; d = 92;
+
+;-> c = 100; d = 115;
+...
+
+Condizione: (break '(out) "(or (> c 20) (> d 100))")
+(prova 10 20)
+;-> out = (20 40);
+c
+;-> 40
+d
+;-> 46
+
+;-> out = (20 40 60);
+
+;-> out = (20 40 60 80);
+(- c d)
+;-> -12
+
+;-> out = (20 40 60 80 100);
+...
+
+Condizione: (break '(out) "(> (length out) 5)")
+(prova 10 20)
+;-> out = (20 40 60 80 100 120);
+(println c d)
+;-> 120138
+;-> 138
+
+;-> out = (20 40 60 80 100 120 140);
+
+;-> out = (20 40 60 80 100 120 140 160);
+...
+
+Se vogliamo che le variabili siano stampate sempre, allora basta assegnare "true" al parametro "cond-str":
+
+Condizione: (break '(c d out) "true")
+(prova 10 20)
+;-> c = 20; d = 23; out = (20);
+
+;-> c = 40; d = 46; out = (20 40);
+
+;-> c = 60; d = 69; out = (20 40 60);
+...
+
+Nota: quando inseriamo le espressioni da valutare nella REPL è possibile inserire anche la funzione che è in esecuzione (es. (prova 3 4))
 
 
