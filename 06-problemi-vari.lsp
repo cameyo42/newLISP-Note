@@ -5403,8 +5403,7 @@ Se viene rilevata una coppia di punti alla distanza d' < d, la procedura viene r
 
 Nota: per calcolare la cella associata a un punto (x, y) nella griglia con un dato passo, è sufficiente dividere ogni coordinata per il passo e poi arrotondare per difetto (floor).
 
-Supponiamo che l'accesso alla hash-map richieda un tempo costante, così come il calcolo di quale cella contiene un dato punto. Se i punti in input sono scelto in un ordine uniformemente casuale, allora quando viene elaborato il punto i-esimo (3 ≤ i ≤ n),
-miglioriamo la distanza d con probabilità 1/(i −1). Quindi la complessità attesa è nell'ordine di:
+Supponiamo che l'accesso alla hash-map richieda un tempo costante, così come il calcolo di quale cella contiene un dato punto. Se i punti in input sono scelto in un ordine uniformemente casuale, allora quando viene elaborato il punto i-esimo (3 ≤ i ≤ n), miglioriamo la distanza d con probabilità 1/(i −1). Quindi la complessità attesa è nell'ordine di:
 
 Sum[i=3..n] (i/(i - 1))
 

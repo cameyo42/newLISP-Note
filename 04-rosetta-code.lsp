@@ -11096,3 +11096,108 @@ Vediamo quanto tempo occorre per calcolare i primi 100 milioni di termini:
     26.5 secondi
 
 
+-----------
+CONVEX HULL
+-----------
+
+Dato un insieme di N punti, il convex-hull è definito come il poligono convesso più piccolo che racchiude tutti i punti dell'insieme. Questo poligono è anche il poligono con il più piccolo perimetro contenente tutti i punti.
+
+      |
+    6 |                       O
+      |
+    5 |       O                       O
+      |
+    4 |       O       O
+      |
+    3 |   O                   O
+      |
+    2 |           O
+      |
+    1 |   O                   O
+      |
+    0 ---------------------------------------
+      0   1   2   3   4   5   6   7   8   9
+
+    Punti = ((1 3) (4 4) (1 1) (2 5) (6 3) (8 5) (6 1) (6 6) (3 2) (2 4)
+
+Per risolvere questo problema useremo l'algoritmo di Andrew (monotone chain algorithm, 1979) che ha complessità temporale O(n*log(n)) in generale e O(n) se i punti sono già ordinati lungo l'asse x.
+Questo algoritmo si basa sul test di orientamento tra 3 punti (vedi sotto) e può evitare errori di arrotondamento.
+I punti superiori del convex-hull sono elaborati da sinistra a destra, nell'ordine delle loro coordinate x. La lista "alto" contiene il convex-hull dei punti già processati. Quando si elabora un punto p la prima cosa è aggiungerlo a "alto". Quindi, fintanto che il penultimo punto di "alto" rende la sequenza non convessa, viene rimosso dall'elenco.
+Allo stesso modo si ottiene la parte inferiore del convex-hull. Il risultato è ottenuto concatenando le due liste e invertendo la lista "alto" per ottenere i punti dello scafo convesso nell'ordine "normale" (cioè quella antiorario).
+Si noti che il primo e l'ultimo elemento delle liste sono uguali e quindi vanno rimossi.
+
+Test di orientamento
+--------------------
+Dati tre punti p1, p2 e p3, vogliamo sapere se sono allineati, oppure, muovendosi da p1 -> p2 -> p3, se sono in senso orario (destra) o in senso anti-orario (sinistra).
+
+Dobbiamo controllare il segno della componente z del prodotto vettoriale:
+  ____   ____
+  p1p2 × p2p3
+
+Se è positivo, allora sono in senso antiorario (sinistra),
+Se è negativo, allora sono in senso orario (destra),
+Se è zero, allora i punti sono allineati.
+
+(define (antiorario? p1 p2 p3)
+  (> (sub (mul (sub (p1 0) (p3 0)) (sub (p2 1) (p3 1)))
+          (mul (sub (p1 1) (p3 1)) (sub (p2 0) (p3 0)))) 0))
+
+Quando i punti hanno coordinate non intere bisogna eseguire i calcoli che prevedono l'uguaglianza con una piccola tolleranza (esempio 10^-7), invece di utilizzare zero, per proteggersi da eventuali errori di arrotondamento.
+
+(define (convex-hull lst)
+  (local (alto basso)
+    (sort lst)
+    (setq alto '())
+    (setq basso '())
+    (dolist (p lst)
+      ;(if (>= (length alto) 2)
+      ;  (begin
+      ;  (println p { } (alto -1) { } (alto -2) (antiorario? p (alto -1) (alto -2)))
+      ;  (read-line)
+      ;))
+      (while (and (>= (length alto) 2) (not (antiorario? p (alto -1) (alto -2))))
+        (setq alto (chop alto))
+      )
+      (push p alto -1)
+      (while (and (>= (length basso) 2) (not (antiorario? (basso -2) (basso -1) p)))
+        (setq basso (chop basso))
+      )
+      (push p basso -1)
+    )
+    (append (chop basso) (chop (reverse alto)))))
+
+(setq lst '((1 3) (4 4) (1 1) (2 5) (6 3) (8 5) (6 1) (6 6) (3 2) (2 4)))
+
+(convex-hull lst)
+;-> ((1 1) (6 1) (8 5) (6 6) (2 5) (1 3))
+
+Nel diagramma seguente i punti del convex-hull sono contrassegnsti con X.
+
+      |
+    6 |                       X
+      |
+    5 |       X                       X
+      |
+    4 |       O       O
+      |
+    3 |   X                   O
+      |
+    2 |           O
+      |
+    1 |   X                   X
+      |
+    0 ---------------------------------------
+      0   1   2   3   4   5   6   7   8   9
+
+Proviamo con l'esempio riportato su Rosetta Code:
+
+(setq rc '((16 3) (12 17) (0 6) (-4 -6) (16 6) (16 -7) (16 -3) 
+           (17 -4) (5 19) (19 -8) (3 16) (12 13) (3 -4) (17 5) 
+           (-3 15) (-3 -9) (0 11) (-9 -3) (-4 -2) (12 10)))
+
+(convex-hull rc)
+;-> ((-9 -3) (-3 -9) (19 -8) (17 5) (12 17) (5 19) (-3 15))
+
+Un esempio più complesso di convex-hull calcolato con questa funzione è visibile nell'immagine "convex-hull.png" contenuta nella cartella "data".
+
+

@@ -291,6 +291,7 @@ ROSETTA CODE
   Sequenza Figura-Figura di Hofstadter
   Sequenza G di Hofstadter
   Sequenza Femmina (F) Maschio (M) di Hofstadter
+  Convex Hull
   
 
 PROJECT EULERO

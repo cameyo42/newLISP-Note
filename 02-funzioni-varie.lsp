@@ -5561,7 +5561,7 @@ La seguente funzione genera n punti casuali (x,y) interni ad un cerchio di raggi
 
 Possiamo verificare il risultato utilizzando un foglio elettronico:
 1) generare e salvare n punti casuali
-   (setq punti (rand-xy-circle 5 100))
+   (setq punti (rand-xy-circle 50 100))
    (save "punti.txt" 'punti)
 2) importare il file punti.txt su un foglio elettronico
 3) modificare il foglio in modo che ci siamo due colonne (una per la coordinata x e una per la coordinata y)

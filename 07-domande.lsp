@@ -7382,7 +7382,6 @@ Questo algoritmo viene codificato nella seguente funzione (che utilizza i big-in
           (setq num (+ num (* doppio (** 10 (length num)))))
           (setq num (+ num (* (% doppio 10) (** 10 (length num)))))
       )
-      (println num)
       ; controllo se doppio ha un riporto
       (cond ((= doppio 10) 
              (setq carry 0L) 
@@ -7393,8 +7392,6 @@ Questo algoritmo viene codificato nella seguente funzione (che utilizza i big-in
             (true
              (setq carry 0L))
       )
-      (println "doppio: " doppio)
-      (read-line)
       (if (check num) (setq stop true))
       ;(if (or (= doppio 1L) (= doppio 10L))
       ;    (println "check: " num)
@@ -7415,9 +7412,7 @@ Funzione che calcola la potenza intera di un numero intero:
     (let (out 1L)
         (dotimes (i power)
             (setq out (* out num)))))
-        15263157894736842L
-       105263157894736842L        
-       105263157894736842L       
+       
 (check 105263157894736842)
 ;-> true
 
