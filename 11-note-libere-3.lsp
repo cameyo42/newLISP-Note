@@ -5325,6 +5325,23 @@ Per trovare gli elementi annidati occorre usare la funzione "ref" o "ref-all":
 (a 4 1)
 ;-> 5
 
+Nota: comunque se conosciamo la struttura della lista di ricerca possiamo utilizzare "find" con una funzione lambda, per esempio:
+
+(setq lst '((1 2) (2 3) (4 5)))
+
+Cerchiamo l'elemento il cui ultimo sottoelemento vale 5:
+
+(find 5 lst (fn(x y) (= x ((last y)))))
+
+In questo caso i parametri della funzione lambda sono associati come:
+x --> 5
+y --> lst
+
+Cerchiamo l'elemento i cui sottoelementi sommano a 5:
+
+(find 5 lst (fn(x y) (= x (+ (first y) (last y)))))
+;-> 1
+
 Purtroppo "find" non è applicabile ai vettori, quindi scriviamo una funzione che rimedia (almeno in parte) a questa mancanza:
 
 (define (find-array el arr)
@@ -5348,7 +5365,45 @@ Vediamo un test di velocità tra "find" e "find-array":
 (time (find-array 5000 arr) 10000)
 ;-> 3093.758
 
-Possiamo usare in modo efficiente questa funzione solo con vettori non troppo grandi.
+Possiamo usare questa funzione solo con vettori non troppo grandi.
+
+Se invece abbiamo un vettore ordinato di numeri possiamo utilizzare la ricerca binaria per cercare un elemento.
+
+Scriviamo la funzione di ricerca binaria (per vettori ordinati in modo crescente):
+
+(define (bs num arr)
+  (local (basso alto indice)
+    (setq out nil) ; elemento non trovato
+    (setq basso 0) ; inizio lista
+    (setq alto (- (length arr) 1)) ; fine lista
+    (while (and (>= alto basso) (nil? out))
+      (setq indice (>> (+ basso alto))) ; valore centrale indice
+      (cond ((> (arr indice) num)
+             (setq alto (- indice 1))) ; aggiorno l'indice "alto"
+            ((< (arr indice) num)
+             (setq basso (+ indice 1))) ; aggiorno l'indice "basso"
+            (true (setq out indice)) ; elemento trovato
+      )
+    )
+    out))
+
+La funzione finale "find-array-bs":
+
+(define (find-array-bs el arr) (bs el arr))
+
+(setq s (array 8 '(1 2 8 11 21 36 42 77)))
+
+(find-array-bs 4 s)
+;-> nil
+
+(find-array-bs 42 s)
+;-> 6
+
+Vediamo i tempi di esecuzione:
+
+(silent (setq arr (array 10000 (sequence 1 10000))))
+(time (find-array-bs 2 arr) 10000)
+;-> 1453.371
 
 
 ----------------
@@ -5382,7 +5437,7 @@ Partiamo con una REPL nuova e, dopo aver valutato la funzione "free-vars", scriv
 
 (define (test a b) (setq c (+ a b)))
 
-In questa funzione la variabile "d" è libera:
+In questa funzione la variabile "c" è libera:
 
 (test 5 10)
 ;-> 15
@@ -5405,25 +5460,34 @@ La funzione "break" aiuta a semplificare questo problema utilizzando due paramet
 1) sym-lst: la lista dei simboli/variabili da visualizzare
 2) cond-str: una espressione (stringa) newLISP che rappresenta una condizione (true o nil)
 
-Quando la condizione "cond-str" viene valutata true, allora vengono stampati i simboli/variabili con i relativi valori contenuti nella lista "sym-lst". A questo punto l'utente può fare tre scelte:
-1) premere "Invio" per far continuare l'esecuzione della funzione chiamante.
+Quando la condizione "cond-str" viene valutata true, allora vengono stampati i simboli/variabili con i relativi valori contenuti nella lista "sym-lst". A questo punto l'utente può fare quattro scelte:
+1) premere il tasto "Invio" per far continuare l'esecuzione della funzione chiamante.
 2) inserire e valutare una espressione direttamente nella REPL.
-3) premere "Ctrl+C" per interrompere l'esecuzione del programma.
+3) disabilitare la funzione "break" inserendo nella REPL: (setq _BREAK nil)
+4) premere "Ctrl+C" per interrompere l'esecuzione del programma.
 
 Scriviamo la funzione e poi vediamo come si applica:
 
+Abbiamo bisogno di una variabile globale _BREAK:
+
+(global '_BREAK)
+(setq _BREAK true)
+
 (define (break sym-lst cond-str)
-        ;se la condizione viene valutata true
-  (cond ((eval-string cond-str)
+        ; se (_BREAK = true) e
+        ; se la condizione "cond-str" viene valutata true
+  (cond ((and _BREAK (eval-string cond-str))
           ; allora stampiamo tutti i simboli con i relativi valori
-          ; contenuti nella list sym-lst
+          ; contenuti nella lista sym-lst
           (dolist (el sym-lst)
             (print el " = " (eval el) "; ")
           )
           (println "")
-          ; aspetta un comando/espressione:
-          ; 1) Invio continua l'esecuzione della funzione chiamante
+          ; Aspetta un comando/espressione:
+          ; 1) 'Invio' continua l'esecuzione della funzione chiamante
           ; 2) espressione da valutare
+          ; 3) (setq _BREAK nil)
+          ; 4) Ctrl+C
           (read-line)
           (while (> (length (current-line)) 0)
             (println (eval-string (current-line)))
@@ -5438,8 +5502,8 @@ Supponiamo di voler fare il debug della seguente funzione:
       (setq c (+ a c 10))
       (setq d (+ b d 3))
       (push c out -1)
-      (break '(c d) "(or (> c 20) (> d 100))")
-      ;(break '(out) "(or (> c 20) (> d 100))")
+      ;(break '(c d) "(or (> c 20) (> d 100))")
+      (break '(out) "(or (> c 20) (> d 100))")
       ;(break '(out) "(> (length out) 5)")
       ;(break '(c d out) "true")
     )
@@ -5458,11 +5522,11 @@ c
 ;-> 20
 (+ a b)
 ;-> 30
-
+"Invio"
 ;-> c = 60; d = 69;
-
+"Invio"
 ;-> c = 80; d = 92;
-
+"Invio"
 ;-> c = 100; d = 115;
 ...
 
@@ -5473,25 +5537,27 @@ c
 ;-> 40
 d
 ;-> 46
-
+"Invio"
 ;-> out = (20 40 60);
-
+"Invio"
 ;-> out = (20 40 60 80);
 (- c d)
 ;-> -12
-
-;-> out = (20 40 60 80 100);
-...
+(setq _BREAK nil)
+;-> nil
+"Invio"
+860
 
 Condizione: (break '(out) "(> (length out) 5)")
+(setq _BREAK true)
 (prova 10 20)
 ;-> out = (20 40 60 80 100 120);
 (println c d)
 ;-> 120138
 ;-> 138
-
+"Invio"
 ;-> out = (20 40 60 80 100 120 140);
-
+"Invio"
 ;-> out = (20 40 60 80 100 120 140 160);
 ...
 
@@ -5500,9 +5566,9 @@ Se vogliamo che le variabili siano stampate sempre, allora basta assegnare "true
 Condizione: (break '(c d out) "true")
 (prova 10 20)
 ;-> c = 20; d = 23; out = (20);
-
+"Invio"
 ;-> c = 40; d = 46; out = (20 40);
-
+"Invio"
 ;-> c = 60; d = 69; out = (20 40 60);
 ...
 
