@@ -5214,29 +5214,29 @@ Vediamo un modo spartano di visualizzare questo frattale in una pagina html con 
 ; (define (Class:Class) (cons (context) (args))) ; predefined since version 10.0
 (new Class 'Complex)
 (define (Complex:rad)
-	(sqrt (add (pow (self 1) ) (pow (self 2))))
+  (sqrt (add (pow (self 1) ) (pow (self 2))))
 )
 (define (Complex:add b)
-	(Complex (add (self 1) (b 1)) (add (self 2) (b 2)))
+  (Complex (add (self 1) (b 1)) (add (self 2) (b 2)))
 )
 (define (Complex:mul b)
-	(let (a-re (self 1) a-im (self 2) b-re (b 1) b-im (b 2))
-		(Complex
-			(sub (mul a-re b-re) (mul a-im b-im))
-			(add (mul a-re b-im) (mul a-im b-re)) )
+  (let (a-re (self 1) a-im (self 2) b-re (b 1) b-im (b 2))
+    (Complex
+      (sub (mul a-re b-re) (mul a-im b-im))
+      (add (mul a-re b-im) (mul a-im b-re)) )
 ))
 (define (draw)
-	(print "<table bgcolor=#f0f0f0>\n")
-	(for (y -1 1.1 0.08)
-		(for (x -2 1 0.04)
-			(set 'z (Complex x y) 'c 85 'a z )
-			(while (and (< (abs (:rad (set 'z (:add (:mul z z) a)))) 2) (> (dec c) 32)) )
-			(if (= c 32)
-				(print "<td bgcolor=#000000>&nbsp;</td>")
-				(print "<td bgcolor=#" (colors (% c  16)) ">&nbsp;</td>"))
-		)
-		(println "</tr>") )
-	(println "</table>")
+  (print "<table bgcolor=#f0f0f0>\n")
+  (for (y -1 1.1 0.08)
+    (for (x -2 1 0.04)
+      (set 'z (Complex x y) 'c 85 'a z )
+      (while (and (< (abs (:rad (set 'z (:add (:mul z z) a)))) 2) (> (dec c) 32)) )
+      (if (= c 32)
+        (print "<td bgcolor=#000000>&nbsp;</td>")
+        (print "<td bgcolor=#" (colors (% c  16)) ">&nbsp;</td>"))
+    )
+    (println "</tr>") )
+  (println "</table>")
 )
 (draw)
 (print " </CENTER> <br><center><h4>created with newLISP v." (sys-info -2) "</h4></center></html>")
@@ -5573,5 +5573,401 @@ Condizione: (break '(c d out) "true")
 ...
 
 Nota: quando inseriamo le espressioni da valutare nella REPL è possibile inserire anche la funzione che è in esecuzione (es. (prova 3 4))
+
+
+----------------------
+Espressioni ABCDEFGHIJ
+----------------------
+
+Risolvere le seguenti espressioni in cui ogni lettera rappresenta una particolare cifra da 0 a 9:
+
+  1) ABC + DEF = GHIJ
+  2) (AB)^C = DEF + GHIJ
+  3) (AB)^C = DEF * GHIJ
+  4) (AB)^C = (DE)^F + GHIJ
+  5) Trovare il numero ABCDEFGHIJ che ha le seguenti proprietà:
+      A è divisibile per 1
+      AB è divisibile per 2
+      ABC è divisibile per 3
+      ABCD è divisibile per 4
+      ABCDE è divisibile per 5
+      ABCDEF è divisibile per 6
+      ABCDEFG è divisibile per 7
+      ABCDEFGH è divisibile per 8
+      ABCDEFGHI è divisibile per 9
+      ABCDEFGHIJ è divisibile per 10
+  
+Funzione che calcola le permutazioni:
+
+(define (perm lst)
+  (local (i indici out)
+    (setq indici (dup 0 (length lst)))
+    (setq i 0)
+    ; aggiungiamo la lista iniziale alla soluzione
+    (setq out (list lst))
+    (while (< i (length lst))
+      (if (< (indici i) i)
+          (begin
+            (if (zero? (% i 2))
+              (swap (lst 0) (lst i))
+              (swap (lst (indici i)) (lst i))
+            )
+            (push lst out -1)
+            (++ (indici i))
+            (setq i 0)
+          )
+          (begin
+            (setf (indici i) 0)
+            (++ i)
+          )
+       )
+    )
+    out))
+
+Creiamo le permutazioni delle 10 cifre:
+
+(silent (setq nums (perm '("0" "1" "2" "3" "4" "5" "6" "7" "8" "9"))))
+
+Equazione 1: ABC + DEF = GHIJ
+-----------------------------
+
+(define (solve1)
+  (local (op1 op2 op3 out)
+    ;(println "Calcolo permutazioni...")
+    ;(setq nums (perm '("0" "1" "2" "3" "4" "5" "6" "7" "8" "9")))
+    ;(println "Verifica equazione...")
+    (dolist (k nums)
+      ; costruzione operandi
+      (setq op1 (int (join (slice k 0 3)) 0 10))
+      (setq op2 (int (join (slice k 3 3)) 0 10))
+      (setq op3 (int (join (slice k 6 4)) 0 10))
+      (if (= (+ op1 op2) op3)
+        (begin
+          ;(println k)
+          ;(println op1 "+" op2 " = " op3)
+          (push (list op1 op2 op3) out -1)
+        )
+      )
+      ;(if (zero? (% $idx 100000)) (println $idx)))
+    )
+    out))
+
+(time (setq sol1 (solve1)))
+;-> 17602.861
+(length sol1)
+;-> 432
+
+sol1
+;-> ((324 765 1089) (724 365 1089) (764 325 1089)
+;->  (364 725 1089) (452 637 1089) (652 437 1089)
+;->  ...
+;->  (349 218 567) (139 428 567) (439 128 567))
+
+Equazione2: (AB)^C = DEF + GHIJ
+-------------------------------
+
+(define (solve2)
+  (local (op1 op2 op3 op4 out)
+    ;(println "Calcolo permutazioni...")
+    ;(setq nums (perm '("0" "1" "2" "3" "4" "5" "6" "7" "8" "9")))
+    (println "Verifica equazione...")
+    (dolist (k nums)
+      ; C non può essere "0"
+      (cond ((!= (k 2) "0")
+             ; costruzione operandi
+             (setq op1 (int (join (slice k 0 2)) 0 10))
+             (setq op2 (int (k 2)))
+             (setq op3 (int (join (slice k 3 3)) 0 10))
+             (setq op4 (int (join (slice k 6 4)) 0 10))
+             (if (= (pow op1 op2) (+ op3 op4))
+               (begin
+                 (println k)
+                 (println op1 "^" op2 " = " op3 " + " op4)
+                 (push (list op1 op2 op3 op4) out -1)
+               )
+             ))
+             ;(if (zero? (% $idx 100000)) (println $idx)))
+      )
+    )
+    out))
+
+(time (setq sol2 (solve2)))
+;-> Verifica equazione...
+;-> ("0" "7" "4" "8" "6" "2" "1" "5" "3" "9")
+;-> 7^4 = 862 + 1539
+;-> ("0" "7" "4" "5" "6" "2" "1" "8" "3" "9")
+;-> 7^4 = 562 + 1839
+;-> ("0" "7" "4" "8" "3" "2" "1" "5" "6" "9")
+;-> 7^4 = 832 + 1569
+;-> ("0" "7" "4" "5" "3" "2" "1" "8" "6" "9")
+;-> 7^4 = 532 + 1869
+;-> ("1" "5" "3" "9" "6" "7" "2" "4" "0" "8")
+;-> 15^3 = 967 + 2408
+;-> ("1" "5" "3" "4" "6" "7" "2" "9" "0" "8")
+;-> 15^3 = 467 + 2908
+;-> ("1" "5" "3" "9" "0" "7" "2" "4" "6" "8")
+;-> 15^3 = 907 + 2468
+;-> ("1" "5" "3" "4" "0" "7" "2" "9" "6" "8")
+;-> 15^3 = 407 + 2968
+;-> ("0" "7" "4" "8" "6" "9" "1" "5" "3" "2")
+;-> 7^4 = 869 + 1532
+;-> ("0" "7" "4" "5" "6" "9" "1" "8" "3" "2")
+;-> 7^4 = 569 + 1832
+;-> ("0" "7" "4" "8" "3" "9" "1" "5" "6" "2")
+;-> 7^4 = 839 + 1562
+;-> ("0" "7" "4" "5" "3" "9" "1" "8" "6" "2")
+;-> 7^4 = 539 + 1862
+;-> ("1" "5" "3" "9" "0" "8" "2" "4" "6" "7")
+;-> 15^3 = 908 + 2467
+;-> ("1" "5" "3" "4" "0" "8" "2" "9" "6" "7")
+;-> 15^3 = 408 + 2967
+;-> ("1" "5" "3" "9" "6" "8" "2" "4" "0" "7")
+;-> 15^3 = 968 + 2407
+;-> ("1" "5" "3" "4" "6" "8" "2" "9" "0" "7")
+;-> 15^3 = 468 + 2907
+;-> ((7 4 862 1539) (7 4 562 1839) (7 4 832 1569) (7 4 532 1869)
+;->  (15 3 967 2408) (15 3 467 2908) (15 3 907 2468) (15 3 407 2968)
+;->  (7 4 869 1532) (7 4 569 1832) (7 4 839 1562) (7 4 539 1862)
+;->  (15 3 908 2467) (15 3 408 2967) (15 3 968 2407) (15 3 468 2907))
+;-> 18882.909
+
+(length sol2)
+;-> 16
+
+Equazione 3: (AB)^C = DEF * GHIJ
+--------------------------------
+
+(define (solve3)
+  (local (op1 op2 op3 op4 out)
+    ;(println "Calcolo permutazioni...")
+    ;(setq nums (perm '("0" "1" "2" "3" "4" "5" "6" "7" "8" "9")))
+    (println "Verifica equazione...")
+    (dolist (k nums)
+      ; C non può essere "0"
+      (cond ((!= (k 2) "0")
+             ; costruzione operandi
+             (setq op1 (int (join (slice k 0 2)) 0 10))
+             (setq op2 (int (k 2)))
+             (setq op3 (int (join (slice k 3 3)) 0 10))
+             (setq op4 (int (join (slice k 6 4)) 0 10))
+             (if (= (pow op1 op2) (* op3 op4))
+               (begin
+                 (println k)
+                 (println op1 "^" op2 " = " op3 " * " op4)
+                 (push (list op1 op2 op3 op4) out -1)
+               )
+             ))
+             ;(if (zero? (% $idx 100000)) (println $idx)))
+      )
+    )
+    out))
+
+(time (setq sol3 (solve3)))
+;-> Verifica equazione...
+;-> ("8" "4" "3" "5" "7" "6" "1" "0" "2" "9")
+;-> 84^3 = 576 * 1029
+;-> ("4" "8" "3" "5" "7" "6" "0" "1" "9" "2")
+;-> 48^3 = 576 * 192
+;-> ("4" "8" "3" "1" "9" "2" "0" "5" "7" "6")
+;-> 48^3 = 192 * 576
+;-> 18747.064
+
+(length sol3)
+;-> 3
+
+Equazione 4: (AB)^C = (DE)^F * GHIJ
+-----------------------------------
+
+(define (solve4)
+  (local (op1 op2 op3 op4 op5 out)
+    ;(println "Calcolo permutazioni...")
+    ;(setq nums (perm '("0" "1" "2" "3" "4" "5" "6" "7" "8" "9")))
+    (println "Verifica equazione...")
+    (dolist (k nums)
+      ; C e F non possono essere "0"
+      (cond ((and (!= (k 2) "0") (!= (k 5) "0"))
+             ; costruzione operandi
+             (setq op1 (int (join (slice k 0 2)) 0 10))
+             (setq op2 (int (k 2)))
+             (setq op3 (int (join (slice k 3 2)) 0 10))
+             (setq op4 (int (k 5)))
+             (setq op5 (int (join (slice k 6 4)) 0 10))
+             (if (= (pow op1 op2) (* (pow op3 op4) op5))
+               (begin
+                 (println k)
+                 (println op1 "^" op2 " = (" op3 "^" op4 " * " op5)
+                 (push (list op1 op2 op3 op4 op5) out -1)
+               )
+             ))
+             ;(if (zero? (% $idx 100000)) (println $idx)))
+      )
+    )
+    out))
+
+(time (setq sol4 (solve4)))
+;-> Verifica equazione...
+;-> ("4" "2" "3" "9" "8" "1" "0" "7" "5" "6")
+;-> 42^3 = (98^1 * 756
+;-> ((42 3 98 1 756))
+;-> 18911.696
+
+(length sol4)
+;-> 1
+
+Equazione 5: ABCDEFGHIJ
+-----------------------
+Si tratta di un puzzle proposto da John Conway.
+Trovare il numero ABCDEFGHIJ che ha le seguenti proprietà:
+
+  A è divisibile per 1
+  AB è divisibile per 2
+  ABC è divisibile per 3
+  ABCD è divisibile per 4
+  ABCDE è divisibile per 5
+  ABCDEF è divisibile per 6
+  ABCDEFG è divisibile per 7
+  ABCDEFGH è divisibile per 8
+  ABCDEFGHI è divisibile per 9
+  ABCDEFGHIJ è divisibile per 10
+
+Il problema può essere risolto (non immediatamente) utilizzando le regole della divisibilità dei numeri. Invece qui lo risolveremo con una funzione brute-force:
+
+(define (solve5)
+  (local (co2 co3 co4 co5 co6 co7 co8 co9 co10 next)
+    ;(println "Calcolo permutazioni...")
+    ;(setq nums (perm '("0" "1" "2" "3" "4" "5" "6" "7" "8" "9")))
+    ;(println "Verifica condizioni...")
+    (dolist (k nums)
+      (setq stop nil)
+      ; A non può essere "0"
+      (cond ((!= (k 0) "0")
+             (setq found true)
+             (for (i 2 10 1 stop)
+                (setq val (int (join (slice k 0 i)) 0 10))
+                (if (!= (% val i) 0)
+                    (setq stop true found nil)
+                )
+             )
+             (if found (println (int (join k)))))
+      )
+    )))
+
+(time (println (solve5)))
+;-> 3816547290
+;-> 16091.888
+
+
+----------------
+Sequenza Juggler
+----------------
+
+La sequenza juggler (giocoliere) per un intero positivo a(1) = n è la sequenza di numeri prodotta dall'iterazione:
+
+ a(k+1)= floor(a(k)^(1/2))   per a(k) pari
+         floor(a(k)^(3/2))   per a(k) dispari
+
+I termini di questa sequenza prima aumentano fino a un valore massimo e poi iniziano a diminuire. Sorprendentemente, tutti gli interi sembrano raggiungere alla fine 1, una congettura che vale almeno fino a 10^6.
+
+Scriviamo la funzione di base:
+
+(define (juggler num)
+  (local (a b sqr out)
+    (setq a num)
+    ; primo termine della sequenza
+    (setq out (list a))
+    (while (!= a 1)
+      (setq b 0)
+      (setq sqr (sqrt a))
+            ; precedente termine pari?
+      (cond ((even? a)
+            ; calcola il prossimo termine
+            (setq b (int (floor sqr))))
+            ; precedente termine dispari?
+            ((odd? a)
+             (setq b (int (floor (mul sqr sqr sqr)))))
+            ; calcola il prossimo termine
+      )
+      ; inserisce il valore corrente della sequenza nella lista di output
+      (push b out -1)
+      ; il valore corrente diventa il valore precedente
+      (setq a b)
+    )
+    out))
+
+(juggler 10)
+;-> (10 3 5 11 36 6 2 1)
+
+I valori della sequenza posono raggiungere valori molto alti:
+
+(juggler 37)
+;-> (37 225 3375 196069 86818724 9317 899319 852846071
+;->  24906114455136 4990602 2233 105519 34276462 5854 76 8 2 1)
+
+Definiamo due sequenze:
+
+A) I numeri di passi p(n) necessari per raggiungere 1 partendo da n (OEIS A007320).
+
+B) Il valore massimo h(n) della sequenza partendo da n (OEIS A094716).
+
+Modifichiamo la nostra funzione per calcolare i valori di queste sequenze. L'output sarà una lista con la seguente struttura:
+
+(num num-step val-max)
+
+(define (giocoliere num)
+  (local (a b sqr max-val num-step)
+    (setq a num)
+    ; all'inizio il numero di passi vale 0
+    (setq num-step 0)
+    ; all'inizio il valore massimo della sequenza vale num, cioè a
+    (setq max-val a)
+    (while (!= a 1)
+      (setq b 0)
+      (setq sqr (sqrt a))
+            ; precedente termine pari?
+      (cond ((even? a)
+            ; calcola il prossimo termine
+            (setq b (int (floor sqr))))
+            ; precedente termine dispari?
+            ((odd? a)
+             (setq b (int (floor (mul sqr sqr sqr)))))
+            ; calcola il prossimo termine
+      )
+      ; verifica valore massimo
+      (if (> b max-val) (setq max-val b))
+      ; aumenta lunghezza di 1
+      (++ num-step)
+      ; il valore corrente diventa il valore precedente
+      (setq a b)
+    )
+    (list num num-step max-val)))
+
+(giocoliere 10)
+;-> (10 8 36)
+
+Adesso creiamo una funzione che calcola questi valori per tutti numeri fino a "limite":
+
+(define (juggler-all limite)
+  (let (out '())
+    (for (i 1 limite)
+      (push (giocoliere i) out -1))
+    out))
+
+(juggler-all 10)
+;-> ((1 0 1) (2 1 2) (3 6 36) (4 2 4) (5 5 36) 
+;->  (6 2 6) (7 4 18) (8 2 8) (9 7 140) (10 7 36))
+
+La sequenza del giocoliere che parte da a(0) = 48443 raggiunge un valore massimo in a(60) con 972463 cifre, prima di raggiungere 1 in a(157). Non siamo in grado di calcolarla correttamente perchè non usiamo i big-integer:
+
+(juggler 48443)
+;-> (48443 10662193 34815273349 6496130099313866 80598573 
+;->  723587455374 850639 784545138 28009 4687555 10148913818 
+;->  100741 31974914 5654 75 649 16533 2125824 1458 38 6 2 1)
+
+(giocoliere 48443)
+;-> (48443 22 6496130099313866)
+
+Il risutato è errato.
+
+Comunque in questo caso per poter utilizzare i numeri big-integer dovremmo avere anche la possibilità di definire la precisione dei calcoli in virgola mobile (infatti dobbiamo moltiplicare in virgola mobile la radice quadrata di un numero), altrimenti perderemmo cifre significative durante la conversione a big-integer.
 
 

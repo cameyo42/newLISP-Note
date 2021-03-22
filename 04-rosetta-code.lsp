@@ -4282,7 +4282,7 @@ Versione ricorsiva:
 (lucas 30)
 ;-> 1860498
 
-Versione iterativa:
+Versione iterativa O(n):
 
 (define (lucas-i n)
   (local (a b c)
@@ -5030,7 +5030,7 @@ Teorema: Numeri naturali consecutivi n e (n + 1) sono sempre coprimi.
 (coprimi? 310 311)
 ;-> true
 
-Teorema: La probabilità che due interi scelti a caso siano primi tra loro è 6/(π^2).
+Teorema: La probabilità che due interi scelti a caso siano coprimi tra loro è 6/(π^2).
 
 Un altro metodo per calcolare tutte le coppie di coprimi è quello di utilizzare la sequenza di Farey.
 La sequenza di Farey F(n), per ogni numero naturale positivo n, è definita come l'insieme ordinato secondo l'ordine crescente di tutti i numeri razionali irriducibili (cioè tali che numeratore e denominatore siano coprimi) espressi sotto forma di frazione con numeratore e denominatore compresi tra zero e n.
@@ -11119,6 +11119,20 @@ Dato un insieme di N punti, il convex-hull è definito come il poligono convesso
       0   1   2   3   4   5   6   7   8   9
 
     Punti = ((1 3) (4 4) (1 1) (2 5) (6 3) (8 5) (6 1) (6 6) (3 2) (2 4)
+
+Ecco una lista di algoritmi che risolvono il problema del convex-hull:
+
+Algoritmo                  Tempo          Autore
+----------------------------------------------------------------------
+Brute Force                O(n^4)         [Anon, the dark ages]
+Gift Wrapping              O(n*h)         [Chand & Kapur, 1970]
+Graham Scan                O(n*log(n))    [Graham, 1972]
+Jarvis March               O(n*h)         [Jarvis, 1973]
+QuickHull                  O(n*h)         [Eddy, 1977], [Bykat, 1978]
+Divide-and-Conquer         O(n*log(n))    [Preparata & Hong, 1977]
+Monotone Chain             O(n*log(n))    [Andrew, 1979]
+Incremental                O(n*log(n))    [Kallay, 1984]
+Marriage-before-Conquest   O(n*log(h))    [Kirkpatrick & Seidel, 1986]
 
 Per risolvere questo problema useremo l'algoritmo di Andrew (monotone chain algorithm, 1979) che ha complessità temporale O(n*log(n)) in generale e O(n) se i punti sono già ordinati lungo l'asse x.
 Questo algoritmo si basa sul test di orientamento tra 3 punti (vedi sotto) e può evitare errori di arrotondamento.

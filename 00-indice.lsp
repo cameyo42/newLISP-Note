@@ -697,6 +697,8 @@ NOTE LIBERE 3
   find per vettori
   Variabili libere
   Debug spartano
+  Espressioni ABCDEFGHIJ
+  Sequenza Juggler
   
 APPENDICI
 =========
