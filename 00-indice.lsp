@@ -292,6 +292,7 @@ ROSETTA CODE
   Sequenza G di Hofstadter
   Sequenza Femmina (F) Maschio (M) di Hofstadter
   Convex Hull
+  Sequenza Thue-Morse
   
 
 PROJECT EULERO

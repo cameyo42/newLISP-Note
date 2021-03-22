@@ -11215,3 +11215,34 @@ Proviamo con l'esempio riportato su Rosetta Code:
 Un esempio più complesso di convex-hull calcolato con questa funzione è visibile nell'immagine "convex-hull.png" contenuta nella cartella "data".
 
 
+-------------------
+SEQUENZA THUE-MORSE
+-------------------
+
+La sequenza Thue-Morse, o Prouhet-Thue-Morse, è la sequenza binaria (una sequenza infinita di 0 e 1) ottenuta partendo da 0 e aggiungendo successivamente il complemento booleano della sequenza ottenuta fino a quel momento. I primi passi di questa procedura producono le stringhe 0 poi 01, 0110, 01101001, 0110100110010110 e così via. La sequenza completa inizia:
+01101001100101101001011001101001.... (OEIS A010060).
+
+(define (complemento str)
+  (let (compl "")
+    (for (i 0 (- (length str) 1))
+      ; se carattere = "0", aggiunge 1
+      (if (= (str i) "0")
+          (extend compl "1")
+          ; else
+          ; se carattere = "1", aggiunge 0
+          (extend compl "0")
+      )
+    )
+    compl))
+
+(define (thue-morse num)
+  (let (seq "0")
+    (for (i 1 (- num 1))
+      (extend seq (complemento seq))
+    )
+    seq))
+
+(thue-morse 6)
+;-> "01101001100101101001011001101001"
+
+

@@ -8,7 +8,7 @@ Appunti sul linguaggio newLISP
 01) newLISP in generale (60)  
 02) Funzioni varie (100)  
 03) newLISP 99 problemi (28)  
-04) Rosetta code (82)  
+04) Rosetta code (83)  
 05) Project eulero (102)  
 06) Problemi vari (75)  
 07) Domande programmatori (89)  
