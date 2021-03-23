@@ -293,6 +293,7 @@ ROSETTA CODE
   Sequenza Femmina (F) Maschio (M) di Hofstadter
   Convex Hull
   Sequenza Thue-Morse
+  Numeri di Bell
   
 
 PROJECT EULERO
@@ -700,6 +701,7 @@ NOTE LIBERE 3
   Debug spartano
   Espressioni ABCDEFGHIJ
   Sequenza Juggler
+  Limiti dei big-integer
   
 APPENDICI
 =========

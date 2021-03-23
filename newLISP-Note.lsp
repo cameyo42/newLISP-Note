@@ -293,6 +293,7 @@ ROSETTA CODE
   Sequenza Femmina (F) Maschio (M) di Hofstadter
   Convex Hull
   Sequenza Thue-Morse
+  Numeri di Bell
   
 
 PROJECT EULERO
@@ -700,6 +701,7 @@ NOTE LIBERE 3
   Debug spartano
   Espressioni ABCDEFGHIJ
   Sequenza Juggler
+  Limiti dei big-integer
   
 APPENDICI
 =========
@@ -29659,8 +29661,7 @@ Un esempio più complesso di convex-hull calcolato con questa funzione è visibi
 SEQUENZA THUE-MORSE
 -------------------
 
-La sequenza Thue-Morse, o Prouhet-Thue-Morse, è la sequenza binaria (una sequenza infinita di 0 e 1) ottenuta partendo da 0 e aggiungendo successivamente il complemento booleano della sequenza ottenuta fino a quel momento. I primi passi di questa procedura producono le stringhe 0 poi 01, 0110, 01101001, 0110100110010110 e così via. La sequenza completa inizia:
-01101001100101101001011001101001.... (OEIS A010060).
+La sequenza Thue-Morse, o Prouhet-Thue-Morse, è la sequenza binaria (una sequenza infinita di 0 e 1) ottenuta partendo da 0 e aggiungendo successivamente il complemento booleano della sequenza ottenuta fino a quel momento. I primi passi di questa procedura producono le stringhe 0 poi 01, 0110, 01101001, 0110100110010110 e così via. La sequenza completa inizia così: 01101001100101101001011001101001.... (OEIS A010060).
 
 (define (complemento str)
   (let (compl "")
@@ -29684,6 +29685,78 @@ La sequenza Thue-Morse, o Prouhet-Thue-Morse, è la sequenza binaria (una sequen
 
 (thue-morse 6)
 ;-> "01101001100101101001011001101001"
+
+
+--------------
+NUMERI DI BELL
+--------------
+
+I numeri Bell o esponenziali rappresentano il numero di modi diversi per partizionare un insieme che ha esattamente n elementi. Ogni elemento della sequenza B(n) è il numero di partizioni di un insieme di dimensione n dove l'ordine degli elementi e l'ordine delle partizioni non sono significativi. Per esempio, (a b) è lo stesso di (b a) e (a) (b) è lo stesso di (b) (a).
+
+I primi numeri di Bell hanno i seguenti valori (OEIS A000110):
+
+B(0) = 1 C'è solo un modo per partizionare un insieme con zero elementi ()
+B(1) = 1 C'è solo un modo per partizionare un insieme con un elemento (a)
+B(2) = 2 Due elementi possono essere partizionati in due modi (a) (b), (a b)
+B(3) = 5 Tre elementi possono essere partizionati in cinque modi (a) (b) (c), (a b) (c), (a) (b c), (a c) (b), (a b c)
+ecc.
+
+1, 1, 2, 5, 15, 52, 203, 877, 4140, 21147, 115975, 678570, 4213597, 27644437, 190899322, 1382958545, 10480142147, 82864869804, 682076806159, 5832742205057, 51724158235372, 474869816156751, 4506715738447323, 44152005855084346, 445958869294805289, 4638590332229999353, 49631246523618756274
+
+I numeri di Bell possono essere calcolati creando il cosiddetto triangolo di Bell, chiamato anche matrice di Aitken o triangolo di Peirce:
+
+1. Iniziare con il numero uno. Mettere questo numero in una riga da solo x(0,1) = 1.
+2 .Iniziare una nuova riga con l'elemento più a destra della riga precedente come numero più a sinistra x(i,1)) = x(i-1,r) dove r è l'ultimo elemento della (i-1)-esima riga.
+3. Determinare i numeri che non si trovano nella colonna di sinistra prendendo la somma del numero a sinistra e il numero sopra il numero a sinistra, cioè il numero diagonalmente in alto a sinistra rispetto al numero che stiamo calcolando x(i,j) =  x(i,j-1) + x(i-1,j-1).
+4. Ripetere il ​​passaggio 3 finché non c'è una nuova riga con un numero in più rispetto alla riga precedente (Eseguire il passaggio 3 fino a j = r + 1).
+5. Il numero sul lato sinistro di una data riga è il numero di Bell per quella riga B(i) = x(i,1).
+
+L'implementazione che segue si basa su questo algoritmo, ma produce solo i numeri di Bell:
+
+(define (bell limite)
+  (local (arr num idx out)
+    (setq arr (array limite '(0L)))
+    (setq num 0L)
+    (setf (arr 0) 1L)
+    (push (arr 0) out -1)
+    (while (< num limite)
+      (setf (arr num) (arr 0))
+      (setq idx num)
+      (while (>= idx 1)
+        (setf (arr (- idx 1)) (+ (arr (- idx 1)) (arr idx)))
+        (-- idx)
+      )
+      (++ num)
+      ;(println arr)
+      ;(read-line)
+      (push (arr 0) out -1)
+    )
+    out))
+
+(bell 25)
+;-> (1L 1L 2L 5L 15L 52L 203L 877L 4140L 21147L 115975L 678570L 
+;->  4213597L 27644437L 190899322L 1382958545L 10480142147L 
+;->  82864869804L 682076806159L 5832742205057L 51724158235372L
+;->  474869816156751L 4506715738447323L 44152005855084346L 
+;->  445958869294805289L 4638590332229999353L)
+
+Vediamo il 50-esimo numero di Bell:
+
+((bell 50) 49)
+;-> 10726137154573358400342215518590002633917247281L
+
+Vediamo i tempi di esecuzione:
+
+(time (bell 100))
+;-> 3.996
+(time (bell 1000))
+;-> 496.267
+(time (bell 2000))
+;-> 2708.044
+(time (bell 4000))
+;-> 17817.96
+(time (bell 8000))
+;-> 131118.729
 
 
 ================
@@ -82582,6 +82655,35 @@ La sequenza del giocoliere che parte da a(0) = 48443 raggiunge un valore massimo
 Il risutato è errato.
 
 Comunque in questo caso per poter utilizzare i numeri big-integer dovremmo avere anche la possibilità di definire la precisione dei calcoli in virgola mobile (infatti dobbiamo moltiplicare in virgola mobile la radice quadrata di un numero), altrimenti perderemmo cifre significative durante la conversione a big-integer.
+
+
+----------------------
+Limiti dei big-integer
+----------------------
+
+La classe BigInteger consente di creare e manipolare numeri interi di qualsiasi dimensione.
+
+Qualsiasi dimensione? Esiste un limite (fisico o logico)?
+
+Non ci sono limiti teorici. La classe BigInteger alloca la memoria necessaria per tutti i bit di dati che viene richiesto di contenere. Infatti una buona implementazione dei BigInteger utilizza internamente un vettori di interi dinamico per rappresentare i numeri che utilizza. 
+
+Tuttavia esistono alcuni limiti pratici dettati dalla memoria a disposizione. E ci sono ulteriori limiti tecnici, anche se è molto improbabile che il nostro programma ne sia influenzato: alcuni metodi presumono che i bit siano indirizzabili da indici interi, quindi le cose inizieranno a rompersi quando indirizziamo bit con indici del valore Integer.MAX_VALUE.
+
+Ad esempio in java i BigInteger hanno la seguente definizione:
+
+BigInteger:
+  int bitCount +4 bytes
+  int bitLength +4 bytes
+  int firstNonzeroIntNum +4 bytes
+  int lowestSetBit +4 bytes
+  int signum +4 bytes
+  int[] mag +?
+  
+Un vettore in Java può avere solo 2^32 elementi. Quindi se i bit del BigInteger sono memorizzati in un vettore di interi, allora può memorizzare al massimo 2^32 cifre, cioè un numero massimo pari a (2^32)^Integer.MAX_VALUE.
+
+Nel linguaggio IDL la classe BigInteger memorizza un numero come un vettore di "cifre" intere a 32 bit senza segno con una radice, o base, di 4294967296 (2^32 - 1). La classe memorizza le cifre in ordine little-endian, con la cifra più significativa alla fine del vettore.
+
+Nota: il valore massimo dei BigInteger può essere limitato da altre funzioni del linguaggio. Ad esempio, se esiste una funzione che trasforma il numero in una stringa, allora il valore massimo è limitato dalla lunghezza massima di una stringa che vale (2^31 - 1).
 
 
 ===========

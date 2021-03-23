@@ -11219,8 +11219,7 @@ Un esempio più complesso di convex-hull calcolato con questa funzione è visibi
 SEQUENZA THUE-MORSE
 -------------------
 
-La sequenza Thue-Morse, o Prouhet-Thue-Morse, è la sequenza binaria (una sequenza infinita di 0 e 1) ottenuta partendo da 0 e aggiungendo successivamente il complemento booleano della sequenza ottenuta fino a quel momento. I primi passi di questa procedura producono le stringhe 0 poi 01, 0110, 01101001, 0110100110010110 e così via. La sequenza completa inizia:
-01101001100101101001011001101001.... (OEIS A010060).
+La sequenza Thue-Morse, o Prouhet-Thue-Morse, è la sequenza binaria (una sequenza infinita di 0 e 1) ottenuta partendo da 0 e aggiungendo successivamente il complemento booleano della sequenza ottenuta fino a quel momento. I primi passi di questa procedura producono le stringhe 0 poi 01, 0110, 01101001, 0110100110010110 e così via. La sequenza completa inizia così: 01101001100101101001011001101001.... (OEIS A010060).
 
 (define (complemento str)
   (let (compl "")
@@ -11244,5 +11243,77 @@ La sequenza Thue-Morse, o Prouhet-Thue-Morse, è la sequenza binaria (una sequen
 
 (thue-morse 6)
 ;-> "01101001100101101001011001101001"
+
+
+--------------
+NUMERI DI BELL
+--------------
+
+I numeri Bell o esponenziali rappresentano il numero di modi diversi per partizionare un insieme che ha esattamente n elementi. Ogni elemento della sequenza B(n) è il numero di partizioni di un insieme di dimensione n dove l'ordine degli elementi e l'ordine delle partizioni non sono significativi. Per esempio, (a b) è lo stesso di (b a) e (a) (b) è lo stesso di (b) (a).
+
+I primi numeri di Bell hanno i seguenti valori (OEIS A000110):
+
+B(0) = 1 C'è solo un modo per partizionare un insieme con zero elementi ()
+B(1) = 1 C'è solo un modo per partizionare un insieme con un elemento (a)
+B(2) = 2 Due elementi possono essere partizionati in due modi (a) (b), (a b)
+B(3) = 5 Tre elementi possono essere partizionati in cinque modi (a) (b) (c), (a b) (c), (a) (b c), (a c) (b), (a b c)
+ecc.
+
+1, 1, 2, 5, 15, 52, 203, 877, 4140, 21147, 115975, 678570, 4213597, 27644437, 190899322, 1382958545, 10480142147, 82864869804, 682076806159, 5832742205057, 51724158235372, 474869816156751, 4506715738447323, 44152005855084346, 445958869294805289, 4638590332229999353, 49631246523618756274
+
+I numeri di Bell possono essere calcolati creando il cosiddetto triangolo di Bell, chiamato anche matrice di Aitken o triangolo di Peirce:
+
+1. Iniziare con il numero uno. Mettere questo numero in una riga da solo x(0,1) = 1.
+2 .Iniziare una nuova riga con l'elemento più a destra della riga precedente come numero più a sinistra x(i,1)) = x(i-1,r) dove r è l'ultimo elemento della (i-1)-esima riga.
+3. Determinare i numeri che non si trovano nella colonna di sinistra prendendo la somma del numero a sinistra e il numero sopra il numero a sinistra, cioè il numero diagonalmente in alto a sinistra rispetto al numero che stiamo calcolando x(i,j) =  x(i,j-1) + x(i-1,j-1).
+4. Ripetere il ​​passaggio 3 finché non c'è una nuova riga con un numero in più rispetto alla riga precedente (Eseguire il passaggio 3 fino a j = r + 1).
+5. Il numero sul lato sinistro di una data riga è il numero di Bell per quella riga B(i) = x(i,1).
+
+L'implementazione che segue si basa su questo algoritmo, ma produce solo i numeri di Bell:
+
+(define (bell limite)
+  (local (arr num idx out)
+    (setq arr (array limite '(0L)))
+    (setq num 0L)
+    (setf (arr 0) 1L)
+    (push (arr 0) out -1)
+    (while (< num limite)
+      (setf (arr num) (arr 0))
+      (setq idx num)
+      (while (>= idx 1)
+        (setf (arr (- idx 1)) (+ (arr (- idx 1)) (arr idx)))
+        (-- idx)
+      )
+      (++ num)
+      ;(println arr)
+      ;(read-line)
+      (push (arr 0) out -1)
+    )
+    out))
+
+(bell 25)
+;-> (1L 1L 2L 5L 15L 52L 203L 877L 4140L 21147L 115975L 678570L 
+;->  4213597L 27644437L 190899322L 1382958545L 10480142147L 
+;->  82864869804L 682076806159L 5832742205057L 51724158235372L
+;->  474869816156751L 4506715738447323L 44152005855084346L 
+;->  445958869294805289L 4638590332229999353L)
+
+Vediamo il 50-esimo numero di Bell:
+
+((bell 50) 49)
+;-> 10726137154573358400342215518590002633917247281L
+
+Vediamo i tempi di esecuzione:
+
+(time (bell 100))
+;-> 3.996
+(time (bell 1000))
+;-> 496.267
+(time (bell 2000))
+;-> 2708.044
+(time (bell 4000))
+;-> 17817.96
+(time (bell 8000))
+;-> 131118.729
 
 

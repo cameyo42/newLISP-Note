@@ -5971,3 +5971,32 @@ Il risutato è errato.
 Comunque in questo caso per poter utilizzare i numeri big-integer dovremmo avere anche la possibilità di definire la precisione dei calcoli in virgola mobile (infatti dobbiamo moltiplicare in virgola mobile la radice quadrata di un numero), altrimenti perderemmo cifre significative durante la conversione a big-integer.
 
 
+----------------------
+Limiti dei big-integer
+----------------------
+
+La classe BigInteger consente di creare e manipolare numeri interi di qualsiasi dimensione.
+
+Qualsiasi dimensione? Esiste un limite (fisico o logico)?
+
+Non ci sono limiti teorici. La classe BigInteger alloca la memoria necessaria per tutti i bit di dati che viene richiesto di contenere. Infatti una buona implementazione dei BigInteger utilizza internamente un vettori di interi dinamico per rappresentare i numeri che utilizza. 
+
+Tuttavia esistono alcuni limiti pratici dettati dalla memoria a disposizione. E ci sono ulteriori limiti tecnici, anche se è molto improbabile che il nostro programma ne sia influenzato: alcuni metodi presumono che i bit siano indirizzabili da indici interi, quindi le cose inizieranno a rompersi quando indirizziamo bit con indici del valore Integer.MAX_VALUE.
+
+Ad esempio in java i BigInteger hanno la seguente definizione:
+
+BigInteger:
+  int bitCount +4 bytes
+  int bitLength +4 bytes
+  int firstNonzeroIntNum +4 bytes
+  int lowestSetBit +4 bytes
+  int signum +4 bytes
+  int[] mag +?
+  
+Un vettore in Java può avere solo 2^32 elementi. Quindi se i bit del BigInteger sono memorizzati in un vettore di interi, allora può memorizzare al massimo 2^32 cifre, cioè un numero massimo pari a (2^32)^Integer.MAX_VALUE.
+
+Nel linguaggio IDL la classe BigInteger memorizza un numero come un vettore di "cifre" intere a 32 bit senza segno con una radice, o base, di 4294967296 (2^32 - 1). La classe memorizza le cifre in ordine little-endian, con la cifra più significativa alla fine del vettore.
+
+Nota: il valore massimo dei BigInteger può essere limitato da altre funzioni del linguaggio. Ad esempio, se esiste una funzione che trasforma il numero in una stringa, allora il valore massimo è limitato dalla lunghezza massima di una stringa che vale (2^31 - 1).
+
+
