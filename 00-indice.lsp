@@ -469,6 +469,8 @@ DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Generare parentesi (Amazon)
   Maggiori a destra (Visa)
   Numero che raddoppia (Wolfram)
+  Calcolatore rotto (Broken calculator) (LeetCode)
+  Contare le isole (islands) (Google)
 
 LIBRERIE
 ========

@@ -7432,3 +7432,189 @@ Proviamo con il numero 4:
 ;-> 210526315789473684L
 
 
+------------------------------------------------
+Calcolatore rotto (Broken calculator) (LeetCode)
+------------------------------------------------
+
+Su una calcolatrice rotta che ha un numero visualizzato sul display, possiamo eseguire due operazioni:
+
+1) Doppio: moltiplica il numero sul display per 2 o
+2) Decremento: sottrai 1 dal numero sul display.
+
+Inizialmente, la calcolatrice mostra il numero X.
+Restituire il numero minimo di operazioni necessarie per visualizzare il numero Y.
+
+Esempio 1:
+input: X = 2, Y = 3
+output: 2
+Spiegazione: raddoppiare e decrementare {2 -> 4 -> 3}.
+
+Esempio 2:
+input: X = 5, Y = 8
+output: 2
+Spiegazione: decrementare e poi raddoppiare {5 -> 4 -> 8}.
+
+Esempio 3:
+input: X = 3, Y = 10
+output: 3
+Spiegazione: raddoppiare, decrementare e raddoppiare {3 -> 6 -> 5 -> 10}.
+
+Esempio 4:
+input: X = 1024, Y = 1
+output: 1023
+Spiegazione: decrementare 1023 volte.
+
+L'idea è quella di ragionare all'indietro, cioè partiamo da Y:
+invece di moltiplicare per 2 o sottrarre 1 da X, potremmo dividere per 2 (quando Y è pari) o aggiungere 1 a Y.
+La motivazione per questo è che si scopre che dividiamo sempre per 2:
+a) Se Y è pari, se eseguiamo 2 addizioni e una divisione, potremmo invece eseguire una divisione e un'addizione per meno operazioni [(Y + 2)/2 contro Y/2 + 1].
+b) Se Y è dispari, se eseguiamo 3 addizioni e una divisione, potremmo invece eseguire 1 addizione, 1 divisione e 1 addizione per meno operazioni [(Y + 3)/2 contro (Y + 1)/2 + 1 ].
+
+Algoritmo
+
+Affinchè Y è maggiore di X, aggiungere 1 se è dispari, altrimenti dividire per 2. Dopo, dobbiamo fare X - Y addizioni per raggiungere X.
+
+(define (pcrotto x y)
+  (let (out 0)
+    (while (> y x)
+      (++ out)
+      (if (odd? y) 
+          (++ y)
+          (setq y (/ y 2))
+      )
+    )
+    (setq out (+ out x (- y)))))
+
+(pcrotto 2 3)
+;-> 2
+(pcrotto 5 8)
+;-> 2
+(pcrotto 3 10)
+;-> 3
+(pcrotto 1024 1)
+;-> 1023
+
+Complessità temporale: O(log(Y)).
+Complessità spaziale: O(1).
+
+Versione ricorsiva:
+
+(define (pcrotto x y)
+  (cond ((= x y) 0)
+        ((> x y) (- x y))
+        ((and (< x y) (even? y))
+         (+ 1 (pcrotto x (/ y 2))))
+        (true
+         (+ 1 (pcrotto x (+ y 1))))))
+
+(pcrotto 2 3)
+;-> 2
+(pcrotto 5 8)
+;-> 2
+(pcrotto 3 10)
+;-> 3
+(pcrotto 1024 1)
+;-> 1023
+
+
+-----------------------------------
+Contare le isole (islands) (Google)
+-----------------------------------
+
+Data una matrice binaria dove 0 rappresenta l'acqua e 1 rappresenta la terra, contare tutte le isole.
+Che cosa è un'isola?
+Un gruppo di 1 collegati formano un'isola. Comunque possiamo considerare due tipi di isole:
+
+1) le isole sono solo gli 1 sono connessi nelle 4 direzioni (nord,sud,est,ovest)
+
+oppure
+
+2) le isole sono solo gli 1 sono connessi nelle 8 direzioni (nord,sud,est,ovest,nord-est,nord-ovest,sud-est,sud-ovest)
+
+In altre parole il tipo 1 considera gli 1 in diagonale non connessi, mentre il tipo 2 consdidera gli 1 in diagonale connessi.
+
+Ad esempio, la matrice sottostante contiene 5 isole di tipo 1 o 3 isole di tipo 2:
+
+  1 1 0 0 0
+  0 1 0 0 1
+  1 0 0 1 1
+  0 0 1 0 0
+  1 1 1 0 1
+
+Questa è una variazione del problema: "Contare il numero di componenti connessi in un grafo non orientato".
+
+Prima di passare al problema, cerchiamo di capire cos'è un componente connesso. Un componente connesso di un grafo non orientato è un sottografo in cui ogni due vertici sono collegati tra loro da un percorso(s) e che non è connesso a nessun altro vertice al di fuori del sottografo.
+
+Un grafo in cui tutti i vertici sono collegati tra loro ha esattamente un componente connesso, costituito dall'intero grafo. Un grafo di questo tipo con un solo componente connesso è chiamato grafo fortemente connesso.
+
+Il problema può essere risolto applicando la ricerca Depth-First-Search (DFS) per ogni componente. In ogni chiamata DFS(), viene visitato un componente o un sottografo. Poi chiamiamo DFS sul prossimo componente non visitato. Il numero di chiamate a DFS() fornisce il numero di componenti connessi. È possibile utilizzare anche la ricerca Breadth-First-Search (BFS).
+
+Una cella in matrice 2D può essere collegata a a 4 o 8 vicini (a seconda del tipo di isole che vogliamo cercare). Quindi, a differenza dello standard DFS(), dove visitiamo ricorsivamente tutti i vertici adiacenti, qui chiamiamo DFS() ricorsivamente sui 4 o 8 vicini. Teniamo traccia degli 1 visitati in modo che non vengano più visitati.
+
+(define (sicuro? x y)
+    (setq col (length (visitati 0)))
+    (setq row (length visitati))
+    (if (and (>= x 0) (>= y 0) (< x col) (< y row) (nil? (visitati y x)) (= 1 (matrix y x)))
+        true
+        nil
+    ))
+
+(define (dfs x y)
+  (local (vicini)
+    (cond ((or (= type 1) (nil? type))
+           ; Isola di Tipo 1: 4 vicini
+           (setq vicini '((1 0) (0 -1) (-1 0) (0 1))))
+          ((= type 2)
+           ; Isola di Tipo 2: 8 vicini
+           (setq vicini '((1 0) (0 -1) (-1 0) (0 1) (-1 1) (1 1) (1 -1) (-1 -1))))
+    )
+    (setf (visitati y x) true)
+    (for (k 0 (- (length vicini) 1))
+      (if (sicuro? (+ x (vicini k 0)) (+ y (vicini k 1)) matrix visitati)
+          (dfs (+ x (vicini k 0)) (+ y (vicini k 1)) matrix visitati)
+      )
+    )))
+
+(define (numero-isole x y)
+  (local (conta)
+    (setq col (length (matrix 0)))
+    (setq row (length matrix))
+    (setq conta 0)
+    (for (i 0 (- row 1))
+      (for (j 0 (- col 1))
+        (if (sicuro? i j matrix visitati)
+            (begin
+              (dfs i j matrix visitati)
+              (++ conta)
+            )
+        )
+      )
+    )
+    conta))
+
+(define (conta-isole matrice tipo)
+  (local (matrix visitati col row type)
+    (setq matrix matrice)
+    (setq col (length (matrix 0)))
+    (setq row (length matrix))
+    (setq visitati (array col row '(nil)))
+    (setq type tipo)
+    (numero-isole 0 0 matrix visitati)))
+
+(setq matrice '((1 1 0 0 0)
+                (0 1 0 0 1)
+                (1 0 0 1 1)
+                (0 0 1 0 0)
+                (1 1 1 0 1)))
+
+Contiamo le isole di tipo 1:
+
+(conta-isole matrice 1)
+;-> 5
+
+Contiamo le isole di tipo 2:
+
+(conta-isole matrice 2)
+;-> 3
+
+
