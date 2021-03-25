@@ -9504,3 +9504,140 @@ Totale benzina: 15
 Nella lista s il numero -7 è minore di tutti gli altri e ha indice 3 (nel circuito), quindi dovremo partire dal punto successivo del circuito, cioè dal punto P4.
 
 
+----------------------------------------
+Il problema delle studentesse di Kirkman
+----------------------------------------
+
+"8 queens is to Kirkman as amateur is to professional" — Phil Dorin
+
+Il problema delle studentesse di Kirkman è un problema di calcolo combinatorio proposto dal reverendo Thomas Kirkman nel 1850 che lo formulò nel modo seguente:
+
+Quindici ragazze in una scuola escono in fila per tre (fianco a fianco) per sette giorni consecutivi: come è possibile disporle quotidianamente in modo che nessuna possa camminare due volte insieme (nella stessa fila)?
+
+Ecco una soluzione con le ragazze (A,B,C,D,E,F,G,H,I,J,K,L,K,M,N,O):
+
+Sun	Mon	Tue	Wed	Thu	Fri	Sat
+--- --- --- --- --- --- ---
+ABC ADG AEJ AFO AHK AIM ALN
+DEF BEH BFL BDM BGN BKO BIJ
+GHI CJM CHO CGL CFI CEN CDK
+JKL FKN DIN EIK DJO DHL EGO
+MNO ILO GKM	HJN	ELM	FGJ	FHM
+
+Per risolvere questo problema non è possibile generare tutti gli arrangiamenti possibili e poi controllarli, uno per uno, per vedere se soddisfa i vincoli del problema.
+Ci sono 15! modi in cui le ragazze possono essere disposte in un giorno e ci sono (15!)^7 modi per scegliere le sette disposizioni giornaliere.
+
+(define (fact-i num)
+  (let (out 1L)
+    (for (x 1L num)
+      (setq out (* out x)))))
+
+(define (** num power)
+    (let (out 1L)
+        (dotimes (i power)
+            (setq out (* out num)))))
+
+(** (fact-i 15) 7)
+;-> 6538788315119179526047380411895480779825576
+;-> 867866060412873080832000000000000000000000L
+
+Un numero di casi impossibile da analizzare...
+
+Il problema può essere risolto tramite la costruzione di un "Kirkman triple system" di ordine n=2 o con altri metodi ai matematica avanzata (almeno per me). In questo caso vediamo un metodo risolutivo analitico/grafico sviluppato dal Prof. Dr. Reinhard Laue:
+
+http://www.algorithm.uni-bayreuth.de/en/research/discreta/EXAMPLES/kirkman.html
+
+Nota: per capire il metodo di soluzione vedere l'animazione "kirkman.gif" nella cartella "data".
+
+Il diagramma mostra le 15 ragazze disposte in cerchi concentrici (1 7 7), ma raggruppate in 5 file di 3 tramite una linea di collegamento. La disposizione delle ragazze per il giorno successivo viene trovata "ruotando" le linee di collegamento in senso antiorario.
+
+Dal punto di vista algoritmico possiamo trovare questa soluzione con la seguente funzione (in cui le ragazze sono rappresentate con numeri da 0 a 14):
+
+(define (ruota x)
+  (cond ((zero? x) 0)
+        ((= x 14) 8)
+        ((= x 7) 1)
+        (true (+ x 1))))
+
+(define (kirkman)
+  (setq s '(0 1 8 2 6 14 3 4 13 5 7 11 9 10 12))
+  (for (i 1 7)
+    (setq s (map ruota s))
+    (println s)))
+
+(kirkman)
+;-> (0 2 9 3 7 8 4 5 14 6 1 12 10 11 13)
+;-> (0 3 10 4 1 9 5 6 8 7 2 13 11 12 14)
+;-> (0 4 11 5 2 10 6 7 9 1 3 14 12 13 8)
+;-> (0 5 12 6 3 11 7 1 10 2 4 8 13 14 9)
+;-> (0 6 13 7 4 12 1 2 11 3 5 9 14 8 10)
+;-> (0 7 14 1 5 13 2 3 12 4 6 10 8 9 11)
+;-> (0 1 8 2 6 14 3 4 13 5 7 11 9 10 12)
+;-> (0 1 8 2 6 14 3 4 13 5 7 11 9 10 12)
+
+Esistono 7 soluzioni differenti per questo problema e Kirkman le ha trovato tutte nel 1850:
+
+Soluzione 1 
+[ A B C , D E F , G H I , J K L , M N O ]
+[ A D G , B E J , C F M , H K N , I L O ]
+[ A E N , B D O , C H L , F I K , G J M ]
+[ A I M , B G L , C D K , E H O , F J N ]
+[ A H J , B K M , C E I , D L N , F G O ]
+[ A F L , B I N , C J O , D H M , E G K ]
+[ A K O , B F H , C G N , D I J , E L M ]
+
+Soluzione 2 
+[ A B C , D E F , G H I , J K L , M N O ]
+[ A D G , B E J , C F M , H K N , I L O ]
+[ A E N , B D O , C H L , F I K , G J M ]
+[ A L M , B G K , C D I , E H O , F J N ]
+[ A I J , B H M , C E K , D L N , F G O ]
+[ A F H , B I N , C J O , D K M , E G L ]
+[ A K O , B F L , C G N , D H J , E I M ]
+
+Soluzione 3 
+[ A B C , D E F , G H I , J K L , M N O ]
+[ A D G , B E J , C F M , H K N , I L O ]
+[ A E N , B D O , C H L , F I K , G J M ]
+[ A H M , B I N , C D K , E G L , F J O ]
+[ A K O , B L M , C E I , D H J , F G N ]
+[ A F L , B G K , C J N , D I M , E H O ]
+[ A I J , B F H , C G O , D L N , E K M ]
+
+Soluzione 4 
+[ A B C , D E F , G H I , J K L , M N O ]
+[ A D G , B E J , C F M , H K N , I L O ]
+[ A E N , B D O , C H L , F I K , G J M ]
+[ A I J , B L M , C D K , E H O , F G N ]
+[ A H M , B G K , C E I , D L N , F J O ]
+[ A F L , B I N , C G O , D H J , E K M ]
+[ A K O , B F H , C J N , D I M , E G L ]
+
+Soluzione 5 
+[ A B C , D E F , G H I , J K L , M N O ]
+[ A D G , B E J , C F M , H K N , I L O ]
+[ A E O , B D N , C H L , F I K , G J M ]
+[ A I N , B G L , C D K , E H M , F J O ]
+[ A H J , B K O , C E I , D L M , F G N ]
+[ A F L , B I M , C J N , D H O , E G K ]
+[ A K M , B F H , C G O , D I J , E L N ]
+
+Soluzione 6 
+[ A B C , D E F , G H I , J K L , M N O ]
+[ A D G , B E J , C F M , H K N , I L O ]
+[ A E O , B D N , C H L , F I K , G J M ]
+[ A L N , B G K , C D I , E H M , F J O ]
+[ A I J , B H O , C E K , D L M , F G N ]
+[ A F H , B I M , C J N , D K O , E G L ]
+[ A K M , B F L , C G O , D H J , E I N ]
+
+Soluzione 7 
+[ A B C , D E F , G H I , J K L , M N O ]
+[ A D G , B E J , C H M , F K N , I L O ]
+[ A E L , B D N , C G K , F I M , H J O ]
+[ A F O , B L M , C D I , E H K , G J N ]
+[ A H N , B I K , C E O , D J M , F G L ]
+[ A I J , B F H , C L N , D K O , E G M ]
+[ A K M , B G O , C F J , D H L , E I N ]
+
+

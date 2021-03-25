@@ -377,6 +377,7 @@ PROBLEMI VARI
   Ordinamento per rime
   Lista circolare
   Circuito automobilistico
+  Il problema delle studentesse di Kirkman
 
 DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
 ==================================================
