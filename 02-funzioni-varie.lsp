@@ -6947,7 +6947,7 @@ perché "3" appare una volta (1) , "2" tre volte (3), "1" due volte (2) e "0" ze
 
 Due numeri che sono permutazione uno dell'altro hanno lo stesso "stampo" (e viceversa).
 
-Scriviamo diverse versioni di questa funzione e poi verifichimao quale sia la più veloce.
+Scriviamo diverse versioni di questa funzione e poi verifichiamo quale sia la più veloce.
 
 Prima versione:
 
@@ -7078,5 +7078,82 @@ La seguente funzione non serve a niente, è solo per estetica, ma a me piace.
 ;-> true
 (one? 0)
 ;-> nil
+
+
+----------------------------
+Algoritmo Knuth-Morris-Pratt
+----------------------------
+
+L'algoritmo di Knuth-Morris-Pratt (algoritmo KMP) permette di trovare le occorrenze di una stringa (pattern di ricerca) S in un testo T. La caratteristica consiste nel pretrattamento della stringa da cercare in modo che, in caso di non-corrispondenza, non sia necessario riesaminare i caratteri precedenti. Questo permette all'algoritmo di minimizzare il numero di confronti necessari. La complessità temporale vale O(n+k), dove n è la lunghezza del testo e k è la lunghezza della stringa.
+
+L'algoritmo è stato inventato da Knuth e Pratt, e indipendentemente da J. H. Morris nel 1975.
+
+(define (max-border-len str)
+  (local (lenstr mbl k)
+    (setq lenstr (length str))
+    (setq mbl (array lenstr '(0)))
+    ; lunghezza del bordo corrente
+    (setq k 0)
+    (for (i 1 (- lenstr 1))
+      (while (and (!= (str k) (str i)) (> k 0))
+        ; diversi: prova il prossimo bordo
+        (setq k (mbl (- k 1)))
+      )
+      ; ultimo carattere uguale?
+      (if (= (str k) (str i))
+        ; aumenta la lunghezza del bordo 
+        (++ k)
+      )
+      ; trovato bordo massimo di str (partendo da i + 1)
+      (setf (mbl i) k)
+    )
+    mbl))
+
+(max-border-len "AAAABABABAB")
+;-> (0 1 2 3 0 1 0 1 0 1 0)
+
+(max-border-len "massimo")
+;-> (0 0 0 0 0 1 0)
+
+(max-border-len "pippo")
+;-> (0 0 1 1 0)
+
+(max-border-len "abracadabra")
+;-> (0 0 0 1 0 1 0 1 2 3 4)
+
+(max-border-len "aaaaa")
+;-> (0 1 2 3 4)
+
+(define (knuth-morris-pratt str txt)
+  (local (sep mbl lenstr out)
+    (setq out '()) ; lista di output
+    ; Il carattere sep non deve essere presente 
+    ; ne in txt ne in str
+    (setq sep "~") ; carattere speciale non usato
+    (setq mbl (max-border-len (string str sep txt)))
+    (setq lenstr (length str))
+    (dolist (el mbl)
+      (if (= el lenstr) ; trovato un bordo della lunghezza di str
+        ; inizio del bordo in txt
+        ; stringa str trovata in txt
+        (push (- $idx (* 2 lenstr)) out -1) 
+      )
+    )
+    out))
+
+(knuth-morris-pratt "abra" "abracadabra")
+;-> (0 7)
+
+(knuth-morris-pratt "a" "ababababa")
+;-> (0 2 4 6 8)
+
+(knuth-morris-pratt "a" "aaaaa")
+;-> (0 1 2 3 4)
+
+(ref-all "a" (explode "aaaaa"))
+;-> ((0) (1) (2) (3) (4))
+
+(knuth-morris-pratt "ABAB" "ABABDABACDABABCABAB")
+;-> (0 10 15)
 
 

@@ -174,8 +174,9 @@ FUNZIONI VARIE
   Verificare se due numeri hanno lo stesso segno
   Suddivisione di una lista
   Stampo di un numero
-  one?
   Conversione vettore <--> lista
+  one?
+  Algoritmo Knuth-Morris-Pratt
 
 newLISP 99 PROBLEMI (28)
 ========================
@@ -295,7 +296,6 @@ ROSETTA CODE
   Sequenza Thue-Morse
   Numeri di Bell
   
-
 PROJECT EULERO
 ==============
   Problemi 1..102
@@ -378,6 +378,7 @@ PROBLEMI VARI
   Lista circolare
   Circuito automobilistico
   Il problema delle studentesse di Kirkman
+  Contadino, lupo, capra e cavoli
 
 DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
 ==================================================
@@ -16827,7 +16828,7 @@ perché "3" appare una volta (1) , "2" tre volte (3), "1" due volte (2) e "0" ze
 
 Due numeri che sono permutazione uno dell'altro hanno lo stesso "stampo" (e viceversa).
 
-Scriviamo diverse versioni di questa funzione e poi verifichimao quale sia la più veloce.
+Scriviamo diverse versioni di questa funzione e poi verifichiamo quale sia la più veloce.
 
 Prima versione:
 
@@ -16958,6 +16959,83 @@ La seguente funzione non serve a niente, è solo per estetica, ma a me piace.
 ;-> true
 (one? 0)
 ;-> nil
+
+
+----------------------------
+Algoritmo Knuth-Morris-Pratt
+----------------------------
+
+L'algoritmo di Knuth-Morris-Pratt (algoritmo KMP) permette di trovare le occorrenze di una stringa (pattern di ricerca) S in un testo T. La caratteristica consiste nel pretrattamento della stringa da cercare in modo che, in caso di non-corrispondenza, non sia necessario riesaminare i caratteri precedenti. Questo permette all'algoritmo di minimizzare il numero di confronti necessari. La complessità temporale vale O(n+k), dove n è la lunghezza del testo e k è la lunghezza della stringa.
+
+L'algoritmo è stato inventato da Knuth e Pratt, e indipendentemente da J. H. Morris nel 1975.
+
+(define (max-border-len str)
+  (local (lenstr mbl k)
+    (setq lenstr (length str))
+    (setq mbl (array lenstr '(0)))
+    ; lunghezza del bordo corrente
+    (setq k 0)
+    (for (i 1 (- lenstr 1))
+      (while (and (!= (str k) (str i)) (> k 0))
+        ; diversi: prova il prossimo bordo
+        (setq k (mbl (- k 1)))
+      )
+      ; ultimo carattere uguale?
+      (if (= (str k) (str i))
+        ; aumenta la lunghezza del bordo 
+        (++ k)
+      )
+      ; trovato bordo massimo di str (partendo da i + 1)
+      (setf (mbl i) k)
+    )
+    mbl))
+
+(max-border-len "AAAABABABAB")
+;-> (0 1 2 3 0 1 0 1 0 1 0)
+
+(max-border-len "massimo")
+;-> (0 0 0 0 0 1 0)
+
+(max-border-len "pippo")
+;-> (0 0 1 1 0)
+
+(max-border-len "abracadabra")
+;-> (0 0 0 1 0 1 0 1 2 3 4)
+
+(max-border-len "aaaaa")
+;-> (0 1 2 3 4)
+
+(define (knuth-morris-pratt str txt)
+  (local (sep mbl lenstr out)
+    (setq out '()) ; lista di output
+    ; Il carattere sep non deve essere presente 
+    ; ne in txt ne in str
+    (setq sep "~") ; carattere speciale non usato
+    (setq mbl (max-border-len (string str sep txt)))
+    (setq lenstr (length str))
+    (dolist (el mbl)
+      (if (= el lenstr) ; trovato un bordo della lunghezza di str
+        ; inizio del bordo in txt
+        ; stringa str trovata in txt
+        (push (- $idx (* 2 lenstr)) out -1) 
+      )
+    )
+    out))
+
+(knuth-morris-pratt "abra" "abracadabra")
+;-> (0 7)
+
+(knuth-morris-pratt "a" "ababababa")
+;-> (0 2 4 6 8)
+
+(knuth-morris-pratt "a" "aaaaa")
+;-> (0 1 2 3 4)
+
+(ref-all "a" (explode "aaaaa"))
+;-> ((0) (1) (2) (3) (4))
+
+(knuth-morris-pratt "ABAB" "ABABDABACDABABCABAB")
+;-> (0 10 15)
 
 
 ==========================
@@ -51336,6 +51414,237 @@ Soluzione 7
 [ A H N , B I K , C E O , D J M , F G L ]
 [ A I J , B F H , C L N , D K O , E G M ]
 [ A K M , B G O , C F J , D H L , E I N ]
+
+
+-------------------------------
+Contadino, lupo, capra e cavoli
+-------------------------------
+
+Il problema del lupo della capra e dei cavoli fa parte di una classe di problemi in cui occorre attraversare un fiume secondo alcuni vincoli. Questo problema ha dato origine al modo di dire "salvare capra e cavoli" con cui si intende risolvere in maniera ottimale una situazione con interessi contrastanti.
+Il quesito è il seguente:
+Un contadino deve attraversare un fiume con un lupo, una pecora e dei cavoli. La barca può trasportare (oltre a lui) soltanto uno tra il lupo, la capra e i cavoli. Non è possibile lasciare da soli il lupo e la capra (il lupo mangerebbe la capra) o la capra e i cavoli (la capra mangerebbe i cavoli). Quindi come trasportare tutti sull'altra riva del fiume evitando di perdere la capra o i cavoli ("salvare capra e cavoli")?
+
+Nel libro "Cabinet of Mathematical Curiosities" di Ian Stewart viene mostrata una rappresentazione geometrica dello spazio degli stati del problema che rende semplice la ricerca della soluzione (vedi figura "clcc.png" nella cartella "data").
+
+Stato iniziale              Stato finale
+Lupo   0                    Lupo   1
+Capra  0                    Capra  1
+Cavoli 0                    Cavoli 1
+
+Esempio di transizione: (0,0,0) -> (1,0,0)
+
+Lista stati:
+
+(0,0,0)
+(0,0,1)
+(0,1,0)
+(0,1,1)
+(1,0,0)
+(1,0,1)
+(1,1,0)
+(1,1,1)
+
+Stati non validi:
+
+(0,1,1) capra e cavoli
+(1,1,0) lupo e capra
+
+Lo stato iniziale nello spazio 3D della terna lupo-capra-cavolo (lupo, capra, cavoli) vale (0,0,0). Lo 0 rappresenta la riva di partenza del fiume e 1 rappresenta la riva di destinazione. L'obiettivo è arrivare quindi allo stato (1,1,1). Nello spazio (lupo, capra, cavoli), la direzione x rappresenta i movimenti del lupo, la direzione y quelli della capra e z quelli del cavolo. Pertanto le 8 possibili combinazioni di terne (stati del sistema) sono rappresentate dagli 8 vertici del cubo.
+
+Adesso possiamo eliminare i seguenti 4 percorsi:
+
+1) da (0,0,0) a (1,0,0) poiché lascia la capra con i cavoli
+
+2) da (0,0,0) a (0,0,1) poiché lascia il lupo con la capra
+
+3) da (0,1,1) a (1,1,1) poiché lascia capra con i cavoli
+
+4) da (1,1,0) a (1,1,1) poiché lascia il lupo con la capra
+
+A questo punto è sufficiente viaggiare lungo i percorsi rimanenti e le 2 soluzioni sono immediatamente evidenti, per esempio: (0,0,0) - (0,1,0) - (1,1,0) - (1,0,0) - (1,0,1) - (1,1,1).
+
+Dal punto di vista computazionale per la soluzione seguiremo l'algoritmo presentato nel libro "Artificial Intelligence: Structures and strategies for complex problem solving" di Luger e Stubblefield che verrà implementato in newLISP.
+
+farmer = contadino
+wolf = lupo
+goat = capra
+cabbage = cavoli
+
+L'algoritmo ricorsivo ricerca lo spazio degli stati in modo depth-first usando una lista "been-list" per tenere traccia degli stati visitati evitando i possibili cicli infiniti. Definiamo lo spazio degli stati come tipo di dati astratto utilizzando alcune funzioni. Uno stato viene rappresentato come una lista di quattro elementi i cui valori indicano la posizione del contadino (farmer), del lupo (wolf), della capra (goat) e dei cavoli (cabbage): ad esempio (e w e w) significa che il primo elemento (contadino) si trova a est, il secondo elemento (lupo) si trova a ovest (west), il terzo elemento (capra) si trova ad est e l'ultimo elemento (cavoli) si trova a ovest.
+Per costruire uno stato usiamo la funzione "make-state" (state-constructor) che prende come argomento la posizione dei quattro elementi e restituisce uno stato. Per accedere alla posizione di un elemento usiamo quattro funzioni "farmer-side", "wolf-side", "goat-side" e "cabbage-side" che prendono in ingresso uno stato e restituiscono la posizione dell'elemento.
+
+(define make-state (f w g c) (list fwgc)) 
+(define (farmer-side state) (state 0))
+(define (wolf-side state) (state 1))
+(define (goat-side state) (state 2))
+(define (cabbage-side state) (state 3))
+
+Queste funzioni vengono usate per implementare le quattro azioni di spostamento che possono essere effettuate:
+attraversare il fiume da solo o con il lupo o con la capra o con il cavolo. 
+Ogni azione utilizza le funzioni di accesso per dividere uno stato nei suoi componenti. Una funzione chiamata "opposite" determina la nuova posizione degli elementi che attraversano il fiume e poi la funzione "make-state" riunisce il tutto in un nuovo stato. Durante queste azioni dobbiamo assicurarci che gli stati che raggiungiamo/visitiamo siano sicuri e li controlliamo con la funzione "safe" prima di applicare ogni azione di movimento degli elementi:
+
+(safe '(w w w w)) ; stato sicuro -> stato
+;-> (w w w w) 
+(safe '(e w w e)) ; il lupo mangia la capra -> stato non sicuro -> nil
+;-> nil 
+(safe '(w w e e)) ; la capra mangia il cavolo -> stato non sicuro -> nil
+;-> nil 
+
+Pertanto, qualsiasi azione che sposta in uno stato non sicuro restituirà nil invece di quello stato. L'algoritmo ricorsivo depth-first verifica questo risultato (nil) e lo utilizza per eliminare lo stato dalla soluzione.
+In questo modo la funzione di azione/spostamento del contadino "farmer-take-self" viene così definita:
+
+(define (farmer-takes-self state)
+   (safe (make-state (opposite (farmer-side state))
+                     (wolf-side state)
+                     (goat-side state)
+                     (cabbage-side state))))
+
+Le restanti funzioni di spostamento sono definite in modo simile, ma includono un test condizionale per determinare se il contadino e il potenziale passeggero si trovano dalla stessa parte del fiume. Se non è possibile effettuare uno spostamento perché il contadino e il passeggero non sono sulla stessa riva, allora queste funzioni restituiscono nil:
+
+(define (farmer-takes-wolf state)
+   (cond ((= (farmer-side state) (wolf-side state))
+             (safe (make-state (opposite (farmer-side state))
+                               (opposite (wolf-side state))
+                               (goat-side state)
+                               (cabbage-side state))))
+         (true nil)))
+
+(define (farmer-takes-goat state)
+   (cond ((= (farmer-side state) (goat-side state))
+             (safe (make-state (opposite (farmer-side state))
+                               (wolf-side state)
+                               (opposite (goat-side state))
+                               (cabbage-side state))))
+         (true nil)))
+
+(define (farmer-takes-cabbage state)
+   (cond ((= (farmer-side state) (cabbage-side state))
+             (safe (make-state (opposite (farmer-side state))
+                               (wolf-side state)
+                               (goat-side state)
+                               (opposite (cabbage-side state)))))
+     (true nil)))
+
+Queste definizioni utilizzano le funzioni di creazione e gestione dello stato viste sopra e una funzione "opposite" che restituisce l'opposto di un dato lato:
+
+(define (opposite side)
+   (cond ((= side 'e) 'w)
+             ((= side 'w) 'e)))
+
+Per quanto riguarda la funzione "safe" dobbiamo controllare i seguenti due stati non sicuri:
+1) il contadino si trova sulla riva opposta rispetto al lupo e alla capra
+2) il contadino si trova sulla riva opposta rispetto alla capra e i cavoli
+Se lo stato è sicuro, viene restituito invariato, altrimenti viene restituito nil.
+
+(define (safe state)
+   (cond ((and (= (goat-side state) (wolf-side state))
+               (not (= (farmer-side state) (wolf-side state))))  nil)
+         ((and (= (goat-side state) (cabbage-side state))
+               (not (= (farmer-side state) (goat-side state)))) nil)
+         (true state)))
+
+La funzione "path" implementa la ricerca ricorsiva depth-first con backtracking nello spazio degli stati. Questa funzione prende tre argomenti (uno stato, un goal e una lista di stati visitati) e effettua le seguenti operazioni:
+a) controlla se lo stato vale nil (questo implica che path deve restituire nil)
+b) controlla se state = goal, questo significa che abbiamo ottenuto la soluzione
+c) controlla se lo stato si trova nella lista degli stati visitati e, in caso negativo, genera i quattro stati successivi e poi chiama se stessa ricorsivamente su ognuno di questi quattro stati per cercare un percorso verso la soluzione (goal).
+
+(define (path state goal been-list)
+   (cond ((null? state) nil)
+         ((= state goal)
+          (reverse (cons state been-list)))
+         ((not (member state been-list))
+          (or (path (farmer-takes-self state) goal (cons state been-list))
+              (path (farmer-takes-wolf state) goal (cons state been-list))
+              (path (farmer-takes-goat state) goal (cons state been-list))
+              (path (farmer-takes-cabbage state) goal (cons state been-list))))))
+
+Nota: la funzione "or" valuta i suoi argomenti a turno finché uno di essi non restituisce un valore diverso da nil. Quando
+ciò si verifica, "or" termina senza valutare gli altri argomenti e restituisce questo valore non-nil come risultato. Pertanto, "or" non solo viene utilizzato come operatore logico, ma fornisce anche un modo per controllare le ramificazioni all'interno dello spazio di ricerca. Usiamo "or" al posto di "cond" perché il valore che viene testato e il valore che deve essere restituito, se il test è diverso da nil, sono gli stessi.
+
+Ogni volta che la funzione "path" si richiama ricorsivamente per generare un nuovo stato, viene aggiunto lo stato genitore nella lista degli stati visitati "been-list". Per assicurarsi che lo stato corrente non sia un elemento della lista "been-list" (cioè che non sia già stato visitato) utilizziamo la funzione primitiva "member". Ciò si ottiene controllando lo stato corrente per l'appartenenza alla "been-list" prima di generare i suoi discendenti.
+
+Nota: Piuttosto che fare in modo che una funzione restituisca solo il successo o il fallimento della condizione, è meglio restiture il percorso effettivo della soluzione. Perché la serie di stati del percorso della soluzione è già
+contenuta nella lista "been-list", viene usata la funzione "member" che restituisce questa lista. 
+
+Quando lo stato corrente è uguale al goal, allora dobbiamo aggiungere questo stato alla lista "been-list" e poi invertire la lista che è stata costruita in ordine inverso.
+
+Infine possiamo scrivere la funzione "solve-fwgc" che inizia la ricerca e che può essere chiamata, ad esempio, nel modo seguente:
+
+ (solve-fwgc '(e e e e) '(w w w w))
+
+per cercare un percorso di soluzione da est a ovest (west).
+
+Mettendo tutto insieme:
+
+; Funzione soluzione
+(define (solve-fwgc state goal)
+    (path state goal '()))    
+; Algoritmo ricorsivo di ricerca depth-first
+(define (path state goal been-list)
+   (cond ((null? state) nil)
+         ((= state goal)
+          (reverse (cons state been-list)))
+         ((not (member state been-list))
+          (or (path (farmer-takes-self state) goal (cons state been-list))
+              (path (farmer-takes-wolf state) goal (cons state been-list))
+              (path (farmer-takes-goat state) goal (cons state been-list))
+              (path (farmer-takes-cabbage state) goal (cons state been-list))))))
+; Queste funzioni definiscono le mosse legali nello spazio degli stati.
+; Prendono come argomento uno stato e restituisono lo stato prodotto da quell'operazione.
+(define (farmer-takes-self state)
+   (safe (make-state (opposite (farmer-side state))
+                     (wolf-side state)
+                     (goat-side state)
+                     (cabbage-side state))))
+(define (farmer-takes-wolf state)
+   (cond ((= (farmer-side state) (wolf-side state))
+             (safe (make-state (opposite (farmer-side state))
+                               (opposite (wolf-side state))
+                               (goat-side state)
+                               (cabbage-side state))))
+         (true nil)))
+(define (farmer-takes-goat state)
+   (cond ((= (farmer-side state) (goat-side state))
+             (safe (make-state (opposite (farmer-side state))
+                               (wolf-side state)
+                               (opposite (goat-side state))
+                               (cabbage-side state))))
+         (true nil)))
+(define (farmer-takes-cabbage state)
+   (cond ((= (farmer-side state) (cabbage-side state))
+             (safe (make-state (opposite (farmer-side state))
+                               (wolf-side state)
+                               (goat-side state)
+                               (opposite (cabbage-side state)))))
+     (true nil)))
+; Queste funzioni definiscono lo spazio degli stati
+; come un tipo di dati astratto.
+(define (make-state f w g c) (list f w g c))
+(define (farmer-side state) (state 0))
+(define (wolf-side state) (state 1))
+(define (goat-side state) (state 2))
+(define (cabbage-side state) (state 3))
+; La funzione "opposite" prende un lato e
+; restituisce il lato opposto
+(define (opposite side)
+   (cond ((= side 'e) 'w)
+             ((= side 'w) 'e)))
+; La funzione "safe" restituisce nil se uno stato non è sicuro
+; oppure restituisce lo stato invariato se è sicuro.
+(define (safe state)
+   (cond ((and (= (goat-side state) (wolf-side state))
+               (not (= (farmer-side state) (wolf-side state))))  nil)
+         ((and (= (goat-side state) (cabbage-side state))
+               (not (= (farmer-side state) (goat-side state)))) nil)
+         (true state)))
+
+Proviamo la funzione soluzione in entrambi i sensi (est -> ovest e ovest -> est):
+
+(solve-fwgc '(e e e e) '(w w w w))
+;-> ((e e e e) (w e w e) (e e w e) (w w w e) (e w e e) (w w e w) (e w e w) (w w w w))
+
+(solve-fwgc '(w w w w) '(e e e e))
+;-> ((w w w w) (e w e w) (w w e w) (e e e w) (w e w w) (e e w e) (w e w e) (e e e e))
 
 
 ====================================================

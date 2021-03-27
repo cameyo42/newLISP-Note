@@ -174,8 +174,9 @@ FUNZIONI VARIE
   Verificare se due numeri hanno lo stesso segno
   Suddivisione di una lista
   Stampo di un numero
-  one?
   Conversione vettore <--> lista
+  one?
+  Algoritmo Knuth-Morris-Pratt
 
 newLISP 99 PROBLEMI (28)
 ========================
@@ -295,7 +296,6 @@ ROSETTA CODE
   Sequenza Thue-Morse
   Numeri di Bell
   
-
 PROJECT EULERO
 ==============
   Problemi 1..102
@@ -378,6 +378,7 @@ PROBLEMI VARI
   Lista circolare
   Circuito automobilistico
   Il problema delle studentesse di Kirkman
+  Contadino, lupo, capra e cavoli
 
 DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
 ==================================================
