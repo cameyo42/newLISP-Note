@@ -4,6 +4,8 @@
 
 ===============
 
+Ci sono (1 + 2 + 3) numeri primi minori di (4 + 5 + 6) e il 7-imo primo è uguale a (8 + 9).
+
 ----------
 BubbleSort
 ----------
@@ -2745,7 +2747,6 @@ La Torre di Hanoi è un rompicapo matematico composto da tre paletti e un certo 
 
                    ||                    ||                  ||
                    ||                    ||                  ||
-                   ||                    ||                  ||
                 +------+                 ||                  ||
 disco 1         +------+                 ||                  ||
                    ||                    ||                  ||
@@ -2754,10 +2755,9 @@ disco 2      +------------+              ||                  ||
                    ||                    ||                  ||
           +------------------+           ||                  ||
 disco 3   +------------------+           ||                  ||
-                   ||                    ||                  ||
 
 Il gioco inizia con tutti i dischi incolonnati su un paletto in ordine decrescente (il disco più piccolo si trova in cima). Lo scopo del gioco è spostare tutti i dischi su un paletto diverso potendo muovere solo un disco alla volta e potendo mettere un disco solo su un altro disco più grande, mai su uno più piccolo.
-Il gioco fu inventato nel 1883[1] dal matematico francese Edouard Lucas. La leggenda narra che in un tempio Indù alcuni monaci sono impegnati a spostare su tre colonne di diamante 64 dischi d'oro secondo le regole della Torre di Hanoi: quando i monaci completeranno il lavoro, il mondo finirà.
+Il gioco fu inventato nel 1883 dal matematico francese Edouard Lucas. La leggenda narra che in un tempio Indù alcuni monaci sono impegnati a spostare su tre colonne di diamante 64 dischi d'oro secondo le regole della Torre di Hanoi: quando i monaci completeranno il lavoro, il mondo finirà.
 La proprietà matematica base è che il numero minimo di mosse necessarie per completare il gioco è (2^n - 1), dove n è il numero di dischi. Ad esempio con 3 dischi, il numero minimo di mosse vale 7. Quindi i monaci di Hanoi dovrebbero effettuare almeno 18.446.744.073.709.551.615 mosse prima che il mondo finisca (n = 64).
 La soluzione generale è data dal seguente algoritmo ricorsivo.
 Identifichiamo i paletti con le lettere A, B e C, e i dischi con i numeri da 1 (il più piccolo) a n (il più grande). I passi necessari sono:
@@ -2980,7 +2980,7 @@ infatti già con 23 persone la probabilità è circa 0.51,
 con 30 persone essa supera 0.70,
 con 50 persone arriva addirittura a 0.97,
 con 100 persone siamo quasi sicuri 0.99999969.
-(comunque per ottenere l'evento certo (1) occorre considerare un gruppo di almeno 366 persone)
+Comunque per ottenere l'evento certo (1) occorre considerare un gruppo di almeno 366 persone.
 
 
 ----------------------

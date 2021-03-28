@@ -6000,3 +6000,387 @@ Nel linguaggio IDL la classe BigInteger memorizza un numero come un vettore di "
 Nota: il valore massimo dei BigInteger può essere limitato da altre funzioni del linguaggio. Ad esempio, se esiste una funzione che trasforma il numero in una stringa, allora il valore massimo è limitato dalla lunghezza massima di una stringa che vale (2^31 - 1).
 
 
+----------------------------------
+Valutazione di espressioni infisse
+----------------------------------
+
+Per trasformare una espressione infissa in una prefissa bisogna invertire l'operatore con l'operando:
+Per trasformare una semplice espressione infissa (es. (2 + 3)) in una espressione prefissa (es. (+ 2 3)) bisogna invertire l'operatore con l'operando:
+
+(2 + 3) --> (+ 2 3)
+
+(define (infix2prefix expr)
+  (list (nth 1 expr) (nth 0 expr) (nth 2 expr)))
+
+(infix2prefix '(2 + 3))
+;-> (+ 2 3)
+
+Comunque questa funzione non è in grado di tradurre correttamente espressioni annidate, ovvero espressioni in cui si trovano gli operandi essi stessi espressioni infisse. Per gestire correttamente questa situazione anche gli operandi devono essere trasformati in notazione prefissa. Questo viene fatto utilizzando la ricorsione che viene fermata quando l'argomento è un numero (che viene restituito come tale). Quindi la funzione diventa la seguente:
+
+(define (infix-to-prefix expr)
+  (cond ((number? expr) expr)
+         (true (list (nth 1 expr)
+               (infix-to-prefix (nth 0 expr))
+               (infix-to-prefix (nth 2 expr))))))
+
+(infix-to-prefix '(3 + 2))
+;-> (+ 3 2)
+
+(infix-to-prefix '((5.2 add 3.3) sub (4 div 2)))
+;-> (sub (add 5.2 3.3) (div 4 2))
+
+Questo convertitore infisso-prefisso gestisce solo espressioni aritmetiche binarie e richiede che tutte le espressioni siano completamente tra parentesi (questo elimina il calcolo sulla precedenza degli operatori). Comunque consente alle espressioni di essere annidate a una profondità arbitraria e gestisce tutti gli operatori aritmetici binari supportati da newLISP.
+
+A questo punto definiamo una funzione che ci permette di valutare direttamente le espressioni infisse:
+
+(define (infix expr)
+  (eval (infix-to-prefix expr)))
+
+(infix '((5 + 3) - (4 / 4)))
+;-> 7
+
+(infix '((5.2 add 3.3) sub (4 div 2)))
+;-> 6.5
+
+Nota: le espressioni devono essere inserite con le parentesi al posto giusto
+
+(infix '((5.2 add 3.3 add 2)))
+;-> ERR: invalid list index in function nth
+
+(infix '((5.2 add 3.3) add 2))
+;-> 10.5
+
+A questo punto possiamo creare un mini-interprete che funziona in modo simile alla REPL di newLISP. 
+
+Per interagire con l'utente newLISP mette a disposizione la funzione "read-line" che resituisce la stringa inserita dall'utente. Quindi abbiamo bisogno di una funzione "reader" che converte questa stringa in una espressione newLISP.
+
+(define (reader readstr readret)
+   (cond
+      ((float readstr)
+       (if (find "." readstr)
+         (setq readret (float readstr))
+         (setq readret (integer readstr))))
+      ((= (slice readstr 0 1)"(")
+          (setq readret (eval-string (append "'" readstr))))
+      (true
+         (setq readret (sym readstr)))))
+
+(reader "(2 + 3)" expr)
+;-> (2 + 3)
+
+(reader "((5.2 add 3.3) add 2)" expr)
+;-> ((5.2 add 3.3) add 2)
+
+Adesso scriviamo una semplice funzione che imposta il nostro ciclo REPL:
+
+(define (calc-repl)
+  (print "infix: ") ; Stampa il nostro prompt "infix: "
+  (print (eval (infix (reader (read-line))))) ; READ-EVAL-PRINT
+  (println "") ; Stampa un newline
+  (calc-repl)) ; LOOP
+
+Eseguiamo la nostra REPL di calcolo e valutiamo alcune espressioni:
+
+(calc-repl)
+(2 + 3)
+;-> 5
+;-> infix:
+((2.2 div 1.1) mul ((4 + 3) div 3.5))
+;-> 4
+;-> infix:
+((2.2 div 1.1) mul 2.3)
+;-> 4.6
+;-> infix:
+
+Premere Ctrl+C per uscire dalla REPL.
+
+
+--------------------
+Vincere 2 volte su 3
+--------------------
+
+Eva, Vero e Vale sono tre giocatrici di scacchi. Vero è più forte di Eva che, a sua volta, è più forte di Vale. 
+Un giorno Vale scommette una pizza con Eva se questa riesce a vincere 2 partite consecutive su 3 partite di scacchi contro Vero e Vale. Inoltre Vale permette a Eva di scegliere con chi giocare per prima. In altre parole la sfida (che consiste in tre partite) può avvenire in due modi diversi:
+
+1) (Eva-Vale) (Eva-Vero) (Eva-Vale) oppure
+2) (Eva-Vero) (Eva-Vale) (Eva-Vero)
+
+Contro chi dovrebbe giocare Eva per prima per massimizzare le sue probabilità di vincere con entrambe le avversarie?
+
+Per vincere la scommessa Eva deve sicuramente vincere la seconda partita (altrimenti non riuscirà mai a battere tutti e due gli avversari con tre partite, cioè non riesce a vincere due partite consecutive)
+
+Supponiamo che la probabilità di Eva di battere Vero valga p1 con (p1 < 0.5) (cioè Vero è più forte di Eva) e la probabilità di Eva di battere Vale valga p2 (cioè Eva è più forte di Vale).
+La probabilità di successo di Eva è data dalla somma delle probabilità di tutti gli eventi favorevoli.
+Gli eventi favorevoli sono i tre seguenti
+
+1) Eva tutte e tre le partite:              --->  (p1) * (p2) * (1 - p1)
+2) Eva vince la seconda e la terza partita: --->  (1 - p1) * (p2) * (p1)
+3) Eva vince la prima e la seconda partita: ---=> (p1) * (p2) * (p1)
+
+Quindi la probabilità totale di successo vale:
+
+prob = g1 + g2 + g3
+
+Possiamo scrivere una funzione che ci permette di calcolare questa probabilità al variare dei due modi di gioco.
+
+(define (prob p1 p2)
+  (local (g1 g2 g3)
+    (setq g1 (mul p1 p2 (sub 1 p1)))
+    (setq g2 (mul (sub 1 p1) p2 p1))
+    (setq g3 (mul p1 p2 p1))
+    ;(println g1 { } g2 { } g3 { -> } (add g1 g2 g3))
+    (add g1 g2 g3)))
+
+Adesso assegniamo i valori alle probabilità di vittoria per ogni singolo incontro:
+poichè Vero è più forte di Eva, allora p1 deve essere minore di 0.5 (es. 0.4)
+poichè Eva è più forte di Vale, allora p2 deve essere maggiore di 0.5 (es. 0.6)
+
+Vediamo il risultato quando Eva gioca prima con Vale poi con Vero e infine con Vale:
+
+(prob 0.6 0.4)
+;-> 0.336
+
+Vediamo il risultato quando Eva gioca prima con Vero e poi con Vale e infine con Vero:
+
+(prob 0.4 0.6)
+;-> 0.384
+
+Cosa??? Questo risultato indica che per Eva la probabilità di vittoria della scommessa è maggiore se gioca due volte contro la giocatrice più forte (Vero). Il risultato è controintuitivo, ma è corretto al 100%.
+
+Proviamo con altri valori di probabilità (0.8 e 0.2):
+
+(prob 0.8 0.2)
+;-> 0.192
+
+(prob 0.2 0.8)
+;-> 0.288
+
+Proviamo a verificare il risultato matematico con una simulazione:
+
+(define (simula p1 p2 iter)
+  (local (g must tot)
+    (setq tot 0)
+    (for (i 1 iter)
+      (setq must nil)
+      (setq g 0)
+      ; game 1
+      (if (> (random) p1) (++ g))
+      ; game 2
+      (if (> (random) p2) (setq must true g (+ g 1)))
+      ; game 3
+      (if (> (random) p1) (++ g))
+      ; obiettivo raggiunto?
+      ; vinto due partite (di cui una è la seconda)?
+      (if (and must (> g 1)) (++ tot))
+    )
+    (div tot iter)))
+
+(simula 0.4 0.6 1e6)
+;-> 0.336288
+(simula 0.6 0.4 1e6)
+;-> 0.383391
+
+(simula 0.8 0.2 1e6)
+;-> 0.288874
+(simula 0.2 0.8 1e6)
+;-> 0.192069
+
+I risultati della simulazione confermano totalmente i risultati matematici.
+
+
+----------------------
+Investimenti in comune
+----------------------
+
+Due amici Tom e Jerry comprano insieme 3 villette al prezzo totale di 800.000 euro.
+Tom investe 500.000 euro e Jerry 300.000. Dopo poco tempo decidono di tenersi una villetta ciascuno e di vendere la terza per la somma di 800.000 euro. Come devono essere ripartiti questi 800.000 euro tra Tom e Jerry?
+
+La risposta ovvia è: 500.000 euro a Tom e 300.000 a Jerry. Ma è una risposta sbagliata!
+Vediamo perchè:
+
+Ogni villetta costa: (800000 / 3) = 266666.6666666667 euro
+
+In totale Tom ha pagato 500000 euro e ha ricevuto una villetta da 266666.6666666667 euro.
+Quindi Tom ha investito (500000 - 266666.6666666667) = 233333.3333333333 per la terza villetta.
+
+In totale Jerry ha pagato 300000 euro e ha ricevuto una villetta da 266666.6666666667 euro.
+Quindi Jerry ha investito (300000 - 266666.6666666667) = 33333.33333333331 per la terza villetta.
+
+Il rapporto (266666.6666666667 / 33333.33333333331) vale 7, cioè Tom ha investito 7 volte il denaro di Jerry. Quindi la suddivisione degli 800.000 euro ricavati dalla vendita della terza villetta devono essere ripartiti in questo modo:
+700.000 euro a Tom e 100.000 euro a Jerry.
+
+Nota: la risposta ovvia (500.000 euro a Tom e 300.000 a Jerry) è sbagliata se tutto l'affare viene considerato come un investimento. Se invece consideriamo la differenza iniziale come un prestito senza interessi di Tom a Jerry, allora la risposta è corretta (infatti alla fine ognuno ha una villetta senza spendere nulla).
+
+
+-----------------
+Dadi intransitivi
+-----------------
+
+Un insieme di dadi è intransitivo (o non-transitivo) se contiene tre dadi, A, B e C, con la proprietà che A maggiore di B più della metà delle volte, B maggiore di C più della metà delle volte, C maggiore di A più della metà delle volte. In altre parole, una serie di dadi è intransitiva se la relazione binaria - X tira un numero maggiore di Y più della metà delle volte - sui suoi elementi non è transitiva.
+
+Nota: Usando un tale insieme di dadi, si possono inventare giochi con risultati probabilistici inaspettati.
+
+Esempio:
+Consideriamo il seguente insieme di dadi
+
+Il dado A ha i numeri: 2, 2, 4, 4, 9, 9.
+Il dado B ha i numeri: 1, 1, 6, 6, 8, 8.
+Il dado C ha i numeri: 3, 3, 5, 5, 7, 7.
+
+La probabilità che A ottenga un numero maggiore di B, la probabilità che B ottenga un numero maggiore di C e la probabilità che C ottenga un numero maggiore di A vale 5/9, quindi questo insieme di dadi è intransitivo. In effetti, ha la proprietà ancora più forte che, per ogni dado, c'è un altro dado che tira un numero maggiore di quello più della metà delle volte.
+
+Vediamo come calcolare questa probabilità (5/9):
+
+(setq A '(2 2 4 4 9 9))
+(setq B '(1 1 6 6 8 8))
+(setq C '(3 3 5 5 7 7))
+
+                numero eventi favorevoli
+Probabilità = ----------------------------
+                numero eventi possibili
+
+Prodotto cartesiano tra due liste:
+
+(define (prod-cart lst1 lst2)
+  (let (out '())
+    (if (or (null? lst1) (null? lst2))
+        nil
+        (dolist (el1 lst1)
+          (dolist (el2 lst2)
+            (push (list el1 el2) out -1))))))
+
+Lista di tutti gli eventi possibili (ogni elemento della lista rappresenta un lancio e contiene i valori dei dadi A e B):
+
+(setq eventi (prod-cart A B))
+;-> ((2 1) (2 1) (2 6) (2 6) (2 8) (2 8) (2 1) (2 1) (2 6) (2 6) (2 8)
+;->  (2 8) (4 1) (4 1) (4 6) (4 6) (4 8) (4 8) (4 1) (4 1) (4 6) (4 6)
+;->  (4 8) (4 8) (9 1) (9 1) (9 6) (9 6) (9 8) (9 8) (9 1) (9 1) (9 6)
+;->  (9 6) (9 8) (9 8))
+
+Adesso calcoliamo gli eventi favorevoli a A, quelli favorevoli a B e quelli in parità:
+
+(setq nA 0)
+(setq nB 0)
+(setq nAB 0)
+
+(dolist (el eventi)
+  (cond ((> (el 0) (el 1)) (++ nA))
+        ((< (el 0) (el 1)) (++ nB))
+        (true (++ nAB))))
+
+(setq num (length eventi))
+;-> 36
+
+(list nA (div nA num) nB (div nB num) nAB (div nAB num))
+;-> (20 0.5555555555555556 16 0.4444444444444444 0 0)
+
+(div 5 9)
+;-> 0.5555555555555556
+
+Quindi A batte B con probabilità 0.5555... (cioè 5/9).
+
+Scriviamo una funzione che calcola il tutto prendendo come parametri i valori di due dadi:
+
+(define (lancio d1 d2)
+  (local (eventi n1 n2 np len)
+    (setq n1 0 n2 0 np 0)
+    (setq eventi (prod-cart d1 d2))
+    (dolist (el eventi)
+      (cond ((> (el 0) (el 1)) (++ n1))
+            ((< (el 0) (el 1)) (++ n2))
+            (true (++ np))))
+    (setq len (length eventi))
+    (list n1 (div n1 num) n2 (div n2 num) np (div np num))))
+
+Verifichiamo che i tre dadi siano intransitivi:
+
+(lancio A B)
+;-> (20 0.5555555555555556 16 0.4444444444444444 0 0)
+
+(lancio B C)
+;-> (20 0.5555555555555556 16 0.4444444444444444 0 0)
+
+(lancio C A)
+;-> (20 0.5555555555555556 16 0.4444444444444444 0 0)
+
+Un altro insieme di dadi intransitivo è il seguente:
+
+(setq A1 '(2 2 6 6 7 7))
+(setq B1 '(1 1 5 5 9 9))
+(setq C1 '(3 3 4 4 8 8))
+
+(lancio A1 B1)
+;-> (20 0.5555555555555556 16 0.4444444444444444 0 0)
+
+(lancio B1 C1)
+;-> (20 0.5555555555555556 16 0.4444444444444444 0 0)
+
+(lancio C1 A1)
+;-> (20 0.5555555555555556 16 0.4444444444444444 0 0)
+
+Anche in questo caso la probabilità tra i dadi vale 5/9.
+
+Comunque questi due insiemi non sono equivalenti. Infatti se lanciamo tutti i dadi di un insieme e calcoliamo le probabilità di vincita di ognuno dei dadi otteniamo valori diversi per i due insiemi. 
+
+Calcoliamo tutti gli eventi possibili per il lancio di tre dadi:
+
+(setq ev1 (prod-cart A B))
+(setq ev2 (prod-cart ev1 C))
+(setq eventi (map (fn(x) (list (x 0 0) (x 0 1) (x 1))) ev2))
+;-> ((2 1 3) (2 1 3) (2 1 5) (2 1 5) (2 1 7) (2 1 7) (2 1 3) 
+;->  (2 1 3) (2 1 5) (2 1 5) (2 1 7) (2 1 7) (2 6 3) (2 6 3)
+;->  ...
+;->  (9 6 7) (9 8 3) (9 8 3) (9 8 5) (9 8 5) (9 8 7) (9 8 7)
+;->  (9 8 3) (9 8 3) (9 8 5) (9 8 5) (9 8 7) (9 8 7))
+
+(length eventi)
+;-> 216
+
+Calcoliamo le probabilità di vittoria di ognuno dei tre dadi:
+
+(setq evnum (length eventi))
+(setq nABC (array 3 '(0)))
+(dolist (el eventi)
+  (setq valmax (apply max el))
+  (++ (nABC (find valmax el))))
+(println "A vince " (nABC 0) " volte su " evnum)
+(println "B vince " (nABC 1) " volte su " evnum)
+(println "C vince " (nABC 2) " volte su " evnum)
+;-> A vince 80 volte su 216
+;-> B vince 80 volte su 216
+;-> C vince 56 volte su 216
+
+Calcoliamo questi valori per il secondo insieme di dadi:
+
+(setq ev1 (prod-cart A1 B1))
+(setq ev2 (prod-cart ev1 C1))
+(setq eventi (map (fn(x) (list (x 0 0) (x 0 1) (x 1))) ev2))
+(setq evnum (length eventi))
+(setq nABC (array 3 '(0)))
+(dolist (el eventi)
+  (setq valmax (apply max el))
+  (++ (nABC (find valmax el))))
+(println "A1 vince " (nABC 0) " volte su " evnum)
+(println "B1 vince " (nABC 1) " volte su " evnum)
+(println "C1 vince " (nABC 2) " volte su " evnum)
+;-> A1 vince 64 volte su 216
+;-> B1 vince 88 volte su 216
+;-> C1 vince 64 volte su 216
+
+Quindi i due insiemi di dadi non sono equivalenti.
+
+Dado di Efron
+-------------
+I dadi di Efron sono un insieme di quattro dadi intransitivi inventati da Bradley Efron.
+I quattro dadi A, B, C, D hanno i seguenti numeri sulle sei facce:
+
+A: 4, 4, 4, 4, 0, 0
+B: 3, 3, 3, 3, 3, 3
+C: 6, 6, 2, 2, 2, 2
+D: 5, 5, 5, 1, 1, 1
+
+Ogni dado è battuto dal dado precedente nell'elenco, con una probabilità di 2/3:
+
+P(A>B) = P(B>C) = P(C>D) = P(D>A) = 2/3
+
+

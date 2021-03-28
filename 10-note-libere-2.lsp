@@ -418,7 +418,7 @@ x
 
 La seguente funzione simula (in modo semplificato) il comportamento della funzione "read" in Common Lisp:
 
-(define (read readstr readret)
+(define (reader readstr readret)
    (cond
       ((float readstr)
        (if (find "." readstr)
@@ -426,14 +426,23 @@ La seguente funzione simula (in modo semplificato) il comportamento della funzio
          (setq readret (integer readstr))
        )
       )
-      ((=(slice readstr 0 1)"(")
-         (setq readret(eval-string(append "'" readstr)))
+      ((= (slice readstr 0 1)"(")
+          (setq readret (eval-string (append "'" readstr)))
       )
       (true
-         (setq readret (symbol readstr))
+         (setq readret (sym readstr))
       )
    )
 )
+
+(eval (reader "(+ 1 2)" a))
+;-> 3
+
+(eval (reader "(+ 1 (/ 2 2))" a))
+;-> 2
+
+(eval (reader "(add 1.2 (div 2 2))" a))
+;-> 2.2
 
 
 ------------------------

@@ -706,6 +706,10 @@ NOTE LIBERE 3
   Espressioni ABCDEFGHIJ
   Sequenza Juggler
   Limiti dei big-integer
+  Valutazione di espressioni infisse
+  Vincere 2 volte su 3
+  Investimenti in comune
+  Dadi intransitivi
   
 APPENDICI
 =========
