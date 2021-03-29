@@ -473,6 +473,7 @@ DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Numero che raddoppia (Wolfram)
   Calcolatore rotto (Broken calculator) (LeetCode)
   Contare le isole (islands) (Google)
+  Lista con prodotto 1 (Amazon)
 
 LIBRERIE
 ========
@@ -710,6 +711,8 @@ NOTE LIBERE 3
   Vincere 2 volte su 3
   Investimenti in comune
   Dadi intransitivi
+  Il prezzo di un libro
+  La barca, l'uomo e il mattone
   
 APPENDICI
 =========
@@ -741,7 +744,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (131 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (132 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================

@@ -473,6 +473,7 @@ DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Numero che raddoppia (Wolfram)
   Calcolatore rotto (Broken calculator) (LeetCode)
   Contare le isole (islands) (Google)
+  Lista con prodotto 1 (Amazon)
 
 LIBRERIE
 ========
@@ -710,6 +711,8 @@ NOTE LIBERE 3
   Vincere 2 volte su 3
   Investimenti in comune
   Dadi intransitivi
+  Il prezzo di un libro
+  La barca, l'uomo e il mattone
   
 APPENDICI
 =========
@@ -741,7 +744,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (131 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (132 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================
@@ -42413,7 +42416,7 @@ sostituiamo i valori partendo da n = 4:
 3! = 4!/4 = 2*3*4/4 = 2*3 = 6
 2! = 3!/3 = 2*3/3 = 2 = 2
 1! = 2!/2 = 2/2 = 1
-0! = 1!/1 = 1/1 = 0 
+0! = 1!/1 = 1/1 = 0
 
 Nota: 1 = 1! = 1 * (1-1)! = 1 * 0! = 0!
 
@@ -44547,7 +44550,7 @@ Per spostare n dischi si richiede di compiere un'operazione elementare (spostame
 Questo algoritmo ha una complessità esponenziale.
 Si può dimostrare che la Torre di Hanoi è risolvibile per qualsiasi valore di "n".
 
-La seguente funzione risolve il problema della torre di hanoi:
+La seguente funzione risolve il problema della torre di hanoi (con A=1, B=2, C=3):
 
 (define (solve-hanoi n from to using)
   (cond ((> n 0)
@@ -44567,6 +44570,58 @@ La seguente funzione risolve il problema della torre di hanoi:
 ;-> da 2 a 3
 ;-> da 1 a 3
 ;-> nil
+
+Se vogliamo ottenere la lista delle mosse in una lista possiamo scrivere:
+
+(define (solve-hanoi n from to using)
+  (cond ((> n 0)
+         (solve-hanoi (- n 1) from using to)
+         ;(println "da " from " a " to)
+         (push (list from to) sol -1)
+         (solve-hanoi (- n 1) using to from))
+         (true nil)))
+
+(define (hanoi numdischi start end use)
+  (let (sol '())
+    (solve-hanoi numdischi start end use)
+  sol))
+
+(hanoi 3 1 3 2)
+;-> ((1 3) (1 2) (3 2) (1 3) (2 1) (2 3) (1 3))
+
+(hanoi 4 1 3 2)
+;-> ((1 2) (1 3) (2 3) (1 2) (3 1) (3 2) (1 2) (1 3)
+;->  (2 3) (2 1) (3 1) (2 3) (1 2) (1 3) (2 3))
+
+Infine la seguente funzione mostra la soluzione passo per passo:
+
+(define (print-hanoi numdisk lst)
+  (setq stato (list (sequence 1 numdisk) '() '()))
+  (println "Stato iniziale")
+  (println stato)
+  (dolist (el lst)
+    (setq da (pop (stato (- (el 0) 1))))
+    (push da (stato (- (el 1) 1)))
+    ;(println "da " (el 0) " a " (el 1))
+    (println (+ $idx 1) ". da: " (char (+ 64 (el 0))) " a: " (char (+ 64 (el 1))))
+    (print stato)
+    (read-line)
+  ))
+
+(print-hanoi 4 (hanoi 4 1 3 2))
+;-> Stato iniziale
+;-> ((1 2 3 4) () ())
+;-> 1. da: A a: B
+;-> ((2 3 4) (1) ())
+;-> 2. da: A a: C
+;-> ((3 4) (1) (2))
+;-> 3. da: B a: C
+;-> ((3 4) () (1 2))
+;-> ...
+;-> 14. da: A a: C
+;-> (() (1) (2 3 4))
+;-> 15. da: B a: C
+;-> (() () (1 2 3 4))
 
 
 ------------------
@@ -44679,7 +44734,7 @@ P1(n) = --- * --- * ... * ------- = ----------------------
 Quindi la probabilità del suo evento complementare, cioè che esistano almeno due compleanni uguali, vale:
 
                                364!
-P(n) = 1 - P1(n) = 1 - ---------------------- =
+P(n) = 1 - P1(n) = 1 - ----------------------
                        365^(n-1) * (365 - n)!
 
 Definiamo la funzione fattoriale (per i numeri big integer):
@@ -44740,7 +44795,7 @@ Più concisamente:
 )
 
 (compleanno 22)
-0.4756953076625502
+;-> 0.4756953076625502
 
 (compleanno 23)
 ;-> 0.5072972343239853
@@ -47221,7 +47276,7 @@ Funzione che cerca di minimizzare la distanza:
                 (setq q (hash (string (list x1 y1))))
                 (setq pq (dist p q))
                 (if (< pq d)
-                  (begin 
+                  (begin
                     (delete 'hash)
                     (throw (list pq p q))
                   )
@@ -48857,7 +48912,7 @@ Test di correttezza delle due funzioni:
 
 Il test è fallito infatti risulta (per esempio):
 
-(log 243 3) 
+(log 243 3)
 ;-> 4.999999999999999
 
 (ceil (log 243 3))
@@ -51356,7 +51411,7 @@ Dal punto di vista algoritmico possiamo trovare questa soluzione con la seguente
 
 Esistono 7 soluzioni differenti per questo problema e Kirkman le ha trovato tutte nel 1850:
 
-Soluzione 1 
+Soluzione 1
 [ A B C , D E F , G H I , J K L , M N O ]
 [ A D G , B E J , C F M , H K N , I L O ]
 [ A E N , B D O , C H L , F I K , G J M ]
@@ -51365,7 +51420,7 @@ Soluzione 1
 [ A F L , B I N , C J O , D H M , E G K ]
 [ A K O , B F H , C G N , D I J , E L M ]
 
-Soluzione 2 
+Soluzione 2
 [ A B C , D E F , G H I , J K L , M N O ]
 [ A D G , B E J , C F M , H K N , I L O ]
 [ A E N , B D O , C H L , F I K , G J M ]
@@ -51374,7 +51429,7 @@ Soluzione 2
 [ A F H , B I N , C J O , D K M , E G L ]
 [ A K O , B F L , C G N , D H J , E I M ]
 
-Soluzione 3 
+Soluzione 3
 [ A B C , D E F , G H I , J K L , M N O ]
 [ A D G , B E J , C F M , H K N , I L O ]
 [ A E N , B D O , C H L , F I K , G J M ]
@@ -51383,7 +51438,7 @@ Soluzione 3
 [ A F L , B G K , C J N , D I M , E H O ]
 [ A I J , B F H , C G O , D L N , E K M ]
 
-Soluzione 4 
+Soluzione 4
 [ A B C , D E F , G H I , J K L , M N O ]
 [ A D G , B E J , C F M , H K N , I L O ]
 [ A E N , B D O , C H L , F I K , G J M ]
@@ -51392,7 +51447,7 @@ Soluzione 4
 [ A F L , B I N , C G O , D H J , E K M ]
 [ A K O , B F H , C J N , D I M , E G L ]
 
-Soluzione 5 
+Soluzione 5
 [ A B C , D E F , G H I , J K L , M N O ]
 [ A D G , B E J , C F M , H K N , I L O ]
 [ A E O , B D N , C H L , F I K , G J M ]
@@ -51401,7 +51456,7 @@ Soluzione 5
 [ A F L , B I M , C J N , D H O , E G K ]
 [ A K M , B F H , C G O , D I J , E L N ]
 
-Soluzione 6 
+Soluzione 6
 [ A B C , D E F , G H I , J K L , M N O ]
 [ A D G , B E J , C F M , H K N , I L O ]
 [ A E O , B D N , C H L , F I K , G J M ]
@@ -51410,7 +51465,7 @@ Soluzione 6
 [ A F H , B I M , C J N , D K O , E G L ]
 [ A K M , B F L , C G O , D H J , E I N ]
 
-Soluzione 7 
+Soluzione 7
 [ A B C , D E F , G H I , J K L , M N O ]
 [ A D G , B E J , C H M , F K N , I L O ]
 [ A E L , B D N , C G K , F I M , H J O ]
@@ -51477,22 +51532,22 @@ cabbage = cavoli
 L'algoritmo ricorsivo ricerca lo spazio degli stati in modo depth-first usando una lista "been-list" per tenere traccia degli stati visitati evitando i possibili cicli infiniti. Definiamo lo spazio degli stati come tipo di dati astratto utilizzando alcune funzioni. Uno stato viene rappresentato come una lista di quattro elementi i cui valori indicano la posizione del contadino (farmer), del lupo (wolf), della capra (goat) e dei cavoli (cabbage): ad esempio (e w e w) significa che il primo elemento (contadino) si trova a est, il secondo elemento (lupo) si trova a ovest (west), il terzo elemento (capra) si trova ad est e l'ultimo elemento (cavoli) si trova a ovest.
 Per costruire uno stato usiamo la funzione "make-state" (state-constructor) che prende come argomento la posizione dei quattro elementi e restituisce uno stato. Per accedere alla posizione di un elemento usiamo quattro funzioni "farmer-side", "wolf-side", "goat-side" e "cabbage-side" che prendono in ingresso uno stato e restituiscono la posizione dell'elemento.
 
-(define make-state (f w g c) (list fwgc)) 
+(define make-state (f w g c) (list fwgc))
 (define (farmer-side state) (state 0))
 (define (wolf-side state) (state 1))
 (define (goat-side state) (state 2))
 (define (cabbage-side state) (state 3))
 
 Queste funzioni vengono usate per implementare le quattro azioni di spostamento che possono essere effettuate:
-attraversare il fiume da solo o con il lupo o con la capra o con il cavolo. 
+attraversare il fiume da solo o con il lupo o con la capra o con il cavolo.
 Ogni azione utilizza le funzioni di accesso per dividere uno stato nei suoi componenti. Una funzione chiamata "opposite" determina la nuova posizione degli elementi che attraversano il fiume e poi la funzione "make-state" riunisce il tutto in un nuovo stato. Durante queste azioni dobbiamo assicurarci che gli stati che raggiungiamo/visitiamo siano sicuri e li controlliamo con la funzione "safe" prima di applicare ogni azione di movimento degli elementi:
 
 (safe '(w w w w)) ; stato sicuro -> stato
-;-> (w w w w) 
+;-> (w w w w)
 (safe '(e w w e)) ; il lupo mangia la capra -> stato non sicuro -> nil
-;-> nil 
+;-> nil
 (safe '(w w e e)) ; la capra mangia il cavolo -> stato non sicuro -> nil
-;-> nil 
+;-> nil
 
 Pertanto, qualsiasi azione che sposta in uno stato non sicuro restituirà nil invece di quello stato. L'algoritmo ricorsivo depth-first verifica questo risultato (nil) e lo utilizza per eliminare lo stato dalla soluzione.
 In questo modo la funzione di azione/spostamento del contadino "farmer-take-self" viene così definita:
@@ -51568,7 +51623,7 @@ ciò si verifica, "or" termina senza valutare gli altri argomenti e restituisce 
 Ogni volta che la funzione "path" si richiama ricorsivamente per generare un nuovo stato, viene aggiunto lo stato genitore nella lista degli stati visitati "been-list". Per assicurarsi che lo stato corrente non sia un elemento della lista "been-list" (cioè che non sia già stato visitato) utilizziamo la funzione primitiva "member". Ciò si ottiene controllando lo stato corrente per l'appartenenza alla "been-list" prima di generare i suoi discendenti.
 
 Nota: Piuttosto che fare in modo che una funzione restituisca solo il successo o il fallimento della condizione, è meglio restiture il percorso effettivo della soluzione. Perché la serie di stati del percorso della soluzione è già
-contenuta nella lista "been-list", viene usata la funzione "member" che restituisce questa lista. 
+contenuta nella lista "been-list", viene usata la funzione "member" che restituisce questa lista.
 
 Quando lo stato corrente è uguale al goal, allora dobbiamo aggiungere questo stato alla lista "been-list" e poi invertire la lista che è stata costruita in ordine inverso.
 
@@ -51582,7 +51637,7 @@ Mettendo tutto insieme:
 
 ; Funzione soluzione
 (define (solve-fwgc state goal)
-    (path state goal '()))    
+    (path state goal '()))
 ; Algoritmo ricorsivo di ricerca depth-first
 (define (path state goal been-list)
    (cond ((null? state) nil)
@@ -51649,6 +51704,16 @@ Proviamo la funzione soluzione in entrambi i sensi (est -> ovest e ovest -> est)
 
 (solve-fwgc '(w w w w) '(e e e e))
 ;-> ((w w w w) (e w e w) (w w e w) (e e e w) (w e w w) (e e w e) (w e w e) (e e e e))
+
+Oppure:
+
+(define (cross-the-river)
+  (let ((start (make-state 'e 'e 'e 'e))
+        (goal (make-state 'w 'w 'w 'w)))
+       (path start goal '())))
+
+(cross-the-river)
+;-> ((e e e e) (w e w e) (e e w e) (w w w e) (e w e e) (w w e w) (e w e w) (w w w w))
 
 
 ====================================================
@@ -59269,6 +59334,63 @@ Contiamo le isole di tipo 2:
 
 (conta-isole matrice 2)
 ;-> 3
+
+
+-----------------------------
+Lista con prodotto 1 (Amazon)
+-----------------------------
+
+Data una lista contenente N numeri interi. In un passo, è possibile aumentare o diminuire di 1 qualsiasi elemento della lista (ma uno soltanto). Trovare il numero minimo di passi richiesti in modo che il prodotto degli elementi della lista diventi 1.
+
+Esempi:
+
+lst = (-2  4  0)
+passi = 5
+Possiamo cambiare da -2 a -1, da 0 a -1 e da 4 a 1.
+Quindi sono necessari un totale di 5 passi per aggiornare gli elementi in modo tale il prodotto finale valga 1.
+
+lst = (-1 1 -1) 
+passi = 0
+Il prodotto della lista vale già 1, quindi non occorre modificare nulla.
+
+(define (prod-uno lst)
+  (local (step neg zeri)
+    (setq step 0)
+    ; quanti numeri negativi
+    (setq neg 0)
+    ; quanti zeri
+    (setq zeri 0)
+    (dolist (x lst)
+      (cond ((> x 0)
+             ; passi per andare a +1
+             (setq step (+ step (- x 1))))
+            ((= x 0)
+             ; passi per andare a -1
+             (++ step)
+             (++ zeri)
+             (++ neg))
+            ((< x 0)
+            ; passi per andare a -1
+             (setq step (+ step (abs (+ x 1))))
+             (++ neg))
+      )
+    )
+    ; se esiste un numero dispari di numeri negativi
+    ; allora bisogna aggiungere al numero di passi totali:
+    ; a) 2 se non esistono zeri nella lista
+    ; (perchè servono due passi per arrivare da -1 a +1)
+    ; b) 0 se esistono zeri nella lista
+    ;; (perchè lo zero si trova già a -1)
+    (if (and (odd? neg) (= zeri 0))
+        (setq step (+ step 2)))
+    step))
+
+(prod-uno '(-1 1 -1))
+;-> 0
+(prod-uno '(-2 4 0))
+;-> 5
+(prod-uno '(-2 5 0 0 -12 3 4 1 0))
+;-> 24
 
 
 ==========
@@ -83445,7 +83567,7 @@ Per vincere la scommessa Eva deve sicuramente vincere la seconda partita (altrim
 
 Supponiamo che la probabilità di Eva di battere Vero valga p1 con (p1 < 0.5) (cioè Vero è più forte di Eva) e la probabilità di Eva di battere Vale valga p2 (cioè Eva è più forte di Vale).
 La probabilità di successo di Eva è data dalla somma delle probabilità di tutti gli eventi favorevoli.
-Gli eventi favorevoli sono i tre seguenti
+Gli eventi favorevoli sono i tre seguenti:
 
 1) Eva tutte e tre le partite:              --->  (p1) * (p2) * (1 - p1)
 2) Eva vince la seconda e la terza partita: --->  (1 - p1) * (p2) * (p1)
@@ -83716,6 +83838,39 @@ D: 5, 5, 5, 1, 1, 1
 Ogni dado è battuto dal dado precedente nell'elenco, con una probabilità di 2/3:
 
 P(A>B) = P(B>C) = P(C>D) = P(D>A) = 2/3
+
+
+---------------------
+Il prezzo di un libro
+---------------------
+
+Dal libro "The Moscow Puzzles" di Kordemsky.
+Il prezzo di un libro è di 10 euro più la metà del suo prezzo di vendita.
+Quanto costa il libro?
+
+Questo piccolo puzzle lascia perplesse diverse persone. Alcuni rispondono dicendo che il libro costa 10 euro. Altri che il costo è di 15 euro. La soluzione corretta è che il libro costa 20 euro.
+Infatti se poniamo x il costo del libro abbiamo la seguente equazione:
+
+  x = 10 + x/2
+
+da cui si ricava:
+
+  x - x/2 = 10  -->  x/2 = 10  -->  x = 2*10 = 20
+
+
+-----------------------------
+La barca, l'uomo e il mattone
+-----------------------------
+
+Un uomo è su una barca a remi che galleggia in un lago. 
+C'è un mattone nella barca.
+Per qualche ragione, l'uomo getta il mattone in acqua.
+Il livello dell'acqua del lago rimane lo stesso, sale o scende a causa del fatto che l'uomo ha lanciato il mattone nel lago?
+
+Quando il mattone è nella barca, la quantità di acqua spostata dal mattone è uguale al suo peso. 
+Quando il mattone viene gettato in mare, la quantità di acqua spostata dal mattone è uguale al suo volume. 
+Poiché il mattone affonda nell'acqua, sappiamo che il peso specifico del mattone è maggiore di quello dell'acqua. Quindi, il volume d'acqua equivalente alla massa del mattone è maggiore del volume del mattone. Pertanto, quando il mattone viene gettato in acqua, viene spostata meno acqua rispetto a quando il mattone era nella barca (per esempio, supponiamo che il mattone pesa 2 chilogrammi e ha un volume di 1 litro: allora quando il mattone giace all'interno della barca provoca lo spostamento di 2 chilogrammi, cioè di 2 litri di acqua. Invece quando il mattone viene gettato nel lago provoca lo spostamento del proprio volume, cioè di 1 litro d'acqua).
+Quindi il livello dell'acqua diminuirà quando il mattone verrà gettato nel lago.
 
 
 ===========

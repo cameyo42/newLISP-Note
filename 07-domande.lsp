@@ -7618,3 +7618,60 @@ Contiamo le isole di tipo 2:
 ;-> 3
 
 
+-----------------------------
+Lista con prodotto 1 (Amazon)
+-----------------------------
+
+Data una lista contenente N numeri interi. In un passo, è possibile aumentare o diminuire di 1 qualsiasi elemento della lista (ma uno soltanto). Trovare il numero minimo di passi richiesti in modo che il prodotto degli elementi della lista diventi 1.
+
+Esempi:
+
+lst = (-2  4  0)
+passi = 5
+Possiamo cambiare da -2 a -1, da 0 a -1 e da 4 a 1.
+Quindi sono necessari un totale di 5 passi per aggiornare gli elementi in modo tale il prodotto finale valga 1.
+
+lst = (-1 1 -1) 
+passi = 0
+Il prodotto della lista vale già 1, quindi non occorre modificare nulla.
+
+(define (prod-uno lst)
+  (local (step neg zeri)
+    (setq step 0)
+    ; quanti numeri negativi
+    (setq neg 0)
+    ; quanti zeri
+    (setq zeri 0)
+    (dolist (x lst)
+      (cond ((> x 0)
+             ; passi per andare a +1
+             (setq step (+ step (- x 1))))
+            ((= x 0)
+             ; passi per andare a -1
+             (++ step)
+             (++ zeri)
+             (++ neg))
+            ((< x 0)
+            ; passi per andare a -1
+             (setq step (+ step (abs (+ x 1))))
+             (++ neg))
+      )
+    )
+    ; se esiste un numero dispari di numeri negativi
+    ; allora bisogna aggiungere al numero di passi totali:
+    ; a) 2 se non esistono zeri nella lista
+    ; (perchè servono due passi per arrivare da -1 a +1)
+    ; b) 0 se esistono zeri nella lista
+    ;; (perchè lo zero si trova già a -1)
+    (if (and (odd? neg) (= zeri 0))
+        (setq step (+ step 2)))
+    step))
+
+(prod-uno '(-1 1 -1))
+;-> 0
+(prod-uno '(-2 4 0))
+;-> 5
+(prod-uno '(-2 5 0 0 -12 3 4 1 0))
+;-> 24
+
+

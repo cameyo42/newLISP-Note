@@ -6111,7 +6111,7 @@ Per vincere la scommessa Eva deve sicuramente vincere la seconda partita (altrim
 
 Supponiamo che la probabilità di Eva di battere Vero valga p1 con (p1 < 0.5) (cioè Vero è più forte di Eva) e la probabilità di Eva di battere Vale valga p2 (cioè Eva è più forte di Vale).
 La probabilità di successo di Eva è data dalla somma delle probabilità di tutti gli eventi favorevoli.
-Gli eventi favorevoli sono i tre seguenti
+Gli eventi favorevoli sono i tre seguenti:
 
 1) Eva tutte e tre le partite:              --->  (p1) * (p2) * (1 - p1)
 2) Eva vince la seconda e la terza partita: --->  (1 - p1) * (p2) * (p1)
@@ -6382,5 +6382,38 @@ D: 5, 5, 5, 1, 1, 1
 Ogni dado è battuto dal dado precedente nell'elenco, con una probabilità di 2/3:
 
 P(A>B) = P(B>C) = P(C>D) = P(D>A) = 2/3
+
+
+---------------------
+Il prezzo di un libro
+---------------------
+
+Dal libro "The Moscow Puzzles" di Kordemsky.
+Il prezzo di un libro è di 10 euro più la metà del suo prezzo di vendita.
+Quanto costa il libro?
+
+Questo piccolo puzzle lascia perplesse diverse persone. Alcuni rispondono dicendo che il libro costa 10 euro. Altri che il costo è di 15 euro. La soluzione corretta è che il libro costa 20 euro.
+Infatti se poniamo x il costo del libro abbiamo la seguente equazione:
+
+  x = 10 + x/2
+
+da cui si ricava:
+
+  x - x/2 = 10  -->  x/2 = 10  -->  x = 2*10 = 20
+
+
+-----------------------------
+La barca, l'uomo e il mattone
+-----------------------------
+
+Un uomo è su una barca a remi che galleggia in un lago. 
+C'è un mattone nella barca.
+Per qualche ragione, l'uomo getta il mattone in acqua.
+Il livello dell'acqua del lago rimane lo stesso, sale o scende a causa del fatto che l'uomo ha lanciato il mattone nel lago?
+
+Quando il mattone è nella barca, la quantità di acqua spostata dal mattone è uguale al suo peso. 
+Quando il mattone viene gettato in mare, la quantità di acqua spostata dal mattone è uguale al suo volume. 
+Poiché il mattone affonda nell'acqua, sappiamo che il peso specifico del mattone è maggiore di quello dell'acqua. Quindi, il volume d'acqua equivalente alla massa del mattone è maggiore del volume del mattone. Pertanto, quando il mattone viene gettato in acqua, viene spostata meno acqua rispetto a quando il mattone era nella barca (per esempio, supponiamo che il mattone pesa 2 chilogrammi e ha un volume di 1 litro: allora quando il mattone giace all'interno della barca provoca lo spostamento di 2 chilogrammi, cioè di 2 litri di acqua. Invece quando il mattone viene gettato nel lago provoca lo spostamento del proprio volume, cioè di 1 litro d'acqua).
+Quindi il livello dell'acqua diminuirà quando il mattone verrà gettato nel lago.
 
 

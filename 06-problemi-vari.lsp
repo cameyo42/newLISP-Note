@@ -634,7 +634,7 @@ sostituiamo i valori partendo da n = 4:
 3! = 4!/4 = 2*3*4/4 = 2*3 = 6
 2! = 3!/3 = 2*3/3 = 2 = 2
 1! = 2!/2 = 2/2 = 1
-0! = 1!/1 = 1/1 = 0 
+0! = 1!/1 = 1/1 = 0
 
 Nota: 1 = 1! = 1 * (1-1)! = 1 * 0! = 0!
 
@@ -2768,7 +2768,7 @@ Per spostare n dischi si richiede di compiere un'operazione elementare (spostame
 Questo algoritmo ha una complessità esponenziale.
 Si può dimostrare che la Torre di Hanoi è risolvibile per qualsiasi valore di "n".
 
-La seguente funzione risolve il problema della torre di hanoi:
+La seguente funzione risolve il problema della torre di hanoi (con A=1, B=2, C=3):
 
 (define (solve-hanoi n from to using)
   (cond ((> n 0)
@@ -2788,6 +2788,58 @@ La seguente funzione risolve il problema della torre di hanoi:
 ;-> da 2 a 3
 ;-> da 1 a 3
 ;-> nil
+
+Se vogliamo ottenere la lista delle mosse in una lista possiamo scrivere:
+
+(define (solve-hanoi n from to using)
+  (cond ((> n 0)
+         (solve-hanoi (- n 1) from using to)
+         ;(println "da " from " a " to)
+         (push (list from to) sol -1)
+         (solve-hanoi (- n 1) using to from))
+         (true nil)))
+
+(define (hanoi numdischi start end use)
+  (let (sol '())
+    (solve-hanoi numdischi start end use)
+  sol))
+
+(hanoi 3 1 3 2)
+;-> ((1 3) (1 2) (3 2) (1 3) (2 1) (2 3) (1 3))
+
+(hanoi 4 1 3 2)
+;-> ((1 2) (1 3) (2 3) (1 2) (3 1) (3 2) (1 2) (1 3)
+;->  (2 3) (2 1) (3 1) (2 3) (1 2) (1 3) (2 3))
+
+Infine la seguente funzione mostra la soluzione passo per passo:
+
+(define (print-hanoi numdisk lst)
+  (setq stato (list (sequence 1 numdisk) '() '()))
+  (println "Stato iniziale")
+  (println stato)
+  (dolist (el lst)
+    (setq da (pop (stato (- (el 0) 1))))
+    (push da (stato (- (el 1) 1)))
+    ;(println "da " (el 0) " a " (el 1))
+    (println (+ $idx 1) ". da: " (char (+ 64 (el 0))) " a: " (char (+ 64 (el 1))))
+    (print stato)
+    (read-line)
+  ))
+
+(print-hanoi 4 (hanoi 4 1 3 2))
+;-> Stato iniziale
+;-> ((1 2 3 4) () ())
+;-> 1. da: A a: B
+;-> ((2 3 4) (1) ())
+;-> 2. da: A a: C
+;-> ((3 4) (1) (2))
+;-> 3. da: B a: C
+;-> ((3 4) () (1 2))
+;-> ...
+;-> 14. da: A a: C
+;-> (() (1) (2 3 4))
+;-> 15. da: B a: C
+;-> (() () (1 2 3 4))
 
 
 ------------------
@@ -2900,7 +2952,7 @@ P1(n) = --- * --- * ... * ------- = ----------------------
 Quindi la probabilità del suo evento complementare, cioè che esistano almeno due compleanni uguali, vale:
 
                                364!
-P(n) = 1 - P1(n) = 1 - ---------------------- =
+P(n) = 1 - P1(n) = 1 - ----------------------
                        365^(n-1) * (365 - n)!
 
 Definiamo la funzione fattoriale (per i numeri big integer):
@@ -2961,7 +3013,7 @@ Più concisamente:
 )
 
 (compleanno 22)
-0.4756953076625502
+;-> 0.4756953076625502
 
 (compleanno 23)
 ;-> 0.5072972343239853
@@ -5442,7 +5494,7 @@ Funzione che cerca di minimizzare la distanza:
                 (setq q (hash (string (list x1 y1))))
                 (setq pq (dist p q))
                 (if (< pq d)
-                  (begin 
+                  (begin
                     (delete 'hash)
                     (throw (list pq p q))
                   )
@@ -7078,7 +7130,7 @@ Test di correttezza delle due funzioni:
 
 Il test è fallito infatti risulta (per esempio):
 
-(log 243 3) 
+(log 243 3)
 ;-> 4.999999999999999
 
 (ceil (log 243 3))
@@ -9577,7 +9629,7 @@ Dal punto di vista algoritmico possiamo trovare questa soluzione con la seguente
 
 Esistono 7 soluzioni differenti per questo problema e Kirkman le ha trovato tutte nel 1850:
 
-Soluzione 1 
+Soluzione 1
 [ A B C , D E F , G H I , J K L , M N O ]
 [ A D G , B E J , C F M , H K N , I L O ]
 [ A E N , B D O , C H L , F I K , G J M ]
@@ -9586,7 +9638,7 @@ Soluzione 1
 [ A F L , B I N , C J O , D H M , E G K ]
 [ A K O , B F H , C G N , D I J , E L M ]
 
-Soluzione 2 
+Soluzione 2
 [ A B C , D E F , G H I , J K L , M N O ]
 [ A D G , B E J , C F M , H K N , I L O ]
 [ A E N , B D O , C H L , F I K , G J M ]
@@ -9595,7 +9647,7 @@ Soluzione 2
 [ A F H , B I N , C J O , D K M , E G L ]
 [ A K O , B F L , C G N , D H J , E I M ]
 
-Soluzione 3 
+Soluzione 3
 [ A B C , D E F , G H I , J K L , M N O ]
 [ A D G , B E J , C F M , H K N , I L O ]
 [ A E N , B D O , C H L , F I K , G J M ]
@@ -9604,7 +9656,7 @@ Soluzione 3
 [ A F L , B G K , C J N , D I M , E H O ]
 [ A I J , B F H , C G O , D L N , E K M ]
 
-Soluzione 4 
+Soluzione 4
 [ A B C , D E F , G H I , J K L , M N O ]
 [ A D G , B E J , C F M , H K N , I L O ]
 [ A E N , B D O , C H L , F I K , G J M ]
@@ -9613,7 +9665,7 @@ Soluzione 4
 [ A F L , B I N , C G O , D H J , E K M ]
 [ A K O , B F H , C J N , D I M , E G L ]
 
-Soluzione 5 
+Soluzione 5
 [ A B C , D E F , G H I , J K L , M N O ]
 [ A D G , B E J , C F M , H K N , I L O ]
 [ A E O , B D N , C H L , F I K , G J M ]
@@ -9622,7 +9674,7 @@ Soluzione 5
 [ A F L , B I M , C J N , D H O , E G K ]
 [ A K M , B F H , C G O , D I J , E L N ]
 
-Soluzione 6 
+Soluzione 6
 [ A B C , D E F , G H I , J K L , M N O ]
 [ A D G , B E J , C F M , H K N , I L O ]
 [ A E O , B D N , C H L , F I K , G J M ]
@@ -9631,7 +9683,7 @@ Soluzione 6
 [ A F H , B I M , C J N , D K O , E G L ]
 [ A K M , B F L , C G O , D H J , E I N ]
 
-Soluzione 7 
+Soluzione 7
 [ A B C , D E F , G H I , J K L , M N O ]
 [ A D G , B E J , C H M , F K N , I L O ]
 [ A E L , B D N , C G K , F I M , H J O ]
@@ -9698,22 +9750,22 @@ cabbage = cavoli
 L'algoritmo ricorsivo ricerca lo spazio degli stati in modo depth-first usando una lista "been-list" per tenere traccia degli stati visitati evitando i possibili cicli infiniti. Definiamo lo spazio degli stati come tipo di dati astratto utilizzando alcune funzioni. Uno stato viene rappresentato come una lista di quattro elementi i cui valori indicano la posizione del contadino (farmer), del lupo (wolf), della capra (goat) e dei cavoli (cabbage): ad esempio (e w e w) significa che il primo elemento (contadino) si trova a est, il secondo elemento (lupo) si trova a ovest (west), il terzo elemento (capra) si trova ad est e l'ultimo elemento (cavoli) si trova a ovest.
 Per costruire uno stato usiamo la funzione "make-state" (state-constructor) che prende come argomento la posizione dei quattro elementi e restituisce uno stato. Per accedere alla posizione di un elemento usiamo quattro funzioni "farmer-side", "wolf-side", "goat-side" e "cabbage-side" che prendono in ingresso uno stato e restituiscono la posizione dell'elemento.
 
-(define make-state (f w g c) (list fwgc)) 
+(define make-state (f w g c) (list fwgc))
 (define (farmer-side state) (state 0))
 (define (wolf-side state) (state 1))
 (define (goat-side state) (state 2))
 (define (cabbage-side state) (state 3))
 
 Queste funzioni vengono usate per implementare le quattro azioni di spostamento che possono essere effettuate:
-attraversare il fiume da solo o con il lupo o con la capra o con il cavolo. 
+attraversare il fiume da solo o con il lupo o con la capra o con il cavolo.
 Ogni azione utilizza le funzioni di accesso per dividere uno stato nei suoi componenti. Una funzione chiamata "opposite" determina la nuova posizione degli elementi che attraversano il fiume e poi la funzione "make-state" riunisce il tutto in un nuovo stato. Durante queste azioni dobbiamo assicurarci che gli stati che raggiungiamo/visitiamo siano sicuri e li controlliamo con la funzione "safe" prima di applicare ogni azione di movimento degli elementi:
 
 (safe '(w w w w)) ; stato sicuro -> stato
-;-> (w w w w) 
+;-> (w w w w)
 (safe '(e w w e)) ; il lupo mangia la capra -> stato non sicuro -> nil
-;-> nil 
+;-> nil
 (safe '(w w e e)) ; la capra mangia il cavolo -> stato non sicuro -> nil
-;-> nil 
+;-> nil
 
 Pertanto, qualsiasi azione che sposta in uno stato non sicuro restituirà nil invece di quello stato. L'algoritmo ricorsivo depth-first verifica questo risultato (nil) e lo utilizza per eliminare lo stato dalla soluzione.
 In questo modo la funzione di azione/spostamento del contadino "farmer-take-self" viene così definita:
@@ -9789,7 +9841,7 @@ ciò si verifica, "or" termina senza valutare gli altri argomenti e restituisce 
 Ogni volta che la funzione "path" si richiama ricorsivamente per generare un nuovo stato, viene aggiunto lo stato genitore nella lista degli stati visitati "been-list". Per assicurarsi che lo stato corrente non sia un elemento della lista "been-list" (cioè che non sia già stato visitato) utilizziamo la funzione primitiva "member". Ciò si ottiene controllando lo stato corrente per l'appartenenza alla "been-list" prima di generare i suoi discendenti.
 
 Nota: Piuttosto che fare in modo che una funzione restituisca solo il successo o il fallimento della condizione, è meglio restiture il percorso effettivo della soluzione. Perché la serie di stati del percorso della soluzione è già
-contenuta nella lista "been-list", viene usata la funzione "member" che restituisce questa lista. 
+contenuta nella lista "been-list", viene usata la funzione "member" che restituisce questa lista.
 
 Quando lo stato corrente è uguale al goal, allora dobbiamo aggiungere questo stato alla lista "been-list" e poi invertire la lista che è stata costruita in ordine inverso.
 
@@ -9803,7 +9855,7 @@ Mettendo tutto insieme:
 
 ; Funzione soluzione
 (define (solve-fwgc state goal)
-    (path state goal '()))    
+    (path state goal '()))
 ; Algoritmo ricorsivo di ricerca depth-first
 (define (path state goal been-list)
    (cond ((null? state) nil)
@@ -9870,5 +9922,15 @@ Proviamo la funzione soluzione in entrambi i sensi (est -> ovest e ovest -> est)
 
 (solve-fwgc '(w w w w) '(e e e e))
 ;-> ((w w w w) (e w e w) (w w e w) (e e e w) (w e w w) (e e w e) (w e w e) (e e e e))
+
+Oppure:
+
+(define (cross-the-river)
+  (let ((start (make-state 'e 'e 'e 'e))
+        (goal (make-state 'w 'w 'w 'w)))
+       (path start goal '())))
+
+(cross-the-river)
+;-> ((e e e e) (w e w e) (e e w e) (w w w e) (e w e e) (w w e w) (e w e w) (w w w w))
 
 
