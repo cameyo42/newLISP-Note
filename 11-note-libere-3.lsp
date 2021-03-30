@@ -6417,3 +6417,87 @@ Poiché il mattone affonda nell'acqua, sappiamo che il peso specifico del matton
 Quindi il livello dell'acqua diminuirà quando il mattone verrà gettato nel lago.
 
 
+--------------------------------------------
+Creare, modificare e restituire una funzione
+--------------------------------------------
+
+Crea una semplice funzione all'interno di un'altra funzione e la restituisce:
+
+(define (make-add-one)
+  (define (somma x) (+ 1 x))
+  somma)
+
+Eseguiamo la funzione:
+
+(make-add-one)
+;-> (lambda (x) (+ 1 x))
+
+Adesso possiamo eseguire la funzione creata "somma":
+(somma 2)
+;-> 3
+(somma 5)
+;-> 6
+
+Modifichiamo la funzione "somma":
+
+somma
+;-> (lambda (x) (+ 1 x))
+(last somma)
+;-> (+ 1 x)
+(nth 1 somma)
+;-> (+ 1 x)
+(setf (nth 1 somma) '(+ 2 x))
+;-> (+ 2 x)
+somma
+;-> (lambda (x) (+ 2 x))
+
+Adesso la funzione "somma" aggiunge 2 invece di 1:
+
+(somma 3)
+;-> 5
+
+Scriviamo una funzione che prende due parametri, il nome della funzione da creare e il parametro della funzione da creare.
+Funzione per creare una funzione con nome e parametri:
+
+(define (make-add name val)
+  (let (f nil)
+    (setq f (string "(define (" name " x) (+ " val " x))"))
+    (setq name (eval-string f))
+  name))
+
+Creiamo una funzione "somma-10" con parametro 10:
+
+(make-add "somma-10" 10)
+(lambda (x) (+ 10 x))
+
+Usiamo la funzione creata "somma-10":
+
+(somma-10 3)
+;-> 13
+
+
+------------------------
+Input utente multi-linea
+------------------------
+
+Con la funzione "read-line" possiamo ottenere una stringa di input dall'utente che termina quando premiamo "Invio" (una sola linea di testo). Se vogliamo ottenere una stringa che contiene più linee di testo possiamo usare la seguente funzione che utilizza la primitiva "read-char".
+
+(define (multi-line endchar)
+(catch
+  (let (out "" ch "")
+    (while (setf ch (read-char))
+      (if (!= (char ch) endchar)
+        (setf out (append out (char ch)))
+        (throw out)))
+    out)))
+
+Questa funzione prende come parametro un carattere che identifica la fine della stringa e restituisce la stringa inserita (multi-linea):
+
+(multi-line "~")
+pippo pluto
+topolino minnie
+qui quo qua
+~
+;-> "pippo pluto\r\ntopolino minnie\r\nqui quo qua\r\n"
+
+

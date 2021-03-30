@@ -713,6 +713,8 @@ NOTE LIBERE 3
   Dadi intransitivi
   Il prezzo di un libro
   La barca, l'uomo e il mattone
+  Creare, modificare e restituire una funzione
+  Input utente multi-linea
   
 APPENDICI
 =========

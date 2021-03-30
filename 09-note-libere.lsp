@@ -729,9 +729,13 @@ Comandi shell
 -------------
 Se un ! (punto esclamativo) viene inserito come primo carattere sulla riga di comando seguito da un comando di shell, il comando verrà eseguito. Ad esempio, !ls su Unix o !dir su MS Windows mostrerà un elenco della cartella di lavoro corrente. Non sono consentiti spazi tra il ! e il comando della shell. Simboli che iniziano con ! sono ancora consentiti all'interno delle espressioni o sulla riga di comando se preceduti da uno spazio. Nota: questa modalità funziona solo quando è in esecuzione nella shell e non funziona quando si controlla newLISP da un'altra applicazione.
 
-Per uscire dalla shell newLISP su Linux / Unix, premere Ctrl-D. Su MS Windows, digita (esci) o Ctrl-C, quindi il tasto x.
+Per uscire dalla shell newLISP su Linux/Unix, premere Ctrl-D. Su MS Windows, digita (esci) o Ctrl-C, quindi il tasto x.
 
 Utilizzare la funzione exec per accedere ai comandi della shell da altre applicazioni o per passare i risultati a newLISP.
+Ad esempio, per creare una lista con tutti i file PDF della cartella corrente basta eseguire:
+
+(setq pdfs (exec "dir *.pdf /B /On"))
+;-> ("newLISP.pdf" "test.pdf" "nr.pdf")
 
 
 -------------------

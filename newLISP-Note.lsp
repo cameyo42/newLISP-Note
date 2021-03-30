@@ -713,6 +713,8 @@ NOTE LIBERE 3
   Dadi intransitivi
   Il prezzo di un libro
   La barca, l'uomo e il mattone
+  Creare, modificare e restituire una funzione
+  Input utente multi-linea
   
 APPENDICI
 =========
@@ -59391,6 +59393,12 @@ Il prodotto della lista vale già 1, quindi non occorre modificare nulla.
 ;-> 5
 (prod-uno '(-2 5 0 0 -12 3 4 1 0))
 ;-> 24
+(prod-uno '(-1 -1))
+;-> 0
+(prod-uno '(-1 1))
+;-> 2
+(prod-uno '(-1 1 0))
+;-> 1
 
 
 ==========
@@ -63396,9 +63404,13 @@ Comandi shell
 -------------
 Se un ! (punto esclamativo) viene inserito come primo carattere sulla riga di comando seguito da un comando di shell, il comando verrà eseguito. Ad esempio, !ls su Unix o !dir su MS Windows mostrerà un elenco della cartella di lavoro corrente. Non sono consentiti spazi tra il ! e il comando della shell. Simboli che iniziano con ! sono ancora consentiti all'interno delle espressioni o sulla riga di comando se preceduti da uno spazio. Nota: questa modalità funziona solo quando è in esecuzione nella shell e non funziona quando si controlla newLISP da un'altra applicazione.
 
-Per uscire dalla shell newLISP su Linux / Unix, premere Ctrl-D. Su MS Windows, digita (esci) o Ctrl-C, quindi il tasto x.
+Per uscire dalla shell newLISP su Linux/Unix, premere Ctrl-D. Su MS Windows, digita (esci) o Ctrl-C, quindi il tasto x.
 
 Utilizzare la funzione exec per accedere ai comandi della shell da altre applicazioni o per passare i risultati a newLISP.
+Ad esempio, per creare una lista con tutti i file PDF della cartella corrente basta eseguire:
+
+(setq pdfs (exec "dir *.pdf /B /On"))
+;-> ("newLISP.pdf" "test.pdf" "nr.pdf")
 
 
 -------------------
@@ -83871,6 +83883,90 @@ Quando il mattone è nella barca, la quantità di acqua spostata dal mattone è 
 Quando il mattone viene gettato in mare, la quantità di acqua spostata dal mattone è uguale al suo volume. 
 Poiché il mattone affonda nell'acqua, sappiamo che il peso specifico del mattone è maggiore di quello dell'acqua. Quindi, il volume d'acqua equivalente alla massa del mattone è maggiore del volume del mattone. Pertanto, quando il mattone viene gettato in acqua, viene spostata meno acqua rispetto a quando il mattone era nella barca (per esempio, supponiamo che il mattone pesa 2 chilogrammi e ha un volume di 1 litro: allora quando il mattone giace all'interno della barca provoca lo spostamento di 2 chilogrammi, cioè di 2 litri di acqua. Invece quando il mattone viene gettato nel lago provoca lo spostamento del proprio volume, cioè di 1 litro d'acqua).
 Quindi il livello dell'acqua diminuirà quando il mattone verrà gettato nel lago.
+
+
+--------------------------------------------
+Creare, modificare e restituire una funzione
+--------------------------------------------
+
+Crea una semplice funzione all'interno di un'altra funzione e la restituisce:
+
+(define (make-add-one)
+  (define (somma x) (+ 1 x))
+  somma)
+
+Eseguiamo la funzione:
+
+(make-add-one)
+;-> (lambda (x) (+ 1 x))
+
+Adesso possiamo eseguire la funzione creata "somma":
+(somma 2)
+;-> 3
+(somma 5)
+;-> 6
+
+Modifichiamo la funzione "somma":
+
+somma
+;-> (lambda (x) (+ 1 x))
+(last somma)
+;-> (+ 1 x)
+(nth 1 somma)
+;-> (+ 1 x)
+(setf (nth 1 somma) '(+ 2 x))
+;-> (+ 2 x)
+somma
+;-> (lambda (x) (+ 2 x))
+
+Adesso la funzione "somma" aggiunge 2 invece di 1:
+
+(somma 3)
+;-> 5
+
+Scriviamo una funzione che prende due parametri, il nome della funzione da creare e il parametro della funzione da creare.
+Funzione per creare una funzione con nome e parametri:
+
+(define (make-add name val)
+  (let (f nil)
+    (setq f (string "(define (" name " x) (+ " val " x))"))
+    (setq name (eval-string f))
+  name))
+
+Creiamo una funzione "somma-10" con parametro 10:
+
+(make-add "somma-10" 10)
+(lambda (x) (+ 10 x))
+
+Usiamo la funzione creata "somma-10":
+
+(somma-10 3)
+;-> 13
+
+
+------------------------
+Input utente multi-linea
+------------------------
+
+Con la funzione "read-line" possiamo ottenere una stringa di input dall'utente che termina quando premiamo "Invio" (una sola linea di testo). Se vogliamo ottenere una stringa che contiene più linee di testo possiamo usare la seguente funzione che utilizza la primitiva "read-char".
+
+(define (multi-line endchar)
+(catch
+  (let (out "" ch "")
+    (while (setf ch (read-char))
+      (if (!= (char ch) endchar)
+        (setf out (append out (char ch)))
+        (throw out)))
+    out)))
+
+Questa funzione prende come parametro un carattere che identifica la fine della stringa e restituisce la stringa inserita (multi-linea):
+
+(multi-line "~")
+pippo pluto
+topolino minnie
+qui quo qua
+~
+;-> "pippo pluto\r\ntopolino minnie\r\nqui quo qua\r\n"
 
 
 ===========

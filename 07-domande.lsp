@@ -7673,5 +7673,11 @@ Il prodotto della lista vale già 1, quindi non occorre modificare nulla.
 ;-> 5
 (prod-uno '(-2 5 0 0 -12 3 4 1 0))
 ;-> 24
+(prod-uno '(-1 -1))
+;-> 0
+(prod-uno '(-1 1))
+;-> 2
+(prod-uno '(-1 1 0))
+;-> 1
 
 
