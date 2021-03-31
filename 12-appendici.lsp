@@ -6231,3 +6231,23 @@ Mathematical symbols     Commercial symbols       Quotes and parenthesis
 |  ≡  |  alt + 240  |    |  °  |  alt + 248  |
 
 
+============================================================================
+ TRUE? or NIL?
+============================================================================
+
+Non sei roba tua
+Non sei il tuo lavoro
+Non sei il tuo patrimonio
+Non sei i tuoi successi
+Non sei la tua età
+Non sei la tua salute
+Non sei il tuo corpo
+Non sei le tue opinioni
+Non sei la tua conoscenza
+Non sei i tuoi ricordi
+Non sei i tuoi pensieri
+Non sei le tue emozioni
+Non sei la tua personalità
+Non sei quello che pensi di essere...
+
+

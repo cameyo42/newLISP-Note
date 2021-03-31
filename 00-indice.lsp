@@ -134,7 +134,8 @@ FUNZIONI VARIE
   Numeri primi successivi e precedenti
   Giorno Giuliano (Julian day)
   Punto interno al poligono
-  Prodotto cartesiano
+  Prodotto cartesiano (dot-product)
+  Prodotto vettoriale (cross-product)
   Insieme delle parti (powerset)
   Terne pitagoriche
   Calcolo di e con il metodo spigot
@@ -715,6 +716,7 @@ NOTE LIBERE 3
   La barca, l'uomo e il mattone
   Creare, modificare e restituire una funzione
   Input utente multi-linea
+  Distanza dell'orizzonte
   
 APPENDICI
 =========
@@ -746,7 +748,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (132 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (136 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================

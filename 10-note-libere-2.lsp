@@ -4525,6 +4525,40 @@ Cioè, se guadagniamo il 10%, poi dobbiamo perdere il 9.09% per ritornare allo s
 
 Attenzione alle percentuali!
 
+Inversione delle percentuali
+----------------------------
+
+Il 36% di 63 vale 22.68. Quanto vale il 63% di 36?
+
+Scriviamo la funzione e calcoliamo:
+
+(define (perc p val)
+  (mul p (div val 100)))
+
+(perc 36 63)
+;-> 22.68
+(perc 63 36)
+;-> 22.68
+
+Facciamo un'altra prova:
+
+(perc 21 77)
+;-> 16.17
+(perc 77 21)
+;-> 16.17
+
+Quindi: x% di y = y% di x
+
+Cioè, (x/100)*y = (y/100)*x
+
+Per dimostrarlo basta riscrivere l'ultima equazione in questo modo:
+
+ (x*y/100) = (x*y/100)
+
+che è chiaramente vera.
+
+Nota: 0.12 è il 3% di 4 e .56 è il 7% di 8.
+
 
 ----------------------------------------------
 Teorema di Euclide (infinità dei numeri primi)

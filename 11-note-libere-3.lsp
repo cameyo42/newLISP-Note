@@ -6501,3 +6501,42 @@ qui quo qua
 ;-> "pippo pluto\r\ntopolino minnie\r\nqui quo qua\r\n"
 
 
+-----------------------
+Distanza dell'orizzonte
+-----------------------
+
+La distanza "d" dell'orizzonte da un osservatore (assumendo nessuna rifrazione atmosferica) è data dalla formula: 
+
+d = sqrt(2*R*h)
+
+dove:
+R = raggio della Terra
+h = altezza del punto di osservazione
+
+Assumendo un raggio medio della Terra pari a R = 6.371 chilometri otteniamo:
+
+d(km) ≈ 112.9*sqrt(h(km))
+
+Oppure esprimendo l'altezza h in metri:
+
+d(km) ≈ 3.57*sqrt(h(m))
+
+(define (horizon h)
+  (mul 3.57 (sqrt h)))
+
+Vediamo il valore della distanza per una persona (2m), un palazzo di tre piani (10m), una collina (100m), Cingoli (650m) e l'Everest (8850m):
+
+(define (test)
+  (println "h(m)  d(km)")
+  (dolist (el '(2 10 100 650 8850))
+    (println (format "%4d %6.2f" el (horizon el)))))
+
+(test)
+;-> h(m)  d(km)
+;->    2   5.05
+;->   10  11.29
+;->  100  35.70
+;->  650  91.02
+;-> 8850 335.85
+
+

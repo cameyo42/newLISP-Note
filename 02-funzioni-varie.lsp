@@ -6316,16 +6316,39 @@ Radice n-esima di un numero
 
 
 ------------------------------
-Prodotto scalare (dot product)
+Prodotto scalare (dot-product)
 ------------------------------
 
-Crea una funzione per calcolare il prodotto scalare, noto anche come dot product, di due vettori di lunghezza arbitraria.
+Funzione per calcolare il prodotto scalare, noto anche come dot-product, di due vettori di lunghezza arbitraria:
 
 (define (dot-product x y)
   (apply add (map mul x y)))
 
-(println (dot-product '(1 3 -5) '(4 -2 -1)))
+(dot-product '(1 3) '(-2 -1))
+;-> -5
+(dot-product '(1 3 -5) '(4 -2 -1))
 ;-> 3
+
+-----------------------------------
+Prodotto vettoriale (cross-product)
+-----------------------------------
+
+Funzione per calcolare il prodotto vettoriale, noto anche come cross-product, di due vettori in 3 dimesioni:
+
+(define (cross-product x y)
+  (let ((xlen (length x)) (ylen (length y)))
+    (cond ((or (zero? xlen) (zero? ylen)) '())
+          ((or (!= 3 xlen) (!= 3 ylen)) '())
+          ((!= xlen ylen) '())
+          (true
+            (list (sub (mul (x 1) (y 2)) (mul (x 2) (y 1)))
+                  (sub (mul (x 2) (y 0)) (mul (x 0) (y 2)))
+                  (sub (mul (x 0) (y 1)) (mul (x 1) (y 0))))))))
+
+(cross-product '(3 -5 4) '(2 6 5))
+;-> (-49 -7 28)
+(cross-product '(2 3 4) '(5 6 7))
+(-3 6 -3)
 
 
 ----------------------------------

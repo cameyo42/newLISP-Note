@@ -134,7 +134,8 @@ FUNZIONI VARIE
   Numeri primi successivi e precedenti
   Giorno Giuliano (Julian day)
   Punto interno al poligono
-  Prodotto cartesiano
+  Prodotto cartesiano (dot-product)
+  Prodotto vettoriale (cross-product)
   Insieme delle parti (powerset)
   Terne pitagoriche
   Calcolo di e con il metodo spigot
@@ -715,6 +716,7 @@ NOTE LIBERE 3
   La barca, l'uomo e il mattone
   Creare, modificare e restituire una funzione
   Input utente multi-linea
+  Distanza dell'orizzonte
   
 APPENDICI
 =========
@@ -746,7 +748,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (132 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (136 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================
@@ -16206,16 +16208,39 @@ Radice n-esima di un numero
 
 
 ------------------------------
-Prodotto scalare (dot product)
+Prodotto scalare (dot-product)
 ------------------------------
 
-Crea una funzione per calcolare il prodotto scalare, noto anche come dot product, di due vettori di lunghezza arbitraria.
+Funzione per calcolare il prodotto scalare, noto anche come dot-product, di due vettori di lunghezza arbitraria:
 
 (define (dot-product x y)
   (apply add (map mul x y)))
 
-(println (dot-product '(1 3 -5) '(4 -2 -1)))
+(dot-product '(1 3) '(-2 -1))
+;-> -5
+(dot-product '(1 3 -5) '(4 -2 -1))
 ;-> 3
+
+-----------------------------------
+Prodotto vettoriale (cross-product)
+-----------------------------------
+
+Funzione per calcolare il prodotto vettoriale, noto anche come cross-product, di due vettori in 3 dimesioni:
+
+(define (cross-product x y)
+  (let ((xlen (length x)) (ylen (length y)))
+    (cond ((or (zero? xlen) (zero? ylen)) '())
+          ((or (!= 3 xlen) (!= 3 ylen)) '())
+          ((!= xlen ylen) '())
+          (true
+            (list (sub (mul (x 1) (y 2)) (mul (x 2) (y 1)))
+                  (sub (mul (x 2) (y 0)) (mul (x 0) (y 2)))
+                  (sub (mul (x 0) (y 1)) (mul (x 1) (y 0))))))))
+
+(cross-product '(3 -5 4) '(2 6 5))
+;-> (-49 -7 28)
+(cross-product '(2 3 4) '(5 6 7))
+(-3 6 -3)
 
 
 ----------------------------------
@@ -74779,6 +74804,40 @@ Cioè, se guadagniamo il 10%, poi dobbiamo perdere il 9.09% per ritornare allo s
 
 Attenzione alle percentuali!
 
+Inversione delle percentuali
+----------------------------
+
+Il 36% di 63 vale 22.68. Quanto vale il 63% di 36?
+
+Scriviamo la funzione e calcoliamo:
+
+(define (perc p val)
+  (mul p (div val 100)))
+
+(perc 36 63)
+;-> 22.68
+(perc 63 36)
+;-> 22.68
+
+Facciamo un'altra prova:
+
+(perc 21 77)
+;-> 16.17
+(perc 77 21)
+;-> 16.17
+
+Quindi: x% di y = y% di x
+
+Cioè, (x/100)*y = (y/100)*x
+
+Per dimostrarlo basta riscrivere l'ultima equazione in questo modo:
+
+ (x*y/100) = (x*y/100)
+
+che è chiaramente vera.
+
+Nota: 0.12 è il 3% di 4 e .56 è il 7% di 8.
+
 
 ----------------------------------------------
 Teorema di Euclide (infinità dei numeri primi)
@@ -83969,6 +84028,45 @@ qui quo qua
 ;-> "pippo pluto\r\ntopolino minnie\r\nqui quo qua\r\n"
 
 
+-----------------------
+Distanza dell'orizzonte
+-----------------------
+
+La distanza "d" dell'orizzonte da un osservatore (assumendo nessuna rifrazione atmosferica) è data dalla formula: 
+
+d = sqrt(2*R*h)
+
+dove:
+R = raggio della Terra
+h = altezza del punto di osservazione
+
+Assumendo un raggio medio della Terra pari a R = 6.371 chilometri otteniamo:
+
+d(km) ≈ 112.9*sqrt(h(km))
+
+Oppure esprimendo l'altezza h in metri:
+
+d(km) ≈ 3.57*sqrt(h(m))
+
+(define (horizon h)
+  (mul 3.57 (sqrt h)))
+
+Vediamo il valore della distanza per una persona (2m), un palazzo di tre piani (10m), una collina (100m), Cingoli (650m) e l'Everest (8850m):
+
+(define (test)
+  (println "h(m)  d(km)")
+  (dolist (el '(2 10 100 650 8850))
+    (println (format "%4d %6.2f" el (horizon el)))))
+
+(test)
+;-> h(m)  d(km)
+;->    2   5.05
+;->   10  11.29
+;->  100  35.70
+;->  650  91.02
+;-> 8850 335.85
+
+
 ===========
 
  APPENDICI
@@ -90200,6 +90298,26 @@ Mathematical symbols     Commercial symbols       Quotes and parenthesis
 |  ×  |  alt + 158  |    |  ª  |  alt + 166  |    |  «  |  alt + 174  |
 |  ÷  |  alt + 246  |    |  º  |  alt + 167  |    |  »  |  alt + 175  |
 |  ≡  |  alt + 240  |    |  °  |  alt + 248  |
+
+
+============================================================================
+ TRUE? or NIL?
+============================================================================
+
+Non sei roba tua
+Non sei il tuo lavoro
+Non sei il tuo patrimonio
+Non sei i tuoi successi
+Non sei la tua età
+Non sei la tua salute
+Non sei il tuo corpo
+Non sei le tue opinioni
+Non sei la tua conoscenza
+Non sei i tuoi ricordi
+Non sei i tuoi pensieri
+Non sei le tue emozioni
+Non sei la tua personalità
+Non sei quello che pensi di essere...
 
 
 ====================
