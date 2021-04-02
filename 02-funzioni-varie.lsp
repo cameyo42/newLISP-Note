@@ -7180,3 +7180,209 @@ L'algoritmo è stato inventato da Knuth e Pratt, e indipendentemente da J. H. Mo
 ;-> (0 10 15)
 
 
+--------------------------
+Heap binario (Binary Heap)
+--------------------------
+
+Un heap binario è un albero binario con le seguenti proprietà:
+
+1) È un albero completo (tutti i livelli sono completamente riempiti tranne forse l'ultimo livello e l'ultimo livello ha tutte le chiavi il più a sinistra possibile). Questa proprietà del Binary Heap lo rende adatto per essere archiviato in un vettore (array).
+
+2) Un Binary Heap può essere Min-Heap o Max-Heap. In un Binary Heap minimo (Min-Heap), la chiave alla radice deve essere minima tra tutte le chiavi presenti in heap binario. La stessa proprietà deve essere ricorsivamente vera per tutti i nodi dell'albero binario. Un Binary Heap massimo (Max-Heap) è simile a Min-Heap.
+
+L'Heap binario soddisfa la proprietà di ordinamento.
+
+L'ordinamento può essere di due tipi:
+
+1. Proprietà Min-Heap: il valore di ogni nodo è maggiore o uguale al valore del suo genitore, con il valore minimo alla radice.
+
+2. Proprietà Max-Heap: il valore di ogni nodo è minore o uguale al valore del suo genitore, con il valore massimo alla radice.
+
+Esempi di Min-Heap:
+
+          10                  10
+         /  \               /    \
+       20    100          15      30
+      /                  /  \    /  \
+    30                  40  50  100 40
+
+Come viene rappresentato l'Heap binario?
+
+Poichè un Heap binario è un albero binario completo possiamo rappresentato con un array. L'elemento radice sarà in Array[0]. La tabella seguente mostra gli indici di altri nodi per l'i-esimo nodo, ovvero Array[i]:
+Array[(i - 1) / 2]  Restituisce il nodo genitore
+Array[(2 * i) + 1] Restituisce il nodo figlio sinistro
+Array[(2 * i) + 2] Restituisce il nodo figlio destro
+
+Il metodo di attraversamento utilizzato per ottenere la rappresentazione dell'array è l'ordine dei livelli:
+
+            (0)
+           1
+          / \
+         /   \
+    (1) /     \ (2)
+       3       6
+      / \     /
+     /   \   /
+    5     9 8
+ (3)   (4)   (5)
+
+    (1 3 6 5 9 8)
+     0 1 2 3 4 5
+
+Operazioni di base su un Min-Heap:
+
+1) get-min(): restituisce l'elemento radice di Min Heap. La complessità temporale di questa operazione è O(1).
+
+2) extract-min(): rimuove l'elemento minimo da MinHeap. La complessità temporale di questa operazione è O(Logn) poiché questa operazione deve mantenere la proprietà heap (chiamando min-heapify()) dopo aver rimosso root.
+
+3) decrease-key(): diminuisce il valore della chiave. La complessità temporale di questa operazione è O(Logn). Se il valore della chiave di diminuzione di un nodo è maggiore del genitore del nodo, non è necessario fare nulla. Altrimenti, dobbiamo attraversare l'albero per correggere la proprietà heap violata.
+
+4) increase-key(): aumenta il valore della chiave. La complessità temporale di questa operazione è O(Logn). Se il valore della chiave encreases di un nodo è inferiore al genitore del nodo, non è necessario fare nulla. Altrimenti, dobbiamo attraversare l'albero per correggere la proprietà heap violata.
+
+5) insert-key(): l'inserimento di una nuova chiave richiede tempo O(Logn). Aggiungiamo una nuova chiave alla fine dell'albero. Se la nuova chiave è maggiore del suo genitore, non è necessario fare nulla. Altrimenti, dobbiamo attraversare l'albero per correggere la proprietà heap violata.
+
+6) delete-key(): Anche l'eliminazione di una chiave richiede tempo O(Logn). Sostituiamo la chiave da cancellare con meno infinito chiamando decrement-key(). Dopo decrement-key(), il valore meno infinito deve raggiungere root, quindi chiamiamo extract-min() per rimuovere la chiave.
+
+7) change-value-key(): modifica il valore di una chiave. La complessità temporale di questa operazione è O (Logn). Se il nuovo valore della chiave è uguale al valore della chiave del suo genitore, non è necessario fare nulla. Altrimenti, dobbiamo spostarci verso l'alto per correggere la proprietà heap violata.
+
+Di seguito è riportata l'implementazione delle operazioni di base per un Min-Heap:
+
+; Dimensione massima dell'heap
+(setq heap-max-size 100)
+
+; Dimensione corrente del'heap
+(setq heap-current-size 0)
+
+; definizione del vettore di heap
+(setq heap (array heap-max-size '(nil)))
+
+; Ritorna l'indice genitore (parent) per l'indice specificato
+(define (parent key) (/ (- key 1) 2))
+
+; Ritorna l'indice sinistro (left) per l'indice specificato
+(define (left key) (+ (* key 2) 1))
+
+; Ritorna l'indice destro (left) per l'indice specificato
+(define (right key) (+ (* key 2) 2))
+
+; Restituisce la chiave minima (la chiave alla radice) di min-heap
+(define (get-min) (heap 0))
+
+; Restituisce e rimuove la chiave minima (la chiave alla radice) di min-heap
+(define (extract-min)
+  (local (root)
+    (cond ((<= heap-current-size 0) 9223372036854775807)
+          ((= heap-current-size 1)
+          (-- heap-current-size)
+          (heap 0))
+          ; Store the minimum value and remove it from heap
+          (true
+            (setq root (heap 0))
+            (setf (heap 0) (heap (- heap-current-size 1)))
+            (-- heap-current-size)
+            (min-heapify 0)
+            root))))
+
+; Diminuisce il valore della chiave a new-val.
+; (Si suppone che new-val sia minore di heap[key])
+(define (decrease-key key new-val)
+  (if (> new-val (heap key)) (println "error: decrease-key"))
+  ; Aggiorna il valore
+  (setf (heap key) new-val)
+  ; Aggiusta la proprietà min-heap se è stata violata
+  (while (and (!= key 0) (< (heap key) (heap (parent key))))
+    (swap (heap key) (heap (parent key)))
+    (setq key (parent key))
+  ))
+
+; Aumenta il valore della chiave a new-val.
+; (Si suppone che new-val sia maggiore di heap[key])
+(define (increase-key key new-val)
+  (if (< new-val (heap key)) (println "error: increase-key"))
+  ; Aggiorna il valore
+  (setf (heap key) new-val)
+  (min-heapify key))
+
+; Inserisce una nuova chiave
+(define (insert-key key)
+  (let (i heap-current-size)
+    (cond ((= heap-current-size heap-max-size) nil)
+          (true
+            ; Prima inserisce la chiave alla fine
+            (setf (heap i) key)
+            (++ heap-current-size)
+            ; Poi aggiusta la proprietà min-heap se è stata violata
+            (while (and (!= i 0) (< (heap i) (heap (parent i))))
+              (swap (heap i) (heap (parent i)))
+              (setq i (parent i))
+            ))
+    )
+    true))
+
+; Elimina la chiave in corrispondenza dell'indice specificato.
+; Prima ha riduce il valore a meno infinito, poi chiama extract-min()
+(define (delete-key key)
+  (decrease-key key -9223372036854775808)
+  (extract-min))
+
+; Metodo ricorsivo per "min-heapify" un sotto-albero 
+; con la radice in un dato indice
+; Questo metodo presuppone che i sotto-alberi siano già "min-heapify"
+(define (min-heapify key)
+  (local (l r smallest)
+    (setq l (left key))
+    (setq r (right key))
+    (setq smallest key)
+    (if (and (< l heap-current-size) (< (heap l) (heap smallest)))
+        (setq smallest l)
+    )
+    (if (and (< r heap-current-size) (< (heap r) (heap smallest)))
+        (setq smallest r)
+    )
+    (if (!= smallest key) (begin
+        (swap (heap key) (heap smallest))
+        (min-heapify smallest))
+    )))
+
+; Cambia il valore di una chiave
+(define (change-value-key key new-val)
+  (cond ((= (heap key) new-val) new-val)
+        ((< (heap key) new-val)
+          (increase-key key new-val))
+        ((> (heap key) new-val)
+          (decrease-key key new-val))
+  ))
+
+Adesso possiamo definire un Min-Heap e provare alcune funzioni:
+
+(setq heap-max-size 11)
+(setq heap-current-size 0)
+(setq heap (array heap-max-size '(nil)))
+(insert-key 3)
+(insert-key 2)
+(delete-key 1)
+(insert-key 15)
+(insert-key 5)
+(insert-key 4)
+(insert-key 45)
+(extract-min)
+;-> 2
+(get-min)
+;-> 4
+(decrease-key 2 1)
+(get-min)
+;-> 1
+heap
+;-> (1 15 4 45 45 nil nil nil nil nil nil)
+heap-current-size
+;-> 4
+
+Nota: l'ultimo termine del min-heap (45) non viene considerato, infatti se inseriamo un nuovo valore:
+
+(insert-key 46)
+heap
+;-> (1 15 4 45 46 nil nil nil nil nil nil)
+
+il valore viene sovrascritto.
+
+

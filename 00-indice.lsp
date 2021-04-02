@@ -179,6 +179,7 @@ FUNZIONI VARIE
   Conversione vettore <--> lista
   one?
   Algoritmo Knuth-Morris-Pratt
+  Heap binario (Binary Heap)
 
 newLISP 99 PROBLEMI (28)
 ========================
@@ -488,6 +489,7 @@ LIBRERIE
   Operazioni con gli alberi binari
   funlisp.lsp (by Dmitry Chernyak)
   The Little newLISPER (newlisper.lsp)
+  MessageBox (by Dexter Santucci)
 
 NOTE LIBERE
 ===========
