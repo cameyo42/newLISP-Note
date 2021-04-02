@@ -5349,6 +5349,12 @@ Purtroppo "find" non è applicabile ai vettori, quindi scriviamo una funzione ch
   (for (i 0 (- (length arr) 1))
     (if (= el (arr i)) (throw i)))))
 
+(define (find-array el arr)
+(let ((val nil) (stop nil))
+  (for (i 0 (- (length arr) 1) 1 stop)
+    (if (= el (arr i)) (setq val el stop true)))
+  val))
+
 (find-array 4 a)
 ;-> 3
 
@@ -5371,25 +5377,25 @@ Se invece abbiamo un vettore ordinato di numeri possiamo utilizzare la ricerca b
 
 Scriviamo la funzione di ricerca binaria (per vettori ordinati in modo crescente):
 
-(define (bs num arr)
+(define (bs num arr len)
+(catch
   (local (basso alto indice)
-    (setq out nil) ; elemento non trovato
     (setq basso 0) ; inizio lista
-    (setq alto (- (length arr) 1)) ; fine lista
-    (while (and (>= alto basso) (nil? out))
+    (setq alto (- len 1)) ; fine lista
+    (while (>= alto basso)
       (setq indice (>> (+ basso alto))) ; valore centrale indice
       (cond ((> (arr indice) num)
              (setq alto (- indice 1))) ; aggiorno l'indice "alto"
             ((< (arr indice) num)
              (setq basso (+ indice 1))) ; aggiorno l'indice "basso"
-            (true (setq out indice)) ; elemento trovato
+            (true (throw indice)) ; elemento trovato
       )
     )
-    out))
+    out)))
 
 La funzione finale "find-array-bs":
 
-(define (find-array-bs el arr) (bs el arr))
+(define (find-array-bs el arr) (bs el arr (length arr)))
 
 (setq s (array 8 '(1 2 8 11 21 36 42 77)))
 
@@ -5402,8 +5408,10 @@ La funzione finale "find-array-bs":
 Vediamo i tempi di esecuzione:
 
 (silent (setq arr (array 10000 (sequence 1 10000))))
+(time (find-array-bs 5000 arr) 10000)
+;-> 1432.697
 (time (find-array-bs 2 arr) 10000)
-;-> 1453.371
+;-> 1465.604
 
 
 ----------------

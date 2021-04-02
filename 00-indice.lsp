@@ -165,6 +165,7 @@ FUNZIONI VARIE
   Moltiplicativo modulare inverso
   Radice n-esima di un numero
   Prodotto scalare (dot product)
+  Prodotto vettoriale (cross-product)
   Angolo tra due direzioni (bearing)
   URL encoder/decoder
   Funzione gamma-ln
@@ -475,6 +476,7 @@ DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Calcolatore rotto (Broken calculator) (LeetCode)
   Contare le isole (islands) (Google)
   Lista con prodotto 1 (Amazon)
+  Somma delle monete (Visa)
 
 LIBRERIE
 ========
@@ -748,7 +750,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (136 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (147 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================

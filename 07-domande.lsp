@@ -7681,3 +7681,62 @@ Il prodotto della lista vale già 1, quindi non occorre modificare nulla.
 ;-> 1
 
 
+-------------------------
+Somma delle monete (Visa)
+-------------------------
+
+Data un insieme di monete, determinare tutte le somme che possono essere ottenute con le monete.
+Per esempio:
+monete = (4 2 5 2)
+somme = (2 4 5 6 7 8 9 11 13)
+
+Il valore massimo di somma che possiamo ottenere è dato dal valore massimo della (valmax) lista moltiplicato per la lunghezza della lista (len). 
+Creiamo un vettore di lunghezza len * (valmax + 1) con tutti valori 0 (nil).
+Per ogni moneta "c" 
+  attraversiamo il vettore all'indietro e se incontriamo un valore 1 (true) all'indice "i", allora poniamo a 1 (true) il valore all'indice (+ i c).
+  poniamo a 1 (true) il valore all'indice "c".
+Attraversiamo il vettore e inseriamo nella soluzione gli indici dei valori che valgono 1 (true).
+
+La seguente funzione implementa l'algoritmo:
+
+(define (sum-coin coin-lst)
+  (local (dp valmax len out)
+    ; troviamo il valore massimo tra le monete
+    (setq valmax (apply max coin-lst))
+    ; lunghezza della lista
+    (setq len (length coin-lst))
+    ; vettore con tutti 0
+    (setq dp (array (* len (+ valmax 1)) '(0)))
+    ; per ogni moneta nella lista
+    (dolist (c coin-lst)
+      ; per ogni elemento del vettore dp (attraversamento all'indietro)
+      (for (i (- (length dp) 1) 1 -1)
+        ; se incontriamo il valore 1...
+        (if (= (dp i) 1)
+            ; allora assegniamo 1 nella posizione (i + c) del vettore
+            (setf (dp (+ i c)) 1)
+        )
+      )
+      ; assegniamo 1 alla posizione c del vettore
+      (setf (dp c) 1)
+    )
+    ; creiamo la lista soluzione con tutti
+    ; i valori degli indici dove dp(i) vale 1
+    (for (i 1 (- (length dp) 1))
+      (if (= (dp i) 1) (push i out -1))
+    )
+    out))
+
+(sum-coin '(4 3 2))
+;-> (2 3 4 5 6 7 9)
+
+(sum-coin '(4 2 5 2))
+;-> (2 4 5 6 7 8 9 11 13)
+
+(sum-coin '(2 5 10 50 1000 2000))
+;-> (2 5 7 10 12 15 17 50 52 55 57 60 62 65 67 1000 1002 1005 1007 1010 1012 
+;->  1015 1017 1050 1052 1055 1057 1060 1062 1065 1067 2000 2002 2005 2007 
+;->  2010 2012 2015 2017 2050 2052 2055 2057 2060 2062 2065 2067 3000 3002 
+;->  3005 3007 3010 3012 3015 3017 3050 3052 3055 3057 3060 3062 3065 3067)
+
+

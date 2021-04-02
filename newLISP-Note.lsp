@@ -165,6 +165,7 @@ FUNZIONI VARIE
   Moltiplicativo modulare inverso
   Radice n-esima di un numero
   Prodotto scalare (dot product)
+  Prodotto vettoriale (cross-product)
   Angolo tra due direzioni (bearing)
   URL encoder/decoder
   Funzione gamma-ln
@@ -475,6 +476,7 @@ DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Calcolatore rotto (Broken calculator) (LeetCode)
   Contare le isole (islands) (Google)
   Lista con prodotto 1 (Amazon)
+  Somma delle monete (Visa)
 
 LIBRERIE
 ========
@@ -748,7 +750,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (136 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (147 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================
@@ -59426,6 +59428,65 @@ Il prodotto della lista vale già 1, quindi non occorre modificare nulla.
 ;-> 1
 
 
+-------------------------
+Somma delle monete (Visa)
+-------------------------
+
+Data un insieme di monete, determinare tutte le somme che possono essere ottenute con le monete.
+Per esempio:
+monete = (4 2 5 2)
+somme = (2 4 5 6 7 8 9 11 13)
+
+Il valore massimo di somma che possiamo ottenere è dato dal valore massimo della (valmax) lista moltiplicato per la lunghezza della lista (len). 
+Creiamo un vettore di lunghezza len * (valmax + 1) con tutti valori 0 (nil).
+Per ogni moneta "c" 
+  attraversiamo il vettore all'indietro e se incontriamo un valore 1 (true) all'indice "i", allora poniamo a 1 (true) il valore all'indice (+ i c).
+  poniamo a 1 (true) il valore all'indice "c".
+Attraversiamo il vettore e inseriamo nella soluzione gli indici dei valori che valgono 1 (true).
+
+La seguente funzione implementa l'algoritmo:
+
+(define (sum-coin coin-lst)
+  (local (dp valmax len out)
+    ; troviamo il valore massimo tra le monete
+    (setq valmax (apply max coin-lst))
+    ; lunghezza della lista
+    (setq len (length coin-lst))
+    ; vettore con tutti 0
+    (setq dp (array (* len (+ valmax 1)) '(0)))
+    ; per ogni moneta nella lista
+    (dolist (c coin-lst)
+      ; per ogni elemento del vettore dp (attraversamento all'indietro)
+      (for (i (- (length dp) 1) 1 -1)
+        ; se incontriamo il valore 1...
+        (if (= (dp i) 1)
+            ; allora assegniamo 1 nella posizione (i + c) del vettore
+            (setf (dp (+ i c)) 1)
+        )
+      )
+      ; assegniamo 1 alla posizione c del vettore
+      (setf (dp c) 1)
+    )
+    ; creiamo la lista soluzione con tutti
+    ; i valori degli indici dove dp(i) vale 1
+    (for (i 1 (- (length dp) 1))
+      (if (= (dp i) 1) (push i out -1))
+    )
+    out))
+
+(sum-coin '(4 3 2))
+;-> (2 3 4 5 6 7 9)
+
+(sum-coin '(4 2 5 2))
+;-> (2 4 5 6 7 8 9 11 13)
+
+(sum-coin '(2 5 10 50 1000 2000))
+;-> (2 5 7 10 12 15 17 50 52 55 57 60 62 65 67 1000 1002 1005 1007 1010 1012 
+;->  1015 1017 1050 1052 1055 1057 1060 1062 1065 1067 2000 2002 2005 2007 
+;->  2010 2012 2015 2017 2050 2052 2055 2057 2060 2062 2065 2067 3000 3002 
+;->  3005 3007 3010 3012 3015 3017 3050 3052 3055 3057 3060 3062 3065 3067)
+
+
 ==========
 
  LIBRERIE
@@ -60115,7 +60176,7 @@ Sottrazione di due tempi "+t"
 ;-> (0 0 1)
 
 (-t '(24 58 1) '(24 58 2))
-;-> (0 0 1)
+;-> (0 0 -1)
 
 (-t '(24 58 1) '(24 59 2))
 ;-> (0 -1 1)
@@ -60155,7 +60216,7 @@ Sottrazione tempi "-tt"
 ;-> (2 41 20)
 
 (-tt '(1 20 30) '(1 20 35) '(0 0 5))
-;-> (0 0 -5)
+;-> (0 0 -10)
 
 (+tt '(0 0 -5) '(0 0 5))
 ;-> (0 0 0)
@@ -74748,6 +74809,8 @@ Per finire vediamo come gestire gli errori con la funzione "catch":
 Effetto percentuali
 -------------------
 
+Oscillazione delle Azioni
+-------------------------
 La banca ci comunica che oggi il valore delle nostre azioni è aumentato del 10%. Comunque ieri era diminuito del 10%, quindi siamo in pareggio... o no?
 Purtroppo siamo in perdita, infatti, supponendo che il valore originale fosse 1000 euro, abbiamo:
 
@@ -74802,11 +74865,8 @@ Cioè, se perdiamo il 10%, poi dobbiamo guadagnare l'11.1% per ritornare allo st
 ;-> 1000
 Cioè, se guadagniamo il 10%, poi dobbiamo perdere il 9.09% per ritornare allo stesso valore (1000).
 
-Attenzione alle percentuali!
-
 Inversione delle percentuali
 ----------------------------
-
 Il 36% di 63 vale 22.68. Quanto vale il 63% di 36?
 
 Scriviamo la funzione e calcoliamo:
@@ -74835,6 +74895,28 @@ Per dimostrarlo basta riscrivere l'ultima equazione in questo modo:
  (x*y/100) = (x*y/100)
 
 che è chiaramente vera.
+
+Potere di acquisto
+------------------
+Supponiamo di avere uno stipendio di 1000 euro.
+Prima domanda: il datore di lavoro ci aumenta lo stipendio del 30. Di quanto è aumentato il nostro potere di acquisto?
+Seconda domanda: tutte le merci diminuiscono di prezzo del 30%. Di quanto è aumentato il nostro potere di acquisto?
+
+Per risolvere i due problemi supponiamo di investire tutto il nostro stipendio in oro che costa 20 euro al grammo.
+
+Nel primo caso:
+Con 1000 euro possiamo acquistare 1000/20 = 50 grammi di oro.
+Con l'aumento abbiamo 1000 euro + 30% = 1300 euro e quindi possiamo acquistare 1300/20 = 65 grammi di oro.
+Quindi il potere di acquisto è aumentato di 100*(65 - 50)/50 = 30%.
+
+Nel secondo caso:
+Come prima, con 1000 euro possiamo acquistare 1000/20 = 50 grammi di oro.
+Con la diminuzione dei prezzi del 30% l'oro vale 20 - 30% = 20 - 6 = 14 euro, di conseguenza con 1000 euro possiamo comprare 1000/14 = 71.4286 grammi di oro.
+Quindi il potere di acquisto è aumentato di 100*(71.4286 - 50)/50 = 42.8572%.
+
+Dal nostro punto di vista, a parità di percentuale, è più conveniente che i prezzi diminuiscano.
+
+Attenzione alle percentuali!
 
 Nota: 0.12 è il 3% di 4 e .56 è il 7% di 8.
 
@@ -82876,6 +82958,12 @@ Purtroppo "find" non è applicabile ai vettori, quindi scriviamo una funzione ch
   (for (i 0 (- (length arr) 1))
     (if (= el (arr i)) (throw i)))))
 
+(define (find-array el arr)
+(let ((val nil) (stop nil))
+  (for (i 0 (- (length arr) 1) 1 stop)
+    (if (= el (arr i)) (setq val el stop true)))
+  val))
+
 (find-array 4 a)
 ;-> 3
 
@@ -82898,25 +82986,25 @@ Se invece abbiamo un vettore ordinato di numeri possiamo utilizzare la ricerca b
 
 Scriviamo la funzione di ricerca binaria (per vettori ordinati in modo crescente):
 
-(define (bs num arr)
+(define (bs num arr len)
+(catch
   (local (basso alto indice)
-    (setq out nil) ; elemento non trovato
     (setq basso 0) ; inizio lista
-    (setq alto (- (length arr) 1)) ; fine lista
-    (while (and (>= alto basso) (nil? out))
+    (setq alto (- len 1)) ; fine lista
+    (while (>= alto basso)
       (setq indice (>> (+ basso alto))) ; valore centrale indice
       (cond ((> (arr indice) num)
              (setq alto (- indice 1))) ; aggiorno l'indice "alto"
             ((< (arr indice) num)
              (setq basso (+ indice 1))) ; aggiorno l'indice "basso"
-            (true (setq out indice)) ; elemento trovato
+            (true (throw indice)) ; elemento trovato
       )
     )
-    out))
+    out)))
 
 La funzione finale "find-array-bs":
 
-(define (find-array-bs el arr) (bs el arr))
+(define (find-array-bs el arr) (bs el arr (length arr)))
 
 (setq s (array 8 '(1 2 8 11 21 36 42 77)))
 
@@ -82929,8 +83017,10 @@ La funzione finale "find-array-bs":
 Vediamo i tempi di esecuzione:
 
 (silent (setq arr (array 10000 (sequence 1 10000))))
+(time (find-array-bs 5000 arr) 10000)
+;-> 1432.697
 (time (find-array-bs 2 arr) 10000)
-;-> 1453.371
+;-> 1465.604
 
 
 ----------------

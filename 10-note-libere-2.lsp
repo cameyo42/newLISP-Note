@@ -4469,6 +4469,8 @@ Per finire vediamo come gestire gli errori con la funzione "catch":
 Effetto percentuali
 -------------------
 
+Oscillazione delle Azioni
+-------------------------
 La banca ci comunica che oggi il valore delle nostre azioni è aumentato del 10%. Comunque ieri era diminuito del 10%, quindi siamo in pareggio... o no?
 Purtroppo siamo in perdita, infatti, supponendo che il valore originale fosse 1000 euro, abbiamo:
 
@@ -4523,11 +4525,8 @@ Cioè, se perdiamo il 10%, poi dobbiamo guadagnare l'11.1% per ritornare allo st
 ;-> 1000
 Cioè, se guadagniamo il 10%, poi dobbiamo perdere il 9.09% per ritornare allo stesso valore (1000).
 
-Attenzione alle percentuali!
-
 Inversione delle percentuali
 ----------------------------
-
 Il 36% di 63 vale 22.68. Quanto vale il 63% di 36?
 
 Scriviamo la funzione e calcoliamo:
@@ -4556,6 +4555,28 @@ Per dimostrarlo basta riscrivere l'ultima equazione in questo modo:
  (x*y/100) = (x*y/100)
 
 che è chiaramente vera.
+
+Potere di acquisto
+------------------
+Supponiamo di avere uno stipendio di 1000 euro.
+Prima domanda: il datore di lavoro ci aumenta lo stipendio del 30. Di quanto è aumentato il nostro potere di acquisto?
+Seconda domanda: tutte le merci diminuiscono di prezzo del 30%. Di quanto è aumentato il nostro potere di acquisto?
+
+Per risolvere i due problemi supponiamo di investire tutto il nostro stipendio in oro che costa 20 euro al grammo.
+
+Nel primo caso:
+Con 1000 euro possiamo acquistare 1000/20 = 50 grammi di oro.
+Con l'aumento abbiamo 1000 euro + 30% = 1300 euro e quindi possiamo acquistare 1300/20 = 65 grammi di oro.
+Quindi il potere di acquisto è aumentato di 100*(65 - 50)/50 = 30%.
+
+Nel secondo caso:
+Come prima, con 1000 euro possiamo acquistare 1000/20 = 50 grammi di oro.
+Con la diminuzione dei prezzi del 30% l'oro vale 20 - 30% = 20 - 6 = 14 euro, di conseguenza con 1000 euro possiamo comprare 1000/14 = 71.4286 grammi di oro.
+Quindi il potere di acquisto è aumentato di 100*(71.4286 - 50)/50 = 42.8572%.
+
+Dal nostro punto di vista, a parità di percentuale, è più conveniente che i prezzi diminuiscano.
+
+Attenzione alle percentuali!
 
 Nota: 0.12 è il 3% di 4 e .56 è il 7% di 8.
 
