@@ -3182,7 +3182,7 @@ read-expr si comporta in modo simile a eval-string, ma senza il passaggio di val
 
 Utilizzando read-expr è possibile programmare un pre-elaboratore di espressioni di codice personalizzato prima della loro valutazione.
 
-Vedere anche event-reader per il processamento di espressioni basate su eventi.
+Vedere anche "event-reader" per il processamento di espressioni basate su eventi.
 
 
 ----------------------------

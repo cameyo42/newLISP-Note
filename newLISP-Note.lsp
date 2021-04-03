@@ -721,6 +721,7 @@ NOTE LIBERE 3
   Creare, modificare e restituire una funzione
   Input utente multi-linea
   Distanza dell'orizzonte
+  Tic-Tac-Toe
   
 APPENDICI
 =========
@@ -73839,7 +73840,7 @@ read-expr si comporta in modo simile a eval-string, ma senza il passaggio di val
 
 Utilizzando read-expr è possibile programmare un pre-elaboratore di espressioni di codice personalizzato prima della loro valutazione.
 
-Vedere anche event-reader per il processamento di espressioni basate su eventi.
+Vedere anche "event-reader" per il processamento di espressioni basate su eventi.
 
 
 ----------------------------
@@ -84472,6 +84473,206 @@ Vediamo il valore della distanza per una persona (2m), un palazzo di tre piani (
 ;->  100  35.70
 ;->  650  91.02
 ;-> 8850 335.85
+
+
+-----------
+Tic-Tac-Toe
+-----------
+
+Tic-Tac-Toe (conosciuto in Italia come "Tris") è un gioco che utilizza una griglia quadrata di 3×3 caselle.
+A turno, i giocatori scelgono una casella vuota e vi disegnano il proprio simbolo (di solito un giocatore ha come simbolo il carattere "X" e l'avversario il carttere "O"). Vince il giocatore che riesce a disporre tre dei propri simboli in linea retta orizzontale, verticale o diagonale. Se la griglia viene riempita senza che nessuno dei giocatori sia riuscito a completare una linea retta di tre simboli, il gioco finisce in parità, cioè "patta".
+
+Scriviamo un programma che permette di giocare a Tic-Tac-Toe a due giocatori umani.
+
+Funzione che controlla se esiste un vincitore nella griglia passata come parametro (restituisce "X" oppure "O" oppure " "):
+
+(define (check-win b)
+  (let (bt (transpose b))
+          ; controllo vittoria sulle righe
+    (cond ((and (!= " " (b 0 0)) (apply = (b 0))) (b 0 0))
+          ((and (!= " " (b 1 0)) (apply = (b 1))) (b 1 0))
+          ((and (!= " " (b 2 0)) (apply = (b 2))) (b 2 0))
+          ; controllo vittoria sulle colonne
+          ((and (!= " " (b 0 0)) (apply = (bt 0))) (b 0 0))
+          ((and (!= " " (b 0 1)) (apply = (bt 1))) (b 0 1))
+          ((and (!= " " (b 0 2)) (apply = (bt 2))) (b 0 2))
+          ;controllo vittoria sulle diagonali
+          ((and (!= " " (b 1 1)) (= (b 0 0) (b 1 1) (b 2 2))) (b 1 1))
+          ((and (!= " " (b 1 1)) (= (b 0 2) (b 1 1) (b 2 0))) (b 1 1))
+          (true " "))))
+
+Funzione che stampa la griglia passata come parametro:
+
+(define (show-board b)
+  (println "  ·---·---·---·")
+  (println "  | " (b 0 0) " | " (b 0 1) " | " (b 0 2) " |" )
+  (println "  ·---·---·---·")
+  (println "  | " (b 1 0) " | " (b 1 1) " | " (b 1 2) " |" )
+  (println "  ·---·---·---·")
+  (println "  | " (b 2 0) " | " (b 2 1) " | " (b 2 2) " |" )
+  (println "  ·---·---·---·"))
+
+Funzione che permette di effettuare una mossa da un giocatore:
+
+(define (make-move b p)
+  (local (move ok)
+  (println "Muove: " p)
+  (do-while ok
+    (setq ok nil)
+    (print "Scegliere una casella (1..9): ")
+    (setq move (int (read-line)))
+    (while (or (< move 1) (> move 9) (not (integer? move)))
+        (print "Scegliere una casella (1..9): ")
+        (setq move (int (read-line))))
+    (cond ((= move 1)
+           (if (= (b 0 0) " ") (setf (b 0 0) p) (setq ok true)))
+          ((= move 2)
+           (if (= (b 0 1) " ") (setf (b 0 1) p) (setq ok true)))
+          ((= move 3)
+           (if (= (b 0 2) " ") (setf (b 0 2) p) (setq ok true)))
+          ((= move 4)
+           (if (= (b 1 0) " ") (setf (b 1 0) p) (setq ok true)))
+          ((= move 5)
+           (if (= (b 1 1) " ") (setf (b 1 1) p) (setq ok true)))
+          ((= move 6)
+           (if (= (b 1 2) " ") (setf (b 1 2) p) (setq ok true)))
+          ((= move 7)
+           (if (= (b 2 0) " ") (setf (b 2 0) p) (setq ok true)))
+          ((= move 8)
+           (if (= (b 2 1) " ") (setf (b 2 1) p) (setq ok true)))
+          ((= move 9)
+           (if (= (b 2 2) " ") (setf (b 2 2) p) (setq ok true)))
+    )
+    (if ok (println "La casella " move " è occupata."))
+  )
+  b))
+
+Funzione per la gestione completa di una partita di tic-tac-toe:
+
+(define (tic-tac-toe)
+  (local (ttt endgame curr-player num-move)
+    (setq ttt (array 3 3 '(" ")))
+    (setq endgame nil)
+    (setq curr-player "X")
+    (setq num-move 0)
+    (while (not endgame)
+      (show-board ttt)
+      (setq ttt (make-move ttt curr-player))
+      (++ num-move)
+      ; controllo vittoria giocatore corrente
+      (if (= (check-win ttt) curr-player)
+          (begin
+            (setq endgame true)
+            (show-board ttt)
+            (println "Partita terminata:")
+            (println "Il giocatore " curr-player " ha vinto."))
+          ;else
+          ; controllo griglia piena
+          (begin
+            (if (= num-move 9)
+                (begin
+                  (setq endgame true)
+                  (show-board ttt)
+                  (println "Partita terminata: patta")))))
+       ; Prossimo giocatore
+       (if (not endgame)
+           (if (= curr-player "X")
+               (setq curr-player "O")
+               (setq curr-player "X"))))))
+
+Facciamo una partita:
+
+(tic-tac-toe)
+;->   ·---·---·---·
+;->   |   |   |   |
+;->   ·---·---·---·
+;->   |   |   |   |
+;->   ·---·---·---·
+;->   |   |   |   |
+;->   ·---·---·---·
+;-> Muove: X
+;-> Scegliere una casella (1..9): 5
+;->   ·---·---·---·
+;->   |   |   |   |
+;->   ·---·---·---·
+;->   |   | X |   |
+;->   ·---·---·---·
+;->   |   |   |   |
+;->   ·---·---·---·
+;-> Muove: O
+;-> Scegliere una casella (1..9): 1
+;->   ·---·---·---·
+;->   | O |   |   |
+;->   ·---·---·---·
+;->   |   | X |   |
+;->   ·---·---·---·
+;->   |   |   |   |
+;->   ·---·---·---·
+;-> Muove: X
+;-> Scegliere una casella (1..9): e
+;-> Scegliere una casella (1..9): 3
+;->   ·---·---·---·
+;->   | O |   | X |
+;->   ·---·---·---·
+;->   |   | X |   |
+;->   ·---·---·---·
+;->   |   |   |   |
+;->   ·---·---·---·
+;-> Muove: O
+;-> Scegliere una casella (1..9): 7
+;->   ·---·---·---·
+;->   | O |   | X |
+;->   ·---·---·---·
+;->   |   | X |   |
+;->   ·---·---·---·
+;->   | O |   |   |
+;->   ·---·---·---·
+;-> Muove: X
+;-> Scegliere una casella (1..9): 4
+;->   ·---·---·---·
+;->   | O |   | X |
+;->   ·---·---·---·
+;->   | X | X |   |
+;->   ·---·---·---·
+;->   | O |   |   |
+;->   ·---·---·---·
+;-> Muove: O
+;-> Scegliere una casella (1..9): 6
+;->   ·---·---·---·
+;->   | O |   | X |
+;->   ·---·---·---·
+;->   | X | X | O |
+;->   ·---·---·---·
+;->   | O |   |   |
+;->   ·---·---·---·
+;-> Muove: X
+;-> Scegliere una casella (1..9): 9
+;->   ·---·---·---·
+;->   | O |   | X |
+;->   ·---·---·---·
+;->   | X | X | O |
+;->   ·---·---·---·
+;->   | O |   | X |
+;->   ·---·---·---·
+;-> Muove: O
+;-> Scegliere una casella (1..9): 2
+;->   ·---·---·---·
+;->   | O | O | X |
+;->   ·---·---·---·
+;->   | X | X | O |
+;->   ·---·---·---·
+;->   | O |   | X |
+;->   ·---·---·---·
+;-> Muove: X
+;-> Scegliere una casella (1..9): 8
+;->   ·---·---·---·
+;->   | O | O | X |
+;->   ·---·---·---·
+;->   | X | X | O |
+;->   ·---·---·---·
+;->   | O | X | X |
+;->   ·---·---·---·
+;-> Partita terminata: patta
 
 
 ===========

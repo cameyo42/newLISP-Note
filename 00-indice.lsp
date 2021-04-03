@@ -721,6 +721,7 @@ NOTE LIBERE 3
   Creare, modificare e restituire una funzione
   Input utente multi-linea
   Distanza dell'orizzonte
+  Tic-Tac-Toe
   
 APPENDICI
 =========
