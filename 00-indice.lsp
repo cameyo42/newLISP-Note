@@ -298,7 +298,7 @@ ROSETTA CODE
   Convex Hull
   Sequenza Thue-Morse
   Numeri di Bell
-  
+
 PROJECT EULERO
 ==============
   Problemi 1..102
@@ -660,7 +660,7 @@ NOTE LIBERE 2
 NOTE LIBERE 3
 =============
   Generazione di un simbolo univoco
-  Compromessi tra tempo e spazio  
+  Compromessi tra tempo e spazio
   Scambio di somme
   Evitare begin nella condizione if
   Frazioni continue (funzioni)
@@ -722,7 +722,8 @@ NOTE LIBERE 3
   Input utente multi-linea
   Distanza dell'orizzonte
   Tic-Tac-Toe
-  
+  Labirinti (Maze)
+
 APPENDICI
 =========
   Lista delle funzioni newLISP

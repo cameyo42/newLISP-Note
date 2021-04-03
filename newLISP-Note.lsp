@@ -298,7 +298,7 @@ ROSETTA CODE
   Convex Hull
   Sequenza Thue-Morse
   Numeri di Bell
-  
+
 PROJECT EULERO
 ==============
   Problemi 1..102
@@ -660,7 +660,7 @@ NOTE LIBERE 2
 NOTE LIBERE 3
 =============
   Generazione di un simbolo univoco
-  Compromessi tra tempo e spazio  
+  Compromessi tra tempo e spazio
   Scambio di somme
   Evitare begin nella condizione if
   Frazioni continue (funzioni)
@@ -722,7 +722,8 @@ NOTE LIBERE 3
   Input utente multi-linea
   Distanza dell'orizzonte
   Tic-Tac-Toe
-  
+  Labirinti (Maze)
+
 APPENDICI
 =========
   Lista delle funzioni newLISP
@@ -11925,7 +11926,7 @@ Versione modificata:
     (setq _func '())
     (setq _other '())
     (dolist (_el (symbols))
-      (if (and (lambda? (eval _el))  
+      (if (and (lambda? (eval _el))
                (not (= _el 'user-symbols)))
           (push _el _func -1))
       (if (and (not (lambda? (eval _el)))
@@ -14107,13 +14108,13 @@ Scriviamo la funzione che calcola il prodotto cartesiano di tutte le sotto-liste
 Da notare che i risultati sono diversi nel caso di liste annidate:
 
 (cp '(1 2 (3 4)) '((4 (3)) (5) (6)))
-;-> ((1 (4 (3))) (1 (5)) (1 (6)) (2 (4 (3))) (2 (5)) 
+;-> ((1 (4 (3))) (1 (5)) (1 (6)) (2 (4 (3))) (2 (5))
 ;-> (2 (6)) ((3 4) (4 (3))) ((3 4) (5)) ((3 4) (6)))
 
 (prodotto-cartesiano '((1 2 (3 4)) ((4 (3)) (5) (6))))
 ;-> ((1 4 3) (1 5) (1 6) (2 4 3) (2 5) (2 6) (3 4 4 3) (3 4 5) (3 4 6))
 (prodotto-cartesiano '((1 2 3 4) (4 3 5 6)))
-;-> ((1 4) (1 3) (1 5) (1 6) (2 4) (2 3) (2 5) (2 6) 
+;-> ((1 4) (1 3) (1 5) (1 6) (2 4) (2 3) (2 5) (2 6)
 ;-> (3 4) (3 3) (3 5) (3 6) (4 4) (4 3) (4 5) (4 6))
 
 Prodotto cartesiano di funzioni
@@ -14375,7 +14376,7 @@ Usiamo la funzione "rand-range" per generare un numero compreso tra "a" e "b":
 (define (rand-range a b)
   (if (> a b) (swap a b))
   (+ a (rand (+ (- b a) 1))))
-  
+
 Crea una lista con tutti i valori di una hashmap:
 
 (define (getValues hash)
@@ -15208,8 +15209,8 @@ Dato un numero intero positivo n, generare tutti i modi unici possibili per rapp
 La soluzione crea una lista con tutte le partizioni ordinate (anche i numeri di ogni partizione sono ordinati). Il metodo è quello di ottenere la partizione successiva usando i valori della partizione corrente. Memorizziamo ogni partizione in un vettore "part". Inizializziamo part[0] a n, dove n è il numero di input. Ad ogni iterazione inseriamo la partizione corrente (cioè il vettore "part") nella lista e quindi aggiorniamo il vettore "part" per memorizzare la partizione successiva. Quindi il problema principale è ottenere la partizione successiva da una determinata partizione.
 
 I passaggi per ottenere la partizione successiva dalla partizione corrente sono i seguenti:
-- Ci viene data la partizione corrente in "part" e le sue dimensioni. 
-- Dobbiamo aggiornare "part" per memorizzare la prossima partizione. 
+- Ci viene data la partizione corrente in "part" e le sue dimensioni.
+- Dobbiamo aggiornare "part" per memorizzare la prossima partizione.
 - I valori in "part" devono essere ordinati in ordine non crescente.
 
 1) Trovare il valore (non-uno) (cioè diverso da 1) più a destra in "part" e memorizzare il conteggio di 1 incontrati prima di un valore non-uno in una variabile temp-value (Indica la somma dei valori sul lato destro che devono essere aggiornati). Assegna alla variabile k il valore dell'indice relativo al numero non-uno.
@@ -15240,20 +15241,20 @@ Vediamo l'implementazione dell'algoritmo:
       ; Genera la partizione successiva
       ;
       ; Trova il valore non-uno più a destra di part[]
-      ; Aggiorna anche il valore di temp-value 
+      ; Aggiorna anche il valore di temp-value
       ; (cioè quanti valori possono essere inseriti)
       (setq temp-value 0)
       (while (and (>= k 0) (= (part k) 1))
         (setq temp-value (+ temp-value (part k)))
         (-- k)
       )
-      ; se k < 0, tutti i valori valgono 1 
+      ; se k < 0, tutti i valori valgono 1
       ; quindi non ci sono altre partizioni da generare
       (if (< k 0) (throw out))
       ; Decrementa part[k] trovato sopra e calcola il valore di temp-value
       (setf (part k) (- (part k) 1))
       (++ temp-value)
-      ; Se rem_val è maggiore, allora l'ordine è violato. 
+      ; Se rem_val è maggiore, allora l'ordine è violato.
       ; Divide temp-value in diversi valori di dimensione part[k] e
       ; copia questi valori in posizioni diverse dopo part[k]
       (while (> temp-value (part k))
@@ -15293,7 +15294,7 @@ dove p(0) = 1 e p(n) = 0 per n < 0.
 
 La sequenza dei numeri k da utilizzare è data dalla formula dei numeri pentagonali generalizzati:
 
-f(k) = k*(3k-1)/2 che vale sia per k negativo che per k positivo. 
+f(k) = k*(3k-1)/2 che vale sia per k negativo che per k positivo.
 
 Questa formula può essere generata nel modo seguente:
 
@@ -15331,8 +15332,8 @@ Quindi partendo dal primo valore della sequenza possiamo calcolare quella succes
 
 (part-num 50)
 ;-> (1 1 2 3 5 7 11 15 22 30 42 56 77 101 135 176 231 297 385 490
-;->  627 792 1002 1255 1575 1958 2436 3010 3718 4565 5604 6842 
-;->  8349 10143 12310 14883 17977 21637 26015 31185 37338 44583 
+;->  627 792 1002 1255 1575 1958 2436 3010 3718 4565 5604 6842
+;->  8349 10143 12310 14883 17977 21637 26015 31185 37338 44583
 ;->  53174 63261 75175 89134 105558 124754 147273 173525 204226)
 
 
@@ -15347,7 +15348,7 @@ Mentre l'algoritmo euclideo calcola solo il massimo comune divisore (MCD) di due
 
 a*x + b*y = mcd(a, b)
 
-Da notare che possiamo sempre trovare una tale rappresentazione, ad esempio mcd(55,80) = 5 quindi possiamo rappresentare 5 come una combinazione lineare con i termini 55 e 80: 
+Da notare che possiamo sempre trovare una tale rappresentazione, ad esempio mcd(55,80) = 5 quindi possiamo rappresentare 5 come una combinazione lineare con i termini 55 e 80:
 
 55*3 + 80*(−2) = 5
 
@@ -15374,7 +15375,7 @@ Versione generale:
     ; Adesso la variabile a contiene il valore di gcd
     ;(println a { } b { } x { } y { } lastx { } lasty)
     (list a lastx lasty)))
-    
+
 (gcdex 120 23)
 ;-> (1 -9 47)
 
@@ -15507,9 +15508,9 @@ Poiché il numero n ha esattamente |log2 n| + 1 cifre in base 2, dobbiamo solo e
 
 Quindi abbiamo solo bisogno di conoscere un modo veloce per calcolarli. Fortunatamente questo è molto semplice, poiché un elemento nella sequenza è solo il quadrato dell'elemento precedente.
 
-3^1 = 3 
+3^1 = 3
 3^2 = (3^1)^2 = 3^2 = 9
-3^4 = (3^2)^2 = 9^2 = 81 
+3^4 = (3^2)^2 = 9^2 = 81
 3^8 = (3^4)^2 = 81^2 = 6561
 
 Quindi, per ottenere la risposta finale per 3^13, dobbiamo solo moltiplicarne tre di loro (saltando 3^2 perché il bit corrispondente in n non è impostato): 313 = 6561 * 81 * 3 = 1594323
@@ -15518,10 +15519,10 @@ La complessità finale di questo algoritmo è O(log n): dobbiamo calcolare (log 
 
 Il seguente approccio ricorsivo esprime la stessa idea:
 
-se n=0             ==>   a^n = 1 
-                         
+se n=0             ==>   a^n = 1
+
 se n>0 e pari      ==>   a^n = (a^(n/2))^2
-                         
+
 se n>0 e dispari   ==>   a^n = (a^((n-1)/2))^2
 
 Versione ricorsiva:
@@ -15956,7 +15957,7 @@ el(2) op el(1), el(3) op el(2), el(4) op el(3), ..., el(n) op el(n-1)
 
 (do-pair '(4 7 11 16 18) -)
 ;-> (3 4 5 2)
-3 = 7 - 4 
+3 = 7 - 4
 4 = 11 - 7
 ...
 
@@ -16002,7 +16003,7 @@ Vediamo di implementare un programma che trova questo valore y partendo da una l
     )
     prod))
 
-; Funzione per calcolare Pn(x) 
+; Funzione per calcolare Pn(x)
 ; dove Pn è il polinomio interpolatore di Lagrange di grado n
 (define (pn n xcoord ycoord x)
   (let (sum 0)
@@ -16572,7 +16573,7 @@ Proviamo la funzione integrata "select":
 (time (select alist aind) 100000)
 ;-> 294.371
 
-Questa volta è più veloce la funzione integrata. 
+Questa volta è più veloce la funzione integrata.
 Quindi con pochi elementi conviene usare "select", mentre con tanti elementi conviene usare "select-list".
 
 
@@ -17021,7 +17022,7 @@ L'algoritmo è stato inventato da Knuth e Pratt, e indipendentemente da J. H. Mo
       )
       ; ultimo carattere uguale?
       (if (= (str k) (str i))
-        ; aumenta la lunghezza del bordo 
+        ; aumenta la lunghezza del bordo
         (++ k)
       )
       ; trovato bordo massimo di str (partendo da i + 1)
@@ -17047,7 +17048,7 @@ L'algoritmo è stato inventato da Knuth e Pratt, e indipendentemente da J. H. Mo
 (define (knuth-morris-pratt str txt)
   (local (sep mbl lenstr out)
     (setq out '()) ; lista di output
-    ; Il carattere sep non deve essere presente 
+    ; Il carattere sep non deve essere presente
     ; ne in txt ne in str
     (setq sep "~") ; carattere speciale non usato
     (setq mbl (max-border-len (string str sep txt)))
@@ -17056,7 +17057,7 @@ L'algoritmo è stato inventato da Knuth e Pratt, e indipendentemente da J. H. Mo
       (if (= el lenstr) ; trovato un bordo della lunghezza di str
         ; inizio del bordo in txt
         ; stringa str trovata in txt
-        (push (- $idx (* 2 lenstr)) out -1) 
+        (push (- $idx (* 2 lenstr)) out -1)
       )
     )
     out))
@@ -17222,7 +17223,7 @@ Di seguito è riportata l'implementazione delle operazioni di base per un Min-He
   (decrease-key key -9223372036854775808)
   (extract-min))
 
-; Metodo ricorsivo per "min-heapify" un sotto-albero 
+; Metodo ricorsivo per "min-heapify" un sotto-albero
 ; con la radice in un dato indice
 ; Questo metodo presuppone che i sotto-alberi siano già "min-heapify"
 (define (min-heapify key)
@@ -29820,7 +29821,7 @@ Vediamo quanto tempo occorre per calcolare i primi 100 milioni di termini:
 
 (time (println (last (gh 100000000))))
 ;-> 61803399
-;-> 12495.63  
+;-> 12495.63
     12.5 secondi
 
 Nota: per una rappresentazione visiva di questa sequenza vedi "A combinatorial interpretation of hofstadter’s G-sequence" di Mustazee Rahman.
@@ -29854,7 +29855,7 @@ M: 0, 0, 1, 2, 2, 3, 4, 4, 5, 6, 6, 7, 7, 8, 9, 9, 10, 11, 11, 12, 12, ... (A005
     (list f m)))
 
 (fmh 20)
-;-> ((1 1 2 2 3 3 4 5 5 6 6 7 8 8 9 9 10 11 11 12 13) 
+;-> ((1 1 2 2 3 3 4 5 5 6 6 7 8 8 9 9 10 11 11 12 13)
 ;->  (0 0 1 2 2 3 4 4 5 6 6 7 7 8 9 9 10 11 11 12 12))
 
 Vediamo quanto tempo occorre per calcolare i primi 100 milioni di termini:
@@ -29973,8 +29974,8 @@ Nel diagramma seguente i punti del convex-hull sono contrassegnsti con X.
 
 Proviamo con l'esempio riportato su Rosetta Code:
 
-(setq rc '((16 3) (12 17) (0 6) (-4 -6) (16 6) (16 -7) (16 -3) 
-           (17 -4) (5 19) (19 -8) (3 16) (12 13) (3 -4) (17 5) 
+(setq rc '((16 3) (12 17) (0 6) (-4 -6) (16 6) (16 -7) (16 -3)
+           (17 -4) (5 19) (19 -8) (3 16) (12 13) (3 -4) (17 5)
            (-3 15) (-3 -9) (0 11) (-9 -3) (-4 -2) (12 10)))
 
 (convex-hull rc)
@@ -30060,10 +30061,10 @@ L'implementazione che segue si basa su questo algoritmo, ma produce solo i numer
     out))
 
 (bell 25)
-;-> (1L 1L 2L 5L 15L 52L 203L 877L 4140L 21147L 115975L 678570L 
-;->  4213597L 27644437L 190899322L 1382958545L 10480142147L 
+;-> (1L 1L 2L 5L 15L 52L 203L 877L 4140L 21147L 115975L 678570L
+;->  4213597L 27644437L 190899322L 1382958545L 10480142147L
 ;->  82864869804L 682076806159L 5832742205057L 51724158235372L
-;->  474869816156751L 4506715738447323L 44152005855084346L 
+;->  474869816156751L 4506715738447323L 44152005855084346L
 ;->  445958869294805289L 4638590332229999353L)
 
 Vediamo il 50-esimo numero di Bell:
@@ -47822,7 +47823,7 @@ Per risolvere un labirinto (maze) utilizzeremo il seguente algoritmo che trova l
 Questo metodo non garantisce che la soluzione trovata sia quella più breve.
 
 (define (solveMaze matrice sRow sCol eRow eCol)
-  (local (maze row col visited correctPath starRow startCol endRow endCol)
+  (local (maze row col visited correctPath startRow startCol endRow endCol)
     ; matrice labirinto
     (setq maze matrice)
     ; righe della matrice
@@ -48237,17 +48238,17 @@ Problemi patologici dei numeri floating point
 ---------------------------------------------
 
 La Chaotic Bank Society offre questo investimento ai propri clienti.
-Per prima cosa depositi $(e - 1) dove e è 2.7182818 ... la base dei logaritmi naturali.
+Per prima cosa depositi (e - 1) euro dove e è 2.7182818 ... la base dei logaritmi naturali.
 
-Dopo ogni anno, il saldo del tuo account verrà moltiplicato per il numero di anni che sono passati e verranno rimossi $ 1 in costi di servizio.
+Dopo ogni anno, il saldo del tuo account verrà moltiplicato per il numero di anni che sono passati e verranno rimossi 1 euro in costi di servizio.
 
 Così ...
 
-dopo 1 anno, il saldo verrà moltiplicato per 1 e $ 1 verrà rimosso per le spese di servizio.
-dopo 2 anni il saldo sarà raddoppiato e $ 1 rimosso.
-dopo 3 anni il saldo sarà triplicato e $ 1 rimosso.
+dopo 1 anno, il saldo verrà moltiplicato per 1 e 1 euro verrà rimosso per le spese di servizio.
+dopo 2 anni il saldo sarà raddoppiato e 1 euro rimosso.
+dopo 3 anni il saldo sarà triplicato e 1 euro rimosso.
 ...
-dopo 10 anni, moltiplicato per 10 e $ 1 rimosso, e così via.
+dopo 10 anni, moltiplicato per 10 e 1 euro rimosso, e così via.
 
 Quale sarà il tuo saldo dopo 25 anni?
 
@@ -52000,7 +52001,7 @@ Valori della notazione Big-O in funzione del numero di input:
 
  n  costante  logaritmo   sqrt(n)   lineare   nlogn      quadrato   cubo    esponenziale
       O(1)    O(log(n))  O(sqrt(n))   O(n)   O(n*log(n))   O(n^2)   O(n^3)       O(2^n)
- 1     1         1          1          1        1             1        1            1         
+ 1     1         1          1          1        1             1        1            1
  2     1         1          1          2        2             4        8            4
  4     1         1          2          4        2            16       64           16
  8     1         3          3          8       24            64      512          256
@@ -56967,7 +56968,7 @@ Questa soluzione risolve questo problema in tempo O(n). Un altro metodo è quell
              (if (= (marked (char (str2 i))) "1")
                  (throw nil))
              ; the next expression don't work...
-             ; 
+             ;
              ;(setf (marked (char (str2 i))) "1")
              (setq idx (char (str2 i)))
              (setf (marked idx) "1")
@@ -58322,7 +58323,7 @@ Poichè n/m deve essere intero, anche (10*m - n)/m deve essere intero:
 
 ma (10*m - n) è un numero di tre cifre mentre m è un numero con quattro cifre, quindi deve risultare:
 
-(10*m - n)/m = 0, cioè (10*m - n) = 0. 
+(10*m - n)/m = 0, cioè (10*m - n) = 0.
 
 Questo implica che deve risultare u = v = z = 0. Quindi i numeri n e m diventano:
 
@@ -58356,7 +58357,7 @@ In binario questo quadrato vale:
 111...11 000...000 1
 -------- ---------
  (k-1)       k
- 
+
 Per esempio:
 
 a   = 111     (in decimale a = 7)
@@ -58388,10 +58389,10 @@ Fattoriale e zeri finali (Wolfram)
 ----------------------------------
 
 Il numero di zeri finali del fattoriale di un numero intero n è dato da:
- 
-  Numero di zeri finali in n! = 
-= Numero di volte n! è divisibile per 10 = 
-= Potenza massima di 10 che divide n! = 
+
+  Numero di zeri finali in n! =
+= Numero di volte n! è divisibile per 10 =
+= Potenza massima di 10 che divide n! =
 = Potenza massima di 5 in n!
 
 Utilizzando l'ultima definizione la formula per il calcolo è la seguente:
@@ -58449,7 +58450,7 @@ Proviamo calcolando il fattoriale e contando gli zeri finali:
 (define (zeri-f x)
   (let (c 0)
     (while (zero? (% x 10))
-      (++ c) 
+      (++ c)
       (setq x (/ x 10)))
     c))
 
@@ -58819,7 +58820,7 @@ In una scacchiera quadrata 8x8 esistono:
 2^2 quadrati 7x7
 1^2 quadrati 8x8
 
-Quindi la somma totali dei quadrati vale: 
+Quindi la somma totali dei quadrati vale:
 
 num-quad = 1^2 + 2^2 + 3^2 + 4^2 + 5^2 + 6^2 + 7^2 + 8^2 =
 
@@ -59073,7 +59074,7 @@ Date n coppie di parentesi, scrivere una funzione per generare tutte le combinaz
 
 "[[[]]]", "[[][]]", "[[]][]", "[][[]]", "[][][]"
 
-L'idea è che se abbiamo ancora una parentesi sinistra, abbiamo due scelte: inserire una parentesi sinistra o una parentesi destra. Ma la condizione per inserire le parentesi destra è che quelle di sinistra presenti siano di più di quelle di destra presenti. 
+L'idea è che se abbiamo ancora una parentesi sinistra, abbiamo due scelte: inserire una parentesi sinistra o una parentesi destra. Ma la condizione per inserire le parentesi destra è che quelle di sinistra presenti siano di più di quelle di destra presenti.
 In altre parole, l'i-esimo carattere può essere "[" se e solo se il conteggio di "[" fino a i-esimo è minore di n e i-esimo carattere può essere "]" se e solo se il conteggio di "[" è maggiore rispetto al conteggio di "]" fino all'indice i. Se seguiamo queste due regole, la combinazione risultante sarà sempre bilanciata.
 Usiamo una funzione ricorsiva che segue queste due regole.
 
@@ -59096,8 +59097,8 @@ Usiamo una funzione ricorsiva che segue queste due regole.
 ;-> ("[[[]]]" "[[][]]" "[[]][]" "[][[]]" "[][][]")
 
 (parentesi 4)
-;-> ("[[[[]]]]" "[[[][]]]" "[[[]][]]" "[[[]]][]" "[[][[]]]" 
-;->  "[[][][]]" "[[][]][]" "[[]][[]]" "[[]][][]" "[][[[]]]" 
+;-> ("[[[[]]]]" "[[[][]]]" "[[[]][]]" "[[[]]][]" "[[][[]]]"
+;->  "[[][][]]" "[[][]][]" "[[]][[]]" "[[]][][]" "[][[[]]]"
 ;->  "[][[][]]" "[][[]][]" "[][][[]]" "[][][][]")
 
 
@@ -59339,8 +59340,8 @@ Questo algoritmo viene codificato nella seguente funzione (che utilizza i big-in
           (setq num (+ num (* (% doppio 10) (** 10 (length num)))))
       )
       ; controllo se doppio ha un riporto
-      (cond ((= doppio 10) 
-             (setq carry 0L) 
+      (cond ((= doppio 10)
+             (setq carry 0L)
              (setq doppio 1L))
             ((> doppio 9)
              (setq carry 1L)
@@ -59368,7 +59369,7 @@ Funzione che calcola la potenza intera di un numero intero:
     (let (out 1L)
         (dotimes (i power)
             (setq out (* out num)))))
-       
+
 (check 105263157894736842)
 ;-> true
 
@@ -59434,7 +59435,7 @@ Affinchè Y è maggiore di X, aggiungere 1 se è dispari, altrimenti dividire pe
   (let (out 0)
     (while (> y x)
       (++ out)
-      (if (odd? y) 
+      (if (odd? y)
           (++ y)
           (setq y (/ y 2))
       )
@@ -59587,7 +59588,7 @@ passi = 5
 Possiamo cambiare da -2 a -1, da 0 a -1 e da 4 a 1.
 Quindi sono necessari un totale di 5 passi per aggiornare gli elementi in modo tale il prodotto finale valga 1.
 
-lst = (-1 1 -1) 
+lst = (-1 1 -1)
 passi = 0
 Il prodotto della lista vale già 1, quindi non occorre modificare nulla.
 
@@ -59646,9 +59647,9 @@ Per esempio:
 monete = (4 2 5 2)
 somme = (2 4 5 6 7 8 9 11 13)
 
-Il valore massimo di somma che possiamo ottenere è dato dal valore massimo della (valmax) lista moltiplicato per la lunghezza della lista (len). 
+Il valore massimo di somma che possiamo ottenere è dato dal valore massimo della (valmax) lista moltiplicato per la lunghezza della lista (len).
 Creiamo un vettore di lunghezza len * (valmax + 1) con tutti valori 0 (nil).
-Per ogni moneta "c" 
+Per ogni moneta "c"
   attraversiamo il vettore all'indietro e se incontriamo un valore 1 (true) all'indice "i", allora poniamo a 1 (true) il valore all'indice (+ i c).
   poniamo a 1 (true) il valore all'indice "c".
 Attraversiamo il vettore e inseriamo nella soluzione gli indici dei valori che valgono 1 (true).
@@ -59690,9 +59691,9 @@ La seguente funzione implementa l'algoritmo:
 ;-> (2 4 5 6 7 8 9 11 13)
 
 (sum-coin '(2 5 10 50 1000 2000))
-;-> (2 5 7 10 12 15 17 50 52 55 57 60 62 65 67 1000 1002 1005 1007 1010 1012 
-;->  1015 1017 1050 1052 1055 1057 1060 1062 1065 1067 2000 2002 2005 2007 
-;->  2010 2012 2015 2017 2050 2052 2055 2057 2060 2062 2065 2067 3000 3002 
+;-> (2 5 7 10 12 15 17 50 52 55 57 60 62 65 67 1000 1002 1005 1007 1010 1012
+;->  1015 1017 1050 1052 1055 1057 1060 1062 1065 1067 2000 2002 2005 2007
+;->  2010 2012 2015 2017 2050 2052 2055 2057 2060 2062 2065 2067 3000 3002
 ;->  3005 3007 3010 3012 3015 3017 3050 3052 3055 3057 3060 3062 3065 3067)
 
 
@@ -77587,7 +77588,7 @@ Rappresentiamo la traiettoria con un lista del tipo seguente:
 dove (ti xi zi) rappresenta la i-esima posizione della palla (al tempo ti nella posizione (xi zi)).
 Da notare che zn deve risultare uguale (o poco minore) a zero.
 
-Rappresentazione 2D:  
+Rappresentazione 2D:
 
    z
    |
@@ -77603,7 +77604,7 @@ Rappresentazione 2D:
 Traiettoria del proiettile:
 
    z
-   |              *  
+   |              *
    |         *         *
    |      *               *
    |   *                     *
@@ -77619,14 +77620,14 @@ Per calcolare la simulazione utilizzeremo il metodo di Eulero che consiste nell'
     (setq ts '() xs '() zs '())
     ; calcola la velocita iniziale x (converte theta in radianti)
     ; (vx = 0 quando theta = 90)
-    (if (= theta 90) 
+    (if (= theta 90)
         (setq vx 0)
         (setq vx (mul vel (cos (div (mul 3.1415926535897931 theta) 180))))
     )
     ; calcola la velocita iniziale z (converte theta in radianti)
     ; (vz = 0 quando theta = 0 o 180)
     (if (or (= theta 0) (= theta 180))
-        (setq vz 0)    
+        (setq vz 0)
         (setq vz (mul vel (sin (div (mul 3.1415926535897931 theta) 180))))
     )
     ;(println "vx =" vx)
@@ -77707,7 +77708,7 @@ Adesso scriviamo la funzione che visualizza la traiettoria del proiettile:
     (dolist (el lst-txz)
       (push (first (rest el)) xx -1)
       (push (last el) zz -1 ))
-    ; plot data      
+    ; plot data
     (plot:XY xx zz)
     ; salva il plot su un file
     (plot:export (string "traiettoria-" theta ".png"))))
@@ -77749,7 +77750,7 @@ Lunghezza delle parti     Valore totale
 1, 1, 1, 1                1 + 1 + 1 + 1 = 4
 2, 2                      5 + 5 = 10
 
-La prima soluzione utilizza la tecnica della ricorsione. 
+La prima soluzione utilizza la tecnica della ricorsione.
 La soluzione ricorsiva si basa sul calcolo di tutte le possibili combinazioni e dei valori associati a ciascuna combinazione e restituisce il massimo di tutti questi valori.
 
 La lista lst-val contiene il valore di ogni lunghezza.
@@ -77808,7 +77809,7 @@ Versione memoization:
 (tubo-m '(1 5 8 9 10 17 18 20) 8)
 ;-> (22 (1 5 8 10 13 17 18 22)) (un pezzo lungo 2 e un pezzo lungo 6 --> 5 + 17 = 22)
 
-Questa funzione impiega un tempo polinomiale per calcolare la soluzione, ma non è ancora ottimizzato perché utilizza la ricorsione. 
+Questa funzione impiega un tempo polinomiale per calcolare la soluzione, ma non è ancora ottimizzato perché utilizza la ricorsione.
 
 Vediamo la velocità della funzione:
 
@@ -80636,7 +80637,6 @@ Funzione per stampare una matrice:
 Il primo indice (0 0) del primo valore (1) della matrice "m" si trova all'indice (pad pad) della matrice "out" di output.
 
 Esempio:
-
 (setq b '((0)))
 (for (i 1 9)
   (setq b (pad-matrix b 1 i))
@@ -80662,6 +80662,14 @@ Esempio:
 ;-> 9 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 9
 ;-> 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9
 
+Esempio:
+(setq b '((0)))
+(for (i 1 42)
+  (setq b (pad-matrix b 1 i))
+)
+(device (open "matrix42.txt" "write"))
+(print-matrix b)
+(close (device))
 
 ----------------------------------------------------
 Stringa decimale infinita 12345678910111213141516...
@@ -80671,7 +80679,7 @@ La stringa decimale infinita viene creata unendo tutti i numeri naturali da 1 a 
 
 "123456789101112131415161718192021222324252627282930..."
 
-Poichè non è possibile memorizzarla interamente in una struttura dati, diventa interessante la soluzione di  due problemi:
+Poichè non è possibile memorizzarla interamente in una struttura dati, diventa interessante la soluzione di due problemi:
 
 1) quale cifra si trova alla posizione K della stringa?
 -------------------------------------------------------
@@ -83211,11 +83219,11 @@ Quando si utilizzano espressioni regolari o funtori di confronto, la variabile d
 (find 3 '(8 4 3  7 2 6) >)  → 4
 $0 → 2
 
-(find "newlisp" '("Perl" "Python" "newLISP") 
+(find "newlisp" '("Perl" "Python" "newLISP")
                  (fn (x y) (regex x y 1))) → 2
 $0 → "newLISP"
 
-(find 5 '((l 3) (k 5) (a 10) (z 22)) 
+(find 5 '((l 3) (k 5) (a 10) (z 22))
          (fn (x y) (= x (last y))))  → 1
 $0 → (k 5)
 
@@ -83531,7 +83539,7 @@ Risolvere le seguenti espressioni in cui ogni lettera rappresenta una particolar
       ABCDEFGH è divisibile per 8
       ABCDEFGHI è divisibile per 9
       ABCDEFGHIJ è divisibile per 10
-  
+
 Funzione che calcola le permutazioni:
 
 (define (perm lst)
@@ -83888,14 +83896,14 @@ Adesso creiamo una funzione che calcola questi valori per tutti numeri fino a "l
     out))
 
 (juggler-all 10)
-;-> ((1 0 1) (2 1 2) (3 6 36) (4 2 4) (5 5 36) 
+;-> ((1 0 1) (2 1 2) (3 6 36) (4 2 4) (5 5 36)
 ;->  (6 2 6) (7 4 18) (8 2 8) (9 7 140) (10 7 36))
 
 La sequenza del giocoliere che parte da a(0) = 48443 raggiunge un valore massimo in a(60) con 972463 cifre, prima di raggiungere 1 in a(157). Non siamo in grado di calcolarla correttamente perchè non usiamo i big-integer:
 
 (juggler 48443)
-;-> (48443 10662193 34815273349 6496130099313866 80598573 
-;->  723587455374 850639 784545138 28009 4687555 10148913818 
+;-> (48443 10662193 34815273349 6496130099313866 80598573
+;->  723587455374 850639 784545138 28009 4687555 10148913818
 ;->  100741 31974914 5654 75 649 16533 2125824 1458 38 6 2 1)
 
 (giocoliere 48443)
@@ -83914,7 +83922,7 @@ La classe BigInteger consente di creare e manipolare numeri interi di qualsiasi 
 
 Qualsiasi dimensione? Esiste un limite (fisico o logico)?
 
-Non ci sono limiti teorici. La classe BigInteger alloca la memoria necessaria per tutti i bit di dati che viene richiesto di contenere. Infatti una buona implementazione dei BigInteger utilizza internamente un vettori di interi dinamico per rappresentare i numeri che utilizza. 
+Non ci sono limiti teorici. La classe BigInteger alloca la memoria necessaria per tutti i bit di dati che viene richiesto di contenere. Infatti una buona implementazione dei BigInteger utilizza internamente un vettori di interi dinamico per rappresentare i numeri che utilizza.
 
 Tuttavia esistono alcuni limiti pratici dettati dalla memoria a disposizione. E ci sono ulteriori limiti tecnici, anche se è molto improbabile che il nostro programma ne sia influenzato: alcuni metodi presumono che i bit siano indirizzabili da indici interi, quindi le cose inizieranno a rompersi quando indirizziamo bit con indici del valore Integer.MAX_VALUE.
 
@@ -83927,7 +83935,7 @@ BigInteger:
   int lowestSetBit +4 bytes
   int signum +4 bytes
   int[] mag +?
-  
+
 Un vettore in Java può avere solo 2^32 elementi. Quindi se i bit del BigInteger sono memorizzati in un vettore di interi, allora può memorizzare al massimo 2^32 cifre, cioè un numero massimo pari a (2^32)^Integer.MAX_VALUE.
 
 Nel linguaggio IDL la classe BigInteger memorizza un numero come un vettore di "cifre" intere a 32 bit senza segno con una radice, o base, di 4294967296 (2^32 - 1). La classe memorizza le cifre in ordine little-endian, con la cifra più significativa alla fine del vettore.
@@ -83985,7 +83993,7 @@ Nota: le espressioni devono essere inserite con le parentesi al posto giusto
 (infix '((5.2 add 3.3) add 2))
 ;-> 10.5
 
-A questo punto possiamo creare un mini-interprete che funziona in modo simile alla REPL di newLISP. 
+A questo punto possiamo creare un mini-interprete che funziona in modo simile alla REPL di newLISP.
 
 Per interagire con l'utente newLISP mette a disposizione la funzione "read-line" che resituisce la stringa inserita dall'utente. Quindi abbiamo bisogno di una funzione "reader" che converte questa stringa in una espressione newLISP.
 
@@ -84034,7 +84042,7 @@ Premere Ctrl+C per uscire dalla REPL.
 Vincere 2 volte su 3
 --------------------
 
-Eva, Vero e Vale sono tre giocatrici di scacchi. Vero è più forte di Eva che, a sua volta, è più forte di Vale. 
+Eva, Vero e Vale sono tre giocatrici di scacchi. Vero è più forte di Eva che, a sua volta, è più forte di Vale.
 Un giorno Vale scommette una pizza con Eva se questa riesce a vincere 2 partite consecutive su 3 partite di scacchi contro Vero e Vale. Inoltre Vale permette a Eva di scegliere con chi giocare per prima. In altre parole la sfida (che consiste in tre partite) può avvenire in due modi diversi:
 
 1) (Eva-Vale) (Eva-Vero) (Eva-Vale) oppure
@@ -84255,14 +84263,14 @@ Un altro insieme di dadi intransitivo è il seguente:
 
 Anche in questo caso la probabilità tra i dadi vale 5/9.
 
-Comunque questi due insiemi non sono equivalenti. Infatti se lanciamo tutti i dadi di un insieme e calcoliamo le probabilità di vincita di ognuno dei dadi otteniamo valori diversi per i due insiemi. 
+Comunque questi due insiemi non sono equivalenti. Infatti se lanciamo tutti i dadi di un insieme e calcoliamo le probabilità di vincita di ognuno dei dadi otteniamo valori diversi per i due insiemi.
 
 Calcoliamo tutti gli eventi possibili per il lancio di tre dadi:
 
 (setq ev1 (prod-cart A B))
 (setq ev2 (prod-cart ev1 C))
 (setq eventi (map (fn(x) (list (x 0 0) (x 0 1) (x 1))) ev2))
-;-> ((2 1 3) (2 1 3) (2 1 5) (2 1 5) (2 1 7) (2 1 7) (2 1 3) 
+;-> ((2 1 3) (2 1 3) (2 1 5) (2 1 5) (2 1 7) (2 1 7) (2 1 3)
 ;->  (2 1 3) (2 1 5) (2 1 5) (2 1 7) (2 1 7) (2 6 3) (2 6 3)
 ;->  ...
 ;->  (9 6 7) (9 8 3) (9 8 3) (9 8 5) (9 8 5) (9 8 7) (9 8 7)
@@ -84341,13 +84349,13 @@ da cui si ricava:
 La barca, l'uomo e il mattone
 -----------------------------
 
-Un uomo è su una barca a remi che galleggia in un lago. 
+Un uomo è su una barca a remi che galleggia in un lago.
 C'è un mattone nella barca.
 Per qualche ragione, l'uomo getta il mattone in acqua.
 Il livello dell'acqua del lago rimane lo stesso, sale o scende a causa del fatto che l'uomo ha lanciato il mattone nel lago?
 
-Quando il mattone è nella barca, la quantità di acqua spostata dal mattone è uguale al suo peso. 
-Quando il mattone viene gettato in mare, la quantità di acqua spostata dal mattone è uguale al suo volume. 
+Quando il mattone è nella barca, la quantità di acqua spostata dal mattone è uguale al suo peso.
+Quando il mattone viene gettato in mare, la quantità di acqua spostata dal mattone è uguale al suo volume.
 Poiché il mattone affonda nell'acqua, sappiamo che il peso specifico del mattone è maggiore di quello dell'acqua. Quindi, il volume d'acqua equivalente alla massa del mattone è maggiore del volume del mattone. Pertanto, quando il mattone viene gettato in acqua, viene spostata meno acqua rispetto a quando il mattone era nella barca (per esempio, supponiamo che il mattone pesa 2 chilogrammi e ha un volume di 1 litro: allora quando il mattone giace all'interno della barca provoca lo spostamento di 2 chilogrammi, cioè di 2 litri di acqua. Invece quando il mattone viene gettato nel lago provoca lo spostamento del proprio volume, cioè di 1 litro d'acqua).
 Quindi il livello dell'acqua diminuirà quando il mattone verrà gettato nel lago.
 
@@ -84440,7 +84448,7 @@ qui quo qua
 Distanza dell'orizzonte
 -----------------------
 
-La distanza "d" dell'orizzonte da un osservatore (assumendo nessuna rifrazione atmosferica) è data dalla formula: 
+La distanza "d" dell'orizzonte da un osservatore (assumendo nessuna rifrazione atmosferica) è data dalla formula:
 
 d = sqrt(2*R*h)
 
@@ -84482,7 +84490,27 @@ Tic-Tac-Toe
 Tic-Tac-Toe (conosciuto in Italia come "Tris") è un gioco che utilizza una griglia quadrata di 3×3 caselle.
 A turno, i giocatori scelgono una casella vuota e vi disegnano il proprio simbolo (di solito un giocatore ha come simbolo il carattere "X" e l'avversario il carttere "O"). Vince il giocatore che riesce a disporre tre dei propri simboli in linea retta orizzontale, verticale o diagonale. Se la griglia viene riempita senza che nessuno dei giocatori sia riuscito a completare una linea retta di tre simboli, il gioco finisce in parità, cioè "patta".
 
+Esempio di partita patta:
+
+  ·---·---·---·
+  | O | O | X |
+  ·---·---·---·
+  | X | X | O |
+  ·---·---·---·
+  | O | X | X |
+  ·---·---·---·
+
 Scriviamo un programma che permette di giocare a Tic-Tac-Toe a due giocatori umani.
+
+Le mosse vengono inserite con un numero da 1 a 9 come nella seguente griglia:
+
+  ·---·---·---·
+  | 1 | 2 | 3 |
+  ·---·---·---·
+  | 4 | 5 | 6 |
+  ·---·---·---·
+  | 7 | 8 | 9 |
+  ·---·---·---·
 
 Funzione che controlla se esiste un vincitore nella griglia passata come parametro (restituisce "X" oppure "O" oppure " "):
 
@@ -84512,39 +84540,28 @@ Funzione che stampa la griglia passata come parametro:
   (println "  | " (b 2 0) " | " (b 2 1) " | " (b 2 2) " |" )
   (println "  ·---·---·---·"))
 
-Funzione che permette di effettuare una mossa da un giocatore:
+Funzione che permette di effettuare una mossa da parte di un giocatore:
 
 (define (make-move b p)
-  (local (move ok)
-  (println "Muove: " p)
-  (do-while ok
-    (setq ok nil)
-    (print "Scegliere una casella (1..9): ")
-    (setq move (int (read-line)))
-    (while (or (< move 1) (> move 9) (not (integer? move)))
-        (print "Scegliere una casella (1..9): ")
-        (setq move (int (read-line))))
-    (cond ((= move 1)
-           (if (= (b 0 0) " ") (setf (b 0 0) p) (setq ok true)))
-          ((= move 2)
-           (if (= (b 0 1) " ") (setf (b 0 1) p) (setq ok true)))
-          ((= move 3)
-           (if (= (b 0 2) " ") (setf (b 0 2) p) (setq ok true)))
-          ((= move 4)
-           (if (= (b 1 0) " ") (setf (b 1 0) p) (setq ok true)))
-          ((= move 5)
-           (if (= (b 1 1) " ") (setf (b 1 1) p) (setq ok true)))
-          ((= move 6)
-           (if (= (b 1 2) " ") (setf (b 1 2) p) (setq ok true)))
-          ((= move 7)
-           (if (= (b 2 0) " ") (setf (b 2 0) p) (setq ok true)))
-          ((= move 8)
-           (if (= (b 2 1) " ") (setf (b 2 1) p) (setq ok true)))
-          ((= move 9)
-           (if (= (b 2 2) " ") (setf (b 2 2) p) (setq ok true)))
+  (local (move ok r c grid-move)
+    (setq grid-move '((1 (0 0)) (2 (0 1))  (3 (0 2))
+                      (4 (1 0)) (5 (1 1))  (6 (1 2))
+                      (7 (2 0)) (8 (2 1))  (9 (2 2))))
+    (println "Muove: " p)
+    (do-while ok
+      (setq ok nil)
+      (print "Scegliere una casella (1..9): ")
+      (setq move (int (read-line)))
+      (while (or (< move 1) (> move 9) (not (integer? move)))
+          (print "Scegliere una casella (1..9): ")
+          (setq move (int (read-line))))
+      (setq r (first (lookup move grid-move)))
+      (setq c (last (lookup move grid-move)))
+      (if (= (b r c) " ")
+          (setf (b r c) p)
+          (setq ok true))
+      (if ok (println "La casella " move " è occupata."))
     )
-    (if ok (println "La casella " move " è occupata."))
-  )
   b))
 
 Funzione per la gestione completa di una partita di tic-tac-toe:
@@ -84574,11 +84591,11 @@ Funzione per la gestione completa di una partita di tic-tac-toe:
                   (setq endgame true)
                   (show-board ttt)
                   (println "Partita terminata: patta")))))
-       ; Prossimo giocatore
-       (if (not endgame)
-           (if (= curr-player "X")
-               (setq curr-player "O")
-               (setq curr-player "X"))))))
+      ; Prossimo giocatore
+      (if (not endgame)
+          (if (= curr-player "X")
+              (setq curr-player "O")
+              (setq curr-player "X"))))))
 
 Facciamo una partita:
 
@@ -84673,6 +84690,233 @@ Facciamo una partita:
 ;->   | O | X | X |
 ;->   ·---·---·---·
 ;-> Partita terminata: patta
+
+
+----------------
+Labirinti (Maze)
+----------------
+
+Un labirinto è un percorso o un insieme di percorsi, in genere con uno o più ingressi e con nessuna o più uscite.
+Per risolvere un labirinto (maze) utilizzeremo il seguente algoritmo che trova la soluzione (se esiste) in modo ricorsivo. Si parte da un valore iniziale X e Y. Se i valori X e Y non sono su un muro, il metodo (funzione) richiama se stesso con tutti i valori X e Y adiacenti, assicurandosi di non aver utilizzato in precedenza quei valori X e Y. Se i valori X e Y sono quelli della posizione finale, salva tutte le istanze precedenti del metodo (risultati parziali) creando una matrice con il percorso risolutivo.
+Questo algoritmo non garantisce che la soluzione trovata sia quella più breve.
+
+(define (solve-maze maze start-row start-col end-row end-col show)
+  (local (matrix row col wall visited solution-path s-row s-col e-row e-col out)
+    ; lista soluzione percorso
+    (setq out '())
+    ; matrice labirinto
+    (setq matrix maze)
+    ; carattere che rappresenta il muro "0"
+    (setq wall 0)
+    ; righe della matrice
+    (setq row (length matrix))
+    ; colonne della matrice
+    (setq col (length (first matrix)))
+    ; matrice delle celle visitate
+    (setq visited (array row col '(nil)))
+    ; matrice soluzione del labirinto
+    (setq solution-path (array row col '(nil)))
+    ; posizione iniziale: riga
+    (setq s-row start-row)
+    ; posizione iniziale: colonna
+    (setq s-col start-col)
+    ; posizione finale: riga
+    (setq e-row end-row)
+    ; posizione finale: colonna
+    (setq e-col end-col)
+    ;
+    ; funzione recursive solve
+    ;
+    (define (recursive-solve x y)
+      (catch
+        (local (return)
+          ;controllo se abbiamo raggiunto la fine e non è un muro
+          (if (and (= x e-row) (= y e-col) (!= (matrix x y) wall))
+              (throw (setf (solution-path x y) true))
+          )
+          ; cella muro o cella visitata
+          (if (or (= (matrix x y) wall) (= (visited x y) true)) (throw nil))
+          ; imposta cella come visitata
+          (setf (visited x y) true)
+          ; controllo posizione riga 0
+          (if (!= x 0)
+              ; richiama la funzione una riga in basso
+              (if (recursive-solve (- x 1) y)
+                  (throw (setf (solution-path x y) true))
+              )
+          )
+          ; controllo posizione riga (row - 1)
+          (if (!= x (- row 1))
+              ; richiama la funzione una riga in alto
+              (if (recursive-solve (+ x 1) y)
+                  (throw (setf (solution-path x y) true))
+              )
+          )
+          ; controllo posizione colonna 0
+          (if (!= y 0)
+              ; richiama la funzione una colonna a sinistra
+              (if (recursive-solve x (- y 1))
+                  (throw (setf (solution-path x y) true))
+              )
+          )
+          ; controllo posizione colonna (col - 1)
+          (if (!= y (- col 1))
+              ; richiama la funzione una colonna a destra
+              (if (recursive-solve x (+ y 1))
+                  (throw (setf (solution-path x y) true))
+              )
+          )
+          return))
+    ); recursive-solve
+    ;
+    ; Chiama la funzione ricorsiva di soluzione
+    ; Se (recursive-solve s-row s-col) ritorna nil,
+    ; allora il labirinto non ha soluzione.
+    ; Altrimenti la matrice booleana "solution-path"
+    ; contiene la soluzione (valori true).
+    (if (recursive-solve s-row s-col)
+        (begin
+          ; Se show = true --> stampa la soluzione
+          (if show (show-aux solution-path))
+          ; crea la lista con il percorso risolutivo
+          (for (i 0 (- row 1))
+            (for (j 0 (- col 1))
+              (if (solution-path i j)
+                  (push (list i j) out -1)))))
+    )
+    out))
+
+(define (show-aux path)
+  (local (row col)
+    ; righe della matrice
+    (setq row (length path))
+    ; colonne della matrice
+    (setq col (length (first path)))
+    ; stampa
+    (for (i 0 (- row 1))
+      (for (j 0 (- col 1))
+        ;(if (matrix i j) (print " ·") (print " 0"))
+        ;(if (path i j) (print " ·") (print " " (matrix i j)))
+        (if (path i j) (print " ■") (print " " (matrix i j)))
+      )
+      (println))))
+
+Esempio 1:
+; definizione labirinto (1 = libero, 0 = muro)
+(setq righe 5)
+(setq colonne 4)
+(setq matrice (array righe colonne '(
+  1 1 1 0
+  0 0 1 1
+  1 0 0 1
+  0 0 0 1
+  1 1 1 1)))
+
+(solve-maze matrice 0 0 4 3 true)
+;->  ■ ■ ■ 0
+;->  0 0 ■ ■
+;->  1 0 0 ■
+;->  0 0 0 ■
+;->  1 1 1 ■
+;-> ((0 0) (0 1) (0 2) (1 2) (1 3) (2 3) (3 3) (4 3))
+(solve-maze matrice 0 0 4 3)
+;-> ((0 0) (0 1) (0 2) (1 2) (1 3) (2 3) (3 3) (4 3))
+
+Esempio 2:
+; definizione labirinto
+(setq righe 12)
+(setq colonne 20)
+(setq matrice (array righe colonne '(
+ 1 1 0 1 0 1 1 1 0 1 0 1 0 1 0 0 1 1 1 0
+ 0 1 1 1 0 0 1 1 1 1 1 0 0 1 1 1 1 1 0 0
+ 0 1 0 0 0 0 0 1 1 0 0 0 1 0 0 0 0 1 0 1
+ 0 1 1 1 1 1 0 0 0 1 1 1 1 0 0 0 1 0 1 0
+ 1 0 0 0 0 1 0 0 1 0 1 0 1 0 0 1 1 0 0 0
+ 1 0 0 0 0 1 1 1 1 0 1 0 1 0 0 1 1 0 0 0
+ 1 0 0 0 0 0 0 0 1 0 1 0 1 0 0 1 0 1 0 0
+ 1 0 0 0 0 0 0 0 1 1 1 0 1 0 0 1 1 1 0 0
+ 1 0 0 0 0 0 0 0 1 0 0 0 1 1 1 1 0 1 1 1
+ 1 0 0 0 0 0 0 0 1 0 0 0 1 0 0 1 0 0 0 1
+ 1 0 0 0 0 0 0 0 1 0 0 0 1 0 0 1 0 0 0 1
+ 1 0 0 0 0 0 0 0 1 0 0 0 1 0 0 1 0 0 0 1)))
+
+(solve-maze matrice 0 0 11 19 true)
+;-> ■ ■ 0 1 0 1 1 1 0 1 0 1 0 1 0 0 1 1 1 0
+;-> 0 ■ 1 1 0 0 1 1 1 1 1 0 0 1 1 1 1 1 0 0
+;-> 0 ■ 0 0 0 0 0 1 1 0 0 0 1 0 0 0 0 1 0 1
+;-> 0 ■ ■ ■ ■ ■ 0 0 0 1 ■ ■ ■ 0 0 0 1 0 1 0
+;-> 1 0 0 0 0 ■ 0 0 1 0 ■ 0 ■ 0 0 1 1 0 0 0
+;-> 1 0 0 0 0 ■ ■ ■ ■ 0 ■ 0 ■ 0 0 1 1 0 0 0
+;-> 1 0 0 0 0 0 0 0 ■ 0 ■ 0 ■ 0 0 1 0 1 0 0
+;-> 1 0 0 0 0 0 0 0 ■ ■ ■ 0 ■ 0 0 ■ ■ ■ 0 0
+;-> 1 0 0 0 0 0 0 0 1 0 0 0 ■ ■ ■ ■ 0 ■ ■ ■
+;-> 1 0 0 0 0 0 0 0 1 0 0 0 1 0 0 1 0 0 0 ■
+;-> 1 0 0 0 0 0 0 0 1 0 0 0 1 0 0 1 0 0 0 ■
+;-> 1 0 0 0 0 0 0 0 1 0 0 0 1 0 0 1 0 0 0 ■
+;-> ((0 0) (0 1) (1 1) (2 1) (3 1) (3 2) (3 3) (3 4) (3 5) (3 10) (3 11)
+;->  (3 12) (4 5) (4 10) (4 12) (5 5) (5 6) (5 7) (5 8) (5 10) (5 12)
+;->  (6 8) (6 10) (6 12) (7 8) (7 9) (7 10) (7 12) (7 15) (7 16) (7 17)
+;->  (8 12) (8 13) (8 14) (8 15) (8 17) (8 18) (8 19) (9 19) (10 19)
+;->  (11 19))
+
+Esempio 3:
+; definizione labirinto
+(setq righe 9)
+(setq colonne 9)
+(setq matrice (array righe colonne '(
+ 1 1 0 1 0 1 1 1 0
+ 0 1 1 1 0 0 1 1 1
+ 0 1 0 0 0 0 0 1 1
+ 0 1 1 1 1 1 0 0 0
+ 1 0 0 0 0 1 0 0 1
+ 1 0 0 0 0 1 0 1 1
+ 1 0 0 0 0 0 0 0 1
+ 1 0 0 0 0 0 0 0 1
+ 1 0 0 0 0 0 0 0 1)))
+
+(solve-maze matrice 0 0 8 8 true)
+;-> ()
+Nessuna soluzione.
+
+(solve-maze matrice 0 0 5 5 true)
+;-> ■ ■ 0 1 0 1 1 1 0
+;-> 0 ■ 1 1 0 0 1 1 1
+;-> 0 ■ 0 0 0 0 0 1 1
+;-> 0 ■ ■ ■ ■ ■ 0 0 0
+;-> 1 0 0 0 0 ■ 0 0 1
+;-> 1 0 0 0 0 ■ 0 1 1
+;-> 1 0 0 0 0 0 0 0 1
+;-> 1 0 0 0 0 0 0 0 1
+;-> 1 0 0 0 0 0 0 0 1
+;-> ((0 0) (0 1) (1 1) (2 1) (3 1) (3 2) (3 3) (3 4) (3 5) (4 5) (5 5))
+
+Esempio 4:
+; definizione labirinto
+(setq righe 9)
+(setq colonne 9)
+(setq matrice (array righe colonne '(
+ 1 1 0 1 0 1 1 0 1
+ 0 1 1 1 0 0 1 1 1
+ 0 1 0 0 0 0 0 1 0
+ 0 1 1 1 1 1 0 1 1
+ 1 0 0 0 0 1 0 0 1
+ 1 0 0 0 0 1 1 1 1
+ 1 1 1 1 1 0 1 0 1
+ 1 0 0 0 1 0 1 0 1
+ 1 0 0 0 1 1 1 0 1)))
+
+(solve-maze matrice 8 0 0 8 true)
+;-> 1 1 0 1 0 1 1 0 ■
+;-> 0 1 1 1 0 0 1 ■ ■
+;-> 0 1 0 0 0 0 0 ■ 0
+;-> 0 1 1 1 1 1 0 ■ ■
+;-> 1 0 0 0 0 1 0 0 ■
+;-> 1 0 0 0 0 1 ■ ■ ■
+;-> ■ ■ ■ ■ ■ 0 ■ 0 1
+;-> ■ 0 0 0 ■ 0 ■ 0 1
+;-> ■ 0 0 0 ■ ■ ■ 0 1
+;-> ((0 8) (1 7) (1 8) (2 7) (3 7) (3 8) (4 8) (5 6) (5 7) (5 8) (6 0) (6 1)
+;->  (6 2) (6 3) (6 4) (6 6) (7 0) (7 4) (7 6) (8 0) (8 4) (8 5) (8 6))
 
 
 ===========

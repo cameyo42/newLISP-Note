@@ -11052,7 +11052,7 @@ Vediamo quanto tempo occorre per calcolare i primi 100 milioni di termini:
 
 (time (println (last (gh 100000000))))
 ;-> 61803399
-;-> 12495.63  
+;-> 12495.63
     12.5 secondi
 
 Nota: per una rappresentazione visiva di questa sequenza vedi "A combinatorial interpretation of hofstadter’s G-sequence" di Mustazee Rahman.
@@ -11086,7 +11086,7 @@ M: 0, 0, 1, 2, 2, 3, 4, 4, 5, 6, 6, 7, 7, 8, 9, 9, 10, 11, 11, 12, 12, ... (A005
     (list f m)))
 
 (fmh 20)
-;-> ((1 1 2 2 3 3 4 5 5 6 6 7 8 8 9 9 10 11 11 12 13) 
+;-> ((1 1 2 2 3 3 4 5 5 6 6 7 8 8 9 9 10 11 11 12 13)
 ;->  (0 0 1 2 2 3 4 4 5 6 6 7 7 8 9 9 10 11 11 12 12))
 
 Vediamo quanto tempo occorre per calcolare i primi 100 milioni di termini:
@@ -11205,8 +11205,8 @@ Nel diagramma seguente i punti del convex-hull sono contrassegnsti con X.
 
 Proviamo con l'esempio riportato su Rosetta Code:
 
-(setq rc '((16 3) (12 17) (0 6) (-4 -6) (16 6) (16 -7) (16 -3) 
-           (17 -4) (5 19) (19 -8) (3 16) (12 13) (3 -4) (17 5) 
+(setq rc '((16 3) (12 17) (0 6) (-4 -6) (16 6) (16 -7) (16 -3)
+           (17 -4) (5 19) (19 -8) (3 16) (12 13) (3 -4) (17 5)
            (-3 15) (-3 -9) (0 11) (-9 -3) (-4 -2) (12 10)))
 
 (convex-hull rc)
@@ -11292,10 +11292,10 @@ L'implementazione che segue si basa su questo algoritmo, ma produce solo i numer
     out))
 
 (bell 25)
-;-> (1L 1L 2L 5L 15L 52L 203L 877L 4140L 21147L 115975L 678570L 
-;->  4213597L 27644437L 190899322L 1382958545L 10480142147L 
+;-> (1L 1L 2L 5L 15L 52L 203L 877L 4140L 21147L 115975L 678570L
+;->  4213597L 27644437L 190899322L 1382958545L 10480142147L
 ;->  82864869804L 682076806159L 5832742205057L 51724158235372L
-;->  474869816156751L 4506715738447323L 44152005855084346L 
+;->  474869816156751L 4506715738447323L 44152005855084346L
 ;->  445958869294805289L 4638590332229999353L)
 
 Vediamo il 50-esimo numero di Bell:

@@ -2028,7 +2028,7 @@ Versione modificata:
     (setq _func '())
     (setq _other '())
     (dolist (_el (symbols))
-      (if (and (lambda? (eval _el))  
+      (if (and (lambda? (eval _el))
                (not (= _el 'user-symbols)))
           (push _el _func -1))
       (if (and (not (lambda? (eval _el)))
@@ -4210,13 +4210,13 @@ Scriviamo la funzione che calcola il prodotto cartesiano di tutte le sotto-liste
 Da notare che i risultati sono diversi nel caso di liste annidate:
 
 (cp '(1 2 (3 4)) '((4 (3)) (5) (6)))
-;-> ((1 (4 (3))) (1 (5)) (1 (6)) (2 (4 (3))) (2 (5)) 
+;-> ((1 (4 (3))) (1 (5)) (1 (6)) (2 (4 (3))) (2 (5))
 ;-> (2 (6)) ((3 4) (4 (3))) ((3 4) (5)) ((3 4) (6)))
 
 (prodotto-cartesiano '((1 2 (3 4)) ((4 (3)) (5) (6))))
 ;-> ((1 4 3) (1 5) (1 6) (2 4 3) (2 5) (2 6) (3 4 4 3) (3 4 5) (3 4 6))
 (prodotto-cartesiano '((1 2 3 4) (4 3 5 6)))
-;-> ((1 4) (1 3) (1 5) (1 6) (2 4) (2 3) (2 5) (2 6) 
+;-> ((1 4) (1 3) (1 5) (1 6) (2 4) (2 3) (2 5) (2 6)
 ;-> (3 4) (3 3) (3 5) (3 6) (4 4) (4 3) (4 5) (4 6))
 
 Prodotto cartesiano di funzioni
@@ -4478,7 +4478,7 @@ Usiamo la funzione "rand-range" per generare un numero compreso tra "a" e "b":
 (define (rand-range a b)
   (if (> a b) (swap a b))
   (+ a (rand (+ (- b a) 1))))
-  
+
 Crea una lista con tutti i valori di una hashmap:
 
 (define (getValues hash)
@@ -5311,8 +5311,8 @@ Dato un numero intero positivo n, generare tutti i modi unici possibili per rapp
 La soluzione crea una lista con tutte le partizioni ordinate (anche i numeri di ogni partizione sono ordinati). Il metodo è quello di ottenere la partizione successiva usando i valori della partizione corrente. Memorizziamo ogni partizione in un vettore "part". Inizializziamo part[0] a n, dove n è il numero di input. Ad ogni iterazione inseriamo la partizione corrente (cioè il vettore "part") nella lista e quindi aggiorniamo il vettore "part" per memorizzare la partizione successiva. Quindi il problema principale è ottenere la partizione successiva da una determinata partizione.
 
 I passaggi per ottenere la partizione successiva dalla partizione corrente sono i seguenti:
-- Ci viene data la partizione corrente in "part" e le sue dimensioni. 
-- Dobbiamo aggiornare "part" per memorizzare la prossima partizione. 
+- Ci viene data la partizione corrente in "part" e le sue dimensioni.
+- Dobbiamo aggiornare "part" per memorizzare la prossima partizione.
 - I valori in "part" devono essere ordinati in ordine non crescente.
 
 1) Trovare il valore (non-uno) (cioè diverso da 1) più a destra in "part" e memorizzare il conteggio di 1 incontrati prima di un valore non-uno in una variabile temp-value (Indica la somma dei valori sul lato destro che devono essere aggiornati). Assegna alla variabile k il valore dell'indice relativo al numero non-uno.
@@ -5343,20 +5343,20 @@ Vediamo l'implementazione dell'algoritmo:
       ; Genera la partizione successiva
       ;
       ; Trova il valore non-uno più a destra di part[]
-      ; Aggiorna anche il valore di temp-value 
+      ; Aggiorna anche il valore di temp-value
       ; (cioè quanti valori possono essere inseriti)
       (setq temp-value 0)
       (while (and (>= k 0) (= (part k) 1))
         (setq temp-value (+ temp-value (part k)))
         (-- k)
       )
-      ; se k < 0, tutti i valori valgono 1 
+      ; se k < 0, tutti i valori valgono 1
       ; quindi non ci sono altre partizioni da generare
       (if (< k 0) (throw out))
       ; Decrementa part[k] trovato sopra e calcola il valore di temp-value
       (setf (part k) (- (part k) 1))
       (++ temp-value)
-      ; Se rem_val è maggiore, allora l'ordine è violato. 
+      ; Se rem_val è maggiore, allora l'ordine è violato.
       ; Divide temp-value in diversi valori di dimensione part[k] e
       ; copia questi valori in posizioni diverse dopo part[k]
       (while (> temp-value (part k))
@@ -5396,7 +5396,7 @@ dove p(0) = 1 e p(n) = 0 per n < 0.
 
 La sequenza dei numeri k da utilizzare è data dalla formula dei numeri pentagonali generalizzati:
 
-f(k) = k*(3k-1)/2 che vale sia per k negativo che per k positivo. 
+f(k) = k*(3k-1)/2 che vale sia per k negativo che per k positivo.
 
 Questa formula può essere generata nel modo seguente:
 
@@ -5434,8 +5434,8 @@ Quindi partendo dal primo valore della sequenza possiamo calcolare quella succes
 
 (part-num 50)
 ;-> (1 1 2 3 5 7 11 15 22 30 42 56 77 101 135 176 231 297 385 490
-;->  627 792 1002 1255 1575 1958 2436 3010 3718 4565 5604 6842 
-;->  8349 10143 12310 14883 17977 21637 26015 31185 37338 44583 
+;->  627 792 1002 1255 1575 1958 2436 3010 3718 4565 5604 6842
+;->  8349 10143 12310 14883 17977 21637 26015 31185 37338 44583
 ;->  53174 63261 75175 89134 105558 124754 147273 173525 204226)
 
 
@@ -5450,7 +5450,7 @@ Mentre l'algoritmo euclideo calcola solo il massimo comune divisore (MCD) di due
 
 a*x + b*y = mcd(a, b)
 
-Da notare che possiamo sempre trovare una tale rappresentazione, ad esempio mcd(55,80) = 5 quindi possiamo rappresentare 5 come una combinazione lineare con i termini 55 e 80: 
+Da notare che possiamo sempre trovare una tale rappresentazione, ad esempio mcd(55,80) = 5 quindi possiamo rappresentare 5 come una combinazione lineare con i termini 55 e 80:
 
 55*3 + 80*(−2) = 5
 
@@ -5477,7 +5477,7 @@ Versione generale:
     ; Adesso la variabile a contiene il valore di gcd
     ;(println a { } b { } x { } y { } lastx { } lasty)
     (list a lastx lasty)))
-    
+
 (gcdex 120 23)
 ;-> (1 -9 47)
 
@@ -5610,9 +5610,9 @@ Poiché il numero n ha esattamente |log2 n| + 1 cifre in base 2, dobbiamo solo e
 
 Quindi abbiamo solo bisogno di conoscere un modo veloce per calcolarli. Fortunatamente questo è molto semplice, poiché un elemento nella sequenza è solo il quadrato dell'elemento precedente.
 
-3^1 = 3 
+3^1 = 3
 3^2 = (3^1)^2 = 3^2 = 9
-3^4 = (3^2)^2 = 9^2 = 81 
+3^4 = (3^2)^2 = 9^2 = 81
 3^8 = (3^4)^2 = 81^2 = 6561
 
 Quindi, per ottenere la risposta finale per 3^13, dobbiamo solo moltiplicarne tre di loro (saltando 3^2 perché il bit corrispondente in n non è impostato): 313 = 6561 * 81 * 3 = 1594323
@@ -5621,10 +5621,10 @@ La complessità finale di questo algoritmo è O(log n): dobbiamo calcolare (log 
 
 Il seguente approccio ricorsivo esprime la stessa idea:
 
-se n=0             ==>   a^n = 1 
-                         
+se n=0             ==>   a^n = 1
+
 se n>0 e pari      ==>   a^n = (a^(n/2))^2
-                         
+
 se n>0 e dispari   ==>   a^n = (a^((n-1)/2))^2
 
 Versione ricorsiva:
@@ -6059,7 +6059,7 @@ el(2) op el(1), el(3) op el(2), el(4) op el(3), ..., el(n) op el(n-1)
 
 (do-pair '(4 7 11 16 18) -)
 ;-> (3 4 5 2)
-3 = 7 - 4 
+3 = 7 - 4
 4 = 11 - 7
 ...
 
@@ -6105,7 +6105,7 @@ Vediamo di implementare un programma che trova questo valore y partendo da una l
     )
     prod))
 
-; Funzione per calcolare Pn(x) 
+; Funzione per calcolare Pn(x)
 ; dove Pn è il polinomio interpolatore di Lagrange di grado n
 (define (pn n xcoord ycoord x)
   (let (sum 0)
@@ -6675,7 +6675,7 @@ Proviamo la funzione integrata "select":
 (time (select alist aind) 100000)
 ;-> 294.371
 
-Questa volta è più veloce la funzione integrata. 
+Questa volta è più veloce la funzione integrata.
 Quindi con pochi elementi conviene usare "select", mentre con tanti elementi conviene usare "select-list".
 
 
@@ -7124,7 +7124,7 @@ L'algoritmo è stato inventato da Knuth e Pratt, e indipendentemente da J. H. Mo
       )
       ; ultimo carattere uguale?
       (if (= (str k) (str i))
-        ; aumenta la lunghezza del bordo 
+        ; aumenta la lunghezza del bordo
         (++ k)
       )
       ; trovato bordo massimo di str (partendo da i + 1)
@@ -7150,7 +7150,7 @@ L'algoritmo è stato inventato da Knuth e Pratt, e indipendentemente da J. H. Mo
 (define (knuth-morris-pratt str txt)
   (local (sep mbl lenstr out)
     (setq out '()) ; lista di output
-    ; Il carattere sep non deve essere presente 
+    ; Il carattere sep non deve essere presente
     ; ne in txt ne in str
     (setq sep "~") ; carattere speciale non usato
     (setq mbl (max-border-len (string str sep txt)))
@@ -7159,7 +7159,7 @@ L'algoritmo è stato inventato da Knuth e Pratt, e indipendentemente da J. H. Mo
       (if (= el lenstr) ; trovato un bordo della lunghezza di str
         ; inizio del bordo in txt
         ; stringa str trovata in txt
-        (push (- $idx (* 2 lenstr)) out -1) 
+        (push (- $idx (* 2 lenstr)) out -1)
       )
     )
     out))
@@ -7325,7 +7325,7 @@ Di seguito è riportata l'implementazione delle operazioni di base per un Min-He
   (decrease-key key -9223372036854775808)
   (extract-min))
 
-; Metodo ricorsivo per "min-heapify" un sotto-albero 
+; Metodo ricorsivo per "min-heapify" un sotto-albero
 ; con la radice in un dato indice
 ; Questo metodo presuppone che i sotto-alberi siano già "min-heapify"
 (define (min-heapify key)

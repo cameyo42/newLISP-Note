@@ -6929,7 +6929,7 @@ Rappresentiamo la traiettoria con un lista del tipo seguente:
 dove (ti xi zi) rappresenta la i-esima posizione della palla (al tempo ti nella posizione (xi zi)).
 Da notare che zn deve risultare uguale (o poco minore) a zero.
 
-Rappresentazione 2D:  
+Rappresentazione 2D:
 
    z
    |
@@ -6945,7 +6945,7 @@ Rappresentazione 2D:
 Traiettoria del proiettile:
 
    z
-   |              *  
+   |              *
    |         *         *
    |      *               *
    |   *                     *
@@ -6961,14 +6961,14 @@ Per calcolare la simulazione utilizzeremo il metodo di Eulero che consiste nell'
     (setq ts '() xs '() zs '())
     ; calcola la velocita iniziale x (converte theta in radianti)
     ; (vx = 0 quando theta = 90)
-    (if (= theta 90) 
+    (if (= theta 90)
         (setq vx 0)
         (setq vx (mul vel (cos (div (mul 3.1415926535897931 theta) 180))))
     )
     ; calcola la velocita iniziale z (converte theta in radianti)
     ; (vz = 0 quando theta = 0 o 180)
     (if (or (= theta 0) (= theta 180))
-        (setq vz 0)    
+        (setq vz 0)
         (setq vz (mul vel (sin (div (mul 3.1415926535897931 theta) 180))))
     )
     ;(println "vx =" vx)
@@ -7049,7 +7049,7 @@ Adesso scriviamo la funzione che visualizza la traiettoria del proiettile:
     (dolist (el lst-txz)
       (push (first (rest el)) xx -1)
       (push (last el) zz -1 ))
-    ; plot data      
+    ; plot data
     (plot:XY xx zz)
     ; salva il plot su un file
     (plot:export (string "traiettoria-" theta ".png"))))
@@ -7091,7 +7091,7 @@ Lunghezza delle parti     Valore totale
 1, 1, 1, 1                1 + 1 + 1 + 1 = 4
 2, 2                      5 + 5 = 10
 
-La prima soluzione utilizza la tecnica della ricorsione. 
+La prima soluzione utilizza la tecnica della ricorsione.
 La soluzione ricorsiva si basa sul calcolo di tutte le possibili combinazioni e dei valori associati a ciascuna combinazione e restituisce il massimo di tutti questi valori.
 
 La lista lst-val contiene il valore di ogni lunghezza.
@@ -7150,7 +7150,7 @@ Versione memoization:
 (tubo-m '(1 5 8 9 10 17 18 20) 8)
 ;-> (22 (1 5 8 10 13 17 18 22)) (un pezzo lungo 2 e un pezzo lungo 6 --> 5 + 17 = 22)
 
-Questa funzione impiega un tempo polinomiale per calcolare la soluzione, ma non è ancora ottimizzato perché utilizza la ricorsione. 
+Questa funzione impiega un tempo polinomiale per calcolare la soluzione, ma non è ancora ottimizzato perché utilizza la ricorsione.
 
 Vediamo la velocità della funzione:
 

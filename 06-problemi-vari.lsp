@@ -5802,7 +5802,7 @@ Per risolvere un labirinto (maze) utilizzeremo il seguente algoritmo che trova l
 Questo metodo non garantisce che la soluzione trovata sia quella più breve.
 
 (define (solveMaze matrice sRow sCol eRow eCol)
-  (local (maze row col visited correctPath starRow startCol endRow endCol)
+  (local (maze row col visited correctPath startRow startCol endRow endCol)
     ; matrice labirinto
     (setq maze matrice)
     ; righe della matrice
@@ -6217,17 +6217,17 @@ Problemi patologici dei numeri floating point
 ---------------------------------------------
 
 La Chaotic Bank Society offre questo investimento ai propri clienti.
-Per prima cosa depositi $(e - 1) dove e è 2.7182818 ... la base dei logaritmi naturali.
+Per prima cosa depositi (e - 1) euro dove e è 2.7182818 ... la base dei logaritmi naturali.
 
-Dopo ogni anno, il saldo del tuo account verrà moltiplicato per il numero di anni che sono passati e verranno rimossi $ 1 in costi di servizio.
+Dopo ogni anno, il saldo del tuo account verrà moltiplicato per il numero di anni che sono passati e verranno rimossi 1 euro in costi di servizio.
 
 Così ...
 
-dopo 1 anno, il saldo verrà moltiplicato per 1 e $ 1 verrà rimosso per le spese di servizio.
-dopo 2 anni il saldo sarà raddoppiato e $ 1 rimosso.
-dopo 3 anni il saldo sarà triplicato e $ 1 rimosso.
+dopo 1 anno, il saldo verrà moltiplicato per 1 e 1 euro verrà rimosso per le spese di servizio.
+dopo 2 anni il saldo sarà raddoppiato e 1 euro rimosso.
+dopo 3 anni il saldo sarà triplicato e 1 euro rimosso.
 ...
-dopo 10 anni, moltiplicato per 10 e $ 1 rimosso, e così via.
+dopo 10 anni, moltiplicato per 10 e 1 euro rimosso, e così via.
 
 Quale sarà il tuo saldo dopo 25 anni?
 

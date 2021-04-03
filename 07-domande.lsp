@@ -44,7 +44,7 @@ Valori della notazione Big-O in funzione del numero di input:
 
  n  costante  logaritmo   sqrt(n)   lineare   nlogn      quadrato   cubo    esponenziale
       O(1)    O(log(n))  O(sqrt(n))   O(n)   O(n*log(n))   O(n^2)   O(n^3)       O(2^n)
- 1     1         1          1          1        1             1        1            1         
+ 1     1         1          1          1        1             1        1            1
  2     1         1          1          2        2             4        8            4
  4     1         1          2          4        2            16       64           16
  8     1         3          3          8       24            64      512          256
@@ -5011,7 +5011,7 @@ Questa soluzione risolve questo problema in tempo O(n). Un altro metodo è quell
              (if (= (marked (char (str2 i))) "1")
                  (throw nil))
              ; the next expression don't work...
-             ; 
+             ;
              ;(setf (marked (char (str2 i))) "1")
              (setq idx (char (str2 i)))
              (setf (marked idx) "1")
@@ -6366,7 +6366,7 @@ Poichè n/m deve essere intero, anche (10*m - n)/m deve essere intero:
 
 ma (10*m - n) è un numero di tre cifre mentre m è un numero con quattro cifre, quindi deve risultare:
 
-(10*m - n)/m = 0, cioè (10*m - n) = 0. 
+(10*m - n)/m = 0, cioè (10*m - n) = 0.
 
 Questo implica che deve risultare u = v = z = 0. Quindi i numeri n e m diventano:
 
@@ -6400,7 +6400,7 @@ In binario questo quadrato vale:
 111...11 000...000 1
 -------- ---------
  (k-1)       k
- 
+
 Per esempio:
 
 a   = 111     (in decimale a = 7)
@@ -6432,10 +6432,10 @@ Fattoriale e zeri finali (Wolfram)
 ----------------------------------
 
 Il numero di zeri finali del fattoriale di un numero intero n è dato da:
- 
-  Numero di zeri finali in n! = 
-= Numero di volte n! è divisibile per 10 = 
-= Potenza massima di 10 che divide n! = 
+
+  Numero di zeri finali in n! =
+= Numero di volte n! è divisibile per 10 =
+= Potenza massima di 10 che divide n! =
 = Potenza massima di 5 in n!
 
 Utilizzando l'ultima definizione la formula per il calcolo è la seguente:
@@ -6493,7 +6493,7 @@ Proviamo calcolando il fattoriale e contando gli zeri finali:
 (define (zeri-f x)
   (let (c 0)
     (while (zero? (% x 10))
-      (++ c) 
+      (++ c)
       (setq x (/ x 10)))
     c))
 
@@ -6863,7 +6863,7 @@ In una scacchiera quadrata 8x8 esistono:
 2^2 quadrati 7x7
 1^2 quadrati 8x8
 
-Quindi la somma totali dei quadrati vale: 
+Quindi la somma totali dei quadrati vale:
 
 num-quad = 1^2 + 2^2 + 3^2 + 4^2 + 5^2 + 6^2 + 7^2 + 8^2 =
 
@@ -7117,7 +7117,7 @@ Date n coppie di parentesi, scrivere una funzione per generare tutte le combinaz
 
 "[[[]]]", "[[][]]", "[[]][]", "[][[]]", "[][][]"
 
-L'idea è che se abbiamo ancora una parentesi sinistra, abbiamo due scelte: inserire una parentesi sinistra o una parentesi destra. Ma la condizione per inserire le parentesi destra è che quelle di sinistra presenti siano di più di quelle di destra presenti. 
+L'idea è che se abbiamo ancora una parentesi sinistra, abbiamo due scelte: inserire una parentesi sinistra o una parentesi destra. Ma la condizione per inserire le parentesi destra è che quelle di sinistra presenti siano di più di quelle di destra presenti.
 In altre parole, l'i-esimo carattere può essere "[" se e solo se il conteggio di "[" fino a i-esimo è minore di n e i-esimo carattere può essere "]" se e solo se il conteggio di "[" è maggiore rispetto al conteggio di "]" fino all'indice i. Se seguiamo queste due regole, la combinazione risultante sarà sempre bilanciata.
 Usiamo una funzione ricorsiva che segue queste due regole.
 
@@ -7140,8 +7140,8 @@ Usiamo una funzione ricorsiva che segue queste due regole.
 ;-> ("[[[]]]" "[[][]]" "[[]][]" "[][[]]" "[][][]")
 
 (parentesi 4)
-;-> ("[[[[]]]]" "[[[][]]]" "[[[]][]]" "[[[]]][]" "[[][[]]]" 
-;->  "[[][][]]" "[[][]][]" "[[]][[]]" "[[]][][]" "[][[[]]]" 
+;-> ("[[[[]]]]" "[[[][]]]" "[[[]][]]" "[[[]]][]" "[[][[]]]"
+;->  "[[][][]]" "[[][]][]" "[[]][[]]" "[[]][][]" "[][[[]]]"
 ;->  "[][[][]]" "[][[]][]" "[][][[]]" "[][][][]")
 
 
@@ -7383,8 +7383,8 @@ Questo algoritmo viene codificato nella seguente funzione (che utilizza i big-in
           (setq num (+ num (* (% doppio 10) (** 10 (length num)))))
       )
       ; controllo se doppio ha un riporto
-      (cond ((= doppio 10) 
-             (setq carry 0L) 
+      (cond ((= doppio 10)
+             (setq carry 0L)
              (setq doppio 1L))
             ((> doppio 9)
              (setq carry 1L)
@@ -7412,7 +7412,7 @@ Funzione che calcola la potenza intera di un numero intero:
     (let (out 1L)
         (dotimes (i power)
             (setq out (* out num)))))
-       
+
 (check 105263157894736842)
 ;-> true
 
@@ -7478,7 +7478,7 @@ Affinchè Y è maggiore di X, aggiungere 1 se è dispari, altrimenti dividire pe
   (let (out 0)
     (while (> y x)
       (++ out)
-      (if (odd? y) 
+      (if (odd? y)
           (++ y)
           (setq y (/ y 2))
       )
@@ -7631,7 +7631,7 @@ passi = 5
 Possiamo cambiare da -2 a -1, da 0 a -1 e da 4 a 1.
 Quindi sono necessari un totale di 5 passi per aggiornare gli elementi in modo tale il prodotto finale valga 1.
 
-lst = (-1 1 -1) 
+lst = (-1 1 -1)
 passi = 0
 Il prodotto della lista vale già 1, quindi non occorre modificare nulla.
 
@@ -7690,9 +7690,9 @@ Per esempio:
 monete = (4 2 5 2)
 somme = (2 4 5 6 7 8 9 11 13)
 
-Il valore massimo di somma che possiamo ottenere è dato dal valore massimo della (valmax) lista moltiplicato per la lunghezza della lista (len). 
+Il valore massimo di somma che possiamo ottenere è dato dal valore massimo della (valmax) lista moltiplicato per la lunghezza della lista (len).
 Creiamo un vettore di lunghezza len * (valmax + 1) con tutti valori 0 (nil).
-Per ogni moneta "c" 
+Per ogni moneta "c"
   attraversiamo il vettore all'indietro e se incontriamo un valore 1 (true) all'indice "i", allora poniamo a 1 (true) il valore all'indice (+ i c).
   poniamo a 1 (true) il valore all'indice "c".
 Attraversiamo il vettore e inseriamo nella soluzione gli indici dei valori che valgono 1 (true).
@@ -7734,9 +7734,9 @@ La seguente funzione implementa l'algoritmo:
 ;-> (2 4 5 6 7 8 9 11 13)
 
 (sum-coin '(2 5 10 50 1000 2000))
-;-> (2 5 7 10 12 15 17 50 52 55 57 60 62 65 67 1000 1002 1005 1007 1010 1012 
-;->  1015 1017 1050 1052 1055 1057 1060 1062 1065 1067 2000 2002 2005 2007 
-;->  2010 2012 2015 2017 2050 2052 2055 2057 2060 2062 2065 2067 3000 3002 
+;-> (2 5 7 10 12 15 17 50 52 55 57 60 62 65 67 1000 1002 1005 1007 1010 1012
+;->  1015 1017 1050 1052 1055 1057 1060 1062 1065 1067 2000 2002 2005 2007
+;->  2010 2012 2015 2017 2050 2052 2055 2057 2060 2062 2065 2067 3000 3002
 ;->  3005 3007 3010 3012 3015 3017 3050 3052 3055 3057 3060 3062 3065 3067)
 
 

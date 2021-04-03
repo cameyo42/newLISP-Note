@@ -2709,7 +2709,6 @@ Funzione per stampare una matrice:
 Il primo indice (0 0) del primo valore (1) della matrice "m" si trova all'indice (pad pad) della matrice "out" di output.
 
 Esempio:
-
 (setq b '((0)))
 (for (i 1 9)
   (setq b (pad-matrix b 1 i))
@@ -2735,6 +2734,14 @@ Esempio:
 ;-> 9 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 9
 ;-> 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9
 
+Esempio:
+(setq b '((0)))
+(for (i 1 42)
+  (setq b (pad-matrix b 1 i))
+)
+(device (open "matrix42.txt" "write"))
+(print-matrix b)
+(close (device))
 
 ----------------------------------------------------
 Stringa decimale infinita 12345678910111213141516...
@@ -2744,7 +2751,7 @@ La stringa decimale infinita viene creata unendo tutti i numeri naturali da 1 a 
 
 "123456789101112131415161718192021222324252627282930..."
 
-Poichè non è possibile memorizzarla interamente in una struttura dati, diventa interessante la soluzione di  due problemi:
+Poichè non è possibile memorizzarla interamente in una struttura dati, diventa interessante la soluzione di due problemi:
 
 1) quale cifra si trova alla posizione K della stringa?
 -------------------------------------------------------
@@ -5284,11 +5291,11 @@ Quando si utilizzano espressioni regolari o funtori di confronto, la variabile d
 (find 3 '(8 4 3  7 2 6) >)  → 4
 $0 → 2
 
-(find "newlisp" '("Perl" "Python" "newLISP") 
+(find "newlisp" '("Perl" "Python" "newLISP")
                  (fn (x y) (regex x y 1))) → 2
 $0 → "newLISP"
 
-(find 5 '((l 3) (k 5) (a 10) (z 22)) 
+(find 5 '((l 3) (k 5) (a 10) (z 22))
          (fn (x y) (= x (last y))))  → 1
 $0 → (k 5)
 
@@ -5604,7 +5611,7 @@ Risolvere le seguenti espressioni in cui ogni lettera rappresenta una particolar
       ABCDEFGH è divisibile per 8
       ABCDEFGHI è divisibile per 9
       ABCDEFGHIJ è divisibile per 10
-  
+
 Funzione che calcola le permutazioni:
 
 (define (perm lst)
@@ -5961,14 +5968,14 @@ Adesso creiamo una funzione che calcola questi valori per tutti numeri fino a "l
     out))
 
 (juggler-all 10)
-;-> ((1 0 1) (2 1 2) (3 6 36) (4 2 4) (5 5 36) 
+;-> ((1 0 1) (2 1 2) (3 6 36) (4 2 4) (5 5 36)
 ;->  (6 2 6) (7 4 18) (8 2 8) (9 7 140) (10 7 36))
 
 La sequenza del giocoliere che parte da a(0) = 48443 raggiunge un valore massimo in a(60) con 972463 cifre, prima di raggiungere 1 in a(157). Non siamo in grado di calcolarla correttamente perchè non usiamo i big-integer:
 
 (juggler 48443)
-;-> (48443 10662193 34815273349 6496130099313866 80598573 
-;->  723587455374 850639 784545138 28009 4687555 10148913818 
+;-> (48443 10662193 34815273349 6496130099313866 80598573
+;->  723587455374 850639 784545138 28009 4687555 10148913818
 ;->  100741 31974914 5654 75 649 16533 2125824 1458 38 6 2 1)
 
 (giocoliere 48443)
@@ -5987,7 +5994,7 @@ La classe BigInteger consente di creare e manipolare numeri interi di qualsiasi 
 
 Qualsiasi dimensione? Esiste un limite (fisico o logico)?
 
-Non ci sono limiti teorici. La classe BigInteger alloca la memoria necessaria per tutti i bit di dati che viene richiesto di contenere. Infatti una buona implementazione dei BigInteger utilizza internamente un vettori di interi dinamico per rappresentare i numeri che utilizza. 
+Non ci sono limiti teorici. La classe BigInteger alloca la memoria necessaria per tutti i bit di dati che viene richiesto di contenere. Infatti una buona implementazione dei BigInteger utilizza internamente un vettori di interi dinamico per rappresentare i numeri che utilizza.
 
 Tuttavia esistono alcuni limiti pratici dettati dalla memoria a disposizione. E ci sono ulteriori limiti tecnici, anche se è molto improbabile che il nostro programma ne sia influenzato: alcuni metodi presumono che i bit siano indirizzabili da indici interi, quindi le cose inizieranno a rompersi quando indirizziamo bit con indici del valore Integer.MAX_VALUE.
 
@@ -6000,7 +6007,7 @@ BigInteger:
   int lowestSetBit +4 bytes
   int signum +4 bytes
   int[] mag +?
-  
+
 Un vettore in Java può avere solo 2^32 elementi. Quindi se i bit del BigInteger sono memorizzati in un vettore di interi, allora può memorizzare al massimo 2^32 cifre, cioè un numero massimo pari a (2^32)^Integer.MAX_VALUE.
 
 Nel linguaggio IDL la classe BigInteger memorizza un numero come un vettore di "cifre" intere a 32 bit senza segno con una radice, o base, di 4294967296 (2^32 - 1). La classe memorizza le cifre in ordine little-endian, con la cifra più significativa alla fine del vettore.
@@ -6058,7 +6065,7 @@ Nota: le espressioni devono essere inserite con le parentesi al posto giusto
 (infix '((5.2 add 3.3) add 2))
 ;-> 10.5
 
-A questo punto possiamo creare un mini-interprete che funziona in modo simile alla REPL di newLISP. 
+A questo punto possiamo creare un mini-interprete che funziona in modo simile alla REPL di newLISP.
 
 Per interagire con l'utente newLISP mette a disposizione la funzione "read-line" che resituisce la stringa inserita dall'utente. Quindi abbiamo bisogno di una funzione "reader" che converte questa stringa in una espressione newLISP.
 
@@ -6107,7 +6114,7 @@ Premere Ctrl+C per uscire dalla REPL.
 Vincere 2 volte su 3
 --------------------
 
-Eva, Vero e Vale sono tre giocatrici di scacchi. Vero è più forte di Eva che, a sua volta, è più forte di Vale. 
+Eva, Vero e Vale sono tre giocatrici di scacchi. Vero è più forte di Eva che, a sua volta, è più forte di Vale.
 Un giorno Vale scommette una pizza con Eva se questa riesce a vincere 2 partite consecutive su 3 partite di scacchi contro Vero e Vale. Inoltre Vale permette a Eva di scegliere con chi giocare per prima. In altre parole la sfida (che consiste in tre partite) può avvenire in due modi diversi:
 
 1) (Eva-Vale) (Eva-Vero) (Eva-Vale) oppure
@@ -6328,14 +6335,14 @@ Un altro insieme di dadi intransitivo è il seguente:
 
 Anche in questo caso la probabilità tra i dadi vale 5/9.
 
-Comunque questi due insiemi non sono equivalenti. Infatti se lanciamo tutti i dadi di un insieme e calcoliamo le probabilità di vincita di ognuno dei dadi otteniamo valori diversi per i due insiemi. 
+Comunque questi due insiemi non sono equivalenti. Infatti se lanciamo tutti i dadi di un insieme e calcoliamo le probabilità di vincita di ognuno dei dadi otteniamo valori diversi per i due insiemi.
 
 Calcoliamo tutti gli eventi possibili per il lancio di tre dadi:
 
 (setq ev1 (prod-cart A B))
 (setq ev2 (prod-cart ev1 C))
 (setq eventi (map (fn(x) (list (x 0 0) (x 0 1) (x 1))) ev2))
-;-> ((2 1 3) (2 1 3) (2 1 5) (2 1 5) (2 1 7) (2 1 7) (2 1 3) 
+;-> ((2 1 3) (2 1 3) (2 1 5) (2 1 5) (2 1 7) (2 1 7) (2 1 3)
 ;->  (2 1 3) (2 1 5) (2 1 5) (2 1 7) (2 1 7) (2 6 3) (2 6 3)
 ;->  ...
 ;->  (9 6 7) (9 8 3) (9 8 3) (9 8 5) (9 8 5) (9 8 7) (9 8 7)
@@ -6414,13 +6421,13 @@ da cui si ricava:
 La barca, l'uomo e il mattone
 -----------------------------
 
-Un uomo è su una barca a remi che galleggia in un lago. 
+Un uomo è su una barca a remi che galleggia in un lago.
 C'è un mattone nella barca.
 Per qualche ragione, l'uomo getta il mattone in acqua.
 Il livello dell'acqua del lago rimane lo stesso, sale o scende a causa del fatto che l'uomo ha lanciato il mattone nel lago?
 
-Quando il mattone è nella barca, la quantità di acqua spostata dal mattone è uguale al suo peso. 
-Quando il mattone viene gettato in mare, la quantità di acqua spostata dal mattone è uguale al suo volume. 
+Quando il mattone è nella barca, la quantità di acqua spostata dal mattone è uguale al suo peso.
+Quando il mattone viene gettato in mare, la quantità di acqua spostata dal mattone è uguale al suo volume.
 Poiché il mattone affonda nell'acqua, sappiamo che il peso specifico del mattone è maggiore di quello dell'acqua. Quindi, il volume d'acqua equivalente alla massa del mattone è maggiore del volume del mattone. Pertanto, quando il mattone viene gettato in acqua, viene spostata meno acqua rispetto a quando il mattone era nella barca (per esempio, supponiamo che il mattone pesa 2 chilogrammi e ha un volume di 1 litro: allora quando il mattone giace all'interno della barca provoca lo spostamento di 2 chilogrammi, cioè di 2 litri di acqua. Invece quando il mattone viene gettato nel lago provoca lo spostamento del proprio volume, cioè di 1 litro d'acqua).
 Quindi il livello dell'acqua diminuirà quando il mattone verrà gettato nel lago.
 
@@ -6513,7 +6520,7 @@ qui quo qua
 Distanza dell'orizzonte
 -----------------------
 
-La distanza "d" dell'orizzonte da un osservatore (assumendo nessuna rifrazione atmosferica) è data dalla formula: 
+La distanza "d" dell'orizzonte da un osservatore (assumendo nessuna rifrazione atmosferica) è data dalla formula:
 
 d = sqrt(2*R*h)
 
@@ -6555,7 +6562,27 @@ Tic-Tac-Toe
 Tic-Tac-Toe (conosciuto in Italia come "Tris") è un gioco che utilizza una griglia quadrata di 3×3 caselle.
 A turno, i giocatori scelgono una casella vuota e vi disegnano il proprio simbolo (di solito un giocatore ha come simbolo il carattere "X" e l'avversario il carttere "O"). Vince il giocatore che riesce a disporre tre dei propri simboli in linea retta orizzontale, verticale o diagonale. Se la griglia viene riempita senza che nessuno dei giocatori sia riuscito a completare una linea retta di tre simboli, il gioco finisce in parità, cioè "patta".
 
+Esempio di partita patta:
+
+  ·---·---·---·
+  | O | O | X |
+  ·---·---·---·
+  | X | X | O |
+  ·---·---·---·
+  | O | X | X |
+  ·---·---·---·
+
 Scriviamo un programma che permette di giocare a Tic-Tac-Toe a due giocatori umani.
+
+Le mosse vengono inserite con un numero da 1 a 9 come nella seguente griglia:
+
+  ·---·---·---·
+  | 1 | 2 | 3 |
+  ·---·---·---·
+  | 4 | 5 | 6 |
+  ·---·---·---·
+  | 7 | 8 | 9 |
+  ·---·---·---·
 
 Funzione che controlla se esiste un vincitore nella griglia passata come parametro (restituisce "X" oppure "O" oppure " "):
 
@@ -6585,39 +6612,28 @@ Funzione che stampa la griglia passata come parametro:
   (println "  | " (b 2 0) " | " (b 2 1) " | " (b 2 2) " |" )
   (println "  ·---·---·---·"))
 
-Funzione che permette di effettuare una mossa da un giocatore:
+Funzione che permette di effettuare una mossa da parte di un giocatore:
 
 (define (make-move b p)
-  (local (move ok)
-  (println "Muove: " p)
-  (do-while ok
-    (setq ok nil)
-    (print "Scegliere una casella (1..9): ")
-    (setq move (int (read-line)))
-    (while (or (< move 1) (> move 9) (not (integer? move)))
-        (print "Scegliere una casella (1..9): ")
-        (setq move (int (read-line))))
-    (cond ((= move 1)
-           (if (= (b 0 0) " ") (setf (b 0 0) p) (setq ok true)))
-          ((= move 2)
-           (if (= (b 0 1) " ") (setf (b 0 1) p) (setq ok true)))
-          ((= move 3)
-           (if (= (b 0 2) " ") (setf (b 0 2) p) (setq ok true)))
-          ((= move 4)
-           (if (= (b 1 0) " ") (setf (b 1 0) p) (setq ok true)))
-          ((= move 5)
-           (if (= (b 1 1) " ") (setf (b 1 1) p) (setq ok true)))
-          ((= move 6)
-           (if (= (b 1 2) " ") (setf (b 1 2) p) (setq ok true)))
-          ((= move 7)
-           (if (= (b 2 0) " ") (setf (b 2 0) p) (setq ok true)))
-          ((= move 8)
-           (if (= (b 2 1) " ") (setf (b 2 1) p) (setq ok true)))
-          ((= move 9)
-           (if (= (b 2 2) " ") (setf (b 2 2) p) (setq ok true)))
+  (local (move ok r c grid-move)
+    (setq grid-move '((1 (0 0)) (2 (0 1))  (3 (0 2))
+                      (4 (1 0)) (5 (1 1))  (6 (1 2))
+                      (7 (2 0)) (8 (2 1))  (9 (2 2))))
+    (println "Muove: " p)
+    (do-while ok
+      (setq ok nil)
+      (print "Scegliere una casella (1..9): ")
+      (setq move (int (read-line)))
+      (while (or (< move 1) (> move 9) (not (integer? move)))
+          (print "Scegliere una casella (1..9): ")
+          (setq move (int (read-line))))
+      (setq r (first (lookup move grid-move)))
+      (setq c (last (lookup move grid-move)))
+      (if (= (b r c) " ")
+          (setf (b r c) p)
+          (setq ok true))
+      (if ok (println "La casella " move " è occupata."))
     )
-    (if ok (println "La casella " move " è occupata."))
-  )
   b))
 
 Funzione per la gestione completa di una partita di tic-tac-toe:
@@ -6647,11 +6663,11 @@ Funzione per la gestione completa di una partita di tic-tac-toe:
                   (setq endgame true)
                   (show-board ttt)
                   (println "Partita terminata: patta")))))
-       ; Prossimo giocatore
-       (if (not endgame)
-           (if (= curr-player "X")
-               (setq curr-player "O")
-               (setq curr-player "X"))))))
+      ; Prossimo giocatore
+      (if (not endgame)
+          (if (= curr-player "X")
+              (setq curr-player "O")
+              (setq curr-player "X"))))))
 
 Facciamo una partita:
 
@@ -6746,5 +6762,232 @@ Facciamo una partita:
 ;->   | O | X | X |
 ;->   ·---·---·---·
 ;-> Partita terminata: patta
+
+
+----------------
+Labirinti (Maze)
+----------------
+
+Un labirinto è un percorso o un insieme di percorsi, in genere con uno o più ingressi e con nessuna o più uscite.
+Per risolvere un labirinto (maze) utilizzeremo il seguente algoritmo che trova la soluzione (se esiste) in modo ricorsivo. Si parte da un valore iniziale X e Y. Se i valori X e Y non sono su un muro, il metodo (funzione) richiama se stesso con tutti i valori X e Y adiacenti, assicurandosi di non aver utilizzato in precedenza quei valori X e Y. Se i valori X e Y sono quelli della posizione finale, salva tutte le istanze precedenti del metodo (risultati parziali) creando una matrice con il percorso risolutivo.
+Questo algoritmo non garantisce che la soluzione trovata sia quella più breve.
+
+(define (solve-maze maze start-row start-col end-row end-col show)
+  (local (matrix row col wall visited solution-path s-row s-col e-row e-col out)
+    ; lista soluzione percorso
+    (setq out '())
+    ; matrice labirinto
+    (setq matrix maze)
+    ; carattere che rappresenta il muro "0"
+    (setq wall 0)
+    ; righe della matrice
+    (setq row (length matrix))
+    ; colonne della matrice
+    (setq col (length (first matrix)))
+    ; matrice delle celle visitate
+    (setq visited (array row col '(nil)))
+    ; matrice soluzione del labirinto
+    (setq solution-path (array row col '(nil)))
+    ; posizione iniziale: riga
+    (setq s-row start-row)
+    ; posizione iniziale: colonna
+    (setq s-col start-col)
+    ; posizione finale: riga
+    (setq e-row end-row)
+    ; posizione finale: colonna
+    (setq e-col end-col)
+    ;
+    ; funzione recursive solve
+    ;
+    (define (recursive-solve x y)
+      (catch
+        (local (return)
+          ;controllo se abbiamo raggiunto la fine e non è un muro
+          (if (and (= x e-row) (= y e-col) (!= (matrix x y) wall))
+              (throw (setf (solution-path x y) true))
+          )
+          ; cella muro o cella visitata
+          (if (or (= (matrix x y) wall) (= (visited x y) true)) (throw nil))
+          ; imposta cella come visitata
+          (setf (visited x y) true)
+          ; controllo posizione riga 0
+          (if (!= x 0)
+              ; richiama la funzione una riga in basso
+              (if (recursive-solve (- x 1) y)
+                  (throw (setf (solution-path x y) true))
+              )
+          )
+          ; controllo posizione riga (row - 1)
+          (if (!= x (- row 1))
+              ; richiama la funzione una riga in alto
+              (if (recursive-solve (+ x 1) y)
+                  (throw (setf (solution-path x y) true))
+              )
+          )
+          ; controllo posizione colonna 0
+          (if (!= y 0)
+              ; richiama la funzione una colonna a sinistra
+              (if (recursive-solve x (- y 1))
+                  (throw (setf (solution-path x y) true))
+              )
+          )
+          ; controllo posizione colonna (col - 1)
+          (if (!= y (- col 1))
+              ; richiama la funzione una colonna a destra
+              (if (recursive-solve x (+ y 1))
+                  (throw (setf (solution-path x y) true))
+              )
+          )
+          return))
+    ); recursive-solve
+    ;
+    ; Chiama la funzione ricorsiva di soluzione
+    ; Se (recursive-solve s-row s-col) ritorna nil,
+    ; allora il labirinto non ha soluzione.
+    ; Altrimenti la matrice booleana "solution-path"
+    ; contiene la soluzione (valori true).
+    (if (recursive-solve s-row s-col)
+        (begin
+          ; Se show = true --> stampa la soluzione
+          (if show (show-aux solution-path))
+          ; crea la lista con il percorso risolutivo
+          (for (i 0 (- row 1))
+            (for (j 0 (- col 1))
+              (if (solution-path i j)
+                  (push (list i j) out -1)))))
+    )
+    out))
+
+(define (show-aux path)
+  (local (row col)
+    ; righe della matrice
+    (setq row (length path))
+    ; colonne della matrice
+    (setq col (length (first path)))
+    ; stampa
+    (for (i 0 (- row 1))
+      (for (j 0 (- col 1))
+        ;(if (matrix i j) (print " ·") (print " 0"))
+        ;(if (path i j) (print " ·") (print " " (matrix i j)))
+        (if (path i j) (print " ■") (print " " (matrix i j)))
+      )
+      (println))))
+
+Esempio 1:
+; definizione labirinto (1 = libero, 0 = muro)
+(setq righe 5)
+(setq colonne 4)
+(setq matrice (array righe colonne '(
+  1 1 1 0
+  0 0 1 1
+  1 0 0 1
+  0 0 0 1
+  1 1 1 1)))
+
+(solve-maze matrice 0 0 4 3 true)
+;->  ■ ■ ■ 0
+;->  0 0 ■ ■
+;->  1 0 0 ■
+;->  0 0 0 ■
+;->  1 1 1 ■
+;-> ((0 0) (0 1) (0 2) (1 2) (1 3) (2 3) (3 3) (4 3))
+(solve-maze matrice 0 0 4 3)
+;-> ((0 0) (0 1) (0 2) (1 2) (1 3) (2 3) (3 3) (4 3))
+
+Esempio 2:
+; definizione labirinto
+(setq righe 12)
+(setq colonne 20)
+(setq matrice (array righe colonne '(
+ 1 1 0 1 0 1 1 1 0 1 0 1 0 1 0 0 1 1 1 0
+ 0 1 1 1 0 0 1 1 1 1 1 0 0 1 1 1 1 1 0 0
+ 0 1 0 0 0 0 0 1 1 0 0 0 1 0 0 0 0 1 0 1
+ 0 1 1 1 1 1 0 0 0 1 1 1 1 0 0 0 1 0 1 0
+ 1 0 0 0 0 1 0 0 1 0 1 0 1 0 0 1 1 0 0 0
+ 1 0 0 0 0 1 1 1 1 0 1 0 1 0 0 1 1 0 0 0
+ 1 0 0 0 0 0 0 0 1 0 1 0 1 0 0 1 0 1 0 0
+ 1 0 0 0 0 0 0 0 1 1 1 0 1 0 0 1 1 1 0 0
+ 1 0 0 0 0 0 0 0 1 0 0 0 1 1 1 1 0 1 1 1
+ 1 0 0 0 0 0 0 0 1 0 0 0 1 0 0 1 0 0 0 1
+ 1 0 0 0 0 0 0 0 1 0 0 0 1 0 0 1 0 0 0 1
+ 1 0 0 0 0 0 0 0 1 0 0 0 1 0 0 1 0 0 0 1)))
+
+(solve-maze matrice 0 0 11 19 true)
+;-> ■ ■ 0 1 0 1 1 1 0 1 0 1 0 1 0 0 1 1 1 0
+;-> 0 ■ 1 1 0 0 1 1 1 1 1 0 0 1 1 1 1 1 0 0
+;-> 0 ■ 0 0 0 0 0 1 1 0 0 0 1 0 0 0 0 1 0 1
+;-> 0 ■ ■ ■ ■ ■ 0 0 0 1 ■ ■ ■ 0 0 0 1 0 1 0
+;-> 1 0 0 0 0 ■ 0 0 1 0 ■ 0 ■ 0 0 1 1 0 0 0
+;-> 1 0 0 0 0 ■ ■ ■ ■ 0 ■ 0 ■ 0 0 1 1 0 0 0
+;-> 1 0 0 0 0 0 0 0 ■ 0 ■ 0 ■ 0 0 1 0 1 0 0
+;-> 1 0 0 0 0 0 0 0 ■ ■ ■ 0 ■ 0 0 ■ ■ ■ 0 0
+;-> 1 0 0 0 0 0 0 0 1 0 0 0 ■ ■ ■ ■ 0 ■ ■ ■
+;-> 1 0 0 0 0 0 0 0 1 0 0 0 1 0 0 1 0 0 0 ■
+;-> 1 0 0 0 0 0 0 0 1 0 0 0 1 0 0 1 0 0 0 ■
+;-> 1 0 0 0 0 0 0 0 1 0 0 0 1 0 0 1 0 0 0 ■
+;-> ((0 0) (0 1) (1 1) (2 1) (3 1) (3 2) (3 3) (3 4) (3 5) (3 10) (3 11)
+;->  (3 12) (4 5) (4 10) (4 12) (5 5) (5 6) (5 7) (5 8) (5 10) (5 12)
+;->  (6 8) (6 10) (6 12) (7 8) (7 9) (7 10) (7 12) (7 15) (7 16) (7 17)
+;->  (8 12) (8 13) (8 14) (8 15) (8 17) (8 18) (8 19) (9 19) (10 19)
+;->  (11 19))
+
+Esempio 3:
+; definizione labirinto
+(setq righe 9)
+(setq colonne 9)
+(setq matrice (array righe colonne '(
+ 1 1 0 1 0 1 1 1 0
+ 0 1 1 1 0 0 1 1 1
+ 0 1 0 0 0 0 0 1 1
+ 0 1 1 1 1 1 0 0 0
+ 1 0 0 0 0 1 0 0 1
+ 1 0 0 0 0 1 0 1 1
+ 1 0 0 0 0 0 0 0 1
+ 1 0 0 0 0 0 0 0 1
+ 1 0 0 0 0 0 0 0 1)))
+
+(solve-maze matrice 0 0 8 8 true)
+;-> ()
+Nessuna soluzione.
+
+(solve-maze matrice 0 0 5 5 true)
+;-> ■ ■ 0 1 0 1 1 1 0
+;-> 0 ■ 1 1 0 0 1 1 1
+;-> 0 ■ 0 0 0 0 0 1 1
+;-> 0 ■ ■ ■ ■ ■ 0 0 0
+;-> 1 0 0 0 0 ■ 0 0 1
+;-> 1 0 0 0 0 ■ 0 1 1
+;-> 1 0 0 0 0 0 0 0 1
+;-> 1 0 0 0 0 0 0 0 1
+;-> 1 0 0 0 0 0 0 0 1
+;-> ((0 0) (0 1) (1 1) (2 1) (3 1) (3 2) (3 3) (3 4) (3 5) (4 5) (5 5))
+
+Esempio 4:
+; definizione labirinto
+(setq righe 9)
+(setq colonne 9)
+(setq matrice (array righe colonne '(
+ 1 1 0 1 0 1 1 0 1
+ 0 1 1 1 0 0 1 1 1
+ 0 1 0 0 0 0 0 1 0
+ 0 1 1 1 1 1 0 1 1
+ 1 0 0 0 0 1 0 0 1
+ 1 0 0 0 0 1 1 1 1
+ 1 1 1 1 1 0 1 0 1
+ 1 0 0 0 1 0 1 0 1
+ 1 0 0 0 1 1 1 0 1)))
+
+(solve-maze matrice 8 0 0 8 true)
+;-> 1 1 0 1 0 1 1 0 ■
+;-> 0 1 1 1 0 0 1 ■ ■
+;-> 0 1 0 0 0 0 0 ■ 0
+;-> 0 1 1 1 1 1 0 ■ ■
+;-> 1 0 0 0 0 1 0 0 ■
+;-> 1 0 0 0 0 1 ■ ■ ■
+;-> ■ ■ ■ ■ ■ 0 ■ 0 1
+;-> ■ 0 0 0 ■ 0 ■ 0 1
+;-> ■ 0 0 0 ■ ■ ■ 0 1
+;-> ((0 8) (1 7) (1 8) (2 7) (3 7) (3 8) (4 8) (5 6) (5 7) (5 8) (6 0) (6 1)
+;->  (6 2) (6 3) (6 4) (6 6) (7 0) (7 4) (7 6) (8 0) (8 4) (8 5) (8 6))
 
 
