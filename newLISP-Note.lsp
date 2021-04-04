@@ -84697,8 +84697,221 @@ Labirinti (Maze)
 ----------------
 
 Un labirinto è un percorso o un insieme di percorsi, in genere con uno o più ingressi e con nessuna o più uscite.
-Per risolvere un labirinto (maze) utilizzeremo il seguente algoritmo che trova la soluzione (se esiste) in modo ricorsivo. Si parte da un valore iniziale X e Y. Se i valori X e Y non sono su un muro, il metodo (funzione) richiama se stesso con tutti i valori X e Y adiacenti, assicurandosi di non aver utilizzato in precedenza quei valori X e Y. Se i valori X e Y sono quelli della posizione finale, salva tutte le istanze precedenti del metodo (risultati parziali) creando una matrice con il percorso risolutivo.
-Questo algoritmo non garantisce che la soluzione trovata sia quella più breve.
+Per risolvere un labirinto (maze) utilizzeremo due algoritmi. 
+
+Algoritmo Casuale del Topo
+--------------------------
+Questo primo algoritmo è un metodo banale che simula il comportamento di un topo (non intelligente). Si tratta semplicemente di procedere attraverso il labirinto in modo casuale cercando (prima o poi) di raggiungere l'uscita. Sebbene un tale metodo alla fine trova sempre la soluzione giusta, questo algoritmo può essere estremamente lento.
+
+(define (solve-maze-A maze start-row start-col end-row end-col limite show)
+  (local (matrix x y row col wall trovato solution-path e-row e-col num-passi out)
+    ; lista soluzione percorso
+    (setq out '())
+    ; matrice labirinto
+    (setq matrix maze)
+    ; carattere che rappresenta il muro "0"
+    (setq wall 0)
+    ; righe della matrice
+    (setq row (length matrix))
+    ; colonne della matrice
+    (setq col (length (first matrix)))
+    ; matrice soluzione del labirinto
+    (setq solution-path (array row col '(nil)))
+    ; posizione iniziale: riga
+    (setq x start-row)
+    ; posizione iniziale: colonna
+    (setq y start-col)
+    ; posizione finale: riga
+    (setq e-row end-row)
+    ; posizione finale: colonna
+    (setq e-col end-col)
+    ; numero passi iniziale
+    (setq num-passi 0)
+    ; Ricerca random della soluzione
+    (setq trovato nil)
+    (while (and (not trovato) (< num-passi limite))
+      (++ num-passi)
+      (setf (solution-path x y) true)
+      ;controllo se abbiamo raggiunto la fine e non è un muro
+      (cond ((and (= x e-row) (= y e-col) (!= (matrix x y) wall))
+             (setf (solution-path x y) true)
+             (setq trovato true))
+      )
+      ; Movimento random
+      (setq move (amb 1 2 3 4))
+      (cond ((= move 1)
+             (if (and (!= x 0) (!= (matrix (- x 1) y) wall)) (setq x (- x 1) y y)))
+            ((= move 2)
+             (if (and (!= x (- row 1)) (!= (matrix (+ x 1) y) wall)) (setq x (+ x 1) y y)))
+            ((= move 3)
+             (if (and (!= y 0) (!= (matrix x (- y 1)) wall)) (setq x x y (- y 1))))
+            ((= move 4)
+             (if (and (!= y (- col 1)) (!= (matrix x (+ y 1)) wall)) (setq x x y (+ y 1))))
+      )
+    )
+    (cond ((< num-passi limite)
+           ; Se show = true --> stampa la soluzione
+           (if show (begin
+               (show-aux solution-path)
+               (println "Passi: " num-passi)))
+           ; crea la lista con il percorso risolutivo
+           (for (i 0 (- row 1))
+             (for (j 0 (- col 1))
+               (if (solution-path i j)
+                   (push (list i j) out -1)))))
+          (true 
+           (setq out nil) 
+           (println "Limite raggiunto."))
+    )
+    out))
+
+(define (show-aux path)
+  (local (row col)
+    ; righe della matrice
+    (setq row (length path))
+    ; colonne della matrice
+    (setq col (length (first path)))
+    ; stampa
+    (for (i 0 (- row 1))
+      (for (j 0 (- col 1))
+        ;(if (matrix i j) (print " ·") (print " 0"))
+        ;(if (path i j) (print " ·") (print " " (matrix i j)))
+        (if (path i j) (print " ■") (print " " (matrix i j)))
+      )
+      (println))))
+
+Esempio 1:
+; definizione labirinto (1 = libero, 0 = muro)
+(setq righe 5)
+(setq colonne 4)
+(setq matrice (array righe colonne '(
+  1 1 1 0
+  0 0 1 1
+  1 0 0 1
+  0 0 0 1
+  1 1 1 1)))
+
+(solve-maze-A matrice 0 0 4 3 1000 true)
+;->  ■ ■ ■ 0
+;->  0 0 ■ ■
+;->  1 0 0 ■
+;->  0 0 0 ■
+;->  1 1 1 ■
+Passi: 16
+;-> ((0 0) (0 1) (0 2) (1 2) (1 3) (2 3) (3 3) (4 3))
+(solve-maze-A matrice 0 0 4 3 1000)
+;-> ((0 0) (0 1) (0 2) (1 2) (1 3) (2 3) (3 3) (4 3))
+
+Esempio 2:
+; definizione labirinto
+(setq righe 12)
+(setq colonne 20)
+(setq matrice (array righe colonne '(
+ 1 1 0 1 0 1 1 1 0 1 0 1 0 1 0 0 1 1 1 0
+ 0 1 1 1 0 0 1 1 1 1 1 0 0 1 1 1 1 1 0 0
+ 0 1 0 0 0 0 0 1 1 0 0 0 1 0 0 0 0 1 0 1
+ 0 1 1 1 1 1 0 0 0 1 1 1 1 0 0 0 1 0 1 0
+ 1 0 0 0 0 1 0 0 1 0 1 0 1 0 0 1 1 0 0 0
+ 1 0 0 0 0 1 1 1 1 0 1 0 1 0 0 1 1 0 0 0
+ 1 0 0 0 0 0 0 0 1 0 1 0 1 0 0 1 0 1 0 0
+ 1 0 0 0 0 0 0 0 1 1 1 0 1 0 0 1 1 1 0 0
+ 1 0 0 0 0 0 0 0 1 0 0 0 1 1 1 1 0 1 1 1
+ 1 0 0 0 0 0 0 0 1 0 0 0 1 0 0 1 0 0 0 1
+ 1 0 0 0 0 0 0 0 1 0 0 0 1 0 0 1 0 0 0 1
+ 1 0 0 0 0 0 0 0 1 0 0 0 1 0 0 1 0 0 0 1)))
+
+(solve-maze matrice 0 0 11 19 10000 true)
+;-> ■ ■ 0 ■ 0 1 1 1 0 1 0 1 0 1 0 0 1 1 1 0
+;-> 0 ■ ■ ■ 0 0 1 1 1 1 1 0 0 1 1 1 1 1 0 0
+;-> 0 ■ 0 0 0 0 0 1 1 0 0 0 1 0 0 0 0 1 0 1
+;-> 0 ■ ■ ■ ■ ■ 0 0 0 ■ ■ ■ ■ 0 0 0 ■ 0 1 0
+;-> 1 0 0 0 0 ■ 0 0 ■ 0 ■ 0 ■ 0 0 ■ ■ 0 0 0
+;-> 1 0 0 0 0 ■ ■ ■ ■ 0 ■ 0 ■ 0 0 ■ ■ 0 0 0
+;-> 1 0 0 0 0 0 0 0 ■ 0 ■ 0 ■ 0 0 ■ 0 ■ 0 0
+;-> 1 0 0 0 0 0 0 0 ■ ■ ■ 0 ■ 0 0 ■ ■ ■ 0 0
+;-> 1 0 0 0 0 0 0 0 ■ 0 0 0 ■ ■ ■ ■ 0 ■ ■ ■
+;-> 1 0 0 0 0 0 0 0 ■ 0 0 0 ■ 0 0 ■ 0 0 0 ■
+;-> 1 0 0 0 0 0 0 0 ■ 0 0 0 ■ 0 0 ■ 0 0 0 ■
+;-> 1 0 0 0 0 0 0 0 ■ 0 0 0 1 0 0 ■ 0 0 0 ■
+;-> Passi: 3277
+;-> ((0 0) (0 1) (0 3) (1 1) (1 2) (1 3) (2 1) (3 1) (3 2) (3 3) (3 4) 
+;->  (3 5) (3 9) (3 10) (3 11) (3 12) (3 16) (4 5) (4 8) (4 10) (4 12)
+;->  (4 15) (4 16) (5 5) (5 6) (5 7) (5 8) (5 10) (5 12) (5 15) (5 16)
+;->  (6 8) (6 10) (6 12) (6 15) (6 17) (7 8) (7 9) (7 10) (7 12) (7 15)
+;->  (7 16) (7 17) (8 8) (8 12) (8 13) (8 14) (8 15) (8 17) (8 18)
+;->  (8 19) (9 8) (9 12) (9 15) (9 19) (10 8) (10 12) (10 15) (10 19)
+;->  (11 8) (11 15) (11 19))
+
+Esempio 3:
+; definizione labirinto
+(setq righe 9)
+(setq colonne 9)
+(setq matrice (array righe colonne '(
+ 1 1 0 1 0 1 1 1 0
+ 0 1 1 1 0 0 1 1 1
+ 0 1 0 0 0 0 0 1 1
+ 0 1 1 1 1 1 0 0 0
+ 1 0 0 0 0 1 0 0 1
+ 1 0 0 0 0 1 0 1 1
+ 1 0 0 0 0 0 0 0 1
+ 1 0 0 0 0 0 0 0 1
+ 1 0 0 0 0 0 0 0 1)))
+
+La seguente chiamata non ha soluzione:
+
+(solve-maze-A matrice 0 0 8 8 100000 true)
+;-> Limite raggiunto
+;-> nil
+
+(solve-maze-A matrice 0 0 5 5 10000 true)
+;-> ■ ■ 0 ■ 0 1 1 1 0
+;-> 0 ■ ■ ■ 0 0 1 1 1
+;-> 0 ■ 0 0 0 0 0 1 1
+;-> 0 ■ ■ ■ ■ ■ 0 0 0
+;-> 1 0 0 0 0 ■ 0 0 1
+;-> 1 0 0 0 0 ■ 0 1 1
+;-> 1 0 0 0 0 0 0 0 1
+;-> 1 0 0 0 0 0 0 0 1
+;-> 1 0 0 0 0 0 0 0 1
+;-> Passi: 331
+;-> ((0 0) (0 1) (0 3) (1 1) (1 2) (1 3) (2 1) (3 1) (3 2) 
+;->  (3 3) (3 4) (3 5) (4 5) (5 5))
+
+Esempio 4:
+; definizione labirinto
+(setq righe 9)
+(setq colonne 9)
+(setq matrice (array righe colonne '(
+ 1 1 0 1 0 1 1 0 1
+ 0 1 1 1 0 0 1 1 1
+ 0 1 0 0 0 0 0 1 0
+ 0 1 1 1 1 1 0 1 1
+ 1 0 0 0 0 1 0 0 1
+ 1 0 0 0 0 1 1 1 1
+ 1 1 1 1 1 0 1 0 1
+ 1 0 0 0 1 0 1 0 1
+ 1 0 0 0 1 1 1 0 1)))
+
+(solve-maze-A matrice 8 0 0 8 10000 true)
+;-> 1 1 0 1 0 1 1 0 ■
+;-> 0 1 1 1 0 0 1 ■ ■
+;-> 0 1 0 0 0 0 0 ■ 0
+;-> 0 1 1 1 1 1 0 ■ ■
+;-> ■ 0 0 0 0 ■ 0 0 ■
+;-> ■ 0 0 0 0 ■ ■ ■ ■
+;-> ■ ■ ■ ■ ■ 0 ■ 0 ■
+;-> ■ 0 0 0 ■ 0 ■ 0 1
+;-> ■ 0 0 0 ■ ■ ■ 0 1
+;-> Passi: 1650
+;-> ((0 8) (1 7) (1 8) (2 7) (3 7) (3 8) (4 0) (4 5) (4 8) (5 0) (5 5) 
+;->  (5 6) (5 7) (5 8) (6 0) (6 1) (6 2) (6 3) (6 4) (6 6) (6 8) (7 0)
+;->  (7 4) (7 6) (8 0) (8 4) (8 5) (8 6))
+
+Algoritmo ricorsivo
+--------------------
+Il secondo algoritmo trova la soluzione (se esiste) in modo ricorsivo. Si parte da un valore iniziale X e Y. Se i valori X e Y non sono su un muro, il metodo (funzione) richiama se stesso con tutti i valori X e Y adiacenti, assicurandosi di non aver utilizzato in precedenza quei valori X e Y. Se i valori X e Y sono quelli della posizione finale, salva tutte le istanze precedenti del metodo (risultati parziali) creando una matrice con il percorso risolutivo.
+Questo algoritmo non garantisce che la soluzione trovata sia quella più breve. 
+Nota: In sostanza si tratta di una ricerca depth-first espressa in termini di celle della matrice.
 
 (define (solve-maze maze start-row start-col end-row end-col show)
   (local (matrix row col wall visited solution-path s-row s-col e-row e-col out)
