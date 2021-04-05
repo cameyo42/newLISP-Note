@@ -56,9 +56,7 @@ Ma cosa significa esattamente che un algoritmo funziona in tempo O(f(n))?
 
 Vuol dire che ci sono due costanti C e n0 tali che l'algoritmo esegua al massimo c*f(n) operazioni per tutti gli input in cui n ≥ n0. Pertanto, la notazione O fornisce un limite superiore per il tempo di esecuzione dell'algoritmo per input sufficientemente grandi. La notazione O non viene usata per fornire una stima accurata della complessità temporale.
 
-Ci sono anche altre due notazioni comuni. La notazione Omega fornisce un limite inferiore
-per il tempo di esecuzione di un algoritmo. La complessità temporale di un algoritmo è Omega(f(n)),
-se ci sono due costanti C e n0 tali che l'algoritmo esegua almeno operazioni C*f(n) per tutti gli input dove n ≥ n0. Infine, la notazione Theta fornisce un limite esatto, la complessità temporale di un algoritmo è Theta(f(n)) se è sia O(f(n)) che Omega(f(n)). In pratica, Theta(f(n)) è una funzione che si trova compresa tra le funzioni O(f(n)) e Omega(f(n)).
+Ci sono anche altre due notazioni comuni. La notazione Omega fornisce un limite inferiore per il tempo di esecuzione di un algoritmo. La complessità temporale di un algoritmo è Omega(f(n)), se ci sono due costanti C e n0 tali che l'algoritmo esegua almeno operazioni C*f(n) per tutti gli input dove n ≥ n0. Infine, la notazione Theta fornisce un limite esatto. La complessità temporale di un algoritmo è Theta(f(n)) se valgono sia O(f(n)) che Omega(f(n)). In pratica, Theta(f(n)) è una funzione che si trova compresa tra le funzioni O(f(n)) e Omega(f(n)).
 
 
 -----------------------------------
@@ -7738,5 +7736,159 @@ La seguente funzione implementa l'algoritmo:
 ;->  1015 1017 1050 1052 1055 1057 1060 1062 1065 1067 2000 2002 2005 2007
 ;->  2010 2012 2015 2017 2050 2052 2055 2057 2060 2062 2065 2067 3000 3002
 ;->  3005 3007 3010 3012 3015 3017 3050 3052 3055 3057 3060 3062 3065 3067)
+
+
+----------------
+Boomerang (Visa)
+----------------
+
+Dati n punti nel piano che sono tutti distinti a due a due, un "boomerang" è una tupla di punti (i, j, k) tale che la distanza tra i e j è uguale alla distanza tra i e k (l'ordine della tupla è importante).
+Trovare il numero di boomerang.
+
+Per ogni punto, calcolare la distanza dal resto dei punti e contare.
+Se ci sono k punti che hanno la stessa distanza dal punto corrente, allora ci sono P(k,2) = k * k-1 boomerang.
+ad esempio, se p1, p2, p3 hanno la stessa distanza con p0, allora ci sono P(3,2) = 3 * (3-1) = 6 boomerang:
+(p1, p0, p2), (p1, p0, p3) (p2, p0, p1), (p2, p0, p3) (p3, p0, p1), (p3, p0, p2)
+Per ogni punto possiamo ordinare le distanzee poi calcolare il numero di boomerang nel modo seguente:
+  dist = (1 2 1 2 1 5)
+  sorted_dist = (1 1 1 2 2 5) ==> 1*3, 2*2, 5*1
+  boomerang = 3*(3 - 1) + 2*(2 – 1)*1*(1 – 1) = 8
+
+(define (boomerang punti)
+  (local (len dist dx dy k out)
+    (setq len (length punti))
+    (setq out 0)
+    (setq dist (array len '(0)))
+    (for (i 0 (- len 1))
+      (for (j 0 (- len 1))
+        (setq dx (sub (punti i 0) (punti j 0)))
+        (setq dy (sub (punti i 1) (punti j 1)))
+        (setf (dist j) (add (mul dx dx) (mul dy dy)))
+      )
+      (println "dist: " dist)
+      (sort dist)
+      (println "dist (sort): " dist)
+      (for (j 1 (- len 1))
+        (setq k 1)
+        (while (and (< j len) (= (dist j) (dist (- j 1))))
+          (++ j)
+          (++ k)
+        )
+        (setq out (+ out (* k (- k 1))))
+      )
+    )
+    out))
+
+(boomerang '((0 0) (1 0) (2 0)))
+;-> dist: (0 1 4)
+;-> dist (sort): (0 1 4)
+;-> dist: (1 0 1)
+;-> dist (sort): (0 1 1)
+;-> dist: (4 1 0)
+;-> dist (sort): (0 1 4)
+;-> 2
+
+I due boomerangs sono ((1 0) (0 0) (2 0)) e ((1 0) (2 0) (0 0)).
+
+(boomerang '((3 3) (2 2) (4 2) (4 4)))
+;-> dist: (0 2 2 2)
+;-> dist (sort): (0 2 2 2)
+;-> dist: (2 0 4 8)
+;-> dist (sort): (0 2 4 8)
+;-> dist: (2 4 0 4)
+;-> dist (sort): (0 2 4 4)
+;-> dist: (2 8 4 0)
+;-> dist (sort): (0 2 4 8)
+;-> 10
+
+Complessità temporale: O(n*n*logn)
+
+
+-----------------------------------
+Ricerca in una matrice 2D (Wolfram)
+-----------------------------------
+
+Scrivere un algoritmo per cercare un valore in una matrice m x n che ha le seguenti proprietà:
+1) I numeri sono tutti interi
+2) I numeri di ogni riga sono ordinati in modo crescente da sinistra a destra. 
+3) Il primo numero di ogni riga è maggiore dell'ultimo numero della riga precedente. 
+Un esempio è la seguente matrice:
+
+  1  3  5  7
+  10 11 16 20
+  23 30 34 50
+
+Il modo diretto è quello di iterare su ogni singolo numero nella matrice con due cicli (loop). Questo algoritmo ha complessità temporale O(n^2).
+Una soluzione migliore è quella di utilizzare la ricerca binaria che porta la complessità temporale a O(log(n) + log(m)) = O(log(m*n).
+La ricerca binaria viene utilizzata per individuare la riga e la colonna corrente dell'elemento della matrice da confrontare con il numero che cerchiamo.
+
+(define (find-matrix matrix num)
+(catch
+  (local (row col start end tmp)
+    (setq row (length matrix))
+    (setq col (length (matrix 0)))
+    (setq start 0)
+    (setq end (- (* row col) 1))
+    (while (<= start end)
+      (setq mid (/ (+ start end) 2))
+      (setq tmp (matrix (/ mid col) (% mid col)))
+      (cond ((> tmp num)
+             (setq end (- mid 1)))
+            ((< tmp num)
+             (setq start (+ mid 1)))
+            (true (throw (list (/ mid col) (% mid col))))
+      )
+    )
+    nil)))
+
+(setq mx '((1 3 5 7) (10 11 16 21) (22 31 42 77)))
+
+(find-matrix mx 7)
+;-> (0 3)
+(find-matrix mx 51)
+;-> nil
+(find-matrix mx 21)
+;-> (1 3)
+
+Nota: in newLISP possiamo usare la funzione "ref" per ricercare un elemento in una matrice/lista: 
+(ref 7 mx)
+;-> (0 3)
+
+
+----------------------------
+Invertire le vocali (Google)
+----------------------------
+
+Scrivere una funzione che inverte solo le vocali della stringa di input.
+Per esempio:
+ In = "ciao"    -->  Out = "eouila"
+ In = "aiuole"  -->  Out = "eouila"
+
+Usiamo due puntatori, uno da destra (fine) e uno da sinistra (inizio) e ci muoviamo in entrambe le direzioni fino a che non troviamo due vocali. A questo punto scambiamo di posto le due vocali trovate.
+
+(define (inverte-vocali str)
+  (setq vocali "aeiouAEIOU")
+  (setq chars (explode str))
+  (setq start 0)
+  (setq end (- (length str) 1))
+  (while (< start end)
+    (while (and (< start end) (not (find (chars start) vocali)))
+           (++ start)
+    )
+    (while (and (< start end) (not (find (chars end) vocali)))
+           (-- end)
+    )
+    (swap (chars start) (chars end))
+    (++ start)
+    (-- end)
+  )
+  (join chars))
+
+(inverte-vocali "ciao")
+;-> "coai"
+(inverte-vocali "aiuole")
+;-> "eouila"
+(inverte-vocali "newLISP")
+;-> "nIwLeSP"
 
 

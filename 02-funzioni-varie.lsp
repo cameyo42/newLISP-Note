@@ -7386,3 +7386,157 @@ heap
 il valore viene sovrascritto.
 
 
+----------
+Flood Fill
+----------
+
+Un'immagine è rappresentata da una matrice 2-D di numeri interi, ogni numero intero rappresenta il valore (da 0 a 65535) del colore dei pixel dell'immagine.
+
+Data una coordinata (x, y) che rappresenta il pixel iniziale (riga e colonna) e un valore di colore (colore-nuovo) per il pixel, colorare tutti i pixel connessi a (x, y) con il nuovo colore.
+Alla fine, restituire l'immagine modificata.
+
+L'algoritmo "Flood fill" individua un punto all'interno dell'area/matrice e, a partire da quel punto, colora tutto quello che ha intorno fermandosi solo quando incontra un confine, ovvero un pixel di colore differente.
+
+L'algoritmo richiede 2 parametri: il pixel iniziale e il colore di riempimento. La formulazione più semplice è ricorsiva. Si individua un pixel qualsiasi appartenente all'area da colorare, si controllano i vicini e se hanno un colore uguale lo si cambia con quello scelto, altrimenti si prosegue.
+
+Flood-fill (pixel(x y), colore-nuovo):
+ 0. colore-prima = colore pixel(x y)
+ 1. Se il colore di pixel è diverso da colore-prima, termina.
+ 2. Imposta il colore di pixel a colore-nuovo.
+ 3. Esegui Flood-fill (pixel ad ovest di pixel colore-nuovo).
+    Esegui Flood-fill (pixel a nord di pixel colore-nuovo).
+    Esegui Flood-fill (pixel ad est di pixel colore-nuovo).
+    Esegui Flood-fill (pixel a sud di pixel colore-nuovo).
+ 4. Termina.
+
+(define (flood-fill img x y new-color)
+  (local (old-color dir max-x max-y)
+    (setq max-x (length img))
+    (setq max-y (length (img 0)))
+    (setq dir '((0 1) (0 -1) (1 0) (-1 0)))
+    ;------------------
+    ; recursive fill
+    (define (fill x y)
+    (catch
+      (local (new-x new-y)
+        (setq old-color (img x y))
+        (if (= old-color new-color) (throw img))
+        (setf (img x y) new-color)
+        (for (i 0 (- (length dir) 1))
+          (setq new-x (+ x (dir i 0)))
+          (setq new-y (+ y (dir i 1)))
+          (cond ((or (< new-x 0) (>= new-x max-x) (< new-y 0) (>= new-y max-y)) nil)
+                ((!= (img new-x new-y) old-color) nil)
+                (true (fill new-x new-y))
+          )
+        )
+        img)))
+     ;------------------
+     (fill x y)))
+
+Proviamo la funzione:
+
+(setq image '((1 1 1)
+              (1 1 0)
+              (1 0 1)))
+
+(flood-fill image 0 0 2)
+;-> ((2 2 2) 
+;->  (2 2 0) 
+;->  (2 0 1))
+
+(flood-fill image 2 2 2)
+;-> ((1 1 1) 
+;->  (1 1 0) 
+;->  (1 0 2))
+
+(setq image '(
+      (0 0 1 0 1 1 1 1 0 0 0 1 1 0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1 1)
+      (1 0 1 1 1 0 1 1 1 1 1 0 1 1 1 1 0 1 0 1 0 1 0 0 1 1 1 1 1 1)
+      (0 0 1 0 1 0 0 1 1 1 1 1 1 1 0 1 1 0 1 1 1 0 1 0 1 0 1 0 1 0)
+      (1 0 1 1 0 1 0 1 0 1 0 1 0 1 1 1 1 1 1 1 1 0 1 0 0 0 1 1 1 1)
+      (1 0 1 1 1 1 0 1 0 1 0 1 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
+      (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
+      (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
+      (0 0 0 0 0 0 1 0 0 0 0 0 1 1 1 1 0 0 1 1 1 1 0 1 1 1 1 0 1 1)
+      (1 1 0 1 1 1 0 1 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 1 1 0 1 0 1 0)
+      (1 0 0 1 1 1 1 1 1 0 0 0 0 0 0 1 1 1 0 1 1 0 0 0 1 1 1 0 0 1)
+      (1 0 0 0 0 0 1 1 1 0 0 0 1 1 1 0 0 1 1 0 0 0 0 1 1 0 0 1 1 1)
+      (0 0 0 1 1 1 1 0 0 0 0 1 1 1 0 0 0 1 1 0 0 1 1 1 1 0 0 0 1 1)
+      (1 0 0 1 1 1 0 0 0 1 1 1 0 0 0 0 1 1 0 1 0 0 0 1 1 1 0 0 0 1)
+      (1 1 0 0 0 1 1 1 0 0 0 0 0 0 0 1 1 1 1 1 1 0 1 1 1 0 1 1 1 0)
+      (1 1 1 0 1 1 0 1 1 1 0 0 1 1 0 0 0 0 0 0 0 0 0 1 1 0 0 0 1 1)
+      (1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 0 1 0 1 0 1 0 1 0 1)
+      (0 0 1 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 1 0 0 1 0 1 0 1 1)
+      (0 0 1 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 1 0 0 1 0 1 0 1 1)))
+
+(flood-fill image 0 0 8)
+;-> ((8 8 1 0 1 1 1 1 0 0 0 1 1 0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1 1) 
+;->  (1 8 1 1 1 8 1 1 1 1 1 0 1 1 1 1 0 1 0 1 0 1 8 8 1 1 1 1 1 1)
+;->  (8 8 1 0 1 8 8 1 1 1 1 1 1 1 0 1 1 0 1 1 1 8 1 8 1 8 1 0 1 0)
+;->  (1 8 1 1 0 1 8 1 8 1 8 1 8 1 1 1 1 1 1 1 1 8 1 8 8 8 1 1 1 1)
+;->  (1 8 1 1 1 1 8 1 8 1 8 1 8 1 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8)
+;->  (8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8)
+;->  (8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8)
+;->  (8 8 8 8 8 8 1 8 8 8 8 8 1 1 1 1 8 8 1 1 1 1 8 1 1 1 1 8 1 1)
+;->  (1 1 8 1 1 1 0 1 1 8 1 8 1 8 1 0 1 8 1 0 1 8 1 1 1 0 1 8 1 0)
+;->  (1 8 8 1 1 1 1 1 1 8 8 8 8 8 8 1 1 1 0 1 1 8 8 8 1 1 1 8 8 1)
+;->  (1 8 8 8 8 8 1 1 1 8 8 8 1 1 1 8 8 1 1 8 8 8 8 1 1 0 0 1 1 1)
+;->  (8 8 8 1 1 1 1 8 8 8 8 1 1 1 8 8 8 1 1 8 8 1 1 1 1 0 0 0 1 1)
+;->  (1 8 8 1 1 1 8 8 8 1 1 1 8 8 8 8 1 1 0 1 8 8 8 1 1 1 0 0 0 1)
+;->  (1 1 8 8 8 1 1 1 8 8 8 8 8 8 8 1 1 1 1 1 1 8 1 1 1 0 1 1 1 0)
+;->  (1 1 1 8 1 1 8 1 1 1 8 8 1 1 8 8 8 8 8 8 8 8 8 1 1 0 0 0 1 1)
+;->  (1 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 1 1 1 8 1 8 1 0 1 0 1 0 1)
+;->  (8 8 1 1 1 8 8 8 8 8 8 8 8 8 8 8 8 8 1 1 8 1 8 8 1 0 1 0 1 1)
+;->  (8 8 1 1 1 8 8 8 8 8 8 8 8 8 8 8 8 8 1 1 8 1 8 8 1 0 1 0 1 1))
+
+
+-----------------
+Poligoni convessi
+-----------------
+
+Determinare se un poligono è convesso. Il poligono è rappresentato da una lista di punti.
+
+Un poligono è convesso se la componente z di tutti i prodotti incrociati (cross-product) ha lo stesso segno.
+Questo metodo funziona con i poligoni semplici (senza lati auto-intersecanti) e assume che i vertici siano ordinati (in senso orario o in senso antiorario).
+
+(define (convex? polygon)
+(catch
+  (local (len dx1 dy1 dx2 dy2 i1 i2 cur pre)
+    (setq len (length polygon))
+    (setq pre 0) (setq cur 0)
+    (for (i 0 (- len 1))
+      (setq i1 (+ i 1))
+      (if (>= i1 len) (setq i1 (- i1 len)))
+      (setq i2 (+ i 2))
+      (if (>= i2 len) (setq i2 (- i2 len)))
+      (setq dx1 (sub (polygon i1 0) (polygon i 0)))
+      (setq dy1 (sub (polygon i1 1) (polygon i 1)))
+      (setq dx2 (sub (polygon i2 0) (polygon i1 0)))
+      (setq dy2 (sub (polygon i2 1) (polygon i1 1)))
+      (setq cur (sub (mul dx1 dy2) (mul dx2 dy1)))
+      (if (!= cur 0)
+          (if (or (and (> cur 0) (< pre 0)) (and (< cur 0) (> pre 0)))
+              (throw nil)
+              (setq pre cur)
+          )
+      )
+    )
+    true)))
+
+(convex? '((0 0) (1 0) (1 1) (0 1)))
+;-> true
+(convex? '((0 0) (2 0) (2 2) (0 2) (0 0)))
+;-> true
+(convex? '((0 0) (2 0) (2 2) (1 1) (0 2)))
+;-> nil
+(convex? '((0 0) (2 0) (2 2) (1 2) (0 2)))
+;-> true
+(convex? '((0 0) (2 0) (2 2) (1 1.9) (0 2)))
+;-> nil
+(convex? '((0 0) (2 0) (2 2) (1 1.999999999999999) (0 2)))
+;-> nil
+(convex? '((0 0) (2 0) (2 2) (1 1.9999999999999999) (0 2)))
+;-> true
+
+

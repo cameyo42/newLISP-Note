@@ -180,6 +180,8 @@ FUNZIONI VARIE
   one?
   Algoritmo Knuth-Morris-Pratt
   Heap binario (Binary Heap)
+  Flood Fill
+  Poligoni convessi
 
 newLISP 99 PROBLEMI (28)
 ========================
@@ -478,6 +480,9 @@ DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Contare le isole (islands) (Google)
   Lista con prodotto 1 (Amazon)
   Somma delle monete (Visa)
+  Boomerang (Visa)
+  Ricerca in una matrice 2D (Wolfram)
+  Invertire le vocali (Google)
 
 LIBRERIE
 ========
@@ -17282,6 +17287,160 @@ heap
 ;-> (1 15 4 45 46 nil nil nil nil nil nil)
 
 il valore viene sovrascritto.
+
+
+----------
+Flood Fill
+----------
+
+Un'immagine è rappresentata da una matrice 2-D di numeri interi, ogni numero intero rappresenta il valore (da 0 a 65535) del colore dei pixel dell'immagine.
+
+Data una coordinata (x, y) che rappresenta il pixel iniziale (riga e colonna) e un valore di colore (colore-nuovo) per il pixel, colorare tutti i pixel connessi a (x, y) con il nuovo colore.
+Alla fine, restituire l'immagine modificata.
+
+L'algoritmo "Flood fill" individua un punto all'interno dell'area/matrice e, a partire da quel punto, colora tutto quello che ha intorno fermandosi solo quando incontra un confine, ovvero un pixel di colore differente.
+
+L'algoritmo richiede 2 parametri: il pixel iniziale e il colore di riempimento. La formulazione più semplice è ricorsiva. Si individua un pixel qualsiasi appartenente all'area da colorare, si controllano i vicini e se hanno un colore uguale lo si cambia con quello scelto, altrimenti si prosegue.
+
+Flood-fill (pixel(x y), colore-nuovo):
+ 0. colore-prima = colore pixel(x y)
+ 1. Se il colore di pixel è diverso da colore-prima, termina.
+ 2. Imposta il colore di pixel a colore-nuovo.
+ 3. Esegui Flood-fill (pixel ad ovest di pixel colore-nuovo).
+    Esegui Flood-fill (pixel a nord di pixel colore-nuovo).
+    Esegui Flood-fill (pixel ad est di pixel colore-nuovo).
+    Esegui Flood-fill (pixel a sud di pixel colore-nuovo).
+ 4. Termina.
+
+(define (flood-fill img x y new-color)
+  (local (old-color dir max-x max-y)
+    (setq max-x (length img))
+    (setq max-y (length (img 0)))
+    (setq dir '((0 1) (0 -1) (1 0) (-1 0)))
+    ;------------------
+    ; recursive fill
+    (define (fill x y)
+    (catch
+      (local (new-x new-y)
+        (setq old-color (img x y))
+        (if (= old-color new-color) (throw img))
+        (setf (img x y) new-color)
+        (for (i 0 (- (length dir) 1))
+          (setq new-x (+ x (dir i 0)))
+          (setq new-y (+ y (dir i 1)))
+          (cond ((or (< new-x 0) (>= new-x max-x) (< new-y 0) (>= new-y max-y)) nil)
+                ((!= (img new-x new-y) old-color) nil)
+                (true (fill new-x new-y))
+          )
+        )
+        img)))
+     ;------------------
+     (fill x y)))
+
+Proviamo la funzione:
+
+(setq image '((1 1 1)
+              (1 1 0)
+              (1 0 1)))
+
+(flood-fill image 0 0 2)
+;-> ((2 2 2) 
+;->  (2 2 0) 
+;->  (2 0 1))
+
+(flood-fill image 2 2 2)
+;-> ((1 1 1) 
+;->  (1 1 0) 
+;->  (1 0 2))
+
+(setq image '(
+      (0 0 1 0 1 1 1 1 0 0 0 1 1 0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1 1)
+      (1 0 1 1 1 0 1 1 1 1 1 0 1 1 1 1 0 1 0 1 0 1 0 0 1 1 1 1 1 1)
+      (0 0 1 0 1 0 0 1 1 1 1 1 1 1 0 1 1 0 1 1 1 0 1 0 1 0 1 0 1 0)
+      (1 0 1 1 0 1 0 1 0 1 0 1 0 1 1 1 1 1 1 1 1 0 1 0 0 0 1 1 1 1)
+      (1 0 1 1 1 1 0 1 0 1 0 1 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
+      (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
+      (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
+      (0 0 0 0 0 0 1 0 0 0 0 0 1 1 1 1 0 0 1 1 1 1 0 1 1 1 1 0 1 1)
+      (1 1 0 1 1 1 0 1 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 1 1 0 1 0 1 0)
+      (1 0 0 1 1 1 1 1 1 0 0 0 0 0 0 1 1 1 0 1 1 0 0 0 1 1 1 0 0 1)
+      (1 0 0 0 0 0 1 1 1 0 0 0 1 1 1 0 0 1 1 0 0 0 0 1 1 0 0 1 1 1)
+      (0 0 0 1 1 1 1 0 0 0 0 1 1 1 0 0 0 1 1 0 0 1 1 1 1 0 0 0 1 1)
+      (1 0 0 1 1 1 0 0 0 1 1 1 0 0 0 0 1 1 0 1 0 0 0 1 1 1 0 0 0 1)
+      (1 1 0 0 0 1 1 1 0 0 0 0 0 0 0 1 1 1 1 1 1 0 1 1 1 0 1 1 1 0)
+      (1 1 1 0 1 1 0 1 1 1 0 0 1 1 0 0 0 0 0 0 0 0 0 1 1 0 0 0 1 1)
+      (1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 0 1 0 1 0 1 0 1 0 1)
+      (0 0 1 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 1 0 0 1 0 1 0 1 1)
+      (0 0 1 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 1 0 0 1 0 1 0 1 1)))
+
+(flood-fill image 0 0 8)
+;-> ((8 8 1 0 1 1 1 1 0 0 0 1 1 0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1 1) 
+;->  (1 8 1 1 1 8 1 1 1 1 1 0 1 1 1 1 0 1 0 1 0 1 8 8 1 1 1 1 1 1)
+;->  (8 8 1 0 1 8 8 1 1 1 1 1 1 1 0 1 1 0 1 1 1 8 1 8 1 8 1 0 1 0)
+;->  (1 8 1 1 0 1 8 1 8 1 8 1 8 1 1 1 1 1 1 1 1 8 1 8 8 8 1 1 1 1)
+;->  (1 8 1 1 1 1 8 1 8 1 8 1 8 1 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8)
+;->  (8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8)
+;->  (8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8)
+;->  (8 8 8 8 8 8 1 8 8 8 8 8 1 1 1 1 8 8 1 1 1 1 8 1 1 1 1 8 1 1)
+;->  (1 1 8 1 1 1 0 1 1 8 1 8 1 8 1 0 1 8 1 0 1 8 1 1 1 0 1 8 1 0)
+;->  (1 8 8 1 1 1 1 1 1 8 8 8 8 8 8 1 1 1 0 1 1 8 8 8 1 1 1 8 8 1)
+;->  (1 8 8 8 8 8 1 1 1 8 8 8 1 1 1 8 8 1 1 8 8 8 8 1 1 0 0 1 1 1)
+;->  (8 8 8 1 1 1 1 8 8 8 8 1 1 1 8 8 8 1 1 8 8 1 1 1 1 0 0 0 1 1)
+;->  (1 8 8 1 1 1 8 8 8 1 1 1 8 8 8 8 1 1 0 1 8 8 8 1 1 1 0 0 0 1)
+;->  (1 1 8 8 8 1 1 1 8 8 8 8 8 8 8 1 1 1 1 1 1 8 1 1 1 0 1 1 1 0)
+;->  (1 1 1 8 1 1 8 1 1 1 8 8 1 1 8 8 8 8 8 8 8 8 8 1 1 0 0 0 1 1)
+;->  (1 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 1 1 1 8 1 8 1 0 1 0 1 0 1)
+;->  (8 8 1 1 1 8 8 8 8 8 8 8 8 8 8 8 8 8 1 1 8 1 8 8 1 0 1 0 1 1)
+;->  (8 8 1 1 1 8 8 8 8 8 8 8 8 8 8 8 8 8 1 1 8 1 8 8 1 0 1 0 1 1))
+
+
+-----------------
+Poligoni convessi
+-----------------
+
+Determinare se un poligono è convesso. Il poligono è rappresentato da una lista di punti.
+
+Un poligono è convesso se la componente z di tutti i prodotti incrociati (cross-product) ha lo stesso segno.
+Questo metodo funziona con i poligoni semplici (senza lati auto-intersecanti) e assume che i vertici siano ordinati (in senso orario o in senso antiorario).
+
+(define (convex? polygon)
+(catch
+  (local (len dx1 dy1 dx2 dy2 i1 i2 cur pre)
+    (setq len (length polygon))
+    (setq pre 0) (setq cur 0)
+    (for (i 0 (- len 1))
+      (setq i1 (+ i 1))
+      (if (>= i1 len) (setq i1 (- i1 len)))
+      (setq i2 (+ i 2))
+      (if (>= i2 len) (setq i2 (- i2 len)))
+      (setq dx1 (sub (polygon i1 0) (polygon i 0)))
+      (setq dy1 (sub (polygon i1 1) (polygon i 1)))
+      (setq dx2 (sub (polygon i2 0) (polygon i1 0)))
+      (setq dy2 (sub (polygon i2 1) (polygon i1 1)))
+      (setq cur (sub (mul dx1 dy2) (mul dx2 dy1)))
+      (if (!= cur 0)
+          (if (or (and (> cur 0) (< pre 0)) (and (< cur 0) (> pre 0)))
+              (throw nil)
+              (setq pre cur)
+          )
+      )
+    )
+    true)))
+
+(convex? '((0 0) (1 0) (1 1) (0 1)))
+;-> true
+(convex? '((0 0) (2 0) (2 2) (0 2) (0 0)))
+;-> true
+(convex? '((0 0) (2 0) (2 2) (1 1) (0 2)))
+;-> nil
+(convex? '((0 0) (2 0) (2 2) (1 2) (0 2)))
+;-> true
+(convex? '((0 0) (2 0) (2 2) (1 1.9) (0 2)))
+;-> nil
+(convex? '((0 0) (2 0) (2 2) (1 1.999999999999999) (0 2)))
+;-> nil
+(convex? '((0 0) (2 0) (2 2) (1 1.9999999999999999) (0 2)))
+;-> true
 
 
 ==========================
@@ -52013,9 +52172,7 @@ Ma cosa significa esattamente che un algoritmo funziona in tempo O(f(n))?
 
 Vuol dire che ci sono due costanti C e n0 tali che l'algoritmo esegua al massimo c*f(n) operazioni per tutti gli input in cui n ≥ n0. Pertanto, la notazione O fornisce un limite superiore per il tempo di esecuzione dell'algoritmo per input sufficientemente grandi. La notazione O non viene usata per fornire una stima accurata della complessità temporale.
 
-Ci sono anche altre due notazioni comuni. La notazione Omega fornisce un limite inferiore
-per il tempo di esecuzione di un algoritmo. La complessità temporale di un algoritmo è Omega(f(n)),
-se ci sono due costanti C e n0 tali che l'algoritmo esegua almeno operazioni C*f(n) per tutti gli input dove n ≥ n0. Infine, la notazione Theta fornisce un limite esatto, la complessità temporale di un algoritmo è Theta(f(n)) se è sia O(f(n)) che Omega(f(n)). In pratica, Theta(f(n)) è una funzione che si trova compresa tra le funzioni O(f(n)) e Omega(f(n)).
+Ci sono anche altre due notazioni comuni. La notazione Omega fornisce un limite inferiore per il tempo di esecuzione di un algoritmo. La complessità temporale di un algoritmo è Omega(f(n)), se ci sono due costanti C e n0 tali che l'algoritmo esegua almeno operazioni C*f(n) per tutti gli input dove n ≥ n0. Infine, la notazione Theta fornisce un limite esatto. La complessità temporale di un algoritmo è Theta(f(n)) se valgono sia O(f(n)) che Omega(f(n)). In pratica, Theta(f(n)) è una funzione che si trova compresa tra le funzioni O(f(n)) e Omega(f(n)).
 
 
 -----------------------------------
@@ -59695,6 +59852,160 @@ La seguente funzione implementa l'algoritmo:
 ;->  1015 1017 1050 1052 1055 1057 1060 1062 1065 1067 2000 2002 2005 2007
 ;->  2010 2012 2015 2017 2050 2052 2055 2057 2060 2062 2065 2067 3000 3002
 ;->  3005 3007 3010 3012 3015 3017 3050 3052 3055 3057 3060 3062 3065 3067)
+
+
+----------------
+Boomerang (Visa)
+----------------
+
+Dati n punti nel piano che sono tutti distinti a due a due, un "boomerang" è una tupla di punti (i, j, k) tale che la distanza tra i e j è uguale alla distanza tra i e k (l'ordine della tupla è importante).
+Trovare il numero di boomerang.
+
+Per ogni punto, calcolare la distanza dal resto dei punti e contare.
+Se ci sono k punti che hanno la stessa distanza dal punto corrente, allora ci sono P(k,2) = k * k-1 boomerang.
+ad esempio, se p1, p2, p3 hanno la stessa distanza con p0, allora ci sono P(3,2) = 3 * (3-1) = 6 boomerang:
+(p1, p0, p2), (p1, p0, p3) (p2, p0, p1), (p2, p0, p3) (p3, p0, p1), (p3, p0, p2)
+Per ogni punto possiamo ordinare le distanzee poi calcolare il numero di boomerang nel modo seguente:
+  dist = (1 2 1 2 1 5)
+  sorted_dist = (1 1 1 2 2 5) ==> 1*3, 2*2, 5*1
+  boomerang = 3*(3 - 1) + 2*(2 – 1)*1*(1 – 1) = 8
+
+(define (boomerang punti)
+  (local (len dist dx dy k out)
+    (setq len (length punti))
+    (setq out 0)
+    (setq dist (array len '(0)))
+    (for (i 0 (- len 1))
+      (for (j 0 (- len 1))
+        (setq dx (sub (punti i 0) (punti j 0)))
+        (setq dy (sub (punti i 1) (punti j 1)))
+        (setf (dist j) (add (mul dx dx) (mul dy dy)))
+      )
+      (println "dist: " dist)
+      (sort dist)
+      (println "dist (sort): " dist)
+      (for (j 1 (- len 1))
+        (setq k 1)
+        (while (and (< j len) (= (dist j) (dist (- j 1))))
+          (++ j)
+          (++ k)
+        )
+        (setq out (+ out (* k (- k 1))))
+      )
+    )
+    out))
+
+(boomerang '((0 0) (1 0) (2 0)))
+;-> dist: (0 1 4)
+;-> dist (sort): (0 1 4)
+;-> dist: (1 0 1)
+;-> dist (sort): (0 1 1)
+;-> dist: (4 1 0)
+;-> dist (sort): (0 1 4)
+;-> 2
+
+I due boomerangs sono ((1 0) (0 0) (2 0)) e ((1 0) (2 0) (0 0)).
+
+(boomerang '((3 3) (2 2) (4 2) (4 4)))
+;-> dist: (0 2 2 2)
+;-> dist (sort): (0 2 2 2)
+;-> dist: (2 0 4 8)
+;-> dist (sort): (0 2 4 8)
+;-> dist: (2 4 0 4)
+;-> dist (sort): (0 2 4 4)
+;-> dist: (2 8 4 0)
+;-> dist (sort): (0 2 4 8)
+;-> 10
+
+Complessità temporale: O(n*n*logn)
+
+
+-----------------------------------
+Ricerca in una matrice 2D (Wolfram)
+-----------------------------------
+
+Scrivere un algoritmo per cercare un valore in una matrice m x n che ha le seguenti proprietà:
+1) I numeri sono tutti interi
+2) I numeri di ogni riga sono ordinati in modo crescente da sinistra a destra. 
+3) Il primo numero di ogni riga è maggiore dell'ultimo numero della riga precedente. 
+Un esempio è la seguente matrice:
+
+  1  3  5  7
+  10 11 16 20
+  23 30 34 50
+
+Il modo diretto è quello di iterare su ogni singolo numero nella matrice con due cicli (loop). Questo algoritmo ha complessità temporale O(n^2).
+Una soluzione migliore è quella di utilizzare la ricerca binaria che porta la complessità temporale a O(log(n) + log(m)) = O(log(m*n).
+La ricerca binaria viene utilizzata per individuare la riga e la colonna corrente dell'elemento della matrice da confrontare con il numero che cerchiamo.
+
+(define (find-matrix matrix num)
+(catch
+  (local (row col start end tmp)
+    (setq row (length matrix))
+    (setq col (length (matrix 0)))
+    (setq start 0)
+    (setq end (- (* row col) 1))
+    (while (<= start end)
+      (setq mid (/ (+ start end) 2))
+      (setq tmp (matrix (/ mid col) (% mid col)))
+      (cond ((> tmp num)
+             (setq end (- mid 1)))
+            ((< tmp num)
+             (setq start (+ mid 1)))
+            (true (throw (list (/ mid col) (% mid col))))
+      )
+    )
+    nil)))
+
+(setq mx '((1 3 5 7) (10 11 16 21) (22 31 42 77)))
+
+(find-matrix mx 7)
+;-> (0 3)
+(find-matrix mx 51)
+;-> nil
+(find-matrix mx 21)
+;-> (1 3)
+
+Nota: in newLISP possiamo usare la funzione "ref" per ricercare un elemento in una matrice/lista: 
+(ref 7 mx)
+;-> (0 3)
+
+
+----------------------------
+Invertire le vocali (Google)
+----------------------------
+
+Scrivere una funzione che inverte solo le vocali della stringa di input.
+Per esempio:
+ In = "ciao"    -->  Out = "eouila"
+ In = "aiuole"  -->  Out = "eouila"
+
+Usiamo due puntatori, uno da destra (fine) e uno da sinistra (inizio) e ci muoviamo in entrambe le direzioni fino a che non troviamo due vocali. A questo punto scambiamo di posto le due vocali trovate.
+
+(define (inverte-vocali str)
+  (setq vocali "aeiouAEIOU")
+  (setq chars (explode str))
+  (setq start 0)
+  (setq end (- (length str) 1))
+  (while (< start end)
+    (while (and (< start end) (not (find (chars start) vocali)))
+           (++ start)
+    )
+    (while (and (< start end) (not (find (chars end) vocali)))
+           (-- end)
+    )
+    (swap (chars start) (chars end))
+    (++ start)
+    (-- end)
+  )
+  (join chars))
+
+(inverte-vocali "ciao")
+;-> "coai"
+(inverte-vocali "aiuole")
+;-> "eouila"
+(inverte-vocali "newLISP")
+;-> "nIwLeSP"
 
 
 ==========
@@ -80015,15 +80326,14 @@ Si può dimostrare che la probabilità che due giocatori qualsiasi si scontrino 
 
 P(n) = 1/2^(k-1), dove n = 2^k (con n giocatori).
 
-Infatti, ci sono (2^n - 1) partite tra tutte le coppie e ci sono binom(2^n 2) coppie di giocatori.
+Infatti, ci sono (2^n - 1) partite tra tutte le coppie e ci sono binom(2^n, 2) coppie di giocatori.
 
 (define (chess n)
   (let (k (length (factor n)))
     (div (pow 2 (- k 1)))))
 
-(chess 2)
-
-(- (length (factor 32)) 1)
+(chess 32)
+;-> 0.0625
 
 Vediamo come definire una simulazione:
 
@@ -80906,7 +81216,7 @@ Consideriamo la stringa decimale infinita:
 "123456789101112131415161718192021222324252627282930..."
 
 La funzione "(find-cifra k)" trova la cifra che si trova alla posizione k della stringa, ma determina anche il numero corrente della stringa infinita.
-Quindi la usiamo per scrivere la nuova funzione "(trova-num k)"che trova il numero corrente della stringa infinita all'indice k.
+Quindi la usiamo per scrivere la nuova funzione "(trova-num k)" che trova il numero corrente della stringa infinita all'indice k.
 
 (define (trova-num k)
   (local (lun conta num strnum)
@@ -81496,7 +81806,7 @@ Partiamo con la seguente funzione:
 
 Ci sono elementi doppi ("0.5" "1/2") e ("0.5" "2/4") e la lista non è ordinata per valore della frazione.
 
-Per eliminare gli elementi doppi inserriamo la lista in una hash-map. Quando assegniamo una lista ad una hash-map gli elementi multipli (con la stessa chiave) vengono presi solo una volta. In newLISP la hash-map inserisce gli elementi partendo dal fondo della lista (poi nella hash-map gli elementi sono ordinati in base alla chiave). Quindi quando incontra elementi multipli prende l'ultimo che compare nella lista (cioè il primo partendo dal fondo della lista). Qiindi prima dobbiamo ordinare la lista in modo da mantenere la frazione che è ai minimi termini (cioè vogliamo mantenere la frazione 1/2 e non 2/4).
+Per eliminare gli elementi doppi inseriamo la lista in una hash-map. Quando assegniamo una lista ad una hash-map gli elementi multipli (con la stessa chiave) vengono presi solo una volta. In newLISP la hash-map inserisce gli elementi partendo dal fondo della lista (poi nella hash-map gli elementi sono ordinati in base alla chiave). Quindi quando incontra elementi multipli prende l'ultimo che compare nella lista (cioè il primo partendo dal fondo della lista). Quindi prima dobbiamo ordinare la lista in modo da mantenere la frazione che è ai minimi termini (cioè vogliamo mantenere la frazione 1/2 e non 2/4).
 
 Generiamo e ordiniamo la lista in ordine decrescente:
 

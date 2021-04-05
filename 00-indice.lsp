@@ -180,6 +180,8 @@ FUNZIONI VARIE
   one?
   Algoritmo Knuth-Morris-Pratt
   Heap binario (Binary Heap)
+  Flood Fill
+  Poligoni convessi
 
 newLISP 99 PROBLEMI (28)
 ========================
@@ -478,6 +480,9 @@ DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Contare le isole (islands) (Google)
   Lista con prodotto 1 (Amazon)
   Somma delle monete (Visa)
+  Boomerang (Visa)
+  Ricerca in una matrice 2D (Wolfram)
+  Invertire le vocali (Google)
 
 LIBRERIE
 ========

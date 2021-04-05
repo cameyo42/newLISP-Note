@@ -2087,15 +2087,14 @@ Si può dimostrare che la probabilità che due giocatori qualsiasi si scontrino 
 
 P(n) = 1/2^(k-1), dove n = 2^k (con n giocatori).
 
-Infatti, ci sono (2^n - 1) partite tra tutte le coppie e ci sono binom(2^n 2) coppie di giocatori.
+Infatti, ci sono (2^n - 1) partite tra tutte le coppie e ci sono binom(2^n, 2) coppie di giocatori.
 
 (define (chess n)
   (let (k (length (factor n)))
     (div (pow 2 (- k 1)))))
 
-(chess 2)
-
-(- (length (factor 32)) 1)
+(chess 32)
+;-> 0.0625
 
 Vediamo come definire una simulazione:
 
@@ -2978,7 +2977,7 @@ Consideriamo la stringa decimale infinita:
 "123456789101112131415161718192021222324252627282930..."
 
 La funzione "(find-cifra k)" trova la cifra che si trova alla posizione k della stringa, ma determina anche il numero corrente della stringa infinita.
-Quindi la usiamo per scrivere la nuova funzione "(trova-num k)"che trova il numero corrente della stringa infinita all'indice k.
+Quindi la usiamo per scrivere la nuova funzione "(trova-num k)" che trova il numero corrente della stringa infinita all'indice k.
 
 (define (trova-num k)
   (local (lun conta num strnum)
@@ -3568,7 +3567,7 @@ Partiamo con la seguente funzione:
 
 Ci sono elementi doppi ("0.5" "1/2") e ("0.5" "2/4") e la lista non è ordinata per valore della frazione.
 
-Per eliminare gli elementi doppi inserriamo la lista in una hash-map. Quando assegniamo una lista ad una hash-map gli elementi multipli (con la stessa chiave) vengono presi solo una volta. In newLISP la hash-map inserisce gli elementi partendo dal fondo della lista (poi nella hash-map gli elementi sono ordinati in base alla chiave). Quindi quando incontra elementi multipli prende l'ultimo che compare nella lista (cioè il primo partendo dal fondo della lista). Qiindi prima dobbiamo ordinare la lista in modo da mantenere la frazione che è ai minimi termini (cioè vogliamo mantenere la frazione 1/2 e non 2/4).
+Per eliminare gli elementi doppi inseriamo la lista in una hash-map. Quando assegniamo una lista ad una hash-map gli elementi multipli (con la stessa chiave) vengono presi solo una volta. In newLISP la hash-map inserisce gli elementi partendo dal fondo della lista (poi nella hash-map gli elementi sono ordinati in base alla chiave). Quindi quando incontra elementi multipli prende l'ultimo che compare nella lista (cioè il primo partendo dal fondo della lista). Quindi prima dobbiamo ordinare la lista in modo da mantenere la frazione che è ai minimi termini (cioè vogliamo mantenere la frazione 1/2 e non 2/4).
 
 Generiamo e ordiniamo la lista in ordine decrescente:
 

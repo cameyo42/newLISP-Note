@@ -6,12 +6,12 @@ Appunti sul linguaggio newLISP
   
 00) Indice  
 01) newLISP in generale (60)  
-02) Funzioni varie (104)  
+02) Funzioni varie (106)  
 03) newLISP 99 problemi (28)  
 04) Rosetta code (84)  
 05) Project eulero (102)  
 06) Problemi vari (77)  
-07) Domande programmatori (93)  
+07) Domande programmatori (96)  
 08) Librerie (9)  
 09) Note libere (80)  
 10) Note libere 2 (80)  
