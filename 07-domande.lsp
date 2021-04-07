@@ -22,8 +22,8 @@ Un algoritmo di radice quadrata è più lento di O(log(n)) ma più veloce di O(n
 O(n)
 Un algoritmo lineare passa attraverso l'input un numero costante di volte. Questo è spesso la migliore complessità temporale possibile, perché di solito è necessario accedere ogni elemento di input almeno una volta prima di calcolare la risposta.
 
-O(n * log(n))
-Questa complessità temporale spesso indica che l'algoritmo ordina l'input, perché la complessità temporale degli algoritmi di ordinamento efficienti è O(n * log(n)). Un'altra situazione è che l'algoritmo utilizzi una struttura dati in cui ogni operazione richiede un tempo pari a O(log(n)).
+O(n*log(n))
+Questa complessità temporale spesso indica che l'algoritmo ordina l'input, perché la complessità temporale degli algoritmi di ordinamento efficienti è O(n*log(n)). Un'altra situazione è che l'algoritmo utilizzi una struttura dati in cui ogni operazione richiede un tempo pari a O(log(n)).
 
 O(n^2)
 Un algoritmo quadratico spesso contiene due cicli annidati. È possibile passare attraverso tutte le coppie degli elementi di input in tempo O(n^2).
@@ -7890,5 +7890,201 @@ Usiamo due puntatori, uno da destra (fine) e uno da sinistra (inizio) e ci muovi
 ;-> "eouila"
 (inverte-vocali "newLISP")
 ;-> "nIwLeSP"
+
+
+------------------------------
+Intervalli mancanti (LeetCode)
+------------------------------
+
+Dato una lista ordinata di interi in cui l'intervallo di elementi è compreso in [inferiore, superiore], restiture i numeri/intervalli mancanti.
+
+Ad esempio, la lista (0 1 3 50 75) inferiore = 0 e superiore = 99, deve restituire ("2" "4..49" "51..74" "76..99").
+
+Nota: La soluzione non controlla se si verifca un'overflow dei numeri.
+
+(define (find-range lst inf sup)
+  (local (sx dx out)
+    (setq out '())
+    (setq sx 0 dx 0)
+    (for (i -1 (- (length lst) 1))
+      (if (>= i 0)
+          (setq sx (+ (lst i) 1))
+          (setq sx inf)
+      )
+      (if (< (+ i 1) (length lst))
+          (setq dx (- (lst (+ i 1)) 1))
+          (setq dx sup)
+      )
+      (cond ((> sx dx) nil)
+            ((= sx dx) (push (string sx) out -1))
+            (true (push (string sx ".." dx) out -1))
+      )
+    )
+    out))
+
+(find-range '(0 1 3 50 75) 0 99)
+;-> ("2" "4..49" "51..74" "76..99")
+
+(find-range '(-2 0 1 3 20 41 50 75) -100 100)
+;-> ("-100..-3" "-1" "2" "4..19" "21..40" "42..49" "51..74" "76..100")
+
+Per restituire tutti i numeri mancanti (invece degli intervalli) possiamo modificare la funzione "find-range" oppure scrivere una nuova funzione. Possiamo risolvere velocemente il problema con le primitive di newLISP:
+
+(define (find-numbers lst inf sup)
+  (difference (sequence inf sup) lst))
+
+(find-numbers '(0 1 3 50 75) 0 99)
+;-> (2 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25
+;->  26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46
+;->  47 48 49 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68
+;->  69 70 71 72 73 74 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90
+;->  91 92 93 94 95 96 97 98 99)
+
+
+----------------------------------
+Numeri strobogrammatici (LeetCode)
+----------------------------------
+
+Un numero strobogrammatico è un numero che è uguale a se stesso se ruotato di 180 gradi (il centro di rotazione si trova a metà del numero).
+Ad esempio, i numeri "69", "88" e "818" sono tutti strobogrammatici.
+Scrivere una funzione per determinare se un numero è strobogrammatico.
+
+Rappresentiamo la mappa dei numeri (1 -> 1), (8 -> 8), (0 -> 0), (6 -> 9) e (9 -> 6) con una lista associativa.
+
+Usiamo due puntatori (sinistra e destra) che si muovono, rispettivamente verso destra e verso sinistra.
+Fino  a che non risulta sinistra = destra:
+  se il numero corrente di sinistra non compare nella lista di mappatura (link) oppure
+  se il carattere che mappa il numero corrente di sinistra è diverso
+  dal carattere corrente di destra, allora restituiamo nil.
+Al termine restituiamo true.
+
+(define (strobogrammatic? num)
+(catch
+  (local (link s sx dx)
+    (setq link '(("1" "1") ("0" "0") ("8" "8") ("6" "9") ("9" "6")))
+    (setq s (string num))
+    (setq sx 0)
+    (setq dx (- (length s) 1))
+    (while (<= sx dx)
+      (if (or (not (lookup (s sx) link)) (!= (lookup (s sx) link) (s dx)))
+          (throw nil)
+      )
+      (++ sx)
+      (-- dx)
+    )
+    true)))
+
+(setq num 69)
+(strobogrammatic? 69)
+;-> true
+(strobogrammatic? 169)
+;-> nil
+(strobogrammatic? 1691)
+;-> true
+
+Scriviamo una funzione che trova i numeri strobogrammatici fino ad un numero n:
+
+(define (strobogrammatici n)
+  (let (out '())
+    (for (i 1 n)
+      (if (strobogrammatic? i)
+          (push i out -1)))
+    out))
+
+(strobogrammatici 10000)
+;-> (1 8 11 69 88 96 101 111 181 609 619 689 808 818 888 906 916 986
+;->  1001 1111 1691 1881 1961 6009 6119 6699 6889 6969 8008 8118 8698 
+;->  8888 8968 9006 9116 9696 9886 9966)
+
+
+-----------------------
+Bomba sul nemico (Visa)
+-----------------------
+
+In una griglia (matrice 2D) ogni cella può essere un muro "W" (wall) o un nemico "E" (enemy) o una cella vuota "0". Possiamo lanciare una bomba in una cella vuota. La bomba colpisce tutti i nemici nella stessa riga e colonna della cella di impatto fino a quando non colpisce un muro.
+Scrivere una funzione che massimizza e restituisce il numero di nemici colpiti.
+Per esempio nella matrice seguente:
+
+  0 E 0 0
+  E 0 W E
+  0 E 0 0
+
+posizionando la bomba nella cella (1,1) si colpiscono 3 nemici (che è il valore massimo).
+
+(define (bomba griglia)
+  (local (x y somma bx by out)
+    (setq out 0)
+    (for (i 1 (- (length griglia) 1))
+      (for (j 1 (- (length (griglia 0)) 1))
+        (if (= (griglia i j) "0")
+          (begin
+            (setq somma 0)
+            (setq x i) (setq y j)
+            (while (and (>= x 0) (!= (griglia x y) "W"))
+              (if (= (griglia x y) "E") (++ somma))
+              (-- x))
+            (setq x i) (setq y j)            
+            (while (and (< x (length griglia)) (!= (griglia x y) "W"))
+              (if (= (griglia x y) "E") (++ somma))
+              (++ x))
+            (setq x i) (setq y j)
+            (while (and (>= y 0) (!= (griglia x y) "W"))
+              (if (= (griglia x y) "E") (++ somma))
+              (-- y))
+            (setq x i) (setq y j)
+            (while (and (< y (length (griglia 0))) (!= (griglia x y) "W"))
+              (if (= (griglia x y) "E") (++ somma))
+              (++ y))
+            (if (> somma out) (begin
+                (setq out (max out somma))
+                (setq bx i) (setq by j))
+            )
+    ))))
+    (list (list bx by) out)))
+
+(setq m '(
+ ("0" "E" "0" "0")
+ ("E" "0" "W" "E")
+ ("0" "E" "0" "0")))
+
+(bomba m)
+;-> ((1 1) 3)
+
+(setq m '(
+ ("0" "E" "0" "0" "0" "E" "0" "0")
+ ("E" "W" "W" "E" "0" "E" "W" "E")
+ ("0" "E" "0" "0" "0" "W" "0" "0")
+ ("W" "E" "0" "W" "0" "E" "0" "E")
+ ("0" "E" "0" "0" "0" "W" "0" "0")
+ ("0" "E" "0" "0" "0" "E" "W" "0")
+ ("W" "E" "0" "W" "0" "E" "0" "E")))
+
+(bomba m)
+;-> ((2 7) 3)
+
+
+----------------------------------
+Pitturare una staccionata (Amazon)
+----------------------------------
+
+Supponiamo di avere una staccionata con n pali in cui ogni palo può essere dipinto con uno di k colori diversi. Bisogna dipingere tutti i pali in modo che non più di due pali di recinzione adiacenti abbiano lo stesso colore.
+
+(define (pitta n k)
+  (local (uguali diversi out)
+    (setq uguali 0)
+    (setq diversi k)
+    (setq out (+ uguali diversi))
+    (for (i 2 n)
+      (setq uguali diversi)
+      (setq diversi (* out (- k 1)))
+      (setq out (+ uguali diversi))
+    )
+    out))
+
+(pitta 10 3)
+;-> 27408
+
+(pitta 10 8)
+;-> 957345928
 
 

@@ -7203,3 +7203,103 @@ Esempio 4:
 ;->  (6 2) (6 3) (6 4) (6 6) (7 0) (7 4) (7 6) (8 0) (8 4) (8 5) (8 6))
 
 
+------------------
+Progettare TinyURL
+------------------
+
+Problema:
+Come progettare un servizio di semplificazione/accorciamento degli URL simile a TinyURL?
+
+Nota: TinyURL è un servizio web di semplificazione URL in cui inserisci un URL come https://projecteuler.net/ e restituisce un URL breve come https://tinyurl.com/4j66fhmw.
+
+L'identificatore (4j66fhmw) può essere qualsiasi stringa con 6 caratteri alfanumerici contenente 0-9, a-z, A-Z. Ogni URL abbreviato deve essere univoco (ovvero, non è possibile abbreviare due URL diversi con lo stesso URL). Di seguito sono riportate solo alcune domande per iniziare. Nel mondo reale, potrebbero esserci molti problemi e domande possibili.
+
+Domande:
+Quanti identificatori univoci possibili?
+Potremmo rimanere senza URL univoci?
+L'identificatore dovrebbe essere incrementato o no?
+Quale è più facile da progettare? Pro e contro?
+Mappatura di un identificatore a un URL e sua inversione: questo problema ti suona un campanello?
+Come memorizzi gli URL? Un semplice database flat-file è sufficiente?
+Qual è il collo di bottiglia del sistema? È oneroso in lettura o in scrittura?
+Stimare il numero massimo di URL che una singola macchina può memorizzare.
+Stimare il numero massimo di query al secondo (QPS) per la decodifica di un URL abbreviato in una singola macchina.
+Come ridimensioneresti il ​​servizio? Ad esempio, un collegamento "virale" condiviso nei social media potrebbe comportare un picco di QPS in qualche momento.
+Come potresti gestire la ridondanza? (Per esempio, se un server non funziona, come puoi assicurarti che il servizio rimanga ancora operativo?)
+Conservare gli URL per sempre o eliminarli, pro e contro? Come si fa la potatura?
+Quale API fornireste a uno sviluppatore di terze parti?
+Se puoi abilitare la memorizzazione nella cache, cosa memorizzerai nella cache e qual è il tempo di scadenza?
+
+Implementazione:
+Scrivere i metodi di codifica e decodifica per il servizio TinyURL. Non ci sono restrizioni su come dovrebbe funzionare l'algoritmo di codifica/decodifica. Bisogna solo assicurarsi che un URL possa essere codificato in un tiny URL e che il tiny URL possa essere decodificato nell'URL originale.
+
+Definiamo due hash-map:
+
+; Long2Short
+(new Tree 'LS)
+; Short2Long
+(new Tree 'SL)
+
+Funzione di codifica della url in tiny-url:
+
+(define (tiny-encode url)
+  (local (continua out)
+          ; se url esiste nella hash-map,
+          ; allora restituisco il valore memorizzato
+    (cond ((LS (string url))
+           (setq out (LS (string url))))
+          ; se url non esiste nella hash map
+          ; allora genera una tiny-url valida
+          (true
+           (setq out "")
+           (setq continua true)
+           (while continua
+             (setq out (make-random))
+             ; se la stringa casuale non esiste nella hash-map,
+             ; allora inserisco i valori nelle hash-map e
+             ; termina il ciclo (continua = nil)
+             ; altrimenti continua il ciclo
+             ; per generare una nuova stringa casuale
+             (if (nil? (SL out)) (begin
+                 (SL out url)
+                 (LS url out)
+                 (setq continua nil)))
+           )
+          )
+    )
+    out))
+
+Funzione che crea una stringa casuale di 6 caratteri:
+
+(define (make-random)
+  (local (str base)
+    (setq base "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+    (seed (time-of-day))
+    (setq str "https://myURL.com/")
+    (for (i 0 5)
+      (extend str (base (rand 62)))
+    )
+    str))
+
+(tiny-encode "www.google.com")
+"https://myURL.com/UJFmVp"
+(tiny-encode "www.pippo.com")
+"https://myURL.com/cwpfzB"
+
+Funzione di decodifica da tiny-url a url:
+
+(define (tiny-decode tiny-url)
+  (if (SL tiny-url)
+      (SL tiny-url)
+      nil))
+
+(tiny-decode "https://myURL.com/UJFmVp")
+;-> "www.google.com"
+
+(tiny-decode "https://myURL.com/cwpfzB")
+;-> "www.pippo.com"
+
+(tiny-decode "https://myURL.com/123abc")
+;-> nil
+
+

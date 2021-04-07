@@ -483,6 +483,10 @@ DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Boomerang (Visa)
   Ricerca in una matrice 2D (Wolfram)
   Invertire le vocali (Google)
+  Intervalli mancanti (LeetCode)
+  Numeri strobogrammatici (LeetCode)
+  Bomba sul nemico (Visa)
+  Pitturare una staccionata (Amazon)
 
 LIBRERIE
 ========
@@ -728,6 +732,7 @@ NOTE LIBERE 3
   Distanza dell'orizzonte
   Tic-Tac-Toe
   Labirinti (Maze)
+  Progettare TinyURL
 
 APPENDICI
 =========
