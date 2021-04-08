@@ -73,6 +73,7 @@ newLISP IN GENERALE
   FOOP - Programmazione funzionale orientata agli oggetti
   XML e S-espressioni
   Analisi dei tempi di esecuzione delle funzioni
+  Unificazione
 
 FUNZIONI VARIE
 ==============
@@ -300,6 +301,7 @@ ROSETTA CODE
   Convex Hull
   Sequenza Thue-Morse
   Numeri di Bell
+  Numeri auto-descrittivi
 
 PROJECT EULERO
 ==============

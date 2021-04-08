@@ -7,7 +7,7 @@
 https://rosettacode.org/wiki/Category:Programming_Tasks
 
 Rosetta Code è un sito di programmazione "chrestomathy" (proviene dal greco χρηστομάθεια e significa "desiderio di imparare"). L'idea è di risolvere/presentare la soluzione per lo stesso problema in quanti più linguaggi possibili, per dimostrare le analogie e le differenze dei linguaggi, e per aiutare chi conosce un linguaggio ad apprenderne un altro.
-Il sito contiene moltissimi problemi risolti in 714 linguaggio (non tutti problemi sono stati risolti con tutti i linguaggi).
+Il sito contiene moltissimi problemi risolti in più di 800 linguaggi (non tutti problemi sono stati risolti con tutti i linguaggi).
 Di seguito vengono presentanti alcuni di questi problemi e la loro soluzione.
 Per avere una migliore comprensione si consiglia di provare a risolverli per conto proprio prima di leggere la soluzione.
 
@@ -4018,7 +4018,7 @@ Creare un programma per la generazione di password contenenti caratteri ASCII ca
 lettere minuscole:  (a..z)
 lettere maiuscole:  (A..Z)
 cifre numeriche:    (0..9)
-cartteri speciali:  (# ! $ % & ( ) * + , - . / : ; < = > ? @ [ ] ^ _ { | } ~)
+caratteri speciali: (# ! $ % & ( ) * + , - . / : ; < = > ? @ [ ] ^ _ { | } ~)
 
 Le password generate devono includere almeno un carattere di ciascuno dei seguenti quattro gruppi):
 
@@ -4435,11 +4435,17 @@ Verifichiamo la correttezza della funzione:
 
 Questi errori sono dovuti alla mancanza di precisione dei numeri floating-point, non a bug della  funzione "ilog".
 
-(for (i 1 1e6)
-  (if (!= (ilog i 10) (int (add 0.5 (log i 10))))
-    (println "error: " i { } (ilog i 10) { } (log i 10))
-  )
-)
+(setq a (log 1000 10))
+;-> 3
+
+Trasformo il float "a" in integer:
+(int a)
+;-> 2
+Non è il risultato che ci aspettavamo.
+
+Il problema risiede nella perdita di precisione dei calcoli in virgola mobile:
+(setq a (format "%16.16f" (log 1000 10)))
+;-> "2.9999999999999996"
 
 Vediamo la velocità della funzione:
 
@@ -11315,5 +11321,59 @@ Vediamo i tempi di esecuzione:
 ;-> 17817.96
 (time (bell 8000))
 ;-> 131118.729
+
+
+-----------------------
+NUMERI AUTO-DESCRITTIVI
+-----------------------
+
+Un numero intero si dice "auto-descrittivo" se ha la proprietà che, quando le posizioni delle cifre sono etichettate da 0 a N-1, la cifra in ciascuna posizione è uguale al numero di volte in cui quella cifra appare nel numero.
+
+Ad esempio, 2020 è un numero autodescrittivo a quattro cifre:
+
+   la posizione 0 ha valore 2 e ci sono due 0 nel numero;
+   la posizione 1 ha valore 0 e non ci sono 1 nel numero;
+   la posizione 2 ha valore 2 e ci sono due 2;
+   la posizione 3 ha valore 0 e ci sono zero 3.
+
+I numeri auto-descrittivi fino a 100 milioni sono: 1210, 2020, 21200, 3211000, 42101000.
+
+(define (int-lst num)
+  (let (out '())
+    (while (!= num 0)
+      (push (% num 10) out)
+      (setq num (/ num 10))) out))
+
+(define (autodesc? num)
+(catch
+  (local (digit num-lst)
+    (setq num-lst (int-lst num))
+    ; conta le cifre di num-lst
+    (setq digit (count '(0 1 2 3 4 5 6 7 8 9) num-lst))
+    ; applica la regola ad ogni cifra della lista:
+    ; la cifra in ciascuna posizione è uguale al numero di volte
+    ; in cui quella cifra appare nel numero?
+    (dolist (el num-lst)
+      (if (!= (digit $idx) el) (throw nil))
+    )
+    true)))
+
+(autodesc? 2020)
+;-> true
+
+(autodesc? 1210)
+;-> true
+
+Definiamo una funzione che calcola i numeri descrittivi fino ad un dato numero:
+
+(define (autodesc num)
+  (for (i 1 num)
+    (if (autodesc? i) (print i {, }))))
+
+Vediamo i tempi di calcolo:
+
+(time (autodesc 1e8))
+;-> 1210, 2020, 21200, 3211000, 42101000, 
+;-> 378928.914 ;6 minuti e 20 secondi (circa)
 
 

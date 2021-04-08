@@ -73,6 +73,7 @@ newLISP IN GENERALE
   FOOP - Programmazione funzionale orientata agli oggetti
   XML e S-espressioni
   Analisi dei tempi di esecuzione delle funzioni
+  Unificazione
 
 FUNZIONI VARIE
 ==============
@@ -300,6 +301,7 @@ ROSETTA CODE
   Convex Hull
   Sequenza Thue-Morse
   Numeri di Bell
+  Numeri auto-descrittivi
 
 PROJECT EULERO
 ==============
@@ -813,8 +815,17 @@ Klaatu barada nikto
  INTRODUZIONE
 ==============
 
-Questi appunti introducono all'uso del linguaggio newLISP per le elaborazioni numeriche (e anche per altre cose). È necessaria una conoscenza di base della programmazione in newLISP. Un'ottima scelta per imparare questo linguaggio è il libro "Introduction to newLISP" disponibile come WikiBooks all'indirizzo:  http://en.wikibooks.org/wiki/Introduction_to_newLISP
+Questi appunti introducono all'uso del linguaggio newLISP per le elaborazioni numeriche (e anche per altre cose). È necessaria una conoscenza di base della programmazione in newLISP. Un'ottima scelta per imparare questo linguaggio è il libro "Introduction to newLISP" disponibile come WikiBooks all'indirizzo: 
+
+http://en.wikibooks.org/wiki/Introduction_to_newLISP
+
 Comunque per avere una panoramica sul linguaggio potete anche consultare "newLISP in 21 minuti" di John W. Small oppure "newLISP per programmatori" di Dmitry Chernyak entrambi riportati in appendice.
+
+Un'altra risorsa molto utile per chi inizia è il documento "newlisp.pdf" (in italiano) che si trova al seguente 
+indirizzo:
+
+http://www.vittal.it/wp-content/uploads/2019/10/newlisp.pdf
+
 Maggiori informazioni sono reperibili al sito ufficiale del linguaggio:
 
 http://www.newLISP.org/
@@ -843,6 +854,8 @@ I riferimenti principali di questo documento sono:
 2) "Code Patterns in newLISP" di Lutz Muller
 
 3) "Introduction to newLISP" di Cormullion
+
+4) il forum di newLISP: http://www.newlispfanclub.alh.net/forum/
 
 Tutti gli articoli tradotti presenti in questo documento sono sotto il copyright dei rispettivi autori. Ogni errore di traduzione è imputabile soltanto a me.
 Per quanto possibile ho sempre riportato il nome degli autori delle funzioni realizzate da altri programmatori utilizzate in questo documento (trovate e prese da forum, blog, ecc.).
@@ -9615,6 +9628,7 @@ Per analizzare i tempi di esecuzione delle funzioni newLISP mette a disposizione
 >>>funzione TIME
 *****************
 sintassi: (time exp [int-count)
+
 Valuta l'espressione in exp e restituisce il tempo impiegato per la valutazione in millisecondi a virgola mobile. A seconda della piattaforma, vengono visualizzati o meno i decimali dei millisecondi.
 
 (time (myprog x y z)) → 450.340
@@ -9894,7 +9908,7 @@ Ricapitoliamo i risultati :
 |    10^7    |         -    |         -    |     3083     |
 +------------+--------------+--------------+--------------+
 
-I vettori sono molto più veloci delle liste (perchè l'accesso indicizzato delle liste è molto lento rispetto a quello dei vettori).
+I vettori sono molto più veloci delle liste (perchè l'accesso non indicizzato delle liste è molto lento rispetto a quello dei vettori).
 
 Per vedere la differenza di velocità tra le funzioni possiamo anche eseguirle un certo numero di volte con lo stesso input. Ad esempio:
 
@@ -9904,6 +9918,243 @@ Per vedere la differenza di velocità tra le funzioni possiamo anche eseguirle u
 ;-> 46.79
 (time (C ar02) 100)
 ;-> 0
+
+
+==============
+ UNIFICAZIONE
+==============
+
+Nella logica e nell'informatica, l'unificazione è un processo algoritmico di risoluzione di equazioni tra espressioni simboliche.
+
+A seconda di quali espressioni (chiamate anche termini) possono verificarsi in un insieme di equazioni (chiamato anche problema di unificazione) e quali espressioni sono considerate uguali, vengono distinti diversi modelli (framework) di unificazione. 
+Se in un'espressione sono consentite variabili di ordine superiore, ovvero variabili che rappresentano funzioni, il processo viene chiamato unificazione di ordine superiore (high-order unification), altrimenti unificazione di primo ordine (first-order unification). 
+Se è necessaria una soluzione per rendere letteralmente uguali entrambi i lati di ciascuna equazione, il processo è chiamato unificazione sintattica o libera, altrimenti unificazione semantica o equazionale, o E-unificazione.
+
+Una soluzione di un problema di unificazione è denotata come una sostituzione, cioè una mappatura che assegna un valore simbolico a ciascuna variabile delle espressioni del problema. Un algoritmo di unificazione dovrebbe calcolare per un dato problema un insieme di sostituzioni completo e minimo, cioè un insieme che copre tutte le sue soluzioni e non contiene membri ridondanti. A seconda del framework, un set di sostituzioni completo e minimo può avere al massimo uno, al massimo finitamente molti, o forse infinitamente molti membri, o può non esistere affatto. In alcuni framework è generalmente impossibile decidere se esiste una soluzione. Per l'unificazione sintattica del primo ordine, Martelli e Montanari [2] hanno fornito un algoritmo che segnala la non risolvibilità o calcola un insieme completo e minimo di sostituzioni singole contenente il cosiddetto unificatore più generale.
+
+newLISP mette a disposizione la funzione "unify" per risolvere il problema dell'unificazione.
+
+*******************
+>>> funzione UNIFY
+*******************
+sintassi: (unify exp-1 exp-2 [list-env])
+
+Valuta e confronta exp-1 ed exp-2. Le espressioni corrispondono se sono uguali o se una delle espressioni è una variabile non associata (unbound) (che sarebbe quindi associata all'altra espressione). Se le espressioni sono liste, vengono confrontate confrontando le sottoespressioni. Le variabili non associate iniziano con un carattere maiuscolo per distinguerle dai simboli. "unify" restituisce nil quando il processo di unificazione fallisce o restituisce una lista di associazioni di variabili in caso di successo. Quando nessuna variabile è stata associata, ma la corrispondenza è ancora riuscita, "unify" restituisce un elenco vuoto. newLISP utilizza l'algoritmo di unificazione di J. Alan Robinson modificato che applica correttamente il processi di associazione (vedi anche l'articolo di Peter Norvig su un bug comune dell'algoritmo di unificazione, che non è presente in questa implementazione).
+
+Dalla versione 10.4.0 il simbolo di sottolineatura _ (ASCII 95) corrisponde a qualsiasi atomo, lista o variabile non associata e non viene mai associato.
+
+Come "match", "unify" è spesso impiegato come parametro funtore in "find", "ref", "ref-all" e "replace".
+
+Vediamo alcuni esempi:
+
+(unify 'A 'A)  → ()  ; tautology
+
+(unify 'A 123)  → ((A 123))  ; A bound to 123
+
+(unify '(A B) '(x y))  → ((A x) (B y))  ; A bound to x, B bound to y
+
+(unify '(A B) '(B abc))  → ((A abc) (B abc))  ; B is alias for A
+
+(unify 'abc 'xyz)  → nil  ; fails because symbols are different
+
+(unify '(A A) '(123 456))  → nil  ; fails because A cannot be bound to different values
+
+(unify '(f A) '(f B))  → ((A B))  ; A and B are aliases
+
+(unify '(f A) '(g B))  → nil  ; fails because heads of terms are different
+
+(unify '(f A) '(f A B))  → nil  ; fails because terms are of different arity
+
+(unify '(f (g A)) '(f B))  → ((B (g A)))  ; B bound to (g A)
+
+(unify '(f (g A) A) '(f B xyz))  → ((B (g xyz)) (A xyz))  ; B bound to (g xyz) A to xyz
+
+(unify '(f A) 'A)  → nil  ; fails because of infinite unification (f(f(f …)))
+
+(unify '(A xyz A) '(abc X X))  →  nil ; indirect alias A to X doesn't match bound terms
+
+(unify '(p X Y a) '(p Y X X))  → '((Y a) (X a)))  ; X alias Y and binding to 'a
+
+(unify '(q (p X Y) (p Y X)) '(q Z Z))  → ((Y X) (Z (p X X)))  ; indirect alias
+
+(unify '(A b _) '(x G z)) → ((A x) (G b)) ; _ matches atom z
+
+(unify '(A b c _) '(x G _ z)) → ((A x) (G b)) ; _ never binds, matches c and z
+
+(unify '(A b _) '(x G (x y z))) → ((A x) (G b)) ; _ matches list (x y z)
+
+;; alcuni esempi presi da http://en.wikipedia.org/wiki/Unification_(computer_science)
+
+"unify" può accettare, opzionalmente, un binding o una lista di associazioni in list-env. Ciò è utile quando si concatenano espressioni "unify" e devono essere inclusi i risultati delle precedenti associazioni "unify":
+
+(unify '(f X) '(f 123))
+;-> ((X 123))
+
+(unify '(A B) '(X A) '((X 123)))
+;-> ((X 123) (A 123) (B 123))
+
+Nell'esempio precedente, X era associato a 123 in precedenza ed è incluso nella seconda istruzione per pre-associare X.
+
+Uso di unify con expand
+-----------------------
+Notare che le variabili non sono effettivamente associate come assegnazione newLISP. Piuttosto, viene restituito una lista elenco di associazioni che mostra l'associazione logica. Una sintassi speciale della funzione "expand" può essere utilizzata per sostituire effettivamente le variabili associate con i loro termini:
+
+(set 'bindings (unify '(f (g A) A) '(f B xyz)))
+;-> ((B (g xyz)) (A xyz))
+
+(expand '(f (g A) A) bindings)  
+;-> (f (g xyz) xyz)
+
+; or in one statement
+(expand '(f (g A) A) (unify '(f (g A) A) '(f B xyz)))
+;-> (f (g xyz) xyz)
+
+Uso di unify con bind per destrutturare
+---------------------------------------
+La funzione "bind" può essere utilizzata per impostare variabili unificate:
+
+(bind (unify '(f (g A) A) '(f B xyz)))
+;-> xyz
+A
+;-> xyz
+B
+;-> (g xyz)
+
+Questo può essere usato per destrutturare:
+
+(set 'structure '((one "two") 3 (four (x y z))))
+(set 'pattern '((A B) C (D E)))
+(bind (unify pattern structure))
+
+A ;-> one
+B ;-> "two"
+C ;-> 3
+D ;-> four
+E ;-> (x y z)
+
+"unify" restituisce una lista associativa e "bind" lega le associazioni.
+
+Model propositional logic with "unify"
+--------------------------------------
+L'esempio seguente mostra come simulare la logica proposizionale utilizzando "unify" ed "expand":
+
+; if somebody is human, he is mortal -> (X human) :- (X mortal)
+; socrates is human -> (socrates human)
+; is socrates mortal? -> ?  (socrates mortal)
+
+(expand '(X mortal)
+         (unify '(X human) '(socrates human)))
+;-> (socrates mortal)
+
+Quello che segue è un esempio più complesso che mostra una piccola e funzionante implementazione del linguaggio PROLOG (Programming in Logic).
+
+;; a small PROLOG implementation
+
+(set 'facts '(
+    (socrates philosopher)
+    (socrates greek)
+    (socrates human)
+    (einstein german)
+    (einstein (studied physics))
+    (einstein human)
+))
+
+(set 'rules '(
+    ((X mortal) <- (X human))
+    ((X (knows physics)) <- (X physicist))
+    ((X physicist) <- (X (studied physics)))
+))
+
+(define (query trm)
+    (or  (when (find trm facts) true) (catch (prove-rule trm))))
+
+(define (prove-rule trm)
+    (dolist (r rules)
+        (when (list? (set 'e (unify trm (first r))))
+            (when (query (expand (last r) e))
+                (throw true))))
+    nil
+)
+
+Proviamo:
+
+(query '(socrates human))
+;-> true
+(query '(socrates (knows physics)))
+;-> nil
+(query '(einstein (knows physics)))
+;-> true
+
+Il programma gestisce un database di fatti e un database di semplici regole "A è un fatto se B è un fatto". Un fatto è dimostrato vero se può essere trovato nel database dei fatti o se può essere dimostrato utilizzando una regola. Le regole possono essere annidate: ad esempio, per dimostrare che qualcuno (conosce la fisica), deve essere dimostrato vero che qualcuno è un fisico. Ma qualcuno è un fisico solo se quella persona ha studiato fisica. Il simbolo "<-" che separa i termini sinistro e destro delle regole non è richiesto e viene aggiunto solo per rendere più leggibile il database delle regole.
+
+Questa implementazione non gestisce termini multipli nella parte destra delle regole (premesse), ma gestisce il backtracking del database delle regole per provare corrispondenze diverse. Non gestisce il backtracking nelle premesse multiple della regola. Ad esempio, se nella seguente regola "A se B e C e D", le premesse B e C hanno successo e D fallisce, un meccanismo di backtracking potrebbe dover tornare indietro e riunificare i termini B o A con fatti o regole diversi per far sì che D abbia successo.
+
+L'algoritmo di cui sopra potrebbe essere scritto in modo diverso omettendo "expand" dalla definizione di prove-regola e passando l'ambiente "e" come argomento alle funzioni "unify" e "query".
+
+L'apprendimento di fatti provati può essere implementato aggiungendoli al database dei fatti una volta che sono stati provati. Ciò renderebbero più veloci le query successive.
+
+Le implementazioni PROLOG più grandi consentono anche la valutazione dei termini nelle regole. Ciò rende possibile implementare funzioni per svolgere altro lavoro durante l'elaborazione dei termini delle regole. La prova-regola potrebbe eseguire questo test per il simbolo eval in ogni termine della regola.
+
+Riportiamo il post di Lutz Muller dell'annuncio della funzione "unify":
+
+----------------------------------------------------------------------------
+Here is the long story: http://en.wikipedia.org/wiki/Unification
+
+'unify' is implemented and will be released with development version 8.8.7 later this week.
+
+In short 'unify' is some kind of logical comparison of list terms with logical binding of unbound variable to terms. 'unify' fails or succeeds depending on what you throw at it. It succeeds returning a list of variabe associations or an empty list and it fails returning 'nil'.
+
+A function is worth a 1000 words so here is a snippet from the qa-dot file to test unify:
+
+(define (test-unify)
+    (and
+        (= (unify 'X 123)
+             '((X 123)))
+        (= (unify '(Int Flt Str Sym Lst) '(123 4.56 "Hello" s '(a b c)))
+             '((Int 123) (Flt 4.56) (Str "Hello") (Sym s) (Lst '(a b c))))
+        (= (unify 'A 'A)
+             '())
+        (= (unify '(A B "hello") '("hi" A Z))
+             '((A "hi") (B "hi") (Z "hello")))
+        (= (unify '(A B) '(B abc))
+             '((A abc) (B abc)))
+        (= (unify '(B A)
+             '(abc B)) '((B abc) (A abc)))
+        (= (unify '(A A C D)
+             '(B C 1 C)) '((B 1) (A 1) (C 1) (D 1)))
+        (= (unify '(D C A A) '(C 1 C B))
+             '((D 1) (C 1) (B 1) (A 1)))
+        (= (unify '(f A) '(f (a b c)))
+             '((A (a b c))))
+        (= (unify '(A f) '((a b c) f))
+             '((A (a b c))))
+        (= (unify '(f (g A)) '(f B))
+             '((B (g A))))
+        (= (unify '(part X Y a) '(part Y X X))
+             '((Y a) (X a)))
+        (= (unify '(part X Y) '(part Y X))
+             '((Y X)))
+        (= (unify '(q (part X Y) (part Y X))
+             '(q Z Z)) '((Y X) (Z (part X X))))
+        (= (unify '(f (g A) A) '(f B xyz))
+             '((B (g xyz)) (A xyz)))
+        (= (unify '(A (g abc)) '(B A))
+             '((B (g abc)) (A (g abc))))
+        ;; with additional environment list
+        (= (unify '(A (B) X) '(A (A) Z) '((A 1) (Z 4)))
+            ' ((A 1) (Z 4) (B 1) (X 4)))
+))
+
+(test-unify)
+
+'unify' takes 2 or (plus an optional environment list) terms and retuns an association list. From a logical point of view unification happens with all terms in parallel. Variables (in uppercase) are not actually bound (like with set) but a special form of 'expand' taking an association list of variables can be used to accomplish this.
+
+'unify' is useful to write logic programming algorithms i.e. in AI Artificial Intelligence apps. A typical application would be Expert Systems or any knowledge based system where knowledge can be encoded in logical rules.
+
+The release 8.9.0 out in June will contain a small implementation of a PROLOG like language using 'unify' and 'expand'. This Prolog context will be useful to write rule based systems.Here is the long story: http://en.wikipedia.org/wiki/Unification
+
+'unify' is implemented and will be released with development version 8.8.7 later this week.
+----------------------------------------------------------------------------
 
 
 ================
@@ -18940,7 +19191,7 @@ Adesso possiamo creare la lista ordinata utilizzando come indice il primo elemen
 https://rosettacode.org/wiki/Category:Programming_Tasks
 
 Rosetta Code è un sito di programmazione "chrestomathy" (proviene dal greco χρηστομάθεια e significa "desiderio di imparare"). L'idea è di risolvere/presentare la soluzione per lo stesso problema in quanti più linguaggi possibili, per dimostrare le analogie e le differenze dei linguaggi, e per aiutare chi conosce un linguaggio ad apprenderne un altro.
-Il sito contiene moltissimi problemi risolti in 714 linguaggio (non tutti problemi sono stati risolti con tutti i linguaggi).
+Il sito contiene moltissimi problemi risolti in più di 800 linguaggi (non tutti problemi sono stati risolti con tutti i linguaggi).
 Di seguito vengono presentanti alcuni di questi problemi e la loro soluzione.
 Per avere una migliore comprensione si consiglia di provare a risolverli per conto proprio prima di leggere la soluzione.
 
@@ -22951,7 +23202,7 @@ Creare un programma per la generazione di password contenenti caratteri ASCII ca
 lettere minuscole:  (a..z)
 lettere maiuscole:  (A..Z)
 cifre numeriche:    (0..9)
-cartteri speciali:  (# ! $ % & ( ) * + , - . / : ; < = > ? @ [ ] ^ _ { | } ~)
+caratteri speciali: (# ! $ % & ( ) * + , - . / : ; < = > ? @ [ ] ^ _ { | } ~)
 
 Le password generate devono includere almeno un carattere di ciascuno dei seguenti quattro gruppi):
 
@@ -23368,11 +23619,17 @@ Verifichiamo la correttezza della funzione:
 
 Questi errori sono dovuti alla mancanza di precisione dei numeri floating-point, non a bug della  funzione "ilog".
 
-(for (i 1 1e6)
-  (if (!= (ilog i 10) (int (add 0.5 (log i 10))))
-    (println "error: " i { } (ilog i 10) { } (log i 10))
-  )
-)
+(setq a (log 1000 10))
+;-> 3
+
+Trasformo il float "a" in integer:
+(int a)
+;-> 2
+Non è il risultato che ci aspettavamo.
+
+Il problema risiede nella perdita di precisione dei calcoli in virgola mobile:
+(setq a (format "%16.16f" (log 1000 10)))
+;-> "2.9999999999999996"
 
 Vediamo la velocità della funzione:
 
@@ -30248,6 +30505,60 @@ Vediamo i tempi di esecuzione:
 ;-> 17817.96
 (time (bell 8000))
 ;-> 131118.729
+
+
+-----------------------
+NUMERI AUTO-DESCRITTIVI
+-----------------------
+
+Un numero intero si dice "auto-descrittivo" se ha la proprietà che, quando le posizioni delle cifre sono etichettate da 0 a N-1, la cifra in ciascuna posizione è uguale al numero di volte in cui quella cifra appare nel numero.
+
+Ad esempio, 2020 è un numero autodescrittivo a quattro cifre:
+
+   la posizione 0 ha valore 2 e ci sono due 0 nel numero;
+   la posizione 1 ha valore 0 e non ci sono 1 nel numero;
+   la posizione 2 ha valore 2 e ci sono due 2;
+   la posizione 3 ha valore 0 e ci sono zero 3.
+
+I numeri auto-descrittivi fino a 100 milioni sono: 1210, 2020, 21200, 3211000, 42101000.
+
+(define (int-lst num)
+  (let (out '())
+    (while (!= num 0)
+      (push (% num 10) out)
+      (setq num (/ num 10))) out))
+
+(define (autodesc? num)
+(catch
+  (local (digit num-lst)
+    (setq num-lst (int-lst num))
+    ; conta le cifre di num-lst
+    (setq digit (count '(0 1 2 3 4 5 6 7 8 9) num-lst))
+    ; applica la regola ad ogni cifra della lista:
+    ; la cifra in ciascuna posizione è uguale al numero di volte
+    ; in cui quella cifra appare nel numero?
+    (dolist (el num-lst)
+      (if (!= (digit $idx) el) (throw nil))
+    )
+    true)))
+
+(autodesc? 2020)
+;-> true
+
+(autodesc? 1210)
+;-> true
+
+Definiamo una funzione che calcola i numeri descrittivi fino ad un dato numero:
+
+(define (autodesc num)
+  (for (i 1 num)
+    (if (autodesc? i) (print i {, }))))
+
+Vediamo i tempi di calcolo:
+
+(time (autodesc 1e8))
+;-> 1210, 2020, 21200, 3211000, 42101000, 
+;-> 378928.914 ;6 minuti e 20 secondi (circa)
 
 
 ================
