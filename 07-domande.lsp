@@ -1227,9 +1227,11 @@ Equazione 2: (x - x2) = m1 * (y - y2)
 Risolvendo il sistema con le matrici o per sostituzione otteniamo la seguente soluzione:
 
 Equazione 3:
+
 x = (-m0 / (m1 - m0)) * x2 + m0 * (y2 - y0) + x0
 
 Equazione 4:
+
 y = (m0 * y0 - m1 * y2 + x2 - x0) / (m0 - m1)
 
 Prima di vedere come trattare i casi particolari (ad esempio m0 = m1) scriviamo la funzione:
@@ -1284,12 +1286,20 @@ Vediamo come si comporta la funzione nei casi normali e nei casi particolari:
 ;-> t = 0.2222222222222222
 ;-> (nil nil)
 
-; paralleli
+; paralleli orizzontali
 (intersect-line 1 1 3 1 1 3 3 3)
 ;-> numer = -4
 ;-> denom = 0
 ;-> s = -1.#INF
 ;-> t = -1.#INF
+;-> (nil nil)
+
+; paralleli verticali
+(intersect-line 1 1 1 3 3 1 3 3)
+;-> numer = 4
+;-> denom = 0
+;-> s = 1.#INF
+;-> t = 1.#INF
 ;-> (nil nil)
 
 ; collineari (senza sovrapposizione)
@@ -1301,7 +1311,7 @@ Vediamo come si comporta la funzione nei casi normali e nei casi particolari:
 ;-> (nil nil)
 
 ; collineari (con sovrapposizione)
-(intersect-line 1 2 3 2 4 2 6 2)
+(intersect-line 1 2 4 2 3 2 6 2)
 ;-> numer = 0
 ;-> denom = 0
 ;-> s = -1.#IND
@@ -1310,6 +1320,14 @@ Vediamo come si comporta la funzione nei casi normali e nei casi particolari:
 
 ; collineari uniti (senza sovrapposizione)
 (intersect-line 1 1 2 2 2 2 3 3)
+;-> numer = 0
+;-> denom = 0
+;-> s = -1.#IND
+;-> t = -1.#IND
+;-> (nil nil)
+
+; collineari uniti (con sovrapposizione)
+(intersect-line 1 1 3 3 2 2 4 4)
 ;-> numer = 0
 ;-> denom = 0
 ;-> s = -1.#IND
@@ -1335,20 +1353,28 @@ Vediamo come si comporta la funzione nei casi normali e nei casi particolari:
 Se vogliamo trattare i casi particolari in modo diverso da (nil nil) possiamo utilizzare i seguenti predicati:
 
 ; indeterminato (0/0)
+(div 0 0)
+;-> -1.#IND
 (NaN? (div 0 0))
 ;-> true
+(inf? (div 0 0))
+;-> nil
 
-; infinito (inf)
-(NaN? (div 5 0))
+; indeterminato (inf/inf)
+(div (div 5 0) (div 5 0))
+;-> -1#IND
+(NaN? (div (div 5 0) (div 5 0)))
+;-> true
+(inf? (div (div 5 0) (div 5 0)))
 ;-> nil
 
 ; infinito (inf)
+(div 5 0)
+;-> 1.#INF
 (inf? (div 5 0))
 ;-> true
-
-; indeterminato (inf/inf)
-(NaN? (div (div 5 0) (div 5 0)))
-;-> true
+(NaN? (div 5 0))
+;-> nil
 
 
 --------------------------------------
@@ -7810,8 +7836,8 @@ Ricerca in una matrice 2D (Wolfram)
 
 Scrivere un algoritmo per cercare un valore in una matrice m x n che ha le seguenti proprietà:
 1) I numeri sono tutti interi
-2) I numeri di ogni riga sono ordinati in modo crescente da sinistra a destra. 
-3) Il primo numero di ogni riga è maggiore dell'ultimo numero della riga precedente. 
+2) I numeri di ogni riga sono ordinati in modo crescente da sinistra a destra.
+3) Il primo numero di ogni riga è maggiore dell'ultimo numero della riga precedente.
 Un esempio è la seguente matrice:
 
   1  3  5  7
@@ -7850,7 +7876,7 @@ La ricerca binaria viene utilizzata per individuare la riga e la colonna corrent
 (find-matrix mx 21)
 ;-> (1 3)
 
-Nota: in newLISP possiamo usare la funzione "ref" per ricercare un elemento in una matrice/lista: 
+Nota: in newLISP possiamo usare la funzione "ref" per ricercare un elemento in una matrice/lista:
 (ref 7 mx)
 ;-> (0 3)
 
@@ -7993,7 +8019,7 @@ Scriviamo una funzione che trova i numeri strobogrammatici fino ad un numero n:
 
 (strobogrammatici 10000)
 ;-> (1 8 11 69 88 96 101 111 181 609 619 689 808 818 888 906 916 986
-;->  1001 1111 1691 1881 1961 6009 6119 6699 6889 6969 8008 8118 8698 
+;->  1001 1111 1691 1881 1961 6009 6119 6699 6889 6969 8008 8118 8698
 ;->  8888 8968 9006 9116 9696 9886 9966)
 
 
@@ -8023,7 +8049,7 @@ posizionando la bomba nella cella (1,1) si colpiscono 3 nemici (che è il valore
             (while (and (>= x 0) (!= (griglia x y) "W"))
               (if (= (griglia x y) "E") (++ somma))
               (-- x))
-            (setq x i) (setq y j)            
+            (setq x i) (setq y j)
             (while (and (< x (length griglia)) (!= (griglia x y) "W"))
               (if (= (griglia x y) "E") (++ somma))
               (++ x))

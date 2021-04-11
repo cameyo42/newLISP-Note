@@ -7303,3 +7303,151 @@ Funzione di decodifica da tiny-url a url:
 ;-> nil
 
 
+---------------------
+Costante di Ramanujan
+---------------------
+
+e^(π*√163) = 262537412640768743.999999999999250072597198185688879353856337336990862707537410
+(setq R 262537412640768743.999999999999250072597198185688879353856337336990862707537410)
+
+(constant (global 'E)   2.7182818284590451)
+(constant (global 'PI)  3.1415926535897931)
+(setq rama (pow E (mul PI (sqrt 163))))
+;-> 2.625374126407677e+017
+(println (format "%36.18f" rama))
+;-> 262537412640767710.000000000000000000
+
+(sub R rama)
+;-> 1024
+
+(setq eulero (exp 1))
+(setq pigreco (mul 2.0 (acos 0.0)))
+(setq rama1 (pow eulero (mul pigreco (sqrt 163))))
+;-> 2.625374126407677e+017
+(println (format "%36.18f" rama1))
+;-> 262537412640767710.000000000000000000
+
+(sub R rama1)
+;-> 1024
+
+(= rama rama1)
+;-> true
+
+Avremmo bisogno di una libreria floating-point a multipla precisione...
+
+
+-------------------------
+Giustificazione del testo
+-------------------------
+
+Data una lista di parole e una lunghezza L, formattare il testo in modo che ogni riga contenga esattamente L caratteri e sia completamente giustificata (a sinistra e a destra). Le parole dovrebbero essere inserite con un approccio "avido" (greedy), cioè bisogna inseire quante più parole è possibile in ogni riga. Aggiungere spazi aggiuntivi, quando necessario, in modo che ogni riga abbia esattamente L caratteri.
+
+Gli spazi aggiuntivi tra le parole dovrebbero essere distribuiti nel modo più uniforme possibile. Se il numero di spazi su una riga non si divide equamente tra le parole, agli slot vuoti a sinistra verranno assegnati più spazi rispetto agli slot a destra. L'ultima riga di testo e le righe con una sola parola, devono essere giustificate a sinistra e non bisogna inserire spazi aggiuntivi tra le parole.
+
+L'algoritmo di soluzione è spiegato nei commenti della funzione.
+
+(define (giustifica-testo parole L)
+  (local (linee indice conta succ riga diff spazi resto continua)
+    ; Output: linee di testo giustificate
+    (setq linee '())
+    ; Indice della parola corrente
+    (setq indice 0)
+    ; Ciclo per ogni parola
+    (while (< indice (length parole))
+      ; Numero di lettere della parola corrente (lunghezza)
+      (setq conta (length (parole indice)))
+      ; Indice della parola successiva
+      (setq succ (+ indice 1))
+      ; Ciclo per trovare le parole che entrano in una riga, cioè 
+      ; la somma della loro lunghezza è minore di L
+      ; Valore boolean per terminare la ricerca
+      (setq continua true)
+      (while (and (< succ (length parole)) continua)
+        ; Se superiamo la lunghezza massima di caratteri in una riga...
+        (cond ((> (+ (length (parole succ)) conta 1) L)
+               ; allora ci fermiamo
+               (setq continua nil))
+               (true
+                ; altrimenti aumentiamo la quantità di caratteri
+                ; e passiamo alla parola successiva
+                (setq conta (+ conta (length (parole succ)) 1))
+                (++ succ))
+        )
+      )
+      ; Ora abbiamo le parole per ogni riga, quindi
+      ; dobbiamo aggiungere gli spazi tra le parole.
+      ; Ci sono due situazioni da considerare:
+      ; 1) Se siamo sull'ultima riga, la riga non deve essere giustificata
+      ;    e nessuno spazio aggiuntivo deve essere inserito tra le parole
+      ; 2) Se il numero di spazi su una riga non si divide equamente,
+      ;    gli spazi vuoti a sinistra saranno maggiori degli spazi a destra.
+      ; Linea finale da aggiungere alla lista linee
+      (setq riga "")
+      ; Differenza del numero di parole 
+      ; tra la prima e l'ultima parola della riga
+      (setq diff (- succ indice 1))
+            ; Se siamo sull'ultima riga 
+            ; o se c'è una sola parola nella riga ...
+      (cond ((or (= succ (length parole)) (= diff 0))
+             ; Allora giustifichiamo a sinistra
+             ; scorrendo le parole della riga 
+             ; (con gli indici "indice" e "succ") 
+             ; e aggiungendo uno spazio dopo ogni parola
+             (for (i indice (- succ 1))
+               (extend riga (parole i) " ")
+             )
+             ; Abbiamo aggiunto uno spazio extra alla fine
+             ; quindi lo rimuoveremo utilizzando la funzione slice.
+             (setq riga (slice riga 0 (- (length riga) 1)))
+             ; Ora bisogna aggiungere spazi per riempire il resto della riga
+             (for (i (length riga) (- L 1))
+               (extend riga " ")
+             )
+            )
+            ; Altrimenti trattiamo le altre righe che
+            ; devono essere giustificate a destra e sinistra
+            (true
+              ; Numero di spazi già presenti nella riga
+              ; (massimo dei caratteri meno
+              ; il numero di caratteri delle parole,
+              ; il tutto diviso per la differenza)
+              (setq spazi (/ (- L conta) diff))
+              ; Numero spazi da aggiungere: (L - count) % difference)
+              (setq resto (% (- L conta) diff))
+              ; Ciclo sulle parole della riga per aggiungerle
+              ; (con gli indici "indice" e "succ") 
+              (for (i indice (- succ 1))
+                (extend riga (parole i))
+                ; Se non è l'ultima parola..
+                (if (< i (- succ 1)) 
+                    ; allora calcoliamo il numero degli spazi da aggiungere,
+                    ; utilizzando la variabile resto,
+                    ; e poi li aggiungiamo alla riga
+                    (begin
+                    (if (< (- i indice) resto)
+                        (setq limit (+ spazi 1))
+                        (setq limit spazi)
+                    )
+                    (for (j 0 limit)
+                      (extend riga " ")
+                    )
+                ))
+              )
+            )
+      )
+      ; Aggiunge la linea corrente alla lista delle linee
+      (push riga linee -1)
+      ; L'indice corrente diventa l'indice 
+      ; dell'ultima parola della linea corrente
+      (setq indice succ)
+    )
+    ; Output: lista di linee giustificate al centro
+    linee))
+
+(giustifica-testo '("Questo" "è" "un" "esempio" "di" "testo" "da" "giustificare.") 16)
+;-> ("Questo    è   un" "esempio di testo" "da giustificare.  ")
+
+(giustifica-testo '("Questo" "è" "un" "esempio" "di" "testo" "da" "giustificare.") 12)
+;-> ("Questo  è un" "esempio   di" "testo     da" "giustificare.   ")
+
+

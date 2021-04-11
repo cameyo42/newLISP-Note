@@ -12,10 +12,9 @@ Questi appunti introducono all'uso del linguaggio newLISP per le elaborazioni nu
 
 http://en.wikibooks.org/wiki/Introduction_to_newLISP
 
-Comunque per avere una panoramica sul linguaggio potete anche consultare "newLISP in 21 minuti" di John W. Small oppure "newLISP per programmatori" di Dmitry Chernyak entrambi riportati in appendice.
+Comunque per avere una panoramica sul linguaggio potete anche consultare "newLISP in 21 minuti" di John W. Small oppure "newLISP per programmatori" di Dmitry Chernyak entrambi tradotti e riportati in appendice.
 
-Un'altra risorsa molto utile per chi inizia è il documento "newlisp.pdf" (in italiano) che si trova al seguente 
-indirizzo:
+Un'altra risorsa molto utile per chi inizia a programmare in newLISP è il documento "newlisp.pdf" (in italiano) di Vittorio Albertoni che si trova al seguente indirizzo:
 
 http://www.vittal.it/wp-content/uploads/2019/10/newlisp.pdf
 
@@ -89,7 +88,7 @@ Possiamo eseguire il programma newLISP utilizzando l'icona che viene creata dura
 Se ottenete un errore, allora probabilmente la variabile di ambiente PATH non contiene la cartella dove si trova l'eseguibile del programma (es. c:\Program Files (x86)\newLISP\).
 Se tutto va bene otteniamo una finestra di testo con il prompt di newLISP (>):
 
-newLISP v.10.7.4 64-bit on Windows IPv4/6 UTF-8 libffi, options: newLISP -h
+newLISP v.10.7.5 64-bit on Windows IPv4/6 UTF-8 libffi, options: newLISP -h
 
 >
 

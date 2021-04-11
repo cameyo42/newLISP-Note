@@ -735,6 +735,8 @@ NOTE LIBERE 3
   Tic-Tac-Toe
   Labirinti (Maze)
   Progettare TinyURL
+  Costante di Ramanujan
+  Giustificazione del testo
 
 APPENDICI
 =========
