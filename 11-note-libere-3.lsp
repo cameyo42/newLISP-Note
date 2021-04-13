@@ -6768,7 +6768,7 @@ Labirinti (Maze)
 ----------------
 
 Un labirinto è un percorso o un insieme di percorsi, in genere con uno o più ingressi e con nessuna o più uscite.
-Per risolvere un labirinto (maze) utilizzeremo due algoritmi. 
+Per risolvere un labirinto (maze) utilizzeremo due algoritmi.
 
 Algoritmo Casuale del Topo
 --------------------------
@@ -6830,8 +6830,8 @@ Questo primo algoritmo è un metodo banale che simula il comportamento di un top
              (for (j 0 (- col 1))
                (if (solution-path i j)
                    (push (list i j) out -1)))))
-          (true 
-           (setq out nil) 
+          (true
+           (setq out nil)
            (println "Limite raggiunto."))
     )
     out))
@@ -6905,7 +6905,7 @@ Esempio 2:
 ;-> 1 0 0 0 0 0 0 0 ■ 0 0 0 ■ 0 0 ■ 0 0 0 ■
 ;-> 1 0 0 0 0 0 0 0 ■ 0 0 0 1 0 0 ■ 0 0 0 ■
 ;-> Passi: 3277
-;-> ((0 0) (0 1) (0 3) (1 1) (1 2) (1 3) (2 1) (3 1) (3 2) (3 3) (3 4) 
+;-> ((0 0) (0 1) (0 3) (1 1) (1 2) (1 3) (2 1) (3 1) (3 2) (3 3) (3 4)
 ;->  (3 5) (3 9) (3 10) (3 11) (3 12) (3 16) (4 5) (4 8) (4 10) (4 12)
 ;->  (4 15) (4 16) (5 5) (5 6) (5 7) (5 8) (5 10) (5 12) (5 15) (5 16)
 ;->  (6 8) (6 10) (6 12) (6 15) (6 17) (7 8) (7 9) (7 10) (7 12) (7 15)
@@ -6945,7 +6945,7 @@ La seguente chiamata non ha soluzione:
 ;-> 1 0 0 0 0 0 0 0 1
 ;-> 1 0 0 0 0 0 0 0 1
 ;-> Passi: 331
-;-> ((0 0) (0 1) (0 3) (1 1) (1 2) (1 3) (2 1) (3 1) (3 2) 
+;-> ((0 0) (0 1) (0 3) (1 1) (1 2) (1 3) (2 1) (3 1) (3 2)
 ;->  (3 3) (3 4) (3 5) (4 5) (5 5))
 
 Esempio 4:
@@ -6974,14 +6974,14 @@ Esempio 4:
 ;-> ■ 0 0 0 ■ 0 ■ 0 1
 ;-> ■ 0 0 0 ■ ■ ■ 0 1
 ;-> Passi: 1650
-;-> ((0 8) (1 7) (1 8) (2 7) (3 7) (3 8) (4 0) (4 5) (4 8) (5 0) (5 5) 
+;-> ((0 8) (1 7) (1 8) (2 7) (3 7) (3 8) (4 0) (4 5) (4 8) (5 0) (5 5)
 ;->  (5 6) (5 7) (5 8) (6 0) (6 1) (6 2) (6 3) (6 4) (6 6) (6 8) (7 0)
 ;->  (7 4) (7 6) (8 0) (8 4) (8 5) (8 6))
 
 Algoritmo ricorsivo
 --------------------
 Il secondo algoritmo trova la soluzione (se esiste) in modo ricorsivo. Si parte da un valore iniziale X e Y. Se i valori X e Y non sono su un muro, il metodo (funzione) richiama se stesso con tutti i valori X e Y adiacenti, assicurandosi di non aver utilizzato in precedenza quei valori X e Y. Se i valori X e Y sono quelli della posizione finale, salva tutte le istanze precedenti del metodo (risultati parziali) creando una matrice con il percorso risolutivo.
-Questo algoritmo non garantisce che la soluzione trovata sia quella più breve. 
+Questo algoritmo non garantisce che la soluzione trovata sia quella più breve.
 Nota: In sostanza si tratta di una ricerca depth-first espressa in termini di celle della matrice.
 
 (define (solve-maze maze start-row start-col end-row end-col show)
@@ -7358,7 +7358,7 @@ L'algoritmo di soluzione è spiegato nei commenti della funzione.
       (setq conta (length (parole indice)))
       ; Indice della parola successiva
       (setq succ (+ indice 1))
-      ; Ciclo per trovare le parole che entrano in una riga, cioè 
+      ; Ciclo per trovare le parole che entrano in una riga, cioè
       ; la somma della loro lunghezza è minore di L
       ; Valore boolean per terminare la ricerca
       (setq continua true)
@@ -7383,15 +7383,15 @@ L'algoritmo di soluzione è spiegato nei commenti della funzione.
       ;    gli spazi vuoti a sinistra saranno maggiori degli spazi a destra.
       ; Linea finale da aggiungere alla lista linee
       (setq riga "")
-      ; Differenza del numero di parole 
+      ; Differenza del numero di parole
       ; tra la prima e l'ultima parola della riga
       (setq diff (- succ indice 1))
-            ; Se siamo sull'ultima riga 
+            ; Se siamo sull'ultima riga
             ; o se c'è una sola parola nella riga ...
       (cond ((or (= succ (length parole)) (= diff 0))
              ; Allora giustifichiamo a sinistra
-             ; scorrendo le parole della riga 
-             ; (con gli indici "indice" e "succ") 
+             ; scorrendo le parole della riga
+             ; (con gli indici "indice" e "succ")
              ; e aggiungendo uno spazio dopo ogni parola
              (for (i indice (- succ 1))
                (extend riga (parole i) " ")
@@ -7415,11 +7415,11 @@ L'algoritmo di soluzione è spiegato nei commenti della funzione.
               ; Numero spazi da aggiungere: (L - count) % difference)
               (setq resto (% (- L conta) diff))
               ; Ciclo sulle parole della riga per aggiungerle
-              ; (con gli indici "indice" e "succ") 
+              ; (con gli indici "indice" e "succ")
               (for (i indice (- succ 1))
                 (extend riga (parole i))
                 ; Se non è l'ultima parola..
-                (if (< i (- succ 1)) 
+                (if (< i (- succ 1))
                     ; allora calcoliamo il numero degli spazi da aggiungere,
                     ; utilizzando la variabile resto,
                     ; e poi li aggiungiamo alla riga
@@ -7437,7 +7437,7 @@ L'algoritmo di soluzione è spiegato nei commenti della funzione.
       )
       ; Aggiunge la linea corrente alla lista delle linee
       (push riga linee -1)
-      ; L'indice corrente diventa l'indice 
+      ; L'indice corrente diventa l'indice
       ; dell'ultima parola della linea corrente
       (setq indice succ)
     )
@@ -7449,5 +7449,160 @@ L'algoritmo di soluzione è spiegato nei commenti della funzione.
 
 (giustifica-testo '("Questo" "è" "un" "esempio" "di" "testo" "da" "giustificare.") 12)
 ;-> ("Questo  è un" "esempio   di" "testo     da" "giustificare.   ")
+
+
+------------
+Data e tempo
+------------
+
+newLISP mette a disposizione diverse funzioni per le date e il tempo.
+
+La funzione "now" restituisce informazioni sulla data e l'ora correnti come una lista di numeri interi:
+
+(now)
+;-> (2021 4 12 14 37 28 909751 102 1 120 2)
+
+Valore   Descrizione
+------   -----------
+  2021   Anno del calendario Gregoriano
+     4   Mese (1–12)
+    12   Giorno (1–31)
+    14   Ora (0–23) UTC
+    37   Minuti (0–59)
+    28   Secondi  (0–59)
+909751   Microsecondi (0–999999) OS-specifico, risoluzione in millisecondi
+   102   Numero giorno dell'anno (1 Gen è 1)
+     1   Numero giorno della settimana (1–7) inizianod da Lunedì
+   120   Differenza di fuso orario in minuti a ovest del GMT (inclusa l'ora legale)
+     2   Tipo di ora legale (0–6) su Linux/Unix o (0–2) su MS Windows
+
+La funzione "time-of-day" restituisce il tempo trascorso dall'inizio del giorno corrente (in millisecondi).
+
+(setq t (time-of-day))
+;-> 59999105.675
+
+La funzione "date" restituisce la data e l'ora correnti del fuso orario locale (stringa)
+
+(date)
+;-> "Mon Apr 12 16:42:32 2021"
+
+Note: consultare il manuale per vedere le caratteristiche complete delle funzioni elencate sopra e le altre funzioni sulle date "date-value", "date-list" e "date-parse".
+
+Ora del giorno (binaria)
+------------------------
+Per divertimento vediamo una funzione che restituisce l'ora in formato binario.
+
+(setq data (parse (date) " "))
+;-> ("Mon" "Apr" "12" "16:43:59" "2021")
+(setq ora (parse (data 3) ":"))
+;("16" "43" "59")
+(setq lst (map (fn(x) (bits (int x 0 10))) ora))
+;-> ("10000" "101011" "111011")
+
+(define (b-time)
+(local (data ora lst)
+  (setq data (parse (date) " "))
+  ;("Mon" "Apr" "12" "16:43:59" "2021")
+  (setq ora (parse (data 3) ":"))
+  ;("16" "43" "59")
+  (setq lst (map (fn(x) (bits (int x 0 10))) ora))
+  ;("10000" "101011" "111011")
+  (println "     24 16  8  4  2  1")
+  (println "     -----------------")
+  (dolist (el lst)
+    (setq b el)
+    (if (< (length b) 6)
+        (push (dup "0" (- 6 (length b))) b))
+    ;("010000" "101011" "111011")
+    (cond ((= $idx 0) (print "ore:"))
+          ((= $idx 1) (print "min:"))
+          ((= $idx 2) (print "sec:"))
+    )
+    (dostring (ch b) (print "  " (char ch)))
+    (println {})
+  )))
+
+(b-time)
+;->      24 16  8  4  2  1
+;->      -----------------
+;-> ore:  0  1  0  0  0  1
+;-> min:  1  1  0  0  0  0
+;-> sec:  0  1  0  1  1  1
+
+
+-------------------------
+Algoritmo di Gale-Shapley
+-------------------------
+
+Supponiamo che ci siano n donne e n uomini. Ogni uomo classifica le donne in ordine di preferenza, e le donne classificano gli uomini allo stesso modo.
+Un matrimonio è una perfetta corrispondenza tra gli uomini e le donne in un grafo bipartito completo.
+Un matrimonio viene chiamato stabile se non esiste un uomo i e una donna j tali che l'uomo preferisca j alla sua
+attuale moglie e la donna preferisce i al suo attuale marito.
+L'obiettivo è calcolare un matrimonio stabile dalle 2*n preferenze dichiarate.
+La soluzione non è necessariamente unica.
+
+L'algoritmo di Gale–Shapley (1962) risolve questo problema in tempo O(n^2), ma non è detto che la soluzione sia ottimale.
+L'algoritmo inizia senza coppie sposate. Quindi, finché ci sono uomini single, l'algoritmo seleziona uno scapolo i e la donna j che piace di più all'uomo i trq quell donne che non sono state ancora considerate. L'algoritmo cerca quindi di sposare i con j. Il matrimonio avrà luogo se j è ancora single o se j è sposata con un uomo k, ma preferisce i a k. In questo caso, k viene "divorziato" e ritorna nel gruppo di uomini single.
+
+Per la complessità, ogni coppia i, j è considerata al massimo una volta dall'algoritmo, e il lavoro da fare per ogni coppia richiede tempo costante. Per la validità è sufficiente osservare che man mano che l'algoritmo procede:
+(1) una data donna è sposata con uomini che lei preferisce sempre di più,
+(2) mentre un dato uomo è sposato con donne che preferisce sempre di meno
+Per dimostrare la validità dell'algoritmo, supponiamo che alla fine esista un uomo sposato una donna j1 e una donna j sposata con un uomo i1 tali che i preferisce j a j1 e j preferisce i a i1. Per l'osservazione (2), ad un certo punto l'algoritmo ha esaminato la coppia i, j. Tuttavia, per (1), l'algoritmo non ha mai sposato i con j. Questo significa che quando è stata considerata la coppia (i, j) la donna j deve essere stata sposata con un uomo k che lei preferisce a i. Questo contraddice il fatto che lei possa essere sposata con un uomo che le piace meno di i.
+
+Nell'implementazione seguente, gli uomini sono numerati da 0 a n−1, così come le donne. L'input è costituito da due array. L'array men contiene, per ogni uomo, la relativa lista di n donne preferite, in ordine decrescente. L'array women contiene, per ogni donna, la relativa lista di n uomini preferiti.
+L'array women viene prima trasformato in un array che contiene per ogni donna j e uomo i il grado di preferenza che j ha per i. Ad esempio, se rank(j)(i) = 0, allora i è l'uomo preferito di j, e se rank(j)(i1) = 1, allora i1 è il secondo nella lista per j, ecc.
+Infine, l'array link associa a ciascuna donna l'uomo con cui si trova attualmente sposata. La coda singles contiene gli uomini singoli e per ogni uomo i il valore cur-choices(i) indica l'indice della prossima donna nella sua lista di
+preferenze.
+
+L'algoritmo può essere applicato a qualunque situazione in cui occorra accoppiare due gruppi in base alle preferenze espresse dai singoli elementi di ogni gruppo. Per questo abbiamo generalizzato le variabili per non legare l'algoritmo solo alla soluzione dei "matrimoni stabili".
+
+(define (couple prefs-a prefs-b)
+  (local (len cur-choices links singles rank i j)
+    (setq len (length prefs-a))
+    (setq cur-choices (array len '(0)))
+    (setq links (array len '(nil)))
+    (setq rank (array len len '(0)))
+    (for (j 0 (- len 1))
+      (for (r 0 (- len 1))
+        (setf (rank j (prefs-b j r)) r)
+      )
+    )
+    (setq singles (sequence 0 (- len 1)))
+    (while singles
+      (setq i (pop singles))
+      (setq j (prefs-a i (cur-choices i)))
+      (++ (cur-choices i))
+      (cond ((nil? (links j))
+             (setf (links j) i))
+            ((< (rank j (links j)) (rank j i))
+             (push i singles -1))
+            (true
+              (push (links j) singles -1)
+              (setf (links j) i))
+      )
+    )
+    links))
+
+Vediamo un esempio:
+
+(setq m '((4 1 2 3 0) (1 4 0 2 3) (3 2 1 0 4) (0 1 2 3 4) (4 1 2 3 0)))
+(setq w '((4 2 3 0 1) (0 1 2 4 3) (3 4 2 1 0) (4 1 0 3 2) (1 0 3 2 4)))
+(couple m w)
+;-> (3 1 4 2 0)
+
+Interpretiamo il risultato considerando l'indice 0 come il primo elemento (sia per gli uomini che per le donne):
+
+Woman  Man
+-----  ---
+W1     M4 (3)
+W2     M2 (1)
+W3     M5 (4)
+W4     M3 (2)
+W5     M1 (0)
+
+Per ottenere tutti gli accoppiamenti della soluzione possiamo scrivere:
+
+(sort (map (fn(x) (list $idx x)) (couple m w)))
+;-> ((0 3) (1 1) (2 4) (3 2) (4 0))
 
 

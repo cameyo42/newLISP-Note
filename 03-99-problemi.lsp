@@ -11,7 +11,7 @@ Potete trovare l'elenco completo dei problemi al sito:
 https://www.ic.unicamp.br/~meidanis/courses/mc336/2006s2/funcional/L-99_Ninety-Nine_Lisp_Problems.html
 http://beta-reduction.blogspot.com/search/label/L-99%3A%20Ninety-Nine%20Lisp%20Problems
 
-In questo capitolo vengono risolti solo i primi 28 problemi relativi alla elaborazione di liste. Molti problemi successivi al numero 28 sono risolti in altri capitoli di questo documento.
+In questo capitolo vengono risolti solo i primi 28 problemi relativi alla elaborazione di liste. Molti problemi successivi al numero 28 sono risolti in altri capitoli di questo documento e sono contrassegnati con il simbolo (+).
 
 Elenco problemi
 ---------------
@@ -49,15 +49,15 @@ N-99-28 Ordinare una lista in base alla lunghezza delle sottoliste
 
 Arithmetic (Aritmetica)
 -----------------------
-N-99-31  Determine whether a given integer number is prime
-N-99-32  Determine the greatest common divisor of two positive integer numbers
-N-99-33  Determine whether two positive integer numbers are coprime
-N-99-34  Calculate Euler's totient function phi(m)
-N-99-35  Determine the prime factors of a given positive integer
-N-99-36  Determine the prime factors of a given positive integer (2)
-N-99-37  Calculate Euler's totient function phi(m) (improved)
+N-99-31  Determine whether a given integer number is prime (+)
+N-99-32  Determine the greatest common divisor of two positive integer numbers (+)
+N-99-33  Determine whether two positive integer numbers are coprime (+)
+N-99-34  Calculate Euler's totient function phi(m) (+)
+N-99-35  Determine the prime factors of a given positive integer (+)
+N-99-36  Determine the prime factors of a given positive integer (2) (+)
+N-99-37  Calculate Euler's totient function phi(m) (improved) (+)
 N-99-38  Compare the two methods of calculating Euler's totient function
-N-99-39  A list of prime numbers
+N-99-39  A list of prime numbers (+)
 N-99-40  Goldbach's conjecture
 N-99-41  A list of Goldbach compositions
 
@@ -66,7 +66,7 @@ Logic and Codes (Logica e Codici)
 N-99-46  Truth tables for logical expressions
 N-99-47  Truth tables for logical expressions (2)
 N-99-48  Truth tables for logical expressions (3)
-N-99-49  Gray code
+N-99-49  Gray code (+)
 N-99-50  Huffman code
 
 Binary trees (Alberi Binari)
@@ -114,14 +114,14 @@ N-99-89  Bipartite graphs
 
 Miscellaneous Problems (Problemi Vari)
 --------------------------------------
-N-99-90  Eight queens problem
-N-99-91  Knight's tour
-N-99-92  Von Koch's conjecture
+N-99-90  Eight queens problem (+)
+N-99-91  Knight's tour (+)
+N-99-92  Von Koch's conjecture 
 N-99-93  An arithmetic puzzle
 N-99-94  Generate K-regular simple graphs with N nodes
-N-99-95  English number words
+N-99-95  English number words (+)
 N-99-96  Syntax checker (alternative solution with difference lists)
-N-99-97  Sudoku
+N-99-97  Sudoku (+)
 N-99-98  Nonograms
 N-99-99  Crossword puzzle
 

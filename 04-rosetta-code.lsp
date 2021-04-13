@@ -6534,7 +6534,7 @@ dato n uomini e n donne, dove ogni persona ha classificato tutti i membri del se
 
 I matematici americani Dave Gale e Lloyd Shapley pubblicarono un algoritmo di soluzione nel 1962 dimostrando che il problema del matrimonio stabile ammette sempre una soluzione.
 
-L’algoritmo di Gale e Shapley consente di individuare una soluzione stabile. Nel 1971 Mc Vitie e Wilson pubblicarono un algoritmo che consente di individuare tutte le soluzioni stabili del problema.
+L’algoritmo di Gale e Shapley consente di individuare una soluzione stabile. Nel 1971 Mc Vitie e Wilson hanno pubblicato un algoritmo che consente di trovare tutte le soluzioni stabili del problema.
 
 La soluzione proposta è un adattamento del programma in Java presentato all'indirizzo web:
 
@@ -7471,7 +7471,7 @@ Ecco un esempio:
 Originale LA SCENA IN CUI IL PERSONAGGIO PRINCIPALE MUORE NON MI PIACE
 Criptato  YN FPRAN VA PHV VY CREFBANTTVB CEVAPVCNYR ZHBER ABA ZV CVNPR
 
-Si tratta di un cifrario monoalfabeticio molto facile da decifrare e non viene più utilizzato in crittografia. Ad oggi, il ROT-13 viene usato per offuscare un testo che contiene informazioni (es. una soluzione o un suggerimento) che il lettore potrebbe non voler conoscere immediatamente.
+Si tratta di un cifrario monoalfabetico molto facile da decifrare e non viene più utilizzato in crittografia. Ad oggi, il ROT-13 viene usato per offuscare un testo che contiene informazioni (es. una soluzione o un suggerimento) che il lettore potrebbe non voler conoscere immediatamente.
 
 Metodo 1:
 

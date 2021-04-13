@@ -489,6 +489,7 @@ DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Numeri strobogrammatici (LeetCode)
   Bomba sul nemico (Visa)
   Pitturare una staccionata (Amazon)
+  Palindroma più lunga in una stringa (algoritmo Manacher) (Amazon)
 
 LIBRERIE
 ========
@@ -737,6 +738,8 @@ NOTE LIBERE 3
   Progettare TinyURL
   Costante di Ramanujan
   Giustificazione del testo
+  Data e tempo
+  Algoritmo di Gale-Shapley
 
 APPENDICI
 =========
@@ -768,7 +771,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (147 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (150 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================

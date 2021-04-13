@@ -8114,3 +8114,58 @@ Supponiamo di avere una staccionata con n pali in cui ogni palo può essere dipi
 ;-> 957345928
 
 
+-----------------------------------------------------------------
+Palindroma più lunga in una stringa (algoritmo Manacher) (Amazon)
+-----------------------------------------------------------------
+
+Una parola s è palindroma se il primo carattere di s è uguale all'ultimo, il secondo è
+uguale al penultimo e così via. In altri termini, una parola è palindroma se viene letta allo stesso modo sia da sinistra a destra, sia da destra a sinistra.
+Il problema della stringa palindroma più lunga consiste nel determinare il maggior numero di caratteri che formano una sotto-stringa palindroma contenuti in una parola.
+Per esempio:
+input: "aaaabbaa"
+output:  "aabbaa"
+
+Questo problema può essere risolto in tempo quadratico con l'algoritmo base, in tempo O(n*log(n)) con array di suffissi e in tempo O(n) con l'algoritmo di Manacher (1975).
+
+(define (manacher str)
+  (local (tmp center palind mirror k idx from to)
+    ; i caratteri "^", "#" e "$" non devono essere nella stringa str
+    ; la stringa "abc" viene trasformata in "^#a#b#c#$"
+    (setq tmp (string "^#" (join (explode str) "#") "#$"))
+    (setq center 1 dist 1)
+    (setq palind (array (length tmp) '(0)))
+    (for (i 2 (- (length tmp) 2))
+      ; riflette l'indice i rispetto al centro
+      (setq mirror (- (* 2 center) i))
+      (setf (palind i) (max 0 (min (- dist i) (palind mirror))))
+      ; aumenta la stringa palindroma centrata in i
+      (while (= (tmp (+ i 1 (palind i))) (tmp (- i 1 (palind i))))
+        (++ (palind i))
+      )
+      ; Se necessario aggiusta il centro
+      (if (> (+ i (palind i)) dist)
+          (setq center i dist (+ i (palind i)))
+      )
+    )
+    (setq k (palind 1))
+    (setq idx 1)
+    (for (i 1 (- (length tmp) 2))
+      (if (> (palind i) k)
+          (setq k (palind i) idx i)
+      )
+    )
+    (setq from (/ (- idx k) 2))
+    (setq to (/ (+ idx k) 2))
+    ; stringa soluzione
+    (slice str from (- to from))))
+
+(manacher "aaaabbaa")
+;-> "aabbaa"
+
+(manacher "babcbabcbaccba")
+;-> "abcbabcba"
+
+(manacher "abcitopinonavevanonipotixyz")
+;-> itopinonavevanonipoti
+
+
