@@ -740,6 +740,8 @@ NOTE LIBERE 3
   Giustificazione del testo
   Data e tempo
   Algoritmo di Gale-Shapley
+  Il problema dello zaino (Knapsack)  
+  Validazione UTF-8
 
 APPENDICI
 =========

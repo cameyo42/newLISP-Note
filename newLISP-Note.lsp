@@ -740,6 +740,8 @@ NOTE LIBERE 3
   Giustificazione del testo
   Data e tempo
   Algoritmo di Gale-Shapley
+  Il problema dello zaino (Knapsack)  
+  Validazione UTF-8
 
 APPENDICI
 =========
@@ -86440,6 +86442,150 @@ Per ottenere tutti gli accoppiamenti della soluzione possiamo scrivere:
 
 (sort (map (fn(x) (list $idx x)) (couple m w)))
 ;-> ((0 3) (1 1) (2 4) (3 2) (4 0))
+
+
+----------------------------------
+Il problema dello zaino (Knapsack)
+----------------------------------
+
+Dati n oggetti con pesi p(0),. . . , p(n−1) e valori v(0),. . . , v(n−1), e dato uno zaino con una capacità C, dove C è un numero intero, trovare un sottoinsieme degli oggetti con valore totale massimo, il cui peso totale non supera la capacità C. 
+Questo è un problema NP-Hard.
+
+Per i in {0,. . . , n − 1} e c in {0,. . . , C}, assegnare Opt[i][c] come il valore più grande ottenibile tra oggetti con indice da 0 a i senza che il loro peso superi la capacità c. Per il caso base i = 0, abbiamo Opt[0][c] = 0 se (p(0) > c) altrimenti Opt[0][c] = v0.
+Per valori maggiori di i, compaiono al massimo due scelte possibili per l'oggetto dell'indice i: possiamo prenderlo o possiamo lasciarlo.
+Nel primo caso, la capacità disponibile viene ridotta di p(i). Abbiamo quindi la relazione:
+
+                | opt[i-1][c- p(i)] + v(i) (nel caso in cui prendiamo l'oggetto e (p(i) >= c))
+opt[i][c] = max | 
+                | opt[i-1][c]              (nel caso in cui lasciamo l'oggetto)
+
+Questo è un algoritmo con complessità pseudo-polinomiale O(n*C), cioè un algoritmo che è polinomiale nel valore degli input ma non nella loro dimensione (inquesto caso, aumentando di poco la dimensione di C raddoppia il tempo di esecuzione).
+
+Una matrice booleana Sel viene mantenuta in parallelo con la matrice di programmazione dinamica Opt. Questo ci permette di ricordare le scelte fatte che hanno portato ai valori memorizzati in Opt. Una volta che queste matrici sono state popolate seguendo la formula di ricorrenza sopra descritta, attraversando gli elementi in ordine inverso possiamo estrarre dalla matrice Sel l'insieme di elementi che fornisce il valore totale ottimale.
+
+(define (knapsack p v cmax)
+(local (n opt sel cap solution)
+  (setq n (length p))
+  (setq opt (array n (+ cmax 1) '(0)))
+  (setq sel (array n (+ cmax 1) '(nil)))
+  (for (cap (p 0) cmax)
+    (setf (opt 0 cap) (v 0))
+    (setf (sel 0 cap) true)
+  )
+  (for (i 1 (- n 1))
+    (for (cap 0 cmax)
+      (cond ((and (>= cap (p i))
+                  (> (add (opt (- i 1) (- cap (p i))) (v i)) (opt (- i 1) cap)))
+             (setf (opt i cap) (add (opt (- i 1) (- cap (p i))) (v i)))
+             (setf (sel i cap) true))
+             (true
+              (setf (opt i cap) (opt (- i 1) cap))
+              (setf (sel i cap) nil))
+      )
+    )
+  )
+  (setq cap cmax)
+  (setq solution '())
+  (for (i (- n 1) 0 -1)
+    (if (sel i cap) (begin
+        (push i solution)
+        (setq cap (- cap (p i))))
+    )
+  )
+  (list (opt (- n 1) cmax) solution)))
+
+(setq p '(1 2 3 2 2))
+(setq v '(8 4 0 5 3))
+(knapsack p v 4)
+;-> (13 (0 3))
+
+(setq p '(10 20 30))
+(setq v '(60 100 120))
+(knapsack p v 50)
+;-> (220 (1 2))
+
+(setq p '(9.9 19.6 29.4))
+(setq v '(59.3 99.8 118.5))
+(knapsack p v 50)
+;-> (218.3 (1 2))
+
+(setq p '(3 4 5 9 4))
+(setq v '(3 4 4 10 4))
+(knapsack p v 11)
+;-> (11 (0 1 4))
+
+(setq p '(12 2 1 1 4))
+(setq v '(4 2 1 2 10))
+(knapsack p v 15)
+;-> (15 (1 2 3 4))
+
+
+-----------------
+Validazione UTF-8
+-----------------
+
+Un carattere in UTF-8 può essere lungo da 1 a 4 byte ed è soggetto alle seguenti regole:
+Per i caratteri di 1 byte, il primo bit è 0, seguito dal suo codice Unicode.
+Per il carattere di n byte, i primi n bit sono tutti uno, il bit n + 1 è 0, seguito da n-1 byte con i 2 bit più significativi 10. Ecco come funziona la codifica UTF-8:
+
+   Intervallo di numeri  |  Sequenza di Ottetti UTF-8
+      dei caratteri      |        (binario)
+      (esadecimale)      |
+   ----------------------+----------------------------------------
+   0000 0000-0000 007F   |  0xxxxxxx
+   0000 0080-0000 07FF   |  110xxxxx 10xxxxxx
+   0000 0800-0000 FFFF   |  1110xxxx 10xxxxxx 10xxxxxx
+   0001 0000-0010 FFFF   |  11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
+
+Dato un array di numeri interi che rappresentano i dati, restituire se si tratta di una codifica UTF-8 valida.
+
+Nota: l'input è un array di numeri interi. Per memorizzare i dati vengono utilizzati solo gli 8 bit meno significativi di ciascun numero intero. Ciò significa che ogni numero intero rappresenta solo 1 byte di dati.
+
+Esempio 1:
+
+data = [197, 130, 1], che rappresenta la sequenza di ottetti: 11000101 10000010 00000001.
+Restituisci vero.
+È una codifica utf-8 valida per un carattere di 2 byte seguito da un carattere di 1 byte.
+
+Esempio 2:
+
+data = [235, 140, 4], che rappresentava la sequenza di ottetti: 11101011 10001100 00000100.
+Restituisce false.
+I primi 3 bit sono tutti 1 e il 4° bit è 0, questo  significa che è un carattere di 3 byte.
+Il byte successivo è un byte di continuazione che inizia con 10 ed è corretto.
+Ma il secondo byte di continuazione non inizia con 10, quindi non è valido.
+
+(define (utf8? data)
+(catch
+  (let ((conta 0) (out true))
+    (for (i 0 (- (length data) 1))
+      (if (zero? conta)
+          (cond ((= (bits (>> (data i) 5)) "110")
+                 (setq conta 1))
+                ((= (bits (>> (data i) 4)) "111")
+                 (setq conta 2))
+                ((= (bits (>> (data i) 3)) "1111")
+                 (setq conta 3))
+                ((= (bits (>> (data i) 7)) "1")
+                 (throw nil))
+          )
+          (begin ;else
+          (if (!= (>> (data i) 6) 2)
+              (throw nil)
+          )
+          (-- conta))
+      )
+    )
+    (zero? conta))))
+
+(utf8? '(197 130 1))
+;-> true
+
+(utf8? '(235 140 1))
+;-> nil
+
+Nota: L'algoritmo originale usa l'operatore bit-wise ">>>" (unsigned right bit-shift). newLISP non possiede questo operatore ed abbiamo utilizzato l'operatore ">>" (signed right bit-shift). Entrambi dividono il primo operando per 2 elevato al secondo operando.
+La differenza tra ">>" e ">>>" apparirà solo quando si usano numeri negativi. L'operatore ">>" sposta un bit 1 nel bit più significativo se era un 1, invece ">>>" sposta in 0 a prescindere.
 
 
 ===========
