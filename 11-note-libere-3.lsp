@@ -7610,10 +7610,10 @@ Per ottenere tutti gli accoppiamenti della soluzione possiamo scrivere:
 Il problema dello zaino (Knapsack)
 ----------------------------------
 
-Dati n oggetti con pesi p(0),. . . , p(n−1) e valori v(0),. . . , v(n−1), e dato uno zaino con una capacità C, dove C è un numero intero, trovare un sottoinsieme degli oggetti con valore totale massimo, il cui peso totale non supera la capacità C. 
+Dati n oggetti con pesi p(0),...,p(n−1) e valori v(0),...,v(n−1), e dato uno zaino con una capacità C, dove C è un numero intero, trovare un sottoinsieme degli oggetti con valore totale massimo, il cui peso totale non supera la capacità C. 
 Questo è un problema NP-Hard.
 
-Per i in {0,. . . , n − 1} e c in {0,. . . , C}, assegnare Opt[i][c] come il valore più grande ottenibile tra oggetti con indice da 0 a i senza che il loro peso superi la capacità c. Per il caso base i = 0, abbiamo Opt[0][c] = 0 se (p(0) > c) altrimenti Opt[0][c] = v0.
+Per i in {0,...,n − 1} e c in {0,...,C}, assegnare Opt[i][c] come il valore più grande ottenibile tra oggetti con indice da 0 a i senza che il loro peso superi la capacità c. Per il caso base i = 0, abbiamo Opt[0][c] = 0 se (p(0) > c) altrimenti Opt[0][c] = v0.
 Per valori maggiori di i, compaiono al massimo due scelte possibili per l'oggetto dell'indice i: possiamo prenderlo o possiamo lasciarlo.
 Nel primo caso, la capacità disponibile viene ridotta di p(i). Abbiamo quindi la relazione:
 
@@ -7800,7 +7800,7 @@ Un altro programma per risolvere il sudoku.
                 (if (is-safe num y x grid)
                     (begin
                       (setf (grid y x) num)
-                      (if (sudoku-aux grid) (throw true))
+                      (if (sudoku-aux) (throw true))
                       (setf (grid y x) 0)
                     )
                 )

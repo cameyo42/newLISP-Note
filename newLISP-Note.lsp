@@ -47758,6 +47758,95 @@ In questo modo si ottiene una possibile soluzione al problema delle N-Regine e l
 (time (nQueens board 0 size))
 ;-> 31058.105 ; 31 secondi
 
+Adesso scriviamo un programma che visualizza tutte le soluzioni per una scacchiera NxN.
+
+(define (nregine n riga)
+(catch
+  (local (k)
+    (cond ((>= riga n)
+           ; stampa di una soluzione
+           (for (i 0 (- n 1))
+               (for (j 0 (- n 1))
+                 (if (= (griglia i j) 1)
+                     (print "■ ")
+                     (print "∙ ")
+                 )
+               )
+               (println "")
+           )
+           (println "")
+           (throw 1))
+          (true
+           ; contatore soluzioni
+           (setq k 0)
+           ; ricerca soluzioni
+           (for (i 0 (- n 1))
+              (if (libera? griglia riga i n) (begin
+                  (setq (griglia riga i) 1)
+                  (setq k (+ k (nregine n (+ riga 1))))
+                  (setq (griglia riga i) 0))
+              )
+           )
+           (throw k))
+    ))))
+
+(define (libera? griglia x y n)
+(catch
+  (local (tmp)
+    (if (zero? x) (throw true))
+    (for (z x 1 -1)
+      (if (and (>= (- x z) 0) (>= (- y z) 0) (!= (griglia (- x z) (- y z)) 0))
+          (throw nil))
+      (if (and (>= (- x z) 0) (!= (griglia (- x z) y) 0))
+          (throw nil))
+      (if (and (>= (- x z) 0) (< (+ y z) n) (!= (griglia (- x z) (+ y z)) 0))
+          (throw nil))
+    )
+    true)))
+
+(define (n-regine n)
+  (local (griglia)
+    (setq griglia (array n n '(0)))
+    (nregine n 0)))
+
+(n-regine 4)
+;-> ∙ ■ ∙ ∙    ∙ ∙ ■ ∙
+;-> ∙ ∙ ∙ ■    ■ ∙ ∙ ∙
+;-> ■ ∙ ∙ ∙    ∙ ∙ ∙ ■
+;-> ∙ ∙ ■ ∙    ∙ ■ ∙ ∙
+;-> 2
+
+(n-regine 8)
+;-> ■ ∙ ∙ ∙ ∙ ∙ ∙ ∙    ■ ∙ ∙ ∙ ∙ ∙ ∙ ∙    ■ ∙ ∙ ∙ ∙ ∙ ∙ ∙    ■ ∙ ∙ ∙ ∙ ∙ ∙ ∙
+;-> ∙ ∙ ∙ ∙ ■ ∙ ∙ ∙    ∙ ∙ ∙ ∙ ∙ ■ ∙ ∙    ∙ ∙ ∙ ∙ ∙ ∙ ■ ∙    ∙ ∙ ∙ ∙ ∙ ∙ ■ ∙
+;-> ∙ ∙ ∙ ∙ ∙ ∙ ∙ ■    ∙ ∙ ∙ ∙ ∙ ∙ ∙ ■    ∙ ∙ ∙ ■ ∙ ∙ ∙ ∙    ∙ ∙ ∙ ∙ ■ ∙ ∙ ∙
+;-> ∙ ∙ ∙ ∙ ∙ ■ ∙ ∙    ∙ ∙ ■ ∙ ∙ ∙ ∙ ∙    ∙ ∙ ∙ ∙ ∙ ■ ∙ ∙    ∙ ∙ ∙ ∙ ∙ ∙ ∙ ■
+;-> ∙ ∙ ■ ∙ ∙ ∙ ∙ ∙    ∙ ∙ ∙ ∙ ∙ ∙ ■ ∙    ∙ ∙ ∙ ∙ ∙ ∙ ∙ ■    ∙ ■ ∙ ∙ ∙ ∙ ∙ ∙
+;-> ∙ ∙ ∙ ∙ ∙ ∙ ■ ∙    ∙ ∙ ∙ ■ ∙ ∙ ∙ ∙    ∙ ■ ∙ ∙ ∙ ∙ ∙ ∙    ∙ ∙ ∙ ■ ∙ ∙ ∙ ∙
+;-> ∙ ■ ∙ ∙ ∙ ∙ ∙ ∙    ∙ ■ ∙ ∙ ∙ ∙ ∙ ∙    ∙ ∙ ∙ ∙ ■ ∙ ∙ ∙    ∙ ∙ ∙ ∙ ∙ ■ ∙ ∙
+;-> ∙ ∙ ∙ ■ ∙ ∙ ∙ ∙    ∙ ∙ ∙ ∙ ■ ∙ ∙ ∙    ∙ ∙ ■ ∙ ∙ ∙ ∙ ∙    ∙ ∙ ■ ∙ ∙ ∙ ∙ ∙
+;-> 
+;-> ∙ ■ ∙ ∙ ∙ ∙ ∙ ∙    ∙ ■ ∙ ∙ ∙ ∙ ∙ ∙    ∙ ■ ∙ ∙ ∙ ∙ ∙ ∙    ∙ ■ ∙ ∙ ∙ ∙ ∙ ∙
+;-> ∙ ∙ ∙ ■ ∙ ∙ ∙ ∙    ∙ ∙ ∙ ∙ ■ ∙ ∙ ∙    ∙ ∙ ∙ ∙ ■ ∙ ∙ ∙    ∙ ∙ ∙ ∙ ∙ ■ ∙ ∙
+;-> ∙ ∙ ∙ ∙ ∙ ■ ∙ ∙    ∙ ∙ ∙ ∙ ∙ ∙ ■ ∙    ∙ ∙ ∙ ∙ ∙ ∙ ■ ∙    ■ ∙ ∙ ∙ ∙ ∙ ∙ ∙
+;-> ∙ ∙ ∙ ∙ ∙ ∙ ∙ ■    ■ ∙ ∙ ∙ ∙ ∙ ∙ ∙    ∙ ∙ ∙ ■ ∙ ∙ ∙ ∙    ∙ ∙ ∙ ∙ ∙ ∙ ■ ∙
+;-> ∙ ∙ ■ ∙ ∙ ∙ ∙ ∙    ∙ ∙ ■ ∙ ∙ ∙ ∙ ∙    ■ ∙ ∙ ∙ ∙ ∙ ∙ ∙    ∙ ∙ ∙ ■ ∙ ∙ ∙ ∙
+;-> ■ ∙ ∙ ∙ ∙ ∙ ∙ ∙    ∙ ∙ ∙ ∙ ∙ ∙ ∙ ■    ∙ ∙ ∙ ∙ ∙ ∙ ∙ ■    ∙ ∙ ∙ ∙ ∙ ∙ ∙ ■
+;-> ∙ ∙ ∙ ∙ ∙ ∙ ■ ∙    ∙ ∙ ∙ ∙ ∙ ■ ∙ ∙    ∙ ∙ ∙ ∙ ∙ ■ ∙ ∙    ∙ ∙ ■ ∙ ∙ ∙ ∙ ∙
+;-> ∙ ∙ ∙ ∙ ■ ∙ ∙ ∙    ∙ ∙ ∙ ■ ∙ ∙ ∙ ∙    ∙ ∙ ■ ∙ ∙ ∙ ∙ ∙    ∙ ∙ ∙ ∙ ■ ∙ ∙ ∙
+;-> 
+;-> ...
+;-> 
+;-> ∙ ∙ ∙ ∙ ∙ ∙ ∙ ■    ∙ ∙ ∙ ∙ ∙ ∙ ∙ ■    ∙ ∙ ∙ ∙ ∙ ∙ ∙ ■    ∙ ∙ ∙ ∙ ∙ ∙ ∙ ■
+;-> ∙ ■ ∙ ∙ ∙ ∙ ∙ ∙    ∙ ■ ∙ ∙ ∙ ∙ ∙ ∙    ∙ ∙ ■ ∙ ∙ ∙ ∙ ∙    ∙ ∙ ∙ ■ ∙ ∙ ∙ ∙
+;-> ∙ ∙ ∙ ■ ∙ ∙ ∙ ∙    ∙ ∙ ∙ ∙ ■ ∙ ∙ ∙    ■ ∙ ∙ ∙ ∙ ∙ ∙ ∙    ■ ∙ ∙ ∙ ∙ ∙ ∙ ∙
+;-> ■ ∙ ∙ ∙ ∙ ∙ ∙ ∙    ∙ ∙ ■ ∙ ∙ ∙ ∙ ∙    ∙ ∙ ∙ ∙ ∙ ■ ∙ ∙    ∙ ∙ ■ ∙ ∙ ∙ ∙ ∙
+;-> ∙ ∙ ∙ ∙ ∙ ∙ ■ ∙    ■ ∙ ∙ ∙ ∙ ∙ ∙ ∙    ∙ ■ ∙ ∙ ∙ ∙ ∙ ∙    ∙ ∙ ∙ ∙ ∙ ■ ∙ ∙
+;-> ∙ ∙ ∙ ∙ ■ ∙ ∙ ∙    ∙ ∙ ∙ ∙ ∙ ∙ ■ ∙    ∙ ∙ ∙ ∙ ■ ∙ ∙ ∙    ∙ ■ ∙ ∙ ∙ ∙ ∙ ∙
+;-> ∙ ∙ ■ ∙ ∙ ∙ ∙ ∙    ∙ ∙ ∙ ■ ∙ ∙ ∙ ∙    ∙ ∙ ∙ ∙ ∙ ∙ ■ ∙    ∙ ∙ ∙ ∙ ∙ ∙ ■ ∙
+;-> ∙ ∙ ∙ ∙ ∙ ■ ∙ ∙    ∙ ∙ ∙ ∙ ∙ ■ ∙ ∙    ∙ ∙ ∙ ■ ∙ ∙ ∙ ∙    ∙ ∙ ∙ ∙ ■ ∙ ∙ ∙
+;-> 92
+
 
 ------------------------------
 Somma delle cifre di un numero
@@ -86800,7 +86889,7 @@ Un altro programma per risolvere il sudoku.
                 (if (is-safe num y x grid)
                     (begin
                       (setf (grid y x) num)
-                      (if (sudoku-aux grid) (throw true))
+                      (if (sudoku-aux) (throw true))
                       (setf (grid y x) 0)
                     )
                 )
