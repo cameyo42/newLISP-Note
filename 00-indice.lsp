@@ -386,6 +386,7 @@ PROBLEMI VARI
   Circuito automobilistico
   Il problema delle studentesse di Kirkman
   Contadino, lupo, capra e cavoli
+  Congettura di Goldbach
 
 DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
 ==================================================
@@ -490,6 +491,7 @@ DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Bomba sul nemico (Visa)
   Pitturare una staccionata (Amazon)
   Palindroma più lunga in una stringa (algoritmo Manacher) (Amazon)
+  Permutazioni Palindrome (Uber)
 
 LIBRERIE
 ========
@@ -742,6 +744,7 @@ NOTE LIBERE 3
   Algoritmo di Gale-Shapley
   Il problema dello zaino (Knapsack)  
   Validazione UTF-8
+  Sudoku mania
 
 APPENDICI
 =========

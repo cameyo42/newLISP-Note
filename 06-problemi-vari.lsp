@@ -9934,3 +9934,109 @@ Oppure:
 ;-> ((e e e e) (w e w e) (e e w e) (w w w e) (e w e e) (w w e w) (e w e w) (w w w w))
 
 
+----------------------
+Congettura di Goldbach
+----------------------
+
+La congettura di Goldbach è uno dei più vecchi problemi irrisolti nella teoria dei numeri. Essa afferma che ogni numero pari maggiore di 2 può essere scritto come somma di due numeri primi (che possono essere anche uguali).
+
+Per esempio:
+
+  4 = 2 + 2
+  6 = 3 + 3
+  8 = 3 + 5
+ 10 = 3 + 7 = 5 + 5
+ 12 = 5 + 7
+ 14 = 3 + 11 = 7 + 7
+
+Nel 1742, il matematico prussiano Christian Goldbach scrisse una lettera a Eulero in cui propose la seguente congettura:
+
+  "Ogni numero intero maggiore di 5 può essere scritto come somma di tre numeri primi."
+
+Eulero, interessandosi al problema, rispose riformulando il problema nella seguente versione equivalente:
+
+  "Ogni numero pari maggiore di 2 può essere scritto come somma di due numeri primi."
+
+La versione di Eulero è la forma nella quale la congettura è formulata attualmente e viene talvolta chiamata anche col nome di congettura forte di Goldbach. La congettura debole di Goldbach, che è implicata dalla congettura forte, asserisce che tutti i numeri dispari maggiori di 7 possono essere scritti come somma di tre primi.
+
+1) Programma per la verifica della congettura forte di Goldbach
+   "Ogni numero pari maggiore di 2 può essere scritto come somma di due numeri primi."
+
+(define (primes-to num)
+  (cond ((= num 1) '())
+        ((= num 2) '(2))
+        (true
+         (let (lst '(2))
+          (setq arr (array (+ num 1)))
+          (for (x 3 num 2)
+                (when (not (arr x))
+                  (push x lst -1)
+                  (for (y (* x x) num (* 2 x) (> y num))
+                      (setf (arr y) true)))) lst))))
+
+(define (goldbach num)
+  (local (primi i diff)
+    (cond ((even? num)
+           (setq primi (primes-to num))
+           ; controlliamo solo fino alla metà di num
+           (setq i 0)
+           (while (<= (primi i) (/ num 2))
+             ; calcoliamo la differenza tra
+             ; il numero primo corrente e num
+             (setq diff (- num (primi i)))
+             ; cerchiamo se la differenza (diff)
+             ; è un numero primo
+             (if (find diff primi)
+                 ; stampa il risultato
+                 (println (primi i) " + " diff " = " num)
+             )
+             (++ i)
+           )))))
+
+(goldbach 10)
+;-> 3 + 7 = 10
+;-> 5 + 5 = 10
+
+(goldbach 14)
+;-> 3 + 11 = 14
+;-> 7 + 7 = 14
+
+(goldbach 100)
+;->  3 + 97 = 100
+;-> 11 + 89 = 100
+;-> 17 + 83 = 100
+;-> 29 + 71 = 100
+;-> 41 + 59 = 100
+;-> 47 + 53 = 100
+
+2) Programma per la verifica della congettura debole di Goldbach
+   "Tutti i numeri dispari maggiori di 7 possono essere scritti come somma di tre primi."
+
+(define (prime? num)
+   (if (< num 2) nil
+       (= 1 (length (factor num)))))
+
+(define (goldbach-weak num)
+  (for (j 2 (- num 3))
+    (if (prime? j)
+        (for (k j (- num j 1))
+          (if (prime? (- num j k))
+              (if (and (prime? k) (= num (+ num (- j) k)))
+                  (println j " " k " " (- num j k))))))))
+
+(goldbach-weak 7)
+;-> 2 2 3
+
+(goldbach-weak 9)
+;-> 2 2 5
+;-> 3 3 3
+
+(goldbach-weak 101)
+;-> 2 2 97
+;-> 11 11 79
+;-> 17 17 67
+;-> 29 29 43
+;-> 41 41 19
+;-> 47 47 7
+
+

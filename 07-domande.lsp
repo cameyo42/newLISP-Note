@@ -8169,3 +8169,56 @@ Questo problema può essere risolto in tempo quadratico con l'algoritmo base, in
 ;-> itopinonavevanonipoti
 
 
+------------------------------
+Permutazioni Palindrome (Uber)
+------------------------------
+
+Determinare tutte le stringhe palindrome che possono essere generate da una data stringa.
+
+Funzione che calcola le permutazioni:
+
+(define (perm lst)
+  (local (i indici out)
+    (setq indici (dup 0 (length lst)))
+    (setq i 0)
+    (setq out (list lst))
+    (while (< i (length lst))
+      (if (< (indici i) i)
+          (begin
+            (if (zero? (% i 2))
+              (swap (lst 0) (lst i))
+              (swap (lst (indici i)) (lst i))
+            )
+            (push lst out -1)
+            (++ (indici i))
+            (setq i 0)
+          )
+          (begin
+            (setf (indici i) 0)
+            (++ i)
+          )
+       )
+    )
+    out))
+
+Funzione che verifica le permutazioni palindrome:
+
+(define (perm-pali str)
+  (local (all out)
+    (setq out '())
+    (setq all (perm (explode str)))
+    ; per ogni permutazione verifichiamo se è palindroma
+    (dolist (el all)
+      (if (= (join el) (reverse (join el)))
+          (push (join el) out -1)
+      )
+    )
+    (unique out)))
+
+(perm-pali "anna")
+;-> ("anna" "naan")
+
+(perm-pali "racecar")
+;-> ("racecar" "rcaeacr" "craearc" "carerac" "arcecra" "acrerca")
+
+

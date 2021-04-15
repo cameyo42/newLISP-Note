@@ -7704,16 +7704,14 @@ Dato un array di numeri interi che rappresentano i dati, restituire se si tratta
 Nota: l'input è un array di numeri interi. Per memorizzare i dati vengono utilizzati solo gli 8 bit meno significativi di ciascun numero intero. Ciò significa che ogni numero intero rappresenta solo 1 byte di dati.
 
 Esempio 1:
-
 data = [197, 130, 1], che rappresenta la sequenza di ottetti: 11000101 10000010 00000001.
-Restituisci vero.
+Restituisce: true
 È una codifica utf-8 valida per un carattere di 2 byte seguito da un carattere di 1 byte.
 
 Esempio 2:
-
 data = [235, 140, 4], che rappresentava la sequenza di ottetti: 11101011 10001100 00000100.
-Restituisce false.
-I primi 3 bit sono tutti 1 e il 4° bit è 0, questo  significa che è un carattere di 3 byte.
+Restituisce: nil
+I primi 3 bit sono tutti 1 e il 4° bit è 0, questo significa che è un carattere di 3 byte.
 Il byte successivo è un byte di continuazione che inizia con 10 ed è corretto.
 Ma il secondo byte di continuazione non inizia con 10, quindi non è valido.
 
@@ -7747,6 +7745,122 @@ Ma il secondo byte di continuazione non inizia con 10, quindi non è valido.
 ;-> nil
 
 Nota: L'algoritmo originale usa l'operatore bit-wise ">>>" (unsigned right bit-shift). newLISP non possiede questo operatore ed abbiamo utilizzato l'operatore ">>" (signed right bit-shift). Entrambi dividono il primo operando per 2 elevato al secondo operando.
-La differenza tra ">>" e ">>>" apparirà solo quando si usano numeri negativi. L'operatore ">>" sposta un bit 1 nel bit più significativo se era un 1, invece ">>>" sposta in 0 a prescindere.
+La differenza tra ">>" e ">>>" appare solo quando si usano numeri negativi. L'operatore ">>" sposta un bit 1 nel bit più significativo se era un 1, invece ">>>" sposta in 0 a prescindere.
+
+
+------------
+Sudoku mania
+------------
+
+Un altro programma per risolvere il sudoku.
+
+; controlla se un tentativo (numero) è valido in un box (3x3)
+(define (check-box guess row col grid)
+(catch
+  (local (xb yb)
+    (setq xb (* (/ col 3) 3))
+    (setq yb (* (/ row 3) 3))
+    (for (y 0 2)
+      (for (x 0 2)
+        (if (= guess (grid (+ yb y) (+ xb x)))
+            (throw nil))))
+    true)))
+; controlla se un tentativo (numero) è valido in una riga
+(define (check-row guess row col grid)
+(catch
+  (local (tmp)
+    (for (x 0 8)
+      (if (= guess (grid row x))
+          (throw nil)))
+    true)))
+; controlla se un tentativo (numero) è valido in una colonna
+(define (check-col guess row col grid)
+(catch
+  (local (tmp)
+    (for (y 0 8)
+      (if (= guess (grid y col))
+          (throw nil)))
+    true)))
+; controlla se un tentativo (numero) è valido
+(define (is-safe guess row col grid)
+  (if (and (check-box guess row col grid)
+           (check-row guess row col grid)
+           (check-col guess row col grid))
+      true
+      nil))
+; funzione ausiliaria che risolve il sudoku
+(define (sudoku-aux)
+(catch
+  (local (tmp)
+    (for (y 0 8)
+      (for (x 0 8)
+        (if (zero? (grid y x))
+            (begin
+              (for (num 1 9)
+                (if (is-safe num y x grid)
+                    (begin
+                      (setf (grid y x) num)
+                      (if (sudoku-aux grid) (throw true))
+                      (setf (grid y x) 0)
+                    )
+                )
+              )
+              (throw nil)
+            )
+        )
+      )
+    )
+    true)))
+; Funzione principale
+(define (sudoku matrix)
+  (local (grid)
+    (setq grid matrix)
+    (if (sudoku-aux) grid nil)))
+
+Vediamo alcuni esempi:
+
+(setq s1 '((3 0 6 5 0 8 4 0 0)
+           (5 2 0 0 0 0 0 0 0)
+           (0 8 7 0 0 0 0 3 1)
+           (0 0 3 0 1 0 0 8 0)
+           (9 0 0 8 6 3 0 0 5)
+           (0 5 0 0 9 0 6 0 0)
+           (1 3 0 0 0 0 2 5 0)
+           (0 0 0 0 0 0 0 7 4)
+           (0 0 5 2 0 6 3 0 0)))
+
+(sudoku s1)
+;-> ((3 1 6 5 7 8 4 9 2) 
+;->  (5 2 9 1 3 4 7 6 8) 
+;->  (4 8 7 6 2 9 5 3 1) 
+;->  (2 6 3 4 1 5 9 8 7)
+;->  (9 7 4 8 6 3 1 2 5)
+;->  (8 5 1 7 9 2 6 4 3)
+;->  (1 3 8 9 4 7 2 5 6)
+;->  (6 9 2 3 5 1 8 7 4)
+;->  (7 4 5 2 8 6 3 1 9))
+
+(setq escargot
+'((1 0 0 0 0 7 0 9 0)
+  (0 3 0 0 2 0 0 0 8)
+  (0 0 9 6 0 0 5 0 0)
+  (0 0 5 3 0 0 9 0 0)
+  (0 1 0 0 8 0 0 0 2)
+  (6 0 0 0 0 4 0 0 0)
+  (3 0 0 0 0 0 0 1 0)
+  (0 4 0 0 0 0 0 0 7)
+  (0 0 7 0 0 0 3 0 0)))
+
+(time (println (sudoku escargot)))
+;-> ((1 6 2 8 5 7 4 9 3) 
+;->  (5 3 4 1 2 9 6 7 8) 
+;->  (7 8 9 6 4 3 5 2 1) 
+;->  (4 7 5 3 1 2 9 8 6)
+;->  (9 1 3 5 8 6 7 4 2)
+;->  (6 2 8 7 9 4 1 3 5)
+;->  (3 5 6 4 7 8 2 1 9)
+;->  (2 4 1 9 3 5 8 6 7)
+;->  (8 9 7 2 6 1 3 5 4))
+;-> 433.809
 
 
