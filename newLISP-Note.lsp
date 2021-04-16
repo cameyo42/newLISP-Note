@@ -386,7 +386,7 @@ PROBLEMI VARI
   Circuito automobilistico
   Il problema delle studentesse di Kirkman
   Contadino, lupo, capra e cavoli
-  Congettura di Goldbach
+  Ancora la congettura di Goldbach
 
 DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
 ==================================================
@@ -745,6 +745,8 @@ NOTE LIBERE 3
   Il problema dello zaino (Knapsack)  
   Validazione UTF-8
   Sudoku mania
+  Radici quadrate con il metodo di Newton
+  Ippodromo
 
 APPENDICI
 =========
@@ -47863,10 +47865,7 @@ n = 5674 ==> 5 + 6 + 7 + 4 = 22 ==> 2 + 2 = 4
 (define (digitSum n)
   (if (zero? n) 0
     (if (zero? (% n 9)) 9
-      (% n 9)
-    )
-  )
-)
+      (% n 9))))
 
 (digitSum 1234)
 ;-> 1
@@ -52528,9 +52527,9 @@ Oppure:
 ;-> ((e e e e) (w e w e) (e e w e) (w w w e) (e w e e) (w w e w) (e w e w) (w w w w))
 
 
-----------------------
-Congettura di Goldbach
-----------------------
+--------------------------------
+Ancora la congettura di Goldbach
+--------------------------------
 
 La congettura di Goldbach è uno dei più vecchi problemi irrisolti nella teoria dei numeri. Essa afferma che ogni numero pari maggiore di 2 può essere scritto come somma di due numeri primi (che possono essere anche uguali).
 
@@ -52632,6 +52631,67 @@ La versione di Eulero è la forma nella quale la congettura è formulata attualm
 ;-> 29 29 43
 ;-> 41 41 19
 ;-> 47 47 7
+
+Infine vediamo l'algoritmo proposto nel libro "Algorithms" 4 Edizione di Robert Sedgewick e Kevin Wayne che cerca di trovare la somma di due primi anche per i numeri dispari:
+
+(define (goldbach-all num)
+  (local (isprime conta lista fattore j)
+    (setq isprime (array num '(true)))
+    (setf (isprime 0) nil)
+    (setf (isprime 1) nil)
+    ; Eratostene
+    (setq fattore 2)
+    (while (< (* fattore fattore) num)
+      (if (isprime fattore) (begin
+          (setq j fattore)
+          (while (< (* fattore j) num)
+            (setf (isprime (* fattore j)) nil)
+            (++ j)
+          ))
+      )
+      (++ fattore)
+    )
+    ; conta i numeri primi
+    (setq conta 0)
+    (for (i 2 (- num 1))
+      (if (isprime i) (++ conta))
+    )
+    ; mette i primi in una lista
+    (setq lista (array conta '(0)))
+    (setq idx 0)
+    (for (i 0 (- num 1))
+      (if (isprime i) (begin
+          (setf (lista idx) i)
+          (++ idx))
+      )
+    )
+    ; controlla se num può essere espresso
+    ; come somma di due primi
+    (setq sx 0)
+    (setq dx (- idx 1))
+    (setq continua true)
+    (while (and (<= sx dx) continua)
+      (cond ((= (+ (lista sx) (lista dx)) num)
+             (setq continua nil))
+            ((< (+ (lista sx) (lista dx)) num)
+             (++ sx))
+            (true (-- dx))
+      )
+    )
+    ; stampa il risultato
+    (if (= (+ (lista sx) (lista dx)) num)
+        (println (lista sx) " + " (lista dx) " = " num)
+        (println num " non è esprimibile come somma di due primi.")
+    )))
+
+(goldbach-all 10003292)
+;-> 349 + 10002943 = 10003292
+
+(goldbach-all 10000001)
+;-> 10000001 non è esprimibile come somma di due primi.
+
+(goldbach-all 10000021)
+;-> 2 + 10000019 = 10000021
 
 
 ====================================================
@@ -85185,6 +85245,7 @@ Adesso scriviamo una semplice funzione che imposta il nostro ciclo REPL:
 Eseguiamo la nostra REPL di calcolo e valutiamo alcune espressioni:
 
 (calc-repl)
+;-> infix:
 (2 + 3)
 ;-> 5
 ;-> infix:
@@ -85850,6 +85911,8 @@ Facciamo una partita:
 ;->   | O | X | X |
 ;->   ·---·---·---·
 ;-> Partita terminata: patta
+
+Nota: l'intero programma è lungo 66 linee.
 
 
 ----------------
@@ -86699,10 +86762,10 @@ Per ottenere tutti gli accoppiamenti della soluzione possiamo scrivere:
 Il problema dello zaino (Knapsack)
 ----------------------------------
 
-Dati n oggetti con pesi p(0),. . . , p(n−1) e valori v(0),. . . , v(n−1), e dato uno zaino con una capacità C, dove C è un numero intero, trovare un sottoinsieme degli oggetti con valore totale massimo, il cui peso totale non supera la capacità C. 
+Dati n oggetti con pesi p(0),...,p(n−1) e valori v(0),...,v(n−1), e dato uno zaino con una capacità C, dove C è un numero intero, trovare un sottoinsieme degli oggetti con valore totale massimo, il cui peso totale non supera la capacità C. 
 Questo è un problema NP-Hard.
 
-Per i in {0,. . . , n − 1} e c in {0,. . . , C}, assegnare Opt[i][c] come il valore più grande ottenibile tra oggetti con indice da 0 a i senza che il loro peso superi la capacità c. Per il caso base i = 0, abbiamo Opt[0][c] = 0 se (p(0) > c) altrimenti Opt[0][c] = v0.
+Per i in {0,...,n − 1} e c in {0,...,C}, assegnare Opt[i][c] come il valore più grande ottenibile tra oggetti con indice da 0 a i senza che il loro peso superi la capacità c. Per il caso base i = 0, abbiamo Opt[0][c] = 0 se (p(0) > c) altrimenti Opt[0][c] = v0.
 Per valori maggiori di i, compaiono al massimo due scelte possibili per l'oggetto dell'indice i: possiamo prenderlo o possiamo lasciarlo.
 Nel primo caso, la capacità disponibile viene ridotta di p(i). Abbiamo quindi la relazione:
 
@@ -86833,7 +86896,7 @@ Ma il secondo byte di continuazione non inizia con 10, quindi non è valido.
 (utf8? '(235 140 1))
 ;-> nil
 
-Nota: L'algoritmo originale usa l'operatore bit-wise ">>>" (unsigned right bit-shift). newLISP non possiede questo operatore ed abbiamo utilizzato l'operatore ">>" (signed right bit-shift). Entrambi dividono il primo operando per 2 elevato al secondo operando.
+Nota: L'algoritmo originale utilizza l'operatore bit-wise ">>>" (unsigned right bit-shift). newLISP non possiede questo operatore ed abbiamo utilizzato l'operatore ">>" (signed right bit-shift). Entrambi dividono il primo operando per 2 elevato al secondo operando.
 La differenza tra ">>" e ">>>" appare solo quando si usano numeri negativi. L'operatore ">>" sposta un bit 1 nel bit più significativo se era un 1, invece ">>>" sposta in 0 a prescindere.
 
 
@@ -86841,7 +86904,7 @@ La differenza tra ">>" e ">>>" appare solo quando si usano numeri negativi. L'op
 Sudoku mania
 ------------
 
-Un altro programma per risolvere il sudoku.
+Un altro programma brute-force per risolvere il sudoku.
 
 ; controlla se un tentativo (numero) è valido in un box (3x3)
 (define (check-box guess row col grid)
@@ -86872,9 +86935,9 @@ Un altro programma per risolvere il sudoku.
     true)))
 ; controlla se un tentativo (numero) è valido
 (define (is-safe guess row col grid)
-  (if (and (check-box guess row col grid)
-           (check-row guess row col grid)
-           (check-col guess row col grid))
+  (if (and (check-row guess row col grid)
+           (check-col guess row col grid)
+           (check-box guess row col grid))
       true
       nil))
 ; funzione ausiliaria che risolve il sudoku
@@ -86950,7 +87013,264 @@ Vediamo alcuni esempi:
 ;->  (3 5 6 4 7 8 2 1 9)
 ;->  (2 4 1 9 3 5 8 6 7)
 ;->  (8 9 7 2 6 1 3 5 4))
-;-> 433.809
+;-> 333.887
+
+(setq world
+'((8 0 0 0 0 0 0 0 0)
+  (0 0 3 6 0 0 0 0 0)
+  (0 7 0 0 9 0 2 0 0)
+  (0 5 0 0 0 7 0 0 0)
+  (0 0 0 0 4 5 7 0 0)
+  (0 0 0 1 0 0 0 3 0)
+  (0 0 1 0 0 0 0 6 8)
+  (0 0 8 5 0 0 0 1 0)
+  (0 9 0 0 0 0 4 0 0)))
+
+(time (println (sudoku world)))
+;-> ((8 1 2 7 5 3 6 4 9)
+;->  (9 4 3 6 8 2 1 7 5)
+;->  (6 7 5 4 9 1 2 8 3)
+;->  (1 5 4 2 3 7 8 9 6)
+;->  (3 6 9 8 4 5 7 2 1)
+;->  (2 8 7 1 6 9 5 3 4)
+;->  (5 2 1 9 7 4 3 6 8)
+;->  (4 3 8 5 2 6 9 1 7)
+;->  (7 9 6 3 1 8 4 5 2))
+;-> 1840.978
+
+(setq tweezers
+'((1 0 0 0 0 0 0 6 0)
+  (0 0 0 1 0 0 0 0 3)
+  (0 0 5 0 0 2 9 0 0)
+  (0 0 9 0 0 1 0 0 0)
+  (7 0 0 0 4 0 0 8 0)
+  (0 3 0 5 0 0 0 0 2)
+  (5 0 0 4 0 0 0 0 6)
+  (0 0 8 0 6 0 0 7 0)
+  (0 7 0 0 0 5 0 0 0)))
+
+(time (println (sudoku tweezers)))
+;-> ((1 8 2 3 9 4 5 6 7)
+;->  (9 6 7 1 5 8 2 4 3)
+;->  (3 4 5 6 7 2 9 1 8)
+;->  (8 2 9 7 3 1 6 5 4)
+;->  (7 5 6 2 4 9 3 8 1)
+;->  (4 3 1 5 8 6 7 9 2)
+;->  (5 9 3 4 1 7 8 2 6)
+;->  (2 1 8 9 6 3 4 7 5)
+;->  (6 7 4 8 2 5 1 3 9))
+;-> 9305.376
+
+
+---------------------------------------
+Radici quadrate con il metodo di Newton
+---------------------------------------
+
+Dato un numero intero N e un livello di precisione P, trovare la radice quadrata di N con una precisione superiore a P utilizzando il metodo di Newton.
+
+Esempi:
+
+input: N = 16, P = 0.0000001
+output: 4
+4 ^ 2 = 16
+
+input: N = 327, P = 0.0000001
+output: 18.0831
+
+Metodo di Newton
+----------------
+Dato un numero qualsiasi N la sua radice quadrata di N è data dalla formula:
+
+radice = 0.5 * (X + (N / X)) dove X è un valore iniziale che può essere assunto come N o 1.
+
+Nota: "radice" è la nuova X da utilizzare per il passo successivo.
+
+Nella formula sopra, X è una qualsiasi radice quadrata presunta di N e "radice" è la radice quadrata corretta di N. La precisione è data dalla differenza assoluta tra X e "radice".
+
+Algoritmo:
+
+1) Assegnare X uguale a N.
+2) Ciclo continuo per calcolare la radice ottenendo valori sempre più vicini al valore corretto della radice quadrata di N.
+3) Verificare la differenza tra la X presunta e la radice calcolata:
+   Se siamo superiori alla precisione richiesta, 
+    allora aggiornare la radice e continuare.
+    altrimenti uscuamo dal ciclo.
+4) Restituire il valore della radice.
+
+Di seguito è riportata l'implementazione dell'approccio di cui sopra:
+(define (square-root num prec)
+(catch
+  (local (x conta)
+    (setq x num)
+    (setq conta 0)
+    (while true
+      (++ conta)
+      (setq radice (mul 0.5 (add x (div num x))))
+      (if (< (abs (sub radice x)) prec)
+          (throw radice)
+      )
+      ; aggiornamento valore radice
+      (setq x radice)
+    )
+    nil)))
+
+(square-root 16 0.001)
+;-> 4.000000000000051
+
+(square-root 16 0.0000001)
+;-> 4
+
+(square-root 1111 0.0000001)
+;-> 33.33166662499792
+(mul 33.33166662499792 33.33166662499792)
+;-> 1111.000000000001
+
+
+---------
+Ippodromo
+---------
+
+Un semplice gioco per divertirsi con i bambini (e magari scommettere tra grandi).
+La funzione "ippodromo" prende due parametri, il numero di cavalli che partecipano alla corsa (denominati "A", "B", "C", ecc.) e la lunghezza della pista.
+Dalla posizione di partenza dobbiamo premere "invio" per far muovere casualmente uno dei cavalli...fino alla fine della corsa.
+
+(define (ippodromo num-cavalli lunghezza)
+  (local (cavalli testa mossa cav pos)
+    ; inizializzazione dei numeri casuali
+    (seed (time-of-day))
+    ; crea una lista associativa (cavalli, posizione) di lunghezza num-cavalli
+    ; (("A" 0) ("B" 0) ("C" 0) ("D" 0) ...)
+    (setq cavalli '())
+    (for (i 0 (- num-cavalli 1))
+      (push (list (char (+ i 65)) 0) cavalli -1)
+    )
+    ; Inizia la corsa...
+    ; stampa la posizione di partenza
+    (println "Posizione di partenza")
+    (println (dup "-" (+ lunghezza 1)))
+    (for (i 0 (- num-cavalli 1))
+      ; nome cavallo corrente
+      (setq cav (char (+ 65 i)))
+      ; posizione iniziale cavallo corrente
+      (println cav (dup "∙" lunghezza))
+    )
+    (println (dup "-" (+ lunghezza 1)))
+    ; posizione del cavallo in testa
+    (setq testa 0)
+    (while (< testa lunghezza)
+      ; Premere invio per il prossimo passo
+      (read-line)
+      ; mossa (+1) casuale di uno dei cavalli
+      (setq mossa (rand num-cavalli))
+      ; aggiornamento posizione cavallo mosso
+      (++ (lookup (char (+ 65 mossa)) cavalli))
+      ; stampa corsa
+      (for (i 0 (- num-cavalli 1))
+        ; nome cavallo corrente
+        (setq cav (char (+ 65 i)))
+        ; posizione cavallo corrente
+        (setq pos (lookup cav cavalli))
+        ; stampa corsa cavallo corrente
+        (println (dup " " pos) cav (dup "∙" (- lunghezza pos)))
+        ;(println (dup " " pos) cav (dup "." (- lunghezza pos)))
+      )
+      (println { })
+      (println (dup "-" (+ lunghezza 1)))
+      ; calcolo della posizione del cavallo in testa
+      (setq testa (apply max (map last cavalli)))
+    )
+    ; la corsa è finita...
+    ; ordinamento della lista cavalli in base alla posizione
+    (setq arrivo (sort cavalli (fn(x y) (>= (last x) (last y)))))
+    ; stampa l'ordine di arrivo
+    (println "Ordine di arrivo:")
+    (for (i 0 (- num-cavalli 1))
+      (println (+ i 1) "° " (arrivo i 0) " (" (arrivo i 1) ")")
+    )
+    '-----------------))
+
+(ippodromo 2 5)
+;-> Posizione di partenza
+;-> ------
+;-> A∙∙∙∙∙
+;-> B∙∙∙∙∙
+;-> ------
+;-> 
+;-> A∙∙∙∙∙
+;->  B∙∙∙∙
+;-> 
+;-> ------
+;-> 
+;-> A∙∙∙∙∙
+;->   B∙∙∙
+;-> 
+;-> ------
+;-> 
+;->  A∙∙∙∙
+;->   B∙∙∙
+;-> 
+;-> ------
+;-> 
+;->  A∙∙∙∙
+;->    B∙∙
+;-> 
+;-> ------
+;-> 
+;->  A∙∙∙∙
+;->     B∙
+;-> 
+;-> ------
+;-> 
+;->  A∙∙∙∙
+;->      B
+;-> 
+;-> ------
+;-> Ordine di arrivo:
+;-> 1° B (5)
+;-> 2° A (1)
+;-> -----------------
+
+(ippodromo 10 70)
+;-> Posizione di partenza
+;-> -----------------------------------------------------------------------
+;-> A∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙
+;-> B∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙
+;-> C∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙
+;-> D∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙
+;-> E∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙
+;-> F∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙
+;-> G∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙
+;-> H∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙
+;-> I∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙
+;-> J∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙
+;-> -----------------------------------------------------------------------
+;-> 
+...
+;-> 
+;-> -----------------------------------------------------------------------
+;->                                                          A∙∙∙∙∙∙∙∙∙∙∙∙∙
+;->                                                                  B∙∙∙∙∙
+;->                                                    C∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙
+;->                                                              D∙∙∙∙∙∙∙∙∙
+;->                                                   E∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙
+;->                                                                       F
+;->                                               G∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙
+;->                                         H∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙
+;->                                                            I∙∙∙∙∙∙∙∙∙∙∙
+;->                                                      J∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙
+;-> -----------------------------------------------------------------------
+;-> Ordine di arrivo:
+;-> 1° F (70)
+;-> 2° B (65)
+;-> 3° D (61)
+;-> 4° I (59)
+;-> 5° A (57)
+;-> 6° J (53)
+;-> 7° C (51)
+;-> 8° E (50)
+;-> 9° G (46)
+;-> 10° H (40)
+;-> -----------------
 
 
 ===========
@@ -93256,6 +93576,8 @@ Non sei quello che pensi di essere...
   "The Art of Computer Programming", Donald Knuth, 4 volumi, 1968...2015
 
   "Introduction to Algorithms", Cormen-Leiserson-Rivest-Stein, 3ed, 2009
+  
+  "Algorithms", Sedgewick-Wayne, 4ed, 2011
 
   "Teoria e Progetto di Algoritmi Fondamentali", Ausiello-Marchetti-Spaccamela-Protasi, 1985
   

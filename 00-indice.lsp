@@ -386,7 +386,7 @@ PROBLEMI VARI
   Circuito automobilistico
   Il problema delle studentesse di Kirkman
   Contadino, lupo, capra e cavoli
-  Congettura di Goldbach
+  Ancora la congettura di Goldbach
 
 DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
 ==================================================
@@ -745,6 +745,8 @@ NOTE LIBERE 3
   Il problema dello zaino (Knapsack)  
   Validazione UTF-8
   Sudoku mania
+  Radici quadrate con il metodo di Newton
+  Ippodromo
 
 APPENDICI
 =========

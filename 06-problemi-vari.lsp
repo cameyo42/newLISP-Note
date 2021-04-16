@@ -5358,10 +5358,7 @@ n = 5674 ==> 5 + 6 + 7 + 4 = 22 ==> 2 + 2 = 4
 (define (digitSum n)
   (if (zero? n) 0
     (if (zero? (% n 9)) 9
-      (% n 9)
-    )
-  )
-)
+      (% n 9))))
 
 (digitSum 1234)
 ;-> 1
@@ -10023,9 +10020,9 @@ Oppure:
 ;-> ((e e e e) (w e w e) (e e w e) (w w w e) (e w e e) (w w e w) (e w e w) (w w w w))
 
 
-----------------------
-Congettura di Goldbach
-----------------------
+--------------------------------
+Ancora la congettura di Goldbach
+--------------------------------
 
 La congettura di Goldbach è uno dei più vecchi problemi irrisolti nella teoria dei numeri. Essa afferma che ogni numero pari maggiore di 2 può essere scritto come somma di due numeri primi (che possono essere anche uguali).
 
@@ -10127,5 +10124,66 @@ La versione di Eulero è la forma nella quale la congettura è formulata attualm
 ;-> 29 29 43
 ;-> 41 41 19
 ;-> 47 47 7
+
+Infine vediamo l'algoritmo proposto nel libro "Algorithms" 4 Edizione di Robert Sedgewick e Kevin Wayne che cerca di trovare la somma di due primi anche per i numeri dispari:
+
+(define (goldbach-all num)
+  (local (isprime conta lista fattore j)
+    (setq isprime (array num '(true)))
+    (setf (isprime 0) nil)
+    (setf (isprime 1) nil)
+    ; Eratostene
+    (setq fattore 2)
+    (while (< (* fattore fattore) num)
+      (if (isprime fattore) (begin
+          (setq j fattore)
+          (while (< (* fattore j) num)
+            (setf (isprime (* fattore j)) nil)
+            (++ j)
+          ))
+      )
+      (++ fattore)
+    )
+    ; conta i numeri primi
+    (setq conta 0)
+    (for (i 2 (- num 1))
+      (if (isprime i) (++ conta))
+    )
+    ; mette i primi in una lista
+    (setq lista (array conta '(0)))
+    (setq idx 0)
+    (for (i 0 (- num 1))
+      (if (isprime i) (begin
+          (setf (lista idx) i)
+          (++ idx))
+      )
+    )
+    ; controlla se num può essere espresso
+    ; come somma di due primi
+    (setq sx 0)
+    (setq dx (- idx 1))
+    (setq continua true)
+    (while (and (<= sx dx) continua)
+      (cond ((= (+ (lista sx) (lista dx)) num)
+             (setq continua nil))
+            ((< (+ (lista sx) (lista dx)) num)
+             (++ sx))
+            (true (-- dx))
+      )
+    )
+    ; stampa il risultato
+    (if (= (+ (lista sx) (lista dx)) num)
+        (println (lista sx) " + " (lista dx) " = " num)
+        (println num " non è esprimibile come somma di due primi.")
+    )))
+
+(goldbach-all 10003292)
+;-> 349 + 10002943 = 10003292
+
+(goldbach-all 10000001)
+;-> 10000001 non è esprimibile come somma di due primi.
+
+(goldbach-all 10000021)
+;-> 2 + 10000019 = 10000021
 
 

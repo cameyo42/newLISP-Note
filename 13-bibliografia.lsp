@@ -48,6 +48,8 @@
   "The Art of Computer Programming", Donald Knuth, 4 volumi, 1968...2015
 
   "Introduction to Algorithms", Cormen-Leiserson-Rivest-Stein, 3ed, 2009
+  
+  "Algorithms", Sedgewick-Wayne, 4ed, 2011
 
   "Teoria e Progetto di Algoritmi Fondamentali", Ausiello-Marchetti-Spaccamela-Protasi, 1985
   
