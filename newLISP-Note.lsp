@@ -747,7 +747,8 @@ NOTE LIBERE 3
   Sudoku mania
   Radici quadrate con il metodo di Newton
   Ippodromo
-  Derivata Simbolica
+  Parser di espressioni infisse-prefisse-postfisse
+  Derivate Simboliche
 
 APPENDICI
 =========
@@ -87275,15 +87276,171 @@ Dalla posizione di partenza dobbiamo premere "invio" per far muovere casualmente
 ;-> -----------------
 
 
-------------------
-Derivata Simbolica
-------------------
+------------------------------------------------
+Parser di espressioni infisse-prefisse-postfisse
+------------------------------------------------
+
+Questa funzione è basata sul modulo "infix.lsp" che si trova nella distribuione di newLISP ed è stata scritta da Lutz Muller.
+
+La procedura analizza le espressioni infisse, prefisse o suffisse fornite nelle stringhe e restituisce espressioni newLISP, che possono essere valutate. inoltre cattura gli errori di sintassi.
+;; @syntax (xlate <str-expression>)
+;; @param <str-expression> The expression (infix, postfix, prefix) in a string
+;; @return A newLISP expression or 'nil' on failure.
+;; When 'nil' is returned then the error message is in 'result'.
+;;
+;; Note that the parser requires operators, variables and constants surrounded
+;; by spaces except where parenthesis are used.
+;;
+;; @example
+;; (xlate "3 + 4") => (add 3 4) ;; parses infix
+;; (xlate "+ 3 4") => (add 3 4) ;; parses prefix s-expressions
+;; (xlate "3 4 +") => (add 2 4) ;; parses postfix
+;;  
+;; (xlate "3 + * 4") => "ERR: missing argument for +"
+;;
+;; (eval (xlate "3 + 4")) => 7
+;;
+;; (xlate "(3 + 4) * (5 - 2)")  => (mul (add 3 4) (sub 5 2))
+;;  
+;; (xlate "(a + b) ^ 2 + (a - b) ^ 2") => (add (pow (add a b) 2) (pow (sub a b) 2))
+;;  
+;; (xlate "x = (3 + sin(20)) * (5 - 2)")  => (setq x (mul (add 3 (sin 20)) (sub 5 2)))
+;;  
+;; (xlate "x = (3 + sin(10 - 2)) * (5 - 2)")
+;;         => (setq x (mul (add 3 (sin (sub 10 2))) (sub 5 2)))
+;
+; operator priority table
+; (token operator arg-count priority)
+(set 'operators '(
+  ("=" setq 2 2)
+  ("+" add 2 3)
+  ("-" sub 2 3)
+  ("*" mul 2 4)
+  ("/" div 2 4)
+  ("^" pow 2 5)
+  ("abs" abs 1 9)
+  ("acos" acos 1 9)
+  ("asin" asin 1 9)
+  ("atan" atan 1 9)
+  ("sin" sin 1 9)
+  ("sqrt" sqrt 1 9)
+  ("tan" tan 1 9)
+  ("cos" cos 1 9)
+; add what else is needed
+  ))
+; Main function
+(define (xlate str)
+  (if (catch (infix-xlate str) 'result)
+    result                     ; if starts with ERR: is error else result
+    (append "ERR: " result)))  ; newLISP error has ocurred
+; Auxiliary function
+(define (infix-xlate str)
+  (set 'tokens (parse str))
+  (set 'varstack '())
+  (set 'opstack '())
+  (dolist (tkn tokens)
+  (case tkn
+        ("(" (push tkn opstack))
+        (")" (close-parenthesis))
+        (true (if (assoc tkn operators)
+                  (process-op tkn)
+                  (push tkn varstack)))))
+  (while (not (empty? opstack))
+        (make-expression))
+  (set 'result (first varstack))
+  (if (or (> (length varstack) 1) (not (list? result)))
+    (throw "ERR: wrong syntax")
+    result))
+; pop all operators and make expressions
+; until an open parenthesis is found
+(define (close-parenthesis)
+ (while (not (= (first opstack) "("))
+    (make-expression))
+ (pop opstack))
+; pop all operator, which have higher/equal priority
+; and make expressions
+(define (process-op tkn)
+  (while (and opstack
+              (<= (lookup tkn operators 3) (lookup (first opstack) operators 3)))
+        (make-expression))
+  (push tkn opstack))
+; pops an operator from the opstack and makes/returns an
+; newLISP expression
+(define (make-expression)
+  (set 'expression '())
+  (if (empty? opstack)
+        (throw "ERR: missing parenthesis"))
+  (set 'ops (pop opstack))
+  (set 'op (lookup ops operators 1))
+  (set 'nops (lookup ops operators 2))
+  (dotimes (n nops)
+    (if (empty? varstack) (throw (append "ERR: missing argument for " ops)))
+    (set 'vars (pop varstack))
+    (if (atom? vars)
+            (if (not (or (set 'var (float vars))
+                         (and (legal? vars) (set 'var (sym vars))) ))
+                (throw (append vars "ERR: is not a variable"))
+                (push var expression))
+            (push vars expression)))
+  (push op expression)
+  (push expression varstack))
+
+Esempi:
+
+Infissa -> Prefissa
+(xlate "3 + 4")
+;-> (add 3 4)
+
+Prefiss -> Prefissa
+(xlate "+ 3 4")
+;-> (add 3 4)
+
+Postfissa -> Prefissa
+(xlate "3 4 +")
+;-> (add 2 4)
+
+(xlate "3 + * 4")
+;-> "ERR: missing argument for +"
+
+(eval (xlate "3 + 4"))
+;-> 7
+
+(xlate "(3 + 4) * (5 - 2)")
+;-> (mul (add 3 4) (sub 5 2))
+
+(xlate "(a + b) ^ 2 + (a - b) ^ 2")
+;-> (add (pow (add a b) 2) (pow (sub a b) 2))
+ 
+(xlate "x = (3 + sin(20)) * (5 - 2)")
+;-> (setq x (mul (add 3 (sin 20)) (sub 5 2)))
+ 
+(xlate "x = (3 + sin(10 - 2)) * (5 - 2)")
+;-> (setq x (mul (add 3 (sin (sub 10 2))) (sub 5 2)))
+
+
+-------------------
+Derivate Simboliche
+-------------------
 
 Dal libro "Structure and Interpretation of Computer Programs" di Abelson e Sussman.
 Capitolo 2 Building Abstractions with Data
 Pararafo 2.3.2 Esempio: Derivata simbolica
 
 https://mitpress.mit.edu/sites/default/files/sicp/full-text/sicp/book/node39.html
+
+Nota: funzioni ausiliarie "car" e "cdr"
+;(define (car x)    (first x))
+;(define (cdr x)    (rest x))
+(define car first)
+(define cdr rest)
+(define (caar x)   (first (first x)))
+(define (cadr x)   (first (rest x)))
+(define (cdar x)   (rest (first x)))
+(define (cddr x)   (rest (rest x)))
+(define (caaar x)  (first (first (first x))))
+(define (caadr x)  (first (first (rest x))))
+(define (cadar x)  (first (rest (first x))))
+(define (caddr x)  (first (rest (rest x))))
 
 Come illustrazione della manipolazione dei simboli e un'ulteriore illustrazione dell'astrazione dei dati, si consideri la progettazione di una procedura che esegue la differenziazione simbolica delle espressioni algebriche. Vorremmo che la procedura prendesse come argomenti un'espressione algebrica e una variabile e restituisse la derivata dell'espressione rispetto alla variabile. Ad esempio, se gli argomenti della procedura sono ax^2 + bx + c e x, la procedura dovrebbe restituire 2ax + b. La differenziazione simbolica ha un significato storico speciale in Lisp. È stato uno degli esempi motivanti alla base dello sviluppo di un linguaggio informatico per la manipolazione dei simboli. Inoltre, ha segnato l'inizio della linea di ricerca che ha portato allo sviluppo di potenti sistemi per il calcolo matematico simbolico, che sono attualmente utilizzati da un numero crescente di matematici applicati e fisici.
 
@@ -87369,6 +87526,7 @@ Due variabili sono uguali se i simboli che le rappresentano sono uguali:
 Le somme e i prodotti sono costruiti come liste:
 
 (define (make-sum a1 a2) (list '+ a1 a2))
+
 (define (make-product m1 m2) (list '* m1 m2))
 
 Le sotto-espressioni devono essere liste con più di 2 elementi:
@@ -87378,28 +87536,28 @@ Le sotto-espressioni devono essere liste con più di 2 elementi:
 Una somma è una lista il cui primo elemento è il simbolo +:
 
 (define (sum? x)
-  (and (pair? x) (= (first x) '+)))
+  (and (pair? x) (= (car x) '+)))
 
 L'addendo è il secondo elemento della lista somma:
 
-(define (addend s) (s 1))
+(define (addend s) (cadr s))
 
 Il secondo addendo (augend) è il terzo elemento della lista della somma:
 
-(define (augend s) (s 2))
+(define (augend s) (caddr s))
 
 Un prodotto è una lista il cui primo elemento è il simbolo *:
 
 (define (product? x)
-  (and (pair? x) (= (first x) '*)))
+  (and (pair? x) (= (car x) '*)))
 
 Il moltiplicatore è il secondo elemento della lista prodotto:
 
-(define (multiplier p) (p 1))
+(define (multiplier p) (cadr p))
 
 Il moltiplicando è il terzo elemento della lista prodotto:
 
-(define (multiplicand p) (p 2))
+(define (multiplicand p) (caddr p))
 
 Quindi, dobbiamo solo combinarli con l'algoritmo definito da "deriv" per avere un programma di differenziazione simbolica funzionante. Vediamo alcuni esempi del suo comportamento:
 
@@ -87431,7 +87589,7 @@ La nostra difficoltà è molto simile a quella che abbiamo incontrato con l'impl
         ((and (number? a1) (number? a2)) (+ a1 a2))
         (true (list '+ a1 a2))))
 
-Questa funzione utilizza la procedura "= numero?", che controlla se un'espressione è uguale a un dato numero:
+Questa funzione utilizza la procedura "=number?", che controlla se un'espressione è uguale a un dato numero:
 
 (define (=number? expr num)
   (and (number? expr) (= expr num)))
@@ -87456,6 +87614,7 @@ Ecco come funziona questa versione sui nostri tre esempi:
 
 Sebbene questo sia un bel miglioramento, il terzo esempio mostra che c'è ancora molta strada da fare prima di ottenere un programma che metta le espressioni in una forma che potremmo concordare sia "più semplice". Il problema della semplificazione algebrica è complesso perché, tra le altre ragioni, una forma che può essere più semplice per uno scopo potrebbe non esserlo per un altro.
 
+--------------
 Esercizio 2.56
 --------------
 Mostra come estendere il differenziatore di base per gestire più tipi di espressioni. Ad esempio, implementa la regola di differenziazione:
@@ -87466,6 +87625,110 @@ Mostra come estendere il differenziatore di base per gestire più tipi di espres
 
 aggiungendo una nuova clausola al programma "deriv" e definendo opportune procedure di "esponentiation?", "base", "exponent" e "make-exponentiation". (Puoi usare il simbolo ** per denotare l'elevazione a potenza). Costruisci nelle regole che qualsiasi cosa elevata alla potenza 0 è 1 e qualsiasi cosa elevata alla potenza 1 è la cosa stessa.
 
+--------------
+Soluzione 2.56
+--------------
+Iniziamo con la funzione "make-exponentiation". Come le implementazioni di "make-sum" e "make-product", vogliamo inserire alcune regole che riducano l'espressione alla sua forma più semplice. Per gli esponenti e le basi possiamo definire le seguenti riduzioni:
+
+  Qualunque cosa elevata alla potenza di 0 è 1.
+  Qualunque cosa elevata alla potenza di 1 è se stessa.
+  0 elevato alla potenza di qualsiasi cosa è 0.
+  1 elevato alla potenza di qualsiasi cosa è 1.
+
+Se sia la base che l'esponente sono numeri, l'esponente può calcolare e restituire l'esponente.
+In ogni altro caso, costruiamo semplicemente la rappresentazione della lista appropriata e la restituiamo. Questo ci dà la seguente implementazione:
+
+(define (make-exponentiation base exponent)
+  (cond ((=number? exponent 0) 1)
+        ((=number? exponent 1) base)
+        ((=number? base 0) 0)
+        ((=number? base 1) 1)
+        ((and (number? base) (number? exponent)) (pow base exponent))
+        (true (list '** base exponent))))
+
+Facciamo alcuni test:
+
+(= 1 (make-exponentiation 1 24))
+(= 16 (make-exponentiation 2 4))
+(= '(** a 3) (make-exponentiation 'a 3))
+(= '(** 5 b) (make-exponentiation 5 'b))
+(= '(** a b) (make-exponentiation 'a 'b))
+(= 'a (make-exponentiation 'a 1))
+(= 1 (make-exponentiation 'a 0))
+(= 4 (make-exponentiation 4 1))
+(= 1 (make-exponentiation 4 0))
+(= 0 (make-exponentiation 0 2))
+(= 0 (make-exponentiation 0 'x))
+(= 1 (make-exponentiation 0 0))
+(= 1 (make-exponentiation 2 0))
+(= 1 (make-exponentiation 'x 0))
+(= 2 (make-exponentiation 2 1))
+(= 1234 (make-exponentiation 1234 1))
+(= 'x (make-exponentiation 'x 1))
+(= 8 (make-exponentiation 2 3))
+(= '(** x 3) (make-exponentiation 'x 3))
+
+I selettori e i predicati seguono quindi lo stesso modello degli equivalenti per somme e prodotti.
+
+Selettore per la base:
+
+(define (base e) (cadr e))
+
+Selettore per l'esponente:
+
+(define (exponent e) (caddr e))
+
+Predicato di esponenziazione:
+
+(define (exponentiation? x)
+  (and (pair? x) (= (car x) '**)))
+
+Facciamo alcuni test:
+
+(= 2 (base '(** 2 3)))
+(= 'x (base '(** x 3)))
+(= 3 (exponent '(** 2 3)))
+(= 'x (exponent '(** 2 x)))
+(= true (exponentiation? (list '** 'x 2)))
+(= true (exponentiation? '(** x 2)))
+
+Tutto quello che dobbiamo fare ora è estendere "deriv", aggiungendo una clausola che utilizza la funzione "exponentiation?" per verificare se l'espressione è o meno un esponenziale e, in tal caso, applica la regola di differenziazione:
+
+(define (deriv expr var)
+  (cond ((number? expr) 0)
+        ((variable? expr)
+         (if (same-variable? expr var) 1 0))
+        ((sum? expr)
+         (make-sum (deriv (addend expr) var)
+                   (deriv (augend expr) var)))
+        ((product? expr)
+         (make-sum
+           (make-product (multiplier expr)
+                         (deriv (multiplicand expr) var))
+           (make-product (deriv (multiplier expr) var)
+                         (multiplicand expr))))
+        ((exponentiation? expr)
+         (make-product
+           (make-product (exponent expr)
+                         (make-exponentiation (base expr)
+                                              (make-sum (exponent expr) -1)))
+           (deriv (base expr) var)))
+        (true
+         (println "Espressione sconosciuta:" expr))))
+
+(= 1 (deriv '(+ x 4) 'x))
+(= 'y (deriv '(+ (* x y) 4) 'x))
+(= '(* 2 x) (deriv '(** x 2) 'x))
+(= '(+ (* 3 (* 2 x)) 1) (deriv '(+ (* 3 (** x 2)) x) 'x))
+
+(deriv (make-exponentiation 'a 5) 'a)
+;-> (* 5 (** a 4))
+(deriv (make-exponentiation 'a 'b) 'a)
+;-> (* b (** a (+ b -1)))
+(deriv (make-exponentiation 'a (make-sum 'a 'b)) 'a)
+;-> (* (+ a b) (** a (+ (+ a b) -1)))
+
+--------------
 Esercizio 2.57
 --------------
 Estendi il programma di differenziazione per gestire somme e prodotti di numeri arbitrari di (due o più) termini. Quindi l'ultimo esempio sopra potrebbe essere espresso come:
@@ -87474,13 +87737,221 @@ Estendi il programma di differenziazione per gestire somme e prodotti di numeri 
 
 Prova a farlo modificando solo la rappresentazione di somme e prodotti, senza modificare affatto la procedura "deriv". Ad esempio, l'addendo di una somma sarebbe il primo termine e l'augendo sarebbe la somma del resto dei termini.
 
+--------------
+Soluzione 2.57
+--------------
+Prima soluzione
+---------------
+Per risolvere questo problema è necessario cambiare le funzioni "make-sum" e "make-product" in modo che restituiscano rispettivamente la somma o il prodotto degli elementi rimanenti nella lista. Per fare questo scriviamo anche due funzioni ausiliarie "make-sum-list" e "make-product-list".
+
+ (define (make-sum-list l)
+   (if (= (length l) 2)
+       (list '+ (car l) (cadr l))
+       (make-sum (car l) (make-sum-list (cdr l)))))
+
+ (define (make-sum a1 a2)
+   (cond ((=number? a1 0) a2)
+         ((=number? a2 0) a1)
+         ((and (number? a1) (number? a2)) (+ a1 a2))
+         (true (make-sum-list (list a1 a2)))))
+
+ (define (make-product-list l)
+   (if (= (length l) 2)
+       (list '* (car l) (cadr l))
+       (make-product (car l) (make-product-list (cdr l)))))
+
+ (define (make-product m1 m2)
+   (cond ((or (=number? m1 0) (=number? m2 0)) 0)
+         ((=number? m1 1) m2)
+         ((=number? m2 1) m1)
+         ((and (number? m1) (number? m2)) (* m1 m2))
+         (true (make-product-list (list m1 m2)))))
+
+ (define (augend s)
+   (let ((a (cddr s)))
+     (if (= (length a) 1)
+         (car a)
+         (make-sum-list a))))
+
+ (define (multiplicand p)
+   (let ((m (cddr p)))
+     (if (= (length m) 1)
+         (car m)
+         (make-product-list m))))
+
+ ;; tests
+ (deriv '(* (* x y) (+ x 3)) 'x)
+ ;; (+ (* x y) (* y (+ x 3)))
+
+ (deriv '(* x y (+ x 3)) 'x)
+ ;; (+ (* x y) (* y (+ x 3)))
+
+Seconda soluzione
+-----------------
+Un'altra soluzione è cambiare le funzioni "augend" e "multiplicand" in modo che restituiscano rispettivamente la somma o il prodotto degli elementi rimanenti nella lista. Mentre le funzioni "make-sum" e "make-product" rimangono invariate.
+
+(define (make-sum a1 a2)
+  (cond ((=number? a1 0) a2)
+        ((=number? a2 0) a1)
+        ((and (number? a1) (number? a2)) (+ a1 a2))
+        (true (list '+ a1 a2))))
+
+(define (make-product m1 m2)
+  (cond ((or (=number? m1 0) (=number? m2 0)) 0)
+        ((=number? m1 1) m2)
+        ((=number? m2 1) m1)
+        ((and (number? m1) (number? m2)) (* m1 m2))
+        (true (list '* m1 m2))))
+
+(define (augend s)
+  (accumulate make-sum 0 (cddr s)))
+
+(define (multiplicand p)
+  (accumulate make-product 1 (cddr  p)))
+
+(define (accumulate op initial seq)
+  (if (null? seq)
+      initial
+      (op (car seq)
+          (accumulate op initial (cdr seq)))))
+
+(deriv '(* (* x y) (+ x 3)) 'x)
+;-> (+ (* x y) (* y (+ x 3)))
+
+(deriv '(* x y (+ x 3)) 'x)
+;-> (+ (* x y) (* y (+ x 3)))
+
+La funzione "accumulate" applica ricorsivamente la funzione make per sommare tutte le voci in lista.
+
+ (accumulate make-sum 0 (cddr s))
+
+È analogo a:
+
+ (accumulate +  0 (cddr s))
+
+per dati simbolici. Usiamo (cddr s)) per ottenere il resto della lista che inizia con il terzo elemento.
+
+--------------
 Esercizio 2.58
 --------------
+
 Supponiamo di voler modificare il programma di differenziazione in modo che funzioni con la notazione matematica ordinaria, in cui + e * sono operatori infissi piuttosto che prefissi. Poiché il programma di differenziazione è definito in termini di dati astratti, possiamo modificarlo per lavorare con diverse rappresentazioni di espressioni unicamente cambiando i predicati, i selettori e i costruttori che definiscono la rappresentazione delle espressioni algebriche su cui il differenziatore deve operare.
 
 a. Mostra come farlo per differenziare le espressioni algebriche presentate in forma infissa, come (x + (3 * (x + (y + 2)))). Per semplificare l'attività, supponiamo che + e * prendano sempre due argomenti e che le espressioni siano completamente tra parentesi.
 
 b. Il problema diventa sostanzialmente più difficile se permettiamo la notazione algebrica standard, come (x + 3 * (x + y + 2)), che elimina le parentesi non necessarie e presume che la moltiplicazione venga eseguita prima dell'addizione. Potete progettare predicati, selettori e costruttori appropriati per questa notazione in modo tale che il nostro programma derivato funzioni ancora?
+
+--------------
+Soluzione 2.58
+--------------
+Per risolvere questo problema possiamo usare la funzione "xlate" che converte le expressioni infisse o postfisse in espressioni prefisse (La funzione "xlate" si trova nel paragrafo "Parser di espressioni infisse-prefisse-postfisse". Quindi non dobbiamo fare alcuna modifica al programma di differenziazione. Per finire riportiamo come è stato modificato il programma con le soluzioni 2.56 e 2.57.
+;
+(define car first)
+(define cdr rest)
+(define (caar x)   (first (first x)))
+(define (cadr x)   (first (rest x)))
+(define (cdar x)   (rest (first x)))
+(define (cddr x)   (rest (rest x)))
+(define (caaar x)  (first (first (first x))))
+(define (caadr x)  (first (first (rest x))))
+(define (cadar x)  (first (rest (first x))))
+(define (caddr x)  (first (rest (rest x))))
+;
+(define (deriv expr var)
+  (cond ((number? expr) 0)
+        ((variable? expr)
+         (if (same-variable? expr var) 1 0))
+        ((sum? expr)
+         (make-sum (deriv (addend expr) var)
+                   (deriv (augend expr) var)))
+        ((product? expr)
+         (make-sum
+           (make-product (multiplier expr)
+                         (deriv (multiplicand expr) var))
+           (make-product (deriv (multiplier expr) var)
+                         (multiplicand expr))))
+        ((exponentiation? expr)
+         (make-product
+           (make-product (exponent expr)
+                         (make-exponentiation (base expr)
+                                              (make-sum (exponent expr) -1)))
+           (deriv (base expr) var)))
+        (true
+         (println "Espressione sconosciuta:" expr))))
+;
+(define (variable? x) (symbol? x))
+;
+(define (same-variable? v1 v2)
+  (and (variable? v1) (variable? v2) (= v1 v2)))
+;
+(define (make-sum a1 a2) (list '+ a1 a2))
+;
+(define (make-product m1 m2) (list '* m1 m2))
+;
+(define (pair? x) (and (list? x) (> (length x) 2)))
+;
+(define (=number? expr num)
+  (and (number? expr) (= expr num)))
+;
+(define (sum? x)
+  (and (pair? x) (= (car x) '+)))
+;
+(define (addend s) (cadr s))
+;
+;(define (augend s) (caddr s))
+;
+(define (product? x)
+  (and (pair? x) (= (car x) '*)))
+;
+(define (multiplier p) (cadr p))
+;
+;(define (multiplicand p) (caddr p))
+;
+(define (make-sum a1 a2)
+  (cond ((=number? a1 0) a2)
+        ((=number? a2 0) a1)
+        ((and (number? a1) (number? a2)) (+ a1 a2))
+        (true (list '+ a1 a2))))
+;
+(define (make-product m1 m2)
+  (cond ((or (=number? m1 0) (=number? m2 0)) 0)
+        ((=number? m1 1) m2)
+        ((=number? m2 1) m1)
+        ((and (number? m1) (number? m2)) (* m1 m2))
+        (true (list '* m1 m2))))
+;
+(define (make-exponentiation base exponent)
+  (cond ((=number? exponent 0) 1)
+        ((=number? exponent 1) base)
+        ((=number? base 0) 0)
+        ((=number? base 1) 1)
+        ((and (number? base) (number? exponent)) (pow base exponent))
+        (true (list '** base exponent))))
+;
+(define (augend s)
+  (accumulate make-sum 0 (cddr s)))
+;
+(define (multiplicand p)
+  (accumulate make-product 1 (cddr  p)))
+;
+(define (accumulate op initial seq)
+  (if (null? seq)
+      initial
+      (op (car seq)
+          (accumulate op initial (cdr seq)))))
+
+Facciamo alcune prove:
+
+(deriv '(+ x 3) 'x)
+;-> 1
+(deriv '(* x y) 'x)
+;-> y
+(deriv '(* (* x y) (+ x 3)) 'x)
+;-> (+ (* x y) (* y (+ x 3)))
+(deriv '(* (* x y) (+ x 3)) 'x)
+;-> (+ (* x y) (* y (+ x 3)))
+(deriv '(* x y (+ x 3)) 'x)
+;-> (+ (* x y) (* y (+ x 3)))
 
 
 ===========

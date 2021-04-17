@@ -747,7 +747,8 @@ NOTE LIBERE 3
   Sudoku mania
   Radici quadrate con il metodo di Newton
   Ippodromo
-  Derivata Simbolica
+  Parser di espressioni infisse-prefisse-postfisse
+  Derivate Simboliche
 
 APPENDICI
 =========
