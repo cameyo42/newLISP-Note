@@ -747,6 +747,7 @@ NOTE LIBERE 3
   Sudoku mania
   Radici quadrate con il metodo di Newton
   Ippodromo
+  Derivata Simbolica
 
 APPENDICI
 =========
@@ -6536,6 +6537,7 @@ Eliminare il contesto in questo modo:
 (delete name) ; elimina il simbolo in MAIN
 
 Cancellazione di un contesto
+----------------------------
 Quando si elimina un simbolo di contesto, la prima eliminazione rimuove il contenuto dello spazio dei nomi di contesto e riduce il simbolo a un normale simbolo mono-variabile. La seconda eliminazione rimuove quindi completamente il simbolo dalla tabella dei simboli. Questo metodo è necessario quando si utilizzano simboli di variabili locali in funzioni come contesti.
 
 In generale: non cancellare di spazi dei nomi nei programmi newLISP di dimensioni non banali. Tranne quando si usa il flag nil nel comando delete, i simboli vengono controllati come riferimento nell'intero spazio di memoria delle celle newLISP, che può rallentare molto su programmi grandi con dati grandi.
@@ -87271,6 +87273,214 @@ Dalla posizione di partenza dobbiamo premere "invio" per far muovere casualmente
 ;-> 9° G (46)
 ;-> 10° H (40)
 ;-> -----------------
+
+
+------------------
+Derivata Simbolica
+------------------
+
+Dal libro "Structure and Interpretation of Computer Programs" di Abelson e Sussman.
+Capitolo 2 Building Abstractions with Data
+Pararafo 2.3.2 Esempio: Derivata simbolica
+
+https://mitpress.mit.edu/sites/default/files/sicp/full-text/sicp/book/node39.html
+
+Come illustrazione della manipolazione dei simboli e un'ulteriore illustrazione dell'astrazione dei dati, si consideri la progettazione di una procedura che esegue la differenziazione simbolica delle espressioni algebriche. Vorremmo che la procedura prendesse come argomenti un'espressione algebrica e una variabile e restituisse la derivata dell'espressione rispetto alla variabile. Ad esempio, se gli argomenti della procedura sono ax^2 + bx + c e x, la procedura dovrebbe restituire 2ax + b. La differenziazione simbolica ha un significato storico speciale in Lisp. È stato uno degli esempi motivanti alla base dello sviluppo di un linguaggio informatico per la manipolazione dei simboli. Inoltre, ha segnato l'inizio della linea di ricerca che ha portato allo sviluppo di potenti sistemi per il calcolo matematico simbolico, che sono attualmente utilizzati da un numero crescente di matematici applicati e fisici.
+
+Nello sviluppo del programma di differenziazione simbolica, seguiremo la stessa strategia di astrazione dei dati che abbiamo seguito nello sviluppo del sistema numerico razionale della sezione 2.1.1. Cioè, definiremo prima un algoritmo di differenziazione che opera su oggetti astratti come "somme", "prodotti" e "variabili" senza preoccuparci di come questi devono essere rappresentati. Solo in seguito affronteremo il problema della rappresentazione.
+
+Il programma di differenziazione con dati astratti
+--------------------------------------------------
+Per mantenere le cose semplici, prenderemo in considerazione un programma di differenziazione simbolica molto semplice che gestisce espressioni costruite utilizzando solo le operazioni di addizione e moltiplicazione con due argomenti. La differenziazione di tali espressioni può essere effettuata applicando le seguenti regole di riduzione:
+
+   dc
+  ---- = 0 per c costante o variabile diversa da x
+   dx
+
+   dx
+  ---- = 1
+   dx
+
+   d(u + v)     du     dv
+  ---------- = ---- + ----
+      dx        dx     dx
+
+   d(u * v)       dv       du
+  ---------- = u*---- + v*----
+      dx          dx       dx
+
+Osserva che le ultime due regole sono di natura ricorsiva. Cioè, per ottenere la derivata di una somma troviamo prima le derivate dei termini e le sommiamo. Ciascuno dei termini può a sua volta essere un'espressione che deve essere scomposta. La scomposizione in pezzi sempre più piccoli produrrà alla fine pezzi che sono costanti o variabili, le cui derivate saranno 0 o 1.
+
+Per incorporare queste regole in una procedura, dobbiamo affidarci ad una ipotesi di speranza, come abbiamo fatto nel progettare l'implementazione de numeri razionali. Se avessimo un mezzo per rappresentare espressioni algebriche, dovremmo essere in grado di dire se un'espressione è una somma, un prodotto, una costante o una variabile. Dovremmo essere in grado di estrarre le parti di un'espressione. Per una somma, ad esempio, vogliamo essere in grado di estrarre l'addendo (primo termine) e l'augendo (secondo termine). Dovremmo anche essere in grado di costruire espressioni dalle parti. Supponiamo di avere già procedure per implementare i seguenti selettori, costruttori e predicati:
+
+  (variable? e)	"a" è una variabile?
+
+  (same-variable? v1 v2)	v1 e v2 sono le stesse variabili?
+
+  (sum? e) "e" è una somma?
+
+  (addend e)	Addendo della somma "e"
+
+  (augend e)	Augendo della somma "e"
+
+  (make-sum a1 a2)	Costruisce la somma di "a1" e "a2"
+
+  (product? e) "e" è un prodotto?
+
+  (multiplier e)	Moltiplicatore del prodotto "e"
+
+  (multiplicand e)	Moltiplicando del prodotto "e"
+
+  (make-product m1 m2)	Costruisce il prodotto di "m1" e "m2"
+
+Usando questi, e il predicato primitivo "number?", che identifica i numeri, possiamo esprimere le regole di differenziazione come la seguente procedura:
+
+(define (deriv expr var)
+  (cond ((number? expr) 0)
+        ((variable? expr)
+         (if (same-variable? expr var) 1 0))
+        ((sum? expr)
+         (make-sum (deriv (addend expr) var)
+                   (deriv (augend expr) var)))
+        ((product? expr)
+         (make-sum
+           (make-product (multiplier expr)
+                         (deriv (multiplicand expr) var))
+           (make-product (deriv (multiplier expr) var)
+                         (multiplicand expr))))
+        (true
+         (println "Espressione sconosciuta:" expr))))
+
+Questa procedura "deriv" incorpora l'algoritmo di differenziazione completo. Poiché è espresso in termini di dati astratti, funzionerà indipendentemente da come scegliamo di rappresentare le  espressioni algebriche, purché progettiamo un insieme appropriato di selettori e costruttori. Questo è il problema che dobbiamo affrontare dopo.
+
+Rappresentare espressioni algebriche
+------------------------------------
+Possiamo immaginare molti modi per utilizzare la struttura a lista per rappresentare espressioni algebriche. Ad esempio, potremmo usare elenchi di simboli che rispecchiano la solita notazione algebrica, rappresentando ax + b come lista (a * x + b). Tuttavia, una scelta particolarmente semplice è quella di utilizzare la stessa notazione di prefisso tra parentesi che Lisp usa per le combinazioni, ovvero, rappresentare ax + b come (+ (* a x) b). Quindi la nostra rappresentazione dei dati per il problema di differenziazione è la seguente:
+
+Le variabili sono simboli. Sono identificati dal predicato primitivo "symbol?":
+
+(define (variable? x) (symbol? x))
+
+Due variabili sono uguali se i simboli che le rappresentano sono uguali:
+
+(define (same-variable? v1 v2)
+  (and (variable? v1) (variable? v2) (= v1 v2)))
+
+Le somme e i prodotti sono costruiti come liste:
+
+(define (make-sum a1 a2) (list '+ a1 a2))
+(define (make-product m1 m2) (list '* m1 m2))
+
+Le sotto-espressioni devono essere liste con più di 2 elementi:
+
+(define (pair? x) (and (list? x) (> (length x) 2)))
+
+Una somma è una lista il cui primo elemento è il simbolo +:
+
+(define (sum? x)
+  (and (pair? x) (= (first x) '+)))
+
+L'addendo è il secondo elemento della lista somma:
+
+(define (addend s) (s 1))
+
+Il secondo addendo (augend) è il terzo elemento della lista della somma:
+
+(define (augend s) (s 2))
+
+Un prodotto è una lista il cui primo elemento è il simbolo *:
+
+(define (product? x)
+  (and (pair? x) (= (first x) '*)))
+
+Il moltiplicatore è il secondo elemento della lista prodotto:
+
+(define (multiplier p) (p 1))
+
+Il moltiplicando è il terzo elemento della lista prodotto:
+
+(define (multiplicand p) (p 2))
+
+Quindi, dobbiamo solo combinarli con l'algoritmo definito da "deriv" per avere un programma di differenziazione simbolica funzionante. Vediamo alcuni esempi del suo comportamento:
+
+(deriv '(+ x 3) 'x)
+;-> (+ 1 0)
+
+(deriv '(* x y) 'x)
+;-> (+ (* x 0) (* 1 y))
+
+(deriv '(* (* x y) (+ x 3)) 'x)
+;-> (+ (* (* x y) (+ 1 0)) (* (+ (* x 0) (* 1 y)) (+ x 3)))
+(+ (* (* x y) (+ 1 0))
+   (* (+ (* x 0) (* 1 y))
+      (+  x 3)))
+
+Il programma produce risposte corrette. Tuttavia, non sono semplificati. È vero che:
+
+ d(x*y)
+-------- = x*0 + 1*y
+   dx
+
+ma vorremmo che il programma sapesse che x * 0 = 0, 1 * y = y e 0 + y = y. La risposta per il secondo esempio avrebbe dovuto essere semplicemente y. Come mostra il terzo esempio, questo diventa un problema serio quando le espressioni sono complesse.
+
+La nostra difficoltà è molto simile a quella che abbiamo incontrato con l'implementazione dei numeri razionali: non abbiamo ridotto le risposte alla forma più semplice. Per ottenere la riduzione dei numeri razionali, abbiamo dovuto modificare solo i costruttori ei selettori dell'implementazione. Possiamo adottare una strategia simile anche qui. Non cambieremo affatto "deriv". Invece, cambieremo "make-sum" in modo che se entrambi gli addendi sono numeri, "make-sum" li sommerà e restituirà la loro somma. Inoltre, se uno degli addendi è 0, "make-sum" restituirà l'altro addendo.
+
+(define (make-sum a1 a2)
+  (cond ((=number? a1 0) a2)
+        ((=number? a2 0) a1)
+        ((and (number? a1) (number? a2)) (+ a1 a2))
+        (true (list '+ a1 a2))))
+
+Questa funzione utilizza la procedura "= numero?", che controlla se un'espressione è uguale a un dato numero:
+
+(define (=number? expr num)
+  (and (number? expr) (= expr num)))
+
+Allo stesso modo, cambieremo il "make-product" per incorporare le regole che 0 volte qualsiasi cosa è 0 e 1 volte qualsiasi cosa è la cosa stessa:
+
+(define (make-product m1 m2)
+  (cond ((or (=number? m1 0) (=number? m2 0)) 0)
+        ((=number? m1 1) m2)
+        ((=number? m2 1) m1)
+        ((and (number? m1) (number? m2)) (* m1 m2))
+        (true (list '* m1 m2))))
+
+Ecco come funziona questa versione sui nostri tre esempi:
+
+(deriv '(+ x 3) 'x)
+;-> 1
+(deriv '(* x y) 'x)
+;-> y
+(deriv '(* (* x y) (+ x 3)) 'x)
+;-> (+ (* x y) (* y (+ x 3)))
+
+Sebbene questo sia un bel miglioramento, il terzo esempio mostra che c'è ancora molta strada da fare prima di ottenere un programma che metta le espressioni in una forma che potremmo concordare sia "più semplice". Il problema della semplificazione algebrica è complesso perché, tra le altre ragioni, una forma che può essere più semplice per uno scopo potrebbe non esserlo per un altro.
+
+Esercizio 2.56
+--------------
+Mostra come estendere il differenziatore di base per gestire più tipi di espressioni. Ad esempio, implementa la regola di differenziazione:
+
+ d(u^n)               du
+-------- = n*u^(n-1)*----
+   dx                 dx
+
+aggiungendo una nuova clausola al programma "deriv" e definendo opportune procedure di "esponentiation?", "base", "exponent" e "make-exponentiation". (Puoi usare il simbolo ** per denotare l'elevazione a potenza). Costruisci nelle regole che qualsiasi cosa elevata alla potenza 0 è 1 e qualsiasi cosa elevata alla potenza 1 è la cosa stessa.
+
+Esercizio 2.57
+--------------
+Estendi il programma di differenziazione per gestire somme e prodotti di numeri arbitrari di (due o più) termini. Quindi l'ultimo esempio sopra potrebbe essere espresso come:
+
+(deriv '(* x y (+ x 3)) 'x)
+
+Prova a farlo modificando solo la rappresentazione di somme e prodotti, senza modificare affatto la procedura "deriv". Ad esempio, l'addendo di una somma sarebbe il primo termine e l'augendo sarebbe la somma del resto dei termini.
+
+Esercizio 2.58
+--------------
+Supponiamo di voler modificare il programma di differenziazione in modo che funzioni con la notazione matematica ordinaria, in cui + e * sono operatori infissi piuttosto che prefissi. Poiché il programma di differenziazione è definito in termini di dati astratti, possiamo modificarlo per lavorare con diverse rappresentazioni di espressioni unicamente cambiando i predicati, i selettori e i costruttori che definiscono la rappresentazione delle espressioni algebriche su cui il differenziatore deve operare.
+
+a. Mostra come farlo per differenziare le espressioni algebriche presentate in forma infissa, come (x + (3 * (x + (y + 2)))). Per semplificare l'attività, supponiamo che + e * prendano sempre due argomenti e che le espressioni siano completamente tra parentesi.
+
+b. Il problema diventa sostanzialmente più difficile se permettiamo la notazione algebrica standard, come (x + 3 * (x + y + 2)), che elimina le parentesi non necessarie e presume che la moltiplicazione venga eseguita prima dell'addizione. Potete progettare predicati, selettori e costruttori appropriati per questa notazione in modo tale che il nostro programma derivato funzioni ancora?
 
 
 ===========

@@ -5717,6 +5717,7 @@ Eliminare il contesto in questo modo:
 (delete name) ; elimina il simbolo in MAIN
 
 Cancellazione di un contesto
+----------------------------
 Quando si elimina un simbolo di contesto, la prima eliminazione rimuove il contenuto dello spazio dei nomi di contesto e riduce il simbolo a un normale simbolo mono-variabile. La seconda eliminazione rimuove quindi completamente il simbolo dalla tabella dei simboli. Questo metodo è necessario quando si utilizzano simboli di variabili locali in funzioni come contesti.
 
 In generale: non cancellare di spazi dei nomi nei programmi newLISP di dimensioni non banali. Tranne quando si usa il flag nil nel comando delete, i simboli vengono controllati come riferimento nell'intero spazio di memoria delle celle newLISP, che può rallentare molto su programmi grandi con dati grandi.
