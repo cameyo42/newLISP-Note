@@ -10187,3 +10187,162 @@ Infine vediamo l'algoritmo proposto nel libro "Algorithms" 4 Edizione di Robert 
 ;-> 2 + 10000019 = 10000021
 
 
+----------------------
+Triangolo di Steinhaus
+----------------------
+
+Questo è un problema tratto dal libro di Hugo Steinhaus "Cento problemi di matematica elementare", Boringhieri, 1987.
+Cominciamo scrivendo una lista di N segni "+" e "-".
+La quantità e la disposizione dei segni "+" e "-" è a piacere.
+Per esempio:
+
++ + - + - + +
+
+Continuiamo scrivendo altre linee rispettivamente di N-1, N-2, ..., 1 di segni "+" e "-" con le seguenti regole:
+1) sotto una coppia di segni uguali scrivete un "+"
+2) sotto una coppia di segni diversi scrivete un "-"
+
+Le coppie sono formate dal primo e dal secondo elemento, dal secondo e dal terzo elemento, dal terzo e dal quarto elemento, ..., fino all'ultima coppia formata dal penultimo e dall'ultimo elemento.
+
+Ecco come viene compilato il nostro esempio (N=7):
+
++ + - + - + +
++ - - - - +
+- + + + -
+- + + -
+- + -
+- -
++
+
+Se contiamo quanti sono i "+" e i "-" scopriamo che ci sono esattamente 14 "+" e 14 "-".
+
+Il problema è quello di decidere per quali valori di N esistono dei triangoli con un uguale numero di "+" e di "-".
+
+Definiamo alcuni termini:
+
+"Ordine del triangolo": il numero iniziale N di segni
+
+"Triangolo bilanciato": un triangolo con tanti "+" quanti "-"
+
+Inoltre, è evidente che il numero totale di segni "+" e "-" in un triangolo di Steinhaus è un numero triangolare. Partendo con N segni tale numero vale T = (N*(N - 1))/2. Pertanto, affinché si possano costruire triangoli bilanciati, il numero T deve essere divisibile per 2, cioè deve essere pari e ciò è possibile solo se: N è divisibile per 4 oppure (N-1) è divisibile per 4. In tal caso risulta:
+
+a) (N % 4) = 0 e ((N-1) % 4) = 3 (esempio N=8)
+
+oppure
+
+b) ((N-1) % 4) = 0 e (N % 4) = 1 (esempio N=9)
+
+Attenzione: la condizione è necessaria, ma non sufficiente.
+
+Questo significa che se iniziamo con 3, 4, 7, 8, ... segni, possiamo trovare dei triangoli BILANCIATI. Ma potremmo anche non trovarli. Dipende da come abbiamo disposto inizialmente i segni.Però possiamo sempre trovare qualche sistemazione dei segni che produce un triangolo bilanciato.
+Se invece iniziamo con 2, 5, 6, 9, 10, ... segni, non troveremo mai un triangolo bilanciato, per quanto cambiamo la sistemazione iniziale dei segni.
+
+Vediamo come implementare alcune funzioni per gestire questo problema.
+
+Funzione che controlla e calcola la parità tra due segni:
+
+(define (parity s1 s2)
+  (if (= s1 s2) '+ '-))
+
+Funzione che calcola la prossima riga del triangolo:
+
+(define (next-row row)
+  (map parity (chop row) (rest row)))
+
+Funzione che calcola il triangolo di Steinhaus:
+
+(define (steinhaus row)
+  (let ((r row) (out (list row)))
+    (while (> (length r) 1)
+      (setq r (next-row r))
+      (push r out -1)
+    )
+    out))
+
+(steinhaus '(+ + - + - + +))
+;-> ((+ + - + - + +) (+ - - - - +) (- + + + -) (- + + -) (- + -) (- -) (+))
+
++ + - + - + +
++ - - - - +
+- + + + -
+- + + -
+- + -
+- -
++
+
+Funzione cha calcola il numero dei segni "+":
+
+(define (number-of-plus triangle)
+  (first (count '(+) (flat triangle))))
+
+Funzione cha calcola il numero dei segni "-":
+
+(define (number-of-minus triangle)
+  (first (count '(-) (flat triangle))))
+
+Funzione che calcola la parità in un triangolo di Steinhaus (restituisce la differenza tra il numero di segni "+"e il numero di segni "-"):
+
+(define (parity-triangle triangle)
+  (- (number-of-plus triangle) (number-of-minus triangle)))
+
+Funzione che verifica se un triangolo di Steinhaus è bilanciato:
+
+(define (balanced? triangle)
+  (zero? (parity-triangle triangle)))
+
+Facciamo un test:
+
+(setq t (steinhaus '(+ + - + - + +)))
+;-> ((+ + - + - + +) (+ - - - - +) (- + + + -) (- + + -) (- + -) (- -) (+))
+(number-of-plus t)
+;-> 14
+(number-of-minus t)
+;-> 14
+(parity-triangle t)
+;-> 0
+(balanced? t)
+;-> true
+
+Funzione che verifica se un triangolo di Steinhaus può essere bilanciato (Se la funzione ritorna nil, allora il triangolo non può mai essere bilanciato. Se la funzione ritorna true, allora il triangolo può essere bilanciato (ma non è detto che lo sia nello stato attuale):
+
+(define (possible-balanced? triangle)
+  (let (len (length triangle))
+    (or (= (% len 4) 0) (= (% len 4) 3))))
+
+(possible-balanced? t)
+;-> true
+
+Possiamo cercare, se esiste, un triangolo di Stenhaus bilanciato che non rispetta la condizione a) o b).
+
+Funzione che crea una sequanze iniziale casuale di segni "+" e "-":
+
+(define (create-sequence len)
+  (let (seq (rand 2 len))
+    (setq seq (replace '1 seq '+))
+    (setq seq (replace '0 seq '-))))
+
+(create-sequence 10)
+;-> (- - + + - + - + + +)
+
+Funzione che effettua un numero definito di test su triangoli casuali:
+
+(define (test-steinhaus min-len max-len num-test)
+  (local (seq t)
+    (for (i 1 num-test)
+      ; crea sequenza casuale iniziale
+      (setq seq (create-sequence (+ min-len (rand (+ (- max-len min-len) 1)))))
+      ; crea il triangolo di Stenhaus
+      (setq t (steinhaus seq))
+      ; controlla se è bilanciato, ma la teoria dice che non potrebbe esserlo
+      (if (and (balanced? t) (not (possible-balanced? t)))
+          (println t)))))
+
+Proviamo a fare un test (la funzione è molto lenta):
+
+(time (println (test-steinhaus 10 1000 1000)))
+nil
+;-> 304400.886
+
+Non abbiamo trovato alcun controesempio della regola matematica.
+
+

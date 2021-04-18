@@ -387,6 +387,7 @@ PROBLEMI VARI
   Il problema delle studentesse di Kirkman
   Contadino, lupo, capra e cavoli
   Ancora la congettura di Goldbach
+  Triangolo di Steinhaus
 
 DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
 ==================================================
@@ -780,7 +781,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (150 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (153 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================
@@ -52697,6 +52698,165 @@ Infine vediamo l'algoritmo proposto nel libro "Algorithms" 4 Edizione di Robert 
 ;-> 2 + 10000019 = 10000021
 
 
+----------------------
+Triangolo di Steinhaus
+----------------------
+
+Questo è un problema tratto dal libro di Hugo Steinhaus "Cento problemi di matematica elementare", Boringhieri, 1987.
+Cominciamo scrivendo una lista di N segni "+" e "-".
+La quantità e la disposizione dei segni "+" e "-" è a piacere.
+Per esempio:
+
++ + - + - + +
+
+Continuiamo scrivendo altre linee rispettivamente di N-1, N-2, ..., 1 di segni "+" e "-" con le seguenti regole:
+1) sotto una coppia di segni uguali scrivete un "+"
+2) sotto una coppia di segni diversi scrivete un "-"
+
+Le coppie sono formate dal primo e dal secondo elemento, dal secondo e dal terzo elemento, dal terzo e dal quarto elemento, ..., fino all'ultima coppia formata dal penultimo e dall'ultimo elemento.
+
+Ecco come viene compilato il nostro esempio (N=7):
+
++ + - + - + +
++ - - - - +
+- + + + -
+- + + -
+- + -
+- -
++
+
+Se contiamo quanti sono i "+" e i "-" scopriamo che ci sono esattamente 14 "+" e 14 "-".
+
+Il problema è quello di decidere per quali valori di N esistono dei triangoli con un uguale numero di "+" e di "-".
+
+Definiamo alcuni termini:
+
+"Ordine del triangolo": il numero iniziale N di segni
+
+"Triangolo bilanciato": un triangolo con tanti "+" quanti "-"
+
+Inoltre, è evidente che il numero totale di segni "+" e "-" in un triangolo di Steinhaus è un numero triangolare. Partendo con N segni tale numero vale T = (N*(N - 1))/2. Pertanto, affinché si possano costruire triangoli bilanciati, il numero T deve essere divisibile per 2, cioè deve essere pari e ciò è possibile solo se: N è divisibile per 4 oppure (N-1) è divisibile per 4. In tal caso risulta:
+
+a) (N % 4) = 0 e ((N-1) % 4) = 3 (esempio N=8)
+
+oppure
+
+b) ((N-1) % 4) = 0 e (N % 4) = 1 (esempio N=9)
+
+Attenzione: la condizione è necessaria, ma non sufficiente.
+
+Questo significa che se iniziamo con 3, 4, 7, 8, ... segni, possiamo trovare dei triangoli BILANCIATI. Ma potremmo anche non trovarli. Dipende da come abbiamo disposto inizialmente i segni.Però possiamo sempre trovare qualche sistemazione dei segni che produce un triangolo bilanciato.
+Se invece iniziamo con 2, 5, 6, 9, 10, ... segni, non troveremo mai un triangolo bilanciato, per quanto cambiamo la sistemazione iniziale dei segni.
+
+Vediamo come implementare alcune funzioni per gestire questo problema.
+
+Funzione che controlla e calcola la parità tra due segni:
+
+(define (parity s1 s2)
+  (if (= s1 s2) '+ '-))
+
+Funzione che calcola la prossima riga del triangolo:
+
+(define (next-row row)
+  (map parity (chop row) (rest row)))
+
+Funzione che calcola il triangolo di Steinhaus:
+
+(define (steinhaus row)
+  (let ((r row) (out (list row)))
+    (while (> (length r) 1)
+      (setq r (next-row r))
+      (push r out -1)
+    )
+    out))
+
+(steinhaus '(+ + - + - + +))
+;-> ((+ + - + - + +) (+ - - - - +) (- + + + -) (- + + -) (- + -) (- -) (+))
+
++ + - + - + +
++ - - - - +
+- + + + -
+- + + -
+- + -
+- -
++
+
+Funzione cha calcola il numero dei segni "+":
+
+(define (number-of-plus triangle)
+  (first (count '(+) (flat triangle))))
+
+Funzione cha calcola il numero dei segni "-":
+
+(define (number-of-minus triangle)
+  (first (count '(-) (flat triangle))))
+
+Funzione che calcola la parità in un triangolo di Steinhaus (restituisce la differenza tra il numero di segni "+"e il numero di segni "-"):
+
+(define (parity-triangle triangle)
+  (- (number-of-plus triangle) (number-of-minus triangle)))
+
+Funzione che verifica se un triangolo di Steinhaus è bilanciato:
+
+(define (balanced? triangle)
+  (zero? (parity-triangle triangle)))
+
+Facciamo un test:
+
+(setq t (steinhaus '(+ + - + - + +)))
+;-> ((+ + - + - + +) (+ - - - - +) (- + + + -) (- + + -) (- + -) (- -) (+))
+(number-of-plus t)
+;-> 14
+(number-of-minus t)
+;-> 14
+(parity-triangle t)
+;-> 0
+(balanced? t)
+;-> true
+
+Funzione che verifica se un triangolo di Steinhaus può essere bilanciato (Se la funzione ritorna nil, allora il triangolo non può mai essere bilanciato. Se la funzione ritorna true, allora il triangolo può essere bilanciato (ma non è detto che lo sia nello stato attuale):
+
+(define (possible-balanced? triangle)
+  (let (len (length triangle))
+    (or (= (% len 4) 0) (= (% len 4) 3))))
+
+(possible-balanced? t)
+;-> true
+
+Possiamo cercare, se esiste, un triangolo di Stenhaus bilanciato che non rispetta la condizione a) o b).
+
+Funzione che crea una sequanze iniziale casuale di segni "+" e "-":
+
+(define (create-sequence len)
+  (let (seq (rand 2 len))
+    (setq seq (replace '1 seq '+))
+    (setq seq (replace '0 seq '-))))
+
+(create-sequence 10)
+;-> (- - + + - + - + + +)
+
+Funzione che effettua un numero definito di test su triangoli casuali:
+
+(define (test-steinhaus min-len max-len num-test)
+  (local (seq t)
+    (for (i 1 num-test)
+      ; crea sequenza casuale iniziale
+      (setq seq (create-sequence (+ min-len (rand (+ (- max-len min-len) 1)))))
+      ; crea il triangolo di Stenhaus
+      (setq t (steinhaus seq))
+      ; controlla se è bilanciato, ma la teoria dice che non potrebbe esserlo
+      (if (and (balanced? t) (not (possible-balanced? t)))
+          (println t)))))
+
+Proviamo a fare un test (la funzione è molto lenta):
+
+(time (println (test-steinhaus 10 1000 1000)))
+nil
+;-> 304400.886
+
+Non abbiamo trovato alcun controesempio della regola matematica.
+
+
 ====================================================
 
  DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
@@ -85915,7 +86075,7 @@ Facciamo una partita:
 ;->   ·---·---·---·
 ;-> Partita terminata: patta
 
-Nota: l'intero programma è lungo 66 linee.
+Nota: l'intero programma è costituito da 66 linee di codice.
 
 
 ----------------
@@ -87283,6 +87443,7 @@ Parser di espressioni infisse-prefisse-postfisse
 Questa funzione è basata sul modulo "infix.lsp" che si trova nella distribuione di newLISP ed è stata scritta da Lutz Muller.
 
 La procedura analizza le espressioni infisse, prefisse o suffisse fornite nelle stringhe e restituisce espressioni newLISP, che possono essere valutate. inoltre cattura gli errori di sintassi.
+
 ;; @syntax (xlate <str-expression>)
 ;; @param <str-expression> The expression (infix, postfix, prefix) in a string
 ;; @return A newLISP expression or 'nil' on failure.
@@ -87332,7 +87493,7 @@ La procedura analizza le espressioni infisse, prefisse o suffisse fornite nelle 
 (define (xlate str)
   (if (catch (infix-xlate str) 'result)
     result                     ; if starts with ERR: is error else result
-    (append "ERR: " result)))  ; newLISP error has ocurred
+    (append "ERR: " result)))  ; newLISP error has occurred
 ; Auxiliary function
 (define (infix-xlate str)
   (set 'tokens (parse str))
@@ -87834,7 +87995,6 @@ per dati simbolici. Usiamo (cddr s)) per ottenere il resto della lista che inizi
 --------------
 Esercizio 2.58
 --------------
-
 Supponiamo di voler modificare il programma di differenziazione in modo che funzioni con la notazione matematica ordinaria, in cui + e * sono operatori infissi piuttosto che prefissi. Poiché il programma di differenziazione è definito in termini di dati astratti, possiamo modificarlo per lavorare con diverse rappresentazioni di espressioni unicamente cambiando i predicati, i selettori e i costruttori che definiscono la rappresentazione delle espressioni algebriche su cui il differenziatore deve operare.
 
 a. Mostra come farlo per differenziare le espressioni algebriche presentate in forma infissa, come (x + (3 * (x + (y + 2)))). Per semplificare l'attività, supponiamo che + e * prendano sempre due argomenti e che le espressioni siano completamente tra parentesi.
@@ -87844,7 +88004,7 @@ b. Il problema diventa sostanzialmente più difficile se permettiamo la notazion
 --------------
 Soluzione 2.58
 --------------
-Per risolvere questo problema possiamo usare la funzione "xlate" che converte le expressioni infisse o postfisse in espressioni prefisse (La funzione "xlate" si trova nel paragrafo "Parser di espressioni infisse-prefisse-postfisse". Quindi non dobbiamo fare alcuna modifica al programma di differenziazione. Per finire riportiamo come è stato modificato il programma con le soluzioni 2.56 e 2.57.
+Per risolvere questo problema possiamo usare la funzione "xlate" che converte le expressioni infisse o postfisse in espressioni prefisse (La funzione "xlate" si trova nel paragrafo "Parser di espressioni infisse-prefisse-postfisse"). Quindi non dobbiamo fare alcuna modifica al programma di differenziazione. Per finire riportiamo come è stato modificato il programma con le soluzioni 2.56 e 2.57.
 ;
 (define car first)
 (define cdr rest)
@@ -87852,9 +88012,6 @@ Per risolvere questo problema possiamo usare la funzione "xlate" che converte le
 (define (cadr x)   (first (rest x)))
 (define (cdar x)   (rest (first x)))
 (define (cddr x)   (rest (rest x)))
-(define (caaar x)  (first (first (first x))))
-(define (caadr x)  (first (first (rest x))))
-(define (cadar x)  (first (rest (first x))))
 (define (caddr x)  (first (rest (rest x))))
 ;
 (define (deriv expr var)

@@ -6763,7 +6763,7 @@ Facciamo una partita:
 ;->   ·---·---·---·
 ;-> Partita terminata: patta
 
-Nota: l'intero programma è lungo 66 linee.
+Nota: l'intero programma è costituito da 66 linee di codice.
 
 
 ----------------
@@ -8131,6 +8131,7 @@ Parser di espressioni infisse-prefisse-postfisse
 Questa funzione è basata sul modulo "infix.lsp" che si trova nella distribuione di newLISP ed è stata scritta da Lutz Muller.
 
 La procedura analizza le espressioni infisse, prefisse o suffisse fornite nelle stringhe e restituisce espressioni newLISP, che possono essere valutate. inoltre cattura gli errori di sintassi.
+
 ;; @syntax (xlate <str-expression>)
 ;; @param <str-expression> The expression (infix, postfix, prefix) in a string
 ;; @return A newLISP expression or 'nil' on failure.
@@ -8180,7 +8181,7 @@ La procedura analizza le espressioni infisse, prefisse o suffisse fornite nelle 
 (define (xlate str)
   (if (catch (infix-xlate str) 'result)
     result                     ; if starts with ERR: is error else result
-    (append "ERR: " result)))  ; newLISP error has ocurred
+    (append "ERR: " result)))  ; newLISP error has occurred
 ; Auxiliary function
 (define (infix-xlate str)
   (set 'tokens (parse str))
@@ -8682,7 +8683,6 @@ per dati simbolici. Usiamo (cddr s)) per ottenere il resto della lista che inizi
 --------------
 Esercizio 2.58
 --------------
-
 Supponiamo di voler modificare il programma di differenziazione in modo che funzioni con la notazione matematica ordinaria, in cui + e * sono operatori infissi piuttosto che prefissi. Poiché il programma di differenziazione è definito in termini di dati astratti, possiamo modificarlo per lavorare con diverse rappresentazioni di espressioni unicamente cambiando i predicati, i selettori e i costruttori che definiscono la rappresentazione delle espressioni algebriche su cui il differenziatore deve operare.
 
 a. Mostra come farlo per differenziare le espressioni algebriche presentate in forma infissa, come (x + (3 * (x + (y + 2)))). Per semplificare l'attività, supponiamo che + e * prendano sempre due argomenti e che le espressioni siano completamente tra parentesi.
@@ -8692,7 +8692,7 @@ b. Il problema diventa sostanzialmente più difficile se permettiamo la notazion
 --------------
 Soluzione 2.58
 --------------
-Per risolvere questo problema possiamo usare la funzione "xlate" che converte le expressioni infisse o postfisse in espressioni prefisse (La funzione "xlate" si trova nel paragrafo "Parser di espressioni infisse-prefisse-postfisse". Quindi non dobbiamo fare alcuna modifica al programma di differenziazione. Per finire riportiamo come è stato modificato il programma con le soluzioni 2.56 e 2.57.
+Per risolvere questo problema possiamo usare la funzione "xlate" che converte le expressioni infisse o postfisse in espressioni prefisse (La funzione "xlate" si trova nel paragrafo "Parser di espressioni infisse-prefisse-postfisse"). Quindi non dobbiamo fare alcuna modifica al programma di differenziazione. Per finire riportiamo come è stato modificato il programma con le soluzioni 2.56 e 2.57.
 ;
 (define car first)
 (define cdr rest)
@@ -8700,9 +8700,6 @@ Per risolvere questo problema possiamo usare la funzione "xlate" che converte le
 (define (cadr x)   (first (rest x)))
 (define (cdar x)   (rest (first x)))
 (define (cddr x)   (rest (rest x)))
-(define (caaar x)  (first (first (first x))))
-(define (caadr x)  (first (first (rest x))))
-(define (cadar x)  (first (rest (first x))))
 (define (caddr x)  (first (rest (rest x))))
 ;
 (define (deriv expr var)

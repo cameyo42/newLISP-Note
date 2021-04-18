@@ -387,6 +387,7 @@ PROBLEMI VARI
   Il problema delle studentesse di Kirkman
   Contadino, lupo, capra e cavoli
   Ancora la congettura di Goldbach
+  Triangolo di Steinhaus
 
 DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
 ==================================================
@@ -780,7 +781,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (150 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (153 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================

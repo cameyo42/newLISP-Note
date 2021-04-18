@@ -10,7 +10,7 @@ Appunti sul linguaggio newLISP
 03) newLISP 99 problemi (28)  
 04) Rosetta code (85)  
 05) Project eulero (102)  
-06) Problemi vari (78)  
+06) Problemi vari (79)  
 07) Domande programmatori (102)  
 08) Librerie (9)  
 09) Note libere (80)  
@@ -18,7 +18,7 @@ Appunti sul linguaggio newLISP
 11) Note libere 3 (76)  
 12) Appendici (22)  
 13) Bibliografia  
-99) yo library (yo.zip) (150)  
+99) yo library (yo.zip) (153)  
   
 Documentazione Extra:  
 A) Introduction to newLISP (by Cormullion)  
