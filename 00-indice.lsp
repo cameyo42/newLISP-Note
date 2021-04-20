@@ -388,6 +388,7 @@ PROBLEMI VARI
   Contadino, lupo, capra e cavoli
   Ancora la congettura di Goldbach
   Triangolo di Steinhaus
+  L'ago di Buffon
 
 DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
 ==================================================

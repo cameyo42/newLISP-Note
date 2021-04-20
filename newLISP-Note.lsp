@@ -388,6 +388,7 @@ PROBLEMI VARI
   Contadino, lupo, capra e cavoli
   Ancora la congettura di Goldbach
   Triangolo di Steinhaus
+  L'ago di Buffon
 
 DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
 ==================================================
@@ -52786,7 +52787,7 @@ Funzione cha calcola il numero dei segni "+":
 (define (number-of-plus triangle)
   (first (count '(+) (flat triangle))))
 
-Funzione cha calcola il numero dei segni "-":
+Funzione che calcola il numero dei segni "-":
 
 (define (number-of-minus triangle)
   (first (count '(-) (flat triangle))))
@@ -52817,7 +52818,7 @@ Facciamo un test:
 Funzione che verifica se un triangolo di Steinhaus può essere bilanciato (Se la funzione ritorna nil, allora il triangolo non può mai essere bilanciato. Se la funzione ritorna true, allora il triangolo può essere bilanciato (ma non è detto che lo sia nello stato attuale):
 
 (define (possible-balanced? triangle)
-  (let (len (length triangle))
+  (let (len (length (triangle 0)))
     (or (= (% len 4) 0) (= (% len 4) 3))))
 
 (possible-balanced? t)
@@ -52855,6 +52856,200 @@ nil
 ;-> 304400.886
 
 Non abbiamo trovato alcun controesempio della regola matematica.
+
+Adesso scriviamo una funzione che, dato un numero N, calcola un triangolo di Steinhaus bilanciato (se esiste).
+Utilizziamo una ricerca casuale riscrivendo alcune funzioni per migliorare l'efficienza. Inoltre usiamo i numeri 1 e 0 al posto dei segni "+" e "-".
+
+(define (find-balanced lunghezza iter)
+(catch
+  (local (seq s len)
+    (cond ((or (= (% lunghezza 4) 0) (= (% lunghezza 4) 3))
+           (for (i 1 iter)
+             (setq len lunghezza)
+             (setq seq (rand 2 len))
+             (setq s seq)
+             (setq t (stein))
+             (if (balanced? t) (throw (println s)))
+           )
+           (println "Triangolo bilanciato non trovato."))
+          (true (println "Triangolo bilanciato impossible."))
+    ))))
+
+(define (stein)
+  (let (out '())
+    (setq out (list seq))
+      (while (> len 1)
+        (setq seq (next))
+        (push seq out -1)
+        (-- len)
+      )
+    out))
+
+(define (next)
+  (local (out)
+    (setq out '())
+    (for (i 0 (- len 2))
+      (if (= (seq i) (seq (+ i 1)))
+          ;(push '+ out -1)
+          (push 1 out -1)
+          ;(push '- out -1)
+          (push 0 out -1)
+      )
+    )
+    out))
+
+(define (balanced? triangle)
+  (let (ab (count '(0 1) (flat triangle)))
+    (= (first ab) (last ab))))
+
+Proviamo a cercare qualche triangolo di Stenhaus bilanciato:
+
+(find-balanced 12 10000)
+;-> (1 1 0 0 0 0 1 0 0 0 1 1)
+
+(find-balanced 20 10000)
+;-> (0 0 0 1 0 1 1 0 1 1 0 0 0 0 1 1 1 0 0 0)
+
+(find-balanced 10 10000)
+;-> Triangolo bilanciato impossible.
+
+(find-balanced 100 10)
+;-> Triangolo bilanciato non trovato.
+
+(find-balanced 100 10000)
+;-> (0 0 1 1 0 0 0 0 1 1 1 0 0 0 0 0 1 1 1 1 0 0 1 0 0 1 0 0 1 1 1 0 1
+;->  0 1 0 0 0 1 1 0 1 0 0 0 1 1 1 1 0 1 0 0 0 1 1 1 1 1 1 1 1 1 0 1 1 
+;->  1 0 1 0 1 0 1 0 0 1 0 1 0 1 1 0 1 1 1 1 0 1 0 0 1 1 1 1 1 1 0 1 1 0)
+
+(time (println (find-balanced 1000 100000)))
+;-> (0 0 1 0 0 0 0 1 0 1 0 0 0 1 0 1 1 1 0 0 1 0 1 1 1 1 1 1 0 1 0 1 1 0 0 1 0 1 1 0
+;-> ...
+;->  1 0 1 1 0 1 1 1 1 1 0 0 1 0 1 1 1 1 1 0 0 0 0 1 1 0 1 1 1 1 1 0 1 0 0 0 0 1 0 1)
+;-> 103230.324
+
+
+
+---------------
+L'ago di Buffon
+---------------
+
+Dato un ago di lunghezza L lanciato su un piano con linee parallele a distanza D, qual'è la probabilità che esso intersechi una linea?
+
+-----/--------------------------------
+    /                 /   ————
+        /            /
+-------/------------------------------
+ \                      /      \
+  \        \   ————    /        \
+------------\-------------------------
+
+Si può dimostrare che la probabilità vale:
+
+     2     L
+P = --- * ---
+     π     D
+
+P = probabilità che l'ago intersechi una parallela
+D = distanza tra le linee parallele
+L = lunghezza dell'ago
+
+Vediamo come implementare una simulazione del processo.
+
+Come generare segmenti casuali di lunghezza prefissata?
+
+Il problema è analogo a quello di calcolare punti casuali su una circonferenza di un dato raggio (uguale alla lunghezza del segmento) e centro nel punto (xc, yc). Quindi il nostro segmento casuale di lunghezza fissa è dato dal centro della circonferenza (generato in modo casuale) e da un punto casuale sulla circonferenza (questo segmento ha lunghezza pari al raggio della circonferenza).
+
+Se il centro e il raggio sono fissi, l'unica cosa che cambia è l'angolo. Quindi, calcoliamo un angolo casuale tra 0 e 360 gradi (o 0 e 2π radianti) e lo usiamo per ottenere le coordinate x-y usando la conversione in coordinate polari.
+
+x = r * cos (θ)
+y = r * sin (θ)
+
+Aggiungiamo le coordinate (xc, yc) del centro come offset e otteniamo le coordinate del punto sulla circonferenza.
+
+π = 3.1415926535897931
+2*π = 6.2831853071795862
+
+Funzione che calcola la distanza tra due punti:
+
+(define (dist2d x1 y1 x2 y2)
+  (sqrt (add (mul (sub x1 x2) (sub x1 x2))
+             (mul (sub y1 y2) (sub y1 y2)))))
+
+Funzione che genera un numero casuale (float) in un intervallo:
+
+(define (rand-range min-val max-val)
+  (add min-val (mul (random) (add (sub max-val min-val)))))
+
+(rand-range 10 20)
+;-> 15.59190649128697
+
+Funzione che genera un segmento casuale:
+
+(define (rand-segment len xmin xmax ymin ymax)
+  (local (x1 y1 x2 y2 angle)
+    (setq x1 (rand-range (add len xmin) (sub xmax len)))
+    (setq y1 (rand-range (add len ymin) (sub ymax len)))
+    (setq angle (mul (random) 6.2831853071795862))
+    (setq x2 (add x1 (mul len (cos angle))))
+    (setq y2 (add y1 (mul len (sin angle))))
+    ; Verifica che la lunghezza del segmento sia len
+    ;(println (dist2d x1 y1 x2 y2))
+    (list x1 y1 x2 y2)
+  ))
+
+(rand-segment 20 50 100 50 100)
+;-> (12.28247932370983 30.97079378643147 -0.8522148841199169 38.21508864975694)
+
+Funzione che verifica l'intersezione tra il segmento e le rette parallele:
+
+(define (intersects pts len dd)
+(catch
+  (let (base 0)
+    (while (<= base ymax)
+      (if (and (> (pts 1) base) (< (pts 3) base)) (throw true))
+      (if (and (> (pts 3) base) (< (pts 1) base)) (throw true))
+      (setq base (add base dd))
+    )
+    nil)))
+
+Funzione che effettua la simulazione:
+
+(define (simula len dd xmin xmax ymin ymax iter)
+  (local (out)
+    (for (i 1 iter)
+      (if (intersects (rand-segment len xmin xmax ymin ymax) len dd)
+          (++ out)))
+    (div out iter)))
+
+(simula 20 30 50 100 50 100 10000)
+;-> 0.4282
+
+Calcoliamo il valore vero della probabilità:
+
+(define (prob len dd)
+  (div (mul 2 len) (mul dd 3.1415926535897931)))
+
+(prob 20 30)
+;-> 0.4244131815783876
+
+Proviamo a calcolare π con la formula della probabilità:
+
+     2     L
+π = --- * ---
+     P     D
+
+(define (pigreco prob len dd)
+  (div (mul 2 len) (mul dd prob)))
+
+Proviamo a verificare con il valore esatto (0.4244131815783876):
+
+(pigreco 0.4244131815783876 20 30)
+;-> 3.141592653589793
+
+Adesso proviamo a calcolare π con il valore della probabilità generato da una simulazione:
+
+(pigreco (simula 20 30 50 100 50 100 10000) 20 30)
+;-> 3.124755878446996
 
 
 ====================================================
