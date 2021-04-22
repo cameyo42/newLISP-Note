@@ -751,6 +751,8 @@ NOTE LIBERE 3
   Ippodromo
   Parser di espressioni infisse-prefisse-postfisse
   Derivate Simboliche
+  Media geotmetica
+  Verificare l'esistenza di un simbolo
 
 APPENDICI
 =========
@@ -52928,7 +52930,6 @@ Proviamo a cercare qualche triangolo di Stenhaus bilanciato:
 ;-> 103230.324
 
 
-
 ---------------
 L'ago di Buffon
 ---------------
@@ -52998,14 +52999,14 @@ Funzione che genera un segmento casuale:
   ))
 
 (rand-segment 20 50 100 50 100)
-;-> (12.28247932370983 30.97079378643147 -0.8522148841199169 38.21508864975694)
+;-> (75.6358531449324 71.93304239020966 82.85095640306095 53.27983127323191)
 
 Funzione che verifica l'intersezione tra il segmento e le rette parallele:
 
 (define (intersects pts len dd)
 (catch
   (let (base 0)
-    (while (<= base ymax)
+    (while (<= base (add ymax len))
       (if (and (> (pts 1) base) (< (pts 3) base)) (throw true))
       (if (and (> (pts 3) base) (< (pts 1) base)) (throw true))
       (setq base (add base dd))
@@ -53050,6 +53051,17 @@ Adesso proviamo a calcolare π con il valore della probabilità generato da una 
 
 (pigreco (simula 20 30 50 100 50 100 10000) 20 30)
 ;-> 3.124755878446996
+
+Proviamo con altri valori:
+
+(prob 5 10)
+;-> 0.3183098861837907
+
+(pigreco (prob 5 10) 5 10)
+;-> 3.141592653589793
+
+(pigreco (simula 5 10 10 100 10 100 1000000) 5 10)
+;-> 3.14694997608318
 
 
 ====================================================
@@ -88304,6 +88316,302 @@ Facciamo alcune prove:
 ;-> (+ (* x y) (* y (+ x 3)))
 (deriv '(* x y (+ x 3)) 'x)
 ;-> (+ (* x y) (* y (+ x 3)))
+
+
+----------------
+Media geotmetica
+----------------
+
+La media geometrica aritmetica di due numeri reali positivi viene calcolata prendendo ripetutamente metà della loro somma e la radice quadrata del loro prodotto fino a quando i due numeri convergono.
+Ad esempio, la media geometrica aritmetica di 24 e 6 è 13.458171..., che viene calcolata come segue:
+
+0  24                            6
+1  15                           12
+2  13.5                         13.416407864998738175455042
+3  13.458203932499369089227521  13.458139030990984877207090
+4  13.458171481745176983217305  13.458171481706053858316334
+5  13.458171481725615420766820  13.458171481725615420766806
+
+La media geometrica aritmetica è stata inventata da Lagrange ed è usata oggi per calcolare varie funzioni trascendentali perché converge molto rapidamente.
+
+La media geotmetica ("geothmetic meandian" proposta da Randall Munroe) di qualsiasi insieme di numeri positivi viene calcolata iterando tre sequenze - la media aritmetica, la media geometrica e la mediana - finché non convergono.
+Ad esempio, la media geotmetica dell'insieme (1,1,2,3,5) è 2.089..., che viene calcolata come segue:
+
+1  2.4               1.97435048583482  2
+2  2.124783495278273 2.116192460544808 2
+3  2.080325318607694 2.07953681947958  2.116192460544808
+4  2.092018199544028 2.091948604915222 2.080325318607694
+5  2.088097374355648 2.08809013312096  2.091948604915222
+6  2.08937870413061  2.089377914218487 2.088097374355648
+7  2.088951330901582 2.088951243615992 2.089377914218487
+8  2.089093496245353 2.089093486565328 2.088951330901582
+9  2.089046104570754 2.08904610349584  2.089093486565328
+10 2.089061898210641 2.08906189809123  2.089046104570754
+11 2.089056633624209 2.089056633610941 2.08906189809123
+12 2.089058388442127 2.089058388440653 2.089056633624209
+13 2.08905780350233  2.089057803502165 2.089058388440653
+
+Scrivere due funzioni per il calcolo della media geometrica aritmetica e della media geotmetica.
+
+Media geometrica aritmetica
+---------------------------
+
+(define (media-geom-arit a b)
+  (let ((eps 1e-10) (n1 0) (n2 0))
+    (while (> (abs (sub a b)) eps)
+      (setq n1 (div (add a b) 2))
+      (setq n2 (sqrt (mul a b)))
+      (setq a n1 b n2)
+    )
+    a))
+
+(media-geom-arit 6 24)
+;-> 13.45817148174518
+
+Media geotmetica
+----------------
+
+(define (media-arit lst)
+  (div (apply add lst) (length lst)))
+
+(media-arit (sequence 1 10))
+;-> 5.5
+
+(define (media-geom lst)
+  (pow (apply mul lst) (div 1 (length lst))))
+
+(media-geom (sequence 1 10))
+;-> 4.528728688116765
+
+Per calcolare la mediana di n valori:
+1) ordiniamo gli n valori in ordine crescente
+2) se il numero n è dispari, la mediana corrisponde al valore centrale che ha posizione (n+1)/2.
+3) se il numero n è pari, la mediana è la media aritmetica dei due valori delle posizioni (n/2) e ((n/2)+1)
+Nota: gli indici dell'algoritmo iniziano da 1.
+
+(define (mediana lst)
+  (let (len (length lst))
+    (sort lst)
+    (if (odd? len)
+        (lst (/ len 2))
+        (div (add (lst (- (/ len 2) 1)) (lst (/ len 2))) 2))))
+
+(setq a '(1.98 2.01 1.97 1.96 2.06))
+(mediana '(1.98 2.01 1.97 1.96 2.06))
+;-> 1.98
+
+(setq b '(0 5 1 2 7 0 3 4 6 5))
+(mediana '(0 5 1 2 7 0 3 4 6 5))
+;-> 3.5
+
+Verifichiamo le funzioni con i valori dell'esempio sopra (1 1 2 3 5):
+
+(setq t '(1 1 2 3 5))
+(media-arit t)
+;-> 2.4
+(media-geom t)
+;-> 1.97435048583482
+(mediana t)
+;-> 2
+
+Adesso scriviamo la funzione cha calcola la media geotmetica di n numeri positivi:
+
+(define (media-geotmetica lst)
+  (local (eps media-g media-a media-n)
+    (setq eps 1e-6)
+    (sort lst)
+    (while (> (abs (sub (lst -1) (lst 0))) eps)
+      (setq media-a (media-arit lst))
+      (setq media-g (media-geom lst))
+      (setq media-n (mediana lst))
+      ;(println media-a { } media-g { } media-n)
+      ;(read-line)
+      (setq lst (sort (list media-a media-g media-n)))
+    )
+    (lst 0)))
+
+(media-geotmetica '(1 1 2 3 5))
+;-> 2.089057803502165
+
+
+------------------------------------
+Verificare l'esistenza di un simbolo
+------------------------------------
+
+Per verificare l'esistenza di un simbolo nella tavola dei simboli dobbiamo utilizzare la funzione "sym".
+newLISP crea un simbolo "appena lo vede". Per verificare questo comportamento partiamo con una REPL nuova ed entriamo in un nuovo contesto (che non ha simboli):
+
+(context 'demo)
+;-> demo>
+
+(symbols)
+;-> ()
+
+Se scriviamo un nome qualunque sulla REPL viene creato un simbolo:
+
+test
+;-> nil
+
+Verifichiamo:
+
+(symbols)
+;-> (test)
+
+La generazione del simbolo avviene anche quando l'espressione è errata:
+
+(+ test x)
+;-> ERR: value expected in function + : nil
+
+Nota: quando si genera un errore newLISP ritorna al contesto principale MAIN.
+
+Ritorniamo al contesto "demo" e vediamo i simboli:
+
+(context 'demo)
+(symbols)
+;-> (test x)
+
+Come si vede è stato creato il simbolo x.
+
+Questo significa che newLISP crea/valuta gli argomenti di ogni funzione prima di applicare la funzione. Quindi, se volessimo sapere se un simbolo esiste nel contesto corrente non possiamo applicare una funzione qualunque (esempio "find") perchè crerebbe il simbolo prima di verificarne l'esistenza e qualunque argomento passato risulta esistente nel contesto:
+
+(find 'a (symbols))
+;-> 0
+(symbols)
+;-> (a test x)
+
+Ma allora, come possiamo conoscere se un simbolo esiste in un determinato contesto?
+Come abbiamo detto sopra, occorre utilizzare la funzione "sym". Per esempio se volessimo sapere se il simbolo "var" esiste possiamo scrivere:
+
+(sym "var" demo nil)
+;-> nil
+(symbols)
+;-> (d test x)
+
+Il simbolo "var" non esiste nel contesto demo (e non viene neanche creato).
+
+Proviamo con un simbolo esistente:
+
+(sym "a" demo nil)
+;-> a
+
+Il problema è risolto. Comunque se volessimo scrive una funzione dobbiamo tenere conto dei seguenti comportamenti:
+
+(symbols)
+;-> (a test x)
+
+Non possiamo passare un simbolo quotato "sym":
+
+(sym 'b demo nil)
+;-> b
+(symbols)
+;-> (a b test x)
+
+Non possiamo passare un simbolo (che viene valutato):
+
+(sym c demo nil)
+;-> ERR: number or string expected in function sym : c
+
+Quando la REPL genera un errore ritorna al contesto MAIN.
+
+(context 'demo)
+(symbols)
+;-> (a b c test x)
+
+Dobbiamo sempre passare la stringa del simbolo:
+
+(sym "d" demo nil)
+;-> nil
+
+(sym "a" demo nil)
+;-> a
+
+Vediamo se possiamo passare un simbolo convertito in stringa:
+
+(string a)
+;-> nil
+(string 'a)
+;-> "a"
+(sym (string 'a) demo nil)
+;-> a
+(symbols)
+;-> (a b c test x)
+
+Ma questo non funziona per i simboli che non esistono perchè (string 'd) genera il simbolo d prima di essere valutato da "sym".
+
+(sym (string 'd) demo nil)
+;-> d
+(symbols)
+;-> (a b c d test x)
+
+Quindi dobbiamo sempre passare una stringa alla funzione "sym".
+
+Scriviamo una funzione:
+
+(define (simbolo? simbolo contesto)
+    (sym simbolo (context) nil))
+
+(symbols)
+;-> (a b c contesto d simbolo simbolo? test x)
+
+(simbolo? "a")
+;-> a
+(simbolo? "e")
+;-> nil
+(symbols)
+;-> (a b c contesto d simbolo simbolo? test x)
+
+Anche in questo caso non possiamo applicare "string" al simbolo:
+
+(simbolo? (string 'k))
+;-> k
+(symbols)
+;-> (a b c contesto d k simbolo simbolo? test x)
+
+Però possiamo passare un simbolo (a) che viene valutato in una stringa ("m"):
+
+(setq a "m")
+(simbolo? a nil)
+;-> nil
+(symbols)
+;-> (a b c contesto d k simbolo simbolo? test x)
+
+(setq a "k")
+(simbolo? a nil)
+;-> k
+(symbols)
+;-> (a b c contesto d k simbolo simbolo? test x)
+
+Per maggiori informazioni sui simboli vedere il paragrafo "Gestione dei simboli".
+
+un-nome
+;-> nil
+;-> (aa bb cc un-nome)
+
+Questo significa che newLISP crea/valuta gli argomenti di ogni funzione prima di applicare la funzione. Quindi, se volessimo sapere se un simbolo esiste nel contesto corrente non possiamo applicare una funzione qualunque (esempio "find") perchè crerebbe il simbolo prima di verificarne l'esistenza e qualunque argomento passato risulta esistente nel contesto:
+
+(symbols)
+;-> (aa bb cc un-nome)
+(find 'dd (symbols))
+;-> 3
+(symbols)
+;-> (aa bb cc dd un-nome)
+
+Ma allora, come possiamo conoscere se un simbolo esiste in un determinato contesto?
+Dobbiamo usare la funzione "sym":
+
+(sym "var" demo nil)
+;-> nil
+(symbols)
+;-> (aa bb cc dd un-nome)
+
+Il simbolo "var" non esiste nel contesto demo (e non viene neanche creato).
+Problema risolto. Ma forse è meglio scrivere una funzione ad-hoc:
+
+(define (is-sym symbol ctx)
+    (sym symbol (context) nil))
+
+(is-sym "non-presente")
+;-> nil
 
 
 ===========

@@ -10416,7 +10416,6 @@ Proviamo a cercare qualche triangolo di Stenhaus bilanciato:
 ;-> 103230.324
 
 
-
 ---------------
 L'ago di Buffon
 ---------------
@@ -10486,14 +10485,14 @@ Funzione che genera un segmento casuale:
   ))
 
 (rand-segment 20 50 100 50 100)
-;-> (12.28247932370983 30.97079378643147 -0.8522148841199169 38.21508864975694)
+;-> (75.6358531449324 71.93304239020966 82.85095640306095 53.27983127323191)
 
 Funzione che verifica l'intersezione tra il segmento e le rette parallele:
 
 (define (intersects pts len dd)
 (catch
   (let (base 0)
-    (while (<= base ymax)
+    (while (<= base (add ymax len))
       (if (and (> (pts 1) base) (< (pts 3) base)) (throw true))
       (if (and (> (pts 3) base) (< (pts 1) base)) (throw true))
       (setq base (add base dd))
@@ -10538,5 +10537,16 @@ Adesso proviamo a calcolare π con il valore della probabilità generato da una 
 
 (pigreco (simula 20 30 50 100 50 100 10000) 20 30)
 ;-> 3.124755878446996
+
+Proviamo con altri valori:
+
+(prob 5 10)
+;-> 0.3183098861837907
+
+(pigreco (prob 5 10) 5 10)
+;-> 3.141592653589793
+
+(pigreco (simula 5 10 10 100 10 100 1000000) 5 10)
+;-> 3.14694997608318
 
 

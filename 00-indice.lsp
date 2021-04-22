@@ -751,6 +751,8 @@ NOTE LIBERE 3
   Ippodromo
   Parser di espressioni infisse-prefisse-postfisse
   Derivate Simboliche
+  Media geotmetica
+  Verificare l'esistenza di un simbolo
 
 APPENDICI
 =========
