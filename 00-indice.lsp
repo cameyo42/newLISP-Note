@@ -756,6 +756,11 @@ NOTE LIBERE 3
   Primi troncati
   Contenimento del quadrato
 
+NOTE LIBERE 4
+=============
+  Una relazione tra π ed e
+  Ricerca del numero diverso
+
 APPENDICI
 =========
   Lista delle funzioni newLISP

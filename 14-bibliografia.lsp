@@ -66,6 +66,9 @@
   "Special Forms in Lisp" Kent Pitman, Conference Record of the 1980 Lisp Conference, Stanford University, August 25-27, 1980
   http://www.nhplace.com/kent/Papers/Special-Forms.html
 
+  Cut-the-knot è un sito web dedicato alla divulgazione di una grande varietà di argomenti matematici amministrato da Alexander Bogomolny fino alla sua scomparsa l'8 luglio 2018
+  https://www.cut-the-knot.org/
+
   Computer e Matematica:
   https://www.nayuki.io
 
