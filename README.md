@@ -13,11 +13,12 @@ Appunti sul linguaggio newLISP
 06) Problemi vari (80)  
 07) Domande programmatori (102)  
 08) Librerie (9)  
-09) Note libere (80)  
+09) Note libere 1 (80)  
 10) Note libere 2 (80)  
-11) Note libere 3 (78)  
-12) Appendici (22)  
-13) Bibliografia  
+11) Note libere 3 (80)  
+12) Note libere 4 (1)
+13) Appendici (22)  
+14) Bibliografia  
 99) yo library (yo.zip) (153)  
   
 Documentazione Extra:  

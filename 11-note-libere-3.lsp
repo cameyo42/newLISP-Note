@@ -7613,7 +7613,7 @@ Per ottenere tutti gli accoppiamenti della soluzione possiamo scrivere:
 Il problema dello zaino (Knapsack)
 ----------------------------------
 
-Dati n oggetti con pesi p(0),...,p(n−1) e valori v(0),...,v(n−1), e dato uno zaino con una capacità C, dove C è un numero intero, trovare un sottoinsieme degli oggetti con valore totale massimo, il cui peso totale non supera la capacità C. 
+Dati n oggetti con pesi p(0),...,p(n−1) e valori v(0),...,v(n−1), e dato uno zaino con una capacità C, dove C è un numero intero, trovare un sottoinsieme degli oggetti con valore totale massimo, il cui peso totale non supera la capacità C.
 Questo è un problema NP-Hard.
 
 Per i in {0,...,n − 1} e c in {0,...,C}, assegnare Opt[i][c] come il valore più grande ottenibile tra oggetti con indice da 0 a i senza che il loro peso superi la capacità c. Per il caso base i = 0, abbiamo Opt[0][c] = 0 se (p(0) > c) altrimenti Opt[0][c] = v0.
@@ -7621,7 +7621,7 @@ Per valori maggiori di i, compaiono al massimo due scelte possibili per l'oggett
 Nel primo caso, la capacità disponibile viene ridotta di p(i). Abbiamo quindi la relazione:
 
                 | opt[i-1][c- p(i)] + v(i) (nel caso in cui prendiamo l'oggetto e (p(i) >= c))
-opt[i][c] = max | 
+opt[i][c] = max |
                 | opt[i-1][c]              (nel caso in cui lasciamo l'oggetto)
 
 Questo è un algoritmo con complessità pseudo-polinomiale O(n*C), cioè un algoritmo che è polinomiale nel valore degli input ma non nella loro dimensione (inquesto caso, aumentando di poco la dimensione di C raddoppia il tempo di esecuzione).
@@ -7833,9 +7833,9 @@ Vediamo alcuni esempi:
            (0 0 5 2 0 6 3 0 0)))
 
 (sudoku s1)
-;-> ((3 1 6 5 7 8 4 9 2) 
-;->  (5 2 9 1 3 4 7 6 8) 
-;->  (4 8 7 6 2 9 5 3 1) 
+;-> ((3 1 6 5 7 8 4 9 2)
+;->  (5 2 9 1 3 4 7 6 8)
+;->  (4 8 7 6 2 9 5 3 1)
 ;->  (2 6 3 4 1 5 9 8 7)
 ;->  (9 7 4 8 6 3 1 2 5)
 ;->  (8 5 1 7 9 2 6 4 3)
@@ -7855,9 +7855,9 @@ Vediamo alcuni esempi:
   (0 0 7 0 0 0 3 0 0)))
 
 (time (println (sudoku escargot)))
-;-> ((1 6 2 8 5 7 4 9 3) 
-;->  (5 3 4 1 2 9 6 7 8) 
-;->  (7 8 9 6 4 3 5 2 1) 
+;-> ((1 6 2 8 5 7 4 9 3)
+;->  (5 3 4 1 2 9 6 7 8)
+;->  (7 8 9 6 4 3 5 2 1)
 ;->  (4 7 5 3 1 2 9 8 6)
 ;->  (9 1 3 5 8 6 7 4 2)
 ;->  (6 2 8 7 9 4 1 3 5)
@@ -7943,7 +7943,7 @@ Algoritmo:
 1) Assegnare X uguale a N.
 2) Ciclo continuo per calcolare la radice ottenendo valori sempre più vicini al valore corretto della radice quadrata di N.
 3) Verificare la differenza tra la X presunta e la radice calcolata:
-   Se siamo superiori alla precisione richiesta, 
+   Se siamo superiori alla precisione richiesta,
     allora aggiornare la radice e continuare.
     altrimenti uscuamo dal ciclo.
 4) Restituire il valore della radice.
@@ -8046,35 +8046,35 @@ Dalla posizione di partenza dobbiamo premere "invio" per far muovere casualmente
 ;-> A∙∙∙∙∙
 ;-> B∙∙∙∙∙
 ;-> ------
-;-> 
+;->
 ;-> A∙∙∙∙∙
 ;->  B∙∙∙∙
-;-> 
+;->
 ;-> ------
-;-> 
+;->
 ;-> A∙∙∙∙∙
 ;->   B∙∙∙
-;-> 
+;->
 ;-> ------
-;-> 
+;->
 ;->  A∙∙∙∙
 ;->   B∙∙∙
-;-> 
+;->
 ;-> ------
-;-> 
+;->
 ;->  A∙∙∙∙
 ;->    B∙∙
-;-> 
+;->
 ;-> ------
-;-> 
+;->
 ;->  A∙∙∙∙
 ;->     B∙
-;-> 
+;->
 ;-> ------
-;-> 
+;->
 ;->  A∙∙∙∙
 ;->      B
-;-> 
+;->
 ;-> ------
 ;-> Ordine di arrivo:
 ;-> 1° B (5)
@@ -8095,9 +8095,9 @@ Dalla posizione di partenza dobbiamo premere "invio" per far muovere casualmente
 ;-> I∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙
 ;-> J∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙
 ;-> -----------------------------------------------------------------------
-;-> 
+;->
 ...
-;-> 
+;->
 ;-> -----------------------------------------------------------------------
 ;->                                                          A∙∙∙∙∙∙∙∙∙∙∙∙∙
 ;->                                                                  B∙∙∙∙∙
@@ -8144,17 +8144,17 @@ La procedura analizza le espressioni infisse, prefisse o suffisse fornite nelle 
 ;; (xlate "3 + 4") => (add 3 4) ;; parses infix
 ;; (xlate "+ 3 4") => (add 3 4) ;; parses prefix s-expressions
 ;; (xlate "3 4 +") => (add 2 4) ;; parses postfix
-;;  
+;;
 ;; (xlate "3 + * 4") => "ERR: missing argument for +"
 ;;
 ;; (eval (xlate "3 + 4")) => 7
 ;;
 ;; (xlate "(3 + 4) * (5 - 2)")  => (mul (add 3 4) (sub 5 2))
-;;  
+;;
 ;; (xlate "(a + b) ^ 2 + (a - b) ^ 2") => (add (pow (add a b) 2) (pow (sub a b) 2))
-;;  
+;;
 ;; (xlate "x = (3 + sin(20)) * (5 - 2)")  => (setq x (mul (add 3 (sin 20)) (sub 5 2)))
-;;  
+;;
 ;; (xlate "x = (3 + sin(10 - 2)) * (5 - 2)")
 ;;         => (setq x (mul (add 3 (sin (sub 10 2))) (sub 5 2)))
 ;
@@ -8259,10 +8259,10 @@ Postfissa -> Prefissa
 
 (xlate "(a + b) ^ 2 + (a - b) ^ 2")
 ;-> (add (pow (add a b) 2) (pow (sub a b) 2))
- 
+
 (xlate "x = (3 + sin(20)) * (5 - 2)")
 ;-> (setq x (mul (add 3 (sin 20)) (sub 5 2)))
- 
+
 (xlate "x = (3 + sin(10 - 2)) * (5 - 2)")
 ;-> (setq x (mul (add 3 (sin (sub 10 2))) (sub 5 2)))
 
@@ -9064,34 +9064,139 @@ Però possiamo passare un simbolo (a) che viene valutato in una stringa ("m"):
 
 Per maggiori informazioni sui simboli vedere il paragrafo "Gestione dei simboli".
 
-un-nome
-;-> nil
-;-> (aa bb cc un-nome)
 
-Questo significa che newLISP crea/valuta gli argomenti di ogni funzione prima di applicare la funzione. Quindi, se volessimo sapere se un simbolo esiste nel contesto corrente non possiamo applicare una funzione qualunque (esempio "find") perchè crerebbe il simbolo prima di verificarne l'esistenza e qualunque argomento passato risulta esistente nel contesto:
+--------------
+Primi troncati
+--------------
 
-(symbols)
-;-> (aa bb cc un-nome)
-(find 'dd (symbols))
-;-> 3
-(symbols)
-;-> (aa bb cc dd un-nome)
+Il numero 739 è primo. Se togliamo l'ultima cifra otteniamo 73, che è primo. Se togliamo l'ultima cifra otteniamo 7, che è primo.
+Determinare tutti i numeri primi fino a 1000 milioni che hanno questa proprietà.
 
-Ma allora, come possiamo conoscere se un simbolo esiste in un determinato contesto?
-Dobbiamo usare la funzione "sym":
+Funzione per calcolare i primi:
 
-(sym "var" demo nil)
-;-> nil
-(symbols)
-;-> (aa bb cc dd un-nome)
+(define (primes-to num)
+  (cond ((= num 1) '())
+        ((= num 2) '(2))
+        (true
+         (let (lst '(2))
+          (setq arr (array (+ num 1)))
+          (for (x 3 num 2)
+                (when (not (arr x))
+                  (push x lst -1)
+                  (for (y (* x x) num (* 2 x) (> y num))
+                      (setf (arr y) true)))) lst))))
 
-Il simbolo "var" non esiste nel contesto demo (e non viene neanche creato).
-Problema risolto. Ma forse è meglio scrivere una funzione ad-hoc:
+Funzione che prepara i dati:
 
-(define (is-sym symbol ctx)
-    (sym symbol (context) nil))
+(define (prepare-data num)
+  (println "Calcolo numeri primi...")
+  (setq primi (primes-to num))
+  (println "Creazione coppie...")
+  (setq coppie (map (fn(x) (list (string x) x)) primi))
+  (println "Creazione hash-map delle coppie...")
+  (new Tree 'phash)
+  (phash coppie)
+  (println "data ok."))
 
-(is-sym "non-presente")
-;-> nil
+Funzione che calcola i primi con la proprietà definita:
+
+(define (primi-troncati)
+  ;ciclo per ogni primo...
+  (dolist (p primi)
+    ; tronca il numero primo
+    (setq tronc (/ p 10))
+    ; finchè il numero troncato ha almeno due cifre ed è primo...
+    (while (and (> (length tronc) 1) (phash (string tronc)))
+      ; tronca il numero
+      (setq tronc (/ tronc 10))
+    )
+    ; se il numero troncato ha una cifra ed è primo,
+    ; allora il numero primo originale verifica la condizione
+    ; e viene stampato
+    (if (and (= (length tronc) 1) (phash (string tronc))) (print p { }))
+  ))
+
+Proviamo con i primi fino a 1000:
+
+(prepare-data 1000)
+;-> Calcolo numeri primi...
+;-> Creazione coppie...
+;-> Creazione hash-map delle coppie...
+;-> data ok.
+(primi-troncati)
+;-> 23 29 31 37 53 59 71 73 79 233 239 293 311
+;-> 313 317 373 379 593 599 719 733 739 797
+
+Proviamo con i primi fino a 100 milioni:
+
+(prepare-data 1e8)
+;-> "data-ok"
+(primi-troncati)
+;-> 23 29 31 37 53 59 71 73 79 233 239 293 311 313 317 373 379 593
+;-> 599 719 733 739 797 2333 2339 2393 2399 2939 3119 3137 3733 3739
+;-> 3793 3797 5939 7193 7331 7333 7393 23333 23339 23399 23993 29399
+;-> 31193 31379 37337 37339 37397 59393 59399 71933 73331 73939 233993
+;-> 239933 293999 373379 373393 593933 593993 719333 739391 739393
+;-> 739397 739399 2339933 2399333 2939999 3733799 5939333 7393913
+;-> 7393931 7393933 23399339 29399999 37337999 59393339 73939133
+
+
+-------------------------
+Contenimento del quadrato
+-------------------------
+
+Dato un quadrato K, prendiamo due punti casuali, A e B, all'interno del quadrato. Qual'è la probabilità che il quadrato di diagonale AB sia contenuto nel quadrato K?
+
+Il risultato matematico vale 2/3 (0.66666...). Vediamo come è possibile verificarlo con una simulazione.
+
+Per effettuare la simulazione dobbiamo risolvere il seguente problema geometrico: date le coordinate della diagonale di un quadrato (punti A e B), determinare le altre due coordinate del quadrato (punti C e D). La soluzione è la seguente:
+
+  Calcolare il punto medio M di AB
+  delta-x = coordX(A) - coordX(M)
+  delta-y = coordY(A) - coordY(M)
+  coordX(C) = coordX(M) + delta-y
+  coordY(C) = coordY(M) - delta-x
+  coordX(D) = coordX(M) - delta-y
+  coordY(D) = coordY(M) + delta-x
+
+Per capire meglio le formule, potete vedere una costruzione geometrica interattiva aprendo il file "quadrato.html" che si trova nella cartella "data" (è possibile muovere i punti A e B per vedere come cambia la costruzione).
+
+Nota: senza perdere in generalità supponiamo che il quadrato K sia di coordinate (0,0), (0,1), (1,1) e (1,0). In questo modo i punti A e B sono contenuti tra 0 e 1.
+
+Scrivamo la funzione di simulazione:
+
+(define (interno? x)
+  (and (>= x 0) (< x 1)))
+
+(define (quadrato iter)
+  (local (xa ya xb yb mx my delta-x delta-y dentro)
+    (for (i 1 iter)
+      (setq xa (random))
+      (setq ya (random))
+      (setq xb (random))
+      (setq yb (random))
+      (setq mx (div (add xa xb) 2))
+      (setq my (div (add ya yb) 2))
+      (setq delta-x (sub xa mx))
+      (setq delta-y (sub ya my))
+      (setq xc (add mx delta-y))
+      (setq yc (sub my delta-x))
+      (setq xd (sub mx delta-y))
+      (setq yd (add my delta-x))
+      (if (and (interno? xc) (interno? yc) (interno? xd) (interno? yd))
+          (++ dentro)
+      )
+    )
+    (div dentro iter)))
+
+Verifichiamo il risultato teorico:
+
+(quadrato 1000)
+;-> 0.644
+
+Aumentiamo il numero di iterazioni della simulazione:
+
+(quadrato 1e7)
+;-> 0.6667395
 
 

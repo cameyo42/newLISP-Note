@@ -753,6 +753,8 @@ NOTE LIBERE 3
   Derivate Simboliche
   Media geotmetica
   Verificare l'esistenza di un simbolo
+  Primi troncati
+  Contenimento del quadrato
 
 APPENDICI
 =========
