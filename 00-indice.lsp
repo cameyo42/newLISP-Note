@@ -183,6 +183,7 @@ FUNZIONI VARIE
   Heap binario (Binary Heap)
   Flood Fill
   Poligoni convessi
+  Variazione percentuale
 
 newLISP 99 PROBLEMI (28)
 ========================
@@ -760,6 +761,9 @@ NOTE LIBERE 4
 =============
   Una relazione tra π ed e
   Ricerca del numero diverso
+  Ricerca del numero singolo
+  Punti in un semicerchio
+  Coefficiente di Sorensen-Dice
 
 APPENDICI
 =========

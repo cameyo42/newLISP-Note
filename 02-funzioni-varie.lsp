@@ -7540,3 +7540,25 @@ Questo metodo funziona con i poligoni semplici (senza lati auto-intersecanti) e 
 ;-> true
 
 
+----------------------
+Variazione percentuale
+----------------------
+
+Scrivere una funzione che calcola la variazione percentuale tra due numeri x e y.
+
+(define (delta% x y)
+  (div (mul (sub y x) 100) x))
+
+(delta% 50 100)
+;-> 100
+
+(delta% 100 50)
+;-> -50
+
+(delta% 20 60)
+;-> 200
+
+(delta% 60 20)
+;-> -66.66666666666667
+
+
