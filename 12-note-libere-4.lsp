@@ -149,9 +149,9 @@ Quindi applicando lo "xor" agli elementi della seguente lista:
 
 possiamo scrivere:
 
-(2 xor 2) xor (3 xor 3) xor (4 xor 4) xor (7 xor 7) xor 1 = 
+(2 xor 2) xor (3 xor 3) xor (4 xor 4) xor (7 xor 7) xor 1 =
 = (0 xor 0) xor (0 xor 0) xor 1 =
-= (0 xor 0) xor 1 = 
+= (0 xor 0) xor 1 =
 = 0 xor 1 = 1
 
 Quindi la nostra funzione è molto semplice:
@@ -213,7 +213,7 @@ Scriviamo una funzione che simula questo processo:
         ; calcola distanza tra due punti
         (setq diff (sub (p k) (p (% (+ k 1) n))))
         ; verifica se i due punti si trovano
-        ; nello stesso semicerchio
+        ; nello stesso semicerchio (0, 0.5)
         (if (< diff 0) (inc diff))
         (if (< diff 0.5)
             (setq conta (+ conta 1) k n)
@@ -257,7 +257,7 @@ La formula originale di Sørensen doveva essere applicata a dati discreti. Dati 
 
 dove |X| e |Y| sono le cardinalità dei due liste (cioè il numero di elementi in ogni lista). L'indice di Sorensen è uguale al doppio del numero di elementi comuni a entrambe le liste (intersezione) diviso per la somma del numero di elementi di ogni lista.
 
-(define (sorensen (lst1 lst2))
+(define (sorensen lst1 lst2)
   (div (* 2 (length (intersect lst1 lst2)))
        (+ (length lst1) (length lst2))))
 
@@ -269,9 +269,9 @@ Due liste uguali producono un coefficiente pari a 1:
 ;-> 1
 
 (sorensen (sequence 1 100) (sequence 100 199))
-;-> 0.09523809523809523
+;-> 0.01
 (sorensen (sequence 1 1000) (sequence 1000 1999))
-;-> 0.009950248756218905
+;-> 0.001
 
 Nota: il coefficiente non tiene conto della magnitude (valore) degli elementi.
 
@@ -317,9 +317,178 @@ Il coefficiente per due stringhe x e y viene calcolato come segue:
         2*nt
   d = ---------
        nx + ny
-     
-dove: nt è il numero di bigrammi trovati in entrambe le stringhe, 
+
+dove: nt è il numero di bigrammi che si trovano in entrambe le stringhe,
       nx è il numero di bigrammi nella stringa x,
       ny è il numero di bigrammi nella stringa y.
 
+Vediamo una semplice implementazione (non molto efficiente):
+
+(define (bigrammi str)
+  (let (lst-str (explode str))
+    (map string (chop lst-str) (rest lst-str))))
+
+(bigrammi "pippo")
+;-> ("pi" "ip" "pp" "po")
+
+(bigrammi "pappa")
+;-> ("pa" "ap" "pp" "pa")
+
+(define (sorensen-string str1 str2)
+  (local (nx-lst ny-lst nt-lst)
+    (setq bigram-x (bigrammi str1))
+    (setq bigram-y (bigrammi str2))
+    (setq nx (length bigram-x))
+    (setq ny (length bigram-y))
+    (setq nt (length (intersect bigram-x bigram-y)))
+    (div (* 2 nt) (+ nx ny))))
+
+Facciamo alcune prove:
+
+(sorensen-string "pippo" "pappa")
+;-> 0.25
+
+(sorensen-string "gggg" "gg")
+;-> 0.5
+
+(sorensen-string "healed" "sealed")
+;-> 0.8
+
+(sorensen-string "algorithms are fun" "logarithms are not")
+;-> 0.5882352941176471
+
+(sorensen-string "Questa è una stringa" "e questa è un'altra stringa")
+;-> 0.66666666666666
+
+(sorensen-string "This is a string" "And this is another string")
+;-> 0.55
+
+Nota: questa implementazione tratta più occorrenze di un bigramma come uniche.
+La correttezza di questo comportamento si nota quando si calcola il coefficiente per le stringhe "GG" e "GGGGGGGG", che ovviamente non deve essere 1.
+
+
+----------------
+Parole di Lyndon
+----------------
+
+Dato un intero n e una lista di caratteri S, generare tutte le parole di Lyndon di lunghezza n con i caratteri contenuti in S.
+
+Una parola di Lyndon è una stringa che è strettamente inferiore a tutte le sue rotazioni in ordine lessicografico. Ad esempio, la stringa "012" è una parola di Lyndon poiché è inferiore alle rotazioni "120" e "201", ma "102" non è una parola di Lyndon in quanto è maggiore della sua rotazione "021".
+Nota: "000" non è considerata una parola di Lyndon in quanto è uguale alla stringa ruotata.
+
+Vediamo un paio di esempi:
+
+Input: n = 2, S = ("0" "1" "2")
+Output: "01" "02" "12"
+
+Le altre possibili stringhe di lunghezza 2 sono "00", "11", "20", "21" e "22". Tutti queste sono maggiori o uguali a una delle loro rotazioni.
+
+Input: n = 1, S = ("0" "1" "2")
+Output: "0" "1" "2"
+
+Esiste un algoritmo efficiente per generare parole di Lyndon (proposto da Jean-Pierre Duval) che può essere utilizzato per generare tutte le parole di Lyndon di lunghezza n con tempo proporzionale al numero di tali parole (vedi "Average cost of Duval’s algorithm for generating Lyndon words" di Berstel e Pocchiola)
+
+L'algoritmo genera le parole di Lyndon in ordine lessicografico. Se w è una parola di Lyndon, la parola successiva si ottiene con i seguenti passaggi:
+
+1) Ripetere w per formare una stringa v di lunghezza n, tale che v[i] = w[i mod |w|].
+2) Affinchè l'ultimo carattere di v è l'ultimo nell'ordinamento di S, rimuoverlo.
+3) Sostituire l'ultimo carattere di v con il suo successore nell'ordinamento di S.
+
+Ad esempio, se n = 5, S = (a b c d) e w = "add", otteniamo v = "addad".
+Poiché "d" è l'ultimo carattere nell'ordinamento ordinato di S, lo rimuoviamo per ottenere "adda" e quindi sostituire l'ultima "a" con il suo successore "b" per ottenere la parola di Lyndon "addb".
+
+Vediamo una possibile implementazione:
+
+(define (lyndon n str)
+  (local (k w m out)
+    (setq out '())
+    (setq k (length str))
+    (sort str)
+    ; Lista per memorizzare gli indici dei caratteri
+    (setq w '(-1))
+    ; Ciclo finché w non è vuoto
+    (while w
+      ; Incrementa l'ultimo carattere
+      (setf (w -1) (+ (w -1) 1))
+      (setq m (length w))
+      (if (= m n)
+          ;(println (join (select str w)))
+          (push (join (select str w)) out -1)
+      )
+      ; Ripete w per ottenere una stringa lunga n
+      (while (< (length w) n)
+        (push (w (- m)) w -1)
+      )
+      ; Rimuove l'ultimo carattere fintanto che è uguale al
+      ; carattere più grande nella stringa
+      (while (and w (= (w -1) (- k 1)))
+        (setq w (chop w))
+      )
+    )
+    out))
+
+(lyndon 2 '("0" "1" "2"))
+;-> ("01" "02" "12")
+
+(lyndon 1 '("0" "1" "2"))
+;-> ("0" "1" "2")
+
+(lyndon 3 '("0" "1" "2"))
+;-> ("001" "002" "011" "012" "021" "022" "112" "122")
+
+
+-------------------------
+Fattorizzazione di Lyndon
+-------------------------
+
+Una stringa è chiamata parola di Lyndon (o semplice), se è strettamente più piccola di uno qualsiasi dei suoi suffissi non banali. Esempi di stringhe semplici sono: a, b, ab, aab, abb, ababb, abcd. Si può dimostrare che una stringa è semplice, se e solo se è strettamente più piccola di tutte le sue rotazioni cicliche non banali.
+
+Quindi, data stringa s la fattorizzazione di Lyndon della stringa s è una fattorizzazione s = w1w2… wk, dove tutte le stringhe wi sono semplici e sono in ordine non crescente w1≥w2≥ ... ≥w
+
+Si può dimostrare che per ogni stringa tale fattorizzazione esiste ed è unica.
+
+Algoritmo di Duval
+------------------
+L'algoritmo di Duval costruisce la fattorizzazione di Lyndon in tempo O (n) utilizzando la memoria aggiuntiva O (1).
+
+Per prima cosa introduciamo un'altra nozione: una stringa t è chiamata pre-semplice, se ha la forma t = ww ... w (w), dove w è una stringa semplice e (w) è un prefisso di w (possibilmente vuoto). Anche una semplice stringa è pre-semplice.
+
+L'algoritmo di Duval è greedy (avido). In qualsiasi momento durante la sua esecuzione, la stringa s sarà effettivamente divisa in tre stringhe s = s1s2s3, dove la fattorizzazione di Lyndon per s1 è già trovata e finalizzata, la stringa s2 è pre-semplice (e conosciamo la lunghezza della stringa semplice in esso), e s3 è completamente intatta. In ogni iterazione l'algoritmo Duval prende il primo carattere della stringa s3 e cerca di aggiungerlo alla stringa s2. Se s2 non è più pre-semplice, la fattorizzazione di Lyndon per una parte di s2 diventa nota e questa parte passa a s1.
+
+Descriviamo l'algoritmo in modo più dettagliato. Il puntatore i punterà sempre all'inizio della stringa s2. Il ciclo esterno verrà eseguito fintanto che i < n. All'interno del ciclo utilizziamo due puntatori aggiuntivi, j che punta all'inizio di s3 e k che punta al carattere corrente che stiamo attualmente confrontando. Vogliamo aggiungere il carattere s[j] alla stringa s2, che richiede un confronto con il carattere s[k].
+Possono esserci tre casi diversi:
+
+  1) s[j] = s[k]: se è così, l'aggiunta del simbolo s[j] a s2 non viola la sua pre-semplicità. Quindi incrementiamo semplicemente i puntatori j e k.
+  2) s[j] > s [k]: qui la stringa s2 + s[j] diventa semplice. Possiamo incrementare j e riportare k all'inizio di s2, in modo che il carattere successivo possa essere confrontato con l'inizio della parola semplice.
+  3) s[j] < s[k]: la stringa s2 + s[j] non è più pre-semplice. Quindi divideremo la stringa pre-semplice s2 nelle sue stringhe semplici e il resto, possibilmente vuoto. La stringa semplice avrà la lunghezza j − k. Nella successiva iterazione si ricomincia con la restante s2.
+
+Ecco una implementazione dell'algoritmo di Duval che restituisce la fattorizzazione di Lyndon di una string str:
+
+(define (duval str)
+  (local (len i j k out)
+    (setq len (length str))
+    (setq i 0)
+    (setq out '())
+    (while (< i len)
+      (setq j (+ i 1))
+      (setq k i)
+      (while (and (< j len) (<= (str k) (str j)))
+        (if (< (str k) (str j))
+            (setq k i)
+            (++ k)
+        )
+        (++ j)
+      )
+      (while (<= i k)
+        (push (slice str i (- j k)) out -1)
+        (setq i (+ i j (- k)))
+      )
+    )
+    out))
+
+(duval "345210012")
+;-> ("345" "2" "1" "0012")
+
+(duval "1821234")
+;-> ("182" "1234")
 

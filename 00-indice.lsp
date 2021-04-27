@@ -745,7 +745,7 @@ NOTE LIBERE 3
   Giustificazione del testo
   Data e tempo
   Algoritmo di Gale-Shapley
-  Il problema dello zaino (Knapsack)  
+  Il problema dello zaino (Knapsack)
   Validazione UTF-8
   Sudoku mania
   Radici quadrate con il metodo di Newton
@@ -764,6 +764,8 @@ NOTE LIBERE 4
   Ricerca del numero singolo
   Punti in un semicerchio
   Coefficiente di Sorensen-Dice
+  Parole di Lyndon
+  Fattorizzazione di Lyndon
 
 APPENDICI
 =========

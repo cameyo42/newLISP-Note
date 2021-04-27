@@ -48,19 +48,19 @@
   "The Art of Computer Programming", Donald Knuth, 4 volumi, 1968...2015
 
   "Introduction to Algorithms", Cormen-Leiserson-Rivest-Stein, 3ed, 2009
-  
+
   "Algorithms", Sedgewick-Wayne, 4ed, 2011
 
   "Teoria e Progetto di Algoritmi Fondamentali", Ausiello-Marchetti-Spaccamela-Protasi, 1985
-  
+
   "Primality Testing in Polynomial Time" di Martin Dietzfelbinger, 2004
 
   "Land of Lisp", Conrad Barsky, 2011
 
   "Structure and Interpretation of Computer Programs",  Abelson-Sussman, 2ed, 1996
-  
+
   "Numerical Recipes in C: The Art of Scientific Computing", 2ed, Press-Teukolsky-Vetterling-Flannery
-  
+
   "Il Libro dei Numeri" di Conway-Guy, 1999
 
   "Special Forms in Lisp" Kent Pitman, Conference Record of the 1980 Lisp Conference, Stanford University, August 25-27, 1980
@@ -74,7 +74,7 @@
 
   Mathematica on-line:
   https://www.wolframalpha.com
-  
+
   La più grande risorsa sulla matematica nel web
   https://mathworld.wolfram.com/
 
@@ -83,7 +83,7 @@
 
   StackOverflow è una sito web in cui studenti e professionisti inviano richieste e rispondono a domande sulla programmazione:
   https://stackoverflow.com
-  
+
   Mathematics Stack Exchange è un sito di domande e risposte per persone che studiano matematica a qualsiasi livello.
   https://math.stackexchange.com/
 
@@ -98,7 +98,7 @@
 
   GeeksforGeeks - Un portale di computer science per "geeks"
   https://www.geeksforgeeks.org/
-  
+
   MathBlog.dk è un blog che tratta la risoluzione di problemi di programmazione utilizzando la matematica
   https://www.mathblog.dk/
 
@@ -108,6 +108,5 @@
   Search the history of over 468 billion web pages on the Internet.
   Internet Archive is a non-profit library of millions of free books, movies, software, music, websites, and more.
   https://archive.org/
-  
-  
-  
+
+
