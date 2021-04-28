@@ -1324,6 +1324,87 @@ C'è una sottile differenza tra i due. Il simbolo ' viene risolto durante la tra
 In questo modo la funzione "quote" è più simile alla funzione quote del LISP originale. L'uso del simbolo ' è un'ottimizzazione effettuata durante la traduzione del codice sorgente,Se vuoi saperne di più sulla traduzione e la valutazione del codice, confronta le funzioni "read-expr" e "eval-string".
 Nel codice sorgente di newLISP la funzione "quote" viene trasformata in un simbolo (SYMBOL) e il simbolo ' viene trasformato come QUOTE.
 
+Vediamo un altro esempio:
+
+(setq x '(1 '(2 3 4)))
+;-> (1 '(2 3 4))
+
+(x 0)
+;-> 1
+(x 1)
+;-> '(2 3 4)
+
+Se vogliamo estrarre il primo elemento con "first" otteniamo un errore:
+(first (x 1))
+;-> ERR: array, list or string expected in function first : (x 1)
+
+Invece applicare "first" direttamente alla lista funziona:
+(first '(2 3 4))
+;-> 2
+
+(setq a (x 1))
+;-> '(2 3 4)
+(first a)
+;-> ERR: array, list or string expected in function first : a
+
+(setq z (quote (1 (quote (2 3 4)))))
+;-> (1 (quote (2 3 4)))
+
+(z 1)
+;-> (quote (2 3 4))
+(first (z 1))
+;-> quote
+
+Utilizzando "quote" newLISP si comporta come Scheme o Common LISP:
+
+In newLISP:
+
+(setq x '(1 '(2 3 4)))
+;-> (1 '(2 3 4))
+(first (first (rest x)))
+;-> ERR: array, list or string expected : (first (rest x))
+
+In Scheme:
+
+1> (define x '(1 '(2 3 4)))
+2> (car (car (cdr x)))
+;-> quote
+
+In Common LISP:
+
+[1]> (setq x '(1 '(2 3 4)))
+;-> (1 '(2 3 4))
+[2]> (car (car (cdr x)))
+;-> QUOTE
+
+Il simbolo ' valuta nel proprio tipo di dati quote-type (cioè un sottotipo di lista) in newLISP in modo simile al lambda-type di lista (un altro sottotipo di lista).
+Il simbolo ' e la funzione "quote" sono equivalenti quando valutati:
+
+(= 'x (quote x))
+;-> true
+
+(quote? (quote 'x))
+;-> true
+
+ma qui l'espressione (quote x) non è valutata:
+
+(quote? '(quote x))
+;-> nil
+
+(list? '(quote x))
+;-> true
+
+Proprio come lambda, il simbolo ' viene risolto durante la traduzione/parsing del codice sorgente.
+Questo è il motivo per cui abbiamo i predicati "quote?" e "lambda?".
+Il più delle volte la differenza non è riconoscibile (come nel mio esempio), ma nel primo esempio questa differenza viene evidenziata.
+Sia il simbolo ' che la funzione "quote" servono hanno lo stesso scopo di proteggere un'espressione dalla valutazione, ma l'elaborazione del simbolo ' è molto più veloce perché viene tradotto durante il tempo di caricamento del sorgente.
+Comunque abbiamo ancora bisogno della funzione "quote" per quotare durante il runtime.
+Per questo motivo, quando si desidera riscrivere la definizione originale di McCarthy di LISP in newLISP dovresti usare la funzione (quote ...) invece del simbolo ':
+
+(first (first (rest (quote (1 (quote 2 3 4)))))) => quote
+
+ottenendo lo stesso risultato come in Scheme e in Common LISP.
+
 
 ======================
  FUNZIONI CON MEMORIA
@@ -7280,7 +7361,7 @@ La macro "->" prende il primo elemento come primo argomento della funzione:
 (-> 8 (div 4))
 ;-> 2
 
-The macro "->>" prende il primo elemento come ultimo argomento della funzione:
+La macro "->>" prende il primo elemento come ultimo argomento della funzione:
 
 (->> 8 (div 4))
 ;-> 0.5
@@ -8618,7 +8699,7 @@ Parsing senza alcuna opzione:
 ;->     ("TEXT" "\r\n\t"))) 
 ;->   ("TEXT" "\r\n"))))
 
-The TEXT elements containing only whitespace make the output very confusing. As the database in example.xml only contains data, we can suppress whitespace, empty attribute lists and comments with option (+ 1 2 4):
+Gli elementi TEXT contenenti solo spazi bianchi rendono l'output molto confuso. Poiché il database in example.xml contiene solo dati, possiamo sopprimere spazi vuoti, liste vuote (senza attributi) e commenti con l'opzione (+ 1 2 4):
 
 Filtrare gli spazi vuoti in TEXT, i COMMENT tag, e le liste con attributi vuoti:
 

@@ -766,6 +766,9 @@ NOTE LIBERE 4
   Coefficiente di Sorensen-Dice
   Parole di Lyndon
   Fattorizzazione di Lyndon
+  Rimozione dei multipli
+  Rock Paper Scissors
+  TODO application
 
 APPENDICI
 =========
@@ -2161,6 +2164,87 @@ oppure
 C'è una sottile differenza tra i due. Il simbolo ' viene risolto durante la traduzione del codice sorgente, quando la cella quotata viene protetta dalla valutazione con un involucro. La funzione "quote" fa la stessa cosa, ma durante la valutazione dell'espressione. Per la maggior parte degli scopi la funzione e il simbolo si comportano in modo equivalente.
 In questo modo la funzione "quote" è più simile alla funzione quote del LISP originale. L'uso del simbolo ' è un'ottimizzazione effettuata durante la traduzione del codice sorgente,Se vuoi saperne di più sulla traduzione e la valutazione del codice, confronta le funzioni "read-expr" e "eval-string".
 Nel codice sorgente di newLISP la funzione "quote" viene trasformata in un simbolo (SYMBOL) e il simbolo ' viene trasformato come QUOTE.
+
+Vediamo un altro esempio:
+
+(setq x '(1 '(2 3 4)))
+;-> (1 '(2 3 4))
+
+(x 0)
+;-> 1
+(x 1)
+;-> '(2 3 4)
+
+Se vogliamo estrarre il primo elemento con "first" otteniamo un errore:
+(first (x 1))
+;-> ERR: array, list or string expected in function first : (x 1)
+
+Invece applicare "first" direttamente alla lista funziona:
+(first '(2 3 4))
+;-> 2
+
+(setq a (x 1))
+;-> '(2 3 4)
+(first a)
+;-> ERR: array, list or string expected in function first : a
+
+(setq z (quote (1 (quote (2 3 4)))))
+;-> (1 (quote (2 3 4)))
+
+(z 1)
+;-> (quote (2 3 4))
+(first (z 1))
+;-> quote
+
+Utilizzando "quote" newLISP si comporta come Scheme o Common LISP:
+
+In newLISP:
+
+(setq x '(1 '(2 3 4)))
+;-> (1 '(2 3 4))
+(first (first (rest x)))
+;-> ERR: array, list or string expected : (first (rest x))
+
+In Scheme:
+
+1> (define x '(1 '(2 3 4)))
+2> (car (car (cdr x)))
+;-> quote
+
+In Common LISP:
+
+[1]> (setq x '(1 '(2 3 4)))
+;-> (1 '(2 3 4))
+[2]> (car (car (cdr x)))
+;-> QUOTE
+
+Il simbolo ' valuta nel proprio tipo di dati quote-type (cioè un sottotipo di lista) in newLISP in modo simile al lambda-type di lista (un altro sottotipo di lista).
+Il simbolo ' e la funzione "quote" sono equivalenti quando valutati:
+
+(= 'x (quote x))
+;-> true
+
+(quote? (quote 'x))
+;-> true
+
+ma qui l'espressione (quote x) non è valutata:
+
+(quote? '(quote x))
+;-> nil
+
+(list? '(quote x))
+;-> true
+
+Proprio come lambda, il simbolo ' viene risolto durante la traduzione/parsing del codice sorgente.
+Questo è il motivo per cui abbiamo i predicati "quote?" e "lambda?".
+Il più delle volte la differenza non è riconoscibile (come nel mio esempio), ma nel primo esempio questa differenza viene evidenziata.
+Sia il simbolo ' che la funzione "quote" servono hanno lo stesso scopo di proteggere un'espressione dalla valutazione, ma l'elaborazione del simbolo ' è molto più veloce perché viene tradotto durante il tempo di caricamento del sorgente.
+Comunque abbiamo ancora bisogno della funzione "quote" per quotare durante il runtime.
+Per questo motivo, quando si desidera riscrivere la definizione originale di McCarthy di LISP in newLISP dovresti usare la funzione (quote ...) invece del simbolo ':
+
+(first (first (rest (quote (1 (quote 2 3 4)))))) => quote
+
+ottenendo lo stesso risultato come in Scheme e in Common LISP.
 
 
 ======================
@@ -8118,7 +8202,7 @@ La macro "->" prende il primo elemento come primo argomento della funzione:
 (-> 8 (div 4))
 ;-> 2
 
-The macro "->>" prende il primo elemento come ultimo argomento della funzione:
+La macro "->>" prende il primo elemento come ultimo argomento della funzione:
 
 (->> 8 (div 4))
 ;-> 0.5
@@ -9456,7 +9540,7 @@ Parsing senza alcuna opzione:
 ;->     ("TEXT" "\r\n\t"))) 
 ;->   ("TEXT" "\r\n"))))
 
-The TEXT elements containing only whitespace make the output very confusing. As the database in example.xml only contains data, we can suppress whitespace, empty attribute lists and comments with option (+ 1 2 4):
+Gli elementi TEXT contenenti solo spazi bianchi rendono l'output molto confuso. Poiché il database in example.xml contiene solo dati, possiamo sopprimere spazi vuoti, liste vuote (senza attributi) e commenti con l'opzione (+ 1 2 4):
 
 Filtrare gli spazi vuoti in TEXT, i COMMENT tag, e le liste con attributi vuoti:
 
@@ -67685,7 +67769,7 @@ Dal punto di vista storico, newLISP ci comporta come il LISP originale di McCart
 
 Infine riportiamo alcune considerazioni di Lutz:
 
-"Per i meno iniziati qui, ecco alcune regole e spiegazioni relative alla cattura delle variabili e ai pericoli percepiti quando non ce ne sono.
+''Per i meno iniziati qui, ecco alcune regole e spiegazioni relative alla cattura delle variabili e ai pericoli percepiti quando non ce ne sono.
 
 - non vi è alcun pericolo di acquisizione di variabili quando si riutilizzano nomi di variabili nelle funzioni nidificate, 'let' ed espressioni di loop nidificati. Tutte le variabili dei parametri vengono salvate internamente su uno stack di ambiente e ripristinate dopo l'uso. Puoi anche fare quanto segue senza pericolo:
 
@@ -67734,7 +67818,7 @@ Quando si usano le normali funzioni create con 'define', la cattura variabile pu
 
 - anche qualsiasi altra funzione o macro (fexpr) in un modulo 'foo:this', 'foo:that' è completamente sicuro contro la cattura/confusione variabili, anche quando si passano simboli quotati.
 
-- in ultimo, ma non meno importante: perché newLISP chiama le macro fexprs? Perché dal punto di vista dell'uso vengono utilizzate per ottenere lo stesso risultato: scrivere funzioni che non seguono le solite regole di valutazione dei parametri per la valutazione iniziale di tutti i parametri ma controllano da sole la valutazione dei parametri usando 'eval'. Trovo più utile usare una definizione orientata all'applicazione."
+- in ultimo, ma non meno importante: perché newLISP chiama le macro fexprs? Perché dal punto di vista dell'uso vengono utilizzate per ottenere lo stesso risultato: scrivere funzioni che non seguono le solite regole di valutazione dei parametri per la valutazione iniziale di tutti i parametri ma controllano da sole la valutazione dei parametri usando 'eval'. Trovo più utile usare una definizione orientata all'applicazione.'''
 
 
 ----------------------------------
@@ -69714,9 +69798,6 @@ Il seguente programma può essere utilizzato autonomo o incluso nel file di avvi
 
 Nella definizione della funzione di traduzione della riga di comando, il comando "cd" Unix riceve un trattamento speciale, per assicurarsi che la directory venga cambiata  anche per il processo newLISP. In questo modo quando utilizziamo un comando shell con "!" al ritorno, newLISP manterrà il cambio della directory.
 
-Command lines for newLISP must start either with a space or an opening parenthesis. Unix commands must start at the beginning of the line.
-Note, that the command line length as well as the line length in HTTP headers is limited to 512 characters for newLISP.
-
 Le righe di comando per newLISP devono iniziare con uno spazio o una parentesi aperta.
 I comandi Unix devono iniziare all'inizio della riga.
 Si noti che la lunghezza della riga di comando e la lunghezza della riga nelle intestazioni HTTP sono limitate a 512 caratteri in newLISP.
@@ -71663,11 +71744,8 @@ Vediamo quale metodo è più veloce:
 Mescolamento perfetto
 ---------------------
 
-A perfect shuffle, also known as a faro shuffle, splits a deck of cards into equal halves (there must be an even number of cards), then perfectly interleaves them. Eventually a series of perfect shuffles returns a deck to its original order. For instance, with a deck of 8 cards named (1 2 3 4 5 6 7 8), the first shuffle rearranges the cards to (1 5 2 6 3 7 4 8), the second shuffle rearranges the cards to (1 3 5 7 2 4 6 8), and the third shuffle restores the original order (1 2 3 4 5 6 7 8).
-
-Your task is to write a program that performs a perfect shuffle and use it to determine how many perfect shuffles are required to return an n-card deck to its original order; how many perfect shuffles are required for a standard 52-card deck?
-
 Un mescolamento (shuffle) perfetto, divide un mazzo di carte in due metà uguali (deve esserci un numero pari di carte), quindi le interfoglia perfettamente. Alla fine una serie di mescolamenti perfetti riporta un mazzo al suo ordine originale. Ad esempio, con un mazzo di 8 carte (1 2 3 4 5 6 7 8), il primo mescolamento riordina le carte in (1 5 2 6 3 7 4 8), il secondo mescolamento riordina le carte in (1 3 5 7 2 4 6 8) e il terzo mescolamento ripristina l'ordine originale (1 2 3 4 5 6 7 8).
+
 Scrivere una funzione che esegue un mescolamento perfetto. Scrivere una funzione che calcola quanti mescolamenti perfetti sono necessari per riportare un mazzo di n carte all'ordine originale.
 Quante mescolamenti perfetti sono necessari per un mazzo da 52 carte?
 
@@ -74986,8 +75064,7 @@ $count
 
 Sostituzione nelle stringhe senza espressioni regolari
 ------------------------------------------------------
-Se tutti gli argomenti sono stringhe, "replace" sostituisce tutte le occorrenzw di str-key in str-data con l'espressione valutata exp-replacement e ritorna la stringa modificata. L'espressione in exp-replacement viene valutata per ogni sostituzione. Il numero di sostituzioni effettuate è contenuto nella variabile di sistema $count. Questa forma di "replace" può processare anche gli 0 (zero) binari
-If all arguments are strings, replace replaces all occurrences of str-key in str-data with the evaluated exp-replacement, returning the changed string. The expression in exp-replacement is evaluated for every replacement. The number of replacements made is contained in the system variable $count. This form of replace can also process binary 0s (zeros).
+Se tutti gli argomenti sono stringhe, "replace" sostituisce tutte le occorrenzw di str-key in str-data con l'espressione valutata exp-replacement e ritorna la stringa modificata. L'espressione in exp-replacement viene valutata per ogni sostituzione. Il numero di sostituzioni effettuate è contenuto nella variabile di sistema $count. Questa forma di "replace" può processare anche gli 0 (zero) binari.
 
 ;; string replacement
 (set 'str "this isa sentence")
@@ -89011,7 +89088,8 @@ La formula originale di Sørensen doveva essere applicata a dati discreti. Dati 
   DSC = -----------
          |X| + |Y|
 
-dove |X| e |Y| sono le cardinalità dei due liste (cioè il numero di elementi in ogni lista). L'indice di Sorensen è uguale al doppio del numero di elementi comuni a entrambe le liste (intersezione) diviso per la somma del numero di elementi di ogni lista.
+dove |X| e |Y| sono le cardinalità dei due liste (cioè il numero di elementi in ogni lista). 
+L'indice di Sorensen è uguale al doppio del numero di elementi comuni a entrambe le liste (intersezione) diviso per la somma del numero di elementi di ogni lista.
 
 (define (sorensen lst1 lst2)
   (div (* 2 (length (intersect lst1 lst2)))
@@ -89218,7 +89296,7 @@ Possono esserci tre casi diversi:
   2) s[j] > s [k]: qui la stringa s2 + s[j] diventa semplice. Possiamo incrementare j e riportare k all'inizio di s2, in modo che il carattere successivo possa essere confrontato con l'inizio della parola semplice.
   3) s[j] < s[k]: la stringa s2 + s[j] non è più pre-semplice. Quindi divideremo la stringa pre-semplice s2 nelle sue stringhe semplici e il resto, possibilmente vuoto. La stringa semplice avrà la lunghezza j − k. Nella successiva iterazione si ricomincia con la restante s2.
 
-Ecco una implementazione dell'algoritmo di Duval che restituisce la fattorizzazione di Lyndon di una string str:
+Ecco una implementazione dell'algoritmo di Duval che restituisce la fattorizzazione di Lyndon di una stringa str:
 
 (define (duval str)
   (local (len i j k out)
@@ -89247,6 +89325,370 @@ Ecco una implementazione dell'algoritmo di Duval che restituisce la fattorizzazi
 
 (duval "1821234")
 ;-> ("182" "1234")
+
+
+----------------------
+Rimozione dei multipli
+----------------------
+
+Dato un numero N e un insieme di numeri s = (s1 s2 ... sn} dove s1 < s2 < ... < sn < N, rimuovere tutti i multipli di (s1 s2 ... sn) dall'intervallo 1...N.
+Per esempio, con n = 10 e lst = (2 4 5) si ottiene: (1 3 7 9).
+
+È possibile risolverlo in tempo O(n*log(n)) e memoria extra O(n) usando qualcosa di simile al Crivello di Eratostene.
+
+(define (delete-multiple n lst)
+  (local (multipli out)
+    (setq out '())
+    (setq multipli (array (+ n 1) '(nil)))
+    (dolist (el lst)
+      (setq t el)
+      (while (<= t n)
+        (setf (multipli t) true)
+        (setq t (+ t el))
+      )
+    )
+    (for (i 1 n)
+      (if (not (multipli i))
+          (push i out -1)
+      )
+    )
+    out))
+
+(delete-multiple 10 '(2 4 5))
+;-> (1 3 7 9)
+
+(delete-multiple 100 '(2 3 4 5 6 7 8 9 10))
+;-> (1 11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71 73 79 83 89 97)
+
+Questa funzione utilizza O(n) di spazio per memorizzare la lista "multipli".
+
+La complessità temporale è O(n*log(n)). Infatti, il ciclo while interno verrà eseguito N/s1 volte per il primo elemento in S, quindi N/s2 per il secondo e così via. Quindi dobbiamo stimare la grandezza di N/s1 + N/s2 + ... + N/sn.
+
+  N/s1 + N/s2 + ... + N/sn = 
+= N * (1/s1 + 1/s2 + ... + 1/sn) <= N * (1/1 + 1/2 + .. . + 1/n).
+
+L'ultima disuguaglianza è dovuta al fatto che s1 < s2 <... <sn, quindi il caso peggiore è quando assumono valori (1 2 ... n}.
+
+Si può dimostrare che la serie armonica (1/1 + 1/2 + .. . + 1/n) è O(log(n)), quindi l'algoritmo è O(n*(log(n))).
+
+
+-------------------
+Rock Paper Scissors
+-------------------
+
+Rock paper scissors (noto anche come "morra cinese" è un gioco a mano giocato tra due persone, in cui ogni giocatore forma simultaneamente una delle tre forme con una mano tesa. Queste forme sono "rock/sasso" (un pugno chiuso), "paper/carta" (una mano piatta) e "scissors/forbici" (un pugno con l'indice e il medio estesi, formando una V). "scissors/forbici" è identico al segno V con due dita (che indica anche "vittoria" o "pace") tranne per il fatto che è puntato orizzontalmente invece di essere tenuto in posizione verticale in aria.
+
+Si tratta di un gioco a somma zero ed ha solo due possibili esiti: un pareggio o una vittoria per un giocatore e una sconfitta per l'altro. Un giocatore che decide di giocare "rock" batterà un altro giocatore che ha scelto "scissors" ("il sasso schiaccia le forbici"), ma perderà contro chi ha giocato con "paper" ("la carta copre il sasso"). La forma "paper" perde contro le "forbici" ("le forbici tagliano la carta"). Se entrambi i giocatori scelgono la stessa forma, la partita è in parità. Il tipo di gioco ha avuto origine in Cina.
+
+Questo gioco viene utilizzato anche come metodo di scelta equo tra due persone, simile al lancio di monete o al lancio di dadi. Tuttavia, a differenza dei metodi di selezione veramente casuali, il gioco Rock-Paper-Scissors può essere giocato con un certo grado di abilità riconoscendo e sfruttando il comportamento non casuale degli avversari.
+
+Esistono diverse strategie di gioco (soprattutto per il computer), ma la casualità assoluta è il metodo migliore nel gioco tra umani (a meno che l'altro giocatore non sia estrememente prevedibile).
+
+Scriviamo una funzione per giocare contro il computer:
+
+(define (rps)
+  (local (p1 p2 np1 np2 tot mosse link win)
+    ; inizializza il generatore di numeri casuali
+    (seed (time-of-day))
+    ; mosse possibili
+    (setq mosse '("R" "P" "S" "Q"))
+    ; lista associativa
+    (setq link '(("R" "Rock") ("P" "Paper") ("S" "Scissors")))
+    (setq tot 0 np1 0 np2 0)
+    (setq win "")
+    (println "    ROCK, PAPER, SCISSORS")
+    (println "-----------------------------")
+    (println " - Type Q to quit the game - ")
+    (println)
+    ; ciclo continuo 
+    (while (!= win "end")
+      (println "Turn: " (+ 1 tot))
+      ; mossa del computer
+      (setq p2 (first (select '("R" "P" "S") (rand 3))))
+      ; mossa dell'utente
+      (print "(R)ock, (P)aper, (S)cissors: ")
+      (setq p1 (upper-case (read-line)))
+      (while (not (find p1 mosse))
+          (print "(R)ock, (P)aper, (S)cissors: ")
+          (setq p1 (upper-case (read-line)))
+      )
+      ; aumenta il conto delle partite
+      (++ tot)
+      ; controllo vittoria
+      (cond ((and (= p1 "R") (= p2 "R")) (setq win ""))
+            ((and (= p1 "R") (= p2 "P")) (setq win "p2"))
+            ((and (= p1 "R") (= p2 "S")) (setq win "p1"))
+            ((and (= p1 "P") (= p2 "R")) (setq win "p1"))
+            ((and (= p1 "P") (= p2 "P")) (setq win ""))
+            ((and (= p1 "P") (= p2 "S")) (setq win "p2"))
+            ((and (= p1 "S") (= p2 "R")) (setq win "p2"))
+            ((and (= p1 "S") (= p2 "P")) (setq win "p1"))
+            ((and (= p1 "S") (= p2 "S")) (setq win ""))
+            ((= p1 "Q") (setq win "end"))
+      )
+      ; stampa risultato
+      (cond ((= win "")
+             (println (lookup p1 link) " vs " (lookup p2 link) ": Draw.")
+             ( println "User: " np1 " - Computer: " np2))
+            ((= win "p1")
+             (++ np1)
+             (println (lookup p1 link) " vs " (lookup p2 link) ": User wins.")
+             (println "User: " np1 " - Computer: " np2))
+            ((= win "p2")
+             (++ np2)
+             (println (lookup p1 link) " vs " (lookup p2 link) ": Computer wins.")
+             (println "User: " np1 " - Computer: " np2))
+            ((= win "end")
+             (println "User: " np1 " - Computer: " np2)
+             (println "End of game."))
+      )
+      (println)
+    )))
+
+Proviamo a fare una partita:
+
+(rps)
+;->     ROCK, PAPER, SCISSORS
+;-> -----------------------------
+;->  - Type Q to quit the game -
+;-> 
+;-> Turn: 1
+;-> (R)ock, (P)aper, (S)cissors: w
+;-> (R)ock, (P)aper, (S)cissors: w
+;-> (R)ock, (P)aper, (S)cissors: 1
+;-> (R)ock, (P)aper, (S)cissors: r
+;-> Rock vs Scissors: User wins.
+;-> User: 1 - Computer: 0
+;-> 
+;-> Turn: 2
+;-> (R)ock, (P)aper, (S)cissors: p
+;-> Paper vs Rock: User wins.
+;-> User: 2 - Computer: 0
+;-> 
+;-> Turn: 3
+;-> (R)ock, (P)aper, (S)cissors: s
+;-> Scissors vs Scissors: Draw.
+;-> User: 2 - Computer: 0
+;-> 
+;-> Turn: 4
+;-> (R)ock, (P)aper, (S)cissors: q
+;-> User: 2 - Computer: 0
+;-> End of game.
+
+Adesso simuliamo una partita di N turni tra due giocatori che fanno mosse casuali.
+
+Prima di tutto scriviamo una funzione che restituisce il risultato di un turno:
+
+(define (check-turn p1 p2)
+  (cond ((and (= p1 "R") (= p2 "R")) 0)
+        ((and (= p1 "R") (= p2 "P")) 2)
+        ((and (= p1 "R") (= p2 "S")) 1)
+        ((and (= p1 "P") (= p2 "R")) 1)
+        ((and (= p1 "P") (= p2 "P")) 0)
+        ((and (= p1 "P") (= p2 "S")) 2)
+        ((and (= p1 "S") (= p2 "R")) 2)
+        ((and (= p1 "S") (= p2 "P")) 1)
+        ((and (= p1 "S") (= p2 "S")) 0)))
+
+(check-turn "R" "R")
+;-> 0
+(check-turn "P" "R")
+;-> 1
+(check-turn "P" "S")
+;-> 2
+
+Poi scriviamo una funzione che genera una lista con un numero predefinito di mosse casuali:
+
+(define (make-moves num)
+  (select '("R" "P" "S") (rand 3 num)))
+
+(make-moves 10)
+;-> ("R" "S" "R" "S" "S" "S" "S" "P" "P" "R")
+
+Infine scriviamo una funzione che gioca una partita con N turni:
+
+(define (play-rps num)
+  (local (lst1 lst2 turns result)
+    (seed (time-of-day))
+    (setq lst1 (select '("R" "P" "S") (rand 3 num)))
+    (setq lst2 (select '("R" "P" "S") (rand 3 num)))
+    (setq turns (map check-turn lst1 lst2))
+    (setq result (count '(0 1 2) turns))
+    (println "Draw: " (result 0))
+    (println "Player1: " (result 1))
+    (println "Player2: " (result 2))
+    result))
+
+Per esempio:
+
+(setq lst1 '("P" "R" "S" "S" "P"))
+(setq lst2 '("S" "R" "S" "R" "S"))
+
+(play-rps 5)
+;-> Draw: 2
+;-> Player1: 0
+;-> Player2: 3
+;-> (2 0 3)
+
+Simuliamo un paio di partite con 1 milione di turni:
+
+(play-rps 1e6)
+;-> Draw: 333509
+;-> Player1: 333857
+;-> Player2: 332634
+;-> (333509 333857 332634)
+(play-rps 1e6)
+;-> Draw: 333756
+;-> Player1: 332973
+;-> Player2: 333271
+;-> (333756 332973 333271)
+
+
+----------------
+TODO application
+----------------
+
+Una semplice applicazione TODO.
+
+;
+; TODO
+;
+(define (todo)
+  (local (todo-filename todo-file todo-lines
+          items funcs link nitems in choice)
+    (println "TODO MANAGER")
+    (println "============")
+    ; voci del menu
+    (setq items '("Elenco note" "Nuova nota" "Modifica nota" "Elimina nota" "Cerca... " "Fine"))
+    ; funzioni del menu
+    (setq funcs (list show-note new-note edit-note delete-note search-note quit))
+    (setq link (map list items funcs))
+    ; numero di voci/funzioni del menu
+    (setq nitems (length items))
+    ; nome del file di testo
+    (setq todo-filename "todo-test.txt")
+    ; legge il file delle note
+    ; (handle del file)
+    (setq todo-file (read-file todo-filename))
+    ; crea una lista con le linee del file
+    (setq todo-lines (parse todo-file "\r\n"))
+    ; elimina gli spazi (prima e dopo ogni linea)
+    (setq todo-lines (map trim todo-lines))
+    ; elimina le linee vuote
+    (setq todo-lines (filter (fn(x) (not (empty? x))) todo-lines))
+    ; mostra il menu
+    (show-menu)))
+;
+; SHOW-MENU
+;
+(define (show-menu)
+    ; visualizza le voci del menu
+    (setq choice nil)
+    (dolist (el items) (println (+ $idx 1) ". " el))
+    ; scelta della funzione...
+    (while (not choice)
+      (print "Seleziona: ")
+      (setq in (int (read-line) 0 10))
+      (if (or (< in 1) (> in nitems))
+          (println "Numero inesistente:" in)
+          (setq choice true)
+      )
+    )
+    (println "")
+    ; chiama la funzione selezionata
+    ((funcs (- in 1)))
+)
+;
+; RETURN-MENU
+;
+(define (return-menu)
+  (print "--- Premere Invio per tornare al menu ---")
+  (read-line)
+  (println "")
+  (show-menu))
+;
+; SHOW-NOTE
+;
+(define (show-note)
+  ; stampa tutte le linee
+  (println "Elenco note:")
+  (dolist (linea todo-lines)
+    (println "- "linea)
+  )
+  (return-menu)
+)
+;
+; NEW-NOTE
+;
+(define (new-note)
+  (println "Nuova nota:")
+  (print "> ")
+  ; legge e inserisce la nota nella lista
+  (push (read-line) todo-lines -1)
+  (println "Nota inserita.")
+  (return-menu)
+)
+;
+; EDIT-NOTE
+;
+(define (edit-note) (println "edit-note"))
+;
+; DELETE-NOTE
+;
+(define (delete-note)
+(catch
+  (local (val num)
+    (println "Elimina nota:")
+    ; stampa tutte le note
+    (dolist (linea todo-lines)
+      (println (+ $idx 1) ": " linea)
+    )
+    ; input numero nota da eliminare
+    (setq val nil)
+    (while (not val)
+      (print "Numero da eliminare (-1 menu): ")
+      (setq num (int (read-line) 0 10))
+      ; esce dalla funzione senza nessuna modifica
+      (cond ((= num -1) (throw (return-menu)))
+            ((or (< num 1) (> num (length todo-lines)))
+             (println "Numero errato:" num))
+            (true
+             (setq val true))
+      )
+    )
+    ; elimina la nota dalla lista
+    (println "Nota eliminata:")
+    (println (pop todo-lines (- num 1)))
+    (return-menu))))
+;
+; SEARCH-NOTE
+;
+(define (search-note)
+  (local (str)
+  (println "Cerca..."))
+  (print "Testo da cercare: ")
+  (setq str (read-line))
+  (dolist (linea todo-lines)
+    (if (find str linea) (println linea))
+  )
+  (return-menu)
+)
+;
+; QUIT
+;
+(define (quit)
+  (local (text)
+    ; crea testo con le linee
+    (setq text "")
+    (dolist (linee todo-lines)
+      (extend text linee "\r\n")
+    )
+    ; salva il file
+    (write-file todo-filename text)
+    (println "Fine")))
+
+(todo)
+
 
 ===========
 
@@ -91760,7 +92202,7 @@ Esempio:
  (translate 3) -> "three"
  (translate 10) -> "Can't translate this"
 
-In questo esempio, il valore del simbolo "n" sarà sequenzialmente confrontato con i "test costanti" 1, 2, 3, ecc. e, se abbinato, l'espressione corrispondente verrà calcolato. Si noti che in questo esempio costanti di tipo stringa sono utilizzate come expressions. The costante finale "true" viene usata per indicare l'azione predefinita.
+In questo esempio, il valore del simbolo "n" sarà sequenzialmente confrontato con i "test costanti" 1, 2, 3, ecc. e, se abbinato, l'espressione corrispondente verrà calcolato. Si noti che in questo esempio costanti di tipo stringa sono utilizzate come expressions. La costante finale "true" viene usata per indicare l'azione predefinita.
 
 Ora, utilizzando la funzione "translate", un valore numerico può essere convertito in una stringa numerica.
 
@@ -92673,7 +93115,7 @@ Nella prima sintassi il parametro è un intero associato ad un dispositivo (es. 
 (trace nil)
 
 Nella seconda sintassi il debugger diviene attivo quando il parametro vale true.
-In the second syntax debugger mode is switched on when the parameter evaluates true. In modalità di debug newLISP si arresta all'ingresso e all'uscita di ogni espressione e attende eventuali input dell'utente.
+In modalità di debug newLISP si arresta all'ingresso e all'uscita di ogni espressione e attende eventuali input dell'utente.
 L'espressione attiva viene visualizzata tra due caratteri "#" (number sign). I caratteri possono essere modificati con la funzione "trace-highlight".
 Ad ogni prompt del debugger:
 
@@ -94273,8 +94715,6 @@ array resultStack[] ; preallocated stack area
 
 Le prime due funzioni pushResultStack e popResultStack spingono (push) o estraggono (pop) un handle di un oggetto LISP avanti e indietro da una pila. pushResultStack aumenta il valore resultStackIndex mentre popResultStack lo diminuisce. In newLISP ogni oggetto è contenuto in una struttura di celle LISP. L'handle di oggetto di quella struttura è semplicemente il puntatore di memoria alla struttura della cella. La cella stessa può contenere indirizzi puntatore ad altri oggetti di memoria come buffer di stringa o altre celle LISP collegate all'oggetto originale. Oggetti piccoli come numeri vengono memorizzati direttamente. In questa funzione popResultStack() implica anche che l'oggetto estratto venga eliminato.
 
-The first two functions pushResultStack and popResultStack push or pop a LISP object handle on or off a stack. pushResultStack increases the value resultStackIndex while popResultStack decreases it. In newLISP every object is contained in a LISP cell structure. The object handle of that structure is simply the memory pointer to the cell structure. The cell itself may contain pointer addresses to other memory objects like string buffers or other LISP cells linked to the original object. Small objects like numbers are stored directly. In this paper function popResultStack() also implies that the popped object gets deleted.
-
 Le due funzioni di gestione resultStack descritte sono chiamate dalla funzione evaluateExpression di newLISP:³
 
 ;; function evaluateExpression(expr)
@@ -95320,6 +95760,9 @@ Frasi Famose sulla Programmazione e sul Linguaggio Lisp
 
 "Learning from your mistakes is one of the best ways to learn."
 - unknown
+
+" The secret to creativity is knowing how to hide your sources."
+- Albert Einstein
 
 
 ============================================================================

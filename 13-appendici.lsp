@@ -2510,7 +2510,7 @@ Esempio:
  (translate 3) -> "three"
  (translate 10) -> "Can't translate this"
 
-In questo esempio, il valore del simbolo "n" sarà sequenzialmente confrontato con i "test costanti" 1, 2, 3, ecc. e, se abbinato, l'espressione corrispondente verrà calcolato. Si noti che in questo esempio costanti di tipo stringa sono utilizzate come expressions. The costante finale "true" viene usata per indicare l'azione predefinita.
+In questo esempio, il valore del simbolo "n" sarà sequenzialmente confrontato con i "test costanti" 1, 2, 3, ecc. e, se abbinato, l'espressione corrispondente verrà calcolato. Si noti che in questo esempio costanti di tipo stringa sono utilizzate come expressions. La costante finale "true" viene usata per indicare l'azione predefinita.
 
 Ora, utilizzando la funzione "translate", un valore numerico può essere convertito in una stringa numerica.
 
@@ -3423,7 +3423,7 @@ Nella prima sintassi il parametro è un intero associato ad un dispositivo (es. 
 (trace nil)
 
 Nella seconda sintassi il debugger diviene attivo quando il parametro vale true.
-In the second syntax debugger mode is switched on when the parameter evaluates true. In modalità di debug newLISP si arresta all'ingresso e all'uscita di ogni espressione e attende eventuali input dell'utente.
+In modalità di debug newLISP si arresta all'ingresso e all'uscita di ogni espressione e attende eventuali input dell'utente.
 L'espressione attiva viene visualizzata tra due caratteri "#" (number sign). I caratteri possono essere modificati con la funzione "trace-highlight".
 Ad ogni prompt del debugger:
 
@@ -5023,8 +5023,6 @@ array resultStack[] ; preallocated stack area
 
 Le prime due funzioni pushResultStack e popResultStack spingono (push) o estraggono (pop) un handle di un oggetto LISP avanti e indietro da una pila. pushResultStack aumenta il valore resultStackIndex mentre popResultStack lo diminuisce. In newLISP ogni oggetto è contenuto in una struttura di celle LISP. L'handle di oggetto di quella struttura è semplicemente il puntatore di memoria alla struttura della cella. La cella stessa può contenere indirizzi puntatore ad altri oggetti di memoria come buffer di stringa o altre celle LISP collegate all'oggetto originale. Oggetti piccoli come numeri vengono memorizzati direttamente. In questa funzione popResultStack() implica anche che l'oggetto estratto venga eliminato.
 
-The first two functions pushResultStack and popResultStack push or pop a LISP object handle on or off a stack. pushResultStack increases the value resultStackIndex while popResultStack decreases it. In newLISP every object is contained in a LISP cell structure. The object handle of that structure is simply the memory pointer to the cell structure. The cell itself may contain pointer addresses to other memory objects like string buffers or other LISP cells linked to the original object. Small objects like numbers are stored directly. In this paper function popResultStack() also implies that the popped object gets deleted.
-
 Le due funzioni di gestione resultStack descritte sono chiamate dalla funzione evaluateExpression di newLISP:³
 
 ;; function evaluateExpression(expr)
@@ -6070,6 +6068,9 @@ Frasi Famose sulla Programmazione e sul Linguaggio Lisp
 
 "Learning from your mistakes is one of the best ways to learn."
 - unknown
+
+" The secret to creativity is knowing how to hide your sources."
+- Albert Einstein
 
 
 ============================================================================

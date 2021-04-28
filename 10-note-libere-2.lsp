@@ -2701,8 +2701,7 @@ $count
 
 Sostituzione nelle stringhe senza espressioni regolari
 ------------------------------------------------------
-Se tutti gli argomenti sono stringhe, "replace" sostituisce tutte le occorrenzw di str-key in str-data con l'espressione valutata exp-replacement e ritorna la stringa modificata. L'espressione in exp-replacement viene valutata per ogni sostituzione. Il numero di sostituzioni effettuate è contenuto nella variabile di sistema $count. Questa forma di "replace" può processare anche gli 0 (zero) binari
-If all arguments are strings, replace replaces all occurrences of str-key in str-data with the evaluated exp-replacement, returning the changed string. The expression in exp-replacement is evaluated for every replacement. The number of replacements made is contained in the system variable $count. This form of replace can also process binary 0s (zeros).
+Se tutti gli argomenti sono stringhe, "replace" sostituisce tutte le occorrenzw di str-key in str-data con l'espressione valutata exp-replacement e ritorna la stringa modificata. L'espressione in exp-replacement viene valutata per ogni sostituzione. Il numero di sostituzioni effettuate è contenuto nella variabile di sistema $count. Questa forma di "replace" può processare anche gli 0 (zero) binari.
 
 ;; string replacement
 (set 'str "this isa sentence")

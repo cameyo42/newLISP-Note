@@ -2979,7 +2979,7 @@ Dal punto di vista storico, newLISP ci comporta come il LISP originale di McCart
 
 Infine riportiamo alcune considerazioni di Lutz:
 
-"Per i meno iniziati qui, ecco alcune regole e spiegazioni relative alla cattura delle variabili e ai pericoli percepiti quando non ce ne sono.
+''Per i meno iniziati qui, ecco alcune regole e spiegazioni relative alla cattura delle variabili e ai pericoli percepiti quando non ce ne sono.
 
 - non vi è alcun pericolo di acquisizione di variabili quando si riutilizzano nomi di variabili nelle funzioni nidificate, 'let' ed espressioni di loop nidificati. Tutte le variabili dei parametri vengono salvate internamente su uno stack di ambiente e ripristinate dopo l'uso. Puoi anche fare quanto segue senza pericolo:
 
@@ -3028,7 +3028,7 @@ Quando si usano le normali funzioni create con 'define', la cattura variabile pu
 
 - anche qualsiasi altra funzione o macro (fexpr) in un modulo 'foo:this', 'foo:that' è completamente sicuro contro la cattura/confusione variabili, anche quando si passano simboli quotati.
 
-- in ultimo, ma non meno importante: perché newLISP chiama le macro fexprs? Perché dal punto di vista dell'uso vengono utilizzate per ottenere lo stesso risultato: scrivere funzioni che non seguono le solite regole di valutazione dei parametri per la valutazione iniziale di tutti i parametri ma controllano da sole la valutazione dei parametri usando 'eval'. Trovo più utile usare una definizione orientata all'applicazione."
+- in ultimo, ma non meno importante: perché newLISP chiama le macro fexprs? Perché dal punto di vista dell'uso vengono utilizzate per ottenere lo stesso risultato: scrivere funzioni che non seguono le solite regole di valutazione dei parametri per la valutazione iniziale di tutti i parametri ma controllano da sole la valutazione dei parametri usando 'eval'. Trovo più utile usare una definizione orientata all'applicazione.'''
 
 
 ----------------------------------
@@ -5008,9 +5008,6 @@ Il seguente programma può essere utilizzato autonomo o incluso nel file di avvi
 
 Nella definizione della funzione di traduzione della riga di comando, il comando "cd" Unix riceve un trattamento speciale, per assicurarsi che la directory venga cambiata  anche per il processo newLISP. In questo modo quando utilizziamo un comando shell con "!" al ritorno, newLISP manterrà il cambio della directory.
 
-Command lines for newLISP must start either with a space or an opening parenthesis. Unix commands must start at the beginning of the line.
-Note, that the command line length as well as the line length in HTTP headers is limited to 512 characters for newLISP.
-
 Le righe di comando per newLISP devono iniziare con uno spazio o una parentesi aperta.
 I comandi Unix devono iniziare all'inizio della riga.
 Si noti che la lunghezza della riga di comando e la lunghezza della riga nelle intestazioni HTTP sono limitate a 512 caratteri in newLISP.
@@ -6957,11 +6954,8 @@ Vediamo quale metodo è più veloce:
 Mescolamento perfetto
 ---------------------
 
-A perfect shuffle, also known as a faro shuffle, splits a deck of cards into equal halves (there must be an even number of cards), then perfectly interleaves them. Eventually a series of perfect shuffles returns a deck to its original order. For instance, with a deck of 8 cards named (1 2 3 4 5 6 7 8), the first shuffle rearranges the cards to (1 5 2 6 3 7 4 8), the second shuffle rearranges the cards to (1 3 5 7 2 4 6 8), and the third shuffle restores the original order (1 2 3 4 5 6 7 8).
-
-Your task is to write a program that performs a perfect shuffle and use it to determine how many perfect shuffles are required to return an n-card deck to its original order; how many perfect shuffles are required for a standard 52-card deck?
-
 Un mescolamento (shuffle) perfetto, divide un mazzo di carte in due metà uguali (deve esserci un numero pari di carte), quindi le interfoglia perfettamente. Alla fine una serie di mescolamenti perfetti riporta un mazzo al suo ordine originale. Ad esempio, con un mazzo di 8 carte (1 2 3 4 5 6 7 8), il primo mescolamento riordina le carte in (1 5 2 6 3 7 4 8), il secondo mescolamento riordina le carte in (1 3 5 7 2 4 6 8) e il terzo mescolamento ripristina l'ordine originale (1 2 3 4 5 6 7 8).
+
 Scrivere una funzione che esegue un mescolamento perfetto. Scrivere una funzione che calcola quanti mescolamenti perfetti sono necessari per riportare un mazzo di n carte all'ordine originale.
 Quante mescolamenti perfetti sono necessari per un mazzo da 52 carte?
 

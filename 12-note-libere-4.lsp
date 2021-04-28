@@ -255,7 +255,8 @@ La formula originale di Sørensen doveva essere applicata a dati discreti. Dati 
   DSC = -----------
          |X| + |Y|
 
-dove |X| e |Y| sono le cardinalità dei due liste (cioè il numero di elementi in ogni lista). L'indice di Sorensen è uguale al doppio del numero di elementi comuni a entrambe le liste (intersezione) diviso per la somma del numero di elementi di ogni lista.
+dove |X| e |Y| sono le cardinalità dei due liste (cioè il numero di elementi in ogni lista). 
+L'indice di Sorensen è uguale al doppio del numero di elementi comuni a entrambe le liste (intersezione) diviso per la somma del numero di elementi di ogni lista.
 
 (define (sorensen lst1 lst2)
   (div (* 2 (length (intersect lst1 lst2)))
@@ -462,7 +463,7 @@ Possono esserci tre casi diversi:
   2) s[j] > s [k]: qui la stringa s2 + s[j] diventa semplice. Possiamo incrementare j e riportare k all'inizio di s2, in modo che il carattere successivo possa essere confrontato con l'inizio della parola semplice.
   3) s[j] < s[k]: la stringa s2 + s[j] non è più pre-semplice. Quindi divideremo la stringa pre-semplice s2 nelle sue stringhe semplici e il resto, possibilmente vuoto. La stringa semplice avrà la lunghezza j − k. Nella successiva iterazione si ricomincia con la restante s2.
 
-Ecco una implementazione dell'algoritmo di Duval che restituisce la fattorizzazione di Lyndon di una string str:
+Ecco una implementazione dell'algoritmo di Duval che restituisce la fattorizzazione di Lyndon di una stringa str:
 
 (define (duval str)
   (local (len i j k out)
@@ -491,4 +492,368 @@ Ecco una implementazione dell'algoritmo di Duval che restituisce la fattorizzazi
 
 (duval "1821234")
 ;-> ("182" "1234")
+
+
+----------------------
+Rimozione dei multipli
+----------------------
+
+Dato un numero N e un insieme di numeri s = (s1 s2 ... sn} dove s1 < s2 < ... < sn < N, rimuovere tutti i multipli di (s1 s2 ... sn) dall'intervallo 1...N.
+Per esempio, con n = 10 e lst = (2 4 5) si ottiene: (1 3 7 9).
+
+È possibile risolverlo in tempo O(n*log(n)) e memoria extra O(n) usando qualcosa di simile al Crivello di Eratostene.
+
+(define (delete-multiple n lst)
+  (local (multipli out)
+    (setq out '())
+    (setq multipli (array (+ n 1) '(nil)))
+    (dolist (el lst)
+      (setq t el)
+      (while (<= t n)
+        (setf (multipli t) true)
+        (setq t (+ t el))
+      )
+    )
+    (for (i 1 n)
+      (if (not (multipli i))
+          (push i out -1)
+      )
+    )
+    out))
+
+(delete-multiple 10 '(2 4 5))
+;-> (1 3 7 9)
+
+(delete-multiple 100 '(2 3 4 5 6 7 8 9 10))
+;-> (1 11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71 73 79 83 89 97)
+
+Questa funzione utilizza O(n) di spazio per memorizzare la lista "multipli".
+
+La complessità temporale è O(n*log(n)). Infatti, il ciclo while interno verrà eseguito N/s1 volte per il primo elemento in S, quindi N/s2 per il secondo e così via. Quindi dobbiamo stimare la grandezza di N/s1 + N/s2 + ... + N/sn.
+
+  N/s1 + N/s2 + ... + N/sn = 
+= N * (1/s1 + 1/s2 + ... + 1/sn) <= N * (1/1 + 1/2 + .. . + 1/n).
+
+L'ultima disuguaglianza è dovuta al fatto che s1 < s2 <... <sn, quindi il caso peggiore è quando assumono valori (1 2 ... n}.
+
+Si può dimostrare che la serie armonica (1/1 + 1/2 + .. . + 1/n) è O(log(n)), quindi l'algoritmo è O(n*(log(n))).
+
+
+-------------------
+Rock Paper Scissors
+-------------------
+
+Rock paper scissors (noto anche come "morra cinese" è un gioco a mano giocato tra due persone, in cui ogni giocatore forma simultaneamente una delle tre forme con una mano tesa. Queste forme sono "rock/sasso" (un pugno chiuso), "paper/carta" (una mano piatta) e "scissors/forbici" (un pugno con l'indice e il medio estesi, formando una V). "scissors/forbici" è identico al segno V con due dita (che indica anche "vittoria" o "pace") tranne per il fatto che è puntato orizzontalmente invece di essere tenuto in posizione verticale in aria.
+
+Si tratta di un gioco a somma zero ed ha solo due possibili esiti: un pareggio o una vittoria per un giocatore e una sconfitta per l'altro. Un giocatore che decide di giocare "rock" batterà un altro giocatore che ha scelto "scissors" ("il sasso schiaccia le forbici"), ma perderà contro chi ha giocato con "paper" ("la carta copre il sasso"). La forma "paper" perde contro le "forbici" ("le forbici tagliano la carta"). Se entrambi i giocatori scelgono la stessa forma, la partita è in parità. Il tipo di gioco ha avuto origine in Cina.
+
+Questo gioco viene utilizzato anche come metodo di scelta equo tra due persone, simile al lancio di monete o al lancio di dadi. Tuttavia, a differenza dei metodi di selezione veramente casuali, il gioco Rock-Paper-Scissors può essere giocato con un certo grado di abilità riconoscendo e sfruttando il comportamento non casuale degli avversari.
+
+Esistono diverse strategie di gioco (soprattutto per il computer), ma la casualità assoluta è il metodo migliore nel gioco tra umani (a meno che l'altro giocatore non sia estrememente prevedibile).
+
+Scriviamo una funzione per giocare contro il computer:
+
+(define (rps)
+  (local (p1 p2 np1 np2 tot mosse link win)
+    ; inizializza il generatore di numeri casuali
+    (seed (time-of-day))
+    ; mosse possibili
+    (setq mosse '("R" "P" "S" "Q"))
+    ; lista associativa
+    (setq link '(("R" "Rock") ("P" "Paper") ("S" "Scissors")))
+    (setq tot 0 np1 0 np2 0)
+    (setq win "")
+    (println "    ROCK, PAPER, SCISSORS")
+    (println "-----------------------------")
+    (println " - Type Q to quit the game - ")
+    (println)
+    ; ciclo continuo 
+    (while (!= win "end")
+      (println "Turn: " (+ 1 tot))
+      ; mossa del computer
+      (setq p2 (first (select '("R" "P" "S") (rand 3))))
+      ; mossa dell'utente
+      (print "(R)ock, (P)aper, (S)cissors: ")
+      (setq p1 (upper-case (read-line)))
+      (while (not (find p1 mosse))
+          (print "(R)ock, (P)aper, (S)cissors: ")
+          (setq p1 (upper-case (read-line)))
+      )
+      ; aumenta il conto delle partite
+      (++ tot)
+      ; controllo vittoria
+      (cond ((and (= p1 "R") (= p2 "R")) (setq win ""))
+            ((and (= p1 "R") (= p2 "P")) (setq win "p2"))
+            ((and (= p1 "R") (= p2 "S")) (setq win "p1"))
+            ((and (= p1 "P") (= p2 "R")) (setq win "p1"))
+            ((and (= p1 "P") (= p2 "P")) (setq win ""))
+            ((and (= p1 "P") (= p2 "S")) (setq win "p2"))
+            ((and (= p1 "S") (= p2 "R")) (setq win "p2"))
+            ((and (= p1 "S") (= p2 "P")) (setq win "p1"))
+            ((and (= p1 "S") (= p2 "S")) (setq win ""))
+            ((= p1 "Q") (setq win "end"))
+      )
+      ; stampa risultato
+      (cond ((= win "")
+             (println (lookup p1 link) " vs " (lookup p2 link) ": Draw.")
+             ( println "User: " np1 " - Computer: " np2))
+            ((= win "p1")
+             (++ np1)
+             (println (lookup p1 link) " vs " (lookup p2 link) ": User wins.")
+             (println "User: " np1 " - Computer: " np2))
+            ((= win "p2")
+             (++ np2)
+             (println (lookup p1 link) " vs " (lookup p2 link) ": Computer wins.")
+             (println "User: " np1 " - Computer: " np2))
+            ((= win "end")
+             (println "User: " np1 " - Computer: " np2)
+             (println "End of game."))
+      )
+      (println)
+    )))
+
+Proviamo a fare una partita:
+
+(rps)
+;->     ROCK, PAPER, SCISSORS
+;-> -----------------------------
+;->  - Type Q to quit the game -
+;-> 
+;-> Turn: 1
+;-> (R)ock, (P)aper, (S)cissors: w
+;-> (R)ock, (P)aper, (S)cissors: w
+;-> (R)ock, (P)aper, (S)cissors: 1
+;-> (R)ock, (P)aper, (S)cissors: r
+;-> Rock vs Scissors: User wins.
+;-> User: 1 - Computer: 0
+;-> 
+;-> Turn: 2
+;-> (R)ock, (P)aper, (S)cissors: p
+;-> Paper vs Rock: User wins.
+;-> User: 2 - Computer: 0
+;-> 
+;-> Turn: 3
+;-> (R)ock, (P)aper, (S)cissors: s
+;-> Scissors vs Scissors: Draw.
+;-> User: 2 - Computer: 0
+;-> 
+;-> Turn: 4
+;-> (R)ock, (P)aper, (S)cissors: q
+;-> User: 2 - Computer: 0
+;-> End of game.
+
+Adesso simuliamo una partita di N turni tra due giocatori che fanno mosse casuali.
+
+Prima di tutto scriviamo una funzione che restituisce il risultato di un turno:
+
+(define (check-turn p1 p2)
+  (cond ((and (= p1 "R") (= p2 "R")) 0)
+        ((and (= p1 "R") (= p2 "P")) 2)
+        ((and (= p1 "R") (= p2 "S")) 1)
+        ((and (= p1 "P") (= p2 "R")) 1)
+        ((and (= p1 "P") (= p2 "P")) 0)
+        ((and (= p1 "P") (= p2 "S")) 2)
+        ((and (= p1 "S") (= p2 "R")) 2)
+        ((and (= p1 "S") (= p2 "P")) 1)
+        ((and (= p1 "S") (= p2 "S")) 0)))
+
+(check-turn "R" "R")
+;-> 0
+(check-turn "P" "R")
+;-> 1
+(check-turn "P" "S")
+;-> 2
+
+Poi scriviamo una funzione che genera una lista con un numero predefinito di mosse casuali:
+
+(define (make-moves num)
+  (select '("R" "P" "S") (rand 3 num)))
+
+(make-moves 10)
+;-> ("R" "S" "R" "S" "S" "S" "S" "P" "P" "R")
+
+Infine scriviamo una funzione che gioca una partita con N turni:
+
+(define (play-rps num)
+  (local (lst1 lst2 turns result)
+    (seed (time-of-day))
+    (setq lst1 (select '("R" "P" "S") (rand 3 num)))
+    (setq lst2 (select '("R" "P" "S") (rand 3 num)))
+    (setq turns (map check-turn lst1 lst2))
+    (setq result (count '(0 1 2) turns))
+    (println "Draw: " (result 0))
+    (println "Player1: " (result 1))
+    (println "Player2: " (result 2))
+    result))
+
+Per esempio:
+
+(setq lst1 '("P" "R" "S" "S" "P"))
+(setq lst2 '("S" "R" "S" "R" "S"))
+
+(play-rps 5)
+;-> Draw: 2
+;-> Player1: 0
+;-> Player2: 3
+;-> (2 0 3)
+
+Simuliamo un paio di partite con 1 milione di turni:
+
+(play-rps 1e6)
+;-> Draw: 333509
+;-> Player1: 333857
+;-> Player2: 332634
+;-> (333509 333857 332634)
+(play-rps 1e6)
+;-> Draw: 333756
+;-> Player1: 332973
+;-> Player2: 333271
+;-> (333756 332973 333271)
+
+
+----------------
+TODO application
+----------------
+
+Una semplice applicazione TODO.
+
+;
+; TODO
+;
+(define (todo)
+  (local (todo-filename todo-file todo-lines
+          items funcs link nitems in choice)
+    (println "TODO MANAGER")
+    (println "============")
+    ; voci del menu
+    (setq items '("Elenco note" "Nuova nota" "Modifica nota" "Elimina nota" "Cerca... " "Fine"))
+    ; funzioni del menu
+    (setq funcs (list show-note new-note edit-note delete-note search-note quit))
+    (setq link (map list items funcs))
+    ; numero di voci/funzioni del menu
+    (setq nitems (length items))
+    ; nome del file di testo
+    (setq todo-filename "todo-test.txt")
+    ; legge il file delle note
+    ; (handle del file)
+    (setq todo-file (read-file todo-filename))
+    ; crea una lista con le linee del file
+    (setq todo-lines (parse todo-file "\r\n"))
+    ; elimina gli spazi (prima e dopo ogni linea)
+    (setq todo-lines (map trim todo-lines))
+    ; elimina le linee vuote
+    (setq todo-lines (filter (fn(x) (not (empty? x))) todo-lines))
+    ; mostra il menu
+    (show-menu)))
+;
+; SHOW-MENU
+;
+(define (show-menu)
+    ; visualizza le voci del menu
+    (setq choice nil)
+    (dolist (el items) (println (+ $idx 1) ". " el))
+    ; scelta della funzione...
+    (while (not choice)
+      (print "Seleziona: ")
+      (setq in (int (read-line) 0 10))
+      (if (or (< in 1) (> in nitems))
+          (println "Numero inesistente:" in)
+          (setq choice true)
+      )
+    )
+    (println "")
+    ; chiama la funzione selezionata
+    ((funcs (- in 1)))
+)
+;
+; RETURN-MENU
+;
+(define (return-menu)
+  (print "--- Premere Invio per tornare al menu ---")
+  (read-line)
+  (println "")
+  (show-menu))
+;
+; SHOW-NOTE
+;
+(define (show-note)
+  ; stampa tutte le linee
+  (println "Elenco note:")
+  (dolist (linea todo-lines)
+    (println "- "linea)
+  )
+  (return-menu)
+)
+;
+; NEW-NOTE
+;
+(define (new-note)
+  (println "Nuova nota:")
+  (print "> ")
+  ; legge e inserisce la nota nella lista
+  (push (read-line) todo-lines -1)
+  (println "Nota inserita.")
+  (return-menu)
+)
+;
+; EDIT-NOTE
+;
+(define (edit-note) (println "edit-note"))
+;
+; DELETE-NOTE
+;
+(define (delete-note)
+(catch
+  (local (val num)
+    (println "Elimina nota:")
+    ; stampa tutte le note
+    (dolist (linea todo-lines)
+      (println (+ $idx 1) ": " linea)
+    )
+    ; input numero nota da eliminare
+    (setq val nil)
+    (while (not val)
+      (print "Numero da eliminare (-1 menu): ")
+      (setq num (int (read-line) 0 10))
+      ; esce dalla funzione senza nessuna modifica
+      (cond ((= num -1) (throw (return-menu)))
+            ((or (< num 1) (> num (length todo-lines)))
+             (println "Numero errato:" num))
+            (true
+             (setq val true))
+      )
+    )
+    ; elimina la nota dalla lista
+    (println "Nota eliminata:")
+    (println (pop todo-lines (- num 1)))
+    (return-menu))))
+;
+; SEARCH-NOTE
+;
+(define (search-note)
+  (local (str)
+  (println "Cerca..."))
+  (print "Testo da cercare: ")
+  (setq str (read-line))
+  (dolist (linea todo-lines)
+    (if (find str linea) (println linea))
+  )
+  (return-menu)
+)
+;
+; QUIT
+;
+(define (quit)
+  (local (text)
+    ; crea testo con le linee
+    (setq text "")
+    (dolist (linee todo-lines)
+      (extend text linee "\r\n")
+    )
+    ; salva il file
+    (write-file todo-filename text)
+    (println "Fine")))
+
+(todo)
+
 

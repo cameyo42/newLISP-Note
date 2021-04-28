@@ -766,6 +766,9 @@ NOTE LIBERE 4
   Coefficiente di Sorensen-Dice
   Parole di Lyndon
   Fattorizzazione di Lyndon
+  Rimozione dei multipli
+  Rock Paper Scissors
+  TODO application
 
 APPENDICI
 =========
