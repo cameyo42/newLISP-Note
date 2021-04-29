@@ -43,7 +43,7 @@ I riferimenti principali di questo documento sono:
 
 1) "newLISP User Manual and Reference" di Lutz Mueller
 
-2) "Code Patterns in newLISP" di Lutz Muller
+2) "Code Patterns in newLISP" di Lutz Mueller
 
 3) "Introduction to newLISP" di Cormullion
 
@@ -6163,7 +6163,7 @@ Metacarattere	  Significato
   ()	          contengono una sottostringa
   []	          contengono una 'classe' di caratteri
 
-Per utilizzare i metacaratteri come "valori letterali" devono essere preceduti dal carattere di escap backslash " \ ". Ad esempio, se volessimo ricercare il caratter punto interrogativo "?" all'interno di una stringa, dovremmo scrivere: \?
+Per utilizzare i metacaratteri come "valori letterali" devono essere preceduti dal carattere di escap backslash " \ ". Ad esempio, se volessimo ricercare il carattere punto interrogativo "?" all'interno di una stringa, dovremmo scrivere: \?
 
 Esaminiamo meglio i singoli metacaratteri.
 
@@ -9369,7 +9369,7 @@ L'apprendimento di fatti provati può essere implementato aggiungendoli al datab
 
 Le implementazioni PROLOG più grandi consentono anche la valutazione dei termini nelle regole. Ciò rende possibile implementare funzioni per svolgere altro lavoro durante l'elaborazione dei termini delle regole. La prova-regola potrebbe eseguire questo test per il simbolo eval in ogni termine della regola.
 
-Riportiamo il post di Lutz Muller dell'annuncio della funzione "unify":
+Riportiamo il post di Lutz Mueller dell'annuncio della funzione "unify":
 
 ----------------------------------------------------------------------------
 Here is the long story: http://en.wikipedia.org/wiki/Unification

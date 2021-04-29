@@ -8128,7 +8128,7 @@ Dalla posizione di partenza dobbiamo premere "invio" per far muovere casualmente
 Parser di espressioni infisse-prefisse-postfisse
 ------------------------------------------------
 
-Questa funzione è basata sul modulo "infix.lsp" che si trova nella distribuione di newLISP ed è stata scritta da Lutz Muller.
+Questa funzione è basata sul modulo "infix.lsp" che si trova nella distribuione di newLISP ed è stata scritta da Lutz Mueller.
 
 La procedura analizza le espressioni infisse, prefisse o suffisse fornite nelle stringhe e restituisce espressioni newLISP, che possono essere valutate. inoltre cattura gli errori di sintassi.
 

@@ -255,7 +255,7 @@ La formula originale di Sørensen doveva essere applicata a dati discreti. Dati 
   DSC = -----------
          |X| + |Y|
 
-dove |X| e |Y| sono le cardinalità dei due liste (cioè il numero di elementi in ogni lista). 
+dove |X| e |Y| sono le cardinalità dei due liste (cioè il numero di elementi in ogni lista).
 L'indice di Sorensen è uguale al doppio del numero di elementi comuni a entrambe le liste (intersezione) diviso per la somma del numero di elementi di ogni lista.
 
 (define (sorensen lst1 lst2)
@@ -531,7 +531,7 @@ Questa funzione utilizza O(n) di spazio per memorizzare la lista "multipli".
 
 La complessità temporale è O(n*log(n)). Infatti, il ciclo while interno verrà eseguito N/s1 volte per il primo elemento in S, quindi N/s2 per il secondo e così via. Quindi dobbiamo stimare la grandezza di N/s1 + N/s2 + ... + N/sn.
 
-  N/s1 + N/s2 + ... + N/sn = 
+  N/s1 + N/s2 + ... + N/sn =
 = N * (1/s1 + 1/s2 + ... + 1/sn) <= N * (1/1 + 1/2 + .. . + 1/n).
 
 L'ultima disuguaglianza è dovuta al fatto che s1 < s2 <... <sn, quindi il caso peggiore è quando assumono valori (1 2 ... n}.
@@ -567,7 +567,7 @@ Scriviamo una funzione per giocare contro il computer:
     (println "-----------------------------")
     (println " - Type Q to quit the game - ")
     (println)
-    ; ciclo continuo 
+    ; ciclo continuo
     (while (!= win "end")
       (println "Turn: " (+ 1 tot))
       ; mossa del computer
@@ -618,7 +618,7 @@ Proviamo a fare una partita:
 ;->     ROCK, PAPER, SCISSORS
 ;-> -----------------------------
 ;->  - Type Q to quit the game -
-;-> 
+;->
 ;-> Turn: 1
 ;-> (R)ock, (P)aper, (S)cissors: w
 ;-> (R)ock, (P)aper, (S)cissors: w
@@ -626,17 +626,17 @@ Proviamo a fare una partita:
 ;-> (R)ock, (P)aper, (S)cissors: r
 ;-> Rock vs Scissors: User wins.
 ;-> User: 1 - Computer: 0
-;-> 
+;->
 ;-> Turn: 2
 ;-> (R)ock, (P)aper, (S)cissors: p
 ;-> Paper vs Rock: User wins.
 ;-> User: 2 - Computer: 0
-;-> 
+;->
 ;-> Turn: 3
 ;-> (R)ock, (P)aper, (S)cissors: s
 ;-> Scissors vs Scissors: Draw.
 ;-> User: 2 - Computer: 0
-;-> 
+;->
 ;-> Turn: 4
 ;-> (R)ock, (P)aper, (S)cissors: q
 ;-> User: 2 - Computer: 0
@@ -717,23 +717,23 @@ TODO application
 
 Una semplice applicazione TODO.
 
+;-------------------------------------------------------------
 ;
 ; TODO
 ;
-(define (todo)
-  (local (todo-filename todo-file todo-lines
-          items funcs link nitems in choice)
-    (println "TODO MANAGER")
-    (println "============")
+(define (todo file)
+  (local (todo-filename todo-file todo-lines items funcs nitems)
+    (println (format "\n%s\n%s\n%s\n" "============" "TODO Manager" "============"))
     ; voci del menu
-    (setq items '("Elenco note" "Nuova nota" "Modifica nota" "Elimina nota" "Cerca... " "Fine"))
+    (setq items '("Elenco note" "Nuova nota" "Modifica nota" "Elimina nota" "Cerca... " "Ordina note" "Salva" "Esce"))
     ; funzioni del menu
-    (setq funcs (list show-note new-note edit-note delete-note search-note quit))
-    (setq link (map list items funcs))
+    (setq funcs (list show-note new-note edit-note delete-note search-note sort-note save-note quit))
     ; numero di voci/funzioni del menu
     (setq nitems (length items))
+    ; se il file non esiste, allora lo crea
+    (if (not (file? file)) (close (open file "w")))
     ; nome del file di testo
-    (setq todo-filename "todo-test.txt")
+    (setq todo-filename file)
     ; legge il file delle note
     ; (handle del file)
     (setq todo-file (read-file todo-filename))
@@ -749,26 +749,29 @@ Una semplice applicazione TODO.
 ; SHOW-MENU
 ;
 (define (show-menu)
+  (local (val num))
     ; visualizza le voci del menu
-    (setq choice nil)
-    (dolist (el items) (println (+ $idx 1) ". " el))
+    (setq val nil)
+    (println "MENU:")
+    ; usa format %d (todo con più di 9 elementi)
+    (dolist (el items) (println " " (+ $idx 1) ". " el))
     ; scelta della funzione...
-    (while (not choice)
+    (while (not val)
       (print "Seleziona: ")
-      (setq in (int (read-line) 0 10))
-      (if (or (< in 1) (> in nitems))
-          (println "Numero inesistente:" in)
-          (setq choice true)
+      (setq num (int (read-line) 0 10))
+      (if (or (< num 1) (> num nitems))
+          (println "Numero inesistente:" num)
+          (setq val true)
       )
     )
     (println "")
     ; chiama la funzione selezionata
-    ((funcs (- in 1)))
-)
+    ((funcs (- num 1))))
 ;
 ; RETURN-MENU
 ;
 (define (return-menu)
+  (println)
   (print "--- Premere Invio per tornare al menu ---")
   (read-line)
   (println "")
@@ -780,25 +783,52 @@ Una semplice applicazione TODO.
   ; stampa tutte le linee
   (println "Elenco note:")
   (dolist (linea todo-lines)
-    (println "- "linea)
+    (println " - " linea)
   )
-  (return-menu)
-)
+  (return-menu))
 ;
 ; NEW-NOTE
 ;
 (define (new-note)
   (println "Nuova nota:")
   (print "> ")
-  ; legge e inserisce la nota nella lista
+  ; legge e inserisce la nuova nota nella lista
   (push (read-line) todo-lines -1)
   (println "Nota inserita.")
-  (return-menu)
-)
+  (return-menu))
 ;
 ; EDIT-NOTE
 ;
-(define (edit-note) (println "edit-note"))
+(define (edit-note)
+(catch
+  (local (val num)
+    (println "Modifica nota:")
+    ; stampa tutte le note
+    (dolist (linea todo-lines)
+      (println (+ $idx 1) ": " linea)
+    )
+    ; input numero nota da eliminare
+    (setq val nil)
+    (while (not val)
+      (print "Numero da modificare (-1 menu): ")
+      (setq num (int (read-line) 0 10))
+      ; esce dalla funzione senza nessuna modifica
+      (cond ((= num -1) (throw (return-menu)))
+            ((or (< num 1) (> num (length todo-lines)))
+             (println "Numero errato:" num))
+            (true
+             (setq val true))
+      )
+    )
+    ; stampa la nota selezionata
+    ;(println "Nota in modifica:")
+    ;(print (format "\n%s\r" (todo-lines (- num 1))))
+    (println "Nota: " (todo-lines (- num 1)))
+    (print "> ")
+    ; legge e modifica la nota nella lista
+    (replace (todo-lines (- num 1)) todo-lines (read-line))
+    (println "Nota modificata.")
+    (return-menu))))
 ;
 ; DELETE-NOTE
 ;
@@ -838,8 +868,28 @@ Una semplice applicazione TODO.
   (dolist (linea todo-lines)
     (if (find str linea) (println linea))
   )
-  (return-menu)
-)
+  (return-menu))
+;
+; SORT-NOTE
+;
+(define (sort-note)
+  (sort todo-lines)
+  (println "Note ordinate.")
+  (return-menu))
+;
+; SAVE-NOTE
+;
+(define (save-note)
+  (local (text)
+    ; crea testo con le linee
+    (setq text "")
+    (dolist (linee todo-lines)
+      (extend text linee "\r\n")
+    )
+    ; salva il file
+    (write-file todo-filename text)
+    (println "Note salvate: " todo-filename)
+    (return-menu)))
 ;
 ; QUIT
 ;
@@ -853,7 +903,523 @@ Una semplice applicazione TODO.
     ; salva il file
     (write-file todo-filename text)
     (println "Fine")))
+;-------------------------------------------------------------
+;eof
 
-(todo)
+Vediamo come funziona:
+
+(todo "todo-test.txt")
+;-> ============
+;-> TODO Manager
+;-> ============
+;->
+;-> MENU:
+;->  1. Elenco note
+;->  2. Nuova nota
+;->  3. Modifica nota
+;->  4. Elimina nota
+;->  5. Cerca...
+;->  6. Ordina note
+;->  7. Salva
+;->  8. Esce
+;-> Seleziona:
+
+Per usare il programma possiamo salvarlo in un file (es. todo.lsp) e poi caricarlo con (load "todo.lsp").
+
+
+---------------
+Quine e Narciso
+---------------
+
+Un programma Quine non accetta input, ma produce in output una copia del proprio codice sorgente. Al contrario, Un "narcisista" (o programma Narciso) prende una stringa in input e produce in output "1" (true) se quella stringa corrisponde al proprio codice sorgente, oppure "0" (nil) se non corrisponde.
+
+Un esempio di questo ultimo tipo di programma è il seguente:
+
+(define (narciso) (and (= (slice (read-line) 18) (slice (string narciso) 11)) (= (slice (current-line) 0 18) "(define (narciso) ")))
+;-> (lambda () (and (= (slice (read-line) 18) (slice (string narciso) 11)) (= (slice current-line 0 18) "(define (narciso) ")))
+
+(narciso)
+;(define (narciso) (and (= (slice (read-line) 18) (slice (string narciso) 11)) (= (slice (current-line) 0 18) "(define (narciso) ")))
+;-> true
+
+Come funziona?
+La prima condizione: (= (slice (read-line) 18) (slice (string narciso) 11)) verifica che la stringa inserita corrisponda al corpo della funzione nella rappresentazione interna.
+La seconda condizione: (= (slice (current-line) 0 18) "(define (narciso) ") verifica che i primi 18 caratteri della stringa inserita siano uguali a "(define (narciso) " (poichè nella rappresentazione interna la testa della funzione vale "(lambda () ").
+
+In maniera analoga possiamo scrivere un programma Quine:
+
+(define (quine) (print "(define (quine) ") (println (slice (string quine) 11)))
+(quine)
+;-> (define (quine) (print "(define (quine) ") (println (slice (string quine) 11)))
+
+
+-----------------
+Test di primalità
+-----------------
+
+In questo paragrafo vengono implementati gli algoritmi tratti dal libro:
+
+"Primality Testing in Polynomial Time" di Martin Dietzfelbinger
+
+  - Algoritmo "Trial Division"
+  - Algoritmo "Lehmann's Primality Test"
+  - Algoritmo "Fast Modular Exponentiation"
+  - Algoritmo "Perfect Power Test"
+  - Algoritmo "Euclidean Algorithm"
+  - Algoritmo "Extended Euclidean Algorithm"
+  - Algoritmo "The Sieve of Eratosthenes"
+  - Algoritmo "Fermat Test"
+
+Funzioni ausiliarie
+-------------------
+
+"primo?" verifica se un numero è primo:
+
+(define (primo? n)
+   (if (< n 2) nil
+       (= 1 (length (factor n)))))
+
+"sign" assegna -1 oppure 0 oppure +1 in base al segno del numero:
+
+(define (sign n)
+  (cond ((> n 0) 1)
+        ((< n 0) -1)
+        (true 0)))
+
+(sign -10)
+;-> -1
+(sign 3)
+;-> 1
+(sign 0)
+;-> 0
+
+"rand-int" genera un numero casuale intero x tale che 1 <= x <= n
+(non funziona con i biginteger):
+
+(define (rand-int n) (+ 1 (rand n)))
+
+"rand-range" genera un numero casuale intero x tale che a <= n <= b:
+
+(define (rand-range a b)
+  (if (> a b) (swap a b))
+  (+ a (rand (+ (- b a) 1)))
+)
+
+"powmod" calcola l'esponenziazione modulare veloce (b^e mod m):
+
+(define (powmod b e m)
+  (local (r)
+    (cond ((= m 1) (setq r 0))
+          (true
+            (setq r 1L)
+            (setq b (% b m))
+            (while (> e 0)
+              (if (= (% e 2) 1) (setq r (% (* r b) m)))
+              (setq e (/ e 2))
+              (setq b (% (* b b) m))
+            )
+          )
+    )
+    r))
+
+(powmod 1024 313 42)
+;-> 16L
+
+"ipow" calcola la potenza di due numeri interi:
+
+(define (ipow x n)
+  (local (pot out)
+    (if (zero? n)
+        (setq out 1L)
+        (begin
+          (setq pot (ipow x (/ n 2)))
+          (if (odd? n) (setq out (* x pot pot))
+                       (setq out (* pot pot)))
+        )
+    )
+    out))
+
+(ipow -2 15)
+;-> -32768
+(ipow 11L 12L)
+;-> 3138428376721L
+
+"psetq" macro che permette l'assegnazione multipla:
+
+(define-macro (psetq)
+  (let ((_var '()) (_ex '()))
+    (for (i 0 (- (length (args 1)) 1))
+      (setq _ex (expand (args 1 i) (args 0 0)))
+      (for (j 1 (- (length (args 0)) 1))
+        (setq _ex (expand _ex (args 0 j)))
+      )
+      (push _ex _var -1)
+    )
+    (dolist (el _var)
+      (set (args 0 $idx) (eval el))
+    )))
+
+(setq x 2 y 3)
+(psetq (x y) ((+ 1 y) (+ 1 x)))
+(list x y)
+;-> (4 3)
+---------------------------------------------------------------------
+
+Algoritmi
+---------
+
+Algoritmo "Trial Division"
+Input: integer n >= 2
+
+(define (trial-div n)
+  (catch
+    (let (i 2L)
+      (while (<= (* i i) n)
+        (if (= zero? (% n i)) (throw nil))
+        (++ i)
+      )
+      true)))
+
+(trial-div 113)
+;-> true
+
+(= (map primo? (sequence 2 10000)) (map trial-div (sequence 2 10000)))
+;-> true
+---------------------------------------------------------------------
+
+Algoritmo "Lehmann's Primality Test"
+Input: odd integer n >= 3
+       integer p >= 2
+
+(define (lehmann n p)
+  (catch
+    (local (a b c)
+      (if (= p nil) (setq p 20))
+      (setq b (array (+ p 1) '(0)))
+      (for (i 1 p)
+        (setq a (rand-int (- n 1)))
+        (setq c (powmod a (/ (- n 1) 2) n))
+        (if (and (!= c 1) (!= c (- n 1)))
+            (throw nil)
+            (setq (b i) c)
+        )
+      )
+      (for (i 1 p)
+            (if (and (!= (b i) 1) (!= (b i) (- n 1)))
+                (throw nil)
+            )
+      )
+      true)))
+
+(seed (time-of-day))
+
+(lehmann 113)
+;-> true
+
+(= (map primo? (sequence 3 10001 2)) (map lehmann (sequence 3 10001 2)))
+;-> true
+---------------------------------------------------------------------
+
+Algoritmo "Fast Modular Exponentiation"
+Input: integer a, n e m >= 1
+
+(define (fastmodexp a n m)
+  (local (u s c)
+    (setq u n)
+    (setq s (% a m))
+    (setq c 1L)
+    (while (>= u 1)
+      (if (odd? u) (setq c (% (* c s) m)))
+      (setq s (* s (% s m)))
+      (setq u (/ u 2))
+    )
+    c))
+
+(fastmodexp 1024 313 42)
+;-> 16L
+(fastmodexp 1024 1024 77)
+;-> 23L
+(powmod 1024 1024 77)
+;-> 23L
+---------------------------------------------------------------------
+
+Algoritmo "Perfect Power Test"
+Input: integer n >= 2
+
+(define (perfect-power-test n)
+  (catch
+    (local (a b c m)
+      (setq b 2L)
+      (while (<= (ipow 2L b) n)
+        (setq a 1L)
+        (setq c n)
+        (while (>= (- c a) 2)
+          (setq m (/ (+ a c) 2))
+          ; "min" don't work with biginteger
+          ;(setq p (min (ipow m b) (+ n 1)))
+          (if (< (ipow m b) (+ n 1))
+              (setq p (ipow m b))
+              (setq p (+ n 1))
+          )
+          (if (= p n) (throw (list m b)))
+          (if (< p n)
+              (setq a m)
+              (setq c m)
+          )
+        )
+        (++ b)
+      )
+      nil)))
+
+(perfect-power-test 2047)
+;-> nil
+(perfect-power-test 1024)
+;-> (32L 2L)
+(ipow 1194052296529L 2L)
+;-> 1425760886846178945447841L
+(perfect-power-test 1425760886846178945447841L)
+;-> (1194052296529L 2L)
+---------------------------------------------------------------------
+
+Algoritmo "Euclidean Algorithm"
+Input: integer n m
+
+(define (euclidean n m)
+  (local (a b ta tb)
+    (setq n (abs n))
+    (setq m (abs m))
+    (if (>= n m)
+        (setq a n b m)
+        (setq a m b n)
+    )
+    (while (> b 0)
+      ;(setq ta a)
+      ;(setq tb b)
+      ;(setq a tb)
+      ;(setq b (% ta tb))
+      (psetq (a b) (b (% a b)))
+    )
+    a))
+
+(euclidean 4 31)
+;-> 1
+(euclidean 400 24)
+;-> 8
+(euclidean 400L 24L)
+;-> 8L
+---------------------------------------------------------------------
+
+Algoritmo "Extended Euclidean Algorithm"
+Input: integer n m
+
+(define (extended-euclidean n m)
+  (local (a b xa ya xb yb q)
+    (if (> (abs n) (abs m))
+        (begin (setq a (abs n))
+               (setq b (abs m))
+               (setq xa (sign n))
+               (setq ya 0)
+               (setq xb 0)
+               (setq yb (sign m)))
+        (begin (setq a (abs m))
+               (setq b (abs n))
+               (setq xa 0)
+               (setq ya (sign m))
+               (setq xb (sign n))
+               (setq yb 0))
+    )
+    (while (> b 0)
+      (setq q (/ a b))
+      (psetq (a b) (b (- a (* q b))))
+      (psetq (xa ya xb yb) (xb yb (- xa (* q xb)) (- ya (* q yb))))
+    )
+    (list a xa ya)
+  )
+)
+
+(extended-euclidean 120 30)
+;-> (30 0 1)
+(extended-euclidean 120 23)
+;-> (1 -9 47)
+---------------------------------------------------------------------
+
+Algoritmo "The Sieve of Eratosthenes"
+Input: integer n >= 2
+
+(define (eratosthenes n)
+  (local (m i j)
+    (setq m (array (+ n 1) '(0)))
+    (setq j 2)
+    (while (<= (* j j) n)
+      (if (= (m j) 0)
+        (begin (setq i (* j j))
+               (while (<= i n)
+                 (if (= (m i) 0) (setq (m i) j))
+                 (setq i (+ i j))
+               ))
+      )
+      (++ j)
+    )
+    (slice m 2 (- n 1))))
+
+(eratosthenes 10)
+;-> (0 0 2 0 2 0 2 3 2)
+idx  2 3 4 5 6 7 8 9 10
+
+Nota: i numeri primi sono gli indici per cui il valore vale 0 (il vettore parte dall'indice 2).
+---------------------------------------------------------------------
+
+Algoritmo "Fermat Test"
+Input: odd integer n >= 3
+
+(define (fermat-test n)
+  (let (a (rand-range 2 (- n 2)))
+    (if (!= (powmod a (- n 1) n) 1)
+        nil
+        true)))
+
+(fermat-test 91)
+;-> nil
+(fermat-test 91)
+;-> true ; output errato
+(fermat-test 91)
+;-> nil
+(fermat-test 91)
+;-> nil
+(fermat-test 91)
+;-> nil
+---------------------------------------------------------------------
+
+Algoritmo "Iterated Fermat Test"
+Input: odd integer n >= 3
+           integer p >= 1
+
+(define (iterated-fermat-test n p)
+  (catch
+    (local (a)
+      (if (= p nil) (setq p 20))
+      (dotimes (x p)
+        (setq a (rand-range 2 (- n 2)))
+        (if (!= (powmod a (- n 1) n) 1)
+            (throw nil))
+      )
+      true)))
+
+(for (i 1 100000) (if (iterated-fermat-test 91 10) (println "error")))
+;-> error
+;-> error
+;-> nil
+(for (i 1 100000) (if (iterated-fermat-test 91 30) (println "error")))
+;-> nil
+---------------------------------------------------------------------
+
+-----------------------------------
+Passeggiata casuale lungo una linea
+-----------------------------------
+
+Supponiamo di avere un agente casuale che si muove lungo una linea (asse x) partendo dalla posizione 0. Ad ogni passo può spostarsi di un qualunque valore contenuto in una lista (es. (-1 +1)). Data una lista di posizioni, determinare (con una simulazione) dopo quanti passi l'agente si trova in quelle posizioni (positive o negative).
+Per esempio,
+
+Lista dei valori di un passo (testa o croce): 
+(setq passi '(-1 +1))
+
+Lista delle posizioni:
+(setq posizioni '(1000 2000 3000 4000 5000))
+
+Scriviamo la funzione:
+
+(define (random-walk steps positions)
+  (local (x numsteps idx passo freq)
+    ; inizializza il generatore di numeri casuali
+    (seed (time-of-day))
+    ; numero massimo dei passi
+    (setq max-walks 1e8)
+    ; posizione iniziale dell'agente
+    (setq x 0)
+    ; numero elementi della lista passi
+    (setq numsteps (length steps))
+    ; lista delle frequenze dei passi
+    (setq freq (dup 0 numsteps))
+    ; stampa intestazione
+    (println "Passi        Posizione")
+    ; ciclo fino a che la lista posizioni non è vuota
+    ; oppure fino al nuimero massimo dei passi
+    (for (i 1 max-walks 1 (empty? positions))
+      ; seleziona indice del passo casuale
+      (setq idx (rand numsteps))
+      ; aggiorna la lista delle frequenze dei passi
+      (++ (freq idx))
+      ; seleziona valore del passo casuale
+      (setq passo (steps idx))
+      ; aggiorna posizione dell'agente
+      (setq x (+ x passo))
+      ; se siamo arrivati ad una posizione 
+      ; che si trova nella lista delle posizioni...
+      ; (controlla anche il valore negativo)
+      (if (find (abs x) positions)
+          (begin
+            ; stampa i risultati correnti
+            (println (format "%-12d %-+10d" i x))
+            ; elimina la posizione trovata dalla lista delle posizioni
+            (pop positions (find (abs x) positions))
+            ; stampa la percentuale delle frequenze dei passi
+            (println (map (fn(x) (div x i)) freq))
+          )))))
+
+Nota: Il programma restituisce "true" se sono state trovate tutte le posizioni.
+
+Facciamo alcune prove:
+
+(setq passi '(-1 +1))
+(setq posizioni '(1000 2000 3000 4000 5000))
+(random-walk passi posizioni)
+;-> Passi        Posizione
+;-> 1960406      -1000
+;-> (0.5002550492091944 0.4997449507908056)
+;-> 5578618      +2000
+;-> (0.4998207441341207 0.5001792558658793)
+;-> 10919650     +3000
+;-> (0.4998626329598476 0.5001373670401524)
+;-> 21807322     +4000
+;-> (0.4999082876842925 0.5000917123157076)
+;-> 25400818     +5000
+;-> (0.4999015779728039 0.5000984220271961)
+;-> true
+
+(setq passi '(-1 +1 -2 +2))
+(setq posizioni '(3000 6000 9000))
+(random-walk passi posizioni)
+;-> Passi        Posizione
+;-> 10998991     -3000
+;-> (0.2497767295200078 0.2501136695175039 0.2502072235535059 0.2499023774089823)
+;-> 14960430     -6000
+;-> (0.2498848629350894 0.2501099901540263 0.2501591197579214 0.2498460271529629)
+;-> 52664246     +9000
+;-> (0.2498900487438859 0.2500522840486504 0.2500266689472778 0.2500309982601859)
+;-> true
+
+(setq passi '(-1 +1 -2 +2))
+(setq posizioni '(100 200 500 1000 3000 5000 8000 10000 15000))
+(random-walk passi posizioni)
+;-> Passi        Posizione
+;-> 3691         -100
+;-> (0.2525060959089678 0.260633974532647 0.2522351666215118 0.2346247629368735)
+;-> 5309         -200
+;-> (0.2535317385571671 0.2569222075720475 0.2550386136748917 0.2345074401958938)
+;-> 21737        -500
+;-> (0.250126512398215 0.2463541427059852 0.2565671435800708 0.246952201315729)
+;-> 382613       +1000
+;-> (0.2497771900066124 0.2502946841848029 0.2494400347087004 0.2504880910998842)
+;-> 10389970     -3000
+;-> (0.2501266124926251 0.2501273824659744 0.2499453800155342 0.2498006250258663)
+;-> 52122407     +5000
+;-> (0.2501090749703865 0.2500241594752138 0.2498881718950547 0.249978593659345)
+;-> 53204355     +8000
+;-> (0.2501033608996858 0.2500143832210728 0.2498812926122307 0.2500009632670108)
+;-> 59041077     +10000
+;-> (0.250097910646176 0.2500267398577434 0.2498775386499132 0.2499978108461673)
+;-> 65311093     +15000
+;-> (0.2500656052410576 0.2500676569598981 0.2498764643243683 0.249990273474676)
+;-> true
 
 

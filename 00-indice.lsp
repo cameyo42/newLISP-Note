@@ -508,8 +508,8 @@ LIBRERIE
   The Little newLISPER (newlisper.lsp)
   MessageBox (by Dexter Santucci)
 
-NOTE LIBERE
-===========
+NOTE LIBERE 1
+=============
   Perchè newLISP?
   newLISP facile
   Apprendere newLISP
@@ -769,6 +769,9 @@ NOTE LIBERE 4
   Rimozione dei multipli
   Rock Paper Scissors
   TODO application
+  Quine e Narciso
+  Test di primalità
+  Passeggiata casuale lungo una linea
 
 APPENDICI
 =========
@@ -805,8 +808,8 @@ YO LIBRARY
 DOCUMENTAZIONE EXTRA
 ====================
   A) Introduction to newLISP (by Cormullion)
-  B) The Little newLISPER
-  C) Primality Testing
+  B) Code Patterns (by Lutz Mueller)
+  C) The Little newLISPER
 
 ==========================================================================
 
