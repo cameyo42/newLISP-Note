@@ -772,6 +772,8 @@ NOTE LIBERE 4
   Quine e Narciso
   Test di primalità
   Passeggiata casuale lungo una linea
+  Serie di teste e croci (valore atteso)
+  Ricerca con caratteri jolly (wildcard)
 
 APPENDICI
 =========
@@ -90257,6 +90259,273 @@ Facciamo alcune prove:
 ;-> 65311093     +15000
 ;-> (0.2500656052410576 0.2500676569598981 0.2498764643243683 0.249990273474676)
 ;-> true
+
+
+--------------------------------------
+Serie di teste e croci (valore atteso)
+--------------------------------------
+
+In media (valore atteso), quante volte dobbiamo lanciare una moneta per ottenere una serie consecutiva di N risultati uguali (N teste consecutive oppure N croci consecutive)?
+
+L'aspettativa matematica è un concetto importante nella teoria della probabilità. Matematicamente, per una variabile discreta X con funzione di probabilità P (X), il "valore atteso" E[X] è dato da Σ(xi * P(xi)) la somma ricorre su tutti i valori distinti xi che la variabile può assumere. Ad esempio, per un esperimento di lancio di dadi, l'insieme di risultati discreti è (1 2 3 4 5 6) e ciascuno di questo risultato ha la stessa probabilità 1/6. Quindi, il valore atteso di questo esperimento sarà 1/6 * (1 + 2 + 3 + 4 + 5 + 6) = 21/6 = 3.5. Per una variabile continua X con funzione di densità di probabilità P(x), il valore atteso E[X] è dato da ∫x*P(x)dx.
+
+È importante capire che "valore atteso" non è uguale a "valore più probabile" - piuttosto, non è nemmeno necessario che sia uno dei valori probabili. Ad esempio, in un esperimento di lancio di dadi, il valore atteso, vale a dire 3.5, non è affatto uno dei possibili risultati.
+
+La regola della "linearità dell'aspettativa" dice che E[x1+x2] = E[x1] + E[x2].
+
+Prima di applicare la teoria al nostro caso, vediamo un problema più semplice: qual'è il numero previsto di lanci di monete per ottenere due teste consecutive?
+
+Sia x il numero atteso di lanci di monete. L'analisi del caso procede come segue:
+a. Se il primo lancio è croce, allora abbiamo sprecato un lancio. La probabilità di questo evento è 1/2 e il numero totale di lanci richiesti è x + 1
+b. Se il primo lancio è testa e il secondo è croce, allora abbiamo sprecato due lanci. La probabilità di questo evento è 1/4 e il numero totale di lanci richiesti è x + 2
+c. Se il primo lancio è testa e anche il secondo è testa, allora abbiamo finito. La probabilità di questo evento è 1/4 e il numero totale di lanci richiesti è 2.
+
+Sommando tutti i termini, l'equazione che otteniamo è:
+
+x = (1/2)*(x+1) + (1/4)*(x+2) + (1/4)*2 = 6
+
+Pertanto, il numero previsto di lanci di monete (valore atteso) per ottenere due teste consecutive è 6.
+
+Generalizzando: qual'è il numero previsto di lanci di monete per ottenere N teste consecutive, dato N?
+
+Sia x il numero previsto di lanci di monete. Sulla base degli esercizi precedenti, possiamo concludere l'intera analisi del caso in due parti fondamentali:
+
+a) Se otteniamo la prima, la seconda, la terza, ..., l'ennesima croce come prima croce nell'esperimento, allora dobbiamo ricominciare tutto da capo.
+b) Altrimenti abbiamo finito.
+
+Per il 1° lancio come croce, la parte dell'equazione è (1/2)*(x + 1)
+Per il 2° lancio come croce, la parte dell'equazione è (1/4)*(x + 2)
+...
+Per il k-esimo lancio come croce, la parte dell'equazione è (1/(2^k))*(x + k)
+...
+Per l'ennesima croce, la parte dell'equazione è (1/(2^N))*(x + N)
+
+La parte dell'equazione che corrisponde al caso (b) è (1/(2^N))*(N)
+
+Sommando i termini:
+
+x = (1/2)*(x+1) + (1/4)*(x+2) + ... + (1/(2^k))*(x+k) + .. + (1/(2^N))*(x+N) + (1/(2^N))*(N)
+
+Risolvendo l'equazione si ottiene:
+
+x = 2^(N+1) - 2 = 2*(2^n -1)
+
+Poichè il nostro problema originale considera anche la probabilità di ottenere N croci consecutive (oltre a N teste consecutive), il valore atteso vale la metà del risultato precedente:
+
+x = (2^n -1)
+
+(define (atteso num) (- (pow 2 num) 1))
+
+Scriviamo una funzione che simula questo processo:
+
+(define (serie num iter)
+  (local (conta num-lanci tot-lanci prec lancio found delta)
+    ;numero totale dei lanci
+    (setq tot-lanci 0)
+    ; scostamento massimo: numero massimo di lanci
+    ; per ottenere 5 valori consecutivi uguali
+    (setq delta 0)
+    (for (i 1 iter)
+      ; azzera la lista contatore
+      (setq conta '(0 0))
+      ; primo lancio (0=croce, 1=testa)
+      (setq prec (rand 2))
+      (setq numlanci 1)
+      ; mostra lancio
+      ;(print prec)
+      ; aggiorna la lista contatore
+      (++ (conta prec))
+      (setq found nil)
+      ; cerca la serie consecutiva di num teste o croci
+      (until found
+        ; lancio moneta
+        (setq lancio (rand 2))
+        ; mostra lancio
+        ;(print lancio)
+        (++ numlanci)
+        ; se il lancio attuale è uguale al precedente
+        (cond ((= lancio prec)
+               ; aggiorna la lista contatore
+               (++ (conta prec)))
+              ; altrimenti
+              (true ; il lancio attuale è diverso dal precedente
+               ; azzera il contatore
+               (setq conta '(0 0))
+               ; aggiorna il valore del lancio precedente
+               (setq prec lancio)
+               ; aggiorna la lista contatore
+               (++ (conta prec)))
+        )
+        ; se abbiamo raggiunto num ripetizioni
+        ; consecutive di croci o teste
+        ; N teste oppure N croci
+        (if (or (= (conta 0) num) (= (conta 1) num))
+        ; N teste
+        ;(if (= (conta 0) num)
+            (begin
+            (setq found true)
+            ; aggiorna il numero totale dei lanci
+            (setq tot-lanci (+ tot-lanci numlanci))
+            ; aggiorna scostamento massimo
+            (setq delta (max delta numlanci))
+            ; mostra risultati intermedi
+            ;(println)
+            ;(println conta { } numlanci)
+            ;(read-line)
+            )
+        )
+      )
+    )
+    ; stampa lo scostamento massimo, cioè il massimo numero di lanci
+    ; che è sato necessario per ottenere N eventi consecutivi uguali
+    (println "Max lanci: " delta)
+    (div tot-lanci iter)
+  )
+)
+
+Proviamo la funzione di simulazione:
+
+(serie 5 100000)
+;-> Max lanci: 305
+;-> 31.04894
+
+Vediamo il valore matematico:
+(atteso 5)
+;-> 31
+
+(serie 8 100000)
+;-> Max lanci: 3354
+;-> 254.9056
+(atteso 8)
+;-> 255
+
+La simulazione conferma il risultato matematico.
+
+
+--------------------------------------
+Ricerca con caratteri jolly (wildcard)
+--------------------------------------
+
+Dato un testo e un modello (pattern) di caratteri jolly (wildcard), implementare l'algoritmo di corrispondenza del modello di caratteri jolly che rileva se il modello di caratteri jolly è abbinato al testo. La corrispondenza dovrebbe coprire l'intero testo (non il testo parziale).
+Il motivo jolly può includere i caratteri "?" e "*":
+
+"?" - corrisponde a qualsiasi singolo carattere
+
+"*": Corrisponde a qualsiasi sequenza di caratteri (inclusa la sequenza vuota)
+
+Per esempio,
+
+Testo = "abbaino",
+Modello = "*ba*ino" , output : true
+Modello = "ab*?"    , output : true
+Modello = "ba*a?"   , output : false
+Modello = "abba?no" , output : true
+Modello = "abba?o"  , output : false
+
+Ogni occorrenza del carattere "?" nel modello di caratteri jolly può essere sostituito con qualsiasi altro carattere e ogni occorrenza di "*" con una sequenza di caratteri tale che il modello di caratteri jolly diventa identico alla stringa di input dopo la sostituzione.
+
+Consideriamo qualsiasi carattere nel modello:
+
+Caso 1: il carattere è "*"
+Qui sorgono due sottocasi:
+1) Possiamo ignorare il carattere "*" e passare al carattere successivo nel modello.
+2) Il carattere "*" corrisponde a uno o più caratteri nel testo. Qui ci sposteremo al carattere successivo nel Testo.
+
+Caso 2: il carattere è "?"
+Possiamo ignorare il carattere corrente nel testo e passare al carattere successivo nel modello e nel Testo.
+
+Caso 3: il carattere non è un carattere jolly
+Se il carattere corrente in Testo corrisponde al carattere corrente in modello, ci spostiamo al carattere successivo in modello e in Testo. 
+Se non corrispondono, il motivo jolly e il testo non corrispondono.
+
+Possiamo usare la programmazione dinamica per risolvere questo problema.
+
+Sia DP[i][j] true se i primi i caratteri nel Testo dato corrispondono ai primi j caratteri del modello.
+
+Inizializzazione della matrice DP:
+
+; sia il Testo che il modello sono nil
+DP[0][0] = true;
+
+; il modello è nil
+DP[i][0] = nil
+
+; il Testo è nil
+DP[0][j] = DP[0][j - 1] se modello[j – 1] è '*'
+
+Relazione DP:
+
+Se i caratteri correnti corrispondono, il risultato è lo stesso di risultato per le lunghezze meno uno. 
+I caratteri corrispondono in due casi:
+a) Se il carattere del modello è "?" quindi corrisponde con qualsiasi carattere di testo.
+b) Se i caratteri correnti nel modello e nel Testo corrispondono
+if (modello[j – 1] == "?") || (modello[j – 1] == text[i - 1])
+   DP[i][j] = DP[i-1][j-1]
+
+Se incontriamo "*", sono possibili due scelte:
+a) Ignoriamo il carattere "*" e passiamo al successivo
+    carattere nel modello, ad esempio "*" indica una sequenza vuota.
+b) Il carattere '*' corrisponde all'i-esimo carattere in ingresso
+else if (modello[j – 1] == "*")
+        DP[i][j] = DP[i][j-1] || DP[i-1][j]
+else if (modello[j – 1] != text[i - 1])
+        DP[i][j] = nil
+
+Adesso possiamo scrivere la funzione:
+
+(define (match? str modello)
+  (local (n m dp)
+    (setq n (length str))
+    (setq m (length modello))
+    ; matrice di lookup
+    (setq dp (array (+ n 1) (+ m 1) '(nil)))
+    ; un modello vuoto si abbina con la stringa vuota
+    (setf (dp 0 0) true)
+    ; solo "*" si abbina con la stringa vuota
+    (for (j 1 m)
+      (if (= (modello (- j 1)) "*")
+          (setf (dp 0 j) (dp 0 (- j 1)))
+      )
+    )
+    ; riempie la matrice in modo bottom-up
+    (for (i 1 n)
+      (for (j 1 m)
+        (cond ((= (modello (- j 1)) "*")
+               ; Due casi se vediamo un '*':
+               ; a) Ignoriamo il carattere '*' 'e ci muoviamo
+               ; al carattere successivo nel pattern,
+               ; ad esempio, "*" indica una sequenza vuota
+               ; b) Il carattere "*" si abbina con l'i-esimo
+               ; carattere in input
+               (setf (dp i j) (or (dp i (- j 1)) (dp (- i 1) j))))
+              ((or (= (modello (- j 1)) "?") (= (modello (- j 1)) (str (- i 1))))
+               ; I caratteri correnti sono considerati come
+               ; abbinati in due casi:
+               ; (a) il carattere corrente del pattern è "?"
+               ; (b) i caratteri corrispondono effettivamente
+               (setf (dp i j) (dp (- i 1) (- j 1))))
+              (true 
+               ; i caratteri non si abbinano
+               (setf (dp i j) nil))
+        )
+      )
+    )
+    (dp n m)))
+
+Facciamo alcune prove:
+
+(match? "baaabab" "*b???b*")
+;-> true
+(match? "abbaino" "*ba*ino")
+;-> true
+(match? "abbaino" "ab*?"   )
+;-> true
+(match? "abbaino" "ba*a?"  )
+;-> nil
+(match? "abbaino" "abba?no")
+;-> true
+(match? "abbaino" "abba?o" )
+;-> nil
 
 
 ===========

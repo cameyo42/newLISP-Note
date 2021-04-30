@@ -772,6 +772,8 @@ NOTE LIBERE 4
   Quine e Narciso
   Test di primalità
   Passeggiata casuale lungo una linea
+  Serie di teste e croci (valore atteso)
+  Ricerca con caratteri jolly (wildcard)
 
 APPENDICI
 =========
