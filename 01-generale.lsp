@@ -9431,3 +9431,477 @@ The release 8.9.0 out in June will contain a small implementation of a PROLOG li
 ----------------------------------------------------------------------------
 
 
+===================================
+ STAMPARE CON print/println/format
+===================================
+
+
+Per stampare sulla REPL newLISP mette a disposizione tre funzioni:
+
+1. La funzione "print" stampa i suoi argomenti.
+2. La funzione "println" stampa i suoi argomenti e aggiunge un newline.
+3. La funzione "format" formatta i suoi argomenti in una stringa.
+
+Stamap semplice
+---------------
+Nel caso più semplice, print/println accetta un argomento: una stringa di caratteri da stampare. Questa stringa è composta da caratteri, ognuno dei quali viene stampato esattamente come appare.
+Quindi print/println ("xyz") stampa semplicemente una x, poi una y e infine una z. Questa non è esattamente la stampa "formattata", ma è ancora la base di ciò che fa print/println.
+
+Caratteri speciali naturali
+---------------------------
+Per identificare l'inizio della stringa, mettiamo una virgoletta doppia {"} all'inizio. Per identificare la fine della stringa mettiamo un'altra virgoletta doppia {"} alla fine. Ma cosa succede se vogliamo effettivamente stampare una virgoletta doppia?
+Non possiamo inserire esattamente le virgolette doppie nel mezzo della stringa perché verrebbe scambiato per il marcatore di fine stringa. Le virgolette doppie sono un carattere speciale. Le normali regole di stampa di quello che vedi non si applicano.
+Linguagi diversi adottano approcci diversi a questo problema. Alcuni richiedono che il carattere speciale venga immesso due volte. newLISP usa la barra rovesciata (backslash \) come carattere di escape per cambiare il significato del carattere successivo dopo di esso. Quindi, per stampare una virgoletta doppia, occorre digitare barra rovesciata (backslash) e virgolette doppie. Per stampare una barra rovesciata, è necessario eseguirne l'escape digitando un'altra barra rovesciata davanti ad essa. La prima barra rovesciata significa "dai al carattere successivo il suo significato alternativo". La seconda barra rovesciata ha il significato di "una barra rovesciata". Senza una barra rovesciata, i caratteri speciali hanno un significato speciale naturale. Con una barra rovesciata vengono stampati come appaiono.
+
+Nota: in newLISP si possono utilizzare i doppi apici "" oppure le parentesi graffe { } per delimitare una stringa.
+
+Ecco alcuni esempi:
+
+(println "\\")
+;-> \
+(println "C:\\Windows\\System32\\")
+;-> C:\Windows\System32\
+(println "\"")
+;-> "
+(println {"})
+;-> "
+(println {\"})
+;-> \"
+(println "{}")
+;-> {}
+(println {{}})
+;-> {}
+(println """")
+;-> ""
+(println "%")
+;-> %
+
+Caratteri speciali alternativi
+------------------------------
+D'altra parte abbiamo anche caratteri che normalmente vengono stampati come ti aspetteresti, ma quando anteponi una barra rovesciata, poi diventano speciali. Un esempio è il carattere di nuova riga (newline). Per stampare una n, digitiamo semplicemente una n. Per stampare una nuova riga digitiamo \n, invocando così il significato alternativo di n, che è nuova riga (newline). Ecco un elenco parziale:
+
+  +-------------------------------------+
+  | Carattere  |  Descrizione           |
+  +------------+------------------------+
+  |    \a      |  audible alert (bell)  |
+  |    \b      |  backspace             |
+  |    \f      |  form feed             |
+  |    \n      |  newline (linefeed)    |
+  |    \r      |  carriage return       |
+  |    \t      |  tab                   |
+  |    \v      |  vertical tab          |
+  +------------+------------------------+
+  
+(println "\t un tab")
+;->          un tab
+;-> "\t un tab"
+(println "\t\t due tab")
+;->                  due tab
+;-> "\t\t due tab"
+(println "riga 1\nriga 2")
+;-> riga 1
+;-> riga 2
+;-> "riga 1\nriga 2"
+(println "\n newline")
+;-> 
+;->  newline
+;-> "\n newline"
+
+Specifiche di formato
+---------------------
+La vera forza di print/println è quando viene utilizzata con la funzione "format" per stampare il contenuto delle variabili.
+
+  sintassi: (format str-format exp-data-1 [exp-data-2 ... ])
+
+La funzione "format" costruisce una stringa formattata da exp-data-1 utilizzando il formato specificato nella valutazione di str-format. Il formato specificato è simile al formato utilizzato per la funzione printf() nel linguaggio ANSI C. È possibile specificare due o più argomenti exp-data per più di un identificatore di formato in formato str-format. In altre parole, la funzione print/println si limita a stampare la stringa formattata da "format". Prendiamo ad esempio l'identificatore di formato %d. Questo identifica un numero. Quindi, è necessario fornire un numero per la stampa. Questo viene fatto aggiungendo un altro argomento all'istruzione print/println, come mostrato qui:
+
+(setq anni 25)
+(print (format "io ho %d anni\n" anni))
+;-> io ho 25 anni
+
+In questo esempio, "format" ha due argomenti. Il primo è una stringa: "io ho %d anni\n". Il secondo è un numero intero, anni.
+
+La lista degli argomenti
+------------------------
+Quando "format" elabora i suoi argomenti, inizia a analizzare i caratteri che trova nel primo argomento, uno per uno. Quando trova una percentuale, sa di avere una specifica di formato. Passa all'argomento successivo e utilizza il suo valore, formattandolo in base a quella specifica di formato. Quindi torna a analizzare un carattere alla volta (dal primo argomento). Va bene includere più di una specifica di formato nella stringa di "format". In tal caso, la prima specifica di formato va con il primo argomento aggiuntivo, la seconda con il secondo e così via. Ecco un esempio:
+
+(setq x 5 y 10)
+(println (format "x vale %d e y vale %d\n" x y))
+;-> x vale 5 e y vale 10
+
+Percentuale "%"
+--------------
+La specifica di formato ha la seguente struttura:
+
+  +----------------------------------------+
+  |                                        |
+  |  %[-][+][0][width][.][decimal]<id>[.]  |
+  |                                        |
+  +----------------------------------------+
+
+dove:
+   %         indica l'inizio dello specificatore di formato
+  [-]        indica la giustificazione a destra
+  [+]        indica la stampa del segno + (nei numeri positivi)
+  [0]        indica il riempimento con 0
+  [width]    indica la larghezza totale del numero (minima)
+  [.]        separa i numeri witdh e decimal
+  [decimal]  indica il numero di decimali (precisione)
+  <id>       identificatore di formato
+  [.]        inserisce "." nei numeri float con decimal = 0
+
+e i termini racchiusi con le parentesi quadre [] sono opzionali.
+
+Partiamo dall'inizio. Ogni specifica di formato inizia con un segno di percentuale "%" e termina con una lettera. Le lettere sono scelte per avere un significato mnemonico. Ecco un elenco parziale di identificatori di formato:
+
+  +---------+------------------------------------+
+  | Formato |   Descrizione                      |
+  +---------+------------------------------------|
+  |   %c    |   character (value 1 - 255)        |
+  |   %s    |   text string                      |
+  |   %d    |   decimal (32-bit)                 |
+  |   %u    |   unsigned decimal (32-bit)        |
+  |   %x    |   hexadecimal lowercase (base 16)  |
+  |   %X    |   hexadecimal uppercase (base 16)  |
+  |   %o    |   octal (32-bit)                   |
+  |   %f    |   floating point                   |
+  |   %e    |   scientific floating point        |
+  |   %E    |   scientific floating point        |
+  |   %g    |   general floating point           |
+  |   %%    |   print a percent sign             |
+  |   \\    |   print a backslash sign           |
+  +---------+------------------------------------+
+
+Per stampare un numero in modo semplice, l'identificatore di formato è %d. Di seguito sono riportati alcuni esempi:
+
+(format "%d" 0)
+;-> "0"
+(format "%d" -7)
+;-> "-7"
+(format "%d" 1560133635)
+;-> "1560133635"
+(format "%d" -2035065302)
+;-> "-2035065302"
+
+Si noti che nel modo semplice, %d, non esiste una dimensione predeterminata per il risultato. "format" semplicemente crea una stringa con tutto lo spazio di cui ha bisogno.
+
+L'opzione Larghezza
+-------------------
+Come abbiamo detto, la semplice stampa dei numeri non è sufficiente. Sono necessarie altre opzioni speciali, di cui la più importante è probabilmente l'opzione della larghezza. Scrivendo %5d, al numero vengono garantiti cinque spazi (di più se necessario, mai di meno). Questo è stato molto utile nella stampa di tabelle perché numeri piccoli e grandi occupano entrambi la stessa quantità di spazio (se utilizziamo un font monospace). Quindi, per stampare un numero con una certa larghezza (minima), ad esempio 5 spazi, l'identificatore di formato è %5d.
+Di seguito sono riportati alcuni esempi:
+
+(format "%5d" 0)
+;-> "    0"
+(format "%5d" -7)
+;-> "   -7"
+(format "%5d" 1560133635)
+;-> "1560133635"
+(format "%5d" -2035065302)
+;-> "-2035065302"
+
+Si noti che per numeri più corti, il risultato viene riempito con spazi iniziali. Per numeri eccessivamente lunghi non c'è riempimento e viene stampato il numero completo. Nell'uso normale, si dovrebbe rendere il campo abbastanza ampio per contenere il più grande numero atteso. Se i nostri numeri sono generalmente lunghi una, due o tre cifre, %3d è probabilmente adeguato. In caso di utilizzo anomalo, si potrebbe finire per formattare un numero troppo grande per il campo definito. print/println decide di stampare completamente tali numeri, anche se occupano troppo spazio. Questo perché è meglio stampare la risposta giusta e avere un aspetto brutto che stampare la risposta sbagliata e avere un aspetto carino.
+
+Riempire lo spazio extra
+------------------------
+Quando si stampa un numero piccolo come 27 in un campo %5d, la domanda diventa quindi dove mettere il 27 e cosa inserire negli altri tre spazi. Potrebbe essere stampato nei primi due spazi, negli ultimi due spazi o forse nei due spazi centrali (se è possibile determinarlo). Gli spazi vuoti potrebbero essere riempiti con il carattere vuoto, o forse asterischi ("***27" o "27***" o "**27*"), o segni di dollaro ("$$$27") o segni di uguale ("===27"), o zeri iniziali (come "00027"). Questi caratteri extra sono spesso chiamati caratteri di "protezione dell'assegno" perché hanno lo scopo di impedire ai malintenzionati di modificare l'importo in dollari su un assegno stampato. È relativamente facile trasformare uno spazio in qualcos'altro. È più difficile cambiare un asterisco, un segno del dollaro o un segno di uguale. La funzione "format" di newLISP fornisce solo riempimento con spazi (sinistra o destra) e riempimento con zeri (solo a sinistra). Quindi se si desidera la protezione o la centratura con un carattere generico, è necessario utilizzare altri metodi. Ma anche senza queste possibilità, "format" ha molte opzioni utili.
+
+L'opzione Giustificazione
+-------------------------
+Utilizzando "format" i numeri possono essere giustificati a sinistra (stampati a sinistra del campo) o a destra (stampati a destra del campo). Il modo più naturale per stampare i numeri sembra essere quello giustificato a destra con spazi iniziali. Questo è il significato del formato %5d: stampa un numero in base 10 in un campo di larghezza 5, con il numero allineato a destra e riempito con spazi. Per allineare il numero a sinistra, viene aggiunto un segno meno all'identificatore di formato. Per stampare un numero largo 5 spazi e giustificato a sinistra (allineato a sinistra), l'identificatore di formato è %-5d. Di seguito sono riportati alcuni esempi:
+
+(format "%-5d" 0)
+;-> "0    "
+(format "%-5d" -7)
+;-> "-7   "
+(format "%-5d" 1560133635)
+;-> "1560133635"
+(format "%-5d" -2035065302)
+;-> "-2035065302"
+
+Come prima, per numeri più corti, il risultato viene riempito di spazi. Per numeri più lunghi non c'è riempimento e il numero non viene accorciato.
+
+L'opzione Riempie-Zeri
+----------------------
+Per rendere le cose piacevoli è comune scrivere una data utilizzando gli zeri iniziali. Possiamo scrivere il 5 maggio 2003 come 05/05/2003. Potremmo anche scriverlo come 2003.05.05. Si noti che in entrambi i casi gli zeri iniziali non cambiano il significato. Lo fanno semplicemente allineare bene negli elenchi. Quando un numero è riempito con zero, gli zeri vanno sempre davanti e il numero risultante è giustificato sia a sinistra che a destra. In questo caso il segno meno non ha effetto. Per stampare un numero riempito con zero di 5 spazi, l'identificatore di formato è %05d. Di seguito sono riportati alcuni esempi:
+
+(format "%05d" 0)
+;-> "00000"
+(format "%05d" -7)
+;-> "-0007"
+(format "%05d" 1560133635)
+;-> "1560133635"
+(format "%05d" -2035065302)
+;-> "-2035065302"
+
+I numeri più corti vengono riempiti con zeri iniziali. I numeri più lunghi rimangono invariati.
+
+Il segno "+"
+------------
+I numeri negativi vengono sempre stampati con un segno meno. I numeri positivi e lo zero di solito non vengono stampati con un segno, ma è possibile farlo. Un segno più (+) nell'identificatore di formato permette quest. Per stampare un numero con segno di 5 spazi, l'identificatore di formato è %+5d. Di seguito sono riportati alcuni esempi:
+
+(format "%+5d" 0)
+;-> "   +0"
+(format "%+5d" -7)
+;-> "   -7"
+(format "%+5d" 1560133635)
+;-> "+1560133635"
+(format "%+5d" -2035065302)
+;-> "-2035065302"
+
+Si noti che lo zero viene considerato come un numero positivo. I numeri più corti vengono riempiti con degli spazi (padded). I numeri più lunghi rimangono invariati. Più (+) e meno (-) non sono correlati. Entrambi possono essere visualizzati in un identificatore di formato. Di seguito sono riportati alcuni esempi:
+
+(format "%-+5d" 0)
+;-> "+0   "
+(format "%-+5d" -7)
+;-> "-7   "
+(format "%-+5d" 1560133635)
+;-> "+1560133635"
+(format "%-+5d" -2035065302)
+;-> "-2035065302"
+
+Nota: in newLISP non esiste l'opzione "(+) invisibile" (rappresentata da uno spazio " "), cioè invece di stampare un (+) sui numeri positivi (e zero), stampiamo uno spazio dove andrebbe il segno. Questo può essere utile quando si vuole stampare numeri giustificati a sinistra in cui si desidera che i segni meno risaltino davvero. Vediamo due esempi:
+
+(format "% -5d" -7)
+;-> ERR: problem in format string in function format : "% -5d"
+Risultato voluto: "-7   "
+(format "% -5d" +7)
+;-> ERR: problem in format string in function format : "% -5d"
+Risultato voluto: " 7   "
+
+Quindi newLISP non permette di inserire spazi vuoti nella specifica di formato.
+
+"+" e "0"
+---------
+Ecco un altro esempio di combinazione contemporanea di due opzioni. Usando l'identificatore di formato %+05d otteniamo i seguenti risultati:
+
+(format "%+05d" 0)
+;-> "+0000"
+(format "%+05d" -7)
+;-> "-0007"
+(format "%+05d" 1560133635)
+;-> "+1560133635"
+(format "%+05d" -2035065302)
+;-> "-2035065302"
+
+Ricordiamo che se allineiamo i numeri a sinistra otteniamo:
+
+(format "%-+05d" 0)
+;-> "+0   "
+(format "%-+05d" -7)
+;-> "-7   "
+(format "%-+05d" 1560133635)
+;-> "+1560133635"
+(format "%-+05d" -2035065302)
+;-> "-2035065302"
+
+Flag
+----
+Le opzioni sono anche chiamate "flag" e vanno scritte nell'ordine [-][+][0]. Ecco un elenco parziale:
+
+  +------------------------------------------------------------------+
+  |  Flag     |  Effetto                                             |
+  +-----------+------------------------------------------------------+
+  |  nessuno  |  stampa normale (giustificazione a destra con spazi  |
+  |  -        |  giustificazione a sinistra                          |
+  |  +        |  stampa (+) per i numeri positivi                    |
+  |  0        |  riempimento con zeri (a sinistra)                   |
+  +-----------+------------------------------------------------------+
+
+Dopo queste opzioni/flag, che sono opzionali, è possibile specificare la larghezza minima del campo.
+
+Stampare stringhe
+-----------------
+L'opzione %s ci permette di stampare una stringa all'interno di una stringa. Ecco un esempio:
+
+(setq tipo "ragazzo")
+(format "%s è un %s\n" "Paolo" tipo)
+;-> "Paolo è un ragazzo\n"
+(print (format "%s è un %s\n" "Paolo" tipo))
+;-> Paolo è un ragazzo
+
+Il flag della giustificazione a sinistra (-) si applica anche alle stringhe, ma ovviamente il riempimento con zero, il segno più non hanno significato. Di seguito sono riportati alcuni esempi:
+
+(format "%5s" "")
+;-> "     "
+(format "%5s" "a")
+;-> "    a"
+(format "%5s" "ab")
+;-> "   ab"
+(format "%5s" "abcdefg")
+;-> "abcdefg"
+(format "%-5s" "")
+;-> "     "
+(format "%-5s" "a")
+;-> "a    "
+(format "%-5s" "ab")
+;-> "ab   "
+(format "%-5s" "abcdefg")
+;-> "abcdefg"
+
+Numeri a virgola mobile (Floating Point)
+----------------------------------------
+I numeri in virgola mobile sono quelli come 3.1415 che hanno un punto decimale interno da qualche parte. Questo è in diverso dai normali numeri interi come 27 che non hanno punto decimale. Tutti gli stessi flag e regole si applicano ai numeri in virgola mobile come per i numeri interi, ma abbiamo alcune nuove opzioni. La più importante è quella per specificare quante cifre compaiono dopo il punto decimale. Questo valore (numero intero) è chiamato la "precisione" del numero. Di seguito sono riportati alcuni esempi per stampare questi numeri:
+
+(setq e 2.718281828)
+(format "%.0f" e) 
+3
+(format "%.0f." e) 
+3.
+(format "%.1f" e) 
+2.7
+(format "%.2f" e) 
+2.72
+(format "%.6f" e) 
+2.718282
+(format "%f" e) 
+2.718282
+(format "%.7f" e) 
+2.7182818
+
+Si noti che se vengono specificati un punto e un numero, il numero (la precisione) indica quante posizioni devono essere visualizzate dopo il punto decimale. Si noti che se per %f non sono specificati punti e precisione, il valore predefinito è %.6f (sei cifre dopo il punto decimale). Si noti che se viene specificata una precisione pari a zero, anche il punto decimale scompare. Se lo vogliamo stampare comunque, allora dobbiamo inserirlo appositamente (dopo l'identificatore di formato %f.). Possiamo specificare sia una larghezza che una precisione allo stesso tempo. Si noti in particolare che 5.2 indica una larghezza totale di cinque, con due cifre dopo il punto decimale. È molto comune e naturale pensare che significhi cinque cifre prima del decimale e due cifre dopo, ma non è corretto: significa cinque cifre in totale (considerando anche il punto come una cifra) con due cifre dopo il punto decimale. Dobbiamo stare attenti. Comunque l'eventuale troncamento delle cifre vale solo per le cifre dopo il punto decimale: la parte intera del numero viene sempre stampata completamente, anche se la larghezza è inferiore alla dimensione del numero. Di seguito sono riportati alcuni esempi:
+
+(setq e 2.718281828)
+2.718281828
+(format "%f" e)
+;-> "2.718282"
+(format "%5.0f" e)
+;-> "    3"
+(format "%5.0f." e)
+;-> "    3."
+(format "%5.1f" e)
+;-> "  2.7"
+(format "%5.2f" e)
+;-> " 2.72"
+(format "%5.7f" e)
+;-> "2.7182818"
+
+Se la precisione è maggiore del numero delle cifre decimali del numero, allora vengono aggiunti degli zeri alla fine.
+Se la precisione è minore del numero delle cifre decimali del numero, allora l'ultima cifra decimale viene arrotondata.
+
+(setq x 1234.56789)
+(format "%3.2f" x)
+;-> "1234.57"
+(format "%3.5f" x)
+;-> "1234.56789"
+(format "%11.5f" x)
+;-> " 1234.56789"
+(format "%10.6f" x)
+;-> "1234.567890"
+(format "%11.6f" x)
+;-> "1234.567890"
+(format "%12.6f" x)
+;-> " 1234.567890"
+(format "%12.4f" x)
+;-> "   1234.5679"
+
+Possiamo anche combinare la precisione con i flag che abbiamo visto in precedenza, per specificare la giustificazione a sinistra, gli zeri iniziali, i segni più, ecc.
+
+(format "%5.1f" e)
+;-> "  2.7"
+(format "%-5.1f" e)
+;-> "2.7  "
+(format "%+5.1f" e)
+;-> " +2.7"
+(format "%-+5.1f" e)
+;-> "+2.7 "
+(format "%05.1f" e)
+;-> "002.7"
+(format "%+05.1f" e)
+;-> "+02.7"
+
+Progettare un formato di stampa
+-------------------------------
+Per definire un formato di stampa, il primo passo è decidere che tipi di oggetti occorre utilizzare. Se è un numero intero, un float, una stringa o un carattere, faremo scelte diverse sul formato di base da usare. La seconda domanda è quanto dovrebbe essere ampio il nostro campo. Di solito questa sarà la dimensione del numero più grande che ci aspettiamo di stampare in circostanze normali. 
+Il test del formato di stampa deve essere effettuato utilizzando i valori estremi dei nostri oggetti (es. con una larghezza minima e massima dei numeri e delle stringhe che dobbiamo trattare).
+Per analizzare una specifica di formato occorre utilizzare un processo di eliminazione per isolare le singole opzioni che intendiamo verificare. Per definire una specifica di formato occorre verificare ogni opzione durante la costruzione della specifica stessa.
+
+Prima e dopo
+------------
+Un'altra cosa importante da tenere d'occhio è il prima, il mezzo e il dopo del numero stampato. In una specifica di formattazione come "x%5dz" c'è una "x" prima del numero e una "z" dopo il numero. La "x" e la "z" non fanno parte della specifica del formato, ma fanno parte del risultato stampato. Tutto il resto che viene stampato si trova "tra". Dopo aver determinato cosa c'è prima e cosa dopo, possiamo analizzare la specifica di formato vera e propria.
+
+(format "x%5dz" 123)
+;-> "x  123z"
+
+Conclusioni
+-----------
+Le funzioni print/println/format sono uno strumento molto potente per stampare numeri e altri valori memorizzati nelle variabili. Con questo potere abbiamo anche una certa complessità. Presa tutta in una volta, la complessità fa sembrare lo strumento molto difficile da capire. Ma la complessità può essere facilmente suddivisa e spiegata in semplici funzionalità, tra cui larghezza, precisione, giustificazione e riempimento. Imparando a conoscere queste caratteristiche le attività di stampa saranno notevolmente semplificate.
+Quindi per utilizzare efficacemente le funzioni di stampa occorre semplicemente... fare pratica.
+
+Per finire vediamo altri esempi:
+
+*** Formattazione numeri interi
+
+Allineamento a destra
+(format "%3d" 0))
+;-> "  0"
+(format "%3d" 123456789)
+;-> "123456789"
+(format "%+5d" -10)
+;-> "  -10"
+(format "%+5d" 10)
+;-> "  +10"
+(format "%12d" -123456789)
+;-> "  -123456789"
+(format "%12d" 123456789)
+;-> "   123456789"
+(format "%+12d" 123456789)
+
+Allineamento a sinistra
+(format "%-3d" 0)
+;-> "0  "
+(format "%-3d" 123456789)
+;-> "123456789"
+(format "%+5d" -10)
+;-> "  -10"
+(format "%-12d" -123456789)
+;-> "-123456789  "
+(format "%-12d" 123456789)
+;-> "123456789   "
+(format "%-+12d" 123456789)
+;-> "+123456789  "
+
+Riempimento con zeri
+(format "%03d" 0)
+;-> "000"
+(format "%03d" 1)
+;-> "001"
+(format "%03d" 123456789)
+;-> "123456789"
+(format "%012d" 123456789)
+;-> "000123456789"
+(format "%05d" -10)
+;-> "-0010"
+(format "%012d" -123456789)
+;-> "-00123456789"
+(format "%-5d" -10)
+;-> "-10  "
+(format "%-+5d" 10)
+;-> "+10  "
+
+*** Formattazione numeri float
+
+(format "%.1f" 10.3456)
+;-> "10.3"
+(format "%.2f" 10.3456)
+;-> "10.35"
+(format "%8.2f" 10.3456)
+;-> "   10.35"
+(format "%8.4f" 10.3456)
+;-> " 10.3456"
+(format "%08.2f" 10.3456)
+;-> "00010.35"
+(format "%-8.2f" 10.3456)
+;-> "10.35   "
+(format "%-8.2f" 101234567.3456)
+;-> "101234567.35"
+
+*** Formattazione stringhe
+
+(format "%s"  "Ciao")
+;-> "Ciao"
+(format "%10s" "Ciao")
+;-> "      Ciao"
+(format "%-10s" "Ciao")
+;-> "Ciao      "
+
+

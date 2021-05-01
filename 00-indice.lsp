@@ -74,6 +74,7 @@ newLISP IN GENERALE
   XML e S-espressioni
   Analisi dei tempi di esecuzione delle funzioni
   Unificazione
+  Stampare con print/println/format
 
 FUNZIONI VARIE
 ==============
