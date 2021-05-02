@@ -8246,7 +8246,7 @@ Prefiss -> Prefissa
 
 Postfissa -> Prefissa
 (xlate "3 4 +")
-;-> (add 2 4)
+;-> (add 3 4)
 
 (xlate "3 + * 4")
 ;-> "ERR: missing argument for +"

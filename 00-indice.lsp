@@ -775,6 +775,9 @@ NOTE LIBERE 4
   Passeggiata casuale lungo una linea
   Serie di teste e croci (valore atteso)
   Ricerca con caratteri jolly (wildcard)
+  Funzioni logiche booleane
+  Tavole di verità
+  Numeri Brasiliani
 
 APPENDICI
 =========

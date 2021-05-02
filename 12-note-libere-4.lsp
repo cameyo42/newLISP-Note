@@ -1690,3 +1690,418 @@ Facciamo alcune prove:
 ;-> nil
 
 
+-------------------------
+Funzioni logiche booleane
+-------------------------
+
+newLISP mette a disposizione tre funzioni "and", "or" e "not" per l'algebra booleana (AND, OR e NOT). Con queste funzioni possiamo creare tutte le altre funzioni necessarie (es. NAND, XOR, NOR, ecc.). Per esempio:
+
+Funzione NAND
+(define (nand a b) (not (and a b)))
+
+Funzione NOR
+(define (nor a b) (not (or a b)))
+
+Funzione XOR
+(define (xor a b) (if (nand a b) (or a b) nil))
+
+Funzione XNOR
+(define (xnor a b) (not (xor a b)))
+
+Per ragioni di efficienza abbiamo utilizzato la funzione "nand" per definire "xor" e la funzione "xor" per definire "xnor", cioè abbiamo usato questo insieme di connettivi logici (not and or nand xor) per definire le funzioni che producono tutte le possibili tabelle di verità con due valori di ingresso (a b).
+
+Completezza funzionale
+----------------------
+In logica, un insieme funzionalmente completo di connettivi logici o operatori booleani è quello che può essere utilizzato per esprimere tutte le possibili tabelle di verità combinando i membri dell'insieme in un'espressione booleana. Un noto insieme completo di connettivi è (AND NOT), oppure (OR NOT). Anche ciascuno degli insiemi singleton (NAND) e (NOR) è funzionalmente completo.
+Questo vuol dire che l'insieme di operatori logici scelto è sufficiente per "esprimere tutte le possibili tabelle di verità". L'insieme di tutte le tabelle di verità indica tutti i possibili insiemi di 4 valori booleani che possono essere il risultato di un'operazione tra 2 valori booleani. Poiché ci sono 2 possibili valori per un booleano, ci sono 2^4 o 16 possibili tabelle di verità.
+
+A B | 0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15
+----+------------------------------------------------
+T T | T  T  T  T  T  T  T  T  F  F  F  F  F  F  F  F
+T F | T  T  T  T  F  F  F  F  T  T  T  T  F  F  F  F
+F T | T  T  F  F  T  T  F  F  T  T  F  F  T  T  F  F 
+F F | T  F  T  F  T  F  T  F  T  F  T  F  T  F  T  F
+
+Prendendo come esempio l'insieme (OR NOT), ecco una tabella di verità per i numeri (0-15) con la combinazione di OR e NOT che la producono e una descrizione.
+
+Tabella |  Operazione                         | Descrizione
+--------+----------------------------------+-------------
+  0     | A or not A                          | TRUE
+  1     | A or B                              | OR
+  2     | A or not B                          | B IMPLICA A
+  3     | A                                   | A
+  4     | not A or B                          | A IMPLICA B
+  5     | B                                   | B
+  6     | not(not A or not B) or not(A or B)  | XNOR (equals)
+  7     | not(not A or not B)                 | AND
+  8     | not A or not B                      | NAND
+  9     | not(A or not B) or not(not A or B)  | XOR
+ 10     | not B                               | NOT B
+ 11     | not(not A or B)                     | NOT A IMPLICA B
+ 12     | not A                               | NOT A
+ 13     | not(A or not B)                     | NOT B IMPLICA A
+ 14     | not(A or B)                         | NOR
+ 15     | not(A or not A)                     | FALSE
+
+Nota: in elettronica si preferisce utilizzare la porta NAND perchè fa due cose (la porta AND solo una). Una porta NAND è una porta AND seguita da una porta NOT. Quell'inversione "extra" (in realtà è gratuita nella maggior parte delle implementazioni di circuiti) la rende molto più versatile di una semplice AND. Possiamo creare tutte le altre funzioni logiche usando solo la porta NAND grazie al Teorema di DeMorgan, quindi in pratica è tutto ciò di cui abbiamo bisogno.
+
+
+----------------
+Tavole di verità
+----------------
+
+Scrivere una funzione che prende un'espressione logica in ingresso e restituisce la tavola di verità dell'espressione. Gli operatori logici consentiti sono "and", "or" e "not".
+
+Utilizziamo la funzione "xlate" che converte una espressione infissa in una espressione prefissa aggiungendo le seguenti funzioni logiche:
+
+; Funzione NAND
+(define (nand a b) (not (and a b)))
+; Funzione NOR
+(define (nor a b) (not (or a b)))
+; Funzione XOR
+(define (xor a b) (if (nand a b) (or a b) nil))
+; Funzione XNOR
+(define (xnor a b) (not (xor a b)))
+
+Funzione "xlate"
+
+; Main function
+(define (xlate str)
+(local (result operators)
+  (if (catch (infix-xlate str) 'result)
+    result                      ; if starts with ERR: is error else result
+    (append "ERR: " result))))  ; newLISP error has occurred
+; Auxiliary function
+(define (infix-xlate str)
+(local (tokens varstack opstack expression ops op nops var vars)
+; operator priority table
+; (token operator arg-count priority)
+  (set 'operators '(
+    ("=" setq 2 2)
+    ("+" add 2 3)
+    ("-" sub 2 3)
+    ("*" mul 2 4)
+    ("/" div 2 4)
+    ("^" pow 2 5)
+    ("abs" abs 1 9)
+    ("acos" acos 1 9)
+    ("asin" asin 1 9)
+    ("atan" atan 1 9)
+    ("sin" sin 1 9)
+    ("sqrt" sqrt 1 9)
+    ("tan" tan 1 9)
+    ("cos" cos 1 9)
+    ; added
+    ("not" not 1 9)
+    ("and" and 2 9)
+    ("or" or 2 9)
+    ("nand" nand 2 9)
+    ("nor" nor 2 9)
+    ("xor" xor 2 9)
+    ("xnor" xnor 2 9)
+  ; add what else is needed
+  ))
+  (set 'tokens (parse str))
+  (set 'varstack '())
+  (set 'opstack '())
+  (dolist (tkn tokens)
+  (case tkn
+        ("(" (push tkn opstack))
+        (")" (close-parenthesis))
+        (true (if (assoc tkn operators)
+                  (process-op tkn)
+                  (push tkn varstack)))))
+  (while (not (empty? opstack))
+        (make-expression))
+  (set 'result (first varstack))
+  (if (or (> (length varstack) 1) (not (list? result)))
+    (throw "ERR: wrong syntax")
+    result)))
+; pop all operators and make expressions
+; until an open parenthesis is found
+(define (close-parenthesis)
+ (while (not (= (first opstack) "("))
+    (make-expression))
+ (pop opstack))
+; pop all operator, which have higher/equal priority
+; and make expressions
+(define (process-op tkn)
+  (while (and opstack
+              (<= (lookup tkn operators 3) (lookup (first opstack) operators 3)))
+        (make-expression))
+  (push tkn opstack))
+; pops an operator from the opstack and makes/returns an
+; newLISP expression
+(define (make-expression)
+  (set 'expression '())
+  (if (empty? opstack)
+        (throw "ERR: missing parenthesis"))
+  (set 'ops (pop opstack))
+  (set 'op (lookup ops operators 1))
+  (set 'nops (lookup ops operators 2))
+  (dotimes (n nops)
+    (if (empty? varstack) (throw (append "ERR: missing argument for " ops)))
+    (set 'vars (pop varstack))
+    (if (atom? vars)
+            (if (not (or (set 'var (float vars))
+                         (and (legal? vars) (set 'var (sym vars))) ))
+                (throw (append vars "ERR: is not a variable"))
+                (push var expression))
+            (push vars expression)))
+  (push op expression)
+  (push expression varstack))
+
+(xlate "((a and b) or (c and (d or e)))")
+;-> (or (and a b) (and c (or d e)))
+
+(setq a nil b nil c true d nil e true)
+(eval (xlate "((a and b) or (c and (d or e)))"))
+;-> true
+
+(eval (xlate "(a nand b) or (c and e)"))
+;-> true
+
+Poi scriviamo una funzione che genera la tabella dei valori da assegnare alle variabili:
+
+(define (make-values num-vars)
+  (setq len num-vars)
+  (setq num (pow 2 len))
+  (setq out '())
+  (for (i 0 (- num 1))
+    (setq fmt (string "%0" len "s"))
+    ;(println (format fmt (bits i)))
+    (setq val (explode (format fmt (bits i))))
+    (replace "1" val true)
+    (replace "0" val nil)
+    (push val out -1)
+  )
+  out)
+
+(make-values 3)
+;-> ((nil nil nil) 
+;->  (nil nil true) 
+;->  (nil true nil) 
+;->  (nil true true) 
+;->  (true nil nil) 
+;->  (true nil true)
+;->  (true true nil)
+;->  (true true true))
+
+Inoltre abbiamo bisogno di una funzione che estrae le variabili dall'espressione di input:
+
+(define (extract-symbols exp-str)
+  (local (tmp)
+       (setq tmp (unique (parse exp-str)))
+       (setq tmp (difference tmp '("(" ")" "and" "or" "not" "nand" "nor" "xor" "xnor")))
+       (map sym tmp)))
+
+(extract-symbols "((a and b) or (c nand (d or e)))")
+;-> (a b c d e)
+
+(extract-symbols "(a xnor b) xor (c or a)")
+;-> (a b c)
+
+(define (truth-table exp-str)
+  (local (vars num-vars values binds res)
+    (setq vars (extract-symbols exp-str))
+    (setq num-vars (length vars))
+    (setq values (make-values num-vars))
+    (println exp-str)
+    (dolist (el vars)
+      (print (format "%4s" (string el)))
+    )
+    (println (format "%5s" "out"))
+    (dolist (val values)
+      (setq binds (map set vars val))
+      (dolist (el val)
+        ; print "true "nil"
+        ;(print (format "%5s" (string el)))
+        ; print "1" "0"
+        (if el
+            (print (format "%4s" "1"))
+            (print (format "%4s" "0"))
+        )
+      )
+      ; print "true "nil"
+      ;(println (format "%5s" (string (eval (xlate exp-str)))))
+      ; print "1 "0"
+      (setq res (eval (xlate exp-str)))
+      (if res
+          (println (format "%5s" "1"))
+          (println (format "%5s" "0"))
+      )
+    )
+    '----------))
+
+Facciamo alcune prove:
+
+(truth-table "(not (A and B))")
+;-> (not (A and B))
+;->    A   B  out
+;->    0   0    1
+;->    0   1    1
+;->    1   0    1
+;->    1   1    0
+;-> ----------
+
+(truth-table "(A nand B)")
+;-> (A nand B)
+;->    A   B  out
+;->    0   0    1
+;->    0   1    1
+;->    1   0    1
+;->    1   1    0
+
+(truth-table "(a or (b and c))")
+;-> (a or (b and c))
+;->    a   b   c  out
+;->    0   0   0    0
+;->    0   0   1    0
+;->    0   1   0    0
+;->    0   1   1    1
+;->    1   0   0    1
+;->    1   0   1    1
+;->    1   1   0    1
+;->    1   1   1    1
+;-> ----------
+
+(truth-table "(a xnor b) xor (c or a)")
+;-> (a xnor b) xor (c or a)
+;->    a   b   c  out
+;->    0   0   0    1
+;->    0   0   1    0
+;->    0   1   0    0
+;->    0   1   1    1
+;->    1   0   0    1
+;->    1   0   1    1
+;->    1   1   0    0
+;->    1   1   1    0
+;-> ----------
+
+(truth-table "((a and b) or (c and (d or e)))")
+;-> ((a and b) or (c and (d or e)))
+;->    a   b   c   d   e  out
+;->    0   0   0   0   0    0
+;->    0   0   0   0   1    0
+;->    0   0   0   1   0    0
+;->    0   0   0   1   1    0
+;->    0   0   1   0   0    0
+;->    0   0   1   0   1    1
+;->    0   0   1   1   0    1
+;->    0   0   1   1   1    1
+;->    0   1   0   0   0    0
+;->    0   1   0   0   1    0
+;->    0   1   0   1   0    0
+;->    0   1   0   1   1    0
+;->    0   1   1   0   0    0
+;->    0   1   1   0   1    1
+;->    0   1   1   1   0    1
+;->    0   1   1   1   1    1
+;->    1   0   0   0   0    0
+;->    1   0   0   0   1    0
+;->    1   0   0   1   0    0
+;->    1   0   0   1   1    0
+;->    1   0   1   0   0    0
+;->    1   0   1   0   1    1
+;->    1   0   1   1   0    1
+;->    1   0   1   1   1    1
+;->    1   1   0   0   0    1
+;->    1   1   0   0   1    1
+;->    1   1   0   1   0    1
+;->    1   1   0   1   1    1
+;->    1   1   1   0   0    1
+;->    1   1   1   0   1    1
+;->    1   1   1   1   0    1
+;->    1   1   1   1   1    1
+;-> ----------
+
+Nota: l'espressione deve contenere solo variabili, gli operatori logici "and", "or", "not" e i caratteri "(" ")".
+
+
+-----------------
+Numeri Brasiliani
+-----------------
+
+I numeri Brasiliani sono così chiamati come furono presentati formalmente per la prima volta durante le Olimpiadi IberoAmericane di matematica nel 1994 a Fortaleza, in Brasile.
+I numeri Brasiliani sono definiti come tutti i numeri interi positivi in ​​cui ogni numero N ha almeno un numero naturale B dove 1<B<N-1 dove la rappresentazione di N in base B ha tutte le cifre uguali.
+
+Per esempio:
+1, 2 e 3 non possono essere brasiliani: non esiste una base B che soddisfi la condizione 1<B<N-1.
+4 non è brasiliano: 4 in base 2 è 100. Le cifre non sono tutte uguali.
+5 non è brasiliano: 5 in base 2 è 101, in base 3 è 12. Non c'è rappresentazione B in cui le cifre sono le stesse.
+6 non è brasiliano: 6 in base 2 è 110, in base 3 è 20, in base 4 è 12. Non c'è rappresentazione B in cui le cifre sono le stesse.
+7 è brasiliano: 7 in base 2 è 111. C'è almeno una rappresentazione B in cui le cifre sono tutte uguali.
+8 è brasiliano: 8 in base 3 è 22. C'è almeno una rappresentazione B in cui le cifre sono tutte uguali.
+e così via...
+
+Tutti i numeri interi pari 2*P> = 8 sono brasiliani perché 2*P = 2*(P-1) + 2, che è 22 in base P-1 quando P-1>2. Ciò diventa vero quando P>=4.
+Più comune: per tutti gli interi R e S, dove R>1 e anche S-1>R, allora R*S è brasiliano perché R*S = R*(S-1) + R, che è RR in base S-1.
+Gli unici numeri problematici sono i quadrati dei numeri primi, dove R = S. Solo 11^2 è brasiliano in base 3.
+Tutti i numeri interi primi, che sono brasiliani, possono avere solo la cifra 1. Altrimenti si potrebbe fattorizzare la cifra, quindi non può essere un numero primo. Principalmente in forma di 111 in base Integer(sqrt(numero primo)). Deve essere un conteggio dispari di 1 per rimanere dispari come i numeri primi > 2.
+
+Funzione che verifica se le cifre di un numero in una base sono tutte uguali:
+
+(define (same-digits num base)
+(catch
+  (let (f (% num base))
+    (while (> (setq num (/ num base)) 0)
+      (if (!= (% num base) f) (throw nil))
+    )
+    true)))
+
+Funzione che verifica se un numero è brasiliano:
+
+(define (brasiliano? num)
+(catch
+  (cond ((< num 7) nil)
+        ((zero? (% num 2)) true)
+        (true
+          (for (b 2 (- num 2))
+            (if (same-digits num b) (throw true))
+          )
+          nil))))
+
+(brasiliano? 13)
+;-> true
+
+Funzone che calcola i primi N numeri brasiliani:
+
+(define (brasiliani num)
+  (local (k conta out)
+    (setq out '())
+    (setq conta 0)
+    (setq k 1)
+    (while (< conta num)
+      (cond ((brasiliano? k)
+             (push k out -1)
+             (++ conta))
+      )
+      (++ k)
+    )
+    out))
+
+(brasiliani 20)
+;-> (7 8 10 12 13 14 15 16 18 20 21 22 24 26 27 28 30 31 32 33)
+
+Funzione che calcola l'N-esimo numero brasiliano:
+
+(define (brasiliano-indice idx)
+  (local (k conta)
+    (setq conta 0)
+    (setq k 1)
+    (while (!= conta idx)
+      (if (brasiliano? k) (++ conta))
+      (++ k)
+    )
+    (- k 1)))
+
+(brasiliano-indice 20)
+;-> 33
+
+Vediamo quanto vale il 100.000-esimo numero brasiliano (e quanto tempo ci vuole a calcolarlo):
+
+(time (println (brasiliano-indice 100000)))
+;-> 110468
+;-> 964206.462 ; 16 minuti
+
+
