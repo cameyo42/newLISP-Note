@@ -2105,3 +2105,502 @@ Vediamo quanto vale il 100.000-esimo numero brasiliano (e quanto tempo ci vuole 
 ;-> 964206.462 ; 16 minuti
 
 
+------------------------
+Probabilità condizionata
+------------------------
+
+Si definisce "probabilità condizionata" di un evento A condizionata (subordinata) all'evento B e si indica con P(A|B), la probabilità che si verifichi A nell'ipotesi che B si sia già verificato.
+
+Eventi dipendenti
+-----------------
+Si hanno eventi dipendenti se il verificarsi o meno dell'evento B altera la probabilità del verificarsi del successivo evento A.
+
+Viene definita dalla relazione:
+
+            P(A ∩ B)
+  P(A|B) = ------------
+              P(B)
+
+e viceversa:
+
+            P(A ∩ B)
+  P(B|A) = ------------
+              P(A)
+
+dove:
+- P(A) è la probabilità che si verifichi l'evento A.
+- P(B) è la probabilità che si verifichi l'evento B.
+- P(A|B) è la probabilità che si verifichi l'evento A dopo che si è verificato l'evento B.
+- P(B|A) è la probabilità che si verifichi l'evento B dopo che si è verificato l'evento A.
+- P(A ∩ B) è la probabilità che in un singolo tentativo si verifichino simultaneamente l'evento A e l'evento B.
+
+Nel caso di eventi dipendenti tra loro, il teorema del prodotto (probabilità composta) vale:
+
+  P(A ∩ B) = P(A)*P(B|A) = P(B)*P(A|B)
+
+La probabilità dell'intersezione tra due eventi è uguale al prodotto delle probabilità di uno degli eventi per la probabilità condizionata dell'altro, purchè sia verificato il primo evento.
+
+Eventi indipendenti
+-------------------
+Due eventi A e B si dicono indipendenti se il verificarsi dell'uno non influenza il verificarsi dell'altro.
+Nel lancio di due dadi il risultato di uno non influenza il risultato dell'altro, però se si estraggono due carte
+da un mazzo (senza reinserimento) la probabilità di avere una carta nera la seconda volta è legata al fatto di avere incontrato o no una carta nera la prima volta, quindi questi eventi sono dipendenti.
+
+Se gli eventi A e B sono indipendenti fra loro risulta:
+
+  P(A|B)=P(A) e P(B|A)=P(B)
+
+Quindi le formule della probabilità condizionata diventano:
+
+          P(A ∩ B)
+  P(A) = ------------  ==>  P(A ∩ B) = P(A)*P(B)
+            P(B)
+
+          P(A ∩ B)
+  P(B) = ------------  ==>  P(A ∩ B) = P(A)*P(B)
+            P(A)
+
+La probabilità che in un singolo tentativo si verifichino gli eventi indipendenti A e B è pari al prodotto delle singole probabilità.
+
+Estendendo il teorema a tre eventi A, B e C abbiamo (ponendo D = A ∩ B):
+
+  P(A ∩ B ∩ C) = P(D|C) = P(D) * P(C|D) = P(A ∩ B) * P(C|(A ∩ B)) =
+
+               = P(A) * P(B|A) * P(C|(A ∩ B))
+
+Il teorema del prodotto viene ulteriormente semplificato nel caso gli eventi siano "collettivamente indipendenti", cioè quando ogni evento risulta indipendente non solo dagli altri, ma anche da tutte le possibili intersezioni:
+
+  P(A|C) = P(A)
+  P(C|A) = P(C)
+  P(B|C) = P(B)
+  P(A|(B ∩ C)) = P(A)
+  P(B|(A ∩ C)) = P(B)
+  P(C|(A ∩ B)) = P(C)
+
+in questo caso il teorema del prodotto vale (per tre eventi):
+
+  P(A ∩ B ∩ C) = P(A)*P(B)*P(A)
+
+La probabilità che in un singolo tentativo si verifichino gli eventi indipendenti A, B e C è pari al prodotto delle singole probabilità.
+
+Generalizzando per n eventi indipendenti E1, E2, ... ,En:
+
+  P(E1 ∩ E2 ∩ ... ∩ En) = P(E1) * P(E2) * ... * P(En)
+
+La probabilità che in un singolo tentativo si verifichino tutti gli eventi indipendenti di un insieme è pari al prodotto delle singole probabilità.
+
+Esempio eventi dipendenti
+-------------------------
+Il lancio di due dadi produce una somma di punti minore di 7, calcolare la probabilità che i due dadi abbiano lo stesso valore.
+
+I due  eventi sono:
+
+  A = somma dei punti minore di 7
+
+  6 · · · · · ·
+  5 ■ · · · · ·
+  4 ■ ■ · · · ·
+  3 ■ ■ ■ · · ·
+  2 ■ ■ ■ ■ · ·
+  1 ■ ■ ■ ■ ■
+    1 2 3 4 5 6
+
+  P(A) = 15/36
+
+  B = dadi con lo stesso valore
+
+  6 · · · · · ■
+  5 · · · · ■ ·
+  4 · · · ■ · ·
+  3 · · ■ · · ·
+  2 · ■ · · · ·
+  1 ■ · · · · ·
+    1 2 3 4 5 6
+
+  P(B) = 6/36 = 1/6
+
+Dai grafici si deduce che la probabilità che entrambi gli eventi si verifichino in un unico tentativo vale:
+
+  6 · · · · · ·
+  5 · · · · · ·
+  4 · · · · · ·
+  3 · · ■ · · ·
+  2 · ■ · · · ·
+  1 ■ · · · · ·
+    1 2 3 4 5 6
+
+  P(A ∩ B) = P(A) * P(B) = 3/36
+
+Adesso per calcolare P(B|A), cioè la probabilità che i due dadi abbiano lo stesso valore sapendo che la somma è un numero minore di 7, utilizziamo la formula della probabilità condizionata:
+
+            P(A ∩ B)         3/36
+  P(B|A) = ------------ = --------- = 3/15 = 1/5
+              P(A)          15/36
+
+In questo caso il fatto che gli eventi sono dipendenti lo si può riconosce dal fatto che risulta P(B|A) ≠ P(B):
+
+  P(B|A) = 1/5 ≠ (P|B) = 1/6
+
+
+Esempio eventi indipendenti
+---------------------------
+Estraendo una carta da un mazzo napoletano di 40 carte si ottiene una figura (Fante, Cavallo, Re). Qual'è la probabilità che la carta sia del seme Bastoni o Coppe?
+
+  A = estrazione figura (Fante o Cavallo o Re)
+
+  Denari  · · · · · · · ■ ■ ■
+  Spade   · · · · · · · ■ ■ ■
+  Bastoni · · · · · · · ■ ■ ■
+  Coppe   · · · · · · · ■ ■ ■
+          A 2 3 4 5 6 7 F C R
+
+  P(A) = 12/40 = 3/10
+
+  B = estrazione carta Bastoni o Coppe
+
+  Denari  · · · · · · · · · ·
+  Spade   · · · · · · · · · ·
+  Bastoni ■ ■ ■ ■ ■ ■ ■ ■ ■ ■
+  Coppe   ■ ■ ■ ■ ■ ■ ■ ■ ■ ■
+          A 2 3 4 5 6 7 F C R
+
+  P(B) = 20/40 = 1/2
+
+Dai grafici notiamo che se è stata già estratta una figura (A), la probabilità che si tratti di una carta Bastoni o Coppe (B) vale:
+
+  P(B|A) = 6/12 = 1/2
+
+Viceversa che se è stata già estratta una carta Bastoni o Coppe (B), la probabilità che si tratti di una figura (A) vale:
+
+  P(A|B) = 6/20 = 3/10
+
+L'intersezione dei due insiemi vale:
+
+  P(A ∩ B) = 6/40 = 3/20
+
+Applicando le formule della probabilità condizionata:
+
+             P(A ∩ B)       60/40
+  P(B|A) = ------------ = --------- = 6/12 = 1/2   ==> P(B|A) = P(B)
+               P(A)         12/40
+
+             P(A ∩ B)        6/20
+  P(A|B) = ------------ = --------- = 6/20 = 3/10  ==> P(A|B) = P(A)
+               P(B)         20/40
+
+
+------------------
+Teorema di Bayes 1
+------------------
+
+Un importante teorema della teoria della probabilità e della statistica è il teorema di Bayes che si basa sul concetto di probabilità condizionata. Viene impiegato per calcolare la probabilità della causa che, a priori, ha generato un dato evento verificato a posteriori.
+Una prima formulazione del teorema di Bayes (o teorema della probabilità delle cause) si ricava dal principio della probabilità composta. Consideriamo uno spazio dei campioni costituito da n eventi mutuamente (reciprocamente) esclusivi: A1, A2,...An.
+
+  +--------------+------+-------+-------------------+
+  |              |      |       |                   |
+  |  A1          |      |       |                   |
+  |              |      |       |                   |
+  |              |      |       |                   |
+  |              |      |       |                   |
+  |              |      |       |        +----------+
+  +--------------+      |       |        |          |
+  |                     |       |        |          |
+  |  A2                 |       |   A4   |   A5     |
+  |                     |  A3   |        |          |
+  +---------------------+-------+--------+----------+
+
+
+Ipotizziamo che questi eventi A1, A2,...An costituiscano una partizione dello spazio dei campioni. Questo significa che l'intersezione di due eventi qualsiasi è sempre nulla e l'unione di tutti gli eventi Ai costituisce lo spazio dei campioni (universo degli eventi).
+
+  +--------------+------+--------+-------------------+
+  |              |      |        |                   |
+  |  A1          |      |        |                   |
+  |      OOOOOOOOOOOOOOOOOOOOOOO |                   |
+  |      O       |      |      O |                   |
+  |      O  B∩A1 |      | B∩A3 O |                   |
+  |      O       | B∩A2 |      O |        +----------+
+  +------O-------+      |      O |        |          |
+  |      OOOOOOOOOOOOOOOOOOOOOOO |        |          |
+  |  A2                 |        |   A4   |   A5     |
+  |                     |  A3    |        |          |
+  +---------------------+------- +--------+----------+
+
+Consideriamo ora un altro evento B dello stesso spazio dei campioni e supponiamo che siano note le probabilità P(Ai) e le probabilità condizionate P(B|Ai). In queste condizioni è possibile calcolare la probabilità:
+
+  P(B) = P(A1)*P(B ∩ A1) + P(A2)*P(B ∩ A2) + ... + P(An)*P(B ∩ An)
+
+dove quando B ∩ Ai = (), si ha P(B ∩ Ai) = 0
+
+Per il teorema del prodotto risulta:
+
+  P(B ∩ Ai) = P(Ai)*P(B|Ai)
+
+e sostituendo nella formula per calcolare P(B):
+
+  P(B) = P(A1)*P(B|A1) + P(A2)*P(B|A2) + ... + P(An)*P(B|An) =
+         n
+       = ∑ P(Ai)*P(B|Ai)
+         i
+
+Teorema della probabilità assoluta
+
+  +--------------------------+
+  |         n                |
+  |  P(B) = ∑ P(Ai)*P(B|Ai)  |
+  |         i                |
+  +--------------------------+
+
+Esempio
+-------
+Ci sono tre cassetti uguali contenenti:
+- il primo 3 anelli d'argento (G) e 1 d'oro (O)
+- il secondo 1 anello d'argento (G) e 3 d'oro (O)
+- il terzo 2 anelli d'argento (G)
+Aprendo un cassetto a caso e prendendo un anello a caso, qual'è la probabilità di prendere un anello d'oro?
+
+     +------------------+
+  A1 |  G G G        O  |
+     +------------------+
+  A2 |  G          O O  |
+     +------------------+
+  A3 |  G G             |
+     +------------------+
+
+Indichiamo con B l'evento di aver trovato un anello d'oro e con A1 A2 e A3 l'eventualità di aver aperto il primo, il secondo o il terzo cassetto.
+Dato che i cassetti sono uguali possiamo assumere come probabilità :
+
+  P(A1) = P(A2) = P(A3) = 1/3
+
+Le probabilità valgono:
+
+  P(B|A1) = 1/4 (il primo cassetto contiene 1 anello su 4)
+  P(B|A2) = 2/3 (il primo cassetto contiene 2 anelli su 3)
+  P(B|A2) = 0   (il primo cassetto contiene 0 anelli su 2)
+
+Per il teorema della probabilità totale si ha
+
+  P(B) = P(A1)*P(B|A1) + P(A2)*P(B|A2) + P(A3)*P(B|A3) =
+       = 1/3*1/4 + 1/3*2/3 + 1/3*0 = 11/36
+
+Quindi aprendo un cassetto a caso, la probabilità di prendere un anello d'oro vale 11/36.
+
+Supponendo, ora, di sapere che l'evento B si è verificato calcoliamo la probabilità che si verifichi l'evento Ai. Dal teorema del prodotto si ha:
+
+  P(Ai ∩ B) = P(Ai)*P(B|Ai) = P(B)*P(Ai|B)
+
+da cui si ottiene:
+
+              P(Ai ∩ B)       P(Ai)*P(B|Ai)
+  P(Ai|B) = ------------- = -----------------
+                P(B)              P(B)
+
+Adesso sostituendo P(B) con il valore dato dalla formula della probabilità totale otteniamo la Formula di Bayes:
+
+  Formula di Bayes
+  +---------------------------------+
+  |               P(Ai)*P(B|Ai)     |
+  |  P(Ai|B) = -------------------  |
+  |              ∑ P(Ai)*P(B|Ai)    |
+  +---------------------------------+
+
+Esempio
+-------
+Ci sono tre urne A1 A2 e A3 che contengono delle palline:
+- A1: contiene 12 palline rosse e  8 verdi
+- A2: contiene 10 palline rosse e 15 verdi
+- A3: contiene  9 palline rosse e  6 verdi
+Si lancia un dado e se il punto non è superiore a 3 si estrae una pallina dall'urna A1, se viene un numero superiore a 4 si estrae una pallina dall'urna A2 e se esce il numero 4 si estrae la pallina dall'urna A3.
+Esce una pallina rossa: quale è la probabilità che essa sia stata estratta dall'urna A1?
+
+Indichiamo con:
+ R: pallina rossa
+ V: pallina verde
+
+Indichiamo con A1, A2 e A3 gli eventi
+ A1: viene estratta una pallina dall'urna A1
+ A2: viene estratta una pallina dall'urna A2
+ A3: viene estratta una pallina dall'urna A3
+
+Le probabilità di estrazione dai cassetti valgono:
+
+  P(A1) =  3/6 = 1/2 probabilità che venga estratta una pallina dall'urna A1.
+  P(A2) =  2/6 = 1/3 probabilità che venga estratta una pallina dall'urna A2.
+  P(A3) =  1/6 probabilità che venga estratta una pallina dall'urna A3.
+
+Per l'urna A1 abbiamo:
+
+  P(R|A1) = 12/20 = 3/5 probabilità di estrarre una pallina rossa dall'urna A1.
+  P(V|A1) = 8/20 = 2/5 probabilità di estrarre una pallina rossa dall'urna A1.
+
+Per l'urna A2 abbiamo:
+
+  P(R|A2) = 10/25 = 2/5 probabilità di estrarre una pallina rossa dall'urna A2.
+  P(V|A2) = 15/25 = 3/5 probabilità di estrarre una pallina verde dall'urna A2.
+
+Per l'urna A3 abbiamo:
+
+  P(R|A3) = 9/15 = 3/5 probabilità di estrarre una pallina rossa dall'urna A3.
+  P(V|A3) = 6/15 = 2/5 probabilità di estrarre una pallina verde dall'urna A3.
+
+in base al grafico seguente:
+
+     P(A1)=1/2
+  +-------------A1--+------R-- P(R|A1) = 3/5
+  |                 |
+  |                 +------V-- P(V|A1) = 2/5
+  |  P(A2)=1/3
+  +-------------A2--+------R-- P(R|A2) = 2/5
+  |                 |
+  |                 +------V-- P(V|A2) = 3/5
+  |  P(A3)=1/6
+  +-------------A3--+------R-- P(R|A3) = 3/5
+                    |
+                    +------V-- P(V|A3) = 2/5
+
+Quindi per la pallina rossa (R) avremo:
+
+  ∑ P(Ai)*P(R|Ai) = P(A1)*P(R|A1) + P(A2)*P(R|A2) + P(A2)*P(R|A3) = 8/15
+
+Adesso applicando il Teorema di Bayes otteniamo la probabilità che la pallina rossa sia stata estratta dall'urna A1:
+
+               P(A1)*P(R|A1)        3/5 * 1/2
+  P(A1|R) = ------------------- = ------------- = 9/16
+              ∑ P(Ai)*P(R|Ai)         8/15
+
+
+------------------
+Teorema di Bayes 2
+------------------
+
+Il teorema di Bayes (conosciuto anche come formula di Bayes o teorema della probabilità delle cause), proposto da Thomas Bayes (1702-1761), deriva da due teoremi fondamentali delle probabilità: il teorema della probabilità composta e il teorema della probabilità assoluta. Viene impiegato per calcolare la probabilità di una causa che ha scatenato l'evento verificato.
+Formalmente il teorema di Bayes è valido in tutte le interpretazioni della probabilità.
+
+Considerando un insieme di alternative A1,A2, ..., An che partizionano lo spazio degli eventi S (ossia (Ai ∩ Aj)=() per ogni i≠j e Unione(Ai)=S) vale la seguente espressione per la probabilità condizionata:
+
+              P(Ai)*P(E|Ai)         P(Ai)*P(E|Ai)
+  P(Ai|E) = ------------------- = -------------------
+                  P(E)             ∑ P(Aj)*P(E|Aj)
+
+dove:
+
+  P(A) è la probabilità a priori o probabilità marginale di A. "A priori" significa che non tiene conto di nessuna informazione riguardo E.
+  P(A|E) è la probabilità condizionata di A, noto E. Viene anche chiamata probabilità a posteriori, visto che è derivata o dipende dallo specifico valore di E.
+  P(E|A) è la probabilità condizionata di E, noto A.
+  P(E) è la probabilità a priori di E, e funge da costante di normalizzazione.
+
+Intuitivamente, il teorema descrive il modo in cui le opinioni nell'osservare A siano arricchite dall'aver osservato l'evento E.
+
+Il teorema deriva dalla definizione di probabilità condizionata. La probabilità di un evento A, noto un evento B, risulta:
+
+            P(A ∩ B)
+  P(A|B)= ------------
+              P(B)
+
+In modo analogo, la probabilità di un evento B noto un evento A:
+
+            P(A ∩ B)
+  P(B|A)= ------------
+              P(A)
+
+Pertanto:
+
+  P(A ∩ B) = P(B|A)*P(A)
+
+Sostituendo nella prima uguaglianza, si trova il teorema di Bayes:
+
+            P(A ∩ B)       P(B|A)*P(A)
+  P(A|B)= ------------ = ---------------
+              P(B)            P(B)
+
+Esempio
+-------
+Si consideri una scuola che ha il 60% di studenti maschi e il 40% di studentesse femmine.
+Le studentesse indossano in egual numero gonne o pantaloni mentre gli studenti indossano tutti quanti i pantaloni. Un osservatore, da lontano, nota un generico studente coi pantaloni. Qual è la probabilità che quello studente sia una femmina?
+
+Il problema può essere risolto con il teorema di Bayes, ponendo l'evento A che lo studente osservato sia femmina, e l'evento B che lo studente osservato indossi i pantaloni. Per calcolare P(A|B), dovremo sapere:
+
+P(A), ovvero la probabilità che lo studente sia femmina senza nessun'altra informazione. Dato che l'osservatore vede uno studente a caso, ciò significa che tutti gli studenti hanno la stessa probabilità di essere osservati. Essendo le studentesse il 40% del totale, la probabilità risulterà 2/5.
+
+P(A'), ovvero la probabilità che lo studente sia maschio senza nessun'altra informazione. Essendo A' l'evento complementare di A, risulta 3/5.
+
+P(B|A), ovvero la probabilità che uno studente femmina indossi i pantaloni (ossia la probabilità che, verificato l'evento che lo studente sia femmina, si verifichi l'evento che indossi i pantaloni). Poiché indossano gonne e pantaloni in egual numero, la probabilità sarà di 1/2.
+
+P(B|A'), ovvero la probabilità che uno studente indossi i pantaloni, noto che lo studente è maschio. Tutti gli studenti maschi indossano i pantaloni, quindi vale 1.
+
+P(B), ovvero la probabilità che uno studente qualsiasi (maschio o femmina) indossi i pantaloni. Poiché il numero di coloro che indossano i pantaloni è di 80 (60 maschi + 20 femmine) su 100 studenti fra maschi e femmine, la probabilità P(B) è di 80/100 = 4/5.
+
+Adesso possiamo applicare il teorema:
+
+          P(B|A)*P(A)       1/2 * 2/5
+P(A|B)= --------------- = ------------- = 1/4
+             P(B)              4/5
+
+Quindi la probabilità che lo studente sia femmina vale 1/4, cioè il 25%.
+
+Nota: in questo semplice esempio, la verifica dell'esattezza del risultato è immediata se consideriamo la definizione di "probabilità di un evento" = "numero dei casi favorevoli all'evento/numero dei casi possibili". Il numero dei casi possibili che lo studente/studentessa osservato indossi i pantaloni vale 80 (60 maschi + 20 femmine) mentre quello dei casi favorevoli (cioè le femmine che indossano pantaloni) è 20, quindi la probabilità che si tratti di una femmina è 20/80 cioè 1/4.
+
+Sensibilità e Specificità
+---------------------------
+La "Sensibilità" e la "Specificità" sono misure statistiche delle prestazioni di un test di classificazione binario e furono introdotti dal biostatistico americano Jacob Yerushalmy nel 1947:
+
+"Sensibilità" (tasso di veri positivi): misura la proporzione di positivi identificati correttamente (cioè la proporzione di coloro che hanno una condizione (affetta) che sono correttamente identificati come affetti dalla condizione).
+
+"Specificità" (tasso veri negativi): misura la proporzione di negativi che sono correttamente identificati (cioè la proporzione di coloro che non hanno la condizione (non affetti) che sono correttamente identificati come non affetti dalla condizione).
+
+I termini "vero positivo", "falso positivo", "vero negativo" e "falso negativo" si riferiscono al risultato di un test e alla correttezza della classificazione. Ad esempio, se la condizione è una malattia, "vero positivo" significa "correttamente diagnosticato come malato", "falso positivo" significa "erroneamente diagnosticato come malato", "vero negativo" significa "correttamente diagnosticato come non malato" e "falso negativo "significa" diagnosticato erroneamente come non malato". 
+Pertanto, se la sensibilità di un test è del 97% e la sua specificità è del 92%, il suo tasso di falsi negativi è del 3% e il suo tasso di falsi positivi è dell'8%. 
+
+In un test diagnostico, la sensibilità è una misura della capacità di un test di identificare i veri positivi. 
+La sensibilità può anche essere definita come il tasso di richiamo, il tasso di successo o il tasso di vero positivo. È la percentuale, o proporzione, di veri positivi su tutti i campioni che presentano la condizione (veri positivi e falsi negativi). La sensibilità di un test può aiutare a mostrare quanto bene può classificare i campioni che hanno la condizione.
+
+In un test, la specificità è una misura della capacità di un test di identificare i veri negativi. La specificità viene anche definita selettività o tasso di veri negativi ed è la percentuale, o proporzione, dei veri negativi tra tutti i campioni che non presentano la condizione (veri negativi e falsi positivi).
+
+In un test "buono" (uno che cerca di identificare con precisione le persone che hanno la condizione), i falsi positivi dovrebbero essere molto bassi. Cioè, le persone identificate come affette da una condizione dovrebbero avere molte probabilità di avere veramente la condizione. Questo perché le persone identificate come affette da una condizione (ma che non ce l'hanno, in verità) possono essere sottoposte a grande stress.
+
+Per tutti i test, sia diagnostici che di screening, esiste un compromesso tra sensibilità e specificità. Sensibilità più elevate significheranno specificità inferiori e viceversa.
+
+Esempio
+-------
+Supponiamo che un test per determinare se qualcuno ha usato cannabis sia "Sensibile" al 90%, il che significa che il Tasso di Veri Positivi (TPR) = 0,90. Pertanto porta al 90% di risultati positivi veri (corretta identificazione del consumo di droga) per i consumatori di cannabis.
+
+Il test è anche "Specifico" all'80%, il che significa che il "Tasso di Veri Negativi" (TNR) = 0,80. Pertanto il test identifica correttamente l'80% di risultati negativi veri (corretta identificazione di non utilizzo) per i non-drogati, ma genera anche il 20% di falsi positivi, o Tasso di Falsi Positivi (FPR) = 0,20, per i non-drogati.
+
+Assumendo una "Prevalenza" dello 0,05, ovvero il 5% delle persone usa cannabis, qual è la probabilità che una persona a caso che risulta positiva al test sia davvero un consumatore di cannabis?
+
+Il "Valore Predittivo Positivo" (PPV) di un test è il rapporto tra il numero di persone che sono effettivamente positive e il numero di persone risultate positive e può essere calcolato da un campione come:
+
+  PPV = Veri_positivi / Testati_positivi
+
+Se si conoscono "Sensibilità", "Specificità" e "Prevalenza", il PPV può essere calcolato utilizzando il teorema di Bayes.
+
+Poniamo che P(Consumatore|Positivo) = P(C|P) significa "la probabilità che qualcuno sia un consumatore di cannabis dato che risulta positivo al test " (che è ciò che si intende per PPV). Inoltre P(Positivo|Non-consumatore) = P(P|N) è "la probabilità che qualcuno risulti positivo non essendo consumatore di cannabis".
+Allora possiamo scrivere:
+
+             P(P|C)*P(C)             P(P|C)*P(C)
+  P(C|P) = --------------- = ----------------------------- =
+                P(P)           P(P|C)*P(C) + P(P|N)*P(N)
+
+                 0.9 * 0.05
+         = ----------------------- = 0.19148... (19.1%)
+             0.9*0.05 + 0.2*0.95
+
+Il fatto che P(P) = P(P|U)*P(U) + P(P|N)*P(N) è un'applicazione diretta della Legge della Probabilità Totale. In questo caso, dice che la probabilità che qualcuno sia positivo è la probabilità che un consumatore sia positivo, moltiplicata per la probabilità di essere un consumatore, più la probabilità che un non consumatore risulti positivo, moltiplicata per la probabilità di essere un non consumatore .
+
+Questo è vero perché le classificazioni consumatore e non consumatore formano una partizione di un insieme, cioè l'insieme di persone che fanno il test antidroga. Ciò combinato con la definizione di probabilità condizionale risulta nella dichiarazione di cui sopra.
+
+Anche se qualcuno risulta positivo, la probabilità che sia un consumatore di cannabis è solo del 19%, perché in questo gruppo solo il 5% delle persone sono consumatori, la maggior parte dei positivi sono falsi positivi provenienti dal restante 95%.
+
+Se sono state testate 1.000 persone:
+- 950 sono non consumatori e 190 di loro danno un falso positivo (0,20 × 950)
+- 50 di loro sono consumatori e 45 di loro danno un vero positivo (0,90 × 50)
+
+Le 1.000 persone quindi producono 235 test positivi, di cui solo 45 sono veri consumatori di droghe, circa il 19%.
+
+In definitiva abbiamo:
+
+1) Consumatori e Positivi: 45 su 50
+2) Non consumatori e Positivi: 190 su 950
+3) Non consumatori e negativi: 750 su 950
+4) Consumatori e negativi: 5 su 50
+
+

@@ -778,6 +778,9 @@ NOTE LIBERE 4
   Funzioni logiche booleane
   Tavole di verità
   Numeri Brasiliani
+  Probabilità condizionata
+  Teorema di Bayes 1
+  Teorema di Bayes 2
 
 APPENDICI
 =========
