@@ -781,6 +781,8 @@ NOTE LIBERE 4
   Probabilità condizionata
   Teorema di Bayes 1
   Teorema di Bayes 2
+  Probabilità bayesiane
+  Dadi
 
 APPENDICI
 =========

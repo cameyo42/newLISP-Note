@@ -781,6 +781,8 @@ NOTE LIBERE 4
   Probabilità condizionata
   Teorema di Bayes 1
   Teorema di Bayes 2
+  Probabilità bayesiane
+  Dadi
 
 APPENDICI
 =========
@@ -91921,6 +91923,238 @@ In definitiva abbiamo:
 2) Non consumatori e Positivi: 190 su 950
 3) Non consumatori e negativi: 750 su 950
 4) Consumatori e negativi: 5 su 50
+
+
+---------------------
+Probabilità bayesiane
+---------------------
+
+In newLISP, due funzioni, "bayes-train" e "bayes-query", lavorano insieme per fornire un modo semplice per calcolare le probabilità bayesiane per insiemi di dati.
+Vediamo come utilizzare le due funzioni per prevedere la probabilità che un breve testo sia stato scritto da uno di due autori.
+Prima di tutto, scegliamo i testi "The Sign of Four" di Conan Doyle e "The Picture of Dorian Gray" di Oscar Wilde e poi generiamo il relativo set di dati per ciascuno.
+
+(silent
+(setq doyle-data
+  (parse (lower-case
+         (read-file "sign-of-four.txt")) {\W} 0)))
+
+Il parametro {\W} indica a regex di prendere solo le parole (Words).
+
+Vediamo come è strutturato il set di dati:
+
+(length doyle-data)
+;-> 59456
+(slice doyle-data 100 20)
+;-> ("some" "little" "time" "his" "eyes" "rested"
+;->  "thoughtfully" "" "upon" "the" "sinewy" "forearm"
+;->  "and" "wrist" "all" "dotted" "and" "scarred" "with" "")
+
+(silent
+(setq wilde-data
+  (parse (lower-case
+         (read-file "dorian-grey.txt")) {\W} 0)))
+
+(length wilde-data)
+;-> 110762
+(slice wilde-data 100 20)
+;-> ("are" "corrupt" "without" "" "being" "charming"
+;->  "" "" "this" "is" "a" "fault" "" "" "" ""
+;->  "those" "who" "find" "beautiful")
+
+La funzione "bayes-train" può ora scansionare queste due liste di dati e memorizzare le frequenze delle parole in un nuovo contesto, che chiameremo Lessico:
+
+(bayes-train doyle-data wilde-data 'Lessico)
+;-> (59456 110762)
+
+Questo contesto ora contiene un elenco di parole che ricorrono nei testi e le frequenze di ciascuna. Ad esempio:
+
+Lessico:_always
+;-> (21 110)
+
+cioè la parola "always" appare 21 volte nel testo di Doyle e 110 volte in quello di Wilde.
+
+Possiamo salvare il contesto "Lessico" in un file:
+
+(save "lessico.lsp" 'Lessico)
+;-> true
+
+Per essere pronto ad essere caricato quando è necessario con:
+
+(load "lessico.lsp")
+;-> MAIN
+
+Adesso possiamo usare la funzione "bayes-query" per analizzare una lista di parole contro quelle del contesto "Lessico" e restituire due valori: la probabilità delle parole di appartenere alla prima lista di parole (doyle-data) o alla seconda lista di parole (wilde-data).
+
+Vediamo tre domande:
+
+1) Parole da analizzare: "the latest vegetable alkaloid" prese dal libro di Conan Doyle "A Study in Scarlet".
+
+(setq frase1
+  (bayes-query (parse (lower-case
+                "the latest vegetable alkaloid") {\W} 0)
+               'Lessico))
+;-> (0.9888389301533436 0.01116106984665644)
+
+Questo significa che la frase è attribuita a Doyle al 97.3% e al 2.7% a Wilde.
+
+2) Parole da analizzare: "after breakfast he flung himself down on a divan and lit a cigarette" prese dal libro di Oscar Wilde "Lord Arthur Savile's Crime".
+
+(setq frase2
+  (bayes-query (parse (lower-case
+                "after breakfast he flung himself down on a divan and lit a cigarette" ){\W} 0)
+               'Lessico))
+;-> (0.02500058589218207 0.9749994141078178)
+
+Questo significa che la frase è attribuita a Doyle al 2.5% e al 97.5% a Wilde.
+
+3) Parole da analizzare: "observations of threadbare morality to listen to" prese dal libro di Jane Austin "Pride and Prejudice" .
+
+(setq frase3
+  (bayes-query (parse (lower-case
+                "observations of threadbare morality to listen to" ) {\W} 0)
+               'Lessico))
+;-> (0.5 0.5)
+
+Questo significa che la frase è attribuita a Doyle al 50% e al 50% a Wilde, cioè non è in grado di decidere a quale dei due appartenga la frase (stesse probabilità).
+
+
+Proviamo a togliere tutte le parole vuote da entrambi i set di dati e vedere se otteniamo risultati diversi:
+
+Eliminiamo il contesto di training precedente:
+
+(delete 'Lessico)
+
+Togliamo le parole vuote "":
+
+(silent (setq d-data (clean null? doyle-data)))
+(length d-data)
+;-> 43814
+(silent (setq w-data (clean null? wilde-data)))
+(length w-data)
+;-> 80416
+
+Creazione del contesto di training:
+
+(bayes-train d-data w-data 'Lessico)
+;-> (43814 80416)
+
+Esecuzione delle tre domande:
+
+(setq frase1
+  (bayes-query (parse (lower-case
+                "the latest vegetable alkaloid") {\W} 0)
+               'Lessico))
+;-> (0.988422932469966 0.01157706753003401)               
+
+(setq frase2
+  (bayes-query (parse (lower-case
+                "after breakfast he flung himself down on a divan and lit a cigarette" ){\W} 0)
+               'Lessico))
+;-> (0.02340957380124487 0.9765904261987551)
+
+(setq frase3
+  (bayes-query (parse (lower-case
+                "observations of threadbare morality to listen to" ) {\W} 0)
+               'Lessico))
+;-> (0.5 0.5)
+
+I risultati sono sostanzialmente gli stessi.
+
+
+----
+Dadi
+----
+
+I dadi comuni sono piccoli cubi, il più delle volte 16mm (0,63 pollici) di diametro, le cui facce sono numerate da uno a sei, di solito con punti rotondi chiamati pips (anche se occasionalmente si vede l'uso di numeri arabi).
+
+I dadi sono misurati in millimetri (mm) da un lato all'altro e, sebbene le dimensioni dei dadi possano variare da 5mm fino a 100mm o più, ci sono alcune dimensioni dei dadi considerate "standard": 5mm, 12mm, 16mm, 19mm, 25mm e 50mm.
+
+Un pollice equivale a 25.4 millimetri, quindi un dado da 16mm ha una dimensione di circa 2/3 di pollice e un dado da 19mm è di circa 3/4 di pollice.
+
+I valori dei numeri dei lati opposti di un dado moderno sommano a sette, richiedendo che le facce 1, 2 e 3 condividano un vertice. Le facce di un dado possono essere posizionate in senso orario o antiorario attorno a questo vertice. Se le facce 1, 2 e 3 girano in senso antiorario, il dado viene chiamato "destrorso". Se quelle facce girano in senso orario, il dado viene chiamato "mancino".
+I dadi occidentali sono normalmente destrorsi, mentre i dadi cinesi sono normalmente mancini.
+
+Senso anti-orario (destrorso "right-handed"):
+
+  +---+
+  | 3 |
+  +---+---+---+---+
+  | 6 | 5 | 1 | 2 |
+  +---+---+---+---+
+  | 4 |
+  +---+
+
+Senso orario (mancino "left-handed"):
+
+  +---+
+  | 4 |
+  +---+---+---+---+
+  | 6 | 5 | 1 | 2 |
+  +---+---+---+---+
+  | 3 |
+  +---+
+
+Nota: vengono scambiate le posizioni del 3 e del 4.
+
+I dadi comunemente disponibili favoriscono alcuni numeri più di altri perché alcuni lati sono più leggeri dei lati opposti a causa del diverso numero di "pin" e anche perché ci sono altre imprecisioni nel processo di produzione. Questo fatto diventerà evidente solo dopo un numero considerevolmente alto di lanci. Se questo è un problema, allora possiamo prendere i dadi di precisione utilizzati nei casinò "casino dice".
+
+I dadi del casinò sono chiamati dadi perfetti o di precisione a causa del modo in cui sono fatti. Sono il più vicino possibile ad essere veri cubi perfetti, misurati entro una frazione di millimetro, fabbricati in modo che ogni dado abbia la stessa possibilità di atterrare su una qualsiasi delle sue sei facce.
+Questi dadi vengono realizzati a mano in acetato di cellulosa con una tolleranza di 0.0005 di pollice. I punti vengono forati e riempiti con materiale di peso uguale a quello rimosso. Di solito i lati sono a filo e i bordi affilati. Sono prevalentemente rossi trasparenti ma possono essere disponibili in altri colori come il verde, il viola o il blu. Alcuni dadi da casinò possono avere una finitura levigata che li renderà traslucidi e non completamente trasparenti. I punti sono generalmente solidi ed è possibile trovare un numero di disegni diversi, comunque si ritiene che tutti i dadi da casinò dovrebbero essere "destrorsi" e avere la stessa disposizione convenzionale di facce e pin.
+
+Vediamo come simulare il lancio di dadi.
+
+Funzione che ritorna l'opposto del numero di un dado a sei facce:
+
+(define (dado-opposto num) (- 7 num))
+
+Scriviamo una funzione che simula il lancio di N dadi ognuno con F facce:
+
+(rand 6 10)
+;-> (4 1 4 2 5 4 0 2 3 2)
+
+(define (dado num-dadi num-facce)
+  (+ num-dadi (apply + (rand num-facce num-dadi))))
+
+Scriviamo una funzione che calcola la probabilità di ogni numero generato dalla funzione "dado" con parametri predefiniti:
+
+(define (test-dado num-dadi num-facce iter)
+  (local (out max-val)
+    ; valore massimo
+    (setq max-val (* num-dadi num-facce))
+    ; vettore delle frequenze
+    (setq out (array (+ max-val 1) '(0)))
+    ; ciclo di simulazione
+    (for (i 1 iter)
+      ; aumenta la frequenza del numero uscito
+      (++ (out (dado num-dadi num-facce)))
+    )
+    ; calcola la percentuale di ogni frequenza
+    (map (fn(x) (round (div x iter) -4)) (slice out 1))))
+
+Facciamo alcune prove:
+
+Un dado da 6:
+(test-dado 1 6 100000)
+;-> (0.1653 0.1679 0.1662 0.1672 0.1679 0.1655)
+I numeri 1..6 sono tutti equiprobabili.
+
+Due dadi da 12:
+(test-dado 2 6 100000)
+;-> (0 0.0273 0.056 0.0833 0.1111 0.1388 0.1672 0.1401 0.1103 0.0827 0.0552 0.028)
+Il numero 7 è più probabile in 1..12.
+Il numero 1 non è possibile (percentuale = 0).
+
+Tre dadi da 6:
+(test-dado 3 6 1000000)
+;-> (0 0 0.0049 0.0139 0.0286 0.0467 0.0695 0.0946 0.1162 0.1248
+;->  0.1251 0.1162 0.0964 0.0702 0.0463 0.0278 0.0139 0.0048)
+
+Tre dadi da 6 (più iterazioni):
+(test-dado 3 6 1e8)
+;-> (0 0 0.0046 0.0139 0.0278 0.0463 0.0695 0.0973 0.1157 0.125
+;->  0.125 0.1158 0.0972 0.0694 0.0463 0.0278 0.0139 0.0046)
+I numero 10 e 11 sono più probabili in 1..18.
+I numeri 1 e 2 non sono possibili (percentuale = 0).
 
 
 ===========
