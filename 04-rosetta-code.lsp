@@ -11377,3 +11377,161 @@ Vediamo i tempi di calcolo:
 ;-> 378928.914 ;6 minuti e 20 secondi (circa)
 
 
+---------
+JORT SORT
+---------
+
+Nota: JortSort è considerato un'opera di satira. Raggiunge il suo risultato in modo intenzionalmente indiretto. La soluzione deve essere nello spirito del jortsort originale piuttosto che cercare di scrivere la versione più efficiente.
+
+"JortSort è un uno strumento di ordinamento che lascia all'utente l'onere di svolgere il lavoro e garantisce efficienza perché non è necessario ordinare mai più." Jenn "Moneydollars" Schiffer al JSConf.
+
+JortSort è una funzione che accetta come argomento una singola lista di oggetti comparabili.
+Quindi ordina la lista in ordine crescente e confronta la lista ordinato con la lista originariamente fornita.
+Se le liste corrispondono (ovvero la lista originale era già ordinata), la funzione restituisce true.
+Se le liste non corrispondono (ovvero la lista originale non è stato ordinata), la funzione restituisce false (nil).
+
+(define (jort-sort lst)
+  (if (= lst (sort (copy lst))) 
+      true 
+      nil))
+
+(jort-sort '(1 2 3 5 2))
+;-> nil
+(jort-sort '(1 2 3 5 11))
+;-> true
+
+
+-----------------------------
+FUNZIONI MUTUAMENTE RICORSIVE
+-----------------------------
+
+Scrivere due funzioni mutuamente (reciprocamente) ricorsive che calcolano gli elementi delle sequenze di Hofstadter "Female" e "Male" definite come:
+
+F(0) = 1
+M(0) = 0
+F(n) = n - M(F(n-1)), per n>0
+M(n) = n - F(M(n-1)), per n>0
+
+I primi termini di questa sequenze sono:
+
+F: 1, 1, 2, 2, 3, 3, 4, 5, 5, 6, 6, 7, 8, 8, 9, 9, 10, 11, 11, 12, 13, ... (A005378 OEIS)
+M: 0, 0, 1, 2, 2, 3, 4, 4, 5, 6, 6, 7, 7, 8, 9, 9, 10, 11, 11, 12, 12, ... (A005379 OEIS)
+
+(define (female num)
+  (if (= num 0) 1
+      (- num (male (female (- num 1))))))
+
+(define (male num)
+  (if (= num 0) 0
+      (- num (female (male (- num 1))))))
+
+(for (i 0 20) (print (female i) { }))
+;-> 1 1 2 2 3 3 4 5 5 6 6 7 8 8 9 9 10 11 11 12 13
+(for (i 0 20) (print (male i) { }))
+;-> 0 0 1 2 2 3 4 4 5 6 6 7 7 8 9 9 10 11 11 12 12
+
+Un altro esempio di coppia di funzioni mutuamente ricorsive è la seguente:
+
+(define (pari? num)
+  (cond ((zero? num) true)
+        (true (dispari (- num 1)))))
+
+(define (dispari? num)
+  (cond ((zero? num) nil)
+        (true (pari (- num 1)))))
+
+(pari? 237)
+;-> nil
+(pari? 200)
+;-> true
+
+(dispari? 237)
+;-> true
+(dispari? 200)
+;-> nil
+
+
+-----------------------
+NUMERI IN BASE NEGATIVA
+-----------------------
+
+I numeri in base negativa sono un modo alternativo per codificare i numeri senza la necessità di un segno meno. È possibile utilizzare varie basi negative, tra cui negadecimale (base -10), negabinario (-2) e negativo. I numeri di base negativi sono un modo alternativo per codificare i numeri senza la necessità di un segno meno.
+
+Una base negativa può essere utilizzata per costruire un sistema numerico posizionale non standard. Come altri sistemi a valore posizionale, ogni posizione contiene multipli della potenza appropriata della base del sistema, solo che in questo caso la base è negativa, cioè la base b è uguale a −r per qualche numero naturale r (r ≥ 2).
+
+I sistemi a base negativa possono contenere tutti gli stessi numeri dei sistemi di valori di posizione standard, ma sia i numeri positivi che quelli negativi sono rappresentati senza l'uso di un segno meno (o, nella rappresentazione del computer, un bit di segno). Questo vantaggio è controbilanciato da una maggiore complessità delle operazioni aritmetiche. La necessità di memorizzare le informazioni normalmente contenute da un segno negativo si traduce spesso in un numero in base negativa più lungo di una cifra rispetto al suo equivalente in base positiva.
+
+Esempio
+Rappresentazione del numero 12243 nel sistema negadecimale (b = −10):
+
+Multipli
+  (−10)^4 = 10000  (−10)^3 = −1000  (−10)^2 = 100  (−10)^1 = −10  (−10)^0 = 1
+          1                2                2              4              3
+
+Poiché 10000 + (−2000) + 200 + (−40) + 3 = 8163, la rappresentazione 12243(−10) in notazione negadecimale è equivalente a 8163(10) in notazione decimale, mentre −8163(10) in decimale sarebbe scritto 9977(−10) in negadecimale.
+
+Scriviamo due funzioni che codificano/decodificano un numero in base negativa:
+
+Funzione che converte un numero in base 10 nel numero (stringa) corrispondente in una certa base negativa:
+
+(define (to-neg-base num bn)
+  (local (digits nn val out)
+    (setq digits "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz")
+    (cond ((or (< bn -62) (> bn -1)) nil)
+          ((zero? num) "0")
+          (true
+           (setq out "")
+           (setq nn (bigint num))
+           (until (zero? nn 0)
+             (setq val (% nn bn))
+             (setq nn (/ nn bn))
+             (if (< val 0)
+                 (setq nn (+ nn 1) val (- val bn))
+             )
+             (push (digits val) out)
+           ))
+     )
+     out))
+
+Facciamo alcune prove:
+
+(to-neg-base 8163 -10)
+;-> "12243"
+(to-neg-base -8163 -10)
+;-> "9977"
+
+(define (from-neg-base ns b)
+  (local (digits nn val out)
+    (setq digits "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz")
+    (cond ((or (< b -62) (> b -1)) nil)
+          ((zero? ns) "0")
+          (true
+           (setq out 0)
+           (setq bb 1L)
+           (for (i (- (length ns) 1) 0 -1)
+             (setq out (+ out (* (find (ns i) digits) bb)))
+             (setq bb (* bb b))
+           ))
+    )
+    out))
+
+Facciamo alcune prove:
+
+(from-neg-base "12243" -10)
+;-> 8163
+(from-neg-base "9977" -10)
+;-> -8163
+(from-neg-base "11110" -2)
+;-> 10
+
+(from-neg-base (to-neg-base 1234567890 -10) -10)
+;-> 1234567890
+(to-neg-base (from-neg-base "1234567890" -10) -10)
+;-> "1234567890"
+
+(from-neg-base "newLISP" -62)
+2747418320417
+(to-neg-base 2747418320417 -62)
+;-> "newLISP"
+
+

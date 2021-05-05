@@ -304,6 +304,9 @@ ROSETTA CODE
   Sequenza Thue-Morse
   Numeri di Bell
   Numeri auto-descrittivi
+  Jort sort
+  Funzioni mutuamente ricorsive
+  Numeri in base negativa
 
 PROJECT EULERO
 ==============
@@ -783,6 +786,7 @@ NOTE LIBERE 4
   Teorema di Bayes 2
   Probabilità bayesiane
   Dadi
+  replace multiplo
 
 APPENDICI
 =========

@@ -6490,6 +6490,37 @@ Usiamo la funzione creata "somma-10":
 (somma-10 3)
 ;-> 13
 
+newbert ha proposto il segente metodo alternativo (more lisp-ish):
+
+(define (make-adder x)
+  (letex (y x)
+    (fn (z) (+ y z))))
+
+Proviamo:
+
+(setq add2 (make-adder 2))
+;-> (lambda (z) (+ 2 z))
+add2
+;-> (lambda (z) (+ 2 z))
+(println (add2 4))
+;-> 6
+
+Con una macro possiamo anche passare il nome della funzione da creare:
+
+(define-macro (make-adder)
+  (local (name val)
+    (bind (args) true)
+    (set (expand name 'name) (expand (lambda (x) (+ val x)) 'val))))
+
+Proviamo:
+
+(make-adder (name 'add10) (val 10))
+;-> (lambda (x) (+ 10 x))
+add10
+;-> (lambda (x) (+ 10 x))
+(println (add10 3))
+;-> 13
+
 
 ------------------------
 Input utente multi-linea

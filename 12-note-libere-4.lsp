@@ -2836,3 +2836,46 @@ I numero 10 e 11 sono più probabili in 1..18.
 I numeri 1 e 2 non sono possibili (percentuale = 0).
 
 
+----------------
+replace multiplo
+----------------
+
+La funzione "replace" permette di sostituire in una lista ogni occorrenza di un elemento con un altro elemento. Se abbiamo bisogno di effettuare diverse sostituzioni dobbiamo applicare tante volte la funzione "replace". Per esempio:
+
+(setq lst '(1 3 5 4 3 1 5 5 7 1 2))
+(replace 1 lst 'a)
+;-> (a 3 5 4 3 a 5 5 7 a 2)
+(replace 2 lst 'b)
+;-> (a 3 5 4 3 a 5 5 7 a b)
+(replace 3 lst 'c)
+;-> (a c 5 4 c a 5 5 7 a b)
+
+Comunque possiamo usare anche il metodo seguente:
+
+(setq lst '(1 3 5 4 3 1 5 5 7 1 2))
+(setq sost '((1 a) (2 b) (3 c)))
+(dolist (s sost)
+    (replace (first s) lst (last s)))
+;-> (a c 5 4 c a 5 5 7 a b)
+
+Questo metodo permette di tenere insieme le coppie da sostituire nel caso ci sia una lunga lista di modifiche.
+
+Possiamo convertire il metodo in una macro igienica:
+
+(define-macro (replace-all)
+    (dolist (r (eval (args 0)))
+      (replace (first r) (eval (args 1)) (last r))))
+
+(setq lst '(1 3 5 4 3 1 5 5 7 1 2))
+;-> (1 3 5 4 3 1 5 5 7 1 2)
+(replace-all sost lst)
+;-> (a c 5 4 c a 5 5 7 a b)
+
+La macro può essere applicata anche alle stringhe:
+
+(setq str "newlisp è difficile")
+(setq sost '(("newlisp" "newLISP") ("difficile" "divertente")))
+(replace-all sost str)
+;-> "newLISP è divertente"
+
+

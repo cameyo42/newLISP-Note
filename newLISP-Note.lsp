@@ -304,6 +304,9 @@ ROSETTA CODE
   Sequenza Thue-Morse
   Numeri di Bell
   Numeri auto-descrittivi
+  Jort sort
+  Funzioni mutuamente ricorsive
+  Numeri in base negativa
 
 PROJECT EULERO
 ==============
@@ -783,6 +786,7 @@ NOTE LIBERE 4
   Teorema di Bayes 2
   Probabilità bayesiane
   Dadi
+  replace multiplo
 
 APPENDICI
 =========
@@ -31184,6 +31188,164 @@ Vediamo i tempi di calcolo:
 (time (autodesc 1e8))
 ;-> 1210, 2020, 21200, 3211000, 42101000, 
 ;-> 378928.914 ;6 minuti e 20 secondi (circa)
+
+
+---------
+JORT SORT
+---------
+
+Nota: JortSort è considerato un'opera di satira. Raggiunge il suo risultato in modo intenzionalmente indiretto. La soluzione deve essere nello spirito del jortsort originale piuttosto che cercare di scrivere la versione più efficiente.
+
+"JortSort è un uno strumento di ordinamento che lascia all'utente l'onere di svolgere il lavoro e garantisce efficienza perché non è necessario ordinare mai più." Jenn "Moneydollars" Schiffer al JSConf.
+
+JortSort è una funzione che accetta come argomento una singola lista di oggetti comparabili.
+Quindi ordina la lista in ordine crescente e confronta la lista ordinato con la lista originariamente fornita.
+Se le liste corrispondono (ovvero la lista originale era già ordinata), la funzione restituisce true.
+Se le liste non corrispondono (ovvero la lista originale non è stato ordinata), la funzione restituisce false (nil).
+
+(define (jort-sort lst)
+  (if (= lst (sort (copy lst))) 
+      true 
+      nil))
+
+(jort-sort '(1 2 3 5 2))
+;-> nil
+(jort-sort '(1 2 3 5 11))
+;-> true
+
+
+-----------------------------
+FUNZIONI MUTUAMENTE RICORSIVE
+-----------------------------
+
+Scrivere due funzioni mutuamente (reciprocamente) ricorsive che calcolano gli elementi delle sequenze di Hofstadter "Female" e "Male" definite come:
+
+F(0) = 1
+M(0) = 0
+F(n) = n - M(F(n-1)), per n>0
+M(n) = n - F(M(n-1)), per n>0
+
+I primi termini di questa sequenze sono:
+
+F: 1, 1, 2, 2, 3, 3, 4, 5, 5, 6, 6, 7, 8, 8, 9, 9, 10, 11, 11, 12, 13, ... (A005378 OEIS)
+M: 0, 0, 1, 2, 2, 3, 4, 4, 5, 6, 6, 7, 7, 8, 9, 9, 10, 11, 11, 12, 12, ... (A005379 OEIS)
+
+(define (female num)
+  (if (= num 0) 1
+      (- num (male (female (- num 1))))))
+
+(define (male num)
+  (if (= num 0) 0
+      (- num (female (male (- num 1))))))
+
+(for (i 0 20) (print (female i) { }))
+;-> 1 1 2 2 3 3 4 5 5 6 6 7 8 8 9 9 10 11 11 12 13
+(for (i 0 20) (print (male i) { }))
+;-> 0 0 1 2 2 3 4 4 5 6 6 7 7 8 9 9 10 11 11 12 12
+
+Un altro esempio di coppia di funzioni mutuamente ricorsive è la seguente:
+
+(define (pari? num)
+  (cond ((zero? num) true)
+        (true (dispari (- num 1)))))
+
+(define (dispari? num)
+  (cond ((zero? num) nil)
+        (true (pari (- num 1)))))
+
+(pari? 237)
+;-> nil
+(pari? 200)
+;-> true
+
+(dispari? 237)
+;-> true
+(dispari? 200)
+;-> nil
+
+
+-----------------------
+NUMERI IN BASE NEGATIVA
+-----------------------
+
+I numeri in base negativa sono un modo alternativo per codificare i numeri senza la necessità di un segno meno. È possibile utilizzare varie basi negative, tra cui negadecimale (base -10), negabinario (-2) e negativo. I numeri di base negativi sono un modo alternativo per codificare i numeri senza la necessità di un segno meno.
+
+Una base negativa può essere utilizzata per costruire un sistema numerico posizionale non standard. Come altri sistemi a valore posizionale, ogni posizione contiene multipli della potenza appropriata della base del sistema, solo che in questo caso la base è negativa, cioè la base b è uguale a −r per qualche numero naturale r (r ≥ 2).
+
+I sistemi a base negativa possono contenere tutti gli stessi numeri dei sistemi di valori di posizione standard, ma sia i numeri positivi che quelli negativi sono rappresentati senza l'uso di un segno meno (o, nella rappresentazione del computer, un bit di segno). Questo vantaggio è controbilanciato da una maggiore complessità delle operazioni aritmetiche. La necessità di memorizzare le informazioni normalmente contenute da un segno negativo si traduce spesso in un numero in base negativa più lungo di una cifra rispetto al suo equivalente in base positiva.
+
+Esempio
+Rappresentazione del numero 12243 nel sistema negadecimale (b = −10):
+
+Multipli
+  (−10)^4 = 10000  (−10)^3 = −1000  (−10)^2 = 100  (−10)^1 = −10  (−10)^0 = 1
+          1                2                2              4              3
+
+Poiché 10000 + (−2000) + 200 + (−40) + 3 = 8163, la rappresentazione 12243(−10) in notazione negadecimale è equivalente a 8163(10) in notazione decimale, mentre −8163(10) in decimale sarebbe scritto 9977(−10) in negadecimale.
+
+Scriviamo due funzioni che codificano/decodificano un numero in base negativa:
+
+Funzione che converte un numero in base 10 nel numero (stringa) corrispondente in una certa base negativa:
+
+(define (to-neg-base num bn)
+  (local (digits nn val out)
+    (setq digits "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz")
+    (cond ((or (< bn -62) (> bn -1)) nil)
+          ((zero? num) "0")
+          (true
+           (setq out "")
+           (setq nn (bigint num))
+           (until (zero? nn 0)
+             (setq val (% nn bn))
+             (setq nn (/ nn bn))
+             (if (< val 0)
+                 (setq nn (+ nn 1) val (- val bn))
+             )
+             (push (digits val) out)
+           ))
+     )
+     out))
+
+Facciamo alcune prove:
+
+(to-neg-base 8163 -10)
+;-> "12243"
+(to-neg-base -8163 -10)
+;-> "9977"
+
+(define (from-neg-base ns b)
+  (local (digits nn val out)
+    (setq digits "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz")
+    (cond ((or (< b -62) (> b -1)) nil)
+          ((zero? ns) "0")
+          (true
+           (setq out 0)
+           (setq bb 1L)
+           (for (i (- (length ns) 1) 0 -1)
+             (setq out (+ out (* (find (ns i) digits) bb)))
+             (setq bb (* bb b))
+           ))
+    )
+    out))
+
+Facciamo alcune prove:
+
+(from-neg-base "12243" -10)
+;-> 8163
+(from-neg-base "9977" -10)
+;-> -8163
+(from-neg-base "11110" -2)
+;-> 10
+
+(from-neg-base (to-neg-base 1234567890 -10) -10)
+;-> 1234567890
+(to-neg-base (from-neg-base "1234567890" -10) -10)
+;-> "1234567890"
+
+(from-neg-base "newLISP" -62)
+2747418320417
+(to-neg-base 2747418320417 -62)
+;-> "newLISP"
 
 
 ================
@@ -86609,6 +86771,37 @@ Usiamo la funzione creata "somma-10":
 (somma-10 3)
 ;-> 13
 
+newbert ha proposto il segente metodo alternativo (more lisp-ish):
+
+(define (make-adder x)
+  (letex (y x)
+    (fn (z) (+ y z))))
+
+Proviamo:
+
+(setq add2 (make-adder 2))
+;-> (lambda (z) (+ 2 z))
+add2
+;-> (lambda (z) (+ 2 z))
+(println (add2 4))
+;-> 6
+
+Con una macro possiamo anche passare il nome della funzione da creare:
+
+(define-macro (make-adder)
+  (local (name val)
+    (bind (args) true)
+    (set (expand name 'name) (expand (lambda (x) (+ val x)) 'val))))
+
+Proviamo:
+
+(make-adder (name 'add10) (val 10))
+;-> (lambda (x) (+ 10 x))
+add10
+;-> (lambda (x) (+ 10 x))
+(println (add10 3))
+;-> 13
+
 
 ------------------------
 Input utente multi-linea
@@ -92155,6 +92348,49 @@ Tre dadi da 6 (più iterazioni):
 ;->  0.125 0.1158 0.0972 0.0694 0.0463 0.0278 0.0139 0.0046)
 I numero 10 e 11 sono più probabili in 1..18.
 I numeri 1 e 2 non sono possibili (percentuale = 0).
+
+
+----------------
+replace multiplo
+----------------
+
+La funzione "replace" permette di sostituire in una lista ogni occorrenza di un elemento con un altro elemento. Se abbiamo bisogno di effettuare diverse sostituzioni dobbiamo applicare tante volte la funzione "replace". Per esempio:
+
+(setq lst '(1 3 5 4 3 1 5 5 7 1 2))
+(replace 1 lst 'a)
+;-> (a 3 5 4 3 a 5 5 7 a 2)
+(replace 2 lst 'b)
+;-> (a 3 5 4 3 a 5 5 7 a b)
+(replace 3 lst 'c)
+;-> (a c 5 4 c a 5 5 7 a b)
+
+Comunque possiamo usare anche il metodo seguente:
+
+(setq lst '(1 3 5 4 3 1 5 5 7 1 2))
+(setq sost '((1 a) (2 b) (3 c)))
+(dolist (s sost)
+    (replace (first s) lst (last s)))
+;-> (a c 5 4 c a 5 5 7 a b)
+
+Questo metodo permette di tenere insieme le coppie da sostituire nel caso ci sia una lunga lista di modifiche.
+
+Possiamo convertire il metodo in una macro igienica:
+
+(define-macro (replace-all)
+    (dolist (r (eval (args 0)))
+      (replace (first r) (eval (args 1)) (last r))))
+
+(setq lst '(1 3 5 4 3 1 5 5 7 1 2))
+;-> (1 3 5 4 3 1 5 5 7 1 2)
+(replace-all sost lst)
+;-> (a c 5 4 c a 5 5 7 a b)
+
+La macro può essere applicata anche alle stringhe:
+
+(setq str "newlisp è difficile")
+(setq sost '(("newlisp" "newLISP") ("difficile" "divertente")))
+(replace-all sost str)
+;-> "newLISP è divertente"
 
 
 ===========
