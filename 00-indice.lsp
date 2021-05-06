@@ -787,6 +787,7 @@ NOTE LIBERE 4
   Probabilità bayesiane
   Dadi
   replace multiplo
+  ASCII Mandelbrot
 
 APPENDICI
 =========

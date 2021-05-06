@@ -787,6 +787,7 @@ NOTE LIBERE 4
   Probabilità bayesiane
   Dadi
   replace multiplo
+  ASCII Mandelbrot
 
 APPENDICI
 =========
@@ -31243,36 +31244,44 @@ M: 0, 0, 1, 2, 2, 3, 4, 4, 5, 6, 6, 7, 7, 8, 9, 9, 10, 11, 11, 12, 12, ... (A005
 (for (i 0 20) (print (male i) { }))
 ;-> 0 0 1 2 2 3 4 4 5 6 6 7 7 8 9 9 10 11 11 12 12
 
-Un altro esempio di coppia di funzioni mutuamente ricorsive è la seguente:
+Un altro esempio di coppia di funzioni mutuamente ricorsive è il seguente:
 
 (define (pari? num)
   (cond ((zero? num) true)
-        (true (dispari (- num 1)))))
+        (true (dispari? (- (abs num) 1))))))
 
 (define (dispari? num)
   (cond ((zero? num) nil)
-        (true (pari (- num 1)))))
+        (true (pari? (- (abs num) 1)))))
 
 (pari? 237)
 ;-> nil
 (pari? 200)
 ;-> true
+(pari? -100)
+;-> true
+(pari? -77)
+;-> nil
 
 (dispari? 237)
 ;-> true
 (dispari? 200)
 ;-> nil
+(dispari? -100)
+;-> nil
+(dispari? -77)
+;-> true
 
 
 -----------------------
 NUMERI IN BASE NEGATIVA
 -----------------------
 
-I numeri in base negativa sono un modo alternativo per codificare i numeri senza la necessità di un segno meno. È possibile utilizzare varie basi negative, tra cui negadecimale (base -10), negabinario (-2) e negativo. I numeri di base negativi sono un modo alternativo per codificare i numeri senza la necessità di un segno meno.
+I numeri in base negativa sono un modo alternativo per codificare i numeri senza la necessità del segno meno "-". È possibile utilizzare varie basi negative, tra cui nega-decimale (base -10), nega-binaria (-2) e nega-ternaria (-3). 
 
 Una base negativa può essere utilizzata per costruire un sistema numerico posizionale non standard. Come altri sistemi a valore posizionale, ogni posizione contiene multipli della potenza appropriata della base del sistema, solo che in questo caso la base è negativa, cioè la base b è uguale a −r per qualche numero naturale r (r ≥ 2).
 
-I sistemi a base negativa possono contenere tutti gli stessi numeri dei sistemi di valori di posizione standard, ma sia i numeri positivi che quelli negativi sono rappresentati senza l'uso di un segno meno (o, nella rappresentazione del computer, un bit di segno). Questo vantaggio è controbilanciato da una maggiore complessità delle operazioni aritmetiche. La necessità di memorizzare le informazioni normalmente contenute da un segno negativo si traduce spesso in un numero in base negativa più lungo di una cifra rispetto al suo equivalente in base positiva.
+I sistemi a base negativa possono contenere tutti gli stessi numeri dei sistemi di valori di posizione standard, ma sia i numeri positivi che quelli negativi sono rappresentati senza l'uso di un segno meno (o, nella rappresentazione del computer, senza il bit di segno). Questo vantaggio è controbilanciato da una maggiore complessità delle operazioni aritmetiche. La necessità di memorizzare le informazioni normalmente contenute da un segno negativo si traduce spesso in un numero in base negativa più lungo di una cifra rispetto al suo equivalente in base positiva.
 
 Esempio
 Rappresentazione del numero 12243 nel sistema negadecimale (b = −10):
@@ -92391,6 +92400,88 @@ La macro può essere applicata anche alle stringhe:
 (setq sost '(("newlisp" "newLISP") ("difficile" "divertente")))
 (replace-all sost str)
 ;-> "newLISP è divertente"
+
+
+----------------
+ASCII Mandelbrot
+----------------
+
+Ecco una versione base per stampare sul terminale il frattale di Mandelbrot.
+
+Prima di tutto ci servono alcune funzioni per calcolare i numeri complessi:
+
+; Estrae la parte reale di un numero complesso
+(define (real num) (first num))
+; Estrae la parte immaginaria di un numero complesso
+(define (imag num) (last num))
+; Calcola il modulo di un numero complesso
+(define (modulo num) 
+  (sqrt (add (mul (real num) (real num)) (mul (imag num) (imag num)))))
+; Calcola la somma di due numeri complessi
+(define (cx-add num1 num2)
+  (list (add (real num1) (real num2)) (add (imag num1) (imag num2))))
+; Calcola la moltiplicazione di due numeri complessi  
+(define (cx-mul num1 num2)
+  (list (sub (mul (real num1) (real num2)) (mul (imag num1) (imag num2)))
+        (add (mul (imag num1) (real num2)) (mul (real num1) (imag num2)))))
+
+Poi scriviamo una funzione per calcolare il frattale di Mandelbrot:
+
+(define (mandelbrot)
+  (local (x y z)
+    (for (y -1.2 1.2 0.05)
+      (for (x -2.05 0.55 0.03)
+        (setq z '(0 0))
+        (dotimes (i 100)
+          (setq z (cx-add (cx-mul z z) (list x y)))
+        )
+        (if (< (modulo z) 2)
+            (print "#")
+            (print ".")
+        )
+      )
+      (println))))
+
+Proviamo:
+
+(mandelbrot)
+..............................................................................
+...........................................................##.................
+........................................................######................
+........................................................#######...............
+.........................................................######...............
+.....................................................#.#.###..#.#.............
+..............................................##....################..........
+.............................................###.######################.###...
+..............................................############################....
+...........................................###############################....
+...........................................################################...
+........................................#####################################.
+.........................................###################################..
+.........................##.####.#......####################################..
+.........................###########....####################################..
+.......................###############.######################################.
+.......................###############.#####################################..
+...................##.#####################################################...
+.#.###...#..############################################################......
+...................##.#####################################################...
+.......................###############.#####################################..
+.......................###############.######################################.
+.........................###########....####################################..
+.........................##.####.#......####################################..
+.........................................###################################..
+........................................#####################################.
+...........................................################################...
+...........................................###############################....
+..............................................############################....
+.............................................###.######################.###...
+..............................................##....################..........
+.....................................................#.#.###..#.#.............
+.........................................................######...............
+........................................................#######...............
+........................................................######................
+...........................................................##.................
+..............................................................................
 
 
 ===========
