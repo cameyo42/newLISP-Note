@@ -2961,3 +2961,241 @@ Proviamo:
 ..............................................................................
 
 
+-------
+Yahtzee
+-------
+Yahtzee è un gioco di strategia che si svolge con 5 dadi. Si gioca da soli cercando di fare il punteggio migliore o contro uno o più avversari.
+
+Sono previste diverse combinazioni che ogni giocatore deve realizzare lanciando i dadi. Ottenuta la combinazione il giocatore guadagna il punteggio previsto per la combinazione. Una combinazione non può essere ripetuta quindi il gioco termina dopo 13 turni di lancio dei dadi, anche quando non sono state realizzate tutte le combinazioni.
+
+Ad ogni turno il giocatore può lanciare i dadi tre volte. Al primo lancio il giocatore lancia tutti i dadi, mentre nei successivi due lanci il giocatore può scegliere di trattenere uno o più dadi favorevoli ad ottenere la combinazione cercata. Il giocatore può anche scegliere di non trattenere alcun dado o di non utilizzare successivi lanci, nel caso ad esempio si sia già realizzata una combinazione utile. Al termine dei tre lanci il giocatore deve segnare obbligatoriamente un punteggio in una delle caselle del segnapunti non ancora utilizzata. Se alla fine del turno di gioco non viene realizzata una delle possibili combinazioni ancora "libera" sul tabellone, il giocatore deve segnare "0" (zero) in una delle caselle ancora a sua disposizione.
+
+Vince il giocatore che ha totalizzato il maggior numero di punti.
+
+Le combinazioni valide sono le seguenti:
+
+  Dadi uguali con 1 (punteggio dato dalla somma dei dadi con 1):
+  si ottiene quando almeno un dado è 1. Il punteggio è la somma dei dadi che riportano 1. Ad esempio: 1-3-4-6-1 vale 2.
+
+  Dadi uguali con 2 (punteggio dato dalla somma dei dadi con 2):
+  si ottiene quando almeno un dado è 2. Il punteggio è la somma dei dadi che riportano 2. Ad esempio: 2-1-2-2-5 vale 6.
+
+  Dadi uguali con 3 (punteggio dato dalla somma dei dadi con 3):
+  si ottiene quando almeno un dado è 3. Il punteggio è la somma dei dadi che riportano 3. Ad esempio: 3-1-3-4-3 vale 9.
+
+  Dadi uguali con 4 (punteggio dato dalla somma dei dadi con 4):
+  si ottiene quando almeno un dado è 4. Il punteggio è la somma dei dadi che riportano 4. Ad esempio: 4-1-2-2-1 vale 4.
+
+  Dadi uguali con 5 (punteggio dato dalla somma dei dadi con 5):
+  si ottiene quando almeno un dado è 5. Il punteggio è la somma dei dadi che riportano 5. Ad esempio: 5-1-5-5-2 vale 15.
+
+  Dadi uguali con 6 (punteggio dato dalla somma dei dadi con 6):
+  si ottiene quando almeno un dado è 6. Il punteggio è la somma dei dadi che riportano 6. Ad esempio: 6-3-2-6-1 vale 12,
+
+  Bonus (35 punti):
+  si ottiene quando la somma dei punteggi per le 6 combinazioni precedenti supera o raggiunge 63.
+
+  Piccola Scala (30 punti):
+  quando 4 dadi sono ordinati in modo crescente (1-2-3-4 o 2-3-4-5 o 3-4-5-6)
+
+  Grande Scala (40 punti):
+  quando 5 dadi sono ordinati in modo crescente (1-2-3-4-5 o 2-3-4-5-6)
+
+  Tris (punteggio dato dalla somma di tutti i dadi):
+  quando 3 dei cinque dadi sono uguali. Ad esempio 3-3-3-5-2 vale 16.
+
+  Poker (punteggio dato dalla somma di tutti i dadi):
+  quando 4 dei 5 dadi sono uguali. Ad esempio 5-5-5-5-1 vale 21.
+
+  Full (25 punti):
+  quando ci sono 3 dadi di un tipo e due di un altro. Ad esempio 4-4-4-1-1.
+
+  Yahtzee (50 punti):
+  quando si ottengono 5 dadi uguali. Ad esempio 1-1-1-1-1 o 4-4-4-4-4. Se Yahtzee viene ripetuto può essere inserito solo in un'altra combinazione libera con il relativo punteggio.
+
+  Chance (punteggio dato dalla somma dei 5 dadi):
+  qualsiasi combinazione ottenuta. Questa è una possibilità da sfruttare quando non si riesce a realizzare nessuna delle combinazioni precedenti o la combinazione realizzata è già stata utilizzata precedentemente. Anche questa combinazione può essere utilizzata una sola volta.
+
+Nota: alcune combinazioni offrono al giocatore la possibilità di scegliere in quale categoria classificarle. Ad esempio, un Full potrebbe essere segnato nelle categorie Full, Tris o Chance.
+
+Scriviamo una funzione che calcola i valori di tutte le combinazioni per un determinato lancio:
+
+;----------------------------------------------
+(define (chance? lst)
+  (apply + lst))
+(chance? '(1 2 4 6 5))
+;-> 18
+;----------------------------------------------
+(define (yahtzee? lst)
+  (if (apply = lst) 50 0))
+(yahtzee? '(1 1 1 1 1))
+;-> 50
+(yahtzee? '(1 2 1 1 1))
+;-> 0
+;----------------------------------------------
+(define (poker? lst)
+  (if (or (>= (first (count '(1) lst)) 4)
+          (>= (first (count '(2) lst)) 4)
+          (>= (first (count '(3) lst)) 4)
+          (>= (first (count '(4) lst)) 4)
+          (>= (first (count '(5) lst)) 4)
+          (>= (first (count '(6) lst)) 4))
+      (apply + lst)
+      0))
+(poker? '(1 2 2 2 2))
+;-> 9
+(poker? '(1 2 2 2 1))
+;-> 0
+(poker? '(3 4 3 3 3))
+;-> 16
+(poker? '(1 1 1 1 1))
+;-> 5
+;----------------------------------------------
+(define (tris? lst)
+  (if (or (>= (first  (count '(1) lst)) 3)
+          (>= (first  (count '(2) lst)) 3)
+          (>= (first  (count '(3) lst)) 3)
+          (>= (first  (count '(4) lst)) 3)
+          (>= (first  (count '(5) lst)) 3)
+          (>= (first  (count '(6) lst)) 3))
+      (apply + lst)
+      0))
+(tris? '(4 4 1 1 4))
+;-> 14
+(tris? '(1 2 2 2 2))
+;-> 9
+(tris? '(1 2 2 5 1))
+;-> 0
+(tris? '(3 4 3 3 3))
+;-> 16
+;----------------------------------------------
+(define (full? lst)
+  (let (tmp (sort (copy lst)))
+    (if (or (and (= (tmp 0) (tmp 1)) (= (tmp 2) (tmp 3) (tmp 4)) (!= (tmp 0) (tmp 4)))
+            (and (= (tmp 0) (tmp 1) (tmp 2)) (= (tmp 3) (tmp 4)) (!= (tmp 0) (tmp 4))))
+        25
+        0)))
+(full? '(1 2 1 2 1))
+;-> 25
+(full? '(1 1 1 1 1))
+;-> 0
+(full? '(2 3 2 3 1))
+;-> 0
+(full? '(2 3 2 3 2))
+;-> 25
+;----------------------------------------------
+(define (scala-piccola? lst)
+  (let (tmp (sort (copy lst)))
+    (if (or (= (count '(1 2 3 4) tmp) '(1 1 1 1))
+            (= (count '(2 3 4 5) tmp) '(1 1 1 1))
+            (= (count '(3 4 5 6) tmp) '(1 1 1 1)))
+        30
+        0)))
+(scala-piccola? '(1 3 2 4 6))
+;-> 30
+(scala-piccola? '(1 3 2 4 5))
+;-> 30
+(scala-piccola? '(6 3 2 4 5))
+;-> 30
+(scala-piccola? '(1 5 5 3 2))
+;-> 0
+;----------------------------------------------
+;(define (scala-grande? lst)
+;  (let (tmp (sort (copy lst)))
+;    (if (and (apply < tmp) ; lista strettamente crescente?
+;            (= (- (tmp 4) (tmp 0)) 4)) ; differenza primo e ultimo elemento
+;        40
+;        0)))
+;
+(define (scala-grande? lst)
+  (let (tmp (sort (copy lst)))
+    (if (or (= tmp '(1 2 3 4 5)) (= tmp '(2 3 4 5 6)))
+        40
+        0)))
+(scala-grande? '(1 2 3 4 5))
+;-> 40
+(scala-grande? '(1 5 3 2 4))
+;-> 40
+(scala-grande? '(2 4 3 6 5))
+;-> 40
+(scala-grande? '(2 2 3 6 5))
+;-> 0
+(scala-grande? '(1 3 4 5 6))
+;-> 0
+(scala-grande? '(2 3 4 5 6))
+;-> 40
+;----------------------------------------------
+(define (dadi? x lst)
+  (mul x (first (count (list x) lst))))
+(dadi? 1 '(1 2 3 4 1))
+;-> 2
+(dadi? 2 '(1 2 3 2 3))
+;-> 4
+(dadi? 5 '(1 2 5 5 5))
+;-> 15
+(dadi? 3 '(1 2 5 5 5))
+;-> 0
+;----------------------------------------------
+(define (yahtzee lst totale)
+  (local (bonus)
+    (if (nil? totale)
+        (setq bonus 0)
+        (setq bonus totale)
+    )
+    (if (>= (+ (dadi? 1 lst) bonus) 63)
+        (println (format "%-10s%3d%-5s%2d" "Dadi 1" (dadi? 1 lst) "  Bonus: " 35))
+        (println (format "%-10s%3d" "Dadi 1: " (dadi? 1 lst))))
+    (if (>= (+ (dadi? 2 lst) bonus) 63)
+        (println (format "%-10s%3d%-5s%2d" "Dadi 2" (dadi? 2 lst) "  Bonus: " 35))
+        (println (format "%-10s%3d" "Dadi 2: " (dadi? 2 lst))))
+    (if (>= (+ (dadi? 3 lst) bonus) 63)
+        (println (format "%-10s%3d%-5s%2d" "Dadi 3" (dadi? 3 lst) "  Bonus: " 35))
+        (println (format "%-10s%3d" "Dadi 3: " (dadi? 3 lst))))
+    (if (>= (+ (dadi? 4 lst) bonus) 63)
+        (println (format "%-10s%3d%-5s%2d" "Dadi 4" (dadi? 4 lst) "  Bonus: " 35))
+        (println (format "%-10s%3d" "Dadi 4: " (dadi? 4 lst))))
+    (if (>= (+ (dadi? 5 lst) bonus) 63)
+        (println (format "%-10s%3d%-5s%2d" "Dadi 5" (dadi? 5 lst) "  Bonus: " 35))
+        (println (format "%-10s%3d" "Dadi 5: " (dadi? 5 lst))))
+    (if (>= (+ (dadi? 6 lst) bonus) 63)
+        (println (format "%-10s%3d%-5s%2d" "Dadi 6" (dadi? 6 lst) "  Bonus: " 35))
+        (println (format "%-10s%3d" "Dadi 6: " (dadi? 6 lst))))
+    (println (format "%-10s%3d" "Tris: " (tris? lst)))
+    (println (format "%-10s%3d" "Poker: " (poker? lst)))
+    (println (format "%-10s%3d" "Full: " (full? lst)))
+    (println (format "%-10s%3d" "Scaletta: " (scala-piccola? lst)))
+    (println (format "%-10s%3d" "Scala: " (scala-grande? lst)))
+    (println (format "%-10s%3d" "Yahtzee: " (yahtzee? lst)))
+    (println (format "%-10s%3d" "Chance: " (chance? lst)))
+  ))
+
+(yahtzee '(1 1 2 2 2) 62)
+;-> Dadi 1      2  Bonus: 35
+;-> Dadi 2      6  Bonus: 35
+;-> Dadi 3:     0
+;-> Dadi 4:     0
+;-> Dadi 5:     0
+;-> Dadi 6:     0
+;-> Tris:       8
+;-> Poker:      0
+;-> Full:      25
+;-> Scaletta:   0
+;-> Scala:      0
+;-> Yahtzee:    0
+;-> Chance:     8
+(yahtzee '(1 2 3 4 5))
+;-> Dadi 1:     1
+;-> Dadi 2:     2
+;-> Dadi 3:     3
+;-> Dadi 4:     4
+;-> Dadi 5:     5
+;-> Dadi 6:     0
+;-> Tris:       0
+;-> Poker:      0
+;-> Full:       0
+;-> Scaletta:  30
+;-> Scala:     40
+;-> Yahtzee:    0
+;-> Chance:    15
+
+

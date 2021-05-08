@@ -307,6 +307,9 @@ ROSETTA CODE
   Jort sort
   Funzioni mutuamente ricorsive
   Numeri in base negativa
+  Quaternioni
+  Bioritmi
+  Runge-Kutta
 
 PROJECT EULERO
 ==============
@@ -788,6 +791,7 @@ NOTE LIBERE 4
   Dadi
   replace multiplo
   ASCII Mandelbrot
+  Yahtzee
 
 APPENDICI
 =========
@@ -819,7 +823,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (153 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (156 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================

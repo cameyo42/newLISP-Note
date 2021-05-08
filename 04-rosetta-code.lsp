@@ -11,6 +11,8 @@ Il sito contiene moltissimi problemi risolti in più di 800 linguaggi (non tutti
 Di seguito vengono presentanti alcuni di questi problemi e la loro soluzione.
 Per avere una migliore comprensione si consiglia di provare a risolverli per conto proprio prima di leggere la soluzione.
 
+Nota: diversi altri problemi elencati nel sito Rosetta Code e non presenti in questo capitolo sono risolti in altre parti di questo documento.
+
 --------
 FIZZBUZZ
 --------
@@ -11517,7 +11519,7 @@ Facciamo alcune prove:
            (setq out 0)
            (setq bb 1L)
            (for (i (- (length ns) 1) 0 -1)
-             (setq out (+ out (* (find (ns i) digits) bb)))
+             (setq out (+ out (* bb (find (ns i) digits))))
              (setq bb (* bb b))
            ))
     )
@@ -11538,8 +11540,412 @@ Facciamo alcune prove:
 ;-> "1234567890"
 
 (from-neg-base "newLISP" -62)
-2747418320417
+;-> 2747418320417
 (to-neg-base 2747418320417 -62)
 ;-> "newLISP"
+
+(from-neg-base "cameyo" -62)
+(to-neg-base -34292389174 -62)
+;-> "cameyo"
+
+
+-----------
+QUATERNIONI
+-----------
+
+I quaternioni sono entità matematiche introdotte da William Hamilton nel 1843 come estensioni dei numeri complessi. Un quaternione è un oggetto formale del tipo:
+
+  a + bi + cj + dk
+
+dove a,b,c,d sono numeri reali e i,j,k sono dei simboli che si comportano in modo simile all'unità immaginaria dei numeri complessi.
+
+Somma e prodotto di due quaternioni sono definiti tenendo conto delle relazioni:
+
+  i∙i = j∙j = k∙k = i∙j∙k = -1 oppure ii = jj = kk = ijk = -1.
+
+che implicano:
+
+  i*j = k
+  j*k = i
+  k*i = j
+  j*i = -k
+  k*j = -i
+  i*k = -j
+
+La tabella seguente riassume i risultati delle moltiplicazioni fra due elementi:
+
+  +---+---+---+---+---+
+  | * | 1 | i | j | k |
+  +---+---+---+---+---+
+  | 1 | 1 | i | j | k |
+  +---+---+---+---+---+
+  | i | i |-1 | k |-j |
+  +---+---+---+---+---+
+  | j | j |-k |-1 | i |
+  +---+---+---+---+---+
+  | k | k | j |-i |-1 |
+  +---+---+---+---+---+
+
+L'ordine di moltiplicazione è importante, infatti ,in generale, per due quaternioni q1 e q2:
+
+  q1q2 ≠ q2q1.
+
+Scrivere le funzioni per le seguenti operazioni di base con i quaternioni:
+
+  q = a + bi + cj + dk
+
+Norma di un quaternione q
+
+  (norma q) = sqrt(a^2 + b^2 + c^2 + d^2)
+
+Negativo di un quaternione q
+
+  (negativo q) = (-a, -b, -c, -d)
+
+Coniugato di un quaternione q
+
+  (coniugato q) = (a, -b, -c, -d)
+
+Addizione numero reale r e quaternione q
+
+  r + q = q + r = (a + r, b, c, d)
+
+Addizione di due quaternioni q1 e q2
+
+  q1 + q2 = (a1+a2, b1+b2, c1+c2, d1+d2)
+
+Moltiplicazione numero reale r e quaternione q
+
+  q*r = r*q = (ar, br, cr, dr)
+
+Moltiplicazione di due quaternioni q1 e q2
+
+  (a1a2 − b1b2 − c1c2 − d1d2,
+  a1b2 + b1a2 + c1d2 − d1c2,
+  a1c2 − b1d2 + c1a2 + d1b2,
+  a1d2 + b1c2 − c1b2 + d1a2)
+
+Utilizziamo una lista per rappresentare un quaternione:
+
+  q = (a + bi + cj + dk)  ==> (a b c d)
+
+(setq q  '(1 2 3 4))
+(setq q1 '(2 3 4 5))
+(setq q2 '(3 4 5 6))
+(setq r 7)
+
+; norma di un quaternione
+(define (norm-quat q)
+  (let (out 0)
+    (for (i 0 3)
+      (setq out (add out (mul (q i) (q i)))))
+    (sqrt out)))
+
+(setq q '(1 2 3 4))
+(norm-quat q)
+;-> 5.477225575051661
+
+; Negativo di un quaternione
+(define (neg-quat q)
+  (for (i 0 3)
+    (setf (q i) (mul -1 (q i))))
+  q)
+
+(neg-quat q)
+;-> (-1 -2 -3 -4)
+
+; Coniugato di un quaternione
+(define (coniug-quat q)
+  (for (i 1 3)
+    (setf (q i) (mul -1 (q i))))
+  q)
+
+(coniug-quat q)
+;-> (1 -2 -3 -4)
+
+; Addizione/sottrazione numero reale e quaternione
+(define (add-real-quat r q)
+  (setf (q 0) (add (q 0) r))
+  q)
+
+(add-real-quat r q)
+;-> (8 2 3 4)
+
+; Addizione/sottrazione tra due quaternioni
+(define (add-quat q1 q2)
+  (for (i 0 3)
+    (setf (q1 i) (add (q1 i) (q2 i))))
+  q1)
+
+(add-quat q1 q2)
+;-> (5 7 9 11)
+
+; Moltiplicazione numero reale e quaternione
+(define (mul-real-quat r q)
+  (for (i 0 3)
+    (setf (q i) (mul r (q i))))
+  q)
+
+(mul-real-quat r q)
+;-> (7 14 21 28)
+
+; Moltiplicazione tra due quaternioni
+(define (mul-quat q1 q2)
+  (let (out '(0 0 0 0))
+    (setf (out 0) (sub (mul (q1 0) (q2 0))    (mul (q1 1) (q2 1))     (mul (q1 2) (q2 2))     (mul (q1 3) (q2 3))))
+    (setf (out 1) (add (mul (q1 0) (q2 1))    (mul (q1 1) (q2 0))     (mul (q1 2) (q2 3))  (- (mul (q1 3) (q2 2)))))
+    (setf (out 2) (add (mul (q1 0) (q2 2)) (- (mul (q1 1) (q2 3)))    (mul (q1 2) (q2 0))     (mul (q1 3) (q2 1))))
+    (setf (out 3) (add (mul (q1 0) (q2 3))    (mul (q1 1) (q2 2))  (- (mul (q1 2) (q2 1)))    (mul (q1 3) (q2 0))))
+    out))
+
+(mul-quat q1 q2)
+;-> (-56 16 24 26)
+(mul-quat q2 q1)
+;-> (-56 18 20 28)
+
+Potete trovare una libreria sui quaternioni scritta da Heiko Schroeter al seguente indirizzo web:
+
+  http://www.newlisp.org/modules/various/quatlib.lsp.html
+
+Nota: i quaternioni vengono utilizzati nella modellizzazione delle rotazioni dello spazio: per questo motivo vengono impiegati nella fisica teorica (teoria della relatività e meccanica quantistica) e in settori applicativi, come la computer grafica 3D e la robotica.
+
+Nota: l'uso dei quaternioni per ruotare un oggetto 3D lungo i tre assi x,y,z elimina il problema del "Gimbal lock", che può verificarsi se si utilizzano gli angoli di Eulero per la rotazione dell'oggetto.
+
+Il "Gimbal lock" (blocco del giunto cardanico) è il fenomeno di due assi di rotazione di un oggetto che puntano nella stessa direzione. In poche parole, significa che il tuo oggetto non ruoterà come pensi che dovrebbe ruotare. Questo è un problema frustrante che ogni artista di computer grafica dovrà affrontare durante la sua carriera (e accade sempre nel momento peggiore possibile). Il Gimbal lock si verifica quando si ruota un oggetto con una matrice di rotazione con angoli di Eulero. È una limitazione generale di questo tipo di matrice di rotazione.
+
+Qualsiasi sistema che utilizza gli angoli di Eulero (Maya, Max, Lightwave, Softimage) ha problemi di Gimbal lock. La ragione di ciò è che gli angoli di Eularo valutano ogni asse indipendentemente e in un ordine prestabilito. Ad esempio, l'ordine è generalmente X, Y, Z (ma vale anche per altri ordini), il che significa che prima l'oggetto viaggia lungo l'asse X. Quando l'operazione è completa, si sposta lungo l'asse Y e infine l'asse Z. Il problema del Gimbal lock si verifica quando si ruota l'oggetto lungo l'asse Y, diciamo di 90 gradi. Poiché la componente X è già stata valutata, non viene considerata con gli altri due assi. QUello che accade è che gli assi X e Z punto lungo lo stesso asse.
+
+Il programma ZBrush (Pixologic) utilizza internamente sia gli angoli di Eulero che i quaternioni, ma il linguaggio di scripting mette a disposizione solo gli angoli di Eulero. Questa è la risposta di Pixolator (alias Ofer Alon, creatore del programma Zbrush) ad una mia richiesta di spiegazioni nel lontano luglio 2003:
+
+"Hi Cameyo: 
+As you have already figured out, rotation system is a bit complicated. Internally, ZBrush is utilizing rotation matrices, Euler angles as well as quaternions.The rotation values in the TRNASFORM palette (and the TransformGet commands) are values that have been translated from ZBrush's internal representation into a more readable x,y,z angles format. The effective range for Y and Z rotations is ± 180 degrees. Values that are outside this range are automatically readjusted to fit within this range. The effective range for the X axis is only ±90 (this is why your ZScript is problematic when the X axis angle crosses the 90 degrees range). If you use values outside this range, the X will be readjusted and may require the Y axis to be reflected (+180 degrees). As mentioned above, "Gimbal lock" is also an issue when rotating an object by 90 degrees increments.
+
+These factors must be taken into consideration when ZScripting rotation commands. One of ZBrush's standard ZScripts is the "PointFromTo" ZScript. This ZScript present a solution to a different, but yet related, rotation problem. I am including the source code of the "PointFromTo" ZScript here, you may find it helpful to your rotation explorations
+
+-Pixolator"
+
+Le rotazioni dei quaternioni sono molto più potenti e robuste poichè valutano tutti e tre gli assi contemporaneamente per trovare una direzione in cui muoversi e un quarto valore (la componente w o il vettore up) per indicare alla matrice quanto deve muoversi. Il vantaggio di utilizzare questo metodo è che non dobbiamo mai preoccuparci del Gimbal Lock poichè non può accadere in quanto tutti e tre gli assi vengono aggiornati contemporaneamente. Il lato negativo dell'utilizzo dei quaternioni è che sono molto più complicati da concettualizzare e implementare rispetto agli angoli di Eulero.
+
+
+--------
+BIORITMI
+--------
+
+Un bioritmo è un tentativo di identificare vari aspetti della vita di una persona attraverso una semplice modellazione matematica. La maggior parte degli scienziati crede che quest'idea non abbia un'efficacia maggiore del caso e considerano il concetto come un esempio di pseudoscienza.
+
+Secondo la teoria dei bioritmi, la vita di una persona è caratterizzata da cicli biologici ritmici che influenzano le attività e le abilità personali in vari aspetti: fisico, emotivo e mentale (intellettuale). Questi cicli iniziano alla nascita ed oscillano in modo costante (onde sinusoidali) nel corso della vita.
+
+La maggior parte dei modelli di bioritmo usa tre cicli: uno fisico di 23 giorni, uno emotivo di 28 ed uno mentale di 33. Sebbene il ciclo di 28 giorni sia della stessa lunghezza del ciclo mestruale medio delle donne, e sia stato in origine definito come ciclo “femminile” (vedi in seguito), i due non sono necessariamente sincronizzati. Ognuno di questi cicli varia tra estremi alti e bassi, in modo sinusoidale, con giorni in cui il ciclo incrocia la linea dello zero, descritti come "giorni critici" a maggior rischio di incertezza. In aggiunta a questi tre cicli, sono stati proposti vari altri cicli, basati sulla combinazione lineare dei tre, o su cicli più lunghi o più corti.
+
+Le equazioni che regolano i tre cicli di base sono:
+
+  Fisico: sin(2*pi*x/23)
+  Emotivo: sin(2*pi*x/28)
+  Mentale: sin(2*pi*x/33)
+
+dove x indica il numero di giorni dalla nascita.
+
+Si può osservare che la combinazione dei due cicli di 23 e 28 giorni si ripete (periodo) ogni 644 giorni (un anno e 3/4), mentre la tripla combinazione dei cicli di 23, 28 e 33 giorni si ripete ogni 21.252 giorni (circa 58 anni).
+
+Converte una data gregoriana in numero del giorno giuliano (valido solo dal 15 ottobre 1582 d.C.):
+
+(define (gdate-julian gdate)
+  (local (a y m)
+    (setq a (/ (- 14 (gdate 1)) 12))
+    (setq y (+ (gdate 0) 4800 (- a)))
+    (setq m (+ (gdate 1) (* 12 a) (- 3)))
+    (+ (gdate 2) (/ (+ (* 153 m) 2) 5) (* y 365) (/ y 4) (- (/ y 100)) (/ y 400) (- 32045))))
+
+Calcola la differenza tra due date gregoriane:
+
+(define (gdate-diff gdate1 gdate2)
+  (- (gdate-julian gdate1) (gdate-julian gdate2)))
+
+(gdate-diff '(2021 5 6) '(1983 3 21))
+;-> 13926
+
+(setq PI 3.1415926535897931)
+
+Funzioni per i tre cicli:
+
+(define (fisico x)
+  (sin (div (mul 2 3.141592653589793 x) 23)))
+(define (emotivo x)
+  (sin (div (mul 2 3.141592653589793 x) 28)))
+(define (mentale x)
+  (sin (div (mul 2 3.141592653589793 x) 33)))
+
+(fisico 0)
+;-> 0
+(fisico 644)
+;-> -6.857795581405313e-015
+
+Vediamo come visualizzare i valori dei tre cicli nell'intervallo (-100, 100):
+
+(define (cicli)
+  (println " Emotivo       Fisico        Mentale")
+  (println " gg    val     gg    val     gg    val")
+  (for (i 0 33 1) 
+    (print (format "%3d  %+5d    " i (round (mul 100 (fisico i)))))
+    (print (format "%3d  %+5d    " i (round (mul 100 (emotivo i)))))
+    (print (format "%3d  %+5d    " i (round (mul 100 (mentale i)))))
+    (println {})))
+
+(cicli)
+;-> Emotivo       Fisico        Mentale
+;-> gg    val     gg    val     gg    val
+;->  0     +0      0     +0      0     +0
+;->  1    +27      1    +22      1    +19
+;->  2    +52      2    +43      2    +37
+;->  3    +73      3    +62      3    +54
+;->  4    +89      4    +78      4    +69
+;->  5    +98      5    +90      5    +81
+;->  6   +100      6    +97      6    +91
+;->  7    +94      7   +100      7    +97
+;->  8    +82      8    +97      8   +100
+;->  9    +63      9    +90      9    +99
+;-> 10    +40     10    +78     10    +95
+;-> 11    +14     11    +62     11    +87
+;-> 12    -14     12    +43     12    +76
+;-> 13    -40     13    +22     13    +62
+;-> 14    -63     14     +0     14    +46
+;-> 15    -82     15    -22     15    +28
+;-> 16    -94     16    -43     16    +10
+;-> 17   -100     17    -62     17    -10
+;-> 18    -98     18    -78     18    -28
+;-> 19    -89     19    -90     19    -46
+;-> 20    -73     20    -97     20    -62
+;-> 21    -52     21   -100     21    -76
+;-> 22    -27     22    -97     22    -87
+;-> 23     +0     23    -90     23    -95
+;-> 24    +27     24    -78     24    -99
+;-> 25    +52     25    -62     25   -100
+;-> 26    +73     26    -43     26    -97
+;-> 27    +89     27    -22     27    -91
+;-> 28    +98     28     +0     28    -81
+;-> 29   +100     29    +22     29    -69
+;-> 30    +94     30    +43     30    -54
+;-> 31    +82     31    +62     31    -37
+;-> 32    +63     32    +78     32    -19
+;-> 33    +40     33    +90     33     +0
+
+Scriviamo una funzione che visualizza i valori dei bioritmi per 11 giorni (5 giorni prima, giorno scelto, 5 giorni dopo) in modo da identificare anche l'andamento delle curve e non solo i valori del giorno scelto:
+
+(define (bioritmi data-oggi data-nascita)
+  (println "Emotivo   Fisico   Mentale")
+  (setq giorni (gdate-diff data-oggi data-nascita))
+  (setq pre (- giorni 5))
+  (setq post (+ giorni 5))
+  (for (i pre post)
+    (if (= i giorni) (println (format "%s" (dup "-" 31))))
+    (print (format "%+6d   %+6d   %+6d" 
+            (round (mul 100 (fisico i))) (round (mul 100 (emotivo i))) (round (mul 100 (mentale i)))))
+    (if (= i giorni) (print (format "\n%s" (dup "-" 31))))
+    (println {})
+  ))
+
+Bioritmo del giorno 6 maggio 2021 per una persona nata il 21 marzo 1983:
+
+(bioritmi '(2021 5 6) '(1983 3 21))
+;-> Emotivo   Fisico   Mentale
+;->   +100      +90      -81
+;->    +94      +97      -69
+;->    +82     +100      -54
+;->    +63      +97      -37
+;->    +40      +90      -19
+;-> -------------------------------
+;->    +14      +78       +0
+;-> -------------------------------
+;->    -14      +62      +19
+;->    -40      +43      +37
+;->    -63      +22      +54
+;->    -82       +0      +69
+;->    -94      -22      +81
+
+
+-----------
+RUNGE-KUTTA
+-----------
+
+Data l'equazione differenziale:
+
+  y'(t) = t * sqrt[y(t)]
+
+con le condizioni inziali:
+
+  t0 = 0
+  y0 = y(t0) = y(0) = 1
+
+Questa equazione a la seguente soluzione esatta:
+
+          (t² + 4)²
+  y(t) = -----------
+            16
+
+Utilizzare il metodo Runge-Kutta del quarto ordine per risolvere l'equazione differenziale nell'intervallo t = 0 ... 10 con un valore di incremento di dt = 0.1 (101 punti totali, dato il primo). Stampare i valori calcolati di y ad ogni valore intero di t (0, 1.0, 2.0, ... 10.0) insieme all'errore rispetto alla soluzione esatta.
+
+Metodo Runge-Kutta
+------------------
+Partendo da un dato yn e tn calcolare:
+
+  dy1 = dt * y'(tn,yn)
+  dy2 = dt * y'(tn + dt/2, yn + dy1/2)
+  dy3 = dt * y'(tn + dt/2, yn + dy2/2)
+  dy4 = dt * y'(tn + dt, yn + dy3)
+
+poi calcolare:
+
+  y(n+1) = yn + (dy1 +2*dy2 + 2*dy3 + dy4)/6
+  t(n+1) = tn + dt
+
+Implementazione:
+
+(define (equation t y) (mul t (sqrt y)))
+(define (solution t) (div (pow (add (mul t t) 4) 2) 16))
+
+(define (rk4)
+  (local (t end-t dt n y s dy1 dy2 dy3 dy4 i error t-rounded)
+    (setq t 0.0)
+    (setq end-t 10.0)
+    (setq dt 0.1)
+    (setq n (+ (int (div (sub end-t t) dt)) 1))
+    (setq y (array n '(0)))
+    (setq s (array n '(0)))
+    (setq i 0)
+    (setq (s i) 0.0)
+    (setq (y i) 1.0)
+    (println " t    y(t)     errore")
+    (println (format "%4.1f %8.3f  %e" 0.00 1.00 0.00))
+    (while (< i (- (length y) 1))
+      (setq dy1 (mul dt (equation (s i) (y i))))
+      (setq dy2 (mul dt (equation (add (s i) (div dt 2)) (add (y i) (div dy1 2)))))
+      (setq dy3 (mul dt (equation (add (s i) (div dt 2)) (add (y i) (div dy2 2)))))
+      (setq dy4 (mul dt (equation (add (s i) dt) (add (y i) dy3))))
+      (setf (s (+ i 1)) (add (s i) dt))
+      (setf (y (+ i 1)) (add (y i) (div (add dy1 (mul 2 dy2) (mul 2 dy3) dy4) 6)))
+      (setq error (abs (sub (y (+ i 1)) (solution (s (+ i 1))))))
+      (setq t-rounded (round (add t dt) -2))
+      (if (zero? (mod t-rounded 1))
+          (println (format "%4.1f %8.3f  %e" t-rounded (y (+ i 1)) error))
+      )
+      (++ i)
+      (setq t (add t dt))
+    )
+    '----------------------------))
+
+(rk4)
+;->  t    y(t)     errore
+;->  0.0    1.000  0.000000e+000
+;->  1.0    1.562  1.457219e-007
+;->  2.0    4.000  9.194792e-007
+;->  3.0   10.562  2.909562e-006
+;->  4.0   25.000  6.234909e-006
+;->  5.0   52.562  1.081970e-005
+;->  6.0  100.000  1.659460e-005
+;->  7.0  175.562  2.351773e-005
+;->  8.0  289.000  3.156520e-005
+;->  9.0  451.562  4.072316e-005
+;-> 10.0  676.000  5.098329e-005
+;-> ----------------------------
 
 
