@@ -310,6 +310,10 @@ ROSETTA CODE
   Quaternioni
   Bioritmi
   Runge-Kutta
+  ISBN13
+  Insieme di Cantor
+  Incremento-decremento di una stringa numerica
+  Funzioni di prima classe
 
 PROJECT EULERO
 ==============

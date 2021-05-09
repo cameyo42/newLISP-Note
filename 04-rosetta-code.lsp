@@ -11949,3 +11949,185 @@ Implementazione:
 ;-> ----------------------------
 
 
+------
+ISBN13
+------
+
+Il codice ISBN ("International Standard Book Number" cioè il numero di riferimento internazionale di un libro) è una sequenza numerica di 13 cifre usata per la classificazione dei libri.
+L'attuale codice ISBN è formato da una stringa di 13 cifre, suddivise in 5 settori. Generalmente, ma non sempre, i vari settori del codice ISBN sono separati l'uno dall'altro da un trattino (è il metodo consigliato) o da uno spazio.
+
+1) Prefisso EAN – sono le prime tre cifre del codice ISBN, introdotte a partire dal 2007. Indicano che si è in presenza di un libro.
+
+2) Gruppo linguistico – è l'identificativo del paese o dell'area linguistica dell'editore. Può utilizzare da 1 a 5 cifre.
+
+3) Editore – è l'identificativo della casa editrice o del marchio editoriale. Può utilizzare da 2 a 7 cifre.
+
+4) Titolo – è l'identificativo del libro. Può utilizzare da 1 a 6 cifre.
+
+5) Carattere di controllo – è l'ultima cifra del codice ISBN (nei "vecchi" codici ISBN-10, oltre ai numeri da 0 a 9, si utilizzava anche il 10 romano, cioè la "X") e serve a verificare che il codice non sia stato letto o trascritto erroneamente.
+
+Solo il primo e l'ultimo settore hanno un numero fisso di cifre (rispettivamente 3 e 1), mentre per gli altri tre settori centrali il numero di cifre varia in modo complementare fra loro. I tre settori centrali, nel loro insieme, hanno dunque a disposizione le nove cifre restanti. Questo significa che, meno cifre sono utilizzate dal gruppo linguistico e dall'editore, più cifre sono disponibili per la sua produzione editoriale (il settore titolo). In altre parole, le lingue e gli editori che hanno meno cifre nel codice ISBN dovrebbero essere anche quelli che pubblicano una maggior quantità di libri.
+
+Verificare se un numero ISBN13 è valido.
+
+Algoritmo di validazione ISBN13
+-------------------------------
+ISBN      9    7    8    1    8    6    1    9    7    8    7    6    9
+Peso      1    3    1    3    1    3    1    3    1    3    1    3    1
+Prodotto  9 + 21 +  8 +  3 +  8 + 18 +  1 + 27  + 7 + 24 +  7 + 18 +  9 = 160
+
+160 diviso 10 = 16 resto 0
+Se il resto vale 0, allora ISBN13 è valido.
+
+Esempi:
+
+  978-1734314502 valido
+  978-1734314509 errato
+  978-1788399081 valido
+  978-1788399083 errato
+
+Possiamo scrivere la seguente funzione per la verifica:
+
+(define (check-ISBN13 str)
+  (local (mult)
+    (setq str (replace "-" str ""))
+    (setq mult '(1 3 1 3 1 3 1 3 1 3 1 3 1))
+    (setq val (map int (explode str)))
+    (setq m (apply + (map * val mult)))
+    (zero? (% m 10))))
+
+(check-ISBN13 "978-1734314502")
+;-> true
+(check-ISBN13 "978-1734314509")
+;-> nil
+(check-ISBN13 "978-1788399081")
+;-> true
+(check-ISBN13 "978-1788399083")
+;-> nil
+
+
+-----------------
+INSIEME DI CANTOR
+-----------------
+
+L'insieme di Cantor (dal matematico tedesco Georg Cantor), è un sottoinsieme dell'intervallo [0, 1] dei numeri reali.
+L'insieme di Cantor è definibile in modo ricorsivo, partendo dall'intervallo [0, 1] e rimuovendo ad ogni passo un segmento aperto centrale da ogni intervallo.
+Al primo passo rimuoviamo da [0, 1] il sotto-intervallo (1/3, 2/3), e rimaniamo quindi con due intervalli [0, 1/3] U [2/3, 1].
+Al secondo passo rimuoviamo un segmento aperto centrale in entrambi questi intervalli (che ha lunghezza pari a un terzo della lunghezza del segmento, come al primo passo), e otteniamo quattro intervalli ancora più piccoli. E si continua così in modo analogo.
+L'insieme di Cantor consiste di tutti i punti dell'intervallo di partenza [0, 1] che non vengono mai rimossi da questo procedimento ricorsivo: in altre parole, l'insieme che rimane dopo aver iterato questo procedimento infinite volte. È chiamato in termini suggestivi come "polvere di Cantor".
+
+I primi quattro passi di questo processo sono illustrati qui sotto:
+
+  ■■■■■■■■■■■■■■■■■■■■■■■■■■■
+  ■■■■■■■■■         ■■■■■■■■■
+  ■■■   ■■■         ■■■   ■■■
+  ■ ■   ■ ■         ■ ■   ■ ■
+
+Scriviamo una funzione che stampa 5 passi del processo:
+
+(define (cantor start len idx)
+ (local (seg)
+  (setq seg (/ len 3))
+  (cond ((zero? seg) nil)
+        (true
+         (for (i idx (- height 1))
+           (for (j (+ start seg) (+ start (* seg 2) (- 1)))
+             (setf (lines i j) " ")
+           )
+         )
+         (cantor start seg (+ idx 1))
+         (cantor (+ start (* seg 2)) seg (+ idx 1)))
+  )))
+
+(define (cantor-set)
+  (local (width height lines)
+    (setq width 81)
+    (setq height 5)
+    (setq lines (array height width '("■")))
+    (cantor 0 width 1)
+    (for (i 0 (- height 1))
+      (for (j 0 (- width 1))
+        (print (lines i j))
+      )
+      (println {})
+    )))
+
+(cantor-set)
+;-> ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+;-> ■■■■■■■■■■■■■■■■■■■■■■■■■■■                           ■■■■■■■■■■■■■■■■■■■■■■■■■■■
+;-> ■■■■■■■■■         ■■■■■■■■■                           ■■■■■■■■■         ■■■■■■■■■
+;-> ■■■   ■■■         ■■■   ■■■                           ■■■   ■■■         ■■■   ■■■
+;-> ■ ■   ■ ■         ■ ■   ■ ■                           ■ ■   ■ ■         ■ ■   ■ ■
+
+
+---------------------------------------------
+INCREMENTO-DECREMENTO DI UNA STRINGA NUMERICA
+---------------------------------------------
+
+Scrivere due funzioni per incrementare e decrementare una stringa numerica.
+
+Incrementa una stringa numerica:
+
+(define (inc-str str)
+  (string (++ (int str 0 10))))
+
+(inc-str "-1")
+;-> 0
+(inc-str "08")
+;-> "9"
+(inc-str "")
+;-> "1"
+
+Decrementa una stringa numerica:
+
+(define (dec-str str)
+  (string (-- (int str 0 10))))
+
+(dec-str "-1")
+;-> "-2"
+(dec-str "12abc")
+;-> "11"
+(dec-str "abc12")
+;-> "-1"
+
+
+------------------------
+FUNZIONI DI PRIMA CLASSE
+------------------------
+
+Un linguaggio ha funzioni di prima classe ("first-class funciton") se può eseguire ciascuna delle seguenti operazioni senza invocare ricorsivamente un compilatore o un interprete o la metaprogrammazione:
+
+1) Creare nuove funzioni da funzioni preesistenti in fase di esecuzione
+2) Memorizzare le funzioni in oggetti iterabili (es. liste,vettori)
+3) Usare le funzioni come argomenti per altre funzioni
+4) Usare le funzioni come valori di ritorno di altre funzioni
+
+Il seguente codice effettua tutte le operazioni richieste:
+
+(define (compose f g) (expand (lambda (x) (f (g x))) 'f 'g))
+(define (cube x) (pow x 3))
+(define (cube-root x) (pow x (div 1 3)))
+
+(setq function (list sin cos cube))
+(setq inverse (list asin acos cube-root))
+(setq x 0.5)
+
+(define (go f g)
+  (if (not (or (null? f) (null? g)))
+      (begin (println ((compose (first f) (first g)) x))
+             (go (rest f) (rest g)))))
+
+(go function inverse)
+;-> 0.5
+;-> 0.4999999999999999
+;-> 0.5000000000000001
+
+Prima-classe (first-class) e Ordine-superiore (high-class)
+----------------------------------------------------------
+Funzione di prima classe: 
+un linguaggio di programmazione ha funzioni di prima classe se le funzioni in quel linguaggio vengono trattate come altre variabili. Quindi le funzioni possono essere assegnate a qualsiasi altra variabile o passate come argomento o possono essere restituite da un'altra funzione.
+
+Funzione di ordine superiore: 
+una funzione che riceve un'altra funzione come argomento o che restituisce una nuova funzione o entrambe è chiamata funzione di ordine superiore. Le funzioni di ordine superiore sono possibili solo grazie alla funzione di prima classe.
+
+
