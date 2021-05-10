@@ -3199,3 +3199,390 @@ Scriviamo una funzione che calcola i valori di tutte le combinazioni per un dete
 ;-> Chance:    15
 
 
+------------
+Gioco del 15
+------------
+
+Il gioco del quindici è un puzzle creato nel 1874 da Noyes Palmer Chapman e reso noto nel 1880 da Samuel Loyd. Il gioco consiste di una tabellina di forma quadrata, solitamente di plastica, divisa in quattro righe e quattro colonne (quindi 16 posizioni), su cui sono posizionate 15 tessere quadrate, numerate progressivamente a partire da 1 fino a 15. Le tessere possono scorrere in orizzontale o verticale, ma il loro spostamento è limitato dall'esistenza di un singolo spazio vuoto. Lo scopo del gioco è riordinare le tessere dopo averle "mescolate" in modo casuale (la posizione da raggiungere è quella con il numero 1 in alto a sinistra e gli altri numeri a seguire da sinistra a destra e dall'alto in basso, fino al 15 seguito dalla casella vuota).
+
+Posizione finale (soluzione) del gioco del 15
+
+  ╔════╦════╦════╦════╗
+  ║  1 ║  2 ║  3 ║  4 ║
+  ╠════╬════╬════╬════╣
+  ║  5 ║  6 ║  7 ║  8 ║
+  ╠════╬════╬════╬════╣
+  ║  9 ║ 10 ║ 11 ║ 12 ║
+  ╠════╬════╬════╬════╣
+  ║ 13 ║ 14 ║ 15 ║    ║
+  ╚════╩════╩════╩════╝
+
+Il compito è scrivere un programma per giocare al gioco del 15 sul terminale.
+
+Rappresentiamo una posizione del puzzle con una lista dove lo spazio vuoto vale 0 (zero):
+
+(setq pos '((10 2 6 4) (15 0 7 8) (9 1 11 13) (12 14 5 3)))
+(setq sol '((1 2 3 4) (5 6 7 8) (9 10 11 12) (13 14 15 0)))
+
+Prima di tutto scriviamo una funzione che stampa il puzzle:
+
+;(define (print-puzzle grid)
+;  (println "+----+----+----+----+")
+;  (for (i 0 3)
+;    (for (j 0 3)
+;      (if (zero? (grid i j))
+;          (print "|    ")
+;          (print (format "|%3d " (grid i j))))
+;    )
+;    (println "|")
+;    (println "+----+----+----+----+")
+;  ))
+
+(define (print-puzzle grid)
+  (println "╔════╦════╦════╦════╗")
+  (for (i 0 3)
+    (for (j 0 3)
+      (if (zero? (grid i j))
+          (print "║    ")
+          (print (format "║%3d " (grid i j))))
+    )
+    (println "║")
+    (if (< i 3)
+        (println "╠════╬════╬════╬════╣")
+        (println "╚════╩════╩════╩════╝")
+    )
+  ))
+
+(print-puzzle pos)
+;-> ╔════╦════╦════╦════╗
+;-> ║ 10 ║  2 ║  6 ║  4 ║
+;-> ╠════╬════╬════╬════╣
+;-> ║ 15 ║    ║  7 ║  8 ║
+;-> ╠════╬════╬════╬════╣
+;-> ║  9 ║  1 ║ 11 ║ 13 ║
+;-> ╠════╬════╬════╬════╣
+;-> ║ 12 ║ 14 ║  5 ║  3 ║
+;-> ╚════╩════╩════╩════╝
+
+Poi ci serve una funzione che restituisce le mosse valide partendo da una posizione del puzzle:
+
+Indici della griglia:
+
+  +----+----+----+----+
+  | 00 | 01 | 02 | 03 |
+  +----+----+----+----+
+  | 10 | 11 | 12 | 13 |
+  +----+----+----+----+
+  | 20 | 21 | 22 | 23 |
+  +----+----+----+----+
+  | 30 | 31 | 32 | 33 |
+  +----+----+----+----+
+
+(define (valid-moves grid)
+  ; hard-coded valid moves
+  ; based on position of "0"
+  (case (ref 0 grid)
+    ((0 0) '((0 1) (1 0)))
+    ((0 1) '((0 0) (0 2) (1 1)))
+    ((0 2) '((0 1) (0 3) (1 2)))
+    ((0 3) '((0 2) (1 3)))
+    ((1 0) '((0 0) (1 1) (2 0)))
+    ((1 1) '((0 1) (1 0) (1 2) (2 1)))
+    ((1 2) '((0 2) (1 1) (1 3) (2 2)))
+    ((1 3) '((0 3) (1 2) (2 3)))
+    ((2 0) '((1 0) (2 1) (3 0)))
+    ((2 1) '((1 1) (2 0) (2 2) (3 1)))
+    ((2 2) '((1 2) (2 1) (2 3) (3 2)))
+    ((2 3) '((1 3) (2 2) (3 3)))
+    ((3 0) '((2 0) (3 1)))
+    ((3 1) '((2 1) (3 0) (3 2)))
+    ((3 2) '((2 2) (3 1) (3 3)))
+    ((3 3) '((2 3) (3 2)))
+    (true nil)))
+
+(setq g '((1 2 3 4) (5 6 7 8) (9 10 11 12) (13 14 15 0)))
+(valid-moves g)
+;-> ((2 3) (3 2))
+
+Adesso abbiamo bisogno di una funzione per verificare se una posizione è la soluzione del puzzle (cioè se il puzzle è stato risolto):
+
+(define (endgame? grid)
+  (= grid '((1 2 3 4) (5 6 7 8) (9 10 11 12) (13 14 15 0))))
+
+Adesso possiamo scrivere la funzione che accetta l'input di una mossa da parte dell'utente:
+
+(define (read-move grid)
+  (local (move pos valid row col ok)
+    (setq ok nil)
+    ; fino a che la mossa non è valida...
+    (until ok
+      (print "(" num-mosse ") - Numero (1..15): ")
+      (setq move (int (read-line)))
+      ; accetta solo numeri da 1 a 15
+      (while (or (< move 1) (> move 15) (not (integer? move)))
+          (print "(" num-mosse ") - Numero (1..15): ")
+          (setq move (int (read-line)))
+      )
+      ; controlla validità mossa
+      (setq pos (ref move grid))
+      (setq valid (valid-moves grid))
+      (if (find pos valid)
+          (setq ok true)
+          (println "Errore: numero fisso")
+      )
+    )
+    pos))
+
+(print-puzzle pos)
+;-> ╔════╦════╦════╦════╗
+;-> ║ 10 ║  2 ║  6 ║  4 ║
+;-> ╠════╬════╬════╬════╣
+;-> ║ 15 ║    ║  7 ║  8 ║
+;-> ╠════╬════╬════╬════╣
+;-> ║  9 ║  1 ║ 11 ║ 13 ║
+;-> ╠════╬════╬════╬════╣
+;-> ║ 12 ║ 14 ║  5 ║  3 ║
+;-> ╚════╩════╩════╩════╝
+(read-move pos)
+;-> (0) - Numero (1..15): 10
+;-> Errore: numero fisso
+;-> (0) - Numero (1..15): 2
+;-> (0 1)
+
+Prima di scrivere la parte del programma che gestisce tutto il gioco, dobbiamo creare una posizione di partenza per il puzzle. La prima idea è quella di generare una lista/matrice 4x4 con numeri da 0 a 15 posizionati in modo casuale. Per esempio:
+
+(define (crea-puzzle)
+  (explode (randomize '(0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15)) 4))
+
+(print-puzzle (crea-puzzle))
+;-> ╔════╦════╦════╦════╗
+;-> ║  6 ║ 13 ║ 11 ║  7 ║
+;-> ╠════╬════╬════╬════╣
+;-> ║  4 ║  1 ║  2 ║ 14 ║
+;-> ╠════╬════╬════╬════╣
+;-> ║  9 ║ 10 ║ 15 ║  5 ║
+;-> ╠════╬════╬════╬════╣
+;-> ║ 12 ║    ║  8 ║  3 ║
+;-> ╚════╩════╩════╩════╝
+
+Purtroppo non è così semplice perchè il problema è che non tutte le posizioni casuali di partenza sono risolvibili (tralasciamo la dimostrazione matematica). Comunque esiste un algoritmo che permette di determinare se una posizione è risolvibile o meno.
+
+In generale, per una data griglia di dimensione N, un puzzle (N*N - 1) è risolvibile o meno in base alle seguenti regole:
+
+a) Se N è dispari, l'istanza del puzzle è risolvibile se il numero di inversioni è pari nello stato iniziale di input.
+
+b) Se N è pari, l'istanza del puzzle è risolvibile se 
+  1) lo spazio vuoto (zero) è su una riga pari contando dal basso (penultima, quarto-ultima, ecc.) e il numero di inversioni è dispari
+  oppure
+  2) lo spazio vuoto si trova su una riga dispari contando dal basso (ultima, terzultima, quintultima, ecc.) e il numero di inversioni è pari
+
+Per tutti gli altri casi, l'istanza del puzzle non è risolvibile.
+
+Cos'è un'inversione?
+Se assumiamo che le tessere (numeri) siano scritte in una singola riga (1D Array) invece di essere distribuite in N-file (2D Array), allora una coppia di tessere (a, b) formano un'inversione se a appare prima di b, ma a > b.
+
+Per esempio considerando le tessere scritte in questo modo:
+
+2 1 3 4 5 6 7 8 9 10 11 12 13 14 15 X
+
+allora formano solo una (1) inversione, ovvero (2, 1).
+
+Scriviamo una funzione che calcola il numero di inversioni per una posizione del puzzle:
+
+(define (inversion grid)
+  (local (lst inver)
+    (setq lst (flat grid))
+    ; tolgo lo zero
+    (pop lst (ref 0 lst))
+    (setq inver 0)
+    (for (i 0 (- (length lst) 2))
+      (for (j (+ i 1) (- (length lst) 1))
+        (if (and (< i j) (> (lst i) (lst j)))
+            (++ inver)
+        )
+      )
+    )
+    inver))
+
+(inversion '(2 1 3 4 5 6 7 8 9 10 11 12 13 14 15 0))
+;-> 1
+(inversion '((13 2 10 3) (1 12 8 4) (5 0 9 6) (15 14 11 7)))
+;-> 41
+(inversion '((6 13 7 10) (8 9 11 0) (15 2 12 5) (14 3 1 4)))
+;-> 62
+(inversion '((3 9 1 15) (14 11 4 6) (13 0 10 12) (2 7 8 5)))
+;-> 56
+
+Adesso scriviamo una funzione che verifica se una posizione del puzzle è risolvibile:
+
+(define (solvable grid)
+  (local (zero zero-row zero-col)
+    (setq zero (ref 0 grid))
+    (setq zero-row (first zero))
+    (setq zero-col (last zero))
+    (setq inver (inversion grid))
+    (if (or (and (even? zero-row) (odd? inver))
+            (and (odd? zero-row) (even? inver)))
+        true
+        nil
+    )))
+
+(solvable '((1 2 3 4) (5 6 7 8) (9 10 11 12) (13 14 15 0)))
+;-> true
+(solvable '((13 2 10 3) (1 12 8 4) (5 0 9 6) (15 14 11 7)))
+;-> true
+(solvable '((6 13 7 10) (8 9 11 0) (15 2 12 5) (14 3 1 4)))
+;-> true
+(solvable '((3 9 1 15) (14 11 4 6) (13 0 10 12) (2 7 8 5)))
+;-> nil
+
+Adesso possiamo scrivere la funzione che crea un puzzle valido:
+
+(define (crea-puzzle)
+  (local (grid lst ok)
+    (setq ok nil)
+    (setq lst '(0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15))
+    (until ok
+      (setq grid (explode (randomize lst) 4))
+      (if (solvable grid)
+        (setq ok true)
+      )
+    )
+    grid))
+
+Proviamo a generare un paio di puzzle:
+
+(crea-puzzle)
+;-> ((12 0 2 14) (15 5 4 1) (3 9 13 11) (6 8 10 7))
+(print-puzzle (crea-puzzle))
+;-> ╔════╦════╦════╦════╗
+;-> ║  9 ║ 11 ║  2 ║ 15 ║
+;-> ╠════╬════╬════╬════╣
+;-> ║  8 ║ 12 ║  4 ║ 14 ║
+;-> ╠════╬════╬════╬════╣
+;-> ║  7 ║  5 ║ 10 ║    ║
+;-> ╠════╬════╬════╬════╣
+;-> ║  1 ║  3 ║ 13 ║  6 ║
+;-> ╚════╩════╩════╩════╝
+
+Un altro metodo di creare una posizione iniziale per il puzzle è il seguente:
+1) partendo dalla posizione di soluzione del puzzle
+2) generare un predefinito numero di mosse casuali valide
+
+In questo modo la posizione finale è sicuramente risolvibile.
+
+(define (create-puzzle level)
+  (local (grid iter valid mossa mossa-row mossa-col zero zero-row zero-col)
+    (seed (time-of-day))
+    ; posizione iniziale (puzzle risolto)
+    (setq grid '((1 2 3 4) (5 6 7 8) (9 10 11 12) (13 14 15 0)))
+    ; numero di iterazioni (mosse casuali)
+    (setq iter (* level 10))
+    (for (i 0 iter)
+      ; trova mosse valide
+      (setq valid (valid-moves grid))
+      (setq mossa (valid (rand (length valid))))
+      (setq mossa-row (first mossa))
+      (setq mossa-col (last mossa))
+      ; trova posizione dello zero
+      (setq zero (ref 0 grid))
+      (setq zero-row (first zero))
+      (setq zero-col (last zero))
+      ; effettua la mossa (scambia le due posizioni)
+      (swap (grid zero-row zero-col) (grid mossa-row mossa-col))
+    )
+    grid))
+
+Con questo metodo possiamo gestire (più o meno) la complessità del puzzle generato, infatti maggiore è il numero dei passi effettuati e più difficile (lunga) sarà la soluzione (generalmente).
+
+Puzzle semplicissimo:
+
+(print-puzzle (create-puzzle 0))
+;-> ╔════╦════╦════╦════╗
+;-> ║  1 ║  2 ║  3 ║  4 ║
+;-> ╠════╬════╬════╬════╣
+;-> ║  5 ║  6 ║  7 ║  8 ║
+;-> ╠════╬════╬════╬════╣
+;-> ║  9 ║ 10 ║ 11 ║ 12 ║
+;-> ╠════╬════╬════╬════╣
+;-> ║ 13 ║ 14 ║    ║ 15 ║
+;-> ╚════╩════╩════╩════╝
+
+Puzzle più complicato
+(print-puzzle (create-puzzle 1000))
+;-> ╔════╦════╦════╦════╗
+;-> ║  9 ║    ║ 11 ║ 10 ║
+;-> ╠════╬════╬════╬════╣
+;-> ║ 15 ║ 13 ║  3 ║  6 ║
+;-> ╠════╬════╬════╬════╣
+;-> ║  4 ║ 14 ║  8 ║ 12 ║
+;-> ╠════╬════╬════╬════╣
+;-> ║  5 ║  2 ║  7 ║  1 ║
+;-> ╚════╩════╩════╩════╝
+
+Verifichiamo che i puzzle creati da quest'ultima funzione siano risolvibili:
+
+(solvable (create-puzzle 100))
+;-> true
+(solvable (create-puzzle 200))
+;-> true
+
+Finalmente siamo arrivati ad implementare la funzione finale che gestisce tutto il gioco:
+
+(define (puzzle15 level)
+  (local (griglia num-mosse mossa mossa-row mossa-col zero zero-row zero-col end-game)
+    (setq end-game nil)
+    (setq num-mosse 0)
+    ;(setq griglia '((10 2 6 4) (15 0 7 8) (9 1 11 13) (12 14 5 3)))
+    (setq griglia (create-puzzle level))
+    ;(setq griglia '((1 2 3 4) (5 6 7 8) (9 10 11 12) (13 14 0 15)))
+    (println "Puzzle 15")
+    (until end-game
+      (print-puzzle griglia)
+      ; input mossa
+      (setq mossa (read-move griglia))
+      (println { })
+      ; aggiorna numero mosse
+      (++ num-mosse)
+      ; aggiornamento della griglia (applica mossa)
+      (setq mossa-row (first mossa))
+      (setq mossa-col (last mossa))
+      (setq zero (ref 0 griglia))
+      (setq zero-row (first zero))
+      (setq zero-col (last zero))
+      (swap (griglia zero-row zero-col) (griglia mossa-row mossa-col))
+      ; controllo puzzle risolto
+      (cond ((endgame? griglia)
+              (print-puzzle griglia)
+              (println "(" num-mosse ") - Bravo!!!")
+              (setq end-game true))
+      )
+     )))
+
+Iniziamo una partita:
+
+(puzzle15 100)
+Puzzle 15
+;-> ╔════╦════╦════╦════╗
+;-> ║ 10 ║ 12 ║  5 ║  8 ║
+;-> ╠════╬════╬════╬════╣
+;-> ║  9 ║  3 ║  7 ║  4 ║
+;-> ╠════╬════╬════╬════╣
+;-> ║ 13 ║    ║  6 ║ 14 ║
+;-> ╠════╬════╬════╬════╣
+;-> ║  1 ║  2 ║ 15 ║ 11 ║
+;-> ╚════╩════╩════╩════╝
+;-> (0) - Numero (1..15): 13
+;-> 
+;-> ╔════╦════╦════╦════╗
+;-> ║ 10 ║ 12 ║  5 ║  8 ║
+;-> ╠════╬════╬════╬════╣
+;-> ║  9 ║  3 ║  7 ║  4 ║
+;-> ╠════╬════╬════╬════╣
+;-> ║    ║ 13 ║  6 ║ 14 ║
+;-> ╠════╬════╬════╬════╣
+;-> ║  1 ║  2 ║ 15 ║ 11 ║
+;-> ╚════╩════╩════╩════╝
+;-> (1) - Numero (1..15):
+
+

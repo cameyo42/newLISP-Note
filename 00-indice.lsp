@@ -796,6 +796,7 @@ NOTE LIBERE 4
   replace multiplo
   ASCII Mandelbrot
   Yahtzee
+  Gioco del 15
 
 APPENDICI
 =========
