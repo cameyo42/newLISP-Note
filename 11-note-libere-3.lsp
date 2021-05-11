@@ -6794,7 +6794,166 @@ Facciamo una partita:
 ;->   ·---·---·---·
 ;-> Partita terminata: patta
 
-Nota: l'intero programma è costituito da 66 linee di codice.
+Vediamo ora un altro programma che permette di giocare contro il computer. Non è imbattibile, ma è abbastanza forte.
+
+#!/usr/bin/newlisp
+#
+# An unbeatable TicTacToe. A small study to do AI with newLisp.
+#
+# Board moves are:
+#   1 2 3
+#   4 5 6
+#   7 8 9
+#
+# The strategy is twofold:
+#	1) Determine priority of preferred moves on board
+#	2) Think one move ahead to see if X can make 3-in-a-row
+#
+# Future improvements: think ahead more.
+#
+# Version 1.0
+# - Initial release
+# Version 1.1
+# - Fixed bug with playing in corners
+# - Code optimizations
+#
+# June 12, 2005 - PvE.
+#
+# Version 1.2
+# - adapted to newLISP 10.7.5
+# - better graphics
+# - add main function
+#
+# May 10, 2021 - cameyo
+#
+#--------------------------------------------------- Interaction with user
+#
+# Function to print board on console
+(define (print_board)
+  (println "╔═══╦═══╦═══╗")
+  (for (i 1 9)
+		(if (or (= (board i) 'X) (= (board i) 'O))
+          (print "║ " (board i) " ")
+          (print "║   ")
+    )
+		(if (= (mod i 3) 0) (begin
+      (println "║")
+      (if (< i 8)
+          (println "╠═══╬═══╬═══╣")
+          (println "╚═══╩═══╩═══╝")
+      )
+    ))
+  ))
+#
+# Function to print board on console
+;(define (print_board)
+;	(for (n 1 9)
+;		(if (and (!= (board n) 'X) (!= (board n) 'O))
+;			(print (string n) " ")
+;			(print (string (board n)) " "))
+;		(if (= (mod n 3) 0) (println))))
+#
+# Function to get input from user
+(define (get_input)
+	(print "Enter your move (1..9): ")
+	(do-until (and (> input 48)(< input 58))(set 'input (read-key)))
+	(println (- input 48)))
+#
+#--------------------------------------------------- End of game queries
+#
+# Function to find out if there is a winning position for col X/O
+(define (has_won col)
+	(catch (dolist (n won)
+		(if (= (select board n) col) (throw true)))))
+#
+# Check if game is at end
+(define (game_end)
+	(if (has_won '(X X X))
+		(begin (print_board)(println "---> X has won! <---") true)
+		(if (has_won '(O O O))
+			(begin (print_board) (println "---> O has won! <---") true)
+			(if (= (find 0 board) nil)
+				(begin (print_board) (println "---> Equal game! <---") true) nil))))
+#
+#--------------------------------------------------- Intelligence starts here
+#
+# Define preferred moves - sequences need improvement using some maths
+(define (set_preferred)
+	(catch (dolist (n split)
+		(if (= (select board n) '(X X))
+			(throw (case n
+				((2 4) '(1 5 3 7 9 6 8))
+				((2 6) '(3 5 1 7 9 4 8))
+				((4 8) '(7 5 9 1 3 2 6))
+				((6 8) '(9 5 7 1 3 2 4))
+				((1 8) '(4 5 3 7 9 2 6))
+				((1 6) '(2 5 3 7 9 4 6))
+				((7 6) '(8 5 1 9 3 4 2))
+				((7 2) '(4 5 1 9 3 8 2))
+				((9 2) '(6 5 7 3 1 4 8))
+				((9 4) '(8 5 7 3 1 4 6))
+				((3 4) '(2 5 9 1 7 6 8))
+				((3 8) '(6 5 9 1 7 2 8)))))
+		'(5 1 3 7 9 2 4 6 8))))
+#
+# Function to play move N with color X/O if legal
+(define (validate_input n col)
+	(if (and (!= (board n) 'X)(!= (board n) 'O))
+		(begin (setf (board n) col) true)))
+#
+# Think one move ahead by evaluating X
+(define (eval_x)
+	(set 'res nil)
+	(for (l 1 9)
+		(if (validate_input l 'X)
+			(begin
+				(if (has_won '(X X X))
+					(begin (setq (board l) 0)
+          ;(nth-set l board 0)
+          (set 'res true)))
+				(setq (board l) 0)))) res)
+				;(nth-set l board 0)))) res)
+#
+# Try next move
+(define (next_move)
+	(catch (dolist (m (set_preferred))
+		(if (validate_input m 'O)
+			(if (has_won '(O O O))
+				(throw)
+				(if (eval_x)
+					(setf (board m) 0)
+					;(nth-set m board 0)
+					(throw)))))))
+#
+#--------------------------------------------------- Main routine
+(define (tic-tac-toe)
+  # --- General setup
+  # Define winning board positions
+  (set 'won '((1 2 3)(4 5 6)(7 8 9)(1 4 7)(2 5 8)(3 6 9)(1 5 9)(3 5 7)))
+  # Define split actions
+  (set 'split '((2 4)(2 6)(4 8)(6 8)(1 8)(1 6)(7 6)(7 2)(9 2)(9 4)(3 4)(3 8)))
+  # Setup board for X and O
+  (set 'board '(N 0 0 0 0 0 0 0 0 0))
+  # --- Main loop
+  (while (not (game_end))
+    # Print current situation
+    (print_board)
+    # Get move
+    (while (not (validate_input (get_input) 'X)) (println "Try other move!"))
+    # Play move
+    (next_move)
+  )
+  'end)
+#--------------------------------------------------- Run game
+(tic-tac-toe)
+;(exit)
+;-> ╔═══╦═══╦═══╗
+;-> ║ O ║ X ║ X ║
+;-> ╠═══╬═══╬═══╣
+;-> ║ X ║ O ║ O ║
+;-> ╠═══╬═══╬═══╣
+;-> ║ O ║ X ║ X ║
+;-> ╚═══╩═══╩═══╝
 
 
 ----------------
@@ -9230,4 +9389,5 @@ Aumentiamo il numero di iterazioni della simulazione:
 (quadrato 1e7)
 ;-> 0.6667395
 
+=============================================================================
 

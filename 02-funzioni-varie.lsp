@@ -7561,4 +7561,5 @@ Scrivere una funzione che calcola la variazione percentuale tra due numeri x e y
 (delta% 60 20)
 ;-> -66.66666666666667
 
+=============================================================================
 

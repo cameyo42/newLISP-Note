@@ -7570,4 +7570,5 @@ Macchina di Turing Universale
 Il problema con le MdT è che è necessario costruirne una diversa per ogni nuovo calcolo da eseguire, per ogni relazione di input/output.
 Questo è il motivo per cui introduciamo l'idea di una macchina di turing universale (MdTU), che prende come parametri di ingresso sia i dati di input sul nastro che la descrizione di una MdT. La MdTU può continuare quindi a simulare la MdT sul resto del contenuto del nastro di input. Una macchina di turing universale può quindi simulare qualsiasi altra macchina.
 
+=============================================================================
 

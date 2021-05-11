@@ -7265,4 +7265,5 @@ Verifichiamo che la hash-map non esiste più:
 (hash)
 ;-> ERR: invalid function : (hash)
 
+=============================================================================
 

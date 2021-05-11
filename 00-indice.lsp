@@ -314,6 +314,11 @@ ROSETTA CODE
   Insieme di Cantor
   Incremento-decremento di una stringa numerica
   Funzioni di prima classe
+  Inversione frase
+  Conteggio popolazione
+  Selezione casuale da una lista
+  Rappresentazione di Zeckendorf
+  Vecchie unità di misura Russe
 
 PROJECT EULERO
 ==============
@@ -866,4 +871,5 @@ SOFTWARE.
 Klaatu barada nikto
 ==========================================================================
 
+=============================================================================
 

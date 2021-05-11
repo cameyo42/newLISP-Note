@@ -163,7 +163,7 @@ Strutturare una applicazione
 ============================
 Quando si scrivono applicazioni più grandi o quando più programmatori stanno lavorando sulla stessa base di codice, è necessario dividere la base di codice in moduli. I moduli in newLISP vengono implementati utilizzando i contesti, che sono spazi dei nomi. Gli spazi dei nomi consentono l'isolamento lessicale tra i moduli. Le variabili con lo stesso nome in un modulo non possono entrare in conflitto con le variabili con lo stesso nome in un altro modulo.
 
-In genere, i moduli sono organizzati in un contesto per file.
+In genere, i moduli sono organizzati in un contesto per ogni file.
 Un modulo file può contenere routine di accesso al database:
 
 ; database.lsp
@@ -309,7 +309,6 @@ Questo esempio mostra anche come una funzione di default viene definita al volo 
 (fibo) → 8
 
 Sebbene la prima forma sia più breve, la seconda è più leggibile.
-Although the first form is shorter, the second form is more readable.
 
 Packaging data with contexts
 ============================

@@ -8221,4 +8221,5 @@ Funzione che verifica le permutazioni palindrome:
 (perm-pali "racecar")
 ;-> ("racecar" "rcaeacr" "craearc" "carerac" "arcecra" "acrerca")
 
+=============================================================================
 

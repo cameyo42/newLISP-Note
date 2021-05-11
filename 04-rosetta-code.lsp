@@ -1997,30 +1997,14 @@ Come abbiamo anticipato, si può trovare la soluzione calcolando A(n,W). Per far
   )
 )
 
-(setq item '((maps 9 150)
-             (compass 13 35)
-             (water 153 200)
-             (sandwich 50 160)
-             (glucose 15 60)
-             (tin 68 45)
-             (banana 27 60)
-             (apple 39 40)
-             (cheese 23 30)
-             (beer 52 10)
-             (suntan-cream 11 70)
-             (camera 32 30)
-             (T-shirt 24 15)
-             (trousers 48 10)
-             (umbrella 73 40)
-             (waterproof-trousers 42 70)
-             (waterproof-overclothes 43 75)
-             (note-case 22 80)
-             (sunglasses 7 20)
-             (towel 18 12)
-             (socks 4 50)
+(setq item '((maps 9 150) (compass 13 35) (water 153 200) (sandwich 50 160)
+             (glucose 15 60) (tin 68 45) (banana 27 60) (apple 39 40)
+             (cheese 23 30) (beer 52 10) (suntan-cream 11 70) (camera 32 30)
+             (T-shirt 24 15) (trousers 48 10) (umbrella 73 40)
+             (waterproof-trousers 42 70) (waterproof-overclothes 43 75)
+             (note-case 22 80) (sunglasses 7 20) (towel 18 12) (socks 4 50)
              (book 30 10)
-            )
-)
+            ))
 
 (knapsack 400 items)
 ;-> Valore: 1030 Peso: 396
@@ -11375,7 +11359,7 @@ Definiamo una funzione che calcola i numeri descrittivi fino ad un dato numero:
 Vediamo i tempi di calcolo:
 
 (time (autodesc 1e8))
-;-> 1210, 2020, 21200, 3211000, 42101000, 
+;-> 1210, 2020, 21200, 3211000, 42101000,
 ;-> 378928.914 ;6 minuti e 20 secondi (circa)
 
 
@@ -11393,8 +11377,8 @@ Se le liste corrispondono (ovvero la lista originale era già ordinata), la funz
 Se le liste non corrispondono (ovvero la lista originale non è stato ordinata), la funzione restituisce false (nil).
 
 (define (jort-sort lst)
-  (if (= lst (sort (copy lst))) 
-      true 
+  (if (= lst (sort (copy lst)))
+      true
       nil))
 
 (jort-sort '(1 2 3 5 2))
@@ -11465,7 +11449,7 @@ Un altro esempio di coppia di funzioni mutuamente ricorsive è il seguente:
 NUMERI IN BASE NEGATIVA
 -----------------------
 
-I numeri in base negativa sono un modo alternativo per codificare i numeri senza la necessità del segno meno "-". È possibile utilizzare varie basi negative, tra cui nega-decimale (base -10), nega-binaria (-2) e nega-ternaria (-3). 
+I numeri in base negativa sono un modo alternativo per codificare i numeri senza la necessità del segno meno "-". È possibile utilizzare varie basi negative, tra cui nega-decimale (base -10), nega-binaria (-2) e nega-ternaria (-3).
 
 Una base negativa può essere utilizzata per costruire un sistema numerico posizionale non standard. Come altri sistemi a valore posizionale, ogni posizione contiene multipli della potenza appropriata della base del sistema, solo che in questo caso la base è negativa, cioè la base b è uguale a −r per qualche numero naturale r (r ≥ 2).
 
@@ -11717,7 +11701,7 @@ Qualsiasi sistema che utilizza gli angoli di Eulero (Maya, Max, Lightwave, Softi
 
 Il programma ZBrush (Pixologic) utilizza internamente sia gli angoli di Eulero che i quaternioni, ma il linguaggio di scripting mette a disposizione solo gli angoli di Eulero. Questa è la risposta di Pixolator (alias Ofer Alon, creatore del programma Zbrush) ad una mia richiesta di spiegazioni nel lontano luglio 2003:
 
-"Hi Cameyo: 
+"Hi Cameyo:
 As you have already figured out, rotation system is a bit complicated. Internally, ZBrush is utilizing rotation matrices, Euler angles as well as quaternions.The rotation values in the TRNASFORM palette (and the TransformGet commands) are values that have been translated from ZBrush's internal representation into a more readable x,y,z angles format. The effective range for Y and Z rotations is ± 180 degrees. Values that are outside this range are automatically readjusted to fit within this range. The effective range for the X axis is only ±90 (this is why your ZScript is problematic when the X axis angle crosses the 90 degrees range). If you use values outside this range, the X will be readjusted and may require the Y axis to be reflected (+180 degrees). As mentioned above, "Gimbal lock" is also an issue when rotating an object by 90 degrees increments.
 
 These factors must be taken into consideration when ZScripting rotation commands. One of ZBrush's standard ZScripts is the "PointFromTo" ZScript. This ZScript present a solution to a different, but yet related, rotation problem. I am including the source code of the "PointFromTo" ZScript here, you may find it helpful to your rotation explorations
@@ -11785,7 +11769,7 @@ Vediamo come visualizzare i valori dei tre cicli nell'intervallo (-100, 100):
 (define (cicli)
   (println " Emotivo       Fisico        Mentale")
   (println " gg    val     gg    val     gg    val")
-  (for (i 0 33 1) 
+  (for (i 0 33 1)
     (print (format "%3d  %+5d    " i (round (mul 100 (fisico i)))))
     (print (format "%3d  %+5d    " i (round (mul 100 (emotivo i)))))
     (print (format "%3d  %+5d    " i (round (mul 100 (mentale i)))))
@@ -11838,7 +11822,7 @@ Scriviamo una funzione che visualizza i valori dei bioritmi per 11 giorni (5 gio
   (setq post (+ giorni 5))
   (for (i pre post)
     (if (= i giorni) (println (format "%s" (dup "-" 31))))
-    (print (format "%+6d   %+6d   %+6d" 
+    (print (format "%+6d   %+6d   %+6d"
             (round (mul 100 (fisico i))) (round (mul 100 (emotivo i))) (round (mul 100 (mentale i)))))
     (if (= i giorni) (print (format "\n%s" (dup "-" 31))))
     (println {})
@@ -12124,10 +12108,256 @@ Il seguente codice effettua tutte le operazioni richieste:
 
 Prima-classe (first-class) e Ordine-superiore (high-class)
 ----------------------------------------------------------
-Funzione di prima classe: 
+Funzione di prima classe:
 un linguaggio di programmazione ha funzioni di prima classe se le funzioni in quel linguaggio vengono trattate come altre variabili. Quindi le funzioni possono essere assegnate a qualsiasi altra variabile o passate come argomento o possono essere restituite da un'altra funzione.
 
-Funzione di ordine superiore: 
+Funzione di ordine superiore:
 una funzione che riceve un'altra funzione come argomento o che restituisce una nuova funzione o entrambe è chiamata funzione di ordine superiore. Le funzioni di ordine superiore sono possibili solo grazie alla funzione di prima classe.
 
+
+----------------
+INVERSIONE FRASE
+----------------
+
+Data una stringa di parole separate da spazi scrivere tre funzioni per:
+
+1) Invertire i caratteri della stringa.
+2) Invertire i caratteri di ogni singola parola nella stringa, mantenendo l'ordine originale delle parole all'interno della stringa.
+3) Invertire l'ordine di ogni parola della stringa, mantenendo l'ordine dei caratteri in ogni parola.
+
+(setq str "Frase da invertire")
+
+1)
+(define (invert-chars str)
+  (reverse str))
+(invert-chars str)
+;-> "eritrevni ad esarF"
+
+2)
+(define (invert-words-chars str)
+  (map reverse (parse str " " )))
+(invert-words-chars str)
+;-> ("esarF" "ad" "eritrevni")
+
+3)
+(define (invert-words str)
+  (reverse (parse str " " )))
+(invert-words str)
+;-> ("invertire" "da" "Frase")
+
+
+---------------------
+CONTEGGIO POPOLAZIONE
+---------------------
+
+Il conteggio della popolazione (population count) è il numero di 1 (uno) nella rappresentazione binaria di un numero intero non negativo. Quseto valore è conosciuto anche con i seguenti nomi:
+
+ - pop count
+ - popcount
+ - sideways sum
+ - bit summation
+ - Hamming weight
+
+Ad esempio, 5 (che è 101 in binario) ha un conteggio della popolazione pari a 2.
+
+I numeri malvagi (Evil numbers) sono numeri interi non negativi che hanno un conteggio della popolazione pari (OEIS A001969).
+
+I numeri odiosi (Odious numbers) sono numeri interi positivi che hanno un conteggio della popolazione dispari (OEIS A000069).
+
+Scrivere una funzione che genera i numeri malvagi e i numeri odiosi fino ad un dato numero.
+
+(define (count-pop num)
+  (first (count '("1") (explode (bits num)))))
+(count-pop 100)
+;-> 3
+
+(define (evil-odious num)
+  (let ((evil '()) (odious '()) (val 0))
+    (for (i 0 num)
+      (setq val (count-pop i))
+      (if (even? val)
+          (push i evil -1)
+          (push i odious -1)
+      )
+    )
+    (list evil odious)))
+
+(evil-odious 30)
+;-> ((0 3 5 6 9 10 12 15 17 18 20 23 24 27 29 30)
+;->  (1 2 4 7 8 11 13 14 16 19 21 22 25 26 28))
+
+
+------------------------------
+SELEZIONE CASUALE DA UNA LISTA
+------------------------------
+
+Scrivere una funzione che seleziona un elemento casuale da una lista.
+
+(define (pick-rand lst)
+  (lst (rand (length lst))))
+
+(setq lst '(6 21 31 12 58 63 77 36 42))
+
+(pick-rand lst)
+;-> 6
+(pick-rand lst)
+;-> 63
+(pick-rand lst)
+;-> 21
+(pick-rand lst)
+;-> 63
+
+Se vogliamo ogni volta un elemento diverso (fino all'esaurimento dei numeri della lista) possiamo scrivere:
+
+(setq lst '(6 21 77 42))
+
+(define (pick-unique-rand)
+  (cond ((null? lst) nil)
+        (true
+        (let (val (lst (rand (length lst))))
+        (pop lst (find val lst))
+        val))))
+
+(pick-unique-rand lst)
+;-> 21
+(pick-unique-rand lst)
+;-> 77
+(pick-unique-rand lst)
+;-> 6
+(pick-unique-rand lst)
+;-> 42
+;-> (pick-unique-rand lst)
+nil
+
+Oppure possiamo generare tutta la lista di numeri casuali con la funzione "randomize":
+
+(define (get-unique-rand lst)
+  (randomize lst))
+
+(setq lst (sequence 1 90))
+
+(get-unique-rand lst)
+;-> (41 75 43 66 77 11 23 15 82 40 72 87 20 74 32 10 37 63 56 21 61 50
+;->  90 71 1 76 78 53 64 6 47 2 83 27 3 28 33 42 59 58 4 85 81 31 70 52
+;->  7 34 79 12 44 54 19 14 89 65 67 16 24 73 39 38 60 25 5 30 86 46 55
+;->  80 57 29 26 62 13 68 9 49 36 48 8 69 84 45 51 17 22 35 88 18)
+
+
+------------------------------
+RAPPRESENTAZIONE DI ZECKENDORF
+------------------------------
+
+Proprio come i numeri possono essere rappresentati in una notazione posizionale come somme di multipli delle potenze di dieci (decimali) o di due (binarie), tutti gli interi positivi possono essere rappresentati come la somma di una o zero volte i membri distinti della serie di Fibonacci.
+
+Ricorda che i primi sei numeri di Fibonacci distinti sono: 1, 2, 3, 5, 8, 13.
+
+Il numero decimale 11 (undici) può essere scritto come 0*13 + 1*8 + 0*5 + 1*3 + 0*2 + 0*1 o 010100 in notazione posizionale dove le colonne rappresentano la moltiplicazione per un particolare membro della sequenza. Gli zeri iniziali vengono eliminati in modo che 11 decimale diventi 10100.
+
+Tuttavia, 10100 non è l'unico modo per ricavare 11 dai numeri di Fibonacci: anche 0*13 + 1*8 + 0*5 + 0*3 + 1*2 + 1*1 o 010011 rappresenta anche il decimale 11. Comunque per un vero numero Zeckendorf c'è la restrizione aggiuntiva che non possono essere usati due numeri di Fibonacci consecutivi, quindi l'ultima rappresentazione di 11 non è un numero di Zeckendorf.
+
+Scrivere una funzione che converte un generico numero intero nel corrispondente numero di Zeckendorf.
+
+(define (fib num)
+  (if (< num 2)
+      num
+      (add (fib (- num 1)) (fib (- num 2)))))
+
+(define (zeckendorf num)
+  (local (fibNums fibPos curFibNum temp out)
+    (setq out "")
+    (setq fibNums '())
+    (setq fibPos 2)
+    (setq curFibNum (fib fibPos))
+    (do-while (<= curFibNum num)
+      (push curFibNum fibNums)
+      (++ fibPos)
+      (setq curFibNum (fib fibPos))
+    )
+    (setq temp num)
+    (dolist (el fibNums)
+      (if (<= el temp)
+        (begin
+          (push "1" out -1)
+          (setq temp (- temp el))
+        )
+        (push "0" out -1)
+      )
+    )
+    out))
+
+(zeckendorf 10)
+;-> "10010"
+
+(for (i 1 10)
+  (println i {: } (zeckendorf i))
+)
+;-> 1: 1
+;-> 2: 10
+;-> 3: 100
+;-> 4: 101
+;-> 5: 1000
+;-> 6: 1001
+;-> 7: 1010
+;-> 8: 10000
+;-> 9: 10001
+;-> 10: 10010
+
+
+-----------------------------
+VECCHIE UNITÀ DI MISURA RUSSE
+-----------------------------
+
+Scrivere un programma per convertire le vecchie misure di lunghezza russe nel sistema metrico (e viceversa).
+
+
+(setq unit-name '("kilometer" "meter" "centimeter"
+                  "tochka" "liniya" "diuym" "vershok" "piad"
+                  "fut" "arshin" "sazhen" "versta" "milia"))
+
+(setq unit-value '(1000.0 1.0 0.01
+                   0.000254 0.00254 0.0254 0.04445 0.1778
+                   0.3048 0.7112 2.1336 1066.8 7467.6))
+
+(define (russian-unit val unit)
+  (local (idx scala)
+    (setq idx (find unit unit-name))
+    (setq scala (mul val (unit-value idx)))
+    (println val " " unit " is:")
+    (dolist (el unit-name)
+      (cond ((!= el unit)
+            (println (format "%.6f %s" (div scala (unit-value $idx)) el)))
+      )
+    )))
+
+(russian-unit 1 "meter")
+;-> 1 meter is:
+;-> 0.001000 kilometer
+;-> 100.000000 centimeter
+;-> 3937.007874 tochka
+;-> 393.700787 liniya
+;-> 39.370079 diuym
+;-> 22.497188 vershok
+;-> 5.624297 piad
+;-> 3.280840 fut
+;-> 1.406074 arshin
+;-> 0.468691 sazhen
+;-> 0.000937 versta
+;-> 0.000134 milia
+
+(russian-unit 20 "piad")
+;-> 20 piad is:
+;-> 0.003556 kilometer
+;-> 3.556000 meter
+;-> 355.600000 centimeter
+;-> 14000.000000 tochka
+;-> 1400.000000 liniya
+;-> 140.000000 diuym
+;-> 80.000000 vershok
+;-> 11.666667 fut
+;-> 5.000000 arshin
+;-> 1.666667 sazhen
+;-> 0.003333 versta
+;-> 0.000476 milia
+
+=============================================================================
 

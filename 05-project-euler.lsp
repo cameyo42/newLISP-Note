@@ -4033,7 +4033,7 @@ Per formare il numero massimo di "d" cifre dobbiamo utilizzare tutti 9, e la som
 
  10^(d-1) <= d*9! < 10^d
 
-Provando alcuni valori di "d" notiamo che 9!*7 = 2540160. Non esiste un valore più alto, poiché sia 9!*8 che 9!*9 generano ugualmente numeri di 7 cifre (9!*8 = 2903040, 9!*93265920). Quindi il numero 9999999 genera 7*9! = 2540160.
+Provando alcuni valori di "d" notiamo che 9!*7 = 2540160. Non esiste un valore più alto, poiché sia 9!*8 che 9!*9 generano ugualmente numeri di 7 cifre (9!*8 = 2903040, 9!* = 93265920). Quindi il numero 9999999 genera 7*9! = 2540160.
 
 (define (e034)
   (local (fact-lst somma sol n)
@@ -11930,4 +11930,5 @@ Un altro algoritmo semplice e veloce, chiamato metodo baricentrico, consiste nel
 ;-> 0
 ----------------------------------------------------------------------------
 
+=============================================================================
 
