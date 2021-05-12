@@ -802,6 +802,8 @@ NOTE LIBERE 4
   ASCII Mandelbrot
   Yahtzee
   Gioco del 15
+  Numeri rari
+  Patience Sort
 
 APPENDICI
 =========
@@ -94109,6 +94111,265 @@ Puzzle 15
 ;-> ║  1 ║  2 ║ 15 ║ 11 ║
 ;-> ╚════╩════╩════╩════╝
 ;-> (1) - Numero (1..15):
+
+
+-----------
+Numeri rari
+-----------
+
+I numeri rari sono quei numeri che quando aggiunti o sottratti al suo rovescio danno un quadrato perfetto. In altre parole, i numeri rari sono numeri interi positivi n dove:
+
+  - n è espresso in base dieci
+  - r è il contrario di n (cifre decimali)
+  - n deve essere non palindromo (n ≠ r)
+  - (n + r) è la somma
+  - (n-r) è la differenza e deve essere positiva
+  - la somma e la differenza devono essere quadrati perfetti
+
+Sequenza OEIS: A035519
+65, 621770, 281089082, 2022652202, 2042832002, 868591084757, 872546974178,
+872568754178, 6979302951885, 20313693904202, 20313839704202, 20331657922202,
+20331875722202, 20333875702202, ...
+
+Funzione che verifica se un numero è un quadrato perfetto:
+
+(define (square? num)
+  (local (a)
+    (setq a num)
+    (while (> (* a a) num)
+      (setq a (/ (+ a (/ num a)) 2))
+    )
+    (= (* a a) num)))
+
+Non utilizziamo i big-integer, quindi possiamo arrivare a trovare solo i primi cinque numeri rari (limite dovuto alla funzione "square?"):
+
+(setq MAX-INT 9223372036854775807)
+(> MAX-INT (* 1e10 1e10))
+;-> true
+
+Funzione che verifica se un numero è un numero raro:
+
+(define (rare? num)
+  (local (rev sum diff)
+    (setq rev (int (reverse (string num)) 0 10))
+    (setq sum (+ num rev))
+    (setq diff (- num rev))
+    (cond ((< diff 0) nil)
+          ((= num rev) nil)
+          ((and (square? diff) (square? sum)) true)
+          (true nil))))
+
+(rare? 65)
+;-> true
+
+Funzione che calcola i numeri rari fino ad un dato numero:
+
+(define (rare-to num)
+  (for (i 10 num)
+    (if (rare? i) (println i))))
+
+(time (rare-to 1e6))
+;-> 65
+;-> 621770
+;-> 1809.423
+
+Però questo algoritmo è molto lento:
+
+(time (rare-to 1e8))
+;-> 65
+;-> 621770
+;-> 156984.385
+
+(time (rare-to 1e9))
+;-> 65
+;-> 621770
+;-> 281089082
+;-> 2296520.643 ; circa 38 minuti
+
+Proprietà dei numeri rari
+-------------------------
+Dato un numero ABCD...MNPQ con qualunque numero di cifre:
+
+1) Il valore di A può essere solo 2,4,6,8 (i numeri rari non possono iniziare con una cifra dispari).
+
+2) Se A = 2 allora risulta Q = 2 e B = P.
+Se A = 4 allora Q = 0 e B - P = cifra pari positiva o negativa, cioè -8, -6, -4, -2, 0, 2, 4, 6, 8.
+Se A = 6 allora Q = 0 o 5 e B - P = cifra dispari positiva o negativa cioè -9, -7, -5, -3, -1, 1, 3, 5, 7, 9.
+Se A = 8 allora Q = 2, 3, 7 o 8: se Q = 2 allora B + P = 9, se Q = 3 allora B - P = 7 per B>P e B - P = -3 per B<P e B non può mai essere uguale a P, se Q = 7 allora B + P = 11 per B>1 e B + P = 1 per B<1, se Q = 8 allora B = P.
+È chiaro dalla (1) e (2) sopra che se la prima e l'ultima cifra sono uguali, possono essere 2 o 8 e anche la seconda cifra B e P dovranno essere uguali. Anche la differenza tra la prima e l'ultima cifra, ad esempio A-Q di qualsiasi numero raro, può essere solo 0, 1, 4, 5 o 6. Il valore di Q non può mai essere 1, 4, 6, 9.
+
+3) la radice digitale può avere solo i valori 2, 5, 8 o 9.
+
+Le proprietà di cui sopra possono essere riassunte nella seguente forma tabellare:
+
+ +---+-------+------------------------+
+ | A |   Q   | B e P                  |
+ +---+-------+------------------------+
+ | 2 |   2   | B = P                  |
+ +---+-------+------------------------+
+ | 4 |   0   | |B - P| = pari         |
+ +---+-------+------------------------+
+ | 6 | 0 o 5 | |B - P| = dispari      |
+ +---+-------+------------------------+
+ | 8 |   2   | B + P = 9              |
+ +---+-------+------------------------+
+ | 8 |   3   | B - P = 7 o P - B = 3  |
+ +---+-------+------------------------+
+ | 8 |   7   | B + P = 11 o B + P = 1 |
+ +---+-------+------------------------+
+ | 8 |   8   | B = P                  |
+ +---+-------+------------------------+
+
+(define (prop num)
+  (local (ns A B P Q)
+    (setq ns (string num))
+    (setq A (int (ns 0)))
+    (setq B (int (ns 1)))
+    (setq P (int (ns -2)))
+    (setq Q (int (ns -1)))
+    (cond ((odd? A) nil)
+          ((= A 2) (and (= Q 2) (= B P)))
+          ((= A 4) (and (= Q 0) (even? (abs (- B P)))))
+          ((= A 6) (and (or (= Q 0) (= Q 5)) (odd? (abs (- B P)))))
+          ((= A 8) (cond ((= Q 2) (= (+ P B) 9))
+                         ((= Q 3) (or (= (- B P) 7) (= (- P B) 3)))
+                         ((= Q 7) (or (= (+ B P) 11) (= (+ P B) 1)))
+                         ((= Q 8) (= B P))
+                         (true nil)
+                   )
+          )
+     )
+   ))
+
+Proviamo la funzione sui numeri della sequenza OEIS:
+
+(setq rare '(621770 281089082 2022652202 2042832002 868591084757 872546974178
+872568754178 6979302951885 20313693904202 20313839704202 20331657922202
+20331875722202 20333875702202))
+
+(map prop rare)
+;-> (true true true true true true true true true true true true true)
+
+La funzione "rare?" diventa:
+
+(define (rare? num)
+  (if (prop num)
+      (local (rev sum diff)
+        (setq rev (int (reverse (string num)) 0 10))
+        (setq sum (+ num rev))
+        (setq diff (- num rev))
+        (cond ((< diff 0) nil)
+              ((= num rev) nil)
+              ((and (square? diff) (square? sum)) true)
+              (true nil)
+        )
+      )
+      nil))
+
+(time (rare-to 1e6))
+;-> 65
+;-> 621770
+;-> 1575.227
+
+(time (rare-to 1e8))
+;-> 65
+;-> 621770
+;-> 163324.193
+
+(time (rare-to 1e9))
+;-> 65
+;-> 621770
+;-> 281089082
+;-> 1582493.526 ; circa 26 minuti
+
+Vediamo perchè questo algoritmo non è applicabile per grandi numeri (> 1e10).
+Un ciclo "for" pulito (senza nessuna istruzione all'interno) fino a 1e10 ha la seguente durata:
+
+(define (test-for n) (for (i 1 n)))
+(time (test-for 1e10))
+;-> 75291.609 ; 75 secondi
+
+Se all'interno del ciclo inseriamo una sola operazione di addizione, allora il tempo di esecuzione diventa:
+
+(define (test-for2 n) (for (i 1 n) (++ k)))
+(time (test-for2 1e10))
+;-> 280509.596 ; 280 secondi (4 minuti e 40 secondi)
+
+Il tempo di esecuzione è troppo grande per poter processare qualcosa all'interno del ciclo.
+Quindi questo approccio non è applicabile per calcolare i numeri rari con più di 10 cifre.
+
+
+-------------
+Patience Sort
+-------------
+
+L'ordinamento della pazienza (patience sort) è un algoritmo di ordinamento che prende il nome da una variante semplificata del gioco di carte della pazienza. Una variante dell'algoritmo calcola in modo efficiente la lunghezza e i valori della più lunga sottosequenza crescente in una data lista.
+
+Il gioco inizia con un mazzo di carte mescolato. Le carte vengono distribuite una alla volta in una sequenza di pile sul tavolo, secondo le seguenti regole:
+
+Inizialmente, non ci sono pile. La prima carta estratta forma una nuova pila composta dalla singola carta.
+Ogni carta successiva viene posizionata sulla pila esistente più a sinistra la cui prima carta ha un valore maggiore o uguale al valore della nuova carta, o alla destra di tutte le pile esistenti, formando così una nuova pila.
+Quando non ci sono più carte da distribuire, il gioco finisce.
+
+Questo gioco di carte viene trasformato in un algoritmo di ordinamento a due fasi nel modo seguente:
+Data una lista di n elementi da un dominio totalmente ordinato, considerare questa lista come una raccolta di carte e simulare il gioco di smistamento della pazienza. Quando il gioco è finito, recuperare la sequenza ordinata raccogliendo ripetutamente la carta minima visibile. In altre parole, eseguire una fusione k-way delle pile, ciascuna delle quali è ordinata internamente.
+
+Algoritmo per trovare la sottosequenza crescente più lunga
+Innanzitutto, eseguire l'algoritmo di ordinamento come descritto sopra. Il numero di pile è la lunghezza della sottosequenza più lunga. Ogni volta che una carta viene posizionata in cima a una pila, mettere un puntatore (indietro) sulla carta in cima alla pila precedente (che, per ipotesi, ha un valore inferiore a quello della nuova carta). Alla fine, seguire tutti i puntatori creati dalla prima carta nell'ultima pila per recuperare una sottosequenza decrescente della lunghezza più lunga. Il suo inverso è la sottosequenza crescente più lunga.
+
+Vediamo un'implementazione dell'ordinamento della pazienza:
+
+(define (patience lst)
+  (local (pile i j minimo curr-riga len stop out)
+  (setq len (length lst))
+  (setq conta (array len '(0)))
+  (setq pile (array len len '(0)))
+  (setq out (array len '(nil)))
+  (setq stop nil)
+  (for (i 0 (- len 1))
+    (setq stop nil)
+    (for (j 0 (- len 1) 1 stop)
+      (if (or (zero? (conta j)) (and (> (conta j) 0) (>= (pile j (- (conta j) 1)) (lst i))))
+        (begin
+          (setf (pile j (conta j)) (lst i))
+          (++ (conta j))
+          ;(println i { } j)
+          (setq stop true)
+        )
+      )
+    )
+  )
+  (setq minimo (pile 0 (- (conta 0) 1)))
+  (setq curr-riga 0)
+  (for (i 0 (- len 1))
+    (for (j 0 (- len 1))
+      (if (and (> (conta j) 0) (< (pile j (- (conta j) 1)) minimo))
+        (begin
+          (setq minimo (pile j (- (conta j) 1)))
+          (setq curr-riga j)
+        )
+      )
+    )
+    (setf (out i) minimo)
+    (-- (conta curr-riga))
+    (setq stop nil)
+    (for (j 0 (- len 1) 1 stop)
+      (if (> (conta j) 0)
+        (begin
+          (setq minimo (pile j (- (conta j) 1)))
+          (setq curr-riga j)
+          (setq stop true)
+        )
+      )
+    )
+  )
+  out))
+
+(patience '(2 4 3 7 9 4 1 3 6 3 2))
+;-> (1 2 2 3 3 3 4 4 6 7 9)
+
+(patience (randomize (sequence -10 10)))
+;-> (-10 -9 -8 -7 -6 -5 -4 -3 -2 -1 0 1 2 3 4 5 6 7 8 9 10)
 
 =============================================================================
 

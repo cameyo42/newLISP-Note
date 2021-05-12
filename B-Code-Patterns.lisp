@@ -310,12 +310,13 @@ Questo esempio mostra anche come una funzione di default viene definita al volo 
 
 Sebbene la prima forma sia più breve, la seconda è più leggibile.
 
-Packaging data with contexts
-============================
-The previous examples already presented functions packaged with data in a namespace. In the generator example the acc variable kept state. In the fibo example the variable mem kept a growing list. In both cases, functions and data are living together in a namespace. The following example shows how a namespace holds only data in a default functor:
+Inserire dati nei contesti
+==========================
+Gli esempi precedenti presentavano funzioni già pacchettizzate con dati in uno spazio dei nomi. Nell'esempio del generatore la variabile acc mantiene lo stato. Nell'esempio del fibo la variabile mem mantiene una lista che cresce. In entrambi i casi, funzioni e dati convivono in uno spazio dei nomi. L'esempio seguente mostra come uno spazio dei nomi contiene solo dati nel funtore predefinito:
 
 (set 'db:db '(a "b" (c d) 1 2 3 x y z))
-Just like we used the default function to refer to fibo and generator we can refer to the list in db:db by only using db. This will work in all situations where we do list indexing:
+
+Proprio come abbiamo usato la funzione predefinita per fare riferimento a fibo e generatore, possiamo fare riferimento alla lista in db:db usando solo db. Funzionerà in tutte le situazioni in cui utilizziamo l'indicizzazione delle liste:
 
 (db 0)    → a
 (db 1)    → "b"
@@ -327,9 +328,9 @@ Just like we used the default function to refer to fibo and generator we can ref
 (2 1 db)  → ((c d))
 (-6 2 db) → (1 2)
 
-Passing objects by reference
-============================
-When the default functor is used as an argument in a user defined function, the default functor is passed by reference. This means that a reference to the original contents is passed, not a copy of the list or string. This is useful when handling large lists or strings:
+Passaggio di oggetti per riferimento (by reference)
+===================================================
+Quando il funtore predefinito (di default) viene utilizzato come argomento in una funzione definita dall'utente, il funtore predefinito viene passato per riferimento. Ciò significa che viene passato un riferimento al contenuto originale, non una copia della lista o della stringa. Ciò è utile quando si gestiscono liste o stringhe di grandi dimensioni:
 
 (define (update data idx expr)
     (if (not (or (lambda? expr) (primitive? expr)))
@@ -344,9 +345,10 @@ db:db → (99 "B" (c d) 1 2 3 x y z)
 
 (update db 4 (fn (x) (mul 1.1 x))) →
 db:db → (99 "B" (c d) 1 2.2 3 x y z)
-The data in db:db is passed via the update function parameter data, which now holds a reference to the context db. The expr parameter passed is checked to determine if it is a built-in function, operator or a user defined lambda expression and then works on $it, the anaphoric system variable containing the old content referenced by (data idx).
 
-Whenever a function in newLISP asks for a string or list in a parameter, a default functor can be passed by its context symbol. Another example:
+I dati in db:db vengono passati tramite i dati dei parametri della funzione di aggiornamento, che ora contengono un riferimento al contesto db. Il parametro expr passato viene controllato per determinare se si tratta di una funzione integrata, di un operatore o di un'espressione lambda definita dall'utente e quindi funziona su $it, la variabile anaforica di sistema che contiene il vecchio valore a cui fa riferimento (data idx).
+
+Ogni volta che una funzione in newLISP richiede una stringa o una lista in un parametro, un funtore predefinito può essere passato tramite il suo simbolo di contesto. Un altro esempio:
 
 (define (pop-last data)
 (pop data -1))

@@ -802,6 +802,8 @@ NOTE LIBERE 4
   ASCII Mandelbrot
   Yahtzee
   Gioco del 15
+  Numeri rari
+  Patience Sort
 
 APPENDICI
 =========
