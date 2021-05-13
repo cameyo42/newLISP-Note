@@ -804,6 +804,8 @@ NOTE LIBERE 4
   Gioco del 15
   Numeri rari
   Patience Sort
+  Lista degli indici
+  Buche sulle strada
 
 APPENDICI
 =========
@@ -19845,7 +19847,7 @@ Il sito contiene moltissimi problemi risolti in più di 800 linguaggi (non tutti
 Di seguito vengono presentanti alcuni di questi problemi e la loro soluzione.
 Per avere una migliore comprensione si consiglia di provare a risolverli per conto proprio prima di leggere la soluzione.
 
-Nota: diversi altri problemi elencati nel sito Rosetta Code e non presenti in questo capitolo sono risolti in altre parti di questo documento.
+Nota: in questo capitolo vengono risolti 100 problemi presenti sul sito Rosetta Code (in ordine sparso). Molti altri problemi elencati nel sito e non qui presenti sono risolti in altri capitoli di questo documento.
 
 --------
 FIZZBUZZ
@@ -23203,7 +23205,11 @@ Il punteggio numerico di un concorrente può essere assegnato in diversi modi:
 
 3) Denso (I punteggi uguali condividono il successivo numero intero disponibile).
 
-Scrivere una funzione per ognuno dei tre metodi di calcolo elencati.
+4) Modificato (I punteggi uguali condividono quello che sarebbe stato il loro ultimo numero ordinale).
+
+5) Frazionale (I punteggi uguali condividono la media di quello che sarebbe stato il loro numero ordinale)
+
+Scrivere una funzione per ognuno dei cinque metodi di calcolo elencati.
 
 Lista di concorrenti e relativi risultati:
 
@@ -23227,7 +23233,6 @@ Ordinal Ranking    Standard Ranking    Dense Ranking
 6  41  Barry       4  41  Barry        3  41  Barry
 7  39  Stephen     7  39  Stephen      4  39  Stephen
 
-
 Modified Ranking   Fractional Ranking
 ----------------   ------------------
 1  44  Solomon     1.0  44  Solomon
@@ -23238,6 +23243,8 @@ Modified Ranking   Fractional Ranking
 6  41  Barry       5.0  41  Barry
 7  39  Stephen     7.0  39  Stephen
 
+Definiamo una lista che contiene i concorrenti e i relativi risultati:
+
 (setq lst '((44 Solomon) (42 Jason) (42 Errol) (41 Garry) (41 Bernard) (41 Barry) (39 Stephen)))
 
 (define (ordinal-rank lst)
@@ -23245,8 +23252,7 @@ Modified Ranking   Fractional Ranking
   (for (i 0 (- (length lst) 1))
     (println (format "%d  %d  %s" (+ i 1) (first (lst i)) (string (last (lst i)))))
   )
-  'fine
-)
+  'fine)
 
 (ordinal-rank lst)
 ;-> Ordinal rank
@@ -23269,8 +23275,7 @@ Modified Ranking   Fractional Ranking
     )
     (println (format "%d  %d  %s" j (first (last lst)) (string (last (last lst)))))
   )
-  'fine
-)
+  'fine)
 
 (standard-rank lst)
 ;-> Standard rank
@@ -23293,8 +23298,7 @@ Modified Ranking   Fractional Ranking
     )
     (println (format "%d  %d  %s" j (first (last lst)) (string (last (last lst)))))
   )
-  'fine
-)
+  'fine)
 
 (dense-rank lst)
 ;-> Dense rank
@@ -32135,6 +32139,30 @@ Scrivere una funzione che converte un generico numero intero nel corrispondente 
 ;-> 8: 10000
 ;-> 9: 10001
 ;-> 10: 10010
+
+Scriviamo anche una funzione che effettua l'operazione inversa, cioè converte una stringa che rappresenta un numero di Zuckendorf nel corrispondente numero decimale:
+
+(define (zeck-decimal zeck)
+  (local (num)
+    (setq num 0)
+    (dolist (b (explode (reverse zeck)))
+      (if (= b "1")
+          (setq num (+ (fib (+ $idx 2)) num))))
+    num))
+
+(zeckendorf 10)
+;-> "10010"
+(zeck-decimal "10010")
+;-> 10
+(zeckendorf 100)
+;-> "1000010100"
+(zeck-decimal "1000010100")
+;-> 100
+
+(zeckendorf (zeck-decimal "10101010"))
+;-> "10101010"
+(zeck-decimal (zeckendorf 54))
+;-> 54
 
 
 -----------------------------
@@ -68282,6 +68310,23 @@ Invece il seguente è sicuramente un quine:
 (lambda (s) (print (list s (list 'quote s))))
 ;-> (lambda (s) (print (list s (list 'quote s))))
 
+Un altro quine è il seguente:
+
+; Versione originale di PvE:
+(define (make-me)
+	(println (source 'make-me))
+	(println "(println (make-me))")
+	(println "(exit)")
+	(println ""))
+(println (make-me))
+;(exit)
+
+; Versione migliorata da Lutz:
+(define (quine )
+  (println (source 'quine) "(quine)")
+  (exit))
+(quine)
+
 
 -----------------------------
 I buchi delle cifre numeriche
@@ -69108,7 +69153,6 @@ Il trucco di aggiungere una stringa iniziale è possibile solo quando tutti i va
 Per ulteriori informazioni: https://en.wikipedia.org/wiki/Autogram
 
 Nota: "QUESTA FRASE HA CINQUE PAROLE" è una frase autoreferenziale.
-
 
 
 --------------------------------------------
@@ -94370,6 +94414,307 @@ Vediamo un'implementazione dell'ordinamento della pazienza:
 
 (patience (randomize (sequence -10 10)))
 ;-> (-10 -9 -8 -7 -6 -5 -4 -3 -2 -1 0 1 2 3 4 5 6 7 8 9 10)
+
+
+------------------
+Lista degli indici
+------------------
+
+Supponiamo di avere una lista annidata e di voler conoscere la struttura della lista. Possiamo scrivere una funzione che elenca tutte le sotto-liste e i relativi elementi:
+
+(define (elements-aux lst)
+  (if (null? lst)
+      '()
+      (cond ((atom? lst)
+             (push lst out -1))
+            ((list? lst)
+             (push lst out -1)
+             (println $idx)
+             (elements-aux (first lst))
+             (elements-aux (rest lst)))
+      )
+  )
+)
+
+(define (elements lst)
+  (let (out '())
+    (dolist (el lst)
+      (elements-aux el)
+    )
+    out))
+
+(setq a '((1 2) ((2 (3)) (4 4)) (((7)))))
+
+(elements a)
+;-> ((1 2)
+;->  1
+;->  (2)
+;->  2
+;->  ((2 (3)) (4 4))
+;->  (2 (3))
+;->  2
+;->  ((3))
+;->  (3)
+;->  3
+;->  ((4 4))
+;->  (4 4)
+;->  4
+;->  (4)
+;->  4
+;->  (((7)))
+;->  ((7))
+;->  (7)
+;->  7)
+
+Però quello che ci interessa non sono i valori, ma tutti gli indici della lista. Allora ho chiesto un aiuto al forum di newLISP (vedi il thread in fondo a questo articolo) e ho ottenuto la seguente funzione che genera la lista di tutti gli indici degli elementi di una lista data:
+
+(define (index-list lst)
+  (local (mylist mv)
+    (setq mylist '())
+    (define (h-index-list lst agg)
+      (dolist (x lst)
+        (setq mv (append agg (list $idx)))
+        (push mv mylist -1)
+        (if (list? x)
+          (h-index-list x mv)))
+      mylist)
+  (h-index-list lst '())))
+
+(setq lst '(1 2 3 4 5))
+(setq i (index-list lst))
+;-> ((0) (1) (2) (3) (4))
+(lst (i 0))
+;-> 1
+
+(setq a '((1 2) ((2 (3)) (4 4)) (((7)))))
+(setq i (index-list a))
+;-> ((0) (0 0) (0 1) (1) (1 0) (1 0 0) (1 0 1) (1 0 1 0)
+;->  (1 1) (1 1 0) (1 1 1) (2) (2 0) (2 0 0) (2 0 0 0))
+
+Con questa lista di indici possiamo elencare tutti i valori delle sotto-liste e degli elementi della lista originale:
+
+(dolist (el i) (println el { - } (a el)))
+;-> (0) - (1 2)
+;-> (0 0) - 1
+;-> (0 1) - 2
+;-> (1) - ((2 (3)) (4 4))
+;-> (1 0) - (2 (3))
+;-> (1 0 0) - 2
+;-> (1 0 1) - (3)
+;-> (1 0 1 0) - 3
+;-> (1 1) - (4 4)
+;-> (1 1 0) - 4
+;-> (1 1 1) - 4
+;-> (2) - (((7)))
+;-> (2 0) - ((7))
+;-> (2 0 0) - (7)
+;-> (2 0 0 0) - 7
+;-> (1 2)
+;-> 1
+;-> 2
+;-> ((2 (3)) (4 4))
+;-> (2 (3))
+;-> 2
+;-> (3)
+;-> 3
+;-> (4 4)
+;-> 4
+;-> 4
+;-> (((7)))
+;-> ((7))
+;-> (7)
+;-> 7
+
+Quando creiamo una struttura dati con le liste creiamo spesso una struttura annidata, ad esempio supponiamo di voler memorizzare in una lista la seguente struttura-dati (uno studente e l'elenco degli esami superati):
+
+Studente
+--------
+Identificativo: (nome cognome matricola)
+Esami: (materia (voto-orale voto-scritto) professore)
+
+Una lista che rappresenta la struttura sopra può essere la seguente:
+
+alunno = ((nome cognome matricola) ((materia (voto-orale voto-scritto) professore)))
+
+Per esempio:
+
+(setq a1 '((mario rossi 7112) ((matematica (6 6) A) (storia (7 8) B) (scienze (5 5) A))))
+;-> ((mario rossi 7112) ((matematica (6 6) A) (storia (7 8) B) (scienze (5 5) A)))
+
+Adesso possiamo visualizzare le associazioni tra indici della lista e valori corrispondenti:
+
+(setq i (index-list a1))
+(dolist (el i) (println el { - } (a1 el)))
+;-> (0) - (mario rossi 7112)
+;-> (0 0) - mario
+;-> (0 1) - rossi
+;-> (0 2) - 7112
+;-> (1) - ((matematica (6 6) A) (storia (7 8) B) (scienze (5 5) A))
+;-> (1 0) - (matematica (6 6) A)
+;-> (1 0 0) - matematica
+;-> (1 0 1) - (6 6)
+;-> (1 0 1 0) - 6
+;-> (1 0 1 1) - 6
+;-> (1 0 2) - A
+;-> (1 1) - (storia (7 8) B)
+;-> (1 1 0) - storia
+;-> (1 1 1) - (7 8)
+;-> (1 1 1 0) - 7
+;-> (1 1 1 1) - 8
+;-> (1 1 2) - B
+;-> (1 2) - (scienze (5 5) A)
+;-> (1 2 0) - scienze
+;-> (1 2 1) - (5 5)
+;-> (1 2 1 0) - 5
+;-> (1 2 1 1) - 5
+;-> (1 2 2) - A
+
+In questo modo è molto più semplice gestire gli accessi alla nostra lista/struttura.
+
+Ecco il thread originale del forum di newLISP:
+
+List of indexes
+---------------
+Post by cameyo » Wed May 12, 2021 1:36 pm
+
+How to create a list of indexes of all the elements of original list?
+Example:
+(setq lst '(1 (2 (3 4)) (5 6)))
+(lst 0)
+;-> 1
+(lst 1)
+;-> (2 (3 4))
+(lst 1 0)
+;-> 2
+(lst 1 1)
+;-> (3 4)
+(lst 1 1 0)
+;-> 3
+(lst 1 1 1)
+;-> 4
+(lst 2)
+;-> (5 6)
+(lst 2 0)
+;-> 5
+(lst 2 1)
+;-> 6
+
+List of indexes:
+((0) (1) (1 0) (1 1) (1 1 0) (1 1 1) (2) (2 0) (2 1))
+or
+(0 1 (1 0) (1 1) (1 1 0) (1 1 1) 2 (2 0) (2 1))
+------------------------------------------------------------
+Re: List of indexes
+Post by fdb » Wed May 12, 2021 7:04 pm
+
+Something like below? (not very elegant, I know)
+
+(define (index-list lst)
+  (setq mylist '())
+  (define (h-index-list lst agg)
+    (dolist (x lst)
+      (setq mv (append agg (list $idx)))
+      (push mv mylist -1)
+      (if (list? x)
+        (h-index-list x mv)))
+    mylist)
+  (h-index-list lst '()))
+------------------------------------------------------------
+Re: List of indexes
+Post by rickyboy » Wed May 12, 2021 8:12 pm
+
+Here's a version that uses recursive calls in a classic way (think, SICP) where even the loop is handled by recursive call. (Nota bene: This is not a good newLISP implementation because newLISP doesn't turn tail calls into loops. fdb's implementation is the better one for newLISP.)
+
+(define (get-indices L (child 0) (parents '()) (result '()))
+  (if (empty? L)
+      result
+      (list? (L 0))
+      (get-indices (1 L) (+ 1 child) parents
+                   (append (snoc result (snoc parents child))
+                           (get-indices (L 0) 0 (snoc parents child))))
+      (get-indices (1 L) (+ 1 child) parents
+                   (snoc result (snoc parents child)))))
+
+You will need this utility function, snoc, which acts like cons but does the reverse (it says it in the name lol :) : it takes the element argument and puts it at the end of the list. (Note also that the arguments are reversed as compared with cons.)
+
+(define (snoc xs x) (push x xs -1))
+
+(λx. x x) (λx. x x)
+------------------------------------------------------------
+Re: List of indexes
+Post by rickyboy » Wed May 12, 2021 8:13 pm
+
+You could also "factor out" the repeated code, but it may not make the code more readable.
+
+(define (get-indices L (child 0) (parents '()) (result '()))
+  (if (empty? L)
+      result
+      (get-indices (1 L) (+ 1 child) parents
+        (append
+          (snoc result (snoc parents child))
+          (if (list? (L 0))
+              (get-indices (L 0) 0 (snoc parents child))
+              '())))))
+
+(λx. x x) (λx. x x)
+------------------------------------------------------------
+Re: List of indexes
+Post by cameyo » Wed May 12, 2021 8:38 pm
+
+Thank you guys
+Very nice solutions
+------------------------------------------------------------
+
+
+------------------
+Buche sulle strada
+------------------
+
+Una macchina può riparare con una sezione tutte le buche lungo una strada fino a 3 unità di lunghezza. Un'unità di strada sarà rappresentata da un punto in una stringa. Ad esempio, "..." è una sezione di 3 unità di strada di lunghezza. Le buche sono contrassegnate con una "X" sulla strada e contano come 1 unità di lunghezza. Scrivere una funzione che, data una strada di lunghezza N, restituisce il minor numero possibile di sezioni che la macchina deve effettuare per riparare tutta la strada. Ecco alcuni esempi:
+
+  strada       sezioni minime necessarie
+  .X.          1
+  .X ... X     2
+  XXX.XXXX     3
+  .X.XX.XX.X   3
+
+(define (asfalta str)
+  (local (idx len out)
+    (setq out 0)
+    (setq idx 0)
+    (setq len (length str))
+    (while (> len idx)
+      (cond ((= (str idx) ".")
+             (++ idx))
+            ((= (str idx) "X")
+             (setq idx (+ idx 3))
+             (++ out))
+      )
+    )
+    out))
+
+(asfalta "...X..XX")
+;-> 2
+(asfalta "...X..X.X")
+;-> 2
+(asfalta "...X..X.X.")
+;-> 2
+(asfalta "...X..X..X.")
+;-> 3
+(asfalta "...X..X..X..")
+;-> 3
+(asfalta "...X..X..X...")
+;-> 3
+(asfalta "...X..X...X.")
+;-> 3
+(asfalta "...X..X...X..")
+;-> 3
+(asfalta "...X..X...X.")
+;-> 3
+(asfalta "...X..X...X")
+;-> 3
+(asfalta "XX.XX.XX.X")
+;-> 4
 
 =============================================================================
 

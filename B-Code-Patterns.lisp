@@ -22,7 +22,7 @@ newLISP is a registered trademark of Lutz Mueller.
 ----------------------------------------------------------------------------
 
 =================
- 1. Introduzione
+ 1. INTRODUZIONE
 =================
 
 Quando si programma in newLISP, alcune funzioni e modelli (pattern) di utilizzo si verificano ripetutamente. Per alcuni problemi un modo ottimale per risolverli si evolve nel tempo. I capitoli seguenti presentano codice di esempio e spiegazioni per la soluzione di problemi specifici durante la programmazione in newLISP.
@@ -31,7 +31,7 @@ Utilizzeremo solo un sottoinsieme del repertorio delle funzioni totali di newLIS
 Questa raccolta di modelli e soluzioni è un lavoro in corso. Nel tempo, il materiale verrà aggiunto o il materiale esistente migliorato.
 
 ========================
- 2. newLISP script file
+ 2. newLISP SCRIPT FILE
 ========================
 
 Opzioni della linea di comando
@@ -153,10 +153,8 @@ Inserisci una riga direttamente nell'eseguibile per la valutazione di espression
 6
 ~>
 
-§
-
 ==============================
- 3. Scrivere codice in moduli
+ 3. SCRIVERE CODICE IN MODULI
 ==============================
 
 Strutturare una applicazione
@@ -357,18 +355,19 @@ Ogni volta che una funzione in newLISP richiede una stringa o una lista in un pa
 
 db:db         → (99 "B" (c d) 1 2.2 3 x y)
 
-The function update is also a good example of how to pass operators or functions as a function argument (upper-case working on $it). Read more about this in the chapter Functions as data.
+L'aggiornamento della funzione è anche un buon esempio di come passare operatori o funzioni come argomento di una funzione (lavorando in maiuscolo su $it). Maggiori informazioni su questo argomento nel capitolo "Funzioni come dati".
 
 =====================
- 4. Variabili locali
+ 4. VARIABILI LOCALI
 =====================
 
-Locals in looping functions
-===========================
-All looping functions like doargs, dolist, dostring, dotimes, dotree and for use local variables. During loop execution, the variable takes different values. But after leaving the looping function, the variable regains its old value. let, define, and lambda expressions are another method for making variables local:
+Variabili locali nei cicli
+==========================
+Tutte le funzioni di ciclo come doargs, dolist, dostring, dotimes, dotree e for usano le variabili locali. Durante l'esecuzione del ciclo, la variabile assume valori diversi. Ma dopo aver lasciato la funzione di ciclo, la variabile riacquista il suo vecchio valore. Le espressioni let, define e lambda sono un altro metodo per rendere le variabili locali.
 
-Locals in let, letn, local and letex
-let is the usual way in newLISP to declare symbols as local to a block.
+Variabili locali in let, letn, local e letex
+============================================
+let è il modo usuale in newLISP di dichiarare i simboli come locali in un blocco.
 
 (define (sum-sq a b)
     (let ((x (* a a)) (y (* b b)))
@@ -376,28 +375,29 @@ let is the usual way in newLISP to declare symbols as local to a block.
 
 (sum-sq 3 4) → 25
 
-; alternative syntax
+; sintassi alternativa
 (define (sum-sq a b)
     (let (x (* a a) y (* b b))
         (+ x y)))
 
-The variables x and y are initialized, then the expression (+ x y) is evaluated. The let form is just an optimized version and syntactic convenience for writing:
+Le variabili x e y vengono inizializzate, quindi viene valutata l'espressione (+ x y). La forma let è solo una versione ottimizzata e una comodità sintattica dell'espressione:
 
 ((lambda (sym1 [sym2 ...]) exp-body ) exp-init1 [ exp-init2 ...])
 
-When initializing several parameters, a nested let, letn can be used to reference previously initialized variables in subsequent initializer expressions:
+Quando si inizializzano diversi parametri, è possibile utilizzare un let annidato, letn, per fare riferimento a variabili inizializzate in precedenza nelle successive espressioni di inizializzazione:
 
 (letn ((x 1) (y (+ x 1)))
     (list x y))              → (1 2)
 
-local works the same way but variables are initialized to nil
+local funziona allo stesso modo ma le variabili sono inizializzate a zero:
 
 (local (a b c)
-   ...          ; expressions using the locale variables a b c
+   ...          ; espressioni che utilizzano le variabili locali a b c
 )
-letex works similar to let but variables are expanded in the body to values assigned.
 
-; assign to local variable and expand in body
+letex funziona in modo simile a let ma le variabili vengono espanse nel corpo ai valori assegnati:
+
+; assegna alla variabile locale ed espande nel corpo
 
 (letex ( (x 1) (y '(a b c)) (z "hello") ) '(x y z))
 → (1 (a b c) "hello")
@@ -405,22 +405,23 @@ letex works similar to let but variables are expanded in the body to values assi
 ; as in let, parentheses around the initializers can be omitted
 
 (letex (x 1 y 2 z 3) '(x y z))    → (1 2 3)
-After exiting any of the let, letn, local or letex expressions, the variable symbols used as locals get their old values back.
 
-Unused parameters as locals
-===========================
-In newLISP, all parameters in user defined functions are optional. Unused parameters are filled with nil and are of local scope to the dynamic scope of the function. Defining a user function with more parameters than required is a convenient method to create local variable symbols:
+Dopo essere usciti da una qualsiasi delle espressioni let, letn, local o letex, i simboli delle variabili usati come locali recuperano i loro vecchi valori.
 
+Parametri inutilizzati come variabili locali
+============================================
+In newLISP, tutti i parametri nelle funzioni definite dall'utente sono opzionali. I parametri inutilizzati vengono inizializzati a nil e sono di ambito locale rispetto all'ambito dinamico della funzione. La definizione di una funzione utente con più parametri di quelli richiesti è un metodo conveniente per creare simboli di variabili locali:
 
 (define (sum-sq a b , x y)
     (set 'x (* a a))
     (set 'y (* b b))
     (+ x y))
-The comma is not a special syntax feature but only a visual helper to separate normal parameters from local variable symbols. (Technically, the comma, like x and y, is a local variable and is set to nil.)
 
-Default variable values
-=======================
-In the definition of a function default values can be specified:
+La virgola non è una caratteristica di sintassi speciale, ma solo un aiuto visivo per separare i parametri normali dai simboli delle variabili locali (tecnicamente, la virgola, come x e y, è una variabile locale ed è impostata a nil).
+
+Valore di default delle variabili
+=================================
+Nella definizione di una funzione si possono specificare valori di default:
 
 (define (foo (a 1) (b 2))
     (list a b))
@@ -429,29 +430,32 @@ In the definition of a function default values can be specified:
     (foo 3)    →  (3 2)
     (foo 3 4)  →  (3 4)
 
-args as local substitute
-========================
-Using the args function no parameter symbols need to be used at all and args returns a list of all parameters passed but not taken by declared parameters:
+args come sostituto di local
+============================
+Utilizzando la funzione args non è necessario utilizzare alcun simbolo di parametro e args restituisce un elenco di tutti i parametri passati, ma non presi dai parametri dichiarati:
 
 (define (foo)
     (args))
 
 (foo 1 2 3)   → (1 2 3)
 
-
 (define (foo a b)
     (args))
 
 (foo 1 2 3 4 5)   → (3 4 5)
-The second example shows how args only contains the list of arguments not bound by the variable symbols a and b.
 
-Indices can be used to access members of the (args) list:
+Il secondo esempio mostra come args contenga solo l'elenco di argomenti non associati dai simboli delle variabili a e b.
+
+Gli indici possono essere utilizzati per accedere ai membri della lista (args):
 
 (define (foo)
       (+ (args 0) (args 1)))
 
 (foo 3 4)   → 7
-args and local used together for named variables
+
+Uso combinato di args e local per le variabili con nome
+=======================================================
+
 (define-macro (foo)
    (local (len width height)
       (bind (args) true)
@@ -461,41 +465,42 @@ args and local used together for named variables
 (foo (width 20) (height 30) (len 10))
 
 len:10 width:20 height:30
-local will shadow / protect the values of the variables len, width and height at higher dynamic scoping levels.
 
-===================================
- 5. Walking through lists and data
-===================================
+local nasconderà/proteggerà i valori delle variabili len, width e height ai livelli di scoping dinamico più elevati.
 
-Recursion or iteration?
-=======================
-Although recursion is a powerful feature to express many algorithms in a readable form, it can also be inefficient in some instances. newLISP has many iterative constructs and high level functions like flat or the built-in XML functions, which use recursion internally. In many cases this makes defining a recursive algorithm unnecessary.
+==============================
+ 5. ATTRAVERSARE LISTE E DATI
+==============================
 
-Some times a non-recursive solution can be much faster and lighter on system resources.
+Ricorsione o iterazione?
+========================
+Sebbene la ricorsione sia una caratteristica potente per esprimere molti algoritmi in una forma leggibile, in alcuni casi può anche essere inefficiente. newLISP ha molti costrutti iterativi e funzioni di alto livello come flat o le funzioni XML integrate, che usano la ricorsione internamente. In molti casi ciò rende superflua la definizione di un algoritmo ricorsivo.
 
-; classic recursion
-; slow and resource hungry
+Alcune volte una soluzione non ricorsiva può essere molto più veloce e leggera sulle risorse di sistema.
+
+; ricorsione classica
+; lenta e affamata di risorse
 (define (fib n)
     (if (< n 2) 1
         (+  (fib (- n 1))
             (fib (- n 2)))))
-            
-The recursive solution is slow because of the frequent calling overhead. Also, the recursive solution uses a lot of memory for holding intermediate and frequently redundant results.
 
-; iteration
-; fast and also returns the whole list
+La soluzione ricorsiva è lenta a causa del frequente overhead di chiamata. Inoltre, la soluzione ricorsiva utilizza molta memoria per contenere risultati intermedi e, spesso, ridondanti.
+
+; iterazione
+; veloce e restituisce anche l'intera lista
 (define (fibo n , f)
     (set 'f '(1 0))
     (dotimes (i n)
          (push (+ (f 0) (f 1)) f)) )
 
-The iterative solution is fast and uses very little memory.
+La soluzione iterativa è veloce e utilizza pochissima memoria.
 
-Speed up with memoization
-=========================
-A memoizing function caches results for faster retrieval when called with the same parameters again. The following function makes a memoizing function from any built-in or user defined function with an arbitrary number of arguments. A namespace is created for the memoizing function as a data cache.
+Velocizzare con la memoizzazione (memoization)
+==============================================
+Una funzione di memoizzazione mantiene nella cache i risultati intermedi per un recupero più rapido quando viene chiamata di nuovo con gli stessi parametri. La seguente funzione crea una funzione di memoizzazione da qualsiasi funzione integrata o definita dall'utente con un numero arbitrario di argomenti. Viene creato uno spazio dei nomi (contesto) come cache di dati per la funzione di memoizzazione:
 
-; speed up a recursive function using memoization
+; velocizza una funzione ricorsiva utilizzando la memoizzazione
 (define-macro (memoize mem-func func)
     (set (sym mem-func mem-func)
         (letex (f func  c mem-func)
@@ -510,12 +515,12 @@ A memoizing function caches results for faster retrieval when called with the sa
 
 (memoize fibo-m fibo)
 
-(time (fibo-m 25)) → 148
+(time (fibo 25)) → 148
 (time (fibo-m 25)) → 0
 
-The function creates a context and default function for the original function with a new name and stores all results in symbols in the same context.
+La funzione crea un contesto e una funzione di default per la funzione originale con un nuovo nome e memorizza tutti i risultati in simboli dello stesso contesto.
 
-When memoizing recursive functions, include the raw lambda specification of the function so recursive calls are memoized too:
+Quando si memoizzano funzioni ricorsive, includere la specifica grezza "lambda" della funzione in modo che anche le chiamate ricorsive vengano memoizzate:
 
 (memoize fibo
     (lambda (n)
@@ -526,15 +531,15 @@ When memoizing recursive functions, include the raw lambda specification of the 
 (time (fibo 100)) → 1
 (fibo 80)         → 37889062373143906
 
-The fibo function in the last example would take hours to calculate without memoization. The memoized version takes only about a milli-second for an argument of 100.
+La funzione fibo nell'ultimo esempio richiederebbe ore per essere calcolata senza memoizzazione. La versione memoizzata richiede solo circa un milli-secondo con un argomento di 100.
 
-Walking a tree
-==============
-Tree walks are a typical pattern in traditional LISP and in newLISP as well for walking through a nested list. But many times a tree walk is only used to iterate through all elements of an existing tree or nested list. In this case the built-in flat function is much faster than using recursion:
+Attraversare un albero (tree)
+=============================
+Gli attraversamenti di alberi sono un modello tipico nel LISP tradizionale e anche in newLISP per attraversare una lista annidata. Ma molte volte un attreversmaneto degli alberi viene utilizzato solo per scorrere tutti gli elementi di un albero esistente o di una lista annidata. In questo caso la funzione flat incorporata è molto più veloce rispetto all'utilizzo della ricorsione:
 
 (set 'L '(a b c (d e (f g) h i) j k))
 
-; classic car/cdr and recursion
+; ricorsione e car/cdr classico
 ;
 (define (walk-tree tree)
     (cond ((= tree '()) true)
@@ -545,8 +550,8 @@ Tree walks are a typical pattern in traditional LISP and in newLISP as well for 
              (walk-tree (first tree))
              (walk-tree (rest tree)))))
 
-; classic recursion
-; 3 times faster
+; ricorsione classica
+; 3 volte più veloce
 ;
 (define (walk-tree tree)
     (dolist (elmnt tree)
@@ -562,23 +567,23 @@ Tree walks are a typical pattern in traditional LISP and in newLISP as well for 
      e
      ...
 
-Using the built-in flat in newLISP a nested list can be transformed into a flat list. Now the list can be processed with a dolist or map:
+Utilizzando la funzione integrata flat una lista annidata può essere trasformata in una lista semplice. Ora la lista può essere elaborata con dolist o con map:
 
-; fast and short using 'flat'
-; 30 times faster with map
+; veloce e breve usando 'flat'
+; 30 volte più veloce con map
 ;
 (map println (flat L))
 
-; same as
+; uguale a
 
 (dolist (item (flat L)) (println item))
 
-Walking a directory tree
-========================
-Walking a directory tree is a task where recursion works well:
+Attraversare l'albero di una cartella (directory/folder)
+========================================================
+Attraversare l'albero di una cartella (directory) è un'attività in cui la ricorsione funziona bene:
 
-; walks a disk directory and prints all path-file names
-;
+; attraversa una directory del disco
+; e stampa tutti i nomi dei file (con percorso)
 (define (show-tree dir)
     (when (directory? dir)
         (dolist (nde (directory dir))
@@ -587,244 +592,273 @@ Walking a directory tree is a task where recursion works well:
                 (show-tree (append dir "/" nde))
                 (println (append dir "/" nde))))))
 
-In this example recursion is the only solution, because the entire nested list of files is not available when the function is called but gets created recursively during function execution.
+In questo esempio la ricorsione è l'unica soluzione, perché l'intera lista annidata di file non è disponibile quando la funzione viene chiamata, ma viene creata in modo ricorsivo durante l'esecuzione della funzione.
 
-==================================
- 6. Modifying and searching lists
-==================================
-newLISP has facilities for multidimensional indexing into nested lists. There are destructive functions like push, pop, setf, set-ref, set-ref-all, sort and reverse and many others for non-destructive operations, like nth, ref, ref-all, first, last and rest etc.. Many of the list functions in newLISP also work on strings.
+===================================
+ 6. MODIFICA E RICERCA NELLE LISTE
+===================================
 
-Note that any list or string index in newLISP can be negative starting with -1 from the right side of a list:
+newLISP dispone di funzionalità per l'indicizzazione multidimensionale in elenchi annidati. Ci sono funzioni distruttive come push, pop, setf, set-ref, set-ref-all, sort e reverse e molte altre per operazioni non distruttive, come nth, ref, ref-all, first, last e rest ecc .. In newLISP, molte delle funzioni per le lista funzionano anche sulle stringhe.
+
+Nota che qualsiasi indice di lista o di stringa in newLISP può essere negativo a partire da -1 dal lato destro di una lista:
 
 (set 'L '(a b c d))
 (L -1)   → d
 (L -2)   → c
 (-3 2 L) → (b c)
-   
+
 (set 'S  "abcd")
-   
+
 (S -1)   → d
 (S -2)   → c
 (-3 2 S) → "bc")
-push and pop
-To add to a list use push, to eliminate an element from a list use pop. Both functions are destructive, changing the contents of a list:
+
+push e pop
+============
+Per aggiungere a una lista usa push, per eliminare un elemento da una lista usa pop. Entrambe le funzioni sono distruttive e modificano il contenuto della lista:
 
 (set 'L '(b c d e f))
-   
+
 (push 'a L) → (a b c d e f)
-(push 'g L -1) ; push to the end with negative index
-(pop L)        ; pop first a
-(pop L -1)     ; pop last g
-(pop L -2)     ; pop second to last e
-(pop L 1)      ; pop second c
-   
+(push 'g L -1) ; push alla fine con indice negativo
+(pop L)        ; pop la prima a
+(pop L -1)     ; pop l'ultima g
+(pop L -2)     ; pop seconda dalla fine e
+(pop L 1)      ; pop seconda c
+
 L → (b d f)
-   
-; multidimensional push / pop
+
+; push / pop multidimensionale
 (set 'L '(a b (c d (e f) g) h i))
-   
+
 (push 'x L 2 1) → (a b (c x d (e f) g) h i)
-   
+
 L → (a b (c x d (e f) g) h i)
-   
+
 (pop L 2 1) → x
 
-; the target list is a place reference
+; la lista da modificare ha un riferimento
+; nella funzione push
 (set 'lst '((a 1) (b 2) (c 3) (d)))
 
 (push 4 (assoc 'd lst) -1) → (d 4)
 
 lst → ((a 1) (b 2) (c 3) (d 4))
-Pushing to the end of a list repeatedly is optimized in newLISP and as fast as pushing in front of a list.
 
-When pushing an element with index vector V it can be popped with the same index vector V:
+Inserire (push) ripetutamente alla fine di una lista è un'operazione ottimizzata in newLISP ed è veloce quanto inserire (push) all'inizio della lista.
+
+Quando si inserisce un elemento usando un indice di un vettore V, questo può essere estratto con lo stesso indice del vettore V:
 
 (set 'L '(a b (c d (e f) g) h i))
 (set 'V '(2 1))
 (push 'x L V)
 L → (a b (c x d (e f) g) h i))
-(ref 'x L) → (2 1) ; search for a nested member
+(ref 'x L) → (2 1) ; ricerca di un elemento annidato
 (pop L V) → 'x
-Extend using extend
-Using extend lists can be appended destructively. Like push and pop, extend modifies the list in the first argument.
+
+Estendere usando extend
+=======================
+Usando extend le liste possono essere aggiunto in modo distruttivo. Come push e pop, extent modifica la lista nel primo argomento.
 
 (set 'L '(a b c))
 (extend L '(d e) '(f g))
 
 L → '(a b c d e f g)
 
-; extending in a place
+; estendere sul posto
 
 (set 'L '(a b "CD" (e f)))
 (extend (L 3) '(g))
 L → (a b "CD" (e f g))
-Accessing lists
-Multiple indexes can be specified to access elements in a nested list structure:
+
+Accedere alle liste
+===================
+È possibile specificare indici multipli per accedere agli elementi in una lista con struttura annidata:
 
 (set 'L '(a b (c d (e f) g) h i))
-   
-; old syntax only for one index
+
+; vecchia sintassi solo per un indice
 (nth 2 L) → (c d (e f) g)
-   
-; use new syntax for multiple indices
+
+; utilizzare la nuova sintassi per più indici
 (nth '(2 2 1) L) → f
 (nth '(2 2) L) → (e f)
-   
-; vector indexing
+
+; indicizzazione vettoriale
 (set 'vec '(2 2))
 (nth vec L) → (e f)
-   
-; implicit indexing
+
+; indicizzazione implicita
 (L 2 2 1) → f
 (L 2 2)   → (e f)
-   
-; implicit indexing with vector
+
+; indicizzazione implicita con un vettore
 (set 'vec '(2 2 1))
 (L vec)   → f
-Implicit indexing shown in the last example can make code more readable. Indexes before a list select subsections of a list, which in turn are always lists.
 
-Implicit indexing is also available for rest and slice:
+L'indicizzazione implicita mostrata nell'ultimo esempio può rendere il codice più leggibile. Gli indici prima di una lista selezionano le sottosezioni di una lista, che a loro volta sono sempre liste.
+
+L'indicizzazione implicita è disponibile anche per rest e slice:
 
 (rest '(a b c d e))      → (b c d e)
 (rest (rest '(a b c d e) → (c d e)
-; same as
+; uguale a
 (1 '(a b c d e)) → (b c d e)
 (2 '(a b c d e)) → (c d e)
-   
-; negative indices
+
+; indici negativi
 (-2 '(a b c d e)) → (d e)
-   
-; slicing
+
+; slicing (affettare)
 (2 2 '(a b c d e f g))  → (c d)
 (-5 3 '(a b c d e f g)) → (c d e)
-Selecting more elements
-Sometimes more than one element must be selected from a list. This is done using select:
 
-; pick several elements from a list
+Selezione di più elementi
+=========================
+A volte è necessario selezionare più di un elemento da una lista. Questo viene fatto usando select:
+
+; seleziona diversi elementi da una lista
 (set 'L '(a b c d e f g))
 (select L 1 2 4 -1) → (b c e g)
-   
-; indices can be delivered in an index vector:
+
+; gli indici possono essere forniti da un vettore di indici:
 (set 'vec '(1 2 4 -1))
 (select L vec) → (b c e g)
-The selecting process can re-arrange or double elements at the same time:
+
+Il processo di selezione può riorganizzare o raddoppiare gli elementi contemporaneamente:
 
 (select L 2 2 1 1) → (c c b b)
-Filtering and differencing lists
+
+Filtrare e differenziare liste
+==============================
 Lists can be filtered, returning only those elements that meet a specific condition:
+Le liste possono essere filtrate, restituendo solo quegli elementi che soddisfano una condizione specifica:
 
 (filter (fn(x) (< 5 x)) '(1 6 3 7 8))    → (6 7 8)
 (filter symbol? '(a b 3 c 4 "hello" g)) → (a b c g)
 (difference '(1 3 2 5 5 7) '(3 7)) → (1 2 5)
-The first example could be written more concisely, as follows:
+
+Il primo esempio potrebbe essere scritto in modo più conciso, come segue:
 
 (filter (curry < 5) '(1 6 3 7 8))
-The curry function makes a one argument function out of a two argument function:
+
+La funzione curry crea una funzione a un argomento da una funzione a due argomenti:
 
 (curry < 5) → (lambda (_x) (< 5 _x))
-With curry, a function taking two arguments can be quickly converted into a predicate taking one argument.
 
-Changing list elements
-setf can be used to change a list element by referencing it with either nth or assoc:
+Con curry, una funzione che accetta due argomenti può essere rapidamente convertita in un predicato che accetta un argomento.
 
-; modify a list at an index
+Modifica degli elementi della lista
+===================================
+setf può essere utilizzato per modificare un elemento della lista facendo riferimento ad esso con nth o assoc:
+
+; modificare una lista in corrispondenza di un indice
 (set 'L '(a b (c d (e f) g) h i))
-   
-(setf (L 2 2 1) 'x) → x   
+
+(setf (L 2 2 1) 'x) → x
 L → (a b (c d (e x) g) h i)
 (setf (L 2 2) 'z) → z
 L → (a b (c d z g) h i)
-   
-; modify an association list
+
+; modificare una lista di associazioni
 (set 'A '((a 1) (b 2) (c 3)))
-   
-; using setf with assoc
+
+; usare setf con assoc
 (setf (assoc 'b A) '(b 22)) → (b 22)
 A → ((a 1) (b 22) (c 3))
-; using setf with lookup
+
+; usare setf con lookup
 (setf (lookup 'c A) 33) → 33
 A → ((a 1) (b 22) (c 33))
-The anaphoric variable
-The internal anaphoric system variable $it holds the old list element. This can be used to configure the new one:
+
+La variabile anaforica
+======================
+La variabile di sistema anaforica interna $it contiene il vecchio elemento della lista. Questa può essere usata per creare il nuovo elemento:
 
 (set 'L '(0 0 0))
-(setf (L 1) (+ $it 1)) → 1 ; the new value
+(setf (L 1) (+ $it 1)) → 1 ; il nuovo valore
 (setf (L 1) (+ $it 1)) → 2
 (setf (L 1) (+ $it 1)) → 4
 L → '(0 3 0)
-The following functions use the anaphoric $it:  find-all, if, replace, set-ref, set-ref-all and setf setq.
 
-Replace in simple lists
-Replace, which can also be used on strings, can search for and replace multiple elements in a list at once. Together with match and unify complex search patterns can be specified. Like with setf, the replacement expression can use the old element contents to form the replacement.
+Le seguenti funzioni usano l'anaforico $it: find-all, if, replace, set-ref, set-ref-all e setf setq.
+
+Sostituzioni in liste semplici
+==============================
+Replace, che può essere utilizzato anche su stringhe, può cercare e sostituire più elementi contemporaneamente in una lista. Insieme a match e unify, è possibile specificare modelli di ricerca complessi. Come con setf, l'espressione di sostituzione può utilizzare il contenuto del vecchio elemento per formare la sostituzione.
 
 (set 'aList '(a b c d e a b c d))
-     
+
 (replace 'b aList 'B) → (a B c d e a B c d)
-The function replace can take a comparison function for picking list elements:
 
-; replace all numbers where 10 < number
+La funzione replace può usare una funzione di confronto per selezionare gli elementi della lista:
+
+; sostituire tutti i numeri dove 10 < numero
 (set 'L '(1 4 22 5 6 89 2 3 24))
-     
-(replace 10 L 10 <) → (1 4 10 5 6 10 2 3 10)
-Using the built-in functions match and unify more complex selection criteria can be defined:
 
-; replace only sublists starting with 'mary'
-    
+(replace 10 L 10 <) → (1 4 10 5 6 10 2 3 10)
+
+Utilizzando le funzioni integrate match e unify è possibile definire criteri di selezione più complessi:
+
+; sostituire solo le sottoliste che iniziano con "maria"
 (set 'AL '((john 5 6 4) (mary 3 4 7) (bob 4 2 7 9) (jane 3)))
-   
+
 (replace '(mary *)  AL (list 'mary (apply + (rest $it))) match)
 → ((john 5 6 4) (mary 14) (bob 4 2 7 9) (jane 3))
-    
-; make sum in all expressions
-    
+
+; fare la somma in tutte le espressioni
 (set 'AL '((john 5 6 4) (mary 3 4 7) (bob 4 2 7 9) (jane 3)))
-   
+
 (replace '(*) AL (list ($it 0) (apply + (rest $it))) match)
 → ((john 15) (mary 14) (bob 22) (jane 3))
-    
-$0 → 4  ; replacements made
-    
-; change only sublists where both elements are the same
-    
+
+$0 → 4  ; sostituzioni effettuate
+
+; modificare solo le sotto-liste in cui entrambi gli elementi sono uguali
 (replace '(X X) '((3 10) (2 5) (4 4) (6 7) (8 8)) (list ($it 0) 'double ($it 1)) unify)
 → ((3 10) (2 5) (4 double 4) (6 7) (8 double 8))
-    
-$0 → 2  ; replacements made
-During replacements $0 and the anaphoric system variable $it contain the current found expression.
 
-After a replacement statement is executed the newLISP system variable $0 contains the number of replacements made.
+$0 → 2  ; sostituzioni effettuate
 
-Replace in nested lists
+Durante le sostituzioni $0 e la variabile di sistema anaforica $it contengono l'espressione trovata corrente.
+
+Dopo che un'istruzione di sostituzione è stata eseguita, la variabile di sistema newLISP $0 contiene il numero di sostituzioni effettuate.
+
+Sostituzioni in elenchi annidati
+================================
 Sometimes lists are nested, e.g. the SXML results from parsing XML. The functions ref-set, set-ref and set-ref-all can be used to find a single element or all elements in a nested list, and replace it or all.
 
 (set 'data '((monday (apples 20 30) (oranges 2 4 9)) (tuesday (apples 5) (oranges 32 1))))
-   
+
 (set-ref 'monday data tuesday)
-→ ((tuesday (apples 20 30) (oranges 2 4 9)) (tuesday (apples 5) (oranges 32 1))) 
+→ ((tuesday (apples 20 30) (oranges 2 4 9)) (tuesday (apples 5) (oranges 32 1)))
 The function set-ref-all does a set-ref multiple times, replacing all found occurrences of an element.
 
 (set 'data '((monday (apples 20 30) (oranges 2 4 9)) (tuesday (apples 5) (oranges 32 1))))
-   
+
 (set-ref-all 'apples data "Apples")
 → ((monday ("Apples" 20 30) (oranges 2 4 9)) (tuesday ("Apples" 5) (oranges 32 1)))
+
 Like find, replace, ref and ref-all, more complex searches can be expressed using match or unify:
 
 (set 'data '((monday (apples 20 30) (oranges 2 4 9)) (tuesday (apples 5) (oranges 32 1))))
-   
+
 (set-ref-all '(oranges *) data (list (first $0) (apply + (rest $it))) match)
 → ((monday (apples 20 30) (oranges 15)) (tuesday (apples 5) (oranges 33)))
+
 The last example shows how $0 can be used to access the old list element in the updating expression. In this case the numbers for oranges records have been summed. Instead of $0 the anaphoric system variable $it can also be used.
 
 Passing lists by reference
+==========================
 Sometimes a larger list (more than a few hundred elements) must be passed to a user-defined function for elements in it to be changed. Normally newLISP passes all parameters to user-defined functions by value. But the following snippet shows a technique that can be used to pass a bigger list or string object by reference:
 
 (set 'data:data '(a b c d e f g h))
-   
+
 (define (change db i value)
     (setf (db i) value))
-   
+
 (change data 3 999) → d
-   
+
 data:data → '(a b c 999 d e f g h)
 In this example the list is encapsulated in a context named data holding a variable data with the same name.
 
@@ -833,9 +867,9 @@ Whenever a function in newLISP looks for a string or list parameter, a context c
 When returning a list or array or an element belonging to a list or array referenced by a symbol, many built-in functions return a //reference// to the list – not a copy. This can be used to nest built-in functions when modifying a list:
 
 (set 'L '(r w j s r b))
-   
+
 (pop (sort L)) → b
-   
+
 L → (j r r s w)
 
 Variable expansion
@@ -847,6 +881,7 @@ Symbols get expanded to their value:
 ; expand from one or more listed symbols
 (set 'x 2 'a '(d e))
 (expand '(a x (b c x)) 'x 'a)  → ((d e) 2 (b c 2))
+
 expand is useful when composing lambda expressions or when doing variable expansion inside functions and function macros (fexpr with define-macro):
 
 ; use expansion inside a function
@@ -856,32 +891,38 @@ expand is useful when composing lambda expressions or when doing variable expans
 (define cube (raise-to 3))
 (square 5)  → 25
 (cube 5)    → 125
+
 expand can take an association list:
 
 ; expand from an association list
 (expand '(a b c) '((a 1) (b 2)))                → (1 2 c)
 (expand '(a b c) '((a 1) (b 2) (c (x y z))))    → (1 2 (x y z))
+
 and the value part in associations can be evaluated first:
 
 ; evaluate the value parts in the association list before expansion
 (expand '(a b) '((a (+ 1 2)) (b (+ 3 4))))      → ((+ 1 2) (+ 3 4))
 (expand '(a b) '((a (+ 1 2)) (b (+ 3 4))) true) → (3 7)
+
 expand does its work on variables starting with an uppercase letter when expansion variables have neither been specified stand-alone nor in an association list.
 
 ; expand from uppercase variables
 (set 'A 1 'Bvar 2 'C nil 'd 5 'e 6)
 (expand '(A (Bvar) C d e f))  → (1 (2) C d e f)
+
 Using this, a previous function definition can be made even shorter.
 
 ; use expansion from uppercase variables in function factories
-(define (raise-to Power) 
+(define (raise-to Power)
     (expand (fn (base) (pow base Power))))
 (define cube (raise-to 3)) → (lambda (base) (pow base 3))
 (cube 4) → 64
+
 The letex function works like expand, but expansion symbols are local to the letex expression.
 
 ; use letex for variable expansion
 (letex ( (x 1) (y '(a b c)) (z "hello") ) '(x y z)) → (1 (a b c) "hello")
+
 Note that in the example the body expression in letex: (x y z) is quoted to prevent evaluation.
 
 Destructuring nested lists
@@ -898,6 +939,236 @@ C → 3
 D → four
 E → (x y z)
 
-=================
- 7. Program flow
-=================
+=========================
+ 7. FLUSSO DEL PROGRAMMA
+=========================
+
+Program flow in newLISP is mostly functional but it also has looping and branching constructs and a catch and throw to break out of the normal flow.
+
+Looping expressions as a whole behave like a function or block returning the last expression evaluated.
+
+Loops
+=====
+Most of the traditional looping patterns are supported. Whenever there is a looping variable, it is local in scope to the loop, behaving according the rules of dynamic scoping inside the current name-space or context:
+
+; loop a number of times
+; i goes from 0 to N - 1
+(dotimes (i N)
+    ....
+)
+
+; demonstrate locality of i
+(dotimes (i 3)
+    (print i ":")
+    (dotimes (i 3) (print i))
+    (println)
+)
+
+→ ; will output
+ 0:012
+ 1:012
+ 2:012
+
+; loop through a list
+; takes the value of each element in aList
+(dolist (e aList)
+    ...
+)
+
+; loop through a string
+; takes the ASCII or UTF-8 value of each character in aString
+(dostring (e aString)
+    ...
+)
+
+; loop through the symbols of a context in
+; alphabetical order of the symbol name
+(dotree (s CTX)
+    ...
+)
+
+; loop from to with optional step size
+; i goes from init to <= N inclusive with step size step
+; Note that the sign in step is irrelevant, N can be greater
+; or less then init.
+(for (i init N step)
+    ...
+)
+
+; loop while a condition is true
+; first test condition then perform body
+(while condition
+    ...
+)
+
+; loop while a condition is false
+; first test condition then perform body
+(until condition
+    ...
+)
+
+; loop while a condition is true
+; first perform body then test
+; body is performed at least once
+(do-while condition
+    ...
+)
+
+; loop while a condition is false
+; first perform body then test
+; body is performed at least once
+(do-until condition
+    ...
+)
+Note that the looping functions dolist, dotimes and for can also take a break condition as an additional argument. When the break condition evaluates to true the loop finishes:
+
+(dolist (x '(a b c d e f g) (= x 'e))
+    (print x))
+→ ; will output
+ abcd
+ 
+Blocks
+======
+Blocks are collections of s-expressions evaluated sequentially. All looping constructs may have expression blocks after the condition expression as a body.
+
+Blocks can also be constructed by enclosing them in a begin expression:
+
+(begin
+    s-exp1
+    s-exp2
+     ...
+    s-expN)
+
+Looping constructs do not need to use an explicit begin after the looping conditions. begin is mostly used to block expressions in if and cond statements.
+
+The functions and, or, let, letn and local can also be used to form blocks and do not require begin for blocking statements.
+
+Branching
+=========
+(if condition true-expr false-expr)
+
+;or when no false clause is present
+(if condition true-expr)
+
+;or unary if for (filter if '(...))
+(if condition)
+
+; more than one statement in the true or false
+; part must be blocked with (begin ...)
+(if (= x y)
+    (begin
+        (some-func x)
+        (some-func y))
+    (begin
+        (do-this x y)
+        (do-that x y))
+)
+
+; the when form can take several statements without
+; using a (begin ...) block
+(when condition
+    exp-1
+    exp-2
+    ...
+)
+
+; unless works like (when (not ...) ...)
+(unless condition
+    exp-1
+    exp-2
+    ...
+)
+
+Depending on the condition, the exp-true or exp-false part is evaluated and returned.
+
+More than one condition/exp-true pair can occur in an if expression, making it look like a cond:
+
+(if condition-1 exp-true-1
+    condition-2 exp-true-2
+    ...
+    condition-n exp-true-n
+    expr-false
+)
+
+The first exp-true-i for which the condition-i is not nil is evaluated and returned, or the exp-false if none of the condition-i is true.
+
+cond works like the multiple condition form of if but each part of condition-i exp-true-i must be braced in parentheses:
+
+(cond
+    (condition-1 exp-true-1 )
+    (condition-2 exp-true-2 )
+                ...
+    (condition-n exp-true-n )
+    (true exp-true)
+)
+
+Fuzzy flow
+==========
+Using amb the program flow can be regulated in a probabilistic fashion:
+
+(amb
+    exp-1
+    exp-2
+    ...
+    exp-n
+)
+One of the alternative expressions exp-1 to exp-n is evaluated with a probability of p = 1/n and the result is returned from the amb expression.
+
+Flow with catch and throw
+=========================
+Any loop or other expression block can be enclosed in a catch expression. The moment a throw expression is evaluated, the whole catch expression returns the value of the throw expression.
+
+(catch
+    (dotimes (i 10)
+    (if (= i 5) (throw "The End"))
+    (print i " "))
+)
+; will output
+0 1 2 3 4
+; and the return value of the catch expression will be
+→ "The End"
+Several catch expressions can be nested. The function catch can also catch errors. See the chapter on //Error Handling// below.
+
+Leave loops with a break condition
+==================================
+Loops built using dotimes, dolist or for can specify a break condition for leaving the loop early:
+
+(dotimes (x 10 (> (* x x) 9))
+    (println x))
+→
+ 0
+ 1
+ 2
+ 3
+
+(dolist (i '(a b c nil d e) (not i))
+    (println i))
+→
+ a
+ b
+ c
+
+Change flow with and or or
+==========================
+Similar to programming in the Prolog language, the logical and and or can be used to control program flow depending on the outcome of expressions logically connected:
+
+
+(and
+   expr-1
+   expr-2
+    ...
+   expr-n)
+
+Expressions are evaluated sequentially until one expr-i evaluates to nil or the empty list () or until all expr-i are exhausted. The last expression evaluated is the return value of the whole and expression.
+
+(or
+   expr-1
+   expr-2
+    ...
+   expr-n)
+
+Expressions are evaluated sequentially until one expr-i evaluates to not nil and not () or until all expr-i are exhausted. The last expression evaluated is the return value of the whole or expression.
+
+====================
+ 8. ERROR HANDLING
+====================

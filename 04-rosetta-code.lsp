@@ -11,7 +11,7 @@ Il sito contiene moltissimi problemi risolti in più di 800 linguaggi (non tutti
 Di seguito vengono presentanti alcuni di questi problemi e la loro soluzione.
 Per avere una migliore comprensione si consiglia di provare a risolverli per conto proprio prima di leggere la soluzione.
 
-Nota: diversi altri problemi elencati nel sito Rosetta Code e non presenti in questo capitolo sono risolti in altre parti di questo documento.
+Nota: in questo capitolo vengono risolti 100 problemi presenti sul sito Rosetta Code (in ordine sparso). Molti altri problemi elencati nel sito e non qui presenti sono risolti in altri capitoli di questo documento.
 
 --------
 FIZZBUZZ
@@ -3369,7 +3369,11 @@ Il punteggio numerico di un concorrente può essere assegnato in diversi modi:
 
 3) Denso (I punteggi uguali condividono il successivo numero intero disponibile).
 
-Scrivere una funzione per ognuno dei tre metodi di calcolo elencati.
+4) Modificato (I punteggi uguali condividono quello che sarebbe stato il loro ultimo numero ordinale).
+
+5) Frazionale (I punteggi uguali condividono la media di quello che sarebbe stato il loro numero ordinale)
+
+Scrivere una funzione per ognuno dei cinque metodi di calcolo elencati.
 
 Lista di concorrenti e relativi risultati:
 
@@ -3393,7 +3397,6 @@ Ordinal Ranking    Standard Ranking    Dense Ranking
 6  41  Barry       4  41  Barry        3  41  Barry
 7  39  Stephen     7  39  Stephen      4  39  Stephen
 
-
 Modified Ranking   Fractional Ranking
 ----------------   ------------------
 1  44  Solomon     1.0  44  Solomon
@@ -3404,6 +3407,8 @@ Modified Ranking   Fractional Ranking
 6  41  Barry       5.0  41  Barry
 7  39  Stephen     7.0  39  Stephen
 
+Definiamo una lista che contiene i concorrenti e i relativi risultati:
+
 (setq lst '((44 Solomon) (42 Jason) (42 Errol) (41 Garry) (41 Bernard) (41 Barry) (39 Stephen)))
 
 (define (ordinal-rank lst)
@@ -3411,8 +3416,7 @@ Modified Ranking   Fractional Ranking
   (for (i 0 (- (length lst) 1))
     (println (format "%d  %d  %s" (+ i 1) (first (lst i)) (string (last (lst i)))))
   )
-  'fine
-)
+  'fine)
 
 (ordinal-rank lst)
 ;-> Ordinal rank
@@ -3435,8 +3439,7 @@ Modified Ranking   Fractional Ranking
     )
     (println (format "%d  %d  %s" j (first (last lst)) (string (last (last lst)))))
   )
-  'fine
-)
+  'fine)
 
 (standard-rank lst)
 ;-> Standard rank
@@ -3459,8 +3462,7 @@ Modified Ranking   Fractional Ranking
     )
     (println (format "%d  %d  %s" j (first (last lst)) (string (last (last lst)))))
   )
-  'fine
-)
+  'fine)
 
 (dense-rank lst)
 ;-> Dense rank
@@ -12301,6 +12303,30 @@ Scrivere una funzione che converte un generico numero intero nel corrispondente 
 ;-> 8: 10000
 ;-> 9: 10001
 ;-> 10: 10010
+
+Scriviamo anche una funzione che effettua l'operazione inversa, cioè converte una stringa che rappresenta un numero di Zuckendorf nel corrispondente numero decimale:
+
+(define (zeck-decimal zeck)
+  (local (num)
+    (setq num 0)
+    (dolist (b (explode (reverse zeck)))
+      (if (= b "1")
+          (setq num (+ (fib (+ $idx 2)) num))))
+    num))
+
+(zeckendorf 10)
+;-> "10010"
+(zeck-decimal "10010")
+;-> 10
+(zeckendorf 100)
+;-> "1000010100"
+(zeck-decimal "1000010100")
+;-> 100
+
+(zeckendorf (zeck-decimal "10101010"))
+;-> "10101010"
+(zeck-decimal (zeckendorf 54))
+;-> 54
 
 
 -----------------------------

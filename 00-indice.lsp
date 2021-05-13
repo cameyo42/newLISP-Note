@@ -804,6 +804,8 @@ NOTE LIBERE 4
   Gioco del 15
   Numeri rari
   Patience Sort
+  Lista degli indici
+  Buche sulle strada
 
 APPENDICI
 =========

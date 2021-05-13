@@ -1991,6 +1991,23 @@ Invece il seguente è sicuramente un quine:
 (lambda (s) (print (list s (list 'quote s))))
 ;-> (lambda (s) (print (list s (list 'quote s))))
 
+Un altro quine è il seguente:
+
+; Versione originale di PvE:
+(define (make-me)
+	(println (source 'make-me))
+	(println "(println (make-me))")
+	(println "(exit)")
+	(println ""))
+(println (make-me))
+;(exit)
+
+; Versione migliorata da Lutz:
+(define (quine )
+  (println (source 'quine) "(quine)")
+  (exit))
+(quine)
+
 
 -----------------------------
 I buchi delle cifre numeriche
@@ -2817,7 +2834,6 @@ Il trucco di aggiungere una stringa iniziale è possibile solo quando tutti i va
 Per ulteriori informazioni: https://en.wikipedia.org/wiki/Autogram
 
 Nota: "QUESTA FRASE HA CINQUE PAROLE" è una frase autoreferenziale.
-
 
 
 --------------------------------------------
