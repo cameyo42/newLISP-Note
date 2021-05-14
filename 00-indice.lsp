@@ -806,6 +806,8 @@ NOTE LIBERE 4
   Patience Sort
   Lista degli indici
   Buche sulle strada
+  Storia delle variabili
+  Numeri di Chowla
 
 APPENDICI
 =========
@@ -837,7 +839,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (156 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (165 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================

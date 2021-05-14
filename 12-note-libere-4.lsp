@@ -2015,7 +2015,7 @@ Facciamo alcune prove:
 ;->    1   1   1   1   1    1
 ;-> ----------
 
-Nota: l'espressione deve contenere solo variabili, gli operatori logici "and", "or", "not" e i caratteri "(" ")".
+Nota: l'espressione deve contenere solo variabili, gli operatori logici "and", "or", "not", "nand", "nor", "xor", "xnor" e i caratteri "(" ")".
 
 
 -----------------
@@ -4144,6 +4144,104 @@ Una macchina può riparare con una sezione tutte le buche lungo una strada fino 
 ;-> 3
 (asfalta "XX.XX.XX.X")
 ;-> 4
+
+
+----------------------
+Storia delle variabili
+----------------------
+
+Qualche volta abbiamo bisogno di conoscere la storia di una o più variabili durante o dopo l'esecuzione di un programma. La soluzione seguente è valida solo per variabili di tipo numerico (ed è non molto elegante).
+
+Per definire la variabile da storicizzare usiamo la funzione "storia":
+
+(define (storia var-str val)
+  (set (sym var-str) val)
+  (set (sym (extend var-str "@")) (list val))
+  val
+)
+
+Questa funzione prende il nome della variabile (passata come stringa) e il valore iniziale della variabile. Per esempio:
+
+(storia "a" 1)
+;-> 1
+
+La funzione definisce anche una variabile globale di tipo lista denominata var-str"@" che contiene i valori sorici della variabile var-str:
+
+a@
+;-> (1)
+
+Per aggiornare la variabile nel programma dobbiamo usare una funzione specifica "aggiorna"
+
+(define (aggiorna var-str val)
+  (local (expr log-var)
+    (setq expr (string "(setq " var-str " " val")"))
+    (eval-string expr)
+    (setq log-var (string var-str "@"))
+    (setq expr (string "(push " val " " log-var " -1)"))
+    (eval-string expr)
+    val
+  ))
+
+Anche questa funzione prende il nome della variabile (passata come stringa) e il valore da assegnare lla variabile. Per esempio:
+
+(aggiorna "a" (add a 18 2))
+;-> 21
+a@
+;-> (1 21)
+(aggiorna "a" (add a a 2))
+;-> 44
+a@
+;-> (1 21 44)
+
+Nota: la lista a@ (var-str"@") è una variabile/simbolo globale.
+
+L'implementazione può essere migliorata con delle macro per permettere la storicizzazione anche di stringhe e liste. Inoltre dovrebbe essere creato un contesto apposito, ma per le mie necessità è sufficiente.
+
+
+----------------
+Numeri di Chowla
+----------------
+
+Il numero di Chowla di un intero positivo n è definito come la somma dei divisori di n escludendo l'unità (1) e n.
+La sequenza prende il nome dala matematico indiano Sarvadaman Chowla (1907-1995).
+
+Sequenza OEIS A048050:
+0, 0, 0, 2, 0, 5, 0, 6, 3, 7, 0, 15, 0, 9, 8, 14, 0, 20, 0, 21, 10, 13, 0, ...
+
+Funzione che calcola la fattorizzazione di un numero:
+
+(define (factor-group num)
+  (if (= num 1) '((1 1))
+    (letn (fattori (factor num)
+          unici (unique fattori))
+      (transpose (list unici (count unici fattori))))))
+
+Funzione che calcola la somma dei divisori di un numero:
+
+(define (divisors-sum num)
+  (local (sum out)
+    (if (= num 1) '1
+        (begin
+          (setq out 1)
+          (setq lst (factor-group num))
+          (dolist (el lst)
+            (setq sum 0)
+            (for (i 0 (last el))
+              (setq sum (+ sum (pow (first el) i)))
+            )
+            (setq out (* out sum)))))))
+
+Funzione che calcola il numero di Chowla per un dato numero:
+
+(define (chowla num)
+  (if (= num 1) 
+      0
+      (- (divisors-sum num) num 1)))
+
+Vediamo se otteniamo la stessa sequenza OEIS:
+
+(map chowla (sequence 1 20))
+;-> (0 0 0 2 0 5 0 6 3 7 0 15 0 9 8 14 0 20 0 21)
 
 =============================================================================
 

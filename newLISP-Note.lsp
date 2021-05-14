@@ -806,6 +806,8 @@ NOTE LIBERE 4
   Patience Sort
   Lista degli indici
   Buche sulle strada
+  Storia delle variabili
+  Numeri di Chowla
 
 APPENDICI
 =========
@@ -837,7 +839,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (156 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (165 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================
@@ -7028,19 +7030,19 @@ Quindi per usare in modo proficuo le espressioni regolari occorre imparare come 
 
 Le espressioni regolari sono stringhe che contengono caratteri e metacaratteri. I caratteri vengono valutati in modo letterale, mentre i metacaratteri assumono un significato speciale. Vediamo la lista dei metacaratteri principali:
 
-Metacarattere	  Significato
+Metacarattere   Significato
 -------------   -----------
-  .	            qualsiasi carattere (tranne newline)
-  *	            zero o più occorrenze (carattere o gruppo di caratteri)
-  ?	            zero o una occorrenza (carattere o gruppo di caratteri)
-  {}	          numero esatto o minimo o massimo o l’intervallo di occorrenze (carattere o gruppo di caratteri)
-  +	            una o più occorrenze (carattere o gruppo di caratteri)
-  ^	            inizio della stringa (o la negazione di un gruppo di caratteri)
-  $	            fine della stringa
-  |	            operatore OR
+  .             qualsiasi carattere (tranne newline)
+  *             zero o più occorrenze (carattere o gruppo di caratteri)
+  ?             zero o una occorrenza (carattere o gruppo di caratteri)
+  {}            numero esatto o minimo o massimo o l’intervallo di occorrenze (carattere o gruppo di caratteri)
+  +             una o più occorrenze (carattere o gruppo di caratteri)
+  ^             inizio della stringa (o la negazione di un gruppo di caratteri)
+  $             fine della stringa
+  |             operatore OR
   \             carattere di escape per i caratteri speciali
-  ()	          contengono una sottostringa
-  []	          contengono una 'classe' di caratteri
+  ()            contengono una sottostringa
+  []            contengono una 'classe' di caratteri
 
 Per utilizzare i metacaratteri come "valori letterali" devono essere preceduti dal carattere di escap backslash " \ ". Ad esempio, se volessimo ricercare il carattere punto interrogativo "?" all'interno di una stringa, dovremmo scrivere: \?
 
@@ -9487,9 +9489,9 @@ Segue la classe Circle:
 Tutti gli insiemi delle funzioni di ogni classe sono ora separati lessicamente l'uno dall'altro.
 
 
--------------------
-XML e S-espressioni
--------------------
+=====================
+ XML e S-espressioni
+=====================
 
 newLISP ha alcune funzioni che permettono di lavorare con i file XML. Vediamo la definizione di queste funzioni dal manuale ("xml-parse", "xml-type-tags" e "xml-error"):
 
@@ -9771,9 +9773,9 @@ La seguente funzione può essere utilizzata per tradurre una S-espressione in XM
 Il secondo parametro 0 è il livello di indentazione per l'espressione di tag più esterna.
 
 
-----------------------------------------------
-Analisi dei tempi di esecuzione delle funzioni
-----------------------------------------------
+================================================
+ ANALISI DEI TEMPI DI ESECUZIONE DELLE FUNZIONI
+================================================
 
 Per analizzare i tempi di esecuzione delle funzioni newLISP mette a disposizione la funzione "time".
 
@@ -10782,6 +10784,22 @@ Riempimento con zeri
 ;-> "      Ciao"
 (format "%-10s" "Ciao")
 ;-> "Ciao      "
+
+Per finire vediamo un esempio con formattazione multipla:
+
+(setq str '("mele" "fragole" "arance" "kiwi" "mango" "pere" "noci"))
+(setq interi '(-11 100 0 -3 456 -1001 10000))
+(setq mobile '(-0.0004 3456.12345 0.01 123456.7 0.123456 10 -100))
+
+(for (i 0 6)
+  (println (format "%-6s\t%5d\t%13.6f" (str i) (interi i) (mobile i))))
+;-> mele      -11       -0.000400
+;-> fragole   100     3456.123450
+;-> arance      0        0.010000
+;-> kiwi       -3   123456.700000
+;-> mango     456        0.123456
+;-> pere    -1001       10.000000
+;-> noci    10000     -100.000000
 
 =============================================================================
 
@@ -23213,40 +23231,42 @@ Scrivere una funzione per ognuno dei cinque metodi di calcolo elencati.
 
 Lista di concorrenti e relativi risultati:
 
-44 Solomon
-42 Jason
-42 Errol
-41 Garry
-41 Bernard
-41 Barry
-39 Stephen
+  44 Solomon
+  42 Jason
+  42 Errol
+  41 Garry
+  41 Bernard
+  41 Barry
+  39 Stephen
 
 Tipi di punteggi:
 
-Ordinal Ranking    Standard Ranking    Dense Ranking
----------------    ----------------    -------------
-1  44  Solomon     1  44  Solomon      1  44  Solomon
-2  42  Jason       2  42  Jason        2  42  Jason
-3  42  Errol       2  42  Errol        2  42  Errol
-4  41  Garry       4  41  Garry        3  41  Garry
-5  41  Bernard     4  41  Bernard      3  41  Bernard
-6  41  Barry       4  41  Barry        3  41  Barry
-7  39  Stephen     7  39  Stephen      4  39  Stephen
-
-Modified Ranking   Fractional Ranking
-----------------   ------------------
-1  44  Solomon     1.0  44  Solomon
-3  42  Jason       2.5  42  Jason
-3  42  Errol       2.5  42  Errol
-6  41  Garry       5.0  41  Garry
-6  41  Bernard     5.0  41  Bernard
-6  41  Barry       5.0  41  Barry
-7  39  Stephen     7.0  39  Stephen
+  Ordinal Ranking    Standard Ranking    Dense Ranking
+  ---------------    ----------------    -------------
+  1  44  Solomon     1  44  Solomon      1  44  Solomon
+  2  42  Jason       2  42  Jason        2  42  Jason
+  3  42  Errol       2  42  Errol        2  42  Errol
+  4  41  Garry       4  41  Garry        3  41  Garry
+  5  41  Bernard     4  41  Bernard      3  41  Bernard
+  6  41  Barry       4  41  Barry        3  41  Barry
+  7  39  Stephen     7  39  Stephen      4  39  Stephen
+  
+  Modified Ranking   Fractional Ranking
+  ----------------   ------------------
+  1  44  Solomon     1.0  44  Solomon
+  3  42  Jason       2.5  42  Jason
+  3  42  Errol       2.5  42  Errol
+  6  41  Garry       5.0  41  Garry
+  6  41  Bernard     5.0  41  Bernard
+  6  41  Barry       5.0  41  Barry
+  7  39  Stephen     7.0  39  Stephen
 
 Definiamo una lista che contiene i concorrenti e i relativi risultati:
 
 (setq lst '((44 Solomon) (42 Jason) (42 Errol) (41 Garry) (41 Bernard) (41 Barry) (39 Stephen)))
 
+Ordinal rank
+------------
 (define (ordinal-rank lst)
   (println "Ordinal rank")
   (for (i 0 (- (length lst) 1))
@@ -23264,6 +23284,8 @@ Definiamo una lista che contiene i concorrenti e i relativi risultati:
 ;-> 6  41  Barry
 ;-> 7  39  Stephen
 
+Standard rank
+-------------
 (define (standard-rank lst)
   (let (j 1)
     (println "Standard rank")
@@ -23287,6 +23309,8 @@ Definiamo una lista che contiene i concorrenti e i relativi risultati:
 ;-> 4  41  Barry
 ;-> 7  39  Stephen
 
+Dense rank
+----------
 (define (dense-rank lst)
   (let (j 1)
     (println "Dense rank")
@@ -23310,15 +23334,104 @@ Definiamo una lista che contiene i concorrenti e i relativi risultati:
 ;-> 3  41  Barry
 ;-> 4  39  Stephen
 
-Proviamo con una diversa lista relativi risultati:
+Modified rank
+-------------
+(define (find-uguali val idx)
+  (let (out 1)
+    (while (and (< (+ idx 1) len) (= val (lst (+ idx 1) 0)))
+      (++ out)
+      (++ idx)
+    )
+    out))
 
-44 Solomon
-44 Jason
-42 Errol
-41 Garry
-41 Bernard
-39 Barry
-39 Stephen
+(define (modified-rank lst)
+  (local (len rank uguali i j k)
+    (setq len (length lst))
+    (println "Modified rank")
+    (setq rank 0)
+    (setq i 0)
+    (while (< i len)
+      ; valore corrente
+      (setq cur (lst i 0))
+      ; quanti sono i numeri uguali a quello corrente?
+      (setq same (find-uguali cur i))
+      ; calcola il rank per il valore corrente
+      (setq rank (+ rank same))
+      ; stampa tutti quelli che hanno lo stesso valore corrente
+      (for (j 0 (- same 1))
+        (if (zero? i)
+          (println 1 { } (lst (+ i j) 0) { } (lst (+ i j) 1))
+          (println rank { } (lst (+ i j) 0) { } (lst (+ i j) 1))
+        )
+      )
+      (setq i (+ i same))
+    )
+    'fine))
+
+(modified-rank lst)
+;-> Modified rank
+;-> 1 44 Solomon
+;-> 3 42 Jason
+;-> 3 42 Errol
+;-> 6 41 Garry
+;-> 6 41 Bernard
+;-> 6 41 Barry
+;-> 7 39 Stephen
+
+Fractional rank
+---------------
+(define (find-uguali val idx)
+  (let (out 1)
+    (while (and (< (+ idx 1) len) (= val (lst (+ idx 1) 0)))
+      (++ out)
+      (++ idx)
+    )
+    out))
+
+(define (fractional-rank lst)
+  (local (len cur pos rank uguali i j pos)
+    (setq len (length lst))
+    (println "Fractional rank")
+    (setq rank 0)
+    (setq i 0)
+    (while (< i len)
+      ; valore corrente
+      (setq cur (lst i 0))
+      ; quanti sono i numeri uguali a quello corrente?
+      (setq uguali (find-uguali cur i))
+      ; calcola il rank per il valore corrente
+      (setq pos (+ i 1))
+      (setq rank (div (apply + (sequence pos (+ pos uguali (- 1)))) uguali))
+      (for (j 0 (- uguali 1))
+        (if (zero? i)
+          (println "1.0" { } (lst (+ i j) 0) { } (lst (+ i j) 1))
+          (println (format "%3.1f %s %s" 
+                    rank (string (lst (+ i j) 0)) (string (lst (+ i j) 1))))
+        )
+      )
+      (setq i (+ i uguali))
+    )
+    'fine))
+
+(fractional-rank lst)
+;-> Fractional rank
+;-> 1.0 44 Solomon
+;-> 2.5 42 Jason
+;-> 2.5 42 Errol
+;-> 5.0 41 Garry
+;-> 5.0 41 Bernard
+;-> 5.0 41 Barry
+;-> 7.0 39 Stephen
+
+Proviamo con una lista che contiene risultati diversi:
+
+  44 Solomon
+  44 Jason
+  42 Errol
+  41 Garry
+  41 Bernard
+  39 Barry
+  39 Stephen
 
 (setq lst '((44 Solomon) (44 Jason) (42 Errol) (41 Garry) (41 Bernard) (39 Barry) (39 Stephen)))
 
@@ -23343,7 +23456,7 @@ Proviamo con una diversa lista relativi risultati:
 ;-> 6  39  Stephen
 
 (dense-rank lst)
-Dense rank
+;-> Dense rank
 ;-> 1  44  Solomon
 ;-> 1  44  Jason
 ;-> 2  42  Errol
@@ -23351,6 +23464,26 @@ Dense rank
 ;-> 3  41  Bernard
 ;-> 4  39  Barry
 ;-> 4  39  Stephen
+
+(modified-rank lst)
+;-> Modified rank
+;-> 1 44 Solomon
+;-> 1 44 Jason
+;-> 3 42 Errol
+;-> 5 41 Garry
+;-> 5 41 Bernard
+;-> 7 39 Barry
+;-> 7 39 Stephen
+
+(fractional-rank lst)
+;-> Fractional rank
+;-> 1.0 44 Solomon
+;-> 1.0 44 Jason
+;-> 3.0 42 Errol
+;-> 4.5 41 Garry
+;-> 4.5 41 Bernard
+;-> 6.5 39 Barry
+;-> 6.5 39 Stephen
 
 
 -----------------
@@ -92586,7 +92719,7 @@ Facciamo alcune prove:
 ;->    1   1   1   1   1    1
 ;-> ----------
 
-Nota: l'espressione deve contenere solo variabili, gli operatori logici "and", "or", "not" e i caratteri "(" ")".
+Nota: l'espressione deve contenere solo variabili, gli operatori logici "and", "or", "not", "nand", "nor", "xor", "xnor" e i caratteri "(" ")".
 
 
 -----------------
@@ -94715,6 +94848,104 @@ Una macchina può riparare con una sezione tutte le buche lungo una strada fino 
 ;-> 3
 (asfalta "XX.XX.XX.X")
 ;-> 4
+
+
+----------------------
+Storia delle variabili
+----------------------
+
+Qualche volta abbiamo bisogno di conoscere la storia di una o più variabili durante o dopo l'esecuzione di un programma. La soluzione seguente è valida solo per variabili di tipo numerico (ed è non molto elegante).
+
+Per definire la variabile da storicizzare usiamo la funzione "storia":
+
+(define (storia var-str val)
+  (set (sym var-str) val)
+  (set (sym (extend var-str "@")) (list val))
+  val
+)
+
+Questa funzione prende il nome della variabile (passata come stringa) e il valore iniziale della variabile. Per esempio:
+
+(storia "a" 1)
+;-> 1
+
+La funzione definisce anche una variabile globale di tipo lista denominata var-str"@" che contiene i valori sorici della variabile var-str:
+
+a@
+;-> (1)
+
+Per aggiornare la variabile nel programma dobbiamo usare una funzione specifica "aggiorna"
+
+(define (aggiorna var-str val)
+  (local (expr log-var)
+    (setq expr (string "(setq " var-str " " val")"))
+    (eval-string expr)
+    (setq log-var (string var-str "@"))
+    (setq expr (string "(push " val " " log-var " -1)"))
+    (eval-string expr)
+    val
+  ))
+
+Anche questa funzione prende il nome della variabile (passata come stringa) e il valore da assegnare lla variabile. Per esempio:
+
+(aggiorna "a" (add a 18 2))
+;-> 21
+a@
+;-> (1 21)
+(aggiorna "a" (add a a 2))
+;-> 44
+a@
+;-> (1 21 44)
+
+Nota: la lista a@ (var-str"@") è una variabile/simbolo globale.
+
+L'implementazione può essere migliorata con delle macro per permettere la storicizzazione anche di stringhe e liste. Inoltre dovrebbe essere creato un contesto apposito, ma per le mie necessità è sufficiente.
+
+
+----------------
+Numeri di Chowla
+----------------
+
+Il numero di Chowla di un intero positivo n è definito come la somma dei divisori di n escludendo l'unità (1) e n.
+La sequenza prende il nome dala matematico indiano Sarvadaman Chowla (1907-1995).
+
+Sequenza OEIS A048050:
+0, 0, 0, 2, 0, 5, 0, 6, 3, 7, 0, 15, 0, 9, 8, 14, 0, 20, 0, 21, 10, 13, 0, ...
+
+Funzione che calcola la fattorizzazione di un numero:
+
+(define (factor-group num)
+  (if (= num 1) '((1 1))
+    (letn (fattori (factor num)
+          unici (unique fattori))
+      (transpose (list unici (count unici fattori))))))
+
+Funzione che calcola la somma dei divisori di un numero:
+
+(define (divisors-sum num)
+  (local (sum out)
+    (if (= num 1) '1
+        (begin
+          (setq out 1)
+          (setq lst (factor-group num))
+          (dolist (el lst)
+            (setq sum 0)
+            (for (i 0 (last el))
+              (setq sum (+ sum (pow (first el) i)))
+            )
+            (setq out (* out sum)))))))
+
+Funzione che calcola il numero di Chowla per un dato numero:
+
+(define (chowla num)
+  (if (= num 1) 
+      0
+      (- (divisors-sum num) num 1)))
+
+Vediamo se otteniamo la stessa sequenza OEIS:
+
+(map chowla (sequence 1 20))
+;-> (0 0 0 2 0 5 0 6 3 7 0 15 0 9 8 14 0 20 0 21)
 
 =============================================================================
 

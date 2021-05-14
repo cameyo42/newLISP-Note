@@ -3363,54 +3363,56 @@ PUNTEGGIO NUMERICO (RANKING)
 Il punteggio numerico dei concorrenti (ranking) mostra se uno è migliore, uguale o peggiore di un altro in base ai risultati ottenuti in una  o più competizioni.
 Il punteggio numerico di un concorrente può essere assegnato in diversi modi:
 
-1) Ordinale (I concorrenti prendono il successivo numero intero disponibile. I punteggi uguali non sono trattati diversamente).
+  1) Ordinale (I concorrenti prendono il successivo numero intero disponibile. I punteggi uguali non sono trattati diversamente).
 
-2) Standard (I punteggi uguali condividono quello che sarebbe stato il loro primo numero ordinale).
+  2) Standard (I punteggi uguali condividono quello che sarebbe stato il loro primo numero ordinale).
 
-3) Denso (I punteggi uguali condividono il successivo numero intero disponibile).
+  3) Denso (I punteggi uguali condividono il successivo numero intero disponibile).
 
-4) Modificato (I punteggi uguali condividono quello che sarebbe stato il loro ultimo numero ordinale).
+  4) Modificato (I punteggi uguali condividono quello che sarebbe stato il loro ultimo numero ordinale).
 
-5) Frazionale (I punteggi uguali condividono la media di quello che sarebbe stato il loro numero ordinale)
+  5) Frazionale (I punteggi uguali condividono la media di quello che sarebbe stato il loro numero ordinale)
 
 Scrivere una funzione per ognuno dei cinque metodi di calcolo elencati.
 
 Lista di concorrenti e relativi risultati:
 
-44 Solomon
-42 Jason
-42 Errol
-41 Garry
-41 Bernard
-41 Barry
-39 Stephen
+  44 Solomon
+  42 Jason
+  42 Errol
+  41 Garry
+  41 Bernard
+  41 Barry
+  39 Stephen
 
 Tipi di punteggi:
 
-Ordinal Ranking    Standard Ranking    Dense Ranking
----------------    ----------------    -------------
-1  44  Solomon     1  44  Solomon      1  44  Solomon
-2  42  Jason       2  42  Jason        2  42  Jason
-3  42  Errol       2  42  Errol        2  42  Errol
-4  41  Garry       4  41  Garry        3  41  Garry
-5  41  Bernard     4  41  Bernard      3  41  Bernard
-6  41  Barry       4  41  Barry        3  41  Barry
-7  39  Stephen     7  39  Stephen      4  39  Stephen
-
-Modified Ranking   Fractional Ranking
-----------------   ------------------
-1  44  Solomon     1.0  44  Solomon
-3  42  Jason       2.5  42  Jason
-3  42  Errol       2.5  42  Errol
-6  41  Garry       5.0  41  Garry
-6  41  Bernard     5.0  41  Bernard
-6  41  Barry       5.0  41  Barry
-7  39  Stephen     7.0  39  Stephen
+  Ordinal Ranking    Standard Ranking    Dense Ranking
+  ---------------    ----------------    -------------
+  1  44  Solomon     1  44  Solomon      1  44  Solomon
+  2  42  Jason       2  42  Jason        2  42  Jason
+  3  42  Errol       2  42  Errol        2  42  Errol
+  4  41  Garry       4  41  Garry        3  41  Garry
+  5  41  Bernard     4  41  Bernard      3  41  Bernard
+  6  41  Barry       4  41  Barry        3  41  Barry
+  7  39  Stephen     7  39  Stephen      4  39  Stephen
+  
+  Modified Ranking   Fractional Ranking
+  ----------------   ------------------
+  1  44  Solomon     1.0  44  Solomon
+  3  42  Jason       2.5  42  Jason
+  3  42  Errol       2.5  42  Errol
+  6  41  Garry       5.0  41  Garry
+  6  41  Bernard     5.0  41  Bernard
+  6  41  Barry       5.0  41  Barry
+  7  39  Stephen     7.0  39  Stephen
 
 Definiamo una lista che contiene i concorrenti e i relativi risultati:
 
 (setq lst '((44 Solomon) (42 Jason) (42 Errol) (41 Garry) (41 Bernard) (41 Barry) (39 Stephen)))
 
+Ordinal rank
+------------
 (define (ordinal-rank lst)
   (println "Ordinal rank")
   (for (i 0 (- (length lst) 1))
@@ -3428,6 +3430,8 @@ Definiamo una lista che contiene i concorrenti e i relativi risultati:
 ;-> 6  41  Barry
 ;-> 7  39  Stephen
 
+Standard rank
+-------------
 (define (standard-rank lst)
   (let (j 1)
     (println "Standard rank")
@@ -3451,6 +3455,8 @@ Definiamo una lista che contiene i concorrenti e i relativi risultati:
 ;-> 4  41  Barry
 ;-> 7  39  Stephen
 
+Dense rank
+----------
 (define (dense-rank lst)
   (let (j 1)
     (println "Dense rank")
@@ -3474,15 +3480,104 @@ Definiamo una lista che contiene i concorrenti e i relativi risultati:
 ;-> 3  41  Barry
 ;-> 4  39  Stephen
 
-Proviamo con una diversa lista relativi risultati:
+Modified rank
+-------------
+(define (find-uguali val idx)
+  (let (out 1)
+    (while (and (< (+ idx 1) len) (= val (lst (+ idx 1) 0)))
+      (++ out)
+      (++ idx)
+    )
+    out))
 
-44 Solomon
-44 Jason
-42 Errol
-41 Garry
-41 Bernard
-39 Barry
-39 Stephen
+(define (modified-rank lst)
+  (local (len rank uguali i j k)
+    (setq len (length lst))
+    (println "Modified rank")
+    (setq rank 0)
+    (setq i 0)
+    (while (< i len)
+      ; valore corrente
+      (setq cur (lst i 0))
+      ; quanti sono i numeri uguali a quello corrente?
+      (setq same (find-uguali cur i))
+      ; calcola il rank per il valore corrente
+      (setq rank (+ rank same))
+      ; stampa tutti quelli che hanno lo stesso valore corrente
+      (for (j 0 (- same 1))
+        (if (zero? i)
+          (println 1 { } (lst (+ i j) 0) { } (lst (+ i j) 1))
+          (println rank { } (lst (+ i j) 0) { } (lst (+ i j) 1))
+        )
+      )
+      (setq i (+ i same))
+    )
+    'fine))
+
+(modified-rank lst)
+;-> Modified rank
+;-> 1 44 Solomon
+;-> 3 42 Jason
+;-> 3 42 Errol
+;-> 6 41 Garry
+;-> 6 41 Bernard
+;-> 6 41 Barry
+;-> 7 39 Stephen
+
+Fractional rank
+---------------
+(define (find-uguali val idx)
+  (let (out 1)
+    (while (and (< (+ idx 1) len) (= val (lst (+ idx 1) 0)))
+      (++ out)
+      (++ idx)
+    )
+    out))
+
+(define (fractional-rank lst)
+  (local (len cur pos rank uguali i j pos)
+    (setq len (length lst))
+    (println "Fractional rank")
+    (setq rank 0)
+    (setq i 0)
+    (while (< i len)
+      ; valore corrente
+      (setq cur (lst i 0))
+      ; quanti sono i numeri uguali a quello corrente?
+      (setq uguali (find-uguali cur i))
+      ; calcola il rank per il valore corrente
+      (setq pos (+ i 1))
+      (setq rank (div (apply + (sequence pos (+ pos uguali (- 1)))) uguali))
+      (for (j 0 (- uguali 1))
+        (if (zero? i)
+          (println "1.0" { } (lst (+ i j) 0) { } (lst (+ i j) 1))
+          (println (format "%3.1f %s %s" 
+                    rank (string (lst (+ i j) 0)) (string (lst (+ i j) 1))))
+        )
+      )
+      (setq i (+ i uguali))
+    )
+    'fine))
+
+(fractional-rank lst)
+;-> Fractional rank
+;-> 1.0 44 Solomon
+;-> 2.5 42 Jason
+;-> 2.5 42 Errol
+;-> 5.0 41 Garry
+;-> 5.0 41 Bernard
+;-> 5.0 41 Barry
+;-> 7.0 39 Stephen
+
+Proviamo con una lista che contiene risultati diversi:
+
+  44 Solomon
+  44 Jason
+  42 Errol
+  41 Garry
+  41 Bernard
+  39 Barry
+  39 Stephen
 
 (setq lst '((44 Solomon) (44 Jason) (42 Errol) (41 Garry) (41 Bernard) (39 Barry) (39 Stephen)))
 
@@ -3507,7 +3602,7 @@ Proviamo con una diversa lista relativi risultati:
 ;-> 6  39  Stephen
 
 (dense-rank lst)
-Dense rank
+;-> Dense rank
 ;-> 1  44  Solomon
 ;-> 1  44  Jason
 ;-> 2  42  Errol
@@ -3515,6 +3610,26 @@ Dense rank
 ;-> 3  41  Bernard
 ;-> 4  39  Barry
 ;-> 4  39  Stephen
+
+(modified-rank lst)
+;-> Modified rank
+;-> 1 44 Solomon
+;-> 1 44 Jason
+;-> 3 42 Errol
+;-> 5 41 Garry
+;-> 5 41 Bernard
+;-> 7 39 Barry
+;-> 7 39 Stephen
+
+(fractional-rank lst)
+;-> Fractional rank
+;-> 1.0 44 Solomon
+;-> 1.0 44 Jason
+;-> 3.0 42 Errol
+;-> 4.5 41 Garry
+;-> 4.5 41 Bernard
+;-> 6.5 39 Barry
+;-> 6.5 39 Stephen
 
 
 -----------------

@@ -6149,19 +6149,19 @@ Quindi per usare in modo proficuo le espressioni regolari occorre imparare come 
 
 Le espressioni regolari sono stringhe che contengono caratteri e metacaratteri. I caratteri vengono valutati in modo letterale, mentre i metacaratteri assumono un significato speciale. Vediamo la lista dei metacaratteri principali:
 
-Metacarattere	  Significato
+Metacarattere   Significato
 -------------   -----------
-  .	            qualsiasi carattere (tranne newline)
-  *	            zero o più occorrenze (carattere o gruppo di caratteri)
-  ?	            zero o una occorrenza (carattere o gruppo di caratteri)
-  {}	          numero esatto o minimo o massimo o l’intervallo di occorrenze (carattere o gruppo di caratteri)
-  +	            una o più occorrenze (carattere o gruppo di caratteri)
-  ^	            inizio della stringa (o la negazione di un gruppo di caratteri)
-  $	            fine della stringa
-  |	            operatore OR
+  .             qualsiasi carattere (tranne newline)
+  *             zero o più occorrenze (carattere o gruppo di caratteri)
+  ?             zero o una occorrenza (carattere o gruppo di caratteri)
+  {}            numero esatto o minimo o massimo o l’intervallo di occorrenze (carattere o gruppo di caratteri)
+  +             una o più occorrenze (carattere o gruppo di caratteri)
+  ^             inizio della stringa (o la negazione di un gruppo di caratteri)
+  $             fine della stringa
+  |             operatore OR
   \             carattere di escape per i caratteri speciali
-  ()	          contengono una sottostringa
-  []	          contengono una 'classe' di caratteri
+  ()            contengono una sottostringa
+  []            contengono una 'classe' di caratteri
 
 Per utilizzare i metacaratteri come "valori letterali" devono essere preceduti dal carattere di escap backslash " \ ". Ad esempio, se volessimo ricercare il carattere punto interrogativo "?" all'interno di una stringa, dovremmo scrivere: \?
 
@@ -8608,9 +8608,9 @@ Segue la classe Circle:
 Tutti gli insiemi delle funzioni di ogni classe sono ora separati lessicamente l'uno dall'altro.
 
 
--------------------
-XML e S-espressioni
--------------------
+=====================
+ XML e S-espressioni
+=====================
 
 newLISP ha alcune funzioni che permettono di lavorare con i file XML. Vediamo la definizione di queste funzioni dal manuale ("xml-parse", "xml-type-tags" e "xml-error"):
 
@@ -8892,9 +8892,9 @@ La seguente funzione può essere utilizzata per tradurre una S-espressione in XM
 Il secondo parametro 0 è il livello di indentazione per l'espressione di tag più esterna.
 
 
-----------------------------------------------
-Analisi dei tempi di esecuzione delle funzioni
-----------------------------------------------
+================================================
+ ANALISI DEI TEMPI DI ESECUZIONE DELLE FUNZIONI
+================================================
 
 Per analizzare i tempi di esecuzione delle funzioni newLISP mette a disposizione la funzione "time".
 
@@ -9903,6 +9903,22 @@ Riempimento con zeri
 ;-> "      Ciao"
 (format "%-10s" "Ciao")
 ;-> "Ciao      "
+
+Per finire vediamo un esempio con formattazione multipla:
+
+(setq str '("mele" "fragole" "arance" "kiwi" "mango" "pere" "noci"))
+(setq interi '(-11 100 0 -3 456 -1001 10000))
+(setq mobile '(-0.0004 3456.12345 0.01 123456.7 0.123456 10 -100))
+
+(for (i 0 6)
+  (println (format "%-6s\t%5d\t%13.6f" (str i) (interi i) (mobile i))))
+;-> mele      -11       -0.000400
+;-> fragole   100     3456.123450
+;-> arance      0        0.010000
+;-> kiwi       -3   123456.700000
+;-> mango     456        0.123456
+;-> pere    -1001       10.000000
+;-> noci    10000     -100.000000
 
 =============================================================================
 
