@@ -808,6 +808,9 @@ NOTE LIBERE 4
   Buche sulle strada
   Storia delle variabili
   Numeri di Chowla
+  Secondi -> periodo
+  Partizione di una lista in due parti con somme uguali
+  Numeri di Zumkeller
 
 APPENDICI
 =========
@@ -839,7 +842,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (165 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (166 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================

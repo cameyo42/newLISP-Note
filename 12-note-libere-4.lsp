@@ -4243,5 +4243,388 @@ Vediamo se otteniamo la stessa sequenza OEIS:
 (map chowla (sequence 1 20))
 ;-> (0 0 0 2 0 5 0 6 3 7 0 15 0 9 8 14 0 20 0 21)
 
+
+------------------
+Secondi -> periodo
+------------------
+
+Scrivere una funzione che accetta in ingresso un numero intero positivo che rappresenta una durata in secondi e   restituisce una stringa che mostra la stessa durata scomposta in settimane, giorni, ore, minuti e secondi.
+Per esempio:
+
+  Secondi     Output
+  7259        2h 59s
+  86400       1d
+  6000000     9wk 6d 10h 40m
+
+Devono essere utilizzate le seguenti cinque unità:
+
+  Unità              Codice    Conversione
+  week (settimana)    w        1 week = 7 days
+  day (giorno)        d        1 day = 24 hours
+  hour (ora)          h        1 hour = 60 minutes
+  minute (minuto)     m        1 minutes = 60 secondi
+  second (secondo)    s        1 secondo = 1 secondo
+
+Tuttavia, includere nell'output solo quantità con valori diversi da zero (ad esempio, restituire "1d" e non "0wk 1d, 0h 0m 0s").
+
+Utilizziamo la seguente lista per memorizzare i codici e l'espressione di conversione:
+
+(setq conv '(("w" (* 7 24 60 60 1))
+             ("d"   (* 24 60 60 1))
+             ("h"      (* 60 60 1))
+             ("m"         (* 60 1))
+             ("s"               1)))
+
+La funzione è la seguente:
+
+(define (periodo sec)
+  (local (name expr val)
+    (dolist (el conv)
+      (setq name (el 0))
+      (setq expr (eval (el 1)))
+      ; valore della corrente unità
+      (setq val (/ sec expr))
+      ; numero di secondi rimasti
+      ; (resto della divisione)
+      (setq sec (% sec expr))
+      (if (> val 0)
+        (print val name " ")
+      )
+    )
+    (println)))
+
+Verifichiamo i risultati deglki esempi:
+
+(periodo 7259)
+;-> 2h 59s
+(periodo 86400)
+;-> 1d
+(periodo 6000000)
+;-> 9wk 6d 10h 40m
+(periodo 12000)
+;-> 3h 20m
+
+Adesso scriviamo una funzione che converte i millisecondi in un periodo (può servire per convertire l'output della funzione "time"). Utilizziamo i seguenti valori di conversione (senza week):
+
+(setq conv '(("d"   (* 24 60 60 1000))
+             ("h"      (* 60 60 1000))
+             ("m"         (* 60 1000))
+             ("s"         (*  1 1000))
+             ("ms"                 1)))
+
+(define (period msec show)
+  (local (conv unit expr val out)
+    (setq conv '(("d" 86400000) ("h" 3600000) ("m" 60000) ("s" 1000) ("ms" 1)))
+    (setq out '())
+    (setq msec (int msec))
+    (dolist (el conv)
+      (setq unit (el 0))
+      (setq expr (el 1))
+      (setq val (/ msec expr))
+      ; numero di millisecondi rimasti
+      ; (resto della divisione)
+      (setq msec (% msec expr))
+      (push val out -1)
+      (if (and (> val 0) show)
+        (print val unit " ")
+      )
+    )
+    (if show (println))
+    out))
+
+(period 1000 true)
+;-> 1s
+;-> (0 0 0 1 0)
+(period 1184567 true)
+;-> 19m 44s 567ms
+;-> (0 0 19 44 567)
+(period 163458000)
+;-> (1 21 24 18 0)
+
+
+-----------------------------------------------------
+Partizione di una lista in due parti con somme uguali
+-----------------------------------------------------
+
+Determinare se è possibile partizionare una lista in due sotto-liste in modo che la somma di ogni sotto-lista sia la stessa. Per esempio, la lista di numeri A = (7 5 6 11 3 4) può essere divisa in due sotto-liste con la stessa somma (18) in due modi diversi:
+
+a) (5 6 7) e (11 3 4)
+
+b) (3 4 5 6) e (11 7)
+
+Supponendo che la somma di tutti gli elementi della lista sia S, ciò implica che le due sotto-liste devono avere una somma uguale a S/2. Quidi se la somma di tutti gli elementi della lista è dispari, allora non è possibile suddividere la lista in due parti con somma uguale.
+
+Se la somma degli elementi è pari, allora possiamo utilizzare due metodi per provare a suddividere la lista: brute-force e programmazione dinamica.
+
+Metodo Brute-force
+------------------
+Questo è un metodo ricorsivo in cui consideriamo ogni possibile sottoinsieme della lista e controlliamo se la sua somma è uguale o meno alla somma totale S/2, eliminando l'ultimo elemento della lista ad ogni turno.
+L'algoritmo è il seguente:
+  1) Per ogni ricorsione del metodo, dividi il problema in due sottoproblemi in modo che:
+    1.1) Creare un nuovo sottoinsieme della lista includendo l'ultimo elemento della lista se il suo valore non supera S/2 e ripetere il passaggio ricorsivo 1 di nuovo per il nuovo sottoinsieme.
+    1.2) Creare un nuovo sottoinsieme della lista escludendo l'ultimo elemento della lista e ripetire il passaggio ricorsivo 2 di nuovo per il nuovo sottoinsieme.
+    1.3) Se la somma di uno qualsiasi dei sottoinsiemi precedenti è uguale a S/2, restiture true altrimenti restituire nil (false).
+  2) Se uno qualsiasi dei problemi di cui sopra restituisce true, restituire true, altrimenti restituire nil.
+
+Implementazione metodo brute force:
+
+(define (partition? lst)
+  (let (sum (apply + lst))
+    (cond ((odd? sum) nil)
+          (true (subset lst (length lst) (/ sum 2))))))
+
+(define (subset lst len sum)
+  (catch
+  (local (tmp)
+    (if (zero? sum) (throw true))
+    (if (and (zero? len) (!= sum 0)) (throw nil))
+    (if (> (lst (- len 1)) sum)
+        (throw (subset lst (- len 1) sum))
+    )
+    (or (subset lst (- len 1) sum) (subset lst (- len 1) (- sum (lst (- len 1))))))))
+
+(partition? '(7 5 6 11 3 4))
+;-> true
+(partition? '(1 2 3 4 6 12))
+;-> true
+(partition? '(3 1 4 4))
+;-> nil
+(partition? '(6 4 3 2 3))
+;-> true
+(partition? '(6 -4 -3 2 3))
+;-> true
+
+La complessità temporale del caso peggiore vale O(2^n), dove n è il numero totale di elementi della lista.
+La complessità spaziale vale O(n), che viene utilizzata per memorizzare lo stack della ricorsione.
+
+Programmazione dinamica
+-----------------------
+Utilizzando la programmazione dinamica memorizziamo le valutazioni di ogni passaggio ricorsivo e riutilizziamo questi  valori qualora dovessimo ricalcolarli di nuovo nei passaggi futuri.
+
+  Chi non ricorda il passato è condannato a ripeterlo.
+  - Programmazione dinamica
+
+In questo caso, creiamo una lista bidimensionale di elementi booleani che rappresentano vero (true) o falso (nil) a seconda che si possa creare un sottoinsieme avente somma uguale alla riga e con gli elementi di questo sottoinsieme rappresentati nella colonna. Decidiamo se aggiungere o meno un elemento nel sottoinsieme a seconda che il suo valore sia minore o meno della somma. Riempiamo la lista in modo bottom-up fino a raggiungere l'ultimo elemento dell'array, che sarà la risposta finale.
+
+L'algoritmo è il seguente:
+1) Per ogni elemento i nell'array e il valore di somma s (incrementato fino a raggiungere il valore S / 2),
+  1.1) Controllare se il sottoinsieme con somma uguale a s può essere formato escludendo l'elemento i.
+  1.2) Verificare la condizione che il valore dell'elemento sia inferiore a s,
+      1.2.1) Se la condizione di cui sopra è vera, controlla se il sottoinsieme con somma uguale a s può essere formato includendo l'elemento i.
+  1.3) Se una qualsiasi delle condizioni di cui sopra è vera, allora memorizzare vero (true) nel valore della lista in i-esima riga e s-esima colonna, cioè possiamo formare il sottoinsieme di elementi con somma uguale a s.
+
+(define (partition? lst)
+  (local (sum len dp)
+    (setq len (length lst))
+    (setq sum (apply + lst))
+    (cond ((odd? sum) nil)
+          (true
+           (let (s (/ sum 2))
+            (setq dp (array (+ len 1) (+ s 1) '(nil)))
+            (for (i 0 len)
+              (setf (dp i 0) true)
+            )
+            (for (i 1 len)
+              (for (j 1 s)
+                (setf (dp i j) (dp (- i 1) j))
+                (if (>= j (lst (- i 1)))
+                    (setf (dp i j) (or (dp i j) (dp (- i 1) (- j (lst (- i 1))))))
+                )
+              )
+            )
+            (dp len s))
+          ))))
+
+(partition? '(7 5 6 11 3 4))
+;-> true
+(partition? '(1 2 3 4 6 12))
+;-> true
+(partition? '(3 1 4 4))
+;-> nil
+(partition? '(6 4 3 2 3))
+;-> true
+
+La complessità temporale del caso peggiore vale O(n*s), dove n è il numero totale di elementi della lista e s è il valore della somma di tutti gli elementi della lista.
+La complessità spaziale vale O(n*s), che viene utilizzata per memorizzare la matrice di tutti i sottoinsiemi con le relative somme.
+
+Nota: l'algoritmo che usa la programmazione dinamica è molto più veloce dell'algoritmo brute-force, ma non funziona con liste che hanno numeri negativi. Per esempio:
+
+(partition? '(6 -4 -3 2 3))
+;-> ERR: array index out of bounds : 5
+
+Nota: il problema della partizione è indicato come un problema NP-completo in informatica e la soluzione di cui sopra è una soluzione di programmazione dinamica in tempo pseudo-polinomiale. Viene anche definito "il problema difficile più semplice".
+
+
+-------------------
+Numeri di Zumkeller
+-------------------
+I numeri Zumkeller sono l'insieme di numeri i cui divisori possono essere partizionati in due insiemi disgiunti che si sommano allo stesso valore. Ogni somma deve contenere valori di divisori che non sono nell'altra somma e tutti i divisori devono essere nell'una o nell'altra. Non ci sono restrizioni sul modo in cui i divisori devono essere partizionati, solo che le somme delle due partizione devono essere sono uguali.
+Per esempio:
+6 è un numero Zumkeller: i divisori (1 2 3 6) possono essere partizionati in due gruppi (1 2 3) e (6) che sommano entrambi a 6.
+10 non è un numero Zumkeller: i divisori (1 2 5 10) non possono essere suddivisi in due gruppi in alcun modo che sommino entrambi allo stesso valore.
+12 è un numero Zumkeller: i divisori (1 2 3 4 6 12) possono essere partizionati in due gruppi (1 3 4 6) e (2 12) che sommano entrambi a 14.
+
+I numeri pari di Zumkeller sono comuni mentre i numeri dispari di Zumkeller lo sono molto meno. Per valori inferiori a  un milione (10^6), c'è almeno un numero Zumkeller ogni 12 numeri interi consecutivi e la stragrande maggioranza di essi è pari.
+
+Sequenza OEIS A083207:
+  6, 12, 20, 24, 28, 30, 40, 42, 48, 54, 56, 60, 66, 70, 78, 80, 84,
+  88, 90, 96, 102, 104, 108, 112, 114, 120, 126, 132, 138, 140, 150,
+  156, 160, 168, 174, 176, 180, 186, 192, 198, 204, 208, 210, 216,
+  220, 222, 224, 228, 234, 240, 246, 252, 258, 260, 264, 270, 272, ...
+
+Funzione che calcola tutti i divisori di un numero:
+
+(define (divisors num)
+  (local (f out)
+    (cond ((= num 1) '(1))
+          (true
+           (setq f (factor-group num))
+           (setq out '())
+           (divisors-aux 0 1)
+           (sort out)))))
+; funzione ausiliaria
+(define (divisors-aux cur-index cur-divisor)
+  (cond ((= cur-index (length f))
+         (push cur-divisor out -1)
+        )
+        (true
+         (for (i 0 (f cur-index 1))
+           (divisors-aux (+ cur-index 1) cur-divisor)
+           (setq cur-divisor (* cur-divisor (f cur-index 0)))
+         ))))
+
+Funzione che fattorizza un numero:
+
+(define (factor-group num)
+  (if (= num 1) '((1 1))
+    (letn (fattori (factor num)
+          unici (unique fattori))
+      (transpose (list unici (count unici fattori))))))
+
+Funzione che verifica se una lista può essere partizionata in due sotto-liste con somma uguale:
+
+(define (partition? lst)
+  (local (sum len dp)
+    (setq len (length lst))
+    (setq sum (apply + lst))
+    (cond ((odd? sum) nil)
+          (true
+           (let (s (/ sum 2))
+            (setq dp (array (+ len 1) (+ s 1) '(nil)))
+            (for (i 0 len)
+              (setf (dp i 0) true)
+            )
+            (for (i 1 len)
+              (for (j 1 s)
+                (setf (dp i j) (dp (- i 1) j))
+                (if (>= j (lst (- i 1)))
+                    (setf (dp i j) (or (dp i j) (dp (- i 1) (- j (lst (- i 1))))))
+                )
+              )
+            )
+            (dp len s))
+          ))))
+
+Funzione che verifica se un dato numero è un numero di Zumkeller:
+
+(define (zumkeller? num)
+  (local (divs sum abund)
+    (setq divs (divisors num))
+    (setq sum (apply + divs))
+    (cond ((odd? sum) nil)
+          ((odd? num)
+           (setq abund (- sum (* 2 num)))
+           ; se num è dispari usiamo l'ottimizzazione 'abundant odd number'
+           (and (> abund 0) (even? abund)))
+          ; se num e sum sono pari, allora verifichiamo la partizione
+          (true (partition? divs))
+    )))
+
+(zumkeller? 30)
+;-> true
+
+Funzione che calcola i numeri di Zumkeller fino ad dato numero:
+
+(define (zumkeller-to num)
+  (let (out '())
+    (for (i 1 num)
+      (if (zumkeller? i)
+          (push i out -1)))
+    out))
+
+(zumkeller-to 200)
+;-> (6 12 20 24 28 30 40 42 48 54 56 60 66 70 78 80
+;->  84 88 90 96 102 104 108 112 114 120 126 132 138
+;->  140 150 156 160 168 174 176 180 186 192 198)
+
+Calcoliamo i tempi di esecuzione:
+
+(time (zumkeller-to 1000))
+;-> 919.568
+(time (zumkeller-to 2000))
+;-> 4234.699
+(time (zumkeller-to 10000))
+;-> 137405.41
+
+La funzione non è molto veloce.
+
+Proviamo a vedere come varia la frequenza dei numeri di Zumkeller pari e dispari al crescere di n.
+
+(define (zumkeller-freq num)
+  (local (np nd)
+    (setq np 0 nd 0)
+    (for (i 1 num)
+      (if (zumkeller? i)
+          (if (odd? i)
+              (++ nd)
+              (++ np)
+          )
+      )
+    )
+    (println (format "%s%6d %5.2f%s %5.2f%s"
+    "   pari:" np (mul 100 (div np num)) "%" (mul 100 (div np (+ np nd))) "%"))
+    (println (format "%s%6d %5.2f%s %5.2f%s"
+    "dispari:" nd (mul 100 (div nd num)) "%" (mul 100 (div nd (+ np nd))) "%"))))
+
+(zumkeller-freq 1000)
+;->    pari:   223 22.30% 99.55%
+;-> dispari:     1  0.10%  0.45%
+(zumkeller-freq 10000)
+;->    pari:  2271 22.71% 99.00%
+;-> dispari:    23  0.23%  1.00%
+(zumkeller-freq 100000)
+
+Vediamo i primi n numeri di Zumkeller dispari che non terminano con 5:
+
+(define (zumkeller-odd num)
+  (local (nd)
+    (setq nd 0)
+    (setq i 1)
+    (while (< nd num)
+      (if (!= (% i 10) 5)
+          (if (zumkeller? i)        
+              (println (++ nd) { - } i)))
+      (++ i 2))))
+
+(zumkeller-odd 100)
+;-> 1 - 81081
+;-> 2 - 153153
+;-> 3 - 171171
+;-> 4 - 189189
+;-> 5 - 207207
+;-> 6 - 223839
+;-> 7 - 243243
+;-> 8 - 261261
+;-> 9 - 279279
+;-> 10 - 297297
+;-> 11 - 351351
+;-> 12 - 459459
+;-> ...
+;-> 96 - 2963961
+;-> 97 - 2980593
+;-> 98 - 2999997
+;-> 99 - 3054051
+;-> 100 - 3072069
+
 =============================================================================
 
