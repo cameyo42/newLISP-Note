@@ -406,6 +406,7 @@ PROBLEMI VARI
   Ancora la congettura di Goldbach
   Triangolo di Steinhaus
   L'ago di Buffon
+  La scimmia e le noci di cocco
 
 DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
 ==================================================
@@ -811,6 +812,10 @@ NOTE LIBERE 4
   Secondi -> periodo
   Partizione di una lista in due parti con somme uguali
   Numeri di Zumkeller
+  Numeri di Leonardo
+  Frequenza caratteri
+  Frequenza parole
+  Magic 8-Ball
 
 APPENDICI
 =========

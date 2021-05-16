@@ -7922,7 +7922,7 @@ con a, b, c numeri interi relativi e a e b non entrambi nulli ha soluzioni se e 
 In tal caso se (x0,y0) è una soluzione dell’equazione, tutte le soluzioni (x(n),y(n)) si trovano con le formule:
 
                     b                              a
-    x(n) = x0 + ----------*n       y(n) = y0 + ----------*n
+    x(n) = x0 + ----------*n       y(n) = y0 - ----------*n
                  MCD(a,b)                       MCD(a,b)
 
 al variare di n.
@@ -10548,6 +10548,118 @@ Proviamo con altri valori:
 
 (pigreco (simula 5 10 10 100 10 100 1000000) 5 10)
 ;-> 3.14694997608318
+
+
+-----------------------------
+La scimmia e le noci di cocco
+-----------------------------
+
+C'è un mucchio di noci di cocco, di proprietà di cinque uomini. Un uomo divide il mucchio in cinque pile uguali, dando la noce di cocco rimasta a una scimmia che passa e trattiene la sua parte. Il secondo uomo quindi ripete la procedura, divide il mucchio rimanente in cinque, poi regala la noce rimasta ad una scimmia e trattiene la sua parte, così come il terzo, il quarto e il quinto. (Ognuno di loro trova una noce di cocco rimasta quando divide il mucchio per cinque e la regala ad una scimmia). Infine, il gruppo divide le noci di cocco rimanenti in cinque pile uguali: questa volta non sono rimaste noci di cocco.
+Quante noci di cocco c'erano nella pila originale?
+
+Sia N la grandezza della pila originale e F il numero di noci di cocco ricevute da ciascun marinaio dopo la divisione finale in 5 parti uguali. Quindi il numero di noci di cocco rimaste prima della divisione finale vale F*5 + 1. Se poniamo questa quantità n, allora il numero rimanente prima della divisione dell'ultimo marinaio vale:
+
+  n' = (n * 5/4) + 1
+
+invertendo la procedura del marinaio. Ma ogni marinaio esegue la stessa procedura, quindi si crea una serie ricorsiva di 5 di tali n (sostituendo n con n' e generando una nuova n'), la quinta e ultima delle quali è lo stesso N, il numero di noci di cocco prima della divisione dal primo marinaio. Sostituendo successivamente n' e n otteniamo:
+
+  N = (((((F*5 + 1)*5/4 + 1)*5/4 + 1)*5/4 + 1)*5/4 + 1)*5/4 + 1
+
+che si riduce alla seguente equazione diofantina:
+
+  1024*N = 15625*F + 11529
+
+Secondo un teorema fondamentale, questa equazione ha una soluzione se e solo se 11529 è un multiplo del più grande divisore comune di 1024 e 15625. 1024 = 4^5 e 15625 = 5^6, quindi il loro MCD è 1 ed essendo 11529 multiplo di 1, allora l'equazione è risolvibile.
+
+L'equazione diofantina è la seguente:
+
+  ax + by = c
+
+dove a, b, c numeri interi relativi e a e b non entrambi nulli.
+
+Nel nostro caso abbiamo:
+
+  1024*N - 15625*F = 11529
+
+Le funzioni seguenti risolvono l'equazione diofantina:
+
+(define (gcdex a b)
+  (local (x y lastx lasty temp)
+    (setq x 0)
+    (setq y 1)
+    (setq lastx 1)
+    (setq lasty 0)
+    (while (not (zero? b))
+      (setq q (div a b))
+      (setq r (% a b))
+      (setq a b)
+      (setq b r)
+      (setq temp x)
+      (setq x (- lastx (* q x)))
+      (setq lastx temp)
+      (setq temp y)
+      (setq y (- lasty (* q y)))
+      (setq lasty temp)
+    )
+    ; Adesso la variabile a contine il valore di gcd
+    ;(println a { } b { } x { } y { } lastx { } lasty)
+    (list a lastx lasty)))
+
+(define (diofanto a b c)
+  (local (gcdex-lst g xg yg out)
+    (setq out '())
+    (setq gcdex-lst (gcdex a b))
+    (setq g (first gcdex-lst))
+    (setq xg (first (rest gcdex-lst)))
+    (setq yg (last gcdex-lst))
+    (println g { } xg { } yg)
+    (cond ((not (zero? (% c g))) (setq out '()))
+          (true
+            (setq out (list (div (mul xg c) g) (div (mul yg c) g)))))
+    out))
+
+(diofanto 1024 15625 11529)
+;-> -1 4776 313
+;-> (-55062504 3608577)
+
+La soluzione di base vale (x0,y0) = (-55062504 -3608577):
+
+(define (eq x y)
+  (+ (* 1024 x) (* -15625 y) (- 11529)))
+
+(eq -55062504 -3608577)
+;-> 0
+
+Le altre infinite soluzioni sono date dalle seguenti formule:
+
+                b
+x(n) = x0 + ----------*n =
+             MCD(a,b)
+
+                a
+y(n) = y0 - ----------*n =
+             MCD(a,b)
+
+Poichè la soluzione di base non è accettabile (perchè ha valori negativi) possaimo calcolare la prima soluzione con termini positivi usando le due equazioni precedenti.
+
+(gcd 1024 -15625)
+;-> 1
+
+x(n) = -55062504 + (-15625*n)
+
+y(n) = -3608577 + (1024*n)
+
+(define (calc-y n) (+ -3608577 (* 1024 n)))
+(define (calc-x n) (+ -55062504 (* 15625 n)))
+
+Il primo valore per cui le soluzioni sono entrambe positive vale 3525
+(calc-y  3525)
+;-> 1023
+
+(calc-x 3525)
+;-> 15621
+
+Quindi la soluzione vale N = 15621 e F = 1023.
 
 =============================================================================
 

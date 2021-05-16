@@ -406,6 +406,7 @@ PROBLEMI VARI
   Ancora la congettura di Goldbach
   Triangolo di Steinhaus
   L'ago di Buffon
+  La scimmia e le noci di cocco
 
 DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
 ==================================================
@@ -811,6 +812,10 @@ NOTE LIBERE 4
   Secondi -> periodo
   Partizione di una lista in due parti con somme uguali
   Numeri di Zumkeller
+  Numeri di Leonardo
+  Frequenza caratteri
+  Frequenza parole
+  Magic 8-Ball
 
 APPENDICI
 =========
@@ -52217,7 +52222,7 @@ con a, b, c numeri interi relativi e a e b non entrambi nulli ha soluzioni se e 
 In tal caso se (x0,y0) è una soluzione dell’equazione, tutte le soluzioni (x(n),y(n)) si trovano con le formule:
 
                     b                              a
-    x(n) = x0 + ----------*n       y(n) = y0 + ----------*n
+    x(n) = x0 + ----------*n       y(n) = y0 - ----------*n
                  MCD(a,b)                       MCD(a,b)
 
 al variare di n.
@@ -54843,6 +54848,118 @@ Proviamo con altri valori:
 
 (pigreco (simula 5 10 10 100 10 100 1000000) 5 10)
 ;-> 3.14694997608318
+
+
+-----------------------------
+La scimmia e le noci di cocco
+-----------------------------
+
+C'è un mucchio di noci di cocco, di proprietà di cinque uomini. Un uomo divide il mucchio in cinque pile uguali, dando la noce di cocco rimasta a una scimmia che passa e trattiene la sua parte. Il secondo uomo quindi ripete la procedura, divide il mucchio rimanente in cinque, poi regala la noce rimasta ad una scimmia e trattiene la sua parte, così come il terzo, il quarto e il quinto. (Ognuno di loro trova una noce di cocco rimasta quando divide il mucchio per cinque e la regala ad una scimmia). Infine, il gruppo divide le noci di cocco rimanenti in cinque pile uguali: questa volta non sono rimaste noci di cocco.
+Quante noci di cocco c'erano nella pila originale?
+
+Sia N la grandezza della pila originale e F il numero di noci di cocco ricevute da ciascun marinaio dopo la divisione finale in 5 parti uguali. Quindi il numero di noci di cocco rimaste prima della divisione finale vale F*5 + 1. Se poniamo questa quantità n, allora il numero rimanente prima della divisione dell'ultimo marinaio vale:
+
+  n' = (n * 5/4) + 1
+
+invertendo la procedura del marinaio. Ma ogni marinaio esegue la stessa procedura, quindi si crea una serie ricorsiva di 5 di tali n (sostituendo n con n' e generando una nuova n'), la quinta e ultima delle quali è lo stesso N, il numero di noci di cocco prima della divisione dal primo marinaio. Sostituendo successivamente n' e n otteniamo:
+
+  N = (((((F*5 + 1)*5/4 + 1)*5/4 + 1)*5/4 + 1)*5/4 + 1)*5/4 + 1
+
+che si riduce alla seguente equazione diofantina:
+
+  1024*N = 15625*F + 11529
+
+Secondo un teorema fondamentale, questa equazione ha una soluzione se e solo se 11529 è un multiplo del più grande divisore comune di 1024 e 15625. 1024 = 4^5 e 15625 = 5^6, quindi il loro MCD è 1 ed essendo 11529 multiplo di 1, allora l'equazione è risolvibile.
+
+L'equazione diofantina è la seguente:
+
+  ax + by = c
+
+dove a, b, c numeri interi relativi e a e b non entrambi nulli.
+
+Nel nostro caso abbiamo:
+
+  1024*N - 15625*F = 11529
+
+Le funzioni seguenti risolvono l'equazione diofantina:
+
+(define (gcdex a b)
+  (local (x y lastx lasty temp)
+    (setq x 0)
+    (setq y 1)
+    (setq lastx 1)
+    (setq lasty 0)
+    (while (not (zero? b))
+      (setq q (div a b))
+      (setq r (% a b))
+      (setq a b)
+      (setq b r)
+      (setq temp x)
+      (setq x (- lastx (* q x)))
+      (setq lastx temp)
+      (setq temp y)
+      (setq y (- lasty (* q y)))
+      (setq lasty temp)
+    )
+    ; Adesso la variabile a contine il valore di gcd
+    ;(println a { } b { } x { } y { } lastx { } lasty)
+    (list a lastx lasty)))
+
+(define (diofanto a b c)
+  (local (gcdex-lst g xg yg out)
+    (setq out '())
+    (setq gcdex-lst (gcdex a b))
+    (setq g (first gcdex-lst))
+    (setq xg (first (rest gcdex-lst)))
+    (setq yg (last gcdex-lst))
+    (println g { } xg { } yg)
+    (cond ((not (zero? (% c g))) (setq out '()))
+          (true
+            (setq out (list (div (mul xg c) g) (div (mul yg c) g)))))
+    out))
+
+(diofanto 1024 15625 11529)
+;-> -1 4776 313
+;-> (-55062504 3608577)
+
+La soluzione di base vale (x0,y0) = (-55062504 -3608577):
+
+(define (eq x y)
+  (+ (* 1024 x) (* -15625 y) (- 11529)))
+
+(eq -55062504 -3608577)
+;-> 0
+
+Le altre infinite soluzioni sono date dalle seguenti formule:
+
+                b
+x(n) = x0 + ----------*n =
+             MCD(a,b)
+
+                a
+y(n) = y0 - ----------*n =
+             MCD(a,b)
+
+Poichè la soluzione di base non è accettabile (perchè ha valori negativi) possaimo calcolare la prima soluzione con termini positivi usando le due equazioni precedenti.
+
+(gcd 1024 -15625)
+;-> 1
+
+x(n) = -55062504 + (-15625*n)
+
+y(n) = -3608577 + (1024*n)
+
+(define (calc-y n) (+ -3608577 (* 1024 n)))
+(define (calc-x n) (+ -55062504 (* 15625 n)))
+
+Il primo valore per cui le soluzioni sono entrambe positive vale 3525
+(calc-y  3525)
+;-> 1023
+
+(calc-x 3525)
+;-> 15621
+
+Quindi la soluzione vale N = 15621 e F = 1023.
 
 =============================================================================
 
@@ -95299,7 +95416,9 @@ Proviamo a vedere come varia la frequenza dei numeri di Zumkeller pari e dispari
 (zumkeller-freq 10000)
 ;->    pari:  2271 22.71% 99.00%
 ;-> dispari:    23  0.23%  1.00%
-(zumkeller-freq 100000)
+(zumkeller-freq 100000)  ; ci vuole molto tempo...
+;->    pari: 22843 22.84% 99.10%
+;-> dispari:   208  0.21%  0.90%
 
 Vediamo i primi n numeri di Zumkeller dispari che non terminano con 5:
 
@@ -95332,6 +95451,414 @@ Vediamo i primi n numeri di Zumkeller dispari che non terminano con 5:
 ;-> 98 - 2999997
 ;-> 99 - 3054051
 ;-> 100 - 3072069
+
+
+------------------
+Numeri di Leonardo
+------------------
+
+I numeri Leonardo (serie di Leonardo) sono una sequenza di numeri definita da:
+
+  L(0) = 1
+  L(1) = 1
+  L(n) = L(n-1) + L(n-2) + 1
+
+  dove il + 1 sarà qui noto come il numero di aggiunta.
+
+I numeri di Leonardo sono legati ai numeri di Fibonacci tramite la seguente relazione:
+
+  L(n) = 2 * Fib(n + 1) - 1
+
+I primi numeri di Leonardo (sequenza OEIS A001595) sono i seguenti:
+
+ 1 1 3 5 9 15 25 41 67 109 177 287 465 753 1219 1973 3193 5167 8361 ···
+
+Scriviamo una funzione iterativa:
+
+(define (leonardo L0 L1 sum num)
+  (local (out tmp)
+    (setq out (list L0 L1))
+    (for (i 3 num)
+      (push (+ L0 L1 sum) out -1)
+      (setq tmp L0)
+      (setq L0 L1)
+      (setq L1 (+ L1 tmp sum))
+    )
+    out))
+
+(leonardo 1 1 1 20)
+;-> (1 1 3 5 9 15 25 41 67 109 177 287 465 753 1219 1973 3193 5167 8361 13529)
+
+Se poniamo L0 = 1, L1 = 1 e sum = 0, allora otteniamo la sequenza di Fibonacci:
+
+(leonardo 0 1 0 20)
+;-> (0 1 1 2 3 5 8 13 21 34 55 89 144 233 377 610 987 1597 2584 4181)
+
+
+-------------------
+Frequenza caratteri
+-------------------
+
+Aprire un file di testo e contare le occorrenze di ogni lettera.
+Contare solo i caratteri ASCII da 32 a 126.
+
+(define (freq-chars nomefile)
+  (local (file fr out)
+    (setq fr (array 127 '(0)))
+    (setq file (open nomefile "read"))
+    (while (setq line (read-line file))
+      (dostring (ch line)
+        ; solo caratteri ASCII (32-126)
+        (if (and (>= ch 32) (<= ch 126))
+            (++ (fr ch))
+        )
+      )
+    )
+    (close file)
+    (setq tot (apply + (array-list fr)))
+    (println "File: " nomefile)
+    (println "Caratteri ASCII: " tot)
+    (for (i 32 126)
+      (println (format "%s%s%6d%s%5.2f"
+                (char i) " - " (fr i) " - " (mul 100 (div (fr i) tot))))
+    )
+    ))
+
+(freq-chars "newLISP-Note.lsp")
+;-> File: newLISP-Note.lsp
+;-> Caratteri ASCII: 3229530
+;->   - 704059 - 21.80
+;-> ! -    715 -  0.02
+;-> " -  27572 -  0.85
+;-> # -   1297 -  0.04
+;-> $ -    527 -  0.02
+;-> % -   1337 -  0.04
+;-> & -     99 -  0.00
+;-> ' -   9170 -  0.28
+;-> ( -  96370 -  2.98
+;-> ) -  96977 -  3.00
+;-> * -   9263 -  0.29
+;-> + -   9387 -  0.29
+;-> , -  11284 -  0.35
+;-> - - 104385 -  3.23
+;-> . -  20989 -  0.65
+;-> / -   3470 -  0.11
+;-> 0 -  44895 -  1.39
+;-> 1 -  49245 -  1.52
+;-> 2 -  32763 -  1.01
+;-> 3 -  23072 -  0.71
+;-> 4 -  18349 -  0.57
+;-> 5 -  17760 -  0.55
+;-> 6 -  15716 -  0.49
+;-> 7 -  14520 -  0.45
+;-> 8 -  14380 -  0.45
+;-> 9 -  16949 -  0.52
+;-> : -   9331 -  0.29
+;-> ; -  18388 -  0.57
+;-> < -   1583 -  0.05
+;-> = -  33884 -  1.05
+;-> > -  14902 -  0.46
+;-> ? -   2671 -  0.08
+;-> @ -    234 -  0.01
+;-> A -   5516 -  0.17
+;-> B -   2827 -  0.09
+;-> C -   4489 -  0.14
+;-> D -   2802 -  0.09
+;-> E -   3595 -  0.11
+;-> F -   2358 -  0.07
+;-> G -   1224 -  0.04
+;-> H -    994 -  0.03
+;-> I -   6139 -  0.19
+;-> J -    366 -  0.01
+;-> K -    512 -  0.02
+;-> L -   7557 -  0.23
+;-> M -   2586 -  0.08
+;-> N -   3564 -  0.11
+;-> O -   3135 -  0.10
+;-> P -   5643 -  0.17
+;-> Q -   1718 -  0.05
+;-> R -   2576 -  0.08
+;-> S -   5568 -  0.17
+;-> T -   2950 -  0.09
+;-> U -   1509 -  0.05
+;-> V -   1277 -  0.04
+;-> W -    611 -  0.02
+;-> X -    994 -  0.03
+;-> Y -    452 -  0.01
+;-> Z -    491 -  0.02
+;-> [ -   1353 -  0.04
+;-> \ -    924 -  0.03
+;-> ] -   1350 -  0.04
+;-> ^ -   1167 -  0.04
+;-> _ -   1297 -  0.04
+;-> ` -     10 -  0.00
+;-> a - 147948 -  4.58
+;-> b -  20117 -  0.62
+;-> c -  61092 -  1.89
+;-> d -  62168 -  1.92
+;-> e - 202033 -  6.26
+;-> f -  31728 -  0.98
+;-> g -  26543 -  0.82
+;-> h -  18604 -  0.58
+;-> i - 176672 -  5.47
+;-> j -   1644 -  0.05
+;-> k -   4222 -  0.13
+;-> l - 104036 -  3.22
+;-> m -  59301 -  1.84
+;-> n - 131782 -  4.08
+;-> o - 139597 -  4.32
+;-> p -  50090 -  1.55
+;-> q -  14166 -  0.44
+;-> r - 109208 -  3.38
+;-> s - 100981 -  3.13
+;-> t - 127276 -  3.94
+;-> u -  62764 -  1.94
+;-> v -  22856 -  0.71
+;-> w -   6012 -  0.19
+;-> x -  11657 -  0.36
+;-> y -   8256 -  0.26
+;-> z -  19150 -  0.59
+;-> { -    677 -  0.02
+;-> | -   5120 -  0.16
+;-> } -    684 -  0.02
+;-> ~ -     49 -  0.00
+
+Da notare che il 3% dei caratteri sono "(" e ")"... sicuramente è un testo che parla di LISP.
+
+
+----------------
+Frequenza parole
+----------------
+
+Aprire un file di testo e contare le occorrenze e la frequenza di ogni parola.
+
+Funzione che calcola il numero e la frequenza degli elementi della lista data:
+
+(define (calc-freq lst)
+  (local (tot palo conta out)
+    ; numero totale degli elementi della lista
+    (setq tot (length lst))
+    ; (println tot)
+    (cond ((= lst '()) '())
+          (true
+           (setq out '())
+           (setq palo (first lst))
+           (setq conta 0)
+           (dolist (el lst)
+              ; se l'elemento è uguale al precedente aumentiamo il suo conteggio
+              (if (= el palo) (++ conta)
+                  ; altrimenti costruiamo la coppia (conta el) e la aggiungiamo al risultato
+                  (begin (push (list conta palo (mul 100 (div conta tot))) out -1)
+                         (setq conta 1)
+                         (setq palo el)
+                  )
+              )
+           )
+           ; aggiungiamo l'ultima tripla di valori
+           ;(extend out (list(list conta palo (mul 100 (div conta tot)))))
+           (push (list conta palo (mul 100 (div conta tot))) out -1)
+          )
+    )
+    out))
+
+Funzione che calcola il numero e la frequenza delle parole di un file:
+
+(define (freq-words nomefile)
+  (local (data)
+    ; importa tutte le parole del file in una lista
+    (setq data (parse (lower-case (read-file nomefile)) {\W} 0))
+    ; toglie le parole nulle ""
+    (setq data (clean null? data))
+    ; ordina le parole della lista
+    (sort data)
+    ; calcola il numero e la frequenza delle parole
+    (calc-freq data)))
+
+Proviamo la funzione con il romanzo di Conan Doyle "The Sign of Four":
+
+(silent (setq wf (freq-words "sign-of-four.txt")))
+
+Vediamo le prime 10 parole (ordine alfabetico):
+
+(slice wf 0 10)
+;-> ((1 "1857" 0.002282375496416671)
+;->  (1 "1871" 0.002282375496416671)
+;->  (2 "1878" 0.004564750992833341)
+;->  (3 "1882" 0.006847126489250011)
+;->  (1 "221b" 0.002282375496416671)
+;->  (1 "28th" 0.002282375496416671)
+;->  (3 "3" 0.006847126489250011)
+;->  (1 "340" 0.002282375496416671)
+;->  (2 "34th" 0.004564750992833341)
+;->  (1 "37" 0.002282375496416671))
+
+Vediamo le ultime 10 parole (ordine alfabetico):
+
+(slice wf -10 10)
+;-> ((2 "yonder" 0.004564750992833341)
+;->  (543 "you" 1.239329894554252)
+;->  (19 "young" 0.04336513443191674)
+;->  (107 "your" 0.2442141781165838)
+;->  (7 "yours" 0.0159766284749167)
+;->  (9 "yourself" 0.02054137946775004)
+;->  (2 "yourselves" 0.004564750992833341)
+;->  (3 "youth" 0.006847126489250011)
+;->  (1 "zigzag" 0.002282375496416671)
+;->  (2 "zum" 0.004564750992833341))
+
+Vediamo le 10 parole più frequenti:
+
+(silent (sort wf >))
+(slice wf 0 10)
+;-> ((2341 "the" 5.343041037111425)
+;->  (1237 "i" 2.823298489067422)
+;->  (1187 "and" 2.709179714246588)
+;->  (1122 "of" 2.560825306979504)
+;->  (1095 "a" 2.499201168576254)
+;->  (1093 "to" 2.494636417583421)
+;->  (697 "it" 1.590815721002419)
+;->  (681 "in" 1.554297713059753)
+;->  (645 "he" 1.472132195188753)
+;->  (631 "that" 1.440178938238919))
+
+Nota: la lista delle frequenze delle parole può servire anche per trovare le parole con errori di ortografia.
+
+
+------------
+Magic 8-Ball
+------------
+
+La Magic 8-Ball è una sfera di plastica, simile alla palla da biliardo numero otto, che viene utilizzata per predire il futuro o per chiedere consigli. È stata inventata nel 1950 da Albert Carter e Abe Bookman ed è attualmente prodotta da Mattel. L'utente fa una domanda del tipo si/no alla palla, quindi la gira per rivelare la risposta che compare in una finestra sulla palla. Una Magic 8 Ball standard ha 20 possibili risposte, di cui: 10 risposte affermative, 5 risposte evasive e 5 risposte negative.
+
+Versione inglese:
+
+Affirmative
+-----------
+- It is Certain.
+- It is decidedly so.
+- Without a doubt.
+- Yes definitely.
+- You may rely on it.
+- As I see it, yes.
+- Most likely.
+- Outlook good.
+- Yes.
+- Signs point to yes.
+
+Non-committal
+-------------
+- Reply hazy, try again.
+- Ask again later.
+- Better not tell you now.
+- Cannot predict now.
+- Concentrate and ask again.
+
+Negative
+--------
+- Don't count on it.
+- My reply is no.
+- My sources say no.
+- Outlook not so good.
+- Very doubtful.
+
+(define (eight-ball)
+(catch
+  (local (responses question)
+    (setq responses 
+         '("It is certain" "It is decidedly so" "Without a doubt" 
+           "Yes definitely" "You may rely on it" "As I see it, yes" 
+           "Most likely" "Outlook good" "Yes" "Signs point to yes"
+           "Reply hazy try again" "Ask again later" 
+           "Better not tell you now" "Cannot predict now" 
+           "Concentrate and ask again" "Don't count on it" 
+           "My reply is no" "My sources say no" "Outlook not so good"
+           "Very doubtful"))
+    (while true 
+      (println "\nWhat do you want to know?")
+      (setq question (read-line))
+      (if (= question "exit") (throw 'good-luck))
+      (sleep 1000)
+      (println (responses (rand 20)))
+    ))))
+
+(eight-ball)
+
+;-> What do you want to know?
+;-> I'm the best?
+;-> Ask again later
+
+;-> What do you want to know?
+;-> newLISP?
+;-> Yes definitely
+
+;-> What do you want to know?
+;-> exit
+;-> good-luck
+
+Versione italiana:
+
+Affermative
+-----------
+- È certo.
+- È decisamente così.
+- Senza dubbio
+- Si, assolutamente
+- Puoi contarci.
+- Per come la vedo io, sì.
+- Molto probabile
+- Buone prospettive.
+- Si.
+- I segni indicano sì.
+
+Evasive
+-------
+- Risposta confusa, riprova.
+- Chiedilo di nuovo più tardi.
+- Meglio non dirtelo ora.
+- Non posso prevedere adesso.
+- Concentrati e chiedi di nuovo.
+
+Negative
+--------
+- Non contarci.
+- La mia risposta è no.
+- Le mie fonti dicono di no.
+- Prospettive non così buone.
+- Molto dubbioso.
+
+(define (otto)
+(catch
+  (local (responses question)
+    (setq responses
+        '("È certo" "È decisamente così" "Senza dubbi" "Si, assolutamente"
+          "Puoi contarci" "Per come la vedo io, sì" "Molto probabile"
+          "Buone prospettive" "Si" "I segni indicano sì" 
+          "Risposta confusa, riprova" "Chiedilo di nuovo più tardi"
+          "Meglio non dirtelo ora" "Non posso prevedere adesso"
+          "Concentrati e chiedi di nuovo" "Non contarci"
+          "La mia risposta è no" "Le mie fonti dicono di no"
+          "Prospettive non così buone" "Molto dubbioso"))
+    (while true 
+      (println "\nChe cosa vuoi sapere?")
+      (setq question (read-line))
+      (if (= question "esci") (throw 'buona-fortuna))
+      (sleep 1000)
+      (println (responses (rand 20)))
+    ))))
+
+(otto)
+
+;-> Che cosa vuoi sapere?
+;-> Torino salvo?
+;-> Molto probabile
+
+;-> Che cosa vuoi sapere?
+;-> Tanti soldi?
+;-> Concentrati e chiedi di nuovo
+
+;-> Che cosa vuoi sapere?
+;-> esci
+;-> buona-fortuna
 
 =============================================================================
 
