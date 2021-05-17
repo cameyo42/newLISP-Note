@@ -816,6 +816,7 @@ NOTE LIBERE 4
   Frequenza caratteri
   Frequenza parole
   Magic 8-Ball
+  I Ching
 
 APPENDICI
 =========

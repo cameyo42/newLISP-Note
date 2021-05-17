@@ -5036,5 +5036,206 @@ Negative
 ;-> esci
 ;-> buona-fortuna
 
+
+-------
+I Ching
+-------
+
+Scriviamo un programma per generare casualmente uno dei 64 esagrammi degli "I Ching". Per informazioni dettagliate consultare:
+
+"I Ching. Il libro dei mutamenti." a cura di Richard Wilhelm, Traduzione di Veneziani e Ferrara. Editore Adelphi, 1995
+
+Un esagramma è un simbolo costituito da sei linee sovrapposte. Le linee possono essere di 4 tipi:
+
+  1) linea (yin) spezzata mobile:   ■■■■■  ■■■■■∙
+  2) linea (yang) intera fissa:     ■■■■■■■■■■■■
+  3) linea (yin) spezzata fissa:    ■■■■■  ■■■■■
+  4) linea (yang) intera mobile:    ■■■■■■■■■■■■∙
+
+Le linee intere sono linee yang, le linee spezzate sono linee yin. Ciascuna di queste linee può presentarsi sotto due forme: fissa e mobile.
+
+L'esagramma viene costruito generando casualmente sei linee partendo dal basso e proseguendo verso l'alto (cioè la prima linea è quella più in basso, mentre la sesta e ultima linea è quella più in alto). Il numero di esagrammi è pari a 2^6 = 64.
+
+Esempio di esagramma:
+
+  6   ■■■■■  ■■■■■∙
+  5   ■■■■■■■■■■■■
+  4   ■■■■■  ■■■■■
+  3   ■■■■■■■■■■■■∙
+  2   ■■■■■■■■■■■■
+  1   ■■■■■■■■■■■■
+
+Tradizionalmente la generazione casuale dell'esagramma utilizza due metodi che hanno lo scopo di generare una serie di sei numeri compresi tra 6 e 9 (oppure 1 e 4), che vengono trasformati nelle sei linee dell'esagramma. Adesso possono presentarsi due casi:
+
+1) Se l'esagramma ottenuto non contiene linee mobili, si ricerca semplicemente l'esagramma nel testo dell'I Ching e il responso dell'oracolo sarà dato dal testo generale che accompagna l'esagramma.
+
+2) Se l'esagramma ottenuto contiene linee mobili, esso muterà in un secondo esagramma che viene ricavato dal primo ribaltando le linee mobili nel loro opposto, e cioè:
+- la linea (yin) spezzata mobile ■■■■■  ■■■■■∙ diventerà una linea (yang) intera fissa ■■■■■■■■■■■■
+- la linea (yang) fissa mobile ■■■■■■■■■■■■∙ diventerà una linea (yin) spezzata fissa ■■■■■  ■■■■■
+In questo caso, il responso dell'oracolo sarà dato:
+a) dal testo generale del primo esagramma ottenuto (che viene cercato nel testo dell'I CHING senza considerare le linee mobili, cioè come se fosse composto solo da linee fisse)
+b) dal testo delle specifiche linee mobili del primo esagramma (contate sempre dal basso verso l'alto)
+c) dal testo generale del secondo esagramma ottenuto.
+
+In generale, possiamo dire che il primo esagramma rappresenta la situazione attuale o di partenza, le sue linee mobili rappresentano i mutamenti che si verificheranno entro breve tempo, mentre il secondo esagramma rappresenta il risultato finale (spiegazioni più dettagliate sul modo di interpretare l'oracolo nei vari casi si possono trovare nel libro citato sopra).
+
+I due metodi per generare l'esagramma sono:
+1) il metodo delle monete
+2) il metodo degli steli di millefoglie
+
+Da un punto di vista del calcolo delle probabilità i due metodi non sono uguali poichè assegnano probabilità differenti al processo di estrazione delle linee. I due metodi non differiscono tanto per il carattere, "Yin" (spezzata) o "Yang" (fissa), delle linee risultanti, quanto piuttosto per il tipo di linea, fissa o mobile. La tabella seguente mostra i valori di probabilità associata ad ogni evento dei due metodi:
+
+  Probabilità delle linee   Monete      Steli
+  -----------------------------------------------
+  1) linea spezzata mobile    1/8     4/64 = 1/16
+  2) linea intera fissa       3/8    20/64 = 5/16
+  3) linea spezzata fissa     3/8    28/64 = 7/16
+  4) linea intera mobile      1/8    12/64 = 3/16
+
+Il nostro programma genera i due esagrammi (e i relativi numeri) che dovranno essere sottoposti ad interpretazione utilizzandon il libro citato sopra.
+
+Per la rappresentazione degli esagrammi utilizziamo la seguente lista:
+
+(setq lsm "■■■■■  ■■■■■∙") ; yin mobile  -  spezzata mobile
+(setq lif "■■■■■■■■■■■■")  ; yang fissa  -  intera fissa
+(setq lsf "■■■■■  ■■■■■")  ; yin fissa   -  spezzata fissa
+(setq lim "■■■■■■■■■■■■∙") ; yang mobile -  intera mobile
+
+(setq linee '("" "■■■■■  ■■■■■∙" "■■■■■■■■■■■■" "■■■■■  ■■■■■" "■■■■■■■■■■■■∙"))
+(setq linee '("" lsm lif lsf lim))
+
+Gli indici e i valori della lista sono:
+
+  1 = "■■■■■  ■■■■■∙"  ;spezzata mobile
+  2 = "■■■■■■■■■■■■ "  ;intera fissa
+  3 = "■■■■■  ■■■■■ "  ;spezzata fissa
+  4 = "■■■■■■■■■■■■∙"  ;intera mobile
+
+Funzione che genera una linea con il metodo della monete (genera un numero da 1 a 4):
+
+(define (linea-monete)
+  (let (val (rand 8))
+    (cond ((zero? val) 1)
+          ((and (>= val 1) (<= val 3)) 2)
+          ((and (>= val 4) (<= val 6)) 3)
+          ((= val 7) 4))))
+
+(linea-monete)
+;-> 3
+
+Controllo correttezza:
+(setq f (array 5 '(0)))
+(for (i 1 1000000)
+  (++ (f (linea-monete))))
+f
+;-> (0 124759 375367 375260 124614)
+(div 3 8)
+;-> 0.375
+(div 8)
+;-> 0.125
+
+Funzione che genera una linea con il metodo degli steli di millefoglie (genera un numero da 1 a 4):
+
+(define (linea-steli)
+  (let (val (rand 64))
+    (cond ((and (>= val 0) (<= val 3)) 1)
+          ((and (>= val 4) (<= val 23)) 2)
+          ((and (>= val 24) (<= val 51)) 3)
+          ((and (>= val 52) (<= val 63)) 4))))
+
+(linea-steli)
+;-> 3
+
+Controllo correttezza:
+(setq f (array 5 '(0)))
+(for (i 1 1000000)
+  (++ (f (linea-steli))))
+f
+;-> (0 62625 312456 437907 187012)
+(div 4 64)
+;-> 0.0625
+(div 20 64)
+;-> 0.3125
+(div 28 64)
+;-> 0.4375
+(div 12 64)
+;-> 0.1875
+
+Funzione che genera i due esagrammi che ha come parametro il metodo da utilizzare per generare casualmente le linee (1=monete (default) 2=steli):
+
+(define (ching metodo)
+  (local (esagrammi linee linea esa-A esa-AA esa-B num-AA num-B)
+    ; metodo da utilizzare (monete o steli)
+    (if (and (!= metodo 1) (!= metodo 2)) (setq metodo 1))
+    ; rappresentazione dei 64 esagrammi (1..64)
+    (setq esagrammi '((0)
+        (2 2 2 2 2 2) (3 3 3 3 3 3) (3 2 3 3 3 2) (2 3 3 3 2 3) (3 2 3 2 2 2)
+        (2 2 2 3 2 3) (3 3 3 3 2 3) (3 2 3 3 3 3) (2 2 3 2 2 2) (2 2 2 3 2 2)
+        (3 3 3 2 2 2) (2 2 2 3 3 3) (2 2 2 2 3 2) (2 3 2 2 2 2) (3 3 3 2 3 3)
+        (3 3 2 3 3 3) (3 2 2 3 3 2) (2 3 3 2 2 3) (3 3 3 3 2 2) (2 2 3 3 3 3)
+        (2 3 2 3 3 2) (2 3 3 2 3 2) (2 3 3 3 3 3) (3 3 3 3 3 2) (2 2 2 3 3 2)
+        (2 3 3 2 2 2) (2 3 3 3 3 2) (3 2 2 2 2 3) (3 2 3 3 2 3) (2 3 2 2 3 2)
+        (3 2 2 2 3 3) (3 3 2 2 2 3) (2 2 2 2 3 3) (3 3 2 2 2 2) (2 3 2 3 3 3)
+        (3 3 3 2 3 2) (2 2 3 2 3 2) (2 3 2 3 2 2) (3 2 3 2 3 3) (3 3 2 3 2 3)
+        (2 3 3 3 2 2) (2 2 3 3 3 2) (3 2 2 2 2 2) (2 2 2 2 2 3) (3 2 2 3 3 3)
+        (3 3 3 2 2 3) (3 2 2 3 2 3) (3 2 3 2 2 3) (3 2 2 2 3 2) (2 3 2 2 2 3)
+        (3 3 2 3 3 2) (2 3 3 2 3 3) (2 2 3 2 3 3) (3 3 2 3 2 2) (3 3 2 2 3 2)
+        (2 3 2 2 3 3) (2 2 3 2 2 3) (3 2 2 3 2 2) (2 2 3 3 2 3) (3 2 3 3 2 2)
+        (2 2 3 3 2 2) (3 3 2 2 3 3) (3 2 3 2 3 2) (2 3 2 3 2 3)))
+    ; lista dei tipi di linee
+    (setq linee '("" "■■■■■  ■■■■■∙" "■■■■■■■■■■■■" "■■■■■  ■■■■■" "■■■■■■■■■■■■∙"))
+    ; inizializza il generatore di numeri casuali
+    (seed (time-of-day))
+    (setq esa-A '())
+    (setq esa-B '())
+    ; Crea esagrammi A e B
+    ; la prima linea è quella più in basso
+    ; (l'ultima nelle liste esa-A e esa-B)
+    ; la sesta (ultima) linea è quella più in alto
+    ; (la prima nelle liste esa-A e esa-B)
+    (for (i 1 6)
+      (if (= metodo 1)
+          (setq linea (linea-monete))
+          (setq linea (linea-steli))
+      )
+      ; esagramma A
+      (push linea esa-A)
+      ; esagramma B
+      (cond ((= linea 1) (push 2 esa-B) (push 3 esa-AA))
+            ((= linea 2) (push 2 esa-B) (push 2 esa-AA))
+            ((= linea 3) (push 3 esa-B) (push 3 esa-AA))
+            ((= linea 4) (push 3 esa-B) (push 2 esa-AA))
+      )
+    )
+    ; Cerca i numeri degli esagrammi AA e B
+    (setq num-AA (find esa-AA esagrammi))
+    (setq num-B (find esa-B esagrammi))
+    ; Stampa degli esagrammi
+    (print (format "  %-20d%-20d\n" num-AA num-B))
+    (for (i 0 5)
+      (print (format "  %-20s%-20s\n" (linee (esa-A i)) (linee (esa-B i))))
+    )
+  'i-ching))
+
+Proviamo a generare un paio di esagrammi:
+
+(ching 2)
+;-> 10                  61
+;-> ■■■■■■■■■■■■        ■■■■■■■■■■■■
+;-> ■■■■■■■■■■■■        ■■■■■■■■■■■■
+;-> ■■■■■■■■■■■■∙       ■■■■■  ■■■■■
+;-> ■■■■■  ■■■■■        ■■■■■  ■■■■■
+;-> ■■■■■■■■■■■■        ■■■■■■■■■■■■
+;-> ■■■■■■■■■■■■        ■■■■■■■■■■■■
+
+(ching)
+;-> 20                  33
+;-> ■■■■■■■■■■■■        ■■■■■■■■■■■■
+;-> ■■■■■■■■■■■■        ■■■■■■■■■■■■
+;-> ■■■■■  ■■■■■∙       ■■■■■■■■■■■■
+;-> ■■■■■  ■■■■■∙       ■■■■■■■■■■■■
+;-> ■■■■■  ■■■■■        ■■■■■  ■■■■■
+;-> ■■■■■  ■■■■■        ■■■■■  ■■■■■
+
 =============================================================================
 
