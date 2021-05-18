@@ -817,6 +817,9 @@ NOTE LIBERE 4
   Frequenza parole
   Magic 8-Ball
   I Ching
+  Problema ABC
+  Compressione/Decompressione intervallo di valori
+  Plot di funzioni
 
 APPENDICI
 =========

@@ -817,6 +817,9 @@ NOTE LIBERE 4
   Frequenza parole
   Magic 8-Ball
   I Ching
+  Problema ABC
+  Compressione/Decompressione intervallo di valori
+  Plot di funzioni
 
 APPENDICI
 =========
@@ -96061,6 +96064,354 @@ Proviamo a generare un paio di esagrammi:
 ;-> ■■■■■  ■■■■■∙       ■■■■■■■■■■■■
 ;-> ■■■■■  ■■■■■        ■■■■■  ■■■■■
 ;-> ■■■■■  ■■■■■        ■■■■■  ■■■■■
+
+
+------------
+Problema ABC
+------------
+
+Data una raccolta di blocchi ABC (simili a quelli che avevamo da bambini).Ci sono venti blocchi con due lettere su ogni blocco. Un alfabeto completo è garantito su tutti i lati dei blocchi.
+La raccolta di blocchi è la seguente:
+
+ (B O) (X K) (D Q) (C P) (N A) (G T) (R E) (T G) (Q D) (F S)
+ (J W) (H U) (V I) (A N) (O B) (E R) (F S) (L Y) (P C) (Z M)
+
+Scrivire una funzione che accetta una parola (stringa) e determina se la parola può essere scritta con la raccolta di blocchi data. L'unica regola è che una volta che una lettera su un blocco viene utilizzata, quel blocco non può essere riutilizzato.
+
+(setq blocks '(("B" "O") ("X" "K") ("D" "Q") ("C" "P")
+               ("N" "A") ("G" "T") ("R" "E") ("T" "G")
+               ("Q" "D") ("F" "S") ("J" "W") ("H" "U")
+               ("V" "I") ("A" "N") ("O" "B") ("E" "R")
+               ("F" "S") ("L" "Y") ("P" "C") ("Z" "M")))
+
+Nota: la descrizione del problema implica (e l'analisi dei blocchi lo conferma) che se una lettera, X, appare su più di un blocco, la lettera abbinata sarà la stessa su tutti i blocchi. Questo rende il problema abbastanza semplice.
+
+(define (possible? word)
+(catch
+  (local (chars len)
+    (setq chars (explode word))
+    (setq len (length chars))
+    (setq copia blocks)
+    (dolist (ch chars)
+      (setq idx (ref ch copia))
+      (cond ((nil? idx) (throw nil))
+            (true
+             (pop copia (first idx)))
+      )
+    )
+    true)))
+
+(possible? "A")
+;-> true
+(possible? "BARK")
+;-> true
+(possible? "BOOK")
+;-> nil
+(possible? "TREAT")
+: true
+(possible? "COMMON")
+;-> nil
+(possible? "SQUAD")
+;-> true
+(possible? "CONFUSE")
+;-> true
+
+
+------------------------------------------------
+Compressione/Decompressione intervallo di valori
+------------------------------------------------
+
+Un formato per esprimere un elenco ordinato di numeri interi consiste nell'utilizzare una lista di elementi che possono contenere un valore o un intervallo (coppia di valori). La coppia di valori ha come valori l'inizio dell'intervallo e la fine dell'intervallo). Per esempio:
+
+Numeri ordinati = 1 2 3 5 7 8 9 11
+Lista = ((1 3) (5) (7 9) 11))
+
+La funzione che effettua la compressione consiste in un ciclo che percorre i valori e crea gli intervalli:
+
+(define (compress-range lst)
+  (local (out cur)
+    (setq out '())
+    (setq i 0)
+    (while (< i (length lst))
+      (setq idx i)
+      ; valore inizio intervallo
+      (setq a (lst i))
+      ; valore fine intervallo
+      (setq b (lst i))
+      ; finchè il valore successivo è uguale
+      ; al valore corrente + 1,
+      ; allora aggiorna la fine dell'intervallo
+      (while (and (< idx (- (length lst) 1)) (= (+ (lst idx) 1) (lst (+ idx 1))))
+        (setq b (lst (+ idx 1)))
+        (++ idx)
+      )
+      ; i valori i e i+1 differiscono...
+      ; se primo e ultimo valore sono uguali
+      (if (= a b)
+          ; inserisce solo un valore
+          (push (list a) out -1)
+          ;else
+          ; invece se l'intervallo vale 2
+          ; inserisce due valori
+          (if (= (+ a 1) b)
+              (begin
+                (push (list a) out -1)
+                (push (list b) out -1)
+              )
+              ;else
+              ; intervallo > 2
+              ; inserisce l'intervallo
+              (push (list a b) out -1)
+          )
+      )
+      ; aggiorna indice i
+      (setq i (++ idx))
+    )
+    out))
+
+(compress-range (sequence 1 10))
+;-> ((1 10))
+
+(compress-range '(-5 -3 -2 -1 0 1 2 4 6 7 8 11 12 14 15 16 17 18 19 21))
+;-> ((-5) (-3 2) (4) (6 8) (11) (12) (14 19) (21))
+
+(compress-range '(0 1 2 4 6 7 8 11 12 14 15 16 17 18 19 20 21 22
+                  23 24 25 27 28 29 30 31 32 33 35 36 37 38 39))
+;-> ((0 2) (4) (6 8) (11) (12) (14 25) (27 33) (35 39))
+
+In questo caso la sintassi dell'intervallo viene utilizzato solo per ogni intervallo che si espande a più di due valori. Comunque preferisco che l'intervallo valga anche per soli due numeri vicini (es. (11 12) invece che (11) (12)).
+
+(define (compress-range lst)
+  (local (out cur)
+    (setq out '())
+    (setq i 0)
+    (while (< i (length lst))
+      (setq idx i)
+      (setq a (lst i))
+      (setq b (lst i))
+      (while (and (< idx (- (length lst) 1)) (= (+ (lst idx) 1) (lst (+ idx 1))))
+        (setq b (lst (+ idx 1)))
+        (++ idx)
+      )
+      (if (= a b)
+          (push (list a) out -1)
+      ;else
+          (push (list a b) out -1)
+      )
+      (setq i (++ idx))
+    )
+    out))
+
+(compress-range (sequence 1 10))
+;-> ((1 10))
+
+(compress-range '(0 1 2 4 6 7 8 11 12 14 15 16 17 18 19 20 21 22
+                  23 24 25 27 28 29 30 31 32 33 35 36 37 38 39))
+;-> ((0 2) (4) (6 8) (11 12) (14 25) (27 33) (35 39))
+
+(compress-range '(-5 -3 -2 -1 0 1 2 4 6 7 8 11 12 14 15 16 17 18 19 21))
+;-> ((-5) (-3 2) (4) (6 8) (11 12) (14 19) (21))
+
+Adesso scriviamo la funzione che effettua la decompressione di una lista compressa.
+
+(define (decompress-range lst)
+  (local (out)
+    (setq out '())
+    (dolist (val lst)
+      ; se la sottolista è composta da un solo elemento
+      (if (= (length val) 1)
+          ; allora aggiunge l'elemento alla lista di output
+          (push (val 0) out -1)
+          ; altrimenti aggiunge tutti i valori del range
+          ; definito dai due elementi della sottolista
+          (for (i (val 0) (val 1))
+            (push i out -1)
+          )
+      )
+    )
+    out))
+
+(decompress-range '((1 10)))
+;-> (1 2 3 4 5 6 7 8 9 10)
+
+(decompress-range '((0 2) (4) (6 8) (11 12) (14 25) (27 33) (35 39)))
+;-> (0 1 2 4 6 7 8 11 12 14 15 16 17 18 19 20 21 22
+;->  23 24 25 27 28 29 30 31 32 33 35 36 37 38 39)
+
+(decompress-range (compress-range (extend (sequence 1 5) (sequence 8 12))))
+;-> (1 2 3 4 5 8 9 10 11 12)
+
+La funzione di decompressione funziona per entrambe le funzioni di compressione:
+
+(decompress-range '((-3 -1) (2) (3)))
+;-> (-3 -2 -1 2 3)
+
+
+----------------
+Plot di funzioni
+----------------
+
+Scrivere un programma che stampa una funzione matematica al terminale. I parametri del programma sono:
+1) funzione da plottare
+2) valore x minimo
+3) valore x massimo
+
+Funzione che normalizza una lista di valori:
+
+(define (normalize lst-num val-min val-max)
+  (local (hi lo k out)
+    (setq out '())
+    (setq hi (apply max lst-num))
+    (setq lo (apply min lst-num))
+    (setq k (div (sub val-max val-min) (sub hi lo)))
+    (dolist (val lst-num)
+      (push (add val-min (mul (sub val lo) k)) out -1))
+    out))
+
+Funzione che stampa la funzione matematica:
+
+(define (plot-function func a b asse-x asse-y)
+  (local (xx yy step matrix)
+    ; lista per valori x
+    (setq xx '())
+    ; lista per valori y
+    (setq yy '())
+    ; numero passi
+    (setq step (div (sub b a) asse-x))
+    ; calcola valori x,y della funzione
+    (for (val a b step)
+      (push val xx -1)
+      (push (func val) yy -1)
+    )
+    (setq y-min (apply min yy))
+    (setq y-max (apply max yy))
+    ; calcola valori normalizzati asse x
+    (setq xx (normalize xx 0 asse-x))
+    (setq xx (map round xx))
+    (setq xx (map int xx))
+    ; calcola valori normalizzati asse x
+    (setq yy (normalize yy 0 asse-y))
+    (setq yy (map round yy))
+    (setq yy (map int yy))
+    ; crea matrice di stampa
+    ; (inserisce "■" nella matrice alle coordinate x y)
+    (setq matrix (array (+ asse-y 2) (+ asse-x 2) '(" ")))
+    (for (i 0 (- (length xx) 1))
+      (setf (matrix (yy i) (xx i)) "■")
+    )
+    ; stampa valori reali min e max
+    (println "x min = " a {  -  } "x max = " b)
+    (println "y min = " y-min {  -  } "y max = " y-max)
+    ; stampa matrice (funzione)
+    ; (alla matrice vemgono invertite le righe)
+    (dolist (el (reverse (array-list matrix)))
+      (println (join el))
+    )
+  'end))
+
+Vediamo la funzione seno (sin):
+
+(plot-function sin -6.3 6.3 75 20)
+;-> x min = -6.3  -  x max = 6.3
+;-> y min = -0.9996824042410868  -  y max = 0.9996824042410868
+;-> 
+;->         ■■■■                                 ■■■■
+;->        ■    ■                               ■    ■■
+;->       ■      ■                             ■       ■
+;->      ■        ■                           ■
+;->     ■          ■                         ■          ■
+;->    ■            ■                                    ■
+;->                                         ■             ■
+;->   ■              ■
+;->  ■                                     ■               ■
+;->                   ■                   ■
+;-> ■                  ■                                    ■                  ■
+;->                                      ■                   ■
+;->                     ■               ■                                     ■
+;->                                                           ■              ■
+;->                      ■             ■
+;->                       ■                                    ■            ■
+;->                        ■          ■                         ■          ■
+;->                                  ■                           ■        ■
+;->                         ■       ■                             ■      ■
+;->                          ■■    ■                               ■    ■
+;->                            ■■■■                                 ■■■■
+
+Vediamo una parabola:
+
+(define (g x) (mul x x))
+
+(plot-function g -5 5 60 25)
+;-> x min = -5  -  x max = 5
+;-> y min = 0  -  y max = 25
+;-> 
+;-> ■                                                           ■
+;-> 
+;->  ■                                                         ■
+;->   ■                                                       ■
+;-> 
+;->    ■                                                     ■
+;->     ■                                                   ■
+;-> 
+;->      ■                                                 ■
+;->       ■                                               ■
+;->        ■                                             ■
+;-> 
+;->         ■                                           ■
+;->          ■                                         ■
+;->           ■                                       ■
+;->            ■                                     ■
+;->             ■                                   ■
+;->              ■                                 ■
+;->               ■                               ■
+;->                ■                             ■
+;->                 ■■                         ■■
+;->                   ■                       ■
+;->                    ■■                   ■■
+;->                      ■■               ■■
+;->                        ■■■         ■■■
+;->                           ■■■■■■■■■
+
+
+Vediamo una funzione polinomiale fratta:
+
+         x^3 + x^2 - 5x
+f(x) = ------------------
+            x^2 + 1
+
+(define (f x)
+  (div (add (mul x x x) (mul x x) (mul -5 x))
+       (add (mul x x) 1)))
+
+(plot-function f -4 4 75 20)
+;-> x min = -4  -  x max = 4
+;-> y min = -1.791478768959859  -  y max = 3.529411764705882
+;-> 
+;->                                                                            ■
+;->                                                                          ■■
+;->                                                                        ■■
+;->                                                                      ■■
+;->                            ■■■■■                                    ■
+;->                          ■■     ■                                 ■■
+;->                        ■■        ■                              ■■
+;->                      ■■           ■                            ■
+;->                     ■              ■                         ■■
+;->                   ■■                                        ■
+;->                 ■■                  ■                     ■■
+;->                ■                                         ■
+;->              ■■                      ■                  ■
+;->            ■■                                         ■■
+;->           ■                           ■              ■
+;->         ■■                                          ■
+;->       ■■                               ■           ■
+;->     ■■                                           ■■
+;->   ■■                                    ■       ■
+;-> ■■                                       ■    ■■
+;->                                           ■■■■
+
+Provare: (plot-function tan -1 1 25 30)
+
+Dobbiamo ammettere che "gnuplot" è sicuramente meglio...
 
 =============================================================================
 
