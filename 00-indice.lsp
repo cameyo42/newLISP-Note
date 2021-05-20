@@ -820,6 +820,12 @@ NOTE LIBERE 4
   Problema ABC
   Compressione/Decompressione intervallo di valori
   Plot di funzioni
+  Spirale di Archimede
+  Misure angolari
+  Numero di settimane
+  Il gioco del 21
+  Fattoriale sinistro (Left factorial)
+  Numeri primi lunghi
 
 APPENDICI
 =========
@@ -844,7 +850,7 @@ APPENDICI
   Gestione Automatica della Memoria in newLISP (Lutz Mueller)
   Benchmarking newLISP
   Frasi Famose sulla Programmazione e sul Linguaggio Lisp
-  Codice ASCII
+  Codici ASCII
 
 BIBLIOGRAFIA/WEB
 ==================

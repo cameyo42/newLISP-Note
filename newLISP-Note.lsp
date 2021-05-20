@@ -820,6 +820,12 @@ NOTE LIBERE 4
   Problema ABC
   Compressione/Decompressione intervallo di valori
   Plot di funzioni
+  Spirale di Archimede
+  Misure angolari
+  Numero di settimane
+  Il gioco del 21
+  Fattoriale sinistro (Left factorial)
+  Numeri primi lunghi
 
 APPENDICI
 =========
@@ -844,7 +850,7 @@ APPENDICI
   Gestione Automatica della Memoria in newLISP (Lutz Mueller)
   Benchmarking newLISP
   Frasi Famose sulla Programmazione e sul Linguaggio Lisp
-  Codice ASCII
+  Codici ASCII
 
 BIBLIOGRAFIA/WEB
 ==================
@@ -916,11 +922,12 @@ Maggiori informazioni sono reperibili al sito ufficiale del linguaggio:
 http://www.newLISP.org/
 
 Questo documento è in continua evoluzione e aggiornamento ed è scritto non da un programmatore professionista, ma da un principiante che studia ed utilizza newLISP per divertimento e per risolvere problemi di matematica ricreativa. Qualche volta (ultimamente sempre più spesso) uso newLISP anche nel mio lavoro quotidiano.
-Consigli, correzioni e suggerimenti sono i benvenuti.
 
 Per convenzione i comandi di input della REPL (Read Eval Print Loop) non contengono il prompt di newLISP ">".
 L'output della REPL viene preceduto dalla stringa ";-> ".
 Nel testo sono riportate le descrizioni di alcuni comandi predefiniti tradotte dal manuale di riferimento ("newLISP Reference"). Queste descrizioni sono precedute dalla stringa ">>>funzione". Ad esempio, per trovare la funzione "map", ricercare la stringa ">>>funzione MAP".
+
+Nota: quasi tutti i paragrafi sono indipendenti, cioè hanno tutto il codice necessario per essere seguiti completamente. Per questo motivo alcue funzioni saranno ripetute nell'intero documento.
 
 Caratteristiche del sistema utilizzato
 --------------------------------------
@@ -944,7 +951,7 @@ I riferimenti principali di questo documento sono:
 
 Tutti gli articoli tradotti presenti in questo documento sono sotto il copyright dei rispettivi autori. Ogni errore di traduzione è imputabile soltanto a me.
 Per quanto possibile ho sempre riportato il nome degli autori delle funzioni realizzate da altri programmatori utilizzate in questo documento (trovate e prese da forum, blog, ecc.).
-Ringrazio tutti quelli che vorranno suggerire critiche, correzioni e miglioramenti.
+Ringrazio tutti quelli che vorranno suggerire consigli, critiche, correzioni e miglioramenti.
 
 
 ===============
@@ -96303,7 +96310,7 @@ Funzione che stampa la funzione matematica:
     (println "x min = " a {  -  } "x max = " b)
     (println "y min = " y-min {  -  } "y max = " y-max)
     ; stampa matrice (funzione)
-    ; (alla matrice vemgono invertite le righe)
+    ; (alla matrice vengono invertite le righe)
     (dolist (el (reverse (array-list matrix)))
       (println (join el))
     )
@@ -96412,6 +96419,524 @@ f(x) = ------------------
 Provare: (plot-function tan -1 1 25 30)
 
 Dobbiamo ammettere che "gnuplot" è sicuramente meglio...
+
+
+====================
+Spirale di Archimede
+====================
+
+Una spirale di Archimede può essere descritta dall'equazione:
+
+r = a + b * theta
+
+dove a e b sono numeri reali.
+
+Disegnare una spirale di Archimede.
+
+(define (spiral)
+  (local (xx yy h w a b m r k step matrix)
+    (setq xx '() yy '())
+    (setq asse-x 60 asse-y 30)
+    (setq x-max 0 y-max 0)
+    (setq h 96 w 144 a 1 b 1)
+    (setq m (mul 8 3.1415926))
+    (setq step 0.1)
+    (setq matrix (array (+ asse-y 2) (+ asse-x 2) '(" ")))
+    (for (t step m)
+      (setq r (add a (mul b t)))
+      (setq x (add (mul r (cos t)) w))
+      (setq y (add (mul r (sin t)) h))
+      (push x xx -1)
+      (push y yy -1)
+    )
+    (setq xx (normalize xx 0 asse-x))
+    (setq xx (map round xx))
+    (setq xx (map int xx))
+    ; calcola valori normalizzati asse x
+    (setq yy (normalize yy 0 asse-y))
+    (setq yy (map round yy))
+    (setq yy (map int yy))
+    ; Costruisce matrice di stampa
+    ; (inserisce un numero crescente nella matrice alle coordinate x y)
+    (setq k 1)
+    (for (i 0 (- (length xx) 1))
+      (setf (matrix (yy i) (xx i)) (string k))
+      (++ k)
+    )
+    ; stampa matrice (funzione)
+    ; (alla matrice vengono invertite le righe)
+    (dolist (el (reverse (array-list matrix)))
+      (println (join el))
+    )))
+
+(spiral)
+;->
+;->                                        21
+;->              22
+;->
+;->                                15
+;->
+;->
+;->              16
+;->                            9
+;->
+;->
+;->                                     8       14
+;->                  10
+;->                            3                         20
+;->                        4      2
+;-> 23                             1
+;->                                      7
+;->                         5                                   26
+;->         17
+;->                  11            6
+;->                                           13
+;->
+;->
+;->                             12
+;->
+;->                                             19
+;->
+;->                       18
+;->
+;->              24
+;->
+;->                                          25
+
+
+===============
+Misure angolari
+===============
+
+Gli angoli geometrici vengono misurati utilizzando diverse unità di misura.
+
+Le unità che consideriamo sono le seguenti:
+
+ - grado (degree)
+ - gradiante (gradian)
+ - mil (mil)
+ - radiante (radian)
+
+Le scale tra queste unità angolari sono le seguenti:
+
+  Un giro completo vale 360 gradi (360°).
+  - 1 grado è 1/360 di giro
+  - 1 gradian è 1/400 di giro
+  - 1 mil è 1/6400 di giro
+  - 1 radiante è 1/2 * π di giro (o 0,5 / π} di giro)
+
+Oppure, in un altro modo, in un giro completo:
+  - ci sono 360 gradi
+  - ci sono 400 gradians
+  - ci sono 6.400 mil
+  - ci sono 2 * π radianti (approssimativamente pari a 6,283 ...)
+
+Un mil è approssimativamente uguale a un milliradiante (che è 1/1000 di radiante).
+
+Scrivere le funzioni di conversione tra tutte le unità di misura.
+
+(setq pi 3.1415926535897931)
+;
+(define (DegToDeg a) (mod a 360))
+(define (GradToGrad a) (mod a 400))
+(define (MilToMil a) (mod a 6400))
+(define (RadToRad a) (mod a (mul 2 pi)))
+;
+(define (DegToGrad a) (GradToGrad (mul (div a 360) 400)))
+(define (DegToRad a) (RadToRad (mul (div a 360) (mul 2 pi))))
+(define (DegToMil a) (MilToMil (mul (div a 360) 6400)))
+;
+(define (GradToDeg a) (DegToDeg (mul (div a 400) 360)))
+(define (GradToRad a) (RadToRad (mul (div a 400) (mul 2 pi))))
+(define (GradToMil a) (MilToMil (mul (div a 400) 6400)))
+;
+(define (MilToDeg a) (DegToDeg (mul (div a 6400) 360)))
+(define (MilToGrad a) (GradToGrad (mul (div a 6400) 400)))
+(define (MilToRad a) (RadToRad (mul (div a 6400) (mul 2 pi))))
+;
+(define (RadToDeg a) (DegToDeg (mul (div a (mul 2 pi)) 360)))
+(define (RadToGrad a) (GradToGrad (mul (div a (mul 2 pi)) 400)))
+(define (RadToMil a) (MilToMil (mul (div a (mul 2 pi)) 6400)))
+
+Funzione che converte un angolo nelle altre unità angolari:
+
+(define (convert-angle a unit)
+  (local (out)
+    (cond ((= unit "deg")
+           (setq grad (DegToGrad a))
+           (setq rad (DegToRad a))
+           (setq mil (DegToMil a))
+           (println a " gradi =")
+           (print (format "%7.5f %s\n%7.5f %s\n%7.5f %s\n"
+                   grad "grad" rad "rad" mil "mil")))
+          ((= unit "grad")
+           (setq deg (GradToDeg a))
+           (setq rad (GradToRad a))
+           (setq mil (GradToMil a))
+           (println a " gradianti =")
+           (print (format "%7.5f %s\n%7.5f %s\n%7.5f %s\n"
+                   deg "deg" rad "rad" mil "mil")))
+          ((= unit "rad")
+           (setq grad (RadToGrad a))
+           (setq deg (RadToDeg a))
+           (setq mil (RadToMil a))
+           (println a " radianti =")
+           (print (format "%7.5f %s\n%7.5f %s\n%7.5f %s\n"
+                   grad "grad" deg "deg" mil "mil")))
+          ((= unit "mil")
+           (setq grad (MilToGrad a))
+           (setq deg (MilToDeg a))
+           (setq rad (MilToRad a))
+           (println a " mil =")
+           (print (format "%7.5f %s\n%7.5f %s\n%7.5f %s\n"
+                   grad "grad" deg "deg" rad "rad")))
+    )
+    'end))
+
+(convert-angle 1 "mil")
+;-> 1 mil =
+;-> 0.06250 grad
+;-> 0.05625 deg
+;-> 0.00098 rad
+
+(convert-angle 360 "deg")
+;-> 360 gradi =
+;-> 0.00000 grad
+;-> 0.00000 rad
+;-> 0.00000 mil
+
+
+-------------------
+Numero di settimane
+-------------------
+
+Determinare se un determinato anno ha 52 o 53 settimane.
+
+L'agoritmo per risolvere il problema è il seguente:
+
+p(y) = (y + floor(y/4) - floor(y/100) + floor(y/400)) mod 7
+
+               | 1, if (p(y) = 4 or p(y-1) = 3
+week(y) = 52 + |
+               | 0, altrimenti
+
+Maggiori informazioni:
+
+Gent, Robert H. "The Mathematics of the ISO 8601 Calendar".
+https://webspace.science.uu.nl/~gent0113/calendar/isocalendar.htm
+
+Vediamo l'implementazione delle funzioni:
+
+(define (p y)
+  (% (+ y (/ y 4) (- (/ y 100)) (/ y 400)) 7))
+
+(define (weeks year)
+  (if (or (= (p year) 4) (= (p (- year 1)) 3))
+      53
+      52))
+
+(map weeks (sequence 2000 2100 10))
+;-> (52 52 53 52 52 52 53 52 52 52 52)
+
+Tutti gli anni con 53 settimane dal 2020 al 2100:
+
+(for (i 2020 2100) (if (= (weeks i) 53) (print i { })))
+;-> 2020 2026 2032 2037 2043 2048 2054 2060
+;-> 2065 2071 2076 2082 2088 2093 2099
+
+
+---------------
+Il gioco del 21
+---------------
+
+21 è una gioco tra due giocatori che si svolge scegliendo un numero (1, 2 o 3) da aggiungere al totale parziale (che parte da 0).
+
+I giocatori si alternano fornendo un numero da aggiungere al totale parziale.
+
+La partita viene vinta dal giocatore il cui numero scelto fa sì che il totale parziale raggiunga esattamente 21.
+
+Scrivere un programma per giocare contro il computer.
+
+Funzione che gestisce il gioco:
+
+(define (game21 player)
+  (local (turn totale val)
+    (println "21 GAME")
+    (setq totale 0)
+    (if (or (nil? player) (= player 0))
+        (setq turn "Human")
+        (setq turn "Computer")
+    )
+    (while (< totale 21)
+      (if (= turn "Human")
+          (setq val (human-move))
+          ; else
+          (setq val (computer-move totale))
+      )
+      (setq totale (+ totale val))
+      (println turn {: } val)
+      (println "Totale = " totale)
+      (if (< totale 21)
+          (if (= turn "Human")
+              (setq turn "Computer")
+              (setq turn "Human"))
+      )
+    )
+    (println turn " wins!!!")
+  'end))
+
+Nota: per calcolare la mossa del computer basta notare che per vincere bisogna raggiungere i valori 5, 9, 13, e 17. In altre parole, bisogna calcolare (totale % 4) e questo rappresenta l'indice della lista di mosse codificate/precalcolate (1 1 3 2).
+
+Funzione che calcola la mossa del computer:
+
+(define (computer-move totale)
+  (let (coded '(1 1 3 2))
+       (coded (% totale 4))))
+
+Funzione che accetta l'inserimento di un numero (1, 2 o 3) da parte dell'utente:
+
+(define (human-move)
+	(print "Numero (1,2,3): ")
+	(do-until (and (> input 48)(< input 52)) (setq input (read-key)))
+	(println (- input 48)))
+
+Parametri della funzione "game21":
+
+(game21 0) o (game21) --> Inizia a giocare: Human
+(game21 1) --> Inizia a giocare: Computer
+
+Facciamo una partita:
+
+(game21 1)
+;-> Numero (1,2,3): 3
+;-> Human: 3
+;-> Totale = 3
+;-> Computer: 2
+;-> Totale = 5
+;-> Numero (1,2,3): 2
+;-> Human: 2
+;-> Totale = 7
+;-> Computer: 2
+;-> Totale = 9
+;-> Numero (1,2,3): 1
+;-> Human: 1
+;-> Totale = 10
+;-> Computer: 3
+;-> Totale = 13
+;-> Numero (1,2,3): 3
+;-> Human: 3
+;-> Totale = 16
+;-> Computer: 1
+;-> Totale = 17
+;-> Numero (1,2,3): 2
+;-> Human: 2
+;-> Totale = 19
+;-> Computer: 2
+;-> Totale = 21
+;-> Computer wins!!!
+
+
+------------------------------------
+Fattoriale sinistro (Left factorial)
+------------------------------------
+
+Il fattoriale di sinistra del numero intero N è definito come segue:
+
+  !N = Sum[k=0, n-1] k!
+  !0 = 0
+
+Sequenza OEIS A003422:
+  0, 1, 2, 4, 10, 34, 154, 874, 5914, 46234, 409114, 4037914, 43954714,
+  522956314, 6749977114, 93928268314, 1401602636314, 22324392524314,
+  378011820620314, 6780385526348314, 128425485935180314,
+  2561327494111820314, 53652269665821260314, ...
+
+Scrivere una funzione che calcola il fattoriale di sinistra di un numero N.
+
+Funzione che calcola il fattoriale di un numero:
+
+(define (fact num)
+  (if (zero? num)
+      1
+      (let (out 1L)
+        (for (x 1L num)
+          (setq out (* out x))))))
+
+(fact 0)
+;-> 1
+
+Funzione che calcola il fattoriale sinistro di un numero:
+
+(define (fact-left num)
+  (if (zero? num)
+      0L
+      (let (sum 0L)
+        (for (i 0 (- num 1))
+          (setq sum (+ sum (fact i)))))))
+
+(fact-left 0)
+;-> 0L
+(fact-left 12)
+;-> 43954714L
+
+Vediamo i fattoriali sinistri dei primi 22 numeri (0..21):
+
+(map fact-left (sequence 0 21))
+;-> (0L 1L 2L 4L 10L 34L 154L 874L 5914L 46234L 409114L 4037914L
+;->  43954714L 522956314L 6749977114L 93928268314L 1401602636314L
+;->  22324392524314L 378011820620314L 6780385526348314L
+;->  128425485935180314L 2561327494111820314L)
+
+(length (fact-left 1000))
+;-> 2565
+
+La funzione produce risultati corretti, ma possiamo renderla più veloce evitando di calcolare ripetutamente il fattoriale. Infatti, basta notare che fact(n) = n*fact(n-1). Allora la funzione può essere riscritta nel modo seguente:
+
+(define (fact-left2 num)
+  (if (zero? num)
+      0L
+      (let (sum 1L fact 1L)
+        (for (i 1 (- num 1))
+          (setq fact (* fact i))
+          (setq sum (+ sum fact))))))
+
+(fact-left2 12)
+;-> 43954714L
+
+(map fact-left2 (sequence 0 21))
+;-> (0L 1L 2L 4L 10L 34L 154L 874L 5914L 46234L 409114L 4037914L
+;->  43954714L 522956314L 6749977114L 93928268314L 1401602636314L
+;->  22324392524314L 378011820620314L 6780385526348314L
+;->  128425485935180314L 2561327494111820314L)
+
+(length (fact-left2 1000))
+;-> 2565
+
+Vediamo la differenza di velocità:
+
+(time (println (length (fact-left 1000))))
+;-> 2565
+;-> 185.804
+(time (println (length (fact-left2 1000))))
+;-> 2565
+;-> 6.013
+
+La seconda funzione è 30 volte più veloce della prima.
+
+Calcoliamo quante cifre ha il fattoriale sinistro di 10000:
+
+(length (fact-left2 10000))
+;-> 35656
+
+
+-------------------
+Numeri primi lunghi
+-------------------
+
+I numeri primi lunghi sono numeri primi i cui reciproci (in decimali) hanno una lunghezza del periodo inferiore di uno al numero primo.
+
+Esempio
+7 è il primo numero primo lungo, il reciproco di sette è 1/7, che è uguale alla frazione decimale ripetuta 0,142857(142857)...
+La lunghezza della parte ripetuta della frazione decimale è sei, (la parte tra parentesi) che è uno in meno del numero primo 7.
+Quindi 7 è un numero primo lungo.
+
+Nota: Il 2 non viene considerato un numero primo lungo.
+
+Sequenza OEIS: A001913
+  7, 17, 19, 23, 29, 47, 59, 61, 97, 109, 113, 131, 149, 167, 179, 181,
+  193, 223, 229, 233, 257, 263, 269, 313, 337, 367, 379, 383, 389, 419,
+  433, 461, 487, 491, 499, 503, 509, 541, ...
+
+Funzione che verifica se un numero è primo:
+
+(define (prime? num)
+   (if (< num 2) nil
+       (= 1 (length (factor num)))))
+
+Funzione che genera tutti i numeri primi minori o uguali a un dato numero:
+
+(define (primes-to num)
+  (cond ((= num 1) '())
+        ((= num 2) '(2))
+        (true
+         (let (lst '(2))
+          (setq arr (array (+ num 1)))
+          (for (x 3 num 2)
+                (when (not (arr x))
+                  (push x lst -1)
+                  (for (y (* x x) num (* 2 x) (> y num))
+                      (setf (arr y) true)))) lst))))
+
+(primes-to 50)
+;-> (2 3 5 7 11 13 17 19 23 29 31 37 41 43 47)
+
+Funzione che calcola il periodo del reciproco di un numero intero positivo:
+
+(define (find-period num)
+    (setq r 1)
+    (setq rr 0)
+    (setq period 0)
+    (for (i 1 (+ num 1))
+      (setq r (% (* r 10) num))
+    )
+    (setq rr r)
+    (do-while (!= r rr)
+      (setq r (% (* r 10) num))
+      (++ period)
+    )
+    period)
+
+(find-period 7)
+;-> 6
+
+(map find-period (sequence 1 10))
+;-> (1 1 1 1 1 1 6 1 1 1)
+
+Funzione che verifica se un numero è un primo lungo:
+
+(define (long-prime? num)
+  (and (> num 2) (prime? num) (= (find-period num) (- num 1))))
+
+(long-prime? 2)
+;-> nil
+(long-prime? 499)
+;-> true
+
+Funzione che restituisce tutti i numeri primi lunghi fino ad un determinato numero:
+
+(define (long-primes-to num)
+  ; elimina il numero 2 dalla lista dei primi
+  (let (primi (slice (primes-to num) 1))
+    (filter long-p? primi)))
+
+(define (long-p? primo) (= (find-period primo) (- primo 1)))
+
+(long-primes-to 500)
+;-> (7 17 19 23 29 47 59 61 97 109 113 131 149 167 179 181
+;->  193 223 229 233 257 263 269 313 337 367 379 383 389 419
+;->  433 461 487 491 499)
+
+Funzione che calcola il numero di primi lunghi fino ad un determinato numero:
+
+(define (long-primes-to-count num)
+  (let ((primi (slice (primes-to num) 1)) (out 0))
+    (dolist (p primi)
+      (if (long-p? p) (++ out))
+    )
+    out))
+
+(long-primes-to-count 500)
+;-> 35
+
+(time (println (long-primes-to-count 100000)))
+;-> 3617
+;-> 59944.711 ; 1 minuto
+
+Vediamo quanti primi lunghi ci sono fino a 1 milione:
+
+(time (println (long-primes-to-count 1000000)))
+;-> 29500
+;-> 5022833.606 ; quasi 84 minuti
 
 =============================================================================
 
@@ -99448,6 +99973,10 @@ Il comando trace-highlight permette di controllare alcune modalità di visualizz
 Questo rende l'espressione da valutare di colore rosso:
 
 (trace-highlight "\027[0;31m" "\027[0;0m") ;red text color
+
+Questo usa il colore verde: 
+
+(trace-highlight "\027[0;32m" "\027[0;0m") 
 
 Questo rende l'espressione di colore negativo:
 
