@@ -6103,5 +6103,230 @@ Vediamo quanti primi lunghi ci sono fino a 1 milione:
 ;-> 29500
 ;-> 5022833.606 ; quasi 84 minuti
 
+
+----------
+Numeri Tau
+----------
+
+Un numero Tau è un numero intero positivo divisibile per il numero dei suoi divisori.
+
+Sequenza OEIS A033950:
+  1, 2, 8, 9, 12, 18, 24, 36, 40, 56, 60, 72, 80, 84, 88, 96, 104,
+  108, 128, 132, 136, 152, 156, 180, 184, 204, 225, 228, 232, 240,
+  248, 252, 276, 288, 296, 328, 344, 348, 360, 372, 376, 384, 396,
+  424, 441, 444, 448, 450, 468, 472, 480, 488, 492, 504, ...
+
+Funzione che fattorizza un numero intero:
+
+(define (factor-group num)
+  (if (= num 1) '((1 1))
+    (letn (fattori (factor num)
+          unici (unique fattori))
+      (transpose (list unici (count unici fattori))))))
+
+(factor-group 36)
+;-> ((2 2) (3 2))
+
+Funzione che conta il numero di divisori di un numero intero:
+
+(define (divisors-count num)
+  (if (= num 1)
+      1
+      (let (lst (factor-group num))
+        (apply * (map (fn(x) (+ 1 (last x))) lst)))))
+
+(divisors-count 36)
+;-> 9
+
+Funzione che verifica se un numero è Tau:
+
+(define (tau? num)
+  (zero? (% num (divisors-count num))))
+
+(tau? 8)
+;-> true
+
+Funzione che calcola i numeri Tau fino ad un dato numero:
+
+(define (tau-to num)
+  (let (out '())
+    (for (i 1 num)
+      (if (tau? i)
+        (push i out -1)))
+    out))
+
+Calcoliamo i numeri Tau fino a 500:
+
+(tau-to 500)
+;-> (1 2 8 9 12 18 24 36 40 56 60 72 80 84 88 96 104 108 128 132 136
+;->  152 156 180 184 204 225 228 232 240 248 252 276 288 296 328 344
+;->  348 360 372 376 384 396 424 441 444 448 450 468 472 480 488 492)
+
+
+--------------------
+Sequenza Yellowstone
+--------------------
+
+La sequenza di Yellowstone, chiamata anche permutazione di Yellowstone, è definita nel modo seguente
+
+  Per n <= 3: a(n) = n
+  Per n > 3:  a(n) = il numero più piccolo non già in sequenza tale che a(n) sia primo relativamente ad a(n-1) e non è relativamente primo ad a(n-2)
+
+Esempio:
+a(4) vale 4 perché 4 è il numero più piccolo che segue 1, 2, 3 nella sequenza che è relativamente primo rispetto al numero prima di esso (3), e non è relativamente primo rispetto al numero due posti prima di esso (2).
+
+La sequenza è una permutazione dei numeri naturali.
+
+Sequenza OEIS A098550:
+  1, 2, 3, 4, 9, 8, 15, 14, 5, 6, 25, 12, 35, 16, 7, 10, 21, 20, 27, 22,
+  39, 11, 13, 33, 26, 45, 28, 51, 32, 17, 18, 85, 24, 55, 34, 65, 36,
+  91, 30, 49, 38, 63, 19, 42, 95, 44, 57, 40, 69, 50, 23, 48, 115, 52,
+  75, 46, 81, 56, 87, 62, 29, 31, 58, 93, 64, 99, 68, 77, 54, 119, 60, ...
+
+Un altro metodo di definire la sequenza è il seguente:
+
+  Per n <= 3: a(n) = n
+  Per n > 3: gcd(a(n), a(n-1)) = 1 e gcd(a(n), a(n-2)) > 1.
+
+Scrivere una funzione che calcola i primi n numeri di yellowstone.
+Scrivere una funzione che plotta il grafico dei primi n numeri di yellowstone (con asse-x = n e asse-y = a(n)).
+
+Funzione che calcola la sequenza di Yellowstone:
+
+(define (yellowstone limite)
+  (local (ys i j cur-val)
+    ; vettore per i valori della sequenza
+    (setq ys (array (+ limite 1) '()))
+    (setq (ys 0) 0)
+    (setq (ys 1) 1)
+    (setq (ys 2) 2)
+    (setq (ys 3) 3)
+    ; ciclo fino
+    (for (i 4 limite)
+      (setq cur-val 3)
+      (setq continua true)
+      ; ricerca i-esimo valore
+      (while continua
+        ; cur-val è il valore di prova per i-esimo valore
+        (++ cur-val)
+        ; se cur-val non soddisfa le condizioni continuiamo con il ciclo while
+        ; per provare cur-val = cur-val + 1
+        (cond ((or (= (gcd cur-val (ys (- i 2))) 1) (> (gcd cur-val (ys (- i 1))) 1))
+                nil)
+              (true
+                ; altrimenti cerchiamo se esiste cur-val nella sequenza
+                (setq trovato nil)
+                (for (j 1 (- i 1) 1 trovato)
+                  (if (= (ys j) cur-val) (setq trovato true))
+                )
+                ; Se cur-val viene trovato, allora non può essere
+                ; inserito nella sequenza e continuiamo
+                ; con cur-val = cur-val + 1 (ciclo while)
+                ; Se cur-val non viene trovato, allora viene inserito nella sequenza
+                ; e passiamo al prossimo valore (i = i + 1) (ciclo for)
+                (if (not trovato) (begin
+                    (setq (ys i) cur-val)
+                    (setq continua nil))
+                ))
+         )
+       )
+     )
+     ;(array-list(slice ys 1))))
+     ys))
+
+(yellowstone 30)
+;-> (0 1 2 3 4 9 8 15 14 5 6 25 12 35 16 7 10 21
+;->  20 27 22 39 11 13 33 26 45 28 51 32 17)
+
+La funzione è abbastanza lenta. Un miglioramento potrebbe essere quella di inserire i valori della sequenza in una hash-map invece che in un vettore, in questo modo la ricerca dei valori nella sequenza sarebbe molto più veloce.
+
+(time (yellowstone 1000))
+;-> 2178.186
+(time (yellowstone 2000))
+;-> 16728.302
+(time (yellowstone 4000))
+;-> 133255.977
+(time (yellowstone 10000))
+;-> 2097865.029 ; 35 minuti
+
+(div (div 2097865.029 1000) 60)
+Funzione che stampa il grafico della sequenza:
+
+(define (plot-ys limite)
+  (local (ys max-row max-col matrix)
+    ; calcolo valori della sequenza
+    (setq ys (yellowstone limite))
+    ; creazione matrice di caratteri (stampa)
+    (setq max-row (+ (apply max ys) 2))
+    (setq max-col (+ limite 2))
+    ;(setq matrix (array (+ limite 2) (+ limite 2) '(" ")))
+    (setq matrix (array max-row max-col '(" ")))
+    ; inserimento "punti" nella matrice
+    ; y = riga della matrice
+    ; x = colonna della matrice
+    (for (i 0 (- (length ys) 1))
+      (setf (matrix (ys i) i) "■")
+    )
+    ; stampa matrice
+    ; (alla matrice vengono invertite le righe)
+    (dolist (el (reverse (array-list matrix)))
+      (println (join el))
+    )))
+
+(plot-ys 30)
+;->                            ■
+;-> 
+;-> 
+;-> 
+;-> 
+;-> 
+;->                          ■
+;-> 
+;-> 
+;-> 
+;-> 
+;-> 
+;->                     ■
+;-> 
+;-> 
+;-> 
+;->             ■
+;-> 
+;->                        ■
+;->                             ■
+;-> 
+;-> 
+;-> 
+;->                           ■
+;->                   ■
+;->                         ■
+;->           ■
+;-> 
+;-> 
+;->                    ■
+;->                 ■
+;->                  ■
+;-> 
+;-> 
+;->                              ■
+;->              ■
+;->       ■
+;->        ■
+;->                       ■
+;->            ■
+;->                      ■
+;->                ■
+;->     ■
+;->      ■
+;->               ■
+;->          ■
+;->         ■
+;->    ■
+;->   ■
+;->  ■
+;-> ■
+
+La sequenza viene chiamata Yellowstone perchè il suo grafico assomiglia al getto di un geyser del parco Yellowstone.
+
 =============================================================================
 

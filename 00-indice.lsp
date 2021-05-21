@@ -185,6 +185,7 @@ FUNZIONI VARIE
   Flood Fill
   Poligoni convessi
   Variazione percentuale
+  Grafico di coppie di coordinate
 
 newLISP 99 PROBLEMI (28)
 ========================
@@ -826,6 +827,8 @@ NOTE LIBERE 4
   Il gioco del 21
   Fattoriale sinistro (Left factorial)
   Numeri primi lunghi
+  Numeri Tau
+  Sequenza Yellowstone
 
 APPENDICI
 =========

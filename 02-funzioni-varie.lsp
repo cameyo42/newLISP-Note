@@ -7561,5 +7561,221 @@ Scrivere una funzione che calcola la variazione percentuale tra due numeri x e y
 (delta% 60 20)
 ;-> -66.66666666666667
 
+
+-------------------------------
+Grafico di coppie di coordinate
+-------------------------------
+
+Scrivere una funzione che disegna il grafico di una lista di coppie di coordinate, in altre parole disegna il grafico di una serie di punti.
+
+Liste distinte di coordinate x e y per i punti:
+(setq lst-x '(1 4 -5 2 10 -6 15))
+(setq lst-y '(3 4 6 -2 12 -8 12))
+
+Unione delle due liste di coordinate in una lista di punti:
+(setq lst-xy (map list lst-x lst-y))
+;-> ((1 3) (4 4) (-5 6) (2 -2) (10 12) (-6 -8) (15 12))
+
+Divisione della lista di punti in due liste di coordinate x e y:
+(setq lst-x (map first lst-xy))
+(setq lst-y (map last  lst-xy))
+
+Il metodo per stampare i punti al terminale utilizza una matrice di caratteri per simulare un sistema cartesiano di coordinate x e y. La mappatura delle celle della matrice con il sistema cartesiano è il seguente:
+
+- la coordinata (0,0) della matrice si trova in alto a sinistra, mentre la coordinata (0,0) del sistema cartesiano si trova in basso a destra. Questo comporta che prima di stampare la matrice occorrerà invertire le sue righe.
+
+- la coordinata x del punto è la colonna della matrice e la coordinata y è la riga, cioè:
+  P(x,y) = Matrice(row,col) = Matrice(y,x)
+
+Prima di tutto ci serve una funzione che normalizza una lista di valori in un intervallo (val-min, val-max):
+
+(define (normal-zero lst-num val-min val-max)
+  (local (hi lo k out)
+    (setq out '())
+    (setq hi (apply max lst-num))
+    (setq lo (apply min lst-num))
+    (setq k (div (sub val-max val-min) (sub hi lo)))
+    (dolist (val lst-num)
+      (push (add val-min (mul (sub val lo) k)) out -1)
+    )
+    ; Valore dello 0 nella lista normalizzata
+    (push (add val-min (mul (sub 0 lo) k)) out)
+    out))
+
+(normal-zero lst-x -6 15)
+;-> (0 1 4 -5 2 10 -6 15)
+(normal-zero lst-x 0 30)
+;-> (8.571428571428571 10 14.28571428571429 1.428571428571429
+;->  11.42857142857143 22.85714285714286 0 30)
+
+Adesso possiamo scrivere la funzione che disegna i punti sul terminale. QUesta funzione prende come parametri la lista di punti, la larghezza (in caratteri) del grafico e l'altezza (in caratteri) del grafico.
+
+(define (plot lst-xy width height)
+  (local (lst-x lst-y x-min x-max y-min y-max
+          range-x range-y xx yy zero-x zero-y matrix)
+    ; crea lista delle x
+    (setq lst-x (map first lst-xy))
+    ; crea lista delle y
+    (setq lst-y (map last  lst-xy))
+    ; calcola valori min,max x
+    (setq x-min (apply min lst-x))
+    (setq x-max (apply max lst-x))
+    ; calcola valori min,max x
+    (setq y-min (apply min lst-y))
+    (setq y-max (apply max lst-y))
+    ; calcolo intervallo valori x
+    (setq range-x (sub x-max x-min))
+    ; calcolo intervallo valori y
+    (setq range-y (sub y-max y-min))
+    ; calcolo valori normalizzati lista x
+    ; (i valori vengono arrotondati e poi resi interi)
+    (setq xx (normal-zero lst-x 0 width))
+    (setq xx (map (fn(w) (int (round w))) xx))
+    ; estrazione valore dello zero x normalizzato
+    (setq zero-x (pop xx))
+    ; calcolo valori normalizzati lista y
+    (setq yy (normal-zero lst-y 0 height))
+    (setq yy (map (fn(w) (int (round w))) yy))
+    ; estrazione valore dello zero y normalizzato
+    (setq zero-y (pop yy))
+    ; Creazione matrice di caratteri di stampa
+    ; Matrice = Sistema di coordinate (row col)
+    ; x --> colonna della matrice
+    ; y --> riga della matrice
+    ; Valore cella vuota: " "
+    (setq matrix (array (+ height 2) (+ width 2) '(" ")))
+    ; Inserisce asse x sulla matrice
+    (for (i 0 (- (length (matrix 0)) 1))
+      (setf (matrix zero-y i) "·")
+    )
+    ; Inserisce asse y sulla matrice
+    (for (i 0 (- (length matrix) 1))
+      (setf (matrix i zero-x) "·")
+    )
+    ; Inserisce punti (x y) nella matrice
+    ; (inserisce "■" nelle celle (y x) della matrice)
+    (for (i 0 (- (length xx) 1))
+      (setf (matrix (yy i) (xx i)) "■")
+    )
+    ; Inserisce origine degli assi (0 0) nella matrice.
+    ; se l'origine è un punto della lista
+    (if (= (matrix zero-y zero-x) "■")
+        ; allora inserisce "0"
+        (setf (matrix zero-y zero-x) "O")
+        ; altrimenti inserisce "●"
+        (setf (matrix zero-y zero-x) "∙")
+    )
+    ; stampa valori reali min e max
+    (println (format "x: %-12.3f %-12.3f" x-min x-max))
+    (println (format "y: %-12.3f %-12.3f" y-min y-max))
+    ; stampa matrice di caratteri
+    ; (le righe della matrice vengono invertite)
+    (dolist (el (reverse (array-list matrix)))
+      (println " " (join el))
+    )
+    'end))
+
+Facciamo alcune prove:
+
+(plot lst-xy 60 30)
+;-> x: -6.000       15.000
+;-> y: -8.000       12.000
+;->                   ·
+;->                   ·                            ■             ■
+;->                   ·
+;->                   ·
+;->                   ·
+;->                   ·
+;->                   ·
+;->                   ·
+;->                   ·
+;->                   ·
+;->     ■             ·
+;->                   ·
+;->                   ·
+;->                   ·           ■
+;->                   ·  ■
+;->                   ·
+;->                   ·
+;->                   ·
+;->                   ·
+;->  ·················●············································
+;->                   ·
+;->                   ·
+;->                   ·     ■
+;->                   ·
+;->                   ·
+;->                   ·
+;->                   ·
+;->                   ·
+;->                   ·
+;->                   ·
+;->                   ·
+;->  ■                ·
+
+(setq coppie (map list (sequence 0 20) (sequence 0 10)))
+(plot coppie 40 20)
+;-> x: 0.000        20.000
+;-> y: 0.000        20.000
+;->  ·
+;->  ·                                       ■
+;->  ·                                     ■
+;->  ·                                   ■
+;->  ·                                 ■
+;->  ·                               ■
+;->  ·                             ■
+;->  ·                           ■
+;->  ·                         ■
+;->  ·                       ■
+;->  ·                     ■
+;->  ·                   ■
+;->  ·                 ■
+;->  ·               ■
+;->  ·             ■
+;->  ·           ■
+;->  ·         ■
+;->  ·       ■
+;->  ·     ■
+;->  ·   ■
+;->  · ■
+;->  O·········································
+
+Nota: nel terminale del DOS il rapporto proporzionale tra la larghezza e l'altezza dei caratteri varia con il tipo di font, ma varia tra 1/2 e 1/2.5.
+
+Proviamo a disegnare una funzione matematica. Prima scriviamo una funzione che genera i punti della funzione:
+
+(define (func-points func min-val max-val step)
+  (let (pts '())
+    (for (i min-val max-val step)
+      (push (list i (func i)) pst -1))))
+
+Adesso provioamo a fare il grafico della funzione seno (sin):
+
+(plot (func-points sin -6.3 6.3 0.1) 60 20)
+;-> x: -6.300       6.300
+;-> y: -1.000       1.000
+;->                                ·
+;->        ■■■■                    ·     ■■■■
+;->       ■■  ■■                   ·    ■■  ■■
+;->      ■■    ■■                  ·   ■■    ■■
+;->     ■■      ■■                 ·  ■■      ■■
+;->     ■        ■                 ·  ■        ■
+;->    ■■        ■■                · ■■        ■■
+;->    ■          ■                · ■          ■
+;->   ■■          ■■               ·■■          ■■
+;->   ■            ■               ·■            ■
+;->  ■■            ■■              ■■            ■■
+;->  ■··············■··············O··············■··············■·
+;->                 ■■            ■■              ■■            ■■
+;->                  ■            ■·               ■            ■
+;->                  ■■          ■■·               ■■          ■■
+;->                   ■          ■ ·                ■          ■
+;->                   ■■        ■■ ·                ■■        ■■
+;->                    ■        ■  ·                 ■        ■
+;->                    ■■      ■■  ·                 ■■      ■■
+;->                     ■■    ■■   ·                  ■■    ■■
+;->                      ■■  ■■    ·                   ■■  ■■
+;->                       ■■■■     ·                    ■■■■
+
 =============================================================================
 
