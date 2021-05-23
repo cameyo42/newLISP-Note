@@ -7645,12 +7645,24 @@ Adesso possiamo scrivere la funzione che disegna i punti sul terminale. QUesta f
     ; Valore cella vuota: " "
     (setq matrix (array (+ height 2) (+ width 2) '(" ")))
     ; Inserisce asse x sulla matrice
-    (for (i 0 (- (length (matrix 0)) 1))
-      (setf (matrix zero-y i) "·")
+    ;(for (i 0 (- (length (matrix 0)) 1))
+    ;  (setf (matrix zero-y i) "·")
+    ;)
+    ; asse x nella matrice
+    (if (and (>= zero-y 0) (< zero-y (+ height 2)))
+        (for (i 0 (- (length (matrix 0)) 1))
+          (setf (matrix zero-y i) "·")
+        )
     )
     ; Inserisce asse y sulla matrice
-    (for (i 0 (- (length matrix) 1))
-      (setf (matrix i zero-x) "·")
+    ;(for (i 0 (- (length matrix) 1))
+    ;  (setf (matrix i zero-x) "·")
+    ;)
+    ; asse y nella matrice
+    (if (and (>= zero-x 0) (< zero-x (+ width 2)))
+        (for (i 0 (- (length matrix) 1))
+          (setf (matrix i zero-x) "·")
+        )
     )
     ; Inserisce punti (x y) nella matrice
     ; (inserisce "■" nelle celle (y x) della matrice)
@@ -7659,12 +7671,20 @@ Adesso possiamo scrivere la funzione che disegna i punti sul terminale. QUesta f
     )
     ; Inserisce origine degli assi (0 0) nella matrice.
     ; se l'origine è un punto della lista
-    (if (= (matrix zero-y zero-x) "■")
-        ; allora inserisce "0"
-        (setf (matrix zero-y zero-x) "O")
-        ; altrimenti inserisce "●"
-        (setf (matrix zero-y zero-x) "∙")
-    )
+    ;(if (= (matrix zero-y zero-x) "■")
+    ;    ; allora inserisce "0"
+    ;    (setf (matrix zero-y zero-x) "O")
+    ;    ; altrimenti inserisce "●"
+    ;    (setf (matrix zero-y zero-x) "∙")
+    ;)
+    ; (0,0) nella matrice
+    (if (and (>= zero-x 0) (>= zero-y 0)
+             (< zero-x (+ width 2)) (< zero-y (+ height 2)))
+        (if (= (matrix zero-y zero-x) "■")
+            (setf (matrix zero-y zero-x) "O")
+            (setf (matrix zero-y zero-x) "∙")
+        )
+    )    
     ; stampa valori reali min e max
     (println (format "x: %-12.3f %-12.3f" x-min x-max))
     (println (format "y: %-12.3f %-12.3f" y-min y-max))
@@ -7747,11 +7767,11 @@ Proviamo a disegnare una funzione matematica. Prima scriviamo una funzione che g
 (define (func-points func min-val max-val step)
   (let (pts '())
     (for (i min-val max-val step)
-      (push (list i (func i)) pst -1))))
+      (push (list i (func i)) pts -1))))
 
-Adesso provioamo a fare il grafico della funzione seno (sin):
+Adesso disegniamo il grafico della funzione seno (sin):
 
-(plot (func-points sin -6.3 6.3 0.1) 60 20)
+(plot (func-points sin -6.3 6.3 0.01) 60 20)
 ;-> x: -6.300       6.300
 ;-> y: -1.000       1.000
 ;->                                ·
@@ -7776,6 +7796,155 @@ Adesso provioamo a fare il grafico della funzione seno (sin):
 ;->                     ■■    ■■   ·                  ■■    ■■
 ;->                      ■■  ■■    ·                   ■■  ■■
 ;->                       ■■■■     ·                    ■■■■
+
+Disegniamo una superellisse.
+Una superellisse è una figura geometrica definita come l'insieme di tutti i punti (x, y) tali che:
+
+  |x/a|ⁿ + |y/b|ⁿ = 1
+
+dove n, a e b sono numeri positivi.
+
+La curva è data dalle equazioni parametriche (con parametro t che non ha una interpretazione geometrica elementare):
+
+x(t) = |cos(t)|^2/n * a * sgn(cos(t))
+y(t) = |sin(t)|^2/n * b * sgn(sin(t))
+
+Funzione che genera i punti della superellisse:
+
+(define (super-xy n a b)
+  (local (x y out)
+    (setq out '())
+    (for (t 0 1000 0.1)
+      (setq x (mul (pow (abs (cos t)) (div 2 n)) a (sgn (cos t))))
+      (setq y (mul (pow (abs (sin t)) (div 2 n)) b (sgn (sin t))))
+      (push (list x y) out -1)
+    )
+    out))
+
+(plot (super-xy 2 200 200) 60 25)
+;-> x: -200.000     200.000
+;-> y: -200.000     200.000
+;->                                ·
+;->                        ■■■■■■■■■■■■■■■■■
+;->                  ■■■■■■■       ·       ■■■■■■■
+;->              ■■■■■             ·             ■■■■■
+;->           ■■■■                 ·                 ■■■■
+;->         ■■■                    ·                    ■■■
+;->       ■■■                      ·                      ■■■
+;->      ■■                        ·                        ■■
+;->     ■■                         ·                         ■■
+;->    ■■                          ·                           ■
+;->   ■■                           ·                           ■■
+;->  ■■                            ·                            ■■
+;->  ■                             ·                             ■
+;->  ■                             ·                             ■
+;->  ■·····························●·····························■·
+;->  ■                             ·                             ■
+;->  ■■                            ·                            ■■
+;->   ■■                           ·                           ■■
+;->    ■■                          ·                          ■■
+;->     ■■                         ·                         ■■
+;->      ■■                        ·                        ■■
+;->       ■■■                      ·                      ■■■
+;->         ■■■                    ·                    ■■■
+;->           ■■■■                 ·                 ■■■■
+;->              ■■■■■             ·             ■■■■■
+;->                  ■■■■■■■       ·       ■■■■■■■
+;->                        ■■■■■■■■■■■■■■■■■
+
+(plot (super-xy 0.5 1 1) 50 25)
+;-> x: -1.000       1.000
+;-> y: -1.000       1.000
+;->                           ·
+;->                           ■
+;->                           ■
+;->                           ■
+;->                          ■■■
+;->                          ■·■
+;->                         ■■·■■
+;->                         ■ · ■
+;->                        ■■ · ■■
+;->                      ■■■  ·  ■■■
+;->                     ■■    ·    ■■
+;->                  ■■■      ·      ■■■
+;->              ■■■■■        ·        ■■■■■
+;->  ■■■■■■■■■■■■■            ·            ■■■■■■■■■■■■■
+;->  ■■■■■■■■■■■■■············●············■■■■■■■■■■■■■·
+;->              ■■■■■        ·        ■■■■■
+;->                  ■■■      ·      ■■■
+;->                     ■■    ·    ■■
+;->                      ■■■  ·  ■■■
+;->                        ■■ · ■■
+;->                         ■ · ■
+;->                         ■■·■■
+;->                          ■·■
+;->                          ■■■
+;->                           ■
+;->                           ■
+;->                           ■
+
+Disegniamo un'altra funzione: 
+
+      (x*x)
+y = --------- - 2
+     (2 - x)
+
+(define (gg x)
+  (sub (div (mul x x) (sub 2 x)) 2))
+
+(plot (func-points gg -2 1.5 0.01) 40 20)
+;-> x: -2.000       1.500
+;-> y: -2.000       2.500
+;->                         ·
+;->                         ·                ■
+;->                         ·                ■
+;->                         ·                ■
+;->                         ·               ■
+;->                         ·               ■
+;->                         ·               ■
+;->                         ·               ■
+;->                         ·              ■■
+;->                         ·              ■
+;->                         ·              ■
+;->                         ·             ■■
+;->  ·······················●·············■····
+;->                         ·            ■■
+;->                         ·            ■
+;->                         ·           ■■
+;->                         ·          ■■
+;->  ■■■■                   ·         ■■
+;->     ■■■■■               ·        ■■
+;->         ■■■■■           ·       ■■
+;->             ■■■■■■■     ·    ■■■
+;->                   ■■■■■■■■■■■■
+
+(plot (func-points gg -4 -0.5 0.01) 40 20)
+;-> x: -4.000       -0.500
+;-> y: -1.900       0.667
+;-> 
+;->  ■■
+;->   ■■
+;->     ■■
+;->      ■■■
+;->        ■■
+;->  ········■■································
+;->           ■■■
+;->             ■■■
+;->               ■■
+;->                 ■■
+;->                  ■■■
+;->                    ■■■
+;->                      ■■■
+;->                        ■■■
+;->                          ■■■
+;->                            ■■■
+;->                              ■■■
+;->                                ■■■
+;->                                   ■■■
+;->                                     ■■■■
+;->                                        ■■■
+
+Dobbiamo ammettere che "gnuplot" è sicuramente meglio...
 
 =============================================================================
 

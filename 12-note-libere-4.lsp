@@ -5583,7 +5583,7 @@ f(x) = ------------------
 
 Provare: (plot-function tan -1 1 25 30)
 
-Dobbiamo ammettere che "gnuplot" è sicuramente meglio...
+Vedi anche "Grafico di coppie di coordinate" per una versione migliore della funzione "plot".
 
 
 ====================
