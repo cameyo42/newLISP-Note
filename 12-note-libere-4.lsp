@@ -6328,5 +6328,129 @@ Funzione che stampa il grafico della sequenza:
 
 La sequenza viene chiamata Yellowstone perchè il suo grafico assomiglia al getto di un geyser del parco Yellowstone.
 
+
+----------------
+Distanza di Jaro
+----------------
+
+La distanza Jaro è una misura della somiglianza tra due stringhe.
+Maggiore è la distanza Jaro per due stringhe, più simili sono le stringhe.
+Il punteggio è normalizzato in modo tale che 0 equivale a nessuna somiglianza e 1 è una corrispondenza esatta (le stringhe sono uguali).
+
+La distanza di Jaro dj per due stringhe s1 e s2 vale:
+
+        | 0, se m = 0
+  dj =  |
+        | 1/3 * (m/|s1| + m/|s2| + (m-t)/m), in tutti gli altri casi
+
+dove:
+
+  m = numero di caratteri corrispondenti
+  t = metà del numero di trasposizioni
+
+Due caratteri rispettivamente da s1 e s2 sono considerati corrispondenti solo se sono uguali e non più lontani di floor(max(|s1|,|s2|)/2) - 1.
+Ogni carattere di s1 viene confrontato con tutti i suoi caratteri corrispondenti in s2.
+Il numero di caratteri corrispondenti (ma con l'ordine di sequenza diverso) diviso per 2 definisce il numero di trasposizioni.
+
+For example, in comparing CRATE with TRACE, only 'R' 'A' 'E' are the matching characters, i.e. m=3. Although 'C', 'T' appear in both strings, they are farther apart than 1 (the result of floor(5/2) - 1). Therefore, t=0 . In DwAyNE versus DuANE the matching letters are already in the same order D-A-N-E, so no transpositions are needed.
+
+Ad esempio, confrontando CRATE con TRACE, solo 'R' 'A' 'E' sono i caratteri corrispondenti, ovvero m = 3. Sebbene 'C', 'T' compaiano in entrambe le stringhe, sono più distanti di 1 (il risultato di floor (5/2) - 1), quindi t = 0. In DwAyNE contro DuANE le lettere corrispondenti sono già nello stesso ordine D-A-N-E, quindi non sono necessarie trasposizioni.
+
+(define (jaro s t)
+  (if (and (zero? (length s)) (zero? (length t)))
+      1
+  (local (len-s len-t)
+    (if (> (length s) (length t))
+        (swap s t)
+    )
+    (setq len-s (length s))
+    (setq len-t (length t))
+    (setq match-dist (- (/ (max len-s len-t) 2) 1))
+    (setq s-match (array len-s '(nil)))
+    (setq t-match (array len-t '(nil)))
+    (setq matches 0)
+    (setq transp 0)
+    (for (i 0 (- len-s 1))
+      (setq start (max 0 (- i match-dist)))
+      (setq end (min (+ i match-dist 1) len-t))
+      (setq stop nil)
+      (for (j start (- end 1) 1 stop)
+        (cond ((t-match j) nil)
+              ((!= (s i) (t j)) nil)
+              (true
+                (setf (s-match i) true)
+                (setf (t-match j) true)
+                (++ matches)
+                (setq stop true))
+        )
+      )
+    )
+    (cond ((zero? matches) 0)
+          (true
+            (setq k 0)
+            (for (i 0 (- len-s 1))
+              (cond ((not (s-match i)) nil)
+                    (true
+                      (while (not (t-match k))
+                        (++ k)
+                      )
+                      (if (!= (s i) (t k))
+                        (++ transp)
+                      )
+                      (++ k))
+              )
+            )
+            (div (add (div matches len-s)
+                      (div matches len-t)
+                      (div (sub matches (div transp 2)) matches))
+                 3))
+    ))))
+
+(jaro "giovanna" "goivanna")
+;-> 0.9583333333333334
+(jaro "fantastic" "bombastic")
+;-> 0.6370370370370371
+(jaro "abc" "abc")
+;-> 1
+(jaro "abc" "ABC")
+;-> 0
+(jaro "abc" "abcd")
+;-> 0.9166666666666666
+(jaro "abc" "abcde")
+;-> 0.8666666666666667
+(jaro "abc" "abcdef")
+;-> 0.8333333333333334
+(jaro "grattacielo" "palazzo")
+;-> 0.5670995670995671
+(jaro "newlisp" "abcdefghijklmnopqrstuvwxyz")
+;-> 0.4917582417582418
+(jaro "common lisp" "abcdefghijklmnopqrstuvwxyz")
+;-> 0.532488344988345
+
+
+-------------------------------------
+Pietre e gioielli (Stones and Jewels)
+-------------------------------------
+
+Data una stringa in cui i caratteri rappresentano "gioielli" e una stringa in cui i caratteri rappresentano le "pietre". Determinare quante "pietre" sono "gioielli".
+I caratteri dei "gioielli" sono tutti diversi.
+I caratteri delle "pietre" possono essere uguali.
+I caratteri sono solo le lettere dell'alfabeto (minuscole e maiuscole)
+I caratteri minuscoli sono diversi da quelli maiuscoli.
+
+In altre parole, vogliamo sapere quanti "gioielli" ci sono nelle "pietre".
+
+(define (pietre-gioielli p g)
+  (apply + (count (explode g) (explode p))))
+
+(pietre-gioielli "aAAbbbb" "aA")
+;-> 3
+
+(pietre-gioielli "fkjhQD" "aDf")
+;-> 2
+
+(pietre-gioielli "fkjhQD" "adF")
+;-> 0
+
 =============================================================================
 

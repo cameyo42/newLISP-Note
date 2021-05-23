@@ -829,6 +829,8 @@ NOTE LIBERE 4
   Numeri primi lunghi
   Numeri Tau
   Sequenza Yellowstone
+  Distanza di Jaro
+  Pietre e gioielli (Stones and Jewels)
 
 APPENDICI
 =========
