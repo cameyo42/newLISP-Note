@@ -2468,17 +2468,20 @@ Segno   Esponente   Mantissa
 1 bit   8 bit       23 bit
 
 Campo Segno
+-----------
 Il primo campo della rappresentazione IEE754, lungo un bit, rappresenta il segno del numero binario. Se vale 0 indica che il numero è positivo, se vale 1 indica che il numero è negativo.
 Il numero 1.01101(2b) * (2²)(10b) è positivo per cui questo campo deve valere 0 come illustrato nella figura seguente:
 
 0 XXXXXXXX XXXXXXXXXXXXXXXXXXXXXXX
 
 Campo Esponente
+---------------
 Il secondo campo, lungo otto bit (un byte), rappresenta l'esponente del numero binario espresso in notazione scientifica. Come è noto, un byte può assumere valori che vanno da 0 a 255. Come si fa per rappresentare gli esponenti negativi? Per poter rappresentare sia gli esponenti positivi che negativi si usa, per questo campo, la notazione eccesso 127. Quest'ultima prevede che al vero esponente vada sommato 127. Perciò, per il numero 1.01101(2b) * (2²)(10b) l'esponente da inserire nel secondo campo della rappresentazione vale: 2 + 127 = 129 ovvero in binario: 1000 0001.
 
 0 1000 0001 XXXXXXXXXXXXXXXXXXXXXXX
 
 Campo Mantissa
+--------------
 Il terzo campo, lungo ventitrè bits, rappresenta la mantissa del numero binario spresso in notazione scientifica. Nel caso in esame vale 1.01101. A questo punto occorre notare che tutti i numeri binari espressi in notazione scientifica hanno un "1" prima della virgola, per cui nella rappresentazione IEE754 questo viene sottointeso. Inoltre, al valore effettivo della mantissa dell'esempio: 01101, vengono aggiunti tanti "0" quanti ne servono per completare il campo a 23 bits è perciò si ha:
 
 0110100 00000000 00000000
@@ -2501,6 +2504,7 @@ Nota: La codifica IEEE754 è complicata dalla necessità di rappresentare alcuni
 3) Il valore 0 (meno banale di quanto sembri)
 
 Proprietà fondamentale della codifica
+-------------------------------------
 NB. I circa 4 miliardi di configurazioni (usati a 32-bit) consentono di coprire un campo di valori molto ampio grazie alla distribuzione non uniforme:
 1) per numeri piccoli in valore assoluto i valori rappresentati sono «fitti»,
 2) per numeri grandi in valore assoluto i valori rappresentati sono «diradati»
@@ -2520,6 +2524,7 @@ Nell’intervallo [0.125, 0.25) possiamo rappresentare solo 0.125 e 0.1875, ma n
 È evidente che non potremo rappresentare perfettamente tutti i numeri reali ma ci dovremo accontentare di un’approssimazione, tanto più efficiente quanti più bit destiniamo alla mantissa.
 
 Complessità dei calcoli
+-----------------------
 Senza voler entrare in dettaglio basti osservare che supponendo che per la somma fra 2 numeri in virgola fissa ci voglia un tempo di 1 microsecondo (1 milionesimo di secondo), per la somma di 2 numeri in virgola mobile ci vogliono almeno 10 microsecondi (dovendo fare una quantità molto elevata di operazioni la differenza in termini di tempo non è per nulla trascurabile).
 
 
@@ -2619,9 +2624,9 @@ b -> base
 m -> mantissa
 
 
-=========================
- INFINITO E NOT A NUMBER
-=========================
+=====================================
+ INFINITO E NOT A NUMBER (INF e NAN)
+=====================================
 
 Lo standard IEEE 754 per i numeri floating-point definisce, oltre i numeri ordinari, anche due numeri particolari: INF e NaN.
 Si tratta di numeri con valore Infinito e di numeri che...non sono numeri (Not a Number).

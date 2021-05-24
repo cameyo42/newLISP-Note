@@ -831,6 +831,8 @@ NOTE LIBERE 4
   Sequenza Yellowstone
   Distanza di Jaro
   Pietre e gioielli (Stones and Jewels)
+  Numeri super-d
+  Algoritmo di Bresenham
 
 APPENDICI
 =========
@@ -3372,17 +3374,20 @@ Segno   Esponente   Mantissa
 1 bit   8 bit       23 bit
 
 Campo Segno
+-----------
 Il primo campo della rappresentazione IEE754, lungo un bit, rappresenta il segno del numero binario. Se vale 0 indica che il numero è positivo, se vale 1 indica che il numero è negativo.
 Il numero 1.01101(2b) * (2²)(10b) è positivo per cui questo campo deve valere 0 come illustrato nella figura seguente:
 
 0 XXXXXXXX XXXXXXXXXXXXXXXXXXXXXXX
 
 Campo Esponente
+---------------
 Il secondo campo, lungo otto bit (un byte), rappresenta l'esponente del numero binario espresso in notazione scientifica. Come è noto, un byte può assumere valori che vanno da 0 a 255. Come si fa per rappresentare gli esponenti negativi? Per poter rappresentare sia gli esponenti positivi che negativi si usa, per questo campo, la notazione eccesso 127. Quest'ultima prevede che al vero esponente vada sommato 127. Perciò, per il numero 1.01101(2b) * (2²)(10b) l'esponente da inserire nel secondo campo della rappresentazione vale: 2 + 127 = 129 ovvero in binario: 1000 0001.
 
 0 1000 0001 XXXXXXXXXXXXXXXXXXXXXXX
 
 Campo Mantissa
+--------------
 Il terzo campo, lungo ventitrè bits, rappresenta la mantissa del numero binario spresso in notazione scientifica. Nel caso in esame vale 1.01101. A questo punto occorre notare che tutti i numeri binari espressi in notazione scientifica hanno un "1" prima della virgola, per cui nella rappresentazione IEE754 questo viene sottointeso. Inoltre, al valore effettivo della mantissa dell'esempio: 01101, vengono aggiunti tanti "0" quanti ne servono per completare il campo a 23 bits è perciò si ha:
 
 0110100 00000000 00000000
@@ -3405,6 +3410,7 @@ Nota: La codifica IEEE754 è complicata dalla necessità di rappresentare alcuni
 3) Il valore 0 (meno banale di quanto sembri)
 
 Proprietà fondamentale della codifica
+-------------------------------------
 NB. I circa 4 miliardi di configurazioni (usati a 32-bit) consentono di coprire un campo di valori molto ampio grazie alla distribuzione non uniforme:
 1) per numeri piccoli in valore assoluto i valori rappresentati sono «fitti»,
 2) per numeri grandi in valore assoluto i valori rappresentati sono «diradati»
@@ -3424,6 +3430,7 @@ Nell’intervallo [0.125, 0.25) possiamo rappresentare solo 0.125 e 0.1875, ma n
 È evidente che non potremo rappresentare perfettamente tutti i numeri reali ma ci dovremo accontentare di un’approssimazione, tanto più efficiente quanti più bit destiniamo alla mantissa.
 
 Complessità dei calcoli
+-----------------------
 Senza voler entrare in dettaglio basti osservare che supponendo che per la somma fra 2 numeri in virgola fissa ci voglia un tempo di 1 microsecondo (1 milionesimo di secondo), per la somma di 2 numeri in virgola mobile ci vogliono almeno 10 microsecondi (dovendo fare una quantità molto elevata di operazioni la differenza in termini di tempo non è per nulla trascurabile).
 
 
@@ -3523,9 +3530,9 @@ b -> base
 m -> mantissa
 
 
-=========================
- INFINITO E NOT A NUMBER
-=========================
+=====================================
+ INFINITO E NOT A NUMBER (INF e NAN)
+=====================================
 
 Lo standard IEEE 754 per i numeri floating-point definisce, oltre i numeri ordinari, anche due numeri particolari: INF e NaN.
 Si tratta di numeri con valore Infinito e di numeri che...non sono numeri (Not a Number).
@@ -97714,6 +97721,173 @@ In altre parole, vogliamo sapere quanti "gioielli" ci sono nelle "pietre".
 
 (pietre-gioielli "fkjhQD" "adF")
 ;-> 0
+
+--------------
+Numeri super-d
+--------------
+
+Un numero super-d è un numero intero decimale positivo (in base dieci) n tale che d × nᵈ ha almeno d cifre consecutive d dove
+
+   2 ≤ d ≤ 9
+
+Ad esempio, 753 è un numero super-3 perché 3 × 753³ = 1280873331.
+
+Funzione cha calcola la potenza intera di un numero intero:
+
+(define (pow-i num power)
+  (local (pot out)
+    (if (zero? power)
+        (setq out 1L)
+        (begin
+          (setq pot (pow-i num (/ power 2)))
+          (if (odd? power)
+              (setq out (* num pot pot))
+              (setq out (* pot pot)))
+        )
+    )
+    out))
+
+Altra funzione cha calcola la potenza intera di un numero intero:
+
+(define (** num power)
+    (let (out 1L)
+        (dotimes (i power)
+            (setq out (* out num)))))
+
+Funzione che calcola i numeri super-d fino ad un dato numero:
+
+(define (super-d d limite)
+  (local (test tot num val out)
+    (setq test (dup (string d) d))
+    (setq tot 0)
+    (setq num 0)
+    (while (< tot limite)
+      (++ num)
+      (setq val (* (bigint d) (** num d)))
+      ;(setq val (* (bigint d) (pow-i (bigint num) d)))
+      (if (find test (string val))
+        (begin
+          (++ tot)
+          (push num out -1)
+        )
+      )
+    )
+    out))
+
+Calcoliamo i primi 10 numeri super-d per d da 2 a 9:
+
+(super-d 2 10)
+;-> (19 31 69 81 105 106 107 119 127 131)
+(super-d 3 10)
+;-> (261 462 471 481 558 753 1036 1046 1471 1645)
+(super-d 4 10)
+;-> (1168 4972 7423 7752 8431 10267 11317 11487 11549 11680)
+(super-d 5 10)
+;-> (4602 5517 7539 12955 14555 20137 20379 26629 32767 35689)
+(time (println (super-d 6 10)))
+;-> (27257 272570 302693 323576 364509 502785 513675 537771 676657 678146)
+;-> 1609.883
+(time (println (super-d 7 10)))
+;-> (140997 490996 1184321 1259609 1409970 1783166 1886654 1977538 2457756 2714763)
+;-> 7234.281
+(time (println (super-d 8 10)))
+;-> (185423 641519 1551728 1854230 6415190 12043464 12147605 15517280 16561735 18542300)
+;-> 55858.5 ; quasi 56 secondi
+(time (println (super-d 9 10)))
+;-> (17546133 32613656 93568867 107225764 109255734 113315082
+;->  121251742 175461330 180917907 182557181)
+;-> 600068.062 ; 10 minuti
+
+
+----------------------
+Algoritmo di Bresenham
+----------------------
+
+L'algoritmo di Bresenham è un algoritmo per disegnare linee in una griglia bidimensionale (raster) conoscendo il punto di inizio e di fine della linea. Questo algoritmo è uno dei primi ad essere stato introdotto nel campo della computer grafica e viene comunemente usato per disegnare linee primitive in un'immagine bitmap (es. lo schermo di un computer), poiché utilizza solo addizione, sottrazione e shift di interi. È un algoritmo di errore incrementale che non supporta l'antialiasing, ma è molto veloce. Per un metodo che supporta l'antialiasing vedi l'algoritmo di Wu.
+
+Per informazioni dettagliate vedere: 
+"Michael Abrash's Graphics Programming Black Book Special Edition"
+http://www.phatcode.net/res/224/files/html/index.html
+
+(define (bresenham x0 y0 x1 y1)
+  (local (dx dy err x y sx sy out)
+    (setq out '())
+    (setq dx (abs (- x1 x0)))
+    (setq dy (abs (- y1 y0)))
+    (set 'x x0 'y y0)
+    (if (> x0 x1)
+        (setq sx -1)
+        (setq sx 1)
+    )
+    (if (> y0 y1)
+        (setq sy -1)
+        (setq sy 1)
+    )
+    (cond ((> dx dy)
+            (setq err (div dx 2))
+            (while (!= x x1)
+              (push (list x y) out -1)
+              (setq err (sub err dy))
+              (if (< err 0)
+                  (set 'y (add y sy) 'err (add err dx))
+              )
+              (setq x (add x sx))
+            ))
+          (true
+            (setq err (div dy 2))
+            (while (!= y y1)
+              (push (list x y) out -1)
+              (setq err (sub err dx))
+              (if (< err 0)
+                  (set 'x (add x sx) 'err (add err dy))
+              )
+              (setq y (add y sy))
+            ))
+    )
+    (push (list x y) out -1)
+    out))
+
+(bresenham 1 1 10 6)
+;-> ((1 1) (2 2) (3 2) (4 3) (5 3) (6 4) (7 4) (8 5) (9 5) (10 6))
+
+Con la funzione "plot" (vedi il capitolo "Funzioni varie"):
+(plot (bresenham 1 1 10 6) 9 5)
+;-> x: 1.000        10.000
+;-> y: 1.000        6.000
+;-> 
+;->           ■
+;->         ■■
+;->       ■■
+;->     ■■
+;->   ■■
+;->  ■
+
+(bresenham -4 5 10 -12)
+;-> ((-4 5) (-3 4) (-2 3) (-2 2) (-1 1) (0 0) (1 -1) (2 -2) (3 -3) (3 -4) (4 -5) (5 -6)
+;->  (6 -7) (7 -8) (8 -9) (8 -10) (9 -11) (10 -12))
+
+(plot (bresenham -4 5 10 -12) 14 17)
+;-> x: -4.000       10.000
+;-> y: -12.000      5.000
+;->      ·
+;->  ■   ·
+;->   ■  ·
+;->    ■ ·
+;->    ■ ·
+;->     ■·
+;->  ····O···········
+;->      ·■
+;->      · ■
+;->      ·  ■
+;->      ·  ■
+;->      ·   ■
+;->      ·    ■
+;->      ·     ■
+;->      ·      ■
+;->      ·       ■
+;->      ·       ■
+;->      ·        ■
+;->      ·         ■
 
 =============================================================================
 

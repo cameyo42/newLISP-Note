@@ -831,6 +831,8 @@ NOTE LIBERE 4
   Sequenza Yellowstone
   Distanza di Jaro
   Pietre e gioielli (Stones and Jewels)
+  Numeri super-d
+  Algoritmo di Bresenham
 
 APPENDICI
 =========
