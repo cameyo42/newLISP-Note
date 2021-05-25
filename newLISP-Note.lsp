@@ -43,7 +43,7 @@ newLISP IN GENERALE
   Propagazione degli errori
   Rappresentazione dei numeri floating point (32-bit)
   Machine epsilon
-  Infinito e not a number
+  Infinito e Not a Number (inf e NaN)
   Confronto tra numeri floating-point
   Verifica delle operazioni floating-point
   Una strana successione
@@ -833,6 +833,7 @@ NOTE LIBERE 4
   Pietre e gioielli (Stones and Jewels)
   Numeri super-d
   Algoritmo di Bresenham
+  Associare gli elementi di una lista ogni k
 
 APPENDICI
 =========
@@ -864,7 +865,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (166 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (168 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================
@@ -3531,8 +3532,11 @@ m -> mantissa
 
 
 =====================================
- INFINITO E NOT A NUMBER (INF e NAN)
+ INFINITO E NOT A NUMBER (INF e NaN)
 =====================================
+-----------
+NaN and INF
+-----------
 
 Lo standard IEEE 754 per i numeri floating-point definisce, oltre i numeri ordinari, anche due numeri particolari: INF e NaN.
 Si tratta di numeri con valore Infinito e di numeri che...non sono numeri (Not a Number).
@@ -3540,12 +3544,112 @@ In alcuni linguaggi la divisione per 0 genera un errore di sistema, mentre in ne
 
 (setq a-inf (div 1 0))
 ;-> 1.#INF
+(inf? a-inf)
+;-> true
 
 (setq a-inf-neg (div -1 0))
 ;-> -1.#INF
+(inf? a-inf-neg)
+;-> true
 
 (setq a-NaN (sqrt -1))
 ;-> -1.#IND
+(NaN? a-NaN)
+;-> true
+
+NaN (Not a Number) è un membro di un tipo di dati numerico che può essere interpretato come un valore non definito o non rappresentabile, specialmente nell'aritmetica a virgola mobile. L'uso sistematico di NaN è stato introdotto dallo standard a virgola mobile IEEE 754 nel 1985, insieme alla rappresentazione di altre quantità non finite come gli infiniti.
+
+In matematica, lo zero diviso per zero non è definito come un numero reale ed è quindi rappresentato da NaN nei sistemi informatici. La radice quadrata di un numero negativo non è un numero reale ed è quindi rappresentata anche da NaN nei sistemi informatici conformi. I NaN possono essere utilizzati anche per rappresentare i valori mancanti nei calcoli.
+
+Le operazioni in virgola mobile (tranne i confronti) normalmente propagano un NaN silenzioso (qNaN = quiet NaN). La propagazione di NaN silenziosi attraverso operazioni aritmetiche consente di rilevare gli errori alla fine di una sequenza di operazioni senza test approfonditi durante le fasi intermedie. Ad esempio, se si inizia con un NaN e si aggiunge 1 tre volte di seguito, ogni somma risulta in un NaN, ma non è necessario controllare ogni calcolo perché si può semplicemente notare che il risultato finale è NaN.
+
+Tuttavia, a seconda dei linguaggi e della funzione usata, i NaN possono essere rimossi silenziosamente da una catena di calcoli in cui un calcolo nella catena darebbe un risultato costante per tutti gli altri valori a virgola mobile. Ad esempio, il calcolo x^0 può produrre il risultato 1, anche dove x è NaN, quindi controllare solo il risultato finale oscurerebbe il fatto che un calcolo prima di x^0 ha dato come risultato un NaN.
+
+Lo standard a virgola mobile IEEE (IEEE 754) specifica anche un valore infinito positivo e uno negativo (e anche valori indefiniti). Questi sono definiti come il risultato di overflow aritmetico, divisione per zero e altre operazioni eccezionali.
+
+Alcuni linguaggi di programmazione, come Java, consentono un accesso esplicito ai valori di infinito positivo e negativo come costanti. Questi possono essere usati come elementi di massimo e di minimo, poiché sono (rispettivamente) maggiore o minore di tutti gli altri valori. Vengono usati come valori sentinella negli algoritmi che coinvolgono l'ordinamento, la ricerca o il windowing.
+
+Nei linguaggi che non hanno elementi massimi e minimi è possibile creare questi valori.
+
+Nota: un ciclo infinito è un ciclo la cui condizione di uscita non è mai soddisfatta, quindi viene eseguito indefinitamente.
+
+newLISP mette a disposizione due funzioni per verificare se un numero vale NaN o Infinito: "NaN?" e "inf?"
+
+******************
+>>> funzione NaN?
+******************
+sintassi: (NaN? float)
+
+Verifica se il risultato di un'operazione matematica in virgola mobile è un NaN (cioè se il risultato è un numero valido). Alcune operazioni in virgola mobile restituiscono uno speciale formato numerico IEEE 754 chiamato NaN per "Not a Number".
+
+; floating point operation on NaN yield NaN
+(set 'x (sqrt -1))  → NaN
+(NaN? x)            → true
+(add x 123)         → NaN
+(mul x 123)         → NaN
+
+; integer operations treat NaN as zero
+(+ x 123)  → 123
+(* x 123)  → 0
+
+; comparisons with NaN values yield nil
+(> x 0)   → nil
+(<= x 0)  → nil
+(= x x)   → nil
+
+(set 'infinity (mul 1.0e200 1.0e200)) → inf
+(NaN? (sub infinity infinity)) → true
+
+Nota: tutte le operazioni aritmetiche in virgola mobile con un NaN producono un NaN.
+
+Tutti i confronti con NaN restituiscono nil, ma è vero se confrontato con se stesso. Il confronto con se stesso, tuttavia, risulterebbe non vero quando si utilizza ANSI C.
+
+Nota: le operazioni con numeri interi trattano NaN come valori 0 (zero).
+
+******************
+>>> funzione inf?
+******************
+sintassi: (inf? float)
+  
+Se il valore in float è infinito la funzione restituisce true altrimenti nil.
+
+(inf? (div 1 0)) → true
+
+(div 0 0) → NaN
+
+Nota che una divisione intera per zero, ad es. (/ 1 0) genera un errore di "divisione per zero" e non produce infinito.
+
+Vediamo alcuni esempi:
+
+(setq a (/ 1 0))
+;-> ERR: division by zero in function /
+
+(setq a (div 1 0))
+;-> 1.#INF
+(inf? a)
+;-> true
+
+(setq b (- (div 1 0) (div 1 0)))
+;-> 0 ; obscured INF (for integer math operator)
+
+(setq b (sub (div 1 0) (div 1 0)))
+;-> -1.#IND ; non obscured INF (for floating point math operator)
+(inf? b)
+;-> nil
+(NaN? b)
+;-> true
+
+(setq x (sqrt -1))
+;-> -1.#IND
+(NaN? x)
+;-> true
+(pow x 0)
+;-> 1 ; obscured NaN
+
+(log -1)
+;-> 1.#QNAN ; quiet NaN
+(div (log -1) (log -1))
+;-> 1.#QNAN ; quiet NaN
 
 
 =====================================
@@ -46700,12 +46804,12 @@ Il numero aureo
 ---------------
 
 Il numero aureo (o rapporto aureo) è il numero ottenuto effettuando il rapporto fra due lunghezze disuguali delle quali la maggiore "a" è medio proporzionale tra la minore "b" e la somma delle due (a+b):
-
-                        (a + b)     a
-numero aureo (phi) --> --------- = ---
-                           a        b
+                        
+numero aureo (phi) --> (a + b) : a = a : b
 
 Quindi possiamo scrivere:
+
+phi = (a + b)/a = 1 + b/a = 1 + 1/phi
 
             1
 phi = 1 + -----
@@ -55414,6 +55518,15 @@ Quindi la soluzione vale N = 15621 e F = 1023.
  DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
 
 ====================================================
+
+Informatica (definizione formale dell’Association for Computing Machinery - ACM):
+è lo studio sistematico degli algoritmi che descrivono e trasformano l’informazione, la loro teoria e analisi, il loro progetto, e la loro efficienza, realizzazione e applicazione.
+
+Molte persone confondono l'informatica con quelle aree professionali che riguardano l'utilizzo dei programmi per l'ufficio (es. Office), la navigazione sul web o il gaming. In realtà, l'informatica vera e propria (che si distingue in teorica e applicata) è lo studio e la progettazione di algoritmi e linguaggi capaci di permettere a un computer di eseguire operazioni in modo automatico. In questo senso l'informatica (Computer Science) richiede notevoli conoscenze e competenze in materie come la matematica, la logica, la linguistica, la psicologia, l'elettronica, l'automazione, la telematica, e altre.
+
+Mentre occorrono notevoli conoscenze teoriche e tecniche per appartenere alla categoria degli informatici, per appartenere a quella degli utenti finali ne occorrono decisamente di meno – talvolta solo il minimo indispensabile – e questo grazie al lavoro dei primi, costantemente orientato a rendere sempre più semplice l’uso del computer per tutti.
+
+Un informatico dovrebbe sempre avere un interesse profondo per i fondamenti teorici dell'informatica. Che poi, per professione o per passione, spesso faccia lo sviluppatore di software è possibile, ma non è così scontanto, poichè può sfruttare le proprie capacità di problem solving in diversi ambiti. In ogni caso l'informatica, almeno nella sua parte applicativa, è una disciplina fortemente orientata al problem solving.
 
 ---------------
 Notazione Big-O
@@ -97889,6 +98002,39 @@ Con la funzione "plot" (vedi il capitolo "Funzioni varie"):
 ;->      ·        ■
 ;->      ·         ■
 
+
+------------------------------------------
+Associare gli elementi di una lista ogni k
+------------------------------------------
+
+Definire una funzione che prende una lista e associa tutti gli elementi ogni k in sottoliste. Restituire la lista delle sottoliste.
+
+(define (glue-k lst k precise)
+  (transpose (explode lst k precise)))
+
+(setq lst (sequence 1 16))
+(glue-k lst 3)
+;-> ((1 4 7 10 13 16) (2 5 8 11 14 nil) (3 6 9 12 15 nil))
+(glue-k lst 3 true)
+;-> ((1 4 7 10 13) (2 5 8 11 14) (3 6 9 12 15))
+
+(setq lst '(1 1 1 2 2 2 3 3 3 4 4 4))
+(glue-k lst 3)
+;-> ((1 2 3 4) (1 2 3 4) (1 2 3 4))
+
+(setq lst '(1 1 1 2 2 2 3 3 3))
+(glue-k lst 3)
+;-> ((1 2 3) (1 2 3) (1 2 3))
+
+(setq lst '(a b c d e f g h))
+(glue-k lst (/ (length lst) 2))
+;-> ((a e) (b f) (c g) (d h))
+(setq lst '(a b c d e f g h i))
+(glue-k lst (/ (length lst) 2))
+;-> ((a e i) (b f nil) (c g nil) (d h nil))
+(glue-k lst (/ (length lst) 2) true)
+;-> ((a e) (b f) (c g) (d h))
+
 =============================================================================
 
 ===========
@@ -104197,7 +104343,7 @@ Non sei quello che pensi di essere...
   "Advanced Recursion in newLISP" di Krzysztof Kliś
   https://weblambdazero.blogspot.com/2010/07/advanced-recursion-in-newLISP.html
 
-  "The Art of Computer Programming", Donald Knuth, 4 volumi, 1968...2015
+  "The Art of Computer Programming", Donald Knuth, 4 volumi, 1968..2015
 
   "Introduction to Algorithms", Cormen-Leiserson-Rivest-Stein, 3ed, 2009
 

@@ -6619,5 +6619,38 @@ Con la funzione "plot" (vedi il capitolo "Funzioni varie"):
 ;->      ·        ■
 ;->      ·         ■
 
+
+------------------------------------------
+Associare gli elementi di una lista ogni k
+------------------------------------------
+
+Definire una funzione che prende una lista e associa tutti gli elementi ogni k in sottoliste. Restituire la lista delle sottoliste.
+
+(define (glue-k lst k precise)
+  (transpose (explode lst k precise)))
+
+(setq lst (sequence 1 16))
+(glue-k lst 3)
+;-> ((1 4 7 10 13 16) (2 5 8 11 14 nil) (3 6 9 12 15 nil))
+(glue-k lst 3 true)
+;-> ((1 4 7 10 13) (2 5 8 11 14) (3 6 9 12 15))
+
+(setq lst '(1 1 1 2 2 2 3 3 3 4 4 4))
+(glue-k lst 3)
+;-> ((1 2 3 4) (1 2 3 4) (1 2 3 4))
+
+(setq lst '(1 1 1 2 2 2 3 3 3))
+(glue-k lst 3)
+;-> ((1 2 3) (1 2 3) (1 2 3))
+
+(setq lst '(a b c d e f g h))
+(glue-k lst (/ (length lst) 2))
+;-> ((a e) (b f) (c g) (d h))
+(setq lst '(a b c d e f g h i))
+(glue-k lst (/ (length lst) 2))
+;-> ((a e i) (b f nil) (c g nil) (d h nil))
+(glue-k lst (/ (length lst) 2) true)
+;-> ((a e) (b f) (c g) (d h))
+
 =============================================================================
 

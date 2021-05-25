@@ -45,7 +45,7 @@
   "Advanced Recursion in newLISP" di Krzysztof Kliś
   https://weblambdazero.blogspot.com/2010/07/advanced-recursion-in-newLISP.html
 
-  "The Art of Computer Programming", Donald Knuth, 4 volumi, 1968...2015
+  "The Art of Computer Programming", Donald Knuth, 4 volumi, 1968..2015
 
   "Introduction to Algorithms", Cormen-Leiserson-Rivest-Stein, 3ed, 2009
 

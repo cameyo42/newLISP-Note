@@ -43,7 +43,7 @@ newLISP IN GENERALE
   Propagazione degli errori
   Rappresentazione dei numeri floating point (32-bit)
   Machine epsilon
-  Infinito e not a number
+  Infinito e Not a Number (inf e NaN)
   Confronto tra numeri floating-point
   Verifica delle operazioni floating-point
   Una strana successione
@@ -833,6 +833,7 @@ NOTE LIBERE 4
   Pietre e gioielli (Stones and Jewels)
   Numeri super-d
   Algoritmo di Bresenham
+  Associare gli elementi di una lista ogni k
 
 APPENDICI
 =========
@@ -864,7 +865,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (166 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (168 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================

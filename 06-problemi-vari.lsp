@@ -1954,12 +1954,12 @@ Il numero aureo
 ---------------
 
 Il numero aureo (o rapporto aureo) è il numero ottenuto effettuando il rapporto fra due lunghezze disuguali delle quali la maggiore "a" è medio proporzionale tra la minore "b" e la somma delle due (a+b):
-
-                        (a + b)     a
-numero aureo (phi) --> --------- = ---
-                           a        b
+                        
+numero aureo (phi) --> (a + b) : a = a : b
 
 Quindi possiamo scrivere:
+
+phi = (a + b)/a = 1 + b/a = 1 + 1/phi
 
             1
 phi = 1 + -----
