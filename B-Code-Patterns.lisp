@@ -4,7 +4,7 @@
 
 ===============
 
-Questo file contiene la traduzione libera di alcuni capitoli del documento ufficiale "Code Patterns in newLISP" che si trova al seguente indirizzo web:
+Questo file contiene la traduzione libera del documento "Code Patterns in newLISP" che si trova al seguente indirizzo web:
 
 http://www.newlisp.org/CodePatterns.html
 
@@ -21,6 +21,382 @@ Permission is granted to copy, distribute and/or modify this document under the 
 newLISP is a registered trademark of Lutz Mueller.
 ----------------------------------------------------------------------------
 
+========
+ INDICE
+========
+
+01. Introduction
+----------------
+
+02. newLISP script files
+------------------------
+    Command line options
+    Scripts as pipes
+    File filters
+
+03. Writing software in modules
+-------------------------------
+    Structuring an application
+    More than one context per file
+    The default function
+    Packaging data with contexts
+    Passing objects by reference
+
+04. Local variables
+-------------------
+    Locals in looping functions
+    Locals in let, letn, local and letex
+    Unused parameters as locals
+    Default variable values
+    args as local substitute
+    args and local used together for named variables
+
+05. Walking through lists and data
+----------------------------------
+    Recursion or iteration?
+    Speed up with memoization
+    Walking a tree
+    Walking a directory tree
+
+06. Modifying and searching lists
+---------------------------------
+    push and pop
+    Extend using extend
+    Accessing lists
+    Selecting more elements
+    Filtering and differencing lists
+    Changing list elements
+    The anaphoric variable
+    Replace in simple lists
+    Replace in nested lists
+    Passing lists by reference
+    Variable expansion
+    Destructuring nested lists
+
+07. Program flow
+----------------
+    Loops
+    Blocks
+    Branching
+    Fuzzy flow
+    Flow with catch and throw
+    Leave loops with a break condition
+    Change flow with and or or
+
+08. Error handling
+------------------
+    newLISP errors
+    User defined errors
+    Error event handlers
+    Catching errors
+    Operating system errors
+
+09. Functions as data
+---------------------
+    Manipulate after definition
+    Mapping and applying
+    Functions making functions
+    Functions with memory
+    Functions using self modifying code
+
+10. Text processing
+-------------------
+    Regular expressions
+    Scanning text
+    Appending strings
+    Growing strings in place
+    Rearranging strings
+    Modifying strings
+
+11. Dictionaries and hashes
+---------------------------
+    Hash-like key → value access
+    Saving and loading dictionaries
+
+12. TCP/IP client server
+------------------------
+    Open connection
+    Closed transaction
+
+13. UDP communications
+----------------------
+    Open connection
+    Closed transaction
+    Multi-cast communications
+
+14. Non-blocking communications
+-------------------------------
+    Using net-select
+    Using net-peek
+
+15. Controlling other applications
+----------------------------------
+    Using exec
+    STD I/O pipes
+    Communicate via TCP/IP
+    Communicate via named FIFO
+    Communicate via UDP
+
+16. Launching apps blocking
+---------------------------
+    Shell execution
+    Capturing std-out
+    Feeding std-in
+
+17. Semaphores, shared memory
+-----------------------------
+
+18. Multiprocessing and Cilk
+----------------------------
+    Starting concurrent processes
+    Watching progress
+    Invoking spawn recursively
+    Event driven notification
+
+19. Message exchange
+--------------------
+    Blocking message sending and receiving
+    Blocking message exchange
+    Non blocking message exchange
+    Message timeouts
+    Evaluating messages
+    Acting as a proxy
+
+20. Databases and lookup tables
+-------------------------------
+    Association lists
+    Nested associations
+    Updating nested associations
+    Combining associations and hashes
+
+21. Distributed computing
+-------------------------
+    Setting up in server mode
+    Start a state-full server
+    Stateless server with inetd
+    Test the server with telnet
+    Test with netcat on Unix
+    Test from the command line
+    Test HTTP with a browser
+    Evaluating remotely
+    Setting up the net-eval parameter structure
+    Transferring files
+    Loading and saving data
+    Local domain Unix sockets
+
+22. HTTPD web server only mode
+------------------------------
+    Environment variables
+    Pre-processing the request
+    CGI processing in HTTP mode
+    Media types in HTTP modes
+
+23. Extending newLISP
+---------------------
+    Simple versus extended FFI interface
+    A shared library in C
+    Compile on Unix
+    Compile a DLL on Win32
+    Importing data structures
+    Memory management
+    Unevenly aligned structures
+    Passing parameters
+    Extracting return values
+    Writing library wrappers
+    Registering callbacks in external libraries
+
+24. newLISP as a shared library
+-------------------------------
+    Evaluating code in the shared library
+    Registering callbacks
+
+=============================================================================
+
+01. Introduzione
+----------------
+
+02. File di script newLISP
+--------------------------
+    Opzioni della riga di comando
+    Script come pipe
+    Filtri di file
+
+03. Scrittura del software in moduli
+------------------------------------
+    Strutturare un'applicazione
+    Più di un contesto per file
+    La funzione predefinita (default function)
+    Inserire dati nei contesti
+    Passaggio di oggetti per riferimento
+
+04. Variabili locali
+-------------------
+    Persone del posto in funzioni di loop
+    Locals in let, letn, local and letex
+    Parametri inutilizzati come locali
+    Valori delle variabili predefiniti
+    arg come sostituto locale
+    args e local usati insieme per le variabili denominate
+
+05. Esplorazione di liste e dati
+--------------------------------
+    Ricorsione o iterazione?
+    Accelera con la memoizzazione
+    Visitare un albero
+    Esplorare un albero di directory
+
+06. Modifica e ricerca di liste
+-------------------------------
+    push e pop
+    Estendere usando extend
+    Accesso alle liste
+    Selezione di più elementi
+    Liste di filtri e differenze
+    Modifica degli elementi di una lista
+    La variabile anaforica
+    Replace in liste semplici
+    Replace in liste annidate
+    Passaggio di liste per riferimento
+    Espansione variabile
+    Destrutturazione di liste annidate
+
+07. Flusso del programma
+----------------
+    Cicli (Loop)
+    Blocchi
+    Ramificazione
+    Flusso sfocato
+    Fluisci con cattura e lancio
+    Lascia i loop con una condizione di interruzione
+    Modificare il flusso con e o o
+
+08. Gestione degli errori
+------------------
+    Errori newLISP
+    Errori definiti dall'utente
+    Gestori di eventi di errore
+    Individuazione degli errori
+    Errori del sistema operativo
+
+09. Funzione come dati
+---------------------
+    Manipolazione dopo la definizione
+    Map e apply
+    Funzioni che generano funzioni
+    Funzioni con memoria
+    Funzioni con codice auto-modificante
+
+10. Elaborazione del testo
+-------------------
+    Espressioni regolari
+    Scansione del testo
+    Aggiunta di stringhe
+    Stringhe crescenti a posto
+    Riorganizzare le corde
+    Modifica delle stringhe
+
+11. Dizionari e hash
+---------------------------
+    Chiave tipo hash → accesso al valore
+    Salvataggio e caricamento di dizionari
+
+12. Server client TCP / IP
+------------------------
+    Connessione aperta
+    Transazione chiusa
+
+13. Comunicazioni UDP
+----------------------
+    Connessione aperta
+    Transazione chiusa
+    Comunicazioni multi-cast
+
+14. Comunicazioni non bloccanti
+-------------------------------
+    Utilizzando net-select
+    Utilizzando net-peek
+
+15. Controllo di altre applicazioni
+----------------------------------
+    Utilizzando exec
+    Pipe I/O STD
+    Comunica tramite TCP/IP
+    Comunicare tramite FIFO denominato
+    Comunica tramite UDP
+
+16. Avvio del blocco delle app
+---------------------------
+    Esecuzione della shell
+    Catturare lo std-out
+    Alimentazione standard
+
+17. Semafori, memoria condivisa
+-----------------------------
+
+18. Multiprocessing e Cilk
+----------------------------
+    Avvio di processi simultanei
+    Guardando i progressi
+    Invocare spawn in modo ricorsivo
+    Notifica guidata dagli eventi
+
+19. Scambio di messaggi
+--------------------
+    Blocco dell'invio e della ricezione di messaggi
+    Blocco dello scambio di messaggi
+    Scambio di messaggi non bloccante
+    Timeout dei messaggi
+    Valutazione dei messaggi
+    Agire come procuratore
+
+20. Database e tabelle di ricerca
+-------------------------------
+    Liste di associazioni
+    Associazioni annidate
+    Aggiornamento delle associazioni annidate
+    Combinazione di associazioni e hash
+
+21. Calcolo distribuito
+-------------------------
+    Configurazione in modalità server
+    Avvia un server con stato completo
+    Server senza stato con inetd
+    Prova il server con telnet
+    Prova con netcat su Unix
+    Prova dalla riga di comando
+    Prova HTTP con un browser
+    Valutare da remoto
+    Impostazione della struttura dei parametri net-eval
+    Trasferimento di file
+    Caricamento e salvataggio dei dati
+    Socket Unix di dominio locale
+
+22. Modalità solo server Web HTTPD
+------------------------------
+    Variabili ambientali
+    Pre-elaborazione della richiesta
+    Elaborazione CGI in modalità HTTP
+    Tipi di supporto in modalità HTTP
+
+23. Estensione di newLISP
+---------------------
+    Interfaccia FFI semplice rispetto a quella estesa
+    Una libreria condivisa in C
+    Compilare su Unix
+    Compilare una DLL su Win32
+    Importazione di strutture dati
+    Gestione della memoria
+    Strutture allineate in modo non uniforme
+    Passaggio di parametri
+    Estrazione dei valori di ritorno
+    Scrittura di wrapper di librerie
+    Registrazione di callback in librerie esterne
+
+24. newLISP come libreria condivisa
+-------------------------------
+    Valutazione del codice nella libreria condivisa (shared)
+    Registrazione dei callback
+
 =================
  1. INTRODUZIONE
 =================
@@ -29,6 +405,7 @@ Quando si programma in newLISP, alcune funzioni e modelli (pattern) di utilizzo 
 Alcuni contenuti si sovrappongono al materiale trattato nel manuale "newLISP Users manual and Reference" o vengono presentati qui con un'angolazione diversa.
 Utilizzeremo solo un sottoinsieme del repertorio delle funzioni totali di newLISP. Alcune funzioni presentate hanno metodi di chiamata aggiuntivi o applicazioni non menzionate in queste pagine.
 Questa raccolta di modelli e soluzioni è un lavoro in corso. Nel tempo, il materiale verrà aggiunto o il materiale esistente migliorato.
+
 
 ========================
  2. newLISP SCRIPT FILE
@@ -153,6 +530,7 @@ Inserisci una riga direttamente nell'eseguibile per la valutazione di espression
 6
 ~>
 
+
 ==============================
  3. SCRIVERE CODICE IN MODULI
 ==============================
@@ -250,8 +628,8 @@ La riga (context MAIN) che chiude un contesto può essere omessa utilizzando la 
 
 La riga (contesto 'MAIN:B) torna a MAIN quindi apre il nuovo contesto B.
 
-La funzione predefinita (default)
-=================================
+La funzione predefinita (default function)
+==========================================
 Una funzione in un contesto può avere lo stesso nome del contesto stesso. Questa funzione ha caratteristiche speciali:
 
 (context 'foo)
@@ -357,6 +735,7 @@ db:db         → (99 "B" (c d) 1 2.2 3 x y)
 
 L'aggiornamento della funzione è anche un buon esempio di come passare operatori o funzioni come argomento di una funzione (lavorando in maiuscolo su $it). Maggiori informazioni su questo argomento nel capitolo "Funzioni come dati".
 
+
 =====================
  4. VARIABILI LOCALI
 =====================
@@ -432,7 +811,7 @@ Nella definizione di una funzione si possono specificare valori di default:
 
 args come sostituto di local
 ============================
-Utilizzando la funzione args non è necessario utilizzare alcun simbolo di parametro e args restituisce un elenco di tutti i parametri passati, ma non presi dai parametri dichiarati:
+Utilizzando la funzione args non è necessario utilizzare alcun simbolo di parametro e args restituisce una lista di tutti i parametri passati, ma non presi dai parametri dichiarati:
 
 (define (foo)
     (args))
@@ -444,7 +823,7 @@ Utilizzando la funzione args non è necessario utilizzare alcun simbolo di param
 
 (foo 1 2 3 4 5)   → (3 4 5)
 
-Il secondo esempio mostra come args contenga solo l'elenco di argomenti non associati dai simboli delle variabili a e b.
+Il secondo esempio mostra come args contenga solo la lista di argomenti non associati dai simboli delle variabili a e b.
 
 Gli indici possono essere utilizzati per accedere ai membri della lista (args):
 
@@ -467,6 +846,7 @@ Uso combinato di args e local per le variabili con nome
 len:10 width:20 height:30
 
 local nasconderà/proteggerà i valori delle variabili len, width e height ai livelli di scoping dinamico più elevati.
+
 
 ==============================
  5. ATTRAVERSARE LISTE E DATI
@@ -594,11 +974,12 @@ Attraversare l'albero di una cartella (directory) è un'attività in cui la rico
 
 In questo esempio la ricorsione è l'unica soluzione, perché l'intera lista annidata di file non è disponibile quando la funzione viene chiamata, ma viene creata in modo ricorsivo durante l'esecuzione della funzione.
 
+
 ===================================
  6. MODIFICA E RICERCA NELLE LISTE
 ===================================
 
-newLISP dispone di funzionalità per l'indicizzazione multidimensionale in elenchi annidati. Ci sono funzioni distruttive come "push", "pop", "setf", "set-ref", "set-ref-all", "sort" e "reverse" e molte altre per operazioni non distruttive, come "nth", "ref", "ref-all", "first", "last" e "rest" ecc .. In newLISP, molte delle funzioni per le lista funzionano anche sulle stringhe.
+newLISP dispone di funzionalità per l'indicizzazione multidimensionale in liste annidate. Ci sono funzioni distruttive come "push", "pop", "setf", "set-ref", "set-ref-all", "sort" e "reverse" e molte altre per operazioni non distruttive, come "nth", "ref", "ref-all", "first", "last" e "rest" ecc .. In newLISP, molte delle funzioni per le lista funzionano anche sulle stringhe.
 
 Nota che qualsiasi indice di lista o di stringa in newLISP può essere negativo a partire da -1 dal lato destro di una lista:
 
@@ -852,7 +1233,7 @@ L'ultimo esempio mostra come utilizzare $0 per accedere al vecchio elemento dell
 
 Passaggio di liste per riferimento
 ==================================
-A volte una lista più grande (più di poche centinaia di elementi) deve essere passato a una funzione definita dall'utente affinché gli elementi in essa contenuti possano essere modificati. Normalmente newLISP passa tutti i parametri alle funzioni definite dall'utente in base al valore. Ma il seguente frammento mostra una tecnica che può essere utilizzata per passare un elenco più grande o un oggetto stringa per riferimento:
+A volte una lista più grande (più di poche centinaia di elementi) deve essere passato a una funzione definita dall'utente affinché gli elementi in essa contenuti possano essere modificati. Normalmente newLISP passa tutti i parametri alle funzioni definite dall'utente in base al valore. Ma il seguente frammento mostra una tecnica che può essere utilizzata per passare una lista più grande o un oggetto stringa per riferimento:
 
 (set 'data:data '(a b c d e f g h))
 
@@ -941,6 +1322,7 @@ B → "two"
 C → 3
 D → four
 E → (x y z)
+
 
 =========================
  7. FLUSSO DEL PROGRAMMA
@@ -1033,9 +1415,9 @@ Si noti che le funzioni di ciclo dolist, dotimes e for possono anche accettare u
 
 Blocchi
 =======
-Blocks are collections of s-expressions evaluated sequentially. All looping constructs may have expression blocks after the condition expression as a body.
+I blocchi sono un insieme di s-espressioni valutate sequenzialmente. Tutti i costrutti di ciclo possono avere blocchi di espressioni come corpo dopo l'espressione della condizione.
 
-Blocks can also be constructed by enclosing them in a begin expression:
+I blocchi possono anche essere costruiti racchiudendoli in un'espressione di inizio "begin":
 
 (begin
     s-exp1
@@ -1043,19 +1425,20 @@ Blocks can also be constructed by enclosing them in a begin expression:
      ...
     s-expN)
 
-Looping constructs do not need to use an explicit begin after the looping conditions. begin is mostly used to block expressions in if and cond statements.
 
-The functions and, or, let, letn and local can also be used to form blocks and do not require begin for blocking statements.
+I costrutti di ciclo non necessitano di utilizzare un "begin" esplicito dopo le condizioni dei cicli. begin è usato principalmente per bloccare le espressioni nell' istruzione "if".
 
-Branching
-=========
-(if condition true-expr false-expr)
+Le funzioni "and", "or", "let", "letn" e "local" possono anche essere utilizzate per formare blocchi e non richiedono le istruzioni di inizio per il blocco.
+
+Ramificazione (branching)
+=========================
+(if condizione true-expr false-expr)
 
 ;or when no false clause is present
-(if condition true-expr)
+(if condizione true-expr)
 
 ;or unary if for (filter if '(...))
-(if condition)
+(if condizione)
 
 ; more than one statement in the true or false
 ; part must be blocked with (begin ...)
@@ -1083,9 +1466,9 @@ Branching
     ...
 )
 
-Depending on the condition, the exp-true or exp-false part is evaluated and returned.
+A seconda della condizione, viene valutata e restituita la parte exp-true o exp-false.
 
-More than one condition/exp-true pair can occur in an if expression, making it look like a cond:
+In un'espressione "if" può verificarsi più di una coppia condizione / exp-true, facendola assomigliare ad una "cond":
 
 (if condition-1 exp-true-1
     condition-2 exp-true-2
@@ -1094,9 +1477,9 @@ More than one condition/exp-true pair can occur in an if expression, making it l
     expr-false
 )
 
-The first exp-true-i for which the condition-i is not nil is evaluated and returned, or the exp-false if none of the condition-i is true.
+Viene valutata e restituita la prima exp-true-i per cui la condizione-i non è nulla, oppure exp-false se nessuna delle condizioni-i è vera.
 
-cond works like the multiple condition form of if but each part of condition-i exp-true-i must be braced in parentheses:
+"cond" funziona come la forma di condizioni multiple di "if", ma ogni parte di condition-i exp-true-i deve essere tra parentesi:
 
 (cond
     (condition-1 exp-true-1 )
@@ -1106,9 +1489,9 @@ cond works like the multiple condition form of if but each part of condition-i e
     (true exp-true)
 )
 
-Fuzzy flow
-==========
-Using amb the program flow can be regulated in a probabilistic fashion:
+Flusso fuzzy
+============
+Utilizzando "amb" il flusso del programma può essere regolato in modo probabilistico:
 
 (amb
     exp-1
@@ -1116,11 +1499,12 @@ Using amb the program flow can be regulated in a probabilistic fashion:
     ...
     exp-n
 )
-One of the alternative expressions exp-1 to exp-n is evaluated with a probability of p = 1/n and the result is returned from the amb expression.
 
-Flow with catch and throw
-=========================
-Any loop or other expression block can be enclosed in a catch expression. The moment a throw expression is evaluated, the whole catch expression returns the value of the throw expression.
+Una delle espressioni alternative da exp-1 a exp-n viene valutata con una probabilità di p = 1/n e il risultato viene restituito dall'espressione "amb".
+
+Flusso con catch and throw
+==========================
+Qualsiasi loop/ciclo o altro blocco di espressioni può essere racchiuso in un'espressione "catch". Nel momento in cui viene valutata un'espressione "throw", l'intera espressione catch restituisce il valore dell'espressione "throw".
 
 (catch
     (dotimes (i 10)
@@ -1131,11 +1515,12 @@ Any loop or other expression block can be enclosed in a catch expression. The mo
 0 1 2 3 4
 ; and the return value of the catch expression will be
 → "The End"
-Several catch expressions can be nested. The function catch can also catch errors. See the chapter on //Error Handling// below.
 
-Leave loops with a break condition
-==================================
-Loops built using dotimes, dolist or for can specify a break condition for leaving the loop early:
+È possibile annidare diverse espressioni "catch". La funzione "catch" può anche rilevare gli errori. Vedere il capitolo seguente "Gestione degli errori".
+
+Interrompere i cicli con una condizione di interruzione
+=======================================================
+I cicli creati usando "dotimes", "dolist" o "for" possono specificare una condizione di interruzione per lasciare il loop in anticipo:
 
 (dotimes (x 10 (> (* x x) 9))
     (println x))
@@ -1152,10 +1537,9 @@ Loops built using dotimes, dolist or for can specify a break condition for leavi
  b
  c
 
-Change flow with and or or
-==========================
-Similar to programming in the Prolog language, the logical and and or can be used to control program flow depending on the outcome of expressions logically connected:
-
+Cambiareflusso con and e or
+===========================
+Simile alla programmazione in linguaggio Prolog, gli operatori logici "and" e "or" può essere utilizzato per controllare il flusso del programma a seconda del risultato delle espressioni logicamente connesse:
 
 (and
    expr-1
@@ -1163,7 +1547,7 @@ Similar to programming in the Prolog language, the logical and and or can be use
     ...
    expr-n)
 
-Expressions are evaluated sequentially until one expr-i evaluates to nil or the empty list () or until all expr-i are exhausted. The last expression evaluated is the return value of the whole and expression.
+Le espressioni vengono valutate sequenzialmente fino a quando un expr-i restituisce nil o la lista vuota () o fino a quando tutti gli expr-i sono esauriti. L'ultima espressione valutata è il valore restituita dall'intero blocco di espressioni.
 
 (or
    expr-1
@@ -1171,28 +1555,29 @@ Expressions are evaluated sequentially until one expr-i evaluates to nil or the 
     ...
    expr-n)
 
-Expressions are evaluated sequentially until one expr-i evaluates to not nil and not () or until all expr-i are exhausted. The last expression evaluated is the return value of the whole or expression.
+Le espressioni vengono valutate sequenzialmente fino a quando un expr-i restituisce not nil o not lista vuota () o fino a quando tutti gli expr-i sono esauriti. L'ultima espressione valutata è il valore restituita dall'intero blocco di espressioni.
 
-====================
- 8. ERROR HANDLING
-====================
 
-Several conditions during evaluation of a newLISP expression can cause error exceptions. For a complete list of errors see the Appendix in the newLISP Reference Manual.
+==========================
+ 8. GESTIONE DEGLI ERRORI
+==========================
 
-newLISP errors
+Durante la valutazione di un'espressione newLISP diverse condizioni possono causare eccezioni di errore. Per un elenco completo degli errori, vedere l'appendice nel newLISP Reference Manual.
+
+Errori newLISP
 ==============
-newLISP errors are caused by the programmer using the wrong syntax when invoking functions, supplying the wrong number of parameters or parameters with the wrong data type, or by trying to evaluate nonexistent functions.
+Gli errori newLISP sono causati dal programmatore che utilizza la sintassi sbagliata quando invoca le funzioni, fornisce il numero sbagliato di parametri o parametri con il tipo di dati sbagliato, o cerca di valutare funzioni inesistenti.
 
-; examples of newLISP errors
+; esempi di errori newLISP
 ;
 (foo foo)   → invalid function : (foo foo)
 (+ "hello") → value expected in function + : "hello"
 
-User defined errors
-===================
-User errors are error exceptions thrown using the function throw-error:
+Errori definiti dall'utente
+===========================
+Gli errori dell'utente sono eccezioni di errore generate utilizzando la funzione "throw-error":
 
-; user defined error
+; errore definito dall'utente
 ;
 (define (double x)
     (if (= x 99) (throw-error "illegal number"))
@@ -1205,10 +1590,12 @@ User errors are error exceptions thrown using the function throw-error:
 →
 user error : illegal number
 called from user defined function double
-Error event handlers
-newLISP and user defined errors can be caught using the function error-event to define an event handler.
 
-; define an error event handler
+Gestori degli eventi di errore
+==============================
+newLISP e gli errori definiti dall'utente possono essere rilevati utilizzando la funzione "error-event" per definire un gestore di eventi.
+
+; definisce un gestore di errori (error event handler)
 ;
 (define (MyHandler)
     (println  (last (last-error))  " has occurred"))
@@ -1217,18 +1604,19 @@ newLISP and user defined errors can be caught using the function error-event to 
 
 (foo) → ERR: invalid function : (foo) has occurred
 
-Catching errors
-===============
-A finer grained and more specific error exception handling can be achieved using a special syntax of the function catch.
+Cattura degli errori
+====================
+Una gestione delle eccezioni degli errori più dettagliata e più specifica può essere ottenuta utilizzando una sintassi speciale della funzione "catch".
 
 (define (double x)
     (if (= x 99) (throw-error "illegal number"))
     (+ x x))
 
-catch with a second parameter can be used to catch both system and user-defined errors:
+"catch" con un secondo parametro può essere utilizzato per rilevare gli errori di sistema e quelli definiti dall'utente:
 
 (catch (double 8) 'result) → true
 result → 16
+
 (catch (double 99) 'result) → nil
 (print result)
  →
@@ -1241,29 +1629,30 @@ called from user defined function double
 value expected in function + : x
 called from user defined function double
 
-The catch expression returns true when no error exception occurred, and the result of the expression is found in the symbol result specified as a second parameter.
+L'espressione "catch" restituisce true quando non si è verificata alcuna eccezione di errore e il risultato dell'espressione si trova nel simbolo specificato come secondo parametro.
 
-If an error exception occurs, it is caught and the catch clause returns nil. In this case the symbol result contains the error message.
+Se si verifica un'eccezione di errore, viene rilevata e la clausola catch restituisce nil. In questo caso il risultato del simbolo contiene il messaggio di errore.
 
-Operating system errors
-=======================
-Some errors originating at operating system level are not caught by newLISP, but can be inspected using the function sys-error. For example the failure to open a file could have different causes:
+Errori del sistema operativo
+============================
+Alcuni errori originati a livello di sistema operativo non vengono rilevati da newLISP, ma possono essere controllati utilizzando la funzione "sys-error". Ad esempio la mancata apertura di un file potrebbe avere diverse cause:
 
-; trying to open a nonexistent file
+; cerca di aprire un file non esistente
 (open "blahbla" "r")  →  nil
 (sys-error)           →  (2 "No such file or directory")
 
-; to clear errno specify 0
+; per cancellare errno specificare 0
 (sys-error 0)         →  (0 "Unknown error: 0")
 
-Numbers returned may be different on different Unix platforms. Consult the file /usr/include/sys/errno.h on your platform.
+I numeri restituiti possono essere diversi su diverse piattaforme Unix. Consulta il file /usr/include/sys/errno.h della tua piattaforma.
+
 
 =======================
  9. FUNZIONI COME DATI
 =======================
 
-Manipulate after definition
-===========================
+Manipolazione dopo la definizione
+=================================
 
 (define (double x) (+ x x))
 → (lambda (x) (+ x x))
@@ -1277,48 +1666,51 @@ Manipulate after definition
 (double 10) → 20.31445313
 (double 10) → 19.60351563
 
-lambda in newLISP is not an operator or symbol, but rather a special s-expression or list attribute:
+"lambda" in newLISP non è un operatore o un simbolo, ma piuttosto una s-espressione speciale o un attributo di una lista:
 
-(first double) → (x)   ; not lambda
+(first double) → (x)   ; non lambda
 
-The lambda attribute of an s-expression is right-associative in append:
+L'attributo "lambda" di una s-espressione è associativo a destra in "append":
 
 (append (lambda) '((x) (+ x x))) → (lambda (x) (+ x x))
-; or shorter
+
+; o più brevemente
+
 (append (fn) '((x) (+ x x))) → (lambda (x) (+ x x))
 
 (set 'double (append (lambda) '((x) (+ x x)))
 
 (double 10) → 20
 
-and left-associative when using cons:
+e associativo a sinistra quando si usa "cons":
 
 (cons '(x) (lambda) → (lambda (x))
 
-Lambda expressions in newLISP never lose their first class object property.
+Le espressioni "lambda" in newLISP non perdono mai la proprietà di oggetto di prima classe.
 
-The word lambda can be abbreviated as fn, which is convenient when mapping or applying functions to make the expression more readable and shorter to type.
+La parola lambda può essere abbreviata in "fn", il che è utile quando si mappano o si applicano funzioni per rendere l'espressione più leggibile e più breve da digitare.
 
-Mapping and applying
-====================
-Functions or operators can be applied to a list of data at once and all results are returned in a list
+Map e Apply
+===========
+È possibile applicare funzioni o operatori a una lista di dati contemporaneamente e tutti i risultati vengono restituiti in una lista:
 
 (define (double (x) (+ x x))
 
 (map double '(1 2 3 4 5)) → (2 4 6 8 10)
-Functions can be applied to parameters occurring in a list:
+
+Le funzioni possono essere applicate ai parametri che si trovano in una lista:
 
 (apply + (sequence 1 10)) → 55
 
-Functions making functions
-==========================
-Here an expression is passed as a parameter:
+Funzioni che creano funzioni
+============================
+Ecco un'espressione che viene passata come parametro:
 
-; macro expansion using expand
+; espansione in una macro usando expand
 (define (raise-to power)
     (expand (fn (base) (pow base power)) 'power))
 
-; or as an alternative using letex
+; o usando letex in alternativa
 (define (raise-to power)
     (letex (p power) (fn (base) (pow base p))))
 
@@ -1329,7 +1721,7 @@ Here an expression is passed as a parameter:
 (square 5)   → 25
 (cube 5)     → 125
 
-The built-in function curry can be used to make a function taking one argument from a function taking two arguments.
+La funzione built-in "curry" può essere usata per fare in modo che una funzione prenda un argomento da una funzione che ne prende due.
 
 (define add-one (curry add 1))  → (lambda () (add 1 ($args 0)))
 
@@ -1339,13 +1731,13 @@ The built-in function curry can be used to make a function taking one argument f
 
 (by-ten 1.23)  → 12.3
 
-Note that the 'curried' parameter is always the first parameter of the original function.
+Nota che il parametro 'curried' è sempre il primo parametro della funzione originale.
 
-Functions with memory
-=====================
-newLISP can create local state variables using a name-space context:
+Funzioni con memoria
+====================
+newLISP può creare variabili di stato locale utilizzando un contesto (spazio dei nomi):
 
-; newLISP generator
+; generatore newLISP
 
 (define (gen:gen)
     (setq gen:sum
@@ -1361,7 +1753,7 @@ newLISP can create local state variables using a name-space context:
 (gen) → 2
 (gen) → 3
 
-The example uses a default functor — functions name equals names-space name — to give it the appearance of a normal function. Other functions could be added to the namespace, e.g. for initializing the sum.
+L'esempio utilizza un funtore predefinito - il nome della funzione è uguale al nome dello spazio dei nomi (contesto) - per dargli l'aspetto di una normale funzione. Altre funzioni potrebbero essere aggiunte allo spazio dei nomi, ad es. per inizializzare la somma.
 
 (define (gen:init x)
     (setq gen:sum x))
@@ -1370,10 +1762,12 @@ The example uses a default functor — functions name equals names-space name �
 
 (gen) → 21
 (gen) → 22
-Functions using self modifying code
-The first class nature of lambda expressions in newLISP makes it possible to write self modifying code:
 
-;; sum accumulator
+Funzioni che utilizzano codice auto-modificante
+===============================================
+In newLISp la natura di prima classe delle espressioni lambda rende possibile scrivere codice auto-modificante:
+
+; accumulatore sum
 (define (sum (x 0)) (inc 0 x))
 
 (sum 1)    → 1
@@ -1383,7 +1777,7 @@ The first class nature of lambda expressions in newLISP makes it possible to wri
 
 sum  → (lambda ((x 0)) (inc 103 x))
 
-The following example shows a function making a self modifying stream function using expand :
+L'esempio seguente mostra una funzione che si modifica automaticamente, creando un flusso di elementi, utilizzando "expand":
 
 (define (make-stream lst)
     (letex (stream lst)
@@ -1395,7 +1789,8 @@ The following example shows a function making a self modifying stream function u
 (mystream)  → a
 (mystream)  → b
 (mystream)  → c
-Because pop works on both: lists and strings, the same function factory can be used for a string stream:
+
+Poiché pop funziona su entrambi: liste e stringhe, la stessa funzione può essere utilizzata per un flusso di stringhe:
 
 (set 'str "abcddefgh")
 (define mystream (make-stream str))
@@ -1403,40 +1798,55 @@ Because pop works on both: lists and strings, the same function factory can be u
 (mystream)  → "a"
 (mystream)  → "c"
 
+
 =====================
  10. TEXT PROCESSING
 =====================
 
-Regular expressions
+Espressioni regolari
+====================
+Le espressioni regolari in newLISP possono essere utilizzate in numerose funzioni:
+
+Function      Description
+--------      -----------
+directory     Return a list of files whose names match a pattern.
+ends-with     Test if a string ends with a key string or pattern.
+find          Find the position of a pattern.
+find-all      Assemble a list of all patterns found.
+parse         Break a string into tokens at patterns found between tokens.
+regex         Find patterns and returns a list of all sub patterns found, with offset and length.
+replace       Replace found patterns with a user defined function, which can take as input the patterns themselves.
+search        Search for a pattern in a file.
+starts-with   Test if a string starts with a key string or pattern.
+
+Funzione      Descrizione
+--------      --------------------
+directory     Restituisce una lista di file i cui nomi corrispondono a un modello (pattern).
+ends-with     Verifica se una stringa termina con una stringa chiave o un modello.
+find          Trova la posizione di un modello.
+find-all      Crea una lista di tutti i modelli trovati.
+parse         Divide una stringa in token in corrispondenza dei modelli trovati tra i token.
+regex         Trova modelli e restituisce una lista di tutti i modelli secondari trovati, con indici (offset) e lunghezza.
+replace       Sostituisce i modelli trovati con una funzione definita dall'utente, che può prendere come input i modelli stessi.
+search        Cerca un modello in un file.
+starts-with   Verifica se una stringa inizia con una stringa chiave o un modello.
+
+Le funzioni "find", "regex", "replace" e "search" memorizzano i risultati di pattern matching nelle variabili di sistema da $0 a $15. Vedere il Manuale Utente di newLISP per i dettagli.
+
+I paragrafi seguenti mostrano gli algoritmi utilizzati di frequente per la scansione e la tokenizzazione del testo.
+
+Scansione del testo
 ===================
-Regular expressions in newLISP can be used in a number of functions:
-
-function	function description
-directory	Return a list of files whose names match a pattern.
-ends-with	Test if a string ends with a key string or pattern.
-find	Find the position of a pattern.
-find-all	Assemble a list of all patterns found.
-parse	Break a string into tokens at patterns found between tokens.
-regex	Find patterns and returns a list of all sub patterns found, with offset and length.
-replace	Replace found patterns with a user defined function, which can take as input the patterns themselves.
-search	Search for a pattern in a file.
-starts-with	Test if a string starts with a key string or pattern.
-The functions find, regex, replace and search store pattern matching results in the system variables $0 to $15. See the newLISP Users Manual for details.
-
-The following paragraphs show frequently-used algorithms for scanning and tokenizing text.
-
-Scanning text
-=============
-The replace function, together with a regular expression pattern, can be used to scan text. The pattern in this case describes the tokens scanned for. As each token is found, it is pushed on a list. The work is done in the replacement expression part of replace. This example saves all files linked on a web page:
+La funzione di "replace", insieme a un modello di espressione regolare, può essere utilizzata per eseguire la scansione del testo. Il modello in questo caso descrive i token da analizzare. Quando ogni token viene trovato, viene inserito in una lista. Il lavoro viene svolto nella parte dell'espressione di sostituzione di replace. Questo esempio salva tutti i file collegati a una pagina web:
 
 #!/usr/bin/newlisp
 
-; tokenize using replace with regular expressions
-; names are of the form <a href="example.lsp">example.lsp</a>
+; tokenize utilizzando replace con espressioni regolari
+; i nomi sono nella forma <a href="example.lsp">example.lsp</a>
 
 (set 'page (get-url "http://newlisp.digidep.net/scripts/"))
-(replace {>(.*lsp)<} page (first (push $1 links)) 0) ; old technique
-;(set 'links (find-all {>(.*lsp)<} page $1)) ; new technique
+(replace {>(.*lsp)<} page (first (push $1 links)) 0) ; vecchia tecnica
+;(set 'links (find-all {>(.*lsp)<} page $1)) ; nuova tecnica
 
 (dolist (fname links)
    (write-file fname (get-url (append "http://newlisp.digidep.net/scripts/" fname)))
@@ -1444,124 +1854,128 @@ The replace function, together with a regular expression pattern, can be used to
 
 (exit)
 
-Curly braces ({,}) are used in the regular expression pattern to avoid having to escape the quotes ("") or other characters that have special meanings in regular expressions.
+Le parentesi graffe ({,}) vengono utilizzate nel modello delle espressioni regolari per evitare di dover eseguire l'escape delle virgolette ("") o di altri caratteri che hanno significati speciali nelle espressioni regolari.
 
-The following alternative technique is even shorter. The find-all function puts all matching strings into a list:
+La seguente tecnica alternativa è ancora più breve. La funzione "find-all" inserisce tutte le stringhe corrispondenti in una lista:
 
-(set 'links (find-all {>(.*lsp)<} page $1)) ; new technique
+(set 'links (find-all {>(.*lsp)<} page $1)) ; nuova tecnica
 
-In an additional expression find-all can be directed to do additional work with the sub expressions found:
+In un'espressione aggiuntiva find-all può essere indirizzato a fare ulteriore lavoro con le sottoespressioni trovate:
 
 (find-all {(new)(lisp)} "newLISPisNEWLISP" (append $2 $1) 1)
 → ("LISPnew" "LISPNEW")
 
-In the last example find-all appends the sub expressions found in reverse order before returning them in the result list.
+Nell'ultimo esempio, "find-all" aggiunge le sottoespressioni trovate in ordine inverso prima di restituirle nella lista dei risultati.
 
-Another technique for tokenizing text uses parse. Whereas with replace and find-all the regular expression defined the token, when using parse, the regex pattern describes the space between the tokens:
+Un'altra tecnica per la tokenizzazione del testo utilizza "parse". Mentre con "replace" e "find-all" l'espressione regolare definisce il token, quando si utilizza "parse", il modello regex descrive lo spazio tra i token:
 
-; tokenize using parse
+; tokenizzare usando parse
 (set 'str "1 2,3,4 5, 6 7  8")
 (parse str {,\ *|\ +,*} 0)
 → ("1" "2" "3" "4" "5" "6" "7" "8")
 
-Without the curly braces in the parse pattern, the backslashes would need to be doubled. Note that there is a space after each backslash.
+Senza le parentesi graffe nel modello di analisi, le barre rovesciate dovrebbero essere raddoppiate. Notare che c'è uno spazio dopo ogni barra rovesciata (backslash).
 
-Appending strings
-=================
-When appending strings append and join can be used to form a new string:
+Aggiunta di stringhe
+====================
+Quando si aggiungono stringhe, è possibile utilizzare "append" e "join" per formare una nuova stringa:
 
 (set 'lstr (map string (rand 1000 100)))
 → ("976" "329" ... "692" "425")
 
-; the wrong slowest way
+; il modo lento e sbagliato
 (set 'bigStr "")
 (dolist (s lstr)
     (set 'bigStr (append bigStr s)))
 
-; smarter way - 50 times faster
-;
+; modo più intelligente: 50 volte più veloce
 (apply append lstr)
 
-Sometimes strings are not readily available in a list like in the above examples. In this case push can be used to push strings on a list while they get produced. The list then can be used as an argument for join, making the fastest method for putting strings together from existing pieces:
+A volte le stringhe non sono prontamente disponibili in una lista come negli esempi precedenti. In questo caso può essere utilizzato "push" per inserire stringhe in una lista mentre vengono prodotte. L'elenco può quindi essere utilizzato come argomento per "join", che è il metodo più veloce per mettere insieme le stringhe da pezzi esistenti:
 
-; smartest way - 300 times faster
-; join an existing list of strings
-;
+; modo più intelligente - 300 volte più veloce
+; unire una lista esistente di stringhe
 (join lstr) → "97632936869242555543 ...."
 
-; join can specify a string between the elements
-; to be joined
+; join può specificare una stringa tra gli elementi
+; che li unisce
 (join lstr "-") → "976-329-368-692-425-555-43 ...."
 
-Growing strings
-===============
-Often it is best to grow a string in place. The function extend can be used to append to a string at the end. The function push can be used to insert new content at any place in the string.
+Stringhe che crescono
+=====================
+Spesso è meglio far crescere (aumentare) una stringa sul posto. La funzione "extend" può essere utilizzata per aggiungere ad una stringa alla fine. La funzione "push" può essere utilizzata per inserire nuovi contenuti in qualsiasi punto della stringa.
 
-; smartest way - much faster on big strings
-; grow a string in place
-
-; using extend
+; modo più intelligente - molto più veloce su grandi stringhe
+; aumenta una stringa sul posto utilizzando extend
 (set 'str "")
 (extend str "AB" "CD")
 str → "ABCD"
 
-; extending in a place
+; ; estendere sul posto
 (set 'L '(a b "CD" (e f)))
 (extend (L 2) "E")
 L → (a b "CDE" (e f))
 
-; using push
+; usare push
 (set 'str "")
 (push "AB" str -1)
 (push "CD" str -1)
 str → "ABCD"
 
-Rearranging strings
-===================
-The function select for selecting elements from lists can also be used to select and re-arrange characters from strings:
+Riorganizzare le stringhe
+=========================
+La funzione "select", utilizzata per selezionare gli elementi dalle liste, funzonaa anche per selezionare e riorganizzare i caratteri delle stringhe:
 
 (set 'str "eilnpsw")
 (select str '(3 0 -1 2 1 -2 -3)) → "newlisp"
 
-; alternative syntax
+; sintassi alternativa
 (select str 3 0 -1 2 1 -2 -3) → "newlisp"
 
-The second syntax is useful when indexes are specified not as constants but occur as variables.
+La seconda sintassi è utile quando gli indici non sono specificati come costanti, ma si presentano come variabili.
 
-Modifying strings
-=================
-newLISP has a variety of functions, which can destructively change a string:
+Modifica delle stringhe 
+=======================
+newLISP ha diverse funzioni che possono modificare in modo distruttivo una stringa:
 
-function	description
-extend	Extend a string with another string.
-push pop	Insert or extract one or more characters at a specific position.
-replace	Replace all occurrences of a string or string pattern with a string.
-setf	Replace a character in a string with one or more characters.
-replace can also be used to remove all occurrences of string or string pattern when specifying an empty string "" as replacement.
+Function  Description
+--------  -----------
+extend    Extend a string with another string.
+push pop  Insert or extract one or more characters at a specific position.
+replace   Replace all occurrences of a string or string pattern with a string.
+setf      Replace a character in a string with one or more characters.
 
-When indexing strings with either nth or implicit indexing, the string is addressed at character rather than byte boundaries to work correctly on UTF-8 enabled versions of newLISP. A UTF-8 character can contain more than one byte.
+Funzione  Descrizione
+--------  -----------
+extend    Estende una stringa con un'altra stringa
+push pop  Inserisce o estrae uno o più caratteri alle posizioni (indici) specificate
+replace   Sostituisce tutte le occorrenze di una stringa o di un modello di stringa con una stringa.
+setf      Sostituisce un carattere in una stringa con uno o più caratteri.
 
-=============================
- 11. DICTIONARIES AND HASHES
-==============================
+"replace" può essere utilizzato anche per rimuovere tutte le occorrenze di stringa o modello di stringa quando si specifica una stringa vuota "" come sostituzione.
 
-Hash-like key → value access
-============================
-newLISP has functions to create and manipulate symbols using the functions sym and a special syntax of the function context. In older versions of newLISP, these functions were used to program hash-like creation and access of key-value pairs. Now a shorter and more convenient method is available, using the un-initialized default functor of a namespace context:
+Quando si indicizzano stringhe con nth o con l'indicizzazione implicita, la stringa viene indicizzata con i limiti dei caratteri anziché con i byte per funzionare correttamente sulle versioni UTF-8 di newLISP. Un carattere UTF-8 può contenere più di un byte.
 
-(define Myhash:Myhash) ; establish the namespace and default functor
 
-As an alternative to the above methods, the predefined namespace and default functor Tree can be used to instantiate a new one:
+======================
+ 11. DIZIONARI E HASH
+======================
+
+Hash-like chiave → valore
+=========================
+newLISP ha funzioni per creare e manipolare simboli usando la funzione "sym" e una sintassi speciale del funtore di contesto. Nelle versioni precedenti di newLISP, queste funzioni venivano utilizzate per programmare la creazione di tipo hash e l'accesso a coppie chiave-valore. Ora è disponibile un metodo più breve e più conveniente, utilizzando il funtore di default non inizializzato di un contesto di spazio dei nomi (context):
+
+(define Myhash:Myhash) ; definisce lo spazio dei nomi (contesto) e il funtore di default
+
+In alternativa ai metodi precedenti, possiamo usare la funzione "Tree" per instanziare un nuovo contesto e il relativo funtore di default:
 
 (new Tree 'Myhash)
 
-Both methods produce the same result, but the second method also protects the default functor Myhash:Myhash from change.
+Entrambi i metodi producono lo stesso risultato, ma il secondo metodo protegge anche il funtore di default Myhash: Myhash dalle modifiche.
 
-A default functor is the symbol with the same name as the namespace (context) it belongs to. If this default functor symbol does not contain anything except nil, it works like a hash function:
+(Myhash "var" 123) ; crea e imposta una coppia chiave/valore
 
-(Myhash "var" 123) ; create and set variable/value pair
-
-(Myhash "var") → 123 ; retrieve value
+(Myhash "var") → 123 ; recupera il valore
 
 (Myhash "foo" "hello")
 
@@ -1569,19 +1983,19 @@ A default functor is the symbol with the same name as the namespace (context) it
 
 (Myhash "!*@$" '(a b c))
 
-; numbers can be used too and will be converted to strings internally
+; anche i numeri possono essere utilizzati e saranno convertiti internamente in stringhe
 
 (Myhash 555 42)
 
 (Myhash 555) → 42
 
-Setting a hash symbol to nil will effectively erase it:
+Impostare un simbolo di un hash a nil lo elimina effettivamente:
 
 (Myhash "bar" nil)
 
-The key can be any string; newLISP prevents symbol clashes with built-in newLISP symbols by prepending an underscore character (_) to all key strings internally. The value can be any string, number or any other newLISP s-expression.
+La chiave può essere qualsiasi stringa. newLISP impedisce conflitti con i simboli newLISP integrati (built-in) anteponendo internamente un carattere di sottolineatura (_) a tutte stringhe chiave. Il valore può essere qualsiasi stringa, numero o una s-epressione di newLISP.
 
-The Myhash namespace can be transformed in an association list:
+Lo spazio dei nomi Myhash può essere trasformato in una lista di associazioni:
 
 (Myhash) → (("!*@$" (a b c)) ("foo" "hello") ("var" 123))
 
@@ -1608,6 +2022,7 @@ The whole namespace is saved to the file Myhash.lsp and can be reloaded into new
 (load "Myhash")
 
 Note that hashes create contexts similar to the bayes-train function. All string keys are prepended with an underscore and then transformed into a symbol. This means that namespaces created using bayes-train can be used like hashes to retrieve words and their statistics. See the bayes-train function in the manual for more detail.
+
 
 ==========================
  12. TCP/IP client server
@@ -1672,6 +2087,7 @@ and the client again tries to connect to the sender:
   .... process message-from-server ...
 
 There are many different ways to set up a client/server connection, see also the examples in the newLISP manual.
+
 
 ========================
  13. UDP communications
@@ -1738,6 +2154,7 @@ In this scheme the server subscribes to one of a range of multi cast addresses u
 (net-send-to "226.0.0.1" 4096 "hello" 3)
 The connection in the example is blocking on net-receive but could be de-blocked using net-select or net-peek
 
+
 =================================
  14. NON-BLOCKING COMMUNICATIONS
 =================================
@@ -1762,6 +2179,7 @@ net-peek returns the number of characters pending to read.
 (while ( = (net-peek aSock) 0)
     (do-something-while-waiting ...))
 (net-receive...)
+
 
 ====================================
  15. CONTROLLING OTHER APPLICATIONS
@@ -1847,12 +2265,12 @@ Make a FIFO first (looks like a special file node):
 
 ; Define communication function
 (define (gtk str)
-	(set 'handle (open "myfifo" "write"))
-	(write handle str)
-	(close handle)
-	(set 'handle (open "myfifo" "read"))
-	(read handle tmp 20)
-	(close handle)
+  (set 'handle (open "myfifo" "write"))
+  (write handle str)
+  (close handle)
+  (set 'handle (open "myfifo" "read"))
+  (read handle tmp 20)
+  (close handle)
 tmp)
 
 Communicate via UDP
@@ -1867,14 +2285,15 @@ tmp)
 
 ; Start the gtk-server
 (define (start)
-	(process "gtk-server udp localhost:50000")
-	(sleep 500)
-	(set 'socket (net-listen 50001 "localhost" "udp")) )
+  (process "gtk-server udp localhost:50000")
+  (sleep 500)
+  (set 'socket (net-listen 50001 "localhost" "udp")) )
 
 (set 'result (gtk "gtk_init NULL NULL"))
 
 (set 'result (gtk "gtk_window_new 0"))
 .....
+
 
 =============================
  16. LAUNCHING APPS BLOCKING
@@ -1902,6 +2321,7 @@ Feeding std-in
 (exec "script.cgi" cgi-input)
 
 In this example cgi-input could contain a string feeding a query input, normally coming from a web server. Note that output in this case is written directly to the screen, and cannot be returned to newLISP. Use process and pipe for two way std i/o communications with other applications.
+
 
 ===============================
  17. SEMAPHORES, SHARED MEMORY
@@ -1957,6 +2377,7 @@ Although controlling processes with semaphores and shared memory is fast, it is 
 (run 10)
 
 (exit)
+
 
 ==============================
  18. MULTIPROCESSING AND CILK
@@ -2025,6 +2446,7 @@ When processes launched with spawn finish, an inlet function specified in the sy
 
 ; call the report function, when a child returns
 (sync 10000 report)
+
 
 ======================
  19. MESSAGE EXCHANGE
@@ -2175,6 +2597,7 @@ The expression (set 'finished true) is sent to the parent where it gets evaluate
 
 The sleep statement in the A process ensures that the "parent exiting ..." message does not appear before all received messages are reported by process identified with B.
 
+
 =================================
  20. DATABASES AND LOOKUP TABLES
 =================================
@@ -2276,6 +2699,7 @@ setf and lookup are used to update nested FOOP objects:
 (setf (lookup 'City (Person "John Doe")) (lower-case $it))
 
 (Person "John Doe") → (Address (City "small town") (Telephone 1234567))
+
 
 ===========================
  21. DISTRIBUTED COMPUTING
@@ -2473,7 +2897,7 @@ In a networked environment where an application gets moved around, or server nod
     (begin
         (map set '(from to node) '(%d %d %d))
         (for (x from to)
-		(if (= 1 (length (factor x)))
+    (if (= 1 (length (factor x)))
         (push x primes -1)))
     primes)
 [/text])
@@ -2572,6 +2996,7 @@ newLISP supports named local domain sockets in newLISP server mode and using the
 
 Using local domain sockets fast communications between processes on the same file system and with newLISP servers is possible. See the Users Manual for more details.
 
+
 ================================
  22. HTTPD WEB SERVER ONLY MODE
 ================================
@@ -2645,22 +3070,23 @@ Media types in HTTP modes
 =========================
 In both the -c and -http HTTP modes the following file types are recognized and a correctly formatted Content-Type: header is sent back:
 
-file extension	media type
-.avi	video/x-msvideo
-.css	text/css
-.gif	image/gif
-.htm	text/htm
-.html	text/html
-.jpg	image/jpg
-.js	application/javascript
-.mov	video/quicktime
-.mp3	audio/mpeg
-.mpg	video/mpeg
-.pdf	application/pdf
-.png	image/png
-.wav	audio/x-wav
-.zip	application/zip
-any other	text/plain
+file extension  media type
+.avi  video/x-msvideo
+.css  text/css
+.gif  image/gif
+.htm  text/htm
+.html text/html
+.jpg  image/jpg
+.js application/javascript
+.mov  video/quicktime
+.mp3  audio/mpeg
+.mpg  video/mpeg
+.pdf  application/pdf
+.png  image/png
+.wav  audio/x-wav
+.zip  application/zip
+any other text/plain
+
 
 =======================
  23. EXTENDING NEWLISP
@@ -2881,15 +3307,15 @@ foo <281A1588>
 
 Passing parameters
 ==================
-data Type	newLISP call	C function call
-integer	(foo 123)	foo(int number)
-double float	(foo 1.234)	foo(double number)
-float	(foo (flt 1.234))	foo(float number)
-string	(foo "Hello World!")	foo(char * string)
-integer array	(foo (pack "d d d" 123 456 789))	foo(int numbers[])
-float array	(foo (pack "f f f" 1.23 4.56 7.89))	foo(float[])
-double array	(foo (pack "lf lf lf" 1.23 4.56 7.89)	foo(double[])
-string array	(foo (pack "lu lu lu" "one" "two" "three")))	foo(char * string[])
+data Type newLISP call  C function call
+integer (foo 123) foo(int number)
+double float  (foo 1.234) foo(double number)
+float (foo (flt 1.234)) foo(float number)
+string  (foo "Hello World!")  foo(char * string)
+integer array (foo (pack "d d d" 123 456 789))  foo(int numbers[])
+float array (foo (pack "f f f" 1.23 4.56 7.89)) foo(float[])
+double array  (foo (pack "lf lf lf" 1.23 4.56 7.89) foo(double[])
+string array  (foo (pack "lu lu lu" "one" "two" "three")))  foo(char * string[])
 
 Note that floats and double floats are only passed correctly on x86 platforms with cdecl calling conventions or when passed by pointer reference as in variable argument functions, i.e: printf(). For reliable handling of single and double precision floating point types and for advanced usage of pack and unpack for handling C-structures, see the descriptions of the import, callback and struct functions in the newLISP User Manual and Reference.
 
@@ -2899,16 +3325,16 @@ pack can receive multiple arguments after the format specifier in a list too:
 
 Extracting return values
 ========================
-data Type	newLISP to extract return value	C return
-integer	(set 'number (foo x y z))	return(int number)
-double float	n/a - only 32bit returns, use double float pointer instead	not available
-double float ptr	(set 'number (get-float (foo x y z)))	return(double * numPtr)
-float	not available	not available
-string	(set 'string (get-string (foo x y z)	return(char * string)
-integer array	(set 'numList (unpack "ld ld ld" (foo x y z)))	return(int numList[])
-float array	(set 'numList (unpack "f f f" (foo x y z)))	return(float numList[])
-double array	(set 'numList (unpack "lf lf lf" (foo x y z)))	return(double numList[])
-string array	(set 'stringList (map get-string (unpack "ld ld ld" (foo x y z))))	return(char * string[])
+data Type newLISP to extract return value C return
+integer (set 'number (foo x y z)) return(int number)
+double float  n/a - only 32bit returns, use double float pointer instead  not available
+double float ptr  (set 'number (get-float (foo x y z))) return(double * numPtr)
+float not available not available
+string  (set 'string (get-string (foo x y z)  return(char * string)
+integer array (set 'numList (unpack "ld ld ld" (foo x y z)))  return(int numList[])
+float array (set 'numList (unpack "f f f" (foo x y z))) return(float numList[])
+double array  (set 'numList (unpack "lf lf lf" (foo x y z)))  return(double numList[])
+string array  (set 'stringList (map get-string (unpack "ld ld ld" (foo x y z))))  return(char * string[])
 
 Floats and doubles can only be returned via address pointer references.
 

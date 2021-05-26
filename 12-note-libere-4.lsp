@@ -6643,6 +6643,20 @@ Definire una funzione che prende una lista e associa tutti gli elementi ogni k i
 (glue-k lst 3)
 ;-> ((1 2 3) (1 2 3) (1 2 3))
 
+(setq lst (sequence 1 8))
+(glue-k lst 7)
+;-> ((1 8) (2 nil) (3 nil) (4 nil) (5 nil) (6 nil) (7 nil))
+(glue-k lst 7 true)
+;-> ((1) (2) (3) (4) (5) (6) (7))
+(glue-k lst 8)
+;-> ((1) (2) (3) (4) (5) (6) (7) (8))
+(glue-k lst 8 true)
+;-> ((1) (2) (3) (4) (5) (6) (7) (8))
+(glue-k lst 9)
+;-> ((1) (2) (3) (4) (5) (6) (7) (8))
+(glue-k lst 9 true)
+;-> ERR: matrix expected : ()
+
 (setq lst '(a b c d e f g h))
 (glue-k lst (/ (length lst) 2))
 ;-> ((a e) (b f) (c g) (d h))
@@ -6651,6 +6665,53 @@ Definire una funzione che prende una lista e associa tutti gli elementi ogni k i
 ;-> ((a e i) (b f nil) (c g nil) (d h nil))
 (glue-k lst (/ (length lst) 2) true)
 ;-> ((a e) (b f) (c g) (d h))
+
+
+-------------------------------
+Somma delle potenze delle cifre
+-------------------------------
+
+Data un numero intero n con cifre decimali abc...d scrivere una funzione che calcola:
+
+  a(n) = a^a + b^b +...+ d^d
+
+Sequenza OEIS A045503: If decimal expansion of n is ab...d, a(n) = a^a + b^b +...+ d^d.
+
+(define (A045503 num)
+  (if (zero? num) 1
+    (let ((out 0) (power '(1 1 4 27 256 3125 46656 823543 16777216 387420489)))
+      (while (!= num 0)
+        (setq out (+ out (power (% num 10))))
+        (setq num (/ num 10))) 
+      out)))
+
+(map A045503 (sequence 0 20))
+;-> (1 1 4 27 256 3125 46656 823543 16777216 387420489 2 2 
+;->  5 28 257 3126 46657 823544 16777217 387420490 5)
+
+Invece di sommare ogni volta, alterniamo l'addizone e la sottrazione:
+
+Sequenza OEIS A344658: If decimal expansion of n is abc...d, a(n) = a^a - b^b + c^c -...-+ d^d.
+
+  a(n) = a^a - b^b +...-+ d^d
+
+(define (A344658 n)
+  (if (zero? n) 1
+    (local (sign out power)
+      (setq power '(1 1 4 27 256 3125 46656 823543 16777216 387420489))
+      (setq out 0)
+      (if (odd? (length n))
+          (setq sign 1)
+          (setq sign -1))
+      (while (!= n 0)
+        (setq out (+ out (* sign (power (% n 10)))))
+        (setq sign (* sign -1))
+        (setq n (/ n 10)))
+      out)))
+
+(map A344658 (sequence 0 20))
+;-> (1 1 4 27 256 3125 46656 823543 16777216 387420489 0 0
+;->  -3 -26 -255 -3124 -46655 -823542 -16777215 -387420488 3)
 
 =============================================================================
 

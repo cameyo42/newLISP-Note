@@ -834,6 +834,7 @@ NOTE LIBERE 4
   Numeri super-d
   Algoritmo di Bresenham
   Associare gli elementi di una lista ogni k
+  Somma delle potenze delle cifre
 
 APPENDICI
 =========
