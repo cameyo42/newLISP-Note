@@ -186,6 +186,7 @@ FUNZIONI VARIE
   Poligoni convessi
   Variazione percentuale
   Grafico di coppie di coordinate
+  Sottosequenza crescente più lunga
 
 newLISP 99 PROBLEMI (28)
 ========================
@@ -835,6 +836,8 @@ NOTE LIBERE 4
   Algoritmo di Bresenham
   Associare gli elementi di una lista ogni k
   Somma delle potenze delle cifre
+  Bruchi saltellanti
+  Buste matrioska
 
 APPENDICI
 =========

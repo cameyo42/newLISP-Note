@@ -231,12 +231,12 @@ newLISP is a registered trademark of Lutz Mueller.
 
 04. Variabili locali
 -------------------
-    Persone del posto in funzioni di loop
-    Locals in let, letn, local and letex
+    Locali nelle funzioni di loop
+    Locali in let, letn, local e letex
     Parametri inutilizzati come locali
-    Valori delle variabili predefiniti
+    Valori predefiniti delle variabili
     arg come sostituto locale
-    args e local usati insieme per le variabili denominate
+    args e local usati insieme per le variabili con nome
 
 05. Esplorazione di liste e dati
 --------------------------------
@@ -257,7 +257,7 @@ newLISP is a registered trademark of Lutz Mueller.
     Replace in liste semplici
     Replace in liste annidate
     Passaggio di liste per riferimento
-    Espansione variabile
+    Espansione variabili
     Destrutturazione di liste annidate
 
 07. Flusso del programma
@@ -265,10 +265,10 @@ newLISP is a registered trademark of Lutz Mueller.
     Cicli (Loop)
     Blocchi
     Ramificazione
-    Flusso sfocato
-    Fluisci con cattura e lancio
-    Lascia i loop con una condizione di interruzione
-    Modificare il flusso con e o o
+    Flusso fuzzy
+    Flusso con catch e throw
+    Uscire dai loop con una condizione di interruzione
+    Modificare il flusso con and o or
 
 08. Gestione degli errori
 ------------------
@@ -291,24 +291,24 @@ newLISP is a registered trademark of Lutz Mueller.
     Espressioni regolari
     Scansione del testo
     Aggiunta di stringhe
-    Stringhe crescenti a posto
-    Riorganizzare le corde
-    Modifica delle stringhe
+    Stringhe crescenti sul posto
+    Riorganizzare le strignhe
+    Modificare delle stringhe
 
 11. Dizionari e hash
 ---------------------------
-    Chiave tipo hash → accesso al valore
+    hash come chiave → accesso al valore
     Salvataggio e caricamento di dizionari
 
 12. Server client TCP / IP
 ------------------------
     Connessione aperta
-    Transazione chiusa
+    Connessione chiusa
 
 13. Comunicazioni UDP
 ----------------------
     Connessione aperta
-    Transazione chiusa
+    Connessione chiusa
     Comunicazioni multi-cast
 
 14. Comunicazioni non bloccanti
@@ -320,23 +320,23 @@ newLISP is a registered trademark of Lutz Mueller.
 ----------------------------------
     Utilizzando exec
     Pipe I/O STD
-    Comunica tramite TCP/IP
+    Comunicare tramite TCP/IP
     Comunicare tramite FIFO denominato
-    Comunica tramite UDP
+    Comunicare tramite UDP
 
 16. Avvio del blocco delle app
 ---------------------------
     Esecuzione della shell
     Catturare lo std-out
-    Alimentazione standard
+    Alimentare std-in
 
-17. Semafori, memoria condivisa
------------------------------
+17. Semafori, shared memory
+---------------------------
 
 18. Multiprocessing e Cilk
 ----------------------------
     Avvio di processi simultanei
-    Guardando i progressi
+    Monitorare i progressi
     Invocare spawn in modo ricorsivo
     Notifica guidata dagli eventi
 
@@ -347,17 +347,17 @@ newLISP is a registered trademark of Lutz Mueller.
     Scambio di messaggi non bloccante
     Timeout dei messaggi
     Valutazione dei messaggi
-    Agire come procuratore
+    Agire come un proxy
 
-20. Database e tabelle di ricerca
--------------------------------
+20. Database e tabelle di lookup
+--------------------------------
     Liste di associazioni
     Associazioni annidate
     Aggiornamento delle associazioni annidate
     Combinazione di associazioni e hash
 
 21. Calcolo distribuito
--------------------------
+-----------------------
     Configurazione in modalità server
     Avvia un server con stato completo
     Server senza stato con inetd
@@ -372,13 +372,13 @@ newLISP is a registered trademark of Lutz Mueller.
     Socket Unix di dominio locale
 
 22. Modalità solo server Web HTTPD
-------------------------------
+----------------------------------
     Variabili ambientali
     Pre-elaborazione della richiesta
     Elaborazione CGI in modalità HTTP
     Tipi di supporto in modalità HTTP
 
-23. Estensione di newLISP
+23. Estendere newLISP
 ---------------------
     Interfaccia FFI semplice rispetto a quella estesa
     Una libreria condivisa in C
@@ -445,7 +445,6 @@ Notare che pochi programmi in newLISP necessitano di uno stack più grande di qu
 
 Script come pipe
 ================
-The following example shows how a file can be piped into a newLISP script.
 L'esempio seguente mostra come un file può essere reindirizzato (pipe) in uno script newLISP.
 
 #!/usr/bin/newlisp
@@ -1765,7 +1764,7 @@ L'esempio utilizza un funtore predefinito - il nome della funzione è uguale al 
 
 Funzioni che utilizzano codice auto-modificante
 ===============================================
-In newLISp la natura di prima classe delle espressioni lambda rende possibile scrivere codice auto-modificante:
+In newLISP la natura di prima classe delle espressioni lambda rende possibile scrivere codice auto-modificante:
 
 ; accumulatore sum
 (define (sum (x 0)) (inc 0 x))
@@ -1860,14 +1859,14 @@ La seguente tecnica alternativa è ancora più breve. La funzione "find-all" ins
 
 (set 'links (find-all {>(.*lsp)<} page $1)) ; nuova tecnica
 
-In un'espressione aggiuntiva find-all può essere indirizzato a fare ulteriore lavoro con le sottoespressioni trovate:
+In un'espressione aggiuntiva "find-all" può essere indirizzato a fare ulteriore lavoro con le sottoespressioni trovate:
 
 (find-all {(new)(lisp)} "newLISPisNEWLISP" (append $2 $1) 1)
 → ("LISPnew" "LISPNEW")
 
 Nell'ultimo esempio, "find-all" aggiunge le sottoespressioni trovate in ordine inverso prima di restituirle nella lista dei risultati.
 
-Un'altra tecnica per la tokenizzazione del testo utilizza "parse". Mentre con "replace" e "find-all" l'espressione regolare definisce il token, quando si utilizza "parse", il modello regex descrive lo spazio tra i token:
+Un'altra tecnica per la tokenizzazione del testo utilizza "parse". Mentre con "replace" e "find-all" l'espressione regolare definisce il token, quando si utilizza "parse", il modello di regex descrive lo spazio tra i token:
 
 ; tokenizzare usando parse
 (set 'str "1 2,3,4 5, 6 7  8")
@@ -1934,7 +1933,7 @@ La funzione "select", utilizzata per selezionare gli elementi dalle liste, funzo
 
 La seconda sintassi è utile quando gli indici non sono specificati come costanti, ma si presentano come variabili.
 
-Modifica delle stringhe 
+Modifica delle stringhe
 =======================
 newLISP ha diverse funzioni che possono modificare in modo distruttivo una stringa:
 
@@ -1999,11 +1998,11 @@ Lo spazio dei nomi Myhash può essere trasformato in una lista di associazioni:
 
 (Myhash) → (("!*@$" (a b c)) ("foo" "hello") ("var" 123))
 
-Or the raw contents of Myhash can be shown using the symbols function:
+Oppure i contenuti grezzi di Myhash possono essere visualizzati utilizzando la funzione "symbols":
 
 (symbols Myhash) → (Myhash:Myhash Myhash:_!*@$ Myhash:_foo Myhash:_var)
 
-Dictionaries can be built by converting an existing association list:
+I dizionari possono essere creati convertendo una lista di associazioni esistente:
 
 (set 'aList '(("one" 1) ("two" 2) ("three")))
 
@@ -2011,26 +2010,26 @@ Dictionaries can be built by converting an existing association list:
 
 (Myhash) → (("!*@$" (a b c)) ("foo" "hello") ("one" 1) ("three" nil) ("two" 2) ("var" 123))
 
-Saving and loading dictionaries
-===============================
-The dictionary can be easily saved to a file by serializing the namespace Myhash:
+Salvataggio e caricamento di dizionari
+======================================
+Il dizionario può essere facilmente salvato in un file serializzando lo spazio dei nomi Myhash:
 
 (save "Myhash.lsp" 'Myhash)
 
-The whole namespace is saved to the file Myhash.lsp and can be reloaded into newLISP at a later time:
+L'intero spazio dei nomi viene salvato nel file Myhash.lsp e può essere ricaricato in newLISP in un secondo momento:
 
 (load "Myhash")
 
-Note that hashes create contexts similar to the bayes-train function. All string keys are prepended with an underscore and then transformed into a symbol. This means that namespaces created using bayes-train can be used like hashes to retrieve words and their statistics. See the bayes-train function in the manual for more detail.
+Nota che gli hash creano contesti simili alla funzione "bayes-train". Tutte le chiavi delle stringhe sono precedute da un trattino basso "_" (underscore) e quindi trasformate in un simbolo. Ciò significa che gli spazi dei nomi creati utilizzando "bayes-train" possono essere utilizzati come hash per recuperare le parole e le loro statistiche. Vedere la funzione "bayes-train" nel manuale per maggiori dettagli.
 
 
 ==========================
  12. TCP/IP client server
 ==========================
 
-Open connection
-===============
-In this pattern the server keeps the connection open until the client closes the connection, then the server loops into a new net-accept:
+Connessione aperta
+==================
+In questo modello il server mantiene la connessione aperta fino a quando il client non chiude la connessione, quindi il server esegue il loop in una nuova "net-accept":
 
 ; sender listens
 (constant 'max-bytes 1024)
@@ -2044,7 +2043,8 @@ In this pattern the server keeps the connection open until the client closes the
          .... configure message to client ...
          (net-send connection message-to-client))
 )
-and the client:
+
+e il client:
 
 ; client connects to sender
 (if (not (set 'connection (net-connect "host.com" 123)))
@@ -2059,9 +2059,9 @@ and the client:
      .... process message-from-server ...
 )
 
-Closed transaction
-==================
-In this pattern the server closes the connection after each transaction exchange of messages.
+Connesione chiusa
+=================
+In questo modello il server chiude la connessione dopo ogni scambio di messaggi di transazione:
 
 ; sender
 (while (not (net-error))
@@ -2073,7 +2073,7 @@ In this pattern the server closes the connection after each transaction exchange
     (close connection)
 )
 
-and the client again tries to connect to the sender:
+e il client prova di nuovo a connettersi al sender:
 
 ; client
 (unless (set 'connection (net-connect "host.com" 123))
@@ -2086,22 +2086,22 @@ and the client again tries to connect to the sender:
 (net-receive connection message-from-server max-bytes)
   .... process message-from-server ...
 
-There are many different ways to set up a client/server connection, see also the examples in the newLISP manual.
+Esistono molti modi diversi per impostare una connessione client/server, vedere anche gli esempi nel manuale newLISP.
 
 
-========================
- 13. UDP communications
-========================
+=======================
+ 13. Comunicazioni UDP
+=======================
 
-They are fast and need less setup than TCP/IP and offer multi casting. UDP is also less reliable because the protocol does less checking, i.e. of correct packet sequence or if all packets are received. This is normally no problem when not working on the Internet but in a well controlled local network or when doing machine control. A simple more specific protocol could be made part of the message.
+Sono veloci e richiedono una configurazione inferiore rispetto a TCP/IP e offrono il multi casting. UDP è anche meno affidabile perché il protocollo esegue meno controlli, per esempio sulla corretta sequenza dei pacchetti o se vengono ricevuti tutti i pacchetti. Normalmente questo non è un problema quando non si lavora su Internet ma in una rete locale ben controllata o quando si esegue controlla una macchina. Un protocollo più semplice e specifico potrebbe essere incluso nel messaggio.
 
-Open connection
-===============
-In this example the server keeps the connection open. UDP communications with net-listen, net-receive-from and net-send-to can block on receiving.
+Connessione aperta
+==================
+In questo esempio il server mantiene la connessione aperta. Le comunicazioni UDP con "net-listen", "net-receive-from" e "net-send-to" possono bloccarsi in ricezione.
 
-Note that both, the client and server use net-listen with the "udp" option. In this case net-listen is used only for binding the socket to the address, it is not used for listening for a connection. The server could receive messages from several clients. The net-send-to function extracts the target address from the message received.
+Notare che sia il client che il server utilizzano "net-listen" con l'opzione "udp". In questo caso "net-listen" utilizzato solo per associare il socket all'indirizzo, non viene utilizzato per l'ascolto di una connessione. Il server potrebbe ricevere messaggi da diversi client. La funzione "net-send-to" estrae l'indirizzo di destinazione dal messaggio ricevuto.
 
-The sender:
+Il sender:
 
 ; sender
 (set 'socket (net-listen 10001 "localhost" "udp"))
@@ -2114,7 +2114,7 @@ The sender:
                  (nth 2 msg) (upper-case (first msg)) socket))
 (exit)
 
-and the client:
+e il client:
 
 (set 'socket (net-listen 10002 "" "udp"))
 (if (not socket) (println (net-error)))
@@ -2125,9 +2125,9 @@ and the client:
     (println "=> " buff))
 (exit)
 
-Closed transaction
+Connessione chiusa
 ==================
-This form is sometimes used for controlling hardware or equipment. No setup is required, just one function for sending, another one for receiving.
+Questo modulo viene talvolta utilizzato per controllare hardware o apparecchiature. Non è richiesta alcuna configurazione, solo una funzione per l'invio, un'altra per la ricezione.
 
 ; wait for data gram with maximum 20 bytes
 (net-receive-udp 1001 20)
@@ -2136,11 +2136,11 @@ This form is sometimes used for controlling hardware or equipment. No setup is r
 ; the sender
 (net-send-udp "host.com" 1001 "Hello")
 
-Win32 and Unix's show different behavior when sending less or more bytes than specified on the receiving end.
+Win32 e Unix mostrano un comportamento diverso quando inviano più o meno byte di quelli specificati all'estremità ricevente.
 
-Multi-cast communications
+Comunicazioni multi-cast
 =========================
-In this scheme the server subscribes to one of a range of multi cast addresses using the net-listen function.
+In questo schema il server si abbona a uno di una gamma di indirizzi multi cast utilizzando la funzione "net-listen".
 
 ; example server
 (net-listen 4096 "226.0.0.1" "multi") → 5
@@ -2156,13 +2156,12 @@ The connection in the example is blocking on net-receive but could be de-blocked
 
 
 =================================
- 14. NON-BLOCKING COMMUNICATIONS
+ 14. COMUNICAZIONI NON BLOCCANTI
 =================================
 
-Using net-select
-================
-
-In all previous patterns the client blocks when in receive. The net-select call can be used to unblock communications:
+Utilizzando net-select
+======================
+In tutti i modelli precedenti il client si blocca quando è in ricezione. La chiamata "net-select" può essere utilizzata per sbloccare le comunicazioni:
 
 ; optionally poll for arriving data with 100ms timeout
 (while (not (net-select connection "r" 100000))
@@ -2170,24 +2169,25 @@ In all previous patterns the client blocks when in receive. The net-select call 
 
 (net-receive...)
 
-connection can be a single number for a connection socket or a list of numbers to wait on various sockets.
+connessione può essere un singolo numero per un socket di connessione o una lista di numeri da attendere su vari sockets.
 
-Using net-peek
-==============
-net-peek returns the number of characters pending to read.
+Utilizzando net-peek
+====================
+"net-peek" restituisce il numero di caratteri in attesa da leggere.
 
 (while ( = (net-peek aSock) 0)
     (do-something-while-waiting ...))
+
 (net-receive...)
 
 
 ====================================
- 15. CONTROLLING OTHER APPLICATIONS
+ 15. CONTROLLARE ALTRE APPLICAZIONI
 ====================================
 
-Using exec
-==========
-This method is only suited for short exchanges, executing one command and receiving the output.
+Utilizzando exec
+================
+Questo metodo è adatto solo per scambi brevi, l'esecuzione di un comando e la ricezione dell'output.
 
 > (exec "ls *.c")
 ("newlisp.c" "nl-debug.c" "nl-filesys.c" "nl-import.c" "nl-list.c" "nl-liststr.c"
@@ -2195,22 +2195,24 @@ This method is only suited for short exchanges, executing one command and receiv
  "nl-xml-json.c" "pcre-chartables.c" "pcre.c" "unix-lib.c" "win-dll.c" "win-path.c"
  "win-util.c")
 >
-The exec function opens a process pipe for the Unix command-line utility ls and collects each line of STDOUT into a list of strings.
 
-Most following examples use process to launch an application. This function returns immediately after launching the other application and does not block.
+La funzione exec apre una processo pipe per l'utilità della riga di comando Unix ls e raccoglie ogni riga di STDOUT in una lista di stringhe.
 
-In all of the following patterns the server is not independent but controlled by the client, which launches the server and then communicates via a line oriented protocol:
+La maggior parte degli esempi seguenti utilizza "process" per avviare un'applicazione. Questa funzione ritorna immediatamente dopo aver avviato l'altra applicazione e non è bloccante.
 
-     → launch server
-     → talk to server
-     ← wait for response from server
-     → talk to server
-     ← wait for response from server
-          ...
-Sometimes a sleep time is necessary on the client side to wait for the server to be ready loading. Except for the first example, most of these are condensed snippets from GTK-Server from [http://www.gtk-server.org www.gtk-server.org]. The basic program logic will be the same for any other application.
+In tutti i seguenti modelli il server non è indipendente, ma controllato dal client, che avvia il server e quindi comunica tramite un protocollo orientato alla linea:
 
-STD I/O pipes
-The process function allows specifying 2 pipes for communications with the launched application.
+      → avvia server
+      → parla al server
+      ← attende risposta dal server
+      → parla al server
+      ← attende la risposta dal server
+           ...
+A volte è necessario un tempo di sospensione sul lato client per attendere che il server sia pronto per il caricamento. Ad eccezione del primo esempio, la maggior parte di questi sono frammenti condensati del codice di GTK-Server da [http://www.gtk-server.org www.gtk-server.org]. La logica di base del programma sarà la stessa per qualsiasi altra applicazione.
+
+STD I/O pipe
+============
+La funzione "process" consente di specificare 2 pipe per comunicare con l'applicazione avviata.
 
 ; setup communications
 (map set '(myin tcout) (pipe))
@@ -2230,12 +2232,12 @@ bind . <Destroy> {puts {(exit)}}
     (eval-string (current-line))
 )
 
-This is the preferred way to set up longer lasting, bidirectional communications with Unix command line utilities and languages. For one-command exchanges the exec function does the job shorter.
+Questo è il modo migliore per impostare comunicazioni bidirezionali durature con le utilità della riga di comando Unix e i linguaggi. Per gli scambi con un solo comando, la funzione "exec" fa il lavoro più brevemente.
 
-For a more elaborate Tcl/Tk example see the application examples/tcltk.lsp in the source distribution.
+Per un esempio Tcl/Tk più elaborato, vedere l'applicazione examples/tcltk.lsp nella distribuzione dei sorgenti.
 
-Communicate via TCP/IP
-======================
+Comunicazione via TCP/IP
+========================
 ; Define communication function
 (define (gtk str , tmp)
     (net-send connection str)
@@ -2252,13 +2254,13 @@ Communicate via TCP/IP
 (set 'result (gtk "gtk_window_new 0"))
                .....
 
-Communicate via named FIFO
-==========================
-Make a FIFO first (looks like a special file node):
+Comunicazione via FIFO con nome
+===============================
+Creare prima un FIFO (assomiglia a un file nodo speciale):
 
 (exec "mkfifo myfifo")
 
-; or alternatively
+oppure in modo alternativo:
 
 (import "/lib/libc.so.6" "mkfifo")
 (mkfifo "/tmp/myfifo" 0777)
@@ -2273,9 +2275,9 @@ Make a FIFO first (looks like a special file node):
   (close handle)
 tmp)
 
-Communicate via UDP
-===================
-Note that the listen function with "udp" option just binds the sockets to a address/hardware but not actually listens as in TCP/IP.
+Comunicazione via UDP
+=====================
+Notare che la funzione di ascolto con l'opzione "udp" associa semplicemente i socket a un indirizzo/hardware, ma non ascolta effettivamente come in TCP / IP.
 
 ; Define communication function
 (define (gtk str , tmp)
@@ -2295,48 +2297,48 @@ tmp)
 .....
 
 
-=============================
- 16. LAUNCHING APPS BLOCKING
-=============================
+=====================================
+ 16. ESEGUIRE APPLICAZIONI BLOCCANTI
+=====================================
 
-Shell execution
-===============
-
-This is frequently used from newLISP's interactive command line to execute processes in a blocking fashion, which need a shell to run:
+Esecuzione shell
+================
+Questo è spesso usato dalla riga di comando interattiva di newLISP per eseguire processi in modo bloccante, che richiedono una shell per essere eseguiti:
 
 (! "ls -ltr")
 
-There is an interesting variant of this form working not inside a newLISP expression, but only on the command line:
+Esiste una variante interessante di questa forma che non funziona all'interno di un'espressione newLISP, ma solo sulla riga di comando:
 
 !ls -ltr
 
-The ! should be the first character on the command line. This form works like a shell escape in the VI editor. It is useful for invoking an editor or doing quick shell work without completely leaving the newLISP console.
+Il ! dovrebbe essere il primo carattere sulla riga di comando. Questo forma agisce come la shell di escape nell'editor VI. È utile per richiamare un editor o eseguire operazioni veloci sulla shell senza lasciare completamente la console di newLISP.
 
-Capturing std-out
+Catturare std-out
 =================
 (exec "ls /") → ("bin" "etc" "home" "lib")
 
-Feeding std-in
-==============
+Alimentare std-in
+=================
 (exec "script.cgi" cgi-input)
 
-In this example cgi-input could contain a string feeding a query input, normally coming from a web server. Note that output in this case is written directly to the screen, and cannot be returned to newLISP. Use process and pipe for two way std i/o communications with other applications.
+In questo esempio cgi-input potrebbe contenere una stringa che alimenta un input di query, normalmente proveniente da un server web. Notare che l'output in questo caso viene scritto direttamente sullo schermo e non può essere restituito a newLISP. Utilizzare "process" e "pipe" per comunicazioni i/o standard bidirezionali con altre applicazioni.
 
 
-===============================
- 17. SEMAPHORES, SHARED MEMORY
-===============================
+=================================
+ 17. SEMAFORI, MEMORIA CONDIVISA
+=================================
 
-Shared memory, semaphores and processes work frequently together. Semaphores can synchronize tasks in different process threads and shared memory can be used to communicate between them.
+Memoria condivisa (shared memory), semafori e processi lavorano frequentemente insieme. I semafori possono sincronizzare le attività in diversi thread di processo e la memoria condivisa può essere utilizzata per comunicare tra di loro.
 
-The following is a more complex example showing the working of all three mechanisms at the same time.
+Quello che segue è un esempio più complesso che mostra il funzionamento di tutti e tre i meccanismi contemporaneamente.
 
-The producer loops through all n values from i = 0 to n - 1 and puts each value into shared memory where it is picked up by the consumer thread. Semaphores are used to signal that a data value is ready for reading.
+Il produttore esegue il ciclo di tutti gli n valori da i = 0 a n - 1 e inserisce ogni valore nella memoria condivisa dove viene raccolto dal thread del consumatore. I semafori vengono utilizzati per segnalare che un valore di dati è pronto per la lettura.
 
-Although controlling processes with semaphores and shared memory is fast, it is also error prone, specially when more the two processes are involved. It is easier to control multiple processes using the Cilk API and messaging between processes. See chapters 18. and 19. for these topics.
+Sebbene il controllo dei processi con semafori e memoria condivisa sia veloce, è anche soggetto a errori, specialmente quando sono coinvolti più processi. È più facile controllare più processi utilizzando l'API Cilk e la messaggistica tra i processi. Vedere i capitoli 18. e 19. per questi argomenti.
 
 #!/usr/bin/newlisp
 # prodcons.lsp -  Producer/consumer
+# produttore/consumatore
 #
 # usage of 'fork', 'wait-pid', 'semaphore' and 'share'
 
@@ -2379,17 +2381,18 @@ Although controlling processes with semaphores and shared memory is fast, it is 
 (exit)
 
 
-==============================
- 18. MULTIPROCESSING AND CILK
-==============================
+============================
+ 18. MULTIPROCESSING E Cilk
+============================
+Sulle CPU multiprocessore il sistema operativo distribuirà processi e processi figlio creati su diversi core del processore in modo ottimizzato. newLISP offre una semplice API che fa tutto il lavoro di avvio dei processi e fa la raccolta sincronizzata dei risultati della valutazione. L'API Cilk consiste di sole 3 chiamate di funzione, implementate in newLISP come "spawn", "sync" e "abort".
 
-On multiprocessor CPUs the operating system will distribute processes and child processes created on different processor cores in an optimized fashion. newLISP offers a simple API which does all the work of launching processes and does the synchronized collection of evaluation results. The Cilk API consists of only 3 function calls, implemented in newLISP as spawn, sync and abort
+Dalla v.10.1 la funzione di messaggio di newLISP abilita le comunicazioni tra i processi padre e figlio. Per maggiori dettagli su questo, vedere il prossimo capitolo 19. Scambio di messaggi.
 
-Since v.10.1 newLISP's message function enables communications between parent and child processes. For more details about this, see the next chapter 19. Message exchange.
+Nota: questa funzionalità non è disponibile in windows.
 
-Starting concurrent processes
+Avvio di processi concorrenti
 =============================
-; calculate primes in a range
+; calcola i numeri primi in un intervallo
 (define (primes from to)
     (let (plist '())
     (for (i from to)
@@ -2397,7 +2400,7 @@ Starting concurrent processes
         (push i plist -1)))
 plist))
 
-; start child processes
+; avvia i processi figli
 (set 'start (time-of-day))
 
 (spawn 'p1 (primes 1 1000000))
@@ -2405,27 +2408,27 @@ plist))
 (spawn 'p3 (primes 2000001 3000000))
 (spawn 'p4 (primes 3000001 4000000))
 
-; wait for a maximum of 60 seconds for all tasks to finish
-(sync 60000) ; returns true if all finished in time
-; p1, p2, p3 and p4 now each contain a lists of primes
+; attende un massimo di 60 secondi per il completamento di tutte le attività
+(sync 60000) ; restituisce vero se tutto è finito in tempo
+; p1, p2, p3 e p4 ora contengono ciascuno una lista di numeri primi
 
-The example shows how the task of generating a range of prime numbers can be organized for parallel processing by splitting the range into sub-ranges. All spawn calls will return immediately, but sync will block until all child processes have finished and the result lists are available in the four variables p1 to p4.
+L'esempio mostra come il compito di generare un intervallo di numeri primi possa essere organizzato per l'elaborazione parallela suddividendo l'intervallo in sottointervalli. Tutte le chiamate di spawn torneranno immediatamente, ma la sincronizzazione si bloccherà fino a quando tutti i processi figli non saranno terminati e gli elenchi dei risultati saranno disponibili nelle quattro variabili da p1 a p4.
 
-Watching progress
-=================
-When the timeout value specified is too short for all processes to finish, sync will return nil. This can be used to watch progress:
+Monitorare i progressi
+======================
+Quando il valore di timeout specificato è troppo breve per il completamento di tutti i processi, la sincronizzazione restituirà zero. Questo può essere usato per monitorare i progressi:
 
-; print a dot after each 2 seconds of waiting
+; stampa un punto dopo ogni 2 secondi di attesa
 (until (sync 2000) (println "."))
 
-When sync is called without parameters, it returns a list of still active process ids:
+Quando la sincronizzazione viene chiamata senza parametri, restituisce una lista con gli ID processo ancora attivi:
 
-; show a list of pending process ids after
-;each three-tenths of a second
+; mostra una lista di ID di processo in sospeso dopo
+; ogni tre decimi di secondo
 (until (sync 300) (println (sync)))
 
-Invoking spawn recursively
-==========================
+Invocare spawn in modo ricorsivo
+================================
 (define (fibo n)
     (let (f1 nil f2 nil)
         (if (< n 2) 1
@@ -2437,36 +2440,40 @@ Invoking spawn recursively
 
 (fibo 7)  → 21
 
-Event driven notification
-=========================
+Notifica guidata dagli eventi
+=============================
 When processes launched with spawn finish, an inlet function specified in the sync statement can be called.
+Quando i processi vengono avviati con spawn finiscono, è possibile chiamare una funzione specificata nell'istruzione sync.
 
 (define (report pid)
     (println "process: " pid " has returned"))
 
-; call the report function, when a child returns
+; chiama la funzione report, quando ritorna un processo figlio
 (sync 10000 report)
 
 
-======================
- 19. MESSAGE EXCHANGE
-======================
+==========================
+ 19. SCAMBIO DEI MESSAGGI
+==========================
 
-Parent and child processes started with spawn can exchange messages. Messages flow either from the parent to child processes or from child processes to the parent. By means of evaluating messages in the parent process, the parent process can be used as a proxy routing messages between child peers.
+I processi padre e figlio avviati con "spawn" possono scambiare messaggi. I messaggi fluiscono dai genitore ai processi figli o dai processi figli ai genitore. Mediante la valutazione dei messaggi nel processo genitore, il processo genitore può essere utilizzato come un proxy di instradamento dei messaggi tra i figli.
 
-Internally newLISP uses UNIX local domain sockets for dual message queues between parent and child processes. When the receiving side of a queue is empty a receive call will return nil. Likewise when a queue is full, a send call will return nil. The looping function until can be used to make send and receive statements blocking.
+Internamente newLISP utilizza i socket UNIX di dominio locale per doppie code di messaggi tra i processi padre e figlio. Quando il lato ricevente di una coda è vuoto, una chiamata "receive" restituirà nil. Allo stesso modo, quando una coda è piena, una chiamata "send" restituirà nil. Il ciclo "until" può essere utilizzato per rendere "send" e "receive" istruzioni bloccanti.
 
-Blocking message sending and receiving
-======================================
+
+Blocco dell'invio e della ricezione di messaggi
+===============================================
      ; blocking sender
      (until (send pid msg))     ; true when a msg queued up
 
      ; blocking receiver
      (until (receive pid msg))  ; true after a msg is read
 
-Blocking messages exchange
-==========================
+Blocco dello scambio di messaggi
+================================
 The parent process loops through all child process IDs and uses the (until (receive cpid msg)) form of receive to wait for pending messages. (sync) returns a list of all child PIDs from processes launched by spawn.
+
+Il processo padre esegue un ciclo attraverso tutti gli ID dei processi figlio e utilizza la forma (until (receive cpid msg)) come forma di "receive" per attendere i messaggi in sospeso. (sync) restituisce una lista con tutti i PID figlio dei processi avviati da spawn.
 
 #!/usr/bin/newlisp
 
@@ -2492,15 +2499,15 @@ The parent process loops through all child process IDs and uses the (until (rece
 (abort) ; cancel child-processes
 (exit)
 
-generates this output:
+genera questo output:
 
 pid:53181->47  pid:53180->61  pid:53179->75  pid:53178->39  pid:53177->3
 pid:53181->59  pid:53180->12  pid:53179->20  pid:53178->77  pid:53177->47
 pid:53181->6   pid:53180->56  pid:53179->96  pid:53178->78  pid:53177->18
 
-Non blocking message exchange
-=============================
-Neither the sending child process nor the receiving parent process block. Each sends and receives messages as fast as possible. There is no guarantee that all messages will be delivered. It depends on the size of the sending queue and the speed of pick-up of messages by the parent process. If the sending queue for a child process is full, the (send ppid (rand 100)) call will fail and return nil.
+Scambio di messaggi non bloccante
+=================================
+Né il processo figlio mittente né il processo padre ricevente si bloccano. Ciascuno invia e riceve messaggi il più velocemente possibile. Non vi è alcuna garanzia che tutti i messaggi verranno recapitati. Dipende dalle dimensioni della coda di invio e dalla velocità di raccolta dei messaggi da parte del processo padre. Se la coda di invio per un processo figlio è piena, la chiamata (send ppid (rand 100)) fallirà e restituirà nil.
 
 #!/usr/bin/newlisp
 
@@ -2531,9 +2538,9 @@ Neither the sending child process nor the receiving parent process block. Each s
 
 (exit)
 
-Message timeouts
-================
-A messaging statement can be made to block for a certain time:
+Timeout dei messaggi
+====================
+È possibile creare una'istruzione di messaggio bloccante per un certo tempo:
 
 (define (receive-timeout pid msec)
     (let ( (start (time-of-day)) (msg nil))
@@ -2545,11 +2552,11 @@ A messaging statement can be made to block for a certain time:
 
 (receive-timeout pid 1000)  ; return message or throw error after 1 second
 
-In this example blocking will occur for 1000 ms. Many methods exist to implement timeout behavior.
+In questo esempio il blocco avverrà per 1000 ms. Esistono molti metodi per implementare il comportamento di timeout.
 
-Evaluating messages
-===================
-Messages sent can contain expressions which can be evaluated in the recipient's environment. This way variables can be set in the evaluator's environment, and messages can be routed to other processes. The following example implements a message router:
+Valutazione dei messaggi
+========================
+I messaggi inviati possono contenere espressioni che possono essere valutate nell'ambiente del destinatario. In questo modo le variabili possono essere impostate nell'ambiente del valutatore e i messaggi possono essere indirizzati ad altri processi. L'esempio seguente implementa un router di messaggi:
 
 #!/usr/bin/newlisp
 
@@ -2581,37 +2588,36 @@ Messages sent can contain expressions which can be evaluated in the recipient's 
 (abort)
 (exit)
 
-Acting as a proxy
-=================
-In the last example program the expression:
+Agire come proxy
+================
+Nell'ultimo programma di esempio l'espressione:
 
-; content of message to be evaluated by proxy
+; contenuto del messaggio da valutare tramite proxy
 (until (send B (string "greetings from " A)))
 
-A programming statement sent from child process ID A to the parent, where it is evaluated, causing a message to be sent to child process B. The parent process acts as a proxy agent for the child process A.
+Un'istruzione di programmazione inviata dall'ID del processo figlio A al genitore, dove viene valutata, causa l'invio di un messaggio al processo figlio B. Il processo genitore funge da agente proxy per il processo figlio A.
 
-; the set statement is evaluated in the proxy
+; l'istruzione impostata viene valutata nel proxy
 (until (send ppid '(set 'finished true)))
 
-The expression (set 'finished true) is sent to the parent where it gets evaluated and causes the parent's until loop to finish.
+L'espressione (set 'finished true) viene inviata al genitore dove viene valutata e provoca la fine del ciclo "until" del genitore.
 
-The sleep statement in the A process ensures that the "parent exiting ..." message does not appear before all received messages are reported by process identified with B.
+L'istruzione "sleep" nel processo A garantisce che il messaggio "parent exiting ..." non venga visualizzato prima che tutti i messaggi ricevuti siano segnalati dal processo identificato con B.
 
 
-=================================
- 20. DATABASES AND LOOKUP TABLES
-=================================
+==================================
+ 20. DATABASE E TABELLE DI LOOKUP
+==================================
 
-For smaller tables of not more than a few hundred entries association lists can be used. For larger databases use dictionaries and hashes as described in chapter 11.
+Per tabelle più piccole di non più di qualche centinaio di voci possono essere utilizzate liste di associazione. Per database più grandi utilizzare dizionari e hash come descritto nel capitolo 11.
 
-Association lists
-=================
-The association list is a classic LISP data structure for storing information for associative retrieval:
+Elenchi di associazioni
+=======================
+La lista delle associazioni è una classica struttura dati LISP per la memorizzazione delle informazioni per il recupero associativo:
 
-; creating association lists
-; pushing at the end with -1 is optimized and
-; as fast as pushing in front
-
+; creazione di liste di associazioni
+; inserire alla fine con -1 è ottimizzata ed
+; è veloce come inserire all'inizio della lista
 (push '("John Doe" "123-5555" 1200.00) Persons -1)
 (push '("Jane Doe" "456-7777" 2000.00) Persons -1)
 .....
@@ -2629,63 +2635,64 @@ Persons →  (
 
 → ("Jane Doe" "456-7777" 2000.00 female)
 
-newLISP has a lookup function similar to what is used in spreadsheet software. This function which works like a combination of assoc and nth can find the association and pick a specific member of the data record at the same time:
+newLISP ha una funzione di "lookup" simile a quella utilizzata nel software per fogli di calcolo. Questa funzione che agisce come una combinazione di "assoc" e "nth" può trovare l'associazione e, allo stesso tempo, selezionare un membro specifico del record di dati:
 
 (lookup "John Doe" Persons 0)   → "123-555"
 (lookup "John Doe" Persons -1)  → male
 (lookup "Jane Doe" Persons 1)   → 2000.00
 (lookup "Jane Doe" Persons -2)  → 2000.00
 
-; update data records
+; aggiorna record di dati
 (setf (assoc "John Doe" Persons)
     '("John Doe" "123-5555" 900.00 male))
 
-; replace as a function of existing/replaced data
+; sostituire utilizzando dati esistenti/sostituiti
 (setf (assoc "John Doe" Persons) (update-person $it))
 
-; delete data records
+; elimina record di dati
 (replace (assoc "John Doe" Persons) Persons)
 
-Nested associations
+Associazioni annidate
 ===================
-If the data part of an association is itself an association list, we have a nested association:
+Se la parte dati di un'associazione è essa stessa un elenco di associazioni, abbiamo un'associazione nidificata:
 
 (set 'persons '(
     ("Anne" (address (country "USA") (city "New York")))
     ("Jean" (address (country "France") (city "Paris")))
 ))
 
-A different syntax of the assoc function can be used to specify multiple keys:
+È possibile utilizzare una sintassi diversa della funzione "assoc" per specificare più chiavi:
 
-; one key
+; una chiave (key)
 (assoc "Anne" persons) → ("Anne" (address (country "USA") (city "New York")))
 
-; two keys
+; due chiavi
 (assoc '("Anne" address) persons) → (address (country "USA") (city "New York"))
 
-; three keys
+; tre chiavi
 (assoc '("Anne" address city) persons) → (city "New York")
 
-; three keys in a vector
+; tre chiavi in un vettore
 (set 'anne-city '("Anne" address city))
 (assoc anne-city persons) → (city "New York")
 
-When all keys are symbols, as is in address, country and city, simple and nested associations in newLISP have the same format as newLISP FOOP (Functional Object Oriented Programming) objects. See the users manual chapter "18. Functional object-oriented programming" for details.
+Quando tutte le chiavi sono simboli, come nell'indirizzo, il paese e la città, le associazioni semplici e nidificate in newLISP hanno lo stesso formato degli oggetti newLISP FOOP (Functional Object Oriented Programming). Vedere il capitolo del manuale utente "18. Programmazione funzionale orientata agli oggetti" per i dettagli.
 
-Updating nested associations
-============================
-The functions assoc and setf can be used to update simple or nested associations:
+Aggiornamento delle associazioni nidificate
+===========================================
+Le funzioni "assoc" e "setf" possono essere utilizzate per aggiornare associazioni semplici o annidate:
 
 (setf (assoc '("Anne" address city) persons) '(city "Boston")) → (city "New York")
-setf always returns the newly set element.
 
-Combining associations and hashes
+"setf" restituisce sempre l'elemento appena impostato.
+
+Combinazione di associazioni e hash
 =================================
-Hashes and FOOP objects can be combined to form an in-memory database with keyed access.
+Gli hash e gli oggetti FOOP possono essere combinati per formare un database in memoria con accesso con chiave.
 
-In the following example, data records are stored in a hash namespace and access is with the name of the person as a key.
+Nell'esempio seguente, i record di dati vengono archiviati in uno spazio dei nomi hash e l'accesso avviene con il nome della persona come chiave.
 
-setf and lookup are used to update nested FOOP objects:
+"setf" e "lookup" vengono utilizzati per aggiornare gli oggetti FOOP nidificati:
 
 (new Tree 'Person)
 (new Class 'Address)
@@ -2701,66 +2708,67 @@ setf and lookup are used to update nested FOOP objects:
 (Person "John Doe") → (Address (City "small town") (Telephone 1234567))
 
 
-===========================
- 21. DISTRIBUTED COMPUTING
-===========================
-
-Many of todays applications are distributed on to several computers on the network or distributed on to several processes on one CPU. Often both methods of distributing an application are used at the same time.
-
-newLISP has facilities to evaluate many expressions in parallel on different network nodes or processes running newLISP. The net-eval function does all the work necessary to communicate to other nodes, distribute expressions for evaluation and collect results in either a blocking or event driven fashion.
-
-The functions read-file, write-file, append-file and delete-file can also be used to access with files on remote nodes when using URLs in file specifications. In a similar way the functions load and save can be used to load and save code from and to remote nodes.
-
-newLISP uses existing HTTP protocols and newLISP command line behavior to implement this functionality. This means that programs can be debugged and tested using standard Unix applications like terminal, telnet or a web browser. This also enables easy integration of other tools and programs into distributed applications built with newLISP. For example the Unix utility netcat (nc) could be used to evaluate expressions remotely or a web browser could be used to retrieve webpages from nodes running a newLISP server.
-
-Setting up in server mode
 =========================
-A newLISP server node is essentially a newLISP process listening to a network port and behaving like a newLISP command-line console and HTTP server for HTTP GET, PUT, POST and DELETE requests. Since version 9.1 newLISP server mode also answers CGI queries received by either GET or POST request.
-
-Two methods are used to start a newLISP server node. One results in a state full server, maintaining state in between communications with different clients, the other method a server with no state, reloading for every new client connection.
-
-Start a state-full server
+ 21. CALCOLO DISTRIBUITO
 =========================
+
+Molte delle applicazioni odierne vengono distribuite su più computer della rete o distribuite su più processi su una CPU. Spesso vengono utilizzati contemporaneamente entrambi i metodi di distribuzione di un'applicazione.
+
+newLISP dispone di funzionalità per valutare molte espressioni in parallelo su diversi nodi di rete o processi che eseguono newLISP. La funzione "net-eval" fa tutto il lavoro necessario per comunicare con altri nodi, distribuire espressioni per la valutazione e raccogliere i risultati in modo bloccante o guidato dagli eventi.
+
+Anche le funzioni "read-file", "write-file", "append-file" e "delete-file" possono essere utilizzate per accedere a file su nodi remoti quando si utilizzano URL nelle specifiche del file. In modo simile, le funzioni "load" e "save" possono essere utilizzate per caricare e salvare codice da e verso nodi remoti.
+
+newLISP utilizza i protocolli HTTP esistenti e il comportamento della riga di comando newLISP per implementare questa funzionalità. Ciò significa che i programmi possono essere sottoposti a debug e testati utilizzando applicazioni Unix standard come il terminale, telnet o un browser web. Ciò consente anche una facile integrazione di altri strumenti e programmi in applicazioni distribuite create con newLISP. Ad esempio, l'utilità Unix netcat (nc) potrebbe essere utilizzata per valutare le espressioni in remoto oppure un browser Web potrebbe essere utilizzato per recuperare le pagine Web dai nodi che eseguono un nuovo server LISP.
+
+Configurazione in modalità server
+=================================
+Un nodo del server newLISP è essenzialmente un processo newLISP che ascolta una porta di rete e si comporta come una console della riga di comando newLISP e un server HTTP per le richieste HTTP GET, PUT, POST e DELETE. Dalla versione 9.1 la modalità server newLISP risponde anche alle query CGI ricevute da una richiesta GET o POST.
+
+Vengono utilizzati due metodi per avviare un nodo server in newLISP. Uno si traduce in un server state-full (con stato pieno), che mantiene lo stato tra le comunicazioni con client diversi, l'altro metodo un server senza stato (state-less), che si ricarica per ogni nuova connessione client.
+
+Avviare un server state-full
+============================
 newlisp -c -d 4711 &
 
 newlisp myprog.lsp -c -d 4711 &
 
-newlisp myprog.lsp -c -w /home/node25 -d 4711 &
-newLISP is now listening on port 4711, the & (ampersand) sign tells newLISP to run in the background (Unix only). The -c switch suppresses command line prompts. newLISP now behaves like a newLISP console without prompts listening on port 4711 for command line like input. Any other available port could have been chosen. Note that on Unix, ports below 1024 need administrator access rights.
+newlisp myprog.lsp -c -w / home / node25 -d 4711 &
 
-The second example also pre-loads code. The third example also specifies a working directory using the -w option. If no working directory is specified using -w, the startup directory is assumed to be the working directory.
+newLISP è ora in ascolto sulla porta 4711, il segno & (e commerciale) dice a newLISP di funzionare in background (solo Unix). L'opzione -c elimina i prompt della riga di comando. newLISP ora si comporta come una console newLISP senza prompt in ascolto sulla porta 4711 per input dalla riga di comando. Si sarebbe potuto scegliere qualsiasi altra porta disponibile. Nota che su Unix, le porte inferiori a 1024 richiedono diritti di accesso di amministratore.
 
-After each transaction, when a connection closes, newLISP will go through a reset process, reinitialize stack and signals and go to the MAIN context. Only the contents of program and variable symbols will be preserved.
+Il secondo esempio precarica anche il codice. Il terzo esempio specifica anche una directory di lavoro utilizzando l'opzione -w. Se non viene specificata alcuna directory di lavoro utilizzando -w, si presume che la directory di avvio sia la directory di lavoro.
 
-Stateless server with inetd
+Dopo ogni transazione, quando una connessione si chiude, newLISP eseguirà un processo di ripristino, reinizializzerà stack e segnali e passerà al contesto MAIN. Verranno conservati solo il contenuto del programma e dei simboli delle variabili.
+
+State-less server con inetd
 ===========================
-On Unix the inetd or xindetd facility can be used to start a stateless server. In this case the TCP/IP net connections are managed by a special Unix utility with the ability to handle multiple requests at the same time. For each connection made by a client the inetd or xinetd utility will start a fresh newLISP process. After the connection is closed the newLISP process will shut down.
+Su Unix le funzionalità inetd o xindetd possono essere utilizzate per avviare un server senza stato. In questo caso le connessioni di rete TCP/IP sono gestite da una speciale utility Unix con la capacità di gestire più richieste contemporaneamente. Per ogni connessione effettuata da un client, l'utilità inetd o xinetd avvierà un nuovo processo newLISP. Dopo la chiusura della connessione, il processo newLISP verrà chiuso.
 
-When nodes are not required to keep state, this is the preferred method for a newLISP server node, for handling multiple connections at the same time.
+Quando ai nodi non viene richiesto di mantenere lo stato, questo è il metodo preferito per un nuovo nodo del server LISP, per gestire più connessioni contemporaneamente.
 
-The inetd or xinetd process needs to be configured using configuration files found in the /etc directory of most Unix installations.
+Il processo inetd o xinetd deve essere configurato utilizzando i file di configurazione che si trovano nella directory /etc della maggior parte delle installazioni Unix.
 
-For both the inetd and xinetd configurations add the following line to the /etc/services file:
+Per entrambe le configurazioni inetd e xinetd aggiungere la seguente riga al file /etc/services:
 
-net-eval        4711/tcp     # newLISP net-eval requests
+  net-eval        4711/tcp     # newLISP net-eval requests
 
-Note that any other port than 4711 could be supplied.
+Si noti che potrebbe essere fornita qualsiasi altra porta oltre alla 4711.
 
-When configuring inetd add also the following lines to the /etc/inetd.conf file:
+Quando si configura inetd, aggiungere anche le seguenti righe al file /etc/inetd.conf:
 
-net-eval  stream  tcp  nowait  root  /usr/bin/newlisp -c
+  net-eval  stream  tcp  nowait  root  /usr/bin/newlisp -c
 
-# as an alternative, a program can also be preloaded
+  # as an alternative, a program can also be preloaded
 
-net-eval  stream  tcp  nowait  root  /usr/bin/newlisp myprog.lsp -c
+  net-eval  stream  tcp  nowait  root  /usr/bin/newlisp myprog.lsp -c
 
-# a working directory can also be specified
+  # a working directory can also be specified
 
-net-eval  stream  tcp  nowait  newlisp  /usr/bin/newlisp -c -w /usr/home/newlisp
+  net-eval  stream  tcp  nowait  newlisp  /usr/bin/newlisp -c -w /usr/home/newlisp
 
-The last line also specified a working directory and a user newlisp instead of the root user. This is a more secure mode limiting newLISP server node access to a specific user account with restricted permissions.
+L'ultima riga specificava anche una directory di lavoro e un utente newlisp invece dell'utente root. Questa è una modalità più sicura che limita l'accesso al nodo del server newLISP ad un account utente specifico con autorizzazioni limitate.
 
-On some Unix system a modern flavor of inetd: the xinetd facility can be used. Add the following configuration to a file /etc/xinet.d/net-eval:
+Su alcuni sistemi Unix è possibile utilizzare una versione moderna di inetd: la funzionalità xinetd può essere utilizzata. Aggiungi la seguente configurazione a un file /etc/xinet.d/net-eval:
 
 service net-eval
     {
@@ -2772,51 +2780,53 @@ service net-eval
     server_args = -c -w /home/node
     }
 
-Note that a variety of parameter combinations are possible to restrict access from different places or limit access to certain users. Consult the man-pages for inetd and xinetd for details.
+Si noti che una varietà di combinazioni di parametri è possibile limitare l'accesso da luoghi diversi o limitare l'accesso a determinati utenti. Consultare le pagine man di inetd e xinetd per i dettagli.
 
-After configuring inetd or xinetd either process must be restarted to re-read the configuration files. This can be accomplished by sending the Unix HUP signal to either the inetd or xinetd process using the Unix kill or Unix nohup utility.
+Dopo aver configurato inetd o xinetd, entrambi i processi devono essere riavviati per rileggere i file di configurazione. Ciò può essere ottenuto inviando il segnale Unix HUP al processo inetd o xinetd utilizzando l'utilità Unix kill o nohup.
 
-On Mac OS X the launchd facility can be used in a similar fashion. The newLISP source distribution contains the file org.newlisp.newlisp.plist in the util/ directory. This file can be used to launch newlisp server during OS boot time as a persistent server.
+Su Mac OS X la funzione launchd può essere utilizzata in modo simile. La distribuzione dei sorgenti newLISP contiene il file org.newlisp.newlisp.plist nella directory util/. Questo file può essere utilizzato per avviare il server newlisp durante l'avvio del sistema operativo come server persistente.
 
-Test the server with telnet
+Test del server con telnet
 ===========================
-A newLISP server node can be tested using the Unix telnet utility:
+Un nuovo nodo del server LISP può essere testato utilizzando l'utilità telnet di Unix:
 
 telnet localhost 4711
 
-; or when running on a different computer i.e. ip 192.168.1.100
+; o quando si esegue su un computer diverso, ad esempio ip 192.168.1.100
 
 telnet 192.168.1.100 4711
 
-Multi-line expressions can be entered by enclosing them in [cmd], [/cmd] tags, each tag on a separate line. Both the opening and closing tags should be on separate lines. Although newLISP has a second, new multi-line mode for the interactive shell since version 10.3.0 without tags, when using netcat or other Unix utilities, multi-line expressions still have to be enclosed in [cmd], [/cmd] tags.
+Le espressioni su più righe possono essere inserite racchiudendole in tag [cmd], [/cmd], con ogni tag su una riga separata. Entrambi i tag di apertura e di chiusura devono essere su righe separate. Sebbene newLISP abbia una seconda, nuova modalità multi-riga per la shell interattiva dalla versione 10.3.0 senza tag, quando si usa netcat o altre utilità Unix, le espressioni multi-riga devono ancora essere racchiuse nei tag [cmd], [/ cmd].
 
-Test with netcat on Unix
-========================
+Test con netcat su Unix
+=======================
 echo '(symbols) (exit)' | nc localhost 4711
 
-Or talking to a remote node:
+O parlando con un nodo remoto:
 
 echo '(symbols) (exit)' | nc 192.168.1.100 4711
 
-In both examples netcat will echo back the result of evaluating the (symbols) expression.
+In entrambi gli esempi netcat restituirà il risultato della valutazione dei simboli dell'espressione.
+
+Le espressioni su più righe possono essere inserite racchiudendole in tag [cmd], [/cmd], ogni tag su una riga separata.
 
 Multi-line expressions can be entered by enclosing them in [cmd], [/cmd] tags, each tag on a separate line.
 
-Test from the command line
-==========================
-The net-eval function as a syntax form for connecting to only one remote server node. This mode is practical for quick testing from the newLISP command line:
+Test dalla linea di comando
+===========================
+La funzione "net-eval" ha una forma di sintassi per connettersi a un solo nodo server remoto. Questa modalità è pratica per test rapidi dalla riga di comando newLISP:
 
 (net-eval "localhost" 4711 "(+ 3 4)" 1000) → 7
 
-; to a remote node
+; a un nodo remoto
 
 (net-eval "192.168.1.100" 4711 {(upper-case "newlisp")} 1000) → "NEWLISP"
 
-In the second example curly braces {,} are used to limit the program string for evaluation. This way quotes can be used to limit a string inside the expression.
+Nel secondo esempio le parentesi graffe {,} vengono utilizzate per limitare la stringa per la valutazione. In questo modo è possibile utilizzare le virgolette per limitare una stringa all'interno dell'espressione.
 
-No [cmd], [/cmd] tags are required when sending multi-line expressions. net-eval supplies these tags automatically.
+Non sono richiesti tag [cmd], [/ cmd] quando si inviano espressioni su più righe. "net-eval" fornisce questi tag automaticamente.
 
-Test HTTP with a browser
+Test HTTP con un browser
 ========================
 A newLISP server also understands simple HTTP GET and PUT requests. Enter the full path of a file in the address-bar of the browser:
 
@@ -2824,8 +2834,8 @@ http://localhost:4711//usr/share/newlisp/doc/newlisp_manual.html
 
 The manual file is almost 800 Kbyte in size and will take a few seconds to load into the browser. Specify the port-number with a colon separated from the host-name or host IP. Note the double slash necessary to specify a file address relative to the root directory.
 
-Evaluating remotely
-===================
+Valutazione remota
+==================
 When testing the correct installation of newLISP server nodes, we were already sending expressions to remote node for evaluation. Many times remote evaluation is used to split up a lengthy task into shorter subtasks for remote evaluation on different nodes.
 
 The first example is trivial, because it only evaluates several very simple expressions remotely, but it demonstrates the principles involved easily:
@@ -2877,8 +2887,8 @@ While net-eval is waiting for results, it calls the function idle-loop repeatedl
 
 For testing on just one CPU, replace addresses with "localhost"; the Unix inetd or xinetd daemon will start a separate process for each connection made and all listening on port 4711. When using a state-full server on the same Win32 CPU specify a different port number for each server.
 
-Setting up the 'net-eval' parameter structure
-=============================================
+Impostazione della struttura dei parametri 'net-eval'
+=====================================================
 In a networked environment where an application gets moved around, or server nodes with changing IP numbers are used, it is necessary to set up the node parameters in the net-eval parameter list as variables. The following more complex example shows how this can be done. The example also shows how a bigger piece of program text can be transferred to a remote node for evaluation and how this program piece can be customized for each node differently:
 
 #!/usr/bin/newlisp
@@ -2952,8 +2962,8 @@ The function idle-loop aggregates all lists of primes received and generates the
 
 As with the previous examples all IP numbers could be replaced with "localhost" or any other host-name or IP number to test a distributed application on a single host before deployment in a distributed environment with many networked hosts.
 
-Transferring files
-==================
+Trasferire file
+===============
 Files can be read from or written to remote nodes with the same functions used to read and write files to a local file system. This functionality is currently only available on Unix systems when talking to newLISP servers. As functions are based on standard GET and PUT HTTP protocols they can also be used communicating with web servers. Note that few Apache web-server installations have enabled the PUT protocol by default.
 
 The functions read-file, write-file and append-file can all take URLs in their filename specifications for reading from and writing to remote nodes running a newLISP server or a web-server:
@@ -2978,8 +2988,8 @@ Note the double backslash necessary to reference files relative to root on the s
 
 All functions can be used to transfer binary non-ascii contents containing zero characters. Internally newLISP uses the functions get-url and put-url, which could be used instead of the functions read-file, write-file and append-file. Additional options like used with get-url and put-url could be used with the functions read-file, write-file and append-file as well. For more detail see the newLISP function reference for these functions.
 
-Loading and saving data
-=======================
+Caricare e salvare i dati
+=========================
 The same load and save functions used to load program or LISP data from a local file system can be used to load or save programs and LISP data from or to remote nodes.
 
 By using URLs in the file specifications of load and save these functions can work over the network communicating with a newLISP server node.:
@@ -2990,16 +3000,16 @@ By using URLs in the file specifications of load and save these functions can wo
 
 Although the load and save functions internally use get-url and put-url to perform its works they behave exactly as when used on a local file system, but instead of a file path URLs are specified. Both function will timeout after 60 seconds if a connection could not be established. When finer control is necessary use the functions get-url and put-url together with eval-string and source to realize a similar result as when using the load and save in HTTP mode.
 
-Local domain Unix sockets
-=========================
+Socket Unix di dominio locale
+=============================
 newLISP supports named local domain sockets in newLISP server mode and using the built-in functions net-eval, net-listen, net-connect together with the functions net-accept, net-receive, net-select and net-send.
 
 Using local domain sockets fast communications between processes on the same file system and with newLISP servers is possible. See the Users Manual for more details.
 
 
-================================
- 22. HTTPD WEB SERVER ONLY MODE
-================================
+====================================
+ 22. MODALITÀ SOLO SERVER WEB HTTPD
+====================================
 
 In all previous chapters the -c server mode was used. This mode can act as a net-eval server and at the same time answer HTTP requests for serving web pages or transfer of files and programs. The -c mode is the preferred mode for secure operation behind a firewall. newLISP also has a -http mode which works like a restricted -c mode. In -http mode only HTTP requests are served and command-line like formatted requests and net-eval requests are not answered. In this mode newLISP can act like a web server answering HTTP GET, PUT, POST and DELETE requests as well as CGI requests, but additional efforts should be made to restrict the access to unauthorized files and directories to secure the server when exposed to the internet.
 
@@ -3070,26 +3080,26 @@ Media types in HTTP modes
 =========================
 In both the -c and -http HTTP modes the following file types are recognized and a correctly formatted Content-Type: header is sent back:
 
-file extension  media type
-.avi  video/x-msvideo
-.css  text/css
-.gif  image/gif
-.htm  text/htm
-.html text/html
-.jpg  image/jpg
-.js application/javascript
-.mov  video/quicktime
-.mp3  audio/mpeg
-.mpg  video/mpeg
-.pdf  application/pdf
-.png  image/png
-.wav  audio/x-wav
-.zip  application/zip
-any other text/plain
+File extension   Media type
+.avi             video/x-msvideo
+.css             text/css
+.gif             image/gif
+.htm             text/htm
+.html            text/html
+.jpg             image/jpg
+.js              application/javascript
+.mov             video/quicktime
+.mp3             audio/mpeg
+.mpg             video/mpeg
+.pdf             application/pdf
+.png             image/png
+.wav             audio/x-wav
+.zip             application/zip
+any other        text/plain
 
 
 =======================
- 23. EXTENDING NEWLISP
+ 23. ESTENDERE newLISP
 =======================
 
 newLISP has an import function, which allows importing function from DLLs (Dynamic Link Libraries) on Win32 or shared libraries on Linux/Unix (ending in .so, ending in .dylib on Mac OS X).

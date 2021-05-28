@@ -6713,5 +6713,106 @@ Sequenza OEIS A344658: If decimal expansion of n is abc...d, a(n) = a^a - b^b + 
 ;-> (1 1 4 27 256 3125 46656 823543 16777216 387420489 0 0
 ;->  -3 -26 -255 -3124 -46655 -823542 -16777215 -387420488 3)
 
+
+------------------
+Bruchi saltellanti
+------------------
+
+Date N foglie numerate da 1 a N. Un bruco salta di foglia in foglia in multipli di Aj (Aj, 2Aj, 3Aj).
+L'indice j è specifico per il bruco. Ogni volta che un bruco raggiunge una foglia, la mangia un pò. Determinare quante foglie, da 1 a N, sono rimaste non mangiate dopo che tutti i bruchi K hanno raggiunto la fine. Ogni bruco ha il proprio fattore di salto indicato da Aj, e ogni bruco inizia a contare il primo salto dalla foglia numero 1.
+
+(define (bruchi numleaf jump)
+  (local (leaf goodleaf out)
+    (setq out '())
+    (setq leaf (sequence 0 numleaf))
+    ; vettore di foglie sane
+    (setq goodleaf (array (+ numleaf 1) '(1)))
+    ; per ogni foglia...
+    (for (i 1 numleaf)
+      ; per ogni salto dei bruchi...
+      (dolist (br jump)
+        ; se il numero della foglia è multiplo del salto
+        (if (zero? (% (leaf i) br))
+            ; allora la foglia viene "mangiata" un pò
+            ; (poniamo il relativo indice della lista goodleaf a 0)
+            (setf (goodleaf i) 0)
+        )
+      )
+    )
+    ; costruzione della lista risultato
+    ; ricerca dei numeri delle foglie sane
+    (for (i 1 numleaf)
+      (if (= (goodleaf i) 1) (push i out -1))
+    )
+    out))
+
+(bruchi 10 '(2 3 5))
+;-> (1 7)
+
+(bruchi 100 '(1))
+;-> '()
+
+(bruchi 50 '(2 3 4 5 7))
+;-> (1 11 13 17 19 23 29 31 37 41 43 47)
+
+
+---------------
+Buste matrioska
+---------------
+
+Dato un numero di buste con larghezze e altezze date come una coppia di numeri interi (w, h). Una busta può entrare in un'altra se e solo se sia la larghezza che l'altezza di una busta sono maggiori della larghezza e dell'altezza dell'altra busta.
+Qual è il numero massimo di buste che inserire una dentro l'altra come una bambola russa (matrioska)?
+
+Possiamo ordinare le buste per altezza in ordine crescente e larghezza in ordine decrescente. Quindi per i valori della larghezza trovare la sottosequenza crescente più lunga. Questo problema viene quindi convertito nel problema di trovare la sottosequenza crescente più lunga.
+
+Ordinamento standard:
+
+(setq m '((3 8) (4 6) (2 11) (2 10) (2 12) (10 1) (10 3)))
+
+(sort (copy m) comp)
+;-> ((2 12) (2 11) (2 10) (3 8) (4 6) (10 3) (20 1))
+
+Ordinamento con una funzione di comparazione (ascendente in x e discendente in y (per valori uguali di x)):
+
+(define (cmp x y) 
+  (if (= (first x) (first y)) 
+      (> (last x) (last y))
+      (< (first x) (first y))))
+
+(setq m '((3 8) (4 6) (2 11) (2 10) (2 12) (20 3) (10 1)))
+
+(sort m cmp)
+;-> ((2 12) (2 11) (2 10) (3 8) (4 6) (10 1) (20 3))
+
+Funzione che calcola la lunghezza della sottosequenza crescente più lunga:
+
+(define (lis lst)
+  (local (len vet out)
+    (setq out 1)
+    (setq len (length lst))
+    (setq vet (array len '(1)))
+    (for (i 0 (- len 1))
+      (setq j 0)
+      (while (< j i)
+        (if (> (lst i) (lst j))
+            (setf (vet i) (max (vet i) (+ (vet j) 1)))
+        )
+        (++ j)
+      )
+      (setq out (max (vet i) out))
+    )
+    out))
+
+Funzione che calcola la soluzione:
+
+(define (matrioska dolls)
+  (local (lst height)
+    (sort dolls cmp)
+    (setq height (map last dolls))
+    (lis height)))
+
+(matrioska '((6 4) (6 7) (1 8) (2 3) (5 2) (5 4)))
+;-> 3
+
 =============================================================================
 

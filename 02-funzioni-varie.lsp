@@ -7984,5 +7984,86 @@ Dobbiamo ammettere che "gnuplot" è sicuramente meglio...
 
 Nota: per migliorare il grafico si potrebbe usare l'algoritmo di bresenham per le linee (cioè, per quei punti che distano più di una unità (in x e in y) dal punto successivo).
 
+
+---------------------------------
+Sottosequenza crescente più lunga
+---------------------------------
+
+Dato una lista non ordinata di interi, trovare la lunghezza della sottosequenza crescente più lunga (anche non contigua).
+
+Sia max[i] la lunghezza della sottosequenza crescente più lunga finora. 
+Se un elemento prima di i è minore di lst[i], allora max[i] = max(max[i], max[j]+1).
+
+La sequente funzione calcola la lunghezza della sottosequenza crescente più lunga:
+
+(define (lis lst)
+  (local (len vet out)
+    (setq out 1)
+    (setq len (length lst))
+    (setq vet (array len '(1)))
+    (for (i 0 (- len 1))
+      (setq j 0)
+      (while (< j i)
+        (if (> (lst i) (lst j))
+            (setf (vet i) (max (vet i) (+ (vet j) 1)))
+        )
+        (++ j)
+      )
+      (setq out (max (vet i) out))
+    )
+    out))
+
+(lis '(10 9 2 5 3 7 101 18))
+;-> 4
+
+Se vogliamo ottenere i valori della sottosequenza possiamo seguire l'algoritmo presentato su wikipedia:
+
+(define (long-inc-sub X)
+(local (N P M L lo hi mid newL Pk S)
+  (setq N (length X))
+  (setq P (array N '(0)))
+  (setq M (array (+ N 1) '(0)))
+  (setq L 0)
+  (for (i 0 (- N 1))
+    ; Binary search for the largest positive j ≤ L
+    ; such that X[M[j]] < X[i]
+    (setq lo 1)
+    (setq hi L)
+    (while (<= lo hi)
+      (setq mid (int (ceil (div (+ lo hi) 2))))
+      (if (< (X (M mid)) (X i))
+          (setq lo (+ mid 1))
+          (setq hi (- mid 1))
+      )
+    )
+    ; After searching, lo is 1 greater than the
+    ; length of the longest prefix of X[i]    
+    (setq newL lo)
+    ; The predecessor of X[i] is the last index of 
+    ; the subsequence of length newL-1    
+    (setf (P i) (M (- newL 1)))
+    (setf (M newL) i)
+    (if (> newL L)
+        ; If we found a subsequence longer than any we've
+        ; found yet, update L
+        (setq L newL)
+    )
+  )
+  ; Reconstruct the longest increasing subsequence
+  (setq S '())
+  (setq k (M L))
+  (for (i (- L 1) -2)
+    (push (X k) S)
+    (setq k (P k))
+  )
+  (slice S 2)))
+
+(long-inc-sub '(0 8 4 12 2 10 6 14 1 9 5 13 3 11 7 15))
+;-> (0 2 6 9 11 15)
+(long-inc-sub '(3 2 6 4 5 1))
+;-> (2 4 5)
+(long-inc-sub '(10 9 2 5 3 7 101 18))
+;-> (2 3 7 18)
+
 =============================================================================
 
