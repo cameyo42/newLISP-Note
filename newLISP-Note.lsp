@@ -838,6 +838,8 @@ NOTE LIBERE 4
   Somma delle potenze delle cifre
   Bruchi saltellanti
   Buste matrioska
+  ASCII Julia
+  Dado da 7 con dado da 5
 
 APPENDICI
 =========
@@ -96633,7 +96635,7 @@ Funzione che genera i due esagrammi che ha come parametro il metodo da utilizzar
 
 (define (ching metodo)
   (local (esagrammi linee linea esa-A esa-AA esa-B num-AA num-B)
-    ; metodo da utilizzare (monete o steli)
+    ; metodo da utilizzare (monete = 1 oppure steli = 2)
     (if (and (!= metodo 1) (!= metodo 2)) (setq metodo 1))
     ; rappresentazione dei 64 esagrammi (1..64)
     (setq esagrammi '((0)
@@ -96710,7 +96712,7 @@ Proviamo a generare un paio di esagrammi:
 Problema ABC
 ------------
 
-Data una raccolta di blocchi ABC (simili a quelli che avevamo da bambini).Ci sono venti blocchi con due lettere su ogni blocco. Un alfabeto completo è garantito su tutti i lati dei blocchi.
+Data una raccolta di blocchi ABC (simili a quelli che avevamo da bambini). Ci sono venti blocchi con due lettere su ogni blocco. Un alfabeto completo è garantito su tutti i lati dei blocchi.
 La raccolta di blocchi è la seguente:
 
  (B O) (X K) (D Q) (C P) (N A) (G T) (R E) (T G) (Q D) (F S)
@@ -97282,7 +97284,7 @@ Tutti gli anni con 53 settimane dal 2020 al 2100:
 Il gioco del 21
 ---------------
 
-21 è una gioco tra due giocatori che si svolge scegliendo un numero (1, 2 o 3) da aggiungere al totale parziale (che parte da 0).
+21 è un gioco tra due giocatori che si svolge scegliendo un numero (1, 2 o 3) da aggiungere al totale parziale (che parte da 0).
 
 I giocatori si alternano fornendo un numero da aggiungere al totale parziale.
 
@@ -98281,6 +98283,197 @@ Funzione che calcola la soluzione:
 
 (matrioska '((6 4) (6 7) (1 8) (2 3) (5 2) (5 4)))
 ;-> 3
+
+
+-----------
+ASCII Julia
+-----------
+
+Ecco una versione base per stampare sul terminale l'insieme di Julia.
+
+Prima di tutto ci servono alcune funzioni per calcolare i numeri complessi:
+
+; Estrae la parte reale di un numero complesso
+(define (real num) (first num))
+; Estrae la parte immaginaria di un numero complesso
+(define (imag num) (last num))
+; Calcola il modulo di un numero complesso
+(define (modulo num)
+  (sqrt (add (mul (real num) (real num)) (mul (imag num) (imag num)))))
+; Calcola la somma di due numeri complessi
+(define (cx-add num1 num2)
+  (list (add (real num1) (real num2)) (add (imag num1) (imag num2))))
+; Calcola la moltiplicazione di due numeri complessi
+(define (cx-mul num1 num2)
+  (list (sub (mul (real num1) (real num2)) (mul (imag num1) (imag num2)))
+        (add (mul (imag num1) (real num2)) (mul (real num1) (imag num2)))))
+
+Poi scriviamo una funzione per calcolare l'insieme di Julia:
+
+(define (julia width height)
+  (local (c z limite i)
+    (setq limite 40)
+    (setq c '(-0.8 0.156))
+    (for (y 1 height)
+      (for (x 1 width)
+        (setq i limite)
+        (setq z (list (div (mul 3 (sub x (div width 2))) width)
+                      (div (mul 2 (sub y (div height 2))) height)))
+        (while (and (< (modulo z) 2) (> i 0))
+          (setq z (cx-add (cx-mul z z) c))
+          (-- i)
+        )
+        (if (> i 0)
+            (print " ")
+            (print "#")
+        )
+      )
+      (println))))
+
+(julia 61 24)
+;->                                     #
+;->                                   ####
+;->                                  ## ##
+;->                              # ###     ####
+;->                            ######### ##########        ### #
+;->             ###   #        ######################   #########
+;->             #  ### ##       #############        #   ##### ## #  ##
+;->           ######### ####     ##########      ### #    ### #  ### ## ##
+;->    # ###  ######        ##     ########     ##        ######  ### #
+;-> ## ## ###  # ###    # ###      ##########     #### #########
+;->    ##  # ## #####   #        #############       ## ###  #
+;->          #########   ######################        #   ###
+;->           # ###        ########## #########
+;->                            ####     ### #
+;->                                 ## ##
+;->                                 ####
+;->                                  #
+
+(julia 141 50)
+;->                                                                        ##
+;->                                                                      ##
+;->                                                                     #######
+;->                                                                      ########
+;->                                                                        #   ##
+;->                                                                 # ###  ##  #
+;->                                                         #      #####   ####       ##     ##
+;->                                                          #    ######         ##########   #
+;->                                                               ########     ##########    #
+;->                                                          ##   ###### ########################                       ###
+;->                                                          ################ ################### ##             ## # ### #
+;->                                                        #  #####################################             #  ###  ##
+;->                          # #                           ############################# ###########          # ######    ###
+;->                          #   #       ##                  ########################### #    ########       ################# #
+;->                          # #    ####                    #####################  ###             ####      #####################
+;->                        ###    ############             ######################  # #               ###     ################ ###     # # #
+;->                        ###  # #################         ######################                    ##      ########### #      ##  ######
+;->                      ###########################           ####################           ######  ##       ##########     ### #   ###   # ##
+;->                     ################ ##      ######          #################           ######## ##       #  ######     ## ##   ####     ###
+;->         #  #         ########### #             ####         #############   ####        ###  #######       ###########    ##    ######
+;->        ##########    ############                ##           #  ##########  #           ##                ############    ##########
+;->       ######    ##    ###########       #######  ###        ####   #############         ####             # ###########         #  #
+;-> ##     ####   ## ##     ######  #       ## ########           #################          ######      ## ################
+;-> ## #   ###   # ###     ##########       ##  ######           ####################           ###########################
+;->      ######  ##      # ###########      ##                    ######################         ################# #  ###
+;->      # # #     ### ################     ###               # #  ######################             ############    ###
+;->               #####################      ####             ###  #####################                    ####    # #
+;->                 # #################       ########    # ###########################                  ##       #   #
+;->                    ###    ###### #          ########### #############################                           # #
+;->                       ##  ###  #             #####################################  #
+;->                      # ### # ##             ## ################### ################
+;->                      ###                       ######################## ######   ##
+;->                                                   #    ##########     ########
+;->                                                  #   ##########         ######    #
+;->                                                  ##     ##       ####   #####      #
+;->                                                                 #  ##  ### #
+;->                                                                ##   #
+;->                                                                ########
+;->                                                                  #######
+;->                                                                      ##
+;->                                                                    ##
+
+Nota: Quest'ultimo grafico dell'insieme è largo circa 155 caratteri, quindi per vederlo correttamente occorre visualizzarlo con righe maggiori di 155 caratteri.
+
+
+-----------------------
+Dado da 7 con dado da 5
+-----------------------
+
+Dato un generatore di uguale probabilità di uno degli interi da 1 a 5 come dado5, creare dado7 che genera un intero pseudo-casuale da 1 a 7 con uguale probabilità usando solo dadi5 come fonte di numeri casuali e controllare la distribuzione dei risultati per almeno un milione di lanci.
+
+Algoritmo:
+Lanciare 5 volte "dadi5", se il numero ottenuto è maggiore di 21, allora ripetere i 5 lanci di "dado5", altrimenti dividere le 21 combinazioni in 7 gruppi da tre e restituire l'indice del gruppo a cui appartiene il numero.
+
+(define (dado5) (+ (rand 5) 1))
+(dado5)
+;-> 2
+
+(define (dado7)
+  ; genera un numero casuale da 0 a 24 con uquali probabilità
+  (let (val (+ (* 5 (dado5)) (dado5) -6))
+    ; se val < 21, allora prendiamo come risultato (val % 7) + 1
+    ; altrimenti scartiamo il valore (val) e 
+    ; generiamo un nuovo valore rilanciando la funzione "dado7"
+    (if (< val 21) 
+      (+ 1 (% val 7)) 
+      (dado7))))
+
+(dado7)
+;-> 4
+
+Controlliamo la distribuzione dei valori (1..7):
+
+(define (check-dado7 limite)
+  (let (freq (array 8 '(0)))
+    (for (i 1 limite)
+      (++ (freq (dado7))))
+    (println (slice freq 1))
+    (println (slice (map (fn(x) (div x limite)) freq) 1))))
+
+(check-dado7 1e6)
+;-> (142884 143126 142924 142771 142699 142583 143013)
+;-> (0.142884 0.143126 0.142924 0.142771 0.142699 0.142583 0.143013)
+(apply + '(142884 143126 142924 142771 142699 142583 143013))
+;-> 1000000
+(apply add '(0.142884 0.143126 0.142924 0.142771 0.142699 0.142583 0.143013))
+;-> 1
+
+(check-dado7 1e8)
+;-> (14281766 14288029 14287001 14284639 14290141 14281342 14287082)
+;-> (0.14281766 0.14288029 0.14287001 0.14284639 0.14290141 0.14281342 0.14287082)
+(apply add '(0.14281766 0.14288029 0.14287001 0.14284639 0.14290141 0.14281342 0.14287082))
+;-> 1
+(apply + '(14281766 14288029 14287001 14284639 14290141 14281342 14287082))
+;-> 100000000
+
+Controlliamo anche la distribuzione del numero "val" in "dado7" (0..24):
+
+(define (check-val limite)
+  (let (freq (array 25 '(0)))
+    (for (i 1 limite)
+      (++ (freq (+ (* 5 (dado5)) (dado5) -6))))
+    (println (slice freq 1))
+    (println (slice (map (fn(x) (div x limite)) freq) 1))))
+
+(check-val 1e6)
+;-> (39900 39858 40061 39717 40064 39781 40031
+;->  40248 40064 39950 39879 40036 40012 39988
+;->  40246 40072 40045 39940 39958 40145 39985
+;->  39825 40107 39754)
+;-> (0.0399 0.039858 0.040061 0.039717 0.040064 0.039781 0.040031
+;->  0.040248 0.040064 0.03995 0.039879 0.040036 0.040012 0.039988 
+;->  0.040246 0.040072 0.040045 0.03994 0.039958 0.040145 0.039985 
+;->  0.039825 0.040107 0.039754)
+
+(check-val 1e8)
+;-> (4001367 4001057 4001661 3999623 4000304 4002462 3999824
+;->  3996966 3999206 4000869 3998084 4000704 4000113 4001563 
+;->  4000824 4001220 3995496 3999672 4000310 4002547 4000921 
+;->  3999067 3999375 3998509)
+;-> (0.04001367 0.04001057 0.04001661 0.03999623 0.04000304 0.04002462 0.03999824
+;->  0.03996966 0.03999206 0.04000869 0.03998084 0.04000704 0.04000113 0.04001563
+;->  0.04000824 0.0400122 0.03995496 0.03999672 0.0400031 0.04002547 0.04000921 
+;->  0.03999067 0.03999375 0.03998509)
 
 =============================================================================
 

@@ -838,6 +838,8 @@ NOTE LIBERE 4
   Somma delle potenze delle cifre
   Bruchi saltellanti
   Buste matrioska
+  ASCII Julia
+  Dado da 7 con dado da 5
 
 APPENDICI
 =========
