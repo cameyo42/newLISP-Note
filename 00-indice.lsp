@@ -840,6 +840,7 @@ NOTE LIBERE 4
   Buste matrioska
   ASCII Julia
   Dado da 7 con dado da 5
+  42 in newLISP e C
 
 APPENDICI
 =========

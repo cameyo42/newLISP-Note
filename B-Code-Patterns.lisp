@@ -212,16 +212,17 @@ newLISP is a registered trademark of Lutz Mueller.
 
 =============================================================================
 
-01. Introduzione
+01. INTRODUZIONE
 ----------------
 
-02. File di script newLISP
+02. FILE DI SCRIPT NEWLISP
 --------------------------
     Opzioni della riga di comando
     Script come pipe
     Filtri di file
+    newLISP come pipe
 
-03. Scrittura del software in moduli
+03. SCRITTURA DEL SOFTWARE IN MODULI
 ------------------------------------
     Strutturare un'applicazione
     Più di un contesto per file
@@ -229,159 +230,159 @@ newLISP is a registered trademark of Lutz Mueller.
     Inserire dati nei contesti
     Passaggio di oggetti per riferimento
 
-04. Variabili locali
--------------------
-    Locali nelle funzioni di loop
-    Locali in let, letn, local e letex
-    Parametri inutilizzati come locali
-    Valori predefiniti delle variabili
-    arg come sostituto locale
-    args e local usati insieme per le variabili con nome
+04. VARIABILI LOCALI
+--------------------
+    Variabili locali nei cicli (loop)
+    Variabili locali in let, letn, local e letex
+    Parametri inutilizzati come variabili locali
+    Valori di default delle variabili
+    args come sostituto delle variabili locali
+    Uso combinato di args e variabili locali per le variabili con nome
 
-05. Esplorazione di liste e dati
+05. ESPLORAZIONE DI LISTE E DATI
 --------------------------------
     Ricorsione o iterazione?
-    Accelera con la memoizzazione
-    Visitare un albero
-    Esplorare un albero di directory
+    Velocizzare con la memoizzazione (memoization)
+    Attraversare un albero (tree)
+    Attraversare l'albero di una cartella (directory/folder)
 
-06. Modifica e ricerca di liste
--------------------------------
+06. MODIFICA E RICERCA NELLE LISTE
+----------------------------------
     push e pop
-    Estendere usando extend
-    Accesso alle liste
+    Estendere con extend
+    Accedere alle liste
     Selezione di più elementi
-    Liste di filtri e differenze
+    Filtrare e differenziare le liste
     Modifica degli elementi di una lista
     La variabile anaforica
-    Replace in liste semplici
-    Replace in liste annidate
+    Sostituzioni nelle liste semplici
+    Sostituzioni nelle liste annidate
     Passaggio di liste per riferimento
-    Espansione variabili
-    Destrutturazione di liste annidate
+    Espansione delle variabili
+    Destrutturare le liste annidate
 
-07. Flusso del programma
-----------------
+07. FLUSSO DEL PROGRAMMA
+------------------------
     Cicli (Loop)
     Blocchi
-    Ramificazione
+    Ramificazione (branching)
     Flusso fuzzy
     Flusso con catch e throw
-    Uscire dai loop con una condizione di interruzione
+    Uscire dai cicli con una condizione di interruzione
     Modificare il flusso con and o or
 
-08. Gestione degli errori
-------------------
+08. GESTIONE DEGLI ERRORI
+-------------------------
     Errori newLISP
     Errori definiti dall'utente
-    Gestori di eventi di errore
-    Individuazione degli errori
+    Gestione degli eventi di errore
+    Cattura degli errori
     Errori del sistema operativo
 
-09. Funzione come dati
----------------------
+09. FUNZIONI COME DATI
+----------------------
     Manipolazione dopo la definizione
     Map e apply
-    Funzioni che generano funzioni
+    Funzioni che creano funzioni
     Funzioni con memoria
     Funzioni con codice auto-modificante
 
-10. Elaborazione del testo
+10. ELABORAZIONE DEL TESTO
 -------------------
     Espressioni regolari
     Scansione del testo
     Aggiunta di stringhe
-    Stringhe crescenti sul posto
-    Riorganizzare le strignhe
-    Modificare delle stringhe
+    Stringhe che crescono
+    Riorganizzare le stringhe
+    Modifica delle stringhe
 
-11. Dizionari e hash
+11. DIZIONARI E HASH
 ---------------------------
-    hash come chiave → accesso al valore
+    hash come chiave → valore
     Salvataggio e caricamento di dizionari
 
-12. Server client TCP / IP
+12. SERVER CLIENT TCP/IP
 ------------------------
     Connessione aperta
     Connessione chiusa
 
-13. Comunicazioni UDP
+13. COMUNICAZIONI UDP
 ----------------------
     Connessione aperta
     Connessione chiusa
     Comunicazioni multi-cast
 
-14. Comunicazioni non bloccanti
+14. COMUNICAZIONI NON BLOCCANTI
 -------------------------------
     Utilizzando net-select
     Utilizzando net-peek
 
-15. Controllo di altre applicazioni
+15. CONTROLLARE ALTRE APPLICAZIONI
 ----------------------------------
     Utilizzando exec
-    Pipe I/O STD
-    Comunicare tramite TCP/IP
-    Comunicare tramite FIFO denominato
-    Comunicare tramite UDP
+    Pipe STD I/O
+    Comunicazione tramite TCP/IP
+    Comunicazione tramite FIFO con nome
+    Comunicazione tramite UDP
 
-16. Avvio del blocco delle app
----------------------------
+16. ESEGUIRE APPLICAZIONI BLOCCANTI
+-----------------------------------
     Esecuzione della shell
-    Catturare lo std-out
+    Catturare std-out
     Alimentare std-in
 
-17. Semafori, shared memory
----------------------------
+17. SEMAFORI, MEMORIA CONDIVISA
+-------------------------------
 
-18. Multiprocessing e Cilk
-----------------------------
-    Avvio di processi simultanei
+18. MULTIPROCESSING E CILK
+--------------------------
+    Avvio di processi concorrenti
     Monitorare i progressi
     Invocare spawn in modo ricorsivo
     Notifica guidata dagli eventi
 
-19. Scambio di messaggi
---------------------
+19. SCAMBIO DI MESSAGGI
+-----------------------
     Blocco dell'invio e della ricezione di messaggi
     Blocco dello scambio di messaggi
     Scambio di messaggi non bloccante
     Timeout dei messaggi
     Valutazione dei messaggi
-    Agire come un proxy
+    Agire come proxy
 
-20. Database e tabelle di lookup
+20. DATABASE E TABELLE DI LOOKUP
 --------------------------------
     Liste di associazioni
     Associazioni annidate
     Aggiornamento delle associazioni annidate
     Combinazione di associazioni e hash
 
-21. Calcolo distribuito
+21. CALCOLO DISTRIBUITO
 -----------------------
     Configurazione in modalità server
-    Avvia un server con stato completo
-    Server senza stato con inetd
-    Prova il server con telnet
-    Prova con netcat su Unix
-    Prova dalla riga di comando
-    Prova HTTP con un browser
-    Valutare da remoto
+    Avviare un server state-full
+    Server state-less con inetd
+    Test del server con telnet
+    Test con netcat su Unix
+    Test dalla riga di comando
+    Test HTTP con un browser
+    Valutazione da remoto
     Impostazione della struttura dei parametri net-eval
     Trasferimento di file
     Caricamento e salvataggio dei dati
     Socket Unix di dominio locale
 
-22. Modalità solo server Web HTTPD
+22. MODALITÀ SOLO SERVER WEB HTTPD
 ----------------------------------
     Variabili ambientali
     Pre-elaborazione della richiesta
     Elaborazione CGI in modalità HTTP
-    Tipi di supporto in modalità HTTP
+    Tipi di file supportati in modalità HTTP
 
-23. Estendere newLISP
+23. ESTENDERE NEWLISP
 ---------------------
     Interfaccia FFI semplice rispetto a quella estesa
-    Una libreria condivisa in C
+    Una libreria condivisa (shared library) in C
     Compilare su Unix
     Compilare una DLL su Win32
     Importazione di strutture dati
@@ -389,13 +390,15 @@ newLISP is a registered trademark of Lutz Mueller.
     Strutture allineate in modo non uniforme
     Passaggio di parametri
     Estrazione dei valori di ritorno
-    Scrittura di wrapper di librerie
+    Scrivere wrapper di librerie
     Registrazione di callback in librerie esterne
 
-24. newLISP come libreria condivisa
--------------------------------
-    Valutazione del codice nella libreria condivisa (shared)
+24. NEWLISP COME LIBRERIA CONDIVISA (SHARED LIBRARY)
+----------------------------------------------------
+    Valutazione del codice nella libreria condivisa
     Registrazione dei callback
+
+=============================================================================
 
 =================
  1. INTRODUZIONE
@@ -407,12 +410,12 @@ Utilizzeremo solo un sottoinsieme del repertorio delle funzioni totali di newLIS
 Questa raccolta di modelli e soluzioni è un lavoro in corso. Nel tempo, il materiale verrà aggiunto o il materiale esistente migliorato.
 
 
-========================
- 2. newLISP SCRIPT FILE
-========================
+===========================
+ 2. FILE DI SCRIPT NEWLISP
+===========================
 
-Opzioni della linea di comando
-==============================
+Opzioni della riga di comando
+=============================
 Su Linux/Unix, inserisci quanto segue nella prima riga del file di script/programma:
 
 #!/usr/bin/newlisp
@@ -482,7 +485,7 @@ Il file verrà stampato in uscita standard tradotto in maiuscolo. Il seguente pr
 
 Imposta la dimensione del buffer per ottenere le migliori prestazioni.
 
-Filtro di File
+Filtri di File
 ==============
 Lo script seguente funziona come un'utilità grep di Unix che itera i file e filtra ogni riga in un file utilizzando un modello (pattern) di espressione regolare.
 
@@ -530,12 +533,12 @@ Inserisci una riga direttamente nell'eseguibile per la valutazione di espression
 ~>
 
 
-==============================
- 3. SCRIVERE CODICE IN MODULI
-==============================
+=====================================
+ 3. SCRITTURA DEL SOFTWARE IN MODULI
+=====================================
 
-Strutturare una applicazione
-============================
+Strutturare un'applicazione
+===========================
 Quando si scrivono applicazioni più grandi o quando più programmatori stanno lavorando sulla stessa base di codice, è necessario dividere la base di codice in moduli. I moduli in newLISP vengono implementati utilizzando i contesti, che sono spazi dei nomi. Gli spazi dei nomi consentono l'isolamento lessicale tra i moduli. Le variabili con lo stesso nome in un modulo non possono entrare in conflitto con le variabili con lo stesso nome in un altro modulo.
 
 In genere, i moduli sono organizzati in un contesto per ogni file.
@@ -581,8 +584,8 @@ In genere, ci sarà un modulo MAIN che carica e controlla tutti gli altri:
 
 (run)
 
-Più di un contesto in un file
-=============================
+Più di un contesto per file
+===========================
 Quando si utilizza più di un contesto per file, ogni sezione del contesto deve essere chiusa con un'istruzione (context MAIN):
 
 ; myapp.lsp
@@ -703,8 +706,8 @@ Proprio come abbiamo usato la funzione predefinita per fare riferimento a fibo e
 (2 1 db)  → ((c d))
 (-6 2 db) → (1 2)
 
-Passaggio di oggetti per riferimento (by reference)
-===================================================
+Passaggio di oggetti per riferimento
+====================================
 Quando il funtore predefinito (di default) viene utilizzato come argomento in una funzione definita dall'utente, il funtore predefinito viene passato per riferimento. Ciò significa che viene passato un riferimento al contenuto originale, non una copia della lista o della stringa. Ciò è utile quando si gestiscono liste o stringhe di grandi dimensioni:
 
 (define (update data idx expr)
@@ -739,8 +742,8 @@ L'aggiornamento della funzione è anche un buon esempio di come passare operator
  4. VARIABILI LOCALI
 =====================
 
-Variabili locali nei cicli
-==========================
+Variabili locali nei cicli (loop)
+=================================
 Tutte le funzioni di ciclo come "doargs", "dolist", "dostring", "dotimes", "dotree" e "for" usano le variabili locali. Durante l'esecuzione del ciclo, la variabile assume valori diversi. Ma dopo aver lasciato la funzione di ciclo, la variabile riacquista il suo vecchio valore. Le espressioni "let", "define" e "lambda" sono un altro metodo per rendere le variabili locali.
 
 Variabili locali in let, letn, local e letex
@@ -808,9 +811,9 @@ Nella definizione di una funzione si possono specificare valori di default:
     (foo 3)    →  (3 2)
     (foo 3 4)  →  (3 4)
 
-args come sostituto di local
-============================
-Utilizzando la funzione args non è necessario utilizzare alcun simbolo di parametro e args restituisce una lista di tutti i parametri passati, ma non presi dai parametri dichiarati:
+args come sostituto delle variabili locali
+==========================================
+Utilizzando la funzione "args" non è necessario utilizzare alcun simbolo di parametro e "args" restituisce una lista di tutti i parametri passati, ma non presi dai parametri dichiarati:
 
 (define (foo)
     (args))
@@ -822,7 +825,7 @@ Utilizzando la funzione args non è necessario utilizzare alcun simbolo di param
 
 (foo 1 2 3 4 5)   → (3 4 5)
 
-Il secondo esempio mostra come args contenga solo la lista di argomenti non associati dai simboli delle variabili a e b.
+Il secondo esempio mostra come "args" contenga solo la lista di argomenti non associati dai simboli delle variabili a e b.
 
 Gli indici possono essere utilizzati per accedere ai membri della lista (args):
 
@@ -831,8 +834,8 @@ Gli indici possono essere utilizzati per accedere ai membri della lista (args):
 
 (foo 3 4)   → 7
 
-Uso combinato di args e local per le variabili con nome
-=======================================================
+Uso combinato di args e variabili locali per le variabili con nome
+===================================================================
 
 (define-macro (foo)
    (local (len width height)
@@ -844,12 +847,12 @@ Uso combinato di args e local per le variabili con nome
 
 len:10 width:20 height:30
 
-local nasconderà/proteggerà i valori delle variabili len, width e height ai livelli di scoping dinamico più elevati.
+"local" nasconderà/proteggerà i valori delle variabili len, width e height ai livelli di scoping dinamico più elevati.
 
 
-==============================
- 5. ATTRAVERSARE LISTE E DATI
-==============================
+=================================
+ 5. ESPLORAZIONE DI LISTE E DATI
+=================================
 
 Ricorsione o iterazione?
 ========================
@@ -994,7 +997,7 @@ Nota che qualsiasi indice di lista o di stringa in newLISP può essere negativo 
 (-3 2 S) → "bc")
 
 push e pop
-============
+==========
 Per aggiungere a una lista usa "push", per eliminare un elemento da una lista usa "pop". Entrambe le funzioni sono distruttive e modificano il contenuto della lista:
 
 (set 'L '(b c d e f))
@@ -1109,8 +1112,8 @@ Il processo di selezione può riorganizzare o raddoppiare gli elementi contempor
 
 (select L 2 2 1 1) → (c c b b)
 
-Filtrare e differenziare liste
-==============================
+Filtrare e differenziare le liste
+=================================
 Le liste possono essere filtrate, restituendo solo quegli elementi che soddisfano una condizione specifica:
 
 (filter (fn(x) (< 5 x)) '(1 6 3 7 8))    → (6 7 8)
@@ -1127,8 +1130,8 @@ La funzione curry crea una funzione a un argomento da una funzione a due argomen
 
 Con curry, una funzione che accetta due argomenti può essere rapidamente convertita in un predicato che accetta un argomento.
 
-Modifica degli elementi della lista
-===================================
+Modifica degli elementi di una lista
+====================================
 "setf" può essere utilizzato per modificare un elemento della lista facendo riferimento ad esso con "nth" o "assoc":
 
 ; modificare una lista in corrispondenza di un indice
@@ -1162,8 +1165,8 @@ L → '(0 3 0)
 
 Le seguenti funzioni usano l'anaforico "$it": "find-all", "if", "replace", "set-ref", "set-ref-all", "setf" e "setq".
 
-Sostituzioni in liste semplici
-==============================
+Sostituzioni nelle liste semplici
+=================================
 "replace", che può essere utilizzato anche su stringhe, può cercare e sostituire più elementi contemporaneamente in una lista. Insieme a "match" e "unify", è possibile specificare modelli di ricerca complessi. Come con "setf", l'espressione di sostituzione può utilizzare il contenuto del vecchio elemento per formare la sostituzione.
 
 (set 'aList '(a b c d e a b c d))
@@ -1203,8 +1206,8 @@ Durante le sostituzioni $0 e la variabile di sistema anaforica $it contengono l'
 
 Dopo che un'istruzione di sostituzione è stata eseguita, la variabile di sistema newLISP $0 contiene il numero di sostituzioni effettuate.
 
-Sostituzioni in liste annidate
-==============================
+Sostituzioni nelle liste annidate
+=================================
 A volte le liste sono nidificati, ad es. l'SXML risulta dall'analisi dell'XML. Le funzioni "ref-set", "set-ref" e "set-ref-all" possono essere utilizzate per trovare un singolo elemento o tutti gli elementi in una lista annidata e sostituirli in parte o tutti.
 
 (set 'data '((monday (apples 20 30) (oranges 2 4 9)) (tuesday (apples 5) (oranges 32 1))))
@@ -1308,8 +1311,8 @@ La funzione "letex" funziona come "expand", ma i simboli di espansione sono loca
 
 Si noti che nell'esempio l'espressione del corpo in "letex": (x y z) viene quotata per impedire la valutazione.
 
-Destrutturare liste annidate
-============================
+Destrutturare le liste annidate
+===============================
 Il metodo seguente può essere utilizzato per associare ("bind") le variabili alle sottoparti di una lista annidata:
 
 ; utilizza unify insieme a bind per la destrutturazione
@@ -1331,8 +1334,8 @@ Il flusso del programma in newLISP è per lo più funzionale, ma ha anche costru
 
 Le espressioni di un ciclo nel loro insieme si comportano come una funzione o un blocco che restituisce l'ultima espressione valutata.
 
-Cicli (Loops)
-=============
+Cicli (Loop)
+============
 Sono supportati la maggior parte dei modelli di loop tradizionali. Ogni volta che è presente una variabile di ciclo, è di ambito locale rispetto al ciclo, comportandosi secondo le regole dello scoping dinamico all'interno dello spazio dei nomi o del contesto corrente:
 
 ; loop un numero di volte
@@ -1501,8 +1504,8 @@ Utilizzando "amb" il flusso del programma può essere regolato in modo probabili
 
 Una delle espressioni alternative da exp-1 a exp-n viene valutata con una probabilità di p = 1/n e il risultato viene restituito dall'espressione "amb".
 
-Flusso con catch and throw
-==========================
+Flusso con catch e throw
+========================
 Qualsiasi loop/ciclo o altro blocco di espressioni può essere racchiuso in un'espressione "catch". Nel momento in cui viene valutata un'espressione "throw", l'intera espressione catch restituisce il valore dell'espressione "throw".
 
 (catch
@@ -1517,8 +1520,8 @@ Qualsiasi loop/ciclo o altro blocco di espressioni può essere racchiuso in un'e
 
 È possibile annidare diverse espressioni "catch". La funzione "catch" può anche rilevare gli errori. Vedere il capitolo seguente "Gestione degli errori".
 
-Interrompere i cicli con una condizione di interruzione
-=======================================================
+Uscire dai cicli con una condizione di interruzione
+===================================================
 I cicli creati usando "dotimes", "dolist" o "for" possono specificare una condizione di interruzione per lasciare il loop in anticipo:
 
 (dotimes (x 10 (> (* x x) 9))
@@ -1536,8 +1539,8 @@ I cicli creati usando "dotimes", "dolist" o "for" possono specificare una condiz
  b
  c
 
-Cambiareflusso con and e or
-===========================
+Modificare il flusso con and o or
+=================================
 Simile alla programmazione in linguaggio Prolog, gli operatori logici "and" e "or" può essere utilizzato per controllare il flusso del programma a seconda del risultato delle espressioni logicamente connesse:
 
 (and
@@ -1762,8 +1765,8 @@ L'esempio utilizza un funtore predefinito - il nome della funzione è uguale al 
 (gen) → 21
 (gen) → 22
 
-Funzioni che utilizzano codice auto-modificante
-===============================================
+Funzioni con codice auto-modificante
+====================================
 In newLISP la natura di prima classe delle espressioni lambda rende possibile scrivere codice auto-modificante:
 
 ; accumulatore sum
@@ -2210,7 +2213,7 @@ In tutti i seguenti modelli il server non è indipendente, ma controllato dal cl
            ...
 A volte è necessario un tempo di sospensione sul lato client per attendere che il server sia pronto per il caricamento. Ad eccezione del primo esempio, la maggior parte di questi sono frammenti condensati del codice di GTK-Server da [http://www.gtk-server.org www.gtk-server.org]. La logica di base del programma sarà la stessa per qualsiasi altra applicazione.
 
-STD I/O pipe
+Pipe STD I/O
 ============
 La funzione "process" consente di specificare 2 pipe per comunicare con l'applicazione avviata.
 
@@ -2236,8 +2239,8 @@ Questo è il modo migliore per impostare comunicazioni bidirezionali durature co
 
 Per un esempio Tcl/Tk più elaborato, vedere l'applicazione examples/tcltk.lsp nella distribuzione dei sorgenti.
 
-Comunicazione via TCP/IP
-========================
+Comunicazione tramite TCP/IP
+============================
 ; Define communication function
 (define (gtk str , tmp)
     (net-send connection str)
@@ -2254,8 +2257,8 @@ Comunicazione via TCP/IP
 (set 'result (gtk "gtk_window_new 0"))
                .....
 
-Comunicazione via FIFO con nome
-===============================
+Comunicazione tramite FIFO con nome
+===================================
 Creare prima un FIFO (assomiglia a un file nodo speciale):
 
 (exec "mkfifo myfifo")
@@ -2275,8 +2278,8 @@ oppure in modo alternativo:
   (close handle)
 tmp)
 
-Comunicazione via UDP
-=====================
+Comunicazione tramite UDP
+=========================
 Notare che la funzione di ascolto con l'opzione "udp" associa semplicemente i socket a un indirizzo/hardware, ma non ascolta effettivamente come in TCP / IP.
 
 ; Define communication function
@@ -2301,8 +2304,8 @@ tmp)
  16. ESEGUIRE APPLICAZIONI BLOCCANTI
 =====================================
 
-Esecuzione shell
-================
+Esecuzione della shell
+======================
 Questo è spesso usato dalla riga di comando interattiva di newLISP per eseguire processi in modo bloccante, che richiedono una shell per essere eseguiti:
 
 (! "ls -ltr")
@@ -2382,7 +2385,7 @@ Sebbene il controllo dei processi con semafori e memoria condivisa sia veloce, �
 
 
 ============================
- 18. MULTIPROCESSING E Cilk
+ 18. MULTIPROCESSING E CILK
 ============================
 Sulle CPU multiprocessore il sistema operativo distribuirà processi e processi figlio creati su diversi core del processore in modo ottimizzato. newLISP offre una semplice API che fa tutto il lavoro di avvio dei processi e fa la raccolta sincronizzata dei risultati della valutazione. L'API Cilk consiste di sole 3 chiamate di funzione, implementate in newLISP come "spawn", "sync" e "abort".
 
@@ -2452,9 +2455,9 @@ Quando i processi vengono avviati con spawn finiscono, è possibile chiamare una
 (sync 10000 report)
 
 
-==========================
- 19. SCAMBIO DEI MESSAGGI
-==========================
+=========================
+ 19. SCAMBIO DI MESSAGGI
+=========================
 
 I processi padre e figlio avviati con "spawn" possono scambiare messaggi. I messaggi fluiscono dai genitore ai processi figli o dai processi figli ai genitore. Mediante la valutazione dei messaggi nel processo genitore, il processo genitore può essere utilizzato come un proxy di instradamento dei messaggi tra i figli.
 
@@ -2611,8 +2614,8 @@ L'istruzione "sleep" nel processo A garantisce che il messaggio "parent exiting 
 
 Per tabelle più piccole di non più di qualche centinaio di voci possono essere utilizzate liste di associazione. Per database più grandi utilizzare dizionari e hash come descritto nel capitolo 11.
 
-Elenchi di associazioni
-=======================
+Liste di associazioni
+=====================
 La lista delle associazioni è una classica struttura dati LISP per la memorizzazione delle informazioni per il recupero associativo:
 
 ; creazione di liste di associazioni
@@ -2653,7 +2656,7 @@ newLISP ha una funzione di "lookup" simile a quella utilizzata nel software per 
 (replace (assoc "John Doe" Persons) Persons)
 
 Associazioni annidate
-===================
+=====================
 Se la parte dati di un'associazione è essa stessa un elenco di associazioni, abbiamo un'associazione nidificata:
 
 (set 'persons '(
@@ -2678,8 +2681,8 @@ Se la parte dati di un'associazione è essa stessa un elenco di associazioni, ab
 
 Quando tutte le chiavi sono simboli, come nell'indirizzo, il paese e la città, le associazioni semplici e nidificate in newLISP hanno lo stesso formato degli oggetti newLISP FOOP (Functional Object Oriented Programming). Vedere il capitolo del manuale utente "18. Programmazione funzionale orientata agli oggetti" per i dettagli.
 
-Aggiornamento delle associazioni nidificate
-===========================================
+Aggiornamento delle associazioni annidate
+=========================================
 Le funzioni "assoc" e "setf" possono essere utilizzate per aggiornare associazioni semplici o annidate:
 
 (setf (assoc '("Anne" address city) persons) '(city "Boston")) → (city "New York")
@@ -2687,7 +2690,7 @@ Le funzioni "assoc" e "setf" possono essere utilizzate per aggiornare associazio
 "setf" restituisce sempre l'elemento appena impostato.
 
 Combinazione di associazioni e hash
-=================================
+===================================
 Gli hash e gli oggetti FOOP possono essere combinati per formare un database in memoria con accesso con chiave.
 
 Nell'esempio seguente, i record di dati vengono archiviati in uno spazio dei nomi hash e l'accesso avviene con il nome della persona come chiave.
@@ -2740,8 +2743,8 @@ Il secondo esempio precarica anche il codice. Il terzo esempio specifica anche u
 
 Dopo ogni transazione, quando una connessione si chiude, newLISP eseguirà un processo di ripristino, reinizializzerà stack e segnali e passerà al contesto MAIN. Verranno conservati solo il contenuto del programma e dei simboli delle variabili.
 
-State-less server con inetd
-===========================
+Serve state-less con inetd
+==========================
 Su Unix le funzionalità inetd o xindetd possono essere utilizzate per avviare un server senza stato. In questo caso le connessioni di rete TCP/IP sono gestite da una speciale utility Unix con la capacità di gestire più richieste contemporaneamente. Per ogni connessione effettuata da un client, l'utilità inetd o xinetd avvierà un nuovo processo newLISP. Dopo la chiusura della connessione, il processo newLISP verrà chiuso.
 
 Quando ai nodi non viene richiesto di mantenere lo stato, questo è il metodo preferito per un nuovo nodo del server LISP, per gestire più connessioni contemporaneamente.
@@ -2766,7 +2769,7 @@ Quando si configura inetd, aggiungere anche le seguenti righe al file /etc/inetd
 
   net-eval  stream  tcp  nowait  newlisp  /usr/bin/newlisp -c -w /usr/home/newlisp
 
-L'ultima riga specificava anche una directory di lavoro e un utente newlisp invece dell'utente root. Questa è una modalità più sicura che limita l'accesso al nodo del server newLISP ad un account utente specifico con autorizzazioni limitate.
+L'ultima riga specifica anche una directory di lavoro e un utente newlisp invece dell'utente root. Questa è una modalità più sicura che limita l'accesso al nodo del server newLISP ad un account utente specifico con autorizzazioni limitate.
 
 Su alcuni sistemi Unix è possibile utilizzare una versione moderna di inetd: la funzionalità xinetd può essere utilizzata. Aggiungi la seguente configurazione a un file /etc/xinet.d/net-eval:
 
@@ -2806,14 +2809,14 @@ O parlando con un nodo remoto:
 
 echo '(symbols) (exit)' | nc 192.168.1.100 4711
 
-In entrambi gli esempi netcat restituirà il risultato della valutazione dei simboli dell'espressione.
+In entrambi gli esempi "netcat" restituirà il risultato della valutazione dei simboli dell'espressione.
 
 Le espressioni su più righe possono essere inserite racchiudendole in tag [cmd], [/cmd], ogni tag su una riga separata.
 
 Multi-line expressions can be entered by enclosing them in [cmd], [/cmd] tags, each tag on a separate line.
 
-Test dalla linea di comando
-===========================
+Test dalla riga di comando
+==========================
 La funzione "net-eval" ha una forma di sintassi per connettersi a un solo nodo server remoto. Questa modalità è pratica per test rapidi dalla riga di comando newLISP:
 
 (net-eval "localhost" 4711 "(+ 3 4)" 1000) → 7
@@ -2832,13 +2835,13 @@ A newLISP server also understands simple HTTP GET and PUT requests. Enter the fu
 
 http://localhost:4711//usr/share/newlisp/doc/newlisp_manual.html
 
-The manual file is almost 800 Kbyte in size and will take a few seconds to load into the browser. Specify the port-number with a colon separated from the host-name or host IP. Note the double slash necessary to specify a file address relative to the root directory.
+Il file del manuale ha una dimensione di quasi 800 Kbyte e impiegherà alcuni secondi per essere caricato nel browser. Specificare il numero di porta con i due punti separati dal nome host o dall'IP host. Notare la doppia barra necessaria per specificare un indirizzo di file relativo alla cartella principale (root directory).
 
-Valutazione remota
-==================
-When testing the correct installation of newLISP server nodes, we were already sending expressions to remote node for evaluation. Many times remote evaluation is used to split up a lengthy task into shorter subtasks for remote evaluation on different nodes.
+Valutazione da remoto
+=====================
+Durante il test della corretta installazione dei nodi del server newLISP, stavamo già inviando le espressioni al nodo remoto per la valutazione. Molte volte la valutazione remota viene utilizzata per suddividere un'attività lunga in sotto-attività più brevi per la valutazione remota su nodi diversi.
 
-The first example is trivial, because it only evaluates several very simple expressions remotely, but it demonstrates the principles involved easily:
+Il primo esempio è banale, perché valuta solo alcune espressioni molto semplici in remoto, ma dimostra facilmente i principi coinvolti:
 
 #!/usr/bin/newlisp
 
@@ -2854,13 +2857,13 @@ The first example is trivial, because it only evaluates several very simple expr
 
 (exit)
 
-Running this program will produce the following output:
+L'esecuzione di questo programma produrrà il seguente output:
 
 result: (7 11 15 19 23)
 
-When running Unix and using an inetd or xinetd configured newLISP server, the servers and programs can be run on just one CPU, replacing all IP numbers with "localhost" or the same local IP number. The indetd or xinetd daemon will then start 5 independent newLISP processes. On Win32 5 state-full newLISP servers could be started on different port numbers to accomplish the same.
+Quando si esegue Unix e si utilizza un server newLISP configurato con inetd o xinetd, i server e i programmi possono essere eseguiti su una sola CPU, sostituendo tutti i numeri IP con "localhost" o lo stesso numero IP locale. Il demone di indetd o xinetd avvierà quindi 5 processi newLISP indipendenti. Su Win32 devono essere avviati 5 server newLISP con stato completo su numeri di porta diversi per ottenere lo stesso risultato.
 
-Instead of collecting all results at once on the return of net-eval, a callback function can be used to receive and process results as they become available:
+Invece di raccogliere tutti i risultati contemporaneamente sul ritorno di "net-eval", è possibile utilizzare una funzione di callback per ricevere ed elaborare i risultati non appena diventano disponibili:
 
 #!/usr/bin/newlisp
 
@@ -2877,7 +2880,7 @@ Instead of collecting all results at once on the return of net-eval, a callback 
 
 (exit)
 
-While net-eval is waiting for results, it calls the function idle-loop repeatedly with parameter p. The parameter p is nil when no result was received during the last 1000 milli seconds, or p contains a list sent back from the remote node. The list contains the remote address and port and the evaluation result. The example shown would generate the following output:
+Mentre "net-eval" è in attesa di risultati, chiama ripetutamente la funzione idle-loop con il parametro p. Il parametro p è nil se non è stato ricevuto alcun risultato durante gli ultimi 1000 millisecondi, oppure p contiene una lista inviata dal nodo remoto. La lista contiene l'indirizzo remoto con la porta e il risultato della valutazione. L'esempio mostrato genererebbe il seguente output:
 
 ("192.168.1.100" 4711 7)
 ("192.168.1.101" 4711 11)
@@ -2885,7 +2888,7 @@ While net-eval is waiting for results, it calls the function idle-loop repeatedl
 ("192.168.1.103" 4711 19)
 ("192.168.1.104" 4711 23)
 
-For testing on just one CPU, replace addresses with "localhost"; the Unix inetd or xinetd daemon will start a separate process for each connection made and all listening on port 4711. When using a state-full server on the same Win32 CPU specify a different port number for each server.
+Per i test su una sola CPU, sostituire gli indirizzi con "localhost". Il demone Unix inetd o xinetd avvierà un processo separato per ogni connessione effettuata e tutti in ascolto sulla porta 4711. Quando si utilizza un server state-full sulla stessa CPU su Win32, specificare un numero di porta diverso per ciascun server.
 
 Impostazione della struttura dei parametri 'net-eval'
 =====================================================
@@ -2962,8 +2965,8 @@ The function idle-loop aggregates all lists of primes received and generates the
 
 As with the previous examples all IP numbers could be replaced with "localhost" or any other host-name or IP number to test a distributed application on a single host before deployment in a distributed environment with many networked hosts.
 
-Trasferire file
-===============
+Trasferimento di file
+=====================
 Files can be read from or written to remote nodes with the same functions used to read and write files to a local file system. This functionality is currently only available on Unix systems when talking to newLISP servers. As functions are based on standard GET and PUT HTTP protocols they can also be used communicating with web servers. Note that few Apache web-server installations have enabled the PUT protocol by default.
 
 The functions read-file, write-file and append-file can all take URLs in their filename specifications for reading from and writing to remote nodes running a newLISP server or a web-server:
@@ -2988,8 +2991,8 @@ Note the double backslash necessary to reference files relative to root on the s
 
 All functions can be used to transfer binary non-ascii contents containing zero characters. Internally newLISP uses the functions get-url and put-url, which could be used instead of the functions read-file, write-file and append-file. Additional options like used with get-url and put-url could be used with the functions read-file, write-file and append-file as well. For more detail see the newLISP function reference for these functions.
 
-Caricare e salvare i dati
-=========================
+Caricamento e salvataggio dei dati
+==================================
 The same load and save functions used to load program or LISP data from a local file system can be used to load or save programs and LISP data from or to remote nodes.
 
 By using URLs in the file specifications of load and save these functions can work over the network communicating with a newLISP server node.:
@@ -3013,12 +3016,12 @@ Using local domain sockets fast communications between processes on the same fil
 
 In all previous chapters the -c server mode was used. This mode can act as a net-eval server and at the same time answer HTTP requests for serving web pages or transfer of files and programs. The -c mode is the preferred mode for secure operation behind a firewall. newLISP also has a -http mode which works like a restricted -c mode. In -http mode only HTTP requests are served and command-line like formatted requests and net-eval requests are not answered. In this mode newLISP can act like a web server answering HTTP GET, PUT, POST and DELETE requests as well as CGI requests, but additional efforts should be made to restrict the access to unauthorized files and directories to secure the server when exposed to the internet.
 
-Environment variables
-=====================
+Variabili d'ambiente
+====================
 In both server modes -c and -http the environment variables DOCUMENT_ROOT, REQUEST_METHOD, SERVER_SOFTWARE and QUERY_STRING are set. The variables CONTENT_TYPE, CONTENT_LENGTH, HTTP_HOST, HTTP_USER_AGENT and HTTP_COOKIE are set too if present in the HTTP header sent by the client.
 
-Pre-processing the request
-==========================
+Pre-elaborazione della richiesta
+================================
 When the newLISP server answers any kind of requests (HTTP and command line), the newLISP function command-event can be used to pre-process the request. The pre-processing function can be loaded from a file httpd-conf.lsp when starting the server:
 
 server_args = httpd-conf.lsp -http -w /home/node
@@ -3053,8 +3056,8 @@ All requests will be pre-processed with a function specified using command-event
 
 All CGI requests files ending with .exe would be rejected and the request translated into the request of an error page.
 
-CGI processing in HTTP mode
-===========================
+Elaborazione CGI in modalità HTTP
+=================================
 On http://www.newlisp.org various CGI examples can be found. In the download directory at http://www.newlisp.org/downloads two more complex applications can be found: newlisp-ide is a web based IDE and newlisp-wiki is a content management system which also runs the [http://www.newlisp.org www.newlisp.org] website.
 
 CGI program files must have the extension .cgi and have executable permission on Unix.
@@ -3076,8 +3079,8 @@ newLISP normally puts out a standard HTTP/1.0 200 OK\r\n response header plus a 
 
 A newLISP installation contains a module file cgi.lsp. This module contains subroutines for extracting parameters from HTTP GET and POST requests, extract or set cookies and other useful routines when writing CGI files. See the modules section at: http://www.newlisp.org/modules/.
 
-Media types in HTTP modes
-=========================
+Tipi di file supportati on modalità HTTP
+========================================
 In both the -c and -http HTTP modes the following file types are recognized and a correctly formatted Content-Type: header is sent back:
 
 File extension   Media type
@@ -3104,16 +3107,16 @@ any other        text/plain
 
 newLISP has an import function, which allows importing function from DLLs (Dynamic Link Libraries) on Win32 or shared libraries on Linux/Unix (ending in .so, ending in .dylib on Mac OS X).
 
-Simple versus extended FFI interface
-====================================
+Interfacci ffi semplice rispetto a quella estesa
+================================================
 In version 10.4.0 newLISP introduced an extended syntax for the import, callback and struct functions and for the pack and unpack support functions. This extended syntax is only available on newLISP versions built with libffi . All standard binary versions distributed on www.newlisp.org are enabled to use the new extensions additionally to the simpler API. The simpler API is used by all standard extension modules part of the distribution except for the module gsl.lsp.
 
 The extended syntax allows specifying C-language types for parameter and return values of imported functions and for functions registered as callbacks. The extended syntax also allows handling of floating point values and C-structures in parameters and returns. Handling of floating point types was either impossible or unreliable using the simple API that depended on pure cdecl calling conventions. These are not available on all platforms. The extended API also handles packing and unpacking of C-structures with automatic alignment of C-types on different CPU architectures. See the extended syntax of the pack and unpack functions in the User Manual and Reference and OpenGL demo.
 
 The following chapters describe the older simple API. Much of it is applicable to the extended API as well. For details on the new API, consult the User Manual and Reference for the functions import, callback, struct, pack and unpack.
 
-A shared library in C
-=====================
+Una libreria condivisa (shared library) in C
+============================================
 This chapter shows how to compile and use libraries on both, Win32 and Linux/Unix platforms. We will compile a DLL and a Linux/Unix shared library from the following 'C' program.
 
 #include <stdio.h>
@@ -3139,8 +3142,8 @@ char * foo2(char * ptr, int number)
 
 Both functions foo1 and foo2 print their arguments, but while foo1 returns the number multiplied 10 times, foo2 returns the uppercase of a string to show how to return strings from 'C' functions.
 
-Compile on Unix
-===============
+Compilare on Unix
+=================
 On Mac OS X and Linux/Unix we can compile and link testlib.so in one step:
 
 gcc testlib.c -shared -o testlib.so
@@ -3172,8 +3175,8 @@ the string: hello the number: 123
 
 Again, the number returned from foo2 is the string address pointer and get-string can be used to access the string. When using get-string only character up to a zero byte are returned. When returning the addresses to binary buffers different techniques using unpack are used to access the information.
 
-Compile a DLL on Win32
-======================
+Compilare una DLL su Win32
+==========================
 DLLs on Win32 can be made using the MinGW, Borland or CYGWIN compilers. This example shows, how to do it using the MinGW compiler.
 
 Compile it:
@@ -3218,8 +3221,8 @@ the string: hello the number: 123
 
 Note that the first time using foo2 the return value 4054088 is the memory address of the string returned. Using get-string the string belonging to it can be accessed. If the library is compiled using cdecl calling conventions, the cdecl keyword must be used in the import expression.
 
-Importing data structures
-=========================
+Importaqzione di strutture dati
+===============================
 Just like 'C' strings are returned using string pointers, 'C' structures can be returned using structure pointers and functions like get-string, get-int or get-char can be used to access the members. The following example illustrates this:
 
 typedef struct mystruc
@@ -3251,8 +3254,8 @@ The newLISP program would access the structure members as follows:
 >
 The return value from foo3 is the address to the structure astruc. To access the string pointer, 4 must be added as the size of an integer type in the 'C' programming language. The string in the string pointer then gets accessed using get-string.
 
-Memory management
-=================
+Gestione della memoria
+======================
 Any allocation performed by imported foreign functions has to be deallocated manually if there's no call in the imported API to do so. The libc function free can be imported and used to free memory allocated inside imported functions:
 
 (import "/usr/lib/libc.so" "free")
@@ -3261,8 +3264,8 @@ Any allocation performed by imported foreign functions has to be deallocated man
 
 In case of calling foreign functions with passing by reference, memory for variables needs to be allocated beforehand by newLISP, and hence, memory needs not be deallocated manually.
 
-Unevenly aligned structures
-===========================
+Strutture allineate in modo non uniforme
+========================================
 Sometimes data structures contain data types of different length than the normal CPU register word:
 
 struct mystruct
@@ -3315,17 +3318,18 @@ foo <281A1588>
 > (unpack "u u lu" (foo))
 (123 456 8)
 
-Passing parameters
-==================
-data Type newLISP call  C function call
-integer (foo 123) foo(int number)
-double float  (foo 1.234) foo(double number)
-float (foo (flt 1.234)) foo(float number)
-string  (foo "Hello World!")  foo(char * string)
-integer array (foo (pack "d d d" 123 456 789))  foo(int numbers[])
-float array (foo (pack "f f f" 1.23 4.56 7.89)) foo(float[])
-double array  (foo (pack "lf lf lf" 1.23 4.56 7.89) foo(double[])
-string array  (foo (pack "lu lu lu" "one" "two" "three")))  foo(char * string[])
+Passaggio di parametri
+======================
+data Type      newLISP call                                  C function call
+---------      ------------                                  ---------------
+integer        (foo 123)                                     foo(int number)
+double float   (foo 1.234)                                   foo(double number)
+float          (foo (flt 1.234))                             foo(float number)
+string         (foo "Hello World!")                          foo(char * string)
+integer array  (foo (pack "d d d" 123 456 789))              foo(int numbers[])
+float array    (foo (pack "f f f" 1.23 4.56 7.89))           foo(float[])
+double array   (foo (pack "lf lf lf" 1.23 4.56 7.89)         foo(double[])
+string array   (foo (pack "lu lu lu" "one" "two" "three")))  foo(char * string[])
 
 Note that floats and double floats are only passed correctly on x86 platforms with cdecl calling conventions or when passed by pointer reference as in variable argument functions, i.e: printf(). For reliable handling of single and double precision floating point types and for advanced usage of pack and unpack for handling C-structures, see the descriptions of the import, callback and struct functions in the newLISP User Manual and Reference.
 
@@ -3333,8 +3337,8 @@ pack can receive multiple arguments after the format specifier in a list too:
 
 (pack "lu lu lu" '("one" "two" "three"))
 
-Extracting return values
-========================
+Estrazione dei valori di ritorno
+================================
 data Type newLISP to extract return value C return
 integer (set 'number (foo x y z)) return(int number)
 double float  n/a - only 32bit returns, use double float pointer instead  not available
@@ -3356,8 +3360,8 @@ The formats "ld" and "lu" are interchangeable, but the 16-bit formats "u" and "d
 
 Flags are available for changing endian byte order during pack and unpack.
 
-Writing library wrappers
-========================
+Scrivere wrapper di librerie
+============================
 Sometimes the simple version of newLISP's built-in import facility cannot be used with a library. This happens whenever a library does not strictly adhere to cdecl calling conventions expecting all parameters passed on the stack. E.g. when running Mac OS X on older PPC CPUs instead of Intel CPUs, the OpenGL libraries installed by default on Mac OS X cannot be used.
 
 Since newLISP version 10.4.0, the problem can be solved easiest using the newer extended syntax of import, which automatically resolves platform and architectural differences. On very small systems or whenever the needed libffi system library is not present on a platform, a special wrapper library can be built to translate cdecl conventions expected by newLISP into the calling conventions expected by the target library.
@@ -3383,7 +3387,6 @@ usage from newLISP:
 
 #include <stdio.h>
 #include <stdarg.h>
-
 
 /* the glFoo() function would normally live in the library to be
    wrapped, e.g. libopengl.so or libopengl.dylib, and this
@@ -3427,8 +3430,8 @@ double * wrapperFoo(int argc, ...)
 
 /* eof */
 
-Registering callbacks in external libraries
-===========================================
+Registrazione di callback in librerie esterne
+=============================================
 Many shared libraries allow registering callback functions to call back into the controlling program. The function callback is used in newLISP to extract the function address from a user-defined newLISP function and pass it to the external library via a registering function:
 
 (define (keyboard key x y)
@@ -3441,14 +3444,14 @@ The example is a snippet from the file opengl-demo.lsp in the newlisp-x.x.x/exam
 
 For an advanced syntax of callback using C-type specifiers see newLISP User Manual and Reference.
 
-=================================
- 24. NEWLISP AS A SHARED LIBRARY
-=================================
+======================================================
+ 24. NEWLISP COME LIBRERIA CONDIVISA (SHARED LIBRARY)
+======================================================
 
 On all platforms, newLISP can be compiled as a shared library. On Win32, the library is called newlisp.dll, on Mac OS X newlisp.dylib and on Linux and BSDs, the library is called newlisp.so. Makefiles are included in the source distribution for most platforms. Only on Win32, the installer comes with a precompiled newlisp.dll and will install it in the Program Files/newlisp/ directory.
 
-Evaluating code in the shared library
-=====================================
+Valutazione del codice nella libreria condivisa
+===============================================
 The first example shows how to import newlispEvalStr from newLISP itself as the caller:
 
 (import "/usr/lib/newlisp.so" "newlispEvalStr")
@@ -3510,8 +3513,8 @@ return(0);
 
 This program will accept quoted newLISP expressions and print the evaluated results.
 
-Registering callbacks
-=====================
+Registrazione dei callbacks
+===========================
 Like many other share libraries, callbacks can be registered in newLISP library. The function newlispCallback must be imported and is used for registering callback functions. The example shows newLISP importing newLISP as a library and registering a callback callme:
 
 #!/usr/bin/newlisp
@@ -3551,4 +3554,5 @@ p1 => 123 p2 => 456 p3 => 789
 99999
 
 Note that Win32 and many Unix flavors will look for newlisp.dll in the system library path, but Mac OS X will look for newlisp.dylib first in the current directory, if the full file path is not specified. The program above can also be found as callback in the source distribution in the newlisp-x.x.x/examples directory.
+
 

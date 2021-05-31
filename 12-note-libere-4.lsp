@@ -1320,7 +1320,7 @@ Passeggiata casuale lungo una linea
 Supponiamo di avere un agente casuale che si muove lungo una linea (asse x) partendo dalla posizione 0. Ad ogni passo può spostarsi di un qualunque valore contenuto in una lista (es. (-1 +1)). Data una lista di posizioni, determinare (con una simulazione) dopo quanti passi l'agente si trova in quelle posizioni (positive o negative).
 Per esempio,
 
-Lista dei valori di un passo (testa o croce): 
+Lista dei valori di un passo (testa o croce):
 (setq passi '(-1 +1))
 
 Lista delle posizioni:
@@ -1353,7 +1353,7 @@ Scriviamo la funzione:
       (setq passo (steps idx))
       ; aggiorna posizione dell'agente
       (setq x (+ x passo))
-      ; se siamo arrivati ad una posizione 
+      ; se siamo arrivati ad una posizione
       ; che si trova nella lista delle posizioni...
       ; (controlla anche il valore negativo)
       (if (find (abs x) positions)
@@ -1597,7 +1597,7 @@ Caso 2: il carattere è "?"
 Possiamo ignorare il carattere corrente nel testo e passare al carattere successivo nel modello e nel Testo.
 
 Caso 3: il carattere non è un carattere jolly
-Se il carattere corrente in Testo corrisponde al carattere corrente in modello, ci spostiamo al carattere successivo in modello e in Testo. 
+Se il carattere corrente in Testo corrisponde al carattere corrente in modello, ci spostiamo al carattere successivo in modello e in Testo.
 Se non corrispondono, il motivo jolly e il testo non corrispondono.
 
 Possiamo usare la programmazione dinamica per risolvere questo problema.
@@ -1617,7 +1617,7 @@ DP[0][j] = DP[0][j - 1] se modello[j – 1] è '*'
 
 Relazione DP:
 
-Se i caratteri correnti corrispondono, il risultato è lo stesso di risultato per le lunghezze meno uno. 
+Se i caratteri correnti corrispondono, il risultato è lo stesso di risultato per le lunghezze meno uno.
 I caratteri corrispondono in due casi:
 a) Se il carattere del modello è "?" quindi corrisponde con qualsiasi carattere di testo.
 b) Se i caratteri correnti nel modello e nel Testo corrispondono
@@ -1666,7 +1666,7 @@ Adesso possiamo scrivere la funzione:
                ; (a) il carattere corrente del pattern è "?"
                ; (b) i caratteri corrispondono effettivamente
                (setf (dp i j) (dp (- i 1) (- j 1))))
-              (true 
+              (true
                ; i caratteri non si abbinano
                (setf (dp i j) nil))
         )
@@ -1719,7 +1719,7 @@ A B | 0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15
 ----+------------------------------------------------
 T T | T  T  T  T  T  T  T  T  F  F  F  F  F  F  F  F
 T F | T  T  T  T  F  F  F  F  T  T  T  T  F  F  F  F
-F T | T  T  F  F  T  T  F  F  T  T  F  F  T  T  F  F 
+F T | T  T  F  F  T  T  F  F  T  T  F  F  T  T  F  F
 F F | T  F  T  F  T  F  T  F  T  F  T  F  T  F  T  F
 
 Prendendo come esempio l'insieme (OR NOT), ecco una tabella di verità per i numeri (0-15) con la combinazione di OR e NOT che la producono e una descrizione.
@@ -1878,11 +1878,11 @@ Poi scriviamo una funzione che genera la tabella dei valori da assegnare alle va
   out)
 
 (make-values 3)
-;-> ((nil nil nil) 
-;->  (nil nil true) 
-;->  (nil true nil) 
-;->  (nil true true) 
-;->  (true nil nil) 
+;-> ((nil nil nil)
+;->  (nil nil true)
+;->  (nil true nil)
+;->  (nil true true)
+;->  (true nil nil)
 ;->  (true nil true)
 ;->  (true true nil)
 ;->  (true true true))
@@ -2547,10 +2547,10 @@ La "Sensibilità" e la "Specificità" sono misure statistiche delle prestazioni 
 
 "Specificità" (tasso veri negativi): misura la proporzione di negativi che sono correttamente identificati (cioè la proporzione di coloro che non hanno la condizione (non affetti) che sono correttamente identificati come non affetti dalla condizione).
 
-I termini "vero positivo", "falso positivo", "vero negativo" e "falso negativo" si riferiscono al risultato di un test e alla correttezza della classificazione. Ad esempio, se la condizione è una malattia, "vero positivo" significa "correttamente diagnosticato come malato", "falso positivo" significa "erroneamente diagnosticato come malato", "vero negativo" significa "correttamente diagnosticato come non malato" e "falso negativo "significa" diagnosticato erroneamente come non malato". 
-Pertanto, se la sensibilità di un test è del 97% e la sua specificità è del 92%, il suo tasso di falsi negativi è del 3% e il suo tasso di falsi positivi è dell'8%. 
+I termini "vero positivo", "falso positivo", "vero negativo" e "falso negativo" si riferiscono al risultato di un test e alla correttezza della classificazione. Ad esempio, se la condizione è una malattia, "vero positivo" significa "correttamente diagnosticato come malato", "falso positivo" significa "erroneamente diagnosticato come malato", "vero negativo" significa "correttamente diagnosticato come non malato" e "falso negativo "significa" diagnosticato erroneamente come non malato".
+Pertanto, se la sensibilità di un test è del 97% e la sua specificità è del 92%, il suo tasso di falsi negativi è del 3% e il suo tasso di falsi positivi è dell'8%.
 
-In un test diagnostico, la sensibilità è una misura della capacità di un test di identificare i veri positivi. 
+In un test diagnostico, la sensibilità è una misura della capacità di un test di identificare i veri positivi.
 La sensibilità può anche essere definita come il tasso di richiamo, il tasso di successo o il tasso di vero positivo. È la percentuale, o proporzione, di veri positivi su tutti i campioni che presentano la condizione (veri positivi e falsi negativi). La sensibilità di un test può aiutare a mostrare quanto bene può classificare i campioni che hanno la condizione.
 
 In un test, la specificità è una misura della capacità di un test di identificare i veri negativi. La specificità viene anche definita selettività o tasso di veri negativi ed è la percentuale, o proporzione, dei veri negativi tra tutti i campioni che non presentano la condizione (veri negativi e falsi positivi).
@@ -2723,7 +2723,7 @@ Esecuzione delle tre domande:
   (bayes-query (parse (lower-case
                 "the latest vegetable alkaloid") {\W} 0)
                'Lessico))
-;-> (0.988422932469966 0.01157706753003401)               
+;-> (0.988422932469966 0.01157706753003401)
 
 (setq frase2
   (bayes-query (parse (lower-case
@@ -2892,12 +2892,12 @@ Prima di tutto ci servono alcune funzioni per calcolare i numeri complessi:
 ; Estrae la parte immaginaria di un numero complesso
 (define (imag num) (last num))
 ; Calcola il modulo di un numero complesso
-(define (modulo num) 
+(define (modulo num)
   (sqrt (add (mul (real num) (real num)) (mul (imag num) (imag num)))))
 ; Calcola la somma di due numeri complessi
 (define (cx-add num1 num2)
   (list (add (real num1) (real num2)) (add (imag num1) (imag num2))))
-; Calcola la moltiplicazione di due numeri complessi  
+; Calcola la moltiplicazione di due numeri complessi
 (define (cx-mul num1 num2)
   (list (sub (mul (real num1) (real num2)) (mul (imag num1) (imag num2)))
         (add (mul (imag num1) (real num2)) (mul (real num1) (imag num2)))))
@@ -3371,7 +3371,7 @@ In generale, per una data griglia di dimensione N, un puzzle (N*N - 1) è risolv
 
 a) Se N è dispari, l'istanza del puzzle è risolvibile se il numero di inversioni è pari nello stato iniziale di input.
 
-b) Se N è pari, l'istanza del puzzle è risolvibile se 
+b) Se N è pari, l'istanza del puzzle è risolvibile se
   1) lo spazio vuoto (zero) è su una riga pari contando dal basso (penultima, quarto-ultima, ecc.) e il numero di inversioni è dispari
   oppure
   2) lo spazio vuoto si trova su una riga dispari contando dal basso (ultima, terzultima, quintultima, ecc.) e il numero di inversioni è pari
@@ -3573,7 +3573,7 @@ Puzzle 15
 ;-> ║  1 ║  2 ║ 15 ║ 11 ║
 ;-> ╚════╩════╩════╩════╝
 ;-> (0) - Numero (1..15): 13
-;-> 
+;->
 ;-> ╔════╦════╦════╦════╗
 ;-> ║ 10 ║ 12 ║  5 ║  8 ║
 ;-> ╠════╬════╬════╬════╣
@@ -4234,7 +4234,7 @@ Funzione che calcola la somma dei divisori di un numero:
 Funzione che calcola il numero di Chowla per un dato numero:
 
 (define (chowla num)
-  (if (= num 1) 
+  (if (= num 1)
       0
       (- (divisors-sum num) num 1)))
 
@@ -4604,7 +4604,7 @@ Vediamo i primi n numeri di Zumkeller dispari che non terminano con 5:
     (setq i 1)
     (while (< nd num)
       (if (!= (% i 10) 5)
-          (if (zumkeller? i)        
+          (if (zumkeller? i)
               (println (++ nd) { - } i)))
       (++ i 2))))
 
@@ -4940,16 +4940,16 @@ Negative
 (define (eight-ball)
 (catch
   (local (responses question)
-    (setq responses 
-         '("It is certain" "It is decidedly so" "Without a doubt" 
-           "Yes definitely" "You may rely on it" "As I see it, yes" 
+    (setq responses
+         '("It is certain" "It is decidedly so" "Without a doubt"
+           "Yes definitely" "You may rely on it" "As I see it, yes"
            "Most likely" "Outlook good" "Yes" "Signs point to yes"
-           "Reply hazy try again" "Ask again later" 
-           "Better not tell you now" "Cannot predict now" 
-           "Concentrate and ask again" "Don't count on it" 
+           "Reply hazy try again" "Ask again later"
+           "Better not tell you now" "Cannot predict now"
+           "Concentrate and ask again" "Don't count on it"
            "My reply is no" "My sources say no" "Outlook not so good"
            "Very doubtful"))
-    (while true 
+    (while true
       (println "\nWhat do you want to know?")
       (setq question (read-line))
       (if (= question "exit") (throw 'good-luck))
@@ -5008,13 +5008,13 @@ Negative
     (setq responses
         '("È certo" "È decisamente così" "Senza dubbi" "Si, assolutamente"
           "Puoi contarci" "Per come la vedo io, sì" "Molto probabile"
-          "Buone prospettive" "Si" "I segni indicano sì" 
+          "Buone prospettive" "Si" "I segni indicano sì"
           "Risposta confusa, riprova" "Chiedilo di nuovo più tardi"
           "Meglio non dirtelo ora" "Non posso prevedere adesso"
           "Concentrati e chiedi di nuovo" "Non contarci"
           "La mia risposta è no" "Le mie fonti dicono di no"
           "Prospettive non così buone" "Molto dubbioso"))
-    (while true 
+    (while true
       (println "\nChe cosa vuoi sapere?")
       (setq question (read-line))
       (if (= question "esci") (throw 'buona-fortuna))
@@ -5486,7 +5486,7 @@ Vediamo la funzione seno (sin):
 (plot-function sin -6.3 6.3 75 20)
 ;-> x min = -6.3  -  x max = 6.3
 ;-> y min = -0.9996824042410868  -  y max = 0.9996824042410868
-;-> 
+;->
 ;->         ■■■■                                 ■■■■
 ;->        ■    ■                               ■    ■■
 ;->       ■      ■                             ■       ■
@@ -5516,19 +5516,19 @@ Vediamo una parabola:
 (plot-function g -5 5 60 25)
 ;-> x min = -5  -  x max = 5
 ;-> y min = 0  -  y max = 25
-;-> 
+;->
 ;-> ■                                                           ■
-;-> 
+;->
 ;->  ■                                                         ■
 ;->   ■                                                       ■
-;-> 
+;->
 ;->    ■                                                     ■
 ;->     ■                                                   ■
-;-> 
+;->
 ;->      ■                                                 ■
 ;->       ■                                               ■
 ;->        ■                                             ■
-;-> 
+;->
 ;->         ■                                           ■
 ;->          ■                                         ■
 ;->           ■                                       ■
@@ -5558,7 +5558,7 @@ f(x) = ------------------
 (plot-function f -4 4 75 20)
 ;-> x min = -4  -  x max = 4
 ;-> y min = -1.791478768959859  -  y max = 3.529411764705882
-;-> 
+;->
 ;->                                                                            ■
 ;->                                                                          ■■
 ;->                                                                        ■■
@@ -6249,7 +6249,6 @@ La funzione è abbastanza lenta. Un miglioramento potrebbe essere quella di inse
 (time (yellowstone 10000))
 ;-> 2097865.029 ; 35 minuti
 
-(div (div 2097865.029 1000) 60)
 Funzione che stampa il grafico della sequenza:
 
 (define (plot-ys limite)
@@ -6275,39 +6274,39 @@ Funzione che stampa il grafico della sequenza:
 
 (plot-ys 30)
 ;->                            ■
-;-> 
-;-> 
-;-> 
-;-> 
-;-> 
+;->
+;->
+;->
+;->
+;->
 ;->                          ■
-;-> 
-;-> 
-;-> 
-;-> 
-;-> 
+;->
+;->
+;->
+;->
+;->
 ;->                     ■
-;-> 
-;-> 
-;-> 
+;->
+;->
+;->
 ;->             ■
-;-> 
+;->
 ;->                        ■
 ;->                             ■
-;-> 
-;-> 
-;-> 
+;->
+;->
+;->
 ;->                           ■
 ;->                   ■
 ;->                         ■
 ;->           ■
-;-> 
-;-> 
+;->
+;->
 ;->                    ■
 ;->                 ■
 ;->                  ■
-;-> 
-;-> 
+;->
+;->
 ;->                              ■
 ;->              ■
 ;->       ■
@@ -6535,7 +6534,7 @@ Algoritmo di Bresenham
 
 L'algoritmo di Bresenham è un algoritmo per disegnare linee in una griglia bidimensionale (raster) conoscendo il punto di inizio e di fine della linea. Questo algoritmo è uno dei primi ad essere stato introdotto nel campo della computer grafica e viene comunemente usato per disegnare linee primitive in un'immagine bitmap (es. lo schermo di un computer), poiché utilizza solo addizione, sottrazione e shift di interi. È un algoritmo di errore incrementale che non supporta l'antialiasing, ma è molto veloce. Per un metodo che supporta l'antialiasing vedi l'algoritmo di Wu.
 
-Per informazioni dettagliate vedere: 
+Per informazioni dettagliate vedere:
 "Michael Abrash's Graphics Programming Black Book Special Edition"
 http://www.phatcode.net/res/224/files/html/index.html
 
@@ -6584,7 +6583,7 @@ Con la funzione "plot" (vedi il capitolo "Funzioni varie"):
 (plot (bresenham 1 1 10 6) 9 5)
 ;-> x: 1.000        10.000
 ;-> y: 1.000        6.000
-;-> 
+;->
 ;->           ■
 ;->         ■■
 ;->       ■■
@@ -6682,11 +6681,11 @@ Sequenza OEIS A045503: If decimal expansion of n is ab...d, a(n) = a^a + b^b +..
     (let ((out 0) (power '(1 1 4 27 256 3125 46656 823543 16777216 387420489)))
       (while (!= num 0)
         (setq out (+ out (power (% num 10))))
-        (setq num (/ num 10))) 
+        (setq num (/ num 10)))
       out)))
 
 (map A045503 (sequence 0 20))
-;-> (1 1 4 27 256 3125 46656 823543 16777216 387420489 2 2 
+;-> (1 1 4 27 256 3125 46656 823543 16777216 387420489 2 2
 ;->  5 28 257 3126 46657 823544 16777217 387420490 5)
 
 Invece di sommare ogni volta, alterniamo l'addizone e la sottrazione:
@@ -6774,8 +6773,8 @@ Ordinamento standard:
 
 Ordinamento con una funzione di comparazione (ascendente in x e discendente in y (per valori uguali di x)):
 
-(define (cmp x y) 
-  (if (= (first x) (first y)) 
+(define (cmp x y)
+  (if (= (first x) (first y))
       (> (last x) (last y))
       (< (first x) (first y))))
 
@@ -6942,10 +6941,10 @@ Lanciare 5 volte "dadi5", se il numero ottenuto è maggiore di 21, allora ripete
   ; genera un numero casuale da 0 a 24 con uquali probabilità
   (let (val (+ (* 5 (dado5)) (dado5) -6))
     ; se val < 21, allora prendiamo come risultato (val % 7) + 1
-    ; altrimenti scartiamo il valore (val) e 
+    ; altrimenti scartiamo il valore (val) e
     ; generiamo un nuovo valore rilanciando la funzione "dado7"
-    (if (< val 21) 
-      (+ 1 (% val 7)) 
+    (if (< val 21)
+      (+ 1 (% val 7))
       (dado7))))
 
 (dado7)
@@ -6991,19 +6990,74 @@ Controlliamo anche la distribuzione del numero "val" in "dado7" (0..24):
 ;->  40246 40072 40045 39940 39958 40145 39985
 ;->  39825 40107 39754)
 ;-> (0.0399 0.039858 0.040061 0.039717 0.040064 0.039781 0.040031
-;->  0.040248 0.040064 0.03995 0.039879 0.040036 0.040012 0.039988 
-;->  0.040246 0.040072 0.040045 0.03994 0.039958 0.040145 0.039985 
+;->  0.040248 0.040064 0.03995 0.039879 0.040036 0.040012 0.039988
+;->  0.040246 0.040072 0.040045 0.03994 0.039958 0.040145 0.039985
 ;->  0.039825 0.040107 0.039754)
 
 (check-val 1e8)
 ;-> (4001367 4001057 4001661 3999623 4000304 4002462 3999824
-;->  3996966 3999206 4000869 3998084 4000704 4000113 4001563 
-;->  4000824 4001220 3995496 3999672 4000310 4002547 4000921 
+;->  3996966 3999206 4000869 3998084 4000704 4000113 4001563
+;->  4000824 4001220 3995496 3999672 4000310 4002547 4000921
 ;->  3999067 3999375 3998509)
 ;-> (0.04001367 0.04001057 0.04001661 0.03999623 0.04000304 0.04002462 0.03999824
 ;->  0.03996966 0.03999206 0.04000869 0.03998084 0.04000704 0.04000113 0.04001563
-;->  0.04000824 0.0400122 0.03995496 0.03999672 0.0400031 0.04002547 0.04000921 
+;->  0.04000824 0.0400122 0.03995496 0.03999672 0.0400031 0.04002547 0.04000921
 ;->  0.03999067 0.03999375 0.03998509)
+
+
+-----------------
+42 in newLISP e C
+-----------------
+
+Dialogo dal libro "Guida galattica per autostoppisti" di Douglas Adams:
+
+"What do you get if you multiply six by nine?"
+
+"Six by nine. Forty two."
+
+"That's it. That's all there is."
+
+"I always thought something was fundamentally wrong with the universe"
+
+In italiano:
+
+"Cosa ottieni se moltiplichi sei per nove?"
+
+"Sei per nove. Quarantadue."
+
+"Questo è tutto. Questo è tutto quello che c'è."
+
+"Ho sempre pensato che ci fosse qualcosa di fondamentalmente sbagliato nell'universo"
+
+Vediamo come può risultare 6 * 9 = 42.
+
+In newLISP possiamo notare che:
+
+   6(b13) × 9(b13) = 42(b13)
+
+dove (b13) indica base 13
+
+(define (n42 a b)
+  (let (n (* a b)) (string (/ n 13) (% n 13))))
+
+(n42 6 9)
+;-> "42"
+
+In C possiamo utilizzare il preprocessore dei #define:
+
+#include <stdio.h>
+#define sei  1+5
+#define nove 8+1
+int main()
+{
+  printf("Cosa ottieni se moltiplichi sei per nove?\n");
+  printf("%i x %i = %i\n", sei, nove, sei*nove);
+}
+
+;-> Cosa ottieni se moltiplichi sei per nove?
+;-> 6 x 9 = 42
+
+Nota: sei*nove ==> (1 + 5 * 8 + 1)
 
 =============================================================================
 
