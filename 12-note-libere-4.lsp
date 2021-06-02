@@ -7059,5 +7059,257 @@ int main()
 
 Nota: sei*nove ==> (1 + 5 * 8 + 1)
 
+
+------------------------
+Uguaglianza approssimata
+------------------------
+
+A volte, quando si verifica la correttezza di una soluzione numerica, la differenza nei calcoli in virgola mobile tra le diverse implementazioni dei linguaggi diventa significativa.
+
+Ad esempio, una differenza tra i calcoli in virgola mobile a 32 bit e 64 bit può apparire intorno all'ottava cifra significativa nell'aritmetica in base 10.
+
+Creare una funzione che restituisce true se due numeri in virgola mobile sono "approssimativamente" uguali, cioè uguali a meno di un certo valore (errore assoluto).
+
+(define (abs-err x y) (abs (sub x y)))
+
+(define (approx-equals x y abs-err-max)
+  (< (abs-err x y) abs-err-max))
+
+(approx-equals 0.03781234001 0.03781234002 1e-8)
+;-> true
+(approx-equals 0.03781234001 0.03781234002 1e-12)
+;-> nil
+(approx-equals 100000000000000.01 100000000000000.011 1e-8)
+;-> true
+(approx-equals 100000000000000.01 100000000000000.011 1e-1)
+;-> true
+(sub 100000000000000.01 100000000000000.011)
+;-> 0
+(approx-equals 100.01 100.011 1e-8)
+;-> nil
+(approx-equals 100.01 100.011 1e-1)
+;-> true
+(sub 100.01 100.011)
+;-> -0.000999999999990564
+
+Da notare che con numeri grandi il valore di abs-err-max perde di significato.
+
+Another way to measure the difference between a floating-point number and the real number it is approximating is relative error, which is simply the difference between the two numbers divided by the real number. For example the relative error committed when approximating 3.14159 by 3.14 × 100 is .00159/3.14159  .0005.
+
+(define (rel-err x y)
+  (div (abs-err x y) x))
+
+(rel-err 0.03781234001 0.03781234002)
+;-> 2.644639507832383e-010
+(rel-err 100000000000000.01 100000000000000.011)
+;-> 0
+(rel-err 100.01 100.011)
+;-> 9.999000099895649e-006
+
+Nota: sulle operazioni in floating-point bisogna assolutamente leggere:
+"What Every Computer Scientist Should Know About Floating-Point Arithmetic" di David Goldberg, 1991
+
+
+----------
+Primi sexy
+----------
+
+I primi sexy sono numeri primi che differiscono l'uno dall'altro di sei. Ad esempio, i numeri 5 e 11 sono entrambi numeri primi sexy, perché 11 - 6 = 5. Il termine "primi sexy" è un gioco di parole che deriva dal fatto che in latino la parola "sex" significa "sei".
+
+Coppie prime sexy: sono gruppi di due numeri primi che differiscono di 6. Esempi: (5 11), (7 13), (11 17)
+Sequenze: OEIS:A023201 e OEIS:A046117
+
+Triple di primi sexy: sono gruppi di tre numeri primi in cui ciascuno differisce dal successivo di 6. Esempi: (5 11 17), (7 13 19), (17 23 29)
+Sequenze: OEIS:A046118, OEIS:A046119 e OEIS:A046120
+
+Quadruple di prime sexy: sono gruppi di quattro numeri primi in cui ciascuno differisce dal successivo di 6. Esempio: (5 11 17 23), (11 17 23 29)
+Sequenze: OEIS:A023271, OEIS:A046122, OEIS:A046123 e OEIS:A046124
+
+Quintuple di primi sexy: sono gruppi di cinque numeri primi in cui ciascuno differisce dal successivo di 6. In una progressione aritmetica di cinque termini con differenza comune 6, uno dei termini deve essere divisibile per 5, perché 5 e 6 sono relativamente primi. Quindi l'unica quintupla di primi sexy possibile vale (5 11 17 23 29).
+
+Funzione che verifica se un numero è primo:
+
+(define (prime? num)
+   (if (< num 2) nil
+       (= 1 (length (factor num)))))
+
+Funzione che calcola tutte le coppie di primi sexy fino a un determinato numero:
+
+(define (sexy-pairs-to num)
+  (let (out '())
+    (for (i 2 (- num 6))
+      (if (and (prime? i) (prime? (+ i 6)))
+          (push (list i (+ i 6)) out -1)
+      )
+    )
+    out))
+
+(sexy-to 100)
+;-> ((5 11) (7 13) (11 17) (13 19) (17 23) (23 29) (31 37) (37 43) (41 47) (47 53) (53 59)
+;->  (61 67) (67 73) (73 79) (83 89))
+
+(length (sexy-to 1e6))
+;-> 16386
+
+Funzione che restituisce il numero di tutte le coppie, le triple, le quadruple e le quintuple di numeri primi sexy fino a un determinato numero:
+
+(define (sexy-all-to-count num)
+  (local (p2 p3 p4 p5)
+    (for (i 2 (- num 6))
+      (if (and (prime? i) (prime? (+ i 6))) (begin
+          (++ p2)
+          (if (prime? (+ i 12)) (begin
+              (++ p3)
+              (if (prime? (+ i 18)) (begin
+                  (++ p4)
+                  (if (prime? (+ i 24))
+                      (++ p5)))))))))
+    (list p2 p3 p4 p5)))
+
+Calcoliamo fino a 1000:
+
+(sexy-all-to-count 1000)
+;-> (74 28 7 1)
+74 coppie, 28 triple, 7 quadruple e 1 quintupla.
+
+Calcoliamo fino a 1 milione:
+
+(sexy-all-to-count 1e6)
+;-> (16386 2900 325 1)
+
+Vediamo i tempi di esecuzione:
+
+(time (sexy-all-to-count 1e6))
+;-> 871.882
+(time (sexy-all-to-count 1e7))
+;-> 18786.703
+
+Funzione che restituisce tutte le coppie, le triple, le quadruple e le quintuple di numeri primi sexy fino a un determinato numero:
+
+(define (sexy-all-to num)
+  (local (arr)
+    (setq arr (array 4 '(())))
+    (for (i 2 (- num 6))
+      (if (and (prime? i) (prime? (+ i 6))) (begin
+          (push (list i (+ i 6)) (arr 0) -1)
+          (if (prime? (+ i 12)) (begin
+              (push (list i (+ i 6) (+ i 12)) (arr 1) -1)
+              (if (prime? (+ i 18)) (begin
+                  (push (list i (+ i 6) (+ i 12) (+ i 18)) (arr 2) -1)
+                  (if (prime? (+ i 24))
+                      (push (list i (+ i 6) (+ i 12) (+ i 18) (+ i 24)) (arr 3) -1)))))))))
+    arr))
+
+Calcoliamo fino a 1000:
+
+(setq sp (sexy-all-to 1000))
+(length (sp 0))
+;-> 74
+(length (sp 1))
+;-> 28
+(length (sp 2))
+;-> 7
+(length (sp 3))
+;-> 1
+(sp 3)
+;-> ((5 11 17 23 29))
+(sp 2)
+;-> ((5 11 17 23) (11 17 23 29) (41 47 53 59) (61 67 73 79)
+;->  (251 257 263 269) (601 607 613 619) (641 647 653 659))
+((sp 2) 0)
+;-> (5 11 17 23)
+
+Calcoliamo fino a 1 milione:
+
+(silent (setq sp (sexy-all-to 1e6)))
+(length (sp 0))
+;-> 16386
+(length (sp 1))
+;-> 2900
+(length (sp 2))
+;-> 325
+(length (sp 3))
+;-> 1
+((sp 2) 324)
+;-> (997091 997097 997103 997109)
+
+Vediamo i tempi di esecuzione:
+
+(time (sexy-all-to 1e6))
+;-> 872.753
+
+(time (sexy-all-to 1e7))
+;-> 18895.465
+
+Possiamo scrivere un'altra funzione che utilizza una hash-map per contenere i numeri primi.
+
+Funzione che calcola i primi fino ad un determinato numero e li mette in una hash-map (che verrà definita nella funzione successiva):
+
+(define (primes-to-h num)
+;(new Tree 'primih)
+  (cond ((= num 1) (primih))
+        ((= num 2) (primih "2" "2") (primih))
+        (true
+         (let (arr (array (+ num 1)))
+          (primih "2" "2")
+          (for (x 3 num 2)
+                (when (not (arr x))
+                  (primih x x)
+                  (for (y (* x x) num (* 2 x) (> y num))
+                      (setf (arr y) true)))) (primih)))))
+
+Test con hash-map "primih" definita dentro la funzione (bisogna togliere il commento alla riga (new Tree 'primih)):
+
+(length (primes-to-h 10000000))
+;-> 664579
+(delete 'primih)
+(time (primes-to-h 1e6))
+;-> 195.527
+(delete 'primih)
+(time (primes-to-h 1e7))
+;-> 2046.079
+(delete 'primih)
+
+Funzione che restituisce il numero di tutte le coppie, le triple, le quadruple e le quintuple di numeri primi sexy fino a un determinato numero:
+
+(define (sexy-all-to-count2 num)
+  (local (p2 p3 p4 p5)
+    (new Tree 'primih)
+    (primes-to-h num)
+    (dolist (p (primih))
+      (if (primih (+ (int (p 1)) 6)) (begin
+          (++ p2)
+          (if (primih (+ (int (p 1)) 12)) (begin
+              (++ p3)
+              (if (primih (+ (int (p 1)) 18)) (begin
+                  (++ p4)
+                  (if (primih (+ (int (p 1)) 24))
+                      (++ p5)))))))))
+    (delete 'primih)
+    (list p2 p3 p4 p5)))
+
+Calcoliamo fino a 1000:
+
+(sexy-all-to-count2 1000)
+;-> (74 28 7 1)
+
+Calcoliamo fino a 1 milione:
+
+(sexy-all-to-count2 1e6)
+;-> (16386 2900 325 1)
+
+Vediamo i tempi di esecuzione:
+
+(time (sexy-all-to-count2 1e6))
+;-> 260.973
+
+(time (sexy-all-to-count2 1e7))
+;-> 2779.626
+
+(time (sexy-all-to-count2 1e8))
+;-> 30688.684
+
+La funzione che utilizza la hash-map è molto più veloce (quasi 7 volte più veloce).
+
 =============================================================================
 

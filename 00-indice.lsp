@@ -841,6 +841,8 @@ NOTE LIBERE 4
   ASCII Julia
   Dado da 7 con dado da 5
   42 in newLISP e C
+  Uguaglianza approssimata
+  Primi sexy
 
 APPENDICI
 =========
