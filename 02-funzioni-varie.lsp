@@ -4605,7 +4605,7 @@ La funzione genera un numero da 0 a (n-1) che rappresenta l'indice del valore di
     (setq cur 0)
     ; creazione della lista degli intervalli
     (dolist (el probs)
-      (setq cur (round (add cur el) -4))
+      ;(setq cur (round (add cur el) -4))
       (push cur inter -1)
     )
     ; l'ultimo valore della lista degli intervalli deve valere 1
@@ -4628,8 +4628,6 @@ La funzione genera un numero da 0 a (n-1) che rappresenta l'indice del valore di
 Proviamo con l'esempio iniziale:
 
 (setq p '(0.05 0.15 0.35 0.45))
-(setq p '(0.02 0.08 0.7 0.2))
-(setq p '(0.0212 0.0828 0.722 0.174))
 
 (rand-prob p)
 ;-> 2
@@ -4646,6 +4644,15 @@ Il risultato segue bene la distribuzione perfetta che vale (50000 150000 350000 
 Calcoliamo la somma dei valori del vettore:
 (apply + vet)
 ;-> 1000000
+
+Facciamo un'altra prova:
+
+(setq p '(0.02 0.08 0.7 0.2))
+(setq vet (array 4 '(0)))
+;-> (0 0 0 0)
+(for (i 0 999999) (++ (vet (rand-prob p))))
+vet
+;-> (19887 79869 699932 200312)
 
 Sembra che tutto funzioni correttamente.
 

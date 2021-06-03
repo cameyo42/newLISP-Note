@@ -843,6 +843,8 @@ NOTE LIBERE 4
   42 in newLISP e C
   Uguaglianza approssimata
   Primi sexy
+  Tavola pitagorica
+  Sottostringa più piccola che contiene tutti i caratteri di una stringa
 
 APPENDICI
 =========

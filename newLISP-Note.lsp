@@ -843,6 +843,8 @@ NOTE LIBERE 4
   42 in newLISP e C
   Uguaglianza approssimata
   Primi sexy
+  Tavola pitagorica
+  Sottostringa più piccola che contiene tutti i caratteri di una stringa
 
 APPENDICI
 =========
@@ -15554,7 +15556,7 @@ La funzione genera un numero da 0 a (n-1) che rappresenta l'indice del valore di
     (setq cur 0)
     ; creazione della lista degli intervalli
     (dolist (el probs)
-      (setq cur (round (add cur el) -4))
+      ;(setq cur (round (add cur el) -4))
       (push cur inter -1)
     )
     ; l'ultimo valore della lista degli intervalli deve valere 1
@@ -15577,8 +15579,6 @@ La funzione genera un numero da 0 a (n-1) che rappresenta l'indice del valore di
 Proviamo con l'esempio iniziale:
 
 (setq p '(0.05 0.15 0.35 0.45))
-(setq p '(0.02 0.08 0.7 0.2))
-(setq p '(0.0212 0.0828 0.722 0.174))
 
 (rand-prob p)
 ;-> 2
@@ -15595,6 +15595,15 @@ Il risultato segue bene la distribuzione perfetta che vale (50000 150000 350000 
 Calcoliamo la somma dei valori del vettore:
 (apply + vet)
 ;-> 1000000
+
+Facciamo un'altra prova:
+
+(setq p '(0.02 0.08 0.7 0.2))
+(setq vet (array 4 '(0)))
+;-> (0 0 0 0)
+(for (i 0 999999) (++ (vet (rand-prob p))))
+vet
+;-> (19887 79869 699932 200312)
 
 Sembra che tutto funzioni correttamente.
 
@@ -98783,6 +98792,154 @@ Vediamo i tempi di esecuzione:
 ;-> 30688.684
 
 La funzione che utilizza la hash-map è molto più veloce (quasi 7 volte più veloce).
+
+
+-----------------
+Tavola pitagorica
+-----------------
+
+Scrivere una funzione che stampa la tavola pitagorica (Tavola/tabella delle moltiplicazioni) fino a un determinato numero.
+
+(define (pitagorica num)
+    (print "\n    ·")
+    (for (i 1 num)
+      (print (format "%4d" i))
+    )
+    (println (format "\n%s" (dup "·" (* (+ num 2) 4))))
+    (for (i 1 num)
+      (print (format "%3d%s" i " ·"))
+      (for (j 1 num)
+        (print (format "%4d" (* i j)))
+      )
+      (println "\n    ·")
+    )
+    'end)
+
+(pitagorica 12)
+;-> 
+;->     ·   1   2   3   4   5   6   7   8   9  10  11  12
+;-> ························································
+;->   1 ·   1   2   3   4   5   6   7   8   9  10  11  12
+;->     ·
+;->   2 ·   2   4   6   8  10  12  14  16  18  20  22  24
+;->     ·
+;->   3 ·   3   6   9  12  15  18  21  24  27  30  33  36
+;->     ·
+;->   4 ·   4   8  12  16  20  24  28  32  36  40  44  48
+;->     ·
+;->   5 ·   5  10  15  20  25  30  35  40  45  50  55  60
+;->     ·
+;->   6 ·   6  12  18  24  30  36  42  48  54  60  66  72
+;->     ·
+;->   7 ·   7  14  21  28  35  42  49  56  63  70  77  84
+;->     ·
+;->   8 ·   8  16  24  32  40  48  56  64  72  80  88  96
+;->     ·
+;->   9 ·   9  18  27  36  45  54  63  72  81  90  99 108
+;->     ·
+;->  10 ·  10  20  30  40  50  60  70  80  90 100 110 120
+;->     ·
+;->  11 ·  11  22  33  44  55  66  77  88  99 110 121 132
+;->     ·
+;->  12 ·  12  24  36  48  60  72  84  96 108 120 132 144
+;->     ·
+
+
+----------------------------------------------------------------------
+Sottostringa più piccola che contiene tutti i caratteri di una stringa
+----------------------------------------------------------------------
+
+Data una stringa, trovare la sottostringa più piccola con tutti i caratteri distinti della stringa data.
+Per esempio:
+
+Stringa = "aabcbcdbca"
+Soluzione = "dbca"
+Dell'insieme delle possibili sottostringhe 'dbca' è la sottostringa più corta con tutti i caratteri distinti della stringa data.
+
+Stringa = "aaab"
+Soluzione = "ab"
+Dell'insieme delle possibili sottostringhe 'ab' è la sottostringa più corta con tutti i caratteri distinti della stringa data.
+
+Utilizziamo la tecnica sliding window (finestra scorrevole) per arrivare alla soluzione. Questa tecnica mostra come un ciclo for annidato in alcuni problemi può essere convertito in un singolo ciclo for e quindi riducendo la complessità temporale.
+
+Metodo: Fondamentalmente manteniamo una finestra di caratteri utilizzando due puntatori, uno di inizio e uno di fine. Questi puntatori di inizio e fine possono essere utilizzati rispettivamente per ridurre e aumentare le dimensioni della finestra. Ogni volta che la finestra contiene tutti i caratteri di una determinata stringa, la finestra viene ridotta dal lato sinistro per rimuovere i caratteri extra e quindi la sua lunghezza viene confrontata con la finestra più piccola trovata finora.
+Se nella finestra presente non è possibile eliminare più caratteri allora iniziamo ad aumentare la dimensione della finestra utilizzando la fine fino a quando tutti i caratteri distinti presenti nella stringa sono presenti anche nella finestra. Infine, troviamo la dimensione minima di ogni finestra.
+
+  1. Mantenere un vettore (visited) del massimo di caratteri possibili (256 caratteri) e non appena ne troviamo uno nella stringa, contrassegnare quell'indice nell'array (questo per contare tutti i caratteri distinti nella stringa).
+  2. Prendere due puntatori inizio e fine che segneranno l'inizio e la fine della finestra.
+  3. Prendere un contatore=0 che verrà utilizzato per contare i caratteri distinti nella finestra.
+  4. Adesso iniziare a leggere i caratteri della stringa data e se ci imbattiamo in un carattere non ancora visitato incrementare il contatore di 1.
+  5. Se il contatore è uguale al numero totale di caratteri distinti, provare a ridurre la finestra.
+  6. Per restringere la finestra:
+      a. Se la frequenza del carattere all'inizio del puntatore è maggiore di 1, incrementare il puntatore poiché è ridondante.
+      b. Ora confrontare la lunghezza della finestra attuale con la lunghezza minima della finestra.
+
+(define (find-substr str)
+  (local (len-str curr-count start start-index dist-count visited idx conta min-len len-window)
+    (setq len-str (length str))
+    ; conta tutti i caratteri distinti
+    (setq dist-count 0)
+    (setq visited (array 256 '(nil)))
+    (for (i 0 (- len-str 1))
+      (setq idx (char (str i)))
+      (if (nil? (visited idx))
+        (begin
+          (setq idx (char (str i)))
+          (setf (visited idx) true)
+          (++ dist-count)
+        )
+      )
+    )
+    ; Fondamentalmente manteniamo una finestra di caratteri
+    ; che contiene tutti i caratteri della stringa data.
+    (setq start 0 start-index -1 min-len 999999)
+    (setq conta 0)
+    (setq curr-count (array 256 '(0)))
+    (for (j 0 (- len-str 1))
+      ; Conta l'occorrenza dei caratteri di stringa
+      (setq idx (char (str j)))
+      (++ (curr-count idx))
+      ; Se qualsiasi carattere distinto corrisponde, quindi aumentare il conteggio
+      (if (= (curr-count idx) 1)
+          (++ conta)
+      )
+      ; se tutti i caratteri sono abbinati
+      (if (= conta dist-count) (begin
+          ; Provare a ridurre a icona la finestra, ad esempio controllare se
+          ; qualsiasi carattere si verifica un numero di volte maggiore
+          ; rispetto al numero delle sue occorrenze nel modello, se sì
+          ; allora rimuoverlo dall'inizio e rimuovere anche
+          ; i caratteri inutili
+          (setq idx (char (str start)))
+          (while (> (curr-count idx) 1)
+            (if (> (curr-count idx) 1)
+                (-- (curr-count idx))
+            )
+            (++ start)
+            (setq idx (char (str start)))
+          )
+          ; Aggiorna le dimensioni della finestra
+          (setq len-window (+ j 1 (- start)))
+          (if (> min-len len-window) (begin
+              (setq min-len len-window)
+              (setq start-index start))
+          )
+      ))
+    )
+    ; Restituisce la sottostringa a partire da start_index e di lunghezza min_len
+    (slice str start-index min-len)))
+
+(find-substr "aabcbcdbca")
+;-> "dbca"
+(find-substr "aaab")
+;-> "ab"
+(find-substr "supercalifragilisticexpialidocious")
+;-> "fragilisticexpialidociou"
+
+Nota:
+"Supercalifragilisticexpialidocious" è una canzone scritta dai fratelli Richard Sherman e Robert Sherman, che fa parte della colonna sonora di Mary Poppins, film Disney del 1964.
+Nella versione originale la parola ha un significato ben preciso, che si evince scomponendola: Super (sopra) – cali (bellezza) – fragilistic (delicato) – expiali (fare ammenda) – docious (istruibile). Quindi il significato delle sue parti sarebbe “fare ammenda per la possibilità di insegnare attraverso la delicata bellezza”.
+La versione italiana "Supercalifragilistichespiralidoso" è cantata da Tina Centi, Rita Pavone e Nancy Cuomo.
 
 =============================================================================
 
