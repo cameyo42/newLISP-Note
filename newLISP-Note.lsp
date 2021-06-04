@@ -845,6 +845,7 @@ NOTE LIBERE 4
   Primi sexy
   Tavola pitagorica
   Sottostringa più piccola che contiene tutti i caratteri di una stringa
+  Algoritmo Floyd-Warshall
 
 APPENDICI
 =========
@@ -84498,10 +84499,10 @@ In pratica, le distanze finali di solito possono essere trovate prima che si esa
 (define (bf graph start num-nodi)
   (local (dist a b w)
     (setq maxval 999999)
-    (setq dist (array n (list maxval)))
-    (setq pred (array n '(nil)))
+    (setq dist (array num-nodi (list maxval)))
+    (setq pred (array num-nodi '(nil)))
     (setf (dist start) 0)
-    (for (i 1 (- n 1))
+    (for (i 1 (- num-nodi 1))
       (for (j 0 (- (length graph) 1))
         (setq a (graph j 0))
         (setq b (graph j 1))
@@ -84527,7 +84528,7 @@ In pratica, le distanze finali di solito possono essere trovate prima che si esa
       )
     )
     ; Ricostruzione percorsi completi
-    (for (nodo 0 (- n 1))
+    (for (nodo 0 (- num-nodi 1))
       (setq path '())
       (print "da: " start " a: " nodo " = ")
       (cond ((= start nodo)
@@ -84563,7 +84564,7 @@ Proviamo con il grafo seguente (disegnatelo con carta e penna):
               (5 1 40) (5 4 20)
               (6 5 80)))
 
-(bf graph 0)
+(bf graph 0 7)
 ;-> da: 0 a: 0 = (nil)
 ;-> da: 0 a: 1 = (0 3 2 1)
 ;-> da: 0 a: 2 = (0 3 2)
@@ -84573,7 +84574,7 @@ Proviamo con il grafo seguente (disegnatelo con carta e penna):
 ;-> da: 0 a: 6 = (0 3 6)
 ;-> ((0 30 20 10 30 50 20) (nil 2 3 0 2 4 3))
 
-(bf graph 1)
+(bf graph 1 7)
 ;-> da: 1 a: 0 = (1 0)
 ;-> da: 1 a: 1 = (nil)
 ;-> da: 1 a: 2 = (1 0 3 2)
@@ -84583,7 +84584,7 @@ Proviamo con il grafo seguente (disegnatelo con carta e penna):
 ;-> da: 1 a: 6 = (1 0 3 6)
 ;-> ((50 0 70 60 60 40 70) (1 nil 3 0 5 1 3))
 
-(bf graph 4)
+(bf graph 4 7)
 ;-> da: 4 a: 0 = (4 2 3 0)
 ;-> da: 4 a: 1 = (4 2 1)
 ;-> da: 4 a: 2 = (4 2)
@@ -98940,6 +98941,193 @@ Nota:
 "Supercalifragilisticexpialidocious" è una canzone scritta dai fratelli Richard Sherman e Robert Sherman, che fa parte della colonna sonora di Mary Poppins, film Disney del 1964.
 Nella versione originale la parola ha un significato ben preciso, che si evince scomponendola: Super (sopra) – cali (bellezza) – fragilistic (delicato) – expiali (fare ammenda) – docious (istruibile). Quindi il significato delle sue parti sarebbe “fare ammenda per la possibilità di insegnare attraverso la delicata bellezza”.
 La versione italiana "Supercalifragilistichespiralidoso" è cantata da Tina Centi, Rita Pavone e Nancy Cuomo.
+
+
+------------------------
+Algoritmo Floyd-Warshall
+------------------------
+
+L'algoritmo di Floyd-Warshall viene utilizzato per trovare i percorsi più brevi tra tutte le coppie di vertici di un grafo orientato con pesi degli archi positivi o negativi. Supponiamo che il grafo non ha cicli, archi paralleli o cicli negativi.
+
+Ciclo (Loop):
+Nella teoria dei grafi, un ciclo (loop o self-loop o buckle) è un arco che collega un vertice (nodo) a se stesso. Un grafo semplice non contiene cicli
+
+Archi Paralleli (Parallel Edge):
+Gli archi paralleli (parallel edge o multi-edge) sono, in un grafo non orientato, due o più archi incidenti agli stessi due vertici, o in un grafo orientato, due o più archi con la stessa direzione incidenti a due stessi vertici. Un grafo semplice non ha archi paralleli.
+
+Cicli Negativi (Negative cycle):
+Se un grafo contiene un "ciclo negativo" (cioè un ciclo i cui archi si sommano a un valore negativo) che è raggiungibile dalla sorgente, allora non esiste un percorso più economico: qualsiasi percorso che ha un punto sul ciclo negativo può essere reso più economico da un altro giro intorno al ciclo negativo.
+
+Scrivere una funzione che implementa questo algoritmo (vedi wikipedia per maggiori informazioni).
+
+Grafo di esempio:
+
+        {1}
+        · \
+     4 /   \ -2
+      /  3  ·
+    {2}----·{3}
+      ·     /
+    -1 \   / 2
+        \ ·
+        {4}
+
+  Vertici: (1 2 3 4)
+  Archi: (1 3) dist -2
+         (2 1) dist 4
+         (2 3) dist 3
+         (3 4) dist 2
+         (4 2) dist -1
+
+Rappresentiamo questo grafo come una lista di archi adiacenti:
+
+  Lista archi adiacenti: (v1 v2 val)
+  v1 = nodo di partenza
+  v2 = nodo di arrivo
+  val = peso dell'arco
+
+(setq grafo '((1 3 -2) (2 1 4) (2 3 3) (3 4 2) (4 2 -1)))
+
+Scriviamo la funzione:
+
+(define (floyd-warshall graph num-vertex)
+  (local (num-edge dist next u v coppia coppia-dist vertex out)
+    (setq out '())
+    (setq num-edge (length graph))
+    (setq dist (array num-vertex num-vertex '(999999)))
+    (for (i 0 (- num-edge 1))
+      (setf (dist (- (graph i 0) 1) (- (graph i 1) 1)) (graph i 2))
+    )
+    (setq next (array num-vertex num-vertex '(999999)))
+    (for (i 0 (- (length next) 1))
+      (for (j 0 (- (length next) 1))
+        (if (!= i j)
+            (setf (next i j) (+ j 1))
+        )
+      )
+    )
+    (for (k 0 (- num-vertex 1))
+      (for (i 0 (- num-vertex 1))
+        (for (j 0 (- num-vertex 1))
+          (if (< (+ (dist i k) (dist k j)) (dist i j))
+            (begin
+              (setf (dist i j) (+ (dist i k) (dist k j)))
+              (setf (next i j) (next i k))
+            )
+          )
+        )
+      )
+    )
+    ; ricostruisce i percorsi minimi (soluzioni)
+    (for (i 0 (- (length next) 1))
+      (for (j 0 (- (length next) 1))
+        (if (!= i j)
+          (begin
+            (setq u (+ i 1))
+            (setq v (+ j 1))
+            (setq coppia (list u v))
+            (setq coppia-dist (dist i j))
+            (setq vertex '())
+            (push u vertex -1)
+            (do-while (!= u v)
+              (setq u (next (- u 1) (- v 1)))
+              (push u vertex -1)
+            )
+            (push (list coppia coppia-dist vertex) out -1)
+          )
+        )
+      )
+    )
+    out))
+
+Proviamo con il grafo di esempio:
+(setq grafo '((1 3 -2) (2 1 4) (2 3 3) (3 4 2) (4 2 -1)))
+
+(setq sol (floyd-warshall grafo 4))
+;-> (((1 2) -1 (1 3 4 2))
+;->  ((1 3) -2 (1 3))
+;->  ((1 4)  0 (1 3 4))
+;->  ((2 1)  4 (2 1))
+;->  ((2 3)  2 (2 1 3))
+;->  ((2 4)  4 (2 1 3 4))
+;->  ((3 1)  5 (3 4 2 1))
+;->  ((3 2)  1 (3 4 2))
+;->  ((3 4)  2 (3 4))
+;->  ((4 1)  3 (4 2 1))
+;->  ((4 2) -1 (4 2))
+;->  ((4 3)  1 (4 2 1 3)))
+
+Definiamo una funzione che estrae il percorso minimo tra due vertici:
+
+(define (path v1 v2 sol)
+  (let (idx (first (ref (list v1 v2) sol)))
+    (println "Da " v1 " a " v2)
+    (println "Distanza minima: " (sol idx 1))
+    (println "Percorso: " (sol idx 2))))
+
+(path 3 1 sol)
+;-> Da 3 a 1
+;-> Distanza minima: 5
+;-> Percorso: (3 4 2 1)
+
+Proviamo con un altro grafo (da disegnare con carta e penna):
+
+(setq graph '((1 2 50) (1 3 30) (1 4 10)
+              (2 1 50) (2 6 40)
+              (3 1 30) (3 2 10) (3 4 10) (3 5 10)
+              (4 1 10) (4 3 10) (4 7 10)
+              (5 3 10) (5 4 20)
+              (6 2 40) (6 5 20)
+              (7 6 80)))
+
+(setq sol (floyd-warshall graph 7))
+;-> (((1 2) 30 (1 4 3 2))
+;->  ((1 3) 20 (1 4 3))
+;->  ((1 4) 10 (1 4))
+;->  ((1 5) 30 (1 4 3 5))
+;->  ((1 6) 70 (1 4 3 2 6))
+;->  ((1 7) 20 (1 4 7))
+;->  ((2 1) 50 (2 1))
+;->  ((2 3) 70 (2 1 4 3))
+;->  ((2 4) 60 (2 1 4))
+;->  ((2 5) 60 (2 6 5))
+;->  ((2 6) 40 (2 6))
+;->  ((2 7) 70 (2 1 4 7))
+;->  ((3 1) 20 (3 4 1))
+;->  ((3 2) 10 (3 2))
+;->  ((3 4) 10 (3 4))
+;->  ((3 5) 10 (3 5))
+;->  ((3 6) 50 (3 2 6))
+;->  ((3 7) 20 (3 4 7))
+;->  ((4 1) 10 (4 1))
+;->  ((4 2) 20 (4 3 2))
+;->  ((4 3) 10 (4 3))
+;->  ((4 5) 20 (4 3 5))
+;->  ((4 6) 60 (4 3 2 6))
+;->  ((4 7) 10 (4 7))
+;->  ((5 1) 30 (5 4 1))
+;->  ((5 2) 20 (5 3 2))
+;->  ((5 3) 10 (5 3))
+;->  ((5 4) 20 (5 4))
+;->  ((5 6) 60 (5 3 2 6))
+;->  ((5 7) 30 (5 4 7))
+;->  ((6 1) 50 (6 5 4 1))
+;->  ((6 2) 40 (6 2))
+;->  ((6 3) 30 (6 5 3))
+;->  ((6 4) 40 (6 5 4))
+;->  ((6 5) 20 (6 5))
+;->  ((6 7) 50 (6 5 4 7))
+;->  ((7 1) 130 (7 6 5 4 1))
+;->  ((7 2) 120 (7 6 2))
+;->  ((7 3) 110 (7 6 5 3))
+;->  ((7 4) 120 (7 6 5 4))
+;->  ((7 5) 100 (7 6 5))
+;->  ((7 6) 80 (7 6)))
+
+(path 7 1 sol)
+;-> Da 7 a 1
+;-> Distanza minima: 130
+;-> Percorso: (7 6 5 4 1)
 
 =============================================================================
 

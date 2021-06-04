@@ -845,6 +845,7 @@ NOTE LIBERE 4
   Primi sexy
   Tavola pitagorica
   Sottostringa più piccola che contiene tutti i caratteri di una stringa
+  Algoritmo Floyd-Warshall
 
 APPENDICI
 =========
