@@ -356,6 +356,7 @@ Strutturare un'applicazione
 Quando si scrivono applicazioni più grandi o quando più programmatori stanno lavorando sulla stessa base di codice, è necessario dividere la base di codice in moduli. I moduli in newLISP vengono implementati utilizzando i contesti, che sono spazi dei nomi. Gli spazi dei nomi consentono l'isolamento lessicale tra i moduli. Le variabili con lo stesso nome in un modulo non possono entrare in conflitto con le variabili con lo stesso nome in un altro modulo.
 
 In genere, i moduli sono organizzati in un contesto per ogni file.
+
 Un modulo file può contenere routine di accesso al database:
 
 ; database.lsp
@@ -575,33 +576,33 @@ let è il modo usuale in newLISP di dichiarare i simboli come locali in un blocc
     (let (x (* a a) y (* b b))
         (+ x y)))
 
-Le variabili x e y vengono inizializzate, quindi viene valutata l'espressione (+ x y). La forma let è solo una versione ottimizzata e una comodità sintattica dell'espressione:
+Le variabili x e y vengono inizializzate, quindi viene valutata l'espressione (+ x y). La forma "let" è solo una versione ottimizzata e una comodità sintattica dell'espressione:
 
 ((lambda (sym1 [sym2 ...]) exp-body ) exp-init1 [ exp-init2 ...])
 
-Quando si inizializzano diversi parametri, è possibile utilizzare un let annidato, letn, per fare riferimento a variabili inizializzate in precedenza nelle successive espressioni di inizializzazione:
+Quando si inizializzano diversi parametri, è possibile utilizzare un "let" annidato, "letn", per fare riferimento a variabili inizializzate in precedenza nelle successive espressioni di inizializzazione:
 
 (letn ((x 1) (y (+ x 1)))
     (list x y))              → (1 2)
 
-local funziona allo stesso modo ma le variabili sono inizializzate a zero:
+"local" funziona allo stesso modo ma le variabili sono inizializzate a zero:
 
 (local (a b c)
    ...          ; espressioni che utilizzano le variabili locali a b c
 )
 
-letex funziona in modo simile a let ma le variabili vengono espanse nel corpo ai valori assegnati:
+"letex" funziona in modo simile a "let" ma le variabili vengono espanse nel corpo ai valori assegnati:
 
 ; assegna alla variabile locale ed espande nel corpo
 
 (letex ( (x 1) (y '(a b c)) (z "hello") ) '(x y z))
 → (1 (a b c) "hello")
 
-; as in let, parentheses around the initializers can be omitted
+; come in let, le parentesi intorno agli inizializzatori possono essere omesse
 
 (letex (x 1 y 2 z 3) '(x y z))    → (1 2 3)
 
-Dopo essere usciti da una qualsiasi delle espressioni let, letn, local o letex, i simboli delle variabili usati come locali recuperano i loro vecchi valori.
+Dopo essere usciti da una qualsiasi delle espressioni "let", "letn", "local" o "letex", i simboli delle variabili usati come locali recuperano i loro vecchi valori.
 
 Parametri inutilizzati come variabili locali
 ============================================
@@ -1969,7 +1970,8 @@ In questo schema il server si abbona a uno di una gamma di indirizzi multi cast 
 ; example client II
 (net-connect "" 4096 "multi") → 3
 (net-send-to "226.0.0.1" 4096 "hello" 3)
-The connection in the example is blocking on net-receive but could be de-blocked using net-select or net-peek
+
+La connessione nell'esempio si sta bloccando su "net-receive", ma potrebbe essere sbloccata usando "net-select" o "net-peek".
 
 
 =================================
@@ -2379,7 +2381,7 @@ I messaggi inviati possono contenere espressioni che possono essere valutate nel
     (begin
         (dotimes (i 3)
             (set 'ppid (sys-info -4))
-            /* the following statement in msg will be evaluated in the proxy */
+            ; the following statement in msg will be evaluated in the proxy
             (set 'msg '(until (send B (string "greetings from " A))))
             (until (send ppid msg)))
         (until (send ppid '(begin
@@ -2550,7 +2552,7 @@ newlisp myprog.lsp -c -w / home / node25 -d 4711 &
 
 newLISP è ora in ascolto sulla porta 4711, il segno & (e commerciale) dice a newLISP di funzionare in background (solo Unix). L'opzione -c elimina i prompt della riga di comando. newLISP ora si comporta come una console newLISP senza prompt in ascolto sulla porta 4711 per input dalla riga di comando. Si sarebbe potuto scegliere qualsiasi altra porta disponibile. Nota che su Unix, le porte inferiori a 1024 richiedono diritti di accesso di amministratore.
 
-Il secondo esempio precarica anche il codice. Il terzo esempio specifica anche una directory di lavoro utilizzando l'opzione -w. Se non viene specificata alcuna directory di lavoro utilizzando -w, si presume che la directory di avvio sia la directory di lavoro.
+Il secondo esempio precarica anche il codice. Il terzo esempio specifica anche una cartella di lavoro utilizzando l'opzione -w. Se non viene specificata alcuna cartella di lavoro utilizzando -w, si presume che la cartella di avvio sia la cartella di lavoro.
 
 Dopo ogni transazione, quando una connessione si chiude, newLISP eseguirà un processo di ripristino, reinizializzerà stack e segnali e passerà al contesto MAIN. Verranno conservati solo il contenuto del programma e dei simboli delle variabili.
 
@@ -2560,7 +2562,7 @@ Su Unix le funzionalità inetd o xindetd possono essere utilizzate per avviare u
 
 Quando ai nodi non viene richiesto di mantenere lo stato, questo è il metodo preferito per un nuovo nodo del server LISP, per gestire più connessioni contemporaneamente.
 
-Il processo inetd o xinetd deve essere configurato utilizzando i file di configurazione che si trovano nella directory /etc della maggior parte delle installazioni Unix.
+Il processo inetd o xinetd deve essere configurato utilizzando i file di configurazione che si trovano nella cartella /etc della maggior parte delle installazioni Unix.
 
 Per entrambe le configurazioni inetd e xinetd aggiungere la seguente riga al file /etc/services:
 
@@ -2580,7 +2582,7 @@ Quando si configura inetd, aggiungere anche le seguenti righe al file /etc/inetd
 
   net-eval  stream  tcp  nowait  newlisp  /usr/bin/newlisp -c -w /usr/home/newlisp
 
-L'ultima riga specifica anche una directory di lavoro e un utente newlisp invece dell'utente root. Questa è una modalità più sicura che limita l'accesso al nodo del server newLISP ad un account utente specifico con autorizzazioni limitate.
+L'ultima riga specifica anche una cartella di lavoro e un utente newlisp invece dell'utente root. Questa è una modalità più sicura che limita l'accesso al nodo del server newLISP ad un account utente specifico con autorizzazioni limitate.
 
 Su alcuni sistemi Unix è possibile utilizzare una versione moderna di inetd: la funzionalità xinetd può essere utilizzata. Aggiungi la seguente configurazione a un file /etc/xinet.d/net-eval:
 
@@ -2598,7 +2600,7 @@ Si noti che una varietà di combinazioni di parametri è possibile limitare l'ac
 
 Dopo aver configurato inetd o xinetd, entrambi i processi devono essere riavviati per rileggere i file di configurazione. Ciò può essere ottenuto inviando il segnale Unix HUP al processo inetd o xinetd utilizzando l'utilità Unix kill o nohup.
 
-Su Mac OS X la funzione launchd può essere utilizzata in modo simile. La distribuzione dei sorgenti newLISP contiene il file org.newlisp.newlisp.plist nella directory util/. Questo file può essere utilizzato per avviare il server newlisp durante l'avvio del sistema operativo come server persistente.
+Su Mac OS X la funzione launchd può essere utilizzata in modo simile. La distribuzione dei sorgenti newLISP contiene il file org.newlisp.newlisp.plist nella cartella util/. Questo file può essere utilizzato per avviare il server newlisp durante l'avvio del sistema operativo come server persistente.
 
 Test del server con telnet
 ===========================
@@ -2624,8 +2626,6 @@ In entrambi gli esempi "netcat" restituirà il risultato della valutazione dei s
 
 Le espressioni su più righe possono essere inserite racchiudendole in tag [cmd], [/cmd], ogni tag su una riga separata.
 
-Multi-line expressions can be entered by enclosing them in [cmd], [/cmd] tags, each tag on a separate line.
-
 Test dalla riga di comando
 ==========================
 La funzione "net-eval" ha una forma di sintassi per connettersi a un solo nodo server remoto. Questa modalità è pratica per test rapidi dalla riga di comando newLISP:
@@ -2642,7 +2642,8 @@ Non sono richiesti tag [cmd], [/ cmd] quando si inviano espressioni su più righ
 
 Test HTTP con un browser
 ========================
-A newLISP server also understands simple HTTP GET and PUT requests. Enter the full path of a file in the address-bar of the browser:
+
+Un server newLISP gestisce anche semplici richieste HTTP GET e PUT. Inserire il percorso completo di un file nella barra degli indirizzi del browser:
 
 http://localhost:4711//usr/share/newlisp/doc/newlisp_manual.html
 
@@ -2825,7 +2826,7 @@ Utilizzando socket di dominio locale è possibile una comunicazione veloce tra p
  22. MODALITÀ SOLO SERVER WEB HTTPD
 ====================================
 
-In tutti i capitoli precedenti è stata utilizzata la modalità server -c. Questa modalità può fungere da server di valutazione della rete e allo stesso tempo rispondere alle richieste HTTP per servire pagine Web o trasferire file e programmi. La modalità -c è la modalità preferita per operazioni sicure dietro un firewall. newLISP ha anche una modalità -http che funziona come una modalità -c ristretta. In modalità -http vengono servite solo le richieste HTTP e le richieste formattate come riga di comando, mentre le richieste "net-eval" non ricevono risposta. In questa modalità newLISP può agire come un server Web che risponde alle richieste HTTP GET, PUT, POST e DELETE nonché alle richieste CGI, ma è necessario compiere ulteriori sforzi per limitare l'accesso non autorizzato a file e directory per proteggere il server quando esposto a Internet.
+In tutti i capitoli precedenti è stata utilizzata la modalità server -c. Questa modalità può fungere da server di valutazione della rete e allo stesso tempo rispondere alle richieste HTTP per servire pagine Web o trasferire file e programmi. La modalità -c è la modalità preferita per operazioni sicure dietro un firewall. newLISP ha anche una modalità -http che funziona come una modalità -c ristretta. In modalità -http vengono servite solo le richieste HTTP e le richieste formattate come riga di comando, mentre le richieste "net-eval" non ricevono risposta. In questa modalità newLISP può agire come un server Web che risponde alle richieste HTTP GET, PUT, POST e DELETE nonché alle richieste CGI, ma è necessario compiere ulteriori sforzi per limitare l'accesso non autorizzato a file e cartella per proteggere il server quando esposto a Internet.
 
 Variabili d'ambiente
 ====================
@@ -2964,7 +2965,7 @@ Oppure su Mac OSX/darwin eseguire:
 
 gcc testlib.c -bundle -o testlib.dylib
 
-La libreria testlib.so sarà compilata con le convenzioni cdecl predefinite di Linux/Unix. L'importazione della libreria è molto simile su entrambe le piattaforme Linux e Win32, ma su Win32 la libreria si trova nella directory corrente. Potrebbe essere necessario specificare il percorso completo o inserire la libreria nel percorso della libreria del sistema operativo:
+La libreria testlib.so sarà compilata con le convenzioni cdecl predefinite di Linux/Unix. L'importazione della libreria è molto simile su entrambe le piattaforme Linux e Win32, ma su Win32 la libreria si trova nella cartella corrente. Potrebbe essere necessario specificare il percorso completo o inserire la libreria nel percorso della libreria del sistema operativo:
 
 > (import "/home/newlisp/testlib.so" "foo1")
 foo1 <6710118F>
@@ -3162,31 +3163,31 @@ float array       (set 'numList (unpack "f f f" (foo x y z)))                   
 double array      (set 'numList (unpack "lf lf lf" (foo x y z)))                      return(double numList[])
 string array      (set 'stringList (map get-string (unpack "ld ld ld" (foo x y z))))  return(char * string[])
 
-Floats and doubles can only be returned via address pointer references.
+I float e i double possono essere restituiti solo tramite riferimenti a puntatore di indirizzo.
 
-When returning array types the number of elements in the array must be known. The examples always assume 3 elements.
+Quando si restituiscono tipi di array, è necessario conoscere il numero di elementi nell'array. Gli esempi assumono sempre 3 elementi.
 
-All pack and unpack and formats can also be given without spaces, but are spaced in the examples for better readability.
+Tutti i formati pack e unpack e possono essere forniti anche senza spazi, ma sono distanziati negli esempi per una migliore leggibilità.
 
-The formats "ld" and "lu" are interchangeable, but the 16-bit formats "u" and "d" may produce different results, because of sign extension when going from unsigned 16 bits to signed 32 or 64-bits bits of newLISP's internal integer format.
+I formati "ld" e "lu" sono intercambiabili, ma i formati a 16 bit "u" e "d" possono produrre risultati diversi, a causa dell'estensione del segno quando si passa da 16 bit senza segno a bit con segno a 32 o 64 bit di newLISP formato intero interno.
 
-Flags are available for changing endian byte order during pack and unpack.
+Sono disponibili flag per modificare l'ordine dei byte endian durante il confezionamento e l'estrazione.
 
 Scrivere wrapper di librerie
 ============================
-Sometimes the simple version of newLISP's built-in import facility cannot be used with a library. This happens whenever a library does not strictly adhere to cdecl calling conventions expecting all parameters passed on the stack. E.g. when running Mac OS X on older PPC CPUs instead of Intel CPUs, the OpenGL libraries installed by default on Mac OS X cannot be used.
+A volte la versione semplice della funzione integrata "import" di newLISP non può essere utilizzata con una libreria. Questo accade ogni volta che una libreria non aderisce strettamente alle convenzioni di chiamata cdecl aspettandosi che tutti i parametri siano passati nello stack. Per esempio. quando si esegue Mac OS X su vecchie CPU PPC invece che su CPU Intel, le librerie OpenGL installate per impostazione predefinita su Mac OS X non possono essere utilizzate.
 
-Since newLISP version 10.4.0, the problem can be solved easiest using the newer extended syntax of import, which automatically resolves platform and architectural differences. On very small systems or whenever the needed libffi system library is not present on a platform, a special wrapper library can be built to translate cdecl conventions expected by newLISP into the calling conventions expected by the target library.
+Dalla versione 10.4.0 di newLISP, il problema può essere risolto più facilmente utilizzando la nuova sintassi estesa di "import", che risolve automaticamente le differenze di piattaforma e architettura. Su sistemi molto piccoli o ogni volta che la libreria di sistema libffi necessaria non è presente su una piattaforma, è possibile creare una libreria wrapper speciale per tradurre le convenzioni cdecl previste da newLISP nelle convenzioni di chiamata previste dalla libreria di destinazione.
 
 /* wrapper.c - demo for wrapping library function
 
-compile:
+compilazione:
 
     gcc -m32 -shared wrapper.c -o wrapper.so
-or:
+oppure:
     gcc -m32 -bundle wrapper.c -o wrapper.dylib
 
-usage from newLISP:
+utilizzo da newLISP:
 
     (import "./wrapper.dylib" "wrapperFoo")
 
@@ -3244,7 +3245,7 @@ double * wrapperFoo(int argc, ...)
 
 Registrazione di callback in librerie esterne
 =============================================
-Many shared libraries allow registering callback functions to call back into the controlling program. The function callback is used in newLISP to extract the function address from a user-defined newLISP function and pass it to the external library via a registering function:
+Molte librerie condivise consentono di registrare le funzioni di callback per tornare indietro al programma di controllo. Il La funzione callback viene utilizzata in newLISP per estrarre l'indirizzo della funzione da una funzione newLISP definita dall'utente e passarlo alla libreria esterna tramite una funzione di registrazione:
 
 (define (keyboard key x y)
     (if (= (& key 0xFF) 27) (exit)) ; exit program with ESC
@@ -3252,9 +3253,9 @@ Many shared libraries allow registering callback functions to call back into the
 
 (glutKeyboardFunc (callback 1 'keyboard))
 
-The example is a snippet from the file opengl-demo.lsp in the newlisp-x.x.x/examples/ directory of the source distribution. A file win32demo.lsp can be found in the same directory demonstrating callbacks on the Windows platform.
+L'esempio è un frammento del file opengl-demo.lsp nella cartella newlisp-x.x.x/examples/ della distribuzione dei sorgenti. Nella stessa cartella si trova un file win32demo.lsp che mostra i callback sulla piattaforma Windows.
 
-For an advanced syntax of callback using C-type specifiers see newLISP User Manual and Reference.
+Per una sintassi avanzata di callback utilizzando identificatori di tipo C, vedere il manuale utente e di riferimento di newLISP.
 
 
 ======================================================

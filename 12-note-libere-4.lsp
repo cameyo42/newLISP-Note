@@ -7646,5 +7646,241 @@ Proviamo con un altro grafo (da disegnare con carta e penna):
 ;-> Distanza minima: 130
 ;-> Percorso: (7 6 5 4 1)
 
+
+-----------------
+Triangoli casuali
+-----------------
+
+Dati tre punti casuali nel piano cartesiano xy, determinare se possono formare un triangolo.
+Questo è semplice: tre punti su un piano determinano sempre un triangolo, tranne quando sono tutti e tre allineati.
+
+Dati tre segmenti di lunghezza casuale, determinare se possono formare un triangolo.
+
+Poniamo che a, b e c siano le lunghezze di tre segmenti, allora questi possono formare un triangolo se risultano vere tutte le seguenti condizioni:
+
+  1. a + b > c
+  2. a + c > b
+  3. b + c > a
+
+Quindi possiamo scrivere la seguente funzione:
+
+(define (tri1? a b c)
+  (if (or (<= (add a b) c) (<= (add a c) b) (<= (add b c) a))
+      nil
+      true))
+
+(tri1? 7 10 5)
+;-> true
+(tri1? 1 1 1)
+;-> true
+(tri1? 1 1 2)
+;-> nil
+(tri1? 1 2 4)
+;-> nil
+
+Nota: usiamo l'operatore "or" perchè valuta true al primo valore true dell'espressione.
+
+Analogamente possiamo osservare che se la somma dei tre segmenti è maggiore del doppio del lato maggiore, allora è possibile formare un triangolo (cioè se c'è un lato più lungo della somma degli altri due):
+
+(define (tri2? a b c)
+  (> (add a b c) (mul 2 (max a b c))))
+
+(tri2? 7 10 5)
+;-> true
+(tri2? 1 1 1)
+;-> true
+(tri2? 1 1 2)
+;-> nil
+(tri2? 1 2 4)
+;-> nil
+
+Vediamo la frequenza dei segmenti che possono formare un triangolo.
+
+Funzione per generare un numero float in un intervallo chiuso:
+
+(define (rnd-range min-val max-val)
+  (add min-val (mul (random) (sub max-val min-val))))
+
+; Funzione per generare un numero float normalizzato (distribuzione uniforme):
+;(define (rnd-range min-val max-val)
+;  (mul (random) (sub max-val min-val)))
+
+La seguente chiamata può generare anche 10 o 20:
+
+(rnd-range 10 20)
+;-> 18.88943144016846
+
+(for (i 1 100000) (if (= (rnd-range 10 20) 10) (println "10")))
+
+Adesso definiamo una funzione che crea, per un determinato numero di volte, tre segmenti casuali e controlla se possono formare un triangolo :
+
+(define (test-triangle min-d max-d iter)
+  (local (tri a b c)
+    (seed (time-of-day))
+    (setq tri 0)
+    (for (i 1 iter)
+      (setq a (rnd-range min-d max-d))
+      (setq b (rnd-range min-d max-d))
+      (setq c (rnd-range min-d max-d))
+      (if (tri1? a b c)
+          (++ tri)
+      )
+    )
+    (println tri { } (- iter tri))))
+
+(test-triangle 10 20 1e6)
+;-> 1000000 0 ; perchè la somma di due lati qualunque è sempre maggiore del terzo.
+
+(test-triangle 100 200 1e6)
+;-> 1000000 0 ; perchè la somma di due lati qualunque è sempre maggiore del terzo.
+
+(test-triangle 10 60 1e6)
+;-> 743012 256988
+
+Il numero di triangoli possibili diminuisce con l'aumentare della lunghezza dei lati:
+
+(test-triangle 10 110 1e6)
+;-> 635927 364073
+(test-triangle 10 1010 1e6)
+;-> 514827 485173
+(test-triangle 10 10010 1e6)
+;-> 502024 497976
+(test-triangle 10 100010 1e6)
+;-> 500194 499806
+(test-triangle 10 1000010 1e6)
+;-> 499571 500429
+(test-triangle 10 10000010 1e6)
+;-> 499791 500209
+(test-triangle 10 100000010 1e6)
+;-> 500058 499942
+
+Ma non scende mai sotto il 50%.
+
+Infatti se utilizziamo un intervallo normalizzato otteniamo il 50%:
+
+(test-triangle 0 1 1e6)
+;-> 500054 499946
+(test-triangle 0 1000 1e6)
+;-> 500018 499982
+
+Dal punto di vista matematico, siano a,b,c i tre numeri. La probabilità che c > a+b è data da:
+
+ 1     c    (c-b)
+ ∫dc * ∫db * ∫da = 1/6
+ 0     0     0
+
+Una qualsiasi delle tre variabili potrebbe essere la più grande, quindi moltiplichiamo per 3 e otteniamo 1/2.
+
+Geometricamente, supponiamo che il più grande dei tre sia a. Quindi gli altri due devono trovarsi nel quadrato di area a^2. In quel quadrato, la diagonale nord-ovest-sudest è la linea dove gli altri due si sommano ad a. Al di sotto di quella linea, gli altri due sommano a meno di a. Chiaramente quella linea taglia il quadrato a metà. Quindi, per ogni a, la probabilità è 1/2.
+
+
+----------------------
+Triangoli e bastoncini
+----------------------
+
+Abbiamo un bastoncino di una lunghezza unitaria. Due punti sul bastoncino vengono selezionati casualmente (uniformemente lungo la lunghezza del bastoncino) e indipendentemente. Quindi rompiamo il bastoncino in questi due punti in modo da ottenere tre pezzi dal bastoncino. Qual è la probabilità che questi tre pezzi formino un triangolo?
+
+Poniamo che a, b e c siano le lunghezze dei tre segmenti del bastoncino, allora questi possono formare un triangolo se risultano vere tutte le seguenti condizioni:
+
+  1. a + b > c
+  2. a + c > b
+  3. b + c > a
+
+Quindi possiamo scrivere la seguente funzione:
+
+(define (tri? a b c)
+  (if (or (<= (add a b) c) (<= (add a c) b) (<= (add b c) a))
+      nil
+      true))
+
+Nota: usiamo l'operatore "or" perchè valuta true al primo valore true dell'espressione.
+
+(tri? 7 10 5)
+;-> true
+(tri? 1 1 1)
+;-> true
+(tri? 1 1 2)
+;-> nil
+(tri? 1 2 4)
+;-> nil
+
+(define (dist2d x1 y1 x2 y2)
+"Calculate 2D Cartesian distance of two points P1 = (x1 y1) and P2 = (x2 y2)"
+  (sqrt (add (mul (sub x1 x2) (sub x1 x2))
+             (mul (sub y1 y2) (sub y1 y2)))))
+
+Scriviamo la funzione di simulazione:
+
+(define (bastoncino iter)
+  (local (tri a b c)
+    (seed (time-of-day))
+    (setq tri 0)
+    (for (i 1 iter)
+      (setq t1 (random))
+      (setq t2 (random))
+      (if (> t1 t2) (swap t1 t2))
+      (setq a t1)
+      (setq b (sub t2 t1))
+      (setq c (sub 1 t2))
+      (if (tri? a b c)
+          (++ tri)
+      )
+    )
+    (println tri { } (- iter tri))))
+
+(bastoncino 1000)
+;-> 247 753
+(bastoncino 10000)
+;-> 2582 7418
+(bastoncino 1e6)
+;-> 250813 749187
+(time (println (bastoncino 1e8)))
+;-> 25001002 74998998
+;-> 50731.957
+
+Quindi la probabilità che si formi un triangolo vale il 25% (1/4).
+
+Dal punto di vista matematico, poniamo l'origine sull'estremità sinistra del bastone. Sia X la lunghezza dall'origine al primo punto selezionato. Sia Y la lunghezza dall'origine al secondo punto selezionato.
+Nota che quando X=Y, abbiamo solo due pezzi e non possono formare un triangolo, quindi assumiamo X≠Y.
+Assumiamo innanzitutto che X<Y. Quindi, dopo aver rotto il bastone, abbiamo tre pezzi di lunghezza X, Y−X e 1−Y, rispettivamente.
+
+                  Y
+    -----|---------|-------
+    0     X                 1
+
+    -----  ---------  -------
+      X     (Y - X)   (1 - Y)
+
+Consideriamo ora le condizioni per cui tre segmenti di lunghezza a, b e c formino un triangolo in generale:
+
+  a + b > c
+  b + c > a
+  c + a > b
+
+e sostituiamo a,b e c con i parametri dei tre segmenti:
+
+        X + (Y - X) > (1 -Y)
+  (Y - X) + (1 - Y) > X
+        (1 - Y) + X > (Y - X)
+
+e semplificando otteniamo:
+
+  Y > 1/2
+  X < 1/2
+  Y < X + 1/2
+
+In alternativa, possiamo trovare la probabilità per il caso X > Y come segue. Per argomento di simmetria, dobbiamo semplicemente scambiare X e Y e ottenere le condizioni:
+
+  X > 1/2
+  Y < 1/2
+  X < Y + 1/2
+
+La soluzione di questi due sistemi di disuguaglianze viene rappresentata nella figura "bastoncino.png" presente nella cartella "data".
+
+Poichè la funzione di densità congiunta di X e Y è distribuita uniformemente sul quadrato unitario, la probabilità che tre pezzi formino un triangolo sotto l'assunzione X < Y è data dall'area grigia della regione triangolare contrassegnata con A, che vale 1/8. 
+Per simmetria, il caso X > Y dà la stessa probabilità (1/8) raffigurata dalla regione triangolare B. Quindi, la probabilità totale vale:
+
+  P(T | X > Y) + P(T | Y > X) = 1/8 + 1/8  = 1/4 
+
 =============================================================================
 

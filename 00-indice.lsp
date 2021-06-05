@@ -187,6 +187,7 @@ FUNZIONI VARIE
   Variazione percentuale
   Grafico di coppie di coordinate
   Sottosequenza crescente più lunga
+  Conversione stringa <--> big-integer
 
 newLISP 99 PROBLEMI (28)
 ========================
@@ -846,6 +847,8 @@ NOTE LIBERE 4
   Tavola pitagorica
   Sottostringa più piccola che contiene tutti i caratteri di una stringa
   Algoritmo Floyd-Warshall
+  Triangoli casuali
+  Triangoli e bastoncini
 
 APPENDICI
 =========

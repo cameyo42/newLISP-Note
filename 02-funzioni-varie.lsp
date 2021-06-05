@@ -8072,5 +8072,75 @@ Se vogliamo ottenere i valori della sottosequenza possiamo seguire l'algoritmo p
 (long-inc-sub '(10 9 2 5 3 7 101 18))
 ;-> (2 3 7 18)
 
+
+------------------------------------
+Conversione stringa <--> big-integer
+------------------------------------
+
+Vediamo come convertire una stringa in un big-integer e viceversa.
+
+; Maximum value of int64
+(setq MAX-INT)  9223372036854775807)
+; Minimum value of int64
+(setq MIN-INT) -9223372036854775808)
+
+Definiamo una stringa numerica maggiore di MAX-INT:
+
+(setq s "99223372036854775807")
+;-> 99223372036854775807
+
+Se convertiamo con la funzione "int" otteniamo un risultato errato a causa dell'overflow:
+(int s)
+;-> -1
+
+Però possiamo utilizzare la funzione "eval-string":
+
+(setq num (eval-string s))
+;-> 99223372036854775807L
+(length s)
+;-> 20
+(length num)
+;-> 20
+
+Attenzione alle lunghezze dei due tipi integer e string.
+
+Definiamo una stringa numerica minore di MIN-INT:
+
+(setq s "-99223372036854775808")
+"-99223372036854775808"
+(int s)
+;-> -1
+(setq num (eval-string s))
+;-> -9223372036854775808L
+(length s)
+;-> 21 ; il segno "-" è un carattere
+(length num)
+;-> 20
+
+Riconvertiamo il numero big-integer in stringa:
+
+(setq q (string num))
+;-> "-99223372036854775808L" ; nota la L finale
+(length q)
+;-> 22 ; il segno "-" e "L" sono due caratteri
+
+Riconvertiamo la stringa in numero big-integer:
+(setq num (eval-string q))
+;-> -99223372036854775808L
+(length num)
+;-> 20
+
+Quindi possiamo scrivere la seguente funzione:
+
+(define (str-int str)
+  (eval-string str))
+
+(str-int "2315369")
+;-> 2315369
+(str-int "23153234812357131369")
+;-> 23153234812357131369L
+(str-int "-23153234812357131369L")
+;-> -23153234812357131369L
+
 =============================================================================
 
