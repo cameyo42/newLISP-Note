@@ -849,6 +849,9 @@ NOTE LIBERE 4
   Algoritmo Floyd-Warshall
   Triangoli casuali
   Triangoli e bastoncini
+  Generazione di una lista di numeri casuali che sommano a 1
+  Numeri disarium
+  Numeri promici
 
 APPENDICI
 =========
@@ -99400,9 +99403,9 @@ Dal punto di vista matematico, poniamo l'origine sull'estremità sinistra del ba
 Nota che quando X=Y, abbiamo solo due pezzi e non possono formare un triangolo, quindi assumiamo X≠Y.
 Assumiamo innanzitutto che X<Y. Quindi, dopo aver rotto il bastone, abbiamo tre pezzi di lunghezza X, Y−X e 1−Y, rispettivamente.
 
-                  Y
+                   Y
     -----|---------|-------
-    0     X                 1
+    0    X                1
 
     -----  ---------  -------
       X     (Y - X)   (1 - Y)
@@ -99437,6 +99440,244 @@ Poichè la funzione di densità congiunta di X e Y è distribuita uniformemente 
 Per simmetria, il caso X > Y dà la stessa probabilità (1/8) raffigurata dalla regione triangolare B. Quindi, la probabilità totale vale:
 
   P(T | X > Y) + P(T | Y > X) = 1/8 + 1/8  = 1/4 
+
+
+----------------------------------------------------------
+Generazione di una lista di numeri casuali che sommano a 1
+----------------------------------------------------------
+
+Per generare una lista di numeri casuali che sommano a 1 possiamo generare una lista di numeri casuali tra 0 e 1 e poi dividerli per la loro somma.
+
+(define (rnd-list-one num)
+  (let (tmp (random 0 1 num))
+    (setq sum (apply add tmp))
+    (map (fn(x) (div x sum)) tmp)))
+
+(rnd-list-one 10)
+;-> (0.1265890983499499 0.1624363272236493 0.06672036222734991
+;->  0.03061191170708346 0.09963428969480603 0.09536222734990639
+;->  0.04756410814576168 0.06689995210936479 0.139606643737211
+;->  0.1645750794549175)
+
+Verifichiamo che la somma valga sempre 1 (o 0.9999999999999999):
+
+(dotimes (x 9) (println (apply add (rnd-list-one 10))))
+;-> 1
+;-> 1
+;-> 0.9999999999999999
+;-> 1
+;-> 0.9999999999999998
+;-> 1
+;-> 1
+;-> 0.9999999999999999
+;-> 0.9999999999999999
+;-> 0.9999999999999999
+
+Nota:
+(add 0.9999999999999999 1)
+;-> 2
+
+Purtroppo questo metodo non produce una distribuzione uniforme dei valori (perchè una distribuzione uniforme non è più tale dopo un'operazione di scala).
+
+Invece, il seguente algoritmo dovrebbe produrre una distribuzione uniforme di N numeri casuali che sommano a 1.
+
+1. Creare una lista di N - 1 numeri casuali tra 0 e 1
+2. Aggiungere alla lista 0 e 1 (ottenendo una lista di N + 1 numeri)
+3. Ordinare la lista
+4. Calcolare le differenze delle coppie di elementi(cioè, calcolare le N differenze num(i) - num(i-1)) ottenendo un totale di N numeri).
+
+(define (rnd-list num)
+  (let (tmp (random 0 1 (- num 1)))
+    (push 0 tmp)
+    (push 1 tmp -1)
+    (sort tmp)
+    ; crea una lista con le differenze
+    ; delle coppie di elementi el(i) - el(i-1)
+    (map sub (rest tmp) (chop tmp))))
+
+(setq a (rnd-list 5))
+;-> (0.174108096560564 0.5363933225501267 0.03610339671010465 0.1123386333811457 0.141056550798059)
+
+(apply add a)
+;-> 1
+
+Possiamo estrapolare la funzione alla generazione di numeri interi con somma predefinita:
+
+(for (i 1 100000) (if (= 100 (rand 100)) (println "0")))
+
+(define (rnd-int-list num sum)
+  (let (tmp (rand sum (- num 1)))
+    (push 0 tmp)
+    (push sum tmp -1)
+    (sort tmp)
+    (println tmp)
+    ; crea una lista con le differenze
+    ; delle coppie di elementi el(i) - el(i-1)
+    (map sub (rest tmp) (chop tmp))))
+
+(setq b (rnd-int-list 5 100))
+;-> (14 24 31 10 21)
+(apply + b)
+;-> 100
+(setq b (rnd-int-list 100 1000))
+;-> (10 1 4 6 1 40 6 31 2 1 0 14 2 12 14 1 4 2 10 6 9 8 9 27 6
+;->  9 7 20 1 27 1 6 7 5 4 33 2 6 14 19 14 9 17 2 5 21 15 1 8
+;->  42 17 15 15 8 9 9 2 18 2 4 5 8 2 2 7 12 26 21 1 7 4 40 5
+;->  14 7 23 7 17 0 2 1 21 3 1 5 16 1 3 5 20 29 15 3 0 8 10 4 5 7 13)
+(apply + b)
+;-> 1000
+
+
+---------------
+Numeri disarium
+---------------
+
+Sono quei numeri tali che la somma delle sue cifre elevate alle potenze consecutive (1,2,3,...) è uguale al numero stesso.
+La potenza vale 1 partendo dalla cifra più significativa (quella più a sinistra del numero).
+
+Sequenza OEIS A032799: 
+  0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 89, 135, 175, 518, 598, 
+  1306, 1676, 2427, 2646798, 12157692622039623539, ...
+
+Funzione che verifica se un numero è disarium:
+
+(define (disarium? num)
+  (if (zero? num) 0
+      (local (sum numero p)
+        (setq numero num)
+        (setq sum 0)
+        (setq len (length num))
+        (setq p len)
+        (while (and (!= num 0) (<= sum numero))
+        ;(while (!= num 0)
+          (setq sum (+ sum (pow (% num 10) p)))
+          (-- p)
+          (setq num (/ num 10))
+        )
+        (= sum numero))))
+
+(disarium? 89)
+;-> true
+(disarium? 17557)
+
+(apply + (list (pow 7 1) (pow 5 2) (pow 5 3) (pow 7 4) (pow 1 5)))
+
+Funzione che calcola i numeri disarium fino ad un determinato limite:
+
+(define (disarium-to limite)
+  (let (out '())
+    (for (i 0 limite)
+      (if (disarium? i) (push i out -1)))
+    out))
+
+(disarium-to 10000)
+;-> (0 1 2 3 4 5 6 7 8 9 89 135 
+;->  175 518 598 1306 1676 2427)
+
+(time (println (disarium-to 1e7)))
+;-> (0 1 2 3 4 5 6 7 8 9 89 135 175 518 598 1306 1676 2427 2646798)
+;-> 19445.957 ; 20 secondi circa
+
+Il numero successivo, 12157692622039623539, non è calcolabile con questa funzione. Però possiamo verificare che sia effettivamente un numero disarium:
+
+(disarium? 12157692622039623539)
+;-> ERR: number out of range in function <=
+;-> called from user function (disarium? 12157692622039623539L)
+
+Oops, il numero è maggiore di MAX-INT = 9223372036854775807, quindi dobbiamo usare i big-integer:
+
+(define (** num power)
+    (let (out 1L)
+        (dotimes (i power)
+            (setq out (* out num)))))
+
+(define (disarium-big? num)
+  (if (zero? num) 0L
+      (local (sum numero)
+        (setq numero num)
+        (setq sum 0L)
+        (setq len (length num))
+        (while (and (!= num 0) (<= sum numero))
+          (setq sum (+ sum (** (% num 10) len)))
+          (-- len)
+          (setq num (/ num 10))
+        )
+        (= sum numero))))
+
+(disarium-big? 2427)
+;-> true
+(disarium-big? 12157692622039623539)
+;-> true
+
+Cambiamo anche la funzione che calcola i numeri disarium fino ad un determinato limite per gestire i big-integer:
+
+(define (disarium-big-to limite)
+  (let (out '())
+    (for (i 0 limite)
+      (if (disarium-big? i) (push i out -1)))
+    out))
+
+(disarium-big-to 10000)
+;-> (0 1 2 3 4 5 6 7 8 9 89 135 
+;->  175 518 598 1306 1676 2427)
+
+(time (println (disarium-big-to 1e7)))
+;-> (0 1 2 3 4 5 6 7 8 9 89 135 175 518 598 1306 1676 2427 2646798)
+;-> 223413.805
+
+Chiaramente neanche con questa funzione possiamo calcolare il valore 12157692622039623539 (o quello successivo).
+
+
+--------------
+Numeri promici
+--------------
+
+Un numero si dice promico (pronico) se è il prodotto di due numeri interi consecutivi.
+Ad esempio, se consideriamo il numero 72, è il prodotto di due interi consecutivi 8 e 9. Pertanto, 72 è un numero promico.
+Ora, se consideriamo il numero 16, è il prodotto di 2 e 8 o 4 e 4 ma nessuno è gli interi consecutivi. Pertanto, 16 non è un numero promico.
+
+Sequenza OEIS A002378:
+  0, 2, 6, 12, 20, 30, 42, 56, 72, 90, 110, 132, 156, 182, 210, 240, 272, 
+  306, 342, 380, 420, 462, 506, 552, 600, 650, 702, 756, 812, 870, 930, 
+  992, 1056, 1122, 1190, 1260, 1332, 1406, 1482, 1560, 1640, 1722, 1806, 
+  1892, 1980, 2070, 2162, 2256, 2352, 2450, 2550, ...
+
+Algoritmo:
+Eseguire un ciclo da 1 a metà del numero e se il numero è il prodotto di due numeri consecutivi qualsiasi, il numero è un numero promico, altrimenti no.
+
+(define (promico? num)
+  (let (out nil)
+    (for (i 1 (/ num 2) 1 out)
+      (if (= num (* i (+ i 1)))
+          (setq out true))
+    )
+  out))
+
+(promico? 0)
+;-> true
+(promico? 72)
+;-> true
+(promico? 30)
+;-> true
+(promico? 100)
+;-> nil
+
+Per trovare tutti i numeri promici fino ad un certo limite la funzione è la seguente:
+
+(define (promici-to limite)
+  (let ((prom 0) (i 0) (out '()))
+    (while (< prom limite)
+      (push prom out -1)
+      (++ i)
+      (setq prom (* i (+ i 1)))
+    )
+    out))
+
+(promici-to 2600)
+;-> (0 2 6 12 20 30 42 56 72 90 110 132 156 182 210 240 272 
+;->  306 342 380 420 462 506 552 600 650 702 756 812 870 930 
+;->  992 1056 1122 1190 1260 1332 1406 1482 1560 1640 1722
+;->  1806 1892 1980 2070 2162 2256 2352 2450 2550)
 
 =============================================================================
 

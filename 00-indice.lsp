@@ -849,6 +849,9 @@ NOTE LIBERE 4
   Algoritmo Floyd-Warshall
   Triangoli casuali
   Triangoli e bastoncini
+  Generazione di una lista di numeri casuali che sommano a 1
+  Numeri disarium
+  Numeri promici
 
 APPENDICI
 =========
