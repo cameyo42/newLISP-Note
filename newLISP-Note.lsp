@@ -75,6 +75,7 @@ newLISP IN GENERALE
   Analisi dei tempi di esecuzione delle funzioni
   Unificazione
   Stampare con print/println/format
+  Complessità temporale delle operazioni aritmetiche fondamentali
 
 FUNZIONI VARIE
 ==============
@@ -852,6 +853,7 @@ NOTE LIBERE 4
   Generazione di una lista di numeri casuali che sommano a 1
   Numeri disarium
   Numeri promici
+  Formula di Erone
 
 APPENDICI
 =========
@@ -10953,6 +10955,32 @@ Per finire vediamo un esempio con formattazione multipla:
 ;-> mango     456        0.123456
 ;-> pere    -1001       10.000000
 ;-> noci    10000     -100.000000
+
+
+===============================================================
+COMPLESSITÀ TEMPORALE DELLE OPERAZIONI ARITMETICHE FONDAMENTALI
+===============================================================
+
+La tabella seguente elenca la complessità computazionale di vari algoritmi per operazioni matematiche comuni.
+
+Operazione        Input                   Output                      Algoritmo                            Complessità
+----------------------------------------------------------------------------------------------------------------------
+Addizione         due numeri da n cifre   un numero da (n+1) cifre    Addizione con riporto                Θ(n)
+Sottrazione       due numeri da n cifre   un numero da (n+1) cifre    Sottrazione con prestito             Θ(n)
+Moltiplicazione   due numeri da n cifre   un numero da 2*n cifre      Moltiplicazione standard             O(n^2)
+Moltiplicazione   due numeri da n cifre   un numero da 2*n cifre      Algoritmo Karatsuba                  O(n^1.585) 
+Moltiplicazione   due numeri da n cifre   un numero da 2*n cifre      Algoritmo 3-way Toom-Cook            O(n^1.465)
+Moltiplicazione   due numeri da n cifre   un numero da 2*n cifre      Algoritmo k-way Toom-Cook            O(n^(log(2k-1))/log(k))
+Moltiplicazione   due numeri da n cifre   un numero da 2*n cifre      Mixed Toom-Cook/Knuth                O(n*(2^sqrt(2*log(n)))*log(n)
+Moltiplicazione   due numeri da n cifre   un numero da 2*n cifre      Algoritmo Schönhage–Strassen         O(n*log(n)*log(log(n))
+Moltiplicazione   due numeri da n cifre   un numero da 2*n cifre      Algoritmo Furer                      O(n*log(n*2^(2*log(n))))
+Moltiplicazione   due numeri da n cifre   un numero da 2*n cifre      Algoritmo Harvey-Hoeven              O(n*log(n))
+Divisione         due numeri da n cifre   un numero da n cifre        Divisione lunga standard             O(n^2)
+Divisione         due numeri da n cifre   un numero da n cifre        Burnikel-Ziegler Divide-and-Conquer  O(M(n)*log(n))
+Divisione         due numeri da n cifre   un numero da n cifre        Divisione Newton-Raphson             O(M(n) 
+Radice Quadrata   un numero da n cifre    un numero da n cifre        Metodo di Newton                     O(M(n)
+
+dove M(n) rappresenta la complessità dell'algoritmo di moltiplicazione utilizzato.
 
 =============================================================================
 
@@ -99678,6 +99706,35 @@ Per trovare tutti i numeri promici fino ad un certo limite la funzione è la seg
 ;->  306 342 380 420 462 506 552 600 650 702 756 812 870 930 
 ;->  992 1056 1122 1190 1260 1332 1406 1482 1560 1640 1722
 ;->  1806 1892 1980 2070 2162 2256 2352 2450 2550)
+
+
+----------------
+Formula di Erone
+----------------
+
+La formula di Erone permette di calcolare l'area di un triangolo di cui sono note le misure dei lati.
+Indichiamo co n a,b,c i lati di untriangolo qualsiasi e sia sp il suo semiperimetro:
+
+  sp = (a + b + c)/2
+
+La formula di Erone stabilisce che l'area del triangolo è pari alla radice quadrata del semiperimetro per la differenza tra il semiperimetro e il primo lato, moltiplicato per la differenza tra il semiperimetro e il secondo lato, moltiplicato per la differenza tra il semiperimetro e il terzo lato.
+
+  Area = sqrt(sp*(sp - a)*(sp - b)*(sp - c))
+
+La funzione è la seguente:
+
+(define (erone a b c)
+  (let (sp (div (add a b c) 2))
+    (sqrt (mul sp (sub sp a) (sub sp b) (sub sp c)))))
+
+(erone 15 20 25)
+;-> 150
+
+Nota: l'altezza di un triangolo conoscendo i lati a,b,c vale:
+
+                  (a^2 + c^2 - b^2)^2
+  h = sqrt(a^2 - ---------------------)
+                        4*c^2
 
 =============================================================================
 

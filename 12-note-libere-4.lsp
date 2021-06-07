@@ -8120,5 +8120,34 @@ Per trovare tutti i numeri promici fino ad un certo limite la funzione è la seg
 ;->  992 1056 1122 1190 1260 1332 1406 1482 1560 1640 1722
 ;->  1806 1892 1980 2070 2162 2256 2352 2450 2550)
 
+
+----------------
+Formula di Erone
+----------------
+
+La formula di Erone permette di calcolare l'area di un triangolo di cui sono note le misure dei lati.
+Indichiamo co n a,b,c i lati di untriangolo qualsiasi e sia sp il suo semiperimetro:
+
+  sp = (a + b + c)/2
+
+La formula di Erone stabilisce che l'area del triangolo è pari alla radice quadrata del semiperimetro per la differenza tra il semiperimetro e il primo lato, moltiplicato per la differenza tra il semiperimetro e il secondo lato, moltiplicato per la differenza tra il semiperimetro e il terzo lato.
+
+  Area = sqrt(sp*(sp - a)*(sp - b)*(sp - c))
+
+La funzione è la seguente:
+
+(define (erone a b c)
+  (let (sp (div (add a b c) 2))
+    (sqrt (mul sp (sub sp a) (sub sp b) (sub sp c)))))
+
+(erone 15 20 25)
+;-> 150
+
+Nota: l'altezza di un triangolo conoscendo i lati a,b,c vale:
+
+                  (a^2 + c^2 - b^2)^2
+  h = sqrt(a^2 - ---------------------)
+                        4*c^2
+
 =============================================================================
 

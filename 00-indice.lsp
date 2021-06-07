@@ -75,6 +75,7 @@ newLISP IN GENERALE
   Analisi dei tempi di esecuzione delle funzioni
   Unificazione
   Stampare con print/println/format
+  Complessità temporale delle operazioni aritmetiche fondamentali
 
 FUNZIONI VARIE
 ==============
@@ -852,6 +853,7 @@ NOTE LIBERE 4
   Generazione di una lista di numeri casuali che sommano a 1
   Numeri disarium
   Numeri promici
+  Formula di Erone
 
 APPENDICI
 =========
