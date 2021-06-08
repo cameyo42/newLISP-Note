@@ -10046,7 +10046,7 @@ Moltiplicazione   due numeri da n cifre   un numero da 2*n cifre      Algoritmo 
 Moltiplicazione   due numeri da n cifre   un numero da 2*n cifre      Algoritmo k-way Toom-Cook            O(n^(log(2k-1))/log(k))
 Moltiplicazione   due numeri da n cifre   un numero da 2*n cifre      Mixed Toom-Cook/Knuth                O(n*(2^sqrt(2*log(n)))*log(n)
 Moltiplicazione   due numeri da n cifre   un numero da 2*n cifre      Algoritmo Schönhage–Strassen         O(n*log(n)*log(log(n))
-Moltiplicazione   due numeri da n cifre   un numero da 2*n cifre      Algoritmo Furer                      O(n*log(n*2^(2*log(n))))
+Moltiplicazione   due numeri da n cifre   un numero da 2*n cifre      Algoritmo Furer                      O(n*log(n)*2^(2*log(n))))
 Moltiplicazione   due numeri da n cifre   un numero da 2*n cifre      Algoritmo Harvey-Hoeven              O(n*log(n))
 Divisione         due numeri da n cifre   un numero da n cifre        Divisione lunga standard             O(n^2)
 Divisione         due numeri da n cifre   un numero da n cifre        Burnikel-Ziegler Divide-and-Conquer  O(M(n)*log(n))

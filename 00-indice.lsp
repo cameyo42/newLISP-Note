@@ -854,6 +854,8 @@ NOTE LIBERE 4
   Numeri disarium
   Numeri promici
   Formula di Erone
+  Tre funzioni per calcolare la potenza di un numero intero
+  Numeri Armstrong
 
 APPENDICI
 =========

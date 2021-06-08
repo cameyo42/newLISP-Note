@@ -8149,5 +8149,158 @@ Nota: l'altezza di un triangolo conoscendo i lati a,b,c vale:
   h = sqrt(a^2 - ---------------------)
                         4*c^2
 
+
+---------------------------------------------------------
+Tre funzioni per calcolare la potenza di un numero intero
+---------------------------------------------------------
+
+Funzione 1:
+
+(define (** num power)
+    (let (out 1L)
+        (dotimes (i power)
+            (setq out (* out num)))))
+
+Funzione 2:
+
+(define (power b e)
+  (local (tmp out)
+    (setq out 1L)
+    (setq tmp b)
+    (while (> e 0)
+      (if (= (% e 2) 1)
+          (setq out (* out tmp))
+      )
+      (setq tmp (* tmp tmp))
+      (setq e (/ e 2))
+    )
+    out))
+
+Funzione 3:
+
+(define (pow-i num power)
+  (local (pot out)
+    (if (zero? power)
+        (setq out 1L)
+        (begin
+          (setq pot (pow-i num (/ power 2)))
+          (if (odd? power)
+              (setq out (* num pot pot))
+              (setq out (* pot pot)))
+        )
+    )
+    out))
+
+(= (power 12345L 1234L) (pow-i 12345L 1234L))
+;-> true
+
+(= (** 12345L 1234L) (pow-i 12345L 1234L))
+;-> true
+
+Vediamo i tempi di esecuzione:
+
+Valori grandi:
+(time (** 12345L 123L) 100000)
+;-> 2035.584
+(time (power 12345L 123L) 100000)
+;-> 930.511
+(time (pow-i 12345L 123L) 100000)
+;-> 732.511
+
+Valori piccoli:
+(time (** 123L 12L) 100000)
+;-> 162.583
+(time (power 123L 12L) 100000)
+;-> 326.134
+(time (pow-i 123L 12L) 100000)
+;-> 304.169
+
+Il risultati sono contrastanti: la funzione 1 è la più veloce per valori piccoli, mentre la funzione 3 è la più veloce per valori grandi.
+
+
+----------------
+Numeri Armstrong
+----------------
+
+I numeri Armstrong (PlusPerfect o narcisistici) sono numeri con m cifre che sono uguali alla somma di ogni cifra elevata a m.
+Sequenza OEIS A005188:
+  1, 2, 3, 4, 5, 6, 7, 8, 9, 153, 370, 371, 407, 1634, 8208, 9474,
+  54748, 92727, 93084, 548834, 1741725, 4210818, 9800817, 9926315, 
+  24678050, 24678051, 88593477, 146511208, 472335975, 534494836, 
+  912985153, 4679307774, 32164049650, 32164049651
+
+Funzione 1 che calcola la potenza di un numero intero:
+
+(define (pow-i num power)
+  (local (pot out)
+    (if (zero? power)
+        (setq out 1L)
+        (begin
+          (setq pot (pow-i num (/ power 2)))
+          (if (odd? power)
+              (setq out (* num pot pot))
+              (setq out (* pot pot)))
+        )
+    )
+    out))
+
+Funzione 2 che calcola la potenza di un numero intero:
+
+(define (** num power)
+    (let (out 1L)
+        (dotimes (i power)
+            (setq out (* out num)))))
+
+Funzione che verifica se un numero è Armstrong:
+
+(define (armstrong? num)
+  (local (p digit sum tmp)
+    (setq p (length num))
+    (setq tmp num)
+    (setq sum 0)
+    (while (!= 0 tmp)
+      (setq digit (% tmp 10))
+      ; time 1: pow-i
+      (setq sum (+ sum (pow-i digit p)))
+      ; time 2: **
+      ;(setq sum (+ sum (** digit p)))
+      (setq tmp (/ tmp 10))
+    )
+    (= sum num)))
+
+(armstrong? 4)
+;-> true
+
+Funzione che calcola i numeri Armstrong fino ad un determinato limite:
+
+(define (armstrong-to limit)
+  (local (out)
+    (for (i 1 limit)
+      (if (armstrong? i)
+        (push i out -1)))
+    out))
+
+; time 1: pow-i
+(time (println (armstrong-to 1e6)))
+;-> (1 2 3 4 5 6 7 8 9 153 370 371 407 1634
+;->  8208 9474 54748 92727 93084 548834)
+;-> 8710.681
+(time (println (armstrong-to 1e7)))
+;-> (1 2 3 4 5 6 7 8 9 153 370 371 407 1634 8208 9474 54748
+;->  92727 93084 548834 1741725 4210818 9800817 9926315)
+;-> 101966.673
+
+; time 2: **
+(time (println (armstrong-to 1e6)))
+;-> (1 2 3 4 5 6 7 8 9 153 370 371 407 1634
+;->  8208 9474 54748 92727 93084 548834)
+;-> 8282.203
+(time (println (armstrong-to 1e7)))
+;-> (1 2 3 4 5 6 7 8 9 153 370 371 407 1634 8208 9474 54748
+;->  92727 93084 548834 1741725 4210818 9800817 9926315)
+;-> 108572.944
+
+I numeri Armstrong vengono utilizzati nella sicurezza sulla trasmissione di dati. Il primo passo consiste nell'assegnare un colore univoco a ciascun destinatario (receiver). Ogni colore è rappresentato con un insieme di tre valori. Ad esempio il colore rosso viola è rappresentato in formato RGB come (238, 58,140). Poi si assegna una serie di tre valori chiave a ciascun destinatario. Il mittente (sender) è a conoscenza del destinatario richiesto a cui devono essere inviati i dati. Quindi il colore univoco del destinatario viene utilizzato come password. Il set di tre valori chiave viene aggiunto ai valori del colore originale e crittografato dal lato del mittente. Questo colore crittografato funge effettivamente da password. I dati effettivi vengono crittografati utilizzando i numeri Armstrong.
+
 =============================================================================
 
