@@ -856,6 +856,7 @@ NOTE LIBERE 4
   Formula di Erone
   Tre funzioni per calcolare la potenza di un numero intero
   Numeri Armstrong
+  Evoluzione dell'algoritmo per la moltiplicazione di due numeri interi
 
 APPENDICI
 =========

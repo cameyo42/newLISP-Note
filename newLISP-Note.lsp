@@ -856,6 +856,7 @@ NOTE LIBERE 4
   Formula di Erone
   Tre funzioni per calcolare la potenza di un numero intero
   Numeri Armstrong
+  Evoluzione dell'algoritmo per la moltiplicazione di due numeri interi
 
 APPENDICI
 =========
@@ -99890,6 +99891,84 @@ Funzione che calcola i numeri Armstrong fino ad un determinato limite:
 ;-> 108572.944
 
 I numeri Armstrong vengono utilizzati nella sicurezza sulla trasmissione di dati. Il primo passo consiste nell'assegnare un colore univoco a ciascun destinatario (receiver). Ogni colore è rappresentato con un insieme di tre valori. Ad esempio il colore rosso viola è rappresentato in formato RGB come (238, 58,140). Poi si assegna una serie di tre valori chiave a ciascun destinatario. Il mittente (sender) è a conoscenza del destinatario richiesto a cui devono essere inviati i dati. Quindi il colore univoco del destinatario viene utilizzato come password. Il set di tre valori chiave viene aggiunto ai valori del colore originale e crittografato dal lato del mittente. Questo colore crittografato funge effettivamente da password. I dati effettivi vengono crittografati utilizzando i numeri Armstrong.
+
+
+---------------------------------------------------------------------
+Evoluzione dell'algoritmo per la moltiplicazione di due numeri interi
+---------------------------------------------------------------------
+
+L'algoritmo standard per la moltiplicazione di interi è quello scolastico con riporto ed ha una complessità temporale O(N^2). Solo nel 1960 è stato sviluppato un nuovo algoritmo (karatsuba) con tempo O(N^1.58) e nel 1970 è stato dimostrato che l'agoritmo più veloce possibile ha complessità O(N*logN).
+
+Ci sono voluti più di 60 anni per passare da O(N^2) a O(N*logN), ma è stato un viaggio interessante. Questo è un momento importante perché si tratta di uno dei pochi argomenti fondamentali che siamo riusciti a capire ed ottimizzare al limite.
+
+Nel 1971 è stato sviluppato l'algoritmo di Schonhage Strassen che ha funzionato al tempo O(N*logN*loglogN) e ha mantenuto il record per 36 anni prima di essere battuto dall'algoritmo di Furer nel 2007. Da allora, i progressi sono stati costanti e un algoritmo con tempo O(N*logN), scoperto nel marzo 2019, è la possibile fine di questa ricerca umana.
+
+La tabella seguente gli algoritmi che hanno definito questa era:
+
+Algoritmo                  Complessità               Anno    Note
+-------------------------- ------------------------------------------------
+School Multiplication      O(N^2)                    100 AC  -
+Russian Peasant Method     O(N^2 * logN)             1000    -
+Karatsuba                  O(N^1.58)                 1960    -
+Toom Cook multiplication   O(N^1.46)                 1963    -
+Schonhage Strassen         O(N * logN * loglogN)     1971    FFT
+Furer                      O(N * logN * 2^O(log*N))  2007    -
+DKSS                       O(N * logN * 2^O(log*N))  2008    Modulare
+Harvey, Hoeven, Lecerf     O(N * logN * 2^3 log*N)   2015    Primi Mersenne
+Covanov and Thomé          O(N * logN * 2^2 log*N)   2015    Primi Fermat
+Harvey and van der Hoeven  O(N * logN)               2019    Fine (!?)
+
+Nota: la complessità temporale considera la moltiplicazione di due numeri di N cifre.
+
+Approcci di base O(N^2)
+-----------------------
+La moltiplicazione intera inizia con l'approccio di base insegnato a scuola che ha una complessità temporale di O(N^2). Sebbene ci sia voluto un tempo significativo per migliorare la complessità del tempo, questo non ci ha impedito di apportare miglioramenti su questo.
+
+Un miglioramento è stato ridurre la moltiplicazione a N addizioni poiché nei sistemi informatici l'addizione è molto più veloce. Questo potrebbe non essere vero nei sistemi moderni poiché entrano in scena diverse ottimizzazioni.
+
+Un altro approccio era effettuare la moltiplicazione in potenze di due (algoritmo del contadino russo). Sebbene questo aumenti la complessità temporale, le prestazioni reali sono buone poiché la moltiplicazione per 2 viene eseguita utilizzando un'operazione di spostamento a sinistra che richiede un tempo costante O(1).
+
+Ci sono molte altre varianti, ma il vero progresso è stato fatto a partire dagli anni '60 quando sono stati scoperti diversi ottimi algoritmi.
+
+Anni '60: da O(N^2) a O(N^1.58) a O(N^1.46)
+-------------------------------------------
+Tutto è iniziato con l'algoritmo Karatsuba che è stato il primo algoritmo a dimostrare che la moltiplicazione intera può essere eseguita più velocemente di O(N^2). Era un momento in cui gli scienziati erano bloccati in questo problema.
+
+L'algoritmo è stato scoperto nel 1960 da Anatoly Karatsuba. È basato su un approccio divide et impera e ha una complessità temporale di O(N^1.58).
+
+I progressi successivi furono fatti rapidamente e nel 1963 Toom Cook formulò un algoritmo cha ha una complessità temporale di O(N^1.46).
+
+Le notizie dei progressi si diffusero velocemente anche in quei giorni senza internet e questo campo era di nuovo in attiva ricerca. Ci sono voluti circa altri 7 anni per scoprire un nuovo algoritmo che avrà un enorme impatto per decenni.
+
+Anni '70s: l'inizio di una nuova sfida
+--------------------------------------
+L'algoritmo di Schonhage Strassen è uno dei più grandi progressi compiuti nella moltiplicazione dei numeri interi. È stato formulato nel 1971 ed è rimasto il più importante algoritmo di moltiplicazione di numeri interi per oltre 36 anni.
+
+Ha una complessità temporale di O(N*logN*loglogN) e utilizza l'idea della Fast Fourier Transform.
+
+Sebbene questo fosse un passo importante, ci sono voluti diversi anni per migliorarlo. Questo ha dato la sensazione che il dominio stesse diventando troppo complicato da affrontare ma, come sappiamo, alla fine ce l'abbiamo fatta.
+
+2007: la svolta
+---------------
+L'algoritmo di Furer è stato un importante passo avanti in quanto dal 1971 al 2007 non sono stati compiuti progressi fondamentali. Comunque ha dimostrato che sono possibili ulteriori progressi. Inoltre ha migliorato la complessità temporale a O(N*logN*2^O(logN)).
+
+Ha migliorato la parte loglogN dell'algoritmo Schonhage Strassen che è vero per grandi numeri come 2^2^64.
+
+Nonostante ciò, rimane di interesse teorico solo a causa di diverse sfide importanti per il suo utilizzo in applicazioni pratiche. Ciò ha aperto un nuovo interesse per il problema e negli anni successivi sono state proposte diverse ottimizzazioni, ma nessuna lo ha reso adatto all'uso pratico. Quindi, l'algoritmo di Schonhage Strassen ha continuato ad essere utilizzato in tutti gli usi pratici.
+
+Ulteriori miglioramenti fino a O(N*logN)
+-----------------------------------
+Dal 2007 sono stati apportati diversi miglioramenti agli algoritmi di Furer.
+
+L'algoritmo DKSS è stato un approccio notevole in quanto ha raggiunto la stessa complessità temporale dell'algoritmo di Furer. Si basa sull'aritmetica modulare ed è più semplice. È uscito nel 2008 e ha una complessità temporale di O(N*logN*2^O(logN)). Questo è più veloce dell'algoritmo Schonhage Strassen per i numeri maggiori di 10^10^4796.
+
+Nel 2015, Harvey, Hoeven e Lecerf hanno inventato un algoritmo con una costante limitata migliore rispetto all'algoritmo di Furer. Si basava sui numeri primi di Mersenne e aveva una complessità temporale di O(N*logN*2^(3*logN)) dove la costante è 3 mentre nell'algoritmo di Furer non è limitata e può essere più grande come 8.
+
+Presto, Covanov e Thomé nello stesso anno 2015, hanno inventato un altro algoritmo basato su Fermat Primes e hanno migliorato il fattore costante a 2. La complessità temporale è migliorata a O(N*logN*2^(2^logN)).
+
+Nonostante questi miglioramenti, gli algoritmi non erano adatti all'uso pratico e venivano apportati miglioramenti minimi. Per una nota positiva, abbiamo diversi algoritmi con diverse idee di base.
+
+I maggiori progressi sono stati compiuti nel marzo 2019 da Harvey e van der Hoeven. Hanno proposto un algoritmo con complessità temporale di O(N logN). Questo è significativo in quanto nel 1971 Volker Strassen dimostrò che la migliore complessità possibile per la moltiplicazione intera dovrebbe essere O(N*logN) e quindi siamo arrivati ​​alla fine. Comunque questo risultato è in corso di verifica.
 
 =============================================================================
 
