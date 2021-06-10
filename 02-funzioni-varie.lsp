@@ -8142,5 +8142,211 @@ Quindi possiamo scrivere la seguente funzione:
 (str-int "-23153234812357131369L")
 ;-> -23153234812357131369L
 
+
+---------------------------
+Dismutazioni (Derangements)
+---------------------------
+
+Nel calcolo combinatorio vengono dette dismutazioni (o sconvolgimenti, o permutazioni complete) le permutazioni di un insieme tali che nessun elemento appare nella sua posizione originale. In altre parole, uno dismutazione è una permutazione che non ha punti fissi.
+Non esiste alcuna dismutazione per un insieme di un solo elemento, ne esiste 1 per un insieme di 2 elementi, 2 per un insieme di 3 elementi, 9 per uno di 4 elementi, ad esempio, le 9 dismutazioni possibili della parola "ABCD" sono:
+
+  BADC BCDA BDAC
+  CADB CDAB CDBA
+  DABC DCAB DCBA
+
+Il simbolo matematico che rappresenta la dismutazione è: !n
+
+Per calcolare il numero di dismutazioni !n di un insieme esistono due formule:
+
+1)  !n = (n - 1)*(!(n-1) + !(n-2)),  dove !0 = 1 e !1 = 0
+
+2)  !n = n*!(n-1) + (-1)^n,  dove !0 = 1 e !1 = 0
+
+           n  (-1)^i
+3)  !n = n!∑----------,  per n >= 0
+           0    i!
+
+Sequenza OEIS A000166:
+  1, 0, 1, 2, 9, 44, 265, 1854, 14833, 133496, 1334961, 14684570,
+  176214841, 2290792932, 32071101049, 481066515734, 7697064251745,
+  130850092279664, 2355301661033953, 44750731559645106, 895014631192902121,
+  18795307255050944540, 413496759611120779881, 9510425471055777937262, ...
+
+Versione ricorsiva con la formula 1:
+
+(define (dismut1 num)
+  (cond ((= num 0) 1L)
+        ((= num 1) 0L)
+        (true
+          (* (- num 1) (+ (dismut1 (- num 1)) (dismut1 (- num 2)))))))
+
+(dismut1 5)
+;-> 44
+(dismut1 10L)
+;-> 1334961L
+(dismut2 30L)
+;-> 97581073836835777732377428235481L
+
+Versione più efficiente (programmazione dinamica) che memorizza i risultati di dismut(num-1) e dismut(n-2) in una lista per usi futuri:
+
+(define (dismut2 num)
+  (let (dis (array (+ num 1) '(0)))
+    (setf (dis 0) 1L)
+    (setf (dis 1) 0L)
+    (setf (dis 2) 1L)
+      ; Riempie dis[0..n] dal basso verso l'alto
+      ; usando la formula ricorsiva sopra
+      (for (i 3 num)
+        ;(setf (dis i) (* (- i 1) (+ (dis (- i 1)) (dis (- i 2)))))
+        (setf (dis i) (* (+ (dis (- i 1)) (dis (- i 2))) (- i 1)))
+    )
+    (dis num)))
+
+(dismut2 5)
+;-> 44L
+(dismut2 10L)
+;-> 1334961L
+(dismut2 30L)
+;-> 97581073836835777732377428235481L
+
+Una versione ancora migliore utilizza solo due variabili per memorizzare i valori dis(n-1) e dis(n-2) (che sono gli unici che servono per calcolare dis(n)):
+
+(define (dismut3 num)
+  (cond ((= num 0) 1L)
+        ((= num 1) 0L)
+        ((= num 2) 1L)
+        (true
+          (let ((a 0L) (b 1L) (cur 0L))
+            (for (i 3 num)
+              (setq cur (* (+ a b) (- i 1)))
+              (setq a b)
+              (setq b cur)
+            )
+            b))))
+
+(dismut3 5)
+;-> 44L
+(dismut3 10L)
+;-> 1334961L
+(dismut3 30L)
+;-> 97581073836835777732377428235481L
+
+Vediamo una funzione che utilizza la programmazioine dinamica con la formula ricorsiva 2:
+
+(define (dismut4 num)
+  (cond ((= num 0) 1L)
+        ((= num 1) 0L)
+        ((= num 2) 1L)
+        (true
+          (let ((a 1L) (cur 0L))
+            (for (i 3 num)
+              (if (odd? i)
+                (setq cur (- (* a i) 1))
+                (setq cur (+ (* a i) 1))
+                ;(setq cur (+ (* a i) (pow -1L i)))
+              )
+              (setq a cur)
+            )
+            cur))))
+
+(dismut4 5)
+;-> 44L
+(dismut4 10L)
+;-> 1334961L
+(dismut4 30L)
+;-> 97581073836835777732377428235481L
+
+Vediamo i tempi di esecuzionedi queste funzioni:
+
+(time (dismut1 30L) 10)
+;-> 13621.586
+
+(time (dismut2 40L) 10000)
+;-> 173.538
+
+(time (dismut3 40L) 10000)
+;-> 166.555
+
+(time (dismut4 40L) 10000)
+;-> 164.588
+
+La seconda funzione "dismut2" memorizza tutti i valori di dis(i) per i = 0..num, quindi possiamo usarla per calcolare il numero di dismutazioni di tutti i numeri da 0 fino a num:
+
+(define (dismut-to num)
+  (let (dis (array (+ num 1) '(0)))
+    (setf (dis 0) 1L)
+    (setf (dis 1) 0L)
+    (setf (dis 2) 1L)
+      (for (i 3 num)
+        (setf (dis i) (* (+ (dis (- i 1)) (dis (- i 2))) (- i 1)))
+    )
+    dis))
+
+(dismut-to 20)
+;-> (1L 0L 1L 2L 9L 44L 265L 1854L 14833L 133496L 1334961L 14684570L
+;->  176214841L 2290792932L 32071101049L 481066515734L 7697064251745L
+;->  130850092279664L 2355301661033953L 44750731559645106L
+;->  895014631192902121L)
+
+Per generare la lista delle dismutazioni di un insieme di elementi possiamo usare la funzione delle permutazioni con una modifica: inseriamo la permutazione corrente nella lista delle dismutazioni solo se soddisfa al vincolo che nessun elemento appare nella sua posizione originale.
+
+Funzione che verifica se la lista corrente "lst" può essere una dismutazione (confronto con la lista originale "base"):
+
+(define (dis?)
+(catch
+  (let (ok true)
+    (dolist (el lst)
+      (if (= el (base $idx))
+        (throw nil)))
+    ok)))
+
+Nota: non passiamo le liste "lst" e "base" alla funzione "dis?" perchè perderemmo in velocità (ricorda che newLISP fa una copia di ogni parametro passato ad una funzione). Questo è possibile grazie all'ambito dinamico di newLISP.
+
+(define (dism lst)
+"Generates all dismutations without repeating from a list of items"
+  (local (i indici out base)
+    ; lista originale
+    (setq base lst)
+    (setq indici (dup 0 (length lst)))
+    (setq i 0)
+    ; non aggiungiamo la lista iniziale alla soluzione
+    ; perchè non è una dismutazione
+    ; (setq out (list lst))
+    (setq out '())
+    (while (< i (length lst))
+      (if (< (indici i) i)
+          (begin
+            (if (zero? (% i 2))
+              (swap (lst 0) (lst i))
+              (swap (lst (indici i)) (lst i))
+            )
+            ;(println lst)
+            ; inseriamo la permutazione corrente solo se ogni elemento
+            ; non appare nella sua posizione originale
+            (if (dis?)
+              (push lst out -1)
+            )
+            (++ (indici i))
+            (setq i 0)
+          )
+          (begin
+            (setf (indici i) 0)
+            (++ i)
+          )
+       )
+    )
+    out))
+
+(sort (dism '(A B C D)))
+;-> ((B A D C) (B C D A) (B D A C) 
+;->  (C A D B) (C D A B) (C D B A)
+;->  (D A B C) (D C A B) (D C B A))
+
+Vediamo il tempo di esecuzione:
+
+(time (println (length (dism '(a b c d e f g h i j)))))
+;-> 1334961
+;-> 7603.603
+
 =============================================================================
 

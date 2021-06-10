@@ -189,6 +189,7 @@ FUNZIONI VARIE
   Grafico di coppie di coordinate
   Sottosequenza crescente più lunga
   Conversione stringa <--> big-integer
+  Dismutazioni (Derangements)
 
 newLISP 99 PROBLEMI (28)
 ========================
@@ -857,6 +858,7 @@ NOTE LIBERE 4
   Tre funzioni per calcolare la potenza di un numero intero
   Numeri Armstrong
   Evoluzione dell'algoritmo per la moltiplicazione di due numeri interi
+  Indice di equilibrio
 
 APPENDICI
 =========
@@ -888,7 +890,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (168 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (170 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================
@@ -19130,6 +19132,212 @@ Quindi possiamo scrivere la seguente funzione:
 ;-> 23153234812357131369L
 (str-int "-23153234812357131369L")
 ;-> -23153234812357131369L
+
+
+---------------------------
+Dismutazioni (Derangements)
+---------------------------
+
+Nel calcolo combinatorio vengono dette dismutazioni (o sconvolgimenti, o permutazioni complete) le permutazioni di un insieme tali che nessun elemento appare nella sua posizione originale. In altre parole, uno dismutazione è una permutazione che non ha punti fissi.
+Non esiste alcuna dismutazione per un insieme di un solo elemento, ne esiste 1 per un insieme di 2 elementi, 2 per un insieme di 3 elementi, 9 per uno di 4 elementi, ad esempio, le 9 dismutazioni possibili della parola "ABCD" sono:
+
+  BADC BCDA BDAC
+  CADB CDAB CDBA
+  DABC DCAB DCBA
+
+Il simbolo matematico che rappresenta la dismutazione è: !n
+
+Per calcolare il numero di dismutazioni !n di un insieme esistono due formule:
+
+1)  !n = (n - 1)*(!(n-1) + !(n-2)),  dove !0 = 1 e !1 = 0
+
+2)  !n = n*!(n-1) + (-1)^n,  dove !0 = 1 e !1 = 0
+
+           n  (-1)^i
+3)  !n = n!∑----------,  per n >= 0
+           0    i!
+
+Sequenza OEIS A000166:
+  1, 0, 1, 2, 9, 44, 265, 1854, 14833, 133496, 1334961, 14684570,
+  176214841, 2290792932, 32071101049, 481066515734, 7697064251745,
+  130850092279664, 2355301661033953, 44750731559645106, 895014631192902121,
+  18795307255050944540, 413496759611120779881, 9510425471055777937262, ...
+
+Versione ricorsiva con la formula 1:
+
+(define (dismut1 num)
+  (cond ((= num 0) 1L)
+        ((= num 1) 0L)
+        (true
+          (* (- num 1) (+ (dismut1 (- num 1)) (dismut1 (- num 2)))))))
+
+(dismut1 5)
+;-> 44
+(dismut1 10L)
+;-> 1334961L
+(dismut2 30L)
+;-> 97581073836835777732377428235481L
+
+Versione più efficiente (programmazione dinamica) che memorizza i risultati di dismut(num-1) e dismut(n-2) in una lista per usi futuri:
+
+(define (dismut2 num)
+  (let (dis (array (+ num 1) '(0)))
+    (setf (dis 0) 1L)
+    (setf (dis 1) 0L)
+    (setf (dis 2) 1L)
+      ; Riempie dis[0..n] dal basso verso l'alto
+      ; usando la formula ricorsiva sopra
+      (for (i 3 num)
+        ;(setf (dis i) (* (- i 1) (+ (dis (- i 1)) (dis (- i 2)))))
+        (setf (dis i) (* (+ (dis (- i 1)) (dis (- i 2))) (- i 1)))
+    )
+    (dis num)))
+
+(dismut2 5)
+;-> 44L
+(dismut2 10L)
+;-> 1334961L
+(dismut2 30L)
+;-> 97581073836835777732377428235481L
+
+Una versione ancora migliore utilizza solo due variabili per memorizzare i valori dis(n-1) e dis(n-2) (che sono gli unici che servono per calcolare dis(n)):
+
+(define (dismut3 num)
+  (cond ((= num 0) 1L)
+        ((= num 1) 0L)
+        ((= num 2) 1L)
+        (true
+          (let ((a 0L) (b 1L) (cur 0L))
+            (for (i 3 num)
+              (setq cur (* (+ a b) (- i 1)))
+              (setq a b)
+              (setq b cur)
+            )
+            b))))
+
+(dismut3 5)
+;-> 44L
+(dismut3 10L)
+;-> 1334961L
+(dismut3 30L)
+;-> 97581073836835777732377428235481L
+
+Vediamo una funzione che utilizza la programmazioine dinamica con la formula ricorsiva 2:
+
+(define (dismut4 num)
+  (cond ((= num 0) 1L)
+        ((= num 1) 0L)
+        ((= num 2) 1L)
+        (true
+          (let ((a 1L) (cur 0L))
+            (for (i 3 num)
+              (if (odd? i)
+                (setq cur (- (* a i) 1))
+                (setq cur (+ (* a i) 1))
+                ;(setq cur (+ (* a i) (pow -1L i)))
+              )
+              (setq a cur)
+            )
+            cur))))
+
+(dismut4 5)
+;-> 44L
+(dismut4 10L)
+;-> 1334961L
+(dismut4 30L)
+;-> 97581073836835777732377428235481L
+
+Vediamo i tempi di esecuzionedi queste funzioni:
+
+(time (dismut1 30L) 10)
+;-> 13621.586
+
+(time (dismut2 40L) 10000)
+;-> 173.538
+
+(time (dismut3 40L) 10000)
+;-> 166.555
+
+(time (dismut4 40L) 10000)
+;-> 164.588
+
+La seconda funzione "dismut2" memorizza tutti i valori di dis(i) per i = 0..num, quindi possiamo usarla per calcolare il numero di dismutazioni di tutti i numeri da 0 fino a num:
+
+(define (dismut-to num)
+  (let (dis (array (+ num 1) '(0)))
+    (setf (dis 0) 1L)
+    (setf (dis 1) 0L)
+    (setf (dis 2) 1L)
+      (for (i 3 num)
+        (setf (dis i) (* (+ (dis (- i 1)) (dis (- i 2))) (- i 1)))
+    )
+    dis))
+
+(dismut-to 20)
+;-> (1L 0L 1L 2L 9L 44L 265L 1854L 14833L 133496L 1334961L 14684570L
+;->  176214841L 2290792932L 32071101049L 481066515734L 7697064251745L
+;->  130850092279664L 2355301661033953L 44750731559645106L
+;->  895014631192902121L)
+
+Per generare la lista delle dismutazioni di un insieme di elementi possiamo usare la funzione delle permutazioni con una modifica: inseriamo la permutazione corrente nella lista delle dismutazioni solo se soddisfa al vincolo che nessun elemento appare nella sua posizione originale.
+
+Funzione che verifica se la lista corrente "lst" può essere una dismutazione (confronto con la lista originale "base"):
+
+(define (dis?)
+(catch
+  (let (ok true)
+    (dolist (el lst)
+      (if (= el (base $idx))
+        (throw nil)))
+    ok)))
+
+Nota: non passiamo le liste "lst" e "base" alla funzione "dis?" perchè perderemmo in velocità (ricorda che newLISP fa una copia di ogni parametro passato ad una funzione). Questo è possibile grazie all'ambito dinamico di newLISP.
+
+(define (dism lst)
+"Generates all dismutations without repeating from a list of items"
+  (local (i indici out base)
+    ; lista originale
+    (setq base lst)
+    (setq indici (dup 0 (length lst)))
+    (setq i 0)
+    ; non aggiungiamo la lista iniziale alla soluzione
+    ; perchè non è una dismutazione
+    ; (setq out (list lst))
+    (setq out '())
+    (while (< i (length lst))
+      (if (< (indici i) i)
+          (begin
+            (if (zero? (% i 2))
+              (swap (lst 0) (lst i))
+              (swap (lst (indici i)) (lst i))
+            )
+            ;(println lst)
+            ; inseriamo la permutazione corrente solo se ogni elemento
+            ; non appare nella sua posizione originale
+            (if (dis?)
+              (push lst out -1)
+            )
+            (++ (indici i))
+            (setq i 0)
+          )
+          (begin
+            (setf (indici i) 0)
+            (++ i)
+          )
+       )
+    )
+    out))
+
+(sort (dism '(A B C D)))
+;-> ((B A D C) (B C D A) (B D A C) 
+;->  (C A D B) (C D A B) (C D B A)
+;->  (D A B C) (D C A B) (D C B A))
+
+Vediamo il tempo di esecuzione:
+
+(time (println (length (dism '(a b c d e f g h i j)))))
+;-> 1334961
+;-> 7603.603
 
 =============================================================================
 
@@ -99899,9 +100107,9 @@ Evoluzione dell'algoritmo per la moltiplicazione di due numeri interi
 
 L'algoritmo standard per la moltiplicazione di interi è quello scolastico con riporto ed ha una complessità temporale O(N^2). Solo nel 1960 è stato sviluppato un nuovo algoritmo (karatsuba) con tempo O(N^1.58) e nel 1970 è stato dimostrato che l'agoritmo più veloce possibile ha complessità O(N*logN).
 
-Ci sono voluti più di 60 anni per passare da O(N^2) a O(N*logN), ma è stato un viaggio interessante. Questo è un momento importante perché si tratta di uno dei pochi argomenti fondamentali che siamo riusciti a capire ed ottimizzare al limite.
+Ci sono voluti più di 60 anni per passare da O(N^2) a O(N*logN), ma è stato un viaggio interessante. Questo è un momento importante perché si tratta di uno dei pochi argomenti fondamentali che l'uomo sia riuscito a capire ed ottimizzare al limite.
 
-Nel 1971 è stato sviluppato l'algoritmo di Schonhage Strassen che ha funzionato al tempo O(N*logN*loglogN) e ha mantenuto il record per 36 anni prima di essere battuto dall'algoritmo di Furer nel 2007. Da allora, i progressi sono stati costanti e un algoritmo con tempo O(N*logN), scoperto nel marzo 2019, è la possibile fine di questa ricerca umana.
+Nel 1971 è stato sviluppato l'algoritmo di Schonhage Strassen che funziona con tempo O(N*logN*loglogN) e ha mantenuto il record per 36 anni prima di essere battuto dall'algoritmo di Furer nel 2007. Da allora, i progressi sono stati costanti e un algoritmo con tempo O(N*logN), scoperto nel marzo 2019, è la possibile fine di questa ricerca umana.
 
 La tabella seguente gli algoritmi che hanno definito questa era:
 
@@ -99969,6 +100177,142 @@ Presto, Covanov e Thomé nello stesso anno 2015, hanno inventato un altro algori
 Nonostante questi miglioramenti, gli algoritmi non erano adatti all'uso pratico e venivano apportati miglioramenti minimi. Per una nota positiva, abbiamo diversi algoritmi con diverse idee di base.
 
 I maggiori progressi sono stati compiuti nel marzo 2019 da Harvey e van der Hoeven. Hanno proposto un algoritmo con complessità temporale di O(N logN). Questo è significativo in quanto nel 1971 Volker Strassen dimostrò che la migliore complessità possibile per la moltiplicazione intera dovrebbe essere O(N*logN) e quindi siamo arrivati ​​alla fine. Comunque questo risultato è in corso di verifica.
+
+
+--------------------
+Indice di equilibrio
+--------------------
+
+Data una lista trovare, se esiste, un indice tale che la somma della sottolista a sinistra dell'indice è uguale alla somma della sottolista a  destra dell'indice: tale indice viene chiamato "Indice di equilibrio". In formula:
+
+  A(0) + A(1) + … + A(i-1) = A(i+1) + A(i+2) + … + A(n-1), dove 0 < i < n-1
+
+Per esempio:
+lista = (3 4 1 5 2 6)
+indice di equilibrio: 3
+
+Infatti, lista(3) = 5, (3 + 4 + 1) = (2 + 6)
+
+Metodo brute-force, confrontiamo le somme destre e sinistre per ogni indice:
+
+(define (eq-idx1 lst)
+(catch
+  (local (lsum rsum)
+    (dolist (el lst)
+      (setq lsum (- (apply + (slice lst 0 (+ $idx 1))) el))
+      (setq rsum (- (apply + (slice lst $idx)) el))
+      ;(println lsum { } rsum)
+      (if (= lsum rsum) (throw $idx))
+    )
+    nil)))
+
+(eq-idx1 '(3 4 1 5 2 6))
+;-> 3
+(eq-idx1 '(5 7 4 5 8 8))
+;-> 3
+(eq-idx1 '(1 2 3 4 5 10))
+;-> 4
+(eq-idx1 '(1 2 5 4 5 6))
+;-> nil
+
+Questo algoritmo impiega O(n) tempo per attraversare ogni indice e O(n) tempo per calcolare la somma delle sottoliste per ogni indice, quindi la complessità temporale totale è O(n^2).
+Poichè non utilizziamo spazio extra, la complessità spaziale è costante O(1).
+
+Metodo con lista dei suffissi e dei prefissi:
+
+Passo 1: attraversare la lista da sinistra a destra e calcolare e memorizzare la somma cumulativa in corrispondenza di ogni elemento in una lista. Questo lista è la somma dei prefissi.
+Passo 2: l'ultimo elemento in questa lista di prefissi è la somma di tutti gli elementi della lista.
+Passo 3: prendere una nuova lista e assegnare questa somma al suo primo elemento. Ad ogni elemento, sottrai il valore dell'elemento dal valore calcolato in precedenza e memorizzalo nella lista. Questa lista sè la somma dei suffissi.
+Passo 4: confrontare le due liste e trovare, se esiste, l'indice in cui entrambe le liste hanno elementi identici e stampare questo indice.
+
+Per esempio:
+lista: 1 6 2 7
+lista somma prefisso: 1 7 9 16
+lista somma suffisso: 16 15 9 7
+All'indice 2 entrambe le liste hanno lo stesso elemento (9), quindi 2 è l'indice di equilibrio.
+
+(define (eq-idx2 lst)
+(catch
+  (local (len pref-sum suff-sum)
+    (setq len (length lst))
+    ; calcola lista dei prefissi
+    (setq pref-sum (array len '(0)))
+    (setf (pref-sum 0) (lst 0))
+    (for (i 1 (- len 1))
+      (setf (pref-sum i) (+ (pref-sum (- i 1)) (lst i)))
+    )
+    ; calcola lista dei suffissi
+    (setq suff-sum (array len '(0)))
+    (setf (suff-sum 0) (pref-sum (- len 1)))
+    (for (i 1 (- len 1))
+      (setf (suff-sum i) (- (suff-sum (- i 1)) (lst (- i 1))))
+    )
+    ;(println pref-sum { } suff-sum)
+    (for (i 1 (- len 2))
+      (if (= (pref-sum i) (suff-sum i))
+          (throw i)
+      )
+    )
+    nil)))
+
+(eq-idx2 '(1 6 2 7))
+;-> 2
+(eq-idx2 '(3 4 1 5 2 6))
+;-> 3
+(eq-idx2 '(5 7 4 5 8 8))
+;-> 3
+(eq-idx2 '(1 2 3 4 5 10))
+;-> 4
+(eq-idx2 '(1 2 5 4 5 6))
+;-> nil
+
+Questo algoritmo impiega O(n) tempo per creare la lista somma dei prefissi, O(n) tempo per formare la lista delle somme dei suffissi e O(n) tempo per trovare l'indice con elementi identici nelle due liste. Quindi la complessità temporale totale vale O(n).
+Poiché abbiamo creato altre due liste, ciascuno di dimensione n, la complessità spaziale vale O(n).
+Potremmo migliorare quest'ultimo algoritmo evitando di calcolare la lista dei suffissi, infatti risulta:
+
+  suff-sum(i) = pref-sum(N) - pref-sum(i)
+
+Questo perchè:
+
+  pref-sum(N) = a1 + a2 + ... + aN
+
+  pref-sum(i) = a1 + a2 + ... + ai
+
+Quindi, pref-sum(N) - pref-sum(i) = a(i+1) + ... + aN
+           
+Di conseguenza, suff-sum(i) = pref-sum(N) - pref-sum(i).
+
+Per calcolare i tempi di esecuzione generiamo due liste con 100 e 1000 numeri casuali da 0 10 e troviamone due che hanno un indice di equilibrio:
+
+(for (i 1 1000)
+  (setq test (rand 10 100))
+  (if (eq-idx2 test)
+      (setq a test)))
+(eq-idx1 a)
+;-> 47
+(eq-idx2 a)
+;-> 47
+
+(for (i 1 1000)
+  (setq test (rand 10 1000))
+  (if (eq-idx2 test)
+      (setq b test)))
+(eq-idx1 b)
+;-> 486
+(eq-idx2 b)
+;-> 488
+
+Adesso vediamo la differenza di velocità tra le due funzioni:
+
+(time (eq-idx1 a) 10000)
+;-> 1008.312
+(time (eq-idx2 a) 10000)
+;-> 398.961
+
+(time (eq-idx1 b) 10000)
+;-> 97280.153
+(time (eq-idx2 b) 10000)
+;-> 13656.492
 
 =============================================================================
 

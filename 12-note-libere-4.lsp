@@ -8309,9 +8309,9 @@ Evoluzione dell'algoritmo per la moltiplicazione di due numeri interi
 
 L'algoritmo standard per la moltiplicazione di interi è quello scolastico con riporto ed ha una complessità temporale O(N^2). Solo nel 1960 è stato sviluppato un nuovo algoritmo (karatsuba) con tempo O(N^1.58) e nel 1970 è stato dimostrato che l'agoritmo più veloce possibile ha complessità O(N*logN).
 
-Ci sono voluti più di 60 anni per passare da O(N^2) a O(N*logN), ma è stato un viaggio interessante. Questo è un momento importante perché si tratta di uno dei pochi argomenti fondamentali che siamo riusciti a capire ed ottimizzare al limite.
+Ci sono voluti più di 60 anni per passare da O(N^2) a O(N*logN), ma è stato un viaggio interessante. Questo è un momento importante perché si tratta di uno dei pochi argomenti fondamentali che l'uomo sia riuscito a capire ed ottimizzare al limite.
 
-Nel 1971 è stato sviluppato l'algoritmo di Schonhage Strassen che ha funzionato al tempo O(N*logN*loglogN) e ha mantenuto il record per 36 anni prima di essere battuto dall'algoritmo di Furer nel 2007. Da allora, i progressi sono stati costanti e un algoritmo con tempo O(N*logN), scoperto nel marzo 2019, è la possibile fine di questa ricerca umana.
+Nel 1971 è stato sviluppato l'algoritmo di Schonhage Strassen che funziona con tempo O(N*logN*loglogN) e ha mantenuto il record per 36 anni prima di essere battuto dall'algoritmo di Furer nel 2007. Da allora, i progressi sono stati costanti e un algoritmo con tempo O(N*logN), scoperto nel marzo 2019, è la possibile fine di questa ricerca umana.
 
 La tabella seguente gli algoritmi che hanno definito questa era:
 
@@ -8379,6 +8379,142 @@ Presto, Covanov e Thomé nello stesso anno 2015, hanno inventato un altro algori
 Nonostante questi miglioramenti, gli algoritmi non erano adatti all'uso pratico e venivano apportati miglioramenti minimi. Per una nota positiva, abbiamo diversi algoritmi con diverse idee di base.
 
 I maggiori progressi sono stati compiuti nel marzo 2019 da Harvey e van der Hoeven. Hanno proposto un algoritmo con complessità temporale di O(N logN). Questo è significativo in quanto nel 1971 Volker Strassen dimostrò che la migliore complessità possibile per la moltiplicazione intera dovrebbe essere O(N*logN) e quindi siamo arrivati ​​alla fine. Comunque questo risultato è in corso di verifica.
+
+
+--------------------
+Indice di equilibrio
+--------------------
+
+Data una lista trovare, se esiste, un indice tale che la somma della sottolista a sinistra dell'indice è uguale alla somma della sottolista a  destra dell'indice: tale indice viene chiamato "Indice di equilibrio". In formula:
+
+  A(0) + A(1) + … + A(i-1) = A(i+1) + A(i+2) + … + A(n-1), dove 0 < i < n-1
+
+Per esempio:
+lista = (3 4 1 5 2 6)
+indice di equilibrio: 3
+
+Infatti, lista(3) = 5, (3 + 4 + 1) = (2 + 6)
+
+Metodo brute-force, confrontiamo le somme destre e sinistre per ogni indice:
+
+(define (eq-idx1 lst)
+(catch
+  (local (lsum rsum)
+    (dolist (el lst)
+      (setq lsum (- (apply + (slice lst 0 (+ $idx 1))) el))
+      (setq rsum (- (apply + (slice lst $idx)) el))
+      ;(println lsum { } rsum)
+      (if (= lsum rsum) (throw $idx))
+    )
+    nil)))
+
+(eq-idx1 '(3 4 1 5 2 6))
+;-> 3
+(eq-idx1 '(5 7 4 5 8 8))
+;-> 3
+(eq-idx1 '(1 2 3 4 5 10))
+;-> 4
+(eq-idx1 '(1 2 5 4 5 6))
+;-> nil
+
+Questo algoritmo impiega O(n) tempo per attraversare ogni indice e O(n) tempo per calcolare la somma delle sottoliste per ogni indice, quindi la complessità temporale totale è O(n^2).
+Poichè non utilizziamo spazio extra, la complessità spaziale è costante O(1).
+
+Metodo con lista dei suffissi e dei prefissi:
+
+Passo 1: attraversare la lista da sinistra a destra e calcolare e memorizzare la somma cumulativa in corrispondenza di ogni elemento in una lista. Questo lista è la somma dei prefissi.
+Passo 2: l'ultimo elemento in questa lista di prefissi è la somma di tutti gli elementi della lista.
+Passo 3: prendere una nuova lista e assegnare questa somma al suo primo elemento. Ad ogni elemento, sottrai il valore dell'elemento dal valore calcolato in precedenza e memorizzalo nella lista. Questa lista sè la somma dei suffissi.
+Passo 4: confrontare le due liste e trovare, se esiste, l'indice in cui entrambe le liste hanno elementi identici e stampare questo indice.
+
+Per esempio:
+lista: 1 6 2 7
+lista somma prefisso: 1 7 9 16
+lista somma suffisso: 16 15 9 7
+All'indice 2 entrambe le liste hanno lo stesso elemento (9), quindi 2 è l'indice di equilibrio.
+
+(define (eq-idx2 lst)
+(catch
+  (local (len pref-sum suff-sum)
+    (setq len (length lst))
+    ; calcola lista dei prefissi
+    (setq pref-sum (array len '(0)))
+    (setf (pref-sum 0) (lst 0))
+    (for (i 1 (- len 1))
+      (setf (pref-sum i) (+ (pref-sum (- i 1)) (lst i)))
+    )
+    ; calcola lista dei suffissi
+    (setq suff-sum (array len '(0)))
+    (setf (suff-sum 0) (pref-sum (- len 1)))
+    (for (i 1 (- len 1))
+      (setf (suff-sum i) (- (suff-sum (- i 1)) (lst (- i 1))))
+    )
+    ;(println pref-sum { } suff-sum)
+    (for (i 1 (- len 2))
+      (if (= (pref-sum i) (suff-sum i))
+          (throw i)
+      )
+    )
+    nil)))
+
+(eq-idx2 '(1 6 2 7))
+;-> 2
+(eq-idx2 '(3 4 1 5 2 6))
+;-> 3
+(eq-idx2 '(5 7 4 5 8 8))
+;-> 3
+(eq-idx2 '(1 2 3 4 5 10))
+;-> 4
+(eq-idx2 '(1 2 5 4 5 6))
+;-> nil
+
+Questo algoritmo impiega O(n) tempo per creare la lista somma dei prefissi, O(n) tempo per formare la lista delle somme dei suffissi e O(n) tempo per trovare l'indice con elementi identici nelle due liste. Quindi la complessità temporale totale vale O(n).
+Poiché abbiamo creato altre due liste, ciascuno di dimensione n, la complessità spaziale vale O(n).
+Potremmo migliorare quest'ultimo algoritmo evitando di calcolare la lista dei suffissi, infatti risulta:
+
+  suff-sum(i) = pref-sum(N) - pref-sum(i)
+
+Questo perchè:
+
+  pref-sum(N) = a1 + a2 + ... + aN
+
+  pref-sum(i) = a1 + a2 + ... + ai
+
+Quindi, pref-sum(N) - pref-sum(i) = a(i+1) + ... + aN
+           
+Di conseguenza, suff-sum(i) = pref-sum(N) - pref-sum(i).
+
+Per calcolare i tempi di esecuzione generiamo due liste con 100 e 1000 numeri casuali da 0 10 e troviamone due che hanno un indice di equilibrio:
+
+(for (i 1 1000)
+  (setq test (rand 10 100))
+  (if (eq-idx2 test)
+      (setq a test)))
+(eq-idx1 a)
+;-> 47
+(eq-idx2 a)
+;-> 47
+
+(for (i 1 1000)
+  (setq test (rand 10 1000))
+  (if (eq-idx2 test)
+      (setq b test)))
+(eq-idx1 b)
+;-> 486
+(eq-idx2 b)
+;-> 488
+
+Adesso vediamo la differenza di velocità tra le due funzioni:
+
+(time (eq-idx1 a) 10000)
+;-> 1008.312
+(time (eq-idx2 a) 10000)
+;-> 398.961
+
+(time (eq-idx1 b) 10000)
+;-> 97280.153
+(time (eq-idx2 b) 10000)
+;-> 13656.492
 
 =============================================================================
 

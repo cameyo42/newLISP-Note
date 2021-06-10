@@ -189,6 +189,7 @@ FUNZIONI VARIE
   Grafico di coppie di coordinate
   Sottosequenza crescente più lunga
   Conversione stringa <--> big-integer
+  Dismutazioni (Derangements)
 
 newLISP 99 PROBLEMI (28)
 ========================
@@ -857,6 +858,7 @@ NOTE LIBERE 4
   Tre funzioni per calcolare la potenza di un numero intero
   Numeri Armstrong
   Evoluzione dell'algoritmo per la moltiplicazione di due numeri interi
+  Indice di equilibrio
 
 APPENDICI
 =========
@@ -888,7 +890,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (168 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (170 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================
