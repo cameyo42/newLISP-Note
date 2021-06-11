@@ -859,6 +859,12 @@ NOTE LIBERE 4
   Numeri Armstrong
   Evoluzione dell'algoritmo per la moltiplicazione di due numeri interi
   Indice di equilibrio
+  Numero soluzioni equazione lineare a k variabili  
+  Internet-point
+
+NOTE LIBERE 5
+=============
+
 
 APPENDICI
 =========

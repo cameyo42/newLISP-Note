@@ -859,6 +859,12 @@ NOTE LIBERE 4
   Numeri Armstrong
   Evoluzione dell'algoritmo per la moltiplicazione di due numeri interi
   Indice di equilibrio
+  Numero soluzioni equazione lineare a k variabili  
+  Internet-point
+
+NOTE LIBERE 5
+=============
+
 
 APPENDICI
 =========
@@ -100313,6 +100319,220 @@ Adesso vediamo la differenza di velocità tra le due funzioni:
 ;-> 97280.153
 (time (eq-idx2 b) 10000)
 ;-> 13656.492
+
+
+------------------------------------------------
+Numero soluzioni equazione lineare a k variabili
+------------------------------------------------
+
+Trovare il numero di soluzioni non negative di un'equazione lineare con k variabili a coefficienti interi positivi:
+
+  a1*x1 + a2*x2 + ...  + an*xn = c
+
+Per esempio, consideriamo l'equazione lineare in due variabili 3a1 + a2 = 9. Le soluzioni non negative (a1 a2) di questa equazione sono: (0 9), (1 6), (2 3) e (3 0). Quindi l'equazione ha 4 soluzioni non negative.
+
+Esempio:
+Input:  coeff = (1 3 5 7), c = 8
+Output: 6 (numero totale di soluzioni)
+ 
+L'input sopra rappresenta l'equazione a + 3b + 5c + 7d = 8 che ha le seguenti 6 soluzioni positive intere:
+ 
+  ( a = 1, b = 0, c = 0, d = 1 )
+  ( a = 0, b = 1, c = 1, d = 0 )
+  ( a = 2, b = 2, c = 0, d = 0 )
+  ( a = 3, b = 0, c = 1, d = 0 )
+  ( a = 5, b = 1, c = 0, d = 0 )
+  ( a = 8, b = 0, c = 0, d = 0 )
+
+Esempio: 
+Input:  coeff = (1 2 3), c = 4
+Output: 4 (numero totale di soluzioni) 
+ 
+L'input sopra rappresenta l'equazione x + 2y + 3z = 4 che ha le seguenti 4 soluzioni positive intere:
+ 
+  ( x = 1, y = 0, z = 1 )
+  ( x = 0, y = 2, z = 0 )
+  ( x = 2, y = 1, z = 0 )
+  ( x = 4, y = 0, z = 0 )
+
+Il problema è simile a quello di trovare il numero totale di modi per ottenere un certo valore con un insieme di monete diverse. In questo caso i coefficienti dell'equazione possono essere considerati come i valori delle monete e il termine noto "c" dell'equazione rappresenta il valore da ottenere.
+La definizione ricorsiva del problema è la seguente:
+
+  count-sol(coeff, k, c) = count-sol(coeff, k, c - coeff(k)) + count-sol(coeff, k - 1, c)
+
+Cioè, per ogni coefficiente di ogni variabile:
+  - Includere il coefficiente corrente coeff(k) nella soluzione e ricorrere con il valore rimanente c - coeff(k) .
+  - Escludere il coefficiente corrente coeff(k) dalla soluzione e ricorrere ai coefficienti rimanenti k-1 .
+Infine, restituire i modi totali includendo o escludendo il coefficiente corrente. 
+I casi base della ricorsione sono:
+1) quando viene trovata la soluzione (cioè, c diventa 0), oppure
+2) la soluzione non esiste (quando non sono rimasti coefficienti, o c diventa negativo).
+
+(define (count-sol coeff k c)
+  (local (include exclude)
+         ; se c = 0, allora abbiamo trovato una soluzione  
+  (cond ((= c 0) 1)
+         ; se c diventa negativo o non ci sono più coefficienti
+         ; allora restituisce 0
+        ((or (< c 0) (< k 0)) 0)
+        (true
+          ; altrimenti
+          ; Caso 1. Includere il coeff corrente "coeff[k]" nella soluzione e 
+          ;         ricorsione con il valore rimanente "c - coeff[k]"
+          (setq include (count-sol coeff k (- c (coeff k))))
+          ; Caso 2. Escludere il coeff corrente "coeff[k]" dalla soluzione e
+          ;         ricorsione con il valore rimanente "k - 1"
+          (setq exclude (count-sol coeff (- k 1) c))
+          ; restituire i modi totali includendo o escludendo il coefficiente corrente
+          (+ include exclude)))))
+
+(define (solutions coeff k c)
+    (count-sol coeff (- k 1) c))
+
+(solutions '(1 2 3) 3 4)
+;-> 4
+(solutions '(1 3 5 7) 4 8)
+;-> 6
+
+Questo algoritmo ha complssità temporale esponenziale ed utilizza parecchio spazio nello stack per le chiamate ricorsive.
+
+Possiamo scrivere una versione bottom-up utilizzando la tecnica di memoizzazione:
+
+(define (conta-sol coeff k c)
+  (let (dp (array (+ c 1) '(0)))
+    (setf (dp 0) 1)
+    (for (i 0 (- k 1))
+      (for (j (coeff i) c)
+        (setf (dp j) (+ (dp j) (dp (- j (coeff i)))))
+      )
+    )
+    (dp c)))
+
+(conta-sol '(1 2 3) 3 4)
+;-> 4
+
+(conta-sol '(1 3 5 7) 4 8)
+;-> 6
+
+
+--------------
+Internet-point
+--------------
+
+Un internet-point possiede N computer. I clienti sono rappresentati da una stringa di caratteri. Ogni carattere è ripetuto due volte: la prima occorrenza rappresenta l'ingresso nel locale, la seconda occorrenza rappresenta l'uscita dal locale.
+Le regole di utilizzo di un computer sono le seguenti:
+1) quando arriva un cliente, se è libero un computer, allora lo occupa, altrimenti si mette in attesa.
+2) quando si libera un computer, se esistono clienti in attesa, allora il primo della lista occupa un computer.
+3) i clienti possono lasciare il locale anche senza aver utilizzato un computer.
+
+Determinare il numero di clienti che hanno utilizzato un computer e il numero di quelli che non lo hanno utilizzato.
+
+Esempio:
+stringa: "ABCDDBAC"
+computer: 2
+sequenza clienti: A B C D D B A C
+Cliente A -> entra e prende computer
+Cliente B -> entra e prende computer
+Cliente C -> entra e attende
+Cliente D -> entra e attende
+Cliente D -> esce dal locale
+Cliente B -> lascia computer ==> C prende computer (era in attesa)
+Cliente A -> lascia computer (attesa è vuota)
+Cliente C -> lascia computer
+
+Clienti computer: 3 (A B C)
+Clienti no-computer: 1 (D)
+
+Esempio:
+stringa: "ABCDBACD"
+computer: 2
+sequenza clienti: A B C D B A C D
+Cliente A -> entra e prende computer
+Cliente B -> entra e prende computer
+Cliente C -> entra e attende
+Cliente D -> entra e attende
+Cliente B -> lascia computer ==> C prende computer (era in attesa)
+Cliente A -> lascia computer ==> D prende computer (era in attesa)
+Cliente C -> lascia computer ==> (nessuno in attesa)
+Cliente D -> lascia computer ==> (nessuno in attesa)
+
+Clienti computer: 4 (A B C D)
+Clienti no-computer: 0
+
+La spiegazione del metodo di soluzione si trova nei commenti alla funzione.
+
+(define (fila seq computer)
+  (local (liberi serv noserv clienti attesa fatti)
+  (setq liberi computer)
+  (setq serv 0) ; numero clienti serviti
+  (setq noserv 0) ; numero clienti non serviti
+  (setq attesa '()) ; lista clienti in attesa
+  (setq fatti '()) ; lista clienti fatti
+  (setq clienti (explode seq)) ; sequenza temporale dei clienti
+  ; per ogni elemento nella sequenza (azione del cliente)
+  (dolist (cl clienti)
+    ; cliente nella lista attesa?
+    (setq a (find cl attesa))
+    ; cliente nella lista fatti?
+    (setq f (find cl fatti))
+    ; controllo della tipologia del cliente...
+    ; 1) Cliente nuovo, oppure
+    ; 2) Cliente che esce dal locale (dalla lista di attesa), oppure
+    ; 3) Cliente che esce dal locale (dalla lista di fatti)
+    (cond ((and (nil? a) (nil? f)) ; Se è un cliente nuovo
+           (if (> liberi 0) ; se ci sono computer liberi
+            (begin
+               (-- liberi) ; prende un computer
+               (push cl fatti) ; cliente nella lista fatti
+            )
+            (begin ; altrimenti
+               (push cl attesa -1) ; cliente in attesa
+            )))
+          ((not (nil? f)) ; Se il cliente esce dal locale servito
+           (print cl { })
+           (++ serv)      ; aumenta clienti serviti
+           (++ liberi)    ; libera un computer
+           (pop fatti f)  ; esce dalla lista di fatti
+           (if (> (length attesa) 0) ; se ci sono clienti in attesa
+            (begin
+               ; prendo il primo cliente in attesa
+               ; e lo inserisco nella lista fatti
+               (push (pop attesa) fatti)
+               (-- liberi) ; occupa un computer
+            )))
+          ((not (nil? a)) ; Se il cliente esce dal locale non servito
+           (++ noserv)     ; aumenta clienti non serviti
+           (pop attesa a)) ; esce dalla lista di attesa
+    )
+  )
+  (list serv noserv)))
+
+Facciamo alcune prove:
+
+(fila "ABCDDBAC" 2)
+;-> B A C (3 1)
+(fila "ABCDBACD" 2)
+;-> B A C D (4 0)
+(fila "ABCDDCEFFEBGAG" 2)
+;-> B A G (3 4)
+(fila "ABCDDCEFFBEGAG" 2)
+;-> B E A G (4 3)
+(fila "ABCDDCEFBEGAFG" 2)
+;-> B E A F G (5 2)
+(fila "ABCBDAEDFCFGEG" 2)
+;-> B A D C F E G (7 0)
+
+=============================================================================
+
+===============
+
+ NOTE LIBERE 5
+
+===============
+
+------------------------
+
+------------------------
 
 =============================================================================
 
