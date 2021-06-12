@@ -864,6 +864,7 @@ NOTE LIBERE 4
 
 NOTE LIBERE 5
 =============
+  Spostamento di zeri
 
 
 APPENDICI
