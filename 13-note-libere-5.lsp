@@ -229,5 +229,132 @@ La seguente espressione "crasha" newLISP...perchè  un numero di 10^435 cifre do
 (length (last (itera 200L 199L)))
 ;->  puff
 
+
+-----------------------------------------
+Introduzione alla programmazione dinamica
+-----------------------------------------
+
+"Dynamic Programming is not about filling in tables, but writing smart recursions." – Jeff Erickson.
+
+La programmazione dinamica è un metodo per risolvere un problema complesso scomponendolo in un insieme di sottoproblemi più semplici, e poi risolvendo ciascuno di questi sottoproblemi una sola volta e memorizzando le loro soluzioni in una utilizzando una struttura di dati (lista, vettore, hash, ecc.). Ogni soluzione del sottoproblema è indicizzata in qualche modo, in genere in base ai valori dei parametri di input, per facilitarne la ricerca. Quindi, la prossima volta che si verifica lo stesso sottoproblema, invece di ricalcolare la sua soluzione, si utilizza la soluzione calcolata in precedenza, risparmiando così tempo di calcolo. Questa tecnica di memorizzazione delle soluzioni ai sottoproblemi invece di ricalcolarli è chiamata memoizzazione.
+
+Ecco una brillante metafora per spiegare ad un principiante il concetto alla base della programmazione dinamica:
+
+https://www.quora.com/How-should-I-explain-dynamic-programming-to-a-4-year-old/answer/Jonathan-Paulson
+
+  *writes down "1+1+1+1+1+1+1+1 =" on a sheet of paper*
+  "What's that equal to?"
+  *counting* "Eight!"
+  *writes down another "1+" on the left*
+  "What about that?"
+  *quickly* "Nine!"
+  "How'd you know it was nine so fast?"
+  "You just added one more."
+  "So you didn't need to recount because you remembered there were eight! Dynamic Programming is just a fancy way to say 'remembering stuff to save time later'"
+
+Ci sono due attributi chiave che un problema deve avere affinché la programmazione dinamica sia applicabile: una sottostruttura ottimale e sovrapposizione dei sottoproblemi.
+
+1. Sottostruttura ottimale
+La programmazione dinamica semplifica un problema complicato suddividendolo in sottoproblemi più semplici in modo ricorsivo. Un problema che può essere risolto in modo ottimale suddividendolo in sottoproblemi e quindi trovando ricorsivamente le soluzioni ottimali dei sottoproblemi si dice che abbia una sottostruttura ottimale. In altre parole, la soluzione di un dato problema di ottimizzazione può essere ottenuta dalla combinazione delle soluzioni ottime dei suoi sottoproblemi (le soluzioni dei sottoproblemi sono indipendenti tra di loro).
+
+Ad esempio, il cammino minimo p da un vertice u a un vertice v in un dato grafo mostra una sottostruttura ottimale: prendiamo qualsiasi vertice intermedio w su questo cammino minimo p. Se p è veramente il cammino minimo, allora può essere suddiviso in sottopercorsi p1 da u a w e p2 da w a v tali che questi, a loro volta, siano effettivamente i cammini più brevi tra i vertici corrispondenti.
+
+2. Sovrapposizione dei sottoproblemi
+Si dice che un problema ha sottoproblemi sovrapposti se il problema può essere suddiviso in sottoproblemi e ogni sottoproblema viene ripetuto più volte, o un algoritmo ricorsivo per il problema risolve ripetutamente lo stesso sottoproblema invece di generare sempre nuovi sottoproblemi.
+
+Ad esempio, il problema del calcolo della sequenza di Fibonacci mostra sottoproblemi sovrapposti. Il problema del calcolo dell'n-esimo numero di Fibonacci F(n) può essere scomposto nei sottoproblemi del calcolo di F(n-1) e F(n-2) e quindi sommando i due. Il sottoproblema del calcolo di F(n-1) può essere esso stesso scomposto in un sottoproblema che coinvolge il calcolo di F(n-2). Pertanto, il calcolo di F(n-2) viene riutilizzato e la sequenza di Fibonacci mostra quindi sottoproblemi sovrapposti. La programmazione dinamica tiene conto di questo fatto e risolve ogni sottoproblema una sola volta. Ciò può essere ottenuto in uno dei due modi seguenti:
+
+Approccio top-down (dall'alto verso il basso) (Memoizzazione): questa è la ricaduta diretta della formulazione ricorsiva di qualsiasi problema. Se la soluzione a qualsiasi problema può essere formulata ricorsivamente utilizzando la soluzione ai suoi sottoproblemi e se i suoi sottoproblemi si sovrappongono, si può facilmente utilizzare la memoizzazione oppure memorizzare le soluzioni dei sottoproblemi in una tabella. Ogni volta che tentiamo di risolvere un nuovo sottoproblema, prima controlliamo la tabella per vedere se è già stato risolto. Se il sottoproblema è già risolto, usiamo direttamente la sua soluzione, altrimenti, risolviamo il sottoproblema e aggiungiamo la sua soluzione alla tabella.
+
+Approccio bottom-up (dal basso verso l'alto) (Tabella): una volta che formuliamo la soluzione a un problema in modo ricorsivo in termini di sottoproblemi, possiamo provare a riformulare il problema in modo dal basso verso l'alto: proviamo a risolvere prima i sottoproblemi e usiamo le loro soluzioni per costruire verso l'alto e arrivare alle soluzioni dei sottoproblemi più grandi. Questo viene solitamente fatto anche in forma tabellare generando in modo iterativo soluzioni a sottoproblemi sempre più grandi utilizzando le soluzioni dei sottoproblemi più piccoli. Ad esempio, se conosciamo già i valori di F(i-1) e F(i-2), possiamo calcolare direttamente il valore di F(i).
+Quando un problema può essere risolto combinando soluzioni ottimali con sottoproblemi non sovrapposti, allora la strategia si chiama "Divide et impera". Questo è il motivo per cui il MergeSort e il QuickSort non sono classificati come problemi di programmazione dinamica.
+
+Consideriamo un'implementazione ricorsiva di una funzione che trova l'ennesimo numero della sequenza di Fibonacci:
+
+(define (fib num)
+  (if (<= num 1)
+      num
+      (+ (fib (- num 1)) (fib (- num 2)))))
+
+(fib 5)
+;-> 5
+
+Quando chiamiamo (fib 5) (per esempio) produciamo un albero di chiamate che chiama la funzione sullo stesso valore molte volte:
+
+                                   (fib 5)
+                                   .     .
+                                .           .
+                             .                 .
+                          .                       .
+                       .                             .
+                    (fib 4)                        (fib 3)
+                  .        .                         .  .
+                .            .                      .    .
+              .                .                   .      .
+          (fib 3)            (fib 2)            (fib 2) (fib 1)
+            / \                / \                / \
+           /   \              /   \              /   \
+          /     \            /     \            /     \
+      (fib 2) (fib 1)    (fib 1) (fib 0)    (fib 1) (fib 0)
+        / \
+       /   \
+      /     \
+  (fib 1) (fib 0)
+
+In particolare, (fib 3) è stato calcolato due volte e (fib 2) è stato calcolato tre volte. Con numeri più grandi vengono ricalcolati molti più sottoproblemi, portando questo algoritmo ad una complessità temporale esponenziale.
+
+Ora supponiamo di avere una struttura per memorizzare i risultati intermedi di fib e modifichiamo la nostra funzione per usarlo e aggiornarlo. La funzione risultante viene eseguita in tempo O(n) anziché in tempo esponenziale (ma richiede uno spazio O(n)).
+
+Di seguito è riportata l'implementazione basata su questo metodo:
+
+; lista associativa per memorizzare i risultati parziali
+(setq memo '())
+
+(define (fib-memo num)
+  (local (val)
+    (cond ((<= num 1)
+            num)
+          ; se il numero di Fibonacci relativo a num non è stato calcolato  
+          ((nil? (lookup num memo))
+            ; allora lo calcola...
+            (setq val (+ (fib-memo (- num 1)) (fib-memo (- num 2))))
+            ; e poi mette il risultato 
+            ; (num fib(num)) nella lista associativa memo            
+            (push (list num val) memo -1)))
+    (lookup num memo)))
+
+(fib-memo 5)
+;-> 5
+
+Da notare che avremmo potuto usare un'altra struttura dati per memorizzare i valori invece di una lista associativa (vettore, hash-map, ecc.).
+
+Questa tecnica di memorizzazione dei valori già calcolati è chiamata memoizzazione e questo è l'approccio top-down poiché prima suddividiamo il problema in sottoproblemi e poi calcoliamo e memorizziamo i valori.
+
+Nell'approccio bottom-up, calcoliamo prima i valori più piccoli di fib, quindi costruiamo da essi valori più grandi. Anche questo metodo utilizza un tempo O(n) poiché contiene un ciclo che si ripete n-1 volte, ma richiede solo uno spazio costante O(1) costante, in contrasto con l'approccio top-down, che richiede spazio O(n) per memorizzare tutti i risultati. In questo caso la tabella di memorizzazione è costituita solo da tre valori: il valore corrente di fib, il valore precedente e il valore successivo.
+
+Di seguito è riportato il programma che utilizza questo metodo (tabella):
+
+(define (fib-tab num)
+  (local (new-fib prev-fib curr-fib)
+    (cond ((<= num 1) num)
+          (true
+           (setq prev-fib 0)
+           (setq curr-fib 1)
+           (for (i 1 (- num 1))
+              (setq new-fib (+ prev-fib curr-fib))
+              (setq prev-fib curr-fib)
+              (setq curr-fib new-fib))))
+    curr-fib))
+
+(fib-tab 5)
+;-> 5
+
+In entrambe le ultime due funzioni, la chiamata a (fib 5) calcola (fib 2) solo una volta e poi il valore viene usato per calcolare sia (fib 4) che (fib 3), invece di essere ricalcolato nuovamente ogni volta che deve essere valutato.
+
+
+------------------------------------------------
+Esempio di Programmazione Dinamica: 0-1 Knapsack
+------------------------------------------------
+
 =============================================================================
 

@@ -866,6 +866,7 @@ NOTE LIBERE 5
 =============
   Spostamento di zeri
   Quadratura approssimata
+  Introduzione alla programmazione dinamica
 
 
 APPENDICI
