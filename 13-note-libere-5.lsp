@@ -352,9 +352,204 @@ Di seguito è riportato il programma che utilizza questo metodo (tabella):
 In entrambe le ultime due funzioni, la chiamata a (fib 5) calcola (fib 2) solo una volta e poi il valore viene usato per calcolare sia (fib 4) che (fib 3), invece di essere ricalcolato nuovamente ogni volta che deve essere valutato.
 
 
-------------------------------------------------
-Esempio di Programmazione Dinamica: 0-1 Knapsack
-------------------------------------------------
+--------------------------------------------------------------------
+Programmazione dinamica: il gioco delle pentole d'oro (pots of gold)
+--------------------------------------------------------------------
+
+Ci sono due giocatori, A e B, e delle pentole disposte in fila ciascuna contenente alcune monete d'oro. I giocatori possono vedere quante monete ci sono in ogni pentola. A turni alternati ogni giocatore può scegliere una pentola da una delle estremità della linea. Alla fine il vincitore è il giocatore che ha un numero maggiore di monete. Per esempio, la seguente lista rappresenta una linea di 8 pentole ognuna contenente un numero di monete (valore dell'elemento):
+
+(setq pentole '(3 4 1 6 7 4 8 9))
+
+L'obiettivo del nostro problema è "massimizzare" il numero di monete raccolte da A, supponendo che B giochi "in modo ottimale" e che A inizi il gioco.
+
+Vediamo un paio di esempi:
+
+Pentole              A    B
+4, 6, 2, 3           3
+4, 6, 2                   4
+6, 2                 6
+2                         2
+                    --------
+totale monete        9    6
+
+Pentole              A    B
+6, 1, 4, 9, 8, 5     6
+1, 4, 9, 8, 5             5
+1, 4, 9, 8           8
+1, 4, 9                   9
+1, 4                 4
+1                         1
+                    --------
+totale monete       18   15
+
+L'idea è quella di trovare una strategia ottimale che faccia vincere il giocatore A, sapendo che l'avversario sta giocando in modo ottimale. Il giocatore ha due scelte per coin[i..j], dove i e j indicano rispettivamente la parte anteriore e quella posteriore della linea di pentole.
+
+1. Se il giocatore sceglie la pentola anteriore i, l'avversario può scegliere tra [i+1, j].
+       Se l'avversario sceglie la pentola anteriore i+1, ricorsione per [i+2, j].
+       Se l'avversario sceglie la pentola posteriore j, ricorsione per [i+1, j-1].
+
+2. Se il giocatore sceglie la pentola posteriore j, l'avversario può scegliere tra [i, j-1].
+       Se l'avversario sceglie la pentola anteriore i, ricorsione per [i+1, j-1].
+       Se l'avversario sceglie la pentola posteriore j-1, ricorsione per [i, j-2].
+
+Poiché l'avversario sta giocando in modo ottimale, cercherà di ridurre al minimo i punti del giocatore, cioè l'avversario farà una scelta che lascerà al giocatore il minimo di monete. Quindi, possiamo definire ricorsivamente il problema nel modo seguente:
+
+                     | coin[i]                            (se i = j)
+ optimalMove(i, j) = | max(coin[i], coin[j])              (se i + 1 = j)
+                     | max(coin[i] + min(optimalMove(coin, i + 2, j),
+                           optimalMove(coin, i + 1, j – 1)),
+                           coin[j] + min(optimalMove(coin, i + 1, j – 1),
+                           optimalMove(coin, i, j – 2)))
+
+Quindi la funzione che implementa la strategia ottimale è la seguente:
+
+(define (optimal pentole i j)
+  ; caso base: una pentola rimasta, solo una scelta possibile
+  (cond ((= i j)
+        (pentole i))
+        ; se rimangono solo due pentole,
+        ; scegliere quella con il massimo numero di monete
+        ((= (+ i 1) j)
+          (max (pentole i) (pentole j)))
+        (true
+          (local (inizio fine)
+          ; Se il giocatore sceglie la pentola anteriore i,
+          ; l'avversario può scegliere tra [i+1, j].
+          ; 1. Se l'avversario sceglie la pentola anteriore i+1,
+          ;    ricorsione per [i+2, j].
+          ; 2. Se l'avversario sceglie la pentola posteriore j,
+          ;    ricorsione per [i+1, j-1].
+          (setq inizio (+ (pentole i) (min (optimal pentole (+ i 2) j)
+                                           (optimal pentole (+ i 1) (- j 1)))))
+          ; Se il giocatore sceglie la pentola posteriore j,
+          ; l'avversario può scegliere tra [i, j-1].
+          ; 1. Se l'avversario sceglie la pentola anteriore i,
+          ;    ricorsione per [i+1, j-1].
+          ; 2. Se l'avversario sceglie la pentola posteriore j-1,
+          ;  ricorsione per [i, j-2].
+          (setq fine (+ (pentole j) (min (optimal pentole (+ i 1) (- j 1))
+                                         (optimal pentole i (- j 2)))))
+          (max inizio fine)))))
+
+Funzione main:
+
+(define (pots-gold pots)
+  (local (i j)
+    (setq i 0)
+    (setq j (- (length pots) 1))
+    (optimal pots i j)))
+
+(pots-gold '(4 6 2 3))
+;-> 9
+(pots-gold '(6 1 4 9 8 5))
+;-> 18
+(setq pentole '(3 4 1 6 7 4 8 9))
+(pots-gold pentole)
+;-> 23
+
+La complessità temporale della soluzione di cui sopra è esponenziale e occupa spazio nello stack di chiamate.
+
+Il problema ha una sottostruttura ottimale, quindi può essere suddiviso in sottoproblemi più piccoli, che possono essere ulteriormente suddivisi in sottoproblemi ancora più piccoli e così via. Il problema mostra anche sottoproblemi sovrapposti, quindi finiremo per risolvere lo stesso sottoproblema più e più volte. Abbiamo visto che i problemi con sottostruttura ottimale e sottoproblemi sovrapposti possono essere risolti mediante la programmazione dinamica, in cui le soluzioni dei sottoproblemi vengono memorizzate piuttosto che calcolate di nuovo.
+
+Vediamo la versione top-down:
+
+(define (optimal-td pentole i j)
+  (local (inizio fine)
+  ; caso base: una pentola rimasta, solo una scelta possibile
+  (cond ((= i j)
+         (pentole i))
+        ; se rimangono solo due pentole,
+        ; scegliere quella con il massimo numero di monete
+        ((= (+ i 1) j)
+         (max (pentole i) (pentole j)))
+        ; valore non calcolato?
+        ((zero? (memo i j))
+         (setq inizio (+ (pentole i) (min (optimal-td pentole (+ i 2) j)
+                                          (optimal-td pentole (+ i 1) (- j 1)))))
+         (setq fine (+ (pentole j) (min (optimal-td pentole (+ i 1) (- j 1))
+                                        (optimal-td pentole i (- j 2)))))
+         (setf (memo i j) (max inizio fine)))
+         (true
+          (memo i j)))))
+
+(define (pots-gold-td pots)
+  (local (memo i j)
+    (setq memo (array (length pots) (length pots) '(0)))
+    (setq i 0)
+    (setq j (- (length pots) 1))
+    (optimal-td pots i j)))
+
+(pots-gold-td '(4 6 2 3))
+;-> 9
+(pots-gold-td '(6 1 4 9 8 5))
+;-> 18
+(setq pentole '(3 4 1 6 7 4 8 9))
+(pots-gold-td pentole)
+;-> 23
+
+La complessità temporale di questa soluzione è O(n^2) e richiede O(n^2) spazio extra, dove n è il numero totale di pentole.
+
+Vediamo la versione bottom-up:
+
+(define (calc T i j)
+  (if (<= i j)
+      (T i j)
+      0))
+
+(define (optimal-bu pentole)
+  (local (len dp j inizio fine)
+    (setq len (length pentole))
+    (cond ((= len 1) (pentole 0))
+          ((= len 2) (max (pentole 0) (pentole 1)))
+          (true
+           ; matrice 2D dinamica per memorizzare
+           ; le soluzioni dei sottoproblemi
+           (setq dp (array len len '(0)))
+           (for (iter 0 (- len 1))
+              (setq i 0)
+              (for (j iter (- len 1))
+                (setq inizio (+ (pentole i) (min (calc dp (+ i 2) j)
+                                                 (calc dp (+ i 1) (- j 1)))))
+                (setq fine (+ (pentole j) (min (calc dp (+ i 1) (- j 1))
+                                              (calc dp i (- j 2)))))
+                (setf (dp i j) (max inizio fine))
+                (++ i)
+              )
+           )
+           ;(println dp)
+           (dp 0 (- len 1))))))
+
+(define (pots-gold-bu pots)
+    (optimal-bu pots))
+
+(pots-gold-bu '(4 6 2 3))
+;-> 9
+(pots-gold-bu '(6 1 4 9 8 5))
+;-> 18
+(setq pentole '(3 4 1 6 7 4 8 9))
+(pots-gold-bu pentole)
+;-> 23
+
+La complessità temporale di questa soluzione è O(n^2) e richiede O(n) spazio extra, dove n è il numero totale di pentole.
+
+Nota: questo algoritmo non assicura che il giocatore A vince sempre. La vittoria di A dipende dalla casualità della distribuzione delle pentole, questo algoritmo massimizza il valore che A può ottenere, ma non è detto che il valore di B sia inferiore. Per convincersi è sufficiente considerare la seguente distribuzione di pentole: (1 3 1). Qualunque scelta faccia A, il massimo che può ottenere è 2, mentre B può ottenere 3:
+
+(pots-gold-bu '(1 3 1))
+;-> 2
+
+In altre parole, questo algoritmo trova il comportamento ottimale per il giocatore A, ma non è in grado di definire una strategia vincente.
+
+Nota: per definire una strategia vincente (se la distribuzione iniziale lo consente) occorre usare l'algoritmo minimax che considera l'intero albero delle possibili mosse (è necessario ricorrere più in profondità per ottenere la soluzione ottimale anziché limitarsi a raggiungere il massimo alla mossa successiva).
+
+Nota: per rendere più equo il gioco il numero di pentole dovrebbe essere pari, altrimenti il primo giocatore A sceglierebbe una pentola in più del giocatore B. 
+Comunque se il numero di pentole è dispari, allora il giocatore B è in grado di selezionare una determinata pentola.
+Per esempio, nella distribuzione (1 2 6 2 101 6 8) il giocatore B sarà sempre in grado di scegliere la pentola con 101 monete (e vincere il gioco):
+(pots-gold-bu '(1 2 6 2 101 6 8))
+;-> 18
+Invece se il numero di pentole è pari, allora il giocatore A è in grado di selezionare una determinata pentola.
+Per esempio, nella distribuzione (1 2 6 2 101 6) il giocatore A sarà sempre in grado di scegliere la pentola con 101 monete (e vincere il gioco):
+(pots-gold-bu '(1 2 6 2 101 6))
+;-> 108
 
 =============================================================================
 
