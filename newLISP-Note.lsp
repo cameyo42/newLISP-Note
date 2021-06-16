@@ -869,6 +869,8 @@ NOTE LIBERE 5
   Introduzione alla programmazione dinamica
   Programmazione dinamica: il gioco delle pentole d'oro (pots of gold)
   Somma delle cifre in posizioni pari e dispari
+  Ordinare una lista con un'altra lista
+  Test di Lucas-Lehmer
 
 
 APPENDICI
@@ -101244,6 +101246,132 @@ Funzione che calcola tutti i numeri che verificano la condizione fino ad un dato
 (time (println (length (equal-sum 1e8))))
 ;-> 4816029
 ;-> 186272.126 ; 3 minuti e 6 secondi
+
+
+-------------------------------------
+Ordinare una lista con un'altra lista
+-------------------------------------
+
+Supponiamo di avere una lista di numeri e una seconda lista di indici o di posizioni. Per esempio,
+
+lista di numeri:
+(setq nums '(3 5 2 8 6 4))
+
+lista di posizioni:
+(setq pos '(3 2 1 4 5 0))
+
+lista di indici:
+(setq idx '(3 2 1 4 5 0))
+
+Primo problema
+Ordinare la lista di numeri in accordo con la lista di posizioni. In questo caso l'elemento i-esimo della lista "nums" deve essere posizionato/spostato all'indice ord(i), cioè nums(i) = nums(ord(i)).
+
+(define (order1 lst pos)
+  (local (len out)
+    (setq len (length lst))
+    (setq out (array len '(0)))
+    (for (i 0 (- len 1))
+      (setf (out (pos i)) (lst i))
+    )
+    out))
+
+(order1 '(1 2 3 4 5) '(3 2 4 1 0))
+;-> (5 4 2 1 3)
+
+(order1 nums pos)
+;-> (4 2 5 3 8 6)
+
+Secondo problema
+Ordinare la lista di numeri in accordo agli indici della lista di indici. In questo caso l'elemento i-esimo della lista "idx" rappresenta l'indice del numero che va posizionato/spostato alla posizione i-esima, cioè nums(idx(i)) = nums(i)
+
+(define (order2 lst idx)
+  (local (len out)
+    (setq len (length lst))
+    (setq out (array len '(0)))
+    (for (i 0 (- len 1))
+      (setf (out i) (lst (idx i)))
+    )
+    out))
+
+(order2 '(1 2 3 4 5) '(3 2 4 1 0))
+;-> (4 3 5 2 1)
+
+(order2 nums idx)
+;-> (8 2 5 6 4 3)
+
+Nota: newLISP ha la funzione primitiva "select" che produce lo stesso risultato di "order2":
+
+(select '(1 2 3 4 5) '(3 2 4 1 0))
+;-> (4 3 5 2 1)
+(select nums idx)
+;-> (8 2 5 6 4 3)
+
+
+--------------------
+Test di Lucas-Lehmer
+--------------------
+
+Il test di Lucas-Lehmer è una verifica della primalità dei primi di Mersenne.
+Per p numero primo, detto M(p) = 2^p - 1 il p-esimo numero di Mersenne, esso è primo se e solo se divide L(p-1), dove L(n) è l'n-esimo termine della successione definita ricorsivamente come:
+
+  L(n+1) = L(n)^2 - 2, con L(1) = 4
+
+Il test è stato sviluppato da Lucas nel 1870 e semplificato da Lehmer nel 1930.
+
+La seguente funzione calcola i numeri primi di mersenne fino a un dato indice. Il secondo numero di Mersenne, M2, è primo, ma la funzione seguente calcola solo da M3 fino all'indice dato.
+
+Nota: M2 è l'unico numero di Mersenne con indice pari (perchè l'indice è un numero primo).
+
+(define (lucas-lehmer limite)
+  (local (s n i expo)
+    (println "M2 primo.")
+    (setq n 1L)
+    (for (expo 2 limite)
+      (if (= expo 2)
+          (setq s 0L)
+          (setq s 4L))
+      ; evita l'utilizzo della funzione pow
+      (setq n (- (* (+ n 1) 2) 1))
+      (for (i 1 (- expo 2))
+        (setq s (% (- (* s s) 2) n)))
+      (if (zero? s)
+          (println "M" expo " primo.")))))
+
+(lucas-lehmer 1000)
+;-> M2 primo.
+;-> M3 primo.
+;-> M5 primo.
+;-> M7 primo.
+;-> M13 primo.
+;-> M17 primo.
+;-> M19 primo.
+;-> M31 primo.
+;-> M61 primo.
+;-> M89 primo.
+;-> M107 primo.
+;-> M127 primo.
+;-> M521 primo.
+;-> M607 primo.
+
+(time (lucas-lehmer 2300))
+;-> M2 è primo.
+;-> M3 primo.
+;-> M5 primo.
+;-> M7 primo.
+;-> M13 primo.
+;-> M17 primo.
+;-> M19 primo.
+;-> M31 primo.
+;-> M61 primo.
+;-> M89 primo.
+;-> M107 primo.
+;-> M127 primo.
+;-> M521 primo.
+;-> M607 primo.
+;-> M1279 primo.
+;-> M2203 primo.
+;-> M2281 primo.
+;-> 89791.177 ; 90 secondi
 
 =============================================================================
 

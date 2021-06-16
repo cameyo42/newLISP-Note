@@ -869,6 +869,8 @@ NOTE LIBERE 5
   Introduzione alla programmazione dinamica
   Programmazione dinamica: il gioco delle pentole d'oro (pots of gold)
   Somma delle cifre in posizioni pari e dispari
+  Ordinare una lista con un'altra lista
+  Test di Lucas-Lehmer
 
 
 APPENDICI
