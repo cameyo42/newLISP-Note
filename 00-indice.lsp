@@ -868,6 +868,7 @@ NOTE LIBERE 5
   Quadratura approssimata
   Introduzione alla programmazione dinamica
   Programmazione dinamica: il gioco delle pentole d'oro (pots of gold)
+  Somma delle cifre in posizioni pari e dispari
 
 
 APPENDICI

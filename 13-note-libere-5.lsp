@@ -131,8 +131,8 @@ La seguente funzione implementa questo metodo:
 
 (define (zeri lst)
   (let (idx 0)
-    ; se l'elemento è diverso da zero, 
-    ; allora l'elemento viene posizionato prima del pivot 
+    ; se l'elemento è diverso da zero,
+    ; allora l'elemento viene posizionato prima del pivot
     ; e "idx" viene incrementato
     (for (i 0 (- (length lst) 1))
       (if (!= (lst i) 0) ; 0 è il pivot
@@ -314,12 +314,12 @@ Di seguito è riportata l'implementazione basata su questo metodo:
   (local (val)
     (cond ((<= num 1)
             num)
-          ; se il numero di Fibonacci relativo a num non è stato calcolato  
+          ; se il numero di Fibonacci relativo a num non è stato calcolato
           ((nil? (lookup num memo))
             ; allora lo calcola...
             (setq val (+ (fib-memo (- num 1)) (fib-memo (- num 2))))
-            ; e poi mette il risultato 
-            ; (num fib(num)) nella lista associativa memo            
+            ; e poi mette il risultato
+            ; (num fib(num)) nella lista associativa memo
             (push (list num val) memo -1)))
     (lookup num memo)))
 
@@ -394,12 +394,12 @@ L'idea è quella di trovare una strategia ottimale che faccia vincere il giocato
 
 Poiché l'avversario sta giocando in modo ottimale, cercherà di ridurre al minimo i punti del giocatore, cioè l'avversario farà una scelta che lascerà al giocatore il minimo di monete. Quindi, possiamo definire ricorsivamente il problema nel modo seguente:
 
-                     | coin[i]                            (se i = j)
- optimalMove(i, j) = | max(coin[i], coin[j])              (se i + 1 = j)
-                     | max(coin[i] + min(optimalMove(coin, i + 2, j),
-                           optimalMove(coin, i + 1, j – 1)),
-                           coin[j] + min(optimalMove(coin, i + 1, j – 1),
-                           optimalMove(coin, i, j – 2)))
+                 | coin[i]                            (se i = j)
+ optimal(i, j) = | max(coin[i], coin[j])              (se i + 1 = j)
+                 | max(coin[i] + min(optimal(coin, i + 2, j),
+                           optimal(coin, i + 1, j – 1)),
+                           coin[j] + min(optimal(coin, i + 1, j – 1),
+                           optimal(coin, i, j – 2)))
 
 Quindi la funzione che implementa la strategia ottimale è la seguente:
 
@@ -539,17 +539,180 @@ Nota: questo algoritmo non assicura che il giocatore A vince sempre. La vittoria
 
 In altre parole, questo algoritmo trova il comportamento ottimale per il giocatore A, ma non è in grado di definire una strategia vincente.
 
-Nota: per definire una strategia vincente (se la distribuzione iniziale lo consente) occorre usare l'algoritmo minimax che considera l'intero albero delle possibili mosse (è necessario ricorrere più in profondità per ottenere la soluzione ottimale anziché limitarsi a raggiungere il massimo alla mossa successiva).
+Nota: per definire una strategia vincente (se la distribuzione iniziale lo consente) occorre usare un algoritmo che considera l'intero albero delle possibili mosse (infatti è necessario ricorrere più in profondità per ottenere la soluzione ottimale anziché limitarsi a raggiungere il massimo alla mossa successiva).
 
-Nota: per rendere più equo il gioco il numero di pentole dovrebbe essere pari, altrimenti il primo giocatore A sceglierebbe una pentola in più del giocatore B. 
+Nota: per rendere più equo il gioco il numero di pentole dovrebbe essere pari, altrimenti il primo giocatore A sceglierebbe una pentola in più del giocatore B.
+
 Comunque se il numero di pentole è dispari, allora il giocatore B è in grado di selezionare una determinata pentola.
 Per esempio, nella distribuzione (1 2 6 2 101 6 8) il giocatore B sarà sempre in grado di scegliere la pentola con 101 monete (e vincere il gioco):
 (pots-gold-bu '(1 2 6 2 101 6 8))
 ;-> 18
+
 Invece se il numero di pentole è pari, allora il giocatore A è in grado di selezionare una determinata pentola.
 Per esempio, nella distribuzione (1 2 6 2 101 6) il giocatore A sarà sempre in grado di scegliere la pentola con 101 monete (e vincere il gioco):
 (pots-gold-bu '(1 2 6 2 101 6))
 ;-> 108
+
+Per maggiori informazioni consultare l'articolo "An Optimal Algorithm for Calculating the Profit in the Coins in a Row Game" di Tomasz Idziaszek.
+
+Quante partite diverse possono essere giocate con una fila di n pentole?
+
+Una partita può essere considerata una sequenza di catture a Sinistra o a Destra della linea, cioè una partita con quattro pentole può essere rappresentata dalla lista (s s d d): A prende a Sinistra, B prende a Sinistra, A prende a destra e, infine, B prende a destra.
+Comunque la lista (s s d d) è equivalente alla lista (s s d s), perchè l'ultima pentola si trova indifferentemente a Sinistra e a Destra.
+Quindi il numero di partite è dato da tutte le permutazioni con ripetizione di s e d di lunghezza (n - 1):
+
+(define (perm-rep k lst)
+  (if (zero? k) '(())
+      (flat (map (lambda (p) (map (lambda (e) (cons e p)) lst))
+                         (perm-rep (- k 1) lst)) 1)))
+
+Queste sono tutte le possibili partite con una linea di 2 pentole (s=sinistra, d=destra)
+(perm-rep 1 '(s d))
+;-> ((s) (d))
+
+Queste sono tutte le possibili partite con una linea di 4 pentole (s=sinistra, d=destra)
+(perm-rep 3 '(s d))
+;-> ((s s s) (d s s) (s d s) (d d s) (s s d) (d s d) (s d d) (d d d))
+
+Queste sono tutte le possibili partite con una linea di 5 pentole (s=sinistra, d=destra)
+(perm-rep 4 '(s d))
+;-> ((s s s s) (d s s s) (s d s s) (d d s s) (s s d s) (d s d s) (s d d s)
+;->  (d d d s) (s s s d) (d s s d) (s d s d) (d d s d) (s s d d) (d s d d)
+;->  (s d d d) (d d d d))
+
+Quindi la funzione che calcola il numero di partite con n pentole è la seguente:
+
+(define (game-pots num)
+  (length (perm-rep (- num 1) '(s d))))
+
+Oppure più semplicemente, 
+
+  numero partite = elementi^scelte
+
+dove "elementi" è il numero di cose tra cui scegliere (s e d), e ne scegliamo "scelte" (num-1), la ripetizione è consentita e l'ordine è importante.
+
+(define (game-pots num)
+  (pow 2 (- num 1)))
+
+(game-pots 10)
+;-> 512
+
+Scriviamo una funzione che data una linea di pentole calcola il risultato di tutte le partite possibili:
+
+(define (all-game lst)
+  (local (len perm tmp val aa bb tot-a tot-b tot-ab)
+    ;tot-a:  vittoria giocatore A
+    ;tot-b:  vittoria giocatore B
+    ;tot-ab: pareggio
+    (setq tot-a 0 tot-b 0 tot-ab 0)
+    (setq len (length lst))
+    (setq perm (perm-rep (- len 1) '(s d)))
+    ; per ogni permutazione
+    (dolist (p perm)
+      (setq tmp lst)
+      (setq aa 0 bb 0)
+      ; per ogni elemento di una permutazione (partita)
+      (dolist (el p)
+        ; calcola il valore preso (a sinistra o a destra)
+        (if (= el 's)
+          (setq val (pop tmp 0))
+          (setq val (pop tmp -1))
+        )
+        ; aumenta il punteggio del relativo giocatore
+        (if (even? $idx)
+            (setq aa (+ aa val))
+            (setq bb (+ bb val))
+        )
+      )
+      ; assegna l'ultimo valore della lista
+      ; ad uno dei due giocatori
+      (if (odd? len)
+          (setq aa (+ aa (last tmp)))
+          (setq bb (+ bb (last tmp)))
+      )
+      ;(println lst { } p { } aa { } bb)
+      ; aumenta numero vittorie al vincitore corrente
+      (cond ((= aa bb) (++ tot-ab))
+            ((> aa bb) (++ tot-a))
+            (true (++ tot-b)))
+    )
+    (list tot-a tot-b tot-ab)
+  )
+)
+
+(all-game '(1 2 3 4 5 6 7))
+;-> (45 12 7)
+
+(all-game '(1 3 1))
+;-> (2 2 0)
+
+(all-game '(3 9 5 7 1 6 4 8 1 9 8 7))
+;-> (914 995 139)
+
+
+---------------------------------------------
+Somma delle cifre in posizioni pari e dispari
+---------------------------------------------
+
+Scrivere una funzione che calcola tutti i numeri fino ad un dato limite che hanno la seguente proprietà:
+
+la somma delle cifre in posizione pari è uguale alla somma delle cifre in posizione dispari
+
+Prendiamo per esempio il numero 7523351:
+
+somma delle cifre con indice pari: 5 + 3 + 5 = 13
+somma delle cifre con indice dispari: 7 + 2 + 3 + 1 = 13
+
+Quindi il numero 7523351 soddisfa la condizione.
+
+Sequenza OEIS A135499: 11, 22, 33, 44, 55, 66, 77, 88, 99, 110, 121, 132,
+ 143, 154, 165, 176, 187, 198, 220, 231, 242, 253, 264, 275, 286, 297, 330,
+ 341, 352, 363, 374, 385, 396, 440, 451, 462, 473, 484, 495, 550, 561, 572,
+ 583, 594, 660, 671, 682, 693, 770, 781, 792, 880, 891, 990, ...
+
+Funzione che verifica se un numero soddisfa la condizione:
+
+(define (equal-sum? num)
+  (if (zero? num) nil
+      (local (odd-sum even-sum len)
+        (setq odd-sum 0 even-sum 0)
+        (setq len (length num))
+        (while (!= num 0)
+          (if (odd? len)
+              (setq odd-sum (+ odd-sum (% num 10)))
+              (setq even-sum (+ even-sum (% num 10)))
+          )
+          (setq num (/ num 10))
+          (-- len)
+        )
+        (= odd-sum even-sum))))
+
+(equal-sum? 0)
+;-> nil
+(equal-sum? 7523351)
+;-> true
+(equal-sum? 11165)
+;-> true
+(equal-sum? 11111)
+;-> nil
+
+Funzione che calcola tutti i numeri che verificano la condizione fino ad un dato limite:
+
+(define (equal-sum limite)
+  (let (out '())
+    (for (i 1 limite)
+      (if (equal-sum? i)
+          (push i out -1)))
+    out))
+
+(equal-sum 1e3)
+;-> (11 22 33 44 55 66 77 88 99 110 121 132 143 154 165 176 187 198 220 231
+;->  242 253 264 275 286 297 330 341 352 363 374 385 396 440 451 462 473 484
+;->  495 550 561 572 583 594 660 671 682 693 770 781 792 880 891 990)
+
+(time (println (length (equal-sum 1e8))))
+;-> 4816029
+;-> 186272.126 ; 3 minuti e 6 secondi
 
 =============================================================================
 

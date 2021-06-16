@@ -9401,7 +9401,7 @@ La sequenza "fusc" (chiamata anche sequenza di Stern) è definita nel modo segue
   se n è pari:     fusc(n) = fusc(n/2)
   se n è dispari:  fusc(n) = fusc((n-1)/2) + fusc((n+1)/2)
 
-Questa è la sequenza OEIS A2487.
+Questa è la sequenza OEIS A002487.
 
 Vediamo prima di tutto la versione ricorsiva:
 
