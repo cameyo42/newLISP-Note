@@ -297,7 +297,7 @@ Il file verrà stampato in uscita standard tradotto in maiuscolo. Il seguente pr
 
 (exit)
 
-Imposta la dimensione del buffer per ottenere le migliori prestazioni.
+Impostare la dimensione del buffer per ottenere le migliori prestazioni.
 
 Filtri di File
 ==============
@@ -671,7 +671,7 @@ len:10 width:20 height:30
 
 Ricorsione o iterazione?
 ========================
-Sebbene la ricorsione sia una caratteristica potente per esprimere molti algoritmi in una forma leggibile, in alcuni casi può anche essere inefficiente. newLISP ha molti costrutti iterativi e funzioni di alto livello come flat o le funzioni XML integrate, che usano la ricorsione internamente. In molti casi ciò rende superflua la definizione di un algoritmo ricorsivo.
+Sebbene la ricorsione sia una caratteristica potente per esprimere molti algoritmi in una forma leggibile, in alcuni casi può anche essere inefficiente. newLISP ha molti costrutti iterativi e funzioni di alto livello come "flat" o le funzioni XML integrate, che usano la ricorsione internamente. In molti casi ciò rende superflua la definizione di un algoritmo ricorsivo.
 
 Alcune volte una soluzione non ricorsiva può essere molto più veloce e leggera sulle risorse di sistema.
 
@@ -732,7 +732,7 @@ La funzione fibo nell'ultimo esempio richiederebbe ore per essere calcolata senz
 
 Attraversare un albero (tree)
 =============================
-Gli attraversamenti di alberi sono un modello tipico nel LISP tradizionale e anche in newLISP per attraversare una lista annidata. Ma molte volte un attreversmaneto degli alberi viene utilizzato solo per scorrere tutti gli elementi di un albero esistente o di una lista annidata. In questo caso la funzione flat incorporata è molto più veloce rispetto all'utilizzo della ricorsione:
+Gli attraversamenti di alberi sono un modello tipico nel LISP tradizionale e anche in newLISP per attraversare una lista annidata. Ma molte volte un attreversmaneto degli alberi viene utilizzato solo per scorrere tutti gli elementi di un albero esistente o di una lista annidata. In questo caso la funzione "flat" incorporata è molto più veloce rispetto all'utilizzo della ricorsione:
 
 (set 'L '(a b c (d e (f g) h i) j k))
 
@@ -826,7 +826,7 @@ Per aggiungere a una lista usa "push", per eliminare un elemento da una lista us
 
 L → (b d f)
 
-; push / pop multidimensionale
+; push/pop multidimensionale
 (set 'L '(a b (c d (e f) g) h i))
 
 (push 'x L 2 1) → (a b (c x d (e f) g) h i)
@@ -856,7 +856,7 @@ L → (a b (c x d (e f) g) h i))
 
 Estendere usando extend
 =======================
-Usando extend le liste possono essere aggiunto in modo distruttivo. Come push e pop, extent modifica la lista nel primo argomento.
+Usando "extend" le liste possono essere aggiunto in modo distruttivo. Come "push" e "pop", "extent" modifica la lista nel primo argomento.
 
 (set 'L '(a b c))
 (extend L '(d e) '(f g))
@@ -896,7 +896,7 @@ Accedere alle liste
 
 L'indicizzazione implicita mostrata nell'ultimo esempio può rendere il codice più leggibile. Gli indici prima di una lista selezionano le sottosezioni di una lista, che a loro volta sono sempre liste.
 
-L'indicizzazione implicita è disponibile anche per rest e slice:
+L'indicizzazione implicita è disponibile anche per "rest" e "slice":
 
 (rest '(a b c d e))      → (b c d e)
 (rest (rest '(a b c d e) → (c d e)
@@ -913,7 +913,7 @@ L'indicizzazione implicita è disponibile anche per rest e slice:
 
 Selezione di più elementi
 =========================
-A volte è necessario selezionare più di un elemento da una lista. Questo viene fatto usando select:
+A volte è necessario selezionare più di un elemento da una lista. Questo viene fatto usando "select":
 
 ; seleziona diversi elementi da una lista
 (set 'L '(a b c d e f g))
@@ -939,7 +939,7 @@ Il primo esempio potrebbe essere scritto in modo più conciso, come segue:
 
 (filter (curry < 5) '(1 6 3 7 8))
 
-La funzione curry crea una funzione a un argomento da una funzione a due argomenti:
+La funzione "curry" crea una funzione a un argomento da una funzione a due argomenti:
 
 (curry < 5) → (lambda (_x) (< 5 _x))
 
@@ -995,7 +995,7 @@ La funzione "replace" può usare una funzione di confronto per selezionare gli e
 
 (replace 10 L 10 <) → (1 4 10 5 6 10 2 3 10)
 
-Utilizzando le funzioni integrate match e unify è possibile definire criteri di selezione più complessi:
+Utilizzando le funzioni integrate "match" e "unify" è possibile definire criteri di selezione più complessi:
 
 ; sostituire solo le sottoliste che iniziano con "maria"
 (set 'AL '((john 5 6 4) (mary 3 4 7) (bob 4 2 7 9) (jane 3)))
@@ -1046,7 +1046,7 @@ Come "find", "replace", "ref" e "ref-all", le ricerche più complesse possono es
 (set-ref-all '(oranges *) data (list (first $0) (apply + (rest $it))) match)
 → ((monday (apples 20 30) (oranges 15)) (tuesday (apples 5) (oranges 33)))
 
-L'ultimo esempio mostra come utilizzare $0 per accedere al vecchio elemento della lista nell'espressione di aggiornamento. In questo caso i numeri per i record delle arance sono stati sommati. Invece di $0 può essere utilizzata anche la variabile di sistema anaforica $it.
+L'ultimo esempio mostra come utilizzare "$0" per accedere al vecchio elemento della lista nell'espressione di aggiornamento. In questo caso i numeri per i record delle arance sono stati sommati. Invece di "$0" può essere utilizzata anche la variabile di sistema anaforica "$it".
 
 Passaggio di liste per riferimento
 ==================================
@@ -1145,7 +1145,7 @@ E → (x y z)
  7. FLUSSO DEL PROGRAMMA
 =========================
 
-Il flusso del programma in newLISP è per lo più funzionale, ma ha anche costrutti di loop e ramificazione e la coppia catch e throw per interrompere il normale flusso.
+Il flusso del programma in newLISP è per lo più funzionale, ma ha anche costrutti di loop e ramificazione e la coppia "catch" e "throw" per interrompere il normale flusso.
 
 Le espressioni di un ciclo nel loro insieme si comportano come una funzione o un blocco che restituisce l'ultima espressione valutata.
 
@@ -1223,7 +1223,7 @@ Sono supportati la maggior parte dei modelli di loop tradizionali. Ogni volta ch
     ...
 )
 
-Si noti che le funzioni di ciclo dolist, dotimes e for possono anche accettare una condizione di interruzione come argomento aggiuntivo. Quando la condizione di interruzione restituisce true, il ciclo termina:
+Si noti che le funzioni di ciclo "dolist", "dotimes" e "for" possono anche accettare una condizione di interruzione come argomento aggiuntivo. Quando la condizione di interruzione restituisce true, il ciclo termina:
 
 (dolist (x '(a b c d e f g) (= x 'e))
     (print x))
@@ -1243,22 +1243,22 @@ I blocchi possono anche essere costruiti racchiudendoli in un'espressione di ini
     s-expN)
 
 
-I costrutti di ciclo non necessitano di utilizzare un "begin" esplicito dopo le condizioni dei cicli. begin è usato principalmente per bloccare le espressioni nell' istruzione "if".
+I costrutti di ciclo non necessitano di utilizzare un "begin" esplicito dopo le condizioni dei cicli. "begin" è usato principalmente per creare blocchi di espressioni nell' istruzione "if".
 
-Le funzioni "and", "or", "let", "letn" e "local" possono anche essere utilizzate per formare blocchi e non richiedono le istruzioni di inizio per il blocco.
+Le funzioni "and", "or", "let", "letn" e "local" possono anche essere utilizzate per formare blocchi e non richiedono l'istruzione "begin" per il blocco.
 
 Ramificazione (branching)
 =========================
 (if condizione true-expr false-expr)
 
-;or when no false clause is present
+;o quando non è presente alcuna false-expr
 (if condizione true-expr)
 
-;or unary if for (filter if '(...))
+;o unario se usato per (filter if '(...))
 (if condizione)
 
-; more than one statement in the true or false
-; part must be blocked with (begin ...)
+; più di un'espressione nel blocco true o false;
+; il blocco deve essere raccchiuso con (begin...)
 (if (= x y)
     (begin
         (some-func x)
@@ -1268,15 +1268,15 @@ Ramificazione (branching)
         (do-that x y))
 )
 
-; the when form can take several statements without
-; using a (begin ...) block
+; la forma "when" può avee diverse espressioni senza
+; usare il blocco (begin ...)
 (when condition
     exp-1
     exp-2
     ...
 )
 
-; unless works like (when (not ...) ...)
+; "unless" funziona come (when (not ...) ...)
 (unless condition
     exp-1
     exp-2
@@ -1285,7 +1285,7 @@ Ramificazione (branching)
 
 A seconda della condizione, viene valutata e restituita la parte exp-true o exp-false.
 
-In un'espressione "if" può verificarsi più di una coppia condizione / exp-true, facendola assomigliare ad una "cond":
+In un'espressione "if" può verificarsi più di una coppia condizione/exp-true, facendola assomigliare ad una "cond":
 
 (if condition-1 exp-true-1
     condition-2 exp-true-2
@@ -1321,16 +1321,16 @@ Una delle espressioni alternative da exp-1 a exp-n viene valutata con una probab
 
 Flusso con catch e throw
 ========================
-Qualsiasi loop/ciclo o altro blocco di espressioni può essere racchiuso in un'espressione "catch". Nel momento in cui viene valutata un'espressione "throw", l'intera espressione catch restituisce il valore dell'espressione "throw".
+Qualsiasi loop/ciclo o altro blocco di espressioni può essere racchiuso in un'espressione "catch". Nel momento in cui viene valutata un'espressione "throw", l'intera espressione "catch" restituisce il valore dell'espressione "throw".
 
 (catch
     (dotimes (i 10)
     (if (= i 5) (throw "The End"))
     (print i " "))
 )
-; will output
+; output
 0 1 2 3 4
-; and the return value of the catch expression will be
+; e il valore di ritorno dell'espressione "catch" vale
 → "The End"
 
 È possibile annidare diverse espressioni "catch". La funzione "catch" può anche rilevare gli errori. Vedere il capitolo seguente "Gestione degli errori".
@@ -1448,7 +1448,7 @@ called from user defined function double
 
 L'espressione "catch" restituisce true quando non si è verificata alcuna eccezione di errore e il risultato dell'espressione si trova nel simbolo specificato come secondo parametro.
 
-Se si verifica un'eccezione di errore, viene rilevata e la clausola catch restituisce nil. In questo caso il risultato del simbolo contiene il messaggio di errore.
+Se si verifica un'eccezione di errore, viene rilevata e la clausola "catch" restituisce nil. In questo caso il risultato del simbolo contiene il messaggio di errore.
 
 Errori del sistema operativo
 ============================
@@ -1477,7 +1477,7 @@ Manipolazione dopo la definizione
 (first double) → (x)
 (last double)  → (+ x x)
 
-; make a fuzzy double
+; modifica la funzione "double"
 (setf (nth 1 double) '(mul (normal x (div x 10)) 2))
 
 (double 10) → 20.31445313
@@ -1561,7 +1561,7 @@ newLISP può creare variabili di stato locale utilizzando un contesto (spazio de
     (if gen:sum (inc gen:sum) 1)))
 
 ; questo potrebbe essere scritto più brevemente
-; perché 'inc' considera nil come zero
+; perché "inc" considera nil come zero
 
 (define (gen:gen)
     (inc gen:sum))
@@ -1607,7 +1607,7 @@ L'esempio seguente mostra una funzione che si modifica automaticamente, creando 
 (mystream)  → b
 (mystream)  → c
 
-Poiché pop funziona su entrambi: liste e stringhe, la stessa funzione può essere utilizzata per un flusso di stringhe:
+Poiché "pop" funziona su entrambe liste e stringhe, la stessa funzione può essere utilizzata per un flusso di stringhe:
 
 (set 'str "abcddefgh")
 (define mystream (make-stream str))
@@ -1658,7 +1658,7 @@ La funzione di "replace", insieme a un modello di espressione regolare, può ess
 
 #!/usr/bin/newlisp
 
-; tokenize utilizzando replace con espressioni regolari
+; tokenizzare utilizzando "replace" con espressioni regolari
 ; i nomi sono nella forma <a href="example.lsp">example.lsp</a>
 
 (set 'page (get-url "http://newlisp.digidep.net/scripts/"))
@@ -1897,7 +1897,7 @@ e il client prova di nuovo a connettersi al sender:
 (unless (set 'connection (net-connect "host.com" 123))
     (println (net-error))
     (exit))
-; maximum bytes to receive
+; numero massimo di byte da ricevere
 (constant 'max-bytes 1024)
   .... configure message to server ...
 (net-send connection message-to-server)
@@ -1947,11 +1947,11 @@ Connessione chiusa
 ==================
 Questo modulo viene talvolta utilizzato per controllare hardware o apparecchiature. Non è richiesta alcuna configurazione, solo una funzione per l'invio, un'altra per la ricezione.
 
-; wait for data gram with maximum 20 bytes
+; attende per un data gram con 20 byte al massimo
 (net-receive-udp 1001 20)
-; or
-(net-receive-udp 1001 20 5000000)  ; wait for max 5 seconds
-; the sender
+; o
+(net-receive-udp 1001 20 5000000)  ; aspetta al massimo per 5 secondi
+; sender
 (net-send-udp "host.com" 1001 "Hello")
 
 Win32 e Unix mostrano un comportamento diverso quando inviano più o meno byte di quelli specificati all'estremità ricevente.
@@ -1960,14 +1960,14 @@ Comunicazioni multi-cast
 =========================
 In questo schema il server si abbona a uno di una gamma di indirizzi multi cast utilizzando la funzione "net-listen".
 
-; example server
+; esempio server
 (net-listen 4096 "226.0.0.1" "multi") → 5
 (net-receive-from 5 20)
 
-; example client I
+; esempio client I
 (net-connect "226.0.0.1" 4096 "multi") → 3
 (net-send 3 "hello")
-; example client II
+; esempio client II
 (net-connect "" 4096 "multi") → 3
 (net-send-to "226.0.0.1" 4096 "hello" 3)
 
@@ -1982,7 +1982,7 @@ Utilizzando net-select
 ======================
 In tutti i modelli precedenti il client si blocca quando è in ricezione. La chiamata "net-select" può essere utilizzata per sbloccare le comunicazioni:
 
-; optionally poll for arriving data with 100ms timeout
+; pool facoltativo per i dati in arrivo con timeout di 100 ms
 (while (not (net-select connection "r" 100000))
     (do-something-while-waiting ...))
 
@@ -2033,12 +2033,12 @@ Pipe STD I/O
 ============
 La funzione "process" consente di specificare 2 pipe per comunicare con l'applicazione avviata.
 
-; setup communications
+; imposta la comunicazione
 (map set '(myin tcout) (pipe))
 (map set '(tcin myout) (pipe))
 (process "/usr/bin/wish" tcin tcout)
 
-; make GUI
+; crea GUI
 (write myout
 [text]
 wm geometry . 250x90
@@ -2046,7 +2046,7 @@ wm title . "Tcl/Tk and newLISP"
 bind . <Destroy> {puts {(exit)}}
 [/text])
 
-; run event loop
+; esegue il ciclo degli eventi (run event loop)
 (while (read-line myin)
     (eval-string (current-line))
 )
@@ -2057,17 +2057,17 @@ Per un esempio Tcl/Tk più elaborato, vedere l'applicazione examples/tcltk.lsp n
 
 Comunicazione tramite TCP/IP
 ============================
-; Define communication function
+; Definisce le funzioni di comunicazione
 (define (gtk str , tmp)
     (net-send connection str)
     (net-receive connection tmp 64)
     tmp)
 
-; Start the gtk-server
+; Avvia il gtk-server
 (process "gtk-server tcp localhost:50000")
 (sleep 1000)
 
-; Connect to the GTK-server
+; Connssione con il gtk-server
 (set 'connection (net-connect "localhost" 50000))
 (set 'result (gtk "gtk_init NULL NULL"))
 (set 'result (gtk "gtk_window_new 0"))
@@ -2084,7 +2084,7 @@ oppure in modo alternativo:
 (import "/lib/libc.so.6" "mkfifo")
 (mkfifo "/tmp/myfifo" 0777)
 
-; Define communication function
+; Definisce le funzioni di comunicazione
 (define (gtk str)
   (set 'handle (open "myfifo" "write"))
   (write handle str)
@@ -2098,13 +2098,13 @@ Comunicazione tramite UDP
 =========================
 Notare che la funzione di ascolto con l'opzione "udp" associa semplicemente i socket a un indirizzo/hardware, ma non ascolta effettivamente come in TCP / IP.
 
-; Define communication function
+; Definisce le funzioni di comunicazione
 (define (gtk str , tmp)
 (net-send-to "localhost" 50000 str socket)
 (net-receive socket 'tmp net-buffer)
 tmp)
 
-; Start the gtk-server
+; Avvia il gtk-server
 (define (start)
   (process "gtk-server udp localhost:50000")
   (sleep 500)
@@ -2185,14 +2185,14 @@ Sebbene il controllo dei processi con semafori e memoria condivisa sia veloce, �
 (define (run n)
     (set 'data (share))
     (share data 0)
-    (set 'prod-sem (semaphore)) ; get semaphores
+    (set 'prod-sem (semaphore)) ; ottiene semafori
     (set 'cons-sem (semaphore))
-    (set 'prod-pid (fork (producer n))) ; start processes
+    (set 'prod-pid (fork (producer n))) ; avvia processi
     (set 'cons-pid (fork (consumer n)))
-    (semaphore prod-sem sig) ; get producer started
-    (wait-pid prod-pid) ; wait for processes to finish
-    (wait-pid cons-pid) ;
-    (semaphore cons-sem release) ; release semaphores
+    (semaphore prod-sem sig) ; avvia il produttore
+    (wait-pid prod-pid) ; attende la fine dei processi
+    (wait-pid cons-pid)
+    (semaphore cons-sem release) ; rilascia semafori
     (semaphore prod-sem release))
 
 (run 10)
@@ -2231,7 +2231,7 @@ plist))
 (sync 60000) ; restituisce vero se tutto è finito in tempo
 ; p1, p2, p3 e p4 ora contengono ciascuno una lista di numeri primi
 
-L'esempio mostra come il compito di generare un intervallo di numeri primi possa essere organizzato per l'elaborazione parallela suddividendo l'intervallo in sottointervalli. Tutte le chiamate di spawn torneranno immediatamente, ma la sincronizzazione si bloccherà fino a quando tutti i processi figli non saranno terminati e gli elenchi dei risultati saranno disponibili nelle quattro variabili da p1 a p4.
+L'esempio mostra come il compito di generare un intervallo di numeri primi possa essere organizzato per l'elaborazione parallela suddividendo l'intervallo in sottointervalli. Tutte le chiamate di "spawn" torneranno immediatamente, ma la sincronizzazione si bloccherà fino a quando tutti i processi figli non saranno terminati e gli elenchi dei risultati saranno disponibili nelle quattro variabili da p1 a p4.
 
 Monitorare i progressi
 ======================
@@ -2261,7 +2261,7 @@ Invocare spawn in modo ricorsivo
 
 Notifica guidata dagli eventi
 =============================
-Quando i processi vengono avviati con spawn finiscono, è possibile chiamare una funzione specificata nell'istruzione sync.
+Quando i processi vengono avviati con "spawn" finiscono, è possibile chiamare una funzione specificata nell'istruzione sync.
 
 (define (report pid)
     (println "process: " pid " has returned"))
@@ -2281,11 +2281,11 @@ Internamente newLISP utilizza i socket UNIX di dominio locale per doppie code di
 
 Blocco dell'invio e della ricezione di messaggi
 ===============================================
-     ; blocking sender
-     (until (send pid msg))     ; true when a msg queued up
+     ; blocco del sender
+     (until (send pid msg))     ; vero quando un messaggio è in coda
 
-     ; blocking receiver
-     (until (receive pid msg))  ; true after a msg is read
+     ; blocco del receiver
+     (until (receive pid msg))  ; vero dopo la lettura di un messaggio
 
 Blocco dello scambio di messaggi
 ================================
@@ -2293,29 +2293,28 @@ Il processo padre esegue un ciclo attraverso tutti gli ID dei processi figlio e 
 
 #!/usr/bin/newlisp
 
-; child process transmits random numbers
+; il processo figlio trasmette numeri casuali
 (define (child-process)
-    (set 'ppid (sys-info -4)) ; get parent pid
+    (set 'ppid (sys-info -4)) ; acquisisce il pid (process id) del genitore
     (while true
         (until (send ppid (rand 100))))
 )
 
-; parent starts 5  child processes, listens and displays
-; the true flag enables usage of send and receive
-
+; genitore avvia 5 processi figlio, ascolta e visualizza
+; il flag true consente l'utilizzo di "send" e "receive"
 (dotimes (i 5) (spawn 'result (child-process) true))
 
 (for (i 1 3)
-    (dolist (cpid (sync)) ; iterate thru pending child PIDs
+    (dolist (cpid (sync)) ; itera attraverso i pid figlio in sospeso
         (until (receive cpid msg))
         (print "pid:" cpid "->>" (format "%-2d  " msg)))
     (println)
 )
 
-(abort) ; cancel child-processes
+(abort) ; elimina i processi figlio
 (exit)
 
-genera questo output:
+Genera questo output:
 
 pid:53181->47  pid:53180->61  pid:53179->75  pid:53178->39  pid:53177->3
 pid:53181->59  pid:53180->12  pid:53179->20  pid:53178->77  pid:53177->47
@@ -2327,29 +2326,29 @@ Né il processo figlio mittente né il processo padre ricevente si bloccano. Cia
 
 #!/usr/bin/newlisp
 
-; child process transmits random numbers non-blocking
-; not all calls succeed
+; il processo figlio trasmette numeri casuali non bloccanti
+; non tutte le chiamate vanno a buon fine
 (set 'start (time-of-day))
 
 (define (child-process)
-    (set 'ppid (sys-info -4)) ; get parent pid
+    (set 'ppid (sys-info -4)) ; acquisisce il pid del genitore
     (while true
         (send ppid (rand 100)))
 )
 
-; parent starts 5  child processes, listens and displays
+; genitore avvia 5 processi figlio, ascolta e visualizza
 (dotimes (i 5) (spawn 'result (child-process) true))
 
 (set 'N 1000)
 
 (until finished
     (if (= (inc counter) N) (set 'finished true))
-    (dolist (cpid (receive)) ; iterate thru ready child pids
+    (dolist (cpid (receive)) ; itera attraverso i pid figlio in sospeso
         (receive cpid msg)
     (if msg (print "pid:" cpid "->" (format "%-2d  \r" msg))))
 )
 
-(abort) ; cancel child-processes
+(abort) ; elimina i processi figlio
 (sleep 300)
 
 (exit)
@@ -2366,7 +2365,7 @@ Timeout dei messaggi
 )
 ; use it
 
-(receive-timeout pid 1000)  ; return message or throw error after 1 second
+(receive-timeout pid 1000)  ; ritorna un messaggio o genera un errore
 
 In questo esempio il blocco avverrà per 1000 ms. Esistono molti metodi per implementare il comportamento di timeout.
 
@@ -2376,20 +2375,20 @@ I messaggi inviati possono contenere espressioni che possono essere valutate nel
 
 #!/usr/bin/newlisp
 
-; sender child process of the message
+; processo figlio sender del messaggio
 (set 'A (spawn 'result
     (begin
         (dotimes (i 3)
             (set 'ppid (sys-info -4))
-            ; the following statement in msg will be evaluated in the proxy
+            ; la seguente espressione in msg sarà valutata nel ciclo proxy
             (set 'msg '(until (send B (string "greetings from " A))))
             (until (send ppid msg)))
         (until (send ppid '(begin
-            (sleep 200) ; make sure all else is printed
+            (sleep 200) ; assicura che tutto il resto sia stampato
             (println "parent exiting ...\n")
             (set 'finished true))))) true))
 
-; receiver child process of the message
+; processo figlio receiver del messaggio
 (set 'B (spawn 'result
     (begin
         (set 'ppid (sys-info -4))
@@ -2399,7 +2398,7 @@ I messaggi inviati possono contenere espressioni che possono essere valutate nel
             (unless (= msg (string "greetings from " A))
                 (println "ERROR in proxy message: " msg)))) true))
 
-(until finished (if (receive A msg) (eval msg))) ; proxy loop
+(until finished (if (receive A msg) (eval msg))) ; ciclo proxy
 
 (abort)
 (exit)
@@ -2442,7 +2441,7 @@ Persons →  (
 ("John Doe" "123-5555" 1200.00)
 ("Jane Doe" "456-7777" 2000.00) ...)
 
-; access/lookup data records
+; access/lookup record di dati
 (assoc "John Doe" Persons)
 
 → ("John Doe" "123-5555" 1200.00 male)
@@ -2566,7 +2565,7 @@ Il processo inetd o xinetd deve essere configurato utilizzando i file di configu
 
 Per entrambe le configurazioni inetd e xinetd aggiungere la seguente riga al file /etc/services:
 
-  net-eval        4711/tcp     # newLISP net-eval requests
+  net-eval        4711/tcp     # richiesta newLISP net-eval
 
 Si noti che potrebbe essere fornita qualsiasi altra porta oltre alla 4711.
 
@@ -2574,11 +2573,11 @@ Quando si configura inetd, aggiungere anche le seguenti righe al file /etc/inetd
 
   net-eval  stream  tcp  nowait  root  /usr/bin/newlisp -c
 
-  # as an alternative, a program can also be preloaded
+  # in alternativa un programma può essere precaricato
 
   net-eval  stream  tcp  nowait  root  /usr/bin/newlisp myprog.lsp -c
 
-  # a working directory can also be specified
+  # è possibile anche specificare una cartella di lavoro (working directory)
 
   net-eval  stream  tcp  nowait  newlisp  /usr/bin/newlisp -c -w /usr/home/newlisp
 
@@ -2708,7 +2707,7 @@ In un ambiente di rete in cui un'applicazione viene spostata o vengono utilizzat
 
 #!/usr/bin/newlisp
 
-; node parameters
+; parametri dei nodi
 (set 'nodes '(
     ("192.168.1.100" 4711)
     ("192.168.1.101" 4711)
@@ -2717,7 +2716,7 @@ In un ambiente di rete in cui un'applicazione viene spostata o vengono utilizzat
     ("192.168.1.104" 4711)
 ))
 
-; program template for nodes
+; modello di programma per i nodi
 (set 'program [text]
     (begin
         (map set '(from to node) '(%d %d %d))
@@ -2727,7 +2726,7 @@ In un ambiente di rete in cui un'applicazione viene spostata o vengono utilizzat
     primes)
 [/text])
 
-; call back routine for net-eval
+; routine di call-back per net-eval
 (define (idle-loop p)
     (when p
         (println (p 0) ":" (p 1))
@@ -2736,8 +2735,8 @@ In un ambiente di rete in cui un'applicazione viene spostata o vengono utilizzat
 
 (println "Sending request to nodes, and waiting ...")
 
-; machines could be on different IP addresses.
-; For this test 5 nodes are started on localhost
+; le macchine potrebbero trovarsi su indirizzi IP diversi.
+; Per questo test vengono avviati 5 nodi su localhost
 (set 'result (net-eval (list
     (list (nodes 0 0) (nodes 0 1) (format program 0 99999 1))
     (list (nodes 1 0) (nodes 1 1) (format program 100000 199999 2))
@@ -2817,7 +2816,7 @@ Sebbene le funzioni di caricamento "load" e salvataggio "save" utilizzino intern
 
 Socket Unix di dominio locale
 =============================
-newLISP supporta socket di dominio locale con nome in modalità newLISP server utilizzando le funzioni integrate net-eval, net-listen, net-connect insieme alle funzioni "net-accept", "net-receive", "net-select" e "net-send".
+newLISP supporta socket di dominio locale con nome in modalità newLISP server utilizzando le funzioni integrate "net-eval", "net-listen", "net-connect" insieme alle funzioni "net-accept", "net-receive", "net-select" e "net-send".
 
 Utilizzando socket di dominio locale è possibile una comunicazione veloce tra processi sullo stesso file system e con i server newLISP. Vedere il Manuale utente per maggiori dettagli.
 
@@ -2855,10 +2854,10 @@ Tutte le richieste verranno pre-elaborate con una funzione specificata utilizzan
 
 (command-event (fn (s)
     (let (request nil)
-    (if (find "?" s) ; is this a query
+    (if (find "?" s) ; è una query?
         (begin
             (set 'request (first (parse s "?")))
-            ; discover illegal extension in queries
+            ; scopre le estensioni illegali nelle query
             (if (ends-with request ".exe")
                 (set 'request "GET /errorpage.html")
                 (set 'request s)))
@@ -3027,8 +3026,8 @@ the string: hello the number: 123
 the string: hello the number: 123
 "HELLO"
 
-; import a library compiled for cdecl
-; calling conventions
+; importare una libreria compilata 
+; con convenzioni di chiamata cdecl
 > (import "foo.dll" "func" "cdecl")
 
 Si noti che la prima volta che si utilizza foo2 il valore restituito 4054088 è l'indirizzo di memoria della stringa restituita. Usando "get-string" è possibile accedere alla stringa che gli appartiene. Se la libreria viene compilata utilizzando le convenzioni di chiamata cdecl, la parola chiave cdecl deve essere utilizzata nell'espressione di importazione.
@@ -3072,7 +3071,7 @@ Qualsiasi allocazione eseguita da funzioni esterne importate deve essere dealloc
 
 (import "/usr/lib/libc.so" "free")
 
-(free astruc) ; astruc contains memory address of allocated structure
+(free astruc) ; astruc contiene l'indirizzo di memoria della struttura allocata
 
 In caso di chiamata di funzioni esterne con passaggio per riferimento, la memoria per le variabili deve essere allocata in anticipo da newLISP e, quindi, la memoria non deve essere deallocata manualmente.
 
@@ -3248,7 +3247,7 @@ Registrazione di callback in librerie esterne
 Molte librerie condivise consentono di registrare le funzioni di callback per tornare indietro al programma di controllo. Il La funzione callback viene utilizzata in newLISP per estrarre l'indirizzo della funzione da una funzione newLISP definita dall'utente e passarlo alla libreria esterna tramite una funzione di registrazione:
 
 (define (keyboard key x y)
-    (if (= (& key 0xFF) 27) (exit)) ; exit program with ESC
+    (if (= (& key 0xFF) 27) (exit)) ; esce dal programma con ESC
     (println "key:" (& key 0xFF) " x:" x  " y:" y))
 
 (glutKeyboardFunc (callback 1 'keyboard))
@@ -3271,7 +3270,7 @@ Il primo esempio mostra come importare "newlispEvalStr" da newLISP stesso come c
 (import "/usr/lib/newlisp.so" "newlispEvalStr")
 (get-string (newlispEvalStr "(+ 3 4)")) →  "7\n"
 
-Quando si chiama la funzione di libreria "newlispEvalStr", l'output normalmente diretto alla console (ad esempio valori restituiti o istruzioni print) viene restituito sotto forma di puntatore intero a una stringa. È possibile accedere all'output passando questo puntatore alla funzione "get-string". Per silenziare l'output dai valori restituiti, utilizzare la funzione "silent". Tutti i risultati, anche se sono numeri, vengono sempre restituiti come stringhe e un avanzamento riga finale (linefeed) come nella modalità console interattiva. Utilizzare le funzioni int o float per convertire le stringhe in altri tipi di dati.
+Quando si chiama la funzione di libreria "newlispEvalStr", l'output normalmente diretto alla console (ad esempio valori restituiti o istruzioni "print") viene restituito sotto forma di puntatore intero a una stringa. È possibile accedere all'output passando questo puntatore alla funzione "get-string". Per silenziare l'output dai valori restituiti, utilizzare la funzione "silent". Tutti i risultati, anche se sono numeri, vengono sempre restituiti come stringhe e un avanzamento riga finale (linefeed) come nella modalità console interattiva. Utilizzare le funzioni "int" o "float" per convertire le stringhe in altri tipi di dati.
 
 Quando si passa una stringa multiriga a "newlispEvalStr", tale stringa deve essere racchiusa tra i tag [cmd], [/cmd], ciascuno su una riga diversa:
 
@@ -3329,33 +3328,33 @@ Questo programma accetterà le espressioni newLISP citate e stamperà i risultat
 
 Registrazione dei callback
 ==========================
-Come molte altre librerie condivise, i callback possono essere registrati nella libreria newLISP. La funzione "newlispCallback" deve essere importata e viene utilizzata per registrare le funzioni di callback. L'esempio mostra newLISP che importa newLISP come libreria e registra un callback callme:
+Come molte altre librerie condivise, i callback possono essere registrati nella libreria newLISP. La funzione "newlispCallback" deve essere importata e viene utilizzata per registrare le funzioni di callback. L'esempio mostra newLISP che importa newLISP come libreria e registra un callback "callme":
 
 #!/usr/bin/newlisp
 
-; path-name of the library depending on platform
+; nome del percorso della libreria a seconda della piattaforma
 (set 'LIBRARY (if (= ostype "Win32") "newlisp.dll" "newlisp.dylib"))
 
-; import functions from the newLISP shared library
+; importa funzioni dalla libreria condivisa newLISP
 (import LIBRARY "newlispEvalStr")
 (import LIBRARY "newlispCallback")
 
-; set calltype platform specific
+; imposta il tipo di chiamata specifico per la piattaforma
 (set 'CALLTYPE (if (= ostype "Win32") "stdcall" "cdecl"))
 
-; the callback function
+; la funzione di call-back
 (define (callme p1 p2 p3 result)
     (println "p1 => " p1 " p2 => " p2 " p3 => " p3)
     result)
 
-; register the callback with newLISP library
+; registra la call-back con la libreria newLISP
 (newlispCallback "callme" (callback 0 'callme) CALLTYPE)
 
-; the callback returns a string
+; il callback restituisce una stringa
 (println (get-string (newlispEvalStr
     {(get-string (callme 123 456 789 "hello world"))})))
 
-; the callback returns a number
+; il callback restituisce un numero
 (println (get-string (newlispEvalStr
     {(callme 123 456 789 99999)})))
 
@@ -3368,4 +3367,5 @@ p1 => 123 p2 => 456 p3 => 789
 99999
 
 Nota che Win32 e molte versioni Unix cercheranno newlisp.dll nel percorso della libreria di sistema, ma Mac OS X cercherà prima newlisp.dylib nella cartella corrente, se il percorso completo del file non è specificato. Il programma sopra può anche essere trovato come callback nella distribuzione dei sorgenti nella cartella newlisp-x.x.x/examples.
+
 

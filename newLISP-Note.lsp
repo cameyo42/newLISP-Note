@@ -16394,8 +16394,58 @@ Proviamo la funzione:
 (partnumber 5)
 ;-> ((5) (4 1) (3 2) (3 1 1) (2 2 1) (2 1 1 1) (1 1 1 1 1))
 
-(length (partnumber 80))
-;-> 204226
+(length (partnumber 40))
+;-> 37338
+
+Possiamo usare anche la ricorsione per risolvere questo problema. Consideriamo ogni intero i da 1 a n e lo aggiungiamo all'output e poi usiamo la ricorsione per gli elementi rimanenti [i..n] con somma ridotta n-i. Per evitare di generare una permutazione, ogni combinazione viene costruita in ordine non decrescente. Se si raggiunge una combinazione con la somma data, allora la aggiungiamo all'elenco delle soluzioni.
+
+(define (part-aux i num idx)
+  (if (zero? num)
+      ; se la somma diventa num, aggiungi questa soluzione
+      (push (slice lst 0 idx) out -1)
+  )
+  ; necessario per evitare che il ciclo "for"
+  ; sia operativo anche quando (i > num)
+  ; (conteggio inverso)
+  (if (<= i num) (begin
+      ; inizia dall'elemento precedente nella combinazione fino a num
+      (for (j i num)
+        ;assegna l'elemento corrente all'indice corrente
+        (setf (lst idx) j)
+        ; ricorsione con somma ridotta
+        (part-aux j (- num j) (+ idx 1))))))
+
+(define (partition num)
+  (local (lst out)
+    (setq lst (array num '(0)))
+    (setq out '())
+    (part-aux 1 num 0)
+    out))
+
+(partition 5)
+;-> ((5) (4 1) (3 2) (3 1 1) (2 2 1) (2 1 1 1) (1 1 1 1 1))
+
+(length (partition 40))
+;-> 37338
+
+Vediamo la differenza di velocità delle due funzioni:
+
+(time (println (length (partition 60))))
+;-> 966467
+;-> 2166.237
+(time (println (length (partnumber 60))))
+;-> 966467
+;-> 3125.434
+
+(time (println (length (partition 80))))
+;-> 15796476
+;-> 51805.942
+
+(time (println (length (partnumber 80))))
+;-> 15796476
+;-> 94370.516
+
+La versione ricorsiva è più veloce.
 
 Se vogliamo trovare solo il numero di partizioni (senza generarle tutte) la situazione è abbastanza complicata. Non si conosce un metodo per calcolare esattamente il numero di partizioni di un dato numero n, cioè una funzione o un algoritmo per calcolare p(n) direttamente. Comunque esiste una definizione ricorsiva di p(n) che permette di calcolarla utilizzando i valori precedenti.
 
