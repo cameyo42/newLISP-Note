@@ -8306,7 +8306,7 @@ Vediamo una funzione che utilizza la programmazioine dinamica con la formula ric
 (dismut4 30L)
 ;-> 97581073836835777732377428235481L
 
-Vediamo i tempi di esecuzionedi queste funzioni:
+Vediamo i tempi di esecuzione di queste funzioni:
 
 (time (dismut1 30L) 10)
 ;-> 13621.586

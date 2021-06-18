@@ -871,6 +871,8 @@ NOTE LIBERE 5
   Somma delle cifre in posizioni pari e dispari
   Ordinare una lista con un'altra lista
   Test di Lucas-Lehmer
+  0,1,2 con 0,1
+  Angolo delle lancette di un'orologio
 
 
 APPENDICI
@@ -19310,7 +19312,7 @@ Vediamo una funzione che utilizza la programmazioine dinamica con la formula ric
 (dismut4 30L)
 ;-> 97581073836835777732377428235481L
 
-Vediamo i tempi di esecuzionedi queste funzioni:
+Vediamo i tempi di esecuzione di queste funzioni:
 
 (time (dismut1 30L) 10)
 ;-> 13621.586
@@ -101423,6 +101425,87 @@ Nota: M2 è l'unico numero di Mersenne con indice pari (perchè l'indice è un n
 ;-> M2281 primo.
 ;-> 89791.177 ; 90 secondi
 
+
+-------------
+0,1,2 con 0,1
+-------------
+
+Scrivere un algoritmo per generare 0, 1 e 2 con uguale probabilità utilizzando una funzione che produce 0 o 1 con il 50% di probabilità.
+
+Supponiamo che la funzione specificata sia rnd(), che genera 0 o 1 con una probabilità del 50%. Quindi, se effettuiamo due chiamate diverse alla funzione rnd() e memorizziamo il risultato in due variabili, a e b, la loro somma a+b può essere uno qualsiasi di {0, 1, 2}. Qui, la probabilità di ottenere 0 e 2 è del 25% ciascuno e la probabilità di ottenere 1 è del 50%.
+Ora il problema si riduce alla diminuzione della probabilità di ottenere 1 dal 50% al 25%. Possiamo farlo facilmente forzando la nostra funzione a non generare mai né (a = 1, b = 0) oppure (a = 0, b = 1), il che fa sì che la somma sia uguale a 1.
+
+(define (rnd012)
+  (local (a b)
+    (setq a (rand 2))
+    (setq b (rand 2))
+    (if (and (= a 1) (= b 0))
+        (rnd012)
+        (+ a b))))
+
+(rnd012)
+;-> 0
+(rnd012)
+;-> 2
+
+(define (test iter)
+  (let (freq '(0 0 0))
+    (for (i 1 iter)
+      (++ (freq (rnd012))))
+    (map (fn(x) (div x iter)) freq)))
+
+Calcoliamo le frequenze:
+
+(test 1e5)
+;-> (0.33403 0.33284 0.33313)
+(test 1e8)
+;-> (0.33333341 0.33337291 0.33329368)
+
+
+------------------------------------
+Angolo delle lancette di un'orologio
+------------------------------------
+
+Data l'ora in formato ore:minuti, calcolare l'angolo minore tra la lancetta delle ore e quella dei minuti in un orologio analogico.
+Per esempio:
+
+Ora:  5:30
+Angolo: 15°
+
+Ora:  9:10
+Angolo: 145°
+
+Ora:  12:55
+Angolo: 57°
+
+La lancetta delle ore di un orologio analogico a 12 ore ruota di 360° in 12 ore e la lancetta dei minuti ruota di 360° in 60 minuti. Quindi, possiamo calcolare l'angolo in gradi della lancetta delle ore e della lancetta dei minuti separatamente e poi restituire la loro differenza utilizzando la seguente formula:
+
+  Gradi(ore) = ore*(360/12) + (minuti*360)/(12*60)
+
+  Gradi(minuti) = minuti*(360/60)
+
+dove: 0 <= ore <= 23 e 0 <= minuti <= 59
+
+L'angolo deve essere in gradi e misurato in senso orario dalla posizione delle ore 12 dell'orologio. Se l'angolo è maggiore di 180°, allora prendere la sua differenza con 360.
+
+(define (angolo ore minuti)
+  (local (angle-ore angle-minuti)
+    (setq angle-ore (+ (/ (* ore 360) 12) (/ (* minuti 360) (* 12 60))))
+    (setq angle-minuti (/ (* minuti 360) 60))
+    (setq diff (abs (- angle-ore angle-minuti)))
+    (if (> diff 180)
+        (- 360 diff)
+        diff)))
+
+(angolo 5 30)
+;-> 15
+(angolo 9 10)
+;-> 145
+(angolo 12 55)
+;-> 57
+(angolo 1 30)
+;-> 135
+
 =============================================================================
 
 ===========
@@ -107743,11 +107826,16 @@ Non sei quello che pensi di essere...
 
   "Land of Lisp", Conrad Barsky, 2011
 
-  "Structure and Interpretation of Computer Programs",  Abelson-Sussman, 2ed, 1996
+  "Structure and Interpretation of Computer Programs", Abelson-Sussman, 2ed, 1996
 
   "Numerical Recipes in C: The Art of Scientific Computing", 2ed, Press-Teukolsky-Vetterling-Flannery
 
   "Il Libro dei Numeri" di Conway-Guy, 1999
+  
+  "Winning Ways for Your Mathematical Plays: Volume 1", Berlekamp-Conway-Guy
+  "Winning Ways for Your Mathematical Plays: Volume 2", Berlekamp-Conway-Guy
+  "Winning Ways for Your Mathematical Plays: Volume 3", Berlekamp-Conway-Guy
+  "Winning Ways for Your Mathematical Plays: Volume 4", Berlekamp-Conway-Guy
 
   "Special Forms in Lisp" Kent Pitman, Conference Record of the 1980 Lisp Conference, Stanford University, August 25-27, 1980
   http://www.nhplace.com/kent/Papers/Special-Forms.html

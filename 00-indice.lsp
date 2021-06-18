@@ -871,6 +871,8 @@ NOTE LIBERE 5
   Somma delle cifre in posizioni pari e dispari
   Ordinare una lista con un'altra lista
   Test di Lucas-Lehmer
+  0,1,2 con 0,1
+  Angolo delle lancette di un'orologio
 
 
 APPENDICI
