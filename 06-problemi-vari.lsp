@@ -14,7 +14,7 @@ Il Bubble sort (ordinamento a bolla) è un semplice algoritmo stabile di ordinam
 
 Complessità temporale media O(n^2).
 
-Nota: Un metodo di ordinamento si dice stabile se preserva l'ordine relativo dei dati con chiavi uguali all'interno della struttura dati da ordinare.
+Nota: Un metodo di ordinamento si dice stabile se preserva l'ordine relativo dei dati cha hanno chiavi uguali all'interno della struttura dati da ordinare.
 
 Possiamo rappresentare l'algoritmo con questo pseudocodice:
 

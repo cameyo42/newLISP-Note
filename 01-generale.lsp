@@ -2627,9 +2627,6 @@ m -> mantissa
 =====================================
  INFINITO E NOT A NUMBER (INF e NaN)
 =====================================
------------
-NaN and INF
------------
 
 Lo standard IEEE 754 per i numeri floating-point definisce, oltre i numeri ordinari, anche due numeri particolari: INF e NaN.
 Si tratta di numeri con valore Infinito e di numeri che...non sono numeri (Not a Number).
@@ -2743,6 +2740,36 @@ Vediamo alcuni esempi:
 ;-> 1.#QNAN ; quiet NaN
 (div (log -1) (log -1))
 ;-> 1.#QNAN ; quiet NaN
+
+Possiamo anche assegnare questi valori a delle variabili e poi usarle nelle operazioni matemtiche:
+
+(setq my-nan (div 0 0))
+;-> -1.#IND
+
+(setq infplus (div 1 0))
+;-> 1.#INF
+(setq infminus (div -1 0))
+;-> -1.#INF
+(add infplus infminus)
+;-> -1#IND
+
+(setq zerominus -0.0)
+;-> -0
+(setq zeroplus +0.0)
+;-> 0
+zerominus
+;-> -0
+(add zerominus zeroplus)
+;-> 0
+
+(atan2 0 0)
+;-> 0
+(atan2 0 infplus)
+;-> 0
+(atan2 0 zerominus)
+;-> 3.141592653589793
+(atan2 0 infminus)
+;-> 3.141592653589793
 
 
 =====================================

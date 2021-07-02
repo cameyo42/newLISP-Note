@@ -8,10 +8,10 @@ https://rosettacode.org/wiki/Category:Programming_Tasks
 
 Rosetta Code è un sito di programmazione "chrestomathy" (proviene dal greco χρηστομάθεια e significa "desiderio di imparare"). L'idea è di risolvere/presentare la soluzione per lo stesso problema in quanti più linguaggi possibili, per dimostrare le analogie e le differenze dei linguaggi, e per aiutare chi conosce un linguaggio ad apprenderne un altro.
 Il sito contiene moltissimi problemi risolti in più di 800 linguaggi (non tutti problemi sono stati risolti con tutti i linguaggi).
-Di seguito vengono presentanti alcuni di questi problemi e la loro soluzione.
+Di seguito vengono presentanti molti di questi problemi e la loro soluzione.
 Per avere una migliore comprensione si consiglia di provare a risolverli per conto proprio prima di leggere la soluzione.
 
-Nota: in questo capitolo vengono risolti 100 problemi presenti sul sito Rosetta Code (in ordine sparso). Molti altri problemi elencati nel sito e non qui presenti sono risolti in altri capitoli di questo documento.
+Nota: in questo capitolo vengono risolti circa 100 problemi presenti sul sito Rosetta Code (in ordine sparso). Molti altri problemi elencati nel sito e non qui presenti sono risolti in altri capitoli di questo documento.
 
 --------
 FIZZBUZZ
@@ -5782,6 +5782,8 @@ Facendo il logaritmo di entrambe le parti e risolvendo l'equazione si ottiene: m
 -------------------
 ABITAZIONI MULTIPLE
 -------------------
+
+Autore: Dinesman, 1968
 
 I signori Baker, Cooper, Fletcher, Miller e Smith vivono su piani diversi in un condominio che ha cinque piani. Si conoscono le seguenti informazioni:
 

@@ -8237,7 +8237,7 @@ Versione ricorsiva con la formula 1:
 (dismut2 30L)
 ;-> 97581073836835777732377428235481L
 
-Versione più efficiente (programmazione dinamica) che memorizza i risultati di dismut(num-1) e dismut(n-2) in una lista per usi futuri:
+Versione più efficiente (programmazione dinamica) che memorizza i risultati di dismut(num-1) e dismut(num-2) in una lista per usi futuri:
 
 (define (dismut2 num)
   (let (dis (array (+ num 1) '(0)))
@@ -8281,7 +8281,7 @@ Una versione ancora migliore utilizza solo due variabili per memorizzare i valor
 (dismut3 30L)
 ;-> 97581073836835777732377428235481L
 
-Vediamo una funzione che utilizza la programmazioine dinamica con la formula ricorsiva 2:
+Vediamo una funzione che utilizza la programmazione dinamica con la formula ricorsiva 2:
 
 (define (dismut4 num)
   (cond ((= num 0) 1L)

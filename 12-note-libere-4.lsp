@@ -6688,11 +6688,12 @@ Sequenza OEIS A045503: If decimal expansion of n is ab...d, a(n) = a^a + b^b +..
 ;-> (1 1 4 27 256 3125 46656 823543 16777216 387420489 2 2
 ;->  5 28 257 3126 46657 823544 16777217 387420490 5)
 
-Invece di sommare ogni volta, alterniamo l'addizone e la sottrazione:
-
-Sequenza OEIS A344658: If decimal expansion of n is abc...d, a(n) = a^a - b^b + c^c -...-+ d^d.
+Invece di sommare ogni volta, alterniamo l'addizione e la sottrazione:
 
   a(n) = a^a - b^b +...-+ d^d
+
+Sequenza OEIS A344658: If decimal expansion of n is abc...d, a(n) = a^a - b^b + c^c -...-+ d^d.
+Author: Massimo Corinaldesi, May 26 2021
 
 (define (A344658 n)
   (if (zero? n) 1
@@ -7334,7 +7335,7 @@ Scrivere una funzione che stampa la tavola pitagorica (Tavola/tabella delle molt
     'end)
 
 (pitagorica 12)
-;-> 
+;->
 ;->     ·   1   2   3   4   5   6   7   8   9  10  11  12
 ;-> ························································
 ;->   1 ·   1   2   3   4   5   6   7   8   9  10  11  12
@@ -7877,10 +7878,10 @@ In alternativa, possiamo trovare la probabilità per il caso X > Y come segue. P
 
 La soluzione di questi due sistemi di disuguaglianze viene rappresentata nella figura "bastoncino.png" presente nella cartella "data".
 
-Poichè la funzione di densità congiunta di X e Y è distribuita uniformemente sul quadrato unitario, la probabilità che tre pezzi formino un triangolo sotto l'assunzione X < Y è data dall'area grigia della regione triangolare contrassegnata con A, che vale 1/8. 
+Poichè la funzione di densità congiunta di X e Y è distribuita uniformemente sul quadrato unitario, la probabilità che tre pezzi formino un triangolo sotto l'assunzione X < Y è data dall'area grigia della regione triangolare contrassegnata con A, che vale 1/8.
 Per simmetria, il caso X > Y dà la stessa probabilità (1/8) raffigurata dalla regione triangolare B. Quindi, la probabilità totale vale:
 
-  P(T | X > Y) + P(T | Y > X) = 1/8 + 1/8  = 1/4 
+  P(T | X > Y) + P(T | Y > X) = 1/8 + 1/8  = 1/4
 
 
 ----------------------------------------------------------
@@ -7976,8 +7977,8 @@ Numeri disarium
 Sono quei numeri tali che la somma delle sue cifre elevate alle potenze consecutive (1,2,3,...) è uguale al numero stesso.
 La potenza vale 1 partendo dalla cifra più significativa (quella più a sinistra del numero).
 
-Sequenza OEIS A032799: 
-  0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 89, 135, 175, 518, 598, 
+Sequenza OEIS A032799:
+  0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 89, 135, 175, 518, 598,
   1306, 1676, 2427, 2646798, 12157692622039623539, ...
 
 Funzione che verifica se un numero è disarium:
@@ -8012,7 +8013,7 @@ Funzione che calcola i numeri disarium fino ad un determinato limite:
     out))
 
 (disarium-to 10000)
-;-> (0 1 2 3 4 5 6 7 8 9 89 135 
+;-> (0 1 2 3 4 5 6 7 8 9 89 135
 ;->  175 518 598 1306 1676 2427)
 
 (time (println (disarium-to 1e7)))
@@ -8059,7 +8060,7 @@ Cambiamo anche la funzione che calcola i numeri disarium fino ad un determinato 
     out))
 
 (disarium-big-to 10000)
-;-> (0 1 2 3 4 5 6 7 8 9 89 135 
+;-> (0 1 2 3 4 5 6 7 8 9 89 135
 ;->  175 518 598 1306 1676 2427)
 
 (time (println (disarium-big-to 1e7)))
@@ -8078,9 +8079,9 @@ Ad esempio, se consideriamo il numero 72, è il prodotto di due interi consecuti
 Ora, se consideriamo il numero 16, è il prodotto di 2 e 8 o 4 e 4 ma nessuno è gli interi consecutivi. Pertanto, 16 non è un numero promico.
 
 Sequenza OEIS A002378:
-  0, 2, 6, 12, 20, 30, 42, 56, 72, 90, 110, 132, 156, 182, 210, 240, 272, 
-  306, 342, 380, 420, 462, 506, 552, 600, 650, 702, 756, 812, 870, 930, 
-  992, 1056, 1122, 1190, 1260, 1332, 1406, 1482, 1560, 1640, 1722, 1806, 
+  0, 2, 6, 12, 20, 30, 42, 56, 72, 90, 110, 132, 156, 182, 210, 240, 272,
+  306, 342, 380, 420, 462, 506, 552, 600, 650, 702, 756, 812, 870, 930,
+  992, 1056, 1122, 1190, 1260, 1332, 1406, 1482, 1560, 1640, 1722, 1806,
   1892, 1980, 2070, 2162, 2256, 2352, 2450, 2550, ...
 
 Algoritmo:
@@ -8115,8 +8116,8 @@ Per trovare tutti i numeri promici fino ad un certo limite la funzione è la seg
     out))
 
 (promici-to 2600)
-;-> (0 2 6 12 20 30 42 56 72 90 110 132 156 182 210 240 272 
-;->  306 342 380 420 462 506 552 600 650 702 756 812 870 930 
+;-> (0 2 6 12 20 30 42 56 72 90 110 132 156 182 210 240 272
+;->  306 342 380 420 462 506 552 600 650 702 756 812 870 930
 ;->  992 1056 1122 1190 1260 1332 1406 1482 1560 1640 1722
 ;->  1806 1892 1980 2070 2162 2256 2352 2450 2550)
 
@@ -8225,8 +8226,8 @@ Numeri Armstrong
 I numeri Armstrong (PlusPerfect o narcisistici) sono numeri con m cifre che sono uguali alla somma di ogni cifra elevata a m.
 Sequenza OEIS A005188:
   1, 2, 3, 4, 5, 6, 7, 8, 9, 153, 370, 371, 407, 1634, 8208, 9474,
-  54748, 92727, 93084, 548834, 1741725, 4210818, 9800817, 9926315, 
-  24678050, 24678051, 88593477, 146511208, 472335975, 534494836, 
+  54748, 92727, 93084, 548834, 1741725, 4210818, 9800817, 9926315,
+  24678050, 24678051, 88593477, 146511208, 472335975, 534494836,
   912985153, 4679307774, 32164049650, 32164049651
 
 Funzione 1 che calcola la potenza di un numero intero:
@@ -8481,7 +8482,7 @@ Questo perchè:
   pref-sum(i) = a1 + a2 + ... + ai
 
 Quindi, pref-sum(N) - pref-sum(i) = a(i+1) + ... + aN
-           
+
 Di conseguenza, suff-sum(i) = pref-sum(N) - pref-sum(i).
 
 Per calcolare i tempi di esecuzione generiamo due liste con 100 e 1000 numeri casuali da 0 10 e troviamone due che hanno un indice di equilibrio:
@@ -8530,9 +8531,9 @@ Per esempio, consideriamo l'equazione lineare in due variabili 3a1 + a2 = 9. Le 
 Esempio:
 Input:  coeff = (1 3 5 7), c = 8
 Output: 6 (numero totale di soluzioni)
- 
+
 L'input sopra rappresenta l'equazione a + 3b + 5c + 7d = 8 che ha le seguenti 6 soluzioni positive intere:
- 
+
   ( a = 1, b = 0, c = 0, d = 1 )
   ( a = 0, b = 1, c = 1, d = 0 )
   ( a = 2, b = 2, c = 0, d = 0 )
@@ -8540,12 +8541,12 @@ L'input sopra rappresenta l'equazione a + 3b + 5c + 7d = 8 che ha le seguenti 6 
   ( a = 5, b = 1, c = 0, d = 0 )
   ( a = 8, b = 0, c = 0, d = 0 )
 
-Esempio: 
+Esempio:
 Input:  coeff = (1 2 3), c = 4
-Output: 4 (numero totale di soluzioni) 
- 
+Output: 4 (numero totale di soluzioni)
+
 L'input sopra rappresenta l'equazione x + 2y + 3z = 4 che ha le seguenti 4 soluzioni positive intere:
- 
+
   ( x = 1, y = 0, z = 1 )
   ( x = 0, y = 2, z = 0 )
   ( x = 2, y = 1, z = 0 )
@@ -8559,21 +8560,21 @@ La definizione ricorsiva del problema è la seguente:
 Cioè, per ogni coefficiente di ogni variabile:
   - Includere il coefficiente corrente coeff(k) nella soluzione e ricorrere con il valore rimanente c - coeff(k) .
   - Escludere il coefficiente corrente coeff(k) dalla soluzione e ricorrere ai coefficienti rimanenti k-1 .
-Infine, restituire i modi totali includendo o escludendo il coefficiente corrente. 
+Infine, restituire i modi totali includendo o escludendo il coefficiente corrente.
 I casi base della ricorsione sono:
 1) quando viene trovata la soluzione (cioè, c diventa 0), oppure
 2) la soluzione non esiste (quando non sono rimasti coefficienti, o c diventa negativo).
 
 (define (count-sol coeff k c)
   (local (include exclude)
-         ; se c = 0, allora abbiamo trovato una soluzione  
+         ; se c = 0, allora abbiamo trovato una soluzione
   (cond ((= c 0) 1)
          ; se c diventa negativo o non ci sono più coefficienti
          ; allora restituisce 0
         ((or (< c 0) (< k 0)) 0)
         (true
           ; altrimenti
-          ; Caso 1. Includere il coeff corrente "coeff[k]" nella soluzione e 
+          ; Caso 1. Includere il coeff corrente "coeff[k]" nella soluzione e
           ;         ricorsione con il valore rimanente "c - coeff[k]"
           (setq include (count-sol coeff k (- c (coeff k))))
           ; Caso 2. Escludere il coeff corrente "coeff[k]" dalla soluzione e

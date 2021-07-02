@@ -873,6 +873,14 @@ NOTE LIBERE 5
   Test di Lucas-Lehmer
   0,1,2 con 0,1
   Angolo delle lancette di un'orologio
+  Data e ora
+  Corda intorno alla Terra
+  Eredità
+  Sequenza di Farey
+  Distanza di Chebyshev
+  Anti-primi
+  Numeri altamente abbondanti
+  Creazione dinamica di variabili
 
 
 APPENDICI
@@ -3574,9 +3582,6 @@ m -> mantissa
 =====================================
  INFINITO E NOT A NUMBER (INF e NaN)
 =====================================
------------
-NaN and INF
------------
 
 Lo standard IEEE 754 per i numeri floating-point definisce, oltre i numeri ordinari, anche due numeri particolari: INF e NaN.
 Si tratta di numeri con valore Infinito e di numeri che...non sono numeri (Not a Number).
@@ -3690,6 +3695,36 @@ Vediamo alcuni esempi:
 ;-> 1.#QNAN ; quiet NaN
 (div (log -1) (log -1))
 ;-> 1.#QNAN ; quiet NaN
+
+Possiamo anche assegnare questi valori a delle variabili e poi usarle nelle operazioni matemtiche:
+
+(setq my-nan (div 0 0))
+;-> -1.#IND
+
+(setq infplus (div 1 0))
+;-> 1.#INF
+(setq infminus (div -1 0))
+;-> -1.#INF
+(add infplus infminus)
+;-> -1#IND
+
+(setq zerominus -0.0)
+;-> -0
+(setq zeroplus +0.0)
+;-> 0
+zerominus
+;-> -0
+(add zerominus zeroplus)
+;-> 0
+
+(atan2 0 0)
+;-> 0
+(atan2 0 infplus)
+;-> 0
+(atan2 0 zerominus)
+;-> 3.141592653589793
+(atan2 0 infminus)
+;-> 3.141592653589793
 
 
 =====================================
@@ -19243,7 +19278,7 @@ Versione ricorsiva con la formula 1:
 (dismut2 30L)
 ;-> 97581073836835777732377428235481L
 
-Versione più efficiente (programmazione dinamica) che memorizza i risultati di dismut(num-1) e dismut(n-2) in una lista per usi futuri:
+Versione più efficiente (programmazione dinamica) che memorizza i risultati di dismut(num-1) e dismut(num-2) in una lista per usi futuri:
 
 (define (dismut2 num)
   (let (dis (array (+ num 1) '(0)))
@@ -19287,7 +19322,7 @@ Una versione ancora migliore utilizza solo due variabili per memorizzare i valor
 (dismut3 30L)
 ;-> 97581073836835777732377428235481L
 
-Vediamo una funzione che utilizza la programmazioine dinamica con la formula ricorsiva 2:
+Vediamo una funzione che utilizza la programmazione dinamica con la formula ricorsiva 2:
 
 (define (dismut4 num)
   (cond ((= num 0) 1L)
@@ -19471,9 +19506,9 @@ N-99-41  A list of Goldbach compositions
 
 Logic and Codes (Logica e Codici)
 ---------------------------------
-N-99-46  Truth tables for logical expressions
-N-99-47  Truth tables for logical expressions (2)
-N-99-48  Truth tables for logical expressions (3)
+N-99-46  Truth tables for logical expressions (+)
+N-99-47  Truth tables for logical expressions (2) (+)
+N-99-48  Truth tables for logical expressions (3) (+)
 N-99-49  Gray code (+)
 N-99-50  Huffman code
 
@@ -20900,10 +20935,10 @@ https://rosettacode.org/wiki/Category:Programming_Tasks
 
 Rosetta Code è un sito di programmazione "chrestomathy" (proviene dal greco χρηστομάθεια e significa "desiderio di imparare"). L'idea è di risolvere/presentare la soluzione per lo stesso problema in quanti più linguaggi possibili, per dimostrare le analogie e le differenze dei linguaggi, e per aiutare chi conosce un linguaggio ad apprenderne un altro.
 Il sito contiene moltissimi problemi risolti in più di 800 linguaggi (non tutti problemi sono stati risolti con tutti i linguaggi).
-Di seguito vengono presentanti alcuni di questi problemi e la loro soluzione.
+Di seguito vengono presentanti molti di questi problemi e la loro soluzione.
 Per avere una migliore comprensione si consiglia di provare a risolverli per conto proprio prima di leggere la soluzione.
 
-Nota: in questo capitolo vengono risolti 100 problemi presenti sul sito Rosetta Code (in ordine sparso). Molti altri problemi elencati nel sito e non qui presenti sono risolti in altri capitoli di questo documento.
+Nota: in questo capitolo vengono risolti circa 100 problemi presenti sul sito Rosetta Code (in ordine sparso). Molti altri problemi elencati nel sito e non qui presenti sono risolti in altri capitoli di questo documento.
 
 --------
 FIZZBUZZ
@@ -26674,6 +26709,8 @@ Facendo il logaritmo di entrambe le parti e risolvendo l'equazione si ottiene: m
 -------------------
 ABITAZIONI MULTIPLE
 -------------------
+
+Autore: Dinesman, 1968
 
 I signori Baker, Cooper, Fletcher, Miller e Smith vivono su piani diversi in un condominio che ha cinque piani. Si conoscono le seguenti informazioni:
 
@@ -34440,7 +34477,7 @@ Le quattro cifre adiacenti che hanno il più grande prodotto nel numero da 1000 
 05886116467109405077541002256983155200055935729725
 71636269561882670428252483600823257530420752963450
 
-Trovare, nel numero da 1000 cifre, le tredici cifre adiacenti che hanno il più grande prodotto. Qual'è il valore di questo numero ?
+Trovare, nel numero da 1000 cifre, le tredici cifre adiacenti che hanno il prodotto più grande. Qual'è il valore di questo numero ?
 ============================================================================
 
 Assegniamo il numero ad una variabile di tipo stringa:
@@ -45344,7 +45381,7 @@ Il Bubble sort (ordinamento a bolla) è un semplice algoritmo stabile di ordinam
 
 Complessità temporale media O(n^2).
 
-Nota: Un metodo di ordinamento si dice stabile se preserva l'ordine relativo dei dati con chiavi uguali all'interno della struttura dati da ordinare.
+Nota: Un metodo di ordinamento si dice stabile se preserva l'ordine relativo dei dati cha hanno chiavi uguali all'interno della struttura dati da ordinare.
 
 Possiamo rappresentare l'algoritmo con questo pseudocodice:
 
@@ -56128,7 +56165,7 @@ Ed ecco la funzione per contare i bit con valore 1:
 ;-> 7
 
 Per estrarre il bit più a destra di un numero possiamo usare anche le funzioni bitwise:
-Usando l'operatore bitwise AND "&", l'espressione (n & 1) produce un valore che è 1 o 0, a seconda del bit meno significativo di x: se l'ultimo bit è 1 allora il risultato di (x & 1) vale 1, altrimenti vale 0.
+usando l'operatore bitwise AND "&", l'espressione (n & 1) produce un valore che è 1 o 0, a seconda del bit meno significativo di x: se l'ultimo bit è 1 allora il risultato di (x & 1) vale 1, altrimenti vale 0.
 Usando l'operatore SHIFT ">>", l'espressione (n >> 1) sposta (shifta) di un bit verso destra il valore del numero n. In altre parole, divide il numero n per 2.
 La funzione diventa:
 
@@ -64651,7 +64688,7 @@ Funzione che calcola la potenza di una frazione "^f"
 (^f '(3 5) 2)
 ;-> (9 25)
 
-Sul forum di newLISP, rickyboy ha fornito le seguenti funzioni equivalenti (che sono molto più compatte):
+Sul forum di newLISP, rickyboy ha fornito le seguenti funzioni equivalenti (che sono molto più compatte e veloci):
 
 (define (rat n d)
   (let (g (gcd n d))
@@ -98551,11 +98588,12 @@ Sequenza OEIS A045503: If decimal expansion of n is ab...d, a(n) = a^a + b^b +..
 ;-> (1 1 4 27 256 3125 46656 823543 16777216 387420489 2 2
 ;->  5 28 257 3126 46657 823544 16777217 387420490 5)
 
-Invece di sommare ogni volta, alterniamo l'addizone e la sottrazione:
-
-Sequenza OEIS A344658: If decimal expansion of n is abc...d, a(n) = a^a - b^b + c^c -...-+ d^d.
+Invece di sommare ogni volta, alterniamo l'addizione e la sottrazione:
 
   a(n) = a^a - b^b +...-+ d^d
+
+Sequenza OEIS A344658: If decimal expansion of n is abc...d, a(n) = a^a - b^b + c^c -...-+ d^d.
+Author: Massimo Corinaldesi, May 26 2021
 
 (define (A344658 n)
   (if (zero? n) 1
@@ -99197,7 +99235,7 @@ Scrivere una funzione che stampa la tavola pitagorica (Tavola/tabella delle molt
     'end)
 
 (pitagorica 12)
-;-> 
+;->
 ;->     ·   1   2   3   4   5   6   7   8   9  10  11  12
 ;-> ························································
 ;->   1 ·   1   2   3   4   5   6   7   8   9  10  11  12
@@ -99740,10 +99778,10 @@ In alternativa, possiamo trovare la probabilità per il caso X > Y come segue. P
 
 La soluzione di questi due sistemi di disuguaglianze viene rappresentata nella figura "bastoncino.png" presente nella cartella "data".
 
-Poichè la funzione di densità congiunta di X e Y è distribuita uniformemente sul quadrato unitario, la probabilità che tre pezzi formino un triangolo sotto l'assunzione X < Y è data dall'area grigia della regione triangolare contrassegnata con A, che vale 1/8. 
+Poichè la funzione di densità congiunta di X e Y è distribuita uniformemente sul quadrato unitario, la probabilità che tre pezzi formino un triangolo sotto l'assunzione X < Y è data dall'area grigia della regione triangolare contrassegnata con A, che vale 1/8.
 Per simmetria, il caso X > Y dà la stessa probabilità (1/8) raffigurata dalla regione triangolare B. Quindi, la probabilità totale vale:
 
-  P(T | X > Y) + P(T | Y > X) = 1/8 + 1/8  = 1/4 
+  P(T | X > Y) + P(T | Y > X) = 1/8 + 1/8  = 1/4
 
 
 ----------------------------------------------------------
@@ -99839,8 +99877,8 @@ Numeri disarium
 Sono quei numeri tali che la somma delle sue cifre elevate alle potenze consecutive (1,2,3,...) è uguale al numero stesso.
 La potenza vale 1 partendo dalla cifra più significativa (quella più a sinistra del numero).
 
-Sequenza OEIS A032799: 
-  0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 89, 135, 175, 518, 598, 
+Sequenza OEIS A032799:
+  0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 89, 135, 175, 518, 598,
   1306, 1676, 2427, 2646798, 12157692622039623539, ...
 
 Funzione che verifica se un numero è disarium:
@@ -99875,7 +99913,7 @@ Funzione che calcola i numeri disarium fino ad un determinato limite:
     out))
 
 (disarium-to 10000)
-;-> (0 1 2 3 4 5 6 7 8 9 89 135 
+;-> (0 1 2 3 4 5 6 7 8 9 89 135
 ;->  175 518 598 1306 1676 2427)
 
 (time (println (disarium-to 1e7)))
@@ -99922,7 +99960,7 @@ Cambiamo anche la funzione che calcola i numeri disarium fino ad un determinato 
     out))
 
 (disarium-big-to 10000)
-;-> (0 1 2 3 4 5 6 7 8 9 89 135 
+;-> (0 1 2 3 4 5 6 7 8 9 89 135
 ;->  175 518 598 1306 1676 2427)
 
 (time (println (disarium-big-to 1e7)))
@@ -99941,9 +99979,9 @@ Ad esempio, se consideriamo il numero 72, è il prodotto di due interi consecuti
 Ora, se consideriamo il numero 16, è il prodotto di 2 e 8 o 4 e 4 ma nessuno è gli interi consecutivi. Pertanto, 16 non è un numero promico.
 
 Sequenza OEIS A002378:
-  0, 2, 6, 12, 20, 30, 42, 56, 72, 90, 110, 132, 156, 182, 210, 240, 272, 
-  306, 342, 380, 420, 462, 506, 552, 600, 650, 702, 756, 812, 870, 930, 
-  992, 1056, 1122, 1190, 1260, 1332, 1406, 1482, 1560, 1640, 1722, 1806, 
+  0, 2, 6, 12, 20, 30, 42, 56, 72, 90, 110, 132, 156, 182, 210, 240, 272,
+  306, 342, 380, 420, 462, 506, 552, 600, 650, 702, 756, 812, 870, 930,
+  992, 1056, 1122, 1190, 1260, 1332, 1406, 1482, 1560, 1640, 1722, 1806,
   1892, 1980, 2070, 2162, 2256, 2352, 2450, 2550, ...
 
 Algoritmo:
@@ -99978,8 +100016,8 @@ Per trovare tutti i numeri promici fino ad un certo limite la funzione è la seg
     out))
 
 (promici-to 2600)
-;-> (0 2 6 12 20 30 42 56 72 90 110 132 156 182 210 240 272 
-;->  306 342 380 420 462 506 552 600 650 702 756 812 870 930 
+;-> (0 2 6 12 20 30 42 56 72 90 110 132 156 182 210 240 272
+;->  306 342 380 420 462 506 552 600 650 702 756 812 870 930
 ;->  992 1056 1122 1190 1260 1332 1406 1482 1560 1640 1722
 ;->  1806 1892 1980 2070 2162 2256 2352 2450 2550)
 
@@ -100088,8 +100126,8 @@ Numeri Armstrong
 I numeri Armstrong (PlusPerfect o narcisistici) sono numeri con m cifre che sono uguali alla somma di ogni cifra elevata a m.
 Sequenza OEIS A005188:
   1, 2, 3, 4, 5, 6, 7, 8, 9, 153, 370, 371, 407, 1634, 8208, 9474,
-  54748, 92727, 93084, 548834, 1741725, 4210818, 9800817, 9926315, 
-  24678050, 24678051, 88593477, 146511208, 472335975, 534494836, 
+  54748, 92727, 93084, 548834, 1741725, 4210818, 9800817, 9926315,
+  24678050, 24678051, 88593477, 146511208, 472335975, 534494836,
   912985153, 4679307774, 32164049650, 32164049651
 
 Funzione 1 che calcola la potenza di un numero intero:
@@ -100344,7 +100382,7 @@ Questo perchè:
   pref-sum(i) = a1 + a2 + ... + ai
 
 Quindi, pref-sum(N) - pref-sum(i) = a(i+1) + ... + aN
-           
+
 Di conseguenza, suff-sum(i) = pref-sum(N) - pref-sum(i).
 
 Per calcolare i tempi di esecuzione generiamo due liste con 100 e 1000 numeri casuali da 0 10 e troviamone due che hanno un indice di equilibrio:
@@ -100393,9 +100431,9 @@ Per esempio, consideriamo l'equazione lineare in due variabili 3a1 + a2 = 9. Le 
 Esempio:
 Input:  coeff = (1 3 5 7), c = 8
 Output: 6 (numero totale di soluzioni)
- 
+
 L'input sopra rappresenta l'equazione a + 3b + 5c + 7d = 8 che ha le seguenti 6 soluzioni positive intere:
- 
+
   ( a = 1, b = 0, c = 0, d = 1 )
   ( a = 0, b = 1, c = 1, d = 0 )
   ( a = 2, b = 2, c = 0, d = 0 )
@@ -100403,12 +100441,12 @@ L'input sopra rappresenta l'equazione a + 3b + 5c + 7d = 8 che ha le seguenti 6 
   ( a = 5, b = 1, c = 0, d = 0 )
   ( a = 8, b = 0, c = 0, d = 0 )
 
-Esempio: 
+Esempio:
 Input:  coeff = (1 2 3), c = 4
-Output: 4 (numero totale di soluzioni) 
- 
+Output: 4 (numero totale di soluzioni)
+
 L'input sopra rappresenta l'equazione x + 2y + 3z = 4 che ha le seguenti 4 soluzioni positive intere:
- 
+
   ( x = 1, y = 0, z = 1 )
   ( x = 0, y = 2, z = 0 )
   ( x = 2, y = 1, z = 0 )
@@ -100422,21 +100460,21 @@ La definizione ricorsiva del problema è la seguente:
 Cioè, per ogni coefficiente di ogni variabile:
   - Includere il coefficiente corrente coeff(k) nella soluzione e ricorrere con il valore rimanente c - coeff(k) .
   - Escludere il coefficiente corrente coeff(k) dalla soluzione e ricorrere ai coefficienti rimanenti k-1 .
-Infine, restituire i modi totali includendo o escludendo il coefficiente corrente. 
+Infine, restituire i modi totali includendo o escludendo il coefficiente corrente.
 I casi base della ricorsione sono:
 1) quando viene trovata la soluzione (cioè, c diventa 0), oppure
 2) la soluzione non esiste (quando non sono rimasti coefficienti, o c diventa negativo).
 
 (define (count-sol coeff k c)
   (local (include exclude)
-         ; se c = 0, allora abbiamo trovato una soluzione  
+         ; se c = 0, allora abbiamo trovato una soluzione
   (cond ((= c 0) 1)
          ; se c diventa negativo o non ci sono più coefficienti
          ; allora restituisce 0
         ((or (< c 0) (< k 0)) 0)
         (true
           ; altrimenti
-          ; Caso 1. Includere il coeff corrente "coeff[k]" nella soluzione e 
+          ; Caso 1. Includere il coeff corrente "coeff[k]" nella soluzione e
           ;         ricorsione con il valore rimanente "c - coeff[k]"
           (setq include (count-sol coeff k (- c (coeff k))))
           ; Caso 2. Escludere il coeff corrente "coeff[k]" dalla soluzione e
@@ -101406,7 +101444,7 @@ Nota: M2 è l'unico numero di Mersenne con indice pari (perchè l'indice è un n
 ;-> M607 primo.
 
 (time (lucas-lehmer 2300))
-;-> M2 è primo.
+;-> M2 primo.
 ;-> M3 primo.
 ;-> M5 primo.
 ;-> M7 primo.
@@ -101505,6 +101543,446 @@ L'angolo deve essere in gradi e misurato in senso orario dalla posizione delle o
 ;-> 57
 (angolo 1 30)
 ;-> 135
+
+
+----------
+Data e ora
+----------
+
+Scrivere una funzione che stampa la data e l'ora corrente aggiornate in tempo reale (al secondo).
+
+newLISP ha la funzione "now" che restituisce una lista con le informazioni che ci servono (vedere il manuale per maggiori informazioni).
+
+(define (clock)
+  (local (year month day hour minute second
+          days-name months-name erase actual val)
+    (setq days-name '("0" "lunedì" "martedì" "mercoledì" "giovedì" "venerdì" "sabato" "domenica"))
+    (setq months-name '("gennaio" "febbraio" "marzo" "aprile" "maggio" "giugno" "luglio" 
+                      "agosto" "settembre" "ottobre" "novembre" "dicembre"))
+    (setq erase (dup " " 70))
+    (setq actual (slice (now) 0 6))
+    (setq val '())
+    ; infinite loop (break with CTRL-C)
+    (while true
+             ; update only when change year or 
+             ; month or day or hour or minute or second
+      (cond ((!= actual (slice val 0 6))
+             (setq val (now))
+             (setq actual (slice val 0 6))
+             (setq year (string (val 0)))
+             (setq month (months-name (val 1)))
+             (setq day (string (val 2)))
+             (setq hour (string (val 3)))
+             (setq minute (string (val 4)))
+             (setq second (string (val 5)))
+             (setq day-name (days-name (val 8)))
+             (setq printed (string " " day-name ", " day " " month " " year ", " hour ":" minute ":" second))
+             ; erase output line (print blank chars)
+             (print (dup " " (length printed)) " \r")
+             ; print informations
+             (print printed "\r"))
+            (true
+             ; update clock values
+             (setq val (now)))))))
+
+(clock)
+;->  lunedì, 28 luglio 2021, 16:49:28
+
+Nota: premere CTRL-C per terminare il programma.
+
+
+------------------------
+Corda intorno alla Terra
+------------------------
+
+Supponiamo di avere una corda che circonda una Terra perfettamente sferica che ha una circonferenza pari a 40000 km. La corda viene allungata di 1 metro e posta come una circonferenza a distanza costante dalla Terra.
+Quanto è distante la nuova circonferenza dalla Terra?
+Di quanto bisogna allungare la corda per fare una circonferenza che si trovi a 1 metro di distanza dalla Terra?
+
+La prima circonferenza C vale:
+
+  C = 2*π*R
+
+La seconda circonferenza C + L vale:
+
+  C + L = 2*π*R1
+
+dove R e R1 sono i raggi delle due circonferenze e L è la lunghezza della corda aggiunta.
+
+La differenza (R1 - R) vale:
+
+            C + L       C        C + L - C       L
+  R1 - R = ------- - ------- = ------------- = -----
+             2*π       2*π          2*π         2*π
+
+Quindi la distanza dalla Terra dipende solo da quanto viene allungata la corda e non dipende dal valore della circonferenza.
+
+(define (diff L)
+  (div L (mul 2 3.1415926535897931)))
+
+(diff 1)
+;-> 0.1591549430918954
+
+La nuova circonferenza è distante 15.9 cm dalla Terra.
+
+(diff 5)
+;-> 0.7957747154594768
+
+Per la seconda domanda, se R - R1 = 1, allora deve risultare L = 2*π.
+
+
+-------
+Eredità
+-------
+
+Autore: Richard A. Proctor (1886)
+
+Uno sceicco lascia in eredità 35 cammelli ai suoi tre figli.
+L'eredità dovrà essere divisa nel modo seguente:
+1/2 al figlio maggiore, 1/3 al secondogenito e 1/9 al terzo figlio, senza uccidere animali. Il notaio dovrà ricevere un cammello come ricompensa per il suo lavoro. Come dividere i cammelli?
+
+Nota: 1/2 + 1/3 + 1/9 = 17/18 = 34/36
+
+Il notaio presta un cammello e, dei 36 cammelli totali, il primo figlio ne prende 18 (la metà), il secondo 12 (la terza parte) ed il terzo 4 (la nona parte). In totale i cammelli "spartiti" sono 34. I due cammelli rimasti vengono presi dal notaio (uno già gli apparteneva) che quindi ottiene un cammello come ricompensa.
+Da notare che tutti i figli hanno avuto di più della parte stabilita nel testamento.
+
+
+-----------------
+Sequenza di Farey
+-----------------
+
+La sequenza di Farey F(n) per ogni intero positivo n è l'insieme dei numeri razionali a/b irriducibili (ridotti ai minimi termini) con 0<=a<=b<=n e (a,b)=1 disposti in ordine crescente.
+
+Un termine a/b può essere valutato ricorsivamente utilizzando i due termini precedenti. Di seguito è riportata la formula per calcolare a(n+2)/b(n+2) da a(n+1)/b(n+1) e a(n)/b(n):
+
+a(n+2) = floor((b(n) + n)/b(n+1))*a(n+1) - a(n)
+b(n+2) = floor((b(n) + n)/b(n+1))*b(n+1) - b(n)
+
+(define (farey num)
+  (local (a b a1 b1 a2 b2 out)
+    (setq out '())
+    (setq a1 0 b1 1 a2 1 b2 num)
+    ; il primo termine vale 0/1
+    (push (list 0 1) out)
+    ; il secondo termine vale 1/num
+    (push (list 1 num) out -1)
+    ; inizializzazione dei valori nuovo termine
+    (setq a 0 b 0)
+    ; ciclo fino a che b = 1
+    (while (!= b 1)
+      ; relazione per trovare il termine corrente
+      (setq a (- (* (floor (div (add b1 num) b2)) a2) a1))
+      (setq b (- (* (floor (div (add b1 num) b2)) b2) b1))
+      ; inserimento del termine corrente
+      (push (list a b) out -1)
+      ; aggiornamento valori per la prossima iterazione
+      (setq a1 a2)
+      (setq a2 a)
+      (setq b1 b2)
+      (setq b2 b)
+    )
+    ; funzione di comparazione per l'ordinamento (sort)
+    (define (cmp x y) (< (div (first x) (last x)) (div (first y) (last y))))
+    ; ordina la lista (crescente)
+    (sort out cmp)))
+
+(farey 7)
+;-> ((0 1) (1 7) (1 6) (1 5) (1 4) (2 7) (1 3) (2 5) (3 7) (1 2)
+;->  (4 7) (3 5) (2 3) (5 7) (3 4) (4 5) (5 6) (6 7) (1 1))
+
+(length (farey 100))
+;-> 3045
+(length (farey 1000))
+;-> 304193
+
+Il numero N di frazioni contenute nella sequenza di Farey di un numero n vale:
+
+          n
+  N = 1 + ∑ totient(k)
+         k=1
+
+Funzione che calcola il toziente di eulero di un dato numero:
+
+(define (totient num)
+  (if (= num 1) 1
+    (let (res num)
+      (dolist (f (unique (factor num)))
+        (setq res (- res (/ res f))))
+      res)))
+
+Funzione che calcola la lunghezza della sequenza di Farey di un dato numero:
+
+(define (farey-len num)
+  (let (out 1)
+    (for (k 1 num)
+      (setq out (+ out (totient k)))
+    )
+    out))
+
+(farey-len 100)
+;-> 3045
+
+(farey-len 1000)
+;-> 304193
+
+              3*n²
+Nota: N(n) ≈ ------
+               π²
+
+(define (farey-len2 num)
+  (div (mul 3 num num) (mul 3.1415926535897931 3.1415926535897931)))
+
+(farey-len2 1000)
+;-> 303963.5509270133
+
+(farey-len 100000)
+;-> 3039650755
+(farey-len2 100000)
+;-> 3039635509.270134
+
+
+---------------------
+Distanza di Chebyshev
+---------------------
+
+La distanza di Chebyshev (o della scacchiera o di Lagrange), è il valore tale per cui la distanza tra due vettori è il valore massimo della loro differenza lungo gli assi:
+
+  d(p,q) = max[(|p(i) - q(i)|)]
+
+Nella geometria piana (2D), dati due punti P(x1,y1) e Q(x2,y2) la loro distanza di Chebyshev vale:
+
+  d(P,Q) = max(|x2 - x1|,|y2 - y1|)
+
+Nota: In due dimensioni, la distanza di Chebyshev è equivalente ad una rotazione ed una riscalatura della distanza di Manhattan.
+
+Scriviamo una funzione che calcola la distanza di Chebyshev:
+
+(define (dist-chebyshev x1 y1 x2 y2)
+  (max (abs (sub x2 x1)) (abs (sub y2 y1))))
+
+(dist-chebyshev 1 3 3 6)
+;-> 3
+
+In N dimensioni i due punti hanno le seguenti coordinate:
+
+  P = (p1, p2, ..., pN)
+  Q = (q1, q2, ..., qN)
+
+E la distanza di Chebyshev tra i due punti P e Q vale:
+
+  d(P,Q) = max(|pi - qi|), dove 1<=i<=N
+
+Quindi la funzione generica per calcolare la distanza di Chebyshev tra due punti diventa:
+
+(define (dist-cheby P Q)
+  (apply max (map (fn(x y) (abs (sub x y))) P Q)))
+
+(dist-cheby '(1 2 3 4) '(4 7 8 2))
+;-> 5
+
+(dist-cheby '(1 3) '(3 6))
+;-> 3
+
+
+----------
+Anti-primi
+----------
+
+Gli anti-primi (o numeri altamente composti) sono i numeri naturali con più fattori di quelli più piccoli di se stesso. In altre parole, i numeri altamente composti sono quei numeri n dove d(n), il numero di divisori di n, aumenta a record (cioè è maggiore del precedente).
+
+Sequenza OEIS A002182:
+  1, 2, 4, 6, 12, 24, 36, 48, 60, 120, 180, 240, 360, 720, 840, 1260,
+  1680, 2520, 5040, 7560, 10080, 15120, 20160, 25200, 27720, 45360,
+  50400, 55440, 83160, 110880, 166320, 221760, 277200, 332640, 498960,
+  554400, 665280, 720720, 1081080, 1441440, 2162160, ...
+
+Funzione che fattorizza un numero:
+
+(define (factor-group num)
+  (if (< num 2) nil
+      (letn ((out '()) (lst (factor num)) (cur-val (first lst)) (cur-count 0))
+        (dolist (el lst)
+          (if (= el cur-val) (++ cur-count)
+              (begin
+                (push (list cur-val cur-count) out -1)
+                (setq cur-count 1 cur-val el))))
+        (push (list cur-val cur-count) out -1))))
+
+Funzione che conta i divisori di un numero:
+
+(define (divisors-count num)
+  (if (= num 1)
+      1
+      (let (lst (factor-group num))
+        (apply * (map (fn(x) (+ 1 (last x))) lst)))))
+
+Funzione che calcola gli anti-primi fino ad un dato limite:
+
+(define (anti-primes limit)
+  (local (out best)
+    (setq out '())
+    (setq best 0)
+    (for (i 1 limit)
+      (setq val (divisors-count i))
+      (if (> val best) (begin
+          (setq best val)
+          (push (list i val) out -1))
+      )
+    )
+    out))
+
+(anti-primes 1000)
+;-> ((1 1) (2 2) (4 3) (6 4) (12 6) (24 8) (36 9) (48 10) (60 12)
+;->  (120 16) (180 18) (240 20) (360 24) (720 30) (840 32))
+
+(map first (anti-primes 10000))
+;-> (1 2 4 6 12 24 36 48 60 120 180 240 360 720 840 1260 1680 2520 5040 7560)
+
+Possiamo calcolare anche i numeri altamente composti il cui anche il numero di divisori è un numero altamente composto.
+
+Sequenza OEIS A189394:
+  1, 2, 6, 12, 60, 360, 1260, 2520, 5040, 55440, 277200, 720720, 3603600,
+  61261200, 2205403200, 293318625600, 6746328388800, 195643523275200, ...
+
+(define (anti2-primes limit)
+  (local (out best)
+    (setq out '())
+    (setq best 0)
+    (for (i 1 limit)
+      (setq val (divisors-count (divisors-count i)))
+      (if (> val best) (begin
+          (setq best val)
+          (push (list i val) out -1))
+      )
+    )
+    out))
+
+(anti2-primes 10000)
+;-> ((1 1) (2 2) (6 3) (12 4) (60 6) (360 8) (1260 9) (2520 10) (5040 12))
+(map first (anti2-primes 1e6))
+;-> (1 2 6 12 60 360 1260 2520 5040 55440 277200 720720)
+
+(time (println (map first (anti2-primes 1e8))))
+;-> (1 2 6 12 60 360 1260 2520 5040 55440 277200 720720 3603600 61261200)
+;-> 683129.503
+
+
+---------------------------
+Numeri altamente abbondanti
+---------------------------
+
+I numeri altamente abbondanti sono quei numeri k tali che sigma(k) > sigma(m) per ogni m < k, dove sigma(k) è la somma dei divisori di k.
+
+Sequenza OEIS A002093:
+  1, 2, 3, 4, 6, 8, 10, 12, 16, 18, 20, 24, 30, 36, 42, 48, 60, 72, 84,
+  90, 96, 108, 120, 144, 168, 180, 210, 216, 240, 288, 300, 336, 360, 
+  420, 480, 504, 540, 600, 630, 660, 720, 840, 960, 1008, 1080, 1200,
+  1260, 1440, 1560, 1620, 1680, 1800, 1920, 1980, 2100, ...
+
+Funzione che fattorizza un numero:
+
+(define (factor-group num)
+  (if (< num 2) nil
+      (letn ((out '()) (lst (factor num)) (cur-val (first lst)) (cur-count 0))
+        (dolist (el lst)
+          (if (= el cur-val) (++ cur-count)
+              (begin
+                (push (list cur-val cur-count) out -1)
+                (setq cur-count 1 cur-val el))))
+        (push (list cur-val cur-count) out -1))))
+
+Funzione che somma tutti i divisori di un numero:
+
+(define (divisors-sum num)
+  (local (sum out)
+    (if (= num 1)
+        1
+        (begin
+          (setq out 1)
+          (setq lst (factor-group num))
+          (dolist (el lst)
+            (setq sum 0)
+            (for (i 0 (last el))
+              (setq sum (+ sum (pow (first el) i)))
+            )
+            (setq out (* out sum)))))))
+
+Funzione che calcola i numeri altamente abbondanti fino ad un dato limite:
+
+(define (high-abundant limit)
+  (local (out best)
+    (setq out '())
+    (setq best 0)
+    (for (i 1 limit)
+      (setq val (divisors-sum i))
+      (if (> val best) (begin
+          (setq best val)
+          (push (list i val) out -1))
+      )
+    )
+    out))
+
+(high-abundant 100)
+;-> ((1 1) (2 3) (3 4) (4 7) (6 12) (8 15) (10 18) (12 28) (16 31) (18 39) 
+;->  (20 42) (24 60) (30 72) (36 91) (42 96) (48 124) (60 168) (72 195)
+;->  (84 224) (90 234) (96 252))
+
+(map first (high-abundant 1e3))
+;-> (1 2 3 4 6 8 10 12 16 18 20 24 30 36 42 48 60 72 84 90 96 
+;->  108 120 144 168 180 210 216 240 288 300 336 360 420 480 
+;->  504 540 600 630 660 720 840 960)
+
+
+-------------------------------
+Creazione dinamica di variabili
+-------------------------------
+
+Scrivere una funzione che permette di creare dinamicamente una variabile.
+
+La seguente funzione prende due parametri, il nome (stringa) della variabile da creare e il valore della varibile:
+
+(define (create-var name-var value-var)
+  (local (var)
+    (setq var name-var)
+    (set (sym var) value-var)
+    (sym var)))
+
+(create-var "pluto" '(10 20 30))
+;-> pluto
+pluto
+;-> '(10 20 30)
+(list? pluto)
+;-> true
+
+Possiamo anche creare una variabile definita dall'utente:
+
+(define (make-var)
+  (local (var)
+    (print "Nome della variabile: ")
+    (setq var (read-line))
+    ; crea il simbolo/variabile inserito dall'utente come stringa
+    (set (sym var) '())
+    (println "Variabile " var " creata.")
+    (println "Valore della variabile: " (eval (sym var)))
+    (print "Nuovo valore della variabile: ")
+    ;(set (sym var) (sym (read-line))) ; no list, only a symbol !!!
+    ; eval-string valuta la stringa inserita dall'utente
+    (set (sym var) (eval-string (read-line)))
+    (println (sym var) " = " (eval (sym var)))
+  ))
+
+(make-var)
+;-> Nome della variabile: 
+pippo
+;-> Variabile pippo creata.
+;-> Valore della variabile: ()
+;-> Nuovo valore della variabile: 
+'(10 20 30)
+;-> pippo = (10 20 30)
+pippo
+;-> (10 20 30)
+(list? pippo)
+;-> true
 
 =============================================================================
 
@@ -107794,7 +108272,7 @@ Non sei quello che pensi di essere...
   Kazimir Majorinc's Blog
   http://kazimirmajorinc.com/
 
-  "A Practical Introduction to Fuzzy Logic using Lisp", Luis Argüelles Mendez, 2015
+  "A Practical Introduction to Fuzzy Logic using Lisp", Luis Arguelles Mendez, 2015
 
   Informazioni sui numeri Floating Point:
   https://floating-point-gui.de

@@ -821,7 +821,7 @@ Nota: M2 è l'unico numero di Mersenne con indice pari (perchè l'indice è un n
 ;-> M607 primo.
 
 (time (lucas-lehmer 2300))
-;-> M2 è primo.
+;-> M2 primo.
 ;-> M3 primo.
 ;-> M5 primo.
 ;-> M7 primo.
@@ -920,6 +920,446 @@ L'angolo deve essere in gradi e misurato in senso orario dalla posizione delle o
 ;-> 57
 (angolo 1 30)
 ;-> 135
+
+
+----------
+Data e ora
+----------
+
+Scrivere una funzione che stampa la data e l'ora corrente aggiornate in tempo reale (al secondo).
+
+newLISP ha la funzione "now" che restituisce una lista con le informazioni che ci servono (vedere il manuale per maggiori informazioni).
+
+(define (clock)
+  (local (year month day hour minute second
+          days-name months-name erase actual val)
+    (setq days-name '("0" "lunedì" "martedì" "mercoledì" "giovedì" "venerdì" "sabato" "domenica"))
+    (setq months-name '("gennaio" "febbraio" "marzo" "aprile" "maggio" "giugno" "luglio" 
+                      "agosto" "settembre" "ottobre" "novembre" "dicembre"))
+    (setq erase (dup " " 70))
+    (setq actual (slice (now) 0 6))
+    (setq val '())
+    ; infinite loop (break with CTRL-C)
+    (while true
+             ; update only when change year or 
+             ; month or day or hour or minute or second
+      (cond ((!= actual (slice val 0 6))
+             (setq val (now))
+             (setq actual (slice val 0 6))
+             (setq year (string (val 0)))
+             (setq month (months-name (val 1)))
+             (setq day (string (val 2)))
+             (setq hour (string (val 3)))
+             (setq minute (string (val 4)))
+             (setq second (string (val 5)))
+             (setq day-name (days-name (val 8)))
+             (setq printed (string " " day-name ", " day " " month " " year ", " hour ":" minute ":" second))
+             ; erase output line (print blank chars)
+             (print (dup " " (length printed)) " \r")
+             ; print informations
+             (print printed "\r"))
+            (true
+             ; update clock values
+             (setq val (now)))))))
+
+(clock)
+;->  lunedì, 28 luglio 2021, 16:49:28
+
+Nota: premere CTRL-C per terminare il programma.
+
+
+------------------------
+Corda intorno alla Terra
+------------------------
+
+Supponiamo di avere una corda che circonda una Terra perfettamente sferica che ha una circonferenza pari a 40000 km. La corda viene allungata di 1 metro e posta come una circonferenza a distanza costante dalla Terra.
+Quanto è distante la nuova circonferenza dalla Terra?
+Di quanto bisogna allungare la corda per fare una circonferenza che si trovi a 1 metro di distanza dalla Terra?
+
+La prima circonferenza C vale:
+
+  C = 2*π*R
+
+La seconda circonferenza C + L vale:
+
+  C + L = 2*π*R1
+
+dove R e R1 sono i raggi delle due circonferenze e L è la lunghezza della corda aggiunta.
+
+La differenza (R1 - R) vale:
+
+            C + L       C        C + L - C       L
+  R1 - R = ------- - ------- = ------------- = -----
+             2*π       2*π          2*π         2*π
+
+Quindi la distanza dalla Terra dipende solo da quanto viene allungata la corda e non dipende dal valore della circonferenza.
+
+(define (diff L)
+  (div L (mul 2 3.1415926535897931)))
+
+(diff 1)
+;-> 0.1591549430918954
+
+La nuova circonferenza è distante 15.9 cm dalla Terra.
+
+(diff 5)
+;-> 0.7957747154594768
+
+Per la seconda domanda, se R - R1 = 1, allora deve risultare L = 2*π.
+
+
+-------
+Eredità
+-------
+
+Autore: Richard A. Proctor (1886)
+
+Uno sceicco lascia in eredità 35 cammelli ai suoi tre figli.
+L'eredità dovrà essere divisa nel modo seguente:
+1/2 al figlio maggiore, 1/3 al secondogenito e 1/9 al terzo figlio, senza uccidere animali. Il notaio dovrà ricevere un cammello come ricompensa per il suo lavoro. Come dividere i cammelli?
+
+Nota: 1/2 + 1/3 + 1/9 = 17/18 = 34/36
+
+Il notaio presta un cammello e, dei 36 cammelli totali, il primo figlio ne prende 18 (la metà), il secondo 12 (la terza parte) ed il terzo 4 (la nona parte). In totale i cammelli "spartiti" sono 34. I due cammelli rimasti vengono presi dal notaio (uno già gli apparteneva) che quindi ottiene un cammello come ricompensa.
+Da notare che tutti i figli hanno avuto di più della parte stabilita nel testamento.
+
+
+-----------------
+Sequenza di Farey
+-----------------
+
+La sequenza di Farey F(n) per ogni intero positivo n è l'insieme dei numeri razionali a/b irriducibili (ridotti ai minimi termini) con 0<=a<=b<=n e (a,b)=1 disposti in ordine crescente.
+
+Un termine a/b può essere valutato ricorsivamente utilizzando i due termini precedenti. Di seguito è riportata la formula per calcolare a(n+2)/b(n+2) da a(n+1)/b(n+1) e a(n)/b(n):
+
+a(n+2) = floor((b(n) + n)/b(n+1))*a(n+1) - a(n)
+b(n+2) = floor((b(n) + n)/b(n+1))*b(n+1) - b(n)
+
+(define (farey num)
+  (local (a b a1 b1 a2 b2 out)
+    (setq out '())
+    (setq a1 0 b1 1 a2 1 b2 num)
+    ; il primo termine vale 0/1
+    (push (list 0 1) out)
+    ; il secondo termine vale 1/num
+    (push (list 1 num) out -1)
+    ; inizializzazione dei valori nuovo termine
+    (setq a 0 b 0)
+    ; ciclo fino a che b = 1
+    (while (!= b 1)
+      ; relazione per trovare il termine corrente
+      (setq a (- (* (floor (div (add b1 num) b2)) a2) a1))
+      (setq b (- (* (floor (div (add b1 num) b2)) b2) b1))
+      ; inserimento del termine corrente
+      (push (list a b) out -1)
+      ; aggiornamento valori per la prossima iterazione
+      (setq a1 a2)
+      (setq a2 a)
+      (setq b1 b2)
+      (setq b2 b)
+    )
+    ; funzione di comparazione per l'ordinamento (sort)
+    (define (cmp x y) (< (div (first x) (last x)) (div (first y) (last y))))
+    ; ordina la lista (crescente)
+    (sort out cmp)))
+
+(farey 7)
+;-> ((0 1) (1 7) (1 6) (1 5) (1 4) (2 7) (1 3) (2 5) (3 7) (1 2)
+;->  (4 7) (3 5) (2 3) (5 7) (3 4) (4 5) (5 6) (6 7) (1 1))
+
+(length (farey 100))
+;-> 3045
+(length (farey 1000))
+;-> 304193
+
+Il numero N di frazioni contenute nella sequenza di Farey di un numero n vale:
+
+          n
+  N = 1 + ∑ totient(k)
+         k=1
+
+Funzione che calcola il toziente di eulero di un dato numero:
+
+(define (totient num)
+  (if (= num 1) 1
+    (let (res num)
+      (dolist (f (unique (factor num)))
+        (setq res (- res (/ res f))))
+      res)))
+
+Funzione che calcola la lunghezza della sequenza di Farey di un dato numero:
+
+(define (farey-len num)
+  (let (out 1)
+    (for (k 1 num)
+      (setq out (+ out (totient k)))
+    )
+    out))
+
+(farey-len 100)
+;-> 3045
+
+(farey-len 1000)
+;-> 304193
+
+              3*n²
+Nota: N(n) ≈ ------
+               π²
+
+(define (farey-len2 num)
+  (div (mul 3 num num) (mul 3.1415926535897931 3.1415926535897931)))
+
+(farey-len2 1000)
+;-> 303963.5509270133
+
+(farey-len 100000)
+;-> 3039650755
+(farey-len2 100000)
+;-> 3039635509.270134
+
+
+---------------------
+Distanza di Chebyshev
+---------------------
+
+La distanza di Chebyshev (o della scacchiera o di Lagrange), è il valore tale per cui la distanza tra due vettori è il valore massimo della loro differenza lungo gli assi:
+
+  d(p,q) = max[(|p(i) - q(i)|)]
+
+Nella geometria piana (2D), dati due punti P(x1,y1) e Q(x2,y2) la loro distanza di Chebyshev vale:
+
+  d(P,Q) = max(|x2 - x1|,|y2 - y1|)
+
+Nota: In due dimensioni, la distanza di Chebyshev è equivalente ad una rotazione ed una riscalatura della distanza di Manhattan.
+
+Scriviamo una funzione che calcola la distanza di Chebyshev:
+
+(define (dist-chebyshev x1 y1 x2 y2)
+  (max (abs (sub x2 x1)) (abs (sub y2 y1))))
+
+(dist-chebyshev 1 3 3 6)
+;-> 3
+
+In N dimensioni i due punti hanno le seguenti coordinate:
+
+  P = (p1, p2, ..., pN)
+  Q = (q1, q2, ..., qN)
+
+E la distanza di Chebyshev tra i due punti P e Q vale:
+
+  d(P,Q) = max(|pi - qi|), dove 1<=i<=N
+
+Quindi la funzione generica per calcolare la distanza di Chebyshev tra due punti diventa:
+
+(define (dist-cheby P Q)
+  (apply max (map (fn(x y) (abs (sub x y))) P Q)))
+
+(dist-cheby '(1 2 3 4) '(4 7 8 2))
+;-> 5
+
+(dist-cheby '(1 3) '(3 6))
+;-> 3
+
+
+----------
+Anti-primi
+----------
+
+Gli anti-primi (o numeri altamente composti) sono i numeri naturali con più fattori di quelli più piccoli di se stesso. In altre parole, i numeri altamente composti sono quei numeri n dove d(n), il numero di divisori di n, aumenta a record (cioè è maggiore del precedente).
+
+Sequenza OEIS A002182:
+  1, 2, 4, 6, 12, 24, 36, 48, 60, 120, 180, 240, 360, 720, 840, 1260,
+  1680, 2520, 5040, 7560, 10080, 15120, 20160, 25200, 27720, 45360,
+  50400, 55440, 83160, 110880, 166320, 221760, 277200, 332640, 498960,
+  554400, 665280, 720720, 1081080, 1441440, 2162160, ...
+
+Funzione che fattorizza un numero:
+
+(define (factor-group num)
+  (if (< num 2) nil
+      (letn ((out '()) (lst (factor num)) (cur-val (first lst)) (cur-count 0))
+        (dolist (el lst)
+          (if (= el cur-val) (++ cur-count)
+              (begin
+                (push (list cur-val cur-count) out -1)
+                (setq cur-count 1 cur-val el))))
+        (push (list cur-val cur-count) out -1))))
+
+Funzione che conta i divisori di un numero:
+
+(define (divisors-count num)
+  (if (= num 1)
+      1
+      (let (lst (factor-group num))
+        (apply * (map (fn(x) (+ 1 (last x))) lst)))))
+
+Funzione che calcola gli anti-primi fino ad un dato limite:
+
+(define (anti-primes limit)
+  (local (out best)
+    (setq out '())
+    (setq best 0)
+    (for (i 1 limit)
+      (setq val (divisors-count i))
+      (if (> val best) (begin
+          (setq best val)
+          (push (list i val) out -1))
+      )
+    )
+    out))
+
+(anti-primes 1000)
+;-> ((1 1) (2 2) (4 3) (6 4) (12 6) (24 8) (36 9) (48 10) (60 12)
+;->  (120 16) (180 18) (240 20) (360 24) (720 30) (840 32))
+
+(map first (anti-primes 10000))
+;-> (1 2 4 6 12 24 36 48 60 120 180 240 360 720 840 1260 1680 2520 5040 7560)
+
+Possiamo calcolare anche i numeri altamente composti il cui anche il numero di divisori è un numero altamente composto.
+
+Sequenza OEIS A189394:
+  1, 2, 6, 12, 60, 360, 1260, 2520, 5040, 55440, 277200, 720720, 3603600,
+  61261200, 2205403200, 293318625600, 6746328388800, 195643523275200, ...
+
+(define (anti2-primes limit)
+  (local (out best)
+    (setq out '())
+    (setq best 0)
+    (for (i 1 limit)
+      (setq val (divisors-count (divisors-count i)))
+      (if (> val best) (begin
+          (setq best val)
+          (push (list i val) out -1))
+      )
+    )
+    out))
+
+(anti2-primes 10000)
+;-> ((1 1) (2 2) (6 3) (12 4) (60 6) (360 8) (1260 9) (2520 10) (5040 12))
+(map first (anti2-primes 1e6))
+;-> (1 2 6 12 60 360 1260 2520 5040 55440 277200 720720)
+
+(time (println (map first (anti2-primes 1e8))))
+;-> (1 2 6 12 60 360 1260 2520 5040 55440 277200 720720 3603600 61261200)
+;-> 683129.503
+
+
+---------------------------
+Numeri altamente abbondanti
+---------------------------
+
+I numeri altamente abbondanti sono quei numeri k tali che sigma(k) > sigma(m) per ogni m < k, dove sigma(k) è la somma dei divisori di k.
+
+Sequenza OEIS A002093:
+  1, 2, 3, 4, 6, 8, 10, 12, 16, 18, 20, 24, 30, 36, 42, 48, 60, 72, 84,
+  90, 96, 108, 120, 144, 168, 180, 210, 216, 240, 288, 300, 336, 360, 
+  420, 480, 504, 540, 600, 630, 660, 720, 840, 960, 1008, 1080, 1200,
+  1260, 1440, 1560, 1620, 1680, 1800, 1920, 1980, 2100, ...
+
+Funzione che fattorizza un numero:
+
+(define (factor-group num)
+  (if (< num 2) nil
+      (letn ((out '()) (lst (factor num)) (cur-val (first lst)) (cur-count 0))
+        (dolist (el lst)
+          (if (= el cur-val) (++ cur-count)
+              (begin
+                (push (list cur-val cur-count) out -1)
+                (setq cur-count 1 cur-val el))))
+        (push (list cur-val cur-count) out -1))))
+
+Funzione che somma tutti i divisori di un numero:
+
+(define (divisors-sum num)
+  (local (sum out)
+    (if (= num 1)
+        1
+        (begin
+          (setq out 1)
+          (setq lst (factor-group num))
+          (dolist (el lst)
+            (setq sum 0)
+            (for (i 0 (last el))
+              (setq sum (+ sum (pow (first el) i)))
+            )
+            (setq out (* out sum)))))))
+
+Funzione che calcola i numeri altamente abbondanti fino ad un dato limite:
+
+(define (high-abundant limit)
+  (local (out best)
+    (setq out '())
+    (setq best 0)
+    (for (i 1 limit)
+      (setq val (divisors-sum i))
+      (if (> val best) (begin
+          (setq best val)
+          (push (list i val) out -1))
+      )
+    )
+    out))
+
+(high-abundant 100)
+;-> ((1 1) (2 3) (3 4) (4 7) (6 12) (8 15) (10 18) (12 28) (16 31) (18 39) 
+;->  (20 42) (24 60) (30 72) (36 91) (42 96) (48 124) (60 168) (72 195)
+;->  (84 224) (90 234) (96 252))
+
+(map first (high-abundant 1e3))
+;-> (1 2 3 4 6 8 10 12 16 18 20 24 30 36 42 48 60 72 84 90 96 
+;->  108 120 144 168 180 210 216 240 288 300 336 360 420 480 
+;->  504 540 600 630 660 720 840 960)
+
+
+-------------------------------
+Creazione dinamica di variabili
+-------------------------------
+
+Scrivere una funzione che permette di creare dinamicamente una variabile.
+
+La seguente funzione prende due parametri, il nome (stringa) della variabile da creare e il valore della varibile:
+
+(define (create-var name-var value-var)
+  (local (var)
+    (setq var name-var)
+    (set (sym var) value-var)
+    (sym var)))
+
+(create-var "pluto" '(10 20 30))
+;-> pluto
+pluto
+;-> '(10 20 30)
+(list? pluto)
+;-> true
+
+Possiamo anche creare una variabile definita dall'utente:
+
+(define (make-var)
+  (local (var)
+    (print "Nome della variabile: ")
+    (setq var (read-line))
+    ; crea il simbolo/variabile inserito dall'utente come stringa
+    (set (sym var) '())
+    (println "Variabile " var " creata.")
+    (println "Valore della variabile: " (eval (sym var)))
+    (print "Nuovo valore della variabile: ")
+    ;(set (sym var) (sym (read-line))) ; no list, only a symbol !!!
+    ; eval-string valuta la stringa inserita dall'utente
+    (set (sym var) (eval-string (read-line)))
+    (println (sym var) " = " (eval (sym var)))
+  ))
+
+(make-var)
+;-> Nome della variabile: 
+pippo
+;-> Variabile pippo creata.
+;-> Valore della variabile: ()
+;-> Nuovo valore della variabile: 
+'(10 20 30)
+;-> pippo = (10 20 30)
+pippo
+;-> (10 20 30)
+(list? pippo)
+;-> true
 
 =============================================================================
 

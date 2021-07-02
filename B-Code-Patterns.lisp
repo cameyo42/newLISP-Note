@@ -251,7 +251,7 @@ Le shell dei sistemi operativi si comportano in modo diverso durante l'analisi d
 
 (exit) ; importante
 
-Un tipico output che esegue lo script dalla shell di sistema sarebbe:
+Un tipico output eseguendo lo script dalla shell di sistema sarebbe:
 
 ./arg-test
 
@@ -301,7 +301,7 @@ Impostare la dimensione del buffer per ottenere le migliori prestazioni.
 
 Filtri di File
 ==============
-Lo script seguente funziona come un'utilità grep di Unix che itera i file e filtra ogni riga in un file utilizzando un modello (pattern) di espressione regolare.
+Lo script seguente funziona come l'utilità grep di Unix che itera sui file e filtra ogni riga in un file utilizzando un modello (pattern) di espressione regolare.
 
 #!/usr/bin/newlisp
 #

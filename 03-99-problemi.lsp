@@ -63,9 +63,9 @@ N-99-41  A list of Goldbach compositions
 
 Logic and Codes (Logica e Codici)
 ---------------------------------
-N-99-46  Truth tables for logical expressions
-N-99-47  Truth tables for logical expressions (2)
-N-99-48  Truth tables for logical expressions (3)
+N-99-46  Truth tables for logical expressions (+)
+N-99-47  Truth tables for logical expressions (2) (+)
+N-99-48  Truth tables for logical expressions (3) (+)
 N-99-49  Gray code (+)
 N-99-50  Huffman code
 

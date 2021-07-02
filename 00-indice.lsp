@@ -873,6 +873,14 @@ NOTE LIBERE 5
   Test di Lucas-Lehmer
   0,1,2 con 0,1
   Angolo delle lancette di un'orologio
+  Data e ora
+  Corda intorno alla Terra
+  Eredità
+  Sequenza di Farey
+  Distanza di Chebyshev
+  Anti-primi
+  Numeri altamente abbondanti
+  Creazione dinamica di variabili
 
 
 APPENDICI

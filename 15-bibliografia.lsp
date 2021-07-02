@@ -25,7 +25,7 @@
   Kazimir Majorinc's Blog
   http://kazimirmajorinc.com/
 
-  "A Practical Introduction to Fuzzy Logic using Lisp", Luis Argüelles Mendez, 2015
+  "A Practical Introduction to Fuzzy Logic using Lisp", Luis Arguelles Mendez, 2015
 
   Informazioni sui numeri Floating Point:
   https://floating-point-gui.de

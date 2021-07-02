@@ -1044,7 +1044,7 @@ Le quattro cifre adiacenti che hanno il più grande prodotto nel numero da 1000 
 05886116467109405077541002256983155200055935729725
 71636269561882670428252483600823257530420752963450
 
-Trovare, nel numero da 1000 cifre, le tredici cifre adiacenti che hanno il più grande prodotto. Qual'è il valore di questo numero ?
+Trovare, nel numero da 1000 cifre, le tredici cifre adiacenti che hanno il prodotto più grande. Qual'è il valore di questo numero ?
 ============================================================================
 
 Assegniamo il numero ad una variabile di tipo stringa:
