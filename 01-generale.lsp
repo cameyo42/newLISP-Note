@@ -2741,18 +2741,38 @@ Vediamo alcuni esempi:
 (div (log -1) (log -1))
 ;-> 1.#QNAN ; quiet NaN
 
-Possiamo anche assegnare questi valori a delle variabili e poi usarle nelle operazioni matemtiche:
+Possiamo anche assegnare questi valori a delle variabili e poi usarle nelle operazioni matematiche:
 
+Not a Number
+------------
 (setq my-nan (div 0 0))
 ;-> -1.#IND
+(NaN? my-nan)
+;-> true
+(add my-nan 1)
+;-> -1.#IND
+(add my-nan my-nan)
+;-> -1.#IND
 
+Ogni NaN è un Not-a-Number a modo suo e non è uguale neanche a se stesso:
+(= my-nan my-nan)
+;-> nil
+
+Infinito
+--------
 (setq infplus (div 1 0))
 ;-> 1.#INF
 (setq infminus (div -1 0))
 ;-> -1.#INF
+(= infplus infminus)
+;-> nil
 (add infplus infminus)
-;-> -1#IND
+;-> -1.#IND
+(add infplus 1)
+;-> 1.#INF
 
+Zero
+----
 (setq zerominus -0.0)
 ;-> -0
 (setq zeroplus +0.0)
@@ -2761,6 +2781,15 @@ zerominus
 ;-> -0
 (add zerominus zeroplus)
 ;-> 0
+(= zerominus zeroplus)
+;-> true
+
+Operazioni
+----------
+(div 1 infplus)
+;-> 0
+(div 1 infminus)
+;-> -0
 
 (atan2 0 0)
 ;-> 0
@@ -10077,8 +10106,8 @@ Moltiplicazione   due numeri da n cifre   un numero da 2*n cifre      Algoritmo 
 Moltiplicazione   due numeri da n cifre   un numero da 2*n cifre      Algoritmo Harvey-Hoeven              O(n*log(n))
 Divisione         due numeri da n cifre   un numero da n cifre        Divisione lunga standard             O(n^2)
 Divisione         due numeri da n cifre   un numero da n cifre        Burnikel-Ziegler Divide-and-Conquer  O(M(n)*log(n))
-Divisione         due numeri da n cifre   un numero da n cifre        Divisione Newton-Raphson             O(M(n) 
-Radice Quadrata   un numero da n cifre    un numero da n cifre        Metodo di Newton                     O(M(n)
+Divisione         due numeri da n cifre   un numero da n cifre        Divisione Newton-Raphson             O(M(n)) 
+Radice Quadrata   un numero da n cifre    un numero da n cifre        Metodo di Newton                     O(M(n))
 
 dove M(n) rappresenta la complessità dell'algoritmo di moltiplicazione utilizzato.
 

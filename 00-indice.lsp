@@ -881,7 +881,8 @@ NOTE LIBERE 5
   Anti-primi
   Numeri altamente abbondanti
   Creazione dinamica di variabili
-
+  La funzione curry
+  Algoritmo evolutivo
 
 APPENDICI
 =========

@@ -881,7 +881,8 @@ NOTE LIBERE 5
   Anti-primi
   Numeri altamente abbondanti
   Creazione dinamica di variabili
-
+  La funzione curry
+  Algoritmo evolutivo
 
 APPENDICI
 =========
@@ -3696,18 +3697,38 @@ Vediamo alcuni esempi:
 (div (log -1) (log -1))
 ;-> 1.#QNAN ; quiet NaN
 
-Possiamo anche assegnare questi valori a delle variabili e poi usarle nelle operazioni matemtiche:
+Possiamo anche assegnare questi valori a delle variabili e poi usarle nelle operazioni matematiche:
 
+Not a Number
+------------
 (setq my-nan (div 0 0))
 ;-> -1.#IND
+(NaN? my-nan)
+;-> true
+(add my-nan 1)
+;-> -1.#IND
+(add my-nan my-nan)
+;-> -1.#IND
 
+Ogni NaN è un Not-a-Number a modo suo e non è uguale neanche a se stesso:
+(= my-nan my-nan)
+;-> nil
+
+Infinito
+--------
 (setq infplus (div 1 0))
 ;-> 1.#INF
 (setq infminus (div -1 0))
 ;-> -1.#INF
+(= infplus infminus)
+;-> nil
 (add infplus infminus)
-;-> -1#IND
+;-> -1.#IND
+(add infplus 1)
+;-> 1.#INF
 
+Zero
+----
 (setq zerominus -0.0)
 ;-> -0
 (setq zeroplus +0.0)
@@ -3716,6 +3737,15 @@ zerominus
 ;-> -0
 (add zerominus zeroplus)
 ;-> 0
+(= zerominus zeroplus)
+;-> true
+
+Operazioni
+----------
+(div 1 infplus)
+;-> 0
+(div 1 infminus)
+;-> -0
 
 (atan2 0 0)
 ;-> 0
@@ -11032,8 +11062,8 @@ Moltiplicazione   due numeri da n cifre   un numero da 2*n cifre      Algoritmo 
 Moltiplicazione   due numeri da n cifre   un numero da 2*n cifre      Algoritmo Harvey-Hoeven              O(n*log(n))
 Divisione         due numeri da n cifre   un numero da n cifre        Divisione lunga standard             O(n^2)
 Divisione         due numeri da n cifre   un numero da n cifre        Burnikel-Ziegler Divide-and-Conquer  O(M(n)*log(n))
-Divisione         due numeri da n cifre   un numero da n cifre        Divisione Newton-Raphson             O(M(n) 
-Radice Quadrata   un numero da n cifre    un numero da n cifre        Metodo di Newton                     O(M(n)
+Divisione         due numeri da n cifre   un numero da n cifre        Divisione Newton-Raphson             O(M(n)) 
+Radice Quadrata   un numero da n cifre    un numero da n cifre        Metodo di Newton                     O(M(n))
 
 dove M(n) rappresenta la complessità dell'algoritmo di moltiplicazione utilizzato.
 
@@ -101208,7 +101238,7 @@ Quindi la funzione che calcola il numero di partite con n pentole è la seguente
 (define (game-pots num)
   (length (perm-rep (- num 1) '(s d))))
 
-Oppure più semplicemente, 
+Oppure più semplicemente,
 
   numero partite = elementi^scelte
 
@@ -101557,14 +101587,14 @@ newLISP ha la funzione "now" che restituisce una lista con le informazioni che c
   (local (year month day hour minute second
           days-name months-name erase actual val)
     (setq days-name '("0" "lunedì" "martedì" "mercoledì" "giovedì" "venerdì" "sabato" "domenica"))
-    (setq months-name '("gennaio" "febbraio" "marzo" "aprile" "maggio" "giugno" "luglio" 
+    (setq months-name '("gennaio" "febbraio" "marzo" "aprile" "maggio" "giugno" "luglio"
                       "agosto" "settembre" "ottobre" "novembre" "dicembre"))
     (setq erase (dup " " 70))
     (setq actual (slice (now) 0 6))
     (setq val '())
     ; infinite loop (break with CTRL-C)
     (while true
-             ; update only when change year or 
+             ; update only when change year or
              ; month or day or hour or minute or second
       (cond ((!= actual (slice val 0 6))
              (setq val (now))
@@ -101875,7 +101905,7 @@ I numeri altamente abbondanti sono quei numeri k tali che sigma(k) > sigma(m) pe
 
 Sequenza OEIS A002093:
   1, 2, 3, 4, 6, 8, 10, 12, 16, 18, 20, 24, 30, 36, 42, 48, 60, 72, 84,
-  90, 96, 108, 120, 144, 168, 180, 210, 216, 240, 288, 300, 336, 360, 
+  90, 96, 108, 120, 144, 168, 180, 210, 216, 240, 288, 300, 336, 360,
   420, 480, 504, 540, 600, 630, 660, 720, 840, 960, 1008, 1080, 1200,
   1260, 1440, 1560, 1620, 1680, 1800, 1920, 1980, 2100, ...
 
@@ -101923,13 +101953,13 @@ Funzione che calcola i numeri altamente abbondanti fino ad un dato limite:
     out))
 
 (high-abundant 100)
-;-> ((1 1) (2 3) (3 4) (4 7) (6 12) (8 15) (10 18) (12 28) (16 31) (18 39) 
+;-> ((1 1) (2 3) (3 4) (4 7) (6 12) (8 15) (10 18) (12 28) (16 31) (18 39)
 ;->  (20 42) (24 60) (30 72) (36 91) (42 96) (48 124) (60 168) (72 195)
 ;->  (84 224) (90 234) (96 252))
 
 (map first (high-abundant 1e3))
-;-> (1 2 3 4 6 8 10 12 16 18 20 24 30 36 42 48 60 72 84 90 96 
-;->  108 120 144 168 180 210 216 240 288 300 336 360 420 480 
+;-> (1 2 3 4 6 8 10 12 16 18 20 24 30 36 42 48 60 72 84 90 96
+;->  108 120 144 168 180 210 216 240 288 300 336 360 420 480
 ;->  504 540 600 630 660 720 840 960)
 
 
@@ -101972,17 +102002,408 @@ Possiamo anche creare una variabile definita dall'utente:
   ))
 
 (make-var)
-;-> Nome della variabile: 
+;-> Nome della variabile:
 pippo
 ;-> Variabile pippo creata.
 ;-> Valore della variabile: ()
-;-> Nuovo valore della variabile: 
+;-> Nuovo valore della variabile:
 '(10 20 30)
 ;-> pippo = (10 20 30)
 pippo
 ;-> (10 20 30)
 (list? pippo)
 ;-> true
+
+
+-----------------
+La funzione curry
+-----------------
+
+Prima di tutto vediamo la definizione del manuale:
+
+******************
+>>>funzione CURRY
+******************
+sintassi: (curry func exp)
+
+Trasforma "func" da una funzione f(x, y) che prende due argomenti, in una funzione fx(y) che prende un singolo argomento. "curry" funziona come una macro, nel senso che non valuta i suoi argomenti. Questi ultimi vengono valutati durante l'applicazione della funzione "func".
+
+Vediamo alcuni esempi:
+
+(set 'f (curry + 10))
+;-> (lambda ($x) (+ 10 $x))
+
+(f 7)
+;-> 17
+
+(filter (curry match '(a *)) '((a 10) (b 5) (a 3) (c 8) (a 9)))
+;-> ((a 10) (a 3) (a 9))
+
+(clean (curry match '(a *)) '((a 10) (b 5) (a 3) (c 8) (a 9)))
+;-> ((b 5) (c 8))
+
+(map (curry list 'x) (sequence 1 5))
+;-> ((x 1) (x 2) (x 3) (x 4) (x 5))
+
+"curry" può essere usato con tutte le funzioni che prendono due argomenti.
+
+Vediamo come usare "curry" insieme alla funzione "map".
+
+(map (curry list 1) '(a b c))
+;-> ((1 a) (1 b) (1 c))
+
+In pratica "curry" crea una funzione anonima:
+(curry list 1)
+;-> (lambda ($x) (list 1 $x))
+
+Ecco altri esempi:
+
+(curry * 2)
+;-> (lambda ($x) (* 2 $x))
+(curry + 3)
+;-> (lambda ($x) (+ 3 $x))
+((curry + 3) 10)
+;-> 13
+
+Possiamo assegnare un nome alla funzione creata da "curry":
+
+(define add3 (curry + 3))
+;-> (lambda ($x) (+ 3 $x))
+(add3 10)
+;-> 13
+
+Possiamo utilizzare "map" con una funzione che riceve più di un argomento (ad esempio la funzione "pow") in questo modo:
+
+(map pow '(2 1) '(3 4))
+;-> (8 1)
+
+dove: 8 = 2^3, 1 = 1^4
+
+Ma se la lista degli argomenti si trova all'interno di un'altra lista, allora otteniamo un errore:
+
+(setq lst '((2 1) (3 4)))
+(map pow lst)
+;-> ERR: value expected in function pow : '(2 1)
+
+Utilizziamo la funzione "curry" per risolvere questo problema:
+
+(map (curry apply pow) lst)
+;-> (2 81)
+
+dove: 2 = 2^1, 81 = 3^4
+
+Ok, non è il risultato che volevamo, ma se trasponiamo la lista degli argomenti:
+
+(transpose lst)
+;-> ((2 3) (1 4))
+
+Quindi possiamo scrivere:
+
+(map (curry apply pow) (transpose lst))
+;-> (8 1)
+
+Che è equivalente a:
+
+(map (lambda(x) (apply pow x)) (transpose lst))
+;-> (8 1)
+
+Possiamo anche utilizzare una funzione definita dall'utente:
+
+(define (mypow lst)
+  (if (null? lst) '()
+      (cons (pow (nth '(0 0) lst) (nth '(0 1) lst)) (mypow (rest lst)))
+  )
+)
+
+(setq lst '((2 1) (3 4)))
+(mypow (transpose lst))
+;-> (8 1)
+
+Un altro esempio con la funzione "max":
+
+(map max '(3 5) '(2 7))
+;-> (3 7)
+
+(map (curry apply max) '((3 5) (2 7)))
+;-> (5 7)
+
+(map (curry apply max) (transpose '((3 5) (2 7))))
+;-> (3 7)
+
+Definiamo una macro che si comporta come la funzione predefinita "curry":
+
+(define-macro (curry1 f)
+  (append (lambda (z)) (list (cons f (append (args) '(z))))))
+
+(curry1 + 10)
+;-> (lambda (z) (+ 10 z))
+((curry1 + 10) 20)
+;-> 30
+
+(map (curry1 list 1) '(a b c))
+;-> ((1 a) (1 b) (1 c))
+
+(map (curry1 list 'x) '(a b c))
+;-> ((x a) (x b) (x c))
+
+Ecco un'altra soluzione che utilizza "expand", ma è più lenta:
+
+(define-macro (curry2 f)
+   (letex (body (cons f (append (args) '(z))))
+      (lambda (z) body)))
+
+(curry2 + 10)
+;-> (lambda (z) (+ 10 z))
+((curry2 + 10) 20)
+;-> 30
+
+(map (curry2 list 1) '(a b c))
+;-> ((1 a) (1 b) (1 c))
+
+(map (curry2 list 'x) '(a b c))
+;-> ((x a) (x b) (x c))
+
+Vediamo perchè una funzione (invece di una macro) non si comporta correttamente:
+
+(define (curry3 f)
+  (append (lambda (z)) (list (cons f (append (args) '(z))))))
+
+(curry3 + 1)
+;-> (lambda (z) (+@41493E 1 z))
+
+Se quotiamo la funzione otteniamo:
+
+(curry3 '+ 1)
+;-> (lambda (z) (+ 1 z))
+
+La seguente chiamata si comporta correttamente:
+
+(map (curry3 list 1) '(a b c))
+;-> ((1 a) (1 b) (1 c))
+
+Ma la seguente non genera il risultato corretto:
+
+(map (curry3 list 'x) '(a b c))
+;-> ((nil a) (nil b) (nil c))
+
+perchè il simbolo "x" viene valutato a nil.
+
+
+-------------------
+Algoritmo evolutivo
+-------------------
+
+Data una stringa (target) scrivere un algoritmo che genera una stringa (current) uguale in modo evolutivo.
+
+Un algoritmo può essere il seguente:
+
+1) generare la stringa "current" con tutti spazi vuoti lunga come la stringa "target"
+2) se target=current, allora abbiamo ottenuto la soluzione.
+   altrimenti,
+    Calcolare la 'distanza' tra la stringa "target" e la stringa "current" (quanti caratteri sono differenti?).
+    Modificare in modo casuale/evolutivo i caratteri della stringa "current" che sono diversi da quelli della stringa "target".
+    Andare al passo 2.
+
+Vediamo il procedimento:
+
+La stringa da ottenere:
+
+(setq target "NEWLISP IS FUN")
+
+La stringa iniziale (tutti spazi):
+
+(setq current (dup " " (length target)))
+
+Funzione che genera un carattere maiuscolo casuale:
+
+(define (rnd-char) (char (+ (rand 26) 65)))
+
+Funzione che genera una lista con tutti gli indici dei caratteri che sono differenti tra la stringa str1 e la stringa str2:
+
+(define (fitness str1 str2)
+  (let (out '())
+    (for (i 0 (- (length str1) 1))
+      (if (!= (str1 i) (str2 i))
+        ;(push (list i (str1 i)) out -1)
+        (push i out -1)
+      )
+    )
+    out))
+
+(setq change (fitness target current))
+;-> (0 1 2 3 4 5 6 8 9 11 12 13)
+
+Funzione che aggiorna casualmente tutti i caratteri della stringa current che sono differenti tra la stringa target e la stringa current:
+
+(define (update current change)
+  (for (i 0 (- (length change)))
+    (setf (current (change i)) (rnd-char))
+  )
+  current)
+
+(setq current (update current change))
+;-> "EELVYHN PK KWT"
+
+Adesso possiamo scrivere la funzione "evolutiva":
+
+(define (evolutionary target)
+  (local (current change counter)
+    (setq counter 1)
+    (setq current (dup " " (length target)))
+    (while (!= target current)
+      (setq change (fitness target current))
+      (setq current (update current change))
+      (println counter {: } target { - } current)
+      (++ counter)
+    )))
+
+(evolutionary "NEWLISP IS FUN")
+;-> 1: NEWLISP IS FUN - ZTJQPIA BU PQA
+;-> 2: NEWLISP IS FUN - LNHQYPN DO MVZ
+;-> 3: NEWLISP IS FUN - GKQWVTU MT EMW
+;-> 4: NEWLISP IS FUN - SEGBWIY TY VAQ
+;-> 5: NEWLISP IS FUN - MEWVNQZ NA KRO
+;-> 6: NEWLISP IS FUN - IEWZYQA KC XRD
+;-> ...
+;-> 49: NEWLISP IS FUN - NEWLISP ES FUN
+;-> 50: NEWLISP IS FUN - NEWLISP RS FUN
+;-> 51: NEWLISP IS FUN - NEWLISP GS FUN
+;-> 52: NEWLISP IS FUN - NEWLISP TS FUN
+;-> 53: NEWLISP IS FUN - NEWLISP IS FUN
+
+Ad essere sinceri, questo algoritmo non è "evolutivo" nel senso stretto del significato.
+
+L'algoritmo generale (Weasel algorithm) è stato proposto da Richard Dawkins utilizzando la seguente frase di 28 caratteri:
+
+  "METHINKS IT IS LIKE A WEASEL"
+
+1. Iniziare con una stringa casuale di 28 caratteri.
+2. Fare 100 copie della stringa (riproduzione).
+3. Per ogni carattere in ciascuna delle 100 copie, con una probabilità del 5%, sostituire (mutare) il carattere con un nuovo carattere casuale.
+4. Confrontare ogni nuova stringa con la stringa di destinazione "METHINKS IT IS LIKE A WEASEL" e assegnare a ciascuna un punteggio che rappresenta l'adattamento evolutivo (il numero di lettere nella stringa che sono corrette e nella posizione corretta).
+5. Se una delle nuove stringhe ha un punteggio perfetto (28), abbiamo finito. Altrimenti, prendere la stringa con il punteggio più alto e andare al passo 2.
+
+Un "carattere" è una qualsiasi lettera maiuscola o uno spazio. Il numero di copie per generazione e la possibilità di mutazione per lettera non sono specificati nel libro di Dawkins. Inoltre, 100 copie e un tasso di mutazione del 5% sono solo numeri di esempio. Le lettere corrette non sono "bloccate". Ogni lettera corretta può diventare errata nelle generazioni successive. I termini del programma e l'esistenza della frase target indicano tuttavia che tali 'mutazioni negative' verranno rapidamente corrette.
+
+Vediamo come implementare l'algoritmo Weasel.
+
+(setq target  "METHINKS IT IS LIKE A WEASEL")
+(setq current "DFGCBVHJUIDGC VHAQ JKLOPQB Q")
+
+Funzione che genera un carattere maiuscolo casuale o uno spazio:
+
+(define (rnd-char-space)
+  (let (ch (char (+ (rand 27) 65)))
+    (if (= ch "[")
+        " "
+        ch)))
+
+(rnd-char-space)
+;-> "W"
+
+Funzione che confronta la similitudine di due strignhe (numero di caratteri uguali nella stessa posizione):
+
+(define (check-evolution str1 str2)
+  (let (same 0)
+    (for (i 0 (- (length str1) 1))
+      (if (= (str1 i) (str2 i))
+        (++ same)
+      )
+    )
+    same))
+
+(check-evolution target current)
+;-> 1
+
+Funzione che modifica una popolazione:
+
+(define (evolve mutation)
+  (for (m 0 (- (length mutation) 1))
+    (for (i 0 (- (length (mutation m)) 1))
+       (if (> change (rand 100)) (begin
+           (setf ((mutation m) i) (rnd-char-space))
+       ))
+    )
+  )
+  mutation)
+
+Funzione che calcola la mutazione più adatta (stringa più vicina al target):
+
+(define (best-fit mutation)
+  (local (score out val-max)
+    (setq out -1)
+    (setq val-max -1)
+    (setq score '())
+    ;(dolist (m mutation)
+    ;  (push (check-evolution target m) score -1)
+    ;)
+    (setq score (map (curry check-evolution target) mutation))
+    (dolist (s score)
+      (if (> s val-max)
+        (setq val-max s out $idx)
+      )
+    )
+    out))
+
+Funzione finale dell'algoritmo di Weasel:
+
+(define (evolution target start population change)
+(catch  
+  (local (mutation current generation)
+    (setq current start)
+    (setq generation 0)
+    (while true
+      ; creazione della mutazione
+      (setq mutation (dup current population true))
+      (setq mutation (evolve mutation))
+      ; calcolo mutazione più adatta
+      (setq current (mutation (best-fit mutation)))
+      (++ generation)
+      (println current)
+      ; target raggiunto?
+      (if (= current target) (throw generation))
+    ))))
+
+Facciamo alcune prove:
+
+(setq target  "METHINKS IT IS LIKE A WEASEL")
+(setq current "DFGCBVHJUIDGC VHAQ JKLOPQB Q")
+(evolution target current 100 5)
+;-> QFXCBVHJ IDGC VHGQ JKLOPQB Q
+;-> QFXCBMHJ IDQC VHGQ JKLOPQB L
+;-> MFXCBMHJ IDQC VHGQ JKLOPQB L
+;-> MFTCBMHJ IDQC VHGQ JKLOPQB L
+;-> ...
+;-> METHINKS IT IS LIKE A WEASKL
+;-> METHINKS IT IS LIKE A WEASKL
+;-> METHINKS IT IS LIKE A WEASKL
+;-> METHINKS IT IS LIKE A WEASKL
+;-> METHINKS IT IS LIKE A WEASEL
+;-> 111
+
+(setq target  "METHINKS IT IS LIKE A WEASEL")
+(setq current "DFGCBVHJUIDGC VHAQ JKLOPQB Q")
+(evolution target current 100 25)
+;-> ...
+;-> 45
+
+(setq target  "EVA VINCE A BRISCOLA MA PERDE A TRESSETTE")
+(setq current "                                         ")
+(evolution target current 1000 50)
+;->        D       S    T                 T
+;->   A    M      WS    T                 T
+;->   A    M     NWS    T      D          T
+;->   A    M     WWS    T   P  D          T
+;->  VA    MK    WWS  E T   P  D          T
+;->  VA    ML    WWS  E     P  D         WT
+;-> EVA    ML    WIS  E     P  D      J  WT
+;-> EVA    ML    WIS  E   B P  D      J  WT E
+;-> ...
+;-> EVA VINCE A BRIS OLA MA PERDE A TRESSETTE
+;-> EVA VINCE A BRIS OLA MA PERDE A TRESSETTE
+;-> EVA VINCE A BRISCOLA MA PERDE A TRESSETTE
+;-> 89
+
 
 =============================================================================
 
