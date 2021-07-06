@@ -883,6 +883,7 @@ NOTE LIBERE 5
   Creazione dinamica di variabili
   La funzione curry
   Algoritmo evolutivo
+  Nome del programma
 
 APPENDICI
 =========

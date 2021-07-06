@@ -1618,7 +1618,7 @@ Adesso possiamo scrivere la funzione "evolutiva":
 ;-> 52: NEWLISP IS FUN - NEWLISP TS FUN
 ;-> 53: NEWLISP IS FUN - NEWLISP IS FUN
 
-Ad essere sinceri, questo algoritmo non è "evolutivo" nel senso stretto del significato.
+A dire il vero, questo algoritmo non è "evolutivo" nel senso stretto del significato: non esiste una popolazione e le mutazioni avvengono solo nei caratteri errati.
 
 L'algoritmo generale (Weasel algorithm) è stato proposto da Richard Dawkins utilizzando la seguente frase di 28 caratteri:
 
@@ -1730,13 +1730,13 @@ Facciamo alcune prove:
 
 (setq target  "METHINKS IT IS LIKE A WEASEL")
 (setq current "DFGCBVHJUIDGC VHAQ JKLOPQB Q")
-(evolution target current 100 25)
+(evolution target current 1000 10)
 ;-> ...
 ;-> 45
 
 (setq target  "EVA VINCE A BRISCOLA MA PERDE A TRESSETTE")
 (setq current "                                         ")
-(evolution target current 1000 50)
+(evolution target current 1000 5)
 ;->        D       S    T                 T
 ;->   A    M      WS    T                 T
 ;->   A    M     NWS    T      D          T
@@ -1751,6 +1751,63 @@ Facciamo alcune prove:
 ;-> EVA VINCE A BRISCOLA MA PERDE A TRESSETTE
 ;-> 89
 
+La convergenza dell'algoritmo dipende molto dai parametri "population" e "change".
+
+
+------------------
+Nome del programma
+------------------
+
+newLISP ha una funzione per gestire il nome del programma e i suoi parametri: "main-args"
+Vediamo la definizione del manuale:
+
+sintassi: (main-args)
+sintassi: (main-args int-index)
+main-args returns a list with several string members, one for program invocation and one for each of the command-line arguments.
+restituisce una lista con diversi elementi stringa, uno per l'invocazione del programma e uno per ciascuno degli argomenti della riga di comando.
+
+newlisp 1 2 3
+
+(main-args)
+;-> ("newlisp" "1" "2" "3")
+
+Dopo che "newlisp 1 2 3" è stato eseguito al prompt dei comandi, main-args restituisce un elenco contenente il nome del programma invocante e tre argomenti della riga di comando.
+
+Facoltativamente, main-args può prendere un int-index come indice nella lista. Nota che un indice fuori dall'intervallo farà sì che venga restituito nil, non l'ultimo elemento dell'elenco come nell'indicizzazione standard delle liste.
+
+newlisp a b c
+
+(main-args 0)
+;-> "newlisp"
+(main-args -1)
+;-> "c"
+(main-args 2)
+;-> "b"
+(main-args 10)
+;-> nil
+
+Nota che quando newLISP viene eseguito da uno script, main-args restituisce anche il nome dello script come secondo argomento:
+
+# script to show the effect of 'main-args' in script file
+(print (main-args) "\n")
+(exit)
+# end of script file
+
+;; eseguire lo script dalla shell del sistema operativo
+
+script 1 2 3
+
+("newlisp" "script" "1" "2" "3")
+
+Try executing this script with different command-line parameters.
+
+newLISP has a function, (main-args int) for this.
+
+Per ottenere il nome del programma/script possiamo usare il seguente script:
+
+(let ((program (main-args 1)))
+  (println (format "Program: %s" program))
+  (exit))
 
 =============================================================================
 
