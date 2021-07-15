@@ -884,6 +884,8 @@ NOTE LIBERE 5
   La funzione curry
   Algoritmo evolutivo
   Nome del programma
+  loop e recur macro
+  Breve introduzione ai grafi
 
 APPENDICI
 =========

@@ -884,6 +884,8 @@ NOTE LIBERE 5
   La funzione curry
   Algoritmo evolutivo
   Nome del programma
+  loop e recur macro
+  Breve introduzione ai grafi
 
 APPENDICI
 =========
@@ -102187,7 +102189,7 @@ Ma la seguente non genera il risultato corretto:
 (map (curry3 list 'x) '(a b c))
 ;-> ((nil a) (nil b) (nil c))
 
-perchè il simbolo "x" viene valutato a nil.
+perchè il simbolo "x" viene valutato a nil, invece la macro non valuta il simbolo "x".
 
 
 -------------------
@@ -102462,6 +102464,396 @@ Per ottenere il nome del programma/script possiamo usare il seguente script:
 (let ((program (main-args 1)))
   (println (format "Program: %s" program))
   (exit))
+
+
+------------------
+loop e recur macro
+------------------
+
+Le macro "loop" e "recur" (scritte da ClaudeM) facilitano l'utilizzo di una programmazione simile al linguaggio Scheme in quanto newLISP non supporta l'ottimizzazione della ricorsione in coda (Tail Code Optimization).
+Queste macro sono molto eleganti anche se sono meno efficienti della tecnica di "trampolining" o delle tecniche iterative.
+
+; looking at options to simulate TCO (Tail Code Optimization)
+; I come from Scheme and I like simple recursion
+; maybe like Clojure, which makes it explixit with loop & recur
+;
+; Use a pair of macros. The process is as follows:
+;   - use a loop (otherwise infinite)
+;   - there must be two args: let-list and body
+;   - define local variables with initial values
+;   - execute the body, must have an exit test and recur
+;   - recur macro
+;     - in tail position - how would I check for this?
+;     - take new values for local variables (positional)
+;     - loop back; if not in tail position, problems may occur
+(define-macro (loop)
+  (letn (loop-recur-let-list (args 0)
+         loop-recur-body (args 1)
+         loop-recur-let-list-length (length loop-recur-let-list)
+         loop-recur-var-names '()
+         loop-recur-variables '()
+         loop-recur-done nil)
+    ;
+    ; let-list could be a list of pairs or a list of two-item lists
+    ; convert pairs to a list of lists
+    ;
+;   (println "loop-recur-let-list : " loop-recur-let-list)
+;   (println "loop-recur-body : " loop-recur-body)
+;   (println " - - - - - - - -")
+    (if (not (list? (loop-recur-let-list 0)))
+      (begin
+        (if (not (even? loop-recur-let-list-length))
+            (begin
+              ;;(println "The loop's let list must contain an even number of items.")
+              ;;(println "  (loop " loop-recur-let-list " ...)")
+              (exit 1)))
+        ;
+        ; loop over pairs and convert
+        ;
+        (letn (loop-recur-old-let-list loop-recur-let-list)
+          (setq loop-recur-let-list '())
+          (for (i 0 (- loop-recur-let-list-length 1) 2)
+            (push (list (nth i loop-recur-old-let-list)
+                        (nth (+ i 1) loop-recur-old-let-list))
+                  loop-recur-let-list
+                  -1)))))
+    ;
+    ; process loop-recur-let-list: extract variable names and initial values
+    ; so I can redefine at each iteration
+    ; build loop-recur-var-names and initial loop-recur-variables
+    ;
+    (dolist (i loop-recur-let-list)
+      (push (first i) loop-recur-var-names -1)
+      (push (nth 1 i) loop-recur-variables -1))
+    ;;(println "loop-recur-var-names : " loop-recur-var-names)
+    ;;(println "loop-recur-variables : " loop-recur-variables)
+    ;
+    ; loop variables are defined and given initial values
+    ;
+    (until loop-recur-done
+      ; define variables, made fresh each iteration
+      (setq loop-recur-let-list
+            (map list loop-recur-var-names loop-recur-variables))
+      ;;(println "loop-recur-let-list : " loop-recur-let-list)
+      (letex (loop-recur-let-list-expanded loop-recur-let-list)
+        (let loop-recur-let-list-expanded
+          (setq loop-recur-done true)  ; if recur is not used, the loop should end
+          (eval loop-recur-body))))))  ; evaluate the body, it should call recur
+;
+; build a new loop-recur-let-list
+;
+(define-macro (recur)
+  (begin
+    (setq loop-recur-variables
+          (map eval (args)))
+;   (println "recur: new variables are " loop-recur-variables)
+    (setq loop-recur-done nil)))
+;
+; quick test
+;
+(define (factorial n)
+  (loop (i 1
+         prod 1L)
+      (if (> i n)
+        prod
+        (recur (+ 1 i) (* prod i)))))
+
+(factorial 5)
+;-> loop-recur-var-names : (i prod)
+;-> loop-recur-variables : (1 1L)
+;-> loop-recur-let-list : ((i 1) (prod 1L))
+;-> loop-recur-let-list : ((i 2) (prod 1L))
+;-> loop-recur-let-list : ((i 3) (prod 2L))
+;-> loop-recur-let-list : ((i 4) (prod 6L))
+;-> loop-recur-let-list : ((i 5) (prod 24L))
+;-> loop-recur-let-list : ((i 6) (prod 120L))
+;-> 120L
+
+Vediamo la diffferenza di velocità con una versione iterativa del fattoriale:
+
+(define (fact num)
+  (if (zero? num)
+      1
+      (let (out 1L)
+        (for (x 1L num)
+          (setq out (* out x))))))
+
+(= (fact 200) (factorial 200))
+;-> true
+
+(time (factorial 200) 1000)
+;-> 281.456
+
+(time (fact 200) 1000)
+;-> 31.178
+
+La versione iterativa è 9 volte più veloce.
+
+
+---------------------------
+Breve introduzione ai grafi
+---------------------------
+
+A) Cosa è un Grafo?
+-------------------
+
+Un grafo è una coppia ordinata G = (V, E) che comprende un insieme V di vertici o nodi e un insieme di coppie di vertici da V, noti come archi (edges) di un grafo. Ad esempio, per il grafo sottostante.
+
+  V = { 1, 2, 3, 4, 5, 6 }
+  E = { (1, 4), (1, 6), (2, 6), (4, 5), (5, 6) }
+
+  ╔═══╗           ╔═══╗
+  ║ 6 ║-----------║ 2 ║
+  ╚═══╝           ╚═══╝
+    |  \
+    |   \
+    |    \
+    |     ╔═══╗           ╔═══╗
+    |     ║ 1 ║           ║ 3 ║
+    |     ╚═══╝           ╚═══╝
+    |          \
+    |           \
+    |            \
+  ╔═══╗           ╔═══╗
+  ║ 5 ║-----------║ 4 ║
+  ╚═══╝           ╚═══╝
+
+B) Tipi di grafi
+----------------
+
+1. Grafo non orientato (Undirected graph)
+-----------------------------------------
+Un grafo non orientato (grafo) è un grafo in cui gli archi non hanno orientamento. L'arco (x, y) è identico all'arco (y, x), cioè non sono coppie ordinate. Il numero massimo di archi possibili in un grafo non orientato senza cicli (loop) è n*(n-1)/2.
+
+Esempio di grafo non orientato
+
+  ╔═══╗           ╔═══╗
+  ║ 6 ║-----------║ 2 ║
+  ╚═══╝           ╚═══╝
+    |  \
+    |   \
+    |    \
+    |     ╔═══╗           ╔═══╗
+    |     ║ 1 ║-----------║ 3 ║
+    |     ╚═══╝           ╚═══╝
+    |          \         /
+    |           \       /
+    |            \     /
+  ╔═══╗           ╔═══╗
+  ║ 5 ║-----------║ 4 ║
+  ╚═══╝           ╚═══╝
+
+2. Grafo orientato (Direct graph)
+-------------------------------
+Un grafo orientato (digrafo) è un grafo in cui gli archi sono orientati, ovvero l'arco (x, y) non è identico all'arco (y, x).
+
+Esempio di grafo orientato (Il carattere "■" rappresenta la fine dell'arco)
+
+          ╔═══╗
+          ║ 2 ║
+          ╚═══╝
+        ■
+       /
+      /
+  ╔═══╗           ╔═══╗
+  ║ 1 ║■---------■║ 3 ║
+  ╚═══╝           ╚═══╝
+       \         ■
+        \       /
+         ■     /
+          ╔═══╗
+          ║ 4 ║
+          ╚═══╝
+
+3. Grafo aciclico diretto (Directed Acyclic Graph - DAG)
+----------------------------------------------------------
+Un grafo aciclico diretto (DAG) è un grafo orientato che non contiene cicli.
+
+Esempio di DAG
+
+          ╔═══╗
+          ║ 2 ║
+          ╚═══╝
+        ■
+       /
+      /
+  ╔═══╗           ╔═══╗
+  ║ 1 ║■----------║ 3 ║
+  ╚═══╝           ╚═══╝
+       \         ■
+        \       /
+         ■     /
+          ╔═══╗
+          ║ 4 ║
+          ╚═══╝
+
+4. Multi grafo
+--------------
+Un multigrafo è un grafo non orientato in cui sono consentiti più archi (e talvolta cicli/loop). Gli archi multipli sono due o più archi che collegano gli stessi due vertici. Un ciclo è un arco (diretto o non orientato) che collega un vertice a se stesso (può essere consentito o meno)
+
+5. Grafo semplice
+-----------------
+Un grafo semplice è un grafo non orientato in cui non sono consentiti sia gli archi multipli che i cicli/loop rispetto a un multigrafo. In un grafo semplice con n vertici, il grado di ogni vertice è al massimo n-1.
+
+Esempi di archi multipli
+
+  ╔═══╗----------■╔═══╗           ╔═══╗-----------╔═══╗
+  ║ 1 ║           ║ 2 ║           ║ 1 ║           ║ 2 ║
+  ╚═══╝■----------╚═══╝           ╚═══╝-----------╚═══╝
+
+Esempio di ciclo/loop
+
+  ╔═══╗------+
+  ║ 1 ║      |
+  ╚═══╝------+
+
+6. Grafo pesato e non pesato
+------------------------------------
+Un grafo pesato associa un valore (peso) a ogni arco del grafo. Possiamo anche usare le parole costo o lunghezza invece di peso.
+
+Un grafo non pesato non ha alcun valore (peso) associato a ogni arco del grafo. In altre parole, un grafo pesato è un grafo pesato con tutti i pesi degli archi pari a 1. Se non diversamente specificato, si presume che tutti i grafi non siano ponderati per impostazione predefinita.
+
+Esempio di grafo diretto pesato
+
+          ╔═══╗
+          ║ 2 ║
+          ╚═══╝
+        ■
+    10 /
+      /
+  ╔═══╗     3     ╔═══╗
+  ║ 1 ║■----------║ 3 ║
+  ╚═══╝           ╚═══╝
+       \         ■
+      8 \       / 4
+         ■     /
+          ╔═══╗
+          ║ 4 ║
+          ╚═══╝
+
+7. Grafo completo
+-----------------
+Un grafo completo è quello in cui ogni due vertici sono adiacenti: tutti i bordi che possono esistere sono presenti.
+
+8. Grafo connesso
+-----------------
+Un grafo connesso ha un percorso tra ogni coppia di vertici. In altre parole, non ci sono vertici irraggiungibili. Un grafo disconnesso è un grafo non connesso.
+
+C) Termini comunemente usati per i Grafi
+----------------------------------------
+
+Un "arco (edge)" è (insieme ai "vertici (vertices") una delle due unità di base da cui sono costruiti i grafi. Ogni arco ha due vertici a cui è attaccato, chiamati i suoi "punti finali (endpoints)".
+
+Due vertici sono chiamati "adiacenti (adjacent)" se sono punti finali dello stesso arco.
+
+Gli "archi in uscita (outgoing edges)" di un vertice sono archi diretti di cui il vertice è l'origine.
+
+Gli "archi in entrata (ingoing edges)" di un vertice sono archi diretti di cui il vertice è la destinazione.
+
+Il "grado (degree)" di un vertice in un grafo è il numero totale di archi incidenti su di esso.
+
+In un grafo orientato, il "grado esterno (out-degree)" di un vertice è il numero totale di archi uscenti e il "grado interno (in-degree)" è il numero totale di archi entranti.
+
+Un vertice con zero di grado è chiamato "vertice sorgente (source vertex)", mentre un vertice con zero di grado esterno è chiamato "vertice sink (sink vertex)".
+
+Un "vertice isolato (isolated vertex)" è un vertice con grado zero, che non è un punto finale di un arco.
+
+"Percorso (path)" è una sequenza di vertici e archi alternati in modo tale che ogni arco colleghi ogni vertice successivo.
+
+"Ciclo (cycle)" è un percorso che inizia e finisce nello stesso vertice.
+
+"Percorso semplice (simple path)" è un percorso con vertici distinti.
+
+Un grafo è "fortemente connesso (strongly connected)" se contiene un cammino orientato da u a v e un cammino orientato da v a u per ogni coppia di vertici u, v.
+
+Un grafo orientato è detto "debolmente connesso (weakly connected)" se la sostituzione di tutti i suoi archi orientati con archi non orientati produce un grafo connesso (non orientato). I vertici in un grafo debolmente connesso hanno un grado esterno o un grado interno di almeno 1.
+
+"Componente connesso (connected component)" è il sottografo connesso massimale di un grafo non connesso.
+
+Un "ponte (bridge)" è un arco la cui rimozione disconnetterebbe il grafo.
+
+"Foresta (forest)" è un grafo senza cicli.
+
+"Albero (tree)" è un grafo connesso senza cicli. Se rimuoviamo tutti i cicli da DAG (grafo aciclico diretto), diventa un albero e se rimuoviamo qualsiasi arco in un albero, diventa una foresta.
+
+"Albero di copertura (spanning tree)" di un grafo non orientato è un sottografo che è un albero che include tutti i vertici del grafo.
+
+D) Relazione tra numero di archi e vertici
+------------------------------------------
+
+Per un grafo semplice con m bordi e n vertici, se il grafo è
+
+diretto, allora m = n*(n-1)
+
+non orientato, allora m = n*(n-1)/2
+
+connesso, allora m = n-1
+
+un albero, allora m = n-1
+
+una foresta, allora m = n-1
+
+completo, allora m = n*(n-1)/2
+
+Pertanto, O(m) può variare tra O(1) e O(n^2), a seconda di quanto è denso il grafo.
+
+E) Rappresentazione dei grafi
+-----------------------------
+
+1. Rappresentazione con matrice di adiacenza
+--------------------------------------------
+Una matrice di adiacenza è una matrice quadrata utilizzata per rappresentare un grafo finito. Gli elementi della matrice indicano se le coppie di vertici sono adiacenti o meno nel grafo.
+Definizione:
+Per un semplice grafo non pesato con insieme di vertici V, la matrice di adiacenza è un quadrato |V| × |V| matrice A tale che il suo elemento:
+
+A(i j) = 1, quando c'è un arco dal vertice i al vertice j, e
+A(i j) = 0, quando non c'è un arco.
+
+Ogni riga nella matrice rappresenta i vertici di origine e ogni colonna rappresenta i vertici di destinazione. Gli elementi diagonali della matrice sono tutti zero poiché i bordi da un vertice a se stesso, cioè i cicli non sono consentiti nei grafi semplici. Se il grafo non è orientato, la matrice di adiacenza sarà simmetrica. Inoltre, per un grafo ponderato, Aij può rappresentare i pesi degli archi.
+
+Esempio di matrice di adiacenza di un grafo orientato
+
+          ╔═══╗
+          ║ 0 ║
+          ╚═══╝             ╔═══╗
+        ■      \            ║ 4 ║
+       /        \           ╚═══╝             |0 1 0 0 0 0|
+      /          ■            ■               |0 0 1 0 0 0|
+  ╔═══╗           ╔═══╗       |               |1 1 0 0 0 0|
+  ║ 2 ║■---------■║ 1 ║       |               |0 0 1 0 0 0|
+  ╚═══╝           ╚═══╝       |               |0 0 0 0 0 1|
+       ■                      ■               |0 0 0 0 1 0|
+        \                   ╔═══╗
+         \                  ║ 5 ║
+          ╔═══╗             ╚═══╝
+          ║ 3 ║
+          ╚═══╝
+
+Una matrice di adiacenza mantiene un valore (1/0/arco-peso) per ogni coppia di vertici, indipendentemente dal fatto che l'arco esista o meno, quindi richiede n^2 spazi. Può essere utilizzata in modo efficiente solo quando il grafo è denso.
+
+2. Rappresentazione con una lista delle adiacenze
+-------------------------------------------------
+Una rappresentazione del grafo con una lista delle adiacenze associa ciascun vertice nel grafo alla raccolta dei suoi vertici o archi vicini, ovvero ogni vertice memorizza un elenco di vertici adiacenti. Esistono molte varianti della rappresentazione con una lista delle adiacenze a seconda dell'implementazione. Questa struttura dati consente la memorizzazione di dati aggiuntivi sui vertici ed è molto efficiente quando il grafo contiene solo pochi archi (cioè il grafo è rado (sparse)).
+
+Esempio di lista delle adiacenze di un grafo orientato
+
+          ╔═══╗
+          ║ 0 ║
+          ╚═══╝             ╔═══╗
+        ■      \            ║ 4 ║
+       /        \           ╚═══╝
+      /          ■            ■
+  ╔═══╗           ╔═══╗       |
+  ║ 2 ║■---------■║ 1 ║       |
+  ╚═══╝           ╚═══╝       |
+       ■                      ■
+        \                   ╔═══╗
+         \                  ║ 5 ║
+          ╔═══╗             ╚═══╝
+          ║ 3 ║
+          ╚═══╝
+
+lista = ((0 (1)) (1 (2)) (2 (0 1)) (3 (2)) (4 (5)) (5 (4)))
 
 =============================================================================
 
