@@ -886,6 +886,8 @@ NOTE LIBERE 5
   Nome del programma
   loop e recur macro
   Breve introduzione ai grafi
+  Lanciare N volte una moneta
+  Problema dei fiammiferi di Banach con N scatole
 
 APPENDICI
 =========

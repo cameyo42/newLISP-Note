@@ -886,6 +886,8 @@ NOTE LIBERE 5
   Nome del programma
   loop e recur macro
   Breve introduzione ai grafi
+  Lanciare N volte una moneta
+  Problema dei fiammiferi di Banach con N scatole
 
 APPENDICI
 =========
@@ -102854,6 +102856,340 @@ Esempio di lista delle adiacenze di un grafo orientato
           ╚═══╝
 
 lista = ((0 (1)) (1 (2)) (2 (0 1)) (3 (2)) (4 (5)) (5 (4)))
+
+
+---------------------------
+Lanciare N volte una moneta
+---------------------------
+
+Lanciando una moneta equa N volte, qual'è la probabilità che gli ultimi due risultati siano uguali?
+
+Se la moneta è equa, cioè i suoi risultati hanno una distribuzione uniforme, allora i lanci da i a (N-2) non hanno importanza. Dobbiamo considerare solo gli ultimi due lanci e possiamo farlo in due modi.
+
+1) Teorema della probabilità composta, la probabilità che due eventi indipendenti accadano insieme è pari al prodotto delle probabilità dei singoli eventi:
+
+  P(2T) = P(T) * P(T) = 1/2 * 1/2 = 1/4 = 25%
+
+La probabilità che due risultati siano due Teste vale il prodotto delle singole probabilità.
+Poichè anche due croci sono risultati uguali dobbiamo aggiungere anche questo caso alla probabilità totale:
+
+  P(2C) = P(C) * P(C) = 1/2 * 1/2 = 1/4 = 25%
+
+Quindi la probabilità totale vale:
+
+  P(2uguali) = P(2C) + P(2B) = 1/4 + 1/4 = 1/2 = 50%
+
+2) Teorema fondamentale della probabilità, la brobabilità di un evento è data dal rapporto tra casi favorevoli e casi possibili:
+
+           numero casi favorevoli
+  P(E) = --------------------------
+           numero casi possibili
+
+Nel nostro caso abbiamo:
+casi possibili  = 4: (T T), (T C), (C T), (C C) = 4
+casi favorevoli = 2: (T T) (C C)
+
+  P(2uguali) = 2/4 = 1/2 = 50%
+
+Per gli scettici come me scriviamo una funzione:
+
+(define (flip-coin num)
+  (local (val a b)
+    (for (i 1 num)
+      (setq val (rand 2))
+      (cond ((= i (- num 1)) (setq a val))
+            ((= i (- num 2)) (setq b val))
+      )
+    )
+    (= a b)))
+
+(for (i 1 10) (print (flip-coin 10) { }))
+;-> nil true nil nil true nil true true nil nil
+
+(define (test-coin num iter)
+  (let (out 0)
+    (for (i 1 iter)
+      (if (flip-coin num) (++ out))
+    )
+    (div out iter)))
+
+(test-coin 10 10000)
+;-> 0.5011
+(test-coin 100 100000)
+;-> 0.50122
+(test-coin 100 1000000)
+;-> 0.499789
+
+
+-----------------------------------------------
+Problema dei fiammiferi di Banach con N scatole
+-----------------------------------------------
+
+Una persona ha N scatole di fiammiferi nello zaino ognuna contenente M fiammiferi. Ogni volta che ha bisogno di un fiammifero lo prende da una delle N scatole (cioè, ha la stessa probabilità di scegliere una delle N scatole). Ad un certo punto (N-1) scatole saranno diventate vuote: in media, quanti fiammiferi ci sono nell'unica scatola rimasta?
+Una scatola è considerata vuota quando viene selezionata e contiene 0 fiammiferi.
+Ci sono due modi di simulare il problema a seconda del seguente comportamento:
+1) le scatole vuote non vengono gettate e quindi possono essere riselezionate
+2) le scatole vuote vengono gettate e quindi non possono essere riselezionate
+
+Vediamo di scrivere un programma che simula il primo caso:
+
+(setq n 5 m 10)
+
+Funzione che verifica se esistono fiammiferi da estrarre dalle scatole:
+
+(define (exist-fiam fiam)
+  (let (conta 0)
+    (dolist (f fiam)
+      ; scatola vuota = -1
+      (if (= f -1)
+          (++ conta)))
+    ; se tutti gli elementi (tranne uno) valgono -1,
+    ; allora non esistono fiammiferi da estrarre
+    (!= conta (- (length fiam) 1))))
+
+(exist-fiam '(-1 3 -1 -1 -1))
+;-> nil
+(exist-fiam '(-1 3 0 -1 -1))
+;-> true
+(exist-fiam '(-1 20 20 20 20 20 20 20 20 20 20))
+;-> true
+(exist-fiam '(-1 2))
+;-> nil
+(exist-fiam '(2))
+;-> nil
+
+Funzione che effettua una simulazione completa del processo di estrazione e calcola quanti fiammiferi rimangono nell'ultima scatola (quando le altre sono tutte vuote):
+
+(define (banach1 n m)
+  (local (fiam box-num)
+    ; lista delle scatole
+    ; vettore di n+1 elementi tutti con valore m
+    (setq fiam (array (+ n 1) (list m)))
+    ; (fiam 0) = -1
+    (setf (fiam 0) -1)
+    ; affinchè esistono fiammiferi da estrarre..
+    (while (exist-fiam fiam)
+       ; seleziona una scatola
+      (setq box-num (+ (rand n) 1))
+      ; se la scatola scelta non è vuota (-1)
+      (if (!= (fiam box-num) -1)
+          ; toglie un fiammifero dalla scatola
+          (-- (fiam box-num))
+      )
+      ;(println fiam)
+      ;(read-line)
+    )
+    ; cerca valore non uguale a -1
+    ; nella lista/vettore delle scatole
+    (catch
+      (dolist (f fiam)
+        (if (!= f -1) (throw f))
+      ))))
+
+(for (i 1 10) (print (banach1 5 10) { }))
+;-> 3 1 1 1 2 0 2 1 1 0
+
+Funzione che esegue la simulazione un determinato numero di volte e restituisce una lista con le frequenze dei fiammiferi rimasti:
+
+(define (banach1-test n m iter)
+  (local (out)
+    (setq out (array (+ m 1) '(0)))
+    (for (i 1 iter)
+      (++ (out (banach1 n m)))
+    )
+    out))
+
+(setq sol (banach1-test 5 10 10000))
+;-> (3184 2409 1871 1199 708 388 149 69 18 5 0)
+
+Quindi, 3233 volte sono rimasti 0 fiammiferi, 2443 volte è rimasto 1 fiammifero, 1870 volte sono rimasti 2 fiammiferi, ... e 0 volte sono rimasti 10 fiammiferi.
+
+Vediamo le percentuali di frequenza:
+
+(map (fn(x) (mul 100 (div x (apply + sol)))) sol)
+;-> (31.84 24.09 18.71 11.99 7.08
+;->  3.88 1.49 0.69 0.18 0.05 0)
+
+Aumentiamo il numero di simulazioni:
+
+(setq sol (banach1-test 5 10 1e6))
+;-> (315275 248335 180842 120336 71935 37678 17220 6297 1711 334 37)
+(map (fn(x) (mul 100 (div x (apply + sol)))) sol)
+;-> (31.5275 24.8335 18.0842
+;->  12.0336 7.1935 3.7678
+;->  1.722 0.6297 0.1711
+;->  0.0334 0.0037)
+
+(setq sol (banach1-test 5 10 1e7))
+;-> (3146012 2488151 1814325 1205730 718858
+;->  375560 168454 61827 17359 3412 312)
+(map (fn(x) (mul 100 (div x (apply + sol)))) sol)
+;-> (31.46012 24.88151 18.14325
+;->  12.0573 7.18858 3.7556
+;->  1.68454 0.61827 0.17359
+;->  0.03412 0.00312)
+
+Adesso vediamo di simulare il secondo caso:
+
+(define (banach2 n m)
+  (local (fiam box-num b)
+    ; lista delle scatole
+    ; vettore di n+1 elementi tutti con valore m
+    (setq fiam (array (+ n 1) (list m)))
+    (setf (fiam 0) -1)
+    ; lista delle scatole
+    (setq box-num (sequence 1 n))
+    ; affinchè ci sono almeno due scatole...
+    (while (> (length box-num) 1)
+      ; seleziona una scatola
+      ; (un numero casuale da 1 al numero delle scatole)
+      (setq b (first (select box-num (rand (length box-num)))))
+      ; se il valore della scatola è zero,
+      ; (non ci sono più fiammiferi)
+      (if (= (fiam b) 0)
+          ; allora rimuove la scatola
+          (pop box-num (find b box-num))
+          ; altrimenti toglie un fiammifero dalla scatola
+          (-- (fiam b))
+      )
+    )
+    ; il risultato è il numero di fiammiferi
+    ; della scatola rimasta
+    (fiam (first box-num))
+    ))
+
+(for (i 1 10) (print (banach2 5 10) { }))
+;-> 0 2 2 0 0 1 3 0 5 0
+
+Funzione che esegue la simulazione un determinato numero di volte e restituisce una lista con le frequenze dei fiammiferi rimasti:
+
+(define (banach2-test n m iter)
+  (local (out)
+    (setq out (array (+ m 1) '(0)))
+    (for (i 1 iter)
+      (++ (out (banach2 n m)))
+    )
+    out))
+
+Facciamo alcune prove:
+
+(setq sol (banach2-test 5 10 10000))
+;-> (3129 2553 1783 1218 718 362 158 61 13 4 1)
+(map (fn(x) (mul 100 (div x (apply + sol)))) sol)
+;-> (31.29 25.53 17.83 12.18 7.18 3.62 1.58 0.61 0.13 0.04 0.01)
+
+(setq sol (banach2-test 5 10 1e6))
+;-> (314822 248776 180943 121049 71350
+;->  37623 16971 6254 1810 369 33)
+(map (fn(x) (mul 100 (div x (apply + sol)))) sol)
+;-> (31.4822 24.8776 18.0943 12.1049 7.135
+;->  3.7623 1.6971 0.6254 0.181 0.0369 0.0033)
+
+(setq sol (banach2-test 5 10 1e7))
+;-> (3145292 2489280 1814241 1205993 718267
+;->  376016 168057 61812 17443 3292 307)
+(map (fn(x) (mul 100 (div x (apply + sol)))) sol)
+;-> (31.45292 24.8928 18.14241 12.05993 7.182667
+;->  3.76016 1.68057 0.61812 0.17443 0.03292 0.00307)
+
+I due casi ottengono lo stesso risultato nelle simulazioni:
+
+(map sub
+ '(31.46012 24.88151 18.14325 12.0573 7.18858
+   3.7556 1.68454 0.61827 0.17359 0.03412 0.00312)
+ '(31.45292 24.8928 18.14241 12.05993 7.182667
+   3.76016 1.68057 0.61812 0.17443 0.03292 0.00307))
+;-> (0.007200000000000983 -0.01129000000000247 0.0008399999999966212
+;->  -0.00262999999999991 0.005912999999999613 -0.00456000000000012
+;->  0.003970000000000029 0.0001499999999999835 -0.0008400000000000074
+;->  0.0012 5.000000000000013e-005)
+
+Verifichiamo che questa funzione sia congruente con i risultati ottenuti nel paragrafo "Problema dei fiammiferi di Banach" con due scatole:
+
+  (8.8874 8.9236 8.756500000000001 8.5153 8.262600000000001
+  7.7165 7.2776 6.6639 6.0641 5.3545 4.7031 4.0201 3.3735
+  2.7765 2.2529 1.7751 1.3587 1.0171 0.7549 0.5440999999999999
+  0.3697 0.2397 0.1619 0.1025 0.05860000000000001 0.0335 0.0198
+  0.0086 0.0043 0.0021 0.0006000000000000001 0.0004 9.999999999999999e-005
+  9.999999999999999e-005 9.999999999999999e-005 0 0 0 0 0 0)
+
+(setq sol (banach2-test 2 40 1e6))
+;-> (88666 88925 87689 85645 82462 78072 73074 67090
+;->  60151 53463 46363 40217 33591 27990 22455 17826
+;->  13485 10417 7356 5314 3657 2327 1546 944 597 309
+;->  203 82 46 23 9 3 1 2 0 0 0 0 0 0 0)
+(map (fn(x) (mul 100 (div x (apply + sol)))) sol)
+;-> (8.8666 8.8925 8.7689 8.564500000000001 8.2462
+;->  7.8072 7.3074 6.709 6.0151 5.3463 4.6363 4.0217 3.3591
+;->  2.799 2.2455 1.7826 1.3485 1.0417 0.7355999999999999 0.5314
+;->  0.3657 0.2327 0.1546 0.0944 0.0597 0.0309 0.0203
+;->  0.008200000000000001 0.0046 0.0023 0.0009 0.0003 9.999999999999999e-005
+;->  0.0002 0 0 0 0 0 0 0)
+
+Le due soluzioni sono congruenti.
+
+Per finire vediamo un modo alternativo di selezionare i fiammiferi dalle scatole.
+Possiamo creare una lista con tutti i valori possibili del nostro universo che è rappresentato dalle estrazioni di un fiammifero da una delle scatole a disposizione. Supponiamo di avere N scatole con M fiammiferi, allora il nostro universo vale N volte la lista (1 2 ... M):
+
+                      (x M volte)
+  (1 2 ... N) (1 2 ... N) ... (1 2 ... N) =
+
+= (1 1 ... 1) (2 2 ... 2) ... (N N ... N)
+   (M volte)
+
+Cioè dobbiamo estrarre M volte la scatola X per estrarre tutti i fiammiferi. Mettendo insieme tutti i valori possibili otteniamo una lista del tipo:
+
+(1 1 .. 1 2 2 .. 2 ... N N .. N)
+
+Un esempio chiarisce meglio il concetto:
+
+(setq n 3 m 5)
+(setq rnd (randomize (flat (dup (sequence 1 n) (+ m 1)))))
+;-> (3 1 2 2 1 3 3 3 3 1 3 1 2 1 1 2 2 2)
+
+Questa lista rappresenta l'ordine (casuale) con cui devono essere estratti i fiammiferi dalle scatole: scatola 3, poi 1, poi 2, ecc. e infine rimane la scatola 2.
+Abbiamo usato (m+1) perchè la scatola deve arrivare a -1 e non a 0 per essere considerata vuota.
+In questo caso il numero di fiammiferi rimasti nell'ultima scatola è pari al numero di valori uguali consecutivi in "rnd" (partendo dal fondo) meno uno. Ad esempio nel caso precedente abbiamo 3 valori uguali (2) alla fine di "rnd", quindi ci sono (3 - 1) = 2 fiammiferi rimasti nell'ultima scatola.
+
+(define (banach3 n m)
+  (local (rnd fiam box idx conta)
+    ; creazione di tutte le estrazioni casuali
+    (setq rnd (randomize (flat (dup (sequence 1 n) (+ m 1)))))
+    ; ultima scatola da estrarre
+    (setq box (rnd -1))
+    ; posizione indice
+    (setq idx -2)
+    ; numero fiammiferi rimasti nell'ultima scatola
+    (setq conta 0)
+    (while (= (rnd idx) box)
+      ; aggiorna indice
+      (-- idx)
+      ; aumenta numero di fiammiferi
+      (++ conta)
+    )
+    conta))
+
+(define (banach3-test n m iter)
+  (local (out)
+    (setq out (array (+ m 1) '(0)))
+    (for (i 1 iter)
+      (++ (out (banach3 n m)))
+    )
+    out))
+
+(setq sol (banach3-test 5 10 10000))
+;-> (8137 1543 277 36 6 1 0 0 0 0 0)
+(map (fn(x) (mul 100 (div x (apply + sol)))) sol)
+;-> (81.37000000000001 15.43 2.77 0.36 0.06 0.01
+;->  0 0 0 0 0)
+
+(setq sol (banach3-test 5 10 1e6))
+;-> (814717 153676 26567 4410 565 57 7 1 0 0 0))
+(map (fn(x) (mul 100 (div x (apply + sol)))) sol)
+;-> (81.4717 15.3676 2.6567 0.441 0.0565 0.0057
+;->  0.0007 9.999999999999999e-005 0 0 0)
+
+In questo caso i risultati sono diversi dalle prime due simulazioni perchè la funzione di casualità viene applicata a tutta la simulazione e non ad ogni singolo passo della simulazione (cioè ad ogni estrazione di un fiammifero).
 
 =============================================================================
 
