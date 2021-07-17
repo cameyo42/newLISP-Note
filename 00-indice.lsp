@@ -888,6 +888,7 @@ NOTE LIBERE 5
   Breve introduzione ai grafi
   Lanciare N volte una moneta
   Problema dei fiammiferi di Banach con N scatole
+  Conflitti read-write nelle transazioni di un database
 
 APPENDICI
 =========

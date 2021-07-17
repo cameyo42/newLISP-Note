@@ -2533,5 +2533,96 @@ In questo caso il numero di fiammiferi rimasti nell'ultima scatola è pari al nu
 
 In questo caso i risultati sono diversi dalle prime due simulazioni perchè la funzione di casualità viene applicata a tutta la simulazione e non ad ogni singolo passo della simulazione (cioè ad ogni estrazione di un fiammifero).
 
+
+-----------------------------------------------------
+Conflitti read-write nelle transazioni di un database
+-----------------------------------------------------
+
+Dato un elenco di transazioni di database, trovare tutti i conflitti di lettura-scrittura tra di loro. Si supponga che non esista un protocollo (es. Strict 2PL) per prevenire conflitti di read-write (lettura-scrittura).
+
+Ogni transazione del database è data sotto forma di tupla. La tupla ('T', 'A', 't', 'R') indica che una transazione T ha avuto accesso a un record del database A all'istante t e che viene eseguita un'operazione di lettura R sul record.
+
+Supponiamo che si verifichi un conflitto di dati quando due transazioni accedono allo stesso record nel database entro un intervallo di 5 unità. Sul record viene eseguita almeno un'operazione di scrittura.
+
+Per esempio, il seguente gruppo di transazioni di input:
+
+  (T1, A, 0, R)
+  (T2, A, 2, W)
+  (T3, B, 4, W)
+  (T4, C, 5, W)
+  (T5, B, 7, R)
+  (T6, C, 8, W)
+  (T7, A, 9, R)
+
+Dovrebbe produrre il seguente output:
+
+  Le transazioni T1 e T2 sono coinvolte nel conflitto RW
+  Le transazioni T3 e T5 sono coinvolte nel conflitto WR
+  Le transazioni T4 e T6 sono coinvolte nel conflitto WW
+
+Breve panoramica sui conflitti di lettura-scrittura
+---------------------------------------------------
+Nei database può verificarsi un conflitto di dati durante un'operazione di lettura o scrittura da parte delle diverse transazioni sugli stessi dati durante la vita della transazione, portando a uno stato finale del database incoerente. Esistono tre tipi di conflitti di dati coinvolti nelle transazione di un database.
+
+1) Conflitto tra scrittura e lettura (WR) (lettura sporca)
+----------------------------------------------------------
+Questo conflitto si verifica quando una transazione legge i dati scritti dall'altra transazione, ma non ancora confermati.
+
+2) Conflitto di lettura-scrittura (RW)
+--------------------------------------
+Questo conflitto si verifica quando una transazione scrive i dati che sono stati precedentemente letti dall'altra transazione.
+
+3) Conflitto di scrittura-scrittura (WW) (operazione di scrittura cieca)
+------------------------------------------------------------------------
+Questo conflitto si verifica quando i dati aggiornati da una transazione vengono sovrascritti da un'altra transazione che potrebbe portare alla perdita dell'aggiornamento dei dati.
+Si noti che non vi è alcun conflitto di lettura-lettura (RR) nel database poiché nessuna informazione viene aggiornata nel database durante l'operazione di lettura.
+
+Per risolvere il nostro problema, l'idea è di ordinare tutte le transazioni in ordine crescente di record del database e del relativo tempo di accesso. Per ogni record del database, considerare tutte le coppie di transazioni che hanno avuto accesso al record corrente entro un intervallo di 5 unità. Infine, memorizziamo tutte le coppie di transazioni in conflitto per le quali viene eseguita almeno un'operazione di scrittura sul record corrente.
+
+(define (check-conflict transaction)
+  (local (tr out)
+    (setq tr '() out '())
+    ; per ogni transazione Tx sposta
+    ; il nome della transazione all'ultimo posto
+    (dolist (t transaction)
+      (setq el (select t '(1 2 3 0)))
+      (push el tr -1)
+    )
+    ; ordina le transazioni per record e tempo di accesso
+    (sort tr)
+    ; ricerca dei conflitti nelle operazioni di lettura e scrittura
+    (for (i 0 (- (length tmp) 1))
+      (setq j (- i 1))
+      (while (and (>= j 0) (= (tmp i 0) (tmp j 0)) (<= (tmp i 1) (+ 5 (tmp j 1))))
+        ; per l'esistenza di un conflitto,
+        ; almeno una operazione deve essere di scrittura (W)
+        (if (or (= 'W (tmp i 2)) (= 'W (tmp j 2)))
+            (push (list (tmp j) (tmp i)) out -1)
+        )
+        (-- j)
+      )
+    )
+    out))
+
+Proviamo la funzione:
+
+(setq transact '(
+  (T1 A 0 R)
+  (T2 A 2 W)
+  (T3 B 4 W)
+  (T4 C 5 W)
+  (T5 B 7 R)
+  (T6 C 8 W)
+  (T7 A 9 R)))
+
+(check-conflict transact)
+;-> (((A 0 R T1) (A 2 W T2)) 
+;->  ((B 4 W T3) (B 7 R T5)) 
+;->  ((C 5 W T4) (C 8 W T6)))
+
+Le transazioni T1 e T2 sono coinvolte nel conflitto RW
+Le transazioni T3 e T5 sono coinvolte nel conflitto WR
+Le transazioni T4 e T6 sono coinvolte nel conflitto WW
+
 =============================================================================
 
