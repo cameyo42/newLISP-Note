@@ -889,6 +889,7 @@ NOTE LIBERE 5
   Lanciare N volte una moneta
   Problema dei fiammiferi di Banach con N scatole
   Conflitti read-write nelle transazioni di un database
+  Unico elemento diverso in una lista
 
 APPENDICI
 =========

@@ -889,6 +889,7 @@ NOTE LIBERE 5
   Lanciare N volte una moneta
   Problema dei fiammiferi di Banach con N scatole
   Conflitti read-write nelle transazioni di un database
+  Unico elemento diverso in una lista
 
 APPENDICI
 =========
@@ -101191,7 +101192,7 @@ Vediamo la versione bottom-up:
 
 La complessità temporale di questa soluzione è O(n^2) e richiede O(n) spazio extra, dove n è il numero totale di pentole.
 
-Nota: questo algoritmo non assicura che il giocatore A vince sempre. La vittoria di A dipende dalla casualità della distribuzione delle pentole, questo algoritmo massimizza il valore che A può ottenere, ma non è detto che il valore di B sia inferiore. Per convincersi è sufficiente considerare la seguente distribuzione di pentole: (1 3 1). Qualunque scelta faccia A, il massimo che può ottenere è 2, mentre B può ottenere 3:
+Nota: questo algoritmo non assicura che il giocatore A vinca sempre. La vittoria di A dipende dalla casualità della distribuzione delle pentole, questo algoritmo massimizza il valore che A può ottenere, ma non è detto che il valore di B sia inferiore. Per convincersi è sufficiente considerare la seguente distribuzione di pentole: (1 3 1). Qualunque scelta faccia A, il massimo che può ottenere è 2, mentre B può ottenere 3:
 
 (pots-gold-bu '(1 3 1))
 ;-> 2
@@ -103279,9 +103280,69 @@ Proviamo la funzione:
 ;->  ((B 4 W T3) (B 7 R T5)) 
 ;->  ((C 5 W T4) (C 8 W T6)))
 
-Le transazioni T1 e T2 sono coinvolte nel conflitto RW
-Le transazioni T3 e T5 sono coinvolte nel conflitto WR
-Le transazioni T4 e T6 sono coinvolte nel conflitto WW
+Le transazioni T1 e T2 sono coinvolte nel conflitto RW.
+Le transazioni T3 e T5 sono coinvolte nel conflitto WR.
+Le transazioni T4 e T6 sono coinvolte nel conflitto WW.
+
+
+-----------------------------------
+Unico elemento diverso in una lista
+-----------------------------------
+
+Dato una lista di interi in cui tutti gli elementi sono uguali tranne uno, trovare l'unico elemento diverso nella lista.
+
+Esempi:
+Input: lst = (10 10 10 20 10 10)
+Output: 20
+
+Input: lst = (30 10 30 30 30)
+Output: 10
+
+Una soluzione semplice è attraversare la lista. Per ogni elemento, controllare se è diverso dagli altri o meno. La complessità temporale di questa soluzione sarebbe O(n^2)
+Una soluzione migliore è usare l'hashing. Contiamo le frequenze di tutti gli elementi. La tabella hash avrà due elementi. La soluzione è l'elemento con valore (o frequenza) uguale a 1. Questa soluzione opera in tempo O(n), ma richiede O(n) spazio extra.
+Una soluzione più efficiente consiste nell'iniziare a controllare i primi tre elementi. Ci possono essere due casi:
+1) Due elementi sono uguali, cioè uno è diverso a seconda delle condizioni definite. In questo caso, l'elemento diverso è tra i primi tre, quindi restituiamo l'elemento diverso.
+2) Tutti e tre gli elementi sono uguali. In questo caso, l'elemento diverso si trova nell'array rimanente. Quindi attraversiamo l'array dal quarto elemento e controlliamo semplicemente se il valore dell'elemento corrente è diverso dal precedente o meno.
+
+Vediamo di implementare quest'ultimo metodo con una funzione che restituisce l'indice dell'elemento diverso.
+
+(define (find-unique lst)
+(catch
+  (let (len (length lst))
+    ; se la lista ha meno di due elementi,
+    ; allora restituisce nil
+    (cond ((= len 0) nil)
+          ((= len 1) nil)
+          ; se la lista ha due elementi,
+          ; allora possiamo restituire l'indice 0 o l'indice 1
+          ((= len 2) 0) ; oppure 1
+          (true ; se la lista ha più di due elementi
+            (cond ((and (= (lst 0) (lst 1)) (!= (lst 0) (lst 2))) throw 2)
+                  ((and (= (lst 0) (lst 2)) (!= (lst 0) (lst 1))) throw 1)
+                  ((and (= (lst 1) (lst 2)) (!= (lst 0) (lst 1))) throw 0)
+                  (true
+                    (for (i 3 (- len 1))
+                      (if (!= (lst i) (lst (- i 1)))
+                          (throw i)
+                      )
+                    )
+                  )
+            )
+          )
+    ))))
+
+(find-unique '())
+;-> nil
+(find-unique '(1))
+;-> nil
+(find-unique '(3 1 1 1 1 1 1 1))
+;-> 0
+(find-unique '(1 3 1 1 1 1 1 1))
+;-> 1
+(find-unique '(1 1 3 1 1 1 1 1))
+;-> 2
+(find-unique '(1 1 1 1 1 1 3 1))
+;-> 6
 
 =============================================================================
 
