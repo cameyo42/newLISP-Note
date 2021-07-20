@@ -890,6 +890,8 @@ NOTE LIBERE 5
   Problema dei fiammiferi di Banach con N scatole
   Conflitti read-write nelle transazioni di un database
   Unico elemento diverso in una lista
+  1 o 2
+  Generare tutte le coppie di elementi di una lista
 
 APPENDICI
 =========

@@ -890,6 +890,8 @@ NOTE LIBERE 5
   Problema dei fiammiferi di Banach con N scatole
   Conflitti read-write nelle transazioni di un database
   Unico elemento diverso in una lista
+  1 o 2
+  Generare tutte le coppie di elementi di una lista
 
 APPENDICI
 =========
@@ -103343,6 +103345,194 @@ Vediamo di implementare quest'ultimo metodo con una funzione che restituisce l'i
 ;-> 2
 (find-unique '(1 1 1 1 1 1 3 1))
 ;-> 6
+
+
+-----
+1 o 2
+-----
+
+Scrivere una funzione che restituisce 1 quando viene passato 2 e restituisce 2 quando viene passato 1.
+
+(define (f12a x)
+  (if (= x 1) 2 1))
+
+(f12a 1)
+;-> 2
+(f12a 2)
+;-> 1
+
+Scrivere la stessa funzione senza utilizzare la primitiva "if" o "cond".
+
+(define (f12b x)
+  (- 3 x))
+
+(f12b 1)
+;-> 2
+(f12b 2)
+;-> 1
+
+Scrivere la stessa funzione senza utilizzare le operazioni aritmetiche elementari "+", "-", "*", "/".
+
+(define (f12c x)
+  (^ x 1 2))
+
+(f12c 1)
+;-> 2
+(f12c 2)
+;-> 1
+
+Vediamo quale delle tre funzioni è la più veloce:
+
+(time (f12a 2) 1e7)
+;-> 685.196
+(time (f12b 2) 1e7)
+;-> 567.46
+(time (f12c 2) 1e7)
+;-> 610.196
+
+
+-------------------------------------------------
+Generare tutte le coppie di elementi di una lista
+-------------------------------------------------
+
+Scrivere una funzione per generare tutte le coppie diverse degli elementi di una lista.
+Per esempio, la lista (a b c) genera la lista di coppie ((a b) (a c) (b c)).
+Nota: le coppie (a b) e (b a) sono uguali.
+
+La funzione è abbastanza semplice:
+
+(define (pair-bind lst)
+  (let (out '())
+    (for (i 0 (- (length lst) 2))
+      (for (j (+ i 1) (- (length lst) 1))
+        (push (list (lst i) (lst j)) out -1)
+      )
+    )
+    out))
+
+(setq lst '(1 2 3 4 5))
+(pair-bind lst)
+;-> ((1 2) (1 3) (1 4) (1 5) (2 3) (2 4) (2 5) (3 4) (3 5) (4 5))
+
+Adesso possiamo usare questo risultato per calcolare, ad esempio, le somme delle coppie di elementi:
+
+(map (fn(x) (+ (first x) (last x))) (pair-bind lst))
+;-> (3 4 5 6 5 6 7 7 8 9)
+
+Oppure possiamo scrivere una funzione simile a "pair-bind" per calcolare la somma delle coppie di elementi:
+
+(define (pair-sum lst)
+  (let (out '())
+    (for (i 0 (- (length lst) 2))
+      (for (j (+ i 1) (- (length lst) 1))
+        (push (+ (lst i) (lst j)) out -1)
+      )
+    )
+    out))
+
+(pair-sum lst)
+;-> (3 4 5 6 5 6 7 7 8 9)
+
+Notiamo che le due funzioni "pair-bind" e "pair-sum" sono uguali tranne la funzione che viene applicata ad ogni coppia di elementi, allora possiamo scrivere una funzione generica che prende come parametro la funzione da applicare (list, +, -, *, ecc.):
+
+(define (pair-func f lst)
+  (let (out '())
+    (for (i 0 (- (length lst) 2))
+      (for (j (+ i 1) (- (length lst) 1))
+        (push (f (lst i) (lst j)) out -1)
+      )
+    )
+    out))
+
+Vediamo di simulare la funzione "pair-bind":
+
+(pair-func list lst)
+;-> ((1 2) (1 3) (1 4) (1 5) (2 3) (2 4) (2 5) (3 4) (3 5) (4 5))
+
+Adesso la funzione "pair-sum":
+
+(pair-func + lst)
+;-> (3 4 5 6 5 6 7 7 8 9)
+
+Calcoliamo la potenza di ogni coppia:
+
+(pair-func pow lst)
+;-> (1 1 1 1 8 16 32 81 243 1024)
+
+Adesso un problema inverso, data una lista i cui elementi sono le coppie di elementi di un'altra lista, determinare la lista originale.
+Per esempio, data la lista ((1 2) (1 3) (1 4) (1 5) (2 3) (2 4) (2 5) (3 4) (3 5) (4 5)), allora la lista originale vale (1 2 3 4 5).
+
+(setq lst '((1 2) (1 3) (1 4) (1 5) (2 3) (2 4) (2 5) (3 4) (3 5) (4 5)))
+
+(define (pair-inverse lst)
+  (local (palo out)
+    ; il primo valore è il palo (sentinella)
+    (setq palo (lst 0 0))
+    ; inserisce il primo valore
+    (setq out (list palo))
+    (dolist (el lst)
+      ; se il valore è diverso,
+      ; allora lo inserisce nella lista e 
+      ; aggiorna il valore del palo
+      (if (!= (el 0) palo) 
+          (begin
+          (setq palo (el 0))
+          (push palo out -1))
+      )
+    )
+    ; inserisce l'ultimo valore
+    (push (lst -1 1) out -1)
+  out))
+
+(pair-inverse lst)
+;-> (1 2 3 4 5)
+
+Adesso un problema più complesso, data una lista i cui elementi sono la somma dele coppie di elementi di un'altra lista, determinare la lista originale.
+Per esempio, data la lista (3 4 5 6 5 6 7 7 8 9), allora la lista originale vale (1 2 3 4 5).
+
+In generale, la lista delle somme delle coppie della lista lst[0..n-1] vale (lst[0]+lst[1], lst[0]+lst[2], ..., lst[1]+lst[2], lst[1]+lst[3], ..., lst[2]+lst[3], lst[2]+lst[4], ..., lst[n-2]+lst[n-1]).
+
+Supponiamo che la lista data sia "pair" e che ci siano n elementi nella lista originale. Se diamo un'occhiata ad alcuni esempi, possiamo osservare che lst[0] è la metà di pair[0] + pair[1] – pair[n-1]. Nota che il valore di pair[0] + pair[1] – pair[n-1] è (lst[0] + lst[1]) + (lst[0] + lst[2]) – (lst[1] + lst[2]). Una volta valutato lst[0], possiamo valutare altri elementi sottraendo lst[0]. Ad esempio lst[1] può essere valutato sottraendo lst[0] da pair[0], lst[2] può essere valutato sottraendo lst[0] da pair[1].
+Possiamo ricavare la lunghezza della lista originale notando che è legata all'equazione dei numeri triangolari:
+
+  (length pair) = (Triangular((length lst) - 1))
+  Triangular(n) = n*(n-1)/2
+ 
+dove:
+
+  n = (length lst) - 1
+
+quindi possiamo scrivere:
+  
+  (length (pair) = n*(n-1)/2 ==> 2*(length pair) = n*n - n
+
+e ricavare n, cioè (length lst) - 1, risolvendo l'equazione di secondo grado:
+
+(length lst) = (+ 1 (sqrt(1 + (8 * (length pair)))))/2
+
+Adesso possiamo scrivere la funzione:
+
+(define (pair-sum-inverse pair)
+  (local (base len out)
+    (setq out '())
+    ; lunghezza della lista originale
+    (setq len (/ (+ 1 (sqrt (+ 1 (* 8 (length pair))))) 2))
+    ; valore base
+    (setq base (/ (+ (pair 0) (pair 1) (- (pair (- len 1)))) 2))
+    (push base out -1)
+    (for (i 1 (- len 1))
+      (push (- (pair (- i 1)) base) out -1)
+    )
+    out))
+
+(pair-sum-inverse (pair-sum '(1 2 3 4 5)))
+;-> (1 2 3 4 5)
+(pair-sum-inverse (pair-sum '(1 2 3 4 5 6 7 8 9)))
+;-> (1 2 3 4 5 6 7 8 9)
+(pair-sum-inverse (pair-sum '(2 2 1 1 3 3 4 4 5)))
+;-> (2 2 1 1 3 3 4 4 5)
+(pair-sum-inverse (pair-sum '(2 1 2)))
+;-> (2 1 2)
 
 =============================================================================
 
