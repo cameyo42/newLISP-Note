@@ -892,6 +892,7 @@ NOTE LIBERE 5
   Unico elemento diverso in una lista
   1 o 2
   Generare tutte le coppie di elementi di una lista
+  Numero di partite nel Tic-Tac-Toe
 
 APPENDICI
 =========

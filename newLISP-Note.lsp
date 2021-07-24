@@ -892,6 +892,7 @@ NOTE LIBERE 5
   Unico elemento diverso in una lista
   1 o 2
   Generare tutte le coppie di elementi di una lista
+  Numero di partite nel Tic-Tac-Toe
 
 APPENDICI
 =========
@@ -102357,7 +102358,7 @@ Funzione che calcola la mutazione più adatta (stringa più vicina al target):
 Funzione finale dell'algoritmo di Weasel:
 
 (define (evolution target start population change)
-(catch  
+(catch
   (local (mutation current generation)
     (setq current start)
     (setq generation 0)
@@ -103278,8 +103279,8 @@ Proviamo la funzione:
   (T7 A 9 R)))
 
 (check-conflict transact)
-;-> (((A 0 R T1) (A 2 W T2)) 
-;->  ((B 4 W T3) (B 7 R T5)) 
+;-> (((A 0 R T1) (A 2 W T2))
+;->  ((B 4 W T3) (B 7 R T5))
 ;->  ((C 5 W T4) (C 8 W T6)))
 
 Le transazioni T1 e T2 sono coinvolte nel conflitto RW.
@@ -103472,9 +103473,9 @@ Per esempio, data la lista ((1 2) (1 3) (1 4) (1 5) (2 3) (2 4) (2 5) (3 4) (3 5
     (setq out (list palo))
     (dolist (el lst)
       ; se il valore è diverso,
-      ; allora lo inserisce nella lista e 
+      ; allora lo inserisce nella lista e
       ; aggiorna il valore del palo
-      (if (!= (el 0) palo) 
+      (if (!= (el 0) palo)
           (begin
           (setq palo (el 0))
           (push palo out -1))
@@ -103497,13 +103498,13 @@ Possiamo ricavare la lunghezza della lista originale notando che è legata all'e
 
   (length pair) = (Triangular((length lst) - 1))
   Triangular(n) = n*(n-1)/2
- 
+
 dove:
 
   n = (length lst) - 1
 
 quindi possiamo scrivere:
-  
+
   (length (pair) = n*(n-1)/2 ==> 2*(length pair) = n*n - n
 
 e ricavare n, cioè (length lst) - 1, risolvendo l'equazione di secondo grado:
@@ -103533,6 +103534,312 @@ Adesso possiamo scrivere la funzione:
 ;-> (2 2 1 1 3 3 4 4 5)
 (pair-sum-inverse (pair-sum '(2 1 2)))
 ;-> (2 1 2)
+
+
+---------------------------------
+Numero di partite nel Tic-Tac-Toe
+---------------------------------
+
+Quante partite diverse di Tic-Tac-Toe sono possibili?
+
+http://www.se16.info/hgb/tictactoe.htm
+
+Abbiamo 9 modi possibili per posizionare il primo segno, 8 modi per posizionare il secondo, 7 modi il terzo, ... e 1 per il nono. Quindi risulta 9*8*7*6*5*4*3*2*1 = 9! = 362880.
+
+Ma nelle 362880 partite esistono anche quelle che dovrebbero essere terminate prima a causa della vittoria di uno dei due giocatori. Quindi le sole partite valide (cioè le partite che devono essere considerate terminate) sono quelle che terminano appena qualcuno ottiene tre simboli uguali in fila oppure quelle partite che hanno tutti le caselle riempite e senza nessun tris. Da notare che la partita di lunghezza minima ha 5 caselle occupate.
+Possiamo trovare il numero totale di partite calcolando quante partite finiscono con cinque caselle, sei caselle, sette caselle, otto caselle e nove casella e poi sommando il tutto.
+
+Nel caso di nove caselle ci sono due possibilità: o qualcuno ha vinto alla nona mossa, o è un pareggio senza tre di fila.
+
+Supponiamo che il primo giocatore inizi con una X e il secondo usi una O.
+
+Numero di partite che terminano alla quinta mossa
+ci sono 8 linee di tre quadrati (tre verticali, tre orizzontali e due diagonali) e non importa in quale ordine sono state messe le tre X, e le due O potrebbero essere andate in due delle altre sei quadrati in qualsiasi ordine. Quindi abbiamo 8*3!*6*5 = 1440 partite che finiscono con una vittoria alla quinta mossa.
+
+Numero di partite che terminano alla sesta mossa
+ci sono ancora 8 righe di tre quadrati, e non importa in quale ordine sono state disposte le tre O, e le tre X avrebbero potuto essere inserite in tre degli altri sei quadrati in qualsiasi ordine (a condizione che le X siano non tre di fila). Ignorando la frase tra parentesi, questo ci dà 8*3!*6*5*4 = 5760 possibilità. Per tener conto della parentesi dobbiamo escludere i casi in cui ci sono tre O di fila e tre X di fila: nessuna di esse può essere una diagonale, e se si prende una riga particolare, ci sono solo altre due righe possibili , quindi dobbiamo escludere 6*3!*2*3! = 432 casi. Quindi stiamo guardando 5760-432 = 5328 partite che finiscono con una vittoria alla sesta mossa.
+
+Numero di partite che terminano alla settima mossa
+ci sono ancora 8 linee di tre quadrati, ma questa volta importa in quale ordine sono state poste le quattro X, poiché la quarta deve essere sulla linea, mentre le tre O potrebbero essere andate in tre delle altre cinque quadrati in qualsiasi ordine (a condizione che le O non siano tre di fila). Ignorando la frase tra parentesi, questo ci dà 8*3*6*3!*5*4*3 = 51840 possibilità. Per tener conto della parentesi dobbiamo escludere i casi in cui ci sono tre O di fila e tre X di fila: nessuna di esse può essere una diagonale, e se una determinata riga viene presa con X, ci sono solo altre due possibili righe di cui una ha una X, quindi dobbiamo escludere 6*3*6*3!*3! = 3888 casi. Quindi abbiamo 51840-3888 = 47952 partite che finiscono con una vittoria alla settima mossa.
+
+Numero di partite che terminano all'ottava mossa
+ci sono di nuovo 8 linee di tre quadrati, ma anche in questo caso non importa in quale ordine sono state disposte le quattro O, poiché la quarta deve essere sulla linea, mentre le quattro X potrebbero essere andate in quattro delle altre cinque quadrati in qualsiasi ordine (a condizione che le X non siano tre di fila). Ignorando la frase tra parentesi, questo ci dà 8*3*6*3!*5*4*3*2 = 103680 possibilità. Per tener conto della condizione tra parentesi, dobbiamo escludere i casi in cui ci sono tre O di fila e tre X di fila: nessuna di esse può essere una diagonale, e se una determinata riga viene presa con O, ci sono solo altre due possibili righe di cui una ha una O e due posti rimanenti per una X, quindi dobbiamo escludere 6*3*6*3!*2*4! = 31104 casi. Quindi sono 103680-31104 = 72576 partite che finiscono con una vittoria all'ottava mossa.
+
+Numero di partite che terminano alla nona mossa
+Questo potrebbe essere facilmente calcolato sottraendo le possibilità già coperte da 9!. Ma lo terremo da parte per un controllo finale e useremo la forza bruta. La partita potrebbe concludersi con una vittoria o un pareggio, e li calcoleremo entrambi.
+
+Per vincere, ci sono molte di possibilità:
+non solo dobbiamo assicurarci che non ci siano tre O in fila prima che la quinta X sia posizionata, ma anche che non ci sia già una linea distinta di tre X in fila. Per prima cosa consideriamo una vittoria che coinvolge solo una diagonale: ce ne sono due e la quinta X deve essere sulla diagonale. Questo significa che le altre due X possono trovarsi solo in 8 delle restanti 15 possibili coppie di quadrati fuori dalla diagonale: questo porta a 2*3*8*4!*4! = 27648 possibilità. In secondo luogo consideriamo una vincita che coinvolge solo un tre di fila verticale o orizzontale: le altre due X possono essere in 10 delle restanti 15 possibili coppie di quadrati fuori dalla fila per evitare altri tre X di fila, solo 4 su 10 evitano tre O di fila, ancora la quinta X deve trovarsi nella riga desiderata, questo porta a 6*3*4*4!*4! = 41472 possibilità. Terzo,bisogna considerare la possibilità che la quinta X completi due distinti tre di fila dove si intersecano: ci sono 22 possibili coppie di tre intersecanti di fila, la quinta X deve essere l'intersezione, questo porta a 22*1*4!*4! = 12672 possibilità. Quindi stiamo guardando 27648+41472+12672 = 81792 possibilità di partite che terminano con una vittoria alla nona mossa.
+
+Per un pareggio:
+ci sono un totale di 16 possibili modelli per le cinque X e quattro O che non hanno tre simboli in fila (ci sono tre modelli di base che aumentano a 8+4+4 con riflessioni e rotazioni). Quindi abbiamo 16*5!*4! = 46080 possibilità di partite che finiscono in parità alla nona mossa.
+
+Quindi in totale abbiamo 81792+46080 = 127872 partite che durano fino alla nona mossa.
+
+Controllo sul calcolo
+Avremmo potuto calcolare la possibilità della nona mossa come 9! -4!*(quinta mossa vince) -3!*(sesta mossa vince) -2!*(settima mossa vince) -1!*(otto mossa vince) = 362880-24*1440-6*5328-2*47952 -1*72576 = 127872. Questo è lo stesso risultato di prima, quindi nonostante la possibilità di errori di compensazione, possiamo avere una certa fiducia nel risultato.
+
+Quanti giochi di Tic-Tac-Toe (zero e croci) sono possibili?
+Sommando tutte queste cifre si ottiene il risultato desiderato: 1440+5328+47952+72576+81792+46080 = 255168 possibili partite in totale .
+
+Questa tabella riporta i risultati:
+
+  Mosse            Partite         %
+--------------------------------------
+  Vittoria in 5     1440          0,6%
+  Vittoria in 6     5328          2,1%
+  Vittoria in 7    47952         18,8%
+  Vittoria in 8    72576         28,4%
+  Vittoria in 9    81792         32,1%
+  Pareggio         46080         18,1%
+--------------------------------------
+  Totale           255168       100.0%
+
+Comunque se entrambi i giocatori giocano in modo perfetto, allora le partite terminano sempre in pareggio.
+
+Vediamo di implementare una simulazione.
+Generiamo tutte le permutazioni delle 9 mosse.
+Per ogni permutazione giochiamo la partita e vediamo come finisce, ad esempio, la permutazione/partita (2 7 6 5 1 4 9 3 8) si gioca nel modo seguente:
+X occupa la casella 2
+fine partita? (-1 X -1 -1 -1 -1 -1 -1 -1)
+O occupa la casella 7
+fine partita? (-1 X -1 -1 -1 -1 O -1 -1)
+X occupa la casella 6
+fine partita? (-1 X -1 -1 -1 X O -1 -1)
+O occupa la casella 5
+fine partita? (-1 X -1 -1 O X O -1 -1)
+...
+Per ogni partita memorizziamo il risultato e mettiamo la posizione finale in una lista.
+
+Scriviamo alcune funzioni.
+
+Generate tutte le permutazioni senza ripetizioni:
+
+(define (perm lst)
+  (local (i indici out)
+    (setq indici (dup 0 (length lst)))
+    (setq i 0)
+    (setq out (list lst))
+    (while (< i (length lst))
+      (if (< (indici i) i)
+          (begin
+            (if (zero? (% i 2))
+              (swap (lst 0) (lst i))
+              (swap (lst (indici i)) (lst i))
+            )
+            (push lst out -1)
+            (++ (indici i))
+            (setq i 0)
+          )
+          (begin
+            (setf (indici i) 0)
+            (++ i)
+          )
+       )
+    )
+    out))
+
+(length (perm '(1 2 3 4 5 6 7 8 9)))
+;-> 362880
+
+(silent (setq all-game (perm '(1 2 3 4 5 6 7 8 9))))
+(all-game 21)
+;-> (4 2 3 1 5 6 7 8 9)
+
+Funzione che controlla se e come è terminata una partita:
+
+(define (game-over? pos)
+          ; controllo righe
+    (cond ((or (and (!= (pos 0) -1) (= (pos 0) (pos 1) (pos 2)))
+               (and (!= (pos 3) -1) (= (pos 3) (pos 4) (pos 5)))
+               (and (!= (pos 6) -1) (= (pos 6) (pos 7) (pos 8))))
+           '1)
+          ; controllo colonne
+          ((or (and (!= (pos 0) -1) (= (pos 0) (pos 3) (pos 6)))
+               (and (!= (pos 1) -1) (= (pos 1) (pos 4) (pos 7)))
+               (and (!= (pos 2) -1) (= (pos 2) (pos 5) (pos 8))))
+           '1)
+          ; controllo diagonali
+          ((or (and (!= (pos 0) -1) (= (pos 0) (pos 4) (pos 8)))
+               (and (!= (pos 2) -1) (= (pos 2) (pos 4) (pos 6))))
+           '1)
+          ; controllo caselle tutte occupate (partita terminata patta)
+          ((zero? (first (count '(-1) pos)))
+           '0)
+          ; partita non finita
+          (true '2)))
+
+(setq pos '(1 0 1
+            0 0 1
+            0 1 -1))
+(game-over? pos)
+;-> 2
+(setq pos '(1 0 1
+            0 0 1
+            0 1 0))
+(game-over? pos)
+;-> 0
+(setq pos '(1 1 1
+            0 -1 -1
+            0 -1 -1))
+(game-over? pos)
+;-> 1
+(setq pos '(0 1 1
+            0 1 -1
+            0 -1 1))
+(game-over? pos)
+;-> 1
+(setq pos '(0 1 1
+            1 1 -1
+            0 -1 1))
+(game-over? pos)
+;-> 2
+(setq pos '(-1 1 1
+            1 -1 -1
+            0 -1 -1))
+(game-over? pos)
+;-> 2
+
+Funzione che gioca una posizione (per esempio (8 7 2 3 5 4 1 9 6)):
+
+(define (play pos)
+  (local (cur res stop)
+    (setq cur (dup -1 9))
+    (for (i 0 3)
+      (if (even? i)
+          (setf (cur (- (pos i) 1)) '1)
+          (setf (cur (- (pos i) 1)) '0)
+      )
+    )
+    ;(println "partita iniziale: ")
+    ;(print-board cur)
+    ;(read-line)
+    (for (i 4 8 1 stop)
+      (if (even? i)
+          (setf (cur (- (pos i) 1)) '1)
+          (setf (cur (- (pos i) 1)) '0)
+      )
+      ; res -> (1=win 0=draw 2=play)
+      (setq res (game-over? cur))
+      ;(println "partita attuale: ")
+      ;(print-board cur)
+      ;(println "risultato: " res)
+      ;(read-line)
+      (cond ((or (= res 1) (= res 0))
+             (setq stop true)
+             (if (= res 1) (push cur out -1))
+             (++ (freq res)))
+            ((= res 2) nil)
+            (true (println "error:" res))
+      ))))
+
+Funzione che stampa una posizione:
+
+(define (print-board pos)
+  (println (format "%2d %2d %2d" (pos 0) (pos 1) (pos 2)))
+  (println (format "%2d %2d %2d" (pos 3) (pos 4) (pos 5)))
+  (println (format "%2d %2d %2d" (pos 6) (pos 7) (pos 8))))
+
+(print-board pos)
+;->  1  1  1
+;->  0 -1 -1
+;->  0 -1 -1
+
+Nota: per provare la funzione play occorre definire: (setq freq '(0 0))
+
+Funzione che gestisce tutta la simulazione:
+
+(define (num-ttt)
+  (local (freq out)
+    (setq out '())
+    (setq freq '(0 0))
+    (setq all-game (perm '(1 2 3 4 5 6 7 8 9)))
+    (dolist (game all-game)
+      (play game)
+    )
+    (println freq)
+    out))
+
+(silent (setq allwin (num-ttt)))
+;-> (46080 316800)
+
+(allwin 1)
+;-> (0 1 1 0 1 0 1 -1 -1)
+
+(print-board (allwin 1))
+;->  0  1  1
+;->  0  1  0
+;->  1 -1 -1
+
+(game-over? (allwin 1))
+;-> 1
+
+(length allwin)
+;-> 316800
+
+Adesso contiamo le vittorie in base al numero delle mosse (5,6,7,8 o 9):
+
+(define (contawin lst)
+  (local (fwin num)
+    (setq fwin '(0 0 0 0 0 0 0 0 0 0))
+    (dolist (el lst)
+      ; conta quanti -1 esistono nella posizione
+      ; e poi aggiorna la lista delle frequenza
+      (setq num (- 9 (first (count '(-1) el))))
+      (++ (fwin num))
+    )
+    fwin))
+
+(contawin allwin)
+;-> (0 0 0 0 0 34560 31968 95904 72576 81792)
+
+Questo significa che tra tutte le partite vinte:
+
+34560 partite terminano in 5 mosse
+31968 partite terminano in 6 mosse
+95904 partite terminano in 7 mosse
+72576 partite terminano in 8 mosse
+81792 partite terminano in 9 mosse
+
+Ricordiamo dal Controllo del calcolo precedente che risulta:
+
+(* 24 1440)
+;-> 34560
+(* 6 5328)
+;-> 31968
+(* 2 47952)
+;-> 95904
+(* 1 72576)
+;-> 72576
+(* 1 81792)
+;-> 81792
+
+Numero di partite patte:
+
+(- 362880 (+ 34560 31968 95904 72576 81792))
+;-> 46080
+
+Nota: una posizione finale può derivare da molte partite diverse.
+
+Quindi le posizioni della lista allwin contengono anche molte posizioni doppie. Vediamo di calcolare solo le posizioni finali univoche:
+
+(setq allvalidwin (unique allwin))
+
+(length allvalidwin)
+;-> 942
+
+Adesso contiamo le vittorie delle posizioni finali uniche in base al numero delle mosse (5,6,7,8 o 9):
+
+(contawin allvalidwin)
+;-> (0 0 0 0 0 120 148 444 168 62)
+
+Questo significa che ci sono:
+
+120 posizioni finali univoche di vittoria in 5 mosse
+148 posizioni finali univoche di vittoria in 6 mosse
+444 posizioni finali univoche di vittoria in 7 mosse
+168 posizioni finali univoche di vittoria in 8 mosse
+ 62 posizioni finali univoche di vittoria in 9 mosse
 
 =============================================================================
 
