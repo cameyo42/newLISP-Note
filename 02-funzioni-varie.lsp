@@ -1801,7 +1801,7 @@ Legge un tasto dalla tastiera e restituisce un valore intero. Per i tasti di nav
 
 L'ultimo esempio può essere utilizzato per verificare le sequenze di ritorno dalla navigazione e dai tasti funzione. Per interrompere il ciclo, premere Ctrl-A.
 
-Nota che read-key funziona solo quando newLISP è in esecuzione in una shell Unix o nella shell dei comandi di Windows. Non funziona nelle gui Java newLISP-GS e Tcl/Tk newLISP-Tk. Non funziona neanche nelle shared library newwLISP di UNIX o nella DLL newLISP di Windows (Dynamic Link Library).
+Notare che "read-key" funziona solo quando newLISP è in esecuzione in una shell Unix o nella shell dei comandi di Windows. Non funziona nelle gui Java newLISP-GS e Tcl/Tk newLISP-Tk. Non funziona neanche nelle shared library newwLISP di UNIX o nella DLL newLISP di Windows (Dynamic Link Library).
 
 ; =====================================================
 ; yes-no

@@ -17,7 +17,7 @@ Un informatico dovrebbe sempre avere un interesse profondo per i fondamenti teor
 Notazione Big-O
 ---------------
 
-Il seguente elenco mostra (in maniera essenzialmente pratica) le complessità temporali degli algoritmi:
+Il seguente elenco mostra (in maniera essenzialmente pratica) le varie complessità temporali degli algoritmi:
 
 O(1)
 Il tempo di esecuzione di un algoritmo a tempo costante non dipende dalla dimensione dell'input. Un tipico algoritmo a tempo costante è una formula diretta che calcola il risultato della risposta.

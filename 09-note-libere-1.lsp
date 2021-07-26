@@ -2475,7 +2475,7 @@ Un altro modo di creare un generatore:
 selfinc
 ;-> (lambda (x) (myinc x) 6)
 
-Nota: Una funzione definita dall'utente non ha modo di fare riferimento alla funzione da cui è stata invocata, tranne quando ha una sua precedente conoscenza. Quando abbiamo questa necessità, in cui una funzione deve conoscere il nome della chiamante, basta renderla un parametro della chiamata di funzione.
+Nota: Una funzione definita dall'utente non ha modo di fare riferimento alla funzione da cui è stata invocata, tranne quando ha una sua precedente conoscenza. Quando abbiamo questa necessità, in cui una funzione deve conoscere il nome della chiamante, basta renderla un parametro della chiamata della funzione.
 
 
 ---------------

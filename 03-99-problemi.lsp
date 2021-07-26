@@ -4,7 +4,7 @@
 
 ==========================
 
-Questi problemi sono stati creati per essere risolti con il linguaggio Prolog.
+Questi problemi sono stati creati inizialmente per essere risolti con il linguaggio Prolog.
 Poi è stata la volta dei linguaggi Lisp, Haskell e Scheme... e adesso newLISP.
 Potete trovare l'elenco completo dei problemi al sito:
 

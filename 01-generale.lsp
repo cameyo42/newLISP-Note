@@ -1280,11 +1280,85 @@ La valutazione di "nil" produce falso (in senso booleano) e viene trattato come 
 (map symbol? lst)
 ;-> (true true true)
 
-In newLISP, "nil" e la lista vuota () non sono uguali a quelli di altri Lisp. Solo nelle espressioni condizionali vengono trattati come falsi booleani, come in "and", "or", "if", "while", "unless", "until", e "cond".
+Nota: in newLISP, "nil" e la lista vuota () non sono uguali a quelli di altri Lisp. Solo nelle espressioni condizionali vengono trattati come falsi booleani, come in "and", "or", "if", "while", "unless", "until", e "cond".
+Possiamo scrivere una funzione per verificare il valore booleano (true o nil) di un simbolo/variabile:
+
+(define (bool-value x) (if x true nil))
+
+(bool-value '())
+;-> nil
+
+In questo caso, la funzione utilizza "if", quindi la lista vuota '() viene considerata nil, ma abbiamo visto che la lista vuota non è uguale a nil:
+
+(nil? '())
+;-> nil
+
+Il valore true si comporta normalmente:
+
+NaN vale true:
+(bool-value (div 0 0))
+;-> true
+
+Infinito vale true:
+(bool-value (div 1 0))
+;-> true
+
+Adesso vediamo quali sono i valori che sono considerati true:
+
+Con i valori booleani:
+(true? true)
+;-> true
+(true? nil)
+;-> nil
+
+Con i numeri:
+(true? 1)
+;-> true
+(true? 0)
+;-> true
+(true? -1)
+;-> true
+
+; infinito
+(true? (div 1 0))
+;-> true
+
+; Not A Number
+(true? (div 0 0))
+;-> true
+
+Con le liste:
+(true? '(1 a))
+;-> true
+; la lista vuota è nil
+(true? '())
+;-> nil
+
+Con le stringhe:
+(true? "nome")
+;-> true
+; la stringa vuota è true
+(true? "")
+;-> true
+
+Associamo al simbolo '() il valore true:
+(setq () true)
+;-> ERR: invalid function in function setf : ()
+(set '() true)
+;-> ERR: invalid function in function setf : ()
+
+Assegnazione corretta:
+(setq '() true)
+;-> true
+(true? '())
+;-> nil
+(true? (quote '()))
+;-> true
 
 La valutazione di (cons 'x' ()) produce (x), ma (cons 'x nil) produce (x nil) perché "nil" viene trattato come valore booleano quando viene valutato, non come una lista vuota. In newLISP l'applicazione di "cons" a due atomi non produce una coppia puntata, ma piuttosto una lista di due elementi. Il predicato "atom?" è vero per "nil", ma falso per la lista vuota. La lista vuota in newLISP è solo una lista vuota e non è uguale a nil.
 
 Una lista in newLISP è una cella newLISP di tipo lista. Agisce come un contenitore per la lista (linked list) che collega gli elementi che formano il contenuto della lista. Non c'è una coppia puntata in newLISP perché la parte "cdr" (coda) di una cella Lisp punta sempre a un'altra cella Lisp e mai a un tipo di dati di base, come un numero o un simbolo. Solo la parte "car" (testa) può contenere un tipo di dati di base. Le prime implementazioni di Lisp utilizzavano "car" e "cdr" per i nomi head (testa) e tail (coda).
+
 
 
 ==================================
@@ -1523,7 +1597,7 @@ http://kazimirmajorinc.com/Documents/Crawler-tractor/index.html
 Crawler Tractor (Trattore Cingolato) di Kazimir Majorinc
 --------------------------------------------------------
 
-Viene presentato un esempio del programma Lisp di auto-elaborazione. La funzione f incrementa continuamente il valore della variabile "counter" e ne stampa il valore. Tuttavia, l'implementazione di f non contiene alcun ciclo o ricorsione. Invece, la funzione cambia il codice della sua definizione durante la valutazione.
+Viene presentato un esempio di programma Lisp di auto-elaborazione. La funzione f incrementa continuamente il valore della variabile "counter" e ne stampa il valore. Tuttavia, l'implementazione di f non contiene alcun ciclo o ricorsione. Invece, la funzione cambia il codice della sua definizione durante la valutazione.
 
 (set 'f
      (lambda()

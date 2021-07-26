@@ -957,9 +957,7 @@ In maniera analoga possiamo scrivere un programma Quine:
 Test di primalità
 -----------------
 
-In questo paragrafo vengono implementati gli algoritmi tratti dal libro:
-
-"Primality Testing in Polynomial Time" di Martin Dietzfelbinger
+In questo paragrafo vengono implementati gli algoritmi tratti dal libro "Primality Testing in Polynomial Time" di Martin Dietzfelbinger:
 
   - Algoritmo "Trial Division"
   - Algoritmo "Lehmann's Primality Test"

@@ -27,8 +27,8 @@ procedure BubbleSort(A:lista di elementi da ordinare)
       if (A[i] > A[i + 1]) then  //sostituire '>' con '<' per ottenere un ordinamento decrescente
         swap ( A[i], A[i+1] )
         ultimoScambiato ← i
-    //ad ogni passaggio si accorcia il ciclo di for
-    //fermandosi in corrispondenza dell'ultimo scambio effettuato
+    ; ad ogni passaggio si accorcia il ciclo di for
+    ; fermandosi in corrispondenza dell'ultimo scambio effettuato
     n ← ultimoScambiato
 
 Versione ricorsiva:

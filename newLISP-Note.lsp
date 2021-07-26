@@ -893,6 +893,8 @@ NOTE LIBERE 5
   1 o 2
   Generare tutte le coppie di elementi di una lista
   Numero di partite nel Tic-Tac-Toe
+  Estrazione dati da file PDF
+  Media continua
 
 APPENDICI
 =========
@@ -2246,11 +2248,85 @@ La valutazione di "nil" produce falso (in senso booleano) e viene trattato come 
 (map symbol? lst)
 ;-> (true true true)
 
-In newLISP, "nil" e la lista vuota () non sono uguali a quelli di altri Lisp. Solo nelle espressioni condizionali vengono trattati come falsi booleani, come in "and", "or", "if", "while", "unless", "until", e "cond".
+Nota: in newLISP, "nil" e la lista vuota () non sono uguali a quelli di altri Lisp. Solo nelle espressioni condizionali vengono trattati come falsi booleani, come in "and", "or", "if", "while", "unless", "until", e "cond".
+Possiamo scrivere una funzione per verificare il valore booleano (true o nil) di un simbolo/variabile:
+
+(define (bool-value x) (if x true nil))
+
+(bool-value '())
+;-> nil
+
+In questo caso, la funzione utilizza "if", quindi la lista vuota '() viene considerata nil, ma abbiamo visto che la lista vuota non è uguale a nil:
+
+(nil? '())
+;-> nil
+
+Il valore true si comporta normalmente:
+
+NaN vale true:
+(bool-value (div 0 0))
+;-> true
+
+Infinito vale true:
+(bool-value (div 1 0))
+;-> true
+
+Adesso vediamo quali sono i valori che sono considerati true:
+
+Con i valori booleani:
+(true? true)
+;-> true
+(true? nil)
+;-> nil
+
+Con i numeri:
+(true? 1)
+;-> true
+(true? 0)
+;-> true
+(true? -1)
+;-> true
+
+; infinito
+(true? (div 1 0))
+;-> true
+
+; Not A Number
+(true? (div 0 0))
+;-> true
+
+Con le liste:
+(true? '(1 a))
+;-> true
+; la lista vuota è nil
+(true? '())
+;-> nil
+
+Con le stringhe:
+(true? "nome")
+;-> true
+; la stringa vuota è true
+(true? "")
+;-> true
+
+Associamo al simbolo '() il valore true:
+(setq () true)
+;-> ERR: invalid function in function setf : ()
+(set '() true)
+;-> ERR: invalid function in function setf : ()
+
+Assegnazione corretta:
+(setq '() true)
+;-> true
+(true? '())
+;-> nil
+(true? (quote '()))
+;-> true
 
 La valutazione di (cons 'x' ()) produce (x), ma (cons 'x nil) produce (x nil) perché "nil" viene trattato come valore booleano quando viene valutato, non come una lista vuota. In newLISP l'applicazione di "cons" a due atomi non produce una coppia puntata, ma piuttosto una lista di due elementi. Il predicato "atom?" è vero per "nil", ma falso per la lista vuota. La lista vuota in newLISP è solo una lista vuota e non è uguale a nil.
 
 Una lista in newLISP è una cella newLISP di tipo lista. Agisce come un contenitore per la lista (linked list) che collega gli elementi che formano il contenuto della lista. Non c'è una coppia puntata in newLISP perché la parte "cdr" (coda) di una cella Lisp punta sempre a un'altra cella Lisp e mai a un tipo di dati di base, come un numero o un simbolo. Solo la parte "car" (testa) può contenere un tipo di dati di base. Le prime implementazioni di Lisp utilizzavano "car" e "cdr" per i nomi head (testa) e tail (coda).
+
 
 
 ==================================
@@ -2489,7 +2565,7 @@ http://kazimirmajorinc.com/Documents/Crawler-tractor/index.html
 Crawler Tractor (Trattore Cingolato) di Kazimir Majorinc
 --------------------------------------------------------
 
-Viene presentato un esempio del programma Lisp di auto-elaborazione. La funzione f incrementa continuamente il valore della variabile "counter" e ne stampa il valore. Tuttavia, l'implementazione di f non contiene alcun ciclo o ricorsione. Invece, la funzione cambia il codice della sua definizione durante la valutazione.
+Viene presentato un esempio di programma Lisp di auto-elaborazione. La funzione f incrementa continuamente il valore della variabile "counter" e ne stampa il valore. Tuttavia, l'implementazione di f non contiene alcun ciclo o ricorsione. Invece, la funzione cambia il codice della sua definizione durante la valutazione.
 
 (set 'f
      (lambda()
@@ -12882,7 +12958,7 @@ Legge un tasto dalla tastiera e restituisce un valore intero. Per i tasti di nav
 
 L'ultimo esempio può essere utilizzato per verificare le sequenze di ritorno dalla navigazione e dai tasti funzione. Per interrompere il ciclo, premere Ctrl-A.
 
-Nota che read-key funziona solo quando newLISP è in esecuzione in una shell Unix o nella shell dei comandi di Windows. Non funziona nelle gui Java newLISP-GS e Tcl/Tk newLISP-Tk. Non funziona neanche nelle shared library newwLISP di UNIX o nella DLL newLISP di Windows (Dynamic Link Library).
+Notare che "read-key" funziona solo quando newLISP è in esecuzione in una shell Unix o nella shell dei comandi di Windows. Non funziona nelle gui Java newLISP-GS e Tcl/Tk newLISP-Tk. Non funziona neanche nelle shared library newwLISP di UNIX o nella DLL newLISP di Windows (Dynamic Link Library).
 
 ; =====================================================
 ; yes-no
@@ -19487,7 +19563,7 @@ Vediamo il tempo di esecuzione:
 
 ==========================
 
-Questi problemi sono stati creati per essere risolti con il linguaggio Prolog.
+Questi problemi sono stati creati inizialmente per essere risolti con il linguaggio Prolog.
 Poi è stata la volta dei linguaggi Lisp, Haskell e Scheme... e adesso newLISP.
 Potete trovare l'elenco completo dei problemi al sito:
 
@@ -22319,7 +22395,7 @@ NUMERI PERNICIOSI
 -----------------
 
 Un numero pernicioso è un numero intero positivo il cui conteggio della popolazione è un numero primo.
-Il numero di abitanti è il numero di uno (1) nella rappresentazione binaria di un numero intero non negativo.
+Il numero di abitanti (popolazione) è il numero di uno (1) nella rappresentazione binaria di un numero intero non negativo.
 
 Esempio
 22 (che è 10110 in binario) ha un numero di abitanti pari a 3, che è primo, e quindi 22 è un numero pernicioso.
@@ -33611,7 +33687,7 @@ Nota: La maggior parte delle soluzioni contiene una spiegazione dell'algoritmo u
 
 Nota: La soluzione della maggior parte dei problemi comporta (almeno per me) la ricerca di informazioni su internet di argomenti diversi (matematica, algoritmi, problem solving, ecc.).
 
-Vengono prima presentate alcune funzioni comuni che servono per la soluzione di diversi problemi.
+Vengono prima presentate alcune funzioni che servono per la soluzione di diversi problemi.
 
 ;=============================================
 ; (isprime? n)
@@ -45434,8 +45510,8 @@ procedure BubbleSort(A:lista di elementi da ordinare)
       if (A[i] > A[i + 1]) then  //sostituire '>' con '<' per ottenere un ordinamento decrescente
         swap ( A[i], A[i+1] )
         ultimoScambiato ← i
-    //ad ogni passaggio si accorcia il ciclo di for
-    //fermandosi in corrispondenza dell'ultimo scambio effettuato
+    ; ad ogni passaggio si accorcia il ciclo di for
+    ; fermandosi in corrispondenza dell'ultimo scambio effettuato
     n ← ultimoScambiato
 
 Versione ricorsiva:
@@ -56089,7 +56165,7 @@ Un informatico dovrebbe sempre avere un interesse profondo per i fondamenti teor
 Notazione Big-O
 ---------------
 
-Il seguente elenco mostra (in maniera essenzialmente pratica) le complessità temporali degli algoritmi:
+Il seguente elenco mostra (in maniera essenzialmente pratica) le varie complessità temporali degli algoritmi:
 
 O(1)
 Il tempo di esecuzione di un algoritmo a tempo costante non dipende dalla dimensione dell'input. Un tipico algoritmo a tempo costante è una formula diretta che calcola il risultato della risposta.
@@ -65793,7 +65869,7 @@ Esistono anche altri due metodi di attraversamento degli alberi binari:
 
 2) Depth-First-Search (attraversamento per profondità)
 
-Scriviamo altre funzioni per la gestione degli alberi binari.
+Scriviamo altre funzioni utili per la gestione degli alberi binari.
 
 Verifica se una lista è la rappresentazione di un albero binario "bst-istree?"
 
@@ -70163,7 +70239,7 @@ Un altro modo di creare un generatore:
 selfinc
 ;-> (lambda (x) (myinc x) 6)
 
-Nota: Una funzione definita dall'utente non ha modo di fare riferimento alla funzione da cui è stata invocata, tranne quando ha una sua precedente conoscenza. Quando abbiamo questa necessità, in cui una funzione deve conoscere il nome della chiamante, basta renderla un parametro della chiamata di funzione.
+Nota: Una funzione definita dall'utente non ha modo di fare riferimento alla funzione da cui è stata invocata, tranne quando ha una sua precedente conoscenza. Quando abbiamo questa necessità, in cui una funzione deve conoscere il nome della chiamante, basta renderla un parametro della chiamata della funzione.
 
 
 ---------------
@@ -75736,7 +75812,7 @@ I vettori vengono dichiarati con la funzione "array".
 sintassi: (array int-n1 [int-n2 ...] [list-init])
 Crea un vettore con elementi int-n1, inizializzandolo facoltativamente con il contenuto di list-init. È possibile specificare fino a sedici dimensioni per matrici multidimensionali.
 
-Internamente, newLISP crea vettori multidimensionali usando vettori come elementi di un vettore. I vettori/matrici in newLISP devono essere utilizzati ogni volta che l'indicizzazione casuale in un grande lista diventa troppo lenta. Non tutte le funzioni delle liste possono essere utilizzate sui vettori. Per una discussione più dettagliata, consultare il capitolo sui vettori.
+Internamente, newLISP crea vettori multidimensionali usando vettori come elementi di un vettore. I vettori/matrici in newLISP devono essere utilizzati ogni volta che l'indicizzazione in un grande lista diventa troppo lenta. Non tutte le funzioni delle liste possono essere utilizzate sui vettori. Per una discussione più dettagliata, consultare il capitolo sui vettori.
 
 (array 5)
 ;-> (nil nil nil nil nil)
@@ -82759,10 +82835,10 @@ Per capire la complessità temporale di questa funzione occorrerebbe analizzare 
 ;-> 96.36
 
 Adesso vediamo la complessità spaziale delle funzioni, considerando lo spazio addizionale che viene richiesto.
-Le funzioni dup1? e dup2? non richiedono spazio aggiuntivo in memoria, quindi la complessità spaziale vale O(1).
-La funzione dup3? richie una hash-map con n valori, quindi la complessità spaziale vale O(n).
-La funzione dup4? richiede una hash-map con n valori per n volte (perchè ogni volta creiamo una hash-map diversa), quindi la complessità spaziale vale O(n^2).
-Presumiamo che le funzioni dup5? e dup6? abbiano una complessità spaziale O(log(n)) (questa è la complessità spaziale dell'algoritmo di ordinamento Quicksort).
+Le funzioni "dup1?" e "dup2?" non richiedono spazio aggiuntivo in memoria, quindi la complessità spaziale vale O(1).
+La funzione "dup3?" richiede una hash-map con n valori, quindi la complessità spaziale vale O(n).
+La funzione "dup4?" richiede una hash-map con n valori per n volte (perchè ogni volta creiamo una hash-map diversa), quindi la complessità spaziale vale O(n^2).
+Presumiamo che le funzioni "dup5?" e "dup6?" abbiano una complessità spaziale O(log(n)) (questa è la complessità spaziale dell'algoritmo di ordinamento Quicksort).
 
 Ricapitoliamo le caratteristiche delle funzioni:
 
@@ -82791,7 +82867,7 @@ Scambiando il numero 2 della lista1 con il numero 1 della lista2 entrambe le lis
 
 Se non è possibile ottenere due liste con somme uguali allora la funzione deve restituire nil.
 
-La soluzione più semplice è quella di utilizzare due cicli che attraversano le liste e verificano se scambiando gli elementi correnti si ottengono due somme uguali per le liste.
+La soluzione più semplice è quella di utilizzare due cicli che attraversano le liste e verificare se scambiando gli elementi correnti si ottengono due somme uguali per le liste.
 
 (define (scambio lst1 lst2)
   (local (out idx1 idx2 found)
@@ -92897,9 +92973,7 @@ In maniera analoga possiamo scrivere un programma Quine:
 Test di primalità
 -----------------
 
-In questo paragrafo vengono implementati gli algoritmi tratti dal libro:
-
-"Primality Testing in Polynomial Time" di Martin Dietzfelbinger
+In questo paragrafo vengono implementati gli algoritmi tratti dal libro "Primality Testing in Polynomial Time" di Martin Dietzfelbinger:
 
   - Algoritmo "Trial Division"
   - Algoritmo "Lehmann's Primality Test"
@@ -103840,6 +103914,84 @@ Questo significa che ci sono:
 444 posizioni finali univoche di vittoria in 7 mosse
 168 posizioni finali univoche di vittoria in 8 mosse
  62 posizioni finali univoche di vittoria in 9 mosse
+
+
+---------------------------
+Estrazione dati da file PDF
+---------------------------
+
+Questo esempio è tratto da un problema reale. Dato un file PDF con la struttura simile a quella del file "db.pdf" (disponibile nella cartella "data") occorre estrarre tutti i numeri ISBN che si trovano nel file.
+Per convertire il file PDF in un file TXT ho utilizzato il software open-source "Xpdf" tools (https://www.xpdfreader.com/).
+
+(define (find-isbn str)
+  (setq out '())
+  (setq lst (parse (replace "[^0-9]+" str " " 0)))
+  (dolist (el lst)
+    (if (> (length (int el 0 10)) 12)
+      (push (int el 0 10) out -1)))
+  out)
+
+(define (isbn)
+  ; extract text from pdf with xpdf tools
+  ;(! "pdftotext.exe db.pdf" 0)
+  (! "pdftotext.exe -table db.pdf" 0)
+  (setq db (open "db.txt" "read"))
+  ; search numbers with more than 12 digits
+  (while (read-line db)
+        (setq res (find-isbn (current-line)))
+        ; print number
+        (if res (println res))
+  )
+  (close db))
+
+(real-path)
+;-> "F:\\Lisp-Scheme\\newLisp\\MAX"
+(change-dir "f:\\temp\\xpdf-tools-win-4.03\\bin64")
+;-> true
+
+(isbn)
+;-> (9788835049371)
+;-> (9788869105210)
+;-> (9788826819907)
+;-> (9788826819921)
+;-> (9788848263948)
+;-> (9788808520746)
+;-> (9788808232953)
+;-> (9788883394508)
+;-> (9781108440387)
+;-> (9781108465953)
+;-> (9780194527897)
+;-> (9788842115960)
+;-> (9788808237347)
+;-> (9788808172082)
+;-> (9788857791302)
+;-> true
+
+
+--------------
+Media continua
+--------------
+
+Per calcolare la media aritmetica di una lista di numeri possiamo usare la seguente funzione:
+
+(define (media lst)
+  (div (apply add lst) (length lst)))
+
+Ma per calcolare la media di una lista di numeri che aumenta di dimensione possiamo utilizzare la seguente funzione:
+  
+(define (media-continua media val items)
+  (div (add val (mul media items)) (+ items 1)))
+
+(media '(1 2 3))
+;-> 2
+
+(media-continua 1 2 1)
+;-> 1.5
+
+(media-continua 1.5 3 2)
+;-> 2
+
+In questo modo possiamo calcolare la nuova media anche senza modificare la lista. Inoltre la funzione potrebbe essere usata come un generatore.
 
 =============================================================================
 

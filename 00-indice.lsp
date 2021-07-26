@@ -893,6 +893,8 @@ NOTE LIBERE 5
   1 o 2
   Generare tutte le coppie di elementi di una lista
   Numero di partite nel Tic-Tac-Toe
+  Estrazione dati da file PDF
+  Media continua
 
 APPENDICI
 =========

@@ -3178,5 +3178,83 @@ Questo significa che ci sono:
 168 posizioni finali univoche di vittoria in 8 mosse
  62 posizioni finali univoche di vittoria in 9 mosse
 
+
+---------------------------
+Estrazione dati da file PDF
+---------------------------
+
+Questo esempio è tratto da un problema reale. Dato un file PDF con la struttura simile a quella del file "db.pdf" (disponibile nella cartella "data") occorre estrarre tutti i numeri ISBN che si trovano nel file.
+Per convertire il file PDF in un file TXT ho utilizzato il software open-source "Xpdf" tools (https://www.xpdfreader.com/).
+
+(define (find-isbn str)
+  (setq out '())
+  (setq lst (parse (replace "[^0-9]+" str " " 0)))
+  (dolist (el lst)
+    (if (> (length (int el 0 10)) 12)
+      (push (int el 0 10) out -1)))
+  out)
+
+(define (isbn)
+  ; extract text from pdf with xpdf tools
+  ;(! "pdftotext.exe db.pdf" 0)
+  (! "pdftotext.exe -table db.pdf" 0)
+  (setq db (open "db.txt" "read"))
+  ; search numbers with more than 12 digits
+  (while (read-line db)
+        (setq res (find-isbn (current-line)))
+        ; print number
+        (if res (println res))
+  )
+  (close db))
+
+(real-path)
+;-> "F:\\Lisp-Scheme\\newLisp\\MAX"
+(change-dir "f:\\temp\\xpdf-tools-win-4.03\\bin64")
+;-> true
+
+(isbn)
+;-> (9788835049371)
+;-> (9788869105210)
+;-> (9788826819907)
+;-> (9788826819921)
+;-> (9788848263948)
+;-> (9788808520746)
+;-> (9788808232953)
+;-> (9788883394508)
+;-> (9781108440387)
+;-> (9781108465953)
+;-> (9780194527897)
+;-> (9788842115960)
+;-> (9788808237347)
+;-> (9788808172082)
+;-> (9788857791302)
+;-> true
+
+
+--------------
+Media continua
+--------------
+
+Per calcolare la media aritmetica di una lista di numeri possiamo usare la seguente funzione:
+
+(define (media lst)
+  (div (apply add lst) (length lst)))
+
+Ma per calcolare la media di una lista di numeri che aumenta di dimensione possiamo utilizzare la seguente funzione:
+  
+(define (media-continua media val items)
+  (div (add val (mul media items)) (+ items 1)))
+
+(media '(1 2 3))
+;-> 2
+
+(media-continua 1 2 1)
+;-> 1.5
+
+(media-continua 1.5 3 2)
+;-> 2
+
+In questo modo possiamo calcolare la nuova media anche senza modificare la lista. Inoltre la funzione potrebbe essere usata come un generatore.
+
 =============================================================================
 

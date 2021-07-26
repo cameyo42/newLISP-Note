@@ -212,10 +212,10 @@ Per capire la complessità temporale di questa funzione occorrerebbe analizzare 
 ;-> 96.36
 
 Adesso vediamo la complessità spaziale delle funzioni, considerando lo spazio addizionale che viene richiesto.
-Le funzioni dup1? e dup2? non richiedono spazio aggiuntivo in memoria, quindi la complessità spaziale vale O(1).
-La funzione dup3? richie una hash-map con n valori, quindi la complessità spaziale vale O(n).
-La funzione dup4? richiede una hash-map con n valori per n volte (perchè ogni volta creiamo una hash-map diversa), quindi la complessità spaziale vale O(n^2).
-Presumiamo che le funzioni dup5? e dup6? abbiano una complessità spaziale O(log(n)) (questa è la complessità spaziale dell'algoritmo di ordinamento Quicksort).
+Le funzioni "dup1?" e "dup2?" non richiedono spazio aggiuntivo in memoria, quindi la complessità spaziale vale O(1).
+La funzione "dup3?" richiede una hash-map con n valori, quindi la complessità spaziale vale O(n).
+La funzione "dup4?" richiede una hash-map con n valori per n volte (perchè ogni volta creiamo una hash-map diversa), quindi la complessità spaziale vale O(n^2).
+Presumiamo che le funzioni "dup5?" e "dup6?" abbiano una complessità spaziale O(log(n)) (questa è la complessità spaziale dell'algoritmo di ordinamento Quicksort).
 
 Ricapitoliamo le caratteristiche delle funzioni:
 
@@ -244,7 +244,7 @@ Scambiando il numero 2 della lista1 con il numero 1 della lista2 entrambe le lis
 
 Se non è possibile ottenere due liste con somme uguali allora la funzione deve restituire nil.
 
-La soluzione più semplice è quella di utilizzare due cicli che attraversano le liste e verificano se scambiando gli elementi correnti si ottengono due somme uguali per le liste.
+La soluzione più semplice è quella di utilizzare due cicli che attraversano le liste e verificare se scambiando gli elementi correnti si ottengono due somme uguali per le liste.
 
 (define (scambio lst1 lst2)
   (local (out idx1 idx2 found)

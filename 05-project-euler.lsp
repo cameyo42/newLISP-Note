@@ -138,7 +138,7 @@ Nota: La maggior parte delle soluzioni contiene una spiegazione dell'algoritmo u
 
 Nota: La soluzione della maggior parte dei problemi comporta (almeno per me) la ricerca di informazioni su internet di argomenti diversi (matematica, algoritmi, problem solving, ecc.).
 
-Vengono prima presentate alcune funzioni comuni che servono per la soluzione di diversi problemi.
+Vengono prima presentate alcune funzioni che servono per la soluzione di diversi problemi.
 
 ;=============================================
 ; (isprime? n)

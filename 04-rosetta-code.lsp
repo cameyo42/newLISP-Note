@@ -1352,7 +1352,7 @@ NUMERI PERNICIOSI
 -----------------
 
 Un numero pernicioso è un numero intero positivo il cui conteggio della popolazione è un numero primo.
-Il numero di abitanti è il numero di uno (1) nella rappresentazione binaria di un numero intero non negativo.
+Il numero di abitanti (popolazione) è il numero di uno (1) nella rappresentazione binaria di un numero intero non negativo.
 
 Esempio
 22 (che è 10110 in binario) ha un numero di abitanti pari a 3, che è primo, e quindi 22 è un numero pernicioso.

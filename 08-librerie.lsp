@@ -1487,7 +1487,7 @@ Esistono anche altri due metodi di attraversamento degli alberi binari:
 
 2) Depth-First-Search (attraversamento per profondità)
 
-Scriviamo altre funzioni per la gestione degli alberi binari.
+Scriviamo altre funzioni utili per la gestione degli alberi binari.
 
 Verifica se una lista è la rappresentazione di un albero binario "bst-istree?"
 
