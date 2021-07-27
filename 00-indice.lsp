@@ -895,6 +895,7 @@ NOTE LIBERE 5
   Numero di partite nel Tic-Tac-Toe
   Estrazione dati da file PDF
   Media continua
+  Sequenza di Kolakoski
 
 APPENDICI
 =========

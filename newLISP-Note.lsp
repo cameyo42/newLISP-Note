@@ -895,6 +895,7 @@ NOTE LIBERE 5
   Numero di partite nel Tic-Tac-Toe
   Estrazione dati da file PDF
   Media continua
+  Sequenza di Kolakoski
 
 APPENDICI
 =========
@@ -103992,6 +103993,197 @@ Ma per calcolare la media di una lista di numeri che aumenta di dimensione possi
 ;-> 2
 
 In questo modo possiamo calcolare la nuova media anche senza modificare la lista. Inoltre la funzione potrebbe essere usata come un generatore.
+
+
+---------------------
+Sequenza di Kolakoski
+---------------------
+
+Kolakoski sequence: a(n) is length of n-th run, a(1) = 1, sequence consists just of 1's and 2's.
+In other words, is an infinite sequence of symbols {1,2} that is the sequence of run lengths in its own run-length encoding.
+
+Sequenza OEIS A000002: 1, 2, 2, 1, 1, 2, 1, 2, 2, 1, 2, 2, 1, 1, 2, 1, 1,
+                       2, 2, 1, 2, 1, 1, 2, 1, 2, 2, 1, 1, 2, 1, 1, 2, 1, 
+                       2, 2, 1, 2, 2, 1, 1, 2, 1, 2, 2, 1, 2, 1, 1, 2, ...
+
+La sequenza è stata discussa per primo da da Rufus Oldenburger nel 1939 e poi da Kolakoski nel 1965.
+
+La successione di Kolakoski è una successione infinita di numeri naturali, (escluso lo zero) con la proprietà:
+
+  se si forma una nuova sequenza dai conteggi delle ripetizioni dello stesso numero nella prima sequenza, questa nuova sequenza è uguale alla prima sequenza.
+  
+  if you form a new sequence from the counts of runs of the same number in the first sequence, this new sequence is the same as the first sequence
+
+Esempio:
+
+Questa non è una sequenza di Kolakoski:
+
+1,1,2,2,2,1,2,2,1,2,...
+
+La sua sequenza di conteggi delle ripetizioni, (simile alla codifica Run Length Encoding (RLE), ma una vera RLE fornisce anche il carattere codificato una sola volta), viene calcolata in questo modo:
+
+Partendo dal numero più a sinistra della sequenza abbiamo 2 unità, seguite da 3 due, quindi 1 unità, 2 due, 1 uno, ...
+
+Quanto sopra fornisce il RLE di:
+
+2, 3, 1, 2, 1, ...
+
+La sequenza originale è diversa dal suo RLE in questo caso. Sarebbe la stessa per una vera sequenza di Kolakoski.
+
+Creazione di una sequenza di Kolakoski
+
+Cominciamo con i due numeri (1, 2) che andremo a scorrere, cioè verranno utilizzati in questo ordine:
+
+1,2,1,2,1,2,....
+
+Iniziamo la sequenza s con il primo elemento del ciclo c:
+
+1
+
+Un indice, k, nella sequenza, (in espansione), passerà, o indicizzerà, attraverso ogni elemento della sequenza s dal primo, al proprio ritmo.
+
+Faremo in modo che il k-esimo elemento di s indichi quante volte l'ultimo elemento di s dovrebbe apparire alla fine di s.
+
+Abbiamo iniziato s con 1 e quindi s[k] afferma che dovrebbe apparire solo 1 volta.
+
+Incremento k
+
+Prendi l'elemento successivo da c e aggiungilo alla fine della sequenza s. s diventerà quindi:
+
+1, 2
+
+k è stato spostato al secondo elemento dell'elenco e s[k] afferma che dovrebbe apparire due volte, quindi aggiungi un altro dell'ultimo elemento alla sequenza s:
+
+1, 2, 2
+
+Incremento k
+
+Aggiungi l'elemento successivo del ciclo all'elenco:
+
+1, 2, 2, 1
+
+k è ora al terzo elemento nell'elenco che indica che l'ultimo elemento dovrebbe apparire due volte, quindi aggiungi un'altra copia dell'ultimo elemento alla sequenza s:
+
+1, 2, 2, 1, 1
+
+incremento k
+
+...
+
+Nota che l'RLE di 1, 2, 2, 1, 1, ... inizia 1, 2, 2 che è l'inizio della sequenza originale. L'algoritmo di generazione garantisce che sarà sempre così.
+
+Compito (rosetta-code):
+
+Creare una funzione che, data una lista ordinata iniziale, ecc. dei numeri naturali (1, 2), restituisca il numero successivo dalla lista quando si accede in un ciclo.
+
+Creare un'altra funzione che, data la lista ordinata iniziale (1, 2) e la lunghezza minima della sequenza da generare, usa la prima routine e l'algoritmo sopra, per generare almeno i primi membri richiesti della sequenza kolakoski.
+
+Creare una funzione che, quando viene data una sequenza, crei la codifica della lunghezza di esecuzione di quella sequenza (come definita sopra) e restituisca il risultato del controllo se la sequenza inizia con i membri esatti del suo RLE. (Ma nota, a causa del campionamento, non confrontare l'ultimo membro del RLE).
+
+Mostrare i primi 20 membri della sequenza generata da (1, 2).
+Controllare la sequenza contro il suo RLE.
+
+Mostrare i primi 20 membri della sequenza generata da (2, 1).
+Controllare la sequenza contro il suo RLE.
+
+Mostrare i primi 30 membri della sequenza Kolakoski generata da (1, 3, 1, 2)
+Controlla la sequenza contro il suo RLE.
+
+Mostrare i primi 30 membri della sequenza Kolakoski generata da (1, 3, 2, 1)
+Controlla la sequenza contro il suo RLE.
+
+(Ci sono regole sulla generazione di sequenze di Kolakoski da questo metodo che sono infrante dall'ultimo esempio).
+
+Soluzione:
+
+(define (next-in-cycle c idx)
+  (c (% idx (length c))))
+
+(define (kolakoski c len)
+(catch
+  (local (i j k clen slen)
+    (setq i 0 j 0 k 0)
+    (setq clen (length c))
+    ;(setq slen (length s))
+    (setq slen len)
+    (while true
+      (setf (s i) (next-in-cycle c k))
+      (if (> (s k) 1)
+          (for (j 1 (- (s k) 1))
+            (++ i)
+            ;(if (= i slen) (throw nil))
+            (if (= i slen) (throw s))
+            (setq (s i) (s (- i 1)))
+          )
+      )
+      (++ i)
+      ;(if (= i slen) (throw nil))
+      (if (= i slen) (throw s))
+      (++ k)
+    ))))
+
+(setq s (array 20 '(0)))
+(kolakoski '(1 2) 20)
+;-> (1 2 2 1 1 2 1 2 2 1 2 2 1 1 2 1 1 2 2 1)
+
+(define (possible-kolakoski s)
+  (local (i j prev cnt len rle res)
+    (setq j 0 prev (s 0) cnt 1 len (length s))
+    (setq rle '())
+    (setq res true)
+    (for (i 1 (- len 1))
+      (if (= (s i) prev)
+          (++ cnt)
+          (begin 
+            (push cnt rle -1)
+            (setq cnt 1)
+            (setq prev (s i))
+          )
+      )
+    )
+    ;(println rle)
+    ; non aggiunge il valore finale di 'cnt' a rle perché non viene mai confrontato
+    ;(for (i 0 (- j 1) 1 (not res))
+    (for (i 0 (- (length rle) 1) 1 (not res))
+      (if (!= (rle i) (s i))
+          (setq res nil)
+      )
+    )
+    (println s)
+    res))
+
+(possible-kolakoski (kolakoski '(1 2) 20))
+;-> (1 2 2 1 1 2 1 2 2 1 2 2 1 1 2 1 1 2 2 1)
+;-> true
+
+(possible-kolakoski (kolakoski '(2 1) 20))
+;-> (2 2 1 1 2 1 2 2 1 2 2 1 1 2 1 1 2 2 1 2)
+;-> true
+
+(possible-kolakoski (kolakoski '(1 3 1 2) 20))
+;-> (1 3 3 3 1 1 1 2 2 2 1 3 1 2 2 1 1 3 3 1)
+;-> true
+
+(possible-kolakoski (kolakoski '(1 3 2 1) 20))
+;-> (1 3 3 3 2 2 2 1 1 1 1 1 3 3 2 2 1 1 3 2)
+;-> nil
+
+Funzione per calcolare la sequenza di kolakoski di lunghezza generica:
+
+(define (kolakoski-seq start-lst len)
+  (let (s (array len '(0)))
+    (println (kolakoski start-lst len))
+    ;(println (possible-kolakoski s))
+  ))
+
+(kolakoski-seq '(1 2) 20)
+;-> (1 2 2 1 1 2 1 2 2 1 2 2 1 1 2 1 1 2 2 1)
+(kolakoski-seq '(1 2) 30)
+;-> (1 2 2 1 1 2 1 2 2 1 2 2 1 1 2 1 1 2 2 1 2 1 1 2 1 2 2 1 1 2)
+(possible-kolakoski (kolakoski-seq '(1 3 1 2) 30))
+;-> (1 3 3 3 1 1 1 2 2 2 1 3 1 2 2 1 1 3 3 1 2 2 2 1 3 3 1 1 2 1)
+;-> true
+
 
 =============================================================================
 
