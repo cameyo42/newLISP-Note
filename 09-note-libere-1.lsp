@@ -2840,8 +2840,7 @@ Nota: "QUESTA FRASE HA CINQUE PAROLE" è una frase autoreferenziale.
 Ambito dinamico e ambito lessicale (statico)
 --------------------------------------------
 
-La nozione di ambito (scope) nei linguaggi di programmazione è tradizionalmente
-legata a quella delle associazioni (bindings). Un'associazione (binding) è un legame tra un simbolo (o una variabile) e un valore. L'ambito dell'associazione definisce il tipo di"visibilità" del simbolo (o variabile) nel programma e può essere "dinamico" o "lessicale" ("statico").
+La nozione di ambito (scope) nei linguaggi di programmazione è tradizionalmente legata a quella delle associazioni (bindings). Un'associazione (binding) è un legame tra un simbolo (o una variabile) e un valore. L'ambito dell'associazione definisce il tipo di"visibilità" del simbolo (o variabile) nel programma e può essere "dinamico" o "lessicale" ("statico").
 Secondo l'ambito lessicale (statico), in una espressione, una variabile fa riferimento al costrutto più interno in cui viene dichiarata la variabile (ad esempio, al blocco di codice in cui è definita).
 Invece l'ambito dinamico prevede che la variabile esista e possa essere usata solo durante l'estensione dinamica (esecuzione) di una espressione. Una variabile con ambito dinamico viene anche chiamata 'parametro'.
 L'associazione dinamica associa i dati all'esecuzione del contesto corrente, e quindi consente di passare i dati alle funzioni senza dover dichiarare esplicitamente questi dati nell'interfaccia della funzione.
@@ -2995,7 +2994,7 @@ Dal punto di vista storico, newLISP ci comporta come il LISP originale di McCart
 
 Infine riportiamo alcune considerazioni di Lutz:
 
-''Per i meno iniziati qui, ecco alcune regole e spiegazioni relative alla cattura delle variabili e ai pericoli percepiti quando non ce ne sono.
+Per i meno iniziati qui, ecco alcune regole e spiegazioni relative alla cattura delle variabili e ai pericoli percepiti quando non ce ne sono.
 
 - non vi è alcun pericolo di acquisizione di variabili quando si riutilizzano nomi di variabili nelle funzioni nidificate, 'let' ed espressioni di loop nidificati. Tutte le variabili dei parametri vengono salvate internamente su uno stack di ambiente e ripristinate dopo l'uso. Puoi anche fare quanto segue senza pericolo:
 

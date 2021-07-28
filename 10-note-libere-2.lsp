@@ -4032,6 +4032,35 @@ Shadowing delle variabili a e b
 ;-> f2-post: a=10 e b=20
 ;-> f1-post: a=1 e b=2
 
+Un ultimo esempio sulle variabili globali e locali:
+
+(setq val 10)
+
+(define (test a b)
+  (let (val 20)
+    (call-dc a b)))
+
+(define (call-dc x y)
+ (println x { } y)
+ val)
+    
+(test 1 2)
+;-> 1 2
+;-> 20 ; usa il valore della variabile "val" definita in "test".
+
+val
+;-> 10 ; valore della variabili "val" globale.
+
+(define (test1 a b)
+    (call-dc a b))
+
+(test1 1 2)
+;-> 1 2
+;-> 10 ; usa il valore della variabile "val" globale.
+
+val
+;-> 10
+
 
 -------------
 Torte e tagli

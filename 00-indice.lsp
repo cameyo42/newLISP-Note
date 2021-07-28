@@ -896,6 +896,7 @@ NOTE LIBERE 5
   Estrazione dati da file PDF
   Media continua
   Sequenza di Kolakoski
+  Da stringa generica a stringa palindroma
 
 APPENDICI
 =========

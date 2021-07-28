@@ -3447,5 +3447,154 @@ Funzione per calcolare la sequenza di kolakoski di lunghezza generica:
 ;-> true
 
 
+----------------------------------------
+Da stringa generica a stringa palindroma
+----------------------------------------
+
+Verificare se i caratteri di una data stringa possono essere riposizionati per formare una stringa palindroma.
+
+Un insieme di caratteri può formare una stringa palindroma se, al massimo, un carattere si verifica un numero dispari di volte e tutti gli altri caratteri si verificano un numero pari di volte.
+
+Il carattere dispari, se esiste, è quello che compare al centro della stringa palindroma.
+
+Un metodo semplice è eseguire due cicli, il ciclo esterno seleziona tutti i caratteri uno per uno, il ciclo interno conta il numero di occorrenze del carattere selezionato tenendo traccia dei conteggi dispari. La complessità temporale di questa soluzione è O(n^2).
+Possiamo farlo in tempo O(n) usando una lista di frequenze:
+
+1) Creare una lista di frequenze di dimensioni alfabetiche (per i caratteri ASCII vale 256). Inizializzare tutti i valori della lista a 0.
+2) Attraversare la stringa data e incrementare il conteggio di ogni carattere nella lista delle frequenze.
+3) Attraversare la lista delle frequenze e se incontriamo più di un valore dispari, restituire nil. In caso contrario, restituire true.
+
+(define (can-palindrome? str)
+  (local (freq oddies)
+    (setq freq (array 256 '(0)))
+    (dostring (ch str)
+      (++ (freq ch))
+    )
+    (setq oddies 0)
+    (dolist (el freq)
+      (if (odd? el) (++ oddies))
+    )
+    (< oddies 2)))
+
+(can-palindrome? "pippo")
+;-> nil
+(can-palindrome? "mama")
+;-> true
+(can-palindrome? "presaelaserpe")
+;-> true
+
+Adesso vogliamo elencare tutte le stringhe palindrome che possono essere create quando il risultato vale true. 
+
+(define (make-palindrome? str)
+  (local (freq oddies lst oddch oddnum)
+    ; carattere dispari
+    (setq oddch "")
+    ; numero occorrenze carattere dispari
+    (setq oddnum -1)
+    ; lista dei caratteri pari
+    (setq lst '())
+    ; lista delle frequenze dei caratteri
+    (setq freq (array 256 '(0)))
+    ; calcola la frequenza dei caratteri di str
+    (dostring (ch str)
+      (++ (freq ch))
+    )
+    (setq oddies 0)
+    ; verifica quanti caratteri dispari esistono,
+    ; memorizza il carattere dispari e il numero di occorrenze
+    ; crea la lista dei caratteri pari
+    (dolist (el freq)
+      (if (odd? el) (begin
+          (++ oddies)
+          (setq oddch (char $idx))
+          (setq oddnum el))
+          ;else
+          (if (!= el 0)
+            (for (i 1 el)
+              (push (char $idx) lst -1)
+            )
+          )
+      )
+    )
+    ; se i caratteri dispari sdono maggiori di 1
+    ; allora restituisce nil
+    (cond ((> oddies 1) nil)
+          ; altrimenti calcola le stringhe palindrome
+          (true (make-pali lst oddch oddnum)))))
+
+La funzione "make-palindrome?" restituisce nil o chiama la funzione "make-pali" con i seguenti parametri:
+  1) lista dei caratteri pari - lst
+  2) carattere dispari - oddch
+  3) occorrenze del carattere dispari - oddnum
+
+Per calcolare le stringhe palindrome utilizziamo la funzione "anagrams" che calcola tutti gli anagrammi di una data stringa. Il metodo è il seguente:
+prima di tutto la funzione "make-pali" aggiorna la lista dei caratteri pari con (oddnum -1) ripetizioni del carattere dispari, poi prendiamo solo i caratteri univoci. Ad esempio la stringa "pippoio" genera:
+
+  lst = ("i" "i" "o" "o")
+  oddch = "p"
+  oddnum = 3
+
+Quindi la lista lst viene aggiornata con (oddnum - 1) = 2 caratteri oddch = "p":
+
+  lst = ("i" "i" "o" "o" "p" "p")
+ 
+I caratteri univoci di lst sono: ("i" "o" "p").
+
+Adesso le stringhe palindrome sono formate da un anagramma dei caratteri ("i" "o" "p") + il carattere oddch = "p" + l'inverso dell'anagramma iniziale, ad esempio il primo caso vale:
+
+  "iop" + "p" + (reverse "iop") = "iop" + "p" + "poi" = "iopppoi"
+
+Prima scriviamo la funzione per gli anagrammi:
+
+(define (anagrams str)
+  (map (fn (perm) (select str perm))
+       (permute-aux (sequence 0 (- (length str) 1)))))
+; auxiliary permutation function
+(define (permute-aux lst)
+  (if (= (length lst) 1)
+   lst
+   (apply append (map (fn (rot)
+                      (map (fn (perm) (cons (first rot) perm))
+                           (permute-aux (rest rot))))
+                      (rotate-aux lst)))))
+; auxiliary rotation function
+(define (rotate-aux lst)
+  (map (fn (x) (rotate lst)) (sequence 1 (length lst))))
+
+Poi scriviamo la funzione "make-pali":
+
+(define (make-pali lst oddch oddnum)
+  (local (all-ana out)
+  ;(println lst { } oddch { } oddnum)
+  (setq out '())
+  ; aggiunge (oddnum-1) caratteri oddch alla lista dei caratteri
+  (if (> oddnum 2) 
+    (for (i 1 (- oddnum 1))
+      (push oddch lst -1)
+    )
+  )
+  ; creazione di tutti gli anagrammi delle mezze parole palindrome
+  (setq all-ana (anagrams (join (unique lst))))
+  (dolist (ana all-ana)
+    ; oddch = "" se non esiste il carattere dispari
+    (push (string ana oddch (reverse ana)) out -1)
+  )
+  out))
+
+(make-palindrome? "pippoio")
+;-> ("poipiop" "piopoip" "oipppio" "opipipo" "ipopopi" "iopppoi")
+(make-palindrome? "pippo")
+;-> nil
+(make-palindrome? "mama")
+;-> ("maam" "amma")
+
+(make-palindrome? "iomassimo")
+;-> ("somiaimos" "soimamios" "smioaoims" "smoiaioms" "siomamois" 
+;->  "simoaomis" "omisasimo" "omsiaismo" "oismamsio" "oimsasmio"
+;->  "osmiaimso" "osimamiso" "misoaosim" "miosasoim" "msoiaiosm"
+;->  "msioaoism" "moisasiom" "mosiaisom" "isomamosi" "ismoaomsi"
+;->  "iomsasmoi" "iosmamsoi" "imsoaosmi" "imosasomi")
+"isomamosi"
+
 =============================================================================
 
