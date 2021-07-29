@@ -897,6 +897,7 @@ NOTE LIBERE 5
   Media continua
   Sequenza di Kolakoski
   Da stringa generica a stringa palindroma
+  Frasi e semplici regole grammaticali  
 
 APPENDICI
 =========
@@ -104362,6 +104363,157 @@ Poi scriviamo la funzione "make-pali":
 ;->  "msioaoism" "moisasiom" "mosiaisom" "isomamosi" "ismoaomsi"
 ;->  "iomsasmoi" "iosmamsoi" "imsoaosmi" "imosasomi")
 "isomamosi"
+
+
+------------------------------------
+Frasi e semplici regole grammaticali
+------------------------------------
+
+Una frase semplice è sintatticamente corretta se soddisfa determinate regole regole grammaticali. Di seguito sono riportate le regole della grammatica per il questo problema:
+
+1. La frase deve iniziare con un carattere maiuscolo
+2. Quindi segue il carattere minuscolo.
+3. Devono esserci spazi tra le parole.
+4. Quindi la frase deve terminare con un punto "." dopo l'ultima parola.
+5. Non sono ammessi due spazi continui.
+6. Non sono consentiti due caratteri maiuscoli continui.
+7. Tuttavia, la frase può terminare dopo un carattere maiuscolo (da solo).
+
+Esempi:
+
+Frasi corrette:
+   "Mi chiamo Eva."
+   "Il vertice è A."
+   "Sono a casa."
+   "Mi piace newlisp."
+
+Frasi errate:
+   "Mi chiamo MAX."
+   "Amo il cinema"
+   "Forza. Andiamo."
+   "Tu sei mio  amico."
+   "Amo i libri ."
+
+Scrivere una funzione che verifica se una frase è corretta rispetto alle precedenti regole grammaticali
+
+Il problema può essere risolto utilizzando un automa/diagramma degli stati che rappresenta le nostre regole..
+
+Algoritmo:
+
+1. Controlla i casi ad inizio e fine frase (stringa)
+  1.a) Controlla se il primo carattere è maiuscolo o meno nella frase.
+  1.b) Controlla se l'ultimo carattere è un punto o meno.
+
+2. Per il resto della stringa possiamo seguire il diagramma di stato rappresentato di seguito: sottostante per questo.
+
+         [A-Z]
+    +-------------+
+    |             |
+    |             ■
+  ╔═══╗  space  ╔═══╗
+  ║ 1 ║■--------║ 0 ║
+  ╚═══╝         ╚═══╝
+    |  ■          |  \
+    |   \ space   |   \
+    |    \        |    \
+    |     \       |     \ [A-Z]
+    |      \      |      \
+    |       \     |       \
+    |        \    | [a-z]  \ (.)
+    |         \   |         \
+    |          \  ■          ■
+    |  [a-z]    ╔═══╗   (.)   ╔═══╗
+    +----------■║ 2 ║--------■║ 3 ║
+                ╚═══╝         ╚═══╝
+                |   ■
+                |   |
+                +---+
+                [a-z]
+
+       Diagramma degli stati
+
+3. Dobbiamo mantenere lo stato precedente e quello attuale dei diversi caratteri nella stringa. Sulla base di ciò possiamo sempre convalidare la frase di ogni carattere attraversato.
+
+Di seguito è riportata un'implementazione basata su C. (A proposito, anche questa frase è corretta secondo la regola e il codice)
+
+(define (check-grammar str)
+(catch
+  (local (len prev curr idx)
+    (setq len (length str))
+    ; Controlla che la frase inizi correttamente
+    ; Check that the first character lies in [A-Z]
+    (if (or (< (str 0) "A") (> (str 0) "Z"))
+        (throw nil))
+    ; Controlla che la frase termini correttamente
+    ; Check if the last character is a full stop (.)
+    (if (!= (str -1) ".")
+        (throw nil))
+    ; Inizializzazione degli stati da memorizzare
+    (setq prev 0)
+    (setq curr 0)
+    ; Indice della stringa
+    (setq idx 1)
+    (while (< idx len)
+      ; Set states according to the input characters
+      ; in the string and the rule defined in the description.
+            ; If current character is [A-Z], set current state as 0.
+      (cond ((and (>= (str idx) "A") (<= (str idx) "Z"))
+             (setq curr 0))
+            ; If current character is a space, set current state as 1.
+            ((= (str idx) " ")
+             (setq curr 1))
+            ; If current character is [a-z], set current state as 2.
+            ((and (>= (str idx) "a") (<= (str idx) "z"))
+             (setq curr 2))
+            ; If current character is a dot, set current state as 3.
+            ((= (str idx) ".")
+             (setq curr 3))
+      )
+      ;;(println (str idx)) (read-line)
+      ;;(println prev { } curr)
+      ; Validates all current state with previous state
+      ; for the rules in the description of the problem.
+      (if (and (= prev curr) (!= curr 2))
+          (throw nil))
+      ;;(println prev { } curr)
+      ;;(println "1") (read-line)
+      (if (and (= prev 2) (= curr 0))
+          (throw nil))
+      ;;(println prev { } curr)
+      ;;(println "2") (read-line)
+      (if (and (= curr 3) (!= prev 1))
+          (throw (= (+ idx 1) len)))
+      ;;(println prev { } curr)
+      ;;(println "3") (read-line)
+      ; indice prossimo carattere
+      (++ idx)
+      ; aggiorna valore degli stati
+      (setq prev curr)
+    )
+    nil)))
+
+Proviamo la funzione:
+
+(check-grammar "Viva la pasta.")
+;-> true
+(check-grammar "Mi chiamo Eva.")
+;-> true
+(check-grammar "Mi chiamo Eva")
+;-> nil
+(check-grammar "Mi chiamo Eva..")
+;-> nil
+(check-grammar "Mi chiamo EVA.")
+;-> nil
+(check-grammar "Mi chiamo evA.")
+;-> nil
+(check-grammar "Mi chiamo A.")
+;-> true
+(check-grammar "Amo i libri .")
+;-> nil
+(check-grammar "Forza. Andiamo.")
+;-> nil
+(check-grammar "Tu sei mio  amico.")
+;-> nil
 
 =============================================================================
 

@@ -897,6 +897,7 @@ NOTE LIBERE 5
   Media continua
   Sequenza di Kolakoski
   Da stringa generica a stringa palindroma
+  Frasi e semplici regole grammaticali  
 
 APPENDICI
 =========
