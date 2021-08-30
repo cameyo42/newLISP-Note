@@ -1926,6 +1926,24 @@ Un modo elegante per ritornare al prompt senza intervento dell'utente è il segu
 ; Come utilizzare il metodo:
 (silent (myfunction) (print "Fatto") (resume))
 
+Ad esempio, per disabilitare l'output del valore di ritorno delle espressioni "print" e "println" possiamo usare le seguenti funzioni:
+
+(define (sprint) (silent (apply print (args)) (resume)))
+(define (sprintln) (silent (apply print (args)) (resume)))
+
+Vediamo le differenze:
+
+(println "normale")
+;-> normale
+;-> "normale"
+(sprintln "normale")
+;-> normale
+
+(print "semplice")
+;-> semplice"semplice"
+(sprint "semplice")
+;-> semplice
+
 
 -----------------------------------------------------
 Trasformare una lista di stringhe in lista di simboli

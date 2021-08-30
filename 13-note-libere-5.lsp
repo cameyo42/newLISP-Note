@@ -3632,11 +3632,11 @@ Il problema può essere risolto utilizzando un automa/diagramma degli stati che 
 
 Algoritmo:
 
-1. Controlla i casi ad inizio e fine frase (stringa)
-  1.a) Controlla se il primo carattere è maiuscolo o meno nella frase.
-  1.b) Controlla se l'ultimo carattere è un punto o meno.
+1. Controllare i casi ad inizio e fine frase (stringa)
+  1.a) Controllare se il primo carattere è maiuscolo o meno nella frase.
+  1.b) Controllare se l'ultimo carattere è un punto o meno.
 
-2. Per il resto della stringa possiamo seguire il diagramma di stato rappresentato di seguito: sottostante per questo.
+2. Per il resto della stringa possiamo seguire il diagramma di stato rappresentato di seguito:
 
          [A-Z]
     +-------------+
@@ -3746,6 +3746,738 @@ Proviamo la funzione:
 ;-> nil
 (check-grammar "Tu sei mio  amico.")
 ;-> nil
+
+
+---------------------
+commonLISP in newLISP
+---------------------
+
+Nel blog di johu https://johu02.wordpress.com/ ci sono molte informazioni su newLISP. In particolare ci sono due librerie ("newlisp-utility.lsp" e "onnewlisp.lsp") che permettono di studiare il libro "On Lisp" di Paul Graham utilizzando newLISP. I post sono molto istruttivi e l'unico problema è che il blog è scritto in giapponese (ma con Google Translate si può tradurlo facilmente).
+Riportiamo di seguito il codice delle due librerie.
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; newlisp-utility.lsp
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; 2008/12/23 second, third, fourth and labels are added.
+;            with-open-file is improved.( setq _stream -> let )
+; 2009/ 1/ 6 hayashi is improved. (push used.)
+;            gensym, mklist, flat1, mappend are added.
+;            with-open-file is improved. (catch and gensym used.)
+; 2009/ 1/ 7 mapc,psetq are added.
+; 2009/ 1/12 mapc is improved. (nthlst -> (map (curry nth i)))
+; 2009/ 1/17 mappend is improved. (function -> macro)
+;            maplist is added.
+;            reference-inversion is added.
+; 2009/ 1/21 read-integer is improved. (remove apostrophe for inc)
+; 2009/ 1/26 reference-inversion:reference-inversion is improved. (remove macro-detect)
+; 2009/ 1/27 incf & decf are improved. (On Lisp compatible)
+; 2009/ 2/18 car is improved. (Common Lisp compatible)
+; 2009/ 4/ 7 multi-let is added.
+; 2009/ 4/15 read-string is improved. (read-buffer used.)
+; 2010/ 6/15 ++ & -- is removed.
+; 2010/ 6/16 map-mv is added.
+;            null is improved.(using not only)
+;            reference-inversion:reference-inversion is improved. (using MAIN:setf in defref)
+; 2010/ 6/18 gensym is improved. (no suffix of context)
+;            lables is improved. (remove begin in body)
+;            ++ & -- are added.
+;            consp is improved. (function -> macro)
+;            aif is added.
+; 2010/ 6/23 mklist is improved. (function -> macro)
+; 2010/ 6/24 mappend is improved. (macro -> function)
+; 2010/ 7/14 consp is improved. (macro -> function)
+; 2010/ 8/ 2 cdr is improved. ((cdr '(a)) -> nil)
+; 2010/12/10 curryEx is added.
+; 2010/12/17 car, cdr, second, third, fourth are improved. (Common Lisp compatible)
+; 
+
+;http://www.alh.net/newlisp/phpbb/viewtopic.php?t=1942&highlight=gensym
+;(define (gensym) (sym (string "gs" (uuid))))
+(define *gensym*:*gensym* 0)
+(define (gensym num)
+  (if (number? num)
+      (let (res)
+        (dotimes (i num)
+          (push (sym (string  "gensym" (++ *gensym*:*gensym*))) res -1)))
+    (sym (string  "gensym" (++ *gensym*:*gensym*)))))
+(global 'gensym)
+(context 'MAIN:with-open-file)
+(define-macro (with-open-file:with-open-file)
+  (letex (_result (gensym)
+          _stream (args 0 0)
+          _open (cons 'open (1 (args 0)))
+          _body (cons 'begin (1 (args))))
+    (let ((_stream _open) (_result))
+      (catch _body '_result)
+      (and _stream (close _stream))
+      _result)))
+
+(context 'MAIN:defun)
+;http://www.alh.net/newlisp/phpbb/viewtopic.php?t=1064&highlight=defun
+(set 'defun:defun
+	(lambda-macro (_func-name _arguments)
+      (set _func-name (append '(lambda ) (list _arguments) (args)))))
+
+(context 'MAIN:labels)
+(define-macro (labels:labels)
+  (letex (_labels (append '(begin)
+                          (map (fn (x)
+                                 (list 'setq (x 0) (append '(fn) (list (x 1)) (2 x))))
+                            (args 0))
+                          (1 (args))))
+    _labels))
+
+(context 'MAIN:hayashi)
+(define-macro (hayashi:hayashi)
+;  (letex ((_func (flat (list (args 0) '_x (1 (args))))))
+  (letex (_func (push '_x (args) 1))
+    (fn (_x) _func )))
+
+(context 'MAIN:decf)
+;(set 'decf:decf
+;  (lambda-macro (_number)
+;    (set _number (- (eval _number) 1))))
+(define-macro (decf:decf place (val 1))
+  (letex (_place place
+          _val val)
+    (setf _place (- $it _val))))
+
+(context 'MAIN:incf)
+;(define-macro (incf:incf)
+;  (letex (_number (args 0))
+;    (setq _number (+ (eval _number) 1))))
+(define-macro (incf:incf place (val 1))
+  (letex (_place place
+          _val val)
+    (setf _place (+ $it _val))))
+
+(context 'MAIN:rsetq)
+(define-macro (rsetq:rsetq)
+  (letex (_arg (args 0 1)
+          _func (args 0))
+    (setq _arg _func)))
+
+(context 'MAIN:reference-inversion)
+(setq *reference-inversion* nil)
+(setq *set* 'reference-inversion:set)
+
+(define-macro (reference-inversion:set expr)
+  (letex (_expr expr)
+    (if *reference-inversion* '_expr _expr)))
+
+(define-macro (reference-inversion:reference-inversion m)
+  (setq *reference-inversion* true)
+  (letex (_body (if (and (list? (args 0))
+                         ;(macro? (eval (args 0 0)))
+                         (ref *set* (eval (args 0 0))))
+                    (append (list m (eval (args 0))) (1 (args)))
+                  (cons m (args))))
+    (begin
+      (setq *reference-inversion* nil)
+      _body)))
+
+(define-macro (reference-inversion:setf)
+  (letex (_body (cons 'begin
+                      (map (curry append '(reference-inversion MAIN:setf))
+                           (explode (args) 2))))
+    (begin
+      _body)))
+
+(define-macro (reference-inversion:defref)
+  (letex (_mname (args 0))
+    (if (ref *set* (eval _mname)) nil
+        (MAIN:setf (nth '(1 -1) _mname) (cons *set* (list $it))))))
+
+(context MAIN)
+
+(define cdr    (fn (lst) (and (not (nil? lst)) (or (rest lst) nil))))
+(define car    (fn (lst) (first (or lst '(nil)))))
+(define second (fn (lst) (car (cdr lst))))
+(define third  (fn (lst) (car (cdr (cdr lst)))))
+(define fourth (fn (lst) (car (cdr (cdr (cdr lst))))))
+(define cadr   second)
+(define progn begin)
+(define t true)
+(define equal =)
+(define char-code char)
+(define atom atom?)
+(define floatp float?)
+(define integerp integer?)
+(define listp list?)
+;(define null (fn (x) (not (true? x))))
+(define null not)
+(define numberp number?)
+(define stringp string?)
+(define symbolp symbol?)
+(define zerop zero?)
+
+(defun read-integer (bytes INPUT-STREAM)
+  (let ((c nil) (value 0) (cnt 0) (base 1))
+    (while (and (< cnt bytes) (setq c (read-char INPUT-STREAM)))
+      (setq value (+ value (* base c)))
+      (setq base (* base 256))
+      (inc cnt))
+    (if c value nil)))
+
+(defun read-string (bytes INPUT-STREAM)
+  (let (buff (dup "00" bytes))
+    (read-buffer INPUT-STREAM buff bytes)
+    buff))
+
+(defun remove (item seq)
+  (cond ((string? seq) (replace item (copy seq) ""))
+	(true (replace item (copy seq)))))
+(define remove-if clean)
+(define remove-if-not filter)
+
+(defun evenp (num)
+  (= (& num 1) 0))
+(defun oddp (num)
+  (= (& num 1) 1))
+(define (consp L) (and (list? L) (true? L)))
+(defun flat1 (lst)
+  (apply append (map mklist lst)))
+(defun mappend ()
+  (apply append (apply map (args))))
+(defun mapc (f)
+ (let (lsts (args))
+  (dotimes (i (apply min (map length lsts)))
+    (apply f (map (curry nth i) lsts)))))
+(defun maplist (f)
+  (let ((lsts (args))(res))
+    (dotimes (i (apply min (map length lsts)))
+      (push (apply f (map (hayashi slice i) lsts)) res -1))
+  res))
+
+;(define (sprint) (silent (apply print (args))))
+;(define (sprintln) (silent (apply println (args))))
+
+(global 'cdr 'car 'second 'third 'fourth 'cadr 'progn 't 'equal 'char-code)
+(global 'atom 'floatp 'integerp 'listp 'null 'numberp 'stringp 'symbolp 'zerop)
+(global 'read-integer 'read-string)
+(global 'evenp 'oddp 'consp)
+(global 'remove 'remove-if 'remove-if-not)
+(global 'flat1 'mappend 'mapc 'maplist)
+;(global 'sprint 'sprintln)
+;(constant (global '+) add))
+;(constant (global '-) sub))
+;(constant (global '*) mul))
+;(constant (global '/) div))
+(context 'MAIN:psetq)
+(define-macro (psetq:psetq)
+  (letn (_args (explode (args) 2)
+         _temp (gensym (length _args)))
+    (letex (_vars (transpose (list _temp (map second _args)))
+            _pset (flat (cons 'setq (transpose (list (map first _args) _temp)))))
+           (let _vars _pset))))
+(context MAIN)
+(context 'MAIN:multi-let)
+(define-macro (multi-let:multi-let)
+  (letex (_varlst (map list (args 0))
+          _var (args 0)
+          _val (args 1)
+          _body (cons 'begin (2 (args))))
+	   (let _varlst
+         (map set '_var (MAIN:mklist _val)) ; corrected 2010/ 6/23
+         _body)))
+(context MAIN)
+(context 'MAIN:map-mv)
+(define-macro (map-mv:map-mv)
+;(mvmap exp-functor nested-list)
+   (letex (_func (args 0)
+           _vals (args 1))
+     (map (curry apply _func) _vals)))
+(context MAIN)
+(if macro
+    (unless (or i+ i-)
+      (macro (i+ X) (+ X 1))
+      (macro (i- X) (- X 1))
+      (macro (mklist Obj) (if (list? Obj) Obj (list Obj)))
+      (macro (aif S A B) (let (it S) (if it A B)))
+      (macro (curryEx F A) (lambda () (apply F (cons A $args))))
+    )
+  (begin
+    (define (i+ X) (+ X 1))
+    (define (i- X) (- X 1))
+    (define (mklist Obj) (if (list? Obj) Obj (list Obj)))
+    (define-macro (aif)
+      ; (aif test-form then-form &optional else-form)
+      (letex (_test-form (args 0)
+              _then-form (args 1)
+              _else-form (third (args)))
+        (let (it _test-form)
+          (if it _then-form _else-form))))
+    (define-macro (curryEx)
+      (letex (_func (args 0) _arg (args 1))
+        (lambda () (apply _func (cons _arg $args)))))
+  )
+)
+(global 'i+ 'i- 'aif 'mklist 'curryEx)
+; eof newlisp-utility.lsp
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; onnewlisp.lsp
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; 2010/ 8/ 2 identity is added.
+;            map0-n, map1-n and mapa-b are added.
+; 2010/ 8/ 3 "newlisp-utility.lsp" is necessary.
+;            https://johu02.wordpress.com/newlisp-utility-lsp/
+;            include is defined in https://johu02.wordpress.com/init-lsp/
+;            functionp is added.
+;            lrec is added.
+; 2010/ 8/ 4 lrec is improved. (cdr -> rest)
+;            MACRO? is added.
+;            trec is added.
+; 2010/ 8/14 multiple-value-bind and multiple-value-list are improved. 
+;              (avoided the multiple evaluation problem of _val)
+; 
+; 2010/ 8/20 =lambda, =defun, =bind, =values, =funcall and =apply are added.
+; 2010/ 8/24 defstruct and structurep are added.
+;
+ 
+(include "newlisp-utility.lsp")
+
+(context 'MAIN:do)
+(define (make-stepform bindform)
+  (remove nil (mappend (fn (b) (if (and (consp b) (third b))
+                               (list (car b) (third b))
+                                '()))
+                         bindform)))
+(define-macro (do:do)
+  (letex (_init (map (hayashi slice 0 2) (args 0))
+          _steps (cons 'psetq (make-stepform (args 0)))
+          _results (cons 'begin (rest (args 1)))
+          _end-test (first (args 1))
+          _body (cons 'begin (2 (args))))
+   (let _init
+     (until _end-test
+       _body
+       _steps)
+     _results)))
+
+(context 'MAIN:do*)
+(define (make-stepform bindform)
+  (remove nil (mappend (fn (b) (if (and (consp b) (third b))
+                               (list (car b) (third b))
+                                '()))
+                         bindform)))
+(define-macro (do*:do*)
+  (letex (_init (map (hayashi slice 0 2) (args 0))
+          _steps (cons 'setq (make-stepform (args 0)))
+          _results (cons 'begin (rest (args 1)))
+          _end-test (first (args 1))
+          _body (cons 'begin (2 (args))))
+   (letn _init
+     (until _end-test
+       _body
+       _steps)
+     _results)))
+
+(context 'MAIN:multiple-value-bind)
+(define (add-nil lst c)
+  (let (len (- c (length lst)))
+    (if (> c) (append lst (dup nil c)) lst)))
+(define-macro (multiple-value-bind:multiple-value-bind)
+  (letex (_var (args 0)
+          _len (length (args 0))
+          _val (args 1)
+          _body (cons 'begin (2 (args))))
+	  (local _var
+      (setq values:mv-set true)
+      (let (_res _val)
+        (map set '_var (add-nil (mklist _res) _len)))
+      (setq values:mv-set nil)
+      _body)))
+
+(context 'MAIN:multiple-value-list)
+(define-macro (multiple-value-list:multiple-value-list)
+  (letex (_val (args 0))
+    (let (_lst)
+      (setq values:mv-set true)
+      (let (_res _val) (setq _lst (mklist _res)))
+      (setq values:mv-set nil)
+      _lst)))
+
+(context 'MAIN:values)
+(define-macro (values:values)
+  (letex (_item (args 0)
+          _lst  (cons 'list (args)))
+    (if mv-set _lst _item)))
+
+(context MAIN)
+
+(define (identity x) x)
+
+(define (functionp x) (or (lambda? x) (primitive? x)))
+
+(define (lrec rec-f base-f)
+  (letex (rec rec-f
+          base base-f)
+    (labels ((self-r (lst)
+                   (if (null lst)
+                       (if (functionp 'base) (base) 'base)
+                       (rec (first lst)
+                            (fn () (self-r (rest lst)))))))
+      self-r)))
+
+(define (map0-n f n)
+  (map f (sequence 0 n)))
+(define (map1-n f n)
+  (map f (sequence 1 n)))
+(define (mapa-b f a b (step 1))
+  (map f (sequence a b step)))
+
+(define (MACRO? f)
+  (and (list? f) (macro? f) (= 'expand (nth '(1 0) f))))
+
+(define (trec rec-f (base-f identity))
+  (letex (rec rec-f
+          base base-f)
+    (labels
+      ((self-r (tree)
+         (if (atom tree)
+             (if (functionp 'base) (base tree)
+                 (MACRO?    'base) (eval (base tree))
+               'base)
+             (rec tree (fn () (self-r (first tree)))
+                       (fn () (if (rest tree)
+                                  (self-r (rest tree))))))))
+      self-r)))
+
+(global 'identity 'map0-n 'map1-n 'mapa-b)
+(global 'functionp 'lrec 'trec 'MACRO?)
+
+(setq *cont* values)
+
+(define-macro (=lambda)
+; (=lambda parms &body body)
+  (letex (_parms (cons '*cont* (args 0))
+          _body (cons 'begin (1 (args))))
+    (fn _parms _body)))
+
+(define-macro (=defun)
+; (= defun name parms &body body)
+  (let (_f (sym (string "=" (args 0))))
+    (letex (_mname (cons (args 0)
+                   (map sym (map (curry string "_") (args 1))))
+            _fname (append (list _f '*cont*)
+                           (map sym (map (curry string "_") (args 1))))
+            _vars (if (args 1)
+                      (transpose (list (args 1)
+                                       (map sym
+                                            (map (curry string "_")
+                                                 (args 1)))))
+                    '())
+            _body (cons 'begin (2 (args))))
+      (begin
+        (define-macro _mname
+           _fname)
+        (define _fname
+          (letex _vars _body))))))
+
+(define-macro (=bind)
+; (=bind parms expr &body body)
+  (letex (_parms (args 0)
+          _expr (args 1)
+          _body (cons 'begin
+                      (or (set-ref '=values (2 (args)) (eval *cont*))
+                          (2 (args)))))
+    (let (*cont* (fn _parms _body)) _expr)))
+
+(define-macro (=values)
+; (=value &rest retvals)
+  (letex (_body (cons '*cont* (args)))
+    _body))
+
+(define-macro (=funcall)
+; (=fancall fn &rest args)
+  (letex (_body (append (list (args 0) '*cont*) (1 (args))))
+    _body))
+
+(define-macro (=apply)
+; (=apply fn &rest args)
+  (letex (_body (append (list 'apply (args 0) '*cont*) (1 (args))))
+    _body))
+
+(global '=lambda '=defun '=values '=bind '=funcall '=apply)
+
+(define (structurep s)
+  (letex (_s (sym (string s) s))
+    (and (context? s) _s (= (s 0) 'structure))))
+
+(define-macro (structfunc funcname propname)
+  (letex (_funcname funcname
+          _propname propname)
+    (setq _funcname (lambda (symbol)
+      (letex (_sym (sym '_propname symbol))
+        (reference-inversion:set _sym))))))
+
+(define-macro (structfuncs)
+  (letex (_pair (cons 'begin (map (curry cons 'structfunc) (args))))
+    _pair))
+
+(define-macro (defstruct defname)
+  (let (_name defname
+        _var (map (fn (x) (first (mklist x))) (args))
+        _val (map (fn (x) (second (mklist x))) (args)))
+    (letex (_defctx _name
+            _strucp (sym (string _name "-p"))
+            _copy-n (sym (string "copy-" _name))
+            _make-n (sym (string "make-" _name))
+            _funcs (cons 'structfuncs (map (fn (x) (list (sym (string _name "-" x)) x)) _var))
+            _vari _var
+            _vali _val)
+      _funcs
+      (setq _copy-n (fn (s) (letex (_ctx (sym (gensym))) (new s '_ctx))))
+      (setq _strucp (fn (s) (and (structurep s) (= (s 1) '_defctx))))
+      (setq _make-n
+            (lambda-macro ()
+              (let (_gsym (sym (gensym))
+                    _vars (append '_vari (map (fn (x) (first (mklist x))) (args)))
+                    _vals (append '_vali (map (fn (x) (second (mklist x))) (args))))
+                (letex (_ctx _gsym
+                        _default (sym _gsym _gsym)
+                        _structurep (append (list 'structure '_defctx) '_vari)
+                        _var (cons 'setq (apply append (transpose (list (map (hayashi sym _gsym) _vars) _vals)))))
+                  (setq _default '_structurep)
+                  _var
+                  _ctx)))))))
+
+(global 'defstruct 'structurep)
+; eof onnewlisp.lsp
+
+
+--------------------------------------
+Peso ideale e indice di massa corporea
+--------------------------------------
+
+Peso ideale
+-----------
+Il peso ideale è il peso forma teorico di una persona. Ma come calcolare questo peso forma teorico?
+La soluzione esatta del problema è praticamente impossibile. Molti scienziati hanno cercato di creare una formula e, nonostante ne esistano diverse, ognuna ha i suoi difetti. Questo non significa che siano completamente sbagliate, ma solo che i risultati variano da formula a formula. Questo perché ci sono delle caratteristiche dell’essere umano che non vengono prese in considerazione. Queste formule utilizzano come parametri l'età, il sesso e l'altezza, mentre non tengono conto della struttura scheletrica (dimensione delle ossa) e della struttura muscolare (grasso o muscoli).
+Vediamo le formule più famose e indicative.
+
+Formula di Lorenz
+-----------------
+Questa formula per il calcolo del peso ideale non tiene conto né dell'età né della struttura scheletrica, ma è molto utilizzata. Inoltre non fornisce risultati affidabili nei soggetti longilinei e brachitipici.
+
+Peso ideale Uomini = altezza in cm - 100 - (altezza in cm - 150)/4
+Peso ideale Donne = altezza in cm - 100 - (altezza in cm - 150)/2
+
+Formula di Broca
+----------------
+Questa formula è la più semplice, ma tiene conto solo dell'altezza. I limiti maggiori risiedono nella non corrispondenza del peso ideale per i soggetti medio alti.
+
+Peso ideale Maschi = altezza in cm - 100
+Peso ideale Femmine = altezza in cm - 104
+
+Formula di Wan der Vael
+-----------------------
+Anche questa formula considera solo l'altezza.
+
+Peso ideale Uomini = (altezza in cm - 150) x 0.75 + 50
+Peso ideale Donne = (altezza in cm - 150) x 0.6 + 50
+
+Formula di Berthean
+-------------------
+Questa formula tiene conto dell'età e dell'altezza.
+Peso ideale = 0.8 x (altezza in cm - 100) + età/2
+
+Formula di Perrault
+-------------------
+Questa formula tiene conto dell'età e dell'altezza.
+Peso ideale = Altezza in cm - 100 + età/10 x 0.9
+
+Formula di Keys
+---------------
+Peso ideale Uomini = (altezza in m)² x 22.1
+Peso ideale Donne = (altezza in m)² x 20.6
+
+Formula di Travia
+-----------------
+Peso ideale = (1.012 x altezza in cm) - 107.5
+
+Formula di Livi
+---------------
+Peso ideale = (2.37 x altezza in m)^3
+
+Buffon, Roher e Bardeen (confermata da Quételet e Martin)
+---------------------------------------------------------
+Peso ideale Uomini = (1.40 x altezza in dm3)/100
+
+Peso ideale Donna = (135 x altezza in dm3)/100
+
+Indice di massa corporea
+------------------------
+Dato che tutte queste formule producono risultati diversi, l’OMS (Organizzazione Mondiale della Sanità), ha preferito definire un indice che viene interpretato in un range di valori (invece che il solo valore del peso forma). In questo modo l'indice appartiene ad una classe con determinati limiti (minimo e massimo). Ad esempio, se ci troviamo nella classe (range) "Normale" non ci sono problemi sia che ci troviamo verso l’alto che verso il basso (se usciamo dal range "Normale", invece, occorre preoccuparsi).
+
+La formula del BMI (Body Mass Index) o IMC (Indice di Massa Corporea) che viene utilizzata è la seguente:
+
+BMI = peso / (altezza in m)²
+
+Questa formula da un valore che non è il peso forma teorico, ma un punteggio. Comunque questa formula ha dei limiti, ovvero tende a valutare come sovrappeso individui muscolosi oppure come sottopeso individui esili con ossa piccole. La formula è stata perfezionata in un nuovo indice che viene chiamato "Nuovo BMI":
+
+NuovoBMI: 1.3 x peso in Kg / (altezza in m)^2.5
+
+In pratica, questa nuova formula normalizza l’altezza rendendola più significativa del peso.
+
+Possiamo utilizzare tutte e due le formule e, pur trovando due valori leggermente diversi, interpretare i risultati con la seguente tabella:
+
+  BMImin   BMImax   Classe
+  -----------------------------------
+  > 40   |        | Obesità (terzo grado)
+  > 35   | < 40   | Obesità (secondo grado)
+  > 30   | < 35   | Obesità (primo grado)
+  > 25   | < 30   | Sovrappeso
+  > 18.5 | < 25   | Normale
+  > 17.5 | < 18.5 | Sottopeso
+  > 15.5 | < 17.5 | Anoressia moderata
+  >  0   | < 15.5 | Anoressia
+
+Scriviamo una funzione che calcola il "Nuovo BMI" e la relativa classe:
+
+(define (newBMI peso altezza)
+  (local (bmi tipo)
+    (setq bmi (div (mul 1.3 peso) (pow altezza 2.5)))
+    (cond ((> bmi 40) (setq tipo "Obesità (terzo grado)"))
+          ((and (> bmi 35) (<= bmi 40)) (setq tipo "Obesità (secondo grado)"))
+          ((and (> bmi 30) (<= bmi 35)) (setq tipo "Obesità (primo grado)"))
+          ((and (> bmi 25) (<= bmi 30)) (setq tipo "Sovrappeso"))
+          ((and (> bmi 18.5) (<= bmi 25)) (setq tipo "Normale"))
+          ((and (> bmi 17.5) (<= bmi 18.5)) (setq tipo "Sottopeso"))
+          ((and (> bmi 15.5) (<= bmi 17.5)) (setq tipo "Anoressia moderata"))
+          ((and (> bmi 0) (<= bmi 15.5)) (setq tipo "Anoressia"))
+          (true (setq tipo "errore: valore fuori dai limiti"))
+    )
+    (list bmi tipo)))
+
+Facciamo alcune prove:
+
+(newBMI 79 1.80)
+;-> (23.62594457708111 "Normale")
+(newBMI 89 1.75)
+;-> (28.55868703815026 "Sovrappeso")
+(newBMI 60 1.85)
+;-> (16.755804389574 "Anoressia moderata")
+(newBMI 50 1.65)
+;-> (18.5867516512393 "Normale")
+(newBMI 45 1.60)
+;-> (18.06574639842287 "Sottopeso")
+(newBMI 75 1.60)
+;-> (30.10957733070478 "Obesità (primo grado)")
+
+
+------------------
+Sequenza di Golomb
+------------------
+
+La sequenza di Golomb (definita dal matematico e ingegnere Solomon Golomb) è una successione di interi monotona non decrescente nella quale a(n) rappresenta il numero di volte in cui n compare nella successione stessa. La successione inizia con a1 = 1 e ha la proprietà che, per qualsiasi n > 1, a(n) è il primo e unico intero che soddisfa la definizione. Ad esempio, il termine a1 = 1 afferma che il numero 1 appare una e una sola volta nella sequenza, perciò a2 non può essere anch'esso 1, ma può (e deve) essere l'intero successivo, 2. Seguendo questo ragionamento otteniamo:
+
+  a1 = 1
+  Pertanto 1 si verifica esattamente una volta in questa sequenza.
+  a2 > 1
+  a2 = 2
+  2 si verifica esattamente 2 volte in questa sequenza.
+  a3 = 2
+  3 si verifica esattamente 2 volte in questa sequenza.
+  a4 = a5 = 3
+  4 si verifica esattamente 3 volte in questa sequenza.
+  5 si verifica esattamente 3 volte in questa sequenza.
+  a6 = a7 = a8 = 4
+  a9 = a10 = a11 = 5
+  ...
+
+Sequenza OEIS A001462: 1, 2, 2, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 6, 6,
+ 7, 7, 7, 7, 8, 8, 8, 8, 9, 9, 9, 9, 9, 10, 10, 10, 10, 10, 11, 11,
+ 11, 11, 11, 12, 12, 12, 12, 12, 12,...
+
+La formula ricorsiva per calcolare i termini della sequenza è la seguente (Colin Mallows):
+
+  a(1) = 1
+  a(n+1) = 1 + a*(n + 1 - a(a(n)))
+
+Nota: dalla definizione ricorsiva segue che questa è una sequenza autoreferenziale.
+
+La stima asintotica per a(n) vale (Marcus e Fine):
+
+  a(n) = phi^(2-phi)*n^(phi-1) + E(n),
+  dove phi è il rapporto aureo (1+sqrt(5))/2
+  e E(n) è il termine di errore che vale (Ilan Vardi): O( n^(phi-1) / log n )
+
+Scriviamo una funzione che calcola la stima asintotica di a(n):
+
+(setq phi (div (add 1 (sqrt 5)) 2))
+;-> 1.618033988749895
+
+(setq n 20)
+(define (golomb-stima n)
+  (local (phi an en)
+    (setq phi (div (add 1 (sqrt 5)) 2))
+    (setq an (mul (pow phi (sub 2 phi)) (pow n (sub phi 1))))
+    (setq en (div (pow n (sub phi 1)) (log n)))
+    (list an en)
+  ))
+
+(golomb-stima 100)
+;-> (20.69636871119573 3.739575390803224)
+
+Scriviamo una funzione ricorsiva che calcola la sequenza di Golomb fino a un dato valore n:
+
+(define (find-golomb n)
+  (cond ((= n 1) 1)
+        (true (+ 1 (find-golomb (- n (find-golomb (find-golomb (- n 1)))))))))
+
+(define (golomb-rec n)
+  (local (gol)
+    (setq gol '())
+    (for (i 1 n)
+      (push (find-golomb i) gol -1)
+    )
+    gol))
+
+(golomb-rec 10)
+;-> (1 2 2 3 3 4 4 4 5 5)
+(golomb-rec 25)
+;-> (1 2 2 3 3 4 4 4 5 5 5 6 6 6 6 7 7 7 7 8 8 8 8 9 9)
+
+Scriviamo una funzione che utilizza la programmazione dinamica per calcolare la sequenza di Golomb fino a un dato valore n:
+
+(define (golomb-dp n)
+  (let (gol (array (+ n 1) '(0)))
+    (setf (gol 1) 1)
+    (for (i 1 (- n 1))
+      (setf (gol (+ i 1)) (+ 1 (gol (+ i 1 (- (gol (gol i)))))))
+    )
+    (slice gol 1)))
+
+(golomb-dp 10)
+;-> (1 2 2 3 3 4 4 4 5 5)
+(golomb-dp 25)
+;-> (1 2 2 3 3 4 4 4 5 5 5 6 6 6 6 7 7 7 7 8 8 8 8 9 9)
+
+Vediamo un'altra funzione che calcola la sequenza di Golomb fino a che a(k) è uguale a n:
+
+(define (golomb-k n)
+  (local (gol next-val)
+    (setq gol '(1))
+    (for (i 0 (- n 2))
+      (setq next-val (+ (gol (- (length gol) 1)) 1))
+      (push next-val gol -1)
+      (for (j 0 (- (gol (- next-val 1)) 2))
+        (push next-val gol -1)
+      )
+    )
+    gol))
+
+(golomb-k 10)
+;-> (1 2 2 3 3 4 4 4 5 5 5 6 6 6 6 7 7 7 7 8 8 8 8 9 9 9 9 9 10 10 10 10 10)
+(golomb-k 25)
+;-> (1 2 2 3 3 4 4 4 5 5 5 6 6 6 6 7 7 7 7 8 8 8 8 9 9 9 9 9 10 10 10 10 10
+;->  11 11 11 11 11 12 12 12 12 12 12 13 13 13 13 13 13 14 14 14 14 14 14 15
+;->  15 15 15 15 15 16 16 16 16 16 16 16 17 17 17 17 17 17 17 18 18 18 18 18
+;->  18 18 19 19 19 19 19 19 19 20 20 20 20 20 20 20 20 21 21 21 21 21 21 21
+;->  21 22 22 22 22 22 22 22 22 23 23 23 23 23 23 23 23 24 24 24 24 24 24 24
+;->  24 24 25 25 25 25 25 25 25 25 25)
 
 =============================================================================
 

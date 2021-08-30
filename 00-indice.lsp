@@ -898,6 +898,9 @@ NOTE LIBERE 5
   Sequenza di Kolakoski
   Da stringa generica a stringa palindroma
   Frasi e semplici regole grammaticali  
+  commonLISP in newLISP
+  Peso ideale e indice di massa corporea
+  Sequenza di Golomb
 
 APPENDICI
 =========
