@@ -901,6 +901,7 @@ NOTE LIBERE 5
   commonLISP in newLISP
   Peso ideale e indice di massa corporea
   Sequenza di Golomb
+  Acquistare e vendere azioni
 
 APPENDICI
 =========

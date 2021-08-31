@@ -901,6 +901,7 @@ NOTE LIBERE 5
   commonLISP in newLISP
   Peso ideale e indice di massa corporea
   Sequenza di Golomb
+  Acquistare e vendere azioni
 
 APPENDICI
 =========
@@ -105267,6 +105268,227 @@ Vediamo un'altra funzione che calcola la sequenza di Golomb fino a che a(k) è u
 ;->  18 18 19 19 19 19 19 19 19 20 20 20 20 20 20 20 20 21 21 21 21 21 21 21
 ;->  21 22 22 22 22 22 22 22 22 23 23 23 23 23 23 23 23 24 24 24 24 24 24 24
 ;->  24 24 25 25 25 25 25 25 25 25 25)
+
+
+---------------------------
+Acquistare e vendere azioni
+---------------------------
+
+Nel trading di azioni, un acquirente compra azioni e le vende in una data futura. Dato il prezzo delle azioni di n giorni, il trader può effettuare al massimo k transazioni (dove una nuova transazione può iniziare solo dopo che la transazione precedente è stata completata). Determinare il profitto massimo che un trader può realizzare dato il prezzo delle azioni di n giorni e il numero k di transazioni.
+
+Esempi:
+
+Input:
+Valore azioni = [10, 22, 5, 75, 65, 80]
+Transazioni = 2
+Output: 87
+Il trader guadagna 87 come somma di 12 e 75.
+Acquista a prezzo 10, vende a 22, acquista a 5 e vende a 80.
+
+Input:
+Valore azioni = [12, 14, 17, 10, 14, 13, 12, 15]
+Transazioni = 3
+Output: 12
+Il trader guadagna 12 come somma di 5, 4 e 3.
+Acquista a prezzo 12 e vende a 17, acquista a 10 e vende a 14, acquista a 12 e vende a 15.
+
+Input:
+Valore azioni = [100, 30, 15, 10, 8, 25, 80]
+Transazioni = 3
+Output: 72
+Due transazioni. Acquista a prezzo 8 e vende a 25, acquista a prezzo 25 e vende a 80.
+
+Input:
+Valore azioni = [90, 80, 70, 60, 50]
+Transazioni = 1
+Output: 0
+Non è possibile guadagnare.
+
+Esistono varie versioni del problema. Se è possibile comprare e vendere solo una volta, allora possiamo usare l'algoritmo "differenza massima tra due elementi". Se è possibile comprare e vendere un numero qualsiasi di volte, possiamo utilizzare il metodo seguente.
+
+Il problema può essere risolto utilizzando la programmazione dinamica.
+
+Poniamo che profitto[t][i] rappresenti il ​​profitto massimo utilizzando al massimo t transazioni fino al giorno i (incluso il giorno i).
+Allora la relazione è:
+
+  profitto[t][i] = max(profitto[t][i-1], max(prezzo[i] – prezzo[j] + profitto[t-1][j]))
+  per tutti j nell'intervallo [0, i-1]
+
+profitto[t][i] sarà il massimo di:
+  1) profitto[t][i-1] che rappresenta non fare alcuna transazione il giorno i-esimo.
+  2) Massimo profitto ottenuto vendendo l'iesimo giorno. Per vendere azioni l'i-esimo giorno, dobbiamo acquistarle in uno qualsiasi dei [0, i – 1] giorni. Se acquistiamo azioni il giorno j-esimo e le vendiamo il giorno i-esimo, il profitto massimo sarà prezzo[i] – prezzo[j] + profitto[t-1][j] dove j varia da 0 a i-1. Qui il profitto[t-1][j] è il migliore che avremmo potuto fare con una transazione in meno fino al j-esimo giorno.
+
+Vediamo una possibile implementazione:
+
+(define (max-profit price k)
+  (local (n profit val-max)
+    ; numero giorni
+    (setq n (length price))
+    ; matrice per memorizzare i risultati dei sottoproblemi
+    ; profit[t][i] memorizza il massimo profitto usando al massimo
+    (setq profit (array (+ k 1) n '(0)))
+    ; Riempimento della matrice in modo bottom-up
+    (for (i 1 k)
+      (for (j 1 (- n 1))
+        (setq val-max 0)
+        (for (m 0 (- j 1))
+          (setq val-max (max val-max (+ (price j) (profit (- i 1) m) (- (price m)))))
+        )
+        (setf (profit i j) (max (profit i (- j 1)) val-max))
+      )
+    )
+    (print-transaction profit price)
+    (profit k (- n 1))))
+
+Adesso scriviamo la funzione che stampa i valori delle singole transazioni:
+
+(define (print-transaction profit price)
+  (local (i j stack max-diff continua stop)
+    (setq i (- (length profit) 1))
+    (setq j (- (length (profit 0)) 1))
+    (setq continua true)
+    (while continua
+      (cond ((or (= i 0) (= j 0))
+             (setq continua nil))
+            (true
+             (if (= (profit i j) (profit i (- j 1)))
+                 (-- j)
+             (begin ;else
+                 (push j stack)
+                 (setq max-diff (- (profit i j) (price j)))
+                 (setq stop nil)
+                 (for (k (- j 1) 0 -1 stop)
+                     (if (= (- (profit (- i 1) k) (price k)) max-diff) (begin
+                         (-- i)
+                         (setq j k)
+                         (push j stack)
+                         (setq stop true))
+                     )
+                 )
+             )))
+      )
+    )
+    (if (> (length stack) 0)
+      (for (i 0 (- (length stack) 2) 2)
+        (println "compra a " (price (stack i)) " e vende a " (price (stack (+ i 1))) " (" (- (price (stack (+ i 1))) (price (stack i))) ")")
+      )
+    )
+  )
+)
+
+Facciamo alcune prove:
+
+(max-profit '(10 22 5 75 65 80) 2)
+;-> compra a 10 e vende a 22 (12)
+;-> compra a 5 e vende a 80 (75)
+;-> 87
+(max-profit '(12 14 17 10 14 13 12 15) 3)
+;-> compra a 12 e vende a 17 (5)
+;-> compra a 10 e vende a 14 (4)
+;-> compra a 12 e vende a 15 (3)
+;-> 12
+(max-profit '(100 30 15 10 8 25 80) 3)
+;-> compra a 8 e vende a 25 (17)
+;-> compra a 25 e vende a 80 (55)
+;-> 72
+(max-profit '(90 80 70 60 50) 1)
+;-> 0
+
+Questa soluzione ha complessità temporale O(k*n^2).
+È possibile calcolare il massimo profitto ottenuto vendendo azioni il giorno i-esimo in tempo costante.
+
+  profitto[t][i] = max(profitto [t][i-1], max(prezzo[i] – prezzo[j] + profitto[t-1][j]))
+  per tutti j nell'intervallo [0, i-1]
+
+Se notiamo con attenzione l'espressione,
+  max(prezzo[i] – prezzo[j] + profitto[t-1][j])
+  per tutti j nell'intervallo [0, i-1]
+
+può essere riscritta come,
+  = prezzo[i] + max(profitto[t-1][j] – prezzo[j])
+  per tutti j nell'intervallo [0, i-1]
+  = prezzo[i] + max(prev-diff, profitto[t-1][i-1] – prezzo[i-1])
+  dove prev-diff è max(profit[t-1][j] – prezzo[j])
+  per tutti j nell'intervallo [0, i-2]
+
+Quindi, se abbiamo già calcolato max(profit[t-1][j] – prezzo[j]) per tutti j nell'intervallo [0, i-2], possiamo calcolarlo per j = i – 1 in tempo costante. In altre parole, non dobbiamo più guardare indietro nell'intervallo [0, i-1] per scoprire il giorno migliore per l'acquisto. Possiamo determinarlo in tempo costante usando la relazione seguente:
+
+  profitto[t][i] = max(profitto[t][i-1], prezzo[i] + max(prev-diff, profitto [t-1][i-1] – prezzo[i-1])
+  dove prev-diff è max(profit[t-1][j] – price[j]) per tutti j nell'intervallo [0, i-2]
+
+Scriviamo una possibile implementazione:
+
+(define (max-profit-2 price k)
+  (local (n profit prev-diff)
+    ; numero giorni
+    (setq n (length price))
+    ; matrice per memorizzare i risultati dei sottoproblemi
+    ; profit[t][i] memorizza il massimo profitto usando al massimo
+    ; t transazioni fino al giorno i (incluso)
+    (setq profit (array (+ k 1) n '(0)))
+    ; Riempimento della matrice in modo bottom-up
+    (for (i 1 k)
+      (setq prev-diff -9223372036854775808)
+      (for (j 1 (- n 1))
+        (setq prev-diff (max prev-diff (- (profit (- i 1) (- j 1)) (price (- j 1)))))
+        (setf (profit i j) (max (profit i (- j 1)) (+ (price j) prev-diff)))
+      )
+    )
+    ; stampa le singole transazioni
+    (print-transaction profit price)
+    ; restituisce il valore finale
+    (profit k (- n 1))))
+
+Verifichiamo i risultati precedenti:
+
+(max-profit-2 '(10 22 5 75 65 80) 2)
+;-> compra a 10 e vende a 22 (12)
+;-> compra a 5 e vende a 80 (75)
+;-> 87
+(max-profit-2 '(12 14 17 10 14 13 12 15) 3)
+;-> compra a 12 e vende a 17 (5)
+;-> compra a 10 e vende a 14 (4)
+;-> compra a 12 e vende a 15 (3)
+;-> 12
+(max-profit-2 '(100 30 15 10 8 25 80) 3)
+;-> compra a 8 e vende a 25 (17)
+;-> compra a 25 e vende a 80 (55)
+;-> 72
+(max-profit-2 '(90 80 70 60 50) 1)
+;-> 0
+
+Questa soluzione ha complessità temporale O(k*n).
+
+Vediamo la differenza di velocità tra le due funzioni:
+
+(setq azioni (randomize (sequence 1 1000)))
+(time (println (max-profit azioni 10)))
+;-> compra a 2 e vende a 1000 (998)
+;-> compra a 17 e vende a 997 (980)
+;-> compra a 1 e vende a 996 (995)
+;-> compra a 8 e vende a 998 (990)
+;-> compra a 13 e vende a 990 (977)
+;-> compra a 9 e vende a 994 (985)
+;-> compra a 15 e vende a 995 (980)
+;-> compra a 4 e vende a 977 (973)
+;-> compra a 6 e vende a 992 (986)
+;-> compra a 3 e vende a 999 (996)
+;-> 9860
+;-> 6257.59
+
+(time (println (max-profit-2 azioni 10)))
+;-> compra a 2 e vende a 1000 (998)
+;-> compra a 17 e vende a 997 (980)
+;-> compra a 1 e vende a 996 (995)
+;-> compra a 8 e vende a 998 (990)
+;-> compra a 13 e vende a 990 (977)
+;-> compra a 9 e vende a 994 (985)
+;-> compra a 15 e vende a 995 (980)
+;-> compra a 4 e vende a 977 (973)
+;-> compra a 6 e vende a 992 (986)
+;-> compra a 3 e vende a 999 (996)
+;-> 9860
+;-> 22.303
 
 =============================================================================
 
