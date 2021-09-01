@@ -902,6 +902,7 @@ NOTE LIBERE 5
   Peso ideale e indice di massa corporea
   Sequenza di Golomb
   Acquistare e vendere azioni
+  Numeri armonici
 
 APPENDICI
 =========

@@ -902,6 +902,7 @@ NOTE LIBERE 5
   Peso ideale e indice di massa corporea
   Sequenza di Golomb
   Acquistare e vendere azioni
+  Numeri armonici
 
 APPENDICI
 =========
@@ -105489,6 +105490,110 @@ Vediamo la differenza di velocità tra le due funzioni:
 ;-> compra a 3 e vende a 999 (996)
 ;-> 9860
 ;-> 22.303
+
+
+---------------
+Numeri armonici
+---------------
+
+Per ogni intero naturale n si definisce come n-esimo numero armonico la somma:
+
+                                   n
+H(n) = 1 + 1/2 + 1/3 + ... + 1/n = ∑ 1/k
+                                   k=1
+
+Questi sono numeri razionali e le corrispondenti frazioni ridotte ai minimi termini hanno numeratore dispari e denominatore pari.
+
+I primi termini della successione dei numeri armonici sono:
+
+1, 3/2, 11/6, 25/12, 137/60, 49/20, 363/140, 761/280, 7129/2520, 7381/2520, 83711/27720, ...
+
+I numeratori dei numeri armonici sono la sequenza A001008 OEIS. 
+I denominatori dei numeri armonici sono la sequenza A002805 OEIS.
+
+I numeri armonici costituiscono le somme parziali della serie armonica (che è divergente).
+
+Per questi numeri vale la seguente relazione ricorsiva:
+
+H(n+1) = H(n) + 1/(n + 1)
+
+Funzioni per il calcolo delle quattro operazioni aritmetiche con le frazioni "+", "-" "*" "/" (big integer):
+
+(define (rat n d)
+  (let (g (gcd n d))
+    (map (curry * 1L)
+         (list (/ n g) (/ d g)))))
+(define (+rat r1 r2)
+  (setq r1 (list (bigint (r1 0)) (bigint(r1 1))))
+  (setq r2 (list (bigint (r2 0)) (bigint(r2 1))))
+  (rat (+ (* (r1 0L) (r2 1L))
+          (* (r2 0L) (r1 1L)))
+       (* (r1 1L) (r2 1L))))
+(define (-rat r1 r2)
+  (setq r1 (list (bigint (r1 0)) (bigint(r1 1))))
+  (setq r2 (list (bigint (r2 0)) (bigint(r2 1))))
+  (rat (- (* (r1 0L) (r2 1L))
+          (* (r2 0L) (r1 1L)))
+       (* (r1 1) (r2 1))))
+(define (*rat r1 r2)
+  (setq r1 (list (bigint (r1 0)) (bigint(r1 1))))
+  (setq r2 (list (bigint (r2 0)) (bigint(r2 1))))
+  (rat (* (r1 0L) (r2 0L))
+       (* (r1 1L) (r2 1L))))
+(define (/rat r1 r2)
+  (setq r1 (list (bigint (r1 0)) (bigint(r1 1))))
+  (setq r2 (list (bigint (r2 0)) (bigint(r2 1))))
+  (rat (* (r1 0L) (r2 1L))
+       (* (r1 1L) (r2 0L))))
+;; (+f '(1 2) '(1 2))           ==> (1L 1L)
+;; (+f '(1 2) '(1 2) '(1 2))    ==> (3L 2L)
+;; (+f '(-1 -2) '(2 1) '(1 1))  ==> (-7L -2L)
+(define-macro (+f)
+  (apply +rat (map eval (args)) 2))
+;; (-f '(1 2) '(1 2))          ==> (0L 1L)
+;; (-f '(1 2) '(1 2) '(1 2))   ==> (-1L 2L)
+(define-macro (-f)
+  (apply -rat (map eval (args)) 2))
+;; (*f '(2 5) '(5 2))         ==> (1L 1L)
+;; (*f '(1 2) '(1 2) '(1 2))  ==> (1L 8L)
+(define-macro (*f)
+  (apply *rat (map eval (args)) 2))
+;; (/f '(1 2) '(1 2) '(1 2))    ==> (2L 1L)
+;; (/f '(4 1) '(1 1) '(1 2))    ==> (8L 1L)
+(define-macro (/f)
+  (apply /rat (map eval (args)) 2))
+
+Scriviamo una funzione che calcola il numero armonico di un numero n:
+
+(define (harmonic n)
+  (local (h)
+    (setq h '(0L 1L))
+    (for (i 1 n)
+      (setq h (+f h (list 1 i)))
+    )
+    h))
+
+(harmonic 1)
+;-> (1L 1L)
+
+Calcoliamo i numeri armonici dei primi dieci interi:
+
+(for (i 1 10) (println (harmonic i)))
+;-> (1L 1L)
+;-> (3L 2L)
+;-> (11L 6L)
+;-> (25L 12L)
+;-> (137L 60L)
+;-> (49L 20L)
+;-> (363L 140L)
+;-> (761L 280L)
+;-> (7129L 2520L)
+;-> (7381L 2520L)
+
+I valori del numeratore e del denominatore crescono molto velocemente:
+
+(harmonic 42)
+;-> (12309312989335019L 2844937529085600L)
 
 =============================================================================
 
