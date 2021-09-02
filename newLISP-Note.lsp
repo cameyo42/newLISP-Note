@@ -903,6 +903,9 @@ NOTE LIBERE 5
   Sequenza di Golomb
   Acquistare e vendere azioni
   Numeri armonici
+  Valore atteso e linearità dell'aspettativa
+  Numero previsto di prove fino al successo
+  Moltiplicazione ricorsiva
 
 APPENDICI
 =========
@@ -105517,6 +105520,10 @@ Per questi numeri vale la seguente relazione ricorsiva:
 
 H(n+1) = H(n) + 1/(n + 1)
 
+Nota: il valore di un numero armonico è compreso tra: log(n) < H(n) < log(n) + 1
+
+Scriviamo le funzioni necessarie per calcolare i numeri armonici.
+
 Funzioni per il calcolo delle quattro operazioni aritmetiche con le frazioni "+", "-" "*" "/" (big integer):
 
 (define (rat n d)
@@ -105594,6 +105601,310 @@ I valori del numeratore e del denominatore crescono molto velocemente:
 
 (harmonic 42)
 ;-> (12309312989335019L 2844937529085600L)
+
+-----------------------------------------
+Numero previsto di prove fino al successo
+-----------------------------------------
+
+Teorema
+Se la probabilità di successo è p in ogni prova, il numero previsto di prove fino al successo vale 1/p.
+
+Problema
+Un dado a 6 facce viene lanciato fino a quando non esce un '5'. Qual è il numero previsto di lanci?
+
+Soluzione
+Poichè per ogni lancio la probabilità che esca un 5 vale p = 1/6, allora il numero previsto di lanci vale 1/p = 6.
+
+Possiamo verificare questo risultato con le seguente funzioni:
+
+Funzione che simula il lancio di un dado con n facce (da 1 a n):
+
+(define (dado n) (+ (rand n) 1))
+
+(dado 6)
+;-> 2
+
+Funzione che calcola la media dei successi (cioè la frequenza di uscita del numero k):
+
+(define (media-successo k iter)
+  (let (conta 0)
+    (for (i 1 iter)
+      (if (= (dado 6) k)
+        (++ conta)
+      )
+    )
+    (println conta)
+    (div conta iter)))
+
+Facciamo alcune prove:
+
+(media-successo 1 100000)
+;-> 16573
+;-> 0.16573
+(media-successo 2 100000)
+;-> 16459
+;-> 0.16459
+(media-successo 1 100000)
+;-> 16634
+;-> 0.16634
+(media-successo 2 100000)
+;-> 16519
+;-> 0.16519
+(media-successo 3 100000)
+;-> 16699
+;-> 0.16699
+(media-successo 4 100000)
+;-> 16685
+;-> 0.16685
+(media-successo 5 100000)
+;-> 16618
+;-> 0.16618
+(media-successo 6 100000)
+;-> 16554
+;-> 0.16554
+
+Il valore teorico vale 1/6 = 0.1666666666666667, cioè, in media, il numero k esce ogni 6 lanci.
+
+Con la funzione seguente possiamo calcolare quante volte, in media, occorre lanciare un dado prima che esca il numero k:
+
+(define (freq-successo k iter)
+  (local (conta lanci continua)
+    ; numero totale di lanci per ottenere "iter" successi
+    (setq conta 0)
+    (for (i 1 iter)
+      ; numero di lanci per l'i-esimo successo
+      (setq lanci 0)
+      (setq continua true)
+      (while continua
+        (++ lanci)
+        (if (= (dado 6) k) (begin
+            (setq conta (+ conta lanci))
+            (setq continua nil)
+        )
+      )
+    )
+    (div conta iter))))
+
+Facciamo alcune prove:
+
+(freq-successo 1 100000)
+;-> 6.01599
+(freq-successo 2 100000)
+;-> 6.00242
+(freq-successo 3 100000)
+;-> 6.00706
+(freq-successo 4 100000)
+;-> 6.00222
+(freq-successo 5 100000)
+;-> 6.02989
+(freq-successo 6 100000)
+;-> 5.99746
+
+Quindi, affinchè esca il numero k occorrono in media 6 lanci.
+
+
+------------------------------------------
+Valore atteso e linearità dell'aspettativa
+------------------------------------------
+
+Il valore atteso (chiamato anche media o speranza matematica) di una variabile casuale X, è un numero indicato con E[X] che formalizza l'idea euristica di valore medio di un fenomeno aleatorio.
+
+In generale il valore atteso di una variabile casuale discreta (che assuma cioè solo un numero finito di valori) è dato dalla somma dei possibili valori di tale variabile, ciascuno moltiplicato per la probabilità di verificarsi, cioè è la media ponderata dei possibili risultati.
+
+        n
+  E[X]= ∑ x(i)*p(i)
+       i=1
+
+Per esempio, nel gioco testa o croce, il valore atteso per "testa" vale:
+
+  E[testa]= 1*0.5 + 0*0.5 = 0.5
+
+cioè il valore atteso del gioco di testa vale 0.5, ovvero la media delle vincite e perdite pesata in base alle probabilità (50% per entrambi i casi).
+
+Invece, lanciando un dado il valore atteso vale:
+
+  E[dado] = 1*1/6 + 2*1/6 + 3*1/6 + 4*1/6 + 5*1/6 + 6*1/6 = 21/6 = 3.5
+
+La linearità dell'aspettativa dice fondamentalmente che il valore atteso di una somma di variabili casuali è uguale alla somma delle aspettative individuali. La sua importanza difficilmente può essere sopravvalutata per l'area degli algoritmi randomizzati e dei metodi probabilistici. La sua forza principale consiste nei fatti che:
+
+  a) è applicabile per somme di qualsiasi variabile casuale (indipendente o meno), e
+  b) spesso consente semplici argomenti “locali” invece di quelli “globali”.
+
+         n
+  E[X] = ∑ E[x(i)]
+        i=1
+
+Per esempio, nel lancio di due dadi (con distribuzioni indipendenti X1 e X2) il valore atteso di X = X1 + X2 vale:
+
+  E[X] = 2*1/36 + 3*1/36 + ... + 12*1/36 = 7
+
+Cioè, la linearità dell'aspettativa ci permette di calcolare il valore atteso di una somma di variabili casuali calcolando la somma delle aspettative individuali.
+
+Problema
+Supponiamo di avere n buche e un numero infinito di palline. Lanciando una pallina questa termina in una delle n buche (con distribuzione uniforme). Quanti lanci dobbiamo effettuare, in media, affinchè tutte le buche contengano almeno una pallina?
+
+Soluzione
+Dal punto di vista matematico è possibile dimostrare (utilizzando la proprietà della linearità delle aspettative) che il risultato vale:
+
+ E[X] = n * H(n)
+ dove H(n) è l'n-esimo numero armonico.
+
+Prima scriviamo le funzioni per calcolare il valore matematico della soluzione.
+
+Funzioni per il calcolo delle quattro operazioni aritmetiche con le frazioni "+", "-" "*" "/" (big integer):
+
+(define (rat n d)
+  (let (g (gcd n d))
+    (map (curry * 1L)
+         (list (/ n g) (/ d g)))))
+(define (+rat r1 r2)
+  (setq r1 (list (bigint (r1 0)) (bigint(r1 1))))
+  (setq r2 (list (bigint (r2 0)) (bigint(r2 1))))
+  (rat (+ (* (r1 0L) (r2 1L))
+          (* (r2 0L) (r1 1L)))
+       (* (r1 1L) (r2 1L))))
+(define (-rat r1 r2)
+  (setq r1 (list (bigint (r1 0)) (bigint(r1 1))))
+  (setq r2 (list (bigint (r2 0)) (bigint(r2 1))))
+  (rat (- (* (r1 0L) (r2 1L))
+          (* (r2 0L) (r1 1L)))
+       (* (r1 1) (r2 1))))
+(define (*rat r1 r2)
+  (setq r1 (list (bigint (r1 0)) (bigint(r1 1))))
+  (setq r2 (list (bigint (r2 0)) (bigint(r2 1))))
+  (rat (* (r1 0L) (r2 0L))
+       (* (r1 1L) (r2 1L))))
+(define (/rat r1 r2)
+  (setq r1 (list (bigint (r1 0)) (bigint(r1 1))))
+  (setq r2 (list (bigint (r2 0)) (bigint(r2 1))))
+  (rat (* (r1 0L) (r2 1L))
+       (* (r1 1L) (r2 0L))))
+(define-macro (+f)
+  (apply +rat (map eval (args)) 2))
+(define-macro (-f)
+  (apply -rat (map eval (args)) 2))
+(define-macro (*f)
+  (apply *rat (map eval (args)) 2))
+(define-macro (/f)
+  (apply /rat (map eval (args)) 2))
+
+Funzione per il calcolo dell'n-esimo numero armonico:
+
+(define (harmonic-value n)
+  (local (h)
+    (setq h '(0L 1L))
+    (for (i 1 n)
+      (setq h (+f h (list 1 i)))
+    )
+    (div (h 0) (h 1))))
+
+(harmonic-value 10)
+;-> 2.928968253968254
+
+Funzione che calcola il risultato matematico del problema:
+
+(define (math-value n)
+  (mul n (harmonic-value n)))
+
+Adesso scriviamo le funzioni per effettuare una simulazione del processo e calcolare una soluzione numerica.
+
+Funzione che effettua il processo di riempire le buche con almeno una pallina in ogni buca e restituisce il numero di lanci necessari:
+
+(define (fill-hole n)
+  (local (buche lanci continua filled break)
+    (setq buche (array (+ n 1) '(0)))
+    (setq lanci 0)
+    (setq continua true)
+    (while continua
+      ; lancio nella buca b
+      (setq b (+ (rand n) 1))
+      (++ lanci)
+      (++ (buche b))
+      ; controllo riempimento buche
+      (setq filled true)
+      (setq break nil)
+      (for (i 1 n 1 break)
+        (if (zero? (buche i))
+          (setq filled nil)
+          (setq brak true)
+        )
+      )
+      (if filled (setq continua nil))
+    )
+    ;(println buche)
+    ;(println (apply + buche))
+    lanci))
+
+Funzione che simula iter volte il processo di riempimento visto sopra:
+
+(define (fill-hole-test n iter)
+  (local (conta lanci continua)
+    ; numero totale di lanci per ottenere "iter" successi
+    (setq conta 0)
+    (for (i 1 iter)
+      ; (fill-hole n) -> numero di lanci per l'i-esimo successo
+      ; (successo = tutte le buche almeno con 1 pallina)
+      (setq conta (+ conta (fill-hole n)))
+    )
+    (div conta iter)))
+
+Verifichiamo che il risultati teorici siano congruenti con quelli delle simulazioni:
+
+(fill-hole-test 10 10000)
+;-> 29.30323
+(math-value 10)
+;-> 29.28968253968254
+
+(fill-hole-test 20 10000)
+;-> 72.2317
+(math-value 20)
+;-> 72.03876
+
+(fill-hole-test 30 10000)
+;-> 119.5321
+(math-value 30)
+;-> 119.8496139276117
+
+I risultati teorici confermano i risultati delle simulazioni.
+
+
+-------------------------
+Moltiplicazione ricorsiva
+-------------------------
+
+Moltiplicare due interi senza utilizzare gli operatori di moltiplicazione, divisione e bitwise. Inoltre non è possibile utilizza cicli (for, while, ecc).
+
+La soluzione consiste nell'utilizzare una funzione ricorsiva:
+
+(define (molt x y)
+        ; 0*x = 0  
+  (cond ((zero? y) 0)
+        ; aggiunge x ogni volta
+        ((> y 0) (+ x (molt x (- y 1))))
+        ; caso in cui y è negativo
+        ((< y 0) (- (molt x (- y))))
+        (true nil)))
+
+(molt 3 4)
+;-> 12
+(molt -2 4)
+;-> -8
+(molt 2 -4)
+;-> -8
+(molt -1 -3)
+;-> 3
+(molt 0 0)
+;-> 0
+(molt 0 2)
+;-> 0
+(molt 2 0)
+;-> 0
+
+Nota: questa funzione ha il problema dello stack overflow per numeri relativamente grandi:
+
+(molt 5000 -1234)
+;-> ERR: call or result stack overflow in function cond : zero?
+;-> called from user function (molt x (- y 1))
 
 =============================================================================
 

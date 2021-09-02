@@ -903,6 +903,9 @@ NOTE LIBERE 5
   Sequenza di Golomb
   Acquistare e vendere azioni
   Numeri armonici
+  Valore atteso e linearità dell'aspettativa
+  Numero previsto di prove fino al successo
+  Moltiplicazione ricorsiva
 
 APPENDICI
 =========
