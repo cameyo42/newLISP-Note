@@ -906,6 +906,7 @@ NOTE LIBERE 5
   Valore atteso e linearità dell'aspettativa
   Numero previsto di prove fino al successo
   Moltiplicazione ricorsiva
+  Il gioco del Lotto
 
 APPENDICI
 =========

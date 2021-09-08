@@ -906,6 +906,7 @@ NOTE LIBERE 5
   Valore atteso e linearità dell'aspettativa
   Numero previsto di prove fino al successo
   Moltiplicazione ricorsiva
+  Il gioco del Lotto
 
 APPENDICI
 =========
@@ -105602,6 +105603,7 @@ I valori del numeratore e del denominatore crescono molto velocemente:
 (harmonic 42)
 ;-> (12309312989335019L 2844937529085600L)
 
+
 -----------------------------------------
 Numero previsto di prove fino al successo
 -----------------------------------------
@@ -105725,7 +105727,7 @@ Invece, lanciando un dado il valore atteso vale:
 
   E[dado] = 1*1/6 + 2*1/6 + 3*1/6 + 4*1/6 + 5*1/6 + 6*1/6 = 21/6 = 3.5
 
-La linearità dell'aspettativa dice fondamentalmente che il valore atteso di una somma di variabili casuali è uguale alla somma delle aspettative individuali. La sua importanza difficilmente può essere sopravvalutata per l'area degli algoritmi randomizzati e dei metodi probabilistici. La sua forza principale consiste nei fatti che:
+La linearità dell'aspettativa dice fondamentalmente che il valore atteso di una somma di variabili casuali è uguale alla somma delle aspettative individuali. La sua importanza è fondamentale per l'area degli algoritmi randomizzati e dei metodi probabilistici. La sua forza principale consiste sul fatto che:
 
   a) è applicabile per somme di qualsiasi variabile casuale (indipendente o meno), e
   b) spesso consente semplici argomenti “locali” invece di quelli “globali”.
@@ -105825,8 +105827,7 @@ Funzione che effettua il processo di riempire le buche con almeno una pallina in
       (setq break nil)
       (for (i 1 n 1 break)
         (if (zero? (buche i))
-          (setq filled nil)
-          (setq brak true)
+          (setq filled nil break true)
         )
       )
       (if filled (setq continua nil))
@@ -105861,7 +105862,7 @@ Verifichiamo che il risultati teorici siano congruenti con quelli delle simulazi
 ;-> 72.03876
 
 (fill-hole-test 30 10000)
-;-> 119.5321
+;-> 119.7455
 (math-value 30)
 ;-> 119.8496139276117
 
@@ -105905,6 +105906,373 @@ Nota: questa funzione ha il problema dello stack overflow per numeri relativamen
 (molt 5000 -1234)
 ;-> ERR: call or result stack overflow in function cond : zero?
 ;-> called from user function (molt x (- y 1))
+
+
+------------------
+Il gioco del Lotto
+------------------
+
+Il gioco del Lotto consiste in un’urna che contiene 90 palline numerate. Vengono estratte a caso 5 palline, 85 di queste sono perdenti, 5 sono vincenti.
+I casi possibili sono tutti i modi di estrarre un gruppo di k=5 palline tra n=90 (poichè le ripetizioni non sono ammesse e l’ordine di estrazione non è rilevante, allora si tratta del numero di combinazioni):
+
+  Numero di casi possibili = Combinazioni(90,5)
+
+Per calcolare le combinazioni utilizziamo la funzione che calcola il coefficiente binomiale (n k) = n!/(k!*(n - k)!):
+
+(define (binom num k)
+  (cond ((> k num) 0)
+        ((zero? k) 1)
+        (true
+          (let (r 1L)
+            (for (d 1 k)
+              (setq r (/ (* r num) d))
+              (-- num)
+            )
+          r))))
+
+(binom 90 5)
+;-> 43949268L
+
+Prima di calcolare tutte le probabilità del lotto, vediamo un esempio di queste probabilità utilizzando il calcolo combinatorio.
+
+Esempio
+-------
+Una persona gioca 4 numeri al lotto, calcolare la probabilità di vincere almeno un terno (ossia un terno o una quaterna).
+
+La formula per calcolare la probabilità è la seguente:
+
+          C(a x) * C(b y)
+  P(x) = -----------------
+              C(N n)
+
+dove:
+  a = numeri giocati (4)
+  b = numeri non giocati (86)
+  x = numeri favorevoli estratti (3 per il terno o 4 per la quaterna)
+  y = numeri non favorevoli estratti (2 per il terno 1 per la quaterna)
+  N = popolazione totale (90)
+  n = numero palline estratte (5)
+
+La formula considera che i casi favorevoli siano dati dal prodotto cartesiano di tutti i possibili raggruppamenti dei 4 numeri giocati con i 3 numeri del terno uscito e tutti i possibili raggruppamenti degli 86 numeri non giocati con i 2 numeri avanzati che non costituiscono il terno. I casi totali sono dati da tutte le possibili combinazioni dei 90 numeri del lotto presi a gruppi di 5.
+
+Per il terno abbiamo:
+
+          C(4,3) * C(86,2)       170
+  P(3) = ------------------ = ----------
+              C(90,5)           511038
+
+Per la quaterna abbiamo:
+
+          C(4,4) * C(86,1)        1
+  P(4) = ------------------ = ----------
+              C(90,5)           511038
+
+Probabilità di estrazione su singola ruota
+------------------------------------------
+
+A) Probabilità secche
+
+Probabilità che 1 numero giocato venga estratto:
+
+C(89,4)*C(1,1) / C(90,5) = 2441626 / 43949268 = 1/18 = 0.05555555555555555
+
+(* (binom 89 4) (binom 1 1))
+;-> 2441626L
+(div 2441626 43949268)
+;-> 0.05555555555555555
+(div (div 2441626 43949268))
+;-> 18
+
+Probabilità che 2 numeri giocati vengano estratti (ambo secco):
+
+Siccome i numeri estratti sono 5 numeri i casi favorevoli sono quelli in cui i due numeri giocati sono fissi C(2,2) e gli altri 3 numeri variabili, cioe' tutte le terne che si possono formare con gli 88 numeri restanti, cioè C(88,3).
+Poichè i casi possibili sono tutte le cinquine che posso formare con i 90 numeri C(90,5), otteniamo:
+
+                 C(88,3)*C(2 2)      2
+P(ambo secco) = ---------------- = ----- = 0.002496878901373283 (~ 0,25%)
+                    C(90,5)         801
+
+C(88,3)*C(2,2) / C(90,5) = 109736 / 43949268 = 1/400.5 = 0.002496878901373283
+
+(* (binom 88 3) (binom 2 2))
+;-> 109736L
+(div 109736 43949268)
+;-> 0.002496878901373283
+(div (div 109736 43949268))
+;-> 400.5
+
+Probabilità che 3 numeri giocati vengano estratti (terno secco):
+
+C(87,2)*C(3,3) / C(90,5) = 3741 / 43949268 = 1/11748 = 8.512087163772556e-005
+
+(* (binom 87 2) (binom 3 3))
+;-> 3741L
+(div 3741 43949268)
+;-> 8.512087163772556e-005
+(div (div 3741 43949268))
+;-> 11748
+
+Probabilità che 4 numeri giocati vengano estratti (quaterna secca):
+
+C(86,1)*C(4,4) / C(90,5) = 86 / 43949268 = 1/511038 = 1.956801646844266e-006
+
+(* (binom 86 1) (binom 4 4))
+;-> 86L
+(div 86 43949268)
+;-> 1.956801646844266e-006
+(div (div 86 43949268))
+;-> 511038
+
+Probabilità che 5 numeri giocati vengano estratti (cinquina secca):
+
+C(85,0)*C(5,5) / C(90,5) = 1 / 43949268 = 2.275350752144495e-008
+
+(* (binom 85 0) (binom 5 5))
+;-> 1L
+(div 43949268)
+;-> 2.275350752144495e-008
+(div (div 43949268))
+;-> 43949268
+
+B) Probabilità con 5 numeri giocati
+
+Probabilità che 0 dei 5 numeri giocati venga estratto:
+
+C(85,5)*C(5,0) / C(90,5) = 32801517 / 43949268 =
+
+(* (binom 85 5) (binom 5 0))
+;-> 32801517L
+(div 32801517 43949268)
+;-> 0.7463495637743045
+(div (div 32801517 43949268))
+;-> 1.339854739035393
+
+Probabilità che 1 dei 5 numeri giocati venga estratto:
+
+C(85,4)*C(5,1) / C(90,5) = 10123925 / 43949268 = 0.2303548036340446
+
+(* (binom 85 4) (binom 5 1))
+;-> 10123925L
+(div 10123925 43949268)
+;-> 0.2303548036340446
+(div (div 10123925 43949268))
+;-> 4.341129354474673
+
+Probabilità che 2 dei 5 numeri giocati vengano estratti:
+
+C(85,3)*C(5,2) / C(90,5) = 987700 / 43949268 = 0.02247363937893118
+
+(* (binom 85 3) (binom 5 2))
+;-> 987700
+(div 987700 43949268)
+;-> 0.02247363937893118
+(div (div 987700 43949268))
+;-> 44.4965758833654
+
+Probabilità che 3 dei 5 numeri giocati vengano estratti:
+
+C(85,2)*C(5,3) / C(90,5) = 35700 / 43949268 = 0.0008123002185155848
+
+(* (binom 85 2) (binom 5 3))
+;-> 35700L
+(div 35700 43949268)
+;-> 0.0008123002185155848
+(div (div 35700 43949268))
+;-> 1231.071932773109
+
+Probabilità che 4 dei 5 numeri giocati vengano estratti:
+
+C(85,1)*C(5,4) / C(90,5) = 425 / 43949268 = 9.670240696614104e-006
+
+(* (binom 85 1) (binom 5 4))
+;-> 425L
+(div 425 43949268)
+;-> 9.670240696614104e-006
+(div (div 425 43949268))
+;-> 103410.0423529412
+
+Probabilità che 5 dei 5 numeri giocati vengano estratti:
+
+C(85,0)*C(5,5) / C(90,5) = 1 / 43949268 = 2.275350752144495e-008
+
+(* (binom 85 0) (binom 5 5))
+;-> 1L
+(div 43949268)
+;-> 2.275350752144495e-008
+(div (div 43949268))
+;-> 43949268
+
+Probabilità di estrazione su più ruote
+--------------------------------------
+Data la probabilità P di estrazione su una ruota di un evento (numero singolo o ambo o terno o quaterna o cinquina), per ottenere la probabilità di estrazione dello stesso evento su N ruote (considerando favorevoli i casi in cui esso esce su almeno una delle N ruote e che le estrazioni siano indipendenti una dall'altra) possiamo usare il teorema della probabilità composta.
+La probabilità che l'evento non si verifichi è data da)
+indicando con N il numero di ruote su cui si gioca e considerando che le estrazioni su ciascuna di esse sono indipendenti le une dalle altre, la probabilità di non estrazione su nessuna delle N ruote vale:
+
+  Probabilità di non estrazione = (1-P)^N
+
+Pertanto, la probabilità che l'evento si verifichi su almeno una delle N ruote vale:
+
+  Probabilità di estrazione = 1 - (1-P)^N
+
+Simulazione del gioco del lotto
+-------------------------------
+Adesso scriviamo delle funzioni per simulare il gioco del lotto e verificare i risultati matematici.
+Per confrontare i numeri vincenti con i numeri estratti usiamo la funzione primitiva "difference", per esempio:
+
+(setq win '(1 3 5 7 9))
+(setq a '(3 1 7 5 9))
+(setq b '(1 7 5 6))
+(setq c '(5 4 8))
+(setq d '(2 4 6 8 10))
+(setq y '(2 1))
+
+Tutti numeri uguali (5 giocati):
+(difference win a)
+;-> ()
+
+3 numeri uguali (4 giocati):
+(difference win b)
+;-> (3 9)
+
+1 numero uguale (3 giocati):
+(difference win c)
+;-> (1 3 7 9)
+
+0 numeri uguali (5 giocati):
+(difference win d)
+;-> (1 3 5 7 9)
+
+1 numero uguale (2 giocati):
+(difference win y)
+;-> (3 5 7 9)
+
+Scriviamo due funzioni, una per calcolare le probabilità delle giocate secche e una per le calcolare le probabilità delle giocate con 5 numeri.
+
+Funzione per simulare le giocate secche nel lotto:
+
+(define (lotto-secco-test num iter)
+  (local (conta urna ev estratti)
+    (setq urna (sequence 1 90))
+    (setq conta 0)
+    (for (i 1 iter)
+      ; scommessa secca
+      ; estrazione dei num numeri giocati
+      (setq ev (slice (randomize urna true) 0 num))
+      ; estrazione dei 5 numeri vincenti
+      (setq estratti (slice (randomize urna true) 0 5))
+      (setq res (length (difference estratti ev)))
+      ;(if (= res (- 5 num))
+      ;  (println ev { } estratti { } res)
+      ;)
+      ; confronto vincenti con numeri giocati
+      (if (= res (- 5 num)) (++ conta))
+    )
+    (div conta iter)))
+
+Vediamo l'output delle simulazioni:
+
+(lotto-secco-test 1 1e6)
+;-> 0.055632
+(lotto-secco-test 2 1e6)
+;-> 0.002448
+(lotto-secco-test 3 1e6)
+;-> 8.1e-005
+(lotto-secco-test 4 1e7)
+;-> 1.7e-006
+(lotto-secco-test 5 1e7)
+;-> 0
+
+Nota: quando le percentuali di un evento si avvicinano a zero, allora il processo di simulazione deve utilizzare un numero maggiore di iterazioni. Ad esempio, la cinquina ha una probabilità di uscita di 1 su 43949268 (43milioni 949mila 268), quindi per simulare il processo dovremmo usare tra 50 e 100 milioni di iterazioni. Questo è il motivo per cui l'ultimo valore della simulazione vale 0 (semplicemente perchè 1e7 iterazioni (10 milioni) non sono sufficienti per calcolare correttamente la probabilità della cinquina).
+
+Proviamo con 100 milioni di iterazioni:
+(time (println (lotto-secco-test 5 1e8)))
+;-> 2e-008
+;-> 504951.426
+
+Funzione per simulare le giocate con 5 numeri nel lotto:
+
+(define (lotto5-test num iter)
+  (local (conta urna ev estratti)
+    (setq urna (sequence 1 90))
+    (setq conta 0)
+    (for (i 1 iter)
+      ; scommessa con 5 numeri
+      ; estrazione dei 5 numeri giocati
+      (setq ev (slice (randomize urna true) 0 5))
+      ; estrazione dei 5 numeri vincenti
+      (setq estratti (slice (randomize urna true) 0 5))
+      (setq res (length (difference estratti ev)))
+      ;(if (= res (- 5 num))
+      ;  (println ev { } estratti { } res)
+      ;)
+      ; confronto vincenti con numeri giocati
+      (if (= res (- 5 num)) (++ conta))
+    )
+    (div conta iter)))
+
+Vediamo l'output delle simulazioni:
+
+(lotto5-test 1 1e6)
+;-> 0.231228
+(lotto5-test 2 1e6)
+;-> 0.022308
+(lotto5-test 3 1e6)
+;-> 0.000833
+(lotto5-test 4 1e7)
+;-> 8.5e-006
+(lotto5-test 5 1e7)
+;-> 0
+
+Proviamo con 100 milioni di iterazioni:
+
+(time (println (lotto5-test 5 1e8)))
+;-> 2e-008
+;-> 498999.692
+
+La simulazione ottiene dei valori congruenti con i risultati calcolati matematicamente.
+
+Per finire vediamo un metodo per ottimizzare le due funzioni di simulazione del lotto. Invece di utilizzare le funzioni "randomize" e "slice" usiamo "rand" con una lista di lunghezza variabile (ogni numero estratto viene tolto dalla lista). Scriviamo solo la funzione per le giocate secche:
+
+(define (lotto-secco2-test num iter)
+  (local (conta base urna ev estratti)
+    (setq base (sequence 0 90))
+    (setq conta 0)
+    (for (i 1 iter)
+      ; scommessa secca
+      ; generazione numeri giocati (1 o 2 o 3 o 4 o 5)
+      (setq urna base)
+      (setq ev '())
+      (for (i 0 (- num 1))
+        (push (pop urna (+ 1 (rand (- 90 i)))) ev -1)
+      )
+      ; generazione numeri vincenti (5)
+      (setq urna base)
+      (setq estratti '())
+      (for (i 0 4)
+        (push (pop urna (+ 1 (rand (- 90 i)))) estratti -1)
+      )
+      (setq res (length (difference estratti ev)))
+      ;(if (= res (- 5 num))
+      ;  (println ev { } estratti { } res)
+      ;)
+      ; confronto vincenti con numeri giocati
+      (if (= res (- 5 num)) (++ conta))
+    )
+    (div conta iter)))
+
+Vediamo i risultati: 
+
+(lotto-secco2-test 1 1e6)
+;-> 0.055617
+(lotto-secco2-test 2 1e6)
+;-> 0.002464
+(lotto-secco2-test 3 1e6)
+;-> 8.4e-005
+(lotto-secco2-test 4 1e7)
+;-> 1.6e-006
+(time (println (lotto-secco2-test 5 1e8)))
+;-> 4e-008
+;-> 393129.225
 
 =============================================================================
 
