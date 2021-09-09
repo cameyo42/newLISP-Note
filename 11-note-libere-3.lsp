@@ -5463,6 +5463,43 @@ Verifichiamo con la funzione "free-vars":
 
 In questo modo possiamo correggere la dichiarazione delle variabili e ottenere un programma più stabile.
 
+Per includere anche i contesti/hashmap possiamo usare la seguente funzione:
+
+(define (free-vars _ctx)
+  (local (_vars _lst-ctx)
+    (if (= _ctx nil) (setq _ctx (context)))
+    (setq _vars '())
+    (setq _lst-ctx '())
+    (dolist (_el (symbols _ctx))
+      ;(if (= _el myHash) (println _el))
+      (if (and (context? (eval _el))
+               (not (= _el '_ctx))
+               (not (= _el 'MAIN))
+               (not (= _el 'Tree))
+               (not (= _el 'Class)))
+          (push (eval _el) _lst-ctx -1))
+      (if (and (not (lambda? (eval _el)))
+               (not (primitive? (eval _el)))
+               (not (protected? _el))
+               (not (global? _el))
+               (not (= _el '_ctx))
+               (not (= _el '_lst-ctx))
+               (not (= _el '_vars))
+               (not (= _el '_el))
+               (not (= _el '_v)))
+          (push _el _vars -1))
+    )
+    (dolist (_v _vars)
+      (if (eval _v)
+        (println _v { } (eval _v)))
+    )
+    (dolist (_v _lst-ctx)
+      (if (eval _v)
+        (println (eval _v) { } (eval-string (string "(" _v ")")))
+      )
+    )
+    nil))
+
 
 --------------
 Debug spartano

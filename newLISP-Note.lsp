@@ -907,6 +907,7 @@ NOTE LIBERE 5
   Numero previsto di prove fino al successo
   Moltiplicazione ricorsiva
   Il gioco del Lotto
+  Hash-map e contesti
 
 APPENDICI
 =========
@@ -11183,7 +11184,7 @@ Tabella ASCII
 ASCII (acronimo di American Standard Code for Information Interchange, Codice Standard Americano per lo Scambio di Informazioni) è un codice per la codifica di caratteri. Lo standard ASCII è stato pubblicato dall'American National Standards Institute (ANSI) nel 1968. Il codice era composto originariamente da 7 bit (2^7 = 128 caratteri).
 I caratteri del codice ASCII sono di due tipi: stampabili e non stampabili (caratteri di controllo).
 I caratteri stampabili sono 95 (da 32 a 126), mentre quelli non stampabili sono 33 (da 0 a 31 e il 127). Quindi il totale dei caratteri vale 95 + 33 = 128.
-Scriviamo una funzione che crea una lista dei caratteri ASCII stmapabili.
+Scriviamo una funzione che crea una lista dei caratteri ASCII stampabili.
 
 (define (asciiTable)
   (let (out '())
@@ -88144,6 +88145,43 @@ Verifichiamo con la funzione "free-vars":
 
 In questo modo possiamo correggere la dichiarazione delle variabili e ottenere un programma più stabile.
 
+Per includere anche i contesti/hashmap possiamo usare la seguente funzione:
+
+(define (free-vars _ctx)
+  (local (_vars _lst-ctx)
+    (if (= _ctx nil) (setq _ctx (context)))
+    (setq _vars '())
+    (setq _lst-ctx '())
+    (dolist (_el (symbols _ctx))
+      ;(if (= _el myHash) (println _el))
+      (if (and (context? (eval _el))
+               (not (= _el '_ctx))
+               (not (= _el 'MAIN))
+               (not (= _el 'Tree))
+               (not (= _el 'Class)))
+          (push (eval _el) _lst-ctx -1))
+      (if (and (not (lambda? (eval _el)))
+               (not (primitive? (eval _el)))
+               (not (protected? _el))
+               (not (global? _el))
+               (not (= _el '_ctx))
+               (not (= _el '_lst-ctx))
+               (not (= _el '_vars))
+               (not (= _el '_el))
+               (not (= _el '_v)))
+          (push _el _vars -1))
+    )
+    (dolist (_v _vars)
+      (if (eval _v)
+        (println _v { } (eval _v)))
+    )
+    (dolist (_v _lst-ctx)
+      (if (eval _v)
+        (println (eval _v) { } (eval-string (string "(" _v ")")))
+      )
+    )
+    nil))
+
 
 --------------
 Debug spartano
@@ -106273,6 +106311,233 @@ Vediamo i risultati:
 (time (println (lotto-secco2-test 5 1e8)))
 ;-> 4e-008
 ;-> 393129.225
+
+
+-------------------
+Hash-map e contesti
+-------------------
+
+In newLISP quando creiamo una hash-map creiamo un contesto con lo stesso nome. Per vedere la lisa dei contesti attivi possiamo utilizzare la funzione seguente:
+
+(define (contexts-lst)
+  (filter context? (map eval (symbols))))
+
+Se usiamo la funzione in una nuove REPL otteniamo:
+
+(contexts-lst)
+;-> (Class MAIN Tree)
+
+I contesti "Class", "MAIN" e "Tree" sono dei contesti predefiniti.
+Definiamo un nuovo contesto con una funzione:
+
+(context 'demo)
+;-> demo
+(define (pippo a b) (+ a b))
+;-> (lambda (a b) (+ a b))
+(context MAIN)
+;-> MAIN
+
+(pippo 1 2)
+;-> ERR: invalid function : (pippo 1 2)
+(demo:pippo 1 2)
+;-> 3
+
+Vediamo come si è modificata la lista dei contesti:
+
+(contexts-lst)
+;-> (Class MAIN Tree demo)
+
+Adesso scriviamo una funzione che prende n numeri diversi da una lista di numeri e utilizza una hash-map "myHash":
+
+(define (rand-range min-val max-val)
+  (+ min-val (rand (+ (- max-val min-val) 1))))
+(define (sample-rand num min-val max-val)
+  (local (value out)
+    (cond ((> num (+ max-val (- min-val) 1)) '()) ; controllo
+          (true
+            ; creazione di una hashmap
+            (new Tree 'myHash)
+            (until (= (length (myHash)) num)
+              ; genera valore casuale
+              (setq value (rand-range min-val max-val))
+              ; inserisce valore casuale nell'hash
+              (myHash (string value) value))
+              ; assegnazione dei valori dell'hasmap ad una list
+              (setq out (myHash))
+              (setq out (map last out))
+              ; eliminazione dell'hashmap
+              ; ELIMINARE IL COMMENTO SEGUENTE
+              ; PER IL CORRETTO FUNZIONAMENTO
+              ; DELLA FUNZIONE
+              ;(delete 'myHash)
+              (sort out)))))
+
+Nella funzione, l'espressione che elimina la hash-map (delete 'myHash) è commentata. In questo modo la funzione genera sempre gli stessi risultati (quelli contenuti nella hash-map "myHash").
+
+(sample-rand 5 1 100)
+;-> (1 20 57 59 81)
+(sample-rand 5 1 100)
+;-> (1 20 57 59 81)
+(sample-rand 5 1 100)
+;-> (1 20 57 59 81)
+
+Vediamo come è cambiata la lista dei contesti:
+
+(contexts-lst)
+;-> (Class MAIN Tree demo myHash)
+
+A questo punto il problema è il seguente, come riconoscere un contesto con funzioni da un contesto che rappresenta una hash-map?
+
+Se elenchiamo i valori della hash-map otteniamo:
+
+(myHash)
+;-> (("1" 1) ("20" 20) ("57" 57) ("59" 59) ("81" 81))
+(length (myHash))
+;-> 5
+
+Se elenchiamo i valori del contesto otteniamo:
+
+(demo)
+;-> ()
+(length (demo))
+;-> 0
+
+Quindi una hash-map contiene una lista di valori, mentre un contesto con funzioni ha la lista vuota () (e ha lunghezza pari a 0).
+Vediamo come possiamo identificare questa differenza.
+
+Stampiamo la lista dei contesti:
+
+(dolist (_el (symbols))
+  (if (context? (eval _el)) (println _el)))
+;-> Class
+;-> MAIN
+;-> Tree
+;-> demo
+;-> myHash
+;-> nil
+
+Per filtrare solo i contesti che sono hash-map dobbiamo vedere la lunghezza della lista dei valori del contesto:
+
+(dolist (_el (symbols))
+  (if (context? (eval _el)) 
+      (println (eval _el) { } (length (eval _el)))))
+;-> Class 2
+;-> MAIN 0
+;-> Tree 0
+;-> demo 0
+;-> myHash 0
+;-> nil
+
+Purtroppo la funzione "lenght" ha bisogno della valutazione del contesto (length (contesto)) e non del contesto stesso (length contesto). Per fare questo l'unico metodo che ho trovato è quello di ricorrere alla funzione "eval-string":
+
+(dolist (_el (symbols))
+  (if (and (context? (eval _el))
+      (not (= _el 'MAIN))
+      (not (= _el 'Tree))
+      (not (= _el 'Class)))
+      (println (eval _el) { } (eval-string (string "(" _el ")")))))
+;-> demo ()
+;-> myHash (("1" 1) ("20" 20) ("57" 57) ("59" 59) ("81" 81))
+;-> nil
+
+Miglioriamo un pò la stampa dei risultati:
+
+(dolist (_el (symbols))
+  (if (and (context? (eval _el))
+      (not (= _el 'MAIN))
+      (not (= _el 'Tree))
+      (not (= _el 'Class)))
+    (begin
+      (setq ctxlst (eval-string (string "(" _el ")")))
+      (println (eval _el) { } (length ctxlst))
+      (println (eval _el) { } (eval-string (string "(" _el ")"))))))
+;-> demo 0
+;-> demo ()
+;-> myHash 5
+;-> myHash (("1" 1) ("20" 20) ("57" 57) ("59" 59) ("81" 81))
+;-> nil
+
+Adesso scriviamo una funzione che filtra i contesti che sono hash-map:
+
+(define (hashmap-lst)
+  (let (ctxlst '())
+    (dolist (_el (symbols))
+      (if (and (context? (eval _el))
+          (not (= _el 'MAIN))
+          (not (= _el 'Tree))
+          (not (= _el 'Class)))
+          (push (list (eval _el) (eval-string (string "(" _el ")"))) ctxlst -1)))
+    ctxlst))
+
+(hashmap-lst)
+;-> ((demo ()) (myHash (("1" 1) ("20" 20) ("57" 57) ("59" 59) ("81" 81))))
+
+Eliminiamo i valori della hash-map "myHash":
+
+(myHash "36" nil)
+(myHash "48" nil)
+(myHash "75" nil)
+(myHash "83" nil)
+(myHash "90" nil)
+
+(hashmap-lst)
+;-> ((demo ()) (myHash ()))
+
+In questa ultima situazione non siamo in grado di stabilire se il contesto "myHash" (o "demo") è una hash-map.
+
+Comunque quello che abbiamo visto ci permette di migliorare la funzione "free-vars" in modo da elencare anche le hash-map:
+
+(define (free-vars _ctx)
+"Print a list of free symbols/variables"
+  (local (_vars _lst-ctx)
+    (if (= _ctx nil) (setq _ctx (context)))
+    (setq _vars '())
+    (setq _lst-ctx '())
+    (dolist (_el (symbols _ctx))
+      ;(if (= _el myHash) (println _el))
+      (if (and (context? (eval _el))
+               (not (= _el '_ctx))
+               (not (= _el 'MAIN))
+               (not (= _el 'Tree))
+               (not (= _el 'Class)))
+          (push (eval _el) _lst-ctx -1))
+      (if (and (not (lambda? (eval _el)))
+               (not (primitive? (eval _el)))
+               (not (protected? _el))
+               (not (global? _el))
+               (not (= _el '_ctx))
+               (not (= _el '_lst-ctx))
+               (not (= _el '_vars))
+               (not (= _el '_el))
+               (not (= _el '_v)))
+          (push _el _vars -1))
+    )
+    (dolist (_v _vars)
+      (if (eval _v)
+        (println _v { } (eval _v)))
+    )
+    (dolist (_v _lst-ctx)
+      (if (eval _v)
+        (println (eval _v) { } (eval-string (string "(" _v ")")))
+      )
+    )
+    nil))
+
+Ricreiamo i valori nella hash-map "myHash":
+
+(sample-rand 5 1 100)
+
+E creiamo una variabile:
+
+(setq z 999)
+
+Adesso possiamo provare la funzione free-:vars
+
+(free-vars)
+;-> ctxlst (("1" 1) ("20" 20) ("57" 57) ("59" 59) ("81" 81))
+;-> z 999
+;-> demo ()
+;-> myHash (("1" 1) ("20" 20) ("57" 57) ("59" 59) ("81" 81))
 
 =============================================================================
 

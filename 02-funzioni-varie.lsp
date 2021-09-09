@@ -14,7 +14,7 @@ Tabella ASCII
 ASCII (acronimo di American Standard Code for Information Interchange, Codice Standard Americano per lo Scambio di Informazioni) è un codice per la codifica di caratteri. Lo standard ASCII è stato pubblicato dall'American National Standards Institute (ANSI) nel 1968. Il codice era composto originariamente da 7 bit (2^7 = 128 caratteri).
 I caratteri del codice ASCII sono di due tipi: stampabili e non stampabili (caratteri di controllo).
 I caratteri stampabili sono 95 (da 32 a 126), mentre quelli non stampabili sono 33 (da 0 a 31 e il 127). Quindi il totale dei caratteri vale 95 + 33 = 128.
-Scriviamo una funzione che crea una lista dei caratteri ASCII stmapabili.
+Scriviamo una funzione che crea una lista dei caratteri ASCII stampabili.
 
 (define (asciiTable)
   (let (out '())

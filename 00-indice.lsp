@@ -907,6 +907,7 @@ NOTE LIBERE 5
   Numero previsto di prove fino al successo
   Moltiplicazione ricorsiva
   Il gioco del Lotto
+  Hash-map e contesti
 
 APPENDICI
 =========
