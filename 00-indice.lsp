@@ -908,6 +908,8 @@ NOTE LIBERE 5
   Moltiplicazione ricorsiva
   Il gioco del Lotto
   Hash-map e contesti
+  Numeri di Narayana
+  Numeri di Motzkin
 
 APPENDICI
 =========

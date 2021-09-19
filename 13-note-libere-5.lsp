@@ -3241,7 +3241,7 @@ Per calcolare la media aritmetica di una lista di numeri possiamo usare la segue
   (div (apply add lst) (length lst)))
 
 Ma per calcolare la media di una lista di numeri che aumenta di dimensione possiamo utilizzare la seguente funzione:
-  
+
 (define (media-continua media val items)
   (div (add val (mul media items)) (+ items 1)))
 
@@ -3265,7 +3265,7 @@ Kolakoski sequence: a(n) is length of n-th run, a(1) = 1, sequence consists just
 In other words, is an infinite sequence of symbols {1,2} that is the sequence of run lengths in its own run-length encoding.
 
 Sequenza OEIS A000002: 1, 2, 2, 1, 1, 2, 1, 2, 2, 1, 2, 2, 1, 1, 2, 1, 1,
-                       2, 2, 1, 2, 1, 1, 2, 1, 2, 2, 1, 1, 2, 1, 1, 2, 1, 
+                       2, 2, 1, 2, 1, 1, 2, 1, 2, 2, 1, 1, 2, 1, 1, 2, 1,
                        2, 2, 1, 2, 2, 1, 1, 2, 1, 2, 2, 1, 2, 1, 1, 2, ...
 
 La sequenza è stata discussa per primo da da Rufus Oldenburger nel 1939 e poi da Kolakoski nel 1965.
@@ -3273,7 +3273,7 @@ La sequenza è stata discussa per primo da da Rufus Oldenburger nel 1939 e poi d
 La successione di Kolakoski è una successione infinita di numeri naturali, (escluso lo zero) con la proprietà:
 
   se si forma una nuova sequenza dai conteggi delle ripetizioni dello stesso numero nella prima sequenza, questa nuova sequenza è uguale alla prima sequenza.
-  
+
   if you form a new sequence from the counts of runs of the same number in the first sequence, this new sequence is the same as the first sequence
 
 Esempio:
@@ -3396,7 +3396,7 @@ Soluzione:
     (for (i 1 (- len 1))
       (if (= (s i) prev)
           (++ cnt)
-          (begin 
+          (begin
             (push cnt rle -1)
             (setq cnt 1)
             (setq prev (s i))
@@ -3483,7 +3483,7 @@ Possiamo farlo in tempo O(n) usando una lista di frequenze:
 (can-palindrome? "presaelaserpe")
 ;-> true
 
-Adesso vogliamo elencare tutte le stringhe palindrome che possono essere create quando il risultato vale true. 
+Adesso vogliamo elencare tutte le stringhe palindrome che possono essere create quando il risultato vale true.
 
 (define (make-palindrome? str)
   (local (freq oddies lst oddch oddnum)
@@ -3537,7 +3537,7 @@ prima di tutto la funzione "make-pali" aggiorna la lista dei caratteri pari con 
 Quindi la lista lst viene aggiornata con (oddnum - 1) = 2 caratteri oddch = "p":
 
   lst = ("i" "i" "o" "o" "p" "p")
- 
+
 I caratteri univoci di lst sono: ("i" "o" "p").
 
 Adesso le stringhe palindrome sono formate da un anagramma dei caratteri ("i" "o" "p") + il carattere oddch = "p" + l'inverso dell'anagramma iniziale, ad esempio il primo caso vale:
@@ -3568,7 +3568,7 @@ Poi scriviamo la funzione "make-pali":
   ;(println lst { } oddch { } oddnum)
   (setq out '())
   ; aggiunge (oddnum-1) caratteri oddch alla lista dei caratteri
-  (if (> oddnum 2) 
+  (if (> oddnum 2)
     (for (i 1 (- oddnum 1))
       (push oddch lst -1)
     )
@@ -3589,7 +3589,7 @@ Poi scriviamo la funzione "make-pali":
 ;-> ("maam" "amma")
 
 (make-palindrome? "iomassimo")
-;-> ("somiaimos" "soimamios" "smioaoims" "smoiaioms" "siomamois" 
+;-> ("somiaimos" "soimamios" "smioaoims" "smoiaioms" "siomamois"
 ;->  "simoaomis" "omisasimo" "omsiaismo" "oismamsio" "oimsasmio"
 ;->  "osmiaimso" "osimamiso" "misoaosim" "miosasoim" "msoiaiosm"
 ;->  "msioaoism" "moisasiom" "mosiaisom" "isomamosi" "ismoaomsi"
@@ -3789,7 +3789,7 @@ Riportiamo di seguito il codice delle due librerie.
 ; 2010/ 8/ 2 cdr is improved. ((cdr '(a)) -> nil)
 ; 2010/12/10 curryEx is added.
 ; 2010/12/17 car, cdr, second, third, fourth are improved. (Common Lisp compatible)
-; 
+;
 
 ;http://www.alh.net/newlisp/phpbb/viewtopic.php?t=1942&highlight=gensym
 ;(define (gensym) (sym (string "gs" (uuid))))
@@ -4028,13 +4028,13 @@ Riportiamo di seguito il codice delle due librerie.
 ; 2010/ 8/ 4 lrec is improved. (cdr -> rest)
 ;            MACRO? is added.
 ;            trec is added.
-; 2010/ 8/14 multiple-value-bind and multiple-value-list are improved. 
+; 2010/ 8/14 multiple-value-bind and multiple-value-list are improved.
 ;              (avoided the multiple evaluation problem of _val)
-; 
+;
 ; 2010/ 8/20 =lambda, =defun, =bind, =values, =funcall and =apply are added.
 ; 2010/ 8/24 defstruct and structurep are added.
 ;
- 
+
 (include "newlisp-utility.lsp")
 
 (context 'MAIN:do)
@@ -4717,7 +4717,7 @@ I primi termini della successione dei numeri armonici sono:
 
 1, 3/2, 11/6, 25/12, 137/60, 49/20, 363/140, 761/280, 7129/2520, 7381/2520, 83711/27720, ...
 
-I numeratori dei numeri armonici sono la sequenza A001008 OEIS. 
+I numeratori dei numeri armonici sono la sequenza A001008 OEIS.
 I denominatori dei numeri armonici sono la sequenza A002805 OEIS.
 
 I numeri armonici costituiscono le somme parziali della serie armonica (che è divergente).
@@ -5083,7 +5083,7 @@ Moltiplicare due interi senza utilizzare gli operatori di moltiplicazione, divis
 La soluzione consiste nell'utilizzare una funzione ricorsiva:
 
 (define (molt x y)
-        ; 0*x = 0  
+        ; 0*x = 0
   (cond ((zero? y) 0)
         ; aggiunge x ogni volta
         ((> y 0) (+ x (molt x (- y 1))))
@@ -5465,7 +5465,7 @@ Per finire vediamo un metodo per ottimizzare le due funzioni di simulazione del 
     )
     (div conta iter)))
 
-Vediamo i risultati: 
+Vediamo i risultati:
 
 (lotto-secco2-test 1 1e6)
 ;-> 0.055617
@@ -5484,7 +5484,12 @@ Vediamo i risultati:
 Hash-map e contesti
 -------------------
 
-In newLISP quando creiamo una hash-map creiamo un contesto con lo stesso nome. Per vedere la lisa dei contesti attivi possiamo utilizzare la funzione seguente:
+In newLISP quando creiamo una hash-map creiamo un dizionario di contesto con lo stesso nome (in pratica una hash-map viene rappresentata con un contesto).
+Nota:
+Chiamiamo spesso i dizionari di contesto "hash", ma non c'è alcuna funzione di hash alla base di esso. "Hash" è solo un nome conveniente poiché la maggior parte degli altri linguaggi implementa la funzionalità di ricerca utilizzando le funzioni di hash.
+In newLISP i dizionari sono costruiti separatamente come alberi binari bilanciati rosso-nero e solo la radice di esso - il nome del contesto - fa parte dello spazio dei simboli principale. Quindi non si verifica alcun "inquinamento" dello spazio dei nomi.
+
+Per vedere la lisa dei contesti attivi possiamo utilizzare la funzione seguente:
 
 (define (contexts-lst)
   (filter context? (map eval (symbols))))
@@ -5586,7 +5591,7 @@ Stampiamo la lista dei contesti:
 Per filtrare solo i contesti che sono hash-map dobbiamo vedere la lunghezza della lista dei valori del contesto:
 
 (dolist (_el (symbols))
-  (if (context? (eval _el)) 
+  (if (context? (eval _el))
       (println (eval _el) { } (length (eval _el)))))
 ;-> Class 2
 ;-> MAIN 0
@@ -5638,6 +5643,13 @@ Adesso scriviamo una funzione che filtra i contesti che sono hash-map:
 
 (hashmap-lst)
 ;-> ((demo ()) (myHash (("1" 1) ("20" 20) ("57" 57) ("59" 59) ("81" 81))))
+
+Con la funzione "length" possiamo controllare se i due contesti hanno valori oppure sono la lista vuota:
+
+(length (demo))
+;-> 0
+(length (myHash))
+;-> 5
 
 Eliminiamo i valori della hash-map "myHash":
 
@@ -5705,6 +5717,302 @@ Adesso possiamo provare la funzione free-:vars
 ;-> z 999
 ;-> demo ()
 ;-> myHash (("1" 1) ("20" 20) ("57" 57) ("59" 59) ("81" 81))
+
+Suggerimento di ralph.ronnquist:
+
+1) a "hashmap" is a context without default functor, i.e.
+(and (context? S) (nil? (sym (term S) S nil)))
+
+2) using the symbol as functor results in its list if entries, i.e.
+(apply S)
+
+La seguente funzione è un tentativo (parzialmente fallito) di identificare le hash-map:
+
+(define (test)
+  (dolist (el (symbols))
+    (if (and (context? (eval el))
+             ;(= el 'myHash)
+             ; suggerimento di ralph.ronnquist
+             (nil? (eval (sym (term el) el nil))))
+        (begin
+          ; (prefix el) -> stringa
+          (println "(prefix el): " (prefix el))
+          ; (term el) -> stringa
+          (println "(term el): " (term el))
+          (println "(sym (term el)): " (sym (term el)))
+          ; converte la stringa in simbolo
+          (setq S (sym (term el) el nil))
+          (println "S: " S)
+          (println (eval (sym (term el) el nil)))
+          ;(apply S)
+          (println "------------")
+        )
+    )))
+
+(test)
+;-> (prefix el): MAIN
+;-> (term el): Tree
+;-> (sym (term el)): Tree
+;-> S: Tree:Tree
+;-> nil
+;-> ------------
+;-> (prefix el): MAIN
+;-> (term el): demo
+;-> (sym (term el)): demo
+;-> S: demo:demo
+;-> nil
+;-> ------------
+;-> (prefix el): MAIN
+;-> (term el): myHash
+;-> (sym (term el)): myHash
+;-> S: myHash:myHash
+;-> nil
+;-> ------------
+
+Nota: un contesto può contenere funzioni ed essere una hash-map Per esempio, modifichiamo il contesto "demo" creando una hash-map con lo stesso nome:
+
+(demo "1" 1)
+;-> 1
+(demo "2" 2)
+;-> 2
+
+Adesso "demo" è un contesto con funzioni e una hash-map:
+
+(demo:pippo 3 5)
+;-> 8
+(demo)
+;-> (("1" 1) ("2" 2))
+
+Possiamo creare anche il "funtore" del contesto "demo":
+
+(context 'demo)
+(define (demo)
+  (println "Functor"))
+(context MAIN)
+
+(demo:demo)
+;-> Functor
+
+Invece di utilizzare (context 'demo) o (define (demo:demo)...) per creare un hash-map è meglio utilizzare (new Tree 'demo): il risultato è lo stesso, tranne che viene creato il funtore di default "demo:demo" come costante (con valore nil)).
+
+Nota:
+Se assegniamo una hash-map ad un simbolo/variabile non viene creata una copia della hash-map, ma solo un simbolo che punta alla hash-map originale. In questo modo i valori delle due hash-map sono sempre uguali anche quando modifichiamo una sola delle due hash-map(perchè i simboli delle due hash-map puntano agli stessi indirizzi di memoria).
+Per esempio:
+
+(setq hh myHash)
+;-> myHash
+(hh)
+;-> (("1" 1) ("20" 20) ("57" 57) ("59" 59) ("81" 81))
+
+Modifichiamo un valore di hh:
+(hh "1" 0)
+;-> 0
+Modifichiamo un valore di myHash:
+(myHash "20" 0)
+;-> 0
+
+Vediamo che i valori delle due-hashmap sono gli stessi:
+(hh)
+;-> (("1" 0) ("20" 0) ("57" 57) ("59" 59) ("81" 81))
+(myHash)
+;-> (("1" 0) ("20" 0) ("57" 57) ("59" 59) ("81" 81))
+
+Nota: per una questione di stile, è meglio definire in anticipo tutti gli hash e creare altri contesti nel contesto MAIN come tutti gli altri simboli utilizzati a livello globale. In progetti newLISP più grandi o quando si lavora con diversi programmatori sullo stesso progetto in questo modo si evitano conflitti/problemi.
+
+-----------------
+Numeri di Motzkin
+-----------------
+
+Dati n punti su una circonferenza, si definisce come numero di Motzkin, M(n), il numero di modi in cui si possono tracciare tra questi delle corde non intersecanti, senza che tutti i punti siano necessariamente toccati da una corda.
+La successione di questi numeri interi prende il nome dal matematico americano Theodore Motzkin.
+
+Sequenza OEIS A001006:
+  1, 1, 2, 4, 9, 21, 51, 127, 323, 835, 2188, 5798, 15511, 41835, 113634,
+  310572, 853467, 2356779, 6536382, 18199284, 50852019, 142547559,
+  400763223, 1129760415, 3192727797, 9043402501, 25669818476, 73007772802,
+  208023278209, ...
+
+I numeri di Motzkin soddisfano la seguente relazione ricorsiva:
+
+                (n-2)                2*n + 1            3*n - 3
+  M(n) = M(n-1) + ∑ M(i)*M(n-2-i) = ---------*M(n-1) + ---------*M(n-2)
+                i=0                  n + 2              n + 2
+
+Funzione che usa la ricorsione per calcolare il numero di Motzkin:
+
+(define (motzkin1 num)
+  (cond ((or (= num 0) (= num 1))
+         1)
+        (true
+          (/ (+ (* (+ (* 2 num) 1) (motzkin1 (- num 1)))
+                (* (- (* 3 num) 3) (motzkin1 (- num 2))))
+             (+ num 2))
+        )))
+
+(map motzkin1 (sequence 0 20))
+;-> (1 1 2 4 9 21 51 127 323 835 2188 5798 15511 41835 113634 310572
+;->  853467 2356779 6536382 18199284 50852019)
+
+Funzione che usa la programmazione dinamica per calcolare il numero di Motzkin:
+
+(setq pp (array (+ 4 1) '(0)))
+
+(define (motzkin2 num)
+  (let (dp (array (+ num 1) '(0)))
+    (cond ((= num 0)
+           (setf (dp 0) 1))
+          ((= num 1)
+           (setf (dp 0) 1)
+           (setf (dp 1) 1))
+          ((> num 1)
+           (setf (dp 0) 1)
+           (setf (dp 1) 1)
+           (for (i 2 num)
+             (setf (dp i) (/ (+ (* (+ (* 2 i) 1) (dp (- i 1)))
+                                (* (- (* 3 i) 3) (dp (- i 2))))
+                             (+ i 2)))))
+    )
+    (dp num)))
+
+(map motzkin2 (sequence 0 20))
+;-> (1 1 2 4 9 21 51 127 323 835 2188 5798 15511 41835 113634 310572 
+;->  853467 2356779 6536382 18199284 50852019)
+
+Poichè utilizziamo solo gli ultimi due valori della matrice dp per calcolare il valore successivo, allora possiamo evitare di usare una matrice ed utilizzare semplicemente due variabili a e b. Questo velocizza un pò la funzione, ma perdiamo i valori dei numeri di Motzkin precedenti (che invece vengono mantenuti con la matrice dp).
+
+Funzione che usa l'iterazione pura per calcolare il numero di Motzkin:
+
+(define (motzkin3 num)
+  (let ((a 1) (b 1) (c 0))
+    (cond ((or (= num 0) (= num 1))
+           (setq b 1))
+          ((> num 1)
+           (for (i 2 num)
+             (setq c (/ (+ (* (+ (* 2 i) 1) b)
+                           (* (- (* 3 i) 3) a))
+                           (+ i 2)))
+             (setq a b)
+             (setq b c)))
+    )
+  b))
+
+(map motzkin3 (sequence 0 20))
+;-> (1 1 2 4 9 21 51 127 323 835 2188 5798 15511 41835 113634 310572 
+;->  853467 2356779 6536382 18199284 50852019)
+
+I valori dei numeri di Motzkin crescono molto velocemente, quindi per calcolarli in modo corretto occorre utilizzare i big integer.
+La seguente espressione produce un risultato errato:
+
+(motzkin3 100)
+;-> -17402571795490030 ;risultato errato
+
+Modifichiamo la funzione che usa la programmazione dinamica per utilizzare i big integer:
+
+(define (motzkin-big num)
+  (let (dp (array (+ num 1) '(0)))
+    (cond ((= num 0)
+           (setf (dp 0) 1L))
+          ((= num 1)
+           (setf (dp 0) 1L)
+           (setf (dp 1) 1L))
+          ((> num 1)
+           (setf (dp 0) 1L)
+           (setf (dp 1) 1L)
+           (for (i 2 num)
+             (setf (dp i) (/ (+ (* (+ (* 2L i) 1L) (dp (- i 1)))
+                                (* (- (* 3L i) 3L) (dp (- i 2))))
+                             (+ i 2L)))))
+    )
+    (dp num)))
+
+(motzkin-big 10)
+;-> 2188L
+(motzkin-big 100)
+;-> 737415571391164350797051905752637361193303669L
+
+
+------------------
+Numeri di Narayana
+------------------
+
+I numeri Narayana formano una matrice triangolare di numeri naturali, chiamato triangolo di Narayana, che si verificano in vari problemi di calcolo combinatorio (parole di Dick, cammini reticolari monotoni, alberi con radice, ecc.).
+
+I numeri di Narayana possono essere espressi in termini di coefficienti binomiali nel modo seguente:
+
+  N(n,k) = (1/n)*binom(n,k)*binom(n, k-1)
+
+Le prime dieci righe ti tale disposizione sono:[3]
+
+k =       1   2   3   4   5   6   7   8   9   10
+------------------------------------------------
+n = 1  |  1
+    2  |  1   1
+    3  |  1   3   1
+    4  |  1   6   6   1
+    5  |  1  10  20  10   1
+    6  |  1  15  50  50  15   1
+    7  |  1  21 105 175 105  21   1
+    8  |  1  28 196 490 490 196  28   1
+    9  |  1  36 336 1176 1764 1176 336 36 1
+   10  |  1  45 540 2520 5292 5292 2520 540 45 1
+
+Più in generale, si può dimostrare che il triangolo Narayana è simmetrico:
+
+   N(n,k) = N(n,n-k+1)
+
+La somma delle righe in questo triangolo è uguale ai numeri catalani:
+
+   N(n,1) + N(n,2) + N(n,3) + ... + N(n,n) = Catalan(n)
+
+Scriviamo una funzione che calcola il numero di Narayana per un dato n e k:
+
+(define (binom num k)
+  (cond ((> k num) 0)
+        ((zero? k) 1)
+        (true
+          (let (r 1L)
+            (for (d 1 k)
+              (setq r (/ (* r num) d))
+              (-- num)
+            )
+          r))))
+
+(binom 1 1)
+
+(define (narayana n k)
+  (/ (* (binom n k) (binom n (- k 1))) n))
+
+(narayana 5 4)
+;-> 10L
+(narayana 7 4)
+;-> 175L
+
+Adesso scriviamo la funzione per calcolare il triangolo di narayana fino ad un dato n e k:
+
+(define (triangle-narayana n k)
+  (local (out kappa)
+    (setq out '())
+    (for (i 1 n)
+      ; lista dei numeri di Narajana da 1 a k per un determinato n
+      (setq kappa '())
+      (for (j 1 k)
+        (push (narayana i j) kappa -1)
+      )
+      (push (list i kappa) out -1)
+    )
+    out))
+
+(triangle-narayana 10 10)
+;-> ((1 (1L 0 0 0 0 0 0 0 0 0)) 
+;->  (2 (1L 1L 0 0 0 0 0 0 0 0)) 
+;->  (3 (1L 3L 1L 0 0 0 0 0 0 0))
+;->  (4 (1L 6L 6L 1L 0 0 0 0 0 0))
+;->  (5 (1L 10L 20L 10L 1L 0 0 0 0 0))
+;->  (6 (1L 15L 50L 50L 15L 1L 0 0 0 0))
+;->  (7 (1L 21L 105L 175L 105L 21L 1L 0 0 0))
+;->  (8 (1L 28L 196L 490L 490L 196L 28L 1L 0 0))
+;->  (9 (1L 36L 336L 1176L 1764L 1176L 336L 36L 1L 0))
+;->  (10 (1L 45L 540L 2520L 5292L 5292L 2520L 540L 45L 1L)))
 
 =============================================================================
 
