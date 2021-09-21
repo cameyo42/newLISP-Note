@@ -910,6 +910,7 @@ NOTE LIBERE 5
   Hash-map e contesti
   Numeri di Narayana
   Numeri di Motzkin
+  Permutazioni, Disposizioni, Combinazioni
 
 APPENDICI
 =========
@@ -106654,6 +106655,7 @@ Vediamo che i valori delle due-hashmap sono gli stessi:
 
 Nota: per una questione di stile, è meglio definire in anticipo tutti gli hash e creare altri contesti nel contesto MAIN come tutti gli altri simboli utilizzati a livello globale. In progetti newLISP più grandi o quando si lavora con diversi programmatori sullo stesso progetto in questo modo si evitano conflitti/problemi.
 
+
 -----------------
 Numeri di Motzkin
 -----------------
@@ -106799,6 +106801,12 @@ La somma delle righe in questo triangolo è uguale ai numeri catalani:
 
    N(n,1) + N(n,2) + N(n,3) + ... + N(n,n) = Catalan(n)
 
+Sequenza OEIS A001263:
+	1, 1, 1, 1, 3, 1, 1, 6, 6, 1, 1, 10, 20, 10, 1, 1, 15, 50, 50, 15, 1, 1, 
+  21, 105, 175, 105, 21, 1, 1, 28, 196, 490, 490, 196, 28, 1, 1, 36, 336, 
+  1176, 1764, 1176, 336, 36, 1, 1, 45, 540, 2520, 5292, 5292, 2520, 540, 45,
+  1, 1, 55, 825, 4950, 13860, 19404, 13860, 4950, 825, ...
+
 Scriviamo una funzione che calcola il numero di Narayana per un dato n e k:
 
 (define (binom num k)
@@ -106811,8 +106819,6 @@ Scriviamo una funzione che calcola il numero di Narayana per un dato n e k:
               (-- num)
             )
           r))))
-
-(binom 1 1)
 
 (define (narayana n k)
   (/ (* (binom n k) (binom n (- k 1))) n))
@@ -106848,6 +106854,325 @@ Adesso scriviamo la funzione per calcolare il triangolo di narayana fino ad un d
 ;->  (8 (1L 28L 196L 490L 490L 196L 28L 1L 0 0))
 ;->  (9 (1L 36L 336L 1176L 1764L 1176L 336L 36L 1L 0))
 ;->  (10 (1L 45L 540L 2520L 5292L 5292L 2520L 540L 45L 1L)))
+
+Funzione per calcolare la sequenza OEIS:
+
+(define (A001263 n k)
+  (local (out nara)
+    (setq out '())
+    (for (i 1 n)
+      (for (j 1 k)
+        (setq nara (narayana i j))
+        (if (!= nara 0) 
+            (push (narayana i j) out -1)
+        )
+      )
+    )
+    out))
+
+(A001263 10 10)
+;-> (1L 1L 1L 1L 3L 1L 1L 6L 6L 1L 1L 10L 20L 10L 1L 1L 15L 50L 50L 15L
+;->  1L 1L 21L 105L 175L 105L 21L 1L 1L 28L 196L 490L 490L 196L 28L 1L 
+;->  1L 36L 336L 1176L 1764L 1176L 336L 36L 1L 1L 45L 540L 2520L 5292L 
+;->  5292L 2520L 540L 45L 1L)
+
+
+----------------------------------------
+Permutazioni, Disposizioni, Combinazioni
+----------------------------------------
+
+Formule per il calcolo del numero di permutazioni, disposizioni e combinazioni
+------------------------------------------------------------------------------
+Permutazione di n elementi: P(n) = n!
+Permutazioni di n elementi con un elemento ripetuto m volte: P(n,m) = n!/m!
+Permutazioni di n elementi con "a" ripetuto k1 volte, "b" ripetuto k2 volte, "c" ripetuto k3 volte, ecc.: P(n,k1!,k2!,k3!,...,km!) = n!/(k1!*k2!*k3!*...*km!)
+Permutazioni cicliche di n elementi in una circonferenza: PC(n) = (n - 1)!
+Disposizioni semplici di n elementi presi k a k: D(n,k) = n*(n-2)* ... *(n - k + 1)
+Disposizioni con ripetizione di n elementi presi k a k con possibile ripetizione di ogni elemento fino a k volte: DR(n,k) = n^k
+Combinazioni semplici di n elementi presi k a k: C(n,k) = D(n,k) / P(k) = (n*(n-2)* ... *(n - k + 1))/k!
+Combinazioni con ripetizione di n elementi con possibile ripetizione di ogni elemento fino a k volte: CR(n,k) = C(n+k-1,k)
+
+Permutazioni - P(n)
+-------------------
+Dati n elementi distinti, si dicono permutazioni, P(n), i gruppi che si possono formare in modo che:
+- ogni gruppo contenga tutti gli n elementi (ogni elemento contato una sola volta)
+- ogni gruppo differisca dagli altri solo per l'ordine degli elementi
+
+Nota: una permutazione è una corrispondenza biunivoca di un insieme con se stesso.
+
+Esempi:
+Per n = 2: (ab ba)
+Per n = 3: (abc acb bac bca cab cba)
+Per n = 4: (abcd abdc acbd acdb adbc adcb
+            bacd badc bcad bcda bdac bdca
+            cabd cadb cbad cbda cdab cdba
+            dabc dacb dbac dbca dcab dcba)
+
+Numero di permutazioni di n elementi: P(n) = n!
+
+Funzione per il calcolo del Fattoriale:
+  fattoriale(n) = n!
+
+(define (fact num)
+  (if (zero? num)
+      1
+      (let (out 1L)
+        (for (x 1L num)
+          (setq out (* out x))))))
+
+Funzione per il calcolo del numero di Permutazioni:
+  P(n) = n!
+
+(define (P n) (fact n))
+
+Permutazioni di n elementi non tutti diversi - PR(n,k1,k2,k3,...km)
+-------------------------------------------------------------
+Queste permutazioni si hanno quando:
+- negli n elementi da permutare ve ne è uno ripetuto m volte
+- oppure ve ne sono diversi ripetuti, a1 ripetuto k1 volte, a2 ripetuto k2 volte, a3 ripetuto k3 volte, ecc.
+Esempio:
+Ad esempio, se vogliamo costruire le permutazioni di "abcc" prendiamo le permutazioni di 4 elementi, abcd e sostituiamo c al posto di d, poi eliminiamo le permutazioni uguali:
+Per n = 4: (abcd abdc acbd acdbadbc adcb
+            bacd badc bcad bcda bdac bdca
+            cabd cadb cbad cbda cdab cdba
+            dabc dacb dbac dbca dcab dcba)
+
+Sostituiamo:
+(abcc abcc acbc accbacbc accb
+ bacc bacc bcac bcca bcac bcca
+ cabc cacb cbac cbca ccab ccba
+ cabc cacb cbac cbca ccab ccba)
+
+Eliminiamo i doppioni:
+(abccabcc acbcaccbacbc accb
+ baccbacc bcacbccabcac bcca
+ cabccacbcbaccbcaccabccba
+ cabc cacb cbac cbca ccab ccba)
+
+Si procede allo stesso modo se gli oggetti ripetuti sono più di uno.
+
+Numero di prmutazioni di n elementi non tutti diversi: PR(n, k1, k2, k3,...,km) = n! / k1!*k2!*k3!*...*km!
+
+Funzione per il calcolo del numero di Permutazioni con ripetizione:
+  PR(n, k1, k2, k3,...,km) = n! / k1!*k2!*k3!*...*km!
+
+(define (PR n rip)
+  (* (fact n) (apply * (map fact q))))
+
+(PR 10 '(2 3 4))
+;-> 43545600L
+
+Permutazioni cicliche - PC(n)
+-----------------------------
+Sono le permutazioni di n elementi lungo una circonferenza (o circuito chiuso).
+Vediamo la dimostrazione seguendo un esempio:
+Esempio:
+lista = A B C
+permutazioni semplici = (A B C) (B A C) (B C A) (A C B) (C A B) (C B A)
+Se rappresentiamo queste permutazioni intorno ad un cerchio, notiamo che alcune di loro sono equivalenti:
+
+      A           B           B           A           C           C
+    C   B       C   A       A   C       B   C       B   A       A   B
+     (1)         (2)         (3)         (4)         (5)         (6)
+
+La (1), la (3) e la (5) sono equivalenti (sono tutte rotazioni una dell'altra).
+La (2), la (4) e la (6) sono equivalenti (sono tutte rotazioni una dell'altra).
+
+Quindi abbiamo solo due permutazioni circolari uniche. Poichè il numero di permutazioni semplici vale n!, ed ogni permutazione semplice ha n permutazioni circolari equivalenti, possiamo calcolare il numero di permutazioni circolari in questo modo:
+
+numero_permutazioni_circolari(n) = numero_permutazioni_semplici(n) / n = n!/n = (n - 1)!
+
+Numero di permutazioni cicliche: PC(n) = (n-1)!
+
+Funzione per il calcolo del numero di Permutazioni cicliche:
+  PC(n) = (n - 1)!
+
+(define (PC n) (fact (- n 1)))
+
+Disposizioni semplici - D(n,k)
+------------------------------
+Dati n elementi distinti e un numero k<=n si dicono disposizioni di questi n elementi, presi a k a k (o di classe k), D(n,k), tutti i gruppi che si possono formare con gli elementi dati, in modo che:
+- ogni gruppo contenga k elementi distinti
+- due gruppi qualunque differiscano fra loro per qualche elemento oppure per l'ordine in cui gli elementi sono disposti
+
+Nota: nelle disposizioni ha importanza l'ordine degli elementi.
+
+Esempi:
+Le disposizioni semplici di 3 elementi (abc) presi a 2 a 2 sono:
+(ab ac ba bc ca cb)
+Le disposizioni semplici di 4 elementi (abcd) presi a 3 a 3 sono:
+(abc abd acb acd adb adc bac bad
+ bca bcd bda bdc cab cad cba cbd
+ cda cdb dab dac dba dbc dca dcb)
+
+Nota. Se tutti gli elementi sono distinti (cioè k=n), allora la formula è uguale a quella delle permutazioni: D(n,k=n) = n!.
+Se invece gli elementi sono tutti uguali k=1, c'è una sola disposizione semplice: D(n,1) = 5.
+
+Numero di disposizioni semplici: D(n,k) = n(n-1)(n-2)...(n-k+1) = n!/(n - k)! = n!/(n - k)!
+
+Funzione per il calcolo del numero di Disposizioni semplici:
+  D(n,k) = n(n-1)(n-2)...(n-k+1) = n!/(n - k)!
+
+(define (D n k)
+  (/ (fact n) (fact (- n k))))
+
+(define (D2 n k)
+  (let (out 1L)
+    (for (i 0 (- k 1))
+      (setq out (* out (- n i)))
+    )
+    out))
+
+(D 3 2)
+;-> 6L
+(D2 3 2)
+;-> 6L
+(D 12 6)
+;-> 665280L
+(D2 12 6)
+;-> 665280L
+
+Esempio:
+A una gara partecipano 10 atleti. Quante sono le possibili disposizioni dei primi tre posti sul podio? 
+I dati del problema sono n = 10 e k = 3.
+Le disposizioni semplici sono D(10,3) = 720
+(D 10 3)
+;-> 720L
+
+Disposizioni con ripetizione - DR(n,k)
+-------------------------------------
+Dati n elementi distinti e un numero k<=n si dicono disposizioni con ripetizione di questi n elementi, presi a k a k (o di classe k), D(n,k), tutti i gruppi che si possono formare con gli elementi dati, in modo che:
+- ogni gruppo contenga k elementi non necessariamente distinti
+- ogni elemento possa trovarsi ripetuto nel gruppo fino a k volte
+- due gruppi qualunque differiscano fra loro per qualche elemento oppure per l'ordine in cui gli elementi sono disposti
+Esempi:
+Le disposizioni con ripetizione di 3 elementi (abc) presi a 2 a 2 sono:
+(aa ab ac ba bb bc ca cb cc)
+Le disposizioni con ripetizione di 4 elementi (abcd) presi a 3 a 3 sono:
+(aaa aab aac aad aba abb abc abd
+ aca acb acc acd ada adb adc add
+ baa bab bac bad bba bbb bbc bbd
+ bca bcb bcc bcd bda bdb bdc bdd
+ caa cab cac cad cba cbb cbc cbd
+ cca ccb ccc ccd cda cdb cdc cdd
+ daa dab dac dad dba dbb dbc dbd
+ dca dcb dcc dcd dda ddb ddc ddd)
+
+Numero di disposizioni con ripetizione: DR(n,k) = n^k
+
+Funzione per il calcolo del numero di Disposizioni con ripetizione:
+  DR(n,k) = n^k
+
+(define (DR n k) (pow n k))
+
+Esempio:
+Con tre lettere A,B,C quante stringhe diverse da due lettere si possono creare? 
+I dati del problema sono n = 3 e k = 2.
+Le disposizioni con ripetizione di classe k=2 sono DR(3,2) = 3^2 = 9
+(DR 3 2)
+;-> 9
+
+Nota: Ecco tutte le 9 disposizioni con ripetizione possibili. Le disposizioni semplici (senza ripetizione) sono invece 3*2=6. Questo esempio rende più chiara la differenza tra le disposizioni semplici e le disposizioni con ripetizione.
+  Disposizioni            Disposizioni
+  con ripetizione         senza ripetizione
+  AA                      AA (non valida)
+  AB                      AB
+  AC                      AC
+  BA                      BA
+  BB                      BB (non valida)
+  BC                      BC
+  CA                      CA
+  CB                      CB
+  CC                      CC (non valida)
+
+Combinazioni semplici - C(n,k)
+------------------------------
+Dati n elementi distinti e un numero intero positivo k<=n, si chiamano combinazioni C(n,k) di questi n elementi, a k a k (o di classe k), tutti gruppi che si possono formare con gli elementi dati, in modo che:
+- ciascun gruppo contenga k elementi
+- due guppi qualunque differiscano per almeno un elemento.
+
+Nota: in una combinazione l'ordine degli elementi non è importante.
+
+Esempi:
+Le combinazioni di 3 elementi (abc) presi a 2 a 2 sono:
+(ab ac bc)
+Le combinazioni di 4 elementi (abcd) presi a 3 a 3 sono:
+(abc abd acd bcd)
+
+Numero di combinazioni semplici:
+C(n,k) = D(n,k) / P(k)
+C(n,k) = [n*(n-1)*(n-2)*...*(n-k+1)] / k! = n! / (k!*(n - k)!)
+
+Funzione per il calcolo del numero di Combinazioni semplici:
+  C(n,k) = [n*(n-1)*(n-2)*...*(n-k+1)] / k! = n! / (k!*(n - k)!)
+
+Nota: L'espressione n! / (k!*(n - k)!) è il cofficiente binomiale.
+
+Funzione per il calcolo del Coefficiente binomiale:
+
+(define (binom num k)
+  (cond ((> k num) 0)
+        ((zero? k) 1)
+        (true
+          (let (r 1L)
+            (for (d 1 k)
+              (setq r (/ (* r num) d))
+              (-- num)
+            )
+          r))))
+
+(define (C n k) (binom n k))
+
+(C 10 2)
+;-> 45L
+
+Esempio:
+Dato un insieme con le tre lettere I = (A B C), trovare le combinazioni di classe 2 semplici, ossia i raggruppamenti possibili delle lettere prese a coppia. 
+In questo caso n = 3 e k = 2.
+Applicando la formula per il calcolo delle combinazioni semplici C(3,2)= 3!/(2!*(3−2)!) = 6/2 = 3.
+Le combinazioni semplici possibili sono tre: (A B), (A C), (B C).
+
+Combinazioni con ripetizione
+----------------------------
+Dati n elementi distinti e un numero intero positivo k<=n, si chiamano combinazioni con ripetizione CR(n,k) di questi n elementi, a k a k (o di classe k), tutti gruppi che si possono formare con gli elementi dati, in modo che:
+- ciascun gruppo contenga k elementi
+- ogni elemento possa trovarsi ripetuto nel gruppo fino a k volte
+- due gruppi qualunque differiscano per almeno un elemento
+Esempi:
+Le combinazioni con ripetizione di 3 elementi (abc) presi a 2 a 2 sono:
+(aa ab ac bb bc cc)
+Le combinazioni con ripetizione di 4 elementi (abcd) presi a 3 a 3 sono:
+(aaa aab aac aad abb abc abd acc acd add
+ bbb bbc bbd bcc bcd bdd ccc ccd cdd ddd)
+
+Numero di combinazioni con ripetizione:
+CR(n,k) = C(n+k-1,k)
+
+Funzione per il calcolo del numero di Combinazioni con ripetizione:
+  CR(n,k) = C(n+k-1,k)
+
+(define (CR n k) (binom (+ n k (- 1)) k))
+
+(CR 10 2)
+;-> 55L
+
+Esempio:
+Dato un insieme con le tre lettere I = (A B C), trovare le combinazioni di classe 2 semplici, ossia i raggruppamenti possibili delle lettere prese a coppia. In ogni coppia può esserci anche due volte la stessa lettera.
+In questo caso n = 3 e k = 2.
+Applicando la formula per il calcolo delle combinazioni con ripetizione CR(3,2)= (3+2-1)!/(2!*(3−1)!) = 24/4 = 6.
+Le combinazioni con ripetizione possibili sono sei: (A A), (A B), (A C), (B B), (B C), (C C).
+
+La differenza tra disposizioni e combinazioni 
+---------------------------------------------
+Nelle disposizioni è importante l'ordine degli elementi. Nelle combinazioni, invece, non conta l'ordine degli elementi. 
+Esempio. 
+Le stringhe AB e BA sono due disposizioni diverse ma identificano una sola combinazione (AB). Le combinazioni sono insiemi di lettere in cui l'ordine non conta. Le disposizioni sono invece delle stringhe dove l'ordine è importante. 
+
+La differenza tra disposizioni e permutazioni
+--------------------------------------------- 
+Nelle disposizioni definisco raggruppamenti con k<n elementi.
+Nelle permutazioni, invece, prendo in considerazione dei raggruppamenti con n elementi. 
+Nota. Se k=n il numero delle disposizioni semplici è uguale a quello delle permutazioni.
 
 =============================================================================
 

@@ -910,6 +910,7 @@ NOTE LIBERE 5
   Hash-map e contesti
   Numeri di Narayana
   Numeri di Motzkin
+  Permutazioni, Disposizioni, Combinazioni
 
 APPENDICI
 =========
