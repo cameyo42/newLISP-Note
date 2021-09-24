@@ -911,6 +911,9 @@ NOTE LIBERE 5
   Numeri di Narayana
   Numeri di Motzkin
   Permutazioni, Disposizioni, Combinazioni
+  Valore massimo di una lista ordinata
+  Treni e binari
+  
 
 APPENDICI
 =========

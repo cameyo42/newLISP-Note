@@ -911,6 +911,9 @@ NOTE LIBERE 5
   Numeri di Narayana
   Numeri di Motzkin
   Permutazioni, Disposizioni, Combinazioni
+  Valore massimo di una lista ordinata
+  Treni e binari
+  
 
 APPENDICI
 =========
@@ -68008,7 +68011,7 @@ Esempio:
 
 In questo caso la parentesi che chiude "begin" si trova sulla stessa linea.
 
-Per alcuni, il metodo "parentesi chiuse sulla nuova linea" non deve esse usato perchè la lettura dei programmi LISP non deve seguire la corrispondenza delle parentesi, ma seguire l'indentazione. Inoltre  questo metodo richiede più righe per lo stesso codice. In generale, è bene mantenere basso il numero di righe, in modo che più codice si adatti a una pagina o una schermata.
+Per alcuni, il metodo "parentesi chiuse sulla nuova linea" non deve esse usato perchè la lettura dei programmi LISP non deve seguire la corrispondenza delle parentesi, ma seguire l'indentazione. Inoltre  questo metodo richiede più righe per lo stesso codice. In generale, è bene mantenere basso il numero di righe, in modo che la logica del codice sia contenuta in una pagina (o schermata).
 
 Livello di indentazione
 -----------------------
@@ -68654,9 +68657,9 @@ Questo è uno dei motivi per cui mi piace newLISP.
 4-4 Puzzle
 ----------
 
-Definire i seguenti simboli:
+Definire i seguenti numeri:
 
-zero, uno, due, tre quattro, cinque, sei, sette, otto, nove
+  zero, uno, due, tre quattro, cinque, sei, sette, otto, nove
 
 utilizzando per ogni numero una espressione matematica che contiene quattro volte il numero 4.
 L'espressione può contenere: + add , - sub , * mul , / div , (), separatore decimale, potenza, radice quadrata, fattoriale e numero periodico (es. .4~ = .444444444444444...)
@@ -70094,7 +70097,7 @@ Oppure:
 (fun 1 2)
 ;-> -1
 
-Proviamo a scrivere una funzione automodificante ad ogni chiamata alterna l'addizione e la sottrazione dei suoi argomenti:
+Proviamo a scrivere una funzione automodificante che ad ogni chiamata alterna l'addizione e la sottrazione dei suoi argomenti:
 
 (define (boh a b)
   ; AUTOMODIFICA
@@ -107173,6 +107176,343 @@ La differenza tra disposizioni e permutazioni
 Nelle disposizioni definisco raggruppamenti con k<n elementi.
 Nelle permutazioni, invece, prendo in considerazione dei raggruppamenti con n elementi. 
 Nota. Se k=n il numero delle disposizioni semplici è uguale a quello delle permutazioni.
+
+Come risolvere i problemi di Calcolo Combinatorio
+-------------------------------------------------
+Diagramma per capire se usare una permutazione, una disposizione o una combinazione.
+
+                          +--------------------------+
+                          |  Nei raggruppamenti      |
+                          |  l'ordine è importante?  |
+                          +--------------------------+
+                             /                   \
+                            /                     \
+                           /                       \
+                       +------+                 +------+
+                       |  SI  |                 |  NO  |
+                       +------+                 +------+
+                          |                         |
+                          |                         |
+           +-----------------------------+   +--------------+
+           | Permutazioni o Disposizioni |   | Combinazioni |
+           +-----------------------------+   +--------------+
+                         |                         |
+                         |                         |
+                   +---------+              +-------------------+
+                   | k = n ? |              | Elemento ripetuto |
+                   +---------+              | nel gruppo?       |
+                     /     \                +-------------------+
+                    /       \                     /       \
+             +------+       +------+        +------+     +------+
+             |  SI  |       |  NO  |        |  SI  |     |  NO  |
+             +------+       +------+        +------+     +------+
+                /               \              /               \
+               /                 \            /                 \
+    +--------------+    +--------------+   +--------------+   +--------------+
+    | Permutazioni |    | Disposizioni |   | Combinazioni |   | Combinazioni |
+    +--------------+    +--------------+   | Semplici     |   | con Ripetiz  |
+           /                          \    +--------------+   +--------------+
+          /                            \
+         /                              \
+   +----------------------+           +-------------------+
+   | I k (=n) elementi    |           | Elemento ripetuto |
+   | sono tutti distinti? |           | nel gruppo?       |
+   +----------------------+           +-------------------+
+        /            \                     /            \
+       /              \                   /              \
+   +------+        +------+            +------+        +------+
+   |  SI  |        |  NO  |            |  SI  |        |  NO  |
+   +------+        +------+            +------+        +------+
+      |                |                  |                 |
+      |                |                  |                 |
++--------------+   +--------------+   +--------------+    +--------------+
+| Permutazioni |   | Permutazioni |   | Disposizioni |    | Disposizioni |
+| Semplici     |   | con Ripetiz  |   | con ripetiz  |    | Semplici     |
++--------------+   +--------------+   +--------------+    +--------------+
+
+Esempio 1
+---------
+Le targhe automobilistiche sono formate nel modo seguente:
+
+  lettera lettera numero numero numero lettera lettera
+
+Quante auto si possono immatricolare con l'alfabeto internazionale di 26 lettere e i numeri da 0 a 9?
+
+Abbiamo 3 raggruppamenti diversi:
+
+1) lettera lettera 
+
+In questo caso k = 2 e n = 26.
+L'ordine ha importanza? si (e poichè k ≠ n, allora dobbiamo usare le disposizioni).
+Un elemento può essere ripetuto nel gruppo? si
+
+Quindi si tratta di Disposizioni con ripetizione di classe k. Quindi il primo gruppo può essere raggruppato in:
+
+DR(26,2) = 26^2 = 676
+
+2) numero numero numero
+
+In questo caso k = 3 e n = 10.
+L'ordine ha importanza? si (e poichè k ≠ n, allora dobbiamo usare le disposizioni).
+Un elemento può essere ripetuto nel gruppo? si
+
+Quindi si tratta di Disposizioni con ripetizione di classe k. Quindi il primo gruppo può essere raggruppato in:
+
+DR(10,3) = 10^3 = 1000
+
+3) lettera lettera
+
+In questo caso k = 2 e n = 26.
+L'ordine ha importanza? si (e poichè k ≠ n, allora dobbiamo usare le disposizioni).
+Un elemento può essere ripetuto nel gruppo? si
+
+Quindi si tratta di Disposizioni con ripetizione di classe k. Quindi il primo gruppo può essere raggruppato in:
+
+DR(26,2) = 26^2 = 676
+
+Quindi in totale si possono immatricolare:
+
+DR(26,2) * DR(10,3) * DR(26,2) = 676 * 1000 * 676 = 456976000 auto
+
+Esempio 2
+---------
+Una classe di 27 ex-compagni di scuola si rivedono per una cena. Alla fine, ognuno stringe la mano a tutti gli altri compagni. Quante strette di mano sono avvenute?
+
+In questo caso k = 2 e n = 27.
+L'ordine ha importanza? no, perchè le strette di mano non hanno un ordine (quindi dovremo usare le combinazioni).
+Un elemento può essere ripetuto nel gruppo? no, perchè nessuno si stringe la mano da solo.
+
+Quindi si tratta di Combinazioni semplici: C(27,2) = 27!/(2!*(27-2)!) = 351
+
+Esempio 3
+---------
+Una squadra di 8 persone va a cena tutte le settimane dopo la partitadi calcetto.
+Quante posizioni diverse possono assumere nella tavolata?
+
+In questo caso k = 8 e n = 8.
+L'ordine ha importanza? si, infatti ogni posizione è diversa in base all'ordine (e poichè k = n, allora dobbiamo usare le Permutazioni).
+Un elemento può essere ripetuto nel gruppo: no, poichè gli elementi sono tutti distinti.
+
+Quindi si tratta di Permutazioni semplici: P(8) = 8! = 40320 posizioni.
+
+
+------------------------------------
+Valore massimo di una lista ordinata
+------------------------------------
+
+Data una lista ordinata (di cui non si conosce il tipo di ordinamento) trovare l'elemento massimo.
+
+Risolviamo il problema con due metodi: nel primo metodo utilizziamo le primitive di newLISP, mentre nel secondo metodo utilizziamo un algoritmo ad-hoc.
+
+Primo metodo
+------------
+Per calcolare il valore massimo della lista usiamo la primitiva "max":
+
+(define (f1 lst) (apply max lst))
+
+Secondo metodo
+--------------
+Notiamo che la lista può essere ordinata in uno dei seguenti modi:
+1) Strettamente decrescente
+2) Decrescente
+3) Tutti elementi uguali
+4) Crescente
+5) Strettamente decrescente
+Il nostro algoritmo calcola la differenza tra il primo e l'ultimo elemento della lista:
+- se la differenza vale 0, allora la lista contiene tutti numeri uguali (prendiamo un numero qualunque)
+- se la differenza è maggiore di zero, allora la lista è decrescente o strettamente decrescente (prendiamo il primo numero della lista)
+- se la differenza è minore di zero, allora la lista è crescente o strettamente crescente (prendiamo l'ultimo numero della lista)
+Scriviamo la funzione che implementa l'algoritmo:
+
+(define (f2 lst)
+  (let (val (- (lst 0) (lst -1)))
+    (cond ((> val 0) (lst 0))  ; lista decrescente
+          ((< val 0) (lst -1)) ; lista crescente
+          (true (lst 0)))))    ; tutti elementi uguali
+
+Creiamo tre liste per effettuare i test:
+
+(silent
+(setq a (sequence 1 10000))
+(setq b (reverse (copy a)))
+(setq c (dup '10000 10000)))
+
+(f1 a)
+;-> 10000
+(f1 b)
+;-> 10000
+(f1 c)
+;-> 10000
+
+(f2 a)
+;-> 10000
+(f2 b)
+;-> 10000
+(f2 c)
+;-> 10000
+
+Vediamo i tempi di esecuzione:
+
+(time (f1 a) 10000)
+;-> 1461.643
+(time (f2 a) 10000)
+;-> 512.362
+
+(time (f1 b) 10000)
+;-> 1461.585
+(time (f2 b) 10000)
+;-> 504.808
+
+(time (f1 c) 10000)
+;-> 1468.911
+(time (f2 c) 10000)
+;-> 516.737
+
+Proviamo con liste più grandi (un milione di elementi):
+
+(silent
+(setq a (sequence 1 1000000))
+(setq b (reverse (copy a)))
+(setq c (dup '1000000 1000000)))
+
+(time (f1 a) 100)
+;-> 2009.643
+(time (f2 a) 100)
+;-> 730.251
+
+(time (f1 b) 100)
+;-> 1977.548
+(time (f2 b) 100)
+;-> 767.725
+
+(time (f1 c) 100)
+;-> 1948.062
+(time (f2 c) 100)
+;-> 729.342
+
+In questo problema è molto più efficiente utilizzare l'algoritmo ad-hoc al posto delle primitive di newLISP (caso poco frequente).
+
+
+--------------
+Treni e binari
+--------------
+
+Dati gli orari di arrivo e partenza di tutti i treni che raggiungono una stazione ferroviaria, è trovare il numero minimo di binari necessari in modo che nessun treno rimanga in attesa.
+Gli orari di arrivo e partenza dei treni sono contenuti in due liste, "arrivi" e "partenze".
+
+Esempio:
+Treno 1: arrivo=9:05 - partenza= 9:15
+Treno 2: arrivo=9:40 - partenza= 12:05
+Treno 3: arrivo=9:55 - partenza= 11:20
+Treno 4: arrivo=11:10 - partenza= 11:25
+Treno 5: arrivo=15:10 - partenza= 18:30
+Treno 6: arrivo=18:10 - partenza= 20:20
+
+lista arrivi = (9:05 9:40 9:55 11:00 15:10 18:10)
+lista partenze = (9:15 12:05 11:20 11:30 18:30 20:20)
+
+In questo caso occorrono 3 binari perchè ci sono tre treni tra le 11:10 e le 11:25.
+
+Per risolvere il problema trasformiamo ogni orario di partenza e arrivo in un numero (in questo modo i valori rimangono ordinati):
+
+ 9:00 --> 900
+ 12:30 --> 1230
+ ...
+
+Adesso creiamo una lista unica ordinata con tutti gli orari di arrivo e di partenza:
+
+; lista degli arrivi
+(setq arr '(905 940 955 1110 1510 1830))
+; lista delle partenze
+(setq par '(915 1205 1120 1125 1830 2020))
+; lista degli arrivi con il codice "A"
+(setq arr-t (map (fn(x) (list x "A")) arr))
+;->  ((905 "A") (940 "A") (955 "A") (1110 "A") (1510 "A") (1830 "A"))
+; lista delle partenze con il codice "P"
+(setq par-t (map (fn(x) (list x "P")) par))
+;-> ((915 "P") (1205 "P") (1120 "P") (1125 "P") (1830 "P") (2020 "P"))
+; lista ordinata con tutti gli orari
+(setq all (sort (append arr-t par-t)))
+;-> ((905 "A") (915 "P") (940 "A") (955 "A") (1110 "A") (1120 "P")
+;->  (1125 "P") (1205 "P") (1510 "A") (1830 "A") (1830 "P") (2020 "P"))
+
+Il prossimo passo è quello di attraversare la lista e contare i binari necessari per ogni arrivo o partenza nel modo seguente:
+- se il codice vale "A", allora aumentiamo il numero dei binari necessari correnti
+- se il codice vale "P", allora diminuiamo il numero dei binari necessari correnti
+Il numero di binari necessari è pari al valore massimo del numero dei binari necessari correnti
+
+; numero necessario di binari
+(setq binari 0)
+; numero necessario corrente di binari
+(setq curr 0)
+(dolist (el all)
+  (cond ((= (el 1) "A") (++ curr))
+        ((= (el 1) "P") (-- curr))
+  )
+  ; aggiorna il numero necessario di binari
+  (setq binari (max binari curr))
+  ; stampa la situazione corrente della stazione
+  (println (el 0) { } (el 1) { } curr)
+)
+;-> 905 A 1
+;-> 915 P 0
+;-> 940 A 1
+;-> 955 A 2
+;-> 1110 A 3
+;-> 1120 P 2
+;-> 1125 P 1
+;-> 1205 P 0
+;-> 1510 A 1
+;-> 1830 A 2
+;-> 1830 P 1
+;-> 2020 P 0
+
+Vediamo il valore dei binari necessari:
+
+binari
+;-> 3
+
+Scriviamo la funzione finale:
+
+(define (station arr par)
+  (local (arr-t par-t all curr binari)
+    ; lista degli arrivi con il codice "A"
+    (setq arr-t (map (fn(x) (list x "A")) arr))
+    ; lista delle partenze con il codice "P"
+    (setq par-t (map (fn(x) (list x "P")) par))
+    ; lista ordinata con tutti gli orari
+    (setq all (sort (append arr-t par-t)))
+    ; numero necessario di binari
+    (setq binari 0)
+    ; numero necessario corrente di binari
+    (setq curr 0)
+    (dolist (el all)
+      (cond ((= (el 1) "A") (++ curr))
+            ((= (el 1) "P") (-- curr))
+      )
+      ; aggiorna il numero necessario di binari
+      (setq binari (max binari curr))
+      ; stampa la situazione corrente della stazione
+      (println (el 0) { } (el 1) { } curr)
+    )
+    binari))
+
+(station arr par)
+;-> 905 A 1
+;-> 915 P 0
+;-> 940 A 1
+;-> 955 A 2
+;-> 1110 A 3
+;-> 1120 P 2
+;-> 1125 P 1
+;-> 1205 P 0
+;-> 1510 A 1
+;-> 1830 A 2
+;-> 1830 P 1
+;-> 2020 P 0
+;-> 3
+
+Nota: questo algoritmo presuppone che i treni arrivino e partano nello stesso giorno.
 
 =============================================================================
 

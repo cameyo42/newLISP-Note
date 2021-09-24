@@ -210,7 +210,7 @@ Esempio:
 
 In questo caso la parentesi che chiude "begin" si trova sulla stessa linea.
 
-Per alcuni, il metodo "parentesi chiuse sulla nuova linea" non deve esse usato perchè la lettura dei programmi LISP non deve seguire la corrispondenza delle parentesi, ma seguire l'indentazione. Inoltre  questo metodo richiede più righe per lo stesso codice. In generale, è bene mantenere basso il numero di righe, in modo che più codice si adatti a una pagina o una schermata.
+Per alcuni, il metodo "parentesi chiuse sulla nuova linea" non deve esse usato perchè la lettura dei programmi LISP non deve seguire la corrispondenza delle parentesi, ma seguire l'indentazione. Inoltre  questo metodo richiede più righe per lo stesso codice. In generale, è bene mantenere basso il numero di righe, in modo che la logica del codice sia contenuta in una pagina (o schermata).
 
 Livello di indentazione
 -----------------------
@@ -856,9 +856,9 @@ Questo è uno dei motivi per cui mi piace newLISP.
 4-4 Puzzle
 ----------
 
-Definire i seguenti simboli:
+Definire i seguenti numeri:
 
-zero, uno, due, tre quattro, cinque, sei, sette, otto, nove
+  zero, uno, due, tre quattro, cinque, sei, sette, otto, nove
 
 utilizzando per ogni numero una espressione matematica che contiene quattro volte il numero 4.
 L'espressione può contenere: + add , - sub , * mul , / div , (), separatore decimale, potenza, radice quadrata, fattoriale e numero periodico (es. .4~ = .444444444444444...)
@@ -2296,7 +2296,7 @@ Oppure:
 (fun 1 2)
 ;-> -1
 
-Proviamo a scrivere una funzione automodificante ad ogni chiamata alterna l'addizione e la sottrazione dei suoi argomenti:
+Proviamo a scrivere una funzione automodificante che ad ogni chiamata alterna l'addizione e la sottrazione dei suoi argomenti:
 
 (define (boh a b)
   ; AUTOMODIFICA
