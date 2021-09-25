@@ -913,6 +913,7 @@ NOTE LIBERE 5
   Permutazioni, Disposizioni, Combinazioni
   Valore massimo di una lista ordinata
   Treni e binari
+  Mastermind (by Norman)
   
 
 APPENDICI
@@ -11223,6 +11224,114 @@ Altro metodo, applico (con "map") la funzione (list x (char(x))) ad ogni element
 
 (define (ascii-list)
   (map (fn(x) (list x (char x))) (sequence 32 126)))
+
+Altro metodo che mostra i valori Decimale, Ottale, Esadecimale e il carattere:
+
+(define (ascii-info)
+; ascii chart output from #32 - #126
+  (println "Dec Oct Hex Chr") 
+  (map (fn(x) (println (format "%-3d %-3o %-3x %s" x x x (char x))))
+      (sequence 32 126))
+  '-------------)
+
+(ascii-info)
+;-> Dec Oct Hex Chr
+;-> 32  40  20
+;-> 33  41  21  !
+;-> 34  42  22  "
+;-> 35  43  23  #
+;-> 36  44  24  $
+;-> 37  45  25  %
+;-> 38  46  26  &
+;-> 39  47  27  '
+;-> 40  50  28  (
+;-> 41  51  29  )
+;-> 42  52  2a  *
+;-> 43  53  2b  +
+;-> 44  54  2c  ,
+;-> 45  55  2d  -
+;-> 46  56  2e  .
+;-> 47  57  2f  /
+;-> 48  60  30  0
+;-> 49  61  31  1
+;-> 50  62  32  2
+;-> 51  63  33  3
+;-> 52  64  34  4
+;-> 53  65  35  5
+;-> 54  66  36  6
+;-> 55  67  37  7
+;-> 56  70  38  8
+;-> 57  71  39  9
+;-> 58  72  3a  :
+;-> 59  73  3b  ;
+;-> 60  74  3c  <
+;-> 61  75  3d  =
+;-> 62  76  3e  >
+;-> 63  77  3f  ?
+;-> 64  100 40  @
+;-> 65  101 41  A
+;-> 66  102 42  B
+;-> 67  103 43  C
+;-> 68  104 44  D
+;-> 69  105 45  E
+;-> 70  106 46  F
+;-> 71  107 47  G
+;-> 72  110 48  H
+;-> 73  111 49  I
+;-> 74  112 4a  J
+;-> 75  113 4b  K
+;-> 76  114 4c  L
+;-> 77  115 4d  M
+;-> 78  116 4e  N
+;-> 79  117 4f  O
+;-> 80  120 50  P
+;-> 81  121 51  Q
+;-> 82  122 52  R
+;-> 83  123 53  S
+;-> 84  124 54  T
+;-> 85  125 55  U
+;-> 86  126 56  V
+;-> 87  127 57  W
+;-> 88  130 58  X
+;-> 89  131 59  Y
+;-> 90  132 5a  Z
+;-> 91  133 5b  [
+;-> 92  134 5c  \
+;-> 93  135 5d  ]
+;-> 94  136 5e  ^
+;-> 95  137 5f  _
+;-> 96  140 60  `
+;-> 97  141 61  a
+;-> 98  142 62  b
+;-> 99  143 63  c
+;-> 100 144 64  d
+;-> 101 145 65  e
+;-> 102 146 66  f
+;-> 103 147 67  g
+;-> 104 150 68  h
+;-> 105 151 69  i
+;-> 106 152 6a  j
+;-> 107 153 6b  k
+;-> 108 154 6c  l
+;-> 109 155 6d  m
+;-> 110 156 6e  n
+;-> 111 157 6f  o
+;-> 112 160 70  p
+;-> 113 161 71  q
+;-> 114 162 72  r
+;-> 115 163 73  s
+;-> 116 164 74  t
+;-> 117 165 75  u
+;-> 118 166 76  v
+;-> 119 167 77  w
+;-> 120 170 78  x
+;-> 121 171 79  y
+;-> 122 172 7a  z
+;-> 123 173 7b  {
+;-> 124 174 7c  |
+;-> 125 175 7d  }
+;-> 126 176 7e  ~
+;-> -------------
 
 
 --------------
@@ -107513,6 +107622,156 @@ Scriviamo la funzione finale:
 ;-> 3
 
 Nota: questo algoritmo presuppone che i treni arrivino e partano nello stesso giorno.
+
+
+----------------------
+Mastermind (by Norman)
+----------------------
+All'indirizzo web http://newlisp.digidep.net/ troviamo la "Norman's Collection", una varietà di piccole utilità estremamente utili e creative scritte dall'utente Norman. Non tutte le utilità sono aggiornate a newLISP 10.7.5, ma sono molto interessanti per vedere lo stile di programmazione di un esperto.
+Di seguito riportiamo il programma "mastermind" aggiornato (con piccole modifiche) alla versione 10.7.5.
+
+#!/usr/bin/newlisp
+;; ---------------------------------------------------------------------
+;;
+;; An ANSI based MASTERMIND v0.7
+;;
+;; Colors can occur more than once (more fun).
+;; You have 10 guesses to finish in.
+;;
+;;
+;; Enjoy, Norman 2006
+;; uptated to newLISP 10.7.5 by cameyo, 25-Sep-2021
+;; ---------------------------------------------------------------------
+;; defines
+;; ---------------------------------------------------------------------
+(define r "\027[0;31m")
+(define g "\027[0;32m")
+(define b "\027[0;34m")
+(define y "\027[0;33m")
+(define m "\027[0;35m")
+(define c "\027[0;36m")
+(define w "\027[0;37m")
+(define d "\027[0;0m" )
+;------------------
+(define (cls) (println "\027[H\027[2J"))
+(define (line) (println "\t\t" (dup "-" 32)))
+;------------------
+(setq colors '(r g b y m c w))
+(setq title (explode "MASTERMIND"))
+;; ---------------------------------------------------------------------
+;; header
+;; ---------------------------------------------------------------------
+(define (header)
+	(cls)
+	(seed (nth 6 (now)) )
+	(setq solution (0 4 (randomize (flat (dup (randomize colors) 4)))))
+	;(println "\t\t Solution: " solution)
+	(line)
+	(dotimes (l 3) (print "\t\t ") (dotimes (l 3) (dolist (l title) (print (eval (nth 0 (randomize colors))) l ))) (println d))
+	(line)
+	(println "\t\t " w "Type the keys: " r "R" g "G" b "B" y "Y" m "M" c "C" w "W" d " to play")
+	(println "\t\t     " w {Press "\" to quit})
+	(println "\t\t " c "!" d " - correct color and place")
+	(println "\t\t " r "?" d " - correct color wrong place")
+	(line)
+	(println "\t\t [" g (dup "  #" 4) d "  ]")
+	(line))
+;; ---------------------------------------------------------------------
+;; print colors
+;; ---------------------------------------------------------------------
+(define (output)
+	(print "\t\t [ " )
+	(dolist (p solution) (print (eval p) " @ " )) (println d " ] "))
+;; ---------------------------------------------------------------------
+;; handle input
+;; ---------------------------------------------------------------------
+(define (input)
+	(setq pushed 0)
+	(setq current '())
+	(print "\t\t [ " )
+	(while (!= pushed 4)
+		(setq h (sym (char (read-key))))
+       ; check quit game char
+       (if (= h '\) (exit))
+			 (if (find h colors)
+				(begin
+					(print (eval h) " @ " d)
+					(push h current -1)
+					(++ pushed)	)))
+	(print " ]")
+	(check))
+;; ---------------------------------------------------------------------
+;; check & print colors and positions
+;; ---------------------------------------------------------------------
+(define (check)
+	(setq work solution)
+	(print "\t[")
+	'(for (x 0 3) (if (= (nth x current) (nth x work)) (begin (set-nth x current 'nil) (set-nth x work 'nil) (print c "!" d))))
+	(for (x 0 3) (if (= (nth x current) (nth x work)) (begin (setf (current x) 'nil) (setf (work x) 'nil) (print c "!" d))))
+	(setq current (clean nil? current))
+	(if (empty? current) (begin (println "]") (line) (println "\t\t " g "Well Done!" d) (restart)))
+	(setq work (clean nil? work))
+	(dolist (x current) (if (setq i (find x work)) (begin (setf (work i) 'nil) (print r "?" d))))
+	(println "]")
+	(line))
+;; ---------------------------------------------------------------------
+;; restart
+;; ---------------------------------------------------------------------
+(define (restart)
+	(line)
+	(print "\t\t " w "Play Again? (" g "y" w "/" r "n" c"): " d)
+	(if (= (lower-case (char (read-key))) "y") (game) (begin (println "\n\n") (exit))))
+;; ---------------------------------------------------------------------
+;; GAME
+;; ---------------------------------------------------------------------
+(define (game)
+	(header)
+	(setq counter 0)
+	(while (!= counter 10) (input) (++ counter))
+	(output)
+	(restart))
+;(exit)
+
+Proviasmo a fare una partita:
+
+(game)
+;-> --------------------------------
+;->  MASTERMINDMASTERMINDMASTERMIND
+;->  MASTERMINDMASTERMINDMASTERMIND
+;->  MASTERMINDMASTERMINDMASTERMIND
+;-> --------------------------------
+;->  Type the keys: RGBYMCW to play
+;->      Press \ to quit
+;->  ! - correct color and place
+;->  ? - correct color wrong place
+;-> --------------------------------
+;->  [  #  #  #  #  ]
+;-> --------------------------------
+;->  [  @  @  @  @  ]       [!]
+;-> --------------------------------
+;->  [  @  @  @  @  ]       []
+;-> --------------------------------
+;->  [  @  @  @  @  ]       [??]
+;-> --------------------------------
+;->  [  @  @  @  @  ]       [??]
+;-> --------------------------------
+;->  [  @  @  @  @  ]       [??]
+;-> --------------------------------
+;->  [  @  @  @  @  ]       [!?]
+;-> --------------------------------
+;->  [  @  @  @  @  ]       [!!]
+;-> --------------------------------
+;->  [  @  @  @  @  ]       [!!!]
+;-> --------------------------------
+;->  [  @  @  @  @  ]       [!!!]
+;-> --------------------------------
+;->  [  @  @  @  @  ]       [!!!!]
+;-> --------------------------------
+;->  Well Done!
+;-> --------------------------------
+;->  Play Again? (y/n):
+
+Nota: vedi l'immagine "mastermind.png" nella cartella "data" per vedere l'output precedente a colori.
 
 =============================================================================
 

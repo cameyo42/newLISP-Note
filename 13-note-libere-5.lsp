@@ -6675,5 +6675,155 @@ Scriviamo la funzione finale:
 
 Nota: questo algoritmo presuppone che i treni arrivino e partano nello stesso giorno.
 
+
+----------------------
+Mastermind (by Norman)
+----------------------
+All'indirizzo web http://newlisp.digidep.net/ troviamo la "Norman's Collection", una varietà di piccole utilità estremamente utili e creative scritte dall'utente Norman. Non tutte le utilità sono aggiornate a newLISP 10.7.5, ma sono molto interessanti per vedere lo stile di programmazione di un esperto.
+Di seguito riportiamo il programma "mastermind" aggiornato (con piccole modifiche) alla versione 10.7.5.
+
+#!/usr/bin/newlisp
+;; ---------------------------------------------------------------------
+;;
+;; An ANSI based MASTERMIND v0.7
+;;
+;; Colors can occur more than once (more fun).
+;; You have 10 guesses to finish in.
+;;
+;;
+;; Enjoy, Norman 2006
+;; uptated to newLISP 10.7.5 by cameyo, 25-Sep-2021
+;; ---------------------------------------------------------------------
+;; defines
+;; ---------------------------------------------------------------------
+(define r "\027[0;31m")
+(define g "\027[0;32m")
+(define b "\027[0;34m")
+(define y "\027[0;33m")
+(define m "\027[0;35m")
+(define c "\027[0;36m")
+(define w "\027[0;37m")
+(define d "\027[0;0m" )
+;------------------
+(define (cls) (println "\027[H\027[2J"))
+(define (line) (println "\t\t" (dup "-" 32)))
+;------------------
+(setq colors '(r g b y m c w))
+(setq title (explode "MASTERMIND"))
+;; ---------------------------------------------------------------------
+;; header
+;; ---------------------------------------------------------------------
+(define (header)
+	(cls)
+	(seed (nth 6 (now)) )
+	(setq solution (0 4 (randomize (flat (dup (randomize colors) 4)))))
+	;(println "\t\t Solution: " solution)
+	(line)
+	(dotimes (l 3) (print "\t\t ") (dotimes (l 3) (dolist (l title) (print (eval (nth 0 (randomize colors))) l ))) (println d))
+	(line)
+	(println "\t\t " w "Type the keys: " r "R" g "G" b "B" y "Y" m "M" c "C" w "W" d " to play")
+	(println "\t\t     " w {Press "\" to quit})
+	(println "\t\t " c "!" d " - correct color and place")
+	(println "\t\t " r "?" d " - correct color wrong place")
+	(line)
+	(println "\t\t [" g (dup "  #" 4) d "  ]")
+	(line))
+;; ---------------------------------------------------------------------
+;; print colors
+;; ---------------------------------------------------------------------
+(define (output)
+	(print "\t\t [ " )
+	(dolist (p solution) (print (eval p) " @ " )) (println d " ] "))
+;; ---------------------------------------------------------------------
+;; handle input
+;; ---------------------------------------------------------------------
+(define (input)
+	(setq pushed 0)
+	(setq current '())
+	(print "\t\t [ " )
+	(while (!= pushed 4)
+		(setq h (sym (char (read-key))))
+       ; check quit game char
+       (if (= h '\) (exit))
+			 (if (find h colors)
+				(begin
+					(print (eval h) " @ " d)
+					(push h current -1)
+					(++ pushed)	)))
+	(print " ]")
+	(check))
+;; ---------------------------------------------------------------------
+;; check & print colors and positions
+;; ---------------------------------------------------------------------
+(define (check)
+	(setq work solution)
+	(print "\t[")
+	'(for (x 0 3) (if (= (nth x current) (nth x work)) (begin (set-nth x current 'nil) (set-nth x work 'nil) (print c "!" d))))
+	(for (x 0 3) (if (= (nth x current) (nth x work)) (begin (setf (current x) 'nil) (setf (work x) 'nil) (print c "!" d))))
+	(setq current (clean nil? current))
+	(if (empty? current) (begin (println "]") (line) (println "\t\t " g "Well Done!" d) (restart)))
+	(setq work (clean nil? work))
+	(dolist (x current) (if (setq i (find x work)) (begin (setf (work i) 'nil) (print r "?" d))))
+	(println "]")
+	(line))
+;; ---------------------------------------------------------------------
+;; restart
+;; ---------------------------------------------------------------------
+(define (restart)
+	(line)
+	(print "\t\t " w "Play Again? (" g "y" w "/" r "n" c"): " d)
+	(if (= (lower-case (char (read-key))) "y") (game) (begin (println "\n\n") (exit))))
+;; ---------------------------------------------------------------------
+;; GAME
+;; ---------------------------------------------------------------------
+(define (game)
+	(header)
+	(setq counter 0)
+	(while (!= counter 10) (input) (++ counter))
+	(output)
+	(restart))
+;(exit)
+
+Proviasmo a fare una partita:
+
+(game)
+;-> --------------------------------
+;->  MASTERMINDMASTERMINDMASTERMIND
+;->  MASTERMINDMASTERMINDMASTERMIND
+;->  MASTERMINDMASTERMINDMASTERMIND
+;-> --------------------------------
+;->  Type the keys: RGBYMCW to play
+;->      Press \ to quit
+;->  ! - correct color and place
+;->  ? - correct color wrong place
+;-> --------------------------------
+;->  [  #  #  #  #  ]
+;-> --------------------------------
+;->  [  @  @  @  @  ]       [!]
+;-> --------------------------------
+;->  [  @  @  @  @  ]       []
+;-> --------------------------------
+;->  [  @  @  @  @  ]       [??]
+;-> --------------------------------
+;->  [  @  @  @  @  ]       [??]
+;-> --------------------------------
+;->  [  @  @  @  @  ]       [??]
+;-> --------------------------------
+;->  [  @  @  @  @  ]       [!?]
+;-> --------------------------------
+;->  [  @  @  @  @  ]       [!!]
+;-> --------------------------------
+;->  [  @  @  @  @  ]       [!!!]
+;-> --------------------------------
+;->  [  @  @  @  @  ]       [!!!]
+;-> --------------------------------
+;->  [  @  @  @  @  ]       [!!!!]
+;-> --------------------------------
+;->  Well Done!
+;-> --------------------------------
+;->  Play Again? (y/n):
+
+Nota: vedi l'immagine "mastermind.png" nella cartella "data" per vedere l'output precedente a colori.
+
 =============================================================================
 

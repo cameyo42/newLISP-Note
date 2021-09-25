@@ -913,6 +913,7 @@ NOTE LIBERE 5
   Permutazioni, Disposizioni, Combinazioni
   Valore massimo di una lista ordinata
   Treni e binari
+  Mastermind (by Norman)
   
 
 APPENDICI
