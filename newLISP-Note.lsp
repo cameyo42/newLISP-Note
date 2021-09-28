@@ -914,7 +914,8 @@ NOTE LIBERE 5
   Valore massimo di una lista ordinata
   Treni e binari
   Mastermind (by Norman)
-  
+  newLISP banner
+  Puzzle di Gordon Lee
 
 APPENDICI
 =========
@@ -107772,6 +107773,473 @@ Proviasmo a fare una partita:
 ;->  Play Again? (y/n):
 
 Nota: vedi l'immagine "mastermind.png" nella cartella "data" per vedere l'output precedente a colori.
+
+
+--------------
+newLISP banner
+--------------
+
+(define (banner1)
+  (println "███    ██ ███████ ██     ██ ██      ██ ███████ ██████ ")
+  (println "████   ██ ██      ██     ██ ██      ██ ██      ██   ██")
+  (println "██ ██  ██ █████   ██  █  ██ ██      ██ ███████ ██████ ")
+  (println "██  ██ ██ ██      ██ ███ ██ ██      ██      ██ ██     ")
+  (println "██   ████ ███████  ███ ███  ███████ ██ ███████ ██     ")
+  (print))
+(banner1)
+
+(define (banner2)
+  (println "                                        _|        _|_|_|    _|_|_|  _|_|_|  ")
+  (println "_|_|_|      _|_|    _|      _|      _|  _|          _|    _|        _|    _|")
+  (println "_|    _|  _|_|_|_|  _|      _|      _|  _|          _|      _|_|    _|_|_|  ")
+  (println "_|    _|  _|          _|  _|  _|  _|    _|          _|          _|  _|      ")
+  (println "_|    _|    _|_|_|      _|      _|      _|_|_|_|  _|_|_|  _|_|_|    _|      ")
+  (print))
+(banner2)
+
+(define (banner3)
+  (println "                                                                           LLLLLLLLLLL             IIIIIIIIII   SSSSSSSSSSSSSSS PPPPPPPPPPPPPPPPP   ")
+  (println "                                                                           L:::::::::L             I::::::::I SS:::::::::::::::SP::::::::::::::::P  ")
+  (println "                                                                           L:::::::::L             I::::::::IS:::::SSSSSS::::::SP::::::PPPPPP:::::P ")
+  (println "                                                                           LL:::::::LL             II::::::IIS:::::S     SSSSSSSPP:::::P     P:::::P")
+  (println "nnnn  nnnnnnnn        eeeeeeeeeeee  wwwwwww           wwwww           wwwwwwwL:::::L                 I::::I  S:::::S              P::::P     P:::::P")
+  (println "n:::nn::::::::nn    ee::::::::::::ee w:::::w         w:::::w         w:::::w L:::::L                 I::::I  S:::::S              P::::P     P:::::P")
+  (println "n::::::::::::::nn  e::::::eeeee:::::eew:::::w       w:::::::w       w:::::w  L:::::L                 I::::I   S::::SSSS           P::::PPPPPP:::::P ")
+  (println "nn:::::::::::::::ne::::::e     e:::::e w:::::w     w:::::::::w     w:::::w   L:::::L                 I::::I    SS::::::SSSSS      P:::::::::::::PP  ")
+  (println "  n:::::nnnn:::::ne:::::::eeeee::::::e  w:::::w   w:::::w:::::w   w:::::w    L:::::L                 I::::I      SSS::::::::SS    P::::PPPPPPPPP    ")
+  (println "  n::::n    n::::ne:::::::::::::::::e    w:::::w w:::::w w:::::w w:::::w     L:::::L                 I::::I         SSSSSS::::S   P::::P            ")
+  (println "  n::::n    n::::ne::::::eeeeeeeeeee      w:::::w:::::w   w:::::w:::::w      L:::::L                 I::::I              S:::::S  P::::P            ")
+  (println "  n::::n    n::::ne:::::::e                w:::::::::w     w:::::::::w       L:::::L         LLLLLL  I::::I              S:::::S  P::::P            ")
+  (println "  n::::n    n::::ne::::::::e                w:::::::w       w:::::::w      LL:::::::LLLLLLLLL:::::LII::::::IISSSSSSS     S:::::SPP::::::PP          ")
+  (println "  n::::n    n::::n e::::::::eeeeeeee         w:::::w         w:::::w       L::::::::::::::::::::::LI::::::::IS::::::SSSSSS:::::SP::::::::P          ")
+  (println "  n::::n    n::::n  ee:::::::::::::e          w:::w           w:::w        L::::::::::::::::::::::LI::::::::IS:::::::::::::::SS P::::::::P          ")
+  (println "  nnnnnn    nnnnnn    eeeeeeeeeeeeee           www             www         LLLLLLLLLLLLLLLLLLLLLLLLIIIIIIIIII SSSSSSSSSSSSSSS   PPPPPPPPPP          ")
+  (print))
+(banner3)
+
+(define (banner4)
+(println "                       __    _________ ____ ")
+(println "   ____  ___ _      __/ /   /  _/ ___// __ \\")
+(println "  / __ \\/ _ \\ | /| / / /    / / \\__ \\/ /_/ /")
+(println " / / / /  __/ |/ |/ / /____/ / ___/ / ____/ ")
+(println "/_/ /_/\\___/|__/|__/_____/___//____/_/      ")
+(print))
+(banner4)
+
+(define (banner5)
+(println "                     _     ___ ____  ____  ")
+(println " _ __   _____      _| |   |_ _/ ___||  _ \\ ")
+(println "| '_ \\ / _ \\ \\ /\\ / / |    | |\\___ \\| |_) |")
+(println "| | | |  __/\\ V  V /| |___ | | ___) |  __/ ")
+(println "|_| |_|\\___| \\_/\\_/ |_____|___|____/|_|    ")
+(print))
+(banner5)
+
+(define (banner6)
+  (println "                     #       ###  #####  ###### ")
+  (println "#    # ###### #    # #        #  #     # #     #")
+  (println "##   # #      #    # #        #  #       #     #")
+  (println "# #  # #####  #    # #        #   #####  ###### ")
+  (println "#  # # #      # ## # #        #        # #      ")
+  (println "#   ## #      ##  ## #        #  #     # #      ")
+  (println "#    # ###### #    # ####### ###  #####  #      ")
+  (print))
+(banner6)
+
+(define (banner7)
+  (println "##    ## ######## ##      ## ##       ####  ######  ######## ")
+  (println "###   ## ##       ##  ##  ## ##        ##  ##    ## ##     ##")
+  (println "####  ## ##       ##  ##  ## ##        ##  ##       ##     ##")
+  (println "## ## ## ######   ##  ##  ## ##        ##   ######  ######## ")
+  (println "##  #### ##       ##  ##  ## ##        ##        ## ##       ")
+  (println "##   ### ##       ##  ##  ## ##        ##  ##    ## ##       ")
+  (println "##    ## ########  ###  ###  ######## ####  ######  ##       ")
+  (print))
+(banner7)
+
+(define (banner8)
+  (println "                                                  _               _  _  _     _  _  _  _     _  _  _  _   ")
+  (println "                                                 (_)             (_)(_)(_)  _(_)(_)(_)(_)_  (_)(_)(_)(_)_ ")
+  (println " _  _  _  _      _  _  _  _     _             _  (_)                (_)    (_)          (_) (_)        (_)")
+  (println "(_)(_)(_)(_)_   (_)(_)(_)(_)_  (_)           (_) (_)                (_)    (_)_  _  _  _    (_) _  _  _(_)")
+  (println "(_)        (_) (_) _  _  _ (_) (_)     _     (_) (_)                (_)      (_)(_)(_)(_)_  (_)(_)(_)(_)  ")
+  (println "(_)        (_) (_)(_)(_)(_)(_) (_)_  _(_)_  _(_) (_)                (_)     _           (_) (_)           ")
+  (println "(_)        (_) (_)_  _  _  _     (_)(_) (_)(_)   (_) _  _  _  _   _ (_) _  (_)_  _  _  _(_) (_)           ")
+  (println "(_)        (_)   (_)(_)(_)(_)      (_)   (_)     (_)(_)(_)(_)(_) (_)(_)(_)   (_)(_)(_)(_)   (_)           ")
+  (print)   )
+(banner8)
+
+(define (banner9)
+  (println "                          LL      IIIII  SSSSS  PPPPPP ")
+  (println "nn nnn    eee  ww      ww LL       III  SS      PP   PP")
+  (println "nnn  nn ee   e ww      ww LL       III   SSSSS  PPPPPP ")
+  (println "nn   nn eeeee   ww ww ww  LL       III       SS PP     ")
+  (println "nn   nn  eeeee   ww  ww   LLLLLLL IIIII  SSSSS  PP     ")
+  (print))
+(banner9)
+
+(define (banner str)
+  (let (line (dup "+-" (length str)))
+    (println line "+")
+    (map (fn(x) (print "|" x)) (explode str))
+    (println "|")
+    (println line "+")
+    (print)))
+(banner "newLISP")
+;-> +-+-+-+-+-+-+-+
+;-> |n|e|w|L|I|S|P|
+;-> +-+-+-+-+-+-+-+
+
+
+--------------------
+Puzzle di Gordon Lee
+--------------------
+
+Data una matrice NxN con numeri composti con una sola cifra (0..9) anche ripetuti, contare i distinti numeri primi incorporati nella matrice. I numeri si possono leggere con orientamento verticale, orizzontale o diagonale, in entrambe le direzioni.
+Ad esempio nella matrice:
+
+  1 2 3
+  4 5 6
+  7 8 9
+
+Sono inglobati i seguenti 65 numeri:
+
+(1 2 3 4 5 6 7 8 9 12 14 15 21 23 24 25 26 32 35 36 41 42 45 47 48 51 52 53 54 56
+ 57 58 59 62 63 65 68 69 74 75 78 84 85 86 87 89 95 96 98 123 147 159 258 321 357
+ 369 456 654 741 753 789 852 951 963 987)
+
+Questo puzzle è stato proposto per la prima volta nel 1989 da Gordon Lee per una matrice 6x6.
+
+La matrice 6x6 con il maggior numero di primi è stata trovata da Stephen Root:
+
+  3 1 7 3 3 3
+  9 9 5 6 3 9
+  1 1 8 1 4 2
+  1 3 6 3 7 3
+  3 4 9 1 9 9
+  3 7 9 3 7 9
+
+Questa matrice contiene all'interno 187 numeri primi.
+
+Nota: i numeri contenuti nella matrice non sono necessariamente tutti differenti.
+
+Quello che ci serve è una funzione che, data una matrice, sia in grado di generare tutti i numeri inglobati.
+
+(define (numatrix mtx)
+  (local (sol val num cur-row cur-col max-row max-col)
+    (setq sol '())
+    (setq max-row (length mtx))
+    (setq max-col (length (mtx 0)))
+    ; ricerca dei numeri inglobati
+    ; per ogni elemento della matrice...
+    (for (r 0 (- max-row 1))
+      (for (c 0 (- max-col 1))
+        (setq num (mtx r c))
+        ; inseriamo il numero corrente nella soluzione
+        (push num sol -1)
+        ; numeri per colonna in avanti
+        (setq val num)
+        (setq cur-row (+ r 1))
+        (while (< cur-row max-row)
+          (setq val (+ (* val 10) (mtx cur-row c)))
+          (push val sol -1)
+          (++ cur-row)
+        )
+        ; numeri per colonna all'indietro
+        (setq val num)
+        (setq cur-row (- r 1))
+        (while (>= cur-row 0)
+          (setq val (+ (* val 10) (mtx cur-row c)))
+          (push val sol -1)
+          (-- cur-row)
+        )
+        ; numeri per riga in avanti
+        (setq val num)
+        (setq cur-col (+ c 1))
+        (while (< cur-col max-col)
+          (setq val (+ (* val 10) (mtx r cur-col)))
+          (push val sol -1)
+          (++ cur-col)
+        )
+        ; numeri per riga all'indietro
+        (setq val num)
+        (setq cur-col (- c 1))
+        (while (>= cur-col 0)
+          (setq val (+ (* val 10) (mtx r cur-col)))
+          (push val sol -1)
+          (-- cur-col)
+        )
+        ; numeri in diagonale basso-sx
+        (setq val num)
+        (setq cur-col (- c 1))
+        (setq cur-row (+ r 1))
+        (while (and (>= cur-col 0) (< cur-row max-row))
+          (setq val (+ (* val 10) (mtx cur-row cur-col)))
+          (push val sol -1)
+          (-- cur-col)
+          (++ cur-row)
+        )
+        ; numeri in diagonale basso-dx
+        (setq val num)
+        (setq cur-col (+ c 1))
+        (setq cur-row (+ r 1))
+        (while (and (< cur-col max-col) (< cur-row max-row))
+          (setq val (+ (* val 10) (mtx cur-row cur-col)))
+          (push val sol -1)
+          (++ cur-col)
+          (++ cur-row)
+        )
+        ; numeri in diagonale alto-sx
+        (setq val num)
+        (setq cur-col (- c 1))
+        (setq cur-row (- r 1))
+        (while (and (>= cur-col 0) (>= cur-row 0))
+          (setq val (+ (* val 10) (mtx cur-row cur-col)))
+          (push val sol -1)
+          (-- cur-col)
+          (-- cur-row)
+        )
+        ; numeri in diagonale alto-dx
+        (setq val num)
+        (setq cur-col (+ c 1))
+        (setq cur-row (- r 1))
+        (while (and (< cur-col max-col) (>= cur-row 0))
+          (setq val (+ (* val 10) (mtx cur-row cur-col)))
+          (push val sol -1)
+          (++ cur-col)
+          (-- cur-row)
+        )
+      )
+    )
+    (sort sol)))
+
+Facciamo alcune prove:
+
+(setq m2 '((1 2) (3 4)))
+(setq n2 (numatrix m2))
+;-> (1 2 3 4 12 13 14 21 23 24 31 32 34 41 42 43)
+(length n2)
+;-> 16
+
+(setq m3 '((1 2 3) (4 5 6) (7 8 9)))
+(setq n3 (numatrix m3))
+;-> (1 2 3 4 5 6 7 8 9 12 14 15 21 23 24 25 26 32 35 36 41 42 45 47 48 51
+;->  52 53 54 56 57 58 59 62 63 65 68 69 74 75 78 84 85 86 87 89 95 96 98
+;->  123 147 159 258 321 357 369 456 654 741 753 789 852 951 963 987)
+(length n3)
+;-> 65
+
+(setq m4 '((1 2 3 4) (4 5 6 7) (7 8 9 1) (3 7 9 0)))
+(setq n4 (numatrix m4))
+;-> (0 1 1 1 2 3 3 4 4 5 6 7 7 7 8 9 9 9 9 10 12 14 15 16 17 17 19 19 21 23 24
+;->  25 26 32 34 35 36 37 37 37 38 41 42 43 45 46 47 47 48 51 52 53 54 56 57 58
+;->  59 61 62 63 64 65 67 68 69 71 73 73 73 74 74 75 76 77 77 78 78 79 79 79 83
+;->  84 85 86 87 87 89 89 90 90 91 91 95 95 96 97 97 97 97 98 98 99 99 123 147
+;->  159 162 174 174 198 234 258 261 321 357 369 374 379 386 432 456 468 471
+;->  473 489 567 587 590 654 683 699 710 741 753 765 785 789 790 797 797 852
+;->  864 891 951 951 963 973 973 984 987 996 1234 1473 1590 1987 2587 3699
+;->  3741 3790 3864 4321 4567 4683 4710 7654 7852 7891 9963)
+(length n4)
+;-> 168
+
+(setq m5 '((1 2 3 4 5) (1 2 3 4 5) (1 2 3 4 5) (1 2 3 4 5) (1 2 3 4 5)))
+(length (setq n5 (numatrix m5)))
+;-> 345
+
+(setq m6 '((1 2 3 4 5 6) (1 2 3 4 5 6) (1 2 3 4 5 6) (1 2 3 4 5 6) (1 2 3 4 5 6) (1 2 3 4 5 6)))
+(length (setq n6 (numatrix m6)))
+;-> 616
+
+Quindi abbiamo la seguente tabella:
+
+  Ordine    Numero elementi
+  ------    ---------------
+  1x1         1 numero
+  2x2        16 numeri
+  3x3        65 numeri
+  4x4       168 numeri
+  5x5       345 numeri
+  6x6       616 numeri
+
+Adesso abbiamo bisogno di una funzione per verificare/calcolare i numeri primi:
+
+Funzione che genera tutti i numeri primi minori o uguali a un dato numero:
+
+(define (primes-to num)
+  (cond ((= num 1) '())
+        ((= num 2) '(2))
+        (true
+         (let ((lst '(2)) (arr (array (+ num 1))))
+          (for (x 3 num 2)
+                (when (not (arr x))
+                  (push x lst -1)
+                  (for (y (* x x) num (* 2 x) (> y num))
+                      (setf (arr y) true)))) lst))))
+
+Funzione che verifica se un dato numero è primo:
+
+(define (prime? num)
+   (if (< num 2) nil
+       (= 1 (length (factor num)))))
+
+Possiamo usare due metodi per calcolare i numeri primi della matrice:
+
+1) identificare se ogni numero della matrice è primo
+(filter prime? numeri)
+
+2) precalcolare i numeri primi fino a 10^(N+1) (dove N è l'ordine della matrice)
+(intersect primi numeri)
+
+Per esempio:
+
+(setq mx3 '((1 2 3) (4 5 6) (7 8 9)))
+(setq numeri (unique (sort (numatrix mx3))))
+;-> (1 2 3 4 5 6 7 8 9 12 14 15 21 23 24 25 26 32 35 36 41 42 45 47 48 51 52
+;->  53 54 56 57 58 59 62 63 65 68 69 74 75 78 84 85 86 87 89 95 96 98 123
+;->  147 159 258 321 357 369 456 654 741 753 789 852 951 963 987)
+(filter prime? numeri)
+;-> (2 3 5 7 23 41 47 53 59 89)
+(setq primi (primes-to 1e3))
+(intersect numeri primi)
+;-> (2 3 5 7 23 41 47 53 59 89)
+
+Verifichiamo la matrice record 6x6 vista sopra:
+
+(setq x6
+ '((3 1 7 3 3 3)
+  (9 9 5 6 3 9)
+  (1 1 8 1 4 2)
+  (1 3 6 3 7 3)
+  (3 4 9 1 9 9)
+  (3 7 9 3 7 9)))
+(setq numeri (unique (sort (numatrix x6))))
+(setq sol (filter prime? numeri))
+;-> (2 3 5 7 11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71 73 79 83 89 97
+;->  113 131 139 149 151 163 173 179 181 191 193 197 199 233 239 241 271 293
+;->  311 313 317 331 337 347 349 373 379 389 397 431 433 439 461 467 479 491
+;->  563 599 613 617 619 631 643 659 683 719 733 739 743 797 811 839 857 863
+;->  911 919 937 941 971 983 991 1153 1181 1193 1619 1733 1811 1913 2399
+;->  2719  3119 3163 3191 3347 3371 3461 3467 3491 3511 3613 3631 3637 3659
+;->  3793  3863  3911 3923 3931 4397 4919 5179 5639 5869 6131 6133 6373 6599
+;->  6833 6857 7151 7333 7433 7643 7937 8699 9161 9199 9239 9349 9439 9739
+;->  9743 9839 13163 17333 24181 31193 31643 33119 33479 33713 33863 34613
+;->  34919 36131 36373 36599 36833 37363 39113 39239 39839 46133 49199 58699
+;->  73973 75869 79349 79379 91943 92399 93893 94397 96857 97151 97397 99563
+;->  136373 241811 313163 317333 333713 346133 349199 361313 373631 391133
+;->  758699 936599 991943 993893 996857)
+(length sol)
+;-> 187
+
+Verifichiamo altri record dal sito:
+
+https://www.primepuzzles.net/puzzles/puzz_001.htm
+
+Matrice 3x3 con 30 numeri primi:
+(setq x3
+       '((1 1 3)
+         (7 5 4)
+         (9 3 7)))
+(setq numeri (unique (sort (numatrix x3))))
+(setq sol (filter prime? numeri))
+;-> (3 5 7 11 13 17 31 37 41 43 47 53 59 71 73 79 97 113 157 179 311 347
+;->  359 457 739 743 751 937 953 971)
+(length sol)
+;-> 30
+
+Matrice 4x4 con 63 numeri primi:
+(setq x4
+       '((1 1 3 9)
+         (6 4 5 1)
+         (7 3 9 7)
+         (3 9 2 9)))
+(setq numeri (unique (sort (numatrix x4))))
+(setq sol (filter prime? numeri))
+;-> (2 3 5 7 11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71 73 79 97 113
+;->  139 149 157 167 179 199 293 311 347 359 397 439 499 673 719 739 743
+;->  751 761 929 937 941 953 971 991 1439 1499 2953 3359 3761 3929 6451
+;->  7937 9293 9311 9341 9533 9719 9941)
+(length sol)
+;-> 63
+
+Matrice 5x5 con 116 numeri primi:
+(setq x5
+       '((1 1 9 3 3)
+         (9 9 5 6 3)
+         (8 9 4 1 7)
+         (3 3 7 3 1)
+         (3 2 9 3 9)))
+(setq numeri (unique (sort (numatrix x5))))
+(setq sol (filter prime? numeri))
+;-> (2 3 5 7 11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71 73 79 83 89 97
+;->  137 149 151 163 173 193 199 239 271 293 317 331 337 349 359 373 379 389
+;->  433 439 463 479 491 547 563 593 599 613 643 659 719 733 739 769 839 911
+;->  937 941 953 967 983 991 997 1151 1193 1373 1511 1733 1933 1993 2399 2713
+;->  2939 3163 3371 3373 3389 3391 3463 3491 3593 3613 3643 3659 3719 3733
+;->  3911 3923 5479 6133 6599 7459 8941 9173 9349 9439 9547 9833 9973 11933
+;->  32939 33911 36433 36599 89417 91733 93491 93923 95479 97459 99563)
+(length sol)
+;-> 116
+
+Matrice 7x7 con 281 numeri primi:
+(setq x7
+       '((9 3 3 7 3 1 3)
+         (3 3 3 3 2 9 9)
+         (4 9 8 7 7 9 6)
+         (9 1 9 5 1 6 7)
+         (1 1 2 4 3 7 7)
+         (9 3 9 7 4 9 9)
+         (9 9 9 1 7 3 3)))
+(setq numeri (unique (sort (numatrix x7))))
+(length (numatrix x7))
+(setq sol (filter prime? numeri))
+(length sol)
+;-> 281
+
+Otteniamo la seguente tabella:
+
+  Ordine    Numero elementi    Numeri primi
+  ------    ---------------    ------------
+  1x1          1 numero          1
+  2x2         16 numeri          ? (11)
+  3x3         65 numeri         30
+  4x4        168 numeri         63
+  5x5        345 numeri        116
+  6x6        616 numeri        187
+  7x7       1001 numeri        281
+
+Manca il numero di primi per la matrice 2x2. In questo caso possiamo trovare la soluzione esaustivamente considerando tutte le matrici che si possono generare con i numeri da 0 a 9 e calcolando il relativo numero di primi.
+
+Funzione che genera tutte le permutazioni di k elementi con ripetizione da un elenco di elementi:
+
+(define (perm-rep k lst)
+  (if (zero? k) '(())
+      (flat (map (lambda (p) (map (lambda (e) (cons e p)) lst))
+                         (perm-rep (- k 1) lst)) 1)))
+
+Funzione che calcola la matrice con il più grande numero di primi:
+
+(define (find-x2)
+  (local (m numeri sol max-val out)
+    (setq max-val 0)
+    (setq all (perm-rep 4 '(0 1 2 3 4 5 6 7 8 9)))
+    (dolist (el all)
+      (setq m (list (select el 0 1) (select el 2 3)))
+      (setq numeri (unique (sort (numatrix m))))
+      (setq sol (filter prime? numeri))
+      (if (> (length sol) max-val)
+        (begin
+        (setq m-sol m)
+        (setq max-val (length sol))
+        (setq out sol)
+        )
+      )
+    )
+    (println m-sol { } max-val { } out)))
+
+Proviamo a trovare la matrice 2x2 con il maggior numero di primi:
+
+(find-x2)
+;-> ((7 4) (3 1)) 11 (3 7 13 17 31 37 41 43 47 71 73)
 
 =============================================================================
 

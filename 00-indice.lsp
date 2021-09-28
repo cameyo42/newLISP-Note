@@ -914,7 +914,8 @@ NOTE LIBERE 5
   Valore massimo di una lista ordinata
   Treni e binari
   Mastermind (by Norman)
-  
+  newLISP banner
+  Puzzle di Gordon Lee
 
 APPENDICI
 =========
