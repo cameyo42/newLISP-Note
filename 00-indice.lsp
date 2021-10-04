@@ -75,6 +75,7 @@ newLISP IN GENERALE
   Analisi dei tempi di esecuzione delle funzioni
   Unificazione
   Stampare con print/println/format
+  Codici ANSI ESCape
   Complessità temporale delle operazioni aritmetiche fondamentali
 
 FUNZIONI VARIE
@@ -190,6 +191,7 @@ FUNZIONI VARIE
   Sottosequenza crescente più lunga
   Conversione stringa <--> big-integer
   Dismutazioni (Derangements)
+  Stampa lista come tabella
 
 newLISP 99 PROBLEMI (28)
 ========================

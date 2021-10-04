@@ -6784,7 +6784,7 @@ Di seguito riportiamo il programma "mastermind" aggiornato (con piccole modifich
 	(restart))
 ;(exit)
 
-Proviasmo a fare una partita:
+Proviamo a fare una partita:
 
 (game)
 ;-> --------------------------------

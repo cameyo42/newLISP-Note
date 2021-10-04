@@ -8524,5 +8524,126 @@ Vediamo il tempo di esecuzione:
 ;-> 1334961
 ;-> 7603.603
 
+
+-------------------------
+Stampa lista come tabella
+-------------------------
+
+La funzione seguente prende una lista e la stampa come una tabella con il seguente formato grafico:
+
+lista = ((1 2 3 4 5) ("a" "b" "c" "d" "e") (-1 -2 -3 -4 -5) (aa bb cc dd ee) (-11 -12 -13 -14 -15))
+
+Nota: la lista deve essere una matrice con tutti i valori e con più di una riga.
+
+Nota: la stampa avviene con tutti i valori allineati a sinistra
+
+  +-----+-----+-----+-----+-----+
+  | 1   | 2   | 3   | 4   | 5   |
+  +-----+-----+-----+-----+-----+
+  | a   | b   | c   | d   | e   |
+  +-----+-----+-----+-----+-----+
+  | -1  | -2  | -3  | -4  | -5  |
+  +-----+-----+-----+-----+-----+
+  | aa  | bb  | cc  | dd  | ee  |
+  +-----+-----+-----+-----+-----+
+  | -11 | -12 | -13 | -14 | -15 |
+  +-----+-----+-----+-----+-----+
+
+Per facilitare la formattazione di stampa convertiamo tutti i valori in stringa con la seguente funzione che ci permette di applicare una funzione a tutti gli elementi di una lista annidata:
+
+(define (map-all f lst)
+  (let (result '())
+    (dolist (el lst)
+      (if (list? el)
+        (push (map-all f el) result -1)
+        (push (f el) result -1)))
+    result))
+
+Adesso possiamo scrivere la funzione di stampa della lista:
+
+(define (print-table lst)
+  (local (tab plus minus ver rows cols col-len-max len-max
+          line-len line ind)
+    ; conversione di tutti i valori della lista in stringa
+    (setq tab (map-all string lst))
+    ; caratteri grafici
+    (setq plus "+")
+    (setq minus "-")
+    (setq ver "|")
+    ; calcolo righe e colonne della lista
+    (setq rows (length tab))
+    (setq cols (length (tab 0)))
+    ; vettore per le lunghezze massime dei valori di ogni colonna
+    (setq col-len-max (array cols '(0)))
+    ; calcola la lunghezza massima dei valori di ogni colonna
+    (for (c 0 (- cols 1))
+      (setq len-max 0)
+      (for (r 0 (- rows 1))
+        (setf len-max (max len-max (length (tab r c))))
+      )
+      (setf (col-len-max c) len-max)
+    )
+    ;(println col-len-max)
+    ; lunghezza della linea =
+    ; (somma delle lunghezze massime) +
+    ; (2 spazi x ogni colonna) +
+    ; (colonne + 1 per "|")
+    (setq line-len (+ (apply + col-len-max) (* cols 2) (+ cols 1)))
+    (setq line (dup minus line-len))
+    (setf (line 0) plus)
+    (setf (line -1) plus)
+    ; calcola i limiti di stampa dei valori
+    ; (inserisce "+" nella linea "line")
+    (setq ind 1)
+    (dolist (c col-len-max)
+      (setq ind (+ ind 2 c))
+      (setf (line ind) "+")
+      (++ ind)
+    )
+    ; stampa della lista come tabella
+    (dolist (r tab)
+      (println line)
+      (dolist (c r)
+        (print ver { } c (dup " " (- (col-len-max $idx) (length c))) { })
+      )
+      (println ver)
+    )
+    (println line)
+  'end))
+
+(setq lst '((1 2 3 4 5) ("a" "b" "c" "d" "e") (-1 -2 -3 -4 -5) (aa bb cc dd ee) (-11 -12 -13 -14 -15)))
+(print-table lst)
+;-> +-----+-----+-----+-----+-----+
+;-> | 1   | 2   | 3   | 4   | 5   |
+;-> +-----+-----+-----+-----+-----+
+;-> | a   | b   | c   | d   | e   |
+;-> +-----+-----+-----+-----+-----+
+;-> | -1  | -2  | -3  | -4  | -5  |
+;-> +-----+-----+-----+-----+-----+
+;-> | aa  | bb  | cc  | dd  | ee  |
+;-> +-----+-----+-----+-----+-----+
+;-> | -11 | -12 | -13 | -14 | -15 |
+;-> +-----+-----+-----+-----+-----+
+
+(setq lst '((1 2 "pippo") ("paperino" "pluto" -98784749) (-1000 -100000 "tre")))
+(print-table lst)
+;-> +----------+---------+-----------+
+;-> | 1        | 2       | pippo     |
+;-> +----------+---------+-----------+
+;-> | paperino | pluto   | -98784749 |
+;-> +----------+---------+-----------+
+;-> | -1000    | -100000 | tre       |
+;-> +----------+---------+-----------+
+
+(setq lst '((1) (-2) (pippo)))
+(print-table lst)
+;-> +-------+
+;-> | 1     |
+;-> +-------+
+;-> | -2    |
+;-> +-------+
+;-> | pippo |
+;-> +-------+
+
 =============================================================================
 

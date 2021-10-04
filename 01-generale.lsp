@@ -10160,9 +10160,410 @@ Per finire vediamo un esempio con formattazione multipla:
 ;-> noci    10000     -100.000000
 
 
-===============================================================
-COMPLESSITÀ TEMPORALE DELLE OPERAZIONI ARITMETICHE FONDAMENTALI
-===============================================================
+====================
+ CODICI ANSI ESCAPE
+====================
+
+Le sequenze di escape ANSI sono uno standard di codici per controllare la posizione del cursore, il colore, lo stile dei caratteri e altre opzioni sui video terminali di testo. Non tutti i terminali supportano completamente le sequenze di Escape.
+In questo caso utilizziamo come terminale il "DOS command" di Windows 10 (windows console) che permette le sequenze ANSI (anche se non tutte sono disponibili) . Nel 2019 la microsoft ha rilasciato anche un altro terminale "windows terminal" che supporta tutte (o quasi) le sequenze.
+
+Nota: l'output del testo qui stampato non è a colori (o grassetto, sottolineato, ecc.)... usate la REPL di newLISP per vedere i risultati reali delle sequenze ANSI.
+
+Tutte le sequenze hanno la forma:
+
+  ╔════════════╗
+  ║  ESC[XXXm  ║
+  ╚════════════╝
+
+dove, ESC vale \027 (decimale) 
+             o \033 (ottale) 
+             o \u001b (unicode)
+             0 \x1b esadecimale
+             o ^[ (Ctrl-Key)
+     e XXX è una serie di parametri separati da punto e virgola ";".
+
+Per esempio, per rendere il testo rosso, grassetto e sottolineato (discuteremo altre opzioni di seguito) in newLISP possiamo scrivere:
+
+(println "\027[31;1;4mPippo\027[0m")
+;-> Pippo ;sul terminale in rosso, grassetto e sottolineato
+
+Nota: nella console windows il grassetto viene rappresentato con il colore brillante (vedi sequenze sui colori)
+
+Per modificare le caratteristiche dei caratteri (font) abbiamo a disposizione diverse sequenze elencate nella tabella seguente:
+
+Tabella delle sequenze per le caretteristiche dei font
+------------------------------------------------------
+
+  +-----------------+---------+-------------------------------------+
+  | Sequenza        | Reset   | Descrizione                         |
+  +-----------------+---------+-------------------------------------+
+  | ESC[1;34;G...Gm |         | Set graphics modes for cell (sep=;) |
+  +-----------------+---------+-------------------------------------+
+  | ESC[0m          |         | reset all modes (styles and colors) |
+  +-----------------+---------+-------------------------------------+
+  | ESC[1m          | ESC[22m | set bold mode                       |
+  +-----------------+---------+-------------------------------------+
+  | ESC[2m          | ESC[22m | set dim/faint mode                  |
+  +-----------------+---------+-------------------------------------+
+  | ESC[3m          | ESC[23m | set italic mode                     |
+  +-----------------+---------+-------------------------------------+
+  | ESC[4m          | ESC[24m | set underline mode                  |
+  +-----------------+---------+-------------------------------------+
+  | ESC[5m          | ESC[25m | set blinking mode                   |
+  +-----------------+---------+-------------------------------------+
+  | ESC[7m          | ESC[27m | set inverse/reverse mode            |
+  +-----------------+---------+-------------------------------------+
+  | ESC[8m          | ESC[28m | set hidden/invisible mode           |
+  +-----------------+---------+-------------------------------------+
+  | ESC[9m          | ESC[29m | set strikethrough mode              |
+  +-----------------+---------+-------------------------------------+
+
+Vediamo alcuni esempi:
+
+Testo sottolineato (4m):
+(println "\027[4mPippo\027[0m")
+
+Testo in grassetto (1m) (colore brillante):
+(println "\027[1mPippo\027[0m")
+
+Le altre sequenze non funzionano nella console windows.
+
+La tabella seguente elenca i codici che servono per modificare le caratteristiche estese dei caratteri (font):
+
+╔═════════╦══════════════════════════════╦══════════════════════════════════╗
+║ Codice  ║          Effetto             ║              Note                ║
+╠═════════╬══════════════════════════════╬══════════════════════════════════╣
+║ 0       ║ Reset / Normal               ║ all attributes off               ║
+║ 1       ║ Bold or increased intensity  ║                                  ║
+║ 2       ║ Faint (decreased intensity)  ║ Not widely supported             ║
+║ 3       ║ Italic                       ║ Not widely supported             ║
+║ 4       ║ Underline                    ║                                  ║
+║ 5       ║ Slow Blink                   ║ less than 150 per minute         ║
+║ 6       ║ Rapid Blink                  ║ MS-DOS ANSI.SYS. 150+ per minute ║
+║ 7       ║ [[reverse video]]            ║ swap fore and back colors        ║
+║ 8       ║ Conceal                      ║ Not widely supported             ║
+║ 9       ║ Crossed-out                  ║ Characters marked for deletion   ║
+║ 10      ║ Primary(default) font        ║                                  ║
+║ 11–19   ║ Alternate font               ║ Select alternate font "n-10"     ║
+║ 20      ║ Fraktur                      ║ hardly ever supported            ║
+║ 21      ║ Bold off or Double Underline ║ not widely supported             ║
+║ 22      ║ Normal color or intensity    ║ Neither bold nor faint           ║
+║ 23      ║ Not italic, not Fraktur      ║                                  ║
+║ 24      ║ Underline off                ║ Not singly or doubly underlined  ║
+║ 25      ║ Blink off                    ║                                  ║
+║ 27      ║ Inverse off                  ║                                  ║
+║ 28      ║ Reveal                       ║ conceal off                      ║
+║ 29      ║ Not crossed out              ║                                  ║
+║ 30–37   ║ Set foreground color         ║ See color table                  ║
+║ 38      ║ Set foreground color         ║ Next args: "5;n" or "2;r;g;b"    ║
+║ 39      ║ Default foreground color     ║ implementation defined           ║
+║ 40–47   ║ Set background color         ║ See color table below            ║
+║ 48      ║ Set background color         ║ Next args: "5;n" or "2;r;g;b"    ║
+║ 49      ║ Default background color     ║ implementation defined           ║
+║ 51      ║ Framed                       ║                                  ║
+║ 52      ║ Encircled                    ║                                  ║
+║ 53      ║ Overlined                    ║                                  ║
+║ 54      ║ Not framed or encircled      ║                                  ║
+║ 55      ║ Not overlined                ║                                  ║
+║ 60      ║ ideogram underline           ║ hardly ever supported            ║
+║ 61      ║ ideogram double underline    ║ hardly ever supported            ║
+║ 62      ║ ideogram overline            ║ hardly ever supported            ║
+║ 63      ║ ideogram double overline     ║ hardly ever supported            ║
+║ 64      ║ ideogram stress marking      ║ hardly ever supported            ║
+║ 65      ║ ideogram attributes off      ║ reset the effects of all 60-64   ║
+║ 90–97   ║ Set bright foreground color  ║ aixterm (not in standard)        ║
+║ 100–107 ║ Set bright background color  ║ aixterm (not in standard)        ║
+╚═════════╩══════════════════════════════╩══════════════════════════════════╝
+
+Per quanto riguarda i colori abbiamo la sequenza:
+
+  ╔══════════════════╗
+  ║  ESC[back;forem  ║
+  ╚══════════════════╝
+
+dove "back" è il colore di Background e "fore" è il colore di Foreground.
+
+Con le seguenti tabelle di colori: 
+
+Tabella 8 Colori
+----------------
+  +---------+------------+------------+
+  | Colore  | Foreground | Background |
+  +---------+------------+------------+
+  | Black   | 30         | 40         |
+  +---------+------------+------------+
+  | Red     | 31         | 41         |
+  +---------+------------+------------+
+  | Green   | 32         | 42         |
+  +---------+------------+------------+
+  | Yellow  | 33         | 43         |
+  +---------+------------+------------+
+  | Blue    | 34         | 44         |
+  +---------+------------+------------+
+  | Magenta | 35         | 45         |
+  +---------+------------+------------+
+  | Cyan    | 36         | 46         |
+  +---------+------------+------------+
+  | White   | 37         | 47         |
+  +---------+------------+------------+
+  | Default | 39         | 49         |
+  +---------+------------+------------+
+  | Reset   | 0          | 0          |
+  +---------+------------+------------+
+
+Nota: il colore "Reset" è il codice che ripristina tutti i colori e gli effetti di testo. 
+Il colore "Default" ripristina solo i colori.
+
+Esempi:
+
+"pippo" in rosso su sfondo verde:
+(println "\027[31;42m" "pippo")
+;-> pippo
+
+Ripristiniamo (Reset) i colori:
+(println "\027[39;49m" "pippo")
+;-> pippo
+
+Tabella 8 colori brillanti
+--------------------------
+  +----------------+------------+------------+
+  | Colore         | Foreground | Background |
+  +----------------+------------+------------+
+  | Bright-Black   | 90         | 100        |
+  +----------------+------------+------------+
+  | Bright-Red     | 91         | 101        |
+  +----------------+------------+------------+
+  | Bright-Green   | 92         | 102        |
+  +----------------+------------+------------+
+  | Bright-Yellow  | 93         | 103        |
+  +----------------+------------+------------+
+  | Bright-Blue    | 94         | 104        |
+  +----------------+------------+------------+
+  | Bright-Magenta | 95         | 105        |
+  +----------------+------------+------------+
+  | Bright-Cyan    | 96         | 106        |
+  +----------------+------------+------------+
+  | Bright-White   | 97         | 107        |
+  +----------------+------------+------------+
+
+Vediamo alcuni esempi in newLISP:
+
+; COLORS
+; basic color
+(define black "\027[0;30m")
+(define red "\027[0;31m")
+(define green "\027[0;32m")
+(define yellow "\027[0;33m")
+(define blue "\027[0;34m")
+(define magenta "\027[0;35m")
+(define cyan "\027[0;36m")
+(define white "\027[0;37m")
+; bright color
+(define black-b "\027[0;90m")
+(define red-b "\027[0;91m")
+(define green-b "\027[0;92m")
+(define yellow-b "\027[0;93m")
+(define blue-b "\027[0;94m")
+(define magenta-b "\027[0;95m")
+(define cyan-b "\027[0;96m")
+(define white-b "\027[0;97m")
+; restore color to default
+(define reset-all "\027[39;49m")
+; restore all to default
+(define default-all "\027[0;0m")
+
+Definiamo una tabella con i 16 colori:
+
+(define col16 '(black red green yellow blue magenta cyan white
+        black-b red-b green-b yellow-b blue-b magenta-b cyan-b white-b))
+
+Stampiamo tutti i colori:
+
+(dolist (c col16)
+  (println (eval c) { } c)
+)
+;-> black
+;-> red
+;-> green
+;-> yellow
+;-> blue
+;-> magenta
+;-> cyan
+;-> white
+;-> black-b
+;-> red-b
+;-> green-b
+;-> yellow-b
+;-> blue-b
+;-> magenta-b
+;-> cyan-b
+;-> white-b
+
+Funzione che stampa num caratteri "." (dot) con colori random:
+
+(define (dots num)
+  (for (i 1 num)
+    (print (eval (col16 (rand 15))) ".")))
+
+(dots 100)
+;-> ..................................................
+;-> ..................................................
+
+Tabella 256 colori
+------------------
+Per impostare i colori del testo scegliendo tra 256 colori possiamo utilizzare le seguenti due sequenze:
+
+Imposta il colore del testo (foreground -> primo piano):
+
+  ╔══════════════════╗
+  ║  ESC[38;5;{ID}m  ║  Imposta il colore di primo piano (testo)
+  ╚══════════════════╝
+
+Imposta il colore dello sfondo del testo (background -> sfondo):
+
+  ╔══════════════════╗
+  ║  ESC[48;5;{ID}m  ║  Imposta il colore di sfondo
+  ╚══════════════════╝
+
+Dove {ID} deve essere sostituito con l'indice dei colori da 0 a 255 della tabella raffigurata nel file "ANSI-color.png" che si trova nella cartella "data". Comunque possiamo stampare questi colori con newLISP.
+
+Funzione che modifica il colore di foreground:
+
+(define (foreground color)
+  (let (f (string "\027[38;5;" color "m"))
+    (print f)))
+
+Funzione che modifica il colore di background:
+
+(define (background color)
+  (let (b (string "\027[48;5;" color "m"))
+    (print b)))
+
+Espressione che stampa i 256 colori disponibili:
+
+(for (i 0 255) (print (foreground i) i { }))
+;-> 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27
+;-> 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 
+;-> 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 
+;-> 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 
+;-> 100 101 102 103 104 105 106 107 108 109 110 111 112 113 114 115 116 117 
+;-> 118 119 120 121 122 123 124 125 126 127 128 129 130 131 132 133 134 135 
+;-> 136 137 138 139 140 141 142 143 144 145 146 147 148 149 150 151 152 153 
+;-> 154 155 156 157 158 159 160 161 162 163 164 165 166 167 168 169 170 171 
+;-> 172 173 174 175 176 177 178 179 180 181 182 183 184 185 186 187 188 189 
+;-> 190 191 192 193 194 195 196 197 198 199 200 201 202 203 204 205 206 207 
+;-> 208 209 210 211 212 213 214 215 216 217 218 219 220 221 222 223 224 225 
+;-> 226 227 228 229 230 231 232 233 234 235 236 237 238 239 240 241 242 243 
+;-> 244 245 246 247 248 249 250 251 252 253 254 255
+
+Naturalmente sul terminale l'output è a colori...
+
+Colori RGB
+----------
+I terminali più moderni supportano Truecolor (RGB a 24 bit), che consente di impostare i colori di primo piano e di sfondo utilizzando i codici RGB (Red Green Blue).
+
+Le sequenze di Escape sono le seguenti:
+
+Imposta il colore in RGB del testo (foreground -> primo piano):
+
+  ╔═════════════════════════╗
+  ║  ESC[38;2;{r};{g};{b}m  ║ Imposta colore di primo piano in RGB (testo)
+  ╚═════════════════════════╝
+
+Imposta il colore in RGB dello sfondo del testo (background -> sfondo):
+  
+  ╔═════════════════════════╗
+  ║  ESC[48;2;{r};{g};{b}m  ║ Imposta colore di sfondo in RGB
+  ╚═════════════════════════╝
+  
+dove {r} = codice red, {g} = codice green e {b} = codice blue
+
+Nota: la console di Windows non supporta queste sequenze per definire i colori in RGB.
+
+Le sequenze ANSI della tabella seguente permettono di cancellare parti dello schermo:
+
+Tabella sequenze di cancellazione
+---------------------------------
+  +----------+-------------------------------------------+
+  | Sequenza | Descrizione                               |
+  +----------+-------------------------------------------+
+  | ESC[J    | clears the screen                         |
+  +----------+-------------------------------------------+
+  | ESC[0J   | clears from cursor until end of screen    |
+  +----------+-------------------------------------------+
+  | ESC[1J   | clears from cursor to beginning of screen |
+  +----------+-------------------------------------------+
+  | ESC[2J   | clears entire screen                      |
+  +----------+-------------------------------------------+
+  | ESC[K    | clears the current line                   |
+  +----------+-------------------------------------------+
+  | ESC[0K   | clears from cursor to end of line         |
+  +----------+-------------------------------------------+
+  | ESC[1K   | clears from cursor to start of line       |
+  +----------+-------------------------------------------+
+  | ESC[2K   | clears entire line                        |
+  +----------+-------------------------------------------+
+
+Vediamo alcuni esempi: 
+
+Cancella interamente lo schermo:
+(println "\027[2J")
+
+Elimina l'intera riga:
+(println "pluto\027[2K pippo")
+;->       pippo
+
+Le sequenze ANSI della tabella seguente permettono di posizionare il cursore nello schermo:
+
+Tabella sequenze di controllo cursore
+-------------------------------------
+  +----------------------+--------------------------------------------------+
+  | Sequenza             | Descrizione                                      |
+  +----------------------+--------------------------------------------------+
+  | ESC[H                | cursor to home position (0, 0)                   |
+  +----------------------+--------------------------------------------------+
+  | ESC[{line};{column}H | cursor to line #, column #                       |
+  +----------------------+--------------------------------------------------+
+  | ESC[{line};{column}f | cursor to line #, column #                       |
+  +----------------------+--------------------------------------------------+
+  | ESC[#A               | cursor up # lines                                |
+  +----------------------+--------------------------------------------------+
+  | ESC[#B               | cursor down # lines                              |
+  +----------------------+--------------------------------------------------+
+  | ESC[#C               | cursor right # columns                           |
+  +----------------------+--------------------------------------------------+
+  | ESC[#D               | cursor left # columns                            |
+  +----------------------+--------------------------------------------------+
+  | ESC[#E               | cursor to beginning of next line, # lines down   |
+  +----------------------+--------------------------------------------------+
+  | ESC[#F               | cursor to beginning of previous line, # lines up |
+  +----------------------+--------------------------------------------------+
+  | ESC[#G               | cursor to column #                               |
+  +----------------------+--------------------------------------------------+
+  | ESC[6n               | request cursor position (ESC[#;#R)               |
+  +----------------------+--------------------------------------------------+
+  | ESC7                 | save cursor position (DEC)                       |
+  +----------------------+--------------------------------------------------+
+  | ESC8                 | restores cursor to the last saved position (DEC) |
+  +----------------------+--------------------------------------------------+
+  | ESC[s                | save cursor position (SCO)                       |
+  +----------------------+--------------------------------------------------+
+  | ESC[u                | restores cursor to the last saved position (SCO) |
+  +----------------------+--------------------------------------------------+
+
+Nota: alcune sequenze, come il salvataggio e il ripristino dei cursori, non sono standard.
+
+Come ultimo esempio vediamo l'utilizzo combinato di due sequenze: la prima posiziona il cursore in alto a sinistra (0,0) e la seconda cancella lo schermo:
+
+(define (cls)
+  (print "\027[H\027[2J"))
+
+(cls)
+
+
+=================================================================
+ COMPLESSITÀ TEMPORALE DELLE OPERAZIONI ARITMETICHE FONDAMENTALI
+=================================================================
 
 La tabella seguente elenca la complessità computazionale di vari algoritmi per operazioni matematiche comuni.
 
