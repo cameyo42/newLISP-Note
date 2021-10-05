@@ -918,6 +918,10 @@ NOTE LIBERE 5
   Mastermind (by Norman)
   newLISP banner
   Puzzle di Gordon Lee
+  Orologio ANSI
+  Indici ordinali
+  Generazione di password
+  Verifica accessibilità siti web
 
 APPENDICI
 =========
@@ -63646,6 +63650,9 @@ Basta convertire i numeri in stringa, ordinarli e infine unire le stringhe (nume
 (largest '(54 9 546 548 60))
 ;-> "96054854654"
 
+(largest '(3 23))
+;-> "323"
+
 
 -----------------------------------------------
 Rettagoli e quadrati in una scacchiera (Google)
@@ -69153,7 +69160,7 @@ A seconda del flag di bool impostato, la funzione riporta sul collegamento (ness
 (file-info ".bashrc" 0)
 ;-> 124
 
-Nel secondo esempio, viene recuperata l'ultima data di modifica dello stato per la cartella /etc. 
+Nel secondo esempio, viene recuperata l'ultima data di modifica dello stato per la cartella /etc.
 
 file-info fornisce le statistiche del file (dimensione) per un file collegato, non il collegamento, ad eccezione per il campo mode.
 
@@ -72740,9 +72747,9 @@ Queste sono cinque funzioni simili che verificano se un numero è primo.
        (= 1 (length (factor n)))))
 
 (define (primoa? n)
-  ; il numero viene considerato primo 
+  ; il numero viene considerato primo
   ; fino a che non troviamo un divisore preciso
-  (setq out true) 
+  (setq out true)
   (cond ((<= n 3) (setq out true))
         ((or (= (% n 2) 0) (= (% n 3) 0)) (setq out nil))
         (true (setq i 5)
@@ -74024,9 +74031,9 @@ Per le macro, ciò che funziona meglio la maggior parte delle volte, è semplice
 La variabile anaforica $idx
 ---------------------------
 
-La variabile interna di sistema $idx (variabile anaforica) tiene traccia dell'indice relativo del ciclo (numero intero). 
+La variabile interna di sistema $idx (variabile anaforica) tiene traccia dell'indice relativo del ciclo (numero intero).
 $idx è protetta e non può essere modificata dall'utente.
-La variabile anaforica $idx viene utilizzata dalle seguenti funzioni: "dolist", "dostring", "doargs", "dotree", "series", "while", "do-while", "until", "do-until", "map". 
+La variabile anaforica $idx viene utilizzata dalle seguenti funzioni: "dolist", "dostring", "doargs", "dotree", "series", "while", "do-while", "until", "do-until", "map".
 
 Esempi:
 
@@ -74110,7 +74117,7 @@ Valuta l'espressione exp e restituisce true se il valore è un simbolo. In caso 
 
 (set 'x 'y)  → y
 
-(symbol? x)  → true 
+(symbol? x)  → true
 
 (symbol? 123)  → nil
 
@@ -74191,7 +74198,7 @@ Creiamo il simbolo "aa":
 La funzione "symbol?" valuta l'argomento e verifica se valuta su un simbolo:
 
 (symbol? aa)
-;-> nil 
+;-> nil
 Il simbolo "aa" non valuta ad un simbolo, ma al numero 10.
 
 Creiamo un altro simbolo "bb":
@@ -74212,7 +74219,7 @@ Sembra tutto corretto, ma vediamo i simboli del contesto:
 (symbols)
 ;-> (aa bb cc)
 
-È stato creato il simbolo "cc". Cosa è successo? 
+È stato creato il simbolo "cc". Cosa è successo?
 Prima di applicare una funzione newLISP valuta gli argomenti (in questo caso "cc"). Anche se tale valutazione restituisce nil (come in questo caso), newLISP crea comunque un simbolo per la variabile (con valore nil).
 
 Anche quando scriviamo un nome qualunque sulla REPL viene creato un simbolo:
@@ -74231,7 +74238,7 @@ Questo significa che newLISP crea/valuta gli argomenti di ogni funzione prima di
 (symbols)
 ;-> (aa bb cc dd un-nome)
 
-Ma allora, come possiamo conoscere se un simbolo esiste in un determinato contesto? 
+Ma allora, come possiamo conoscere se un simbolo esiste in un determinato contesto?
 Dobbiamo usare la funzione "sym":
 
 (sym "var" demo nil)
@@ -74253,7 +74260,7 @@ Le seguenti espressioni generano un errore:
 
 (set '"name" 3)
 ;-> ERR: symbol expected in function set : '"name"
-(set (quote "name") 3) 
+(set (quote "name") 3)
 ;->ERR: symbol expected in function set : '"name"
 
 Ma le seguenti sono valide:
@@ -74311,7 +74318,7 @@ lst
 ;-> (a b nil c d)
 
 (set 'lst '(a b aVar c d))
-(delete 'aVar true)  
+(delete 'aVar true)
 ;-> nil ; protect aVar if referenced
 
 lst
@@ -74320,7 +74327,7 @@ lst
 ;; delete all symbols in a context
 (set 'foo:x 123)
 (set 'foo:y "hello")
-(delete 'foo)  
+(delete 'foo)
 ;-> nil  ; foo:x, foo:y deleted
 
 Nell'ultimo esempio verranno eliminati solo i simboli all'interno del contesto foo, ma non il simbolo contestuale stesso. Verrà convertito in un normale simbolo non protetto e conterrà nil.
@@ -74506,7 +74513,7 @@ se per ogni lancio le vittorie sono il numero di 6 ottenuti, allora la probabili
 
 (game1 1e7)
 ;-> games: 10000000 mere wins: 6665579 - 0.6665579% ; 2/3 come pensava de Mere !!!)
-;-> (10000000 6665579 0.6665579) 
+;-> (10000000 6665579 0.6665579)
 
 Nota: le seguenti funzioni producono risultati differenti
 
@@ -74641,11 +74648,23 @@ Il problema può essere risolto utilizzando una semplice iterazione.
 (conta 6)
 ;-> ("1" "11" "21" "1211" "111221" "312211")
 (conta 12)
-;-> ("1" "11" "21" "1211" "111221" "312211" "13112221" 
-;-> "1113213211" "31131211131221" "13211311123113112211" 
+;-> ("1" "11" "21" "1211" "111221" "312211" "13112221"
+;-> "1113213211" "31131211131221" "13211311123113112211"
 ;-> "11131221133112132113212221" "3113112221232112111312211312113211")
 
 Nota: la funzione è lenta per numeri superiore a poche decine perchè le stringhe che rappresentano i numeri crescono molto rapidamente e newLISP utilizza il tag [text][/text] per delimitare le stringhe che superano 2047 caratteri. Questo rallenta molto l'esecuzione.
+
+Ecco un altro metodo proposto da Norman:
+
+(println (first (setq n '( 1 ))))
+(do-until (< 1000 (length n))
+ (dolist (x n (!= (n 0) x)) (push x r))
+  (setq n ((length r) n))
+  (push (length r) o -1)
+  (push (r 0) o -1)
+  (setq r '())
+  (if (empty? n) (begin (setq n o) (setq o '()) (println (join(map string n ) "")) ))
+)
 
 
 ----------------------
@@ -74722,7 +74741,7 @@ Proviamo la macro:
 (list a b)
 ;-> (2 0)
 
-La macro funziona correttamente, ma dobbiamo renderla più generale, nel senso che deve permettere di avere qualunque numero di variabili e di espressioni come argomenti (adesso la macro funziona solo con due variabili e due espressioni). 
+La macro funziona correttamente, ma dobbiamo renderla più generale, nel senso che deve permettere di avere qualunque numero di variabili e di espressioni come argomenti (adesso la macro funziona solo con due variabili e due espressioni).
 
 Invece di usare due variabili ("_tx" e "_ty") inseriamo le espressioni espanse in una lista "_var" e poi attraversiamo questa lista assegnando la valutazione delle espressioni alle relative variabili della lista delle variabili.
 La lista delle variabili è (args 0), mentre la lista delle espressioni è (args 1).
@@ -74731,7 +74750,7 @@ La lista delle variabili è (args 0), mentre la lista delle espressioni è (args
   (let ((_var '()) (_ex '()))
     ; per ogni espressione in (args 1)...
     (for (i 0 (- (length (args 1)) 1))
-      ; espande l'espressione i-esima con il valore 
+      ; espande l'espressione i-esima con il valore
       ; di ogni variabile (args 0)
       (setq _ex (expand (args 1 i) (args 0 0)))
       ; ciclo che espande l'espressione i-esima per ogni variabile
@@ -74743,7 +74762,7 @@ La lista delle variabili è (args 0), mentre la lista delle espressioni è (args
       (push _ex _var -1)
     )
     (println _var)
-    ; assegna ad ogni variabile la valutazione 
+    ; assegna ad ogni variabile la valutazione
     ; della relativa espressione della lista creata
     (dolist (el _var)
       (set (args 0 $idx) (eval el))
@@ -74919,7 +74938,7 @@ C++11 (MINSTD)       2³¹−1   48271                0
 ;->  2516284547 3655513600 2633739833 3210001534 267834847)
 
 (LCG 4294967296 1103515245 (int (time-of-day)) 1 10)
-;-> (1174154431 3237027237 1954923411 4185058793 1775773831 
+;-> (1174154431 3237027237 1954923411 4185058793 1775773831
 ;->  2432844237 1673943195 3515535953 3289127119 3959783541)
 
 Quando "c" vale 0, abbiamo un generatore di numeri casuali di tipo Lehmer (chiamato anche generatore di Park-Miller):
@@ -75641,10 +75660,10 @@ Questa funzione esegue il sort:
 ;-> (1 2 3 3 4 8 10)
 
 (mergesort (randomize (sequence 1 100)))
-;-> (1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 
-;->  26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 
-;->  48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 
-;->  70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 
+;-> (1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25
+;->  26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47
+;->  48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69
+;->  70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91
 ;->  92 93 94 95 96 97 98 99 100)
 
 Proviamo a scrivere una versione leggermente diversa:
@@ -75673,10 +75692,10 @@ Proviamo a scrivere una versione leggermente diversa:
 )
 
 (mergesort1 (randomize (sequence 1 100)))
-;-> (1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 
-;->  26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 
-;->  48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 
-;->  70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 
+;-> (1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25
+;->  26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47
+;->  48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69
+;->  70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91
 ;->  92 93 94 95 96 97 98 99 100)
 
 Vediamo la differenza di velocità:
@@ -75837,8 +75856,8 @@ QuickSelect è un algoritmo di selezione per trovare l'elemento K-esimo più pic
 
 Algoritmo
 Dopo aver trovato il pivot (una posizione (indice) che suddivide la lista in due parti: ogni elemento a sinistra è inferiore al pivot e ogni elemento a destra è più grande del pivot) l'algoritmo ricorre solo per la parte che contiene il k-esimo elemento più piccolo.
-Se l'indice dell'elemento partizionato (pivot) è superiore a k, l'algoritmo ricorre per la parte sinistra. 
-Se l'indice (pivot) è uguale a k, allora abbiamo trovato il k-esimo elemento più piccolo e viene restituito. 
+Se l'indice dell'elemento partizionato (pivot) è superiore a k, l'algoritmo ricorre per la parte sinistra.
+Se l'indice (pivot) è uguale a k, allora abbiamo trovato il k-esimo elemento più piccolo e viene restituito.
 Se l'indice (pivot) è inferiore a k, l'algoritmo ricorre per la parte destra
 
 Vediamo lo pseudocodice:
@@ -75865,7 +75884,7 @@ Questo schema degrada a O (n^2) quando la lista è ordinata.
 
 Lomuto(A, lo, hi) is
    pivot := A[hi]
-   i := lo    
+   i := lo
    for j := lo to hi - 1 do
        if A[j] < pivot then
            if i != j then
@@ -99517,10 +99536,10 @@ Possiamo ordinare le buste per altezza in ordine crescente e larghezza in ordine
 
 Ordinamento standard:
 
-(setq m '((3 8) (4 6) (2 11) (2 10) (2 12) (10 1) (10 3)))
+(setq m '((3 8) (4 6) (2 11) (2 10) (2 12) (20 3) (10 1)))
 
-(sort (copy m) comp)
-;-> ((2 12) (2 11) (2 10) (3 8) (4 6) (10 3) (20 1))
+(sort (copy m))
+;-> ((2 10) (2 11) (2 12) (3 8) (4 6) (10 1) (20 3))
 
 Ordinamento con una funzione di comparazione (ascendente in x e discendente in y (per valori uguali di x)):
 
@@ -108764,6 +108783,115 @@ Proviamo a trovare la matrice 2x2 con il maggior numero di primi:
 
 (find-x2)
 ;-> ((7 4) (3 1)) 11 (3 7 13 17 31 37 41 43 47 71 73)
+
+
+-------------
+Orologio ANSI
+-------------
+
+;;
+;; Newlisp clocking
+;; 
+;; linux version or dos-box with ansi support or windows console 20H1.
+;; enjoy...norman.
+;; 
+(set 'digits '(
+(" ### " "  #  " "#####" "#####" "#   #" "#####" "#    " "#####" "#####" " ### " "     ")
+("#   #" " ##  " "    #" "    #" "#   #" "#    " "#    " "    #" "#   #" "#   #" "  #  ")
+("#   #" "  #  " "#####" " ### " "#####" "#####" "#####" "   ##" "#####" " ####" "     ")
+("#   #" "  #  " "#    " "    #" "    #" "    #" "#   #" "   # " "#   #" "   # " "  #  ")
+(" ### " "  #  " "#####" "#####" "    #" "#####" "#####" "   # " "#####" "  #  " "     ")))
+(while true
+ ;; clear screen (ANSI sequence)
+ (println "\027[H\027[2J\027[0;32m")
+ ;; define time without ":" get from apply date
+ (set 'ticks (replace ":" (slice (date (apply date-value (now))) 11 8) ""))
+ ;; write 5 rows of 6 digits and 2 seperators
+ (dotimes (x 5)
+   (dotimes (y 6)
+	(print " " (nth (integer (nth 0 (nth y ticks))) (nth x digits)))
+	(if (or (= y 1) (= y 3)) (print (nth 10 (nth x digits)))))
+  (println))
+(sleep 1000)
+)
+
+
+---------------
+Indici ordinali
+---------------
+
+Le seguenti funzioni permettono di indicizzare i primi dieci elementi di una lista (o stringa o vettore):
+
+(define (second  x) (unless (>= 1 (length x)) (nth 1 x) 'nil))
+(define (third   x) (unless (>= 2 (length x)) (nth 2 x) 'nil))
+(define (fourth  x) (unless (>= 3 (length x)) (nth 3 x) 'nil))
+(define (fifth   x) (unless (>= 4 (length x)) (nth 4 x) 'nil))
+(define (sixth   x) (unless (>= 5 (length x)) (nth 5 x) 'nil))
+(define (seventh x) (unless (>= 6 (length x)) (nth 6 x) 'nil))
+(define (eigth   x) (unless (>= 7 (length x)) (nth 7 x) 'nil))
+(define (ninth   x) (unless (>= 8 (length x)) (nth 8 x) 'nil))
+(define (tenth   x) (unless (>= 9 (length x)) (nth 9 x) 'nil))
+
+
+-----------------------
+Generazione di password
+-----------------------
+
+(define (pwd1)
+  ; simple pwd gen 8 chars
+  ; [a-n p-z A-N P-Z 1-9]
+  (seed (time-of-day))
+  (println (join (map char (0 8 (randomize (flat (map (fn(x) (sequence (x 0) (x 1))) '( (50 57) (65 78) (80 90) (97 110) (112 122) )))))))))
+
+(pwd1)
+;-> ixHsMClA
+(pwd1)
+;-> GQ7Crwet
+
+(define (pwd2)
+  ; simple pwd gen 16 chars 4x4
+  ; one time password
+  ; [a-n p-z A-N P-Z 1-9]
+  (seed (time-of-day))
+  (println (join (explode (join (map char (0 16 (randomize (flat (map (fn(x) (sequence (x 0) (x 1))) '( (50 57) (65 78) (80 90) (97 110) (112 122) ))))))) 4)" ")))
+
+(pwd2)
+;-> BvmF Kf4w WArj ULRH
+(pwd2)
+;-> SnZJ 29VP DyQq sTcM
+
+(define (pwd3)
+  ; simple pwd gen 10 chars
+  ; [!-/ :-@ [-` {-~ a-n p-z A-N P-Z 1-9]
+  (seed (time-of-day))
+  (println (join (map char (0 10 (randomize (flat (map (fn(x) (sequence (x 0) (x 1))) '( (33 47) (50 78) (80 110) (112 126) )))))))))
+
+(pwd3)
+;-> X_u|=\,C#9
+;-> NjA3Hk'[9Y
+
+
+-------------------------------
+Verifica accessibilità siti web
+-------------------------------
+
+La seguente funzione controlla se un sito web è online (connesso) | offline (disconnesso):
+
+(define (online? www)
+ (if (setq checkup (net-connect www 80))
+	(begin (net-close checkup ) "Online ") "Offline"))
+
+(setq urls '(
+	"newlisp.org"
+	"pazzzo.org"
+	"www.gnu.org"
+  "google.com"))
+
+(dolist (url urls) (println (online? url) " : " url))
+;-> Online  : newlisp.org
+;-> Offline : pazzzo.org
+;-> Online  : www.gnu.org
+;-> Online  : google.com
 
 =============================================================================
 

@@ -6827,6 +6827,9 @@ Basta convertire i numeri in stringa, ordinarli e infine unire le stringhe (nume
 (largest '(54 9 546 548 60))
 ;-> "96054854654"
 
+(largest '(3 23))
+;-> "323"
+
 
 -----------------------------------------------
 Rettagoli e quadrati in una scacchiera (Google)

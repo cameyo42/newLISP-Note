@@ -918,6 +918,10 @@ NOTE LIBERE 5
   Mastermind (by Norman)
   newLISP banner
   Puzzle di Gordon Lee
+  Orologio ANSI
+  Indici ordinali
+  Generazione di password
+  Verifica accessibilità siti web
 
 APPENDICI
 =========

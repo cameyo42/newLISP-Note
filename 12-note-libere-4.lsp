@@ -6765,10 +6765,10 @@ Possiamo ordinare le buste per altezza in ordine crescente e larghezza in ordine
 
 Ordinamento standard:
 
-(setq m '((3 8) (4 6) (2 11) (2 10) (2 12) (10 1) (10 3)))
+(setq m '((3 8) (4 6) (2 11) (2 10) (2 12) (20 3) (10 1)))
 
-(sort (copy m) comp)
-;-> ((2 12) (2 11) (2 10) (3 8) (4 6) (10 3) (20 1))
+(sort (copy m))
+;-> ((2 10) (2 11) (2 12) (3 8) (4 6) (10 1) (20 3))
 
 Ordinamento con una funzione di comparazione (ascendente in x e discendente in y (per valori uguali di x)):
 

@@ -7292,5 +7292,114 @@ Proviamo a trovare la matrice 2x2 con il maggior numero di primi:
 (find-x2)
 ;-> ((7 4) (3 1)) 11 (3 7 13 17 31 37 41 43 47 71 73)
 
+
+-------------
+Orologio ANSI
+-------------
+
+;;
+;; Newlisp clocking
+;; 
+;; linux version or dos-box with ansi support or windows console 20H1.
+;; enjoy...norman.
+;; 
+(set 'digits '(
+(" ### " "  #  " "#####" "#####" "#   #" "#####" "#    " "#####" "#####" " ### " "     ")
+("#   #" " ##  " "    #" "    #" "#   #" "#    " "#    " "    #" "#   #" "#   #" "  #  ")
+("#   #" "  #  " "#####" " ### " "#####" "#####" "#####" "   ##" "#####" " ####" "     ")
+("#   #" "  #  " "#    " "    #" "    #" "    #" "#   #" "   # " "#   #" "   # " "  #  ")
+(" ### " "  #  " "#####" "#####" "    #" "#####" "#####" "   # " "#####" "  #  " "     ")))
+(while true
+ ;; clear screen (ANSI sequence)
+ (println "\027[H\027[2J\027[0;32m")
+ ;; define time without ":" get from apply date
+ (set 'ticks (replace ":" (slice (date (apply date-value (now))) 11 8) ""))
+ ;; write 5 rows of 6 digits and 2 seperators
+ (dotimes (x 5)
+   (dotimes (y 6)
+	(print " " (nth (integer (nth 0 (nth y ticks))) (nth x digits)))
+	(if (or (= y 1) (= y 3)) (print (nth 10 (nth x digits)))))
+  (println))
+(sleep 1000)
+)
+
+
+---------------
+Indici ordinali
+---------------
+
+Le seguenti funzioni permettono di indicizzare i primi dieci elementi di una lista (o stringa o vettore):
+
+(define (second  x) (unless (>= 1 (length x)) (nth 1 x) 'nil))
+(define (third   x) (unless (>= 2 (length x)) (nth 2 x) 'nil))
+(define (fourth  x) (unless (>= 3 (length x)) (nth 3 x) 'nil))
+(define (fifth   x) (unless (>= 4 (length x)) (nth 4 x) 'nil))
+(define (sixth   x) (unless (>= 5 (length x)) (nth 5 x) 'nil))
+(define (seventh x) (unless (>= 6 (length x)) (nth 6 x) 'nil))
+(define (eigth   x) (unless (>= 7 (length x)) (nth 7 x) 'nil))
+(define (ninth   x) (unless (>= 8 (length x)) (nth 8 x) 'nil))
+(define (tenth   x) (unless (>= 9 (length x)) (nth 9 x) 'nil))
+
+
+-----------------------
+Generazione di password
+-----------------------
+
+(define (pwd1)
+  ; simple pwd gen 8 chars
+  ; [a-n p-z A-N P-Z 1-9]
+  (seed (time-of-day))
+  (println (join (map char (0 8 (randomize (flat (map (fn(x) (sequence (x 0) (x 1))) '( (50 57) (65 78) (80 90) (97 110) (112 122) )))))))))
+
+(pwd1)
+;-> ixHsMClA
+(pwd1)
+;-> GQ7Crwet
+
+(define (pwd2)
+  ; simple pwd gen 16 chars 4x4
+  ; one time password
+  ; [a-n p-z A-N P-Z 1-9]
+  (seed (time-of-day))
+  (println (join (explode (join (map char (0 16 (randomize (flat (map (fn(x) (sequence (x 0) (x 1))) '( (50 57) (65 78) (80 90) (97 110) (112 122) ))))))) 4)" ")))
+
+(pwd2)
+;-> BvmF Kf4w WArj ULRH
+(pwd2)
+;-> SnZJ 29VP DyQq sTcM
+
+(define (pwd3)
+  ; simple pwd gen 10 chars
+  ; [!-/ :-@ [-` {-~ a-n p-z A-N P-Z 1-9]
+  (seed (time-of-day))
+  (println (join (map char (0 10 (randomize (flat (map (fn(x) (sequence (x 0) (x 1))) '( (33 47) (50 78) (80 110) (112 126) )))))))))
+
+(pwd3)
+;-> X_u|=\,C#9
+;-> NjA3Hk'[9Y
+
+
+-------------------------------
+Verifica accessibilità siti web
+-------------------------------
+
+La seguente funzione controlla se un sito web è online (connesso) | offline (disconnesso):
+
+(define (online? www)
+ (if (setq checkup (net-connect www 80))
+	(begin (net-close checkup ) "Online ") "Offline"))
+
+(setq urls '(
+	"newlisp.org"
+	"pazzzo.org"
+	"www.gnu.org"
+  "google.com"))
+
+(dolist (url urls) (println (online? url) " : " url))
+;-> Online  : newlisp.org
+;-> Offline : pazzzo.org
+;-> Online  : www.gnu.org
+;-> Online  : google.com
+
 =============================================================================
 
