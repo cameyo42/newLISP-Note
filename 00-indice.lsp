@@ -448,7 +448,6 @@ DOMANDE PROGRAMMATORI (CODING INTERVIEW QUESTIONS)
   Somma dei numeri unici (Google)
   Unione di due liste ordinate (Google)
   Prodotto massimo di due numeri in una lista (Facebook)
-  Invertire le vocali (Google)
   Distanza di Hamming tra DNA (Google)
   Controllo sequenza RNA (Google)
   Somma di due box (Amazon)
@@ -922,6 +921,7 @@ NOTE LIBERE 5
   Indici ordinali
   Generazione di password
   Verifica accessibilità siti web
+  Miglior punto d'incontro
 
 APPENDICI
 =========

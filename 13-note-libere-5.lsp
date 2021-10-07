@@ -7401,5 +7401,96 @@ La seguente funzione controlla se un sito web è online (connesso) | offline (di
 ;-> Online  : www.gnu.org
 ;-> Online  : google.com
 
+
+------------------------
+Miglior punto d'incontro
+------------------------
+
+Un gruppo di due o più persone vuole incontrarsi e ridurre al minimo la distanza totale del viaggio. Viene data una griglia 2D di
+valori 0 o 1, dove 1 indica la posizione di qualcuno nel gruppo. La distanza è calcolata utilizzando il metodo Manhattan:
+
+  Distanza di Manhattan (p1, p2) = |p2.x - p1.x| + |p2.y - p1.y|.
+
+Ad esempio, date tre persone che si trovano a (0,0), (0,4) e (2,2):
+
+  1 - 0 - X - 0 - 1
+  |   |   |   |   |
+  0 - 0 - 0 - 0 - 0
+  |   |   |   |   |
+  0 - 0 - 1 - 0 - 0
+
+Funzione che calcola la distanza Manhattan (4 direzioni - torre) di due punti P1=(x1 y1) e P2=(x2 y2):
+
+(define (manhattan x1 y1 x2 y2)
+  (+ (abs (- x1 x2)) (abs (- y1 y2))))
+
+Soluzione brute-force:
+
+(define (meet grid girl)
+  (local (cols rows num-rows num-cols dmin dist)
+    (setq num-rows (length grid))
+    (setq num-cols (length (grid 0)))
+    (setq rows '())
+    (setq cols '())
+    (setq pos '(0 0))
+    (setq dmin 999999999)
+    ; per ogni cella della griglia...
+    (for (r 0 (- num-rows 1))
+      (for (c 0 (- num-cols 1))
+        (setq dist 0)
+        ; calcola il valore minimo 
+        ; della somma delle distanze 
+        ; di tutte le persone
+        (dolist (m girl)
+          (setq dist (+ dist (manhattan (m 0) (m 1) r c)))
+        )
+        ; aggiorna il valore minimo e la posizione migliore
+        (if (< dist dmin)
+            (setq dmin dist pos (list r c))
+        )
+      )
+    )
+    (list pos dmin)))
+
+(setq grid '((1 0 0 0 1) (0 0 0 0 0) (0 0 1 0 0)))
+(setq girl '((0 0) (0 4) (2 2)))
+
+(meet grid girl)
+;-> ((0 2) 6)
+
+Se vogliamo trovare solo la distanza minima, allora il problema consiste nel trovare il valore mediano sull'asse x e sull'asse y.
+
+(define (meeting lst girl)
+  (local (cols rows num-rows num-cols somma)
+    (setq num-rows (length lst))
+    (setq num-cols (length (lst 0)))
+    (setq rows '())
+    (setq cols '())
+    (for (r 0 (- num-rows 1))
+      (for (c 0 (- num-cols 1))
+        (if (= 1 (lst r c))
+            (begin
+            (push c cols -1)
+            (push r rows -1))
+        )
+      )
+    )
+    (setq rows (map first girl))
+    (setq cols (map last girl))
+    (setq somma 0)
+    (setq r-mid (/ (length rows) 2))
+    (dolist (el rows)
+      (setq somma (+ somma (abs (- el (rows r-mid)))))
+    )
+    (setq c-mid (/ (length cols) 2))
+    (sort cols)
+    (dolist (el cols)
+      (setq somma (+ somma (abs (- el (cols c-mid)))))
+    )
+    somma))
+
+(meeting grid girl)
+;-> 6
+
 =============================================================================
 
