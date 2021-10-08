@@ -923,6 +923,9 @@ NOTE LIBERE 5
   Generazione di password
   Verifica accessibilità siti web
   Miglior punto d'incontro
+  Stringhe Unicode (UTF8) o ASCII
+  Funzione set-nth
+  Somma di interi rappresentati come liste
 
 APPENDICI
 =========
@@ -107463,7 +107466,7 @@ Funzione che usa la programmazione dinamica per calcolare il numero di Motzkin:
     (dp num)))
 
 (map motzkin2 (sequence 0 20))
-;-> (1 1 2 4 9 21 51 127 323 835 2188 5798 15511 41835 113634 310572 
+;-> (1 1 2 4 9 21 51 127 323 835 2188 5798 15511 41835 113634 310572
 ;->  853467 2356779 6536382 18199284 50852019)
 
 Poichè utilizziamo solo gli ultimi due valori della matrice dp per calcolare il valore successivo, allora possiamo evitare di usare una matrice ed utilizzare semplicemente due variabili a e b. Questo velocizza un pò la funzione, ma perdiamo i valori dei numeri di Motzkin precedenti (che invece vengono mantenuti con la matrice dp).
@@ -107485,7 +107488,7 @@ Funzione che usa l'iterazione pura per calcolare il numero di Motzkin:
   b))
 
 (map motzkin3 (sequence 0 20))
-;-> (1 1 2 4 9 21 51 127 323 835 2188 5798 15511 41835 113634 310572 
+;-> (1 1 2 4 9 21 51 127 323 835 2188 5798 15511 41835 113634 310572
 ;->  853467 2356779 6536382 18199284 50852019)
 
 I valori dei numeri di Motzkin crescono molto velocemente, quindi per calcolarli in modo corretto occorre utilizzare i big integer.
@@ -107553,8 +107556,8 @@ La somma delle righe in questo triangolo è uguale ai numeri catalani:
    N(n,1) + N(n,2) + N(n,3) + ... + N(n,n) = Catalan(n)
 
 Sequenza OEIS A001263:
-	1, 1, 1, 1, 3, 1, 1, 6, 6, 1, 1, 10, 20, 10, 1, 1, 15, 50, 50, 15, 1, 1, 
-  21, 105, 175, 105, 21, 1, 1, 28, 196, 490, 490, 196, 28, 1, 1, 36, 336, 
+	1, 1, 1, 1, 3, 1, 1, 6, 6, 1, 1, 10, 20, 10, 1, 1, 15, 50, 50, 15, 1, 1,
+  21, 105, 175, 105, 21, 1, 1, 28, 196, 490, 490, 196, 28, 1, 1, 36, 336,
   1176, 1764, 1176, 336, 36, 1, 1, 45, 540, 2520, 5292, 5292, 2520, 540, 45,
   1, 1, 55, 825, 4950, 13860, 19404, 13860, 4950, 825, ...
 
@@ -107595,8 +107598,8 @@ Adesso scriviamo la funzione per calcolare il triangolo di narayana fino ad un d
     out))
 
 (triangle-narayana 10 10)
-;-> ((1 (1L 0 0 0 0 0 0 0 0 0)) 
-;->  (2 (1L 1L 0 0 0 0 0 0 0 0)) 
+;-> ((1 (1L 0 0 0 0 0 0 0 0 0))
+;->  (2 (1L 1L 0 0 0 0 0 0 0 0))
 ;->  (3 (1L 3L 1L 0 0 0 0 0 0 0))
 ;->  (4 (1L 6L 6L 1L 0 0 0 0 0 0))
 ;->  (5 (1L 10L 20L 10L 1L 0 0 0 0 0))
@@ -107614,7 +107617,7 @@ Funzione per calcolare la sequenza OEIS:
     (for (i 1 n)
       (for (j 1 k)
         (setq nara (narayana i j))
-        (if (!= nara 0) 
+        (if (!= nara 0)
             (push (narayana i j) out -1)
         )
       )
@@ -107623,8 +107626,8 @@ Funzione per calcolare la sequenza OEIS:
 
 (A001263 10 10)
 ;-> (1L 1L 1L 1L 3L 1L 1L 6L 6L 1L 1L 10L 20L 10L 1L 1L 15L 50L 50L 15L
-;->  1L 1L 21L 105L 175L 105L 21L 1L 1L 28L 196L 490L 490L 196L 28L 1L 
-;->  1L 36L 336L 1176L 1764L 1176L 336L 36L 1L 1L 45L 540L 2520L 5292L 
+;->  1L 1L 21L 105L 175L 105L 21L 1L 1L 28L 196L 490L 490L 196L 28L 1L
+;->  1L 36L 336L 1176L 1764L 1176L 336L 36L 1L 1L 45L 540L 2520L 5292L
 ;->  5292L 2520L 540L 45L 1L)
 
 
@@ -107784,7 +107787,7 @@ Funzione per il calcolo del numero di Disposizioni semplici:
 ;-> 665280L
 
 Esempio:
-A una gara partecipano 10 atleti. Quante sono le possibili disposizioni dei primi tre posti sul podio? 
+A una gara partecipano 10 atleti. Quante sono le possibili disposizioni dei primi tre posti sul podio?
 I dati del problema sono n = 10 e k = 3.
 Le disposizioni semplici sono D(10,3) = 720
 (D 10 3)
@@ -107817,7 +107820,7 @@ Funzione per il calcolo del numero di Disposizioni con ripetizione:
 (define (DR n k) (pow n k))
 
 Esempio:
-Con tre lettere A,B,C quante stringhe diverse da due lettere si possono creare? 
+Con tre lettere A,B,C quante stringhe diverse da due lettere si possono creare?
 I dati del problema sono n = 3 e k = 2.
 Le disposizioni con ripetizione di classe k=2 sono DR(3,2) = 3^2 = 9
 (DR 3 2)
@@ -107878,7 +107881,7 @@ Funzione per il calcolo del Coefficiente binomiale:
 ;-> 45L
 
 Esempio:
-Dato un insieme con le tre lettere I = (A B C), trovare le combinazioni di classe 2 semplici, ossia i raggruppamenti possibili delle lettere prese a coppia. 
+Dato un insieme con le tre lettere I = (A B C), trovare le combinazioni di classe 2 semplici, ossia i raggruppamenti possibili delle lettere prese a coppia.
 In questo caso n = 3 e k = 2.
 Applicando la formula per il calcolo delle combinazioni semplici C(3,2)= 3!/(2!*(3−2)!) = 6/2 = 3.
 Le combinazioni semplici possibili sono tre: (A B), (A C), (B C).
@@ -107913,16 +107916,16 @@ In questo caso n = 3 e k = 2.
 Applicando la formula per il calcolo delle combinazioni con ripetizione CR(3,2)= (3+2-1)!/(2!*(3−1)!) = 24/4 = 6.
 Le combinazioni con ripetizione possibili sono sei: (A A), (A B), (A C), (B B), (B C), (C C).
 
-La differenza tra disposizioni e combinazioni 
+La differenza tra disposizioni e combinazioni
 ---------------------------------------------
-Nelle disposizioni è importante l'ordine degli elementi. Nelle combinazioni, invece, non conta l'ordine degli elementi. 
-Esempio. 
-Le stringhe AB e BA sono due disposizioni diverse ma identificano una sola combinazione (AB). Le combinazioni sono insiemi di lettere in cui l'ordine non conta. Le disposizioni sono invece delle stringhe dove l'ordine è importante. 
+Nelle disposizioni è importante l'ordine degli elementi. Nelle combinazioni, invece, non conta l'ordine degli elementi.
+Esempio.
+Le stringhe AB e BA sono due disposizioni diverse ma identificano una sola combinazione (AB). Le combinazioni sono insiemi di lettere in cui l'ordine non conta. Le disposizioni sono invece delle stringhe dove l'ordine è importante.
 
 La differenza tra disposizioni e permutazioni
---------------------------------------------- 
+---------------------------------------------
 Nelle disposizioni definisco raggruppamenti con k<n elementi.
-Nelle permutazioni, invece, prendo in considerazione dei raggruppamenti con n elementi. 
+Nelle permutazioni, invece, prendo in considerazione dei raggruppamenti con n elementi.
 Nota. Se k=n il numero delle disposizioni semplici è uguale a quello delle permutazioni.
 
 Come risolvere i problemi di Calcolo Combinatorio
@@ -107988,7 +107991,7 @@ Quante auto si possono immatricolare con l'alfabeto internazionale di 26 lettere
 
 Abbiamo 3 raggruppamenti diversi:
 
-1) lettera lettera 
+1) lettera lettera
 
 In questo caso k = 2 e n = 26.
 L'ordine ha importanza? si (e poichè k ≠ n, allora dobbiamo usare le disposizioni).
@@ -108886,10 +108889,10 @@ Orologio ANSI
 
 ;;
 ;; Newlisp clocking
-;; 
+;;
 ;; linux version or dos-box with ansi support or windows console 20H1.
 ;; enjoy...norman.
-;; 
+;;
 (set 'digits '(
 (" ### " "  #  " "#####" "#####" "#   #" "#####" "#    " "#####" "#####" " ### " "     ")
 ("#   #" " ##  " "    #" "    #" "#   #" "#    " "#    " "    #" "#   #" "#   #" "  #  ")
@@ -109112,6 +109115,205 @@ Vediamo altri esempi:
 (meet grid girl)
 ;-> ((1 1) 2)
 
+
+-------------------------------
+Stringhe Unicode (UTF8) o ASCII
+-------------------------------
+
+Per verificare se una stringa contiene solo caratteri ASCII oppure contiene anche caratteri Unicode (UTF8) possiamo usare le seguenti due funzioni:
+
+(define (ascii? str) (= (length str) (utf8len str)))
+
+(define (utf? str) (!= (length str) (utf8len str)))
+
+Se la lunghezza ASCII è uguale alla lunghezza UTF8, allora la stringa contiene solo caratteri ASCII, altrimenti contiene anche caratteri UTF8.
+
+(setq s "abcde")
+(ascii? s)
+;-> true
+(utf? s)
+;-> nil
+
+(setq s "abc╬de")
+(ascii? s)
+;-> nil
+(utf? s)
+;-> true
+
+Nota: la funzione "utf8len" è disponibile solo nella versione di newLISP UTF8.
+
+
+----------------
+Funzione set-nth
+----------------
+
+La funzione "set-nth" è deprecata e non è più disponibile nelle versione 10.7.5 di newLISP.
+Questa funzione è stata sostituita da "setf" e l'indicizzazione implicita.
+Riportiamo la sintassi della funzione "set-nth" al fine di facilitare la conversione di vecchi programmi newLISP che la utilizzano:
+
+  (set-nth indice list|string|array value)
+
+Sostituisce l'elemento in posizione "indice" di una lista, vettore o stringa con il valore del parametro "value".
+
+Esempi:
+
+(setq s "abc")
+;-> "abc"
+(set-nth 0 s "z")
+;-> "zbc"
+
+(setq lst '(1 2 3 4))
+;-> (1 2 3 4)
+(set-nth 0 lst 99)
+;-> (99 2 3 4)
+
+Nella versione 10.7.5, al posto di set-nth, utilizziamo "setf" con l'indicizzazione implicita:
+
+(setq s "abc")
+;-> "abc"
+(setf (s 0) "z")
+;-> "z"
+s
+;-> "zbc"
+
+(setq lst '(1 2 3 4))
+;-> (1 2 3 4)
+(setf (lst 0) 99)
+;-> 99
+lst
+;-> (99 2 3 4)
+
+Possiamo anche scrivere una funzione per simulare "set-nth":
+
+(define (set-nth idx obj val)
+  (setf (obj idx) val)
+  obj)
+
+(setq lst '(1 2 3 4))
+(set-nth 0 lst "0")
+;-> ("0" 1 2 3 4)
+
+Ma in questo modo "lst" non vien modificata:
+
+lst
+;-> (1 2 3 4)
+
+Quindi dobbiamo scrivere:
+
+(setq lst (set-nth 0 lst "0"))
+;-> ("0" 1 2 3 4)
+
+Nota: abbiamo anche "push" e "pop" che possono inserire o estrarre pezzi di uno o più caratteri da una stringa:
+
+(setq s "abc")
+(pop s) (push "z" s)
+;-> "a"
+;-> "zbc"
+
+
+----------------------------------------
+Somma di interi rappresentati come liste
+----------------------------------------
+ 
+Sommare due numeri interi positivi contenuti in due liste.
+
+Esempio:
+lst1 = (1 4 3)
+lst2 = (7 7)
+lst1 + lst2 = (2 2 0)
+
+L'algoritmo segue il procedimento manuale per fare una addizione.
+
+(define (add-int lst1 lst2 out)
+  (local (carry prev temp somma)
+    (setq out '())
+    ; riporto
+    (setq carry 0)
+    ; indici delle liste (partendo dalla fine)
+    (setq idx1 (- (length lst1) 1))
+    (setq idx2 (- (length lst2) 1))
+    ; fino a che le liste non sono entrambe vuote
+    (while (or (>= idx1 0) (>= idx2 0))
+      ; prende le cifre correnti (partendo dall'ultima)
+      ; se la lista è terminata, allora prende il valore 0
+      ; altrimenti prende il valore corrispondente a idx
+      (if (< idx1 0)
+          (setq cifra1 0)
+          (setq cifra1 (lst1 idx1))
+      )
+      (if (< idx2 0)
+          (setq cifra2 0)
+          (setq cifra2 (lst2 idx2))
+      )
+      ; somma delle due cifre e del riporto
+      (setq somma (+ cifra1 cifra2 carry))
+      ; verifica del riporto
+      ; ed aggiustamento della somma (che deve essere una sola cifra)
+      (if (< somma 10)
+          (setq carry 0 somma somma)
+          (setq carry 1 somma (% somma 10))
+      )
+      ; inserisce la somma nella lista soluzione
+      (push somma out)
+      ;(println somma { } carry)
+      ; posiziona gli indici sulle prossime cifre
+      (-- idx1)
+      (-- idx2)
+    )
+    ; se abbiamo un riporto all'ultima cifra,
+    ; allora lo inseriamo nella lista soluzione
+    (if (= carry 1) (push carry out))
+    out))
+
+Proviamo la funzione:
+
+(add-int '(3) '(6))
+;-> (9)
+(add-int '(3 1) '(6 2))
+;-> (9 3)
+(add-int '(3 6) '(8 6))
+;-> (1 2 2)
+
+Funzione che converte un numero intero in una lista di cifre:
+
+(define (int-lst num)
+  (let (out '())
+    (while (!= num 0)
+      (push (% num 10) out)
+      (setq num (/ num 10))) out))
+
+Funzione che converte una lista di cifre in intero:
+
+(define (lst-int lst)
+  (let (num 0)
+    (dolist (el lst) (setq num (+ el (* num 10))))))
+
+(setq a 1237561238576352)
+(setq b 123875612323)
+(+ a b)
+;-> 1237685114188675
+(= (+ a b) (lst-int (add-int (int-lst a) (int-lst b))))
+;-> true
+
+Proviamo con degli interi big-integer:
+
+(setq c 786762621237561238576352)
+;-> 786762621237561238576352L
+(setq d 222123875612323)
+;-> 222123875612323
+(+ c d)
+;-> 786762621459685114188675L
+(= (+ c d) (lst-int (add-int (int-lst c) (int-lst d))))
+;-> true
+
+(setq e 786762621237561238576352)
+;-> 786762621237561238576352L
+(setq f 131313131313131222123875612323L)
+;-> 222123875612323
+(+ e f)
+;-> 131313918075752459685114188675L
+(= (+ e f) (lst-int (add-int (int-lst e) (int-lst f))))
+;-> true
 
 =============================================================================
 

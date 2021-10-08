@@ -923,6 +923,9 @@ NOTE LIBERE 5
   Generazione di password
   Verifica accessibilità siti web
   Miglior punto d'incontro
+  Stringhe Unicode (UTF8) o ASCII
+  Funzione set-nth
+  Somma di interi rappresentati come liste
 
 APPENDICI
 =========
