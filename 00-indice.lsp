@@ -77,6 +77,7 @@ newLISP IN GENERALE
   Stampare con print/println/format
   Codici ANSI ESCape
   Complessità temporale delle operazioni aritmetiche fondamentali
+  Codifica Unicode e UTF-8
 
 FUNZIONI VARIE
 ==============
@@ -953,7 +954,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (170 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (172 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================

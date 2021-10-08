@@ -77,6 +77,7 @@ newLISP IN GENERALE
   Stampare con print/println/format
   Codici ANSI ESCape
   Complessità temporale delle operazioni aritmetiche fondamentali
+  Codifica Unicode e UTF-8
 
 FUNZIONI VARIE
 ==============
@@ -953,7 +954,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (170 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (172 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================
@@ -11581,6 +11582,106 @@ Radice Quadrata   un numero da n cifre    un numero da n cifre        Metodo di 
 
 dove M(n) rappresenta la complessità dell'algoritmo di moltiplicazione utilizzato.
 
+
+==========================
+ CODIFICA UNICODE E UTF-8
+==========================
+
+Nota che per molte lingue europee, il meccanismo "set-locale" è sufficiente per visualizzare set di caratteri non ASCII, purché ogni carattere sia presentato internamente come un byte. La codifica UTF-8 è necessaria solo per i set di caratteri multibyte come descritto in questo capitolo.
+
+newLISP può essere compilato come un'applicazione abilitata per UTF-8. UTF-8 è una codifica multibyte del set di caratteri Unicode internazionale. Un newLISP abilitato per UTF-8 in esecuzione su un sistema operativo con UTF-8 abilitato può gestire qualsiasi carattere della locale installata.
+
+I seguenti passaggi fanno funzionare UTF-8 con newLISP su un sistema operativo e una piattaforma specifici:
+
+(1) Utilizzare uno dei makefile che terminano con "utf8" per compilare newLISP come applicazione UTF-8. Se nessun makefile UTF-8 è disponibile per la tua piattaforma, il normale makefile per il tuo sistema operativo contiene istruzioni su come cambiarlo per UTF-8.
+
+Il programma di installazione binario di macOS contiene una versione abilitata per UTF-8 per impostazione predefinita.
+
+(2) Abilita la locale UTF-8 sul tuo sistema operativo. Controlla e imposta una locale UTF-8 su Unix e sistemi operativi simili a Unix utilizzando il comando "locale" o la funzione "set-locale" all'interno di newLISP. Su Linux, le impostazioni internazionali possono essere modificate impostando la variabile di ambiente appropriata. L'esempio seguente usa bash per impostare le impostazioni internazionali degli Stati Uniti:
+
+export LC_CTYPE=en_US.UTF-8
+
+(3) Il newLISP abilitato per UTF-8 passa automaticamente alla locale trovata nel sistema operativo. Assicurati che la shell dei comandi sia abilitata per UTF-8. La versione statunitense di notepad.exe di WinXP può visualizzare caratteri con codifica Unicode UTF-8, ma la shell dei comandi no. Su Linux e altri Unix, la shell Xterm può essere utilizzata all'avvio come segue:
+
+LC_CTYPE=en_US.UTF-8 xterm
+
+La seguente procedura può ora essere utilizzata per verificare il supporto UTF-8. Dopo aver avviato newLISP, digitare:
+
+(println (char 937)) ; visualizza il greco omega maiuscolo
+(println (minuscolo (char 937))) ; visualizza omega minuscolo
+
+Mentre l'omega maiuscolo (Ω) sembra una grande O su due piccole gambe, l'omega minuscolo (ω) ha una forma simile a una piccola w nell'alfabeto latino.
+
+Nota: solo l'output di "println" verrà visualizzato come carattere. Il valore restituito da "println" apparirà sulla console come un carattere ASCII multi-byte.
+
+Quando newLISP abilitato per UTF-8 viene utilizzato su un display non abilitato per UTF-8, sia l'output che il valore restituito saranno due caratteri. Questi sono i due byte necessari per codificare il carattere omega.
+
+Funzioni che lavorano su caratteri UTF-8
+----------------------------------------
+Quando si utilizza newLISP abilitato per UTF-8, le seguenti funzioni di stringa funzionano su caratteri a uno o più byte anziché su limiti di byte a 8 bit:
+
++------------+----------------------------------------------------------+
+| Funzione   | Descrizione                                              |
++------------+----------------------------------------------------------+
+| char       | translates between characters and ASCII/Unicode          |
++------------+----------------------------------------------------------+
+| chop       | chops characters from the end of a string                |
++------------+----------------------------------------------------------+
+| date       | converts date number to string                           |
++------------+----------------------------------------------------------+
+| dostring   | evaluates once for each character in a string            |
++------------+----------------------------------------------------------+
+| explode    | transforms a string into a list of characters            |
++------------+----------------------------------------------------------+
+| first      | gets first element in a list (car, head) or string       |
++------------+----------------------------------------------------------+
+| last       | returns the last element of a list or string             |
++------------+----------------------------------------------------------+
+| lower-case | converts a string to lowercase characters                |
++------------+----------------------------------------------------------+
+| nth        | gets the nth element of a list or string                 |
++------------+----------------------------------------------------------+
+| pop        | deletes an element from a list or string                 |
++------------+----------------------------------------------------------+
+| push       | inserts a new element in a list or string                |
++------------+----------------------------------------------------------+
+| rest       | gets all but the first element of a list (cdr) or string |
++------------+----------------------------------------------------------+
+| select     | selects and permutes elements from a list or string      |
++------------+----------------------------------------------------------+
+| title-case | converts the first character of a string to uppercase    |
++------------+----------------------------------------------------------+
+| trim       | trims a string from both sides                           |
++------------+----------------------------------------------------------+
+| upper-case | converts a string to uppercase characters                |
++------------+----------------------------------------------------------+
+
+Tutte le altre funzioni stringa funzionano su byte a 8 bit. Quando le posizioni vengono restituite, come in "find" o "regex", sono singole posizioni di byte a 8 bit anziché posizioni di caratteri che possono essere multi-byte. Le funzioni "get-char" e "slice" non accettano offset di caratteri multibyte, ma offset a byte singolo, anche nelle versioni abilitate per UTF-8 di newLISP. La funzione "reverse" inverte un vettore di byte, non un vettore di caratteri. Le ultime tre funzioni possono ancora essere utilizzate per manipolare dati binari non testuali nella versione abilitata per UTF-8 di newLISP. Per far funzionare "slice" e "reverse" con le stringhe UTF-8, combinale con "explode" e "join".
+
+Per abilitare UTF-8 in Perl Compatible Regular Expressions (PCRE) — usato da "directory", "find", "member", "parse", "regex", "regex-comp" e "replace" — impostare il numero dell'opzione di conseguenza (2048). Si noti che l'offset e le lunghezze nei risultati delle espressioni regolari sono sempre in conteggi di singoli byte. Per i dettagli, vedere la documentazione di "regex".
+
+Usa "explode" per ottenere una matrice di caratteri UTF-8 e per manipolare i caratteri anziché i byte quando una funzione abilitata per UTF-8 non è disponibile:
+
+(join (reverse (explode str))) ; inverte i caratteri UTF-8
+
+Le funzioni stringa di cui sopra (spesso utilizzate per manipolare dati binari non testuali) ora funzionano sui limiti di caratteri, piuttosto che di byte, quindi è necessario prestare attenzione quando si utilizza la versione abilitata per UTF-8. La dimensione dei primi 127 caratteri ASCII, insieme ai caratteri nelle code page popolari come ISO 8859, è lunga un byte. Quando si lavora esclusivamente all'interno di queste tabelle codici, newLISP abilitato per UTF-8 non è richiesto. La sola funzione "set-locale" è sufficiente per il comportamento localizzato.
+
+Funzioni disponibili solo su versioni abilitate per UTF-8
+---------------------------------------------------------
++----------+----------------------------------------------------+
+| Funzione | Descrizione                                        |
++----------+----------------------------------------------------+
+| unicode  | converts UTF-8 or ASCII strings into USC-4 Unicode |
++----------+----------------------------------------------------+
+| utf8     | converts UCS-4 Unicode strings to UTF-8            |
++----------+----------------------------------------------------+
+| utf8len  | returns the number of UTF-8 characters in a string |
++----------+----------------------------------------------------+
+
+Le prime due funzioni vengono utilizzate raramente in pratica, poiché la maggior parte dei file di testo Unicode è già codificata in UTF-8 (anziché UCS-4, che utilizza caratteri interi a quattro byte). Unicode può essere visualizzato direttamente quando si utilizza l'identificatore di formato "%ls".
+
+Per ulteriori dettagli su UTF-8 e Unicode, consultare le domande frequenti su UTF-8 e Unicode per Unix/Linux di Markus Kuhn disponibili al seguente indirizzo web: https://www.cl.cam.ac.uk/~mgk25/unicode.html
+
 =============================================================================
 
 ================
@@ -20194,7 +20295,7 @@ Adesso possiamo scrivere la funzione di stampa della lista:
       (println ver)
     )
     (println line)
-  'end))
+  'nil))
 
 (setq lst '((1 2 3 4 5) ("a" "b" "c" "d" "e") (-1 -2 -3 -4 -5) (aa bb cc dd ee) (-11 -12 -13 -14 -15)))
 (print-table lst)
@@ -108924,12 +109025,13 @@ Soluzione brute-force:
     (for (r 0 (- num-rows 1))
       (for (c 0 (- num-cols 1))
         (setq dist 0)
-        ; calcola il valore minimo 
-        ; della somma delle distanze 
+        ; calcola il valore minimo
+        ; della somma delle distanze
         ; di tutte le persone
         (dolist (m girl)
           (setq dist (+ dist (manhattan (m 0) (m 1) r c)))
         )
+        (println dist { } (grid r c))
         ; aggiorna il valore minimo e la posizione migliore
         (if (< dist dmin)
             (setq dmin dist pos (list r c))
@@ -108977,6 +109079,39 @@ Se vogliamo trovare solo la distanza minima, allora il problema consiste nel tro
 
 (meeting grid girl)
 ;-> 6
+
+Vediamo altri esempi:
+
+  1 - 0 - 0 - 0 - 1 - 0 - 1
+  |   |   |   |   |   |   |
+  0 - 0 - 0 - 0 - 0 - 1 - 1
+  |   |   |   |   |   |   |
+  0 - 0 - 1 - 0 - 0 - 0 - 1
+  |   |   |   |   |   |   |
+  1 - 0 - 0 - 0 - 0 - 1 - 1
+  |   |   |   |   |   |   |
+  0 - 0 - 0 - 0 - 0 - 0 - 1
+
+(setq grid '((1 0 0 0 1 0 1)
+             (0 0 0 0 0 1 1)
+             (0 0 1 0 0 0 1)
+             (1 0 0 0 0 1 1)
+             (0 0 0 0 0 0 1)))
+
+(setq girl '((0 0) (0 4) (0 5) (0 6) (2 2) (2 6) (3 0) (3 5) (3 6) (4 6)))
+
+(meet grid girl)
+;-> ((2 5) 31)
+
+(setq grid '((0 1 0 0)
+             (0 1 1 0)
+             (0 0 0 0)))
+
+(setq girl '((0 1) (1 1) (1 2)))
+
+(meet grid girl)
+;-> ((1 1) 2)
+
 
 =============================================================================
 

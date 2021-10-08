@@ -5,7 +5,7 @@ MIT License
 Appunti sul linguaggio newLISP  
 
 00) Indice
-01) newLISP in generale (64)
+01) newLISP in generale (65)
 02) Funzioni varie (112)
 03) newLISP 99 problemi (28)
 04) Rosetta code (100)
@@ -20,7 +20,7 @@ Appunti sul linguaggio newLISP
 13) Note libere 5 (57)
 14) Appendici (24)
 15) Bibliografia
-99) yo library (yo.zip) (170)
+99) yo library (yo.zip) (172)
 
 Documentazione Extra:  
 A) Introduction to newLISP (by Cormullion)  

@@ -8609,7 +8609,7 @@ Adesso possiamo scrivere la funzione di stampa della lista:
       (println ver)
     )
     (println line)
-  'end))
+  'nil))
 
 (setq lst '((1 2 3 4 5) ("a" "b" "c" "d" "e") (-1 -2 -3 -4 -5) (aa bb cc dd ee) (-11 -12 -13 -14 -15)))
 (print-table lst)

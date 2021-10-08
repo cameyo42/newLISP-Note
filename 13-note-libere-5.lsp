@@ -7438,12 +7438,13 @@ Soluzione brute-force:
     (for (r 0 (- num-rows 1))
       (for (c 0 (- num-cols 1))
         (setq dist 0)
-        ; calcola il valore minimo 
-        ; della somma delle distanze 
+        ; calcola il valore minimo
+        ; della somma delle distanze
         ; di tutte le persone
         (dolist (m girl)
           (setq dist (+ dist (manhattan (m 0) (m 1) r c)))
         )
+        (println dist { } (grid r c))
         ; aggiorna il valore minimo e la posizione migliore
         (if (< dist dmin)
             (setq dmin dist pos (list r c))
@@ -7491,6 +7492,39 @@ Se vogliamo trovare solo la distanza minima, allora il problema consiste nel tro
 
 (meeting grid girl)
 ;-> 6
+
+Vediamo altri esempi:
+
+  1 - 0 - 0 - 0 - 1 - 0 - 1
+  |   |   |   |   |   |   |
+  0 - 0 - 0 - 0 - 0 - 1 - 1
+  |   |   |   |   |   |   |
+  0 - 0 - 1 - 0 - 0 - 0 - 1
+  |   |   |   |   |   |   |
+  1 - 0 - 0 - 0 - 0 - 1 - 1
+  |   |   |   |   |   |   |
+  0 - 0 - 0 - 0 - 0 - 0 - 1
+
+(setq grid '((1 0 0 0 1 0 1)
+             (0 0 0 0 0 1 1)
+             (0 0 1 0 0 0 1)
+             (1 0 0 0 0 1 1)
+             (0 0 0 0 0 0 1)))
+
+(setq girl '((0 0) (0 4) (0 5) (0 6) (2 2) (2 6) (3 0) (3 5) (3 6) (4 6)))
+
+(meet grid girl)
+;-> ((2 5) 31)
+
+(setq grid '((0 1 0 0)
+             (0 1 1 0)
+             (0 0 0 0)))
+
+(setq girl '((0 1) (1 1) (1 2)))
+
+(meet grid girl)
+;-> ((1 1) 2)
+
 
 =============================================================================
 
