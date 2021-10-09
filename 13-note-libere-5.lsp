@@ -7725,5 +7725,131 @@ Proviamo con degli interi big-integer:
 (= (+ e f) (lst-int (add-int (int-lst e) (int-lst f))))
 ;-> true
 
+
+---------------------------
+Equazione diofantea lineare
+---------------------------
+
+Un'equazione diofantea (chiamata anche equazione diofantina) è un'equazione in una o più incognite con coefficienti interi di cui si ricercano le soluzioni intere.
+Un'equazione diofantea lineare è un'equazione diofantea in cui le relazioni tra le variabili sono di tipo lineare.
+
+Vediamo un algoritmo per trovare la soluzione (x0,y0), se esiste, di una equazione diofantea lineare a due incognite.
+Possiamo usare l'algoritmo euclideo esteso. Innanzitutto, supponiamo che a e b siano non negativi. Quando applichiamo l'algoritmo euclideo esteso per a e b, possiamo trovare il loro massimo comune divisore g e due numeri xg e yg tali che:
+
+  a*xg + b*yg = g
+
+Se c è divisibile per g = gcd(a, b), allora l'equazione diofantea data ha una soluzione, altrimenti non ha alcuna soluzione. La dimostrazione è semplice: una combinazione lineare di due numeri è sempre divisibile per il loro comune divisore.
+
+Ora supponiamo che c sia divisibile per g, quindi abbiamo:
+
+  a*xg*c/g + b*yg*c/g = c
+
+Pertanto una delle soluzioni dell'equazione diofantea è:
+
+  x0 = xg*c/g
+  y0 = yg*c/g
+
+Questo metodo funziona anche quando a e/o b sono negativi.
+
+La soluzione generale è data da:
+
+  xk = x0 + k*b/(gcd a b)
+  yk = y0 + k*a/(gcd a b)
+
+Funzione implementa l'algoritmo di Euclide esteso:
+
+(define (gcdex a b)
+  (local (x y lastx lasty temp)
+    (setq x 0)
+    (setq y 1)
+    (setq lastx 1)
+    (setq lasty 0)
+    (while (not (zero? b))
+      (setq q (div a b))
+      (setq r (% a b))
+      (setq a b)
+      (setq b r)
+      (setq temp x)
+      (setq x (- lastx (* q x)))
+      (setq lastx temp)
+      (setq temp y)
+      (setq y (- lasty (* q y)))
+      (setq lasty temp)
+    )
+    ; Adesso la variabile a contiene il valore di gcd
+    ;(println a { } b { } x { } y { } lastx { } lasty)
+    (list a lastx lasty)))
+
+(gcdex 120 23)
+;-> (1 -9 47)
+
+(gcdex 8 -6)
+;-> (2 1 1)
+
+Funzione che risolve una equazione diofantea lineare (soluzione particolare e generale):
+
+(define (diofanto a b c)
+  (local (gcdex-lst g xg yg out)
+    (setq out '())
+    (setq gcdex-lst (gcdex a b))
+    (setq g (first gcdex-lst))
+    (setq xg (first (rest gcdex-lst)))
+    (setq yg (last gcdex-lst))
+    ;(println g { } xg { } yg)
+    (cond ((not (zero? (% c g))) (setq out '()))
+          (true
+            (setq out (list (list (div (mul xg c) g) (div b g))
+                            (list (div (mul yg c) g) (div (- a) g))))))
+    out))
+
+Facciamo alcune prove:
+
+8x - 6y = 26
+(diofanto 8 -6 26)
+;-> ((13 -3) (13 -4))
+x = 13 + -3k  (con k = 0 .. ∞)
+y = 13 – 4k (con k = 0 .. ∞)
+
+Infatti risulta:
+
+(+ (* 13 8) (* 13 -6))
+;-> 26
+
+25x + 10y = 15
+(diofanto 25 10 15)
+;-> ((3 2) (-6 -5))
+x = 3 + 2k  (con k = 0 .. ∞)
+y = -6 – 5k (con k = 0 .. ∞)
+
+21x + 14y = 35
+(diofanto 21 14 35)
+;-> ((5 2) (-5 -3))
+x = 5 + 2k  (con k = 0 .. ∞)
+y = -5 – 3k (con k = 0 .. ∞)
+
+8x + 5y = 81
+(diofanto 8 5 81)
+;-> ((162 5) (-243 -8))
+x = 162 + 5k  (con k = 0 .. ∞)
+y = -243 – 8k (con k = 0 .. ∞)
+
+19x + 13y = 20
+(diofanto 19 13 20)
+;-> ((-40 13) (60 -19))
+x = -40 + 13k (con k = 0 .. ∞)
+y = 60 – 19k  (con k = 0 .. ∞)
+ 
+14x + 21y = 77
+(diofanto 14 21 77)
+;-> ((-11 3) (11 -2))
+x = -11 + 3k (con k = 0 .. ∞)
+y = 11 – 2k  (con k = 0 .. ∞)
+ 
+40x + 16y = 88
+(diofanto 40 16 88)
+;-> ((-11 3) (11 -2))
+x = 11 + 2k  (con k = 0 .. ∞)
+y = -22 – 5k (con k = 0 .. ∞)
+
 =============================================================================
 

@@ -926,6 +926,7 @@ NOTE LIBERE 5
   Stringhe Unicode (UTF8) o ASCII
   Funzione set-nth
   Somma di interi rappresentati come liste
+  Equazione diofantea lineare
 
 APPENDICI
 =========
@@ -957,7 +958,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (172 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (173 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================
