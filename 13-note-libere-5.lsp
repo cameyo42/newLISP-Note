@@ -7934,5 +7934,44 @@ cache
 cache
 ;-> ("gioia" "plot" "pasta" "data")
 
+
+----------------------------
+Un bug della versione 10.7.5
+----------------------------
+
+Creiamo un vettore numerico:
+(setq m (array 256 (sequence 0 255)))
+
+Creiamo una stringa
+(setq str "abc")
+
+Adesso se indicizziamo il vettore con il codice di un carattere della stringa otteniamo un errore:
+
+(setq (m (char (str 0))) -1)
+;-> ERR: string expected : -1
+
+L'espressione è corretta, ma questo è un bug della funzione "char" nella versione 10.7.5.
+
+Nota: If char() retuns a number stringCell should be NULL (Lutz).
+
+Per ovviare a questo problema è sufficiente utilizzare le seguenti due funzioni, che convertono i caratteri ASCII nei relativi codici e viceversa, al posto della funzione "char". Le funzioni rendono anche più leggibili i programmi ("char" è polimorfica).
+
+Funzione che converte un carattere ASCII nel relativo codice:
+
+(define (char-int ch) (char ch))
+
+Funzione che converte un codice nel relativo carattere ASCII:
+
+(define (int-char num) (char num))
+
+Adesso l'espressione precedente non genera un errore:
+
+(setq (m (char-int (str 0))) -1)
+;-> -1
+(m (char-int "a"))
+;-> -1
+(m (char-int (int-char 97)))
+;-> -1
+
 =============================================================================
 

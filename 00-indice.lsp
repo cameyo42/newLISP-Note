@@ -928,6 +928,7 @@ NOTE LIBERE 5
   Somma di interi rappresentati come liste
   Equazione diofantea lineare
   Cache LRU
+  Un bug della versione 10.7.5
 
 APPENDICI
 =========
@@ -959,7 +960,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (173 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (175 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================
