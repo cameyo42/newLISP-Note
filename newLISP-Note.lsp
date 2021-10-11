@@ -927,6 +927,7 @@ NOTE LIBERE 5
   Funzione set-nth
   Somma di interi rappresentati come liste
   Equazione diofantea lineare
+  Cache LRU
 
 APPENDICI
 =========
@@ -61950,6 +61951,47 @@ Questa soluzione risolve questo problema in tempo O(n). Un altro metodo è quell
 (isomorfe? "nonna" "lilla")
 ;-> true
 
+Un altro metodo è quello di usare le informazioni degli indici delle due stringhe, se due caratteri sono "uguali", dovrebbero avere lo stesso indice.
+
+(define (iso? str1 str2)
+  (cond ((= (length str1) (length str2))
+          (local (m1 m2 i1 i2)
+            (setq m1 (array 256 '(0)))
+            (setq m2 (array 256 '(0)))
+            (setq out true)
+            (setq stop nil)
+            (for (i 0 (- (length str1) 1) 1 stop)
+              (if (!= (m1 (char (str1 i))) (m2 (char (str2 i))))
+                  (begin
+                    (setq stop true)
+                    (setq out nil)
+                  )
+                  (begin
+                    (setq i1 (char (str1 i)))
+                    (setq i2 (char (str2 i)))
+                    ; the following expression don't work with newlisp 10.7.5
+                    ; (setf (m1 (char (str1 i))) (+ i 1))
+                    ; it is a bug. Corrected in 10.7.6
+                    (setf (m1 i1) (+ i 1))
+                    (setf (m2 i2) (+ i 1))
+                  )
+              )
+            )))
+        (true
+          (setq out nil)
+        )
+  )
+  out)
+
+(iso? "egg" "add")
+;-> true
+(iso? "foo" "bar")
+;-> nil
+(iso? "nonna" "lilla")
+;-> true
+
+Nota: quest'ultimo metodo funziona solo con stringhe ASCII.
+
 
 ------------------------------
 Raggruppamento codici (Google)
@@ -63422,6 +63464,21 @@ Proviamo calcolando il fattoriale e contando gli zeri finali:
 ;-> 2499
 
 I risultati sono identici in entrambi i casi.
+
+Per completezza scriviamo una funzione iterativa che calcola gli zeri finali:
+
+(define (zeri-fine n)
+  (let (res 0)
+    (while (>= n 5)
+      (setq res (+ res (/ n 5)))
+      (setq n (/ n 5))
+    )
+    res))
+
+(zeri-fine 1123)
+;-> 277
+(zeri-fine 10000)
+;-> 2499
 
 
 -----------------------------------------------------------
@@ -109441,6 +109498,89 @@ y = 11 – 2k  (con k = 0 .. ∞)
 ;-> ((-11 3) (11 -2))
 x = 11 + 2k  (con k = 0 .. ∞)
 y = -22 – 5k (con k = 0 .. ∞)
+
+
+---------
+Cache LRU
+---------
+
+Progettare e implementare una struttura dati per gestire una cache LRU (Least Recent Used) che memorizza gli ultimi N file utilizzati da un editor di testo. Le funzioni per gestire la cache sono: put e clear.
+1) put(value) - Se il valore non è presente, allora inserisce il valore all'inizio della cache, altrimenti prima elimina il valore dalla cache e poi lo inserisce all'inizio. Quando la cache ha raggiunto la sua capacità, dovrebbe eliminare l'elemento utilizzato meno di recente prima di inserirne uno nuovo.
+2) clear - Elimina tutti i valori dalla cache
+
+Funzione per la creazione della cache:
+
+(define (cacheLRU size)
+    (setq cache '())
+    (setq files (length cache))
+    (setq capacity size)
+)
+
+Funzione "put":
+
+(define (put value)
+  (cond ((= files capacity) ; cache piena
+         ; se il file si trova nella cache...
+         (if (setq idx (find value cache))
+             (begin (pop cache idx)    ; lo cancello
+                   (push value cache)) ; e poi lo inserisco all'inizio
+             ; altrimenti...
+             (begin (pop cache -1)      ; elimino l'ultimo file
+                    (push value cache)) ; e poi inserisco il nuovo all'inizio
+         ))
+        (true ; cache non piena
+         ; se il file si trova nella cache...
+         (if (setq idx (find value cache))
+             (begin
+             (pop cache idx) ; lo cancello
+             (-- files)) ; aggiorna il numero di file
+         )
+         ; inserisco il file all'inizio della cache
+         (push value cache)
+         ; aggiorna il numero di file
+         (++ files)
+        )
+  )
+  files)
+
+Funzione "clear":
+
+(define (clear)
+  (setq cache '())
+  (setq files (length cache)))
+
+Proviamo le funzioni:
+
+(cacheLRU 4)
+;-> 4
+(put "pippo")
+;-> 1
+cache
+;-> ("pippo")
+(put "gioia")
+;-> 2
+cache
+;-> ("gioia" "pippo")
+(put "data")
+;-> 3
+cache
+;-> ("data" "gioia" "pippo")
+(put "gioia")
+;-> 3
+cache
+;-> ("gioia" "data" "pippo")
+(put "pasta")
+;-> 4
+cache
+;-> ("pasta" "gioia" "data" "pippo")
+(put "plot")
+;-> 4
+cache
+;-> ("plot" "pasta" "gioia" "data")
+(put "gioia")
+;-> 4
+cache
+;-> ("gioia" "plot" "pasta" "data")
 
 =============================================================================
 

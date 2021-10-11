@@ -7851,5 +7851,88 @@ y = 11 – 2k  (con k = 0 .. ∞)
 x = 11 + 2k  (con k = 0 .. ∞)
 y = -22 – 5k (con k = 0 .. ∞)
 
+
+---------
+Cache LRU
+---------
+
+Progettare e implementare una struttura dati per gestire una cache LRU (Least Recent Used) che memorizza gli ultimi N file utilizzati da un editor di testo. Le funzioni per gestire la cache sono: put e clear.
+1) put(value) - Se il valore non è presente, allora inserisce il valore all'inizio della cache, altrimenti prima elimina il valore dalla cache e poi lo inserisce all'inizio. Quando la cache ha raggiunto la sua capacità, dovrebbe eliminare l'elemento utilizzato meno di recente prima di inserirne uno nuovo.
+2) clear - Elimina tutti i valori dalla cache
+
+Funzione per la creazione della cache:
+
+(define (cacheLRU size)
+    (setq cache '())
+    (setq files (length cache))
+    (setq capacity size)
+)
+
+Funzione "put":
+
+(define (put value)
+  (cond ((= files capacity) ; cache piena
+         ; se il file si trova nella cache...
+         (if (setq idx (find value cache))
+             (begin (pop cache idx)    ; lo cancello
+                   (push value cache)) ; e poi lo inserisco all'inizio
+             ; altrimenti...
+             (begin (pop cache -1)      ; elimino l'ultimo file
+                    (push value cache)) ; e poi inserisco il nuovo all'inizio
+         ))
+        (true ; cache non piena
+         ; se il file si trova nella cache...
+         (if (setq idx (find value cache))
+             (begin
+             (pop cache idx) ; lo cancello
+             (-- files)) ; aggiorna il numero di file
+         )
+         ; inserisco il file all'inizio della cache
+         (push value cache)
+         ; aggiorna il numero di file
+         (++ files)
+        )
+  )
+  files)
+
+Funzione "clear":
+
+(define (clear)
+  (setq cache '())
+  (setq files (length cache)))
+
+Proviamo le funzioni:
+
+(cacheLRU 4)
+;-> 4
+(put "pippo")
+;-> 1
+cache
+;-> ("pippo")
+(put "gioia")
+;-> 2
+cache
+;-> ("gioia" "pippo")
+(put "data")
+;-> 3
+cache
+;-> ("data" "gioia" "pippo")
+(put "gioia")
+;-> 3
+cache
+;-> ("gioia" "data" "pippo")
+(put "pasta")
+;-> 4
+cache
+;-> ("pasta" "gioia" "data" "pippo")
+(put "plot")
+;-> 4
+cache
+;-> ("plot" "pasta" "gioia" "data")
+(put "gioia")
+;-> 4
+cache
+;-> ("gioia" "plot" "pasta" "data")
+
 =============================================================================
 

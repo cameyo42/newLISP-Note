@@ -927,6 +927,7 @@ NOTE LIBERE 5
   Funzione set-nth
   Somma di interi rappresentati come liste
   Equazione diofantea lineare
+  Cache LRU
 
 APPENDICI
 =========

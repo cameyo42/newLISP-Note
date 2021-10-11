@@ -5022,6 +5022,47 @@ Questa soluzione risolve questo problema in tempo O(n). Un altro metodo è quell
 (isomorfe? "nonna" "lilla")
 ;-> true
 
+Un altro metodo è quello di usare le informazioni degli indici delle due stringhe, se due caratteri sono "uguali", dovrebbero avere lo stesso indice.
+
+(define (iso? str1 str2)
+  (cond ((= (length str1) (length str2))
+          (local (m1 m2 i1 i2)
+            (setq m1 (array 256 '(0)))
+            (setq m2 (array 256 '(0)))
+            (setq out true)
+            (setq stop nil)
+            (for (i 0 (- (length str1) 1) 1 stop)
+              (if (!= (m1 (char (str1 i))) (m2 (char (str2 i))))
+                  (begin
+                    (setq stop true)
+                    (setq out nil)
+                  )
+                  (begin
+                    (setq i1 (char (str1 i)))
+                    (setq i2 (char (str2 i)))
+                    ; the following expression don't work with newlisp 10.7.5
+                    ; (setf (m1 (char (str1 i))) (+ i 1))
+                    ; it is a bug. Corrected in 10.7.6
+                    (setf (m1 i1) (+ i 1))
+                    (setf (m2 i2) (+ i 1))
+                  )
+              )
+            )))
+        (true
+          (setq out nil)
+        )
+  )
+  out)
+
+(iso? "egg" "add")
+;-> true
+(iso? "foo" "bar")
+;-> nil
+(iso? "nonna" "lilla")
+;-> true
+
+Nota: quest'ultimo metodo funziona solo con stringhe ASCII.
+
 
 ------------------------------
 Raggruppamento codici (Google)
@@ -6494,6 +6535,21 @@ Proviamo calcolando il fattoriale e contando gli zeri finali:
 ;-> 2499
 
 I risultati sono identici in entrambi i casi.
+
+Per completezza scriviamo una funzione iterativa che calcola gli zeri finali:
+
+(define (zeri-fine n)
+  (let (res 0)
+    (while (>= n 5)
+      (setq res (+ res (/ n 5)))
+      (setq n (/ n 5))
+    )
+    res))
+
+(zeri-fine 1123)
+;-> 277
+(zeri-fine 10000)
+;-> 2499
 
 
 -----------------------------------------------------------
