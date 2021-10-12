@@ -929,6 +929,7 @@ NOTE LIBERE 5
   Equazione diofantea lineare
   Cache LRU
   Un bug della versione 10.7.5
+  Algoritmo LZW (Lempel Ziv Welch)
 
 APPENDICI
 =========

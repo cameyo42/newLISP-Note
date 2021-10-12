@@ -103,6 +103,9 @@
 
   GeeksforGeeks - Un portale di computer science per "geeks"
   https://www.geeksforgeeks.org/
+  
+  Opengenus - Scientific Community focused on Computing Research & Publishing
+  https://iq.opengenus.org/
 
   MathBlog.dk è un blog che tratta la risoluzione di problemi di programmazione utilizzando la matematica
   https://www.mathblog.dk/

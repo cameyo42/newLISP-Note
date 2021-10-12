@@ -929,6 +929,7 @@ NOTE LIBERE 5
   Equazione diofantea lineare
   Cache LRU
   Un bug della versione 10.7.5
+  Algoritmo LZW (Lempel Ziv Welch)
 
 APPENDICI
 =========
@@ -960,7 +961,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (173 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (175 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================
@@ -109622,6 +109623,240 @@ Adesso l'espressione precedente non genera un errore:
 (m (char-int (int-char 97)))
 ;-> -1
 
+
+--------------------------------
+Algoritmo LZW (Lempel Ziv Welch)
+--------------------------------
+
+Questo algoritmo di compressione dati è stato sviluppato da Abraham Lempel, Jacob Ziv e successivamente pubblicato da Terry Welch nel 1984. Si tratta di un algoritmo senza perdita di dati (lossless), il che significa che nessun valore viene perso durante la compressione e la decompressione dei dati.
+
+L'algoritmo lavora sul concetto che i codici interi (numeri) occupano meno spazio in memoria rispetto alle stringhe letterali permettendo  così una compressione dei dati. L'algoritmo LZW legge la sequenza dei caratteri e inizia a raggrupparli in modelli di stringhe ripetitivi e poi li converte in codici interi a 12 bit in modo da comprimere i dati senza alcuna perdita.
+
+Vantaggi dell'algoritmo LZW
+---------------------------
+I vantaggi dell'algoritmo LZW sono:
+  - è più veloce rispetto agli altri algoritmi.
+  - è semplice, facile ed efficiente.
+  - comprime i dati in un unico passaggio.
+  - funziona in modo più efficiente per i file che contengono molti dati ripetitivi.
+  - costruisce la tabella di codifica e decodifica durante l'esecuzione e non richiede alcuna informazione preventiva sull'input.
+  - tende ad avere un rapporto di compressione del 60-70% sui file di testo.
+
+Vediamo un esempio semplificato sul funzionamento della tecnica di compressione LZW.
+
+Funzionamento dell'algoritmo LZW
+--------------------------------
+L'algoritmo ha due parti, una funzione di codifica (encoder) che converte le stringhe in codici interi e una funzione di decodifica (decoder) che fa l'inverso.
+
+Sia l'algoritmo di codifica che quello di decodifica hanno una tabella predefinita o un set di dati di una coppia di stringhe di codice che funge da modello iniziale sia per il codificatore che per il decodificatore. E quando l'algoritmo va avanti, i nuovi codici interi per i vari modelli di stringa vengono aggiunti a questa tabella.
+
+Formazione della tabella di mappatura
+-------------------------------------
+La tabella di mappatura o la tabella dei caratteri è predefinita con tutti i singoli codici dei caratteri ASCII di default da 0-255. Quando analizza la stringa di input, inizia con un singolo carattere e poi aggiunge caratteri per formare nuove stringhe. Ogni volta che aggiunge un carattere, verifica se la stringa appena formata è già presente nella tabella, altrimenti mappa la stringa appena formata con il codice successivo disponibile nella tabella di mappatura, creando così un nuovo elemento nella tabella.
+
+Dopo aver aggiornato la tabella con il nuovo modello di stringa, inizia di nuovo con l'ultimo carattere aggiunto e inizia ad aggiungere caratteri e poi continua nuovamente con lo stesso processo. Pertanto, durante il processo di lettura dei dati, la tabella di mappatura viene aggiornata con i modelli di stringa più recenti utilizzati nella compressione.
+
+Algoritmo dell'encoder
+----------------------
+Come appena detto, l'algoritmo LZW crea una tabella di mappatura che associa le stringhe ai codici interi e restituisce il codice per i dati compressi. E quando l'algoritmo vede di nuovo la stessa stringa, aggiunge il carattere successivo e crea una nuova stringa. Quindi la stringa diventa sempre più grande, il che porta a una compressione efficiente dei dati.
+
+Passi
+-----
+1. Creare la Tabella per mappare i codici e le stringhe (hash-map)
+2. Creare una lista per memorizzare i codici per la stringa da comprimere e una variabile per memorizzare il codice successivo per ogni modello di stringa.
+3. Creare una variabile vuota per contenere la stringa corrente.
+4. Per ogni carattere nella stringa (i), aggiungere il carattere alla variabile corrente.
+   - Controllare se la stringa corrente non è nel dizionario.
+   - Quindi mapparlo su nxt_code e aggiungerlo al dizionario.
+   - Aumentare nxt_code di 1.
+   - Ora aggiungere il codice per la stringa corrente ignorando il carattere corrente, ovvero i, alla lista soluzione.
+   - Ora assegnare la stringa corrente solo al carattere corrente i.
+5. E prima di restituire i codici compressi, aggiungi il codice alla stringa corrente nel dizionario.
+6. Ora, restituiamo i codici di compressione per la stringa di input.
+
+Implementazione in python
+-------------------------
+def lzw_encoder(string):
+    table = dict()
+    lis = []
+    # creating the table for default compression codes
+    for i in range(256):
+        table[chr(i)] = i
+    current = ''    # a variable to hold the string patterns
+    nxt_code = 257  # a variable to hold the next code for the string
+    for i in string:
+        current += i # appends the current character to the current string
+        if ( current not in table ):
+            table[current] = nxt_code # adds a new string pattern to the table
+            nxt_code += 1
+            current = current[:-1] # deletes the last character of i
+            # appends the code for current string to the answer list
+            lis.append( table[current] )
+            current = i # reassigns the value of current to i
+    lis.append(table[current])
+    # adds the last string pattern to the table
+    return lis # returns the compressed code
+
+print(lzw_encoder('XYYXYYYXYYX'))
+;-> [88, 89, 89, 257, 258, 260, 88]
+
+Implementazione in newLISP
+--------------------------
+(define (lzw-encode str)
+  (local (lis current nxt-code)
+    # creates the table as hash-map
+    (new Tree 'table)
+    (setq lis '())
+    # creating the table for default compression codes
+    (for (i 0 255)
+      (table (char i) i)
+    )
+    # a variable to hold the string patterns
+    (setq current "")
+    # a variable to hold the next code for the string
+    (setq nxt-code 257)
+    (dolist (i (explode str))
+      # appends the current character to the current string
+      (extend current i)
+      (if (= (table current) nil)
+          (begin
+          # adds a new string pattern to the table
+          (table current nxt-code)
+          (++ nxt-code)
+          # deletes the last character of i
+          (pop current -1)
+          # appends the code for current string to the answer list
+          (push (table current) lis -1)
+          # reassigns the value of current to i
+          (setq current i))
+      )
+    )
+    # adds the last string pattern to the table
+    (push (table current) lis -1)
+    # delete the hash-map table
+    (delete 'table)
+    # returns the compressed code
+    lis))
+
+(lzw-encode "XYYXYYYXYYX")
+;-> (88 89 89 257 258 260 88)
+
+Analizziamo come funziona l'encoder:
+
+La funzione ottiene la stringa da comprimere come input e quindi crea un dizionario per memorizzare i codici predefiniti. Questo dizionario memorizza i valori per tutte le possibili stringhe di caratteri singoli con codici 0-255.
+
+Quindi, aggiunge i caratteri della stringa di input alla variabile stringa corrente. Quindi controlla se la stringa corrente è nel dizionario se è nel dizionario aggiunge semplicemente il carattere di input successivo alla variabile stringa corrente. Quando la stringa corrente non è nel dizionario, la aggiunge al dizionario e aumenta nxt_code di uno.
+
+E dopo aver aggiunto la stringa corrente al dizionario, rimuove l'ultimo carattere da esso e quindi restituisce il codice per la stringa corrente. Questo perché la stringa corrente insieme all'ultimo carattere comprende la nuova stringa che viene aggiunta al dizionario, quindi per ottenere il codice per lo schema di stringa precedente eliminiamo l'ultimo carattere.
+
+E continua a farlo finché l'intera stringa non viene convertita in codici. E alla fine, aggiunge al dizionario il codice per la stringa rimanente che è memorizzata nella variabile corrente. E poi restituisce i codici di output.
+
+Ecco un esempio di input e output dell'algoritmo di encoder LZW:
+
+  Stringa di input: XYYXYYYXYYX
+  Codici di uscita: (88 89 89 257 258 260 88)
+
+Algoritmo del decoder
+---------------------
+Il decoder fa l'esatto opposto di quello che ha fatto l'endoder. Prendiamo i codici forniti come input e li convertiamo nei modelli di stringa corretti e li uniamo nuovamente per ottenere la stringa decompressa.
+
+Nota: qui il dizionario è composto da coppie codice-stringa mentre il dizionario nell'encoder è composto da coppie stringa-codice, questo è solo per la semplificare l'accesso ai valori richiesti.
+
+Passi
+-----
+1. Creare la tabella predefinita per mappare tutti i singoli caratteri ASCII con i codici interi 0-255.
+2. Creare una variabile per memorizzare la stringa precedente e una variabile per memorizzare la stringa di output finale.
+3. Ora per ogni codice intero, aggiungiamo la stringa corrispondente dalla tabella alla stringa di risposta.
+   - Se la variabile precedente contiene una stringa, la tabella dei codici viene aggiornata con il nuovo codice insieme alla sua stringa.
+   - Il valore della variabile precedente è impostato sulla stringa del codice corrente.
+4. Infine, viene restituita la stringa di output.
+
+Implementazione in python
+-------------------------
+def lzw_decoder(lis):
+    table = dict()
+    # Creating a dictionary with default values of codes and strings
+    for i in range(256):
+        table[i] = chr(i)
+    previous = ''
+    nxt_code = 257
+    ans = ''
+    for i in lis:
+        ans += table[i] # adding the strings to the output variable
+        if ( previous != '' ):
+            table[nxt_code] = previous + table[i][0] # updating the table
+            print(table[i], ' ', table[i][0])
+            nxt_code += 1
+        previous = table[i] # reassigning the previous with the new string
+    return ans
+
+print(lzw_decoder([88, 89, 89, 257, 258, 260, 88]))
+;-> XYYXYYYXYYX
+
+Implementazione in newLISP
+--------------------------
+(define (lzw-decode lis)
+  (local (previous nxt-code ans)
+    # creates the table as hash-map
+    (new Tree 'table)
+    # Creating a dictionary with default values of codes and strings
+    (for (i 0 255)
+      (table (string i) (char i))
+    )
+    (setq previous "")
+    (setq nxt-code 257)
+    (setq ans "")
+    (dolist (i lis)
+      # adding the strings to the output variable
+      (extend ans (table i))
+      (if (!= previous "")
+        (begin
+        # updating the table
+        (table (string nxt-code) (append previous ((table i) 0)))
+        (++ nxt-code))
+      )
+      # reassigning the previous with the new string
+      (setq previous (table i))
+    )
+    (delete 'table)
+    ans))
+
+(lzw-decode '(88 89 89 257 258 260 88))
+;-> "XYYXYYYXYYX"
+
+Analizziamo come funziona decoder:
+
+Crea un dizionario dei codici insieme alle stringhe dei singoli caratteri proprio come abbiamo fatto nell'encoder. E quindi crea le variabili per memorizzare la stringa di output, il codice successivo da creare e la stringa precedente.
+
+E poi aggiunge semplicemente la stringa corrispondente per ogni codice di input alla variabile di output. Se la variabile precedente contiene una stringa, l'istruzione if viene eseguita e la tabella viene aggiornata con il nuovo valore del codice.
+
+E quando il ciclo termina, la funzione restituisce la stringa di output.
+
+Ecco un esempio di input e output dell'algoritmo di decoder LZW:
+
+  Codici di input: (88 89 89 257 258 260 88)
+  Stringa di uscita: XYYXYYYXYYX
+
+Punti importanti
+----------------
+- La complessità temporale e spaziale dell'algoritmo è O(n).
+- L'algoritmo LZW non necessita di alcuna informazione preventiva sui dati da comprimere, rendendolo così più versatile.
+- L'algoritmo LZW si adatta al tipo di dati in elaborazione, quindi non richiede alcuna guida del programmatore o pre-analisi dei dati.
+- L'algoritmo LZW non fornisce sempre un risultato di compressione ottimale.
+- L'effettiva compressione dell'algoritmo LZW è difficile da prevedere.
+
+Conclusione
+-----------
+Il codice riportato non è l'algoritmo completo di Lempel Ziv Welch, è solo un semplice esempio per capire come funziona, ma contiene tutti i dettagli richiesti per implementare l'algoritmo.
+
+Per una visione completa potete leggere il documento pubblicato da Welch nel 1984 al seguente indirizzo web:
+
+https://courses.cs.duke.edu/spring03/cps296.5/papers/welch_1984_technique_for.pdf
+
+Riferimenti
+-----------
+https://iq.opengenus.org/lempel-ziv-welch-compression-and-decompression/
+
 =============================================================================
 
 ===========
@@ -115988,6 +116223,9 @@ Non sei quello che pensi di essere...
 
   GeeksforGeeks - Un portale di computer science per "geeks"
   https://www.geeksforgeeks.org/
+  
+  Opengenus - Scientific Community focused on Computing Research & Publishing
+  https://iq.opengenus.org/
 
   MathBlog.dk è un blog che tratta la risoluzione di problemi di programmazione utilizzando la matematica
   https://www.mathblog.dk/
