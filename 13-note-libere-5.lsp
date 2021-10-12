@@ -3815,7 +3815,7 @@ Riportiamo di seguito il codice delle due librerie.
 (context 'MAIN:defun)
 ;http://www.alh.net/newlisp/phpbb/viewtopic.php?t=1064&highlight=defun
 (set 'defun:defun
-	(lambda-macro (_func-name _arguments)
+  (lambda-macro (_func-name _arguments)
       (set _func-name (append '(lambda ) (list _arguments) (args)))))
 
 (context 'MAIN:labels)
@@ -3926,7 +3926,7 @@ Riportiamo di seguito il codice delle due librerie.
 
 (defun remove (item seq)
   (cond ((string? seq) (replace item (copy seq) ""))
-	(true (replace item (copy seq)))))
+  (true (replace item (copy seq)))))
 (define remove-if clean)
 (define remove-if-not filter)
 
@@ -3977,7 +3977,7 @@ Riportiamo di seguito il codice delle due librerie.
           _var (args 0)
           _val (args 1)
           _body (cons 'begin (2 (args))))
-	   (let _varlst
+     (let _varlst
          (map set '_var (MAIN:mklist _val)) ; corrected 2010/ 6/23
          _body)))
 (context MAIN)
@@ -4082,7 +4082,7 @@ Riportiamo di seguito il codice delle due librerie.
           _len (length (args 0))
           _val (args 1)
           _body (cons 'begin (2 (args))))
-	  (local _var
+    (local _var
       (setq values:mv-set true)
       (let (_res _val)
         (map set '_var (add-nil (mklist _res) _len)))
@@ -5966,7 +5966,7 @@ La somma delle righe in questo triangolo è uguale ai numeri catalani:
    N(n,1) + N(n,2) + N(n,3) + ... + N(n,n) = Catalan(n)
 
 Sequenza OEIS A001263:
-	1, 1, 1, 1, 3, 1, 1, 6, 6, 1, 1, 10, 20, 10, 1, 1, 15, 50, 50, 15, 1, 1,
+  1, 1, 1, 1, 3, 1, 1, 6, 6, 1, 1, 10, 20, 10, 1, 1, 15, 50, 50, 15, 1, 1,
   21, 105, 175, 105, 21, 1, 1, 28, 196, 490, 490, 196, 28, 1, 1, 36, 336,
   1176, 1764, 1176, 336, 36, 1, 1, 45, 540, 2520, 5292, 5292, 2520, 540, 45,
   1, 1, 55, 825, 4950, 13860, 19404, 13860, 4950, 825, ...
@@ -6714,74 +6714,74 @@ Di seguito riportiamo il programma "mastermind" aggiornato (con piccole modifich
 ;; header
 ;; ---------------------------------------------------------------------
 (define (header)
-	(cls)
-	(seed (nth 6 (now)) )
-	(setq solution (0 4 (randomize (flat (dup (randomize colors) 4)))))
-	;(println "\t\t Solution: " solution)
-	(line)
-	(dotimes (l 3) (print "\t\t ") (dotimes (l 3) (dolist (l title) (print (eval (nth 0 (randomize colors))) l ))) (println d))
-	(line)
-	(println "\t\t " w "Type the keys: " r "R" g "G" b "B" y "Y" m "M" c "C" w "W" d " to play")
-	(println "\t\t     " w {Press "\" to quit})
-	(println "\t\t " c "!" d " - correct color and place")
-	(println "\t\t " r "?" d " - correct color wrong place")
-	(line)
-	(println "\t\t [" g (dup "  #" 4) d "  ]")
-	(line))
+  (cls)
+  (seed (nth 6 (now)) )
+  (setq solution (0 4 (randomize (flat (dup (randomize colors) 4)))))
+  ;(println "\t\t Solution: " solution)
+  (line)
+  (dotimes (l 3) (print "\t\t ") (dotimes (l 3) (dolist (l title) (print (eval (nth 0 (randomize colors))) l ))) (println d))
+  (line)
+  (println "\t\t " w "Type the keys: " r "R" g "G" b "B" y "Y" m "M" c "C" w "W" d " to play")
+  (println "\t\t     " w {Press "\" to quit})
+  (println "\t\t " c "!" d " - correct color and place")
+  (println "\t\t " r "?" d " - correct color wrong place")
+  (line)
+  (println "\t\t [" g (dup "  #" 4) d "  ]")
+  (line))
 ;; ---------------------------------------------------------------------
 ;; print colors
 ;; ---------------------------------------------------------------------
 (define (output)
-	(print "\t\t [ " )
-	(dolist (p solution) (print (eval p) " @ " )) (println d " ] "))
+  (print "\t\t [ " )
+  (dolist (p solution) (print (eval p) " @ " )) (println d " ] "))
 ;; ---------------------------------------------------------------------
 ;; handle input
 ;; ---------------------------------------------------------------------
 (define (input)
-	(setq pushed 0)
-	(setq current '())
-	(print "\t\t [ " )
-	(while (!= pushed 4)
-		(setq h (sym (char (read-key))))
+  (setq pushed 0)
+  (setq current '())
+  (print "\t\t [ " )
+  (while (!= pushed 4)
+    (setq h (sym (char (read-key))))
        ; check quit game char
        (if (= h '\) (exit))
-			 (if (find h colors)
-				(begin
-					(print (eval h) " @ " d)
-					(push h current -1)
-					(++ pushed)	)))
-	(print " ]")
-	(check))
+       (if (find h colors)
+        (begin
+          (print (eval h) " @ " d)
+          (push h current -1)
+          (++ pushed) )))
+  (print " ]")
+  (check))
 ;; ---------------------------------------------------------------------
 ;; check & print colors and positions
 ;; ---------------------------------------------------------------------
 (define (check)
-	(setq work solution)
-	(print "\t[")
-	'(for (x 0 3) (if (= (nth x current) (nth x work)) (begin (set-nth x current 'nil) (set-nth x work 'nil) (print c "!" d))))
-	(for (x 0 3) (if (= (nth x current) (nth x work)) (begin (setf (current x) 'nil) (setf (work x) 'nil) (print c "!" d))))
-	(setq current (clean nil? current))
-	(if (empty? current) (begin (println "]") (line) (println "\t\t " g "Well Done!" d) (restart)))
-	(setq work (clean nil? work))
-	(dolist (x current) (if (setq i (find x work)) (begin (setf (work i) 'nil) (print r "?" d))))
-	(println "]")
-	(line))
+  (setq work solution)
+  (print "\t[")
+  '(for (x 0 3) (if (= (nth x current) (nth x work)) (begin (set-nth x current 'nil) (set-nth x work 'nil) (print c "!" d))))
+  (for (x 0 3) (if (= (nth x current) (nth x work)) (begin (setf (current x) 'nil) (setf (work x) 'nil) (print c "!" d))))
+  (setq current (clean nil? current))
+  (if (empty? current) (begin (println "]") (line) (println "\t\t " g "Well Done!" d) (restart)))
+  (setq work (clean nil? work))
+  (dolist (x current) (if (setq i (find x work)) (begin (setf (work i) 'nil) (print r "?" d))))
+  (println "]")
+  (line))
 ;; ---------------------------------------------------------------------
 ;; restart
 ;; ---------------------------------------------------------------------
 (define (restart)
-	(line)
-	(print "\t\t " w "Play Again? (" g "y" w "/" r "n" c"): " d)
-	(if (= (lower-case (char (read-key))) "y") (game) (begin (println "\n\n") (exit))))
+  (line)
+  (print "\t\t " w "Play Again? (" g "y" w "/" r "n" c"): " d)
+  (if (= (lower-case (char (read-key))) "y") (game) (begin (println "\n\n") (exit))))
 ;; ---------------------------------------------------------------------
 ;; GAME
 ;; ---------------------------------------------------------------------
 (define (game)
-	(header)
-	(setq counter 0)
-	(while (!= counter 10) (input) (++ counter))
-	(output)
-	(restart))
+  (header)
+  (setq counter 0)
+  (while (!= counter 10) (input) (++ counter))
+  (output)
+  (restart))
 ;(exit)
 
 Proviamo a fare una partita:
@@ -7317,8 +7317,8 @@ Orologio ANSI
  ;; write 5 rows of 6 digits and 2 seperators
  (dotimes (x 5)
    (dotimes (y 6)
-	(print " " (nth (integer (nth 0 (nth y ticks))) (nth x digits)))
-	(if (or (= y 1) (= y 3)) (print (nth 10 (nth x digits)))))
+  (print " " (nth (integer (nth 0 (nth y ticks))) (nth x digits)))
+  (if (or (= y 1) (= y 3)) (print (nth 10 (nth x digits)))))
   (println))
 (sleep 1000)
 )
@@ -7387,12 +7387,12 @@ La seguente funzione controlla se un sito web è online (connesso) | offline (di
 
 (define (online? www)
  (if (setq checkup (net-connect www 80))
-	(begin (net-close checkup ) "Online ") "Offline"))
+  (begin (net-close checkup ) "Online ") "Offline"))
 
 (setq urls '(
-	"newlisp.org"
-	"pazzzo.org"
-	"www.gnu.org"
+  "newlisp.org"
+  "pazzzo.org"
+  "www.gnu.org"
   "google.com"))
 
 (dolist (url urls) (println (online? url) " : " url))
@@ -7978,6 +7978,15 @@ Adesso l'espressione precedente non genera un errore:
 Algoritmo LZW (Lempel Ziv Welch)
 --------------------------------
 
+Riferimenti
+-----------
+Quello che segue è la traduzione libera dell'articolo disponibile al seguente indirizzo web:
+https://iq.opengenus.org/lempel-ziv-welch-compression-and-decompression/
+OpenGenus IQ © 2021 All rights reserved ™ [email: team@opengenus.org]
+Nota: Le funzioni newLISP sono liberamente utilizzabili.
+
+Introduzione
+------------
 Questo algoritmo di compressione dati è stato sviluppato da Abraham Lempel, Jacob Ziv e successivamente pubblicato da Terry Welch nel 1984. Si tratta di un algoritmo senza perdita di dati (lossless), il che significa che nessun valore viene perso durante la compressione e la decompressione dei dati.
 
 L'algoritmo lavora sul concetto che i codici interi (numeri) occupano meno spazio in memoria rispetto alle stringhe letterali permettendo  così una compressione dei dati. L'algoritmo LZW legge la sequenza dei caratteri e inizia a raggrupparli in modelli di stringhe ripetitivi e poi li converte in codici interi a 12 bit in modo da comprimere i dati senza alcuna perdita.
@@ -8174,6 +8183,13 @@ Implementazione in newLISP
 (lzw-decode '(88 89 89 257 258 260 88))
 ;-> "XYYXYYYXYYX"
 
+(lzw-encode "newLISP is fun")
+;-> (110 101 119 76 73 83 80 32 105 115 32 102 117 110)
+(lzw-decode '(110 101 119 76 73 83 80 32 105 115 32 102 117 110))
+;-> "newLISP is fun"
+(lzw-decode (lzw-encode "newLISP is fun"))
+;-> "newLISP is fun"
+
 Analizziamo come funziona decoder:
 
 Crea un dizionario dei codici insieme alle stringhe dei singoli caratteri proprio come abbiamo fatto nell'encoder. E quindi crea le variabili per memorizzare la stringa di output, il codice successivo da creare e la stringa precedente.
@@ -8202,10 +8218,6 @@ Il codice riportato non è l'algoritmo completo di Lempel Ziv Welch, è solo un 
 Per una visione completa potete leggere il documento pubblicato da Welch nel 1984 al seguente indirizzo web:
 
 https://courses.cs.duke.edu/spring03/cps296.5/papers/welch_1984_technique_for.pdf
-
-Riferimenti
------------
-https://iq.opengenus.org/lempel-ziv-welch-compression-and-decompression/
 
 =============================================================================
 
