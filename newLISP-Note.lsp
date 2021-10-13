@@ -109966,6 +109966,69 @@ Nota: il numero di lanci vale facce^dadi, un valore che cresce molto rapidamente
 Poichè memorizziamo tutti i lanci in una lista è chiaro che non possiamo utilizzare questa funzione quando abbiamo parecchi dadi.
 
 Allora proviamo un altro metodo che utilizza la programmazione dinamica.
+Poniamo che la funzione per trovare il numero di modi per trovare la somma s da d dadi con f facce sia Somma(f,d,s)
+
+Somma(f,d,s) =
+  [ottenendo la somma (s-1) da (d-1) dadi quando il d-esimo dado ha valore 1]
++ [ottenendo la somma (s-2) da (d-1) dadi quando il d-esimo dado ha valore 2]
++ [ottenendo la somma (s-3) da (d-1) dadi quando il d-esimo dado ha valore 3]
++ ................................................. .............
++ [ottenendo la somma (s-f) da (d-1) dadi quando il d-esimo dado ha valore f]
+
+Il valore massimo del d-esimo dado vale f poiché ci sono solo f facce nei dadi.
+
+Vediamo un esempio, 3 dadi con 6 facce e somma 8:
+
+f = 5, d = 3, s = 8
+
+Quindi, abbiamo 3 dadi con 5 facce e dobbiamo trovare il numero di modi per ottenere la somma come 8.
+
+Somma(5,3,8) = 3° dado che ottiene 1 + 3° dado che ottiene 2 + 3° dado che ottiene 3 + ...... + 3° dado che ottiene 5
+
+Somma(5,3,8) = Somma(5,2,7) + Somma(5,2,6) + Somma(5,2,5) + Somma(5,2,4) + Somma(5,2,3)
+Il 3° dado può avere un valore massimo di 5, poiché ci sono 5 facce. Quindi ci fermiamo a Somma(5,2,3).
+
+Anche,
+
+Somma(5,3,7) = Somma(5,2,6) + Somma(5,2,5) + Somma(5,2,4) + Somma(5,2,3) + Somma(5,2 ,2)
+Con 2 dadi, la somma minima deve essere 2.
+
+Quindi, otteniamo:
+
+Somma(5,3,8) = Somma(5,3,7) + Somma(5,2,7)
+
+Pertanto, in termini generali:
+
+  Somma(f,d,s) = Somma(f,d,s-1) + Somma(f,d-1,s-1)
+
+Possiamo inoltre trovare Sum(5,2,7) come
+
+Somma(5,2,7) = Somma(5,1,6) + Somma(5,1,5) + Somma(5,1,4) + Somma(5,1,3) + Somma(5,1 ,2)
+
+Tuttavia, Sum(5,1,6) = 0, poiché non possiamo avere una somma di 6 con 1 dado con 5 facce.
+
+Perciò,
+
+Somma(5,2,7) = Somma(5,1,5) + Somma(5,1,4) + Somma(5,1,3) + Somma(5,1,2)
+ 
+Questo processo continua per tutta l'equazione.
+
+  Somma(f,1,s) sarà sempre 1 quando s<=f, poiché con un dado, c'è solo un modo per ottenere la somma s.
+  Somma(f,1,s) sarà 0 quando s>f, poiché non c'è un numero sufficiente di facce o dadi, per ottenere la somma s. Quindi, ci sono 0 modi.
+
+Quindi, nel il nostro esempio:
+
+Somma(5,2,7) = 1 + 1 + 1 + 1 = 4
+
+In questo modo possiamo chiamare ogni funzione ed quindi trovare la somma(5,3,8). Memorizzeremo tutti i valori in una tabella 2d con gli indici i e j che variano 1 <= i <= d, 1 <= j <= s. Usiamo questa tabella[i][j] per trovare e memorizzare tutti i valori successivi partendo da un valore di base.
+Il valore base è il seguente:
+
+  somma(f,0,0) = 1
+  cioè table[0][0] = 1
+
+La complessità temporale vale O(n * x) dove n è il numero di dadi e x è la somma.
+
+Adesso possiamo scrivere la funzione finale:
 
 (define (lanci-dp d f s)
   (local (table)
