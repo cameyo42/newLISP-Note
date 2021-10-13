@@ -139,8 +139,7 @@ FUNZIONI VARIE
   Numeri primi successivi e precedenti
   Giorno Giuliano (Julian day)
   Punto interno al poligono
-  Prodotto cartesiano (dot-product)
-  Prodotto vettoriale (cross-product)
+  Prodotto cartesiano
   Insieme delle parti (powerset)
   Terne pitagoriche
   Calcolo di e con il metodo spigot
@@ -930,6 +929,7 @@ NOTE LIBERE 5
   Cache LRU
   Un bug della versione 10.7.5
   Algoritmo LZW (Lempel Ziv Welch)
+  Dadi e somme
 
 APPENDICI
 =========

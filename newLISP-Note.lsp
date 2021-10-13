@@ -139,8 +139,7 @@ FUNZIONI VARIE
   Numeri primi successivi e precedenti
   Giorno Giuliano (Julian day)
   Punto interno al poligono
-  Prodotto cartesiano (dot-product)
-  Prodotto vettoriale (cross-product)
+  Prodotto cartesiano
   Insieme delle parti (powerset)
   Terne pitagoriche
   Calcolo di e con il metodo spigot
@@ -930,6 +929,7 @@ NOTE LIBERE 5
   Cache LRU
   Un bug della versione 10.7.5
   Algoritmo LZW (Lempel Ziv Welch)
+  Dadi e somme
 
 APPENDICI
 =========
@@ -109868,6 +109868,146 @@ Il codice riportato non è l'algoritmo completo di Lempel Ziv Welch, è solo un 
 Per una visione completa potete leggere il documento pubblicato da Welch nel 1984 al seguente indirizzo web:
 
 https://courses.cs.duke.edu/spring03/cps296.5/papers/welch_1984_technique_for.pdf
+
+
+------------
+Dadi e somme
+------------
+
+Dati d dadi ciascuno con f facce. Trovare il numero di modi in cui è possibile ottenere una determinata somma quando vengono lanciati i dadi.
+Vediamo un esempio:
+Se ci sono 2 dadi con 2 facce, per ottenere la somma come 3, ci possono essere 2 modi:
+a) (1 + 2) Il primo dado avrà il valore 1 e il secondo avrà 2.
+b) (2 + 1) Il primo dado avrà il valore 2 e il secondo avrà 1.
+Quindi, per f=2, d=2, s=3, la risposta sarà 2.
+
+Risolviamo il problema con la forza bruta.
+Dobbiamo trovare tutte le possibili combinazioni per ogni dado e poi calcolare la somma di tutte le facce, per verificare se otteniamo il valore s. Dobbiamo usare una variabile per tenere il conto di quante volte otteniamo la somma uguale ad s, e il valore di questa variabile sarà la risposta.
+Tuttavia, questo approccio richiede molto tempo che dipende dal numero di dadi e dal numero delle facce.
+La complessità temporale vale O(d^2 * f) perchè ci sono (d * f) combinazioni e per ogni combinazione occorre O(d) tempo per ottenere la somma.
+
+Per trovare tutte le possibili combinazioni dei dadi utilizziamo una funzione che calcola il prodotto cartesiano di tutte le sotto-liste di una lista. In questo modo il risultato sarà una lista che contiene tutti i possibili risultati del lancio dei dadi come sotto-liste.
+
+Funzione per calcolare il prodotto cartesiano di due liste:
+
+(define (cp lst1 lst2)
+  (let (out '())
+    (if (or (null? lst1) (null? lst2))
+        nil
+        (dolist (el1 lst1)
+          (dolist (el2 lst2)
+            (push (list el1 el2) out -1))))))
+
+Con 2 dadi da 2 facce abbiamo i seguenti possibili risultati (lanci):
+
+(cp '(1 2) '(1 2))
+;-> ((1 1) (1 2) (2 1) (2 2))
+
+Funzione per calcolare il prodotto cartesiano di tutte le sotto-liste di una lista:
+
+(define (cp-all lst-lst)
+  (let (out '())
+    (dolist (el (apply cp lst-lst 2))
+      (push (flat el) out -1))))
+
+Con 5 dadi da 3 facce abbiamo i seguenti possibili risultati (lanci):
+
+(cp-all '((1 2 3) (1 2 3) (1 2 3) (1 2 3) (1 2 3)))
+;-> ((1 1 1 1 1) (1 1 1 1 2) (1 1 1 1 3) (1 1 1 2 1) (1 1 1 2 2)
+;->  (1 1 1 2 3) (1 1 1 3 1) (1 1 1 3 2) (1 1 1 3 3) (1 1 2 1 1)
+;->  ...
+;->  (3 3 3 2 2) (3 3 3 2 3) (3 3 3 3 1) (3 3 3 3 2) (3 3 3 3 3))
+
+Per calcolare la somma di ogni sotto-lista (cioè la somma di ogni lancio) usiamo la seguente espressione:
+
+(setq results (map (fn(x) (apply + x))
+                   (cp-all '((1 2 3) (1 2 3) (1 2 3) (1 2 3) (1 2 3)))))
+
+Per vedere quante volte la nostra somma è uguale alla somma di ogni lancio usiamo la funzione "count":
+
+(setq success (first (count (list 6) results)))
+;-> 5
+
+Il numero totale dei lanci è dato dalla lunghezza della lista dei risultati:
+
+(setq num-events (length results))
+;-> 243
+
+Adesso possiamo scrivere la funzione finale:
+
+(define (lanci dadi facce somma)
+  (local (dlst results success)
+    ; lista che contiene le facce di ogni dado
+    (setq dlst (dup (sequence 1 facce) dadi))
+    ; calcolo della lista con le somme di ogni lancio possibile
+    (setq results (map (fn(x) (apply + x))
+                   (cp-all dlst)))
+    ; conta dei valori uguali a somma
+    (setq success (first (count (list somma) results)))
+    (println (length results))
+    success
+  ))
+
+(lanci 2 2 3)
+;-> 2
+
+(lanci 2 6 2)
+;-> 1
+
+(lanci 3 6 12)
+;-> 25
+
+(lanci 5 6 21)
+;-> 540
+
+Nota: il numero di lanci vale facce^dadi, un valore che cresce molto rapidamente:
+- 5 dadi con 6 facce -> 6^5 = 7776 lanci
+- 10 dadi con 6 facce -> 6^10 = 60466176 lanci (60 milioni 466 mila 176)
+Poichè memorizziamo tutti i lanci in una lista è chiaro che non possiamo utilizzare questa funzione quando abbiamo parecchi dadi.
+
+Allora proviamo un altro metodo che utilizza la programmazione dinamica.
+
+(define (lanci-dp d f s)
+  (local (table)
+    ; inizializzazione tabella con tutti 0
+    (setq table (array (+ d 1) (+ s 1) '(0)))
+    ; valore iniziale
+    (setf (table 0 0) 1)
+    ; ciclo per ogni dado
+    (for (i 1 d)
+      ; ciclo per ogni somma
+      (for (j i s)
+        ; equazione generale per ottenere sum(f,s,d)
+        (setf (table i j) (+ (table i (- j 1)) (table (- i 1) (- j 1))))
+        ; alcuni valori extra vengono aggiunti quando j>f
+        ; cioè quando la somma da trovare è maggiore del numero di facce.
+        ; Tali valori devono essere rimossi.
+        (if (> j f) 
+            (setq (table i j) (- (table i j) (table (- i 1) (- j f 1))))
+        )
+      )
+    )
+    (table d s)))
+
+(lanci-dp 2 2 3)
+;-> 2
+
+(lanci-dp 2 6 2)
+;-> 1
+
+(lanci-dp 3 6 12)
+;-> 25
+
+(lanci-dp 5 6 21)
+;-> 540
+
+Con questa funzione possiamo usare un numero elevato di dadi:
+
+(lanci-dp 10 6 21)
+;-> 147940
+
+(lanci-dp 10 12 42)
+;-> 251287465
 
 =============================================================================
 
