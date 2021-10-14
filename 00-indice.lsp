@@ -929,7 +929,10 @@ NOTE LIBERE 5
   Cache LRU
   Un bug della versione 10.7.5
   Algoritmo LZW (Lempel Ziv Welch)
+  Moltiplicazione di due polinomi
+  Addizione di due polinomi
   Dadi e somme
+  Stringhe e dizionari
 
 APPENDICI
 =========

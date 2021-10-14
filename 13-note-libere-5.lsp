@@ -7624,7 +7624,7 @@ Nota: abbiamo anche "push" e "pop" che possono inserire o estrarre pezzi di uno 
 ----------------------------------------
 Somma di interi rappresentati come liste
 ----------------------------------------
- 
+
 Sommare due numeri interi positivi contenuti in due liste.
 
 Esempio:
@@ -7838,13 +7838,13 @@ y = -243 – 8k (con k = 0 .. ∞)
 ;-> ((-40 13) (60 -19))
 x = -40 + 13k (con k = 0 .. ∞)
 y = 60 – 19k  (con k = 0 .. ∞)
- 
+
 14x + 21y = 77
 (diofanto 14 21 77)
 ;-> ((-11 3) (11 -2))
 x = -11 + 3k (con k = 0 .. ∞)
 y = 11 – 2k  (con k = 0 .. ∞)
- 
+
 40x + 16y = 88
 (diofanto 40 16 88)
 ;-> ((-11 3) (11 -2))
@@ -8220,6 +8220,77 @@ Per una visione completa potete leggere il documento pubblicato da Welch nel 198
 https://courses.cs.duke.edu/spring03/cps296.5/papers/welch_1984_technique_for.pdf
 
 
+-------------------------------
+Moltiplicazione di due polinomi
+-------------------------------
+
+Dati due polinomi, calcolare la loro moltiplicazione.
+Supponiamo che i polinomi siano rappresentati come liste con la seguente struttura:
+
+f(x) = a0 + a1*x + a2*x^2 + ... + an*x^n
+
+lista = (a0 a1 a2 ... an)
+
+(define (mul-poly p1 p2)
+  (local (prod l1 l2)
+    (setq l1 (length p1))
+    (setq l2 (length p2))
+    (setq prod (dup 0 (+ l1 l2 (- 1))))
+    (for (i 0 (- l1 1))
+      (for (j 0 (- l2 1))
+        (setf (prod (+ i j)) (add (prod (+ i j)) (mul (p1 i) (p2 j))))
+      )
+    )
+    prod))
+
+(mul-poly '(0 1 2) '(0 1 2))
+;-> (0 0 1 4 4)
+
+(mul-poly (list 0 (div 1 6) (div 1 6) (div 1 6) (div 1 6) (div 1 6))
+          (list 0 (div 1 6) (div 1 6) (div 1 6) (div 1 6) (div 1 6)))
+;-> (0 0 0.02777777777777778 0.05555555555555555 0.08333333333333333
+;->  0.1111111111111111 0.1388888888888889 0.1111111111111111
+;->  0.08333333333333333 0.05555555555555555 0.02777777777777778)
+
+
+-------------------------
+Addizione di due polinomi
+-------------------------
+
+Dati due polinomi, calcolare la loro addizione.
+Supponiamo che i polinomi siano rappresentati come liste con la seguente struttura:
+
+f(x) = a0 + a1*x + a2*x^2 + ... + an*x^n
+
+lista = (a0 a1 a2 ... an)
+
+(define (add-poly p1 p2)
+  (local (sum l1 l2)
+    (setq l1 (length p1))
+    (setq l2 (length p2))
+    (cond ((>= l1 l2)
+           (setq sum p1)
+           (for (i 0 (- l2 1))
+             (setf (sum i) (add (sum i) (p2 i))))
+          )
+          ((< l1 l2)
+           (setq sum p2)
+           (for (i 0 (- l1 1))
+             (setf (sum i) (add (sum i) (p1 i))))
+          )
+    )
+    sum))
+
+(add-poly '(5 0 10 6) '(1 2 4))
+;-> (6 2 14 6)
+
+(add-poly '(1 2 4) '(5 0 10 6))
+;-> (6 2 14 6)
+
+(add-poly '(1 2 3) '(3 2 1))
+;-> (4 4 4)
+
+
 ------------
 Dadi e somme
 ------------
@@ -8338,7 +8409,7 @@ Somma(5,3,8) = 3° dado che ottiene 1 + 3° dado che ottiene 2 + 3° dado che ot
 Somma(5,3,8) = Somma(5,2,7) + Somma(5,2,6) + Somma(5,2,5) + Somma(5,2,4) + Somma(5,2,3)
 Il 3° dado può avere un valore massimo di 5, poiché ci sono 5 facce. Quindi ci fermiamo a Somma(5,2,3).
 
-Anche,
+Inoltre,
 
 Somma(5,3,7) = Somma(5,2,6) + Somma(5,2,5) + Somma(5,2,4) + Somma(5,2,3) + Somma(5,2 ,2)
 Con 2 dadi, la somma minima deve essere 2.
@@ -8360,7 +8431,7 @@ Tuttavia, Sum(5,1,6) = 0, poiché non possiamo avere una somma di 6 con 1 dado c
 Perciò,
 
 Somma(5,2,7) = Somma(5,1,5) + Somma(5,1,4) + Somma(5,1,3) + Somma(5,1,2)
- 
+
 Questo processo continua per tutta l'equazione.
 
   Somma(f,1,s) sarà sempre 1 quando s<=f, poiché con un dado, c'è solo un modo per ottenere la somma s.
@@ -8395,7 +8466,7 @@ Adesso possiamo scrivere la funzione finale:
         ; alcuni valori extra vengono aggiunti quando j>f
         ; cioè quando la somma da trovare è maggiore del numero di facce.
         ; Tali valori devono essere rimossi.
-        (if (> j f) 
+        (if (> j f)
             (setq (table i j) (- (table i j) (table (- i 1) (- j f 1))))
         )
       )
@@ -8421,6 +8492,132 @@ Con questa funzione possiamo usare un numero elevato di dadi:
 
 (lanci-dp 10 12 42)
 ;-> 251287465
+
+Inoltre possiamo anche stabilire le probabilità di uscita di ogni valore possibile. Ad esempio due dadi con sei facce hanno le seguenti probabilità:
+
+(define (dadi-prob dadi facce)
+  (local (out min-val max-val num-lanci)
+    (setq out '())
+    (setq min-val dadi)
+    (setq max-val (* facce dadi))
+    (setq num-lanci (pow facce dadi))
+    (println num-lanci)
+    (for (i min-val max-val)
+      (setq success (lanci-dp dadi facce i))
+      (push (list i success (div success num-lanci)) out -1)
+    )
+    out))
+
+(dadi-prob 2 6)
+;-> 36
+;-> ((2 1 0.02777777777777778) (3 2 0.05555555555555555) 
+;->  (4 3 0.08333333333333333) (5  4 0.1111111111111111)
+;->  (6 5 0.1388888888888889) (7 6 0.1666666666666667)
+;->  (8 5 0.1388888888888889) (9 4 0.1111111111111111)
+;->  (10 3 0.08333333333333333) (11 2 0.05555555555555555)
+;->  (12 1 0.02777777777777778))
+
+Metodo dei polinomi
+-------------------
+Per calcolare la probabilità di uscita di un numero dovuta al lancio di alcuni dadi possiamo utilizzare anche il metodo dei polinomi.
+Questo metodo rappresenta un dado a n facce con il seguente polinomio:
+
+         n
+  f(x) = ∑ (x^i)*p(i), dove p(i) è la probabilità dell'evento i-esimo
+        i=1
+         
+Ad esempio il polinomio per un dado da 6 facce vale:
+
+f(x) = (1/6)*x + (1/6)*x^2 + (1/6)*x^3 + (1/6)*x^4 + (1/6)*x^5 + (1/6)*x^6
+
+Il primo passo per risolvere il problema è quello di rappresentare tutti i dadi con un polinomio.
+Poi occorre moltiplicare tutti i polinomi tra loro.
+I coefficienti del polinomio risultante rappresentano le probabilità di uscita del numero che rappresenta la potenza del termine x associato.
+
+Facciamo un esempio, due dadi con sei facce hanno i seguenti polinomi:
+
+f1(x) = (1/6)*x + (1/6)*x^2 + (1/6)*x^3 + (1/6)*x^4 + (1/6)*x^5 + (1/6)*x^6
+f2(x) = (1/6)*x + (1/6)*x^2 + (1/6)*x^3 + (1/6)*x^4 + (1/6)*x^5 + (1/6)*x^6
+
+Il loro prodotto vale:
+
+f1(x) * f2(x) = (1/36)*x^12 + (1/18)*x^11 + (1/12)*x^10 + (1/9)x^9 + 
+                (5/36)*x^8 + (1/6)*x^7 + (5/36)*x^6) + (1/9)*x^5 + 
+                (1/12)*x^4 + (1/18)*x^3 + (1/36)*x^2
+
+Questo polinomio dice che:
+12 ha probabilità di uscire 1/36 = 0.02777777777777778
+11 ha probabilità di uscire 1/18 = 0.05555555555555555 
+10 ha probabilità di uscire 1/12 = 0.08333333333333333 
+ 9 ha probabilità di uscire 1/9  = 0.1111111111111111
+ 8 ha probabilità di uscire 5/36 = 0.1388888888888889
+ 7 ha probabilità di uscire 1/6  = 0.1666666666666667
+ 6 ha probabilità di uscire 5/36 = 0.1388888888888889
+ 5 ha probabilità di uscire 1/9  = 0.1111111111111111
+ 4 ha probabilità di uscire 1/12 = 0.08333333333333333 
+ 3 ha probabilità di uscire 1/18 = 0.05555555555555555
+ 2 ha probabilità di uscire 1/36 = 0.02777777777777778
+
+Scriviamo una funzione che calcola il prodotto di due polinomi:
+
+(define (mul-poly p1 p2)
+  (local (prod l1 l2)
+    (setq l1 (length p1))
+    (setq l2 (length p2))
+    (setq prod (dup 0 (+ l1 l2 (- 1))))
+    (for (i 0 (- l1 1))
+      (for (j 0 (- l2 1))
+        (setf (prod (+ i j)) (add (prod (+ i j)) (mul (p1 i) (p2 j))))
+      )
+    )
+    prod))
+
+Applichiamo il metodo al nostro esempio:
+
+(setq p1 (list 0 (div 1 6) (div 1 6) (div 1 6) (div 1 6) (div 1 6) (div 1 6)))
+(setq p2 (list 0 (div 1 6) (div 1 6) (div 1 6) (div 1 6) (div 1 6) (div 1 6)))
+(mul-poly p1 p2)
+;-> (0 0 0.02777777777777778 0.05555555555555555 0.08333333333333333
+;->  0.1111111111111111 0.1388888888888889 0.1666666666666667 
+;->  0.1388888888888889 0.1111111111111111 0.08333333333333333
+;->  0.05555555555555555 0.02777777777777778)
+
+I risultati sono uguali a quelli trovati con funzione che usa la programmazione dinamica.
+
+Nota: il metodo dei polinomi è applicabile anche quando le probabilità di uscita dei singoli numeri dei dadi sono differenti.
+
+
+--------------------
+Stringhe e dizionari
+--------------------
+
+Data una stringa e un dizionario di parole, determinare se S può essere divisa in due sottostringhe non vuote contenute nel dizionario. Per esempio, la stringa = "antifoop" può essere divisa in due sottostringhe "anti" e "foop" che sono contenute entrambe nel dizionario/lista = ("half" "foop" "doing" "way" "demo" "super" "anti").
+
+La funzione è la seguente:
+
+(define (test s words)
+  (local (start end)
+    (setq start 0)
+    (setq end (length s))
+    (for (i start (- end 1))
+      (setq a (slice s start i))
+      (setq b (slice s i end))
+      ;(println a { - } b)
+      (if (and (find a words) (find b words))
+          (println a { } b { } (string a b))
+      )
+    )))
+
+(setq lst '("half" "foop" "doing" "way" "demo" "super" "anti"))
+
+(test "halfway" lst)
+;-> half way halfway
+
+(test "superdemo" lst)
+;-> super demo superdemo
+
+(test "doing" lst)
+;-> nil
 
 =============================================================================
 
