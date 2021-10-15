@@ -933,6 +933,9 @@ NOTE LIBERE 5
   Addizione di due polinomi
   Dadi e somme
   Stringhe e dizionari
+  Estrazione codice sorgente da eseguibile newLISP
+  Algoritmo Boyer Moore (Voto di maggioranza - Majority element)
+  Convertire 0 in N (+1 o *2)
 
 APPENDICI
 =========

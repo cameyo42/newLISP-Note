@@ -1525,7 +1525,7 @@ Il codice sorgente e l'eseguibile newLISP.exe possono essere uniti tra loro per 
 
 Il programma uppercase.lsp prende la prima parola dalla riga di comando e la converte in maiuscolo.
 
-Per compilare questo programma come eseguibile autonomo, eseguire dal terminale la seguente procedura:
+Per compilare questo programma come eseguibile autonomo, occorre salvare il file con un nome (uppercase.lsp) e poi eseguire dal terminale la seguente procedura:
 
 Su OSX, Linux e altri UNIX
 

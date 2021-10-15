@@ -8619,5 +8619,312 @@ La funzione è la seguente:
 (test "doing" lst)
 ;-> nil
 
+
+------------------------------------------------
+Estrazione codice sorgente da eseguibile newLISP
+------------------------------------------------
+
+Il codice sorgente e l'eseguibile newLISP.exe possono essere uniti tra loro per creare un'applicazione autonoma utilizzando il flag della riga di comando -x.
+
+;; uppercase.lsp - Link example
+(println (upper-case (main-args 1)))
+(exit)
+
+Il programma uppercase.lsp prende la prima parola dalla riga di comando e la converte in maiuscolo.
+
+Per compilare questo programma come eseguibile autonomo, occorre salvare il file con un nome (uppercase.lsp) e poi eseguire dal terminale la seguente procedura (windows):
+
+newlisp -x uppercase.lsp uppercase.exe
+
+newLISP prende l'eseguibile "newLISP.exe" e lo unisce ad una copia del file che contiene il codice sorgente "uppercase.lsp" per creare il programma "uppercase.exe".
+
+La seguente funzione "get-code" prende un eseguibile creato con newLISP ed estrae il codice sorgente su un file indicato.
+Il file sorgente è si trova in fondo al file eseguibile. La funzione legge mette tutti i bytes/caratteri del file in una lista (in ordine inverso). Poi legge la lista fino a trovare un carattere NUL (0). Tutti i bytes prima del carattere NUL costituiscono il codice sorgente. Infine salva il file.
+
+(define (get-code exe lsp)
+    (setq codici '())
+    (setq code '())
+    ;; open newlisp exe file
+    (setq infile (open exe "read"))
+    ; put bytes on list "codici"
+    ; in reverse order
+    (while (setq byte (read-char infile))
+      (push byte codici)
+    )
+    (close infile)
+    (setq stop nil)
+    ; search for source code in list "codici"
+    ; stop when find byte 0 (NUL)
+    ; else put bytes of source code on list "code"
+    (dolist (ch codici stop)
+      (if (!= ch 0)
+          (push ch code)
+          (setq stop true)
+      )
+    )
+    ; save source file from list "code"
+    (setq outfile (open lsp "write"))
+    (dolist (ch code)
+      (write-char outfile ch)
+    )
+    (close outfile)
+    "end")
+
+(get-code "uppercase.exe" "codice.lsp")
+;-> "end"
+
+Il file codice.lsp contiene il seguente programma:
+
+;; uppercase.lsp - Link example
+(println (upper-case (main-args 1)))
+(exit)
+
+
+--------------------------------------------------------------
+Algoritmo Boyer Moore (Voto di maggioranza - Majority element)
+--------------------------------------------------------------
+
+L'algoritmo di voto di Boyer Moore viene utilizzato per trovare l'elemento più frequente che compare più di N/2 volte (dove N è il numero di elementi) in una lista o vettore. Questo algoritmo ha complessità temporale lineare e complessità spaziale costante.
+Per esempio:
+
+Input: (1 5 5 5 5 4 6)
+Output: 5
+Spiegazione: 5 è l'elemento di maggioranza in quanto compare 4 volte, cioè più di 7/2 o 3 volte.
+
+Input: (1 3 5 7 9)
+Output: -1
+Explanation: non esiste alcun elemento di maggioranza.
+
+Esistono diversi approcci per risolvere questo problema:
+
+- Il metodo della forza bruta per risolvere questo problema può utilizzare cicli for annidati e contare per ogni elemento se appare n/2 volte. Ma non è un approccio efficiente in quanto richiede tempo O(n^2).
+
+- Un altro approccio può essere quello di utilizzare le hash-map, ovvero memorizzare il conteggio di ciascun elemento nella mappa hash e quindi attraversarla per verificare se e quale elemento ha conteggio > n/2. Questo metodo ha complessità temporale O(n) e complessità spaziale O(n).
+
+- Utilizzare l'algoritmo di Boyer Moore che ha complessità temporale O(n) e complessità spaziale O(1).
+
+L'algoritmo di Boyer Moore in senso elementare trova un elemento maggioritario, se esiste. L'elemento di maggioranza è un elemento che si verifica ripetutamente per più della metà degli elementi dati. Tuttavia, se non esiste un elemento di maggioranza, l'algoritmo non è in grado di rilevarlo e restituisce comunque uno degli elementi.
+
+Fondamentalmente l'algoritmo funziona in due parti. Il primo passaggio trova un elemento come elemento di maggioranza e un secondo passaggio viene utilizzato per verificare che l'elemento trovato nel primo passaggio sia realmente quello di maggioranza.
+Se l'elemento di maggioranza non esiste, l'algoritmo non lo rileverà e quindi restituirà un elemento arbitrario.
+
+L'algorimo si divide in due passi logici:
+
+1) trovare l'elemento che potrebbe essere un elemento maggioritario.
+
+2) controllare che il conteggio dell'elemento trovato nel primo passaggio sia maggiore di n/2.
+
+Abbiamo bisogno di una variabile per tenere traccia dell'elemento corrente e di un contatore. Inizialmente il contatore viene posto o zero. Quindi iteriamo sugli elementi della sequenza. Durante l'elaborazione di un elemento x, se il contatore è zero, l'algoritmo memorizza x come elemento di sequenza ricordato e imposta il contatore su uno. In caso contrario, confronta x con l'elemento memorizzato. Se l'elemento è lo stesso, incrementiamo il contatore e se l'elemento non è lo stesso, diminuiamo il contatore. Alla fine, se l'elemento di maggioranza esiste, sarà l'elemento memorizzato dall'algoritmo.
+
+I passaggi dell'algoritmo di Boyer Moore sono:
+
+Primo passaggio: trovare un candidato con la maggioranza
+- Inizializzare una variabile m e un contatore a 0
+- Per ogni elemento x della lista di input:
+- Se il contatore è uguale a zero, assegniamo m = x e contatore = 1
+- altrimenti se m è uguale a x, incrementiamo il contatore.
+- altrimenti decrementiamo il contatore.
+- Infine restituire l'elemento memorizzato m.
+
+Secondo passaggio: verificare se il candidato ha più di n/2 voti
+- Inizializzare una variabile contatore a zero.
+- Ciclo sulla sequenza di elementi e incrementa il contatore se l'elemento corrente è lo stesso del candidato.
+- Se il contatore è maggiore di n/2, restituisce il candidato, altrimenti restituisce -1.
+
+Cerchiamo di analizzare il metodo attraverso un esempio:
+
+lista di elementi = (5 3 3 5 5 1 5).
+
+Primo passaggio:
+       _
+lista=(5 3 3 5 5 1 5)
+i=0, m=5
+contatore=1
+         _
+lista=(5 3 3 5 5 1 5)
+i=1, x=3, m=5
+contatore=0 (l'elemento corrente non è lo stesso, contatore=contatore-1)
+           _
+lista=(5 3 3 5 5 1 5)
+i=2, x=3, m=3
+contatore=1 (contatore era 0 quindi, m = x)
+             _
+lista=(5 3 3 5 5 1 5)
+i=3, x=5, m=3
+contatore=0 (l'elemento corrente non è lo stesso, contatore=contatore-1)
+               _
+lista=(5 3 3 5 5 1 5)
+i=4 x=5, m=5
+contatore=1 (contatore era 0 quindi, m = x)
+                 _
+lista=(5 3 3 5 5 1 5)
+i=5, x=1, m=5,
+contatore=0 (l'elemento corrente non è lo stesso, contatore=contatore-1)
+                   _
+lista=(5 3 3 5 5 1 5)
+i=6, x=5, m=5
+contatore=1 (contatore era 0 quindi, m = x)
+
+Adesso abbiamo il candidato m=5.
+
+Secondo passaggio:
+
+contatore=0;
+i=0, x=5
+contatore=1, (contatore++ come m = x)
+i=1, x=3
+contatore=1, (m != x)
+i=2, x=3
+contatore=1, (m != x)
+i=3, x=5
+contatore=2, (contatore++ come m = x)
+i=4, x=5
+contatore=3, (contatore++ come m = x)
+i=5, x=1
+contatore=3, (m != x)
+i=6, x=5
+contatore=4, (contatore++ come m = x)
+
+contatore=4 è maggiore di 7/2=3, quindi m=5 è l'elemento di maggioranza.
+
+Vediamo l'implementazione:
+
+(define (boyer-moore lst)
+  (local (m contatore n)
+    (setq n (length lst))
+    (setq contatore 0)
+    ; prima parte: trova candidato
+    (for (i 0 (- n 1))
+      (cond ((zero? contatore)
+             (setq m (lst i))
+             (setq contatore 1)
+            )
+            ((= m (lst i))
+             (++ contatore)
+            )
+            (true (-- contatore))
+      )
+    )
+    ;(println "candidato = " m)
+    ; seconda parte: verifica candidato
+    (if (> (first (count (list m) lst)) (/ n 2))
+        m
+        nil
+    )))
+
+(boyer-moore '(5 3 3 5 5 1 5))
+;-> 5
+
+(boyer-moore '(5 3 3 5 5 3))
+;-> nil
+
+(boyer-moore '(5 3 3 5 5 3 3 3 5 3 4 3 3 3 4))
+;-> 3
+
+
+---------------------------
+Convertire 0 in N (+1 o *2)
+---------------------------
+
+Il problema consiste nel convertire 0 nel numero N, aggiungendo 1 o moltiplicando per 2, con il numero minimo di passi. Inoltre tutte le operazioni devono produrre un numero intero.
+
+Esempio:
+N = 6
+
+0 + 1 = 1
+1 * 2 = 2
+2 + 1 = 3
+3 * 2 = 6
+
+Consideriamo il problema al contrario, cioè partiamo da N e arriviamo a 0. Poichè dobbiamo sempre ottenere un numero intero con l'operazione che applichiamo (- o /) abbiamo due casi:
+1) se il numero è dispari allora dobbiamo diminuirlo di 1 ottenendo un numero pari.
+2) se il numero è pari allora dobbiamo dividerlo per 2 (questo perchè dobbiamo rendere minimo il numero di passi) ottenendo un numero dispari.
+Infine ci fermiamo quando il numero vale 0.
+Naturalmente il numero di sottrazioni e divisioni per passare da N a 0 sono uguali rispettivamente al numero di addizioni e moltiplicazioni necessarie per passare da 0 a N.
+
+(define (dazero num)
+  (local (n-add n-mul)
+    (set 'n-add 0 'n-mul 0)
+    (while (> num 0)
+      (cond ((odd? num)
+             (-- num)
+             (++ n-add)
+            )
+            (true ; numero pari
+             (setq num (/ num 2))
+             (++ n-mul)
+            )
+      )
+    )
+    (list n-add n-mul (+ n-add n-mul))))
+
+(dazero 0)
+;-> (0 0 0)
+(dazero 1)
+;-> (1 0 1)
+(dazero 2)
+;-> (1 1 2)
+(dazero 3)
+;-> (2 1 3)
+(dazero 4)
+;-> (1 2 3)
+(dazero 6)
+;-> (2 2 4)
+(dazero 1023)
+;-> (10 9 19)
+(dazero 1024)
+;-> (1 10 11)
+(dazero 1025)
+;-> (2 10 12)
+
+Per velocizzare un pò la funzione possiamo togliere l'espressione (-- num) e dividere sempre il numero per due (perchè è una divisione intera e quindi (n+1)/2 = (n/2)). Inoltre possiamo utilizzare lo shift a destra ">>" per la divisione.
+
+(define (da-zero num)
+  (let ((n-add 0) (n-mul 0))
+    (while (> num 0)
+      (if (odd? num)
+          (++ n-add)
+      )
+      (++ n-mul)
+      (setq num (>> num))
+    )
+    (-- n-mul)
+    (list n-add n-mul (+ n-add n-mul))))
+
+(da-zero 6)
+;-> (2 2 4)
+(da-zero 1023)
+;-> (10 9 19)
+(da-zero 1024)
+;-> (1 10 11)
+(da-zero 1025)
+;-> (2 10 12)
+
+Il numero minimo di passi per passare da 0 a N sommando 1 o moltiplicando per 2 è una sequenza OEIS:
+
+Sequenza OEIS A056792:
+  0, 1, 2, 3, 3, 4, 4, 5, 4, 5, 5, 6, 5, 6, 6, 7, 5, 6, 6, 7, 6, 7, 7,
+  8, 6, 7, 7, 8, 7, 8, 8, 9, 6, 7, 7, 8, 7, 8, 8, 9, 7, 8, 8, 9, 8, 9,
+  9, 10, 7, 8, 8, 9, 8, 9, 9, 10, 8, 9, 9, 10, 9, 10, 10, 11, 7, 8, 8,
+  9, 8, 9, 9, 10, 8, 9, 9, 10, 9, 10, 10, 11, 8, 9, 9, 10, 9, 10, 10, ...
+
+(define (A056792 num)
+  (if (zero? num) 0
+  (let ((n-add 0) (n-mul 0))
+    (while (> num 0)
+      (if (odd? num)
+          (++ n-add)
+      )
+      (++ n-mul)
+      (setq num (>> num))
+    )
+    (-- n-mul)
+    (+ n-add n-mul))))
+
+(map A056792 (sequence 0 50))
+;-> (0 1 2 3 3 4 4 5 4 5 5 6 5 6 6 7 5 6 6 7 6 7 7 
+;->  8 6 7 7 8 7 8 8 9 6 7 7 8 7 8 8 9 7 8 8 9 8 9 
+;->  9 10 7 8 8)
+
 =============================================================================
 

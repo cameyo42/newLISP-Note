@@ -8223,8 +8223,10 @@ Dalla posizione di partenza dobbiamo premere "invio" per far muovere casualmente
       (push (list (char (+ i 65)) 0) cavalli -1)
     )
     ; Inizia la corsa...
+    ; pulisce lo schermo (solo per terminali ANSI)
+    ;(print "\027[H\027[2J")
     ; stampa la posizione di partenza
-    (println "Posizione di partenza")
+    (println "Partenza")
     (println (dup "-" (+ lunghezza 1)))
     (for (i 0 (- num-cavalli 1))
       ; nome cavallo corrente
@@ -8238,6 +8240,9 @@ Dalla posizione di partenza dobbiamo premere "invio" per far muovere casualmente
     (while (< testa lunghezza)
       ; Premere invio per il prossimo passo
       (read-line)
+      ; pulisce lo schermo (solo per terminali ANSI)
+      ;(print "\027[H\027[2J")
+      (println (dup "-" (+ lunghezza 1)))
       ; mossa (+1) casuale di uno dei cavalli
       (setq mossa (rand num-cavalli))
       ; aggiornamento posizione cavallo mosso
@@ -8250,9 +8255,8 @@ Dalla posizione di partenza dobbiamo premere "invio" per far muovere casualmente
         (setq pos (lookup cav cavalli))
         ; stampa corsa cavallo corrente
         (println (dup " " pos) cav (dup "∙" (- lunghezza pos)))
-        ;(println (dup " " pos) cav (dup "." (- lunghezza pos)))
       )
-      (println { })
+      ;(println { })
       (println (dup "-" (+ lunghezza 1)))
       ; calcolo della posizione del cavallo in testa
       (setq testa (apply max (map last cavalli)))
@@ -8905,7 +8909,7 @@ La funzione "accumulate" applica ricorsivamente la funzione make per sommare tut
 
  (accumulate +  0 (cddr s))
 
-per dati simbolici. Usiamo (cddr s)) per ottenere il resto della lista che inizia con il terzo elemento.
+per dati simbolici. Usiamo (cddr s) per ottenere il resto della lista che inizia con il terzo elemento.
 
 --------------
 Esercizio 2.58
