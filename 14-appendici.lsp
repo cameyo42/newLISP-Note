@@ -5144,9 +5144,9 @@ John Wiley & Sons
 ³ Questa è una versione abbreviata della valutazione delle espressioni che non include la gestione dei funtori predefiniti e l'indicizzazione implicita. Per ulteriori informazioni sulla valutazione delle espressioni, consultare: "Valutazione dell'espressione, Indicizzazione implicita, Contesti e Funtori di default"
 
 
-====================
+============================================================================
 Benchmarking newLISP
-====================
+============================================================================
 
 Questo documento contiene tutte le funzioni utilizzate da Lutz Mueller per il Benckmark di newLISP. Le funzioni sono state leggermente modificate per il sistema operativo Windows.
 
@@ -6017,7 +6017,6 @@ Lista delle funzioni:
 	)
 
 (main)
-
 ---------------------------------------------------------------------
 
 
@@ -6073,7 +6072,7 @@ Frasi Famose sulla Programmazione e sul Linguaggio Lisp
 "Learning from your mistakes is one of the best ways to learn."
 - unknown
 
-" The secret to creativity is knowing how to hide your sources."
+"The secret to creativity is knowing how to hide your sources."
 - Albert Einstein
 
 
@@ -6255,5 +6254,5 @@ Non sei le tue emozioni
 Non sei la tua personalità
 Non sei quello che pensi di essere...
 
-=============================================================================
+============================================================================
 

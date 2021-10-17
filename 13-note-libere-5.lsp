@@ -8587,9 +8587,9 @@ I risultati sono uguali a quelli trovati con funzione che usa la programmazione 
 Nota: il metodo dei polinomi è applicabile anche quando le probabilità di uscita dei singoli numeri dei dadi sono differenti.
 
 
---------------------
-Stringhe e dizionari
---------------------
+---------------------------------
+Stringhe e dizionari (word break)
+---------------------------------
 
 Data una stringa e un dizionario di parole, determinare se S può essere divisa in due sottostringhe non vuote contenute nel dizionario. Per esempio, la stringa = "antifoop" può essere divisa in due sottostringhe "anti" e "foop" che sono contenute entrambe nel dizionario/lista = ("half" "foop" "doing" "way" "demo" "super" "anti").
 
@@ -8618,6 +8618,76 @@ La funzione è la seguente:
 
 (test "doing" lst)
 ;-> nil
+
+
+Un problema più difficile è quello di determinare se la stringa può essere divisa in una o più sottostringhe non vuote contenute nel dizionario.
+
+Utilizziamo la ricorsione per risolvere questo problema. Consideriamo uno per uno tutti i prefissi della stringa corrente e controlliamo se il prefisso corrente è presente nel dizionario o meno. Se il prefisso è una parola valida, la aggiungiamo alla stringa di output e ripetila per la stringa rimanente. Il caso base della parola ricorsione è quando la stringa diventa vuota e stampiamo la stringa di output.
+
+Funzione per estrarre una sottostringa da una stringa (dall'indice start all'indice (end - 1)):
+
+(define (substr str start end)
+  (if (or (= str "") (>= start (length str)))
+      ""
+      (select str (sequence start (- end 1)))))
+
+(substr "zippo" 0 1)
+;-> "z"
+(substr "zippo" 0 0)
+;-> "zo"
+(substr "zippo" 1 1)
+;-> "iz"
+(substr "" 0 0)
+;-> ""
+(substr "" 1 3)
+;-> ""
+
+Adesso scriviamo la funzione ausiliaria e quella principale:
+
+(define (wordbreak dict word out)
+  (cond ((zero? (length word))
+         (println ":" out)
+         (push (trim out) sol -1)
+         nil)
+        (true
+         (for (i 1 (length word))
+            (setq pre (substr word 0 i))
+            (if (find pre dict)
+                (wordbreak dict (substr word i (length word)) (string out " " pre))
+            )))))
+
+(define (word-break dict word)
+  (local (sol)
+    (setq sol '())
+    (wordbreak dict word "")
+    sol))
+
+Vediamo alcuni esempi:
+
+(setq dizio '("super" "demo" "is" "famous" "anti" "break" "problem"))
+(word-break dizio "superantibreak" "")
+;-> : super anti break
+;-> ("super anti break")
+(word-break dizio "superantibrea")
+;-> ()
+(word-break dizio "problemisdemo")
+;-> :  problem is demo
+;-> ("problem is demo")
+
+(setq dizio '("this" "th" "is" "famous" "Word" "break" "b" "r" "e" "a" "k" "br" "bre" "brea" "ak" "problem"))
+(word-break dizio "Wordbreakproblem")
+;-> : Word b r e a k problem
+;-> : Word b r e ak problem
+;-> : Word br e a k problem
+;-> : Word br e ak problem
+;-> : Word bre a k problem
+;-> : Word bre ak problem
+;-> : Word brea k problem
+;-> : Word break problem
+;-> ("Word b r e a k problem" "Word b r e ak problem" 
+;->  "Word br e a k problem" "Word br e ak problem"
+;->  "Word bre a k problem" "Word bre ak problem"
+;->  "Word brea k problem" "Word break problem")
 
 
 ------------------------------------------------
@@ -8925,6 +8995,51 @@ Sequenza OEIS A056792:
 ;-> (0 1 2 3 3 4 4 5 4 5 5 6 5 6 6 7 5 6 6 7 6 7 7 
 ;->  8 6 7 7 8 7 8 8 9 6 7 7 8 7 8 8 9 7 8 8 9 8 9 
 ;->  9 10 7 8 8)
+
+
+--------------------------
+Funzione substring di Java
+--------------------------
+
+In Java il metodo substring(int beginIndex, int endIndex) della classe String restituisce una nuova stringa che è una sottostringa di questa stringa. La sottostringa inizia dall'indice beginIndex e si estende fino al carattere con l'indice (endIndex - 1). Pertanto, la lunghezza della sottostringa è (endIndex - beginIndex).
+
+Per simulare la funzione "substring" utilizziamo la funzione "slice" di newLISP.
+
+(setq str "zippo")
+
+(define (substring str start end)
+  (if (= end nil) (setq end (length str)))
+  (cond ((= str "") "")
+        ((>= start (length str)) "")
+        ((>= start end) "")
+        (true
+         (slice str start (+ start end)))))
+
+Vediamo alcuni esempi:
+
+(substring "zippo" 0 1)
+;-> "z"
+(substring "zippo" 0)
+;-> "zippo"
+(substring "zippo" 5)
+;-> ""
+(substring "zippo" 2)
+;-> "ppo"
+(substring "zippo" 0 0)
+;-> ""
+(substring "zippo" 1 1)
+;-> ""
+(substring "zippo" 1 3)
+;-> "ipo"
+(substring "zippo" 4 5)
+;-> "o"
+
+(for (i 1 (length str)) (println (substring str 0 i)))
+;-> z
+;-> zi
+;-> zip
+;-> zipp
+;-> zippo
 
 =============================================================================
 

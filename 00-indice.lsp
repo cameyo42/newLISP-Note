@@ -932,10 +932,11 @@ NOTE LIBERE 5
   Moltiplicazione di due polinomi
   Addizione di due polinomi
   Dadi e somme
-  Stringhe e dizionari
+  Stringhe e dizionari (word break)
   Estrazione codice sorgente da eseguibile newLISP
   Algoritmo Boyer Moore (Voto di maggioranza - Majority element)
   Convertire 0 in N (+1 o *2)
+  Funzione substring di Java
 
 APPENDICI
 =========
