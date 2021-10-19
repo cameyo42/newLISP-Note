@@ -71,6 +71,90 @@ Nel caso in cui un numero sia un multiplo di almeno due fattori, stampare ciascu
 ;-> Fizz, 23, FizzBuzz, Baxx, Fizz, Buzz, Fizz, 29, FizzBuzzBaxx
 
 
+------------------
+99 BOTTLES OF BEER
+------------------
+
+Questo è un classico problema di programmazione per principianti per familiarizzare con i cicli.
+Visualizzare il testo completo della canzone: "99 Bottles of Beer".
+
+Il testo della canzone della birra è il seguente:
+
+  99 bottles of beer on the wall
+  99 bottles of beer
+  Take one down, pass it around
+  98 bottles of beer on the wall
+  
+  98 bottles of beer on the wall
+  98 bottles of beer
+  Take one down, pass it around
+  97 bottles of beer on the wall
+
+... e così via, fino a raggiungere 0 (zero).
+
+Metodo ricorsivo (con grammatica corretta per 1 bottiglia)
+
+(define (rec bottles)
+  (if (!= 0 bottles)
+      (begin
+      (if (= bottles 1)
+          (print "\n" bottles " bottle of beer on the wall" 
+                 "\n" bottles " bottle of beer" 
+                 "\n" "Take one down, pass it around,")
+          (print "\n" bottles " bottles of beer on the wall" 
+                 "\n" bottles " bottles of beer" 
+                 "\n" "Take one down, pass it around,"))             
+      (if (= bottles 2)
+          (print "\n" (- bottles 1) " bottle of beer on the wall")
+          (print "\n" (- bottles 1) " bottles of beer on the wall"))
+      (print "\n" (rec (- bottles 1)))))
+  (list bottles))
+
+(rec 99)
+;-> 99 bottles of beer on the wall
+;-> 99 bottles of beer
+;-> Take one down, pass it around,
+;-> 98 bottles of beer on the wall
+;-> 
+;-> ...
+;-> 2 bottles of beer on the wall
+;-> 2 bottles of beer
+;-> Take one down, pass it around,
+;-> 1 bottle of beer on the wall
+;-> 
+;-> 1 bottle of beer on the wall
+;-> 1 bottle of beer
+;-> Take one down, pass it around,
+;-> 0 bottles of beer on the wall
+;-> (0)(1)(2)(3)(4)(5)(6)(7)(8)(9)(10)(11)(12)(13)(14)(15)(16)(17)(18)
+;-> (19)(20)(21)(22)(23)(24)(25)(26)(27)(28)(29)(30)(31)(32)(33)(34)
+;-> (35)(36)(37)(38)(39)(40)(41)(42)(43)(44)(45)(46)(47)(48)(49)(50)
+;-> (51)(52)(53)(54)(55)(56)(57)(58)(59)(60)(61)(62)(63)(64)(65)(66)
+;-> (67)(68)(69)(70)(71)(72)(73)(74)(75)(76)(77)(78)(79)(80)(81)(82)
+;-> (83)(84)(85)(86)(87)(88)(89)(90)(91)(92)(93)(94)(95)(96)(97)(98)(99)
+
+Nota: il sito https://www.99-bottles-of-beer.net/ contiene una raccolta della canzone "99 Bottles of Beer" programmate in diversi linguaggi di programmazione. Attualmente la canzone è rappresentata in 1500 diversi linguaggi di programmazione e varianti. Nel sito viene riportata la versione newLISP di newdep:
+
+;; A way of putting them  on the wall, Target: efficiency. newdep 2007
+(set  'y 99 'z '( " bottles" " of beer on the wall" "no more" "Take one down and pass it around, "
+"Go to the store and buy some more, " ".\n" ))
+(set 'a (z 0) 'b (z 1) 'c (z 2) 'd (z 3) 'e (z 4) 'f (z 5) 'g (0 -1 a) 'h (0 8 b) 'i (-2 d))
+(for (x y 0)
+  (println
+   (if (> x 0) x (title-case c)) (if (= x 1) g a) b i (if (= x 0) c x) (if (= x 1) g a) h f
+     (if (= x 0) e d) (case x (0 y) (1 c) (true (- x 1)))  (if (= x 2) g a) b f ))
+;-> 99 bottles of beer on the wall, 99 bottles of beer.
+;-> Take one down and pass it around, 98 bottles of beer on the wall.
+;-> 
+;-> 98 bottles of beer on the wall, 98 bottles of beer.
+;-> Take one down and pass it around, 97 bottles of beer on the wall.
+;-> ...
+;-> 1 bottle of beer on the wall, 1 bottle of beer.
+;-> Take one down and pass it around, no more bottles of beer on the wall.
+;-> 
+;-> No more bottles of beer on the wall, no more bottles of beer.
+;-> Go to the store and buy some more, 99 bottles of beer on the wall.
+
 ------------
 NUMERI PRIMI
 ------------

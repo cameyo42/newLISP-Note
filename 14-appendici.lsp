@@ -3032,9 +3032,9 @@ Questo rende l'espressione da valutare di colore rosso:
 
 (trace-highlight "\027[0;31m" "\027[0;0m") ;red text color
 
-Questo usa il colore verde: 
+Questo usa il colore verde:
 
-(trace-highlight "\027[0;32m" "\027[0;0m") 
+(trace-highlight "\027[0;32m" "\027[0;0m")
 
 Questo rende l'espressione di colore negativo:
 

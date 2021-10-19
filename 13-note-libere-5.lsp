@@ -8232,16 +8232,16 @@ f(x) = a0 + a1*x + a2*x^2 + ... + an*x^n
 lista = (a0 a1 a2 ... an)
 
 (define (mul-poly p1 p2)
-  (local (prod l1 l2)
+  (local (res l1 l2)
     (setq l1 (length p1))
     (setq l2 (length p2))
-    (setq prod (dup 0 (+ l1 l2 (- 1))))
+    (setq res (dup 0 (+ l1 l2 (- 1))))
     (for (i 0 (- l1 1))
       (for (j 0 (- l2 1))
-        (setf (prod (+ i j)) (add (prod (+ i j)) (mul (p1 i) (p2 j))))
+        (setf (res (+ i j)) (add (res (+ i j)) (mul (p1 i) (p2 j))))
       )
     )
-    prod))
+    res))
 
 (mul-poly '(0 1 2) '(0 1 2))
 ;-> (0 0 1 4 4)
@@ -8265,21 +8265,21 @@ f(x) = a0 + a1*x + a2*x^2 + ... + an*x^n
 lista = (a0 a1 a2 ... an)
 
 (define (add-poly p1 p2)
-  (local (sum l1 l2)
+  (local (res l1 l2)
     (setq l1 (length p1))
     (setq l2 (length p2))
     (cond ((>= l1 l2)
-           (setq sum p1)
+           (setq res p1)
            (for (i 0 (- l2 1))
-             (setf (sum i) (add (sum i) (p2 i))))
+             (setf (res i) (add (res i) (p2 i))))
           )
           ((< l1 l2)
-           (setq sum p2)
+           (setq res p2)
            (for (i 0 (- l1 1))
-             (setf (sum i) (add (sum i) (p1 i))))
+             (setf (res i) (add (res i) (p1 i))))
           )
     )
-    sum))
+    res))
 
 (add-poly '(5 0 10 6) '(1 2 4))
 ;-> (6 2 14 6)
@@ -8289,6 +8289,47 @@ lista = (a0 a1 a2 ... an)
 
 (add-poly '(1 2 3) '(3 2 1))
 ;-> (4 4 4)
+
+
+---------------------------
+Sottrazione di due polinomi
+---------------------------
+
+Dati due polinomi, calcolare la loro sottrazione.
+Supponiamo che i polinomi siano rappresentati come liste con la seguente struttura:
+
+f(x) = a0 + a1*x + a2*x^2 + ... + an*x^n
+
+lista = (a0 a1 a2 ... an)
+
+(define (sub-poly p1 p2)
+  (local (res l1 l2)
+    (setq l1 (length p1))
+    (setq l2 (length p2))
+    (cond ((>= l1 l2)
+           (setq res p1)
+           (for (i 0 (- l2 1))
+             (setf (res i) (sub (res i) (p2 i))))
+          )
+          ((< l1 l2)
+           (setq res p2)
+           (for (i 0 (- l1 1))
+             (setf (res i) (sub (p1 i) (res i))))
+          )
+    )
+    res))
+
+(sub-poly '(5 0 10 6) '(1 2 4))
+;-> (4 -2 6 6)
+
+(sub-poly '(1 2 4) '(5 0 10 6))
+;-> (-4 2 -6 6)
+
+(sub-poly '(1 2 3) '(3 2 1))
+;-> (-2 0 2)
+
+(sub-poly '(-9 2 5) '(-3 2 2))
+;-> (-6 0 3)
 
 
 ------------
@@ -8510,7 +8551,7 @@ Inoltre possiamo anche stabilire le probabilità di uscita di ogni valore possib
 
 (dadi-prob 2 6)
 ;-> 36
-;-> ((2 1 0.02777777777777778) (3 2 0.05555555555555555) 
+;-> ((2 1 0.02777777777777778) (3 2 0.05555555555555555)
 ;->  (4 3 0.08333333333333333) (5  4 0.1111111111111111)
 ;->  (6 5 0.1388888888888889) (7 6 0.1666666666666667)
 ;->  (8 5 0.1388888888888889) (9 4 0.1111111111111111)
@@ -8525,7 +8566,7 @@ Questo metodo rappresenta un dado a n facce con il seguente polinomio:
          n
   f(x) = ∑ (x^i)*p(i), dove p(i) è la probabilità dell'evento i-esimo
         i=1
-         
+
 Ad esempio il polinomio per un dado da 6 facce vale:
 
 f(x) = (1/6)*x + (1/6)*x^2 + (1/6)*x^3 + (1/6)*x^4 + (1/6)*x^5 + (1/6)*x^6
@@ -8541,20 +8582,20 @@ f2(x) = (1/6)*x + (1/6)*x^2 + (1/6)*x^3 + (1/6)*x^4 + (1/6)*x^5 + (1/6)*x^6
 
 Il loro prodotto vale:
 
-f1(x) * f2(x) = (1/36)*x^12 + (1/18)*x^11 + (1/12)*x^10 + (1/9)x^9 + 
-                (5/36)*x^8 + (1/6)*x^7 + (5/36)*x^6) + (1/9)*x^5 + 
+f1(x) * f2(x) = (1/36)*x^12 + (1/18)*x^11 + (1/12)*x^10 + (1/9)x^9 +
+                (5/36)*x^8 + (1/6)*x^7 + (5/36)*x^6) + (1/9)*x^5 +
                 (1/12)*x^4 + (1/18)*x^3 + (1/36)*x^2
 
 Questo polinomio dice che:
 12 ha probabilità di uscire 1/36 = 0.02777777777777778
-11 ha probabilità di uscire 1/18 = 0.05555555555555555 
-10 ha probabilità di uscire 1/12 = 0.08333333333333333 
+11 ha probabilità di uscire 1/18 = 0.05555555555555555
+10 ha probabilità di uscire 1/12 = 0.08333333333333333
  9 ha probabilità di uscire 1/9  = 0.1111111111111111
  8 ha probabilità di uscire 5/36 = 0.1388888888888889
  7 ha probabilità di uscire 1/6  = 0.1666666666666667
  6 ha probabilità di uscire 5/36 = 0.1388888888888889
  5 ha probabilità di uscire 1/9  = 0.1111111111111111
- 4 ha probabilità di uscire 1/12 = 0.08333333333333333 
+ 4 ha probabilità di uscire 1/12 = 0.08333333333333333
  3 ha probabilità di uscire 1/18 = 0.05555555555555555
  2 ha probabilità di uscire 1/36 = 0.02777777777777778
 
@@ -8578,7 +8619,7 @@ Applichiamo il metodo al nostro esempio:
 (setq p2 (list 0 (div 1 6) (div 1 6) (div 1 6) (div 1 6) (div 1 6) (div 1 6)))
 (mul-poly p1 p2)
 ;-> (0 0 0.02777777777777778 0.05555555555555555 0.08333333333333333
-;->  0.1111111111111111 0.1388888888888889 0.1666666666666667 
+;->  0.1111111111111111 0.1388888888888889 0.1666666666666667
 ;->  0.1388888888888889 0.1111111111111111 0.08333333333333333
 ;->  0.05555555555555555 0.02777777777777778)
 
@@ -8618,7 +8659,6 @@ La funzione è la seguente:
 
 (test "doing" lst)
 ;-> nil
-
 
 Un problema più difficile è quello di determinare se la stringa può essere divisa in una o più sottostringhe non vuote contenute nel dizionario.
 
@@ -8684,7 +8724,7 @@ Vediamo alcuni esempi:
 ;-> : Word bre ak problem
 ;-> : Word brea k problem
 ;-> : Word break problem
-;-> ("Word b r e a k problem" "Word b r e ak problem" 
+;-> ("Word b r e a k problem" "Word b r e ak problem"
 ;->  "Word br e a k problem" "Word br e ak problem"
 ;->  "Word bre a k problem" "Word bre ak problem"
 ;->  "Word brea k problem" "Word break problem")
@@ -8992,8 +9032,8 @@ Sequenza OEIS A056792:
     (+ n-add n-mul))))
 
 (map A056792 (sequence 0 50))
-;-> (0 1 2 3 3 4 4 5 4 5 5 6 5 6 6 7 5 6 6 7 6 7 7 
-;->  8 6 7 7 8 7 8 8 9 6 7 7 8 7 8 8 9 7 8 8 9 8 9 
+;-> (0 1 2 3 3 4 4 5 4 5 5 6 5 6 6 7 5 6 6 7 6 7 7
+;->  8 6 7 7 8 7 8 8 9 6 7 7 8 7 8 8 9 7 8 8 9 8 9
 ;->  9 10 7 8 8)
 
 
@@ -9023,6 +9063,8 @@ Vediamo alcuni esempi:
 ;-> "zippo"
 (substring "zippo" 5)
 ;-> ""
+(substring "zippo" 6)
+;-> ""
 (substring "zippo" 2)
 ;-> "ppo"
 (substring "zippo" 0 0)
@@ -9040,6 +9082,297 @@ Vediamo alcuni esempi:
 ;-> zip
 ;-> zipp
 ;-> zippo
+
+
+---------------------------------------
+Clojure-style Tail Recursion in newLISP
+---------------------------------------
+
+Questo è un post di rickyboy su forum di newLISP (riportato integralmente in inglese).
+
+rickyboy: 
+*********
+Today, I just read an old blog post by Mike Ivanov where he explains how he implemented Clojure-style (loop/recur) tail recursion in Emacs Lisp. My first thought was, "Hey, that's cool!" My second thought was, "Hey, I think we can do this in newLISP too!" :)
+
+Nota: il post di Mike Ivanov viene riportato al termin di questo articolo.
+
+So, just for fun, here is my newLISP port of Mike's implementation.
+
+[EDIT: I updated the code in the following block after my original posting to fix a bug. The details of the bug (error) are described in a  reply of mine further down in this discussion.]
+
+(constant '[loop/recur-marker] '[loop/recur-marker])
+
+(define (loop- BODY-FN)
+  (let (.args (args) .res nil)
+    (while (begin
+             (setq .res (apply BODY-FN .args))
+             (when (and (list? .res) (not (empty? .res))
+                        (= [loop/recur-marker] (first .res)))
+               (setq .args (rest .res)))))
+    .res))
+
+(define (recur) (cons [loop/recur-marker] (args)))
+
+(define (flat-shallow-pairs LIST)
+  (let (i 0 acc '())
+    (dolist (e LIST)
+      (cond ((even? i) ; Indicator i is even = abscissa
+             (cond ((and (list? e) (not (empty? e)))
+                    (extend acc (0 2 (push nil e -1))))
+                   ((symbol? e)
+                    (push e acc -1)
+                    (inc i))))
+            ((odd? i) ; Indicator i is odd = ordinate
+             (push e acc -1)
+             (inc i))))
+    acc))
+
+(define (parms<-bindings BINDINGS)
+  (map first (explode (flat-shallow-pairs BINDINGS) 2)))
+
+(define-macro (loop INIT)
+  (letn (.parms (parms<-bindings INIT)
+         .body-fn (letex ([body] (args)
+                          [parms] .parms)
+                    (append '(fn [parms]) '[body]))
+         .loop-call (letex ([body-fn] .body-fn
+                            [parms] .parms)
+                      (append '(loop- [body-fn]) '[parms])))
+    (letex ([init] INIT [loop-call] .loop-call)
+      (letn [init] [loop-call]))))
+
+You can't use Mike's (Emacs Lisp) applications examples verbatim, but here they are in newLISP.
+
+(define (factorial x)
+  (loop (x x acc 1)
+    (if (< x 1)
+        acc
+        (recur (- x 1) (* x acc)))))
+
+(define (fibo x)
+  (loop (x x curr 0 next 1)
+    (if (= x 0)
+        curr
+        (recur (- x 1) next (+ curr next)))))
+
+They work like a charm!
+
+(factorial 10)
+;-> 3628800
+(fibo 10)
+;-> 55
+
+Please let me know if you spot an error or if it can be accomplished better in any way. Thanks and happy hacking! :)
+(λx. x x) (λx. x x)
+
+rickyboy:
+*********
+There was an error in my first implementation of the loop macro in extracting the "variables" associated with the loop bindings. I changed this in the first post (above), in case any reader gets it and doesn't make it this far into the discussion.
+
+newLISP Let Bindings
+--------------------
+Before we get into describing the error, I should give some context.
+
+newLISP does something very cool with let bindings. In newLISP, you can code the let bindings as a list of pairs -- as it is done in Common Lisp or Scheme, for example -- as in the following.
+
+> (let ((x 1) (y 2) (z 3)) (list x y z))
+(1 2 3)
+
+Alternatively, newLISP allows you to drop the pair parentheses in the let bindings, or to mix and match.
+
+> (let (x 1 y 2 z 3) (list x y z))
+(1 2 3)
+> (let (x 1 (y 2) z 3) (list x y z))
+(1 2 3)
+Also, note how the following bindings are equivalent.
+
+> (let (x 1 (y) z 3) (list x y z))
+(1 nil 3)
+> (let (x 1 (y nil) z 3) (list x y z))
+(1 nil 3)
+
+The Error
+---------
+So now on to how the error was introduced. I knew my code needed to build a list of "parameters" from the bindings provided by the user (caller) of loop. These parameters are a list of all the variables in the loop bindings, and the loop macro was going to use these in building its call to loop-. This list is the second argument to loop-, by the way.
+
+I had thought that the users of loop would naturally need to express the loop bindings in the same way that they express any let bindings that they ever code. So, in building that list of parameters, I had to be mindful of the different ways that let bindings can be expressed in newLISP (as we covered above).
+
+The error is contained in the following (original and erroneous) definition of loop. You might be able to spot it right away.
+
+(define-macro (loop INIT)
+  (letn (.parms (map first (explode (flat INIT) 2))
+         .body-fn (letex ([body] (args)
+                          [parms] .parms)
+                    (append '(fn [parms]) '[body]))
+         .loop-call (letex ([body-fn] .body-fn
+                            [parms] .parms)
+                      (append '(loop- [body-fn]) '[parms])))
+    (letex ([init] INIT [loop-call] .loop-call)
+      (letn [init] [loop-call]))))
+Specifically the error is in the way the parameters, .parms, are getting computed by the expression (map first (explode (flat INIT) 2)). The problem is that flat flattens the list "too deeply" for our use.
+
+For instance, the first usage is OK, but the second breaks.
+
+> (let (INIT '(x 1 y 2 z 3)) (map first (explode (flat INIT) 2)))
+(x y z)
+> (let (INIT '(x 1 y (+ 40 2) z 3)) (map first (explode (flat INIT) 2)))
+(x y 40 z)
+
+Oops, look at the second usage above: 40 is not supposed to be a parameter. The second usage breaks because flat is "too eager" or "too deep." Let's look at what flat does to the bindings from the second usage above.
+
+> (let (INIT '(x 1 y (+ 40 2) z 3)) (flat INIT))
+(x 1 y + 40 2 z 3)
+
+Yeah, that's not what we want. What we need, however, is a "shallower" version of flat.
+
+The following function flat-shallow-pairs attempts to do just that. It will flatten a list, making "flat pairs" along the way, but will respect the pairs that are explicitly expressed with parentheses.
+
+(define (flat-shallow-pairs LIST)
+  (let (i 0 acc '())
+    (dolist (e LIST)
+      (cond ((even? i) ; Indicator i is even = abscissa
+             (cond ((and (list? e) (not (empty? e)))
+                    (extend acc (0 2 (push nil e -1))))
+                   ((symbol? e)
+                    (push e acc -1)
+                    (inc i))))
+            ((odd? i) ; Indicator i is odd = ordinate
+             (push e acc -1)
+             (inc i))))
+    acc))
+
+Here it is in action on the (formerly problematic) second usage and beyond.
+
+> (let (INIT '(x 1 y (+ 40 2) z 3)) (flat-shallow-pairs INIT))
+(x 1 y (+ 40 2) z 3)
+> (let (INIT '((x 1) y (+ 40 2) z 3)) (flat-shallow-pairs INIT))
+(x 1 y (+ 40 2) z 3)
+> (let (INIT '((x 1) y (+ 40 2) z (lambda (x) (flat x)))) (flat-shallow-pairs INIT))
+(x 1 y (+ 40 2) z (lambda (x) (flat x)))
+Now, we just replace flat with flat-shallow-pairs in the expression (map first (explode (flat INIT) 2)), but we'll roll that expression into a function called parms<-bindings.
+
+(define (parms<-bindings BINDINGS)
+  (map first (explode (flat-shallow-pairs BINDINGS) 2)))
+
+Let's look at the old and new computation, side-by-side.
+
+> (let (INIT '(x 1 y (+ 40 2) z 3)) (map first (explode (flat INIT) 2)))
+(x y 40 z)
+> (let (INIT '(x 1 y (+ 40 2) z 3)) (parms<-bindings INIT))
+(x y z)
+
+So, the new definition of loop is now the following.
+
+(define-macro (loop INIT)
+  (letn (.parms (parms<-bindings INIT)
+         .body-fn (letex ([body] (args)
+                          [parms] .parms)
+                    (append '(fn [parms]) '[body]))
+         .loop-call (letex ([body-fn] .body-fn
+                            [parms] .parms)
+                      (append '(loop- [body-fn]) '[parms])))
+    (letex ([init] INIT [loop-call] .loop-call)
+      (letn [init] [loop-call]))))
+
+As before, please let me know about any errors or if things can be accomplished better. Thanks!
+(λx. x x) (λx. x x)
+
+Lutz:
+This for rickyboy:
+
+(flat '(a b (c d (e f)) (g h (i j))) )   → (a b c d e f g h i j)
+
+(flat '(a b (c d (e f)) (g h (i j))) 1)  → (a b c d (e f) g h (i j))
+
+(flat '(a b (c d (e f)) (g h (i j))) 2)  → (a b c d e f g h i j)
+
+new optional parameter for recursion level in flat
+
+Tail recursion without TCO by Mike Ivanov
+-----------------------------------------
+
+https://www.mikeivanov.com/post/44952159596/tail-recursion-without-tco
+
+Emacs lisp has no Tail Call Optimization (TCO), neither do many other lisp dialects. The lack of TCO is not a big deal–it’s always possible to transform a tail recursive algorithm into a loop. However, it makes functions look uglier. Here is a very simple method of enabling Clojure-style tail call recursion in Emacs lisp:
+
+;; A very simple linearized Y combinator.
+;; All the state management stuff is incapsulated here.
+;; Don't call it directly.
+(defun rloop- (body &rest args)
+  (let ((res nil))
+    (while (progn
+             ;; here's the idea: we keep calling body 
+             ;; while it returns the recursion marker
+             (setq res (apply body args))
+             (when (and (consp res)
+                        (eq :loop-recur-marker (car res)))
+               (progn (setq args (cdr res))
+                      t))))
+    res))
+
+;; Recursion marker factory
+(defun recur (&rest args)
+  ;; instead of a real recursive call,
+  ;; just signal an intention to make one
+  (cons :loop-recur-marker args))
+
+;; The form macro
+(defmacro rloop (init body)
+  (let ((args (mapcar 'car init)))
+    ;; a little courtesy to the macro users
+    `(let* ,init
+       ;; make a lambda from the body and pass it 
+       ;; to the combinator function
+       (rloop- (function (lambda (,@args) ,body))
+               ,@args))))
+
+Here’s how to use it:
+
+(defun factorial (x)
+  ;; this is the recursion entry point
+  (rloop ((x   x) 
+          (acc 1))
+         (if (< x 1)
+             acc ;; done, just return the result
+           ;; not done, start the whole rloop block again
+           (recur (1- x) 
+                  (* x acc)))))
+
+ELISP> (factorial 10)
+3628800
+
+The funny part is defun is not necessary. You can have as many sequential inlined rloops as you want. I like this approach: all the state management stuff is off the sight. The function code is almost identical to the underlying algorithm. Another classic example:
+
+(defun fibo (x)
+  (rloop ((x    x)
+          (curr 0)
+          (next 1))
+         (if (= x 0)
+             curr
+           (recur (1- x) 
+                   next 
+                  (+ curr next)))))
+
+ELISP> (fibo 10)
+55
+
+Nice, eh? Of course, this kind of beauty comes with a price. Here is how the rloop macro expands:
+
+ELISP> (macroexpand '(rloop ((n 0)) (if (> n 5) n (recur (1+ n)))))
+
+(let*
+    ((n 0))
+  (rloop-
+   #'(lambda
+       (n)
+       (if
+           (> n 5)
+           n
+         (recur
+          (1+ n))))
+   n))
+
+...which means two extra function calls on each iteration. But realistically, it’s not such a big deal. Clarity of the code is way more important.
 
 =============================================================================
 

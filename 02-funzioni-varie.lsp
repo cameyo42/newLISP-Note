@@ -189,6 +189,8 @@ Crono
 
 Definiamo una funzione che prende un numero n come argomento e costruisce una lista con tutti i numeri da n fino a 1 in ordine decrescente:
 
+Stile Scheme/Lisp:
+
 (define (crono n)
   (if (<= n 0)
       '()
@@ -201,12 +203,38 @@ Definiamo una funzione che prende un numero n come argomento e costruisce una li
 (crono 10)
 ;-> (10 9 8 7 6 5 4 3 2 1)
 
+Stile iterativo:
+
+(define (crono2 n)
+  (let (out '())
+    (for (i n 1 -1)
+      (push i out -1)
+    )
+    out))
+
+(crono2 10)
+;-> (10 9 8 7 6 5 4 3 2 1)
+
+Stile newLISP:
+
+(define (crono3 n) (sequence n 1))
+
+(crono3 10)
+;-> (10 9 8 7 6 5 4 3 2 1)
+
+(time (crono 200) 10000)
+;-> 1373.739
+(time (crono2 200) 10000)
+;-> 98.895
+(time (crono3 200) 10000)
+;-> 12.066
 
 ------------------------------
 Cambiare di segno ad un numero
 ------------------------------
 
 Primo metodo (sottrazione)
+--------------------------
 (setq n -1.24)
 ;-> -1.24
 (setq n (sub 0 n))
@@ -215,6 +243,7 @@ Primo metodo (sottrazione)
 ;-> -1.24
 
 Secondo metodo (moltiplicazione)
+--------------------------------
 (setq n -1.24)
 ;-> -1.24
 (setq n (mul -1 n))
@@ -228,10 +257,12 @@ Vediamo quale metodo è più veloce:
 ;-> (-1 -2 -3 -4 -5 -6 -7 -8 -9 -10)
 
 (map (lambda (x) (mul -1 x)) (sequence 1 10))
-;-> (map (lambda (x) (mul -1 x)) (sequence 1 10))
+;-> (-1 -2 -3 -4 -5 -6 -7 -8 -9 -10)
 
 Test primo metodo:
 (time (map (lambda (x) (sub 0 x))  (sequence 1 1000000)) 10)
+Questo è leggermente più veloce:
+(time (map (lambda (x) (sub x))  (sequence 1 1000000)) 10)
 ;-> 906.196
 
 Test secondo metodo:
@@ -241,6 +272,7 @@ Test secondo metodo:
 I due metodi hanno la stessa velocità.
 
 Terzo metodo (bitwise not "~") (valido solo per numeri interi)
+--------------------------------------------------------------
 (setq n -10)
 ;-> -10
 (setq n (add (~ n) 1))
@@ -249,24 +281,38 @@ Terzo metodo (bitwise not "~") (valido solo per numeri interi)
 ;-> -10
 
 Test terzo metodo:
-(time (map (lambda (x) (add (~ n) 1)) (sequence 1 1000000)) 10)
+(time (map (lambda (x) (add (~ x) 1)) (sequence 1 1000000)) 10)
 ;-> 1207.781
 
 Questo metodo è più lento.
 
-Quarto metodo (segno meno "-")
+Quarto metodo (segno meno "-") (valido solo per numeri interi)
+--------------------------------------------------------------
 (setq n -10)
-;-> 10
+;-> -10
 (setq n (- n))
 ;-> 10
 (setq n (- n))
 ;-> -10
 
 Test quarto metodo:
-(time (map (lambda (x) (- n)) (sequence 1 1000000)) 10)
-;-> 914.067
+(time (map (lambda (x) (- x)) (sequence 1 1000000)) 10)
+;-> 900.067
 
-Stessa velocità dei primi due metodi, ma quest'ultimo è più leggibile.
+Quinto metodo (segno per "*") (valido solo per numeri interi)
+-------------------------------------------------------------
+(setq n -10)
+;-> -10
+(setq n (* -1 n))
+;-> 10
+(setq n (* -1 n))
+;-> -10
+
+Test quinto metodo:
+(time (map (lambda (x) (* -1 x)) (sequence 1 1000000)) 10)
+;-> 902.346
+
+Con i numeri interi abbiamo velocità simile a quella dei primi due metodi (numeri floating point).
 
 
 ----------------------------------

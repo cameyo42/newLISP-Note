@@ -227,6 +227,7 @@ newLISP 99 PROBLEMI (28)
 ROSETTA CODE
 ============
   FizzBuzz
+  99 Bottles of Beer
   Numeri Primi
   Numeri di Smith
   Numeri di Hamming
@@ -860,7 +861,7 @@ NOTE LIBERE 4
   Numeri Armstrong
   Evoluzione dell'algoritmo per la moltiplicazione di due numeri interi
   Indice di equilibrio
-  Numero soluzioni equazione lineare a k variabili  
+  Numero soluzioni equazione lineare a k variabili
   Internet-point
 
 NOTE LIBERE 5
@@ -898,7 +899,7 @@ NOTE LIBERE 5
   Media continua
   Sequenza di Kolakoski
   Da stringa generica a stringa palindroma
-  Frasi e semplici regole grammaticali  
+  Frasi e semplici regole grammaticali
   commonLISP in newLISP
   Peso ideale e indice di massa corporea
   Sequenza di Golomb
@@ -931,12 +932,14 @@ NOTE LIBERE 5
   Algoritmo LZW (Lempel Ziv Welch)
   Moltiplicazione di due polinomi
   Addizione di due polinomi
+  Sottrazione di due polinomi
   Dadi e somme
   Stringhe e dizionari (word break)
   Estrazione codice sorgente da eseguibile newLISP
   Algoritmo Boyer Moore (Voto di maggioranza - Majority element)
   Convertire 0 in N (+1 o *2)
   Funzione substring di Java
+  Clojure-style Tail Recursion in newLISP
 
 APPENDICI
 =========
@@ -968,7 +971,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (175 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (178 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================
