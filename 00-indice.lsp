@@ -940,6 +940,7 @@ NOTE LIBERE 5
   Convertire 0 in N (+1 o *2)
   Funzione substring di Java
   Clojure-style Tail Recursion in newLISP
+  Sviluppo di una funzione
 
 APPENDICI
 =========
@@ -971,7 +972,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (178 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (179 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================

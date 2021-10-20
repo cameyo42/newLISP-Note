@@ -940,6 +940,7 @@ NOTE LIBERE 5
   Convertire 0 in N (+1 o *2)
   Funzione substring di Java
   Clojure-style Tail Recursion in newLISP
+  Sviluppo di una funzione
 
 APPENDICI
 =========
@@ -971,7 +972,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (178 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (179 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================
@@ -110877,6 +110878,8 @@ Vediamo alcuni esempi:
 ;-> zipp
 ;-> zippo
 
+Nota: la funzione Java "substring" restituisce un errore se gli indici non sono corretti.
+
 
 ---------------------------------------
 Clojure-style Tail Recursion in newLISP
@@ -111003,6 +111006,7 @@ The error is contained in the following (original and erroneous) definition of l
                       (append '(loop- [body-fn]) '[parms])))
     (letex ([init] INIT [loop-call] .loop-call)
       (letn [init] [loop-call]))))
+
 Specifically the error is in the way the parameters, .parms, are getting computed by the expression (map first (explode (flat INIT) 2)). The problem is that flat flattens the list "too deeply" for our use.
 
 For instance, the first usage is OK, but the second breaks.
@@ -111043,6 +111047,7 @@ Here it is in action on the (formerly problematic) second usage and beyond.
 (x 1 y (+ 40 2) z 3)
 > (let (INIT '((x 1) y (+ 40 2) z (lambda (x) (flat x)))) (flat-shallow-pairs INIT))
 (x 1 y (+ 40 2) z (lambda (x) (flat x)))
+
 Now, we just replace flat with flat-shallow-pairs in the expression (map first (explode (flat INIT) 2)), but we'll roll that expression into a function called parms<-bindings.
 
 (define (parms<-bindings BINDINGS)
@@ -111167,6 +111172,271 @@ ELISP> (macroexpand '(rloop ((n 0)) (if (> n 5) n (recur (1+ n)))))
    n))
 
 ...which means two extra function calls on each iteration. But realistically, it’s not such a big deal. Clarity of the code is way more important.
+
+
+------------------------
+Sviluppo di una funzione
+------------------------
+
+Vogliamo scrivere una funzione che estrae una sottostringa da una stringa.
+Prima di tutto defininiamo il nome e i parametri della funzione:
+
+  (substring str start end)
+
+Adesso dobbiamo descrivere come agisce la funzione:
+
+ La funzione "substring" prende una stringa ed estrae i caratteri da "start" a (end - 1).
+
+Perchè arriviamo fino a (end - 1) e non a "end" ?
+Perchè in questo modo possiamo passare ad "end" la lunghezza della stringa per estrarre tutti i caratteri da "start" fino alla fine della stringa.
+
+Scriviamo il primo prototipo della funzione (commentando fin da ora il codice):
+
+(define (substring1 str start end)
+  (let (out "") ; risultato della funzione
+    ; per ogni carattere da start a (end -1)
+    (for (i start (- end 1))
+      ;aggiunge il carattere corrente al risultato
+      (extend out (str i))
+    )
+    out))
+
+Adesso proviamo la funzione:
+
+(setq str "zippo")
+
+(substring1 str 0 1)
+;-> "z"
+(substring1 str 3 4)
+;-> "p"
+(substring1 str 2 4)
+;-> "pp"
+(substring1 str 0 (length str))
+;-> "zippo"
+
+Sembra corretta, ma se proviamo a passare due indici uguali non otteniamo il risultato voluto (""):
+
+(substring1 str 0 0)
+;-> "zo"
+
+Otteniamo "zo" perchè l'indice del ciclo "for" vale 0, che è il carattere "z", e -1, che è il carattere "o" (perchè per newLISP l'indice -1 è l'ultimo carattere della stringa).
+
+Anche quando risulta (start > end) otteniamo strani risultati:
+
+(substring1 str 2 0)
+;-> "pizo"
+(substring1 str 3 0)
+;-> "ppizo"
+(substring1 str 3 1)
+;-> "ppiz"
+(substring1 str 4 1)
+;-> "oppiz" ; inversione della stringa
+
+Anche in questi casi il risultato è dovuto al comportamento della funzione "for". Supponendo che la nostra funzione non debba produrre questi risultati di difficile interpretazione, dobbiamo decidere come devono essere trattati i "casi particolari" (cercando di trovarli tutti).
+
+Caso 1 - Indici uguali (start = end)
+Output: Il risultato deve essere la stringa vuota
+
+Caso 2 - Indici negativi (start < 0) o (end < 0)
+Output: Il risultato deve essere la stringa vuota
+
+Caso 3 - Indici non ordinati (start < end)
+Output: Il risultato deve essere la stringa vuota
+
+Nota: la scelta di restituire la stringa vuota per i casi particolari potrebbe essere diversa, ad esempio avremmo potuto scegliere di restituire nil o un codice di errore. Questo dipende dal contesto in cui verrà utilizzata la funzione.
+
+Scriviamo il secondo prototipo:
+
+(define (substring2 str start end)
+  (let (out "") ; risultato della funzione
+    (cond ((= end start) (setq out "")) ; casi particolari
+          ((< end start) (setq out "")) ; casi particolari
+          ((< start 0) (setq out ""))   ; casi particolari
+          ((< end 0) (setq out ""))     ; casi particolari
+          (true
+            ; per ogni carattere da start a (end -1)
+            (for (i start (- end 1))
+              ;aggiunge il carattere corrente al risultato
+              (extend out (str i))
+            )))
+    out))
+
+E proviamo la funzione:
+
+(substring2 str 0 1)
+;-> "z"
+(substring2 str 3 4)
+;-> "p"
+(substring2 str 2 4)
+;-> "pp"
+(substring2 str 0 (length str))
+;-> "zippo"
+(substring2 str 0 0)
+;-> ""
+(substring2 str 2 0)
+;-> ""
+(substring2 str 3 0)
+;-> ""
+(substring2 str 3 1)
+;-> ""
+(substring2 str 4 1)
+;-> ""
+
+Tutto a posto... quasi. Abbiamo controllato che il valore degli indici sia corretto, ma se passiamo alla funzione una stringa vuota otteniamo un errore:
+
+(substring2 "" 1 2)
+;-> ERR: invalid string index in function extend
+;-> called from user function (substring2 "" 1 2)
+
+Quindi dobbiamo aggiungere alla funzione anche questo caso particolare:
+
+Caso 4 - Stringa nulla (str = "")
+
+Scriviamo il terzo prototipo:
+
+(define (substring3 str start end)
+  (let (out "") ; risultato della funzione
+    (cond ((= end start) (setq out "")) ; casi particolari
+          ((< end start) (setq out "")) ; casi particolari
+          ((< start 0) (setq out ""))   ; casi particolari
+          ((< end 0) (setq out ""))     ; casi particolari
+          ((= str "") (setq out ""))    ; casi particolari
+          (true
+            ; per ogni carattere da start a (end -1)
+            (for (i start (- end 1))
+              ;aggiunge il carattere corrente al risultato
+              (extend out (str i))
+            )))
+    out))
+
+Proviamo (solo questo ultimo caso particolare):
+
+(substring3 "" 1 2)
+;-> ""
+
+Bene, abbiamo considerato i casi in cui i valori dei parametri assumono dei valori limite. Adesso possiamo considerare anche i casi in cui i parametri non sono del tipo giusto (ed esempio passimo un numero come stringa o passimo una stringa come indice). Comunque dobbiamo fare una piccola riflessione e porci alcune domnande:
+
+1) chi userà la funzione?
+Se la funzione viene utilizzata solo da noi, allora possiamo fare a meno di "proteggere" tutti gli input errati (anche se io credo che sia meglio "prevedere" il più possibile), altrimenti dobbiamo considerare un eventuale utilizzo errato della funzione da parte di altri programmatori.
+
+2) quanto deve essere veloce la funzione?
+Se la funzione ha limiti di tempo, allora occore cercare di renderla il più efficiente possibile a scapito di ogni controllo: la funzione si comporta correttamente solo se i parametri sono corretti.
+
+Chiaramente è anche possibile definire una soluzione che soddisfa in parte entrambe le esigenze.
+
+Per adesso consideriamo che la funzione debba essere disponibile per tutti, quindi consideriamo i casi particolari dovuti al tipo errato dei parametri.
+
+Caso 5 - str non è una stringa
+Output: Il risultato deve essere nil
+
+Caso 6 - start non è un numero intero
+Output: Il risultato deve essere nil
+
+Caso 7 - end non è un numero intero
+Output: Il risultato deve essere nil
+
+Nota: la scelta di restituire nil in questi casi è per diversificare dai casi precedenti sugli indici in cui restituiamo la stringa vuota "".
+
+Per il corretto funzionamento i casi particolari sui "tipi" dei parametri devono essere controllati prima dei casi sui "valori" dei parametri.
+
+Scriviamo il quarto prototipo:
+
+(define (substring4 str start end)
+  (let (out "") ; risultato della funzione
+          ; controlli sui tipi dei parametri
+    (cond ((not (string? str)) (setq out nil))
+          ((not (integer? start)) (setq out nil))
+          ((not (integer? end)) (setq out nil))
+          ; controlli sui valori dei parametri
+          ((= end start) (setq out "")) ; casi particolari
+          ((< end start) (setq out "")) ; casi particolari
+          ((< start 0) (setq out ""))   ; casi particolari
+          ((< end 0) (setq out ""))     ; casi particolari
+          ((= str "") (setq out ""))    ; casi particolari
+          (true
+            ; per ogni carattere da start a (end -1)
+            (for (i start (- end 1))
+              ;aggiunge il carattere corrente al risultato
+              (extend out (str i))
+            )))
+    out))
+
+Proviamo (solo i casi che controllano i tipi dei parametri):
+
+(substring4 1 2 4)
+;-> nil
+(substring4 "newlisp" "1" 4)
+;-> nil
+(substring4 "newlisp" 1 4.1)
+;-> nil
+
+Abbiamo finito a scrivere la nostra funzione "substring" che controlla la correttezza di tutti i parametri (speriamo) prima di effettuare l'estrazione della sottostringa.
+
+Adesso scriviamo una funzione che risolve il problema nel modo più veloce possibile (quindi senza alcun controllo sui parametri). Invece di utilizzare il ciclo "for" utilizziamo la funzione "slice" di newLISP.
+
+sintassi: (slice str int-index [int-length])
+"slice" estrae una parte della stringa in str. int-index contiene l'indice iniziale e int-length contiene la lunghezza della sottostringa. Se int-length non viene specificato, viene estratto tutto fino alla fine della stringa.
+
+Esempi:
+
+(slice "Hello World" 6 2)
+;-> "Wo"
+(slice "Hello World" 0 5)
+;-> "Hello"
+(slice "Hello World" 6)  
+;-> "World"
+(slice "newLISP" -4 2)
+;-> "LI"
+
+Scriviamo la funzione veloce:
+
+(define (substring5 str start end)
+  (let (out "") ; risultato della funzione
+    (slice str start (- end start))))
+
+Proviamo questa funzione con tutti gli input precedenti:
+
+(setq str "zippo")
+
+(substring5 str 0 1)
+;-> "z"
+(substring5 str 3 4)
+;-> "p"
+(substring5 str 2 4)
+;-> "pp"
+(substring5 str 0 (length str))
+;-> "zippo"
+
+(substring5 str 0 0)
+;-> ""
+(substring5 str 2 0)
+;-> "p"
+(substring5 str 3 0)
+;-> ""
+(substring5 str 3 1)
+;-> ""
+(substring5 str 4 1)
+;-> ""
+(substring5 "" 1 2)
+;-> ""
+
+(substring5 1 2 4)
+;-> ERR: list or string expected : (- end start)
+;-> called from user function (substring5 1 2 4)
+(substring5 "newlisp" "1" 4)
+;-> ERR: value expected in function slice : start
+;-> called from user function (substring5 "newlisp" "1" 4)
+(substring5 "newlisp" 1 4.1)
+;-> "ewl"
+
+Vediamo i tempi di esecuzione di "substring4" e "substring5":
+
+(time (substring4 "supercalifragilistichespiralidoso" 10 31) 100000)
+;-> 576.981
+(time (substring5 "supercalifragilistichespiralidoso" 10 31) 100000)
+;-> 25.815
+
+Possiamo terminare lo sviluppo se una delle due funzioni soddisfa le nostre esigenze, altrimenti potremmo scrivere una nuova funzione utilizzando alcuni (o tutti) i controlli e il metodo "slice". Supponendo di essere soddisfatti dobbiamo terminare il lavoro scrivendo un documento fondamentale: la documentazione della funzione (che sarà leggermente differente in base alla funzione che scegliamo "substring4" o "substring5" o altro.
 
 =============================================================================
 
