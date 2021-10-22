@@ -941,6 +941,14 @@ NOTE LIBERE 5
   Funzione substring di Java
   Clojure-style Tail Recursion in newLISP
   Sviluppo di una funzione
+  Closures (chiusure)
+  Il concetto di base dei contesti in newLISP
+
+NOTE LIBERE 6
+=============
+  Starting with newLISP
+  Embedding blocks into Functions
+
 
 APPENDICI
 =========
@@ -972,7 +980,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (179 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (180 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================

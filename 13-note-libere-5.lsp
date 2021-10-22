@@ -9596,8 +9596,7 @@ Esempi:
 Scriviamo la funzione veloce:
 
 (define (substring5 str start end)
-  (let (out "") ; risultato della funzione
-    (slice str start (- end start))))
+    (slice str start (- end start)))
 
 Proviamo questa funzione con tutti gli input precedenti:
 
@@ -9641,7 +9640,176 @@ Vediamo i tempi di esecuzione di "substring4" e "substring5":
 (time (substring5 "supercalifragilistichespiralidoso" 10 31) 100000)
 ;-> 25.815
 
-Possiamo terminare lo sviluppo se una delle due funzioni soddisfa le nostre esigenze, altrimenti potremmo scrivere una nuova funzione utilizzando alcuni (o tutti) i controlli e il metodo "slice". Supponendo di essere soddisfatti dobbiamo terminare il lavoro scrivendo un documento fondamentale: la documentazione della funzione (che sarà leggermente differente in base alla funzione che scegliamo "substring4" o "substring5" o altro.
+Possiamo terminare lo sviluppo se una delle due funzioni soddisfa le nostre esigenze, altrimenti potremmo scrivere una nuova funzione utilizzando alcuni (o tutti) i controlli e il metodo "slice". Supponendo di essere soddisfatti dobbiamo terminare il lavoro scrivendo un documento fondamentale: la documentazione della funzione (che sarà leggermente differente in base alla funzione che scegliamo "substring4" o "substring5" o altro).
+
+
+-------------------
+Closures (chiusure)
+-------------------
+
+Qual è la differenza tra le chiusure in newLISP e le chiusure in Lisp/Scheme?
+Leggendo l'articolo http://lispy.wordpress.com/2007/10/25/what-you-dont-know-about-closures-can-hurt-you/ sembra che una chiusura sia solo una procedura con stato.
+
+Il "classico esempio" dell'accumulatore integrato in una funzione menzionato nell'articolo è apparso anche su questo forum:
+
+(context 'gen)
+
+(define (foo)
+    (if (number? acc)
+        (inc 'acc)
+        (set 'acc 0)))
+
+(context MAIN)
+
+(gen:foo)
+;-> 0
+(gen:foo)
+;-> 1
+(gen:foo)
+;-> 2
+(gen:foo)
+;-> 3
+
+Anche se questa sembra una procedura con lo stato, Lutz ha detto che le "chiusure di contesto" di newLISP non sono chiusure.
+Quindi qual è la differenza tra le "chiusure" di newLISP e le chiusure di Lisp/Scheme?
+
+Le chiusure sono una caratteristica dell'ambito lessicale e della definizione di funzioni dinamiche. Ad esempio, se crei un lambda all'interno di un'altra funzione, le variabili che si trovano nell'ambito esterno devono essere conservate per quel lambda. Quando quel lambda viene successivamente chiamato, quelle variabili che sarebbero state disponibili all'interno dell'ambito in cui è stato definito vengono quindi attivate nell'ambito della chiamata corrente.
+
+newLisp ha un ambito dinamico. Ogni volta che viene chiamata una funzione, viene chiamata nell'ambito corrente, non nell'ambito in cui è stata definita.
+
+newLisp ha tuttavia contesti che sono spazi dei nomi lessicali che possono simulare chiusure. Puoi farlo con un funtore (una funzione con lo stesso nome del suo contesto come foo:foo). Il contesto conserva i simboli nell'ambito del funtore e sono disponibili quando la funzione viene chiamata in un secondo momento, indipendentemente da dove viene chiamata.
+
+Tuttavia, la grande differenza è che all'interno di un contesto si applicano ancora le regole di ambito dinamico. Non è un ambito lessicale. È uno spazio dei nomi definito dal punto di vista lessicale parallelo all'ambito dinamico MAIN. Così:
+
+(setq foo:x "Hello world")
+(define (foo:foo) (lambda () (println x)))
+(setq x "Hello Corm")
+(setq my-foo (foo:foo))
+(my-foo)
+;-> Hello Corm
+(define (foo:foo) (lambda () (let (x "go") (println x))))
+(my-foo)
+;-> Hello Corm
+(context foo)
+(symbols)
+(foo:foo x)
+(setq a 10)
+x
+;-> "Hello world"
+(my-foo)
+;-> ERR: invalid function : (my-foo)
+
+In Scheme funzionerebbe in questo modo:
+
+(define foo
+  (lambda ()
+    (let ((x "Hello world"))
+      (lambda () (print x)))))
+
+(define my-foo (foo))
+(define x "Hello Corm")
+(my-foo) ; => prints "Hello world"
+
+Giusto - quindi la descrizione dell'articolo della chiusura come solo "una procedura con lo stato" non è l'intera storia...
+Beh, è una procedura con lo stato, ma questo non spiega come viene mantenuto quello stato.
+
+
+-------------------------------------------
+Il concetto di base dei contesti in newLISP
+-------------------------------------------
+
+Il contesto è equivalente allo spazio dei nomi di altri linguaggi, ma dopo tutto è un lisp, quindi il contesto è anche un simbolo, che può essere copiato, può essere passato come parametro di funzione e può essere assegnato a una variabile.
+
+Ogni contesto ha la sua collezione di simboli.
+
+Il contesto MAIN
+----------------
+C'è un contesto chiamato MAIN per impostazione predefinita. Ogni volta che viene avviato il processo newlisp, il contesto MAIN verrà creato automaticamente. Tutte le funzioni predefinite e i simboli speciali sono nel contesto MAIN. Utilizzare (symbols) per visualizzare:
+
+(symbols)
+
+(symbol your-context-name) può essere utilizzato per visualizzare i simboli in altri contesti.
+
+Regole per la creazione di simboli nel contesto
+-----------------------------------------------
+Le seguenti regole aiutano a capire come vengono creati i simboli nel contesto, annotando l'ordine di creazione:
+
+1. newLISP prima analizza e traduce ogni espressione di primo livello. In questa fase verrà creato il simbolo. Dopo che l'espressione è stata tradotta, l'espressione viene valutata.
+
+2. Quando newLISP vede il simbolo per la prima volta, lo creerà, chiamando la funzione load, sym o eval-string. Quando newLISP legge un file di codice sorgente, crea un simbolo prima di valutarlo.
+
+3. Quando si incontra un simbolo sconosciuto durante la traduzione del codice, cercherà la sua definizione nel contesto corrente, se non lo trova, cercherà nel contesto MAIN. Se non riesci ancora a trovarlo, crea questo simbolo nel contesto corrente.
+
+4. Una volta che un simbolo è stato creato e appartiene a un contesto, apparterrà in modo permanente al contesto.
+
+5. Quando una funzione definita dall'utente si trova in un contesto, se la funzione viene chiamata in un altro contesto, il contesto passerà al contesto in cui si trova la funzione.
+
+6. La conversione del contesto riguarda solo la creazione di simboli tramite load, sym o eval-string. Per impostazione predefinita, load crea simboli nel contesto MAIN, a meno che il cambio di contesto non avvenga al di fuori del caricamento del file (non so come usarlo per ora).
+
+Quando si utilizza sym e eval-string, è necessario specificare il contesto. 
+Il cambio di contesto avverrà solo nella parte più esterna del programma, non in una funzione.
+
+Creare un contesto
+------------------
+A) Crea e cambia contesto
+
+Si noti l'uso delle virgolette singole, generalmente in maiuscolo, ma le minuscole non saranno sbagliate.
+
+(context 'A)
+
+B) Crea ma non cambia contesto
+------------------------------
+Basta usare set
+
+(imposta 'ACTX:var "hello")
+
+Qui viene creato un contesto ACTX con un simbolo var con il valore "hello", ma il contesto non viene cambiato.
+
+Notare che il contesto appena creato appare nel contesto MAIN come un simbolo, che può essere visualizzato con (symbols).
+
+Cambiare contesto
+-----------------
+Nessun uso del carattere ' (quote), come il passaggio a MAIN
+
+(context MAIN)
+
+Usare il simbolo all'interno del contesto
+-----------------------------------------
+Occore mettere un prefisso ":" al nome del contesto, ad esempio:
+
+A:my-fun(1, 2)
+
+Il funtore o funzione predefinita
+---------------------------------
+Se una funzione, una macro o un simbolo si trova all'interno di un contesto e ha lo stesso nome del contesto, diventa la funzione predefinita (chiamata anche "funtore"). Possiamo chiamarlo direttamente con il nome del contesto. come:
+
+;; the default function
+(define (Foo: Foo abc) (+ abc))
+
+(Foo 1 2 3)
+;-> 6
+
+Se vuoi usare la funzione predefinita di un altro contesto in un contesto, devi pre-dichiarare
+
+;; forward declaration of a default function
+(define Fubar:Fubar)    
+
+(context 'Foo)
+(define (Foo: Foo abc)
+    ...
+    (Fubar ab); forward reference
+    (...)); To default function
+
+(context MAIN)
+
+;; definition of previously declared default function
+(context 'Fubar)
+(define (Fubar: Fubar xy)
+    (...))
+
+(context MAIN)
+
+Fare riferimento al manuale per maggiori dettagli, http://www.newlisp.org/downloads/newlisp_manual.html#contexts
 
 =============================================================================
 
