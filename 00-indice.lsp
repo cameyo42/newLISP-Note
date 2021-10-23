@@ -948,6 +948,14 @@ NOTE LIBERE 6
 =============
   Starting with newLISP
   Embedding blocks into Functions
+  Evaluation of Large Expressions in Newlisp
+  Eval and Anti-eval
+  Promote Your Functions!
+  Assignment Macro Beast Unleashed
+  Does the Function Really Evaluate to Itself?
+  New Copies Discovered
+  If lambda Gives let, What About lambda-macro?
+  Verbose Functions and Macros
 
 
 APPENDICI
