@@ -7579,6 +7579,8 @@ Esempi:
 
 Nella versione 10.7.5, al posto di set-nth, utilizziamo "setf" con l'indicizzazione implicita:
 
+  (setf (list|string|array indice) value)
+
 (setq s "abc")
 ;-> "abc"
 (setf (s 0) "z")

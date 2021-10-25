@@ -956,7 +956,46 @@ NOTE LIBERE 6
   New Copies Discovered
   If lambda Gives let, What About lambda-macro?
   Verbose Functions and Macros
-
+  On Calling and Applying Newlisp Functions and Macros
+  Conversions to Functions and Macros
+  Speed of The Evaluation vs. Length of The Names of The Variables
+  Exploring The Reference
+  Three Techniques for Avoidance of Multiple Copies
+  For-like Syntax for Rnd Function and Generalized Floor and The Friends
+  Light Your Pipe
+  Two Phases Evaluation
+  The Predicates =?, >? and Friends
+  Majorinc.default-library.lsp uploaded
+  Macrocall
+  Don't Fear Dynamic Scope
+  Don't Fear Dynamic Scope (2)
+  Swap Without Temporary Variable
+  Short or Long Function Names?
+  Avoiding Function Names Clashes
+  Two Definitions of IF Function
+  Challenged by Common Lispers
+  Test for Unnecessary Arguments
+  Calculate or Ask
+  Apply Has Its Secrets Too
+  Random Sublists
+  Trees, Branches and Leaves
+  The Most Probable Cond
+  More on Usenet and Google Groups Posting Frequency
+  Where is Letex!
+  Multiple Loops
+  Add and Multiply Digits
+  The First Use of Identity Function
+  Text Titles
+  Quote is Identity Fexpr
+  Gensym and Genlet
+  Genlocal
+  Genloops
+  Supernatural Symbols
+  On Macros, Eval and Generated Code in Lisp
+  Crawler Tractor
+  Supressed Printing
+  On Serial Substitution and Not Reading The Manual
+  Propositional Variables and Formulas
 
 APPENDICI
 =========
