@@ -996,6 +996,39 @@ NOTE LIBERE 6
   Supressed Printing
   On Serial Substitution and Not Reading The Manual
   Propositional Variables and Formulas
+  Reader Macros in Newlisp?
+  eval-string or eval?
+  Random Propositional Formulas of a Given Average Length
+  On Expected Truth Value of a Random Propositional Formula
+  On Expected Truth Value of a Random Propositional Formula (2)
+  The Probability That Random Propositional Formula is Tautology
+  Lists of Propositional Formulas
+  Debug-wrapping Around Built-in Primitives
+  One Hundred Propositional Tautologies (1)
+  One Hundred Propositional Tautologies (2)
+  Opinions on Eval in Lisp, Python and Ruby - The Result of The Pool
+  Why You Do Not Use Lisp? The Results of The Poll
+  One Hundred Propositional Tautologies (3)
+  One Hundred Propositional Tautologies (4)
+  One Hundred Propositional Tautologies (5)
+  Tortelvis
+  Relatively Short Propositional Formulas and Symbols Instead of Pointers and Tables
+  Symbols as Sexprs and Hygienic Fexprs
+  Alan Kay on Lisp and Fexprs
+  Composition of Functions or Macros
+  Composing Fexprs Preserves Short-circuit Evaluation.
+  How many syllogisms are there?
+  The program for derivation of syllogisms, condense...
+  McCarthy - Dijkstra short polemics in 1976.
+  Interesting Case of Mismatched Parentheses.
+  Short notes on McCarthy's "Recursive Functions ... "
+  Using (sin cos 0.5) instead of (sin (cos 0.5)) in Newlisp
+  McCarthy's 1960 "Recursive Functions ..." Lisp in Newlisp
+  McCarthy-60 Lisp Implemented as Association List in McCarthy-60 Lisp
+  McCarthy-60 Lisp in McCarthy-60 Lisp in ... in McCarthy-60 Lisp.
+  On Pitman's "Special forms in Lisp"
+  Lambda Calculus Interpreter
+  Expansion of Free Variables
 
 APPENDICI
 =========

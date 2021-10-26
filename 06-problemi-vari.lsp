@@ -3358,6 +3358,21 @@ Vediamo la velocità della funzione primitiva di addizione "*":
 (time (* 12345232332323L 6782323232323239) 100000)
 ;-> 91.905
 
+Un altra funzione per risolvere il problema:
+
+(define (rmul x y)
+  (if (= x 1)
+      y
+      (+ 
+       (* (& x 1) y)
+       (rmul (>> x) (<< y)))))
+
+(rmul 10 31)
+;-> 310
+
+(time (rmul 12345232332323 6782323232323239) 100000)
+;-> 850.501
+
 
 ---------------------
 Distanza di Manhattan
