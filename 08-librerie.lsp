@@ -3378,5 +3378,4851 @@ https://github.com/DexterLagan/newlisp-message-box
 
 ; EOF
 
+
+========================================
+ KAZIMIR-MAJORINC 
+ Instprog.default-library.lsp
+ http://kazimirmajorinc.com/Default.lsp 
+========================================
+
+;;##############################################################
+;;
+;;                        Default.lsp
+;;
+;; Kazimir Majorinc, 2008-13
+;;
+;; It is library I typically load into all of my programs. It
+;; contains many unrelated groups of functions, however, I do 
+;; not separate them into small libraries, because I do not
+;; want to think about dependencies. 
+;;
+;; If the version you look at is in HTML form, then you need to
+;; copy all, paste in your text editor, and then save.
+;;
+;;##############################################################
+
+(set 'Default.number-of-symbols.before
+     (length (symbols)))
+     
+(set 'Default.number-of-primitives.before
+     (length (filter primitive? (map eval (symbols)))))
+     
+(set 'Default.number-of-functions.before
+     (length (filter lambda? (map eval (symbols)))))
+     
+(set 'Default.number-of-macros.before
+     (length (filter macro? (map eval (symbols)))))
+     
+(set 'Default.loading-time (time (begin 
+
+;===============================================================
+; Group:             The constants needed for protection of the
+;                    symbols. 
+
+(set 'left-parenthesis-equivalent ".<_")
+(set 'right-parenthesis-equivalent ".>_")
+(set 'blank-equivalent "____")
+(set 'apostrophe-equivalent "`")
+(set 'quotation-mark-equivalent "~")
+
+;===============================================================
+;
+; Group:             Transformation from sexprs to symbols and
+;                    vice versa
+;
+; Names:             symbol-to-sexpr
+;                    symbol-from-sexpr
+;                    sexpr-to-symbol
+;                    sexpr-from-symbol
+
+(set 'symbol-to-sexpr
+     (lambda(S)
+       (setq S (string S))
+       (setq S (replace left-parenthesis-equivalent S "("))
+       (setq S (replace right-parenthesis-equivalent S ")"))
+       (setq S (replace blank-equivalent S " "))
+       (setq S (replace apostrophe-equivalent S "'"))
+       (setq S (replace quotation-mark-equivalent S "\""))
+       (eval-string (append "'" S))))
+
+(set 'sexpr-from-symbol symbol-to-sexpr)
+
+(set 'sexpr-to-symbol
+     (lambda(L)
+       (setq L (string L))
+       (setq L (replace "("  L left-parenthesis-equivalent))
+       (setq L (replace ")"  L right-parenthesis-equivalent))
+       (setq L (replace " "  L blank-equivalent))
+       (setq L (replace "'"  L apostrophe-equivalent ))
+       (setq L (replace "\"" L quotation-mark-equivalent ))
+       (sym L)))
+       
+(set 'symbol-from-sexpr sexpr-to-symbol)
+
+;===============================================================
+;
+; Group:             Dynamic scope protection. 
+;
+;---------------------------------------------------------------
+;
+; Names:             set-protected1, 
+;                    set-protected2,
+;                    protect1, 
+;                    protect2
+;
+; Type:              functions
+;
+; Syntax:            (set-protected1 <name> <definition-code> <variables-to-be-protected>)
+;                    (set-protected2 <name> <definition-code> <variables-to-be-protected>)
+;                    (protect1 <name> <vars>)
+;                    (protect2 <name> <vars>)
+; 
+; Purpose:           Protection from accidental name clashes.
+;                    In dynamic scope, variables can be accidentally
+;                    overwritten. Especially well known is so called 
+;                    funarg problem. Functions protect1 and protect2 
+;                    make accidental overwritting less probable
+;                    by automatic renaming of variables, while 
+;                    keeping dynamic scope. Protect1 provides same
+;                    level of safety as contexts, while Protect2,
+;                    as far as I can see, prevent even the hardest
+;                    funarg problems.
+
+                 
+(set 'set-protected1
+  (lambda(function/macro-name definition-code variables)
+    (set function/macro-name 
+      (expand definition-code
+              (map (lambda(x)
+                        (list x (symbol-from-sexpr (list function/macro-name x))))
+                        variables)))))
+                        
+(set 'protect1 (lambda(function/macro-name variables)
+                 (set-protected1 function/macro-name 
+                                 (eval function/macro-name) 
+                                 variables)))
+
+((copy set-protected1) 'set-protected1 
+                        set-protected1 
+                        '(function/macro-name definition-code 
+                                              variables 
+                                              x))
+                        
+((copy protect1) 'protect1 '(function/macro-name variables))
+
+(set 'set-protected2 
+  (lambda(function/macro-name definition-code variables)
+    (set function/macro-name 
+      (expand 
+         (lambda-macro()
+            (let((name-and-counter (symbol-from-sexpr 
+                                      (list 'function/macro-name 
+                                            (inc protected2-counter)))))
+
+                (set-protected1 name-and-counter
+                                definition-code 
+                                'variables)
+
+                (first (list (eval (cons name-and-counter $args)) ;apply = eval cons       
+                             (dolist(i 'variables)
+                               (delete (symbol-from-sexpr 
+                                  (list name-and-counter i))))
+                             (delete name-and-counter))))) ; no need for (dec counter)                                 
+
+           'function/macro-name 'definition-code 'variables))))
+
+(set 'protect2
+     (lambda(function/macro-name variables)
+        (set-protected2 function/macro-name
+                      (eval function/macro-name)
+                      variables)))
+
+(protect1 'set-protected2 '(function/macro-name definition-code 
+                            variables counter name-and-counter i))
+
+(protect1 'protect2 '(function/macro-name variables))
+
+;---------------------------------------------------------------
+
+(protect1 'sexpr-to-symbol '(L))
+(protect1 'symbol-from-sexpr '(L))
+(protect1 'symbol-to-sexpr '(S))
+(protect1 'sexpr-from-symbol '(S))
+
+;===============================================================
+; 
+; Group:             Protection from accidental name clashes.
+;
+; Names:             <°original_°!>°, <°original_°!=>°,  
+;                    <°original_°$>°...
+;                    
+; Explanation        These symbols point to original versions 
+;                    of built in functions !, != etc, that might
+;                    be needed in case original names are redefined.
+;
+; Example           (constant 'sin cos)
+;                   ...
+;                   (constant 'sin 
+;                             (eval (symbol-from-sexpr '(original sin))))
+
+(set 'original 
+  (lambda(x)
+    (symbol-from-sexpr (list 'original x))))
+
+(dolist(i (symbols))
+  (when (primitive? (eval i))
+        '(println i ", " (original i) ", " (eval i))
+        (set (original i) (eval i))))
+
+;===============================================================
+; 
+; Group            Handy predicates
+;
+; Name             positive? negative?
+;
+
+(define (positive? x)(> x 0))
+(protect1 'positive '(x))
+
+(define (negative? x)(< x 0))
+(protect1 'negative '(x))
+
+
+;===============================================================
+; 
+; Group:            Protection from accidental name clashes.
+;
+; Name:             originalize
+;
+; Type:             function
+;                    
+; Explanation       replace variables in function definition with
+;                   variables with prefix original
+;
+; Example           (set 'f (lambda(x y)x y))
+;                   
+;                   After 
+;
+;                          (originalize 'f '(x))
+;
+;                   f is 
+;
+;                   (lambda (<°original·x>° y) <°original·x>° y)
+       
+(set 'originalize 
+  (lambda(function/macro-name variables)
+    (set function/macro-name
+         (expand (eval function/macro-name)
+                 (map (lambda(x)(list x (original x)))
+                      variables)))))
+                      
+; (set 'f (lambda(x y)x y))
+; (originalize 'f '(x))
+; (println f)
+;
+
+;===============================================================
+; 
+; Group:             Supressing printing
+;
+; Functions:         print, println
+;
+; Symbols:           (symbol-from-sexpr '(println supressed))
+;                    (symbol-from-seprx '(print supressed))
+;
+; Purpose            Supress printing in some parts of the program.
+;                    Functions print and println are redefined to
+;                    work dependently on the value of 
+;                    (symbol-from-sexpr '(println supressed)) symbols
+;
+; Example:           (set (symbol-from-sexpr '(println supressed)) true)
+
+(set 'evaluate-all-and-return-last begin)
+
+(constant 'print 
+          (lambda-macro()(eval (cons (if (or (eval (symbol-from-sexpr '(print supressed)))
+                                             [print.supressed])
+                                         evaluate-all-and-return-last 
+                                         (original 'print))
+                                      (args)))))
+
+(constant 'println
+          (lambda-macro()(eval (cons (if (or (eval (symbol-from-sexpr '(println supressed)))
+                                             [println.supressed])     
+                                         evaluate-all-and-return-last 
+                                         (original 'println))
+                                      (args)))))
+                                      
+;===============================================================
+;
+; Group:             Expressions as graphs
+;
+; Names:             depth, size, width 
+;
+; Syntax:            (depth <L>) - length of the longest branch
+;                    (size <L>) - number of nodes
+;                    (size2 <L>) - number of nodes, nonleafs count
+;                                  as 2
+;                    (width <L>) - number of branches
+;                    (size-string <L>) - size as string
+;
+; Examples:       
+
+(set 'depth (lambda(x)
+               (cond ((quote? x)(+ 1 (depth (eval x))))
+                     ((and (list? x) (empty? x)) 1)
+                     ((list? x)(+ 1 (apply max (map depth x))))
+                     (true 1))))
+                      
+(set 'size (lambda(x)
+              (+ 1 (cond ((quote? x)(size (eval x)))
+                         ((list? x)(apply + (map size x)))
+                         (true 0)))))
+(set 'size (lambda(x)
+              (+ 1 (cond ((quote? x)(size (eval x)))
+                         ((list? x)(apply + (map size x)))
+                         (true 0)))))
+                         
+(set 'size2 (lambda(x)
+              (+ 1 (cond ((quote? x)(size (eval x)))
+                         ((list? x)(+ (apply + (map size2 x)) 1))
+                         (true 0)))))
+                         
+(set 'width (lambda(x)
+              (cond ((quote? x)(width (eval x)))
+                    ((list? x)(apply + (map width x)))
+                    (true 1))))
+                    
+(set 'width-noq (lambda(x)
+              (cond ;((quote? x)(width (eval x)))
+                    ((list? x)(apply + (map width x)))
+                    (true 1))))
+                    
+(set 'size-string (lambda(x)(length (string x))))
+
+;===============================================================
+;
+; Group:             "Safe assignement"
+;
+;---------------------------------------------------------------
+;
+; Symbols:           set-undefined, SU 
+;                    setf-undefined, SfU 
+;                    setq-undefined, SqU
+;
+; Purpose:           Assignement that prevents unintentional 
+;                    redefinition of already defined symbols. 
+;                    Thesw work just as normal set, setf and setq,
+;                    except they 
+;
+; Syntax:            (set-undefined <var-expr> <val-expr>)
+;                    (SU <var-expr> <val-expr>)
+;                    (setf-undefined <var-expr> <val-expr>)
+;                    (SfU <var-expr> <val-expr>)
+;                    (setq-undefined <var-expr> <val-expr>)
+;                    (SqU <var-expr> <val-expr>)
+;
+
+;
+; Effects:           Assigns result of evaluation of val-expr to
+;                    result of evaluation of var-expr, just like
+;                    set, but throws error in the case val-expr
+;                    already has an value.
+;
+; Result:            nil
+;                    
+; Error conditions:  var-expr is already defined.
+; 
+; Example:           (set-undefined 'x 44), (SU 'x 44)
+;
+; Limitation:        If value of some symbol is intentionally 
+;                    defined as nil, SU recognizes it as undefined.
+    
+(set 'set-undefined
+     (lambda-macro(var-expr val-expr)
+        (let ((evar-expr (eval var-expr)))
+             (when (eval evar-expr)
+                   (throw-error (append (dup (char 8) 3)
+                                        ": (set-undefined " (string var-expr)
+                                         " ...) is already defined ")))
+             (set 'toeval (list 'set 
+                                (list 'quote evar-expr)
+                                val-expr))
+             (eval toeval)
+             (println "Defined " evar-expr " with size=" (size (eval evar-expr))
+                              ", depth=" (depth (eval evar-expr))
+                              " and width=" (width (eval evar-expr)) ".\n")
+             nil)))
+
+(set 'setf-undefined
+     (lambda-macro(var-expr val-expr)
+        (when (eval var-expr)
+                   (throw-error (append (dup (char 8) 3)
+                                        ": (setf-undefined " (string var-expr)
+                                         " ...) is already defined ")))
+        (set 'toeval (list 'setf 
+                           var-expr
+                           val-expr))
+        (eval toeval)
+        (println "Defined " evar-expr " with size=" (size (eval evar-expr))
+                              ", depth=" (depth (eval evar-expr))
+                              " and width=" (width (eval evar-expr)) ".\n")
+        nil))
+        
+(set 'setq-undefined
+     (lambda-macro(var-expr val-expr)
+        (when (eval var-expr)
+                   (throw-error (append (dup (char 8) 3)
+                                        ": (setq-undefined " (string var-expr)
+                                         " ...) is already defined ")))
+        (set 'toeval (list 'setq 
+                           var-expr
+                           val-expr))
+        (eval toeval)
+        (println "Defined " evar-expr " with size=" (size (eval evar-expr))
+                              ", depth=" (depth (eval evar-expr))
+                              " and width=" (width (eval evar-expr)) ".\n")
+        nil))
+
+(set-undefined 'SU set-undefined)
+(set-undefined 'SfU setf-undefined)
+(set-undefined 'SqU setq-undefined)
+
+(set 'protect-later 
+     '(begin (protect1 'set-undefined '(var-expr val-expr evar-expr toeval))
+             (protect1 'SU '(var-expr val-expr evar-expr toeval))
+             (protect1 'setf-undefined '(var-expr val-expr toeval))
+             (protect1 'SfU '(var-expr val-expr toeval))
+             (protect1 'setq-undefined '(var-expr val-expr toeval))
+             (protect1 'SqU '(var-expr val-expr toeval))))
+
+;===============================================================
+;;
+;; Group:            Long lines for printing 
+;;
+;;--------------------------------------------------------------
+;;
+;; Name:             ---, ===, +++, ***, ###, $$$$, ///, \\\, 
+;;                   |||, ___, ...
+;;
+;; Type:             Functions.
+;;
+;; Syntax:           (---), (===), (+++) ...
+;;
+;; Purpose:          Long lines useful in printing. 
+;;
+;; Result:           Line 64 characters long. 
+;;
+;; Limitation:       Some characters are special and cannot
+;;                   be used as the names of the functions
+;;                   on the simple way. For example (###) cannot.
+;;                   For that case, more complicated expressions 
+;;                   like (eval (list (sym "###"))) are possible 
+;;                   although unpractical. 
+
+(dostring (i "-=+*#$/\|_~^%&<>@.")
+  (SU (sym (dup (char i) 3))
+      (expand (lambda()(println (dup (char i) 64)))
+               'i)))
+
+(println "--------------------------------------------------------------")
+(println "           Default.lsp is loading            ")
+(println "--------------------------------------------------------------")
+
+;;==============================================================
+;;
+;; Group:            With
+;;
+;;--------------------------------------------------------------
+;;
+;; Name:             with-device
+;;
+;; Type:             Macro
+;;
+;; Syntax:           (with-device (_ _ _) ...) 
+;;
+;; Works like        (device _ _ _) ... (close (device))
+;;
+;;--------------------------------------------------------------
+
+
+(define-macro (with-device l)
+   (letn((l1 (args))
+         (l2 (append (list 'begin (list 'device l)) 
+                     l1 
+                     (list (quote (close (device)))))))
+   ;(println l2)
+   (eval l2)))
+
+;;==============================================================
+;;
+;; Group:            Expression testing support.
+;;
+;;--------------------------------------------------------------
+;;
+;; Name:             assert, test
+;;
+;; Type:             Macros.
+;;
+;; Syntax:           (assert <expr>) 
+;;                   (test <name> <expr>)
+;;
+;; Parameters:       <name> - string that describes test.
+;;                   <expr> - expression that will be evaluated.
+;;
+;; Purpose:          Testing expressions and catching errors. 
+;;                   If expression fails, report is printed. 
+;;                   In the case of assert, evaluation of the 
+;;                   program stops. 
+;;
+;; Result:           Result of the evaluation of expression.
+;;
+;; Side effects:     Following global variables are used:
+;;                   [test.counter]
+;;
+;; Error conditions: unknown
+;;
+;; Note:             assert and test are protected with functions
+;;                   protect1, see under definition of protect1. 
+
+(SU '[test.counter] 0)
+(SU '[test.failed] 0)
+(SU '[test.passed] 0)
+
+(SU 'test 
+     (lambda-macro(testname expr)
+        (inc [test.counter])
+        (if (eval expr)
+            (begin (inc [test.passed])
+                   (dotimes(i [test.failed])
+                     (print "-"))
+                   (println "Passed " [test.counter] 
+                            ". test \"" testname "\"\n     " expr ".\n"))
+            (begin (inc [test.failed])
+                   (println "\n*********\nFAILED " [test.counter] 
+                            ". test \"" testname "\"\n     " expr ".\n")))))
+
+(push '(protect1-simplified 'test '(testname expr i))
+      protect-later
+      -1)
+
+(SU 'assert
+     (lambda-macro(expr)
+         (unless (eval expr)
+                 (println "Asserted " expr " FAILED.")
+                 (throw-error "Assertion failed."))))
+
+(push '(protect1-simplified 'assert '(expr))
+      protect-later
+      -1)
+
+(test "should pass" (= (+ 1 2) 3))
+(test "should fail" (= (+ 4 5) 7))
+(assert (= 2 2))
+
+
+
+;===============================================================
+;;
+;; Group:            Special appends.
+;;
+;;--------------------------------------------------------------
+;;
+;; Name:             symbol-append, string-append, +sym, -sym +$
+;;
+;; Type:             Functions.
+;;
+;; Purpose:          Frequently useful concatenation of symbols
+;;                   or strings.
+;;
+;; Syntax:           (symbol-append <x1> <x2> ... <xm>)
+;;
+;; Parameters:       <x1>, ... <xm> - expressions evaluating to 
+;;                   strings or symbols.
+;;
+;; Result:           symbol or string resulting from concatenation 
+;;                   of <x1> <x2> ... <xm>
+;;
+;; Side effects:     No known side effects.
+;;
+;; Error conditions: Nothing particular.
+;;
+;; Examples:         (symbol-append 'a "b" 34) => ab34
+;;                   (symbol-append 'a "b" 34) => "ab34"
+
+(test "string" (= (string 'a "b" 34) "ab34"))
+
+; original
+;
+;(SU 'string-append (lambda()(apply 'append (map string $args))))
+;
+; can be simplified into:
+
+(SU 'string-append (lambda()(apply string $args)))
+(SU '+$ string-append)
+
+    (test "+$" (= (+$  'a "b" 34) "ab34"))
+    
+(SU 'symbol-append (lambda()(sym (apply 'append (map string $args)))))
+(SU '+sym symbol-append)
+                 
+    (test "+sym" (= (+sym 'a "b" 34) 'ab34))                 
+
+(SU '-sym (lambda(x y)
+             (when (> (length (args)) 0) 
+                (throw-error "-sym for 3+ arguments not implemented yet."))
+             (if (ends-with (string x) (string y)) 
+                 (sym (chop (string x) (length (string y))))
+                 (throw-error (append "(-sym " x " " y "): x doesn't end with y")))))
+                 
+    (test "-sym1" (= (-sym 'a1 "") 'a1))
+    (test "-sym2" (= (-sym 'a1 1) 'a))
+    (test "-sym3" (= (-sym 'a12 12) 'a))             
+
+(SU 'ends-with-sym (lambda(x y)
+                    (ends-with (string x) (string y))))
+
+    (test "ends-with-sym" (ends-with-sym 'a1 1))
+
+
+(SU 'protect1-simplified-unsafe-with-current-values
+   (lambda(safename unsafename vars)
+      (inc [protect1.counter])
+      (dolist(i vars)
+          (set (+sym "[" safename "." i "]") (eval i)))      
+      (set safename 
+           (eval (list 'letex 
+                       (map (lambda(x)
+                               (expand '(x (+sym "[" safename "." 'x "]"))
+                                       'x))
+                            vars)
+                       (eval unsafename))))))
+                                             
+(SU 'protect1-simplified-with-original-values
+   (lambda(safename unsafename vars)
+      (inc [protect1.counter])
+      (dolist(i vars)
+          (set (+sym "[" safename "." i "]") (eval i)))
+      (set safename 
+           (eval (list 'letex 
+                       (map (lambda(x)
+                               (expand '(x (+sym "[" safename "." 'x "]"))
+                                       'x))
+                            vars)
+                       (eval unsafename))))))
+
+;;==============================================================
+;;
+;; Group:              Debug support. 
+;;
+;; Names:              debug-wrap, debug-unwrap
+;;
+;; Type:               macros.
+;;
+;; Syntax:             (debug-wrap <name>)
+;;                     (debug-unwrap <name>)
+;;                     
+;;                     where <name> is name of the primitive,
+;;                     function or macro. 
+
+(SU 'pretty-string (lambda(L)
+  (if (not (list? L)) 
+      (string L)
+      (let ((result "(")
+            (blanks (dup " " (- (depth L) 1))))
+            (dolist(i L)
+              (if (list? i)
+                  (extend result (pretty-string i))
+                  (extend result (string i)))
+              (when (!= (+ $idx 1) (length L)) (extend result blanks)))
+            (extend result ")")))))
+            
+(protect1 'pretty-string '(L result i blanks))
+
+;;==============================================================
+;;
+;; Group:              Debug support. 
+;;
+;; Names:              debug-wrap, debug-unwrap
+;;
+;; Type:               macros.
+;;
+;; Syntax:             (debug-wrap <name>)
+;;                     (debug-unwrap <name>)
+;;                     
+;;                     where <name> is name of the primitive,
+;;                     function or macro. 
+
+; usage: (debug-wrap <function-name|macro-name|primitive-name>)
+;        (debug-unwrap <function-name|macro-name|primitive-name>)
+;  
+; Example:
+; 
+; (debug-wrap fibo)
+; (fibo 4)
+; 
+; After that, (fibo 4) beside evaluating result, also produces 
+; following output in the properly indented s-expr form:
+; 
+; (fibo (in 4)
+;       (fibo (in 3)
+;             (fibo (in 2)
+;                   (out 1)); t=0, mem=0, sym=0
+;             (fibo (in 1)
+;                   (out 1)); t=0, mem=0, sym=0
+;             (out 2)); t=1, mem=0, sym=0
+;       (fibo (in 2)
+;             (out 1)); t=1, mem=0, sym=0
+;       (out 3)); t=3, mem=0, sym=0
+; 
+; If you have bug in some of your function, just produce output 
+; on this way, and if needed copy output into some editor that 
+; recognize parentheses (I prefer PLT Scheme) and find where error 
+; occured. You can "debug-wrap" and later "debug-unwrap" many 
+; function in the same time, output will be properly nested. 
+; If your bugs are complicated and truely logical, this approach 
+; beats IDE, because you'll have complete evaluation "on paper" 
+; instead "in time."
+;
+
+(SU (symbol-from-sexpr '(debug-wrap indent)) 0)
+
+(SU 'debug-wrap
+  (lambda-macro();`function-name)
+   (dolist(`function-name (args)) 
+    (letn ((function-name (eval `function-name))
+           (indent-step (+ (length (string `function-name)) 2))
+           (in-line (append "(" (string `function-name) " " ))
+           (is-function (lambda? function-name)))
+       ((if (protected? function-name) set constant)
+        `function-name 
+        (expand 
+           (lambda-macro()
+             function-name
+             (local (t 
+                     result
+                     used-memory-before
+                     used-memory-after
+                     symbols-before
+                     symbols-after
+                     to-be-evaluated
+                     largs
+                     eargs
+                     indent2)
+                     
+                (set 'largs (args))
+                (when is-function (set 'eargs (map eval largs)))
+                
+;                 (println (dup " " indent) 
+;                          in-line
+;                          
+;                          (cons 'in (if is-function (map string eargs)
+;                                                    (map string largs )))
+;                           ;"; is-function=" is-function "; largs=" largs "; eargs=" eargs
+;                           )
+                  (pretty-print 50000)
+                  (setf indent2 (+ (apply max 
+                                      (map length 
+                                           (map string
+                                                (if is-function eargs largs)))) 2))
+                                       
+                  (print (dup " " indent) in-line "(in ")
+                  (println (dup " " indent2) " ; " (length (if is-function eargs largs)) ". args ")
+                  (dolist (t2 (if is-function eargs largs))
+                      (println (dup " " (+ indent 4 (length in-line)))
+                               (if (string? t2) "\"" "")
+                               (string t2)
+                               (if (string? t2) "\"" "")
+                               (if (symbol? t2)
+                                     (append 
+                                       (dup " " (- indent2 (length (string t2)))) 
+                                       " ; symbol")
+                                       "")))
+                  (println (dup " " (+ indent (length in-line))) ")")
+;
+                                                   
+                (inc indent indent-step)
+                (set 'to-be-evaluated 
+                     (cons function-name 
+                           (if is-function (map quote eargs)
+                                           largs)))
+                (set 'symbols-before (length (symbols)))
+                (set 'used-memory-before (sys-info 0))
+                                           
+                (set 't (time (set 'result (eval to-be-evaluated))))
+                                                
+                (set 'used-memory-after (sys-info 0))
+                (set 'symbols-after (length (symbols)))
+                                         
+                (print (dup " " indent)
+                         "(out " (if (string? result)
+                                     (append "\"" result "\"")
+                                     (string result))
+                         "))")
+                
+                (print "; t=" t)
+                (print "; mem=" (- used-memory-after used-memory-before 2))
+                (print "; syms=" (- symbols-after symbols-before))
+                (println)
+                
+                (dec indent indent-step)
+                result))
+               'function-name
+               'indent-step
+               'in-line
+               'is-function))
+               nil))))
+
+; pažnja: debug-wrap ne radi za funkcije koje ne primaju argumente.
+
+(originalize 'debug-wrap '(+ - > append args cons constant 
+                          dec dup eval expand if inc lambda? 
+                          length length letn local map print println 
+                          protected? quote set string string? symbols 
+                          sys-info time when))
+
+'(println debug-wrap)
+
+(protect1 'debug-wrap '(`function-name
+                         function-name
+                         indent
+                         indent2
+                         indent-step 
+                         in-line
+                         is-function
+                         t
+                         t2
+                         result
+                         used-memory-before
+                         used-memory-after
+                         symbols-before
+                         symbols-after
+                         to-be-evaluated
+                         largs
+                         eargs))
+       
+(SU 'debug-unwrap
+     (lambda-macro()
+       (letn ((`function-name (first (args)))
+              (function-name (eval `function-name)))
+             ((if (protected? function-name) set constant) 
+                  `function-name
+                  (nth 1 function-name)))))
+
+(protect1 'debug-unwrap '(`function-name function-name))
+
+;===============================================================
+;;
+;; Group:            Association list support
+;;
+;;--------------------------------------------------------------
+;;
+;; Name:             assoc-list, 
+;;                   let-from-assoc-list, letn-from-assoc-list
+;;                   setf-from-assoc-list, ath, assoc-values
+;;                   modify-assoc-list 
+
+(SU 'assoc-list
+  (lambda()
+     (map (lambda(x)(list x (eval x))) (args))))
+     
+     (protect1 'assoc-list '(x))
+     
+     (test "assoc-list" (= (let((x1 1)(x2 2)(x3 3))
+                              (assoc-list 'x1 'x2 'x3))
+                           '((x1 1)(x2 2)(x3 3))))
+
+;;--------------------------------------------------------------
+(SU 'let-from-assoc-list 
+    (lambda(L)
+       (eval (append (list 'let-from-assoc-list L) (args)))))
+       
+     (protect1 'let-assoc-list '(L))
+;;--------------------------------------------------------------  
+(SU 'letn-from-assoc-list 
+    (lambda(L)
+      (eval (append (list 'letn-from-assoc-list L)) (args))))
+      
+     (protect1 'letn-from-assoc-list '(L))
+;;--------------------------------------------------------------  
+(SU 'setf-from-assoc-list 
+    (lambda(L)
+       (eval (cons 'setf (apply append L)))))
+       
+     (protect1 'setf-from-assoc-list  '(L))
+                           
+     (test "setf-from-assoc-list" 
+           (= (begin (setf-from-assoc-list '((x1 44)(x2 55)(x3 66)))
+                     (+ x1 x2 x3))
+               165))
+;;--------------------------------------------------------------                           
+(SU 'aval
+     (lambda(a b)(last (assoc a b))))
+     
+     (protect1 'aval '(a b))
+;;--------------------------------------------------------------          
+(SU 'avals
+     (lambda(a b)(rest (assoc a b))))
+     
+     (protect1 'avals '(a b))
+;;--------------------------------------------------------------
+(SU 'setfa1 
+    (lambda(a b)
+      (local(flag result)
+         (setf result (map (lambda(x)(if (= (first x) a)
+                                         (begin (setf flag true)
+                                                (list a (eval a)))
+                                         x))
+                           b))
+         (when (not flag) (push (list a (eval a)) result -1))
+         result)))
+
+     (protect1 'setfa1 '(a b flag result))
+
+(test "setfa1" 
+      (= (begin (setf L '((x1 44)(x2 55)(x3 56)))
+                (setf x2 57)
+                (setf L (setfa1 'x2 L))
+                L)
+        '((x1 44)(x2 57)(x3 56))))
+        
+(SU 'setfa2
+    (lambda(a b)
+      (local(flag result)
+        (setf result (map (lambda(x)(if (= (first x) (first a))
+                                        (begin (setf flag true)
+                                               a)
+                                        x))
+                           b))
+        (when (not flag) (push a result -1))
+        result)))
+
+     (protect1 'setfa2 '(a b flag result))
+
+(test "setfa2" 
+      (= (begin (setf L '((x1 44)(x2 55)(x3 56)))
+                (setf L (setfa2 '(x2 57) L))
+                L)
+        '((x1 44)(x2 57)(x3 56))))
+
+(SU 'setfa 
+    (lambda-macro(a L b)
+      ;(println L a b)
+      (local(flag result)
+        (set L (map(lambda(x)(println x a)
+                             (if (= (first x) a)
+                                
+                                  (begin (setf flag true)
+                                         (list a (eval b)))
+                                  x))
+                    (eval L)))
+        (when (not flag) (push (list a (eval b)) (eval L) -1)))
+        L))
+        
+(SU 'seta 
+    (lambda(a L b)
+      ;(println L a b)
+      (local(flag result)
+        (set L (map(lambda(x);(println x a)
+                             (if (= (first x) a)
+                                
+                                  (begin (setf flag true)
+                                         (list a b))
+                                  x))
+                    (eval L)))
+        (when (not flag) (push (list a b) (eval L) -1)))
+        L))
+  
+
+;---------------------------------------------------------------
+;
+; Group:              recursive map
+
+
+(define (recursive-map f x)
+  (if (atom? x) (f x)
+      (map (lambda(y)(recursive-map f y)) x)))
+      
+(protect1 'recursive-map '(f x y))
+
+'(test "recursive-map" (= (recursive-map (lambda(x)(* x x))
+                                        '(1 (2 (3 4) 5 6)))
+                         '(1 (4 (9 16) 25 36))))
+
+;;==============================================================
+;;
+;; Group:              sublists
+;;
+;; Names:              sublists
+;;
+;
+
+(set 'sublists 
+   (lambda(L)
+     (if (zero? (length L))
+         '(())
+         (let ((s (sublists (chop L))))
+              (append s (map (lambda(x)(append x (list (last L))))
+                             s))))))
+                             
+(protect1 'sublists '(L s x))
+
+;;==============================================================
+;;
+;; Group:              Fibonacci numbers
+;;
+;; Names:              fibo, fibo2
+;;
+;; Usage:              (fibo n) and (fibo2 n) evaluates to
+;;                     nth Fibonacci number, using recursive and
+;;                     non-resursive algorithm respectively.
+
+(set 'fibo (lambda(n)
+              (if (<= n 2)
+                  1
+                  (+ (fibo (- n 1))
+                     (fibo (- n 2))))))
+
+(protect1 'fibo '(n))
+
+(SU 'fibo2 (lambda(n)
+             (let ((n1 1)(n2 1))
+                  (dotimes(i (/ (- n 1) 2))
+                    (setq n1 (+ n1 n2))
+                    (setq n2 (+ n1 n2)))
+                  (if (even? n) n2 n1))))
+            
+(protect1 'fibo2 '(n n1 n2))
+
+
+;===============================================================
+; Group:             Multi-loops
+;---------------------------------------------------------------
+; Names:             list-to-single-expression
+; ------
+; Syntax:            (list-to-single-expression 'L)
+; -------
+; Description:       It creates one expression from list of expressions
+; ------------
+; Examples:          (list-to-single-expression '())
+; ---------                    -> (begin)
+;
+;                    (list-to-single-expression '(expr1))
+;                              -> expr1
+;
+;                    (list-to-single-expression '(expr1 ... exprn))
+;                              -> (begin expr1 ... exprn)
+
+(SU 'list-to-single-expression 
+     (lambda(L)
+       (if (= (length L) 1)
+           (first L)
+           (cons 'begin L))))
+           
+(SU 'LSE list-to-single-expression)
+(protect1 'list-to-single-expression '(L))
+(protect1 'LSE '(L))
+
+;;==============================================================
+;;       
+;; Group:            Identity function and macro.
+;;
+;;--------------------------------------------------------------
+;;             
+;; Name:             identity-function, IF
+;;                   identity-macro, IM
+;;
+;; Type:             Function and macro, respectively.
+;;
+;; Purpose:          Identity and identity-macro return their
+;;                   arguments, evaluated and non-evaluated 
+;;                   respectively. Identity is very important
+;;                   from mathematical point of view.
+;;
+;; Syntax:           (identity-function <expr>), 
+;;                   (identity-macro <expr>)
+;;                   (IF <expr>)
+;;                   (IM <expr>)
+;;
+;; Parameters:       <expr> - any evaluable expression
+;; 
+;; Result:           Evaluated and unevaluated <expr> respectively.
+;;
+;; Side effects:     no
+;;
+;; Error condition:  These functions and macros do not cause
+;;                   error on their own.
+;; 
+;; Example:          (set 'x '(+ 2 3))
+;;                   (identity-function x) => (+ 2 3)
+;;                   (identity-macro x) => x
+
+(SU 'identity-function (lambda(x)x))
+(SU 'IF identity-function)
+
+(protect1 'identity-function '(x))
+(protect1 'IF '(x))
+
+(SU 'identity-macro (lambda-macro(x)x))
+(SU 'IM identity-macro)
+
+(protect1 'identity-macro '(x))
+(protect1 'IM '(x))
+
+(test "identity-function" (= (identity-function (+ 2 3)) 5))
+(test "identity-macro" (= (identity-macro (+ 2 3)) '(+ 2 3)))
+
+;;==============================================================
+;;
+;; Group:          Print support.
+;;
+;;--------------------------------------------------------------
+;;
+;; Name:            =$, ->$
+;;
+;; Type:            macro 
+;;
+;; Syntax:          (=$ <expr>)
+;;                  (->$ <expr>)
+;;
+;; Parameters:      <expr> - any s-expression
+;;
+;; Result:          string containing expr, = and result of 
+;;                  evaluation of the expression.
+;;
+;; Side effects:    expr is evaluated
+;;
+;; Error condition: if evaluation of expr causes error
+;; 
+;; Examples:        (=$ (sin 1)) -> "(sin 1)=0.8414709848;"
+;;                  (->$ (sin 4)) -> "(->(sin 4) -0.7568024953)"
+
+(SU '=$ (lambda-macro(a)(append (string a)
+                                 "="
+                                 (string (eval a))
+                                 "; ")))
+
+(protect1 '=$ '(a))
+
+(test "=$" (= (=$ (sin 1)) "(sin 1)=0.8414709848; "))
+
+(SU '->$ (lambda-macro()(append "(->"
+                                (string (first (args)))
+                                " "
+                                (string (eval (first (args))))
+                                "); ")))
+
+(test "->$" (= (->$ (sin 4)) "(->(sin 4) -0.7568024953); "))
+
+;;==============================================================
+;;
+;; Group:          Print support.
+;;
+;;--------------------------------------------------------------
+;;
+;; Name:            print=, println=, print->, println-> 
+;;
+;; Type:            macros.
+;;
+;; Syntax:          (print= expr1 ... exprn) and similar
+;;
+;; Parameters:      expr1 ... exprn - any s-expression
+;;
+;; Result:          Result of evaluation of (=$ exprn) or (->$ exprn)
+;;
+
+(SU 'print= 
+    (lambda-macro()
+      (doargs(i)
+         (print i)
+         (unless (or (string? i) (number? i) (macro? i) (lambda? i))
+                 (print "=" (eval i) "; ")))))
+
+(protect1 'print= '(i))
+
+(SU 'println= (lambda-macro()
+                   (eval (cons print= (args)))
+                   (println)))
+
+(SU 'print-> (lambda-macro()
+                (eval (cons 'print 
+                            (map (lambda()(list '->$ 
+                                                (first (args))))
+                                 (args))))))
+
+(SU 'println-> (lambda-macro()
+                   (eval (cons print-> (args)))
+                   (println)))
+
+;;==============================================================
+;;
+;; Group:          Print support.
+;;
+;;--------------------------------------------------------------
+;;
+;; Name:           printlist
+
+(SU 'printlist (lambda-macro(L)
+                 (underline (string L) "-")
+                 (dolist(i (eval L))
+                      (println (+ $idx 1) ". " i))))
+                      
+(SU 'PL printlist)
+(protect1 'printlist '(i L))
+(protect1 'PL '(i L))
+
+
+;;==============================================================
+;;
+;; Group:            Booleans constant and predicate. 
+;;
+;;--------------------------------------------------------------
+;;
+
+(SU 'booleans '(true nil))
+(SU 'boolean? (lambda(x)(or (= x true) (= x nil))))
+(protect1 'boolean? '(x))
+
+;;==============================================================
+;;
+;; Group:            Operators of propositional calculus.
+;;
+;;--------------------------------------------------------------
+;;
+;; Name:             yest, nor, nand, xor, ->, <-, <->, -><-, false
+;;
+;; Type              Functions.
+;;
+;; Purpose:          Useful in logic and general programming
+
+(SU 'yest (lambda()(first $args)))
+(SU 'nor (lambda()(not (apply or $args))))
+(SU 'nand (lambda()(not (apply and $args))))
+
+         (test "yest" (= (yest nil) nil))
+         (test "yest" (= (yest true) true))
+
+         (test "nor1" (= (nor nil nil) true))
+         (test "nor2" (= (nor nil true) nil))
+         (test "nor3" (= (nor true nil) nil))
+         (test "nor4" (= (nor true true) nil))
+
+         (test "nand1" (= (nand nil nil) true))
+         (test "nand2" (= (nand nil true) true))
+         (test "nand3" (= (nand true nil) true))
+         (test "nand4" (= (nand true true) nil))
+
+(SU '-> <=) ;(lambda(a b)(or (not a) b)))
+(SU '<- (lambda(a b)(or (not b) a)))
+(protect1 '<- '(a b))
+
+(SU '<-> (lambda(a b)(or (and a b)
+                         (and (not a) (not b)))))
+(protect1 '<-> '(a b))
+                         
+(SU '-><- (lambda(a b)(not (<-> a b))))
+(SU 'xor -><-)
+
+(protect1 '-><- '(a b))
+(protect1 'xor '(a b))
+
+(SU 'false nil)
+
+          (test "-> 1" (= (-> nil  nil)  true))
+          (test "-> 2" (= (-> nil  true) true))
+          (test "-> 3" (= (-> true nil)  nil))
+          (test "-> 4" (= (-> true true) true))
+
+          (test "<-> 1" (= (<-> nil  nil)  true))
+          (test "<-> 2" (= (<-> nil  true) nil))
+          (test "<-> 3" (= (<-> true nil)  nil))
+          (test "<-> 4" (= (<-> true true) true))
+
+          (test "-><- 1" (= (-><- nil  nil)  nil))
+          (test "-><- 2" (= (-><- nil  true) true))
+          (test "-><- 3" (= (-><- true nil)  true))
+          (test "-><- 4" (= (-><- true true) nil))
+          
+;;==============================================================
+;;
+;; Group:            Operators of propositional calculus.
+;;
+;;--------------------------------------------------------------
+;;
+;; Name:             infix<->prefix, prefix<->infix
+;;
+;; Type              Functions.
+;;
+;; Purpose:          Returns equivalent formula in other form. 
+
+(SU 'infix<->prefix 
+  (lambda(L)
+    (cond ((not (list? L)) L)
+          ((= (length L) 2) (map infix<->prefix L))
+          ((= (length L) 3) (let((L1 (map infix<->prefix L)))
+                                (list (nth 1 L1) (nth 0 L1) (nth 2 L1))))))) 
+
+(SU 'prefix<->infix infix<->prefix)
+(protect1 'infix<->prefix '(L))
+(protect1 'prefix<->infix '(L))
+
+(test "infix<->prefix" (= (infix<->prefix '(+ (- 1 2) (- 1 2))) '((1 - 2) + (1 - 2))))
+(test "infix<->prefix" (= (infix<->prefix '((1 - 2) + (1 - 2))) '(+ (- 1 2) (- 1 2))))
+
+;;==============================================================
+;;
+;; Group:            Prefix-theorem-variables
+;;
+;;--------------------------------------------------------------
+
+(SU 'propositional-operator?
+    (lambda(x)(find x '(-> <- or and not yest <-> -><- nor xor nand))))
+
+    (protect1 'propositional-operator? '(x))
+    
+    (test "propositional-operator?" (propositional-operator? '->))
+
+(SU 'prefix-variables-in-formula 
+      (lambda(p theorem)
+        (recursive-map (lambda(x)(if (propositional-operator? x)
+                                     x
+                                     (+sym p x)))
+                       theorem)))
+
+(protect1 'prefix-variables-in-formula '(p theorem x))
+
+(test "prefix-variables-in-formula" 
+      (= (prefix-variables-in-formula 'p '(-> (-> A B) P))
+         '(-> (-> pA pB) pP)))
+         
+(SU 'suffix-variables-in-formula 
+      (lambda(p theorem)
+        (recursive-map (lambda(x)(if (propositional-operator? x)
+                                     x
+                                     (sym (string x p))))
+                       theorem)))
+                       
+(protect1 'suffix-variables-in-formula '(p theorem x))
+
+(test "prefix-variables-in-formula" 
+      (= (suffix-variables-in-formula 'p '(-> (-> A B) P))
+         '(-> (-> Ap Bp) Pp)))
+
+;;==============================================================
+;;       
+;; Group:            Aliases for arithmetic operations.
+;;             
+;; Name:             -. +. *. /. %.
+;;
+;; Type:             Primitives.
+;;
+;; Purpose:          Shorter names for add, sub, mul, div, mod
+;; 
+;; Example:          (*. (-. a b) (+. a b)) instead of 
+;;                   (mul (sub a b) (add a b))
+
+(SU '-. sub)
+(SU '+. add)
+(SU '*. mul)
+(SU '/. div)
+(SU '%. mod)
+
+;;--------------------------------------------------------------
+;; Group:            Aliases for first and rest
+;;                   
+;; Purpose:          more descriptive names of the functions
+
+(SU 'operator first)
+(SU 'arguments rest)
+
+;;==============================================================
+;;       
+;; Group:            Set operations.
+;;
+;;--------------------------------------------------------------
+;; Name:             -S2, +S2, *S2, 
+;;                   -S, +S, *S
+;;
+;; Type:             Primitives and functions
+;;
+;; Purpose:          -S2, and *S2 are shorter names for built in 
+;;                   difference and intersection, +S2 is equivalent
+;;                   union operations. -S, +S and *S are not binary,
+;;                   but n-ary operators, n>=0, and in the case of +
+;;                   n can be equal to 0. 
+
+(SU '-S2 difference) ; 
+(SU '*S2 intersect)
+(SU '+S2 (lambda()((if (and (= (length $args) 3)
+                          ($args 3))
+                      IF  ; identity function
+                      unique)
+                   (apply append $args))))
+
+(SU '+S (lambda()(unique (apply append $args))))
+
+(SU '-S (lambda()
+           (case (length $args)
+           (0 (throw-error "mising argument in Default function -S."))
+           (1 (unique (first $args)))
+           (2 (apply -S2 $args))
+           (true (-S2 (first $args)
+                      (apply +S (rest $args)))))))
+(SU '*S (lambda()
+           (case (length $args)
+                 (0 (throw-error "mising argument in Default function *S."))
+                 (1 (unique (first $args)))
+                 (2 (apply *S2 $args))
+                 (true (*S2 (first $args)
+                            (apply *S (rest $args)))))))
+
+(test "+S 0" (= (+S) '()))
+(test "+S 1" (= (+S '(1)) '(1)))
+(test "+S 2" (= (+S '(1 2) '(2 3)) '(1 2 3)))
+(test "+S 3" (= (+S '(1 2 3) '(4 3 2) '(3 4 5)) '(1 2 3 4 5)))
+
+(test "-S 1" (= (+S '(1)) '(1)))
+(test "-S 2" (= (+S '(1 2) '(2 3)) '(1 2 3)))
+(test "-S 3" (= (+S '(1 2 3) '(4 3 2) '(3 4 5)) '(1 2 3 4 5)))
+
+(test "*S 1" (= (*S '(1)) '(1)))
+(test "*S 2" (= (*S '(1 2) '(2 3)) '(2)))
+(test "*S 3" (= (*S '(1 2 3) '(4 3 2) '(3 4 5)) '(3)))
+
+;===============================================================
+;
+; Group:             Generating mutating macros.
+;
+; Name:              hset
+;
+; Syntax:            (hset operator) 
+;
+; Purpose:           hset generates the functions that modify 
+;                    values of the symbols. Names of these 
+;                    functions are results of appending "setq"
+;                    and function names.
+;
+; Examples:          (hset '+) generates the functions setq+, setf
+;                    and set+ such that if x is 3, after (setq+ x 7), 
+;                    (setf+ x 7) and (set+ 'x 7) the value of x is 10. 
+;
+;                    (hset 'append) generates the function setqappend 
+;                    such that if value of z is "hihi" then after 
+;                    (setqappend z "ho") the value of z is "hihiho". 
+
+(SU 'hset 
+    (lambda()
+       (letn ((old-function-name (first (args))))
+             (set (sym (append "setq"(string old-function-name)))
+                  (expand '(lambda-macro()
+                               (set (first (args)) 
+                                    (apply old-function-name 
+                                           (map eval (args))))) 
+                                'old-function-name))
+
+             (set (sym (append "set" (string old-function-name)))
+                  (expand '(lambda-macro()
+                                (set (eval (first (args)))
+                                     (apply old-function-name 
+                                           (map eval
+                                               (cons (eval (first (args)))
+                                                     (rest (args)))))))
+                            'old-function-name))
+
+             (set (sym (append "setf" (string old-function-name)))
+                  (expand '(lambda-macro()
+                               (eval
+                                 (letex((x (first (args))))
+                                    '(setf x (apply old-function-name 
+                                                   (map eval (args)))))))
+                            'old-function-name)))))
+
+(protect1 'hset 
+     '(x old-function-name))
+
+(dolist(i '( + - * / % 
+             +. -. *. /. %. 
+             add mul sub div mod
+             append max min and or 
+             nand nor -> <-> -><-
+             +S -S *S
+             +S2 -S2 *S2))
+  (hset i))
+
+(test "hset & setf"  (begin (setf L '(1 2 3 4))
+                            (setf/ (L 3) 2)
+                            (= (L 3) 2)))
+
+;;===============================================================
+;; 
+;; Group:          Apostrophe
+;;
+;; Name:           apostrophe 
+;; 
+;; Example         (apostrophe (list '+ 1 2)) => '(+ 1 2)
+
+(set 'apostrophe 
+     (lambda(x)(expand ''x 'x)))
+
+(protect1 'apostrophe '(x))
+
+;;==============================================================
+;; Group:          Manipulating second element of list
+;; 
+;; Purpose:        Mostly internal purposes, switching from let
+;;                 to met, using result of unification in construction
+;;                 of let expressions
+
+(set 'apostrophe-second
+     (lambda(x)
+       (list (first x) (apostrophe (last x)))))
+       
+(set 'quote-second
+     (lambda(x)
+       (list (first x) (list 'quote (last x)))))
+       
+(set 'eval-second
+     (lambda(x)
+       (list (first x) (eval (last x)))))
+
+(protect1 'apostrophe-second '(x))
+(protect1 'quote-second '(x))
+(protect1 'eval-second '(x))
+
+;;==============================================================
+;;
+;; Group:            Even and odd numbers.
+;;
+;; Name:             even? and odd?
+;;
+;; Type:             Functions.
+;;
+;; Syntax:           (even expr) (odd expr)
+;;
+;; Parameters:       Expr - expression that evaluates to integer.
+;;
+;; Purpose:          Well known property.
+;;
+;; Result:           true or false. 
+;;
+;; Side effects:     There is no side effects.
+;;
+;; Error conditions: No known error conditions.
+;; 
+;; Example:          (even? 3) => nil, (odd? 3) => true
+;;
+
+; (SU 'even?
+;     (lambda(n)(and (integer? n)
+;                     (= (% n 2) 0))))
+; (protect1 'even? '(n))
+;                     
+; (SU 'odd?
+;     (lambda(n)(and (integer? n)
+;                     (not (= (% n 2) 0)))))
+;                     
+; (protect1 'odd? '(n))
+;
+
+(test "even?" (even? 4))
+(test "odd?" (odd? 3))
+
+;;==============================================================
+;;
+;; Group:              Collatz sequence
+;;
+;; Names:              Collatz-next, Collatz-list, Collatz-count
+;;
+;; Usage:              (Collatz-next x) returns list x defined with formula:
+;;                          x/2 if x is even
+;;                          3*x + 1 if x is odd
+;;
+;;                     (
+
+(SU 'Collatz-next (lambda(x)
+                     (if (even? x) (/ x 2) (+ (* 3 x) 1))))
+
+(SU 'Collatz-list (lambda(x)
+             (cond ((= x 1) (list 1))
+                   (true (append (list x) 
+                                 (Collatz (Collatz-next x)))))))
+                                  
+(set 'Collatz-list (lambda(x)
+               (let((result (list x)))
+                   (while(!= x 1)
+                       (setf x (Collatz-next x))
+                       (push x result -1))
+                   result)))
+
+(SU 'Collatz-count (lambda(x)
+                     (let((result 1))
+                        (while(!= x 1)
+                          (setf x (Collatz-next x))
+                          (inc result))
+                        result)))
+                        
+(protect1 'Collatz-list '(x))
+(protect1 'Collatz-next '(x))
+(protect1 'Collatz-count '(x))
+
+(test "Collatz-next" (= (Collatz-next 7) 22))
+(test "Collatz-list" (= (Collatz-list 7)
+                   '(7 22 11 34 17 52 26 13 40 20 10 5 16 8 4 2 1)))
+(test "Collatz-count" (= (Collatz-count 7) 17))
+
+;;==============================================================
+;;
+;; Group:            Prime and composite numbers.
+;;
+;; Name:             divisible? prime? composite? and power-of-two?
+;;
+;; Type:             Functions.
+;;
+;; Syntax:           (prime? expr) 
+;;                   (composite? expr)
+;;
+;; Parameters:       Expr - expression that evaluates to integer.
+;;
+;; Result:           true or false. 
+;;
+;; Side effects:     There is no side effects.
+;;
+;; Error conditions: No known error conditions.
+;; 
+;; Example:          (prime? 577) => true; 
+;;                   (composite? 577) => false
+;;
+
+(SU 'divisible? (lambda(n i)(= (% n i) 0)))
+(protect1 'divisible? '(n i))
+
+(SU 'prime? (lambda(n)
+               (if (= n 1) 
+                   nil 
+                   (let((is_composite nil))
+                       (for(i 2 (int (sqrt n)) 2 is_composite)
+                           ;(println i)
+                           (when (divisible? n i)
+                                 (set 'is_composite true)))
+                       (not is_composite)))))
+                
+(SU 'composite? 
+    (lambda(n)(if (= n 1)
+                  nil
+                  (not (prime? n)))))
+
+(protect1 'prime? '(n i))
+(protect1 'composite? '(n))
+
+(SU  'power-of-two? 
+  (lambda(i)
+     (cond((= i 1) true)
+          ((odd? i) nil)
+          ((even? i) (power-of-two? (/ i 2))))))
+          
+(protect1 'power-of-two? '(i))
+
+(test "divisible? 1" (divisible? 343 7))
+(test "divisible? 2" (not (divisible? 343 8)))
+(test "prime 1" (prime? 577))
+(test "prime 2" (not (prime? 1)))
+(test "composite 1" (composite? 24))
+(test "composite 2" (composite? 2))
+
+;;==============================================================
+;;
+;; Group:            Integer functions
+;;
+;;--------------------------------------------------------------
+;;
+;; Name:             sum-dividers
+;;
+;; Type:             Function.
+;;
+;; Syntax:           (sum-dividers <expr>)
+;;
+;; Parameters:       <expr> - expression that evaluates to integer.
+;;
+;; Result:           sum of dividers of the number
+;;
+
+(set 'sum-dividers (lambda(n)
+                     (let ((result 1))
+                          (for(i 2 (int (sqrt n)) 1)
+                              (if (divisible? n i)
+                                  (set+ 'result (+ i (/ n i)))))
+                          result)))
+            
+(protect1 'sum-dividers '(n result i))
+            
+(test "sum-dividers" (= (sum-dividers 12) 16))
+       
+;;==============================================================
+;;
+;; Group:            Integer functions
+;;
+;;--------------------------------------------------------------
+;;
+;; Name:             perfect?
+;;
+;; Type:             Function.
+;;
+;; Syntax:           (perfect? <expr>)
+;;
+;; Parameters:       <expr> - expression that evaluates to integer.
+;;
+;; Result:           true if <expr> evaluates to perfect number,
+;;                   false otherwise
+
+(set 'perfect? (lambda(n)
+                 (let ((result 1))
+                      (for(i 2 (int (sqrt n)) 1 (> result n))
+                          (if (divisible? n i)
+                              (set+ 'result (+ i (/ n i)))))
+                      (= result n))))
+  
+(protect1 'perfect? '(n result i))
+
+(test "perfect 1" (perfect? 6))
+(test "perfect 2" (perfect? 28))
+(test "perfect 3" (not (perfect? 8)))
+
+;===============================================================
+;;
+;; Group:            Map relatives.
+;;
+;;--------------------------------------------------------------
+;;
+;; Name:             pam, mapq, pamq
+;;
+;; Type:             Functions.
+;;
+;; Syntax:           (pam list-of-functions element)
+;;                   (pamq list-of-functions element)
+;;                   (mapq function list-of-elements)
+;;
+;; Parameters:       list-of-functions - expression that evaluates
+;;                                       to list of functions.
+;;                   element           - expression that evaluates
+;;                                       to any Newlisp value
+;;                   list-of-elements  - expression that evaluates
+;;                                       to list of any Newlisp values
+;;
+;; Purpose:          Useful in similar situations as map.
+;;
+;; Result:           (pam '(f1 ... fn) x) <=> (list (f1 x) ... (fn x))
+;;                   (pamq '(f1 ... fn) x) <=> (list '(f1 x) ... '(fn x))
+;;                   (mapq f1 '(x1 ... xn)) <=> (list '(f1 x) ... '(fn x))
+;;
+;; Side effects:     No known side effects
+;;
+;; Error conditions: Errors happen if parameters are not of the 
+;;                   described type or functions are not applicable
+;;                   on elements. 
+;; 
+;; Examples:      
+;; 
+;; Tested expression: (map 'sin '(1 2 3))
+;; Result:            (0.8414709848 0.9092974268 0.1411200081)
+;; 
+;; Tested expression: (pam '(sin cos) 3)
+;; Result:            (0.1411200081 -0.9899924966)
+;;
+;; Tested expression: (pamq '(sin cos) 3)
+;; Result:            ((sin 3) (cos 3))
+;; 
+;; Tested expression: (mapq 'sin '(1 2 3))
+;; Result:            ((sin 1) (sin 2) (sin 3))
+;;
+
+(SU 'pamq (lambda(L a)
+          (map (lambda(li)(list li a)) L)))
+          
+(protect1 'pamq '(L li a))
+
+(SU 'pam (lambda(L a)
+         (map (lambda(fi)(eval (list fi a))) L)))
+         
+(protect1 'pam '(L fi a))
+          
+(SU 'mapq (lambda(f L)
+          (map (lambda(li)(list f li)) L)))
+          
+(protect1 'pam '(f L li))
+           
+(test "map" (= (map (lambda(x)(* x x)) '(1 2 3)) '(1 4 9)))
+(test "pam" (= (pam '((lambda(x)(+ 1 x)) (lambda(x)(* x 2))) 3)
+               '(4 6)))
+(test "pmaq" (= (pamq '(sin cos) 3) '((sin 3) (cos 3))))
+(test "mapq" (= (mapq 'sin '(1 2 3)) '((sin 1) (sin 2) (sin 3))))
+
+;===============================================================
+;
+; Group:           map relatives
+;
+; Name:            maplist
+;
+; Type:            macro
+; 
+; Example:         (maplist '(a b c) '(1 2 3) '("x" "y" "z")))
+;                  ==> ((a 1 "x") (b 2 "y") (c 3 "z"))
+
+
+(SU 'maplist (lambda-macro()(eval (append '(map list) (args)))))
+
+
+
+(test "maplist" (= (maplist '(a b c) '(1 2 3) '("x" "y" "z"))
+                   '((a 1 "x") (b 2 "y") (c 3 "z"))))
+                   
+;===============================================================
+;
+; Group:          map relatives
+; 
+; name:           appendall
+; 
+; Type:           function
+;
+; Syntax          (appendall f b)
+;
+; Result:         returns result of appending (f b1), ... (f bn)
+;                 where b = (b1 ... bn) 
+;
+; Example:        (appendall (lambda(x)(list x (sqrt x x))) 
+;                            '(1 4 9 16 25)) 
+;                 
+;                 = (1 1 4 2 9 3 16 4 25 5)
+
+(SU 'appendall (lambda(a b)
+                  (apply append (map a b))))
+
+(protect1 'appendall '(a b))
+
+(test "appendall" (= (appendall (lambda(x)(list x (sqrt x x))) 
+                                '(1 4 9 16 25))
+                                '(1 1 4 2 9 3 16 4 25 5)))
+
+;===============================================================
+;;
+;; Group:            Increased order.
+;;
+;;--------------------------------------------------------------
+;;
+;; Name:             increase-order, IO
+;;
+;; Type:             Functions.
+;;
+;; Syntax:           (increase-order f)
+;;
+;; Parameters:       f - expression that evaluates to function,
+;;                       primitive or macro or their names. 
+;;
+;; Purpose:          increase-order takes function of the nth
+;;                   order and returns appropriate function of the
+;;                   increased order. See examples. 
+;;
+;; Result:           Let us assume that f is function that accept 
+;;                   m arguments, (f x1 ... xm), and F is result of 
+;;                   (increase-order f), then F can be applied on
+;;                   functions that return x1 ... xm. Say g1 ... gm
+;;                   are such functions, and f0=(F g1 ...gm), then
+;;                   (f0 y1...yn)=(f (g1 y1...yn) ... (gm y1...ym).
+;;                   Yes, I know it is abstract. See examples.
+;;
+;; Side effects:     No known side effects
+;;
+;; Error conditions: Nothing particular.
+;;
+;; Examples: 
+;;
+;; (set 'notf (increase-order 'not))
+;; (set 'noteven? (notf even?))
+;; 
+;; (println= (noteven? 3))  ;(noteven? 3)=true;
+;; (println= (noteven? 6))  ;(noteven? 6)=nil;
+;; 
+;; (set '+.f (increase-order '+.)) 
+;; (set '+.sincos (+.f 'sin 'cos))
+;; 
+;; (println= (+.sincos 3)) ;(+.sincos 3)=-0.8488724885;
+;; (println= (+. (sin 3) (cos 3))) ;(+. (sin 3) (cos 3))=-0.8488724885;
+;;
+
+(SU 'increase-order 
+     (lambda(main-connective)
+        (expand (lambda()
+                   (let ((tmp1 (args)))
+                        (expand (lambda-macro()
+                                   (eval (let ((tmp0 (args)))
+                                              (cons 'main-connective
+                                                    (map (lambda(x)(cons x tmp0))
+                                                               'tmp1)))))
+                                'tmp1)))
+                 'main-connective)))
+
+(SU 'IO increase-order)
+
+(protect1 'increase-order '(main-connective tmp1 tmp0 x))
+(protect1 'IO '(main-connective tmp1 tmp0 x))
+
+(test "increase-order 1" (= (((IO not) even?) 5) true))
+(test "increase-order 2" (= (((IO not) even?) 6) nil))
+
+;===============================================================
+;;
+;; Group:            Increased order.
+;;
+;;--------------------------------------------------------------
+;;
+;; Name:             not^, or^, and^, 
+;;                   ~^, &^, |^, ->^, <-^, <->^, -><-^
+;;                   +^, -^, *^, /^, %^
+;;                   +.^, -.^, *.^, /.^, %.^ 
+;;
+;; Type:             Functions.
+;;
+;; Syntax:           (not^ f), (or^ f1 f2), (+^ f1 f2 f3 ... )
+;;
+;; Parameters:       f, f1, ... expression that evaluates to 
+;;                              function, primitive or macro
+;;
+;; Purpose:          Basic operations of a higher order. It can
+;;                   simplify programs and make errors less probable. 
+;;
+;; Result:           The functions that behave as operations over
+;;                   functions. See examples. 
+;;
+;; Side effects:     There are no known side effects.
+;;
+;; Error conditions: Nothing particular.
+;;
+
+(dolist (i '(not or and          
+             nand nor xor -> <- <-> -><-         
+             + - * / %       
+             +. -. *. /. %.     
+             +S2 -S2 *S2
+             +S -S *S))
+             
+        (SU (+sym i "^") (IO i)))
+        
+(dolist (i '(true nil))
+   (dolist (j '(true nil))
+      (eval (expand 
+                '(test "not^" (= ((not^ or) i j) (not (or i j))))
+                'i 'j))))
+
+(dolist (i '(true nil))
+   (dolist (j '(true nil))
+      '(println= i j)
+      (eval (expand 
+                '(test "and^" (= ((and^ or and) i j) 
+                                 (and (or i j) (and i j))))
+                'i 'j))))
+
+(dolist (i '(true nil))
+   (dolist (j '(true nil))
+      (eval (expand 
+                '(test "or^" (= ((or^ or and ->) i j) 
+                                (or (or i j) (and i j) (-> i j))))
+                'i 'j))))
+
+;===============================================================
+;;                                                              
+;; Name:             function-or-macro?, FM?                    
+;;                                                              
+;; Type:             Function.                                  
+;;                                                              
+;; Syntax:           (function-or-macro f)                      
+;;
+;; Parameters:       f - expression that evaluates to function, 
+;;                       primitive or macro                     
+;;
+;; Purpose:          Not a big deal, but I've needed it once,   
+;;                   so its here.                               
+;;
+;; Result:           True if f evaluates to function or macro,  
+;;                   false otherwise.                           
+;;                                                              
+;; Side effects:     No known side effects                      
+;;                                                              
+;; Error conditions: Nothing particular.                        
+;;                                                              
+;; Examples:                                                    
+
+(SU 'function-or-macro? 
+     (lambda(x)(or (lambda? x)(macro? x))))
+     
+(SU 'FM? function-or-macro)
+
+(protect1 'function-or-macro '(x))
+(protect1 'FM? '(x))
+
+(test "function or macro?" (function-or-macro? IF))
+
+;===============================================================
+;;
+;; Group:            Predicates from relations. 
+;;
+;; Name:             predicatize
+;;
+;; Type:             Function.
+;;
+;; Syntax:           (predicatize r)
+;;
+;; Parameters:       r - expression that evaluates to relation.
+;;
+;; Purpose:          Produces useful predicates from relations. 
+;;                   Similar to curry but simpler for extensive
+;;                   use. Check examples. 
+;;
+;; Result:           Tramsrofms relation r(x,y) into function of
+;;                   one argument r?(y) which for given y0 returns 
+;;                   predicate r(x,y0). 
+;;
+;; Side effects:     No known side effects
+;;
+;; Error conditions: Nothing particular.
+;;
+;; Examples:         (predicatize '<=) ;result: <=? see bellow. 
+
+(SU 'predicatize 
+     (lambda(relation)
+            (local (left rigth relvar)
+                   (set 'left 
+                         (sym (append (string relation) "?")))
+                   (set 'relvar 
+                         (sym (append "[" (string relation) "?.arg]")))
+                   (set 'right 
+                         (expand (lambda(x)
+                                    (expand (lambda(relvar)
+                                                (relation relvar x))
+                                            'x))
+                                 'relation
+                                 'relvar))
+
+                   (set left right))))
+
+(protect1 'predicatize '(relation left right relvar x))
+
+;===============================================================
+;;
+;; Group:            Predicates from relations. 
+;;
+;; Name:             <? >? =? <=? >=? !=? or? and? not? &? |? ~?
+;;                   ->? <-? <->? -><-?
+;;
+;; Type:             Functions.
+;;
+;; Syntax:           (<? x), (>? x)
+;;
+;; Parameters:       x - real number.
+;;
+;; Purpose:          (<? x) has the meaning of the predicate 
+;;                   "less than x". 
+;;
+;; Result:           Transforms relation r(x,y) into function of
+;;                   one argument r?(y) which for given y0 returns 
+;;                   predicate r(x,y0). 
+;;
+;; Side effects:     No known side effects
+;;
+;; Error conditions: Nothing particular.
+;;
+;; Examples:         (<=? 1) is (lambda ([<=?.arg]) (<= [<=?.arg] 1))
+;;
+
+(dolist (predicate '(< > = <= >= != or and not & | ~ nor nand xor -> <- <-> -><-))
+          (predicatize predicate))
+
+(test "<?" ((<? 3) 1))
+
+;===============================================================
+;;
+;; Group:            Floating point rounding support. 
+;;
+;; Name:             gfloor, ground, gceil
+;;
+;; Type:             Functions.
+;;
+;; Syntax:           (gfloor number precision) 
+;;                   (ground number precision)
+;;                   (gceil  number precision)
+;;
+;; Parameters:       x - real number.
+;;
+;; Purpose:          Well known functions floor, round and ceil
+;;                   in different form. Precision can be 0, in that
+;;                   case, number is returned. If precision is negative,
+;;                   result is equivalent of - (gfloor (- number) 
+;;
+;; Result:           Transrofms relation r(x,y) into function of
+;;                   one argument r?(y) which for given y0 returns 
+;;                   predicate r(x,y0). 
+;;
+;; Side effects:     No known side effects
+;;
+;; Error conditions: If step < 0. 
+;;
+;; Examples:         (gfloor 3.17492 0.01)=3.17;
+;;                   (ground 3.17492 0.01)=3.17;
+;;                   (gceil  3.17492 0.01)=3.18;
+
+(dolist(j '(floor ceil round))
+  (SU (+sym 'g j)
+      (expand (lambda(x step)
+                 (when (< step 0) 
+                       (throw-error "gfloor, gceil or ground: step < 0"))
+                 (if (= step 0)
+                     x
+                     (*. (j (/. x step)) step)))
+              'j))
+  (protect1 (+sym 'g j) '(x step)))
+
+(test "gfloor" (= (gfloor 3.17492 0.01) 3.17))
+(test "ground" (= (ground 3.17492 0.01) 3.17))
+(test "gceil " (= (gceil  3.17492 0.01) 3.18))
+
+;===============================================================
+;;
+;; Group:            Random numbers.
+;;
+;;--------------------------------------------------------------
+;;
+;; Name:             rnd, irnd
+;;
+;; Type:             Function.
+;;
+;; Syntax:           (rnd from to step)
+;;                   (irnd from to)
+;;                
+;; Parameters:       from - start of the segment
+;;                   to   - end of the segment
+;;                   step - granularity of the segment. 
+;;
+;; Purpose:          Random number function in the syntax similar 
+;;                   to for and sequence. 
+;;
+;; Result:           Random number from set starting with "from" 
+;;                   and ending with "to" - both included - increased 
+;;                   by "step." If "step" is 0, then any floating 
+;;                   point number in segment can be random number. 
+;;
+;; Side effects:     No known side effects.
+;;
+;; Error conditions: No known error conditions.
+;;
+;; Examples:          (rnd 2 10000 5)=12;
+;;                    (rnd 6 7 0.125)=6.625;
+;;                    (rnd 1 3 0)=2.170018616;
+;;
+
+(SU 'rnd 
+    (lambda(a b step)
+       (if (> a b) 
+           (rnd b a step) ; because of specificity of Newlisp for
+           (begin (when (not step) (set 'step 1))
+           
+                  (let ((result 
+                       (if (and (= step 0) 
+                                (= (random) (random)))  
+                           b
+
+                           (let ((r (random)))
+                                (while (or (= 0 r) (= 1 r))
+                                       (set 'r (random)))
+                                (let((scale (+. (gfloor (- b a) step) ; [??]
+                                                step)))       
+                                    (+. a (gfloor (*. scale r)
+                                                  step)))))))
+                        (if (or (< result a) (> result b)) 
+                            (println= "error!" result a b step r)
+                             result))))))
+                                         
+(SU 'irnd (lambda(a b)(rnd a b 1)))
+
+(protect1 'rnd '(a b step scale r result))
+(protect1 'irnd '(a b))
+
+;===============================================================
+;;
+;; Name:             random-element, RE
+;;
+;; Type:             Function.
+;;
+;; Syntax:           (random-element list)
+;;                
+;; Examples:         (random-element (list 1 2 3))
+;;                   
+
+(SU 'random-element (lambda(L)(apply amb L)))
+(SU 'RE random-element)
+
+(protect1 'random-element '(L))
+(protect1 'RE '(L))
+
+(test "random-element" (= (random-element '(1)) 1))
+
+;===============================================================
+;;
+;; Name:             random-sublist, RS
+;;
+;; Type:             Function.
+;;
+;; Syntax;           (random-sublist L n)
+;;
+
+(SU 'random-sublist
+    (lambda(L pick-from-list)
+      (let ((result '())
+            (left-in-list (length L)))
+           (when (> pick-from-list left-in-list)
+            (throw-error (append "There is no n=" 
+                                 (string pick-from-list)
+                                 " elements in L.")))
+           (dolist (element L (= pick-from-list 0))
+                   (let ((probability (div pick-from-list 
+                                           left-in-list)))
+                         (when (<= (random 0 1) probability)
+                               (push element result -1)
+                               (dec pick-from-list))
+                         (dec left-in-list)))
+            result)))
+            
+(SU 'RS random-sublist)
+
+(protect1 'random-sublist '(L pick-from-list result left-in-list element
+                       probability))
+
+(protect1 'RS '(L pick-from-list result left-in-list element
+                       probability))
+
+;===============================================================
+;;
+;; Group:            Ordinal numbers.
+;;
+;;--------------------------------------------------------------
+;;
+;; Name:             second, third
+;;
+;; Type:             Function.
+;;
+;; Syntax:           (second L), (third L) ...
+
+(setq second (lambda()(first(rest (first(args))))))
+(setq third (lambda()(first(rest(rest (first(args)))))))
+
+;===============================================================
+;; 
+;; Name:             type
+;;
+;; Type:             Function.
+;;
+;;
+;; Returns type of the argument, "boolean", "integer" etc.
+;; It is not my function, it is just the part of my default
+;; library file. It is once posted by newBert on the Newlisp forum.
+
+(define (type x)
+  ; returns the type of data
+  (let (types '("boolean" "boolean" "integer" "float"
+                "string" "symbol" "context"
+                "primitive" "primitive" "primitive"
+                "quote" "list" "lambda" "macro" "array"))
+       (types (& 0xf ((dump x) 1)))))
+       
+(protect1 'type '(x))
+
+;===============================================================
+; 
+; Name:              evaluation-level-indent
+;
+; Syntax             (evaluation-level-indent <indent-character>)
+;                    if indent-character is omitted, then " " is 
+;                    used.
+
+(set 'evaluation-level-indent
+     (lambda()
+        (dup (or (first (args)) " ") (sys-info 3))))
+
+;;==============================================================
+;;
+;; Group:              functions for memory control.
+;;
+;; Name:               memory-watch, memory-watch-reset, 
+;;                     memory-watch-report
+;; 
+;; Example of use:
+;; 
+;; (memory-watch-reset)
+;; (set 'fibo (lambda(n)
+;;                 (memory-watch)
+;;                 (if (< n 3) 1
+;;                     (+ (fibo (- n 1)) (fibo (- n 2))))))
+;; (fibo 20)
+;; (memory-watch-report)
+;; 
+;; prints following line:
+;; 
+;; Memory watch report: 1593-1696 (difference 103) cells used.
+
+(SU 'memory-watch-reset (lambda()
+                             (set '[memory-watch.min-used-cells] 
+                                   (sys-info 0))
+                             (set '[memory-watch.max-used-cells] 
+                                   (sys-info 0))))
+(SU 'memory-watch (lambda()
+                     (when (> (sys-info 0) max-used-cells)
+                           (set '[memory-watch.max-used-cells] 
+                                (sys-info 0)))
+                     (when (< (sys-info 0) min-used-cells)
+                           (set '[memory-watch.min-used-cells] 
+                                (sys-info 0)))))
+                           
+(protect1 'memory-watch '(max-used-cells min-used-cells))
+
+(SU 'memory-watch-report 
+    (lambda()(println "Memory watch report: " 
+                      [memory-watch.min-used-cells] 
+                      "-" 
+                      [memory-watch.max-used-cells] 
+                      " (difference " 
+                      (- [memory-watch.max-used-cells] 
+                         [memory-watch.min-used-cells]) 
+                      ") cells used.")))
+
+; (memory-watch-reset)
+; (set 'fibo (lambda(n)
+;                 (memory-watch)
+;                 (if (< n 3) 
+;                     1
+;                     (+ (fibo (- n 1)) (fibo (- n 2))))))
+; (fibo 25)
+;(memory-watch-report)
+
+
+;;==============================================================
+;;
+;; Group:              Conversion between functions, macros and
+;;                     primitives.
+;;
+;;--------------------------------------------------------------
+;;
+;; Name:               function-from-macro, macro-from-function
+;;                     FM, MF
+;;
+;; USAGE:              (function-from-macro p) only changes the
+;;                     "lambda-macro" from definition of p into
+;;                     lambda. 
+;;
+;;                     (macro-from-function p) does the same, 
+
+(SU 'function-from-macro (lambda()
+                             (append '(lambda) ; quote can be omitted
+                                      (first (args)))))
+
+(SU 'FM function-from-macro)
+
+(test "function-from-marco" (= (FM (lambda-macro(x)(sin x)))
+                               (lambda(x)(sin x))))
+
+(SU 'macro-from-function (lambda()
+                             (append '(lambda-macro)
+                                      (first (args)))))
+
+(SU 'MF macro-from-function)
+
+(test "macro-from-function" (= (MF (lambda(x)(sin x)))
+                               (lambda-macro(x)(sin x))))
+                               
+;;==============================================================
+;;
+;; Group:              Conversion between functions, macros and
+;;                     primitives.
+;;
+;;--------------------------------------------------------------
+;;
+;; Name:               function-from-primitive, macro-from-primitive
+;;                     FP, MP
+;;
+;; Purpose:            Converting primitives to function and macros
+;;                     behaving on the SAME way as primitive.
+
+(SU 'function-from-primitive
+     (lambda(built-in-name)
+       (expand '(lambda()(apply 'built-in-name $args))
+               'built-in-name)))
+
+(SU 'macro-from-primitive
+     (lambda(built-in-name)
+        (expand '(lambda-macro()(eval (cons 'built-in-name $args)))
+                'built-in-name)))
+
+(SU 'FP function-from-primitive)
+(SU 'MP macro-from-primitive)
+
+(protect1 'function-from-primitive '(built-in-name))
+(protect1 'macro-from-primitive '(built-in-name))
+
+(protect1 'FP '(built-in-name))
+(protect1 'MP '(built-in-name))
+
+(test "FP" (= ((MF (FP sqrt)) 4) 2))
+
+;===============================================================
+;
+; Group:             Functions supporting lambda and lambda-macro 
+;                    lists
+;
+; Name:              mapg, cleang
+;
+; Type:              Functions.
+;
+; Syntax:            (mapg f list), (cleang f L) 
+;
+; Purpose:           Same like map and clean, they just keep 
+;                    special type of lists, i.e. if applied on
+;                    lambda and lambda macro lists, they return
+;                    same kinds of lists
+
+(SU 'mapg (lambda(f L)
+             (append (cond ((lambda? L) (lambda))
+                           ((macro? L)  (lambda-macro))
+                           (true '()))
+                      (map f L))))
+
+(protect1 'mapg '(f L))
+
+(SU 'cleang (lambda(f L)
+               (append (cond ((lambda? L) (lambda))
+                             ((macro? L)  (lambda-macro))
+                             (true '()))
+                        (clean f L))))
+
+(protect1 'cleang '(f L))
+
+
+
+;===============================================================
+;
+; Group:             Two-phase, Common Lisp / Scheme kind of macros
+;
+; Names:             prepare-time, !!, prepare-time-fn?, prepare
+;
+; Syntax:            See my blog.
+
+(SU 'prepare-time begin)
+(SU '!! '!!)
+
+(SU 'prepare-time-fn?
+      (lambda(expr)(and (symbol? expr)
+                        (or (lambda? (eval expr)) (macro? (eval expr)))
+                        (= (nth 1 (eval expr)) ''prepare-time))))
+
+(protect1 'prepare-time-fn? '(expr))
+
+(SU 'prepare
+     (lambda(expr)
+        (let ((result
+              (if (and (list? expr)
+                       (not (empty? expr)))
+                          
+                   (if (= (first expr) 'prepare-time)
+                       (eval expr)           ; [1]
+                       
+                       (begin (set 'expr (mapg prepare expr)); recursion
+                              
+                              (if (prepare-time-fn? (first expr))
+                                  (eval expr) ; [2]
+                                  expr)))
+                   expr)))                    ; general case
+
+             (if (list? result)
+                 (cleang (lambda(x)(= x !!)) result) ; [1a]
+                  result))))
+
+(protect1 'prepare '(expr result x))
+
+;===============================================================
+;
+; Group:             List splitting.
+;
+; Names:             except-last, 
+;                    first-half-inclusive, 
+;                    first-half-exclusive, 
+;                    second-half-inclusive,
+;                    second-half-exclusive, 
+;                    middle,
+;                    except-nth
+;
+; Syntax:            (except-last L) etc
+
+(SU 'except-last 
+      (lambda(L)
+        (slice L 0 (- (length L) 1))))
+        (SU 'EL except-last)
+        (protect1 'except-last '(L))
+        (protect1 'EL '(L))
+        (test "except-last" (= (except-last '(1 2 3)) '(1 2)))
+
+(SU 'first-half-inclusive
+     (lambda(L)
+        (slice L 0 (ceil (/. (length L) 2)))))
+        (SU 'FHI first-half-inclusive)
+        (protect1 'first-half-inclusive '(L))
+        (protect1 'FHI '(L))
+        (test "first-half-inclusive" 
+              (= (first-half-inclusive '(1 2 3)) '(1 2)))
+
+(SU 'first-half-exclusive
+    (lambda(L)
+       (slice L 0 (floor (/. (length L) 2)))))
+       (SU 'FHE first-half-exclusive)
+       (protect1 'first-half-exclusive '(L))
+       (protect1 'FHE '(L))
+       (test "first-half-exclusive" (= (first-half-exclusive '(1 2 3))
+                                        '(1)))
+        
+(SU 'second-half-inclusive
+    (lambda(L)
+       (slice L (floor (/. (length L) 2))
+                (ceil (/. (length L) 2)))))
+       (SU 'SHI second-half-inclusive)
+       (protect1 'second-half-inclusive '(L))
+       (protect1 'SHI '(L))
+       (test "second-half-inclusive" 
+             (= (second-half-inclusive '(1 2 3)) '(2 3)))
+
+(SU 'second-half-exclusive
+    (lambda(L)
+       (slice L (ceil (/. (length L) 2))
+                (floor (/. (length L) 2)))))
+
+       (SU 'SHE second-half-exclusive)
+       (protect1 'second-half-exclusive '(L))
+       (protect1 'SHE '(L))
+       (test "second-half-exclusive" (= (second-half-exclusive '(1 2 3)) '(3)))
+
+(SU 'middle
+    (lambda(L)
+       (if (odd? (length L))
+           (nth (/ (length L) 2) L)
+           (throw-error "middle applied on even length list"))))
+
+     (test "middle" (= (middle '(1 2 3)) 2))
+     (protect1 'middle '(L))
+
+(SU 'except-nth
+    (lambda(n L)
+        (append (slice L 0 n)
+                (slice L (+ n 1) (- (length L) n)))))
+
+    (SU 'EN except-nth)
+    (protect1 'except-nth '(n L))
+    (protect1 'EN '(n L))
+    (test "except-nth" (= (except-nth 1 '(1 2 3)) '(1 3)))
+
+;===============================================================
+;
+; Group:             Expressions as graphs
+;
+; Names:             branches, leafs
+;
+; Syntax:            (branches L), (leafs L)
+;
+; Examples:       
+;
+; (println (branches '(+ (- 1 2) (+ 3 4) (- 5 (+ 6 7)))))
+;
+; (println (leafs '(+ (- 1 2) (+ 3 4) (- 5 (+ 6 7)))))
+;
+; ((+ (- 1 2) (+ 3 4) (- 5 (+ 6 7))) 
+; (- 1 2) 1 2 (+ 3 4) 3 4 (- 5 (+ 6 7)) 5 (+ 6 7) 6 7)
+; (1 2 3 4 5 6 7)   
+
+(SU 'branches
+    (lambda(L)
+      (cons L (cond ((list? L)(apply append (map branches (rest L))))
+                    ((quote? L)(branches (eval L)))
+                    (true '())))))
+
+(SU 'branches-exclusive
+    (lambda(L)(difference (branches L) (list L))))
+
+(protect1 'branches '(L))
+
+(SU 'leafs
+     (lambda(L)
+       (cond ((list? L)(apply append (map leafs (rest L))))
+             ((quote? L)(leafs (eval L)))
+             (true (list L)))))
+
+(protect1 'leafs '(L))
+
+(test "branches 1" 
+       (= (branches '(+ (- 1 2) (+ 3 4) (- 5 (+ 6 7))))
+          '((+ (- 1 2) (+ 3 4) (- 5 (+ 6 7))) 
+           (- 1 2) 1 2 (+ 3 4) 3 4 (- 5 (+ 6 7)) 5 (+ 6 7) 6 7)))
+           
+(test "branches 2" (= (branches '(+ 1 '2)) '((+ 1 '2) 1 '2 2)))
+
+(test "branches-exclusive" 
+       (= (branches-exclusive 
+            '(+ (- 1 2) (+ 3 4) (- 5 (+ 6 7))))
+            '((- 1 2) 1 2 (+ 3 4) 3 4 (- 5 (+ 6 7)) 5 (+ 6 7) 6 7)))
+          
+(test "leafs" (= (leafs '(+ (- 1 2) (+ 3 4) (- 5 (+ 6 7))))
+                 '(1 2 3 4 5 6 7)))
+
+;===============================================================
+;
+; Group:             List operations
+;
+; Names              *list
+; 
+; Syntax:            (*list <L1> <L2>)
+;
+; Result:            Cartesian product of lists <L1> and <L2.>
+;
+; Example:           (*list '(1 2) '(4 5 6)) -> 
+;                    ((1 4) (1 5) (1 6) (2 4) (2 5) (2 6))
+
+(set '*list (lambda(l1 l2)
+              (let ((result '()))
+                   (dolist(i l1)
+                     (dolist(j l2)
+                       (push (list i j) result -1)))
+                   result)))
+                   
+(protect1 '*list '(i l1 l2 result))
+
+(test "*list" (=  (*list '(1 2) '(4 5 6)) 
+              '((1 4) (1 5) (1 6) (2 4) (2 5) (2 6))))
+              
+;===============================================================
+;
+; Group:             List operations
+;
+; Names              element
+; 
+; Syntax:            (element x L)
+;
+; Result:            nil if x not element L, place in the list
+;                    if it is element of the list. Same thing as
+;                    find, just with different name
+;
+
+(set 'element find)                  
+
+;===============================================================
+;
+; Group:             Expressions as graphs
+;
+; Names:             depth, size, size2, size-string, width 
+;
+; Syntax:            (depth <L>) - length of the longest branch
+;                    (size <L>)  - number of nodes
+;                    (size2 <L>) - number of nodes, such that non
+;                                  terminal nodes are counted with 2.
+;                    (string-size <L>) - size of the string
+;                    (width <L>) - number of branches
+;    
+; (set 'depth (lambda(x)
+;                (cond ((quote? x)(+ 1 (depth (eval x))))
+;                       ((list? x)(+ 1 (apply max (map depth x))))
+;                       (true 1))))
+;                       
+; (set 'size (lambda(x)
+;               (+ 1 (cond ((quote? x)(size (eval x)))
+;                          ((list? x)(apply + (map size x)))
+;                          (true 0)))))
+;                          
+; (set 'width (lambda(x)
+;               (cond ((quote? x)(width (eval x)))
+;                     ((list? x)(apply + (map width x)))
+;                     (true 1))))
+;
+
+(protect1 'depth '(x))
+(protect1 'size '(x))
+(protect1 'size2 '(x))
+(protect1 'size-string '(x))
+(protect1 'width '(x))
+
+(test "size 1" (= (size '(+ (- 1 2) (+ 3 4) (- 5 (+ 6 7)))) 17))
+(test "depth 1" (=(depth '(+ (- 1 2) (+ 3 4) (- 5 (+ 6 7)))) 4))
+(test "width 1" (= (width '(+ (- 1 2) (+ 3 4) (- 5 (+ 6 7)))) 12))
+(test "size 2" (= (size '()) 1))
+(test "depth 2" (= (size '()) 1))
+(test "width 2" (= (width '() 0)))
+(test "size2" (= (size2 '(+ a b)) 5))
+(test "size2" (= (size2 '(+ (a) (b))) 9))
+(test "size2" (= (size2 '(+ (length "a") (length "b"))) 11))
+
+;===============================================================
+;
+; Group:             Special cond's
+;
+; Names:             most-probable-cond, least-probable-cond
+;
+; Syntax:            
+;
+; Examples:       
+
+(SU 'most-probable-cond
+    (lambda-macro(formula-for-a-number-of-evals)
+       (when (> (length (args) 0))
+       (let ((number-of-evals (eval formula-for-a-number-of-evals))
+             (maximal-clause-index -1)
+             (maximal-clause-successes -1))
+
+            ;(println "Number of evals: " number-of-evals)
+            (doargs(clause)
+                (let ((counter-of-successes 0))
+
+                     (dotimes (this-eval number-of-evals)
+                          (when (eval (first clause))
+                                (inc counter-of-successes)))
+                                
+;                      (println "Clause: " $idx
+;                               ". " ($args $idx)
+;                               ": " counter-of-successes
+;                               " times.")
+
+                     (when (> counter-of-successes
+                              maximal-clause-successes)
+                           (set 'maximal-clause-index $idx)
+                           (set 'maximal-clause-successes
+                                 counter-of-successes))))
+;             (println "Max: " maximal-clause-index
+;                      ". " ($args maximal-clause-index)
+;                      ": " maximal-clause-successes " times.")
+;
+            (eval (last ($args maximal-clause-index)))))))
+            
+(SU 'MPC most-probable-cond)
+
+(protect1 'most-probable-cond '(formula-for-a-number-of-evals
+                           number-of-evals
+                           this-eval
+                           maximal-clause-index
+                           maximal-clause-successes
+                           clause
+                           counter-of-successes))
+
+(protect1 'MPC '(formula-for-a-number-of-evals
+            number-of-evals
+            this-eval
+            maximal-clause-index
+            maximal-clause-successes
+            clause
+            counter-of-successes))
+
+(SU 'least-probable-cond
+    (lambda-macro(formula-for-a-number-of-evals)
+       (let ((number-of-evals (eval formula-for-a-number-of-evals))
+             (minimal-clause-index -1)
+             (minimal-clause-successes -1))
+;            (println "Number of evals: " number-of-evals)
+            (doargs(clause)
+                (let ((counter-of-successes 0))
+                     
+                     (dotimes (this-eval number-of-evals)
+                          (when (eval (first clause))
+                                (inc counter-of-successes)))
+;                      (println "Clause: " $idx
+;                               ". " ($args $idx)
+;                               ": " counter-of-successes
+;                               " times.")
+                     (when (< counter-of-successes
+                              minimal-clause-successes)
+                           (set 'minimal-clause-index $idx)
+                           (set 'minimal-clause-successes
+                                 counter-of-successes))))
+;             (println "Max: " maximal-clause-index
+;                      ". " ($args maximal-clause-index)
+;                      ": " maximal-clause-successes " times.")
+            (eval (last ($args minimal-clause-index))))))
+
+(SU 'LPC least-probable-cond)
+
+(protect1 'least-probable-cond '(formula-for-a-number-of-evals
+                            number-of-evals
+                            this-eval
+                            minimal-clause-index
+                            minimal-clause-successes
+                            clause
+                            counter-of-successes))
+
+(protect1 'LPC '(formula-for-a-number-of-evals
+            number-of-evals
+            this-eval
+            minimal-clause-index
+            minimal-clause-successes
+            clause
+            counter-of-successes))
+
+;===============================================================
+;
+; Group:             Macros support
+;
+; Name:              macrocall
+;
+; Syntax:            (macrocall macro values)
+;
+;                    Attention: use only uppercase for variables.
+;
+; Examples:          
+;
+; (macrocall '((X Y)(println "X=" X "; Y=" Y))
+;            '((+ 1 2) (- (* 4 5))))
+; 
+; (macrocall '(L (println "L=" L))
+;            '((+ 1 2) (- (* 4 5))))
+;                     
+; (macrocall '((X (Y Z)) (println "X=" X "; Y=" Y "; Z=" Z))
+;            '((+ 1 2) (- (* 4 5))))
+;                      
+;                      
+; X=(+ 1 2); Y=(- (* 4 5))
+; L=((+ 1 2) (- (* 4 5)))
+; X=(+ 1 2); Y=-; Z=(* 4 5)
+;
+; (macrocall '((X (Y Z#)) (println "X=" X "; Y=" Y "; Z=" Z))
+;            '((+ 1 2) (- (* 4 5))))
+; 
+; X=(+ 1 2); Y=-; Z=20   - It works
+
+(SU 'macrocall-quote-second (lambda(x)
+                       (if (ends-with (string (first x)) "#")
+                            (list (sym (chop (string (first x))))
+                                  (last x))
+                            (list (first x)
+                                  (apply quote (rest x))))))
+
+(SU 'MQS macrocall-quote-second)
+
+(protect1 'macrocall-quote-second '(x))
+(protect1 'MQS '(x))
+
+(SU 'equivalent-let-block
+     (lambda (definition arguments)
+             (list 'let 
+                    (map macrocall-quote-second
+                         (unify (first definition)
+                                       arguments))
+                    (last definition))))
+                    
+(SU 'ELB equivalent-let-block)
+
+(protect1 'equivalent-let-block '(definition arguments))
+(protect1 'ELB '(definition arguments))
+
+(SU 'macrocall 
+     (lambda (definition arguments)
+             (eval (equivalent-let-block definition arguments))))
+
+(protect1 'macrocall '(definition arguments))
+
+(test "macrocall 1" (= (macrocall '((X (Y Z))(+ X (* Y Z)))
+                                  '(2 (3 4)))
+                       14))
+
+;===============================================================
+;
+; Name:              calculate-or-ask
+;
+; Syntax:            see example: 
+;
+; (calculate-or-ask
+;      (Diagonal)
+;      (Width)
+;      (Height)
+;      (Price)
+;      (Pixels               (* Height Width))
+;      (Area                 (/ (* Diagonal Diagonal Width Height)
+;                               (+ (* Width Width) 
+;                                  (* Height Height))))
+;      (Pixels/Unit-of-area  (/ Pixels Area))
+;      (Pixels/Unit-of-price (/ Pixels Price)))
+;
+; Output:
+;
+          ; Diagonal             = 24
+          ; Width                = 1920
+          ; Height               = 1200
+          ; Price                = 2000
+          ; Pixels               = 2304000
+          ; Area                 = 258
+          ; Pixels/Unit-of-area  = 8930
+          ; Pixels/Unit-of-price = 1152
+
+(SU 'calculate-or-ask
+     (lambda-macro()
+        (dolist (i $args)
+           (print (first i)
+               (dup " " (- 20 (length (string (first i)))))
+               " = ")
+           (set (first i) (if (> (length i) 1)
+                              (println (eval (nth 1 i)))
+                              (float (read-line)))))))
+
+(SU 'CA calculate-or-ask)
+
+(protect1 'calculate-or-ask '(i))
+(protect1 'CA '(i))
+
+;===============================================================
+;
+; Group:             Inverse let
+;
+; Names:             where, wherex, wheren
+;
+; Syntax:            (where   <body> <head>)
+;                    (wherex  <body> <head>)
+;                    (wheren  <body> <head>)
+
+(SU 'where
+    (lambda-macro()
+       (eval (append '(let)
+                     (cons (last (args))
+                           (reverse (rest (reverse (args)))))))))
+(SU 'wherex
+   (lambda-macro()
+      (eval (append '(letex)
+                    (cons (last (args))
+                          (reverse (rest (reverse (args)))))))))
+(SU 'wheren
+   (lambda-macro()
+      (eval (append '(letn)
+                    (cons (last (args))
+                          (reverse (rest (reverse (args)))))))))
+
+; comment: where, wherex and wheren have not local variables.
+
+
+;===============================================================
+;
+; Group:             Multi-loops
+;
+; Names:             multiloop
+;
+; Syntax:            (multiloop expr0) where expr0 evaluates to
+;                    function name
+;
+; Description:       internal, for producing multi loops, might
+;                    be useful for some people.
+
+(SU 'multiloop 
+   (lambda(loop)
+     (let ((new-loop (sym (append (string loop) "-multi"))))
+        (SU new-loop
+           (expand 
+             (lambda-macro(L)
+                (let ((variables (first L)))                           
+                  (if (empty? variables)
+                      (eval (list-to-single-expression (args)))
+                      (letex ((head1 (cons (first variables) 
+                                           (rest L)))
+                              (head2 (cons (rest variables) 
+                                           (rest L)))
+                             (body  (list-to-single-expression (args))))
+                         (loop head1
+                               (new-loop head2
+                                         body))))))
+                    'loop
+                    'new-loop))
+         (protect1 new-loop '(L variables head1 head2 body)))))
+
+(protect1 'multiloop '(loop new-loop L))
+;===============================================================
+;
+; Group:             Multi-loops
+;
+; Names:             doargs-multi, dolist-multi, dostring-multi
+;                    dotimes-multi, dotree-multi, for-multi
+;
+; Description        multi-versions of loops allow following
+;                    syntax:
+;
+;                    (dolist-multi ((i j k l) '(true nil))
+;                                      ... )
+;
+;                    instead of
+;
+;                    (dolist (i '(true nil))
+;                       (dolist (j '(true nil))
+;                          (dolist (k '(true nil))
+;                              (dolist (l '(true nil))
+;                                     ... ))))
+
+(map multiloop '(doargs dolist dostring dotimes dotree for))
+
+;===============================================================
+;
+; Group:            factorials
+;
+; Names:            factorial, double-factorial
+;
+
+(set 'factorial 
+     (lambda(n)
+       (let((result 1))
+         (when (> n 0)
+            (for(i 1 n 1)
+                (set 'result (* result i))))
+          result)))
+          
+(protect1 'factorial '(result n i))
+         
+; one might expect that "sequence" work better than loop here,
+; but sequence definition is really different, so it requires some
+; changes that at the end, make definition more similar to loop.
+
+(test "factorial 1" (= (factorial 6) 720))
+(test "factorial 2" (= (factorial 0) 1))
+
+(set 'double-factorial 
+     (lambda(n)
+       (let((result 1))
+        (when (> n 0)
+         (for(i n 1 -2)
+            (set 'result (* result i))))
+         result)))
+
+(protect1 'double-factorial '(result n i))
+
+(test "double-factorial 1" (= (double-factorial 5) 15))
+(test "double-factorial 2" (= (double-factorial 6) 48))
+(test "double-factorial 3" (= (double-factorial 0) 1))
+
+;===============================================================
+; 
+; GROUP:        PROPOSITIONAL VARIABLES AND FORMULAS
+;
+; Description:  Few elementary functions related to propositional
+;               formulas, implemented on the simplest way.
+;               Some of the functions can redefine values of 
+;               the variables in the propositional formulas. 
+;
+;               They use some other library functions I wrote,
+;               so this code cannot be just cutted and pasted
+;               in editor, but I'll publish it in library soon
+;               (or I already did it.)
+;
+; Names:        propositional-variables, PV
+;
+;               tautology
+;               falsifiable
+;               satisfiable
+;               contradiction
+;
+;               satisfaction
+;               falsification
+;
+; Type:         functions
+;
+; Examples:     (propositional-variables '(-> nil (-> nil nil)))
+;               ===> '()
+;
+;               (propositional-variables '(-> A (or B (and D true) nil)))
+;                ===> '(A B D)
+;
+;               (tautology? '(-> A B)) ==> nil
+;
+;               (tautology? (-> nil (-> nil nil))) ==> true
+;
+;               (falsifiable '(-> A B)) ==> true
+;
+;               (falsifiable (-> nil (-> nil nil))) ==> nil
+;
+;               (falsification '(-> A B)) ==> ((A true) (B nil))
+;
+;               (satisfaction '(-> A (not A))) ==> '((A nil)))
+;
+
+(SU 'propositional-variables ; SU is my version of set, it warns 
+                             ; if variable is already defined
+  
+  (lambda(f)(difference (unique (leafs f)) ; (leafs '(-> (-> x y) z)) ==> (x y z)
+                                booleans)))        ; booleans = '(true nil)
+
+        (SU 'PV propositional-variables)
+        (protect1 'propositional-variables '(f)) ; protect1 is my protection
+                                            ; function roughly equivalent
+                                            ; to built in contexts.
+                                            
+                                            ; I use it instead of contexts
+                                            ; primarily because I can 
+                                            ; experiment. 
+        (protect1 'PV '(f))
+        
+        (test "propositional-variables 1" 
+          (= (propositional-variables '(-> nil (-> nil nil)))
+             '()))                    
+                   ; -> is implication, the propositional logical 
+                   ; connective like or and not, defined 
+                   ; earlier in library.
+             
+        (test "propositional-variables 2"
+          (= (propositional-variables '(-> A (or B (and D true) nil)))
+             '(A B D)))
+
+(SU 'tautology?
+  (lambda(formula)
+    (let ((tautology true))
+      (letex ((L (propositional-variables formula)))
+        (dolist-multi(L booleans (not tautology)) 
+          (setand 'tautology (eval formula)))) ; (setand 'x y) = (set 'x (and x y))
+      tautology)))
+      
+          (test "tautology" (not (tautology? '(-> A B))))
+          (test "tautology2" (tautology? (-> nil (-> nil nil))))
+
+(SU 'falsifiable? (not^ tautology?))  ; not^ is a higher order not;
+                                      ; it can be applied on functions
+                                      ; ((not^ f) x) = (not (f x)) 
+                                      ; for every x
+
+          (test "falsifiable? 1" (not (falsifiable? true)))
+          (test "falsifiable? 2" (falsifiable? '(-> A B)))
+
+          (protect1 'tautology? '(formula tautology L))
+          (protect1 'falsifiable? '(formula tautology L))
+
+(SU 'falsification 
+  (lambda(formula)
+    (let ((tautology true)
+          (result nil))
+      (letex ((L (propositional-variables formula)))
+        (dolist-multi(L booleans (not tautology))
+          (setand 'tautology (eval formula))
+          (unless tautology 
+                  (set 'result (map (lambda(x)(list x (eval x)))
+                                    'L)))))
+      result)))
+
+           (test "falsification" (= (falsification '(-> A B))
+                                    '((A true) (B nil))))
+
+           (protect1 'falsification '(formula tautology result L))
+
+(SU 'satisfiable? (lambda(f)(falsifiable? (list 'not f))))
+(SU 'satisfaction (lambda(f)(falsification (list 'not f))))
+(SU 'contradiction? (not^ satisfiable?))
+
+          (test "satisfaction" (= (satisfaction '(-> A (not A))) '((A nil))))
+
+          (protect1 'satisfiable? '(f))
+          (protect1 'satisfaction '(f))
+          (protect1 'contradiction? '(f))
+
+;===============================================================
+; 
+; Group:          Propositional variables and functions (2)
+;
+; Description:    canonization
+;                 canon
+;
+; Sometimes, two formulas differ only in the names of used variables.
+; For example, formulas (-> A (-> X A)) and (->B (-> Y B)). If name
+; of the variable doesn't interest us, we can think about these two
+; as about essentially same formula; or as two equivalent formulas.
+;
+; However, it is not trivial to recognize that two formulas are
+; equivalent on that way. Possible approach is to transform the 
+; formula in some canonical (normal, standard) form and in that case, 
+; recognition that two formulas are equivalent can be purely graphical.
+;
+; The simplest normal form in this case is probably one in which
+; the first occurence of the variable is chosen by
+; alphabetical order, e.g. (-> A (-> B A)). 
+;
+; Two functions are defined here: "canon" returns formula in canonic
+; form, "canonization" returns substitution able to transform original
+; formula in normal form. 
+; 
+; Example: 
+;
+;      (canonization '(-> X (or A X))) 
+;
+;           ===> ((X TEMP-A) (A TEMP-B) (TEMP-A A) (TEMP-B B))
+;
+; so
+;
+;      (expand '(-> X (or A X))
+;              '((X TEMP-A) (A TEMP-B) (TEMP-A A) (TEMP-B B)))
+;
+;                                            ==>(-> A (or B A))
+;
+; Note that variables like TEMP-A are needed.  
+;
+;      (canon '(-> X (or A X))) ==> '(-> A (or B A))
+
+(SU 'canonization          
+     (lambda (formula)
+        (letn((L1 (map (lambda(x)(list x (sym (append "TEMP-" (char (+ $idx 65))))))
+                       (propositional-variables formula)))
+              (L2 (map (lambda(x)(list (last x)
+                                       (sym (char (+ $idx 65)))))
+                       L1)))
+             (append L1 L2))))
+             
+      (protect1 'canonization '(formula L1 x L2))
+
+      (test "canonization" (= (canonization '(-> X (or A X)))
+                              '((X TEMP-A) (A TEMP-B) (TEMP-A A) (TEMP-B B))))
+             
+(SU 'canon 
+     (lambda(formula)
+        (expand formula (canonization formula))))
+
+      (protect1 'canon '(formula))
+
+      (test "canon" (= (canon '(-> X (or A X))) '(-> A (or B A))))
+
+;===============================================================
+; 
+;   Group: Propositional variables and functions: 
+;
+; Name:     serial-substitute
+; Type:     primitive
+; Syntax:   (serial-substitute <formula> <substitution>)
+
+(SU 'serial-substitute expand)
+
+;===============================================================
+;
+;   Group:  Propositional variables and Functions (3)
+;
+;   Names:  prefix-variables
+;           deprefix-variables
+;           underscore-variables
+;           deunderscore-variables
+
+;   (prefix-variables '(-> X Y) "-") ==> (-> -X -Y)
+;   (deprefix-variables '(-> -X -Y) "-") ==> (-> X Y)
+
+;   (underscore-variables '(-> X Y)) ==> (-> _X _Y)
+;   (deunderscore-variables '(-> _X _Y)) ==> (-> X Y)
+
+(SU 'prefixing-substitution
+    (lambda(formula prefix)
+         (map (lambda(x)(list x (sym (append prefix (string x)))))
+              (propositional-variables formula))))
+
+(SU 'prefix-variables 
+   (lambda(formula prefix)
+      (serial-substitute 
+         formula
+         (map (lambda(x)(list x (sym (append prefix (string x)))))
+              (propositional-variables formula)))))
+
+(protect1 'prefix-variables '(formula prefix x))
+
+(test "prefix-variables1" (= (prefix-variables '(-> A (-> B A)) "MIN-")
+                            '(-> MIN-A (-> MIN-B MIN-A))))
+
+(test "prefix-variables2" (= (prefix-variables '(-> X Y) "-")
+                            '(-> -X -Y)))
+
+(SU 'deprefixing-substitution
+    (lambda(formula prefix)
+        (let ((substitution '()))
+             (dolist(v (propositional-variables formula))
+                  (when (starts-with (string v) 
+                                     (string prefix))
+                        (push (list v
+                                    (sym (slice (string v) 
+                                                (length prefix))))
+                              substitution))))))
+
+(SU 'deprefix-variables
+     (lambda(formula prefix)
+        (let ((substitution '()))
+             (dolist(v (propositional-variables formula))
+                  ;(println v)
+                  (when (starts-with (string v) 
+                                     (string prefix))
+                        (push (list v
+                                    (sym (slice (string v) 
+                                                (length prefix))))
+                              substitution)))
+             (serial-substitute 
+                     formula
+                     substitution))))
+
+
+
+(protect1 'deprefix-variables '(formula prefix substitution v))
+
+(test "deprefix-variables" (= (deprefix-variables '(-> -X -Y) "-")
+                              '(-> X Y)))
+                     
+(SU 'underscore-variables
+     (lambda(formula)(prefix-variables formula "_")))
+     
+(protect1 'underscore-variables '(formula))
+
+(test "underscore-variables"  (= (underscore-variables '(-> X Y)) 
+                                 '(-> _X _Y)))
+    
+(SU 'deunderscore-variables
+     (lambda(formula)(deprefix-variables formula "_")))
+
+(protect1 'underscore-variables '(formula))
+
+(test "deunderscore-variables"  (= (deunderscore-variables '(-> _X _Y)) 
+                                   '(-> X Y)))
+
+;===============================================================
+;
+;  Group:  Propositional variables and Functions (3)
+;
+;
+;  note: large letters means variables for instantiation
+
+(SU 'instance?
+     (lambda(f1 f2)
+       (if (= nil (unify (prefix-variables f1 "_") f2))
+           nil
+           true)))
+           
+(protect1 'instance? '(f1 f2))
+
+(SU 'instantiate
+     (lambda(f1 f2)
+       (unify (prefix-variables f1 "-") f2)))
+       
+(protect1 'instantiate '(f1 f2))
+
+(SU 'instantiation
+     (lambda(f1 f2)
+        (letn((l1 (prefixing-substitution f1 "_"))
+              (pf1 (serial-substitute f1 l1))
+              (l2 (unify pf1 f2))
+              (pf2 (serial-substitute pf1 l2))
+              (l3 (deprefixing-substitution pf2 "_")))
+             (append l1 l2 l3))))
+                    
+(protect1 'instantiation '(f1 f2 l1 l2 l3 pf1 pf2))                    
+
+;===============================================================
+;
+;   Group:  Propositional variables and Functions
+;
+
+(SU 'upper-case-formula 
+     (lambda(f)
+       (cond ((list? f)(map upper-case-formula f))
+             ((> (length (string f)) 1) f)  
+             (true (sym (upper-case (string f)))))))
+             
+(protect1 'upper-case-formula '(f))
+             
+(SU 'lower-case-formula 
+     (lambda(f)
+       (cond ((list? f)(map lower-case-formula f))
+             ((> (length (string f)) 1) f)  
+             (true (sym (lower-case (string f)))))))
+             
+(protect1 'lower-case-formula '(f))
+
+;===============================================================
+; 
+; Group:       Propositional formulas
+;
+; Names:       all-pf
+;
+; Type:        function
+;
+; Syntax:      (all-pf len leafs unary binary)
+;
+; Result:      returns list of all propositional formulas of a
+;              size len, with a given leafs (constants and symbols)
+;              and unary and binary logical connectives
+
+(set 'all-pf
+  (lambda(len leafs unary binary)
+     (if (= len 1) 
+        leafs
+        (append (appendall (lambda(connective)
+                              (map (lambda(x)(list connective x))
+                                   (all-pf (- len 1) leafs unary binary)))
+                           unary)        
+                (if (> len 2)
+                    (appendall (lambda(connective)
+                                  (appendall (lambda(r)
+                                               (map (lambda(x)(cons connective x))
+                                                    (*list (all-pf r leafs unary binary)
+                                                           (all-pf (- len 1 r) leafs unary binary))))
+                                             (sequence 1 (- len 2))))
+                                binary)
+                    '())))))
+
+;===============================================================
+; 
+; Group:       Propositional formulas
+;
+; Names:       rnd-pf
+;
+; Type:        function
+;
+; Syntax:      (rnd-pf len leafs unary binary)
+;
+; Result:      returns random propositional formulas of a
+;              size len, with a given leafs (constants and symbols)
+;              and unary and binary logical connectives
+
+(set 'rnd-pf
+  (lambda(len leafs unary binary)
+    (let ((connectives (append unary binary)))
+      (cond ((= len  1) 
+               (apply amb leafs))
+            ((= len  2) 
+               (list (apply amb unary) 
+                 (rnd-pf 1 leafs unary binary)))
+
+            ((> len  2) 
+               (let ((connective (apply amb connectives)))
+                 (cons connective
+                       (if (element connective unary)
+                           (list (rnd-pf (- len  1) leafs unary binary))
+                           (let ((r (apply amb (sequence 1 (- len  2)))))
+                                 (list (rnd-pf r leafs unary binary)
+                                       (rnd-pf (- len 1 r) leafs unary binary)))))))))))
+
+;===============================================================
+; 
+; Group:       Adding and multiplying digits
+;
+; Names:       add-digits, 
+;              multiply-digits.
+;              add-digits-recursively
+;              multiply-digits-recursively
+;                                  
+
+(SU 'add-digits (lambda(n)
+                    (apply + (map int (explode (string n))))))
+        
+(protect1 'add-digits '(n))
+
+(test "add-digits" (= (add-digits 12345) 15))
+
+(SU  'multiply-digits (lambda(n)
+                         (apply * (map int (explode (string n))))))
+        
+(protect1 'multiply-digits '(n))
+
+(test "multiply-digits" (= (multiply-digits 12345) 120))
+
+(SU  'recursively-add-digits (lambda(n)(if (< n 10)
+                                            n
+                                            (recursively-add-digits 
+                                              (add-digits n)))))
+
+(protect1 'recursively-add-digits '(n))
+
+(test "recursively-add-digits" 
+      (= (recursively-add-digits 12345) 6))
+
+(SU  'recursively-multiply-digits 
+  (lambda(n)(if (< n 10)
+                n
+                (recursively-multiply-digits (multiply-digits n)))))
+
+(protect1 'recursively-add-digits '(n))
+
+(test "recursively-multiply-digits" 
+      (= (recursively-multiply-digits 12345) 0))
+
+;===============================================================
+; 
+; Group:           Text titles support
+;
+; Name:            number-of-columns, max-title-width
+; Type:            integer
+; Purpose:         specifies width of the terminal
+
+(SU '[text-titles.number-of-columns] 64)
+(SU '[text-titles.max-title-width] 24)
+
+;===============================================================
+; 
+; Group:           Text titles support
+;
+;---------------------------------------------------------------
+;
+; Name:            nth-cyclic
+;
+; Type:            Function
+;
+; Description      (nth-cyclic i L) returns (nth (i mod length L) L)
+; 
+; Examples:
+; 
+;         (nth-cyclic -6 '(2 3 4))=2
+;         (nth-cyclic -5 '(2 3 4))=3
+;         (nth-cyclic -4 '(2 3 4))=4
+;         (nth-cyclic -3 '(2 3 4))=2
+;         (nth-cyclic -2 '(2 3 4))=3
+;         (nth-cyclic -1 '(2 3 4))=4
+;         (nth-cyclic 0 '(2 3 4))=2
+;         (nth-cyclic 1 '(2 3 4))=3
+;         (nth-cyclic 2 '(2 3 4))=4
+;         (nth-cyclic 3 '(2 3 4))=2
+;         (nth-cyclic 4 '(2 3 4))=3
+;         (nth-cyclic 5 '(2 3 4))=4
+;         (nth-cyclic 6 '(2 3 4))=2
+;
+
+(SU 'nth-cyclic 
+     (lambda(i l)(nth (mod i (length l)) l)))
+
+(protect1 'nth-cyclic '(i l))
+
+;===============================================================
+; 
+; Group:           Text titles support
+;
+; Name:            find-last
+; Type:            Function
+; Description      Returns the index of the last occurence of the 
+;                  element in the string or list.
+
+(SU 'find-last 
+     (lambda(d l)
+       (let ((result (find (reverse d) (reverse l))))
+            (if result (- (length l) result (length d))))))
+          
+(protect1 'find-last '(d l result))
+           
+;===============================================================
+; 
+; Group:           Text titles support
+;
+; Name:            break-title
+; Type:            Function
+; Description      breaks the title in the list of strings, each
+;                  of them shorter than max-title-width
+
+(SU 'break-title 
+  (lambda(title-string)
+    (let ((title-string (trim title-string))
+          (lts (length title-string)))
+      (if (<= lts [text-titles.max-title-width])
+          (list (trim title-string))
+          (let ((s (or (find-last " " (slice title-string 
+                                             0 
+                                             [text-titles.max-title-width]))
+                       [text-titles.max-title-width])))
+              (cons (trim (slice title-string 0 s))
+                     (break-title (slice title-string 
+                                         s 
+                                         (- lts s)))))))))
+
+(protect1 'break-title '(title-string lts s))
+
+;===============================================================
+; 
+; Group:           Text titles support
+;
+; Name:            clean string
+; Type:            Function
+; Description      returns string without double blanks, (chr 13)
+;                  and (chr 10)
+
+(SU 'clean-string 
+     (lambda(x)
+        (dolist(i (list (list "  " " ") 
+                         (list (char 13) "") 
+                         (list (char 10) "")))
+           (while (find (i 0) x)
+               (replace (i 0) x (i 1))))
+        x))
+        
+(protect1 'clean-string '(i x))
+
+;===============================================================
+; 
+; Group:           Text titles support
+;
+;---------------------------------------------------------------
+;
+; Name:            underline
+;
+; Type:            Function
+;
+; Syntax:          (underline title-text underline-string)
+;                  (underline-left title-text underline-string)
+;                  (underline-right title-text underline-string)
+;
+; Description      prints underlined title
+;
+; Example:         (underline "This is title" "X")
+;                  (underline-left "And this is title" "=")
+;                  (underline-right "And this also" "#")
+;                  
+;                  
+; 
+;                          This is title
+;                          XXXXXXXXXXXXX
+; 
+; 
+; And this is title
+; =================
+; 
+; 
+;                                                    And this also
+;                                                    #############
+
+(SU 'underline
+    (lambda()
+       (let ((title-text (apply append (map string (chop (args)))))
+             (underline-string (string (last (args)))))
+       (println)
+       (let ((cc 0))
+            (dolist(i (break-title (clean-string title-text)))
+              (let ((indent (dup " " 
+                                 (round (div (sub [text-titles.number-of-columns]
+                                                  (length i)
+                                                  +0.1) 
+                                              2)))))
+                  (print indent i "\n" indent)
+                  (dotimes(j (length i))
+                     (inc cc)
+                     (print (nth-cyclic cc underline-string)))
+                  (println)))
+            (println)))))
+     
+(SU 'underline-left
+    (lambda()
+      (let ((title-text (apply append (map string (chop (args)))))
+            (underline-string (string (last (args)))))
+           (println)
+           (let ((cc 0))
+             (dolist(i (break-title (clean-string title-text)))
+               (let ((indent ""))
+                   (print indent i "\n" indent)
+                   (dotimes(j (length i))
+                      (inc cc)
+                      (print (nth-cyclic cc underline-string)))
+                   (println)))
+              (println)))))
+
+(SU 'underline-right
+    (lambda()
+      (let ((title-text (apply append (map string (chop (args)))))
+            (underline-string (string (last (args)))))
+        (println)
+        (let ((cc 0))
+          (dolist(i (break-title (clean-string title-text)))
+            (let ((indent (dup " " 
+                               (round (sub [text-titles.number-of-columns]
+                                                (length i)
+                                                +0.1) 
+                                            ))))
+                (print indent i "\n" indent)
+                (dotimes(j (length i))
+                   (inc cc)
+                   (print (nth-cyclic cc underline-string)))
+                (println)))
+           (println)))))
+
+(protect1 'underline '(title-text underline-string cc i indent))
+(protect1 'underline-left '(title-text underline-string cc i indent))
+(protect1 'underline-right '(title-text underline-string cc i indent))
+
+;===============================================================
+; Group:           Text titles support
+;---------------------------------------------------------------
+; Name:            box
+;
+; Type:            Function
+;
+; Syntax:          (box title-text arg1 ... argn box-string)
+;                  (box-left arg1 ... argn box-string)
+;                  (box-right arg1 ... argn box-string)
+;
+; Description      prints boxed title with various frames
+; 
+; Example:         (box "This is title" "X")
+;                  (box-left "And this is title" "=")
+;                  (box-right "And this also" "#")
+; 
+;                        XXXXXXXXXXXXXXXXX
+;                        X This is title X
+;                        XXXXXXXXXXXXXXXXX
+; 
+; 
+; =====================
+; = And this is title =
+; =====================
+; 
+; 
+;                                                #################
+;                                                # And this also #
+;                                                #################
+;
+
+(SU 'box
+     (lambda()
+       (let ((title-text (apply append (map string (chop (args)))))
+             (box-string (string (last (args)))))
+           (println)
+           (letn ((cc 0)
+                  (L (map trim (break-title (clean-string title-text))))
+                  (maxlength (apply max (map length L)))
+                  (indent (dup " " (/ (- [text-titles.number-of-columns] 
+                                         maxlength 
+                                         4) 
+                                       2))))
+               (print indent)
+               (for(i 1 (+ maxlength 4))
+                  (print (nth-cyclic cc box-string))
+                  (inc cc))
+               (println)
+                     
+               (dolist(i L)
+                   (print indent (nth-cyclic cc box-string)) 
+                   (print (dup " " (+ 1 (round (div (sub maxlength 
+                                                         (length i) 
+                                                         +0.1) 
+                                                    2)))))
+                   (inc cc)
+                   (print i)
+                   (print (dup " " (+ 1 (round (div (sub maxlength 
+                                                         (length i) 
+                                                         -0.1)
+                                                    2)))))
+                   (println (nth-cyclic cc box-string))
+                   (inc cc))
+
+               (print indent)
+               (for(i 1 (+ maxlength 4))
+                  (print (nth-cyclic cc box-string))
+                  (inc cc))
+               (println)
+
+               (println)))))
+
+(SU 'box-left
+     (lambda()
+     (let ((title-text (apply append (map string (chop (args)))))
+             (box-string (string (last (args)))))
+       (println)
+       (letn ((cc 0)
+              (L (map trim (break-title (clean-string title-text))))
+              (maxlength (apply max (map length L)))
+              (indent ""))
+           (print indent)
+           (for(i 1 (+ maxlength 4))
+              (print (nth-cyclic cc box-string))
+              (inc cc))
+           (println)
+                 
+           (dolist(i L)
+               (print indent (nth-cyclic cc box-string)) 
+               (print (dup " " (+ 1 (round (div (sub maxlength 
+                                                     (length i) 
+                                                     +0.1) 
+                                                2)))))
+               (inc cc)
+               (print i)
+               (print (dup " " (+ 1 (round (div (sub maxlength 
+                                                     (length i) 
+                                                     -0.1)
+                                                2)))))
+               (println (nth-cyclic cc box-string))
+               (inc cc))
+
+           (print indent)
+           (for(i 1 (+ maxlength 4))
+              (print (nth-cyclic cc box-string))
+              (inc cc))
+           (println)
+
+           (println)))))
+           
+(SU 'box-right
+     (lambda()
+     (let ((title-text (apply append (map string (chop (args)))))
+           (box-string (string (last (args)))))
+       (println)
+       (letn ((cc 0)
+              (L (map trim (break-title (clean-string title-text))))
+              (maxlength (apply max (map length L)))
+              (indent (dup " " (- [text-titles.number-of-columns] 
+                                     maxlength 
+                                     4) 
+                                   )))
+           (print indent)
+           (for(i 1 (+ maxlength 4))
+              (print (nth-cyclic cc box-string))
+              (inc cc))
+           (println)
+                 
+           (dolist(i L)
+               (print indent (nth-cyclic cc box-string)) 
+               (print (dup " " (+ 1 (round (div (sub maxlength 
+                                                     (length i) 
+                                                     +0.1) 
+                                                2)))))
+               (inc cc)
+               (print i)
+               (print (dup " " (+ 1 (round (div (sub maxlength 
+                                                     (length i) 
+                                                     -0.1)
+                                                2)))))
+               (println (nth-cyclic cc box-string))
+               (inc cc))
+
+           (print indent)
+           (for(i 1 (+ maxlength 4))
+              (print (nth-cyclic cc box-string))
+              (inc cc))
+           (println)
+
+           (println)))))
+
+(protect1 'box '(title-text box-string maxlength cc i indent))
+(protect1 'box-left '(title-text box-string maxlength cc i indent))
+(protect1 'box-right '(title-text box-string maxlength cc i indent))
+
+;===============================================================
+; Group:           Text titles support
+;---------------------------------------------------------------
+; Name:            box-standard
+; Type:            Function
+; Syntax:          (box-standard title-text)
+; Description      prints boxed title with standard frame
+ 
+(SU 'box-standard
+  (lambda()
+    (let ((title-text (apply append (map string (args)))))
+         (println)
+         (letn ((cc 0)
+                (L (break-title (clean-string title-text)))
+                (maxlength (apply max (map length L)))
+                (indent (dup " " (/ (- [text-titles.number-of-columns] 
+                                       maxlength 
+                                       4) 
+                                    2))))
+             (print indent)
+             (println "+" (dup "-" (+ maxlength 2)) "+")
+             (dolist(i L)
+                 (print indent "|") 
+                 (print (dup " " (+ 1 (round (div (sub maxlength 
+                                                      (length i) 
+                                                      +0.1) 2)))))
+                 (print i)
+                 (print (dup " " (+ 1 (round (div (sub maxlength 
+                                                       (length i) 
+                                                       -0.1) 2)))))
+                 (println "|"))
+             (print indent)
+             (println "+" (dup "-" (+ maxlength 2)) "+")
+             (println)))))
+        
+(SU 'box-standard-left
+    (lambda()
+       (let ((title-text (apply append (map string (args)))))  
+         (println)
+         (letn ((cc 0)
+                (L (break-title (clean-string title-text)))
+                (maxlength (apply max (map length L)))
+                (indent ""))
+             (print indent)
+             (println "+" (dup "-" (+ maxlength 2)) "+")
+             (dolist(i L)
+                 (print indent "|") 
+                 (print (dup " " (+ 1 (round (div (sub maxlength 
+                                                      (length i) 
+                                                      +0.1) 2)))))
+                 (print i)
+                 (print (dup " " (+ 1 (round (div (sub maxlength 
+                                                       (length i) 
+                                                       -0.1) 2)))))
+                 (println "|"))
+             (print indent)
+             (println "+" (dup "-" (+ maxlength 2)) "+")
+             (println)))))
+        
+(SU 'box-standard-right
+  (lambda()
+    (let ((title-text (apply append (map string (args)))))  
+      (println)
+      (letn ((cc 0)
+             (L (break-title (clean-string title-text)))
+             (maxlength (apply max (map length L)))
+             (indent (dup " " (- [text-titles.number-of-columns] 
+                                 maxlength 
+                                 4))))
+          (print indent)
+          (println "+" (dup "-" (+ maxlength 2)) "+")
+          (dolist(i L)
+              (print indent "|") 
+              (print (dup " " (+ 1 (round (div (sub maxlength 
+                                                   (length i) 
+                                                   +0.1) 2)))))
+              (print i)
+              (print (dup " " (+ 1 (round (div (sub maxlength 
+                                                    (length i) 
+                                                    -0.1) 2)))))
+              (println "|"))
+          (print indent)
+          (println "+" (dup "-" (+ maxlength 2)) "+")
+          (println)))))
+           
+(protect1 'box-standard '(title-text maxlength cc i indent L))
+(protect1 'box-standard-left '(title-text maxlength cc i indent L))
+(protect1 'box-standard-right '(title-text maxlength cc i indent L))
+                                     
+;===============================================================
+; Name:            slice-sequence
+; Type:            Function
+; Syntax:          (slice-sequence X from to step)
+; Description      returns parts of string or list X determined by
+;                  sequence from to and step
+
+(SU 'slice-sequence  
+     (lambda(X)
+        (apply append (map (lambda(i)((if (string? X)
+                                          identity-function
+                                          list)
+                                      (nth i X)))
+                           (eval (cons 'sequence (args)))))))
+                           
+(protect1 'slice-sequence '(X i))
+
+(test "slice-sequence" (= (slice-sequence "abcdefghijkl" 
+                                          1 
+                                          (length "abcdefghijkl") 
+                                          2)
+                           "bdfhjl"))
+
+;===============================================================
+; Name:            center-string
+; Type:            Function
+; Syntax:          (center-string s m)
+; Description      returns string of the length m with string s
+;                  in center and blanks left and right of it.
+
+(SU 'center-string 
+    (lambda(s m)
+       (let ((ls (length s)))
+            (append (dup " " (round (/. (-. m ls +0.1) 2)))
+                    s
+                    (dup " " (round (/. (-. m ls -0.1) 2)))))))
+
+(protect1 'center-string '(s m ls))
+
+;===============================================================
+; Group:           let versions
+;---------------------------------------------------------------
+; Name:            met
+; Type:            macro
+; Syntax:          (met <head> <body>)
+; Purpose:         Just like let, but without evaluation of argument.
+; Example:         (met ((x (sin x))) ... ) is the same as
+;                  (let ((x '(sin x))) ... )
+
+(SU 'met
+   (lambda-macro(head)
+     (eval (append '(let)
+                   (list (map (lambda(x)
+                                 (list (first x) 
+                                       (list 'quote (last x))))
+                               head))
+                   (args)))))
+                   
+(protect1 'met '(head x))
+
+(test "met" (= (met ((x (sin x))) x)
+               '(sin x)))
+
+;===============================================================
+; Name:            metex
+; Type:            macro
+; Syntax:          (metex <head> <body>)
+; Purpose:         Just like let, but without evaluation of argument.
+; Example:         (metex ((x (sin x))) ... ) is the same as
+;                  (letex ((x '(sin x))) ... )
+
+(SU 'metex
+    (lambda-macro(head)
+      (eval (append '(letex)
+                    (list (map (lambda(x)
+                                  (list (first x) 
+                                        (list 'quote (last x))))
+                                head))
+                    (args)))))
+                   
+(protect1 'metex '(head x))
+
+(test "metex" (= (metex ((x (sin 3))
+                         (y (cos 3)))
+                            '(+ x y))
+                 '(+ (sin 3) (cos 3))))
+
+;===============================================================
+; Name:            letex2
+; Type:            macro
+; Syntax:          (letex2 <head> <body>)
+; Purpose:         Just like letex, but "safer", i.e 
+;                  (letex2 <head> <body>)=(eval (letex <head> '<body>))
+
+(SU 'letex2 
+     (lambda-macro(head)
+        (eval (eval (cons 'letex
+                          (list head 
+                                (list 'quote 
+                                      (LSE (args)))))))))
+
+(protect1 'letex2 '(head))
+
+;===============================================================
+; Name:            metex2
+; Type:            macro
+; Syntax:          (metex2 <head> <body>)
+; Purpose:         Just like letex, but "safer", i.e 
+;                  (metex2 <head> <body>)=(eval (metex <head> '<body>))
+
+(SU 'metex2
+     (lambda-macro(head)
+        (eval (eval (cons 'letex2
+                          (list head 
+                                (list 'quote 
+                                      (LSE (args)))))))))
+                                      
+(protect1 'metex2 '(head))
+
+;===============================================================
+; Name:            gensym, GS, gensym-illegal, GSI
+; Type:            functions
+; Syntax           (gensym <s>), (GS <s>)
+;                  (gensym-illegal <s>), (GSI <s>)
+
+(SU '[gensym.counter] 0)
+(SU '[gensym-illegal.counter] 0)
+
+(SU 'gensym
+     (lambda(i)
+       (inc [gensym.counter])
+       (sym (append "[gensym."
+                     (string i)
+                     "."
+                     (string [gensym.counter])
+                     "]"  ))))
+                     
+(SU 'GS gensym)
+                     
+(SU 'gensym-illegal
+     (lambda(i)
+       (inc [gensym.counter])
+       (sym (append "(gensym "
+                     (string i)
+                     " "
+                     (string [gensym-illegal.counter])
+                     ")"  ))))
+
+(SU 'GSI gensym-illegal)
+
+(protect1 'gensym '(i))
+(protect1 'GS '(i))
+(protect1 'gensym-illegal '(i))
+(protect1 'GSI '(i))
+
+;===============================================================
+; Group:           Gensym versions
+; Name:            genlet
+; Type:            Function
+
+(SU 'genlet 
+  (lambda-macro()
+    (eval
+          ; Eval has to be done after all local variables are 
+          ; cleaned, except those gensyms.
+          ; Preparation of the code to be evaluated should
+          ; be completely syntactical.
+
+      (let ((head (first (args)))
+            (body (rest (args))))
+           (letex ((H1 (map (lambda(x)
+                               (list (nth 0 x)
+                                     (list 'gensym 
+                                           (list 'quote (nth 0 x)))))
+                             head))
+                   (H2 head)
+                   (H3 (cons 'begin body))
+                   (H4 (cons 'begin (map (lambda(x)
+                                            (list 'delete 
+                                                  (list 'quote 
+                                                         (nth 0 x))))
+                                           head))))
+                   (letex H1
+                       '(first (list (let H2
+                                          H3)
+                                    H4))))))))
+
+(protect1 'genlet '(head body H1 x H2 H3 H4))
+
+(SU 'genlocal
+  (lambda-macro(head)
+    (let ((body (args)))
+       (letex  ; look body first, head later.
+               ; head
+
+             ((H1 (map (lambda(x)
+                        (list x
+                              (list 'gensym 
+                                    (list 'quote x))))
+                      head))
+
+             (H2 (cons 'local (cons head body)))
+
+             (H3 (cons 'begin (map (lambda(x)
+                                     (list 'delete 
+                                           (list 'quote 
+                                                  x)))
+                                    head))))
+
+                 ; body:
+
+                 (letex H1          
+                       (first (list H2
+                                    H3)))))))
+
+(protect1 'genlocal '(head body H1 x H2 H3 H4))
+
+(dolist (loopname '(for doargs dolist dostring dotimes))
+  (SU (sym (append "gen" (string loopname))) ; for -> genfor etc
+    (letex ((loopname loopname))
+      (lambda-macro(head)
+        (let ((body (args)))
+          (letex((H1 (list (first head)))
+                 (H2 (append (list 'loopname head) body)))
+                 (genlocal H1
+                           H2))))))
+
+  (protect1 (sym (append "gen" (string loopname)))
+       '(head body H1 H2)))
+
+;===============================================================
+; Name:            deep-replace
+;
+; Type:            Function
+;
+; Purpose:         Same like built in replace, but recursive.
+;                  Note that deep-replace works even if a is not
+;                  formula. 
+; 
+; Attention: deep replace can be done using expand with its binding
+; form. 
+
+(SU 'deep-replace ; nondestructive
+  (lambda(a x b)
+      (cond ((= x a) b)
+            ((quote? x) (letex((qx (deep-replace a (eval x) b))) 
+                              ''qx))
+            ((list? x) (append (cond ((macro? x)'(lambda-macro))
+                                     ((lambda? x)'(lambda))
+                                     (true '()))
+                               (map (lambda(y)(deep-replace a y b))
+                                    x)))
+            (true x))))
+            
+(protect1 'deep-replace '(a x b qx y))
+
+;===============================================================
+;                   CANTORS ENUMERATIONS
+;
+
+(SU 'cantors-diagonal1 
+  (lambda(n)(ceil (div (add (- 1)
+                            (sqrt (add 1 (mul 8 n))))
+                        2))))
+  
+(protect1 'cantors-diagonal '(n))
+
+(SU 'cantors-row 
+    (lambda (n) 
+       (let ((cd (cantors-diagonal1 n)))
+            (- n (/ (* cd 
+                       (- cd 1))
+                    2)))))
+   
+(protect1 'cantors-row '(n cd))
+
+(SU 'cantors-column (lambda (n) (+ (cantors-diagonal1 n) 
+                                   (- (cantors-row n)) 
+                                   1)))
+
+(protect1 'cantors-row '(n))
+
+(SU 'cantors-diagonal2 (lambda(r c)(+ c r (- 1))))
+
+(protect1 'cantors-diagonal2 '(r c))
+
+(SU 'cantors-number
+    (lambda(r c)
+       (let ((cd (cantors-diagonal2 r c)))
+             (+ (/ (* cd (- cd 1)) 2) r))))
+      
+(protect1 'cantors-number '(r c))
+
+(SU 'cantors-enumeration 
+    (lambda(p n)
+       (cond ((= p 1) (list n))
+             ((> p 1) (cons (cantors-row n)
+                            (cantors-enumeration (- p 1) (cantors-column n)))))))
+      
+(protect1 'cantors-enumeration '(p n))
+
+(SU 'cantors-enumeration-inverse
+    (lambda()
+      ; p is not needed since it can be calculated from the
+      ; number of arguments
+      (letn((arguments (args))
+           (p (length arguments)))        
+          (cond ((= p 1) (first arguments))
+                ((> p 1) (apply cantors-number 
+                                (cons (first arguments)
+                                      (apply cantors-enumeration-inverse
+                                             (rest arguments)))))))))
+        
+(protect1 'cantors-enumeration-inverse '(p arguments))
+
+(SU 'cantors-enumeration-finite
+    (lambda(n)
+      (cantors-enumeration (cantors-row n) (cantors-column n))))
+        
+    (protect1 'cantors-enumeration-finite '(n))
+
+(SU 'cantors-enumeration-finite-inverse
+    (lambda()
+      (let((arguments (args)))
+        (cantors-enumeration-inverse 
+            (length arguments)
+            (apply cantors-enumeration-inverse arguments)))))
+
+    (protect1 'cantors-enumeration-finite-inverse 
+              '(arguments))
+              
+              
+(SU 'cantors-square (lambda(n)
+                     (+ (floor (sqrt (- n 1))) 1)))
+                     
+
+(SU 'cantors-row2 
+    (lambda(n)
+      (letn((d (cantors-square n))
+            (r (- n (* (- d 1) (- d 1)))))
+            ;(println= d r)
+         (cond((<= r d) d)
+              ((> r d) (- d (- r d)))))))
+              
+(SU 'cantors-column2 
+    (lambda(n)
+      (letn((d (cantors-square n))
+            (r (- n (* (- d 1) (- d 1)))))
+         (cond((<= r d) r)
+              ((> r d) d)))))
+              
+;(for(i 1 10)
+;  (print i "->(" (cantors-row2 i) ", " (cantors-column2 i)"), "))
+
+;---------------------------------------------------------------
+;                          LAMBDA CALCULUS
+
+; The lambda-expressions are defined on following way:
+;
+; (a) a, b, c, ... are lambda-expressions. These lambda expressions
+;     are named "variables". 
+;
+; (b) if X is variable and E is lambda-expression, then
+; 
+;                            (^ X . E) 
+;
+;     is lambda-expression as well. These lambda-expressions are
+;     named "functions". 
+;
+; (c) if E and F are lambda-expressions, then (E F) is lambda-
+;     expression as well. These lambda expressions are named
+;     "applications."
+;
+; Using functions for Cantor's enumeration developed in last few
+; posts, now in my library, I'll define functions for enumeration 
+; of all lambda-expressions, i.e. bijective function 
+;
+;                    lam: N -> all lambda-exprsions
+;
+; Enumerations of variables, functions, and applications will be
+; defined independently. 
+;
+;       var1, var2, ..., varn, ...
+;       fun1, fun2, ..., funn, ...
+;       app1, app2, ..., appn, ...
+;
+; After that, all lambda expressions will be enumerated on following
+; way: 
+;
+;       var1, fun1, app1, var2, fun2, app2, ...
+;
+;---------------------------------------------------------------
+;
+; First - enumeration of variables; and inverse enumeration.
+;
+; If alphabet is, for example, "xyz", I'll enumerate variables
+; on following way:
+;
+;       x, y, z, x1, y1, z1, x2, y2, z2 ...
+;
+; It slightly complicates enumeration, but it looks better than
+; 
+;       x0, y0, z0, x1, y1, ...
+
+(SU 'var (lambda(n alphabet)
+             (letn((l (length alphabet))
+                   (first-char (alphabet (% (- n 1) l)))
+                   (rest-chars (let((n1 (/ (- n 1) l)))
+                               (if (= n1 0) "" (string n1)))))
+                  (sym (append first-char rest-chars))))
+          '(n alphabet l n1 first-char rest-chars))
+                                   
+(SU 'var-inverse (lambda(v alphabet)
+                     (letn((l (length alphabet))
+                           (first-char (first (string v)))
+                           (rest-chars (rest (string v))))
+                          (when (= rest-chars "")
+                                (setf rest-chars "0"))
+                          (+ (* (int rest-chars) l) 
+                             (find first-char alphabet) 1)))
+                '(v alphabet l first-char rest-chars))
+;
+;---------------------------------------------------------------
+;
+; Second, enumeration of functions - and inverse enumeration.
+;
+; Every function has form (^ <var> <lambda-expression>), where
+; any variable and lambda-expression is allowed. All pairs of
+; variables and lambda-expressions can be enumerated using 
+; Cantor's enumeration: 
+
+(SU 'fun (lambda(n alphabet)
+             (list '^ 
+                   (var (cantors-row n) alphabet)
+                   '.
+                   (lam (cantors-column n) alphabet)))
+         '(n alphabet))
+                        
+(SU 'fun-inverse 
+  (lambda(f alphabet)
+     (cantors-enumeration-inverse (var-inverse (f 1) alphabet)
+                                  (lam-inverse (f 3) alphabet)))
+  '(f alphabet))
+;
+;---------------------------------------------------------------
+;
+; Third, enumeration of applications - and inverse enumeration.
+;
+; Every application has form (<lambda-expression1> <lambda-expression2>),
+; For enumeration of pairs of lambda-expressions, we need Cantors
+; enumeration again. 
+
+(SU 'app (lambda(n alphabet)
+            (list (lam (cantors-row n) alphabet)
+                  (lam (cantors-column n) alphabet)))
+         '(n alphabet))
+                  
+(SU 'app-inverse 
+  (lambda(a alphabet)
+    (cantors-enumeration-inverse (lam-inverse (first a) alphabet)
+                                 (lam-inverse (last a) alphabet)))
+                                 
+  '(a alphabet))
+
+;
+;---------------------------------------------------------------
+;
+; Finally, enumeration of lambda expressions - and inverse enumeration:
+
+(SU 'lam (lambda(n alphabet)
+            (letn((n1 (- n 1))
+                  (row (+ (% n1 3) 1))
+                  (column (+ (/ n1 3) 1)))
+
+              (case row (1 (var column alphabet))
+                        (2 (fun column alphabet))
+                        (3 (app column alphabet)))))
+        '(n alphabet n1 row column))
+
+; For lam-inverse, I need few helper predicates:
+
+(SU 'var? (lambda(l)(symbol? l)) '(l))
+(SU 'fun? (lambda(l)(and (list? l) (= (length l) 4))) '(l))
+(SU 'app? (lambda(l)(and (list? l) (= (length l) 2))) '(l))
+
+(SU 'lam-inverse 
+      (lambda(l alphabet)
+         (local(row column)
+           (cond ((var? l)(setf row 1)
+                          (setf column (var-inverse l alphabet)))
+                 ((fun? l)(setf row 2)
+                          (setf column (fun-inverse l alphabet)))
+                 ((app? l)(setf row 3)
+                          (setf column (app-inverse l alphabet))))
+            (+ (* 3 (- column 1)) row)))
+            
+      '(l alphabet row column))
+      
+(SU 'lambda-expression-pretty-form 
+   (lambda(t)
+      (replace " . " (replace "^ " (replace ") (" (string t) ")(") "^") "."))
+   '(t))
+   
+(SU 'parallelize-association-list
+  (lambda(L)
+    (letex((new-var '(sym (append "temp-" (string $idx)))))
+          (append (map (lambda(x)(list (first x) new-var)) L)
+                  (map (lambda(x)(list new-var (last x))) L))))
+  '(L new-var x))
+
+(SU 'normalize-variables 
+      (lambda(E alphabet)
+        (let((EF (unique (filter (lambda(x)(find (first (string x)) alphabet)) (flat (list E))))))
+           (setf toexpand (parallelize-association-list (map (lambda(x)(list x (var (+ $idx 1) alphabet))) EF)))
+           (expand E toexpand)))
+      '(E alphabet EF x toexpand))
+      
+;---------------------------------------------------------------
+;
+;  (beta-reduce-once E) search for one beta reduction in E and 
+;                       performs it, if possible.
+;
+; returns
+;
+;        (true result)  if beta-reduction is possible
+;        (nil E)        if beta-reduction is impossible
+
+(SU 'beta-reduce-once ; assumption - alpha conversion happened 
+  (lambda(E)
+    (cond ((var? E) (list 'nil E))
+    
+          ((fun? E) 
+           (let((rfb (beta-reduce-once (last E)))) 
+             (if (first rfb) 
+                 (list 'true (append (chop E) 
+                                     (list (last rfb))))
+                 (list 'nil E))))
+                                     
+          ((app? E)             
+           (let ((F (first E))
+                 (G (last E)))
+           
+             (if (fun? F)
+              
+                  ;E=((^V._) G) ==> E10[V:=E2]
+                 
+                  (list 'true (expand (last F) (list (list (nth 1 F) G)))) ;)
+
+                  ;E=(F G) ==> 
+
+                  (let ((rF (beta-reduce-once F)))
+                     (cond ((= (first rF) true)
+                            (list 'true (list (last rF) G)))
+                           ((= (first rF) nil)
+                            (let ((rG (beta-reduce-once G)))
+                                 (cond ((= (first rG) true)
+                                        (list 'true (list F (last rG))))
+                                       ((= (first rG) nil)
+                                        (list 'nil (list F G)))))))))))))
+   '(E rfb rF rG))
+
+;---------------------------------------------------------------
+;
+;               (alpha-convert E bounded-vars) 
+;
+; converts the formula E to the form such that occurences of bounded 
+; variables have different names, among themself, and different than 
+; free variables.
+;
+; The function returns (true F), where F is result of alpha-conversion,
+; if such conversion possible, or (nil E) if it is impossible.
+
+(SU 'alpha-convert0 
+  (lambda(E bounded-vars)
+     (cond ((var? E) E)
+           ((fun? E)
+            (begin (inc bounded-counter)
+                   (letn ((new-E-1 bounded-counter); (var bounded-counter bounded-vars))
+                          (new-E-2 (sym (append "temp-" (string new-E-1)))))
+                      (push  new-E-2 temporary-vars -1);(list new-E-2 new-E-1)
+                      (list '^
+                            new-E-2
+                            '.
+                            (expand (alpha-convert0 (E 3) bounded-vars) 
+                                    (list (list (E 1) new-E-2)))))))
+           ((app? E)
+            (list (alpha-convert0 (first E) bounded-vars)
+                  (alpha-convert0 (last E) bounded-vars))))))
+
+(protect1 'alpha-convert0 '(E bounded-vars new-E-1 new-E-2))
+
+(SU 'alpha-convert
+  (lambda(E bounded-vars)
+    (letn((bounded-counter 0)
+          (temporary-vars '())
+          (semi-result (alpha-convert0 E bounded-vars))
+          (free-vars (clean (lambda(t)(or (= t '^) (= t '.) (starts-with (string t) "temp-"))) 
+                            (flat (list semi-result))))
+          (final-substitution '())
+                            
+          (F)) 
+                     
+          (setf bounded-counter 0)
+          (dolist(i temporary-vars)
+                 (do-while (find (var bounded-counter bounded-vars) free-vars)
+           ;             (println "*")
+                        (inc bounded-counter))
+                 (push (list i (var bounded-counter bounded-vars)) final-substitution -1))
+          
+          ;(println r "," final-substitution "," frees "," F "," final-substitution2)
+          (setf F (expand semi-result final-substitution))
+          ;(println F)          
+
+          (if (= E F) 
+              (list nil E)
+              (list true F)))))
+
+(protect1 'alpha-convert
+          '(E bounded-vars F semi-result free-vars t final-substitution i)) 
+
+;---------------------------------------------------------------
+;
+;               (eta-reduce-once <expr>)
+;
+; Standard eta-reduction of lambda calculus
+;
+; Example: (eta-reduce-once '(^ x . (F x))) => F
+
+(SU 'eta-reduce-once             
+  (lambda(E)
+    (cond ((var? E) (list nil E))
+          ((fun? E) 
+           (let((E0 (last E))) ; E=(^ x . E0)
+             (cond 
+             
+                ; E=(^ x . (... x)), where ... is free for x
+                
+                ((and (app? E0)
+                      (= (nth 1 E) (last E0))
+                      (= (first E0) (expand (first E0) 
+                                            (list (list (nth 1 E)
+                                                         'eta-dummy)))))
+                         ; needed to prevent (^y.(y y)) => y                                
+
+                 (list true (first E0)))
+              
+                ; E=(^ x . (... v)), v!=x
+                ; E=(^ x . F), F isn't list
+                
+                ((or (not (list? E0))
+                     (and (list? E0)
+                          (!= (nth 1 E) E0)))
+                          
+                  (let((reduced-E0 (eta-reduce-once E0)))
+                      (list (first reduced-E0) 
+                            (list '^ 
+                                   (nth 1 E)
+                                   '.
+                                   (last reduced-E0))))))))
+
+          ((app? E) ; E=(E1 E2)
+           (letn((E1 (first E))
+                 (E2 (last E))
+                 (reduced-E1 (eta-reduce-once E1)))
+                         
+                (if (= (first reduced-E1) true)
+                    (list 'true (list (last reduced-E1) 
+                                      E2))
+                    (let((reduced-E2 (eta-reduce-once E2)))
+                        (list (first reduced-E2) 
+                              (list E1 
+                                    (last reduced-E2)))))))))
+                                    
+   '(E E0 E1 E2 reduced-E1 reduced-E2))
+
+;---------------------------------------------------------------
+;
+;  (reduce^ <expression> <max-reductions> <to-print>)
+;
+; Standard reduction of lambda calculus, using normal order. 
+;
+; <max-reductions> is maximal number of reductions. After that number
+; is reached, further reductions are canceled. Important for
+; non-terminating reductions.
+;
+; <to-print> the option that determines if output is silent.
+;
+; The function returns
+;
+; (reduced <result of reductions> <number of steps>) 
+;
+;                        if reduction succeeded
+;
+; (unreduced <last expression in derivation> <number of steps>) 
+;
+;                        if max-reductions number of steps is reached
+; 
+; (irreducible <last expression in derivation> <number of steps>)
+;
+;                        if cycle is discovered
+
+(SU 'reduce^  
+
+  (lambda(new-expr max-reductions to-print)
+  
+    (local(result
+           alpha-success
+           beta-success
+           eta-success
+           max-reductions-success
+           reductions
+           reduce-end)
+           
+      (setf print-reduction-report
+            (lambda(reduction-name)
+              (when to-print 
+                  (println (format "%5d" (+ (length reductions) 1))
+                           ". ==[" reduction-name "]==> " 
+                           (lambda-expression-pretty-form new-expr)))))
+                           
+      (setf check-cycle
+            (lambda()(when (find new-expr reductions)
+                           (when to-print 
+                              (println "\n       IRREDUCIBLE: CYCLE DISCOVERED."))
+                           (setf reduce-end true)
+                           (setf result 'irreducible))))
+           
+      (setf reductions '())
+      (print-reduction-report " start    ")
+      (push new-expr reductions -1)
+
+  ;(println= reduce-end)
+  (until reduce-end
+      
+     (setf aplha-success nil eta-success nil)
+     
+      ;Attempt of alpha conversion
+
+     (unless reduce-end
+       
+       (setf alpha-result (alpha-convert (last reductions) "xyzuvwpqr"))
+       (setf alpha-success (first alpha-result))
+       (when alpha-success
+       
+             (setf new-expr (last alpha-result))
+             (print-reduction-report " alpha    ")
+             (check-cycle)      
+             (push new-expr reductions -1)))
+      
+       ;Attempt of eta conversion
+                 
+       (unless (or reduce-end alpha-success)
+                     
+          (setf eta-result (eta-reduce-once (last reductions)))
+          (setf eta-success (first eta-result))
+
+          (when eta-success
+                (setf new-expr (last eta-result))
+                (print-reduction-report " eta      ") 
+                (check-cycle)        
+                (push new-expr reductions -1)))
+
+      ; Beta redukcija 
+
+      (unless (or reduce-end alpha-success eta-success)
+      
+         (setf beta-result (beta-reduce-once (last reductions)))
+         (setf beta-success (first beta-result))
+      
+         (when beta-success         
+               (setf new-expr (last beta-result))
+               (print-reduction-report " beta     ") 
+               (check-cycle)
+               (push new-expr reductions -1)))
+                        
+       (when (and (= (length reductions) max-reductions)
+                  (not reduce-end))
+              (when to-print     
+                (println "\n       UNREDUCED: MAX NUMBER OF REDUCTIONS REACHED."))
+              (setf max-reduction-success true)
+              (setf reduce-end true)
+              (setf result 'unreduced))
+                     
+       (unless (or alpha-success beta-success eta-success max-reductions-success)
+       
+               (when to-print 
+                 (println "\n       REDUCED TO NORMAL FORM."))
+               (setf reduce-end true)
+               (setf result 'reduced)))
+    (list result new-expr (length reductions)))))
+    
+(protect1 'reduce^ '(new-expr 
+                     max-reductions 
+                     to-print 
+                     result
+                     alpha-success
+                     beta-success
+                     eta-success
+                     max-reductions-success
+                     reductions
+                     reduce-end))
+
+(SU 'meta-var? 
+    (lambda(v)
+      (and (= (string v) (upper-case (string v)))
+           (!= v '^)
+           (!= v '.))))
+           
+(protect1 'meta-var? '(v))
+
+(SU 'expand-once^ 
+    (lambda(expr)
+       (let((expandable-meta-variables (filter (lambda(x)(and (meta-var? x)
+                                                              (not (nil? (eval x)))))
+                                               (flat (list expr)))))
+          (eval (append '(expand expr)
+                         (map quote expandable-meta-variables))))))
+  
+(protect1 'expand-once^ '(expr expandable-meta-variables))
+                    
+(SU 'expand^ 
+  (lambda(expr max-expansions to-print)
+    (let((expansions 0))
+      (when to-print
+         (println)
+         (---)
+         (println "\n       EXPANSION AND REDUCTION OF " 
+                  (lambda-expression-pretty-form expr) 
+                  "\n\n"
+                  (format "%5d" (+ expansions 1))
+                  ". ==[ original ]==> "
+                  (lambda-expression-pretty-form expr)))
+
+       (while (exists (lambda(x)(and (meta-var? x)
+                                     (not (nil? (eval x)))))
+                      (flat (list expr)))
+
+          (setf expr (expand-once^ expr))
+          (inc expansions)           
+          (when to-print
+             (println (format "%5d" (+ expansions 1))
+                     ". ==[ expanded ]==> " 
+                     (lambda-expression-pretty-form expr)))))
+        (when to-print
+             (println "\n       META-VARIABLES EXPANDED.\n"))
+
+    expr))
+
+(protect1 'expand^ '(expr max-expansions to-print expansions))
+
+(SU 'expand-and-reduce^ 
+    (lambda(expr max-expand-and-reduce to-print)
+       (when (nil? max-expand-and-reduce) 
+             (setf max-expand-and-reduce 1000000))
+       (setf expr (expand^ expr max-expand-and-reduce to-print))
+       (reduce^ expr max-expand-and-reduce to-print)))
+    
+(protect1 'expand^ '(expr max-expand-and-reduce to-print))
+
+;---------------------------------------------------------------
+
+(define (expand// expr)
+  (letn((a (args))
+        (expand//sym (lambda(n)(symbol-from-sexpr (list 'expand// n))))
+        (expandlist 
+       
+    (if (empty? a)
+        (throw-error "expand//: arguments missing.")
+
+        (cond ((symbol? (first a))
+               (append (map (lambda(i)(list i (expand//sym $idx))) a)
+                       (map (lambda(i)(list (expand//sym $idx) (eval i))) a)))
+                 
+              ((list? (first a))
+               (append (map (lambda(i)(list (i 0) (expand//sym $idx))) (first a))
+                       (map (lambda(i)(list (expand//sym $idx) (i 1))) (first a))))))))
+                
+       ;(println "expandlist=" expandlist)
+       (expand expr expandlist)))
+       
+(protect1 'expand// '(expr a expand//sym n expandlist i))
+
+(setf x 'y)
+(setf y 3)
+(test "expand//1" (= (expand// '(x y) 'x 'y) '(y 3)))
+(test "expand//2" (= (expand// '(x y) '((x y)(y 3))) '(y 3)))
+
+    
+;###############################################################
+;#                                                             #
+;#           LEAVE THIS ON THE END OF THE LIBRARY              #
+;#                                                             #
+;###############################################################
+
+(set 'Default.number-of-symbols.after 
+     (length (symbols)))
+
+(set 'Default.number-of-primitives.after
+     (length (filter primitive? (map eval (symbols)))))
+
+(set 'Default.number-of-functions.after
+     (length (filter lambda? (map eval (symbols)))))
+
+(set 'Default.number-of-macros.after 
+     (length (filter macro? (map eval (symbols)))))
+
+))) ; <=== leave this here - it is end of the timing operation
+
+(println "--------------------------------------------------------------")
+
+(println "Defined\n\n"
+   (format "%10d%s"
+           (- Default.number-of-symbols.after 
+              Default.number-of-symbols.before)
+           " symbols:\n")
+
+   (format "%10d%s"
+           (- Default.number-of-primitives.after 
+              Default.number-of-primitives.before)
+           " for primitives,\n")
+
+   (format "%10d%s"
+           (- Default.number-of-functions.after 
+              Default.number-of-functions.before)
+           " for functions and \n")
+
+   (format "%10d%s"
+           (- Default.number-of-macros.after 
+              Default.number-of-macros.before)
+           " for macros.\n"))
+
+(println "Performed\n\n"
+   (format "%10d%s" [test.counter] " tests:\n")
+   (format "%10d%s" [test.passed] " passed and \n")
+   (format "%10d%s" [test.failed] " failed (one should fail!)\n"))
+
+(println "Library loading time: "
+          (/. Default.loading-time 1000) " seconds.")
+
+(println "--------------------------------------------------------------")
+(println "     Do you want to load this library without these reports?")
+(println "    Check 'supressing printing' on the beginning of the file.")
+(println "--------------------------------------------------------------")
+
+true 
+
 =============================================================================
 

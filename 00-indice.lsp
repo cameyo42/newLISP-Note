@@ -944,8 +944,8 @@ NOTE LIBERE 5
   Closures (chiusure)
   Il concetto di base dei contesti in newLISP
 
-NOTE LIBERE 6
-=============
+NOTE LIBERE 6a
+==============
   Starting with newLISP
   Embedding blocks into Functions
   Evaluation of Large Expressions in Newlisp
@@ -1004,6 +1004,9 @@ NOTE LIBERE 6
   The Probability That Random Propositional Formula is Tautology
   Lists of Propositional Formulas
   Debug-wrapping Around Built-in Primitives
+
+NOTE LIBERE 6b
+==============  
   One Hundred Propositional Tautologies (1)
   One Hundred Propositional Tautologies (2)
   Opinions on Eval in Lisp, Python and Ruby - The Result of The Pool
@@ -1029,6 +1032,26 @@ NOTE LIBERE 6
   On Pitman's "Special forms in Lisp"
   Lambda Calculus Interpreter
   Expansion of Free Variables
+  Do You Need Five Hundred Random Lambda-Expressions?
+  In Search for The Irreducible Lambda-Expressions
+  Cantor's Enumerations (1)
+  Cantor's Enumerations (2)
+  Cantor's Enumerations (3)
+  Enumeration of Lambda-Expressions
+  199019 Reduced Lambda-Expressions
+  Lambda Calculus Interpreter (2)
+  Some differences between lambda-calculus and Lisp (1)
+  Some differences between lambda-calculus and Lisp (2)
+  Some Basic Concepts Implemented and Reduced in Lambda-calculus
+  Lambda Calculus Meta-variables Supported in my Newlisp Library
+  Parallel "Expand"
+  Conflation of Subtraction and Additive Inverse in Lisp
+  Tangent
+  More Sophisticated Encoding of S-exprs into Symbols.
+  Another Encoding of S-expressions in Symbols
+  Implementing Data Structures with Symbols
+  Three meanings of the term 'S-expression'
+  The Similarities Between Axioms of Natural Numbers and Axioms of S-expressions
 
 APPENDICI
 =========
