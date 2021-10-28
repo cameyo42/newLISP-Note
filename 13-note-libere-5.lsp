@@ -9813,5 +9813,507 @@ Se vuoi usare la funzione predefinita di un altro contesto in un contesto, devi 
 
 Fare riferimento al manuale per maggiori dettagli, http://www.newlisp.org/downloads/newlisp_manual.html#contexts
 
+
+-------------------------------------
+Numeri palindromi e numeri di Lychrel
+-------------------------------------
+
+Generare tutti i numeri palindromi fino ad un determinato numero n.
+Un numero palindromo è un numero "simmetrico" come 16461, che rimane lo stesso quando le sue cifre sono invertite (cioè il numero ha lo stesso valore se viene letto al contrario).
+
+I primi numeri palindromi (base decimale) sono:
+  0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 22, 33, 44, 55, 66, 77, 88,
+  99, 101, 111, 121, 131, 141, 151, 161, 171, 181, 191, ...
+
+Soluzione brute-force
+---------------------
+Funzione che verifica se una stringa, una lista o un numero è palindroma:
+
+(define (palindrome? obj)
+  (if (integer? obj)
+      (let (str (string obj)) (= str (reverse (copy str))))
+      (= obj (reverse (copy obj)))))
+
+Funzione che calcola i numeri palindromi fino a n:
+
+(define (find-pali num)
+  (local (out)
+    (setq out '(0 1 2 3 4 5 6 7 8 9))
+    (for (i 11 num)
+      (if (palindrome? i)
+          (push i out -1)))
+    out))
+
+Proviamo la funzione:
+
+(find-pali 200)
+;-> (0 1 2 3 4 5 6 7 8 9 11 22 33 44 55 66 77 88
+;->  99 101 111 121 131 141 151 161 171 181 191)
+
+Vediamo i tempi di esecuzione:
+
+(time (find-pali 1e6))
+;-> 591.671
+(time (find-pali 1e7))
+;-> 6086.745
+
+(length (filter (fn(x) (= 7 (length x))) (find-pali 1e7)))
+;-> 9000
+(length (filter (fn(x) (= 6 (length x))) (find-pali 1e6)))
+;-> 900
+(length (filter (fn(x) (= 5 (length x))) (find-pali 1e5)))
+;-> 900
+(length (filter (fn(x) (= 3 (length x))) (find-pali 1e3)))
+;-> 90
+
+Soluzione con generazione diretta
+---------------------------------
+Invece di verificare quali numeri da 0 a n siano palindromi, proviamo a generare direttamente questi numeri.
+Prima di tutto scriviamo una funzione che genera tutti i numeri palindromi di una determinata lunghezza. Dividiamo i palindromi in due categorie: quelli con numero pari di cifre e quelli con numero dispari di cifre. Ad esempio, se la lunghezza è 5 (dispari), generiamo numeri palindromi con lo schema "abxba", dove a, b e x sono un numero qualsiasi da 1 a 9 (più x che può essere 0). Se la lunghezza è 4 (pari), lo schema è "abba".
+
+(define (gen-pal-len len)
+  (local (out half)
+    (setq out '())
+    (cond ((< len 1) (setq out '()))
+          ((= len 1) (setq out '(0 1 2 3 4 5 6 7 8 9)))
+          ((odd? len)
+           (setq half (/ (- len 1) 2))
+           (for (x 0 9)
+              (for (y (pow 10 (- half 1)) (- (pow 10 half) 1))
+                (push (int (string y x (reverse (string y)))) out))))
+          ((even? len)
+           (setq half (/ len 2))
+           (for (x (pow 10 (- half 1)) (- (pow 10 half) 1))
+                (push (int (string x (reverse (string x)))) out)))
+     )
+     (sort out)))
+
+Facciamo alcune prove:
+
+(gen-pal-len 0)
+;-> ()
+(gen-pal-len 1)
+;-> (0 1 2 3 4 5 6 7 8 9)
+(gen-pal-len 2)
+;-> (11 22 33 44 55 66 77 88 99)
+(length (gen-pal-len 5))
+;-> 900
+
+Adesso possiamo scrivere la funzione che calcola tutti i numeri palindromi in un dato intervallo:
+
+(define (generate-palindrome min-val max-val)
+  (local (min-len max-len res)
+    (setq res '())
+    (setq min-len (length min-val))
+    (setq max-len (length max-val))
+    (for (ll min-len (+ max-len 1))
+      (dolist (el (gen-pal-len ll))
+        ; alcuni palindromi non rientrano nell'intervallo
+        (if (and (>= el min-val) (<= el max-val))
+            (push el res)
+        )
+      )
+    )
+    (sort res)))
+
+Facciamo alcune prove:
+
+(generate-palindrome 10 100)
+;-> (11 22 33 44 55 66 77 88 99)
+(generate-palindrome 800 900)
+;-> (808 818 828 838 848 858 868 878 888 898)
+(length (generate-palindrome 10000 99999))
+;-> 900
+
+Nota: la funzione calcola qualche palindromo in più di quelli necessari (questo dipende dai valori minimo e massimo dell'intervallo).
+
+Vediamo i tempi di esecuzione:
+
+(time (generate-palindrome 0 1e6))
+;-> 28.054
+(time (generate-palindrome 0 1e7))
+;-> 133.918
+
+Vediamo se le due funzioni producono gli stessi risultati:
+
+(= (generate-palindrome 0 1e6) (find-pali 1e6))
+;-> true
+(= (generate-palindrome 0 1e7) (find-pali 1e7))
+;-> true
+
+Quanti sono i numeri palindromi che hanno n cifre?
+--------------------------------------------------
+Si possono presentare due casi:
+
+1) n è pari
+Supponiamo n=6. Il modello di palindromo è "XYZZYX", dove X (1..9), Y (0..9) e Z (0..9).
+
+Poichè a noi interessano solo le prime 3 cifre "XYZ" il problema si riduce e dobbiamo stabilire quanti sono i numeri a 3 cifre (infatti per trovare un numero palindromo basta aggiungere al numero trovato lo stesso numero invertito).
+
+Per la cifra X abbiamo 9  possibilità di scelta (1..9) (poichè un numero non può iniziare con 0).
+Per la cifra Y abbiamo 10 possibilità di scelta (0..9).
+Per la cifra Z abbiamo 10 possibilità di scelta (0..9).
+
+Quindi in totale abbiamo 9*10*10 = 900 numeri palindromi con 6 cifre.
+
+2) n è dispari
+Supponiamo n=5. Il modello di palindromo è "XYZYX", dove X (1..9), Y (0..9) e Z (0..9).
+
+Per la cifra X abbiamo 9  possibilità di scelta (1..9) (poichè un numero non può iniziare con 0).
+Per la cifra Y abbiamo 10 possibilità di scelta (0..9).
+Per la cifra Z abbiamo 10 possibilità di scelta (0..9).
+
+Quindi in totale abbiamo 9*10*10 = 900 numeri palindromi con 5 cifre.
+
+Adesso possiamo scrivere una funzione che effettua il calcolo:
+
+(define (count-pal len)
+  (local (half)
+    (if (odd? len)
+        (setq half (+ (/ len 2) 1))
+        (setq half (/ len 2)))
+    (* 9 (pow 10 (- half 1)))))
+
+(count-pal 5)
+;-> 900
+(count-pal 6)
+;-> 900
+(count-pal 7)
+;-> 9000
+
+Numeri di Lychrel
+-----------------
+Un numero di Lychrel è un numero naturale che non può formare un palindromo attraverso il processo iterativo di invertire ripetutamente le sue cifre e sommare i numeri risultanti. Questo processo è talvolta chiamato "algoritmo 196", dal numero più famoso associato al processo. In base dieci, non è stata ancora dimostrata matematicamente l'esistenza di numeri di Lychrel, ma molti, tra cui 196, sono sospettati per motivi euristici e statistici. Il nome "Lychrel" è stato coniato da Wade Van Landingham come quasi-anagramma di "Cheryl", il nome della sua ragazza.
+
+Algoritmo 196: generare un numero palindromo partendo da un numero n
+--------------------------------------------------------------------
+Dato un numero n possiamo generare un numero palindromo con la procedura seguente:
+
+1) invertire le cifre del numero n --> rev(n)
+2) creare un nuovo numero n sommando n e rev(n) --> n = n + rev(n)
+3) se il nuovo numero n è palindromo, allora stop
+   altrimenti vai al passo 1
+
+Vediamo alcuni esempi:
+
+n = 8  ==> rev(8) = 8 ==> n + rev(n) = 8 + 8 = 16 (non palindromo)
+n = 16 ==> rev(16) = 61 ==> 16 + 61 = 77 (palindromo e stop)
+
+n = 45 ==> rev(45) = 54 ==> 45 + 54 = 99 (palindromo e stop)
+
+Scriviamo la funzione che effettua questo calcolo:
+
+(define (make-pali num)
+  (let (conta 1)
+    (setq num (+ num (int (reverse (string num)))))
+    (until (palindrome? num)
+      ;(setq num (string num (reverse (string num))))
+      (setq num (+ num (int (reverse (string num)))))
+      (++ conta)
+      ; check 196
+      ;(print num { } conta)
+      ;(read-line)
+    )
+    (list num conta)))
+
+(make-pali 8)
+;-> (77 2)
+(make-pali 45)
+;-> (99 1)
+(make-pali 21)
+;-> (33 1)
+(make-pali 89)
+;-> (8813200023188 24)
+
+Il metodo sembra funzionare, ma siamo sicuri che ogni numero scelto produrrà un numero palindromo, oppure esistono numeri che non permettono di creare palindromi? Proviamo per esempio con il numero 196:
+
+(make-pali 196)
+;-> 1675 2
+;-> 7436 3
+;-> 13783 4
+;-> 52514 5
+;-> 94039 6
+;-> 187088 7
+;-> ...
+;-> -8076639798875541976 37
+
+Vediamo che alla 37-esima iterazione abbiamo un errore perchè abbiamo superato il valore massimo per gli interi a 64 bit e dobbiamo utilizzare i big-integer. Quindi dobbiamo riscrivere la funzione per utilizzare il tipo bigint.
+Usiamo le liste al posto delle stringhe per trattare i numeri bigint (in questo modo non dobbiamo preoccuparci del carattere finale "L").
+
+Funzione che converte un intero in una lista di cifre invertite:
+
+(define (int-rev-lst num)
+  (let (out '())
+    (while (!= num 0)
+      (push (% num 10) out -1)
+      (setq num (/ num 10))) out))
+
+Funzione che converte una lista di cifre in un intero:
+
+(define (lst-int lst)
+  (let (num 0L)
+    (dolist (el lst) (setq num (+ el (* num 10))))))
+
+Funzione che genera un numero palindromo partendo da un determinato numero:
+
+(define (make-palindrome num)
+  (let (conta 1)
+    (setq num (bigint num))
+    (setq num (+ num (lst-int (int-rev-lst num))))
+    (println num { } conta)
+    (until (palindrome? (int-rev-lst num))
+      ;(println (int-rev-lst num))
+      ;(println (lst-int (int-rev-lst num)))
+      (setq num (+ num (lst-int (int-rev-lst num))))
+      (++ conta)
+      ; check 196
+      (print num { } conta)
+      (read-line)
+    )
+    (list num conta)))
+
+Proviamo la funzione:
+
+(make-palindrome 8)
+;-> 16L 1
+;-> 77L 2
+;-> (77L 2)
+(make-palindrome 45)
+;-> 99L 1
+;-> (99L 1)
+(make-palindrome 89)
+;-> 187L 1
+;-> 968L 2
+;-> 1837L 3
+;-> 9218L 4
+;-> 17347L 5
+;-> 91718L 6
+;-> 173437L 7
+;-> 907808L 8
+;-> 1716517L 9
+;-> 8872688L 10
+;-> 17735476L 11
+;-> 85189247L 12
+;-> 159487405L 13
+;-> 664272356L 14
+;-> 1317544822L 15
+;-> 3602001953L 16
+;-> 7193004016L 17
+;-> 13297007933L 18
+;-> 47267087164L 19
+;-> 93445163438L 20
+;-> 176881317877L 21
+;-> 955594506548L 22
+;-> 1801200002107L 23
+;-> 8813200023188L 24
+;-> (8813200023188L 24)
+
+Adesso vediamo il numero 196:
+
+(make-palindrome 196)
+;-> 887L 1
+;-> 1675L 2
+;-> 7436L 3
+;-> 13783L 4
+;-> 52514L 5
+;-> 94039L 6
+;-> ...
+;-> 1727771406219778777543062557405118846645642140346636747711515645369345777787911604276737L 199
+;-> 9104495467417656552982698022556296323012072552812103235826563197972803556567037646054008L 200
+;-> ...
+
+Quando e se terminerà... non si sa. Comunque qualcuno ha raggiunto il miliardo di iterazioni, arrivando a un numero con più di 600 milioni di cifre e ancora non è palindromo.
+
+Sequenza OEIS: A023108 Interi positivi che apparentemente non risultano mai palindromi sotto ripetute applicazioni della funzione A056964(x) = x (x con cifre invertite).
+
+  196, 295, 394, 493, 592, 689, 691, 788, 790, 879, 887, 978, 986,
+  1495, 1497, 1585, 1587, 1675, 1677, 1765, 1767, 1855, 1857, 1945,
+  1947, 1997, 2494, 2496, 2584, 2586, 2674, 2676, 2764, 2766, 2854, 
+  2856, 2944, 2946, 2996, 3493, 3495, 3583, 3585, 3673, 3675, ...
+
+Il numero 1.186.060.307.891.929.990, dopo 261 iterazioni giunge ad un palindromo di 119 cifre.
+
+(make-palindrome 1186060307891929990L)
+;-> ...
+;-> (44562665878976437622437848976653870388884783662598425855963436955852489526638748888307835667984873422673467987856626544L
+;->  261)
+
+
+------------------------------
+Numeri primi di Sophie Germain
+------------------------------
+
+Un numero primo P viene detto numero primo di Sophie Germain se anche il numero 2P + 1 è primo.
+Ad esempio, 41 è un numero di Sophie Germain in quanto 2*41 + 1 = 83 è anch’esso un numero primo.
+Si congettura che il numero dei primi di Sophie Germain sia infinito. Finora questa tesi non è stata ancora dimostrata, ma sembra molto verosimile, dato che vengono trovati numeri primi di Sophie Germain sempre più grandi.
+
+Tra 1 e 1000, troviamo 37 numeri di Sophie Germain. Indichiamo in parentesi il corrispondente numero primo 2P + 1.
+ 2(5), 3(7), 5(11), 11(23), 23(47), 29(59), 41(83), 53(107), 83(167),
+ 89(179), 113(227), 131(263), 173(347), 179(359), 191(383), 233(467), 
+ 239(479), 251(503), 281(563), 293(587), 359(719), 419(839), 431(863), 
+ 443(887), 491(983), 509(1019), 593(1187), 641(1293), 653(1307), 659(1319), 
+ 683(1367), 719(1439), 743(1487), 761(1523), 809(1619), 911(1823), 953(1907)
+
+Considerando che il numero dei numeri primi tra 1 e 1000 è 168, notiamo che ben il 22% di questi sono numeri di Sophie Germain.
+Se però consideriamo i numeri primi fino a 100.000, questa percentuale scende al 12.2%, fino a 10.000.000 all’8.43%, fino a 100.000.000 al 7.34%, fino a 1.000.000.000 al 6.5% e così via.
+Tutti i numeri primi di Sophie Germain sono della forma 6N + 5 e così pure i corrispondenti numeri primi 2P +1.
+
+Considerando per esempio il numero primo di Sophie Germain 89 ed il suo corrispondente 179, avremo:
+
+89 = 6*14 + 5 e 179 = 6*29 + 5
+
+Si noti che non è affatto vero il contrario, cioè che un numero primo della forma 6N + 5 sia un numero primo di Sophie Germain.
+Per esempio il numero primo 47 = 6*7 + 5 non è un numero di Sophie Germain, in quanto 2*47 + 1 = 95 non è un numero primo (95 = 5*19).
+
+Scriviamo una funzione per calcolare i numeri primi di Sophie-German:
+
+(define (prime? num)
+   (if (< num 2) nil
+       (= 1 (length (factor num)))))
+
+(define (sophie-german limit)
+  (let (out '())
+    (for (i 2 limit)
+      (if (and (prime? i) (prime? (+ (* 2 i) 1)))
+          (push (list i (+ (* 2 i) 1)) out -1)))
+    out))
+
+(sophie-german 1000)
+;-> ((2 5) (3 7) (5 11) (11 23) (23 47) (29 59) (41 83) (53 107) 
+;->  (83 167) (89 179) (113 227) (131 263) (173 347) (179 359)
+;->  (191 383) (233 467) (239 479) (251 503) (281 563) (293 587)
+;->  (359 719) (419 839) (431 863) (443 887) (491 983) (509 1019)
+;->  (593 1187) (641 1283) (653 1307) (659 1319) (683 1367) (719 1439)
+;->  (743 1487) (761 1523) (809 1619) (911 1823) (953 1907))
+
+
+-------------
+Il numero 666
+-------------
+
+"Qui sta la sapienza. Chi ha intelligenza, calcoli il numero della bestia, perché è un numero d'uomo, e il suo numero è seicentosessantasei." Apocalisse di Giovanni (13,18).
+Su questo numero, chiamato "numero della bestia" o "numero dell’Anticristo" o "numero del Demonio", sono stati versati fiumi d’inchiostro e sono stati scritti interi volumi. Vediamo alcune proprietà note di questo numero.
+
+1) La proprietà più evidente è che 666 è la somma dei primi 36 numeri interi consecutivi (si noti che 36 è a sua volta uguale a 6×6):
+
+1+2+3+4+5+6+7+8+9+10+11+12+13+14+15+16+17+18+19+20+21+
+22+23+24+25+26+27+28+29+30+31+32+33+34+35+36 = 666
+
+(apply + (sequence 1 36))
+;-> 666
+
+2) I numeri che sono la somma dei primi N interi consecutivi, vengono detti "Numeri Triangolari"”: 666 è un numero triangolare esprimibile come somma di due quadrati esatti di due numeri triangolari:
+
+666 = 15² + 21² (infatti 15² + 21² = 225 + 441 = 666)
+
+e sia 15 che 21 sono a loro volta numeri triangolari:
+
+15 = 1 + 2 + 3 + 4 + 5
+21 = 1 + 2 + 3 + 4 + 5 + 6
+
+3) Un'altra proprietà è che 666 è uguale anche alla somma delle sue cifre più la somma dei cubi delle sue cifre:
+
+6 + 6 + 6 + 6³ + 6³ + 6³ = 6 + 6 + 6 + (6x6x6) + (6x6x6) + (6x6x6) = 6 + 6 + 6 + 216 + 216 + 216 = 666
+
+4) Altra proprietà:
+
+1³ + 2³ + 3³ + 4³ + 5³ + 6³ + 5³ + 4³ + 3³ + 2³ + 1³ = 666
+
+Infatti:
+
+(1x1x1) + (2x2x2) + (3x3x3) + (4x4x4) + (5x5x5) + (6x6x6) + (5x5x5) + (4x4x4) + (3x3x3) + (2x2x2) + (1x1x1) = 1 + 8 + 27 + 64 + 125 + 216 + 125 + 64 + 27 + 8 + 1 = 666
+
+5) Inoltre 666 è la somma dei quadrati dei primi sette numeri primi:
+
+Infatti:
+
+2² + 3² + 5² + 7² + 11² + 13² + 17² = (2×2) + (3×3) + (5×5) + (7×7) + (11×11) + (13×13) +(17×17) = 4 + 9 + 25 + 49 + 121 + 169 + 289 = 666
+
+6) 666 è costituito dalla tripla ripetizione della cifra 6 che è il più piccolo dei rarissimi numeri perfetti, cioè uguali alla somma dei suoi divisori. Infatti i divisori di 6 sono 1, 2 e 3 e la loro somma fa 6.
+Inoltre 6 è la somma dei primi 3 interi consecutivi: 1 + 2 + 3 = 6.
+
+7) Notiamo che, nel sistema di numerazione dell’antica Roma, 666 si scrive DCLXVI che sono le prime 6 cifre romane scritte in rigoroso ordine decrescente.
+
+8) Una ulteriore proprietà è che 666 è la somma delle prime 144 cifre decimali di pi greco (senza contare dunque il 3 a sinistra della virgola), dove 144 = (6+6)x(6+6)
+
+3,141592653589793238462643383279502884197169399375
+ 105820974944592307816406286208998628034825342117
+ 067982148086513282306647093844609550582231725359
+
+Verifichiamo:
+
+(apply + '(1 4 1 5 9 2 6 5 3 5 8 9 7 9 3 2 3 8 4 6 2 6 4 
+          3 3 8 3 2 7 9 5 0 2 8 8 4 1 9 7 1 6 9 3 9 9 3 
+          7 5 1 0 5 8 2 0 9 7 4 9 4 4 5 9 2 3 0 7 8 1 6 
+          4 0 6 2 8 6 2 0 8 9 9 8 6 2 8 0 3 4 8 2 5 3 4 
+          2 1 1 7 0 6 7 9 8 2 1 4 8 0 8 6 5 1 3 2 8 2 3 
+          0 6 6 4 7 0 9 3 8 4 4 6 0 9 5 5 0 5 8 2 2 3 1 
+          7 2 5 3 5 9))
+;-> 666
+
+9) I fattori primi di 666 sono 2,3,3,37 e 2+3+3+3+7 = 6+6+6
+
+10) Ecco un'altra relazione: (6x6x6)² + (666 – 6×6)² = 666²
+
+Verifichiamola:
+
+666² = 666×666 = 443556
+
+(6x6x6)² + (666 – 6×6)² = 216² + 630² = 46656 + 396900 = 443556
+
+11) Un quadrato magico, formato esclusivamente da numeri primi, nel quale la somma dei numeri di ogni riga, colonna o diagonale lunga è 666:
+
+  +-----+-----+-----+-----+-----+-----+
+  |   3 | 107 |   5 | 131 | 109 | 311 |
+  +-----+-----+-----+-----+-----+-----+
+  |   7 | 331 | 193 |  11 | 83  |  41 |
+  +-----+-----+-----+-----+-----+-----+
+  | 103 |  53 |  71 |  89 | 151 | 199 |
+  +-----+-----+-----+-----+-----+-----+
+  | 113 |  61 |  97 | 197 | 167 |  31 |
+  +-----+-----+-----+-----+-----+-----+
+  | 367 |  13 | 173 |  59 |  17 |  37 |
+  +-----+-----+-----+-----+-----+-----+
+  |  73 | 101 | 127 | 179 | 139 |  47 |
+  +-----+-----+-----+-----+-----+-----+
+
+(for (i 0 5) (println "somma riga " i ": " (apply + (m i))))
+;-> somma riga 0: 666
+;-> somma riga 1: 666
+;-> somma riga 2: 666
+;-> somma riga 3: 666
+;-> somma riga 4: 666
+;-> somma riga 5: 666
+
+(apply + '(3 331 71 197 17 47))
+;-> 666
+(apply + '(311 83 89 97 13 73))
+;-> 666
+
+(for (i 0 5) (println "somma colonna " i ": " (apply + ((transpose m) i))))
+;-> somma colonna 0: 666
+;-> somma colonna 1: 666
+;-> somma colonna 2: 666
+;-> somma colonna 3: 666
+;-> somma colonna 4: 666
+;-> somma colonna 5: 666
+
+12) Il quadrato magico del sole (composto dai numeri che vanno da 1 a 36):
+
+  +----+----+----+----+----+----+
+  |  6 | 32 |  3 | 34 | 35 |  1 | 111
+  +----+----+----+----+----+----+
+  |  7 | 11 | 27 | 28 |  8 | 30 | 111
+  +----+----+----+----+----+----+
+  | 19 | 14 | 16 | 15 | 23 | 24 | 111
+  +----+----+----+----+----+----+
+  | 18 | 20 | 22 | 21 | 17 | 13 | 111
+  +----+----+----+----+----+----+
+  | 25 | 29 | 10 |  9 | 26 | 12 | 111
+  +----+----+----+----+----+----+
+  | 36 |  5 | 33 |  4 |  2 | 31 | 111
+  +----+----+----+----+----+----+
+   111  111  111  111  111  111   666
+
 =============================================================================
 

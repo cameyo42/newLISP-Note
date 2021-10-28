@@ -943,6 +943,9 @@ NOTE LIBERE 5
   Sviluppo di una funzione
   Closures (chiusure)
   Il concetto di base dei contesti in newLISP
+  Numeri palindromi e numeri di Lychrel
+  Numeri primi di Sophie Germain
+  Il numero 666
 
 NOTE LIBERE 6a
 ==============
@@ -1052,6 +1055,10 @@ NOTE LIBERE 6b
   Implementing Data Structures with Symbols
   Three meanings of the term 'S-expression'
   The Similarities Between Axioms of Natural Numbers and Axioms of S-expressions
+
+NOTE LIBERE 7
+=============
+  Problema di Brocard
 
 APPENDICI
 =========
