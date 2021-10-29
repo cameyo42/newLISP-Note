@@ -7640,16 +7640,16 @@ La notazione indica che la frazione continua inizia con 4 e il blocco (1,3,1,8) 
 
 Le prime dieci rappresentazioni di frazione continua di radici quadrate (irrazionali) sono:
 
-sqrt( 2) = (1, (2)],         periodo = 1
-sqrt( 3) = (1, (1,2)],       periodo = 2
-sqrt( 4) = (2, (4)],         periodo = 1
-sqrt( 6) = (2, (2,4)],       periodo = 2
-sqrt( 7) = (2, (1,1,1,1)],   periodo = 4
-sqrt( 8) = (2, (1,4)],       periodo = 2
-sqrt(10) = (3, (6)],         periodo = 1
-sqrt(11) = (3, (3,6)],       periodo = 2
-sqrt(12) = (3, (2,6)],       periodo = 2
-sqrt(13) = (3, (1,1,1,1,6)], periodo = 5
+sqrt( 2) = [1, (2)],         periodo = 1
+sqrt( 3) = [1, (1,2)],       periodo = 2
+sqrt( 4) = [2, (4)],         periodo = 1
+sqrt( 6) = [2, (2,4)],       periodo = 2
+sqrt( 7) = [2, (1,1,1,1)],   periodo = 4
+sqrt( 8) = [2, (1,4)],       periodo = 2
+sqrt(10) = [3, (6)],         periodo = 1
+sqrt(11) = [3, (3,6)],       periodo = 2
+sqrt(12) = [3, (2,6)],       periodo = 2
+sqrt(13) = [3, (1,1,1,1,6)], periodo = 5
 
 Esattamente quattro frazioni continue hanno un periodo dispari.
 

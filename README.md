@@ -12,15 +12,13 @@ Appunti sul linguaggio newLISP
 05) Project eulero (102)
 06) Problemi vari (81)
 07) Domande programmatori (101)
-08) Librerie (9)
+08) Librerie (10)
 09) Note libere 1 (80)
 10) Note libere 2 (80)
 11) Note libere 3 (80)
 12) Note libere 4 (80)
 13) Note libere 5 (80)
-14) Note libere 6a (58)
-15) Note libere 6b (45)
-16) Note libere 7 (1)
+14) Note libere 6 (2)
 20) Appendici (22)
 21) Bibliografia
 99) yo library (yo.zip) (180)
@@ -29,3 +27,4 @@ Documentazione Extra:
 A) Introduction to newLISP (by Cormullion)  
 B) Code Patterns (by Lutz Mueller)  
 C) The Little newLISPER  
+D) Kazimir-Blog (by Kazimir Majorinc)  

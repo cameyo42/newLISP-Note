@@ -947,118 +947,10 @@ NOTE LIBERE 5
   Numeri primi di Sophie Germain
   Il numero 666
 
-NOTE LIBERE 6a
-==============
-  Starting with newLISP
-  Embedding blocks into Functions
-  Evaluation of Large Expressions in Newlisp
-  Eval and Anti-eval
-  Promote Your Functions!
-  Assignment Macro Beast Unleashed
-  Does the Function Really Evaluate to Itself?
-  New Copies Discovered
-  If lambda Gives let, What About lambda-macro?
-  Verbose Functions and Macros
-  On Calling and Applying Newlisp Functions and Macros
-  Conversions to Functions and Macros
-  Speed of The Evaluation vs. Length of The Names of The Variables
-  Exploring The Reference
-  Three Techniques for Avoidance of Multiple Copies
-  For-like Syntax for Rnd Function and Generalized Floor and The Friends
-  Light Your Pipe
-  Two Phases Evaluation
-  The Predicates =?, >? and Friends
-  Majorinc.default-library.lsp uploaded
-  Macrocall
-  Don't Fear Dynamic Scope
-  Don't Fear Dynamic Scope (2)
-  Swap Without Temporary Variable
-  Short or Long Function Names?
-  Avoiding Function Names Clashes
-  Two Definitions of IF Function
-  Challenged by Common Lispers
-  Test for Unnecessary Arguments
-  Calculate or Ask
-  Apply Has Its Secrets Too
-  Random Sublists
-  Trees, Branches and Leaves
-  The Most Probable Cond
-  More on Usenet and Google Groups Posting Frequency
-  Where is Letex!
-  Multiple Loops
-  Add and Multiply Digits
-  The First Use of Identity Function
-  Text Titles
-  Quote is Identity Fexpr
-  Gensym and Genlet
-  Genlocal
-  Genloops
-  Supernatural Symbols
-  On Macros, Eval and Generated Code in Lisp
-  Crawler Tractor
-  Supressed Printing
-  On Serial Substitution and Not Reading The Manual
-  Propositional Variables and Formulas
-  Reader Macros in Newlisp?
-  eval-string or eval?
-  Random Propositional Formulas of a Given Average Length
-  On Expected Truth Value of a Random Propositional Formula
-  On Expected Truth Value of a Random Propositional Formula (2)
-  The Probability That Random Propositional Formula is Tautology
-  Lists of Propositional Formulas
-  Debug-wrapping Around Built-in Primitives
-
-NOTE LIBERE 6b
-==============  
-  One Hundred Propositional Tautologies (1)
-  One Hundred Propositional Tautologies (2)
-  Opinions on Eval in Lisp, Python and Ruby - The Result of The Pool
-  Why You Do Not Use Lisp? The Results of The Poll
-  One Hundred Propositional Tautologies (3)
-  One Hundred Propositional Tautologies (4)
-  One Hundred Propositional Tautologies (5)
-  Tortelvis
-  Relatively Short Propositional Formulas and Symbols Instead of Pointers and Tables
-  Symbols as Sexprs and Hygienic Fexprs
-  Alan Kay on Lisp and Fexprs
-  Composition of Functions or Macros
-  Composing Fexprs Preserves Short-circuit Evaluation.
-  How many syllogisms are there?
-  The program for derivation of syllogisms, condense...
-  McCarthy - Dijkstra short polemics in 1976.
-  Interesting Case of Mismatched Parentheses.
-  Short notes on McCarthy's "Recursive Functions ... "
-  Using (sin cos 0.5) instead of (sin (cos 0.5)) in Newlisp
-  McCarthy's 1960 "Recursive Functions ..." Lisp in Newlisp
-  McCarthy-60 Lisp Implemented as Association List in McCarthy-60 Lisp
-  McCarthy-60 Lisp in McCarthy-60 Lisp in ... in McCarthy-60 Lisp.
-  On Pitman's "Special forms in Lisp"
-  Lambda Calculus Interpreter
-  Expansion of Free Variables
-  Do You Need Five Hundred Random Lambda-Expressions?
-  In Search for The Irreducible Lambda-Expressions
-  Cantor's Enumerations (1)
-  Cantor's Enumerations (2)
-  Cantor's Enumerations (3)
-  Enumeration of Lambda-Expressions
-  199019 Reduced Lambda-Expressions
-  Lambda Calculus Interpreter (2)
-  Some differences between lambda-calculus and Lisp (1)
-  Some differences between lambda-calculus and Lisp (2)
-  Some Basic Concepts Implemented and Reduced in Lambda-calculus
-  Lambda Calculus Meta-variables Supported in my Newlisp Library
-  Parallel "Expand"
-  Conflation of Subtraction and Additive Inverse in Lisp
-  Tangent
-  More Sophisticated Encoding of S-exprs into Symbols.
-  Another Encoding of S-expressions in Symbols
-  Implementing Data Structures with Symbols
-  Three meanings of the term 'S-expression'
-  The Similarities Between Axioms of Natural Numbers and Axioms of S-expressions
-
-NOTE LIBERE 7
+NOTE LIBERE 6
 =============
   Problema di Brocard
+  Errore quadratico medio (Mean Square Error - MSE)
 
 APPENDICI
 =========
@@ -1097,6 +989,7 @@ DOCUMENTAZIONE EXTRA
   A) Introduction to newLISP (by Cormullion)
   B) Code Patterns (by Lutz Mueller)
   C) The Little newLISPER
+  D) Kazimir-Blog (by Kazimir Majorinc)
 
 ==========================================================================
 
