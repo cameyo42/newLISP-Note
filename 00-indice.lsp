@@ -951,6 +951,7 @@ NOTE LIBERE 6
 =============
   Problema di Brocard
   Errore quadratico medio (Mean Square Error - MSE)
+  Sequenze aliquot
 
 APPENDICI
 =========
