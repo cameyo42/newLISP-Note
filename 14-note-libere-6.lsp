@@ -145,10 +145,41 @@ Abbiamo individuato cinque tipi di sequenze aliquot e la congettura di Catalan a
 
 Esistono però alcuni rari numeri che sembrano sfuggire a questa congettura: le loro sequenze aliquot, almeno per quanto se ne sa fin’ora, sembrano non terminare mai. I primi di essi sono: 276, 552, 564, 660 e 966. Per questi numeri sono stati calcolati decine di migliaia di termini della loro sequenza aliquot, ma ancora non si è riusciti a stabilire se la sequenza alla fine terminerà in uno dei modi predetti o proseguirà all’infinito.
 
+(define (factor-i num)
+"Factorize a big integer number"
+  (local (f k i dist out)
+    ; Distanze tra due elementi consecutivi della ruota (wheel)
+    (setq dist (array 48 '(2 4 2 4 6 2 6 4 2 4 6 6 2 6 4 2 6 4
+                           6 8 4 2 4 2 4 8 6 4 6 2 4 6 2 6 6 4
+                           2 4 6 2 6 4 2 4 2 10 2 10)))
+    (setq out '())
+    (while (zero? (% num 2)) (push '2L out -1) (setq num (/ num 2)))
+    (while (zero? (% num 3)) (push '3L out -1) (setq num (/ num 3)))
+    (while (zero? (% num 5)) (push '5L out -1) (setq num (/ num 5)))
+    (while (zero? (% num 7)) (push '7L out -1) (setq num (/ num 7)))
+    (setq k 11L i 0)
+    (while (<= (* k k) num)
+      (if (zero? (% num k))
+        (begin
+          (push k out -1)
+          (setq num (/ num k)))
+        (begin
+          (setq k (+ k (dist i)))
+          (if (< i 47) (++ i) (setq i 0)))
+      )
+    )
+    (if (> num 1) (push (bigint num) out -1))
+    out))
+
+(factor-i 12345678901234567L)
+;-> (7L 1763668414462081L)
+
 (define (factor-group num)
 "Factorize an integer number"
   (if (< num 2) nil
       (letn ((out '()) (lst (factor num)) (cur-val (first lst)) (cur-count 0))
+      ; usa "factor-i" per usare i big-integer
+      ;(letn ((out '()) (lst (factor-i num)) (cur-val (first lst)) (cur-count 0))
         (dolist (el lst)
           (if (= el cur-val) (++ cur-count)
               (begin
@@ -224,7 +255,6 @@ Numeri socievoli:
 ;->  48976 45946 22976 22744 19916 17716 14316)
 
 Numeri perfetti:
-
 (make-chain 6)
 ;-> (6 6)
 (make-chain 496)
@@ -238,9 +268,9 @@ Numeri senza-fine:
 276, 552, 564, 660 e 966
 
 (make-chain 552)
-Limite: 100 raggiunto.
-(552 888 1392 2328 3552...
-... 520472208892277964 947162005047505716)
+;-> Limite: 100 raggiunto.
+;-> (552 888 1392 2328 3552...
+;->  ... 520472208892277964 947162005047505716)
 
 Vediamo le sequenze aliquot dei primi 500 numeri:
 
@@ -269,6 +299,129 @@ Vediamo le sequenze aliquot dei primi 500 numeri:
 ;->      321329 1 0 0)
 ;-> 499 (499 1 0 0)
 ;-> 500 (500 592 586 296 274 140 196 203 37 1 0 0)
+
+Nota: per maggiori informazioni e novità sulle sequenze aliquot vedi il sito http://www.aliquotes.com/.
+
+
+--------------------------------
+Assegnazione di valori tra liste
+--------------------------------
+
+Supponiamo di avere due liste, una costituita da simboli/variabili e una costituita da valori numerici.
+
+(setq var '(a b c d))
+(setq num '(1 2 3 4))
+
+Possiamo assegnare ai simboli della lista "var" i valori della lista "num" applicando la funzione "set" a tutti gli elementi della lista utilizzando la funzione "map":
+
+(map set var num)
+;-> (1 2 3 4)
+;(map setq var num) ;sembra che dia lo stesso risultato
+
+Adesso i simboli della lista hanno un valore:
+
+(list a b c d)
+;-> (1 2 3 4)
+a
+;-> 1
+var
+;-> (a b c d)
+
+Stampa degli elementi della lista "var":
+
+(dolist (el var) (print el { }))
+;-> (a b c d)
+
+Stampa dei valori degli elementi della lista "var":
+
+(dolist (el var) (print (eval el) { }))
+;-> 1 2 3 4
+
+Comunque con le liste annidate otteniamo un errore:
+
+(setq var '(a b (c d)))
+(setq num '(1 2 3 4))
+(map set var num)
+;-> ERR: symbol expected in function set : '(c d)
+a
+;-> 1
+b
+;-> 2
+c
+;-> nil
+
+Possiamo usare la funzione "flat" per le liste annidate:
+
+(map set (flat var) num)
+;-> (1 2 3 4)
+(list a b c d)
+;-> (1 2 3 4)
+(dolist (el var) (print el { }))
+;-> a b (c d)
+(dolist (el (flat var)) (print (eval el) { }))
+;-> 1 2 3 4
+
+Questo tipo di assegnazione avviene in maniera parallela (cioè tutti i valori vengono assegnati simultaneamente). Ad esempio:
+
+(setq var '(a b c d))
+(setq num '(1 2 3 4))
+(map set var num)
+;-> (1 2 3 4)
+
+Adesso calcoliamo in modo parallelo:
+
+a = a + b = 1 + 2 = 3
+b = b = 2 
+c = c = 3
+d = a + d = 1 + 4 = 5
+
+Nell'ultima espressione "a" vale 1 (non 3 come dato da a = a + b), cioè i valori iniziali non cambiano quando avviene una valutazione parallela:
+
+(map set '(a b c d) (list (+ a b) b c (+ a d)))
+;-> (3 2 3 5)
+
+Un valutazione seriale avrebbe prodotto il seguente risultato:
+
+a = a + b = 1 + 2 = 3
+b = b = 2 
+c = c = 3
+d = a + d = 3 + 4 = 7
+
+Questo comportamento può servire per scambiare il valore di più variabili. Ad esempio:
+
+(setq x 1 y 2 z 3)
+
+  x = y => 2
+  y = z => 3
+  z = x => 1
+
+(map set '(x y z) (list y z x))
+;-> (2 3 1)
+
+Un'assegnazione seriale produce un risultato diverso:
+
+(setq x 1 y 2 z 3)
+(setq x y y z z x)
+(list x y z)
+;-> (2 3 2)
+
+
+----------
+Help macro
+----------
+
+Una macro per aprire dalla REPL il manuale di riferimento di newLISP per una determinata funzione:
+
+(define-macro (help _func)
+   (setq _func (string _func))
+   (if (ends-with _func "?") (setf (_func -1) "p"))
+   ;(println (append "start chrome file:///C:/newlisp/newlisp_manual.html#" string _func))
+   (! (append "start chrome file:///C:/newlisp/newlisp_manual.html#" _func)))
+
+(help case)
+;-> 0
+(help list?)
+;-> 0
 
 =============================================================================
 

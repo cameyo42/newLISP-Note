@@ -516,7 +516,7 @@ reader-event      preprocess expressions before evaluation event-driven
 Riguardare la lista rinfresca la memoria e aiuta a trovare funzioni... prima sconosciute.
 
 ============================================================================
-Sul linguaggio newLISP - FAQ di Lutz Mueller
+ Sul linguaggio newLISP - FAQ di Lutz Mueller
 ============================================================================
 
 Questa è la traduzione della pagina web relativa alle FAQ (Frequently Asked Questions) su newLISP:
@@ -666,7 +666,7 @@ Si. Il comando: newLISP -x "myscript.lsp" "myscript.exe" genera un file eseguibi
 
 
 ============================================================================
-newLISP in 21 minuti (John W. Small)
+ newLISP in 21 minuti (John W. Small)
 ============================================================================
 
 newLISP: un tutorial interattivo
@@ -2165,7 +2165,7 @@ Sia Common Lisp che Scheme hanno funzioni lessical scope, questo significa che u
 
 
 ============================================================================
-newLISP per programmatori (Dmitry Chernyak)
+ newLISP per programmatori (Dmitry Chernyak)
 ============================================================================
 v. 1.1
 
@@ -2886,7 +2886,7 @@ Any reproduction of this document in the form of hard copies (on paper or electr
 
 
 ============================================================================
-Notepad++ bundle
+ Notepad++ bundle
 ============================================================================
 
 How to use notepad++ with newLISP.
@@ -2969,7 +2969,7 @@ The script also enable other shortcuts... see the source.
 
 
 ============================================================================
-Visual Studio Code e newLISP
+ Visual Studio Code e newLISP
 ============================================================================
 
 You can use VSCode with newLISP.
@@ -3011,7 +3011,7 @@ Ctrl-Alt-w insert:
 
 
 ============================================================================
-Debugger
+ Debugger
 ============================================================================
 
 Il debugger in newLISP è molto spartano, ma è comunque un aiuto indispensabile nello sviluppo dei programmi.
@@ -3474,7 +3474,7 @@ Nota: looks like old "print" function never dies.
 
 
 ============================================================================
-newLISPdoc - Il programma per la documentazione newLISP
+ newLISPdoc - Il programma per la documentazione newLISP
 ============================================================================
 
 I commenti nei file sorgenti di newLISP possono essere convertiti in documentazione HTML utilizzando solo pochi tag nei commenti. Il sistema newLISPdoc è progettato per utilizzare un minimo di tag e lasciare ancora leggibili i commenti con tag.
@@ -3665,7 +3665,7 @@ Quando viene specificato più di un modulo sulla riga di comando, la pagina dell
 
 
 ============================================================================
-Compilare i sorgenti di newLISP
+ Compilare i sorgenti di newLISP
 ============================================================================
 
 In questa appendice vediamo i passi necessari per compilare newLISP con windows 10 partendo dai sorgenti. In particolare compileremo la versione di newLISP a 64 bit con estensioni UTF8 e FFI.
@@ -3731,7 +3731,7 @@ Nota: In questo modo abbiamo solamente installato la REPL di newLISP, tralascian
 
 
 ============================================================================
-Ricorsione e ottimizzazione della chiamata di coda (Tail Call Optimization)
+ Ricorsione e ottimizzazione della chiamata di coda (Tail Call Optimization)
 ============================================================================
 
 Questo è un concetto molto importante quando utilizziamo funzioni ricorsive.
@@ -3815,7 +3815,7 @@ https://weblambdazero.blogspot.com/2010/07/advanced-recursion-in-newLISP.html di
 
 
 ============================================================================
-F-expression - FEXPR
+ F-expression - FEXPR
 ============================================================================
 
 Nei linguaggi di programmazione Lisp, una FEXPR è una funzione i cui operandi/parametri vengono passati ad essa senza essere valutati. Quando viene chiamato una FEXPR, viene valutato solo il corpo di FEXPR: non si effettuano altre valutazioni se non quando esplicitamente avviato/richiesto dalla FEXPR.
@@ -3857,7 +3857,7 @@ Queste affermazioni costituiscono un valido motivo per i fexprs, in particolare 
 
 
 ============================================================================
-newLISP - Lisp per tutti (Krzysztof Kliś)
+ newLISP - Lisp per tutti (Krzysztof Kliś)
 ============================================================================
 
 Traduzione dell'articolo "newLISP - Lisp for the masses" di Krzysztof Kliś
@@ -3921,7 +3921,7 @@ Per esempio,
 
 
 ============================================================================
-Ricorsione avanzata in newLISP (Krzysztof Kliś)
+ Ricorsione avanzata in newLISP (Krzysztof Kliś)
 ============================================================================
 
 Traduzione dell'articolo "Advanced Recursion in newLISP" di Krzysztof Kliś
@@ -4017,7 +4017,7 @@ Un "thunk" è una subroutine usata per iniettare un calcolo addizionale in un'al
 
 
 ============================================================================
-Differenze tra newLISP, Scheme e Common LISP (Lutz Mueller)
+ Differenze tra newLISP, Scheme e Common LISP (Lutz Mueller)
 ============================================================================
 
 Cerchiamo di capire quali sono le differenze tra newLISP, Scheme e Common LISP.
@@ -4225,7 +4225,7 @@ L'utilizzo dell'indicizzazione implicita è opzionale. In parecchi casi permette
 
 
 ============================================================================
-Chiusure, contesti e funzioni con stato (Lutz Mueller)
+ Chiusure, contesti e funzioni con stato (Lutz Mueller)
 ============================================================================
 
 Scheme utilizza le chiusure per scrivere funzioni generatrici, funzioni con stato e oggetti software. newLISP usa l'espansione delle variabili e spazi di nomi chiamati contesti (context) per fare lo stesso.
@@ -4397,7 +4397,7 @@ newLISP ha la possibilità unica di scrivere funzioni auto-modificanti.
 
 
 ============================================================================
-Creazione di funzioni con ambito lessicale in newLISP (Lutz Mueller)
+ Creazione di funzioni con ambito lessicale in newLISP (Lutz Mueller)
 ============================================================================
 
 Una funzione predefinita appare e si comporta in modo analogo alle funzioni con ambito statico trovate in altri linguaggi di programmazione. Diverse funzioni possono condividere uno spazio di nomi.
@@ -4463,7 +4463,7 @@ La macro def-static crea innanzitutto un'espressione lambda della funzione da de
 
 
 ============================================================================
-The Y of Why in newLISP (Lutz Mueller)
+ The Y of Why in newLISP (Lutz Mueller)
 ============================================================================
 
 Il compito è trovare una funzione Y, che può trasformare una funzione ricorsiva in una funzione veramente funzionale senza effetti collaterali, senza variabili libere e con la proprietà del punto fisso (fixed point). Quanto segue è una versione di "The Why of Y" [1] di Richard P. Gabriel modificata per newLISP.
@@ -4594,7 +4594,7 @@ https://mvanier.livejournal.com/2897.html
 
 
 ============================================================================
-Valutazione delle espressioni, Indicizzazione Implicita, Contesti e Funtori di Default (Lutz Mueller)
+ Valutazione delle espressioni, Indicizzazione Implicita, Contesti e Funtori di Default (Lutz Mueller)
 ============================================================================
 
 L'indicizzazione esplicita e i funtori di default sono una estensione delle normali regole di valutazione delle espressioni in LISP. I contesti forniscono spazi di nomi lessicamente chiusi (con stato) in un linguaggio di programmazione con ambito (scope) dinamico.
@@ -4948,7 +4948,7 @@ Recursive Functions of Symbolic Expressions and their Computation by Machine.
 
 
 ============================================================================
-Gestione Automatica della Memoria in newLISP (Lutz Mueller)
+ Gestione Automatica della Memoria in newLISP (Lutz Mueller)
 ============================================================================
 
 ORO (One Reference Only) La gestione automatica della memoria sviluppata per newLISP è un'alternativa rapida e in grado di risparmiare risorse rispetto ai classici algoritmi di garbage collection dei linguaggi di programmazione dinamici e interattivi. Questo articolo spiega come funziona la gestione della memoria di tipo ORO.
@@ -5145,7 +5145,7 @@ John Wiley & Sons
 
 
 ============================================================================
-Benchmarking newLISP
+ Benchmarking newLISP
 ============================================================================
 
 Questo documento contiene tutte le funzioni utilizzate da Lutz Mueller per il Benckmark di newLISP. Le funzioni sono state leggermente modificate per il sistema operativo Windows.
@@ -6021,7 +6021,7 @@ Lista delle funzioni:
 
 
 ============================================================================
-Frasi Famose sulla Programmazione e sul Linguaggio Lisp
+ Frasi Famose sulla Programmazione e sul Linguaggio Lisp
 ============================================================================
 
 "Programs must be written for people to read, and only incidentally for machines to execute."
@@ -6077,7 +6077,36 @@ Frasi Famose sulla Programmazione e sul Linguaggio Lisp
 
 
 ============================================================================
-Codice ASCII
+ Prefissi del Sistema Internazionale di unità di misura
+============================================================================
+
+Prefisso   Simbolo   Fattore    Scala lunga      Scala corta
+------------------------------------------------------------
+yotta      Y         10^24      Quadrilione      Septillion 
+zetta      Z         10^21      Triliardo        Sextillion
+exa        E         10^18      Trilione         Quintillion
+peta       P         10^15      Biliardo         Quadrillion
+tera       T         10^12      Bilione          Trillion 
+giga       G         10^9       Miliardo         Billion
+mega       M         10^6       Milione          Million 
+kilo       k         10^3       Mille            Thousand 
+hecto      h         10^2       Cento            Hundred 
+deca       da        10^1       Dieci            Ten
+                     10^0       Uno              One
+deci       d         10^-1      Decimo           Tenth 
+centi      c         10^-2      Centesimo        Hundredth 
+mili       m         10^-3      Millesimo        Thousandth 
+micro      µ         10^-6      Milionesimo      Millionth 
+nano       n         10^-9      Miliardesimo     Billionth
+pico       p         10^-12     Bilionesimo      Trillionth 
+femto      f         10^-15     Biliardesimo     Quadrillionth
+atto       a         10^-18     Trilionesimo     Quintillionth
+zepto      z         10^-21     Triliardesimo    Sextilionth
+yocto      y         10^-24     Quadrilionesimo  Septillionth
+
+
+============================================================================
+ Codice ASCII
 ============================================================================
 L'American Standard Code for Information Interchange, o codice ASCII, è stato creato nel 1963 dal Comitato "American Standards Association" o "ASA", l'agenzia ha cambiato il suo nome nel 1969 in "American National Standards Institute" o "ANSI" così com'è conosciuto da allora.
 Questo codice nasce dal riordino e dall'espansione del set di simboli e caratteri già utilizzati in telegrafia a quel tempo dalla società Bell.

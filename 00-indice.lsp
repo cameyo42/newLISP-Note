@@ -952,6 +952,8 @@ NOTE LIBERE 6
   Problema di Brocard
   Errore quadratico medio (Mean Square Error - MSE)
   Sequenze aliquot
+  Assegnazione di valori tra liste
+  Help macro
 
 APPENDICI
 =========
@@ -976,6 +978,7 @@ APPENDICI
   Gestione Automatica della Memoria in newLISP (Lutz Mueller)
   Benchmarking newLISP
   Frasi Famose sulla Programmazione e sul Linguaggio Lisp
+  Prefissi del Sistema Internazionale di unità di misura
   Codici ASCII
 
 BIBLIOGRAFIA/WEB
