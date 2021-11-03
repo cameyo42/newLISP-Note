@@ -375,7 +375,7 @@ b = b = 2
 c = c = 3
 d = a + d = 1 + 4 = 5
 
-Nell'ultima espressione "a" vale 1 (non 3 come dato da a = a + b), cioè i valori iniziali non cambiano quando avviene una valutazione parallela:
+Nell'ultima espressione "a" vale 1 (non 3 come dato da a = a + b), cioè i valori iniziali non cambiano quando avviene una valutazione parallela (che è quello che fa "map"):
 
 (map set '(a b c d) (list (+ a b) b c (+ a d)))
 ;-> (3 2 3 5)
@@ -422,6 +422,229 @@ Una macro per aprire dalla REPL il manuale di riferimento di newLISP per una det
 ;-> 0
 (help list?)
 ;-> 0
+
+
+-------------------
+Sequenza di Recaman
+-------------------
+
+La sequenza di Recaman è una sequenza definita da una relazione di ricorrenza, poiché i suoi elementi sono correlati agli elementi precedenti in modo diretto.
+
+La successione di Recaman a(0), a(1), ... a(n) è definita come:
+
+       = 0           se n = 0
+  a(n) = a(n-1) - n, se a(n-1) - n > 0 e non si trova nella sequenza
+       = a(n-1) + n, altrimenti
+
+I primi termini della sequenza sono:
+
+  0, 1, 3, 6, 2, 7, 13, 20, 12, 21, 11, 22, 10, 23, 9, 24, 8, 25, 43, 62,
+  42, 63, 41, 18, 42, 17, 43, 16, 44, 15, 45, 14, 46, 79, 113, 78, 114, 77,
+  39, 78, 38, 79, 37, 80, 36, 81, 35, 82, 34, 83, 33, 84, 32, 85, 31, 86,
+  30, 87, 29, 88, 28, 89, 27, 90, 26, 91, 157, 224, 156, 225, 155, ...
+
+Funzione di Recaman con una lista semplice:
+
+(define (recaman num)
+  (local (curr prev out)
+    (setq out '(0))
+    (setq prev 0)
+    (for (i 1 num)
+      (setq curr (- prev i))
+      (if (or (< curr 0) (find curr out))
+          (setq curr (+ prev i))
+      )
+      (push curr out -1)
+      (setq prev curr)
+    )
+    out))
+
+(recaman 50)
+;-> (0 1 3 6 2 7 13 20 12 21 11 22 10 23 9 24 8 25 43 62 42 63 
+;->  41 18 42 17 43 16 44 15 45 14 46 79 113 78 114 77 39 78 38 
+;->  79 37 80 36 81 35 82 34 83 33)
+
+
+------------------------------
+Hash-Map Quick Reference Guide
+------------------------------
+
+Creazione di una hash-map:
+
+(new Tree 'myhash)
+;-> myhash
+
+Funzione per creare una hash-map
+
+(define (new-hash str) (new Tree (sym str)))
+
+(new-hash "pippo")
+(pippo "1" "a")
+;-> "a"
+(pippo)
+;-> (("1" "a"))
+
+Eliminazione di una hash-map:
+
+(delete 'myhash)
+;-> true
+
+Funzione per eliminare una hash-map:
+
+(define (del-hash str) (delete (sym str)))
+(del-hash "pippo")
+;-> true
+(pippo)
+;-> ERR: invalid function : (pippo)
+
+(del-hash "boh")
+;-> true
+
+Inserimento di una coppia (chiave-valore) nella hash-map:
+
+(new Tree 'myhash)
+(myhash "1" "a")
+;-> "a"
+(myhash "2" "b")
+;-> "b"
+
+Elenco delle coppie in una hash-map:
+
+(myhash)
+;-> (("1" "a") ("2" "b"))
+
+Eliminazione di una coppia (chiave-valore) nella hash-map:
+
+(myhash "1" nil)
+;-> nil
+(myhash)
+;-> (("2" "b"))
+
+(myhash "1" "a")
+;-> "a"
+
+Funzione che elenca le coppie chiave-valore di una hash-map:
+
+(define (list-hash str)
+  (eval-string (append "(" (string str) ")")))
+
+(list-hash myhash)
+;-> (("1" "a") ("2" "b"))
+
+Creazione di hash-map da una variabile:
+
+(setq a "demo")
+(new Tree (sym (eval a)))
+(demo)
+;-> ()
+ 
+(setq a "prova")
+(new-hash a)
+(prova)
+;-> ()
+
+Ricerca di una chiave sulla hash-map:
+
+(myhash "1")
+;-> "a"
+(myhash 1)
+;-> "a"
+(myhash "a")
+;-> nil
+(myhash "4")
+;-> nil
+(true? (myhash "1"))
+;-> true
+
+Una hash-map non è una lista, ma possiamo usare lo stesso dolist per elencare tutte le coppie chiave-valore:
+
+(list? myhash)
+;-> nil
+(dolist (cp (myhash)) (println (list (cp 0) (cp 1))))
+;-> ("1" "a")
+;-> ("2" "b")
+
+Per creare una lista di associazione da una hash-map basta assegnare la valutazione della hash-map ad una variabile:
+
+(setq alst (myHash))
+;-> (("#1234" "hello world") ("1" "uno") ("_y" (1 2))
+;->  ("il numero" 123) ("var" (a b c d)) ("x" "stringa"))
+
+(list? alst)
+;-> true
+
+Per popolare una hash-map possiamo anche usare una lista:
+
+(myhash '((3 4) (5 6)))
+;-> myhash
+
+(myhash)
+;-> (("1" "a") ("2" "b") ("3" 4) ("5" 6))
+
+Nota: le chiavi del dizionario sono ordinate in maniera lessicografica.
+
+Cosa accade alle liste che hanno valori della chiave ripetuti?
+
+Nella lista seguente le chiavi "1" e "3" sono ripetute:
+
+(setq lst '(("4" 4) ("1" 0) ("2" 2) ("3" 0) ("1" 1) ("3" 3) ("5" 5)))
+
+Quando assegniamo la lista ad una hash-map i valori con chiave multipla vengono memorizzati soltanto una volta...ma quali elementi sceglie e quali elimina newLISP?
+Facciamo una prova:
+
+(new Tree 'hash)
+(hash lst)
+;-> hash
+(hash)
+;-> (("1" 1) ("2" 2) ("3" 3) ("4" 4) ("5" 5))
+
+Gli elementi ("1" 0) e ("3" 0) sono stati eliminati... cioè quelli che si trovavano prima.
+In newLISP la hash-map inserisce gli elementi partendo dal fondo della lista (poi nella hash-map gli elementi sono ordinati in base alla chiave). Quindi quando incontra elementi multipli prende l'ultimo che compare nella lista (cioè il primo partendo dal fondo della lista).
+
+Lista di tutti i simboli di una hash-map (contesto):
+
+(symbols myhash)
+;-> (myhash:_1 myhash:_2 myhash:_3 myhash:_5 myhash:myhash)
+
+Nota: Le chiavi (simboli) vengono memorizzate precedute dal contesto e dal carattere underscore "_".
+
+le espressioni hash restituiscono un riferimento al loro contenuto che può essere modificato direttamente:
+
+(pop (myHash "var"))
+;-> a
+
+(myHash "var")
+;-> (b c d)
+
+(push 'z (myHash "var"))
+;-> (z b c d)
+
+(myHash "var")
+;-> (z b c d)
+
+Quando si impostano i valori hash, la variabile anaforica di sistema "$it" può essere utilizzata per riferirsi al vecchio valore quando si imposta il nuovo:
+
+(myhash "bar" "hello world")
+;-> "hello world"
+
+(myhash "bar" (upper-case $it))
+;-> "HELLO WORLD"
+
+(myhash "bar")
+;-> "HELLO WORLD"
+
+Le hash-map possono essere salvate in un file e ricaricate in un secondo momento:
+
+; save dictionary
+(save "myhash.lsp" 'myhash)
+;-> true
+
+Caricamento di una hash-map dal file "myhash.lsp":
+
+(load "myhash.lsp")
+;-> MAIN
+(myhash)
+(("1" "a") ("2" "b") ("3" 4) ("5" 6) ("bar" "HELLO WORLD"))
 
 =============================================================================
 

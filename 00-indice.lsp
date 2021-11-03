@@ -954,6 +954,9 @@ NOTE LIBERE 6
   Sequenze aliquot
   Assegnazione di valori tra liste
   Help macro
+  Sequenza di Recaman
+  Hash-Map Quick Reference Guide
+  Strutture dati autoreferenziali
 
 APPENDICI
 =========
