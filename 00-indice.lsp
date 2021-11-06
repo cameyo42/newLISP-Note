@@ -957,6 +957,8 @@ NOTE LIBERE 6
   Sequenza di Recaman
   Hash-Map Quick Reference Guide
   Strutture dati autoreferenziali
+  Calcoli nel tempo
+  Text file utilities
 
 APPENDICI
 =========

@@ -646,5 +646,412 @@ Caricamento di una hash-map dal file "myhash.lsp":
 (myhash)
 (("1" "a") ("2" "b") ("3" 4) ("5" 6) ("bar" "HELLO WORLD"))
 
+
+-------------------------------
+Strutture dati autoreferenziali
+-------------------------------
+
+In newLISP i simboli possono essere generati durante il runtime e possono essere considerati come indirizzi di memoria generalizzati.
+Per esempio possiamo creare una lista in cui un elemento è il simbolo della lista stessa:
+
+(set 'x (list 'x 1 2 3))
+;-> (x 1 2 3)
+
+(println x)
+;-> (x 1 2 3)
+
+(x 0)
+;-> x
+
+(first x)
+;-> x
+
+(last x)
+;-> 3
+
+(eval (x 0))
+;-> (x 1 2 3)
+
+(rest x)
+;-> (1 2 3)
+
+(eval x)
+;-> 1
+
+(dolist (el x) (print el { }))
+;-> x 1 2 3
+
+Possiamo anche creare strutture (liste) più complesse:
+
+(set 'y (list 'y (list (list 1 2) 3 (list 3 4)) (list 5 6)))
+;-> (y ((1 2) 3 (3 4)) (5 6))
+y
+;-> (y ((1 2) 3 (3 4)) (5 6))
+(rest y)
+;-> (((1 2) 3 (3 4)) (5 6))
+
+
+-----------------
+Calcoli nel tempo
+-----------------
+
+Nel 1876 Edouard Lucas dimostrò indirettamente che il numero (2^67 − 1) non poteva, come era stato ipotizzato dall'inizio del 1600, essere un numero primo. Tuttavia, Lucas non fu in grado di scomporre questo numero enorme in fattori primi. Quindi, nel 1903, il matematico americano Frank Cole (1861-1926) fece la seguente presentazione in una riunione dell'American Mathematical Society: senza dire una parola, si avvicinò alla lavagna e calcolò 2^67 − 1,
+
+2^67 − 1 = 147.573.952.589.676.412.927
+
+Poi moltiplicò a mano il prodotto,
+
+193.707.721 * 761.838.257.287 = 147.573.952.589.676.412.927
+
+I due calcoli portavano allo stesso risultato, e il pubblico esplose all'unisono in una fragorosa standing ovation. Cole in seguito disse che gli ci vollero vent'anni di domeniche pomeriggio per scomporre il numero 147.573.952.589.676.412,927 nei due fattori primi 193.707.721 e 761.838.257.287.
+
+Nel 2021 con un computer (e newLISP) possiamo verificare velocemente il risultato (usando i big-integer):
+
+Funzione che calcola la potenza di un numero intero
+
+(define (** num power)
+  (let (out 1L)
+    (dotimes (i power)
+      (setq out (* out num)))))
+
+(- (** 2 67) 1)
+;-> 147573952589676412927L
+
+Risultato della moltiplicazione:
+
+(* 193707721L 761838257287L)
+;-> 147573952589676412927L
+
+E possiamo anche fattorizzare il numero 147.573.952.589.676.412.927:
+
+Funzione che fattorizza un numero intero (big-integer)
+
+(define (factor-i num)
+  (local (f k i dist out)
+    ; Distanze tra due elementi consecutivi della ruota (wheel)
+    (setq dist (array 48 '(2 4 2 4 6 2 6 4 2 4 6 6 2 6 4 2 6 4
+                           6 8 4 2 4 2 4 8 6 4 6 2 4 6 2 6 6 4
+                           2 4 6 2 6 4 2 4 2 10 2 10)))
+    (setq out '())
+    (while (zero? (% num 2)) (push '2L out -1) (setq num (/ num 2)))
+    (while (zero? (% num 3)) (push '3L out -1) (setq num (/ num 3)))
+    (while (zero? (% num 5)) (push '5L out -1) (setq num (/ num 5)))
+    (while (zero? (% num 7)) (push '7L out -1) (setq num (/ num 7)))
+    (setq k 11L i 0)
+    (while (<= (* k k) num)
+      (if (zero? (% num k))
+        (begin
+          (push k out -1)
+          (setq num (/ num k)))
+        (begin
+          (setq k (+ k (dist i)))
+          (if (< i 47) (++ i) (setq i 0)))
+      )
+    )
+    (if (> num 1) (push (bigint num) out -1))
+    out))
+
+(time (println (factor-i 147573952589676412927L)))
+;-> (193707721L 761838257287L)
+;-> 20404.858 (20 secondi)
+
+
+-------------------
+Text file utilities
+-------------------
+
+Alcune semplici funzioni per la gestione di file di testo dalla REPL di newLISP.
+
+Nota: per una gestione completa vedi le GNU CoreUtils, raccolta di utilità di base per la manipolazione di file di testo e della shell.
+
+http://gnuwin32.sourceforge.net/packages/coreutils.htm
+https://gitforwindows.org/
+https://git-scm.com/
+
+File di prova: "lines.txt" (si trova nella cartella "data")
+
+  linea 1: lines words chars
+  linea 6: newLISP
+  linea 4: demo
+  linea 6: newLISP
+  linea 3: GNU Core Utilities
+  linea 2: missing values
+  linea 5: GNU Core Utilities
+  linea 7: unique lines
+
+Nota: i file senza percorso vengono cercati nella cartella corrente della REPL,
+(real-path)
+;-> "F:\\Lisp-Scheme\\newLisp\\MAX\\newLISP-NoteNEW"
+
+
+Conteggio di linee, parole e caratteri di un file
+-------------------------------------------------
+
+(define (lwc-count file-in)
+  (local (line lc wc cc)
+    (setq lc 0 wc 0 cc 0)
+    (setq file-in (open file-in "read"))
+      ; lettura file di input
+      (while (setq line (read-line file-in))
+        ; lines count
+        (++ lc)
+        ; words count
+        (setq wc (+ wc (length (parse (trim line) "\\s+" 0))))
+        ; chars count 
+        ; (+1 add back the line feed - Unix)
+        ; (+2 add back the line feed/carriage return - Windows)
+        ;(setq cc (+ cc (length line) 1))
+        (setq cc (+ cc (length line) 2))
+      )
+      (close file-in)
+    (list lc wc cc)))
+
+(lwc-count "lines.txt")
+;-> (8 32 201)
+
+(lwc-count "F:\\Lisp-Scheme\\newLisp\\MAX\\newLISP-NoteNEW\\newLISP-Note.lsp")
+;-> (124161 653567 4277748)
+
+Stampa di un file (stdout)
+--------------------------
+
+(define (print-lines file-in)
+    ; apertura file di input
+    (setq file-in (open file-in "read"))
+    ; lettura e stampa file di input su stdout
+    (while (read-line file-in)
+      (println (current-line))
+    )
+    ; chiusura file di input
+    (close file-in))
+
+(print-lines "lines.txt")
+
+Linee uniche di un file
+-----------------------
+
+(define (unique-lines file-in file-out)
+  (local (lst ext)
+    (setq lst '())
+    (setq ext "-unique.txt")
+    ; apertura file di output
+    (if (nil? file-out)
+        (setq file-out (open (string file-in ext) "write"))
+        (setq file-out (open file-out "write")))
+    ; apertura file di input
+    (setq file-in (open file-in "read"))
+    ; lettura file di input su lista
+    (while (read-line file-in)
+      (push (current-line) lst -1))
+    ; chiusura file di input
+    (close file-in)
+    ; creazione lista con elementi univoci
+    (setq lst (unique lst))
+    ; scrittura lista su file di output
+    (map (fn(line) (write-line file-out line)) lst)
+    ; chiusura file di output
+    (close file-out)
+  ))
+
+(unique-lines "lines.txt")
+(print-lines "lines.txt-unique.txt")
+
+Ordinamento delle linee di un file
+----------------------------------
+
+(define (sort-lines file-in file-out)
+  (local (lst ext)
+    (setq lst '())
+    (setq ext "-sort.txt")
+    ; apertura file di output
+    (if (nil? file-out)
+        (setq file-out (open (string file-in ext) "write"))
+        (setq file-out (open file-out "write")))
+    ; apertura file di input
+    (setq file-in (open file-in "read"))
+    ; lettura file di input su lista
+    (while (read-line file-in)
+      (push (current-line) lst -1))
+    ; chiusura file di input
+    (close file-in)
+    ; ordinamento della lista
+    (sort lst)
+    ; scrittura lista su file di output
+    (map (fn(line) (write-line file-out line)) lst)
+    ; chiusura file di output
+    (close file-out)
+  ))
+
+(sort-lines "lines.txt")
+(print-lines "lines.txt-sort.txt")
+
+Estrazione di linee da un file
+------------------------------
+
+(define (extract-lines start end file-in file-out)
+  (local (lst ext)
+    (setq lst '())
+    (setq ext "-extract.txt")
+    ; apertura file di output
+    (if (nil? file-out)
+        (setq file-out (open (string file-in ext) "write"))
+        (setq file-out (open file-out "write")))
+    ; apertura file di input
+    (setq file-in (open file-in "read"))
+    ; lettura file di input su lista
+    (while (read-line file-in)
+      (push (current-line) lst -1))
+    ; chiusura file di input
+    (close file-in)
+    ; estrazione linee dalla lista
+    (setq lst (slice lst (- start 1) (+ (- end start) 1)))
+    ; scrittura lista su file di output
+    (map (fn(line) (write-line file-out line)) lst)
+    ; chiusura file di output
+    (close file-out)
+  ))
+
+; estrazione delle prime 4 linee
+(extract-lines 1 4 "lines.txt" "lines-1-4.txt")
+(print-lines "lines-1-4.txt")
+
+; estrazione delle ultime 5 linee
+(extract-lines -4 0 "lines.txt" "lines-4-0.txt")
+(print-lines "lines-4-0.txt")
+;->   linea 6: newLISP
+;->   linea 3: GNU Core Utilities
+;->   linea 2: missing values
+;->   linea 5: GNU Core Utilities
+;->   linea 7: unique lines
+
+Unione sequenziale di due file
+-------------------------------
+(define (append-lines file1 file2 file-out)
+  (local (lst ext)
+    (setq lst '())
+    (setq ext "-join.txt")
+    ; apertura file di output
+    (if (nil? file-out)
+        (setq file-out (open (string file1 "-" file2 ext) "write"))
+        (setq file-out (open file-out "write")))
+    ; apertura primo file di input
+    (setq file1 (open file1 "read"))
+    ; lettura primo file di input su lista
+    (while (read-line file1)
+      (push (current-line) lst -1))
+    ; chiusura primo file di input
+    (close file1)
+    ; apertura secondo file di input
+    (setq file2 (open file2 "read"))
+    ; lettura secondo file di input su lista
+    (while (read-line file2)
+      (push (current-line) lst -1))
+    ; chiusura primo file di input
+    (close file2)
+    ; scrittura lista su file di output
+    (map (fn(line) (write-line file-out line)) lst)
+    ; chiusura file di output
+    (close file-out)
+  ))
+
+(append-lines "lines.txt" "lines.txt" "lineslines.txt")
+(print-lines "lineslines.txt")
+
+Copia di un file
+----------------
+
+Funzione predefinita in newLISP:
+--------------------------------
+(copy-file str-from-name str-to-name)
+
+(copy-file "lines.txt" "lines-copy.txt")
+(print-lines "lines-copy.txt")
+
+Copia di file di testo e di file binari:
+----------------------------------------
+(define (copy-chars from-file to-file)
+    (setq from-file (open from-file "read"))
+    (setq to-file (open to-file "write"))
+    (while (setq chr (read-char from-file))
+        (write-char to-file chr))
+    (close from-file)
+    (close to-file)
+    "finished")
+
+(copy-chars "lines.txt" "lines-copy-chars.txt")
+(print-lines "lines-copy-chars.txt")
+
+Copia di file di testo:
+-----------------------
+(define (copy-lines from-file to-file)
+    (setq from-file (open from-file "read"))
+    (setq to-file (open to-file "write"))
+    (while (read-line from-file))
+        (write-line to-file (current-line))
+    (close from-file)
+    (close to-file)
+    "finished")
+
+(copy-chars "lines.txt" "lines-copy-lines.txt")
+(print-lines "lines-copy-lines.txt")
+
+Inversione delle linee di un file
+---------------------------------
+
+(define (reverse-lines file-in file-out)
+  (local (lst ext)
+    (setq lst '())
+    (setq ext "-reverse.txt")
+    ; apertura file di output
+    (if (nil? file-out)
+        (setq file-out (open (string file-in ext) "write"))
+        (setq file-out (open file-out "write")))
+    ; apertura file di input
+    (setq file-in (open file-in "read"))
+    ; lettura file di input su lista
+    (while (read-line file-in)
+      (push (current-line) lst -1))
+    ; chiusura file di input
+    (close file-in)
+    ; creazione lista inversa
+    (setq lst (reverse lst))
+    ; scrittura lista su file di output
+    (map (fn(line) (write-line file-out line)) lst)
+    ; chiusura file di output
+    (close file-out)
+  ))
+
+(reverse-lines "lines.txt")
+(print-lines "lines.txt-reverse.txt")
+
+Mescolamento delle linee di un file
+-----------------------------------
+
+(define (shuffle-lines file-in file-out)
+  (local (lst ext)
+    (setq lst '())
+    (setq ext "-shuffle.txt")
+    ; apertura file di output
+    (if (nil? file-out)
+        (setq file-out (open (string file-in ext) "write"))
+        (setq file-out (open file-out "write")))
+    ; apertura file di input
+    (setq file-in (open file-in "read"))
+    ; lettura file di input su lista
+    (while (read-line file-in)
+      (push (current-line) lst -1))
+    ; chiusura file di input
+    (close file-in)
+    ; creazione lista mescolata
+    (setq lst (randomize lst))
+    ; scrittura lista su file di output
+    (map (fn(line) (write-line file-out line)) lst)
+    ; chiusura file di output
+    (close file-out)
+  ))
+
+(shuffle-lines "lines.txt")
+(print-lines "lines.txt-shuffle.txt")
+
 =============================================================================
 
