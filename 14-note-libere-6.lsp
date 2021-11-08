@@ -1053,5 +1053,228 @@ Mescolamento delle linee di un file
 (shuffle-lines "lines.txt")
 (print-lines "lines.txt-shuffle.txt")
 
+Lista con tutte le linee di un file
+-----------------------------------
+
+(define (list-lines file)
+  (let (lst '())
+    ; apertura file di input
+    (setq file (open file "read"))
+    ; lettura file di input su lista
+    (while (read-line file)
+      (push (current-line) lst -1))
+    ; chiusura file di input
+    (close file)
+    lst))
+
+(save "list-lines.lsp" 'list-lines)
+;-> true
+
+(list-lines "list-lines.lsp")
+;-> ("(define (list-lines file)" 
+;->  "  (let (lst '()) " 
+;->  "   (setq file (open file \"read\")) "
+;->  "   (while (read-line file) " 
+;->  "    (push (current-line) lst -1)) " 
+;->  "   (close file) lst))"
+;->  "")
+
+
+----------------
+Code Obfuscation
+----------------
+
+L'offuscamento del codice è una delle tecniche preferite per la sicurezza delle applicazioni in modo da proteggersi dall'hacking. È una delle iniziative più consigliate dai professionisti della sicurezza di tutto il mondo e, il più delle volte, funge da meccanismo di difesa principale contro i tentativi di hacking e protegge da attacchi comuni, come l'iniezione di codice, il reverse engineering e la manomissione delle informazioni personali dei clienti e degli utenti delle applicazioni.
+
+Code Obfuscation (offuscamento del codice) è il processo di modifica di un eseguibile (e/o del codice sorgente) in modo che non sia più utile per un hacker, ma rimanga completamente funzionante. Sebbene tale processo possa modificare il modello originale delle istruzioni o i metadati, non altera l'output del programma. 
+
+Nota: con abbastanza tempo e impegno, quasi tutto il codice può essere decodificato.
+
+L'offuscamento automatico del codice rende il "reverse engineering" di un programma difficile ed economicamente irrealizzabile.
+Rendendo un'applicazione molto più difficile da decodificare, puoi proteggerti dal furto di segreti commerciali (proprietà intellettuale), dall'accesso non autorizzato, dall'elusione della licenza, dalla scoperta di vulnerabilità o da altri controlli.
+
+Metodi di offuscamento
+----------------------
+L'offuscamento del codice consiste in molte tecniche diverse che possono completarsi a vicenda per creare una difesa a più livelli. È più efficace per i linguaggi che creano una qualche forma di istruzioni di livello intermedio come Java o i linguaggi .NET. Vediamo alcuni esempi tipici di tecniche di offuscamento e sicurezza delle applicazioni:
+
+1) Rename Obfuscation
+La ridenominazione altera il nome di metodi e variabili. Rende il sorgente decompilato più difficile da capire per un essere umano, ma non altera l'esecuzione del programma. I nuovi nomi possono utilizzare schemi diversi come "a", "b", "c" o numeri, caratteri non stampabili o caratteri invisibili. E i nomi possono essere gli stessi (overload) purché abbiano un ambito diverso. Questo offuscamento è una trasformazione di base utilizzata dalla maggior parte degli offuscatori.
+
+2) String Encryption 
+In un programma eseguibile, tutte le stringhe sono chiaramente individuabili e leggibili. Anche quando i metodi e le variabili vengono rinominati, le stringhe possono essere utilizzate per individuare sezioni di codice critiche cercando i riferimenti di stringa all'interno del file binario. Ciò include i messaggi (soprattutto i messaggi di errore) che vengono visualizzati all'utente. Per fornire una barriera efficace contro questo tipo di attacco, la crittografia delle stringhe nasconde le stringhe nell'eseguibile e ripristina il loro valore originale solo quando necessario. La decrittografia delle stringhe in fase di esecuzione in genere comporta una leggera riduzione delle prestazioni.
+
+3) Aggregation Obfuscation
+Ciò altera il modo in cui i dati vengono archiviati nel programma. Ad esempio, gli array potrebbero essere scomposti in molti sotto-array, che potrebbero quindi essere referenziati in punti diversi del programma.
+
+4) Storage obfuscation
+Questo cambia il modo stesso in cui i dati vengono archiviati in memoria. Ad esempio, gli sviluppatori possono passare dall'archiviazione locale a quella globale delle variabili, in modo da offuscare la vera natura del comportamento delle variabili.
+
+5) Ordering obfuscation
+Questo metodo riordina il modo in cui i dati vengono ordinati non alterando il comportamento del frammento di programma/codice. Gli sviluppatori lo realizzano sviluppando un modulo separato che viene chiamato per tutte le istanze di riferimento alle variabili.
+
+6) Control Flow Obfuscation
+L'offuscamento del flusso di controllo sintetizza costrutti condizionali, ramificati e iterativi che producono una logica eseguibile valida, ma producono risultati semantici non deterministici quando vengono decompilati. Detto più semplicemente, fa sembrare il codice decompilato una logica a "spaghetti" che è molto difficile da comprendere. Queste tecniche possono influire sulle prestazioni di runtime di un metodo.
+
+7) Instruction Pattern Transformation
+Converte le istruzioni comuni create dal compilatore in altri costrutti meno ovvi. Queste sono istruzioni in linguaggio macchina perfettamente legali che potrebbero non essere mappate in modo diretto in linguaggi di alto livello come Java. Un esempio è la memorizzazione nella cache delle variabili transitorie che sfrutta la natura basata sullo stack dei runtime Java e .NET.
+
+8) Dummy Code Insertion
+L'inserimento di codice nell'eseguibile che non influisce sulla logica del programma, ma interrompe i decompilatori o rende il codice decodificato molto più difficile da analizzare.
+
+9) Unused Code and Metadata Removal
+La rimozione delle informazioni di debug, dei metadati non essenziali e del codice utilizzato dalle applicazioni li rende più piccoli e riduce le informazioni disponibili per un utente malintenzionato. Questa procedura può migliorare leggermente le prestazioni di runtime.
+
+10) Binary Linking/Merging
+Questa trasformazione combina più eseguibili/librerie di input in uno o più file binari di output. Il linking può essere utilizzato per ridurre le dimensioni dell'applicazione, soprattutto se utilizzato con la ridenominazione e l'eliminazione. Può semplificare gli scenari di distribuzione e ridurre le informazioni disponibili per gli hacker.
+
+11) Opaque Predicate Insertion
+Offusca aggiungendo rami condizionali che valutano sempre a risultati noti, risultati che non possono essere facilmente determinati tramite l'analisi statica. Questo è un modo per introdurre codice potenzialmente errato che non verrà mai effettivamente eseguito, ma confonde gli aggressori che cercano di comprendere l'output decompilato.
+
+12) Address Obfuscation
+Gli attacchi che sfruttano gli errori di programmazione della memoria, in particolare con linguaggi non protetti dalla memoria, come C, C++, sono diventati all'ordine del giorno. Errori come l'accesso all'array non controllato spesso comportano vulnerabilità di sicurezza. Il metodo di offuscamento degli indirizzi rende difficile il processo di reverse engineering, poiché ogni volta che viene eseguito il codice trasformato, gli indirizzi virtuali del codice e dei dati del programma vengono randomizzati. Ciò rende l'effetto della maggior parte degli exploit di errore di memoria non deterministico, con solo una minima possibilità di successo.
+
+13) Custom Encoding
+Utilizzando questo metodo, gli sviluppatori codificano le stringhe utilizzando un algoritmo personalizzato e forniscono una funzione di decodifica per recuperare il codice originale.
+
+14) Passing Arguments at Runtime
+Il programma può essere modificato per ricevere argomenti in fase di esecuzione (runtime). Ciò richiede che l'utente disponga sia del codice che della chiave di decrittografia per decrittografare le variabili.
+
+15) Anti-Tamper
+Un offuscatore può inserire l'autoprotezione dell'applicazione nel codice per verificare che l'applicazione non sia stata in alcun modo manomessa. Se viene rilevata una manomissione, può chiudere l'applicazione, limitare la funzionalità, richiamare arresti anomali casuali (per mascherare il motivo dell'arresto anomalo) o eseguire qualsiasi altra azione personalizzata. Potrebbe anche inviare un messaggio a un servizio per fornire dettagli sulla manomissione rilevata.
+
+16) Anti-Debug
+Quando un hacker sta cercando di piratare o contraffare la tua app, rubare i tuoi dati o alterare il comportamento di un software di infrastruttura critico, quasi sicuramente inizierà con il reverse engineering e passerà la tua applicazione attraverso un debugger. Un offuscatore può sovrapporre l'autoprotezione dell'applicazione iniettando codice per rilevare se l'applicazione di produzione è in esecuzione all'interno di un debugger. Se viene utilizzato un debugger, può corrompere i dati sensibili (proteggendoli dal furto), invocare arresti anomali casuali (per nascondere che l'arresto anomalo è stato il risultato di un controllo di debug) o eseguire qualsiasi altra azione personalizzata. Potrebbe anche inviare un messaggio a un servizio per fornire un segnale di avviso.
+
+Il successo dell'offuscamento del codice dipende da diversi parametri che determinano la qualità della trasformazione del codice. La qualità di una tecnica di offuscamento dovrebbe essere determinata dalla combinazione dei seguenti fattori:
+
+Strength and resilience
+-----------------------
+Un codice offuscato è buono solo quanto il suo anello più debole. Quindi il modo migliore per verificare la qualità è verificare quanta resistenza viene mostrata dal codice offuscato quando viene provato il de-offuscamento. Maggiore è lo sforzo e il tempo necessari per violare il codice, migliore sarà l'offuscamento.
+
+Differentiation and Potency
+---------------------------
+Questo mostra la misura in cui il codice offuscato è diverso dal codice originale. La profondità dei flussi di controllo, i livelli di nidificazione e i livelli di ereditarietà vengono utilizzati per aumentare la complessità del codice sorgente. L'offuscamento del codice aumenta questo livello di complessità
+
+Stealth
+-------
+Il codice offuscato deve essere indistinguibile dal codice sorgente originale in modo che l'attaccante sia confuso riguardo alla sezione offuscata. Ciò rende il reverse engineering una proposta difficile da intraprendere per l'attaccante. Questo fattore dipende da un contesto all'altro ed è spesso un fattore cruciale per eludere gli attacchi automatizzati di reverse engineering.
+
+Cost
+----
+È definito come il tempo e le risorse impiegate per eseguire il codice offuscato rispetto al codice non offuscato. Alcune considerazioni sulle prestazioni devono essere prese in considerazione durante l'implementazione di un codice offuscato. Un codice intelligentemente offuscato dovrebbe servire allo scopo di confondere l'attaccante utilizzando tecniche prudenti e senza spendere inutilmente costi/risorse.
+
+Nota: in breve, più potente e complesso è l'offuscamento, maggiore è il rallentamento delle prestazioni.
+
+Offuscamento e newLISP
+----------------------
+newLISP non crea file eseguibili compilati. L'eseguibile di newLISP (.EXE) contiene due parti: l'interprete newLISP e il codice del programma (in fondo al file .EXE in formato ASCII).
+Se aprite con un editor di testo un eseguibile creato da newLISP, si può facilmente individuare il codice del programma, in formato testo, alla fine del file.
+
+Non ho mai avuto la necessità di offuscare nessun programma (probabilmente perchè non sono un programmatore professionista).
+Al mio livello, per rendere complicato il lavoro di un eventuale "copiatore", spesso è sufficiente rimuovere i commenti e l'indentazione di un programma.
+Per esempio, prendiamo seguente funzione:
+
+(define (eval-rpn lst)
+"Evaluate a RPN expression"
+  (local (_stack _a _b _op _op1 _op2)
+    (setq _stack '())
+    ; lista operatori con un argomento
+    (setq _op1 '(abs sqrt exp sin cos tan asin acos atan))
+    ; lista operatori con due argomenti
+    (setq _op2 '(+ - * / % add sub mul div mod pow atan2))
+    ; Valuto gli elementi della lista (espressione rpn) e
+    ; assegno il valore alle variabili
+    (setq lst (map (fn (x) (if (not (protected? x)) (eval x) x)) lst))
+    ; Per ogni simbolo della lista...
+    (dolist (el lst)
+      (cond ((number? el)      ; se è un numero...
+             (push el _stack)) ; lo metto nella pila
+            (true ; altrimenti è un operatore
+             (cond ((find el _op1) ;operatore unario
+                    (setq _a (pop _stack))    ; prendo numeri dalla pila
+                    (setq _op (eval el))     ; calcolo operazione
+                    (push (_op _a) _stack))    ; inserisco risultato nella pila
+                   ((find el _op2) ;operatore binario
+                    (setq _a (pop _stack))    ; prendo numeri dalla pila
+                    (setq _b (pop _stack))    ; prendo numeri dalla pila
+                    (setq _op (eval el))     ; calcolo operazione
+                    (push (_op _b _a) _stack))  ; inserisco risultato nella pila
+                   (true (println "error:" el))
+             ))
+      )
+    )
+    ;restituisco il valore in cima alla pila
+    (pop _stack)))
+
+Per eliminare i commenti posso utilizzare la funzione con "save":
+
+(save "eval-rpn.lsp" 'eval-rpn)
+;-> true
+
+Per vedere la funzione senza commenti possiamo caricarla con la funzione "load":
+
+(load "eval-rpn.lsp")
+
+Poi susiamo la seguente funzione per togliere la formattazione:
+
+(define (xyz file)
+  (local (lst line)
+    (setq lst '())
+    ; open output file
+    (setq file-out (open (string file ".xyz") "write"))
+    ; open input file
+    (setq file (open file "read"))
+    ; read file line by line...
+    (while (setq line (read-line file))
+      ; remove leading and trailing space
+      ; and add a space " " at the end
+      (setq line (append (trim line) " "))
+      (push line lst -1)
+      ; remove comments (full line only)
+      ;(if (not (starts-with line ";"))
+      ;    (push line lst -1))
+    )
+    ; close input file
+    (close file)
+    ; write lines of list without the line-terminating character
+    (map (fn(linea) (write file-out linea)) lst)
+    ; close output file
+    (close file-out)))
+
+(xyz "eval-rpn.lsp")
+;-> true
+
+Adesso il file "eval-rpn.lsp" è stato convertito nel file "eval-rpn.lsp.xyz":
+
+(define (eval-rpn lst) "Evaluate a RPN expression" (local (_stack _a _b _op _op1 _op2) (setq _stack '()) (setq _op1 '(abs sqrt exp sin cos tan asin acos atan)) (setq _op2 '(+ - * / % add sub mul div mod pow atan2)) (setq lst (map (lambda (x) (if (not (protected? x)) (eval x) x)) lst)) (dolist (el lst) (cond ((number? el) (push el _stack)) (true (cond ((find el _op1) (setq _a (pop _stack)) (setq _op (eval el)) (push (_op _a) _stack)) ((find el _op2) (setq _a (pop _stack)) (setq _b (pop _stack)) (setq _op (eval el)) (push (_op _b _a) _stack)) (true (println "error:" el)))))) (pop _stack)))
+;-> (lambda (lst) "Evaluate a RPN expression"
+;->  (local (_stack _a _b _op _op1 _op2)
+;->   (setq _stack '())
+;->   (setq _op1 '(abs sqrt exp sin cos tan asin acos atan))
+;->   (setq _op2 '(+ - * / % add sub mul div mod pow atan2))
+;->   (setq lst (map (lambda (x)
+;->      (if (not (protected? x))
+;->       (eval x) x)) lst))
+;->   (dolist (el lst)
+;->    (cond
+;->     ((number? el) (push el _stack))
+;->     (true
+;->      (cond
+;->       ((find el _op1) (setq _a (pop _stack)) (setq _op (eval el)) (push (_op _a)
+;->         _stack))
+;->       ((find el _op2) (setq _a (pop _stack)) (setq _b (pop _stack)) (setq _op (eval
+;->          el))
+;->        (push (_op _b _a) _stack))
+;->       (true (println "error:" el))))))
+;->   (pop _stack)))
+
+Vediamo se la funzione "offuscata" funziona correttamente:
+
+(eval-rpn '(3 4 2 * 1 5 - 2 3 pow pow / +))
+;-> 3
+(setq a 10 b 20)
+(eval-rpn '(a b + 5 - sqrt))
+;-> 5
+
 =============================================================================
 

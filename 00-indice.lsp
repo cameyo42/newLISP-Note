@@ -959,6 +959,7 @@ NOTE LIBERE 6
   Strutture dati autoreferenziali
   Calcoli nel tempo
   Text file utilities
+  Code Obfuscation
 
 APPENDICI
 =========
@@ -991,7 +992,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (180 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (181 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================

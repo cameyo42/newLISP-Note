@@ -4043,7 +4043,7 @@ Un ultimo esempio sulle variabili globali e locali:
 (define (call-dc x y)
  (println x { } y)
  val)
-    
+
 (test 1 2)
 ;-> 1 2
 ;-> 20 ; usa il valore della variabile "val" definita in "test".
@@ -5183,6 +5183,225 @@ Tutte le versioni stampano il seguente risultato:
 ;-> 61 62 fizz 64 buzz fizz 67 68 fizz buzz 71 fizz 73 74 fizzbuzz
 ;-> 76 77 fizz 79 buzz fizz 82 83 fizz buzz 86 fizz 88 89 fizzbuzz
 ;-> 91 92 fizz 94 buzz fizz 97 98 fizz buzz
+
+Per finire, una serie di funzioni fizzbuzz dal forum di newLISP:
+
+xytroxon
+--------
+(define (fizz-buzz max-count, fizz buzz)
+	(println "Fizz-Buzz:")
+	(for (number 1 max-count)
+		(setq fizz (% number 3) buzz (% number 5))
+		(unless (or (zero? fizz) (zero? buzz))(print number))
+		(when (zero? fizz)(print "Fizz"))
+		(when (and (zero? fizz) (zero? buzz))(print "-"))
+		(when (zero? buzz)(print "Buzz"))
+		(if (< number max-count)(print ", ")(print "!"))
+	)
+	(println)
+)
+
+(fizz-buzz 100)
+;-> Fizz-Buzz:
+;-> 1, 2, Fizz, 4, Buzz, Fizz, 7, 8, Fizz, Buzz, 11, Fizz, 13, 14, Fizz-Buzz,
+;-> 16, 17, Fizz, 19, Buzz, Fizz, 22, 23, Fizz, Buzz, 26, Fizz, 28, 29,
+;-> Fizz-Buzz, 31, 32, Fizz, 34, Buzz, Fizz, 37, 38, Fizz, Buzz, 41, Fizz,
+;-> 43, 44, Fizz-Buzz, 46, 47, Fizz, 49, Buzz, Fizz, 52, 53, Fizz, Buzz, 56,
+;-> Fizz, 58, 59, Fizz-Buzz, 61, 62, Fizz, 64, Buzz, Fizz, 67, 68, Fizz, Buzz,
+;-> 71, Fizz, 73, 74, Fizz-Buzz, 76, 77, Fizz, 79, Buzz, Fizz, 82, 83, Fizz,
+;-> Buzz, 86, Fizz, 88, 89, Fizz-Buzz, 91, 92, Fizz, 94, Buzz, Fizz, 97, 98,
+;-> Fizz, Buzz!
+
+DrDave
+------
+(define (reset-vars) (setf FIZZ ""  BUZZ ""))
+(define (FIZZER? n) (zero? (% n 3)))
+(define (BUZZER? n) (zero? (% n 5)))
+(for (number 1 100)
+  (setf NUM number)
+  (if (FIZZER? number) (setf FIZZ "Fizz" NUM ""))
+  (if (BUZZER? number) (setf BUZZ "Buzz" NUM ""))
+  (println (string NUM FIZZ BUZZ))
+  (reset-vars)
+)
+
+unixtechie
+----------
+(for (x 1 100 1)
+ (set 'three (= 0 (% x 3)))
+ (set 'five (= 0 (% x 5)))
+ (or
+  (and three (not five)(println  "Fizz"))
+  (and  five (not three) (println "Buzz"))
+  (and three five (println "FizzBuzz"))
+  (println x)
+ )
+)
+
+(for (x 1 100 1)
+  (or
+   (and (set 'three (= 0 (% x 3))) (println "Fizz"))
+   (and (= 0 (% x 5)) (or
+      (and three (println "FizzBuzz"))
+      (println "Buzz")  ))
+   (println x)
+  )
+)
+
+The truly functional solution to the Fizz-Buzz problem:
+"The input stream (potentially infinite, but reduced to the first 100 numbers for the sake of testing) is processed lazily, i.e. one item at a time.
+The program runs 2 lazy generators in two coroutines, one spits numbers which are consequtive multiples of 3, the other one bakes multiples of 5 (or any other given numbers). So, once the generator is kicked, a new member of the virtual "list" is generated, the next multiple to check against.
+The main program therefore checks each input value from that (infinite) input stream for _equivalence_ with the current 3-list and 5-list members by ping-ponging to the coroutine.
+Once the equivalence is found, the 3-list or 5-list generator(s) lazily produce a next number for comparison.
+But, to speed things up and save on the coroutine invocation, the numbers from those lazy generators are of course memoized, thus cutting up the needed time and improving performance"
+
+didi
+----
+( for ( x 1 100 )
+ ( set 'y "" )
+ ( if ( = 0 ( mod x 5 ))  ( push "Buzz" y))
+ ( if ( = 0 ( mod x 3 ))  ( push "Bizz" y))
+ ( if ( = y "" ) ( push ( string x ) y ))
+ ( print y " " )
+)
+
+unixtechie
+----------
+(set 'step3 3)
+(set 'step5 5)
+(set 'lgen3 step3)
+(set 'lgen5 step5)
+( for ( x 1 100 )
+ ( set 'acc "" )
+ ( and ( = x lgen3 )  ( push "Bizz" acc) (inc lgen3 step3))
+ ( and ( = x lgen5 )  ( push "Buzz" acc) (inc lgen5 step5))
+ ( and ( = acc "" ) ( push ( string x ) acc ))
+ ( println acc )
+)
+
+cormullion
+----------
+(define (/? a b) (= 0 (% a b)))
+(define (action i)
+    (cond ((= 0 (% i 15)) "fizzbuzz")
+          ((= 0 (% i 3))  "fizz")
+          ((= 0 (% i 5))  "buzz")
+          (true           i)))
+(map println (map action (sequence 1 100)))
+;-> (1 2 "fizz" 4 "buzz" "fizz" 7 8 "fizz" "buzz" 11 "fizz" 13 14 "fizzbuzz"
+;->  16 17 "fizz" 19 "buzz" "fizz" 22 23 "fizz" "buzz" 26 "fizz" 28 29
+;->  "fizzbuzz" 31 32 "fizz" 34 "buzz" "fizz" 37 38 "fizz" "buzz" 41 "fizz"
+;->  43 44 "fizzbuzz" 46 47 "fizz" 49 "buzz" "fizz" 52 53 "fizz" "buzz" 56
+;->  "fizz" 58 59 "fizzbuzz" 61 62 "fizz" 64 "buzz" "fizz" 67 68 "fizz"
+;->  "buzz" 71 "fizz" 73 74 "fizzbuzz" 76 77 "fizz" 79 "buzz" "fizz" 82 83
+;->  "fizz" "buzz" 86 "fizz" 88 89 "fizzbuzz" 91 92 "fizz" 94 "buzz" "fizz"
+;->  97 98 "fizz" "buzz")
+
+xytroxon
+--------
+(for (number 1 100)
+   (setq fizz (% number 3) buzz (% number 5) fizzbuzz (* fizz buzz))
+   (when (zero? fizz)(print "Fizz"))
+   (when (zero? buzz)(print "Buzz"))
+   (when (not (zero? fizzbuzz))(print number))
+   (print ", ")
+)
+
+(for (number 1 100)
+   (when (zero? (% number 3))(print "Fizz"))
+   (when (zero? (% number 5))(print "Buzz"))
+   (when (not (zero? (* (% number 3)(% number 5))))(print number))
+   (print ", ")
+)
+
+Lutz
+----
+(for (i 1 100)
+  (cond
+    ((zero? (% i 15)) (println "FizzBuzz"))
+    ((zero? (% i 5)) (println "Buzz"))
+    ((zero? (% i 3)) (println "Fizz"))
+    (true (println i))))
+
+(for (i 1 100)
+  (let (buff " ")
+    (if (zero? (% i 3)) (setf (last buff) "Fizz "))
+    (if (zero? (% i 5)) (setf (last buff) "Buzz"))
+    (if (= buff " ") (println i) (println buff))))
+
+(for (i 1 100)
+  (let (buff (string (if (zero? (% i 3)) "Fizz" "")
+          (if (zero? (% i 5)) "Buzz" "")))
+    (println (if (empty? buff) i buff))))
+
+xytroxon
+--------
+; "if-not" version with product and sum of mods
+(for (number 1 100)
+   (setq fizz (% number 3) buzz (% number 5))
+   (if-not (zero? (* fizz buzz))
+      (print number ", ")
+      (if-not (zero? (+ fizz buzz))
+         (if-not (zero? buzz)
+            (print "fizz, ")
+            (print "buzz, ")
+         )
+         (print "FIZZ-BUZZ, ")
+      )
+   )
+)
+
+Lutz
+----
+Initializing 'buff' as a string tells 'push' to do string prepending instead of list pushing when 'buff' would be 'nil' or a list. The 'empty?' predicate works on strings and lists alike.
+(for (i 1 100)
+  (let (buff "")
+    (if (zero? (% i 5)) (push "Buzz" buff))
+    (if (zero? (% i 3)) (push "Fizz" buff))
+    (println (if (empty? buff) i buff))))
+
+Ale970
+------
+(for (x 3 100)
+  (setq fac (factor x))
+	(setq f1 (find 3 fac))
+	(setq f2 (find 5 fac))
+  (print x ": " fac " --> ")
+	(if (and f1 f2)
+      (println "Fizz Buzz")
+		  (if f1
+          (println "Fizz")
+			    (if f2
+              (println "Buzz")
+              (println x)
+          )
+		  )
+	)
+)
+
+
+michael
+-------
+FOOP version:
+(define (FizzBuzz:FizzBuzz n) (when (zero? (% n 15)) "FizzBuzz"))
+(define (Fizz:Fizz n) (when (zero? (% n 3)) "Fizz"))
+(define (Buzz:Buzz n) (when (zero? (% n 5)) "Buzz"))
+(define (fizz-buzz)
+	(for (n 1 100)
+		(println (or (FizzBuzz n) (Fizz n) (Buzz n) n))
+	)
+)
+(fizz-buzz)
+
+This could also be de-FOOPed by replacing the constructors with functions:
+(define (fizzbuzz n) (when (zero? (% n 15)) "FizzBuzz"))
+(define (fizz n) (when (zero? (% n 3)) "Fizz"))
+(define (buzz n) (when (zero? (% n 5)) "Buzz"))
+((define (fizz-buzz)
+	(for (n 1 100)
+		(println (or (fizzbuzz n) (fizz n) (buzz n) n))
+	)
+))
 
 
 ----------------------------------------------------
