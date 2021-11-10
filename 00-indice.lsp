@@ -960,6 +960,8 @@ NOTE LIBERE 6
   Calcoli nel tempo
   Text file utilities
   Code Obfuscation
+  newLISP compiler?
+  Frazioni egizie
 
 APPENDICI
 =========

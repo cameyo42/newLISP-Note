@@ -1215,7 +1215,7 @@ Per vedere la funzione senza commenti possiamo caricarla con la funzione "load":
 
 (load "eval-rpn.lsp")
 
-Poi susiamo la seguente funzione per togliere la formattazione:
+Poi usiamo la seguente funzione per togliere la formattazione:
 
 (define (xyz file)
   (local (lst line)
@@ -1275,6 +1275,178 @@ Vediamo se la funzione "offuscata" funziona correttamente:
 (setq a 10 b 20)
 (eval-rpn '(a b + 5 - sqrt))
 ;-> 5
+
+
+-----------------
+newLISP compiler?
+-----------------
+newLISP è un linguaggio interpretato e non è destinato ad avere un compilatore. Mi chiedo solo se sia (teoricamente) possibile.
+A questa domanda risponde il creatore di newLISP, Lutz Mueller:
+
+"Yes, you could compile newLISP if you take away some of its dynamic nature. Like no other Lisp, newLISP implements the code-equals-data paradigm 100%. E.g. self modifying code like this (created by Kazimir):
+
+; no iteration, no recursion, but runs forever
+(define (f)
+  (begin
+    (println (inc cnt))
+    (push (last f) f -1)
+    (if (> (length f) 3) (pop f 1))))
+
+or sequences like this:
+
+(define (foo x) . . . )
+
+(save "foo.lsp" 'foo)
+
+... would not be allowed in code to be compiled. One would work around this by compiling incrementally only designated functions, e.g. by introducing a built-in 'compile' function. This is how Common Lisp systems work, selectively compiling functions in an interpreted environment.
+
+Another obstacle is the data-type polymorphic nature of many newLISP functions. It doesn't make compilation impossible but produces less efficient compiled code, when data types are not known during compile time. This could be alleviated somewhat by introducing type-tags in newLISP source, to help the compiler where possible.
+
+My philosophy is to keep newLISP 100% dynamic, giving the programmer a maximum freedom of expression and comfortable interactive working. A scripting language not limited by all sorts of constraints and extra features to make it a compilable language at the same time.
+
+When analyzing programs, which do have performance bottle-necks, you will always find those problems isolated to specific portions of the code. These portions can be compiled in another language and 'import'ed.
+
+Many times programs already exist to efficiently perform a certain complex function. In that case newLISP has functions like 'exec' and 'process' and facilities like pipes and networking, to interact with those programs.
+
+Compilable Lisp and Scheme were created in a time where people still believed, they could create that one programming tool for every purpose. Today we know the optimal way is, to use different specialized tools together to solve complex problems."
+
+
+---------------
+Frazioni egizie
+---------------
+
+Nel 1858 uno scozzese di 25 anni, Henry Rhind, acquistò in un mercato di Luxor in Egitto un rotolo di papiro scoperto in una tomba di Tebe.
+Dopo la sua morte all'età di 30 anni, il rotolo venne acquistato dal British Museum di Londra nel 1864 e da allora vi rimase, chiamato Rhind Mathematical Papyrus (o RMP in breve).
+
+Cosa c'era scritto nel papiro?
+(vedi l'immagine "rmp.png" sulla cartella "data")
+
+I geroglifici (scrittura pittorica) sul papiro furono decifrati solo nel 1842 (e la scrittura cuneiforme su tavoletta d'argilla babilonese fu decifrata più tardi nello stesso secolo).
+
+Inizia dicendo che lo scriba "Ahmes" lo sta scrivendo intorno al 1600 AC ma che lo aveva copiato da "antichi scritti" che, dalla sua descrizione del faraone di quel tempo, lo datano al 2000 AC o prima. 
+
+Le prime civiltà utilizzavano la matematica per applicazioni in astronomia, in geometria e nella contabilità e gli egiziani del 3000 aC avevano un modo interessante di rappresentare le frazioni.
+
+Sebbene avessero una notazione per 1/2 e 1/3 e 1/4 e così via (questi sono chiamati reciproci o frazioni unitarie poiché sono 1/n per un certo numero n), la loro notazione non permetteva loro di scrivere 2/ 5 o 3/4 o 4/7 come faremmo oggi.
+Invece, sono stati in grado di scrivere qualsiasi frazione come somma di frazioni unitarie in cui tutte le frazioni unitarie erano diverse.
+
+Per esempio,
+
+3/4 = 1/2 + 1/4
+6/7 = 1/2 + 1/3 + 1/42
+
+Una frazione scritta come somma di frazioni unitarie distinte è chiamata Frazione Egizia (Egiziana).
+
+Nel Papiro di Rhind sono esposte le regole per il calcolo delle frazioni unitarie con cui essi avevano risolto il problema dell'espressione di parti decimali di un numero non intero. La soluzione è riportata in una tabella che fornisce per ogni intero dispari n compreso tra 3 e 101, la scomposizione in frazioni unitarie della frazione 2/n.
+Le iscrizioni geroglifiche egiziane presentano una notazione speciale per le frazioni aventi come numeratore l'unità. Il reciproco di un qualsiasi intero veniva indicato collocando al di sopra del segno indicante il numero, un ovale allungato (nella notazione ieratica, l'ovale allungato veniva sostituito da un puntino).
+La frazione 2/3 era l'unica frazione composta rappresentata da un apposito geroglifico. Tutte le altre frazioni conosciute e usate nella matematica egizia erano unitarie.
+
+La scomposizione di una frazione in frazioni egiziane non è unica e si può dimostrare che:
+1) ogni frazione propria può essere scritta come somma di frazioni unitarie aventi i denominatori tutti diversi
+2) esistono infinite scomposizioni di questo tipo per ogni frazione data.
+
+Possiamo generare le frazioni egiziane usando il paradigma algoritmico Greedy. Un algoritmo Greedy una soluzione ammissibile da un punto di vista globale attraverso la scelta della soluzione più appetibile (definita in precedenza dal programmatore) per quel determinato programma ad ogni passo locale. Quando applicabili, questi algoritmi consentono di trovare soluzioni ottimali per determinati problemi in un tempo polinomiale.
+
+Nel nostro caso, per un dato numero della forma "nr/dr" dove dr > nr, troviamo prima la frazione unitaria più grande possibile, quindi ripetiamo per la parte rimanente. Ad esempio, consideriamo 6/14, troviamo prima il massimale di 14/6, cioè 3. Quindi la prima frazione unitaria diventa 1/3, quindi usiamo la ricorsione per (6/14 – 1/3), cioè 4/42.
+
+L'algoritmo Greedy funziona perché una frazione viene sempre ridotta a una forma in cui il denominatore è maggiore del numeratore e il numeratore non divide il denominatore. Per tali forme ridotte, la chiamata ricorsiva evidenziata viene effettuata per numeratore ridotto. Quindi le chiamate ricorsive continuano a ridurre il numeratore fino a raggiungere 1.
+
+Scriviamo una funzione ricorsiva che calcola le frazioni egiziane di una frazione qualunque:
+
+(define (egypt num den)
+  (let (out '())
+    (egypt-aux num den)
+    out))
+
+(define (egypt-aux nr dr)
+        ; numeratore o denominatore nullo
+  (cond ((or (zero? nr) (zero? dr)) nil)
+        ; se il numeratore divide il denominatore
+        ; allora con una semplice divisione
+        ; costruiamo la frazione nella forma 1/n
+        ((zero? (% dr nr))
+         (push (list 1 (/ dr nr)) out -1))
+        ; se il denominatore divide il numeratore
+        ; allora la frazione è un numero intero
+        ((zero? (% nr dr))
+         (push (list (/ nr dr) 1) out -1))
+        ; quando il numeratore è maggiore del denominatore
+        ; la prima frazione è un numero intero >= 1
+        ((> nr dr)
+         (push (list (/ nr dr) 1) out -1)
+         ; ricorsione sulla parte rimanente
+         (egypt-aux (% nr dr) dr)
+        )
+        (true
+         (let (n (+ (/ dr nr) 1))
+          (push (list 1 n) out -1)
+          ; ricorsione sulla parte rimanente
+          (egypt-aux (- (* nr n) dr) (* dr n))
+         )
+        )
+  ))
+
+Facciamo alcune prove:
+
+(egypt 6 14)
+;-> ((1 3) (1 11) (1 231))
+6/14 =  1/3 + 1/11 + 1/231 
+
+(egypt 21 17)
+;-> ((1 1) (1 5) (1 29) (1 1233) (1 3039345))
+(div 21 17)
+;-> 1.235294117647059
+(add 1 (div 5) (div 29) (div 1233) (div 3039345))
+;-> 1.235294117647059
+
+(egypt 3 7)
+;-> ((1 3) (1 11) (1 231))
+(egypt 100 2)
+;-> ((50 1))
+
+Nota: Poichè la scomposizione di una frazione in una somma di frazioni unitarie non è unica, qual è quella migliore?
+Quella di lunghezza minima? 
+Quella con i denominatori più piccoli?
+
+Adesso vediamo un semplice esempio di utilizzo delle frazioni egizie.
+
+Problema
+--------
+Dividere 5 mele in parti uguali fra 8 ragazzi.
+Dividereste forse tutte le mele in 8 parti e ne dareste 5 ad ogni ragazzo? In questo caso, dovreste fare 7 * 5 = 35 tagli.
+Visto che: 5/8 = 1/2 + 1/8, è più pratico dividere 4 mele a metà e l'ultima in 8 parti e consegnare mezza mela e un ottavo di mela ad ogni ragazzo. In tutto abbiamo fatto 11 tagli.
+
+Mela 1      Mela 2      Mela 3      Mela 4    
+1/2 + 1/2   1/2 + 1/2   1/2 + 1/2   1/2 + 1/2   
+
+Mela 5
+1/8 + 1/8 + 1/8 + 1/8 + 1/8 + 1/8 + 1/8 + 1/8
+
+
+Vediamo la funzione inversa che prende una serie di frazioni egiziane e le converte nella corrispondente frazione propria:
+
+(define (rat n d)
+  (let (g (gcd n d))
+    (map (curry * 1L)
+         (list (/ n g) (/ d g)))))
+
+(define (+rat r1 r2)
+  (rat (+ (* (r1 0) (r2 1))
+          (* (r2 0) (r1 1)))
+       (* (r1 1) (r2 1))))
+
+(define (from-egypt lst)
+  (let (out '(0 1))
+    (dolist (f lst)
+      (setq out (+rat out f))
+    )
+    out))
+
+(egypt 5 8)
+;-> ((1 2) (1 8))
+
+(from-egypt '((1 2) (1 8)))
+;-> (5 8)
 
 =============================================================================
 
