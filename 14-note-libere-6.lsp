@@ -1345,7 +1345,7 @@ La scomposizione di una frazione in frazioni egiziane non è unica e si può dim
 1) ogni frazione propria può essere scritta come somma di frazioni unitarie aventi i denominatori tutti diversi
 2) esistono infinite scomposizioni di questo tipo per ogni frazione data.
 
-Possiamo generare le frazioni egiziane usando il paradigma algoritmico Greedy. Un algoritmo Greedy una soluzione ammissibile da un punto di vista globale attraverso la scelta della soluzione più appetibile (definita in precedenza dal programmatore) per quel determinato programma ad ogni passo locale. Quando applicabili, questi algoritmi consentono di trovare soluzioni ottimali per determinati problemi in un tempo polinomiale.
+Possiamo generare le frazioni egiziane usando l'algoritmo Greedy di Fibonacci. Un algoritmo Greedy una soluzione ammissibile da un punto di vista globale attraverso la scelta della soluzione più appetibile (definita in precedenza dal programmatore) per quel determinato programma ad ogni passo locale. Quando applicabili, questi algoritmi consentono di trovare soluzioni ottimali per determinati problemi in un tempo polinomiale.
 
 Nel nostro caso, per un dato numero della forma "nr/dr" dove dr > nr, troviamo prima la frazione unitaria più grande possibile, quindi ripetiamo per la parte rimanente. Ad esempio, consideriamo 6/14, troviamo prima il massimale di 14/6, cioè 3. Quindi la prima frazione unitaria diventa 1/3, quindi usiamo la ricorsione per (6/14 – 1/3), cioè 4/42.
 
@@ -1404,6 +1404,41 @@ Facciamo alcune prove:
 (egypt 100 2)
 ;-> ((50 1))
 
+Adesso scriviamo una funzione iterativa che calcola le frazioni egiziane di una frazione qualunque:
+
+(define (egizia a b)
+  (local (n)
+    ;(if (zero? (% a b))
+    ;    (println (/ a b)))
+    (while (> (div b a) (/ b a))
+      (setq n (/ b a))
+      (print "1/" (+ n 1) " + ")
+      (setq a (- (* (+ n 1) a) b))
+      (setq b (* (+ n 1) b))
+    )
+    (println "1/" (/ b a))
+    "end"
+))
+
+(egizia 21 34)
+;-> 1/2 + 1/9 + 1/153
+(egypt 21 34)
+;-> ((1 2) (1 9) (1 153))
+(egizia 20 10)
+;-> 1/1 + 1/1
+(egypt 20 10)
+;-> ((2 1))
+(egizia 20 3)
+;-> 1/1 + 1/1 + 1/1 + 1/1 + 1/1 + 1/1 + 1/2 + 1/6
+(egypt 20 3)
+;-> ((6 1) (1 2) (1 6))
+(egizia 21 17)
+;-> 1/1 + 1/5 + 1/29 + 1/1233 + 1/303934
+(egypt 21 17)
+;-> ((1 1) (1 5) (1 29) (1 1233) (1 3039345))
+
+Nota: questo algoritmo non produce sempre la sequenza di frazioni egiziane di lunghezza minima.
+
 Nota: Poichè la scomposizione di una frazione in una somma di frazioni unitarie non è unica, qual è quella migliore?
 Quella di lunghezza minima? 
 Quella con i denominatori più piccoli?
@@ -1422,12 +1457,11 @@ Mela 1      Mela 2      Mela 3      Mela 4
 Mela 5
 1/8 + 1/8 + 1/8 + 1/8 + 1/8 + 1/8 + 1/8 + 1/8
 
-
 Vediamo la funzione inversa che prende una serie di frazioni egiziane e le converte nella corrispondente frazione propria:
 
 (define (rat n d)
   (let (g (gcd n d))
-    (map (curry * 1L)
+    (map (curry * 1)
          (list (/ n g) (/ d g)))))
 
 (define (+rat r1 r2)
@@ -1447,6 +1481,176 @@ Vediamo la funzione inversa che prende una serie di frazioni egiziane e le conve
 
 (from-egypt '((1 2) (1 8)))
 ;-> (5 8)
+
+(from-egypt '((1 3) (1 5) (1 7)))
+;-> (71 105)
+(egypt 71 105)
+;-> ((1 2) (1 6) (1 105))
+(from-egypt '((1 2) (1 6) (1 105)))
+;-> (71 105)
+
+Nota: le seguenti formule permettono di creare altre sequenze di frazioni egizie equivalenti ad una sequenza data:
+
+   1         1             1
+  --- = ----------- + -----------
+  a*b    a*(a + b)     b*(a + b)
+  
+   1              1                     1                     1          
+------- = ------------------- + ------------------- + -------------------
+ a*b*c    a*(a*b + b*c + c*a)   b*(a*b + b*c + c*a)   b*(a*b + b*c + c*a)
+
+
+------------------------------------
+Formule polinomiali per numeri primi
+------------------------------------
+
+Trovare una funzione che generi tutti i numeri primi o infiniti numeri primi è un desiderio irrealizzabile.
+
+Si può dimostrare che non esiste alcun polinomio non costante a valori interi che generi esclusivamente numeri primi: infatti, se questo esistesse (sia ad esempio P(n)), allora P(1)=p sarebbe primo e P(1) ≡ 0 (mod p). Allora, per qualunque intero k vale anche P(1 + k*p) ≡ 0 (mod p) (in quanto aggiungere dei multipli di p non varia la congruenza modulo p), ma questo comporta che P(1+kp) sarebbe allora primo e divisibile per p, cioè sarebbe proprio uguale a p. Ma allora P(n) assumerebbe infinite volte lo stesso valore, cosa impossibile per il principio d'identità dei polinomi.
+
+Comunque esistono dei polinomi che generano diversi numeri primi consecutivi (cioè non intervallati da numeri non primi).
+
+1) x² + x + 41 (Eulero)
+
+Questa polinomiale genera 40 numeri primi consecutivi con x da 0 a 39.
+
+(define (eulero x) (+ (* x x) x 41))
+
+(for (x 0 39) (print "(" x { } (eulero x) ") "))
+;-> (0 41) (1 43) (2 47) (3 53) (4 61) (5 71) (6 83) (7 97) (8 113) (9 131)
+;-> (10 151) (11 173) (12 197) (13 223) (14 251) (15 281) (16 313) (17 347)
+;-> (18 383) (19 421) (20 461) (21 503) (22 547) (23 593) (24 641) (25 691)
+;-> (26 743) (27 797) (28 853) (29 911) (30 971) (31 1033) (32 1097)
+;-> (33 1163) (34 1231) (35 1301) (36 1373) (37 1447) (38 1523) (39 1601)
+
+2) 2x² + 29 (Legendre)
+
+Questa polinomiale genera 29 numeri primi consecutivi con x da 0 a 28.
+
+(define (legendre x) (+ (* 2 x x) 29))
+(for (x 0 28) (print "(" x { } (legendre x) ") "))
+;-> (0 29) (1 31) (2 37) (3 47) (4 61) (5 79) (6 101) (7 127) (8 157) (9 191)
+;-> (10 229) (11 271) (12 317) (13 367) (14 421) (15 479) (16 541) (17 607)
+;-> (18 677) (19 751) (20 829) (21 911) (22 997) (23 1087) (24 1181)
+;-> (25 1279) (26 1381) (27 1487) (28 1597)
+
+3) x² + x + 17 (Legendre)
+
+Questa polinomiale genera 16 numeri primi consecutivi con x da 0 a 15.
+
+(define (legendre2 x) (+ (* x x) x 17))
+(for (x 0 28) (print "(" x { } (legendre2 x) ") "))
+;-> (0 17) (1 19) (2 23) (3 29) (4 37) (5 47) (6 59) (7 73) (8 89) (9 107)
+;-> (10 127) (11 149) (12 173) (13 199) (14 227) (15 257) (16 289) (17 323)
+;-> (18 359) (19 397) (20 437) (21 479) (22 523) (23 569) (24 617) (25 667)
+;-> (26 719) (27 773) (28 829)
+
+4) abs(36x² – 810x + 2753)
+
+Genera 45 numeri primi da 0 a 44
+
+(define (poly4 x) (abs (+ (* 36 x x) (* x (- 810)) 2753)))
+(for (x 0 44) (print "(" x { } (poly4 x) ") "))
+
+5) abs(47x² – 1701x + 10181)
+
+Genera 43 numeri primi da 0 a 42
+
+(define (poly5 x) (abs (+ (* 47 x x) (* x (- 1701)) 10181)))
+(for (x 0 42) (print "(" x { } (poly5 x) ") "))
+
+6) abs(43x² – 537x + 2971)
+
+Genera 35 numeri primi da 0 a 34
+
+(define (poly6 x) (abs (+ (* 43 x x) (* x (- 537)) 2971)))
+(for (x 0 34) (print "(" x { } (poly6 x) ") "))
+
+7) abs(7x² – 371x + 4871)
+
+Genera 24 numeri primi da 0 a 23
+
+(define (poly7 x) (abs (+ (* 7 x x) (* x (- 371)) 4871)))
+(for (x 0 23) (print "(" x { } (poly7 x) ") "))
+
+Scriviamo una funzione che verifica la correttezza di queste polinomiali:
+
+(define (prime? num)
+"Check if a number is prime"
+   (if (< num 2) nil
+       (= 1 (length (factor num)))))
+
+(define (check func a b)
+  (local (out)
+  (for (x a b)
+    (if (prime? (func x)) ;se il numero è primo...
+        ; allora lo inserisce nella lista
+        (push (func x) out -1)
+        ; altrimenti stampa un messaggio di errore
+        (println "error: " x "," (func x))
+    )
+  )
+  (println (length out) " numeri primi.")
+  out))
+
+Verifichiamo se le polinomiali sono corrette, cioè producono solo numeri primi:
+
+(check eulero 0 39)
+;-> 40 numeri primi.
+;-> (41 43 47 53 61 71 83 97 113 131 151 173 197 223 251 281 313 347 383
+;->  421 461 503 547 593 641 691 743 797 853 911 971 1033 1097 1163 1231
+;->  1301 1373 1447 1523 1601)
+(check legendre 0 28)
+;-> 29 numeri primi.
+;-> (29 31 37 47 61 79 101 127 157 191 229 271 317 367 421 479
+;->  541 607 677 751 829 911 997 1087 1181 1279 1381 1487 1597)
+(check legendre2 0 15)
+;-> 16 numeri primi.
+;-> (17 19 23 29 37 47 59 73 89 107 127 149 173 199 227 257)
+(check poly4 0 44)
+;-> 45 numeri primi.
+;-> (2753 1979 1277 647 89 397 811 1153 1423 1621 1747 1801 1783
+;->  1693 1531 1297 991 613 163 359 953 1619 2357 3167 4049 5003
+;->  6029 7127 8297 9539 10853 12239 13697 15227 16829 18503 20249
+;->  22067 23957 25919 27953 30059 32237 34487 36809)
+(check poly5 0 42)
+;-> 43 numeri primi.
+;-> (10181 8527 6967 5501 4129 2851 1667 577 419 1321 2129 2843 3463
+;->  3989 4421 4759 5003 5153 5209 5171 5039 4813 4493 4079 3571 2969
+;->  2273 1483 599 379 1451 2617 3877 5231 6679 8221 9857 11587 13411
+;->  15329 17341 19447 21647)
+(check poly6 0 34)
+;-> 35 numeri primi.
+;-> (2971 2477 2069 1747 1511 1361 1297 1319 1427 1621 1901 2267 2719 3257
+;->  3881 4591 5387 6269 7237 8291 9431 10657 11969 13367 14851 16421 18077
+;->  19819 21647 23561 25561 27647 29819 32077 34421)
+(check poly7 0 23)
+;-> 24 numeri primi.
+;-> (4871 4507 4157 3821 3499 3191 2897 2617 2351 2099 1861 1637 1427 1231
+;->  1049 881 727 587 461 349 251 167 97 41)
+
+Infine un polinomio che genera 57 numeri primi (per x da 0 a 56):
+
+  (1/4)*(x^5 - 133x^4 + 6729x^3 - 158379x^2 + 1720294x - 6823316)
+  per (0<= x <=56)
+
+(define (poly x)
+  (abs (div (+ (* x x x x x)
+               (* x x x x (- 133))
+               (* x x x 6729)
+               (* x x (- 158379))
+               (* x 1720294)
+               (- 6823316))
+            4)))
+
+(check poly 0 56)
+;-> 57 numeri primi.
+;-> (1705829 1313701 991127 729173 519643 355049 228581 134077 65993
+;->  19373 10181 26539 33073 32687 27847 20611 12659 5323 383 3733
+;->  4259 1721 3923 12547 23887 37571 53149 70123 87977 106207 124351
+;->  142019 158923 174907 189977 204331 218389 232823 248587 266947
+;->  289511 318259 355573 404267 467617 549391 653879 785923 950947
+;->  1154987 1404721 1707499 2071373 2505127 3018307 3621251 4325119)
 
 =============================================================================
 

@@ -962,6 +962,7 @@ NOTE LIBERE 6
   Code Obfuscation
   newLISP compiler?
   Frazioni egizie
+  Formule polinomiali per numeri primi
 
 APPENDICI
 =========
