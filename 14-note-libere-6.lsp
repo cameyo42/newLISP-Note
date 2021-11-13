@@ -1652,5 +1652,304 @@ Infine un polinomio che genera 57 numeri primi (per x da 0 a 56):
 ;->  289511 318259 355573 404267 467617 549391 653879 785923 950947
 ;->  1154987 1404721 1707499 2071373 2505127 3018307 3621251 4325119)
 
+
+------------------------------------------------------
+Nomi delle variabili/funzioni e velocità di esecuzione
+------------------------------------------------------
+
+Newlisp è un linguaggio interpretato. Quindi uno potrebbe chiedersi: 
+la lunghezza delle variabili influenza la velocità di esecuzione/valutazione?
+In altre parole, il mio programma è più veloce se uso, diciamo, x invece di xxxxxx?
+
+Per rispondere sperimentalmente alla domanda utilizziamo due esempi di Kazimir Majorinc (leggermente modificati):
+
+Primo esempio
+-------------
+(setq varname 'a)
+(for (i 1 9)
+     (set 'expr
+          (expand '(for (varname 1 100)
+                        (+ (- varname 1) (- varname 2)))
+                   'varname))
+     (set 'evtime
+          (time (eval (eval expr)) 10000))
+     (print "length(var)=" (length (string varname)))
+     (print ", length(expression)=" (length (string expr)))
+     (print ", time=" evtime)
+     (setq varname (sym (dup (string varname) 2)))
+     (println))
+;-> a
+;-> length(var)=1, length(expression)=35, time=68.848
+;-> length(var)=2, length(expression)=38, time=69.842
+;-> length(var)=4, length(expression)=44, time=68.84399999999999
+;-> length(var)=8, length(expression)=56, time=68.848
+;-> length(var)=16, length(expression)=80, time=68.845
+;-> length(var)=32, length(expression)=128, time=68.84399999999999
+;-> length(var)=64, length(expression)=224, time=68.845
+;-> length(var)=128, length(expression)=416, time=69.81399999999999
+;-> length(var)=256, length(expression)=800, time=68.848
+
+Secondo esempio
+---------------
+(setq varname1 'a)
+(setq varname2 'b)
+(for (i 1 9)
+     (set 'expr
+          (expand '(begin (set 'varname1
+                               (lambda(varname2)
+                                      (if (< varname2 3)
+                                          1
+                                          (+ (varname1 (- varname2 1))
+                                             (varname1 (- varname2 2))))))
+                          (varname1 12))
+                  'varname1
+                  'varname2))
+     (set 'evtime
+          (time (eval expr) 10000))
+     (print "length(var)=" (length (string varname1)))
+     (print ", length(expression)=" (length (string expr)))
+     (print ", time=" evtime)
+     (setq varname1 (sym (dup (string varname1) 2)))
+     (setq varname2 (sym (dup (string varname2) 2)))
+     (println))
+;-> a
+;-> b
+;-> length(var)=1, length(expression)=79, time=301.224
+;-> length(var)=2, length(expression)=87, time=301.196
+;-> length(var)=4, length(expression)=103, time=304.201
+;-> length(var)=8, length(expression)=135, time=299.23
+;-> length(var)=16, length(expression)=199, time=299.229
+;-> length(var)=32, length(expression)=327, time=302.22
+;-> length(var)=64, length(expression)=583, time=301.239
+;-> length(var)=128, length(expression)=1095, time=301.196
+;-> length(var)=256, length(expression)=2119, time=304.184
+
+I risultati affermano che la lunghezza del nome delle variabili non influenza la velocità di esecuzione del programma.
+
+Perche?
+
+Prima che newLISP valuti un'espressione, il reader/parser trasforma internamente ogni espressione in una struttura ad albero di celle lisp, dove una variabile è solo un puntatore di memoria a un simbolo dell'albero.
+Quindi qualsiasi differenza nel tempo di esecuzione sarebbe visibile solo durante il caricamento del codice sorgente o durante l'esecuzione delle funzioni newLISP, che a loro volta traducono i nomi delle variabili durante la creazione di simboli, come (sym ...).
+
+
+-----------------------------------
+Radici primitive di un numero primo
+-----------------------------------
+
+Il piccolo Teorema di Fermat afferma che, se P è un numero primo, allora, per ogni intero a minore di P:
+
+ a^(P-1) ≡ 1 (modulo P)
+
+Cioè il resto della divisione di a^(P-1) diviso P è sempre 1.
+
+Si definisce ordine di "a modulo P" il più piccolo esponente x tale che:
+
+ a^x ≡ 1 (modulo P)
+
+Se l’ordine di "a modulo P" è proprio (P-1), allora "a" si definisce "radice primitiva di P".
+
+Per esempio con il numero primo 13 abbiamo:
+
+Ordine di  2  modulo 13 = 12, per cui 2 è una radice primitiva di 13
+Ordine di  3  modulo 13 = 3
+Ordine di  4  modulo 13 = 6
+Ordine di  5  modulo 13 = 4
+Ordine di  6  modulo 13 = 12, per cui 6 è una radice primitiva di 13
+Ordine di  7  modulo 13 = 12, per cui 7 è una radice primitiva di 13
+Ordine di  8  modulo 13 = 4
+Ordine di  9  modulo 13 = 3
+Ordine di 10  modulo 13 = 6
+Ordine di 11  modulo 13 = 12, per cu 11 è una radice primitiva di 13
+Ordine di 12  modulo 13 = 2
+
+Scriviamo alcune funzioni:
+
+(define (prime? num)
+"Check if a number is prime"
+   (if (< num 2) nil
+       (= 1 (length (factor num)))))
+
+(define (** num power)
+"Calculates the integer power of an integer"
+  (let (out 1L)
+    (dotimes (i power)
+      (setq out (* out num)))))
+
+(define (pm a b q)
+"Calculates  a^b mod q"
+  (let (out 1L)
+    (while (> b 0)
+      (if (odd? b)
+          (setq out (% (* out a) q)))
+      (setq a (% (* a a) q))
+      (setq b (/ b 2)))
+    out))
+
+Funzione che calcola l'ordine di "a modulo primo":
+
+(define (ordine a primo)
+  (local (res stop)
+    (setq res 0)
+    (setq stop nil)
+    (for (x 1 primo 1 stop)
+      (if (= (% (** a x) primo) 1)
+          (setq res x stop true)
+      )
+    )
+    res))
+
+(for (i 2 12) (print (ordine i 13) { }))
+;-> 12 3 6 4 12 12 4 3 6 12 2
+
+Funzione che calcola le radici primitive di un numero primo:
+
+(define (radici primo)
+  (local (ord out)
+    (setq out '())
+    (for (i 1 (- primo 1))
+       (setq ord (ordine i primo))
+       (if (= ord (- primo 1))
+           (push i out -1)
+       )
+     )
+     out))
+
+Facciamo alcune prove:
+
+(radici 13)
+;-> (2 6 7 11)
+(radici 2)
+;-> (1)
+(radici 3)
+;-> (2)
+(radici 7)
+;-> (3 5)
+(radici 11)
+;-> (2 6 7 8)
+(radici 31)
+;-> (3 11 12 13 17 21 22 24)
+
+(radici 383)
+;-> (5 10 11 13 15 20 22 26 30 33 35 37 39 40 41 44 45 47 52 53 59 60 61
+;->  66 70 74 77 78 79 80 82 83 85 88 89 90 91 94 95 97 99 104 105 106 107
+;->  109 111 115 117 118 120 122 123 125 127 131 132 135 140 141 145 148
+;->  151 154 155 156 157 158 159 160 163 164 166 167 170 176 177 178 179
+;->  180 181 182 183 187 188 190 191 194 197 198 199 208 209 210 211 212
+;->  214 215 218 221 222 230 231 233 234 236 237 239 240 241 244 245 246
+;->  247 249 250 253 254 255 257 259 262 264 267 269 270 271 273 275 280
+;->  281 282 283 285 287 290 291 296 297 299 302 307 308 310 311 312 314
+;->  315 316 318 319 320 321 325 326 327 328 329 332 333 334 335 337 340
+;->  341 345 347 349 351 352 354 355 356 358 359 360 362 364 365 366 367
+;->  369 371 374 375 376 377 379 380 381)
+
+(radici 761)
+;-> (6 7 11 12 14 22 24 26 30 31 43 44 48 51 52 53 54 55 56 57 60 63 70 71
+;->  73 83 88 97 99 102 104 106 108 109 110 111 112 114 120 122 123 124 126
+;->  127 130 131 138 141 142 146 147 151 155 161 163 172 173 174 175 177 187
+;->  191 192 193 194 197 198 199 201 204 206 209 211 215 216 218 220 221 222
+;->  223 224 227 228 229 231 234 237 240 241 244 247 248 251 253 255 257 260
+;->  265 266 267 269 270 273 275 276 279 280 282 284 285 287 293 294 300 302
+;->  303 313 314 315 317 319 321 322 326 329 332 337 339 343 344 346 348 350
+;->  352 354 355 359 363 365 367 373 374 377 379 382 384 387 388 394 396 398
+;->  402 406 407 409 411 413 415 417 418 422 424 429 432 435 439 440 442 444
+;->  446 447 448 458 459 461 467 468 474 476 477 479 481 482 485 486 488 491
+;->  492 494 495 496 501 504 506 508 510 513 514 517 520 521 524 527 530 532
+;->  533 534 537 538 539 540 541 543 545 546 550 552 555 557 560 562 563 564
+;->  567 568 569 570 574 584 586 587 588 589 598 600 606 610 614 615 619 620
+;->  623 630 631 634 635 637 638 639 641 647 649 650 651 652 653 655 657 659
+;->  662 664 673 678 688 690 691 698 701 704 705 706 707 708 709 710 713 717
+;->  718 730 731 735 737 739 747 749 750 754 755)
+
+(time (radici 761))
+;-> 27260.93
+
+Anche se i risultati sembrano corretti, le funzioni sono molto lente. Allora, proviamo ad utilizzare la funzione esponenziale modulare:
+
+(define (pm a b q)
+"Calculates a^b mod q"
+  (let (out 1L)
+    (while (> b 0)
+      (if (odd? b)
+          (setq out (% (* out a) q)))
+      (setq a (% (* a a) q))
+      (setq b (/ b 2)))
+    out))
+
+E poi riscriviamo la funzione "ordine":
+
+(define (ordine a primo)
+  (local (res stop)
+    (setq res 0)
+    (setq stop nil)
+    (for (x 1 primo 1 stop)
+      ; linea modificata
+      ;(if (= (% (** a x) primo) 1)
+      (if (= (pm a x primo) 1)
+          (setq res x stop true)
+      )
+    )
+    res))
+
+Facciamo alcune prove:
+
+(radici 13)
+;-> (2 6 7 11)
+(radici 2)
+;-> (1)
+(radici 3)
+;-> (2)
+(radici 7)
+;-> (3 5)
+(radici 11)
+;-> (2 6 7 8)
+(radici 31)
+;-> (3 11 12 13 17 21 22 24)
+
+(time (radici 761))
+;-> 872.282
+
+Questa modifica rende il programma molto più veloce, ma... non abbastanza:
+
+(time (radici 5003))
+;-> 66742.514 ; 66 secondi
+
+(time (radici 10181))
+;-> 236409.836 ; quasi 4 minuti
+
+Le radici primitive sono anche collegate con il "periodo della frazione 1/P":
+in generale, la lunghezza del periodo di 1/P è uguale all’ordine di 10 modulo P.
+
+Nell’esempio precedente abbiamo visto che l’ordine di 10 modulo 13 è 6 e possiamo verificare che la lunghezza del periodo della frazione 1/ 13 è proprio 6:
+
+1/13 = 0.(076923)076923076923076923…
+
+(div 13)
+;-> 0.07692307692307693
+(ordine 10 13)
+;-> 6
+
+Proviamo con altri numeri primi:
+
+1/7 = 0.(142857)1428571429
+
+(div 7)
+;-> 0.1428571428571429
+(ordine 10 7)
+;-> 6
+
+(div 11)
+;-> 0.09090909090909091
+(ordine 10 11)
+;-> 2
+
+(div 71)
+(ordine 10 71)
+;-> (35)
+
+(div 383)
+;-> 0.002610966057441253
+(ordine 10 383)
+;-> 382
+
 =============================================================================
 

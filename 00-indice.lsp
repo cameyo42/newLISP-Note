@@ -963,6 +963,8 @@ NOTE LIBERE 6
   newLISP compiler?
   Frazioni egizie
   Formule polinomiali per numeri primi
+  Nomi delle variabili/funzioni e velocità di esecuzione
+  Radici primitive di un numero primo
 
 APPENDICI
 =========
