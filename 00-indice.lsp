@@ -965,6 +965,10 @@ NOTE LIBERE 6
   Formule polinomiali per numeri primi
   Nomi delle variabili/funzioni e velocità di esecuzione
   Radici primitive di un numero primo
+  Salto della rana 1
+  Salto della rana 2
+  Numeri regolari (5-smooth)
+  Conversione di una lista in un file .csv (excel)
 
 APPENDICI
 =========

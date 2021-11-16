@@ -5781,11 +5781,9 @@ Lista delle funzioni:
 	(set 'LAST (mod (add (mul LAST IA) IC) IM))
 	(div (mul maximum LAST) IM))
 
-
 (define (main)
 	(set 'N (integer (main-args 2)))
 	(dotimes (i (- N 1)) (gen_random 100.0))
-
 	(println (format "%.9f" (gen_random 100.0))) )
 
 (main)

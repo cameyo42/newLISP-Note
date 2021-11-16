@@ -1863,7 +1863,41 @@ Facciamo alcune prove:
 (time (radici 761))
 ;-> 27260.93
 
-Anche se i risultati sembrano corretti, le funzioni sono molto lente. Allora, proviamo ad utilizzare la funzione esponenziale modulare:
+Per verificare i risultati possiamo sfruttare il fatto che ogni primo p ha ϕ(P−1) radici primitive (dove ϕ è la funzione di Eulero o "toziente", cioè una funzione definita, per ogni intero positivo n, come il numero degli interi compresi tra 1 e n che sono coprimi con n).
+
+(define (totient num)
+"Calculate the eulero totient of a given number"
+  (if (= num 1) 1
+    (let (res num)
+      (dolist (f (unique (factor num)))
+        (setq res (- res (/ res f))))
+      res)))
+
+Verifichiamo i risultati precedenti:
+
+(totient 12)
+;-> 4
+(totient 1)
+;-> 1
+(totient 2)
+;-> 1
+(totient 6)
+;-> 2
+(totient 10)
+;-> 4
+(totient 30)
+;-> 8
+
+(length (radici 383))
+;-> 190
+(totient 382)
+;-> 190
+(length (radici 761))
+;-> 288
+(totient 760)
+;-> 288 
+
+Anche se i risultati sonoo corretti, le funzioni sono molto lente. Allora, proviamo ad utilizzare la funzione esponenziale modulare:
 
 (define (pm a b q)
 "Calculates a^b mod q"
@@ -1916,6 +1950,35 @@ Questa modifica rende il programma molto più veloce, ma... non abbastanza:
 (time (radici 10181))
 ;-> 236409.836 ; quasi 4 minuti
 
+Comunque spesso viene richiesto di trovare solo la radice primitiva più piccola, allora possiamo utilizzare la seguente funzione (molto simile a "radici"):
+
+(define (radice primo)
+  (local (ord stop res)
+    (setq res 0)
+    (setq stop nil)
+    (for (i 1 (- primo 1) 1 stop) 
+       (setq ord (ordine i primo))
+       (if (= ord (- primo 1))
+           (setq res i stop true)
+       )
+     )
+     res))
+
+Verifichiamo i risultati precedenti:
+
+(radice 11)
+;-> 2
+(radice 31)
+;-> 3
+(radice 383)
+;-> 5
+(radice 761)
+;-> 6
+(radice 5003)
+;-> 2
+(radice 10181)
+;-> 2
+
 Le radici primitive sono anche collegate con il "periodo della frazione 1/P":
 in generale, la lunghezza del periodo di 1/P è uguale all’ordine di 10 modulo P.
 
@@ -1950,6 +2013,248 @@ Proviamo con altri numeri primi:
 ;-> 0.002610966057441253
 (ordine 10 383)
 ;-> 382
+
+
+------------------
+Salto della rana 1
+------------------
+
+Una rana vuole raggiungere l'altro lato della strada. La rana si trova attualmente nella posizione X e vuole raggiungere una posizione maggiore o uguale a Y. La rana salta sempre a una distanza fissa, D. Scrivere una funzione che, dati tre interi X, Y e D, restituisce il numero minimo di salti dalla posizione X ad una posizione uguale o maggiore di Y.
+
+Prima soluzione
+---------------
+(define (jump-basic x y d)
+  (let (conta 0)
+    (cond ((zero? d) 0)
+    (true
+      (while (< x y)
+        (setq x (+ x d))
+        (++ conta)
+      )
+      conta))))
+
+(jump-basic 10 20 0)
+;-> 0
+(jump-basic 10 20 2)
+;-> 5
+(jump-basic 10 21 2)
+;-> 6
+
+Seconda soluzione
+-----------------
+Possiamo notare che:
+- se Y - X è divisibile per D, allora ci vogliono (Y - X) / D salti
+- se Y - X non è divisibile per D, allora ci vogliono (Y - X) / D + 1 salti
+
+(define (jump x y d)
+  (let (conta 0)
+    (cond ((zero? d) 0)
+    (true
+      (if (zero? (% (- y x) d))
+          (/ (- y x) d)
+          (+ (/ (- y x) d) 1))))))
+
+(jump 10 20 0)
+;-> 0
+(jump 10 20 2)
+;-> 5
+(jump 10 21 2)
+;-> 6
+
+
+------------------
+Salto della rana 2
+------------------
+
+Una rana vuole attraversare il fiume. Supponiamo che il fiume sia diviso equamente in celle, e che in ogni cella ci sia una pietra o l'acqua. La rana può saltare sulle pietre, ma non può saltare sull'acqua.
+
+Data una lista di pietre con numeri di celle crescenti. Determinare se la rana può attraversare con successo il fiume (cioè saltare sull'ultima pietra nell'ultimo passaggio).
+
+All'inizio, la rana si trova sulla prima pietra e può saltare solo un'unità nel primo passaggio (cioè, può saltare solo dalla prima cella alla seconda cella).
+
+Se la rana compie un salto di k unità, allora la sua distanza del salto successivo può essere (k - 1), k o (k + 1) unità. Inoltre la rana può solo saltare in avanti (nella direzione del punto finale).
+
+Esempio 1:
+Input: pietre = (0 1 3 5 6 8 12 17)
+Output: true
+La rana può attraversare il fiume saltando come segue:
+da 0  a 1  (d=1)
+da 1  a 3  (d=2)
+da 3  a 5  (d=2)
+da 5  a 8  (d=3)
+da 8  a 12 (d=4)
+da 12 a 17 (d=5)
+
+Esempio 2:
+Input: pietre = (0 1 2 3 4 8 9 11)
+Output: nil
+Questo è dovuto al fatto che c'è troppo spazio tra la quinta (4) e la sesta (8) pietra perché la rana possa saltare.
+
+Possiamo risolvere il problema utilizzando la ricorsione.
+
+(define (rana pietre)
+  (rana-aux pietre 0 0))
+
+(define (rana-aux pietre ind salto)
+(catch
+  (local (i dist)
+    (setq i (+ ind 1))
+    (while (<= i (- (length pietre) 1))
+      (setq dist (- (pietre i) (pietre ind)))
+      ; se salto possibile...
+      (if (and (>= dist (- salto 1)) (<= dist (+ salto 1)))
+          ;allora verifica da quella posizione
+          (if (rana-aux pietre i dist) (throw true))
+      )
+      (++ i)
+    )
+    ; raggiunta la fine delle pietre?
+    (= ind (- (length pietre) 1)))))
+
+(rana '(0 1 3 5 6 8 12 17))
+;-> true
+(rana '(0 1 2 3 4 8 9 11))
+;-> nil
+
+
+--------------------------
+Numeri regolari (5-smooth)
+--------------------------
+
+I numeri regolari sono numeri che dividono equamente le potenze di 60 (o, equivalentemente, le potenze di 30). Ad esempio, 60^2 = 3600 = 48 × 75, quindi sia 48 che 75 sono divisori di una potenza di 60. Pertanto, sono numeri regolari. Equivalentemente, sono i numeri i cui unici divisori primi sono 2, 3 e 5.
+
+Sequenza OEIS: A051037
+  1, 2, 3, 4, 5, 6, 8, 9, 10, 12, 15, 16, 18, 20, 24, 25, 27, 30, 32,
+  36, 40, 45, 48, 50, 54, 60, 64, 72, 75, 80, 81, 90, 96, 100, 108,
+  120, 125, 128, 135, 144, 150, 160, 162, 180, 192, 200, 216, 225,
+  240, 243, 250, 256, 270, 288, 300, 320, 324, 360, 375, 384, 400, 405
+
+Nella teoria dei numeri, questi numeri sono chiamati 5-smooth, perché hanno solo 2, 3 o 5 come fattori primi. Questo è un caso specifico dei più generali numeri k-smooth, cioè un insieme di numeri che non hanno un fattore primo maggiore di k.
+
+In informatica, i numeri regolari sono spesso chiamati numeri di Hamming, in onore di Richard Hamming, che propose il problema di trovare un algoritmo efficiente per generare l'elenco, in ordine crescente, di tutti i numeri della forma 2^i 3^j 5^k per i,j,k >= 0. Il problema fu reso popolare da Edsger Dijkstra. (vedi "Numeri di Hamming" nel documento "Rosetta Code") algoritmi informatici per generare questi numeri in ordine crescente.
+
+Per scrivere la funzione che genera i numeri 5-smooth utilizziamo le primitive "factor" e "difference":
+
+(setq a '(2 2 3 5 7))
+(setq b '(2 2 3 5 5))
+(setq c '(7 11 13))
+(setq d '(2 2 2 3))
+(setq e '(3 3 3 3))
+(difference a base)
+;-> (7)
+(difference b base)
+;-> ()
+(difference c base)
+;-> (7 11 13)
+(difference d base)
+;-> ()
+(difference e base)
+;-> ()
+
+Funzione che genera i numeri regolari (5-smooth) fino ad un dato numero:
+
+(define (regular-to num)
+  (local (base out)
+    (setq base '(2 3 5))
+    (setq out '(1))
+    (for (i 2 num)
+      (setq ff (factor i))
+      (if (= (difference ff base) '())
+        (push i out -1)
+      )
+    )
+    out))
+
+(regular-to 1000)
+;-> (1 2 3 4 5 6 8 9 10 12 15 16 18 20 24 25 27 30 32 36 40 45 48 50
+;->  54 60 64 72 75 80 81 90 96 100 108 120 125 128 135 144 150 160
+;->  162 180 192 200 216 225 240 243 250 256 270 288 300 320 324 360
+;->  375 384 400 405 432 450 480 486 500 512 540 576 600 625 640 648
+;->  675 720 729 750 768 800 810 864 900 960 972 1000)
+
+(length (regular-to 1000))
+;-> 86
+
+(length (regular-to 1000000))
+;-> 507
+
+Funzione che calcola il numero regolare n-esimo:
+
+(define (regular-nth num)
+  (local (base conta idx res)
+    (setq base '(2 3 5))
+    (setq res 1)
+    (setq conta 1)
+    (setq idx 2)
+    (while (< conta num)
+      (setq ff (factor idx))
+      (if (= (difference ff base) '())
+        (begin (++ conta) (setq res idx))
+      )
+      (++ idx)
+    )
+    res))
+
+(regular-nth 1)
+;-> 1
+(regular-nth 2)
+;-> 2
+(regular-nth 86)
+;-> 1000
+(regular-nth 85)
+;-> 972
+
+Vediamo i tempi di esecuzione:
+
+(time (println (regular-nth 200)))
+;-> 16200
+;-> 14.967
+(time (println (regular-nth 500)))
+;-> 937500
+;-> 1228.965 1.2 secondi
+(time (println (regular-nth 1000)))
+;-> 51200000
+;-> 196706.779 3 minuti 16 secondi
+
+
+------------------------------------------------
+Conversione di una lista in un file .csv (excel)
+------------------------------------------------
+
+Scriviamo una funzione che prende una lista e salva le righe in un file di testo .csv adatto per essere importato da un foglio elettronico (excel).
+I parametri della funzione sono:
+- nome della lista
+- nome del file di output
+
+(define (list-xls lst file)
+  (local (outfile)
+    (setq outfile (open file "write"))
+    (dolist (el lst)
+      (setq line (join (map string el) ","))
+      (write-line outfile line)
+    )
+    ;(print outfile { })
+    (close outfile)))
+
+Esempio 1:
+
+(setq points (map list (randomize (sequence 1 100)) (randomize (sequence 1 100))))
+(list-xls points "punti.csv")
+;-> 3 true
+
+Esempio 2:
+
+(setq data '(("eva" "tommy" "max" "roby")
+             (20 24 31 89)
+             ("f" "t" "t" "f")
+             (1.622 2.44 45.2 100.1)))
+
+(setq nomi '("nome" "test" "tipo" "valore"))
+
+(setq all (append (list nomi) (transpose data)))  
+
+(list-xls all "demo.csv")
+;-> 3 true
 
 =============================================================================
 
