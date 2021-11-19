@@ -2225,12 +2225,16 @@ Scriviamo una funzione che prende una lista e salva le righe in un file di testo
 I parametri della funzione sono:
 - nome della lista
 - nome del file di output
+- carattere di separazione (opzionale, default ",")
 
-(define (list-xls lst file)
+(define (list-xls lst file sepchar)
   (local (outfile)
+    (if (nil? sepchar)
+        (setq sepchar ",")
+    )
     (setq outfile (open file "write"))
     (dolist (el lst)
-      (setq line (join (map string el) ","))
+      (setq line (join (map string el) sepchar))
       (write-line outfile line)
     )
     ;(print outfile { })
@@ -2238,23 +2242,197 @@ I parametri della funzione sono:
 
 Esempio 1:
 
+Creiamo una lista di punti:
 (setq points (map list (randomize (sequence 1 100)) (randomize (sequence 1 100))))
+
+Esportiamo la lista:
 (list-xls points "punti.csv")
 ;-> 3 true
 
 Esempio 2:
 
+Creiamo una tabella:
 (setq data '(("eva" "tommy" "max" "roby")
              (20 24 31 89)
              ("f" "t" "t" "f")
              (1.622 2.44 45.2 100.1)))
 
+Lista con i nomi delle colonne:
 (setq nomi '("nome" "test" "tipo" "valore"))
 
-(setq all (append (list nomi) (transpose data)))  
+Per creare il formato corretto occorre trasporre la lista:
+(setq all (append (list nomi) (transpose data)))
+;-> (("nome" "test" "tipo" "valore") 
+;->  ("eva" 20 "f" 1.622) 
+;->  ("tommy" 24 "t" 2.44) 
+;->  ("max" 31 "t" 45.2)
+;->  ("roby" 89 "f" 100.1))
+
+Esportiamo la lista/tabella:
 
 (list-xls all "demo.csv")
 ;-> 3 true
+
+
+-----------------------------------------------
+Selezione di elementi con indice pari o dispari
+-----------------------------------------------
+
+Data una lista scrivere due funzioni, una che seleziona gli elementi che hanno indice pari e una che seleziona gli elementi che hanno indice dispari.
+
+Metodo iterativo:
+
+(setq data '(1 2 3 4 5 6 7 8 9 10))
+(setq data1 '(1 2 3 4 5 6 7 8 9 10 11))
+
+(define (select-odd lst)
+  (let (out '())
+    (dolist (el lst)
+      ; l'indice 0 è il primo elemento (dispari)
+      (if (even? $idx) (push el out -1)))
+    out))
+
+(select-odd data)
+;-> (1 3 5 7 9)
+(select-odd data1)
+;-> (1 3 5 7 9 11)
+
+(define (select-even lst)
+  (let (out '())
+    (dolist (el lst)
+      ; l'indice 0 è il primo elemento (dispari)
+      (if (odd? $idx) (push el out -1)))
+    out))
+
+(select-even data)
+;-> (2 4 6 8 10)
+(select-even data1)
+;-> (2 4 6 8 10)
+
+Primo metodo funzionale:
+
+(define (select-odd2 lst)
+    (if (odd? (setq len (length lst)))
+        (select lst (sequence 0 len 2))
+        (select lst (sequence 0 (- len 1) 2))))
+
+(select-odd2 data)
+;-> (1 3 5 7 9)
+(select-odd2 data1)
+;-> (1 3 5 7 9 11)
+
+(define (select-even2 lst)
+    (if (even? (setq len (length lst)))
+        (select lst (sequence 1 len 2))
+        (select lst (sequence 1 (- len 1) 2))))
+
+(select-even2 data)
+;-> (2 4 6 8 10)
+(select-even2 data1)
+;-> (2 4 6 8 10)
+
+Secondo metodo funzionale:
+
+(define (select-odd3 lst)
+  (select lst (index odd? lst)))
+
+(select-odd3 data)
+;-> (1 3 5 7 9)
+(select-odd3 data1)
+;-> (1 3 5 7 9 11)
+
+(define (select-even3 lst)
+  (select lst (index even? lst)))
+
+(select-even3 data)
+;-> (2 4 6 8 10)
+(select-even3 data1)
+;-> (2 4 6 8 10)
+
+Test di velocità tra le tre funzioni:
+
+(silent (setq test (sequence 1 1001)))
+
+(time (select-odd test) 10000)
+;-> 564.974
+(time (select-odd2 test) 10000)
+;-> 141.665
+(time (select-odd3 test) 10000)
+;-> 544.01
+(time (select-even test) 10000)
+;-> 580.453
+(time (select-even2 test) 10000)
+;-> 141.65
+(time (select-even3 test) 10000)
+;-> 543.01
+
+(silent (setq test (sequence 1 1000000)))
+(time (select-odd test) 10)
+;-> 668.664
+(time (select-odd2 test) 10)
+;-> 208.706
+(time (select-odd3 test) 10)
+;-> 600.422
+(time (select-even test) 10)
+;-> 674.777
+(time (select-even2 test) 10)
+;-> 206.541
+(time (select-even3 test) 10)
+;-> 597.54
+
+La funzione del primo metodo funzionale è 3 volte più veloce delle altre due funzioni.
+
+
+-----------------------------
+Numero interno all'intervallo
+-----------------------------
+
+Dati tre numeri x,y e z scrivere due funzioni che restituiscono true:
+1) se y <= x <= z (cioè x incluso nell'intervallo chiuso)
+2) se y < x < z (cioè x incluso nell'intervallo aperto))
+
+(define (between-close x y z)
+  "Return true iff number x is >= y and <= z."
+  (or (<= y x z) (>= y x z)))
+
+(define (between-open x y z)
+  "Return true iff number x is > y and < z."
+  (or (< y x z) (> y x z)))  
+
+
+(between-open -0.1 -0.1 2)
+;-> nil
+(between-close -0.1 -0.1 2)
+;-> true
+(between-close 2 4 -2)
+;-> true
+(between-close 2 -2 4)
+;-> true
+(between-close 2 -7 5)
+;-> true
+(between-close 2 -5 -7)
+;-> nil
+
+Possiamo scrivere una funzione unica:
+
+(define (between x y z mode)
+  "Return true iff number x is >= y and <= z or iff number x is > y and < z."
+  (if (or (nil? mode) (= mode "c"))
+      (or (<= y x z) (>= y x z))
+      (or (< y x z) (> y x z))))
+
+(between -0.1 -0.1 2 "o")
+;-> nil
+(between -0.1 -0.1 2 "c")
+;-> true
+(between 2 4 -2)
+;-> true
+(between 2 -2 4)
+;-> true
+(between 2 -7 5 "o")
+;-> true
+(between 2 -5 -7)
+;-> nil
 
 =============================================================================
 

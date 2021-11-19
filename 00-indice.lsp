@@ -969,6 +969,8 @@ NOTE LIBERE 6
   Salto della rana 2
   Numeri regolari (5-smooth)
   Conversione di una lista in un file .csv (excel)
+  Selezione di elementi con indice pari o dispari
+  Numero interno all'intervallo
 
 APPENDICI
 =========
