@@ -474,7 +474,7 @@ Creazione di una hash-map:
 (new Tree 'myhash)
 ;-> myhash
 
-Funzione per creare una hash-map
+Funzione per creare una hash-map:
 
 (define (new-hash str) (new Tree (sym str)))
 
@@ -483,6 +483,12 @@ Funzione per creare una hash-map
 ;-> "a"
 (pippo)
 ;-> (("1" "a"))
+
+Altra funzione per creare un contesto/hash-map (Lutz):
+
+(define (create-context-from-name str)
+   (sym str (sym str MAIN))
+)
 
 Eliminazione di una hash-map:
 
@@ -508,10 +514,20 @@ Inserimento di una coppia (chiave-valore) nella hash-map:
 (myhash "2" "b")
 ;-> "b"
 
+Aggiornamento di un valore di una chiave utilizzando il valore attuale:
+
+(myhash "2" (string "a" (myhash "2")))
+;-> "ab"
+
 Elenco delle coppie in una hash-map:
 
 (myhash)
-;-> (("1" "a") ("2" "b"))
+;-> (("1" "a") ("2" "ab"))
+
+Aggiornamento di un valore di una chiave:
+
+(myhash "2" "b")
+;-> "b"
 
 Eliminazione di una coppia (chiave-valore) nella hash-map:
 
@@ -2399,7 +2415,6 @@ Dati tre numeri x,y e z scrivere due funzioni che restituiscono true:
   "Return true iff number x is > y and < z."
   (or (< y x z) (> y x z)))  
 
-
 (between-open -0.1 -0.1 2)
 ;-> nil
 (between-close -0.1 -0.1 2)
@@ -2433,6 +2448,105 @@ Possiamo scrivere una funzione unica:
 ;-> true
 (between 2 -5 -7)
 ;-> nil
+
+
+------------
+Love newLISP
+------------
+
+(setq data '((5 6 7 6)
+             (3 10 3 10)
+             (1 13 1 13)
+             (0 29)
+             (0 29)
+             (0 29)
+             (1 27)
+             (3 23)
+             (5 19)
+             (7 15)
+             (9 11)
+             (11 7)
+             (13 3)
+             (14 1)))
+
+(define (decode-data mtx)
+  (local (line)
+    (println "")
+    (for (i 0 (- (length mtx) 1))
+      (setq line "")
+      (dolist (el (mtx i))
+        (if (even? $idx)
+            (extend line (dup " " el))
+            (extend line (dup "*" el))
+        )
+      )
+      (println line)
+  )
+  "end"))
+
+(decode-data data)
+
+;->      ******       ******
+;->    **********   **********
+;->  ************* *************
+;-> *****************************
+;-> *****************************
+;-> *****************************
+;->  ***************************
+;->    ***********************
+;->      *******************
+;->        ***************
+;->          ***********
+;->            *******
+;->              ***
+;->               *
+;-> end
+
+
+-------------------------------
+Creazione dinamica dei contesti
+-------------------------------
+
+Come abbiamo visto precedentemente i contesti possono essere creati solo globalmente, cioè non è possibile avere un contesto locale.
+Comunque possiamo creare dinamicamente un contesto durante il runtime utilizzando la seguente funzione che prende come parametro il nome del contesto da creare (stringa):
+
+(define (create-context-from-name str)
+   (sym str (sym str MAIN))
+)
+
+Creiamo un contesto di nome "demo" con il relativo funtore di default:
+
+(create-context-from-name "demo")
+;-> demo:demo
+
+(length (demo))
+;-> 0
+(demo)
+;-> ()
+
+Per simulare un contesto locale possiamo scrivere una funzione che crea il contesto, lo utilizza e alla fine lo elimina. Per esempio:
+
+(define (test x)
+  (println "ctx:" ctx)
+  (context 'ctx)
+  (set 'ctx:x x)
+  (println "current context:" (context))
+  (println "symbols in ctx: " (symbols ctx))
+  (println "ctx:x: " ctx:x)
+  (println "x:" x)
+  (context MAIN)
+  (delete 'ctx)
+)
+
+(test 10)
+;-> ctx:nil
+;-> current context:ctx
+;-> symbols in ctx: (x)
+;-> ctx:x: 10
+;-> x:10
+;-> true
+
+Nota: la creazione di un contesto è un'operazione molto veloce, mentre la cancellazione di un contesto è un'operazione abbastanza onerosa.
 
 =============================================================================
 

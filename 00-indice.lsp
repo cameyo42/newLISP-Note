@@ -971,6 +971,8 @@ NOTE LIBERE 6
   Conversione di una lista in un file .csv (excel)
   Selezione di elementi con indice pari o dispari
   Numero interno all'intervallo
+  Love newLISP
+  Creazione dinamica dei contesti
 
 APPENDICI
 =========

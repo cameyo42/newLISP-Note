@@ -5796,7 +5796,7 @@ Possiamo creare anche il "funtore" del contesto "demo":
 Invece di utilizzare (context 'demo) o (define (demo:demo)...) per creare un hash-map è meglio utilizzare (new Tree 'demo): il risultato è lo stesso, tranne che viene creato il funtore di default "demo:demo" come costante (con valore nil)).
 
 Nota:
-Se assegniamo una hash-map ad un simbolo/variabile non viene creata una copia della hash-map, ma solo un simbolo che punta alla hash-map originale. In questo modo i valori delle due hash-map sono sempre uguali anche quando modifichiamo una sola delle due hash-map(perchè i simboli delle due hash-map puntano agli stessi indirizzi di memoria).
+Se assegniamo una hash-map ad un simbolo/variabile non viene creata una copia della hash-map, ma solo un simbolo che punta alla hash-map originale. In questo modo i valori delle due hash-map sono sempre uguali anche quando modifichiamo una sola delle due hash-map (perchè i simboli delle due hash-map puntano agli stessi indirizzi di memoria).
 Per esempio:
 
 (setq hh myHash)
