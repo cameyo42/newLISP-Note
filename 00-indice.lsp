@@ -973,6 +973,12 @@ NOTE LIBERE 6
   Numero interno all'intervallo
   Love newLISP
   Creazione dinamica dei contesti
+  Ricerca elementi dalla fine (stringhe o liste)
+  eval, eval-string, read-expr
+  newLISP from newLISP
+  Valutazione di una funzione
+  Metodi di Monte Carlo
+  Metodi di Las Vegas
 
 APPENDICI
 =========

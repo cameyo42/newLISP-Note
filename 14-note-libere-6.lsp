@@ -1,6 +1,6 @@
 ===============
 
- NOTE LIBERE 7
+ NOTE LIBERE 6
 
 ===============
 
@@ -2547,6 +2547,573 @@ Per simulare un contesto locale possiamo scrivere una funzione che crea il conte
 ;-> true
 
 Nota: la creazione di un contesto è un'operazione molto veloce, mentre la cancellazione di un contesto è un'operazione abbastanza onerosa.
+
+
+----------------------------------------------
+Ricerca elementi dalla fine (stringhe o liste)
+----------------------------------------------
+
+La funzione "find" è equivalente a "Instr()" di VBScript. Qual è l'equivalente per "InstrRev()" di VBScript in cui si cerca la prima occorrenza dalla fine della stringa?
+
+Vediamo esempi delle funzioni "find-all" e "find":
+
+(find-all "pippo" "paodhjsdpippoaskdhjaskdhjpippoasmasdj")
+;-> ("pippo" "pippo")
+(find "pippo" "paodhjsdpippoaskdhjaskdhjpippoasmasdj")
+;-> 8
+(find (reverse "pippo") (reverse "paodhjsdpippoaskdhjaskdhjpippoasmasdj"))
+;-> 7
+
+La nostra funzione inverte entrambi i parametri e poi calcola l'offset dell'indice cercato:
+
+(define (find-rev findThis inThis)
+  (- (length inThis) (find (reverse findThis) (reverse inThis)) (length findThis)))
+
+Alcune prove e un confronto di ciò che trova "find-rev" contro ciò che trova "find".
+
+(set 'toFind "dog")
+(set 'sentence "My first dog's fleas are on my second dog's blanket")
+
+(find-rev toFind sentence)
+;-> 38
+(println (slice sentence (find-rev toFind sentence) (length toFind)))
+; "dog"
+(println (slice sentence (find-rev toFind sentence)))
+; "dog's blanket"
+(println (slice sentence (find toFind sentence)))
+; "dog's fleas are on my second dog's blanket"
+
+Purtroppo questa funzione opera solo sulle stringhe, allora proviamo a scrivere una funzione che lavora sulle liste utilizzando la funzione "ref-all" e poi invertendo la lista degli indici risultanti:
+
+(setq num '(1 0 2 4 5 6 7 1))
+
+(define (find-rev2 findThis inThis)
+  (reverse (ref-all findThis inThis)))
+
+(find-rev2 1 num)
+;-> ((7) (0))
+(num 7)
+;-> 1
+
+Vediamo come funziona su una lista annidata:
+
+(setq data '(1 (0 2) 2 (3 (0 2)) 4 5 6 7 1))
+(find-rev2 '(0 2) data)
+;-> ((3 1) (1))
+(data 3 1)
+;-> (0 2)
+(data '(3 1))
+;-> (0 2)
+(data (first (find-rev2 '(0 2) data)))
+;-> (0 2)
+
+
+----------------------------
+eval, eval-string, read-expr
+----------------------------
+
+Supponiamo di voler permettere ad un utente di effettuare le quattro operazioni in una mini-REPL.
+Per valutare l'input dell'utente è necessario convertire la stringa in un'operazione, qualcosa del tipo:
+
+(define (mini-repl)
+  (print "Enter the 1st number: ")
+  (set 'num1 (int (read-line)))
+  (print "Enter the 2nd number: ")
+  (set 'num2 (int (read-line)))
+  (print "Enter an operator [+ - * /]: ")
+  (set 'op (eval-string (read-line)))
+  (set 'result (op num1 num2))
+  (println result)
+  (mini-repl))
+
+(mini-repl)
+;-> Enter the 1st number: 2
+;-> Enter the 2nd number: 3
+;-> Enter an operator [+ - * /]: *
+;-> 6
+;-> Enter the 1st number:
+;-> ...
+
+L'espressione (set 'op (eval-string (read-line))) potrebbe essere scritta anche nel modo seguente:
+
+(set 'op (eval (sym (read-line))))
+
+newLISP ha non una, ma due funzioni "eval". La prima, "eval", accetta un'espressione e la valuta:
+
+(set 'expr '(+ 1 2))
+(eval expr)
+;-> 3
+
+La seconda, "eval-string", accetta una stringa e la valuta:
+
+(set 'expr "(+ 1 2)")
+(eval-string expr)
+;-> 3
+
+La parte centrale della funzione è:
+
+(op num1 num2)
+
+op è ovviamente un simbolo.
+
+Dobbiamo assicurarci che questo simbolo venga valutato in una funzione per operare correttamente. In questo caso viene costruito dalla funzione primitiva per la moltiplicazione "*". "*" di per sé non è una primitiva, è il simbolo che valuta in una primitiva (in modo simile dopo (set 'f (lambda(x) x)), f è un simbolo che valuta/restituisce la lambda-list.)
+
+È necessario definire op nello stesso modo che "*" valuta nella primitiva di moltiplicazione. Non al simbolo *. 
+Possiamo farlo in diversi modi, il modo più semplice:
+
+(set 'op *)
+(setq op *)
+
+che equivale a:
+
+(set 'op (eval '*)) ;
+
+che equivale a:
+
+(set 'op (eval (sym "*")));
+
+che equivale a:
+
+(set 'op (eval-string "*"))
+
+ma (set 'op '*) non funziona, perchè imposta il valore di op su SYMBOL *.
+
+Infine, c'è una terza funzione di valutazione che vale la pena menzionare:
+"read-expr" che prende una stringa e la traduce in un'espressione:
+
+(read-expr "(+ 3 4)")
+;-> (+ 3 4)
+(eval (read-expr "(+ 3 4)"))
+;-> 7
+
+"eval-string" è una combinazione di "read-expr" e "eval".
+
+
+--------------------
+newLISP from newLISP
+--------------------
+
+Senza parole...
+
+(exec "newlisp -e \"(+ 1 2)\"")
+;-> ("3")
+(char "\"")
+;-> 34
+(setq expr "(+ 1 2)")
+(exec (string "newlisp -e " (char 34) expr (char 34)))
+;-> ("3")
+
+
+---------------------------
+Valutazione di una funzione
+---------------------------
+
+Una funzione/programma deve essere progettata, scritta e valutata tenendo conto delle seguenti caratteristiche:
+
+0) correttezza del programma
+1) velocità di esecuzione
+2) spazio di memoria
+3) chiarezza ed eleganza della soluzione (algopritmo)
+4) facilità di scrittura
+5) facilità di lettura
+6) documentazione/manuale
+
+Ovviamente, la caratteristica fondamentale è la correttezza della funzione (che deve essere sempre presente), mentre le altre dipendono da diversi fattori del contesto in cui operiamo.
+
+In genere non è possibile avere tutte le caratteristiche in ogni programma ed è un peccato quando dobbiamo sacrificarne una per migliorarne altre (esempio, la leggibilità e l'eleganza per la velocità), ma spesso occorre farlo (anche con newLISP è necessario farlo a volte...).
+
+Per capire quali caratteristiche sono più importanti per una dato programma/funzione possiamo porci alcune domande (elencate in ordine sparso):
+
+1) il programma deve essere mantenuto per lungo tempo?
+2) il programma deve essere modificato da altri programmatori?
+3) la velocità di esecuzione è accettabile?
+4) l'algoritmo di soluzione è implementato in modo chiaro?
+5) l'algoritmo di soluzione è implementato in modo elegante?
+6) lo spazio di memoria utilizzato è accettabile?
+7) la documentazione è esaustiva?
+8) Possiamo migliorare una caratteristica senza intaccare le altre?
+
+Nota: i bravi programmatori riescono a soddisfare la maggior parte delle caratteristiche elencate.
+
+
+---------------------
+Metodi di Monte Carlo
+---------------------
+
+I metodi Monte Carlo, sono una classe di algoritmi computazionali che si basano sul campionamento casuale ripetuto di eventi per ottenere un risultato numerico. Il concetto di base è quello di usare la casualità per risolvere problemi che pur essendo deterministici in linea di principio, non siamo in grado di risolvere analiticamente. Sono spesso utilizzati in problemi fisici e matematici e sono più utili quando è difficile o impossibile utilizzare altri approcci. I metodi Monte Carlo sono utilizzati principalmente in tre classi di problemi: ottimizzazione, integrazione numerica e calcolo delle probabilità.
+
+Questo metodo è stato formalizzato da Enrico Fermi, John von Neumann e Stanislaw Ulam nel 1945 nell'ambito del Progetto Manhattan. Il nome Monte Carlo fu inventato in seguito da Nicholas Metropolis riferendosi al noto casinò.
+
+In modo naif possiamo pensare che i metodi di MonteCarlo siano la soluzione del seguente dilemma:
+
+1. Non importa quanto tu sia intelligente, ci saranno sempre problemi di calcolo delle probabilità che risultano "troppo difficili" da risolvere analiticamente.
+
+2. Nonostante (1), se conosci un (buon) linguaggio di programmazione che incorpora un (buon) generatore di numeri casuali, potresti ancora essere in grado di ottenere risposte numeriche a quei problemi "troppo difficili".
+
+Per utilizzare il metodo di Monte Carlo occorre definire e codificare un algoritmo che effettua la simulazione.
+Questa simulazione utilizza una serie di parametri per calcolare una serie di eventi possibili del fenomeno in esame, ognuno con il proprio peso di probabilità, cercando di esplorare in modo più completo possibile tutto lo spazio del fenomeno. Una volta calcolato questo campione casuale, si eseguono delle misure delle grandezze di interesse su di esso. La simulazione Monte Carlo è eseguita correttamente se il valore medio di queste misure sul campione casuale converge al valore vero.
+
+Vediamo un semplice esempio:
+
+Un missile ha probabilità 1/3 di colpire il bersaglio. Quanti missili occorre lanciare per essere sicuri di colpire un bersaglio prestabilito? (I lanci sono eventi indipendenti tra loro)
+
+La risposta (errata) è 3. Infatti, se lanciamo 3 missili la probabilità di colpire il bersaglio vale: 1/3 + 1/3 + 1/3 = 1. Con tre missili abbiamo il 100% di sicurezza di colpire il bersaglio.
+
+Per scoprire se questo ragionamento è corretto o meno possiamo percorrere due strade:
+
+1) soluzione analitica del problema
+2) simulazione del problema tramite un algoritmo
+
+Scriviamo prima la funzione di simulazione (con il numero di missili lanciati come parametro):
+
+(define (shot n iter)
+  ; n = numero di colpi lanciati per ogni evento simulato
+  ; iter = numero di eventi da simulare
+  (let ((conta 0) (res 0))
+    ; conta = numero di eventi positivi (bersaglio colpito)
+    ; res = risultato di un evento (0,1,2)
+    ; ripetiamo l'evento iter volte...
+    (for (i 1 iter)
+      (setq res 0)
+      ; evento: spariamo il missile n volte...
+      (for (i 1 n)
+        ; se esce il numero 0, allora abbiamo colpito il bersaglio
+        (if (zero? (rand 3)) (++ res))
+      )
+      ; se colpito il bersaglio, allora aumentiamo il contatore
+      (if (> res 0) (++ conta))
+    )
+    ; restituisce la probabilità di colpire il bersaglio con n missili
+    (div conta iter)))
+
+Proviamo la funzione con valori crescenti di iterazioni:
+
+(shot 3 1000)
+;-> 0.704
+(shot 3 100000)
+;-> 0.70266
+(shot 3 10000000)
+;-> 0.703621
+
+Adesso vediamo la soluzione analitica.
+L'errore del ragionamento è che le probabilità 1/3 non possono essere sommate. Dobbiamo ragionare sulla probabilità che il bersaglio NON venga colpito, poichè in questo modo le probabilità risultanti possono essere moltiplicate tra loro per ottenere la soluzione.
+La probabilità che un missile non colpisca il bersaglio vale: 1 - 1/3 = 2/3.
+Quindi la probabilità che 3 missili non colpiscano il bersaglio vale: 2/3 * 2/3 * 2/3 = 8/27.
+Di conseguenza la probabilità che 3 missili colpiscano il bersaglio vale: 1 - 8/27 = 19/27.
+Calcoliamo il valore numerico di 19/27:
+
+(div 19 27)
+;-> 0.7037037037037037
+
+Come si vede i risultati della simulazione convergono verso i risultati analitici (aumentando il numero di iterazioni del processo).
+
+Nota: se il problema è complesso, allora la simulazione è spesso l'unica strada percorribile.
+
+Nota: il metodo di Monte Carlo è utile anche per verificare un'eventuale soluzione analitica del problema e viceversa (dipende se ci fidiamo di più delle nostre capacità matematiche o di quelle di programmatore).
+
+Vediamo un altro esempio da un problema del 1708 dal libro "Essay d’analyse sur les jeux de hazard" (Analisi dei giochi d'azzardo) del matematico francese Pierre Remond de Montmort (1678–1719). Nel libro Montmort descrive il seguente processo:
+dato un mazzo coperto e mischiato di carte numerate da 1 a 13, estrarre una carta alla volta e indicare l'ordine dalla carta (1, 2, 3, ... fino a 13).
+Se ripetiamo questo processo tante volte, quante carte, in media, qual'è la probabilità che nessuna carta abbia lo stesso valore del relativo numero ordinale di estrazione?
+In altre parole, qual'è la probabilità che nessuna delle k carte estratte abbia valore k ?
+Montmort discute una versione generalizzata di questo problema nella sua corrispondenza con Nicholas Bernoulli (1687-1759) in cui si estraggono N carte (contando da 1 a N) da un mazzo di N carte.
+
+Vediamo di scrivere una simulazione per questo processo con N carte.
+
+(define (montmort num iter)
+  (local (uguali out)
+    ; mazzo di carte da 1 a N
+    (setq mazzo (sequence 1 num))
+    ; vettore di output:
+    ; i-esimo indice = numero totale di eventi con "i" successi
+    (setq out (array (+ num 1) '(0)))
+    ; ripetiamo l'evento iter volte...
+    (for (i 1 iter)
+      ; mischia il mazzo
+      (setq nuovo (randomize mazzo true))
+      ;(println nuovo)
+      ;(read-line)
+      ; numero di carte uguali
+      (setq uguali 0)
+      ; conteggio degli accoppiamenti favorevoli
+      (dolist (el nuovo)
+        (if (= el (+ 1 $idx))
+            (++ uguali)
+        )
+      )
+      ; aggiornamento del vettore di output:
+      ; aumenta di 1 il valore che all'indice "uguali"
+      (++ (out uguali))
+    )
+    out))
+
+Se non abbiamo una soluzione analitica con cui confrontare il risultato della simulazione, dobbiamo "testare" la nostra funzione con dei valori limite per verificare la sua correttezza. Ad esempio, in questo caso se utilizziamo un mazzo con 1 carta e 1000 iterazioni dovremmo ottenere il risultato (0 1000), cioè zero (0) eventi in cui non ci sono accoppiamenti e 1000 eventi con un (1) accoppiamento (cioè per 1000 volte estraiamo la prima carta che vale 1):
+
+(montmort 1 1000)
+;-> (0 1000)
+
+Con 2 carte e 1000 iterazioni otteniamo:
+
+(montmort 2 1000)
+;-> (495 0 505)
+
+che è corretto, perchè con un mazzo di 2 carte possiamo ottenere o zero accoppiamenti (495 volte) o due accoppiamenti (505 volte). Non è possibile ottenere un solo accoppiamento.
+
+Con 3 carte e 1000 iterazioni:
+
+(montmort 3 1000)
+;-> (309 514 0 177)
+
+In questo caso non è possibile ottenere due accoppiamenti con tre carte, infatti il valore che ha indice 2 vale 0.
+
+Un altro controllo, la somma di tutti gli eventi deve essere uguale al numero di iterazioni:
+
+(apply + (montmort 10 100))
+;-> 100
+(apply + (montmort 13 1000))
+;-> 1000
+
+La funzione sembra corretta, allora proviamola con altri valori:
+
+(montmort 13 1000000)
+;-> (367758 367669 184120 61535 15147 3111 569 82 9 0 0 0 0 0)
+
+(montmort 40 1000000)
+;-> (368102 368228 183133 61533 15314 3074 536 70 8 1 1 0 0 0 0 0
+;->  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
+
+(montmort 100 1000000)
+;-> (368497 366961 183994 61410 15428 3119 504 71 15 1 0 0 0 0 0 0
+;->  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;->  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;->  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
+
+Da questi risultati sembra che il numero di accoppiamenti sia indipendente dal numero di carte contenute nel mazzo.
+
+Dal punto di vista analitico risulta che la probabilità di nessun accoppiamento (cioè nessuna corrispondenza) è approssimativamente 1/e per n grande (dove "e" è il numero di Eulero). Calcoliamo questo valore:
+
+(setq e 2.7182818284590451)
+(div e)
+;-> 0.3678794411714423
+
+Quindi anche questa volta la simulazione converge al risultato analitico.
+
+Nota: la convergenza della soluzione simulata verso la soluzione analitica aumenta con l'aumentare delle simulazioni effettuate (cioè con l'aumentare del numero di iterazioni).
+
+Consideriamo ora il seguente problema, originariamente presentato nel 1955 dalla rivista "The American Mathematical Monthly".
+Disegnando un triangolo casuale all'interno di un rettangolo arbitrario, qual è la probabilità che il triangolo sia ottuso?
+Si tratta di un problema di "probabilità geometrica", cioè quella classe di problemi in cui le probabilità sono associate alle lunghezze, aree, e volumi delle varie figure geometriche (l'esempio classico è il problema dell'ago di Buffon). Questo problema è facile da capire, ma non così facile da analizzare teoricamente, infatti non è stato risolto analiticamente fino al 1970.
+
+Per iniziare, supponiamo di disegnare il nostro rettangolo in modo che uno dei lati più corti giace sull'asse x positivo, cioè 0 ≤ x ≤ X, mentre uno dei lati più lunghi giace sull'asse y positivo, cioè 0 ≤ y ≤ Y. Cioè, abbiamo un rettangolo con dimensioni X per Y. Adesso applichiamo il principio di "invarianza di scala" il che significa che se scaliamo sia X che Y verso l'alto (o verso il basso) dello stesso fattore, la soluzione non cambierà. Quindi, non perdiamo alcuna generalità prendendo il valore effettivo di X e scalandolo verso l'alto (o verso il basso) a 1, e quindi ridimensionando Y dello stesso fattore. Poniamo che scalando Y in questo modo arriviamo a L, cioè, il nostro nuovo rettangolo ridimensionato è 1 per L. Poichè abbiamo assunto Y ≥ X, allora L ≥ 1. Se L = 1, ad esempio, il nostro rettangolo è in realtà un quadrato. Disegnare un triangolo "a caso" in questo rettangolo significa semplicemente scegliere tre punti indipendenti (x1, y1), (x2, y2) e (x3, y3) come essere i vertici del triangolo tali che gli x(i) sono ciascuno selezionato da una distribuzione uniforme nell'intervallo (0,1) e y(i) sono selezionati ciascuno da una distribuzione uniforme nell'intervallo (0,L).
+
+Affinchè un triangolo sia ottuso è necessario e sufficiente che abbia un angolo interno maggiore di 90 gradi (ovviamente solo uno dei tre angoli interni di un triangolo può essere maggiore di 90 gradi). Conoscendo le coordinate dei vertici del triangolo come possiamo determinare se è ottuso?
+Indichiamo i tre angoli interni di un triangolo con A, B, e C e le lunghezze dei lati opposti a quegli angoli con a, b e c. Poi utilizziamo la "legge dei coseni" e otteniamo:
+
+  a² = b² + c² − 2bc cos(A)
+  b² = a² + c² − 2ac cos(B)
+  c² = a² + b² − 2ab cos(C)
+
+Estrapolando i coseni:
+
+  cos(A) = (b² + c² − a²)/2bc
+  cos(B) = (a² + c² − b²)/2ac
+  cos(C) = (a² + b² − c²)/2ab
+
+Poiché il coseno di un angolo acuto, cioè un angolo nell'intervallo (0..90°), è positivo, mentre il coseno di un angolo nell'intervallo (90°..180°) è negativo, abbiamo il seguente test per verificare se un angolo è ottuso: la somma dei quadrati delle lunghezze dei lati che formano quell'angolo, meno il quadrato della lunghezza del lato opposto a quell'angolo, deve essere negativo. Per calcolare questo è sufficiente calcolare i numeratori delle espressioni precedenti. In altre parole, un triangolo per essere acuto (cioè non ottuso) deve avere i coseni degli angoli interni tutti positivi. Con queste informazioni possiamo scrivere la funzione di simulazione.
+
+(define (obtuse lato iter)
+  (local (x1 y1 x2 y2 x3 y3 a b c test res)
+    (setq res 0)
+    (for (k 1 iter)
+      (setq test 0)
+      ; crea tre punti casuali (x(i), y(i))
+      (setq x1 (random)) (setq y1 (mul lato (random)))
+      (setq x2 (random)) (setq y2 (mul lato (random)))
+      (setq x3 (random)) (setq y3 (mul lato (random)))
+      ; calcola a², b² e c²
+      (setq a (add (mul (sub x1 x2) (sub x1 x2))
+                        (mul (sub y1 y2) (sub y1 y2))))
+      (setq b (add (mul (sub x2 x3) (sub x2 x3))
+                        (mul (sub y2 y3) (sub y2 y3))))
+      (setq c (add (mul (sub x3 x1) (sub x3 x1))
+                        (mul (sub y3 y1) (sub y3 y1))))
+      ; verifica se il triangolo è ottuso o acuto
+      (if (and (< a (add b c))
+               (< b (add a c))
+               (< c (add a b)))
+          (setq test 0)
+          (setq test 1)
+      )
+      ; aggiorna il risultato (numero di eventi positivi)
+      (setq res (+ res test))
+    )
+    (div res iter)))
+
+Facciamo alcune simulazioni:
+
+(obtuse 1 100000)
+;-> 0.726
+
+(obtuse 1 1000000)
+;-> 0.725145
+
+(obtuse 2 100000)
+;-> 0.7974
+
+(obtuse 2 1000000)
+;-> 0.7983
+
+La soluzione analitica (per tutti i valori di L>=1) è stata pubblicata da Eric Langford nell'articolo "A Problem in Geometric Probability" (Mathematics Magazine, November–December 1970, pp. 237–244).
+La formula finale è complicata e lunga, ma i risultati per L=1 e L=2 valgono:
+
+P(1) = 97/150 + π/40 = 0.72520648...
+
+P(2) = 1199/1200 + 13π/128 - (3/4)ln(2) = 0.79837429...
+
+Quindi anche questa simulazione converge verso il risultato analitico.
+
+Numero di iterazioni
+--------------------
+L'analisi matematica della tecnica Monte Carlo mostra che l'errore del metodo diminuisce come N^(-1/2), dove N è il numero di simulazioni. Quindi, passando da N = 100 = 10^2 a N = 10000 = 10^4 (un aumento di N di un fattore 10^2) si dovrebbe ridurre l'errore di un fattore di circa sqrt(10^2) = 10).
+Quindi più simulazioni facciamo, migliore sarà il risultato (cioè, il risultato delle simulazioni sarà più vicino al risultato analitico). Possiamo vedere un esempio di questo concetto con l'algoritmo di Monte Carlo per calcolare pi greco "π" (che è il rapporto tra la circonferenza di un cerchio e il suo diametro).
+
+Algoritmo di Monte Carlo per il calcolo approssiamto di π:
+
+1) Definire un piano cartesiano (con coordinate x,y) con l'asse x da -1 a 1 e l'asse y da -1 a 1 (si tratta di un quadrato 2x2).
+2) Generare N punti casuali interni al quadrato.
+3) Contare il numero di punti (A) che hanno una distanza minore/uguale a 1 dall'origine (0,0) (cioè sono interni al cerchio di raggio 1 e origine in (0,0)).
+4) Calcolare il valore approssimato di pi greco con la seguente formula:
+
+   π*r²     A
+  ------ ≈ ---
+   4*r²     N
+
+Nota: questa formula, π ≈ (4*A)/N, approssima pi greco perchè il rapporto tra l'area di un cerchio e l'area dei bordi rettangolari dovrebbe essere uguale al rapporto tra i punti interni al cerchio e quelli esterni al cerchio.
+
+Nota: la seguente funzione utilizza solo un quadrante (0,1) del quadrato 2x2 per semplificare i calcoli.
+
+(define (pigreco iter)
+  (local (x y a)
+    (setq pi 3.1415926535897931)
+    (setq a 0)
+    (for (i 1 iter)
+      (setq x (random))
+      (setq y (random))
+      (if (<= (add (mul x x) (mul y y)) 1)
+          (++ a)
+      )
+    )
+    (setq res (div (mul 4 a) iter))
+    (list res (sub pi res))))
+
+Facciamo alcune simulazioni:
+
+(pigreco 100000)
+;-> (3.13936 0.002232653589793188)
+(pigreco 1000000)
+;-> (3.139636 0.001956653589793245)
+(pigreco 10000000)
+;-> (3.141994 -0.0004013464102068376)
+
+QUindi, più aumentano le iterazioni e migliore è la soluzione ottenuta.
+
+
+-------------------
+Metodi di Las Vegas
+-------------------
+
+Oltre ai metodi di Monte Carlo, esiste un'altra categoria chiamata metodi di Las Vegas. Potete trovare maggiori informazioni su tutto questo nell'articolo di Don Fallis, "The Reliability of Randomized Algorithms" (British Journal for the Philosophy of Science, giugno 2000, pp. 255-271).
+
+Gli algoritmi di Las Vegas sono stati introdotti da Laszla Babai nel 1979, insieme ad un algoritmo di esempio che riguarda i lanci di monete: l'algoritmo dipende da una serie di lanci di monete indipendenti e c'è una piccola possibilità di fallimento (nessun risultato). Tuttavia, a differenza degli algoritmi di Monte Carlo, l'algoritmo di Las Vegas può garantire la correttezza di qualsiasi risultato ottenuto.
+
+Un algoritmo di Las Vegas è un algoritmo casuale (random) che dà sempre risultati corretti. In altre parole, produce sempre il risultato corretto o informa sull'errore. Tuttavia, il tempo di esecuzione di un algoritmo di Las Vegas differisce a seconda dell'input. Un algoritmo di Las Vegas ha la restrizione che il tempo di esecuzione sia finito e che termini sempre (sia efficace), ma può produrre un simbolo speciale per indicare il fallimento nella ricerca di una soluzione. La natura degli algoritmi di Las Vegas li rende adatti in situazioni in cui il numero delle possibili soluzioni è limitato e dove verificare la correttezza di una soluzione candidata è relativamente facile, mentre trovare una soluzione è complesso.
+
+Gli algoritmi di Las Vegas sono importanti nel campo dell'intelligenza artificiale e in altre aree dell'informatica e della ricerca operativa. 
+
+Esempio di algoritmo di Las Vegas:
+
+(define (lasvegas n)
+(catch
+  (local (k vet conta)
+    (seed (time-of-day))
+    (setq conta 0)
+    (setq vet (array n (randomize (sequence 1 n))))
+    (while true
+      (setq k (rand n))
+      (++ conta)
+      (if (= (vet k) 1)
+          (throw (list k (vet k) conta)))
+    ))))
+
+(lasvegas 100)
+;-> (24 1 11)
+
+La funzione restituisce l'indice dell'elemento che ha valore 1, il valore del vettore con quell'indice (1), e il numero di tentativi per individuare la soluzione.
+Come detto sopra, gli algoritmi di Las Vegas restituiscono sempre risultati corretti. Il codice sopra illustra questa proprietà. Una variabile k e una vettore vet vengono generati casualmente. Dopo la generazione di k, k viene utilizzato per indicizzare il vettore vet. Se questo indice contiene il valore 1, allora viene restituito k, in caso contrario, l'algoritmo ripete questo processo finché non trova 1. Sebbene sia garantito che questo algoritmo di Las Vegas trovi la risposta corretta, non ha un tempo di esecuzione fisso (a causa della funzione "rand"). Il tempo di esecuzione dipende dal numero di input "n", ma la funzione non impiega sempre lo stesso tempo con due valori di n uguali. 
+
+(time (println (lasvegas 25000)))
+;-> (18737 1 53847)
+;-> 10.002
+(time (println (lasvegas 25000)))
+;-> (22235 1 3710)
+;-> 3.989
+(time (println (lasvegas 25000)))
+;-> (20452 1 35423)
+;-> 6.982
+(time (println (lasvegas 25000)))
+;-> (11855 1 20172)
+;-> 4.962
+(time (println (lasvegas 25000)))
+;-> (9200 1 79008)
+;-> 12.036
+
+Gli algoritmi di Las Vegas si presentano frequentemente nei problemi di ricerca. Ad esempio, nelle ricerche on-line si passa dall'essere "fortunati" e trovare immediatamente il sito web cercato, all'essere "sfortunati" e sprecare molto tempo nella ricerca.
+
+Relazione con i metodi Monte Carlo
+----------------------------------
+Gli algoritmi di Las Vegas possono essere contrapposti agli algoritmi di Monte Carlo, in cui le risorse utilizzate sono limitate, ma la risposta può essere errata con una certa (tipicamente piccola) probabilità. Un algoritmo di Las Vegas può essere convertito in un algoritmo di Monte Carlo eseguendolo per un tempo prestabilito e generando una risposta casuale quando non riesce a terminare. 
+La seguente tabella confronta gli algoritmi di Las Vegas e Monte Carlo:
+           
+Algoritmo     Tempo di esecuzione    Correttezza
+------------------------------------------------
+Las Vegas     probabilistico         certa
+Monte Carlo   certo                  probabilistica
+
+Se è disponibile un modo deterministico per verificare la correttezza, è possibile trasformare un algoritmo Monte Carlo in un algoritmo di Las Vegas. Tuttavia, è difficile convertire un algoritmo di Monte Carlo in un algoritmo di Las Vegas senza un modo per testare l'algoritmo. Cambiare un algoritmo di Las Vegas in un algoritmo di Monte Carlo può essere fatto eseguendo un algoritmo di Las Vegas per un periodo di tempo specifico dato dal parametro di confidenza. Se l'algoritmo trova la soluzione entro il tempo, allora abbiamo trovato una soluzione, mentre in caso contrario, l'output può essere semplicemente un messaggio di fallimento.
+
+Ad esempio, modifichiamo l'algoritmo della funzione precedente "lasvegas" per renderlo un algoritmo Monte Carlo.
+
+(define (montecarlo n)
+(catch
+  (local (k vet conta idx)
+    (seed (time-of-day))
+    (setq conta 0)
+    (setq idx 0)
+    (setq vet (array n (randomize (sequence 1 n))))
+    (while (< idx 500)
+      (++ idx)
+      (setq k (rand n))
+      (++ conta)
+      (if (= (vet k) 1)
+          (throw (list k (vet k) conta)))
+    )
+    (println "not found!"))))
+
+Proviamo la funzione:
+
+(montecarlo 1000)
+;-> not found!
+(montecarlo 1000)
+;-> (651 1 245)
+
+La funzione "lasvegas" non termina fino a che non ha trovato il valore 1 nel vettore, mentre la funzione "montecarlo" termina se trova il valore 1 nel vettore oppure quando ha eseguito 500 volte la ricerca.
+La funzione "lasvegas" mira alla correttezza della soluzione a scapito del tempo di esecuzione (incerto).
+La funzione "montecarlo" mira ad un tempo di esecuzione certo a scapito di un certo margine di errore nel trovare la soluzione.
+
+Nota: la funzione "amb" di newLISP sembra utile per questo tipo di algoritmi.
+
+Algoritmi di Atlantic City
+--------------------------
+Gli algoritmi di Monte Carlo sono sempre veloci e probabilmente corretti, mentre gli algoritmi di Las Vegas sono a volte veloci, ma sempre corretti. C'è un altro tipo di algoritmo che si trova proprio nel mezzo dei due e cerca di unire il meglio di entrambi e si chiama algoritmo di Atlantic City: è quasi sempre veloce e quasi sempre corretto. Tuttavia, la progettazione di questi algoritmi è estremamente complessa.
 
 =============================================================================
 
