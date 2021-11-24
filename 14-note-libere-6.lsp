@@ -3014,7 +3014,7 @@ Facciamo alcune simulazioni:
 (pigreco 10000000)
 ;-> (3.141994 -0.0004013464102068376)
 
-QUindi, più aumentano le iterazioni e migliore è la soluzione ottenuta.
+Quindi, più aumentano le iterazioni e migliore è la soluzione ottenuta.
 
 
 -------------------
@@ -3114,6 +3114,134 @@ Nota: la funzione "amb" di newLISP sembra utile per questo tipo di algoritmi.
 Algoritmi di Atlantic City
 --------------------------
 Gli algoritmi di Monte Carlo sono sempre veloci e probabilmente corretti, mentre gli algoritmi di Las Vegas sono a volte veloci, ma sempre corretti. C'è un altro tipo di algoritmo che si trova proprio nel mezzo dei due e cerca di unire il meglio di entrambi e si chiama algoritmo di Atlantic City: è quasi sempre veloce e quasi sempre corretto. Tuttavia, la progettazione di questi algoritmi è estremamente complessa.
+
+
+-----------------------
+Vincere 2 volte su 3...
+-----------------------
+
+Ci sono tre giocatori di scacchi A, B e C. Il giocatore C è il più forte dei tre.
+La sfida del giocatore A consiste nel giocare tre partite di seguito alternando tra i giocatori B e C.
+Il giocatore A vince la sfida se vince due partite di seguito.
+Il giocatore A può scegliere con quale giocatore iniziare, cioè se giocare la sequenza B-C-B oppure la sequenza C-B-C.
+
+Quale sequenza ha la maggiore probabilità di far vincere la sfida ad A?
+
+Chiamiamo "p" la probabilità di vittoria di A su B
+Chiamiamo "q" la probabilità di vittoria di A su C
+
+poichè C è il giocatore più forte, allora risulta p > q.
+
+Per vincere la sfida il giocatore A ha due possibilità:
+
+1) vincere la prima e la seconda partita, oppure
+2) vincere la seconda e la terza partita
+
+Chiamiamo la prima sequenza S1 = B-C-B
+Chiamiamo la seconda sequenza S2 = C-B-C
+
+Chiamiamo P1 la probabilità che A vinca la sfida utilizzando la sequenza S1
+Chiamiamo P2 la probabilità che A vinca la sfida utilizzando la sequenza S2
+
+Per la sequenza S1 abbiamo: P1 = pq + (1 - p)pq
+Per la sequenza S2 abbiamo: P2 = pq + (1 - q)pq
+
+Nota: le formule per calcolare P1 e P2 valgono per qualunque valore di p e q compresi tra 0 e 1.
+
+Calcoliamo la differenza tra le due probabilità:
+
+  P2 - P1 = [pq + (1 - q)pq] - [pq + (1 - p)pq] =
+          = (1 - q)pq - (1 - p)pq =
+          = pq[(1 - q) - (1 - p)] = pq(p - q)
+
+Poichè nel nostro caso p > q, allora risulta:
+
+  P2 - P1 = pq(1 - q) > 0
+  
+cioè la sequenza S2 ha la maggiore probabilità di vittoria.
+
+Il risultato è controintuitivo perchè con la sequenza S2 il giocatore A sfida il giocatore più forte C per ben due volte.
+
+Scriviamo una funzione che calcola il risultato teorico:
+
+(define (teoria p q)
+  (list (add (mul p q) (mul (sub 1 p) p q))
+        (add (mul p q) (mul (sub 1 q) p q))))
+
+Facciamo alcune prove:
+
+(teoria 0.9 0.8)
+;-> (0.792 0.864)
+(teoria 0.9 0.4)
+;-> (0.396 0.576)
+(teoria 0.4 0.3)
+;-> (0.192 0.204)
+(teoria 0.5 0.1)
+;-> (0.075 0.095)
+(teoria 0.4 0.6)
+;-> (0.384 0.336)
+(teoria 0.5 0.3)
+;-> (0.225 0.255)
+
+Adesso scriviamo una funzione per simulare questo processo.
+
+(define (chess p q iter)
+  (local (s1w s2w g1 g2 g3)
+    (set 's1w 0 's2w 0)
+    (for (i 1 iter)
+      ; play S1 sequence B-C-B
+      ; game1 A vs B
+      (setq g1 (>= p (random)))
+      ; game2 A vs C
+      (setq g2 (>= q (random)))
+      ; game3 A vs B
+      (setq g3 (>= p (random)))
+      ; check result of sequence S1
+      (if (or (and g1 g2) (and g2 g3))
+          (++ s1w)
+      )
+      ; play S2 sequence C-B-C
+      ; game1 A vs C
+      (setq g1 (>= q (random)))
+      ; game2 A vs B
+      (setq g2 (>= p (random)))
+      ; game3 A vs C
+      (setq g3 (>= q (random)))
+      ; check result of sequence S1
+      (if (or (and g1 g2) (and g2 g3))
+          (++ s2w)
+      )
+    )
+    ; probability of S1 and S2
+    (list (div s1w iter) (div s2w iter))))
+
+Proviamo la simulazione con gli stessi valori precedenti per verificare la correttezza:
+
+(chess 0.9 0.8 100000)
+;-> (0.791623 0.86277)
+Valore teorico: (0.792 0.864)
+
+(chess 0.9 0.4 100000)
+;-> (0.39542 0.57534)
+Valore teorico: (0.396 0.576)
+
+(chess 0.4 0.3 100000)
+;-> (0.19117 0.20427)
+Valore teorico: (0.192 0.204)
+
+(chess 0.5 0.1 100000)
+;-> (0.075501 0.09506)
+Valore teorico: (0.075 0.095)
+
+(chess 0.4 0.6 100000)
+;-> (0.38347 0.33727)
+Valore teorico: (0.384 0.336)
+
+(chess 0.5 0.3 100000)
+;-> (0.22461 0.25452)
+Valore teorico: (0.225 0.255)
+
+Anche la simulazione ha confermato che la sequenza S2 è quella che ha la maggiore probabilità, quindi il giocatore A deve sfidare due volte il giocatore più forte (C-B-C).
 
 =============================================================================
 

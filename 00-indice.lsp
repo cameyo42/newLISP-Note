@@ -979,6 +979,7 @@ NOTE LIBERE 6
   Valutazione di una funzione
   Metodi di Monte Carlo
   Metodi di Las Vegas
+  Vincere 2 volte su 3...
 
 APPENDICI
 =========
@@ -1011,7 +1012,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (181 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (187 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================

@@ -5813,7 +5813,28 @@ Potremmo calcolare questi punti casuali utilizzando le coordinate polari (r,thet
 (setq punti (rand-xy-circle 5 10000))
 (save "punti-polar.txt" 'punti)
 
-Purtroppo questo metodo non è corretto, in quanto i punti tendono a concentrarsi intorno al centro della circonferenza (vedi immagine "punti-cerchio.png").
+Purtroppo questo metodo non è corretto, in quanto i punti tendono a concentrarsi intorno al centro della circonferenza.
+
+Possiamo però "correggere" la densità dei punti moltiplicando le coordinate x e y per sqrt(r) e ripristinando una distribuzione uniforme:
+
+(define (rand-xy-circle raggio n)
+  (local (x y cx cy r theta out)
+    (setq out '())
+    (for (i 1 n)
+      (setq r (mul (random) raggio))
+      (setq theta (mul (random) (mul 2 3.141592653589793)))
+      ;(setq x (add raggio (mul r (cos theta))))
+      (setq x (add raggio (mul (sqrt r) (cos theta))))
+      ;(setq y (add raggio (mul r (sin theta))))
+      (setq y (add raggio (mul (sqrt r) (sin theta))))
+      (push (list x y) out -1)
+    )
+    out))
+
+(setq punti (rand-xy-circle 5 10000))
+(save "puntos.csv" 'punti)
+
+I risultati sono visibili nell'immagine "punti-cerchio.png" che si trova nella cartella "data".)
 
 
 ---------------------------------

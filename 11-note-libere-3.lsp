@@ -6165,7 +6165,7 @@ Supponiamo che la probabilità di Eva di battere Vero valga p1 con (p1 < 0.5) (c
 La probabilità di successo di Eva è data dalla somma delle probabilità di tutti gli eventi favorevoli.
 Gli eventi favorevoli sono i tre seguenti:
 
-1) Eva tutte e tre le partite:              --->  (p1) * (p2) * (1 - p1)
+1) Eva vince tutte e tre le partite:        --->  (p1) * (p2) * (1 - p1)
 2) Eva vince la seconda e la terza partita: --->  (1 - p1) * (p2) * (p1)
 3) Eva vince la prima e la seconda partita: ---=> (p1) * (p2) * (p1)
 
@@ -6237,7 +6237,9 @@ Proviamo a verificare il risultato matematico con una simulazione:
 (simula 0.2 0.8 1e6)
 ;-> 0.192069
 
-I risultati della simulazione confermano totalmente i risultati matematici.
+I risultati della simulazione (che sono invertiti) confermano i risultati matematici.
+
+Nota: per una trattazione più completa vedi "Vincere 2 volte su 3..." nel capitolo "Note libere 6".
 
 
 ----------------------
