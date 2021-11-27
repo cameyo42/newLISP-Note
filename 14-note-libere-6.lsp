@@ -3243,5 +3243,331 @@ Valore teorico: (0.225 0.255)
 
 Anche la simulazione ha confermato che la sequenza S2 è quella che ha la maggiore probabilità, quindi il giocatore A deve sfidare due volte il giocatore più forte (C-B-C).
 
+
+--------
+Ombrelli
+--------
+
+Eva ogni giorno parte da casa e raggiunge a piedi l'ufficio di lavoro.
+Alla fine della giornata parte dall'ufficio e torna a casa a piedi.
+Quando piove prende un ombrello (se disponibile) dal punto di partenza (casa o ufficio) e lo lascia nel punto di arrivo (ufficio o casa). Non prende mai l'ombrello quando non piove.
+Inizialmente a casa possiede N ombrelli e in ufficio M ombrelli.
+Supponiamo che ogni giorno p sia la probabilità che piova e (1 - p) la probabilità che non piova.
+Domanda: quanti giorni passeranno, in media, prima che Eva si bagni? (cioè quanti giorni viaggia senza bagnarsi?)
+
+(define (drywalk n m p iter)
+  (local (continue k dry nn mm)
+    (setq dry 0)
+    (for (i 1 iter)
+      (setq continue true)
+      (setq k 1)
+      (setq nn n)
+      (setq mm m)
+      ; ciclo fino a che non si bagna...
+      (while continue
+        ; se piove...
+        (if (>= p (random))
+            (cond ((odd? k) ; giorno dispari: casa -> ufficio
+                   ;(println "giorno: " k )
+                   (-- nn)
+                   (++ mm)
+                   ;(println "ombrelli: " nn { } mm)
+                   (if (= nn -1) (setq continue nil))
+                  )
+                  (true ; giorno pari: ufficio -> casa
+                   ;(println "giorno: " k )
+                   (-- mm)
+                   (++ nn)
+                   ;(println "ombrelli: " nn { } mm)
+                   (if (= mm -1) (setq continue nil))
+                  )
+            )
+            ;(println "giorno non piove: " k { } p)
+        )
+        ; nuovo giorno
+        (++ k)
+      )
+      (setq dry (+ dry (- k 1)))
+      ;(setq dry (+ dry k))
+      ;(println "iterazione: " i)
+      ;(println (- k 1) { } dry)
+      ;(read-line)
+    )
+    (div dry iter)))
+
+Quando p = 1 (piove tutti i giorni) Eva non rimane mai senza ombrello:
+
+(drywalk 1 1 1 10)
+Premi Ctrl-C per bloccare il ciclo infinito...
+
+Quando p = 0 (non piove mai) Eva non rimane mai senza ombrello:
+
+(drywalk 1 1 0 10)
+Premi Ctrl-C per bloccare il ciclo infinito...
+
+Quando p = 0.5 Eva si bagna (cioè rimane senza ombrello) dopo, in media, 12 giorni:
+
+(drywalk 1 1 0.5 100000)
+;-> 12.01733
+
+Adesso scriviamo una funzione che effettua questa simulazione con p che varia:
+  da p-step a (p-step - 1) con incremento di p-step
+
+(define (ombrelli a b p-step iter)
+  (let (out '())
+    (for (i p-step (sub 1 p-step) p-step) 
+      (push (list i (drywalk a b i iter)) out -1)
+    )
+    out))
+
+Generiamo due liste di coppie (probabilità, giorni) una con n=1 e m=1 e l'altra con n=2 e m=2:
+
+(setq punti (ombrelli 1 1 0.02 10000))
+(setq punti2 (ombrelli 2 2 0.02 10000))
+
+E poi le esportiamo in formato csv:
+
+(define (list-csv lst file-str sepchar)
+"Creates a file csv from a list"
+  (local (outfile)
+    (if (nil? sepchar)
+        (setq sepchar ",")
+    )
+    (setq outfile (open file-str "write"))
+    (dolist (el lst)
+      (setq line (join (map string el) sepchar))
+      (write-line outfile line)
+    )
+    (close outfile)))
+
+(list-csv punti "umbrella.csv" ",")
+;-> true
+(list-csv punti2 "umbrella2.csv" ",")
+;-> true
+
+Con i file esportati possiamo creare un grafico utilizzando un foglio elettronico.
+Potete vedere i risultati (due grafici a forma di "U") nell'immagine "ombrelli.png" nella cartella "data".
+
+
+---------------
+Duello continuo
+---------------
+
+Ci sono N persone disposte in modo equidistante lungo una circonferenza. Ad ogni turno ogni persona "spara" ad un'altra persona a caso (tranne che a se stesso). Tutti gli spari di ogni turno avvengono simultaneamente (es. se 1 spara a 3 e 3 spara a 1, allora muoiono entrambi). Non è possibile sparare ad una persona morta. Il duello continua fino a che non rimane soltanto una o nessuna persona viva.
+In media, quanto turni dura ogni duello?
+In media, rimane di più una persona o zero persone al termine del duello?
+Come cambiano i risultati se ogni persona può sparare anche a se stessa?
+
+Prima scriviamo la funzione "spara" che prende una persona e una lista di persone e restituisce a chi ha sparato la persona:
+
+(define (spara x lst)
+  (let (s (rand (length lst)))
+       (if (= x (lst s)) ; la persona non può sparare a se stessa
+           (spara x lst)
+           (lst s))))
+
+Facciamo una prova sulla correttezza della funzione:
+
+(setq mm '(1 2 3 4 5 6 7 8 9))
+(spara 1 mm)
+(setq ff (array 10 '(0)))
+(for (i 1 1000000)
+  (for (j 1 9)
+    (++ (ff (spara j mm)))
+  ))
+ff
+;-> (0 999495 999518 1000714 999219 999376 1000509 1000503 1001101 999565)
+
+Adesso scriviamo la funzione di simulazione:
+(define (duello num iter)
+  (local (men spari step total zero uno out)
+    (setq total 0)
+    (setq uno 0)
+    (setq zero 0)
+    (for (i 1 iter)
+      (setq men (sequence 1 num))
+      (setq step 0)
+      (while (> (length men) 1)
+        (setq spari '())
+        ; crea la lista delle persone "sparate"
+        (dolist (el men)
+          (push (spara el men) spari)
+        )
+        ;(println men { } spari)
+        ; elimina le persone "sparate" dalla lista delle persone
+        (setq men (difference men spari))
+        (++ step)
+        ;(println step { } men)
+        ;(read-line)
+      )
+      ; aggiorna i valori da restituire
+      (if (= men '()) (++ zero) (++ uno))
+      (setq total (+ total step))
+      ;(println "total: " total)
+      ;(read-line)
+    )
+    ; (durata media dei duelli, % duelli zero persone, % duelli una persona)
+    (list (div total iter) (div zero iter) (div uno iter) (+ zero uno))))
+
+Proviamo la simulazione iniziando con 10 persone e 10000 iterazioni (duelli):
+
+(duello 10 1000)
+;-> (2.161 0.421 0.579 1000)
+(duello 10 10000)
+;-> (2.1648 0.4393 0.5607 10000)
+
+(duello 100 1000)
+;-> (4.447 0.489 0.511 1000)
+(duello 100 10000)
+;-> (4.4311 0.484 0.516 10000)
+
+(duello 1000 100)
+;-> (6.75 0.49 0.51 100)
+(duello 1000 1000)
+;-> (6.75 0.528 0.472 1000)
+(duello 1000 10000) ; un paio di minuti di attesa...
+;-> (6.7484 0.5206 0.4794 10000)
+
+Adesso vediamo il caso in cui ogni persona non può sparare a se stessa. In questo caso basta cambiare la funzione "spara":
+
+(define (spara x lst) (lst (rand (length lst))))
+
+Facciamo una prova sulla correttezza della funzione:
+
+(setq mm '(1 2 3 4 5 6 7 8 9))
+(spara 1 mm)
+(setq ff (array 10 '(0)))
+(for (i 1 1000000)
+  (for (j 1 9)
+    (++ (ff (spara j mm)))
+  ))
+ff
+;-> (0 1000651 999271 999863 998948 999620 1000890 1000994 999965 999798)
+
+Facciamo alcune simulazioni:
+
+(duello 10 1000)
+;-> (2.209 0.294 0.706 1000)
+(duello 10 10000)
+;-> (2.2284 0.3037 0.6963 10000)
+
+(duello 100 1000)
+;-> (4.473 0.317 0.683 1000)
+(duello 100 10000)
+;-> (4.49 0.3074 0.6926 10000)
+
+(duello 1000 100)
+;-> (6.76 0.26 0.74 100)
+(duello 1000 1000)
+;-> (6.825 0.323 0.677 1000)
+(duello 1000 10000) ; un paio di minuti di attesa...
+(time (println (duello 1000 10000)))
+;-> (6.8181 0.3286 0.6714 10000)
+;-> 121776.85
+
+(duello 10000 10)
+;-> (9 0.2 0.8 10)
+(duello 10000 100)
+;-> (9.09 0.34 0.66 100)
+(time (println (duello 10000 1000)))
+;-> (9.124 0.289 0.711 1000)
+;-> 3199524.038 ; circa 53 minuti
+
+
+----------
+Cucciolata
+----------
+
+Un cane ha un parto di quattro cuccioli.
+Qual'è la probabilità che siano due maschi e due femmine?
+
+Gli eventi della cucciolata possono essere i seguenti:
+
+  0 maschi 4 femmine
+  1 maschi 3 femmine
+  2 maschi 2 femmine
+  3 maschi 1 femmine
+  4 maschi 0 femmine
+
+Quindi scriviamo la funzione di simulazione:
+
+(define (cuccioli iter)
+  (local (c res out)
+    (setq out '((0 (0 4)) (0 (1 3)) (0 (2 2)) (0 (3 1)) (0 (4 0))))
+    (for (i 1 iter)
+      (setq c (rand 2 4))
+      (setq res (count '(0 1) c))
+      (cond ((= res '(0 4)) (++ (out 0 0)))
+            ((= res '(1 3)) (++ (out 1 0)))
+            ((= res '(2 2)) (++ (out 2 0)))
+            ((= res '(3 1)) (++ (out 3 0)))
+            ((= res '(4 0)) (++ (out 4 0)))
+            (true (println "error:" res))
+      )
+    )
+    (println out)
+    (for (i 0 3)
+      (setf (out i 0) (div (out i 0) iter))
+    )
+    out))
+
+(cuccioli 10000)
+;-> ((649 (0 4)) (2470 (1 3)) (3768 (2 2)) (2518 (3 1)) (595 (4 0)))
+;-> ((0.0649 (0 4)) (0.247 (1 3)) (0.3768 (2 2)) (0.2518 (3 1)) (595 (4 0)))
+
+Siamo sicuri di questo risultato? 
+Possiamo verificarlo analiticamente considerando tutti gli eventi possibili.
+Gli eventi della cucciolata possono anche essere visti come le sequenza possibili del parto di quattro cuccioli:
+
+ 1) 0 0 0 0    femmina femmina femmina femmina   (0 4)
+ 2) 0 0 0 1    femmina femmina femmina maschio   (1 3)
+ 3) 0 0 1 0    femmina femmina maschio femmina   (1 3)
+ 4) 0 0 1 1    femmina femmina maschio maschio   (2 2)
+ 5) 0 1 0 0    femmina maschio femmina femmina   (1 3)
+ 6) 0 1 0 1    femmina maschio femmina maschio   (2 2)
+ 7) 0 1 1 0    femmina maschio maschio femmina   (2 2)
+ 8) 0 1 1 1    femmina maschio maschio maschio   (3 1)
+ 9) 1 0 0 0    maschio femmina femmina femmina   (1 3)
+10) 1 0 0 1    maschio femmina femmina maschio   (2 2)
+11) 1 0 1 0    maschio femmina maschio femmina   (2 2)
+12) 1 0 1 1    maschio femmina maschio maschio   (3 1)
+13) 1 1 0 0    maschio maschio femmina femmina   (2 2)
+14) 1 1 0 1    maschio maschio femmina maschio   (3 1)
+15) 1 1 1 0    maschio maschio maschio femmina   (3 1)
+16) 1 1 1 1    maschio maschio maschio maschio   (4 0)
+
+Come si vede questa volta gli eventi sono 16, mentre prima erano 5:
+
+1) 0 maschi 4 femmine
+2) 1 maschi 3 femmine
+3) 2 maschi 2 femmine
+4) 3 maschi 1 femmine
+5) 4 maschi 0 femmine
+
+In questo caso possiamo calcolare direttamente probabilità di ognuno dei 5 eventi:
+
+1) (0 4) ha 1 su 16 probabilità
+2) (1 3) ha 4 su 16 probabilità
+3) (2 2) ha 6 su 16 probabilità
+4) (3 1) ha 4 su 16 probabilità
+5) (4 0) ha 1 su 16 probabilità
+
+Calcoliamo i valori:
+
+(div 1 16)
+;-> 0.0625
+(div 4 16)
+;-> 0.25
+(div 6 16)
+;-> 0.375
+
+Proviamo un'altra simulazione con 1 milione di iterazioni:
+
+(cuccioli 1e6)
+;-> ((62811 (0 4)) (250088 (1 3)) (373855 (2 2)) (250736 (3 1)) (62510 (4 0)))
+;-> ((0.062811 (0 4)) (0.250088 (1 3)) (0.373855 (2 2)) 
+;->  (0.250736 (3 1)) (62510 (4 0)))
+
 =============================================================================
+
 

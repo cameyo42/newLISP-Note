@@ -59,14 +59,16 @@
 
   "Structure and Interpretation of Computer Programs", Abelson-Sussman, 2ed, 1996
 
-  "Numerical Recipes in C: The Art of Scientific Computing", 2ed, Press-Teukolsky-Vetterling-Flannery
+  "Numerical Recipes in Pascal: The Art of Scientific Computing", 2ed, Press-Teukolsky-Vetterling-Flannery, 1991
 
   "Il Libro dei Numeri" di Conway-Guy, 1999
   
-  "Winning Ways for Your Mathematical Plays: Volume 1", Berlekamp-Conway-Guy
-  "Winning Ways for Your Mathematical Plays: Volume 2", Berlekamp-Conway-Guy
-  "Winning Ways for Your Mathematical Plays: Volume 3", Berlekamp-Conway-Guy
-  "Winning Ways for Your Mathematical Plays: Volume 4", Berlekamp-Conway-Guy
+  "How to Solve It" George Polya, Princeton University Press, 1945
+  
+  "Winning Ways for Your Mathematical Plays: Volume 1", Berlekamp-Conway-Guy, 2001
+  "Winning Ways for Your Mathematical Plays: Volume 2", Berlekamp-Conway-Guy, 2003
+  "Winning Ways for Your Mathematical Plays: Volume 3", Berlekamp-Conway-Guy, 2003
+  "Winning Ways for Your Mathematical Plays: Volume 4", Berlekamp-Conway-Guy, 2004
 
   "Special Forms in Lisp" Kent Pitman, Conference Record of the 1980 Lisp Conference, Stanford University, August 25-27, 1980
   http://www.nhplace.com/kent/Papers/Special-Forms.html

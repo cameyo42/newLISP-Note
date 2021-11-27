@@ -6210,34 +6210,35 @@ Proviamo con altri valori di probabilità (0.8 e 0.2):
 Proviamo a verificare il risultato matematico con una simulazione:
 
 (define (simula p1 p2 iter)
-  (local (g must tot)
-    (setq tot 0)
+  (local (sw g1 g2 g3)
+    (setq sw 0)
     (for (i 1 iter)
-      (setq must nil)
-      (setq g 0)
-      ; game 1
-      (if (> (random) p1) (++ g))
-      ; game 2
-      (if (> (random) p2) (setq must true g (+ g 1)))
-      ; game 3
-      (if (> (random) p1) (++ g))
-      ; obiettivo raggiunto?
-      ; vinto due partite (di cui una è la seconda)?
-      (if (and must (> g 1)) (++ tot))
+      ; play sequence
+      ; game1
+      (setq g1 (>= p1 (random)))
+      ; game2
+      (setq g2 (>= p2 (random)))
+      ; game3
+      (setq g3 (>= p1 (random)))
+      ; check result of sequence
+      (if (or (and g1 g2) (and g2 g3))
+          (++ sw)
+      )
     )
-    (div tot iter)))
+    ; probability of S1 and S2
+    (div sw iter)))
 
 (simula 0.4 0.6 1e6)
-;-> 0.336288
+;-> 0.383745
 (simula 0.6 0.4 1e6)
-;-> 0.383391
+;-> 0.336184
 
 (simula 0.8 0.2 1e6)
-;-> 0.288874
+;-> 0.192381
 (simula 0.2 0.8 1e6)
-;-> 0.192069
+;-> 0.287672
 
-I risultati della simulazione (che sono invertiti) confermano i risultati matematici.
+I risultati della simulazione confermano i risultati matematici.
 
 Nota: per una trattazione più completa vedi "Vincere 2 volte su 3..." nel capitolo "Note libere 6".
 

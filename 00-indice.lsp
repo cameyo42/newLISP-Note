@@ -980,6 +980,9 @@ NOTE LIBERE 6
   Metodi di Monte Carlo
   Metodi di Las Vegas
   Vincere 2 volte su 3...
+  Ombrelli
+  Duello continuo
+  Cucciolata
 
 APPENDICI
 =========

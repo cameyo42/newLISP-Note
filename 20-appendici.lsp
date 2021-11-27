@@ -6073,6 +6073,8 @@ Lista delle funzioni:
 "The secret to creativity is knowing how to hide your sources."
 - Albert Einstein
 
+" The true logic of this world is the calculus of probabilities."
+- James Clerk Maxwell
 
 ============================================================================
  Prefissi del Sistema Internazionale di unità di misura
