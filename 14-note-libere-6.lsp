@@ -3428,7 +3428,7 @@ Proviamo la simulazione iniziando con 10 persone e 10000 iterazioni (duelli):
 (duello 1000 10000) ; un paio di minuti di attesa...
 ;-> (6.7484 0.5206 0.4794 10000)
 
-Adesso vediamo il caso in cui ogni persona non può sparare a se stessa. In questo caso basta cambiare la funzione "spara":
+Adesso vediamo il caso in cui ogni persona può sparare anche a se stessa. In questo caso basta cambiare la funzione "spara":
 
 (define (spara x lst) (lst (rand (length lst))))
 
@@ -3566,7 +3566,182 @@ Proviamo un'altra simulazione con 1 milione di iterazioni:
 (cuccioli 1e6)
 ;-> ((62811 (0 4)) (250088 (1 3)) (373855 (2 2)) (250736 (3 1)) (62510 (4 0)))
 ;-> ((0.062811 (0 4)) (0.250088 (1 3)) (0.373855 (2 2)) 
-;->  (0.250736 (3 1)) (62510 (4 0)))
+;->  (0.250736 (3 1)) (0.062510 (4 0)))
+
+In generale, se ci sono n nascite, con la probabilità p che sia femmina (e quindi con la probabilità (1 - p) che sia maschio), allora la probabilità di k femmine e (n - k) maschi è data da:
+
+  (binom n k) * (1-p)^(n-k) * p^k
+
+
+-----------------------------------------------------------------------
+Cancellare/modificare gli elementi di una lista mentre la si attraversa
+-----------------------------------------------------------------------
+
+Quando attraversiamo una lista (per esempio con "dolist") possiamo modificare o addirittura eliminare gli elementi della lista stessa. Per esempio:
+
+(setq data '(1 2 3 4 5))
+
+(define (del lst)
+  (dolist (el lst)
+        (println el)
+        (println "prima: " lst)
+        (pop lst)
+        (println "dopo: " lst)
+  )
+  (push 111 lst)
+  lst)
+
+(del data)
+;-> 1
+;-> prima: (1 2 3 4 5)
+;-> dopo: (2 3 4 5)
+;-> 2
+;-> prima: (2 3 4 5)
+;-> dopo: (3 4 5)
+;-> 3
+;-> prima: (3 4 5)
+;-> dopo: (4 5)
+;-> 4
+;-> prima: (4 5)
+;-> dopo: (5)
+;-> 5
+;-> prima: (5)
+;-> dopo: ()
+
+Questo è possibile perchè "dolist" opera su una copia di "lst".
+
+Naturalmente la lista "data" non viene modificata, perchè viene passata solo una sua copia alla funzione "del".
+
+data
+;-> (1 2 3 4 5)
+
+Per modificare la lista "data" avremmo dovuto scrivere:
+
+(setq data (del data))
+data
+;-> ()
+
+È possibile anche aggiungere elementi alla lista (ad esempio con "push").
+
+Possiamo passare la lista per riferimento (call by-reference):
+
+(define (update lst)
+  (dolist (el lst)
+        (setf (lst $idx) (+ el 1))
+  )
+  lst)
+
+(setq a:a '(1 2 3))
+(update a:a)
+;-> (2 3 4)
+(context? a)
+;-> true
+a:a
+;-> (2 3 4)
+
+
+--------------------------
+Punto interno ad una sfera
+--------------------------
+
+Data una sfera con centro di coordinate (cx, cy, cz) e di raggio r, determinare se un generico punto (x, y, z) si trova all'interno, all'esterno o sulla superficie della sfera.
+
+Se un punto si trova all'interno di una sfera o no, dipende dalla sua distanza dal centro della sfera e dal raggio r.
+
+Nel nostro caso:
+1) il punto è interno alla sfera se
+
+  (x - cx)^2 + (y - cy)^2 + (z - cz)^2 < r^2
+
+2) il punto giace sulla superficie della sfera se:
+
+  (x - cx)^2 + (y - cy)^2 + (z - cz)^2 = r^2
+
+3) il punto è esterno alla sfera se:
+
+  (x - cx)^2 + (y - cy)^2 + (z - cz)^2 > r^2
+
+Poichè vogliamo sapere solo se il punto è interno/esterno/tangente alla sfera, allora calcoliamo la distanza al quadrato (quiesto per evitare di effettuare la radice quadrata):
+
+(define (dist3d-2 x1 y1 z1 x2 y2 z2)
+"Calculates the square of 3D Cartesian distance of two points P1=(x1 y1 z1) e P2=(x2 y2 z2)"
+  (add (mul (sub x1 x2) (sub x1 x2))
+       (mul (sub y1 y2) (sub y1 y2))
+       (mul (sub z1 z2) (sub z1 z2))))
+
+Nota: Per calcolare il quadrato di un numero è più veloce la moltiplicazione "mul" che l'elevazione a potenza "pow":
+
+(define (a x) (mul x x))
+(define (b x) (pow x 2))
+
+(time (a 123456789123456789) 10000000)
+;-> 524.63
+(time (b 123456789123456789) 10000000)
+;-> 663.162
+
+La funzione "point-sphere" restituisce un numero:
+  -1 se il punto è interno alla sfera
+   0 se il punto è sulla superficie della sfera
+  +1 se il punto è esterno alla sfera
+
+(define (point-sphere cx cy cz r x y z)
+  (let (d (sub (dist3d-2 cx cy cz x y x) (mul r r)))
+    (cond ((> d 0) 1)
+          ((= d 0) 0)
+          ((< d 0) -1))))
+
+(point-sphere 1 2 3 5 4 5 2)
+;-> -1
+(point-sphere 0 0 0 3 2 1 2)
+;-> 0
+(point-sphere 0 0 0 3 10 10 10)
+;-> 1
+(point-sphere 0 0 0 3 1 1 1)
+;-> -1
+
+
+-------------------
+Correttori di bozze
+-------------------
+
+Questo problema è stato proposto da George Polya.
+Due correttori di bozze, A e B, leggono indipendentemente lo stesso manoscritto e fanno una lista degli
+errori che trovano. La lista di A registra "a" errori, mentre la lista di B registra "b" errori. Le due liste hanno "c" errori in comune. Stimare il numero totale di errori che non sono stati rilevati sia da A che da B.
+
+Questo problema è stato proposto da George Polya e la soluzione (di Polya) è (a - c)*(b - c)/c.
+Il manoscritto deve essere "sufficientemente lungo" da giustificare l'utilizzo della frequenza relativa come interpretazione della probabilità.
+
+(define (stima a b c)
+  (div (* (- a c) (- b c)) c))
+
+(stima 10 10 10)
+;-> 0
+(stima 10 10 5)
+;-> 5
+(stima 12 10 5)
+;-> 7
+(stima 30 20 5)
+;-> 75
+(stima 11 19 4)
+;-> 26.25
+
+
+-------------------------
+Probabilità: 1 su quanti?
+-------------------------
+
+La probabilità P è un valore cha varia da 0 (evento impossibile) a 1 (evento certo). Spesso viene al posto di questo valore viene usata l'espressione "ha una probabilità di 1 su N" dove "N" è un numero intero.
+
+La seguente funzione converte una valore di probabilità tra 0 e 1 nell'espressione "1 su N" (si tratta semplicemente di applicare la formula P = 1/N).
+
+(define (prob-1suN p) (list 1 (int (add (div p) 0.5))))
+
+(prob-1suN 0.1)
+;-> (1 10)
+(prob-1suN 0.0063)
+;-> (1 159)
+(prob-1suN 0.0099)
+;-> (1 101)
 
 =============================================================================
 

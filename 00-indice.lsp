@@ -983,7 +983,10 @@ NOTE LIBERE 6
   Ombrelli
   Duello continuo
   Cucciolata
-
+  Cancellare/modificare gli elementi di una lista mentre la si attraversa
+  Correttori di bozze
+  Probabilità: 1 su quanti?
+  
 APPENDICI
 =========
   Lista delle funzioni newLISP
