@@ -53,7 +53,7 @@
 
   "Teoria e Progetto di Algoritmi Fondamentali", Ausiello-Marchetti-Spaccamela-Protasi, 1985
 
-  "Primality Testing in Polynomial Time" di Martin Dietzfelbinger, 2004
+  "Primality Testing in Polynomial Time", Martin Dietzfelbinger, 2004
 
   "Land of Lisp", Conrad Barsky, 2011
 
@@ -61,14 +61,17 @@
 
   "Numerical Recipes in Pascal: The Art of Scientific Computing", 2ed, Press-Teukolsky-Vetterling-Flannery, 1991
 
-  "Il Libro dei Numeri" di Conway-Guy, 1999
+  "Il Libro dei Numeri", Conway-Guy, 1999
   
-  "How to Solve It" George Polya, Princeton University Press, 1945
+  "How to Solve It", George Polya, Princeton University Press, 1945
   
   "Winning Ways for Your Mathematical Plays: Volume 1", Berlekamp-Conway-Guy, 2001
   "Winning Ways for Your Mathematical Plays: Volume 2", Berlekamp-Conway-Guy, 2003
   "Winning Ways for Your Mathematical Plays: Volume 3", Berlekamp-Conway-Guy, 2003
   "Winning Ways for Your Mathematical Plays: Volume 4", Berlekamp-Conway-Guy, 2004
+  
+  "Duelling Idiots and Other Probability Puzzlers", Paul Nahin, 2000
+  "Digital Dice Computational Solutions to Practical Probability Problems", Paul Nahin, 2008
 
   "Special Forms in Lisp" Kent Pitman, Conference Record of the 1980 Lisp Conference, Stanford University, August 25-27, 1980
   http://www.nhplace.com/kent/Papers/Special-Forms.html

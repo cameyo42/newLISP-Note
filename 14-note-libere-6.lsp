@@ -3743,6 +3743,163 @@ La seguente funzione converte una valore di probabilità tra 0 e 1 nell'espressi
 (prob-1suN 0.0099)
 ;-> (1 101)
 
-=============================================================================
 
+---------------------
+Sondaggi imbarazzanti
+---------------------
+
+Supponiamo di voler fare un sondaggio per sapere quante persone praticano un certo atto privato. Se l'atto è imbarazzante (ad esempio, avere un amante), allora interrogando direttamente le persone difficilmente le risposte saranno veritiere. Anche un voto "segreto" (ad esempio, in una cabina elettorale) non renderebbe le persone così tranquille da rivelare la verità.
+
+Per rispettare la privacy delle persone è stato proposto il seguente metodo:
+
+Ogni persona entra tutta sola in una stanza e lancia una moneta.
+Se esce la croce, la persona scrive la risposta (SI o NO) alla domanda privata su un foglio.
+Se invece esce testa, allora la persona lancia la moneta una seconda volta e scrive la risposta (SI o NO) alla seguente domanda:  "È uscita testa al secondo lancio?"
+Dopodiché, la persona infila il foglio in una cassetta ed esce.
+Ora, su ogni foglio ci sarà un singolo SI o NO e, alla fine avremo N fogli di questo tipo.
+Non sappiamo a quale domanda ogni particolare la persona stava effettivamente rispondendo, eppure ora possiamo calcolare quale percentuale di popolazione (o, almeno, delle persone nel sondaggio) ha risposto SI alla domanda privata (cioè effettua l'atto privato).
+
+Suponiamo che ci siano N persone che hanno risposto alla domanda.
+Poniamo che K sia il numero di risposte SI.
+La metà delle persone, cioè (1/2)N, hanno risposto direttamente alla domanda privata (poichè la probabilità che esca croce vale 1/2).
+L'altra metà delle persone ha risposto il 50% SI e il 50% NO (perchè sia croce che testa hanno probabilità pari a 1/2). Quindi il numero di SI della seconda metà di persone vale (1/4)N e questi sono i SI in risposta alla seconda domanda.
+Quindi K - (1/4)N sono i SI in risposta alla domanda privata generati da (1/2)N persone.
+Adesso possiamo calcolare la probabilità cercata:
+
+       casi favorevoli      K - (1/4)N
+  P = ----------------- = -------------- = 2*(K/N - 1/4)
+       casi possibili         (1/2)N
+
+(define (query num-people num-yes)
+  (mul 2 (sub (div num-yes num-people) 0.25)))
+
+Proviamo con un campione di 10000 persone e 4150 risposte SI:
+
+(query 10000 4150)
+;-> 0.33
+
+Il 33% del campione pratica l'atto privato.
+
+(div 0.33)
+;-> 3.03030303030303
+
+Cioè 1 su 3 pratica l'atto privato.
+
+Questo è un ottimo metodo poiché rispetta la privacy e non c'è motivo di mentire. L'idea originale è di Stanley Warner e si trova nel suo articolo "Randomized Response: A Survey Technique for Eliminating Evasive Answer Bias" Journal of the American Statistical Association, vol.60, 1965.
+
+
+------------------
+Corte di giustizia
+------------------
+
+Una corte di giustizia è composta da 5 giudici: A, B, C, D, E.
+Le percentuali di decisione corrette dei 5 giudici valgono rispettivamente: a, b, c, d, e.
+La decisione della corte (innocenza o colpevolezza) è quella della maggioranza dei giudici (cioè 3 giudici che decidono allo stesso modo).
+Scrivere una funzione che calcola le probabilità di una decisione errata della corte al variare delle percentuali di correttezza dei giudici.
+Inoltre calcolare la stessa probabilità se il giudice più scarso vota come il giudice più bravo.
+
+Nota: non importa se la decisione riguarda l'innocenza o la colpevolezza, a noi interessa soltanto se la decisione della corte è corretta o meno.
+
+Funzione che restituisce l'indice dell'elemento di una lista che ha il valore maggiore:
+
+(define (max-idx lst)
+  (let ((val -9223372036854775808) (idx 0))
+    (dolist (el lst)
+      (if (> el val) (set 'idx $idx 'val el))
+    )
+    idx))
+
+Funzione che restituisce l'indice dell'elemento di una lista che ha il valore minore:
+
+(define (min-idx lst)
+  (let ((val 9223372036854775807) (idx 0))
+    (dolist (el lst)
+      (if (< el val) (set 'idx $idx 'val el))
+    )
+    idx))
+
+La funzione di simulazione accetta una lista di probabilità di lunghezza qualunque (cioè la simulazione può essere fatta con un numero variabile di giudici) e un parametro "val" che, se impostato a "true", simula il fatto che il giudice più scarso vota come il giudice più bravo (cioè copia il voto).
+
+(define (corte prob iter var)
+  (local (errori soglia a b voti res out)
+    ; soglia della maggioranza
+    (setq soglia (/ (length prob) 2))
+    ; indice del giudice più bravo
+    (setq a (max-idx prob))
+    ; indice del giudice più scarso
+    (setq b (min-idx prob))
+    (setq errori 0)
+    (for (i 1 iter)
+      (setq voti (dup 0 (length prob)))
+      ; decisione corretta (valore 0)
+      (setq deciso 0)
+      (dolist (el prob)
+        ; errore del giudice $idx?
+        (if (> (random) el)
+            (setf (voti $idx) 1)
+        )
+      )
+      ;(println voti)
+      ;(println deciso { } errori)
+      ;(read-line)
+      ; Variante:
+      ; Il giudice che sbaglia di più,
+      ; vota come giudice che sbaglia di meno.
+      (if var (setf (voti b) (voti a)))
+      ;
+      ; calcolo della maggioranza
+      (setq res (apply + voti))
+      ; calcolo della decisione:
+      ; se più di N/2 giudici hanno sbagliato decisione,
+      ; allora la decisione della corte è errata (valore 1)
+      (if (> res soglia) (setq deciso 1))
+      ; aggiorna il numero totale degli errori
+      (setq errori (+ errori deciso))
+    )
+    (div errori iter)))
+
+Test sulla correttezza della funzione:
+
+1) se poniamo tutte le probabilità a 1 (cioè i giudici non sbagliano mai), allora il risultato della simulazione deve essere 0
+(corte '(1 1 1 1 1) 1e3)
+;-> 0
+
+2) se poniamo tutte le probabilità a 0 (cioè i giudici sbagliano sempre), allora il risultato della simulazione deve essere 1
+(corte '(0 0 0 0 0) 1e3)
+;-> 1
+
+Facciamo alcune prove:
+
+(corte '(0.95 0.95 0.9 0.9 0.8) 1e7)
+;-> 0.0070649 (circa 0.7% di decisioni errate)
+
+Copia del voto:
+(corte '(0.95 0.95 0.9 0.9 0.8) 1e7 true)
+;-> 0.0120196 (circa 1.2% di decisioni errate)
+
+Il risultato è controintuitivo, infatti se il giudice scarso copia il voto del giudice più bravo, allora le probabilità di una decisione errata della corte passano dallo 0.7% al 1.2% (aumento degli errori).
+
+Adesso supponiamo che il giudice scarso sia "molto scarso", con una probabilità di decisioni corrette pari a 0.2:
+
+(corte '(0.95 0.95 0.9 0.9 0.2) 1e7)
+;-> 0.0239772 (circa 2.3% di decisioni errate)
+
+Copia del voto:
+(corte '(0.95 0.95 0.9 0.9 0.2) 1e7 true)
+;-> 0.0120143 (circa 1.2% di decisioni errate)
+
+In questo caso il risultato ci conforta, infatti se il giudice copia il voto, allora la corte passa dal 2.3% al 1.2% di decisioni errate (diminuzione degli errori).
+
+Quindi esisterà un valore di equilibrio in cui le due probabilità sono uguali (cioè non importa se il giudice copia o meno). Dopo alcuni tentativi questo punto di equilibrio si trova quando la probabilità del giudice scarso vale circa 0.62:
+
+(corte '(0.95 0.95 0.9 0.9 0.62) 1e7)
+;-> 0.0120096 (circa 1.2% di decisioni errate)
+
+Copia del voto:
+(corte '(0.95 0.95 0.9 0.9 0.2) 1e7 true)
+;-> 0.0120143 (circa 1.2% di decisioni errate)
+
+La morale sembra quella che "copiare conviene solo se si copia da uno molto più bravo".
+
+=============================================================================
 

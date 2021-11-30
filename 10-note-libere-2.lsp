@@ -3524,7 +3524,7 @@ In teoria lanciando/girando la moneta n volte, dovremmo ottenere il 50% "testa" 
 Purtoppo dopo 1000 prove la nostra moneta produce il seguente risultato: 750 volte "testa" e 250 volte "croce".
 Come possiamo ottenere una probabilità equa (50% "testa" e 50% "croce") da questa moneta?
 
-Possiamo utilizzare una tecnica indicata da vonNeumann:
+Possiamo utilizzare una tecnica indicata da Von Neumann:
 
 Passo 1. Lanciare/girare la moneta due volte.
 Passo 2. Se i due risultati sono diversi,
@@ -3541,24 +3541,41 @@ Vediamo come funziona:
 supponiamo che il risultato "testa" abbia il 75% di probabilità e "croce" abbia il 25% di probabilità.
 Poichè ogni lancio di moneta è un evento indipendente possiamo calcolare direttamente la probabilità delle coppie:
 
+ TC ha probabilità P(T)*P(C) quindi,
  TC si verifica (0.75)*(0.25) = 0.1875
+
+ CT ha probabilità P(C)*P(T) quindi,
  CT si verifica (0.25)*(0.75) = 0.1875
 
 Come si nota, i due eventi coppia sono ugualmente probabili e quindi le possibilità sono pari.
 
-Vediamo di simulare la funzione di vonNeumann:
+Vediamo di simulare la funzione di Von Neumann:
 
-(define (faircoin)
+(define (fair-coin)
   (local (a b res)
     (setq res nil)
     (while (= res nil)
       (setq a (rand 2))
       (setq b (rand 2))
       (if (!= a b)
-          (setq res a))) res))
+          (setq res a)))
+    res))
 
-(faircoin)
+(fair-coin)
 ;-> 0
+
+Oppure una versione più elegante e veloce:
+
+(define (faircoin)
+  (let ((a (rand 2)) (b (rand 2)))
+    (if (= a b)
+        (faircoin)
+        a)))
+
+(time (fair-coin) 1000000)
+;-> 484.584
+(time (faircoin) 1000000)
+;-> 328.039
 
 Eseguiamo la funzione n volte:
 
@@ -3655,6 +3672,20 @@ Come si nota, se partiamo dalla posizione "testa" non possiamo mai ottenere un l
 (lancio 10000000)
 ;-> testa: 62623070 - 52.19285897839979
 ;-> croce: 57360911 - 47.80714102160021
+
+Per finire vediamo la differenza di velocità tra la funzione "faircoin" e la funzione "coin" che simula una moneta equa (cioè P(T)=1/2 e P(C)=1/2:
+
+(define (coin) (rand 2))
+
+(coin)
+;-> 1
+
+(time (faircoin) 1e6)
+;-> 328.039
+(time (coin) 1e6)
+;-> 46.857
+
+La funzione "coin" è 7 volte più veloce della funzione "faircoin".
 
 
 ------------
@@ -4637,6 +4668,71 @@ Ma se pm > pn allora vuol dire che pn non è il massimo dei numeri primi.
 
 In entrambi i casi abbiamo una contraddizione e si può affermare che:
 supponendo che i numeri primi siano finiti si ottiene sempre una contraddizione e di conseguenza i numeri primi devono essere necessariamente infiniti.
+
+Vediamo degli esempi numerici per capire meglio il teorema.
+
+(define (prime? num)
+"Check if a number is prime"
+   (if (< num 2) nil
+       (= 1 (length (factor num)))))
+
+(define (primes-to num)
+"Generates all prime numbers less than or equal to a given number"
+  (cond ((= num 1) '())
+        ((= num 2) '(2))
+        (true
+         (let ((lst '(2)) (arr (array (+ num 1))))
+          (for (x 3 num 2)
+                (when (not (arr x))
+                  (push x lst -1)
+                  (for (y (* x x) num (* 2 x) (> y num))
+                      (setf (arr y) true)))) lst))))
+
+(setq primes (primes-to 10000))
+(primes 0)
+;-> 2
+
+(define (newprime? len)
+  (let (num (apply * (slice primes 0 len)))
+       (println (- num 1) " primo? " (prime? (- num 1)))
+       (println (+ num 1) " primo? " (prime? (+ num 1)))))
+
+(newprime? 5)
+;-> 2309 primo? true
+;-> 2311 primo? true
+
+(for (i 2 10) (newprime? i))
+;-> 5 primo? true
+;-> 7 primo? true
+;-> 29 primo? true
+;-> 31 primo? true
+;-> 209 primo? nil
+;-> 211 primo? true
+;-> 2309 primo? true
+;-> 2311 primo? true
+;-> 30029 primo? true
+;-> 30031 primo? nil
+;-> 510509 primo? nil
+;-> 510511 primo? nil
+;-> 9699689 primo? nil
+;-> 9699691 primo? nil
+;-> 223092869 primo? nil
+;-> 223092871 primo? nil
+;-> 6469693229 primo? nil
+;-> 6469693231 primo? nil
+
+(factor 209)
+;-> (11 19)
+(factor 211)
+;-> (211)
+
+(slice primes 0 7)
+;-> (2 3 5 7 11 13 17)
+(apply * (slice primes 0 7))
+(factor 510509)
+;-> (61 8369)
+(factor 510511)
+;-> (19 97 277)
 
 
 ----------------------

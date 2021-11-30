@@ -9094,7 +9094,7 @@ Clojure-style Tail Recursion in newLISP
 
 Questo è un post di rickyboy su forum di newLISP (riportato integralmente in inglese).
 
-rickyboy: 
+rickyboy:
 *********
 Today, I just read an old blog post by Mike Ivanov where he explains how he implemented Clojure-style (loop/recur) tail recursion in Emacs Lisp. My first thought was, "Hey, that's cool!" My second thought was, "Hey, I think we can do this in newLISP too!" :)
 
@@ -9307,7 +9307,7 @@ Emacs lisp has no Tail Call Optimization (TCO), neither do many other lisp diale
 (defun rloop- (body &rest args)
   (let ((res nil))
     (while (progn
-             ;; here's the idea: we keep calling body 
+             ;; here's the idea: we keep calling body
              ;; while it returns the recursion marker
              (setq res (apply body args))
              (when (and (consp res)
@@ -9327,7 +9327,7 @@ Emacs lisp has no Tail Call Optimization (TCO), neither do many other lisp diale
   (let ((args (mapcar 'car init)))
     ;; a little courtesy to the macro users
     `(let* ,init
-       ;; make a lambda from the body and pass it 
+       ;; make a lambda from the body and pass it
        ;; to the combinator function
        (rloop- (function (lambda (,@args) ,body))
                ,@args))))
@@ -9336,12 +9336,12 @@ Here’s how to use it:
 
 (defun factorial (x)
   ;; this is the recursion entry point
-  (rloop ((x   x) 
+  (rloop ((x   x)
           (acc 1))
          (if (< x 1)
              acc ;; done, just return the result
            ;; not done, start the whole rloop block again
-           (recur (1- x) 
+           (recur (1- x)
                   (* x acc)))))
 
 ELISP> (factorial 10)
@@ -9355,8 +9355,8 @@ The funny part is defun is not necessary. You can have as many sequential inline
           (next 1))
          (if (= x 0)
              curr
-           (recur (1- x) 
-                   next 
+           (recur (1- x)
+                   next
                   (+ curr next)))))
 
 ELISP> (fibo 10)
@@ -9590,7 +9590,7 @@ Esempi:
 ;-> "Wo"
 (slice "Hello World" 0 5)
 ;-> "Hello"
-(slice "Hello World" 6)  
+(slice "Hello World" 6)
 ;-> "World"
 (slice "newLISP" -4 2)
 ;-> "LI"
@@ -9748,7 +9748,7 @@ Le seguenti regole aiutano a capire come vengono creati i simboli nel contesto, 
 
 6. La conversione del contesto riguarda solo la creazione di simboli tramite load, sym o eval-string. Per impostazione predefinita, load crea simboli nel contesto MAIN, a meno che il cambio di contesto non avvenga al di fuori del caricamento del file (non so come usarlo per ora).
 
-Quando si utilizza sym e eval-string, è necessario specificare il contesto. 
+Quando si utilizza sym e eval-string, è necessario specificare il contesto.
 Il cambio di contesto avverrà solo nella parte più esterna del programma, non in una funzione.
 
 Creare un contesto
@@ -9794,7 +9794,7 @@ Se una funzione, una macro o un simbolo si trova all'interno di un contesto e ha
 Se vuoi usare la funzione predefinita di un altro contesto in un contesto, devi pre-dichiarare
 
 ;; forward declaration of a default function
-(define Fubar:Fubar)    
+(define Fubar:Fubar)
 
 (context 'Foo)
 (define (Foo: Foo abc)
@@ -9857,6 +9857,8 @@ Vediamo i tempi di esecuzione:
 (time (find-pali 1e7))
 ;-> 6086.745
 
+Calcoliamo quanti numeri palindromi ci sono con diversi valori di n:
+
 (length (filter (fn(x) (= 7 (length x))) (find-pali 1e7)))
 ;-> 9000
 (length (filter (fn(x) (= 6 (length x))) (find-pali 1e6)))
@@ -9917,7 +9919,7 @@ Adesso possiamo scrivere la funzione che calcola tutti i numeri palindromi in un
     (sort res)))
 
 Facciamo alcune prove:
-
+(generate-palindrome 1 100)
 (generate-palindrome 10 100)
 ;-> (11 22 33 44 55 66 77 88 99)
 (generate-palindrome 800 900)
@@ -9925,7 +9927,7 @@ Facciamo alcune prove:
 (length (generate-palindrome 10000 99999))
 ;-> 900
 
-Nota: la funzione calcola qualche palindromo in più di quelli necessari (questo dipende dai valori minimo e massimo dell'intervallo).
+Nota: la funzione, internamente, calcola qualche palindromo in più di quelli necessari (questo dipende dai valori minimo e massimo dell'intervallo), che poi vengono eliminati dal risultato.
 
 Vediamo i tempi di esecuzione:
 
@@ -9940,6 +9942,40 @@ Vediamo se le due funzioni producono gli stessi risultati:
 ;-> true
 (= (generate-palindrome 0 1e7) (find-pali 1e7))
 ;-> true
+
+Per curiosità, vediamo se converge la sommatoria degli inversi dei numeri palindromi p:
+
+  ∞
+  ∑(1/p) = ?
+  p
+
+(define (converge num-palin)
+  (local (palin sum)
+    (setq palin (generate-palindrome 1 num-palin))
+    (setq sum 0)
+    (dolist (p palin)
+      (setq sum (add sum (div p)))
+    )
+    sum))
+
+Vediamo se converge:
+
+(converge 1e6)
+;-> 3.36746897025007
+(converge 1e7)
+;-> 3.369771573629799
+(converge 1e8)
+;-> 3.370001832403638
+(converge 1e9)
+;-> 3.370232090939355
+(converge 1e10)
+;-> 3.370255116790679
+(converge 1e11)
+;-> 3.370278142641684
+(converge 1e12)
+;-> 3.370280445226788
+(converge 1e13)
+;-> 3.370282747811378
 
 Quanti sono i numeri palindromi che hanno n cifre?
 --------------------------------------------------
@@ -10128,7 +10164,7 @@ Sequenza OEIS: A023108 Interi positivi che apparentemente non risultano mai pali
 
   196, 295, 394, 493, 592, 689, 691, 788, 790, 879, 887, 978, 986,
   1495, 1497, 1585, 1587, 1675, 1677, 1765, 1767, 1855, 1857, 1945,
-  1947, 1997, 2494, 2496, 2584, 2586, 2674, 2676, 2764, 2766, 2854, 
+  1947, 1997, 2494, 2496, 2584, 2586, 2674, 2676, 2764, 2766, 2854,
   2856, 2944, 2946, 2996, 3493, 3495, 3583, 3585, 3673, 3675, ...
 
 Il numero 1.186.060.307.891.929.990, dopo 261 iterazioni giunge ad un palindromo di 119 cifre.
@@ -10149,9 +10185,9 @@ Si congettura che il numero dei primi di Sophie Germain sia infinito. Finora que
 
 Tra 1 e 1000, troviamo 37 numeri di Sophie Germain. Indichiamo in parentesi il corrispondente numero primo 2P + 1.
  2(5), 3(7), 5(11), 11(23), 23(47), 29(59), 41(83), 53(107), 83(167),
- 89(179), 113(227), 131(263), 173(347), 179(359), 191(383), 233(467), 
- 239(479), 251(503), 281(563), 293(587), 359(719), 419(839), 431(863), 
- 443(887), 491(983), 509(1019), 593(1187), 641(1293), 653(1307), 659(1319), 
+ 89(179), 113(227), 131(263), 173(347), 179(359), 191(383), 233(467),
+ 239(479), 251(503), 281(563), 293(587), 359(719), 419(839), 431(863),
+ 443(887), 491(983), 509(1019), 593(1187), 641(1293), 653(1307), 659(1319),
  683(1367), 719(1439), 743(1487), 761(1523), 809(1619), 911(1823), 953(1907)
 
 Considerando che il numero dei numeri primi tra 1 e 1000 è 168, notiamo che ben il 22% di questi sono numeri di Sophie Germain.
@@ -10179,7 +10215,7 @@ Scriviamo una funzione per calcolare i numeri primi di Sophie-German:
     out))
 
 (sophie-german 1000)
-;-> ((2 5) (3 7) (5 11) (11 23) (23 47) (29 59) (41 83) (53 107) 
+;-> ((2 5) (3 7) (5 11) (11 23) (23 47) (29 59) (41 83) (53 107)
 ;->  (83 167) (89 179) (113 227) (131 263) (173 347) (179 359)
 ;->  (191 383) (233 467) (239 479) (251 503) (281 563) (293 587)
 ;->  (359 719) (419 839) (431 863) (443 887) (491 983) (509 1019)
@@ -10242,12 +10278,12 @@ Inoltre 6 è la somma dei primi 3 interi consecutivi: 1 + 2 + 3 = 6.
 
 Verifichiamo:
 
-(apply + '(1 4 1 5 9 2 6 5 3 5 8 9 7 9 3 2 3 8 4 6 2 6 4 
-          3 3 8 3 2 7 9 5 0 2 8 8 4 1 9 7 1 6 9 3 9 9 3 
-          7 5 1 0 5 8 2 0 9 7 4 9 4 4 5 9 2 3 0 7 8 1 6 
-          4 0 6 2 8 6 2 0 8 9 9 8 6 2 8 0 3 4 8 2 5 3 4 
-          2 1 1 7 0 6 7 9 8 2 1 4 8 0 8 6 5 1 3 2 8 2 3 
-          0 6 6 4 7 0 9 3 8 4 4 6 0 9 5 5 0 5 8 2 2 3 1 
+(apply + '(1 4 1 5 9 2 6 5 3 5 8 9 7 9 3 2 3 8 4 6 2 6 4
+          3 3 8 3 2 7 9 5 0 2 8 8 4 1 9 7 1 6 9 3 9 9 3
+          7 5 1 0 5 8 2 0 9 7 4 9 4 4 5 9 2 3 0 7 8 1 6
+          4 0 6 2 8 6 2 0 8 9 9 8 6 2 8 0 3 4 8 2 5 3 4
+          2 1 1 7 0 6 7 9 8 2 1 4 8 0 8 6 5 1 3 2 8 2 3
+          0 6 6 4 7 0 9 3 8 4 4 6 0 9 5 5 0 5 8 2 2 3 1
           7 2 5 3 5 9))
 ;-> 666
 

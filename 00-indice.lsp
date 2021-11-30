@@ -984,8 +984,11 @@ NOTE LIBERE 6
   Duello continuo
   Cucciolata
   Cancellare/modificare gli elementi di una lista mentre la si attraversa
+  Punto interno ad una sfera
   Correttori di bozze
   Probabilità: 1 su quanti?
+  Sondaggi imbarazzanti
+  Corte di giustizia
   
 APPENDICI
 =========
