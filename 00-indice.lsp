@@ -989,6 +989,8 @@ NOTE LIBERE 6
   Probabilità: 1 su quanti?
   Sondaggi imbarazzanti
   Corte di giustizia
+  Programs Launcher
+  Duello tra idioti
   
 APPENDICI
 =========

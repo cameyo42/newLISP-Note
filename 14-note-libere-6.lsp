@@ -3901,5 +3901,117 @@ Copia del voto:
 
 La morale sembra quella che "copiare conviene solo se si copia da uno molto più bravo".
 
+
+-----------------
+Programs Launcher
+-----------------
+
+Un programma per lanciare qualunque applicazione Windows dalla REPL di newLISP.
+Il metodo utilizzato è molto spartano, ma serve per evitare diversi problemi che insorgono quando l'applicazione da eseguire ha un percorso che contiene il carattere spazio " ".
+
+Operazioni preliminari
+----------------------
+1) Creare una cartella il cui percorso non contiene spazi (es. c:\links)
+2) Creare i links dei programmi che vogliamo eseguire e copiarli nella cartella creata (anche i nomi di questi link non devono contenere spazi)
+
+La funzione seguente accetta un parametro opzionale "id" che rappresenta il numero del link del programma da lanciare (se lo conosciamo priori). Se il parametro non è presente, allora viene presentata la lista dei link disponibili da cui si può selezionare quello desiderato.
+Per eseguire il link utilizziamo la funzione predefinita "!" che esegue un comando della shell (in questo caso il comando è "start").
+
+(define (run id)
+  (local (link-folder prog)
+    ; cartella dei link
+    (setq link-folder "c:\\util\\links\\")
+    ; lista dei link della cartella
+    (setq prog (sort (directory link-folder {\.lnk})))
+    (cond ((nil? id) ; id non presente nei parametri
+            ; lista dei link con id (numero)
+            (dolist (p prog)
+              (println $idx ". " p)
+            )
+            ; Input utente: id da eseguire?
+            ; "Enter" per uscire...
+            (print "run id: ")
+            (read-line)
+            (setq id (int (current-line)))
+            ; controllo correttezza id
+            (if (and (>= id 0) (< id (length prog)))
+                ; run id link
+                (! (append "start " link-folder (prog id)))
+            )
+          )
+          (true ; id presente nei parametri
+            ;run id link
+            (! (append "start " link-folder (prog id)))
+          ))))
+
+(run)
+;-> 0. CormanLisp.lnk
+;-> 1. ForthCalc.lnk
+;-> 2. alarm.lnk
+;-> 3. foobar2000.lnk
+;-> 4. gimp.lnk
+;-> run id: 1 ;input utente
+;-> 0
+
+Per eseguire l'applicazione ForthCalc direttamente:
+
+(run 1)
+;-> 0
+
+
+-----------------
+Duello tra idioti
+-----------------
+
+Due individui, A e B, si sfidano a un duello che ha le seguenti regole:
+- Una pistola con cilindro a sei colpi è caricata con un solo proiettile.
+- Il cilindro viene ruotato in modo che il proiettile sia posizionato casualmente.
+- La pistola ha 1/6 di possibilità di sparare il proiettile (indipendentemente da chi dei due spara).
+- Se la pistola spara, allora l'avversario muore.
+- Se la pistola non spara, allora l'altro individuo prende la pistola, fa girare il cilindro e preme il grilletto contro l'avversario.
+- Il duello continua fino alla morte di uno dei due individui.
+- Il primo a sparare è A.
+
+Quali sono le probabilità di vittoria dei due contendenti?
+
+Qual è la durata media/prevista del duello? Cioè, quanti spari durerà (in media) il duello?
+
+Soluzione analitica
+In ciascuno dei turni di A, c'è 1/6 di possibilità che A vinca e 5/6 di possibilità che il duello continui. A può vincere solo in un turno dispari (1, 3, 5, ...) e B può vincere solo in un turno pari (2, 4, 6, ...). A non può vincere se B vince per primo. La probabilità che A vinca è la probabilità totale di vincita in ogni turno dispari. Questo può essere espresso come la somma infinita:
+
+         ∞
+  P(A) = ∑ (5/6)^(2i) * (1/6) = 6/11 = 0.5454545454545454...
+        i=0
+
+(define (duello2 iter)
+  (local (p spari colpito wa wb)
+    (setq p (div 6))
+    (setq tot-spari 0)
+    (for (i 1 iter)
+      (setq spari 0)
+      (setq colpito nil)
+      (until colpito
+        (++ spari)
+        (cond ((and (<= (random) p) (odd? spari))
+               (++ wa)
+               (setq colpito true)
+              )
+              ((and (<= (random) p) (even? spari))
+               (++ wb)
+               (setq colpito true)
+              )
+        )
+      )
+      (setq tot-spari (+ tot-spari spari))
+    )
+    (list (div wa (+ wa wb)) (div tot-spari iter))))
+
+(duello2 1e6)
+;-> (0.545109 6.001953)
+(duello2 1e7)
+;-> (0.5452551 5.9991003)
+(duello2 1e8)
+;-> (0.54552161 5.99913707)
+
 =============================================================================
 
