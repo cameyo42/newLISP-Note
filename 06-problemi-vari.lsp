@@ -10445,7 +10445,7 @@ Dato un ago di lunghezza L lanciato su un piano con linee parallele a distanza D
   \        \   ————    /        \
 ------------\-------------------------
 
-Si può dimostrare che la probabilità vale:
+Si può dimostrare che la probabilità vale (per L <= D):
 
      2     L
 P = --- * ---
@@ -10563,6 +10563,12 @@ Proviamo con altri valori:
 
 (pigreco (simula 5 10 10 100 10 100 1000000) 5 10)
 ;-> 3.14694997608318
+
+Nota: nel caso che L > D la probabilità diventa:
+
+        2
+  1 - -----*[D*arcsin(D/L) + L*[sqrt(1 - (D/L)^2) - 1]]
+       D*π
 
 
 -----------------------------

@@ -991,6 +991,10 @@ NOTE LIBERE 6
   Corte di giustizia
   Programs Launcher
   Duello tra idioti
+  Formula di Bernoulli
+  Palestre e autobus
+  Numeri in base negativa
+  Somma di una serie di numeri: algoritmo di Kahan
   
 APPENDICI
 =========

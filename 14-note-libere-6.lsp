@@ -4013,5 +4013,228 @@ In ciascuno dei turni di A, c'è 1/6 di possibilità che A vinca e 5/6 di possib
 (duello2 1e8)
 ;-> (0.54552161 5.99913707)
 
+
+--------------------
+Formula di Bernoulli
+--------------------
+ 
+Sia dato un evento che può avere due risultati (A o B), uno con probabilità p e l'altro con probabilità (p - 1).
+Nell'ipotesi che gli eventi siano indipendenti tra loro, la probabilità che l'evento A si verifichi k volte su n vale:
+
+PA(k) = binom(n k) * p^k * (1 - p)^(n-k)
+
+
+------------------
+Palestre e autobus
+------------------
+    
+Eva si allena in due palestre (P1 e P2) che si trovano alla stessa distanza da casa, ma in direzioni opposte. Per andare nella palestra P1 prende l'autobus A1, mentre per andare nella palestra P2 prende l'autobus A2. Gli autobus partono dalla stessa fermata, ma vanno in direzioni opposte. Entrambi gli autobus passano con frequenza oraria (ma non nello stesso momento). Siccome ad Eva non piace aspettare, quando si trova alla fermata prende il primo autobus che arriva (o A1 o A2).
+Dopo un pò di tempo Eva si accorge che è andata molto di più in una palestra, esattamente 30 volte nella palestra P1 e 6 volte nella palestra P2.
+Sapendo che l'autobus P1 parte all'ora X (es. 12:20), a che ora parte l'autobus P2?
+
+Poichè Eva può arrivare alla fermata in qualunque momento nell'intervallo di un'ora, ha 30 probabilità di prendere l'autobus A1 e 6 di prendere l'autobus A2:
+
+P(A1) = 30/(30+6) = 30/36 = 5/6
+P(A2) = 6/(30+6) = 6/36 = 1/6
+
+Adesso queste probabilità vanno "spalmate" su 60 minuti (un'ora), cioè per X minuti prende l'autobus A1 e per Y minuti prende l'autobus A2:
+
+P(A1) = (5/6)*60 = 50 minuti
+P(A2) = (1/6)*60 = 10 minuti
+
+In altre parole, in un'ora ci sono 50 minuti in cui può prendere l'autobus A1 e 10 minuti in cui può prendere l'autobus A2. Questo è possibile quando l'orario di partenza di P1 vale X e l'orario di partenza di P2 vale X + 10.
+
+Vediamo un esempio, se l'autobus A1 parte alle 12:20, allora l'autobus A2 parte alle 12:30, perchè solo in questo modo si hanno 50 minuti per prendere A1 (dalle 12:30 alle 13:20) e 10 minuti per prendere A2 (dalle 12:20 alle 12:30). In altre parole, se Eva arriva tra le 12:30 e le 13:20 prende l'autobus A1, se arriva tra le 12:20 e le 12:30 prende l'autobus A2.
+
+Questo spiega il motivo per cui Eva frequenta più spesso la palestra P1.
+
+
+------------------------------------------------
+Somma di una serie di numeri: algoritmo di Kahan
+------------------------------------------------
+
+In analisi numerica, l'algoritmo di Kahan per la somma di una serie di numeri in virgola mobile (conosciuto anche come "sommatoria compensata") riduce significativamente l'errore numerico totale, rispetto al procedimento consueto. Ciò è ottenuto mantenendo separatamente una compensazione progressiva, cioè una variabile per accumulare piccoli errori che compensa gli errori dovuti alla finitezza delle cifre decimali.
+
+Quando rappresentiamo un generico numero reale in virgola mobile con precisione finita, ossia con un numero finito di cifre significative, tale rappresentazione, rispetto al numero reale considerato, differisce di un certo valore, il quale corrisponde all'errore di arrotondamento ed è lo scarto tra la rappresentazione in virgola mobile e il numero stesso. Eseguendo una semplice sommatoria di più numeri reali, utilizzando però le rispettive rappresentazioni in virgola mobile, il totale ottenuto presenta un certo errore dato dalla somma algebrica dei singoli errori di arrotondamento, ossia dei singoli scarti, e un certo scarto quadratico medio.
+In particolare, la sommatoria semplice di n numeri in sequenza presenta un errore che, nel caso peggiore, cresce proporzionalmente ad n ed uno scarto quadratico medio che cresce come sqrt(n) per addendi casuali. Invece, utilizzando la sommatoria compensata, l'errore peggiore possibile è indipendente da n, dunque un gran numero di valori possono essere sommati con un errore che dipende solo dalla precisione della rappresentazione in virgola mobile.
+
+function KahanSum(input)
+    var sum = 0.0
+    ; Una compensazione in esecuzione per i bit meno significativi persi.
+    var c = 0.0
+    for i = 1 to input.length do
+        ; Fin qui, tutto bene: c è zero.
+        var y = input[i] - c
+        ; Purtroppo, sum è grande, y è piccola, dunque le cifre meno significative di y vengono perse.
+        var t = sum + y
+        ; (t - sum) annulla la parte più significativa di y e sottraendo y si recupera la parte meno significativa di y cambiata di segno
+        c = (t - sum) - y
+        ; Algebricamente, c dovrebbe sempre essere zero. Occorre prestare attenzione ai compilatori con ottimizzazione troppo aggressiva!
+        sum = t
+        ; La volta successiva, la parte meno significativa persa verrà aggiunta a "y" in un nuovo tentativo. .
+    next i
+    return sum
+
+Esempio:
+Supponiamo di utilizzare l'aritmetica in virgola mobile decimale a sei cifre e che sum, la somma, abbia raggiunto il valore 10000.0 e che i prossimi due valori degli input(i) siano 3.14159 e 2.71828. Il risultato esatto è 10005.85987, che si arrotonda a 10005.9. Con una sommatoria semplice ogni valore introdotto sarebbe allineato a sum, la somma, e molte cifre meno significative andrebbero perse (per troncamento o arrotondamento). Il primo risultato, dopo l'arrotondamento, sarebbe 10003.1. Il secondo risultato sarebbe 10005.81828 prima dell'arrotondamento e 10005.8 dopo. Ciò non è corretto.
+
+Tuttavia, con la sommatoria compensata, otteniamo il risultato arrotondato corretto di 10005,9.
+
+Assumiamo che c abbia il valore iniziale zero.
+
+  y = 3.14159 - 0                   y = input[i] - c
+  t = 10000.0 + 3.14159
+    = 10003.14159                   Ma solo sei cifre vengono mantenute.
+    = 10003.1                       Molte cifre sono andate perse!
+  c = (10003.1 - 10000.0) - 3.14159 Questo deve essere valutato come scritto!
+    = 3.10000 - 3.14159             La parte assimilata di y, recuperata, in contrapposizione al valore originale completo di y.
+    = -.0415900                     Gli zeri finali vengono visualizzati perché si tratta di aritmetica a sei cifre.
+sum = 10003.1                       Dunque, poche cifre da input(i) sono rimaste in quelle di sum.
+
+La somma è così grande che solo le cifre più significative dei numeri inseriti vengono accumulate. Ma, al passo successivo, c dà un errore.
+
+  y = 2.71828 - -.0415900           Il deficit ottenuto al passo precedente viene incluso.
+    = 2.75987                       È di dimensioni simili a  y : le cifre più significative sono rimaste.
+  t = 10003.1 + 2.75987             Ma poche sono rimaste nelle cifre di sum
+    = 10005.85987                   e il risultato è arrotondato
+    = 10005.9                       a sei cifre.
+  c = (10005.9 - 10003.1) - 2.75987 Ciò estrae qualunque cosa sia stata ottenuta.
+    = 2.80000 - 2.75987             In tal caso, c'è un eccesso.
+    = .040130                       Ma non importa, l'eccesso verrebbe sottratto alla volta successiva.
+sum = 10005.9                       Il risultato esatto è 10005.85987, esso è correttamente arrotondato a 6 cifre.
+
+In tal modo, la sommatoria è accumulata utilizzando due variabili: sum che si riferisce alla somma e c in cui si accumulano le parti non assimilate in sum, per spostare nuovamente la parte meno significativa di sum la volta successiva. Quindi la sommatoria procede con delle "cifre di guardia" in c che è meglio di niente, ma che non è ottimale quanto sarebbe effettuare i calcoli con precisione doppia rispetto all'input. Tuttavia, aumentare semplicemente la precisione dei calcoli, in generale, non è pratico (se l'input è già in precisione doppia, pochi sistemi forniscono una precisione quadrupla)
+
+Pur essendo più accurato di una sommatoria semplice, questo metodo può ancora dare grandi errori relativi nel caso di somme in particolari cattive condizioni.
+
+Neumaier ha introdotto una modifica dell'algoritmo di Kahan che copre anche il caso in cui il termine successivo da aggiungere è maggiore in valore assoluto rispetto alla somma corrente, scambiando efficacemente il ruolo di ciò che è grande e ciò che è piccolo. In pseudocodice, l'algoritmo è:
+
+ function NeumaierSum(input)
+    var sum = input[1]
+    ; Una compensazione in corso per i bit meno significativi persi.
+    var c = 0.0
+    for i = 2 to input.length do
+        var t = sum + input[i]
+        if |sum| >= |input[i]| do
+            ; Se sum è più grande, le cifre meno significative di input[i] vanno perse.
+            c += (sum - t) + input[i]
+        else
+            ; Altrimenti, le cifre meno significative di sum vanno perse.
+            c += (input[i] - t) + sum
+        sum = t
+    ; Correzione applicata solo una volta alla fine.
+    return sum + c
+
+Per molte sequenze di numeri, entrambi gli algoritmi concordano, ma il seguente esempio dovuto a Peters mostra che essi possono differire. Sommando (1.0 10^(100) 1.0 -10^100) in doppia precisione, l'algoritmo di Kahan produce 0.0 mentre l'algoritmo di Neumaier fornisce il valore corretto 2.0.
+
+Nota: in teoria un'ottimizzazione del compilatore sufficientemente aggressiva potrebbe compromettere l'efficacia della sommatoria di Kahan semplificando delle espressioni in base alle regole di associatività dell'aritmetica reale( per esempio, potrebbe semplificare il secondo passo della sequenza da:
+
+ t = sum + y
+ c = (t - sum) - y
+
+a: 
+
+ c = ((sum + y) - sum) - y
+ 
+poi a: 
+
+c = 0, eliminando la compensazione dell'errore.
+
+
+-----------------------
+Numeri in base negativa
+-----------------------
+
+Dato un numero intero e una base negativa, scrivere una funzione che converte il numero in quella base.
+Per rappresentare un numero con una base "positiva", ad esempio in base 2, moltiplichiamo i bit per 1, 2, 4, 8 ecc. per ottenere il numero decimale.
+Per rappresentare un numero con una base "nagativa", ad esempio in base -2, moltiplichiamo i bit per 1, -2, 4, -8 ecc. per ottenere il numero decimale (in questo caso possiamo rappresentare sia gli interi positivi che quelli negativi)
+
+Esempio:
+Input: num = 13, base-negativa = -2
+Output: 11101
+Verifica: 1*(16) + 1*(-8) + 1*(4) + 0*(-2) + 1*(1) = 13
+
+E' possibile rappresentare un numero in qualsiasi base negativa con la stessa procedura, ma in questo caso la base è compresa tra -2 e -10.
+
+L'algoritmo è lo stesso di quello con basi positive, ma bisogna assicurarsi che il "resto" sia sempre positivo una cosa importante da ricordare è che il resto sarà sempre positivo sia che lavoriamo con una base positiva che con una base negativa, ma nella maggior parte dei linguaggi/compilatori, il risultato della divisione di un numero negativo per un numero negativo viene arrotondato verso 0, lasciando di solito un resto negativo. Quindi ogni volta che otteniamo un resto negativo, possiamo convertirlo in positivo nel modo seguente:
+
+Quindi se dopo aver fatto "resto = n % negBase" e "n = n/negBase", otteniamo resto negativo, allora applichiamo:
+  resto = resto + (-negBase)
+  n = n + 1
+
+Esempio: n = -4, negBase = -3
+  resto = n % negBase = -4/-3 = -1
+  n = n/negBase [Passo successivo per la conversione della base]
+    = -4/-3
+    = 1
+Per evitare resto negativo, facciamo,
+  resto = -1 + (-negBase) = -1 - (-3) = 2
+  n = n + 1 = 1 + 1 = 2.
+  
+Quindi, quando otterremo un resto negativo, lo renderemo positivo aggiungendo il valore assoluto di base e aggiungendo 1 al nostro
+
+Nota: questo metodo è applicabile a tutti gli interi negativi utilizzati come base (non solo -2).
+ 
+Vediamo meglio il procedimento iniziando con il caso in cui viene utilizzato un numero intero positivo come base.
+Usando n come base, possiamo avere i seguenti passaggi:
+a % n == r, a /= n, ans = str(r) + ans
+Quindi continua a ripetere a turno, unendo tutti i resti insieme.
+Poiché n è un numero intero positivo, il resto deve essere un numero non negativo e il resto deve essere compreso nell'intervallo [0, n-1]. (Indipendentemente dal caso in cui il dividendo sia un numero negativo, in quanto è impossibile utilizzare una base positiva n  per rappresentare un numero negativo)
+
+Adesso, consideriamo la situazione in cui viene utilizzato un numero intero negativo come base.
+Sia: a = n * b + r, in questo momento poiché n è un numero negativo, quando a è anche un numero negativo, r può essere un numero negativo.
+Questo non è consentito nel nostro processo di conversione, quindi in questo momento il nostro requisito per r è: il più piccolo possibile (vicino a 0) intero non negativo (questo risultato potrebbe essere leggermente diverso dalla normale operazione modulo)
+
+Esempio: Il numero 146 espresso in base -3
+
+146 / -3 = -48 resto 2
+-48 / -3 = 16 resto 0
+ 16 / -3 = -5 resto 1
+ -5 / -3 = 2 resto 1
+  2 / -3 = 0 resto 2
+
+Da notare che il risultato di -5 / -3 dovrebbe essere 1 resto -2, ma per rendere il resto un numero non negativo,
+Abbiamo aggiustato il risultato -2 -(-3) = 1, in modo che -5 / -3 = 2 resto 1
+Il risultato è: (((2*(–3)+1)*(–3)+1)*(–3)+0)*(–3)+2 = 146
+
+Pertanto, affinché il residuo ottenuto soddisfi le condizioni, è necessario eseguire la seguente elaborazione:
+
+  se r < 0 allora r = r + abs(n), a = a / n + 1
+
+(Perché la prossima operazione assegnerà b ad a, che equivale a b += 1, il valore del quoziente +1)
+
+La dimostrazione è la seguente:
+Qui per comodità di comprensione e presentazione, sia n un numero intero positivo, e sappiamo che se r è un numero negativo, allora l'intervallo di r deve essere superiore a [-n+1, ​​​​0]:
+
+  a = (-n)*b + r ==> a = (-n)*b + (r + n) - n ==> a = (-n)*(b + 1) + (r + n)
+
+Pertanto, nell'intervallo di r, possiamo garantire che il resto r sia un intero non negativo attraverso l'operazione r+n, e allo stesso tempo porre il dividendo del turno successivo a b = b + 1
+
+Nota: quando la base n è un intero negativo, sia gli interi negativi che gli interi positivi possono essere rappresentati in base n.
+
+Scriviamo la funzione che converte un numero intero decimale in basi negative (da -2 a -10):
+
+(define (negative-base num neg-base)
+  (local (rem out)
+    (setq out '())
+    (while (!= num 0)
+     (setq rem (% num neg-base))
+     (setq num (/ num neg-base))
+     (if (< rem 0)
+         (set 'rem (- rem neg-base) 'num (+ num 1))
+     )
+     (push rem out)
+    )
+    out))
+
+(negative-base 2 -2)
+;-> (1 1 0)
+(negative-base 3 -2)
+;-> (1 1 1)
+(negative-base 4 -2)
+;-> (1 0 0)
+(negative-base 146 -3)
+;-> (2 1 1 0 2)
+
 =============================================================================
 
