@@ -993,8 +993,11 @@ NOTE LIBERE 6
   Duello tra idioti
   Formula di Bernoulli
   Palestre e autobus
-  Numeri in base negativa
   Somma di una serie di numeri: algoritmo di Kahan
+  Numeri in base negativa
+  Serie e somma armonica
+  Raccolta di figurine
+  
   
 APPENDICI
 =========

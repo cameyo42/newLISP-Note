@@ -4023,6 +4023,33 @@ Nell'ipotesi che gli eventi siano indipendenti tra loro, la probabilità che l'e
 
 PA(k) = binom(n k) * p^k * (1 - p)^(n-k)
 
+                         n!
+dove, binom(n k) = ---------------
+                     k!*(n - k)!
+
+rappresenta il numero delle disposizioni di n elementi di cui k di un tipo e (n - k) di un altro tipo.
+
+(define (binom num k)
+"Calculates the binomial coefficient (n k) = n!/(k!*(n - k)!) (combinations of k elements without repetition from n elements)"
+  (cond ((> k num) 0)
+        ((zero? k) 1)
+        (true
+          (let (r 1L)
+            (for (d 1 k)
+              (setq r (/ (* r num) d))
+              (-- num)
+            )
+          r))))
+
+(define (bernoulli n k p)
+  (mul (binom n k) (pow p k) (pow (sub 1 p) (- n k))))
+
+Esempio: Lancio di una moneta
+Dopo 100 lanci di una moneta equa, qual'è la probabilità che siano uscite 50 teste e 50 croci?
+
+(bernoulli 100 50 0.5)
+;-> 0.07958923738717877
+
 
 ------------------
 Palestre e autobus
@@ -4212,14 +4239,17 @@ Pertanto, nell'intervallo di r, possiamo garantire che il resto r sia un intero 
 
 Nota: quando la base n è un intero negativo, sia gli interi negativi che gli interi positivi possono essere rappresentati in base n.
 
-Scriviamo la funzione che converte un numero intero decimale in basi negative (da -2 a -10):
+Scriviamo la funzione che converte un numero intero decimale in basi negative (con base che può variare da -2 a -10):
 
-(define (negative-base num neg-base)
+(define (to-negative-base num neg-base)
   (local (rem out)
+    ; default: neg-base = -2
+    (if (nil? neg-base) (setq neg-base -2))  
     (setq out '())
     (while (!= num 0)
      (setq rem (% num neg-base))
      (setq num (/ num neg-base))
+     ; check resto minore di zero
      (if (< rem 0)
          (set 'rem (- rem neg-base) 'num (+ num 1))
      )
@@ -4227,14 +4257,257 @@ Scriviamo la funzione che converte un numero intero decimale in basi negative (d
     )
     out))
 
-(negative-base 2 -2)
+(to-negative-base 2 -2)
 ;-> (1 1 0)
-(negative-base 3 -2)
+(to-negative-base 3)
 ;-> (1 1 1)
-(negative-base 4 -2)
+(to-negative-base 4 -2)
 ;-> (1 0 0)
-(negative-base 146 -3)
+(to-negative-base 13)
+;-> (1 1 1 0 1)
+(to-negative-base 146 -3)
 ;-> (2 1 1 0 2)
+(to-negative-base 146 -10)
+;-> (2 6 6)
+(to-negative-base 15 -10)
+;-> (1 9 5)
 
+Adesso scriviamo la funzione inversa che converte una lista che rappresenta un numero in base negativa in un numero decimale:
+
+(define (from-negative-base lst-num neg-base)
+  (let (res 0)
+    ; default: neg-base = -2
+    (if (nil? neg-base) (setq neg-base -2))
+    (dolist (el (reverse lst-num))
+      (setq res (add res (mul (pow neg-base $idx) el)))
+    )
+    res))
+
+(from-negative-base '(1 1 0))
+;-> 2
+(from-negative-base '(1 1 1 0 1))
+;-> 13
+(from-negative-base '(2 1 1 0 2) -3)
+;-> 146
+(from-negative-base '(2 6 6) -10)
+;-> 146
+(from-negative-base '(1 9 5) -10)
+;-> 15
+
+Per maggiori informazioni vedi l'articolo di Gilbert, Green "Negative Based Number Systems":
+https://www.math.uwaterloo.ca/~wgilbert/Research/GilbertNegBases.pdf
+
+
+----------------------
+Serie e somma armonica
+----------------------
+
+La serie armonica è definita nel modo seguente:
+
+  ∞
+  ∑ 1/k = 1 + 1/2 + 1/3 + 1/4 + 1/5 + ...
+ k=1
+
+Nota: la serie armonica è divergente, cioè per un valore "m" sufficientemente grande, la somma parziale dei termini da 1 a m può superare qualunque numero prefissato (comunque questa serie cresce molto lentamente).
+
+La somma armonica è una serie armonica troncata (finita):
+
+  n
+  ∑ 1/k = 1 + 1/2 + 1/3 + ... + 1/n
+ k=1
+
+Il calcolo esatto  di una somma armonica può essere fatto con la seguente funzione:
+
+(define (rat n d)
+  (let (g (gcd n d))
+    (map (curry * 1L)
+         (list (/ n g) (/ d g)))))
+
+(define (+rat r1 r2)
+  (setq r1 (list (bigint (r1 0)) (bigint(r1 1))))
+  (setq r2 (list (bigint (r2 0)) (bigint(r2 1))))
+  (rat (+ (* (r1 0L) (r2 1L))
+          (* (r2 0L) (r1 1L)))
+       (* (r1 1L) (r2 1L))))
+
+(define (harmonic-f num)
+  (let (res '(1 1))
+    (for (i 2 num)
+      (setq res (+rat res (list 1 i)))
+    )
+    (println res)
+    (div (first res) (last res))))
+
+(harmonic-f 10)
+;-> (7381L 2520L)
+;-> 2.928968253968254
+
+Il valore di una serie armonica può essere approssimato dalla seguente formula:
+
+  n
+  ∑ 1/k ≈ ln(n) + K + 1/(2*n)
+ k=1
+
+La costante K è la costante di Eulero-Mascheroni ed è definita come limite della differenza tra la somma armonica e il logaritmo naturale:
+
+           n
+K = limite(∑ 1/k - ln(n)) = 0.577215664901532860606512090082402431042159335...
+    n->∞  k=1
+
+Scriviamo una funzione che calcola la somma armonica con la formula di approssimazione:
+
+(define (harmonic num)
+  (add (log num) 0.57721566490153286 (div (mul 2 num))))
+
+(harmonic 10)
+;-> 2.929800757895579
+
+Vediamo la differenza tra le due funzioni:
+
+(sub (harmonic-f 10) (harmonic 10))
+;-> -0.0008325039273247015
+
+(sub (harmonic-f 50) (harmonic 50))
+;-> -3.333200025412708e-005
+
+
+--------------------
+Raccolta di figurine
+--------------------
+
+Un album contiene 100 figurine. Se la probabilità di ogni figurina vale 1/100, quante figurine dobbiamo acquistare, in media, per riempire l'album?
+
+Partiamo con un semplice esempio, se abbiamo un dado a sei facce, quante volte dobbiamo lanciarlo, in media, per ottenere un 6?
+La risposta ovvia è 6 volte, ma perchè?
+Sia p la probabilità che esca un 6 e q = (1 - p) la probabilità che non esca un 6. Possiamo scrivere la seguente tabella:
+
+Lancio   Probabilità che esca un 6
+-------+--------------------------------------------------------------------
+  1    |  p
+  2    |  q * p (cioè primo lancio non-sei e secondo sei)
+  3    |  q * q * p (cioè primo lancio non-sei, secondo non-sei e terzo sei)
+  4    |  q * q * q * p
+ ...      ...
+
+La somma delle probabilità vale:
+
+  p + p*q + p*q^2 + p*q^3 + ... = p(1 + q + q^2 + q^3 + ...)
+                                = p/(1 - q) = p/p = 1
+
+Per definizione, il valore medio del numero di lanci "m" vale:
+
+  m = p + 2*p*q + 3*p*q^2 + 4*p*q^3 + ...
+
+Moltiplichiamo per q:
+
+  q*m = p*q + 2*p*q^2+ 3*p*q^3 + 4*p*q^4 + ...
+
+Calcoliamo (m - q*m):
+
+  (m - q*m) = p + p*q + p*q^2 + p*q^3 + ...
+
+Il termine destro di questa uguaglianza è la somma delle probabilità che abbiamo calcolato sopra e vale 1, quindi possiamo calcolare il valore medio "m":
+
+  (m - q*m) = 1  ==> m*p = 1 ==> m = 1/p
+
+Quindi, nel caso del lancio del nostro dado, il numero medio di lanci per ottenere un sei vale 6 (come avevamo intuito all'inizio).
+
+Verifichiamolo con una funzione casuale:
+
+(define (test-dado num iter)
+  (local (parz tot)
+    (setq tot 0)
+    (for (i 1 iter)
+      (setq parz 1)
+      (until (= (- num 1) (rand 6))
+        (++ parz)
+      )
+      (setq tot (+ tot parz))
+    )
+    (div tot iter)))
+
+(test-dado 6 1e6)
+;-> 6.008322
+
+Adesso supponiamo che il nostro album sia composto da 5 figurine soltanto.
+Otteniamo la prima figurina giusta al primo acquisto.
+La probabilità di ottenere una figurina giusta con il secondo acquisto vale 4/5. Seguendo lo stesso ragionamento fatto per il dado, il numero medio di acquisti per ottenere la seconda figurina giusta vale 1/(4/5) = 5/4.
+La terza figurina ha una probabilità di 3/5 e richiede 1/(3/5) = 5/3 di acquisti.
+La quarta figurina ha una probabilità di 2/5 e richiede 1/(2/5) = 5/2 di acquisti.
+La quinta figurina ha una probabilità di 1/5 e richiede 1/(1/5) = 5 acquisti.
+In totale abbiamo:
+
+(5/5 + 5/4 + 5/3 + 5/2 + 5) = 5*(1/5 + 1/4 + 1/3 + 1/2 + 1) = 11.4166666
+
+(mul 5 (add (div 5) (div 4) (div 3) (div 2) 1)) = 11.4166666...
+
+Quindi occorrono in media acquistare 11 figurine per completare un album di 5 figurine.
+
+Da notare che l'epressione (1/5 + 1/4 + 1/3 + 1/2 + 1) è una somma armonica.
+
+La funzione approssimata per calcolare la somma armonica è la seguente (vedi "Serie e somma armonica"):
+
+(define (harmonic num)
+  (add (log num) 0.57721566490153286 (div (mul 2 num))))
+
+Verifichiamo la funzione con il nostro album di 5 figurine:
+
+(mul 5 (harmonic 5))
+;-> 11.43326788667817
+
+Il risultato è molto vicino al valore vero 11.41(6).
+
+Adesso possiamo utilizzare questa formula per risolvere il problema originale, cioè quante figurine occorre comprare, in media, se l'album contiene 100 figurine:
+
+(define (album fig) (mul fig (harmonic fig)))
+
+(album 100)
+;-> 518.7385850889624
+
+(for (i 2 5) (println (pow 10 i) { } (album (pow 10 i))))
+;-> 100 518.7385850889624
+;-> 1000 7485.470943883669
+;-> 10000 97876.06036877717
+;-> 100000 1209014.612987176
+
+Possiamo scrivere una funzione che simula il processo per verificare i risultati:
+
+Controllo album (vettore) pieno:
+
+(define (pieno arr len)
+  (= (apply + (array-list arr)) len))
+
+Funzione di simulazione del riempimento di un album:
+
+(define (album2 num iter)
+  (local (parz tot alb)
+    (setq tot 0)
+    (for (i 1 iter)
+      ; album vuoto
+      (setq alb (array num '(0)))
+      (setq fig 0)
+      ; fino a che non completo l'album...
+      (until (pieno alb num)
+        ; compro una figurina
+        (setf (alb (rand num)) 1)
+        (++ fig)
+      )
+      (setq tot (+ tot fig))
+    )
+    (div tot iter)))
+
+(album2 5 10000)
+;-> 11.4022
+(album2 5 100000)
+;-> 11.40983
+
+(album2 100 10000)
+;-> 518.4955
+
+Anche se questa funzione è estremamente lenta, conferma i valori teorici:
+
+(time (println (album2 1000 10000)))
+;-> 7491.9656
+;-> 1690626.211 ; circa 28 minuti
 =============================================================================
 
