@@ -126,7 +126,7 @@ I problemi sono di diversa difficoltà e per molti l'esperienza è l'apprendimen
 Cosa fare in seguito?
 Per tenere traccia dei tuoi progressi è necessario impostare un account e abilitare i cookie. Se hai già un account puoi accedere senza problemi, altrimenti devi registrati - è completamente gratuito!
 
-Tuttavia, poiché alcuni problemi sono difficili, potresti voler visualizzare i problemi prima di registrarti.
+Tuttavia, poiché alcuni problemi sono difficili, potresti voler visionare i problemi prima di registrarti.
 
 "Il progetto Eulero esiste per incoraggiare, sfidare e sviluppare le capacità e il divertimento di chiunque abbia un interesse per l'affascinante mondo della matematica."
 

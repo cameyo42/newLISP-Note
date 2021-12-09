@@ -2804,7 +2804,7 @@ http://en.feautec.pp.ru/store/libs/funlib.lsp
 
 
 ========================
- LITTLE SCHEMER LIBRARY
+ LITTLE SCHEMER LIBRARY  (wip)
 ========================
 
 ; Nome del file: "_newlisper.lsp"
@@ -3266,6 +3266,8 @@ http://en.feautec.pp.ru/store/libs/funlib.lsp
 
 (define (one-to-one? fun)
     (fun? (revrel fun)))
+
+; continua...
 
 'library-schemer-loaded
 

@@ -539,6 +539,11 @@ Eliminazione di una coppia (chiave-valore) nella hash-map:
 (myhash "1" "a")
 ;-> "a"
 
+Lunghezza di una hash-map:
+
+(length (myhash))
+;-> 2
+
 Funzione che elenca le coppie chiave-valore di una hash-map:
 
 (define (list-hash str)
@@ -4437,7 +4442,7 @@ La quarta figurina ha una probabilità di 2/5 e richiede 1/(2/5) = 5/2 di acquis
 La quinta figurina ha una probabilità di 1/5 e richiede 1/(1/5) = 5 acquisti.
 In totale abbiamo:
 
-(5/5 + 5/4 + 5/3 + 5/2 + 5) = 5*(1/5 + 1/4 + 1/3 + 1/2 + 1) = 11.4166666
+(5/5 + 5/4 + 5/3 + 5/2 + 5) = 5*(1/5 + 1/4 + 1/3 + 1/2 + 1) = 11.4166666...
 
 (mul 5 (add (div 5) (div 4) (div 3) (div 2) 1)) = 11.4166666...
 
@@ -4464,6 +4469,8 @@ Adesso possiamo utilizzare questa formula per risolvere il problema originale, c
 (album 100)
 ;-> 518.7385850889624
 
+Proviamo con album di 100, 1000, 10000, 100000 figurine:
+
 (for (i 2 5) (println (pow 10 i) { } (album (pow 10 i))))
 ;-> 100 518.7385850889624
 ;-> 1000 7485.470943883669
@@ -4472,22 +4479,15 @@ Adesso possiamo utilizzare questa formula per risolvere il problema originale, c
 
 Possiamo scrivere una funzione che simula il processo per verificare i risultati:
 
-Controllo album (vettore) pieno:
-
-(define (pieno arr len)
-  (= (apply + (array-list arr)) len))
-
-Funzione di simulazione del riempimento di un album:
-
 (define (album2 num iter)
-  (local (parz tot alb)
+  (local (fig tot alb)
     (setq tot 0)
     (for (i 1 iter)
       ; album vuoto
       (setq alb (array num '(0)))
       (setq fig 0)
       ; fino a che non completo l'album...
-      (until (pieno alb num)
+      (until (= (apply + (array-list alb)) num)
         ; compro una figurina
         (setf (alb (rand num)) 1)
         (++ fig)
@@ -4500,14 +4500,58 @@ Funzione di simulazione del riempimento di un album:
 ;-> 11.4022
 (album2 5 100000)
 ;-> 11.40983
+(time (println (album2 100 10000)))
+;-> 522.0433
+;-> 9162.55
 
-(album2 100 10000)
-;-> 518.4955
-
-Anche se questa funzione è estremamente lenta, conferma i valori teorici:
+Anche se questa funzione è estremamente lenta, conferma i risultati teorici:
 
 (time (println (album2 1000 10000)))
 ;-> 7491.9656
 ;-> 1690626.211 ; circa 28 minuti
+
+Riscriviamo la funzione utilizzando una hash-map al posto del vettore:
+
+(define (album3 num iter)
+  (local (parz conta fig tot)
+    (setq tot 0)
+    (for (i 1 iter)
+      ; album vuoto
+      (new Tree 'hash)
+      (setq parz 0)
+      (setq conta 0)
+      (until (= conta num)
+        ; compro una figurina
+        (setq fig (rand num))
+        (++ parz)
+        ;(println "fig = " fig)
+        (if (= (hash fig) nil)
+            (begin
+              ;(println fig " aggiunta.")
+              (hash fig fig)
+              (++ conta)))
+        ;(println "parz = " parz)
+        ;(println "conta = " conta)
+        ;(println "hash len = " (length (hash)))
+        ;(read-line)
+      )
+      (delete 'hash)
+      (setq tot (+ tot parz))
+    )
+    (div tot iter)))
+
+(album3 5 10000)
+;-> 11.4421
+(album3 5 100000)
+;-> 11.42954
+
+(time (println (album3 100 10000)))
+;-> 518.5324
+;-> 1803.015
+
+(time (println (album3 1000 10000)))
+;-> 7498.3045
+;-> 27392.915 ; circa 27 secondi
+
 =============================================================================
 

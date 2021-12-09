@@ -10,7 +10,7 @@ Ci sono (1 + 2 + 3) numeri primi minori di (4 + 5 + 6) e il 7-imo primo è ugual
 BubbleSort
 ----------
 
-Il Bubble sort (ordinamento a bolla) è un semplice algoritmo stabile di ordinamento di una lista o di un vettore di dati. Ogni coppia di elementi adiacenti viene comparata e invertita di posizione se sono nell'ordine sbagliato. L'algoritmo continua continuamente ad eseguire questi passaggi per tutta la lista finché non vengono più eseguiti scambi, situazione che indica che la lista è ordinata.
+Il Bubble-Sort (ordinamento a bolla) è un semplice algoritmo stabile di ordinamento di una lista o di un vettore di dati. Ogni coppia di elementi adiacenti viene comparata e invertita di posizione se sono nell'ordine sbagliato. L'algoritmo continua continuamente ad eseguire questi passaggi per tutta la lista finché non vengono più eseguiti scambi, situazione che indica che la lista è ordinata.
 
 Complessità temporale media O(n^2).
 
@@ -222,7 +222,7 @@ Look o Peek o Top: restituisce l'elemento superiore dello stack.
 isEmpty: restituisce true se lo stack è vuoto, altrimenti false.
 pila
 
-Come capire praticamente una pila?
+Come immaginare praticamente una pila?
 Ci sono molti esempi di vita reale di una pila. Considera il semplice esempio di piatti impilati uno sull'altro in una mensa. Il piatto che è nella parte superiore è il primo ad essere rimosso, in altre parole il piatto che è stato posto nella posizione più bassa rimane nella pila per il periodo di tempo più lungo. Quindi, può essere semplicemente visto seguire l'ordine LIFO / FILO.
 
 Complessità di tempo delle operazioni sullo stack:
@@ -514,7 +514,7 @@ Con lo stesso metodo possiamo implementare anche una pila illimitata.
 Coda circolare (Ring Buffer)
 ----------------------------
 
-La Coda circolare (Circular Queue) è una struttura di dati lineare in cui le operazioni vengono eseguite in base al principio FIFO (First In First Out) e l'ultima posizione viene connessa alla prima posizione per creare un cerchio. Viene anche chiamato 'Ring Buffer'.
+La Coda circolare (Circular Queue) è una struttura di dati lineare in cui le operazioni vengono eseguite in base al principio FIFO (First In First Out) e l'ultima posizione viene connessa alla prima posizione per creare una struttura circolare. Viene anche chiamato 'Ring Buffer'.
 
             front
  8      10   0       1  <--- indice
@@ -1625,11 +1625,11 @@ Questa ultima versione ha una convergenza più rapida con i numeri minori di 1.
 
 L'algoritmo può anche essere definito nel modo seguente:
 
-1) Poni il valore iniziale della stima della radice x0 uguale al numero x
-2) Inizializza y = 1.
+1) Porre il valore iniziale della stima della radice x0 uguale al numero x
+2) Inizializzare y = 1.
 3) Fino al raggiungimento della precisione desiderata:
    a) calcolare prossima stima: x0 = (x0 + y)/2
-   b) Imposta y = x / x0
+   b) Impostare y = x / x0
 
 (define (rq x err)
   (local (x0 y)

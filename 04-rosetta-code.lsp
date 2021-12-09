@@ -155,6 +155,7 @@ Nota: il sito https://www.99-bottles-of-beer.net/ contiene una raccolta della ca
 ;-> No more bottles of beer on the wall, no more bottles of beer.
 ;-> Go to the store and buy some more, 99 bottles of beer on the wall.
 
+
 ------------
 NUMERI PRIMI
 ------------
@@ -223,7 +224,7 @@ Adesso possiamo scrivere la funzione completa:
 ;-> 839 853 857 859 863 877 881 883 887 907 911 919 929 937 941 947 953 967 971 977 983 991 997
 
 Se vogliamo sapere soltanto se un certo numero è primo possiamo utilizzare altri metodi.
-Il test di primalità più semplice è la "prova della divisione": dato un numero n, controlla se ogni numero intero m, che va da 2 a sqrt(n), divide precisamente n (la divisione non lascia resto). Se n è divisibile per uno qualsiasi dei valori di m allora n è composto, altrimenti è primo.
+Il test di primalità più semplice è la "prova della divisione": dato un numero n, controllare se ogni numero intero m, che va da 2 a sqrt(n), divide precisamente n (la divisione non lascia resto). Se n è divisibile per uno qualsiasi dei valori di m allora n è composto, altrimenti è primo.
 
 Ad esempio, per testare la primalità di 100 con questo metodo, considera tutti i divisori interi di 100:
 

@@ -753,6 +753,7 @@ Potete trovare il file nella cartella "data".
 ----------------------------
 Numero di eulero o di nepero
 ----------------------------
+
 e = 2.7182818284590451
 
 (exp 1)

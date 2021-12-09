@@ -1218,7 +1218,7 @@ La seguente funzione calcola il livello massimo di annidamento di una lista:
   )
 )
 
-Il trucco sta nell'utilizzare la funzione "max" per scoprire quale ramo della ricorsione è il più profondo, notando che ogni volta che ricorraimo su first aggiungiamo un altro livello.
+Il trucco sta nell'utilizzare la funzione "max" per scoprire quale ramo della ricorsione è il più profondo, notando che ogni volta che ricorriamo su first aggiungiamo un altro livello.
 
 (annidamento '())
 ;-> 0

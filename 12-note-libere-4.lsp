@@ -3594,7 +3594,7 @@ I numeri rari sono quei numeri che quando aggiunti o sottratti al suo rovescio d
   - r è il contrario di n (cifre decimali)
   - n deve essere non palindromo (n ≠ r)
   - (n + r) è la somma
-  - (n-r) è la differenza e deve essere positiva
+  - (n - r) è la differenza e deve essere positiva
   - la somma e la differenza devono essere quadrati perfetti
 
 Sequenza OEIS: A035519

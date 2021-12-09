@@ -911,7 +911,7 @@ Reduce
 
 Il LISP ha la funzione "reduce" che applica una funzione "tra" gli elementi di una lista. Prende il nome dal fatto che riduce la lista ad un singolo elemento. Questo risultato viene ottenuto applicando la funzione ai primi due elementi della lista, poi applicando la funzione al risultato e al terzo elemento della lista, ecc.
 
-In newLISP possiamo scrivere (funzione è stata proposta da nigelbrown):
+In newLISP possiamo scrivere (funzione da nigelbrown):
 
 (define (reduce funct lst)
   (cond

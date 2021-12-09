@@ -539,7 +539,7 @@ Nota: questo algoritmo non assicura che il giocatore A vinca sempre. La vittoria
 
 In altre parole, questo algoritmo trova il comportamento ottimale per il giocatore A, ma non è in grado di definire una strategia vincente.
 
-Nota: per definire una strategia vincente (se la distribuzione iniziale lo consente) occorre usare un algoritmo che considera l'intero albero delle possibili mosse (infatti è necessario ricorrere più in profondità per ottenere la soluzione ottimale anziché limitarsi a raggiungere il massimo alla mossa successiva).
+Nota: per definire una strategia vincente (se la distribuzione iniziale lo consente) occorre usare un algoritmo che analizza l'intero albero delle possibili mosse (infatti è necessario ricorrere più in profondità per ottenere la soluzione ottimale anziché limitarsi a raggiungere il massimo alla mossa successiva).
 
 Nota: per rendere più equo il gioco il numero di pentole dovrebbe essere pari, altrimenti il primo giocatore A sceglierebbe una pentola in più del giocatore B.
 

@@ -11,7 +11,7 @@ Molte persone confondono l'informatica con quelle aree professionali che riguard
 
 Mentre occorrono notevoli conoscenze teoriche e tecniche per appartenere alla categoria degli informatici, per appartenere a quella degli utenti finali ne occorrono decisamente di meno – talvolta solo il minimo indispensabile – e questo grazie al lavoro dei primi, costantemente orientato a rendere sempre più semplice l’uso del computer per tutti.
 
-Un informatico dovrebbe sempre avere un interesse profondo per i fondamenti teorici dell'informatica. Che poi, per professione o per passione, spesso faccia lo sviluppatore di software è possibile, ma non è così scontanto, poichè può sfruttare le proprie capacità di problem solving in diversi ambiti. In ogni caso l'informatica, almeno nella sua parte applicativa, è una disciplina fortemente orientata al problem solving.
+Un informatico dovrebbe sempre avere un interesse profondo per i fondamenti teorici dell'informatica. Che poi, per professione o per passione, spesso faccia lo sviluppatore di software è possibile, ma non è così scontato, poichè può sfruttare le proprie capacità di problem solving in diversi ambiti. In ogni caso l'informatica, almeno nella sua parte applicativa, è una disciplina fortemente orientata al problem solving.
 
 ---------------
 Notazione Big-O

@@ -6,9 +6,10 @@
 
 Questi problemi sono stati creati inizialmente per essere risolti con il linguaggio Prolog.
 Poi è stata la volta dei linguaggi Lisp, Haskell e Scheme... e adesso newLISP.
-Potete trovare l'elenco completo dei problemi al sito:
+Potete trovare l'elenco completo dei problemi in diversi siti:
 
 https://www.ic.unicamp.br/~meidanis/courses/mc336/2006s2/funcional/L-99_Ninety-Nine_Lisp_Problems.html
+https://www.informatimago.com/develop/lisp/l99/index.html
 http://beta-reduction.blogspot.com/search/label/L-99%3A%20Ninety-Nine%20Lisp%20Problems
 
 In questo capitolo vengono risolti solo i primi 28 problemi relativi alla elaborazione di liste. Molti problemi successivi al numero 28 sono risolti in altri capitoli di questo documento e sono contrassegnati con il simbolo (+).
@@ -56,9 +57,9 @@ N-99-34  Calculate Euler's totient function phi(m) (+)
 N-99-35  Determine the prime factors of a given positive integer (+)
 N-99-36  Determine the prime factors of a given positive integer (2) (+)
 N-99-37  Calculate Euler's totient function phi(m) (improved) (+)
-N-99-38  Compare the two methods of calculating Euler's totient function
+N-99-38  Compare the two methods of calculating Euler's totient function (+)
 N-99-39  A list of prime numbers (+)
-N-99-40  Goldbach's conjecture
+N-99-40  Goldbach's conjecture (+)
 N-99-41  A list of Goldbach compositions
 
 Logic and Codes (Logica e Codici)

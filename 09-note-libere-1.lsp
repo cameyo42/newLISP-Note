@@ -2601,7 +2601,7 @@ L'alfabeto web "Leet"
 ---------------------
 
 L'alfabeto Leet ("Leet") è un altro alfabeto per il linguaggio inglese usato principalmente su internet e sulla messaggistica.
-Alcune lettere vengono sosituite con delle cifre. In genre si ha la seguente corrispondenza:
+Alcune lettere vengono sosituite con delle cifre. In genere si ha la seguente corrispondenza:
 
 0 = O
 1 = I
