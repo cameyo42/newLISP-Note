@@ -1341,7 +1341,7 @@ Scriviamo la funzione:
     ; stampa intestazione
     (println "Passi        Posizione")
     ; ciclo fino a che la lista posizioni non è vuota
-    ; oppure fino al nuimero massimo dei passi
+    ; oppure fino al numero massimo dei passi
     (for (i 1 max-walks 1 (empty? positions))
       ; seleziona indice del passo casuale
       (setq idx (rand numsteps))
@@ -1468,11 +1468,11 @@ x = (1/2)*(x+1) + (1/4)*(x+2) + ... + (1/(2^k))*(x+k) + .. + (1/(2^N))*(x+N) + (
 
 Risolvendo l'equazione si ottiene:
 
-x = 2^(N+1) - 2 = 2*(2^n -1)
+x = 2^(N+1) - 2 = 2*(2^n - 1)
 
 Poichè il nostro problema originale considera anche la probabilità di ottenere N croci consecutive (oltre a N teste consecutive), il valore atteso vale la metà del risultato precedente:
 
-x = (2^n -1)
+x = (2^n - 1)
 
 (define (atteso num) (- (pow 2 num) 1))
 
@@ -2693,7 +2693,6 @@ Questo significa che la frase è attribuita a Doyle al 2.5% e al 97.5% a Wilde.
 ;-> (0.5 0.5)
 
 Questo significa che la frase è attribuita a Doyle al 50% e al 50% a Wilde, cioè non è in grado di decidere a quale dei due appartenga la frase (stesse probabilità).
-
 
 Proviamo a togliere tutte le parole vuote da entrambi i set di dati e vedere se otteniamo risultati diversi:
 
@@ -4298,7 +4297,7 @@ Verifichiamo i risultati deglki esempi:
 (periodo 86400)
 ;-> 1d
 (periodo 6000000)
-;-> 9wk 6d 10h 40m
+;-> 9w 6d 10h 40m
 (periodo 12000)
 ;-> 3h 20m
 

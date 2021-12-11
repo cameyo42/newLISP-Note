@@ -997,7 +997,8 @@ NOTE LIBERE 6
   Numeri in base negativa
   Serie e somma armonica
   Raccolta di figurine
-  
+  Strano ma vero
+  Passeggiata casuale (random-walk)
   
 APPENDICI
 =========

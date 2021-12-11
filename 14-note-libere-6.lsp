@@ -1520,6 +1520,25 @@ Nota: le seguenti formule permettono di creare altre sequenze di frazioni egizie
 ------- = ------------------- + ------------------- + -------------------
  a*b*c    a*(a*b + b*c + c*a)   b*(a*b + b*c + c*a)   b*(a*b + b*c + c*a)
 
+Esistono altri metodi per costruire le frazioni egizie ed ognuno ha le proprie caratteristiche:
+
+(vedi "Egyptians Fractions" 
+https://pls.scienze.unipd.it/matematica/wp-content/uploads/sites/3/2018/07/2018.-MJ-Casagrande.-Articolo-Egypt.pdf)
+
+1) Metodo di Fibonacci 
+   7/2 = 1/2 + 1/4 + 1/36
+
+2) Metodo di Golomb
+   7/9 = 1/2 + 1/6 + 1/12 + 1/36
+
+3) Metodo dei numeri pratici 
+   7/9 = 1/2 + 1/6 + 1/9
+   
+4) Metodo geometrico
+   7/9 = 1/2 + 1/6 + 1/12 + 1/36
+   7/9 = 1/2 + 1/6 + 1/9
+   ...
+
 
 ------------------------------------
 Formule polinomiali per numeri primi
@@ -2718,10 +2737,11 @@ Una funzione/programma deve essere progettata, scritta e valutata tenendo conto 
 0) correttezza del programma
 1) velocità di esecuzione
 2) spazio di memoria
-3) chiarezza ed eleganza della soluzione (algopritmo)
+3) chiarezza ed eleganza della soluzione (algoritmo)
 4) facilità di scrittura
 5) facilità di lettura
-6) documentazione/manuale
+6) facilità di debug
+7) documentazione/manuale
 
 Ovviamente, la caratteristica fondamentale è la correttezza della funzione (che deve essere sempre presente), mentre le altre dipendono da diversi fattori del contesto in cui operiamo.
 
@@ -4552,6 +4572,251 @@ Riscriviamo la funzione utilizzando una hash-map al posto del vettore:
 (time (println (album3 1000 10000)))
 ;-> 7498.3045
 ;-> 27392.915 ; circa 27 secondi
+
+
+--------------
+Strano ma vero
+--------------
+
+Generare N numeri casuali uniformi da 0 a 1 e metterli in N "contenitori" di uguale larghezza. Quindi, contare il numero di contenitori Z che sono vuoti (cioè non contengono alcun numero casuale). A quale numero tende il rapporto Z/N?
+
+(define (stima num-seg)
+  (local (segments len empty)
+    ; larghezza dei contenitori
+    (setq len (div num-seg))
+    ; numero segmenti
+    (setq segments (array (+ num-seg 1) '(0)))
+    ; genera num-seg numeri random
+    ; e per ogni numero aggiorna il valore del segmento (nel vettore)
+    ; in cui cade quel numero
+    (for (j 1 num-seg)
+      (++ (segments (int (div (random) len))))
+    )
+    ; calcola numero di segmenti/intervalli vuoti
+    (setq empty (first (count '(0) (array-list segments))))
+    (div empty num-seg)))
+
+Proviamo la funzione:
+
+(stima 1e4)
+;-> 0.3696
+(stima 1e5)
+;-> 0.68803
+(stima 1e6)
+;-> 0.967233
+(time (println (stima 1e7)))
+;-> 0.9967233
+;-> 4837.121
+(time (println (stima 1e8)))
+;-> 0.99967233
+;-> 57422.156
+
+Sembra che il rapporto Z/N tende a 1 per N che tende all'infinito.
+
+Il problema può essere formulato anche in questo modo: generare N numeri casuali da 1 a N. Quanti numeri da 1 a N non sono stati generati (Z)? Il rapporto Z/N dovrebbe tendere allo stesso valore.
+
+(define (stima1 num-seg)
+  (local (segments len empty)
+    (setq segments (array (+ num-seg 1) '(0)))
+    ; genera num-seg numeri random
+    ; e per ogni numero aggiorna il valore del segmento (nel vettore)
+    ; in cui cade quel numero
+    (for (j 1 num-seg)
+      (++ (segments (rand num-seg)))
+    )
+    ; calcola numero di valori vuoti
+    (setq empty (first (count '(0) (array-list segments))))
+    (div empty num-seg)))
+
+Proviamo la funzione:
+
+(stima1 1e4)
+;-> 0.3697
+(stima1 1e5)
+;-> 0.68784
+(stima1 1e6)
+;-> 0.967234
+(time (println (stima1 1e7)))
+;-> 0.9967234
+;-> 4256.015
+(time (println (stima1 1e8)))
+;-> 0.99967234
+;-> 52394.689
+
+Anche in questo caso il rapporto Z/N tende a 1 per N che tende all'infinito.
+
+Proviamo con un'altra funzione: mettiamo tutti i numeri random in una lista (lst) e poi usiamo la funzione "unique" per trovare solo i numeri univoci. Il numero degli zeri (Z), cioè quanti numeri non abbiamo estratto, sono dati dall'espressione (- num-seg (length (unique lst))).
+
+(define (stima2 num-seg)
+  (local (segments len empty)
+    (setq segments '())
+    ; genera num-seg numeri random
+    ; e li inserisce in una lista
+    ; in cui cade quel numero
+    (for (j 1 num-seg)
+      (push (rand num-seg) segments)
+    )
+    ; calcola numero di segmenti/intervalli vuoti
+    (setq empty (- num-seg (length (unique segments))))
+    (div empty num-seg)))
+
+Proviamo la funzione:
+
+(stima2 1e4)
+;-> 0.3743
+(stima2 1e5)
+;-> 0.68799
+(stima2 1e6)
+;-> 0.967233
+(time (println (stima2 1e7)))
+;-> 0.9967233
+;-> 10445.33
+(time (println (stima2 1e8)))
+;-> 0.99967233
+;-> 127722.023
+
+Anche in questo caso il rapporto Z/N tende a 1 per N che tende all'infinito.
+
+Nota: anche tutti i valori di output sono quasi uguali per tutte e tre le funzioni.
+
+Il fatto che Z/N tende a 1 vuol dire che il numero di numeri non estratti si avvicina al numero totale di estrazioni, cioè il numero di numeri estratti tende a 0 (non molto chiaro però?!).
+
+
+---------------------------------
+Passeggiata casuale (random-walk)
+---------------------------------
+
+Dato un piano cartesiano con coordinate intere (lattice), scrivere un programma che simula una passeggiata casuale di un agente sul piano. Ad ogni passo l'agente può muoversi in una delle seguenti direzioni: nord, est, sud, ovest.
+
+Usiamo una lista "pos" con le coordinate (x y) per ogni posizione visitata dal punto.
+I movimenti del punto possono essere i seguenti:
+
+Nord  --> x = x    , y = y + 1
+Est   --> x = x + 1, y = y
+Sud   --> x = x    , y = y - 1
+Ovest --> x = x - 1, y = y
+
+Per primo scriviamo una funzione che restituisce il percorso dell'agente, cioè una lista con tutte le coordinate dei punti visitati (anche quelli multipli, cioè visitati più volte):
+
+(define (rnd-walk start iter)
+  (local (pos moves path)
+    ; inizializzazione generatore numeri random
+    (seed (time-of-day))
+    ; mosse possibili: -1 o +1 lungo x o lungo y
+    (setq moves '(-1 +1))
+    ; posizione iniziale
+    (setq pos start)
+    ; percorso dell'agente
+    ; lista dei punti visitati (anche quelli multipli)
+    (setq path '())
+    ; posizione iniziale visitata
+    (push pos path -1)
+    ; inizio della passeggiata...
+    (for (i 1 iter)
+      ; aggiorna coordinate x o y (pos)
+      (++ (pos (rand 2)) (moves (rand 2)))
+      ; aggiorna la lista del percorso
+      (push pos path -1)
+      ;(println pos) (read-line)
+    )
+    ; stampa ultima posizione dell'agente
+    ;(println pos)
+    path))
+
+Simuliamo una passeggiata di 10 passi partendo da 0,0:
+
+(rnd-walk '(0 0) 10)
+;-> (5 3)
+;-> ((0 0) (0 1) (1 1) (1 2) (2 2) (3 2) (3 3) (3 2) (4 2) (4 3) (5 3))
+
+Con la lista di tutti i punti visitati dall'agente, possiamo cercare quello che ci interessa.
+
+Ad esempio, calcoliamo le frequenze dei punti visitati (cioè quante volte un punto è stato visitato):
+
+Simuliamo una passeggiata casuale:
+
+(setq percorso (rnd-walk '(0 0) 20))
+;-> ((0 0) (-1 0) (-1 1) (-1 0) (-2 0) (-3 0) (-4 0) (-4 -1) (-3 -1) (-2 -1) 
+;->  (-2 -2) (-2 -3) (-3 -3) (-4 -3) (-4 -4) (-4 -5) (-3 -5) (-3 -6) (-3 -7)
+;->  (-4 -7) (-3 -7))
+
+Calcoliamo punti unici visitati:
+
+(setq unici (unique percorso))
+;-> ((0 0) (-1 0) (-1 1) (-2 0) (-3 0) (-4 0) (-4 -1) (-3 -1) (-2 -1) (-2 -2) 
+;->  (-2 -3) (-3 -3) (-4 -3) (-4 -4) (-4 -5) (-3 -5) (-3 -6) (-3 -7) (-4 -7))
+
+Calcoliamo/contiamo la frequenza di ogni punto del percorso:
+
+(setq conta (count unici percorso))
+;-> (1 2 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 2 1)
+
+Infine creiamo una lista ordinata con la frequenza dei punti unici e le relative coordinate:
+
+(sort (map list conta unici))
+;-> ((1 (-4 -7)) 
+;->  (1 (-4 -5)) 
+;->  (1 (-4 -4)) 
+;->  (1 (-4 -3)) 
+;->  (1 (-4 -1)) 
+;->  (1 (-4 0)) 
+;->  (1 (-3 -6))
+;->  (1 (-3 -5))
+;->  (1 (-3 -3))
+;->  (1 (-3 -1))
+;->  (1 (-3 0))
+;->  (1 (-2 -3))
+;->  (1 (-2 -2))
+;->  (1 (-2 -1))
+;->  (1 (-2 0))
+;->  (1 (-1 1))
+;->  (1 (0 0))
+;->  (2 (-3 -7))
+;->  (2 (-1 0)))
+
+Scriviamo una funzione per calcolare questa lista:
+
+(define (freq-path path)
+  (let (unici (unique path))
+    (sort (map list (count unici path) unici))))
+
+Usiamo la funzione su una nuova passeggiata:
+
+(freq-path (rnd-walk '(0 0) 20))
+;-> ((1 (0 -2)) (1 (0 -1)) (1 (0 0)) (1 (1 -4)) (1 (1 -1)) (1 (2 -6)) 
+;->  (1 (2 -5)) (1 (2 -3)) (1 (3 -6)) (1 (3 -5)) (1 (3 -4)) (1 (3 -3))
+;->  (1 (4 -8)) (1 (4 -7)) (1 (4 -6)) (1 (4 -4)) (1 (4 -3)) (2 (1 -3))
+;->  (2 (1 -2)))
+
+Possiamo calcolare il punto visitato di più:
+
+(last (freq-path (rnd-walk '(0 0) 2000)))
+;-> (20 (8 8))
+
+Possiamo esportare i punti del percorso e poi visualizzarli con un foglio elettronico:
+
+(define (list-csv lst file-str sepchar)
+"Creates a file csv from a list"
+  (local (outfile)
+    (if (nil? sepchar)
+        (setq sepchar ",")
+    )
+    (setq outfile (open file-str "write"))
+    (dolist (el lst)
+      (setq line (join (map string el) sepchar))
+      (write-line outfile line)
+    )
+    ;(print outfile { })
+    (close outfile)))
+
+(list-csv (rnd-walk '(0 0) 2000) "agente.csv")
+;-> true
+
+Lanciamo "excel" o "calc" con il nostro file "agente.csv":
+
+(! "start excel agente.csv")
+
+e poi facciamo i grafici/calcoli che vogliamo.
 
 =============================================================================
 
