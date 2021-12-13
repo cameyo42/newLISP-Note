@@ -4489,6 +4489,8 @@ Adesso possiamo utilizzare questa formula per risolvere il problema originale, c
 (album 100)
 ;-> 518.7385850889624
 
+Dobbiamo comprare 518 figurine...
+
 Proviamo con album di 100, 1000, 10000, 100000 figurine:
 
 (for (i 2 5) (println (pow 10 i) { } (album (pow 10 i))))
@@ -4740,7 +4742,7 @@ Simuliamo una passeggiata casuale:
 ;->  (-2 -2) (-2 -3) (-3 -3) (-4 -3) (-4 -4) (-4 -5) (-3 -5) (-3 -6) (-3 -7)
 ;->  (-4 -7) (-3 -7))
 
-Calcoliamo punti unici visitati:
+Calcoliamo i punti unici visitati:
 
 (setq unici (unique percorso))
 ;-> ((0 0) (-1 0) (-1 1) (-2 0) (-3 0) (-4 0) (-4 -1) (-3 -1) (-2 -1) (-2 -2) 
@@ -4788,10 +4790,21 @@ Usiamo la funzione su una nuova passeggiata:
 ;->  (1 (4 -8)) (1 (4 -7)) (1 (4 -6)) (1 (4 -4)) (1 (4 -3)) (2 (1 -3))
 ;->  (2 (1 -2)))
 
+Data una passeggiata/percorso:
+
+(silent (setq percorso (rnd-walk '(0 0) 2000)))
+
 Possiamo calcolare il punto visitato di più:
 
-(last (freq-path (rnd-walk '(0 0) 2000)))
-;-> (20 (8 8))
+(last (freq-path percorso))
+;-> (15 (26 17))
+
+Oppure quante volte è passato per (0 0):
+
+(ref '(0 0) (freq-path percorso))
+;-> (12 1)
+((freq-path percorso) 12)
+;-> (1 (0 0))
 
 Possiamo esportare i punti del percorso e poi visualizzarli con un foglio elettronico:
 
@@ -4817,6 +4830,493 @@ Lanciamo "excel" o "calc" con il nostro file "agente.csv":
 (! "start excel agente.csv")
 
 e poi facciamo i grafici/calcoli che vogliamo.
+
+
+---------
+Per gioco
+---------
+
+Definiamo una lista che contine un simbolo: il punto ".":
+
+(setq a '(.))
+;-> (.)
+(a 0)
+;-> .
+
+Adesso definiamo una funzione che si chiama punto "." che stampa la parola "punto":
+
+(define (.) (println "punto"))
+;-> (lambda () (println "punto"))
+
+Eseguiamo la funzione:
+
+(.)
+;-> punto
+
+Adesso valutando il valore di (a 0), cioè il simbolo ".", otteniamo la definizione della funzione associata al simbolo ".":
+(a 0)
+;-> .
+(eval (a 0))
+;-> (lambda () (println "punto"))
+
+Possiamo eseguire questa funzione racchiudendola tra parentesi () come per qualunque altra funzione:
+
+((eval (a 0)))
+;-> punto
+
+Se assegniamo il simbolo/funzione "." ad un altro simbolo (es. "b"), allora a quest'ultimo viene associata una funzione uguale a quello di ".":
+
+(setq b .)
+;-> (lambda () (println "punto"))
+(b)
+;-> punto
+(.)
+;-> punto
+(eval .)
+;-> (lambda () (println "punto"))
+(eval b)
+;-> (lambda () (println "punto"))
+
+Modifichiamo la funzione (che è una lista) associata al simbolo "b":
+
+(list? b)
+;-> true
+
+Vogliamo cambiare la stringa "punto" con la stringa "b":
+
+(nth 1 b)
+;-> (println "punto")
+
+(last (nth 1 b))
+;-> "punto"
+
+Effettuiamo la modifica:
+
+(setf (last (nth 1 b)) "b")
+
+Verifichiamo se la funzione è stata modificata:
+
+(eval b)
+;-> (lambda () (println "b"))
+
+Valutiamo le due funzioni "b" e ".":
+
+(b)
+;-> b
+
+(.)
+;-> punto
+
+
+------------
+Carta attesa
+------------
+
+Dato un mazzo di carte Francesi (52 carte) e un mazzo di carte Napoletane (40 carte). Entrambi i mazzi sono ben mischiati. Cominciando ad estrarre dalla prima carta di un mazzo, quante carte occorrono, in media, per estrarre un Asso?
+E quante ne occorrono per l'altro mazzo? 
+Cosa accade se scegliamo/attendiamo un'altra carta, ad esempio il "9"?
+
+Scriviamo prima la funzione di simulazione:
+
+(define (primo num carte iter)
+  (local (mazzo tot)
+    ; creazione del mazzo
+    ; carte = 10 ==> mazzo napoletano
+    ; carte = 13 ==> mazzo francese
+    (setq mazzo (flat (dup (sequence 1 carte) 4)))
+    (setq tot 0)
+    (for (i 1 iter)
+      ; mischia mazzo
+      (setq mazzo (randomize mazzo))
+                       ; dove sta la carta?
+      (setq tot (+ tot (+ (find num mazzo) 1)))
+    )
+    (println tot)
+    (div tot iter)))
+
+(primo 1 13 1000000)
+;-> 10.609797 
+
+Nel mazzo francese occorrono, in media, 10.6 carte prima che compaia un Asso.
+
+(primo 1 10 1000000)
+;-> 8.193944999999999
+
+Nel mazzo napoletano occorrono, in media, 8.2 carte prima che compaia un Asso.
+
+Qualunque altra carta produce gli stessi risultati:
+
+Carte francesi:
+
+(primo 9 13 1000000)
+;-> 10.60951
+
+Carte napoletane:
+
+(primo 9 10 1000000)
+;-> 8.194067
+
+Dal punto di vista matematico possiamo utilizzare il "principio di simmetria".
+I 4 Assi dividono un mazzo in 5 segmenti che possono avere una lunghezza da 0 a k.
+Il valore di k è dato dal numero delle carte meno il numero degli Assi.
+Se due Assi sono uno di seguito all'altro, allora il segmento tra loro ha lunghezza 0.
+Se la prima carta è un Asso, allora il segmento precedente ha lunghezza 0.
+Se l'ultima carta è un Asso, allora il segmento seguente ha lunghezza 0.
+Il principio di simmetria afferma che i 5 segmenti dovrebbero avere una lunghezza media pari a k/5 carte. Quindi dopo k/5 carte la prossima è un Asso, così per ottenere un Asso dobbiamo estrarre, in media (1 + (k/5)) carte.
+
+Verifichiamo il ragionamento con i due mazzi di carte:
+
+Carte Francesi
+  carte = 52
+  k = carte - 4 = 48
+  Media = 1 + 48/5 = 10.6
+(add 1 (div 48 5))
+;-> 10.6
+
+Carte Napoletane
+  carte = 40
+  k = carte - 4 = 36
+  Media = 1 + 36/5 = 8.2
+(add 1 (div 36 5))
+;-> 8.199999999999999
+
+
+--------------
+Scontro al bar
+--------------
+
+Due persone vanno tutti i giorni al bar tra le 5 e le 6 in modo casuale. Ogni persona entra nel bar e dopo 5 minuti esce. Se le due persone si incontrano fanno sempre a botte. Qual'è la probabilità che le due persone si incontrino?
+
+Utilizziamo prima i minuti per dividere l'ora tra le 5 e le 6:
+
+(define (duel iter)
+  (local (x y tot)
+    (setq tot 0)
+    (for (i 1 iter)
+      (setq x (rand 60))
+      (setq y (rand 60))
+      ; se y è compreso tra (x - 5) o (x + 5)
+      ; allora si incontrano
+      (if (<= (abs (- x y)) 5) (++ tot))
+    )
+    (div tot iter)))
+
+(duel 10000000)
+;-> 0.1750184
+
+(div 10.5 60)
+;-> 0.175
+
+Utilizzando i secondi al posto dei minuti otteniamo un risultato più preciso:
+
+(define (duel2 iter)
+  (local (x y tot)
+    (setq tot 0)
+    (for (i 1 iter)
+      (setq x (rand 3600))
+      (setq y (rand 3600))
+      ; se y è compreso tra (x - 300) o (x + 300)
+      ; allora si incontrano      
+      (if (<= (abs (- x y)) 300) (++ tot))
+    )
+    (div tot iter)))
+
+(duel2 10000000)
+;-> 0.159961
+
+Normalizziamo l'ora tra 0 e 1:
+
+(define (duel3 iter)
+  (local (x y tot)
+    (setq tot 0)
+    ; tempo di permanenza al bar
+    (setq delta (div 1 12))
+    (for (i 1 iter)
+      (setq x (random))
+      (setq y (random))
+      ; se y è compreso tra (x - 1/12) o (x + 1/12)
+      ; allora si incontrano      
+      (if (<= (abs (sub x y)) delta) (++ tot))
+    )
+    (div tot iter)))
+
+(duel3 10000000)
+;-> 0.1596549
+
+Nota: il risultato matematico vale (1 - (11/12)^2) = 23/144 = 0.1597222222222222
+
+
+-------------------------------
+La fallacia dello scommettitore
+-------------------------------
+
+La fallacia dello scommettitore è un errore logico che riguarda l'errata convinzione che eventi occorsi nel passato influiscano su eventi futuri nell'ambito di attività governate dal caso, quali ad esempio molti giochi d'azzardo. L'espressione descrive una delle seguenti erronee convinzioni:
+
+Un evento casuale ha "più" probabilità di verificarsi perché non si è verificato per un periodo di tempo;
+Un evento casuale ha "meno" probabilità di verificarsi perché non si è verificato per un periodo di tempo;
+Un evento casuale ha "più" probabilità di verificarsi perché si è verificato di recente;
+Un evento casuale ha "meno" probabilità di verificarsi perché si è verificato di recente;
+
+Quelle esposte sono convinzioni errate, comuni nel diffuso ragionare sulle probabilità, che sono state oggetto di studi molto dettagliati. Molte persone perdono soldi nei giochi d'azzardo per via di tali errate convinzioni.
+
+In realtà, le possibilità che un qualche evento si verifichi nelle prove successive non sono necessariamente correlate con ciò che si è verificato in passato, specialmente in molti giochi d'azzardo. Tale fenomeno è noto alla teoria della probabilità come la proprietà della "mancanza di memoria".
+
+La fallacia dello scommettitore può essere esemplificata prendendo ad esempio il ripetuto lancio di una moneta. Usando una moneta priva di irregolarità la probabilità di ottenere T=Testa è esattamente 0,5 (una su due), quella di ottenere due volte consecutive T è 0.5×0.5=0.25 (una su quattro), quella di ottenere tre volte consecutive T è 0.5×0.5×0.5= 0.125 (una su otto), e via di seguito.
+
+Ora si supponga di avere ottenuto per quattro volte consecutive Testa. Un individuo vittima della fallacia dello scommettitore potrebbe dire, "Se la prossima volta esce Testa, si avrebbe una successione di cinque volte consecutive in cui esce Testa. La probabilità di una successione di cinque Testa consecutive è di {\displaystyle (1/2)^{5}=1/32}(1/2)^{5}=1/32; dunque, al prossimo tentativo c'è una probabilità di solo 1 su 32 che esca testa."
+
+Questo è un ragionamento errato. Se la moneta è regolare, per definizione la probabilità che esca C=Croce deve sempre essere 0,5, mai superiore (o inferiore), e la probabilità che esca Testa deve sempre essere 0,5, mai inferiore (o superiore). Mentre la probabilità di una successione di cinque Testa consecutive è solo 1 su 32, ciò vale solo prima del primo lancio della moneta. Dopo i primi quattro lanci i risultati non sono più sconosciuti, per cui non vengono contati. La probabilità di cinque Testa consecutive è la medesima di quattro Testa consecutive seguite da una Croce. Il fatto che esca Croce non è maggiormente probabile. Infatti, il calcolo della probabilità di 1 su 32 si basava sull'assunto che Testa o Croce siano egualmente probabili in ciascuna prova. Ciascuno dei due possibili eventi ha una probabilità identica indipendentemente dal numero di volte che la moneta è stata lanciata precedentemente e indipendentemente dai risultati già verificatisi. Ritenere che nel lancio successivo sia più probabile che esca Croce piuttosto che Testa basandosi sui precedenti lanci è un errore. L'errore è nell'idea che l'essere stati fortunati in passato influenzi in qualche modo l'andamento delle prove future.
+
+Ad esempio, la popolare strategia del "raddoppio" (cominciare con 1 €, se si perde puntare 2 €, poi 4 € ecc., finché non si vince una determinata quantità) non ha alcun senso. Con un capitale infinito si potrebbe anche avere successo usando tale strategia, avendo un capitale limitato, invece, si va incontro alla rovina.
+
+Esempi:
+1) Qual è la probabilità di ottenere 21 volte consecutive Testa, lanciando una moneta regolare? (Risposta: 1/2097152 = circa 0.000000477.) Qual è la probabilità di ottenere lo stesso risultato, dato che è già uscito 20 volte consecutive Testa? (Risposta: 0.5).
+
+2) Una coppia ha nove figlie. Qual è la probabilità che il prossimo figlio sia un'altra femmina? (Risposta: 0.5, assumendo che il genere dei bambini sia indipendente).
+
+3) È più probabile vincere al Lotto scegliendo gli stessi numeri tutte le volte o scegliendone di diversi ogni volta? (Risposta: Con entrambe le strategie è egualmente probabile).
+
+3) È utile, sempre nel Lotto, affidarsi ai numeri «ritardatari»? (Risposta: è statisticamente irrilevante puntare sui numeri «ritardatari», poiché la speranza matematica è la medesima ad ogni estrazione, indipendentemente dall'esito delle estrazioni precedenti).
+
+In molti casi si potrebbe erroneamente ritenere di poter applicare la teoria della fallacia dello scommettitore, quando in realtà questa non è applicabile:
+
+a) Qualora la probabilità di taluni eventi è non indipendente, la probabilità di eventi futuri può variare sulla base degli eventi già verificatisi. Formalmente, in tali casi il sistema si dice essere dotato di memoria. Un esempio di questo è l'estrarre delle carte da un mazzo senza rimetterle nel mazzo dopo averle estratte. È vero che una volta che un jack è stato tolto dal mazzo, alla prossima estrazione c'è una minore probabilità di estrarre un jack e una maggiore probabilità di estrarre una carta dotata di un altro numero. Infatti, la probabilità di estrarre un jack, assumendo che questa sia stata la prima carta estratta e che nel mazzo non ci siano jolly è scesa da 4/52 (7.69%) a 3/51 (5.88%), mentre la probabilità che si estragga una carta appartenente ad un altro numero è salita da 4/52 (7.69%) a 4/51 (7.84%). Ma ciò è perché la prova (l'estrazione della carta) ha alterato lo stato del sistema (il mazzo).
+
+b) Quando la probabilità di ciascuno degli eventi possibili è irregolare. Ad esempio con un dado truccato un numero che è uscito più frequentemente in passato può sicuramente continuare ad essere più frequente degli altri, se il fatto che esca tale numero è reso più probabile da pesi presenti nel dado. Tale circostanza è stata denominata Nerd's Gullibility Fallacy - ossia l'assumere che la moneta sia regolare e che i giocatori siano onesti quando nella realtà non è così. Questo è un esempio del principio di Hume: se esce venti volte consecutive croce è più probabile che la moneta sia truccata, piuttosto che non lo sia e che al prossimo lancio si abbia un'eguale probabilità che esca testa o croce. Il Chernoff bound può essere utilizzato per determinare quante volte una moneta deve essere lanciata per individuare (con alta probabilità) quale dei due lati è truccato.
+
+c) La probabilità di eventi futuri può variare in funzione di fattori esterni che abbiano influenza sulla probabilità stessa (ad esempio, la modifica delle regole di uno sport che influisce sulla performance di una squadra). Come esempio aggiuntivo, uno sportivo esordiente può vedere minacciato il proprio successo se la squadra avversa ne scopre i punti deboli e li sfrutta. Il giocatore può in questo caso cercare di compensare questo svantaggio rendendo casuale la propria strategia, sulla base di quanto insegnato dalla teoria dei giochi.
+
+Vediamo una funzione che simula la strategia del "raddoppio" (Martingala). La funzione prende tre parametri, il numero di monete iniziali, il guadagno che vogliamo ottenere per smettere, e il numero di prove che vogliamo ripetere. L'output è una lista che contiene i risultati di tutte le prove.
+
+(define (raddoppio monete guadagno prove)
+  (local (actual posta res out)
+    (seed (time-of-day))
+    (setq out '())
+    (for (i 1 prove)
+      (setq actual monete)
+      (setq posta 1)
+      ; giochiamo finchè non andiamo in rovina
+      ; o guadagniamo almeno "guadagno" monete...
+      (until (or (<= actual 0) (>= actual (+ monete guadagno)))
+        (setq res (rand 2))
+        (cond ((zero? res)
+               (setq actual (- actual posta))
+               (setq posta (* posta 2))
+              )
+              (true
+               (setq actual (+ actual posta))
+               (setq posta 1)
+              )
+        )
+        ;(println res { } actual { } posta) (read-line)
+      )
+      (if (<= actual 0)
+          ; perdita delle monete + actual
+          (push (+ actual (- monete)) out -1)
+          ; vincita di actual - monete
+          (push (- actual monete) out -1)
+      )
+      ;(println out) (read-line)
+    )
+    out))
+
+Simuliamo 10 partite con 1000 monete e un guadagno di 1000 monete:
+
+(raddoppio 1000 1000 10)
+;-> (-1586 -1870 1000 -1160 -1760 -1295 1000 1000 -1798 -1493)
+
+Proviamo con 10 monete e un guadagno di 10 monete:
+
+(raddoppio 10 10 100)
+;-> (10 10 -12 10 -10 -23 10 -13 10 -15 10 -14 10 -11 10 10 10 -13 -14 10
+;->  10 -15 10 -12 10 10 10 10 10 10 -23 -11 -24 -23 10 -12 -15 -23 10 -22
+;->  10 10 10 -11 10 10 10 -13 10 10 10 10 10 -11 10 -15 10 -10 -15 10 10
+;->  10 10 10 -25 -15 10 -15 10 -23 -14 10 10 10 -15 10 10 10 10 -23 10 10
+;->  10 10 -12 10 -12 10 10 10 -14 -15 10 10 10 10 10 10 -15 -12)
+
+Proviamo con 10 monete e un guadagno di 100 monete:
+
+(raddoppio 10 100 100)
+;-> (-65 -14 -11 -15 100 -55 -14 100 -14 -13 -30 100 -11 -15 -19 -70 -13
+;->  100 -23 100 100 -10 -14 100 -10 100 -12 100 100 -51 -13 -15 -13 100
+;->  -15 -19 -13 100 -10 -14 100 -72 -21 -16 -12 100 -20 -41 -16 -10 -11
+;->  -27 -14 -13 -24 100 -10 -11 -21 -17 100 -15 -12 -11 100 -15 -14 -33
+;->  -12 100 -10 -20 100 -13 -10 -39 -13 -25 -13 -27 100 100 -38 -36 -73
+;->  100 -41 -14 -11 -30 -12 -10 -12 -12 -10 -47 100 -20 -13 -25)
+
+Vediamo alcuni risultati totali:
+
+(apply + (raddoppio 10 50 100))
+;-> -153
+(apply + (raddoppio 10 50 100))
+;-> -385
+(apply + (raddoppio 10 50 100))
+;-> 292
+
+Con questo metodo, se le probabilità sono le stesse per entrambi gli eventi positivo e negativo, si vince e si perde, ma bisogna avere un conto illimitato per far fronte alle perdite
+
+Nota: poichè in tutti i casinò viene stabilito un limite alla puntata, questo metodo non è utilizzabile.
+
+
+--------------------------------------------------
+La rovina del giocatore d'azzardo (Gambler's ruin)
+--------------------------------------------------
+
+Il termine "rovina del giocatore d'azzardo" è un concetto statistico, che stabilisce la certezza del fallimento di un giocatore d'azzardo in un gioco con un valore atteso negativo (indipendentemente dal suo sistema di scommesse).
+
+Il concetto vale anche per un giocatore d'azzardo ostinato che aumenta la propria scommessa a una frazione fissa del proprio conto dopo una vincita, ma non la riduce dopo una perdita. Anche questo giocatore alla fine e inevitabilmente andrà in bancarotta, anche se ogni scommessa ha un valore atteso positivo.
+
+Un altro significato comune è che un giocatore d'azzardo ostinato con conto finito, giocando un gioco equo (cioè, ogni scommessa ha un valore atteso zero per entrambe le parti) finirà inevitabilmente in bancarotta contro un avversario con conto infinita.
+
+Nota: Una tale situazione può essere simulata con una passeggiata aleatoria sulla retta dei numeri interi. In questo caso è probabile che l'agente ritorni, con virtuale certezza, al suo punto di origine, il che significa fallire, e questo accade un numero infinito di volte se le passeggiate continuano per sempre.
+
+Il teorema generale è stato pubblicato da Christian Huygens in "De ratiociniis in ludo aleae" ("Sul ragionamento nei giochi d'azzardo", 1657) e mostra come calcolare la probabilità che ogni giocatore ha di vincere una serie di scommesse che continuano fino a perdere l'intero conto iniziale.
+
+Problema originale
+Ogni giocatore inizia con 12 punti, e un tiro riuscito dei tre dadi per un giocatore (ottenendo un 11 per il primo giocatore o un 14 per il secondo) aggiunge uno al punteggio di quel giocatore e sottrae uno dal punteggio di un altro giocatore. Il perdente del gioco è il primo a raggiungere zero punti. Qual è la probabilità di vittoria per ogni giocatore?
+
+Questa è la classica formulazione della rovina del giocatore d'azzardo: due giocatori iniziano con puntate fisse, trasferendo punti fino a quando l'uno o l'altro viene "rovinato" arrivando a zero punti.
+
+Il giocatore che gioca una partita equo (con 0.5 probabilità di vincita) finirà per fallire o raddoppierà la sua ricchezza.
+Definiamo che il gioco finisce per entrambi gli eventi. Questi eventi sono ugualmente probabili, altrimenti il ​​gioco non sarebbe equo. Quindi ha una probabilità di 0.5 di fallire prima di raddoppiare i suoi soldi. Se raddoppia i suoi soldi, inizia un nuovo gioco e ha ancora una possibilità di 0.5 di raddoppiare i suoi soldi prima di fallire. Dopo il secondo gioco c'è una possibilità 1/2 * 1/2 che non sia andato in rovina nel primo e nel secondo gioco. Continuando in questo modo, la sua possibilità di non andare in rovina dopo n partite successive è 1/2 * 1/2 * 1/2 * ... * 1/2^n che si avvicina a 0. La sua possibilità di fallire dopo n partite consecutive è 0.5 + 0.25 + 0.125 + . . . 1 - 1/2^n che si avvicina a 1
+
+Nel caso di un giocatore che gioca una partita con un valore atteso negativo, il suo risultato non può essere migliore di quello del giocatore in una partita equa, quindi anche lui andrà in rovina.
+
+Esempio: lancio di una moneta equa
+----------------------------------
+Considera il lancio di una moneta con due giocatori in cui ogni giocatore ha una probabilità del 50% di vincere ad ogni lancio della moneta. Dopo ogni lancio il perdente trasferisce una moneta al vincitore. Il gioco termina quando un giocatore ha tutte le monete (ovvero un giocatore ha zero monete "ruined").
+
+Se non ci sono altre limitazioni al numero di lanci, la probabilità che il gioco finisca in questo modo è 1. (Intutitivamente: per vincere tutte le monete deve verificarsi una certa sequenza di teste e croci. La probabilità che non si verifichi questa sequenza è alta all'inizio, ma decade in modo esponenziale e quindi, primo o poi, la sequenza apparirà.
+
+Se il giocatore 1 ha x monete e il giocatore 2 ha y monete, le probabilità P1 e P2 che i giocatori finiscano senza una moneta sono:
+
+         y
+P1 = ---------
+      (x + y)
+
+         x
+P2 = ---------
+      (x + y)
+
+Vediamo il caso in cui i due giocatori hanno la stessa quantita di monete (x = y = 10):
+
+P1 = 10/20 = 1/2
+P2 = 10/20 = 1/2
+
+In questo caso i due giocatori hanno le stesse probabilità di vittoria
+
+Adesso il caso in cui un giocatore ha un amggior numero di monete dell'altro (x = 10 y = 5):
+
+P1 = 10/15 = 2/3 = 0.6666666666...
+P2 = 5/15 = 1/3 = 0.3333333333...
+
+In questo caso il giocatore con più monete ha una probabilità maggiore di vincita.
+
+Esempio: lancio di una moneta non-equa
+--------------------------------------
+Nel caso di una moneta non-equa, in cui il giocatore 1 vince ogni lancio con probabilità p e il giocatore 2 vince con probabilità q = 1 − p, allora le probabilità che i giocatori finiscano le proprie monete valgono:
+
+        1 - (p/q)^y
+P1 = -----------------
+      1 - (p/q)^(x+y)
+
+        1 - (q/p)^x
+P2 = -----------------
+      1 - (q/p)^(x+y)
+
+(define (prob p q x y)
+  (local (v1 v2)
+    (setq v1 (div (sub 1 (pow (div p q) y))
+                  (sub 1 (pow (div p q) (add x y)))))
+    (setq v2 (div (sub 1 (pow (div q p) x))
+                  (sub 1 (pow (div q p) (add x y)))))
+    (list v1 v2)))
+
+Nota: quando p = q, allora la moneta è equa.
+
+Se le probabilità di vittoria del gioco (p e q) sono quasi uguali, allora la probabilità di finire in rovina è la stessa (quasi) per entrambi i giocatori (anche le monete devono essere le stesse):
+
+(prob 0.500000001 0.499999999 10 10)
+;-> (0.4999999888977704 0.5000000104083413)
+
+Altrimenti il giocatore più sfortunato finisce il rovina facilmente:
+
+(prob 0.6 0.4 10 10)
+;-> (0.01704592745492985 0.9829540725450702)
+
+(prob 0.7 0.3 10 10)
+;-> (0.0002089976346871697 0.9997910023653129)
+
+Facciamo delle simulazioni in cui il giocatore più sfortunato ha molte più monete dell'altro:
+
+(prob 0.7 0.3 1 100)
+;-> (0.4285714285714286 0.5714285714285714)
+(prob 0.7 0.3 5 100)
+;-> (0.01445826143868625 0.9855417385613138)
+(prob 0.7 0.3 10 100)
+;-> (0.0002090413238294019 0.9997909586761706)
+
+
+--------
+Roulette
+--------
+
+La roulette francese ha 37 numeri (da 0 a 36), di cui 18 sono rossi e 18 sono neri. Lo zero è verde.
+Un giocatore ha una certa quantità di monete e può scegliere tra due strategie di gioco:
+1) puntare tutte le monete sul rosso con una sola giocata (e perdere tutto o guadagnare il doppio)
+2) puntare 1 moneta per ogni giocata sul rosso e fermarsi quando non ha più monete oppure quando ha il doppio delle monete iniziali.
+Quale strategia è quella migliore?
+
+Nel primo caso la probabilità di vincita vale:
+
+           casi favorevoli     18
+P(win) = ------------------ = ---- = ;-> 0.4864864864864865
+           casi possibili      37
+
+Per la seconda strategia scriviamo una funzione di simulazione:
+
+(define (roulette money iter)
+  (local (actual win lose)
+    (for (i 1 iter)
+      (setq actual money)
+      (until (or (zero? actual) (= (* 2 money) actual))
+        (if (> (rand 37) 18)
+            (++ actual)
+            (-- actual)
+        )
+      )
+      (if (zero? actual)
+          (++ lose)
+          (++ win)
+      )
+      ;(println win { } lose { } iter)
+    )
+    (div win iter)))
+
+Per verificare la correttezza della funzione possiamo giocare con una sola moneta e quindi, in media, dovremmo ottenere le stesse probabilità della prima strategia:
+
+(roulette 1 10000000)
+;-> 0.4867276
+
+che è corretto, perchè risulta:
+
+(div 18 37)
+;-> 0.4864864864864865
+
+Adesso simuliamo di giocare con un numero crescente di monete iniziali:
+
+(roulette 2 100000)
+;-> 0.47132
+(roulette 5 100000)
+;-> 0.43458
+(roulette 10 100000)
+;-> 0.36605
+(roulette 20 100000)
+;-> 0.25414
+(roulette 50 100000)
+;-> 0.06164
+
+Come si nota, all'aumentare delle monete iniziali, diminuisce la probabilità di vincita. Questo è un risultato che deriva dal concetto statistico "la rovina del giocatore d'azzardo" (Gambler's ruin).
 
 =============================================================================
 

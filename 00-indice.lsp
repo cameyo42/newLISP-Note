@@ -999,6 +999,11 @@ NOTE LIBERE 6
   Raccolta di figurine
   Strano ma vero
   Passeggiata casuale (random-walk)
+  Per gioco
+  Scontro al bar
+  La fallacia dello scommettitore
+  La rovina del giocatore d'azzardo (Gambler's ruin)
+  Roulette
   
 APPENDICI
 =========
