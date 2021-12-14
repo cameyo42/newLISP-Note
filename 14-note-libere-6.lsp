@@ -4956,7 +4956,9 @@ Carte napoletane:
 (primo 9 10 1000000)
 ;-> 8.194067
 
-Dal punto di vista matematico possiamo utilizzare il "principio di simmetria".
+Dal punto di vista matematico possiamo utilizzare il "principio di simmetria":
+quando n punti sono posizionati casualmente lungo un intervallo, la lunghezza degli (n + 1) sgmenti hanno una distribuzione identica.
+
 I 4 Assi dividono un mazzo in 5 segmenti che possono avere una lunghezza da 0 a k.
 Il valore di k è dato dal numero delle carte meno il numero degli Assi.
 Se due Assi sono uno di seguito all'altro, allora il segmento tra loro ha lunghezza 0.
@@ -5317,6 +5319,200 @@ Adesso simuliamo di giocare con un numero crescente di monete iniziali:
 ;-> 0.06164
 
 Come si nota, all'aumentare delle monete iniziali, diminuisce la probabilità di vincita. Questo è un risultato che deriva dal concetto statistico "la rovina del giocatore d'azzardo" (Gambler's ruin).
+
+
+-----------------------------
+Separazione dei numeri uguali
+-----------------------------
+
+Data una lista di numeri interi compresi tra 1 e 100 non necessariamente distinti, ordinare la lista in modo che gli eventuali elementi uguali non siano contigui (cioè non devono essere uno di seguito all'altro).
+
+L'algoritmo è il seguente:
+1) trovare il numero più frequente f
+2) inserire il numero nelle posizioni/indici pari (0,2,4,...)
+3) per gli elementi rimanenti, inserire ancora i numeri a intervalli, ma adesso non è importante quale numero inserire per primo (la funzione inserisce i restanti gruppi in ordine decrescente di frequenza).
+
+In altre parole, trovare l'elemento più frequente e metterlo nelle posizioni pari, quindi mettere il resto dei gruppi di elementi in qualsiasi ordine.
+
+Per esempio:
+lista = (1 1 2 2 2 2 2 3 4)
+frequenze = (5 2) (2 1) (1 3) (1 4)
+
+Inserimento dei 5 numeri 2: (2 – 2 – 2 – 2 – 2)
+Inserimento dei 2 numeri 1: (2 1 2 1 2 – 2 – 2)
+Inserimento dell'unico 3:   (2 1 2 1 2 3 2 – 2)
+Inserimento dell'unico 4:   (2 1 2 1 2 3 2 4 2)
+
+se iniziamo con qualsiasi altro gruppo invece dei cinque numeri 2 (ad esempio con i due numeri 1), avremo:
+
+(1 - 1 - - - - - -)
+(1 2 1 2 - 2 - 2 -) finita la lista dobbiamo inserire il quinto due...
+(1 2 1 2 2 2 - 2 -) che è sbagliato.
+
+(define (separa lst)
+  (local (len freqs max-f max-v out idx)
+    (setq len (length lst))
+    (setq freqs (array 101 '(0)))
+    (setq max-f 0)
+    (setq max-v 0)
+    (dolist (el lst)
+      ; aggiorna la frequenza di el
+      (++ (freqs el))
+      ; aggiorna il valore del numero più frequente
+      (if (> (freqs el) max-f)
+          (set 'max-f (freqs el) 'max-v el)
+      )
+    )
+    ;(println freqs { } max-f { } max-v)
+    ; controllo sull'esistenza di una soluzione
+    (cond ((odd? len)
+          (if (> max-f (+ 1 (/ len 2))) (println "impossibile")))
+          ((even? len)
+          (if (>= max-f (+ 1 (/ len 2))) (println "impossibile")))
+    )
+    (setq out (array len '(0)))
+    (setq idx 0)
+    ; inserimento gruppo di elementi con maggiore frequenza
+    (while (> (freqs max-v) 0)
+      (-- (freqs max-v))
+      (setf (out idx) max-v)
+      ; inserisce prima gli indici pari
+      ; quando sono finiti usa quelli dispari
+      (if (>= (+ idx 2) len)
+          (setq idx 1)
+          (setq idx (+ idx 2))
+      )
+    )
+    ; inserimento dei rimanenti gruppi di elementi
+    ; con frequenza decrescente
+    (for (k 1 (- (length freqs) 1))
+      (while (> (freqs k) 0)
+        (-- (freqs k))
+        (setf (out idx) k)
+        ; inserisce prima gli indici pari
+        ; quando sono finiti usa quelli dispari
+        (if (>= (+ idx 2) len)
+          (setq idx 1)
+          (setq idx (+ idx 2))
+        )
+      )
+    )
+    out))
+
+(separa '(1 2 1 2 1 2 3 3))
+;-> (1 2 1 2 1 3 2 3)
+(separa '(2 2 1 1))
+;-> (2 1 2 1)
+
+La funzione riconosce quando è impossibile separare i numeri, ma produce lo stesso una risposta:
+
+(separa '(2 2 1 1 1 1))
+;-> impossibile
+;-> (1 1 1 2 1 2)
+(separa '(1 1 1 1 2))
+;-> impossibile
+;-> (1 1 1 2 1)
+
+
+-------------------
+Spezzare un bastone
+-------------------
+
+Dato un bastone di lunghezza L dividerlo in 3 pezzi e determinare la loro lunghezza media.
+
+Cerchiamo di risolvere il problema con una simulazione di tipo MonteCarlo.
+
+(define (pair-func lst func rev)
+"Produces a list applying a function to each pair of elements of a list"
+      (if rev
+          (map func (chop lst) (rest lst))
+          (map func (rest lst) (chop lst))))
+
+(pair-func '(1 4 7 8 10 12) -)
+;-> (3 3 1 2 2)
+
+Adesso scriviamo la funzione che spezza un segmento da 0 a 1 in in un certo numero di pezzi:
+
+(define (break-line num-seg)
+  (local (rnd segs)
+    (setq rnd '())
+    ; genera i numeri casuali tra 0 e 1
+    ; ma scartiamo 0 e 1 perchè
+    ; non rappresentano una "spezzatura"
+    (while (< (length rnd) (- num-seg 1))
+      (push (random) rnd -1)
+    )
+    ;(println rnd)
+    ; calcola la lunghezza dei segmenti
+    (setq segs (pair-func (sort rnd) sub))
+    ; aggiunge la lunghezza del primo segmento
+    (push (rnd 0) segs)
+    ; aggiunge la lunghezza dell'ultimo segmento
+    (push (sub 1 (rnd -1)) segs -1)
+    ; ordina le lunghezze dei segmenti
+    (sort segs)))
+
+(setq t (break-line 3))
+;-> (0.1974852748191778 0.2756431775872067 0.5268715475936155)
+
+La somma delle lunghezze di tutti i segmenti spezzati deve valere 1:
+
+(apply add t)
+;-> 1
+
+Adesso scriviamo la funzione di simulazione:
+
+(define (test num-seg iter)
+  (local (tot)
+    (setq tot (dup 0 num-seg))
+    (for (i 1 iter)
+      (setq tot (map add tot (break-line num-seg)))
+      ;(println tot) (read-line)
+    )
+    ; calcola la lunghezza media di tutti i segmenti
+    (map (fn(x) (div x iter)) tot)))
+
+Facciamo alcune prove:
+
+(test 3 100000)
+;-> (0.1113972692037817 0.2779632947782865 0.6106394360179404)
+(test 5 100000)
+;-> (0.04023883785515883 0.09053392132328156 0.1578873256630123 0.2551521042512249 0.4561878109073145)
+
+Dal punto di vista matematico risulta che le lunghezze dei vari segmenti hanno, in media, i seguenti valori:
+
+il più piccolo (1/n) * (1/n)
+il secondo     (1/n) * (1/n + 1/(n-1))
+il terzo       (1/n) * (1/n + 1/(n-1) + 1/(n-2))
+...
+il più grande  (1/n) * (1/n + 1/(n-1) + 1/(n-2) + ... + 1/(n - (n-1)))
+
+Definiamo una funzione che calcola i valori matematici:
+
+(define (theory ns)
+  (setq out '())
+  (for (k 1 ns)
+    (setq val 0)
+    (for (i 0 (- k 1))
+      (setq val (add val (div (sub ns i))))
+    )
+    (push (mul (div ns) val) out -1)
+  )
+  out)
+
+Facciamo alcune verifiche:
+
+(theory 3)
+;-> (0.1111111111111111 0.2777777777777777 0.6111111111111111)
+(theory 5)
+;-> (0.04 0.09 0.1566666666666667 0.2566666666666667 0.4566666666666667)
+
+Calcoliamo il massimo errore tra la simulazione (10000 prove) e la formula teorica con 100 segmenti:
+
+(apply max (map sub (test 100 10000) (theory 100)))
+;-> 7.495372768848152e-005
+
+I valori teorici e quelli simulati concordano.
 
 =============================================================================
 

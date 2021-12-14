@@ -1004,6 +1004,8 @@ NOTE LIBERE 6
   La fallacia dello scommettitore
   La rovina del giocatore d'azzardo (Gambler's ruin)
   Roulette
+  Separazione dei numeri uguali
+  Spezzare un bastone
   
 APPENDICI
 =========
