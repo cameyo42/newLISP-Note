@@ -1006,6 +1006,8 @@ NOTE LIBERE 6
   Roulette
   Separazione dei numeri uguali
   Spezzare un bastone
+  Modello di Ehrenfest
+  Media delle corrispondenze
   
 APPENDICI
 =========

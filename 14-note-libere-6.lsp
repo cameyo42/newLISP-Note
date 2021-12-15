@@ -5514,5 +5514,246 @@ Calcoliamo il massimo errore tra la simulazione (10000 prove) e la formula teori
 
 I valori teorici e quelli simulati concordano.
 
+
+---------------------
+Modello  di Ehrenfest
+---------------------
+
+Il modello di Ehrenfest della diffusione fu proposto da Tatiana e Paul Ehrenfest nel 1907 per spiegare il secondo principio della termodinamica. È un esempio di catena di Markov.
+
+Il modello è costituito da N particelle in due contenitori.
+
+Ad ogni istante t=1,2,... una particella viene scelta a caso (ogni particella ha una probabilità 1/N di essere scelta) e spostata nell'altro contenitore.
+
+Sia X(t) la variabile aleatoria che rappresenta il numero di particelle in uno dei due contenitori al tempo t.
+
+Il sistema evolve secondo la probabilità di transizione p(i j):
+
+         | 1 - i/N  se i = j + 1
+p(i j) = | i/N      se i = j - 1
+         | 0        altrimenti
+
+Possiamo simulare questo processo con due urne contenenti N palline ciascuna (all'istante t = 0). La prima urna contiene tutte palline bianche. La seconda urna contiene tutte palline nere. Ad ogni istante successivo (t = 1,2,3,...) una pallina viene sezionata casualmente da ogni urna e messa nell'altra urna.
+La distribuzione delle palline si stabilizza dopo un certo numero di istanti di tempo?
+In caso affermativo, a che valore medio si stabilizza?
+
+Funzione che simula il processo di Ehrenfest:
+
+(define (ehrenfest numA numB iter)
+  (local (A B res)
+    (setq res '())
+    (setq A (dup 'a numA))
+    (setq B (dup 'b numB))
+    (for (i 1 iter)
+      ; select random indexes
+      (setq idx-a (rand numA))
+      (setq idx-b (rand numB))
+      ; find colors of selected balls
+      (setq col-a (A idx-a))
+      (setq col-b (B idx-b))
+      ; exchange balls (first remove, then add)
+      (pop A idx-a)
+      (pop B idx-b)
+      (push col-a B -1)
+      (push col-b A -1)
+      ; update ball count list
+      (push (first (count '(a) A)) res -1)
+      ;(println A)
+      ;(println B)
+    )
+    (println (count '(a b) A))
+    (println (count '(a b) B))
+    ; create a list of points
+    (map (fn(x) (list (+ $idx 1) x)) res)))
+
+Funzione per esportare una lista in un file:
+
+(define (list-csv lst file-str sepchar)
+"Creates a file csv from a list"
+  (local (outfile)
+    (if (nil? sepchar)
+        (setq sepchar ",")
+    )
+    (setq outfile (open file-str "write"))
+    ;(println "file: " outfile)
+    (dolist (el lst)
+      (setq line (join (map string el) sepchar))
+      ;(println line { } outfile) (read-line)
+      (write-line outfile line)
+    )
+    (print outfile { })
+    (close outfile)))
+
+Creiamo due simulazioni con i relativi punti:
+
+(list-csv (setq urne (ehrenfest 20 20 500)) "erhe.csv")
+;-> (13 7)
+;-> (7 13)
+;-> 3 true
+
+(list-csv (setq urne2 (ehrenfest 1000 1000 10000)) "erhe2.csv" ";")
+;-> (486 514)
+;-> (514 486)
+;-> 3 true
+
+In entrambi i casi, dopo un certo numero di iterazioni, il valore delle palline oscilla intorno alla metà delle palline iniziali ( partendo con le due urne che contengono con lo stesso numero di palline).
+
+I grafici ottenuti con questi punti sono nel file "ehrenfest.png" nella cartella "data".
+
+Vediamo cosa accade se le urne contengono inizialmente un numero diverso di palline:
+
+(setq urne (ehrenfest 100 50 1000))
+;-> (74 26)
+;-> (26 24)
+
+(silent (setq urne (ehrenfest 1000 100 10000)))
+;-> (910 90)
+;-> (90 10)
+
+
+---------------------
+Modello  di Ehrenfest
+---------------------
+
+Il modello di Ehrenfest della diffusione fu proposto da Tatiana e Paul Ehrenfest nel 1907 per spiegare il secondo principio della termodinamica. È un esempio di catena di Markov.
+
+Il modello è costituito da N particelle in due contenitori.
+
+Ad ogni istante t=1,2,... una particella viene scelta a caso (ogni particella ha una probabilità 1/N di essere scelta) e spostata nell'altro contenitore.
+
+Sia X(t) la variabile aleatoria che rappresenta il numero di particelle in uno dei due contenitori al tempo t.
+
+Il sistema evolve secondo la probabilità di transizione p(i j):
+
+         | 1 - i/N  se i = j + 1
+p(i j) = | i/N      se i = j - 1
+         | 0        altrimenti
+
+Possiamo simulare questo processo con due urne contenenti N palline ciascuna (all'istante t = 0). La prima urna contiene tutte palline bianche. La seconda urna contiene tutte palline nere. Ad ogni istante successivo (t = 1,2,3,...) una pallina viene sezionata casualmente da ogni urna e messa nell'altra urna.
+La distribuzione delle palline si stabilizza dopo un certo numero di istanti di tempo?
+In caso affermativo, a che valore medio si stabilizza?
+
+Funzione che simula il processo di Ehrenfest:
+
+(define (ehrenfest numA numB iter)
+  (local (A B res)
+    (setq res '())
+    (setq A (dup 'a numA))
+    (setq B (dup 'b numB))
+    (for (i 1 iter)
+      ; select random indexes
+      (setq idx-a (rand numA))
+      (setq idx-b (rand numB))
+      ; find colors of selected balls
+      (setq col-a (A idx-a))
+      (setq col-b (B idx-b))
+      ; exchange balls (first remove, then add)
+      (pop A idx-a)
+      (pop B idx-b)
+      (push col-a B -1)
+      (push col-b A -1)
+      ; update ball count list
+      (push (first (count '(a) A)) res -1)
+      ;(println A)
+      ;(println B)
+    )
+    (println (count '(a b) A))
+    (println (count '(a b) B))
+    ; create a list of points
+    (map (fn(x) (list (+ $idx 1) x)) res)))
+
+Funzione per esportare una lista in un file:
+
+(define (list-csv lst file-str sepchar)
+"Creates a file csv from a list"
+  (local (outfile)
+    (if (nil? sepchar)
+        (setq sepchar ",")
+    )
+    (setq outfile (open file-str "write"))
+    ;(println "file: " outfile)
+    (dolist (el lst)
+      (setq line (join (map string el) sepchar))
+      ;(println line { } outfile) (read-line)
+      (write-line outfile line)
+    )
+    (print outfile { })
+    (close outfile)))
+
+Creiamo due simulazioni con i relativi punti:
+
+(list-csv (setq urne (ehrenfest 20 20 500)) "erhe.csv")
+;-> (13 7)
+;-> (7 13)
+;-> 3 true
+
+(list-csv (setq urne2 (ehrenfest 1000 1000 10000)) "erhe2.csv" ";")
+;-> (486 514)
+;-> (514 486)
+;-> 3 true
+
+In entrambi i casi, dopo un certo numero di iterazioni, il valore delle palline oscilla intorno alla metà delle palline iniziali ( partendo con le due urne che contengono con lo stesso numero di palline).
+
+I grafici ottenuti con questi punti sono nel file "ehrenfest.png" nella cartella "data".
+
+Vediamo cosa accade se le urne contengono inizialmente un numero diverso di palline:
+
+(setq urne (ehrenfest 100 50 1000))
+;-> (74 26)
+;-> (26 24)
+
+(setq urne (ehrenfest 1000 100 10000))
+;-> (910 90)
+;-> (90 10)
+
+
+--------------------------
+Media delle corrispondenze
+--------------------------
+
+Due mazzi di carte uguali con N carte ciascuno. Dopo aver mischiato bene i due mazzi, prendiamo la prima carta dal primo mazzo e la prima carta del secondo mazzo e le confrontiamo, se sono uguali abbiamo una corrispondenza. Poi continuiamo con le seconde carte del mazzo, confrontiamo e andiamo avanti fino alla fine dei due mazzi.
+Quante corrispondenze, in media, ci aspettiamo?
+
+La probabilità che due carte siano uguali vale 1/N, poichè facciamo N tentativi, allora il valore medio delle corrispondeze vale:
+  Media = (1/N)*N = 1
+
+Possiamo effettuare la simulazione nel modo seguente:
+Usiamo due liste con N elementi ciascuna
+"Mischiamo" i valori di ogni lista.
+Contiamo quanti sono i valori uguali delle due liste che hanno lo stesso indice.
+
+(define (check num)
+    (first (count '(true) (map = 
+           (randomize (sequence 1 num)) (randomize (sequence 1 num))))))
+
+(check 100)
+;-> 0
+(check 100)
+;-> 2
+
+Scriviamo la funzione che effettua la simulazione per un determinato numero di volte:
+
+(define (test num iter)
+  (let (tot 0)
+    (for (i 1 iter)
+      (setq tot (+ tot (check num)))
+    )
+    (div tot iter)))
+
+Facciamo alcune prove:
+
+(test 40 10000)
+;-> 1.0053
+
+(test 52 10000)
+;-> 1.0033
+
+(test 1000 10000)
+;-> 1.0105
+
+(time (println (test 2000 100000)))
+;-> 1.00234
+;-> 34366.847 ; 34 secondi
+
 =============================================================================
 
