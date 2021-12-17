@@ -141,7 +141,7 @@ In tal caso siamo in presenza dei numeri perfetti, numeri uguali alla somma dei 
 
 In qualche raro caso, anche se il numero di partenza non è ne perfetto, ne amico, ne socievole, la sequenza  termina con un numero perfetto o con due numeri amici o con una serie di numeri socievoli. Ciò accade per esempio per il numero 95 che genera la sequenza: 95, 25, 6, 6...
 
-Abbiamo individuato cinque tipi di sequenze aliquot e la congettura di Catalan asserisce che questi sono gli unici. 
+Abbiamo individuato cinque tipi di sequenze aliquot e la congettura di Catalan asserisce che questi sono gli unici.
 
 Esistono però alcuni rari numeri che sembrano sfuggire a questa congettura: le loro sequenze aliquot, almeno per quanto se ne sa fin’ora, sembrano non terminare mai. I primi di essi sono: 276, 552, 564, 660 e 966. Per questi numeri sono stati calcolati decine di migliaia di termini della loro sequenza aliquot, ma ancora non si è riusciti a stabilire se la sequenza alla fine terminerà in uno dei modi predetti o proseguirà all’infinito.
 
@@ -249,9 +249,9 @@ Numeri socievoli:
 (make-chain 12496)
 ;-> (12496 14288 15472 14536 14264 12496)
 (make-chain 14316)
-;-> (14316 19116 31704 47616 83328 177792 295488 629072 
-;->  589786 294896 358336 418904 366556 274924 275444 
-;->  243760 376736 381028 285778 152990 122410 97946 
+;-> (14316 19116 31704 47616 83328 177792 295488 629072
+;->  589786 294896 358336 418904 366556 274924 275444
+;->  243760 376736 381028 285778 152990 122410 97946
 ;->  48976 45946 22976 22744 19916 17716 14316)
 
 Numeri perfetti:
@@ -294,8 +294,8 @@ Vediamo le sequenze aliquot dei primi 500 numeri:
 ;->  8244565422068579772 -4705801703595252444)
 ;-> ...
 ;-> 498 (498 510 786 798 1122 1470 2634 2646 4194 4932 7626 8502 9978
-;->      9990 17370 28026 35136 67226 33616 37808 40312 35288 37072 
-;->      45264 79728 146448 281166 281178 363942 424638 526338 722961 
+;->      9990 17370 28026 35136 67226 33616 37808 40312 35288 37072
+;->      45264 79728 146448 281166 281178 363942 424638 526338 722961
 ;->      321329 1 0 0)
 ;-> 499 (499 1 0 0)
 ;-> 500 (500 592 586 296 274 140 196 203 37 1 0 0)
@@ -371,7 +371,7 @@ Questo tipo di assegnazione avviene in maniera parallela (cioè tutti i valori v
 Adesso calcoliamo in modo parallelo:
 
 a = a + b = 1 + 2 = 3
-b = b = 2 
+b = b = 2
 c = c = 3
 d = a + d = 1 + 4 = 5
 
@@ -383,7 +383,7 @@ Nell'ultima espressione "a" vale 1 (non 3 come dato da a = a + b), cioè i valor
 Un valutazione seriale avrebbe prodotto il seguente risultato:
 
 a = a + b = 1 + 2 = 3
-b = b = 2 
+b = b = 2
 c = c = 3
 d = a + d = 3 + 4 = 7
 
@@ -460,8 +460,8 @@ Funzione di Recaman con una lista semplice:
     out))
 
 (recaman 50)
-;-> (0 1 3 6 2 7 13 20 12 21 11 22 10 23 9 24 8 25 43 62 42 63 
-;->  41 18 42 17 43 16 44 15 45 14 46 79 113 78 114 77 39 78 38 
+;-> (0 1 3 6 2 7 13 20 12 21 11 22 10 23 9 24 8 25 43 62 42 63
+;->  41 18 42 17 43 16 44 15 45 14 46 79 113 78 114 77 39 78 38
 ;->  79 37 80 36 81 35 82 34 83 33)
 
 
@@ -558,7 +558,7 @@ Creazione di hash-map da una variabile:
 (new Tree (sym (eval a)))
 (demo)
 ;-> ()
- 
+
 (setq a "prova")
 (new-hash a)
 (prova)
@@ -818,7 +818,7 @@ Conteggio di linee, parole e caratteri di un file
         (++ lc)
         ; words count
         (setq wc (+ wc (length (parse (trim line) "\\s+" 0))))
-        ; chars count 
+        ; chars count
         ; (+1 add back the line feed - Unix)
         ; (+2 add back the line feed/carriage return - Windows)
         ;(setq cc (+ cc (length line) 1))
@@ -1092,11 +1092,11 @@ Lista con tutte le linee di un file
 ;-> true
 
 (list-lines "list-lines.lsp")
-;-> ("(define (list-lines file)" 
-;->  "  (let (lst '()) " 
+;-> ("(define (list-lines file)"
+;->  "  (let (lst '()) "
 ;->  "   (setq file (open file \"read\")) "
-;->  "   (while (read-line file) " 
-;->  "    (push (current-line) lst -1)) " 
+;->  "   (while (read-line file) "
+;->  "    (push (current-line) lst -1)) "
 ;->  "   (close file) lst))"
 ;->  "")
 
@@ -1107,7 +1107,7 @@ Code Obfuscation
 
 L'offuscamento del codice è una delle tecniche preferite per la sicurezza delle applicazioni in modo da proteggersi dall'hacking. È una delle iniziative più consigliate dai professionisti della sicurezza di tutto il mondo e, il più delle volte, funge da meccanismo di difesa principale contro i tentativi di hacking e protegge da attacchi comuni, come l'iniezione di codice, il reverse engineering e la manomissione delle informazioni personali dei clienti e degli utenti delle applicazioni.
 
-Code Obfuscation (offuscamento del codice) è il processo di modifica di un eseguibile (e/o del codice sorgente) in modo che non sia più utile per un hacker, ma rimanga completamente funzionante. Sebbene tale processo possa modificare il modello originale delle istruzioni o i metadati, non altera l'output del programma. 
+Code Obfuscation (offuscamento del codice) è il processo di modifica di un eseguibile (e/o del codice sorgente) in modo che non sia più utile per un hacker, ma rimanga completamente funzionante. Sebbene tale processo possa modificare il modello originale delle istruzioni o i metadati, non altera l'output del programma.
 
 Nota: con abbastanza tempo e impegno, quasi tutto il codice può essere decodificato.
 
@@ -1121,7 +1121,7 @@ L'offuscamento del codice consiste in molte tecniche diverse che possono complet
 1) Rename Obfuscation
 La ridenominazione altera il nome di metodi e variabili. Rende il sorgente decompilato più difficile da capire per un essere umano, ma non altera l'esecuzione del programma. I nuovi nomi possono utilizzare schemi diversi come "a", "b", "c" o numeri, caratteri non stampabili o caratteri invisibili. E i nomi possono essere gli stessi (overload) purché abbiano un ambito diverso. Questo offuscamento è una trasformazione di base utilizzata dalla maggior parte degli offuscatori.
 
-2) String Encryption 
+2) String Encryption
 In un programma eseguibile, tutte le stringhe sono chiaramente individuabili e leggibili. Anche quando i metodi e le variabili vengono rinominati, le stringhe possono essere utilizzate per individuare sezioni di codice critiche cercando i riferimenti di stringa all'interno del file binario. Ciò include i messaggi (soprattutto i messaggi di errore) che vengono visualizzati all'utente. Per fornire una barriera efficace contro questo tipo di attacco, la crittografia delle stringhe nasconde le stringhe nell'eseguibile e ripristina il loro valore originale solo quando necessario. La decrittografia delle stringhe in fase di esecuzione in genere comporta una leggera riduzione delle prestazioni.
 
 3) Aggregation Obfuscation
@@ -1344,7 +1344,7 @@ Cosa c'era scritto nel papiro?
 
 I geroglifici (scrittura pittorica) sul papiro furono decifrati solo nel 1842 (e la scrittura cuneiforme su tavoletta d'argilla babilonese fu decifrata più tardi nello stesso secolo).
 
-Inizia dicendo che lo scriba "Ahmes" lo sta scrivendo intorno al 1600 AC ma che lo aveva copiato da "antichi scritti" che, dalla sua descrizione del faraone di quel tempo, lo datano al 2000 AC o prima. 
+Inizia dicendo che lo scriba "Ahmes" lo sta scrivendo intorno al 1600 AC ma che lo aveva copiato da "antichi scritti" che, dalla sua descrizione del faraone di quel tempo, lo datano al 2000 AC o prima.
 
 Le prime civiltà utilizzavano la matematica per applicazioni in astronomia, in geometria e nella contabilità e gli egiziani del 3000 aC avevano un modo interessante di rappresentare le frazioni.
 
@@ -1411,7 +1411,7 @@ Facciamo alcune prove:
 
 (egypt 6 14)
 ;-> ((1 3) (1 11) (1 231))
-6/14 =  1/3 + 1/11 + 1/231 
+6/14 =  1/3 + 1/11 + 1/231
 
 (egypt 21 17)
 ;-> ((1 1) (1 5) (1 29) (1 1233) (1 3039345))
@@ -1461,7 +1461,7 @@ Adesso scriviamo una funzione iterativa che calcola le frazioni egiziane di una 
 Nota: questo algoritmo non produce sempre la sequenza di frazioni egiziane di lunghezza minima.
 
 Nota: Poichè la scomposizione di una frazione in una somma di frazioni unitarie non è unica, qual è quella migliore?
-Quella di lunghezza minima? 
+Quella di lunghezza minima?
 Quella con i denominatori più piccoli?
 
 Adesso vediamo un semplice esempio di utilizzo delle frazioni egizie.
@@ -1472,8 +1472,8 @@ Dividere 5 mele in parti uguali fra 8 ragazzi.
 Dividereste forse tutte le mele in 8 parti e ne dareste 5 ad ogni ragazzo? In questo caso, dovreste fare 7 * 5 = 35 tagli.
 Visto che: 5/8 = 1/2 + 1/8, è più pratico dividere 4 mele a metà e l'ultima in 8 parti e consegnare mezza mela e un ottavo di mela ad ogni ragazzo. In tutto abbiamo fatto 11 tagli.
 
-Mela 1      Mela 2      Mela 3      Mela 4    
-1/2 + 1/2   1/2 + 1/2   1/2 + 1/2   1/2 + 1/2   
+Mela 1      Mela 2      Mela 3      Mela 4
+1/2 + 1/2   1/2 + 1/2   1/2 + 1/2   1/2 + 1/2
 
 Mela 5
 1/8 + 1/8 + 1/8 + 1/8 + 1/8 + 1/8 + 1/8 + 1/8
@@ -1515,25 +1515,25 @@ Nota: le seguenti formule permettono di creare altre sequenze di frazioni egizie
    1         1             1
   --- = ----------- + -----------
   a*b    a*(a + b)     b*(a + b)
-  
-   1              1                     1                     1          
+
+   1              1                     1                     1
 ------- = ------------------- + ------------------- + -------------------
  a*b*c    a*(a*b + b*c + c*a)   b*(a*b + b*c + c*a)   b*(a*b + b*c + c*a)
 
 Esistono altri metodi per costruire le frazioni egizie ed ognuno ha le proprie caratteristiche:
 
-(vedi "Egyptians Fractions" 
+(vedi "Egyptians Fractions"
 https://pls.scienze.unipd.it/matematica/wp-content/uploads/sites/3/2018/07/2018.-MJ-Casagrande.-Articolo-Egypt.pdf)
 
-1) Metodo di Fibonacci 
+1) Metodo di Fibonacci
    7/2 = 1/2 + 1/4 + 1/36
 
 2) Metodo di Golomb
    7/9 = 1/2 + 1/6 + 1/12 + 1/36
 
-3) Metodo dei numeri pratici 
+3) Metodo dei numeri pratici
    7/9 = 1/2 + 1/6 + 1/9
-   
+
 4) Metodo geometrico
    7/9 = 1/2 + 1/6 + 1/12 + 1/36
    7/9 = 1/2 + 1/6 + 1/9
@@ -1697,7 +1697,7 @@ Infine un polinomio che genera 57 numeri primi (per x da 0 a 56):
 Nomi delle variabili/funzioni e velocità di esecuzione
 ------------------------------------------------------
 
-Newlisp è un linguaggio interpretato. Quindi uno potrebbe chiedersi: 
+Newlisp è un linguaggio interpretato. Quindi uno potrebbe chiedersi:
 la lunghezza delle variabili influenza la velocità di esecuzione/valutazione?
 In altre parole, il mio programma è più veloce se uso, diciamo, x invece di xxxxxx?
 
@@ -1935,7 +1935,7 @@ Verifichiamo i risultati precedenti:
 (length (radici 761))
 ;-> 288
 (totient 760)
-;-> 288 
+;-> 288
 
 Anche se i risultati sonoo corretti, le funzioni sono molto lente. Allora, proviamo ad utilizzare la funzione esponenziale modulare:
 
@@ -1996,7 +1996,7 @@ Comunque spesso viene richiesto di trovare solo la radice primitiva più piccola
   (local (ord stop res)
     (setq res 0)
     (setq stop nil)
-    (for (i 1 (- primo 1) 1 stop) 
+    (for (i 1 (- primo 1) 1 stop)
        (setq ord (ordine i primo))
        (if (= ord (- primo 1))
            (setq res i stop true)
@@ -2302,9 +2302,9 @@ Lista con i nomi delle colonne:
 
 Per creare il formato corretto occorre trasporre la lista:
 (setq all (append (list nomi) (transpose data)))
-;-> (("nome" "test" "tipo" "valore") 
-;->  ("eva" 20 "f" 1.622) 
-;->  ("tommy" 24 "t" 2.44) 
+;-> (("nome" "test" "tipo" "valore")
+;->  ("eva" 20 "f" 1.622)
+;->  ("tommy" 24 "t" 2.44)
 ;->  ("max" 31 "t" 45.2)
 ;->  ("roby" 89 "f" 100.1))
 
@@ -2437,7 +2437,7 @@ Dati tre numeri x,y e z scrivere due funzioni che restituiscono true:
 
 (define (between-open x y z)
   "Return true iff number x is > y and < z."
-  (or (< y x z) (> y x z)))  
+  (or (< y x z) (> y x z)))
 
 (between-open -0.1 -0.1 2)
 ;-> nil
@@ -2682,7 +2682,7 @@ op è ovviamente un simbolo.
 
 Dobbiamo assicurarci che questo simbolo venga valutato in una funzione per operare correttamente. In questo caso viene costruito dalla funzione primitiva per la moltiplicazione "*". "*" di per sé non è una primitiva, è il simbolo che valuta in una primitiva (in modo simile dopo (set 'f (lambda(x) x)), f è un simbolo che valuta/restituisce la lambda-list.)
 
-È necessario definire op nello stesso modo che "*" valuta nella primitiva di moltiplicazione. Non al simbolo *. 
+È necessario definire op nello stesso modo che "*" valuta nella primitiva di moltiplicazione. Non al simbolo *.
 Possiamo farlo in diversi modi, il modo più semplice:
 
 (set 'op *)
@@ -3052,7 +3052,7 @@ Gli algoritmi di Las Vegas sono stati introdotti da Laszla Babai nel 1979, insie
 
 Un algoritmo di Las Vegas è un algoritmo casuale (random) che dà sempre risultati corretti. In altre parole, produce sempre il risultato corretto o informa sull'errore. Tuttavia, il tempo di esecuzione di un algoritmo di Las Vegas differisce a seconda dell'input. Un algoritmo di Las Vegas ha la restrizione che il tempo di esecuzione sia finito e che termini sempre (sia efficace), ma può produrre un simbolo speciale per indicare il fallimento nella ricerca di una soluzione. La natura degli algoritmi di Las Vegas li rende adatti in situazioni in cui il numero delle possibili soluzioni è limitato e dove verificare la correttezza di una soluzione candidata è relativamente facile, mentre trovare una soluzione è complesso.
 
-Gli algoritmi di Las Vegas sono importanti nel campo dell'intelligenza artificiale e in altre aree dell'informatica e della ricerca operativa. 
+Gli algoritmi di Las Vegas sono importanti nel campo dell'intelligenza artificiale e in altre aree dell'informatica e della ricerca operativa.
 
 Esempio di algoritmo di Las Vegas:
 
@@ -3073,7 +3073,7 @@ Esempio di algoritmo di Las Vegas:
 ;-> (24 1 11)
 
 La funzione restituisce l'indice dell'elemento che ha valore 1, il valore del vettore con quell'indice (1), e il numero di tentativi per individuare la soluzione.
-Come detto sopra, gli algoritmi di Las Vegas restituiscono sempre risultati corretti. Il codice sopra illustra questa proprietà. Una variabile k e una vettore vet vengono generati casualmente. Dopo la generazione di k, k viene utilizzato per indicizzare il vettore vet. Se questo indice contiene il valore 1, allora viene restituito k, in caso contrario, l'algoritmo ripete questo processo finché non trova 1. Sebbene sia garantito che questo algoritmo di Las Vegas trovi la risposta corretta, non ha un tempo di esecuzione fisso (a causa della funzione "rand"). Il tempo di esecuzione dipende dal numero di input "n", ma la funzione non impiega sempre lo stesso tempo con due valori di n uguali. 
+Come detto sopra, gli algoritmi di Las Vegas restituiscono sempre risultati corretti. Il codice sopra illustra questa proprietà. Una variabile k e una vettore vet vengono generati casualmente. Dopo la generazione di k, k viene utilizzato per indicizzare il vettore vet. Se questo indice contiene il valore 1, allora viene restituito k, in caso contrario, l'algoritmo ripete questo processo finché non trova 1. Sebbene sia garantito che questo algoritmo di Las Vegas trovi la risposta corretta, non ha un tempo di esecuzione fisso (a causa della funzione "rand"). Il tempo di esecuzione dipende dal numero di input "n", ma la funzione non impiega sempre lo stesso tempo con due valori di n uguali.
 
 (time (println (lasvegas 25000)))
 ;-> (18737 1 53847)
@@ -3095,9 +3095,9 @@ Gli algoritmi di Las Vegas si presentano frequentemente nei problemi di ricerca.
 
 Relazione con i metodi Monte Carlo
 ----------------------------------
-Gli algoritmi di Las Vegas possono essere contrapposti agli algoritmi di Monte Carlo, in cui le risorse utilizzate sono limitate, ma la risposta può essere errata con una certa (tipicamente piccola) probabilità. Un algoritmo di Las Vegas può essere convertito in un algoritmo di Monte Carlo eseguendolo per un tempo prestabilito e generando una risposta casuale quando non riesce a terminare. 
+Gli algoritmi di Las Vegas possono essere contrapposti agli algoritmi di Monte Carlo, in cui le risorse utilizzate sono limitate, ma la risposta può essere errata con una certa (tipicamente piccola) probabilità. Un algoritmo di Las Vegas può essere convertito in un algoritmo di Monte Carlo eseguendolo per un tempo prestabilito e generando una risposta casuale quando non riesce a terminare.
 La seguente tabella confronta gli algoritmi di Las Vegas e Monte Carlo:
-           
+
 Algoritmo     Tempo di esecuzione    Correttezza
 ------------------------------------------------
 Las Vegas     probabilistico         certa
@@ -3182,7 +3182,7 @@ Calcoliamo la differenza tra le due probabilità:
 Poichè nel nostro caso p > q, allora risulta:
 
   P2 - P1 = pq(1 - q) > 0
-  
+
 cioè la sequenza S2 ha la maggiore probabilità di vittoria.
 
 Il risultato è controintuitivo perchè con la sequenza S2 il giocatore A sfida il giocatore più forte C per ben due volte.
@@ -3340,7 +3340,7 @@ Adesso scriviamo una funzione che effettua questa simulazione con p che varia:
 
 (define (ombrelli a b p-step iter)
   (let (out '())
-    (for (i p-step (sub 1 p-step) p-step) 
+    (for (i p-step (sub 1 p-step) p-step)
       (push (list i (drywalk a b i iter)) out -1)
     )
     out))
@@ -3540,7 +3540,7 @@ Quindi scriviamo la funzione di simulazione:
 ;-> ((649 (0 4)) (2470 (1 3)) (3768 (2 2)) (2518 (3 1)) (595 (4 0)))
 ;-> ((0.0649 (0 4)) (0.247 (1 3)) (0.3768 (2 2)) (0.2518 (3 1)) (595 (4 0)))
 
-Siamo sicuri di questo risultato? 
+Siamo sicuri di questo risultato?
 Possiamo verificarlo analiticamente considerando tutti gli eventi possibili.
 Gli eventi della cucciolata possono anche essere visti come le sequenza possibili del parto di quattro cuccioli:
 
@@ -3590,7 +3590,7 @@ Proviamo un'altra simulazione con 1 milione di iterazioni:
 
 (cuccioli 1e6)
 ;-> ((62811 (0 4)) (250088 (1 3)) (373855 (2 2)) (250736 (3 1)) (62510 (4 0)))
-;-> ((0.062811 (0 4)) (0.250088 (1 3)) (0.373855 (2 2)) 
+;-> ((0.062811 (0 4)) (0.250088 (1 3)) (0.373855 (2 2))
 ;->  (0.250736 (3 1)) (0.062510 (4 0)))
 
 In generale, se ci sono n nascite, con la probabilità p che sia femmina (e quindi con la probabilità (1 - p) che sia maschio), allora la probabilità di k femmine e (n - k) maschi è data da:
@@ -4042,7 +4042,7 @@ In ciascuno dei turni di A, c'è 1/6 di possibilità che A vinca e 5/6 di possib
 --------------------
 Formula di Bernoulli
 --------------------
- 
+
 Sia dato un evento che può avere due risultati (A o B), uno con probabilità p e l'altro con probabilità (p - 1).
 Nell'ipotesi che gli eventi siano indipendenti tra loro, la probabilità che l'evento A si verifichi k volte su n vale:
 
@@ -4079,7 +4079,7 @@ Dopo 100 lanci di una moneta equa, qual'è la probabilità che siano uscite 50 t
 ------------------
 Palestre e autobus
 ------------------
-    
+
 Eva si allena in due palestre (P1 e P2) che si trovano alla stessa distanza da casa, ma in direzioni opposte. Per andare nella palestra P1 prende l'autobus A1, mentre per andare nella palestra P2 prende l'autobus A2. Gli autobus partono dalla stessa fermata, ma vanno in direzioni opposte. Entrambi gli autobus passano con frequenza oraria (ma non nello stesso momento). Siccome ad Eva non piace aspettare, quando si trova alla fermata prende il primo autobus che arriva (o A1 o A2).
 Dopo un pò di tempo Eva si accorge che è andata molto di più in una palestra, esattamente 30 volte nella palestra P1 e 6 volte nella palestra P2.
 Sapendo che l'autobus P1 parte all'ora X (es. 12:20), a che ora parte l'autobus P2?
@@ -4184,11 +4184,11 @@ Nota: in teoria un'ottimizzazione del compilatore sufficientemente aggressiva po
  t = sum + y
  c = (t - sum) - y
 
-a: 
+a:
 
  c = ((sum + y) - sum) - y
- 
-poi a: 
+
+poi a:
 
 c = 0, eliminando la compensazione dell'errore.
 
@@ -4222,11 +4222,11 @@ Esempio: n = -4, negBase = -3
 Per evitare resto negativo, facciamo,
   resto = -1 + (-negBase) = -1 - (-3) = 2
   n = n + 1 = 1 + 1 = 2.
-  
+
 Quindi, quando otterremo un resto negativo, lo renderemo positivo aggiungendo il valore assoluto di base e aggiungendo 1 al nostro
 
 Nota: questo metodo è applicabile a tutti gli interi negativi utilizzati come base (non solo -2).
- 
+
 Vediamo meglio il procedimento iniziando con il caso in cui viene utilizzato un numero intero positivo come base.
 Usando n come base, possiamo avere i seguenti passaggi:
 a % n == r, a /= n, ans = str(r) + ans
@@ -4269,7 +4269,7 @@ Scriviamo la funzione che converte un numero intero decimale in basi negative (c
 (define (to-negative-base num neg-base)
   (local (rem out)
     ; default: neg-base = -2
-    (if (nil? neg-base) (setq neg-base -2))  
+    (if (nil? neg-base) (setq neg-base -2))
     (setq out '())
     (while (!= num 0)
      (setq rem (% num neg-base))
@@ -4738,14 +4738,14 @@ Ad esempio, calcoliamo le frequenze dei punti visitati (cioè quante volte un pu
 Simuliamo una passeggiata casuale:
 
 (setq percorso (rnd-walk '(0 0) 20))
-;-> ((0 0) (-1 0) (-1 1) (-1 0) (-2 0) (-3 0) (-4 0) (-4 -1) (-3 -1) (-2 -1) 
+;-> ((0 0) (-1 0) (-1 1) (-1 0) (-2 0) (-3 0) (-4 0) (-4 -1) (-3 -1) (-2 -1)
 ;->  (-2 -2) (-2 -3) (-3 -3) (-4 -3) (-4 -4) (-4 -5) (-3 -5) (-3 -6) (-3 -7)
 ;->  (-4 -7) (-3 -7))
 
 Calcoliamo i punti unici visitati:
 
 (setq unici (unique percorso))
-;-> ((0 0) (-1 0) (-1 1) (-2 0) (-3 0) (-4 0) (-4 -1) (-3 -1) (-2 -1) (-2 -2) 
+;-> ((0 0) (-1 0) (-1 1) (-2 0) (-3 0) (-4 0) (-4 -1) (-3 -1) (-2 -1) (-2 -2)
 ;->  (-2 -3) (-3 -3) (-4 -3) (-4 -4) (-4 -5) (-3 -5) (-3 -6) (-3 -7) (-4 -7))
 
 Calcoliamo/contiamo la frequenza di ogni punto del percorso:
@@ -4756,12 +4756,12 @@ Calcoliamo/contiamo la frequenza di ogni punto del percorso:
 Infine creiamo una lista ordinata con la frequenza dei punti unici e le relative coordinate:
 
 (sort (map list conta unici))
-;-> ((1 (-4 -7)) 
-;->  (1 (-4 -5)) 
-;->  (1 (-4 -4)) 
-;->  (1 (-4 -3)) 
-;->  (1 (-4 -1)) 
-;->  (1 (-4 0)) 
+;-> ((1 (-4 -7))
+;->  (1 (-4 -5))
+;->  (1 (-4 -4))
+;->  (1 (-4 -3))
+;->  (1 (-4 -1))
+;->  (1 (-4 0))
 ;->  (1 (-3 -6))
 ;->  (1 (-3 -5))
 ;->  (1 (-3 -3))
@@ -4785,7 +4785,7 @@ Scriviamo una funzione per calcolare questa lista:
 Usiamo la funzione su una nuova passeggiata:
 
 (freq-path (rnd-walk '(0 0) 20))
-;-> ((1 (0 -2)) (1 (0 -1)) (1 (0 0)) (1 (1 -4)) (1 (1 -1)) (1 (2 -6)) 
+;-> ((1 (0 -2)) (1 (0 -1)) (1 (0 0)) (1 (1 -4)) (1 (1 -1)) (1 (2 -6))
 ;->  (1 (2 -5)) (1 (2 -3)) (1 (3 -6)) (1 (3 -5)) (1 (3 -4)) (1 (3 -3))
 ;->  (1 (4 -8)) (1 (4 -7)) (1 (4 -6)) (1 (4 -4)) (1 (4 -3)) (2 (1 -3))
 ;->  (2 (1 -2)))
@@ -4913,7 +4913,7 @@ Carta attesa
 ------------
 
 Dato un mazzo di carte Francesi (52 carte) e un mazzo di carte Napoletane (40 carte). Entrambi i mazzi sono ben mischiati. Cominciando ad estrarre dalla prima carta di un mazzo, quante carte occorrono, in media, per estrarre un Asso?
-E quante ne occorrono per l'altro mazzo? 
+E quante ne occorrono per l'altro mazzo?
 Cosa accade se scegliamo/attendiamo un'altra carta, ad esempio il "9"?
 
 Scriviamo prima la funzione di simulazione:
@@ -4935,7 +4935,7 @@ Scriviamo prima la funzione di simulazione:
     (div tot iter)))
 
 (primo 1 13 1000000)
-;-> 10.609797 
+;-> 10.609797
 
 Nel mazzo francese occorrono, in media, 10.6 carte prima che compaia un Asso.
 
@@ -5018,7 +5018,7 @@ Utilizzando i secondi al posto dei minuti otteniamo un risultato più preciso:
       (setq x (rand 3600))
       (setq y (rand 3600))
       ; se y è compreso tra (x - 300) o (x + 300)
-      ; allora si incontrano      
+      ; allora si incontrano
       (if (<= (abs (- x y)) 300) (++ tot))
     )
     (div tot iter)))
@@ -5037,7 +5037,7 @@ Normalizziamo l'ora tra 0 e 1:
       (setq x (random))
       (setq y (random))
       ; se y è compreso tra (x - 1/12) o (x + 1/12)
-      ; allora si incontrano      
+      ; allora si incontrano
       (if (<= (abs (sub x y)) delta) (++ tot))
     )
     (div tot iter)))
@@ -5611,9 +5611,9 @@ Vediamo cosa accade se le urne contengono inizialmente un numero diverso di pall
 ;-> (90 10)
 
 
----------------------
-Modello  di Ehrenfest
----------------------
+--------------------
+Modello di Ehrenfest
+--------------------
 
 Il modello di Ehrenfest della diffusione fu proposto da Tatiana e Paul Ehrenfest nel 1907 per spiegare il secondo principio della termodinamica. È un esempio di catena di Markov.
 
@@ -5723,7 +5723,7 @@ Usiamo due liste con N elementi ciascuna
 Contiamo quanti sono i valori uguali delle due liste che hanno lo stesso indice.
 
 (define (check num)
-    (first (count '(true) (map = 
+    (first (count '(true) (map =
            (randomize (sequence 1 num)) (randomize (sequence 1 num))))))
 
 (check 100)
@@ -5754,6 +5754,286 @@ Facciamo alcune prove:
 (time (println (test 2000 100000)))
 ;-> 1.00234
 ;-> 34366.847 ; 34 secondi
+
+Nota: esistono diversi problemi equivalenti:
+1) Imbustare a caso N lettere in N buste
+2) Scegliere a caso N cappelli per gli N proprietari
+eccetera
+
+Si può dimostrare, ma non proprio facilmente, che la probabilità di k corrispondenze vale:
+
+                                                             (-1)^(n-k)
+  P(k|N) = 1/k! * (1/0! - 1/1! + 1/2! - 1/3! + 1/4! - ... + ------------
+                                                              (n - k)!
+
+Quando (N - r) è abbastanza grande, l'espressione tra parentesi contiene parecchi termini della serie di e^(-1), quindi possiamo approssimare la formula:
+
+  P(k) ≈ (1/k!)* e^(-1), per (n - k) grande.
+
+Per la dimostrazione vedi "Fifty Challenging Problems in Probability with Solutions" di Frederick Mosteller, Dover, 1965.
+
+
+-----------------------------------------------------------------------
+Media delle percentuali dei valori = Percentuale della media dei valori
+-----------------------------------------------------------------------
+
+Dato un valore V e una lista di numeri, vogliamo sapere se la media delle percentuali dei valori è uguale alla percentuale della media dei valori. Facciamo una prova:
+
+Valore = 200
+numeri = 102, 110, 88, 120, 60
+
+(setq val 200)
+(setq a '(102 110 88 120 60))
+
+Calcolo della media delle percentuali:
+(setq a% (map (fn(x) (div x val)) a))
+;-> (0.51 0.55 0.44 0.6 0.3)
+(setq media% (div (apply add a%) (length a%)))
+;-> 0.48
+
+Calcolo della percentuale della media:
+(setq a-med (div (apply add a) (length a)))
+;-> 96
+(setq perc-med (div a-med val))
+;-> 0.48
+
+Scriviamo una funzione per la verifica:
+
+(define (qed val nums)
+  (local (nums% media% nums-media perc-media)
+    ; calcolo della media delle percentuali
+    (setq nums% (map (fn(x) (div x val)) nums))
+    (setq media% (div (apply add nums%) (length nums%)))
+    ; calcolo della percentuale della media
+    (setq nums-media (div (apply add nums) (length nums)))
+    (setq perc-media (div nums-media val))
+    (list media% perc-media)))
+
+(qed 133 '(24 346 -36 10))
+;-> (0.6466165413533835 0.6466165413533834)
+
+(qed 236 '(12 -58 -39 16))
+;-> (-0.07309322033898306 -0.07309322033898305)
+
+Esempio algebrico:
+
+val = v
+nums = n1, n2, n3
+
+media-perc = (n1/v + n2/v + n3/v)/3
+perc-medie = ((n1 + n2 + n3)/3)/v 
+
+
+------------
+Quanti sono?
+------------
+
+Una persona ferma sul ciglio della strada guarda una corsa campestre. Vede passare 6 concorrenti con i seguenti numeri 5, 10, 35 42, 63, 21. Quanti sono, presumibilmente, gli N partecipanti alla corsa?
+
+Si può dimostrare che la media (valore atteso) del valore massimo di una serie (X1, X2, ...Xn) abbastanza ampia di n elementi osservati è data da:
+
+                n*(N + 1)
+  max(X(i)) = -------------
+                 (n + 1)
+
+Se poniamo max(X(i)) = max(n), cioè supponiamo che il valore atteso sia uguale al valore massimo osservato, allora possiamo stimare il numero risulta:
+
+             n*(N + 1)              (n + 1)
+  max(n) = -------------  ==>  N = ---------*max(n) - 1
+              (n + 1)                  n
+
+Scriviamo una funzione per calcolare questo valore e facciamo alcune prove.
+
+(define (stima lst)
+  (let (oss (length lst))
+    (sub (div (mul (add oss 1) (apply max lst)) oss) 1)))
+
+(stima '(5 10 35 42 63 21))
+;-> 72.5
+
+Facciamo alcune considerazioni:
+
+1) il valore massimo osservato in qualsiasi campione di dimensione n deve essere almeno n, quindi la stima per N deve essere almeno:
+
+  (n + 1)
+  -------*n - 1 = n
+     n
+
+cioè, la stima per N non può mai essere inferiore al valore più grande osservato.
+
+2) se il numero n di campioni osservati vale N (cioè abbiamo visto tutti i campioni), allora la stima per N dovrebbe essere esatta (perchè in questo caso abbiamo sicuramente osservato il valore massimo N):
+
+   (N + 1)
+  ---------*N - 1 = N
+      N
+
+Comunque la nostra stima compie errori grossolani per alcune liste di osservazione. Per esempio:
+
+a) con N=800 e lst=(1 2 3 4 5), la nostra stima vale N = 5 (troppo bassa)
+b) con N=800 e lst=(1 2 3 4 800), la nostra stima vale N = 959 (troppo alta)
+
+Quindi vogliamo sapere quanto è "precisa" la formula della stima. Per fare questo usiamo una simulazione.
+
+Per un determinato valore di N calcoliamo tante (iter) volte la stima (Ncalc) e il relativo errore percentuale (err%) e infine  calcoliamo l'errore percentuale medio. Questo viene fatto partendo da una percentuale (step) di elementi osservati e aumentando il passo dello stesso valore (step) fino a raggiungere il 100% degli elementi osservati. Alla fine avremo una lista di coppie: "percentuali di elementi selezionati" e il relativo "errore percentuale medio".
+
+(define (test N step iter)
+  (local (ele num-oss sum-err% oss Ncalc med-err% out)
+    ; lista di tutti gli elementi
+    (setq ele (sequence 1 N))
+    ; per ogni valore di percentuale...
+    (for (perc step 100 step)
+      ; calcola il numero di osservazioni
+      (setq num-oss (int (mul (div N 100) perc)))
+      ;(println num-oss)
+      ; azzera la somma degli errori percentuali
+      (setq sum-err% 0)
+      (for (i 1 iter)
+        ; seleziona gli elementi osservati
+        (setq oss (slice (randomize ele) 0 num-oss))
+        ; calcola il valore atteso
+        (setq Ncalc (stima oss))
+        ; calcola errore percentuale corrente
+        ; (valore assoluto, altrimenti si potrebbero elidere)
+        (setq err% (div (abs (sub Ncalc N)) N))
+        ;(setq err% (div (sub Ncalc N) N))
+        ; aggiorna la somma degli errori percentuali
+        (setq sum-err% (add sum-err% err%))
+        ;(println oss { } Ncalc { } err% { } sum-err%)
+      )
+      ; calcola errore medio percentuale
+      (setq med-err% (round (mul 100 (div sum-err% iter)) -3))
+      ; inserisce una coppia di valori nella lista di output
+      ; (%-osservati errore-percentuale-medio)
+      (push (list perc med-err%) out -1)
+    )
+    out))
+
+Facciamo alcune prove.
+
+1) 100 elementi - passo 2% - 2 prove
+(setq a1 (test 100 2 2))
+;-> ((2 22.75) (4 9) (6 6.5) (8 9.875) (10 5.7) (12 1.917) (14 4) (16 2.656)
+;->  (18 4.417) (20 2.425) (22 2.205) (24 3.646) (26 2.327) (28 2.054)
+;->  (30 4.9) (32 1.547) (34 2.059) (36 1.264) (38 1.539) (40 0.512)
+;->  (42 0.869) (44 0.511) (46 0.663) (48 0.573) (50 0.51) (52 0.51)
+;->  (54 0.509) (56 0.786) (58 0.724) (60 0.667) (62 0.508) (64 0.563)
+;->  (66 0.515) (68 0.471) (70 0.429) (72 0.389) (74 0.351) (76 0.507)
+;->  (78 0.282) (80 0.25) (82 0.22) (84 0.506) (86 0.163) (88 0.136)
+;->  (90 0.111) (92 0.087) (94 0.064) (96 0.042) (98 0.02) (100 0))
+
+2) 100 elementi - passo 2% - 10 prove
+(setq a2 (test 100 2 10))
+;-> ((2 31.7) (4 16.925) (6 9.183) (8 11.213) (10 5.59) (12 7.1) (14 5.186)
+;->  (16 3.506) (18 4.856) (20 2.965) (22 3.659) (24 3.238) (26 2.75)
+;->  (28 1.964) (30 1.553) (32 2.203) (34 1.988) (36 2.158) (38 1.437)
+;->  (40 1.53) (42 0.931) (44 1.123) (46 1.185) (48 1.237) (50 0.706)
+;->  (52 1.083) (54 1.257) (56 0.611) (58 1.134) (60 0.642) (62 0.795)
+;->  (64 0.631) (66 0.508) (68 0.601) (70 0.546) (72 0.585) (74 0.382)
+;->  (76 0.671) (78 0.417) (80 0.455) (82 0.277) (84 0.254) (86 0.231)
+;->  (88 0.21) (90 0.111) (92 0.171) (94 0.152) (96 0.227) (98 0.117)
+;->  (100 0)))
+
+3) 100 elementi - passo 2% - 100 prove
+(setq a3 (test 100 2 100))
+(setq aa (test 1000 2 2))
+;-> ((2 29.235) (4 17.297) (6 12.432) (8 8.725) (10 7.376) (12 4.889) (14 4.743)
+;->  (16 4.371) (18 3.652) (20 3.008) (22 3.484) (24 2.949) (26 2.504) (28 2.471)
+;->  (30 2.059) (32 1.86) (34 1.717) (36 1.671) (38 1.462) (40 1.75) (42 1.48)
+;->  (44 1.261) (46 1.286) (48 1.061) (50 1.007) (52 0.95) (54 0.927) (56 0.834)
+;->  (58 0.697) (60 0.794) (62 0.637) (64 0.703) (66 0.623) (68 0.646) (70 0.659)
+;->  (72 0.655) (74 0.519) (76 0.505) (78 0.436) (80 0.368) (82 0.361) (84 0.371)
+;->  (86 0.272) (88 0.267) (90 0.214) (92 0.162) (94 0.099) (96 0.107) (98 0.02)
+;->  (100 0))
+
+4) 1000 elementi - passo 10% - 2 prove
+(setq a4 (test 1000 10 2))
+;-> ((10 0.959) (20 0.253) (30 0.1) (40 0.1) (50 0.201)
+;->  (60 0.05) (70 0.1) (80 0.025) (90 0.011) (100 0))
+
+5) 1000 elementi - passo 10% - 10 prove
+(setq a5 (test 1000 10 10))
+;-> ((10 0.645) (20 0.25) (30 0.248) (40 0.2) (50 0.1)
+;->  (60 0.067) (70 0.047) (80 0.03) (90 0.011) (100 0))
+
+6) 1000 elementi - passo 10% - 100 prove
+(setq a6 (test 1000 10 100))
+;-> ((10 0.755) (20 0.276) (30 0.213) (40 0.131) (50 0.095)
+;->  (60 0.079) (70 0.063) (80 0.039) (90 0.019) (100 0))
+
+Quindi l'errore percentuale diminuisce con l'aumentare del campione osservato e con l'aumentare del numero di prove effettuate.
+
+Inoltre l'errore percentuale diminuisce, a parità delle altre condizioni, con l'aumentare di N:
+
+7) 100 elementi - passo 25% - 100 prove
+(setq a7 (test 100 25 100))
+;-> ((25 2.208) (50 0.942) (75 0.494) (100 0))
+
+8) 1000 elementi - passo 25% - 100 prove
+(setq a8 (test 10000 25 100))
+;-> ((25 0.024) (50 0.011) (75 0.005) (100 0))
+
+La formula produce, in media, buoni risultati, ma qual è l'errore massimo che possiamo commettere in tutte le nostre misurazioni?
+Per fare questo modifichiamo la nostra funzione in modo che restituisca una lista di coppie con "percentuali di elementi selezionati" e il relativo "errore assoluto massimo".
+
+(define (test-max N step iter)
+  (local (ele num-oss max-err err oss Ncalc out)
+    ; lista di tutti gli elementi
+    (setq ele (sequence 1 N))
+    ; per ogni valore di percentuale...
+    (for (perc step 100 step)
+      ; calcola il numero di osservazioni
+      (setq num-oss (int (mul (div N 100) perc)))
+      ;(println num-oss)
+      ; azzera il valore massimo della percentuale corrente
+      (setq max-err 0)
+      (for (i 1 iter)
+        ; seleziona gli elementi osservati
+        (setq oss (slice (randomize ele) 0 num-oss))
+        ; calcola il valore atteso
+        (setq Ncalc (stima oss))
+        ; calcola errore assoluto
+        (setq err (abs (sub Ncalc N)))
+        ; controllo sul valore massimo
+        (if (> err max-err)
+            (setq max-err err)
+        )
+      )
+      ; inserisce una coppia di valori nella lista di output
+      (push (list perc max-err) out -1)
+    )
+    out))
+
+1) 100 elementi - passo 10% - 1 prova
+(test-max 100 10 1)
+;-> ((10 3.5) (20 1.25) (30 2.833) (40 0.55) (50 3.08)
+;->  (60 0.6) (70 1.6) (80 0.25) (90 0.9) (100 0))
+
+2) 100 elementi - passo 10% - 10 prove
+(test-max 100 10 10)
+;-> ((10 9) (20 4.4) (30 8) (40 3.625) (50 5.12)
+;->  (60 2.383) (70 0.586) (80 0.25) (90 0.111) (100 0))
+
+3) 100 elementi - passo 10% - 100 prove
+(test-max 100 10 100)
+;-> ((10 29.5) (20 14.9) (30 13.166) (40 7.725) (50 8.18)
+;->  (60 6.45) (70 1.6) (80 1.775) (90 0.9) (100 0))
+
+4) 100 elementi - passo 10% - 1000 prove
+(test-max 100 10 1000)
+;-> ((10 38.3) (20 31.7) (30 15.233) (40 9.775) (50 9.2)
+;->  (60 5.433) (70 4.643) (80 4.812) (90 1.911) (100 0))
+
+5) 100 elementi - passo 2% - 1000 prove
+(test-max 100 2 1000)
+;-> ((2 92) (4 88.5) (6 68.333) (8 52.625) (10 38.3) (12 34.916) (14 27.071)
+;->  (16 26.625) (18 26.055) (20 28.55) (22 18.409) (24 19.75) (26 18.961)
+;->  (28 18.143) (30 17.3) (32 15.406) (34 12.470) (36 13.638) (38 13.763)
+;->  (40 8.75) (42 15) (44 8.955) (46 11.087) (48 9.125) (50 10.22)
+;->  (52 7.231) (54 7.296) (56 8.375) (58 6.397) (60 7.466) (62 5.484)
+;->  (64 4.515) (66 4.560) (68 4.602) (70 4.642) (72 7.722) (74 4.716)
+;->  (76 4.75) (78 5.794) (80 3.799) (82 3.829) (84 1.833) (86 2.872)
+;->  (88 1.886) (90 1.911) (92 1.934) (94 1.957) (96 1.979) (98 0.989)
+;->  (100 0))
 
 =============================================================================
 

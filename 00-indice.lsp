@@ -1008,6 +1008,8 @@ NOTE LIBERE 6
   Spezzare un bastone
   Modello di Ehrenfest
   Media delle corrispondenze
+  Media delle percentuali dei valori = Percentuale della media dei valori
+  Quanti sono?
   
 APPENDICI
 =========
