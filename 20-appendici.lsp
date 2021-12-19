@@ -6052,6 +6052,9 @@ Lista delle funzioni:
 "It is better to first strive for clarity and correctness and to make programs efficient only if really needed."
 - "Getting Started with Erlang" by Ericsson
 
+"Good programming: before writing code, one should "design" a program and the best way to do that is with a flow chart."
+- Klein, Godunov
+
 "Rules of optimization: Rule #1: Don't do it. Rule #2 (for experts only): Don't do it yet."
 - Michael A. Jackson
 
@@ -6076,6 +6079,7 @@ Lista delle funzioni:
 " The true logic of this world is the calculus of probabilities."
 - James Clerk Maxwell
 
+
 ============================================================================
  Prefissi del Sistema Internazionale di unità di misura
 ============================================================================
@@ -6095,7 +6099,7 @@ deca       da        10^1       Dieci            Ten
                      10^0       Uno              One
 deci       d         10^-1      Decimo           Tenth 
 centi      c         10^-2      Centesimo        Hundredth 
-mili       m         10^-3      Millesimo        Thousandth 
+milli      m         10^-3      Millesimo        Thousandth 
 micro      µ         10^-6      Milionesimo      Millionth 
 nano       n         10^-9      Miliardesimo     Billionth
 pico       p         10^-12     Bilionesimo      Trillionth 

@@ -1,7 +1,7 @@
 
 ============================================================================
  Note su newLISP
- © copyright 2019-2020-2021 Massimo Corinaldesi aka cameyo
+ © copyright 2019-2021 Massimo Corinaldesi aka cameyo
  MIT License
 ============================================================================
 
@@ -1010,6 +1010,7 @@ NOTE LIBERE 6
   Media delle corrispondenze
   Media delle percentuali dei valori = Percentuale della media dei valori
   Quanti sono?
+  Variabile random esponenziale
   
 APPENDICI
 =========
@@ -1057,7 +1058,7 @@ LICENSE
 
 MIT License
 
-Copyright (c) 2019-2020-2021 Massimo Corinaldesi aka cameyo
+Copyright (c) 2019-2021 Massimo Corinaldesi aka cameyo
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

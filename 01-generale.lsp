@@ -2795,6 +2795,11 @@ Vediamo alcuni esempi:
 (setq b (- (div 1 0) (div 1 0)))
 ;-> 0 ; obscured INF (for integer math operator)
 
+(log 0)
+;-> -1#INF
+(div 1 (log 0))
+;-> -0 ; obscured INF (for floating point math operator)
+
 (setq b (sub (div 1 0) (div 1 0)))
 ;-> -1.#IND ; non obscured INF (for floating point math operator)
 (inf? b)

@@ -5596,7 +5596,7 @@ Creiamo due simulazioni con i relativi punti:
 ;-> (514 486)
 ;-> 3 true
 
-In entrambi i casi, dopo un certo numero di iterazioni, il valore delle palline oscilla intorno alla metà delle palline iniziali ( partendo con le due urne che contengono con lo stesso numero di palline).
+In entrambi i casi, dopo un certo numero di iterazioni, il valore delle palline oscilla intorno alla metà delle palline iniziali (partendo con le due urne che contengono con lo stesso numero di palline).
 
 I grafici ottenuti con questi punti sono nel file "ehrenfest.png" nella cartella "data".
 
@@ -6035,5 +6035,111 @@ Per fare questo modifichiamo la nostra funzione in modo che restituisca una list
 ;->  (88 1.886) (90 1.911) (92 1.934) (94 1.957) (96 1.979) (98 0.989)
 ;->  (100 0))
 
+
+-----------------------------
+Variabile random esponenziale
+-----------------------------
+
+La funzione primitiva "random" di newLISP restituisce un numero tra 0 e 1 con una distribuzione uniforme (con media 0.0 e deviazione standard pari a 1).
+Questo significa che i numeri generati da "random" sono distribuiti in modo "lineare" tra 0 e 1. Ad esempio, generiamo 10000 numeri casuali, li ordiniamo, li esportiamo in un file csv e infine tracciamo il grafico dei valori (con un foglio elettronico):
+
+Generiamo i 10000 numeri casuali (con distribuzione uniforme):
+(setq linear '())
+(silent (for (i 1 10000) (push (random) linear -1)))
+
+Ordiniamo i valori:
+(sort linear)
+
+Esportiamo in un file ascii comma delimited (.csv):
+(list-csv (sort linear) "linear.csv")
+
+Il grafico è riportato nella parte superiore del file "random.png" nella cartella "data" e rappresenta una funzione lineare.
+
+Qualche volta nelle simulazioni con il metodo di Monte Carlo si ha la necessità di utilizzare una variabile random esponenziale, cioè una variabile che può assumere valori da 0 a infinito con una distribuzione esponenziale (che non è uniforme).
+
+La funzione è definita nel modo seguente:
+
+         | k*e^(-k*t),  0 <= t <= infinito
+  T(t) = |
+         | 0,           t < 0
+
+Si può dimostrare che per ottenere una distribuzione esponenziale è possibile utilizzare la seguente formula:
+
+         log(random)
+  T = - -------------
+             k
+
+che genera numeri compresi tra 0 e infinito con distribuzione esponenziale.
+
+Per verificare che la formula genera effettivamente numeri con distribuzione esponenziale creiamo due file analoghi al precedente:
+
+(define (rand-exp k)
+  (sub (div k (log (random)))))
+
+(rand-exp 10)
+;-> 6.084612759169907
+
+(rand-exp 10)
+;-> 47.10821990505478
+
+Nota: quando nella funzione "rand-exp" la primitiva "random" genera il numero 0, allora avviene il processo di "obscured INF", cioè il valore infinito di (log 0) viene "oscurato" dall' operazione di divisione "div" (vedi "INFINITO E NOT A NUMBER (INF e NaN)").
+
+(log 0)
+;-> -1.#INF
+(div 1 (log 0))
+;-> -0
+(div 1 inf)
+
+Primo file (k=1)
+Generiamo i 10000 numeri casuali (con distribuzione esponenziale e k=1):
+(setq espo '())
+(silent (for (i 1 10000) (push (rand-exp 1) espo -1)))
+
+Ordiniamo i valori:
+(sort espo)
+(slice espo 0 5)
+;-> (0 0.1162058638414357 0.1162058638414357 
+;->  0.1250112210453761 0.1341788711293629)
+
+Esportiamo in un file ascii comma delimited (.csv):
+(list-csv espo "espo.csv")
+
+Il grafico di "espo.csv" è riportato nella parte centrale del file "random.png" nella cartella "data" e rappresenta una funzione esponenziale.
+
+Secondo file (k=10):
+Generiamo i 10000 numeri casuali (con distribuzione esponenziale e k=10):
+(setq espo10 '())
+(silent (for (i 1 10000) (push (rand-exp 10) espo10 -1)))
+
+Ordiniamo i valori:
+(sort espo10)
+(slice espo10 0 5)
+;-> (1.202250278486829 1.219519242601827 1.235392701660629 
+;->  1.250112210453761 1.300537761175834)
+
+Esportiamo in un file ascii comma delimited (.csv):
+(list-csv espo10 "espo10.csv")
+
+Il grafico di "espo10.csv" è riportato nella parte inferiore del file "random.png" nella cartella "data" e rappresenta una funzione esponenziale.
+
+Nota: questo metodo di simulare una variabile casuale non uniforme utilizzando una variabile casuale uniforme è valido solo se T(t) è analiticamente invertibile, cioè possiamo passare analiticamente da T(t) a T'(t) (dove T'(t) è la funzione inversa di T(t)). Ad esempio, una distribuzione gaussiana non è invertibile e quindi non possiamo utilizzare un generatore uniforme per simularla.
+
+(define (list-csv lst file-str sepchar)
+"Creates a file csv from a list"
+  (local (outfile)
+    (if (nil? sepchar)
+        (setq sepchar ",")
+    )
+    (setq outfile (open file-str "write"))
+    (dolist (el lst)
+      (if (list? el)
+          (setq line (join (map string el) sepchar))
+          (setq line (string el))
+      )
+      (write-line outfile line)
+    )
+    (print outfile { })
+    (close outfile)))
+    
 =============================================================================
 
