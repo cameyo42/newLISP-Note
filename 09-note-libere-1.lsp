@@ -52,6 +52,7 @@ Version Year  Changes and Additions
 10.7.0  2016  minor new functionality
 10.7.1  2017  minor new functionality
 10.7.5  2019  minor new functionality and fixed bugs
+10.7.6  2021  minor new functionality and fixed bugs
 
 Indirizzi web:
 Home: http://www.newlisp.org
@@ -72,6 +73,7 @@ Gli elementi di una lista possono essere un'altra lista.
 Il primo elemento della lista è "speciale" (funzione).
 Il resto della lista sono "normali" (argomenti).
 Tutte le liste vengono valutate tranne quelle quotate.
+
 
 ------------------
 Apprendere newLISP
@@ -94,6 +96,7 @@ newLISP ti dà la libertà di esprimere la stessa funzionalità in modi e stili 
 Ma sicuramente, ci sono convenzioni emergenti dalla comunità. Ad esempio, racchiudere le macro nel proprio spazio dei nomi è una convenzione adottata spesso."
 
 Lutz
+
 
 --------------------------
 Commentare righe di codice

@@ -5821,7 +5821,7 @@ val = v
 nums = n1, n2, n3
 
 media-perc = (n1/v + n2/v + n3/v)/3
-perc-medie = ((n1 + n2 + n3)/3)/v 
+perc-medie = ((n1 + n2 + n3)/3)/v
 
 
 ------------
@@ -6098,7 +6098,7 @@ Generiamo i 10000 numeri casuali (con distribuzione esponenziale e k=1):
 Ordiniamo i valori:
 (sort espo)
 (slice espo 0 5)
-;-> (0 0.1162058638414357 0.1162058638414357 
+;-> (0 0.1162058638414357 0.1162058638414357
 ;->  0.1250112210453761 0.1341788711293629)
 
 Esportiamo in un file ascii comma delimited (.csv):
@@ -6114,7 +6114,7 @@ Generiamo i 10000 numeri casuali (con distribuzione esponenziale e k=10):
 Ordiniamo i valori:
 (sort espo10)
 (slice espo10 0 5)
-;-> (1.202250278486829 1.219519242601827 1.235392701660629 
+;-> (1.202250278486829 1.219519242601827 1.235392701660629
 ;->  1.250112210453761 1.300537761175834)
 
 Esportiamo in un file ascii comma delimited (.csv):
@@ -6140,6 +6140,148 @@ Nota: questo metodo di simulare una variabile casuale non uniforme utilizzando u
     )
     (print outfile { })
     (close outfile)))
-    
+
+
+---------------------
+Struttura dati: quack
+---------------------
+
+La struttura dati "quack" combina le proprietà di entrambe le strutture "stack" (pila) e "queue" (coda). Utilizziamo una lista  per simulare il comportamento di una struttura "quack" che ha le seguenti funzioni:
+
+1) push(x): inserisce un elemento a sinistra della lista
+2) pop():   rimuove l'elemento più a sinistra della lista
+3) pull():  rimuove l'elemento più a destra della lista
+
+Possiamo scrivere le tre funzioni in maniera semplice:
+
+(define (qk-push item quack) (push item quack))
+(define (qk-pop quack) (pop quack))
+(define (qk-pull quack) (chop quack))
+
+Chiaramente queste funzionano correttamente solo se la lista viene passata per riferimento:
+
+(setq a:a '(1 2 3 4 5))
+(qk-push 0 a)
+;-> (0 1 2 3 4 5)
+a:a
+;-> (0 1 2 3 4 5)
+
+(qk-pop a)
+;-> 0
+a:a
+;-> (1 2 3 4 5)
+
+(qk-pull a)
+;-> (1 2 3 4)
+a:a
+;-> (1 2 3 4 5)
+
+Per maggiori informazioni, vedi "Passaggio per Valore e Passaggio per Riferimento".
+
+Se quack è la lista è vuota:
+
+(setq no:no '())
+
+(qk-pop no)
+;-> nil
+no:no
+;-> ()
+
+(qk-pull no)
+;-> '()
+no:no
+;-> '()
+
+Nota: le funzioni non controllano se il parametro quack è una lista.
+
+
+--------
+Elezioni
+--------
+
+Un gruppo di N persone vogliono eleggere una di loro come capogruppo. Ogni membro del gruppo esprime un voto e viene eletto colui che ottiene almeno M voti. Due esempi interessanti sono:
+1) elezione imperiale (una maggioranza semplice è richiesta per vincere, es. N=7 e M=4)
+2) elezione del papa (M è il primo intero uguale o maggiore di due terzi di N).
+Ogni persona vota per un membro del gruppo o per se stesso.
+Qual è la probabilità che un capo venga scelto in uno scrutinio?
+
+Variante: invece di votare a caso per qualsiasi membro del gruppo, tutti votano a caso per uno dei loro colleghi in un sottoinsieme di N, di dimensione n ≤ N. Tutte le N persone hanno questa restrizione, comprese quelle del sottoinsieme. Se n = N, abbiamo il problema originale. Naturalmente, deve risultare n > 0 se vogliamo avere almeno un voto. Altrettanto ovvio è il caso n = 1: la probabilità di eleggere un capo al primo scrutinio è pari a 1.
+Per n ≥ 2 il problema comincia ad essere interessante.
+
+La funzione di simulazione utilizza le seguenti variabili:
+  votanti = N
+  candidati = n
+  maggioranza = M
+
+(define (election votanti candidati maggioranza auto-voto iter)
+  (local (capo urna val)
+    ; numero di volte che viene eletto un capo
+    (setq capo 0)
+    (for (i 1 iter)
+      (setq urna (array candidati '(0)))
+      ; ciclo per uno scrutinio
+      (for (voto 1 votanti)
+        ; i candidati sono i primi "n" votanti del vettore
+        (setq val (rand candidati))
+        ; controllo autovoto
+        (if (nil? auto-voto)
+          (while (= val voto)
+            (setq val (rand candidati))
+          )
+        )
+        (++ (urna val))
+      )
+      ; verifica se abbiamo un eletto
+      (if (>= (apply max urna) maggioranza)
+          (++ capo)
+      )
+    )
+    (div capo iter)))
+
+Il caso più semplice è quello in cui ci sono 3 votanti e 2 candidati (maggioranza = 2). 
+
+Se uno non può votare per se stesso:
+(election 3 2 2 nil 100000)
+;-> 1
+
+Se uno può votare anche per se stesso:
+(election 3 2 2 true 100000)
+;-> 1
+
+(election 3 3 2 nil 1000000)
+;-> 0.749381
+
+(election 3 3 2 true 1000000)
+;-> 0.777256
+
+Elezione Imperiale: votanti = 7, candidati = 7, maggioranza = 4
+
+Se uno non può votare per se stesso:
+(election 7 7 4 nil 1000000)
+;-> 0.06387
+Se uno può votare anche per se stesso:
+(election 7 7 4 true 1000000)
+;-> 0.070712
+
+Elezione Imperiale: votanti = 25, candidati = 2|3|4, maggioranza = 17
+
+candidati = 2
+(election 25 2 17 nil 1000000)
+;-> 0.107913
+(election 25 2 17 true 1000000)
+;-> 0.107477
+
+candidati = 3
+(election 25 3 17 nil 1000000)
+;-> 0.001161
+(election 25 3 17 true 1000000)
+;-> 0.001319
+
+candidati = 4
+(election 25 4 17 nil 1000000)
+2.1e-005
+(election 25 4 17 true 1000000)
+3.6e-005
+
 =============================================================================
 

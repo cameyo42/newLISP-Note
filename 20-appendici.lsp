@@ -6086,27 +6086,61 @@ Lista delle funzioni:
 
 Prefisso   Simbolo   Fattore    Scala lunga      Scala corta
 ------------------------------------------------------------
-yotta      Y         10^24      Quadrilione      Septillion 
+yotta      Y         10^24      Quadrilione      Septillion
 zetta      Z         10^21      Triliardo        Sextillion
 exa        E         10^18      Trilione         Quintillion
 peta       P         10^15      Biliardo         Quadrillion
-tera       T         10^12      Bilione          Trillion 
+tera       T         10^12      Bilione          Trillion
 giga       G         10^9       Miliardo         Billion
-mega       M         10^6       Milione          Million 
-kilo       k         10^3       Mille            Thousand 
-hecto      h         10^2       Cento            Hundred 
+mega       M         10^6       Milione          Million
+kilo       k         10^3       Mille            Thousand
+hecto      h         10^2       Cento            Hundred
 deca       da        10^1       Dieci            Ten
                      10^0       Uno              One
-deci       d         10^-1      Decimo           Tenth 
-centi      c         10^-2      Centesimo        Hundredth 
-milli      m         10^-3      Millesimo        Thousandth 
-micro      µ         10^-6      Milionesimo      Millionth 
+deci       d         10^-1      Decimo           Tenth
+centi      c         10^-2      Centesimo        Hundredth
+milli      m         10^-3      Millesimo        Thousandth
+micro      µ         10^-6      Milionesimo      Millionth
 nano       n         10^-9      Miliardesimo     Billionth
-pico       p         10^-12     Bilionesimo      Trillionth 
+pico       p         10^-12     Bilionesimo      Trillionth
 femto      f         10^-15     Biliardesimo     Quadrillionth
 atto       a         10^-18     Trilionesimo     Quintillionth
 zepto      z         10^-21     Triliardesimo    Sextilionth
 yocto      y         10^-24     Quadrilionesimo  Septillionth
+
+
+============================================================================
+ Alfabeto greco
+============================================================================
+
+  +---------+---------+
+  | Nome    | Simbolo |
+  +---------+---------+
+  | alpha   |  α      |
+  | beta    |  β      |
+  | gamma   |  γ      |
+  | delta   |  δ      |
+  | epsilon |  ε      |
+  | zeta    |  ζ      |
+  | eta     |  η      |
+  | theta   |  θ, ϑ   |
+  | iota    |  ι      |
+  | kappa   |  κ      |
+  | lambda  |  λ      |
+  | xi      |  ξ      |
+  | pi      |  π      |
+  | rho     |  ρ      |
+  | mu      |  μ      |
+  | nu      |  ν      |
+  | sigma   |  σ      |
+  | tau     |  τ      |
+  | upsilon |  υ      |
+  | phi     |  φ, ϕ   |
+  | chi     |  χ      |
+  | psi     |  ψ      |
+  | omega   |  ω      |
+  | omicron |  o      |
+  +---------+---------+
 
 
 ============================================================================

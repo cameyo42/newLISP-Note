@@ -1156,8 +1156,7 @@ Assegniamo a "m" la lista modificata restituita dalla funzione "aggiorna".
 m
 ;-> (2 1 2 3)
 
-Nota:
-Quando abbiamo delle liste con molti elementi, il passaggio per valore rallenta l'esecuzione del programma perchè ad ogni chiamata di funzione deve sempre essere fatta una copia degli argomenti.
+Nota: quando abbiamo delle liste con molti elementi, il passaggio per valore rallenta l'esecuzione del programma perchè ad ogni chiamata di funzione deve sempre essere fatta una copia degli argomenti.
 
 Per utilizzare il passaggio per riferimento dovremmo vedere come funzionano i contesti (CONTEXT), comunque, dal punto di vista pratico, questa è la tecnica pe usare il "passaggio per riferimento":
 
@@ -1176,6 +1175,66 @@ m:m
 In questo esempio, la lista viene incapsulata in un contesto denominato "m" che contiene una variabile con lo stesso nome.
 
 Ogni volta che una funzione utilizza un parametro di tipo stringa o lista, è possibile passare un contesto, che verrà quindi interpretato come il funtore predefinito di quel contesto.
+
+Vediamo altri esempi per capire meglio come funziona il passaggio dei parametri per valore (by value) e per riferimento (by reference):
+
+(setq a '(1 2 3 4))
+(setq b:b '(a b c d))
+
+Una funzione di prova:
+
+(define (change-first lst val) (setf (lst 0) val))
+
+Questo è ok (la lista "a" è una copia all'interno di "change-first"):
+
+(change-first a 99)
+;-> 99
+a
+;-> (1 2 3 4)
+
+Questo non funziona:
+
+(change-first b:b 99)
+;-> 99
+b:b
+;-> (a b c d)
+
+Questo funziona:
+
+(change-first b 99)
+;-> 99
+b:b
+;-> (99 b c d)
+
+Altra funzione di prova:
+
+(define (my-pop lst) (pop lst))
+
+Questo è ok (la lista "a" è una copia all'interno di "my-pop"):
+
+(my-pop a)
+;-> 
+a
+;-> (1 2 3 4)
+
+Questo non funziona:
+
+(my-pop b:b)
+;-> 99
+b:b
+;-> (99 b c d)
+
+Questo funziona:
+
+(my-pop b)
+;-> 99
+b:b
+;-> (b c d)
+
+Inoltre il simbolo "b" è protetto:
+ 
+(setq b '(2 2 2))
+;-> ERR: symbol is protected in function setf : b
 
 
 =============================

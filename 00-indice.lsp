@@ -1011,6 +1011,8 @@ NOTE LIBERE 6
   Media delle percentuali dei valori = Percentuale della media dei valori
   Quanti sono?
   Variabile random esponenziale
+  Struttura dati: quack
+  Elezioni
   
 APPENDICI
 =========
@@ -1036,6 +1038,7 @@ APPENDICI
   Benchmarking newLISP
   Frasi Famose sulla Programmazione e sul Linguaggio Lisp
   Prefissi del Sistema Internazionale di unità di misura
+  Alfabeto greco
   Codici ASCII
 
 BIBLIOGRAFIA/WEB
