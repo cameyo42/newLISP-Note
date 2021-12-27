@@ -1013,6 +1013,8 @@ NOTE LIBERE 6
   Variabile random esponenziale
   Struttura dati: quack
   Elezioni
+  Ricorsione e calcolo delle probabilità
+  Match scacchistico
   
 APPENDICI
 =========

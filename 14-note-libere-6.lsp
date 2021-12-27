@@ -6283,5 +6283,203 @@ candidati = 4
 (election 25 4 17 true 1000000)
 3.6e-005
 
+
+--------------------------------------
+Ricorsione e calcolo delle probabilità
+--------------------------------------
+
+In alcuni casi è possibile utilizzare la tecnica della ricorsione per risolvere problemi numerici di calcolo delle probabilità.
+Vediamo un esempio: consideriamo il processo di lanciare una moneta n volte. Se la probabilità che esca Testa vale p, qual è la probabilità di ottenere un numero pari di Teste?
+
+Proviamo ad impostare la ricorsione utilizzando l'equazione delle differenze:
+Il primo lancio è Testa o Croce 
+Se è Testa, allora abbiamo bisogno di un numero dispari di Teste sui prossimi (n — 1) lanci
+Se è Croce, allora abbiamo bisogno di un numero pari di Teste sui prossimi (n — 1) lanci.
+Quindi, abbiamo la seguente ricorrenza del primo ordine per P(n):
+
+    P(n) = p*(1 - P(n-1)) + (1 - p)*P(n-1) = (1 - 2*p)*P(n-1) + p
+
+Poichè quando abbiamo zero Teste conta come valore pari, sappiamo anche che P(1) = 1 — p.
+
+Adesso, partendo con P(1) = (1 - p), possiamo utilizzare questa formula ricorsiva per calcolare P(n) con n qualsiasi.
+
+Scriviamo una funzione cha calcola P(n) con la formula ricorsiva:
+
+(define (coin p n)
+  (local (res)
+    (setq res (sub 1 p))
+    ; il ciclo for implementa la ricorsione in modo iterativo
+    (for (i 2 n)
+      (setq res (add (mul (sub 1 (mul 2 p)) res) p))
+      (println res)
+    )
+  ))
+  
+(coin 0.4 2)
+;-> 0.52
+(coin 0.7 20)
+;-> 0.5000000054975582
+(coin 0.7 21)
+;-> 0.4999999978009767
+
+In questo caso è possibile dimostrare che la probabilità P(n) vale:
+
+  P(n) = (1/2)*[1 + (1 — 2*p)^n]
+
+Questo ci permette di verificare la correttezza della nostra funzione "coin".
+
+(define (theory p n) (mul 0.5 (add 1 (pow (sub 1 (mul 2 p)) n))))
+
+(theory 0.4 2)
+;-> 0.52
+(theory 0.7 20)
+;-> 0.5000000054975582
+(theory 0.7 21)
+;-> 0.4999999978009768
+
+
+------------------
+Match scacchistico
+------------------
+
+Due giocatori di scacchi A e B si sfidano in un incontro di N partite.
+Il giocatore A ha probabilità "w" di vincere una singola partita e ha la probabilità "d" che la partita finisca in parità.
+Negli scacchi, una vittoria vale un punto e un pareggio vale mezzo punto per ogni giocatore.
+Alla fine delle N partite, il vincitore è il giocatore che ha il maggior numero di punti.
+Nota: Gli scacchi si giocano con pezzi bianchi e neri. Chi gioca il bianco fa la prima mossa e questo è un vantaggio, quindi in un incontro il numero di partite N è pari (per fare in modo che entrambi i giocatori abbiamo i pezzi bianchi lo stesso numero di volte).
+Qual è la probabilità che il giocatore A vinca l'incontro e qual è la probabilità che l'incontro finisca in parità?
+
+Poniamo:
+  w = probabilità vittoria (win)
+  d = probabilià patta (draw)
+  l = probabilità sconfitta (lose) = 1 - w - d
+
+Scriviamo una funzione che simula un incontro per un determinato numero di volte e poi calcoliamo i risultati percentuali.
+Il funzionamento della funzione è spiegato nei commenti.
+
+(define (chess w d games iter show)
+  (local (mid dd win1 draw1 lose1 totwin1 totdraw1 totlose1 score1 score2 playing game)
+    ; inizializza il generatore di numeri casuali
+    (seed (time-of-day))
+    ; metà punti di un match con N partite
+    (setq mid (div games 2))
+    ; valore minimo per la sconfitta nella retta
+    ; dei numeri random da 0 a 1:
+    ;0                w     w + d       1
+    ;|----------------|-------|---------|
+    ;     vittoria      patta  sconfitta
+    (setq dd (add w d))
+    ; totale match: wittorie, patte, sconfitte
+    (set 'totwin1 0 'totdraw1 0 'totlose1 0)
+    ; ripetiamo un match per "iter" volte...
+    (for (i 1 iter)
+      ; totale punteggi dei giocatori nel match corrente
+      (set 'score1 0 'score2 0)
+      ; vittorie, patte, sconfitte di A nel match corrente
+      (set 'win1 0 'draw1 0 'lose1 0)
+      ; flag per iniziare una match
+      (setq playing true)
+      ; inizio singolo match...
+      (while playing
+        ; simulazione di una partita
+        (setq game (random))
+        ; calcolo del risultato di una partita (game):
+        ; 0 <= game < w        ==> vittoria
+        ; w <= game < (w + d)  ==> patta
+        ; game >= (w + d)      ==> sconfitta
+        (cond ((< game w)                    (++ win1))
+              ((and (>= game w) (< game dd)) (++ draw1))
+              ((>= game dd)                  (++ lose1))
+              ; controllo numeri random non considerati
+              (true (println "error-game:" game) (read-line))
+        )
+        ; calcolo punteggi dei giocatori
+        (setq score1 (add win1 (mul 0.5 draw1)))
+        (setq score2 (add lose1 (mul 0.5 draw1)))
+        ; se i punteggi indicano che il match è terminato,
+        ; allora aggiorna i valori totali
+        ; e termina il match corrente
+              ; pareggio del match?
+        (cond ((= mid score1 score2) (++ totdraw1) (setq playing nil))
+              ; vittoria del match?
+              ((> score1 mid)        (++ totwin1) (setq playing nil))
+              ; sconfitta del match?
+              ((> score2 mid)        (++ totlose1) (setq playing nil))
+        )
+      )
+    )
+    ; stampa: totale delle vittorie, patte, sconfitte
+    (if show (println totwin1 { } totdraw1 { } totlose1))
+    ; valore restituito:
+    ; lista delle percentuali di vittorie, patte, sconfitte
+    (list (div totwin1 iter)
+          (div totdraw1 iter)
+          (div totlose1 iter)
+          ; questo valore deve essere 1
+          (div (add totwin1 totdraw1 totlose1) iter))))
+
+Per cercare di verificare la correttezza del programma di simulazione possiamo utilizzare alcuni risultati teorici riportati nel libro "Duelling Idiots and Other Probability Puzzlers" di Paul Nahin.
+
+Formula di Ash (probabilità di pareggio per w=1/3 e d=1/3):
+
+  (sqrt(3/(4*π*N)))
+
+(setq PI 3.1415926535897931)
+(define (ash n) (sqrt (div 3 (mul 4 PI n))))
+(ash 100)
+;-> 0.04886025119029199
+(ash 1000)
+;-> 0.01545096808092759
+
+La simulazione produce risultati simili (0.04892 e 0.01507):
+
+(chess 0.333333333 0.333333333 100 100000 true)
+;-> 47461 4892 47647
+;-> (0.47461 0.04892 0.47647 1)
+(chess 0.333333333 0.333333333 1000 100000 true)
+;-> 49096 1507 49397
+;-> (0.49096 0.01507 0.49397 1)
+
+Supponiamo che N sia pari e d = 0 (cioè, non ci sono partite patte). Quindi, affinché l'incontro finisca in parità, ogni giocatore deve aver vinto metà delle partite. Questo si verifica con probabilità:
+
+  binom(N N/2)*w^(N/2)*(1 - w)^(N/2)
+
+Quindi la probabilità di un pareggio con N=6 e d=0 diventa:
+
+  20*w^3*(1 - w)^3
+
+(define (nodraw w) (mul 20 w w w (pow (sub 1 w) 3)))
+(nodraw 0.5)
+;-> 0.3125
+(nodraw 0.6)
+;-> 0.27648
+
+La simulazione produce risultati simili (0.3117 e 0.27561):
+
+(chess 0.5 0 6 100000 true)
+;-> 34298 31170 34532
+;-> (0.34298 0.3117 0.34532 1)
+(chess 0.6 0 6 100000 true)
+;-> 54499 27561 17940
+;-> (0.54499 0.27561 0.1794 1)
+
+Inoltre possiamo verificare che con N dispari e d=0 nessun incontro può finire in parità:
+
+(chess 0.5 0 7 100000 true) e
+;-> 49837 0 50163
+;-> (0.49837 0 0.50163 1)
+
+Facciamo alcune prove:
+
+(chess 0.4 0.2 14 100000 true)
+;-> 44293 11585 44122
+;-> (0.44293 0.11585 0.44122 1)
+(chess 0.45 0.2 14 100000 true)
+;-> 60942 10665 28393
+;-> (0.60942 0.10665 0.28393 1)
+(chess 0.5 0.2 14 100000 true)
+;-> 76040 8233 15727
+;-> (0.7604 0.08233 0.15727 1)
+
 =============================================================================
 

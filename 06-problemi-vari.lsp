@@ -7335,7 +7335,7 @@ Definiamo una funzione per calcolare questo valore:
 (P 37 100)
 ;-> 0.371014595504193
 
-La teoria afferma che il taglio ottimo vale n/e
+La teoria afferma che il taglio ottimo vale n/e (per n che tende all'infinito), cioè per grandi valori di n il taglio ottimo di è la frazione 1/e = 0.367879... di tutti i candidati (n).
 
 (div 1 (exp 1))
 ;-> 0.3678794411714423
@@ -7352,7 +7352,7 @@ Abbiamo 100 candidati con punteggi variabili da 1 a 100:
 ;->  96 97 48 62 51 4 70 45 87 6 92 4 27 65 54 23 34 86 31
 ;->  1 33 30 78 57 40 56 10 81)
 
-La teoria afferma che il taglio ottimo vale n/e:
+Come abbiamo detto, la teoria afferma che il taglio ottimo vale n/e:
 
 (div 1 (exp 1))
 ;-> 0.3678794411714423

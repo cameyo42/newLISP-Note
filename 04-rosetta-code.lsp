@@ -9395,6 +9395,7 @@ Funzione finale:
           (replace 'mul expr '*)
           (replace 'div expr '/)
           (println (infix expr))
+          ;(println expr)
           (push (list expr (infix expr)) out -1)
           )
       )
@@ -9475,6 +9476,19 @@ Con 9 cifre abbiamo 8 operazioni con 4 operatori n^k = 4^8 = 65536 modi di dispo
 (* 362880 65536)
 ;-> 23781703680 ; (23 miliardi 781 milioni 703 mila 680) espressioni
 
+(game-number '(1 2 3 4 5 6 7 8 9 10) 2022)
+(- 1 (- 2 (- 3 (* 4 (- 5 (+ 6 (* 7 8 9)))))))
+(1 - (2 - (3 - (4 * (5 - (6 + (7 * (8 * 9))))))))
+
+(game-number '(10 9 8 7 6 5 4 3 2 1) 2022)
+
+(+ (- (+ (* (- (+ (* 9 8 7) 6) 5) 4) 3) 2) 1)
+
+(1 2 3 4 5 6 7 8 9 * * + - * - - -)
+
+(1 * (2 / (3 / (4 + (5 + (6 * (7 * (8 * 9))))))))
+(/ 3 (+ (* 9 8 7 6) 5 4) )
+(1 2 3 4 5 6 7 8 9 * * * + + / / *)
 
 -------------
 SEQUENZA FUSC
