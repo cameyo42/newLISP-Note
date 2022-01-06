@@ -1015,6 +1015,10 @@ NOTE LIBERE 6
   Elezioni
   Ricorsione e calcolo delle probabilità
   Match scacchistico
+  Valore massimo e minimo con relativi indici
+  Buon 2022
+  Un bug della versione 10.7.6
+  Rolling Hash
   
 APPENDICI
 =========

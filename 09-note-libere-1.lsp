@@ -2934,6 +2934,25 @@ y
 
 Quando la funzione "uno" chiama la funzione "due" il suo ambito (in particolare il valore della variabile "x") viene passato alla funzione "due". Quindi la funzione "due" conosce sia "x" (che proviene dal contesto di "uno"), sia "y" che è una variabile del proprio contesto.
 
+Un altro esempio un pò più complicato:
+
+(define (myfun2 fun)
+	(let (a 20)
+		(println (apply fun '()))))
+
+(define (myfun)
+	(let (a 10)		
+		(myfun2 (lambda () (setq a 30)))
+		a))
+
+(myfun)
+;-> 30
+;-> 10
+
+Dobbiamo ragionare in termini di ambito dinamico. Ciò significa che l'applicazione di (lambda()(setq a 30)) non si riferisce al legame di "a" nel punto della definizione di (lambda()(setq a 30)), in questo caso in "myfun", ma al legame di "a" nel punto dell'applicazione, ovvero in "myfun2".
+
+newLISP funziona come il Lisp originale di McCarthy's. Quindi Scheme ha introdotto l'ambito lessicale ed è stato seguito dal Common Lisp (sebbene CL supporti l'ambito dinamico se si dichiarano le variabili locali come speciali). È una delle questioni più controverse dei vari Lisp.
+
 Il problema dell'ambito dinamico risiede nel fatto, che se usiamo simboli che non sono stati definiti nella nostra funzione, non possiamo sapere se il simbolo è globale oppure è stato "ereditato" da una chiamata di funzione.
 
 Utilizzando i contesti (context) possiamo utilizza l'ambito lessicale anche in newLISP:

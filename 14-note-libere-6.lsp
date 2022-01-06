@@ -6238,7 +6238,7 @@ La funzione di simulazione utilizza le seguenti variabili:
     )
     (div capo iter)))
 
-Il caso più semplice è quello in cui ci sono 3 votanti e 2 candidati (maggioranza = 2). 
+Il caso più semplice è quello in cui ci sono 3 votanti e 2 candidati (maggioranza = 2).
 
 Se uno non può votare per se stesso:
 (election 3 2 2 nil 100000)
@@ -6292,7 +6292,7 @@ In alcuni casi è possibile utilizzare la tecnica della ricorsione per risolvere
 Vediamo un esempio: consideriamo il processo di lanciare una moneta n volte. Se la probabilità che esca Testa vale p, qual è la probabilità di ottenere un numero pari di Teste?
 
 Proviamo ad impostare la ricorsione utilizzando l'equazione delle differenze:
-Il primo lancio è Testa o Croce 
+Il primo lancio è Testa o Croce
 Se è Testa, allora abbiamo bisogno di un numero dispari di Teste sui prossimi (n — 1) lanci
 Se è Croce, allora abbiamo bisogno di un numero pari di Teste sui prossimi (n — 1) lanci.
 Quindi, abbiamo la seguente ricorrenza del primo ordine per P(n):
@@ -6314,7 +6314,7 @@ Scriviamo una funzione cha calcola P(n) con la formula ricorsiva:
       (println res)
     )
   ))
-  
+
 (coin 0.4 2)
 ;-> 0.52
 (coin 0.7 20)
@@ -6480,6 +6480,231 @@ Facciamo alcune prove:
 (chess 0.5 0.2 14 100000 true)
 ;-> 76040 8233 15727
 ;-> (0.7604 0.08233 0.15727 1)
+
+
+-------------------------------------------
+Valore massimo e minimo con relativi indici
+-------------------------------------------
+
+Le funzioni primitive "max" e "min" calcolano il valore massimo e minimo di una serie di valori o dei valori di una lista.
+Alcune volte abbiamo bisogno di calcolare anche gli indici associati ai valori massimo e minimo. Vediamo due metodi per risolvere questo problema.
+
+Metodo 1 (algoritmo standard):
+Attraversamento della lista in modo iterativo
+
+(define (max-value-index1 lst)
+  (local (max-val max-idx)
+    (setq max-val -9223372036854775808)
+    (setq max-idx -1)
+    (dolist (el lst)
+      (if (> el max-val)
+          (set 'max-val el 'max-idx $idx)
+      )
+    )
+    (list max-val max-idx)))
+
+Proviamo la funzione che restituisce una lista (max-val max-idx):
+
+(setq lst '(1 4 8 -3 9 -34 0 9 87 6 42))
+(max-value-index1 lst)
+;-> (87 8)
+
+Metodo 2 (primitive di newLISP):
+Calcolo del valore massimo con la primitiva "max".
+Ricerca dell'indice del valore massimo con la primitiva "find".
+
+(define (max-value-index2 lst)
+  (let (max-val (apply max lst))
+    (list max-val (find max-val lst))))
+
+Proviamo la funzione che restituisce una lista (max-val max-idx):
+
+(max-value-index2 lst)
+;-> (87 8)
+
+Quale delle due due funzioni è più veloce?
+
+(silent
+  (setq test1 (randomize (sequence 1 1000)))
+  (setq test2 (randomize (sequence 1 10000)))
+  (setq test3 (randomize (sequence 1 100000)))
+  (setq test4 (randomize (sequence 1 1000000))))
+
+(time (max-value-index1 test1) 1000)
+;-> 46.901
+(time (max-value-index2 test1) 1000)
+;-> 15.958
+(div 46.901 15.958)
+;-> 2.939027447048503
+
+(time (max-value-index1 test2) 1000)
+;-> 490.72
+(time (max-value-index2 test2) 1000)
+;-> 202.459
+(div 490.72 202.459)
+;-> 2.423799386542461
+
+(time (max-value-index1 test3) 1000)
+;-> 5683.826
+(time (max-value-index2 test3) 1000)
+;-> 3208.818
+(div 5683.826 3208.818)
+;-> 1.771314546353205
+
+(time (max-value-index1 test4) 100)
+;-> 11255.923
+(time (max-value-index2 test4) 100)
+;-> 9193.417
+(div 11255.923 9193.417)
+;-> 1.224345964074076
+
+La prima funzione è più veloce, ma la differenza diminuisce con l'aumentare della dimensione della lista..
+
+Nota: la prima funzione accetta liste e vettori, la seconda accetta solo liste.
+
+
+---------
+Buon 2022
+---------
+
+(define (hny)
+  (println "Happy New Year " (- 1 (- 2 (- 3 (* 4 (- 5 (+ 6 (* 7 8 9)))))))))
+
+(hny)
+;-> Happy New Year 2022
+
+
+----------------------------
+Un bug della versione 10.7.6
+----------------------------
+
+Questo errore viene generato dalla primitiva "push". Se utilizziamo "push" per inserire un valore in una lista non ancora definita/valutata otteniamo un risultato coerente, cioè una lista con il valore correttamente inserito:
+
+(push 1 lst)
+;-> (1)
+
+Il problema nasce quando vogliamo inserire un valore in una lista non ancora definita/valutata ed entrambi hanno lo stesso simbolo (ad esempio "x"), il risultato è alquanto imprevisto:
+
+(push x x)
+;-> (?)
+
+Otteniamo una lista con il simbolo "?". Prima domanda: il carattere "?" è un simbolo valido?
+
+Ripetiamo la stessa operazione:
+(push x x)
+;-> ((?) ?)
+(first x)
+;-> (?)
+
+Comunque l'operazione (push x x) è potenzialmente instabile, infatti scrivendo:
+
+(push x x)
+;-> (?)
+(x 0 0)
+;-> ERR: list reference changed
+x
+
+Otteniamo un crash della REPL.
+
+Aspettando Lutz Mueller, non utilizziamo (push x x).
+
+
+------------
+Rolling Hash
+------------
+
+La tecnica di hashing viene utilizzata per un confronto efficiente delle stringhe convertendoli in numere interi e quindi confrontando tali stringhe sulla base dei loro valori interi. Il "rolling hash" viene utilizzato per impedire il ricalcolo del valore di hash dell'intera stringa durante il calcolo dei valori hash delle sottostringhe di una determinata stringa. Nel rolling hash, il nuovo valore hash viene calcolato rapidamente utilizzando solo il vecchio valore hash. Con questo metodo, due stringhe possono essere confrontate in tempo costante.
+
+Esempio
+-------
+Consideriamo la stringa "abcd" e dobbiamo trovare i valori hash delle sottostringhe di questa stringa di lunghezza 3, ovvero "abc" e "bcd".
+Per semplicità prendiamo 5 come base, ma negli scenari reali dovremmo modificarlo con un numero primo grande per evitare l'overflow. La potenza più alta della base è calcolata come (len-1) dove len è la lunghezza della sottostringa.
+
+Quindi, il valore hash della prima sottostringa vale:
+
+  H(abc) = a*(5^2) + b*(5^1) + c*(5^0)
+         = 97*25 + 98*5 + 99*1 = 3014
+
+Dove 97, 98 e 99 sono i valori ASCII dei caratteri "a", "b", "c".
+(char a) = 97, (char b) = 98, (char c) = 99
+
+E il valore hash della seconda sottostringa vale:
+
+  H(bcd) = b*(5^2) + c*(5^1) + d*(5^0)
+         = 98*25 + 99*5 + 100*1 = 3045
+
+Il Rolling hash funziona sul principio che mentre si calcola il valore hash della sottostringa successiva, la finestra viene spostata in avanti togliendo un carattere e aggiungendone un altro. In questo caso il carattere "a" viene rimosso dalla sottostringa "abc" e viene aggiunto il carattere "d" in fondo per ottenere la sottostringa "bcd".
+
+Quindi, non è necessario ricalcolare l'hash dell'intera stringa. Possiamo invece sottrarre il codice hash corrispondente al primo carattere dal primo valore hash, moltiplicare il risultato per il numero primo considerato e aggiungere ad esso il codice hash corrispondente al carattere successivo.
+
+Nel nostro caso:
+
+  H(bcd) = (H(abc) - a*(5^2))*5 + d*(5^0)
+         = (3014 - 97*25)*5 + 100*1 = 3045
+
+Quindi possiamo trovare il valore hash della sottostringa successiva in tempo O(1).
+
+Formula
+-------
+In generale, l'hash H può essere definito come:
+
+  H = (c1*a^(k-1) + c2*a^(k-2) + c3*a^(k-3) + ... + ck*a^0) % m
+
+dove a è una costante, c1,c2, ... ck sono i caratteri di input (valori ASCII) e m è un numero primo grande. In questi modo la probabilità che due stringhe casuali si scontrino (cioè abbiano lo stesso valore hash) è circa 1/m.
+
+Nota: il modulo di una somma non è uguale alla somma dei moduli degli addendi
+(% (+ 10 20 30) 11)
+;-> 5
+(+ (% 10 11) (% 20 11) (% 30 11))
+;-> 27
+
+Quindi, per trovare l'hash di una sottostringa, prima troviamo l'hash della sottostringa precedente e poi calcoliamo l'hash della sottostringa successiva usando la formula precedente. Questo metodo viene implementato nelle seguenti due funzioni:
+
+Funzione che calcola la potenza intera di due interi:
+
+(define (** num power)
+  (if (zero? power) 1
+      (let (out 1L)
+        (dotimes (i power)
+          (setq out (* out num))))))
+
+Funzione che calcola il valore hash di un numero:
+
+(define (compute-hash str)
+  (local (base primo hash-val p-pow)
+    (setq base 5L)
+    ; numero primo grande
+    (setq primo 1000000009L)
+    (setq hash-val 0L)
+    (setq p-pow (- (length str) 1))
+    (dostring (c str)
+      (setq hash-val (+ hash-val (* c (** base p-pow))))
+      (-- p-pow)
+    )
+    (setq hash-val (% hash-val primo))
+    hash-val))
+
+(compute-hash "abc")
+;-> 3014L
+
+(compute-hash "bcd")
+;-> 3045L
+
+Funzione che effettua il rolling hash:
+
+(define (rolling-hash str-prev next)
+  (local (base primo hash-val hash-next)
+    (setq p 5L)
+    (setq primo 1000000009L)
+    (setq hash-val (compute-hash str-prev))
+    (setq hash-next (% (+ (* (- hash-val (* (char (str-prev 0)) (** p (- (length str-prev) 1)))) p) (char next)) primo))))
+
+(rolling-hash "abc" "d")
+;-> 3045L
+
+Il rolling hash richiede una complessità temporale di O(n) per trovare i valori hash di tutte le sottostringhe di lunghezza k di una stringa di lunghezza n. Il calcolo del valore hash per la prima sottostringa richiederà O(k) poiché dobbiamo visitare ogni carattere della sottostringa e quindi per ciascuno dei caratteri n-k possiamo trovare l'hash in O(1) quindi la complessità temporale totale sarebbe O(k + nk) cioè O (n). Una volta trovati tutti i valori hash, è possibile confrontare le sottostringhe in O(1).
+
+Il metodo "Rolling Hash" viene utilizzato in diversi algoritmi (es. Robin-Karp) sulle stringhe.
 
 =============================================================================
 

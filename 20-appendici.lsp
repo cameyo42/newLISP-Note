@@ -2972,14 +2972,14 @@ The script also enable other shortcuts... see the source.
  Visual Studio Code e newLISP
 ============================================================================
 
-You can use VSCode with newLISP.
+You can use VSCode or (better) VSCodium (https://vscodium.com/) with newLISP .
 
 Add these lines to the file "keybindings.json":
 
 1. Shift+Enter to run selected text or current line
 
 { "key": "shift+enter",
-  "command": "workbench.action.terminal.runSelectedText, "when": "editorTextFocus"}
+  "command": "workbench.action.terminal.runSelectedText", "when": "editorTextFocus"}
 
 2. switch editor <--> terminal
 
@@ -2997,7 +2997,7 @@ Now type (+ 1 2 3) and press Shift+Enter:
 (sum 2 3)
 ;-> 5
 
-To move the Terminal window to the right, right click on Terminal menu bar and select "Move Panel to Right".
+To move the Terminal window to the right, right click on Terminal menu bar (any place) and select "Move Panel to Right".
 
 You can use the autohotkey script "vscode.ahk":
 
