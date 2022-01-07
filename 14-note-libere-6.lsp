@@ -6706,5 +6706,264 @@ Il rolling hash richiede una complessità temporale di O(n) per trovare i valori
 
 Il metodo "Rolling Hash" viene utilizzato in diversi algoritmi (es. Robin-Karp) sulle stringhe.
 
+
+-----------------------------------------------
+Creating statically scoped functions in newLISP
+-----------------------------------------------
+
+Lutz Mueller:
+
+A default function looks and behaves similar to statically scoped functions found in other programming languages. Several functions can share one namespace. Using the built-in primitive def-new, a function or macro can be defined to create other functions enclosed in their own namespace:
+
+Using the built-in primitive def-new, a function or macro can be defined to create other statically scoped functions:
+
+(define (def-static s body)
+    (def-new 'body (sym s s)))
+
+(def-static 'acc (lambda (x)
+    (if sum
+        (inc sum x)
+        (set 'sum x))))
+
+(acc 5)  → 5
+(acc 5)  → 10
+(acc 2)  → 12
+
+acc:sum  → 12
+acc:x    → nil
+
+The function works by creating a context and default functor from the name of the function. def-static should only be used while in name space MAIN.
+
+Using a more complex method, a def-static can be defined as a macro which can be used like the normal define function:
+
+;; define static functions (use only in context MAIN)
+;;
+;; Example:
+;;
+;; (def-static (foo x) (+ x x))
+;;
+;; foo:foo   → (lambda (foo:x) (+ foo:x foo:x))
+;;
+;; (foo 10)  → 20
+;;
+(define-macro (def-static)
+    (let (temp (append (lambda) (list (1 (args 0)) (args 1))))
+        (def-new 'temp (sym (args 0 0) (args 0 0)))))
+
+(def-static (acc x)
+    (if sum
+        (inc sum x)
+        (set 'sum x)))
+
+(acc 5)  → 5
+(acc 5)  → 10
+(acc 2)  → 12
+
+acc:sum  → 12
+acc:x    → nil
+
+The macro def-static first creates a lambda expression of the function to be defined in the current name space and assignes it to the variable temp. In a second step the lambda function in temp is copied to it own name space. This happens by assigning it to the default functor acc:acc symbol built from the name of the function.
+
+
+--------------------------------------------
+Numero di espressioni valide con N parentesi
+--------------------------------------------
+
+Dato un numero di parentesi, trovare il numero di espressioni valide (ben formate) utilizzando tutte le parentesi date.
+Si suppone che n/2 siano parentesi aperte "(" e n/2 siano parentesi chiuse ")".
+
+Esempi:
+
+Input: 2
+Output: 1
+È possibile solo un'espressione valida di lunghezza 2, "()"
+
+Input: 4
+Output: 2
+Possibili espressioni valide di lunghezza 4 sono "(())" e "()()"
+
+Input: 6
+Output: 5
+Possibili espressioni valide sono ((())), ()(()), ()()(), (())() e (()())
+
+Questa è principalmente un'applicazione dei numeri catalani.
+Il totale delle possibili espressioni valide per l'input n è n/2'esimo numero catalano se n è pari e 0 se n è dispari.
+
+(define (binom num k)
+  (cond ((> k num) 0L)
+        ((zero? k) 1L)
+        (true
+          (let (r 1L)
+            (for (d 1 k)
+              (setq r (/ (* r num) d))
+              (-- num)
+            )
+          r))))
+
+(binom 101 4)
+;-> 4082925L
+
+Funzione che calcola il numero catalano di un dato numero:
+
+(define (catalan num) (/ (binom (* 2 num) num) (+ num 1)))
+
+(map catalan (sequence 0 10))
+;-> (1L 1L 2L 5L 14L 42L 132L 429L 1430L 4862L 16796L)
+
+La funzione finale è la seguente:
+
+(define (bracket num)
+  ; se num è dispari, non è possibile creare espressioni valide
+  (cond (odd? num) 0
+      ; altrimenti restituisce l'num/2-esimo numero catalano
+      (catalan (/ num 2))))
+
+Proviamo la funzione:
+
+(bracket 2)
+;-> 1L
+
+(bracket 6)
+;-> 5L
+
+(bracket 10)
+;-> 42L
+
+
+--------------------------------
+Unione di liste/vettori ordinati
+--------------------------------
+
+Date due liste/vettori ordinati, creare una lista/vettore unica ordinata.
+
+Scriviamo prima la funzione che implementa l'algoritmo classico che viene spiegato nei commenti:
+
+(define (merge lst1 lst2)
+  (local (i j k len1 len2 out)
+    (set 'i 0 'j 0 'k 0)
+    (setq len1 (length lst1))
+    (setq len2 (length lst2))
+    (setq out (array (+ len1 len2) '(0)))
+    ; attraversiamo entrambe le liste
+    (while (and (< i len1) (< j len2))
+      ; se l'elemento corrente della prima lista
+      ; è più piccolo dell'elemento corrente della seconda lista,
+      (if (< (lst1 i) (lst2 j))
+          ; allora memorizza nell'output l'elemento della prima lista
+          ; e incrementa gli indici corrispondenti (k e i).
+          (begin
+            (setf (out k) (lst1 i))
+            (++ k)
+            (++ i))
+          ; altrimenti memorizza nell'output l'elemento della seconda lista
+          ; e incrementa gli indici corrispondenti (k e j).
+          (begin
+            (setf (out k) (lst2 j))
+            (++ k)
+            (++ j))
+      )
+    )
+    ; Memorizza nell'output gli elementi rimanenti della prima lista
+    (while (< i len1)
+      (setf (out k) (lst1 i))
+      (++ k)
+      (++ i)
+    )
+    ; Memorizza nell'output gli elementi rimanenti della seconda lista
+    (while (< j len2)
+      (setf (out k) (lst2 j))
+      (++ k)
+      (++ j)
+    )
+    out))
+
+(setq lst1 '(2 4 10 15 18))
+(setq lst2 '(2 5 6 10 16 21))
+
+(merge lst1 lst2)
+;-> (2 2 4 5 6 10 10 15 16 18 21)
+
+Vediamo ora come potremmo scrivere la stessa funzione usando le primitive di newLISP:
+
+(define (merge2 lst1 lst2) (sort (extend lst1 lst2)))
+
+(merge2 lst1 lst2)
+;-> (2 2 4 5 6 10 10 15 16 18 21)
+
+Vediamo la differenza di velocità:
+
+(setq lst1 (sort (append (sequence 2 16) (sequence 3 25 3))))
+(setq lst2 (sort (append (sequence 1 21) (sequence 3 19 3))))
+
+(time (merge lst1 lst2) 100000)
+;-> 1307.635
+(time (merge2 lst1 lst2) 100000)
+;-> 246.419
+
+
+-------------------
+KiloByte e KibiByte
+-------------------
+
+Il computer lavora con un sistema binario (0 e 1) e per consuetudine si è deciso di unire le cifre a gruppi di otto. Ogni gruppo di 8 bit prende il nome di "byte".
+
+Un byte può assumere 256 valori, da 0 (00000000) a 255 (11111111).
+
+Nota: Esiste anche il raggruppamento a 4 bit che prende il nome di "nibble" (mezzo byte).
+
+Come per tutte le grandezze comunemente utilizzate, anche per i byte si utilizzano i moltiplicatori che agevolano la scrittura di numeri grandi, con una piccola differenza: mentre nel caso dei Grammi, dei Metri, dei Volt e di tante altre grandezze fisiche, i prefissi K, M, G, ecc... moltiplicano per un fattore 1000 (che è una potenza di 10), nel caso dei byte il fattore di moltiplicazione è 1024 (che è una potenza di 2).
+
+Quindi, fino al 1998, in informatica si utilizzavano i seguenti moltiplicatori:
+
+1 KByte (KiloByte o KB) = 1024 Byte
+1 MByte (MegaByte o MB) = 1024 KByte
+1 GByte (GigaByte o GB) = 1024 MByte
+1 TByte (TeraByte o TB) = 1024 GByte
+ecc...
+
+Quando compriamo una memoria di massa la sua capacità viene espressa con questi moltiplicatori. Però quando inseriamo la nostra memoria su un computer, questo ci informa che la capacità è inferiore. Perchè?
+I produttori di memorie dichiarano un hard disk da 2 TB utilizzando il fattore 1000 del sistema decimale (cioè circa 2.000.000.000.000 = duemila miliardi di byte), ma quando viene utilizzato dal computer che, più correttamente, fa i conti nel sistema binario, si ottiene uno spazio libero di 1,82 TB, cioè 2.000.000.000.000∕1024∕1024∕1024∕1024 = 1,818989403545856.
+
+A partire dal 1998, sono stati creati dei moltiplicatori appositi per i Byte (in base 2 anziché base 10) che sono identificati dal suffisso bi (binary):
+
+1 KibiByte (KiB) = 1024 Byte
+1 MebiByte (MiB) = 1024 KibiByte
+1 GibiByte (GiB) = 1024 MebiByte
+1 TebiByte (TiB) = 1024 GibiByte
+ecc...
+
+Con questi nuovi moltiplicatori l'informatica dispone delle unità di misura corrette della memoria, mentre i costruttori di memorie di massa continuano ad utilizzare i moltiplicatori in base 10 anziché quelli in base 2.
+Comunque i nuovi moltiplicatori non sono entrati nell'uso comune e ognuno continua ad usare il sistema che più gli conviene.
+
+Scriviamo una funzione che converte tra queste due unità di misura (e relativi moltiplicatori):
+
+(setq unit-name '("TB" "GB" "MB" "KB" "Byte"
+                  "TiB" "GiB" "MiB" "KiB"))
+
+(setq unit-value '(1e12 1.e9 1e6 1e3 1
+      1099511627776 1073741824 1048576 1024))
+
+(define (byte val unit)
+  (local (idx scala)
+    (setq idx (find unit unit-name))
+    (setq scala (mul val (unit-value idx)))
+    (println val " " unit " is:")
+    (dolist (el unit-name)
+      (cond ((!= el unit)
+            (println (format "%.6f %s" (div scala (unit-value $idx)) el)))
+      )
+    )))
+
+(byte 2 "TB")
+;-> 2 TB is:
+;-> 2000.000000 GB
+;-> 2000000.000000 MB
+;-> 2000000000.000000 KB
+;-> 2000000000000.000000 Byte
+;-> 1.818989 TiB
+;-> 1862.645149 GiB
+;-> 1907348.632813 MiB
+;-> 1953125000.000000 KiB
+
 =============================================================================
 

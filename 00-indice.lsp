@@ -1,7 +1,7 @@
 
 ============================================================================
  Note su newLISP
- © copyright 2019-2021 Massimo Corinaldesi aka cameyo
+ © copyright 2019-2022 Massimo Corinaldesi aka cameyo
  MIT License
 ============================================================================
 
@@ -1019,6 +1019,10 @@ NOTE LIBERE 6
   Buon 2022
   Un bug della versione 10.7.6
   Rolling Hash
+  Creating statically scoped functions in newLISP
+  Numero di espressioni valide con N parentesi
+  Unione di liste/vettori ordinati
+  KiloByte e KibiByte
   
 APPENDICI
 =========
@@ -1067,7 +1071,7 @@ LICENSE
 
 MIT License
 
-Copyright (c) 2019-2021 Massimo Corinaldesi aka cameyo
+Copyright (c) 2019-2022 Massimo Corinaldesi aka cameyo
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
