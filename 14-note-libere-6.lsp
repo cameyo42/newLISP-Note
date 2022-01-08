@@ -6707,64 +6707,6 @@ Il rolling hash richiede una complessità temporale di O(n) per trovare i valori
 Il metodo "Rolling Hash" viene utilizzato in diversi algoritmi (es. Robin-Karp) sulle stringhe.
 
 
------------------------------------------------
-Creating statically scoped functions in newLISP
------------------------------------------------
-
-Lutz Mueller:
-
-A default function looks and behaves similar to statically scoped functions found in other programming languages. Several functions can share one namespace. Using the built-in primitive def-new, a function or macro can be defined to create other functions enclosed in their own namespace:
-
-Using the built-in primitive def-new, a function or macro can be defined to create other statically scoped functions:
-
-(define (def-static s body)
-    (def-new 'body (sym s s)))
-
-(def-static 'acc (lambda (x)
-    (if sum
-        (inc sum x)
-        (set 'sum x))))
-
-(acc 5)  → 5
-(acc 5)  → 10
-(acc 2)  → 12
-
-acc:sum  → 12
-acc:x    → nil
-
-The function works by creating a context and default functor from the name of the function. def-static should only be used while in name space MAIN.
-
-Using a more complex method, a def-static can be defined as a macro which can be used like the normal define function:
-
-;; define static functions (use only in context MAIN)
-;;
-;; Example:
-;;
-;; (def-static (foo x) (+ x x))
-;;
-;; foo:foo   → (lambda (foo:x) (+ foo:x foo:x))
-;;
-;; (foo 10)  → 20
-;;
-(define-macro (def-static)
-    (let (temp (append (lambda) (list (1 (args 0)) (args 1))))
-        (def-new 'temp (sym (args 0 0) (args 0 0)))))
-
-(def-static (acc x)
-    (if sum
-        (inc sum x)
-        (set 'sum x)))
-
-(acc 5)  → 5
-(acc 5)  → 10
-(acc 2)  → 12
-
-acc:sum  → 12
-acc:x    → nil
-
-The macro def-static first creates a lambda expression of the function to be defined in the current name space and assignes it to the variable temp. In a second step the lambda function in temp is copied to it own name space. This happens by assigning it to the default functor acc:acc symbol built from the name of the function.
-
-
 --------------------------------------------
 Numero di espressioni valide con N parentesi
 --------------------------------------------
@@ -6964,6 +6906,303 @@ Scriviamo una funzione che converte tra queste due unità di misura (e relativi 
 ;-> 1862.645149 GiB
 ;-> 1907348.632813 MiB
 ;-> 1953125000.000000 KiB
+
+
+------------------------
+Macro e variabili libere
+------------------------
+
+Un conflitto può verificarsi solo se si passa una "variabile libera" da qualche parte, ad esempio nel caso seguente:
+
+(lambda() (setf a 3))
+
+ma non in caso di:
+
+(lambda() (let ((a 4)) (setf a 3))).
+
+Finché non si passano variabili libere in giro siamo al sicuro. Il problema si verifica più frequentemente con le macro di newLISP (in realtà, fexprs). Infatti queste si basano su variabili libere. Per esempio, se definiamo una macro "ifnot" (inverso di "if") nel modo seguente:
+
+(define-macro (ifnot condition else then)
+  (if (eval condition)
+      (eval then)
+      (eval else)))
+
+tutte le variabili utilizzate, ad esempio:
+
+(ifnot (< a b) (setf a 4) (setf b 4))
+
+vengono passati a "ifnot" come variabili libere. In tal caso il problema è esattamente lo stesso delle macro Common Lisp, dove la soluzione è nell'uso della funzione "gensym". newLISP non ha "gensym", ma si può facilmente definirne una:
+
+(define (gensym)
+   (inc gensym-counter)
+   (sym (append "G-" (string gensym-counter))))
+
+Tuttavia, in quasi tutti i casi, l'uso di "gensym" è eccessivo. Una soluzione può essere quella proposta da Kazimir Marjoncic che ha definito due funzioni "set-protected1" e "set-protected2":
+
+(set-protected1 'ifnt (lambda (c e t) (if (eval c) (eval t) (eval e)))
+                      '(e c t))
+
+che produce il seguente codice per l'espressione lambda:
+
+(lambda ([ifnt.c] [ifnt.e] [ifnt.t])
+    (if (eval [ifnt.c])
+        (eval [ifnt.t])
+        (eval [ifnt.e])))
+
+Questo codice è "sicuro" perché usa nomi univoci. La buona notizia è che non è necessario utilizzare "set-protected1" o scrivere una funzione propria, infatti newLISP fornisce il metodo dei "contesti" (context) che risolve il problema delle "variabili libere":
+
+(context 'ifnot)
+;-> ifnot
+ifnot> 
+(define-macro (ifnot:ifnot c e t) (if (eval c) (eval t) (eval e)))
+;-> (lambda-macro (c e t)
+;->  (if (eval c)
+;->   (eval t)
+;->   (eval e)))
+ifnot>
+(context 'MAIN)
+;-> MAIN
+
+(ifnot (< 2 3) ">=" "<")
+;-> "<"
+
+ifnot:ifnot
+;-> (lambda-macro (ifnot:c ifnot:e ifnot:t)
+;->  (if (eval ifnot:c)
+;->   (eval ifnot:t)
+;->   (eval ifnot:e)))
+
+Questo è anche l'approccio consigliato dal progettista della linguaggio Lutz Mueller (cioè definire una funzione come funtore di default del contesto per evitare conflitti di nome).
+
+Né "set-protected1" né i contesti sono "sicuri" in un caso molto speciale - se la macro ricorsiva passa una delle sue variabili come variabile libera da un'istanza della macro a un'altra istanza della stessa macro, dove viene associata nuovamente la stessa variabile (si tratta comunque di un caso molto raro che non ho mai incontrato).
+
+Per maggiori informazioni vedi: "Symbols as Sexprs and Hygienic Fexprs" nel file "D-Kazimir-Blog.lisp", oppure al seguente link:
+
+http://kazimirmajorinc.blogspot.com/2009/12/symbols-as-sexprs.html
+
+Questo documento contiene l'implementazione di "set-protected1" e "set-protected2". Quest'ultima funzione serve "per costruire un contesto di funzione locale per memorizzare la variabile locale della funzione e distruggere automaticamente mentre la funzione finisce", il che risulta essere relativamente complicato dal punto di vista tecnico.  
+Nota: il codice di "set-protected1" e "set-protected2" non è come viene scritto il tipico "codice di produzione", è come deve essere scritto se si vuole giocare con newLISP come se fosse Lisp.
+
+Sul forum Lutz Mueller ha fornito la seguente funzione per definire le funzioni come funtori predefiniti nel loro spazio (contesto):
+
+(define (def-static s body) 
+      (def-new 'body (sym s s))) 
+
+Che viene usata nel modo seguente:
+
+(def-static 'acc (fn (x) (inc sum x)))
+;-> acc:acc
+(acc 1)
+;-> 1
+(acc 1)
+;-> 2
+(acc 1)
+;-> 3
+(acc 5)
+;-> 8
+acc:acc
+;-> (lambda (acc:x) (inc acc:sum acc:x))
+
+"fn" è lo stesso di "lambda", ma è più veloce da scrivere.
+
+Per utilizzare "def-static" con le macro possiamo scrivere:
+
+(def-static 'mysetq (lambda-macro (p1 p2) (set p1 (eval p2))))
+;-> mysetq:mysetq
+(mysetq x 123)
+;-> 123
+
+e qesto è il codice generato:
+
+mysetq:mysetq
+;-> (lambda-macro (mysetq:p1 mysetq:p2) (set mysetq:p1 (eval mysetq:p2)))
+
+C'è anche un'altra definizione di "def-static" che può essere usata come "define", ma non è adatta per le macro. Il suo funzionamento viene presentato nel capitolo seguente.
+
+
+-----------------------------------------------
+Creating statically scoped functions in newLISP
+-----------------------------------------------
+
+Lutz Mueller:
+
+A default function looks and behaves similar to statically scoped functions found in other programming languages. Several functions can share one namespace. Using the built-in primitive def-new, a function or macro can be defined to create other functions enclosed in their own namespace:
+
+Using the built-in primitive def-new, a function or macro can be defined to create other statically scoped functions:
+
+(define (def-static s body)
+    (def-new 'body (sym s s)))
+
+(def-static 'acc (lambda (x)
+    (if sum
+        (inc sum x)
+        (set 'sum x))))
+
+(acc 5)  → 5
+(acc 5)  → 10
+(acc 2)  → 12
+
+acc:sum  → 12
+acc:x    → nil
+
+The function works by creating a context and default functor from the name of the function. def-static should only be used while in name space MAIN.
+
+Using a more complex method, a def-static can be defined as a macro which can be used like the normal define function:
+
+;; define static functions (use only in context MAIN)
+;;
+;; Example:
+;;
+;; (def-static (foo x) (+ x x))
+;;
+;; foo:foo   → (lambda (foo:x) (+ foo:x foo:x))
+;;
+;; (foo 10)  → 20
+;;
+(define-macro (def-static)
+    (let (temp (append (lambda) (list (1 (args 0)) (args 1))))
+        (def-new 'temp (sym (args 0 0) (args 0 0)))))
+
+(def-static (acc x)
+    (if sum
+        (inc sum x)
+        (set 'sum x)))
+
+(acc 5)  → 5
+(acc 5)  → 10
+(acc 2)  → 12
+
+acc:sum  → 12
+acc:x    → nil
+
+The macro def-static first creates a lambda expression of the function to be defined in the current name space and assignes it to the variable temp. In a second step the lambda function in temp is copied to it own name space. This happens by assigning it to the default functor acc:acc symbol built from the name of the function.
+
+
+----------------------
+Pavimenti e piastrelle
+----------------------
+
+Problema 1
+----------
+Dato un pavimento "2 x n" e piastrelle di dimensione "2 x 1", contare il numero di modi per riempire il pavimento. Una piastrella può essere posizionata orizzontalmente, cioè come 1 x 2, o verticalmente, cioè come 2 x 1.
+
+Esempio: n = 4
+
+  Pavimento "2 x 4"      Piastrella "1 x 2"
+
+  +---+---+---+---+      +---+---+
+  |   |   |   |   |      |   |   |
+  +---+---+---+---+      +---+---+
+  |   |   |   |   |
+  +---+---+---+---+
+
+Possiamo riempire il pavimento in 5 modi:
+
+Tutte le 4 piastrelle verticali (1 modo)
+Tutte le 4 piastrelle orizzontali (1 modo)
+2 piastrelle verticali e 2 piastrelle orizzontali (3 modi)
+
+Sia "modi(n)" il numero dei modi per posizionare le piastrelle su un pavimento "2 x n", abbiamo le seguenti due possibilità per posizionare la prima piastrella:
+1) Se la posizioniamo in verticale, il problema si riduce a "modi(n-1)"
+2) Se la posizioniamo in orizzontale, dobbiamo posizionare anche la seconda piastrella in orizzontale. Quindi il problema si riduce a "modi(n-2)"
+
+Pertanto, modi(n) può essere calcolato ricorsivamente come segue:
+
+    modi(n) = n,  se n = 1 o n = 2
+    modi(n) = modi(n-1) + modi(n-2)
+
+La funzione è la seguente:
+
+(define (modi n)
+  (cond ((<= n 2) n)
+        (true
+         (+ (modi (- n 1)) (modi (- n 2))))))
+
+Facciamo alcune prove:
+
+(modi 4)
+;-> 5
+(modi 5)
+;-> 8
+(modi 6)
+;-> 13
+
+Nota: si tratta della sequenza di Fibonacci.
+
+Problema 2
+----------
+Contare il numero di modi per riempire un pavimento di dimensioni n x m utilizzando piastrelle di dimensioni 1 x m. Una piastrella può essere posizionata orizzontalmente, cioè come 1 x 2, o verticalmente, cioè come 2 x 1.
+Inoltre, sia n che m sono interi positivi e m >= 2.
+
+Esempi:
+
+Con n = 2, m = 3 ==> 1 modo
+
+  Pavimento "2 x 3"      Piastrella "1 x 3"
+  
+  +---+---+---+          +---+---+---+
+  |   |   |   |          |   |   |   |
+  +---+---+---+          +---+---+---+
+  |   |   |   |
+  +---+---+---+
+  
+Solo un modo per riempire il pavimento:
+tutte e due le piastrelle in orizzontale
+
+Con n = 4, m = 4 ==> 2 modi
+
+  Pavimento "4 x 4"      Piastrella "1 x 4"
+
+  +---+---+---+---+      +---+---+---+---+
+  |   |   |   |   |      |   |   |   |   |
+  +---+---+---+---+      +---+---+---+---+
+  |   |   |   |   |
+  +---+---+---+---+
+  |   |   |   |   |
+  +---+---+---+---+
+  |   |   |   |   |
+  +---+---+---+---+
+  
+Primo modo: tutte le piastrelle posizionate orizzontalmente
+Secondo modo: tutte le piastrelle posizionate verticalmente
+
+La soluzione di questo problema è una generalizzazione della soluzione del problema precedente.
+Per un dato valore di n e m, il numero di modi per piastrellare il pavimento può essere ottenuto dalla seguente relazione:
+
+            | 1, 1 <= n < m
+  modi(n) = | 2, n = m
+            | modi(n-1) + modi(n-m), m < n
+
+Scriviamo una funzione iterativa:
+
+(define (modi n m)
+  (local (conta )
+    (setq conta (array (+ n 1) '(0)))
+    (setf (conta 0) 0L)
+    (for (i 1 n)
+      (cond ((> i m)
+             (setf (conta i) (+ (conta (- i 1)) (conta (- i m)))))
+            ((or (< i m) (= i 1))
+             (setf (conta i) 1L))
+            ((= i m)
+             (setf (conta i) 2L))
+            (true
+              (println "error: i = " i)
+            )
+      )
+    )
+    (conta n)))
+
+Facciamo alcune prove:
+
+(modi 2 3)
+;-> 1L
+(modi 4 4)
+;-> 2L
+(modi 7 4)
+;-> 5L
+(modi 85 2)
+;-> 420196140727489673L
 
 =============================================================================
 

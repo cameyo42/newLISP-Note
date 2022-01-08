@@ -1019,10 +1019,12 @@ NOTE LIBERE 6
   Buon 2022
   Un bug della versione 10.7.6
   Rolling Hash
-  Creating statically scoped functions in newLISP
   Numero di espressioni valide con N parentesi
   Unione di liste/vettori ordinati
   KiloByte e KibiByte
+  Macro e variabili libere
+  Creating statically scoped functions in newLISP
+  Pavimenti e piastrelle
   
 APPENDICI
 =========
@@ -1056,7 +1058,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (187 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (188 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================
