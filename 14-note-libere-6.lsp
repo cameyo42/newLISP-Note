@@ -474,6 +474,8 @@ Creazione di una hash-map:
 (new Tree 'myhash)
 ;-> myhash
 
+(for (i 16 256) (println (char i)))
+
 Funzione per creare una hash-map:
 
 (define (new-hash str) (new Tree (sym str)))
@@ -594,7 +596,7 @@ Per creare una lista di associazione da una hash-map basta assegnare la valutazi
 (list? alst)
 ;-> true
 
-Per popolare una hash-map possiamo anche usare una lista:
+Per popolare una hash-map possiamo anche usare una lista associativa (chiave valore):
 
 (myhash '((3 4) (5 6)))
 ;-> myhash
@@ -7203,6 +7205,272 @@ Facciamo alcune prove:
 ;-> 5L
 (modi 85 2)
 ;-> 420196140727489673L
+
+
+-----------------
+Algoritmo minimax
+-----------------
+
+Minimax è un tipo di algoritmo di backtracking che viene utilizzato nella teoria dei giochi per trovare la mossa ottimale per un giocatore, supponendo che anche il suo avversario giochi in modo ottimale. Viene utilizzato nei giochi a due giocatori come gli scacchi, il backgammon, il Tris (Tic-Tac-Toe), ecc.
+Nel Minimax i due giocatori sono chiamati massimizzatori e minimizzatori. Il massimizzatore cerca di ottenere il punteggio più alto possibile mentre il minimizzatore cerca di fare il contrario e ottenere il punteggio più basso possibile.
+Ogni stato della della griglia/scacchiera ha un valore ad essa associato. In un dato stato, se il massimizzatore ha il sopravvento, il valore dello stato della griglia tenderà ad essere un valore positivo. Se il minimizzatore ha il sopravvento in quello stato della scheda, tenderà ad essere un valore negativo. I valori degli stati della griglia sono calcolati con metodi euristici specifici per ogni tipo di gioco.
+Quindi se vogliamo creare un programma per giocare contro il computer dobbiamo creare una funzione euristica che calcola il valore dello stato di una griglia qualsiasi in base alla posizione dei pezzi sulla griglia. Questa funzione è spesso nota come funzione di valutazione (che è unica per ogni tipo di gioco).
+In questo caso discutiamo della funzione di valutazione per il gioco del Tris. L'idea di base della funzione di valutazione è di dare un valore alto ad una griglia se è il turno del massimizzatore o un valore basso per la tavola se è il turno del minimizzatore. In questo caso consideriamo "x" come massimizzatore e "o" come minimizzatore.
+La nostra funzione di valutazione funziona nel modo seguente:
+
+Se "x" vince sulla griglia, allora gli diamo un valore positivo di 10 (valore positivo arbitrario).
+
+  +---+---+---+
+  | x | o |   |
+  +---+---+---+
+  |   | x | o |  ==> valutazione = +10
+  +---+---+---+
+  |   |   | x |
+  +---+---+---+
+
+Se "o" vince sulla griglia, allora gli diamo un valore negativo di -10 (valore negativo arbitrario).
+
+  +---+---+---+
+  | o | o | o |
+  +---+---+---+
+  |   | x | x |  ==> valutazione = -10
+  +---+---+---+
+  | x |   |   |
+  +---+---+---+
+
+Se nessun giocatore ha ancora vinto o la partita risulta in pareggio, diamo un valore pari a 0.
+
+  +---+---+---+
+  | o | o | x |
+  +---+---+---+
+  | x | x | o |    ==> valutazione = 0
+  +---+---+---+
+  | o | x | x |
+  +---+---+---+
+
+Rappresentiamo la scacchiera con una matrice 3x3 di caratteri "x" (giocatore 1), "o" (giocatore 2) e "_" (casella vuota).
+
+Vediamo l'implementazione completa dell'algoritmo:
+
+; Controlla se in una data posizione esistono mosse valide
+(define (isMovesLeft board)
+  (if (ref "_" board) true nil))
+
+; Funzione di valutazione
+(define (evaluate b)
+(catch
+  (let (value nil)
+  ; check fine partita per RIGHE
+  (for (row 0 2 1)
+    (if (= (b row 0) (b row 1) (b row 2))
+        (cond ((= (b row 0) player) (throw 10))
+              ((= (b row 0) opponent) (throw -10))
+        )
+    )
+  )
+  ; check fine partita per COLONNE
+  (for (col 0 2 1 break)
+    (if (= (b 0 col) (b 1 col) (b 2 col))
+        (cond ((= (b 0 col) player) (throw 10))
+              ((= (b 0 col) opponent) (throw -10))
+        )
+    )
+  )
+  ; check fine partita per DIAGONALE \
+  (if (= (b 0 0) (b 1 1) (b 2 2))
+      (cond ((= (b 1 1) player) (throw 10))
+            ((= (b 1 1) opponent) (throw -10))
+      )
+  )
+  ; check fine partita per DIAGONALE /
+  (if (= (b 0 2) (b 1 1) (b 2 0))
+      (cond ((= (b 1 1) player) (throw 10))
+            ((= (b 1 1) opponent) (throw -10))
+      )
+  )
+  ; se la partita non è terminata restituisce nil
+  value)))
+
+; Questa è la funzione minimax.
+; Considera tutte le mosse possibili
+; e il relativo valore di ogni posizione
+(define (minimax board depth isMax)
+(catch
+  (local (score)
+    (setq score (evaluate board))
+    ; Se il Maximizer ha vinto la partita, restituisci il relativo punteggio
+    (if (= score 10) (throw score))
+    ; Se il Minimizer ha vinto la partita, restituisci il relativo punteggio
+    (if (= score -10) (throw score))
+    ; Se non ci sono più mosse possibili e nessun vincitore,
+    ; allora è un pareggio
+    (if (= nil (isMovesLeft board)) (throw 0))
+    ; Se è la mossa del Maximizer
+    (if (= isMax true)
+        (let (best -1000)
+          ; Visita tutte le caselle
+          (for (i 0 2)
+            (for (j 0 2)
+              ; Casella vuota?
+              (if (= (board i j) "_")
+                (begin
+                  ; La mossa...
+                  (setf (board i j) player)
+                  ; Chiama minimax in modo ricorsivo
+                  ; e sceglie il valore massimo
+                  (setq best (max best (minimax board (+ depth 1) (not isMax))))
+                  ; Annulla la mossa fatta
+                  (setf (board i j) "_")
+              ))
+            )
+          )
+          ;(println "maxim: " best)
+          (throw best)
+        )
+        ; Se è la mossa del Minimizer
+        (let (best 1000)
+          ; Visita tutte le caselle
+          (for (i 0 2)
+            (for (j 0 2)
+              ; Casella vuota?
+              (if (= (board i j) "_")
+                (begin
+                ; La mossa...
+                  (setf (board i j) opponent)
+                  ; Chiama minimax in modo ricorsivo
+                  ; e sceglie il valore minimo
+                  (setq best (min best (minimax board (+ depth 1) (not isMax))))
+                  ; Annulla la mossa
+                  (setf (board i j) "_")
+              ))
+            )
+          )
+          ;(println "minim: " best)
+          (throw best)
+        )
+   ))))
+
+; Funzione che trova la mossa migliore per il giocatore di turno
+(define (findBestMove board)
+  (local (bestVal bestMove)
+    (setq bestVal -1000)
+    (setq bestMove (list -1 -1))
+    ; Visita tutte le caselle, valuta la funzione minimax 
+    ; per tutte le celle vuote, e restituisce la mossa ottimale
+    ; (cioè la casella con valore massimo)
+    (for (i 0 2)
+      (for (j 0 2)
+        ; Casella vuota?
+        (if (= (board i j) "_")
+          (begin
+            ; La mossa...
+            (setf (board i j) player)
+            ; calcola la funzione di valutazione per questa mossa.
+            (setq moveVal (minimax board 0 nil))
+            ; Annulla la mossa
+            (setf (board i j) "_")
+            ; Se il valore della mossa corrente è maggiore del miglior valore,
+            ; allorna aggiorna il valore della mossa migliore
+            (if (> moveVal bestVal)
+              (begin
+                (setq bestVal moveVal)
+                (setf (bestMove 0) i)
+                (setf (bestMove 1) j)
+              )
+            )
+          )
+        )
+      )
+    )
+    (println "Valore della Mossa migliore: " bestVal)
+    bestMove))
+
+; Funzione che valuta una determinata posizione 
+; e trova la mossa migliore
+(define (makeMove board p1 p2)
+  (local (theMove player opponent)
+    (setq theMove '(-1 -1))
+    (setq player p1)
+    (setq opponent p2)
+    (setq theMove (findBestMove board))
+    (println "Mossa migliore: " (theMove 0) {,} (theMove 1))
+  ))
+
+Facciamo alcune prove:
+
+(setq grid:grid '(("x" "o" "x")
+                  ("o" "o" "x")
+                  ("_" "_" "_")))
+
+(setq griglia '(("x" "o" "x")
+                ("o" "o" "x")
+                ("_" "_" "_")))
+
+(makeMove griglia "x" "o")
+;-> Valore della Mossa migliore: 10
+;-> Mossa migliore: 2,2
+(makeMove griglia "o" "x")
+;-> Valore della Mossa migliore: 10
+;-> Mossa migliore: 2,1
+
+(makeMove grid:grid "x" "o")
+;-> Valore della Mossa migliore: 10
+;-> Mossa migliore: 2,2
+(makeMove grid:grid "o" "x")
+;-> Valore della Mossa migliore: 10
+;-> Mossa migliore: 2,2
+
+(setq t1 '(("_" "o" "x")
+           ("o" "x" "x")
+           ("o" "_" "_")))
+
+(makeMove t1 "x" "o")
+;-> Valore della Mossa migliore: 10
+;-> Mossa migliore: 2,2
+
+(makeMove t1 "o" "x")
+;-> Valore della Mossa migliore: 10
+;-> Mossa migliore: 0,0
+
+Posizione iniziale:
+
+(setq t2 '(("_" "_" "_")
+           ("_" "_" "_")
+           ("_" "_" "_")))
+
+(makeMove t2 "x" "o")
+;-> Valore della Mossa migliore: 0
+;-> Mossa migliore: 0,0
+(makeMove t2 "o" "x")
+;-> Valore della Mossa migliore: 0
+;-> Mossa migliore: 0,0
+
+Partita patta:
+
+(setq t3 '(("x" "o" "x")
+           ("x" "x" "o")
+           ("o" "x" "o")))
+
+(makeMove t3 "x" "o")
+;-> Valore della Mossa migliore: -1000
+;-> Mossa migliore: -1,-1
+(makeMove t3 "o" "x")
+;-> Valore della Mossa migliore: -1000
+;-> Mossa migliore: -1,-1
+
+Posizione vincente con mossa ottimale:
+
+(setq t4 '(("o" "_" "x")
+           ("_" "_" "o")
+           ("_" "_" "x")))
+
+(makeMove t4 "x" "o")
+;-> Valore della Mossa migliore: 10
+;-> Mossa migliore: 2,0
+
+Nota: poichè il Tris è un gioco che finisce sempre in pareggio se i due giocatori giocano in modo ottimale e poichè l'algoritmo minimax trova sempre la mossa ottimale, allora il programma presentato è imbattibile.
+
+Nota: l'algoritmo minimax parte da una posizione e calcola tutte le varianti possibili fino alla fine della partita. Nel caso del Tris questo non è un problema poichè il gioco ha poche mosse, ma nel caso di giochi più complessi (es. scacchi) la funzione minimax deve agire fino ad una certa profondità delle varianti e non deve esaminare le varianti che derivano da mosse evidentemente "cattive" (cioè le mosse che conducono ad una posizione che ha un basso valore di valutazione). QUesto risultato viene ottenuto con l'algoritmo "alpha-beta pruning" (potatura alfa-beta).
 
 =============================================================================
 

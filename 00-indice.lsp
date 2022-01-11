@@ -1025,6 +1025,7 @@ NOTE LIBERE 6
   Macro e variabili libere
   Creating statically scoped functions in newLISP
   Pavimenti e piastrelle
+  Algoritmo minimax
   
 APPENDICI
 =========

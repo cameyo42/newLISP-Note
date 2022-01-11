@@ -1766,6 +1766,10 @@ Per impostare il locale italiano (uso della virgola invece del punto):
 
 (set-locale "Italian_Italy.1252")
 
+oppure 
+
+(set-locale "Italian_Italy.1252" ".")
+
 Per impostare il locale di default POSIX C:
 
 (set-locale "C")

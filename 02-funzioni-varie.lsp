@@ -18,7 +18,7 @@ Scriviamo una funzione che crea una lista dei caratteri ASCII stampabili.
 
 (define (asciiTable)
   (let (out '())
-    (for (i 32 1024)
+    (for (i 32 126)
       (push (list i (char i)) out -1)
     )
     out
