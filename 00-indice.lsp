@@ -381,7 +381,7 @@ PROBLEMI VARI
   Prodotto massimo di una sottolista
   Problema delle N-Regine
   Somma delle cifre di un numero
-  Coppia di punti più vicina
+  Coppia di punti più vicina (Closest pair of points)
   Moltiplicazione tra numeri interi (stringhe)
   Numeri pandigitali
   Somma dei divisori propri di un numero
@@ -1026,6 +1026,7 @@ NOTE LIBERE 6
   Creating statically scoped functions in newLISP
   Pavimenti e piastrelle
   Algoritmo minimax
+  K punti più vicini all'origine
   
 APPENDICI
 =========

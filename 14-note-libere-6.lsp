@@ -7472,5 +7472,65 @@ Nota: poichè il Tris è un gioco che finisce sempre in pareggio se i due giocat
 
 Nota: l'algoritmo minimax parte da una posizione e calcola tutte le varianti possibili fino alla fine della partita. Nel caso del Tris questo non è un problema poichè il gioco ha poche mosse, ma nel caso di giochi più complessi (es. scacchi) la funzione minimax deve agire fino ad una certa profondità delle varianti e non deve esaminare le varianti che derivano da mosse evidentemente "cattive" (cioè le mosse che conducono ad una posizione che ha un basso valore di valutazione). QUesto risultato viene ottenuto con l'algoritmo "alpha-beta pruning" (potatura alfa-beta).
 
+
+------------------------------
+K punti più vicini all'origine
+------------------------------
+
+Dato una lista con N punti 2D (x y), trovare i K punti più vicini all'origine.
+
+La soluzione consiste nell'ordinare (in modo crescente) la lista di punti in base alla loro distanza euclidea dall'origine, e poi prendere i primi i K punti.
+
+Il metodo seguente calcola tutte le distanze e crea una nuova lista (d x y). Poi prendiamo i primi k elementi della nuova lista ordinata:
+
+(define (find-first-k lst k)
+  (local (d out)
+    (setq out '())
+    (dolist (el lst)
+      (setq d (add (mul (first el) (first el))
+              (mul (last el) (last el))))
+      (push (list d (first el) (last el)) out -1)
+    )
+    (slice (sort out) 0 k)))
+
+(setq lst '((4 2) (1 1) (3 3) (4 1) (6 8) (9 5) (5 4)))
+(find-first-k lst 3)
+;-> ((2 1 1) (17 4 1) (18 3 3))
+
+Possiamo anche definire una funzione per ordinare i punti della lista:
+
+(define (compare p1 p2)
+  (let
+    ((d1 (add (mul (first p1) (first p1))
+             (mul (last p1) (last p1))))
+     (d2 (add (mul (first p2) (first p2))
+             (mul (last p2) (last p2)))))
+    (< d1 d2)))
+
+(compare '(1 2) '(4 3))
+;-> true
+
+Quindi per trovare i k punti più vicini basta prendere i primi k punti della lista ordinata:
+
+(define (get-first-k lst k)
+  (slice (sort lst compare) 0 k))
+  
+(setq lst '((4 2) (1 1) (3 3) (4 1) (6 8) (9 5) (5 4)))
+(get-first-k lst 3)
+;-> ((1 1) (4 1) (3 3))
+
+Vediamo quale funzione/metodo è più veloce:
+
+(setq x (randomize (sequence 1 1000)))
+(setq y (randomize (sequence 1 1000)))
+(setq point (map list x y))
+
+(time (find-first-k point 20) 1000)
+;-> 454.806
+(time (get-first-k point 20) 1000)
+;-> 6517.574
+
+Evidentemente la funzione "sort" con l'operatore di confronto di default "<" è molto più veloce della stessa funzione con una funzione come operatore di confronto (in questo caso "compare").
+
 =============================================================================
 

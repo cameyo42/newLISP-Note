@@ -5460,6 +5460,8 @@ Esempio: L = ((1 3) (4 4) (1 1) (2 5) (6 3) (8 5) (6 1) (6 5) (3 2) (2 4)
     0 ---------------------------------------
       0   1   2   3   4   5   6   7   8   9
 
+Il metodo più semplice è quello di utilizzare la forza bruta. Questo algoritmo calcola la distanza tra ciascuna coppia e restituisce la più piccola e ha un tempo O(n^2). 
+
 (define (closestPairs lst)
   (local (cp vec dist minDist)
     (setq minDist 9223372036854775807) ; valore massimo int64
@@ -5544,8 +5546,157 @@ Vediamo la differenza del numero di cicli tra due for innestati (i = 0 e j = 0) 
 
 Il primo ciclo ha n^2 cicli, il secondo ha (n^2)/2 cicli (la complessità temporale è la stessa).
 
-Comunque per risolvere questo problema esistono diversi algoritmi con tempo O(n*log(n), ad esempio "sweep-line" oppure "divide and conquer".
-Esiste anche un algoritmo casuale che, in linea teorica, ha tempo O(n). In pratica è leggermente migliore dell'algoritmo sweep-line, ma è più semplice da implementare.
+Comunque per risolvere questo problema esistono diversi algoritmi: "sweep-line" con tempo O(n*log(n)) oppure "divide and conquer" con tempo O(n*(log(n)^2)).
+
+Vediamo i passaggi dettagliati dell'algoritmo "divide and conquer":
+
+Come fase di pre-elaborazione la lista di input è ordinata in base alle coordinate x.
+
+1) Trovare il punto medio nella lista ordinata. Possiamo prendere part[n/2] come punto centrale.
+
+2) Dividire la lista in due metà. La prima sottolista contiene i punti da part[0] a part[n/2]. La seconda sottolista contiene i punti da part[n/2 + 1] a part[n-1].
+
+3) Trovare in modo ricorsivo le distanze più piccole in entrambe le sottoliste. Queste distanze varranno "dl" e "dr". Trovare il minimo tra dl e dr. Chiamare questo minimo "d".
+
+4) Dal passo precedente abbiamo un limite superiore "d" della distanza minima. Ora dobbiamo considerare quelle coppie in cui un punto della coppia si trova nella metà sinistra e l'altro nella metà destra. Consideriamo la linea verticale che passa attraverso part[n/2] e trovare tutti i punti la cui coordinata x è più vicina di d alla linea verticale centrale. Costruire una lista strip[] di tutti questi punti.
+
+5) Ordinare la lista strip[] in base alle coordinate y. Questo passaggio è O(nLogn) (può essere ottimizzato su O(n) ordinando e unendo in modo ricorsivo).
+
+6) Trovare la distanza più piccola nella strip[]. Questo è ingannevole. Ad un primo sguardo sembra che sia O(n^2) ma in realtà è O(n). Può essere dimostrato che per ogni punto della striscia dobbiamo solo controllare al massimo 7 punti dopo di questo (nota che la striscia è ordinata in base alla coordinata Y).
+
+7) Infine restituire il minimo tra d e la distanza calcolata nel passaggio precedente.
+
+Vediamo l'implementazione:
+
+Lista di punti:
+
+(setq lst '((1 3) (4 4) (1 1) (2 5) (6 3) (8 5) (6 1) (6 5) (3 2) (2 4)))
+
+Funzione per ordinamento rispetto alla coordinata X e alla coordinata Y:
+
+(define (sortX lst) (sort lst))
+(define (sortY lst) (sort lst (fn (x y) (<= (last x) (last y)))))
+
+(sortX lst)
+;-> ((1 1) (1 3) (2 4) (2 5) (3 2) (4 4) (6 1) (6 3) (6 5) (8 5))
+
+(sortY lst)
+;-> ((1 1) (6 1) (3 2) (1 3) (6 3) (4 4) (2 4) (2 5) (8 5) (6 5))
+
+Funzione che calcola la distanza tra due punti:
+
+(define (dist p1 p2)
+  (sqrt (add (mul (sub (first p1) (first p2)) (sub (first p1) (first p2)))
+             (mul (sub (last p1) (last p2)) (sub (last p1) (last p2))))))
+
+(dist (lst 0) (lst 1))
+;-> 3.16227766016838
+
+Funzione brute-force per calcolare la distanza minima tra N punti:
+
+(define (bruteDist lst)
+  (let (minval 9999999999)
+    (if (> (length lst) 1)
+      (begin
+      (for (i 0 (- (length lst) 2))
+        (for (j (+ i 1) (- (length lst) 1))
+          (if (< (dist (lst i) (lst j)) minval)
+            (setq minval (dist (lst i) (lst j)))
+          )
+        )
+      )
+     ))
+    minval
+  );let
+)
+
+(bruteDist lst)
+;-> 1
+
+Funzione distanza tra i punti più vicini di una striscia di dimensioni date. Tutti i punti nella striscia sono ordinati in base alla coordinata y. Hanno tutti un limite superiore sulla distanza minima che vale d. Nota che questo metodo sembra essere un metodo O(n^2), ma è O(n) poichè si può dimostrare che il ciclo interno viene eseguito al massimo 7 volte.
+
+(define (stripClosest strip n d)
+  (local (minimo)
+    (setq minimo d)
+    (setq strip (sortY strip))
+    ; Seleziona tutti i punti uno per uno e prova i punti successivi
+    ; fino a che la differenza tra le coordinate y è minore di d.
+    ; Questo ciclo viene eseguito al massimo 7 volte
+    (for (i 0 (- n 1))
+      (setq j (+ i 1))
+      (while (and (< j n)
+                  (< (sub (last (strip j)) (last (strip i))) minimo))
+        (if (< (dist (strip i) (strip j)) minimo)
+            (setq minimo (dist (strip i) (strip j)))
+        )
+        (++ j)
+      )
+    )
+    minimo
+  );local
+)
+
+Funzione ricorsiva per trovare la distanza minima. La lista lst che contiene tutti i punti è stata ordinata in base alla coordinata x.
+
+(define (closestUtil lst n)
+  (local (mid midpoint midA midB d dl dr strip j)
+    ; se ci sono 2 o 3 punti utilizza la funzione brute force
+    (cond ((<= n 3) (bruteDist lst))
+          (true
+           ; punto di mezzo
+           (setq mid (/ n 2))
+           (setq midpoint (lst mid))
+           (setq midA (slice lst 0 mid))
+           (setq midB (slice lst mid))
+           ; Considera la linea verticale che passa
+           ; attraverso il punto medio e calcola
+           ; la distanza minima dal punto centrale 
+           ; dl a sinistra e dr a destra
+           (setq dr (closestUtil midA (length midA)))
+           (setq dl (closestUtil midB (length midB)))
+           ; distanza minima
+           (setq d (min dl dr))
+           ; Costruisce una lista strip che contiene i punti 
+           ; vicino (più vicino di d) alla linea che 
+           ; passa per il punto medio
+           (setq strip '())
+           (setq j 0)
+           (for (i 0 (- n 1))
+              (if (< (abs (sub (first (lst i)) (first midpoint))) d)
+                (begin
+                  (push (lst i) strip -1)
+                  (++ j)
+                )
+              )
+           )
+           ; Trova i punti più vicini nella striscia.
+           ; Restituisce il minimo di d e la distanza piacere
+           ; vicina in strip
+           (min d (stripClosest strip j d))
+          );true
+    )
+  );local
+)
+
+Funzione finale:
+
+(define (closest lst)
+  (setq lst (sortX lst))
+  ; chiama la funzione ricorsiva
+  (closestUtil lst (length lst))
+)
+
+Facciamo alcune prove:
+
+(setq punti '((1 3) (4 4) (1 1) (2 5) (6 3) (8 5) (6 1) (6 5) (3 2) (2 4) (9 9)))
+(closest punti)
+;-> 1
+
+(setq point '((2 3) (12 30) (40 50) (5 1) (12 10) (3 4)))
+(closest point)
+;-> 1.414213562373095
+
+Esiste anche un algoritmo casuale che, in linea teorica, ha tempo O(n). In pratica è leggermente migliore dell'algoritmo "sweep-line", ma è più semplice da implementare.
 
 L'algoritmo funziona in fasi successive. L'idea è che in ogni fase abbiamo già scoperto una coppia di punti a una distanza d e possiamo chiederci se un'altra coppia esiste a una distanza minore. Per questo, dividiamo lo spazio in una griglia con il passo di d/2 in entrambe le direzioni. La scelta di un passo della griglia di d/2 invece di d garantisce la presenza, al massimo, di un elemento per cella, facilitando l'elaborazione. Ogni punto appartiene quindi ad una cella della griglia. Sia P l'insieme di punti per i quali abbiamo già verificato che le distanze tra ogni coppia di punti di P è almeno d. Quindi, ogni cella della griglia contiene al massimo un punto di P.
 La griglia è rappresentata da una hash-map che associa ad ogni cella non vuota il punto di P che contiene. Al momento di aggiungere un punto p a P e alla hash-map, è sufficiente testare la sua distanza con i punti q contenuti nelle celle 5×5 attorno alla cella p.
@@ -5647,7 +5798,7 @@ Vediamo con la lista di 10000 punti che avevamo generato precedentemente:
 
 Il tempo di esecuzione è passato da 22 secondi a meno di un secondo.
 
-La precedente funzione "closest-Pairs" aveva un output con punti diversi ((2815 1408) (2815 1409)), ma la distanza minima vale 1 in entrambi i casi. Questo accade perchè il secondo algoritmo è basato sulla casualità, infatti se mischiamo i punti della lista d è probabile che si ottenga lo stesso risultato del primo algoritmo:
+La prima funzione "closestPairs" aveva un output con punti diversi ((2815 1408) (2815 1409)), ma la distanza minima vale 1 in entrambi i casi. Questo accade perchè il secondo algoritmo è basato sulla casualità, infatti se mischiamo i punti della lista d è probabile che si ottenga lo stesso risultato del primo algoritmo:
 
 (println (closest-pairs (randomize d)))
 ;-> ((2815 1409) (2815 1408))
