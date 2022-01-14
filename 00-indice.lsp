@@ -955,7 +955,6 @@ NOTE LIBERE 6
   Assegnazione di valori tra liste
   Help macro
   Sequenza di Recaman
-  Hash-Map Quick Reference Guide
   Strutture dati autoreferenziali
   Calcoli nel tempo
   Text file utilities
@@ -1027,6 +1026,11 @@ NOTE LIBERE 6
   Pavimenti e piastrelle
   Algoritmo minimax
   K punti più vicini all'origine
+
+NOTE LIBERE 7
+=============
+  Hash-Map Quick Reference Guide  
+  Hash-Map General management functions
   
 APPENDICI
 =========
@@ -1060,7 +1064,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (188 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (205 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================

@@ -5513,6 +5513,8 @@ Definiamo un nuovo contesto con una funzione:
 ;-> ERR: invalid function : (pippo 1 2)
 (demo:pippo 1 2)
 ;-> 3
+(demo:demo)
+;-> ERR: invalid function : (demo:demo)
 
 Vediamo come si è modificata la lista dei contesti:
 
@@ -5782,6 +5784,8 @@ Adesso "demo" è un contesto con funzioni e una hash-map:
 ;-> 8
 (demo)
 ;-> (("1" 1) ("2" 2))
+(demo:demo)
+;-> ERR: invalid function : (demo:demo)
 
 Possiamo creare anche il "funtore" del contesto "demo":
 
@@ -5794,6 +5798,26 @@ Possiamo creare anche il "funtore" del contesto "demo":
 ;-> Functor
 
 Invece di utilizzare (context 'demo) o (define (demo:demo)...) per creare un hash-map è meglio utilizzare (new Tree 'demo): il risultato è lo stesso, tranne che viene creato il funtore di default "demo:demo" come costante (con valore nil)).
+
+Nota: quando definiamo direttamente un funtore (contesto e funzione con lo stesso nome), allora la funzione "hashmap-lst" genera un errore quando il funtore ha dei parametri. Infatti l'espressione "(eval _el)" valuta il funtore senza parametri.
+
+Esempio:
+(define (tt:tt a b) (+ a b))
+
+(hashmap-lst)
+;-> ERR: value expected in function + : nil
+;-> called from user function (tt)
+;-> called from user function (MAIN:hashmap-lst)
+
+Dopo un pò di tempo ho trovato una soluzione parziale all'identificazione di una hash-map. La seguente funzione identifica correttamente come hash-map tutti i contesti il cui funtore non è una funzione (list?):
+
+(define (hash? hash)
+  (and (context? (eval hash))
+       (not (list? (eval (sym (term hash) hash nil))))))
+
+Come funziona?
+L'espressione (sym (term hash) hash nil) restituisce il funtore hash:hash e poi verifichiamo se tale funtore sia una funzione (list? restituisce true) oppure no (list? restituisce nil).
+Questo metodo identifica correttamente tutte le hash-map create con la funzione "new Tree".
 
 Nota:
 Se assegniamo una hash-map ad un simbolo/variabile non viene creata una copia della hash-map, ma solo un simbolo che punta alla hash-map originale. In questo modo i valori delle due hash-map sono sempre uguali anche quando modifichiamo una sola delle due hash-map (perchè i simboli delle due hash-map puntano agli stessi indirizzi di memoria).
