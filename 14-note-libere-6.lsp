@@ -6640,69 +6640,114 @@ Vediamo la differenza di velocità:
 ;-> 246.419
 
 
--------------------
-KiloByte e KibiByte
--------------------
+-----------------------
+Celsius <--> Fahrenheit
+-----------------------
 
-Il computer lavora con un sistema binario (0 e 1) e per consuetudine si è deciso di unire le cifre a gruppi di otto. Ogni gruppo di 8 bit prende il nome di "byte".
+Due routine prese dal forum per conversioni  di temperature:
 
-Un byte può assumere 256 valori, da 0 (00000000) a 255 (11111111).
+dukester:
+#!/usr/bin/newlisp
 
-Nota: Esiste anche il raggruppamento a 4 bit che prende il nome di "nibble" (mezzo byte).
+;;  tempConv.lsp
+;; Console app to convert Fahrenheit to Celsius and visa versa
 
-Come per tutte le grandezze comunemente utilizzate, anche per i byte si utilizzano i moltiplicatori che agevolano la scrittura di numeri grandi, con una piccola differenza: mentre nel caso dei Grammi, dei Metri, dei Volt e di tante altre grandezze fisiche, i prefissi K, M, G, ecc... moltiplicano per un fattore 1000 (che è una potenza di 10), nel caso dei byte il fattore di moltiplicazione è 1024 (che è una potenza di 2).
+(define (fahr2cels fahr)
+		(mul 0.5556 (sub fahr 32.0))
+) ; end fahr2cels
 
-Quindi, fino al 1998, in informatica si utilizzavano i seguenti moltiplicatori:
+(define (cels2fahr cels)
+			(add 32 (mul cels 1.8))
+) ; end cels2fahr
 
-1 KByte (KiloByte o KB) = 1024 Byte
-1 MByte (MegaByte o MB) = 1024 KByte
-1 GByte (GigaByte o GB) = 1024 MByte
-1 TByte (TeraByte o TB) = 1024 GByte
-ecc...
+(define (showMenu)
+		(println "Temperature Conversion Utility")
+		(println "------------------------------")
+		(println "a - Fahrenheit TO Celsius")
+		(println "b - Celsius TO Fahrenheit")
+		(println "q - To exit the program")
+) ; end showMenu
 
-Quando compriamo una memoria di massa la sua capacità viene espressa con questi moltiplicatori. Però quando inseriamo la nostra memoria su un computer, questo ci informa che la capacità è inferiore. Perchè?
-I produttori di memorie dichiarano un hard disk da 2 TB utilizzando il fattore 1000 del sistema decimale (cioè circa 2.000.000.000.000 = duemila miliardi di byte), ma quando viene utilizzato dal computer che, più correttamente, fa i conti nel sistema binario, si ottiene uno spazio libero di 1,82 TB, cioè 2.000.000.000.000∕1024∕1024∕1024∕1024 = 1,818989403545856.
+(define (getChoice)
+		(while (!= choice "q")
+		(begin
+		(println "Enter your choice")
+		(set 'choice (read-line))
+		(case choice
+				("a"  (begin
+									(println "Enter a number to convert")
+									(set 'temp (int(read-line)))
+									(println "Your input was " temp " degrees Fahrenheit!")
+									(println "That's " (fahr2cels temp) " degrees Celsius!")
+									(println "Press any key to continue ..")
+									(read-line)))
+				("b"		(begin
+									(println "Enter a number to convert")
+									(set 'temp (int(read-line)))
+									(println "Your input was " temp " degrees Celsius!")
+									(println "That's " (cels2fahr temp) " degrees Fahrenheit!")
+									(println "Press any key to continue ..")
+									(read-line)))
+				("q"     (println "Good bye!!"))
+				(true	(println "Sorry! Invalid choice!"))
+			) ;; end case
+		) ;; end begin
+		) ;; end while
+) ;; getChoice
 
-A partire dal 1998, sono stati creati dei moltiplicatori appositi per i Byte (in base 2 anziché base 10) che sono identificati dal suffisso bi (binary):
+(define (main)
+		(showMenu)
+		(getChoice)
+)  ;; end main
 
-1 KibiByte (KiB) = 1024 Byte
-1 MebiByte (MiB) = 1024 KibiByte
-1 GibiByte (GiB) = 1024 MebiByte
-1 TebiByte (TiB) = 1024 GibiByte
-ecc...
+(main)
+(exit)
 
-Con questi nuovi moltiplicatori l'informatica dispone delle unità di misura corrette della memoria, mentre i costruttori di memorie di massa continuano ad utilizzare i moltiplicatori in base 10 anziché quelli in base 2.
-Comunque i nuovi moltiplicatori non sono entrati nell'uso comune e ognuno continua ad usare il sistema che più gli conviene.
+newbert:
+#!/usr/bin/env newlisp
+;; temp-conv.lsp
+;; Console app to convert Fahrenheit to Celsius and visa versa
+(define (fahrenheit->celsius f)
+  (mul (sub f 32.0) 0.5556))
 
-Scriviamo una funzione che converte tra queste due unità di misura (e relativi moltiplicatori):
+(define (celsius->fahrenheit c)
+  (add (mul c 1.8) 32.0))
 
-(setq unit-name '("TB" "GB" "MB" "KB" "Byte"
-                  "TiB" "GiB" "MiB" "KiB"))
+(define (menu)
+  (println)
+  (println "Temperature Conversion Utility")
+  (println "------------------------------")
+  (println "C - Fahrenheit TO Celsius")
+  (println "F - Celsius TO Fahrenheit")
+  (println "Q - To exit the program"))
+  
+(define (app)
+  (menu)
+  (print "\nEnter your choice > ")
+  (let (temp nil
+        choice (read-line))
+    (while (!= choice "q")
+      (when (find "c|f" choice 0) (print "\nEnter a number to convert: "))
+      (case choice
+        ("c" (begin
+               (setq temp (eval-string (read-line)))
+               (println
+                 "Your input was " temp " degrees Fahrenheit!\n"
+                 "That's " (fahrenheit->celsius temp) " degrees Celsius!")))
+        ("f" (begin
+               (setq temp (eval-string (read-line)))
+               (println
+                 "Your input was " temp " degrees Celsius!\n"
+                 "That's " (celsius->fahrenheit temp) " degrees Fahrenheit!")))
+        (true (println ">>> Sorry! Invalid choice.")))
+      (app))
+    (println "Good bye!")))
 
-(setq unit-value '(1e12 1.e9 1e6 1e3 1
-      1099511627776 1073741824 1048576 1024))
+(app)
 
-(define (byte val unit)
-  (local (idx scala)
-    (setq idx (find unit unit-name))
-    (setq scala (mul val (unit-value idx)))
-    (println val " " unit " is:")
-    (dolist (el unit-name)
-      (cond ((!= el unit)
-            (println (format "%.6f %s" (div scala (unit-value $idx)) el)))
-      )
-    )))
+(exit)
 
-(byte 2 "TB")
-;-> 2 TB is:
-;-> 2000.000000 GB
-;-> 2000000.000000 MB
-;-> 2000000000.000000 KB
-;-> 2000000000000.000000 Byte
-;-> 1.818989 TiB
-;-> 1862.645149 GiB
-;-> 1907348.632813 MiB
-;-> 1953125000.000000 KiB
+Nota: la prima accetta solo numeri interi, la seconda non esce dal loop dopo una conversione.
 
 
 ------------------------
@@ -6750,7 +6795,7 @@ Questo codice è "sicuro" perché usa nomi univoci. La buona notizia è che non 
 
 (context 'ifnot)
 ;-> ifnot
-ifnot> 
+ifnot>
 (define-macro (ifnot:ifnot c e t) (if (eval c) (eval t) (eval e)))
 ;-> (lambda-macro (c e t)
 ;->  (if (eval c)
@@ -6777,13 +6822,13 @@ Per maggiori informazioni vedi: "Symbols as Sexprs and Hygienic Fexprs" nel file
 
 http://kazimirmajorinc.blogspot.com/2009/12/symbols-as-sexprs.html
 
-Questo documento contiene l'implementazione di "set-protected1" e "set-protected2". Quest'ultima funzione serve "per costruire un contesto di funzione locale per memorizzare la variabile locale della funzione e distruggere automaticamente mentre la funzione finisce", il che risulta essere relativamente complicato dal punto di vista tecnico.  
+Questo documento contiene l'implementazione di "set-protected1" e "set-protected2". Quest'ultima funzione serve "per costruire un contesto di funzione locale per memorizzare la variabile locale della funzione e distruggere automaticamente mentre la funzione finisce", il che risulta essere relativamente complicato dal punto di vista tecnico.
 Nota: il codice di "set-protected1" e "set-protected2" non è come viene scritto il tipico "codice di produzione", è come deve essere scritto se si vuole giocare con newLISP come se fosse Lisp.
 
 Sul forum Lutz Mueller ha fornito la seguente funzione per definire le funzioni come funtori predefiniti nel loro spazio (contesto):
 
-(define (def-static s body) 
-      (def-new 'body (sym s s))) 
+(define (def-static s body)
+      (def-new 'body (sym s s)))
 
 Che viene usata nel modo seguente:
 
@@ -6936,13 +6981,13 @@ Esempi:
 Con n = 2, m = 3 ==> 1 modo
 
   Pavimento "2 x 3"      Piastrella "1 x 3"
-  
+
   +---+---+---+          +---+---+---+
   |   |   |   |          |   |   |   |
   +---+---+---+          +---+---+---+
   |   |   |   |
   +---+---+---+
-  
+
 Solo un modo per riempire il pavimento:
 tutte e due le piastrelle in orizzontale
 
@@ -6959,7 +7004,7 @@ Con n = 4, m = 4 ==> 2 modi
   +---+---+---+---+
   |   |   |   |   |
   +---+---+---+---+
-  
+
 Primo modo: tutte le piastrelle posizionate orizzontalmente
 Secondo modo: tutte le piastrelle posizionate verticalmente
 
@@ -7150,7 +7195,7 @@ Vediamo l'implementazione completa dell'algoritmo:
   (local (bestVal bestMove)
     (setq bestVal -1000)
     (setq bestMove (list -1 -1))
-    ; Visita tutte le caselle, valuta la funzione minimax 
+    ; Visita tutte le caselle, valuta la funzione minimax
     ; per tutte le celle vuote, e restituisce la mossa ottimale
     ; (cioè la casella con valore massimo)
     (for (i 0 2)
@@ -7180,7 +7225,7 @@ Vediamo l'implementazione completa dell'algoritmo:
     (println "Valore della Mossa migliore: " bestVal)
     bestMove))
 
-; Funzione che valuta una determinata posizione 
+; Funzione che valuta una determinata posizione
 ; e trova la mossa migliore
 (define (makeMove board p1 p2)
   (local (theMove player opponent)
@@ -7309,7 +7354,7 @@ Quindi per trovare i k punti più vicini basta prendere i primi k punti della li
 
 (define (get-first-k lst k)
   (slice (sort lst compare) 0 k))
-  
+
 (setq lst '((4 2) (1 1) (3 3) (4 1) (6 8) (9 5) (5 4)))
 (get-first-k lst 3)
 ;-> ((1 1) (4 1) (3 3))
@@ -7326,6 +7371,283 @@ Vediamo quale funzione/metodo è più veloce:
 ;-> 6517.574
 
 Evidentemente la funzione "sort" con l'operatore di confronto di default "<" è molto più veloce della stessa funzione con una funzione come operatore di confronto (in questo caso "compare").
+
+
+----------------------------
+Creazione di un accumulatore
+----------------------------
+
+Un problema posto da Paul Graham è quello di creare una funzione che prende un singolo argomento (numerico) e che restituisce un'altra funzione che è un accumulatore. La funzione accumulatore restituita, a sua volta, accetta anche un singolo argomento numerico e restituisce la somma di tutti i valori numerici passati fino a quel momento a quell'accumulatore (incluso il valore iniziale passato quando è stato creato l'accumulatore).
+Per maggiori informazioni vedi: http://paulgraham.com/accgensub.html
+
+Soluzione
+
+(define (sum (x 0)) (inc 0 x))
+;-> (lambda ((x 0)) (inc 0 x))
+
+(sum 1)
+;-> 1
+(sum 1)
+;-> 2
+(sum 1)
+;-> 3
+(sum 1.4)
+;-> 4.4
+(sum 1.4)
+;-> 5.8
+(sum 1.8)
+;-> 7.6
+
+
+--------------
+Numeri k-primi
+--------------
+
+Un k-primo (o quasi-primo, almost-prime) è un numero naturale n che è il prodotto di k numeri primi (anche identici).
+
+Esempi:
+1-primi (k=1), sono i numeri primi
+2-primi (k=2), sono i numeri semiprimi.
+
+(define (k-primo? num k)
+  (= (length (factor num)) k))
+
+(define (k-primi-to limit k)
+  (let (out '())
+    (for (i 2 limit)
+      (if (k-primo? i k)
+          (push i out -1)))
+    out))
+
+(k-primi-to 100 2)
+;-> (4 6 9 10 14 15 21 22 25 26 33 34 35 38 39 46 49 51 
+;->  55 57 58 62 65 69 74 77 82 85 86 87 91 93 94 95)
+
+(k-primi-to 100 3)
+;-> (8 12 18 20 27 28 30 42 44 45 50 
+;->  52 63 66 68 70 75 76 78 92 98 99)
+
+(k-primi-to 10000 10)
+;-> (1024 1536 2304 2560 3456 3584 8640 8704 8960 9600 9728 9984)
+
+
+--------------
+Chiave segreta
+--------------
+
+Una porta presenta una serratura digitale del tipo raffigurato sotto:
+
+                   +---+    +---+
+                   | a |----| b |
+                   +---+    +---+
+                  /  |  \  /  |  \
+                 /   |   \/   |   \
+                /    |   /\   |    \
+               /     |  /  \  |     \
+          +---+    +---+    +---+    +---+
+          | c |----| d |----| e |----| f |
+          +---+    +---+    +---+    +---+
+               \     |  \  /  |     /
+                \    |   \/   |    /
+                 \   |   /\   |   /
+                  \  |  /  \  |  /
+                   +---+    +---+
+                   | g |----| h |
+                   +---+    +---+
+
+Nella serratura al posto delle 8 lettere a,b,c,d,e,f,g,h occorre inserire delle cifre.
+La porta si aprirà solo quando i numeri 1, 2, 3, 4, 5, 6, 7, 8 saranno posizionati negli otto quadrati, in modo tale che nessun numero sia adiacente a un numero che si trova accanto ad esso nella sequenza. Ad esempio 1 non deve essere adiacente a 2, ma può essere adiacente a 3, 4, 5, 6, 7, 8. Lo stesso vale per tutti gli altri numeri.
+
+Le 8 lettere/quadrati sono collegate nel modo seguente:
+
+(a -> (b c d e))
+(b -> (a d e f))
+(c -> (a d g))
+(d -> (a b c e g h)
+(e -> (a b d f g h))
+(f -> (b e h))
+(g -> (c d e h))
+(h -> (d e f g))
+
+Nota: Esistono 8! = 40320 modi di posizionare i numeri.
+
+Scriviamo una funzione che controlla se una posizione è una soluzione:
+
+(define (check-position lst)
+  (local (a b c d e f g h)
+    (setq out true)
+    (setq a (lst 0))
+    (setq b (lst 1))
+    (setq c (lst 2))
+    (setq d (lst 3))
+    (setq e (lst 4))
+    (setq f (lst 5))
+    (setq g (lst 6))
+    (setq h (lst 7))
+    ;(println a { } b { } c { } d { } e { } f { } g { } h)
+    (cond ((or (= a (+ b 1)) (= a (- b 1))
+               (= a (+ c 1)) (= a (- c 1))
+               (= a (+ d 1)) (= a (- d 1))
+               (= a (+ e 1)) (= a (- e 1)))
+           (setq out nil))
+          ((or (= b (+ a 1)) (= b (- a 1))
+               (= b (+ d 1)) (= b (- d 1))
+               (= b (+ e 1)) (= b (- e 1))
+               (= b (+ f 1)) (= b (- f 1)))
+           (setq out nil))
+          ((or (= c (+ a 1)) (= c (- a 1))
+            (= c (+ d 1)) (= c (- d 1))
+            (= c (+ g 1)) (= c (- g 1)))
+           (setq out nil))
+          ((or (= d (+ a 1)) (= d (- a 1))
+            (= d (+ b 1)) (= d (- b 1))
+            (= d (+ c 1)) (= d (- c 1))
+            (= d (+ e 1)) (= d (- e 1))
+            (= d (+ g 1)) (= d (- g 1))
+            (= d (+ h 1)) (= d (- h 1)))
+           (setq out nil))
+          ((or (= e (+ a 1)) (= e (- a 1))
+            (= e (+ b 1)) (= e (- b 1))
+            (= e (+ d 1)) (= e (- d 1))
+            (= e (+ f 1)) (= e (- f 1))
+            (= e (+ g 1)) (= e (- g 1))
+            (= e (+ h 1)) (= e (- h 1)))
+           (setq out nil))
+          ((or (= f (+ b 1)) (= f (- b 1))
+            (= f (+ e 1)) (= f (- e 1))
+            (= f (+ h 1)) (= f (- h 1)))
+           (setq out nil))
+          ((or (= g (+ c 1)) (= g (- c 1))
+            (= g (+ d 1)) (= g (- d 1))
+            (= g (+ e 1)) (= g (- e 1))
+            (= g (+ h 1)) (= g (- h 1)))
+           (setq out nil))
+          ((or (= h (+ d 1)) (= h (- d 1))
+            (= h (+ e 1)) (= h (- e 1))
+            (= h (+ f 1)) (= h (- f 1))
+            (= h (+ g 1)) (= h (- g 1)))
+           (setq out nil))
+    )
+    out))
+
+(check-position '(3 5 7 1 8 2 4 6))
+;-> true
+
+Funzione che genera tutte le permutazioni degli elementi di una lista:
+
+(define (perm lst)
+  (local (i indici out)
+    (setq indici (dup 0 (length lst)))
+    (setq i 0)
+    ; aggiungiamo la lista iniziale alla soluzione
+    (setq out (list lst))
+    (while (< i (length lst))
+      (if (< (indici i) i)
+          (begin
+            (if (zero? (% i 2))
+              (swap (lst 0) (lst i))
+              (swap (lst (indici i)) (lst i))
+            )
+            ;(println lst);
+            (push lst out -1)
+            (++ (indici i))
+            (setq i 0)
+          )
+          (begin
+            (setf (indici i) 0)
+            (++ i)
+          )
+       )
+    )
+    out))
+    
+(length (perm '(1 2 3 4 5 6 7 8)))
+;-> 40320
+
+Funzione che cerca tutte le eventuali soluzioni esaminando tutte le possibili posizioni (forza bruta):
+
+(define (find-solutions-bf)
+  (local (p)
+    (setq p (perm '(1 2 3 4 5 6 7 8)))
+    (dolist (el p)
+      (if (check-position el)
+          (println el)
+      ))))
+
+(find-solutions-bf)
+;-> (6 4 2 8 1 7 5 3)
+;-> (5 3 2 8 1 7 6 4)
+;-> (4 6 7 1 8 2 3 5)
+;-> (3 5 7 1 8 2 4 6)
+
+Stampiamo le soluzioni in modo leggibile:
+
+(define (print-solution lst)
+  (println "    " (lst 0) "   " (lst 1))
+  (println (lst 2) "   " (lst 3) "   " (lst 4) "   " (lst 5))
+  (println "    " (lst 6) "   " (lst 7))
+  '-------------)
+(print-solution '(6 4 2 8 1 7 5 3))
+;->     6   4
+;-> 2   8   1   7
+;->     5   3
+;-> -------------
+(print-solution '(5 3 2 8 1 7 6 4))
+;->     5   3
+;-> 2   8   1   7
+;->     6   4
+;-> -------------
+(print-solution '(4 6 7 1 8 2 3 5))
+;->     4   6
+;-> 7   1   8   2
+;->     3   5
+;-> -------------
+(print-solution '(3 5 7 1 8 2 4 6))
+;->     3   5
+;-> 7   1   8   2
+;->     4   6
+;-> -------------
+
+Possiamo cercare una soluzione anche in modo casuale. Generiamo una posizione casuale e poi la verifichiamo: se è una soluzione ci fermiamo, altrimenti generiamo un'altra posizione casuale e ripetiamo il processo.
+
+(define (find-solution-rnd)
+  (let ((iter 0) (found nil))
+    (until found
+      (setq pos (randomize '(1 2 3 4 5 6 7 8)))
+      (++ iter)
+      (if (check-position pos)
+        (begin
+          (setq found true)
+          (println "prove: " iter)
+          (println pos)
+        )))))
+
+Facciamo alcune prove:
+
+(find-solution-rnd)
+;-> prove: 6580
+;-> (6 4 2 8 1 7 5 3)
+
+(find-solution-rnd)
+;-> prove: 2914
+;-> (4 6 7 1 8 2 3 5)
+
+(find-solution-rnd)
+;-> prove: 3955
+;-> (6 4 2 8 1 7 5 3)
+
+Infine cerchiamo di risolvere il problema con carta e penna:
+Notiamo che i numeri più facili da posizionare sono 1 e 8, perché ognuno ha un solo numero a cui non può essere adiacente, rispettivamente 2 e 7. ​
+Inoltre i quadrati più difficili da riempire sono quelli al centro ("d" e "e"), poiché ognuno è adiacente ad altri sei.
+Ciò suggerisce di posizionare 1 e 8 nei quadrati centrali (ad esempio, "d" = 1 e "e" = 8). 
+Con 1 a sinistra di 8, le uniche posizioni possibili per 2 e 7 sono "c" = 7 e "f" = 2.
+Ora il numero 3 può essere posizionato solo in alto a sinistra ("a" = 3), mentre il 6 può essere posizionato solo in basso a destra ("h" = 6)
+Ora è facile posizionare i rimanenti numeri 4 e 5: "b" = 5 e "g" = 4.
+La soluzione vale: (3 5 7 1 8 2 4 6)
+
+      3   5
+  7   1   8   2
+      4   6
 
 =============================================================================
 

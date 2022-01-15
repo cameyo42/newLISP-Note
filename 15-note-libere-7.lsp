@@ -542,5 +542,70 @@ Esempi:
 (hm-items hh)
 ;-> (("1" "A") ("2" "B") ("3" "c") ("4" "d"))
 
+
+-------------------
+KiloByte e KibiByte
+-------------------
+
+Il computer lavora con un sistema binario (0 e 1) e per consuetudine si è deciso di unire le cifre a gruppi di otto. Ogni gruppo di 8 bit prende il nome di "byte".
+
+Un byte può assumere 256 valori, da 0 (00000000) a 255 (11111111).
+
+Nota: Esiste anche il raggruppamento a 4 bit che prende il nome di "nibble" (mezzo byte).
+
+Come per tutte le grandezze comunemente utilizzate, anche per i byte si utilizzano i moltiplicatori che agevolano la scrittura di numeri grandi, con una piccola differenza: mentre nel caso dei Grammi, dei Metri, dei Volt e di tante altre grandezze fisiche, i prefissi K, M, G, ecc... moltiplicano per un fattore 1000 (che è una potenza di 10), nel caso dei byte il fattore di moltiplicazione è 1024 (che è una potenza di 2).
+
+Quindi, fino al 1998, in informatica si utilizzavano i seguenti moltiplicatori:
+
+1 KByte (KiloByte o KB) = 1024 Byte
+1 MByte (MegaByte o MB) = 1024 KByte
+1 GByte (GigaByte o GB) = 1024 MByte
+1 TByte (TeraByte o TB) = 1024 GByte
+ecc...
+
+Quando compriamo una memoria di massa la sua capacità viene espressa con questi moltiplicatori. Però quando inseriamo la nostra memoria su un computer, questo ci informa che la capacità è inferiore. Perchè?
+I produttori di memorie dichiarano un hard disk da 2 TB utilizzando il fattore 1000 del sistema decimale (cioè circa 2.000.000.000.000 = duemila miliardi di byte), ma quando viene utilizzato dal computer che, più correttamente, fa i conti nel sistema binario, si ottiene uno spazio libero di 1,82 TB, cioè 2.000.000.000.000∕1024∕1024∕1024∕1024 = 1,818989403545856.
+
+A partire dal 1998, sono stati creati dei moltiplicatori appositi per i Byte (in base 2 anziché base 10) che sono identificati dal suffisso bi (binary):
+
+1 KibiByte (KiB) = 1024 Byte
+1 MebiByte (MiB) = 1024 KibiByte
+1 GibiByte (GiB) = 1024 MebiByte
+1 TebiByte (TiB) = 1024 GibiByte
+ecc...
+
+Con questi nuovi moltiplicatori l'informatica dispone delle unità di misura corrette della memoria, mentre i costruttori di memorie di massa continuano ad utilizzare i moltiplicatori in base 10 anziché quelli in base 2.
+Comunque i nuovi moltiplicatori non sono entrati nell'uso comune e ognuno continua ad usare il sistema che più gli conviene.
+
+Scriviamo una funzione che converte tra queste due unità di misura (e relativi moltiplicatori):
+
+(setq unit-name '("TB" "GB" "MB" "KB" "Byte"
+                  "TiB" "GiB" "MiB" "KiB"))
+
+(setq unit-value '(1e12 1.e9 1e6 1e3 1
+      1099511627776 1073741824 1048576 1024))
+
+(define (byte val unit)
+  (local (idx scala)
+    (setq idx (find unit unit-name))
+    (setq scala (mul val (unit-value idx)))
+    (println val " " unit " is:")
+    (dolist (el unit-name)
+      (cond ((!= el unit)
+            (println (format "%.6f %s" (div scala (unit-value $idx)) el)))
+      )
+    )))
+
+(byte 2 "TB")
+;-> 2 TB is:
+;-> 2000.000000 GB
+;-> 2000000.000000 MB
+;-> 2000000000.000000 KB
+;-> 2000000000000.000000 Byte
+;-> 1.818989 TiB
+;-> 1862.645149 GiB
+;-> 1907348.632813 MiB
+;-> 1953125000.000000 KiB
+
 =============================================================================
 

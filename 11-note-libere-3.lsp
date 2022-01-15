@@ -6562,6 +6562,63 @@ add10
 (println (add10 3))
 ;-> 13
 
+Sul forum pda ha proposto il seguente metodo per creare una funzione con nome e parametri:
+
+(define (make-add n v)
+  (eval (list 'define (list n 'x) (list '+ v 'x))))
+
+Proviamo la funzione:
+
+(make-add 'sum-10 10)
+;-> (lambda (x) (+ 10 x))
+(sum-10 3)
+;-> 13
+
+Un modo più generale per creare qualsiasi funzione con nome "n", con parametri "a" e corpo "b" con un controllo minore dei parametri e del nome della funzione:
+
+(define (mkf n a b)
+    (eval (and (symbol? n) (list 'define (if (apply and (map symbol? (cons n a))) (cons n a) n) b))))
+
+Proviamo la funzione:
+
+(mkf 'sum-x-y '(x y) '(+ x y))
+;-> (lambda (x y) (+ x y))
+sum-x-y
+;-> (lambda (x y) (+ x y))
+(sum-x-y 4 5)
+;-> 9
+
+La funzione si aspetta che il nome e i parametri siano simboli, se si passano parametri errati, cioè parametri che non sono simboli, allora viene definito un simbolo con il nome passato e il corpo valutato come valore (o nullo se valutazione fallisce). Se il nome della funzione da definire non è un simbolo restituisce nil e non viene definito nulla:
+
+x
+;-> nil
+y
+;-> nil
+(mkf 'sum-x-y-with-bad-parameters '(x y 3) '(+ x y))
+;-> ERR: value expected in function + : nil
+;-> called from user function (mkf 'sum-x-y-with-bad-parameters '(x y 3) '(+ x y))
+
+sum-x-y-with-bad-parameters
+;-> nil
+
+(define x 3)
+;-> 3
+(define y 34)
+;-> 34
+(mkf 'sum-x-y-with-bad-parameters '(x y 3) '(+ x y))
+;-> 37
+
+sum-x-y-with-bad-parameters
+;-> 37
+
+(mkf 4 '(x y 3) '(+ x y))
+;-> nil
+
+(mkf nil '(x y) '(+ x y))
+;-> nil
+
+Prendi questo come esempio su come affrontare la domanda, ovviamente ha bisogno di più controlli per essere robusto e corretto (cattura delle variabili...).
+
 
 ------------------------
 Input utente multi-linea

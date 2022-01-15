@@ -1020,17 +1020,21 @@ NOTE LIBERE 6
   Rolling Hash
   Numero di espressioni valide con N parentesi
   Unione di liste/vettori ordinati
-  KiloByte e KibiByte
+  Celsius <--> Fahrenheit
   Macro e variabili libere
   Creating statically scoped functions in newLISP
   Pavimenti e piastrelle
   Algoritmo minimax
   K punti più vicini all'origine
+  Creazione di un accumulatore
+  Numeri k-primi
+  Chiave segreta
 
 NOTE LIBERE 7
 =============
   Hash-Map Quick Reference Guide  
   Hash-Map General management functions
+  KiloByte e KibiByte
   
 APPENDICI
 =========
