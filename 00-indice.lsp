@@ -211,7 +211,7 @@ newLISP 99 PROBLEMI (28)
   N-99-14 Duplicare gli elementi di una lista
   N-99-15 Replicare per n volte gli elementi di una lista
   N-99-16 Eliminare gli elementi da una lista per ogni k
-  N-99-17 Dividere una lista in due parti (la lunghezza della prima lista è un parametro)
+  N-99-17 Dividere una lista in due parti
   N-99-18 Estrarre una parte di una lista
   N-99-19 Ruotare una lista di N posti a sinistra
   N-99-20 Eliminare l'elemento k-esimo di una lista
@@ -1035,6 +1035,9 @@ NOTE LIBERE 7
   Hash-Map Quick Reference Guide  
   Hash-Map General management functions
   KiloByte e KibiByte
+  Blog di Cyril Zlobin
+  Lambda the Ultimate
+  Stati, Transizioni e catene di Markov
   
 APPENDICI
 =========

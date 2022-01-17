@@ -607,5 +607,224 @@ Scriviamo una funzione che converte tra queste due unità di misura (e relativi 
 ;-> 1907348.632813 MiB
 ;-> 1953125000.000000 KiB
 
+
+--------------------
+Blog di Cyril Zlobin
+--------------------
+
+Cyril Zlobin scrive un blog su newLISP al seguente indirizzo web:
+
+https://slobin.livejournal.com/tag/lispa%C4%B5oj
+
+Purtoppo non è di facile consultazione perchè è scritto in russo.
+
+Vediamo un post interessante:
+
+Le parentesi non spaventano un vero fanatico di Lisp. Eppure, a volte, in alcuni contesti, sembrano superflue. Proviamo a mettere in evidenza un metodo utile. Scriviamo una macro di sei righe:
+
+(define-macro (make-pass)
+  (doargs (arg)
+    (letex ((Old arg)
+      (New (sym (append (string arg) "&"))))
+      (define-macro (New)
+        (Old (eval (args)))))))
+
+Trattiamo le funzioni di cui abbiamo bisogno:
+
+(make-pass catch not print)
+
+catch&
+;-> (lambda-macro () (catch (eval (args))))
+not&
+;-> (lambda-macro () (not (eval (args))))
+print&
+;-> (lambda-macro () (print (eval (args))))
+
+E poi le usiamo in questo modo:
+
+(catch& while (read-line)
+  (setq line (current-line))
+  (if (not& empty? line)
+    (print& format "%s \n" line)
+  (throw 'empty)))
+
+Possiamo pensare che le funzioni che terminano con il carattere ampersand "&" combinano due funzioni in una.
+
+
+-------------------
+Lambda the Ultimate
+-------------------
+
+Traduzione da "Lambda the Ultimate" di William Cushing
+
+https://softwareengineering.stackexchange.com/questions/107687/what-is-the-origin-and-meaning-of-the-phrase-lambda-the-ultimate
+
+Lambda The Ultimate si riferisce all'idea che le funzioni lambda del lambda-calcolo possono implementare efficacemente ogni concetto di ogni linguaggio di programmazione. Classi, Moduli, Package, Oggetti, Metodi, Flussi di controllo, Strutture dati, MAcro, Continuazioni, Coroutine, Generatori, List comprehensions, Stream, ecc.
+
+Guarda caso, quella natura ultima consiste nella creazione di una funzione anonima (Anonymous Function). Ma le lambda non sono, in sostanza, limitate alle sole funzioni anonime. Viene insegnato in questo modo, ma l'essenza di lambda va molto più in profondità delle funzioni matematiche senza nomi. In altre parole, parliamo di:
+
+  "Capisco cosa significhi "lambda", l'idea di una funzione anonima è sia semplice che potente, ma non riesco a capire cosa significhi "the ultimate" in questo contesto".
+
+In pratica, l'uso di lambda come astrazioni sintattiche ("macro"), che non sono call-by-value (quali sono le funzioni matematiche), è assolutamente cruciale per accettare l'idea che le lambda possano davvero fungere da nucleo di ogni sistema di elaborazione del linguaggio di programmazione.
+
+Per la teoria: c'è un collegamento interessante con il paradosso di Bertrand Russell e gli assiomi di comprensione (ed estensione) nella teoria degli insiemi. Un lambda è per le funzioni ciò che la notazione del generatore di insiemi è per gli insiemi: i lambda sono una notazione per generare funzioni. C'è una differenza importante, solitamente ignorata, tra (lambda (x) (* x x)) e ciò che restituisce (la funzione che calcola il quadrato). Se non si riesce in generale a distinguere tra i due, cioè tra la notazione e la denotazione (un errore commesso anche da Church e Frege), allora si entra in conflitto con i paradossi. Per gli insiemi e per Frege, è il Barbiere di Siviglia di Bertrand Russell a illustrare l'errore, mentre per le funzioni e Church, è l'oracolo di halting di Alan Turing.
+
+Nota che i paradossi sono cose buone, pratiche. Vogliamo che EVAL sia esprimibile e vogliamo che lambda significhi qualcosa di più delle semplici funzioni. Che supporre il contrario porti alla contraddizione è il risultato desiderabile, serve come un bel test di sanità mentale: i lambda difficilmente possono essere definitivi/fondamentali se esprimono solo mere funzioni.
+
+"Racket" (precedentemente PLT Scheme) continua a perseguire l'idea che i linguaggi di programmazione pratici possano davvero essere costruiti, da zero, con "just lambda" (http://racket-lang.org/).
+
+"Kernel", di Shutt, sostiene che lambda non è davvero l'astrazione definitiva. Sostiene che esiste un concetto ancora più primitivo (soprannominato vau) che era noto a Sussman come FEXPR (http://www.wpi.edu/Pubs/ETD/Available/etd-090110-124904/).
+
+Felleisen e compagnia (per Racket) ottengono gran parte della potenza del vau di Shutt usando il concetto di fasi, o metalivelli, che approssimativamente significa eseguire il codice sorgente attraverso più fasi di traduzione (come con la preelaborazione C, ma usando la stessa linguaggio in ogni 'passo' e i 'passi' non sono in realtà del tutto distinti nel tempo). (Quindi, sostengono che un lambda in una fase superiore approssima abbastanza bene un vau). In effetti, sostengono che le fasi sono migliori delle FEXPR, proprio per essere più limitate: in breve, "le FEXPR sono troppo potenti" (vedi il lavoro di Wand, contro il quale Shutt si oppone).
+
+Il Lisp-3 di Brian Smith, "Procedural reflection in programming languages", tenta una rigorosa riformulazione della teoria dei linguaggi simili a LISP lungo le linee di una netta distinzione tra le notazioni (simboli/linguaggio/programmi) e le denotazioni (cose/riferimenti/valori/risultati). http://dspace.mit.edu/handle/1721.1/15961
+
+"The Theory of FEXPRs is Trivial" di Mitchell Wand manda più chiodi nella bara (temporanea?) che Kent Pittman ha costruito per i FEXPR (che, come Felleisen, si oppone ai FEXPR perché rendono la compilazione troppo difficile).
+
+Paul Graham sostiene con forza e a lungo in "On Lisp" che il vero potere sono i lambda come trasformatori di sintassi (macro), piuttosto che come trasformatori di valori (funzioni matematiche). Lo sviluppo di Plotkin del calcolo lambda applicativo potrebbe essere considerato in qualche modo contrastante, perché Plotkin limita il calcolo di Church al suo sottoinsieme call-by-value/applicativo. Naturalmente, gestire la parte applicativa in modo efficiente è molto importante, quindi è importante sviluppare una teoria specializzata per quell'uso di lambda. (Plotkin e Graham non discutono l'uno contro l'altro.)
+
+In effetti, in generale, la nozione di Lambda come Ultimate è solo una questione nell'eterno dibattito tra efficienza ed espressività. La posizione è che lambda è lo strumento definitivo per l'espressività e, con uno studio sufficiente, alla fine si rivelerà anche lo strumento definitivo per l'efficienza. In altre parole, possiamo, se vogliamo, vedere il futuro dei linguaggi di programmazione come niente di più e niente di meno che lo studio di come implementare in modo efficiente tutti i frammenti praticamente rilevanti del calcolo lambda.
+
+"The Next 700 Programming Languages" di Landin, http://www.cs.cmu.edu/~crary/819-f09/Landin66.pdf, è un riferimento accessibile che contribuisce allo sviluppo del concetto che Lambda è Ultimate.
+
+
+=====================================
+Stati, Transizioni e catene di Markov
+=====================================
+
+Una catena di Markov può essere pensata come descrizione probabilistica che alcuni eventi si verifichino seguiti da altri eventi. Più matematicamente, descrive le probabilità associate ad uno stato di un sistema di passare a qualsiasi altro stato.
+Ad esempio, supponiamo che un sistema con tre stati abbia le seguenti probabilità di transizione:
+
+  (A, A, 0.9)
+  (A, B, 0.075)
+  (A, C, 0.025)
+  (B, A, 0.15)
+  (B, B, 0.8)
+  (B, C, 0.05)
+  (C, A, 0.25)
+  (C, B, 0.25)
+  (C, C, 0.5)
+
+Ciò indica che se iniziamo con lo stato A, dopo una transizione c'è una probabilità del 90% che lo stato rimanga in A, una probabilità del 7,5% che lo stato cambi in B e un 2,5% che lo stato cambi in C.
+
+Dato uno stato iniziale, una lista con le probabilità di transizione e un numero di transizioni, eseguire la catena di Markov associata fino al numero di transizioni dato e determinare lo stato finale.
+
+Inoltre, calcolare la frequenza di ogni stato per un dato numero di iterazioni della catena di Markov.
+
+Sostituiamo A,B e C con 0,1,2 e rappresentiamo la catena con un grafo:
+
+                       0.025
+        >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+        |                                 |
+        |      0.15     0.8     0.25      |
+      +---+ <--------- +---+ <--------- +---+
+  0.9 | 0 |            | 1 |            | 2 | 0.5
+      +---+ ---------> +---+ ---------> +---+
+        |     0.075             0.05      |
+        |              0.25               |
+        <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+Le probabilità di transizione sono:
+
+  0 -> 0 con probabilità = 0.9
+  0 -> 1 con probabilità = 0.075
+  0 -> 2 con probabilità = 0.025
+  1 -> 0 con probabilità = 0.15
+  1 -> 1 con probabilità = 0.8
+  1 -> 2 con probabilità = 0.05
+  2 -> 0 con probabilità = 0.25
+  2 -> 1 con probabilità = 0.25
+  2 -> 2 con probabilità = 0.5
+
+Nota: la somma delle probabilità di transizione associate ad ogni stato deve essere uguale ad 1:
+
+  P(0) = 0.9 + 0.075 + 0.025 = 1
+  P(1) = 0.15 + 0.8 + 0.05 = 1
+  P(2) = 0.25 + 0.25 + 0.5 = 1
+
+Rappresentiamo gli stati e le relative probabilità di transizione con la lista seguente:
+
+(setq states '((0 (0.9 0.075 0.025))
+               (1 (0.15 0.8 0.05))
+               (2 (0.25 0.25 0.5))))
+
+Nota: in genere le probabilità di transizione vengono rappresentate con una matrice.
+
+Definiamo una funzione che passa da uno stato ad un altro stato:
+
+(define (next-state cur-state probs)
+  (local (rnd stop prob res)
+    ; generiamo un numero random
+    ; diverso da 1
+    (while (= (setq rnd (random)) 1))
+    (setq stop nil)
+    (setq prob (last (states cur-state)))
+    (dolist (p prob stop)
+      ; sottraiamo la probabilità corrente al numero random...
+      (setq rnd (sub rnd p))
+      ; se il risultato è minore di zero, 
+      ; allora restituiamo l'indice della probabilità
+      (if (< rnd 0)
+          (set 'res $idx 'stop true)
+      )
+    )
+    res))
+
+(define (markov states start step iter)
+  (local (probs freq)
+    ; estrazione lista delle probabilità
+    (setq probs '())
+    (dolist (s states)
+      (push (last s) probs -1)
+    )
+    ; vettore delle frequenze degli stati finali
+    (setq freq (array (length states) '(0)))
+    (for (i 1 iter)
+      (setq cur-state start)
+      (for (t 1 step)
+        ;(setq prob (lookup cur-state states))
+        ;(setq prob (last (states cur-state)))
+        (setq cur-state (next-state cur-state prob))
+      )
+      ; aggiorna frequenza dello stato finale
+      (++ (freq cur-state))
+    )
+    ; controllo di correttezza
+    ;(println (apply + freq))
+    freq))
+
+Testiamo la funzione con degli stati che hanno probabilità di transizione su se stessi pari a 1. In questo modo dopo qualunque numero di transizioni deve risultare lo stesso stato iniziale.
+
+(setq test '((0 (0 1 0))
+             (1 (0 1 0))
+             (2 (0 1 0))))
+
+(markov test 0 100 100000)
+;-> (100000 0 0)
+(markov test 1 100 100000)
+;-> (0 100000 0)
+(markov test 2 100 100000)
+;-> (0 0 100000)
+
+Adesso proviamo la funzione con i valori di probabilità del problema:
+
+(setq states '((0 (0.9 0.075 0.025))
+               (1 (0.15 0.8 0.05))
+               (2 (0.25 0.25 0.5))))
+
+Con 100 transizioni partendo da ogni stato otteniamo:
+
+(markov states 0 100 100000)
+;-> (62389 31312 6299)
+62389 volte stato finale = 0
+31312 volte stato finale = 1
+ 6299 volte stato finale = 2
+
+(markov states 1 100 100000)
+;-> (62418 31220 6362)
+
+(markov states 2 100 100000)
+;-> (62627 31239 6134)
+
 =============================================================================
 

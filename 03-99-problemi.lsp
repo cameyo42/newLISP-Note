@@ -829,8 +829,10 @@ Esempio: (elimina-ogni '(a b c d e f g) 2) ==> (a c e g)
 
 
 =======================================================
-N-99-17 Dividere una lista in due parti (la lunghezza della prima lista è un parametro)
+N-99-17 Dividere una lista in due parti
 =======================================================
+
+La lunghezza della prima lista è un parametro.
 
 (define (divide-lista lst n)
   (define (divide-aux lst lst2 n)
