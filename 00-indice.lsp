@@ -1038,6 +1038,9 @@ NOTE LIBERE 7
   Blog di Cyril Zlobin
   Lambda the Ultimate
   Stati, Transizioni e catene di Markov
+  Modifica di una lista con un pattern
+  Fisher-Yates shuffle
+  Una funzione trigonometrica interessante
   
 APPENDICI
 =========

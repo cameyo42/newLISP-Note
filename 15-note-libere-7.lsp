@@ -688,9 +688,9 @@ In effetti, in generale, la nozione di Lambda come Ultimate è solo una question
 "The Next 700 Programming Languages" di Landin, http://www.cs.cmu.edu/~crary/819-f09/Landin66.pdf, è un riferimento accessibile che contribuisce allo sviluppo del concetto che Lambda è Ultimate.
 
 
-=====================================
+-------------------------------------
 Stati, Transizioni e catene di Markov
-=====================================
+-------------------------------------
 
 Una catena di Markov può essere pensata come descrizione probabilistica che alcuni eventi si verifichino seguiti da altri eventi. Più matematicamente, descrive le probabilità associate ad uno stato di un sistema di passare a qualsiasi altro stato.
 Ad esempio, supponiamo che un sistema con tre stati abbia le seguenti probabilità di transizione:
@@ -806,6 +806,19 @@ Testiamo la funzione con degli stati che hanno probabilità di transizione su se
 (markov test 2 100 100000)
 ;-> (0 0 100000)
 
+Altro test con probabilità di transizione verso altri stati pari a 0.5:
+
+(setq test '((0 (0   0.5 0.5))
+             (1 (0.5 0   0.5))
+             (2 (0.5 0.5 0))))
+
+(markov test 0 100 100000)
+;-> (33229 33450 33321)
+(markov test 1 100 100000)
+;-> (33299 33437 33264)
+(markov test 2 100 100000)
+;-> (33226 33430 33344)
+
 Adesso proviamo la funzione con i valori di probabilità del problema:
 
 (setq states '((0 (0.9 0.075 0.025))
@@ -825,6 +838,323 @@ Con 100 transizioni partendo da ogni stato otteniamo:
 
 (markov states 2 100 100000)
 ;-> (62627 31239 6134)
+
+
+------------------------------------
+Modifica di una lista con un pattern
+------------------------------------
+
+Supponiamo di avere una lista con degli elementi qualsiasi:
+
+(setq lst '(A 1 B 2 "1" "2" A 1 2 B 3.14))
+
+Un pattern, cioè una lista di elementi:
+
+(setq pat '(A 1))
+
+E una lista di sostituzione (replace):
+
+(setq rep '(X Y))
+
+Quello che vogliamo ottenere è una nuova lista dove tutte le sequenze del pattern (A 1) sono sostituite dalla lista di sostituzione (replace):
+
+  (X Y B 2 "1" "2" X Y 2 B 3.14)
+
+La funzione è la seguente con le spiegazioni nei commenti:
+
+(define (replace-pattern pat lst rep)
+  ; se il pattern è un carattere,
+  ; allora usiamo la funzione built-in "replace"
+  (if (= (length pat) 1)
+      (replace (first pat) lst (first rep))
+      ; altrimenti...
+  (local (idx end found end-pat stop)
+    (setq idx 0)
+    (setq end (- (length lst) (length pat)))
+    ; ciclo per tutta la lista lst
+    (while (<= idx end)
+      ; se elemento corrente = primo elemento pattern
+      (if (= (lst idx) (pat 0))
+        (begin
+          ; controlla se sono uguali i successivi elementi
+          ; della lista con i successivi elementi del pattern
+          (setq end-pat (- (length pat) 1))
+          (setq found true)
+          (setq stop nil)
+          (setq k 1)
+          (for (i (+ idx 1) (+ idx end-pat) 1 stop)
+            ; basta un elemento diverso per 
+            ; stabilire che il pattern è diverso
+            (if (!= (lst i) (pat k))
+                (set 'found nil 'stop true)
+            )
+            ; aumenta indice della lista pat
+            (++ k)
+          )
+          ; se il pattern è stato trovato,
+          ; allora modifichiamo gli elementi della lista lst
+          ; con gli elementi della lista rep
+          (if found
+            (begin
+              (setq k 0)
+              (for (i idx (+ idx end-pat))
+                (setf (lst i) (rep k))
+                ; aumenta indice della lista pat
+                (++ k)
+              )
+            )
+          )
+        )
+      )
+      ; aumenta indice della lista lst
+      (++ idx)
+    )
+    lst)))
+
+Facciamo alcune prove:
+
+(setq lst '(A 1 B 2 "1" "2" A 1 2 B 3.14))
+(setq pat '(A 1))
+(setq rep '(X Y))
+(replace-pattern pat lst rep)
+;-> (X Y B 2 "1" "2" X Y 2 B 3.14)
+
+(setq lst '(A 1 B 2 "1" "2" A 1 2 B 3.14))
+(setq pat '(B 3.14))
+(setq rep '(X Y))
+(replace-pattern pat lst rep)
+;-> (A 1 B 2 "1" "2" A 1 2 X Y)
+
+(setq lst '(A 1 B 2 "1" "2" A 1 2 B 3.14))
+(setq pat '(2 "1"))
+(setq rep '(X Y))
+(replace-pattern pat lst rep)
+
+(setq lst '(-8 6 -4 8 3 4 0 2 4 8 3))
+(setq pat '(4 8 3))
+(setq rep '(0 0 0))
+(replace-pattern pat lst rep)
+;-> (-8 6 -4 8 3 4 0 2 0 0 0)
+
+(setq lst '(-8 6 4 8 3 4 0 2 4 8 3))
+(setq pat '(4 8 3))
+(setq rep '(0 0 0))
+(replace-pattern pat lst rep)
+;-> (-8 6 0 0 0 4 0 2 0 0 0)
+
+(setq lst '(-8 6 4 8 3 4 0 2 4 8 3))
+(setq pat '(-8 6 4 8 3 4 0 2 4 8))
+(setq rep '(0 0 0 0 0 0 0 0 0 0))
+(replace-pattern pat lst rep)
+;-> (0 0 0 0 0 0 0 0 0 0 3)
+
+(setq lst '(-8 6 4 8 3 4 0 2 4 8 3))
+(setq pat '(-8 6 4 8 3 4 0 2 4 8 3))
+(setq rep '(0 0 0 0 0 0 0 0 0 0 0))
+(replace-pattern pat lst rep)
+;-> (0 0 0 0 0 0 0 0 0 0 0)
+
+(setq lst '(-8 6 4 8 3 4 0 2 4 8 3))
+(setq pat '(4 8 1))
+(setq rep '(0 0 0))
+(replace-pattern pat lst rep)
+;-> (-8 6 4 8 3 4 0 2 4 8 3)
+
+(setq lst '(-8 6 4 8 3 4 0 2 4 8 3))
+(setq pat '(4))
+(setq rep '(A))
+(replace-pattern pat lst rep)
+;-> (-8 6 A 8 3 A 0 2 A 8 3)
+
+(setq lst '(-8 6 4 8 3 4 0 2 4 8 4 8))
+(setq pat '(4 8))
+(setq rep '(B B))
+(replace-pattern pat lst rep)
+;-> (-8 6 B B 3 4 0 2 B B B B)
+
+
+--------------------
+Fisher-Yates shuffle
+--------------------
+
+Data una lista di n elementi, scrivere una funzione che "mescola" gli elementi della lista in modo casuale (uniforme).
+
+Come primo approccio usiamo la seguente procedura:
+
+- attraversare la lista (con indice idx)
+- generare un numero random j tra 0 e (n - 1) (compreso)
+- scambiare i valori di lst(idx) e lst(j)
+
+(define (shuffle1 lst)
+  (local (len j)
+    (setq len (length lst))
+    (for (idx 0 (- len 1))
+      (setq j (rand len))
+      (swap (lst idx) (lst j))
+    )
+    lst))
+
+Proviamo la funzione:
+
+(setq lst (sequence 1 10))
+;-> (1 2 3 4 5 6 7 8 9 10)
+(shuffle1 lst)
+;-> (1 3 6 7 5 2 9 10 8 4)
+(shuffle1 lst)
+;-> (7 10 8 3 6 2 4 5 9 1)
+(shuffle1 lst)
+;-> (2 3 5 6 4 8 1 7 10 9)
+
+Sembra che i risultati siano corretti, ma dobbiamo ancora verificare se la procedura genera risultati uniformi. Per fare questo usiamo una lista con tre elementi:
+
+(setq lst '(1 2 3))
+
+Applichiamo la funzione "shuffle1" per "iter" volte e calcoliamo la frequenza dei risultati che possono essere 6: (1 2 3), (1 3 2), (2 1 3), (2 3 1), (3 1 2), (3 2 1)
+
+(define (test1 iter)
+  (local (res freq out)
+    (setq res '((1 2 3) (1 3 2) (2 1 3) (2 3 1) (3 1 2) (3 2 1)))
+    (setq freq (array 6 '(0)))
+    (for (i 1 iter)
+      (++ (freq (find (shuffle1 lst) res)))
+    )
+    freq))
+
+(test1 100000)
+;-> (14742 18437 18564 18587 14913 14757)
+
+Il risultato non sembra uniforme. Perchè?
+La procedura scambia tre volte (cioè quanti sono gli elementi), quindi ci sono 3^3 = 27 possibili risultati (di cui alcuni uguali). Abbiamo visto che gli unici risultati possibili sono 6, un numero che non divide esattamente 27, quindi alcuni risultati sono in numero maggiore.
+
+Per rendere la funzione uniforme occorre che la probabilità di scegliere un qualunque indice/elemento valga 1/n. Questo può essere fatto con la seguente procedura (algoritmo di Fisher-Yates):
+
+- attraversare la lista (con indice idx)
+- generare un numero random j tra idx e (n - 1) (compreso)
+- scambiare i valori di lst(idx) e lst(j)
+
+(define (shuffle2 lst)
+  (local (len j)
+    (setq len (length lst))
+    (for (idx 0 (- len 1))
+      (setq j (+ idx (rand (- len idx))))
+      (swap (lst idx) (lst j))
+    )
+    lst))
+
+Proviamo la funzione:
+
+(setq lst (sequence 1 10))
+
+(shuffle2 lst)
+;-> (4 9 5 2 6 3 8 1 7 10)
+(shuffle2 lst)
+;-> (7 8 3 5 10 1 4 9 6 2)
+(shuffle2 lst)
+;-> (4 1 6 5 10 7 9 2 8 3)
+
+Adesso proviamo l'uniformità:
+
+(setq lst '(1 2 3))
+
+(define (test2 iter)
+  (local (res freq out)
+    (setq res '((1 2 3) (1 3 2) (2 1 3) (2 3 1) (3 1 2) (3 2 1)))
+    (setq freq (array 6 '(0)))
+    (for (i 1 iter)
+      (++ (freq (find (shuffle2 lst) res)))
+    )
+    freq))
+
+(test2 100000)
+;-> (16571 16829 16710 16567 16678 16645)
+
+(test2 1000000)
+;-> (166943 166926 166139 166296 167037 166659)
+
+Quindi questo algoritmo garantisce anche l'uniformità dei risultati. Perchè?
+
+Per provarlo abbiamo bisogno di utilizzare un "invariante del ciclo" (loop invariant).
+L'invariante è il seguente: ad ogni indice idx del ciclo, tutti gli indici prima di idx hanno la stessa probabilità di contenere un qualuanque elemento della lista.
+Consideriamo idx = 0: poichè scambiamo lst(0) con un indice casuale cha varia per tutta la lunghezza della lista, lst(0) ha una probabilità uniforme di essere un qualunque elemento della lista. Quindi l'invariante è vero per il caso base.
+Ora consideriamo che il nostro invariante sia vero fino a idx e consideriamo il ciclo a (idx + 1). Dobbiamo calcolare la probabilità che alcuni elementi si trovino all'indice (idx + 1). Questa è uguale alla probabilità di non selezionare quell'elemento fino a idx e poi prenderlo a (idx + 1). 
+Tutti i potenziali elementi rimanenti non devono essere stati ancora selezionati, il che significa che non sono stati prelevati da 0 a idx, e questa probabilità vale:
+
+   (n - idx)     (n - 2)           (n - idx -1)
+  ----------- * --------- * ... * --------------
+      n          (n - 1)            (n - idx) 
+
+Adesso dobbiamo scegliere effettivamente l'elemento. Poichè rimangono (n - idx - 1) elementi per la scelta, questa probabilità è pari a:
+
+        1
+  --------------
+   (n - idx -1)
+
+Mettendo tutto insieme, la probabilità cercata vale:
+
+   (n - idx)     (n - 2)           (n - idx -1)          1           1
+  ----------- * --------- * ... * -------------- * -------------- = ---
+      n          (n - 1)            (n - idx)       (n - idx -1)     n
+
+Quindi l'invariante è sempre valido e la dimostrazione è terminata.
+
+
+----------------------------------------
+Una funzione trigonometrica interessante
+----------------------------------------
+
+Nel libro "Calculus early transcendentals" di Stewart, Clegg, Watson viene riportata questa funzione trigonometrica:
+
+               (Sin(Tan x) - Tan(Sin x))
+f(x) = -----------------------------------------
+         (ArcSin(ArcTan x) - ArcTan(ArcSin x))
+
+(define (func x)
+  (div (sub (sin (tan x)) (tan (sin x)))
+      (sub (asin (atan x)) (atan (asin x)))))
+
+Calcolare la funzione nei seguenti valori di x 1, 0.1, 0.01, 0,001 e 0.0001:
+
+(func 1)
+;-> 1.183831989375579
+Valore vero:
+
+(func 0.1)
+;-> 1.016735904116213
+Valore vero:
+
+(func 0.01)
+;-> 0.9896373056994818
+Valore vero:
+
+(func 0.001)
+;-> 0
+Valore vero:
+
+(func 0.0001)
+;-> -1#IND
+Valore vero:
+
+Calcolare il limite per x->0:
+
+(func 0)
+;-> -1#IND
+
+(setq x-val '(0.002 0.001 0.0009 0.0008 0.0007 0.0006 0.0005 
+              0.0004 0.0003 0.0002 0.0001 0.00001))
+
+(map (fn(x) (list x (func x))) x-val)
+;-> ((0.002 -1.#IND) 
+;->  (0.001 0) 
+;->  (0.0009 -0) 
+;->  (0.0008 -1.#IND) 
+;->  (0.0007 -1.#IND) 
+;->  (0.0006 -1)
+;->  (0.0005 -1.#IND)
+;->  (0.0004 0)
+;->  (0.0003 -1)
+;->  (0.0002 -1.#IND)
+;->  (0.0001 -1.#IND)
+;->  (1e-005 -1.#IND))
 
 =============================================================================
 
