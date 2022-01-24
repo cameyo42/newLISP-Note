@@ -6621,6 +6621,7 @@ Con int-index = 2: (in questo caso esiste un elemento con indice 2 nella sottoli
 ;-> value11
 
 Liste associative annidate
+--------------------------
 (setq lsta '((nome "eva") (eta "23") (esami ((storia 27) (chimica 28)))))
 
 (lookup 'esami lsta)
@@ -6665,6 +6666,8 @@ Possiamo scriviamo una versione semplificata delle funzioni "assoc" e "lookup":
 ;-> (1 b)
 (lookup. 4 lst)
 ;-> nil
+
+Vedi anche "Modificare le liste di associazione" nel capitolo "09-Note-libere-1".
 
 
 -------------------------------

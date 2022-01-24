@@ -1041,6 +1041,8 @@ NOTE LIBERE 7
   Modifica di una lista con un pattern
   Fisher-Yates shuffle
   Una funzione trigonometrica interessante
+  Modificare le liste di associazione
+  Estrazione di elementi con probabilità predefinite
   
 APPENDICI
 =========

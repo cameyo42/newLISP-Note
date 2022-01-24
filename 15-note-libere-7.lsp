@@ -1104,40 +1104,53 @@ Una funzione trigonometrica interessante
 
 Nel libro "Calculus early transcendentals" di Stewart, Clegg, Watson viene riportata questa funzione trigonometrica:
 
-               (Sin(Tan x) - Tan(Sin x))
-f(x) = -----------------------------------------
-         (ArcSin(ArcTan x) - ArcTan(ArcSin x))
+               Sin(Tan x) - Tan(Sin x)
+f(x) = ---------------------------------------
+         ArcSin(ArcTan x) - ArcTan(ArcSin x)
 
 (define (func x)
   (div (sub (sin (tan x)) (tan (sin x)))
       (sub (asin (atan x)) (atan (asin x)))))
 
-Calcolare la funzione nei seguenti valori di x 1, 0.1, 0.01, 0,001 e 0.0001:
+Calcolare la funzione nei seguenti valori di x: 1, 0.1, 0.01, 0,001 e 0.0001:
 
 (func 1)
 ;-> 1.183831989375579
 Valore vero:
+1.183831989375580
 
 (func 0.1)
 ;-> 1.016735904116213
 Valore vero:
+1.016735904116213
 
 (func 0.01)
 ;-> 0.9896373056994818
 Valore vero:
+0.989637305699482
 
 (func 0.001)
 ;-> 0
 Valore vero:
+0.
 
 (func 0.0001)
 ;-> -1#IND
-Valore vero:
-
-Calcolare il limite per x->0:
+Valore vero: 
+ComplexInfinity
 
 (func 0)
 ;-> -1#IND
+Valore vero: 
+Indeterminate
+
+Calcolare il limite della funzione per x->0:
+
+Valore vero:
+lim f(x) = 1
+ x->0
+
+Proviamo ad avvicinarsi a 0:
 
 (setq x-val '(0.002 0.001 0.0009 0.0008 0.0007 0.0006 0.0005 
               0.0004 0.0003 0.0002 0.0001 0.00001))
@@ -1155,6 +1168,290 @@ Calcolare il limite per x->0:
 ;->  (0.0002 -1.#IND)
 ;->  (0.0001 -1.#IND)
 ;->  (1e-005 -1.#IND))
+
+
+Per capire la "variabilità" di questa funzione vedere il grafico "trigo-funzione.png" nella cartella "data".
+
+
+-----------------------------------
+Modificare le liste di associazione
+-----------------------------------
+
+Suppuniamo di voler utilizzare una lista di associazione (key value) come una hash-map. Per esempio,
+
+(setq alst '((1 "a") (3 "f") (6 "b") (-1 "x")))
+
+Primo problema: come modificare il valore associato ad una chiave?
+
+(define (update key value)
+  (setf (assoc key alst) (list key value)))
+
+(update 1 "k")
+;-> (1 "k")
+alst
+;-> ((1 "k") (3 "f") (6 "b") (-1 "x"))
+
+Ma se la chiave non esiste otteniamo un errore:
+
+(update 11 "z")
+;-> ERR: no reference found : nil
+;-> called from user function (update 11 "z")
+
+Quindi prima di aggiornare il valore dobbiamo verificare se esiste la chiave:
+
+(define (update key value)
+  (if (lookup key alst)
+      (setf (assoc key alst) (list key value))))
+
+(update 1 "y")
+;-> (1 "y")
+alst
+;-> ((1 "y") (3 "f") (6 "b") (-1 "x"))
+
+Proviamo con una chiave inesistente:
+
+(update 21 "p")
+;-> nil
+alst
+((1 "y") (3 "f") (6 "b") (-1 "x"))
+
+Nota: anche la seguente funzione opera correttamente perchè la lista "alst" non è un parametro della funzione (quindi non viene copiata in una variabile locale della funzione).
+
+(define (update1 key value)
+  (let (item (assoc key alst))
+       (if item
+           (setf (assoc key alst) (list key value)))))
+
+(update1 1 "aa")
+;-> (1 "aa")
+alst
+;-> ((1 "aa") (3 "f") (6 "b") (-1 "x"))
+
+Secondo problema: poichè una hash-map non contiene chiavi multiple, come impedire l'inserimento di chiavi multiplde nella lista di associazione?
+
+Modifichiamo la funzione "update" in modo che, se la chiave esiste, allora viene aggiornato il valore associato (anche se è lo stesso), altrimenti (cioè quando la chiave non esiste) viene aggiunta una coppia (chiave valore) alla lista.
+
+(define (update key value)
+  (if (lookup key alst)
+      (setf (assoc key alst) (list key value))
+      (push (list key value) alst -1)))
+
+Aggiorniamo il valore con chiave 6:
+
+(update 6 "new")
+;-> (6 "new")
+alst
+;-> ((1 "aa") (3 "f") (6 "new") (-1 "x"))
+
+Aggiorniamo il valore con chiave -1:
+
+(update -1 "xyz")
+;-> (-1 "xyz")
+alst
+;-> ((1 "aa") (3 "f") (6 "new") (-1 "xyz"))
+
+Aggiungiamo una coppia (chiave valore):
+
+(update 21 "ventuno")
+;-> (21 "ventuno")
+alst
+;-> ((1 "aa") (3 "f") (6 "new") (-1 "xyz") (21 "ventuno"))
+
+Per finire scriviamo una funzione per eliminare una coppia (chiave valore) dalla lista di associazione.
+In questo caso dovremmo prima verificare se la chiave esiste e poi, eventualmente, eliminare la coppia (chiave valore). Però newLISP ha una funzione integrata "pop-assoc" per eliminare un elemento (chiave valore) di una lista associativa utilizzando la chiave come parametro (la funzione restituisce nil se la chiave non esiste).
+
+(define (remove key) (pop-assoc key alst))
+
+(remove 44)
+;-> alst
+((1 "aa") (3 "f") (6 "new") (-1 "xyz") (21 "ventuno"))
+(remove 21)
+;-> (21 "ventuno")
+alst
+;-> ((1 "aa") (3 "f") (6 "new") (-1 "xyz"))
+
+Nota: per utilizzare una lista associativa conme parametro delle funzioni "update" e "remove" occorre utilizzare i funtori dei contesti come contenitori delle liste (es. (setq alst:alst '(1 "a") (3 "f"))). In questo modo le liste vengono passate per riferimento e non per valore.
+
+From StackOverflow: modifying association list
+----------------------------------------------
+
+-------
+0: Jakub M.
+-------
+I have a problem with modifying entries of an association list. 
+When I run this code:
+
+Example A
+(set 'Dict '(("foo" "bar")))
+(letn (key "foo"
+       entry (assoc key Dict))
+  (setf (assoc key Dict) (list key "new value")))
+(println Dict)
+
+the result is:
+
+(("foo" "new value")) ; OK
+
+which is expected. With this code
+
+Example B
+(set 'Dict '(("foo" "bar")))
+(letn (key "foo"
+       entry (assoc key Dict))
+  (setf entry (list key "new value"))) ; the only change is here
+(println Dict)
+
+the result is:
+
+(("foo" "bar")) ; huh?
+
+Why the Dict is not being updated in the second case?
+
+What I want is to check if an entry is in the Dict and if it is - update it, otherwise leave it alone. With letn I want to avoid a duplicated code
+
+(letn (key "foo"
+       entry (assoc key Dict))
+  (if entry ; update only if the entry is there
+    (setf entry (list key "new value")))
+
+-------
+1: newlisp
+-------
+In the letn expression the variable entry contains a copy of the association not a reference. Set the association directly as shown in Cormullion's example:
+
+(setf (assoc key Dict) (list key "new value"))
+
+In the newLISP programming model everything can be referenced only once. Assignment always makes a copy.
+
+-------
+2: cormullion
+-------
+My understanding of association lists is that they work like this:
+
+> (set 'data '((apples 123) (bananas 123 45) (pears 7)))
+((apples 123) (bananas 123 45) (pears 7))
+> (assoc 'pears data)
+(pears 7)
+> (setf (assoc 'pears data) '(pears 8))
+(pears 8)
+> data
+((apples 123) (bananas 123 45) (pears 8))
+> (assoc 'pears data)
+(pears 8)
+>
+
+If you want to check for the existence of a key and update its value, do something like this:
+
+(letn (key "foo")
+   (if (lookup key Dict)
+       (setf (assoc key Dict) (list key "new value"))))
+
+
+--------------------------------------------------
+Estrazione di elementi con probabilità predefinite
+--------------------------------------------------
+
+Data una lista con dei valori di probabilità associati ai rispettivi indici, scrivere una funzione che estrae casualmente un indice della lista seguendo le probabilità assegnate.
+
+Nota: per maggiori informazioni vedi "Numeri casuali con distribuzione discreta predefinita" nel capitolo "02-funzioni-varie" in cui abbiamo definito la seguente funzione per risolvere il problema:
+
+(define (rand-prob probs)
+  (local (out inter cur val found)
+    (setq found nil)
+    (setq inter '(0.0))
+    (setq cur 0)
+    ; creazione della lista degli intervalli
+    (dolist (el probs)
+      (setq cur (round (add cur el) -4))
+      (push cur inter -1)
+    )
+    ; l'ultimo valore della lista degli intervalli deve valere 1
+    (if (!= (last inter) 1) (println "Errore: somma probabilita diversa da 1"))
+    ;(print inter)
+    ; generazione numero random con probabilità predefinite
+    (setq val (random))
+    (setq out nil)
+    ; ricerca in quale intervallo cade il numero random
+    ; e restituisce l'indice corrispondente
+    (for (i 0 (- (length inter) 2) 1 found)
+      (if (and (>= val (inter i)) (<= val (inter (+ i 1))))
+        (begin
+        (setq out i)
+        (setq found true))
+      )
+    )
+    out))
+
+Adesso vediamo un metodo migliore che viene spiegato nei commenti della funzione seguente:
+
+(define (rand-pick lst)
+  (local (rnd stop out)
+    ; generiamo un numero random diverso da 1 
+    ; (per evitare errori di arrotondamento)
+    (while (= (setq rnd (random)) 1))
+    (if (= rnd 1) (println rnd))
+    (setq stop nil)
+    (dolist (p lst stop)
+      ; sottraiamo la probabilità corrente al numero random...
+      (setq rnd (sub rnd p))
+      ; se il risultato è minore di zero, 
+      ; allora restituiamo l'indice della probabilità corrente
+      (if (< rnd 0)
+          (set 'out $idx 'stop true)
+      )
+    )
+    out))
+
+(setq p '(0.05 0.15 0.35 0.45))
+
+Nota: la somma delle probabilità deve valere 1.
+(apply add p)
+;-> 1
+
+(rand-pick p)
+;-> 2
+
+Facciamo alcune prove per verificare la correttezza della funzione:
+
+(setq p '(0.05 0.15 0.35 0.45))
+(apply add p)
+;-> 1
+(setq vet (array 4 '(0)))
+;-> (0 0 0 0)
+(for (i 0 999999) (++ (vet (rand-pick p))))
+vet
+;-> (50087 150175 349614 450124)
+(apply + vet)
+;-> 1000000
+
+(setq p '(0.02 0.08 0.7 0.2))
+(apply add p)
+;-> 1
+(setq vet (array 4 '(0)))
+;-> (0 0 0 0)
+(for (i 0 999999) (++ (vet (rand-pick p))))
+vet
+;-> (19943 80205 700466 199386)
+
+Vediamo la differenza di velocità delle due funzioni:
+
+1) "rand-prob"
+(setq p '(0.02 0.08 0.7 0.2))
+(setq vet (array 4 '(0)))
+;-> (0 0 0 0)
+(time (for (i 0 999999) (++ (vet (rand-prob p)))))
+;-> 3427.212
+vet
+;-> (20243 79942 699964 199851)
+
+2) "rand-pick"
+(setq p '(0.02 0.08 0.7 0.2))
+(setq vet (array 4 '(0)))
+;-> (0 0 0 0)
+(time (for (i 0 999999) (++ (vet (rand-pick p)))))
+;-> 724.643
+vet
+;-> (19974 80153 699845 200028)
 
 =============================================================================
 

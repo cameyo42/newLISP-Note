@@ -4777,7 +4777,7 @@ La funzione genera un numero da 0 a (n-1) che rappresenta l'indice del valore di
     (setq cur 0)
     ; creazione della lista degli intervalli
     (dolist (el probs)
-      ;(setq cur (round (add cur el) -4))
+      (setq cur (round (add cur el) -4))
       (push cur inter -1)
     )
     ; l'ultimo valore della lista degli intervalli deve valere 1
@@ -4828,6 +4828,7 @@ vet
 
 Sembra che tutto funzioni correttamente.
 
+Vedi anche "Estrazione di elementi con probabilità predefinite" nel capitolo "15-note-libere-07".
 
 ------------------------------
 Generatore di stringhe casuali
