@@ -1043,6 +1043,9 @@ NOTE LIBERE 7
   Una funzione trigonometrica interessante
   Modificare le liste di associazione
   Estrazione di elementi con probabilità predefinite
+  Disporre i numeri di una lista nella forma: basso->alto->basso
+  Poker d'Assi
+  Sparse-matrix
   
 APPENDICI
 =========

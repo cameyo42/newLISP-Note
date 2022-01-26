@@ -20,6 +20,11 @@ Funzione per creare una hash-map:
 (define (new-hash str) (new Tree (sym str)))
 
 (new-hash "pippo")
+
+oppure:
+
+;(new-hash 'pippo)
+
 (pippo "1" "a")
 ;-> "a"
 (pippo)
@@ -239,11 +244,13 @@ HASH-MAP-LAMBDA: Applica una funzione (kv-fn) agli elementi (coppie chiave-valor
 HASH-CREATE: Creazione di una hash-map
 --------------------------------------
 (define (hash-create x)
-  (new Tree x))
+  (new Tree (sym x)))
 
 Esempi:
 (hash-create 'hh)
 ;-> hh
+
+;(hash-create "hh")
 
 ---------------------------------------------------
 HASH-SET: Inserimento di una coppia (chiave-valore)
@@ -465,6 +472,7 @@ HASH-DESTROY: Eliminazione di una hash-map
 
 Esempi:
 (aa)
+;-> ()
 (hash-set aa 1 "x")
 ;-> "x"
 (hash-set aa 2 "y")
@@ -1452,6 +1460,475 @@ vet
 ;-> 724.643
 vet
 ;-> (19974 80153 699845 200028)
+
+
+--------------------------------------------------------------
+Disporre i numeri di una lista nella forma: basso->alto->basso
+--------------------------------------------------------------
+
+Data una lista di numeri interi, riorganizzarla in modo che i numeri rispettino la seguente regola:
+
+  basso -> alto -> basso -> alto -> basso -> alto -> ...
+
+In altre parole, ogni elemento pari deve essere maggiore dei suoi elementi a sinistra e destra.
+
+Nota: Supponiamo che nella lista non siano presenti elementi duplicati.
+
+Una soluzione è quella di ordinare prima la lista in ordine crescente. Quindi usare un vettore ausiliario e riempirlo con gli elementi della lista ordinata partendo dai due estremi di quest'ultima e in ordine alternato. Ecco l'algoritmo completo:
+
+  a) Ordinare la lista in ordine crescente.
+  b) Inizializzare due indici "i" (inizio lista) e "j" (fine lista) (es. i = 0 e j = n-1).
+  c) Creare un vettore "vet" con lunghezza pari a quella della lista.
+  d) Inizializzare un indice k = 0 (indice del vettore).
+  e) Riempire il vettore con il seguente ciclo:
+     (while (i < j)
+         vet[k++] = lst[i++]
+         vet[k++] = lst[j–-]
+     )
+  f) Se la lista contiene un numero dispari di elementi,
+     allora bisogna aggiungere l'ultimo elemento della lista ordinata al vettore.
+  g) Restituire il vettore "vet"
+
+Complessita temporale: O(n*log(n))
+Complessita spaziale: O(n)
+
+(define (high-low lst)
+  (local (i j k out)
+    (setq out (array (length lst) '(0)))
+    (setq i 0)
+    (setq j (- (length lst) 1))
+    (sort lst)
+    (setq k 0)
+    (while (< i j)
+      (setf (out k) (lst i))
+      (++ k) (++ i)
+      (setf (out k) (lst j))
+      (++ k) (-- j)
+    )
+    ; se la lista contiene un numero dispari di elementi
+    ; bisogna aggiungere l'ultimo elemento
+    ; della lista ordinata al risultato (out)
+    (if (= i j)
+        (setf (out (+ i j)) (lst i))
+    )
+    out))
+
+Proviamo la funzione:
+
+(setq nums '(1 6 5 7 9 2))
+(high-low nums)
+;-> (1 9 2 7 5 6)
+
+(setq nums '(9 6 8 3 7))
+(high-low nums)
+;-> (3 9 6 8 7)
+
+Una soluzione più efficiente è quella di iniziare dal secondo elemento della lista e incrementare l'indice di 2 ad ogni passo del ciclo. Se il precedente elemento è maggiore dell'elemento corrente, allora scambiare gli elementi. Allo stesso modo, se l'elemento successivo è maggiore dell'elemento corrente, scambiare gli elementi. Alla fine del ciclo, otterremo la lista nella forma voluta.
+
+Complessita temporale: O(n)
+Complessita spaziale: O(n)
+
+(define (h-l lst)
+  ; inizia dal secondo elemento e incrementa l'indice
+  ; di 2 ad ogni passo del ciclo
+  (for (i 1 (- (length lst) 1) 2)
+    ; se l'elemento precedente è maggiore dell'elemento corrente,
+    ; allora scambia gli elementi  
+    (if (> (lst (- i 1)) (lst i))
+        (swap (lst (- i 1)) (lst i))
+    )
+    ; se l'elemento successivo è maggiore dell'elemento corrente,
+    ; allora scambia gli elementi
+    ; prima controlla che non abbia raggiunto
+    ; la fine della lista
+    (if (and (< (+ i 1) (length lst))
+             (> (lst (+ i 1)) (lst i)))
+        (swap (lst (+ i 1)) (lst i)
+    )
+  )
+  lst))
+
+Proviamo la funzione:
+
+(setq nums '(1 6 5 7 9 2))
+(h-l nums)
+;-> (1 6 5 9 2 7)
+
+(setq nums '(9 6 8 3 7))
+(h-l nums)
+;-> (6 9 3 8 7)
+
+Vediamo i tempi di esecuzione:
+
+(setq nums (randomize (sequence 1 500)))
+
+(time (high-low nums) 1000)
+;-> 247.437
+
+(time (h-l nums) 1000)
+;-> 622.307
+
+Malgrado la funzione "h-l" non prevede l'ordinamento della lista o l'uso di un vettore aggiuntivo, risulta più lenta della funzione "high-low". Questo perchè le operazioni di indicizzazione di una lista sono lente.
+Infatti se proviamo le funzioni utilizzando un vettore (che ha un tempo di accesso molto più basso di quello di una lista), otteniamo i risultati previsti:
+
+(setq numsvet (array (length nums) nums))
+
+(time (high-low numsvet) 1000)
+;-> 105.825
+
+(time (h-l numsvet) 1000)
+;-> 76.606
+
+
+------------
+Poker d'assi
+------------
+
+Calcolare la probabilità di avere un poker d'assi servito.
+
+numero carte          --> n = 52
+insieme degli assi    --> a = 4
+insieme non-assi      --> r = n - a = 48
+numero carte estratte --> e = 5
+
+Utilizziamo la distribuzione ipergeometrica per trovare la probabilità che estrando 5 carte dal mazzo (senza reinserimento) si ottengano k = 4 assi:
+
+                       binom(a k) * binom((n-a) (e-k))
+  P(poker) = P(k=4) = --------------------------------- =
+                                binom(n e)
+
+     binom(4 4) * binom(48 1)     1 * 48        1
+  = -------------------------- = --------- = ------- = 
+          binom(52 5))            2598960     54145
+  
+  = 1.846892603195124e-005
+
+Quindi,in media, si verifica un poker di assi servito ogni 54145 mani.
+
+Formula per il calcolo del binomiale:
+
+(define (binom num k)
+  (cond ((> k num) 0)
+        ((zero? k) 1)
+        (true
+          (let (r 1L)
+            (for (d 1 k)
+              (setq r (/ (* r num) d))
+              (-- num)
+            )
+          r))))
+
+Vediamo di scrivere una funzione di simulazione:
+
+(define (poker-servito iter)
+  (local (deck sum)
+    (seed (time-of-day))
+    (setq sum 0)
+    (setq deck (sequence 1 52))
+    (for (i 1 iter)
+      (if (= (difference '(1 2 3 4) (slice (randomize deck) 0 5)) '())
+          (++ sum)
+      )
+    )
+    (println sum)
+    (div sum iter)))
+
+Dalla formula teorica vediamo quante volte deve uscire un poker di assi servito ogni 1e7 mani:
+
+(div 1e7 54145)
+;-> 184.6892603195124
+
+Verifichiamo la funzione di simulazione:
+
+(poker-servito 1e7)
+;-> 183
+;-> 1.83e-005
+
+Sembra che i risultati concordino.
+
+
+-------------
+Sparse matrix
+-------------
+
+Una matrice sparsa (sparse matrix) è una matrice in cui la maggior parte degli elementi ha valore zero.
+In genere risulta conveniente rappresentare queste matrici con strutture dati particolari ed utilizare algoritmi specifici. Infatti le operazioni matriciali standard sono molto lente quando abbiamo una sparse-matrix (e sprechiamo anche una grande quantità di memoria). 
+
+Possiamo pensare di comprimere i dati di una sparse-matrix in una struttura dati come una hash-map.
+Un elemento (cioè una coppia chiave-valore) della hash-map rappresenta un elemento non-nullo della sparse-matrix, ad esempio se abbiamo un valore 3 alla riga 125 e alla colonna 450 possiamo scrivere:
+
+  ("125-450" 3)
+
+In altre parole, comprimiamo i dati memorizzando nella hash-map solo i valori della matrice diversi da zero.
+
+Scriviamo le funzioni di base per la gestione di una sparse.matrix con una hash-map.
+
+Funzione per creare una sparse-matrix vuota:
+
+(define (sm-new sm-str matrix)
+    ; create sparse matrix as hash-table
+    (new Tree (sym sm-str)))
+    ;((eval (sym sm-str)) (string row "-" col) (list row col))
+
+(sm-new "test")
+(test)
+;-> ()
+
+Funzione per inserire o modificare o eliminare un valore in una sparse-matrix:
+
+(define (sm-set sm row col value)
+  (let (idx (string row "-" col))
+       (if (zero? value)
+           (sm idx nil)      ; delete value from sm
+           (sm idx value)))) ; add/modify value to sm
+
+(sm-set test 2 41 128)
+;-> 128
+(test)
+;-> (("2-41" 128))
+
+Se la chiave (row-col) non esiste, allora crea l'elemento (row-col value).
+Se la chiave (row-col) esiste allora aggiorna il valore.
+Se il valore vale 0 (zero), allora l'elemento viene eliminato.
+
+Nota: la funzione "sm-set" non controlla se row o col superano i limiti della matrice
+
+Funzione per recuperare un valore da una chiave (row-col):
+
+(define (sm-get sm row col)
+  (let (idx (string row "-" col))
+       (sm idx)))
+
+(sm-get test 3 4)
+;-> nil
+(sm-get test 2 41)
+;-> 128
+
+Funzione che copia una matrice in una sparse-matrix:
+
+(define (sm-init sm matrix)
+  (local (row col val)
+    (setq row (length matrix))
+    (setq col (length (matrix 0)))
+    (for (r 0 (- row 1))
+      (for (c 0 (- col 1))
+        (if (!= (setq val (matrix r c)) 0)
+            (sm (string r "-" c) val)
+        )
+      )
+    )
+    (sm)))
+
+(silent (setq m (array 1000 1000 '(0))))
+(setf (m 342 28) 1)
+(setf (m 213 672) 1)
+(setf (m 0 0) 1)
+(setf (m 912 421) 1)
+
+(sm-init test m)
+;-> (("0-0" 1) ("2-41" 128) ("213-672" 1) ("342-28" 1) ("912-421" 1))
+
+Vediamo meglio la funzione "sm-set":
+
+Aggiorna il valore di una chiave (row e col) esistente:
+
+(sm-set test 0 0 256)
+;-> 256
+(test)
+;-> (("0-0" 256) ("2-41" 128) ("213-672" 1) ("342-28" 1) ("912-421" 1))
+
+Elimina l'elemento con chiave (row-col) dalla sparse-matrix se il valore vale 0:
+
+(sm-set test 213 672 0)
+;-> nil
+(test)
+;-> (("0-0" 256) ("2-41" 128) ("342-28" 1) ("912-421" 1))
+
+Funzione per eliminare tutti gli elementi di una sparse-matrix:
+
+(define (sm-clear sm)
+  (map delete (symbols sm))
+  nil)
+
+(sm-clear test)
+;-> nil
+(test)
+;-> ()
+
+Funzione per eliminare una sparse-matrix:
+
+(define (sm-destroy sm)
+  (delete sm) (delete sm))
+
+(sm-destroy 'test)
+;-> true
+(test)
+;-> ERR: invalid function : (test)
+
+Vediamo alcuni confronti tra una matrice e la relativa sparse-matrix:
+
+Creiamo una nuova sparse-matrix:
+(sm-new "demo")
+
+Creiamo una matrice con alcuni valori:
+(silent (setq m (array 1000 1000 '(0))))
+(setf (m 342 28) 1)
+(setf (m 213 672) 1)
+(setf (m 0 0) 1)
+(setf (m 912 421) 1)
+
+Inizializziamo la sparse-matrix:
+(sm-init demo m)
+;-> (("0-0" 1) ("213-672" 1) ("342-28" 1) ("912-421" 1))
+
+Sommiamo tutti i valori della matrice:
+(apply add (flat (array-list m)))
+;-> 4
+
+Sommiamo tutti i valori della sparse-matrix:
+(apply add (map last (demo)))
+;-> 4
+
+Vediamo i tempi di esecuzione:
+
+(time (apply add (flat (array-list m))) 100)
+;-> 3209.517
+
+(time (apply add (map last (demo))) 100)
+;-> 0
+
+Con 1000000 di elementi nella matrice e 4 elementi nella sparse-matrix era ovvio che la sommatoria sarebbe stata più veloce nel secondo caso.
+Vediamo allora il caso in cui le due strutture contengono lo stesso numero di elementi.
+
+Creiamo una nuova sparse-matrix:
+
+(sm-new "demo1")
+;-> (demo1)
+
+Creiamo una matrice con alcuni valori:
+
+(silent (setq m1 (array 1000 1000 '(1))))
+
+Inizializziamo la sparse-matrix:
+
+(silent (sm-init demo1 m1))
+(length (demo1))
+;-> 1000000
+
+Sommianmo tutti i valori e vediamo i tempi di esecuzione in entrambi i casi:
+
+(apply add (flat (array-list m1)))
+;-> 1000000
+
+(apply add (map last (demo1)))
+;-> 1000000
+
+(time (apply add (flat (array-list m1))) 100)
+;-> 5881.547
+
+(time (apply add (map last (demo1))) 100)
+;-> 85486.121
+
+In questo caso la sparse-matrix è molto più lenta. Quindi esiste un limite superiore al numero degli elementi non-nulli della matrice affinchè la sparse-matrix relativa risulti conveniente.
+Se i tempi fossero lineari (direttamente proporzionali) con il numero degli elementi, allora potremmo calcolare tale limite nel modo seguente:
+
+Tempo per processare un elemento nella matrice
+(div 5188 1e6)
+;-> 0.005188
+
+Tempo per processare un elemento nella sparse-matrix
+
+(div 85486 1e6)
+;-> (0.085486)
+
+Quindi nel tempo necessario alla matrice di processare tutti gli elementi (5188) la sparse-matrix processa circa 60688 elementi:
+
+(div 5188 0.085486)
+;-> 60688.29983857006
+
+Vediamo di verificare questo limite superiore con una matrice che ha 60688 elementi non-nulli.
+
+Creiamo una nuova sparse-matrix:
+
+(sm-new "demo2")
+;-> (demo2)
+
+Creiamo una matrice 250*250 = 62500 valori non-nulli:
+
+(silent (setq m2 (array 1000 1000 '(0))))
+(for (i 0 249) (for (j 0 249) (setf (m2 i j) 1)))
+(count '(1) (flat (array-list m2)))
+;-> (62500)
+
+Inizializziamo la sparse-matrix:
+
+(silent (sm-init demo2 m2))
+(length (demo2))
+;-> 62500
+
+Sommianmo tutti i valori e vediamo i tempi di esecuzione in entrambi i casi:
+
+(apply add (flat (array-list m2)))
+;-> 62500
+
+(apply add (map last (demo2)))
+;-> 62500
+
+(time (apply add (flat (array-list m2))) 100)
+;-> 3545.95
+
+(time (apply add (map last (demo2))) 100)
+;-> 1304.68
+
+In questo caso la sommatoria della sparse-matrix è quasi 3 volte più veloce.
+
+Proviamo con una matrice che ha 100000 elementi non-nulli.
+
+Creiamo una nuova sparse-matrix:
+
+(sm-new "demo3")
+;-> (demo3)
+
+Creiamo una matrice 316*316 = 99856 valori non-nulli:
+
+(silent (setq m3 (array 1000 1000 '(0))))
+(for (i 0 315) (for (j 0 315) (setf (m3 i j) 1)))
+(count '(1) (flat (array-list m3)))
+;-> (99856)
+
+Inizializziamo la sparse-matrix:
+
+(silent (sm-init demo3 m3))
+(length (demo3))
+;-> 99856
+
+Sommiamo tutti i valori e vediamo i tempi di esecuzione in entrambi i casi:
+
+(apply add (flat (array-list m3)))
+;-> 99856
+
+(apply add (map last (demo3)))
+;-> 99856
+
+(time (apply add (flat (array-list m3))) 100)
+;-> 3944.996
+
+(time (apply add (map last (demo3))) 100)
+;-> 2883.198
+
+Anche in questo caso la sommatoria della sparse-matrix è più veloce.
+
+Anche se il tempo di esecuzione non è proprio lineare con il numero degli elementi possiamo concludere che la sparse-matrix è conveniente in termini di velocità quando il numero di elementi non-nulli è inferiore al 10% di tutti gli elementi della matrice.
+
+Per maggior rigore il confronto di velocità tra le due strutture dovrebbe essere effettuato dopo aver sviluppato e tenuto conto anche le altre operazioni sulle matrici:
+
+  1) Addizione di uno scalare
+  2) Addizione e Sottrazione di matrici
+  3) Moltiplicazione tra matrici
+  4) Trasposta di una matrice
+  5) Inversa di una matrice
+  6) Determinante di una matrice
+  7) ecc.
 
 =============================================================================
 
