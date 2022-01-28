@@ -1526,7 +1526,7 @@ Proviamo la funzione:
 Una soluzione più efficiente è quella di iniziare dal secondo elemento della lista e incrementare l'indice di 2 ad ogni passo del ciclo. Se il precedente elemento è maggiore dell'elemento corrente, allora scambiare gli elementi. Allo stesso modo, se l'elemento successivo è maggiore dell'elemento corrente, scambiare gli elementi. Alla fine del ciclo, otterremo la lista nella forma voluta.
 
 Complessita temporale: O(n)
-Complessita spaziale: O(n)
+Complessita spaziale: O(1)
 
 (define (h-l lst)
   ; inizia dal secondo elemento e incrementa l'indice
@@ -1768,7 +1768,9 @@ Funzione per eliminare una sparse-matrix:
 Vediamo alcuni confronti tra una matrice e la relativa sparse-matrix:
 
 Creiamo una nuova sparse-matrix:
+
 (sm-new "demo")
+;-> (demo)
 
 Creiamo una matrice con alcuni valori:
 (silent (setq m (array 1000 1000 '(0))))
@@ -1866,7 +1868,7 @@ Inizializziamo la sparse-matrix:
 (length (demo2))
 ;-> 62500
 
-Sommianmo tutti i valori e vediamo i tempi di esecuzione in entrambi i casi:
+Sommiamo tutti i valori e vediamo i tempi di esecuzione in entrambi i casi:
 
 (apply add (flat (array-list m2)))
 ;-> 62500
@@ -1929,6 +1931,161 @@ Per maggior rigore il confronto di velocità tra le due strutture dovrebbe esser
   5) Inversa di una matrice
   6) Determinante di una matrice
   7) ecc.
+
+
+------------------------
+Perchè (-) × (-) = (+) ?
+------------------------
+
+A scuola abbiamo imparato che "meno per meno = più", cioè (-) × (-) = (+).
+Ma perchè?
+
+La moltiplicazione gode della proprietà commutativa:
+
+  5 × 4 (volte) = 5 × 4 = 20
+  4 × 5 (volte) = 4 × 5 = 20
+
+Ma cosa accade con i numeri negativi?
+
+Nel caso in cui solo il primo moltiplicando è negativo:
+
+  -3 × 4 (volte) = -3 × 4 = -12
+
+Questo risultato deriva dal fatto che una moltiplicazione è una somma ripetuta, cioè -3 ripetuto 4 volte:
+
+  (-3) + (-3) + (-3) + (-3) = -12
+
+Il caso in cui solo il secondo moltiplicando è negativo è più strano.
+
+  3 × -4 (volte) = 3 × -4 = -12
+  
+Cosa significa ripetere il 3 per -4 volte?
+
+Questo dilemma viene aggirato utilizzando la proprietà commutativa della moltiplicazione:
+
+  3 × -4 (volte) = -4 × 3 (volte) = -4 × 3 = (-4) + (-4) + (-4) = -12
+
+Adesso incontriamo il caso finale dove entrambi i moltiplicandi sono negativi:
+
+  -3 × -4 (volte) =
+
+Cosa significa sommare una quantità negativa un numero negativo di volte?
+
+Prima di rispondere vediamo le proprietà della moltiplicazione:
+
+  Proprietà Commutativa:             a × b = b × a
+  
+  Proprietà Associativa:             (a × b) × c = a × (b × c)
+  
+  Esistenza Elemento neutro:         a × 1 = a
+  
+  Esistenza Elemento assorbente:     a × 0 = 0
+  
+  Distributiva rispetto addizione:   a × (b + c) = a × b + a × c
+
+Il trucco consiste nell'utilizzare la proprietà dell'esistenza dell'elemento assorbente e la proprietà distributiva della moltiplicazione rispetto all'addizione. Prendiamo un numero negativo qualunque (es. -6) e moltiplichiamolo per una quantità nulla (es. [2 + (-2)] = 0):
+
+  -6 × [2 + (-2)] =
+  
+Risolviamo questa operazione in due modi
+1) non applico la proprietà distributiva
+
+  -6 × 0 = 0
+
+2) applico la proprietà distributiva
+
+  (-6 × 2) + (-6) × (-2) = 
+  
+  = -12 + (-6) × (-2) = 0
+  
+Poichè il risultato deve valere 0, allora la quantità (-6) × (-2) deve valere -12. 
+
+Quindi possiamo concludere che:
+
+  (-) × (-) = (+)
+
+Nota: più che una dimostrazione sembra di aver trovato il risultato per esclusione di tutti gli altri casi possibili (tipo Sherlock Holmes: "Quando hai escluso l’impossibile ciò che resta, per quanto improbabile, è la verità").
+
+
+---------------------------------
+Perchè newLISP indicizza da zero?
+---------------------------------
+
+Sebbene la maggior parte dei programmatori ci sia abituata, non tutti conoscono perché nella maggior parte dei linguaggi di programmazione è stata scelta l'indicizzazione di liste/vettori che inizia da 0 (0-based). Comunque esistono anche importanti linguaggi che indicizzano partendo da 1 (es. fortran, octave, lua, mathematica, ecc.).
+
+Su questo argomento profondo e pratico allo stesso tempo hanno discusso parecchi informatici. In particolare è interessante l'articolo di Dijkstra "Why numbering should start at zero":
+(https://www.cs.utexas.edu/users/EWD/ewd08xx/EWD831.PDF)
+
+Se vogliamo rappresentare i numeri naturali da 2 a 10, abbiamo quattro possibilità (dove "[" e "]" significano intervallo "chiuso" (cioè valore compreso nell'intervallo), mentre "(" e ")" significano intervallo "aperto" (cioè valore non compreso nell'intervallo):
+
+a) 2 <= i <  10  ==>  [2, 10)  ==>  2 3 4 5 6 7 8 9
+b) 2 <  i <= 10  ==>  (2, 10]  ==>  3 4 5 6 7 8 9 10
+c) 2 <= i <= 10  ==>  [2, 10]  ==>  2 3 4 5 6 7 8 9 10
+d) 2 <  i <  10  ==>  (2, 10)  ==>  3 4 5 6 7 8 9
+
+Ci sono ragioni per preferire una delle quattro rappresentazioni?
+Certamente:
+1) nelle forme a) e b) la differenza tra il limite superiore (10) e il limite inferiore (2) rappresenta il numero di elementi (8).
+2) Inoltre in due liste adiacenti il limite inferiore della seconda lista è uguale al limite superirore della prima lista.
+3) Per scegliere tra a) e b) occorre notare che la sequenza generata da b) parte da 3 ed esclude il 2 iniziale, che non è quello che ci si aspetta.
+
+Se diamo per vere queste 3 motivazioni possiamo notare che se una lista di N elementi viene indicizzata a partire da 0, allora gli indici validi sono rappresentati dall'intervallo semi-aperto [0, N).
+
+Utilizzare l'intervallo semi-aperto [0, N) è comodo nella maggior parte dei casi:
+
+A) Per memorizzare una lista/vettore bidimensionale (es. un'immagine) utilizzando l'indicizzazione 0-based l'elemento alla riga "i" e colonna "j" si trova all'indice (Col * i) + j, mentre con indicizzazione 1-based lo stesso elemento si trova all'indice (Col * (i - 1)) + j. Nel caso di liste/vettori multidimensionali il vantaggio è ancora maggiore.
+
+B) Usando l'indicizzazione basata su 0, scriviamo la formula per trovare l'elemento centrale di una lista/vettore. Se calcoliamo l'indice centrale con la formula (floor (div (length list) 2)), questo dividerà la lista in due parti, sinistra e destra, ciascuna con una lunghezza pari ad almeno (- (floor (div (length list) 2)) 1).
+La parte sinistra avrà sempre tale dimensione e non includerà l'elemento centrale.
+La parte destra inizierà dall'elemento centrale e avrà la stessa dimensione se il numero totale di elementi della lista è pari o avrà un elemento in più se è dispari.
+
+C) Scriviamo una tabella hash che associa ogni numero intero (come chiave) ad uno di N slot. Se la lista degli slot è indicizzata a partire da 0, possiamo scrivere slot = chiave mod N, ma se è indicizzato a partire da 1, dobbiamo scrivere slot = (chiave mod N) + 1.
+
+D) Supponiamo di voler inserire le lettere da "A" a "Z" in una lista di lunghezza 26 e con la funzione "char"  che associa un carattere al suo valore ASCII. Con liste 0-based, il carattere "c" viene inserito all'indice  (- (char c) (char "A")), mentre con liste 1-based il carattere viene inserito all'indice (+ 1 (- (char c) (char "A"))).
+
+Dal punto di vista storico il linguaggio più vecchio e importante che usa l'indicizzazione 0-based è il C.
+Questo perchè in C un vettore non è altro che una scorciatoia per utilizzare l'aritmetica dei puntatori. Un riferimento all'indice dell'array è intercambiabile con l'aritmetica del puntatori.
+Quando dichiariamo un vettore/array:
+
+int a[10];
+
+"a" sta effettivamente memorizzando l'indirizzo di memoria del primo elemento dell'array.
+
+Il valore del primo elemento è accessibile tramite il puntatore:
+  *(a)
+
+Se vogliamo accedere al secondo elemento incrementiamo di un passo il puntatore:
+  *(a+1)
+
+All'interno del compilatore, a[1] e *(a+1) sono equivalenti. Quindi vediamo, se iniziamo a contare gli indici dell'array da 0, possiamo accedere facilmente agli elementi. Se invece dovessimo iniziare a contare da 1 allora per accedere al primo elemento dovremmo scrivere *(a+1-1) poiché la posizione del primo elemento è a se stesso (cioè richiede una sottrazione aggiuntiva).
+
+Nota: un puntatore *(n) restituisce semplicemente il valore memorizzato nella posizione della memoria 'n'.
+
+Dal punto di vista concettuale il problema deriva dal pensare all'indice come a un numero ordinale.
+Per esempio, "primo" elemento è in a[1].
+Invece dovremmo pensare all'indice come a un offset dall'inizio.
+Per esempio, il "primo" elemento è si trova ad una distanza pari a zero dall'inizio, cioè a[0].
+Quindi, per i linguaggi 0-based è comodo pensare in termini di offset, non di numeri ordinali.
+
+Il concetto di offset nasce da come vengono immagazzinati i dati del vettore nelle celle della memoria: un offset zero si posiziona all'inizio dell'array e aumentandolo si sposta dal punto iniziale. In altre parole, l'offset è la distanza dal primo elemento (il primo elemento è a distanza zero dall'inizio).
+
+  ordinale:   1   2   3         N
+            +---+---+---+     +---+
+            | a | b | c | ... | z |
+            +---+---+---+     +---+
+  offset:   0   1   2   3   (N-1)
+
+Comunque, anche senza l'analogia con la disposizione dei dati in memoria, il metodo 0-based è preferibile perchè semplifica la scrittura di molti algoritmi.
+
+Nota: la notazione della matematica è 0-based.
+
+Un altra considerazione è che con un linguaggio 0-based possiamo simulare il comportamento di un linguaggio 1-based: infatti possiamo semplicemente allocare l'array in modo che abbia dimensione N + 1 e non usare l'elemento all'indice 0. Il contrario, cioè simulare un comportamento 0-based con un linguaggio 1-based, non è così semplice. Quindi, possiamo concludere che partire da 0 è la scelta corretta (anche se la linguaggio permette di specificare il punto di partenza, il valore 0 dovrebbe essere il valore predefinito).
+
+Nota: il linguaggio Modula-2 (inventato dal Prof. Niklaus Wirth) consente di definire i limiti di inizio e fine di un array (per esempio, da -10 a +10), inoltre è possibile avere anche array indicizzati con tipi enumerati.
+
+Per finire ecco la risposta alla domanda del titolo:
+
+newLISP è 0-based perchè deriva dal LISP (ed è scritto in C).
 
 =============================================================================
 

@@ -1046,6 +1046,8 @@ NOTE LIBERE 7
   Disporre i numeri di una lista nella forma: basso->alto->basso
   Poker d'Assi
   Sparse-matrix
+  Perchè (-) × (-) = (+) ?
+  Perchè newLISP indicizza da zero?
   
 APPENDICI
 =========
