@@ -1048,6 +1048,8 @@ NOTE LIBERE 7
   Sparse-matrix
   Perchè (-) × (-) = (+) ?
   Perchè newLISP indicizza da zero?
+  Encode e decode URL
+  Divisione di due polinomi
   
 APPENDICI
 =========
@@ -1081,7 +1083,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (205 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (206 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================

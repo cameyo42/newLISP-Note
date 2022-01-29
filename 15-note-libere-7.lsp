@@ -2087,5 +2087,94 @@ Per finire ecco la risposta alla domanda del titolo:
 
 newLISP è 0-based perchè deriva dal LISP (ed è scritto in C).
 
+
+-------------------
+Encode e decode URL
+-------------------
+
+(define (url-encode s) (replace "([^a-zA-z0-9\-_\.~])" s (format "%%%X" (char $1)) 0))
+
+(define (url-decode s) (replace "%([0-9A-F][0-9A-F])" s (char (int $1 0 16)) 0))
+
+(url-encode "http://www.newlispfanclub.alh.net/forum/")
+;-> "http%3A%2F%2Fwww.newlispfanclub.alh.net%2Fforum%2F"
+(url-decode (url-encode "http://www.newlispfanclub.alh.net/forum/"))
+;-> "http://www.newlispfanclub.alh.net/forum/"
+
+
+-------------------------
+Divisione di due polinomi
+-------------------------
+
+Dati due polinomi, calcolare la loro divisione.
+Supponiamo che i polinomi siano rappresentati come liste con la seguente struttura:
+
+f(x) = a0 + a1*x + a2*x^2 + ... + an*x^n
+
+lista = (a0 a1 a2 ... an)
+
+(define (div-poly p1 p2)
+  (local (res normalizer coef)
+    ; l'algoritmo polynomial synthetic division
+    ; funziona con i polinomi rappresentati inversamente
+    (reverse p1)
+    (reverse p2)
+    ; copia del dividendo
+    (setq res p1)
+    (setq normalizer (p2 0))
+    (for (i 0 (- (length p1) (- (length p2) 1) 1))
+      ; per la divisione polinomiale generale (quando i polinomi non sono monomi)),
+      ; dobbiamo normalizzare dividendo il coefficiente per il primo coefficiente del divisore
+      (setf (res i) (div (res i) normalizer))
+      (setq coef (res i))
+      (if (!= coef 0) ; inutile moltiplicare per coef = 0
+          ; Saltiamo il primo coefficiente del divisore perchè
+          ; serve soltanto a normalizzare i coefficienti del dividendo
+          (for (j 1 (- (length p2) 1))
+            ; La lista res contiene sia il quoziente che il resto
+            ; Il resto ha la stessa dimensione/grado del divisore perchè
+            ; è quello che non possiamo dividere dal dividendo
+            (setf (res (+ i j)) (sub (res (+ i j)) (mul (p2 j) coef)))
+          )
+      )
+    )
+    ; calcolo della posizione/indice che divide 
+    ; la lista res in quoziente e resto
+    (setq separator (- (length res) (- (length p2) 1)))
+    (list (reverse (slice res 0 separator)) (reverse (slice res separator)))))
+
+Proviamo con la seguente divisione: 
+
+  (x^3 - 12*x*x - 42) / (x - 3)
+
+Il cui risultato vale:
+
+  x^3 - 12*x^2 - 42 = (x^2 - 9*x - 27)*(x - 3) - 123
+
+(div-poly '(-42 0 -12 1) '(-3 1))
+;-> ((-27 -9 1) (-123))
+
+quoziente = - 27 - 9*x + x^2 = x^2 - 9*x - 27
+resto = -123
+
+Proviamo un'altra divisione:
+
+  (6*x^7 - 14*x^6 + 4*x^5 - 14*x^4 + 16*x^3 - 44*x^2 + 26*x + 20)
+  --------------------------------------------------------------- = 
+            (3*x^5 - x^4 + 3*x^3 - 2*x^2 + 7*x - 10)
+
+  = (2*x^2 - 4*x - 2)
+
+(div-poly '(20 26 -44 16 -14 4 -14 6) '(-10 7 -2 3 -1 3))
+;-> ((-2 -4 2) (0 0 0 0 0))
+
+oppure
+
+(div-poly (reverse '(6 -14 4 -14 16 -44 26 20)) (reverse '(3 -1 3 -2 7 -10)))
+;-> ((-2 -4 2) (0 0 0 0 0))
+
+quoziente = - 2 - 4*x + 2*x^2 = 2*x^2 - 4*x - 2
+resto = 0
+
 =============================================================================
 
