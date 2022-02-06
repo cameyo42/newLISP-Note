@@ -4192,6 +4192,36 @@ Vediamo la differenza tra le due funzioni:
 (sub (harmonic-f 50) (harmonic 50))
 ;-> -3.333200025412708e-005
 
+Calcoliamo la Costante di Eulero-Mascheroni (gamma):
+
+                   ∞
+  gamma = (ln n) - ∑(1/n)
+                   n=1
+
+(define (gamma n)
+  (let (sum 0)
+    (for (i 1 n)
+      (setq sum (add sum (div i)))
+    )
+    (sub sum (log n))))
+
+(gamma 100)
+;-> 0.5822073316515288
+(gamma 1e5)
+;-> 0.5772206648931064
+(gamma 1e6)
+;-> 0.5772161649007153
+(gamma 1e7)
+;-> 0.5772157148989514
+(gamma 1e8)
+;-> 0.5772156699001876
+(gamma 1e9)
+;-> 0.5772156654021394
+(gamma 1e10)
+;-> 0.577215665057043
+Valore reale:
+    0.57721566490153286060651209008240243104215933593992...
+
 
 --------------------
 Raccolta di figurine

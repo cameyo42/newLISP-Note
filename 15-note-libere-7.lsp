@@ -1278,7 +1278,7 @@ In questo caso dovremmo prima verificare se la chiave esiste e poi, eventualment
 alst
 ;-> ((1 "aa") (3 "f") (6 "new") (-1 "xyz"))
 
-Nota: per utilizzare una lista associativa conme parametro delle funzioni "update" e "remove" occorre utilizzare i funtori dei contesti come contenitori delle liste (es. (setq alst:alst '(1 "a") (3 "f"))). In questo modo le liste vengono passate per riferimento e non per valore.
+Nota: per utilizzare una lista associativa conme parametro delle funzioni "update" e "remove" occorre utilizzare i funtori dei contesti come contenitori delle liste (es. (set 'alst:alst '((1 "a") (3 "f")))). In questo modo le liste vengono passate per riferimento e non per valore.
 
 From StackOverflow: modifying association list
 ----------------------------------------------
@@ -2117,6 +2117,7 @@ lista = (a0 a1 a2 ... an)
   (local (res normalizer coef)
     ; l'algoritmo polynomial synthetic division
     ; funziona con i polinomi rappresentati inversamente
+    ; rispetta alla nostra scelta
     (reverse p1)
     (reverse p2)
     ; copia del dividendo
@@ -2175,6 +2176,238 @@ oppure
 
 quoziente = - 2 - 4*x + 2*x^2 = 2*x^2 - 4*x - 2
 resto = 0
+
+
+----------------
+Coda di priorità
+----------------
+
+Una coda di priorità (Priority Queue) è un tipo di dati astratto simile a una coda, tuttavia, nella coda di priorità, ogni elemento ha una priorità. La priorità degli elementi determina l'ordine in cui gli elementi vengono rimossi dalla coda di priorità. Pertanto tutti gli elementi sono disposti in ordine crescente o decrescente.
+
+Quando due elementi diversi hanno la stessa priorità ci sono diveri modi per trattare il problema:
+
+1) uno solo degli elementi viene mantenuto 
+  1a) un elemento eliminato casualmente
+  1b) vecchio elemento eliminato
+  1c) nuovo elemento eliminato
+
+2) vengono mantenuti entrambi gli elementi
+  2a) estratti casualmente
+  2b) estratti in base all'ordine FIFO (First In First Out)
+  2c) estratti in base ad altro criterio
+
+L'implementazione seguente mantiene un solo elemento, quello nuovo (cioè quello che viene inserito per ultimo).
+Utilizziamo una hash-map per simulare una coda di priorità, dove la chiave della hash-map rappresenta la priorità della coda e il valore rappresenta l'elemento della coda:
+
+               key = priority
+               value = element
+  (hash key value) ==> (hash priority element)
+
+  Item of priority queue ==> (priority element)
+
+Elenco delle funzioni standard di una coda di priorità:
+
+1) pq_create (creates a priority queue)
+2) pq_destroy (destroy a priority queue)
+3) pq_push (insert an item (priority element))
+4) pq_max (return element with highest priority)
+5) pq_min (return element with lowest priority)
+6) pq_pop_max (extract element (and delete item) with highest priority)
+7) pq_pop_min (extract element (and delete item) with lowest priority)
+8) pq_length (length of priority queue)
+
+Funzione per creare una coda di priorità:
+
+(define (pq_create pq)
+  (new Tree (sym pq)))
+
+(pq_create 'test)
+;-> test
+
+Funzione per eliminare una coda di priorità:
+
+(define (pq-destroy pq)
+  (delete pq) (delete pq))
+
+Funzione per inserire un item (priority element) in una coda di priorità:
+
+(define (pq_push pq prior value)
+  (pq prior value))
+
+(pq_push test 3 "Nagarjuna")
+(pq_push test 2 "newLISP")
+(pq_push test 4 "LISP")
+(pq_push test 1 "Luna")
+(test)
+;-> (("1" "Luna") ("2" "newLISP") ("3" "Nagarjuna") ("4" "LISP"))
+
+Funzione per vedere l'elemento con priorità massima:
+
+(define (pq_max pq)
+  (last (first (pq))))
+
+(pq_max test)
+;-> "Luna"
+
+Funzione per vedere l'elemento con priorità minima:
+
+(define (pq_min pq)
+  (last (last (pq))))
+
+(pq_min test)
+;-> "LISP"
+
+Funzione per estrarre l'elemento con priorità massima:
+
+(define (pq_pop_max pq)
+  (local (lst item element priority) 
+    (setq lst (pq))
+    (setq item (first lst))
+    (setq element (last item))
+    (setq priority (first item))
+    (pq priority nil)
+    element))
+
+(pq_pop_max test)
+;-> "Luna"
+(test)
+;-> (("2" "newLISP") ("3" "Nagarjuna") ("4" "LISP"))
+
+Funzione per estrarre l'elemento con priorità minima:
+
+(define (pq_pop_min pq)
+  (local (lst item element priority) 
+    (setq lst (pq))
+    (setq item (last lst))
+    (setq element (last item))
+    (setq priority (first item))
+    (pq priority nil)
+    element))
+
+(pq_pop_min test)
+;-> "LISP"
+(test)
+;-> (("2" "newLISP") ("3" "Nagarjuna"))
+
+Sembra che tutto stia andando bene, ma abbiamo un problema causato dai seguenti comportamenti:
+- una hash-map è sempre ordinata in ordine lessicografico.
+- la chiave di ogni coppia di una hash-map è sempre una stringa
+
+Questo vuol dire che i valori di priorità sono stringhe e non seguono l'ordinamento naturale dei numeri. Per esempio inseriamo un item con priorità "22" e poi visualizziamo la coda di priorità:
+
+(pq_push test 22 "dove")
+;-> "dove"
+(test)
+;-> (("2" "newLISP") ("22" "dove") ("3" "Nagarjuna"))
+
+L'item ("22" "dove") non si trova all'ultimo posto (22 > 3) perchè nell'ordine lessicografico la stringa "22" viene prima della stringa "3".
+
+Quindi la nostra coda di priorità simulata con una hash-map funziona con priorità ordinate in modo lessicografico (e questo la rende poco utilizzabile).
+
+Proviamo ad implementare una coda di priorità con una lista associativa:
+
+  ((priorità1 elemento1) (priorità2 elemento2) ... (prioritàN elementoN))
+
+Funzione per la creazione di una lista (associativa) vuota:
+
+(define (la_create cp)
+  (set (sym cp cp) '()))
+
+(la_create 'lst)
+;-> ()
+lst:lst
+;-> ()
+
+Nota: la lista definita è il funtore di default del contesto creato (in questo caso "lst").
+
+Funzione per l'eliminazione di una lista (associativa):
+
+(define (la_destroy cp)
+  (delete cp))
+
+(la_destroy 'lst:lst)
+;-> true
+lst:lst
+;-> nil
+
+Funzione per l'inserimento di un item (priorità elemento):
+
+(define (la_push cp priority element)
+  (push (list priority element) cp)
+  (sort cp))
+
+(la_push lst 3 "Nagarjuna")
+(la_push lst 2 "newLISP")
+(la_push lst 4 "LISP")
+(la_push lst 1 "Luna")
+lst:lst
+;-> ((1 "Luna") (2 "newLISP") (3 "Nagarjuna") (4 "LISP"))
+
+Funzione per vedere l'elemento con priorità massima:
+
+(define (la_max cp)
+  (last (first cp)))
+
+(la_max lst)
+;-> "Luna"
+
+Funzione per vedere l'elemento con priorità minima:
+
+(define (la_min cp)
+  (last (last cp)))
+
+(la_min lst)
+;-> "LISP"
+
+Funzione per estrarre l'elemento con priorità massima:
+
+(define (la_pop_max cp)
+    (last (pop cp)))
+
+(la_pop_max lst)
+;-> "Luna"
+lst:lst
+;-> ((2 "newLISP") (3 "Nagarjuna") (4 "LISP"))
+
+Funzione per estrarre l'elemento con priorità minima:
+
+(define (la_pop_min cp)
+    (last (pop cp -1)))
+
+(la_pop_min lst)
+;-> "LISP"
+lst:lst
+;-> ((2 "newLISP") (3 "Nagarjuna"))
+
+Funzione per calcolare la lughezza di una lista associativa:
+
+(define (la_length cp)
+  (length cp))
+
+(length lst)
+;-> 3
+
+Inseriamo un item con priorità 22:
+
+(la_push lst 22 "dove")
+;-> ((2 "newLISP") (3 "Nagarjuna") (22 "dove"))
+
+Adesso l'ordinamento delle priorità è quello numerico.
+
+Per quanto riguarda il problema degli item con la stessa priorità, viene estratto l'elemento che viene prima nell'ordinamento. Per esempio nel caso seguente l'elemento "dove" viene prima di "quando":
+
+(la_push lst 22 "quando")
+;-> ((2 "newLISP") (3 "Nagarjuna") (22 "dove") (22 "quando"))
+
+Nel caso seguente i numeri (123) vengono prima delle stringhe ("dove" e "quando").
+
+(la_push lst 22 123)
+;-> ((2 "newLISP") (3 "Nagarjuna") (22 123) (22 "dove") (22 "quando"))
+
+Nota: negli esempi visti abbiamo definito la variabile lst:lst come una lista che simula la coda di priorità. Non possiamo utilizzare un simbolo/variabile con il nome "lst" perchè "lst:lst" rappresenta il simbolo "lst" nel contesto "lst" (ed è protetto). Per esempio:
+
+(setq lst 10)
+;-> ERR: symbol is protected in function setf : lst
 
 =============================================================================
 

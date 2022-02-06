@@ -4436,6 +4436,44 @@ Serie di Eulero:
 ;-> Iterazioni: 1000000  PI:   3.141591698661
 Valore reale pi greco:         3.141592653589
 
+Metodo di Montecarlo:
+
+Il metodo "Monte Carlo" è una stategia di risoluzione di problemi che utilizza la statistica: se la probabilità di un certo evento è P possiamo simulare in maniera casuale questo evento e ottenere il valore P con il calcolo delle probabilità:
+
+   numero di volte in cui si è verificato l'evento
+ ---------------------------------------------------
+            numero di simulazioni totali
+
+Nel calcolo di pi greco, data un cerchio di raggio unitario (1), esso può essere inscritto in un quadrato di raggio 2. Considerando soltanto il quadrante in alto a destra (cioè un quarto di cerchio) possiamo generare N numeri casuali all'interno del quadrato. Il numero di punti K che cadono nel cerchio diviso il numero totale dei numeri generati N (numero di simulazioni totali), dovrà approssimare l'area del cerchio e quindi pi/4.
+La formula per il calcolo di pi greco vale:
+
+ pi = 4 * K/N
+
+Maggiore sarà il numero di punti generati più precisa sarà l'approssimazione di pi greco.
+
+(define (f x y)
+  (if (<= (add (mul x x) (mul y y)) 1)
+      1
+      0))
+
+(define (pi iter)
+  (let (res 0)
+    (seed (time-of-day))
+    (for (i 1 iter)
+      ;(setq res (+ res (f (random) (random))))
+      (++ res (f (random) (random)))
+    )
+    (mul 4 (div res iter))))
+
+(pi 1e5)
+;-> 3.1446
+(pi 1e6)
+;-> 3.140644
+(pi 1e7)
+;-> 3.1410068
+(pi 1e8)
+;-> 3.14176444
+
 
 ---------------
 NUMERI DI LUCAS

@@ -6034,6 +6034,12 @@ Lista delle funzioni:
 "Lisp has jokingly been called: 'the most intelligent way to misuse a computer'. I think that description is a great compliment because it transmits the full flavor of liberation: it has assisted a number of our most gifted fellow humans in thinking previously impossible thoughts."
 - Edsger Dijkstra, CACM, 15:10
 
+"The competent programmer is fully aware of the strictly limited size of his own skull; therefore he approaches the programming task in full humility, and among other things he avoids clever tricks like the plague."
+- Edsger Dijkstra
+
+"Testing can show the presence of errors, but not their absence."
+- Edsger Dijkstra
+
 "Lisp isn't a language, it's a building material."
 - Alan Kay
 
@@ -6045,6 +6051,9 @@ Lista delle funzioni:
 
 "The only way to learn a new programming language is by writing programs in it."
 - Kernighan and Ritchie
+
+"Debugging is twice as hard as writing the code in the first place. Therefore, if you write the code as cleverly as possible, you are, by definition, not smart enough to debug it." 
+- Kernighan
 
 "Most languages in computer science describe how their author learned what someone else already developed."
 - unknown

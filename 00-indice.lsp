@@ -1050,6 +1050,7 @@ NOTE LIBERE 7
   Perchè newLISP indicizza da zero?
   Encode e decode URL
   Divisione di due polinomi
+  Coda di priorità
   
 APPENDICI
 =========
