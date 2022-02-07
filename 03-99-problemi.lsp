@@ -13,6 +13,7 @@ https://www.informatimago.com/develop/lisp/l99/index.html
 http://beta-reduction.blogspot.com/search/label/L-99%3A%20Ninety-Nine%20Lisp%20Problems
 
 In questo capitolo vengono risolti solo i primi 28 problemi relativi alla elaborazione di liste. Molti problemi successivi al numero 28 sono risolti in altri capitoli di questo documento e sono contrassegnati con il simbolo (+).
+In molti problemi vengono presentate due soluzioni, una in stile LISP e una in stile newLISP.
 
 Elenco problemi
 ---------------
@@ -117,7 +118,7 @@ Miscellaneous Problems (Problemi Vari)
 --------------------------------------
 N-99-90  Eight queens problem (+)
 N-99-91  Knight's tour (+)
-N-99-92  Von Koch's conjecture 
+N-99-92  Von Koch's conjecture
 N-99-93  An arithmetic puzzle
 N-99-94  Generate K-regular simple graphs with N nodes
 N-99-95  English number words (+)
@@ -176,6 +177,20 @@ N-99-02 Estrarre il penultimo elemento di una lista
 (penultimo '(1))
 ;-> nil
 
+Metodo newLISP: indicizzazione implicita e esplicita
+
+Indicizzazione implicita:
+(setq lst '(1 2 3))
+;-> (1 2 3)
+(lst -2)
+;-> 2
+(lst -4)
+;-> ERR: invalid list index
+
+Indicizzazione esplicita:
+(nth -2 lst)
+;-> 2
+
 
 =======================================================
 N-99-03 Estrarre il k-esimo elemento di una lista
@@ -205,8 +220,15 @@ Nota: il primo elemento della lista ha indice zero (zero-based index)
 (k-esimo '() 0)
 ;-> nil
 
-Funzione predefinita newLISP: (nth int-index lst)
+Metodo newLISP: indicizzazione implicita e esplicita
 
+Indicizzazione implicita:
+('(1 2 3 4 5) 4)
+;-> 5
+('(1 2 3 4 5) 6)
+;-> ERR: invalid list index
+
+Indicizzazione esplicita:
 (nth 4 '(1 2 3 4 5))
 ;-> 5
 
@@ -520,6 +542,14 @@ Esempio: (elimina-duplicati '(1 1 1 2 2 3 4 4 5 5 5 6 6 6)) ==> (1 2 3 4 5 6)
 (elimina-duplicati '(a a b b c c c))
 ;-> (a b c)
 
+Funzione predefinita newLISP: (unique lst)
+
+(unique '(1 1 1 2 2 3 4 4 5 5 5 6 6 6))
+;-> (1 2 3 4 5 6)
+
+(unique '(a a b b c c c))
+;-> (a b c)
+
 
 =======================================================
 N-99-09 Unire gli elementi duplicati consecutivi di una lista in sottoliste
@@ -553,6 +583,35 @@ N-99-09 Unire gli elementi duplicati consecutivi di una lista in sottoliste
 ;-> ((a a a a) (b) (c c) (a a) (d) (e e e e))
 
 (raggruppa '(a a))
+;-> ((a a))
+
+Metodo newLISP iterativo:
+
+(define (regroup lst)
+  (local (palo tmp out)
+    (setq palo nil)
+    (setq tmp '())
+    (setq out '())
+    (dolist (el lst)
+      (cond ((nil? palo)
+             (setq palo el)
+             (push el tmp)
+            )
+            ((= palo el) (push el tmp))
+            ((!= palo el)
+             (push tmp out -1)
+             (setq tmp (list el))
+             (setq palo el)
+            )
+      )
+    )
+    (push tmp out -1)
+    out))
+
+(regroup '(a a a a b c c a a d e e e e))
+;-> ((a a a a) (b) (c c) (a a) (d) (e e e e))
+
+(regroup '(a a))
 ;-> ((a a))
 
 
@@ -774,6 +833,22 @@ Esempio: (duplicare '(a b c c d)) ==> (a a b b c c c c d d)
 (duplicare '((a b) c (d (e))))
 ;-> ((a b) (a b) c c (d (e)) (d (e)))
 
+Metodo newLISP iterativo:
+
+(define (doppio lst)
+  (let (out '())
+    (dolist (el lst)
+      (push el out -1)
+      (push el out -1)
+    )
+  out))
+
+(doppio '(a b c))
+;-> (a a b b c c)
+
+(doppio '((a b) c (d (e))))
+;-> ((a b) (a b) c c (d (e)) (d (e)))
+
 
 =======================================================
 N-99-15 Replicare per n volte gli elementi di una lista
@@ -801,6 +876,31 @@ Esempio: (replica '(a b c) 3)  ==>  (a a a b b b c c c)
 (replica '((a) (b c) d) 2)
 ;-> ((a) (a) (b c) (b c) d d)
 
+Metodo newLISP iterativo:
+
+(define (k-volte lst k)
+  (let (out '())
+    (if (> k 0)
+        (dolist (el lst)
+            (for (i 1 k)
+              (push el out -1)
+            )
+        )
+    )
+  out))
+
+(k-volte '(a b c) 3)
+;-> (a a a b b b c c c)
+
+(k-volte '(a b c) 1)
+;-> (a b c)
+
+(k-volte '(a b c) 0)
+;-> ()
+
+(k-volte '((a) (b c) d) 2)
+;-> ((a) (a) (b c) (b c) d d)
+
 
 =======================================================
 N-99-16 Eliminare gli elementi da una lista per ogni k
@@ -808,12 +908,12 @@ N-99-16 Eliminare gli elementi da una lista per ogni k
 
 Esempio: (elimina-ogni '(a b c d e f g) 2) ==> (a c e g)
 
- (define (elimina-ogni lst k)
-   (define (helper lst k lst-orig)
-     (if (null? lst) '()
-       (if (= k 1) (helper (rest lst) lst-orig lst-orig)
-         (cons (first lst) (helper (rest lst) (- k 1) lst-orig)))))
-   (helper lst k k))
+(define (elimina-ogni lst k)
+  (define (helper lst k lst-orig)
+    (if (null? lst) '()
+      (if (= k 1) (helper (rest lst) lst-orig lst-orig)
+        (cons (first lst) (helper (rest lst) (- k 1) lst-orig)))))
+  (helper lst k k))
 
 (elimina-ogni '(a b c d e f g) 2)
 ;-> (a c e g)
@@ -825,6 +925,33 @@ Esempio: (elimina-ogni '(a b c d e f g) 2) ==> (a c e g)
 ;-> ()
 
 (elimina-ogni '(a b c d e f g) 0)
+;-> (a b c d e f g)
+
+Metodo newLISP iterativo:
+
+(define (del-k lst k)
+  (let (out '())
+    (if (> k 0)
+        (dolist (el lst)
+          (if (!= (% (+ $idx 1) k) 0)
+              (push el out -1)
+          )
+        )
+        ;else
+        (setq out lst)
+    )
+    out))
+
+(del-k '(a b c d e f g) 2)
+;-> (a c e g)
+
+(del-k '(a b c d e f g) 3)
+;-> (a b d e g)
+
+(del-k '(a b c d e f g) 1)
+;-> ()
+
+(del-k '(a b c d e f g) 0)
 ;-> (a b c d e f g)
 
 
@@ -847,7 +974,47 @@ La lunghezza della prima lista è un parametro.
 (divide-lista '(a b c d e f g h i k) 12)
 ;-> ((a b c d e f g h i k) ())
 
+(divide-lista '(a b c d e f g h i k) 0)
+;-> (() (a b c d e f g h i k))
+
 (divide-lista '() 3)
+;-> (() ())
+
+Metodo newLISP iterativo:
+
+(define (div-k lst k)
+  (local (one two out)
+    (setq one '())
+    (setq two '())
+    (setq out '())
+    (cond ((null? lst '())
+           (setq out (list '() '()))
+          )
+          ((zero? k)
+           (setq out (list '() lst))
+          )
+          (true
+            (dolist (el lst)
+              (if (< $idx k)
+                  (push el one -1)
+                  (push el two -1)
+              )
+            )
+            (setq out (list one two))
+          )
+    )
+    out))
+
+(div-k '(a b c d e f g h i k) 3)
+;-> ((a b c) (d e f g h i k))
+
+(div-k '(a b c d e f g h i k) 12)
+;-> ((a b c d e f g h i k) ())
+
+(div-k '(a b c d e f g h i k) 0)
+;-> (() (a b c d e f g h i k))
+
+(div-k '() 3)
 ;-> (() ())
 
 
@@ -898,6 +1065,24 @@ Se invece consideriamo che il primo elemento ha indice 0 (zero), basta modificar
 ;-> (a b)
 
 
+Funzione newLISP predefinita: (slice lst int-index [int-length])
+
+(define (get-val lst ind1 ind2)
+  (slice lst ind1 (+ (- ind2 ind1) 1)))
+
+(get-val '(a b c d e f g h i k) 3 7)
+;-> (d e f g h)
+
+(get-val '(a b c d e f g h i k) 3 3)
+;-> (d)
+
+(get-val '(a b c d e f g h i k) 0 1)
+;-> (a b)
+
+(get-val '(a b c d e f g h i k) 9 9)
+;-> (k)
+
+
 =======================================================
 N-99-19 Ruotare una lista di N posti a sinistra
 =======================================================
@@ -923,6 +1108,23 @@ N-99-19 Ruotare una lista di N posti a sinistra
 
 (ruota-lista '(a b c d e f g h) -2)
 ;-> (g h a b c d e f)
+
+Funzione newLISP predefinita: (rotate lst int-index [int-length])
+
+(define (rot-k lst k) (rotate lst (- k)))
+
+(rot-k '(a b c d e f g h) 3)
+;-> (d e f g h a b c)
+
+(rot-k '(a b c d e f g h) -2)
+;-> (g h a b c d e f)
+
+(setq lst '("a" "b" "c"))
+
+Nota: possiamo generare tutte le rotazioni di una lista con la seguente espressione:
+
+(map (fn (x) (rotate lst)) (sequence 1 (length lst)))
+;-> (("c" "a" "b") ("b" "c" "a") ("a" "b" "c"))
 
 
 =======================================================
@@ -950,6 +1152,26 @@ Il primo elemento della lista ha indice 0 (zero).
 
 (elimina-a '(a b c d e) 25)
 ;-> (a b c d e)
+
+Funzione newLISP predefinita: (pop lst [int-index-1 [int-index-2 ... ]])
+                              (pop lst [list-indexes])
+
+(define (wipe-k lst k) (pop lst k) lst)
+
+(wipe-k '(a b c d e) 2)
+;-> (a b d e)
+
+(wipe-k '(a b c d e) 0)
+;-> (b c d e)
+
+(wipe-k '(a b c d e) -2)
+;-> (a b c e) 
+
+Il risultato è differente perchè quando l'indice k è negativo, "pop" considera -1 l'indice dell'ultimo elemento, mentre "elimina-a" considera 0 l'indice dell'ultimo elemento (-1 il penultimo e cosi via).
+
+(wipe-k '(a b c d e) 25)
+;-> ERR: invalid list index in function pop
+;-> called from user function (wipe-k '(a b c d e) 25)
 
 
 =======================================================
@@ -986,6 +1208,37 @@ Esempio: (inserisci-a 'z '(a b c d) 2)  ==>  (a z b c d)
 (inserisci-a 'alfa '(a b c d) 1000)
 ;-> (a b c d)
 
+Funzione newLISP predefinita: (push expr lst [int-index-1 [int-index-2 ... ]])
+                              (push expr lst [list-indexes])
+
+(define (ins-k item lst k) (push item lst k lst))
+
+I risultati sono differenti per tre motivi:
+1) push indicizza partendo da 0.
+2) quando l'indice k è negativo, "push" considera -1 l'indice dell'ultimo elemento, mentre "inserisci-a" considera 0 l'indice dell'ultimo elemento (-1 il penultimo e cosi via).
+3) l'ultima funzione non controlla eventuali parametri errati.
+
+(ins-k 'alfa '(a b c d) 2)
+;-> (a b alfa c d)
+
+(ins-k 'alfa '(a b c d) -2)
+;-> (a b c alfa d)
+
+(ins-k 'alfa '(a b c d) 0)
+;-> (alfa a b c d)
+
+(ins-k 'alfa '() 2)
+;-> ERR: invalid list index in function push
+;-> called from user function (ins-k 'alfa '() 2)
+
+(ins-k 'alfa '() 1)
+;-> ERR: invalid list index in function push
+;-> called from user function (ins-k 'alfa '() 1)
+
+(ins-k 'alfa '(a b c d) 1000)
+;-> ERR: invalid list index in function push
+;-> called from user function (ins-k 'alfa '(a b c d) 1000)
+
 
 =======================================================
 N-99-22 Creare una lista che contiene tutti i numeri interi di un intervallo
@@ -1018,7 +1271,26 @@ Un altro metodo per la stessa funzione (gestisce anche intervalli decrescenti):
 ;-> (1 2 3 4 5 6 7 8 9 10)
 
 (range 10 2)
-(;-> (10 9 8 7 6 5 4 3 2)
+;-> (10 9 8 7 6 5 4 3 2)
+
+Funzione newLISP predefinita: (sequence num-start num-end [num-step])
+
+(define (sequenza start end step) 
+  (if step 
+      (sequence start end step)
+      (sequence start end)))
+
+(sequenza 1 10)
+;-> (1 2 3 4 5 6 7 8 9 10)
+
+(sequenza 10 2)
+;-> (10 9 8 7 6 5 4 3 2)
+
+(sequenza 10 2 2)
+;-> (10 8 6 4 2)
+
+(sequenza 10 2 -2)
+;-> (10 8 6 4 2)
 
 
 =======================================================
@@ -1118,7 +1390,8 @@ Usiamo la funzione di sistema "sequence" al posto della funzione utente "seq":
 (time (length (permutations '(0 1 2 3 4 5 6 7 8 9))))
 ;-> 18024.311 ; Strano: "sequence" è più lenta di "seq".
 
-Possiamo creare le permutazioni utilizzando l'algoritmo di Heap ( https://en.wikipedia.org/wiki/Heap%27s_algorithm ).
+Possiamo creare le permutazioni utilizzando l'algoritmo di Heap: https://en.wikipedia.org/wiki/Heap%27s_algorithm.
+
 Questo algoritmo produce tutte le permutazioni scambiando un elemento ad ogni iterazione.
 
 (define (perm lst)
@@ -1155,7 +1428,7 @@ Questo algoritmo produce tutte le permutazioni scambiando un elemento ad ogni it
 (time (length (perm '(0 1 2 3 4 5 6 7 8 9))))
 ;-> 3928.519
 
-Questa funzioni è la più veloce tra tutte quelle presentate.
+Questa funzione è la più veloce tra tutte quelle presentate.
 
 
 =======================================================

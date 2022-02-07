@@ -10436,8 +10436,10 @@ Vediamo alcuni esempi in newLISP:
 (define white-b "\027[0;97m")
 ; restore color to default
 (define reset-all "\027[39;49m")
+;(println reset-all)
 ; restore all to default
 (define default-all "\027[0;0m")
+;(println default-all)
 
 Definiamo una tabella con i 16 colori:
 

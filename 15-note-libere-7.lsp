@@ -2409,5 +2409,96 @@ Nota: negli esempi visti abbiamo definito la variabile lst:lst come una lista ch
 (setq lst 10)
 ;-> ERR: symbol is protected in function setf : lst
 
+
+------------------
+Triangoli eroniani
+------------------
+
+La formula di Erone per l'area di un triangolo data la lunghezza dei suoi tre lati a, b e c è data da:
+
+   Area = sqrt[S*(S-a)*(S-b)*(S-c)]
+  
+dove S è la metà del perimetro del triangolo:
+
+  S = (a+b+c)/2
+
+I "triangoli eroniani" sono triangoli i cui i lati e l'area sono tutti numeri interi (e quindi anche il perimetro). Un esempio è il triangolo di lati 3, 4, 5 la cui area è 6 (e il cui perimetro è 12).
+
+Notare che qualsiasi triangolo i cui lati sono tutti un multiplo intero di 3, 4, 5 (come 6, 8, 10) è un triangolo eroniano.
+
+Definiamo "triangolo eroniano primitivo" un triangolo eroniano in cui il massimo comune divisore di tutti e tre i lati è 1 (unità). Questo esclude, ad esempio, il triangolo 6, 8, 10.
+
+Scrivere una funzione che calcola tutti i triangoli primitivi eroniani con lati <= n.
+
+Funzione cha calcola l'area di un triangolo con la formula di Erone:
+
+(define (heron-area a b c)
+  (let (s (div (add a b c) 2))
+        (sqrt (mul s (sub s a) (sub s b) (sub s c)))))
+
+Per verificare se un numero x è un intero possiamo scrivere:
+
+(define (int? x) (zero? (mod x 1)))
+
+(int? 3)
+;-> true
+(int? 3.0)
+;-> true
+(int? 0.0)
+;-> true
+(int? 0.1)
+;-> nil
+(int? 10.0000001)
+;-> nil
+
+Attenzione, se il numero x è "molto prossimo" ad un intero, allora la funzione restituisce un risultato errato:
+
+(int? (add 1 1e-15))
+;-> nil ; corretto
+(int? (add 1 1e-16))
+;-> true ; errato
+
+(int? (add 10 1e-15))
+;-> nil ; corretto
+(int? (add 10 1e-16))
+;-> true ; errato
+
+(int? (add 100 1e-15))
+;-> true ; errato
+
+Funzione che verifica se un triangolo è eroniano:
+
+(define (heron? area)
+  (and (zero? (mod area 1)) (!= area 0)))
+
+Funzione per calcolare i triangoli eroniani con i lati <= n:
+
+(define (heronian n)
+  (local (out)
+    (setq out '())
+    (for (c 1 n)
+      (for (b 1 c)
+        (for (a 1 b)
+          (if (and (= (gcd a b c) 1) (heron? (heron-area a b c)) (> (+ c b) a))
+              ;(push (list a b c (+ a b c) (int (heron-area a b c))) out)
+              (push (list (int (heron-area a b c)) (+ a b c) a b c) out)
+          )
+        )
+      )
+    )
+    (sort out)))
+    
+Calcoliamo il numero di triangoli eroniani con lati <= 200:
+
+(length (setq h (heronian 200)))
+;-> 517
+
+Triangoli Eroniani con area = 210:
+
+(filter (fn(x) (= (first x) 210)) h)
+;-> ((210 70 17 25 28) (210 70 20 21 29) 
+;->  (210 84 12 35 37) (210 84 17 28 39) 
+;->  (210 140 7 65 68) (210 300 3 148 149))
+
 =============================================================================
 

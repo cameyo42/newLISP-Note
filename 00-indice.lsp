@@ -1051,6 +1051,7 @@ NOTE LIBERE 7
   Encode e decode URL
   Divisione di due polinomi
   Coda di priorità
+  Triangoli eroniani
   
 APPENDICI
 =========
