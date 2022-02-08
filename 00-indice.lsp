@@ -1052,7 +1052,9 @@ NOTE LIBERE 7
   Divisione di due polinomi
   Coda di priorità
   Triangoli eroniani
-  
+  Benchmark: passaggio per valore e passaggio per riferimento
+  Sort topologico
+
 APPENDICI
 =========
   Lista delle funzioni newLISP

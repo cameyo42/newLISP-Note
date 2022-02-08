@@ -6058,6 +6058,9 @@ Lista delle funzioni:
 "Most languages in computer science describe how their author learned what someone else already developed."
 - unknown
 
+"In order to understand recursion, one must first understand recursion."
+- anonymous
+
 "It is better to first strive for clarity and correctness and to make programs efficient only if really needed."
 - "Getting Started with Erlang" by Ericsson
 
@@ -6076,6 +6079,12 @@ Lista delle funzioni:
 "All profound and true things are simple. Complexity is vanity."
 - Lutz Mueller  (creator of newLISP)
 
+"Incorrect documentation is often worse than no documentation."
+- Bertrand Meyer
+
+"Correctness is clearly the prime quality. If a system does not do what it is supposed to do, then everything else about it matters little."
+- Bertrand Meyer
+
 "It pays to know the dark corners of your language."
 - unknown
 
@@ -6087,6 +6096,69 @@ Lista delle funzioni:
 
 " The true logic of this world is the calculus of probabilities."
 - James Clerk Maxwell
+
+"The value of a prototype is in the education it gives you, not in the code itself."
+- Alan Cooper
+
+"The most disastrous thing that you can ever learn is your first programming language."
+- Alan Kay
+
+"A programmer does not primarily write code. Rather, he primarily writes to another programmer about his problem solution. The understanding of this fact is the final step in his maturation as technician."
+- anonymous
+
+"A person without data is just another person with an opinion."
+- anonymous
+
+"Features, quality, time: pick two."
+- anonymous
+
+"User: this is not what we want. Programmer: maybe, but this is what you asked."
+- anonymous
+
+"LISP (newLISP) is like zen buddhism: if it doesn't solve your problems, you are not using enough of it."
+- cameyo
+
+"I love the purity of the impurity of newLISP"
+- cameyo
+
+"Perchè i governi non hanno mai tempo per fare le cose per bene, ma hanno sempre tempo per rifarle da capo?"
+- anonymous
+
+"Any non-trivial program contains at least one bug."
+- anonymous
+
+"99.9% of times the error was by programmer, non computer."
+- anonymous
+
+"It's not a bug — it's an undocumented feature."
+- anonymous
+
+"All users are beta-tester."
+- anonymous
+
+"A computer is a stupid machine with the ability to do incredibly smart things, while computer programmers are smart people with the ability to do incredibly stupid things. They are, in short, a perfect match."
+- anonymous
+
+"Another effective technique is to explain your code to someone else. This will often cause you to explain the bug to yourself. Sometimes it takes no more than a few sentences, followed by an embarrassed “Never mind, I see what's wrong. Sorry to bother you.” This works remarkably well: you can even use non-programmers as listeners. One university computer center kept a teddy bear near the help desk. Students with mysterious bugs were required to explain them to the bear before they could speak to a human counselor."
+- Brian Kernighan
+
+"Don't comment bad code ‐ rewrite it."
+- Brian Kernighan
+
+"Theory is when you know something, but it doesn't work. Practice is when something works, but you don't know why. Programmers combine theory and practice: Nothing works and they don't know why."
+- anonymous
+
+"Never trust a programmer in a suit."
+- anonymous
+
+"It works on my machine."
+- anonymous
+
+"There is only one ways to write error-free programs: do not write it."
+- anonymous
+
+"The amount of energy necessary to refute stupidity/bullshit is an order of magnitude bigger than to produce it."
+- anonymous
 
 
 ============================================================================
@@ -6155,6 +6227,7 @@ yocto      y         10^-24     Quadrilionesimo  Septillionth
 ============================================================================
  Codice ASCII
 ============================================================================
+
 L'American Standard Code for Information Interchange, o codice ASCII, è stato creato nel 1963 dal Comitato "American Standards Association" o "ASA", l'agenzia ha cambiato il suo nome nel 1969 in "American National Standards Institute" o "ANSI" così com'è conosciuto da allora.
 Questo codice nasce dal riordino e dall'espansione del set di simboli e caratteri già utilizzati in telegrafia a quel tempo dalla società Bell.
 All'inizio includeva solo lettere maiuscole e numeri, ma nel 1967 furono aggiunte le lettere minuscole e alcuni caratteri di controllo, formando ciò che è noto come US-ASCII, cioè i caratteri da 0 a 127.
@@ -6199,7 +6272,7 @@ ASCII control characters
 31   |   US     |  (Unit separator)       |
 127  |   DEL    |  (Delete)               |
 
-ASCII printable characters
+ASCII printable characters (standard)
 ------------------------------------------
 |  32  | space |  64  |  @  |  96  |  `  |
 |  33  |   !   |  65  |  A  |  97  |  a  |
@@ -6234,7 +6307,7 @@ ASCII printable characters
 |  62  |   >   |  94  |  ^  |  126 |  ~  |
 |  63  |   ?   |  95  |  _  |
 
-Extended ASCII characters
+Extended ASCII characters (not standard)
 --------------------------------------------
 |  128  |  Ç  |  171  |  ½  |  214  |   Í  |
 |  129  |  ü  |  172  |  ¼  |  215  |   Î  |

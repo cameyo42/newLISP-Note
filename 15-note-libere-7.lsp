@@ -2500,5 +2500,293 @@ Triangoli Eroniani con area = 210:
 ;->  (210 84 12 35 37) (210 84 17 28 39) 
 ;->  (210 140 7 65 68) (210 300 3 148 149))
 
+
+-----------------------------------------------------------
+Benchmark: passaggio per valore e passaggio per riferimento
+-----------------------------------------------------------
+
+Vediamo la differenza di velocità di una funzione utilizzando il passaggio dei parametri per valore e il passaggio dei parametri per riferimento.
+
+Nota: utilizzare un REPL nuova per effettuare questo test.
+
+Funzione di test:
+
+(define (test lst tipo-somma iter)
+  (for (i 1 iter)
+      (if (= tipo-somma 1)
+          (somma1 lst)
+          (somma2 lst)
+      )))
+
+Somma con metodo iterativo:
+
+(define (somma1 lst)
+  (let (sum 0)
+    (dolist (k lst) (++ sum k))
+    sum))
+
+Somma con "apply":
+
+(define (somma2 lst) (apply + lst))
+
+Benchmark con lista da 1e5 elementi:
+
+(setq items 1e5)
+(silent (setq lst (sequence 1 items)))
+(silent (set 'ab:ab (sequence 1 items)))
+
+(time (println (length lst)))
+;-> 10000000
+;-> 3.001
+(time (println (length ab:ab)))
+;-> 10000000
+;-> 2
+
+(time (test lst 1 1000))
+;-> 8885.252
+(time (test lst 2 1000))
+;-> 3329.597
+
+(time (test ab 1 1000))
+;-> 7648.372
+(time (test ab 2 1000))
+;-> 1984.02
+
+Benchmark con lista da 1e7 elementi:
+
+(setq items 1e7)
+(silent (setq lst (sequence 1 items)))
+(silent (set 'ab:ab (sequence 1 items)))
+
+(time (println (length lst)))
+;-> 10000000
+;-> 39.658
+(time (println (length ab:ab)))
+;-> 10000000
+;-> 34.923
+
+(time (test lst 1 1))
+;-> 1600.369
+(time (test lst 2 1))
+;-> 619.414
+
+(time (test ab 1 1))
+;-> 876.286
+(time (test ab 2 1))
+;-> 652.971
+
+Il passaggio per riferimento (call-by-reference) è più veloce del passaggio per valore (call-by-value).
+Comunque questa differenza varia molto in base alle situazione del contesto (RAM disponibile, velocità hard-disk, numero di processi in esecuzione, ecc.)
+
+
+---------------
+Sort topologico
+---------------
+
+In teoria dei grafi un ordinamento topologico (topological sort) è un ordinamento di tutti i vertici di un grafo aciclico diretto (DAG, directed acyclic graph). 
+I vertici di un grafo si definiscono ordinati topologicamente se i vertici sono disposti in modo tale che ogni nodo viene prima di tutti i vertici collegati ai suoi archi uscenti. In altre parole, v(1),v(2),v(3),...v(n) è un ordinamento topologico dei vertici tale che se c'è un arco entrante nel vertice "v(j)" dal vertice "v(i)", allora v(i) viene prima di v(j).
+L'ordinamento topologico non è un ordinamento totale, poiché la soluzione può non essere unica. Nel caso peggiore infatti si possono avere n! ordinamenti topologici diversi che corrispondono a tutte le possibili permutazioni degli n vertici. 
+
+Per avere un ordinamento topologico il grafo non deve contenere cicli. Per dimostrarlo, assumiamo che esista un ciclo formato dai vertici v(1), v(2), v(3) ... v(n). Ciò significa che esiste un arco diretto tra v(i) e v(i+1) (1 <= i < n) e tra v(n) e v(1). Quindi ora, se eseguiamo l'ordinamento topologico, allora v(n) deve precedere v(1) a causa dell'arco diretto da v(n) a v(1). Chiaramente, v(i+1) verrà dopo v(i), a causa dell'arco diretto da v(i) a v(i+1), ciò significa che v(1) deve precedere v(n). Siamo caduti in una contraddizione, quindi l'ordinamento topologico può essere ottenuto solo per i grafici aciclici diretti (DAG).
+
+Esempi
+L'applicazione canonica dell'ordinamento topologico risiede nel problema di pianificare l'esecuzione di una sequenza di attività in base alle loro dipendenze. Le attività sono rappresentate dai nodi di un grafo: vi è un arco tra x e y se l'attività x deve essere completata prima che possa iniziare l'esecuzione dell'attività y. Un ordinamento topologico del grafo così ottenuto fornisce un ordine in cui eseguire le attività.
+
+Ad esempio la sequenza di attività:
+
+  x     ( y )
+  -----------
+  0 --> (1 3)
+  1 --> (2 3)
+  2 --> (3 4 5)
+  3 --> (4 5)
+  4 --> (5)
+  5 --> ()
+
+viene rappresentata dal grafico riportato nella parte superiore del file "toposort.png" disponibile nella cartella "data".
+
+Un ordinamento topologico valido è 0,1,2,3,4,5.
+
+La seguente sequenza di attività genera il grafico riportato nella parte inferiore del file "toposort.png" disponibile nella cartella "data".
+
+  x      ( y )
+  -----------
+  0  --> () 
+  1  --> (4 6)
+  2  --> (7)
+  3  --> (4 7)
+  4  --> (5)
+  5  --> ()
+  6 -->  ()
+  7 -->  (0 5 6)
+
+Alcuni ordinamenti topologici validi sono:
+
+  3, 2, 1, 7, 4, 0, 5, 6 (graficamente da sinistra a destra e dall'alto al basso)
+  1, 2, 3, 4, 7, 0, 5, 6 (prima i nodi con i valori minori della loro numerazione)
+  1, 3, 4, 2, 7, 6, 0, 5
+  2, 3, 1, 4, 7, 6, 5, 0
+  3, 2, 7, 1, 6, 4, 5, 0 (prima i nodi con i valori maggiori della loro numerazione)
+  3, 2, 7, 0, 1, 4, 5, 6
+
+Un esempio pratico di attività in sequenza è data dalle propedeuticità di un corso di laurea composto da n esami: alcuni esami sono propedeutici ad altri esami e il tutto forma un grafo DAG. Per rappresentare il grafo bisogna indicare ogni esame come un nodo e inserire un arco dall'esame "i" all'esame "j" se "i" è propedeutico a "j".
+Per esempio:
+   0  Fondamenti di Elettronica
+   1  Fondamenti di Informatica
+   2  Fondamenti di Programmazione
+   3  Fondamenti di Matematica
+   4  Analisi I
+   5  Analisi II
+   6  Algoritmi e Strutture dei Dati I
+   7  Algoritmi e Strutture dei Dati II
+   8  Paradigmi di Programmazione
+   9  Sistemi Operativi
+  10  Teoria della Computazione
+  11  Ricerca Operativa
+  12  Calcolo Numerico
+  13  Matematica Discreta
+  14  Calcolo delle Probabilità
+  15  Statistica
+  16  Metodi di Problem Solving
+  17  Data Analysis
+  18  Intelligenza Artificiale
+  
+  0  --> (4 5 6 7 8 9 10 11 12 13 14 15 16 17 18)
+  1  --> (4 5 6 7 8 9 10 11 12 13 14 15 16 17 18)
+  2  --> (4 5 6 7 8 9 10 11 12 13 14 15 16 17 18)
+  3  --> (4 5 6 7 8 9 10 11 12 13 14 15 16 17 18)
+  4  --> (5 14 16 17 18)
+  5  --> (12 13 15)
+  6  --> (7)
+  7  --> (8 9 10)
+  8  --> (10)
+  9  --> ()
+  10 --> (18)
+  11 --> (16 17)
+  12 --> ()
+  13 --> ()
+  14 --> (15)
+  15 --> (17)
+  16 --> (18)
+  17 --> ()
+  18 --> ()
+
+Esistono diversi algoritmi per trovare un ordinamento topologico (anche in tempo lineare).
+
+L'algoritmo harvtxt, descritto da Kahn (1962),[1] sceglie i vertici rispettando l'ordinamento topologico. Inizialmente, costruisce un insieme di vertici che non hanno archi entranti (grado entrante=0). Dato che il grafo è aciclico esiste almeno uno di questi nodi. Poi:
+
+  L ← lista vuota che conterrà gli elementi ordinati topologicamente
+  S ← insieme di nodi senza archi entranti
+  while S non è vuoto do
+      rimuovi un vertice u da S
+      inserisci u in L
+      for each vertice v con un arco e da u a v do
+          rimuovi arco e dal grafo
+          if v non ha altri archi entranti then
+              inserisci v in S
+  if il grafo ha ancora archi then
+      ritorna un errore (il grafo ha almeno un ciclo)
+  else
+      ritorna L (l'ordinamento topologico)
+
+Se il grafo è un DAG, la soluzione è contenuta nella lista L (non necessariamente unica). Altrimenti, il grafo ha almeno un ciclo ed è impossibile ottenere un ordinamento topologico.
+
+L'insieme S può essere un set, una coda o una pila dato che non importa in quale ordine vengono estratti i vertici. Differenti soluzioni sono dovute all'ordine in cui i nodi vengono estratti da S.
+
+Per un grafo G(V,E) dove V è l'insieme dei nodi e E l'insieme degli archi, entrambi gli algoritmi presentano una complessità lineare O(|V|+|E|), mentre l'inserimento di ciascuno dei |V| vertici in testa alla lista concatenata richiede tempo costante. Complessivamente, quindi, gli algoritmi impiegano tempo O(|V|+|E|).
+
+Un altro algoritmo consiste nel trovare una permutazione dei vertici in cui per ogni vertice v(i), tutti i vertici v(j) aventi archi uscenti e diretti verso v(i) precedono v(i). Usiamo una lista "topo" per contenere l'ordinamento topologico. Per un generico grafo avente "n" vertici, abbiamo un vettore "in-degree" di dimensione "n" il cui i-esimo elemento indica il numero di vertici che non sono già inseriti in "topo" e da essi c'è un arco incidente sul vertice "i". Aggiungiamo i vertici v(i) all'array "topo", e poi diminuiamo il valore di "in-degree(v(j))" di 1 per ogni arco da v(i) a v(j). Ciò significa che abbiamo inserito un vertice con arco diretto verso v(j). Quindi in qualsiasi momento possiamo inserire solo quei vertici per i quali il valore di "in-degree" è 0. 
+
+L'implementazione seguente usa l'algoritmo Best-First-Search per visitare il grafo. 
+Inoltre il grafo viene rappresentato con una matrice di adiacenza binaria A con V righe e V colonne. L'elemento A(i,j) vale 1 se c'è un arco dal vertice "i" al vertice "j", altrimenti A(i,j) vale 0.
+
+(define (toposort dag)
+  (local (num-vertex topo visited in-degree vertex queue)
+    (setq num-vertex (length dag))
+    (setq topo '())
+    (setq visited (array num-vertex '(0)))
+    (setq in-degree (array num-vertex '(0)))
+    (setq queue '())
+    (for (i 0 (- num-vertex 1))
+      (for (j 0 (- num-vertex 1))
+        (if (= (dag i j) 1)
+            (++ (in-degree j))
+        )
+      )
+    )
+    (for (i 0 (- num-vertex 1))
+      (if (zero? (in-degree i))
+        (begin
+          (push i queue)
+          (setf (visited i) 1)
+        )
+      )
+    )
+    (while queue
+      (setq vertex (pop queue -1))
+      (push vertex topo -1)
+      (for (j 0 (- num-vertex 1))
+        (if (and (= (dag vertex j) 1) (zero? (visited j)))
+          (begin
+            (-- (in-degree j))
+            (if (zero? (in-degree j))
+              (begin
+                (push j queue)
+                (setf (visited j) 1)
+              )
+            )
+          )
+        )
+      )
+    )
+    topo))
+
+Applichiamo la funzione agli esempi precedenti:
+
+(setq dag1 '((0 1 0 1 0 0)
+             (0 0 1 1 0 0)
+             (0 0 0 1 1 1)
+             (0 0 0 0 1 1)
+             (0 0 0 0 0 1)
+             (0 0 0 0 0 0)))
+
+(toposort dag1)
+;-> (0 1 2 3 4 5)
+
+(setq dag2 '((0 0 0 0 0 0 0 0)
+             (0 0 0 0 1 0 1 0)
+             (0 0 0 0 0 0 0 1)
+             (0 0 0 0 1 0 0 1)
+             (0 0 0 0 0 1 0 0)
+             (0 0 0 0 0 0 0 0)
+             (0 0 0 0 0 0 0 0)
+             (1 0 0 0 0 1 1 0)))
+
+(toposort dag2)
+;-> (1 2 3 4 7 0 5 6)
+
+(setq dag3 '((0 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1)
+             (0 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1)
+             (0 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1)
+             (0 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1)
+             (0 0 0 0 0 1 0 0 0 0 0 0 0 0 1 1 1 1 1)
+             (0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 1 0 0 0)
+             (0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0)
+             (0 0 0 0 0 0 0 0 1 1 1 0 0 0 0 0 0 0 0)
+             (0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0)
+             (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
+             (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1)
+             (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1)
+             (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
+             (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
+             (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0)
+             (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0)
+             (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1)
+             (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
+             (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)))
+
+(toposort dag3)
+;-> (0 1 2 3 4 6 11 5 14 16 7 12 13 15 8 9 17 10 18)
+
 =============================================================================
 
