@@ -6056,7 +6056,7 @@ Lista delle funzioni:
 - Kernighan
 
 "Most languages in computer science describe how their author learned what someone else already developed."
-- unknown
+- anonymous
 
 "In order to understand recursion, one must first understand recursion."
 - anonymous
@@ -6086,10 +6086,10 @@ Lista delle funzioni:
 - Bertrand Meyer
 
 "It pays to know the dark corners of your language."
-- unknown
+- anonymous
 
 "Learning from your mistakes is one of the best ways to learn."
-- unknown
+- anonymous
 
 "The secret to creativity is knowing how to hide your sources."
 - Albert Einstein
@@ -6105,6 +6105,9 @@ Lista delle funzioni:
 
 "A programmer does not primarily write code. Rather, he primarily writes to another programmer about his problem solution. The understanding of this fact is the final step in his maturation as technician."
 - anonymous
+
+"Sometimes the problem is to discover what the problem is."
+- Gordon Glegg
 
 "A person without data is just another person with an opinion."
 - anonymous
@@ -6159,6 +6162,27 @@ Lista delle funzioni:
 
 "The amount of energy necessary to refute stupidity/bullshit is an order of magnitude bigger than to produce it."
 - anonymous
+
+"Programmers have to fight against the two most destructive forces in the universe: entropy and stupidity."
+- Damian Conway
+
+"There's no time like the present."
+- anonymous
+
+"DRY ‐ Don't Repeat Yourself."
+- anonymous
+
+"Computer Science is no more about computers than astronomy is about telescopes."
+- Edsger Dijkstra
+
+"If debugging is the process of removing software bugs, then programming must be the process of putting them in."
+- Edsger Dijkstra
+
+"Walking on water and developing software from a specification are easy if both are frozen."
+- Edward Berard
+
+"First learn computer science and all the theory. Next develop a programming style. Then forget all that and just hack."
+- George Carrette
 
 
 ============================================================================

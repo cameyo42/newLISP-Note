@@ -1353,7 +1353,7 @@ Possiamo anche creare una variabile definita dall'utente:
 pippo
 ;-> Variabile pippo creata.
 ;-> Valore della variabile: ()
-;-> Nuovo valore della variabile:
+Nuovo valore della variabile:
 '(10 20 30)
 ;-> pippo = (10 20 30)
 pippo

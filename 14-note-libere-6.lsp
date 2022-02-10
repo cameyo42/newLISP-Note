@@ -744,6 +744,7 @@ Estrazione di linee da un file
 
 Unione sequenziale di due file
 -------------------------------
+
 (define (append-lines file1 file2 file-out)
   (local (lst ext)
     (setq lst '())
@@ -780,6 +781,7 @@ Copia di un file
 
 Funzione predefinita in newLISP:
 --------------------------------
+
 (copy-file str-from-name str-to-name)
 
 (copy-file "lines.txt" "lines-copy.txt")
@@ -787,6 +789,7 @@ Funzione predefinita in newLISP:
 
 Copia di file di testo e di file binari:
 ----------------------------------------
+
 (define (copy-chars from-file to-file)
     (setq from-file (open from-file "read"))
     (setq to-file (open to-file "write"))
@@ -801,6 +804,7 @@ Copia di file di testo e di file binari:
 
 Copia di file di testo:
 -----------------------
+
 (define (copy-lines from-file to-file)
     (setq from-file (open from-file "read"))
     (setq to-file (open to-file "write"))
@@ -896,6 +900,38 @@ Lista con tutte le linee di un file
 ;->  "    (push (current-line) lst -1)) "
 ;->  "   (close file) lst))"
 ;->  "")
+
+Lista con tutte le parole di un file
+------------------------------------
+
+(define (list-words file)
+  (let (lst '())
+    ; apertura file di input
+    (setq file (open file "read"))
+    ; lettura file di input su lista.
+    (while (read-line file)
+      (push (parse (current-line) " ") lst -1))
+    ; chiusura file di input.
+    (close file)
+    (flat lst)))
+
+File: lista-parole.txt
+----------------------
+ 1 2 3 4 5 6 7 8 9
+ seconda linea.
+ ! @ # $ % ^ & * [ ] _ + { } ( ) \ | / ? . , > < : ; ' "
+  "go on" "yes" bah
+"a single quote 'inside' double quote"
+----------------------
+
+(list-words "lista-parole.txt"))
+
+;-> ("" "1" "2" "3" "4" "5" "6" "7" "8" "9"
+;->  "" "seconda" "linea."
+;->  "" "!" "@" "#" "$" "%" "^" "&" "*" "[" "]" "_" "+" "{" "}" "(" ")"
+;->  "\\" "|" "/" "?" "." "," ">" "<" ":" ";" "'" "\""
+;->  "" "" "\"go" "on\"" "\"yes\"" "bah"
+;->  "\"a" "single" "quote" "'inside'" "double" "quote\"")
 
 
 ----------------

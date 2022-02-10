@@ -1054,6 +1054,7 @@ NOTE LIBERE 7
   Triangoli eroniani
   Benchmark: passaggio per valore e passaggio per riferimento
   Sort topologico
+  Creazione dinamica di variabili e funtori di default
 
 APPENDICI
 =========

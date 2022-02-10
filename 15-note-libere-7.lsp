@@ -2697,8 +2697,8 @@ Per un grafo G(V,E) dove V è l'insieme dei nodi e E l'insieme degli archi, entr
 
 Un altro algoritmo consiste nel trovare una permutazione dei vertici in cui per ogni vertice v(i), tutti i vertici v(j) aventi archi uscenti e diretti verso v(i) precedono v(i). Usiamo una lista "topo" per contenere l'ordinamento topologico. Per un generico grafo avente "n" vertici, abbiamo un vettore "in-degree" di dimensione "n" il cui i-esimo elemento indica il numero di vertici che non sono già inseriti in "topo" e da essi c'è un arco incidente sul vertice "i". Aggiungiamo i vertici v(i) all'array "topo", e poi diminuiamo il valore di "in-degree(v(j))" di 1 per ogni arco da v(i) a v(j). Ciò significa che abbiamo inserito un vertice con arco diretto verso v(j). Quindi in qualsiasi momento possiamo inserire solo quei vertici per i quali il valore di "in-degree" è 0. 
 
-L'implementazione seguente usa l'algoritmo Best-First-Search per visitare il grafo. 
-Inoltre il grafo viene rappresentato con una matrice di adiacenza binaria A con V righe e V colonne. L'elemento A(i,j) vale 1 se c'è un arco dal vertice "i" al vertice "j", altrimenti A(i,j) vale 0.
+L'implementazione seguente usa l'algoritmo Breadth-First-Search per visitare il grafo. 
+Il grafo viene rappresentato con una matrice di adiacenza binaria A, con V righe e V colonne. L'elemento A(i,j) vale 1 se c'è un arco dal vertice "i" al vertice "j", altrimenti A(i,j) vale 0.
 
 (define (toposort dag)
   (local (num-vertex topo visited in-degree vertex queue)
@@ -2787,6 +2787,122 @@ Applichiamo la funzione agli esempi precedenti:
 
 (toposort dag3)
 ;-> (0 1 2 3 4 6 11 5 14 16 7 12 13 15 8 9 17 10 18)
+
+
+----------------------------------------------------
+Creazione dinamica di variabili e funtori di default
+----------------------------------------------------
+
+Qualche volta abbiamo bisogno di creare un simbolo/variabile il cui nome viene conosciuto soltanto durante il run-time. La seguente funzione crea un simbolo/variabile associato ad un determinato valore 
+
+(define (create-var name value) (set (sym name) value))
+
+Possiamo passare il nome della variabile da creare come simbolo quotato o come stringa:
+
+Crea la variabile "a" con valore 4:
+
+(create-var 'a 4)
+;-> 4
+a
+;-> 4
+
+Crea la variabile "b" con valore (1 2 3):
+
+(create-var "b" '(1 2 3))
+;-> (1 2 3)
+b
+;-> (1 2 3)
+
+La funzione sovrascrive i simboli che hanno lo stesso nome (cioè quelli che sono già esistenti):
+
+(create-var "b" "new")
+;-> "new"
+b
+;-> "new"
+
+Sopponiamo di avere la seguente lista i cui elementi sono coppie del tipo (nome valore):
+
+(setq info '(("tipo" "a") ("data" "2022-09-02") ("price" 120)))
+
+Scriviamo una funzione che prende questa lista e crea le variabili con nome "nome" e associa il relativo valore "valore":
+
+(define (test lst)
+  (dolist (el lst)
+    (create-var (el 0) (el 1))
+  ))
+
+(test info)
+;-> 120
+
+Adesso stampiamo i valori delle variabili appena create:
+
+(println tipo { } data { } price)
+;-> a 2022-09-02 120
+
+Altro esempio:
+
+(setq info '((tipo "b") (data "2000-09-02") (price 111)))
+(test info)
+;-> 111
+(println tipo { } data { } price)
+;-> b 2000-09-02 111
+
+Altro esempio:
+
+(test '((x 3) (y "ab") (z '(1 2))))
+;-> '(1 2)
+(println x { } y { } z)
+;-> 3 ab '(1 2)
+
+Nota: possiamo associare un simbolo/variabile come funtore di default di un contesto.
+In questo modo il simbolo/variabile creato può essere passato alle funzioni per riferimento. Questo è utile quando il valore associato al simnolo/variabile occupa molta memoria e non vogliamo che venga fatta una sua copia ogni volta che viene passato come parametro ad una funzione.
+
+La seguente funzione crea un simbolo/variabile come funtore di default di un contesto:
+
+(define (create-var-ctx name value)
+  (set (sym name name) value))
+
+Creazione della variabile foo:foo = (1 2):
+
+(create-var-ctx 'foo '(1 2))
+;-> '(1 2)
+
+In questo caso la variabile foo:foo è il funtore di default del contesto foo:
+
+foo:foo
+;-> '(1 2)
+(println foo:foo)
+;-> '(1 2)
+
+Nota: non può esistere nessun simbolo con nome uguale ad un contesto, 
+
+(setq foo 1)
+;-> ERR: symbol is protected in function setf : foo
+(setq foo:foo "sono il funtore")
+;-> "sono il funtore"
+foo:foo
+;-> "sono il funtore"
+
+Se esiste un simbolo con lo stesso nome del contesto che vogliamo creare otteniamo un errore:
+
+(setq tipo:tipo "errore")
+;-> ERR: context expected in function setf : tipo
+Infatti il simbolo/variabile "tipo" è già esistente.
+
+Ma simboli esistenti non generano errore con la funzione "create-var":
+
+(create-var-ctx 'tipo "ok")
+tipo:tipo
+;-> "ok"
+
+La seguente espressione non genera errori perchè il simbolo/variabile "nuovo" non esiste:
+
+(setq nuovo:nuovo "corretto")
+;(create-var-ctx 'nuovo "corretto")
+nuovo:nuovo
+;-> "corretto"
+
+Vedi anche "Creazione dinamica di variabili" nel file "13-note-libere-5.lsp".
 
 =============================================================================
 
