@@ -1055,6 +1055,10 @@ NOTE LIBERE 7
   Benchmark: passaggio per valore e passaggio per riferimento
   Sort topologico
   Creazione dinamica di variabili e funtori di default
+  Formula shoelace
+  Numeri casuali e intervalli
+  Distribuzione casuale modificata
+  Short-circuit evaluation
 
 APPENDICI
 =========

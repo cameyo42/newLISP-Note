@@ -2904,5 +2904,432 @@ nuovo:nuovo
 
 Vedi anche "Creazione dinamica di variabili" nel file "13-note-libere-5.lsp".
 
+
+----------------
+Formula shoelace
+----------------
+
+Dati (n + 1) vertici x[0], y[0] .. x[N], y[N] di un poligono semplice descritto in senso orario, l'area del poligono può essere calcolata con la formula "shoelace" (laccio per scarpe):
+
+  Area = abs((somma(x[0]*y[1] + ... x[n-1]*y[n]) + x[N]*y[0]) -
+             (somma(x[1]*y[0] + ... x[n]*y[n-1]) + x[0]*y[N])) / 2
+
+Nota: un poligono semplice è un poligono i cui lati non si intersecano.
+
+La formula prende il nome dal fatto che il risultato si ottiene moltiplicando in croce le coordinate corrispondenti seguendo uno schema simile a quello dei lacci delle scarpe.
+
+Prototipo nella REPL:
+
+(setq punti '((3 4) (5 11) (12 8) (9 5) (5 6)))
+;-> ((3 4) (5 11) (12 8) (9 5) (5 6))
+(setq px (map first punti))
+;-> (3 5 12 9 5)
+(setq py (map last punti))
+;-> (4 11 8 5 6)
+(setq sum 0)
+;-> 0
+(for (i 0 (- (length punti) 1))
+  (setq sum (add sum (sub (mul (px (- i 1)) (py i))
+                          (mul (px i) (py (- i 1))))))
+)
+;-> -60
+(div (abs sum) 2)
+;-> 30
+
+Adesso scriviamo una funzione per calcolare l'area con questa formula.
+
+(define (shoelace polygon)
+  (local (px py sum)
+    (setq px (map first polygon))
+    (setq py (map last polygon))
+    (setq sum 0)
+    (for (i 0 (- (length punti) 1))
+      (setq sum (add sum (sub (mul (px (- i 1)) (py i))
+                              (mul (px i) (py (- i 1))))))
+    )
+    (div (abs sum) 2)))
+
+Facciamo un paio di prove:
+
+(setq poligono '((3 4) (5 11) (12 8) (9 5) (5 6)))
+(shoelace poligono)
+;-> 30
+
+(setq poly '((2 2) (4 4) (2 6) (7 6) (7 2)))
+(shoelace poly)
+;-> 16
+
+Nota: l'applicazione della formula "shoelace" comporta una perdita di precisione se x,y hanno grandi offset.
+Prima di applicare la formula rimuovere questi offset. Per esempio,
+x = x - media(x) 
+y = y - media(y)
+oppure
+x = x - x[0]
+y = y - y[0]
+
+
+---------------------------
+Numeri casuali e intervalli
+---------------------------
+
+Dati N numeri casuali tra 0.0 e 1.0 e definito il numero M di intervalli di lunghezza L tra 0.0 e 1.0, determinare quanti numeri casuali esistono in ogni intervallo.
+Per esempio, data la seguente lista di numeri casuali:
+
+(setq lst (random 0 1 100))
+
+Prendendo un intervallo di lunghezza len-inter = 0.1 otteniamo il numero di intervalli num-inter:
+
+(setq len-inter 0.1)
+;-> 0.1
+(setq num-inter (div 1.0 len-inter))
+;-> 10
+
+Dal punto di vista grafico abbiamo la seguente situazione:
+
+  0   0.1  0.2  0.3  0.4  0.5  0.6  0.7  0.8  0.9  1.0
+  |----|----|----|----|----|----|----|----|----|----|
+
+Adesso dobbiamo inserire ogni numero casuale della lista nell'intervallo corrispondente (cioè, calcolare quanti numeri casuali cadono in ogni intervallo).
+
+L'indice dell'intervallo è dato dalla seguente formula:
+
+  idx = floor(rnd-number/num-inter)
+  
+Comunque dobbiamo tener conto del caso in cui "rnd-number" vale 1.0, infatti questo genera un indice uguale a "len-inter" che genera un errore di "Index out of bound".
+
+Un altro fattore di cui tener conto è quando la lunghezza dell'intervallo non divide esattamente l'intervallo (0.0, 1.0) in parti uguali.
+
+Scriviamo la funzione che calcola la lista delle frequenze di una lista di numeri casuali "lst-rnd" in intervalli di determinata lunghezza "len-inter".
+
+(define (freqs lst-rnd len-inter all)
+  (local (num-inter f idx)
+    ; calcolo del numero di intervalli
+    (setq num-inter (int (floor (div 1 len-inter))))
+    (setq f (array (+ num-inter 1) '(0)))
+    (dolist (el lst-rnd)
+      ; calcolo dell'indice dell'intervallo 
+      ; in cui ricade il numero casuale corrente
+      (setq idx (int (floor (div el len-inter))))
+      ; aggiornamento del vettore delle frequenze
+      (++ (f idx))
+    )
+    ; se "all" vale true, cioè siamo nel caso 
+    ; in cui l'ultimo intervallo è diverso
+    ; e vogliamo tutti gli intervalli
+    ; quindi restituiamo la lista delle frequenze
+    (if all (array-list f)
+        ; altrimenti gli intervalli sono uguali (non è mai vero!).
+        ; e aggiunge il valore dell'ultimo intervallo
+        ; al valore del penultimo intervallo
+        ; per tenere conto del caso in cui il numero casuale vale 1.0
+        ; in qual caso l'indice idx vale num-inter, ma dovrebbe 
+        ; valere (num-inter - 1).
+        (begin
+          (++ (f -2) (f -1))
+          ; restituisce una lista con le frequenze dei numeri casuali
+          (array-list (slice f 0 num-inter))
+        )
+    )))
+
+Facciamo alcune prove:
+
+(silent (setq lst (random 0 1 1e6)))
+
+Vediamo alcuni esempi in cui la lunghezza dell'intervallo divide esattamente l'intervallo (0.0, 1.0) in parti uguali:
+
+(freqs lst 0.1)
+;-> (100061 99913 100260 100263 100236 99852 100224 99848 99972 99371)
+(freqs lst 0.1 true)
+;-> (100061 99913 100260 100263 100236 99852 100224 99848 99972 99339 32)
+(freqs lst 0.2)
+;-> (199974 200523 200088 200072 199343)
+(freqs lst 0.2 true)
+;-> (199974 200523 200088 200072 199311 32)
+(freqs lst 0.25)
+;-> (250099 250634 250071 249196)
+(freqs lst 0.25 true)
+;-> (250099 250634 250071 249164 32)
+(freqs lst 0.5)
+;-> (500733 499267)
+(freqs lst 0.5 true)
+;-> (500733 499235 32)
+(freqs lst 0.333333333)
+;-> (333416 333954 332630)
+(freqs lst 0.333333333 true)
+;-> (333416 333954 332598 32)
+
+Quando "all" vale nil, allora i 32 numeri casuali che valgono 1.0 vengono aggiunti all'intervallo precedente.
+
+Vediamo alcuni casi in cui la lunghezza dell'intervallo non divide esattamente l'intervallo (0.0, 1.0) in parti uguali:
+
+(freqs lst 0.4)
+;-> (400497 599503)
+(freqs lst 0.4 true)
+;-> (400497 400160 199343)
+(freqs lst 0.35)
+;-> (350048 649952)
+(freqs lst 0.35 true)
+;-> (350048 350761 299191)
+
+Se la lista di numeri casuali non contiene il valore 1.0, allora abbiamo i seguenti risultati:
+
+(silent (setq lst1 (random 0 .999999 1e6)))
+
+(freqs lst1 0.1)
+;-> (100271 100053 99725 99822 99998 100285 99918 99934 99838 100156)
+(freqs lst1 0.1 true)
+;-> (100271 100053 99725 99822 99998 100285 99918 99934 99838 100156 0)
+(freqs lst1 0.2)
+;-> (200324 199547 200283 199852 199994)
+(freqs lst1 0.2 true)
+;-> (200324 199547 200283 199852 199994 0)
+(freqs lst1 0.25)
+;-> (250197 249672 250183 249948)
+(freqs lst1 0.25 true)
+;-> (250197 249672 250183 249948 0)
+(freqs lst1 0.5)
+;-> (499869 500131)
+(freqs lst1 0.5 true)
+;-> (499869 500131 0)
+(freqs lst1 0.333333333)
+;-> (333196 333712 333092)
+(freqs lst1 0.333333333 true)
+;-> (333196 333712 333092 0)
+
+Comunque il parametro "all" è ancora utile per i casi in cui l'ultimo intervallo ha lunghezza diversa:
+
+(freqs lst1 0.4)
+;-> (399871 600129)
+(freqs lst1 0.4 true)
+;-> (399871 400135 199994)
+(freqs lst1 0.35)
+;-> (349713 650287)
+(freqs lst1 0.35 true)
+;-> (349713 350359 299928)
+
+
+--------------------------------
+Distribuzione casuale modificata
+--------------------------------
+
+Dato un generatore uniforme di numeri casuali creare un generatore di numeri casuali che ha una distribuzione determinata da una funzione predefinita.
+
+Occorre utilizzare un generatore uniforme di numeri casuali che genera numeri nell'intervallo 0.0 .. 1.0 (es. rgen) e un modificatore di funzione(x) che prende un numero nello stesso intervallo e genera la probabilità che l'input venga generato, nello stesso intervallo 0..1.
+Quindi implementare il seguente algoritmo per generare numeri casuali con probabilità data da una funzione modificatrice:
+
+  while True:
+      random1 = rgen()
+      random2 = rgen()
+      if random2 < modifier(random1):
+          answer = random1
+          break
+      endif
+  endwhile
+
+Per generare una distribuzione di probabilità a forma di "V" per i numeri casuali usiamo la seguente funzione modificatrice:
+
+  funzione(x) = 2*(0.5 - x) per x < 0.5
+                2*(x - 0.5) per x >= 0.5
+
+Adesso scriviamo un generatore di numeri casuali con distribuzione di probabilità data dalla funzione precedente.
+
+Prima scriviamo la funzione modificatrice:
+
+(define (modif x)
+  (if (< x 0.5)
+      (mul (sub 0.5 x) 2)
+      (mul (sub x 0.5) 2)))
+
+Adesso scriviamo la funzione che implementa l'algoritmo proposto:
+
+(define (random-modif)
+(catch
+  (local (rnd1 rnd2)
+    (while true
+      (setq rnd1 (random))
+      (setq rnd2 (random))
+      (if (< rnd2 (modif rnd1))
+          (throw rnd1)
+      )))))
+
+(random-modif)
+;-> 0.8087405011139256
+(random-modif)
+;-> 0.7466048158207953
+(random-modif)
+;-> 0.858943449201941
+(random-modif)
+;-> 0.01498458815271462
+(random-modif)
+;-> 0.3644520401623585
+(random-modif)
+;-> 0.00466933194982757
+
+Ci serve una funzione per stampare l'istogramma di una lista:
+
+(define (istogramma lst hmax (calc nil))
+  (local (unici linee hm scala f-lst)
+    (if calc
+      ;calcolo la lista delle frequenze partendo da lst
+      (begin
+        ;trovo quanti numeri diversi ci sono nella lista
+        (setq unici (length (unique lst)))
+        ;creo la lista delle frequenze
+        (setq f-lst (array unici '(0)))
+        ; calcolo dei valori delle frequenze
+        (dolist (el lst)
+          (++ (f-lst (- el 1)))
+        )
+      )
+      ;else
+      ;lst è la lista delle frequenze
+      (begin (setq f-lst lst))
+    )
+    (setq hm (apply max f-lst))
+    (setq scala (div hm hmax))
+    (setq linee (map (fn (x) (round (div x scala))) f-lst))
+    (dolist (el linee)
+      ;(println (format "%3d %s %0.2f" (add $idx 1) (dup "*" el) (f-lst $idx)))
+      (println (format "%3d %s %4d" $idx (dup "*" el) (f-lst $idx)))
+    )
+  );local
+)
+
+Infine scriviamo la funzione per verificare la forma della distribuzione:
+
+(define (test num-rnds num-bins)
+  (local (out bin bin-size idx)
+    (setq out '())
+    (setq bin (array (+ num-bins 1) '(0)))
+    (setq bin-size (div 1.0 num-bins))
+    ; calcolo dei numeri random modificati
+    (for (i 1 num-rnds)
+      (push (random-modif) out -1)
+    )
+    ; creazione lista delle frequenza (num-bins elementi)
+    (dolist (r out)
+      ; calcolo indice del bin per il numero random corrente
+      (setq idx (int (floor (div r bin-size))))
+      (++ (bin idx))
+    )
+    ; disegna istogramma
+    (istogramma (slice (array-list bin) 0 num-bins) 70)
+    'end))
+
+Proviamo la funzione:
+
+(test 10000 50)
+  0 **********************************************************************  386
+  1 *********************************************************************  378
+  2 ***************************************************************  350
+  3 ******************************************************************  362
+  4 ************************************************************  331
+  5 ***********************************************************  323
+  6 *****************************************************  294
+  7 ************************************************  262
+  8 ***************************************************  280
+  9 ***********************************************  257
+ 10 ********************************************  242
+ 11 *****************************************  228
+ 12 **********************************  187
+ 13 **********************************  186
+ 14 *****************************  161
+ 15 ************************  134
+ 16 **********************  122
+ 17 ******************   99
+ 18 ***************   84
+ 19 ******************  102
+ 20 ****************   89
+ 21 **********   53
+ 22 *********   48
+ 23 *****   27
+ 24 *    7
+ 25 *    6
+ 26 ****   23
+ 27 *******   37
+ 28 *********   50
+ 29 ************   68
+ 30 ****************   88
+ 31 **********************  119
+ 32 *************************  136
+ 33 *************************  138
+ 34 **************************  145
+ 35 ****************************  157
+ 36 ************************************  198
+ 37 *************************************  202
+ 38 *******************************************  235
+ 39 ********************************************  240
+ 40 ********************************************  244
+ 41 ********************************************  240
+ 42 ********************************************************  308
+ 43 **************************************************  278
+ 44 **********************************************************  321
+ 45 ****************************************************************  354
+ 46 **************************************************************  344
+ 47 *************************************************************  334
+ 48 ********************************************************************  375
+ 49 *******************************************************************  367
+end
+
+
+------------------------
+Short-circuit evaluation
+------------------------
+
+Alcuni linguaggi valutano tutte le espressioni booleane completamente, mentre altri linguaggi valutano completamente soltanto alcune espressioni booleane (short-circuit evaluation).
+Cosa significa?
+
+Supponiamo di voler calcolare le espressioni (f1 and f2) e (f1 or f2), dove f1 e f2 sono due funzioni che restituiscono un valore booleano (true o false).
+
+1) Linguaggi a valutazione completa
+Espressione: (f1 and f2)
+Valuta f1, poi valuta f2 e poi applica l'operatore "and" e restituisce il risultato.
+Espressione: (f1 or f2)
+Valuta f1, poi valuta f2 e poi applica l'operatore "or" e restituisce il risultato.
+
+2) Linguaggi a valutazione short-circuit
+Espressione: (f1 and f2)
+Valuta f1, se f1 è nil, allora restituisce nil. ALtrimenti valuta f2 e poi applica l'operatore "and" e restituisce il risultato.
+Espressione: (f1 or f2)
+Valuta f1, se f1 è true, allora restituisce true. ALtrimenti valuta f2 e poi applica l'operatore "or" e restituisce il risultato.
+
+In altre parole, i linguaggi a valutazione short-circuit sfruttano il fatto che l'operatore "and" restituisce sempre nil sei il primo parametro è nil, mentre l'operatore "or" restituisce sempre true sei il primo parametro è true.
+
+Per vedere come funziona newLISP scriviamo due funzioni booleane che stampano il lore nome quando vengono eseguite/valutate:
+
+La funzione f1 restituisce true se il valore passsato è maggiore di 0:
+
+(define (f1 x) (println "f1") (> x 0))
+
+La funzione f2 restituisce true se il valore passsato è minore di 10:
+(define (f2 x) (println "f2") (< x 10))
+
+Adesso scriviamo le funzioni per testare gli operatori "and" e "or":
+
+(define (test-and x) (and (f1 x) (f2 x)))
+(define (test-or x) (or (f1 x) (f2 x)))
+
+Vediamo come si comporta newLISP:
+
+(test-and 3)
+;-> f1
+;-> f2
+;-> true
+(test-and -3)
+;-> f1
+;-> nil
+
+(test-or 3)
+;-> f1
+;-> true
+(test-or -3)
+;-> f1
+;-> f2
+;-> true
+
+Quindi newLISP è un linguaggio con valutazione short-circuit.
+
+Nota: questo può servire per velocizzare i programmi facendo eseguire prima le funzioni più veloci (nel caso di valutazioni booleane).
+
 =============================================================================
 
