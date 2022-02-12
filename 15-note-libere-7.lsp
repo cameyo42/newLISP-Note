@@ -3331,5 +3331,288 @@ Quindi newLISP è un linguaggio con valutazione short-circuit.
 
 Nota: questo può servire per velocizzare i programmi facendo eseguire prima le funzioni più veloci (nel caso di valutazioni booleane).
 
+
+-------------------------
+Algoritmo di Bellman-Ford
+-------------------------
+
+L'algoritmo di Bellman-Ford ci permette di trovare il percorso più breve da un vertice a tutti gli altri vertici di un grafo diretto pesato. È simile all'algoritmo di Dijkstra, ma funziona anche con grafi in cui gli archi hanno pesi negativi. I pesi negativi si trovano in varie applicazioni dei grafi. Ad esempio, invece di pagare un costo per un percorso, potremmo ottenere qualche vantaggio se seguiamo il percorso.
+Bellman-Ford funziona meglio di Dijkstra per i sistemi distribuiti. A differenza di Dijkstra dove dobbiamo trovare il valore minimo di tutti i vertici, in Bellman-Ford, i vertici sono considerati uno per uno.
+Bellman-Ford non funziona con un grafo non orientato con archi negativi poiché verrà dichiarato come ciclo negativo.
+
+L'algoritmo di Bellman-Ford procede per rilassamento (come quello di Dijkstra), in cui le approssimazioni della distanza corretta vengono sostituite da quelle migliori fino a raggiungere la soluzione. In entrambi gli algoritmi, la distanza approssima da ciascun vertice è sempre una sovrastima della distanza reale ed è sostituita dal minimo del suo vecchio valore e dalla lunghezza di un nuovo percorso trovato. Tuttavia, l'algoritmo di Dijkstra utilizza una coda di priorità per selezionare in modo greedy il vertice più vicino che non è stato ancora elaborato ed esegue questo processo di rilassamento su tutti i suoi archi in uscita. Al contrario, l'algoritmo Bellman-Ford rilassa semplicemente tutti gli archi e fa questo (v - 1) volte, dove "v" è il numero di vertici nel grafo. In ciascuna di queste ripetizioni cresce il numero di vertici con distanze calcolate correttamente, da cui ne consegue che alla fine tutti i vertici avranno le distanze corrette. Questo metodo consente di applicare l'algoritmo Bellman-Ford a una classe di grafi più ampia rispetto a Dijkstra. Entrambi gli algoritmi producono gli stessi risultati.
+
+Nell'algoritmo di Bellman-Ford il modo più conveniente di rappresentare il grafo è quello di utilizzare una lista che contiene tanti elementi quanti sono i suoi vertici. L'elemento i-esimo della lista rappresenta l'arco i-esimo del grafo e contiene la seguente terna di valori:
+
+  1) nodo sorgente
+  2) nodo destinazione
+  2) peso dell'arco
+
+Quindi un vertice ha la seguente struttura:
+
+  (nodo-sorgente nodo-destinazione peso-arco)
+
+Per esempio il grafo seguente:
+
+  +---+  5   +---+  3   +---+
+  | 0 |----->| 1 |----->| 3 |
+  +---+      +---+      +---+
+    |          ^          |
+    |          | 6        |
+    |          |          |
+    | 4      +---+      2 |
+    +------->| 2 |<-------+
+             +---+
+  +-------------+---------------+-------------------+------+
+  | Numero Arco | Nodo sorgente | Nodo destinazione | Peso |
+  +-------------+---------------+-------------------+------+
+  |  0          |  0            |  1                |  5   |
+  |  1          |  0            |  2                |  4   |
+  |  2          |  1            |  3                |  3   |
+  |  3          |  2            |  1                |  6   |
+  |  4          |  3            |  2                |  2   |
+  +-------------+---------------+-------------------+------+
+
+Viene rappresentato con la lista:
+
+((0 1 5) (0 2 4) (1 3 3) (2 1 6) (3 2 2)))
+
+Valore massimo per il peso di un vertice: MAX-VAL = 9999999
+
+Scriviamo la funzione:
+
+(define (bellman-ford graph start)
+  (local (dist edge u v w MAX-VAL)
+    (setq MAX-VAL 9999999)
+    (setq archi (length graph))
+    (setq vertici (length (unique (flat (map (fn(x) (list (x 0) (x 1))) graph)))))
+    (setq edge (array archi '((0 0 0))))
+    (setq dist (array vertici (list MAX-VAL)))
+    ; Passo 1: vertice di partenza
+    (setf (dist start) 0)
+    ; Passo 2: rilassamento archi
+    (for (i 1 (- vertici 1))
+      (for (j 0 (- archi 1))
+        (setq u ((graph j) 0))
+        (setq v ((graph j) 1))
+        (setq w ((graph j) 2))
+        (if (and (!= (dist u) MAX-VAL)
+                (< (add (dist u) w) (dist v)))
+            (setf (dist v) (add (dist u) w))
+        )
+      )
+    )
+    ; Passo 3: ricerca cicli negativi
+    ; se il valore cambia, abbiamo un ciclo negativo nel grafo
+    ; e non riusciamo a trovare le distanze più brevi
+    (for (j 0 (- archi 1))
+      (setq u ((graph j) 0))
+      (setq v ((graph j) 1))
+      (setq w ((graph j) 2))
+      (if (and (!= (dist u) MAX-VAL)
+               (< (add (dist u) w) (dist v)))
+          (setq negative true)
+      )
+    )
+    (if negative
+        (println "ciclo negativo")
+        ;else stampa la soluzione
+        (for (i 0 (- vertici 1)) (println i { - } (dist i)))
+    )))
+
+Proviamo con il grafo dell'esempio:
+
+(setq grafo '((0 1 5) (0 2 4) (1 3 3) (2 1 6) (3 2 2)))
+(bellman-ford grafo 0)
+;-> 0 - 0
+;-> 1 - 5
+;-> 2 - 4
+;-> 3 - 8
+
+Proviamo con un altro grafo:
+
+  +---+   -1  +---+  2   +---+
+  | 0 |------>| 1 |----->| 4 |
+  +---+       +---+      +---+
+    |        /   ^ \         |
+    |     3 /    |  \ 2      |
+  4 |      /   1 |   \       | -3
+    |     .      |    .      |
+    |    +---+   +----+      |
+    +--->| 2 |<--| 3  |<-----+
+         +---+   +----+
+
+(setq grafo1 '((0 1 -1) (0 2 4) (1 2 3) (1 3 2) (1 4 2) (3 2 5) (3 1 1) (4 3 -3)))
+(bellman-ford grafo1 0)
+;-> 0 - 0
+;-> 1 - -1
+;-> 2 - 2
+;-> 3 - -2
+;-> 4 - 1
+
+La soluzione consiste in tante coppie di valori quanti sono i vertici del grafo:
+
+  (indice vertice, distanza minima dal vertice di partenza)
+
+Bene, ma in genere vogliamo conoscere non solo il valore, ma anche il percorso di ogni distanza minima. Per fare questo utilizziamo un vettore di predecessori "pred" che memorizza il vertice precedente quando troviamo una distanza minore durante il rilassamento degli archi:
+
+        (if (and (!= (dist u) MAX-VAL)
+                (< (add (dist u) w) (dist v)))
+          (begin
+            (setf (dist v) (add (dist u) w))
+            (setf (pred v) u)
+          )
+        )
+
+Al termine possiamo creare il percorso dalla sorgente ad ogni destinazione seguendo il vettore "pred" al contrario con il seguente algoritmo (eseguito per ogni vertice-destinazione):
+
+  percorso = ()
+  vertice-corrente = vertice-destinazione
+  while vertice-corrente != nil:
+     push vertice-corrente percorso
+     vertice-corrente = pred(vertice-current)
+
+La funzione restituisce una lista i cui elementi hanno la seguente struttura:
+
+  (nodo-sorgente nodo-destinazione (vertici-percorso) distanza-percorso)
+
+Funzione "bellman-ford":
+
+(define (bellman-ford graph start)
+  (local (MAX-VAL archi vertici edge dist pred u v w)
+    (setq MAX-VAL 9999999)
+    (setq archi (length graph))
+    (setq vertici (length (unique (flat (map (fn(x) (list (x 0) (x 1))) graph)))))
+    ;(println "archi: " archi)
+    ;(println "vertici: " vertici)
+    (setq edge (array archi '((0 0 0))))
+    (setq dist (array vertici (list MAX-VAL)))
+    (setq path '())
+    (setq pred (array vertici '(nil)))
+    ; Passo 1: distanza dal vertice di partenza (zero)
+    (setf (dist start) 0)
+    ; Passo 2: rilassamento archi
+    (for (i 1 (- vertici 1))
+      (for (j 0 (- archi 1))
+        (setq u ((graph j) 0))
+        (setq v ((graph j) 1))
+        (setq w ((graph j) 2))
+        (if (and (!= (dist u) MAX-VAL)
+                 (< (add (dist u) w) (dist v)))
+          (begin
+            (setf (dist v) (add (dist u) w))
+            (setf (pred v) u)
+          )
+        )
+      )
+    )
+    ; Passo 3: ricerca cicli negativi
+    ; se il valore cambia, abbiamo un ciclo negativo nel grafo
+    ; e non riusciamo a trovare le distanze più brevi
+    (for (j 0 (- archi 1))
+      (setq u ((graph j) 0))
+      (setq v ((graph j) 1))
+      (setq w ((graph j) 2))
+      (if (and (!= (dist u) MAX-VAL)
+               (< (add (dist u) w) (dist v)))
+          (setq negative true)
+      )
+    )
+    (if negative
+        ; se esiste un ciclo negativo, allora restituisce nil
+        nil
+        ; altrimenti restituisce la soluzione
+        (make-solution)
+    )
+))
+
+Funzione che crea la lista della soluzione:
+
+(define (make-solution)
+  (let (out '())
+    (for (i 0 (- vertici 1))
+      (cond ((= start i)
+             (push (list start i (list i) 0) out -1)
+            )
+            (true
+             (push (list start i (build-path pred i) (dist i)) out -1)
+            )
+      )
+    )
+    out))
+
+Funzione che ricostruisce il percorso minimo da "start" a "dest":
+
+(define (build-path pred dest)
+  (local (path curr))
+  (setq path '())
+  (setq curr dest)
+  (while (!= curr nil)
+    (push curr path)
+    (setq curr (pred curr))
+  )
+  path)
+
+Facciamo alcune prove:
+
+(bellman-ford grafo 0)
+;-> ((0 0 (0) 0) (0 1 (0 1) 5) (0 2 (0 2) 4) (0 3 (0 1 3) 8))
+
+(bellman-ford grafo 3)
+;-> ((3 0 (0) 9999999) (3 1 (3 2 1) 8) (3 2 (3 2) 2) (3 3 (3) 0))
+
+(bellman-ford grafo1 0)
+;-> ((0 0 (0) 0) (0 1 (0 1) -1) (0 2 (0 1 2) 2) (0 3 (0 1 4 3) -2) (0 4 (0 1 4) 1))
+
+(bellman-ford grafo1 3)
+;-> ((3 0 (0) 9999999) (3 1 (3 1) 1) (3 2 (3 1 2) 4) (3 3 (3) 0) (3 4 (3 1 4) 3))
+
+(bellman-ford grafo1 1)
+;-> ((1 0 (0) 9999999) (1 1 (1) 0) (1 2 (1 2) 3) (1 3 (1 4 3) -1) (1 4 (1 4) 2))
+
+Per finire vediamo il codice degli algoritmi Bellman-Ford e Dijkstra a confronto:
+
+-------------------------------------------------------
+function bellman-ford(G, S)
+  for each vertex V in G
+    distance[V] <- infinite
+    previous[V] <- nil
+    
+  distance[S] <- 0
+  
+  for each vertex V ln G
+    for each edge (U,V) in G
+      tempDistance <- distance[U] + edge_weight(U, V)
+      if tempDistance < distance[V]
+          distance[V] <- tempDistance
+          previous[V] <- U
+
+  for each edge (U,V) in G
+    if distance[U] + edge_weight(U, V) < distance[V]
+        Error: Negative Cycle Exists
+
+  return distance[], previous[]
+-------------------------------------------------------
+
+-------------------------------------------------------
+function dijkstra(G, S)
+  for each vertex V in G
+    distance[V] <- infinite
+    previous[V] <- nil
+    If V != S, add V to Priority Queue Q
+    
+    distance[S] <- 0
+    
+    while Q is not empty
+      U <- Extract min from Q
+      for each unvisited neighbour V of U
+        tempDistance <- distance[U] + edge_weight(U, V)
+        if tempDistance < distance[V]
+            distance[V] <- tempDistance
+            previous[V] <- U
+    
+    return distance[], previous[]
+-------------------------------------------------------
+
 =============================================================================
 
