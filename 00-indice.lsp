@@ -1060,6 +1060,8 @@ NOTE LIBERE 7
   Distribuzione casuale modificata
   Short-circuit evaluation
   Algoritmo di Bellman-Ford
+  Algoritmo "Fast inverse square root" e 0x5f3759df
+  Composizioni multipla di funzioni
 
 APPENDICI
 =========

@@ -3340,7 +3340,7 @@ L'algoritmo di Bellman-Ford ci permette di trovare il percorso più breve da un 
 Bellman-Ford funziona meglio di Dijkstra per i sistemi distribuiti. A differenza di Dijkstra dove dobbiamo trovare il valore minimo di tutti i vertici, in Bellman-Ford, i vertici sono considerati uno per uno.
 Bellman-Ford non funziona con un grafo non orientato con archi negativi poiché verrà dichiarato come ciclo negativo.
 
-L'algoritmo di Bellman-Ford procede per rilassamento (come quello di Dijkstra), in cui le approssimazioni della distanza corretta vengono sostituite da quelle migliori fino a raggiungere la soluzione. In entrambi gli algoritmi, la distanza approssima da ciascun vertice è sempre una sovrastima della distanza reale ed è sostituita dal minimo del suo vecchio valore e dalla lunghezza di un nuovo percorso trovato. Tuttavia, l'algoritmo di Dijkstra utilizza una coda di priorità per selezionare in modo greedy il vertice più vicino che non è stato ancora elaborato ed esegue questo processo di rilassamento su tutti i suoi archi in uscita. Al contrario, l'algoritmo Bellman-Ford rilassa semplicemente tutti gli archi e fa questo (v - 1) volte, dove "v" è il numero di vertici nel grafo. In ciascuna di queste ripetizioni cresce il numero di vertici con distanze calcolate correttamente, da cui ne consegue che alla fine tutti i vertici avranno le distanze corrette. Questo metodo consente di applicare l'algoritmo Bellman-Ford a una classe di grafi più ampia rispetto a Dijkstra. Entrambi gli algoritmi producono gli stessi risultati.
+L'algoritmo di Bellman-Ford procede per "rilassamento degli archi" (come quello di Dijkstra), in cui le approssimazioni della distanza minima vengono sostituite da quelle migliori fino a raggiungere la soluzione. In entrambi gli algoritmi, la distanza approssima da ciascun vertice è sempre una sovrastima della distanza reale ed è sostituita dal minimo del suo vecchio valore e dalla lunghezza di un nuovo percorso trovato. Tuttavia, l'algoritmo di Dijkstra utilizza una coda di priorità per selezionare in modo greedy il vertice più vicino che non è stato ancora elaborato ed esegue questo processo di rilassamento su tutti i suoi archi in uscita. Al contrario, l'algoritmo Bellman-Ford rilassa semplicemente tutti gli archi e fa questo (v - 1) volte, dove "v" è il numero di vertici nel grafo. In ciascuna di queste ripetizioni cresce il numero di vertici con distanze calcolate correttamente, da cui ne consegue che alla fine tutti i vertici avranno le distanze corrette (minime). Questo metodo consente di applicare l'algoritmo Bellman-Ford a una classe di grafi più ampia rispetto a Dijkstra. Entrambi gli algoritmi producono gli stessi risultati.
 
 Nell'algoritmo di Bellman-Ford il modo più conveniente di rappresentare il grafo è quello di utilizzare una lista che contiene tanti elementi quanti sono i suoi vertici. L'elemento i-esimo della lista rappresenta l'arco i-esimo del grafo e contiene la seguente terna di valori:
 
@@ -3375,7 +3375,7 @@ Per esempio il grafo seguente:
 
 Viene rappresentato con la lista:
 
-((0 1 5) (0 2 4) (1 3 3) (2 1 6) (3 2 2)))
+  ((0 1 5) (0 2 4) (1 3 3) (2 1 6) (3 2 2)))
 
 Valore massimo per il peso di un vertice: MAX-VAL = 9999999
 
@@ -3613,6 +3613,216 @@ function dijkstra(G, S)
     
     return distance[], previous[]
 -------------------------------------------------------
+
+
+-------------------------------------------------
+Algoritmo "Fast inverse square root" e 0x5f3759df
+-------------------------------------------------
+
+Ricercando sul web le parole "Fast inverse square root" e "0x5f3759df" troviamo un algoritmo in C per il calcolo dell'inverso della radice quadrata di un numero = 1/sqrt(x).
+Questo algoritmo è diventato famoso dopo che la id Software ha reso open source il motore del gioco Quake III.
+Questo codice fornisce un'ottima approssimazione di questa funzione, abbastanza buona per essere utilizzata nei videogiochi degli anni 90 (anche oggi (2022), con le moderne CPU, è ancora un po' più veloce del calcolo diretto della radice quadrata inversa). Il fatto più sorprendente di questo codice è l'apparizione di una costante magica 0x5f3759df (notare che questo è codice C, inclusi i commenti originali)
+
+float Q_rsqrt( float number )
+{
+    long i;
+    float x2, y;
+    const float threehalfs = 1.5F;
+
+    x2 = number * 0.5F;
+    y  = number;
+    i  = * ( long * ) &y;                       // evil floating point bit level hacking
+    i  = 0x5f3759df - ( i >> 1 );               // what the f*ck? 
+    y  = * ( float * ) &i;
+    y  = y * ( threehalfs - ( x2 * y * y ) );   // 1st iteration
+//	y  = y * ( threehalfs - ( x2 * y * y ) );   // 2nd iteration, this can be removed
+
+    return y;
+}
+
+oppure
+
+float InvSqrt (float x)
+{
+    float xhalf = 0.5f*x;
+    int i = *(int*)&x;
+    i = 0x5f3759df - (i>>1);
+    x = *(float*)&i;
+    x = x*(1.5f - xhalf*x*x);
+    return x;
+}
+
+Il codice è stato attribuito a John Carmack, ma la costante era stata già usata da Cleve Moler e Gregory Walsh che avevano preso l'idea da un articolo non pubblicato di William Kahan K.C. Ng alla fine degli anni '80.
+
+Potete trovare un'ottima spiegazione del codice (che è abbastanza complicato) su youtube al seguente indirizzo:
+
+https://www.youtube.com/watch?v=p8u_k2LIZyo (Fast Inverse Square Root — A Quake III Algorithm).
+
+Nota: i compilatori C attuali utilizzano una funzione per il calcolo diretto di 1/sqrt(x) che è ancora più lenta della funzione presentata sopra. Comunque è possibile specificare un parametro durante la compilazione che permette di usare l'istruzione SSE "rsqrtss" che è più veloce della funzione.
+SSE "rsqrtss" with compiler switch optimization
+E se abbiamo molti numeri per cui dobbiamo calcolare la radice quadrata, allora l'istruzione SIMD "rsqrtps"  sarà ancora più veloce.
+
+
+---------------------------------
+Composizioni multipla di funzioni
+---------------------------------
+
+La composizione delle funzioni è una delle operazioni matematiche di base. Cerchiamo di definire la composizione di funzioni e macro (in newLISP macros=fexprs).
+
+Tale composizione dovrebbe soddisfare la seguente espression:
+
+     ((composizione 'f1 ... 'fn) _ _ _) = (f1 (f2 ... (fn _ _ _)))
+
+per tutte le funzioni e le macro.
+
+Il primo tentativo per una funzione "compose" è il seguente:
+
+(define (compose f g) (expand (lambda (x) (f (g x))) 'f 'g))
+
+Nota: in questo caso le funzioni "f" e "g" accettano un solo parametro.
+
+Proviamo la funzione con alcuni esempi:
+
+Esempio 1:
+
+(define sincos (compose 'sin 'cos))
+;-> (lambda (x) (sin (cos x)))
+(sincos 2)
+;-> -0.4042391538522658
+(sin (cos 2))
+;-> -0.4042391538522658
+
+Esempio 2:
+
+(define (f1 x) (+ x 1))
+(define (f2 x) (+ x 2))
+
+(define f1f2 (compose f1 f2))
+;-> (lambda (x) ((lambda (x) (+ x 4)) ((lambda (x) (- x 5)) x)))
+(f1f2 0)
+;-> 3
+
+Adesso proviamo la funzione "compose" con due espressioni particolari:
+
+1) la funzione identità FI:
+
+(setq FI (lambda (x) x))
+
+2) la macro identità MI:
+
+(setq MI (lambda-macro (x) x))
+
+(compose 'FI 'sin)
+;-> (lambda (x) (FI (sin x)))
+((compose 'FI 'sin) 3)
+;-> 0.1411200080598672
+
+(compose 'sin 'FI)
+;-> (lambda (x) (sin (FI x)))
+((compose 'sin 'FI) 3)
+;-> 0.1411200080598672
+
+(compose 'MI 'sin)
+;-> (lambda (x) (MI (sin x)))
+((compose 'MI 'sin) 3)
+;-> (sin 3)
+
+(compose 'sin 'MI)
+;-> (lambda (x) (sin (MI x)))
+((compose 'sin 'MI) 3)
+;-> ERR: value expected in function sin : (MI x)
+
+In questo ultimo caso l'errore è provocato dal fatto che la macro identità non viene espansa.
+
+Scriviamo una nuova funzione "compose2" (Kazimir Marjoncic):
+
+(define (compose2 f g)
+  (expand (lambda-macro () (letex ((_ex (cons 'g (args)))) (f _ex)))
+                           'f 'g))
+;-> (lambda (f g) (expand (lambda-macro ()
+;->    (letex ((_ex (cons 'g (args)))) (f _ex))) 'f 'g))
+
+Facciamo alcune prove:
+
+(println (compose2 'sin 'cos))
+;-> (lambda-macro ()
+;->  (letex ((_ex (cons 'cos (args)))) (sin _ex)))
+
+((compose2 'sin 'cos) 2)
+;-> -0.4042391538522658
+(sin (cos 2))
+;-> -0.4042391538522658
+
+(define (f1 x) (+ x 1))
+(define (f2 x) (+ x 2))
+(define f1f2 (compose2 f1 f2))
+;-> (lambda-macro ()
+;->  (letex ((_ex (cons '(lambda (x) (+ x 2)) (args)))) ((lambda (x) (+ x 1)) _ex)))
+(f1f2 0)
+;-> 3
+
+(compose2 'FI 'sin)
+;-> (lambda-macro ()
+;->  (letex ((_ex (cons 'sin (args)))) (FI _ex)))
+((compose2 'FI 'sin) 3)
+;-> 0.1411200080598672
+
+(compose2 'sin 'FI)
+;-> (lambda-macro ()
+;->  (letex ((_ex (cons 'FI (args)))) (sin _ex)))
+((compose2 'sin 'FI) 3)
+;-> 0.1411200080598672
+
+(compose2 'MI 'sin)
+;-> (lambda-macro ()
+;->  (letex ((_ex (cons 'sin (args)))) (MI _ex)))
+((compose2 'MI 'sin) 3)
+;-> (sin 3)
+
+(compose2 'sin 'MI)
+;-> (lambda-macro ()
+;->  (letex ((_ex (cons 'MI (args)))) (sin _ex)))
+((compose2 'sin 'MI) 3)
+;-> 0.1411200080598672
+
+Quindi "compose2" si comporta correttamente anche con le macro.
+
+Adesso vediamo una funzione che "compone" un numero variabile di funzioni o macro (Kazimir Marjoncic):
+
+(set 'multicompose
+  (lambda() (case (length (args))
+            (0 I) ; because (I (S x)) <=> (S x),
+                  ; no matter if S is function or macro
+                  ; so I can be always added from the left.
+            (1 (first (args)))
+            (2 (apply compose2 (args)))
+            (true (compose2 (first (args)) (apply compose2 (rest (args))))))))
+;-> (lambda ()
+;->  (case (length (args))
+;->   (0 I)
+;->   (1 (first (args)))
+;->   (2 (apply compose2 (args)))
+;->   (true (compose2 (first (args)) (apply compose (rest (args)))))))
+
+Facciamo alcuni esempi:
+
+((multicompose sqrt) 65536)
+;-> 256
+((multicompose sqrt sqrt) 65536)
+;-> 16
+((multicompose sqrt sqrt sqrt) 65536)
+;-> 4
+
+Sembra che tutto funzioni correttamente. Comunque, il risultato della composizione è piuttosto complicato a causa della definizione ricorsiva. 
+
+(multicompose 'f1 'f2 'f3 'f4)
+;-> (lambda-macro ()
+;->  (letex ((_ex (cons '(lambda-macro ()
+;->       (letex ((_ex (cons 'f3 (args)))) (f2 _ex)))
+;->      (args))))
+;->   (f1 _ex)))
+
+Se si usasse l'iterazione per definire la composizione di più funzioni, allora il risultato potrebbe essere più breve e veloce, ma non più elegante.
 
 =============================================================================
 
