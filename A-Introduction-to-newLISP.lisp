@@ -15,7 +15,7 @@
 ; All the errors are mine.
 ; Some infos from:
 ;          "official newLISP forum"
-;          "Kazimir Marjoncic blog"
+;          "Kazimir Majorinc blog"
 ;          "Cormullion blog"
 
 ; Advantage of this version:

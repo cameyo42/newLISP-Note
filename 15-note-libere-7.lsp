@@ -770,7 +770,7 @@ Definiamo una funzione che passa da uno stato ad un altro stato:
     (dolist (p prob stop)
       ; sottraiamo la probabilità corrente al numero random...
       (setq rnd (sub rnd p))
-      ; se il risultato è minore di zero, 
+      ; se il risultato è minore di zero,
       ; allora restituiamo l'indice della probabilità
       (if (< rnd 0)
           (set 'res $idx 'stop true)
@@ -891,7 +891,7 @@ La funzione è la seguente con le spiegazioni nei commenti:
           (setq stop nil)
           (setq k 1)
           (for (i (+ idx 1) (+ idx end-pat) 1 stop)
-            ; basta un elemento diverso per 
+            ; basta un elemento diverso per
             ; stabilire che il pattern è diverso
             (if (!= (lst i) (pat k))
                 (set 'found nil 'stop true)
@@ -1084,12 +1084,12 @@ Quindi questo algoritmo garantisce anche l'uniformità dei risultati. Perchè?
 Per provarlo abbiamo bisogno di utilizzare un "invariante del ciclo" (loop invariant).
 L'invariante è il seguente: ad ogni indice idx del ciclo, tutti gli indici prima di idx hanno la stessa probabilità di contenere un qualuanque elemento della lista.
 Consideriamo idx = 0: poichè scambiamo lst(0) con un indice casuale cha varia per tutta la lunghezza della lista, lst(0) ha una probabilità uniforme di essere un qualunque elemento della lista. Quindi l'invariante è vero per il caso base.
-Ora consideriamo che il nostro invariante sia vero fino a idx e consideriamo il ciclo a (idx + 1). Dobbiamo calcolare la probabilità che alcuni elementi si trovino all'indice (idx + 1). Questa è uguale alla probabilità di non selezionare quell'elemento fino a idx e poi prenderlo a (idx + 1). 
+Ora consideriamo che il nostro invariante sia vero fino a idx e consideriamo il ciclo a (idx + 1). Dobbiamo calcolare la probabilità che alcuni elementi si trovino all'indice (idx + 1). Questa è uguale alla probabilità di non selezionare quell'elemento fino a idx e poi prenderlo a (idx + 1).
 Tutti i potenziali elementi rimanenti non devono essere stati ancora selezionati, il che significa che non sono stati prelevati da 0 a idx, e questa probabilità vale:
 
    (n - idx)     (n - 2)           (n - idx -1)
   ----------- * --------- * ... * --------------
-      n          (n - 1)            (n - idx) 
+      n          (n - 1)            (n - idx)
 
 Adesso dobbiamo scegliere effettivamente l'elemento. Poichè rimangono (n - idx - 1) elementi per la scelta, questa probabilità è pari a:
 
@@ -1144,12 +1144,12 @@ Valore vero:
 
 (func 0.0001)
 ;-> -1#IND
-Valore vero: 
+Valore vero:
 ComplexInfinity
 
 (func 0)
 ;-> -1#IND
-Valore vero: 
+Valore vero:
 Indeterminate
 
 Calcolare il limite della funzione per x->0:
@@ -1160,15 +1160,15 @@ lim f(x) = 1
 
 Proviamo ad avvicinarsi a 0:
 
-(setq x-val '(0.002 0.001 0.0009 0.0008 0.0007 0.0006 0.0005 
+(setq x-val '(0.002 0.001 0.0009 0.0008 0.0007 0.0006 0.0005
               0.0004 0.0003 0.0002 0.0001 0.00001))
 
 (map (fn(x) (list x (func x))) x-val)
-;-> ((0.002 -1.#IND) 
-;->  (0.001 0) 
-;->  (0.0009 -0) 
-;->  (0.0008 -1.#IND) 
-;->  (0.0007 -1.#IND) 
+;-> ((0.002 -1.#IND)
+;->  (0.001 0)
+;->  (0.0009 -0)
+;->  (0.0008 -1.#IND)
+;->  (0.0007 -1.#IND)
 ;->  (0.0006 -1)
 ;->  (0.0005 -1.#IND)
 ;->  (0.0004 0)
@@ -1286,7 +1286,7 @@ From StackOverflow: modifying association list
 -------
 0: Jakub M.
 -------
-I have a problem with modifying entries of an association list. 
+I have a problem with modifying entries of an association list.
 When I run this code:
 
 Example A
@@ -1394,7 +1394,7 @@ Adesso vediamo un metodo migliore che viene spiegato nei commenti della funzione
 
 (define (rand-pick lst)
   (local (rnd stop out)
-    ; generiamo un numero random diverso da 1 
+    ; generiamo un numero random diverso da 1
     ; (per evitare errori di arrotondamento)
     (while (= (setq rnd (random)) 1))
     (if (= rnd 1) (println rnd))
@@ -1402,7 +1402,7 @@ Adesso vediamo un metodo migliore che viene spiegato nei commenti della funzione
     (dolist (p lst stop)
       ; sottraiamo la probabilità corrente al numero random...
       (setq rnd (sub rnd p))
-      ; se il risultato è minore di zero, 
+      ; se il risultato è minore di zero,
       ; allora restituiamo l'indice della probabilità corrente
       (if (< rnd 0)
           (set 'out $idx 'stop true)
@@ -1533,7 +1533,7 @@ Complessita spaziale: O(1)
   ; di 2 ad ogni passo del ciclo
   (for (i 1 (- (length lst) 1) 2)
     ; se l'elemento precedente è maggiore dell'elemento corrente,
-    ; allora scambia gli elementi  
+    ; allora scambia gli elementi
     (if (> (lst (- i 1)) (lst i))
         (swap (lst (- i 1)) (lst i))
     )
@@ -1598,9 +1598,9 @@ Utilizziamo la distribuzione ipergeometrica per trovare la probabilità che estr
                                 binom(n e)
 
      binom(4 4) * binom(48 1)     1 * 48        1
-  = -------------------------- = --------- = ------- = 
+  = -------------------------- = --------- = ------- =
           binom(52 5))            2598960     54145
-  
+
   = 1.846892603195124e-005
 
 Quindi,in media, si verifica un poker di assi servito ogni 54145 mani.
@@ -1652,7 +1652,7 @@ Sparse matrix
 -------------
 
 Una matrice sparsa (sparse matrix) è una matrice in cui la maggior parte degli elementi ha valore zero.
-In genere risulta conveniente rappresentare queste matrici con strutture dati particolari ed utilizare algoritmi specifici. Infatti le operazioni matriciali standard sono molto lente quando abbiamo una sparse-matrix (e sprechiamo anche una grande quantità di memoria). 
+In genere risulta conveniente rappresentare queste matrici con strutture dati particolari ed utilizare algoritmi specifici. Infatti le operazioni matriciali standard sono molto lente quando abbiamo una sparse-matrix (e sprechiamo anche una grande quantità di memoria).
 
 Possiamo pensare di comprimere i dati di una sparse-matrix in una struttura dati come una hash-map.
 Un elemento (cioè una coppia chiave-valore) della hash-map rappresenta un elemento non-nullo della sparse-matrix, ad esempio se abbiamo un valore 3 alla riga 125 e alla colonna 450 possiamo scrivere:
@@ -1958,7 +1958,7 @@ Questo risultato deriva dal fatto che una moltiplicazione è una somma ripetuta,
 Il caso in cui solo il secondo moltiplicando è negativo è più strano.
 
   3 × -4 (volte) = 3 × -4 = -12
-  
+
 Cosa significa ripetere il 3 per -4 volte?
 
 Questo dilemma viene aggirato utilizzando la proprietà commutativa della moltiplicazione:
@@ -1974,19 +1974,19 @@ Cosa significa sommare una quantità negativa un numero negativo di volte?
 Prima di rispondere vediamo le proprietà della moltiplicazione:
 
   Proprietà Commutativa:             a × b = b × a
-  
+
   Proprietà Associativa:             (a × b) × c = a × (b × c)
-  
+
   Esistenza Elemento neutro:         a × 1 = a
-  
+
   Esistenza Elemento assorbente:     a × 0 = 0
-  
+
   Distributiva rispetto addizione:   a × (b + c) = a × b + a × c
 
 Il trucco consiste nell'utilizzare la proprietà dell'esistenza dell'elemento assorbente e la proprietà distributiva della moltiplicazione rispetto all'addizione. Prendiamo un numero negativo qualunque (es. -6) e moltiplichiamolo per una quantità nulla (es. [2 + (-2)] = 0):
 
   -6 × [2 + (-2)] =
-  
+
 Risolviamo questa operazione in due modi
 1) non applico la proprietà distributiva
 
@@ -1994,11 +1994,11 @@ Risolviamo questa operazione in due modi
 
 2) applico la proprietà distributiva
 
-  (-6 × 2) + (-6) × (-2) = 
-  
+  (-6 × 2) + (-6) × (-2) =
+
   = -12 + (-6) × (-2) = 0
-  
-Poichè il risultato deve valere 0, allora la quantità (-6) × (-2) deve valere -12. 
+
+Poichè il risultato deve valere 0, allora la quantità (-6) × (-2) deve valere -12.
 
 Quindi possiamo concludere che:
 
@@ -2139,12 +2139,12 @@ lista = (a0 a1 a2 ... an)
           )
       )
     )
-    ; calcolo della posizione/indice che divide 
+    ; calcolo della posizione/indice che divide
     ; la lista res in quoziente e resto
     (setq separator (- (length res) (- (length p2) 1)))
     (list (reverse (slice res 0 separator)) (reverse (slice res separator)))))
 
-Proviamo con la seguente divisione: 
+Proviamo con la seguente divisione:
 
   (x^3 - 12*x*x - 42) / (x - 3)
 
@@ -2161,7 +2161,7 @@ resto = -123
 Proviamo un'altra divisione:
 
   (6*x^7 - 14*x^6 + 4*x^5 - 14*x^4 + 16*x^3 - 44*x^2 + 26*x + 20)
-  --------------------------------------------------------------- = 
+  --------------------------------------------------------------- =
             (3*x^5 - x^4 + 3*x^3 - 2*x^2 + 7*x - 10)
 
   = (2*x^2 - 4*x - 2)
@@ -2186,7 +2186,7 @@ Una coda di priorità (Priority Queue) è un tipo di dati astratto simile a una 
 
 Quando due elementi diversi hanno la stessa priorità ci sono diveri modi per trattare il problema:
 
-1) uno solo degli elementi viene mantenuto 
+1) uno solo degli elementi viene mantenuto
   1a) un elemento eliminato casualmente
   1b) vecchio elemento eliminato
   1c) nuovo elemento eliminato
@@ -2260,7 +2260,7 @@ Funzione per vedere l'elemento con priorità minima:
 Funzione per estrarre l'elemento con priorità massima:
 
 (define (pq_pop_max pq)
-  (local (lst item element priority) 
+  (local (lst item element priority)
     (setq lst (pq))
     (setq item (first lst))
     (setq element (last item))
@@ -2276,7 +2276,7 @@ Funzione per estrarre l'elemento con priorità massima:
 Funzione per estrarre l'elemento con priorità minima:
 
 (define (pq_pop_min pq)
-  (local (lst item element priority) 
+  (local (lst item element priority)
     (setq lst (pq))
     (setq item (last lst))
     (setq element (last item))
@@ -2417,7 +2417,7 @@ Triangoli eroniani
 La formula di Erone per l'area di un triangolo data la lunghezza dei suoi tre lati a, b e c è data da:
 
    Area = sqrt[S*(S-a)*(S-b)*(S-c)]
-  
+
 dove S è la metà del perimetro del triangolo:
 
   S = (a+b+c)/2
@@ -2487,7 +2487,7 @@ Funzione per calcolare i triangoli eroniani con i lati <= n:
       )
     )
     (sort out)))
-    
+
 Calcoliamo il numero di triangoli eroniani con lati <= 200:
 
 (length (setq h (heronian 200)))
@@ -2496,8 +2496,8 @@ Calcoliamo il numero di triangoli eroniani con lati <= 200:
 Triangoli Eroniani con area = 210:
 
 (filter (fn(x) (= (first x) 210)) h)
-;-> ((210 70 17 25 28) (210 70 20 21 29) 
-;->  (210 84 12 35 37) (210 84 17 28 39) 
+;-> ((210 70 17 25 28) (210 70 20 21 29)
+;->  (210 84 12 35 37) (210 84 17 28 39)
 ;->  (210 140 7 65 68) (210 300 3 148 149))
 
 
@@ -2583,9 +2583,9 @@ Comunque questa differenza varia molto in base alle situazione del contesto (RAM
 Sort topologico
 ---------------
 
-In teoria dei grafi un ordinamento topologico (topological sort) è un ordinamento di tutti i vertici di un grafo aciclico diretto (DAG, directed acyclic graph). 
+In teoria dei grafi un ordinamento topologico (topological sort) è un ordinamento di tutti i vertici di un grafo aciclico diretto (DAG, directed acyclic graph).
 I vertici di un grafo si definiscono ordinati topologicamente se i vertici sono disposti in modo tale che ogni nodo viene prima di tutti i vertici collegati ai suoi archi uscenti. In altre parole, v(1),v(2),v(3),...v(n) è un ordinamento topologico dei vertici tale che se c'è un arco entrante nel vertice "v(j)" dal vertice "v(i)", allora v(i) viene prima di v(j).
-L'ordinamento topologico non è un ordinamento totale, poiché la soluzione può non essere unica. Nel caso peggiore infatti si possono avere n! ordinamenti topologici diversi che corrispondono a tutte le possibili permutazioni degli n vertici. 
+L'ordinamento topologico non è un ordinamento totale, poiché la soluzione può non essere unica. Nel caso peggiore infatti si possono avere n! ordinamenti topologici diversi che corrispondono a tutte le possibili permutazioni degli n vertici.
 
 Per avere un ordinamento topologico il grafo non deve contenere cicli. Per dimostrarlo, assumiamo che esista un ciclo formato dai vertici v(1), v(2), v(3) ... v(n). Ciò significa che esiste un arco diretto tra v(i) e v(i+1) (1 <= i < n) e tra v(n) e v(1). Quindi ora, se eseguiamo l'ordinamento topologico, allora v(n) deve precedere v(1) a causa dell'arco diretto da v(n) a v(1). Chiaramente, v(i+1) verrà dopo v(i), a causa dell'arco diretto da v(i) a v(i+1), ciò significa che v(1) deve precedere v(n). Siamo caduti in una contraddizione, quindi l'ordinamento topologico può essere ottenuto solo per i grafici aciclici diretti (DAG).
 
@@ -2611,7 +2611,7 @@ La seguente sequenza di attività genera il grafico riportato nella parte inferi
 
   x      ( y )
   -----------
-  0  --> () 
+  0  --> ()
   1  --> (4 6)
   2  --> (7)
   3  --> (4 7)
@@ -2650,7 +2650,7 @@ Per esempio:
   16  Metodi di Problem Solving
   17  Data Analysis
   18  Intelligenza Artificiale
-  
+
   0  --> (4 5 6 7 8 9 10 11 12 13 14 15 16 17 18)
   1  --> (4 5 6 7 8 9 10 11 12 13 14 15 16 17 18)
   2  --> (4 5 6 7 8 9 10 11 12 13 14 15 16 17 18)
@@ -2695,9 +2695,9 @@ L'insieme S può essere un set, una coda o una pila dato che non importa in qual
 
 Per un grafo G(V,E) dove V è l'insieme dei nodi e E l'insieme degli archi, entrambi gli algoritmi presentano una complessità lineare O(|V|+|E|), mentre l'inserimento di ciascuno dei |V| vertici in testa alla lista concatenata richiede tempo costante. Complessivamente, quindi, gli algoritmi impiegano tempo O(|V|+|E|).
 
-Un altro algoritmo consiste nel trovare una permutazione dei vertici in cui per ogni vertice v(i), tutti i vertici v(j) aventi archi uscenti e diretti verso v(i) precedono v(i). Usiamo una lista "topo" per contenere l'ordinamento topologico. Per un generico grafo avente "n" vertici, abbiamo un vettore "in-degree" di dimensione "n" il cui i-esimo elemento indica il numero di vertici che non sono già inseriti in "topo" e da essi c'è un arco incidente sul vertice "i". Aggiungiamo i vertici v(i) all'array "topo", e poi diminuiamo il valore di "in-degree(v(j))" di 1 per ogni arco da v(i) a v(j). Ciò significa che abbiamo inserito un vertice con arco diretto verso v(j). Quindi in qualsiasi momento possiamo inserire solo quei vertici per i quali il valore di "in-degree" è 0. 
+Un altro algoritmo consiste nel trovare una permutazione dei vertici in cui per ogni vertice v(i), tutti i vertici v(j) aventi archi uscenti e diretti verso v(i) precedono v(i). Usiamo una lista "topo" per contenere l'ordinamento topologico. Per un generico grafo avente "n" vertici, abbiamo un vettore "in-degree" di dimensione "n" il cui i-esimo elemento indica il numero di vertici che non sono già inseriti in "topo" e da essi c'è un arco incidente sul vertice "i". Aggiungiamo i vertici v(i) all'array "topo", e poi diminuiamo il valore di "in-degree(v(j))" di 1 per ogni arco da v(i) a v(j). Ciò significa che abbiamo inserito un vertice con arco diretto verso v(j). Quindi in qualsiasi momento possiamo inserire solo quei vertici per i quali il valore di "in-degree" è 0.
 
-L'implementazione seguente usa l'algoritmo Breadth-First-Search per visitare il grafo. 
+L'implementazione seguente usa l'algoritmo Breadth-First-Search per visitare il grafo.
 Il grafo viene rappresentato con una matrice di adiacenza binaria A, con V righe e V colonne. L'elemento A(i,j) vale 1 se c'è un arco dal vertice "i" al vertice "j", altrimenti A(i,j) vale 0.
 
 (define (toposort dag)
@@ -2793,7 +2793,7 @@ Applichiamo la funzione agli esempi precedenti:
 Creazione dinamica di variabili e funtori di default
 ----------------------------------------------------
 
-Qualche volta abbiamo bisogno di creare un simbolo/variabile il cui nome viene conosciuto soltanto durante il run-time. La seguente funzione crea un simbolo/variabile associato ad un determinato valore 
+Qualche volta abbiamo bisogno di creare un simbolo/variabile il cui nome viene conosciuto soltanto durante il run-time. La seguente funzione crea un simbolo/variabile associato ad un determinato valore
 
 (define (create-var name value) (set (sym name) value))
 
@@ -2874,7 +2874,7 @@ foo:foo
 (println foo:foo)
 ;-> '(1 2)
 
-Nota: non può esistere nessun simbolo con nome uguale ad un contesto, 
+Nota: non può esistere nessun simbolo con nome uguale ad un contesto,
 
 (setq foo 1)
 ;-> ERR: symbol is protected in function setf : foo
@@ -2961,7 +2961,7 @@ Facciamo un paio di prove:
 
 Nota: l'applicazione della formula "shoelace" comporta una perdita di precisione se x,y hanno grandi offset.
 Prima di applicare la formula rimuovere questi offset. Per esempio,
-x = x - media(x) 
+x = x - media(x)
 y = y - media(y)
 oppure
 x = x - x[0]
@@ -2994,7 +2994,7 @@ Adesso dobbiamo inserire ogni numero casuale della lista nell'intervallo corrisp
 L'indice dell'intervallo è dato dalla seguente formula:
 
   idx = floor(rnd-number/num-inter)
-  
+
 Comunque dobbiamo tener conto del caso in cui "rnd-number" vale 1.0, infatti questo genera un indice uguale a "len-inter" che genera un errore di "Index out of bound".
 
 Un altro fattore di cui tener conto è quando la lunghezza dell'intervallo non divide esattamente l'intervallo (0.0, 1.0) in parti uguali.
@@ -3007,13 +3007,13 @@ Scriviamo la funzione che calcola la lista delle frequenze di una lista di numer
     (setq num-inter (int (floor (div 1 len-inter))))
     (setq f (array (+ num-inter 1) '(0)))
     (dolist (el lst-rnd)
-      ; calcolo dell'indice dell'intervallo 
+      ; calcolo dell'indice dell'intervallo
       ; in cui ricade il numero casuale corrente
       (setq idx (int (floor (div el len-inter))))
       ; aggiornamento del vettore delle frequenze
       (++ (f idx))
     )
-    ; se "all" vale true, cioè siamo nel caso 
+    ; se "all" vale true, cioè siamo nel caso
     ; in cui l'ultimo intervallo è diverso
     ; e vogliamo tutti gli intervalli
     ; quindi restituiamo la lista delle frequenze
@@ -3022,7 +3022,7 @@ Scriviamo la funzione che calcola la lista delle frequenze di una lista di numer
         ; e aggiunge il valore dell'ultimo intervallo
         ; al valore del penultimo intervallo
         ; per tenere conto del caso in cui il numero casuale vale 1.0
-        ; in qual caso l'indice idx vale num-inter, ma dovrebbe 
+        ; in qual caso l'indice idx vale num-inter, ma dovrebbe
         ; valere (num-inter - 1).
         (begin
           (++ (f -2) (f -1))
@@ -3577,9 +3577,9 @@ function bellman-ford(G, S)
   for each vertex V in G
     distance[V] <- infinite
     previous[V] <- nil
-    
+
   distance[S] <- 0
-  
+
   for each vertex V ln G
     for each edge (U,V) in G
       tempDistance <- distance[U] + edge_weight(U, V)
@@ -3600,9 +3600,9 @@ function dijkstra(G, S)
     distance[V] <- infinite
     previous[V] <- nil
     If V != S, add V to Priority Queue Q
-    
+
     distance[S] <- 0
-    
+
     while Q is not empty
       U <- Extract min from Q
       for each unvisited neighbour V of U
@@ -3610,7 +3610,7 @@ function dijkstra(G, S)
         if tempDistance < distance[V]
             distance[V] <- tempDistance
             previous[V] <- U
-    
+
     return distance[], previous[]
 -------------------------------------------------------
 
@@ -3632,7 +3632,7 @@ float Q_rsqrt( float number )
     x2 = number * 0.5F;
     y  = number;
     i  = * ( long * ) &y;                       // evil floating point bit level hacking
-    i  = 0x5f3759df - ( i >> 1 );               // what the f*ck? 
+    i  = 0x5f3759df - ( i >> 1 );               // what the f*ck?
     y  = * ( float * ) &i;
     y  = y * ( threehalfs - ( x2 * y * y ) );   // 1st iteration
 //	y  = y * ( threehalfs - ( x2 * y * y ) );   // 2nd iteration, this can be removed
@@ -3664,7 +3664,7 @@ E se abbiamo molti numeri per cui dobbiamo calcolare la radice quadrata, allora 
 
 
 ---------------------------------
-Composizioni multipla di funzioni
+Composizione multipla di funzioni
 ---------------------------------
 
 La composizione delle funzioni è una delle operazioni matematiche di base. Cerchiamo di definire la composizione di funzioni e macro (in newLISP macros=fexprs).
@@ -3734,7 +3734,7 @@ Adesso proviamo la funzione "compose" con due espressioni particolari:
 
 In questo ultimo caso l'errore è provocato dal fatto che la macro identità non viene espansa.
 
-Scriviamo una nuova funzione "compose2" (Kazimir Marjoncic):
+Scriviamo una nuova funzione "compose2" (Kazimir Majorinc):
 
 (define (compose2 f g)
   (expand (lambda-macro () (letex ((_ex (cons 'g (args)))) (f _ex)))
@@ -3787,7 +3787,7 @@ Facciamo alcune prove:
 
 Quindi "compose2" si comporta correttamente anche con le macro.
 
-Adesso vediamo una funzione che "compone" un numero variabile di funzioni o macro (Kazimir Marjoncic):
+Adesso vediamo una funzione che compone un numero variabile di funzioni o macro (Kazimir Majorinc):
 
 (set 'multicompose
   (lambda() (case (length (args))
@@ -3813,7 +3813,7 @@ Facciamo alcuni esempi:
 ((multicompose sqrt sqrt sqrt) 65536)
 ;-> 4
 
-Sembra che tutto funzioni correttamente. Comunque, il risultato della composizione è piuttosto complicato a causa della definizione ricorsiva. 
+Sembra che tutto funzioni correttamente. Comunque, il risultato della composizione è piuttosto complicato a causa della definizione ricorsiva.
 
 (multicompose 'f1 'f2 'f3 'f4)
 ;-> (lambda-macro ()
@@ -3823,6 +3823,229 @@ Sembra che tutto funzioni correttamente. Comunque, il risultato della composizio
 ;->   (f1 _ex)))
 
 Se si usasse l'iterazione per definire la composizione di più funzioni, allora il risultato potrebbe essere più breve e veloce, ma non più elegante.
+
+
+-----------------------------------------------------
+Metodo dei minimi quadrati (Least-squares regression)
+-----------------------------------------------------
+
+Il metodo dei minimi quadrati è una tecnica di ottimizzazione (o regressione) che permette di trovare una funzione, rappresentata da una curva ottima (o curva di regressione), che si avvicini il più possibile ad un insieme di dati (in genere punti del piano). In particolare, la funzione trovata deve essere quella che minimizza la somma dei quadrati delle distanze tra i dati osservati e quelli della curva che rappresenta la funzione stessa.
+
+Di seguito vengono presentati due metodi di regressione con i minimi quadrati:
+
+1) la regressione lineare (per dati lineari)
+2) la regressione lineare (per dati non lineari)
+
+1) Regressione lineare (per dati lineari)
+-----------------------------------------
+La regressione lineare è un metodo semplice per adattare un insieme di dati che tende a variare linearmente.
+Abbiamo un insieme di n punti (xi,yi) con i = 0...(n-1).
+La curva di regressione (interpolazione) è una retta con la forma:
+
+  f(x) ==> y = a*x + b
+
+dove "a" e "b" sono i coefficienti incogniti da determinare.
+
+In una retta "a" e "b" rappresentano:
+
+  a = Pendenza o Gradiente (quanto è ripida la linea)
+  b = Intercetta Y (dove la linea attraversa l'asse Y)
+
+L'idea alla base del metodo dei minimi quadrati è di ridurre al minimo i quadrati delle differenze tra i valori dei dati e i valori della funzione (in questo caso una retta). L'errore totale che si verifica considerando tutti gli n punti vale:
+
+    (n-1)
+  E = ∑ [d(x(i))]^2
+     i=0
+
+dove d(x(i)) è la differenza tra y(i) e il valore della retta di regressione in xi (cioè, f(xi)).
+
+Quindi sostituendo con l'equazione della retta:
+
+    (n-1)
+  E = ∑ [y(i) - f(x(i))]^2
+     i=0
+
+Il metodo dei minimi quadrati si basa sul fatto (dimostrato dall'analisi matematica) che una funzione ha valore minimo quando le sue derivate parziali sono zero. Quindi per trovare le variabili "a" e "b" dobbiamo risolvere le seguenti due equazioni alle derivate parziali:
+
+  dp(E)             dp(E)
+  ----- = 0    e    ----- = 0
+   d(a)              d(b)
+
+Vediamo direttamente la soluzione, cioè le formule per il calcolo di "a" e "b":
+
+      n * ∑xy - ∑x * ∑y
+a = ---------------------
+        n * ∑x² - ∑x
+
+      ∑y * ∑x² - ∑xy * ∑x
+b = -----------------------
+         n * ∑x² - ∑x
+
+La seguente funzione "linear-regression" restituisce i valori di "a" e "b" oppure, se il parametro "func" vale true, una funzione che rappresenta la retta f(x) = a*x + b.
+
+(define (linear-regression lst func)
+  (local (n x y sx sy sxy sx2 a b)
+    (setq n (length lst))
+    (set 'sx 0 'sy 0 'sxy 0 'sx2 0)
+    (setq x (map first lst))
+    (setq y (map last lst))
+    (for (i 0 (- n 1))
+      (setq sx (add sx (x i)))
+      (setq sy (add sy (y i)))
+      (setq sxy (add sxy (mul (x i) (y i))))
+      (setq sx2 (add sx2 (mul (x i) (x i))))
+    )
+    (setq den (sub (mul n sx2) (mul sx sx)))
+    (setq a (div (sub (mul n sxy) (mul sx sy)) den))
+    (setq b (div (sub (mul sy sx2) (mul sxy sx)) den))
+    (if func ; if func = true
+      ; return a function
+      (let (f (string "(lambda (x) (add (mul " a " x) " b "))"))
+           (eval-string f))
+      ; else: return a and b
+      (list a b)
+    )))
+
+Vadiamo alcuni esempi:
+
+Esempio 1:
+
+(setq points '((10 2.2) (15 4.6) (20 4.2) (25 7.0) (30 6.6) (35 9.2)))
+
+Restituisce la coppia (a b):
+
+(linear-regression points)
+;-> (0.2502857142857143 0.001904761904756361)
+
+Restituisce la funzione (fx) = a*x + b:
+
+(define reg-line (linear-regression points true))
+;-> (lambda (x) (add (mul 0.2502857142857143 x) 0.001904761904756361))
+
+(reg-line 10)
+;-> 2.504761904761899
+(reg-line 15)
+;-> 3.75619047619047
+
+Esempio 2:
+
+(setq punti '((2 4) (3 5) (5 7) (7 10) (9 15)))
+
+Restituisce la coppia (a b):
+
+(linear-regression punti)
+;-> (1.518292682926829 0.3048780487804878)
+
+Restituisce la funzione (fx) = a*x + b:
+
+(define reg-linea (linear-regression punti true))
+;-> (lambda (x) (add (mul 1.518292682926829 x) 0.3048780487804878))
+
+(reg-linea 2)
+;-> 3.341463414634146
+
+(reg-linea 3)
+;-> 4.859756097560975
+
+Possiamo calcolare l'errore che commettiamo per ogni punto:
+
+(setq xp (map first punti))
+;-> (2 3 5 7 9)
+(setq yp (map last punti))
+;-> (4 5 7 10 15)
+(setq errore (map sub (map reg-linea xp) yp))
+;-> (-0.6585365853658542 -0.1402439024390247 0.8963414634146325
+;->   0.9329268292682915 -1.030487804878051)
+
+Esempio 3:
+
+(setq p '((1.21 1.69)  (3 5.89)  (5.16 4.11)  (8.31 5.49)  (10.21 8.65)))
+
+Restituisce la coppia (a b):
+
+(linear-regression p)
+;-> (0.5615004009523624 2.033950763487721)
+
+Restituisce la funzione (fx) = a*x + b:
+
+(define reg-linea2 (linear-regression p true))
+;-> (lambda (x) (add (mul 0.5615004009523624 x) 2.033950763487721))
+
+(reg-linea2 5.16)
+;-> 4.931292832401911
+
+2) la regressione lineare (per dati non lineari)
+------------------------------------------------
+
+Funzione interpolatrice:
+
+  f(X) = Y = A*X^B
+
+Applichiamo il logaritmo:
+
+  log(Y) = B*log(X) + log(A)
+
+Che è della forma:
+
+  y = a*x + b
+
+dove: y = log(Y), x = log(X), b = log(A), a = B
+
+Quindi possiamo utilizzare la formula per la regressione lineare per calcolare "a" e "b" e poi calcolare i valori di "A" e "B" con le seguenti formule:
+
+  A = 10^b
+  B = a
+
+Esempio:
+
+(setq pts '((1 0.1) (2 0.7) (3 0.9) (4 1.7) (5 2.1)))
+(setq px (map first pts))
+(setq py (map last pts))
+
+Prima applichiamo il logaritmo alle coordinate dei punti:
+
+(setq pxlog (map (fn(x) (log x 10)) px))
+;-> (0 0.3010299956639811 0.4771212547196624 0.6020599913279623
+;->  0.6989700043360188)
+(setq pylog (map (fn(x) (log x 10)) py))
+;-> (-0.9999999999999998 -0.1549019599857432 -0.04575749056067512
+;->   0.2304489213782739 0.3222192947339193)
+
+Ricostruiamo i punti:
+
+(setq ptslog (map list pxlog pylog))
+
+Poi applichiamo la formula della regressione lineare:
+
+(linear-regression ptslog)
+;-> (1.854157246411439 -0.9006240416792385)
+
+Poi calcoliamo le costanti A e B:
+
+(setq A (pow 10 -0.9006240416792385))
+;-> 0.1257117749488202
+(setq B 1.854157246411439)
+;-> 1.854157246411439
+
+Quindi la funzione interpolatrice vale:
+
+  f(x) = y = A*x^B = 0.1257117749488202*x^1.854157246411439
+
+Nota: Esistono altri tipi di equazioni a cui può essere applicato questo metodo di regressione lineare, ad esempio:
+
+Funzione interpolatrice:
+
+  Y = A*e^(B*X)
+
+Applichiamo il logaritmo naturale
+
+  ln(Y) = ln(A) + B*X*ln(e)
+
+  ln(e) = 1  ==>  ln(Y) = ln(A) + B*X
+
+Che è della forma: y = a*x + b
+
+dove y = ln(Y), x = X, b = ln(A), a = B
 
 =============================================================================
 

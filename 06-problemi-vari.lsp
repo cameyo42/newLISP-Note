@@ -6931,7 +6931,7 @@ Proviamo con i dati del primo esempio:
 ;-> 9 311
 ;-> 10 375
 
-Sul forum di newLISP, raph.ronnquist ha fornito la seguente funzione per creare polinomi:
+Sul forum di newLISP, ralph.ronnquist ha fornito la seguente funzione per creare polinomi:
 
 (define (make-poly coeff)
   (let ((rank (length coeff))

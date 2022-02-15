@@ -6184,6 +6184,87 @@ Lista delle funzioni:
 "First learn computer science and all the theory. Next develop a programming style. Then forget all that and just hack."
 - George Carrette
 
+"Deleted code don't need debugging"
+- anonymous
+
+"Sometimes, the elegant implementation is just a function. Not a method. Not a class. Not a framework. Just a function."
+- John Carmack
+
+"It's a lot easier to talk about code than it is to write code."
+- John O'Nolan
+
+"First, solve the problem. Then, write the code."
+- John Johnson
+
+"Hope is not a plan."
+- Jonathan Rosenberg
+
+"The number one skill required for learning any complex system is patience."
+Kelsey Hightower
+
+"When in doubt, use brute force."
+- Ken Thompson
+
+"Deleting lines of code can be more productive than writing."
+- Anonymous
+
+"There's nothing more permanent than a temporary hack."
+- Kile Simpson
+
+"To iterate is human, to recurse divine."
+- Peter Deutsch
+
+"When you feel the need to write a comment, first try to refactor the code so that any comment becomes superfluous."
+- Martin Fowler
+
+"Rarely is anyone thanked for the work they did to prevent the disaster that didn't happen."
+- Mikko Hypponen
+
+"Hardware eventually fails. Software eventually works."
+- Michael Hartung
+
+"Anything that can possibly go wrong, will go wrong."
+- Murphy's Law
+
+"Security is a state of mind."
+- NSA Security Manual
+
+"We crave for new sensations but soon become indifferent to them. Wonders of yesterday are today common occurrences."
+- Nikola tesla
+
+"One of the best programming skills you can have is knowing when to walk away for awhile."
+- Oscar godson
+
+"Playfully doing something difficult, whether useful or not, that is hacking."
+- Richard Stallman
+
+"Data dominates. If you’ve chosen the right data structures and organized things well, the algorithms will almost always be self-evident. Data structures, not algorithms, are central to programming."
+- Rob Pike
+
+"Another effective technique is to explain your code to someone else. This will often cause you to explain the bug to yourself. Sometimes it takes no more than a few sentences, followed by an embarrassed "Never mind, I see what's wrong. Sorry to bother you." This works remarkably well. You can even use non-programmers as listeners. One university computer center kept a teddy bear near the help desk. Students with mysterious bugs were required to explain them to the bear before they could speak to a human counselor."
+- Rob Pike
+
+"Code never lies, comments sometimes do."
+- Ron Jeffries
+
+"When debugging, novices insert corrective code; experts remove defective code."
+- Richard Pattis
+
+"Programming start from "Spaghetti Code" and ends with "Lasagna Code" (too many layers)."
+- anonymous
+
+"Functions should do one thing. They should do it well. They should do it only."
+- Robert C. Martin
+
+"The first rule of functions is that they should be small. The second rule of functions is that they should be smaller than that."
+- Robert C. Martin
+
+"The ideal numbers of arguments for a function is zero (niladic). Next comes one (monadic), followed closely by two (dyadic). Three arguments (triadic) should be avoided where possible. More than three (polyadic) requires very special justification ‐ and then shouldn't be used anyway".
+- Robert C. Martin
+
+"The longer it takes for a bug to surface, the harder it is to find."
+- Roedy Green
+
 
 ============================================================================
  Prefissi del Sistema Internazionale di unità di misura

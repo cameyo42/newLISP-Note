@@ -6749,7 +6749,7 @@ vengono passati a "ifnot" come variabili libere. In tal caso il problema è esat
    (inc gensym-counter)
    (sym (append "G-" (string gensym-counter))))
 
-Tuttavia, in quasi tutti i casi, l'uso di "gensym" è eccessivo. Una soluzione può essere quella proposta da Kazimir Marjoncic che ha definito due funzioni "set-protected1" e "set-protected2":
+Tuttavia, in quasi tutti i casi, l'uso di "gensym" è eccessivo. Una soluzione può essere quella proposta da Kazimir Majorinc che ha definito due funzioni "set-protected1" e "set-protected2":
 
 (set-protected1 'ifnt (lambda (c e t) (if (eval c) (eval t) (eval e)))
                       '(e c t))

@@ -1032,7 +1032,7 @@ NOTE LIBERE 6
 
 NOTE LIBERE 7
 =============
-  Hash-Map Quick Reference Guide  
+  Hash-Map Quick Reference Guide
   Hash-Map General management functions
   KiloByte e KibiByte
   Blog di Cyril Zlobin
@@ -1061,7 +1061,8 @@ NOTE LIBERE 7
   Short-circuit evaluation
   Algoritmo di Bellman-Ford
   Algoritmo "Fast inverse square root" e 0x5f3759df
-  Composizioni multipla di funzioni
+  Composizione multipla di funzioni
+  Metodo dei minimi quadrati (Least-squares regression)
 
 APPENDICI
 =========
