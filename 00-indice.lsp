@@ -1062,7 +1062,8 @@ NOTE LIBERE 7
   Algoritmo di Bellman-Ford
   Algoritmo "Fast inverse square root" e 0x5f3759df
   Composizione multipla di funzioni
-  Metodo dei minimi quadrati (Least-squares regression)
+  Regressione lineare (Metodo dei minimi quadrati)
+  Regressione polinomiale (Metodo dei minimi quadrati)
 
 APPENDICI
 =========

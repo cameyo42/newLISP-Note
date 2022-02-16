@@ -3825,11 +3825,11 @@ Sembra che tutto funzioni correttamente. Comunque, il risultato della composizio
 Se si usasse l'iterazione per definire la composizione di più funzioni, allora il risultato potrebbe essere più breve e veloce, ma non più elegante.
 
 
------------------------------------------------------
-Metodo dei minimi quadrati (Least-squares regression)
------------------------------------------------------
+------------------------------------------------
+Regressione lineare (Metodo dei minimi quadrati)
+------------------------------------------------
 
-Il metodo dei minimi quadrati è una tecnica di ottimizzazione (o regressione) che permette di trovare una funzione, rappresentata da una curva ottima (o curva di regressione), che si avvicini il più possibile ad un insieme di dati (in genere punti del piano). In particolare, la funzione trovata deve essere quella che minimizza la somma dei quadrati delle distanze tra i dati osservati e quelli della curva che rappresenta la funzione stessa.
+Il metodo dei minimi quadrati (Least-squares) è una tecnica di ottimizzazione (o regressione) che permette di trovare una funzione, rappresentata da una curva ottima (o curva di regressione), che si avvicini il più possibile ad un insieme di dati (in genere punti del piano). In particolare, la funzione trovata deve essere quella che minimizza la somma dei quadrati delle distanze tra i dati osservati e quelli della curva che rappresenta la funzione stessa.
 
 Di seguito vengono presentati due metodi di regressione con i minimi quadrati:
 
@@ -3926,6 +3926,8 @@ Restituisce la funzione (fx) = a*x + b:
 ;-> 2.504761904761899
 (reg-line 15)
 ;-> 3.75619047619047
+
+Il grafico dei punti e della linea di regressione è rappresentato nel file "linefit.png" nella cartella "data".
 
 Esempio 2:
 
@@ -4046,6 +4048,237 @@ Applichiamo il logaritmo naturale
 Che è della forma: y = a*x + b
 
 dove y = ln(Y), x = X, b = ln(A), a = B
+
+
+----------------------------------------------------
+Regressione polinomiale (Metodo dei minimi quadrati)
+----------------------------------------------------
+
+Il metodo di regressione polinomiale è un metodo adatto per quelle serie di punti [(xi yi) per i=0...(n-1)] che descrivono una curva dall'andamento polinomiale. Un polinomio di ordine m viene scritto nel modo seguente:
+
+  g(x) = a0 + a1*x + a2*x² + a3*x³ + ... + am*x^m
+
+dove a0, a1, a2, a3, ..., am sono i coefficienti incogniti.
+
+Questi coefficienti sono determinati partendo dall'errore totale E come somma dei quadrati degli errori per tutti i punti dati:
+
+    (n-1)
+  E = ∑ [d(x(i))]^2
+     i=0
+
+dove d(x(i)) è la differenza tra y(i) e il valore del polinomio di regressione in xi (cioè, f(xi)).
+
+Quindi sostituendo con l'equazione del polinomio:
+
+    (n-1)
+  E = ∑ [y(i) - g(x(i))]^2
+     i=0
+
+    (n-1)
+  E = ∑ [y(i) - (a0 + a1*xi + a2*xi² + a3*xi³ + ... + am*xi^m)]^2
+     i=0
+
+Gli (m + 1) coefficienti a0, a1, a2, a3, ..., am si ricavano minimizzando E rispetto ai coefficienti incogniti (least-squares regression). Per fare questo dobbiamo eguagliare a 0 tutte le (m + 1) derivate parziali:
+
+  dp(E)        |
+  ----- = 0    |
+  d(a0)        |
+               |
+  dp(E)        |
+  ----- = 0    |
+  d(a1)        |
+               |
+  dp(E)        |
+  ----- = 0    |
+  d(a2)        |  (m + 1) equazioni
+               |
+  dp(E)        |
+  ----- = 0    |
+  d(a3)        |
+               |
+  ...          |
+               |
+  dp(E)        |
+  ----- = 0    |
+  d(am)        |
+
+Sviluppando queste derivate si trova un sistema di equazioni lineari che, una volta risolto, fornisce i valori di tutti i coefficienti del polinomio.
+Il sistema di equazioni da risolvere ha la seguente struttura:
+
+| n     ∑xi       ∑xi^2     ... ∑xi^m     |   | a0 |   | ∑yi      |
+| ∑xi   ∑xi^2     ∑xi^3     ... ∑xi^(m+1) |   | a1 |   | ∑xiyi    |
+| ∑xi^2 ∑xi^3     ∑xi^4     ... ∑xi^(m+2) | * | a2 | = | ∑xi^2*yi |
+| ...   ...       ...       ... ...       |   | ...|   | ...      |
+| ∑xi^m ∑xi^(m+1) ∑xi^(m+2) ... ∑xi^(2m)  |   | am |   | ∑xi^m*yi |
+
+Utilizziamo il metodo di gauss per risolvere il sistema:
+
+(define (gauss A b)
+  (local (n m p rowx amax xfac temp temp1 x)
+    ; conta il numero di scambio righe
+    (setq rowx 0)
+    (setq n (length A))
+    (setq x (dup '0 n))
+    (for (k 0 (- n 2))
+      (setq amax (abs (A k k)))
+      (setq m k)
+      ; trova la riga con il pivot più grande
+      (for (i (+ k 1) (- n 1))
+        (setq xfac (abs (A i k)))
+        (if (> xfac amax) (setq amax xfac m i))
+      )
+      ; scambio delle righe
+      (if (!= m k) (begin
+          (++ rowx)
+          (setq temp1 (b k))
+          (setq (b k) (b m))
+          (setq (b m) temp1)
+          (for (j k (- n 1))
+            (setq temp (A k j))
+            (setq (A k j) (A m j))
+            (setq (A m j) temp)
+          ))
+      )
+      (for (i (+ k 1) (- n 1))
+        (setq xfac (div (A i k) (A k k)))
+        (for (j (+ k 1) (- n 1))
+          (setq (A i j) (sub (A i j) (mul xfac (A k j))))
+        )
+        (setq (b i) (sub (b i) (mul xfac (b k))))
+      )
+    )
+    ; sostituzione all'indietro (backward sostitution)
+    (for (j 0 (- n 1))
+      (setq p (sub n j 1))
+      (setq (x p) (b p))
+      (if (<= (+ p 1) (- n 1))
+        (for (i (+ p 1) (- n 1))
+          (setq (x p) (sub (x p) (mul (A p i) (x i))))
+        )
+      )
+      (setq (x p) (div (x p) (A p p)))
+    )
+    x))
+
+Adesso scriviamo una funzione che genera il sistema di equazioni partendo dagli n punti iniziali.
+
+(define (polyfit points order)
+  (local (n m a b x y k)
+    (setq n (length points))
+    (setq m order)
+    ; matrice del sistema
+    (setq a (array (+ m 1) (+ m 1) '(0)))
+    ; vettore termini noti
+    (setq b (array (+ m 1) '(0)))
+    (setq x (map first points))
+    (setq y (map last points))
+    (for (ir 0 m)
+      (for (ic 0 m)
+        (setq k (+ ir ic))
+        (for (i 0 (- n 1))
+          (setf (a ir ic) (add (a ir ic) (pow (x i) k)))
+        )
+      )
+      (for (i 0 (- n 1))
+        (setf (b ir) (add (b ir) (mul (y i) (pow (x i) ir))))
+      )
+    )
+    ;(list a b)
+    ; calcola i coefficienti del polinomio di regressione
+    ; risolvendo il sistema lineare
+    (gauss a b)))
+
+Facciamo un esempio:
+
+Creiamo una lista di punti:
+
+(setq punti '((0 1.00762) (5 1.00392) (10 1.00153) (15 1) (20 0.99907)
+              (25 0.99852) (30 0.99826) (35 0.99818) (40 0.99828)
+              (45 0.99849) (50 0.99878) (55 0.99919) (60 0.99967)
+              (65 1.00024) (70 1.00091) (75 1.00167) (80 1.00253)
+              (85 1.00351) (90 1.00461) (95 1.00586) (100 1.00721)))
+(length punti)
+;-> 21
+(setq px (map first punti))
+;-> (0 5 10 15 20 25 30 35 40 45 50
+;->  55 60 65 70 75 80 85 90 95 100))
+(setq py (map last punti))
+;-> (1.00762 1.00392 1.00153 1.00000 0.99907 0.99852 0.99826
+;->  0.99818 0.99828 0.99849 0.99878 0.99919 0.99967 1.00024
+;->  1.00091 1.00167 1.00253 1.00351 1.00461 1.00586 1.00721)
+
+Proviamo la funzione "polyfit" utilizzando un polinomio di ordine 3:
+
+g(x) = a0 + a1*x + a2*x^2 + a3*x^4
+
+(polyfit punti 3)
+;-> (1.00644556747601
+;->  -0.0004985711478970345
+;->  8.453810415389021e-006
+;->  -3.453389732580245e-008)
+
+Quindi i coefficienti del polinomio valgono:
+
+a0 = 1.00644556747601
+a1 = -0.0004985711478970345
+a2 = 8.453810415389021e-006
+a3 = -3.453389732580245e-008
+
+Il grafico dei punti e del polinomio di regressione è rappresentato nel file "polyfit.png" nella cartella "data".
+
+Possiamo creare una funzione che rappresenta il polinomio con la seguente funzione che prende una lista di coefficienti (in ordine inverso: prima il coefficiente con il grado più alto):
+
+(define (crea-polinomio coeff)
+  (local (fun body)
+    (reverse coeff)
+    (setq fun '(lambda (x) x)) ;funzione lambda base
+    (setq body '()) ;corpo della funzione
+    (push 'add body -1)
+    (push (first coeff) body -1) ;termine noto
+    (push (list 'mul 'x (coeff 1)) body -1) ;termine lineare
+    (for (i 2 (- (length coeff) 1))
+      (push (list 'mul (list 'pow 'x i) (coeff i)) body -1)
+    )
+    (setq (last fun) body) ;modifica corpo della funzione
+    fun
+  )
+)
+
+(setq reverse-coeff (reverse '(1.00644556747601
+                               -0.0004985711478970345
+                               8.453810415389021e-006
+                               -3.453389732580245e-008)))
+
+(define poly (crea-polinomio reverse-coeff))
+;-> (lambda (x) (add 1.00644556747601
+;->             (mul x -0.0004985711478970345)
+;->             (mul (pow x 2) 8.453810415389021e-006)
+;->             (mul (pow x 3) -3.453389732580245e-008)))
+
+Calcoliamo i valori del polinomio alle coordinate x dei punti:
+
+(map poly px)
+;-> (1.00644556747601
+;->  1.004159740259744
+;->  1.002270703141253
+;->  1.000752555697543
+;->  0.9995793975056184
+;->  0.9987253281424867
+;->  0.9981644471851524
+;->  0.9978708542106215
+;->  0.9978186487958997
+;->  0.9979819305179923
+;->  0.9983347989539055
+;->  0.9988513536806446
+;->  0.9995056942752152
+;->  1.000271920314623
+;->  1.001124131375874
+;->  1.002036427035973
+;->  1.002982906871926
+;->  1.003937670460739
+;->  1.004874817379418
+;->  1.005768447204968
+;->  1.006592659514394)
 
 =============================================================================
 

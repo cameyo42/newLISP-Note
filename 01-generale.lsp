@@ -28,15 +28,17 @@ Per convenzione i comandi di input della REPL (Read Eval Print Loop) non conteng
 L'output della REPL viene preceduto dalla stringa ";-> ".
 Nel testo sono riportate le descrizioni di alcuni comandi predefiniti tradotte dal manuale di riferimento ("newLISP Reference"). Queste descrizioni sono precedute dalla stringa ">>>funzione". Ad esempio, per trovare la funzione "map", ricercare la stringa ">>>funzione MAP".
 
-Nota: quasi tutti i paragrafi sono indipendenti, cioè hanno tutto il codice necessario per essere seguiti completamente. Per questo motivo alcue funzioni saranno ripetute nell'intero documento.
+Nota: quasi tutti i paragrafi sono indipendenti, cioè hanno tutto il codice necessario per essere seguiti completamente. Per questo motivo alcune funzioni saranno ripetute all'interno del documento.
 
-Caratteristiche del sistema utilizzato
+Nota: tutti i file di testo sono codificati in UTF-8.
+
+Caratteristiche dei sistemi utilizzati
 --------------------------------------
 S.O. Windows 10 Professional 64-bit
 Linguaggio: newLISP 10.7.5 UTF-8
-Motherboard: ASUS GTX750-PH/ASUS TUF Z390-PLUS
-CPU: Intel Core i5-4460/Intel Core i7-9700
-RAM: 16Gb DDR3 800mHz/32Gb DDR4 1330mHz
+Motherboard: ASUS P5B-E / ASUS TUF Z390-PLUS GAMING (WI-FI)
+CPU: Intel Core i5-4460 / Intel Core i7-9700
+RAM: 16Gb DDR3 800mHz / 32Gb DDR4 1330mHz
 GPU: NVIDIA Geforce GTX 750 SDRAM: 2Gb GDDR5
 
 Nota:
