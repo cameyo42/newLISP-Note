@@ -2101,6 +2101,36 @@ Encode e decode URL
 (url-decode (url-encode "http://www.newlispfanclub.alh.net/forum/"))
 ;-> "http://www.newlispfanclub.alh.net/forum/"
 
+Da "Code Snippets": http://www.newlisp.org/index.cgi?page=Code_Snippets
+
+URL encode and decode
+; Character strings in URLs and POST data when
+; using HTTP methods must not use certain unsafe
+; characters. These routines encode and decode
+; to save URL format.
+;
+; (url-encode "this is a test?")
+;   => "this%20is%20a%20test%3F"
+; (url-decode "this%20is%20a%20test%3F")
+;   => "this is a test?"
+;
+; (url-encode "所有的愛是公平的")
+; =>  "%e6%89%80%e6%9c%89%e7%9a%84%e6%84%9b%e6%98%af%e5%85%ac%e5%b9%b3%e7%9a%84"
+; (url-decode (url-encode ""所有的愛是公平的")) => "所有的愛是公平的"
+
+; simple encoder
+(define (url-encode str)
+  (replace {([^a-zA-Z0-9])} str (format "%%%2X" (char $1)) 0))
+
+; UTF-8 encoder, encodes everything into %xx form
+(define (url-encode str) ; for UTF-8 strings
+  (join (map (fn (c) (format "%%%02x" c)) (unpack (dup "b" (length str)) str))))
+
+; universal decoder, works for ASCII and UTF-8
+  (define (url-decode url (opt nil))
+    (if opt (replace "+" url " "))
+    (replace "%([0-9a-f][0-9a-f])" url (pack "b" (int $1 0 16)) 1))
+
 
 -------------------------
 Divisione di due polinomi
@@ -3342,6 +3372,8 @@ Bellman-Ford non funziona con un grafo non orientato con archi negativi poiché 
 
 L'algoritmo di Bellman-Ford procede per "rilassamento degli archi" (come quello di Dijkstra), in cui le approssimazioni della distanza minima vengono sostituite da quelle migliori fino a raggiungere la soluzione. In entrambi gli algoritmi, la distanza approssima da ciascun vertice è sempre una sovrastima della distanza reale ed è sostituita dal minimo del suo vecchio valore e dalla lunghezza di un nuovo percorso trovato. Tuttavia, l'algoritmo di Dijkstra utilizza una coda di priorità per selezionare in modo greedy il vertice più vicino che non è stato ancora elaborato ed esegue questo processo di rilassamento su tutti i suoi archi in uscita. Al contrario, l'algoritmo Bellman-Ford rilassa semplicemente tutti gli archi e fa questo (v - 1) volte, dove "v" è il numero di vertici nel grafo. In ciascuna di queste ripetizioni cresce il numero di vertici con distanze calcolate correttamente, da cui ne consegue che alla fine tutti i vertici avranno le distanze corrette (minime). Questo metodo consente di applicare l'algoritmo Bellman-Ford a una classe di grafi più ampia rispetto a Dijkstra. Entrambi gli algoritmi producono gli stessi risultati.
 
+La complessità temporale di questo algoritmo vale O(V*E), dove V = numero dei vertici e E = numero degli archi (Edge).
+
 Nell'algoritmo di Bellman-Ford il modo più conveniente di rappresentare il grafo è quello di utilizzare una lista che contiene tanti elementi quanti sono i suoi vertici. L'elemento i-esimo della lista rappresenta l'arco i-esimo del grafo e contiene la seguente terna di valori:
 
   1) nodo sorgente
@@ -3812,6 +3844,8 @@ Facciamo alcuni esempi:
 ;-> 16
 ((multicompose sqrt sqrt sqrt) 65536)
 ;-> 4
+((multicompose sin cos sin) 5)
+;-> 0.5433319155414624
 
 Sembra che tutto funzioni correttamente. Comunque, il risultato della composizione è piuttosto complicato a causa della definizione ricorsiva.
 
@@ -3823,6 +3857,33 @@ Sembra che tutto funzioni correttamente. Comunque, il risultato della composizio
 ;->   (f1 _ex)))
 
 Se si usasse l'iterazione per definire la composizione di più funzioni, allora il risultato potrebbe essere più breve e veloce, ma non più elegante.
+
+Adesso vediamo una macro per la composizione di funzioni (Kazimir Majorinc):
+
+(define-macro (make-pass-adapted)
+  (doargs (arg)
+     (constant arg
+        (letex((arg (eval arg)))
+           (lambda-macro()
+              (arg (eval (if (> (length (args)) 1)
+                             (args)
+                             (first (args))))))))))
+
+(sin 3)
+;-> 0.1411200080598672
+(sin (cos 4)))
+;-> -0.6080830096407656
+(sin (cos (sin 5)))
+;-> 0.5433319155414624
+
+(make-pass-adapted sin cos)
+
+(sin (+ (cos 0) (cos 0) (cos 0)))
+;-> 0.1411200080598672
+(sin cos 4)
+;-> -0.6080830096407656
+(sin cos sin (+ 2 3))
+;-> 0.5433319155414624
 
 
 ------------------------------------------------
@@ -4279,6 +4340,201 @@ Calcoliamo i valori del polinomio alle coordinate x dei punti:
 ;->  1.004874817379418
 ;->  1.005768447204968
 ;->  1.006592659514394)
+
+
+-----------------------------------
+Ordinamento naturale (Natural Sort)
+-----------------------------------
+
+Supponiamo di avere la seguente lista:
+
+(setq alist '("a10" "b2" "a2" "a1" "b1" "a14" "b12"))
+
+Se applichiamo l'ordinamento standard con la funzione "sort" otteniamo la lista:
+
+(setq sort-lst (sort (copy alist)))
+;-> ("a1" "a10" "a14" "a2" "b1" "b12" "b2")
+
+Questo è l'ordinamento alfabetico, ma alcune volte abbiamo bisogno di avere un "ordinamento naturale" in cui le lettere sono seguite dai numeri in ordine numerico, cioè:
+
+ ("a1" "a2" "a10" "a14" "b1" "b2" "b12")
+
+L'ordinamento naturale è l'ordinamento delle stringhe in ordine alfabetico, tranne per il fatto che i numeri a più cifre vengono trattati atomicamente, cioè come se fossero un singolo carattere. Il termine "naturale" deriva dal fatto che è più adatto all'uomo ("naturale") rispetto all'ordinamento alfabetico puro.
+
+La funzione seguente ordina una lista di stringhe in modo "naturale":
+
+; ported to newLISP by G. Fischer
+(define (natural-sort l)
+  (let (natural-key (lambda (s) (filter true?
+    (flat (transpose (list
+            (parse s "[0-9]+" 0)
+            (map int (find-all "[0-9]+" s))))))))
+    (sort l (fn (x y) (< (natural-key x)
+            (natural-key y))))
+))
+
+(natural-sort alist)
+;-> ("a1" "a2" "a10" "a14" "b1" "b2" "b12")
+
+(natural-sort '("1a" "11a" "a12" "c01" "01c" "010b" "b1" "a01" "a001"))
+;-> ("1a" "01c" "010b" "11a" "a001" "a01" "a12" "b1" "c01")
+
+(setq test
+ '("1-2" "1-02" "1-20" "10-20" "fred" "jane" "pic01" "pic2" "pic02"
+   "pic02a" "pic3" "pic4" "pic 4 else" "pic 5" "pic05" "pic 5 " ))
+   "pic 5 something" "pic 6" "pic   7" "pic100" "pic100a" "pic120"
+   "pic121" "pic02000" "tom" "x2-g8" "x2-y7" "x2-y08" "x8-y8"
+
+(natural-sort test)
+;-> ("1-02" "1-2" "1-20" "10-20" "fred" "jane" "pic01" "pic02" "pic2"
+;->  "pic02a" "pic3" "pic4" "pic05" "pic100" "pic100a" "pic120" "pic121"
+;->  "pic02000" "pic 4 else" "pic 5" "pic 5 " "pic 5 something" "pic 6"
+;->  "pic   7" "tom" "x2-g8" "x2-y08" "x2-y7" "x8-y8")
+
+
+------------------------
+D. Backspace e AlphaCode
+------------------------
+
+Un problema (difficile) dal sito Codeforces:
+
+https://codeforces.com/problemset/problem/1553/D
+
+Questo problema è interessante perchè è stato affrontato e risolto dal programma AI AlphaCode che è in grado di creare codice in C++ o python per risolvere problemi di programmazione definiti in modo testuale. Maggiori informazioni ai seguenti link:
+
+https://deepmind.com/blog/article/Competitive-programming-with-AlphaCode
+
+https://storage.googleapis.com/deepmind-media/AlphaCode/competition_level_code_generation_with_alphacode.pdf
+
+Il testo del problema è il seguente:
+
+Abbiamo due stringhe s e t, entrambe composte da lettere inglesi minuscole.
+Digitare la stringa carattere per carattere, dal primo all'ultimo carattere.
+
+Quando si digita un carattere, invece di premere il pulsante corrispondente, è possibile premere il pulsante "Backspace". Questo elimina l'ultimo carattere digitato tra quelli che non sono ancora stati eliminati (o non fa nulla se non ci sono caratteri nella stringa corrente). Ad esempio, se s è "abcbd" e premiamo Backspace invece di digitare il primo e il quarto carattere, otteniamo la stringa "bd" (la prima pressione di Backspace non cancella nessun carattere, e la seconda pressione cancella il carattere "c"). Un altro esempio, se s è "abcaa" e si preme Backspace invece delle ultime due lettere, il testo risultante è "a".
+
+Il compito è determinare se è possibile ottenere la stringa t, se digitando la stringa s e premendo "Backspace" invece di digitare i diversi (anche zero) caratteri di s.
+
+La funzione deve stampare "YES" se è possibile ottenere la stringa t digitando la stringa s e sostituendo alcuni caratteri premendo il pulsante "Backspace", oppure stampare "NO" se questo non è possibile.
+
+Esempi:
+
+  s       t      Risultato
+  ------------------------
+  ababa   ba     true
+  ababa   bb     nil
+  aaa     aaaa   nil
+  aababa  ababa  true
+
+Riportiamo la soluzione generata da AlphaCode (in python):
+
+  t=int(input())
+  for i in range(t):
+    s=input()          |
+    t=input()          |
+    a=[]               |
+    b=[]               | First Alpha Code reads
+    for j in s:        | the two phrases.
+      a.append(j)      |
+    for j in t:        |
+      b.append(j)      |
+    a.reverse()                          |
+    b.reverse()                          | If the letters at the end
+    c=[]                                 | of both phrases don't match,
+    while len(b)!=0 and len(a)!=0:       | the last letter must be deleted.
+      if a[0]==b[0]:                     | If the do match we can move
+          c.append(b.pop(0))             | onto the second last letter
+          a.pop(0)                       | and repeat
+      elif a[0]!=b[0] and len(a)!=1:     |
+          a.pop(0)     | Backspace deletes two letters. The letter you press
+          a.pop(0)     | backspace instead of, and the letter before it.
+      elif a[0]!=b[0] and len(a)==1:
+          a.pop(0)
+    if len(b)==0:        | 
+        print("YES")     | If we have matched every letter,
+    else:                | it is possible and we output that.
+        print("NO")      |
+
+Convertiamo la stessa funzione in newLISP:
+
+(define (write? s t)
+  (local (a b c)
+    (setq a (reverse (explode s)))
+    (setq b (reverse (explode t)))
+    (setq c '())
+    (while (and (!= (length b) 0) (!= (length a) 0))
+      (cond ((= (a 0) (b 0))
+             (push (pop b) c)
+             (pop a)
+            )
+            ((and (!= (a 0) (b 0)) (!= (length a) 1))
+             (pop a)
+             (pop a)
+            )
+            ((and (!= (a 0) (b 0)) (= (length a) 1))
+             (pop a)
+            )
+      )
+    )
+    (if (= (length b) 0)
+        (println "YES")
+        (println "NO")
+    )))
+
+Proviamo la funzione:
+
+(write? "ababa"   "ba"   )
+;-> YES
+(write? "ababa"   "bb"   )
+;-> "NO"
+(write? "aaa"     "aaaa" )
+;-> "NO"
+(write? "aababa"  "ababa")
+;-> YES
+
+Adesso scriviamo una soluzione "umana" (le spiegazioni nei commenti):
+
+(define (possible? s t)
+  (setq n (length s))
+  (setq m (length t))
+  (setq i (- n 1))
+  (setq ok true)
+  (setq stop nil)
+  ; ciclo sulla stringa t (all'indietro)
+  (for (j (- m 1) 0 -1 stop)
+    ; ciclo sulla stringa s (all'indietro)
+    ; finchè i caratteri correnti di s e t sono diversi
+    (while (and (> i 0) (!= (s i) (t j)))
+      ; diminuiamo l'indice di s di 2
+      (-- i 2)
+    )
+    ; se la stringa s è terminata
+    ; allora non è possibile scrivere t da s
+    (if (< i 0) (set 'ok nil 'stop true))
+    ; passiamo al prossimo carattere di s
+    (-- i)
+  )
+  (if ok
+      (println "YES")
+      (println "NO")
+  ))
+
+Proviamo la funzione:
+
+(possible? "ababa"   "ba"   )
+;-> YES
+(possible? "ababa"   "bb"   )
+;-> "NO"
+(possible? "aaa"     "aaaa" )
+;-> "NO"
+(possible? "aababa"  "ababa")
+;-> YES
+
+Nota: 
+"AlphaZero" è il più bravo giocatore di scacchi del mondo.
+"AlphaGo" è il più bravo giocatore di go del mondo.
+"AlphaCode" forse diventerà il più bravo programmatore del mondo.
+Comunque gli esseri umani giocano ancora a scacchi, a go e sicuramente continueremo a programmare anche solo per divertimento.
 
 =============================================================================
 

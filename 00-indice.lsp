@@ -1064,6 +1064,8 @@ NOTE LIBERE 7
   Composizione multipla di funzioni
   Regressione lineare (Metodo dei minimi quadrati)
   Regressione polinomiale (Metodo dei minimi quadrati)
+  Ordinamento naturale (Natural Sort)
+  D. Backspace e AlphaCode
 
 APPENDICI
 =========
