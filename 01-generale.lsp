@@ -3060,6 +3060,8 @@ Ci sono alcuni casi in cui il metodo sopra produce ancora risultati imprevisti (
 
 Se non siete soddisfatti di queste informazioni pratiche, potete consultate il libro: "Numerical Computing with IEEE Floating Point Arithmetic" di Michael Overton.
 
+Vedi anche l'implementazione di "isclose" mutuata da python3 in "(isclose x y) di python 3" nel capitolo "01-generale.lsp".
+
 
 ==========================================
  VERIFICA DELLE OPERAZIONI FLOATING-POINT

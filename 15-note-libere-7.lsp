@@ -4430,30 +4430,30 @@ Riportiamo la soluzione generata da AlphaCode (in python):
 
   t=int(input())
   for i in range(t):
-    s=input()          |
-    t=input()          |
-    a=[]               |
-    b=[]               | First Alpha Code reads
-    for j in s:        | the two phrases.
-      a.append(j)      |
-    for j in t:        |
-      b.append(j)      |
-    a.reverse()                          |
-    b.reverse()                          | If the letters at the end
-    c=[]                                 | of both phrases don't match,
-    while len(b)!=0 and len(a)!=0:       | the last letter must be deleted.
-      if a[0]==b[0]:                     | If the do match we can move
-          c.append(b.pop(0))             | onto the second last letter
-          a.pop(0)                       | and repeat
-      elif a[0]!=b[0] and len(a)!=1:     |
-          a.pop(0)     | Backspace deletes two letters. The letter you press
-          a.pop(0)     | backspace instead of, and the letter before it.
+    s=input()          ;
+    t=input()          ;
+    a=[]               ;
+    b=[]               ; First Alpha Code reads
+    for j in s:        ; the two phrases.
+      a.append(j)      ;
+    for j in t:        ;
+      b.append(j)      ;
+    a.reverse()                          ;
+    b.reverse()                          ; If the letters at the end
+    c=[]                                 ; of both phrases don't match,
+    while len(b)!=0 and len(a)!=0:       ; the last letter must be deleted.
+      if a[0]==b[0]:                     ; If the do match we can move
+          c.append(b.pop(0))             ; onto the second last letter
+          a.pop(0)                       ; and repeat
+      elif a[0]!=b[0] and len(a)!=1:     ;
+          a.pop(0)     ; Backspace deletes two letters. The letter you press
+          a.pop(0)     ; backspace instead of, and the letter before it.
       elif a[0]!=b[0] and len(a)==1:
           a.pop(0)
-    if len(b)==0:        | 
-        print("YES")     | If we have matched every letter,
-    else:                | it is possible and we output that.
-        print("NO")      |
+    if len(b)==0:        ; 
+        print("YES")     ; If we have matched every letter,
+    else:                ; it is possible and we output that.
+        print("NO")      ;
 
 Convertiamo la stessa funzione in newLISP:
 
@@ -4534,7 +4534,326 @@ Nota:
 "AlphaZero" è il più bravo giocatore di scacchi del mondo.
 "AlphaGo" è il più bravo giocatore di go del mondo.
 "AlphaCode" forse diventerà il più bravo programmatore del mondo.
-Comunque gli esseri umani giocano ancora a scacchi, a go e sicuramente continueremo a programmare anche solo per divertimento.
+Comunque noi esseri umani giochiamo ancora a scacchi, a go e sicuramente continueremo a programmare anche solo per divertimento.
+
+
+-------------------------
+(isclose x y) di python 3
+-------------------------
+
+Confrontare correttamente se due numeri in virgola mobile (floating-point) sono quasi uguali è abbastanza complicato. Il linguaggio python 3 mette a disposizione la funzione "isclose" che determina se un valore è approssimativamente uguale o "vicino" a un altro valore.
+
+La funzione ha la seguente struttura: isclose(a, b, rel_tol=1e-9, abs_tol=0.0)
+
+a e b: sono i due valori da verificare per la vicinanza relativa
+
+rel_tol: è la tolleranza relativa -- è la quantità di errore consentita, relativa al valore assoluto più grande di a o b. Ad esempio, per impostare una tolleranza del 5%, passare tol=0,05. La tolleranza predefinita è 1e-9, che assicura che i due valori siano gli stessi entro circa 9 cifre decimali. rel_tol deve essere maggiore di 0.0.
+
+abs_tol: è un livello di tolleranza assoluto minimo (utile per confronti vicini allo zero).
+
+Riportiamo le implementazioni in python 3 della versione preliminare e della versione finale della funzione "isclose". Nei commenti delle due funzioni troviamo le spiegazioni dei metodi utilizzati. Per maggiori informazioni sul funzionamento della routine vedi: 
+
+  https://www.python.org/dev/peps/pep-0485/
+
+Definizione preliminare di "isclose":
+-------------------------------------
+#!/usr/bin/env python3
+
+"""
+Test implementation for an isclose() function, for possible inclusion in
+the Python standard library -- PEP0485
+This version has multiple methods in it for experimentation and testing.
+The "final" version can be found in isclose.py
+This implementation is the result of much discussion on the python-ideas list
+in January, 2015:
+   https://mail.python.org/pipermail/python-ideas/2015-January/030947.html
+   https://mail.python.org/pipermail/python-ideas/2015-January/031124.html
+   https://mail.python.org/pipermail/python-ideas/2015-January/031313.html
+Copyright: Christopher H. Barker
+License: Apache License 2.0 http://opensource.org/licenses/apache2.0.php
+"""
+import cmath
+
+def isclose(a,
+            b,
+            rel_tol=1e-9,
+            abs_tol=0.0,
+            method='weak'):
+    """
+    returns True if a is close in value to b. False otherwise
+    :param a: one of the values to be tested
+    :param b: the other value to be tested
+    :param rel_tol=1e-8: The relative tolerance -- the amount of error
+                         allowed, relative to the magnitude of the input
+                         values.
+    :param abs_tol=0.0: The minimum absolute tolerance level -- useful for
+                        comparisons to zero.
+    :param method: The method to use. options are:
+                  "asymmetric" : the b value is used for scaling the tolerance
+                  "strong" : The tolerance is scaled by the smaller of
+                             the two values
+                  "weak" : The tolerance is scaled by the larger of
+                           the two values
+                  "average" : The tolerance is scaled by the average of
+                              the two values.
+    NOTES:
+    -inf, inf and NaN behave similar to the IEEE 754 standard. That
+    -is, NaN is not close to anything, even itself. inf and -inf are
+    -only close to themselves.
+    Complex values are compared based on their absolute value.
+    The function can be used with Decimal types, if the tolerance(s) are
+    specified as Decimals::
+      isclose(a, b, rel_tol=Decimal('1e-9'))
+    See PEP-0485 for a detailed description
+    """
+    if method not in ("asymmetric", "strong", "weak", "average"):
+        raise ValueError('method must be one of: "asymmetric",'
+                         ' "strong", "weak", "average"')
+
+    if rel_tol < 0.0 or abs_tol < 0.0:
+        raise ValueError('error tolerances must be non-negative')
+
+    if a == b:  # short-circuit exact equality
+        return True
+    # use cmath so it will work with complex or float
+    if cmath.isinf(a) or cmath.isinf(b):
+        # This includes the case of two infinities of opposite sign, or
+        # one infinity and one finite number. Two infinities of opposite sign
+        # would otherwise have an infinite relative tolerance.
+        return False
+    diff = abs(b - a)
+    if method == "asymmetric":
+        return (diff <= abs(rel_tol * b)) or (diff <= abs_tol)
+    elif method == "strong":
+        return (((diff <= abs(rel_tol * b)) and
+                 (diff <= abs(rel_tol * a))) or
+                (diff <= abs_tol))
+    elif method == "weak":
+        return (((diff <= abs(rel_tol * b)) or
+                 (diff <= abs(rel_tol * a))) or
+                (diff <= abs_tol))
+    elif method == "average":
+        return ((diff <= abs(rel_tol * (a + b) / 2) or
+                (diff <= abs_tol)))
+    else:
+        raise ValueError('method must be one of:'
+                         ' "asymmetric", "strong", "weak", "average"')
+
+Definizione finale di "isclose":
+--------------------------------
+#!/usr/bin/env python3
+
+"""
+Test implementation for an isclose() function, for possible inclusion in
+the Python standard library -- PEP0485
+This is the result of much discussion on the python-ideas list
+in January, 2015:
+   https://mail.python.org/pipermail/python-ideas/2015-January/030947.html
+   https://mail.python.org/pipermail/python-ideas/2015-January/031124.html
+   https://mail.python.org/pipermail/python-ideas/2015-January/031313.html
+Copyright: Christopher H. Barker
+License: Apache License 2.0 http://opensource.org/licenses/apache2.0.php
+"""
+
+import math
+
+def isclose(a, b, rel_tol=1e-9, abs_tol=0.0):
+    """
+    returns True if a is close in value to b. False otherwise
+    :param a: one of the values to be tested
+    :param b: the other value to be tested
+    :param rel_tol=1e-9: The relative tolerance -- the amount of error
+                         allowed, relative to the absolute value of the
+                         larger input values.
+    :param abs_tol=0.0: The minimum absolute tolerance level -- useful
+                        for comparisons to zero.
+    NOTES:
+    -inf, inf and NaN behave similarly to the IEEE 754 Standard. That
+    is, NaN is not close to anything, even itself. inf and -inf are
+    only close to themselves.
+    The function can be used with any type that supports comparison,
+    substratcion and multiplication, including Decimal, Fraction, and
+    Complex
+    Complex values are compared based on their absolute value.
+    See PEP-0485 for a detailed description
+    """
+
+    if a == b:  # short-circuit exact equality
+        return True
+
+    if rel_tol < 0.0 or abs_tol < 0.0:
+        raise ValueError('error tolerances must be non-negative')
+
+    # use cmath so it will work with complex ot float
+    if math.isinf(abs(a)) or math.isinf(abs(b)):
+        # This includes the case of two infinities of opposite sign, or
+        # one infinity and one finite number. Two infinities of opposite sign
+        # would otherwise have an infinite relative tolerance.
+        return False
+    diff = abs(b - a)
+
+    return (((diff <= abs(rel_tol * b)) or
+             (diff <= abs(rel_tol * a))) or
+            (diff <= abs_tol))
+
+Adesso scriviamo la versione finale di "isclose" in newLISP:
+
+(define (isclose? a b rel-tol abs-tol)
+  (if (nil? abs-tol) (setq abs-tol 0.0))
+  (if (nil? rel-tol) (setq rel-tol 1e-9))
+  (cond ((= a b) true)
+        ((or (inf? (abs a)) (inf? (abs b))) nil)
+        (true 
+         (let (diff (abs (sub b a)))
+              (or (<= diff (abs (mul rel-tol b)))
+                  (<= diff (abs (mul rel-tol a)))
+                  (<= diff abs-tol))))))
+
+rel-tol, la tolleranza relativa, viene moltiplicata per entrambi i valori degli argomenti. All'aumentare dei valori, aumenta anche la differenza consentita tra loro pur considerandoli uguali.
+abs-tol, la tolleranza assoluta, viene applicata così com'è in tutti i casi. 
+Se la differenza è inferiore a una di queste tolleranze, i valori sono considerati uguali ("vicini").
+
+Proviamo la funzione con gli esempi riportati nel manuale di riferimento di python3:
+
+La tolleranza relativa è la differenza massima consentita tra gli argomenti di "isclose?", rispetto al valore assoluto più grande:
+
+(setq a 5.0)
+(setq b 4.99998)
+(isclose? a b 1e-5 0.0)
+;-> true
+(isclose? a b 1e-8 0.0)
+;-> nil
+
+È anche possibile confrontare due valori utilizzando la tolleranza assoluta, che deve essere un valore non negativo:
+
+(isclose? a b 1e-9 0.00003)
+;-> true
+(isclose? a b 1e-9 0.00001)
+;-> nil
+
+
+-------------------------------------------------------
+Dimostrazione della soluzione dell'equazione quadratica
+-------------------------------------------------------
+
+La soluzione di un equazione quadratica del tipo: 
+  
+  a*x² + b*x + c = 0
+  
+vale:
+
+       -b ± sqrt(b² - 4ac)
+  x = ---------------------
+               2a    
+
+Prima di dimostrare questa formula, vediamo cosa significa "completare il quadrato".
+
+Completare il quadrato
+----------------------
+Data un'espressione con due termini del tipo: (x² + b*x), determinare il termine y² da aggiungere in modo l'espressione finale risulti il quadrato di un binomio: x² + b*x + y² = (x + y)².
+Uguagliamo i termini uno ad uno:
+
+  x²    --> x²
+  2*y*x --> b*x ==> y = b/2 
+  y²    --> y²  ==> y² = (b/2)²
+
+Dimostrazione
+-------------
+1) Completare il quadrato
+
+Nell'espressione ax² + bx + c la variabile sconosciuta "x" compare due volte, dobbiamo fare in modo che compaia una sola volta.
+
+Partiamo da:                              
+
+  ax² + bx + c = 0
+
+Dividiamo per a:
+
+  x² + (b/a)x + (c/a) = 0
+
+Spostiamo l'ultimo termine a destra:
+
+  x² + (b/a)x = (c/a)
+
+Completiamo il quadrato aggiungendo (b/2a)² a sinistra e a destra: 
+
+  x² + (b/a)x + (b/2a)² = (c/a) + (b/2a)²
+
+Adesso la parte sinistra è della forma (x + 2dx + d²) = (x + d)², dove d = (b/2a):
+
+  (x + b/2a)² = - c/a + (b/2a)²
+
+2) Risolvere rispetto alla x
+
+Partendo dall'ultima espressione:
+
+  (x + b/2a)² = - c/a + (b/2a)²
+
+Estraiamo la radice di entrambi i membri:
+
+  x + b/2a = ± (sqrt -c/a + (b/2a)²)
+
+Spostiamo b/2a a sinistra:
+
+  x =  - b/2a ± (sqrt -c/a + (b/2a)²) (soluzione!)
+
+Moltiplichiamo la parte destra per 2a/2a:
+
+       - b/2a ± (sqrt -c/a*(2a)² + (b/2a)²*(2a)²)
+  x = --------------------------------------------
+                         2a
+
+Semplifichiamo ed otteniamo la soluzione:
+  
+       - b ± (sqrt b² - 4ac)
+  x = -----------------------
+               2a
+
+Questa dimostrazione è abbastanza artificiale e richiede di memorizzare alcuni passaggi algebrici. Un altro metodo per dimostrare la soluzione di una equazione quadratica si trova nell'articolo "A Simple Proof of the Quadratic Formula" di Po-Shen Loh disponibile su web all'indirizzo:
+
+  https://arxiv.org/pdf/1910.06709.pdf
+
+Vediamo l'idea di base, ma consiglio di leggere l'articolo originale che non solo spiega le idee, ma inquadra il problema nel giusto contesto storico (il metodo era conosciuto anche dai babilonesi).
+
+Supponiamo di avere un'equazione quadratica da risolvere:
+
+  x² + B*x + C = 0.
+
+Per semplificare le cose, assumiamo che x² abbia un coefficiente di 1 (se abbiamo un'equazione quadratica con qualche altro coefficiente a*x², possiamo sempre dividere tutto per a):
+
+   ax² + b*x + c = 0 ==> x² + (b/a)*x + (c/a) = 0 ==> x² + B*x + C = 0, dove B = b/a e C = c/a.
+
+Ora fattorizzando una forma quadratica possiamo riscrivere l'equazione nella forma:
+
+  (x - r)*(x - s) = 0
+
+il che implica che x = r e x = s sono le due soluzioni. Se moltiplichiamo la suddetta fattorizzazione otteniamo:
+
+  x² - (r + s)*x + r*s = 0
+
+il che significa che stiamo cercando valori r e s il cui prodotto è C e la cui somma è -B.
+
+Partendo da r + s = -B, dividiamo entrambi i membri per 2:
+
+  (r + s)/2 = -B/2
+
+Il lato sinistro è la media di r e s, che si trova a metà strada tra loro sulla linea dei numeri. Usiamo u per denotare la distanza da r a -b/2. Poiché -b/2 è a metà tra r e s, u deve essere anche la distanza tra -b/2 e s. Quindi possiamo scrivere r e s nella forma:
+
+  r, s = -b/2 ± u
+
+Ora sappiamo che il prodotto r*s vale C e moltiplicandoli otteniamo una differenza di quadrati:
+
+  C = r*s = (-B/2 + u)*(-B/2 - u) = (-B/2)² - u²
+
+Ora risolvere per u è facile, basta isolare u² su un lato dell'equazione e applicare la radice quadrata:
+
+  u = sqrt(B²/4 - c)
+
+Ciò significa che le soluzioni sono:
+
+  r, s = -B/2 ± u = -B/2 ± sqrt(B²/4 - c)
+
+Possiamo usare lo stesso metodo partendo da ax^2 + bx + c = 0 per derivare la formula quadratica standard che include un valore arbitrario di a, anche se l'algebra richiesta diventa abbastanza tediosa.
 
 =============================================================================
 

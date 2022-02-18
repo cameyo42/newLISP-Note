@@ -1066,6 +1066,8 @@ NOTE LIBERE 7
   Regressione polinomiale (Metodo dei minimi quadrati)
   Ordinamento naturale (Natural Sort)
   D. Backspace e AlphaCode
+  (isclose x y) di python 3
+  Dimostrazione della soluzione dell'equazione quadratica
 
 APPENDICI
 =========
@@ -1099,7 +1101,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (206 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (210 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================
