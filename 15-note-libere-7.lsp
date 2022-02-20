@@ -3858,7 +3858,7 @@ Sembra che tutto funzioni correttamente. Comunque, il risultato della composizio
 
 Se si usasse l'iterazione per definire la composizione di più funzioni, allora il risultato potrebbe essere più breve e veloce, ma non più elegante.
 
-Adesso vediamo una macro per la composizione di funzioni (Kazimir Majorinc):
+Adesso vediamo due macro per la composizione di funzioni (Kazimir Majorinc):
 
 (define-macro (make-pass-adapted)
   (doargs (arg)
@@ -3871,12 +3871,20 @@ Adesso vediamo una macro per la composizione di funzioni (Kazimir Majorinc):
 
 (sin 3)
 ;-> 0.1411200080598672
-(sin (cos 4)))
+(sin (cos 4))
 ;-> -0.6080830096407656
 (sin (cos (sin 5)))
 ;-> 0.5433319155414624
 
 (make-pass-adapted sin cos)
+;-> (lambda-macro () ((lambda-macro ()
+;->    (if (> (length (args)) 1)
+;->     (cos.original (eval (args)))
+;->     (cos.original (eval (first (args))))))
+;->   (eval
+;->    (if (> (length (args)) 1)
+;->     (args)
+;->     (first (args))))))
 
 (sin (+ (cos 0) (cos 0) (cos 0)))
 ;-> 0.1411200080598672
@@ -3885,6 +3893,29 @@ Adesso vediamo una macro per la composizione di funzioni (Kazimir Majorinc):
 (sin cos sin (+ 2 3))
 ;-> 0.5433319155414624
 
+Nota: per eseguire questa seconda macro occorre utilizzare una nuova REPL perchè, altrimenti, le definizioni delle funzioni "sin" e "cos" sono già modificate dalla macro "make-pass-adapted" (scherzi delle macro...). Kazimir: "In my opinion , bad happened. I like it. ".
+
+(define-macro (make-pass-adapted2)
+  (doargs (arg)
+    (letex ((Old arg)
+            (Old.original (sym (append (string arg) ".original")))
+            (New (sym (string arg))))
+      (setf Old.original Old)
+      (constant 'New (lambda-macro()
+                        (if (> (length (args)) 1)
+                            (Old.original (eval (args)))
+                            (Old.original (eval (first (args))))))))))
+
+(make-pass-adapted2 sin cos)
+;-> (lambda-macro ()
+;->  (if (> (length (args)) 1)
+;->   (cos.original (eval (args)))
+;->   (cos.original (eval (first (args))))))
+
+(println (sin.original (cos.original 3)) " = " (sin cos 3))
+;-> -0.8360218615377305 = -0.8360218615377305
+(println (cos.original (sin.original (cos.original 3))) " = " (cos sin cos 3))
+;-> 0.6704198299761109 = 0.6704198299761109
 
 ------------------------------------------------
 Regressione lineare (Metodo dei minimi quadrati)
@@ -4837,7 +4868,7 @@ Partendo da r + s = -B, dividiamo entrambi i membri per 2:
 
   (r + s)/2 = -B/2
 
-Il lato sinistro è la media di r e s, che si trova a metà strada tra loro sulla linea dei numeri. Usiamo u per denotare la distanza da r a -b/2. Poiché -b/2 è a metà tra r e s, u deve essere anche la distanza tra -b/2 e s. Quindi possiamo scrivere r e s nella forma:
+Il lato sinistro è la media di r e s, che si trova a metà strada tra loro sulla linea dei numeri. Usiamo "u" per denotare la distanza da r a -b/2. Poiché -b/2 è a metà tra r e s, u deve essere anche la distanza tra -b/2 e s. Quindi possiamo scrivere r e s nella forma:
 
   r, s = -b/2 ± u
 
@@ -4845,7 +4876,7 @@ Ora sappiamo che il prodotto r*s vale C e moltiplicandoli otteniamo una differen
 
   C = r*s = (-B/2 + u)*(-B/2 - u) = (-B/2)² - u²
 
-Ora risolvere per u è facile, basta isolare u² su un lato dell'equazione e applicare la radice quadrata:
+Ora risolvere per "u" è facile, basta isolare u² su un lato dell'equazione e applicare la radice quadrata:
 
   u = sqrt(B²/4 - c)
 
@@ -4853,7 +4884,249 @@ Ciò significa che le soluzioni sono:
 
   r, s = -B/2 ± u = -B/2 ± sqrt(B²/4 - c)
 
-Possiamo usare lo stesso metodo partendo da ax^2 + bx + c = 0 per derivare la formula quadratica standard che include un valore arbitrario di a, anche se l'algebra richiesta diventa abbastanza tediosa.
+Possiamo usare lo stesso metodo partendo da ax^2 + bx + c = 0 per derivare la formula quadratica standard che include un valore arbitrario di "a", anche se l'algebra richiesta diventa abbastanza tediosa.
+
+
+-------------------------
+La parola chiave "lambda"
+-------------------------
+
+In newLISP, la parola "lambda" da sola come simbolo non esiste, indica solo un tipo di lista speciale, la lista lambda. È l'unica parola chiave insieme a lambda-macro riconosciuta durante l'analisi del codice sorgente. La parola lambda indica un tipo specializzato di lista che può essere utilizzato e applicato come una funzione o un operatore.
+
+La parola "lambda" indica che è una lista lambda:
+
+(length (lambda))
+;-> 0
+
+lambda non è un simbolo, le liste lambda valutano se stesse:
+
+(lambda)
+;-> (lambda)
+
+Una lista lambda è un sottotipo del tipo lista:
+
+(lista? (lambda))
+;-> true
+(lambda? (lambda))
+;-> true
+
+Quando si compongono liste lambda da zero, assicurarsi di iniziare con un lista di tipo lambda, ad esempio:
+
+(append (lambda) '((x) (+ x x)))
+;-> (lambda (x) (+ x x))
+
+Possiamo usare "set" o "define" in modo equivalente:
+
+(set 'doppio (aggiungi (lambda) '((x) (+ x x))))
+;-> (lambda (x) (+ x x))
+(doppio 123)
+;-> 246
+
+Nota: al posto di "lambda" e "lambda-macro" si possono usare anche le parole "fn" e "fn-macro".
+
+
+---------------------------------
+Addizioni e sottrazioni alternate
+---------------------------------
+
+Data una lista di numeri (a b c d e ... n) scrivere una funzione per calcolare:
+
+  1) a + b - c + d - e + ... n
+  2) a - b + c - d + e - ... n
+
+Vediamo la soluzione proposta da Rick per risolvere il caso 1:
+
+; Addition with alternating signs
+; thanks to Rick for an improved, faster version
+;
+; (+- a b c d e ... n) is equivalent to
+; a + b - c + d - e + ... n
+;
+; example:
+;
+; (+- 1 2 3 4 5)             => -1
+; (apply +- (sequence 1 5))  => -1
+; (sub (add (sub (add 1 2) 3) 4) 5) => -1
+
+(define (+-)
+ (let (signs (cons 1 (series 1 -1 (- (length (args)) 1))))
+   (apply add (map mul signs (args)))))
+
+Facciamo alcune prove:
+
+(setq lst '(1 2 3 4 5))
+(apply +- lst)
+;-> -1
+
+(setq lst '(1 -2 3 -4 5 -6))
+(apply +- lst)
+;-> -19
+
+(apply +- (sequence 1 1e6))
+;-> 500002
+
+Adesso scriviamo una funzione analoga per risolvere il caso 2:
+
+; Subtraction with alternating signs
+;
+; (-+ a b c d e ... n) is equivalent to
+; a - b + c - d + e - ... n
+;
+; example:
+;
+; (-+ 1 2 3 4 5)             => 3
+; (apply -+ (sequence 1 5))  => 3
+; (add (sub (add (sub 1 2) 3) 4) 5) => 3
+
+(define (-+)
+ (let (signs (cons 1 (series -1 -1 (- (length (args)) 1))))
+   (apply add (map mul signs (args)))))
+
+Facciamo alcune prove:
+
+(setq lst '(1 2 3 4 5))
+(apply -+ lst)
+;-> 3
+
+(setq lst '(1 -2 3 -4 5 -6))
+(apply -+ lst)
+;-> 21
+
+(apply -+ (sequence 1 1e6))
+;-> -500000
+
+Le funzioni sono scritte in stile LISP, ma vediamo la differenza con due versioni scritte in stile iterativo:
+
+Versione per tipo 1:
+
+(define (add-sub lst)
+  (let (out (lst 0))
+    (dolist (el (slice lst 1))
+      (if (even? $idx)
+          (setq out (add out el))
+          (setq out (sub out el))
+      )
+    )
+    out))
+
+Facciamo alcune prove:
+
+(setq lst '(1 2 3 4 5))
+(add-sub lst)
+;-> -1
+
+(setq lst '(1 -2 3 -4 5 -6))
+(add-sub lst)
+;-> -19
+
+(add-sub (sequence 1 1e6))
+;-> 500002
+
+Versione per tipo 2:
+
+(define (sub-add lst)
+  (let (out (lst 0))
+    (dolist (el (slice lst 1))
+      (if (odd? $idx)
+          (setq out (add out el))
+          (setq out (sub out el))
+      )
+    )
+    out))
+
+Facciamo alcune prove:
+
+(sub-add (sequence 1 5))
+;-> 3
+(setq lst '(1 -2 3 -4 5 -6))
+(sub-add lst)
+;-> 21
+(sub-add (sequence 1 1e6))
+;-> -500000
+
+Adesso vediamo la differenza di velocità tra le funzioni:
+
+(time (println (apply +- (sequence 1 1e6))))
+;-> 500002
+;-> 112.3
+(time (println (add-sub (sequence 1 1e6))))
+;-> 500002
+;-> 85.122
+
+(time (println (apply -+ (sequence 1 1e6))))
+;-> -500000
+;-> 110.02
+(time (println (sub-add (sequence 1 1e6))))
+;-> 500002
+;-> 83.355
+
+In questo caso le funzioni iterative sono più veloci delle funzioni in stile LISP.
+
+
+---------------------------------------------------------------
+Creazione di vettori/matrici (array) e liste con valori casuali
+---------------------------------------------------------------
+
+La funzione "array" ha la seguente sintassi:
+
+sintassi: (array int-n1 [int-n2 ... ] [list-init])
+
+Crea una matrice con "int-n1" elementi, che può essere inizializzata (facoltativo) con il contenuto della lista "list-init". È possibile specificare fino a sedici dimensioni per le matrici multidimensionali.
+
+Per creare matrici con valori casuali utilizziamo il parametro "list-init". Ad esempio se vogliamo creare una matrice 3x3 con valori casuali 0 e 1 possiamo scrivere:
+
+(array 3 3 (rand 2 9))
+;-> ((0 1 0) (1 1 0) (0 1 1))
+
+Quindi il nostro problema si riduce a creare una lista con tanti numeri casuali quanti sono gli elementi della nostra matrice. Allora scriviamo una funzione che prende 4 parametri:
+
+nums     -> numero di numeri casuali
+min-val  -> valore minimo dei numeri casuali
+max-val  -> valore massimo dei numeri casuali
+type-num -> genera numeri interi (true) o floating (nil)
+
+(define (random-list nums min-val max-val type-num)
+  (let (out '())
+    (if type-num
+      ; numeri interi
+      (for (i 1 nums)
+        (push (+ min-val (rand (+ (- max-val min-val) 1))) out -1)
+      )
+      ; numeri floating
+      (for (i 1 nums)
+        (push (add min-val (random 0 (sub max-val min-val))) out -1)
+      )
+    )
+    out))
+
+Facciamo alcune prove:
+
+(random-list 9 0 1 true)
+;-> (0 0 0 1 1 1 0 0 1)
+
+(random-list 9 0 1 nil)
+;-> (0.2507095553453169 0.9622180852687154 0.7090060121463668
+;->  0.6700949125644704 0.1468550675984985 0.2431409649952696
+;->  0.05359050263985107 0.7868282113101596 0.206244087038789)
+
+Adesso facciamo alcuni test per vedere se la funzione si comporta correttamente.
+
+Creiamo una lista con un milione di elementi che vanno da -10 a 25 (estremi compresi):
+
+(silent (setq lst (random-list 1e6 -10 25)))
+
+Vediamo se troviamo i valori -10 e 25:
+
+(find -10 (random-list2 1000000 -10 25))
+;-> 4996
+(find 25 (random-list2 1000000 -10 25))
+;-> 698
+
+Vediamo se esistono valori minori di -10 o maggiori di 25:
+
+(filter (fn(x) (or (> x 25) (< x -10))) (random-list2 1000000 -10 25))
+;-> ()
+
 
 =============================================================================
 

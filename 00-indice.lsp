@@ -1068,6 +1068,9 @@ NOTE LIBERE 7
   D. Backspace e AlphaCode
   (isclose x y) di python 3
   Dimostrazione della soluzione dell'equazione quadratica
+  La parola chiave "lambda"
+  Addizioni e sottrazioni alternate
+  Creazione di vettori/matrici (array) e liste con valori casuali
 
 APPENDICI
 =========

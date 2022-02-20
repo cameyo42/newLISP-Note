@@ -1619,7 +1619,7 @@ Quindi possiamo fare lo stesso con la nostra funzione "crea-lambda"
 (map (crea-lambda add 2) '(1 2 3 4 5))
 ;-> (3 4 5 6 7)
 
-; Ma anche:
+Ma anche:
 
 (map (crea-lambda mul 3) '(1 2 3 4 5))
 ;-> (3 6 9 12 15)
