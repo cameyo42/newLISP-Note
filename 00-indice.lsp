@@ -1071,6 +1071,9 @@ NOTE LIBERE 7
   La parola chiave "lambda"
   Addizioni e sottrazioni alternate
   Creazione di vettori/matrici (array) e liste con valori casuali
+  Alcune funzioni sugli angoli
+  Formattazione di numeri ordinali
+  Programmazione Funzionale e Pensiero Funzionale
 
 APPENDICI
 =========

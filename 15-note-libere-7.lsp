@@ -5128,5 +5128,180 @@ Vediamo se esistono valori minori di -10 o maggiori di 25:
 ;-> ()
 
 
+----------------------------
+Alcune funzioni sugli angoli
+----------------------------
+
+Funzione di lerping tra due angoli:
+
+(define (angle-lerp from to frac)
+  (if (> (- to from) 180)
+    (setq to (sub to 360)))
+  (if (< (- to from) -180)
+    (setq to (add to 360)))
+  (add from (mul frac (sub to from))))
+
+(angle-lerp 120 180 0.4)
+;-> 144
+(angle-lerp -90 90 0.5)
+;-> 0
+(angle-lerp 1 2.2 0.1)
+;-> 1.12
+
+Funzione per sottrarre due angoli (ritorna sempre un valore da -180 a 180):
+
+(define (angle-sub a1 a2)
+  (let (a (- a1 a2))
+    (while (> a 180) (-- a 360))
+    (while (< a -180) (++ a 360))
+    a))
+
+(angle-sub 270 90)
+;-> 180
+(angle-sub 185 -345)
+;-> 170
+
+Funzione per sommare due angoli (ritorna sempre un valore da -180 a 180):
+
+(define (angle-add a1 a2)
+  (let (a (+ a1 a2))
+    (while (> a 180) (-- a 360))
+    (while (< a -180) (++ a 360))
+    a))
+
+(angle-add 270 90)
+;-> 0
+(angle-add 185 -345)
+;-> -160
+
+Funzione di normalizzazione di un angolo nell'intervallo (0 <= angolo < 360):
+
+(define (angle-360 a) 
+  (while (<= a -360) (setq a (add a 360)))
+  (while (>= a  360) (setq a (sub a 360)))
+  a)
+
+(angle-360 12)
+;-> 12
+(angle-360 3600)
+;-> 0
+(angle-360 3601)
+;-> 1
+
+Funzione di normalizzazione di un angolo nell'intervallo (-180 < angolo <= 180):
+
+(define (angle-180 a) 
+  (setq a (angle-360 a))
+  (if (> a 180) (setq a (sub a 360)))
+  a)
+
+(angle-180 359)
+;-> -1
+(angle-180 15637)
+;-> 157
+(angle-180 -15637)
+;-> -157
+
+
+--------------------------------
+Formattazione di numeri ordinali
+--------------------------------
+
+Funzione per formattare i numeri ordinali in lingua Inglese:
+
+; Format ordinal numbers
+;
+; (ordinal 3) => "3rd"
+; (ordinal 4) => "4th"
+; (ordinal 65) => "65th"
+;
+; contributed by Ted Walther, 2014
+;
+(define (ordinal n)
+  (let (nn (string n))
+    (cond
+      ((regex {1[123]$} nn) (string nn "th"))
+      ((regex {1$} nn) (string nn "st"))
+      ((regex {2$} nn) (string nn "nd"))
+      ((regex {3$} nn) (string nn "rd"))
+      ((regex {[4567890]$} nn) (string nn "th"))
+      (true nn))))
+
+(for (i 1 20) (print (ordinal i) { }))
+;-> 1st 2nd 3rd 4th 5th 6th 7th 8th 9th 10th 
+;-> 11th 12th 13th 14th 15th 16th 17th 18th 19th 20th
+
+Funzione per formattare i numeri ordinali in lingua Italiana:
+
+(define (ordinale n)
+  (let (nn (string n))
+    (cond
+      ((= nn  "1") "primo")
+      ((= nn  "2") "secondo")
+      ((= nn  "3") "terzo")
+      ((= nn  "4") "quarto")
+      ((= nn  "5") "quinto")
+      ((= nn  "6") "sesto")
+      ((= nn  "7") "settimo")
+      ((= nn  "8") "ottavo")
+      ((= nn  "9") "nono")
+      ((= nn "10") "decimo")
+      ((> nn "10") (string nn "-esimo"))
+      (true nn))))
+
+(for (i 1 20) (print (ordinale i) { }))
+;-> primo secondo terzo quarto quinto sesto settimo ottavo nono decimo 
+;-> 11-esimo 12-esimo 13-esimo 14-esimo 15-esimo 
+;-> 16-esimo 17-esimo 18-esimo 19-esimo 20-esimo
+
+(ordinale 77)
+;-> "77-esimo"
+(ordinale "77")
+;-> "77-esimo"
+(ordinale "pippo")
+;-> "pippo-esimo"
+
+
+-----------------------------------------------
+Programmazione Funzionale e Pensiero Funzionale
+-----------------------------------------------
+
+La definizione teorica/standard della Programmazione Funzionale è la seguente:
+
+Programmazione Funzionale (PF)
+------------------------------
+1. un paradigma di programmazione caratterizzato dall'uso di "funzioni matematiche" ed evitare "effetti collaterali"
+2. uno stile di programmazione che utilizza solo funzioni pure senza "effetti collaterali"
+
+Functional Programming (FP)
+---------------------------
+1. a programming paradigm characterized by the use of "mathematical functions" and the avoidance of "side effects"
+2. a programming style that uses only "pure functions" without "side effects"
+
+Gli "effetti collaterali" (side effects) sono qualsiasi cosa una funzione fa oltre a restituire a valore, come un operazione di I/O o la modifica di uno stato globale. 
+Questo può generare problemi perché gli effetti collaterali si verificano ogni volta che la funzione viene chiamata. In genere abbiamo bisogno solo del valore di ritorno e non degli effetti collaterali (che quindi creano comportamenti indesiderati). Lo stile di programmazione funzionale tende ad evitare gli effetti collaterali (o quanto meno ridurli al minimo).
+
+Le "funzioni pure" sono funzioni i cui valori di ritorno dipendono solo dai loro argomenti e non hanno effetti collaterali. 
+Dati gli stessi argomenti, produrranno sempre lo stesso valore di ritorno. Il termine "funzioni matematiche" viene utilizzato per distinguerle dalle funzioni integrate del linguaggio. Lo stile di programmazione funzionale preferisce l'uso delle funzioni pure perché sono più facili da capire e controllare.
+
+La programmazione funzionale "pura" è molto importante in ambito accademico (es. lambda calcolo), ma non è adatta per applicazioni pratiche. Lo stile di programmazione funzionale "pratico" deve utilizzare gli effetti collaterali e le funzioni impure (cercando di minimizzarli).
+Vediamo come affrontare questi problemi:
+
+1) FP ha bisogno di effetti collaterali
+La definizione aferma che FP evita gli effetti collaterali, ma gli effetti collaterali sono il motivo per cui eseguiamo il nostro programma. A cosa serve un software di elaborazione testi se non salva i documenti? La definizione indica di evitare completamente gli effetti collaterali, mentre ne abbiamo la necessità in alcuni casi.
+
+2) FP è in grado di gestire gli effetti collaterali
+Gli effetti collaterali sono necessari ma problematici, quindi la FP mette a disposizione molti strumenti per lavorare con loro. Inoltre la definizione implica l'utilizzo esclusivo di funzioni pure. Al contrario, occorre utilizzare anche le funzioni impure. Esistono molte tecniche funzionali che le rendono più facili da usare.
+
+3) FP è pratica
+La definizione fa sembrare FP come se fosse principalmente matematica è poco pratica per il software del mondo reale. Invece ci sono molti importanti programmi scritti utilizzando la programmazione funzionale.
+
+In definitiva, la programmazione funzionale pratica non è (esattamente) quella della definizione di FP riportata all'inizio.
+
+Comunque i concetti più importanti della FP possono essere applicati anche alla programmazione orientata agli oggetti e alla programmazione procedurale in (quasi) tutti i linguaggi di programmazione.
+
+Il pensiero funzionale
+----------------------
+
 =============================================================================
 
