@@ -5278,10 +5278,10 @@ Functional Programming (FP)
 1. a programming paradigm characterized by the use of "mathematical functions" and the avoidance of "side effects"
 2. a programming style that uses only "pure functions" without "side effects"
 
-Gli "effetti collaterali" (side effects) sono qualsiasi cosa una funzione fa oltre a restituire a valore, come un operazione di I/O o la modifica di uno stato globale. 
+Gli "effetti collaterali" (side effects) sono qualsiasi cosa una funzione fa oltre a restituire a valore, come un operazione di I/O o la modifica di uno stato globale.
 Questo può generare problemi perché gli effetti collaterali si verificano ogni volta che la funzione viene chiamata. In genere abbiamo bisogno solo del valore di ritorno e non degli effetti collaterali (che quindi creano comportamenti indesiderati). Lo stile di programmazione funzionale tende ad evitare gli effetti collaterali (o quanto meno ridurli al minimo).
 
-Le "funzioni pure" sono funzioni i cui valori di ritorno dipendono solo dai loro argomenti e non hanno effetti collaterali. 
+Le "funzioni pure" sono funzioni i cui valori di ritorno dipendono solo dai loro argomenti e non hanno effetti collaterali.
 Dati gli stessi argomenti, produrranno sempre lo stesso valore di ritorno. Il termine "funzioni matematiche" viene utilizzato per distinguerle dalle funzioni integrate del linguaggio. Lo stile di programmazione funzionale preferisce l'uso delle funzioni pure perché sono più facili da capire e controllare.
 
 La programmazione funzionale "pura" è molto importante in ambito accademico (es. lambda calcolo), ma non è adatta per applicazioni pratiche. Lo stile di programmazione funzionale "pratico" deve utilizzare gli effetti collaterali e le funzioni impure (cercando di minimizzarli).
@@ -5300,8 +5300,476 @@ In definitiva, la programmazione funzionale pratica non è (esattamente) quella 
 
 Comunque i concetti più importanti della FP possono essere applicati anche alla programmazione orientata agli oggetti e alla programmazione procedurale in (quasi) tutti i linguaggi di programmazione.
 
+Dal punto di vista funzionale è fondamentale distinguere nel software da sviluppare le seguenti categorie: azioni, calcoli e dati.
+
+1. Azioni
+Tutto ciò che dipende da quando viene eseguito o da quante volte viene eseguito, o entrambi, è un'azione.
+
+2. Calcoli
+I calcoli sono le computazioni che trasforma un input in un output. I calcoli devono sempre restituire gli stessi output con gli stessi input. Possiamo eseguirli quando e come vogliamo senza modificare nulla al di fuori di loro. Questo li rende sicuri e facili da testare.
+
+3. Dati
+I dati sono fatti o misure registratidi determinati fenomeni (cose o eventi). Distinguiamo i dati perché non sono complessi come il codice eseguibile e hanno delle proprietà ben definite. I dati sono interessanti perché hanno significato anche senza essere "eseguiti". In genere ogni dato può essere interpretato in più modi.
+
+I programmatori funzionali identificano queste categorie quando esaminano il codice di un programma
+I programmatori funzionali preferiscono i dati ai calcoli e preferiscono i calcoli alle azioni.
+
+FP dispone di strumenti per la gestione di ogni categoria:
+
+1. Azioni
+- Strumenti per cambiare lo stato in sicurezza nel tempo
+- Modi per garantire l'ordine delle operazioni
+- Strumenti per garantire che le azioni avvengano esattamente una sola volta
+
+2. Calcoli
+- Analisi statica per favorire la correttezza
+- Strumenti matematici che funzionano bene con la FP
+- Strategie di test
+
+3. Dati
+- Modi per organizzare i dati per un accesso efficiente
+- Regole per mantenere i record a lungo termine
+- Principi per trattare ed catturare il significato dei dati
+
 Il pensiero funzionale
 ----------------------
+Il pensiero funzionale è l'insieme di abilità e idee che i programmatori funzionali usano per risolvere i problemi con il software.
+Le idee fondamentali nella programmazione funzionale sono:
+
+1) distinguere azioni, calcoli e dati e
+
+2) usare astrazioni di prima classe.
+
+Queste non sono le uniche idee in FP, ma forniscono una base solida e pratica su cui costruire.
+
+1) Distinguere azioni, calcoli e dati
+I programmatori funzionali separano tutto il codice in una delle tre categorie: azioni, calcoli o dati (anche se i termini potrebbero essere diversi). Queste categorie corrispondono alla difficoltà di comprendere, testare e riutilizzare il codice.
+
+2) Utilizzo di astrazioni di prima classe
+I programmatori di ogni tipo scrivono funzioni generali per poterle riutilizzare. I programmatori funzionali fanno lo stesso, ma spesso possono riutilizzare più funzioni passando le funzioni ad altre funzioni. L'idea sembra strana, ma è estremamente pratica.
+
+Le tecniche utilizzate da un progammatore funzionale devono avere le seguenti caratteristiche:
+
+1) Non devono basarsi su caratteristiche specifiche del linguaggio
+Ci sono molti linguaggi di programmazione funzionali che supportano direttamente alcune di queste tecniche (linguaggi tipizzati, omoiconici, ecc.), ma occorre sviluppare le abilità che sono indipendenti dalle caratteristiche linguistiche. Comunque occorre sfruttare anche tutte le facilitazioni che mette a disposizione il linguaggio utilizzato.
+
+2) Devono avere un beneficio pratico immediato
+La FP è utilizzato sia nell'industria che nel mondo accademico. Il mondo accademico produce la teoria e sviluppa idee nuove, ma a livello pratico abbiamo bisogno di tecniche pratiche e utili.
+
+3) Devono poter essere applicate indipendentemente dalla situazione attuale del codice
+I programmatori non iniziano solo progetti nuovi, spesso devono analizzare e mantenere codice di progetti esistenti. Queste tecniche devono aiutarci, indipendentemente dalla nostra situazione. Non occorre sempre effettuare una riscrittura funzionale, ma fare scelte pragmatiche e lavorare con il codice che abbiamo.
+
+Funzioni pure e impure
+----------------------
+Le funzioni pure assomigliano molto alle funzioni matematiche: non fanno altro che calcolare un valore di output in base ai loro valori di input.
+
+a) Funzioni pure
+- L'output dipende interamente dagli argomenti di input.
+- Non causa effetti collaterali.
+
+b) Funzioni impure
+- Fattori diversi dagli argomenti di input possono influire sull'output.
+- Può causare effetti collaterali.
+
+Per chiarire questa definizione, dobbiamo definire esattamente cosa sia un effetto collaterale. Si dice che una funzione ha effetti collaterali se esegue una delle seguenti operazioni:
+
+1) Modifica lo stato globale
+"Globale" qui indica qualsiasi stato visibile al di fuori dell'ambito della funzione. Ad esempio, un campo di istanza privata è considerato globale perché è visibile da tutti i metodi all'interno della classe.
+
+2) Modifica i suoi argomenti di input: gli argomenti passati dal chiamante sono effettivamente lo stato che una funzione condivide con il suo chiamante: se una funzione muta uno dei suoi argomenti, questo è un effetto collaterale visibile al chiamante.
+
+3) Genera eccezioni: è possibile ragionare su funzioni pure isolate, tuttavia, se una funzione genera eccezioni, il risultato della sua chiamata dipende dal contesto, cioè, differisce a seconda che la funzione venga chiamata in un try/catch.
+
+4) Esegue qualsiasi operazione di I/O: include qualsiasi interazione tra il programma e il mondo esterno, inclusa la lettura o la scrittura sulla console, il filesystem o un database, e l'interazione con qualsiasi processo al di fuori del confine dell'applicazione.
+
+In sintesi, le funzioni pure non hanno effetti collaterali e il loro output è determinato esclusivamente dai loro input.
+
+Si noti che entrambe le condizioni devono valere:
+a) Una funzione che non ha effetti collaterali può essere ancora impura, vale a dire, se legge da uno stato mutevole globale, allora il suo output è influenzato da fattori diversi dal suo input.
+b) Una funzione il cui output dipende interamente dai suoi input può anche essere impura, infatti potrebbe comunque avere effetti collaterali.
+
+La natura deterministica delle funzioni pure (cioè il fatto che restituiscono sempre lo stesso output per lo stesso input) ha alcune conseguenze interessanti. Le funzioni pure sono facili da testare e da analizzare.
+
+Inoltre, il fatto che gli output dipendano solo dagli input significa che l'ordine di valutazione non è importante. Sia che valutiamo il ​​risultato di una funzione ora o in un secondo momento, il risultato non cambierà. Ciò significa che le parti del programma costituite interamente da funzioni pure possono essere ottimizzate in diversi modi:
+
+  - Parallelizzazione: thread diversi eseguono attività in parallelo
+  - Valutazione pigra (lazy): valuta i valori solo se necessario
+  - Memoizzazione: memorizza nella cache il risultato di una funzione in modo che venga calcolato una sola volta
+
+D'altra parte, l'uso di queste tecniche con funzioni impure può portare a bug piuttosto complicati da trovare. Per questi motivi, FP preferisce ed utilizza le funzioni pure quando possibile.
+
+Valori immutabili
+----------------
+La programmazione funzionale è la programmazione che utilizza funzioni pure che manipolano valori immutabili.
+Se le funzioni pure costituiscono il motore dei programmi funzionali, i valori immutabili sono il suo carburante.
+Com'è possibile scrivere applicazioni completamente funzionanti usando solo funzioni e valori puri che non possono mai cambiare?
+
+La risposta breve è: le funzioni pure stanno facendo copie di dati e le trasmettono. Abbiamo bisogno di costrutti specifici nel linguaggio per poter programmare facilmente usando le copie.
+
+Significato e tipi di concorrenza
+--------------------------------
+La concorrenza è il concetto generale di avere più cose che accadono contemporaneamente.
+Più formalmente, la concorrenza è quando un programma avvia un'attività prima che un altra sia stata completata, in modo che le diverse attività vengano eseguite in finestre temporali sovrapposte.
+Esistono diversi scenari in cui può verificarsi la concorrenza:
+
+- Asincrono: significa che il programma esegue operazioni non bloccanti.
+Ad esempio, può avviare una richiesta per una risorsa remota tramite HTTP e quindi svolgere un'altra attività mentre attende la ricezione della risposta.
+
+- Parallelismo: significa che il tuo programma sfrutta l'hardware multicore per eseguire contemporaneamente i compiti del lavoro (che vengono eseguiti ciascuno su un core separato.
+
+- Multithreading: questa è un'implementazione software che consente a diversi thread di
+essere eseguito contemporaneamente. Un programma multithread sembra che stia facendo diverse cose allo stesso tempo anche quando è in esecuzione su una macchina single-core.
+
+Mi fermo qui, per chi vuole imparare a programmare in modo funzionale consiglio i seguenti libri:
+
+"Exploring Functional Programming" di Eric Normand
+"Grokking Simplicity" di Eric Normand
+"Grokking Functional Programming" di Michal Plachta
+
+
+----------------------------------
+Unione di liste di attributi (zip)
+----------------------------------
+
+Supponiamo di avere le seguenti liste di attributi:
+
+(setq nomi '(massimo eva roby luna))
+(setq eta '(50 20 40 1))
+(setq peso '(80 45 50 18))
+(setq altezza '(180 175 165 120))
+
+L'indice i-esimo delle liste contiene il record i-esimo, per esempio il record 0 vale:
+
+(massimo 50 80 180)
+
+Scrivere una funzione prende tutte le liste di attributi e crea una lista con tutti i record.
+Il numero di attributi deve essere uguale per tutte le liste di attributi.
+
+(define (build)
+  (local (out num-records))
+  (setq out '())
+  ; Il numero di records è il numero di attributi
+  ; di ogni lista
+  (setq num-records (length (args 0)))
+  ; crea una lista con num-records liste vuote
+  (setq out (dup '() num-records))
+  (dolist (lst (args))
+    (dolist (el lst)
+      ; inserisce l'attributo nel record
+      (push (lst $idx) (out $idx) -1)
+    )
+  )
+  out)
+
+Facciamo alcune prove:
+
+(build '(1 2 3) '(a b c))
+;-> ((1 a) (2 b) (3 c))
+
+(build '(1 2 3) '(a b c) '(A B C))
+;-> ((1 a A) (2 b B) (3 c C))
+
+(build '(1 2) '(a b) '(A B))
+;-> ((1 a A) (2 b B))
+
+(build nomi eta peso altezza)
+;-> ((massimo 50 80 180) (eva 20 45 175) (roby 40 50 165) (luna 1 18 120))
+
+La funzione produce i risultati voluti.
+
+Se interpretiamo l'input come una matrice, ad esempio '(1 2 3) '(a b c), possiamo notare che il risultato ottenuto è la matrice trasposta dell'input:
+
+input         output = trasposta(input) 
+
+|1 2 3|       |1 a|
+|a b c|  ==>  |2 b|
+              |3 c|
+
+Allora possiamo utilizzare la funzione integrata "transpose" per scrivere una funzione molto più semplice ed elegante:
+
+; Multiple list zipper
+; Transpose multiple lists into one
+; written by Nigel et altri
+(define (zip) (transpose (args)))
+
+(zip '(1 2 3) '(a b c))
+;-> ((1 a) (2 b) (3 c))
+
+(zip '(1 2 3) '(a b c) '(A B C))
+;-> ((1 a A) (2 b B) (3 c C))
+
+(zip '(1 2) '(a b) '(A B))
+;-> ((1 a A) (2 b B))
+
+(zip nomi eta peso altezza)
+;-> ((massimo 50 80 180) (eva 20 45 175) (roby 40 50 165) (luna 1 18 120))
+
+Per effettuare l'operazione opposta, cioè prendere una lista di record e creare le relative liste di attributi, basta utilizzare la funzione "apply":
+
+(zip '(1 2 3) '(a b c) '(x y z))
+;-> ((1 a x) (2 b y) (3 c z))
+(apply zip '((1 a x) (2 b y) (3 c z)))
+;-> '(1 2 3) '(a b c) '(x y z))
+
+(apply zip (zip '(1 2) '(a b)))
+;-> ;-> ((1 2) (a b))
+
+----------------------------------
+Unione di liste di attributi (zip)
+----------------------------------
+
+Supponiamo di avere le seguenti liste di attributi:
+
+(setq nomi '(massimo eva roby luna))
+(setq eta '(50 20 40 1))
+(setq peso '(80 45 50 18))
+(setq altezza '(180 175 165 120))
+
+L'indice i-esimo delle liste contiene il record i-esimo, per esempio il record 0 vale:
+
+(massimo 50 80 180)
+
+Scrivere una funzione prende tutte le liste di attributi e crea una lista con tutti i record.
+Il numero di attributi deve essere uguale per tutte le liste di attributi.
+
+(define (build)
+  (local (out num-records))
+  (setq out '())
+  ; Il numero di records è il numero di attributi
+  ; di ogni lista
+  (setq num-records (length (args 0)))
+  ; crea una lista con num-records liste vuote
+  (setq out (dup '() num-records))
+  (dolist (lst (args))
+    (dolist (el lst)
+      ; inserisce l'attributo nel record
+      (push (lst $idx) (out $idx) -1)
+    )
+  )
+  out)
+
+Facciamo alcune prove:
+
+(build '(1 2 3) '(a b c))
+;-> ((1 a) (2 b) (3 c))
+
+(build '(1 2 3) '(a b c) '(A B C))
+;-> ((1 a A) (2 b B) (3 c C))
+
+(build '(1 2) '(a b) '(A B))
+;-> ((1 a A) (2 b B))
+
+(build nomi eta peso altezza)
+;-> ((massimo 50 80 180) (eva 20 45 175) (roby 40 50 165) (luna 1 18 120))
+
+La funzione produce i risultati voluti.
+
+Se interpretiamo l'input come una matrice, ad esempio '(1 2 3) '(a b c), possiamo notare che il risultato ottenuto è la matrice trasposta dell'input:
+
+input         output = trasposta(input) 
+
+|1 2 3|       |1 a|
+|a b c|  ==>  |2 b|
+              |3 c|
+
+Allora possiamo utilizzare la funzione integrata "transpose" per scrivere una funzione molto più semplice ed elegante:
+
+; Multiple list zipper
+; Transpose multiple lists into one
+; written by Nigel et altri
+(define (zip) (transpose (args)))
+
+(zip '(1 2 3) '(a b c))
+;-> ((1 a) (2 b) (3 c))
+
+(zip '(1 2 3) '(a b c) '(A B C))
+;-> ((1 a A) (2 b B) (3 c C))
+
+(zip '(1 2) '(a b) '(A B))
+;-> ((1 a A) (2 b B))
+
+(zip nomi eta peso altezza)
+;-> ((massimo 50 80 180) (eva 20 45 175) (roby 40 50 165) (luna 1 18 120))
+
+Per effettuare l'operazione opposta, cioè prendere una lista di record e creare le relative liste di attributi, basta utilizzare la funzione "apply":
+
+(zip '(1 2 3) '(a b c) '(x y z))
+;-> ((1 a x) (2 b y) (3 c z))
+(apply zip '((1 a x) (2 b y) (3 c z)))
+;-> '(1 2 3) '(a b c) '(x y z))
+
+(apply zip (zip '(1 2) '(a b)))
+;-> ;-> ((1 2) (a b))
+
+
+-----------------------------------------------------
+net-eval e calcolo distribuito (distribute computing)
+-----------------------------------------------------
+
+La funzione "net-eval" permette di far valutare un'espressione da un server remoto.
+
+----------------------------------------------------------------------------
+syntax: (net-eval str-host int-port exp [int-timeout [func-handler]])
+syntax: (net-eval '((str-host int-port exp) ... ) [int-timeout [func-handler]])
+
+Can be used to evaluate source remotely on one or more newLISP servers. This function handles all communications necessary to connect to the remote servers, send source for evaluation, and wait and collect responses.
+
+The expression in exp will be evaluated remotely in the environment of the target node. The exp is either a quoted expression, or it is enclosed in string delimiters. For bigger expressions [text] ... [/text] delimiters can be used instead of double quotes " ... ". Only one expression should be enclosed in the string. When more than one are specified, all will get evaluated in the target node, but only the result of the first will be returned.
+
+The remote TCP/IP servers are started in the following way:
+
+newlisp -c -d 4711 &
+
+; preloading function definitions
+
+newlisp preload.lsp -c -d 12345 &
+
+; logging connections
+
+newlisp -l -c -d 4711 &
+
+; communicating via Unix local domain sockets
+
+newlisp -c /tmp/mysocket
+
+The -c option is necessary to suppress newLISP emitting prompts.
+
+The -d daemon mode allows newLISP to maintain state between connections. When keeping state between connections is not desired, the inetd daemon mode offers more advantages. The Internet inetd or xinetd services daemon will start a new newLISP process for each client connection. This makes for much faster servicing of multiple connections. In -d daemon mode, each new client request would have to wait for the previous request to be finished. See the chapter inetd daemon mode on how to configure this mode correctly.
+
+Instead of 4711, any other port number can be used. Multiple nodes can be started on different hosts and with the same or different port numbers. The -l or -L logging options can be specified to log connections and remote commands.
+
+In the first syntax, net-eval talks to only one remote newLISP server node, sending the host in str-host on port int-port a request to evaluate the expression exp. If int-timeout is not given, net-eval will wait up to 60 seconds for a response after a connection is made. Otherwise, if the timeout in milliseconds has expired, nil is returned; else, the evaluation result of exp is returned.
+
+; the code to be evaluated is given in a quoted expression
+(net-eval "192.168.1.94" 4711 '(+ 3 4))       → 7
+
+; expression as a string (only one expression should be in the string)
+(net-eval "192.168.1.94" 4711 "(+ 3 4)")      → 7
+
+; with timeout
+(net-eval "192.168.1.94" 4711 '(+ 3 4) 1)     → nil  ; 1ms timeout too short
+(net-error)                                   → (17 "ERR: Operation timed out")
+
+(net-eval "192.168.1.94" 4711 '(+ 3 4) 1000)  → 7
+
+; program contained in a variable
+(set 'prog '(+ 3 4))
+(net-eval "192.168.1.94" 4711 prog)           → 7
+
+; specify a local-domain Unix socket (not available on MS Windows)
+(net-eval "/tmp/mysocket" 0 '(+ 3 4))         → 7
+
+The second syntax of net-eval returns a list of the results after all of the responses are collected or timeout occurs. Responses that time out return nil. The last example line shows how to specify a local-domain Unix socket specifying the socket path and a port number of 0. Connection errors or errors that occur when sending information to nodes are returned as a list of error numbers and descriptive error strings. See the function net-error for a list of potential error messages.
+
+; two different remote nodes different IPs
+(net-eval '(
+    ("192.168.1.94" 4711 '(+ 3 4))
+    ("192.168.1.95" 4711 '(+ 5 6))
+    ) 5000)
+→ (7 11)
+
+; two persistent nodes on the same CPU different ports
+(net-eval '(
+    ("localhost" 8081 '(foo "abc"))
+    ("localhost" 8082 '(myfunc 123)')
+    ) 3000)
+
+; inetd or xinetd nodes on the same server and port
+; nodes are loaded on demand
+(net-eval '(
+    ("localhost" 2000 '(foo "abc"))
+    ("localhost" 2000 '(myfunc 123))
+    ) 3000)
+
+The first example shows two expressions evaluated on two different remote nodes. In the second example, both nodes run on the local computer. This may be useful when debugging or taking advantage of multiple CPUs on the same computer. When specifying 0 for the port number , net-eval takes the host name as the file path to the local-domain Unix socket.
+
+Note that definitions of foo and myfunc must both exist in the target environment. This can be done using a net-eval sending define statements before. It also can be done by preloading code when starting remote nodes.
+
+When nodes are inetd or xinetd-controlled, several nodes may have the same IP address and port number. In this case, the Unix daemon inetd or xinetd will start multiple newLISP servers on demand. This is useful when testing distributed programs on just one machine. The last example illustrates this case. It is also useful on multi core CPUs, where the platform OS can distribute different processes on to different CPU cores.
+
+The source sent for evaluation can consist of entire multiline programs. This way, remote nodes can be loaded with programs first, then specific functions can be called. For large program files, the functions put-url or save (with a URL file name) can be used to transfer programs. The a net-eval statement could load these programs.
+
+Optionally, a handler function can be specified. This function will be repeatedly called while waiting and once for every remote evaluation completion.
+
+(define (myhandler param)
+    (if param
+        (println param))
+)
+
+(set 'Nodes '(
+    ("192.168.1.94" 4711)
+    ("192.168.1.95" 4711)
+))
+
+(set 'Progs '(
+    (+ 3 4)
+    (+ 5 6)
+))
+
+(net-eval (map (fn (n p) (list (n 0) (n 1) p)) Nodes Progs) 5000 myhandler)
+→
+("192.168.1.94" 4711 7)
+("192.168.1.95" 4711 11)
+
+The example shows how the list of node specs can be assembled from a list of nodes and sources to evaluate. This may be useful when connecting to a larger number of remote nodes.
+
+(net-eval (list
+  (list (Nodes 0 0) (Nodes 0 1) (Progs 0))
+  (list (Nodes 1 0) (Nodes 1 1) (Progs 1))
+ ) 3000 myhandler)
+
+While waiting for input from remote hosts, myhandler will be called with nil as the argument to param. When a remote node result is completely received, myhandler will be called with param set to a list containing the remote host name or IP number, the port, and the resulting expression. net-eval will return true before a timeout or nil if the timeout was reached or exceeded. All remote hosts that exceeded the timeout limit will contain a nil in their results list.
+
+For a longer example see this program: "mapreduce". The example shows how a word counting task gets distributed to three remote nodes. The three nodes count words in different texts and the master node receives and consolidates the results.
+
+Nota: il file "mapreduce.lsp" si trova nella cartella DATA.
+----------------------------------------------------------------------------
+
+Possiamo vedere il funzionamento di "net-eval" anche su un singolo computer.
+
+1) Esecuzione dei server TCP/IP (sul proprio computer)
+  a) Aprire un command prompt e digitare: newlisp -c -d 4477
+     In questo modo abbiamo lanciato un server (pc1) newlisp sulla porta 4477
+  b) Aprire un altro command prompt e digitare: newlisp -c -d 5588
+     In questo modo abbiamo lanciato un altro server (pc2) newlisp sulla porta 5588
+
+2) Esecuzione del client TCP/IP (sul proprio computer)
+  a) Aprire un altro command prompt e digitare: newlisp.exe
+  In questo modo abbiamo lanciato il client newlisp che ci permette di dialogare con i due server (pc1 sulla porta 4477 e pc2 sulla porta 5588)
+
+3) Definiamo due funzioni che ci permettono di valutare espressioni utilizzando i server a disposizione:
+
+(define (do-pc1 expr) (net-eval "localhost" 4477 expr))
+(define (do-pc2 expr) (net-eval "localhost" 5588 expr))
+
+Adesso possiamo provare a valutare espressioni dai server:
+
+(do-pc1 '(+ 1 3))
+;-> 4
+
+(do-pc2 '(setq a (+ 1 3)))
+;-> 4
+
+(do-pc2 '(+ a 2))
+;-> 6
+
+La seguente espressione inserisce codice nel server remoto pc1 (code injection):
+
+(do-pc1 '(define (pippo a b) (pow a b)))
+;-> (lambda (a b) (pow a b))
+(do-pc1 '(pippo 5 3))
+;-> 125
+
+La seguente espressione inserisce codice nel server remoto pc2 (code injection):
+
+(do-pc2 '(define (pluto a) (div (sqrt a))))
+(do-pc2 '(pluto 4))
+;-> 0.5
+
+Adesso possiamo utilizzare espressioni che valutano le sotto-espressioni con i server remoti:
+
+(max (do-pc2 '(pluto 1)) (do-pc1 '(pippo 2 1)))
+;-> 2
 
 =============================================================================
 

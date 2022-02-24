@@ -1074,6 +1074,8 @@ NOTE LIBERE 7
   Alcune funzioni sugli angoli
   Formattazione di numeri ordinali
   Programmazione Funzionale e Pensiero Funzionale
+  Unione di liste di attributi (zip)
+  net-eval e calcolo distribuito (distribute computing)
 
 APPENDICI
 =========
