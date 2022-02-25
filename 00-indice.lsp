@@ -1066,7 +1066,7 @@ NOTE LIBERE 7
   Regressione polinomiale (Metodo dei minimi quadrati)
   Ordinamento naturale (Natural Sort)
   D. Backspace e AlphaCode
-  (isclose x y) di python 3
+  isclose(x, y) di python 3
   Dimostrazione della soluzione dell'equazione quadratica
   La parola chiave "lambda"
   Addizioni e sottrazioni alternate
@@ -1076,6 +1076,8 @@ NOTE LIBERE 7
   Programmazione Funzionale e Pensiero Funzionale
   Unione di liste di attributi (zip)
   net-eval e calcolo distribuito (distribute computing)
+  Numeri di Lynch-Bell
+  Algoritmo Lee - Ricerca del percorso in un labirinto
 
 APPENDICI
 =========

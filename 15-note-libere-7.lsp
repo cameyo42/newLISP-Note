@@ -4569,7 +4569,7 @@ Comunque noi esseri umani giochiamo ancora a scacchi, a go e sicuramente continu
 
 
 -------------------------
-(isclose x y) di python 3
+isclose(x, y) di python 3
 -------------------------
 
 Confrontare correttamente se due numeri in virgola mobile (floating-point) sono quasi uguali è abbastanza complicato. Il linguaggio python 3 mette a disposizione la funzione "isclose" che determina se un valore è approssimativamente uguale o "vicino" a un altro valore.
@@ -5770,6 +5770,390 @@ Adesso possiamo utilizzare espressioni che valutano le sotto-espressioni con i s
 
 (max (do-pc2 '(pluto 1)) (do-pc1 '(pippo 2 1)))
 ;-> 2
+
+
+--------------------
+Numeri di Lynch-Bell
+--------------------
+
+Trova l'intero più grande in base 10 le cui cifre sono tutte diverse ed è esattamente divisibile per ciascuna delle sue singole cifre.
+Questi numeri sono anche noti come numeri Lynch-Bell, cioè hanno le seguenti proprietà:
+
+1) tutte le cifre del numero sono diverse
+2) tutte le singole cifre dividono esattamente il numero
+3) non compare la cifra 0 (perchè 0 non divide esattamente)
+
+Esempio: 135 è esattamente divisibile per 1, 3 e 5.
+
+Poichè le cifre devono essere tutte univoche, un numero in base dieci avrà al massimo 9 cifre.
+
+Scriviamo una funzione per trovare tutti i numeri di Lynch-Bell che utilizza la forza bruta considerando che il solo ciclo "for" da 1 a 987654321 impiega circe 7 secondi:
+
+(time (for (i 987654321 1)))
+;-> (7091.53)
+
+(define (int-lst num)
+"Convert an integer to a list of digits"
+  (let (out '())
+    (while (!= num 0)
+      (push (% num 10) out)
+      (setq num (/ num 10))) out))
+
+(define (lynch-bell)
+  (local (out stop digits)
+    (setq out '())
+    (setq stop nil)
+    (for (i 987654321 1 -1)
+      (setq stop nil)
+      (setq digits (int-lst i))
+      ; se tutte le cifre sono diverse...
+      (if (= digits (unique digits))
+        (begin
+          ; controllo divisione esatta di tutte le cifre
+          (dolist (d digits stop)
+            (if (or (zero? d) (!= (% i d) 0))
+                (setq stop true)
+            )
+          )
+          ; se tutte divisioni esatte...
+          (if (nil? stop)
+              ; inserisce il numero corrente nella soluzione
+              (push i out -1)
+          )
+        )
+      )
+    )
+    out))
+
+Lanciamo la funzione e portiamo fuori il cane (32 minuti circa):
+
+(time (setq lb (lynch-bell)))
+;-> 1925587.173 ; 32 minuti circa
+
+(length lb)
+;-> 548
+
+Il numero cercato è il primo della lista:
+
+(lb 0)
+;-> 9867312
+
+lb
+;-> (9867312 9812376 9782136 9781632 9723168 9718632 9678312 9617832 9617328
+;->  9283176 9278136 9237816 9231768 9182376 9176832 9176328 9163728 8973216
+;->  8912736 8796312 8731296 8617392 8367912 8312976 8219736 8176392 8163792
+;->  8123976 7921368 7916832 7916328 7892136 7891632 7863912 7861392 7839216
+;->  7836192 7829136 7639128 7613928 7398216 7392168 7361928 7329168 7291368
+;->  7231896 7198632 7168392 6971832 6971328 6913872 6893712 6731928 6719832
+;->  6719328 6391728 6389712 6387192 6379128 6139728 3928176 3927168 3869712
+;->  3867192 3817296 3816792 3796128 3768912 3712968 3678192 3619728 3298176
+;->  3297168 3271968 3196872 3187296 3186792 2983176 2978136 2937816 2931768
+;->  2831976 2819376 2793168 2789136 2317896 2189376 2138976 2137968 1982736
+;->  1936872 1923768 1876392 1863792 1823976 1738296 1687392 1679832 1679328
+;->  1382976 1376928 1372896 1369872 1293768 1289736 984312 981432 978264
+;->  976248 948312 943128 941832 941328 934128 932184 931824 931248 927864
+;->  923184 921384 918432 914832 914328 913824 913248 912384 897624 894312
+;->  891432 873264 864312 861432 849312 846312 843912 843216 843192 842136
+;->  841632 841392 836472 834912 834216 834192 832416 831624 831264 824376
+;->  824136 823416 819432 816432 814632 814392 813624 813264 796824 789264
+;->  783216 768432 762384 746928 742896 732816 732648 689472 684312 681432
+;->  671832 671328 648312 643128 641832 641328 634872 634128 632184 631824
+;->  631248 627984 623784 623184 621384 618432 614832 614328 613872 613824
+;->  613248 612384 498312 493128 491832 491328 489312 486312 483912 483672
+;->  483216 483192 482136 481632 481392 478632 478296 469728 468312 463128
+;->  461832 461328 439128 438912 438216 438192 436128 432816 432768 432168
+;->  431928 428736 428136 427896 423816 423168 421368 419832 419328 418632
+;->  418392 416832 416328 413928 412368 394128 392184 391824 391248 384912
+;->  384216 384192 382416 381624 381264 376824 367248 364728 364128 362184
+;->  361872 361824 361248 349128 348912 348216 348192 346128 342816 342168
+;->  341928 329184 328416 326184 324816 324168 321984 321864 321648 319824
+;->  319248 318624 318264 316824 316248 314928 312984 312864 312648 297864
+;->  293184 291384 284136 283416 281736 273168 263184 261384 248976 248136
+;->  247968 243816 243768 243168 241368 239184 238416 236184 234816 234168
+;->  231984 231864 231648 219384 218736 216384 214368 213984 213864 213648
+;->  198432 194832 194328 193824 193248 192384 189432 186432 184632 184392
+;->  183624 183264 172368 168432 167832 167328 164832 164328 163824 163248
+;->  162384 149832 149328 148632 148392 146832 146328 143928 142368 139824
+;->  139248 138624 138264 136824 136248 134928 132984 132864 132648 129384
+;->  126384 124368 123984 123864 123648 98136 93816 93168 92736 91728 91476
+;->  91368 89712 89136 87192 84672 84312 84216 82416 81936 81624 81432 81264
+;->  79632 79128 78624 73962 73416 73248 73164 72184 68712 64128 62184 61824
+;->  61248 48312 48216 46872 46128 43176 43128 42816 42168 41832 41328 39816
+;->  39168 38472 37926 37296 37128 36792 34128 32184 31968 31896 31824 31248
+;->  29736 28416 27384 26184 24816 24168 23184 21864 21784 21648 21384 19368
+;->  18936 18624 18432 18264 17248 16824 16248 14832 14728 14328 13968 13896
+;->  13824 13248 12864 12768 12648 12384 9864 9648 9612 9432 9324 9315 9216
+;->  9162 9135 9126 8736 8496 8136 6984 6912 6432 6384 6324 6312 6192 6132
+;->  4968 4932 4896 4872 4632 4392 4368 4236 4172 4128 3924 3915 3864 3816
+;->  3648 3624 3612 3492 3276 3264 3216 3195 3168 3162 3126 2916 2436 2364
+;->  2316 2196 2184 2136 1962 1935 1926 1824 1764 1692 1632 1395 1368 1362
+;->  1326 1296 1248 1236 936 864 824 816 784 735 728 672 648 624 612 432 412
+;->  396 384 324 315 312 264 248 216 184 175 168 162 135 132 128 126 124 48
+;->  36 24 15 12 9 8 7 6 5 4 3 2 1)
+
+Per migliorare la funzione possiamo fare le seguenti osservazioni (alcune sono valide solo per il calcolo del numero più grande di Lynch-Bell):
+
+1) Il numero più grande non deve contenere la cifra 0, altrimenti la divisione non sarebbe possibile.
+
+2) Il numero più grande non deve essere dispari, altrimenti non sarebbe divisibile per 2.
+
+3) Il numero più grande non deve contenere la cifra 5, perchè il numero è divisibile per 5 solo se termina con 0 o con 5, ma le osservazioni 1) e 2) nopn permettono questo.
+
+4) Il numero più grande, senza 0 e 5, vale 98764321. Il numero non è divisibile per 3 perchè la somma delle cifre vale 40 che non è divisibile per 3, quindi l'intero più grande possibile non deve utilizzare più di 7 cifre (poiché 3, 6 e 9 verrebbero eliminati). Quindi il numero più grande vale 9876432.
+
+5) Il numero più grande deve essere divisibile per 7, 8 e 9. In questo caso il numero è anche divisibile per 2, 3, 4 e 6.
+
+6) Il numero più grande deve essere divisibile per 7 * 8 * 9 = 504, quindi partiamo dal multiplo di 504 più vicino a 9876432, cioè 9876384:
+
+(div 9876432 504)
+;-> 19596.09523809524
+(* 19596 504)
+;-> 9876384
+
+Con l'osservazione 6) possiamo scrivere una nuova funzione per calcolare tutti i numeri di Lynch-Bell:
+
+(define (lynch-bell-fast)
+  (local (out stop digits)
+    (setq out '())
+    (setq stop nil)
+    (for (i 9876384 1 -1)
+      (setq stop nil)
+      (setq digits (int-lst i))
+      (if (= digits (unique digits))
+        (begin
+          (dolist (d digits stop)
+            (if (or (zero? d) (!= (% i d) 0))
+                (setq stop true)
+            )
+          )
+          (if (nil? stop)
+              (push i out -1)
+          )
+        )
+      )
+    )
+    out))
+
+Vediamo il tempo di esecuzione e se le due funzioni producono lo stesso risultato:
+
+(time (setq lbf (lynch-bell-fast)))
+;-> 15823.918
+(length lbf)
+;-> 548
+(lbf 0)
+;-> 9867312
+(difference lb lbf)
+;-> ()
+
+Adesso scriviamo una funzione per trovare solo il numero di Lynch-Bell più grande. Partiamo da 9876384 e procediamo all'indietro per multipli di 504 (inoltre non deve contenere la cifra 5):
+
+(define (lynch-bell-max)
+  (local (out stop num digits found)
+    (setq out '())
+    (setq found nil)
+    (setq stop nil)
+    (for (i 19596 1 -1 found)
+      (setq num (* i 504))
+      (setq stop nil)
+      (setq digits (int-lst num))
+      (if (= digits (unique digits))
+        (begin
+          (dolist (d digits stop)
+            (if (or (zero? d) (= d 5) (!= (% num d) 0))
+                (setq stop true)
+            )
+          )
+          (if (nil? stop)
+              (setq found true)
+          )
+        )
+      )
+    )
+    num))
+
+(lynch-bell-max)
+;-> 9867312
+
+(time (println (lynch-bell-max)))
+;-> 1.006
+
+I numeri di Lynch-Bell sono la sequenza OEIS A115569:
+ 1, 2, 3, 4, 5, 6, 7, 8, 9, 12, 15, 24, 36, 48, 124, 126, 128, 132, 135,
+ 162, 168, 175, 184, 216, 248, 264, 312, 315, 324, 384, 396, 412, 432, 
+ 612, 624, 648, 672, 728, 735, 784, 816, 824, 864, 936, 1236, 1248, 1296, 
+ 1326, 1362, 1368, 1395, 1632, 1692, 1764, 1824...
+ 
+(slice (reverse (copy lbf)) 0 55)
+;-> (1 2 3 4 5 6 7 8 9 12 15 24 36 48 124 126 128 132 135
+;->  162 168 175 184 216 248 264 312 315 324 384 396 412 432
+;->  612 624 648 672 728 735 784 816 824 864 936 1236 1248 1296
+;->  1326 1362 1368 1395 1632 1692 1764 1824)
+
+
+----------------------------------------------------
+Algoritmo Lee - Ricerca del percorso in un labirinto
+----------------------------------------------------
+
+Dato un labirinto a forma di matrice rettangolare binaria (1 0), trovare la lunghezza del percorso più breve da un nodo sorgente a un nodo destinazione.
+Possiamo muoverci solo nei nodi con valore 1 e nelle 4 direzioni alto, destra, basso e sinistra (nord, est, sud e ovest)
+Quindi le mosse dal nodo (x y) possono essere:
+
+    Alto: (x, y) --> (x – 1, y)
+  Destra: (x, y) --> (x, y + 1)
+  Basso:  (x, y) --> (x + 1, y)
+Sinistra: (x, y) --> (x, y – 1)
+
+L'algoritmo di Lee è una soluzione per la ricerca del percorso minimo in un labirinto basato sulla ricerca in ampiezza (BFS - Breadth–first search). Fornisce sempre una soluzione ottimale, se esiste, ma è più lento di altri algoritmi e richiede memoria per la matrice dei nodi visitati. Vediamo lo pseudo-codice dell'algoritmo:
+
+1) Creare una coda vuota e accodare il nodo di origine con una distanza 0 dal nodo sorgente (se stesso) e contrassegnarlo come visitato.
+2) Ripetere finché la coda non è vuota:
+   2.1) prendere il primo nodo dalla coda
+   2.2) se il nodo è la destinazione, allora stampa la soluzione e termina.
+        altrimenti, per ciascuno dei 4 nodi dal nodo corrente, accodare ogni nodo valido con una distanza di +1 e contrassegnarli come visitati.
+3) Se tutti i nodi della coda vengono elaborati e la destinazione non viene raggiunta, restituire nil.
+   Altrimenti stampare la soluzione.
+  
+Nota che con la BFS, tutti i nodi che hanno il percorso più breve come 1 vengono visitati per primi, seguiti dai loro nodi adiacenti che hanno il percorso più breve come 1 + 1 = 2 e così via... Quindi, se raggiungiamo un nodo in BFS, il suo percorso più breve è uno più del percorso più breve del genitore. Quindi, la prima occorrenza del nodo di destinazione ci fornisce il risultato e possiamo interrompere la nostra ricerca. È impossibile che il percorso più breve esista da qualche altro nodo per la quale non abbiamo ancora raggiunto il nodo specificato. Se un tale percorso fosse stato possibile, l'avremmo già esplorato.
+
+Funzione per stampare la matrice soluzione:
+
+(define (print-matrix matrix)
+"Print a matrix m x n"
+  (local (row col lenmax digit fmtstr)
+    ; converto matrice in lista?
+    (if (array? matrix) (setq matrix  (array-list matrix)))
+    ; righe della matrice
+    (setq row (length matrix))
+    ; colonne della matrice
+    (setq col (length (first matrix)))
+    ; valore massimo della lunghezza di un elemento (come stringa)
+    (setq lenmax (apply max (map length (map string (flat matrix)))))
+    ; calcolo spazio per gli elementi
+    (setq digit (+ 1 lenmax))
+    ; creo stringa di formattazione
+    (setq fmtstr (append "%" (string digit) "s"))
+    ; stampa la matrice
+    (for (i 0 (- row 1))
+      (for (j 0 (- col 1))
+        (print (format fmtstr (string (matrix i j))))
+      )
+      (println))))
+
+Funzione per verificare se un nodo è raggiungibile:
+
+(define (valid? grid visited row col)
+  (let ((len-row (length grid))
+        (len-col (length (grid 0))))
+    (and (>= row 0) (< row len-row) (>= col 0) (< col len-col)
+         (= (grid row col) 1) (= (visited row col) -1))))
+
+Funzione che implementa l'algoritmo di Lee:
+
+(define (lee grid x y x-end y-end)
+  (local (row col num-rows num-cols visited queue min-dist found node dist)
+    ; permette di partire da una cella qualsiasi
+    (if (zero? (grid x y)) (setf (grid x y) 1))
+    ; liste per i quattro possibili movimenti dal nodo corrente
+    (setq row '(-1 0 0 1))
+    (setq col '(0 -1 1 0))
+    ; matrice num-rows x num-cols
+    (setq num-rows (length grid))
+    (setq num-cols (length (grid 0)))
+    ; matrice che tiene traccia delle celle visitate (e della distanza)
+    (setq visited (array num-rows num-cols '(-1)))
+    ; creazione di una coda vuota
+    (setq queue '())
+    ; marca la cella di partenza come visitata (distanza = 0)
+    (setf (visited x y) 0)
+    ; aggiunge il nodo di partenza alla coda
+    (push (list x y 0) queue)
+    ; lunghezza del percorso minimo dalla sorgente alla destinazione
+    (setq min-dist 999999999)
+    ; percorso trovato?
+    (setq found nil)
+    ; ciclo finché la coda è vuota (o percorso trovato)
+    (while (and queue (nil? found))
+      ; prende il primo nodo dalla coda e lo processa
+      (setq node (pop queue))
+      ; (x, y) rappresenta il nodo corrente
+      ; "dist" è la distanza minima dalla sorgente
+      (setq x (node 0))
+      (setq y (node 1))
+      (setq dist (node 2))
+      ; se abbiamo raggiunto la destinazione,
+      ; allora aggiorna "min-dist" e si ferma
+      (cond ((and (= x x-end) (= y y-end))
+             (set 'min-dist dist 'found true)
+            )
+            ; altrimenti
+            ; controlla tutti e quattro i possibili movimenti dal nodo corrente
+            ; e accoda ogni movimento valido
+            (true
+              (for (k 0 3)
+                ; verifica se è possibile andare in posizione
+                ; (x riga[k], y col[k]) dalla posizione corrente
+                (if (valid? grid visited (+ x (row k)) (+ y (col k)))
+                  (begin
+                    ; aggiorna matrice dei nodi visitati
+                    (setf (visited (+ x (row k)) (+ y (col k))) (+ dist 1))
+                    ; accoda il nodo corrente
+                    (push (list (+ x (row k)) (+ y (col k)) (+ dist 1)) queue)
+                  )
+                )
+              )
+            )
+      )
+    )
+    ; valore da resitituire
+    (if (= min-dist 999999999)
+        ; non è possibile raggiungere la destinazione
+        nil
+        (begin
+          ; stampa la soluzione
+          (print-matrix visited)
+          ; restituisce la distanza minima
+          min-dist)
+    )))
+
+(setq matrix '(( 1 1 1 1 1 0 0 1 1 1 )
+               ( 0 1 1 1 1 1 0 1 0 1 )
+               ( 0 0 1 0 1 1 1 0 0 1 )
+               ( 1 0 1 1 1 0 1 1 0 1 )
+               ( 0 0 0 1 0 0 0 1 0 1 )
+               ( 1 0 1 1 1 0 0 1 1 0 )
+               ( 0 0 0 0 1 0 0 1 0 1 )
+               ( 0 1 1 1 1 1 1 1 0 0 )
+               ( 1 1 1 1 1 0 0 1 1 1 )
+               ( 0 0 1 0 0 1 1 0 0 1 )))
+
+(lee matrix 0 0 7 5)
+;->   0  1  2 -1 -1 -1 -1 -1 -1 -1
+;->  -1  2  3  4 -1 -1 -1 -1 -1 -1
+;->  -1 -1  4 -1 -1 -1 -1 -1 -1 -1
+;->  -1 -1  5  6  7 -1 -1 -1 -1 -1
+;->  -1 -1 -1  7 -1 -1 -1 -1 -1 -1
+;->  -1 -1  9  8  9 -1 -1 -1 -1 -1
+;->  -1 -1 -1 -1 10 -1 -1 -1 -1 -1
+;->  -1 16 15 12 11 12 -1 -1 -1 -1
+;->  16 15 14 13 12 -1 -1 -1 -1 -1
+;->  -1 -1 15 -1 -1 -1 -1 -1 -1 -1
+;-> 12
+
+(lee matrix 0 5 7 5)
+;->  -1 -1 -1 -1  1  0 -1 -1 -1 -1
+;->  -1 -1 -1 -1  2  1 -1 -1 -1 -1
+;->  -1 -1 -1 -1  3  2  3 -1 -1 -1
+;->  -1 -1 -1 -1 -1 -1  4  5 -1 -1
+;->  -1 -1 -1 -1 -1 -1 -1  6 -1 -1
+;->  -1 -1 -1 -1 -1 -1 -1  7  8 -1
+;->  -1 -1 -1 -1 -1 -1 -1  8 -1 -1
+;->  -1 -1 -1 -1 -1 11 10  9 -1 -1
+;->  -1 -1 -1 -1 -1 -1 -1 10 11 12
+;->  -1 -1 -1 -1 -1 -1 -1 -1 -1 13
+;-> 11
+
+(lee matrix 4 0 7 5)
+;-> nil
 
 =============================================================================
 
