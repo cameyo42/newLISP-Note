@@ -1078,6 +1078,8 @@ NOTE LIBERE 7
   net-eval e calcolo distribuito (distribute computing)
   Numeri di Lynch-Bell
   Algoritmo Lee - Ricerca del percorso in un labirinto
+  Fredkin gate
+  La funzione "amb"
 
 APPENDICI
 =========

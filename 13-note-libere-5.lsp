@@ -1535,6 +1535,66 @@ Ma la seguente non genera il risultato corretto:
 
 perchè il simbolo "x" viene valutato a nil, invece la macro non valuta il simbolo "x".
 
+Come abbiamo visto, "curry" trasforma una funzione con due argomenti in una funzione con un singolo argomento raggruppandolo nel primo argumento (quello più sinistra). Inoltre non valuta i suoi argomenti.
+
+Per esempio:
+
+(define (sottrai a b) (- a b))
+;-> (lambda (a b) (- a b))
+(define fun (curry sottrai 10))
+;-> (lambda ($x) (sottrai 10 $x))
+(fun 4)
+;-> 6
+(sottrai 10 4)
+;-> 6
+
+Come funziona?
+Per prima cosa definiamo una funzione chiamata "sottrai" che accetta due argomenti e sottrae il secondo dal primo.
+Quindi applichiamo "curry" a questa funzione per ottenere una nuova funzione "fun", a cui passiamo "10" come primo argomento fisso. 
+La funzione restituita viene associata alla variabile "fun".
+Quando chiamiamo "fun" passando 4, otteniamo 6 come previsto. Questo è esattamente lo stesso che chiamare "sottrai" con gli argomenti 10 e 4.
+
+Altri esempi:
+
+(map fun '(10 20 30))
+;-> (0 -10 -20)
+(map sottrai '(10 10 10) '(10 20 30))
+;-> (0 -10 -20)
+(map (curry sottrai 5) '(10 20 30))
+;-> (-5 -15 -25)
+((curry fun 10) 20)
+;-> 0
+
+Come si nota, "currying" semplifica alcune chiamate di funzione e rende il codice più leggibile.
+
+La funzione "lambda" restituita da "curry" nomina il suo singolo argomento in ingressoo come "$x". Possiamo quindi usare questo nome nella nostra espressione di argomenti.
+
+(define (pippo arg1 arg2) (* arg1 arg2))
+;-> (lambda (arg1 arg2) (* arg1 arg2))
+(define curry-pippo (curry pippo (+ $x 2)))
+;-> (lambda ($x) (pippo (+ $x 2) $x))
+(curry-pippo 50)
+;-> 2600  ;(* 52 50) ==> 2600
+
+Poichè "curry" non valuta i suoi argomenti possiamo commettere il seguente tipo di errore:
+
+(define (pippo arg1 arg2) (* arg1 arg2))
+;-> (lambda (arg1 arg2) (* arg1 arg2))
+(define fun (let (x 6) (curry pippo x)))
+;-> (lambda ($x) (pippo x $x))
+(fun 10)
+;-> ERR: value expected in function * : nil
+;-> called from user function (pippo x $x)
+;-> called from user function (fun 10)
+
+In questo caso, per risolvere il problema, dobbiamo usare "letex" al posto di "let", che valuta/sostituisce la "x" all'interno di "curry" con il suo valore iniziale (espansione statica):
+
+(define fun (letex (x 6) (curry pippo x)))
+(fun 10)
+;-> 60
+
+La funzione "curry" è molto utile e comoda in certi casi.
+
 
 -------------------
 Algoritmo evolutivo

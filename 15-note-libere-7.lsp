@@ -5420,99 +5420,108 @@ Ad esempio, può avviare una richiesta per una risorsa remota tramite HTTP e qui
 - Multithreading: questa è un'implementazione software che consente a diversi thread di
 essere eseguito contemporaneamente. Un programma multithread sembra che stia facendo diverse cose allo stesso tempo anche quando è in esecuzione su una macchina single-core.
 
-Mi fermo qui, per chi vuole imparare a programmare in modo funzionale consiglio i seguenti libri:
+----------------------------------------------------------------------------
 
-"Exploring Functional Programming" di Eric Normand
-"Grokking Simplicity" di Eric Normand
-"Grokking Functional Programming" di Michal Plachta
+Cos'è la programmazione funzionale?
+-----------------------------------
+La programmazione funzionale (chiamata anche FP) è un modo di pensare alla costruzione del software creando funzioni pure. Cerca di evitare i concetti di stati condivisi e dati mutevoli che troviamo nella programmazione orientata agli oggetti.
 
+I linguaggi funzionali si basa su espressioni e dichiarazioni piuttosto che sull'esecuzione di istruzioni. Pertanto, a differenza di altre procedure che dipendono da uno stato locale o globale, l'output del valore in FP dipende solo dagli argomenti passati alla funzione.
 
-----------------------------------
-Unione di liste di attributi (zip)
-----------------------------------
+Caratteristiche della programmazione funzionale
+-----------------------------------------------
+Il metodo di programmazione funzionale si concentra sui risultati, non sul processo.
+L'enfasi è su ciò che deve essere calcolato.
+I dati sono immutabili (quasi tutti).
+La Programmazione funzionale scompone il problema in "funzioni".
+Si basa sul concetto di funzioni matematiche che utilizza espressioni condizionali e ricorsione per eseguire i calcoli.
+Non supporta l'iterazione come le istruzioni di ciclo e le istruzioni condizionali come If-Else (ma alcuni linguaggi funzionali li supportano).
 
-Supponiamo di avere le seguenti liste di attributi:
+La base per la programmazione funzionale è il Lambda Calcolo. È stato sviluppato negli anni '30 per lo studio delle funzioni ricorsive.
+Il LISP, progettato da Mccarthy negli anni '60, è stato il primo linguaggio di programmazione funzionale (anche se non è puro).
+L'obiettivo di qualsiasi linguaggio FP è imitare le funzioni matematiche. Tuttavia, il processo di base del calcolo è diverso nella programmazione funzionale. Attualmente esistono molti linguagi funzionali (puri e non):
 
-(setq nomi '(massimo eva roby luna))
-(setq eta '(50 20 40 1))
-(setq peso '(80 45 50 18))
-(setq altezza '(180 175 165 120))
+- LISP
+- ML/OCaml
+- Clojure
+- Scala
+- Scheme 
+- Haskell
+- F#
+- PureScript
+- Erlang
+- ecc.
 
-L'indice i-esimo delle liste contiene il record i-esimo, per esempio il record 0 vale:
+La Programmazione Funzionale si basa su diversi concetti fondamentali:
 
-(massimo 50 80 180)
+Dati immutabili
+---------------
+Dati immutabili significa che dovremmo essere in grado di creare facilmente strutture di dati invece di modificare quelle già esistenti.
 
-Scrivere una funzione prende tutte le liste di attributi e crea una lista con tutti i record.
-Il numero di attributi deve essere uguale per tutte le liste di attributi.
+Trasparenza referenziale
+------------------------
+I programmi funzionali dovrebbero eseguire operazioni come se fosse sempre la prima volta. In questo modo è più facile controllare cosa accadde durante l'esecuzione del programma e i suoi effetti collaterali (trasparenza referenziale).
 
-(define (build)
-  (local (out num-records))
-  (setq out '())
-  ; Il numero di records è il numero di attributi
-  ; di ogni lista
-  (setq num-records (length (args 0)))
-  ; crea una lista con num-records liste vuote
-  (setq out (dup '() num-records))
-  (dolist (lst (args))
-    (dolist (el lst)
-      ; inserisce l'attributo nel record
-      (push (lst $idx) (out $idx) -1)
-    )
-  )
-  out)
+Modularità
+----------
+Il design modulare aumenta la produttività. I moduli piccoli (funzioni) possono essere codificati rapidamente e hanno maggiori possibilità di riutilizzo, il che porta sicuramente a uno sviluppo più rapido dei programmi. A parte questo, i moduli possono essere testati separatamente, il che aiuta a ridurre il tempo per il test e il debug.
 
-Facciamo alcune prove:
+Manutenibilità
+--------------
+Manutenibilità è un termine semplice che significa che la programmazione FP è più facile da mantenere in quanto non è necessario preoccuparsi di modificare accidentalmente qualcosa al di fuori della funzione stessa.
 
-(build '(1 2 3) '(a b c))
-;-> ((1 a) (2 b) (3 c))
+Funzione di prima classe
+------------------------
+"Funzione di prima classe" è una definizione, attribuita a quelle entità del linguaggio che non hanno restrizioni sul loro utilizzo. Pertanto, le funzioni di prima classe possono apparire ovunque nel programma.
 
-(build '(1 2 3) '(a b c) '(A B C))
-;-> ((1 a A) (2 b B) (3 c C))
+Chiusura (Closure)
+------------------
+La chiusura è una funzione interna che può accedere alle variabili della funzione genitore, anche dopo che la funzione genitore è stata eseguita.
 
-(build '(1 2) '(a b) '(A B))
-;-> ((1 a A) (2 b B))
+Funzioni di ordine superiore
+----------------------------
+Le funzioni di ordine superiore accettano altre funzioni come argomenti o le restituiscono come risultati.
+Le funzioni di ordine superiore consentono applicazioni parziali o curry. Questa tecnica applica una funzione ai suoi argomenti uno alla volta, poiché ogni applicazione restituisce una nuova funzione che accetta l'argomento successivo.
 
-(build nomi eta peso altezza)
-;-> ((massimo 50 80 180) (eva 20 45 175) (roby 40 50 165) (luna 1 18 120))
+Funzione pura
+-------------
+Una "funzione pura" è una funzione il cui risultato dipende solo dai suoi parametri. Inoltre, restituisce sempre lo stesso output per i gli stessi parametri di input. Una funzione pura non ha effetti collaterali.
 
-La funzione produce i risultati voluti.
+Esempio:
+(define (pure x y) (add x y))
 
-Se interpretiamo l'input come una matrice, ad esempio '(1 2 3) '(a b c), possiamo notare che il risultato ottenuto è la matrice trasposta dell'input:
+Funzioni impure
+---------------
+Nelle funzioni impure l'output non dipende solo dai suoi argomenti e/o produce effetti collaterali. Le funzioni impure non possono essere utilizzate o testate isolatamente poiché hanno dipendenze.
 
-input         output = trasposta(input) 
+Esempio:
+(setq z 10)
+(define (impura) (add z 10))
 
-|1 2 3|       |1 a|
-|a b c|  ==>  |2 b|
-              |3 c|
+Composizione della funzioni
+---------------------------
+La composizione delle funzioni combina 2 o più funzioni per crearne una nuova.
 
-Allora possiamo utilizzare la funzione integrata "transpose" per scrivere una funzione molto più semplice ed elegante:
+Effetti collaterali
+-------------------
+Gli effetti collaterali sono qualsiasi cambiamento di stato che si verifica al di fuori di una funzione chiamata. L'obiettivo principale di qualsiasi linguaggio di programmazione FP è ridurre al minimo gli effetti collaterali, separandoli dal resto del codice del software. Nella programmazione FP è fondamentale eliminare gli effetti collaterali dal resto della logica del programma.
 
-; Multiple list zipper
-; Transpose multiple lists into one
-; written by Nigel et altri
-(define (zip) (transpose (args)))
+Vantaggi della programmazione funzionale
+----------------------------------------
+Consente di evitare alcuni errori nel codice
+Facilita il test e il debug del programma
+Permette l'elaborazione parallela e la concorrenza
+Offre una migliore modularità con un codice più breve
+Aumenta la produttività dello sviluppatore
+Permette la nidificazione delle funzioni
+Supporta costrutti funzionali come Lazy, Map, ecc.
+Permette un uso efficace del Lambda Calcolo
 
-(zip '(1 2 3) '(a b c))
-;-> ((1 a) (2 b) (3 c))
+Mi fermo qui, per chi vuole imparare a programmare in modo funzionale (pratico) consiglio i seguenti libri:
+"Grokking Simplicity" di Eric Normand e "Grokking Functional Programming" di Michal Plachta.
 
-(zip '(1 2 3) '(a b c) '(A B C))
-;-> ((1 a A) (2 b B) (3 c C))
+Nota: newLISP non è un linguaggio di programmazione funzionale "puro". Si tratta di un mix tra programmazione iterativa e programmazione funzionale (con un pò di programmazione ad oggetti - FOOP).
 
-(zip '(1 2) '(a b) '(A B))
-;-> ((1 a A) (2 b B))
-
-(zip nomi eta peso altezza)
-;-> ((massimo 50 80 180) (eva 20 45 175) (roby 40 50 165) (luna 1 18 120))
-
-Per effettuare l'operazione opposta, cioè prendere una lista di record e creare le relative liste di attributi, basta utilizzare la funzione "apply":
-
-(zip '(1 2 3) '(a b c) '(x y z))
-;-> ((1 a x) (2 b y) (3 c z))
-(apply zip '((1 a x) (2 b y) (3 c z)))
-;-> '(1 2 3) '(a b c) '(x y z))
-
-(apply zip (zip '(1 2) '(a b)))
-;-> ;-> ((1 2) (a b))
 
 ----------------------------------
 Unione di liste di attributi (zip)
@@ -6154,6 +6163,479 @@ Funzione che implementa l'algoritmo di Lee:
 
 (lee matrix 4 0 7 5)
 ;-> nil
+
+
+------------
+Fredkin gate
+------------
+
+La porta di Fredkin (anche porta CSWAP e porta logica conservativa) è un circuito computazionale adatto al calcolo reversibile, inventato da Edward Fredkin. È universale, il che significa che qualsiasi operazione logica o aritmetica può essere costruita interamente da Fredkin Gate. La porta di Fredkin è dispositivo con tre ingressi e tre uscite che trasmette il primo bit invariato e scambia gli ultimi due bit se, e solo se, il primo bit è 1.
+
+La porta Fredkin di base è una porta di scambio controllato che mappa tre ingressi (C, I1, I2) su tre uscite (C, O1, O2). L'ingresso C viene mappato direttamente sull'uscita C. Se C = 0, non viene eseguito alcuno scambio: I1 mappa su O1 e I2 mappa su O2. In caso contrario, le due uscite vengono scambiate in modo che I1 venga mappato su O2 e I2 venga mappato su O1. È facile vedere che questo circuito è reversibile, cioè "si ricostruisce" quando viene eseguito all'indietro. Una porta Fredkin generalizzata nxn passa i suoi primi n−2 ingressi invariati alle uscite corrispondenti e scambia le sue ultime due uscite se e solo se i primi n−2 ingressi sono tutti 1.
+
+La porta di Fredkin è la porta reversibile a tre bit che scambia gli ultimi due bit se, e solo se, il primo bit è 1.
+
+Tavola di verità
+
+  +-----------------------------+ 
+  | Input        | Output       |
+  +-----------------------------+ 
+  | C  | I1 | I2 | C  | O1 | O2 |
+  +----+----+----+----+----+----+
+  | 0  | 0  | 0  | 0  | 0  |  0 |
+  +----+----+----+----+----+----+
+  | 0  | 0  | 1  | 0  | 0  |  1 |
+  +----+----+----+----+----+----+
+  | 0  | 1  | 0  | 0  | 1  |  0 |
+  +----+----+----+----+----+----+
+  | 0  | 1  | 1  | 0  | 1  |  1 |
+  +----+----+----+----+----+----+
+  | 1  | 0  | 0  | 1  | 0  |  0 |
+  +----+----+----+----+----+----+
+  | 1  | 0  | 1  | 1  | 1  |  0 |
+  +----+----+----+----+----+----+
+  | 1  | 1  | 0  | 1  | 0  |  1 |
+  +----+----+----+----+----+----+
+  | 1  | 1  | 1  | 1  | 1  |  1 |
+  +----+----+----+----+----+----+
+
+Ha la proprietà utile che i numeri di 0 e 1 sono conservati nella trasformazione, cioè il numero di 0 e di 1 all'ingresso sono uguali al numero di 0 e di 1 all'uscita.
+
+La funzione per simulare la porta di Fredkin è semplice:
+
+(define (fredkin c i1 i2)
+  (cond ((= c 0) (list c i1 i2))
+        ((= c 1) (list c i2 i1))))
+
+(fredkin 1 1 0)
+;-> (1 0 1)
+
+(apply fredkin '(1 1 0))
+;-> (1 0 1)
+
+(apply fredkin (fredkin 1 1 0))
+;-> (1 1 0)
+
+La porta di Fredkin può essere definita utilizzando le funzioni booleane AND, OR, XOR e NOT:
+
+O1     = I1 XOR S
+O2     = I2 XOR S
+C(out) = C(in)
+
+dove S = (I1 XOR I2) AND C
+
+Oppure:
+
+O1     = (NOT C AND I1) OR (C AND I2)
+O2     = (C AND I1) OR (NOT C AND I2)
+C(out) = C(in)
+
+Le funzioni booleane AND, OR, XOR e NOT possono essere definite utilizzando la porta di Fredkin:
+
+If I2 = 0, then O2 = C AND I1.
+If I2 = 1, then O1 = C OR I1.
+If I1 = 0 and I2 = 1, then O2 = NOT C.
+
+Questo fatto rende la porta di Fredkin "universale", cioè può essere usata per costruire qualunque tipo di circuito logico.
+
+
+-----------------
+La funzione "amb"
+-----------------
+
+****************
+>>>funzione AMB
+****************
+sintassi: (amb exp-1 [exp-2 ... ])
+
+Una delle espressioni exp-1 ... n viene selezionata a caso e viene restituito il risultato della sua valutazione.
+
+(amb 'a 'b 'c 'd 'e) → uno di: a, b, c, d oppure e a caso
+
+(dotimes (x 10) (stampa (amb 3 5 7))) → 35777535755
+
+Internamente, newLISP utilizza la stessa funzione di rand per selezionare un numero casuale. Per generare numeri casuali in virgola mobile, utilizzare "random", "randomize" o "normal". Per inizializzare il processo di generazione di numeri pseudo casuali in un punto di partenza specifico, utilizzare la funzione "seed".
+
+Vedaimo alcuni esempi:
+
+(amb 1 2 3 4 5)
+;-> 5
+(apply amb '(1 2 3 4 5))
+;-> 4
+
+(amb (+ 1 2) (+ 2 2) (- 10 5))
+;-> 4
+(eval (apply amb '((+ 1 2) (+ 2 2) (- 10 5))))
+;-> 3
+
+Scriviamo una funzione che si comporta come "amb":
+
+(define (amb-f) (nth (rand (length (args))) (args)))
+
+(amb-f 1 2 3 4 5)
+;-> 4
+(apply amb-f '(1 2 3 4 5))
+;-> 5
+
+(amb-f (+ 1 2) (+ 2 2) (- 10 5))
+;-> 4
+(eval (apply amb-f '((+ 1 2) (+ 2 2) (- 10 5))))
+;-> 5
+
+Scriviamo una macro che si comporta come "amb":
+
+(define-macro (amb-m) (eval (nth (rand (length (args))) (args))))
+
+(amb-m 1 2 3 4 5)
+;-> 4
+(apply amb-m '(1 2 3 4 5))
+;-> 2
+
+(amb-m (+ 1 2) (+ 2 2) (- 10 5))
+;-> 5
+(eval (apply amb-m '((+ 1 2) (+ 2 2) (- 10 5))))
+;-> 5
+
+Adesso vediamo come applicare "amb" per risolvere il seguente puzzle.
+
+Anna, Carla, Daniela, Beatrice, Eva e Francesca parcheggiano le rispettive automobili una di seguito all'altra lungo la strada.
+Sapendo che:
+
+  1) C non è la prima
+  2) B non è l'ultima
+  3) E si trova dopo A
+  4) D si trova prima di F
+  5) A non è l'ultima
+  6) E non è la prima
+  7) B non è adiacente (prima o dopo) a F
+  8) D non è adiacente (prima o dopo) a E
+  9) C si trova prima di D
+  10) B si trova dopo D
+
+Come sono parcheggiate le automobili?
+
+Possiamo risolvere questo problema utilizzando la funzione non-deterministica "amb".
+
+(define (come n)
+  (local (i a b c d e f  found)
+    (set 'i 1 'found nil)
+    ; inizializzazione generatore random
+    ; la funzione "amb" usa il generatore random
+    (seed (time-of-day))
+    ;(while (and (< i n) (= found nil))
+    (while (< i n)
+      ; genera un parcheggio random delle automobili
+      (setq a (amb 1 2 3 4 5 6))
+      (setq b (amb 1 2 3 4 5 6))
+      (setq c (amb 1 2 3 4 5 6))
+      (setq d (amb 1 2 3 4 5 6))
+      (setq e (amb 1 2 3 4 5 6))
+      (setq f (amb 1 2 3 4 5 6))
+      ; controllo dei vincoli
+      (if (and (not (= c 1))
+               (not (= b 6))
+               (> e a)
+               (< d f)
+               (not (= a 6))
+               (not (= e 1))
+               (not (= b (- f 1)))
+               (not (= b (+ f 1)))
+               (not (= d (- e 1)))
+               (not (= d (+ e 1)))
+               (< c d)
+               (> b d)
+               (= (list a b c d e f)
+                  (unique (list a b c d e f))))
+          (begin
+            (setq found true)
+            (println i ": " (list a b c d e f))
+          )
+      )
+      (++ i)
+    )
+    found))
+
+(come 100)
+;-> nil
+(come 10000)
+;-> nil
+(come 100000)
+;-> 48589: (1 4 2 3 5 6)
+;-> 78585: (1 4 2 3 5 6)
+;-> true
+
+Quindi la posizione delle automobili è la seguente:
+
+  A al posto 1 | 
+  B al posto 4 | 
+  C al posto 2 |  
+  D al posto 3 |  
+  E al posto 5 | 
+  F al posto 6 | 
+
++---+---+---+---+---+---+
+| A | C | D | B | E | F |
++---+---+---+---+---+---+  
+
+In questo caso un modo migliore è quello di utilizzare la funzione "randomize":
+
+(define (come2 n)
+  (local (i a b c d e f)
+    (setq i 1)
+    ; inizializzazione generatore random
+    ; la funzione "randomize" usa il generatore random
+    (seed (time-of-day))
+    ;(while (and (< i n) (= found nil))
+    (while (< i n)
+      ; genera un parcheggio random delle automobili
+      (setq parc (randomize '(1 2 3 4 5 6)))
+      (map set '(a b c d e f) parc)
+      ; controllo dei vincoli
+      (if (and (not (= c 1))
+               (not (= b 6))
+               (> e a)
+               (< d f)
+               (not (= a 6))
+               (not (= e 1))
+               (not (= b (- f 1)))
+               (not (= b (+ f 1)))
+               (not (= d (- e 1)))
+               (not (= d (+ e 1)))
+               (< c d)
+               (> b d))
+          (println i ": " (list a b c d e f))
+      )
+      (++ i)
+    )))
+
+(come2 100)
+;-> 100
+(come2 1000)
+;-> 375: (1 4 2 3 5 6)
+;-> 1000
+(come2 1000)
+;-> 40: (1 4 2 3 5 6)
+;-> 323: (1 4 2 3 5 6)
+;-> 570: (1 4 2 3 5 6)
+;-> 683: (1 4 2 3 5 6)
+;-> 1000
+
+Adesso vediamo come utilizzare la funzione "amb" per trovare il percorso in un labirinto.
+Si tratta di un algoritmo simile alla "passeggiata dell'ubriaco":
+
+1) iniziamo dalla posizione di partenza 
+2) spostarsi in una delle 4 direzioni possibili (nord, est, sud, ovest)
+3) se abbiamo raggiunto la destinazione, allora ci fermiamo. 
+   Altrimenti continuare al passo 2).
+
+Possiamo muoverci solo nelle celle che hanno valore 1 nella matrice che rappresenta il labirinto.
+
+Funzione che implementa l'algoritmo:
+
+(define (print-matrix matrix)
+"Print a matrix m x n"
+  (local (row col lenmax digit fmtstr)
+    ; converto matrice in lista?
+    (if (array? matrix) (setq matrix  (array-list matrix)))
+    ; righe della matrice
+    (setq row (length matrix))
+    ; colonne della matrice
+    (setq col (length (first matrix)))
+    ; valore massimo della lunghezza di un elemento (come stringa)
+    (setq lenmax (apply max (map length (map string (flat matrix)))))
+    ; calcolo spazio per gli elementi
+    (setq digit (+ 1 lenmax))
+    ; creo stringa di formattazione
+    (setq fmtstr (append "%" (string digit) "s"))
+    ; stampa la matrice
+    (for (i 0 (- row 1))
+      (for (j 0 (- col 1))
+        (print (format fmtstr (string (matrix i j))))
+      )
+      (println))))
+
+(define (valid? grid row col)
+  (let ((len-row (length grid))
+        (len-col (length (grid 0))))
+    (and (>= row 0) (< row len-row) (>= col 0) (< col len-col)
+         (= (grid row col) 1))))
+
+(define (blind grid x y x-end y-end iter)
+  (local (num-rows num-cols visited found passi)
+    ; permette di partire da una cella qualsiasi
+    (if (zero? (grid x y)) (setf (grid x y) 1))
+    ; matrice num-rows x num-cols
+    (setq num-rows (length grid))
+    (setq num-cols (length (grid 0)))
+    ; matrice che tiene traccia delle celle visitate (quante volte)
+    (setq visited (array num-rows num-cols '(0)))
+    ; marca la cella di partenza come visitata una volta
+    (setf (visited x y) 1)
+    ; percorso trovato?
+    (setq found nil)
+    (setq passi 0)
+    ; ciclo finché la coda è vuota (o percorso trovato)
+    (while (and (not found) (<= passi iter))
+      (setq dir (amb 1 2 3 4))
+      (cond ((= dir 1) (setq xp x)       (setq yp (+ y 1))) ; nord
+            ((= dir 2) (setq xp (+ x 1)) (setq yp y)) ; est
+            ((= dir 3) (setq xp x)       (setq yp (- y 1))) ; sud
+            ((= dir 4) (setq xp (- x 1)) (setq yp y)) ; ovest
+      )
+      ; se mossa valida, allora ci spostiamo
+      ; e aggiorniamo la matrice delle celle visitate
+      (if (valid? grid xp yp)
+        (begin
+          (setq x xp)
+          (setq y yp)
+          (++ (visited x y))
+          (++ passi)
+        )
+      )
+      ; destinazione raggiunta?
+      (if (and (= x x-end) (= y y-end)) (setq found true))
+    )
+    (print-matrix visited)
+    (list found passi)))
+
+Proviamo con un labirinto semplice:
+
+(setq test '((1 1 1 0)
+             (0 1 0 1)
+             (0 1 1 1)
+             (1 0 0 1)))
+
+(blind test 0 0 2 3 1000)
+;->  6 10  1  0
+;->  0  6  0  0
+;->  0  3  1  1
+;->  0  0  0  0
+;-> (true 27)
+
+Aumentiamo le dimensioni del labirinto:
+                ;start 
+(setq matrix '(( 1 1 1 1 1 0 0 1 1 1 )
+               ( 0 1 1 1 1 1 0 1 0 1 )
+               ( 0 0 1 0 1 1 1 0 0 1 )
+               ( 1 0 1 1 1 0 1 1 0 1 )
+               ( 0 0 0 1 0 0 0 1 0 1 )
+               ( 1 0 1 1 1 0 0 1 1 0 )
+               ( 0 0 0 0 1 0 0 1 0 1 )
+               ( 0 1 1 1 1 1 1 1 0 0 )
+               ( 1 1 1 1 1 0 0 1 1 1 )
+               ( 0 0 1 0 0 1 1 0 0 1 )))
+
+(blind matrix 0 0 7 5 1000)
+;->  3 4 2 1 1 0 0 0 0 0
+;->  0 1 6 1 2 0 0 0 0 0
+;->  0 0 6 0 3 0 0 0 0 0
+;->  0 0 4 5 4 0 0 0 0 0
+;->  0 0 0 1 0 0 0 0 0 0
+;->  0 0 0 1 1 0 0 0 0 0
+;->  0 0 0 0 1 0 0 0 0 0
+;->  0 0 0 0 1 1 0 0 0 0
+;->  0 0 0 0 0 0 0 0 0 0
+;->  0 0 0 0 0 0 0 0 0 0
+;-> (true 48) ; che fortuna!!!
+
+(blind matrix 0 0 7 5 1000)
+;->  22 66 63 56 43  0  0  0  0  0
+;->   0 45 74 49 89 47  0  0  0  0
+;->   0  0 26  0 58 51 17  0  0  0
+;->   0  0 17 23 24  0 10  4  0  0
+;->   0  0  0 15  0  0  0  0  0  0
+;->   0  0  4 13  7  0  0  0  0  0
+;->   0  0  0  0  6  0  0  0  0  0
+;->   0  4  1  5  5  1  0  0  0  0
+;->   1  8  6  5  1  0  0  0  0  0
+;->   0  0  1  0  0  0  0  0  0  0
+;-> (true 866) 
+
+
+Vediamo la velocità della funzione:
+ 
+(time (blind matrix 0 0 7 5 1000))
+;-> 2.991
+(time (blind matrix 0 0 7 5 1000))
+;-> 1.994
+(time (blind matrix 0 0 7 5 1000))
+;-> 4.987
+(time (blind matrix 0 0 7 5 1000))
+;-> 2.274
+(time (blind matrix 0 0 7 5 1000))
+;-> 2.671
+(time (blind matrix 0 0 7 5 1000))
+;-> 3.268
+
+Aumentiamo il labirinto:
+
+(setq big '((1 1 1 1 1 0 0 1 1 1 1 1 1 1 1 0 0 1 1 1 1 1 1 1 1 0 0 1)
+            (0 1 1 1 1 1 0 1 0 1 0 1 1 1 1 1 0 1 0 1 0 1 1 1 1 1 0 1)
+            (0 0 1 0 1 1 1 0 0 1 0 0 1 0 1 1 1 0 0 1 0 0 1 0 1 1 1 0)
+            (1 0 1 1 1 0 1 1 0 1 1 0 1 1 1 0 1 1 0 1 1 0 1 1 1 0 1 1)
+            (0 0 0 1 0 0 0 1 0 1 0 0 0 1 0 0 0 1 0 1 0 0 0 1 0 0 0 1)
+            (1 0 1 1 1 0 0 1 1 0 1 0 1 1 1 0 0 1 1 0 1 0 1 1 1 0 0 1)
+            (0 0 0 0 1 0 0 1 0 1 0 0 0 0 1 0 0 1 0 1 0 0 0 0 1 0 0 1)
+            (0 1 1 1 1 1 1 1 0 0 0 1 1 1 1 1 1 1 0 0 0 1 1 1 1 1 1 1)
+            (1 1 1 1 1 0 0 1 1 1 1 1 1 1 1 0 0 1 1 1 1 1 1 1 0 0 1 1) 
+            (0 0 1 0 0 1 1 0 0 1 0 0 1 0 0 1 1 0 0 1 1 1 1 1 0 0 1 1)
+            (1 1 1 1 1 0 0 1 1 1 1 1 1 1 1 0 0 1 1 1 1 1 1 0 0 1 1 0)
+            (0 1 1 1 1 1 0 1 0 1 0 1 1 1 1 1 0 1 0 1 1 1 1 1 0 1 1 1)
+            (0 0 1 0 1 1 1 0 0 0 0 0 1 0 1 1 1 0 0 0 1 0 1 1 1 0 1 1)
+            (1 0 1 1 1 0 1 1 1 0 1 0 1 1 1 0 1 1 1 0 1 1 1 0 1 1 1 0)
+            (0 0 0 1 0 0 0 1 0 0 0 0 0 1 0 0 0 1 0 0 0 1 0 0 0 1 0 0)
+            (1 0 1 1 1 0 0 1 1 0 1 0 1 1 1 0 0 1 1 0 1 1 1 0 0 1 1 0)
+            (0 0 0 0 1 0 0 1 0 0 0 0 0 0 1 0 0 1 0 0 0 0 1 0 0 1 1 0)
+            (0 1 1 1 1 1 1 1 0 1 0 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1)
+            (0 1 1 1 1 1 0 1 0 1 0 1 1 1 1 1 0 1 0 1 1 1 1 1 0 1 1 1)
+            (0 0 1 0 1 1 1 0 0 0 0 0 1 0 1 1 1 0 0 0 1 0 1 1 1 0 1 1)
+            (1 0 1 1 1 0 1 1 1 0 1 0 1 1 1 0 1 1 1 0 1 1 1 0 1 1 1 0)
+            (0 0 0 1 0 0 0 1 0 0 0 0 0 1 0 0 0 1 0 0 0 1 0 0 0 1 0 0)
+            (1 0 1 1 1 0 0 1 1 0 1 0 1 1 1 0 0 1 1 0 1 1 1 0 0 1 1 0)
+            (0 0 0 0 1 0 0 1 0 0 0 0 0 0 1 0 0 1 0 0 0 0 1 0 0 1 1 1)))
+
+(blind big 0 0 23 27 10000)
+;-> (nil 10001)
+
+(blind big 0 0 23 27 100000)
+;->  16  44  46  42  23   0   0   2   3   6   5  12  20  43  36   0   0  29  27  49  44  81  75  64  41   0   0   0
+;->   0  33  61  44  62  30   0   1   0   0   0   9  23  41  66  24   0  16   0  34   0  59 112  73  87  36   0   0
+;->   0   0  27   0  54  41  16   0   0   0   0   0  13   0  39  31  23   0   0  40   0   0  54   0  50  45  30   0
+;->   0   0  20  62  49   0  11  11   0   0   0   0  14  24  20   0  25  30   0  58  15   0  38  40  24   0  29  18
+;->   0   0   0  50   0   0   0   9   0   0   0   0   0  15   0   0   0  34   0  24   0   0   0  16   0   0   0  13
+;->   0   0  24  59  18   0   0   4   0   0   0   0   7  19  13   0   0  50  15   0   0   0  12  27  24   0   0  18
+;->   0   0   0   0  10   0   0   2   0   0   0   0   0   0  18   0   0  38   0   0   0   0   0   0  34   0   0  21
+;->   0   0   1   3   8   6   5   7   0   0   0  15  22  26  45  36  45  66   0   0   0  72 101  75  66  47  47  33
+;->   4   5   2   5   5   0   0  12  17  28  15  22  21  14  19   0   0  48  41  74  97 116 122  83   0   0  33  37
+;->   0   0   0   0   0   0   0   0   0  26   0   0  12   0   0   0   0   0   0  77 114 107 115  59   0   0  25  19
+;->   0   0   0   0   0   0   0  17  22  52  20  24  17   8   3   0   0  39  46  91  99 102  64   0   0  25  30   0
+;->   0   0   0   0   0   0   0   6   0  14   0  17  18   8   5   2   0  19   0  42  85  60  81  42   0  23  51  39
+;->   0   0   0   0   0   0   0   0   0   0   0   0   9   0   4   2   0   0   0   0  65   0  73  66  37   0  48  40
+;->   0   0   0   0   0   0   0   0   0   0   0   0   6  10   5   0   0   0   0   0  82  94  55   0  41  57  32   0
+;->   0   0   0   0   0   0   0   0   0   0   0   0   0   6   0   0   0   0   0   0   0  50   0   0   0  35   0   0
+;->   0   0   0   0   0   0   0   0   0   0   0   0   4   5   0   0   0   0   0   0  34  84  43   0   0  53  30   0
+;->   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0  32   0   0  39  37   0
+;->   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0  16  30  40  54  45  27  39  38  23
+;->   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0  17  43  37  50  39   0  18  33  45
+;->   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0  24   0  41  36  21   0  24  29
+;->   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0  24  43  28   0  24  29  18   0
+;->   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0  28   0   0   0  17   0   0
+;->   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0  23  59  46   0   0  19  12   0
+;->   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0  25   0   0  15  16   1
+;-> (true 8688)
+
+(time (blind big 0 0 23 27 100000))
+;-> 44.293
+(time (blind big 0 0 23 27 100000))
+;-> 129.206
+(time (blind big 0 0 23 27 100000))
+;-> 74.92400000000001
+(time (blind big 0 0 23 27 100000))
+;-> 37.808
+(time (blind big 0 0 23 27 100000))
+;-> 98.779
+
+Quando il "caso" è veloce, allora (quasi) tutto è possibile.
 
 =============================================================================
 
