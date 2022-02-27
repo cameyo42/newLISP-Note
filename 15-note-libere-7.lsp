@@ -4481,7 +4481,7 @@ Riportiamo la soluzione generata da AlphaCode (in python):
           a.pop(0)     ; backspace instead of, and the letter before it.
       elif a[0]!=b[0] and len(a)==1:
           a.pop(0)
-    if len(b)==0:        ; 
+    if len(b)==0:        ;
         print("YES")     ; If we have matched every letter,
     else:                ; it is possible and we output that.
         print("NO")      ;
@@ -4561,7 +4561,7 @@ Proviamo la funzione:
 (possible? "aababa"  "ababa")
 ;-> YES
 
-Nota: 
+Nota:
 "AlphaZero" è il più bravo giocatore di scacchi del mondo.
 "AlphaGo" è il più bravo giocatore di go del mondo.
 "AlphaCode" forse diventerà il più bravo programmatore del mondo.
@@ -4582,7 +4582,7 @@ rel_tol: è la tolleranza relativa -- è la quantità di errore consentita, rela
 
 abs_tol: è un livello di tolleranza assoluto minimo (utile per confronti vicini allo zero).
 
-Riportiamo le implementazioni in python 3 della versione preliminare e della versione finale della funzione "isclose". Nei commenti delle due funzioni troviamo le spiegazioni dei metodi utilizzati. Per maggiori informazioni sul funzionamento della routine vedi: 
+Riportiamo le implementazioni in python 3 della versione preliminare e della versione finale della funzione "isclose". Nei commenti delle due funzioni troviamo le spiegazioni dei metodi utilizzati. Per maggiori informazioni sul funzionamento della routine vedi:
 
   https://www.python.org/dev/peps/pep-0485/
 
@@ -4734,14 +4734,14 @@ Adesso scriviamo la versione finale di "isclose" in newLISP:
   (if (nil? rel-tol) (setq rel-tol 1e-9))
   (cond ((= a b) true)
         ((or (inf? (abs a)) (inf? (abs b))) nil)
-        (true 
+        (true
          (let (diff (abs (sub b a)))
               (or (<= diff (abs (mul rel-tol b)))
                   (<= diff (abs (mul rel-tol a)))
                   (<= diff abs-tol))))))
 
 rel-tol, la tolleranza relativa, viene moltiplicata per entrambi i valori degli argomenti. All'aumentare dei valori, aumenta anche la differenza consentita tra loro pur considerandoli uguali.
-abs-tol, la tolleranza assoluta, viene applicata così com'è in tutti i casi. 
+abs-tol, la tolleranza assoluta, viene applicata così com'è in tutti i casi.
 Se la differenza è inferiore a una di queste tolleranze, i valori sono considerati uguali ("vicini").
 
 Proviamo la funzione con gli esempi riportati nel manuale di riferimento di python3:
@@ -4767,15 +4767,15 @@ La tolleranza relativa è la differenza massima consentita tra gli argomenti di 
 Dimostrazione della soluzione dell'equazione quadratica
 -------------------------------------------------------
 
-La soluzione di un equazione quadratica del tipo: 
-  
+La soluzione di un equazione quadratica del tipo:
+
   a*x² + b*x + c = 0
-  
+
 vale:
 
        -b ± sqrt(b² - 4ac)
   x = ---------------------
-               2a    
+               2a
 
 Prima di dimostrare questa formula, vediamo cosa significa "completare il quadrato".
 
@@ -4785,7 +4785,7 @@ Data un'espressione con due termini del tipo: (x² + b*x), determinare il termin
 Uguagliamo i termini uno ad uno:
 
   x²    --> x²
-  2*y*x --> b*x ==> y = b/2 
+  2*y*x --> b*x ==> y = b/2
   y²    --> y²  ==> y² = (b/2)²
 
 Dimostrazione
@@ -4794,7 +4794,7 @@ Dimostrazione
 
 Nell'espressione ax² + bx + c la variabile sconosciuta "x" compare due volte, dobbiamo fare in modo che compaia una sola volta.
 
-Partiamo da:                              
+Partiamo da:
 
   ax² + bx + c = 0
 
@@ -4806,7 +4806,7 @@ Spostiamo l'ultimo termine a destra:
 
   x² + (b/a)x = (c/a)
 
-Completiamo il quadrato aggiungendo (b/2a)² a sinistra e a destra: 
+Completiamo il quadrato aggiungendo (b/2a)² a sinistra e a destra:
 
   x² + (b/a)x + (b/2a)² = (c/a) + (b/2a)²
 
@@ -4835,7 +4835,7 @@ Moltiplichiamo la parte destra per 2a/2a:
                          2a
 
 Semplifichiamo ed otteniamo la soluzione:
-  
+
        - b ± (sqrt b² - 4ac)
   x = -----------------------
                2a
@@ -5176,7 +5176,7 @@ Funzione per sommare due angoli (ritorna sempre un valore da -180 a 180):
 
 Funzione di normalizzazione di un angolo nell'intervallo (0 <= angolo < 360):
 
-(define (angle-360 a) 
+(define (angle-360 a)
   (while (<= a -360) (setq a (add a 360)))
   (while (>= a  360) (setq a (sub a 360)))
   a)
@@ -5190,7 +5190,7 @@ Funzione di normalizzazione di un angolo nell'intervallo (0 <= angolo < 360):
 
 Funzione di normalizzazione di un angolo nell'intervallo (-180 < angolo <= 180):
 
-(define (angle-180 a) 
+(define (angle-180 a)
   (setq a (angle-360 a))
   (if (> a 180) (setq a (sub a 360)))
   a)
@@ -5228,7 +5228,7 @@ Funzione per formattare i numeri ordinali in lingua Inglese:
       (true nn))))
 
 (for (i 1 20) (print (ordinal i) { }))
-;-> 1st 2nd 3rd 4th 5th 6th 7th 8th 9th 10th 
+;-> 1st 2nd 3rd 4th 5th 6th 7th 8th 9th 10th
 ;-> 11th 12th 13th 14th 15th 16th 17th 18th 19th 20th
 
 Funzione per formattare i numeri ordinali in lingua Italiana:
@@ -5250,8 +5250,8 @@ Funzione per formattare i numeri ordinali in lingua Italiana:
       (true nn))))
 
 (for (i 1 20) (print (ordinale i) { }))
-;-> primo secondo terzo quarto quinto sesto settimo ottavo nono decimo 
-;-> 11-esimo 12-esimo 13-esimo 14-esimo 15-esimo 
+;-> primo secondo terzo quarto quinto sesto settimo ottavo nono decimo
+;-> 11-esimo 12-esimo 13-esimo 14-esimo 15-esimo
 ;-> 16-esimo 17-esimo 18-esimo 19-esimo 20-esimo
 
 (ordinale 77)
@@ -5445,7 +5445,7 @@ L'obiettivo di qualsiasi linguaggio FP è imitare le funzioni matematiche. Tutta
 - ML/OCaml
 - Clojure
 - Scala
-- Scheme 
+- Scheme
 - Haskell
 - F#
 - PureScript
@@ -5575,7 +5575,7 @@ La funzione produce i risultati voluti.
 
 Se interpretiamo l'input come una matrice, ad esempio '(1 2 3) '(a b c), possiamo notare che il risultato ottenuto è la matrice trasposta dell'input:
 
-input         output = trasposta(input) 
+input         output = trasposta(input)
 
 |1 2 3|       |1 a|
 |a b c|  ==>  |2 b|
@@ -5988,10 +5988,10 @@ Adesso scriviamo una funzione per trovare solo il numero di Lynch-Bell più gran
 
 I numeri di Lynch-Bell sono la sequenza OEIS A115569:
  1, 2, 3, 4, 5, 6, 7, 8, 9, 12, 15, 24, 36, 48, 124, 126, 128, 132, 135,
- 162, 168, 175, 184, 216, 248, 264, 312, 315, 324, 384, 396, 412, 432, 
- 612, 624, 648, 672, 728, 735, 784, 816, 824, 864, 936, 1236, 1248, 1296, 
+ 162, 168, 175, 184, 216, 248, 264, 312, 315, 324, 384, 396, 412, 432,
+ 612, 624, 648, 672, 728, 735, 784, 816, 824, 864, 936, 1236, 1248, 1296,
  1326, 1362, 1368, 1395, 1632, 1692, 1764, 1824...
- 
+
 (slice (reverse (copy lbf)) 0 55)
 ;-> (1 2 3 4 5 6 7 8 9 12 15 24 36 48 124 126 128 132 135
 ;->  162 168 175 184 216 248 264 312 315 324 384 396 412 432
@@ -6021,7 +6021,7 @@ L'algoritmo di Lee è una soluzione per la ricerca del percorso minimo in un lab
         altrimenti, per ciascuno dei 4 nodi dal nodo corrente, accodare ogni nodo valido con una distanza di +1 e contrassegnarli come visitati.
 3) Se tutti i nodi della coda vengono elaborati e la destinazione non viene raggiunta, restituire nil.
    Altrimenti stampare la soluzione.
-  
+
 Nota che con la BFS, tutti i nodi che hanno il percorso più breve come 1 vengono visitati per primi, seguiti dai loro nodi adiacenti che hanno il percorso più breve come 1 + 1 = 2 e così via... Quindi, se raggiungiamo un nodo in BFS, il suo percorso più breve è uno più del percorso più breve del genitore. Quindi, la prima occorrenza del nodo di destinazione ci fornisce il risultato e possiamo interrompere la nostra ricerca. È impossibile che il percorso più breve esista da qualche altro nodo per la quale non abbiamo ancora raggiunto il nodo specificato. Se un tale percorso fosse stato possibile, l'avremmo già esplorato.
 
 Funzione per stampare la matrice soluzione:
@@ -6177,9 +6177,9 @@ La porta di Fredkin è la porta reversibile a tre bit che scambia gli ultimi due
 
 Tavola di verità
 
-  +-----------------------------+ 
+  +-----------------------------+
   | Input        | Output       |
-  +-----------------------------+ 
+  +-----------------------------+
   | C  | I1 | I2 | C  | O1 | O2 |
   +----+----+----+----+----+----+
   | 0  | 0  | 0  | 0  | 0  |  0 |
@@ -6366,16 +6366,16 @@ Possiamo risolvere questo problema utilizzando la funzione non-deterministica "a
 
 Quindi la posizione delle automobili è la seguente:
 
-  A al posto 1 | 
-  B al posto 4 | 
-  C al posto 2 |  
-  D al posto 3 |  
-  E al posto 5 | 
-  F al posto 6 | 
+  A al posto 1 |
+  B al posto 4 |
+  C al posto 2 |
+  D al posto 3 |
+  E al posto 5 |
+  F al posto 6 |
 
 +---+---+---+---+---+---+
 | A | C | D | B | E | F |
-+---+---+---+---+---+---+  
++---+---+---+---+---+---+
 
 In questo caso un modo migliore è quello di utilizzare la funzione "randomize":
 
@@ -6423,9 +6423,9 @@ In questo caso un modo migliore è quello di utilizzare la funzione "randomize":
 Adesso vediamo come utilizzare la funzione "amb" per trovare il percorso in un labirinto.
 Si tratta di un algoritmo simile alla "passeggiata dell'ubriaco":
 
-1) iniziamo dalla posizione di partenza 
+1) iniziamo dalla posizione di partenza
 2) spostarsi in una delle 4 direzioni possibili (nord, est, sud, ovest)
-3) se abbiamo raggiunto la destinazione, allora ci fermiamo. 
+3) se abbiamo raggiunto la destinazione, allora ci fermiamo.
    Altrimenti continuare al passo 2).
 
 Possiamo muoverci solo nelle celle che hanno valore 1 nella matrice che rappresenta il labirinto.
@@ -6513,7 +6513,7 @@ Proviamo con un labirinto semplice:
 ;-> (true 27)
 
 Aumentiamo le dimensioni del labirinto:
-                ;start 
+                ;start
 (setq matrix '(( 1 1 1 1 1 0 0 1 1 1 )
                ( 0 1 1 1 1 1 0 1 0 1 )
                ( 0 0 1 0 1 1 1 0 0 1 )
@@ -6549,11 +6549,11 @@ Aumentiamo le dimensioni del labirinto:
 ;->   0  4  1  5  5  1  0  0  0  0
 ;->   1  8  6  5  1  0  0  0  0  0
 ;->   0  0  1  0  0  0  0  0  0  0
-;-> (true 866) 
+;-> (true 866)
 
 
 Vediamo la velocità della funzione:
- 
+
 (time (blind matrix 0 0 7 5 1000))
 ;-> 2.991
 (time (blind matrix 0 0 7 5 1000))
@@ -6577,7 +6577,7 @@ Aumentiamo il labirinto:
             (1 0 1 1 1 0 0 1 1 0 1 0 1 1 1 0 0 1 1 0 1 0 1 1 1 0 0 1)
             (0 0 0 0 1 0 0 1 0 1 0 0 0 0 1 0 0 1 0 1 0 0 0 0 1 0 0 1)
             (0 1 1 1 1 1 1 1 0 0 0 1 1 1 1 1 1 1 0 0 0 1 1 1 1 1 1 1)
-            (1 1 1 1 1 0 0 1 1 1 1 1 1 1 1 0 0 1 1 1 1 1 1 1 0 0 1 1) 
+            (1 1 1 1 1 0 0 1 1 1 1 1 1 1 1 0 0 1 1 1 1 1 1 1 0 0 1 1)
             (0 0 1 0 0 1 1 0 0 1 0 0 1 0 0 1 1 0 0 1 1 1 1 1 0 0 1 1)
             (1 1 1 1 1 0 0 1 1 1 1 1 1 1 1 0 0 1 1 1 1 1 1 0 0 1 1 0)
             (0 1 1 1 1 1 0 1 0 1 0 1 1 1 1 1 0 1 0 1 1 1 1 1 0 1 1 1)
@@ -6636,6 +6636,194 @@ Aumentiamo il labirinto:
 ;-> 98.779
 
 Quando il "caso" è veloce, allora (quasi) tutto è possibile.
+
+
+-------------------------------------------------------------
+Numeri con somma uguale delle cifre con indice pari e dispari
+-------------------------------------------------------------
+
+Trovare tutti i numeri con n cifre (n = 2..9) (da 10 a 999999999) che hanno la somma delle cifre degli indici pari uguale alla somma delle cifre degli indici dispari.
+
+Non possiamo usare un ciclo perchè i numeri sono troppi. Quindi invece di provare a "trovare" questi numeri, cerchiamo di "costruire" questi numeri.
+Utilizzando la ricorsione aggiungiamo cifre da 0 a 9 al numero parzialmente formato e ricorriamo con una cifra in meno in ogni punto della ricorsione. Manteniamo anche una variabile per memorizzare la differenza tra cifre pari e dispari del numero parzialmente formato. Se abbiamo riempito n-cifre e la differenza è 0, allora abbiamo trovato una soluzione.
+Un caso speciale da gestire è controllare che il numero non inizi con 0.
+L'algoritmo parte dal primo indice e riempe ricorsivamente le cifre da sinistra a destra (bottom-up).
+
+Funzione di appoggio per la ricorsione:
+
+(define (equal-sum-ex res num diff)
+  ; se il numero non è a num-cifre
+  (if (> num 0)
+      (let ((ch (char "0")) (tmp-diff 0))
+        ; il numero non può iniziare con la cifra 0
+        (if (= res "") (setq ch (char "1")))
+        ; ciclo che prende ogni cifra valida
+        ; e la inserisce nell'indice corrente
+        ; e ricorre con l'indice successivo
+        (while (<= ch (char "9"))
+          # aggiorna la differenza tra cifre pari e dispari
+          (if (odd? num)
+              ; dispari
+              (setq tmp-diff (add diff (sub ch (char "0"))))
+              ; pari
+              (setq tmp-diff (sub diff (sub ch (char "0"))))
+          )
+          ; ricorsione con l'indice successivo
+          (equal-sum-ex (string res (char ch)) (- num 1) tmp-diff)
+          ; prossima cifra
+          (++ ch)
+        )
+      )
+  ;else
+      ; se il numero diventa a num-cifre con
+      ; con somma uguale delle cifre pari e dispari,
+      ; lo aggiunge alla lista soluzione
+      ;(if (and (zero? num) (zero? (abs diff)))
+      (if (and (zero? num) (zero? diff))
+          ;(print res { })
+          (push (int res) out -1)
+      )))
+
+Funzione "equal-sum" (main):
+
+(define (equal-sum num)
+  (let (out '())
+    (equal-sum-ex "" num 0)
+    out))
+
+Proviamo a calcolare questi numeri:
+
+(equal-sum 2)
+;-> (11 22 33 44 55 66 77 88 99)
+
+(equal-sum 3)
+;-> (110 121 132 143 154 165 176 187 198 220 231 242 253 264 275
+;->  286 297 330 341 352 363 374 385 396 440 451 462 473 484 495
+;->  550 561 572 583 594 660 671 682 693 770 781 792 880 891 990)
+
+La funzione produce risultati corretti, ma è molto lenta per n > 5:
+
+(time (setq n4 (equal-sum 4)))
+;-> 6.982
+(length n4)
+;-> 615
+
+(time (setq n5 (equal-sum 5)))
+;-> 307.883
+(length n5)
+;-> 4170
+
+(time (setq n6 (equal-sum 6)))
+;-> 15388.151
+(length n6)
+;-> 50412
+
+Vediamo i primi numeri con 6 cifre:
+
+(slice n6 0 10)
+;-> (100001 100012 100023 100034 100045 100056 100067 100078 100089 100100)
+
+
+-----------------------------
+Velocità dei cicli in newLISP
+-----------------------------
+
+Funzioni che effettuano solo un ciclo:
+
+"for":
+(define (ciclo-for from to) (for (i from to)))
+
+"while":
+(define (ciclo-while from to) (while (<= from to) (++ from)))
+
+"dolist":
+(define (ciclo-dolist from to) (dolist (x (sequence from to))))
+
+Vediamo i tempi di esecuzione:
+
+(time (ciclo-for 1 1e5))
+;-> 0.996
+(time (ciclo-while 1 1e5))
+;-> 8.974
+(time (ciclo-dolist 1 1e5))
+;-> 6.981
+
+Funzioni che effettuano un ciclo con operazione di assegnamento e indicizzazione di un vettore:
+
+"for":
+(define (ciclo-for1 from to sum) 
+  (for (i from to) (setq (arr i) i)))
+
+"while":
+(define (ciclo-while1 from to sum) 
+  (while (<= from to) (++ sum (arr from)) (++ from)))
+
+"dolist":
+(define (ciclo-dolist1 from to sum) 
+  (dolist (x arr) (++ sum x)))
+
+Vediamo i tempi di esecuzione:
+
+(silent (setq arr (array (+ 1e5 1) '(1))))
+
+(time (ciclo-for1 1 1e5 0))
+;-> 4.011
+(time (ciclo-while1 1 1e5 0))
+;-> 8.976
+(time (ciclo-dolist1 1 1e5 0))
+;-> 4.957
+
+Funzioni che effettuano un ciclo con operazione di assegnamento e indicizzazione di una lista:
+
+"for":
+(define (ciclo-for2 from to sum) 
+  (for (i from to) (++ sum (lst i))))
+
+"while":
+(define (ciclo-while2 from to sum) 
+  (while (<= from to) (++ sum (lst from)) (++ from)))
+
+"dolist":
+(define (ciclo-dolist2 from to sum) 
+  (dolist (x lst) (++ sum x)))
+
+Vediamo i tempi di esecuzione:
+
+(silent (setq lst (dup 1 (+ 1 1e5))))
+
+(time (ciclo-for2 1 1e5 0))
+;-> 7052.048
+(time (ciclo-while2 1 1e5 0))
+;-> 7119.878
+(time (ciclo-dolist2 1 1e5 0))
+;-> 5.983
+
+Funzioni che effettuano un ciclo con operazione di assegnamento e indicizzazione di una lista:
+
+"for":
+(define (ciclo-for2 from to) 
+  (for (i from to) (setq (lst i) i)))
+
+"while":
+(define (ciclo-while2 from to) 
+  (while (<= from to) (setq (lst from) from) (++ from)))
+
+"dolist":
+(define (ciclo-dolist2 from to) 
+  (dolist (x lst) (setq (lst x) $idx)))
+
+Vediamo i tempi di esecuzione:
+
+(silent (setq lst (dup 0 (+ 1 1e5))))
+
+(time (ciclo-for2 1 1e5))
+;-> 11241.424
+(time (ciclo-while2 1 1e5))
+;-> 11920.221
+(time (ciclo-dolist2 1 1e5))
+;-> 11408.515
+
+Nota: se all'interno del loop indicizziamo una lista o un vettore, allora usare "dolist" (se possibile), altrimenti usare il ciclo "for". Il ciclo "while" solo per funzione in cui la velocità non conta (o non è possibile utilizzare "dolist" e "for").
 
 =============================================================================
 

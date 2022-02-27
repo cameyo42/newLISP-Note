@@ -1080,6 +1080,8 @@ NOTE LIBERE 7
   Algoritmo Lee - Ricerca del percorso in un labirinto
   Fredkin gate
   La funzione "amb"
+  Numeri con somma uguale delle cifre con indice pari e dispari
+  Velocità dei cicli in newLISP
 
 APPENDICI
 =========

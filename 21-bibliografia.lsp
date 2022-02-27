@@ -109,16 +109,19 @@
   GeeksforGeeks - Un portale di computer science per "geeks"
   https://www.geeksforgeeks.org/
   
-  Opengenus - Scientific Community focused on Computing Research & Publishing
+  Techie Delight è una piattaforma leader per la preparazione di colloqui tecnici
+  https://www.techiedelight.com/
+    
+  Opengenus - Comunità scientifica focalizzata sulla ricerca informatica
   https://iq.opengenus.org/
 
   MathBlog.dk è un blog che tratta la risoluzione di problemi di programmazione utilizzando la matematica
   https://www.mathblog.dk/
 
-  Fermat's Library: a platform for illuminating academic papers. Publish an annotated paper every week.
+  Fermat's Library: una piattaforma per documenti accademici "illuminati". Pubblica un documento annotato ogni settimana.
   https://twitter.com/fermatslibrary?lang=en
 
-  Search the history of over 468 billion web pages on the Internet.
+  Search the history of over 663 billion web pages on the Internet (2022-02-27).
   Internet Archive is a non-profit library of millions of free books, movies, software, music, websites, and more.
   https://archive.org/
 
