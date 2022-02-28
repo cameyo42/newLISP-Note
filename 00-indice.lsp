@@ -1082,6 +1082,7 @@ NOTE LIBERE 7
   La funzione "amb"
   Numeri con somma uguale delle cifre con indice pari e dispari
   Velocità dei cicli in newLISP
+  Quicksort iterativo
 
 APPENDICI
 =========

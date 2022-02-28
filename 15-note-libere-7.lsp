@@ -6644,7 +6644,77 @@ Numeri con somma uguale delle cifre con indice pari e dispari
 
 Trovare tutti i numeri con n cifre (n = 2..9) (da 10 a 999999999) che hanno la somma delle cifre degli indici pari uguale alla somma delle cifre degli indici dispari.
 
-Non possiamo usare un ciclo perchè i numeri sono troppi. Quindi invece di provare a "trovare" questi numeri, cerchiamo di "costruire" questi numeri.
+Proviamo a risolvere il problema con la forza bruta (ciclo da 1 a n).
+
+Funzione che restituisce "true" se la somma delle cifre con indice dispari è uguale alla somma delle cifre con indice pari:
+
+(define (sum-equal-odd-even? num)
+  (let ((diff 0) (flip true))
+    (while (!= num 0)
+      (if flip 
+          (++ diff (% num 10))
+          (-- diff (% num 10))
+      )
+      (setq flip (not flip))
+      (setq num (/ num 10))
+    )
+    ; se diff vale 0, allora le somme pari e dispari sono uguali
+    (zero? diff)))
+
+(equal-sum-odd-even? 21032)
+;-> true
+
+Funzione che calcola tutti i numeri con somma uguale fino a un determinato numero di cifre:
+
+(define (sum-equal num-digits)
+  (local (iter out)
+    (setq out '())
+    ; calcola il limite superiore
+    ; se num-digits = 4, allora iter = 9999
+    (setq iter (int (dup "9" num-digits)))
+    (for (i 1 iter) 
+      (if (sum-equal-odd-even? i) 
+          (push i out -1)
+      )
+    )
+    out))
+
+(time (setq num4 (sum-equal 4)))
+;-> 8.976000000000001
+(length num4)
+;-> 669 ; sono compresi anche i numeri con 2 e 3 cifre
+(time (setq num5 (sum-equal 5)))
+;-> 96.387
+(length num5)
+;-> 4839
+(time (setq num6 (sum-equal 6)))
+;-> 1142.292
+(length num6)
+;-> 55251
+
+Vediamo i primi 10 numeri con 6 cifre:
+
+(find 100001 num6)
+;-> 4839
+(slice num6 4839 10)
+;-> (100001 100012 100023 100034 100045 100056 100067 100078 100089 100100)
+
+(time (setq num7 (sum-equal 7)))
+;-> 13012.137
+(length num7)
+;-> 436974
+
+(time (setq num8 (sum-equal 8)))
+;-> 145308.025
+(length num8)
+;-> 4816029
+
+(time (setq num9 (sum-equal 9)))
+;-> 1613876.858 ; quasi 27 minuti 
+(length num9)
+;-> 40051494 ; circa 40 milioni di numeri...
+
+Usiamo un altro metodo per risolvere il problema. Invece di provare a "trovare" questi numeri, cerchiamo di "costruire" questi numeri.
 Utilizzando la ricorsione aggiungiamo cifre da 0 a 9 al numero parzialmente formato e ricorriamo con una cifra in meno in ogni punto della ricorsione. Manteniamo anche una variabile per memorizzare la differenza tra cifre pari e dispari del numero parzialmente formato. Se abbiamo riempito n-cifre e la differenza è 0, allora abbiamo trovato una soluzione.
 Un caso speciale da gestire è controllare che il numero non inizi con 0.
 L'algoritmo parte dal primo indice e riempe ricorsivamente le cifre da sinistra a destra (bottom-up).
@@ -6722,6 +6792,8 @@ Vediamo i primi numeri con 6 cifre:
 
 (slice n6 0 10)
 ;-> (100001 100012 100023 100034 100045 100056 100067 100078 100089 100100)
+
+Questa funzione è più lenta di quella iterativa poichè la complessità temporale è esponenziale e la ricorsione richiede spazio per lo stack delle chiamate.
 
 
 -----------------------------
@@ -6824,6 +6896,76 @@ Vediamo i tempi di esecuzione:
 ;-> 11408.515
 
 Nota: se all'interno del loop indicizziamo una lista o un vettore, allora usare "dolist" (se possibile), altrimenti usare il ciclo "for". Il ciclo "while" solo per funzione in cui la velocità non conta (o non è possibile utilizzare "dolist" e "for").
+
+
+-------------------
+Quicksort iterativo
+-------------------
+
+Vedi "QuickSort" su "Problemi vari" e "Common Lisp Quicksort" su "Note Libere 2".
+
+Abbiamo già visto l'algoritmo quicksort ricorsivo per ordinare una lista di numeri, adesso vediamo una versione iterativa.
+La base è quella di utilizzare uno stack per memorizzare l'indice iniziale e finale delle sotto-liste per poterle utilizzare nell'elaborazione successiva. La logica di partizionamento rimarrebbe la stessa.
+
+(define (partition start end)
+  (local (pivot p-idx)
+    ; Prende come pivot l'elemento più a destra della lista
+    (setq pivot (a end))
+    ; gli elementi inferiori al pivot andranno a sinistra di "p-idx" ;
+    ; gli elementi più del pivot andranno a destra di "p-idx"
+    ; elementi uguali possono andare da entrambe le parti
+    (setq p-idx start)
+    ; ogni volta che troviamo un elemento minore o uguale al pivot,
+    ; "p-idx" viene incrementato e quell'elemento 
+    ; deve essere posizionato prima del pivot.
+    (for (i start (- end 1))
+      (if (<= (a i) pivot)
+          (begin
+            (swap (a i) (a p-idx))
+            (++ p-idx)
+          )
+      )
+    )
+    (swap (a p-idx) (a end))
+    p-idx))
+
+(define (quicksort-i a)
+  (local (start end stack)
+    ; indice iniziale e finale dell lista
+    (setq start 0)
+    (setq end (- (length a) 1))
+    ; stack per memorizzare l'indice di inizio e fine della sotto-lista
+    (setq stack '())
+    (push (list start end) stack)
+    ; ciclo finchè lo stack non è vuoto
+    (while stack
+      ; rimuove la prima coppia dallo stack
+      ; e prende gli indici di inizio e fine della sotto-lista
+      (map set '(start end) (pop stack))
+      ; riorganizza gli elementi attraverso il pivot
+      (setq pivot (partition start end))
+      ; impila gli indici della sotto-lista contenenti elementi 
+      ; che sono inferiore al pivot corrente
+      (if (> (- pivot 1) start)
+          (push (list start (- pivot 1)) stack)
+      )
+      ; impila gli indici della sotto-lista contenenti elementi 
+      ; che sono superiori al pivot corrente
+      (if (< (+ pivot 1) end)
+          (push (list (+ pivot 1) end) stack)
+      )
+    )
+    ; ritorna la lista ordinata
+    a))
+
+(quicksort-i '(3 9 8 -3 5 -6 7 1 -4))
+;-> (-6 -4 -3 1 3 5 7 8 9)
+
+(quicksort-i (randomize (sequence 1 1000)))
+;-> (1 2 3 4 5 ... 1000)
+
+(quicksort-i '(1 3 3 -3 -3 -2 -2 11 11 -11 -11))
+;-> (-11 -11 -3 -3 -2 -2 1 3 3 11 11)
 
 =============================================================================
 
