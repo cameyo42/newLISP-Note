@@ -19,10 +19,10 @@ Appunti sul linguaggio newLISP
 12) Note libere 4 (80)
 13) Note libere 5 (80)
 14) Note libere 6 (80)
-15) Note libere 7 (51)
+15) Note libere 7 (53)
 20) Appendici (24)
 21) Bibliografia
-99) yo library (yo.zip) (210)
+99) yo library (yo.zip) (212)
 
 Documentazione Extra:  
 A) Introduction to newLISP (by Cormullion)  

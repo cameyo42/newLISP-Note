@@ -1083,6 +1083,8 @@ NOTE LIBERE 7
   Numeri con somma uguale delle cifre con indice pari e dispari
   Velocità dei cicli in newLISP
   Quicksort iterativo
+  Funzioni con stato
+  Collisione dei contesti (context)
 
 APPENDICI
 =========
@@ -1116,7 +1118,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (210 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (212 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================

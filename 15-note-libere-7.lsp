@@ -5605,7 +5605,7 @@ Per effettuare l'operazione opposta, cioè prendere una lista di record e creare
 (zip '(1 2 3) '(a b c) '(x y z))
 ;-> ((1 a x) (2 b y) (3 c z))
 (apply zip '((1 a x) (2 b y) (3 c z)))
-;-> '(1 2 3) '(a b c) '(x y z))
+;-> ((1 2 3) (a b c) (x y z))
 
 (apply zip (zip '(1 2) '(a b)))
 ;-> ;-> ((1 2) (a b))
@@ -6902,7 +6902,7 @@ Nota: se all'interno del loop indicizziamo una lista o un vettore, allora usare 
 Quicksort iterativo
 -------------------
 
-Vedi "QuickSort" su "Problemi vari" e "Common Lisp Quicksort" su "Note Libere 2".
+Vedi anche "QuickSort" su "Problemi vari" e "Common Lisp Quicksort" su "Note Libere 2".
 
 Abbiamo già visto l'algoritmo quicksort ricorsivo per ordinare una lista di numeri, adesso vediamo una versione iterativa.
 La base è quella di utilizzare uno stack per memorizzare l'indice iniziale e finale delle sotto-liste per poterle utilizzare nell'elaborazione successiva. La logica di partizionamento rimarrebbe la stessa.
@@ -6966,6 +6966,384 @@ La base è quella di utilizzare uno stack per memorizzare l'indice iniziale e fi
 
 (quicksort-i '(1 3 3 -3 -3 -2 -2 11 11 -11 -11))
 ;-> (-11 -11 -3 -3 -2 -2 1 3 3 11 11)
+
+
+------------------
+Funzioni con stato
+------------------
+
+L'uso dei contesti ci permette di scrivere funzioni che "ricordano" uno stato.
+Scriviamo due funzioni che generano una il prossimo numero pari e l'altra il prossimo numero dispari.
+
+Funzione che genera il prossimo numero dispari (odd):
+
+(define (next-odd:next-odd)
+  (if next-odd:curvalue
+    (inc next-odd:curvalue 2)
+    (setq next-odd:curvalue 1)))
+
+(next-odd)
+;-> 1
+(next-odd)
+;-> 3
+(next-odd)
+;-> 5
+
+Funzione che genera il prossimo numero pari (even):
+
+(define (next-even:next-even)
+  (if next-even:curvalue
+    (inc next-even:curvalue 2)
+    (setq next-even:curvalue 0)))
+
+(next-even)
+;-> 0
+(next-even)
+;-> 2
+(next-even)
+;-> 4
+
+Funzioni per resettare i due generatori:
+
+(define (next-odd-reset) (setq next-odd:curvalue nil))
+(define (next-even-reset) (setq next-even:curvalue nil))
+
+(next-odd-reset)
+;-> nil
+(next-odd)
+;-> 1
+(next-odd)
+;-> 3
+
+(next-even-reset)
+;-> nil
+(next-even)
+;-> 0
+(next-even)
+;-> 2
+
+Funzioni per definire il numero iniziale dei generatori:
+
+(define (next-odd-set start) (setq next-odd:curvalue start))
+(define (next-even-set start) (setq next-even:curvalue start))
+
+(next-odd-set 11)
+;-> 11
+(next-odd)
+;-> 13
+
+(next-even-set 100)
+;-> 100
+(next-even)
+;-> 102
+
+Nota: le ultime due funzioni possono sostituire "next-odd-reset" e "next-even-reset".
+
+(next-odd-set)
+;-> nil
+(next-odd)
+;-> 1
+(next-even-set)
+;-> nil
+(next-even)
+;-> 0
+
+Vedi anche "Chiusure, contesti e funzioni con stato (Lutz Mueller)" nelle Appendici.
+
+
+---------------------------------
+Collisione dei contesti (context)
+---------------------------------
+
+http://www.newlispfanclub.alh.net/forum/viewtopic.php?f=15&t=4312
+
+lotabout:
+---------
+Se due programmatori scrivono due moduli diversi senza conoscere l'altro, potremmo incontrare una collisione di contesto, ovvero usare lo stesso nome per il contesto.
+Esempio:
+
+Nel modulo 'A', definiamo una macro 'my-set' e la mettiamo nel contesto 'my-set' (solo per illustrare):
+
+; A.lsp
+(context 'my-set)
+(define-macro (my-set a b)
+  (set (eval a) b))
+(context MAIN)
+(context 'A)
+(define (my-test x)
+  (letex (x x) (my-set:my-set 'y x)))
+(context MAIN)
+
+E ora scriviamo il modulo 'B' senza riconoscere l'esistenza del modulo 'A':
+
+; B.lsp
+(context 'my-set)
+(define-macro (my-set a b)
+  (set  (eval b) a))
+(context MAIN)
+(context 'B)
+(define (my-test x)
+  (letex (x x) (my-set:my-set x 'y)))
+(context MAIN)
+
+Ora si vede che abbiamo due implementazioni della macro "my-set" nella stesso contesto, se carichiamo questi due file contemporaneamente, uno interromperà l'altro.
+
+Se carichiamo prima "A.lsp" e poi "B.lsp", allora la definizione di 'my-set' in B lo sovrascriverà in "A.lsp", quindi la funzione "my-test" in "A.lsp" fallirà.
+
+Questo perchè i contesti possono essere visti globalmente e non vengono oscurati (shadowed) dagli altri contesti. E potremmo utilizzare moduli scritti da programmatori diversi che possono avere il problema della collisione dei contesti.
+
+Lutz:
+-----
+Soluzione: Utilizzare un solo contesto per modulo (file). Programmatori diversi mantengono contesti diversi. Il contesto MAIN è l'unico luogo in cui devono essere caricati altri contesti per poter controllare l'organizzazione principale del programma che deve essere gestita da un programmatore capo. Nessun contesto dovrebbe ridefinire le funzioni durante il runtime in contesti non gestiti dallo stesso sviluppatore.
+
+lotabout:
+---------
+L'utilizzo di un solo contesto per ogni modulo (file) è una buona convenzione. Ma in questo caso, non ci sarà una soluzione facile per risolvere il problema della "cattura delle variabili" durante la definizione di macro (in un modulo).
+Inoltre, ciò significa che non possiamo utilizzare i contesti come "dict" o "hash-map" durante la scrittura di moduli.
+Come affrontare questa situazione?
+
+Lutz:
+-----
+Gli hash/dizionari sono contesti (dati) accessibili a livello globale, che possono essere modificati dagli altri moduli. Perché questo dovrebbe essere un problema quando lo stesso accade ai database o ad altri dati globali destinati all'uso globale?
+
+Ciò che accade nel tuo esempio non è causato dalla cattura delle variabili o dall'ambito dinamico, ma è semplicemente l'effetto della ridefinizione del contesto "my-set" durante l'esecuzione. Ho ampliato l'esempio con la stampa delle istruzioni e l'utilizzo della funzione "my-test" per mostrare gli effetti:
+
+; A.lsp
+(context 'my-set)
+(define-macro (my-set:my-set a b)
+  (set (eval a) b))
+(context MAIN)
+(context 'A)
+(println "A before " my-set:my-set)
+(define (my-test x)
+  (letex (x x) (my-set:my-set 'y x)))
+(my-test 123)
+(println "A after " my-set:my-set)
+(context MAIN)
+
+; B.lsp
+(context 'my-set)
+(define-macro (my-set:my-set a b)
+  (set  (eval b) a))
+(context MAIN)
+(context 'B)
+(println "B before " my-set:my-set)
+(define (my-test x)
+  (letex (x x) (my-set:my-set x 'y)))
+(my-test 456)
+(println "B after " my-set:my-set)
+(context MAIN)
+
+e questo è l'output:
+
+;-> A before (lambda-macro (my-set:a my-set:b) (set (eval my-set:a) my-set:b))
+;-> A after (lambda-macro (my-set:a my-set:b) (set (eval my-set:a) my-set:b))
+;-> B before (lambda-macro (my-set:a my-set:b) (set (eval my-set:b) my-set:a))
+;-> B after (lambda-macro (my-set:a my-set:b) (set (eval my-set:b) my-set:a))
+
+L'unico effetto che possiamo vedere è causato dalla ridefinizione esplicita della funzione my-set:my-set. Le funzioni A:my-test e B:my-test non hanno effetto su my-set:myset.
+
+La cattura delle variabili tramite macro (realmente fexprs) del tipo descritto qui: 
+http://www.newlisp.org/downloads/newlisp_manual.html#scoping 
+è possibile solo tramite interazioni all'interno dello stesso contesto. Quel contesto è sotto il controllo di uno sviluppatore, o meglio, hai tutte le macro nel loro contesto. Quindi qualsiasi simbolo portato nello spazio della macro è estraneo e non può interagire.
+
+Più in generale:
+
+L'ambito dinamico è spesso citato come argomento contro newLISP. In pratica, non ho mai visto problemi di cattura delle variabili nel mio codice o nel codice di altri. Quando ci si attiene alla regola dei "contesti separati" e si inseriscono le macro nei propri contesti, non possono verificarsi problemi.
+
+Alcuni anni fa ho lavorato per oltre un anno in un team di sette preogrammatori allo sviluppo di un'applicazione distribuita multi-modulo per la ricerca. Tutti, tranne me, programmavano in newLISP per la prima volta, alcuni dei erano programmatori esperti, altri nuovi nel mestiere. Uno era un programmatore esperto in Common LISP. Non abbiamo mai riscontrato problemi causati dall'ambito dinamico. Molti utenti di newLISP non comprendono nemmeno completamente l'intero concetto ed evitano le variabili libere come questione di un buon stile di programmazione.
+
+Oggi credo che i problemi con l'ambito dinamico siano enormemente esagerati, il che è triste, perché le persone hanno smesso di utilizzare l'ambito dinamico come strumento per realizzare la "separation of concerns" e lo "switching".
+
+Nota: Separation of concerns (SoC) è un principio di progettazione per separare un programma in sezioni distinte.
+
+I veri problemi nei linguaggi dinamici sono di diversa natura. Per esempio. variabili errate, perché non è necessario pre-dichiararle o confondere tipi di variabili diverse nelle funzioni tipizzate duck.
+
+Nota: Nel "duck typing", un oggetto è di un determinato tipo se ha tutti i metodi e le proprietà richiesti da quel tipo. Per esempio in un linguaggio non duck-tipizzato si può creare una funzione che prende un oggetto di tipo Anatra(duck) e chiama i metodi starnazza(quack) e cammina(walk) di quell'oggetto. In un linguaggio duck-tipizzato, la funzione equivalente avrebbe preso un oggetto di qualunque tipo e chiamato i metodi walk e quack di quell'oggetto. Se quindi l'oggetto non ha i metodi chiamati, la funzione segnala un errore in run-time. È quest'azione di ogni oggetto avente i corretti metodi quack e walk che vengono accettati dalla funzione che effettua la chiamata e quindi il nome di questa forma di tipizzazione.
+
+lotabout:
+---------
+Adesso ho più confidenza nell'uso dell'ambito dinamico e ho compreso che possiamo evitare la cattura delle variabili inserendo le macro (fexprs) in un contesto separato per utilizzarle all'interno di un altro contesto. Senza interazioni, non accadrà mai la cattura delle variabili alle macro (fexprs).
+
+Consideriamo un'altra situazione in cui abbiamo le seguenti regole per la scrittura dei moduli:
+1. separare le macro => tutte in un contesto separato.
+2. inserire tutto il codice in un contesto => cioè il nome del modulo.
+3. utilizzare un solo contesto (specificato dal punto 2) ad eccezione di quelli utilizzati come contenitori di dati (come dict/hash table)
+
+E se due sviluppatori utilizzassero lo stesso nome di contesto per scopi diversi? Qui utilizziamo contesti come dati (dict/tabella hash, ecc.) all'interno di un contesto globale (per specificare il nome del modulo). Supponiamo che lo sviluppatore A utilizzi il contesto "dict" per memorizzare coppie (parola significato) e che lo sviluppatore B utilizzi lo stesso contesto per contenere coppie (parola frequenza). Ora quando useremo entrambi i moduli ognuno influenzerà l'altro operando sullo stesso contesto "dict", quindi entrambi falliranno in una certa misura.
+Come risolvere questo problema?
+
+Ho poca esperienza nello sviluppo di grandi progetti, ma credo che con l'aumento dei moduli, aumenta anche la probabilità di una collisione di nomi. Una possibile soluzione è quella di avere tutti i contesti denominati con un prefisso come "A-dict" o qualcosa del genere.
+
+cormullion:
+-----------
+Penso che questo problema dovrebbe essere considerato come parte della gestione del progetto, non della progettazione del linguaggio. Se due sviluppatori che lavorano a stretto contatto sullo stesso progetto non stanno già lavorando in modo coerente ad alcune politiche concordate, allora il progetto probabilmente fallirà comunque...
+
+Lutz:
+-----
+I conflitti di nome si verificano in qualsiasi linguaggio di programmazione e devono essere affrontati come parte della gestione dello sviluppo, come afferma Cormullion. I conflitti di nomi si verificano in diversi linguaggi di programmazione in momenti diversi. Possono verificarsi in C, C++ e anche in Java. Nei linguaggi completamente compilati, possono essere rilevati durante la fase di compilazione prima dell'esecuzione.
+
+Il problema è più critico in linguaggi completamente dinamici come newLISP, dove puoi creare ed eliminare simboli durante il runtime. Per il normale raggruppamento del codice in moduli di contesto, le regole delineate sopra funzionano, perché questi vengono creati e gestiti prima del runtime. Per gli hash creati ed eliminati in fase di esecuzione, procedere come segue:
+
+Usando la funzione "uuid" è possibile creare un dizionario in fase di esecuzione e garantirne l'unicità. Fortunatamente i contesti in newLISP possono essere indicati con variabili, che potrebbero essere locali a un contesto. Quindi non devi conoscere il nome del contesto del dizionario quando scrivi il tuo programma prima che il contesto venga creato e non devi gestire stringhe UUID difficili da ricordare.
+
+Il codice seguente mostra questo come esempio:
+
+(context 'A)
+(set 'mydict (let (s (sym (append "dict" (uuid)) MAIN)) (new Tree s)))
+(bayes-train (parse "this sentence has words and words") mydict)
+(bayes-train (parse "and more words") mydict)
+(println "mydict in A:" (mydict))
+(context MAIN)
+
+(context 'B)
+(set 'mydict (let (s (sym (append "dict" (uuid)) MAIN)) (new Tree s)))
+(mydict "foo" "hello world")
+(mydict "bar" 1234567)
+(println "mydict in B:" (mydict))
+(println "association in B: " (mydict "foo"))
+(context MAIN)
+(exit)
+
+Entrambi i contesti A e B usano lo stesso nome interno mydict per riferirsi a un contesto di dizionario creato usando le funzioni sym e uuid. Questo è l'output:
+
+mydict in A:(("and" (2)) ("has" (1)) ("more" (1)) ("sentence" (1)) ("this" (1)) ("words" (3)))
+mydict in B:(("bar" 1234567) ("foo" "hello world"))
+association in B: hello world
+
+In A vengono contate le frequenze delle parole. Nota che le frequenze sono tra parentesi, perché puoi contare e confrontare diversi corpus usando bayes-query. In B vengono effettuate associazioni generali.
+
+Vedi anche: http://www.newlisp.org/downloads/newlisp_manual.html#hash
+
+lotabout:
+---------
+Questo trucco funziona!
+E penso che dovremmo sempre usare questo trucco quando utilizziamo un contesto come contenitore di dati all'interno di un modulo.
+Grazie ancora per essere così paziente. E sicuramente rimarrò con newlisp, è semplicemente fantastico.
+
+bairui:
+-------
+Mi piacerebbe saperne di più su questo: "separation of concerns" e "switching"). Mi sono un convertito con difficoltà al mondo della programmazione funzionale e l'ambito dinamico mi sconcerta.
+
+rickyboy:
+---------
+Proverò a spiegare come differiscono l'ambito dinamico delle variabili e l'ambito statico (lessicale) delle variabili. Se non lo capisci dopo aver letto questo, scommetto che è colpa della mia cattiva spiegazione. :)
+
+Variabili libere e vincolate
+----------------------------
+Per rispondere a questa domanda, dovremmo prima esaminare una semplice classificazione delle variabili: variabili libere rispetto a variabili vincolate/associate. Per spiegare cosa sono le variabili libere e vincolate, considera questo frammento di codice che è al livello più alto in newLISP.
+
+(define x 42)  ; <-- 0
+(+ x y)  ; <-- 1
+(let (y 1) (+ x y))  ; <-- 2
+(let (x 42 y 1) (+ x y))  ; <-- 3
+(lambda (y) (+ x y))  ; <-- 4
+(define (dumb-sum y) (+ x y)) ; <-- 5
+
+L'espressione 1 ha due variabili: x e y. Entrambe sono liebere. L'espressione 2 ha le stesse variabili, ma solo x è libera -- y è vincolata. Come mai? Perché il let è responsabile dell'associazione y (e questo è il motivo per cui il secondo elemento di qualsiasi forma  let è chiamato "the let bindings").
+
+Ecco una buona idea da tenere a mente nel determinare se una variabile è libera o vincolata in un'espressione: ogni variabile è libera finché non è *vincolata* da qualcosa, cioè finché qualcosa non la vincola, o la lega. Questo è ciò che ha fatto a y nell'espressione 2. 
+(cattivo let!) :))
+
+(A parte: non è convenzionale dire che il livello superiore (non-lambda) definisce (come nell'espressione 0) variabili vincolate ("bind"). Quindi, pur associando x a 42, x non è considerato vincolato ad esso. In breve, ignora le definizioni di primo livello non-lambda)
+
+L'espressione 3 ha x e y entrambi vincolati, cioè sono entrambe variabili legate e nessuna variabile in quell'espressione è libera.
+
+Quando si scrive una forma lambda, l'elenco dei parametri indica quali variabili verranno vincolate da lambda. Quindi, l'espressione 4 ha y legata e x libera. L'espressione 5, pur essendo una definizione di primo livello, definisce una lambda e, come abbiamo detto sulle lambda, legano le variabili. Quindi, nell'Espressione 5, come abbiamo visto nell'Espressione 4, y è legato e x è libero.
+
+I seguenti operatori sono "vincolanti" ("binders") di variabili: let, lambda, local, ecc. (guarda il manuale per ottenere un elenco esaustivo, ma spero che tu abbia un'idea).
+
+Ambito dinamico e ambito statico (o lessicale)
+----------------------------------------------
+Ora, considera il seguente frammento di codice, sempre al livello più alto.
+
+(define x 42)
+
+(define (f y) (let ((x 13)) (g y)))
+(define (g z) (list x z))
+
+(define (h x y) (list x y))
+
+Si noti che f chiama g prima che possa "restituire" un valore. Chiama g con il proprio parametro y. Ora la domanda è, con queste definizioni, quale dovrebbe essere il valore dell'espressione (f 3)?
+
+Chiaramente, questo dipende da quale sia il valore di x. Come mai? Perché x è libero in g, ovvero, x è libero in questa espressione: (lambda (z) (lista x z)). Ebbene, x può assumere uno dei due valori: 42 o 13. Quindi, ciò significa che il valore di (f 3) è (42 3) o (13 3). Allora qual è?
+
+La risposta ha a che fare con il tipo di ambito delle variabili viene usato nel linguaggio. Il valore di (f 3) in Scheme (che ha ambito statico) è (42 3), ma in newLISP (ambito dinamico), è (13 3). Questo perché Scheme "vede" solo il valore di x della definizione di livello superiore, ma newLISP vede x che lega lo stack di chiamate (poiché f chiama g, c'è quella let interposta).
+
+(f 3)
+;-> (13 3)
+
+Infine, non dimentichiamo la funzione h definita sopra. Qual è il valore di (h 1 2)? La risposta è che la lista (1 2), sia nei linguaggi con ambito dinamico CHE in quelli con ambito statico.
+
+(h 1 2)
+;-> (1 2)
+
+Quindi, la domanda su quale sia il valore di questo e quello nell'ambito dinamico rispetto all'ambito lessicale, dipende solo da come le variabili libere vengono risolte (o valutate) nell'espressione superiore che viene valutata. Al centro dello schema di ambito (scoping) delle variabili (che sia dinamico o statico) c'è questo problema di "come vengono risolte le variabili libere". Questo è praticamente tutto.
+
+Ecco perché è buona pratica di programmazione non avere variabili libere nelle espressioni quando non ne hai bisogno. (In parole povere, pensa ai "confini" delle tue variabili e non essere un programmatore pigro. :)) Tuttavia, ci sono momenti in cui è necessario avere una variabile libera nell'espressione, ad esempio se si desidera collegare un interruttore di runtime nel codice (Lutz lo ha menzionato in precedenza in questo thread), ma in generale, quando si codifica si dovrebbe trattare solo con variabili associate. 
+Questa pratica/disciplina aiuterà davvero a eliminare molti problemi che potrebbero insinuarsi nel tuo codice se non la utilizzi. (Le variabili libere "involontarie" tendono ad essere un problema minore con l'ambito lessicale. Tuttavia, essere consapevoli del "limite" delle variabili dovrebbe essere osservato come pratica anche con i linguaggi con ambito lessicale).
+
+bairui:
+-------
+Sono abituato a linguaggi con ambito lessicale in cui qualsiasi modifica a x sarebbe una modifica permanente, quindi fare riferimento a x all'ambito principale dopo la chiamata (f 2) produrrebbe il valore ora modificato, 13 (nelle lingue che uso). Quindi, il codice (let ((x 13)) ...) oscura temporaneamente (dici vincola) la variabile globale (dici libero (il termine libero potrebbe non essere limitato ai globali... giusto?)) x con la valore 13. Quando l'espressione (let) termina, l'associazione termina e quindi x torna ad essere il valore che era prima di questa modifica dinamica dell'ambito, 42.
+Ok. A parte alcune ovvie stranezze nella mia terminologia, diciamo che ora l'ho capito. Grazie! Quindi, ora vorrei capire cosa intendeva Lutz quando ha detto che c'erano tecniche dell'ambito dinamico non disponibili nell'ambito statico (lessicale). Potresti approfondire: "switching and separation of concerns"?
+
+Lutz:
+-----
+Se vuoi sapere tutto e hai tempo in questo fine settimana:
+
+http://en.wikipedia.org/wiki/Separation_of_concerns
+
+Quindi fondamentalmente "concerns" sono gruppi di requisiti che devono essere coperti dal tuo programma. Lo strumento più famoso al momento per raggiungere questo obiettivo è la programmazione orientata agli oggetti (OOP). Ma anche l'ambito dinamico può farlo. Nell'esempio di Rickyboy, diversi concerns sono espressi tramite il valore della variabile x, che è 42 per impostazione predefinita, ma potrebbe essere oscurato (shadowed) con altri valori, ad es. 13 in funzione f.
+
+Ora le cose si complicano quando affronti "concers" che si intersecano. È possibile risolvere la situazione usando OOP, ma complicato:
+
+http://en.wikipedia.org/wiki/Cross-cutting_concern
+
+La soluzione è Aspect Oriented Programming (AOP):
+
+http://en.wikipedia.org/wiki/Aspect-oriented_programming
+
+Ecco come Pascal Costanza dimostra che il tipo di programmazione AOP è davvero una cosa naturale per i linguaggi con scope dinamico:
+
+http://www.p-cos.net/documents/dynfun.pdf
+
+C'è un modo accurato per cambiare i concerns usando i contesti in newLISP. Immagina che il tuo compito sia la formattazione dei documenti. I tuoi due metodi principali sono HTML o Markdown (un semplice linguaggio di markup di John Gruber).
+
+A un livello superiore, vuoi scrivere solo un programma che esegue la formattazione, ma vuoi anche un modo semplice per passare da uno all'altro, e forse vuoi aggiungere LATEX in seguito, ma non cambiare il tuo programma principale.
+
+Ecco come farlo in newLISP utilizzando i contesti (context):
+
+(context 'HTML)
+
+(define (format-title text)
+    (string "<h1>" text "</h2>"))
+
+(context MAIN)
+
+(context 'Markdown)
+
+(define (format-title text)
+    (string "===" text "==="))
+
+(context MAIN)
+
+(define (format-page method text)
+    (method:format-title text))
+
+(println (format-page HTML "hello world"))
+(println)
+(println (format-page Markdown "hello world"))
+
+(exit)
+
+e questo è l'output:
+
+<h1>hello world</h2>
+
+===hello world===
+
+Quindi in pratica stai usando una variabile con nome del metodo per utilizzare il contesto relativo.
 
 =============================================================================
 
