@@ -1085,6 +1085,7 @@ NOTE LIBERE 7
   Quicksort iterativo
   Funzioni con stato
   Collisione dei contesti (context)
+  Simulazione del lancio di dadi
 
 APPENDICI
 =========

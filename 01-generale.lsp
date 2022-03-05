@@ -9581,7 +9581,7 @@ Nell'esempio precedente, X era associato a 123 in precedenza ed è incluso nella
 
 Uso di unify con expand
 -----------------------
-Notare che le variabili non sono effettivamente associate come assegnazione newLISP. Piuttosto, viene restituito una lista elenco di associazioni che mostra l'associazione logica. Una sintassi speciale della funzione "expand" può essere utilizzata per sostituire effettivamente le variabili associate con i loro termini:
+Notare che le variabili non sono effettivamente associate come assegnazione newLISP. Piuttosto, viene restituito una lista di associazioni che mostra l'associazione logica. Una sintassi speciale della funzione "expand" può essere utilizzata per sostituire effettivamente le variabili associate con i loro termini:
 
 (set 'bindings (unify '(f (g A) A) '(f B xyz)))
 ;-> ((B (g xyz)) (A xyz))
@@ -9618,8 +9618,8 @@ E ;-> (x y z)
 
 "unify" restituisce una lista associativa e "bind" lega le associazioni.
 
-Model propositional logic with "unify"
---------------------------------------
+Model propositional logic con "unify"
+-------------------------------------
 L'esempio seguente mostra come simulare la logica proposizionale utilizzando "unify" ed "expand":
 
 ; if somebody is human, he is mortal -> (X human) :- (X mortal)
@@ -9739,6 +9739,150 @@ The release 8.9.0 out in June will contain a small implementation of a PROLOG li
 
 'unify' is implemented and will be released with development version 8.8.7 later this week.
 ----------------------------------------------------------------------------
+
+Esempi di "unify"
+-----------------
+
+La "unificazione" tra due espressioni simboliche implica la ricerca di sostituzioni per le variabili (se presenti) nelle espressioni in modo tale che le espressioni corrispondano esattamente dopo l'applicazione delle sostituzioni. In genere questo metodo si trova solo nei linguaggi di programmazione logica (es. Prolog).
+newLISP ha la funzione integrata "unify" che può essere utilizzata per unificare due espressioni.
+
+Esaminiamo alcuni esempi di questa funzione.
+
+Unificare espressioni atomiche
+------------------------------
+(unify 'abc 'abc)
+;-> ()
+
+(unify '(1 2) '(1 2))
+;-> ()
+
+(unify '(a b c) '(a b c d))
+;-> nil
+
+(unify '("a" ("b" 100 (c d))) '("a" ("b" 100 (c d))))
+;-> ()
+
+La funzione unify restituisce una lista di associazioni/collegamenti, ovvero una lista di possibili sostituzioni per le variabili, se esistenti. Se le due espressioni non possono essere unificate/associate, restituisce nil.
+
+Nel caso precedente, c'è una corrispondenza solo quando le due espressioni sono identiche. Poiché non ci sono variabili nelle espressioni, se la corrispondenza ha esito positivo, viene restituita una lista vuota.
+
+Espressioni con variabili
+-------------------------
+La funzione diventa interessante quando introduciamo una o più variabili nelle espressioni.
+Le "variabili iniziano con una lettera maiuscola" per distinguerle dagli altri elementi dell'espressione.
+
+(unify 'X "Hi")
+;-> ((X "Hi"))
+
+(unify '(X Y) '(a (b c)))
+;-> ((X a) (Y (b c)))
+
+(unify '(X abc) '(123 Y))
+;-> ((X 123) (Y abc))
+
+(unify 'X 'X)
+;-> ()
+
+(unify 'X 'Y)
+;-> ((X Y))
+
+(unify '(XY) '(P Q))
+;-> ((X P) (Y Q))
+
+(unify '(X Y) '(Y X))
+;-> ((Y X))
+
+(unify '(XY) '(1 2 3))
+;-> nil
+
+Nella prima espressione sopra, la variabile "X" può essere unificata direttamente con la stringa "Hi".
+Il terzo caso mostra che possiamo avere variabili in entrambe le espressioni.
+I prossimi quattro casi coinvolgono solo variabili, nessun valore letterale.
+Il motivo per cui l'ultimo caso fallisce è dovuto alla mancata corrispondenza tra il numero di elementi in ciascuna espressione.
+
+Uso del carattere underscore "_"
+--------------------------------
+Possiamo usare il simbolo speciale "_" come variabile per associare ogni singolo elemento, ma non si lega a ciò che corrisponde. Vedere i seguenti esempi:
+
+(unify '_ 1)
+;-> ()
+
+(unify '(X _ Y) '(p (q r) (s t (u))))
+;-> ((X p) (Y (s t (u))))
+
+(unify '_ 'X)
+;-> ()
+
+(unify '(_ _) '(a))
+;-> nil
+
+(unify '(_ _) '(a b c))
+;-> nil
+
+Le ultime due espressioni falliscono a causa della mancata corrispondenza del numero di elementi.
+
+Uso della lista di associazione (binding list) opzionale
+--------------------------------------------------------
+La funzione "unify" accetta un terzo parametro opzionale: una lista di collegamenti/associazioni. Viene utilizzata secondo necessità quando si uniscono le prime due espressioni.
+
+(unify '(Ap) '(Xp) '((X 100)))
+;-> ((X 100) (A 100))
+
+(unify '(A p) '(X p) '((A 100)))
+;-> ((X 100) (A 100))
+
+(unify '(A p) '(X p))
+;-> ((A X))
+
+Variabili extra nella lista di binding opzionale
+------------------------------------------------
+Se la lista di binding include variabili diverse da quelle presenti nelle prime due espressioni, anche queste vengono incluse nella lista finale delle associazioni:
+
+(unify '(A p) '(X p) '((B 100)))
+;-> ((B 100) (A X) )
+
+(unify '(A p) '(X p) '((B 100) (A 200) ) )
+;-> ((B 100) (X 200) (A 200))
+
+Lista di binding con "_"
+------------------------
+Ecco alcuni esempi con "_" nell'elenco di associazione (non uno scenario comune):
+
+(unify '(l 2) '(A B) '((A 10)))
+;-> nil
+
+(unify '(1 2) '(A B) '((A _)))
+;-> ((A 1) (B 2))
+
+(unify '(1 2) '(A B) '((A _)(B 2)))
+;-> ((A 1) (B 2))
+
+(unify '(1 2) '(A B) '((A _)(B _)))
+;-> ((A 1) (B 2))
+
+(unify '(1 2) '(A B) '((A _)(B _) (C _)))
+;-> ((A 1) (B 2))
+
+La prima espressione fallisce a causa di associazioni incoerenti. Quando i primi due argomenti si uniscono, i collegamenti saranno '((A 1) (B 2)). Tuttavia, il terzo parametro forza '(A 10), che è diverso da '(A 1). Questo non può essere vero e quindi l'unificazione fallisce.
+
+I restanti casi usano "_" e quindi non c'è incoerenza. Nell'ultimo caso, l'extra binding '(C _) viene ignorato perché la variabile "C" non compare nelle prime due espressioni e "_" è solo un segnaposto senza valore concreto.
+
+In pratica, il terzo argomento è spesso un'altra espressione di "unificazione", nel qual caso il suo risultato verrà utilizzato come elenco di associazione per la "unificazione" principale.
+
+"unify" annidati
+----------------
+
+(unify '(X Y (Z)) '("Hi" P (1234)) (unify '(A 10) '(24 P)))
+;-> ((A 24) (P 10) (X "Hi") (Y 10) (Z 1234))
+
+(unify '(X y (Z)) '("Hi" P (1234)) (unify '(A 10) '(24 P)))
+;-> nil
+
+(unify '(X y (Z)) '("Hi" P (1234)) (unify '(A 10) '(24 P) '((Y 66))))
+;-> nil
+
+La seconda espressione fallisce perchè il simbolo "y" è in minuscolo.
+La terza espressione fallisce perchè costringe "P" e "Y" a prendere associazioni diverse (a causa della "unificazione" annidata) e questo non può soddisfare l'unificazione delle prime due espressioni.
 
 
 ===================================
@@ -10249,7 +10393,7 @@ Tutte le sequenze hanno la forma:
 dove, ESC vale \027 (decimale) 
              o \033 (ottale) 
              o \u001b (unicode)
-             0 \x1b esadecimale
+             o \x1b esadecimale
              o ^[ (Ctrl-Key)
      e XXX è una serie di parametri separati da punto e virgola ";".
 

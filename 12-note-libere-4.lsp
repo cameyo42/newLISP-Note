@@ -8221,6 +8221,7 @@ Numeri Armstrong
 ----------------
 
 I numeri Armstrong (PlusPerfect o narcisistici) sono numeri con m cifre che sono uguali alla somma di ogni cifra elevata a m.
+
 Sequenza OEIS A005188:
   1, 2, 3, 4, 5, 6, 7, 8, 9, 153, 370, 371, 407, 1634, 8208, 9474,
   54748, 92727, 93084, 548834, 1741725, 4210818, 9800817, 9926315,
@@ -8588,7 +8589,7 @@ I casi base della ricorsione sono:
 (solutions '(1 3 5 7) 4 8)
 ;-> 6
 
-Questo algoritmo ha complssità temporale esponenziale ed utilizza parecchio spazio nello stack per le chiamate ricorsive.
+Questo algoritmo ha complessità temporale esponenziale ed utilizza parecchio spazio nello stack per le chiamate ricorsive.
 
 Possiamo scrivere una versione bottom-up utilizzando la tecnica di memoizzazione:
 

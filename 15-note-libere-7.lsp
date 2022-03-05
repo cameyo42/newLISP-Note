@@ -7343,7 +7343,152 @@ e questo è l'output:
 
 ===hello world===
 
-Quindi in pratica stai usando una variabile con nome del metodo per utilizzare il contesto relativo.
+Quindi in pratica usiamo una variabile con nome del metodo per utilizzare il contesto relativo.
+
+
+------------------------------
+Simulazione del lancio di dadi
+------------------------------
+
+Scriviamo una funzione che prende i seguenti parametri:
+
+  numero dei dadi                --> num-dice
+  lista delle facce di ogni dado --> lst-faces
+  numero di lanci da effettuare  --> iter
+  
+e restituisce una lista di elementi (uno per ogni numero possibile del lancio dei dadi) che hanno la seguente struttura:
+
+  (numero contatore frequenza)
+
+dove:
+
+  numero    --> numero (uno dei numeri possibili del lancio dei dadi)
+  contatore --> quante volte è uscito il numero
+  frequenza --> frequenza del numero
+
+Funzione che calcola il prodotto cartesiano di due liste:
+
+(define (cp lst1 lst2)
+  (let (out '())
+    (dolist (el1 lst1)
+      (dolist (el2 lst2)
+        (push (list el1 el2) out -1)))))
+
+Funzione che calcola il prodotto cartesiano di una lista di liste:
+
+(define (prod-cart lst-lst)
+  (let (out '())
+    (dolist (el (apply cp lst-lst 2))
+      (push (flat el) out -1))))
+
+Funzione che simula il lancio dei dadi:
+
+(define (dice-stat num-dice lst-faces iter)
+  (local (min-val max-val counts freqs tmp tot-faces out)
+    ; number of all faces
+    (setq tot-faces (length (flat lst-faces)))
+    ; find min and max values of throwing dices
+    (setq min-val 0)
+    (setq max-val 0)
+    (dolist (el lst-faces)
+      (setq min-val (+ min-val (apply min el)))
+      (setq max-val (+ max-val (apply max el)))
+    )
+    ; array: count of numbers
+    (setq freqs (array (+ max-val 1) '(0)))
+    ; array: frequency of numbers
+    (setq counts (array (+ max-val 1) '(0)))
+    ; simulate the throw of dice "iter" times
+    (for (i 1 iter)
+      (setq tmp 0)
+      (for (k 0 (- num-dice 1))
+        (setq tmp (+ tmp (lst-faces k (rand (length (lst-faces k))))))
+      )
+      ; update the count of number (tmp)
+      (++ (counts tmp))
+    )
+    ; calulate frequencies of numbers
+    (setq freqs (map (fn(x) (div x iter)) counts))
+    ; check results:
+    ; sum of counts must be equal to iter
+    (if (!= iter (apply + counts)) 
+        (println "Error counts: " (apply + counts))
+    )
+    ; sum of probabilities must be equal to 1
+    (if (> (abs (sub 1.0 (apply add freqs))) 1e-6)
+        (println "Error freqs " (apply add freqs))
+    )
+    ; create a sorted list with all possible result of throwing dices
+    ; (use the cartesian product function)
+    (if (= (length lst-faces) 1)
+        (setq values (sort (flat lst-faces)))
+        (setq values (sort (unique (map (fn(x) (apply + x)) (prod-cart lst-faces)))))
+    )
+    ; (println values { } counts { } freqs)
+    ; create list of output: (value counter frequency)
+    (setq out '())
+    (dolist (el values)
+      ;(push (list el (counts el) (freqs el)) out -1)
+      (push (list el (counts el) (round (freqs el) -4)) out -1)
+    )
+    out))
+
+(dice-stat 3 '((1 2 3) (1 2 3) (10 11 12)) 1)
+;-> ((12 0 0) (13 0 0) (14 0 0) (15 0 0) (16 1 1) (17 0 0) (18 0 0))
+
+(dice-stat 3 '((1 2 3) (1 2 3) (10 11 12)) 100)
+;-> ((12 1 0.01) (13 14 0.14) (14 21 0.21) (15 28 0.28) 
+;->  (16 21 0.21) (17 11 0.11) (18 4 0.04))
+
+(dice-stat 1 '((1 2 3 4 5 6)) 1e6)
+;-> ((1 166192 0.1662) (2 166805 0.1668) (3 166936 0.1669) 
+;->  (4 166928 0.1669) (5 166565 0.1666) (6 166574 0.1666))
+
+(dice-stat 3 '((1 2) (1 2 3) (1 2 3 4)) 1e6)
+;-> ((3  41803 0.0418) 
+;->  (4 124753 0.1248) 
+;->  (5 208508 0.2085) 
+;->  (6 250475 0.2505) 
+;->  (7 207885 0.2079)
+;->  (8 125210 0.1252)
+;->  (9  41366 0.0414))
+
+(dice-stat 2 '((1 2 3 4 5 6) (1 2 3 4 5 6)) 1e6)
+;-> ((2 27599 0.0276) (3 55067 0.0551) (4 83716 0.0837) 
+;->  (5 111210 0.1112) (6 138393 0.1384) (7 166750 0.1668)
+;->  (8 139317 0.1393) (9 111126 0.1111) (10 83366 0.0834)
+;->  (11 55637 0.0556) (12 27819 0.0278))
+
+(dice-stat 2 '((2 2) (2 2)) 10000)
+;-> ((4 10000 1))
+
+(dice-stat 2 '((1 2 3) (3 2 1)) 1e6)
+;-> ((2 111137 0.1111) (3 222129 0.2221) (4 333639 0.3336) 
+;->  (5 222573 0.2226) (6 110522 0.1105))
+
+(dice-stat 2 '((1 3 5) (2 4 6)) 1e6)
+;-> ((3 110991 0.111) 
+;->  (5 223027 0.223) 
+;->  (7 333773 0.3338) 
+;->  (9 221395 0.2214) 
+;->  (11 110814 0.1108))
+
+(dice-stat 3 '((1 2 3) (1 2 3) (10 11 12)) 1e6)
+;-> ((12 37099  0.0371) 
+;->  (13 111249 0.1112) 
+;->  (14 221902 0.2219) 
+;->  (15 259005 0.259) 
+;->  (16 222338 0.2223)
+;->  (17 111343 0.1113)
+;->  (18 37064  0.0371))
+
+(dice-stat 3 '((1 4 9) (1 8 27) (2 3 5)) 1e6)
+;-> ((4 37171 0.0372) (5 36838 0.0368) (7 73983 0.074) (8 37029 0.037) 
+;->  (10 36995 0.037) (11 36912 0.0369) (12 73984 0.074) (13 36906 0.0369)
+;->  (14 74154 0.0742) (15 73780 0.0738) (17 36997 0.037) (19 37090 0.0371)
+;->  (20 36881 0.0369) (22 37427 0.0374) (30 36759 0.0368) (31 36810 0.0368)
+;->  (33 74649 0.0746) (34 37082 0.0371) (36 37144 0.0371) (38 37045 0.037)
+;->  (39 36970 0.037) (41 37394 0.0374))
 
 =============================================================================
 

@@ -5106,6 +5106,7 @@ Questo funziona come un preprocessore all'interno di un gestore eventi. Quindi, 
 ----------------------------
 Massimo Comun Divisore (MCD)
 ----------------------------
+
 MCD - Massimo Comune Divisore
 GCD - Greatest Common Divisor
 
@@ -5130,7 +5131,7 @@ Questo è un semplice algoritmo non ottimizzato per la velocità. Uno migliore �
 
 (define-macro (my-gcd2) (apply gcd2_ (args) 2))
 
-Uno ancora migliore è l'algoritmo binario con spostamento a destra. Il codice originale è in linguaggio C preso da un libro di teoria dei numeri, quella che segue è la traduzione in newLISP:
+Un'altro è l'algoritmo binario con spostamento a destra. Il codice originale è in linguaggio C preso da un libro di teoria dei numeri, quella che segue è la traduzione in newLISP:
 
 (define (gcd3_ x y , g t)
   (setq g 0)
@@ -5225,6 +5226,151 @@ Vediamo la funzione standard "gcd" (che è la più veloce):
 ------------------------
 Indicizzazione implicita
 ------------------------
+
+Nel Lisp tradizionale (es. Common Lisp), quando si valuta una lista di S-espressioni, il primo elemento nella posizione "functor" deve essere una funzione o un operatore valido. newLisp consente al primo elemento di essere un tipo di simbolo di contesto, una lista, un array o un numero intero.
+
+Indicizzazione delle liste
+--------------------------
+(setq lst '(a b c d e))
+;-> (a b c d e)
+
+(lst 2)
+;-> c
+(lst 0)
+;-> a
+(lst 5)
+;-> ERR: invalid list index
+
+Per prima cosa assegniamo alla variabile "lst" un elenco di simboli. Quindi utilizziamo la stessa variabile nella posizione "functor" della S-epressione, seguita da un argomento intero. Anche se "lst" non è una "funzione", newLisp valuta questa espressione, trattandola come un'operazione di "indicizzazione", restituendo il terzo elemento della lista (gli indici iniziano da zero). Viene segnalato un errore quando si indicizza oltre la dimensione della lista.
+
+La funzione "nth"
+-----------------
+Avremmo anche potuto usare la funzione integrata "nth" per accedere all'elemento della lista, ma newLisp supporta la scorciatoia sopra.
+
+(nth 2 lst)
+;-> c
+(nth 0 lst 0)
+;-> a
+(nth 5 lst)
+;-> ERR: invalid list index
+
+Indicizzazione delle liste annidate
+-----------------------------------
+Vediamo l'indicizzazione di liste annidate:
+
+(setq lista '(a b (c d) e))
+;-> (a b (c d) e)
+
+(lista 2)
+;-> (c d)
+(lista 2 1)
+;-> d
+('(1 2 3 4) 0)
+;-> 1
+
+Possiamo accedere a un elemento della lista annidata in due modi: con uno o più indici.
+L'ultimo esempio mostra che possiamo usare direttamente una lista con valori come primo argomento.
+
+Indicizzazione degli array
+--------------------------
+Creiamo due array unidimensionali:
+
+(setq vet1 (array 4 (sequence 1 4)))
+;-> (1 2 3 4)
+(setq vet2 (array 3 '(5 (6 7 8) a)))
+;-> (5 (6 7 8) a))
+
+Il secondo array sopra ha un elemento nidificato che contiene 3 elementi. 
+
+Possiamo accedere agli elementi dell'array in questo modo:
+
+(vet1 0)
+;-> 1
+(vet1 3)
+;-> 4
+(vet2 1)
+;-> (6 7 8)
+((vet2 1) 0)
+;-> 6
+
+Array Multi-Dimensionali
+------------------------
+Per gli array multi-dimensionali la logica è simile, creiamo un array 2x3:
+
+(setq vet3 (array 2 3 '(1 2 3 4 5 6)))
+;-> ((1 2 3) (4 5 6))
+
+Analogamente alle liste annidate (in questo caso gli indici rappresentano riga e colonna):
+
+(vet3 0 1)
+;-> 2
+(vet3 0)
+;-> (1 2 3)
+
+Indici negativi
+----------------
+È anche possibile utilizzare un indice negativo (l'indice dell'ultimo elemento dell'array vale -1, il penultimo vale -2, ecc.):
+
+(vet3 0 -2)
+;-> 2
+
+Indicizzazione delle stringhe
+-----------------------------
+Le stringhe sono array di caratteri e possiamo utilizzare lo stesso meccanismo di indicizzazione:
+
+(setq str "newLISP")
+;-> "newLISP"
+(str 3)
+;-> "L"
+(str -2)
+;-> "S"
+
+Slice implicito di una lista
+----------------------------
+Un'estensione naturale dell'"indicizzazione implicita" che abbiamo visto finora è lo "slicing implicito". Lo Slicing entra in scena quando utilizziamo un numero intero nella posizione "functor":
+
+(setq lst '(a b c d))
+;-> (a b c d)
+
+(1 lst)
+;-> (b c d)
+(1 2 lst)
+;-> (b c)
+
+(setq lista '(a b (c d) e))
+;-> (a b (c d) e)
+(1 2 lista)
+;-> (b (c d))
+(0 lista)
+;-> (a b (c d) e)
+
+La prima espressione restituisce una sottolista a partire dal secondo elemento (1) della lista data. 
+Un altro argomento intero, se fornito, specifica il numero di elementi da estrarre dalla posizione iniziale.
+
+Slice di array e stringhe
+-------------------------
+Di seguito viene illustrato lo slicing applicato su array e stringhe:
+
+(2 vet2)
+;-> (a)
+(1 vet2)
+;-> ((6 7 8) a)
+
+(3 4 "newLISP")
+;-> "LISP"
+(3 "newLISP")
+;-> "LISP"
+
+L'indice può essere una variabile
+---------------------------------
+Per lo slicing possiamo anche usare variabili intere invece dei numeri:
+
+(set 'start 1 'nums 2)
+(start nums lista)
+;-> (b (c d))
+
+L'indicizzazione implicita è facoltativa (possiamo sempre usare "nth", ecc.), ma è più veloce dell'indicizzazione esplicita.
+
 È possibile creare forme implicite di "rest" e "slice" anteponendo alla lista uno o due numeri per indicare l'offset e la lunghezza. Se la lunghezza è negativa, inizia a contare dalla fine della lista:
 
 (set 'lst '(a b c d e f g))
