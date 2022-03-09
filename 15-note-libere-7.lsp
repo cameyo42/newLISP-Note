@@ -7490,5 +7490,382 @@ Funzione che simula il lancio dei dadi:
 ;->  (33 74649 0.0746) (34 37082 0.0371) (36 37144 0.0371) (38 37045 0.037)
 ;->  (39 36970 0.037) (41 37394 0.0374))
 
+
+-------------------------------------
+Creazione di immagini con ImageMagick
+-------------------------------------
+(real-path)
+(change-dir "F:\\Lisp-Scheme\\newLisp\\MAX\\clifford\\all")
+
+https://imagemagick.org/
+ImageMagick è un programma freeware e multipiattaforma che viene usato per creare, modificare, comporre o convertire immagini digitali.
+
+Con ImageMagick è possibile creare immagini da newLISP.
+
+Il seguente comando di ImageMagick crea un'immagine "image.png" da un file di testo "pixels.txt":
+   
+   convert pixels.txt image.png
+
+Il seguente comando di ImageMagick crea un'immagine "image.png" (con uno sfondo bianco) da un file di testo "pixels.txt":
+
+   convert pixels.txt -background white -flatten image.png
+
+La struttura del file di testo è la seguente:
+
+# ImageMagick pixel enumeration: 4,4,255,rgba
+0,0: (187,102,127,128)
+0,1: ( 51,153,127,10)
+0,2: (204,102,127,255)
+0,3: ( 68,153,127,128)
+1,1: ( 51,153,127,200)
+1,2: (204,102,127,255)
+1,3: ( 68,153,127,255)
+2,0: (187,102,127,150)
+2,1: ( 51,153,127,128)
+2,2: (204,102,127,45)
+3,0: (187,102,127,255)
+3,1: ( 51,153,127,255)
+3,2: (204,102,127,150)
+
+La prima riga (intestazione) del file contiene le informazioni di base sull'immagine.
+Le informazioni sono composte da:
+
+File Magic: l'intestazione dell'immagine "# ImageMagick pixel enumeration:" definisce questo file come uno speciale formato immagine di testo IM
+
+Dimensione immagine: I prossimi due numeri (4,4) definiscono la dimensione dell'immagine contenuta in questo file. Moltiplicando questi numeri insieme si ottiene il numero di righe che possono seguire l'intestazione per definire completamente l'immagine.
+
+MaxValue: l'ultimo numero nell'intestazione definisce il 'valore massimo' dei dati dell'immagine che è possibile. Nell'esempio vale "255", che indica una profondità di 8 bit.
+
+Spazio colore: l'ultimo elemento nell'intestazione definisce lo spazio colore dei dati che seguono. In questo esempio "rgba" indica uno spazio di colore RGB con trasparenza (a=alpha)
+
+Dopo l'intestazione seguono le righe che rappresentano i punti dell'immagine che hanno il seguente formato:
+
+x,y: (r,g,b,a)  ==>  0,0: (187,102,127,128)
+
+a) Non è necessario definire tutti i pixel nell'immagine.
+b) Non è necessario che i pixel siano ordinati
+
+ImageMagick legge il file e disegna i pixel su una immagine vuota.
+
+Ecco un altro esempio:
+
+# ImageMagick pixel enumeration: 2,2,65535,rgb
+0,0: (48059,26214,32767)  #BBBB66667FFF  rgb(73.3333%,40%,49.9992%)
+1,0: (13107,39321,32767)  #333399997FFF  rgb(20%,60%,49.9992%)
+0,1: (52428,26214,32767)  #CCCC66667FFF  rgb(80%,40%,49.9992%)
+1,1: (17476,39321,32767)  #444499997FFF  rgb(26.6667%,60%,49.9992%)
+
+In questo esempio MaxValue è 65535, quindi l'immagine ha una profondità di 16 bit.
+
+Le informazioni del tipo "#BBBB66667FFF  rgb(73.3333%,40%,49.9992%)" non vengono considerate durante la creazione del file.
+
+Naturalmente è possibile l'operazione inversa, cioè creare un file di testo da una immagine:
+
+  convert image.png pixels.txt
+
+Questo si rivela utile per vedere come vengono codificate le varie informaqzioni da ImageMagick (spazio colore, ecc.).
+
+Maggiori informazioni a: https://legacy.imagemagick.org/Usage/files/#txt
+
+Per creare un'immagine da newLISP:
+
+(exec "convert pixels.txt image.png")
+
+oppure 
+
+(exec "convert pixels.txt -background white -flatten pixels.png")
+
+Adesso vediamo un semplice esempio scrivendo una funzione che crea un'immagine con colori casuali (cioè un file di testo nel formato di ImageMagick):
+
+(define (random-IM width height file-str)
+  (local (outfile x y r g b a line)
+    (setq outfile (open file-str "write"))
+    (print outfile { }) ; handle del file
+    ; intestazione del file
+    (write-line outfile (string "# ImageMagick pixel enumeration: "
+                width "," height ",256,rgba"))
+    (setq alpha 255) ; fixed alpha
+    ; random color pixel
+    (for (x 0 (- width 1))
+      (for (y 0 (- height 1))
+        (map set '(r g b) (rand 255 3))
+        (setq line (string x ", " y ": (" r "," g "," b "," alpha ")"))
+        (write-line outfile line)
+      )
+    )
+    (close outfile)))
+
+Generiamo il file di testo che rappresenta l'immagine (64x64):
+
+(random-IM 64 64 "casual.txt")
+
+Convertiamo il file di testo in una immagine con ImageMagick:
+
+(exec "convert casual.txt -background white -flatten casual.png")
+
+Il file "casual.png" si trova nella cartella "data".
+
+Idee di utilizzo
+----------------
+1) random walk
+2) grafici di funzioni
+3) generative art
+4) attrattori di clifford
+5) superformula 2D/3D
+
+
+----------------------
+Attrattore di Clifford
+----------------------
+
+L'attrattore di Clifford, noto anche come "fractal dream attractor", è definito dal sistema di equazioni:
+
+  x(n+1) = sin[a*y(n)] + c*cos[a*x(n)]
+  y(n+1) = sin[b*x(n)] + d*cos[b*y(n)]
+
+dove a, b, c e d sono costanti. È un attrattore perché per determinati valori di a, b, c e d, qualsiasi punto iniziale (x0,y0) ripeterà lo stesso pattern.
+
+L'algoritmo per creare i punti di un attrattore è il seguente:
+1) prendere un punto qualsiasi p0 = (x0, y0),
+2) calcolare il punto successivo p(n+1) = (x(n+1), y(n+1)) con le formule
+3) ripetere più volte il punto 2...
+
+È possibile creare un'ampia gamma di forme grafiche modificando le costanti. I seguenti valori producono attrattori interessanti:
+
+   a = -1.4, b = 1.6,  c = 1.0,  d = 0.7
+   a = 1.6,  b = -0.6, c = -1.2, d = 1.6
+   a = 1.5,  b = -1.8, c = 1.6,  d = 0.9
+   a = -1.7, b = 1.3,  c = -0.1, d = -1.2
+   a = -1.7, b = 1.8,  c = -1.9, d = -0.4
+   a = -1.8, b = -2.0, c = -0.5, d = -0.9
+   a = 2,    b = 2,    c = 1,    d = −1
+   a = 2,    b = 1,    c = −0.5, d = −1.01
+
+Per creare gli attrattori scriviamo alcune funzioni.
+
+Funzione che crea la lista dei punti di un attrattore:
+
+(define (clifford a b c d x0 y0 iter)
+  (local (out cur-x cur-y tmp-x tmp-y)
+    (setq cur-x x0)
+    (setq cur-y y0)
+    (setq out '())
+    (push (list cur-x cur-y) out -1)
+    (for (i 1 iter)
+      (setq tmp-x cur-x)
+      (setq tmp-y cur-y)
+      (setq cur-x (add (sin (mul a tmp-y)) (mul c (cos (mul a tmp-x)))))
+      (setq cur-y (add (sin (mul b tmp-x)) (mul d (cos (mul b tmp-y)))))
+      (push (list cur-x cur-y) out -1)
+    )
+    out))
+
+(silent (setq cli1 (clifford -1.4 1.6 1.0 0.7 1 1 1000000)))
+
+Vediamo i primi 5 punti calcolati:
+
+(slice cli1 0 5)
+;-> ((1 1)
+;->  (-0.8154825870882191 0.979133937430603)
+;->  (-0.5639934344312477 -0.9618963402690747)
+;->  (1.679121223105813 -0.7625802163942428)
+;->  (0.1727911152773017 0.6799287925667465))
+
+Adesso normalizziamo i punti (che sono numeri float), cioè li moltiplichiamo per un fattore di zoom, li rendiamo numeri interi e li trasliamo sul quadrante positivo del piano cartesiano.
+Funzione che crea normalizza una lista di punti di un attrattore:
+
+(define (cliff-norm points zoom)
+  (local (norm max-x min-x max-y min-y trasla-x trasla-y out)
+    ; moltiplica le coordinate dei punti per il valore "zoom"
+    ; e li rende numeri interi
+    (setq norm (explode (map (fn(x) (int (mul zoom x))) (flat points)) 2))
+    (setq max-x (norm 0 0))
+    (setq min-x (norm 0 0))
+    (setq max-y (norm 0 1))
+    (setq min-y (norm 0 1))
+    (dolist (el norm)
+      ;(setq max-x (max (el 0) max-x))
+      (setq min-x (min (el 0) min-x))
+      ;(setq max-y (max (el 1) max-y))
+      (setq min-y (min (el 1) min-y))
+    )
+    ; calcola i valori per la traslazione dei punti
+    (setq trasla-x (add 10 (abs min-x)))
+    (setq trasla-y (add 10 (abs min-y)))
+    ; traslazione dei punti
+    ; (solo se min-x e/o min-y minori di zero)
+    (cond ((and (< min-x 0) (< min-y 0))
+           (setq norm (map (fn(n) (list (add trasla-x (n 0)) (add trasla-y (n 1)))) norm)))
+          ((< min-x 0)
+           (setq norm (map (fn(n) (list (add trasla-x (n 0)) (n 1)))) norm))
+          ((< min-y 0)
+           (setq norm (map (fn(n) (list (n 0) (add trasla-y (n 1)))) norm)))
+    )
+    norm))
+
+Normalizziamo i punti calcolati sopra:
+
+(silent (setq cli1-norm (cliff-norm cli1 1000)))
+
+Vediamo i primi 5 punti normalizzati:
+
+(slice cli1-norm 0 5)
+;-> ((2429 2314) (614 2293) (866 353) (3108 552) (1601 1993))
+
+Vediamo quanti sono i punti unici:
+
+(length cli1-norm)
+;-> 1000001
+(length (unique cli1-norm))
+;-> 716405
+
+Vediamo i valori massimi e minimi dei punti:
+
+(apply max (map first cli1-norm))
+;-> 3408
+(apply max (map last cli1-norm))
+;-> 2849
+
+(apply min (map first cli1-norm))
+;-> 10
+(apply min (map last cli1-norm))
+;-> 10
+
+Il prossimo passo è quello di rappresentare graficamente tutti i punti. L'approccio è quello scrivere un file di testo dei punti ed utilizzare un programma esterno per la visualizzazione. Il formato del file di testo dipende dal programma scelto. Ad esempio con Wolfram Mathematica possiamo scrivere un file con il seguente formato (es. clifford.txt):
+
+  2429 2314
+  614 2293
+  866 353
+  3108 552
+  1601 1993
+  1585 1912
+  1662 1964
+  ...  ...
+
+E poi possiamo visualizzare l'attrattore con il seguente comando:
+
+ListPlot[Import["clifford.txt", "Table"], PlotStyle -> PointSize[0.0001]]
+
+Invece di utilizzare Mathematica, vediamo di creare l'immagine dei punti con "ImageMagick".
+Il formato del file di testo per ImageMagick è il seguente:
+
+# ImageMagick pixel enumeration: 4,4,255,rgba
+0,0: (187,102,127,128)
+0,1: ( 51,153,127,10)
+0,2: (204,102,127,255)
+0,3: ( 68,153,127,128)
+1,1: ( 51,153,127,200)
+1,2: (204,102,127,255)
+1,3: ( 68,153,127,255)
+2,0: (187,102,127,150)
+2,1: ( 51,153,127,128)
+2,2: (204,102,127,45)
+3,0: (187,102,127,255)
+3,1: ( 51,153,127,255)
+3,2: (204,102,127,150)
+
+Per informazioni dettagliate su questo formato vedi il capitolo precedente "Creazione di immagini con ImageMagick".
+
+Scriviamo una funzione che esporta i punti nel formato richiesto da ImageMagick:
+
+(define (list-IM lst file-str)
+  (local (outfile x-width y-height line)
+    (setq lst (sort (unique lst)))
+    (setq outfile (open file-str "write"))
+    (print outfile { })
+    ; calcolo dimensioni immagine
+    (setq x-width (add 1 (apply max (map first lst))))
+    (setq y-height (add 1 (apply max (map last lst))))
+    ; scrittura del file in formato ImageMagick
+    (write-line outfile (string "# ImageMagick pixel enumeration: "
+                (string x-width) "," (string y-height) ",256,rgba"))
+    (dolist (el lst)
+      (setq line (string (string (el 0)) ", " (string (el 1))
+            ": (0,0,0,128)")) ; colore nero con alpha=50%
+      (write-line outfile line)
+    )
+    (close outfile)))
+
+In questo caso il colore di ogni punto è nero con alpha = 128 (50%). Vedremo in seguito altri metodi per colorare i punti.
+
+(list-IM cli1-norm "cli1-IM.txt")
+;-> 3 true
+
+Adesso per creare l'immagine possiamo apriamo una finestra DOS (command prompt) e digitiamo:
+
+  convert cli1-IM.txt cli1-IM.png
+
+oppure
+
+  convert cli1-IM.txt -background white -flatten cli1-IM.png
+
+In alternativa possiamo eseguire i comandi direttamente dalla REPL di newLISP con la funzione "exec":
+
+(exec "convert cli1-IM.txt cli1-IM.png")
+
+oppure
+
+(exec "convert cli1-IM.txt -background white -flatten cli1-IM.png")
+
+Nota: naturalmente dovete aver installato il programma ImageMagick.
+
+Le immagini create con questo metodo non sono così attraenti come quelle che è possibile trovare sul web (es. http://paulbourke.net/fractals/clifford/). Questo è dovuto al fatto che dobbiamo colorare i punti in qualche modo.
+
+Domanda: Come vengono colorati i punti?
+
+Risposta: Il fatto principale è che non viene disegnato l'attrattore direttamente come immagine finale. Piuttosto viene creata una grande griglia di 32 bit (int o float) e invece di disegnarla con un colore viene calcolato quante volte ogni punto viene attraversato dalla curva. Quindi è essenzialmente un istogramma 2D di frequenza. Successivamente viene applicato il processo di colorazione, cioè viene applicata una formula che genera un colore in funzione della frequenza del punto. Per avere più informazioni (cioè per ottenere sfumature di colore più uniformi) si deve valutare un numero maggiore di punti.
+Si può anche salvare la griglia come raw a 16 o 32 bit, aprirla in PhotoShop e applicare il "gradient map" desiderato.
+
+Vediamo come creare un file con la frequenza di passaggio dei punti che verrà utilizzata per colorare i punti.
+
+(define (list-IM-freq lst file-str)
+  (local (outfile freq all x-width y-height line r g b alpha)
+    (sort lst)
+    ; calcolo dimensioni immagine
+    (setq x-width (+ 1 (apply max (map first lst))))
+    (setq y-height (+ 1 (apply max (map last lst))))
+    ; calcolo frequenza dei punti
+    (setq freq (count (flat (explode lst) 1) lst))
+    ; creazione lista di elementi: ((x y) freq)
+    (setq all (map list lst freq))
+    ; eliminazione degli elementi con freq = 0
+    (setq all (clean (fn(n) (zero? (n 1))) all))
+    ; scrittura del file in formato ImageMagick
+    (setq outfile (open file-str "write"))
+    (write-line outfile (string "# ImageMagick pixel enumeration: "
+                (string x-width) "," (string y-height) ",256,rgba"))
+    (dolist (el all)
+      ; (el 0 0) --> x
+      ; (el 0 0) --> y
+      ; (el 1)   --> freq
+      ; calcola il colore
+      (map set '(r g b alpha) (make-col (el 1)))
+      (setq line (string (el 0 0) ", " (el 0 1) ": ("
+                  r "," g "," b "," alpha ")"))
+      (write-line outfile line)
+    )
+    (print outfile { })
+    (close outfile)))
+
+La funzione per colorare i punti assegna sempre il colore rosso con alpha in funzione lineare della frequenza di passaggio:
+
+(define (make-col num)
+  (let ((r 90) (g 20) (b 20))
+    (setq alpha (% (+ 128 num) 255))
+    (list r g b alpha)))
+
+Calcoliamo i punti dell'attrattore con i nuovi colori:
+
+(list-IM-freq cli1-norm "cli1-IM-freq.txt")
+;-> 3 true
+
+Creiamo l'immagine con ImgeMagick:
+
+(exec "convert cli1-IM-freq.txt -background white -flatten cli1-IM-freq.png")
+
+Il risultato delle due immagini è visibile nel file "clifford.png" che si trova nella cartella "data".
+
+Nota: per risultati "artistici" occorre scrivere funzioni più complesse per la generazione del colore dei punti.
+
 =============================================================================
 

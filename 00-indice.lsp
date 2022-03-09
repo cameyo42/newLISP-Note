@@ -1086,6 +1086,8 @@ NOTE LIBERE 7
   Funzioni con stato
   Collisione dei contesti (context)
   Simulazione del lancio di dadi
+  Creazione di immagini con ImageMagick
+  Attrattore di Clifford
 
 APPENDICI
 =========
