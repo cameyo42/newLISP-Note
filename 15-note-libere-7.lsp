@@ -7697,7 +7697,7 @@ Funzione che crea normalizza una lista di punti di un attrattore:
     (cond ((and (< min-x 0) (< min-y 0))
            (setq norm (map (fn(n) (list (add trasla-x (n 0)) (add trasla-y (n 1)))) norm)))
           ((< min-x 0)
-           (setq norm (map (fn(n) (list (add trasla-x (n 0)) (n 1)))) norm))
+           (setq norm (map (fn(n) (list (add trasla-x (n 0)) (n 1))) norm)))
           ((< min-y 0)
            (setq norm (map (fn(n) (list (n 0) (add trasla-y (n 1)))) norm)))
     )
@@ -7814,7 +7814,7 @@ Le immagini create con questo metodo non sono così attraenti come quelle che è
 Domanda: Come vengono colorati i punti?
 
 Risposta: Il fatto principale è che non viene disegnato l'attrattore direttamente come immagine finale. Piuttosto viene creata una grande griglia di 32 bit (int o float) e invece di disegnarla con un colore viene calcolato quante volte ogni punto viene attraversato dalla curva. Quindi è essenzialmente un istogramma 2D di frequenza. Successivamente viene applicato il processo di colorazione, cioè viene applicata una formula che genera un colore in funzione della frequenza del punto. Per avere più informazioni (cioè per ottenere sfumature di colore più uniformi) si deve valutare un numero maggiore di punti.
-Si può anche salvare la griglia come raw a 16 o 32 bit, aprirla in PhotoShop e applicare il "gradient map" desiderato.
+Si può anche salvare la griglia come raw a 16 o 32 bit, aprirla in GIMP e applicare la "color map" desiderata (GIMP Menu: Colors->Map->Set Colormap...).
 
 Vediamo come creare un file con la frequenza di passaggio dei punti che verrà utilizzata per colorare i punti.
 
@@ -7866,6 +7866,579 @@ Creiamo l'immagine con ImgeMagick:
 Il risultato delle due immagini è visibile nel file "clifford.png" che si trova nella cartella "data".
 
 Nota: per risultati "artistici" occorre scrivere funzioni più complesse per la generazione del colore dei punti.
+
+
+---------------------------------------------
+Controllare se un numero è NaN (Not a Number)
+---------------------------------------------
+
+In informatica, NaN è un simbolo indicante che il risultato di un'operazione (numerica) è stato ottenuto eseguendola su operandi non validi. Il suo nome è l'acronimo di "Not a Number" (non è un numero). Esempi sono la divisione per zero o la radice quadrata di un numero negativo o il logaritmo naturale di un numero negativo, a cui le FPU assegnano come risultato "NaN".
+
+newLISP gestisce NaN come definito dallo standard IEEE 754 e mette a disposizione una funzione per verificare se un simbolo è NaN: "NaN?".
+
+(setq a (log -1))
+;-> 1.#QNAN
+
+(NaN? a)
+;-> true
+
+Se volessimo scrivere una funzione che verifica se un simbolo è NaN dobbiamo utilizzare una proprietà particolare del simbolo:
+
+  Un simbolo NaN non è uguale ad alcun altro simbolo, anche a se stesso.
+
+Questo ci permette di stabilire un test per stabilire se un simbolo è NaN:
+
+  Un simbolo è NaN se è diverso da se stesso (poichè tutti gli altri simboli sono uguali a se stessi)
+
+(define (isNaN? x) (!= x x))
+
+(isNaN? a)
+;-> true
+
+
+-------------------------
+Interpolazione dei colori
+-------------------------
+ 
+L'interpolazione (lerping) è una tecnica che consente di "inserire un numero" tra due numeri. L'interpolazione più comune è quella lineare basata su tre parametri, il punto iniziale "a", il punto finale "b" e un valore "t" compreso tra 0 e 1 che ci permette di spostarci lungo il segmento che collega i numeri "a" e "b":
+
+  c = a + (b-a)*t
+
+Quando t=0, viene restituito "a". 
+Quando t=1, viene restituito "b". 
+
+Questa formula è facile da capire, efficiente da implementare e funziona in qualsiasi dimensione.
+
+L'interpolazione in due (tre) dimensioni richiede solo che l'interpolazione delle componenti X e Y (X,Y e Z) siano indipendenti. L'interpolazione restituisce sempre punti sulla retta che collega "a" e "b", indipendentemente dal numero di dimensioni. 
+Quindi una interpolazione RGB standard può essere scritta nel modo seguente:
+
+(define (lerpRGB c1 c2 t)
+  (let ((r1 (c1 0)) (g1 (c1 1)) (b1 (c1 2))
+        (r2 (c2 0)) (g2 (c2 1)) (b2 (c2 2)))
+    (list (int (add r1 (mul (sub r2 r1) t)))
+          (int (add g1 (mul (sub g2 g1) t)))
+          (int (add b1 (mul (sub b2 b1) t))))))
+
+(lerpRGB '(0 0 0) '(255 255 255) 0.5)
+;-> (127 127 127)
+
+Funzione che genera un determinato numero di colori interpolati tra un colore iniziale e un colore finale:
+
+(define (lerpColors c1 c2 numcolors)
+  (local (t tmp out)
+    (setq out '())
+    (setq t (div numcolors))
+    (push c1 out)
+    (for (i 1 numcolors)
+      (setq tmp (lerpRGB c1 c2 t))
+      (setq c1 tmp)
+      (push c1 out -1)
+    )
+    (push c2 out -1)
+    out))
+
+Vediamo una scala di toni di grigio con 5 colori che va dal bianco al nero:
+
+(lerpColors '(255 255 255) '(0 0 0) 5)
+;-> ((255 255 255) (204 204 204) (163 163 163) (130 130 130) 
+;-> (104 104 104) (83 83 83) (0 0 0))
+
+Purtroppo, anche se l'interpolazione lineare funziona come ci si aspetta in tre dimensioni, lo stesso non può dirsi per i colori. Infatti c'è una differenza fondamentale tra gli spazi XYZ e RGB: il modo con cui l'occhio umano percepisce i colori non è lineare come lo spazio RGB.
+
+L'argomento è abbastanza complicato, per maggiori informazioni:
+https://www.alanzucconi.com/2016/01/06/colour-interpolation/
+https://web.archive.org/web/20151229203152/https://www.stuartdenman.com/improved-color-blending/
+
+
+-----------------------
+Distanza tra due colori
+-----------------------
+
+La distanza o differenza tra due colori è una metrica della scienza del colore. La quantificazione di queste proprietà è di fondamentale per coloro che lavorano con i colori.
+Il calcolo di questa distanza non è immediato in quanto la percezione umana dei colori non è lineare come lo spazio di colore RGB. Questo comporta che non è corretto usare la distanza euclidea tra due colori RGB (es. col1 = (10 30 150) e col2 = (250 30 50)).
+Esistono diverse formule che producono risultati simili in alcuni casi, ma differenti in altri.
+
+Vediamo una funzione che calcola la distanza tra due colori utilizzando la distanza euclidea:
+
+(define (dist-color1 r1 g1 b1 r2 g2 b2)
+  (sqrt (add (mul (sub r1 r2) (sub r1 r2))
+             (mul (sub g1 g2) (sub g1 g2))
+             (mul (sub b1 b2) (sub b1 b2)))))
+
+(dist-color1 10 30 150 250 30 50)
+;-> 260
+(dist-color1 10 30 150 250 30 60)
+;-> 256.32011
+
+Vediamo un'altra funzione:
+
+(define (dist-color2 r1 g1 b1 r2 g2 b2)
+  (local (r g b rmean)
+    (setq rmean (div (add r1 r2) 2))
+    (setq r (sub r1 r2))
+    (setq g (sub g1 g2))
+    (setq b (sub b1 b2))
+    (sqrt (add (>> (int (mul (add 512 rmean) r r)) 8)
+               (mul 4 g g)
+               (>> (int (mul (add 767 rmean) b b)) 8)))))
+
+(dist-color2 10 30 150 250 30 50)
+;-> 423.6614214204546
+(dist-color2 10 30 150 250 30 60)
+;-> 415.7294793492519
+
+La seguente funzione permette di utilizzare diversi metodi per calcolare la distanza tra due colori. 
+Riporto la versione che ho scritto in linguaggio Processing (java) per un programma di grafica.
+
+//********************************* 
+double deltaE(color col1, color col2, int m) 
+{
+  double result = 0.0;
+  if (col1 == col2) { return result; }
+  //if (col1==color(0,0,0)) {col1=color(1,1,1);}
+  //if (col2==color(0,0,0)) {col2=color(1,1,1);}
+  double[] xyz1 = rgb2xyz(col1);  
+  double[] lab1 = xyz2lab(xyz1);
+ 
+  double[] xyz2 = rgb2xyz(col2);
+  double[] lab2 = xyz2lab(xyz2);
+ 
+  double c1 = Math.sqrt(lab1[1]*lab1[1]+lab1[2]*lab1[2]);
+  double c2 = Math.sqrt(lab2[1]*lab2[1]+lab2[2]*lab2[2]);
+  double dc = c1-c2;
+  double dl = lab1[0]-lab2[0]; // lightness difference
+  double da = lab1[1]-lab2[1]; // color difference
+  double db = lab1[2]-lab2[2]; // opponent difference
+
+  double dh = Math.sqrt((da*da)+(db*db)-(dc*dc));
+
+  // color distance CIE76
+  // deltaE = 2.3 correspond to JND (just noticeable difference)
+  if (m == 1)
+  {
+    result = Math.sqrt((da*da)+(db*db)+(dc*dc));
+    if (isNaN(result)) { println("is NaN"); }; 
+  }
+
+  double primo, secondo, terzo;
+
+  // color distance CIE94 (graphic arts)  
+  if (m == 2)
+  {
+    primo = dl;
+    secondo = dc / (1.0 + 0.045*c1);
+    terzo = dh / (1.0 + 0.015*c1);    
+    result = (Math.sqrt(primo*primo + secondo*secondo + terzo*terzo));
+    if (isNaN(result)) { println("is NaN"); };    
+   
+  }    
+  
+  // color distance CIE94 (textiles)
+  if (m == 3)
+  {  
+    primo = dl / 2.0;
+    secondo = dc / (1.0 + 0.048*c1);
+    terzo = dh / (1.0 + 0.014*c1);
+    result = (Math.sqrt(primo*primo + secondo*secondo + terzo*terzo));
+    if (isNaN(result)) { println("is NaN"); };    
+  }  
+  return result;
+}
+ 
+//********************************* 
+double [] rgb2xyz(color rgb) 
+{
+  double[] result = new double[3];
+ 
+  //double rr = red(rgb)/255.0;
+  //double gg = green(rgb)/255.0;
+  //double bb = blue(rgb)/255.0;
+  double rr = ((rgb >> 16) & 0xFF) / 255.0;
+  double gg = ((rgb >> 8) & 0xFF) / 255.0;
+  double bb = (rgb & 0xFF) / 255.0;  
+ 
+  if (rr > 0.04045) {
+    rr = (rr + 0.055) / 1.055;
+    rr = Math.pow(rr, 2.4);
+  } else {
+    rr = rr / 12.92;
+  }
+  if (gg > 0.04045) {
+    gg = (gg + 0.055) / 1.055;
+    gg = Math.pow(gg, 2.4);
+  } else {
+    gg = gg / 12.92;
+  }
+  if (bb > 0.04045) {
+    bb = (bb + 0.055) / 1.055;
+    bb = Math.pow(bb, 2.4);
+  } else {
+    bb = bb / 12.92;
+  }
+ 
+  bb *= 100.0;
+  rr *= 100.0;
+  gg *= 100.0;
+ 
+  result[0] = rr * 0.4124 + gg * 0.3576 + bb * 0.1805;
+  result[1] = rr * 0.2126 + gg * 0.7152 + bb * 0.0722;
+  result[2] = rr * 0.0193 + gg * 0.1192 + bb * 0.9505;
+ 
+  return result;
+}
+ 
+//********************************* 
+double [] xyz2lab(double[] xyz) 
+{
+  double[] result = new double[3];
+
+  // luminance values
+  double x = xyz[0] / 95.047;
+  double y = xyz[1] / 100.0;
+  double z = xyz[2] / 108.8900;
+ 
+  if (x > 0.008856) {
+    x = Math.pow(x, 1.0/3.0);
+  } else {
+    x = 7.787*x + 16.0/116.0;
+  }
+  if (y > 0.008856) {
+    y = Math.pow(y, 1.0/3.0);
+  } else {
+    y = (7.787*y) + (16.0/116.0);
+  }
+  if (z > 0.008856) {
+    z = Math.pow(z, 1.0/3.0);
+  } else {
+    z = 7.787*z + 16.0/116.0;
+  }
+ 
+  result[0] = 116.0*y - 16.0;
+  result[1] = 500.0*(x-y);
+  result[2] = 200.0*(y-z);
+ 
+  return result;
+}
+
+//********************************* 
+boolean isNaN(double x)
+{
+  return (x != x);
+}  
+
+
+-----------
+Random-walk
+-----------
+
+Una passeggiata casuale (random-walk) è un processo che descrive un percorso che consiste in una successione di passaggi casuali su uno spazio matematico (in questo caso in un piano cartesiano).
+
+L'approccio è quello di costruire una lista di punti visitati dalla passeggiata con associato il numero di volte che si è passati sul quel punto (frequenza). Poi convertiamo i punti nel formato di ImageMagick e creiamo le immagini finali.
+
+La seguente funzione genera una lista con elementi della seguente struttura:
+
+  ((x y) frequenza)
+
+dove x,y = coordinate di un punto della camminata
+     frequenza = numero di passaggi sul punto
+
+(define (rnd-walk start iter)
+  (local (pos moves path unici freq min-x min-y start-x start-y out)
+    ; inizializzazione generatore numeri random
+    (seed (time-of-day))
+    ; mosse possibili: -1 o +1 lungo x o lungo y
+    (setq moves '(-1 +1))
+    ; posizione iniziale
+    (setq pos start)
+    ; lista dei punti visitati (anche quelli multipli)
+    (setq path '())
+    ; posizione iniziale visitata
+    (push pos path -1)
+    ; inizio della passeggiata...
+    (for (i 1 iter)
+      ; aggiorna coordinate x o y (pos)
+      (++ (pos (rand 2)) (moves (rand 2)))
+      ; aggiorna la lista del percorso
+      (push pos path -1)
+    )
+    ; calcola i valori per la traslazione dei punti
+    ; sul quadrante positivo
+    (setq min-x (apply min (map first path)))
+    (setq min-y (apply min (map last path)))
+    ;(println min-x { } min-y)
+    ; traslazione dei punti
+    ; (solo se min-x e/o min-y minori di zero)
+    ; e calcolo della posizione iniziale dopo la traslazione
+    (setq start-x (start 0))
+    (setq start-y (start 1))
+    (cond ((and (< min-x 0) (< min-y 0))
+           (setq start-x (abs min-x))
+           (setq start-y (abs min-y))
+           (setq path (map (fn(n) (list (add (abs min-x) (n 0)) (add (abs min-y) (n 1)))) path)))
+          ((< min-x 0)
+           (setq start-x (abs min-x))
+           (setq path (map (fn(n) (list (add (abs min-x) (n 0)) (n 1))) path)))
+          ((< min-y 0)
+           (setq start-y (abs min-y))
+           (setq path (map (fn(n) (list (n 0) (add (abs min-y) (n 1)))) path)))
+    )
+    (println start-x { } start-y)
+    ; crea lista con elementi del tipo: (frequenza (x y))
+    (setq unici (unique path))
+    (setq freq (count unici path))
+    (setq out (sort (map list unici freq)))
+    (push (list (list start-x start-y) 1) out)
+    out
+  ))
+
+(rnd-walk '(0 0) 10)
+;-> 2 0
+;-> (((2 0) 1) ((0 2) 1) ((0 3) 1) ((1 1) 1) ((1 2) 2) 
+;->  ((1 3) 2) ((2 0) 1) ((2 1) 1) ((2 2) 1) ((2 3) 1))
+
+Adesso dobbiamo scrivere la funzione che converte i punti nel formato di ImageMagick (file di testo). Usiamo due metodi per applicare il colore ai punti:
+1) colore uguale per tutti i punti (nero con alpha=50%)
+2) colore che va dal rosso (255 0 0) al blu (0 0 255) in funzione della frequenza (anche alpha varia).
+
+Per questo secondo caso usiamo le seguenti funzioni per calcolare il colore:
+
+(define (lerpRGB c1 c2 t)
+  (let ((r1 (c1 0)) (g1 (c1 1)) (b1 (c1 2))
+        (r2 (c2 0)) (g2 (c2 1)) (b2 (c2 2)))
+    (list (int (add r1 (mul (sub r2 r1) t)))
+          (int (add g1 (mul (sub g2 g1) t)))
+          (int (add b1 (mul (sub b2 b1) t))))))
+
+(lerpRGB '(0 0 0) '(255 255 255) 0.5)
+;-> (127 127 127)
+
+(define (make-col num max-num)
+  (push (int (mul (div num max-num) 255))
+        (lerpRGB '(255 0 0) '(0 0 255) (div num max-num)) -1))
+
+(make-col 10 60)
+;-> (212 0 42 42)
+
+Adesso scriviamo la funzione per creare il file di testo per ImageMagick:
+
+(define (walk-IM lst-freq file-str tipo)
+  (local (outfile x-width y-height max-f line r g b alpha)
+    ; calcolo dimensioni immagine
+    (setq x-width (+ 1 (apply max (map (fn(n) (n 0 0)) lst-freq))))
+    (setq y-height (+ 1 (apply max (map (fn(n) (n 0 1)) lst-freq))))
+    ; calcolo frequenza massima
+    (setq max-f (apply max (map (fn(n) (n 1)) lst-freq)))
+    ; scrittura del file in formato ImageMagick
+    (setq outfile (open file-str "write"))
+    (print outfile { }) ; handle del file
+    (write-line outfile (string "# ImageMagick pixel enumeration: "
+                (string x-width) "," (string y-height) ",256,rgba"))
+    (dolist (el lst-freq)
+      ; (el 0 0) --> x
+      ; (el 0 0) --> y
+      ; (el 1)   --> freq
+      ; Assegna  il colore
+      (if (= tipo 0)
+          ; colore nero - alpha=50%
+          (set 'r 0 'g 0 'b 0 'alpha 128) 
+          ; altrimenti calcola il colore in base alla frequenza
+          (map set '(r g b alpha) (make-col (el 1) max-f))
+      )
+      (setq line (string (el 0 0) ", " (el 0 1) ": ("
+                  r "," g "," b "," alpha ")"))
+      (write-line outfile line)
+    )
+    ; posizione iniziale: colore rosso (255,0,0)
+    (setq line (string (lst-freq 0 0 0) ", " (lst-freq 0 0 1) ": (255,0,0,255)"))
+    (write-line outfile line)
+    (close outfile)))
+
+Proviamo a fare quattro passeggiate, le prime due con 1 milione di passi e le altre due con 10 milioni di passi:
+
+Passeggiata 1
+-------------
+Creazione dei punti:
+(silent (setq w01 (rnd-walk '(0 0) 1e6)))
+;-> 1190 51
+
+Colore unico:
+(walk-IM w01 "w01a.txt" 0)
+;-> 3 true
+
+Colore in funzione della frequenza:
+(walk-IM w01 "w01b.txt")
+;-> 3 true
+
+Creazione file .png:
+(exec "convert w01aa.txt -background white -flatten w01aa.png")
+(exec "convert w01b.txt -background white -flatten w01b.png")
+
+Passeggiata 2
+-------------
+Creazione dei punti:
+(silent (setq w02 (rnd-walk '(0 0) 1e6)))
+;-> 137 81
+
+Colore unico:
+(walk-IM w02 "w02a.txt" 0)
+;-> 3 true
+
+Colore in funzione della frequenza:
+(walk-IM w02 "w02b.txt")
+;-> 3 true
+
+Creazione file .png:
+(exec "convert w02a.txt -background white -flatten w02a.png")
+(exec "convert w02b.txt -background white -flatten w02b.png")
+
+Passeggiata 3
+-------------
+Creazione dei punti:
+(silent (setq w03 (rnd-walk '(0 0) 1e7)))
+;-> 242 3818
+
+Colore unico:
+(walk-IM w03 "w03a.txt" 0)
+;-> 3 true
+
+Colore in funzione della frequenza:
+(walk-IM w03 "w03b.txt")
+;-> 3 true
+
+Creazione file .png:
+(exec "convert w03a.txt -background white -flatten w03a.png")
+(exec "convert w03b.txt -background white -flatten w03b.png")
+
+Passeggiata 4
+-------------
+Creazione dei punti:
+(silent (setq w04 (rnd-walk '(0 0) 1e7)))
+;-> 2404 1700
+
+Colore unico:
+(walk-IM w04 "w04a.txt" 0)
+;-> 3 true
+
+Colore in funzione della frequenza:
+(walk-IM w04 "w04b.txt")
+;-> 3 true
+
+Creazione dei file .png:
+(exec "convert w04a.txt -background white -flatten w04a.png")
+(exec "convert w04b.txt -background white -flatten w04b.png")
+
+Potete caricare le immagini in GIMP e poi applicare la mappa di colore desiderata:
+GIMP Menu: Colors->Map->Set Colormap...
+
+Versione finale
+---------------
+La lista "lst" contiene punti 2D nel seguente formato: ((x0 y0) (x1 y1) ... (xn yn)).
+
+(define (list-IM lst file-str col1 col2 tipo)
+  (local (min-x min-y unique-points lst-freq x-width y-height
+          min-f max-f outfile line r g b alpha)
+    ; calcola i valori per la traslazione dei punti
+    ; sul quadrante positivo
+    (setq min-x (apply min (map first lst)))
+    (setq min-y (apply min (map last lst)))
+    (println "min-x = " min-x)
+    (println "min-y = " min-y)
+    ; traslazione dei punti
+    ; (solo se min-x e/o min-y minori di zero)
+    (cond ((and (< min-x 0) (< min-y 0))
+           (setq lst (map (fn(n) (list (add (abs min-x) (n 0)) (add (abs min-y) (n 1)))) lst)))
+          ((< min-x 0)
+           (setq lst (map (fn(n) (list (add (abs min-x) (n 0)) (n 1))) lst)))
+          ((< min-y 0)
+           (setq lst (map (fn(n) (list (n 0) (add (abs min-y) (n 1)))) lst)))
+    )
+    ; crea lista delle frequenze con elementi del tipo: ((x y) frequenza)
+    (setq unique-points (unique lst))
+    (setq lst-freq (count unique-points lst))
+    (setq lst-freq (sort (map list unique-points lst-freq)))
+    ; calcolo dimensioni immagine
+    (setq x-width (+ 1 (apply max (map (fn(n) (n 0 0)) lst-freq))))
+    (setq y-height (+ 1 (apply max (map (fn(n) (n 0 1)) lst-freq))))
+    ; calcolo frequenza massima
+    (setq min-f (apply min (map (fn(n) (n 1)) lst-freq)))
+    (setq max-f (apply max (map (fn(n) (n 1)) lst-freq)))
+    (println "min-f = " min-f)
+    (println "max-f = " max-f)
+    ; scrittura del file in formato ImageMagick
+    (setq outfile (open file-str "write"))
+    (print "handle = " outfile { - }) ; handle del file
+    (write-line outfile (string "# ImageMagick pixel enumeration: "
+                x-width "," y-height ",256,rgba"))
+    (dolist (el lst-freq)
+      ; (el 0 0) --> x
+      ; (el 0 0) --> y
+      ; (el 1)   --> freq
+      ; Assegna  il colore
+      (cond ((= tipo 0) ; colore nero - alpha=100%
+             (set 'r 0 'g 0 'b 0 'alpha 255))
+            ((= tipo 1) ; colore nero - alpha=50%
+             (set 'r 0 'g 0 'b 0 'alpha 128))
+            (true ; gradiente colori (dal col1 a col2) in base alla frequenza
+             (map set '(r g b alpha) (make-col col1 col2 (el 1) min-f max-f)))
+      )
+      (setq line (string (el 0 0) ", " (el 0 1) ": ("
+                  r "," g "," b "," alpha ")"))
+      (write-line outfile line)
+    )
+    (close outfile)))
+
+(define (lerpRGB c1 c2 t)
+  (let ((r1 (c1 0)) (g1 (c1 1)) (b1 (c1 2))
+        (r2 (c2 0)) (g2 (c2 1)) (b2 (c2 2)))
+    (list (int (add r1 (mul (sub r2 r1) t)))
+          (int (add g1 (mul (sub g2 g1) t)))
+          (int (add b1 (mul (sub b2 b1) t))))))
+
+(lerpRGB '(0 0 0) '(255 255 255) 0.5)
+;-> (127 127 127)
+
+(define (make-col col1 col2 num min-num max-num)
+  ;(push 255
+  (push (int (mul (div num max-num) 255))
+        (lerpRGB col1 col2 (div num max-num)) -1))
+
+(make-col '(0 0 0) '(255 255 255) 128 0 255)
+;-> (128 128 128 128)
+
+Funzione che genera i punti di una passeggiata casuale su un piano cartesiano 2D:
+
+(define (rnd-walk start iter)
+  (local (pos moves path)
+    ; inizializzazione generatore numeri random
+    (seed (time-of-day))
+    ; mosse possibili: -1 o +1 lungo x o lungo y
+    (setq moves '(-1 +1))
+    ; posizione iniziale
+    (setq pos start)
+    ; lista dei punti visitati (anche quelli multipli)
+    (setq path '())
+    ; posizione iniziale visitata
+    (push pos path -1)
+    ; inizio della passeggiata...
+    (for (i 1 iter)
+      ; aggiorna coordinate x o y (pos)
+      (++ (pos (rand 2)) (moves (rand 2)))
+      ; aggiorna la lista del percorso
+      (push pos path -1)
+    )
+    path))
+
+(time (setq walk (rnd-walk '(0 0) 1e7)))
+;-> 2478.029
+
+(time (list-IM walk "walk.txt" '(100 100 0) '(255 10 10)))
+;-> min-x = -484
+;-> min-y = -2791
+;-> min-f = 1
+;-> max-f = 73
+;-> handle = 3 - 61903.019
+(exec "convert walk.txt walk-tr.png")
+(exec "convert walk.txt -background white -flatten walk.png")
 
 =============================================================================
 

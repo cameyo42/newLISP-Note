@@ -4591,7 +4591,6 @@ Per primo scriviamo una funzione che restituisce il percorso dell'agente, cioè 
 Simuliamo una passeggiata di 10 passi partendo da 0,0:
 
 (rnd-walk '(0 0) 10)
-;-> (5 3)
 ;-> ((0 0) (0 1) (1 1) (1 2) (2 2) (3 2) (3 3) (3 2) (4 2) (4 3) (5 3))
 
 Con la lista di tutti i punti visitati dall'agente, possiamo cercare quello che ci interessa.

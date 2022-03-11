@@ -1088,6 +1088,10 @@ NOTE LIBERE 7
   Simulazione del lancio di dadi
   Creazione di immagini con ImageMagick
   Attrattore di Clifford
+  Controllare se un numero è NaN (Not a Number)
+  Interpolazione dei colori
+  Distanza tra due colori
+  Random-walk
 
 APPENDICI
 =========
