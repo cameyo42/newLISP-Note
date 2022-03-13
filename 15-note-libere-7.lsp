@@ -7494,8 +7494,6 @@ Funzione che simula il lancio dei dadi:
 -------------------------------------
 Creazione di immagini con ImageMagick
 -------------------------------------
-(real-path)
-(change-dir "F:\\Lisp-Scheme\\newLisp\\MAX\\clifford\\all")
 
 https://imagemagick.org/
 ImageMagick è un programma freeware e multipiattaforma che viene usato per creare, modificare, comporre o convertire immagini digitali.
@@ -7584,11 +7582,12 @@ Adesso vediamo un semplice esempio scrivendo una funzione che crea un'immagine c
     ; intestazione del file
     (write-line outfile (string "# ImageMagick pixel enumeration: "
                 width "," height ",256,rgba"))
-    (setq alpha 255) ; fixed alpha
+    ;(setq alpha 255) ; fixed alpha
     ; random color pixel
     (for (x 0 (- width 1))
       (for (y 0 (- height 1))
         (map set '(r g b) (rand 255 3))
+        (setq alpha (rand 256)) ; random alpha
         (setq line (string x ", " y ": (" r "," g "," b "," alpha ")"))
         (write-line outfile line)
       )
@@ -7602,6 +7601,8 @@ Generiamo il file di testo che rappresenta l'immagine (64x64):
 Convertiamo il file di testo in una immagine con ImageMagick:
 
 (exec "convert casual.txt -background white -flatten casual.png")
+
+Nota: (exec "convert casual.txt casual.png") produce risultati differenti (trasparente senza background) solo se i colori hanno un alpha diversa da 255.
 
 Il file "casual.png" si trova nella cartella "data".
 
@@ -7635,6 +7636,7 @@ L'algoritmo per creare i punti di un attrattore è il seguente:
    a = -1.4, b = 1.6,  c = 1.0,  d = 0.7
    a = 1.6,  b = -0.6, c = -1.2, d = 1.6
    a = 1.5,  b = -1.8, c = 1.6,  d = 0.9
+   a = 1.7,  b = 1.7,  c = 0.6,  d = 1.2
    a = -1.7, b = 1.3,  c = -0.1, d = -1.2
    a = -1.7, b = 1.8,  c = -1.9, d = -0.4
    a = -1.8, b = -2.0, c = -0.5, d = -0.9
@@ -8366,18 +8368,23 @@ La lista "lst" contiene punti 2D nel seguente formato: ((x0 y0) (x1 y1) ... (xn 
     (println "max-f = " max-f)
     ; scrittura del file in formato ImageMagick
     (setq outfile (open file-str "write"))
-    (print "handle = " outfile { - }) ; handle del file
+    (println "handle = " outfile) ; handle del file
     (write-line outfile (string "# ImageMagick pixel enumeration: "
                 x-width "," y-height ",256,rgba"))
     (dolist (el lst-freq)
       ; (el 0 0) --> x
       ; (el 0 0) --> y
       ; (el 1)   --> freq
-      ; Assegna  il colore
-      (cond ((= tipo 0) ; colore nero - alpha=100%
-             (set 'r 0 'g 0 'b 0 'alpha 255))
-            ((= tipo 1) ; colore nero - alpha=50%
-             (set 'r 0 'g 0 'b 0 'alpha 128))
+      ; Assegna il colore ai punti
+      (cond ((= tipo 0) ; random color - alpha = 99.9%
+             (setq alpha 254)
+             (map set '(r g b) (rand 256 3)))
+            ((= tipo 1) ; colore 1 - alpha = 99.9%
+             (setq alpha 254)
+             (set 'r (col1 0) 'g (col1 1) 'b (col1 2)))
+            ((= tipo 2) ; colore 2 - alpha = 99.9%
+             (setq alpha 254)
+             (set 'r (col2 0) 'g (col2 1) 'b (col2 2)))
             (true ; gradiente colori (dal col1 a col2) in base alla frequenza
              (map set '(r g b alpha) (make-col col1 col2 (el 1) min-f max-f)))
       )
@@ -8439,6 +8446,144 @@ Funzione che genera i punti di una passeggiata casuale su un piano cartesiano 2D
 ;-> handle = 3 - 61903.019
 (exec "convert walk.txt walk-tr.png")
 (exec "convert walk.txt -background white -flatten walk.png")
+
+Un risultato tra le tante prove: "random-walk.png" nella cartella "data".
+
+
+-----------------------------------------
+Script e argomenti della linea di comando
+-----------------------------------------
+
+newLISP permette di creare un file eseguibile (exe) partendo da uno script con il seguente comando dal Command Prompt:
+
+  newlisp -x "script.exe" "script.nl"
+
+Possiamo scrivere una funzione per crearlo dalla REPL:
+
+(define (make-exe file-lsp file-exe)
+  (local (cmd)
+    (setq cmd (string "newlisp -x " file-lsp " " file-exe))
+    (println cmd)
+    (exec cmd)
+  ))
+
+Il file "script.nl" contiene il seguente script:
+
+------------------------------------------------
+; script.nl
+; only for Windows
+; Command line arguments of a script
+(define (info)
+  (setq dir (real-path))
+  (println "Directory corrente: " dir)
+  ; argomenti della linea di comando
+  (setq argv (main-args)) ; argument values
+  (println "Linea di comando: " argv)
+  (setq argc (length argv)) ; argument count
+  (println "Numero di argomenti: " argc)
+  (if (> argc 1) (begin
+      ; Check running mode of script
+      (cond ((find "newlisp" (argv 0))
+            ; running script.lsp with newlisp.exe
+            (setq exe (argv 0))
+            (setq script (argv 1)))
+            (true 
+            ; running script.exe
+            (setq exe (argv 0))
+            (setq script nil))
+      )
+      (println "Nome eseguibile: " exe)
+      (println "Nome script: " script)
+  ))
+  ; lista di tutti i parametri
+  (map (fn(x) (println "arg"$idx " = " x)) argv)
+  )
+
+(info)
+; don't exit when script is loaded 
+; from REPL with "load"
+(if (> argc 1) (exit))
+------------------------------------------------
+
+Impostiamo la cartella corrente dove si trova lo script:
+
+(change-dir "F:\\newLisp\\script")
+(real-path)
+
+Creiamo lo script eseguibile con il seguente comando:
+
+(make-exe "script.nl" "script.exe")
+
+
+
+
+Adesso, dal Command Prompt, eseguiamo "script.exe" oppure "script.nl" in diversi modi e vediamo come cambiano gli argomenti della linea di comando all'interno dello script stesso:
+
+1) Tramite newlisp eseguiamo lo script "script.nl" (con tre parametri)
+
+  newlisp.exe script.nl 1 2 3
+
+Con il seguente output:
+;-> Linea di comando: ("newlisp.exe" "script.nl" "1" "2" "3")
+;-> Numero di argomenti: 5
+;-> Nome eseguibile: newlisp.exe
+;-> Nome script: script.nl
+;-> arg0 = newlisp.exe
+;-> arg1 = script.nl
+;-> arg2 = 1
+;-> arg3 = 2
+;-> arg4 = 3
+
+2) Eseguiamo lo script eseguibile "script.exe" (con tre parametri)
+
+  script.exe 1 2 3 
+
+Con il seguente output:
+;-> Directory corrente: f:\Lisp-Scheme\newLisp\MAX\script
+;-> Linea di comando: ("script.exe" "1" "2" "3")
+;-> Numero di argomenti: 4
+;-> Nome eseguibile: script.exe
+;-> Nome script: nil
+;-> arg0 = script.exe
+;-> arg1 = 1
+;-> arg2 = 2
+;-> arg3 = 3
+
+3) Eseguiamo lo "script.nl" sfruttando l'associazione di file di windows:
+
+   script.nl 1 2 3
+
+Con il seguente output:
+;-> Directory corrente: f:\Lisp-Scheme\newLisp\MAX\script
+;-> Linea di comando: ("C:\\newlisp\\newlisp.exe" "F:\\Lisp-Scheme\\newLisp\\MAX\\script\\script.nl" "1"
+;->  "2" "3")
+;-> Numero di argomenti: 5
+;-> Nome eseguibile: C:\newlisp\newlisp.exe
+;-> Nome script: F:\Lisp-Scheme\newLisp\MAX\script\script.nl
+;-> arg0 = C:\newlisp\newlisp.exe
+;-> arg1 = F:\Lisp-Scheme\newLisp\MAX\script\script.nl
+;-> arg2 = 1
+;-> arg3 = 2
+;-> arg4 = 3
+
+Nota: per associare i file .nl con newlisp.exe ho usato Total Commander con la seguente impostazione:
+
+  newLISP file ("C:\newlisp\newlisp.exe" "%1" %*)
+  newLISP file (C:\newlisp\newlisp.exe "1" "%1")
+
+Uso l'estensione .nl per gli script che dovranno essere convertiti in eseguibili (.exe) e l'estensione .lsp per gli script che utilizzo dalla REPL.
+
+4) Utilizzando la REPL utilizziamo la funzione "load":
+
+(load "script.nl")
+
+;-> Directory corrente: F:\Lisp-Scheme\newLisp\MAX\script
+;-> Linea di comando: ("newlisp.exe")
+;-> Numero di argomenti: 1
+;-> arg0 = newlisp.exe
+;-> nil
+
+Come si nota, i valori dei parametri della linea di comando nello script variano in base alla modalità che viene usata per eseguire lo script. Questo comportamento deve essere considerato quando usiamo gli argomenti all'interno dello script.
 
 =============================================================================
 

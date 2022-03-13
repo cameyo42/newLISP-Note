@@ -1092,6 +1092,7 @@ NOTE LIBERE 7
   Interpolazione dei colori
   Distanza tra due colori
   Random-walk
+  Script e argomenti della linea di comando
 
 APPENDICI
 =========
