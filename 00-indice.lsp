@@ -1093,6 +1093,8 @@ NOTE LIBERE 7
   Distanza tra due colori
   Random-walk
   Script e argomenti della linea di comando
+  Creazione di una serie di colori
+  Traslazione e scalatura di punti
 
 APPENDICI
 =========

@@ -3667,7 +3667,7 @@ float Q_rsqrt( float number )
     i  = 0x5f3759df - ( i >> 1 );               // what the f*ck?
     y  = * ( float * ) &i;
     y  = y * ( threehalfs - ( x2 * y * y ) );   // 1st iteration
-//	y  = y * ( threehalfs - ( x2 * y * y ) );   // 2nd iteration, this can be removed
+//  y  = y * ( threehalfs - ( x2 * y * y ) );   // 2nd iteration, this can be removed
 
     return y;
 }
@@ -8584,6 +8584,232 @@ Uso l'estensione .nl per gli script che dovranno essere convertiti in eseguibili
 ;-> nil
 
 Come si nota, i valori dei parametri della linea di comando nello script variano in base alla modalità che viene usata per eseguire lo script. Questo comportamento deve essere considerato quando usiamo gli argomenti all'interno dello script.
+
+
+--------------------------------
+Creazione di una serie di colori
+--------------------------------
+
+Vediamo un metodo per generare un file .png con una serie di colori.
+Utilizziamo il modulo "guiserver.lsp" che contiene funzione per la creazione di GUI e grafica 2D.
+
+Funzione che genera un colore da un numero n:
+
+(define (c-new-color n , r g b)
+  (set 'r (round (div (/ n 100) 9) -1)
+       'n (% n 100)
+       'g (round (div (/ n 10) 9) -1)
+       'b (round (div (% n 10) 9) -1))
+  (list r g b)
+)
+
+Poi utilizziamo il seguente script per creare l'immagine .png con N=1000 colori:
+
+(load (append (env "NEWLISPDIR") "/guiserver.lsp"))
+(gs:init)
+(gs:frame 'Colors 0 0 1700 950 "colors") ; crea finestra
+(gs:set-border-layout 'Colors)
+(gs:canvas 'MyCanvas 'Colors) ; crea canvas grafico
+(gs:add-to 'Colors 'MyCanvas "center") 
+(gs:set-background 'MyCanvas gs:white) ; colore background canvas
+(gs:set-paint gs:black) ; default color (if not specified in shape or text)
+(set 'R 15) ; raggio del cerchio di colore
+(set 'x -15 'y -20) ; posizione del cerchio
+; ciclo per la creazione dei colori
+(dotimes (N 1000)
+  (set 'x (add x 30))
+  (if (= (% N 56) 0) ; nuova riga
+    (set 'x 15 'y (add y 50)) ; posizione corrente del cerchio
+  )
+  (set 'c-curr (c-new-color N)) ; crea colore
+  (gs:fill-circle 'C x y R c-curr) ; crea cerchio
+  (gs:draw-text 'T (string N) (- x 10) (+ y 25) gs:black) ; crea testo
+)
+(gs:set-visible 'Colors true) ; rende visibile la finestra
+(gs:export "color1000.png") ; esporta la finestra come file .png
+(gs:listen) ; exit application when the guiserver exit
+
+Possiamo trovare il file "color1000.png" nella cartella "data".
+
+Nota: guiserver.lsp è molto interessante e necessita di un capitolo a parte (forse in futuro...).
+
+
+--------------------------------
+Traslazione e scalatura di punti
+--------------------------------
+
+Problema: trasferire i punti contenuti in un rettangolo (finestra) in un altro rettangolo (finestra). In altre parole si tratta delle operazioni di traslazione e scalatura di punti nel piano cartesiano.
+
+Finestra di partenza: (x-min, x-max, y-min, y-max)
+Punti di partenza: (x, y)
+Finestra di arrivo: (v-min, v-max, w-min, w-max)
+Punti di arrivo: (v, w)
+
+Algoritmo:
+Calcolare: delta-x = x-max - x-min, delta-y = x-max - x-min
+Calcolare: delta-v = v-max - v-min, delta-w = w-max - w-min
+Calcolare: scale-x = delta-v/delta-x
+Calcolare: scale-y = delta-w/delta-y
+Calcolare: scale = min(scale-x, scale-y) (mantiene le proporzioni)
+
+Formula per le coordinate nei nuovi punti traslati e scalati:
+  v = v-min + (x - xmin) * scale
+  w = w-min + (y - ymin) * scale
+
+Vediamo un esempio:
+
+Finestra di partenza
+(setq x-min -20)
+(setq x-max -10)
+(setq y-min -20)
+(setq y-max -10)
+
+Finestra di arrivo
+(setq v-min 10)
+(setq v-max 50)
+(setq w-min 10)
+(setq w-max 20)
+
+Creazione dei punti della finestra di partenza:
+(setq pts '())
+(push (list x-min y-min) pts -1)
+(push (list x-min y-max) pts -1)
+(push (list x-max y-min) pts -1)
+(push (list x-max y-max) pts -1)
+(push '(-15 -12) pts -1)
+;-> ((-20 -20) (-20 -10) (-10 -20) (-10 -10) (-15 -12))
+
+Calcolo parametri di traslazione e scalatura:
+(setq delta-x (sub x-max x-min))
+(setq delta-y (sub y-max y-min))
+(setq delta-v (sub v-max v-min))
+(setq delta-w (sub w-max w-min))
+(setq scale-x (div delta-v delta-x))
+(setq scale-y (div delta-w delta-y))
+; keep proportion
+(setq scale (min scale-x scale-y))
+
+Calcolo delle nuove coordinate dei punti:
+(dolist (p pts)
+  ; formula di trasformazione delle coordinate
+  ; (traslazione e scalatura)
+  (setq v (add v-min (mul (sub (p 0) x-min) scale)))
+  (setq w (add w-min (mul (sub (p 1) y-min) scale)))
+  (println v "," w)
+)
+;-> 10,10
+;-> 10,20
+;-> 20,10
+;-> 20,20
+;-> 15,18
+
+Scriviamo la funzione finale:
+
+(define (move-pts pts x-min x-max y-min y-max v-min v-max w-min w-max)
+  (local (delta-x delta-y delta-v delta-w 
+         scale-x scale-y scale v w out)
+    ; calcolo parametri di traslazione e scalatura:
+    (setq delta-x (sub x-max x-min))
+    (setq delta-y (sub y-max y-min))
+    (setq delta-v (sub v-max v-min))
+    (setq delta-w (sub w-max w-min))
+    (setq scale-x (div delta-v delta-x))
+    (setq scale-y (div delta-w delta-y))
+    ; keep proportion
+    (setq scale (min scale-x scale-y))
+    ; calcolo delle nuove coordinate dei punti:
+    (dolist (p pts)
+      ; formula di trasformazione delle coordinate
+      ; (traslazione e scalatura)
+      (setq v (add v-min (mul (sub (p 0) x-min) scale)))
+      (setq w (add w-min (mul (sub (p 1) y-min) scale)))
+      ; (println v "," w)  
+      (push (list v w) out -1)
+    )
+    out))
+
+(move-pts pts -20 -10 -20 -10 10 50 10 20)
+;-> ((10 10) (10 20) (20 10) (20 20) (15 18))
+
+Per verificare la funzione creiamo i punti di un attrattore di Clifford e li visualizziamo con il modulo "guiserver.lsp".
+
+Funzione che genera un determinato numero di punti di un attrattore di Clifford:
+
+(define (clifford a b c d x0 y0 iter)
+  (local (out cur-x cur-y tmp-x tmp-y)
+    (setq cur-x x0)
+    (setq cur-y y0)
+    (setq out '())
+    (push (list cur-x cur-y) out -1)
+    (for (i 1 iter)
+      (setq tmp-x cur-x)
+      (setq tmp-y cur-y)
+      (setq cur-x (add (sin (mul a tmp-y)) (mul c (cos (mul a tmp-x)))))
+      (setq cur-y (add (sin (mul b tmp-x)) (mul d (cos (mul b tmp-y)))))
+      (push (list cur-x cur-y) out -1)
+    )
+    out))
+
+Calcoliamo due liste di punti:
+(silent (setq cli1 (clifford 1.5 -1.8 1.6 0.9 1 1 1e6)))
+(silent (setq cli2 (clifford -1.4 1.6 1.0 0.7 1 1 1e6)))
+
+Calcoliamo i valori min e max delle coordinate:
+
+(setq x-min (apply min (map first cli1)))
+;-> -1.414198192056608
+(setq x-max (apply max (map first cli1)))
+;-> 1.979049915412105
+(setq y-min (apply min (map last cli1)))
+;-> -1.30441834932098
+(setq y-max (apply max (map last cli1)))
+;-> 1.531612564048264
+
+Trasliamo e scaliamo i punti con la funzione "move-pts":
+
+(silent (setq points (move-pts cli1 x-min x-max y-min y-max 10 1850 10 950)))
+(slice points 0 5)
+;-> ((852.7468822251383 814.4249994149275) 
+;->  (218.9992905664541 807.1410865893224) 
+;->  (306.7889757764142 129.5673810757355)
+;->  (1089.81411858894 199.1445361433653)
+;->  (563.9852922103936 702.6947309382435))
+
+I punti devono avere coordinate intere per essere disegnati come pixel:
+
+(silent (setq points (map (fn(n) (list (int (n 0)) (int (n 1)))) points)))
+(slice points 0 5)
+;-> ((852 814) (218 807) (306 129) (1089 199) (563 702))
+
+Adesso usiamo il modulo "guiserver.lsp" per visualizzare i punti e salvare l'immagine finale:
+
+(setq width 1900)
+(setq height 1000)
+; importa le routine del server grafico
+(load (append (env "NEWLISPDIR") "/guiserver.lsp"))
+(gs:init) ; inizializza il server grafico
+(gs:frame 'Test 0 0 width height "colors") ; crea finestra "Test"
+(gs:set-border-layout 'Test) ; imposta tipo della finestra
+(gs:canvas 'MyCanvas 'Test) ; crea canvas grafico "MyCanvas"
+(gs:add-to 'Test 'MyCanvas "center") ; aggiunge il canvas alla finestra
+(gs:set-background 'MyCanvas gs:white) ; colore background canvas
+(gs:set-paint gs:black) ; default color (if not specified in shape or text)
+(setq r 1) ; raggio del cerchio di colore
+; ciclo per la creazione dei colori
+(dolist (p points)
+  (setq x (p 0))  ; x del punto
+  (setq y (p 1))  ; y del punto  
+  (gs:fill-circle 'C x y r) ; crea punto (nero)
+  ;(gs:draw-text 'T (string x " " y) (- x 10) (+ y 25) gs:black) ; crea testo
+)
+(gs:set-visible 'Test true) ; rende visibile il canvas
+(gs:export "cli001.png") ; esporta la finestra come file .png
+;(gs:listen) ; exit application when the guiserver exit
+(gs:listen true) ; don't exit application when the guiserver exit
+
+Attendere pochi secondi per vedere il risultato.
+
+Note: l'immagine è riflessa lungo l'asse y perchè nel monitor lo 0,0 è in alto a sinistra (cioè la coordinata y cresce dall'alto verso il basso).
 
 =============================================================================
 
