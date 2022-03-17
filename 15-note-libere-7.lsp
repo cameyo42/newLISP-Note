@@ -8811,5 +8811,300 @@ Attendere pochi secondi per vedere il risultato.
 
 Note: l'immagine è riflessa lungo l'asse y perchè nel monitor lo 0,0 è in alto a sinistra (cioè la coordinata y cresce dall'alto verso il basso).
 
+
+--------------------
+SameGame - ChainShot
+--------------------
+
+SameGame (ChainShot) si gioca su una griglia rettangolare, inizialmente riempita con blocchi colorati posizionati a caso. Selezionando un gruppo di blocchi adiacenti dello stesso colore, un giocatore può rimuoverli dalla griglia.
+I blocchi che non sono più supportati cadranno verso il basso, e una colonna senza blocchi scorrerà sempre a sinistra. L'obiettivo del gioco è rimuovere il maggior numero di blocchi possibile.
+Ci sono tre livelli di difficoltà: 3 colori per principianti, 4 colori per i giocatori intermedi e 5 colori per esperti. Non ci sono vincoli di tempo durante il gioco.
+
+Scriviamo una versione per di questo gioco per il terminale DOS.
+
+; Funzione per creare la lista dei colori
+(define (create-colors num-palette)
+  ; normal colors
+  (setq red "\027[0;31m")
+  (setq green "\027[0;32m")
+  (setq yellow "\027[0;33m")
+  (setq blue "\027[0;34m")
+  (setq magenta "\027[0;35m")
+  (setq cyan "\027[0;36m")
+  (setq black "\027[0;30m")
+  (define white "\027[0;37m")
+  ; bright colors
+  (setq red-b "\027[0;91m")
+  (setq green-b "\027[0;92m")
+  (setq yellow-b "\027[0;93m")
+  (setq blue-b "\027[0;94m")
+  (setq magenta-b "\027[0;95m")
+  (setq cyan-b "\027[0;96m")
+  (setq black-b "\027[0;90m")
+  (setq white-b "\027[0;97m")
+  ; restore color to default
+  (setq reset-color "\027[39;49m")
+  ;(println reset-color)
+  ; palettes of colors
+  (if (= num-palette 1)
+    (setq color '(red green yellow blue cyan black))
+    ;else
+    (setq color '(red-b green-b yellow-b blue-b cyan-b black))
+  )
+)
+
+; Funzione per creare una griglia casuale
+(define (create-grid row col num-colors)
+  (array-list (array row col (rand num-colors (* row col)))))
+
+; Funzione per visualizzare la griglia
+(define (show-grid grid)
+  (local (r c ch)
+    (setq ch "█")
+    (setq r (length grid))
+    (setq c (length (grid 0)))
+    (print "    ")
+    (for (i 0 (- c 1))
+      (print white (format "%-2d" i))
+    )
+    (println)
+    (for (i 0 (- r 1))
+      (print white (format "%4d" i))
+      (for (j 0 (- c 1))
+        (print (eval (color (grid i j))) ch)
+        (print (eval (color (grid i j))) ch)
+      )
+      (println)
+    )
+    (print reset-color)))
+
+;Funzione che mostra le regole del gioco
+(define (show-info)
+  (println "******************************************")
+  (println "******  SAME-GAME by cameyo (2022)  ******")
+  (println "******************************************")
+  (println "SameGame is played on a rectangular grid, ")
+  (println "initially filled with colored blocks placed at random.")
+  (println "By selecting a group of adjoining blocks of the same color, ")
+  (println "a player may remove them from the grid.")
+  (println "Blocks that are no longer supported will fall down, ")
+  (println "and a column without any blocks will always slides to the left.")
+  (println "The goal of the game is to remove as many blocks as possible.")
+  (println "There are 3 difficulty levels:")
+  (println "  3 colors for beginners")
+  (println "  4 colors for intermediate players")
+  (println "  5 colors for experts.")
+  (println "There are no time constraints during the game.")
+  (println "Good Luck!!! \n")
+)
+
+; Funzione che conta i blocchi vuoti in una gliglia
+(define (empty-count grid empty)
+  (local (rows cols vuoti)
+    (setq vuoti 0)
+    (setq rows (length grid))
+    (setq cols (length (grid 0)))
+    (for (r 0 (- rows 1))
+      (for (c 0 (- cols 1))
+        (if (= (grid r c) empty) (++ vuoti))
+      )
+    )
+    vuoti))
+
+; Funzione per inserimento di numeri interi da parte dell'utente
+(define (input-integer message min-val max-val)
+  (local (val)
+    (print message)
+    (until (and (integer? (setq val (int (read-line))))
+                (>= val min-val) (<= val max-val))
+    (print message)
+  )
+  (int (current-line))))
+
+; Funzione che verifica se il gioco è terminato
+(define (endgame? grid empty)
+  (local (rows cols val out)
+    (setq out true)
+    (setq rows (length grid))
+    (setq cols (length (grid 0)))
+    (for (r 0 (- rows 1))
+      (for (c 0 (- cols 1))
+                 ; blocco non vuoto
+        (if (and (not (= (grid r c) empty))
+                 ; blocco non isolato
+                 (not (alone? r c grid)))
+            (setq out nil)
+        )
+      )
+    )
+    out))
+
+; Funzione che verifica se un blocco è isolato, cioè se non ha alcun blocco adiacente (alto, basso, destra, sinistra) dello stesso colore:
+(define (alone? r c grid)
+  (local (rows cols val out)
+    (setq out true)
+    (setq rows (length grid))
+    (setq cols (length (grid 0)))
+    (setq val (grid r c))
+    ; basso
+    (if (< (+ r 1) rows)
+        (if (= val (grid (+ r 1) c))
+            (setq out nil)))
+    ; alto
+    (if (>= (- r 1) 0)
+        (if (= val (grid (- r 1) c))
+            (setq out nil)))
+    ; sinistra
+    (if (< (+ c 1) cols)
+        (if (= val (grid r (+ c 1)))
+            (setq out nil)))
+    ; destra
+    (if (>= (- c 1) 0)
+        (if (= val (grid r (- c 1)))
+            (setq out nil)))
+    out))
+
+; Funzione che, partendo da una cella (riga,colonna) modifica la cella 
+; e tutte le celle adiacenti nel colore nero 
+; (cioè sono eliminate perchè il colore nero è invisibile)
+(define (flood-fill grid r c new-value)
+  (local (old-value dir max-r max-c)
+    (setq max-r (length grid))
+    (setq max-c (length (grid 0)))
+    (setq dir '((0 1) (0 -1) (1 0) (-1 0)))
+    ;----------------------------------
+    ; recursive fill
+    (define (fill r c)
+    (catch
+      (local (new-r new-c)
+        (setq old-value (grid r c))
+        (if (= old-value new-value) (throw grid))
+        (setf (grid r c) new-value)
+        (for (i 0 (- (length dir) 1))
+          (setq new-r (+ r (dir i 0)))
+          (setq new-c (+ c (dir i 1)))
+          (cond ((or (< new-r 0) (>= new-r max-r) (< new-c 0) (>= new-c max-c)) nil)
+                ((!= (grid new-r new-c) old-value) nil)
+                (true (fill new-r new-c))
+          )
+        )
+        grid)))
+     ;----------------------------------
+     (fill r c)))
+
+; Funzione per compattare la nuova griglia dopo il flood-fill
+; usa una tecnica del tipo bubble-sort
+(define (compress grid value)
+  (local (rows cols change tr vuoti)
+    (setq rows (length grid))
+    (setq cols (length (grid 0)))
+    ;
+    ; scroll down empty block
+    ;
+    ; ciclo fino a che esistono scambi di blocchi
+    (do-while change
+      (setq change nil)
+      ; ciclo dal blocco in basso a destra per righe e colonne
+      (for (c (- cols 1) 0 -1)
+        (for (r (- rows 1) 0 -1)
+          ; blocco nero e riga > 0 e blocco sopra non-nero
+          (cond ((and (= (grid r c) value)
+                      (> r 0)
+                      (!= (grid (- r 1) c) value))
+                 (swap (grid r c) (grid (- r 1) c))
+                 ; scambio avvenuto
+                 (setq change true))
+          )
+        )
+      )
+    )
+    ; (setq debug grid)
+    ;
+    ; scroll columns to the left
+    ; (instead scroll up rows of the transpose)
+    ;
+    (setq tr (transpose grid))
+    (setq change nil)
+    ; ciclo fino a che esistono scambi di colonne
+    (do-while change
+      (setq change nil)
+      ; ciclo sulle righe della trasposta
+      (for (r 0 (- cols 2))
+        ; riga vuota?
+        (setq vuoti (first (count (list empty) (tr r))))
+        (cond ((and (= vuoti rows) ; tutta la riga vuota?
+                    (< r cols) ; riga valida?
+                    ; prossima riga non vuota?
+                    (!= (first (count (list empty) (tr (+ r 1)))) rows))
+               ; scambia le righe
+               (swap (tr r) (tr (+ r 1)))
+               ; scambio avvenuto
+               (setq change true))
+        )
+      )
+    )
+    (setq grid (transpose tr))
+    grid))
+
+; Funzione principale
+(define (samegame)
+  (local (score num-colors num-rows num-cols palette
+          cur-row cur-col empty)
+  ; show game information
+  (show-info)
+  ; Input user values for starting game
+  (setq num-colors (input-integer "Number of colors (3..5): " 3 5))
+  (setq num-rows (input-integer "Number of rows (height) (4..42): " 4 42))
+  (setq num-cols (input-integer "Number of columns (width) (4..42): " 4 42))
+  (setq palette (input-integer "Normal colors (1) or Bright colors (2): " 1 2))
+  ; define colors
+  (create-colors palette)
+  ; create table-grid
+  (setq table (create-grid num-rows num-cols num-colors))
+  ; color of empty block (5 = black)
+  (setq empty 5)
+  ; punteggio giocatore
+  (setq score 0)
+  ; game loop
+  (until (endgame? table empty)
+    ; show grid
+    (show-grid table)
+    ; calculate current score
+    ; (number of empty blocks)
+    (setq score (empty-count table empty))
+    (println "Score: " score)
+    ; user input: row and colum of a block
+    (setq input nil)
+    (until input
+      ; read input values of block row and column to select
+      (setq cur-row (input-integer (string "Block row (0.." (- num-rows 1) "): ") 0 (- num-rows 1)))
+      (setq cur-col (input-integer (string "Block col (0.." (- num-cols 1) "): ") 0 (- num-cols 1)))
+      ; check values
+      (if (or (= (table cur-row cur-col) empty) ; blocco vuoto?
+              (alone? cur-row cur-col table))   ; blocco isolato?
+          ; input error
+          (println "Block (" cur-row "," cur-col ") empty or fixed.")
+          ;else input ok
+          (setq input true)
+      )
+    )
+    ; fill table from selected block
+    (setq table (flood-fill table cur-row cur-col empty))
+    ; compress empty block (blocks down then columns left)
+    (setq table (compress table empty))
+  )
+  ; game end
+  (show-grid table)
+  (setq score (empty-count table empty))
+  (println "Perfect score: " (* num-rows num-cols))
+  (println "Your Score: " score)
+  'End-of-Game.))
+
+Facciamo una partita:
+
+(samegame)
+
+Buona fortuna!!!
+
 =============================================================================
 

@@ -330,8 +330,8 @@ ROSETTA CODE
 
 PROJECT EULERO
 ==============
-  Problemi 1..102
-
+  Problemi 1..102, 104, 112, 206
+  
 PROBLEMI VARI
 =============
   BubbleSort
@@ -1095,6 +1095,7 @@ NOTE LIBERE 7
   Script e argomenti della linea di comando
   Creazione di una serie di colori
   Traslazione e scalatura di punti
+  SameGame - ChainShot
 
 APPENDICI
 =========

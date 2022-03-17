@@ -109,6 +109,9 @@
 |   100    |  756872327473      |         -  |         0  |         -  |
 |   101    |  37076114526       |         -  |        70  |         -  |
 |   102    |  228               |         -  |         2  |         0  |
+|   104    |  329468            |         -  |     37978  |         0  |
+|   112    |  1587000           |         -  |      1732  |         0  |
+|   206    |  1389019170        |         -  |         2  |         -  |
 
 Sito web: https://projecteuler.net/archives
 
@@ -11928,6 +11931,277 @@ Un altro algoritmo semplice e veloce, chiamato metodo baricentrico, consiste nel
 
 (time 102)
 ;-> 0
+----------------------------------------------------------------------------
+
+
+============
+Problema 104
+============
+
+Bordi Pandigitali dei Fibonacci
+
+La sequenza di Fibonacci è definita dalla relazione di ricorrenza:
+
+F(n) = F(n−1) + F(n−2), dove F(1) = 1 e F(2) = 1.
+Si scopre che F(541), che contiene 113 cifre, è il primo numero di Fibonacci per il quale le ultime nove cifre sono 1-9 pandigitali (contengono tutte le cifre da 1 a 9, ma non necessariamente in ordine). E F(2749), che contiene 575 cifre, è il primo numero di Fibonacci per il quale le prime nove cifre sono 1-9 pandigitali.
+
+Dato che F(k) è il primo numero di Fibonacci per il quale le prime nove cifre e le ultime nove cifre sono 1-9 pandigitali, trovare k.
+
+Soluzione brute-force
+Generiamo la sequenza dei numeri di Fibonacci finché non ne raggiungiamo uno in cui le ultime 9 cifre (che possono essere estratte con modulo) sono pandigitali. Se troviamo un numero candidato, prendiamo le prime 9 cifre e controlliamo quelle. Questo metodo richiede l'utilizzo dei big-integer.
+============================================================================
+
+Funzione per verificare se un numero di 9 cifre è pandigitale:
+
+(define (pan9? n)
+  (cond ((or (< n 123456789) (> n 987654321) (!= 0 (% n 9))) nil)
+        (true
+          (let (lst '(0 -1 -1 -1 -1 -1 -1 -1 -1 -1))
+            (while (!= n 0)
+              (setf (lst (% n 10)) 1)
+              (setq n (/ n 10))
+            )
+            ;(println lst)
+            (if (ref '-1 lst) nil true)))))
+
+Funzione per il calcolo della potenza di due numeri big-integer:
+
+(define (pow-i num power)
+  (local (pot out)
+    (if (zero? power)
+        (setq out 1L)
+        (begin
+          (setq pot (pow-i num (/ power 2)))
+          (if (odd? power)
+              (setq out (* num pot pot))
+              (setq out (* pot pot)))
+        )
+    )
+    out))
+
+(define (e104)
+  (setq fb0 0L)
+  (setq fb1 1L)
+  (setq fb2 1L)
+  (setq taglio 1000000000L)
+  (setq n 2)
+  (setq trovato nil)
+  (until trovato
+    (++ n)
+    (setq fb0 (+ fb1 fb2))
+    (setq coda (% fb0 taglio))
+    (cond ((pan9? coda)
+           (setq digits (length fb0))
+           (cond ((> digits 9)
+                  ;(setq testa (/ fb0 (** 10 (- digits 9))))
+                  (setq testa (/ fb0 (pow-i 10L (- digits 9))))
+                  (if (pan9? testa) (setq trovato true)))
+           ))
+    )
+    (setq fb2 fb1)
+    (setq fb1 fb0)
+    ;(print n { })
+  )
+  ;(println fb0)
+  (println n { } testa { } coda)
+  (list n testa coda))
+
+(time (e104))
+;-> 329468 245681739L 352786941L
+;-> 37977.562 (quasi 38 secondi)
+----------------------------------------------------------------------------
+
+
+============
+Problema 112
+============
+
+Numery bouncy
+
+Partendo da sinistra a destra, se nessuna cifra viene superata dalla cifra alla sua sinistra, viene chiamato un numero crescente, ad esempio 134468.
+
+Allo stesso modo, se nessuna cifra viene superata dalla cifra alla sua destra, viene chiamato un numero decrescente, ad esempio 66420.
+
+Chiameremo un numero intero positivo che non aumenta né diminuisce un numero "bouncy" (rimbalzante), ad esempio 155349.
+
+Chiaramente non possono esserci numeri rimbalzanti al di sotto di cento, ma poco più della metà dei numeri al di sotto di mille (525) sono rimbalzanti. In effetti, il numero minimo per il quale la percentuale di numeri rimbalzanti raggiunge prima il 50% è 538.
+
+Sorprendentemente, i numeri rimbalzanti diventano sempre più comuni e quando raggiungiamo 21780 la proporzione di numeri rimbalzanti è pari al 90%.
+
+Trova il numero minimo per il quale la proporzione di numeri rimbalzanti è esattamente del 99%.
+============================================================================
+
+Soluzione brute-force
+
+Primo metodo per vedere se un numero è bouncy:
+
+(define (bouncy? num)
+  (local (incr decr ultimo prossimo continua)
+    (setq continua true)
+    (setq incr nil decr nil)
+    (setq ultimo (% num 10))
+    (setq num (/ num 10))
+    (while (and (> num 0) continua)
+      (setq prossimo (% num 10))
+      (setq num (/ num 10))
+      (if (< prossimo ultimo)
+          (setq incr true)
+          (if (> prossimo ultimo)
+              (setq decr true)))
+      (setq ultimo prossimo)
+      (if (and decr incr) (setq continua nil))
+    )
+    (and decr incr)))
+
+(define (e112)
+  (let ((bouncy 0) (i 99))
+    (while (< (mul bouncy 100) (mul i 99))
+      (++ i)
+      (if (bouncy? i) (++ bouncy))
+    )
+    i))
+
+(time (println (e112)))
+;-> 1587000
+;-> 1731.366
+
+Secondo metodo per vedere se un numero è bouncy:
+
+(define (int-lst num)
+  (let (out '())
+    (while (!= num 0)
+      (push (% num 10) out)
+      (setq num (/ num 10))) out))
+
+(define (bouncy? num)
+  (let (digits (int-lst num))
+    (not (or (apply >= digits) (apply <= digits)))))
+
+(time (println (e112)))
+> (time (println (e112)))
+;-> 1587000
+;-> 2014.022
+----------------------------------------------------------------------------
+
+
+============
+Problema 206
+============
+
+Quadrato nascosto
+
+Trova l'intero positivo univoco il cui quadrato ha la forma 1_2_3_4_5_6_7_8_9_0, dove ogni "_" è una singola cifra.
+============================================================================
+
+Proviamo ad applicare la forza-bruta (ciclo) e calcoliamo i limiti minimo e massimo del numero cercato:
+
+Valore minimo quando "_" vale "0":  1020304050607080900
+(sqrt 1020304050607080900)
+;-> 1010101010.10101
+
+Valore massimo quando "_" vale "9": 1929394959697989990
+(sqrt 1929394959697989990)
+;-> 1389026623.106264
+
+I limiti del numero cercato valgono: (x > 1010101010) e (x < 1389026623).
+
+Poichè l'ultima cifra del quadrato vale 0, allora anche la sua radice quadrata deve avere l'ultima cifra uguale a "0". Quindi il ciclo può avanzare di 10 per ogni step.
+
+I limiti del numero cercato valgono: (x > 1010101010) e (x < 1389026630).
+
+Controlliamo che non abbiamo bisogno dei big integer:
+
+(setq INT-MAX 9223372036854775807)
+(length INT-MAX)
+;-> 19
+(- INT-MAX 1020304050607080900)
+;-> 8203067986247694907
+(- INT-MAX 1929394959697989990)
+;-> 7293977077156785817
+
+Scriviamo la funzione finale:
+
+(define (e206 tipo)
+(catch
+  (local (start end step num)
+    (if (= tipo -1)
+      ; ciclo all'indietro
+      (set 'start 1389026630
+           'end 1010101010
+           'step -10)
+      ;else
+      ; ciclo in avanti
+      (set 'start 1010101010
+           'end 1389026630
+           'step 10)
+    )
+    ; ciclo brute-force
+    (for (i start end step)
+      ; quadrato
+      (setq num (string (* i i)))
+      ; check quadrato
+      (if (and (= (num 0) "1")
+              (= (num 2) "2")
+              (= (num 4) "3")
+              (= (num 6) "4")
+              (= (num 8) "5")
+              (= (num 10) "6")
+              (= (num 12) "7")
+              (= (num 14) "8")
+              (= (num 16) "9")
+              (= (num 18) "0"))
+           (begin
+            (println i { - } num)
+            (throw (list i num))))))))
+
+(time (e206 -1))
+;-> 1389019170 - 1929374254627488900
+;-> 1.966
+
+(time (e206 +1))
+;-> 1389019170 - 1929374254627488900
+;-> 35973.2
+
+(define (e206-2 tipo)
+(catch
+  (local (start end step num)
+    (if (= tipo -1)
+      ; ciclo all'indietro
+      (set 'start 138902663
+           'end 101010101
+           'step -1)
+      ;else
+      ; ciclo in avanti
+      (set 'start 101010101
+           'end 138902663
+           'step 1)
+    )
+    ; ciclo brute-force
+    (for (i start end step)
+      ; quadrato
+      (setq num (string (* i i)))
+      ; check quadrato
+      (if (and (= (num 0) "1")
+              (= (num 2) "2")
+              (= (num 4) "3")
+              (= (num 6) "4")
+              (= (num 8) "5")
+              (= (num 10) "6")
+              (= (num 12) "7")
+              (= (num 14) "8")
+              (= (num 16) "9"))
+              ;(= (num 18) "0"))
+           (begin
+            (println i { - } num)
+            (throw (list i num))))))))
+
+(time (e206-2 -1))
+;-> 1389019170 - 1929374254627488900
+;-> 1.658
+
+(time (e206-2 +1))
+;-> 1389019170 - 1929374254627488900
+;-> 34304.343
 ----------------------------------------------------------------------------
 
 =============================================================================
