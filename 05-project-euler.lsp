@@ -12016,7 +12016,7 @@ Funzione per il calcolo della potenza di due numeri big-integer:
 Problema 112
 ============
 
-Numery bouncy
+Numeri bouncy
 
 Partendo da sinistra a destra, se nessuna cifra viene superata dalla cifra alla sua sinistra, viene chiamato un numero crescente, ad esempio 134468.
 

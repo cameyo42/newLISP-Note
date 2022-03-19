@@ -1096,6 +1096,8 @@ NOTE LIBERE 7
   Creazione di una serie di colori
   Traslazione e scalatura di punti
   SameGame - ChainShot
+  Slow Sort
+  CriptoAritmetica
 
 APPENDICI
 =========

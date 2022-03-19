@@ -9106,5 +9106,692 @@ Facciamo una partita:
 
 Buona fortuna!!!
 
+
+---------
+Slow Sort
+---------
+
+Lo "slowsort" è un algoritmo di ordinamento ricorsivo che modifica gli elementi direttamente (on-place) ed è di tipo stabile, cioè non cambia l'ordine dei valori uguali.
+
+Questa è un'implementazione in pseudocodice:
+
+procedure slowsort(A[], i, j)          // Sort list A[i...j] in-place.
+    if i ≥ j then
+        return
+    m := floor( (i+j)/2 )
+    slowsort(A, i, m)                  // (1.1)
+    slowsort(A, m+1, j)                // (1.2)
+    if A[j] < A[m] then
+        swap A[j] , A[m]               // (1.3)
+    slowsort(A, i, j-1)                // (2)
+
+Ordina la prima metà, in modo ricorsivo (1.1).
+Ordina la seconda metà, in modo ricorsivo (1.2).
+Trova il massimo dell'intera lista confrontando i risultati di 1.1 e 1.2 e posizionalo alla fine dell'elenco (1.3).
+Ordina l'intero elenco (tranne il massimo che adesso si trova alla fine), in modo ricorsivo (2).
+
+La seguente implementazione richiede che la lista venga passata per riferimento:
+
+(define (slowsort lst i j)
+  (slowsort-aux lst 0 (- (length lst) 1)))
+
+(define (slowsort-aux lst i j)
+  (cond ((>= i j) 'end)
+        (true 
+            (setq m (int (floor (/ (+ i j) 2))))
+            (slowsort-aux lst i m)
+            (slowsort-aux lst (+ m 1) j)
+            (if (< (lst j) (lst m))
+                (swap (lst j) (lst m))
+            )
+            (slowsort-aux lst i (- j 1)))))
+
+Proviamo la funzione:
+
+(set 'a:a (randomize (sequence 1 15)))
+;-> (1 29 12 42 31 27 22 46 43 40 17 45 39 33 25 16 
+;->  20 30 23 15 50 34 26 24 11 35 13 41 4 2 7 44 28 
+;->  6 19 3 47 48 36 9 49 38 21 10 18 8 5 37 32 14)
+
+(slowsort a)
+;-> end
+
+a:a
+;-> (1 2 3 4 5 6 7 8 9 10 11 12 13 14 15)
+
+La complessità temporale di questo algoritmo vale: O(n) = 2*O(n/2) + O(n-1) + 1.
+Slowsort non è in tempo polinomiale, anche il caso migliore è peggiore del Bubble sort.
+
+Infatti per ordinare una lista di 25 elementi occorrono quasi 21 secondi:
+
+(set 'd:d (randomize (sequence 1 25)))
+;-> (3 17 5 13 24 6 23 4 12 22 2 14 21 8 19 20 10 7 1 15 16 9 11 18 25)
+
+(time (slowsort d))
+;-> 20872.33
+d:d
+;-> (1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25)
+
+
+----------------
+CriptoAritmetica
+----------------
+
+La criptoaritmetica è l'arte di risolvere puzzle costituiti da un'equazione matematica tra numeri sconosciuti, le cui cifre sono rappresentate da lettere dell'alfabeto. L'obiettivo è identificare la cifra associata ad ogni lettera. Il nome può essere esteso a puzzle che utilizzano simboli non alfabetici al posto delle lettere.
+L'equazione è un'operazione di base dell'aritmetica, come addizione, moltiplicazione o divisione.
+L'esempio classico presentato nel 1924 da Henry Dudeney è:
+
+    S E N D +
+    M O R E =
+  -----------
+  M O N E Y
+
+Ogni lettera rappresenta una cifra diversa e la cifra iniziale di un numero non deve essere zero.
+Un buon puzzle dovrebbe formare una frase compiuta (e preferibilmente avere una soluzione unica).
+
+Risolvere le seguenti operazioni di criptoaritmetica sapendo che ad ogni lettera corrisponde una cifra (0..9).
+
+----------------------------------------
+ABC + BCA + CAB = ABBC
+
+    A B C +
+    B C A +
+    C A B =
+  ---------
+  A B B C
+
+(define (uno iter)
+  (setq idx 0)
+  (while (< idx iter)
+    (setq digits (slice (randomize (sequence 0 9)) 0 3))
+    (setq a (digits 0))
+    (setq b (digits 1))
+    (setq c (digits 2))
+    (setq term1 (+ (* a 100) (* b 10) c))
+    (setq term2 (+ (* b 100) (* c 10) a))
+    (setq term3 (+ (* c 100) (* a 10) b))
+    (setq all (+ (* a 1000) (* b 100) (* b 10) c))
+    (if (= (+ term1 term2 term3) all)
+        (println term1 { + } term2 { + } term3 { = } all)
+    )
+    (++ idx)))
+
+(uno 10000)
+;-> 198 + 981 + 819 = 1998
+
+    1 9 8 +
+    9 8 1 +
+    8 1 9 =
+  ---------
+  1 9 9 8
+
+----------------------------------------
+SEND + MORE = MONEY
+
+    S E N D +
+    M O R E =
+  -----------
+  M O N E Y
+
+(define (due iter)
+  (setq idx 0)
+  (while (< idx iter)
+    (setq digits (slice (randomize (sequence 0 9)) 0 8))
+    (setq s (digits 0))
+    (setq e (digits 1))
+    (setq n (digits 2))
+    (setq d (digits 3))
+    (setq m (digits 4))
+    (setq o (digits 5))
+    (setq r (digits 6))
+    (setq y (digits 7))
+    (setq term1 (+ (* s 1000) (* e 100) (* n 10) d))
+    (setq term2 (+ (* m 1000) (* o 100) (* r 10) e))
+    (setq all (+ (* m 10000) (* o 1000) (* n 100) (* e 10) y))
+    (if (= (+ term1 term2) all)
+        (println term1 { + } term2 { = } all)
+    )
+    (++ idx)))
+
+(due 1e6)
+;-> 3719 + 457 = 4176
+;-> 7534 + 825 = 8359
+;-> 8542 + 915 = 9457
+;-> 7643 + 826 = 8469
+;-> 6419 + 724 = 7143
+;-> ...
+;-> 9567 + 1085 = 10652
+;-> ...
+
+    9 5 6 7 +
+    1 0 8 5 =
+  -----------
+  1 0 6 5 2
+
+----------------------------------------
+FORTY + TEN + TEN = SIXTY
+
+  F O R T Y +
+      T E N +
+      T E N =
+  -----------
+  S I X T Y
+
+(define (tre iter)
+  (setq idx 0)
+  (while (< idx iter)
+    (setq digits (randomize (sequence 0 9)))
+    (setq f (digits 0))
+    (setq o (digits 1))
+    (setq r (digits 2))
+    (setq t (digits 3))
+    (setq y (digits 4))
+    (setq e (digits 5))
+    (setq n (digits 6))
+    (setq s (digits 7))
+    (setq i (digits 8))
+    (setq x (digits 9))
+    (setq term1 (+ (* f 10000) (* o 1000) (* r 100) (* t 10) y))
+    (setq term2 (+ (* t 100) (* e 10) n))
+    (setq term3 term2)
+    (setq all (+ (* s 10000) (* i 1000 ) (* x 100) (* t 10) y))
+    (if (= (+ term1 term2 term3) all)
+        (println term1 { + } term2 { + } term3 { = } all)
+    )
+    (++ idx)))
+
+(tre 1e7)
+;-> 29786 + 850 + 850 = 31486
+
+  2 9 7 8 6 +
+      8 5 0 +
+      8 5 0 =
+  -----------
+  3 1 4 8 6
+
+----------------------------------------
+ABCD × 4 = DCBA
+
+  A B C D ×
+        4 =
+  ---------
+  D C B A
+
+(define (quattro iter)
+  (setq idx 0)
+  (while (< idx iter)
+    (setq digits (slice (randomize (sequence 0 9)) 0 4))
+    (setq a (digits 0))
+    (setq b (digits 1))
+    (setq c (digits 2))
+    (setq d (digits 3))
+    (setq term1 (+ (* a 1000) (* b 100) (* c 10) d))
+    (setq term2 4)
+    (setq all (+ (* d 1000) (* c 100) (* b 10) a))
+    (if (= (* term1 term2) all)
+        (println term1 { * } term2 { = } all)
+    )
+    (++ idx)))
+
+(quattro 1e5)
+;-> 2178 * 4 = 8712
+
+  2 1 7 8 ×
+        4 =
+  ---------
+  8 7 1 2
+
+----------------------------------------
+ABCDEF × 5 = FABCDE
+
+  A B C D E F ×
+            5 =
+  -------------
+  F A B C D E
+
+(define (cinque iter)
+  (setq idx 0)
+  (while (< idx iter)
+    (setq digits (slice (randomize (sequence 0 9)) 0 6))
+    (setq a (digits 0))
+    (setq b (digits 1))
+    (setq c (digits 2))
+    (setq d (digits 3))
+    (setq e (digits 4))
+    (setq f (digits 5))
+    (setq term1 (+ (* a 100000) (* b 10000) (* c 1000) (* d 100) (* e 10) f))
+    (setq term2 5)
+    (setq all (+ (* f 100000) (* a 10000) (* b 1000) (* c 100) (* d 10) e))
+    (if (= (* term1 term2) all)
+        (println term1 { * } term2 { = } all)
+    )
+    (++ idx)))
+
+(cinque 1e6)
+;-> 142857 * 5 = 714285
+
+  1 4 2 8 5 7 ×
+            5 =
+  -------------
+  7 1 4 2 8 5
+
+----------------------------------------
+ABCDE × A = EEEEEE
+
+    A B C D E ×
+            A =
+  -------------
+  E E E E E E
+
+(define (sei iter)
+  (setq idx 0)
+  (while (< idx iter)
+    (setq digits (slice (randomize (sequence 0 9)) 0 5))
+    (setq a (digits 0))
+    (setq b (digits 1))
+    (setq c (digits 2))
+    (setq d (digits 3))
+    (setq e (digits 4))
+    (setq term1 (+ (* a 10000) (* b 1000) (* c 100) (* d 10) e))
+    (setq term2 a)
+    (setq all (+ (* e 100000) (* e 10000) (* e 1000) (* e 100) (* e 10) e))
+    (if (= (* term1 term2) all)
+        (println term1 { * } term2 { = } all)
+    )
+    (++ idx)))
+
+(sei 1e5)
+;-> 79365 * 7 = 555555
+
+    7 9 3 6 5 ×
+            7 =
+  -------------
+  5 5 5 5 5 5
+
+Vediamo una funzione più generale che cerca di risolvere le espressioni criptoaritmetiche che hanno i seguenti vincoli:
+
+a) solo tutte somme o solo tutte moltiplicazione nell'espressione
+b) massimo dieci lettere diverse nell'espressione
+c) nessun numero nell'espressione
+
+Funzione che prende una stringa e una lista di associazione (carattere numero) e restituisce il numero intero rappresentato dalla stringa:
+
+(define (termine str link)
+  (local (res len-ter)
+    (setq res 0)
+    (setq len-ter (length str))
+    (dolist (ch (explode str))
+      (setq res (+ res (* (lookup ch link) (pow 10 (- len-ter $idx 1)))))
+    )
+    ; il risultato è valido se il numero e la stringa
+    ; hanno la stessa lunghezza
+    ; (elimina il caso con 0 come prima cifra)
+    (if (= (length res) (length str))
+       res
+       ; restituisce un risultato negativo
+       ; che sicuramente non verifica l'espressione
+       (- (int (dup "9" (length str))))
+       -99999999999
+    )))
+
+(termine "abc" '(("a" 1) ("b" 2) ("c" 3)))
+;-> 123
+(termine "cccabc" '(("a" 1) ("b" 2) ("c" 3)))
+;-> 333123
+
+Funzione che risolve l'espressione di criptoaritmetica (con lo stesso metodo delle funzioni precedenti, ma questa volta in modo generalizato):
+
+(define (solve (lst-term-str) res-str op iter tipo)
+  (local (out strings chars len-chars stop digits link
+          calc-termini totale)
+    ; lista delle soluzioni
+    (setq out '())
+    ; crea lista dei caratteri unici
+    (setq strings (append lst-term-str (list res-str)))
+    (setq chars (sort (unique (flat (map explode strings)))))
+    ; lunghezza della lista dei caratteri unici
+    (setq len-chars (length chars))
+    ; ciclo di tentativi...
+    (setq stop nil)
+    (for (i 1 iter 1 stop)
+      ; selezione casuale delle cifre
+      (setq digits (slice (randomize (sequence 0 9)) 0 len-chars))
+      ; associazione caratteri-cifre
+      (setq link (map list chars digits))
+      (if (= op "+")
+        ; caso della somma "+"
+        (setq calc-termini 0)
+        ; caso della moltiplicazione "*"
+        (setq calc-termini 1)
+      )
+      ; calcolo della somma o moltiplicazione di tutti i termini
+      (dolist (s lst-term-str)
+        (if (= op "+")
+            (setq calc-termini (+ calc-termini (termine s link)))
+            (setq calc-termini (* calc-termini (termine s link)))
+        )
+      )
+      ; valore del termine totale
+      (setq totale (termine res-str link))
+      ; soluzione trovata?
+      (cond ((= calc-termini totale)
+             ; aggiunge la soluzione (se non esiste già)
+             (if (not (ref link out)) (push link out -1))
+             ; stop o ricerca altre soluzioni?
+             (if (!= tipo "all") (setq stop true)))
+      )
+    )
+    ; restituisce la lista delle soluzioni
+    out))
+
+Proviamo la funzione con gli esempi precedenti:
+
+ABC + BCA + CAB = ABBC
+(solve '("abc" "bca" "cab") "abbc" "+" 1e8)
+;-> ((("a" 1) ("b" 9) ("c" 8)))
+
+SEND + MORE = MONEY
+(solve '("send" "more") "money" "+" 1e8)
+;-> ((("d" 7) ("e" 5) ("m" 1) ("n" 6) ("o" 0) ("r" 8) ("s" 9) ("y" 2)))
+
+In italiano:
+
+MOLTI + SOLDI = CHIEDO
+
+    M O L T I +       76903 +
+    S O L D I =       46953 =
+  -------------      --------
+  C H I E D O        123856
+
+(solve '("molti" "soldi") "chiedo" "+" 1e8)
+;-> ((("c" 1) ("d" 5) ("e" 8) ("h" 2) ("i" 3) ("l" 9) ("m" 7) ("o" 6) ("s" 4) ("t" 0)))
+
+FORTY + TEN + TEN = SIXTY
+(solve '("forty" "ten" "ten") "sixty" "+" 1e8)
+;-> ((("e" 5) ("f" 2) ("i" 1) ("n" 0) ("o" 9) ("r" 7) ("s" 3) ("t" 8) ("x" 4) ("y" 6)))
+
+ABCDE × A = EEEEEE
+(solve '("abcde" "a") "eeeeee" "*" 1e8)
+;-> ((("a" 7) ("b" 9) ("c" 3) ("d" 6) ("e" 5)))
+
+Altro esempio in italiano:
+
+POCHI + POCHI = MOLTI
+
+  P O C H I +      39640 +
+  P O C H I =      39640 =
+  -----------      ------
+  M O L T I        79280
+
+(solve '("pochi" "pochi") "molti" "+" 1e8)
+;-> ((("c" 6) ("h" 4) ("i" 0) ("l" 2) ("m" 7) ("o" 9) ("p" 3) ("t" 8)))
+
+Proviamo con un esempio diverso (di cui sappiamo che esistono più soluzioni):
+
+A × B = CD
+CD × EF = GHI
+
+Possiamo scrivere: A × B × EF = GHI
+
+(solve '("a" "b" "ef") "ghi" "*" 1e5 "all")
+;-> ((("a" 7) ("b" 1) ("e" 6) ("f" 9) ("g" 4) ("h" 8) ("i" 3))
+;->  (("a" 3) ("b" 6) ("e" 1) ("f" 5) ("g" 2) ("h" 7) ("i" 0))
+;->  (("a" 4) ("b" 5) ("e" 3) ("f" 6) ("g" 7) ("h" 2) ("i" 0))
+;->  (("a" 1) ("b" 8) ("e" 5) ("f" 9) ("g" 4) ("h" 7) ("i" 2))
+;->  (("a" 6) ("b" 7) ("e" 1) ("f" 2) ("g" 5) ("h" 0) ("i" 4))
+;->  (("a" 1) ("b" 8) ("e" 6) ("f" 3) ("g" 5) ("h" 0) ("i" 4))
+;->  (("a" 7) ("b" 1) ("e" 5) ("f" 6) ("g" 3) ("h" 9) ("i" 2))
+;->  (("a" 4) ("b" 1) ("e" 8) ("f" 9) ("g" 3) ("h" 5) ("i" 6))
+;->  (("a" 7) ("b" 2) ("e" 6) ("f" 1) ("g" 8) ("h" 5) ("i" 4))
+;->  (("a" 7) ("b" 5) ("e" 1) ("f" 8) ("g" 6) ("h" 3) ("i" 0))
+;->  (("a" 5) ("b" 1) ("e" 4) ("f" 6) ("g" 2) ("h" 3) ("i" 0))
+;->  (("a" 1) ("b" 3) ("e" 6) ("f" 9) ("g" 2) ("h" 0) ("i" 7))
+;->  (("a" 8) ("b" 3) ("e" 1) ("f" 9) ("g" 4) ("h" 5) ("i" 6))
+;->  (("a" 3) ("b" 4) ("e" 7) ("f" 1) ("g" 8) ("h" 5) ("i" 2))
+;->  (("a" 4) ("b" 5) ("e" 3) ("f" 8) ("g" 7) ("h" 6) ("i" 0))
+;->  (("a" 5) ("b" 1) ("e" 7) ("f" 6) ("g" 3) ("h" 8) ("i" 0))
+;->  (("a" 3) ("b" 4) ("e" 8) ("f" 1) ("g" 9) ("h" 7) ("i" 2))
+;->  (("a" 5) ("b" 4) ("e" 3) ("f" 8) ("g" 7) ("h" 6) ("i" 0))
+;->  (("a" 1) ("b" 7) ("e" 5) ("f" 2) ("g" 3) ("h" 6) ("i" 4))
+;->  (("a" 1) ("b" 5) ("e" 6) ("f" 4) ("g" 3) ("h" 2) ("i" 0))
+;->  (("a" 5) ("b" 7) ("e" 1) ("f" 8) ("g" 6) ("h" 3) ("i" 0))
+;->  (("a" 8) ("b" 1) ("e" 7) ("f" 9) ("g" 6) ("h" 3) ("i" 2))
+;->  (("a" 4) ("b" 1) ("e" 9) ("f" 2) ("g" 3) ("h" 6) ("i" 8))
+;->  (("a" 6) ("b" 4) ("e" 3) ("f" 8) ("g" 9) ("h" 1) ("i" 2))
+;->  (("a" 8) ("b" 1) ("e" 9) ("f" 4) ("g" 7) ("h" 5) ("i" 2))
+;->  (("a" 4) ("b" 5) ("e" 3) ("f" 9) ("g" 7) ("h" 8) ("i" 0))
+;->  (("a" 6) ("b" 9) ("e" 1) ("f" 3) ("g" 7) ("h" 0) ("i" 2))
+;->  (("a" 9) ("b" 2) ("e" 4) ("f" 1) ("g" 7) ("h" 3) ("i" 8))
+;->  (("a" 9) ("b" 5) ("e" 1) ("f" 6) ("g" 7) ("h" 2) ("i" 0))
+;->  (("a" 5) ("b" 4) ("e" 1) ("f" 9) ("g" 3) ("h" 8) ("i" 0))
+;->  (("a" 5) ("b" 9) ("e" 1) ("f" 4) ("g" 6) ("h" 3) ("i" 0)))
+
+Adesso dobbiamo togliere tutte le soluzioni in A × B è un numero da una cifra (infatti deve valere CD che ha due cifre):
+
+((("a" 3) ("b" 6) ("e" 1) ("f" 5) ("g" 2) ("h" 7) ("i" 0))
+ (("a" 4) ("b" 5) ("e" 3) ("f" 6) ("g" 7) ("h" 2) ("i" 0))
+ (("a" 6) ("b" 7) ("e" 1) ("f" 2) ("g" 5) ("h" 0) ("i" 4))
+ (("a" 7) ("b" 2) ("e" 6) ("f" 1) ("g" 8) ("h" 5) ("i" 4))
+ (("a" 7) ("b" 5) ("e" 1) ("f" 8) ("g" 6) ("h" 3) ("i" 0))
+ (("a" 8) ("b" 3) ("e" 1) ("f" 9) ("g" 4) ("h" 5) ("i" 6))
+ (("a" 3) ("b" 4) ("e" 7) ("f" 1) ("g" 8) ("h" 5) ("i" 2))
+ (("a" 4) ("b" 5) ("e" 3) ("f" 8) ("g" 7) ("h" 6) ("i" 0))
+ (("a" 3) ("b" 4) ("e" 8) ("f" 1) ("g" 9) ("h" 7) ("i" 2))
+ (("a" 5) ("b" 4) ("e" 3) ("f" 8) ("g" 7) ("h" 6) ("i" 0))
+ (("a" 5) ("b" 7) ("e" 1) ("f" 8) ("g" 6) ("h" 3) ("i" 0))
+ (("a" 6) ("b" 4) ("e" 3) ("f" 8) ("g" 9) ("h" 1) ("i" 2))
+ (("a" 4) ("b" 5) ("e" 3) ("f" 9) ("g" 7) ("h" 8) ("i" 0))
+ (("a" 6) ("b" 9) ("e" 1) ("f" 3) ("g" 7) ("h" 0) ("i" 2))
+ (("a" 9) ("b" 2) ("e" 4) ("f" 1) ("g" 7) ("h" 3) ("i" 8))
+ (("a" 9) ("b" 5) ("e" 1) ("f" 6) ("g" 7) ("h" 2) ("i" 0))
+ (("a" 5) ("b" 4) ("e" 1) ("f" 9) ("g" 3) ("h" 8) ("i" 0))
+ (("a" 5) ("b" 9) ("e" 1) ("f" 4) ("g" 6) ("h" 3) ("i" 0)))
+
+Facciamo delle verifiche a caso:
+
+A × B × EF = GHI
+(= (* 3 6 15) 270)
+;-> true
+(= (* 4 5 36) 720)
+;-> true
+(= (* 5 9 14) 630)
+;-> true
+
+Nota: la funzione "solve" è casuale, quindi non è sicuro che riesca a trovare una (o più) soluzioni all'espressione di criptoaritmetica.
+
+Nel caso di espressioni con sottrazione (o divisione) possiamo convertire l'espressione in addizione (o moltiplicazione prima di applciare la funzione "solve"), per esempio la seguente espressione:
+
+  C O U N T -
+    C O I N =
+  -----------
+    S N U B
+
+Può essere riscritta così:
+
+    S N U B +       9567 +
+    C O I N =       1085 =
+  -----------      -------
+  C O U N T        10652
+
+(solve '("snub" "coin") "count" "+" 1e8)
+;-> ((("b" 7) ("c" 1) ("i" 8) ("n" 5) ("o" 0) ("s" 9) ("t" 2) ("u" 6)))
+
+Proviamo un paio di esempi casuali (cioè non sappiamo se esiste zero, una o più soluzioni:
+
+    B O Y +
+  G I R L =
+  ---------
+  L O V E
+
+(solve '("boy" "girl") "love" "+" 1e6 "all")
+;-> ((("b" 3) ("e" 5) ("g" 8) ("i" 7) ("l" 9) ("o" 0) ("r" 1) ("v" 2) ("y" 6))
+;->  (("b" 5) ("e" 0) ("g" 2) ("i" 9) ("l" 3) ("o" 4) ("r" 1) ("v" 6) ("y" 7))
+;->  (("b" 8) ("e" 5) ("g" 1) ("i" 7) ("l" 2) ("o" 6) ("r" 4) ("v" 0) ("y" 3))
+;->  (("b" 8) ("e" 9) ("g" 6) ("i" 5) ("l" 7) ("o" 3) ("r" 1) ("v" 4) ("y" 2))
+;->  (("b" 9) ("e" 2) ("g" 3) ("i" 1) ("l" 4) ("o" 0) ("r" 5) ("v" 6) ("y" 8))
+;->  (("b" 5) ("e" 3) ("g" 8) ("i" 6) ("l" 9) ("o" 1) ("r" 0) ("v" 2) ("y" 4))
+;->  (("b" 9) ("e" 5) ("g" 6) ("i" 3) ("l" 7) ("o" 2) ("r" 1) ("v" 4) ("y" 8))
+;->  (("b" 5) ("e" 0) ("g" 8) ("i" 7) ("l" 9) ("o" 2) ("r" 3) ("v" 6) ("y" 1))
+;->  (("b" 9) ("e" 0) ("g" 3) ("i" 2) ("l" 4) ("o" 1) ("r" 5) ("v" 7) ("y" 6))
+;->  (("b" 8) ("e" 7) ("g" 5) ("i" 4) ("l" 6) ("o" 3) ("r" 9) ("v" 2) ("y" 1))
+;->  (("b" 6) ("e" 3) ("g" 7) ("i" 4) ("l" 8) ("o" 0) ("r" 1) ("v" 2) ("y" 5))
+;->  (("b" 4) ("e" 7) ("g" 5) ("i" 8) ("l" 6) ("o" 3) ("r" 9) ("v" 2) ("y" 1))
+;->  (("b" 9) ("e" 4) ("g" 5) ("i" 1) ("l" 6) ("o" 0) ("r" 2) ("v" 3) ("y" 8))
+;->  (("b" 9) ("e" 8) ("g" 6) ("i" 4) ("l" 7) ("o" 3) ("r" 2) ("v" 5) ("y" 1))
+;->  (("b" 2) ("e" 3) ("g" 7) ("i" 9) ("l" 8) ("o" 1) ("r" 4) ("v" 6) ("y" 5))
+;->  (("b" 5) ("e" 9) ("g" 6) ("i" 8) ("l" 7) ("o" 3) ("r" 1) ("v" 4) ("y" 2))
+;->  (("b" 1) ("e" 4) ("g" 7) ("i" 9) ("l" 8) ("o" 0) ("r" 2) ("v" 3) ("y" 6))
+;->  (("b" 4) ("e" 8) ("g" 6) ("i" 9) ("l" 7) ("o" 3) ("r" 2) ("v" 5) ("y" 1))
+;->  (("b" 9) ("e" 1) ("g" 3) ("i" 6) ("l" 4) ("o" 5) ("r" 2) ("v" 8) ("y" 7))
+;->  (("b" 5) ("e" 9) ("g" 2) ("i" 8) ("l" 3) ("o" 4) ("r" 7) ("v" 1) ("y" 6))
+;->  (("b" 3) ("e" 1) ("g" 4) ("i" 8) ("l" 5) ("o" 2) ("r" 7) ("v" 0) ("y" 6))
+;->  (("b" 7) ("e" 1) ("g" 8) ("i" 5) ("l" 9) ("o" 3) ("r" 6) ("v" 0) ("y" 2)))
+
+     LISP *
+      FUN =
+  ---------
+  NEWLISP
+
+(time (println (solve '("lisp" "fun") "newlisp" "*" 1e7 "all")))
+;-> ((("e" 9) ("f" 7) ("i" 6) ("l" 2) ("n" 1) ("p" 0) ("s" 4) ("u" 5) ("w" 8))
+;->  (("e" 8) ("f" 2) ("i" 3) ("l" 7) ("n" 1) ("p" 0) ("s" 6) ("u" 5) ("w" 4))
+;->  (("e" 9) ("f" 2) ("i" 8) ("l" 7) ("n" 1) ("p" 0) ("s" 4) ("u" 5) ("w" 6)))
+;-> 108669.307
+
+Verifichiamo:
+(mul (termine "lisp" '(("e" 8) ("f" 2) ("i" 3) ("l" 7) ("n" 1) ("p" 0) ("s" 6) ("u" 5) ("w" 4)))
+     (termine "fun"  '(("e" 8) ("f" 2) ("i" 3) ("l" 7) ("n" 1) ("p" 0) ("s" 6) ("u" 5) ("w" 4))))
+;-> 1847360
+(termine "newlisp"   '(("e" 8) ("f" 2) ("i" 3) ("l" 7) ("n" 1) ("p" 0) ("s" 6) ("u" 5) ("w" 4)))
+;-> 1847360
+
+(mul (termine "lisp" '(("e" 9) ("f" 7) ("i" 6) ("l" 2) ("n" 1) ("p" 0) ("s" 4) ("u" 5) ("w" 8)))
+     (termine "fun"  '(("e" 9) ("f" 7) ("i" 6) ("l" 2) ("n" 1) ("p" 0) ("s" 4) ("u" 5) ("w" 8))))
+;-> 1982640
+(termine "newlisp"   '(("e" 9) ("f" 7) ("i" 6) ("l" 2) ("n" 1) ("p" 0) ("s" 4) ("u" 5) ("w" 8)))
+;-> 1982640
+
+(mul (termine "lisp" '(("e" 9) ("f" 2) ("i" 8) ("l" 7) ("n" 1) ("p" 0) ("s" 4) ("u" 5) ("w" 6)))
+     (termine "fun"  '(("e" 9) ("f" 2) ("i" 8) ("l" 7) ("n" 1) ("p" 0) ("s" 4) ("u" 5) ("w" 6))))
+;-> 1967840
+(termine "newlisp"   '(("e" 9) ("f" 2) ("i" 8) ("l" 7) ("n" 1) ("p" 0) ("s" 4) ("u" 5) ("w" 6)))
+;-> 1967840
+
+Anton Pavlis nel 1983 ha costruito la seguente espressione con 41 addendi:
+
+  SO+MANY+MORE+MEN+SEEM+TO+SAY+THAT+
+  THEY+MAY+SOON+TRY+TO+STAY+AT+HOME+
+  SO+AS+TO+SEE+OR+HEAR+THE+SAME+ONE+
+  MAN+TRY+TO+MEET+THE+TEAM+ON+THE+
+  MOON+AS+HE+HAS+AT+THE+OTHER+TEN
+  =TESTS
+
+La soluzione vale: TRANHYSMOE=9876543210)
+
+Proviamo a risolverla con "solve":
+
+(solve '("SO" "MANY" "MORE" "MEN" "SEEM" "TO" "SAY" "THAT" "THEY" "MAY" "SOON" "TRY" "TO" "STAY" "AT" "HOME" "SO" "AS" "TO" "SEE" "OR" "HEAR" "THE" "SAME" "ONE" "MAN" "TRY" "TO" "MEET" "THE" "TEAM" "ON" "THE" "MOON" "AS" "HE" "HAS" "AT" "THE" "OTHER" "TEN") "TESTS" "+" 1e6)
+;-> (("A" 7) ("E" 0) ("H" 5) ("M" 2) ("N" 6)
+;->  ("O" 1) ("R" 8) ("S" 3) ("T" 9) ("Y" 4)))
+
+Per finire scriviamo una funzione che trova (se esistono) tutte le soluzioni di una espressione di criptoaritmetica.
+
+Usiamo una funzione che genera tutte le permutazioni delle 10 cifre:
+
+(define (perm lst)
+  (local (i indici out)
+    (setq indici (dup 0 (length lst)))
+    (setq i 0)
+    ; aggiungiamo la lista iniziale alla soluzione
+    (setq out (list lst))
+    (while (< i (length lst))
+      (if (< (indici i) i)
+          (begin
+            (if (zero? (% i 2))
+              (swap (lst 0) (lst i))
+              (swap (lst (indici i)) (lst i))
+            )
+            ;(println lst);
+            (push lst out -1)
+            (++ (indici i))
+            (setq i 0)
+          )
+          (begin
+            (setf (indici i) 0)
+            (++ i)
+          )
+       )
+    )
+    out))
+
+(length (perm '(0 1 2 3 4 5 6 7 8 9)))
+;-> 36628800
+
+Precalcoliamo tutte le permutazioni delle 10 cifre:
+
+(silent (setq all-digits (perm '(0 1 2 3 4 5 6 7 8 9))))
+
+Scriviamo la funzione "solve-all" che è molto simile a "solve":
+
+(define (solve-all (lst-term-str) res-str op)
+  (local (out strings chars len-chars digits link
+          calc-termini totale)
+    ; lista delle soluzioni
+    (setq out '())
+    ; crea lista dei caratteri unici
+    (setq strings (append lst-term-str (list res-str)))
+    (setq chars (sort (unique (flat (map explode strings)))))
+    ; lunghezza della lista dei caratteri unici
+    (setq len-chars (length chars))
+    (if (> len-chars 10) (println "ERRORE: Troppi caratteri " len-chars))
+    ; ciclo su tutte le permutazioni...
+    (dolist (p all-digits)
+      ; selezione delle cifre
+      (setq digits (slice p 0 len-chars))
+      ; associazione caratteri-cifre
+      (setq link (map list chars digits))
+      (if (= op "+")
+        ; caso della somma "+"
+        (setq calc-termini 0)
+        ; caso della moltiplicazione "*"
+        (setq calc-termini 1)
+      )
+      ; calcolo della somma o moltiplicazione di tutti i termini
+      (dolist (s lst-term-str)
+        (if (= op "+")
+            (setq calc-termini (+ calc-termini (termine s link)))
+            (setq calc-termini (* calc-termini (termine s link)))
+        )
+      )
+      ; valore del termine totale
+      (setq totale (termine res-str link))
+      ; soluzione trovata?
+      (cond ((= calc-termini totale)
+             ; aggiunge la soluzione (se non esiste già)
+             (if (not (ref link out)) (push link out -1)))
+             ; stop o ricerca altre soluzioni?
+             ;(if (!= tipo "all") (setq stop true)))
+      )
+    )
+    ; restituisce la lista delle soluzioni
+    out))
+
+Facciamo alcune prove:
+
+(time (println (solve-all '("abc" "bca" "cab") "abbc" "+")))
+;-> ((("a" 1) ("b" 9) ("c" 8)))
+;-> 31872.032
+
+(time (println (solve-all '("lisp" "fun") "newlisp" "*")))
+;-> ((("e" 8) ("f" 2) ("i" 3) ("l" 7) ("n" 1) ("p" 0) ("s" 6) ("u" 5) ("w" 4))
+;->  (("e" 9) ("f" 7) ("i" 6) ("l" 2) ("n" 1) ("p" 0) ("s" 4) ("u" 5) ("w" 8))
+;->  (("e" 9) ("f" 2) ("i" 8) ("l" 7) ("n" 1) ("p" 0) ("s" 4) ("u" 5) ("w" 6)))
+;-> 51814.976
+
+(time (println (solve-all '("SO" "MANY" "MORE" "MEN" "SEEM" "TO" "SAY" "THAT" "THEY" "MAY" "SOON" "TRY" "TO" "STAY" "AT" "HOME" "SO" "AS" "TO" "SEE" "OR" "HEAR" "THE" "SAME" "ONE" "MAN" "TRY" "TO" "MEET" "THE" "TEAM" "ON" "THE" "MOON" "AS" "HE" "HAS" "AT" "THE" "OTHER" "TEN") "TESTS" "+")))
+;-> ((("A" 7) ("E" 0) ("H" 5) ("M" 2) ("N" 6) 
+;->   ("O" 1) ("R" 8) ("S" 3) ("T" 9) ("Y" 4)))
+;-> 726961.943
+
 =============================================================================
 
