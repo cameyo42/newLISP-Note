@@ -9107,6 +9107,70 @@ Facciamo una partita:
 Buona fortuna!!!
 
 
+-----------
+Stooge Sort
+-----------
+
+Stooge sort è un algoritmo di ordinamento ricorsivo. L'algoritmo è definito come segue:
+
+  Se il valore all'inizio è maggiore del valore alla fine, scambiali.
+  Se sono presenti 3 o più elementi nell'elenco, allora:
+  stooge sort dei 2/3 iniziali della lista
+  stooge sort degli ultimi 2/3 della lista
+  stooge sort ancoara dei 2/3 iniziali della lista
+
+È importante ottenere la dimensione dell'ordinamento intero utilizzata nelle chiamate ricorsive arrotondando i 2/3 per eccesso, ad es. l'arrotondamento 2/3 di 5 dovrebbe dare 4 anziché 3, altrimenti l'ordinamento non risulta corretto.
+
+La complessità temporale di questo algoritmo vale: O(n) = O(n^2.7095). Quindi è peggiore del Bubble Sort (O(n^2)).
+
+Questa è un'implementazione in pseudocodice:
+
+function stoogesort(array L, i = 0, j = length(L)-1)
+(
+  ; If the leftmost element is larger than the rightmost element
+  if L[i] > L[j] then
+      ; Swap the leftmost element and the rightmost element  
+      L[i] ↔ L[j]
+  ; If there are at least 3 elements in the array      
+  if (j - i + 1) > 2 then
+      t = floor((j - i + 1) / 3)
+      ; Sort the first 2/3 of the array
+      stoogesort(L, i  , j-t)
+      ; Sort the last 2/3 of the array
+      stoogesort(L, i+t, j)
+      ; Sort the first 2/3 of the array again
+      stoogesort(L, i  , j-t)
+  return L
+)
+
+Vediamo l'implementazione:
+
+(define (stoogesort lst)
+  (local (out)
+    (setq out lst)
+    (stoogesort-aux 0 (- (length out) 1))))
+
+(define (stoogesort-aux i j)
+  (if (> (out i) (out j)) (swap (out i) (out j)))
+  (if (> (sub j i -1) 2)
+    (begin
+      (let (t (int (floor (div (sub j i -1) 3))))
+        (stoogesort-aux i (- j t))
+        (stoogesort-aux (+ i t) j)
+        (stoogesort-aux i (- j t))
+      )
+    )
+  )
+  out)
+
+Proviamo la funzione:
+
+(setq a (randomize (sequence 1 15)))
+;-> (5 2 4 8 6 7 15 11 9 10 3 13 14 1 12)
+(stoogesort a)
+;-> (1 2 3 4 5 6 7 8 9 10 11 12 13 14 15)
+
+
 ---------
 Slow Sort
 ---------
@@ -9115,15 +9179,15 @@ Lo "slowsort" è un algoritmo di ordinamento ricorsivo che modifica gli elementi
 
 Questa è un'implementazione in pseudocodice:
 
-procedure slowsort(A[], i, j)          // Sort list A[i...j] in-place.
+function slowsort(A[], i, j)     // Sort list A[i...j] in-place.
     if i ≥ j then
         return
     m := floor( (i+j)/2 )
-    slowsort(A, i, m)                  // (1.1)
-    slowsort(A, m+1, j)                // (1.2)
-    if A[j] < A[m] then
-        swap A[j] , A[m]               // (1.3)
-    slowsort(A, i, j-1)                // (2)
+    slowsort(A, i, m)            // (1.1)
+    slowsort(A, m+1, j)          // (1.2)
+    if A[j] < A[m] then       
+        swap A[j] , A[m]         // (1.3)
+    slowsort(A, i, j-1)          // (2)
 
 Ordina la prima metà, in modo ricorsivo (1.1).
 Ordina la seconda metà, in modo ricorsivo (1.2).
@@ -9149,9 +9213,7 @@ La seguente implementazione richiede che la lista venga passata per riferimento:
 Proviamo la funzione:
 
 (set 'a:a (randomize (sequence 1 15)))
-;-> (1 29 12 42 31 27 22 46 43 40 17 45 39 33 25 16 
-;->  20 30 23 15 50 34 26 24 11 35 13 41 4 2 7 44 28 
-;->  6 19 3 47 48 36 9 49 38 21 10 18 8 5 37 32 14)
+;-> (1 9 5 13 11 10 6 15 14 2 3 8 12 4 7)
 
 (slowsort a)
 ;-> end
@@ -9171,6 +9233,63 @@ Infatti per ordinare una lista di 25 elementi occorrono quasi 21 secondi:
 ;-> 20872.33
 d:d
 ;-> (1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25)
+
+
+---------
+Bogo sort
+---------
+
+Bogo Sort o Bogus Sort è un algoritmo di ordinamento che, ripetutamente, mescola la lista e poi controlla se è ordinata. Il nome deriva dalla parola "bogus" (falso, finto).
+
+Algoritmo:
+ 1) Controllare se è ordinata. Se è così, fine.
+ 2) Altrimenti, mescolare i valori della lista e ripetere il passo 1.
+
+Vediamo l'implementazione che è molto breve grazie alle primitive di newLISP:
+
+(define (bogosort lst op)
+  (until (apply op lst)
+    (setq lst (randomize lst)))
+  lst)
+
+Facciamo alcune prove:
+
+(setq a (sequence 15 1))
+;-> (15 14 13 12 11 10 9 8 7 6 5 4 3 2 1)
+(time (println (bogosort a >=)))
+;-> (15 14 13 12 11 10 9 8 7 6 5 4 3 2 1)
+;-> 0
+
+(setq b (randomize (sequence 1 10)))
+;-> (3 10 6 9 5 8 7 1 2 4)
+(time (println (bogosort b <=)))
+;-> (10 9 8 7 6 5 4 3 2 1)
+;-> 1259.736
+(time (println (bogosort b <=)))
+;-> (10 9 8 7 6 5 4 3 2 1)
+;-> 3121.243
+(time (println (bogosort b <=)))
+;-> (10 9 8 7 6 5 4 3 2 1)
+;-> 329.952
+
+Provate solo se avete tempo (o tanta fortuna):
+
+(setq c (randomize (sequence 1 12)))
+;-> (10 8 6 11 4 9 1 5 7 12 3 2)
+(time (println (bogosort c <=)))
+
+Questo algoritmo di ordinamento ha prestazioni terribili (ovviamente). Il suo tempo di esecuzione è relativo alla probabilità di mescolare in ordine la lista.
+Supponendo che il generatore casuale sia uniforme, la probabilità è uguale a:
+
+  P(lista ordinata) = 1 / (numero di permutazioni di N elementi) = 1/N!
+
+Prestazione caso medio: O(n*n!)
+Prestazione caso peggiore: O(∞)
+Prestazione caso migliore: O(n) ; (la lista è già ordinata)
+
+Quantum Bogosort
+----------------
+Quantum bogosort è un ipotetico algoritmo di ordinamento basato su bogosort, creato come uno scherzo tra gli informatici. L'algoritmo genera una permutazione casuale del suo input utilizzando una fonte quantistica di entropia, controlla se l'elenco è ordinato e, in caso contrario, distrugge l'universo. Assumendo che l'interpretazione dei "molti mondi" sia valida, l'uso di questo algoritmo risulterà in almeno un universo sopravvissuto in cui l'input è stato ordinato con successo in tempo O(n).
 
 
 ----------------
