@@ -9912,5 +9912,236 @@ Facciamo alcune prove:
 ;->   ("O" 1) ("R" 8) ("S" 3) ("T" 9) ("Y" 4)))
 ;-> 726961.943
 
+
+--------------------------------
+Centroide di un insieme di punti
+--------------------------------
+
+Il centroide (cx, cy) di un insieme di N punti viene calcolato con la seguente formula:
+
+       N                   N
+       ∑(xi)               ∑(yi)
+      i=1                 i=1  
+cx = -------,       cy = -------   
+        N                   N
+
+Scriviamo prima una funzione in stile funzionale:
+
+(define (centroid1 points)
+  (let (num-points (length points))
+    (list (div (apply add (map first points)) num-points)
+          (div (apply add (map last points)) num-points))))
+
+Poi una funzione in stile iterativo:
+
+(define (centroid2 points)
+  (local (sum-x sum-y num-points out)
+    (setq num-points (length points))
+    (setq sum-x 0)
+    (setq sum-y 0)
+    (dolist (p points)
+      (setq sum-x (add sum-x (p 0)))
+      (setq sum-y (add sum-y (p 1)))
+    )
+    (list (div sum-x num-points)
+          (div sum-y num-points))))
+
+Per verificare la correttezza e la velocità delle due funzioni creiamo 1 milioni di punti casuali:
+
+(silent
+  (setq x (random 1 100 1e6))
+  (setq y (random 1 100 1e6))
+  (setq pts (map list x y)))
+
+(length pts)
+;-> 1000000
+(pts 0)
+;-> (1.125125888851589 50.36368907742546)
+
+(time (println (centroid1 pts)))
+;-> (50.99634344218945 51.00998672902124)
+;-> 279.816
+
+(time (println (centroid2 pts)))
+;-> (50.99634344218945 51.00998672902124)
+;-> 262.728
+
+Le due funzioni hanno la stessa velocità, ma accade un effetto strano: la funzione "centroid1" aumenta il tempo di esecuzione nelle chiamate successive:
+
+(time (centroid1 pts))
+;-> 683.119
+(time (centroid1 pts))
+;-> 1125.398
+
+Se generiamo un errore, ad esempio:
+
+(unknow)
+;-> ERR: invalid function : (unknow)
+
+La funzione "riparte" dal tempo di esecuzione minimo (ed aumenta nelle chiamate successive):
+
+(time (centroid1 pts))
+;-> 274.307
+(time (centroid1 pts))
+;-> 674.237
+(time (centroid1 pts))
+;-> 1135.259
+
+La risposta di Lutz:
+"Over time environment and stack memory gets fragmented by certain functions. The error forces a total low level freeing and reallocation of this memory. There is nothing we can do about it without slowing down everywhere, but it is a rare enough problem. Until now, I have never seen this before."
+
+Invece il tempo della funzione "centroid2" rimane costante:
+
+(time (centroid2 pts))
+;-> 725.645
+(time (centroid2 pts))
+;-> 709.218
+
+Il perchè è un mistero (forse una gestione errata della memoria da parte del S.O.), comunque questo non si verifica se abbiamo un numero inferiore di punti (es.100.000):
+
+(silent
+  (setq x (random 1 100 1e5))
+  (setq y (random 1 100 1e5))
+  (setq pts (map list x y)))
+
+(length pts)
+;-> 100000
+
+(time (println (centroid1 pts)))
+;-> (50.99634344218945 51.00998672902124)
+;-> 62.478
+(time (centroid1 pts))
+;-> 53.411
+(time (centroid1 pts))
+;-> 53.39
+(time (centroid1 pts))
+;-> 68.99
+
+(time (println (centroid2 pts)))
+;-> (50.99634344218945 51.00998672902124)
+;-> 31,273
+(time (centroid2 pts))
+;-> 37.769
+(time (centroid2 pts))
+;-> 46.86
+(time (centroid2 pts))
+;-> 46.856
+(time (centroid2 pts))
+;-> 46.856
+(time (centroid2 pts))
+;-> 46.869
+
+
+-------------
+guiserver.lsp
+-------------
+ 
+guiserver.lsp è un modulo per interfacciarsi con guiserver.jar, un'applicazione server Java per la generazione di GUI (interfacce utente grafiche) e grafica 2D per applicazioni newLISP. Il modulo guiserver.lsp, implementa un'API newLISP molto più piccola e astratta delle API delle librerie Java Swing con cui si interfaccia. Per questo motivo, le applicazioni GUI possono essere create molto più velocemente rispetto a quando si utilizzano le API Java originali.
+
+Manuale di guiserver: http://www.newlisp.org/guiserver/guiserver.lsp.html
+
+Vediamo un esempio di come è possibile creare una finestra grafica e disegnare qualche primitiva:
+
+(load (append (env "NEWLISPDIR") "/guiserver.lsp"))
+(gs:init)
+(gs:frame 'Colors 0 0 1280 900 "colors") ; crea finestra
+(gs:set-border-layout 'Colors) ; imposta il layout della finestra
+(gs:canvas 'MyCanvas 'Colors) ; crea canvas grafico
+(gs:add-to 'Colors 'MyCanvas "center") 
+(gs:set-background 'MyCanvas gs:white) ; colore background canvas
+(gs:set-paint gs:black) ; default color (if not specified in shape or text)
+; disegniamo alcune linee
+(gs:draw-line 'L 10 50 630 590 '(1 0 0))
+(gs:draw-line 'L 20 40 630 590 '(0 1 0))
+(gs:draw-line 'L 30 30 630 590 '(0 0 1))
+(gs:draw-line 'L 50 100 630 590 '(.2 0 0))
+(gs:draw-line 'L 50 150 630 590 '(.1 .1 1))
+(gs:draw-line 'L 50 250 630 590 '(.1 .1 .1))
+(gs:draw-line 'L 50 350 630 590) ; senza colore NON disegna
+(gs:draw-line 'L 50 450 630 590 gs:green)
+(gs:draw-line 'L 0 640 640 0 gs:red)
+(gs:draw-line 'L 0 610 637 0 gs:orange) ; sembra più giallo
+;; rettangoli
+(gs:draw-rect 'R 100 150 250 200 gs:red)
+(gs:draw-rect 'R 120 170 250 200 gs:green)
+(gs:draw-rect 'R 140 190 250 200 gs:blue)
+(gs:draw-rect 'R 160 210 250 200) ;; senza colore lo disegna
+;; rettangoli pieni
+(gs:fill-rect 'R 30 50 100 60 gs:pink)
+(gs:fill-rect 'R 230 50 100 60 gs:yellow)
+(gs:fill-rect 'R 400 50 100 60)
+;; e poi...
+(gs:draw-round-rect 'R 30 80 100 60 30 20 gs:black)
+(gs:fill-round-rect 'R 35 85 30 20 10 7 gs:blue)
+; cerchi
+(gs:draw-circle 'C 120 300 100 gs:green)
+(gs:fill-circle 'C 120 300 30 gs:green)
+(gs:fill-circle 'C 120 300 10)
+; ellisse
+(gs:draw-ellipse 'E 220 300 100 60 gs:blue)
+; archi
+(gs:draw-arc 'A 475 300 100 150 30 300)
+(gs:fill-arc 'A 500 325 50 100 30 270)
+; testo
+(gs:set-font 'MyCanvas "Lucida Sans Regular" 40 "italic")
+(gs:draw-text 'T "Prima prova"  60 100)
+(gs:set-font 'MyCanvas "Monospaced" 40 "plain")
+(gs:draw-text 'T "con forme e linee"  60 160 gs:green -15)
+(gs:set-font 'MyCanvas "Monospaced" 20 "plain")
+(gs:draw-text 'T
+         "angoli scritte positivi se orari"  60 160 gs:black 30)
+(gs:set-font 'MyCanvas "Lucida Sans Regular" 40 "bold")
+(gs:draw-text 'T "dedicato a Giulia"  100 600) ; only for testing
+; listen for incoming action requests and dispatch
+(gs:listen)
+(gs:set-visible 'Colors true) ; rende visibile la finestra
+(gs:export "uno.png") ; esporta la finestra come file .png
+; (gs:listen) ; exit application when the guiserver exit
+(gs:listen true) ; don't exit application when the guiserver exit
+;; eof
+
+
+------------------------
+La funzione memcmp del C
+------------------------
+
+Nel linguaggio di programmazione C, la funzione "memcmp" restituisce un numero intero negativo, zero o positivo a seconda che i primi n caratteri della stringa s1 siano minori, uguali o maggiori dei primi n caratteri della stringa s2. In realtà "memcmp" confronta i byte come caratteri senza segno, ma noi considereremo un byte come un carattere, cioè scriveremo "memcmp" per applicarlo alle stringhe.
+Quindi nel nestro caso, la funzione "memcmp" restituirà un numero intero negativo, zero o positivo a seconda che i primi num-char caratteri della stringa da s1 siano minori, uguali o maggiori dei primi n caratteri della stringa s2.
+
+(define (memcmp s1 s2 num-char)
+  (let ((out 0) (stop nil))
+    (for (i 0 (- num-char 1) 1 stop)
+      (if (!= (s1 i) (s2 i))
+          (cond ((or (and (>= (s1 i) 0) (>= (s2 i) 0))
+                    (and (<  (s1 i) 0) (<  (s2 i) 0)))
+                 (setq stop true)
+                 (setq out (- (char (s1 i)) (char (s2 i)))))
+                ((and (< (s1 i) 0) (>= (s2 i) 0))
+                 (setq stop true)
+                 (setq out 1))
+                ((and (< (s2 i) 0) (>= (s1 i) 0))
+                 (setq stop true)
+                 (setq out -1))
+          )
+      )
+    )
+    out))
+
+Vediamo un pauio di esempi:
+
+(memcmp "abcdef" "abc" 3)
+;-> 0
+(memcmp "abcdef" "abb" 3)
+;-> 1
+(memcmp "abcdef" "abd" 3)
+;-> -1
+
+(setq str1 "C memcmp with newLISP");
+(setq str2 "C memcmp is a memory compare function");
+(memcmp str1 str2 9)
+;-> 0
+(memcmp str1 str2 10)
+;-> -8
+
 =============================================================================
 

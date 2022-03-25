@@ -1100,6 +1100,9 @@ NOTE LIBERE 7
   Slow Sort
   Bogo Sort
   CriptoAritmetica
+  Centroide di un insieme di punti
+  guiserver.lsp
+  La funzione memcmp del C
 
 APPENDICI
 =========

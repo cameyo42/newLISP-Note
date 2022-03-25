@@ -3321,8 +3321,7 @@ In questo modo possiamo calcolare la nuova media anche senza modificare la lista
 Sequenza di Kolakoski
 ---------------------
 
-Kolakoski sequence: a(n) is length of n-th run, a(1) = 1, sequence consists just of 1's and 2's.
-In other words, is an infinite sequence of symbols {1,2} that is the sequence of run lengths in its own run-length encoding.
+L sequenza di Kolakoski è una sequenza infinita di simboli {1,2} che è la sequenza dei run-length del run-length encoding di se stessa.
 
 Sequenza OEIS A000002: 1, 2, 2, 1, 1, 2, 1, 2, 2, 1, 2, 2, 1, 1, 2, 1, 1,
                        2, 2, 1, 2, 1, 1, 2, 1, 2, 2, 1, 1, 2, 1, 1, 2, 1,
@@ -3333,8 +3332,6 @@ La sequenza è stata discussa per primo da da Rufus Oldenburger nel 1939 e poi d
 La successione di Kolakoski è una successione infinita di numeri naturali, (escluso lo zero) con la proprietà:
 
   se si forma una nuova sequenza dai conteggi delle ripetizioni dello stesso numero nella prima sequenza, questa nuova sequenza è uguale alla prima sequenza.
-
-  if you form a new sequence from the counts of runs of the same number in the first sequence, this new sequence is the same as the first sequence
 
 Esempio:
 
