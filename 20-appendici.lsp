@@ -6265,6 +6265,9 @@ Kelsey Hightower
 "The longer it takes for a bug to surface, the harder it is to find."
 - Roedy Green
 
+"Necessity is the Mother of Invention, Play is its Father."
+- unknown
+
 
 ============================================================================
  Prefissi del Sistema Internazionale di unità di misura

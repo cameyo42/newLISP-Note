@@ -1103,6 +1103,8 @@ NOTE LIBERE 7
   Centroide di un insieme di punti
   guiserver.lsp
   La funzione memcmp del C
+  Algoritmi di string matching
+  La funzione assert del C
 
 APPENDICI
 =========

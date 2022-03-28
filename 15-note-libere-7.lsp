@@ -10105,15 +10105,19 @@ Vediamo un esempio di come è possibile creare una finestra grafica e disegnare 
 La funzione memcmp del C
 ------------------------
 
-Nel linguaggio di programmazione C, la funzione "memcmp" restituisce un numero intero negativo, zero o positivo a seconda che i primi n caratteri della stringa s1 siano minori, uguali o maggiori dei primi n caratteri della stringa s2. In realtà "memcmp" confronta i byte come caratteri senza segno, ma noi considereremo un byte come un carattere, cioè scriveremo "memcmp" per applicarlo alle stringhe.
-Quindi nel nestro caso, la funzione "memcmp" restituirà un numero intero negativo, zero o positivo a seconda che i primi num-char caratteri della stringa da s1 siano minori, uguali o maggiori dei primi n caratteri della stringa s2.
+Nel linguaggio di programmazione C, la funzione "memcmp" restituisce un numero intero negativo, zero o positivo a seconda che i primi n caratteri (bytes) della stringa s1 siano minori, uguali o maggiori dei primi n caratteri (byutes) della stringa s2. In realtà "memcmp" confronta i byte come caratteri senza segno di due blocchi di memoria, ma in questo caso considereremo un byte come un carattere, cioè scriveremo una funzione "memcmp" per applicarla alle stringhe.
+Quindi nel nestro caso, la funzione "memcmp" restituirà un numero intero negativo, zero o positivo a seconda che i primi n caratteri della stringa da s1 siano minori, uguali o maggiori dei primi n caratteri della stringa s2.
+Schematicamente:
+  = 0  --> s1 e s2 sono uguali
+  < 0  --> Il primo carattere diverso di s1 è più piccolo di quello di s2 
+  > 0  --> Il primo carattere diverso di s1 è più grande di quello di s2
 
 (define (memcmp s1 s2 num-char)
   (let ((out 0) (stop nil))
     (for (i 0 (- num-char 1) 1 stop)
       (if (!= (s1 i) (s2 i))
           (cond ((or (and (>= (s1 i) 0) (>= (s2 i) 0))
-                    (and (<  (s1 i) 0) (<  (s2 i) 0)))
+                     (and (<  (s1 i) 0) (<  (s2 i) 0)))
                  (setq stop true)
                  (setq out (- (char (s1 i)) (char (s2 i)))))
                 ((and (< (s1 i) 0) (>= (s2 i) 0))
@@ -10127,7 +10131,7 @@ Quindi nel nestro caso, la funzione "memcmp" restituirà un numero intero negati
     )
     out))
 
-Vediamo un pauio di esempi:
+Vediamo un paio di esempi:
 
 (memcmp "abcdef" "abc" 3)
 ;-> 0
@@ -10142,6 +10146,211 @@ Vediamo un pauio di esempi:
 ;-> 0
 (memcmp str1 str2 10)
 ;-> -8
+
+
+----------------------------
+Algoritmi di string matching
+----------------------------
+
+Possiamo trovare molte implementazioni di algoritmi di string-matching al seguente indirizzo:
+https://www-igm.univ-mlv.fr/~lecroq/string/
+Gli autori sono Christian Charras e Thierry Lecroq del Laboratorio di Informatica dell'Università di Rouen in Francia.
+Vengono presentati 35 algoritmi di string-matching scritti in linguaggio C:
+
+Brute Force algorithm
+Deterministic Finite Automation algorithm
+Karp-Rabin algorithm
+Shift Or algorithm
+Morris-Pratt algorithm
+Knuth-Morris-Pratt algorithm
+Simon algorithm
+Colussi algorithm
+Galil-Giancarlo algorithm
+Apostolico-Crochemore algorithm
+Not So Naive algorithm
+Boyer-Moore algorithm
+Turbo BM algorithm
+Apostolico-Giancarlo algorithm
+Reverse Colussi algorithm
+Horspool algorithm
+Quick Search algorithm
+Tuned Boyer-Moore algorithm
+Zhu-Takaoka algorithm
+Berry-Ravindran algorithm
+Smith algorithm
+Raita algorithm
+Reverse Factor algorithm
+Turbo Reverse Factor algorithm
+Forward Dawg Matching algorithm
+Backward Nondeterministic Dawg Matching algorithm
+Backward Oracle Matching algorithm
+Galil-Seiferas algorithm
+Two Way algorithm
+String Matching on Ordered Alphabets algorithm
+Optimal Mismatch algorithm
+Maximal Shift algorithm
+Skip Search algorithm
+KMP Skip Search algorithm
+Alpha Skip Search algorithm
+
+Vediamo un paio di algoritmi riscritti in newLISP:
+
+String algorithm: Brute Force
+-----------------------------
+
+(define (BF x y)
+(catch
+  (let ((m (length x)) (n (length y)))
+    (for (j 0 (- n m))
+      (setq i 0)
+      (while (and (< i m) (= (x i) (y (+ i j)))) (++ i))
+      (if (>= i m) (throw j))))))
+
+(setq x "GCAGAGAG")
+(setq y "GCATCGCAGAGAGTATACAGTACG")
+
+(BF x y)
+;-> 5
+
+(find "GCAGAGAG" "GCATCGCAGAGAGTATACAGTACG")
+;-> 5
+
+String algorithm: Not So Naive
+------------------------------
+
+(define (NSN x y)
+(catch
+  (local (m n k ell j)
+    (setq m (length x))
+    (setq n (length y))
+    ; preprocessing
+    (cond ((= (x 0) (x 1))
+          (setq k 2) (setq ell 1))
+          (true
+          (setq k 1) (setq ell 2))
+    )
+    ; searching
+    (setq j 0)
+    (while (<= j (- n m))
+      (cond ((!= (x 1) (y (+ j 1)))
+             (setq j (+ j k)))
+            ((zero? (memcmp (slice x 2) (slice y (+ j 2)) (- m 2)))
+             (throw j)
+            )
+            (true (setq j (+ j ell))))))))
+
+(NSN x y)
+;-> 5
+
+I migliori algoritmi di string-matching (senza preprocessing) hanno un complessità temporale uguale a O(n).
+Comunque le funzioni integrate (es. find) sono sicuramente più veloci di qualunque implementazione di questi algoritmi in newLISP.
+
+
+------------------------
+La funzione assert del C
+------------------------
+
+Quando si effettua il debug di un programma, è spesso utile sapere che una condizione o un insieme di condizioni è vera. Prima di eseguire una determinata elaborazione, vengono dichiarate alcune "asserzioni" che devono essere verificate. Il linguaggio C fornisce la macro "assert()" per definire queste asserzioni. Se un'asserzione fallisce, la macro provvede alla stampa di un messaggio diagnostico che descrive la condizione che avrebbe dovuto essere vera, ma non lo era, quindi termina il programma.
+
+Vediamo un esempio dell'utilizzo di assert() in C:
+
+#include <assert.h>
+int func(int a, double b)
+{
+  assert(a <= 0 && b >= 1);
+  ...
+}
+
+Se l'asserzione fallisce, viene stampato un messaggio simile a questo:
+
+file.c:5: func: assertion failed: a <= 0 && b >= 1
+
+e termina il programma chiamando "abort".
+
+Le asserzioni vengono utilizzate principalmente per verificare situazioni logicamente impossibili. Ad esempio, possono essere utilizzate per controllare uno stato prima dell'avvio dell'elaborazione o lo stato al termine dell'elaborazione. A differenza della normale gestione degli errori, in genere le asserzioni vengono disabilitate in fase di esecuzione.
+Nota: non scrivere espressioni in assert() che causano effetti collaterali (es. assert(x = 2)).
+
+Possiamo scrivere una macro che simula "assert()":
+
+(define-macro (assert condition)
+  (if (eval condition) true
+      (throw-error (format "assert failed: %s " (string condition)))))
+
+Proviamo la funzione:
+
+(define (test a b)
+  (assert (!= b 0))
+  (div a b))
+
+(test 10 2)
+;-> 5
+
+(test 10 0)
+;-> ERR: user error : assert failed: (!= b 0)
+;-> called from user function (assert (!= b 0))
+;-> called from user function (test 10 0)
+
+Quando l'asserzione fallisce viene mostrata l'espressione non vera, ma senza valori (cioè, "b" non viene valutato nella prima riga di output). Per fare questo possiamo modificare la funzione nel modo seguente:
+
+Funzione che valuta solo i simboli non-primitivi:
+
+(define (eval-var x) 
+  (if (primitive? (eval x)) 
+      x 
+      (eval x)))
+
+Funzione che applica una funzione a tutti gli elementi di una lista annidata:
+
+(define (map-all f lst)
+  (let (result '())
+    (dolist (el lst)
+      (if (list? el)
+        (push (map-all f el) result -1)
+        (push (f el) result -1)))
+    result))
+
+Nuova funzione "assert1":
+
+(define-macro (assert1 condition)
+  (if (eval condition) true
+      (throw-error (format "assert failed: %s " 
+        (join (map string (map-all eval-var condition)) " ")))))
+
+Proviamo con lo stesso esempio precedente:
+
+(define (test1 a b)
+  (assert1 (!= b 0))
+  (div a b))
+
+(test1 10 0)
+;-> ERR: user error : assert failed: != 0 0
+;-> called from user function (assert1 (!= b 0))
+;-> called from user function (test1 10 0)
+
+Un esempio con più variabili:
+
+(set 'a 1 'b 1 'c 3 'd 3)
+(define (test2)
+  (assert1 (or (and (= a b) (> c d)) (> a b))))
+
+(test2)
+;-> ERR: user error : assert failed: or (and (= 1 1) (> 3 3)) (> 1 1)
+;-> called from user function (assert1 (or (and (= a b) (> c d)) (> a b)))
+;-> called from user function (test2)
+
+Un esempio con una funzione in "assert":
+
+(define (double x) (* x x))
+(define (test3 a b)
+  (assert1 (> (double a) 5))
+  (+ a b))
+
+(test3 2 3)
+;-> ERR: user error : assert failed: > ((lambda (x) (* x x)) 2) 5
+;-> called from user function (assert1 (> (double a) 5))
+;-> called from user function (test3 2 3)
+
+In genere utilizzo la funzione "assert" e, invece di creare un'unica asserzione complessa, preferisco inserire più asserzioni con condizioni semplici.
 
 =============================================================================
 
