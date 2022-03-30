@@ -1105,6 +1105,9 @@ NOTE LIBERE 7
   La funzione memcmp del C
   Algoritmi di string matching
   La funzione assert del C
+  Rappresentazione dei grafi: Lista di Adiacenza <--> Matrice di Adiacenza
+  Attraversamento di grafi - Algoritmo BFS (Breadth-First Search)
+  Attraversamento di grafi - Algoritmo DFS (Depth-First Search)
 
 APPENDICI
 =========

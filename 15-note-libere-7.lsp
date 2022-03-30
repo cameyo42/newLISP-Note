@@ -10352,5 +10352,316 @@ Un esempio con una funzione in "assert":
 
 In genere utilizzo la funzione "assert" e, invece di creare un'unica asserzione complessa, preferisco inserire più asserzioni con condizioni semplici.
 
+
+------------------------------------------------------------------------
+Rappresentazione dei grafi: Lista di Adiacenza <--> Matrice di Adiacenza
+------------------------------------------------------------------------
+
+Lista di adiacenza: viene utilizzata un vettore (lista) di liste. La dimensione del vettore è uguale al numero di nodi (vertici). L'elemento i-esimo del vettore contiene la lista dei vertici adiacenti a quell'i-esimo nodo all'i-esimo vertice.
+Nota: la rappresentazione che useremo contiene anche il nodo i-esimo.
+
+Matrice di adiacenza: La matrice di adiacenza è una matrice 2D di dimensioni NxN dove N è il numero di nodi in un grafo. L'elemento mat[i][j] = 1 indica che esiste un arco dal nodo "i" al nodo "j".
+
+Per esempio il seguente grafo ha tutti gli archi bidirezionali:
+
+                  +---+
+                  | 0 |
+                  +---+
+                 /  |  \
+                /   |   \
+               /    |    \
+          +---+   +---+   +---+
+          | 1 |   | 3 |   | 4 |
+          +---+   +---+   +---+
+         /          |    /
+        /           |   /
+       /            |  /
+  +---+           +---+
+  | 2 |           | 5 |
+  +---+           +---+
+
+E viene rappresentato con la seguente lista di adiacenza:
+
+(setq g '((0  (1 3 4)) (1  (0 2)) (2  (1))
+          (3  (0 5)) (4 (0 5)) (5 (3 4))))
+
+Algoritmo per convertire da "Lista di adiacenza" a "Matrice di adiacenza":
+   - Inizializzare una matrice con tutti 0.
+   - Iterare sui nodi della lista di adiacenza
+   - Per ogni j-esimo nodo della lista di adiacenza, attraversa i suoi nodi vicini.
+   - Per ogni nodo "i" con cui il j-esimo nodo ha un arco, porre mat[i][j] = 1.
+
+(define (adjlist-adjmatrix graph)
+  (local (num-vertex matrix)
+    (setq num-vertex (length graph))
+    (setq matrix (array num-vertex num-vertex '(0)))
+    (dolist (nodo g)
+      (setq j (nodo 0))
+      (dolist (i (nodo 1))
+        (setf (matrix i j) 1)
+      )
+    )
+    matrix))
+
+(setq m (adjlist-adjmatrix g))
+;-> ((0 1 0 1 1 0) 
+;->  (1 0 1 0 0 0) 
+;->  (0 1 0 0 0 0) 
+;->  (1 0 0 0 0 1) 
+;->  (1 0 0 0 0 1) 
+;->  (0 0 0 1 1 0))
+
+Algoritmo per convertire da "Matrice di adiacenza" a "Lista di adiacenza":
+  - Creare un vettore di liste e attraversa la matrice di adiacenza.
+  - Per ogni cella in cui risulta mat[i][j] == 1 (cioè c'è un arco da "i" a "j"), inserire "j" nell'elenco nella i-esima posizione del vettore di liste.
+
+(define (adjmatrix-adjlist graph)
+  (local (num-vertex vet lst)
+    (setq num-vertex (length graph))
+    (setq vet (array num-vertex '(())))
+    (setq lst '())
+    (for (i 0 (- num-vertex 1))
+      (for (j 0 (- num-vertex 1))
+        (if (= (graph i j) 1)
+            (push j (vet i) -1)
+        )
+      )
+    )
+    ; creazione lista di adiacenza dal vettore
+    (for (i 0 (- num-vertex 1))
+      (push (list i (vet i)) lst -1)
+    )
+    lst))
+
+(adjmatrix-adjlist m)
+;-> ((0 (1 3 4)) (1 (0 2)) (2 (1)) (3 (0 5)) (4 (0 5)) (5 (3 4)))
+
+(= (adjmatrix-adjlist m) g)
+;-> true
+
+
+---------------------------------------------------------------
+Attraversamento di grafi - Algoritmo BFS (Breadth-First Search)
+---------------------------------------------------------------
+
+L'attraversamento di un grafo è il processo di spostamento da un nodo radice a tutti gli altri nodi del grafo. L'ordine dei nodi dato da un attraversamento varia a seconda dell'algoritmo utilizzato per il processo.
+
+La ricerca in ampiezza (BFS - Breadth-First Search) si basa sull'attraversamento dei nodi mediante l'aggiunta del vicino di ogni nodo, a partire dal nodo radice, alla coda di attraversamento. L'algoritmo BFS per un grafo è simile a quello per un albero, l'unica differenza è che i grafi possono contenere cicli. A differenza della ricerca in profondità (DFS (Depth-First Search), vengono esplorati tutti i nodi alla profondità corrente prima di passare al livello successivo.
+
+Algoritmo BFS
+  - Prendere come input una lista di adiacenza che rappresenta il grafo.
+  - Inizializzare una coda FIFO (First In First Out).
+  - Accodare il nodo radice (cioè inserire il nodo radice all'inizio della coda).
+  - Eliminare dalla coda la testa (o il primo elemento), quindi accodare tutti i suoi nodi vicini, partendo da sinistra a destra. Se un nodo non ha nodi vicini che devono essere esplorati, rimuovere semplicemente la testa dalla coda e continuare il processo. (Nota: se appare un vicino già esplorato o in coda, non metterlo in coda, saltarlo semplicemente.)
+  - Continuare a ripetere questo processo finché la coda non è vuota.
+
+Casi particolari
+Ora, c'è sempre il rischio che il grafo da esplorare abbia uno o più cicli. Ciò significa che c'è la possibilità di tornare a un nodo che abbiamo già esplorato. Per risolvere questo problema manteniamo un array per tutti i nodi. L'array all'inizio del processo avrà tutti i suoi elementi inizializzati su 0 (o false). Dopo aver esplorato un nodo una volta, l'elemento corrispondente nell'array verrà impostato su 1 (o true). Quindi accodiamo i nodi solo se il valore del loro elemento corrispondente nell'array è 0 (o falso).
+
+Cosa succede quando il grafo fornito come input è un grafo disconnesso? In altre parole, cosa succede quando il grafo non ha una, ma più componenti che non sono collegate? Come sopra, manterremo un array per tutti gli elementi nel grafo. L'idea è di eseguire in modo iterativo l'algoritmo BFS per ogni elemento dell'array che non è impostato su 1 dopo il completamento dell'esecuzione iniziale dell'algoritmo BFS. Questo è ancora più rilevante nel caso dei grafi diretti a causa dell'aggiunta del concetto di "direzione" di attraversamento.
+
+La complessità temporale del BFS vale O(nodi + archi) dove "nodi" è il numero di nodi nel grafico ed "archi" è il numero di archi.
+
+Poiché l'algoritmo richiede una coda per memorizzare i nodi che devono essere attraversati, la complessità spaziale vale O(nodi).
+
+Vediamo un esempio di un grafo con tutti gli archi bidirezionali:
+
+                  +---+
+                  | 0 |
+                  +---+
+                 /  |  \
+                /   |   \          
+               /    |    \        
+          +---+   +---+   +---+
+          | 1 |   | 3 |   | 4 |
+          +---+   +---+   +---+
+         /          |    /
+        /           |   /
+       /            |  /
+  +---+           +---+
+  | 2 |           | 5 |
+  +---+           +---+
+
+Vediamo di eseguire l'algoritmo passo per passo:
+
+Enqueue => aggiunge un elemento alla fine alla coda
+Dequeue => rimuove un elemento all'inizio della coda
+
+Passo 1: Enqueue(0).
+Coda dopo passo 1: 0
+
+Passo 2: Dequeue(0), Enqueue(1), Enqueue(3), Enqueue(4).
+Coda dopo passo 2: 1 3 4
+
+Passo 3: Dequeue(1), Enqueue(2).
+Coda dopo passo 3: 3 4 2
+
+Passo 4 : Dequeue(3), Enqueue(5). Poiché 0 è già stato esplorato, non aggiungiamo nuovamente 1 alla coda.
+Coda dopo passo 4: 4 2 5
+
+Passo 5: Dequeue(4).
+Coda dopo passo 5: 2 5
+
+Passo 6: Dequeue(2).
+Coda dopo passo 6: 5
+
+Passo 7: Dequeue(5).
+Coda dopo passo 7: 
+Poiché la coda è di nuovo vuota a questo punto, interrompiamo il processo.
+
+Adesso vediamo una possibile implementazione dell'algoritmo.
+
+Il grafo ha tutti gli archi bidirezionali e viene rappresentato con la seguente lista di adiacenza:
+
+(setq g '((0  (1 3 4)) (1  (0 2)) (2  (1))
+          (3  (0 5)) (4 (0 5)) (5 (3 4))))
+
+Numero di nodi:
+(length g)
+;-> 6
+
+Funzione BFS:
+
+(define (BFS graph start)
+  (local (out num-vertex visited queue)
+    (setq out '()) ; lista dei nodi BFS
+    (setq num-vertex (length graph)) ; numero di vertici/nodi
+    (setq visited (array num-vertex '(nil))) ; array di nodi da visitare
+    (setq queue '()) ; coda FIFO
+    (setf (visited start) true) ; nodo di partenza: visitato
+    (push start queue) ; nodo di partenza inserito in cima alla coda
+    (while (!= queue '()) ; ciclo sulla coda
+      (setq start (pop queue)) ; rimuove il primo elemento della coda
+      (push start out -1) ; inserisce l'elemento nella soluzione
+      ; ciclo sui nodi collegati al nodo corrente (start)
+      (dolist (el (graph start 1)) 
+        ; inserisce nella coda tutti i "vicini" del nodo start
+        ; che non sono stati visitati
+        (cond ((not (visited el))
+               (setf (visited el) true)
+               (push el queue -1))
+        )
+      )
+    )
+    out))
+
+(BFS g 0)
+;-> (0 1 3 4 2 5)
+
+(BFS g 2)
+;-> (2 1 0 3 4 5)
+
+
+---------------------------------------------------------------
+Attraversamento di grafi - Algoritmo DFS (Depth-First Search)
+---------------------------------------------------------------
+
+La ricerca in profondità (DFS - Depth-First Search) è un algoritmo di attraversamento del grafo che inizia a esplorare da un nodo di origine (generalmente il nodo radice) e quindi esplora quanti più nodi possibile prima di tornare indietro (backtracking). A differenza della ricerca in ampiezza, l'esplorazione dei nodi con questo metodo è per natura molto disuniforme.
+
+Algoritmo DFS
+  - Prendere come input una lista di adiacenza che rappresenta il grafo.
+  - Inizializzare una pila (stack).
+  - Mettere il nodo radice all'inizio della pila.
+  - Se il nodo radice non ha vicini, fermarsi qui. Altrimenti, inserire il nodo vicino più a sinistra che non è già stato esplorato nello stack. Continuare questo processo fino a quando si incontra un nodo che non ha vicini (o i cui vicini sono già stati aggiunti allo stack), allora occorre fermare il processo, estrarre un nodo dalla pila e continuare il processo con il nuovo nodofai scoppiare la testa e quindi continuare il processo per il nodo che è saltato.
+  - Continuare a ripetere questo processo fino a quando la pila non diventa vuota.
+
+Casi particolari
+Ora, c'è sempre il rischio che il grafo ad esplorare abbia uno o più cicli. Ciò significa che c'è la possibilità di tornare a un nodo che abbiamo già esplorato. Per risolvere questo problema manteniamo un array per tutti i nodi. L'array all'inizio del processo avrà tutti i suoi elementi inizializzati su 0 (o false). Dopo aver esplorato un nodo una volta, l'elemento corrispondente nell'array verrà impostato su 1 (o true). Inseriamo semplicemente i nodi nella pila solo se il valore del loro elemento corrispondente nell'array è 0 (o falso).
+
+Cosa succede se il grafico fornito è un grafico disconnesso? In altre parole, cosa succede quando il grafo non ha una, ma più componenti che non sono collegate? Come sopra, manterremo un array per tutti gli elementi nel grafo. L'idea è di eseguire in modo iterativo l'algoritmo DFS per ogni elemento dell'array che non è impostato su 1 dopo il completamento dell'esecuzione iniziale dell'algoritmo DFS.
+
+La complessità temporale del DFS vale O(nodi + archi) dove "nodi" è il numero di nodi nel grafico ed "archi" è il numero di archi.
+
+Poiché l'algoritmo richiede una pila per memorizzare i nodi che devono essere attraversati, la complessità spaziale vale O(nodi).
+
+L'algoritmo DFS può essere implementato in modo ricorsivo e in modo iterativo.
+L'implementazione non ricorsiva è simile alla ricerca in ampiezza (BFS) ma differisce da essa in due modi:
+1) usa una pila invece di una coda
+2) ritarda il controllo se un vertice è stato visitato fino a quando il vertice non viene estratto dalla pila piuttosto che effettuare questo controllo prima di aggiungere il vertice.
+
+Se G è un albero, la sostituzione della coda dell'algoritmo di ricerca in ampiezza con una pila produrrà un algoritmo di ricerca in profondità. Per un generico grafo, la sostituzione della pila nell'implementazione iterativa della ricerca in profondità con una coda produce un algoritmo di ricerca in ampiezza, sebbene in qualche modo non standard.
+
+Ecco un esempio di un grafo con tutti gli archi bidirezionali:
+
+                  +---+
+                  | 0 |
+                  +---+
+                 /  |  \
+                /   |   \
+               /    |    \
+          +---+   +---+   +---+
+          | 1 |   | 3 |   | 4 |
+          +---+   +---+   +---+
+         /          |    /
+        /           |   /
+       /            |  /
+  +---+           +---+
+  | 2 |           | 5 |
+  +---+           +---+
+
+Il grafo ha tutti gli archi bidirezionali e viene rappresentato con la seguente lista di adiacenza:
+
+(setq g '((0  (1 3 4)) (1  (0 2)) (2  (1))
+          (3  (0 5)) (4 (0 5)) (5 (3 4))))
+
+Vediamo una possibile implementazione iterativa:
+
+(define (DFS graph start)
+  (local (out num-vertex visited stack)
+    (setq out '()) ; lista dei nodi DFS
+    (setq num-vertex (length graph)) ; numero di vertici/nodi
+    (setq visited (array num-vertex '(nil))) ; array di nodi da visitare
+    (setq stack '()) ; pila LIFO
+    (push start stack) ; nodo di partenza inserito in cima alla pila
+    (while (!= stack '()) ; ciclo sulla coda
+      (setq start (pop stack)) ; rimuove il primo elemento della pila
+      (cond ((nil? (visited start))
+             (push start out -1)
+             (setf (visited start) true)) ; nodo visitato
+      )
+      ; ciclo sui nodi collegati al nodo corrente (start)
+      (dolist (el (graph start 1))
+        ; inserisce nella pila tutti i "vicini" del nodo start
+        ; che non sono stati visitati
+        (cond ((not (visited el))
+               (push el stack))
+        )
+      )
+    )
+    out))
+
+(setq g '((0  (1 3 4)) (1  (0 2)) (2  (1))
+          (3  (0 5)) (4 (0 5)) (5 (3 4))))
+
+(DFS g 0)
+;-> (0 4 5 3 1 2)
+
+Proviamo con un altro grafo (da wikipedia):
+
+                  +---+
+                  | 0 |
+                  +---+
+                 /  |  \
+                /   |   \
+               /    |    \
+          +---+   +---+   +---+
+          | 1 |   | 2 |   | 4 |
+          +---+   +---+   +---+
+         /    |      |      |
+        /     |      |      |
+       /      |      |      |
+  +---+     +---+  +---+    |
+  | 3 |     | 5 |  | 6 |    |
+  +---+     +---+  +---+    |
+              |             |
+              |             |
+              +-------------+
+              
+(setq w '((0  (1 2 4)) (1 (0 3 5)) (2  (0 6)) (3 (1))
+          (4  (0 5)) (5  (1 4)) (6 (2))))
+
+(DFS w 0)
+;-> (0 4 5 1 3 2 6)
+
 =============================================================================
 
