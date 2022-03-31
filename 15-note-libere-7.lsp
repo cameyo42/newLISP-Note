@@ -3647,6 +3647,60 @@ function dijkstra(G, S)
 -------------------------------------------------------
 
 
+-----------------------
+Fattoriale quasi esatto
+-----------------------
+
+Fattoriale di un numero intero (output: big-integer):
+
+(define (fact-i num)
+  (if (zero? num)
+      1
+      (let (out 1L)
+        (for (x 1L num)
+          (setq out (* out x))))))
+
+(fact-i 100) 
+;-> 9332621544394415268169923885626670049071596826438162146859
+;-> 2963895217599993229915608941463976156518286253697920827223
+;-> 758251185210916864000000000000000000000000L
+
+Fattoriale di un numero intero (output: big-integer):
+
+(define (fact2-i num) (if (= num 0) 1 (apply * (map bigint (sequence 1 num)))))
+
+(fact2-i 100)
+;-> 9332621544394415268169923885626670049071596826438162146859
+;-> 2963895217599993229915608941463976156518286253697920827223
+;-> 758251185210916864000000000000000000000000L
+
+La funzione Gamma (di Eulero) è una funzione continua sui numeri reali positivi, che estende il concetto di fattoriale ai numeri complessi, nel senso che per ogni numero intero non negativo n si ha:
+
+  Gamma(n+1) = n!
+
+Utilizziamo la funzione integrata "gammaln" per calcolare il fattoriale di un numero n.
+
+Fattoriale di un numero intero (output: float):
+
+(define (fact-f num)
+  (exp (gammaln (++ num))))
+
+Il risultato è "vicino" al valore vero del fattoriale:
+
+(fact-f 4)
+;-> 23.99999999999999
+(fact-f 8)
+;-> 40320.00000000948
+
+(fact-i 4)
+;-> 24L
+(fact-i 8)
+;-> 40320L
+
+(fact-f 100)
+;-> 9.332621545372994e+157
+
+
 -------------------------------------------------
 Algoritmo "Fast inverse square root" e 0x5f3759df
 -------------------------------------------------
@@ -10662,6 +10716,110 @@ Proviamo con un altro grafo (da wikipedia):
 
 (DFS w 0)
 ;-> (0 4 5 1 3 2 6)
+
+
+-------------------------------------------------
+Passare una funzione con argomenti come parametro
+-------------------------------------------------
+
+Possiamo passare una funzione con parametri nel modo seguente:
+
+(define (do-func func arg) (func arg))
+;-> (lambda (func arg) (func arg))
+
+
+Proviamo con una funzione integrata:
+
+(do-func upper-case "ciao")
+;-> "HELLO"
+
+E con una funzione definita dall'utente:
+
+(define (doppio x) (* 2 x))
+(do-func doppio 2)
+;-> 4
+
+Se la funzione da passare ha due parametri possiamo scrivere una funzione simile:
+
+(define (do-func2 func arg1 arg2) (func arg1 arg2))
+;-> (lambda (func arg1 arg2) (func arg1 arg2))
+
+(define (somma a b) (+ a b))
+(do-func2 somma 3 5)
+;-> 8
+
+Possiamo anche scrivere una funzione più generale che esegue una funzione passata con un numero qualunque di parametri:
+
+(define (do-func3)
+  (eval (args)))
+
+Facciamo alcune prove:
+
+(do-func3 upper-case "ciao")
+;-> "CIAO"
+
+(do-func3 sin 10)
+;-> -0.5440211108893698
+
+(do-func3 doppio 10)
+;-> 20
+
+(do-func3 somma 10 20)
+;-> 30
+
+
+--------------------
+Funzioni nelle liste
+--------------------
+
+Utilizzando la funzione "eval" possiamo eseguire funzioni che si trovano all'interno di liste.
+Supponiamo di avere la lista seguente:
+
+(setq lst '(string "a" "b"))
+
+Per applicare la funzione "string" alle stringhe "a" e "b" possiamo scrivere
+
+((eval (lst 1)) (lst 0) (lst 2))
+;-> "ab"
+
+Vediamo un altro esempio:
+
+(setq lst '((nome trim) (anni int)))
+(setq nome "pippo    ")
+(setq anni 5.4)
+
+(setq nome (eval (list (lst 0 1) (eval (lst 0 0)))))
+;-> pippo
+(setq anni (eval (list (lst 1 1) (eval (lst 1 0)))))
+;-> 5
+
+
+---------------------------------
+Limite di annidamento delle liste
+---------------------------------
+
+Non ci sono limiti alla profondità di annidamento delle liste, l'unico vero limite è la memoria del sistema:
+
+(setq L '((((((((((((((((((((((((((((((((((((x)))))))))))))))))))))))))))))))))))))
+;-> ((((((((((((((((((((((((((((((((((((x))))))))))))))))))))))))))))))))))))
+(setq V (ref 'x L))
+;-> (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
+(L V)
+;-> x
+(nth V L)
+;-> x
+(setf (L V) 99)
+;-> 99
+L
+;-> ((((((((((((((((((((((((((((((((((((99))))))))))))))))))))))))))))))))))))
+(nth '(0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0) L)
+;-> 99
+(pop L V)
+;-> 99
+L
+;-> (((((((((((((((((((((((((((((((((((())))))))))))))))))))))))))))))))))))
+
+newLISP è l'unico LISP con questo tipo di supporto per gli elenchi indicizzati, altri LISP devono scrivere algoritmi ricorsivi complessi per raggiungere questo obiettivo.
 
 =============================================================================
 

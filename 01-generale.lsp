@@ -2661,6 +2661,44 @@ Questa considerazione ci fa pensare al concetto di precisione.
 Nell’intervallo [0.125, 0.25) possiamo rappresentare solo 0.125 e 0.1875, ma non possiamo rappresentare l’entità 0.1415 se non attraverso un errore in difetto (0.125) o in eccesso (0.1875).
 È evidente che non potremo rappresentare perfettamente tutti i numeri reali ma ci dovremo accontentare di un’approssimazione, tanto più efficiente quanti più bit destiniamo alla mantissa.
 
+Vediamo un esempio, scriviamo una funzione che prende un valore x ed effettua le seguenti operazioni:
+1) imposta val = 1
+2) se x == (x + val), allora stop
+3) imposta val = val/10
+4) continua al passo 2
+In questo modo la funzione si fermerà quando il valore di "val" è talmente piccolo che viene considerato uguale a zero.
+
+(define (min-float x)
+  (local (stop val)
+    (setq stop nil)
+    (setq val 1)
+    (for (i 1 100 1 stop)
+      (if (= x (add x val))
+        (begin
+          (setq stop true)
+          (println x { } val)
+        )
+      )
+      (setq val (div val 10))
+    )))
+
+Facciamo alcune prove:
+
+(min-float 100)
+;-> 100 1e-015
+(= (add 100 1e-015) 100)
+;-> true
+;-> 100
+(= (add 100 1e-014) 100)
+;-> nil
+
+(min-float 1000)
+;-> 100 1e-014
+(min-float 1000000)
+;-> 1000000 1e-011
+
+Quindi i numeri rappresentabili sono più "diradati" al crescere di x.
+
 Complessità dei calcoli
 -----------------------
 Senza voler entrare in dettaglio basti osservare che supponendo che per la somma fra 2 numeri in virgola fissa ci voglia un tempo di 1 microsecondo (1 milionesimo di secondo), per la somma di 2 numeri in virgola mobile ci vogliono almeno 10 microsecondi (dovendo fare una quantità molto elevata di operazioni la differenza in termini di tempo non è per nulla trascurabile).

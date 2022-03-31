@@ -1060,6 +1060,7 @@ NOTE LIBERE 7
   Distribuzione casuale modificata
   Short-circuit evaluation
   Algoritmo di Bellman-Ford
+  Fattoriale quasi esatto
   Algoritmo "Fast inverse square root" e 0x5f3759df
   Composizione multipla di funzioni
   Regressione lineare (Metodo dei minimi quadrati)
@@ -1108,6 +1109,9 @@ NOTE LIBERE 7
   Rappresentazione dei grafi: Lista di Adiacenza <--> Matrice di Adiacenza
   Attraversamento di grafi - Algoritmo BFS (Breadth-First Search)
   Attraversamento di grafi - Algoritmo DFS (Depth-First Search)
+  Passare una funzione con argomenti come parametro
+  Funzioni nelle liste
+  Limite di annidamento delle liste
 
 APPENDICI
 =========

@@ -3497,6 +3497,42 @@ Possiamo passare la lista per riferimento (call by-reference):
 a:a
 ;-> (2 3 4)
 
+Facciamo un altro esempio:
+
+(setq lista '(a b c d))
+
+(define (test lst)
+  (for (i 0 (- (length lst) 2))
+    (println i " -> " (lst i))
+    (setf (lst (+ i 1)) (lst 0))
+  )
+  lst)
+
+(test lista)
+;-> 0 -> a
+;-> 1 -> a
+;-> 2 -> a
+;-> (a a a a)
+
+lista
+;-> (a b c d)
+
+Se eliminiamo un elemento possiamo incorrere in un errore:
+
+(define (test1 lst)
+  (for (i 0 (- (length lst) 1))
+    (println i " -> " (lst i))
+    (pop lst)
+  )
+  lst)
+
+(test1 lista)
+;-> 0 -> a
+;-> 1 -> c
+;-> 2 ->
+;-> ERR: invalid list index in function println
+;-> called from user function (test1 lista)
+
 
 --------------------------
 Punto interno ad una sfera
