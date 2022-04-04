@@ -5851,6 +5851,31 @@ Valuta l'espressione exp e restituisce true se il valore è un simbolo. In caso 
 
 La prima istruzione imposta il contenuto di x sul simbolo y. La seconda istruzione controlla quindi il contenuto di x. L'ultimo esempio controlla il primo elemento di una lista.
 
+Nota: "symbol?" ritorna true solo se la valutazione di exp ritorna un simbolo.
+
+(set (sym "var") 345)
+;-> 345
+(symbol? var)
+nil
+
+In questo caso viene ritornato "nil" perchè la valutazione di "var" produce un numero 345 e non un simbolo.
+
+(set 'x 'var)
+;-> var
+
+(symbol? x)
+;-> true    ; valuta x che è il simbolo var
+
+(symbol? (first '(var x y z)))
+;-> true
+
+Se quotiamo l'espressione, allora "symbol?" ritorna sempre "true":
+(symbol? 'var)
+;-> true
+
+(symbol? 'xxx)
+;-> true
+
 ***************
 >>>funzione SYM
 ***************

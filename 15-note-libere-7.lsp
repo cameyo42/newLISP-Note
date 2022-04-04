@@ -9966,6 +9966,96 @@ Facciamo alcune prove:
 ;->   ("O" 1) ("R" 8) ("S" 3) ("T" 9) ("Y" 4)))
 ;-> 726961.943
 
+Soluzione fornita da rickyboy:
+
+;; Puzzle posed by user cameyo on the newLISP Forum at:
+;; http://www.newlispfanclub.alh.net/forum/viewtopic.php?f=12&t=5197
+
+;; The method here is still brute-force but the reason this is faster
+;; than the naive brute-force -- which does P(10,9) = 3,628,800
+;; iterations -- is because we instead do P(10,7) = 604,800 iterations
+;; by leaving two letters, namely E and W, out and (when we get a
+;; match on the other 7 letters) just check if E and W are distinct
+;; and not in the original 7-permutation.
+
+(define (doit)
+  "Find all the solutions of LISP * FUN = NEWLISP"
+  (let (perms (make-k-permutations 7 (sequence 0 9))
+        res (list))
+    (dolist (p perms)
+      (letn (LISP    (slice p 0 4)
+             FUN     (4 p)
+             NEWLISP (laven (* (neval LISP) (neval FUN)))
+             E       (NEWLISP 1)
+             W       (NEWLISP 2))
+        (if (and ;; are the LISPs equal?
+                 (= LISP (slice NEWLISP 3 4))
+                 ;; are the Ns equal?
+                 (= (FUN 2) (NEWLISP 0))
+                 ;; are E and W distinct and not members of p?
+                 (not (= E W))
+                 (not (member E p))
+                 (not (member W p)))
+            (push (list 'LISP LISP 'FUN FUN 'NEWLISP NEWLISP)
+                  res))))
+    res))
+
+(define (neval xs (max-digits 7))
+  "Convert list of numbers to a number, e.g., (neval '(2 6 4 0)) -> 2640"
+  (apply + (map * (reverse xs)
+                  (map (fn (x) (pow 10 x))
+                       (sequence 0 (- max-digits 1))))))
+
+(define (laven n (max-digits 7))
+  "The inverse of neval, e.g., (laven 2640) -> (0 0 0 2 6 4 0)"
+  (first
+   (apply (fn (acc ignore)
+            (let (n (acc 1))
+              (list (cons (% n 10) (acc 0))
+                    (/ n 10))))
+          (cons (cons (list) n)
+                (sequence 0 (- max-digits 1)))
+          2)))
+
+;; Find the next two functions at:
+;; http://www.newlisp.org/index.cgi?page=Code_Snippets
+(define (make-k-permutations k multiset)
+  (let ((pivots (unique multiset)))
+    (if (= k 1)
+        (map list pivots)
+        (let ((acc '()))
+          (dolist (p pivots)
+            (let ((sub-multiset (remove1 p multiset)))
+              (dolist (sub-perm
+                       (make-k-permutations (- k 1) sub-multiset))
+                (push (cons p sub-perm) acc))))
+          acc))))
+
+(define (remove1 elt lst)
+  (let ((elt-pos (find elt lst)))
+    (if elt-pos (pop lst elt-pos))
+    lst))
+
+;;----------------------------------------------------------------------
+;; Application:
+
+;; > (load "lisp*fun=newlisp.lsp")
+;; DONE
+;; > (doit)
+;; ((LISP (2 6 4 0) FUN (7 5 1) NEWLISP (1 9 8 2 6 4 0))
+;;  (LISP (7 8 4 0) FUN (2 5 1) NEWLISP (1 9 6 7 8 4 0))
+;;  (LISP (7 3 6 0) FUN (2 5 1) NEWLISP (1 8 4 7 3 6 0)))
+;; >
+
+'DONE
+;;----------------------------------------------------------------------
+
+(time (println (doit)))
+;-> ((LISP (2 6 4 0) FUN (7 5 1) NEWLISP (1 9 8 2 6 4 0)) 
+;->  (LISP (7 8 4 0) FUN (2 5 1) NEWLISP (1 9 6 7 8 4 0))
+;->  (LISP (7 3 6 0) FUN (2 5 1) NEWLISP (1 8 4 7 3 6 0)))
+;-> 6571.633
+
 
 --------------------------------
 Centroide di un insieme di punti

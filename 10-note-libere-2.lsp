@@ -4362,6 +4362,27 @@ Per disabilitare "error-event" utilizare la seconda sintassi.
 
 Vedi anche la funzione "catch" che fornisce un modo diverso per gestire gli errori. Utilizzare "throw-error" per gestire gli errori dell'utente.
 
+La funzione "error-event" funziona solo quando il programma viene caricato in maniera interattiva (es. load file.lsp) o quando viene usato newlisp.dll (newlisp.so).
+
+In alternativa, per gestire gli errori possiamo usare "catch" e "throw":
+
+(context 'DEMO)
+
+(define (echo)
+   (println "Hello world")
+)
+(context 'MAIN)
+#-----------------------------------
+
+(if (not (catch (DEMO:eecho) 'result))
+   (println result))
+
+Putroppo non esiste una funzione unica in grado di "catturare" tutti gli errori in un contesto.
+È possibile rilevare solo errori specifici della funzione.
+Quindi l'unico modo per risolvere il problema sarebbe quello di partire all'inizio nella gerarchia delle chiamate di funzione. Ogni programma dovrebbe iniziare con una funzione e in cui rilevano le condizioni di errore
+di quella funzione e catturare tutto quello che segue.
+Ma non c'è alcuna possibilità di catturare gli errori in un contesto specifico.
+
 ***********************
 >>>funzione LAST-ERROR
 ***********************

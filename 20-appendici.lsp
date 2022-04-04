@@ -3110,6 +3110,19 @@ La funzione "debug" è una semplificazione dell'uso di "trace". Passiamo la funz
 
 [-> 3 ] s|tep n|ext c|ont q|uit >
 
+L'output nella console mostra cosa ha appena fatto all'ultimo clic.
+Ad esempio se inizia con:
+
+[<- ... ]
+
+significa che è appena uscito dalla procedura evidenziata con l'ultimo clic.
+
+Se appare:
+
+[-> ..]
+
+significa che è appena entrato nella procedura evidenziata.
+
 Vediamo una sessione completa di debug con delle funzioni annidate. Definiamo le funzioni "pari" e "dispari" (in stile LISP):
 
 (define (pari n)
@@ -3383,10 +3396,32 @@ Il debugger non visualizza i commenti che si trovano nelle funzioni. Per fare ap
 
 (define (f1)
   [text]Questo testo appare nel debugger.[/text]
-  ; Questo testo no appare nel debugger.
+  ; Questo testo non appare nel debugger.
   (inc i))
 
 Nota: modificare la funzione di cui si sta effettuandoo il debug genera sempre un crash della REPL.
+
+Durante il debug di un contesto, per evitare la visualizzazione dei nomi di contesto prima dei simboli, passare prima al contesto nella console.
+
+Supponiamo di avere il seguente programma
+
+(context 'MYCONTEXT)
+
+(definire (test a b c)
+   ...
+   ...
+)
+(context 'PRINCIPALE)
+
+Nella console passare a MYCONTEXT con:
+
+(context 'MYCONTEXT)
+
+Ora apri la finestra del debugger e nella console digita:
+
+MYCONTEXT> (debug (test 1 2 3))
+
+Il debugger viene sempre eseguito dal contesto della console.
 
 Per finire riportiamo la traduzione del manuale di riferimento delle funzioni "trace", "trace-highlight" e "debug".
 

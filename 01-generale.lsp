@@ -4932,6 +4932,29 @@ La penultima riga fa caricare i file nel contesto MyCTX. Il carattere quote "'" 
 
 L'indirizzo URL file:// è seguito da un terzo / per le specifiche della directory.
 
+La funzione "load" è (quasi) equivalente alla seguente espressione:
+
+(eval-string (read-file "file.lsp"))
+
+L'unica differenza è che "load" trasmetterà in streaming il file e allo stesso tempo valuterà, mentre l'esempio sopra legge prima l'intero file in una stringa, quindi lo valuta.
+
+"load" può eseguire lo streaming di file molto grandi senza un impatto sulla memoria, perché valuta le s-espressioni mentre fluiscono, compilandole e valutandole al volo.
+
+newLISP non ha quello che chiamano "reader" in Common LISP o in altri LISP tradizionali. Le stringhe con espressioni lisp in newLISP vengono prima compilate in un formato interno quindi questo viene valutato.
+C'è anche la funzione "eval" in newLISP, ma funziona solo sul formato interno non direttamente sulle stringhe:
+
+(set 'x '(+ 3 4))
+;-> (+ 3 4)
+
+x
+;-> (+ 3 4)
+
+(eval x)
+;-> 7
+
+(eval-string "(+ 3 4)")
+;-> 7
+
 *******************
 >>>funzione SOURCE
 *******************

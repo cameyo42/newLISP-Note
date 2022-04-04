@@ -1113,6 +1113,11 @@ NOTE LIBERE 7
   Funzioni nelle liste
   Limite di annidamento delle liste
 
+NOTE LIBERE 8
+=============
+  Creazione di un contesto da una variabile
+  Creazione di contesti con una funzione
+
 APPENDICI
 =========
   Lista delle funzioni newLISP
