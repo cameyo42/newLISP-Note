@@ -1117,6 +1117,9 @@ NOTE LIBERE 8
 =============
   Creazione di un contesto da una variabile
   Creazione di contesti con una funzione
+  Mini-puzzle
+  Minimo, massimo e indici
+  Wordle
 
 APPENDICI
 =========

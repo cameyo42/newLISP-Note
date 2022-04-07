@@ -10502,7 +10502,7 @@ Rappresentazione dei grafi: Lista di Adiacenza <--> Matrice di Adiacenza
 ------------------------------------------------------------------------
 
 Lista di adiacenza: viene utilizzata un vettore (lista) di liste. La dimensione del vettore è uguale al numero di nodi (vertici). L'elemento i-esimo del vettore contiene la lista dei vertici adiacenti a quell'i-esimo nodo all'i-esimo vertice.
-Nota: la rappresentazione che useremo contiene anche il nodo i-esimo.
+Nota: la rappresentazione che useremo contiene anche il valore "i" del nodo i-esimo.
 
 Matrice di adiacenza: La matrice di adiacenza è una matrice 2D di dimensioni NxN dove N è il numero di nodi in un grafo. L'elemento mat[i][j] = 1 indica che esiste un arco dal nodo "i" al nodo "j".
 
@@ -10532,7 +10532,7 @@ E viene rappresentato con la seguente lista di adiacenza:
 Algoritmo per convertire da "Lista di adiacenza" a "Matrice di adiacenza":
    - Inizializzare una matrice con tutti 0.
    - Iterare sui nodi della lista di adiacenza
-   - Per ogni j-esimo nodo della lista di adiacenza, attraversa i suoi nodi vicini.
+   - Per ogni j-esimo nodo della lista di adiacenza, attraversare i suoi nodi vicini.
    - Per ogni nodo "i" con cui il j-esimo nodo ha un arco, porre mat[i][j] = 1.
 
 (define (adjlist-adjmatrix graph)
@@ -10710,7 +10710,7 @@ Algoritmo DFS
   - Continuare a ripetere questo processo fino a quando la pila non diventa vuota.
 
 Casi particolari
-Ora, c'è sempre il rischio che il grafo ad esplorare abbia uno o più cicli. Ciò significa che c'è la possibilità di tornare a un nodo che abbiamo già esplorato. Per risolvere questo problema manteniamo un array per tutti i nodi. L'array all'inizio del processo avrà tutti i suoi elementi inizializzati su 0 (o false). Dopo aver esplorato un nodo una volta, l'elemento corrispondente nell'array verrà impostato su 1 (o true). Inseriamo semplicemente i nodi nella pila solo se il valore del loro elemento corrispondente nell'array è 0 (o falso).
+Ora, c'è sempre il rischio che il grafo da esplorare abbia uno o più cicli. Ciò significa che c'è la possibilità di tornare a un nodo che abbiamo già esplorato. Per risolvere questo problema manteniamo un array per tutti i nodi. L'array all'inizio del processo avrà tutti i suoi elementi inizializzati su 0 (o false). Dopo aver esplorato un nodo una volta, l'elemento corrispondente nell'array verrà impostato su 1 (o true). Inseriamo semplicemente i nodi nella pila solo se il valore del loro elemento corrispondente nell'array è 0 (o falso).
 
 Cosa succede se il grafico fornito è un grafico disconnesso? In altre parole, cosa succede quando il grafo non ha una, ma più componenti che non sono collegate? Come sopra, manterremo un array per tutti gli elementi nel grafo. L'idea è di eseguire in modo iterativo l'algoritmo DFS per ogni elemento dell'array che non è impostato su 1 dopo il completamento dell'esecuzione iniziale dell'algoritmo DFS.
 
@@ -10817,7 +10817,6 @@ Possiamo passare una funzione con parametri nel modo seguente:
 (define (do-func func arg) (func arg))
 ;-> (lambda (func arg) (func arg))
 
-
 Proviamo con una funzione integrata:
 
 (do-func upper-case "ciao")
@@ -10909,7 +10908,7 @@ L
 L
 ;-> (((((((((((((((((((((((((((((((((((())))))))))))))))))))))))))))))))))))
 
-newLISP è l'unico LISP con questo tipo di supporto per gli elenchi indicizzati, altri LISP devono scrivere algoritmi ricorsivi complessi per raggiungere questo obiettivo.
+newLISP è l'unico LISP con questo tipo di supporto per le liste indicizzate, altri LISP devono scrivere algoritmi ricorsivi complessi per raggiungere questo obiettivo.
 
 =============================================================================
 

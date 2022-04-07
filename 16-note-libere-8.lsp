@@ -92,7 +92,6 @@ Adesso possiamo creare un contesto qualunque con una variabile che contiene il n
 DEMO:name
 ;-> "I am DEMO"
 
-
 Per finire vediamo come creare un contesto da un contesto esistente che contiene una funzione "create" (costruttore) che crea un contesto:
 
 (context 'DEMO)
@@ -181,7 +180,200 @@ Questa è l'espressione critica:
 Poiché vogliamo accedere al contesto che è all'interno di this_item, ma "this_item" contiene il simbolo 'TEST-1 (che conterrà il contesto TEST-1). Quindi con "eval" rimuoviamo un livello di valutazione. Nell'ultima espressione viene usato "push", perché "cons" non è distruttivo e non cambierebbe la lista.
 
 
+-----------
+Mini-puzzle
+-----------
 
+Scrivere una funzione che prende due numeri interi a e b.
+Se a > b, allora "a" diventa uguale a "b"
+          altrimenti "a" viene scambiato con "b"
+
+Il prototipo della funzione è il seguente:
+
+(define (func a b)
+  ; Vincoli: 
+  ; 1) la funzione deve contenere al massimo due riferimenti ad "a" e "b"
+  ;    (oltre ai valori da restituire con (list a b))
+  ; 2) la funzione non deve utilizzare altre variabili
+  ; 3) la funzione deve essere la più breve possibile
+  ;
+  (list a b)) ; valori da restituire
+
+Soluzione:
+
+(define (func a b)
+  ((if (> a b) setq swap) a b)
+  (list a b))
+
+(func 1 3)
+;-> (3 1)
+
+(func 4 2)
+;-> (2 2)
+
+
+------------------------
+Minimo, massimo e indici
+------------------------
+
+Vediamo alcune funzioni per calcolare i valori minimo e massimo (e relativi indici) di una lista.
+
+Primo metodo (primitve newLISP):
+
+(define (min-max lst)
+  (list (apply min lst) (apply max lst)))
+
+(silent (setq num (randomize (sequence 1 1e6))))
+
+(min-max num)
+;-> (1 1000000)
+
+Secondo metodo (algoritmo):
+
+(define (min-max-2 lst)
+  (let ((minimo (lst 0)) (massimo (lst 0)))
+    (dolist (el lst)
+      (cond ((< el minimo) (setq minimo el))
+            ((> el massimo) (setq massimo el))
+      )
+    )
+    (list minimo massimo)))
+
+(min-max-2 num)
+;-> (1 1000000)
+
+Vediamo i tempi di esecuzione:
+
+(time (min-max num) 100)
+;-> 9662.792
+
+(time (min-max-2 num) 100)
+;-> 13607.61
+
+Adesso restituiamo anche i relativi indici dei valori minimo e massimo:
+
+Primo metodo (primitive newLISP): 
+
+(define (min-max-idx lst)
+  (let ((minimo (apply min lst)) (massimo (apply max lst)))
+    (list minimo (first (ref minimo lst)) massimo (first (ref massimo lst)))))
+
+(min-max-idx num)
+;-> (1 934142 1000000 997889)
+(num 934142)
+;-> 1
+(num 997889)
+
+Secondo metodo (algoritmo):
+
+(define (min-max-idx-2 lst)
+  (let ((minimo (lst 0)) (massimo (lst 0)) (idx-min 0) (idx-max 0))
+    (dolist (el lst)
+      (cond ((< el minimo)  (set 'minimo  el 'idx-min $idx))
+            ((> el massimo) (set 'massimo el 'idx-max $idx))
+      )
+    )
+    (list minimo idx-min massimo idx-max)))
+
+(min-max-idx-2 num)
+;-> (1 934142 1000000 997889)
+
+Vediamo i tempi di esecuzione:
+
+(time (min-max-idx num) 100)
+;-> 11976.844
+
+(time (min-max-idx-2 num) 100)
+;-> 13875.329
+
+
+------
+Wordle
+------
+
+Wordle è un gioco sviluppato nel 2021 da Josh Wardle, in cui il giocatore deve indovinare una parola di cinque lettere in meno di sei tentativi. 
+Ogni tentativo deve essere una parola di cinque lettere. 
+Dopo ogni tentativo, viene mostrato il risultato del confronto:
+Colore verde ("!")
+  la lettera esiste nella soluzione e si trova nel posto corretto
+Colore giallo (".")
+  la lettera esiste nella soluzione, ma non si trova nel posto corretto
+Colore grigio ("?")
+  la lettera non esiste nella soluzione.
+Le parole vengono selezionate casualmente da un file di 2315 parole (wordle.txt).
+
+Vediamo una implementazione del gioco:
+
+(define (wordle)
+  (let ((guess "") (words nil) (word "") (test 0))
+    ; load file of words
+    (setq words (parse (read-file "wordle.txt")))
+    ; initialize random generator
+    (seed (time-of-day))
+    ; select random word
+    (setq word (random-word words))
+    ;(println word)
+    ; game loop
+    (while (!= guess word)
+      (++ test)
+      (print "Parola: ")
+      (setq guess (read-line))
+      (if (= 5 (length guess))
+        (report-wordle guess word)
+        (print "La parola deve avere 5 caratteri\n")
+      )
+    )
+    (println "Tentativi: " test)
+    'game-over))
+
+; select random element from a list
+(define (random-word lst) (lst (rand (length lst))))
+
+; print wordle result
+(define (print-wordle guess word)
+  (dotimes (i 5)
+    (print
+      (cond
+        ((= (guess i) (word i)) "!")  ; char in correct position
+        ((find (guess i) word) ".") ; char in different position
+        (true "?")))) ; char not in word
+  (print "\n"))
+
+Facciamo una partita:
+
+(wordle)
+Parola: adieu
+;-> ?????
+Parola: roate
+;-> !!???
+Parola: carlo
+;-> ??.?.
+Parola: robol
+;-> !!?.?
+Parola: roomy
+;-> !!!!!
+;-> Tentativi: 5
+;-> game-over
+
+Strategie nella scelta della prima parola
+La prima parola è probabilmente la più importante. Per massimizzare il valore della tua mossa di apertura, scegli una parola con tre vocali e cinque lettere diverse. 
+Alcuni esempi: orate, media, radio.
+A quanto pare dovremmo tutti iniziare con la parola "roate":
+https://medium.com/@tglaiel/the-mathematically-optimal-first-guess-in-wordle-cbcb03c19b0a
+
+Altri suggerimenti: 
+
+"adieu" come prima e "story" come seconda.
+"audio", toglie immediatamente di mezzo 4 vocali su 5 si concentra sulle consonanti. 
+"teary", "pious" e "adieu" in sequenza.
+
+Non stai giocando a Wordle correttamente se usi la stessa parola per iniziare ogni giorno: prova parole diverse ogni volta: "yacht", "ulcer", "toast".
+
+Non aver paura di deviare dalla normale parola iniziale, a volte una parola casuale che ci viene in mente finisce per essere più utile delle parole standard.
+
+Evitare di riutilizzare le lettere che sono diventate grigie (sembra ovvio, ma richiede più tempo e fatica pensare a parole di cinque lettere che non usano lettere che abbiamo già provato).
+
+Attenzione, le lettere possono apparire più volte.
 
 =============================================================================
 
