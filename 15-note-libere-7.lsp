@@ -189,6 +189,8 @@ le espressioni hash restituiscono un riferimento al loro contenuto che può esse
 (myHash "var")
 ;-> (z b c d)
 
+Aggiornamento dei valori di una hash-map
+----------------------------------------
 Quando si impostano i valori hash, la variabile anaforica di sistema "$it" può essere utilizzata per riferirsi al vecchio valore quando si imposta il nuovo:
 
 (myhash "bar" "hello world")
@@ -200,6 +202,61 @@ Quando si impostano i valori hash, la variabile anaforica di sistema "$it" può 
 (myhash "bar")
 ;-> "HELLO WORLD"
 
+Supponiamo di voler inserire in una chiave della hash-map una lista di valori, cioè ogni volta che accediamo ad una coppia chiave-valore vogliamo aggiungere un nuovo valore (chiave (valore nuovo-valore)). 
+Il valore iniziale di una coppia (chiave valore) è nil, quindi non possiamo usare "append" o "extend" per aggiungere un nuovo valore. La soluzione consiste nel controllare il valore di $it ed effettuare operazioni diverse nel caso il valore sia nil oppure no. Vediamo un esempio:
+
+Creiamo una hash-map:
+
+(new Tree 'hh)
+(hh)
+;-> ()
+
+Aggiungiamo 5 coppie (chiave valore) dove la chiave vale "i" e il valore è una lista con numeri che vanno da 1 a i:
+
+(for (i 1 5)
+  (setq key (string i))
+  (for (k i 1 -1)
+    (hh key (if $it (extend (list k) $it)  (list k)))
+  )
+)
+
+Vediamo il contenuto della hash-map:
+
+(hh)
+;-> (("1" (1)) ("2" (1 2)) ("3" (1 2 3)) ("4" (1 2 3 4)) ("5" (1 2 3 4 5)))
+
+L'espressione chiave è:
+
+(hh key (if $it (extend (list k) $it)  (list k))))
+
+Se $it vale nil, allora inserisce il numero come lista
+altrimenti aggiunge il numero alla lista $it.
+
+Vediamo un altro esempio dove il valore nella coppia (chiave valore) è una lista di coppie di valori.
+
+Eliminiamo e ricreiamo la hash-map:
+
+(delete 'hh)
+(new Tree 'hh)
+
+(for (i 1 5)
+  (setq key (string i))
+  (for (k i 1 -1)
+    (hh key (if $it (extend (list (list i k)) $it)  (list (list i k))))
+  )
+)
+
+Vediamo il contenuto della hash-map:
+
+(hh)
+;-> (("1" ((1 1))) 
+;->  ("2" ((2 1) (2 2))) 
+;->  ("3" ((3 1) (3 2) (3 3))) 
+;->  ("4" ((4 1) (4 2) (4 3) (4 4)))
+;->  ("5" ((5 1) (5 2) (5 3) (5 4) (5 5))))
+
+Salvataggio delle hash-map
+--------------------------
 Le hash-map possono essere salvate in un file e ricaricate in un secondo momento:
 
 ; save dictionary

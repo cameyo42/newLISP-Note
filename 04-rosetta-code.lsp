@@ -9731,8 +9731,12 @@ Le coordinate per la latitudine e la longitudine sono espresse in gradi decimali
 
 (dist-earth 42.123456 13.123456 54.654321 8.654321)
 ;-> 1431.173709679866
+
 (dist-earth 42.123456 -10.123456 54.654321 -2.654321)
 ;-> 1496.522788559527
+
+(dist-earth 37.774856 -122.424227 37.864742 -119.537521)
+;-> 253.7482992824347
 
 La formula di haversine produce un errore massimo dello 0.5% (poichè la terra è un elissoide e non una sfera).
 

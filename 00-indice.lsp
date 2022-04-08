@@ -1120,6 +1120,8 @@ NOTE LIBERE 8
   Mini-puzzle
   Minimo, massimo e indici
   Wordle
+  Quadruple pitagoriche
+  Formula di Haversine
 
 APPENDICI
 =========
