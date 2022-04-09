@@ -316,14 +316,14 @@ Vediamo una implementazione del gioco:
     ; game loop
     (while (!= guess word)
       (++ test)
-      (print "Parola: ")
+      (print "Word: ")
       (setq guess (read-line))
       (if (= 5 (length guess))
         (print-wordle guess word)
-        (print "La parola deve avere 5 caratteri\n")
+        (print "Word must be 5 chars\n")
       )
     )
-    (println "Tentativi: " test)
+    (println "Try: " test)
     'game-over))
 
 ; select random element from a list
@@ -331,6 +331,7 @@ Vediamo una implementazione del gioco:
 
 ; print wordle result
 (define (print-wordle guess word)
+  (print (dup " " 6))
   (dotimes (i 5)
     (print
       (cond
@@ -359,6 +360,7 @@ Strategie nella scelta della prima parola
 La prima parola è probabilmente la più importante. Per massimizzare il valore della tua mossa di apertura, scegli una parola con tre vocali e cinque lettere diverse. 
 Alcuni esempi: orate, media, radio.
 A quanto pare dovremmo tutti iniziare con la parola "roate":
+
 https://medium.com/@tglaiel/the-mathematically-optimal-first-guess-in-wordle-cbcb03c19b0a
 
 Altri suggerimenti: 
@@ -399,7 +401,7 @@ Colore rosso:
     (seed (time-of-day))
     ; select random word
     (setq word (random-word words))
-    (println word)
+    ;(println word)
     ; game loop
     (while (!= guess word)
       (++ test)
@@ -565,6 +567,7 @@ Questo effetto è trascurabile per piccole distanze, ma aumenta all'aumentare de
 La formula di Haversine tratta la Terra come una sfera e permette di "proiettare" i due punti A e B sulla sua superficie e di calcolare la distanza sferica tra di loro. Poiché la Terra non è una sfera perfetta, altri metodi che modellano la natura ellissoidale della Terra sono più accurati, ma la formula di Haversine produce un errore massimo dello 0.5%.
 
 Per l'implementazione seguiamo la formula riportata da wikipedia:
+
 https://en.wikipedia.org/wiki/Haversine_formula
 
 (define (deg-rad deg) (div (mul deg 3.1415926535897931) 180))
@@ -591,19 +594,526 @@ https://en.wikipedia.org/wiki/Haversine_formula
     (setq sin-phi (mul sin-phi sin-phi))
     (setq sin-lambda (mul sin-lambda sin-lambda))
     (setq h-val (sqrt (add sin-phi (mul (cos phi-1) (cos phi-2) sin-lambda))))
-    ; risultato in kilometri (km)
-    (div (mul 2 radius (asin h-val)) 1000)))
+    ; risultato in metri (m)
+    (mul 2 radius (asin h-val))))
 
-Facciamo alcune prove (il risultato è in kilometri):
+Facciamo alcune prove (i risultati sono in metri):
 
 (haversine 42.123456 13.123456 54.654321 8.654321)
-;-> 1433.443903533894
+;-> 1433443.903533894
 
 (haversine 42.123456 -10.123456 54.654321 -2.654321)
-;-> 1499.07734482137
+;-> 1499077.34482137
 
 (haversine 37.774856 -122.424227 37.864742 -119.537521)
-;-> 254.3520794544458
+;-> 254352.3520794544458
+
+
+-------------------
+Formula di Lamberts
+-------------------
+
+La formula di Lamberts calcola la distanza più breve lungo la superficie di un ellissoide tra due punti sulla superficie terrestre date le loro longitudini e latitudini (in gradi decimali).
+Rappresentare la terra come un ellissoide (cioè tenere conto dell'appiattimento ai poli nord e sud) ci permette di approssimare le distanze tra punti sulla superficie terrestre molto meglio di una sfera.
+Le formule di Lambert forniscono una precisione nell'ordine di 10 metri su migliaia di chilometri. Altri metodi possono fornire una precisione millimetrica, ma questo è un metodo più semplice da calcolare.
+
+NOTA: questo algoritmo utilizza la funzione "haversine" (vedi Formula di Haversine).
+
+Per l'implementazione seguiamo la formula su wikipedia:
+
+https://en.wikipedia.org/wiki/Geographical_distance#Lambert's_formula_for_long_lines
+
+(define (deg-rad deg) (div (mul deg 3.1415926535897931) 180))
+
+(define (lamberts lat1 lon1 lat2 lon2)
+  (local (axis-a axis-b radius flatten b-lat1 b-lat2 sigma p-value q-value
+          x-numer x-denom x-val y-numer y-denom y-val)
+    ; CONTANTI WGS84
+    ; https://en.wikipedia.org/wiki/World_Geodetic_System
+    ; Distanze in metri (m)
+    (setq axis-a 6378137.0)
+    (setq axis-b 6356752.314245)
+    ; raggio equatoriale
+    (setq radius 6378137)
+    ; Parametri equazione
+    ; https://en.wikipedia.org/wiki/Geographical_distance#Lambert's_formula_for_long_lines
+    (setq flatten (div (sub axis-a axis-b) axis-a))
+    ; Latitudini parametriche
+    ; https://en.wikipedia.org/wiki/Latitude#Parametric_(or_reduced)_latitude
+    (setq b-lat1 (atan (mul (sub 1 flatten) (tan (deg-rad lat1)))))
+    (setq b-lat2 (atan (mul (sub 1 flatten) (tan (deg-rad lat2)))))
+    ; Calcola l'angolo centrale tra due punti usando la funzione haversine
+    ; sigma = haversine / radius
+    (setq sigma (div (haversine lat1 lon1 lat2 lon2) radius))
+    ; Valori intermedi P e Q
+    (setq p-value (div (add b-lat1 b-lat2) 2))
+    (setq q-value (div (sub b-lat2 b-lat1) 2))
+    ; Valore intermedio X
+    ; X = (sigma - sin(sigma)) * sin^2P*cos^2Q / cos^2(sigma/2)
+    (setq x-numer (mul (sin p-value) (sin p-value) (cos q-value) (cos q-value)))
+    (setq x-denom (mul (cos (div sigma 2)) (cos (div sigma 2))))
+    (setq x-val (mul (sub sigma (sin sigma)) (div x-numer x-denom)))
+    ; Valore intermedio Y
+    ; Y = (sigma + sin(sigma)) * cos^2P*sin^2Q / sin^2(sigma/2)
+    (setq y-numer (mul (cos p-value) (cos p-value) (sin q-value) (sin q-value)))
+    (setq y-denom (mul (sin (div sigma 2)) (sin (div sigma 2))))
+    (setq y-val (mul (add sigma (sin sigma)) (div y-numer y-denom)))
+    (mul radius (sub sigma (mul (div flatten 2) (add x-val y-val))))))
+
+Facciamo alcune prove (i risultati sono in metri):
+
+(lamberts 37.774856 -122.424227 37.864742 -119.537521)
+;-> 254351.2128767878
+
+(lamberts 37.774856 -122.424227 40.713019 -74.012647)
+;-> 4138992.016770486
+
+(lamberts 37.774856 -122.424227 45.443012 12.313071)
+;-> 9737326.37699303
+
+(lamberts 37.774856 -122.424227 37.864742 -119.537521)
+
+
+-------------------
+Metodo di bisezione
+-------------------
+
+Il metodo di Bisezione trova il valore dove una funzione diventa 0 in [a,b], cioè trova una radice della funzione.
+Questo metodo è robusto, ma la convergenza è lineare (aggiunge solo un bit di accuratezza/precisione ad ogni iterazione).
+
+(define (bisezione func a b)
+(catch
+  (local (start end mid)
+    (setq start a)
+    (setq end b)
+    (cond ((zero? (func a)) a)
+          ((zero? (func b)) b)
+          ; se a e b sono entrambi positivi o entrambi negativi,
+          ; allora questo metodo fallisce
+          ((> (mul (func a) (func b)) 0) nil)
+          (true
+            (setq mid (add start (div (sub end start) 2)))
+            # precisione del risultato 10e-9
+            (while (> (abs (sub mid start)) 10e-9)
+              (cond ((zero? (func mid))
+                     (throw mid))
+                    ((< (mul (func mid) (func start)) 0)
+                     (setq end mid))
+                    (true (setq start mid))
+              )
+              (setq mid (add start (div (sub end start) 2)))
+            )
+           )
+    )
+    mid)))
+
+Vediamo un paio di esempi:
+
+(define (f x) (sub (mul x x x) 1))
+;-> (lambda (x) (sub (mul x x x) 1))
+
+(bisezione f -5 5)
+;-> 1.000000005587935
+
+Valutiamo la funzione nel punto calcolato per vedere l'errore:
+(f (bisezione f -5 5))
+;-> 1.676380634307861e-008
+
+(define (f x) (add (mul x x) (mul x -4) 3))
+;-> (lambda (x) (add (mul x x) (mul x -4) 3))
+
+(bisezione f 0 2)
+;-> 1
+(bisezione f 2 4)
+;-> 3
+(bisezione f 4 1000)
+;-> nil
+
+
+--------------------
+Metodo delle secanti
+--------------------
+
+Il metodo delle secanti è un metodo semplice per il calcolo approssimato di una soluzione (radice) di un'equazione della forma f(x)=0. Esso si applica dopo avere determinato un intervallo [a,b] che contiene una sola radice.
+
+Il metodo consiste nel costruire una successione di punti con il seguente criterio:
+assegnati due punti iniziali x(0),x(1), per ogni n > 1 il punto x(n+1) sia lo zero della retta passante per i punti (x(n-1), f(x(n-1))), (x(n), f(x(n))). Si ottiene:
+
+                x(n) - x(n-1)
+  x(n+1) = ------------------------- * f(x(n))
+              f(x(n)) - f(x(n-1))
+
+La convergenza è locale, cioè dipende dalla scelta dei punti iniziali x(0) e x(1) e la velocità di convergenza è superlineare (convergenza con ordine phi = (1+sqrt(5))/2 ≈ 1.618).
+
+(define (secante func a b iter)
+  (let ((x0 a) (x1 b) (x2 0))
+    (for (i 1 iter)
+      ;(map set (x0 x1) (x1 (sub x1 (div (mul (func x1) (sub x1 x0)) (sub (func x1) (func x0))))))
+      (setq temp x0)
+      (setq x0 x1)
+      (setq x1 (sub x1 (div (mul (func x1) (sub x1 temp)) (sub (func x1) (func temp)))))
+      ;(setq x2 (sub x1 (div (mul (func x1) (sub x1 x0)) (sub (func x1) (func x0)))))
+      ;(setq x0 x1)
+      ;(setq x1 x2)
+    )
+    x1))
+
+Vediamo un paio di esempi:
+
+(define (f x) (sub (mul x x) 612))
+
+(secante f 10 30 5)
+;-> 24.73863374875072
+
+(f (secante f 10 30 5))
+;-> -2.451718046359019e-007
+
+(define (f x) (add (mul x x) (mul -10 x) 10))
+
+(secante f 0 5 7)
+;-> 1.127016653809932
+
+(f (secante f 0 5 7))
+;-> -1.34381394900629e-010
+
+
+----------------
+Metodo di Newton
+----------------
+
+Il metodo di Newton (o metodo delle tangenti o metodo di Newton-Raphson), è uno dei metodi per il calcolo approssimato di una soluzione di un'equazione della forma f(x)=0. Esso si applica dopo avere determinato un intervallo [a,b] che contiene una sola radice.
+
+Il metodo consiste nel sostituire alla curva y=f(x) la tangente alla curva stessa, partendo da un qualsiasi punto. Per semplicità si può iniziare da uno dei due punti che hanno come ascissa gli estremi dell'intervallo [a,b] e assumere, come valore approssimato della radice, l'ascissa x(t) del punto in cui la tangente interseca l'asse delle x internamente all'intervallo [a,b].
+
+Procedendo in modo iterativo si dimostra che la relazione di ricorrenza del metodo è
+
+                    f(x(n))
+  x(n+1) = x(n) - ------------
+                    f'(x(n))
+
+che permette di determinare successive approssimazioni della radice dell'equazione y=f(x)=0. Con queste ipotesi, si può dimostrare che la successione delle x(n) converge alla radice piuttosto rapidamente.
+
+Per l'implemetazione seguiamo l'algoritmo di wikipedia:
+
+https://en.wikipedia.org/wiki/Newton%27s_method
+
+I parametri della nostra procedura sono:
+
+  func -> funzione
+  dfunc -> derivata della funzione
+  x0 -> ipotesi iniziale
+  iter -> numero di iterazioni
+  epsilon -> non dividere per un valore minore di questo
+  tolerance -> precisione/accuratezza desiderata
+
+(define (newton func dfunc x0 iter epsilon tolerance)
+(catch
+  (local (x1 y yder)
+    (for (i 1 iter)
+      (setq y (func x0))
+      (setq yder (dfunc x0))
+      ; fermarsi se il denominatore è troppo piccolo
+      (cond ((< (abs yder) epsilon) (throw nil))
+            (true
+              ; newton
+              (setq x1 (sub x0 (div y yder)))
+              ; soluzione trovata se risultato è nella tolleranza
+              (if (<= (abs (sub x1 x0)) tolerance)
+                  (throw x1)
+              )
+              ; aggiorna x0
+              (setq x0 x1))
+      )
+    )
+    ; il metodo non converge
+    nil)))
+
+L'ipotesi iniziale sarà x0 = 1 e la funzione sarà f(x) = x^2 − 2 in modo che f'(x) = 2x.
+Ogni nuova iterazione del metodo di Newton sarà indicata con x1. Durante il calcolo occorre verificare se il denominatore (yder) diventa troppo piccolo (minore di epsilon) (cosa che accade quando f′(x(n)) ≈ 0), altrimenti si potrebbe introdurre un errore troppo grande.
+
+(define (f x) (sub (mul x x) 2))
+(define (df x) (mul 2 x))
+
+(newton f df 1 20 1e-7 1e-14)
+;-> 1.414213562373095
+
+
+-------------------------------
+Conversioni tra unità di misura
+-------------------------------
+
+Funzione generale:
+
+(define (convert val unit unit-name unit-value)
+  (local (idx scala)
+    (setq idx (find unit unit-name))
+    (setq scala (mul val (unit-value idx)))
+    (println val " " unit " is:")
+    (dolist (el unit-name)
+      (cond ((!= el unit)
+            (println (format "%.6f %s" (div scala (unit-value $idx)) el)))
+      ))))
+
+Unità di Lunghezza
+------------------
+
+(setq length-unit '("km" "m" "cm" "mm" "mi" "yd" "ft" "in"))
+
+(setq length-value '(1000.0 1.0 0.01 0.001 1609.34 0.9144 0.3048 0.0254))
+
+(convert 10 "yd" length-unit length-value)
+;-> 10 yd is:
+;-> 0.009144 km
+;-> 9.144000 m
+;-> 914.400000 cm
+;-> 9144.000000 mm
+;-> 0.005682 mi
+;-> 30.000000 ft
+;-> 360.000000 in
+
+Unità di Peso
+-------------
+
+(setq weight-unit '("kilogram" "gram" "milligram" "metric-ton" "long-ton"
+                    "short-ton" "pound" "stone" "ounce" "carrat" "atomic-mass"))
+
+(setq weight-value '(1 0.001 0.000001 1000 1016.04608 907.184 0.453592 6.35029
+                     0.0283495 0.0002 1.660540199e-27))
+
+(convert 50 "stone" weight-unit weight-value)
+;-> 50 stone is:
+;-> 317.514500 kilogram
+;-> 317514.500000 gram
+;-> 317514500.000000 milligram
+;-> 0.317514 metric-ton
+;-> 0.312500 long-ton
+;-> 0.350000 short-ton
+;-> 700.000220 pound
+;-> 11200.003527 ounce
+;-> 1587572.500000 carrat
+;-> 191211570903981480000000000000.000000 atomic-mass
+
+Unità di Volume
+---------------
+
+(setq volume-unit '("cubicmeter" "litre" "kilolitre" "gallon"
+                    "cubicyard" "cubicfoot" "cup"))
+
+(setq volume-value '(1 0.001 1 0.00454 0.76455 0.028 0.000236588))
+
+(convert 500 "litre" volume-unit volume-value)
+;-> 500 litre is:
+;-> 0.500000 cubicmeter
+;-> 0.500000 kilolitre
+;-> 110.132159 gallon
+;-> 0.653979 cubicyard
+;-> 17.857143 cubicfoot
+;-> 2113.378531 cup
+
+Unità di Pressione
+------------------
+
+(setq pressure-unit '("atm" "pascal" "bar" "kilopascal" "megapascal"
+                      "psi" "inHg" "torr"))
+
+(setq pressure-value '(1 0.00000986923 0.986923 0.00986923 9.86923
+                       0.068046 0.0334211 0.00131579))
+
+(convert 1 "atm" pressure-unit pressure-value)
+;-> 1 atm is:
+;-> 101325.027383 pascal
+;-> 1.013250 bar
+;-> 101.325027 kilopascal
+;-> 0.101325 megapascal
+;-> 14.695941 psi
+;-> 29.921217 inHg
+;-> 759.999696 torr
+
+Unità di Temperatura
+--------------------
+
+Celsius
+-------
+
+(define (celsius-fahrenheit celsius)
+  (add (div (mul celsius 9) 5) 32))
+
+(celsius-fahrenheit 273.354)
+;-> 524.0372
+(celsius-fahrenheit -40)
+;-> -40
+(celsius-fahrenheit 0)
+;-> 32
+
+(define (celsius-kelvin celsius)
+  (add celsius 273.15))
+
+(celsius-kelvin 0)
+;-> 273.15
+(celsius-kelvin 20)
+;-> 293.15
+
+(define (celsius-rankine celsius)
+  (add (div (mul celsius 9) 5) 491.67))
+
+(celsius-rankine 20)
+;-> 527.6700000000001
+(celsius-rankine 0)
+;-> 491.67
+
+(define (celsius-reaumur celsius)
+  (div celsius 1.25))
+
+(celsius-reaumur 20)
+;-> 16
+(celsius-reaumur 0)
+;-> 0
+
+Fahrenheit
+----------
+
+(define (fahrenheit-celsius fahrenheit)
+  (div (mul 5 (sub fahrenheit 32)) 9))
+
+(fahrenheit-celsius 0)
+;-> -17.77777777777778
+(fahrenheit-celsius 20)
+;-> -6.666666666666667
+
+(define (fahrenheit-kelvin fahrenheit)
+  (add (div (mul 5 (sub fahrenheit 32)) 9) 273.15))
+
+(fahrenheit-kelvin 20)
+;-> 266.4833333333333
+(fahrenheit-kelvin 0)
+;-> 255.3722222222222
+
+(define (fahrenheit-rankine fahrenheit)
+  (add fahrenheit 459.67))
+
+(fahrenheit-rankine 0)
+;-> 459.67
+(fahrenheit-rankine 20)
+;-> 479.67
+
+(define (fahrenheit-reaumur fahrenheit)
+  (div (sub fahrenheit 32) 2.25))
+
+(fahrenheit-reaumur 0)
+;-> -14.22222222222222
+(fahrenheit-reaumur 20)
+;-> -5.333333333333333
+(fahrenheit-reaumur 32)
+;-> 0
+
+Kelvin
+------
+
+(define (kelvin-celsius kelvin)
+  (sub kelvin 273.15))
+
+(kelvin-celsius 0)
+;-> -273.15
+(kelvin-celsius 40)
+;-> -233.15
+
+(define (kelvin-fahrenheit kelvin)
+  (add (div (mul (sub kelvin 273.15) 9) 5) 32))
+
+(kelvin-fahrenheit 0)
+;-> -459.67
+(kelvin-fahrenheit 300)
+;-> 80.33000000000004
+(kelvin-fahrenheit -273.15)
+;-> -951.3399999999999
+
+(define (kelvin-rankine kelvin)
+  (div (mul kelvin 9) 5))
+
+(kelvin-rankine 0)
+;-> 0
+(kelvin-rankine 20)
+;-> 36
+
+(define (kelvin-reaumur kelvin)
+  (div (sub kelvin 273.15) 1.25))
+
+(kelvin-reaumur 0)
+;-> 218.52
+(kelvin-reaumur 273.15)
+;-> 0
+
+Rankine
+-------
+
+(define (rankine-celsius rankine)
+  (div (mul (sub rankine 491.67) 5) 9))
+
+(rankine-celsius 300)
+;-> -106.4833333333334
+(rankine-celsius 0)
+;-> -273.15
+(rankine-celsius 273.15)
+;-> -121.4
+
+(define (rankine-fahrenheit rankine)
+  (sub rankine 459.67))
+
+(rankine-fahrenheit 300)
+;-> -159.67
+(rankine-fahrenheit 500)
+;-> 40.32999999999998
+
+(define (rankine-kelvin rankine)
+  (div (mul rankine 5) 9))
+
+(rankine-kelvin 0)
+;-> 0
+(rankine-kelvin 10)
+;-> 5.555555555555555
+
+(define (rankine-reaumur rankine)
+  (div (sub rankine 32 459.67) 2.25))
+
+(rankine-reaumur 491.67)
+;-> 0
+(rankine-reaumur 536.67)
+;-> 19.99999999999998
+
+Reaumur
+-------
+
+(define (reaumur-celsius reaumur)
+  (mul reaumur 1.25))
+
+(reaumur-celsius 16)
+;-> 20
+(reaumur-celsius 0)
+;-> 0
+
+(define (reaumur-fahrenheit reaumur)
+  (add (mul reaumur 2.25) 32))
+
+(reaumur-fahrenheit 0)
+;-> 32
+(reaumur-fahrenheit -10)
+;-> 9.5
+
+(define (reaumur-kelvin reaumur)
+  (add (mul reaumur 1.25) 273.15))
+
+(reaumur-kelvin 0)
+;-> 273.15
+(reaumur-kelvin 30)
+;-> 310.65
+
+(define (reaumur-rankine reaumur)
+  (add (mul reaumur 2.25) 32 459.67))
+  
+(reaumur-rankine 0)
+;-> 491.67
+(reaumur-rankine 10)
+;-> 514.1700000000001
 
 =============================================================================
 

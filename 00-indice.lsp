@@ -1122,6 +1122,11 @@ NOTE LIBERE 8
   Wordle
   Quadruple pitagoriche
   Formula di Haversine
+  Formula di Lamberts
+  Metodo di bisezione
+  Metodo delle secanti
+  Metodo di Newton
+  Conversioni tra unità di misura
 
 APPENDICI
 =========
