@@ -330,7 +330,7 @@ ROSETTA CODE
 
 PROJECT EULERO
 ==============
-  Problemi 1..102, 104, 112, 206
+  Problemi 1..102, 104, 112, 113, 119, 120, 125, 188, 206
   
 PROBLEMI VARI
 =============
@@ -1127,6 +1127,7 @@ NOTE LIBERE 8
   Metodo delle secanti
   Metodo di Newton
   Conversioni tra unità di misura
+  La funzione append e append-nil
 
 APPENDICI
 =========

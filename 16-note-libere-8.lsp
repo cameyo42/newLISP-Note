@@ -1115,5 +1115,86 @@ Reaumur
 (reaumur-rankine 10)
 ;-> 514.1700000000001
 
+
+-------------------------------
+La funzione append e append-nil
+-------------------------------
+
+********************
+>>> funzione APPEND
+********************
+sintassi: (append list-1 [list-2 ... ])
+sintassi: (append array-1 [array-2 ... ])
+sintassi: (append str-1 [str-2 ... ])
+
+"append" funziona con liste, vettori, stringhe, aggiungendo list-1 (o array-1 o string-1) tramite list-n (o array-n o string-n) per formare una nuova lista (o vettore o stringa). Gli oggetti originali rimangono invariati.
+
+(append '(1 2 3) '(4 5 6) '(a b))
+;-> (1 2 3 4 5 6 a b)
+
+(set 'aList '("hello" "world"))
+;-> ("hello" "world")
+
+(append aList '("here" "I am"))
+;-> ("hello" "world" "here" "I am")
+
+(set 'A (array 3 2 (sequence 1 6)))
+;-> ((1 2) (3 4) (5 6))
+(set 'B (array 2 2 (sequence 7 10)))
+;-> ((7 8) (9 10))
+
+(append A B)
+;-> ((1 2) (3 4) (5 6) (7 8) (9 10))
+
+(append B B B)
+;-> ((7 8) (9 10) (7 8) (9 10) (7 8) (9 10))
+
+(set 'more " how are you")
+;-> " how are you"
+
+(append "Hello " "world," more)
+;-> "Hello world, how are you"
+
+"append" è adatto anche per elaborare stringhe binarie contenenti zeri. La funzione "string" taglierebbe le stringhe a zero byte.
+
+I caratteri o le stringhe di collegamento possono essere specificati utilizzando la funzione "join". Usa la funzione "string" per convertire gli argomenti in stringhe e aggiungerli in un solo passaggio.
+
+Utilizzare le funzioni "extend" e "push" per aggiungere una lista o una stringa esistente modificando la l'oggetto di destinazione.
+
+In Common LISP è possibile "appendere" una lista a nil:
+
+  (append nil '(a b)) -> '(a b)
+
+In newLISP questo genera un errore:
+
+(append nil '(a b))
+;-> ERR: array, list or string expected in function append : nil
+
+Possiamo scrivere una funzione che si comporta come la "append" del Common LISP:
+
+(define (append-nil obj)
+  (if obj (append obj (apply append (args)))
+            (apply append (args))))
+
+(append-nil nil '(a b))
+;-> (a b)
+
+Verifichiamo che "append-nil" si comporta come "append":
+
+(append-nil '(1 2 3) '(4 5 6) '(a b))
+;-> (1 2 3 4 5 6 a b)
+
+(append-nil aList '("here" "I am"))
+;-> ("hello" "world" "here" "I am")
+
+(append-nil A B)
+;-> ((1 2) (3 4) (5 6) (7 8) (9 10))
+
+(append-nil B B B)
+;-> ((7 8) (9 10) (7 8) (9 10) (7 8) (9 10))
+
+(append-nil "Hello " "world," more)
+;-> "Hello world, how are you"
+
 =============================================================================
 

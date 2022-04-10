@@ -111,6 +111,11 @@
 |   102    |  228               |         -  |         2  |         0  |
 |   104    |  329468            |         -  |     37978  |         0  |
 |   112    |  1587000           |         -  |      1732  |         0  |
+|   113    |  51161058134250    |         -  |         8  |         0  |
+|   119    |  248155780267521   |         -  |        26  |         0  |
+|   120    |  333082500         |         -  |         0  |         0  |
+|   125    |  2906969179        |         -  |      1570  |         0  |
+|   188    |  95962097          |         -  |        29  |         -  |
 |   206    |  1389019170        |         -  |         2  |         -  |
 
 Sito web: https://projecteuler.net/archives
@@ -12081,6 +12086,309 @@ Secondo metodo per vedere se un numero è bouncy:
 > (time (println (e112)))
 ;-> 1587000
 ;-> 2014.022
+----------------------------------------------------------------------------
+
+
+============
+Problema 113
+============
+
+Numeri Non-bouncy
+
+Lavorando da sinistra a destra se nessuna cifra viene superata dalla cifra alla sua sinistra si chiama numero crescente; per esempio, 134468.
+
+Allo stesso modo se nessuna cifra viene superata dalla cifra alla sua destra viene chiamata numero decrescente; ad esempio, 66420.
+
+Chiameremo un numero intero positivo che non è né crescente né decrescente un numero "rimbalzante" (bouncy), per esempio, 155349.
+
+All'aumentare di n, la proporzione di numeri rimbalzanti al di sotto di n aumenta in modo tale che ci siano solo 12951 numeri al di sotto di un milione che non sono rimbalzanti e solo 277032 numeri non rimbalzanti al di sotto di 10^10.
+
+Quanti numeri sotto un googol (10^100) non sono rimbalzanti?
+============================================================================
+
+(define (binom num k)
+"Calculates the binomial coefficient (n k) = n!/(k!*(n - k)!) (combinations of k elements without repetition from n elements)"
+  (cond ((> k num) 0)
+        ((zero? k) 1)
+        (true
+          (let (r 1L)
+            (for (d 1 k)
+              (setq r (/ (* r num) d))
+              (-- num)
+            )
+          r))))
+
+(binom 21 6)
+;-> 54264L
+
+Calcola quanti sono i numeri non-bouncy con n cifre:
+
+(define (non-bouncy-n-digits num-digit)
+  (add (binom (+ num-digit 8) num-digit)
+       (binom (+ num-digit 9) num-digit)
+       (- 10)))
+
+(non-bouncy-n-digits 1)
+;-> 9
+(non-bouncy-n-digits 2)
+;-> 90
+(non-bouncy-n-digits 10)
+;-> 136126
+
+Calcola quanti sono i numeri non-bouncy fino a un numero di n cifre:
+
+(define (non-bouncy-n-digits-all num-digit)
+  (let (out 0)
+    (for (i 1 num-digit)
+      (setq out (+ out (non-bouncy-n-digits i)))
+    )
+    out))
+
+(non-bouncy-n-digits-all 1)
+;-> 9
+(non-bouncy-n-digits-all 2)
+;-> 99
+(non-bouncy-n-digits-all 10)
+;-> 277032
+
+(define (e113 n)
+  (non-bouncy-n-digits-all n))
+
+(e113 100)
+;-> 51161058134250
+
+(time (e113 100))
+;-> 7.978
+----------------------------------------------------------------------------
+
+
+============
+Problema 119
+============
+
+Somma delle potenze delle cifre
+
+Il numero 512 è interessante perché è uguale alla somma delle sue cifre elevate a una certa potenza: 5 + 1 + 2 = 8 e 8^3 = 512. Un altro esempio di numero con questa proprietà è 614656 = 28^4.
+
+Definiremo a(n) come l'n-esimo termine di questa sequenza e imponiamo il vincolo che un numero deve contenere almeno due cifre per avere una somma.
+
+Ti viene dato che a(2) = 512 e a(10) = 614656.
+
+Trova a30.
+
+============================================================================
+
+(define (digit-sum num)
+"Calculates the sum of the digits of an integer"
+  (let (out 0)
+    (while (!= num 0)
+      (setq out (+ out (% num 10)))
+      (setq num (/ num 10))
+    )
+    out))
+
+(digit-sum 1352)
+;-> 11
+
+(define (e119 n)
+  (local (out val)
+    (setq out '())
+    (for (digit 2 99)
+      (for (power 2 99)
+        (setq val (int (pow digit power)))
+        (if (= digit (digit-sum val))
+            (push val out -1)
+        )
+      )
+    )
+    ((sort out) (- n 1))))
+
+(e119 2)
+;-> 512
+(e119 10)
+;-> 614656
+(e119 30)
+;-> 248155780267521
+
+(time (e119 30))
+;-> 25.96
+----------------------------------------------------------------------------
+
+
+============
+Problema 120
+============
+
+Resti dei quadrati
+
+Sia r il resto quando (a−1)^n + (a+1)^n è diviso per a^2.
+
+Ad esempio, se a = 7 e n = 3, allora r = 42: 6^3 + 8^3 = 728 ≡ 42 mod 49. E poiché n varia, anche r varia, ma per a = 7 risulta che rmax = 42.
+
+Per 3 ≤ a ≤ 1000, trova ∑ rmax.
+============================================================================
+
+Soluzione 1:
+Matematicamente dal teorema del binomiale risulta:
+
+                      n
+  (a−1)^n + (a+1)^n = ∑ (binom n i)*a^i*((-1)^n + 1)
+                     i=0
+
+Espandendo i termini, otteniamo 2 se n è pari e 2*a*n se n è dispari.
+
+Per n pari:
+
+  (a-1)^n + (a+1)^n (mod a^2) ≡ 2
+
+Per n dispari:
+
+  (a-1)^n + (a+1)^n (mod a^2) ≡ 2*n*a
+
+La soluzione consiste nel trovare n in modo che 2*n*a sia il più vicino possibile ad a^2, ma non lo superi. Quindi consideriamo la disuguaglianza 2*n*a < a^2, o 2n < a.
+Se a è pari, il valore di n che soddisfa la disuguaglianza è n = a/2 – 1, e il resto corrispondente è a^2 – 2a.
+Se a è dispari, il valore di n che soddisfa la disuguaglianza è n = (a-1)/2, e il resto corrispondente è a^2 – a. (
+Per massimizzare il valore deve risultare, 2*a*n < a*a => n <= (a - 1)/2 (divisione intera)
+
+(define (e120 n)
+  (let (somma 0)
+    (for (a 3 n)
+      (setq somma (+ somma (* 2 a (/ (- a 1) 2))))
+    )
+    somma))
+
+(euler120 1000)
+;-> 333082500
+
+Soluzione 2:
+L'espansione diretta della formula porta al seguente risultato:
+
+  1000            999
+    ∑(a^2 - 2*a) + ∑(a^2 - 2*a) =
+  a=4(pari)      a=3(dispari)
+
+  1000     1000   1000
+=   ∑(a^2) - ∑(a) - ∑(a) =
+   a=3      a=3    a=4(pari)
+
+  1000     1000   1000
+=   ∑(a^2) - ∑(a) - ∑(a) =
+   a=3      a=3    a=4(pari)
+
+   1000          1000      500
+=   (∑(a^2)-1+4) - ∑(a) - 2*∑(a) =
+    i=1           i=1      i=2
+
+= ((1000*1001*2001)/6 + 5) - 998*1003/2 - 2*(499*502/2)
+
+(define (e120-2 n)
+  (-
+    (- (/ (* n (+ n 1) (+ (* 2 n) 1)) 6) 5)
+    (/ (* (- n 2) (+ n 3)) 2)
+    (* (- (/ n 2) 1) (+ (/ n 2) 2))))
+
+(e120-2 1000)
+;-> 333082500
+
+(time (e120 1000))
+;-> 0
+(time (e120-2 1000))
+;-> 0
+----------------------------------------------------------------------------
+
+
+============
+Problema 125
+============
+
+Somme palindrome
+
+Il numero palindromo 595 è interessante perché può essere scritto come somma di quadrati consecutivi: 6^2 + 7^2 + 8^2 + 9^2 + 10^2 + 11^2 + 12^2.
+
+Ci sono esattamente undici palindromi al di sotto di mille che possono essere scritti come somme consecutive di quadrati e la somma di questi palindromi è 4164. Si noti che 1 = 0^2 + 1^2 non è stato incluso poiché questo problema riguarda i quadrati di numeri interi positivi.
+
+Trova la somma di tutti i numeri minori di 10^8 che sono entrambi palindromi e possono essere scritti come somma di quadrati consecutivi.
+============================================================================
+
+(define (palindrome? obj)
+"Check if a list or a string or a number is palindrome"
+  (let (str (string obj))
+    (= str (reverse (copy str)))))
+
+(palindrome? 1250521)
+;-> true
+
+(define (e125 n)
+  (local (out primo-quad ultimo-quad somma-quad)
+    (setq out '())
+    (setq primo-quad 1)
+    (setq somma-quad 5)
+    (while (< somma-quad n)
+      (setq ultimo-quad (+ primo-quad 1))
+      (while (< somma-quad n)
+        (if (palindrome? somma-quad)
+            (push somma-quad out -1)
+        )
+        (++ ultimo-quad)
+        (setq somma-quad (+ somma-quad (mul ultimo-quad ultimo-quad)))
+      )
+      (++ primo-quad)
+      (setq somma-quad (+ (* primo-quad primo-quad) (* (+ primo-quad 1) (+ primo-quad 1))))
+    )
+    (apply + (unique out))))
+
+(e125 1e8)
+;-> 2906969179
+
+(time (e125 1e8))
+;-> 1569.753
+----------------------------------------------------------------------------
+
+
+============
+Problema 188
+============
+
+L'iperesponenziazione di un numero
+
+L'iperesponenziazione o tetrazione di un numero a per un intero positivo b, denotato da a↑↑b o (b)^a, è definita ricorsivamente da:
+
+  a↑↑1 = a,
+  a↑↑(k+1) = a(a↑↑k).
+
+Quindi abbiamo ad es. 3↑↑2 = 3^3 = 27, quindi 3↑↑3 = 3^27 = 7625597484987 e 3↑↑4 è circa 10^3,6383346400240996*10^12.
+
+Trova le ultime 8 cifre di 1777↑↑1855.
+============================================================================
+
+(define (powmod base expt modulo)
+"Calculates (base^exponent % modulo)"
+  (let (out 1L)
+    (while (> expt 0)
+      (if (odd? expt)
+          (setq out (% (* out base) modulo)))
+      (setq base (% (* base base) modulo))
+      (setq expt (/ expt 2)))
+    out))
+
+(powmod 15 65535 6)
+;-> 3L
+
+(define (e188)
+  (let ((base 1777) (hyper 1855) (digit 8) (out 0))
+    (setq out base)
+    ; calcola base↑↑hyper mediante esponenziazione modulare ripetuta 
+    ; (associativa a destra)
+    (for (i 1 (- hyper 1))
+      (setq out (powmod base out (pow 10 digit)))
+    )
+    out))
+
+(e188)
+;-> 95962097L
+
+(time (e188))
+;-> 29.751
 ----------------------------------------------------------------------------
 
 
