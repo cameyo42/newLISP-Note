@@ -7912,7 +7912,7 @@ Nel primo caso, la capacità disponibile viene ridotta di p(i). Abbiamo quindi l
 opt[i][c] = max |
                 | opt[i-1][c]              (nel caso in cui lasciamo l'oggetto)
 
-Questo è un algoritmo con complessità pseudo-polinomiale O(n*C), cioè un algoritmo che è polinomiale nel valore degli input ma non nella loro dimensione (inquesto caso, aumentando di poco la dimensione di C raddoppia il tempo di esecuzione).
+Questo è un algoritmo con complessità pseudo-polinomiale O(n*C), cioè un algoritmo che è polinomiale nel valore degli input, ma non nella loro dimensione (in questo caso, aumentando di poco la dimensione di C raddoppia il tempo di esecuzione).
 
 Una matrice booleana Sel viene mantenuta in parallelo con la matrice di programmazione dinamica Opt. Questo ci permette di ricordare le scelte fatte che hanno portato ai valori memorizzati in Opt. Una volta che queste matrici sono state popolate seguendo la formula di ricorrenza sopra descritta, attraversando gli elementi in ordine inverso possiamo estrarre dalla matrice Sel l'insieme di elementi che fornisce il valore totale ottimale.
 

@@ -115,6 +115,7 @@
 |   119    |  248155780267521   |         -  |        26  |         0  |
 |   120    |  333082500         |         -  |         0  |         0  |
 |   125    |  2906969179        |         -  |      1570  |         0  |
+|   135    |  4989              |         -  |      2874  |      1194  |
 |   188    |  95962097          |         -  |        29  |         -  |
 |   206    |  1389019170        |         -  |         2  |         -  |
 
@@ -9560,6 +9561,7 @@ Quindi possiamo scegliere 2 linee verticali e 2 linee orizzontali per formare un
 ===========
 Problema 86
 ===========
+
 Un ragno, S, si trova in un angolo di una stanza cuboide (parallelepipedo) che misura 6 per 5 per 3, e una mosca, F, si trova nell'angolo opposto. Percorrendo le superfici della stanza la distanza "retta" più breve da S a F è 10 e il percorso è mostrato nel diagramma "e086p.png".
 
 Tuttavia, ci sono fino a tre candidati di percorso "più breve" per ogni dato cuboide e il percorso più breve non ha sempre una lunghezza intera.
@@ -12095,9 +12097,9 @@ Problema 113
 
 Numeri Non-bouncy
 
-Lavorando da sinistra a destra se nessuna cifra viene superata dalla cifra alla sua sinistra si chiama numero crescente; per esempio, 134468.
+Lavorando da sinistra a destra se nessuna cifra viene superata dalla cifra alla sua sinistra si chiama numero crescente, per esempio, 134468.
 
-Allo stesso modo se nessuna cifra viene superata dalla cifra alla sua destra viene chiamata numero decrescente; ad esempio, 66420.
+Allo stesso modo se nessuna cifra viene superata dalla cifra alla sua destra viene chiamata numero decrescente, ad esempio, 66420.
 
 Chiameremo un numero intero positivo che non è né crescente né decrescente un numero "rimbalzante" (bouncy), per esempio, 155349.
 
@@ -12175,7 +12177,6 @@ Definiremo a(n) come l'n-esimo termine di questa sequenza e imponiamo il vincolo
 Ti viene dato che a(2) = 512 e a(10) = 614656.
 
 Trova a30.
-
 ============================================================================
 
 (define (digit-sum num)
@@ -12247,7 +12248,7 @@ Per n dispari:
 
 La soluzione consiste nel trovare n in modo che 2*n*a sia il più vicino possibile ad a^2, ma non lo superi. Quindi consideriamo la disuguaglianza 2*n*a < a^2, o 2n < a.
 Se a è pari, il valore di n che soddisfa la disuguaglianza è n = a/2 – 1, e il resto corrispondente è a^2 – 2a.
-Se a è dispari, il valore di n che soddisfa la disuguaglianza è n = (a-1)/2, e il resto corrispondente è a^2 – a. (
+Se a è dispari, il valore di n che soddisfa la disuguaglianza è n = (a-1)/2, e il resto corrispondente è a^2 – a.
 Per massimizzare il valore deve risultare, 2*a*n < a*a => n <= (a - 1)/2 (divisione intera)
 
 (define (e120 n)
@@ -12342,6 +12343,92 @@ Trova la somma di tutti i numeri minori di 10^8 che sono entrambi palindromi e p
 
 (time (e125 1e8))
 ;-> 1569.753
+----------------------------------------------------------------------------
+
+
+============
+Problema 135
+============
+
+Stesse differenze
+
+Dati gli interi positivi, x, y e z, che sono termini consecutivi di una progressione aritmetica, il valore minimo dell'intero positivo, n, per il quale l'equazione, x^2 − y^2 − z^2 = n, ha esattamente due soluzioni è n = 27:
+
+34^2 − 27^2 − 20^2 = 12^2 − 9^2 − 6^2 = 27
+
+Si scopre che n = 1155 è il valore minimo che ha esattamente dieci soluzioni.
+
+Quanti valori di n inferiori a un milione hanno esattamente dieci soluzioni distinte?
+============================================================================
+
+Ponendo x,y,z rispettivamente nella forma a+b, a, a-b, l'equazione data si riduce a a*(4*b-a) = n.
+
+  x^2 − y^2 − z^2 = n (*)
+
+Poniamo:
+
+  y = a
+  x = a + b
+  z = a - b
+
+e sostituendo nella equazione (*) otteniamo:
+
+    (a+b)^2 - a^2 - (a-b)^2 = 
+  = a^2 + 2ab + b^2 - a^2 - a^2 + 2ab - b^2 =
+  = 4ab - a^2 =
+  = a(4b - a)
+
+Tutte le variabili sono interi positivi, quindi deve risultare 1 <= a < n.
+Calcoliamo il numero di soluzioni per ogni n fino a 1 milione fissando "a" e quindi considerando che "n" deve essere multiplo di "a".
+
+(define (e135 n)
+  (local (freq diff)
+    (setq freq (array (+ n 1) '(0)))
+    (for (primo 1 (- n 1))
+      (for (k primo (- n 1) primo)
+        (setq diff (+ primo (/ k primo)))
+              ; diff deve essere divisibile per 4
+        (cond ((!= (% diff 4) 0) nil)
+              (true
+                (setq diff (/ diff 4))
+                ; se x,y,z sono interi positivi
+                ; risulta z>0, a>d e 4d<a
+                (if (and (> primo diff) (< primo (* diff 4)))
+                    (++ (freq k))
+                ))
+        )
+      )
+    )
+    (first (count '(10) (array-list freq)))))
+
+(e135 1e6)
+;-> 4989
+
+(time (e135 1e6))
+;-> 2873.557
+
+Possiamo migliorare il tempo di esecuzione considerando che anche il valore tra parentesi (4b - a) deve essere positivo, quindi deve risultare ceil(a/4) <= b < a.
+
+(define (e135-2 n)
+  (local (freq stop val)
+    (setq freq (array (+ n 1) '(0)))
+    (for (a 1 (- n 1))
+      (setq stop nil)
+      (for (b (/ (+ a 3) 4) (- a 1) 1 stop)
+        (setq val (* a (- (* 4 b) a)))
+        (if (>= val n)
+            (setq stop true)
+            (++ (freq val))
+        )
+      )
+    )
+    (first (count '(10) (array-list freq)))))
+
+(e135-2 1e6)
+;-> 4989
+
+(time (e135-2 1e6))
+;-> 1194.103
 ----------------------------------------------------------------------------
 
 

@@ -1196,5 +1196,148 @@ Verifichiamo che "append-nil" si comporta come "append":
 (append-nil "Hello " "world," more)
 ;-> "Hello world, how are you"
 
+
+------------
+Knapsack 0-1
+------------
+
+La seguente implementazione ricorsiva restituisce il valore massimo che può essere inserito in uno zaino di una data capacità, per cui ogni oggetto ha un peso e un valore specifico.
+
+(define (knapsack capacita pesi valori)
+  (local (num-oggetti)
+    (setq num-oggetti (length valori))
+    (knapsack-ex capacita pesi valori num-oggetti)
+  ))
+
+(define (knapsack-ex cap wei val cou)
+  (local (left new-in new-out)
+          ; caso base
+    (cond ((or (zero? cou) (zero? cap))
+           0)
+  ; Se il peso dell'n-esimo oggetto è superiore alla capacità dello zaino, 
+  ; allora questo elemento non può essere incluso nella soluzione ottimale,
+  ; altrimenti (true) restituisce il massimo di due casi:
+  ; (1) n-esimo oggetto incluso
+  ; (2) n-esimo oggetto non incluso           
+          ((> (wei (- cou 1)) cap)
+           (knapsack-ex cap wei val (- cou 1)))
+          (true
+            (setq left (- cap (wei (- cou 1))))
+            (setq new-in (+ (val (- cou 1))
+                  (knapsack-ex left wei val (- cou 1))))
+            (setq new-out (knapsack-ex cap wei val (- cou 1)))
+            (max new-in new-out)))))
+
+Vediamo un esempio:
+
+capacita = 50
+valori = (60 100 120)
+pesi = (10 20 30)
+
+(knapsack 50 '(10 20 30) '(60 100 120))
+;-> 220
+Il risultato è 220 perché i valori di 100 e 120 hanno il peso di 50 (20 + 30) che è il limite della capacità.
+
+Vediamo un altro esempio:
+
+(setq item '((maps 9 150) (compass 13 35) (water 153 200) (sandwich 50 160)
+             (glucose 15 60) (tin 68 45) (banana 27 60) (apple 39 40)
+             (cheese 23 30) (beer 52 10) (suntan-cream 11 70) (camera 32 30)
+             (T-shirt 24 15) (trousers 48 10) (umbrella 73 40)
+             (waterproof-trousers 42 70) (waterproof-overclothes 43 75)
+             (note-case 22 80) (sunglasses 7 20) (towel 18 12) (socks 4 50)
+             (book 30 10)
+            ))
+
+(setq p (map (fn(x) (x 1)) item))
+;-> (9 13 153 50 15 68 27 39 23 52 11 32 24 48 73 42 43 22 7 18 4 30)
+(setq v (map (fn(x) (x 2)) item))
+;-> (150 35 200 160 60 45 60 40 30 10 70 30 15 10 40 70 75 80 20 12 50 10)
+
+(knapsack 400 p v)
+;-> 1030
+
+Vedi anche "Il problema dello zaino (Knapsack)" su "Note libere 3" e "Problema dello zaino (Knapsack)" su "Rosetta Code".
+
+
+--------------------
+La funzione read-key
+--------------------
+
+**********************
+>>> funzione READ-KEY
+**********************
+sintassi: (read-key [true])
+
+Legge un tasto dalla tastiera e restituisce un valore intero. Per i tasti di navigazione, è necessario effettuare più chiamate a "read-key" a seconda del sistema operativo. Per i tasti che rappresentanono caratteri ASCII, il valore restituito è lo stesso su tutti i sistemi operativi, ad eccezione dei tasti di navigazione e di altre sequenze di controllo come i tasti funzione, nel qual caso i valori restituiti possono variare in base ai diversi sistemi operativi e configurazioni.
+
+Quando si utilizza il flag true, "read-key" non è bloccante e viene restituito 0 (zero) quando non è stato premuto alcun tasto. Quando non si utilizza il flag extra, la chiamata a "read-key" blocca il programma finché non viene premuto un tasto.
+
+(read-key)  → 97  ; dopo aver premuto il tasto A
+(read-key)  → 65  ; dopo aver premuto il tasto Shift-A
+(read-key)  → 10  ; dopo aver premuto il tasto [enter] on Linux
+(read-key)  → 13  ; dopo aver premuto il tasto [enter] on Windows
+
+(read-key true)  → 0 ; quando non viene premuto alcun tasto
+
+(while (!= (set 'c (read-key)) 1) (println c))
+
+L'ultimo esempio può essere utilizzato per controllare le sequenze di ritorno dei tasti di navigazione e dei tasti funzione. Per uscire dal ciclo, premere Ctrl-A.
+
+Si noti che "read-key" funziona solo quando newLISP è in esecuzione in una shell Unix o in una shell dei comandi di Windows. Non funzionerà se eseguito dalla libreria condivisa newLISP Unix o dalla DLL (Dynamic Link Library) di MS Windows newLISP. Queste librerie non stanno ascoltando (listening) lo standard input.
+
+Le seguenti note sono valide per il sistema operativo Windows.
+Scriviamo una funzione che stampa il numero associato al tasto che viene premuto. Alcuni tasti (es. tasti funzione, tasti funzione e tasti speciali) restituiscono due valori, in questo caso il valore da considerare è l'ultimo che viene stampato.
+La funzione viene interrotta premendo il tasto "Invio" (codice tasto: 13).
+
+(define (keys)
+  (local (k)
+    (while (!= (setq k (read-key)) 13)
+      (setq s (string k))
+      (println s))))
+
+Facciamo alcune prove:
+
+(keys)
+;-> 1   ; Ctrl-A
+;-> 111 ; O
+;-> 79  ; o
+;-> 0
+;-> 59  ; F1
+;-> 0
+;-> 60  ; F2
+;-> 224
+;-> 81  ; PageUp
+;-> 224
+;-> 72  ; Up
+;-> 224
+;-> 77  ; Right
+;-> 224
+;-> 80  ; Down
+;-> 224
+;-> 75  ; Left
+
+Adesso vediamo come utilizzare questi codici per riconoscere quali tasti vengono premuti. Facciamo un esempio con i quattro tasti di navigazione: Up, Right, Down, Left.
+
+(define (check-keys)
+  (local (k)
+    (while (!= (setq k (read-key)) 13)
+      (cond ((= k 72) (println "Pressed UP key"))
+            ((= k 77) (println "Pressed RIGHT key"))
+            ((= k 80) (println "Pressed DOWN key"))
+            ((= k 75) (println "Pressed LEFT key"))
+      )
+    )
+    'end))
+
+Lanciamo la funzione e poi premianmo i tasti di navigazione:
+
+(check-keys)
+;-> Pressed UP key
+;-> Pressed UP key
+;-> Pressed LEFT key
+;-> Pressed DOWN key
+;-> Pressed RIGHT key
+
 =============================================================================
 

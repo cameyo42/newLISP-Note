@@ -330,7 +330,7 @@ ROSETTA CODE
 
 PROJECT EULERO
 ==============
-  Problemi 1..102, 104, 112, 113, 119, 120, 125, 188, 206
+  Problemi 1..102, 104, 112, 113, 119, 120, 125, 135, 188, 206
   
 PROBLEMI VARI
 =============
@@ -1128,6 +1128,8 @@ NOTE LIBERE 8
   Metodo di Newton
   Conversioni tra unità di misura
   La funzione append e append-nil
+  Knapsack 0-1
+  La funzione read-key
 
 APPENDICI
 =========
