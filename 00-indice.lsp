@@ -1130,6 +1130,9 @@ NOTE LIBERE 8
   La funzione append e append-nil
   Knapsack 0-1
   La funzione read-key
+  Problema del cambio delle monete
+  Interesse semplice e composto
+  Massima sottosequenza comune (longest common subsequence)
 
 APPENDICI
 =========

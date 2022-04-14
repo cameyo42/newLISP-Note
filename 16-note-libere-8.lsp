@@ -1339,5 +1339,185 @@ Lanciamo la funzione e poi premianmo i tasti di navigazione:
 ;-> Pressed DOWN key
 ;-> Pressed RIGHT key
 
+
+--------------------------------
+Problema del cambio delle monete
+--------------------------------
+
+Algoritmo di programmazione dinamica per la soluzione del problema del cambio delle monete riportato nel seguente articolo:
+
+"Dynamic Programming Solution to the Coin Changing Problem"
+College of Computer and Information Science, Northeastern University
+CS7800 Advanced Algorithms
+Prof. Aslam
+
+https://www.ccs.neu.edu/home/jaa/CS7800.12F/Information/Handouts/dyn_prog.pdf
+
+(define (change d n)
+  (local (S C moneta minimo k out)
+    (setq out '())
+    (setq k (- (length d) 1))
+    (setq C (array (+ n 1) '(0)))
+    (setq S (array (+ n 1) '(0)))
+    (for (p 1 n)
+      (setq minimo 999999999)
+      (setq moneta 0)
+      (for (i 1 k)
+        (if (>= p (d i)) 
+            (if (< (+ (C (- p (d i))) 1) minimo)
+                (set 'minimo (+ (C (- p (d i))) 1)
+                     'moneta i)
+            )
+        )
+        (setf (C p) minimo)
+        (setf (S p) moneta)
+      )
+    )
+    ; minimum moneys needed for the exchange
+    (println (C n))
+    ; build solution from S
+    ; values of exhcange monetas
+    (while (> n 0)
+      ;(print (d (S n)) { })
+      (if (!= (d (S n)) 0)
+        (push (d (S n)) out -1)
+      )
+      (setq n  (- n (d (S n))))
+    )
+    out))
+
+Parametri:
+
+d -> lista delle monete (deve contenere anche 0 e 1)
+n -> cifra da cambiare
+
+Nota: la lista delle monete deve iniziare con 1 e l'elemento alla posizione 0 non è influente (per comodità poniamo l'elemento alla posizione 0 pari a 0).
+
+(change '(0 1 5 10 20) 105)
+;-> 6
+;-> (5 20 20 20 20 20)
+
+(change '(0 1 5 10 20) 106)
+;-> 7
+;-> (1 5 20 20 20 20 20)
+
+(change '(0 1 3 5 10 20) 53)
+;-> 4
+;-> (3 10 20 20)
+
+Il primo ciclo itera da 1 a n e quindi ha un tempo di esecuzione di O(n).
+Poi troviamo un ciclo annidato. Il primo ciclo itera da 1 a n e il secondo itera da 1 a k che produce un tempo di esecuzione totale di O(n*k).
+L'ultimo ciclo verrà eseguito n volte nel peggiore dei casi (a seconda del valore di n - d(S(n))), quindi ha un tempo di esecuzione di O(n).
+Tutte le altre espressioni richiedono tempo costante.
+Quindi l'algoritmo ha un tempo di esecuzione di O(n*k).
+
+
+-----------------------------
+Interesse semplice e composto
+-----------------------------
+
+L'interesse in economia finanziaria è la somma dovuta come compenso per ottenere la disponibilità di un capitale (solitamente una somma di denaro) per un certo periodo.
+
+Il tasso di interesse è la percentuale del capitale che va pagata annualmente come interesse.
+
+Interesse semplice
+------------------
+L'interesse lineare o interesse semplice è un interesse che si accumula linearmente. In altre parole, cresce di una certa frazione del capitale per unità di tempo.
+
+Il capitale di riferimento del tasso di interesse semplice non varia mai, ma rimane sempre uguale. Vediamo come funziona con un esempio:
+
+Acquistiamo un titolo di stato da 10000 euro che garantisce ogni anno un tasso di interesse del 5% netto.
+Per calcolare quanti soldi riceverò tra 10 anni con un tasso di interesse semplice non devo fare altro che calcolare il 5% dei 10000 euro del primo anno e poi moltiplicare questa cifra per i successivi 10 anni. Quindi, poichè il 5% di 10000 euro è 500 euro, basta moltiplicare 500 euro per 10 anni e ottenere così l’incremento di 5000 euro. Alla fine del decimo anno avremo 10000 + 5000 = 15000 euro.
+
+La formula generale è la seguente:
+
+  C(n) = C0*(1 + n*t)
+
+  C(n): Capitale dopo n anni
+  C0:   Capitale iniziale
+  t :   Tasso d'interesse
+  n:    Numero di anni
+
+(Nota: Il tasso di interesse "t" è un numero puro (es. 0.05), non una percentuale (es. 5%).
+
+(define (interesse-semplice c0 t n)
+  (mul c0 (add 1 (mul n t))))
+
+(interesse-semplice 10000 10 0.05)
+;-> 15000
+
+Interesse composto
+------------------
+L'interesse composto o anatocismo è l'interesse che viene regolarmente aggiunto al debito. L'interesse viene allora calcolato non solo sul capitale, ma anche sugli interessi aggiunti al debito in precedenza – in altre parole, sul montante. Con l'interesse composto, la frequenza di capitalizzazione influenza l'interesse totale pagato nel corso della vita totale del prestito. La funzione dei montanti per l'interesse composto cresce in modo esponenziale rispetto al tempo.
+Calcoliamo l'interesse composto con i dati dell'esempio precedente.
+Dopo il primo anno, come visto sopra, abbiamo 500 euro in più e un capitale di 10500 euro. Poichè l'investimento genera un interesse del 5% annuo, occorre calcolare il 5% sul nuovo montante di 10500 euro. Andando avanti in questo modo, dopo il secondo anno abbiamo un valore di 525 euro e il terzo anno abbiamo un montante pari a 11025 euro... dopo 10 anni avremo un capitale di 16288.95 euro, quindi quasi 1290 euro in più rispetto al caso dell’interesse semplice.
+
+  C(n) = C0*(1 + t/k)^(k*n)
+
+  C(n): Capitale dopo n anni
+  C0:   Capitale iniziale
+  t :   Tasso d'interesse
+  n:    Numero di anni
+  k: Numero di periodi di capitalizzazione composta per anno 
+  (notare che il numero totale di periodi di capitalizzazione composta è k*n)
+
+se k = 1  ==>  C(n) = C0*(1 + t)^n
+
+(define (interesse-composto c0 t n k)
+  (mul c0 (pow (add 1 (div t k)) (mul k n))))
+
+(interesse-composto 10000 0.05 10 1)
+;-> 16288.94626777442
+
+
+---------------------------------------------------------
+Massima sottosequenza comune (longest common subsequence)
+---------------------------------------------------------
+Il problema della sottosequenza comune più lunga (LCS) è il problema di trovare la sottosequenza più lunga comune a tutte le sequenze in un insieme di sequenze (spesso solo due sequenze). Si differenzia dal problema di sottostringa comune più lunga: a differenza delle sottostringhe, le sottosequenze non devono occupare posizioni consecutive all'interno delle sequenze originali.
+
+Date due sequenze, trova la lunghezza della sottosequenza più lunga presente in entrambe. Una sottosequenza è una sequenza che appare nello stesso ordine relativo, ma non necessariamente continua.
+Esempio: "abc", "abfh" sono sottosequenze di "abcdefgh".
+
+(define (lcs x y)
+  (local (m n L mmatch seq i j)
+    (setq m (length x))
+    (setq n (length y))
+    (setq L (array (+ m 1) (+ n 1) '(0)))
+      (for (i 1 m)
+        (for (j 1 n)
+          (if (= (x (- i 1)) (y (- j 1)))
+              (setq mmatch 1)
+              (setq mmatch 0)
+          )
+          (setf (L i j) (max (L (- i 1) j) (L i (- j 1)) (+ (L (- i 1) (- j 1)) mmatch)))
+        )
+      )
+      (setq seq "")
+      (setq i m)
+      (setq j n)
+      (while (and (> i 0) (> j 0))
+        (if (= (x (- i 1)) (y (- j 1)))
+                (setq mmatch 1)
+                (setq mmatch 0)
+        )
+        (cond ((= (L i j) (+ (L (- i 1) (- j 1)) mmatch))
+               (if (= mmatch 1) (setf seq (append (x (- i 1)) seq)))
+               (-- i)
+               (-- j))
+              ((= (L i j) (L (- i 1) j))
+               (-- i))
+              (true (-- j))
+        )
+     )
+     (list (L m n) seq)))
+
+Vediamo un paio di esempi:
+
+(lcs "abfh" "abcdefgh")
+;-> (4 "abfh")
+
+(lcs "AGXGTAB" "GXXTXAYB")
+;-> (5 "GXTAB")
+
 =============================================================================
 

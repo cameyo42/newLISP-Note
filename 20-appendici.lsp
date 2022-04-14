@@ -2979,12 +2979,28 @@ Add these lines to the file "keybindings.json":
 1. Shift+Enter to run selected text or current line
 
 { "key": "shift+enter",
-  "command": "workbench.action.terminal.runSelectedText", "when": "editorTextFocus"}
+  "command": "workbench.action.terminal.runSelectedText", "when": "editorTextFocus"},
 
 2. switch editor <--> terminal
 
 { "key": "ctrl+`", "command": "workbench.action.focusActiveEditorGroup", "when": "terminalFocus" },
 { "key": "ctrl+`", "command": "workbench.action.terminal.focus", "when": "!terminalFocus" },
+
+In definitiva:
+
+[
+    { "key": "shift+enter",
+      "command": "workbench.action.terminal.runSelectedText",
+      "when": "editorTextFocus" },
+
+    { "key": "ctrl+`",
+      "command": "workbench.action.focusActiveEditorGroup",
+       "when": "terminalFocus" },
+
+    { "key": "ctrl+`",
+      "command": "workbench.action.terminal.focus",
+      "when": "!terminalFocus" }
+]
 
 Now, open Terminal and run newlisp.exe (type newlisp.exe)
 
@@ -6087,7 +6103,7 @@ Lista delle funzioni:
 "The only way to learn a new programming language is by writing programs in it."
 - Kernighan and Ritchie
 
-"Debugging is twice as hard as writing the code in the first place. Therefore, if you write the code as cleverly as possible, you are, by definition, not smart enough to debug it." 
+"Debugging is twice as hard as writing the code in the first place. Therefore, if you write the code as cleverly as possible, you are, by definition, not smart enough to debug it."
 - Kernighan
 
 "Most languages in computer science describe how their author learned what someone else already developed."
