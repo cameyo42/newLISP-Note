@@ -1132,7 +1132,9 @@ NOTE LIBERE 8
   La funzione read-key
   Problema del cambio delle monete
   Interesse semplice e composto
+  Massima sottostringa comune (longest common substring)
   Massima sottosequenza comune (longest common subsequence)
+  Massima sottosequenza crescente (longest increasing subsequence)
 
 APPENDICI
 =========

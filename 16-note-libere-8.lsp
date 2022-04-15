@@ -191,7 +191,7 @@ Se a > b, allora "a" diventa uguale a "b"
 Il prototipo della funzione è il seguente:
 
 (define (func a b)
-  ; Vincoli: 
+  ; Vincoli:
   ; 1) la funzione deve contenere al massimo due riferimenti ad "a" e "b"
   ;    (oltre ai valori da restituire con (list a b))
   ; 2) la funzione non deve utilizzare altre variabili
@@ -252,7 +252,7 @@ Vediamo i tempi di esecuzione:
 
 Adesso restituiamo anche i relativi indici dei valori minimo e massimo:
 
-Primo metodo (primitive newLISP): 
+Primo metodo (primitive newLISP):
 
 (define (min-max-idx lst)
   (let ((minimo (apply min lst)) (massimo (apply max lst)))
@@ -291,8 +291,8 @@ Vediamo i tempi di esecuzione:
 Wordle
 ------
 
-Wordle è un gioco sviluppato nel 2021 da Josh Wardle, in cui il giocatore deve indovinare una parola di cinque lettere in meno di sei tentativi. 
-Ogni tentativo deve essere una parola di cinque lettere. 
+Wordle è un gioco sviluppato nel 2021 da Josh Wardle, in cui il giocatore deve indovinare una parola di cinque lettere in meno di sei tentativi.
+Ogni tentativo deve essere una parola di cinque lettere.
 Dopo ogni tentativo, viene mostrato il risultato del confronto:
 Colore verde ("!")
   la lettera esiste nella soluzione e si trova nel posto corretto
@@ -357,16 +357,16 @@ Parola: roomy
 ;-> game-over
 
 Strategie nella scelta della prima parola
-La prima parola è probabilmente la più importante. Per massimizzare il valore della tua mossa di apertura, scegli una parola con tre vocali e cinque lettere diverse. 
+La prima parola è probabilmente la più importante. Per massimizzare il valore della tua mossa di apertura, scegli una parola con tre vocali e cinque lettere diverse.
 Alcuni esempi: orate, media, radio.
 A quanto pare dovremmo tutti iniziare con la parola "roate":
 
 https://medium.com/@tglaiel/the-mathematically-optimal-first-guess-in-wordle-cbcb03c19b0a
 
-Altri suggerimenti: 
+Altri suggerimenti:
 
 "adieu" come prima e "story" come seconda.
-"audio", toglie immediatamente di mezzo 4 vocali su 5 si concentra sulle consonanti. 
+"audio", toglie immediatamente di mezzo 4 vocali su 5 si concentra sulle consonanti.
 "teary", "pious" e "adieu" in sequenza.
 
 Qualcuno sostiene che non stai giocando a Wordle correttamente se usi sempre la stessa parola per iniziare: prova parole diverse ogni volta: "yacht", "ulcer", "toast".
@@ -392,7 +392,7 @@ Colore rosso:
 (define (wordle)
   (let ((guess "") (words nil) (word "") (test 0)
         (green "\027[0;32m")
-        (yellow "\027[0;33m")  
+        (yellow "\027[0;33m")
         (red "\027[0;31m")
         (reset-color "\027[39;49m"))
     ; load file of words
@@ -494,7 +494,7 @@ Proviamo con un altro algoritmo: costruiamo una hash-map di tutti i modi possibi
     )
     ;(hash)
     ; (sqrt (mul 3 c c)) = (mul (sqrt 3) c) <= (mul 2 c)
-    ; (mul 2 c) è leggermente più grande, 
+    ; (mul 2 c) è leggermente più grande,
     ; quindi genera delle quadruple multiple
     ; che vengono eliminate alla fine con "sort" e "unique".
     (for (c 1 n)
@@ -516,7 +516,7 @@ Proviamo con un altro algoritmo: costruiamo una hash-map di tutti i modi possibi
     (unique (sort out))))
 
 (setq q1 (quadruple2 10))
-;-> ((1 2 2 3) (1 4 8 9) (2 3 6 7) (2 4 4 6) (2 6 9 11) 
+;-> ((1 2 2 3) (1 4 8 9) (2 3 6 7) (2 4 4 6) (2 6 9 11)
 ;->  (3 6 6 9) (4 4 7 9) (4 8 8 12) (5 10 10 15) (6 6 7 11))
 
 Proviamo con n=100:
@@ -575,14 +575,14 @@ https://en.wikipedia.org/wiki/Haversine_formula
 (define (haversine lat1 lon1 lat2 lon2)
   (local (axis-a axis-b radius flatten phi-1 phi-2
          lambda-1 lambda-2 sin-phi sin-lambda h-val)
-    ; CONTANTI WGS84 
+    ; CONTANTI WGS84
     ; https://en.wikipedia.org/wiki/World_Geodetic_System
-    ; Distanze in metri (m)         
+    ; Distanze in metri (m)
     (setq axis-a 6378137.0)
     (setq axis-b 6356752.314245)
     (setq radius 6378137)
     ; Parametri equazione
-    ; https://en.wikipedia.org/wiki/Haversine_formula#Formulation    
+    ; https://en.wikipedia.org/wiki/Haversine_formula#Formulation
     (setq flatten (div (sub axis-a axis-b) axis-a))
     (setq phi-1 (atan (mul (sub flatten 1) (tan (deg-rad lat1)))))
     (setq phi-2 (atan (mul (sub flatten 1) (tan (deg-rad lat2)))))
@@ -1109,7 +1109,7 @@ Reaumur
 
 (define (reaumur-rankine reaumur)
   (add (mul reaumur 2.25) 32 459.67))
-  
+
 (reaumur-rankine 0)
 ;-> 491.67
 (reaumur-rankine 10)
@@ -1214,11 +1214,11 @@ La seguente implementazione ricorsiva restituisce il valore massimo che può ess
           ; caso base
     (cond ((or (zero? cou) (zero? cap))
            0)
-  ; Se il peso dell'n-esimo oggetto è superiore alla capacità dello zaino, 
+  ; Se il peso dell'n-esimo oggetto è superiore alla capacità dello zaino,
   ; allora questo elemento non può essere incluso nella soluzione ottimale,
   ; altrimenti (true) restituisce il massimo di due casi:
   ; (1) n-esimo oggetto incluso
-  ; (2) n-esimo oggetto non incluso           
+  ; (2) n-esimo oggetto non incluso
           ((> (wei (- cou 1)) cap)
            (knapsack-ex cap wei val (- cou 1)))
           (true
@@ -1363,7 +1363,7 @@ https://www.ccs.neu.edu/home/jaa/CS7800.12F/Information/Handouts/dyn_prog.pdf
       (setq minimo 999999999)
       (setq moneta 0)
       (for (i 1 k)
-        (if (>= p (d i)) 
+        (if (>= p (d i))
             (if (< (+ (C (- p (d i))) 1) minimo)
                 (set 'minimo (+ (C (- p (d i))) 1)
                      'moneta i)
@@ -1458,7 +1458,7 @@ Dopo il primo anno, come visto sopra, abbiamo 500 euro in più e un capitale di 
   C0:   Capitale iniziale
   t :   Tasso d'interesse
   n:    Numero di anni
-  k: Numero di periodi di capitalizzazione composta per anno 
+  k: Numero di periodi di capitalizzazione composta per anno
   (notare che il numero totale di periodi di capitalizzazione composta è k*n)
 
 se k = 1  ==>  C(n) = C0*(1 + t)^n
@@ -1470,26 +1470,66 @@ se k = 1  ==>  C(n) = C0*(1 + t)^n
 ;-> 16288.94626777442
 
 
+------------------------------------------------------
+Massima sottostringa comune (longest common substring)
+------------------------------------------------------
+
+Il problema della sottostringa comune più lunga è trovare la stringa più lunga che sia una sottostringa di due stringhe.
+
+(define (longest-common-substring x y)
+    (local (L m n max-len end-index)
+      (setq m (length x))
+      (setq n (length y))
+      (setq max-len 0)
+      (setq end-index 0)
+      (setq L (array (+ m 1) (+ n 1) '(0)))
+      ; fill the lookup table in a bottom-up manner
+      (for (i 1 m)
+        (for (j 1 n)
+          ; if the current character of x and y matches
+          (cond ((= (x (- i 1)) (y (- j 1)))
+                 (setf (L i j) (+ (L (- i 1) (- j 1)) 1))
+                 ; update the maximum length and ending index
+                 (if (> (L i j) max-len)
+                     (set 'max-len (L i j)
+                          'end-index i)
+                 ))
+          )
+        )
+      )
+      ; return longest common substring
+      (slice x (- end-index max-len) max-len)))
+
+Vediamo un paio di esempi:
+
+(longest-common-substring "DABCE" "BABCABCEA")
+;-> "ABCE"
+
+(longest-common-substring "DZZZA" "BAJADHADCZZZBABCABCEA")
+;-> "ZZZ"
+
+
 ---------------------------------------------------------
 Massima sottosequenza comune (longest common subsequence)
 ---------------------------------------------------------
+
 Il problema della sottosequenza comune più lunga (LCS) è il problema di trovare la sottosequenza più lunga comune a tutte le sequenze in un insieme di sequenze (spesso solo due sequenze). Si differenzia dal problema di sottostringa comune più lunga: a differenza delle sottostringhe, le sottosequenze non devono occupare posizioni consecutive all'interno delle sequenze originali.
 
 Date due sequenze, trova la lunghezza della sottosequenza più lunga presente in entrambe. Una sottosequenza è una sequenza che appare nello stesso ordine relativo, ma non necessariamente continua.
 Esempio: "abc", "abfh" sono sottosequenze di "abcdefgh".
 
 (define (lcs x y)
-  (local (m n L mmatch seq i j)
+  (local (m n L equal seq i j)
     (setq m (length x))
     (setq n (length y))
     (setq L (array (+ m 1) (+ n 1) '(0)))
       (for (i 1 m)
         (for (j 1 n)
           (if (= (x (- i 1)) (y (- j 1)))
-              (setq mmatch 1)
-              (setq mmatch 0)
+              (setq equal 1)
+              (setq equal 0)
           )
-          (setf (L i j) (max (L (- i 1) j) (L i (- j 1)) (+ (L (- i 1) (- j 1)) mmatch)))
+          (setf (L i j) (max (L (- i 1) j) (L i (- j 1)) (+ (L (- i 1) (- j 1)) equal)))
         )
       )
       (setq seq "")
@@ -1497,11 +1537,11 @@ Esempio: "abc", "abfh" sono sottosequenze di "abcdefgh".
       (setq j n)
       (while (and (> i 0) (> j 0))
         (if (= (x (- i 1)) (y (- j 1)))
-                (setq mmatch 1)
-                (setq mmatch 0)
+                (setq equal 1)
+                (setq equal 0)
         )
-        (cond ((= (L i j) (+ (L (- i 1) (- j 1)) mmatch))
-               (if (= mmatch 1) (setf seq (append (x (- i 1)) seq)))
+        (cond ((= (L i j) (+ (L (- i 1) (- j 1)) equal))
+               (if (= equal 1) (setf seq (append (x (- i 1)) seq)))
                (-- i)
                (-- j))
               ((= (L i j) (L (- i 1) j))
@@ -1518,6 +1558,80 @@ Vediamo un paio di esempi:
 
 (lcs "AGXGTAB" "GXXTXAYB")
 ;-> (5 "GXTAB")
+
+
+----------------------------------------------------------------
+Massima sottosequenza crescente (longest increasing subsequence)
+----------------------------------------------------------------
+
+Il problema della massima sottosequenza crescente è quello di trovare in una data sequenza di numeri distinti, una sottosequenza in cui gli elementi siano in ordinati in ordine crescente, dal più basso al più alto, e in cui la stessa sottosequenza sia la più lunga possibile. Questa sottosequenza non è necessariamente unica o con numeri contigui della sequenza originale.
+Secondo il teorema di Erdos–Szekeres, ogni sequenza di (n^2 + 1) interi distinti ha una sottosequenza crescente o decrescente di lunghezza n + 1.
+
+(define (get-ceil-index arr T l r key i)
+  (local (m)
+    (while (> (- r l) 1)
+      (setq m (+ l (/ (- r l) 2)))
+      (if (>= (arr (T m)) key)
+          (setq r m)
+          (setq l m)
+      )
+    )
+    r))
+
+(define (lis arr)
+  (local (n tail prev len pos out)
+    (setq n (length arr))
+    (setq tail (array (+ n 1) '(0)))
+    (setq prev (array (+ n 1) '(-1)))
+    (setq len 1)
+    (for (i 1 (- n 1))
+      (cond ((< (arr i) (arr (tail 0)))
+             (setf (tail 0) i))
+            ((> (arr i) (arr (tail (- len 1))))
+             (setf (prev i) (tail (- len 1)))
+             (setf (tail len) i)
+             (++ len))
+            (true
+              (setq pos (get-ceil-index arr tail -1 (- len 1) (arr i)))
+              (setf (prev i) (tail (- pos 1)))
+              (setf (tail pos) i))
+      )
+    )
+    (setq out '())
+    (setq i (tail (- len 1)))
+    (while (>= i 0)
+      ;(print (arr i) { })
+      (push (arr i) out)
+      (setq i (prev i))
+    )
+    out))
+
+(setq numeri '(2 5 3 7 11 8 10 13 6))
+(lis numeri)
+;-> (2 3 7 8 10 13)
+(setq num '(0 8 4 12 2 10 6 14 1 9 5 13 3 11 7 15))
+(lis num)
+;-> (0 2 6 9 11 15)
+
+(setq lst '(7 6 5 4 3 2))
+(lis lst)
+;-> (2)
+
+(setq lst '(7 6 5 4 2 1))
+(lis lst)
+;-> (1)
+
+(setq lst '(10 22 9 33 21 50 41 60 80))
+(lis lst)
+;-> (10 22 33 41 60 80)
+
+(setq lst '(4 8 7 5 1 12 2 3 9))
+(lis lst)
+;-> (1 2 3 9)
+
+(setq lst '(9 8 7 6 5 8))
+(lis lst)
+;-> (5 8)
 
 =============================================================================
 
