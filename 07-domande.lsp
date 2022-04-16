@@ -2067,12 +2067,18 @@ Terzo metodo:
 Se sottraiamo il valore 1 ad un numero che è potenza di due, l'unico bit con valore 1 viene posto a 0 e i bit con valore 0 vengono posti a 1:
 
 (dec2bin 1024)
-;-> ;-> 10000000000
+;-> 10000000000
 
 (dec2bin (sub 1024 1))
-;-> 1111111111 ; senza lo zero in testa
+;-> 1111111111 ; con lo zero in testa, cioè 01111111111
+
+  10000000000 and
+  01111111111 =
+  ---------------
+  00000000000
 
 Quindi applicando l'operatore bitwise AND "&" ai numeri n e (n - 1) otteniamo 0 se e solo se n è una potenza di due: (n & (n -1)) == 0 se e solo se n è una potenza di due.
+
 Nota: L'espressione n & (n-1) non funziona quando n vale 0.
 
 (define (isPower2 n)

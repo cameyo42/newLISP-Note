@@ -1633,5 +1633,201 @@ Secondo il teorema di Erdos–Szekeres, ogni sequenza di (n^2 + 1) interi distin
 (lis lst)
 ;-> (5 8)
 
+
+---------------------
+Numeri potenze di due
+---------------------
+
+Determinare se un dato numero N è una potenza di due, cioè se risulta:
+
+  N = 2^x, con x = 1,2,3,...
+
+Primo metodo
+------------
+Prendere log del numero in base 2 e se è un numero intero, allora il numero è dato da potenza di 2.
+
+(define (power-of-two1? num)
+  (= (ceil (log num 2)) (floor (log num 2))))
+
+(power-of-two1? 1024)
+;-> true
+(power-of-two2? 1023)
+;-> nil
+
+(clean nil? (map (fn(x) (if (= (power-of-two1? x) true) (+ $idx 1) nil)) (sequence 1 1e5)))
+;-> (1 2 4 8 16 32 64 128 256 512 1024 2048 4096 8192 16384 32768 65536)
+
+Secondo metodo
+--------------
+Sfruttiamo il fatto che la rappresentazione binaria di un numero potenza di due ha un solo 1.
+
+(define (power-of-two2? num)
+  (if (= (length (find-all "1" (bits num))) 1) true nil))
+
+(power-of-two2? 1024)
+;-> true
+(power-of-two2? 1023)
+;-> nil
+
+(clean nil? (map (fn(x) (if (= (power-of-two2? x) true) (+ $idx 1) nil)) (sequence 1 1e5)))
+;-> (1 2 4 8 16 32 64 128 256 512 1024 2048 4096 8192 16384 32768 65536)
+
+Terzo metodo:
+-------------
+
+Se sottraiamo il valore 1 ad un numero che è potenza di due, l'unico bit con valore 1 viene posto a 0 e i bit con valore 0 vengono posti a 1:
+
+(dec2bin 1024)
+;-> 10000000000
+
+(dec2bin (sub 1024 1))
+;-> 1111111111 ; con lo zero in testa, cioè 01111111111
+
+  10000000000 and
+  01111111111 =
+  ---------------
+  00000000000
+
+Quindi applicando l'operatore bitwise AND "&" ai numeri n e (n - 1) otteniamo 0 se e solo se n è una potenza di due: (n & (n -1)) == 0 se e solo se n è una potenza di due.
+
+Nota: L'espressione n & (n-1) riporta 0 anche quando n vale 0 che non è una potenza di due.
+
+(define (power-of-two3? n)
+  (if (<= n 0) nil
+      (if (zero? (& n (- n 1))) true nil)))
+
+(power-of-two3? 1024)
+;-> true
+(power-of-two3? 1023)
+;-> nil
+
+(clean nil? (map (fn(x) (if (= (power-of-two3? x) true) (+ $idx 1) nil)) (sequence 1 1e5)))
+;-> (1 2 4 8 16 32 64 128 256 512 1024 2048 4096 8192 16384 32768 65536)
+
+Vediamo quale funzione è la più veloce:
+
+(time (map power-of-two1? (sequence 1 1e7)))
+;-> 2431.529
+
+(time (map power-of-two2? (sequence 1 1e7)))
+;-> 21435.716
+
+(time (map power-of-two3? (sequence 1 1e7)))
+;-> 1516.974
+
+La funzione "power-of-two3?" è la più veloce.
+
+
+---------------
+Numeri di Proth
+---------------
+
+Nella teoria dei numeri, un numero Proth è un numero della forma:
+
+   N = k*2^n + 1
+
+dove k è un intero positivo dispari e n è un intero positivo tale che 2^n > k. Prendono il nome dal matematico francese Francois Proth.
+
+Per esempio: 
+
+P0 = 2^1 + 1 = 3
+P1 = 2^2 + 1 = 5
+P2 = 2^3 + 1 = 9
+P3 = 3 × 2^2 + 1 = 13
+P4 = 2^4 + 1 = 17
+P5 = 3 × 2^3 + 1 = 25
+P6 = 2^5 + 1 = 33
+...
+
+I primi numeri di Proth sono (sequenza OEIS A080075):
+  3, 5, 9, 13, 17, 25, 33, 41, 49, 57, 65, 81, 97, 113,
+  129, 145, 161, 177, 193, 209, 225, 241, ...
+
+Scriviamo una funzione che restituisce una lista con tutti i primi n numeri di Proth:
+
+(define (proth num)
+  (local (out out-idx idx incr)
+    (cond ((< num 1) (setq out nil))
+          ((= num 1) (setq out '(3)))
+          ((= num 2) (setq out '(3 5)))
+          (true
+            (setq out '(3 5))
+            (setq out-idx 2)
+            ; +1 per le potenze di 2 a partire da 0, ovvero 2^0, 2^1, ecc.
+            ; +1 per iniziare la sequenza dal terzo numero di Proth
+            ; Quindi +2 nell'espressione seguente
+            (setq idx (+ (int (log (/ num 3) 2)) 2))
+            (setq incr 3)
+            (for (bl 1 (- idx 1))
+              (for (i 0 (- incr 1))
+                (push (+ (pow 2 (+ bl 1)) (out (- out-idx 1))) out -1)
+                (++ out-idx)
+              )
+              (setq incr (* incr 2))
+            ))
+    )
+    (if (<= num 1)
+      out
+      (slice out 0 num))))
+
+Proviamo la funzione:
+
+(proth 0)
+;-> nil
+
+(proth 11)
+;-> (3 5 9 13 17 25 33 41 49 57 65)
+
+(proth 100)
+;-> (3 5 9 13 17 25 33 41 49 57 65 81 97 113 129 145 161 177 193 
+;->  209 225 241 257 289 321 353 385 417 449 481 513 545 577 609 
+;->  641 673 705 737 769 801 833 865 897 929 961 993 1025)
+
+I numeri di Proth che sono anche numeri primi iniziano con la sequente sequenza (OEIS A080076):
+
+  3, 5, 13, 17, 41, 97, 113, 193, 241, 257, 353, 449, 577, 641, 673, 
+  769, 929, 1153, 1217, 1409, 1601, 2113, 2689, 2753, 3137, 3329, 3457,
+  4481, 4993, 6529, 7297, 7681, 7937, 9473, 9601, 9857, ...
+
+e ancora non è stato dimostrato se siano in numero infinito oppure no.
+
+Adesso vediamo una funzione che verifica se un determinato numero è un numero di Proth.
+
+Funzione che verifica se un determinato numero è una potenza di 2:
+
+(define (power-of-two? n)
+  (if (<= n 0) 
+      nil
+      (if (zero? (& n (- n 1))) true nil)))
+
+(define (proth? num)
+(catch
+  (let ((k 1) (num (- num 1)))
+    (while (< k (/ num k))
+      ; verifica se k divide n
+      (if (zero? (% num k))
+          ; verifica se n/k è potenza di 2
+          (if (power-of-two? (/ num k)) (throw true))
+      )
+      ; prossimo k dispari
+      (++ k 2)
+    )
+    ; adesso non esiste alcun valore di K
+    ; tale che k è un numero dispari
+    ; e n/k è una potenza di 2 maggiore di k
+    nil)))
+
+Proviamo la funzione:
+
+(proth? 3)
+;-> true
+(proth? 1601)
+;-> true
+
+Calcoliamo i numeri di Proth con la funzone "proth?":
+
+(clean nil? (map (fn(x) (if (= (proth? x) true) (+ $idx 1) nil)) (sequence 1 50)))
+;-> (3 5 9 13 17 25 33 41 49)
+
 =============================================================================
 

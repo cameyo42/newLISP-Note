@@ -1135,6 +1135,8 @@ NOTE LIBERE 8
   Massima sottostringa comune (longest common substring)
   Massima sottosequenza comune (longest common subsequence)
   Massima sottosequenza crescente (longest increasing subsequence)
+  Numeri potenze di due
+  Numeri di Proth
 
 APPENDICI
 =========
