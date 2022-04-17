@@ -1137,6 +1137,10 @@ NOTE LIBERE 8
   Massima sottosequenza crescente (longest increasing subsequence)
   Numeri potenze di due
   Numeri di Proth
+  Funzione sigmoid
+  Algoritmo Round-Robin
+  Estrazione di righe o colonne da una matrice
+  La funzione count (per stringhe e vettori)
 
 APPENDICI
 =========

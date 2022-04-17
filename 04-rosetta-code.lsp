@@ -2709,6 +2709,45 @@ Scriviamo una funzione generica che codifica e decodifica ed ha come parametro l
 ;-> tipo: 0 -> cifra, 1 -> decifra
 
 
+Scriviamo una funzione che decifra un messaggio codificato utilizzando la forza-bruta, cioè provando tutte le lettere da "A" a "Z":
+
+(define (crack-cesare msg)
+    (setq msg (upper-case msg))
+    (for (i 0 25)
+      (println i { } (cesare msg 1 i))
+    )
+    'end)
+
+(crack-cesare "TKCROYV$OY$MXKGZ")
+;-> 0 TKCROYV$OY$MXKGZ
+;-> 1 SJBQNXU$NX$LWJFY
+;-> 2 RIAPMWT$MW$KVIEX
+;-> 3 QHZOLVS$LV$JUHDW
+;-> 4 PGYNKUR$KU$ITGCV
+;-> 5 OFXMJTQ$JT$HSFBU
+;-> 6 NEWLISP$IS$GREAT
+;-> 7 MDVKHRO$HR$FQDZS
+;-> 8 LCUJGQN$GQ$EPCYR
+;-> 9 KBTIFPM$FP$DOBXQ
+;-> 10 JASHEOL$EO$CNAWP
+;-> 11 IZRGDNK$DN$BMZVO
+;-> 12 HYQFCMJ$CM$ALYUN
+;-> 13 GXPEBLI$BL$ZKXTM
+;-> 14 FWODAKH$AK$YJWSL
+;-> 15 EVNCZJG$ZJ$XIVRK
+;-> 16 DUMBYIF$YI$WHUQJ
+;-> 17 CTLAXHE$XH$VGTPI
+;-> 18 BSKZWGD$WG$UFSOH
+;-> 19 ARJYVFC$VF$TERNG
+;-> 20 ZQIXUEB$UE$SDQMF
+;-> 21 YPHWTDA$TD$RCPLE
+;-> 22 XOGVSCZ$SC$QBOKD
+;-> 23 WNFURBY$RB$PANJC
+;-> 24 VMETQAX$QA$OZMIB
+;-> 25 ULDSPZW$PZ$NYLHA
+;-> end
+
+
 --------------------
 CIFRARIO DI VIGENERE
 --------------------
@@ -4297,6 +4336,9 @@ La funzione deve anche escludere la creazione di password con i seguenti caratte
 (gen-pwd 6 12)
 ;-> ("Jrfh.F2~uEtd" "ljR8[=3VYoSH" "|0J4u^4dv0{9"
 ;->  "87HFP;{u6ini" "M3w|1:4],G4m" "3@LH5Q*E00mv")
+
+(gen-pwd 6 4)
+;-> ("5i^V" "h2|A" "0%xL" "8Qm}" "R2|o" "S*6x")
 
 Funzione che controlla la presenza di caratteri visualmente simili:
 

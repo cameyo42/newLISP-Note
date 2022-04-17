@@ -7468,7 +7468,10 @@ La seguente funzione controlla se un sito web è online (connesso) | offline (di
 
 (define (online? www)
  (if (setq checkup (net-connect www 80))
-  (begin (net-close checkup ) "Online ") "Offline"))
+  (begin (net-close checkup ) "Online") "Offline"))
+
+(online? "youtube.com")
+;-> "Online"
 
 (setq urls '(
   "newlisp.org"

@@ -1677,11 +1677,9 @@ Terzo metodo:
 
 Se sottraiamo il valore 1 ad un numero che è potenza di due, l'unico bit con valore 1 viene posto a 0 e i bit con valore 0 vengono posti a 1:
 
-(dec2bin 1024)
-;-> 10000000000
-
-(dec2bin (sub 1024 1))
-;-> 1111111111 ; con lo zero in testa, cioè 01111111111
+  decimale   binario
+  1024       10000000000
+  1023       01111111111
 
   10000000000 and
   01111111111 =
@@ -1812,7 +1810,7 @@ Funzione che verifica se un determinato numero è una potenza di 2:
       ; prossimo k dispari
       (++ k 2)
     )
-    ; adesso non esiste alcun valore di K
+    ; adesso non esiste alcun valore di k
     ; tale che k è un numero dispari
     ; e n/k è una potenza di 2 maggiore di k
     nil)))
@@ -1828,6 +1826,205 @@ Calcoliamo i numeri di Proth con la funzone "proth?":
 
 (clean nil? (map (fn(x) (if (= (proth? x) true) (+ $idx 1) nil)) (sequence 1 50)))
 ;-> (3 5 9 13 17 25 33 41 49)
+
+
+----------------
+Funzione sigmoid
+----------------
+
+Una funzione sigmoid è una funzione matematica avente una caratteristica curva a forma di "S" o curva sigmoidea.
+
+Un esempio comune di funzione sigmoidea è la funzione logistica definita dalla formula:
+
+            1            e^x
+S(x) = ------------ = --------- = 1 - S(-x)
+        1 + e^(-x)     e^x + 1
+
+Nel contesto delle reti neurali artificiali, il termine "funzione sigmoid" è usato come alias per la funzione logistica.
+
+(define (sigmoid x)
+  (div (add 1 (exp (sub x)))))
+
+Proviamo la funzione:
+
+(sigmoid 0)
+;-> 0.5
+
+(sigmoid 0.7365642262031923)
+
+(sigmoid -1)
+;-> 0.2689414213699951
+(sigmoid -5)
+;-> 0.006692850924284855
+(sigmoid -10)
+;-> 4.53978687024344e-005
+(sigmoid 1)
+;-> 0.7310585786300049
+(sigmoid 5)
+;-> 0.9933071490757153
+(sigmoid 10)
+;-> 0.9999546021312976
+
+Applichiamo la funzione "sigmoid" ad una lista di numeri:
+
+(setq num (random 0 5 10))
+;-> (4.294717246009705 3.552507095553453 2.567674794763024
+;->  1.51997436445204 0.0749229407635731 0.457014679403058
+;->  1.822260200811792 0.7365642262031923 0.8294930875576037
+;->  4.942625202185125)
+
+(setq num '(4.294717246009705 3.552507095553453 2.567674794763024
+  1.51997436445204 0.0749229407635731 0.457014679403058
+  1.822260200811792 0.7365642262031923 0.8294930875576037
+  4.942625202185125))
+
+(map sigmoid num)
+;-> (0.9865431294370095 0.9721453955887022 0.9287519863607289 
+;->  0.820534705596925 0.5187219781074153 0.6123057366241003 
+;->  0.8608371122526624 0.6762440906843146 0.6962477351861746 
+;->  0.9929147187018224)
+
+
+---------------------
+Algoritmo Round-Robin
+---------------------
+
+Round Robin è un algoritmo di scheduling di processi in cui ad ogni processo viene assegnato un tempo prefissato in modo ciclico.
+Per schedulare i processi in modo equo, uno scheduler round-robin generalmente impiega la tecnica di time-sharing, assegnando a ciascun lavoro un determinato intervallo di tempo (in tempo di CPU) chiamato quantum e interrompendo il lavoro anche se non è stato completato al termine del tempo disponibile. Il lavoro viene ripreso la prossima volta che viene assegnato un altro quantum a quel processo. Se il processo termina  durante il quantum di tempo attribuito, lo scheduler seleziona il primo processo nella coda di pronto per l'esecuzione. In assenza di time-sharing o se i quanti fossero grandi rispetto alle dimensioni dei lavori, un processo che necessita più tempo sarebbe favorito rispetto ad altri processi. L'algoritmo round-robin è un algoritmo "preemptive" poiché lo scheduler forza il processo fuori dalla CPU una volta scaduta la quota di tempo.
+
+(define (round-robin exec-time quantum)
+(catch
+  (local (tmp-exec-time wait-time t done)
+    (setq tmp-exec-time exec-time)
+    (setq wait-time (array (length exec-time) '(0)))
+    (setq t 0)
+    (while true
+      (setq done true)
+      (dolist (b-time exec-time)
+        (if (> (tmp-exec-time $idx) 0)
+          (begin
+            (setq done nil)
+            (if (> (tmp-exec-time $idx) quantum)
+              (begin
+                (setq t (+ t quantum))
+                (setf (tmp-exec-time $idx) (- (tmp-exec-time $idx) quantum)))
+              (begin
+                (setq t (+ t (tmp-exec-time $idx)))
+                (setf (wait-time $idx) (- t b-time))
+                (setf (tmp-exec-time $idx) 0))
+            )
+          )
+        )
+      )
+      (if done (throw wait-time))))))
+
+Proviamo la funzione:
+
+(round-robin '(10 5 8) 2) 
+;-> (13 10 13)
+
+(round-robin '(4 6 3 1) 2)
+;-> (5 8 9 6)
+
+(round-robin '(12 2 10) 2)
+;-> (12 2 12)
+
+Scriviamo una funzione che calcola i tempi totali per l'esecuzione di ogni processo:
+
+  total-time = exec-time + wait-time
+
+(define (total-time exec-times wait-times)
+  (map + exec-times wait-times))
+
+Facciamo una prova:
+
+(setq exec-times '(3 5 7))
+;-> (3 5 7)
+(setq wait-times (round-robin exec-times 2))
+;-> (4 7 8)
+(setq total-times (total-time exec-times wait-times))
+;-> (7 12 15)
+
+
+--------------------------------------------
+Estrazione di righe o colonne da una matrice
+--------------------------------------------
+
+Supponiamo di avere la seguente matrice 2x3:
+
+(setq m '((1 2 3)
+          (4 5 6)))
+
+Se vogliamo estrarre una riga intera dalla matrice (es la riga 0) possiamo scrivere:
+
+(m 0)
+;-> (1 2 3)
+
+Ma se vogliamo estrarre una colonna non possiamo usare lo stesso metodo perchè una colonna non è indicizzabile direttamente. Il trucco consiste nel trasporre la matrice e poi estrarre la colonna (che è diventata una riga nella matrice trasposta). Per esempio per estrarre la colonna 0 possiamo scrivere:
+
+((transpose m) 0)
+;-> (1 4)
+
+Scriviamo due funzioni per estrarre una riga o una colonna da una matrice:
+
+(define (get-row matrix row)
+  (matrix row))
+
+(define (get-column matrix column)
+  ((transpose matrix) column))
+
+(get-row m 1)
+;-> (4 5 6)
+
+(get-column m 2)
+;-> (3 6)
+
+
+------------------------------------------
+La funzione count (per stringhe e vettori)
+------------------------------------------
+
+newLISP ha una funzione di conteggio molto utile per le liste: "count". Vediamo la definizione dal manuale:
+
+*******************
+>>> funzione COUNT
+*******************
+sintassi: (count list-1 list-2)
+
+Conta gli elementi della lista-1 nella lista-2 e restituisce una lista di tali conteggi.
+
+(count '(1 2 3) '(3 2 1 4 2 3 1 1 2 2))
+;-> (3 4 2)
+(count '(z a) '(z d z b a z y a))
+;-> (3 2)
+
+(set 'lst (explode (read-file "myFile.txt")))
+(set 'letter-counts (count (unique lst) lst))
+
+Il secondo esempio conta tutte le occorrenze di lettere diverse in myFile.txt.
+
+Gli elementi della prima lista, che specifica gli elementi da conteggiare nella seconda lista, devono essere univoci. Per gli elementi che non sono univoci, solo la prima istanza conterrà un conteggio, tutte le altre istanze visualizzeranno 0 (zero).
+
+Purtroppo questa funzione si applica solo alle liste e non alle stringhe o ai vettori, però possiamo scrivere una funzione che usa le stringhe o i vettori:
+
+(define (count-obj lst-obj obj)
+  (let (out '())
+    (dolist (s lst-obj)
+      (push (length (find-all s obj)) out -1)
+    )
+    out))
+
+(count-obj '("a") "mamma mia")
+;-> (3)
+(count-obj '("a" "b" "c") "aabbcabsdbcgabcbfbghsgbc")
+;-> (4 8 4)
+(count-obj '("aa" "bb" "c") "aabbccaaccbb")
+;-> (2 2 4)
+
+(count-obj '(1 2) '(2 2 2 1 1 1 3 1 2 4 5))
+;-> (4 4)
+(count-obj '((1 2) (2 2)) '((2 2) (2 1) (1 1)))
+;-> (0 1)
 
 =============================================================================
 
