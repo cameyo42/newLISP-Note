@@ -2326,6 +2326,9 @@ Risultato di tipo floating-point:
 (integer? num)
 ;-> nil
 
+In generale, le funzioni che richiedono numeri interi, ad esempio indici in liste/array, ecc. convertono automaticamente i float in numeri interi.
+Tutte le funzioni che richiedono float convertono i numeri interi in float.
+
 Nella maggior parte dei casi le conversioni implicite non creano problemi.
 Comunque in alcuni casi è possibile perdere in precisione, per esempio se utilizziamo un numero intero molto grande con una funzione che lo converte in floating-point:
 

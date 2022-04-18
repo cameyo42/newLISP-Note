@@ -1141,6 +1141,12 @@ NOTE LIBERE 8
   Algoritmo Round-Robin
   Estrazione di righe o colonne da una matrice
   La funzione count (per stringhe e vettori)
+  Onesti e Bugiardi
+  I tre prigionieri
+  Primi Home
+  Numeri figurati poligonali
+  (* x x) è più veloce di (pow x 2)
+  Sequenza di Padovan
 
 APPENDICI
 =========

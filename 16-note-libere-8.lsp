@@ -2026,5 +2026,322 @@ Purtroppo questa funzione si applica solo alle liste e non alle stringhe o ai ve
 (count-obj '((1 2) (2 2)) '((2 2) (2 1) (1 1)))
 ;-> (0 1)
 
+
+-----------------
+Onesti e Bugiardi
+-----------------
+
+In un paese ci sono due tipi di persone, gli Onesti che dicono sempre la verità e i Bugiardi che mentono sempre.
+Incontriamo tre persone (A, B e C) e chiediamo alla prima (A):
+"Sei un Onesto o un Bugiardo?" La sua risposta è incomprensibile.
+Allora la seconda persona (B) dice: "Ha detto che appartiene ai Bugiardi".
+Ma la terza persona interviene: "Non credere a lui (B), è un Bugiardo"
+Un giorno al mercato ci sono tre isolani (A, B e C) che stanno parlando. Arriva uno straniero che chiede ad A: "Sei un Onesto o un Bugiardo?". La risposta è incomprensibile.
+Allora lo straniero chiede a B: "Cosa ha detto A?" B risponde "Ha detto di essere un Bugiardo."
+Interviene C: "Non credere a B, lui è un Bugiardo!"
+
+A quale tipo appartengono A, B e C ?
+
+Soluzione
+---------
+"A" non può aver detto di essere un "Bugiardo", perché se fosse stato "Onesto" avrebbe detto di essere "Onesto" e se fosse stato "Bugiardo" avrebbe ugualmente detto, mentendo, di essere "Onesto".
+Quindi "B" ha mentito nel riportare la risposta di "A" e perciò è un "Bugiardo".
+"C" dice correttamente che "B" è un "Bugiardo", per cui è "Onesto".
+Non si può sapere di che tipo sia "A" (anche perchè non si sa cosa ha detto).
+
+
+-----------------
+I tre prigionieri
+-----------------
+
+Siamo in una prigione con altri due prigionieri, il Bugiardo (che dice sempre bugie) e l'Onesto (che dice sempre la verità). Nella prigione ci sono due porte (P1 e P2), una porta conduce alla libertà e una alla condanna. I due prigionieri conoscono dove conducono le due porte. Ci viene concesso di fare una sola domanda ad uno dei due prigionieri. Quale domanda dobbiamo porre per individuare la porta che conduce alla libertà?
+
+Soluzione
+---------
+Ad uno qualunque dei due prigionieri chiediamo:
+Quale porta mi indicherebbe l'altro prigioniero se gli chiedessi quale porta conduce alla condanna?
+Vediamo i due casi:
+1) domanda rivolta al prigioniero "Onesto":
+L'altro prigioniero indicherebbe la porta della libertà (perchè dice il falso), quindi l'Onesto risponderebbe: "l'altro prigioniero ti indicherebbe la porta" della libertà.
+2) domanda rivolta al prigioniero "Bugiardo":
+L'altro prigioniero indicherebbe la porta della condanna (perchè dice il vero), quindi il Bugirado risponderebbe: "l'altro prigioniero ti indicherebbe la porta" della libertà. 
+Quindi con questa domanda entrambi i prigionieri indicherebbero la porta della libertà, quindi basta scegliere l'altra porta per essere liberi.
+
+
+----------
+Primi Home
+----------
+
+I primi Home (Home primes) sono definiti nel modo seguente:
+
+per n >= 2, a(n) = il primo che viene finalmente raggiunto quando inizi con n, concateni i suoi fattori primi e ripeti fino a quando non viene raggiunto un primo (a(n) = -1 se nessun primo è viene mai raggiunto).
+
+Sequenza OEIS A037274:
+
+  2, 3, 211, 5, 23, 7, 3331113965338635107, 311, 773, 11, 223, 13, 
+  13367, 1129, 31636373, 17, 233, 19, 3318308475676071413, 37, 211,
+  23, 331319, 773, 3251, 13367, 227, 29, 547, 31, 241271, 311, 31397,
+  1129, 71129, 37, 373, 313, 3314192745739, 41, 379, 43, 22815088913,
+  3411949, 223, 47, ...
+
+Scriviamo alcune funzioni che ci permettono di calcolare i primi home:
+
+(define (make-int lst)
+"Make an integer joining a list of integer"
+  (int (join (map string lst))))
+
+(make-int '(2 11));-> 211
+
+(define (prime? num)
+"Check if a number is prime"
+   (if (< num 2) nil
+       (= 1 (length (factor num)))))
+
+Funzione che genera tutti gli home-prime fino ad un determinato numero:
+
+(define (home-prime num)
+  (local (out)
+    (setq out '())
+    (for (i 2 num)
+      (if (prime? i)
+          ; se è primo lo inseriamo nella soluzione
+          (push i out -1)
+          ; altrimenti inseriamo il numero trasformato
+          (push (hp i) out -1)))
+    out))
+
+Funzione che calcola le trasformazioni di un numero fino ad un numero primo:
+
+(define (hp num)
+  (local (res)
+    (setq res num)
+    (until (prime? (setq res (make-int (factor res))))
+    res))
+
+Proviamo la funzione:
+
+(home-prime 10)
+;-> (2 3 211 5 23 7 3331113965338635107 311 773)
+
+(home-prime 20)
+;-> (2 3 211 5 23 7 3331113965338635107 311 773 11 223
+;->  13 13367 1129 31636373 17 233 19 3318308475676071413)
+
+(time (println (home-prime 47)))
+;-> (2 3 211 5 23 7 3331113965338635107 311 773 11 223 13 13367 1129 
+;->  31636373 17 233 19 3318308475676071413 37 211 23 331319 773 3251
+;->  13367 227 29 547 31 241271 311 31397 1129 71129 37 373 313 
+;->  3314192745739 41 379 43 22815088913 3411949 223 47)
+;-> 11757.11
+
+Non abbiamo utilizzano i big-integer perchè fino al numero 47 non superiamo il valore massimo degli interi lunghi (9223372036854775807), ma per il numero 48 si ha il numero 6161791591356884791277 (che supera il valore massimo degli interi lunghi), e per il numero 49 si ha un numero ancora più lungo (che con conosco). 
+
+Scriviamo una funzione che "traccia" le trasformazioni di un numero:
+
+(define (hp-trace num)
+  (let (out (list num))
+    (until (prime? (setq num (make-int (factor num))))
+      (push num out -1))
+    (push num out -1)))
+
+Vediamo le trasformazioni di alcuni numeri:
+
+(hp-trace 3)
+;-> (3 3)
+
+(hp-trace 8)
+;-> (8 222 2337 31941 33371313 311123771 7149317941 
+;->  22931219729 112084656339 3347911118189 11613496501723 
+;->  97130517917327 531832651281459 3331113965338635107)
+
+(hp-trace 20)
+;-> (20 225 3355 51161 114651 3312739 17194867 194122073 709273797 
+;->  39713717791 113610337981 733914786213 3333723311815403 
+;->  131723655857429041 772688237874641409 3318308475676071413)
+
+
+--------------------------
+Numeri figurati poligonali
+--------------------------
+
+Un numero figurato poligonale è un numero intero che può essere rappresentato mediante uno schema geometrico regolare che rappresenta un poligono.
+
+Triangolari: F3(n) = ((n + 1)*n)/2
+Sequenza OEIS A000217
+(define (F3 n) (/ (* n (+ n 1)) 2))
+(map F3 (sequence 1 10))
+;-> (1 3 6 10 15 21 28 36 45 55)
+
+Quadrati:    F4(n) = n^2
+Sequenza OEIS A000290
+(define (F4 n) (* n n))
+(map F4 (sequence 1 10))
+;-> (1 4 9 16 25 36 49 64 81 100)
+
+Pentagonali: F5(n) = (3*n^2 - n)/2
+Sequenza OEIS A000326
+(define (F5 n) (/ (- (* 3 n n) n) 2))
+(map F5 (sequence 1 10))
+;-> (1 5 12 22 35 51 70 92 117 145)
+
+Esagonali:   F6(n) = (2*n^2 - n)
+Sequenza OEIS A000384
+(define (F6 n) (- (* 2 n n) n))
+(map F6 (sequence 1 10))
+;-> (1 6 15 28 45 66 91 120 153 190)
+
+Ettagonali:  F7(n) = (5*n^2 - 3*n)/2
+Sequenza OEIS A000566
+(define (F7 n) (/ (- (* 5 n n) (* 3 n)) 2))
+(map F7 (sequence 1 10))
+;-> (1 7 18 34 55 81 112 148 189 235)
+
+Ottagonali:  F8(n) = 3*n^2 - 2*n
+Sequenza OEIS A000567
+(define (F8 n) (- (* 3 n n) (* 2 n)))
+(map F8 (sequence 1 10))
+;-> (1 8 21 40 65 96 133 176 225 280)
+
+Nonagonali:  F9(n) = (7*n^2 - 5*n)/2
+Sequenza OEIS A001106 
+(define (F9 n) (/ (- (* 7 n n) (* 5 n)) 2))
+(map F9 (sequence 1 10))
+;-> (1 9 24 46 75 111 154 204 261 325)
+
+Decagonali:  F10(n) = 4*n^2 - 3*n
+Sequenza OEIS A001107
+(define (F10 n) (- (* 4 n n) (* 3 n)))
+(map F10 (sequence 1 10))
+;-> (1 10 27 52 85 126 175 232 297 370)
+
+
+---------------------------------
+(* x x) è più veloce di (pow x 2)
+---------------------------------
+
+Caso con numeri interi:
+
+(define (a x) (* x x))
+(define (b x) (pow x 2))
+
+(time (a 1234567890) 1e7)
+;-> 567.51
+(time (b 1234567890) 1e7)
+;-> 708.287
+
+Caso con numeri in virgola mobile:
+
+(define (aa x) (mul x x))
+(time (aa 1234567890.123456) 1e7)
+;-> 557.538
+(time (b 1234567890.123456) 1e7)
+;-> 704.144
+
+Proviamo con il cubo di un numero (* x x x):
+
+Numeri interi:
+(define (a x) (* x x x))
+(define (b x) (pow x 3))
+(time (a 1234567890) 1e7)
+;-> 625.326
+(time (b 1234567890) 1e7)
+;-> 708.718
+
+Numeri in virgola mobile:
+(define (aa x) (mul x x x))
+(time (aa 1234567890.123456) 1e7)
+;-> 605.403
+(time (b 1234567890.123456) 1e7)
+;-> 704.6363
+
+Proviamo con la quarta potenza di un numero (* x x x x):
+
+Numeri interi:
+(define (a x) (* x x x x))
+(define (b x) (pow x 4))
+(time (a 1234567890) 1e7)
+;-> 668.702
+(time (b 1234567890) 1e7)
+;-> 709.389
+
+Numeri in virgola mobile:
+(define (aa x) (mul x x x x))
+(time (aa 1234567890.123456) 1e7)
+;-> 644.572
+(time (b 1234567890.123456) 1e7)
+;-> 705.045
+
+
+-------------------
+Sequenza di Padovan
+-------------------
+
+La sequenza di Padovan è una successione di numeri naturali definita nel modo seguente:
+
+ P(0) = P(1) = P(2) = 1
+ P(n) = P(n - 2) + P(n - 3) = P(n - 1) + P(n - 5)
+
+Sequenza OEIS A000931:
+  1, 1, 1, 2, 2, 3, 4, 5, 7, 9, 12, 16, 21, 28, 37, 49, 65, 86, 114, 151,
+  200, 265, 351, 465, 616, 816, 1081, 1432, 1897, 2513, 3329, 4410, 5842,
+  7739, 10252, 13581, 17991, 23833, 31572, 41824, 55405, ...
+
+Scriviamo una funzione cha calcola l'n-esimo numero della sequenza di Padovan:
+
+Versione ricorsiva:
+
+(define (padovan n)
+  (cond ((or (= n 0) (= n 1) (= n 2)) 1)
+        (true
+          (+ (padovan (- n 2)) (padovan (- n 3))))))
+
+(padovan 8)
+;-> 7
+
+(map padovan (sequence 0 20))
+;-> (1 1 1 2 2 3 4 5 7 9 12 16 21 28 37 49 65 86 114 151 200)
+
+Versione iterativa:
+
+(define (padovan-i n)
+  (if (or (= n 0) (= n 1) (= n 2))
+    1
+    (let ((pPrev2 1) (pPrev 1) (pCurr 1) (pNext 1))
+      (for (i 3 n)
+        (setq pNext (+ pPrev2 pPrev))
+        (setq pPrev2 pPrev)
+        (setq pPrev pCurr)
+        (setq pCurr pNext)
+      )
+      pNext)))
+
+(padovan-i 8)
+;-> 7
+
+(map padovan-i (sequence 0 20))
+;-> (1 1 1 2 2 3 4 5 7 9 12 16 21 28 37 49 65 86 114 151 200)
+
+Modificando la versione iterativa possiamo ottenere tutta la sequenza di lunghezza n:
+
+(define (padovan-seq n)
+  (local (out)
+    (cond ((= n 0) (setq out '(1)))
+          ((= n 1) (setq out '(1 1)))
+          ((= n 2) (setq out '(1 1 1)))
+          (true
+           (let ((pPrev2 1) (pPrev 1) (pCurr 1) (pNext 1))
+            (setq out '(1 1 1))
+            (for (i 3 n)
+              (setq pNext (+ pPrev2 pPrev))
+              (setq pPrev2 pPrev)
+              (setq pPrev pCurr)
+              (setq pCurr pNext)
+              (push pNext out -1))))
+    )
+    out))
+
+(padovan-seq 20)
+;-> (1 1 1 2 2 3 4 5 7 9 12 16 21 28 37 49 65 86 114 151 200)
+
 =============================================================================
 
