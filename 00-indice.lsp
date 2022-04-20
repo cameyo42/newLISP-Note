@@ -1147,6 +1147,12 @@ NOTE LIBERE 8
   Numeri figurati poligonali
   (* x x) è più veloce di (pow x 2)
   Sequenza di Padovan
+  Fattorione
+  Numeri Star
+  Numeri emirp
+  Numeri con tutte le cifre uguali
+  Numeri magici (magic number)
+  Numeri polidivisibili
 
 APPENDICI
 =========

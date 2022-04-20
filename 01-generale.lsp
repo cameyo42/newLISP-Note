@@ -1238,6 +1238,44 @@ Inoltre il simbolo "b" è protetto:
 (setq b '(2 2 2))
 ;-> ERR: symbol is protected in function setf : b
 
+Un altro metodo di passaggio di oggetti per riferimento consiste nel quotare l'oggetto che deve essere passato. In questo caso la funzione deve valutare l'oggetto prima di utilizzarlo. Vediamo come esempio una funzione che prende una lista e un valore e aggiunge questo valore all'inizio e alla fine della lista.
+
+Prima scriviamo la funzione in modo normale:
+
+(define (change lst x)
+  (push x lst)
+  (push x lst -1)
+  lst)
+
+(setq nums '(1 2 3 4))
+(change nums 0)
+;-> (0 1 2 3 4 0)
+
+Poichè abbiamo passato la lista by-value, allora la lista originale non è cambiata:
+
+nums
+;-> (1 2 3 4)
+
+Adesso scriviamo una funzione che si aspetta di ricevere una lista quotata (che viene passata by-reference)
+
+(define (change-ref lst x)
+  (push x (eval lst))
+  (push x (eval lst) -1)
+  (eval lst))
+
+Notare che prima di ogni utilizzo della lista "lst" occorre valutarla con "eval".
+Adesso possiamo passare alla funzione una lista per riferimento:
+
+(change-ref 'nums 0)
+;-> (0 1 2 3 4 0)
+
+Adesso la lista originale è cambiata:
+
+nums
+;-> (0 1 2 3 4 0)
+
+Nota: la funzione "eval" è molto veloce e può essere usata senza problemi.
+
 
 =============================
  NIL, TRUE e LISTA VUOTA '()

@@ -2343,5 +2343,557 @@ Modificando la versione iterativa possiamo ottenere tutta la sequenza di lunghez
 (padovan-seq 20)
 ;-> (1 1 1 2 2 3 4 5 7 9 12 16 21 28 37 49 65 86 114 151 200)
 
+
+----------
+Fattorione
+----------
+
+Un numero fattorione è un numero che è uguale alla somma dei fattoriali di ogni sua cifra, cioè un numero è un fattorione se risulta: 
+
+  numero = d1! + d2! + d3! + ... + dn!
+  dove d1..dn sono le cifre del numero
+
+Funzione che calcola la somma dei fattoriali di ogni cifra di un determinato numero:
+
+(define (sum-digit-fact num)
+       ; precodifica dei fattoriali da 0 a 9
+  (let ((fact '(1 1 2 6 24 120 720 5040 40320 362880))
+        (temp num) (out 0))
+    (while (> temp 0)
+      (setq out (+ out (fact (% temp 10))))
+      (setq temp (/ temp 10))
+    )
+    out))
+
+Facciamo alcune prove:
+
+(sum-digit-fact 122)
+;-> 5
+
+(sum-digit-fact 77)
+;-> 10080
+
+(sum-digit-fact 145)
+;-> 145 ; è un numero fattorione
+
+Proviamo ad applicare ripetutamente la funzione "sum-digit-fact" al suo output e verificare se si ottiene un ciclo.
+Per esempio, partendo dal numero 169:
+
+(sum-digit-fact 169)
+;-> 363601
+
+Adesso applico la funzione al risultato precedente:
+
+(sum-digit-fact 363601)
+;-> 1454
+
+Continuo allo stesso modo:
+
+(sum-digit-fact 1454)
+;-> 169 ; uguale al numero di partenza -> abbiamo trovato un ciclo.
+
+Il numero finale 169 è uguale al numero iniziale, quindi abbiamo trovato un ciclo reale: 
+
+  (169 363601 1454 169)
+
+Si può dimostrare che OGNI numero di partenza alla fine rimarrà bloccato in un ciclo reale o in un ciclo loop. Per esempio vediamo tre esempi di cicli loop:
+
+  69 → 363600 → 1454 → 169 → 363601 → 1454
+  78 → 45360 → 871 → 45361 → 871
+  540 → 145 → 145
+
+Scriviamo una funzione che calcola questi due tipi di cicli per un determinato numero:
+
+(define (chain num)
+  (let ((catena '()) (tmp num))
+    (until (find num catena)
+      (push num catena -1)
+      (setq num (sum-digit-fact num))
+    )
+    (push num catena -1)
+    (if (= num tmp)
+        (push "R" catena) ; ciclo reale
+        (push "L" catena) ; ciclo loop
+    )))
+
+
+(chain 169)
+;-> ("R" 169 363601 1454 169)
+
+(chain 44)
+;-> ("L" 44 48 40344 79 367920 368649 404670 5810 40442 75 5160 842 40346 775 10200 6
+;->  720 5043 151 122 5 120 4 24 26 722 5044 169 363601 1454 169)
+
+Calcoliamo tutte le catene dei numeri da 1 a un milione:
+
+(time (setq c (map chain (sequence 1 1e6))))
+;-> 32993.293
+
+Vediamo quanto è lunga la sequenza più lunga:
+
+(apply max (map length c))
+;-> 62
+
+Contiamo quante sono le catene di ogni tipo (Reale e Loop):
+
+(count '("L" "R") (map first c))
+;-> (999989 11)
+
+Vediamo quali sono le catene reali:
+
+(filter (fn(x) (= "R" (first x))) c)
+;-> (("R" 1 1) ("R" 2 2) ("R" 145 145) ("R" 169 363601 1454 169) 
+;-> ("R" 871 45361 871) ("R" 872 45362 872) ("R" 1454 169 363601 1454)
+;-> ("R" 40585 40585) ("R" 45361 871 45361) ("R" 45362 872 45362)
+;-> ("R" 363601 1454 169 363601))
+
+
+-----------
+Numeri Star
+-----------
+
+Un numero star (stella) è un numero figurato (esagramma) centrato che forma una stella a sei punte (es.la Stella di David, la scacchiera della dama cinese).
+Ad esempio i numeri 1, 13 e 37 sono numeri star:
+
+  1        13               37
+  *         *                *
+         * * * *            * *
+          * * *        * * * * * * * 
+         * * * *        * * * * * *
+            *            * * * * *
+                        * * * * * *
+                       * * * * * * * 
+                            * *
+                             *
+
+L'n-esimo numero stella è dato dalla formula:
+
+  S(n) = 6*n*(n − 1) + 1. 
+
+Sequenza OEIS A003154:
+  1, 13, 37, 73, 121, 181, 253, 337, 433, 541, 661, 793, 937, 1093, 1261, 1441, 
+  1633, 1837, 2053, 2281, 2521, 2773, 3037, 3313, 3601, 3901, 4213, 4537, 4873, 
+  5221, 5581, 5953, 6337, 6733, 7141, 7561, 7993, 8437, 8893, 9361, ...
+
+(define (star n)
+  (+ (* 6 n (- n 1)) 1))
+
+(map star (sequence 1 40))
+;-> (1 13 37 73 121 181 253 337 433 541 661 793 937 1093 1261 1441 
+;->  1633 1837 2053 2281 2521 2773 3037 3313 3601 3901 4213 4537 4873
+;->  5221 5581 5953 6337 6733 7141 7561 7993 8437 8893 9361)
+
+
+------------
+Numeri emirp
+------------
+
+Un emirp (prime scritto al contrario) è un numero primo che risulta in un primo diverso quando le sue cifre decimali sono invertite. Questa definizione esclude i numeri primi palindromici.
+
+Sequenza OEIS: A006567
+  13, 17, 31, 37, 71, 73, 79, 97, 107, 113, 149, 157, 167, 179, 199, 
+  311, 337, 347, 359, 389, 701, 709, 733, 739, 743, 751, 761, 769, 
+  907, 937, 941, 953, 967, 971, 983, 991, 1009, 1021, 1031, 1033, 
+  1061, 1069, 1091, 1097, 1103, 1109, 1151, 1153, 1181, 1193, 1201
+
+(define (prime? num)
+"Check if a number is prime"
+   (if (< num 2) nil
+       (= 1 (length (factor num)))))
+
+(define (primes-to num)
+"Generates all prime numbers less than or equal to a given number"
+  (cond ((= num 1) '())
+        ((= num 2) '(2))
+        (true
+         (let ((lst '(2)) (arr (array (+ num 1))))
+          (for (x 3 num 2)
+                (when (not (arr x))
+                  (push x lst -1)
+                  (for (y (* x x) num (* 2 x) (> y num))
+                      (setf (arr y) true)))) lst))))
+
+Calcoliamo i numeri primi fino a 1 milione ed eliminiamo (2 3 5 7 11):
+
+(silent (setq a (primes-to 1e6))
+  (setq a (slice a 5)))
+
+(a 0)
+;-> 13
+
+Funzione per invertire un numero:
+
+(define (inverte n)
+  (int (reverse (string n))))
+
+Invertiamo i numeri primi:
+
+(setq b (map inverte a))
+
+Intersezione tra i numeri primi e i loro inversi:
+
+(silent (setq c (intersect a b)))
+(length c)
+;-> 11292
+
+Adesso dobbiamo eliminare i numeri primi palindromi:
+
+(define (palindrome? obj)
+"Check if a number is palindrome"
+      (let (str (string obj)) (= str (reverse (copy str)))))
+
+(setq d (clean palindrome? c))
+(length d)
+;-> 11184
+
+Vediamo i primi 40 numeri emirp:
+
+(slice d 0 40)
+;-> (13 17 31 37 71 73 79 97 107 113 149 157 167 179 199 
+;->  311 337 347 359 389 701 709 733 739 743 751 761 769 
+;->  907 937 941 953 967 971 983 991 1009 1021 1031 1033)
+
+
+--------------------------------
+Numeri con tutte le cifre uguali
+--------------------------------
+
+Determinare se un numero è composto da cifre tutte uguali.
+
+Primo metodo
+------------
+Confronto delle cifre del numero tramite scomposizione algebrica
+
+(define (check1 n)
+  (local (digit cur-digit out)
+    ; imposta ultima cifra
+    (setq digit (% n 10))
+    ; risultato true
+    (setq out true)
+    ; ciclo fino a n=0 e cifre uguali
+    (while (and (!= n 0) out)
+      ; imposta cifra corrente
+      (setq cur-digit (% n 10))
+      ; aggiorna n
+      (setq n (/ n 10))
+      ; se le cifre sono diverse...
+      (if (!= cur-digit digit)
+          ; esce dal ciclo con risultato nil
+          (setq out nil)
+      )
+    )
+    out))
+
+(check1 1111)
+;-> true
+(check1 1121)
+;-> nil
+(time (map check1 (sequence 10 1e6)))
+;-> 561.433
+
+Secondo metodo
+--------------
+stringa del numero = prima cifra della stringa ripetuta per la lunghezza della stringa ?
+
+(define (check2 n)
+  (= (setq s (string n)) (dup (s 0) (length n))))
+
+(check2 1111)
+;-> true
+(check2 1121)
+;-> nil
+(time (map check2 (sequence 10 1e6)))
+;-> 688.428
+
+Terzo metodo
+------------
+numero = (numero con tanti 1 quante sono le cifre) * (la prima cifra del numero) ?
+
+(define (check3 n)
+  (= n (* (int (dup "1" (length n))) (% n 10))))
+
+(check3 1111)
+;-> true
+(check3 1121)
+;-> nil
+(time (map check3 (sequence 10 1e6)))
+;-> 415.171
+
+Quarto metodo
+-------------
+I caratteri di ogni cifra sono tutti uguali ?
+
+(define (check4 n)
+  (apply = (explode (string n))))
+
+(check4 1111)
+;-> true
+(check4 1121)
+;-> nil
+(time (map check4 (sequence 10 1e6)))
+;-> 1212.95
+
+Quinto metodo
+-------------
+Come il primo metodo usando catch and throw.
+
+(define (check5 n)
+(catch
+  (local (digit cur-digit)
+    ; imposta ultima cifra
+    (setq digit (% n 10))
+    ; ciclo per estrarre le cifre...
+    (while (!= n 0)
+      ; imposta cifra corrente
+      (setq cur-digit (% n 10))
+      ; se le cifre sono diverse...
+      (if (!= cur-digit digit)
+          ; restituisce nil
+          (throw nil)
+      )
+      ; aggiorna n
+      (setq n (/ n 10))
+    )
+    true)))
+
+(check5 1111)
+;-> true
+(check5 1121)
+;-> nil
+(time (map check5 (sequence 10 1e6)))
+;-> 561.433
+
+Sesto metodo (più veloce)
+-------------------------
+Formiamo un altro numero X in questo modo:
+
+  X = N(0) * (K volte 1),
+
+  dove N(0) è la prima cifra di N (ma può essere qualunque),
+       K è la lunghezza di N
+
+Vediamo un esempio:
+
+N = 2222
+N(0) = 2
+K = 4 -> (K volte 1) = 1111
+X = 2 * 1111 = 2222
+
+A questo punto confrontiamo N con X:
+  se sono uguali, allora il numero ha le stesse cifre
+  altrimenti il numero non ha tutte le cifre uguali
+
+Questo metodo è simile al terzo metodo, la differenza è che per creare il numero K composto da soli 1 utilizziamo la formula della somma di una progressione geometrica:
+
+           a*r^C - 1
+  Somma = -----------
+             r - 1
+
+dove "a" è il primo termine (in questo caso 1)
+     "r" è il rapporto comune (in questo caso 10)
+     "C" è il numero di cifre di N
+
+Scriviamo una funzione per calcolare questa formula:
+
+(define (K num-digits)
+  (div (- (pow 10 num-digits) 1) 9))
+
+(map K (sequence 1 8))
+;-> (1 11 111 1111 11111 111111 1111111 11111111)
+
+Adesso possiamo scrivere la funzione finale:
+
+; (define (check6 n)
+;   (= n (* (K (length n)) (% n 10))))
+
+(define (check6 n)
+  (= n (* (div (- (pow 10 (length n)) 1) 9) (% n 10))))
+
+(check6 1111)
+;-> true
+(check6 1121)
+;-> nil
+(time (map check6 (sequence 10 1e6)))
+;-> 345.272
+
+Verifichiamo se le funzioni producono gli stessi risultati:
+
+(= (map check1 (sequence 10 1e6)) (map check2 (sequence 10 1e6))
+   (map check3 (sequence 10 1e6)) (map check4 (sequence 10 1e6))
+   (map check5 (sequence 10 1e6)) (map check6 (sequence 10 1e6)))
+;-> true
+
+
+----------------------------
+Numeri magici (magic number)
+----------------------------
+
+Nella programmazione il termine numero magico (magic number) ha molteplici significati. Potrebbe riferirsi a uno o più dei seguenti:
+
+a) Valori numerici con significato inspiegabile o occorrenze multiple che potrebbero (preferibilmente) essere sostituiti con costanti denominate
+b) Un valore numerico o di testo costante utilizzato per identificare un formato di file o un protocollo (es. firme dei file)
+c) Valori univoci distintivi che è improbabile che vengano scambiati per altri significati (ad es. GUID, Globally Unique IDentifier)
+
+Il tipo a) è un numero o una stringa di testo a cui non è associato un significato esplicito, ma il cui valore è essenziale ai fini del funzionamento del codice. Questo è sconsigliato dalle best practice della programmazione (anti-pattern). 
+Questo anti-pattern è stato definito come la violazione di una delle più antiche regole di programmazione, che risale ai manuali COBOL, FORTRAN e PL/1 degli anni '60. L'uso di numeri magici senza nome nel codice oscura il significato del numero, aumenta le possibilità di errore e rende più difficile la manutenzione del programma. 
+La sostituzione di tutti i numeri magici con costanti nominative semplifica la lettura, la comprensione e le modifiche dei programmi.
+
+In matematica, esistono due definizioni di numero magico
+
+1) un numero magico è un numero la cui somma ripetuta delle cifre vale 1.
+Per esempio:
+
+  numero = 50113 
+  5 + 0 + 1 + 1 + 3 = 10  ->   1 + 0 = 1
+Quindi 50113 è un numero magico (tipo 2).
+
+  numero = 1234 
+  1 + 2 + 3 + 4 = 10   ->  1 + 0 = 1
+Quindi 50113 è un numero magico (tipo 2).
+
+2) un numero magico è un numero la cui somma delle cifre moltiplicata per l'inverso della stessa somma restituisce il numero originale. 
+Per esempio: 
+
+  Numero = 1729
+  1 + 7 + 2 + 9 = 19
+  (inverso 19) = 91
+  19 * 91 = 1729 
+Quindi 1729 è un numero magico (tipo 1).
+
+
+Scriviamo due funzioni per verificare se un numero n è un numero magico (di tipo 1 o di tipo 2):
+
+Magico tipo 1
+-------------
+
+(define (digit-root num)
+"Calculates the repeated sum of the digits of an integer"
+    (+ 1 (% (- (abs num) 1) 9)))
+
+(define (magic1? n)
+  (= (digit-root n) 1))
+
+(magic1? 50113)
+;-> true
+(magic1? 1234)
+;-> true
+
+(define (magic1?-to num)
+  (let (out '())
+    (for (i 1 num)
+      (if (magic1? i)
+          (push i out -1)
+      )
+    )
+    out))
+
+(magic1?-to 100)
+;-> (1 10 19 28 37 46 55 64 73 82 91 100)
+
+(filter (fn(x) (magic1? x)) (sequence 1 100))
+;-> (1 10 19 28 37 46 55 64 73 82 91 100)
+
+Magico tipo 2
+-------------
+
+(define (digit-sum num)
+"Calculates the sum of the digits of an integer"
+  (let (out 0)
+    (while (!= num 0)
+      (setq out (+ out (% num 10)))
+      (setq num (/ num 10))
+    )
+    out))
+
+Funzione per invertire un numero:
+
+(define (inverte n)
+  (int (reverse (string n))))
+
+(define (magic2? n)
+  (letn ((a (digit-sum n)) (b (inverte a)))
+    ;(println a { } b)
+    (= (* a b) n)))
+
+(magic2? 1729)
+;-> true
+
+(define (magic2?-to num)
+  (let (out '())
+    (for (i 1 num)
+      (if (magic2? i)
+          (push i out -1)
+      )
+    )
+    out))
+
+(magic2?-to 1e6)
+;-> (1 81 1458 1729)
+
+(filter (fn(x) (magic2? x)) (sequence 1 1e6))
+;-> (1 81 1458 1729)
+
+(time (magic2?-to 1e6))
+;-> 1484.28
+(time (filter (fn(x) (magic2? x)) (sequence 1 1e6)))
+;-> 1536.011
+
+
+---------------------
+Numeri polidivisibili
+---------------------
+
+Un numero polidivisibile (o numero magico) è un numero formato dalle cifre "abcde..." che ha le seguenti proprietà:
+
+La sua prima cifra "a" non è 0.
+Il numero formato dalle sue prime due cifre "ab" è un multiplo di 2.
+Il numero formato dalle prime tre cifre "abc" è un multiplo di 3.
+Il numero formato dalle prime quattro cifre "abcd" è un multiplo di 4.
+ecc.
+
+(define (polydivisible? n)
+  (local (s stop)
+    (setq s (string n))
+    (setq stop nil)
+    (for (i 2 (length s) 1 stop)
+      ;(println (slice s 0 i))
+      (if (!= (% (int (slice s 0 i)) i) 0)
+          (setq stop true)
+      )
+    )
+    (not stop)))
+
+(polydivisible? 345654)
+;-> true
+
+(filter (fn(x) (polydivisible? x)) (sequence 90000 92000))
+;-> (90000 90005 90040 90045 90080 90085 90320 90325 90360 90365 
+;->  90600 90605 90640 90645 90680 90685 90920 90925 90960 90965)
+
+Possiamo anche scrivere una funzione che verifica se un numero è polidivisibile in una base positiva qualunqe. Dato un intero positivo N e K = (int log-b(n) 1) il numero di cifre di N in base b. Il numero N è un numero polidivisibile solo se, per 1 <= i <= k, risulta:
+
+  int(n/b^(k-i)) = 0 (mod i)
+
+La seguente funzione verifica se un numero (base 10) è polidivisbile:
+
+(define (poly-div? n)
+  (local (len stop)
+    (setq len (length n))
+    (setq stop nil)
+    (for (i 2 len 1 stop)
+      ;(println (slice s 0 i))
+      (if (!= (% (int (div n (pow 10 (- len i)))) i) 0)
+          (setq stop true)
+      )
+    )
+    (not stop)))
+
+(poly-div? 345654)
+;-> true
+
+(filter (fn(x) (poly-div? x)) (sequence 90000 92000))
+;-> (90000 90005 90040 90045 90080 90085 90320 90325 90360 90365
+;->  90600 90605 90640 90645 90680 90685 90920 90925 90960 90965)
+
 =============================================================================
 
