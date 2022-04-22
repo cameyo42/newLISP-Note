@@ -1273,6 +1273,55 @@ Utilizzando una lista otteniamo lo stesso risultato:
 ;-> 4
 ;-> 8
 
+Vediamo cosa accade se utilizziamo una lista con i simboli delle funzioni.
+
+Creiamo due funzioni:
+
+(define (f1 a b) (+ a b))
+(define (f2 a b) (- a b))
+
+E poi creiamo una lista con i simboli delle funzioni:
+
+(setq funcs '(f1 f2))
+;-> (f1 f2)
+
+Adesso per eseguire le funzioni nella lista delle funzioni occorre utilizzare la funzione "evel":
+
+((eval(funcs 0)) 2 3)
+;-> 5
+
+ALtro esempio:
+
+(setq f '(sin cos))
+
+((eval (f 0)) 1)
+;-> 0.8414709848078965
+
+Per usarle come nel primo metodo occorre creare la lista delle funzioni con le funzioni vere e proprie invece che il loro simbolo:
+
+(setq funcs (list f1 f2))
+;-> ((lambda (a b) (+ a b)) (lambda (a b) (- a b)))
+
+Adesso possiamo chiamare le funzioni senza utilizzare "eval":
+
+((funcs 0) 6 2)
+;-> 8
+((funcs 1) 6 2)
+;-> 4
+
+Possiamo inserire altre funzioni nella lista delle funzioni:
+
+(define (f3 a b) (* a b))
+
+(push f3 funcs -1)
+;-> (lambda (a b) (* a b))
+
+funcs
+;-> ((lambda (a b) (+ a b)) (lambda (a b) (- a b)) (lambda (a b) (* a b)))
+
+((funcs 2) 6 2)
+;-> 12
+
 
 ------------------------------------
 Numeri dispari differenza di quadrati

@@ -108,15 +108,18 @@
 |    99    |  709               |         -  |         0  |         -  |
 |   100    |  756872327473      |         -  |         0  |         -  |
 |   101    |  37076114526       |         -  |        70  |         -  |
-|   102    |  228               |         -  |         2  |         0  |
-|   104    |  329468            |         -  |     37978  |         0  |
-|   112    |  1587000           |         -  |      1732  |         0  |
-|   113    |  51161058134250    |         -  |         8  |         0  |
-|   119    |  248155780267521   |         -  |        26  |         0  |
-|   120    |  333082500         |         -  |         0  |         0  |
-|   125    |  2906969179        |         -  |      1570  |         0  |
+|   102    |  228               |         -  |         2  |         1  |
+|   104    |  329468            |         -  |     37978  |         -  |
+|   112    |  1587000           |         -  |      1732  |         -  |
+|   113    |  51161058134250    |         -  |         8  |         -  |
+|   119    |  248155780267521   |         -  |        26  |         -  |
+|   120    |  333082500         |         -  |         0  |         -  |
+|   123    |  21035             |         -  |       134  |         -  |
+|   124    |  21417             |         -  |       140  |         -  |
+|   125    |  2906969179        |         -  |      1570  |         -  |
 |   135    |  4989              |         -  |      2874  |      1194  |
 |   188    |  95962097          |         -  |        29  |         -  |
+|   191    |  1918080160        |         -  |         1  |         0  |
 |   206    |  1389019170        |         -  |         2  |         -  |
 
 Sito web: https://projecteuler.net/archives
@@ -11919,7 +11922,7 @@ Possiamo usare il teorema di Jordan (che vale anche per qualunque poligono):
 
 Un altro algoritmo semplice e veloce, chiamato metodo baricentrico, consiste nel controllare su quale lato del semipiano creato dai lati si trova il punto.
 
-(define (e102)
+(define (e102-2)
   (local (x1 y1 x2 y2 x3 y3 a b c out)
     (setq out 0)
     (dolist (el triangle)
@@ -11933,11 +11936,11 @@ Un altro algoritmo semplice e veloce, chiamato metodo baricentrico, consiste nel
     )
     out))
 
-(e102)
+(e102-2)
 ;-> 228
 
-(time 102)
-;-> 0
+(time (e102-2))
+;-> 0.969
 ----------------------------------------------------------------------------
 
 
@@ -12299,6 +12302,163 @@ L'espansione diretta della formula porta al seguente risultato:
 
 
 ============
+Problema 123
+============
+
+Resti di quadrati di primi
+
+Sia p(n) l'n-esimo primo: 2, 3, 5, 7, 11, ..., e sia r il resto quando (p(n)−1)*n + (p(n)+1)*n è diviso per p(n)^2.
+
+Ad esempio, quando n = 3, p(3) = 5 e 4^3 + 6^3 = 280 ≡ 5 mod 25.
+
+Il valore minimo di n per il quale il resto prima supera 10^9 è 7037.
+
+Trova il valore minimo di n per il quale il resto prima supera 10^10.
+============================================================================
+
+Nel problema 120, abbiamo visto che il resto r per questa equazione è dato da:
+
+  r = 2*p(n)*n per n dispari
+  r = 2        per n pari
+
+Quindi dobbiamo cercare in sequenza, solo per n dispari, un primo che rende r superiore al limite (10^10).
+Invece di creare una lista di primi (di cui non conosciamo quanto debba essere lunga) utilizziamo un generatore di primi.
+
+Funzione che verifica se un numero è primo:
+
+(define (primo:isprime? n)
+  (if (< n 2) nil
+    (= 1 (length (factor n)))))
+
+Funzione che inizializza il generatore di numeri primi:
+
+(define (primo:start x)
+  (setq primo:val x))
+
+Funzione che stampa il numero primo corrente:
+
+(define (primo:print-val) primo:val)
+
+Infine scriviamo la funzione/funtore del contesto "primo" (il parametro "dir" può assumere true o nil e specifica se generare il  primo successivo oppure il primo precedente):
+
+Funzione che genera il primo successivo (primo) oppure il primo precedente (primo true):
+
+(define (primo:primo dir)
+  (local (found num)
+    (setq found nil)
+    (if (null? dir)
+      (setq num (+ primo:val 1))
+      (setq num (- primo:val 1))
+    )
+    (until found
+      (if (primo:isprime? num)
+          (setq primo:val num found true)
+      )
+      (if (null? dir)
+        (++ num)
+        (-- num)
+      )
+    )
+    primo:val))
+
+Proviamo il generatore:
+
+(primo:start 2)
+(primo)
+;-> 3
+(primo:start 13)
+;-> 13
+(primo:print-val)
+;-> 13
+(primo:isprime? 13)
+;-> true
+(primo)
+;-> 17
+(primo)
+;-> 19
+(primo)
+;-> 23
+(primo true)
+;-> 19
+(primo true)
+;-> 17
+(primo)
+;-> 19
+
+Adesso possiamo scrive la funzione soluzione:
+
+(define (e123)
+(catch
+  (local (n p)
+    (primo:start 1)
+    (setq n 1)
+    (while true
+      (setq p (primo))
+      (if (> (* 2 p n) 1e10)
+          (throw n)
+      )
+      (primo)
+      (++ n 2)
+    )
+  )))
+
+(e123)
+;-> 21035
+
+(time (e123))
+;-> 134.032
+----------------------------------------------------------------------------
+
+
+============
+Problema 124
+============
+
+Radicali ordinati
+
+Il radicale di n, rad(n), è il prodotto dei distinti fattori primi di n. Ad esempio, 504 = 2^3 × 3^2 × 7, quindi rad(504) = 2 × 3 × 7 = 42.
+
+Se calcoliamo rad(n) per 1 ≤ n ≤ 10, quindi li ordiniamo su rad(n) e ordinando su n se i valori radicali sono uguali, otteniamo:
+
+  Non ordinati    Ordinati
+  n  rad(n)       n  rad(n)  k
+  1    1          1    1     1
+  2    2          2    2     2
+  3    3          4    2     3
+  4    2          8    2     4
+  5    5          3    3     5
+  6    6          9    3     6
+  7    7          5    5     7
+  8    2          6    6     8
+  9    3          7    7     9
+  10  10         10   10    10
+
+Sia E(k) il k-esimo elemento nella colonna n ordinata. Ad esempio, E(4) = 8 e E(6) = 9. 
+
+Se rad(n) è ordinato per 1 ≤ n ≤ 100000, trovare E(10000).
+============================================================================
+
+Funzione che calcola il radicale di un numero intero positivo:
+
+(define (rad n)
+  (if (= n 1) 1
+      (apply * (unique (factor n)))))
+
+(sort (map (fn(x) (list (rad x) (+ $idx 1))) (sequence 1 10)))
+;-> ((1 1) (2 2) (2 4) (2 8) (3 3) (3 9) (5 5) (6 6) (7 7) (10 10))
+
+(define (e124)
+  ((sort (map (fn(x) (list (rad x) (+ $idx 1))) (sequence 1 100000))) 9999 1))
+
+(e124)
+;-> 21417
+
+(time (e124))
+;-> 140.315
+----------------------------------------------------------------------------
+
+
+============
 Problema 125
 ============
 
@@ -12476,6 +12636,106 @@ Trova le ultime 8 cifre di 1777↑↑1855.
 
 (time (e188))
 ;-> 29.751
+----------------------------------------------------------------------------
+
+
+============
+Problema 191
+============
+
+Stringhe premiate
+
+Una scuola particolare offre premi in denaro ai bambini con buona frequenza e puntualità. Se sono assenti per tre giorni consecutivi o in ritardo per più di un'occasione, perdono il premio.
+
+Durante un periodo di n giorni si forma una stringa ternaria per ogni bambino composta da L (in ritardo), O (in orario) e A (assente).
+
+Sebbene ci siano ottantuno stringhe trinarie per un periodo di 4 giorni che possono essere formate, esattamente quarantatre stringhe porterebbero a un premio:
+
+   OOOO OOOA OOOL OOAO OOAA OOAL OOLO OOLA OAOO OAOA
+   OAOL OAAO OAAL OALO OALA OLOO OLOA OLAO OLAA AOOO
+   AOOA AOOL AOAO AOAA AOAL AOLO AOLA AAOO AAOA AAOL
+   AALO AALA ALOO ALOA ALAO ALAA LOOO LOOA LOAO LOAA
+   LAOO LAOA LAAO
+
+Quante stringhe di "premio" esistono in un periodo di 30 giorni?
+============================================================================
+
+Usiamo una funzione ricorsiva che deve essere chiamata con il numero di giorni (corrispondente alla durata del "premio" desiderata), i valori iniziali per il numero di giorni di assenza consecutivi e il numero di giorni di ritardo totali.
+Questa funzione genera una situazione del giorno che permette di calcolare in numero di stringhe premiate fino a quel punto (che viene memorizzata in una hash-map).
+
+(define (calc days absent late)
+(catch
+  (local (key event-late event-absent event-ontime prizes)
+    ; se assenti due volte, o in ritardo per 3 giorni consecutivi,
+    ; allora non sono possibili ulteriori stringhe da premiare
+    (if (or (= late 3) (= absent 2)) (throw 0))
+    ; se non abbiamo più giorni e non abbiamo fallito le altre regole
+    ; allora abbiamo una stringa da premiare
+    (if (= days 0) (throw 1))
+    ; calcolo ricorsivo,
+    ; se la combinazione è già nella cache,
+    ; allora restituisce il valore memorizzato poiché conosciamo
+    ; il numero di possibili stringhe da remiare da adesso in poi
+    (setq key (string days "-" absent "-" late))
+    (if (!= (h key) nil) (throw (h key)))
+    ; Adesso calcoliamo i tre possibili modi che possono crearsi
+    ; questo punto in poi, a seconda della nostra presenza odierna
+    ; 1) se siamo in ritardo (ma non assenti),
+    ;    allora il contatore "assenti" resta invariato e
+    ;    il contatore di "ritardo" aumenta di uno
+    (setq event-late   (calc (- days 1) absent (+ late 1)))
+    ; 2) se siamo assenti,
+    ;    allora il contatore "assenti" aumenta di 1 e
+    ;    il contatore "ritardo" si azzera
+    (setq event-absent (calc (- days 1) (+ absent 1) 0))
+    ; 3) se siamo puntuali, 
+    ;    allora azzera il contatore di "ritardo" e 
+    ;    mantiene il contatore di "assenti"
+    (setq event-ontime (calc (- days 1) absent 0))
+    ; calcola il numero delle stringhe premiate
+    (setq prizes (+ event-late event-absent event-ontime))
+    ; inserisce il valore nella cache
+    (h key prizes)
+    prizes)))
+
+(define (e191)
+  (new Tree 'h)
+  (println (calc 30 0 0))
+  (delete 'h))
+
+(e191)
+;-> 1918080160
+
+(time (e191))
+;-> 0.969
+
+Una interessante e dettagliata soluzione per induzione (scritta in python) si trova al seguente indirizzo:
+
+https://jsomers.net/blog/project-euler-problem-191-or-how-i-learned-to-stop-counting-and-love-induction
+
+Riportiamo l'implementazione in newLISP:
+
+(define (e191)
+  (setq lst '(1 3 0 2 1 0 0 1))
+  (setq val '(n t a b c d e f))
+  (while (< (lst 0) 30)
+    (map set val lst)
+    (setq lst (list (+ n 1)
+                    (+ (* 2 t) b (- a))
+                    c
+                    (+ (* 2 b) d (- a))
+                    (- t (+ a c))
+                    e
+                    f
+                    t))
+  )
+  (lst 1))
+
+(e191)
+;-> 1918080160
+
+(time (e191))
+;-> 0
 ----------------------------------------------------------------------------
 
 

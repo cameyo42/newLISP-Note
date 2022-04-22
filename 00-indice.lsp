@@ -330,7 +330,7 @@ ROSETTA CODE
 
 PROJECT EULERO
 ==============
-  Problemi 1..102, 104, 112, 113, 119, 120, 125, 135, 188, 206
+  Problemi 1..102, 104, 112, 113, 119, 120, 123, 124, 125, 135, 188, 191, 206
   
 PROBLEMI VARI
 =============
@@ -1153,6 +1153,8 @@ NOTE LIBERE 8
   Numeri con tutte le cifre uguali
   Numeri magici (magic number)
   Numeri polidivisibili
+  Algoritmo jump search
+  Numeri intoccabili (untouchable)
 
 APPENDICI
 =========
@@ -1186,7 +1188,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (212 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (218 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================

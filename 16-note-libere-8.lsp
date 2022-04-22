@@ -2895,5 +2895,121 @@ La seguente funzione verifica se un numero (base 10) è polidivisbile:
 ;-> (90000 90005 90040 90045 90080 90085 90320 90325 90360 90365
 ;->  90600 90605 90640 90645 90680 90685 90920 90925 90960 90965)
 
+
+---------------------
+Algoritmo jump search
+---------------------
+
+Questo algoritmo itera su una lista ordinata con un passo di n^(1/2), finché l'elemento confrontato non è più grande di quello cercato. Quindi esegue una ricerca lineare finché non trova il numero cercato.
+Se non viene trovato, restituisce nil.
+
+(define (jump-search x lst)
+  (local (m passo precedente)
+    (setq m (length lst))
+    (setq passo (int (floor (sqrt m))))
+    (setq precedente 0)
+    (while (< (lst (- (min passo m) 1)) x)
+      (setq precedente passo)
+      (setq passo (+ passo (int (floor (sqrt m)))))
+      (if (>= precedente m) (throw nil))
+    )
+    (while (< (lst precedente) x)
+      (++ precedente)
+      (if (= precedente (min passo m)) (throw nil))
+    )
+    (if (= (lst precedente) x) precedente nil)))
+
+(jump-search 101 (sequence 1 1000))
+;-> 100
+
+(jump-search 21 '(0 1 2 3 5 8 13 21 34 55))
+;-> 7
+
+
+--------------------------------
+Numeri intoccabili (untouchable)
+--------------------------------
+
+Un numero intoccabile è un numero intero positivo che non può essere espresso come la somma di tutti i divisori propri di qualsiasi numero intero positivo (incluso il numero intoccabile stesso).
+Ad esempio, il numero 4 non è intoccabile in quanto è uguale alla somma dei divisori propri di 9: 1 + 3 = 4. Il numero 5 è intoccabile in quanto non è la somma dei divisori propri di un qualsiasi intero positivo: 5 = 1 + 4 è l'unico modo per scrivere 5 come somma di interi positivi distinti incluso 1, ma se 4 divide un numero, lo fa anche 2, quindi 1 + 4 non può essere la somma di tutti i divisori propri di qualsiasi numero (poiché il l'elenco dei fattori dovrebbe contenere sia 4 che 2).
+
+Nota: la somma di tutti i divisori propri è anche nota come "aliquot sum".
+
+Sequenza OEIS A005114:
+	2, 5, 52, 88, 96, 120, 124, 146, 162, 188, 206, 210, 216, 238, 246, 
+	248, 262, 268, 276, 288, 290, 292, 304, 306, 322, 324, 326, 336, 342,
+	372, 406, 408, 426, 430, 448, 472, 474, 498, ... 
+
+(define (factor-group num)
+"Factorize an integer number"
+	(if (< num 2) nil
+			(letn ((out '()) (lst (factor num)) (cur-val (first lst)) (cur-count 0))
+			; usa "factor-i" per usare i big-integer
+			;(letn ((out '()) (lst (factor-i num)) (cur-val (first lst)) (cur-count 0))
+				(dolist (el lst)
+					(if (= el cur-val) (++ cur-count)
+							(begin
+								(push (list cur-val cur-count) out -1)
+								(setq cur-count 1 cur-val el))))
+				(push (list cur-val cur-count) out -1))))
+
+(define (divisors-sum num)
+"Sum all the divisors of integer number"
+(if (zero? num) 0
+	(local (sum out)
+		(if (= num 1)
+				1
+				(begin
+					(setq out 1)
+					(setq lst (factor-group num))
+					(dolist (el lst)
+						(setq sum 0)
+						(for (i 0 (last el))
+							(setq sum (+ sum (pow (first el) i)))
+						)
+						(setq out (* out sum))))))))
+
+(divisors-sum 11)
+(divisors-sum 6)
+;-> 12
+
+(define (proper-divisors-sum num)
+"Sum all the proper divisors of integer number"
+  (- (divisors-sum num) num))
+
+Funzione che verifica se un numero è intoccabile:
+
+(define (untouchable? num)
+  (let (stop nil)
+    (for (i 2 (- (* num num) 1) 1 stop)
+      (if (= (- (divisors-sum i) i) num)
+          (setq stop true)
+      )
+    )
+    (not stop)))
+
+(filter (fn(x) (untouchable? x)) (sequence 1 100))
+;-> (2 5 52 88 96)
+
+Questa funzione è lenta per trovare tutti i numeri intoccabili fino ad un dato numero:
+
+(time (setq un (filter (fn(x) (untouchable? x)) (sequence 1 500))))
+;-> 18538.425
+un
+;-> (2 5 52 88 96 120 124 146 162 188 206 210 216 238 246 
+;->  248 262 268 276 288 290 292 304 306 322 324 326 336 342 
+;->  372 406 408 426 430 448 472 474 498)
+
+(time (setq un (filter (fn(x) (untouchable? x)) (sequence 1 1000))))
+;-> 162800.669
+un
+;-> (2 5 52 88 96 120 124 146 162 188 206 210 216 238 246 
+;->  248 262 268 276 288 290 292 304 306 322 324 326 336 342
+;->  372 406 408 426 430 448 472 474 498 516 518 520 530 540 
+;->  552 556 562 576 584 612 624 626 628 658 668 670 708 714 
+;->  718 726 732 738 748 750 756 766 768 782 784 792 802 804 
+;->  818 836 848 852 872 892 894 896 898 902 926 934 936 964 
+;->  966 976 982 996)
+
 =============================================================================
 
