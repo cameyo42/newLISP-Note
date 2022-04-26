@@ -615,7 +615,7 @@ Formula di Lamberts
 
 La formula di Lamberts calcola la distanza più breve lungo la superficie di un ellissoide tra due punti sulla superficie terrestre date le loro longitudini e latitudini (in gradi decimali).
 Rappresentare la terra come un ellissoide (cioè tenere conto dell'appiattimento ai poli nord e sud) ci permette di approssimare le distanze tra punti sulla superficie terrestre molto meglio di una sfera.
-Le formule di Lambert forniscono una precisione nell'ordine di 10 metri su migliaia di chilometri. Altri metodi possono fornire una precisione millimetrica, ma questo è un metodo più semplice da calcolare.
+Le formule di Lambert forniscono una precisione nell'ordine di 10 metri su migliaia di chilometri. Altri metodi possono fornire una precisione millimetrica, ma questo è un metodo più semplice da implementare.
 
 NOTA: questo algoritmo utilizza la funzione "haversine" (vedi Formula di Haversine).
 
@@ -693,7 +693,7 @@ Questo metodo è robusto, ma la convergenza è lineare (aggiunge solo un bit di 
           ((> (mul (func a) (func b)) 0) nil)
           (true
             (setq mid (add start (div (sub end start) 2)))
-            # precisione del risultato 10e-9
+            ; precisione del risultato 10e-9
             (while (> (abs (sub mid start)) 10e-9)
               (cond ((zero? (func mid))
                      (throw mid))
@@ -1946,9 +1946,9 @@ Facciamo una prova:
 ;-> (7 12 15)
 
 
---------------------------------------------
-Estrazione di righe o colonne da una matrice
---------------------------------------------
+-----------------------------------------
+Lettura di righe o colonne di una matrice
+-----------------------------------------
 
 Supponiamo di avere la seguente matrice 2x3:
 
@@ -1978,6 +1978,30 @@ Scriviamo due funzioni per estrarre una riga o una colonna da una matrice:
 
 (get-column m 2)
 ;-> (3 6)
+
+
+-------------------------------------------
+Modifiche di righe o colonne di una matrice
+-------------------------------------------
+
+Vediamo come possiamo modificare una riga o una colonna di una matrice:
+
+(setq m '((1 2 3 4) (5 6 7 8) (9 10 11 12)))
+
+(define (set-row matrix row lst)
+  (setf (matrix row) lst)
+  matrix)
+
+(setq m (set-row m 2 '(0 0 0 0)))
+;-> ((1 2 3 4) (5 6 7 8) (0 0 0 0))
+
+(define (set-column matrix column lst)
+  (let (t (transpose matrix))
+    (setf (t column) lst)
+    (transpose t)))
+
+(setq m (set-column m 1 '(0 0 0)))
+;-> ((1 0 3 4) (5 0 7 8) (0 0 0 0))
 
 
 ------------------------------------------
@@ -2936,38 +2960,38 @@ Ad esempio, il numero 4 non è intoccabile in quanto è uguale alla somma dei di
 Nota: la somma di tutti i divisori propri è anche nota come "aliquot sum".
 
 Sequenza OEIS A005114:
-	2, 5, 52, 88, 96, 120, 124, 146, 162, 188, 206, 210, 216, 238, 246, 
-	248, 262, 268, 276, 288, 290, 292, 304, 306, 322, 324, 326, 336, 342,
-	372, 406, 408, 426, 430, 448, 472, 474, 498, ... 
+  2, 5, 52, 88, 96, 120, 124, 146, 162, 188, 206, 210, 216, 238, 246, 
+  248, 262, 268, 276, 288, 290, 292, 304, 306, 322, 324, 326, 336, 342,
+  372, 406, 408, 426, 430, 448, 472, 474, 498, ... 
 
 (define (factor-group num)
 "Factorize an integer number"
-	(if (< num 2) nil
-			(letn ((out '()) (lst (factor num)) (cur-val (first lst)) (cur-count 0))
-			; usa "factor-i" per usare i big-integer
-			;(letn ((out '()) (lst (factor-i num)) (cur-val (first lst)) (cur-count 0))
-				(dolist (el lst)
-					(if (= el cur-val) (++ cur-count)
-							(begin
-								(push (list cur-val cur-count) out -1)
-								(setq cur-count 1 cur-val el))))
-				(push (list cur-val cur-count) out -1))))
+  (if (< num 2) nil
+      (letn ((out '()) (lst (factor num)) (cur-val (first lst)) (cur-count 0))
+      ; usa "factor-i" per usare i big-integer
+      ;(letn ((out '()) (lst (factor-i num)) (cur-val (first lst)) (cur-count 0))
+        (dolist (el lst)
+          (if (= el cur-val) (++ cur-count)
+              (begin
+                (push (list cur-val cur-count) out -1)
+                (setq cur-count 1 cur-val el))))
+        (push (list cur-val cur-count) out -1))))
 
 (define (divisors-sum num)
 "Sum all the divisors of integer number"
 (if (zero? num) 0
-	(local (sum out)
-		(if (= num 1)
-				1
-				(begin
-					(setq out 1)
-					(setq lst (factor-group num))
-					(dolist (el lst)
-						(setq sum 0)
-						(for (i 0 (last el))
-							(setq sum (+ sum (pow (first el) i)))
-						)
-						(setq out (* out sum))))))))
+  (local (sum out)
+    (if (= num 1)
+        1
+        (begin
+          (setq out 1)
+          (setq lst (factor-group num))
+          (dolist (el lst)
+            (setq sum 0)
+            (for (i 0 (last el))
+              (setq sum (+ sum (pow (first el) i)))
+            )
+            (setq out (* out sum))))))))
 
 (divisors-sum 11)
 (divisors-sum 6)
@@ -2977,12 +3001,17 @@ Sequenza OEIS A005114:
 "Sum all the proper divisors of integer number"
   (- (divisors-sum num) num))
 
+(proper-divisors-sum 6)
+;-> 6
+
 Funzione che verifica se un numero è intoccabile:
 
 (define (untouchable? num)
   (let (stop nil)
+    ; occorre sommare i divisori propri 
+    ; per ogni numero fino a (num^2 - 1)
     (for (i 2 (- (* num num) 1) 1 stop)
-      (if (= (- (divisors-sum i) i) num)
+      (if (= (proper-divisors-sum i) num)
           (setq stop true)
       )
     )
@@ -3010,6 +3039,678 @@ un
 ;->  718 726 732 738 748 750 756 766 768 782 784 792 802 804 
 ;->  818 836 848 852 872 892 894 896 898 902 926 934 936 964 
 ;->  966 976 982 996)
+
+Scriviamo in modo diverso la funzione che calcola i numeri intoccabili fino ad un dato numero:
+
+(define (untouchable-to num)
+  (local (numbers limits sums)
+    ; numeri di cui calcolare la somma dei divisori propri
+    (setq limits (sequence 2 (* num num)))
+    ; somma dei divisori propri di tutti i numeri
+    (setq sums (unique (map proper-divisors-sum limits)))
+    ; numeri da verificare
+    (setq numbers (sequence 2 num))
+    (difference numbers sums)))
+
+(untouchable-to 100)
+;-> (2 5 52 88 96)
+
+(untouchable-to 1000)
+;-> (2 5 52 88 96 120 124 146 162 188 206 210 216 238 246 
+;->  248 262 268 276 288 290 292 304 306 322 324 326 336 342
+;->  372 406 408 426 430 448 472 474 498 516 518 520 530 540
+;->  552 556 562 576 584 612 624 626 628 658 668 670 708 714
+;->  718 726 732 738 748 750 756 766 768 782 784 792 802 804
+;->  818 836 848 852 872 892 894 896 898 902 926 934 936 964 
+;->  966 976 982 996)
+
+(time (untouchable-to 1000))
+;-> 3956.685
+
+La funzione è più veloce, ma è ancora troppo lenta per calcolare numeri intoccabili grandi:
+
+(time (println (untouchable-to 10000)))
+;-> 846273.96
+
+
+---------------------
+Powerset di una lista
+---------------------
+
+Il powerset di una lista è l'insieme di tutte le sottoliste della lista.
+Per esempio:
+
+  lista = (a b c)
+  powerset = (() (a) (b) (a b) (c) (a c) (b c) (a b c))
+
+Il numero di elementi del powerset vale:
+
+  numero elementi powerset = 2^(numero elementi lista)
+
+Nota: la lista vuota () appartiene sempre al powerset di qualunque lista.
+
+Vediamo diversi funzioni per calcolare il powerset di una lista (o vettore).
+
+Metodo 1 (iterativo)
+--------------------
+
+(define (powerset1 lst)
+  (define (loop res s)
+    (if (empty? s)
+      res
+      (loop (append (map (lambda (i) (cons (first s) i)) res) res) (rest s))))
+  (loop '(()) lst))
+
+(powerset1 '(1 2 3))
+;-> ((3 2 1) (3 2) (3 1) (3) (2 1) (2) (1) ())
+
+Metodo 2 (ricorsivo)
+--------------------
+
+(define (powerset2 lst)
+  (if (empty? lst)
+      (list '())
+      (let ((element (first lst))
+            (p (power-set2 (rest lst))))
+        (append (map (fn (subset) (cons element subset)) p) p) )))
+
+(powerset2 '(1 2 3))
+;-> ((1 2 3) (1 2) (1 3) (1) (2 3) (2) (3) ())
+
+Metodo 3 (iterativo)
+--------------------
+Ci sono in totale 2^n sottoliste. Usiamo un ciclo da 0 a 2^n – 1 e, per ogni numero, scegliamo tutti gli elementi della lista che corrispondono a 1 nella rappresentazione binaria del numero corrente.
+
+(define (powerset3 lst)
+  (local (out len limit counter tmp)
+    (setq out '())
+    (setq len (length lst))
+    ; numero elementi del powerset
+    (setq limit (- (pow 2 len) 1))
+    ; ciclo da 0 a (len - 1) (da 000..0 a 111..1)
+    (for (i 0 limit)
+      ; sottolista corrente vuota
+      (setq tmp '())
+      (for (j 0 (- len 1))
+        ; se il j-esimo bit del contatore (i) è impostato,
+        ; allora il j-esimo elemento della lista viene
+        ; inserito nella sottolista corrente
+        (if (> (& i (<< 1 j)) 0)
+            (push (lst j) tmp -1)
+        )
+      )
+      ; inserisce la sottolista corrente nella soluzione
+      (push tmp out -1)
+    )
+    out))
+
+(powerset3 '(1 2 3))
+;-> (() (1) (2) (1 2) (3) (1 3) (2 3) (1 2 3))
+
+Come funziona?
+lista  = (1 2 3)
+numero elementi del powerset = pow(2, 3) = 8
+Ciclo da 0 a 7 (da 000 a 111 in binario):
+
+Contatore (i)     Sottolista
+   000        -->    ()
+   001        -->    1
+   010        -->    2
+   011        -->    12
+   100        -->    3
+   101        -->    13
+   110        -->    23
+   111        -->    123
+
+Vediamo la velocità delle funzioni:
+
+(setq lst (randomize (sequence 1 10)))
+(time (powerset1 lst) 100)
+;-> 46.849
+
+(time (powerset2 lst) 100)
+;-> 39.895
+
+(time (powerset3 lst) 100)
+;-> 149.604
+
+
+-----------------------------------
+Somme dei sottoinsiemi di una lista
+-----------------------------------
+
+Data una lista con numeri interi, creare una funzione che restituisce una lista con le somme di ogni sottoinsieme della lista data.
+
+Metodo 1 (powerset)
+-------------------
+
+(define (powerset-i lst)
+  (define (loop res s)
+    (if (empty? s)
+      res
+      (loop (append (map (lambda (i) (cons (first s) i)) res) res) (rest s))))
+  (loop '(()) lst))
+
+(define (subset-sums1 lst)
+  ; generiamo il powerset e calcoliamo la somma di ogni sottoinsieme
+  (map (fn(x) (apply + x)) (powerset-i lst)))
+
+Il valore 0 nella soluzione è dovuto alla lista vuota (cioè quando scegliamo 0 elementi).
+
+(subset-sums1 '(1 2 -3))
+;-> (-3 -2 -1 0 1 2 3)
+
+(define (subset-sums1a lst)
+  (let (sums '())
+    ; generiamo il powerset e calcoliamo la somma di ogni sottoinsieme
+    (dolist (el (powerset-i lst))
+      (push (apply + el) sums -1)
+    )
+    sums))
+
+(subset-sums1a '(1 2 -3))
+;-> (-3 -2 -1 0 1 2 3)
+
+Metodo 2 (ricorsivo)
+--------------------
+
+(define (subset-sums-ex lst left right sum)
+  (cond ((> left right)
+         ; aggiunge il subset corrente
+         (push sum out -1 { })
+        )
+        (true
+         ; subset includendo lst[left]
+         (subset-sums-ex lst (+ left 1) right (+ sum (lst left)))
+         ; subset escludendo lst[left]
+         (subset-sums-ex lst (+ left 1) right sum)
+        )
+  ))
+
+(define (subset-sums2 lst)
+  (local (out len)
+    (setq out '())
+    (setq len (length lst))
+    (subset-sums-ex lst 0 (- len 1) 0)
+    out))
+
+(subset-sums2 '(1 2 -3))
+;-> (-3 -2 -1 0 1 2 3)
+
+Metodo 3 (iterativo)
+--------------------
+
+(define (subset-sums3 lst)
+  (local (limit sum len out)
+    (setq out '())
+    (setq len (length lst))
+    ; numero di subset
+    (setq limit (<< 1 len))
+    ;(setq limit (pow 2 len))
+    (for (i 0 (- limit 1))
+      (setq sum 0)
+      (for (j 0 (- len 1))
+        ; usa la rappresentazione binaria di "i"
+        ; per decidere quali elementi prendere.
+        (if (!= (& i (<< 1 j)))
+            (setq sum (+ sum (lst j)))
+        )
+      )
+      ; aggiunge la somma degli elementi selezionati
+      (push sum out -1)
+    )
+    out))
+
+(subset-sums3 '(1 2 -3))
+;-> (-3 -2 -1 0 1 2 3)
+
+Vediamo la velocità delle funzioni:
+
+(setq a (randomize (sequence 1 15)))
+(time (subset-sums1 a))
+;-> 28.703
+(time (subset-sums1a a))
+;-> 27.701
+(time (subset-sums2 a))
+;-> 20717.199 ;(esponenziale)
+(time (subset-sums3 a))
+;-> 59.883
+
+Con prove ripetute le funzioni 1 e 1a presentano il problema dell'aumento dei tempi di esecuzione delle chiamate successive:
+
+(time (subset-sums1 a) 10)
+;-> 497.343
+(time (subset-sums1 a) 10)
+;-> 902.555
+(time (subset-sums1 a) 10)
+;-> 1105.575
+
+(time (subset-sums1a a) 10)
+;-> 339.182
+(time (subset-sums1a a) 10)
+;-> 621.336
+(time (subset-sums1a a) 10)
+;-> 979.784
+
+Verifichiamo se questo problema è dipende dalla funzione "powerset-i" (con una REPL nuova):
+
+(define (powerset-i lst)
+  (define (loop res s)
+    (if (empty? s)
+      res
+      (loop (append (map (lambda (i) (cons (first s) i)) res) res) (rest s))))
+  (loop '(()) lst))
+
+(setq a (randomize (sequence 1 15)))
+(time (powerset-i a) 10)
+;-> 168.325
+(time (powerset-i a) 10)
+;-> 216.182
+(time (powerset-i a) 10)
+;-> 309.941
+
+Quindi la funzione "powerset-i" è la responsabile del problema.
+
+Invece la funzione 3 non presenta il problema dell'aumento dei tempi:
+
+(time (subset-sums3 a) 10)
+;-> 669.222
+(time (subset-sums3 a) 10)
+;-> 684.093
+(time (subset-sums3 a) 10)
+;-> 667.093
+
+Scriviamo la funzione che calcola il powerset in un altro modo:
+
+(define (power-set lst)
+  (local (out len limit counter tmp)
+    (setq out '())
+    (setq len (length lst))
+    ; numero elementi del powerset
+    (setq limit (- (pow 2 len) 1))
+    ; ciclo da 0 a (len - 1) (da 000..0 a 111..1)
+    (for (i 0 limit)
+      ; sottolista corrente vuota
+      (setq tmp '())
+      (for (j 0 (- len 1))
+        ; se il j-esimo bit del contatore (i) è impostato,
+        ; allora il j-esimo elemento della lista viene
+        ; inserito nella sottolista corrente
+        (if (> (& i (<< 1 j)) 0)
+            (push (lst j) tmp -1)
+        )
+      )
+      ; inserisce la sottolista corrente nella soluzione
+      (push tmp out -1)
+    )
+    out))
+
+(power-set '(1 2 3))
+;-> (() (1) (2) (1 2) (3) (1 3) (2 3) (1 2 3))
+
+Come funziona?
+lista  = (1 2 3)
+numero elementi del powerset = pow(2, 3) = 8
+Ciclo da 0 a 7 (da 000 a 111 in binario):
+
+Contatore (i)     Sottolista
+   000        -->    ()
+   001        -->    1
+   010        -->    2
+   011        -->    12
+   100        -->    3
+   101        -->    13
+   110        -->    23
+   111        -->    123
+
+Verifichiamo la funzione:
+
+(setq a (randomize (sequence 1 15)))
+(time (power-set a) 10)
+;-> 669.192
+(time (power-set a) 10)
+;-> 684.761
+(time (power-set a) 10)
+;-> 684.764
+
+Questa funzione non presenta il problema dei tempi, ma è più lenta.
+
+Proviamo con un'altra funzione che calcola il powerset:
+
+(define (power-set2 lst)
+  (if (empty? lst)
+      (list '())
+      (let ((element (first lst))
+            (p (power-set2 (rest lst))))
+        (append (map (fn (subset) (cons element subset)) p) p) )))
+
+Verifichiamo la funzione:
+
+(time (power-set2 a) 10)
+;-> 122.462
+(time (power-set2 a) 10)
+;-> 169.374
+(time (power-set2 a) 10)
+;-> 231.811
+
+Anche questa funzione presenta il problema dei tempi.
+
+
+-------------------------------------------
+Somma dei sottoinsiemi (Subset Sum Problem)
+-------------------------------------------
+
+Il problema della somma dei sottoinsiemi (SSP, SubSet Problem) è un problema decisionale in cui viene dato insieme S di interi non negativi e una somma obiettivo T: la questione è decidere se un qualsiasi sottoinsieme degli interi di S somma esattamente a T. Il problema SSP è noto per essere NP-completo ed è un caso speciale del problema dello zaino (knapsack).
+
+Scrivere una funzione che prende una lista "lst" e un valore di somma "sum" e restituisce true se esiste un qualunque sottoinsieme della lista i cui elementi hanno somma uguale a "sum" (altrimenti restituisce nil).
+
+Soluzione naive
+---------------
+
+(define (subset-sum-ex lst len sum)
+  (local (in out)
+          ; restiture true se la somma diventa 0 (sottoinsieme trovato)
+    (cond ((= sum 0) true)
+          ; caso base: se nessun elemento rimasto o la somma diventa negativa,
+          ; allora restituire nil
+          ((or (< len 0) (< sum 0)) nil)
+          (true
+            ; Caso 1. Includere l'elemento corrente lst(n) nel sottoinsieme e 
+            ; ripetere per gli (len-1) elementi rimanenti 
+            ; con il totale rimanente (sum - lst[len])
+            (setq in  (subset-sum-ex lst (- len 1) (- sum (lst len))))
+            ; Caso 2. Escludere l'elemento corrente lst[len] dal sottoinsieme e
+            ; ricorrere per i (len - 1) elementi rimanenti 
+            (setq out (subset-sum-ex lst (- len 1) sum))
+            ; Restituire true se possiamo ottenere un sottoinsieme 
+            ; includendo o escludendo l'elemento corrente            
+            (or in out)))))
+
+(define (subset-sum lst sum)
+  (let (len (- (length lst) 1))
+    (subset-sum-ex lst len sum)))
+
+(subset-sum '(3 11 4 22 1 1) 9)
+;-> true
+(subset-sum '(1 0 2 12 11 3 2 6 9) 7)
+;-> true
+(subset-sum '(1 4 1 1) 4)
+;-> true
+(subset-sum '(4 5 10 6 9) 7)
+;-> nil
+
+Prima soluzione con programmazione dinamica
+-------------------------------------------
+
+(define (subset-sum1 lst sum)
+  (local (len dp)
+    (setq len (length lst))
+    ; Il valore di dp[i][j] vale
+    ; true se esiste un sottoinsieme di
+    ; lst[0..j-1] con somma pari a i
+    (setq dp (array (+ sum 1) (+ len 1) '(nil)))
+    ; Se la somma è 0, allora restituisce true
+    (for (i 0 len)
+      (setf (dp 0 i) true))
+    ; Se sum non è 0 e lst è vuota, allora restituisce nil
+    (for (i 1 sum)
+      (setf (dp i 0) nil))
+    ; Riempie la matrice dp in modo bottom-up (dal basso verso l'alto)
+    (for (i 1 sum)
+      (for (j 1 len)
+        (setf (dp i j) (dp i (- j 1)))
+        (if (>= i (lst (- j 1)))
+            (setf (dp i j) (or (dp i j) (dp (- i (lst (- j 1))) (- j 1))))
+        )
+      )
+    )
+    ;(println dp)
+    (dp sum len)))
+
+(subset-sum1 '(3 11 4 22 1 1) 9)
+;-> true
+(subset-sum1 '(1 0 2 12 11 3 2 6 9) 7)
+;-> true
+(subset-sum1 '(1 4 1 1) 4)
+;-> true
+(subset-sum1 '(4 5 10 6 9) 7)
+;-> nil
+
+Seconda soluzione con programmazione dinamica
+---------------------------------------------
+
+(define (subset-sum2 lst sum)
+  (local (dp j)
+    (setq dp (array (+ sum 1) '(nil)))
+    ; l'inizializzazione con 1 perchè somma 0 è sempre possibile
+    (setf (dp 0) true)
+    ; ciclo per ogni elemento della lista
+    (dolist (el lst)
+      ; per modificare il valore di tutti i possibili valori di somma in True
+      (setq j sum)
+      (while (> j (- el 1))
+        (if (dp (- j el)) (setf (dp j) true))
+        (-- j)
+      )
+    )
+    (dp sum)))
+
+(subset-sum2 '(3 11 4 22 1 1) 9)
+;-> true
+(subset-sum2 '(1 0 2 12 11 3 2 6 9) 7)
+;-> true
+(subset-sum2 '(1 4 1 1) 4)
+;-> true
+(subset-sum2 '(4 5 10 6 9) 7)
+;-> nil
+
+Vediamo la velocità delle funzioni:
+
+(setq nums (randomize (sequence 1 100)))
+(time (subset-sum nums 25) 1000)
+;-> 36060.684
+(time (subset-sum1 nums 25) 1000)
+;-> 553.523
+(time (subset-sum2 nums 25) 1000)
+;-> 56.875
+
+Per calcolare i sottoinsiemi possiamo utilizzare la seguente funzione:
+
+(define (subset-sum-all lst sum)
+  (local (limit val len out)
+    (setq out '())
+    (setq len (length lst))
+    ; numero di subset
+    (setq limit (<< 1 len))
+    ;(setq limit (pow 2 len))
+    (for (i 0 (- limit 1))
+      (setq val 0)
+      (setq tmp '())
+      (setq stop nil)
+      (for (j 0 (- len 1) 1 stop)
+        ; usa la rappresentazione binaria di "i"
+        ; per decidere quali elementi prendere.
+        (if (!= (& i (<< 1 j))) 
+          (begin
+            (push (lst j) tmp -1)
+            (setq val (+ val (lst j)))
+            ; stop se somma del sottoinsieme corrente
+            ; supera il valore sum
+            (if (> val sum) (setq stop true))
+          )
+        )
+      )
+      (if (= val sum)
+        ; aggiunge un sottosieme che somma a sum
+        (push tmp out -1)
+      )
+    )
+    out))
+
+(subset-sum-all '(1 2 3 4 5) 10)
+;-> ((1 2 3 4) (2 3 5) (1 4 5))
+
+(subset-sum-all (sequence 1 10) 10)
+;-> ((1 2 3 4) (2 3 5) (1 4 5) (1 3 6) (4 6) (1 2 7) (3 7) (2 8) (1 9) (10))
+
+
+--------------
+Numeri pratici
+--------------
+
+Un numero pratico (practical number) è un numero intero positivo n tale che tutti i numeri interi positivi più piccoli possono essere rappresentati come somme di divisori distinti di n. Ad esempio, 12 è un numero pratico perché tutti i numeri da 1 a 11 possono essere espressi come somme dei suoi divisori 1, 2, 3, 4 e 6: oltre a questi divisori stessi, abbiamo 5 = 3 + 2, 7 = 6 + 1, 8 = 6 + 2, 9 = 6 + 3, 10 = 6 + 3 + 1 e 11 = 6 + 3 + 2.
+
+Sequenza OEIS A005153:
+  1, 2, 4, 6, 8, 12, 16, 18, 20, 24, 28, 30, 32, 36, 40, 42, 48, 54,
+  56, 60, 64, 66, 72, 78, 80, 84, 88, 90, 96, 100, 104, 108, 112, 120,
+  126, 128, 132, 140, 144, 150 ...
+
+Funzione che verifica se una sottolista di una lista (lst) somma a un valore predefinito (sum):
+
+(define (subset-sum lst sum)
+  (local (dp j)
+    (setq dp (array (+ sum 1) '(nil)))
+    (setf (dp 0) true)
+    (dolist (el lst)
+      (setq j sum)
+      (while (> j (- el 1))
+        (if (dp (- j el)) (setf (dp j) true))
+        (-- j)
+      )
+    )
+    (dp sum)))
+
+(define (factor-group num)
+"Factorize an integer number"
+  (if (< num 2) nil
+      (letn ((out '()) (lst (factor num)) (cur-val (first lst)) (cur-count 0))
+      ; usa "factor-i" per usare i big-integer
+      ;(letn ((out '()) (lst (factor-i num)) (cur-val (first lst)) (cur-count 0))
+        (dolist (el lst)
+          (if (= el cur-val) (++ cur-count)
+              (begin
+                (push (list cur-val cur-count) out -1)
+                (setq cur-count 1 cur-val el))))
+        (push (list cur-val cur-count) out -1))))
+
+(define (divisors num)
+"Generate all the divisors of an integer number"
+  (local (f out)
+    (cond ((= num 1) '(1))
+          (true
+           (setq f (factor-group num))
+           (setq out '())
+           (divisors-aux 0 1)
+           (sort out)))))
+; funzione ausiliaria
+(define (divisors-aux cur-index cur-divisor)
+  (cond ((= cur-index (length f))
+         (push cur-divisor out -1)
+        )
+        (true
+         (for (i 0 (f cur-index 1))
+           (divisors-aux (+ cur-index 1) cur-divisor)
+           (setq cur-divisor (* cur-divisor (f cur-index 0)))
+         ))))
+
+Funzione che verifica se un numero è pratico:
+
+(define (practical? num)
+  (local (divs stop)
+    (setq divs (divisors num))
+    (setq stop nil)
+    (for (i 1 (- num 1) 1 stop)
+      (if (not (subset-sum divs i))
+          (setq stop true)
+      )
+    )
+    (not stop)))
+
+(practical? 12)
+;-> true
+
+(practical? 666)
+;-> true
+
+Calcoliamo i numeri pratici fino a 150:
+
+(filter (fn(x) (practical? x)) (sequence 1 150))
+;-> (1 2 4 6 8 12 16 18 20 24 28 30 32 36 40 42 48 54 
+;->  56 60 64 66 72 78 80 84 88 90 96 100 104 108 112 120 
+;->  126 128 132 140 144 150)
+
+Questo metodo è lento per calcolare molti numeri pratici:
+
+(time (filter (fn(x) (practical? x)) (sequence 1 500)))
+;-> 5615.946
+(time (filter (fn(x) (practical? x)) (sequence 1 1000)))
+;-> 48990.197
+
+
+--------------------------------------
+Creare file di testo in Windows e Unix
+--------------------------------------
+
+I file di testo di Windows e Unix hanno il terminatore di linea diverso:
+
+  in Windows -> CRLF \r\n
+  in Unix    -> CR \r
+  
+  dove il carattere \n -> LF (Line Feed)
+     e il carattere \r -> CR (Carriage Return)
+
+Per creare file del tipo voluto possiamo utilizzare due funzioni (o due macro):
+
+(define-macro (println-unix)
+    (apply print (map eval (args)))
+    (print "\n"))
+
+(define (println-ux)
+    (apply print (args))
+    (print "\n"))
+
+(define-macro (println-windows)
+    (apply print (map eval (args)))
+    (print "\r\n"))
+
+(define (println-win)
+    (apply print (args))
+    (print "\r\n"))
+
+(println-win "demo " "windows")
+;-> demo windows
+;-> "\n\r"
+
+(println-windows "demo " "windows")
+;-> demo windows
+;-> "\n\r"
+
+(println-unix "demo " "unix")
+;-> demo unix
+;-> "\n"
+
+(println-ux "demo " "unix")
+;-> demo unix
+;-> "\n\r"
+
+Creiamo un file di testo windows (\r\n):
+
+(device (open "win.txt" "write"))
+(println-windows "prova " "windows")
+(println-win "prova " "windows")
+(close (device))
+
+Adesso il file "win.txt" ha il terminatore di linea di tipo windows (\r\n)
+
+Creiamo un file di testo windows (\r):
+
+(device (open "unix.txt" "write"))
+(println-unix "prova " "unix")
+(println-ux "prova " "unix")
+(close (device))
+
+Adesso il file "unix.txt" ha il terminatore di linea di tipo unix (\r). 
+Con notepad++ possiamo verificarlo tramite il menu View -> Show Symbol -> Show All Characters e convertire tra i due tipi con il menu Edit -> EOL Conversion.
 
 =============================================================================
 

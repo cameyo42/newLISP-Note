@@ -1226,6 +1226,11 @@ Possiamo superare il problema nel modo seguente:
 (map sym (sort (map string lst)))
 ;-> (a b nil true true)
 
+Un altro metodo:
+
+(dolist (s (symbols)) (if (primitive? (eval s)) (print s { } )))
+
+Anche in questo caso dobbiamo aggiungere true e nil.
 
 --------------------------------------
 Estrazione di dati da un file di testo

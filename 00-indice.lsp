@@ -1139,7 +1139,8 @@ NOTE LIBERE 8
   Numeri di Proth
   Funzione sigmoid
   Algoritmo Round-Robin
-  Estrazione di righe o colonne da una matrice
+  Lettura di righe o colonne di una matrice
+  Modifica di righe o colonne di una matrice
   La funzione count (per stringhe e vettori)
   Onesti e Bugiardi
   I tre prigionieri
@@ -1155,6 +1156,11 @@ NOTE LIBERE 8
   Numeri polidivisibili
   Algoritmo jump search
   Numeri intoccabili (untouchable)
+  Powerset di una lista
+  Somme dei sottoinsiemi di una lista
+  Somma dei sottoinsiemi (Subset Sum Problem)
+  Numeri pratici
+  Creare file di testo in Windows e Unix
 
 APPENDICI
 =========
