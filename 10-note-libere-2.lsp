@@ -1524,6 +1524,21 @@ Comunque possiamo anche usare la seguente funzione (scritta da Sammo) che permet
 (println (format "%s,%d,%s,%d\n" (select lst 0 4 1 7)))
 ;-> bob,2,this,96
 
+Per formattare una lista di numeri in notazione decimale possiamo usare le seguenti funzioni:
+
+(define (format-many numbers)
+ (map (curry format "%4d") numbers))
+
+Formattare una lista di interi separati da una virgola:
+
+(define (format-one-line numbers)
+ (join (format-many numbers) ", "))
+
+(setq lst '(-1 -11 3 -203))
+
+(format-many lst)
+;-> ("  -1" " -11" "   3" "-203")
+
 
 -------------
 Slice mapping

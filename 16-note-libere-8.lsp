@@ -3712,5 +3712,228 @@ Creiamo un file di testo windows (\r):
 Adesso il file "unix.txt" ha il terminatore di linea di tipo unix (\r). 
 Con notepad++ possiamo verificarlo tramite il menu View -> Show Symbol -> Show All Characters e convertire tra i due tipi con il menu Edit -> EOL Conversion.
 
+
+---------------------
+Radicale di un numero
+---------------------
+
+Il radicale di un numero intero positivo è il prodotto dei distinti fattori primi del numero.
+
+(define (radical num)
+  (if (= num 1) 1
+      (apply * (unique (factor num)))))
+
+(map radical (sequence 1 100))
+;-> (1 2 3 2 5 6 7 2 3 10 11 6 13 14 15 2 17 6 19 10 21 22 23 6 5 26 3 14
+;->  29 30 31 2 33 34 35 6 37 38 39 10 41 42 43 22 15 46 47 6 7 10 51 26 
+;->  53 6 55 14 57 58 59 30 61 62 21 2 65 66 67 34 69 70 71 6 73 74 15 38 
+;->  77 78 79 10 3 82 83 42 85 86 87 22 89 30 91 46 93 94 95 6 97 14 33 10)
+
+
+-----------------------
+Fattoriale e funzione Y
+-----------------------
+
+(let ((g (lambda (h)
+         (expand (lambda (n)
+           (let ((f (lambda (f n)
+                   (if (< n 2) 1 (* n (f (- n 1)))))))
+           (f (h h) n))) 'h))))
+      ((g g) 10))
+;-> 3628800
+
+
+----------------
+Funzione explode
+----------------
+
+********************
+>>>funzione EXPLODE
+********************
+sintassi: (explode str [int-chunk [bool]])
+sintassi: (explode list [int-chunk [bool]])
+
+Nella prima sintassi, explode trasforma la stringa (str) in un elenco di stringhe a un carattere. Facoltativamente, è possibile specificare una dimensione del blocco in int-chunk per suddividere la stringa in blocchi di più caratteri. Quando si specifica un valore per bool diverso da nil, l'ultimo blocco verrà omesso se non ha la lunghezza completa specificata in int-chunk.
+
+(explode "newLISP")  → ("n" "e" "w" "L" "I" "S" "P")
+
+(join (explode "keep it together"))  → "keep it together"
+
+(explode "newLISP" 2)    → ("ne" "wL" "IS" "P")
+
+(explode "newLISP" 3)    → ("new" "LIS" "P")
+
+; omit last chunk if too short
+(explode "newLISP" 3 true)    → ("new" "LIS")
+
+Solo su versioni non abilitate per UTF8, explode funziona anche su contenuto binario:
+
+(explode "\000\001\002\003")   → ("\000" "\001" "\002" "\003")
+
+Quando viene chiamato nelle versioni abilitate per UTF-8 di newLISP, explode funzionerà sui limiti dei caratteri anziché sui limiti dei byte. Nelle stringhe con codifica UTF-8, i caratteri possono contenere più di un byte. L'elaborazione si interromperà quando viene trovato un carattere di zero byte.
+
+Per esplodere i contenuti binari nelle versioni abilitate per UTF-8 di newLISP, utilizzare unpack come mostrato nell'esempio seguente:
+
+(set 'str "\001\002\003\004") → "\001\002\003\004"
+
+(unpack (dup "c" (length str)) str) → (1 2 3 4)
+(unpack (dup "s" (length str)) str) → ("\001" "\002" "\003" "\004")
+
+Nella seconda sintassi, explode esplode una lista in sottoliste di dimensione del blocco int-chunk, che è 1 (uno) per impostazione predefinita.
+
+Di seguito viene mostrato un esempio dell'ultimo blocco che viene omesso quando il valore per bool è diverso da nil e il blocco non ha la lunghezza completa specificata in int-chunk.
+
+(explode '(a b c d e f g h))    → ((a) (b) (c) (d) (e) (f) (g) (h))
+(explode '(a b c d e f g) 2)  → ((a b) (c d) (e f) (g))
+
+; omit last chunk if too short
+(explode '(a b c d e f g) 2 true)  → ((a b) (c d) (e f))
+
+(transpose (explode '(a b c d e f g h) 2))
+→ ((a c e g) (b d f h))
+
+Le funzioni join e append sono operazioni inverse di explode.
+
+Vediamo una funzione che estende le funzionalità di "explode":
+
+;; group by nigel brown
+;; This function performs a multiple slice on a given list
+;; One supplies a list and an integer n. The list is broken into a list of sublists of
+;; length n. If n is negative the list items are collected going from the end of the list
+;; to the beginning. If the optional bool argument is supplied then remaining elements are
+;; included in the result.
+;; (group '(1 2 3 4 5 6 7) 3)       -> ((1 2 3)(4 5 6))
+;; (group '(1 2 3 4 5 6 7) 3 true)  -> ((1 2 3)(4 5 6)(7))
+;; (group '(1 2 3 4 5 6 7) -3 true) -> ((1)(2 3 4)(5 6 7))
+
+(define (group lst n bool , len num rep rem start)
+  (setq num (abs n))
+  (if (< n 0)
+      (reverse (map reverse (group (reverse lst) num bool)))
+      (= n 0)
+      nil
+      (begin
+        (setq len   (length lst)
+              rep   (/ len num)
+              rem   (% len num)
+              start '()
+        )
+        (if (< num len)
+            (begin
+              (dotimes (x rep)
+                (setq start (cons (slice lst (* x num) num) start)))
+              (if (and bool (> rem 0))
+                  (setq start (cons (slice lst (* num rep) rem) start)))
+              (reverse start))
+            (list lst)))))
+
+(group '(1 2 3 4 5 6 7) 3)
+;-> ((1 2 3) (4 5 6))
+(group '(1 2 3 4 5 6 7) 3 true)
+;-> ((1 2 3) (4 5 6) (7))
+(group '(1 2 3 4 5 6 7) -3)
+;-> ((2 3 4) (5 6 7))
+(group '(1 2 3 4 5 6 7) -3 true)
+;-> ((1) (2 3 4) (5 6 7))
+
+Possiamo utilizzare explode per ottenere un risultato equivalente con una funzione più veloce:
+
+(define (explodes lst num bool)
+  (let (nn (abs num))
+    (if (< num 0)
+        (map reverse (reverse (explode (reverse lst) nn bool)))
+        (explode lst nn bool))))
+
+(setq lst '(1 2 3 4 5 6 7))
+(explodes lst 3)
+;-> ((1 2 3) (4 5 6) (7))
+(explodes lst 3 true)
+;-> ((1 2 3) (4 5 6))
+(explodes lst -3 true)
+;-> ((2 3 4) (5 6 7))
+(explodes lst -3)
+;-> ((1) (2 3 4) (5 6 7))
+
+Vediamo i tempi di esecuzione:
+
+(setq seq (sequence 1 10000))
+(time (group seq -7 true) 10)
+;-> 2109.563
+(time (explodes seq -7) 10)
+;-> 6.954
+
+(= (group seq -7 true) (explodes seq -7))
+;-> true
+
+(time (group seq -7 ) 10)
+;-> 2101.172
+(time (explodes seq -7 true) 10)
+;-> 7.951
+
+
+--------------------
+Formula di Faulhaber
+--------------------
+
+La formula di Faulhaber rappresenta la somma delle p-esime potenze dei primi n numeri positivi.
+
+   n
+   ∑ (k^p) = 1^p + 2^p + 3^p + ... n^p
+  k=1
+
+(define (faulhaber p n)
+  (let (out 0)
+    (for (i 1 n)
+      (setq out (+ out (pow i p)))
+    )
+    out))
+
+Calcoliamo il numero per p=2 e n=1..20 (numeri piramidali quadrati):
+
+(map (curry faulhaber 2) (sequence 1 20))
+;-> (1 5 14 30 55 91 140 204 285 385 506 650 
+;->  819 1015 1240 1496 1785 2109 2470 2870)
+
+Calcoliamo il numero per p=3 e n=1..20 (numeri piramidali quadrati):
+
+(map (curry faulhaber 3) (sequence 1 20))
+;-> (1 9 36 100 225 441 784 1296 2025 3025 4356 6084
+;->  8281 11025 14400 18496 23409 29241 36100 44100)
+
+
+--------------------------
+Numeri piramidali quadrati
+--------------------------
+
+Un numero piramidale quadrato è un numero che rappresenta una piramide a base quadrata. L'n-esimo numero di questo tipo è quindi la somma dei quadrati dei primi n numeri naturali, che può essere espressa in formula come
+
+   n          n*(n + 1)*(2*n + 1)     2*n^3 + 3*n^2 + n
+   ∑ (k^2) = --------------------- = -------------------
+  k=1                 2                      6
+
+Questa formula è un caso particolare della formula di Faulhaber e restituisce sempre un numero intero, infatti:
+  - n e n+1 sono due numeri consecutivi, quindi uno dei due è pari;
+  - uno tra n, n+1 e 2n+1 è multiplo di 3 (rispettivamente se n=3k, n=3k+2, n=3k+1);
+  - il numeratore è allora un multiplo di 6 e si semplifica quindi con il denominatore.
+
+I primi numeri piramidali quadrati sono:
+
+Sequenza OEIS
+
+  0, 1, 5, 14, 30, 55, 91, 140, 204, 285, 385, 506, 650, 819, 1015,
+  1240, 1496, 1785, 2109, 2470, 2870, 3311, 3795, 4324, 4900, 5525,
+  6201, 6930, 7714, 8555, 9455, 10416, 11440, 12529, 13685, 14910,
+  16206, 17575, 19019, 20540, 22140, 23821, 25585, 27434, 29370, ...
+
+Questi numeri possono essere rappresentati nello spazio fisico attraverso una piramide di sfere la cui base ha lato n.
+
+(define (pyramid-quad n)
+  (/ (+ (* 2 n n n) (* 3 n n) n) 6))
+
+(map pyramid-quad (sequence 0 30))
+;-> (0 1 5 14 30 55 91 140 204 285 385 506 650 819 1015
+;->  1240 1496 1785 2109 2470 2870 3311 3795 4324 4900 5525
+;->  6201 6930 7714 8555 9455)
+
 =============================================================================
 

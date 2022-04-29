@@ -110,6 +110,8 @@
 |   101    |  37076114526       |         -  |        70  |         -  |
 |   102    |  228               |         -  |         2  |         1  |
 |   104    |  329468            |         -  |     37978  |         -  |
+|   108    |  180180            |         -  |      7521  |       331  |
+|   110    |  9350130049860600  |         -  |        16  |         -  |
 |   112    |  1587000           |         -  |      1732  |         -  |
 |   113    |  51161058134250    |         -  |         8  |         -  |
 |   119    |  248155780267521   |         -  |        26  |         -  |
@@ -118,6 +120,7 @@
 |   124    |  21417             |         -  |       140  |         -  |
 |   125    |  2906969179        |         -  |      1570  |         -  |
 |   135    |  4989              |         -  |      2874  |      1194  |
+|   173    |  1572729           |         -  |       124  |         0  |
 |   188    |  95962097          |         -  |        29  |         -  |
 |   191    |  1918080160        |         -  |         1  |         0  |
 |   206    |  1389019170        |         -  |         2  |         -  |
@@ -12023,6 +12026,284 @@ Funzione per il calcolo della potenza di due numeri big-integer:
 
 
 ============
+Problema 108
+============
+
+Reciproci diofantei I
+
+Nella seguente equazione x, y e n sono numeri interi positivi.
+
+   1     1     1
+  --- + --- = ---
+   x     y     n
+
+Per n = 4 esistono esattamente tre soluzioni distinte:
+
+   1     1      1
+  --- + ---- = ---
+   5     20     4
+
+   1     1      1
+  --- + ---- = ---
+   6     12     4
+
+   1     1     1
+  --- + --- = ---
+   8     8     4
+
+Qual è il valore minimo di n per il quale il numero di soluzioni distinte supera mille?
+
+NOTA: questo problema è una versione più semplice del problema 110. Si consiglia vivamente di risolverlo prima.
+============================================================================
+
+1/x + 1/y = 1/n è equivalente a n*(x + y) = x*y.
+
+Osservando che x e y devono essere maggiori di n, sostituiamo:
+  
+  x = n + a, y = n + b
+
+ottenendo:
+  
+  n^2 = a * b
+
+Questo significa che qualsiasi coppia di divisori di n^2 darà una soluzione.
+
+La metà di queste coppie sono uniche. Poiché n^2 è un quadrato, ha un numero dispari di divisori, il che significa che non dividiamo la soluzione 1/2n + 1/2n = 1/n per 2. Essendo d(n) il numero di divisori di n, vogliamo trovare n in modo che
+   
+   (divisori(n^2) + 1)/2 > 1000
+
+(define (divisors-count num)
+"Count the divisors of an integer number"
+  (if (= num 1)
+      1
+      (let (lst (factor-group num))
+        (apply * (map (fn(x) (+ 1 (last x))) lst)))))
+
+(define (e108)
+  (local (found d)
+    (setq found nil)
+    (setq n 10)
+    (until found
+      (++ n)
+      (setq d (/ (+ (divisors-count (* n n)) 1) 2))
+      (if (> d 1000)
+          (setq found true))
+      ;(println n { } f { } num-sol) (read-line)
+    )
+    (list n d)))
+
+(e108)
+;-> (180180 1013)
+
+(time (e108))
+;-> 7520.704
+
+Utilizziamo un'altro metodo.
+Se la fattorizzazione di n vale n = p1^e1*p2^e2*...*pk^ek allora il numero di soluzioni sono:
+  
+   (2*e1+1)*(2*e2+1)...(2*ek+1) + 1
+  ----------------------------------
+                2
+
+(define (factor-group num)
+"Factorize an integer number"
+  (if (< num 2) nil
+      (letn ((out '()) (lst (factor num)) (cur-val (first lst)) (cur-count 0))
+        (dolist (el lst)
+          (if (= el cur-val) (++ cur-count)
+              (begin
+                (push (list cur-val cur-count) out -1)
+                (setq cur-count 1 cur-val el))))
+        (push (list cur-val cur-count) out -1))))
+
+(factor-group 104)
+;-> (2 3 (13 1))
+
+(define (e108-2)
+  (local (found f)
+    (setq found nil)
+    (setq n 10)
+    (until found
+      (++ n)
+      (setq f (factor-group n))
+      (setq num-sol (+ (/ (apply * (map (fn(x) (+ (* 2 (last x)) 1)) f)) 2) 1))
+      (if (> num-sol 1000) (setq found true))
+    )
+    (list n f num-sol)))
+
+(e108-2)
+;-> (180180 ((2 2) (3 2) (5 1) (7 1) (11 1) (13 1)) 1013)
+
+(time (e108))
+;-> 331.92
+----------------------------------------------------------------------------
+
+
+============
+Problema 110
+============
+
+Reciproci diofantei II
+
+Nella seguente equazione x, y e n sono numeri interi positivi.
+
+   1     1     1
+  --- + --- = ---
+   x     y     n
+
+Si può verificare che quando n = 1260 ci sono 113 soluzioni distinte e questo è il valore minimo di n per il quale il numero totale di soluzioni distinte supera cento.
+
+Qual è il valore minimo di n per il quale il numero di soluzioni distinte supera i quattro milioni?
+
+NOTA: questo problema è una versione molto più difficile del problema 108 e poiché è ben oltre i limiti di un approccio di forza bruta, richiede un'implementazione intelligente.
+============================================================================
+
+Usiamo la stessa logica del problema 108, ma invece di incrementare n, generiamo n dalla sua fattorizzazione in numeri primi.
+Abbiamo bisogno al massimo di 14 primi distinti, perché un numero con 15 primi distinti avrebbe
+
+         ((2*1 + 1)^15 + 1) / 2 = 7174454 > 4000000
+
+soluzioni. Il quattordicesimo numero primo è 43.
+
+(setq p '(2 3 5 7 11 13 17 19 23 29 31 37 41 43))
+
+Se la fattorizzazione di n vale n = p1^e1*p2^e2*...*pk^ek allora il numero di soluzioni vale:
+
+   (2*e1+1)*(2*e2+1)...(2*ek+1) + 1
+  ----------------------------------
+                2
+
+(define (factor-group num)
+"Factorize an integer number"
+  (if (< num 2) nil
+      (letn ((out '()) (lst (factor num)) (cur-val (first lst)) (cur-count 0))
+        (dolist (el lst)
+          (if (= el cur-val) (++ cur-count)
+              (begin
+                (push (list cur-val cur-count) out -1)
+                (setq cur-count 1 cur-val el))))
+        (push (list cur-val cur-count) out -1))))
+
+Scriviamo una funzione cha calcola il numero di soluzioni del numero n:
+
+(define (num-sols n)
+  (let (f (factor-group n))
+    (/ (+ (apply * (map (fn(x) (+ (* 2 (last x)) 1)) f)) 1) 2)))
+
+(num-sols 1260)
+;-> 113
+
+In realtà a noi interessa generare gli esponenti del numero n. Per fare questo utilizziamo le combinazioni con ripetizione.
+
+(define (comb-rep k lst)
+"Generates all combinations of k elements with repetition from a list of items"
+  (cond ((zero? k 0) '(()))
+        ((null? lst) '())
+        (true
+         (append (map (lambda (x) (cons (first lst) x))
+                      (comb-rep (- k 1) lst))
+                 (comb-rep k (rest lst))))))
+
+(comb-rep 4 '(0 1 2))
+;-> ((0 0 0 0) (0 0 0 1) (0 0 0 2) (0 0 1 1) (0 0 1 2)
+;->  (0 0 2 2) (0 1 1 1) (0 1 1 2) (0 1 2 2) (0 2 2 2)
+;->  (1 1 1 1) (1 1 1 2) (1 1 2 2) (1 2 2 2) (2 2 2 2))
+
+Supponiamo che gli esponenti vanno da 0 a 3 e li generiamo con la seguente chiamata:
+
+(reverse (comb-rep 14 '(3 2 1 0)))
+;-> ((0 0 0 0 0 0 0 0 0 0 0 0 0 0)
+;->  (1 0 0 0 0 0 0 0 0 0 0 0 0 0)
+;->  (1 1 0 0 0 0 0 0 0 0 0 0 0 0)
+;->  (1 1 1 0 0 0 0 0 0 0 0 0 0 0)
+;->  (1 1 1 1 0 0 0 0 0 0 0 0 0 0)
+;->  (1 1 1 1 1 0 0 0 0 0 0 0 0 0)
+;->  (1 1 1 1 1 1 0 0 0 0 0 0 0 0)
+;->  (1 1 1 1 1 1 1 0 0 0 0 0 0 0)
+;->  (1 1 1 1 1 1 1 1 0 0 0 0 0 0)
+;->  (1 1 1 1 1 1 1 1 1 0 0 0 0 0)
+;->  (1 1 1 1 1 1 1 1 1 1 0 0 0 0)
+;->  (1 1 1 1 1 1 1 1 1 1 1 0 0 0)
+;->  (1 1 1 1 1 1 1 1 1 1 1 1 0 0)
+;->  (1 1 1 1 1 1 1 1 1 1 1 1 1 0)
+;->  (1 1 1 1 1 1 1 1 1 1 1 1 1 1)
+;->  (2 0 0 0 0 0 0 0 0 0 0 0 0 0)
+;->  (2 1 0 0 0 0 0 0 0 0 0 0 0 0)
+;->  (2 1 1 0 0 0 0 0 0 0 0 0 0 0)
+;-> ...
+;->  (3 3 3 3 3 3 3 3 3 3 3 3 1 1)
+;->  (3 3 3 3 3 3 3 3 3 3 3 3 2 0)
+;->  (3 3 3 3 3 3 3 3 3 3 3 3 2 1)
+;->  (3 3 3 3 3 3 3 3 3 3 3 3 2 2)
+;->  (3 3 3 3 3 3 3 3 3 3 3 3 3 0)
+;->  (3 3 3 3 3 3 3 3 3 3 3 3 3 1)
+;->  (3 3 3 3 3 3 3 3 3 3 3 3 3 2)
+;->  (3 3 3 3 3 3 3 3 3 3 3 3 3 3))
+
+Ci sono 680 numeri da verificare:
+
+(length (reverse (comb-rep 14 '(3 2 1 0))))
+;-> 680
+
+Scriviamo la funzione che dalla lista degli esponenti calcola il numero:
+
+(define (** num power)
+"Calculates the integer power of an integer"
+  (if (zero? power) 1
+      (let (out 1L)
+        (dotimes (i power)
+          (setq out (* out num))))))
+
+(define (number-e lst)
+  (setq p '(2L 3L 5L 7L 11L 13L 17L 19L 23L 29L 31L 37L 41L 43L))
+  (apply * (map ** p lst)))
+
+(number-e '(1 1 0 0 0 0 0 0 0 0 0 0 0 0 0))
+;-> 6L
+(number-e '(2 1 0 0 0 0 0 0 0 0 0 0 0 0 0))
+;-> 12L
+
+Abbiamo bisogno dei big-integer perchè risulta:
+
+(number-e '(3 3 3 3 3 3 3 3 3 3 3 3 3 3))
+;-> 2239227690108088991425163984029948967596509027000L
+
+che è più grande dell'intero massimo degli int64 che vale 9223372036854775807.
+
+Prima calcoliamo quale di queste 680 liste di esponenti genera un numero di soluzioni maggiore di 4 milioni. Poi vediamo quale di queste liste genera il numero minore.
+
+(define (e110)
+  (local (ex sol4 sol num minimo)
+    (setq ex (reverse (comb-rep 14 '(3 2 1 0))))
+    (setq sol4 '())
+    ; cerca le liste di esponenti che generano più
+    ; di 4 milioni di soluzioni
+    (dolist (e ex)
+      (setq sol (/ (+ (apply * (map (fn(x) (+ (* 2 x) 1)) e)) 1) 2))
+      (if (> sol 4e6) (push e sol4 -1))
+    )
+    ; cerca il numero minimo della lista delle soluzioni
+    (setq minimo 2239227690108088991425163984029948967596509027000L)
+    (dolist (s sol4)
+      (setq num (number-e s))
+      (if (< num minimo) (setq minimo num))
+    )
+    minimo))
+
+(e110)
+;-> 9350130049860600L
+
+Verifichiamo che il numero di soluzioni è superiore a 4 milioni.
+
+(num-sols 9350130049860600L)
+;-> 4018613
+
+(time (e110))
+;-> 15.587
+----------------------------------------------------------------------------
+
+
+============
 Problema 112
 ============
 
@@ -12593,6 +12874,74 @@ Possiamo migliorare il tempo di esecuzione considerando che anche il valore tra 
 
 
 ============
+Problema 173
+============
+
+Utilizzando fino a un milione di tessere quante diverse lamine quadrate "bucate" si possono formare?
+
+Definiremo una lamina quadrata come un contorno quadrato con un "buco" quadrato in modo che la forma possieda una simmetria verticale e orizzontale. Ad esempio, utilizzando esattamente trentadue tessere quadrate possiamo formare due diverse lamine quadrate:
+
+******           *********
+******           *       *
+**  **           *       *
+**  **           *       *
+******           *       *
+******           *       *
+                 *       *
+                 *       *
+                 *       *
+                 *********
+
+Con cento tessere, e non necessariamente utilizzando tutte le tessere contemporaneamente, è possibile formare quarantuno lamine quadrate diverse.
+
+Utilizzando fino a un milione di tessere quante diverse lamine quadrate si possono formare?
+============================================================================
+
+(define (e173 limite)
+  (local (out bordo buco)
+    (setq out 0)
+    (setq bordo 3)
+    (while (< bordo (+ (/ limite 4) 2))
+      (if (> (* bordo bordo) limite)
+          (setq buco (max (ceil (sqrt (- (* bordo bordo) limite))) 1))
+          (setq buco 1)
+      )
+      (if (odd? (- bordo buco)) (++ buco))
+      (setq out (+ out (/ (- bordo buco 2) 2) 1))
+      (++ bordo)
+    )
+    out))
+
+(e173 100)
+;-> 41
+(e173 1e6)
+;-> 1572729
+
+(time (e173 1e6))
+;-> 123.697
+
+(define (e173-2 limite)
+(local (out tessere lato)
+  (setq out 0)
+  (setq tessere (/ limite 4))
+  (setq lato (int (sqrt tessere)))
+  (for (i 1 lato)
+    (setq out (+ out (- (/ tessere i) i)))
+  )
+  out))
+
+(e173-2 100)
+;-> 41
+
+(e173-2 1e6)
+;-> 1572729
+
+(time (e173-2 1e6))
+;-> 0
+----------------------------------------------------------------------------
+
+
+============
 Problema 188
 ============
 
@@ -12673,9 +13022,9 @@ Questa funzione genera una situazione del giorno che permette di calcolare in nu
     ; allora abbiamo una stringa da premiare
     (if (= days 0) (throw 1))
     ; calcolo ricorsivo,
-    ; se la combinazione è già nella cache,
+    ; se la combinazione è già nella hash-map,
     ; allora restituisce il valore memorizzato poiché conosciamo
-    ; il numero di possibili stringhe da remiare da adesso in poi
+    ; il numero di possibili stringhe da premiare da adesso in poi
     (setq key (string days "-" absent "-" late))
     (if (!= (h key) nil) (throw (h key)))
     ; Adesso calcoliamo i tre possibili modi che possono crearsi
@@ -12694,7 +13043,7 @@ Questa funzione genera una situazione del giorno che permette di calcolare in nu
     (setq event-ontime (calc (- days 1) absent 0))
     ; calcola il numero delle stringhe premiate
     (setq prizes (+ event-late event-absent event-ontime))
-    ; inserisce il valore nella cache
+    ; inserisce il valore nella hash-map
     (h key prizes)
     prizes)))
 

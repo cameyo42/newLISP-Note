@@ -330,8 +330,9 @@ ROSETTA CODE
 
 PROJECT EULERO
 ==============
-  Problemi 1..102, 104, 112, 113, 119, 120, 123, 124, 125, 135, 188, 191, 206
-  
+  Problemi 1..102, 104, 108, 110, 112, 113, 119, 120, 123, 124, 125,
+           135, 173, 188, 191, 206
+
 PROBLEMI VARI
 =============
   BubbleSort
@@ -1161,6 +1162,11 @@ NOTE LIBERE 8
   Somma dei sottoinsiemi (Subset Sum Problem)
   Numeri pratici
   Creare file di testo in Windows e Unix
+  Radicale di un numero
+  Fattoriale e funzione Y
+  Funzione explode
+  Formula di Faulhaber
+  Numeri piramidali quadrati
 
 APPENDICI
 =========
