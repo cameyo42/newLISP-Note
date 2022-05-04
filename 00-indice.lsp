@@ -1167,6 +1167,10 @@ NOTE LIBERE 8
   Funzione explode
   Formula di Faulhaber
   Numeri piramidali quadrati
+  Numeri potenti
+  Combinazioni di punteggi per comporre un dato numero
+  Pangram (pangramma)
+  Enigma machine
 
 APPENDICI
 =========

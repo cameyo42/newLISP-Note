@@ -1238,6 +1238,40 @@ Inoltre il simbolo "b" è protetto:
 (setq b '(2 2 2))
 ;-> ERR: symbol is protected in function setf : b
 
+Nota: Il passaggio per riferimento funziona solo con il funtore del contesto:
+
+a -> una variabile del contesto A 
+(setq A:a '(10 20 30))
+
+A -> il funtore del contesto A (usato come variabile/simbolo):
+(setq A:A '(1 2 3))
+
+Definiamo una funzione che aggiunge un elemento ad una lista:
+
+(define (add-el lst el)
+  (push el lst -1))
+
+Proviamo con la variabile "a" del contesto A:
+(add-el a 40)
+;-> (10 20 30 40)
+
+La variabile "a" del contesto non è cambiata:
+
+A:a
+;-> (10 20 30)
+
+Proviamo con il funtore "A" del contesto A:
+
+(add-el A 4)
+;-> (1 2 3 4)
+
+La variabile "A" associata al funtore è cambiata:
+
+A:A
+;-> (1 2 3 4)
+
+Altro metodo di passaggio per riferimento
+-----------------------------------------
 Un altro metodo di passaggio di oggetti per riferimento consiste nel quotare l'oggetto che deve essere passato. In questo caso la funzione deve valutare l'oggetto prima di utilizzarlo. Vediamo come esempio una funzione che prende una lista e un valore e aggiunge questo valore all'inizio e alla fine della lista.
 
 Prima scriviamo la funzione in modo normale:
@@ -4285,6 +4319,19 @@ Esempio di catch in una funzione:
 
 (prova 101)
 ;-> "end"
+
+Altro esempio di catch in una funzione (nota l'uiso di "begin" per catturare in ogni parte della funzione):
+
+(define (test a b)
+(catch (begin
+  (setq c (+ a b))
+  (if (> c 10) (throw "error"))
+  c)))
+
+(test 4 5)
+;-> 9
+(test 6 5)
+;-> "error"
 
 Esempio di catch nidificati in una funzione:
 

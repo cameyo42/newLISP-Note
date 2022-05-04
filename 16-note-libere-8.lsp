@@ -3935,5 +3935,505 @@ Questi numeri possono essere rappresentati nello spazio fisico attraverso una pi
 ;->  1240 1496 1785 2109 2470 2870 3311 3795 4324 4900 5525
 ;->  6201 6930 7714 8555 9455)
 
+
+--------------
+Numeri potenti
+--------------
+
+Un numero potente è un intero positivo n tale che, per ogni numero primo p che divide n, anche p^2 divide n. Equivalentemente, un numero potente è il prodotto di un quadrato per un cubo, ovvero può essere scomposto nella forma n = a^2*b^3, dove a e b sono interi positivi (eventualmente uguali a 1).
+
+Sequenza OEIS A001694:
+  1, 4, 8, 9, 16, 25, 27, 32, 36, 49, 64, 72, 81, 100, 108, 121, 125, 
+  128, 144, 169, 196, 200, 216, 225, 243, 256, 288, 289, 324, 343, 
+  361, 392, 400, 432, 441, 484, 500, 512, 529, 576, 625, 648, 675, 676,
+  729, 784, 800, 841, 864, 900, 961, 968, 972, 1000, ...
+
+Quindi se un numero n è potente, allora tutti i suoi fattori primi e i loro quadrati devono essere divisibili per n.
+
+Funzione 1
+----------
+
+(define (factor-group num)
+"Factorize an integer number"
+  (if (< num 2) nil
+      (letn ((out '()) (lst (factor num)) (cur-val (first lst)) (cur-count 0))
+        (dolist (el lst)
+          (if (= el cur-val) (++ cur-count)
+              (begin
+                (push (list cur-val cur-count) out -1)
+                (setq cur-count 1 cur-val el))))
+        (push (list cur-val cur-count) out -1))))
+
+(define (powerful1? num)
+  (if (= num 1) true
+  ;else
+  (catch
+    (let (factors (factor-group num))
+      (dolist (f factors)
+        (setq val (f 0))
+        (if (not (and (zero? (% num val)) (zero? (% num (* val val)))))
+            (throw nil)
+        )
+      )
+      true))))
+
+(powerful1? 1)
+;-> true
+(powerful1? 2)
+;-> nil
+(powerful1? 4)
+;-> true
+
+(filter powerful1? (sequence 2 1000))
+;-> (4 8 9 16 25 27 32 36 49 64 72 81 100 108 121 125 128 144 169 196
+;->  200 216 225 243 256 288 289 324 343 361 392 400 432 441 484 500
+;->  512 529 576 625 648 675 676 729 784 800 841 864 900 961 968 972 1000)
+
+Funzione 2
+----------
+
+(define (powerful2? num)
+  (if (= num 1) true
+  ;else
+  (catch
+    (let (factors (factor num))
+    ;(let (factors (unique (factor num))
+      (dolist (f factors)
+        (if (not (and (zero? (% num f)) (zero? (% num (* f f)))))
+            (throw nil)
+        )
+      )
+      true))))
+
+(filter powerful2? (sequence 2 1000))
+;-> (4 8 9 16 25 27 32 36 49 64 72 81 100 108 121 125 128 144 169 196
+;->  200 216 225 243 256 288 289 324 343 361 392 400 432 441 484 500
+;->  512 529 576 625 648 675 676 729 784 800 841 864 900 961 968 972 1000)
+
+Funzione 3
+----------
+
+(define (powerful3? num)
+  (if (= num 1) true
+  ;else
+  (catch
+    ;(let (factors (factor num))
+    (let (factors (unique (factor num)))
+      (dolist (f factors)
+        (if (not (and (zero? (% num f)) (zero? (% num (* f f)))))
+            (throw nil)
+        )
+      )
+      true))))
+
+(filter powerful3? (sequence 1 1000))
+;-> (1 4 8 9 16 25 27 32 36 49 64 72 81 100 108 121 125 128 144 169 196
+;->  200 216 225 243 256 288 289 324 343 361 392 400 432 441 484 500
+;->  512 529 576 625 648 675 676 729 784 800 841 864 900 961 968 972 1000)
+
+Funzione 4
+----------
+
+(define (powerful4? num)
+  (cond ((= num 1) true)
+        (true
+          (let ((factors (factor num)) (stop nil))
+            (dolist (f factors stop)
+              (if (not (and (zero? (% num f)) (zero? (% num (* f f)))))
+                (setq stop true)
+              )
+            )
+            (not stop)))))
+
+(filter powerful4? (sequence 1 1000))
+;-> (4 8 9 16 25 27 32 36 49 64 72 81 100 108 121 125 128 144 169 196
+;->  200 216 225 243 256 288 289 324 343 361 392 400 432 441 484 500
+;->  512 529 576 625 648 675 676 729 784 800 841 864 900 961 968 972 1000)
+
+Vediamo la velocità di esecuzione delle funzioni:
+
+(time (map powerful1? (sequence 1 1e6)))
+;-> 3025.494
+(time (map powerful2? (sequence 1 1e6)))
+;-> 2309.6
+(time (map powerful3? (sequence 1 1e6)))
+;-> 2647.393
+(time (map powerful4? (sequence 1 1e6)))
+;-> 1278.179
+
+(time (map powerful1? (sequence 1 1e4)) 100)
+;-> 2468.71
+(time (map powerful2? (sequence 1 1e4)) 100)
+;-> 1805.129
+(time (map powerful3? (sequence 1 1e4)) 100)
+;-> 2134.935
+(time (map powerful4? (sequence 1 1e4)) 100)
+;-> 780.683
+
+La funzione 4 è la più veloce (sembra che "catch" e "unique" rallentino l'esecuzione).
+
+
+----------------------------------------------------
+Combinazioni di punteggi per comporre un dato numero
+----------------------------------------------------
+
+Nel gioco della pallacanestro (basket-ball) un canestro può valere, 1 punto, 2 punti o 3 punti. Dato un punteggio totale N, trovare tutte le combinazioni per comporre il numero N utilizzando 1, 2, e 3 punti.
+Ad esempio:
+  per N = 2  ->  ((1 1) (2))
+  per N = 3  ->  ((1 1 1) (1 2) (2 1) (3))
+  per N = 4  ->  ((1 1 1 1) (1 1 2) (1 2 1) (1 3) (2 1 1) (2 2) (3 1))
+
+Algoritmo:
+  - Nella prima posizione possiamo avere tre numeri 1 o 2 o 3.
+  - Per prima cosa, mettere 1 in prima posizione e chiamare ricorsivamente n-1.
+  - Quindi mettere 2 nella prima posizione e chiamare ricorsivamente n-2.
+  - Quindi mettere 3 in prima posizione e chiamare ricorsivamente n-3.
+  - Se n diventa 0, allora abbiamo formato una combinazione che compone n, quindi inserire la combinazione corrente nella lista soluzione.
+
+Scriviamo la funzione che crea una lista con tutte le combinazioni di numeri 1, 2, ... , "max-point" che sommano ad un numero "num".
+
+La variabile "idx" è usata nella ricorsione per tenere traccia dell'indice in arr[] dove il successivo elemento deve essere aggiunto. Il valore iniziale di "idx" vale 0.
+
+Il vettore "arr" viene passato dinamicamente alla funzione "compose" perchè viene utilizzato in modo globale durante le chiamate ricorsive.
+
+(define (sums-points num max-point)
+  (local (arr out)
+    (setq out '())
+    (setq arr (array 100 '(0)))
+    (compose num 0)
+    out))
+
+(define (compose num idx)
+  (cond ((zero? num)
+         ;(println (slice arr 0 idx))
+         (push (slice arr 0 idx) out -1))
+        ((> num 0)
+          (for (k 1 max-point)
+            (setf (arr idx) k)
+            (compose (- num k) (+ idx 1))))))
+
+(sums-points 4 3)
+;-> ((1 1 1 1) (1 1 2) (1 2 1) (1 3) (2 1 1) (2 2) (3 1))
+
+La funzione ha un complessità temporale esponenziale O(n^k).
+
+La funzione genera liste molto grandi rapidamente:
+
+(length (sums-points 10 3))
+;-> 274
+(length (sums-points 11 3))
+;-> 504
+(length (sums-points 12 3))
+;-> 927
+(length (sums-points 13 3))
+;-> 1705
+
+(time (sums-points 15 3))
+;-> 3326.624
+(time (sums-points 16 3))
+;-> 12719.889
+
+
+-------------------
+Pangram (pangramma)
+-------------------
+
+Un pangramma (o anche pantogramma "tutte le lettere") è una frase di senso compiuto, la più breve possibile, in cui vengono utilizzate tutte le lettere dell'alfabeto. Si chiama pangramma eteroletterale una frase in cui tutte le lettere dell'alfabeto compaiono una sola volta.
+In lingua italiana sono stati prodotti diversi pangrammi e i più famosi sono:
+
+"Qualche vago ione tipo zolfo, bromo, sodio" (34 lettere)
+"Ma che bel gufo spenzola da quei travi" (31 lettere)
+"Che tempi brevi zio, quando solfeggi" (30 lettere)
+"Qui gli ampi stronzi, bove, defechi?" (29 lettere)
+"O templi, quarzi, vigne, fidi boschi!" (28 lettere)
+"Pochi sforzan quel gambo di vite" (27 lettere)
+"Pranzo d'acqua fa volti sghembi" (26 lettere)
+
+I seguenti sono esempi di pangrammi in lingua inglese standard senza abbreviazioni o nomi propri:
+
+"The quick brown fox jumps over a lazy dog" (33 lettere)
+"Waltz, bad nymph, for quick jigs vex" (28 lettere)
+"Glib jocks quiz nymph to vex dwarf" (28 lettere)
+"Sphinx of black quartz, judge my vow" (29 lettere)
+"How vexingly quick daft zebras jump!" (30 lettere)
+"The five boxing wizards jump quickly" (31 lettere)
+"Jackdaws love my big sphinx of quartz" (31 lettere)
+"Pack my box with five dozen liquor jugs" (32 lettere)
+
+Un pangramma in italiano che include anche le lettere dell'alfabeto inglese è:
+
+"Quel vituperabile xenofobo zelante assaggia il whisky ed esclama: alleluja!"
+
+Per verificare le telescriventi in genere veniva utilizzzato il pangramma:
+
+"Fabrizio ha visto Max acquistandogli juta per New York".
+
+Alfabeto inglese:
+(setq alfabeth '(A B C D E F G H I J K L M N O P Q R S T U V W X Y Z))
+
+Alfabeto italiano:
+(setq alfabeto '(A B C D E F G H I L M N O P Q R S T U V Z))
+
+Funzione che verifica se una frase è un pangramma (inglese e italiano con it = true):
+
+(define (pangram? str it)
+  (local (alfabeto look)
+    (if it
+        (setq alfabeto '("A" "B" "C" "D" "E" "F" "G" "H" "I" "L" "M"
+                         "N" "O" "P" "Q" "R" "S" "T" "U" "V" "Z"))
+        (setq alfabeto '("A" "B" "C" "D" "E" "F" "G" "H" "I" "J" "K" "L" "M"
+                         "N" "O" "P" "Q" "R" "S" "T" "U" "V" "W" "X" "Y" "Z"))
+    )
+    (replace " " str "")
+    (setq look (count alfabeto (explode (upper-case str))))
+    (if (not (find 0 look) nil true))))
+
+(pangram? "The quick brown fox jumps over a lazy dog")
+;-> true
+
+(pangram? "Ma che bel gufo spenzola da quei travi")
+;-> nil
+
+(pangram? "Ma che bel gufo spenzola da quei travi" true)
+;-> true
+
+(pangram? "Fabrizio ha visto Max acquistandogli juta per New York")
+;-> true
+
+Un pangramma inglese è anche un pangramma per la lingua italiana (perchè l'alfabeto italiano è un sottoinsieme dell'alfabeto inglese):
+
+(pangram? "How vexingly quick daft zebras jump!")
+;-> true
+(pangram? "How vexingly quick daft zebras jump!" true)
+;-> true
+
+
+--------------
+Enigma machine
+--------------
+
+Scriviamo una programma che emula la famosa macchina Enigma della seconda guerra mondiale.
+Il programma simula una macchina Enigma costituita da:
+  - 9 rotori generati casualmente
+  - riflettore (rotore statico)
+  - alfabeto originale
+
+Per maggiori informazioni:
+https://en.wikipedia.org/wiki/Enigma_machine
+https://youtu.be/QwQVMqfoB2E
+Guarda anche i video di Numberphile e Computerphile su questo argomento.
+Implementazione in python di riferimento:
+https://github.com/TheAlgorithms/Python/blob/master/ciphers/enigma_machine2.py
+
+;---------------
+; SETUP function
+;---------------
+; Create alphabet, rotors and reflector
+(define (setup)
+  ; alphabet: ascii uppercase
+  (setq abc "ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+  ; rotors --------------------------
+  (setq rotor1 "EGZWVONAHDCLFQMSIPJBYUKXTR")
+  (setq rotor2 "FOBHMDKEXQNRAULPGSJVTYICZW")
+  (setq rotor3 "ZJXESIUQLHAVRMDOYGTNFWPBKC")
+  (setq rotor4 "RMDJXFUWGISLHVTCQNKYPBEZOA")
+  (setq rotor5 "SGLCPQWZHKXAREONTFBVIYJUDM")
+  (setq rotor6 "HVSICLTYKQUBXDWAJZOMFGPREN")
+  (setq rotor7 "RZWQHFMVDBKICJLNTUXAGYPSOE")
+  (setq rotor8 "LFKIJODBEGAMQPXVUHYSTCZRWN")
+  (setq rotor9 "KOAEGVDHXPQZMLFTYWJNBRCIUS")
+  ; reflector --------------------------
+  (setq reflector '( ("A" "N") ("N" "A")
+                     ("B" "O") ("O" "B")
+                     ("C" "P") ("P" "C")
+                     ("D" "Q") ("Q" "D")
+                     ("E" "R") ("R" "E")
+                     ("F" "S") ("S" "F")
+                     ("G" "T") ("T" "G")
+                     ("H" "U") ("U" "H")
+                     ("I" "V") ("V" "I")
+                     ("J" "W") ("W" "J")
+                     ("K" "X") ("X" "K")
+                     ("L" "Y") ("Y" "L")
+                     ("M" "Z") ("Z" "M") ))
+)
+; execute "setup" function
+(setup)
+;---------------------
+; PLUGBOARD-F function
+----------------------
+; pbstring: string
+(define (plugboard-f pbstring)
+  ; tests the input string if it
+  ; a) is type string
+  ; b) has even length (so pairs can be made)
+  ; https://en.wikipedia.org/wiki/Enigma_machine#Plugboard  
+  (if (not (string? pbstring))
+      (println "ERROR: pbstring in not a string: " pbstring))
+  (if (odd? (length pbstring))
+      (println "ERROR: pbstring has odd numbers of symbols: " (length pbstring)))
+  (replace " " pbstring "")
+  ; Checks if all characters are unique and
+  ; are in alphabet abc
+  (if (!= (unique (explode pbstring)) (explode pbstring))
+      (println "ERROR: duplicate symbols: " pbstring))
+  (if (!= (count (explode pbstring) (explode abc))
+          (dup 1 (length pbstring)))
+      (println "ERROR: symbols not in alphabet: " pbstring))
+  ; Created the dictionary (associative list)
+  (setq pb '())
+  (for (j 0 (- (length pbstring) 2) 2)
+    (push (list (pbstring j) (pbstring (+ j 1))) pb -1)
+    (push (list (pbstring (+ j 1)) (pbstring j)) pb -1)
+  )
+  pb)
+;-----------------
+; PLUGBOARD-F test
+;-----------------
+;(plugboard-f "PICTURES")
+;-> (("P" "I") ("I" "P") ("C" "T") ("T" "C") ("U" "R") ("R" "U") ("E" "S") ("S" "E"))
+;(plugboard-f "POLAND")
+;-> (("P" "O") ("O" "P") ("L" "A") ("A" "L") ("N" "D") ("D" "N"))
+;(plugboard-f "A")
+;(plugboard-f "AA")
+;(plugboard-f "Aa")
+;-------------------
+; VALIDATOR function
+;-------------------
+; rotpos: (int int int)
+; rotsel: (string string string)
+; pb: string
+; Checks if the values can be used for the 'enigma' function
+(define (validator rotpos rotsel pb)
+  (setq unique-rotsel (length (unique rotsel)))
+  (if (< unique-rotsel 3)
+      (println "ERROR: not 3 unique rotors: " unique-rotsel))
+  (setq rotorpos1 (rotpos 0))
+  (setq rotorpos2 (rotpos 1))
+  (setq rotorpos3 (rotpos 2))
+  ; (length abc) -> 26
+  (if (or (< rotorpos1 1) (> rotorpos1 (length abc)))
+      (println "ERROR: rotor 1 non in range 1..26: " rotorpos1))
+  (if (or (< rotorpos2 1) (> rotorpos2 (length abc)))
+      (println "ERROR: rotor 2 non in range 1..26: " rotorpos2))
+  (if (or (< rotorpos3 1) (> rotorpos3 (length abc)))
+      (println "ERROR: rotor 3 non in range 1..26: " rotorpos3))
+  ; Validates string and returns dict (association list)
+  (setq pbdict (plugboard-f pb))
+  (list rotpos rotsel pbdict))
+;---------------
+; VALIDATOR test
+;---------------
+;(validator '(1 1 1) (list rotor1 rotor2 rotor3) "POLAND")
+;-> ((1 1 1)
+;->  ("EGZWVONAHDCLFQMSIPJBYUKXTR" "FOBHMDKEXQNRAULPGSJVTYICZW" "ZJXESIUQLHAVRMDOYGTNFWPBKC")
+;->  (("P" "O") ("O" "P") ("L" "A") ("A" "L") ("N" "D") ("D" "N")))
+;----------------
+; ENIGMA function
+;----------------
+; test: string (message)
+; rotor-position: (int int int)
+; rotor-selection: (string string string)
+; plugpb: string
+; How it works:
+;    (for every letter in the message)
+;    - Input letter goes into the plugboard.
+;    If it is connected to another one, switch it.
+;    - Letter goes through 3 rotors.
+;    Each rotor can be represented as 2 sets of symbol, where one is shuffled.
+;    Each symbol from the first set has corresponding symbol in
+;    the second set and vice versa.
+;    example:
+;    | ABCDEFGHIJKLMNOPQRSTUVWXYZ | e.g. F=D and D=F
+;    | VKLEPDBGRNWTFCJOHQAMUZYIXS |
+;    - Symbol then goes through reflector (static rotor).
+;    There it is switched with paired symbol
+;    The reflector can be represented as 2 sets, each with half of the alphanet.
+;    There are usually 10 pairs of letters.
+;    Example:
+;    | ABCDEFGHIJKLM | e.g. E is paired to X
+;    | ZYXWVUTSRQPON | so when E goes in X goes out and vice versa
+;    - Letter then goes through the rotors again
+;    - If the letter is connected to plugboard, it is switched.
+;    - Return the letter
+(define (enigma text rotor-position rotor-selection plugb)
+  (setq text (upper-case text))
+  (setq plugb (upper-case plugb))
+  (setq result (validator rotor-position rotor-selection plugb))
+  (setq rotor-position (result 0))
+  (setq rotor-selection (result 1))
+  (setq plugboard (result 2))
+  (setq rotorpos1 (rotor-position 0))
+  (setq rotorpos2 (rotor-position 1))
+  (setq rotorpos3 (rotor-position 2))
+  (setq rotorsel1 (rotor-selection 0))
+  (setq rotorsel2 (rotor-selection 1))
+  (setq rotorsel3 (rotor-selection 2))
+  (-- rotorpos1)
+  (-- rotorpos2)
+  (-- rotorpos3)
+  (setq result '())
+  (dolist (s (explode text))
+    (if (find s abc)
+        (begin
+          ; 1st plugboard
+          (if (lookup s plugboard)
+              (setq s (lookup s plugboard))
+          )
+          ; rotor ra
+          (setq idx (+ (find s abc) rotorpos1))
+          (setq s (rotorsel1 (% idx (length abc))))
+          ; rotr rb
+          (setq idx (+ (find s abc) rotorpos2))
+          (setq s (rotorsel2 (% idx (length abc))))
+          ; rotr rc
+          (setq idx (+ (find s abc) rotorpos3))
+          (setq s (rotorsel3 (% idx (length abc))))
+          ; reflector --------------------------
+          ; this is the reason you don't need another machine to decipher
+          (setq s (lookup s reflector))
+          ; 2nd rotors
+          (setq s (abc (- (find s rotorsel3) rotorpos3)))
+          (setq s (abc (- (find s rotorsel2) rotorpos2)))
+          (setq s (abc (- (find s rotorsel1) rotorpos1)))
+          ; 2nd plugboard
+          (if (lookup s plugboard)
+              (setq s (lookup s plugboard))
+          )
+          ; moves/resets rotor positions
+          (++ rotorpos1)
+          (if (>= rotorpos1 (length abc))
+              (begin
+                (setq rotorpos1 0)
+                (++ rotorpos2)))
+          (if (>= rotorpos2 (length abc))
+              (begin
+                (setq rotorpos2 0)
+                (++ rotorpos3)))
+          (if (>= rotorpos3 (length abc))
+              (setq rotorpos3 0))
+        )
+    )
+    (push s result -1)
+  )
+  (join result))
+;------------
+; ENIGMA test
+;------------
+;(enigma "Hello World!" '(1 2 1) (list rotor1 rotor2 rotor3) "pictures")
+;-> "KORYH JUHHI!"
+;(enigma "KORYH, juhhi!" '(1 2 1) (list rotor1 rotor2 rotor3) "pictures")
+;-> "HELLO, WORLD!"
+(enigma "This is my newLISP script that emulates the Enigma machine from WWII."
+        '(1 1 1)
+        (list rotor2 rotor4 rotor8)
+        "pictures")
+;-> "WQGI XH BJ HKOUHVO MWCAAP EEQG JDRPJMVH XQZ KSWSJJ STHSKGL XXLU TOXF."
+(enigma "WQGI XH BJ HKOUHVO MWCAAP EEQG JDRPJMVH XQZ KSWSJJ STHSKGL XXLU TOXF."
+        '(1 1 1)
+        (list rotor2 rotor4 rotor8)
+        "pictures")
+;-> "THIS IS MY NEWLISP SCRIPT THAT EMULATES THE ENIGMA MACHINE FROM WWII."
+
 =============================================================================
 

@@ -6310,7 +6310,7 @@ Kelsey Hightower
 "The first rule of functions is that they should be small. The second rule of functions is that they should be smaller than that."
 - Robert C. Martin
 
-"The ideal numbers of arguments for a function is zero (niladic). Next comes one (monadic), followed closely by two (dyadic). Three arguments (triadic) should be avoided where possible. More than three (polyadic) requires very special justification ‐ and then shouldn't be used anyway".
+"The ideal numbers of arguments for a function is zero (niladic). Next comes one (monadic), followed closely by two (dyadic). Three arguments (triadic) should be avoided where possible. More than three (polyadic) requires very special justification ‐ and then shouldn't be used anyway."
 - Robert C. Martin
 
 "The longer it takes for a bug to surface, the harder it is to find."
@@ -6319,6 +6319,8 @@ Kelsey Hightower
 "Necessity is the Mother of Invention, Play is its Father."
 - unknown
 
+"You are not a Bayesian homunculus whose reasoning is “corrupted” by cognitive biases. You just are cognitive biases."
+- Luke Muehlhauser
 
 ============================================================================
  Prefissi del Sistema Internazionale di unità di misura
