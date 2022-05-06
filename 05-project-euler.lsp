@@ -110,12 +110,15 @@
 |   101    |  37076114526       |         -  |        70  |         -  |
 |   102    |  228               |         -  |         2  |         1  |
 |   104    |  329468            |         -  |     37978  |         -  |
+|   105    |  73702             |         -  |       864  |         -  |
 |   108    |  180180            |         -  |      7521  |       331  |
 |   110    |  9350130049860600  |         -  |        16  |         -  |
 |   112    |  1587000           |         -  |      1732  |         -  |
 |   113    |  51161058134250    |         -  |         8  |         -  |
 |   119    |  248155780267521   |         -  |        26  |         -  |
 |   120    |  333082500         |         -  |         0  |         -  |
+|   121    |  2269              |         -  |         1  |         -  |
+|   122    |  1582              |         -  |       138  |         -  |
 |   123    |  21035             |         -  |       134  |         -  |
 |   124    |  21417             |         -  |       140  |         -  |
 |   125    |  2906969179        |         -  |      1570  |         -  |
@@ -12026,6 +12029,178 @@ Funzione per il calcolo della potenza di due numeri big-integer:
 
 
 ============
+Problema 105
+============
+
+Somme speciali di sottoinsiemi: test
+
+Sia S(A) la somma degli elementi dell'insieme A di dimensione n. Lo chiameremo insieme speciale di somma se per due sottoinsiemi disgiunti non vuoti, B e C, sono vere le seguenti proprietà:
+
+  1. S(B) ≠ S(C), cioè, le somme dei sottoinsiemi non possono essere uguali.
+  2. Se B contiene più elementi di C allora S(B) > S(C).
+
+Ad esempio, {81, 88, 75, 42, 87, 84, 86, 65} non è un insieme speciale di somma perché 65 + 87 + 88 = 75 + 81 + 84, mentre {157, 150, 164, 119, 79 , 159, 161, 139, 158} soddisfa entrambe le regole per tutte le possibili combinazioni di coppie di sottoinsiemi e S(A) = 1286.
+
+Utilizzando il file "set.txt" (inserito direttamente di seguito), un file di testo 4K con cento set contenenti da sette a dodici elementi (i due esempi sopra riportati sono i primi due set nel file), identificare tutti gli insiemi di somme speciali, A1, A2, ..., Ak, e trovare il valore di S(A1) + S(A2) + ... + S(Ak).
+
+NOTA: questo problema è correlato al problema 103 e al problema 106.
+============================================================================
+
+(define (setup)
+  (setq sets '(
+(81 88 75 42 87 84 86 65)
+(157 150 164 119 79 159 161 139 158)
+(673 465 569 603 629 592 584 300 601 599 600)
+(90 85 83 84 65 87 76 46)
+(165 168 169 190 162 85 176 167 127)
+(224 275 278 249 277 279 289 295 139)
+(354 370 362 384 359 324 360 180 350 270)
+(599 595 557 298 448 596 577 667 597 588 602)
+(175 199 137 88 187 173 168 171 174)
+(93 187 196 144 185 178 186 202 182)
+(157 155 81 158 119 176 152 167 159)
+(184 165 159 166 163 167 174 124 83)
+(1211 1212 1287 605 1208 1189 1060 1216 1243 1200 908 1210)
+(339 299 153 305 282 304 313 306 302 228)
+(94 104 63 112 80 84 93 96)
+(41 88 82 85 61 74 83 81)
+(90 67 84 83 82 97 86 41)
+(299 303 151 301 291 302 307 377 333 280)
+(55 40 48 44 25 42 41)
+(1038 1188 1255 1184 594 890 1173 1151 1186 1203 1187 1195)
+(76 132 133 144 135 99 128 154)
+(77 46 108 81 85 84 93 83)
+(624 596 391 605 529 610 607 568 604 603 453)
+(83 167 166 189 163 174 160 165 133)
+(308 281 389 292 346 303 302 304 300 173)
+(593 1151 1187 1184 890 1040 1173 1186 1195 1255 1188 1203)
+(68 46 64 33 60 58 65)
+(65 43 88 87 86 99 93 90)
+(83 78 107 48 84 87 96 85)
+(1188 1173 1256 1038 1187 1151 890 1186 1184 1203 594 1195)
+(302 324 280 296 294 160 367 298 264 299)
+(521 760 682 687 646 664 342 698 692 686 672)
+(56 95 86 97 96 89 108 120)
+(344 356 262 343 340 382 337 175 361 330)
+(47 44 42 27 41 40 37)
+(139 155 161 158 118 166 154 156 78)
+(118 157 164 158 161 79 139 150 159)
+(299 292 371 150 300 301 281 303 306 262)
+(85 77 86 84 44 88 91 67)
+(88 85 84 44 65 91 76 86)
+(138 141 127 96 136 154 135 76)
+(292 308 302 346 300 324 304 305 238 166)
+(354 342 341 257 348 343 345 321 170 301)
+(84 178 168 167 131 170 193 166 162)
+(686 701 706 673 694 687 652 343 683 606 518)
+(295 293 301 367 296 279 297 263 323 159)
+(1038 1184 593 890 1188 1173 1187 1186 1195 1150 1203 1255)
+(343 364 388 402 191 383 382 385 288 374)
+(1187 1036 1183 591 1184 1175 888 1197 1182 1219 1115 1167)
+(151 291 307 303 345 238 299 323 301 302)
+(140 151 143 138 99 69 131 137)
+(29 44 42 59 41 36 40)
+(348 329 343 344 338 315 169 359 375 271)
+(48 39 34 37 50 40 41)
+(593 445 595 558 662 602 591 297 610 580 594)
+(686 651 681 342 541 687 691 707 604 675 699)
+(180 99 189 166 194 188 144 187 199)
+(321 349 335 343 377 176 265 356 344 332)
+(1151 1255 1195 1173 1184 1186 1188 1187 1203 593 1038 891)
+(90 88 100 83 62 113 80 89)
+(308 303 238 300 151 304 324 293 346 302)
+(59 38 50 41 42 35 40)
+(352 366 174 355 344 265 343 310 338 331)
+(91 89 93 90 117 85 60 106)
+(146 186 166 175 202 92 184 183 189)
+(82 67 96 44 80 79 88 76)
+(54 50 58 66 31 61 64)
+(343 266 344 172 308 336 364 350 359 333)
+(88 49 87 82 90 98 86 115)
+(20 47 49 51 54 48 40)
+(159 79 177 158 157 152 155 167 118)
+(1219 1183 1182 1115 1035 1186 591 1197 1167 887 1184 1175)
+(611 518 693 343 704 667 686 682 677 687 725)
+(607 599 634 305 677 604 603 580 452 605 591)
+(682 686 635 675 692 730 687 342 517 658 695)
+(662 296 573 598 592 584 553 593 595 443 591)
+(180 185 186 199 187 210 93 177 149)
+(197 136 179 185 156 182 180 178 99)
+(271 298 218 279 285 282 280 238 140)
+(1187 1151 890 593 1194 1188 1184 1173 1038 1186 1255 1203)
+(169 161 177 192 130 165 84 167 168)
+(50 42 43 41 66 39 36)
+(590 669 604 579 448 599 560 299 601 597 598)
+(174 191 206 179 184 142 177 180 90)
+(298 299 297 306 164 285 374 269 329 295)
+(181 172 162 138 170 195 86 169 168)
+(1184 1197 591 1182 1186 889 1167 1219 1183 1033 1115 1175)
+(644 695 691 679 667 687 340 681 770 686 517)
+(606 524 592 576 628 593 591 584 296 444 595)
+(94 127 154 138 135 74 136 141)
+(179 168 172 178 177 89 198 186 137)
+(302 299 291 300 298 149 260 305 280 370)
+(678 517 670 686 682 768 687 648 342 692 702)
+(302 290 304 376 333 303 306 298 279 153)
+(95 102 109 54 96 75 85 97)
+(150 154 146 78 152 151 162 173 119)
+(150 143 157 152 184 112 154 151 132)
+(36 41 54 40 25 44 42)
+(37 48 34 59 39 41 40)
+(681 603 638 611 584 303 454 607 606 605 596))))
+
+(define (e105)
+  (local (out stop somme somme-minime somme-massime contatore)
+    (setup)
+    (setq out 0)
+    (dolist (s sets)
+      (if (speciale? s) (setq out (+ out (apply + s))))
+    )
+    out))
+
+(define (speciale? s)
+  (setq stop nil)
+  (setq somme '())
+  (setq somme-massime (array (+ (length s) 1) '(nil)))
+  (setq somme-minime (array (+ (length s) 1) '(nil)))
+  (cerca-subset 0 0 0)
+  (if (= (length somme) (pow 2 (length s)))
+      (for (i 0 (- (length s) 1) 1 stop)
+        (if (>= (somme-massime i) (somme-minime (+ i 1)))
+            (setq stop true)
+        )
+      )
+      ;else
+      (setq stop true)
+  )
+  (not stop))
+
+(define (cerca-subset k somma contatore)
+  (cond ((= k (length s))
+          (if (not (find somma somme))
+              (push somma somme -1)
+          )
+          (if (or (= (somme-minime contatore) nil) 
+                  (< somma (somme-minime contatore)))
+              (setq (somme-minime contatore) somma)
+          )
+          (if (or (= (somme-massime contatore) nil) 
+                  (> somma (somme-massime contatore)))
+              (setq (somme-massime contatore) somma)
+          ))
+        (true
+          (cerca-subset (+ k 1) somma contatore)
+          (cerca-subset (+ k 1) (+ somma (s k)) (+ contatore 1)))))
+
+(e105)
+;-> 73702
+
+(time (e105))
+;-> 864.226
+----------------------------------------------------------------------------
+
+
+============
 Problema 108
 ============
 
@@ -12579,6 +12754,123 @@ L'espansione diretta della formula porta al seguente risultato:
 ;-> 0
 (time (e120-2 1000))
 ;-> 0
+----------------------------------------------------------------------------
+
+
+============
+Problema 121
+============
+
+Montepremi del gioco dei dischi
+
+Una borsa contiene un disco rosso e un disco blu. In un gioco d'azzardo un giocatore prende un disco a caso e ne viene annotato il colore. Dopo ogni turno il disco viene rimesso nella borsa, viene aggiunto un disco rosso extra e un altro disco viene preso a caso.
+
+Il giocatore paga £1 per giocare e vince se ha preso più dischi blu che rossi alla fine del gioco.
+
+Se il gioco viene giocato per quattro turni, la probabilità che un giocatore vinca è esattamente 11/120, quindi il montepremi massimo che il banchiere dovrebbe destinare per vincere in questo gioco sarebbe £10 prima che si aspetti una perdita. Nota che qualsiasi vincita sarà un numero intero di sterline e include anche l'originale £1 pagato per giocare, quindi nell'esempio fornito il giocatore vince effettivamente £9.
+
+Trova il montepremi massimo che dovrebbe essere assegnato a un singolo gioco in cui vengono giocati quindici turni.
+============================================================================
+
+(define (e121)
+  (local (limite evento positivi totale)
+    (setq limite 15)
+    (setq evento (array (+ limite 1) '(0)))
+    (setf (evento limite) 1)
+    (setf (evento (- limite 1)) 1)
+    (for (i 2 limite)
+      (for (j 0 (- (length evento) 2))
+        (setf (evento j) (evento (+ j 1)))
+      )
+      (setf (evento limite) 0)
+      (for (j (- (length evento) 1) 1)
+        (setf (evento j) (+ (evento j) (* (evento (- j 1)) i)))
+      )
+    )
+    (setq positivi 0)
+    (for (i 0 (/ limite 2))
+      (setq positivi (+ positivi (evento i)))
+    )
+    (setq totale 1)
+    (for (i 2 (+ limite 1))
+      (setq totale (* totale i))
+    )
+    (println positivi { } totale)
+    (list positivi totale (/ totale positivi))))
+
+(e121)
+;-> (9219406943 20922789888000 2269)
+
+(time (e121))
+;-> 0.998
+----------------------------------------------------------------------------
+
+
+============
+Problema 122
+============
+
+Esponenziazione efficiente
+
+Il modo più ingenuo di calcolare n15 richiede quattordici moltiplicazioni:
+
+n × n × ... × n = n^15
+
+Ma usando un metodo "binario" puoi calcolarlo in sei moltiplicazioni:
+
+  n × n = n^2
+  n^2 × n^2 = n^4
+  n^4 × n^4 = n^8
+  n^8 × n^4 = n^12
+  n^12 × n^2 = n^14
+  n^14 × n = n^15
+
+Tuttavia è ancora possibile calcolarlo in sole cinque moltiplicazioni:
+
+  n × n = n^2
+  n^2 × n = n^3
+  n^3 × n^3 = n^6
+  n^6 × n^6 = n^12
+  n^12 × n^3 = n^15
+
+Definiremo m(k) come il numero minimo di moltiplicazioni per calcolare nk. Ad esempio m(15) = 5.
+
+Per 1 ≤ k ≤ 200, trova ∑m(k).
+============================================================================
+
+https://en.wikipedia.org/wiki/Addition_chain
+https://en.wikipedia.org/wiki/Addition-chain_exponentiation
+
+(define (e122)
+  (local (limite costo percorso res k)
+    (setq limite 200)
+    (setq costo (array (+ limite 1) '(999999999)))
+    (setq percorso (array (+ limite 1) '(0)))
+    (setq res 0)
+    (backtrack 1 0)
+    (for (i 1 limite)
+      (setq res (+ res (costo i)))
+    )
+    res))
+
+(define (backtrack potenza profondita)
+  (cond ((or (> potenza limite) (> profondita (costo potenza)))
+         nil)
+        (true
+         ;(println profondita) (read-line)
+         (setf (costo potenza) profondita)
+         (setf (percorso profondita) potenza)
+         (for (k profondita 0 -1)
+           (if (>= k 0)
+             (backtrack (+ potenza (percorso k)) (+ profondita 1))
+           )
+         ))))
+
+(e122)
+;-> 1582
+
+(time (e122))
+;-> 138.074
 ----------------------------------------------------------------------------
 
 

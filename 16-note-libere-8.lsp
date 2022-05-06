@@ -3647,9 +3647,9 @@ Questo metodo è lento per calcolare molti numeri pratici:
 ;-> 48990.197
 
 
---------------------------------------
-Creare file di testo in Windows e Unix
---------------------------------------
+-----------------------------------
+Creare file di testo Windows e Unix
+-----------------------------------
 
 I file di testo di Windows e Unix hanno il terminatore di linea diverso:
 
@@ -4206,6 +4206,444 @@ Un pangramma inglese è anche un pangramma per la lingua italiana (perchè l'alf
 ;-> true
 (pangram? "How vexingly quick daft zebras jump!" true)
 ;-> true
+
+
+------------------
+Problema K Centers
+------------------
+
+Date n città e distanze tra ogni coppia di città, selezionare k città in cui posizionare magazzini in modo tale da ridurre al minimo la distanza massima di una città da un magazzino.
+
+Ad esempio, consideriamo le quattro città, 0, 1, 2 e 3, e le distanze tra di loro. Come posizionare 2 bancomat tra queste 4 città in modo da ridurre al minimo la distanza massima di una città da un bancomat?
+
+Proviamo a scrivere una soluzione brute-force in cui il grafo dei punti è rappresentato da una lista di adiacenza. Ad esempio i grafi seguenti e le loro rappresentazioni:
+
+Grafo g1                          Grafo g2
+
+  +---+   4    +---+              +---+   10   +---+
+  | 0 |--------| 1 |              | 1 |--------| 0 |
+  +---+        +---+              +---+        +---+
+   |   \      /  |                 |   \      /  |
+   |    \8   /   |                 |    \5   /   |
+   |     \  /    |                 |     \  /    |
+   |      \/     |               8 |      \/     |6
+ 5 |      /\     |10               |      /\     |
+   |     /  \    |                 |     /  \    |
+   |    /7   \   |                 |    /7   \   |
+   |   /      \  |                 |   /      \  |
+  +---+   9    +---+              +---+   12   +---+
+  | 3 |--------| 2 |              | 2 |--------| 3 |
+  +---+        +---+              +---+        +---+
+
+(setq g1 '( (0  4  8 5)
+            (4  0 10 7)
+            (8 10  0 9)
+            (5  7  9 0)))
+
+(setq g2 '( ( 0 10  7  6)
+            (10  0  8  5)
+            ( 7  8  0 12)
+            ( 6  5 12  0)))
+
+Le combinazioni di centri da verificare sono tutte le combinazioni di k elementi senza ripetizione da una lista di n elementi:
+
+(define (comb k lst)
+"Generates all combinations of k elements without repetition from a list of items"
+  (cond ((zero? k)   '(()))
+        ((null? lst) '())
+        (true
+          (append (map (lambda (k-1) (cons (first lst) k-1))
+                       (comb (- k 1) (rest lst)))
+                  (comb k (rest lst))))))
+
+(comb 2 '(0 1 2 3))
+;-> ((0 1) (0 2) (0 3) (1 2) (1 3) (2 3))
+
+Notare che il numero di combinazioni cresce velocemente:
+
+Comb(n,k) = binomial(n,k) = n!/(k!*(n-k)!)
+
+(define (binom num k)
+"Calculates the binomial coefficient (n k) = n!/(k!*(n - k)!) (combinations of k elements without repetition from n elements)"
+  (cond ((> k num) 0)
+        ((zero? k) 1)
+        (true
+          (let (r 1L)
+            (for (d 1 k)
+              (setq r (/ (* r num) d))
+              (-- num)
+            )
+          r))))
+
+(for (k 1 10)
+  (println "k: " k)
+  (for (n 10 50 10)
+    (print (binom n k) { })
+  )
+  (println))
+;-> k: 1
+;-> 10L 20L 30L 40L 50L
+;-> k: 2
+;-> 45L 190L 435L 780L 1225L
+;-> k: 3
+;-> 120L 1140L 4060L 9880L 19600L
+;-> k: 4
+;-> 210L 4845L 27405L 91390L 230300L
+;-> k: 5
+;-> 252L 15504L 142506L 658008L 2118760L
+;-> k: 6
+;-> 210L 38760L 593775L 3838380L 15890700L
+;-> k: 7
+;-> 120L 77520L 2035800L 18643560L 99884400L
+;-> k: 8
+;-> 45L 125970L 5852925L 76904685L 536878650L
+;-> k: 9
+;-> 10L 167960L 14307150L 273438880L 2505433700L
+;-> k: 10
+;-> 1L 184756L 30045015L 847660528L 10272278170L
+
+Per ogni combinazione calcoliamo il valore massimo delle distanze minime di ogni altro punto dai centri di quella combinazione. Al termine selezioniamo il valore minimo delle distanze massime e la relativa posizione dei centri.
+
+(define (kcenters k lst)
+  (local (num-pts pts positions dist cur-min local-max out)
+    ; numero di punti
+    (setq num-pts (length lst))
+    ; lista (0..num-pts)
+    (setq pts (sequence 0 (- (length lst) 1)))
+    ; lista di tutte le posizioni (combinazioni)
+    ; in cui posizionare i centri
+    (setq positions (comb k pts))
+    ; lista (distanza massima, lista di centri)
+    ; per ogni posizione
+    (setq out '())
+    ; ciclo per verificare ogni posizione
+    (dolist (pos positions)
+      ; calcolo punti di analizzare =
+      ; tutti - posizione corrente
+      (setq from-pts (difference pts pos))
+      ; valore di distanza massima locale
+      (setq local-max -1)
+      ; calcola la distanza massima dei punti
+      ; per la combinazione corrente.
+      ; Per ogni punto...
+      (dolist (f from-pts)
+        ; calcola la distanza minima del punto corrente...
+        (setq cur-min 999999)
+        ; da tutti i centri della posizione corrente
+        (dolist (p pos)
+          (setq dist (lst f p))
+          ; se distanza corrente è minore
+          ; della distanza minima corrente...
+          (if (< dist cur-min)
+              ; allora aggiorna distanza minima e
+              ; punti di posizionamento
+              (setq cur-min dist)
+          )
+          ;(print pos { } f { } p { } (lst f p))
+          ;(read-line)
+        )
+        ;(println cur-min)
+        ; se la distanza minima è maggiore
+        ; della distanza massima locale...
+        ; allora aggiorna il valore
+        ; della distanza massima locale
+        (if (> cur-min local-max) (setq local-max cur-min))
+        ;(print "local-max: " local-max)
+        ;(read-line)
+      )
+      ;(print (list local-max pos))
+      ;(read-line)
+      ; inserisce distanza massima e centri
+      ; nella lista soluzione
+      (push (list local-max pos) out)
+    )
+    (println out)
+    ; recupera l'elemento nella lista soluzione con distanza minima
+    (first (sort out))))
+
+(kcenters 2 g1)
+;-> ((7 (2 3)) (9 (1 3)) (7 (1 2)) (8 (0 3)) (5 (0 2)) (8 (0 1)))
+;-> (5 (0 2))
+
+(kcenters 2 g2)
+;-> ((6 (2 3)) (8 (1 3)) (7 (1 2)) (7 (0 3)) (8 (0 2)) (7 (0 1)))
+;-> (6 (2 3))
+
+Questo è un noto problema NP-Hard e non esiste una soluzione in tempo polinomiale. Esiste un algoritmo greedy approssimato con tempo polinomiale che fornisce una soluzione che non è mai peggiore del doppio della soluzione ottimale. La soluzione greedy funziona solo se le distanze tra le città seguono la disuguaglianza triangolare (la distanza tra due punti è sempre inferiore alla somma delle distanze attraverso un terzo punto).
+
+Algoritmo greedy approssimativo:
+1) Scegliere arbitrariamente il primo centro.
+2) Scegliere i restanti centri k-1 utilizzando i seguenti criteri.
+   Siano c1, c2, c3, … ci i centri già scelti.
+   Scegliere l'(i+1)-esimo centro selezionando la città che è la più lontana
+   dai centri selezionati, cioè il punto p che ha come valore massimo:
+   Min[dist(p, c1), dist(p, c2), dist(p, c3), …. dist(p, ci)]
+
+Prova che (soluzione-ottimale <= 2*soluzione-greedy):
+Sia D la distanza massima di una città da un centro nella soluzione ottimale. Dobbiamo mostrare che la distanza massima ottenuta dall'algoritmo Greedy è 2*D.
+La dimostrazione può essere fatta usando la contraddizione.
+a) Si supponga che la distanza dal punto più lontano a tutti i centri sia > 2*D.
+b) Ciò significa che anche le distanze tra tutti i centri sono > 2*D.
+c) Abbiamo k + 1 punti con distanze > 2*OPT tra ogni coppia.
+d) Ogni punto ha un centro della soluzione ottima con distanza <= OPT ad esso.
+e) Esiste una coppia di punti con lo stesso centro X nella soluzione ottima (principio della piccionaia: k centri ottimali, k+1 punti)
+f) La distanza tra loro è al massimo 2*D (per la disuguaglianza triangolare), che è una contraddizione.
+
+(define (max-index lst)
+  (let (max-idx 0)
+    (dolist (el lst)
+      (if (> el (lst max-idx))
+          (setq max-idx $idx)
+      )
+    )
+    max-idx))
+
+(setq lst '(4 5 2 7 9 3))
+(max-index lst)
+;-> 4
+
+(define (k-centers k lst)
+  (local (num-pts dist centers maximum)
+    (setq num-pts (length lst))
+    (setq dist (array num-pts '(0)))
+    (setq centers '())
+    (for (i 0 (- num-pts 1))
+      (setq (dist i) 999999)
+    )
+    ; indice della città che ha la distanza massima
+    ; dal centro più vicino
+    (setq maximum 0)
+    (for (i 0 (- k 1))
+      (push maximum centers -1)
+      (for (j 0 (- num-pts 1))
+        # aggiorna la distanza delle città dai loro centri più vicini
+        (setq (dist j) (min (dist j) (lst maximum j)))
+      )
+      # aggiorna l'indice della città 
+      ; con la distanza massima dal centro più vicino      
+      (setq maximum (max-index dist))
+    )
+    (list (dist maximum) centers)))
+
+(k-centers 2 g1)
+;-> (5 (0 2)) ; soluzione ottimale
+
+(k-centers 2 g2)
+;-> (7 (0 1)) ; soluzione non ottimale
+
+
+-------------------------------------------
+Quadrato, rettangolo, rombo o quadrilatero?
+-------------------------------------------
+
+Date le coordinate di quattro punti in un piano cartesiano 2D, determinare se i quattro punti formano un quadrato, un rombo, un rettangolo o un quadrilatero.
+
+Per distinguere le figure calcoliamo tutte le distante tra tutti i punti e verifichiamo le seguenti condizioni:
+
+- Quadrato
+  2 diagonali uguali e 4 lati uguali (2 4)
+
+- Rettangolo
+  2 lati minori uguali, 2 lati maggiori uguali e 2 diagonali uguali (2 2 2)
+
+- Rombo
+  1 diagonale minore, 1 diagonale maggiore e 4 lati uguali (1 1 4)
+
+- Quadrilatero regolare (almeno due lati paralleli)
+  1 diagonale minore, 1 diagonale maggiore, 2 lati minori uguali e 2 lati maggiori uguali (1 1 2 2)
+
+(define (dist2d-2 p q)
+"Calculates the square of 2D Cartesian distance of two points p = (x1 y1) and q = (x2 y2)"
+  (let ((x1 (first p)) (y1 (last p))
+        (x2 (first q)) (y2 (last q)))
+    (add (mul (sub x1 x2) (sub x1 x2))
+        (mul (sub y1 y2) (sub y1 y2)))))
+
+(define (cosa? p1 p2 p3 p4)
+  (local (dist d1 d2 d3 d4 d5 d6 uniq timbro out)
+    (setq out "")
+    (setq dist '())
+    (setq d1 (dist2d-2 p1 p2))
+    (setq d2 (dist2d-2 p1 p3))
+    (setq d3 (dist2d-2 p1 p4))
+    (setq d4 (dist2d-2 p2 p3))
+    (setq d5 (dist2d-2 p2 p4))
+    (setq d6 (dist2d-2 p3 p4))
+    (push d1 dist -1)
+    (push d2 dist -1)
+    (push d3 dist -1)
+    (push d4 dist -1)
+    (push d5 dist -1)
+    (push d6 dist -1)
+    (setq uniq (unique dist))
+    (setq timbro (sort (count uniq dist)))
+    (println dist)
+    (println timbro)
+    (cond ((= timbro '(2 4))     (setq out "quadrato"))
+          ((= timbro '(1 1 4))   (setq out "rombo"))
+          ((= timbro '(2 2 2))   (setq out "rettangolo"))
+          ((= timbro '(1 1 2 2)) (setq out "quadrilatero regolare"))
+          (true (setq out "quadrilatero"))
+    )
+    out))
+
+Quadrato:
+(setq q1 '(20 10))
+(setq q2 '(10 20))
+(setq q3 '(20 20))
+(setq q4 '(10 10))
+
+(cosa? q1 q2 q3 q4)
+;-> (200 100 100 100 100 200)
+;-> (2 4)
+;-> "quadrato"
+
+(cosa? q2 q4 q1 q3)
+;-> (100 200 100 100 200 100)
+;-> (2 4)
+;-> "quadrato"
+
+(setq q1 '(-2 3))
+(setq q2 '(6 1))
+(setq q3 '(3 6))
+(setq q4 '(1 -2))
+
+(cosa? q1 q2 q3 q4)
+;-> (68 34 34 34 34 68)
+;-> (2 4)
+;-> "quadrato"
+
+Rettangolo:
+(setq r1 '(25 10))
+(setq r2 '(10 20))
+(setq r3 '(25 20))
+(setq r4 '(10 10))
+
+(cosa? r1 r2 r3 r4)
+;-> (325 100 225 225 100 325)
+;-> (2 2 2)
+;-> "rettangolo"
+
+(setq r1 '(5 7))
+(setq r2 '(7 5))
+(setq r3 '(2 4))
+(setq r4 '(4 2))
+
+(cosa? r1 r2 r3 r4)
+;-> (8 18 26 26 18 8)
+;-> (2 2 2)
+;-> "rettangolo"
+
+Rombo:
+(setq m1 '(2 8))
+(setq m2 '(10 -4))
+(setq m3 '(15 8))
+(setq m4 '(-3 -4))
+
+(cosa? m1 m2 m3 m4)
+;-> (208 169 169 169 169 468)
+;-> (1 1 4)
+;-> "rombo"
+
+Quadrilatero regolare:
+(setq q1 '(1 8))
+(setq q2 '(10 4))
+(setq q3 '(2 4))
+(setq q4 '(9 8))
+
+(cosa? q1 q2 q3 q4)
+;-> (97 17 64 64 17 65)
+;-> (1 1 2 2)
+;-> "quadrilatero regolare"
+
+(setq q1 '(5 12))
+(setq q2 '(8 7))
+(setq q3 '(5 2))
+(setq q4 '(3 7))
+
+(cosa? q1 q2 q3 q4)
+;-> (34 100 29 34 25 29)
+;-> (1 1 2 2)
+;-> "quadrilatero regolare"
+
+Quadrilatero:
+(setq u1 '(5 10))
+(setq u2 '(8 7))
+(setq u3 '(5 2))
+(setq u4 '(3 7))
+
+(cosa? u1 u2 u3 u4)
+;-> (18 64 13 34 25 29)
+;-> (1 1 1 1 1 1)
+;-> "quadrilatero"
+
+Quadrilatero regolare:
+(setq w1 '(1 10))
+(setq w2 '(4 2))
+(setq w3 '(6 2))
+(setq w4 '(9 10))
+
+(cosa? w1 w2 w3 w4)
+;-> (73 89 64 4 89 73)
+;-> (1 1 2 2)
+;-> "quadrilatero regolare"
+
+Parallelogramma:
+(setq p1 '(1 2))
+(setq p2 '(10 2))
+(setq p3 '(12 4))
+(setq p4 '(3 4))
+
+(cosa? p1 p2 p3 p4)
+;-> (81 125 8 8 53 81)
+;-> (1 1 2 2)
+;-> "quadrilatero regolare"
+
+Se vogliamo verificare soltanto se le coordinate dei quattro punti formano un quadrato possiamo usare un metodo diverso.
+
+Un quadrato ha le seguenti proprietà:
+a) Tutti i quattro lati sono uguali.
+b) L'angolo tra due lati qualsiasi è di 90 gradi. (condizione richiesta in quanto anche un quadrilatero ha gli stessi lati).
+c) Entrambe le diagonali hanno la stessa lunghezza
+
+(define (square? p1 p2 p3 p4)
+  (local (d2 d3 d4)
+    (setq d2 (dist2d-2 p1 p2))
+    (setq d3 (dist2d-2 p1 p3))
+    (setq d4 (dist2d-2 p1 p4))
+    (cond ((or (zero? d2) (zero? d3) (zero? d4))
+            nil)
+     ; Se le lunghezze se (p1, p2) e (p1, p3) sono uguali, allora
+     ; devono essere soddisfatte le seguenti condizioni per formare un quadrato.
+     ; 1) Il quadrato di lunghezza di (p1, p4) è uguale a due volte
+     ;    il quadrato di (p1, p2)
+     ; 2) Il quadrato di lunghezza di (p2, p3) è lo stesso
+     ;    al doppio del quadrato di (p2, p4)
+          ((and (= d2 d3) (= (mul 2 d2) d4)
+                (= (mul 2 (dist2d-2 p2 p4)) (dist2d-2 p2 p3)))
+          true)
+     ; condizione analoga
+          ((and (= d3 d4) (= (mul 2 d3) d2)
+                (= (mul 2 (dist2d-2 p3 p2)) (dist2d-2 p3 p4)))
+          true)
+     ; condizione analoga
+          ((and (= d2 d4) (= (mul 2 d2) d3)
+                (= (mul 2 (dist2d-2 p2 p3)) (dist2d-2 p2 p4)))
+          true)
+     ; altrimenti restituisce nil
+          (true nil))))
+
+(setq p1 '(20 10))
+(setq p2 '(10 20))
+(setq p3 '(20 20))
+(setq p4 '(10 10))
+
+(square? p1 p2 p3 p4)
+;-> true
+
+(setq p5 '(12 12))
+(square? p1 p2 p3 p5)
+;-> nil
 
 
 --------------

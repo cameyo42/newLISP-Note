@@ -330,7 +330,7 @@ ROSETTA CODE
 
 PROJECT EULERO
 ==============
-  Problemi 1..102, 104, 108, 110, 112, 113, 119, 120, 123, 124, 125,
+  Problemi 1..102, 104, 105, 108, 110, 112, 113, 119..125,
            135, 173, 188, 191, 206
 
 PROBLEMI VARI
@@ -1161,7 +1161,7 @@ NOTE LIBERE 8
   Somme dei sottoinsiemi di una lista
   Somma dei sottoinsiemi (Subset Sum Problem)
   Numeri pratici
-  Creare file di testo in Windows e Unix
+  Creare file di testo Windows e Unix
   Radicale di un numero
   Fattoriale e funzione Y
   Funzione explode
@@ -1170,6 +1170,8 @@ NOTE LIBERE 8
   Numeri potenti
   Combinazioni di punteggi per comporre un dato numero
   Pangram (pangramma)
+  Problema K Centers
+  Quadrato, rettangolo, rombo o quadrilatero?
   Enigma machine
 
 APPENDICI
