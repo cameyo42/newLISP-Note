@@ -4432,25 +4432,120 @@ f) La distanza tra loro è al massimo 2*D (per la disuguaglianza triangolare), c
 ;-> (7 (0 1)) ; soluzione non ottimale
 
 
+-----------------------------------------------
+Verificare se due segmenti/rette sono paralleli
+-----------------------------------------------
+Dati due segmenti AB e CD aventi A = (x1 y1), B = (x2 y2), C = (x3 y3) e D = (x4 y4), verificare se sono paralleli (cioè le linee a cui appartengono questi segmenti sono parallele).
+Due rette si dicono parallele hanno pendenze uguali (m1 = m2).
+
+(define (parallel? p1 p2 p3 p4)
+  (let ((x1 (first p1)) (y1 (last p1))
+        (x2 (first p2)) (y2 (last p2))
+        (x3 (first p3)) (y3 (last p3))
+        (x4 (first p4)) (y4 (last p4))
+        (m1 0) (m2 0))
+              ; Entrambe le linee hanno pendenza infinita
+        (cond ((and (zero? (sub x2 x1)) (zero? (sub x4 x3)))
+                true)
+              ; le pendenze sono finite
+              (true
+                (setq m1 (div (sub y2 y1) (sub x2 x1)))
+                (setq m2 (div (sub y4 y3) (sub x4 x3)))
+                ; test parallelismo: m1 = m2
+                (if (= m1 m2)
+                    true
+                    nil)))))
+
+(parallel? '(2 2) '(4 2) '(-5 3) '(1 3))
+;-> true
+
+(parallel? '(0 0) '(0 4) '(0 6) '(0 -5))
+;-> true
+
+(parallel? '(1 1) '(0 4) '(1 2) '(3 3))
+;-> nil
+
+
+------------------------------------------------
+Verificare se due segmenti/rette sono ortogonali
+------------------------------------------------
+
+Dati due segmenti AB e CD aventi A = (x1 y1), B = (x2 y2), C = (x3 y3) e D = (x4 y4), verificare se sono ortogonali (cioè le linee a cui appartengono questi segmenti sono ortogonali).
+Due rette si dicono ortogonali se sono perpendicolari nel punto di intersezione.
+
+Calcoliamo le pendenze delle due rette: m1 e m2.
+Poi verifichiamo i seguenti casi:
+
+m1 = ∞ and m2 = ∞                            --> rette non parallele
+(m1 = ∞ and m2 = 0) or (m1 = 0 and m2 = ∞)   --> rette parallele
+m1 = x and m2 = y and x*y = -1               --> rette parallele
+
+(define (ortho? p1 p2 p3 p4)
+  (let ((x1 (first p1)) (y1 (last p1))
+        (x2 (first p2)) (y2 (last p2))
+        (x3 (first p3)) (y3 (last p3))
+        (x4 (first p4)) (y4 (last p4))
+        (m1 0) (m2 0))
+              ; Entrambe le linee hanno pendenza infinita
+        (cond ((and (zero? (sub x2 x1)) (zero? (sub x4 x3)))
+                nil)
+              ; solo la linea 1 ha pendenza infinita
+              ((zero? (sub x2 x1))
+                (setq m2 (div (sub y4 y3) (sub x4 x3)))
+                (if (zero? m2)
+                    true
+                    nil))
+              ; solo la linea 2 ha pendenza infinita
+              ((zero? (sub x4 x3))
+                (setq m1 (div (sub y2 y1) (sub x2 x1)))
+                (if (zero? m1)
+                    true
+                    nil))
+              ; le pendenze sono finite
+              (true
+                (setq m1 (div (sub y2 y1) (sub x2 x1)))
+                (setq m2 (div (sub y4 y3) (sub x4 x3)))
+                ; Test ortogonalità: m1*m2 = -1
+                (if (= (mul m1 m2) -1)
+                    true
+                    nil))
+        )))
+
+
+(ortho? '(0 3) '(0 -5) '(2 0) '(-1 0))
+;-> true
+(ortho? '(0 3) '(0 -5) '(-1 0) '(2 0))
+;-> true
+(ortho? '(0 -5) '(-1 0) '(2 0) '(0 3))
+;-> nil
+(ortho?  '(0 4) '(0 -9) '(2 0) '(-1 0))
+;-> true
+
+
 -------------------------------------------
 Quadrato, rettangolo, rombo o quadrilatero?
 -------------------------------------------
 
-Date le coordinate di quattro punti in un piano cartesiano 2D, determinare se i quattro punti formano un quadrato, un rombo, un rettangolo o un quadrilatero.
+Date le coordinate di quattro punti in un piano cartesiano 2D, determinare se formano un quadrato, un rombo, un rettangolo o un quadrilatero. Le coordinate dei punti sono ordinate in senso orario o antiorario.
 
-Per distinguere le figure calcoliamo tutte le distante tra tutti i punti e verifichiamo le seguenti condizioni:
+Esistono diversi metodi per risolvere questo problema, in questo caso utilizziamo le distanze e il controllo di ortogonalità.
+
+Per distinguere le figure calcoliamo tutte le distanze tra tutti i punti e verifichiamo le seguenti condizioni:
 
 - Quadrato
   2 diagonali uguali e 4 lati uguali (2 4)
+  e verifica se due lati sono ortogonali
 
 - Rettangolo
   2 lati minori uguali, 2 lati maggiori uguali e 2 diagonali uguali (2 2 2)
+  e verifica se due lati sono ortogonali
 
 - Rombo
   1 diagonale minore, 1 diagonale maggiore e 4 lati uguali (1 1 4)
+  e verifica se le diagonali sono ortogonali
 
-- Quadrilatero regolare (almeno due lati paralleli)
-  1 diagonale minore, 1 diagonale maggiore, 2 lati minori uguali e 2 lati maggiori uguali (1 1 2 2)
+- Quadrilatero
+  tutti gli altri casi
 
 (define (dist2d-2 p q)
 "Calculates the square of 2D Cartesian distance of two points p = (x1 y1) and q = (x2 y2)"
@@ -4479,125 +4574,79 @@ Per distinguere le figure calcoliamo tutte le distante tra tutti i punti e verif
     (setq timbro (sort (count uniq dist)))
     (println dist)
     (println timbro)
-    (cond ((= timbro '(2 4))     (setq out "quadrato"))
-          ((= timbro '(1 1 4))   (setq out "rombo"))
-          ((= timbro '(2 2 2))   (setq out "rettangolo"))
-          ((= timbro '(1 1 2 2)) (setq out "quadrilatero regolare"))
+    (cond ((and (= timbro '(2 4)) (ortho? p1 p2 p2 p3))
+            (setq out "quadrato"))
+          ((and (= timbro '(1 1 4)) (ortho? p1 p3 p4 p2))
+            (setq out "rombo"))
+          ((and (= timbro '(2 2 2)) (ortho? p1 p2 p2 p3))
+            (setq out "rettangolo"))
           (true (setq out "quadrilatero"))
     )
     out))
 
 Quadrato:
-(setq q1 '(20 10))
+(setq q1 '(10 10))
 (setq q2 '(10 20))
 (setq q3 '(20 20))
-(setq q4 '(10 10))
+(setq q4 '(20 10))
 
 (cosa? q1 q2 q3 q4)
-;-> (200 100 100 100 100 200)
-;-> (2 4)
-;-> "quadrato"
-
-(cosa? q2 q4 q1 q3)
 ;-> (100 200 100 100 200 100)
 ;-> (2 4)
 ;-> "quadrato"
 
 (setq q1 '(-2 3))
-(setq q2 '(6 1))
-(setq q3 '(3 6))
+(setq q2 '(3 6))
+(setq q3 '(6 1))
 (setq q4 '(1 -2))
 
 (cosa? q1 q2 q3 q4)
-;-> (68 34 34 34 34 68)
+;-> (34 68 34 34 68 34)
 ;-> (2 4)
 ;-> "quadrato"
 
 Rettangolo:
-(setq r1 '(25 10))
-(setq r2 '(10 20))
-(setq r3 '(25 20))
+(setq r1 '(10 20))
+(setq r2 '(25 20))
+(setq r3 '(25 10))
 (setq r4 '(10 10))
 
 (cosa? r1 r2 r3 r4)
-;-> (325 100 225 225 100 325)
+;-> (225 325 100 100 325 225)
 ;-> (2 2 2)
 ;-> "rettangolo"
 
-(setq r1 '(5 7))
-(setq r2 '(7 5))
-(setq r3 '(2 4))
-(setq r4 '(4 2))
+(setq r1 '(2 4))
+(setq r2 '(4 2))
+(setq r3 '(7 5))
+(setq r4 '(5 7))
 
 (cosa? r1 r2 r3 r4)
-;-> (8 18 26 26 18 8)
+;-> (8 26 18 18 26 8)
 ;-> (2 2 2)
 ;-> "rettangolo"
 
 Rombo:
-(setq m1 '(2 8))
+(setq m1 '(-3 -4))
 (setq m2 '(10 -4))
 (setq m3 '(15 8))
-(setq m4 '(-3 -4))
+(setq m4 '(2 8))
 
 (cosa? m1 m2 m3 m4)
-;-> (208 169 169 169 169 468)
+;-> (169 468 169 169 208 169)
 ;-> (1 1 4)
 ;-> "rombo"
 
-Quadrilatero regolare:
-(setq q1 '(1 8))
-(setq q2 '(10 4))
-(setq q3 '(2 4))
-(setq q4 '(9 8))
-
-(cosa? q1 q2 q3 q4)
-;-> (97 17 64 64 17 65)
-;-> (1 1 2 2)
-;-> "quadrilatero regolare"
-
-(setq q1 '(5 12))
-(setq q2 '(8 7))
-(setq q3 '(5 2))
-(setq q4 '(3 7))
-
-(cosa? q1 q2 q3 q4)
-;-> (34 100 29 34 25 29)
-;-> (1 1 2 2)
-;-> "quadrilatero regolare"
-
 Quadrilatero:
-(setq u1 '(5 10))
-(setq u2 '(8 7))
-(setq u3 '(5 2))
-(setq u4 '(3 7))
+(setq q1 '(2 4))
+(setq q2 '(10 4))
+(setq q3 '(9 8))
+(setq q4 '(1 8))
 
-(cosa? u1 u2 u3 u4)
-;-> (18 64 13 34 25 29)
-;-> (1 1 1 1 1 1)
+(cosa? q1 q2 q3 q4)
+;-> (64 65 17 17 97 64)
+;-> (1 1 2 2)
 ;-> "quadrilatero"
-
-Quadrilatero regolare:
-(setq w1 '(1 10))
-(setq w2 '(4 2))
-(setq w3 '(6 2))
-(setq w4 '(9 10))
-
-(cosa? w1 w2 w3 w4)
-;-> (73 89 64 4 89 73)
-;-> (1 1 2 2)
-;-> "quadrilatero regolare"
-
-Parallelogramma:
-(setq p1 '(1 2))
-(setq p2 '(10 2))
-(setq p3 '(12 4))
-(setq p4 '(3 4))
-
-(cosa? p1 p2 p3 p4)
-;-> (81 125 8 8 53 81)
-;-> (1 1 2 2)
-;-> "quadrilatero regolare"
 
 Se vogliamo verificare soltanto se le coordinate dei quattro punti formano un quadrato possiamo usare un metodo diverso.
 
@@ -4872,6 +4921,140 @@ https://github.com/TheAlgorithms/Python/blob/master/ciphers/enigma_machine2.py
         (list rotor2 rotor4 rotor8)
         "pictures")
 ;-> "THIS IS MY NEWLISP SCRIPT THAT EMULATES THE ENIGMA MACHINE FROM WWII."
+
+
+-------------
+Radice cubica
+-------------
+
+Radice cubica perfetta (intera)
+-------------------------------
+Per trovare la radice cubica di un cubo perfetto, possiamo semplicemente applicare la ricerca binaria sullo spazio di [1, num] e restituire x quando dove x^3 è uguale a num.
+La seguente funzione calcola la radice cubica intera di un dato numero:
+
+(define (cuberoot num)
+  (local (a b m)
+    (setq a 1)
+    (setq b num)
+    (setq m (/ (+ a b) 2))
+    (while (and (!= m a) (!= (* m m m) num))
+      (if (> (* m m m) num)
+          (setq b m)
+      ;else
+          (setq a m)
+      )
+      (setq m (/ (+ a b) 2))
+    )
+    m))
+
+(cuberoot 9)
+;-> 2
+(cuberoot 150)
+;-> 5
+(cuberoot 1235)
+;-> 10
+
+La condizione (m != a) nel ciclo while, permette di restituire un valore più piccolo nel caso in cui il ciclo non trovi una radice cubica perfetta. E senza questa condizione, il ciclo verrà eseguito all'infinito.
+
+Radice cubica (decimale)
+------------------------
+Per trovare il valore reale di una radice cubica (cioè un numero floating point), possiamo prima cercare un risultato più piccolo usando la funzione "cuberoot" e, se restituisce una radice cubica perfetta, restituirla altrimenti procedere alla ricerca della soluzione con un numero di decimali predefinito.
+Dopo aver trovato una radice cubica perfetta o un valore più piccolo più vicino, cercheremo tra .0 e .9 una corrispondenza perfetta o un valore più vicino, quindi avvieremo un'altra ricerca tra .00 e .09 e cosi via. Mentre avviene la ricerca negli intervalli dovremo continuare ad aggiungere i valori trovati al risultato (aumentando così la sua precisione).
+
+(define (f a b) (mul a (pow 10 (- b))))
+(define (cube) (pow (add res (f mid i)) 3))
+
+(define (cube-root num prec)
+(catch
+  (local (res start end mid c)
+    (setq res (cuberoot num))
+    (if (= num (mul res res res))
+        (throw res)
+    )
+    (for (i 1 prec)
+      (setq start 0)
+      (setq end 9)
+      (setq mid (/ (+ start end) 2))
+      (while (!= start mid)
+        (setq c (cube))
+        (cond ((> c num)
+                (setq end mid))
+              ((< c num)
+                (setq start mid))
+              ((= c num)
+                (throw (add res (f mid i))))
+        )
+        (setq mid (/ (+ start end) 2))
+      )
+      (setq res (add res (f mid i)))
+    )
+    res)))
+
+(cube-root 55 5)
+;-> 3.80288
+(cube-root 128 4)
+;-> 5.0388
+(cube-root 1234.31 3)
+;-> 10.726
+(cube-root 16.003008 5)
+;-> 2.52
+
+Nota: questo algoritmo ha il grave difetto che aumentando la precisione oltre un certo valore si generano errori di arrotondamento.
+
+(pow 1234.31 (div 3))
+;-> 10.72691277421636
+
+(cube-root 1234.31 10)
+;-> 10.7268888888
+
+
+--------------
+Radice n-esima
+--------------
+
+Radice n-esima perfetta (intera)
+--------------------------------
+Per trovare la radice n-esima perfetta, possiamo semplicemente applicare la ricerca binaria sullo spazio di [1, num] e restituire x quando dove x^n è uguale a num.
+La seguente funzione calcola la radice n-esima intera di un dato numero:
+
+(define (nthroot num n)
+  (local (a b m)
+    (setq a 1)
+    (setq b num)
+    (setq m (/ (+ a b) 2))
+    (while (and (!= m a) (!= (pow m n) num))
+      (if (> (pow m n) num)
+          (setq b m)
+      ;else
+          (setq a m)
+      )
+      (setq m (/ (+ a b) 2))
+    )
+    m))
+
+(nthroot 8 3)
+;-> 2
+(nthroot 1235 3)
+;-> 10
+(nthroot 1024 5)
+;-> 4
+
+Radice n-esima (decimale)
+-------------------------
+La seguente funzione utilizza il metodo di newton per calcolare la radice-n-esima di un dato numero:
+
+(define (nth-root n a)
+  (let ((x1 a)
+	(x2 (div a n)))
+  (until (= x1 x2)
+    (setq x1 x2
+	        x2 (div (add (mul x1 (- n 1)) (div a (pow x1 (- n 1))))
+		              n))
+  )
+  x2))
+
+(nth-root 3 1234.31)
+;-> 10.72691277421636
 
 =============================================================================
 

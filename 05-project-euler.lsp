@@ -109,6 +109,7 @@
 |   100    |  756872327473      |         -  |         0  |         -  |
 |   101    |  37076114526       |         -  |        70  |         -  |
 |   102    |  228               |         -  |         2  |         1  |
+|   103    |  20313839404245    |         -  |         0  |         -  |
 |   104    |  329468            |         -  |     37978  |         -  |
 |   105    |  73702             |         -  |       864  |         -  |
 |   108    |  180180            |         -  |      7521  |       331  |
@@ -11951,6 +11952,57 @@ Un altro algoritmo semplice e veloce, chiamato metodo baricentrico, consiste nel
 
 
 ============
+Problema 103
+============
+
+Somme speciali di sottoinsiemi: test
+
+Sia S(A) la somma degli elementi dell'insieme A di dimensione n. Lo chiameremo insieme speciale di somma se per due sottoinsiemi disgiunti non vuoti, B e C, sono vere le seguenti proprietà:
+
+  1. S(B) ≠ S(C), cioè, le somme dei sottoinsiemi non possono essere uguali.
+  2. Se B contiene più elementi di C allora S(B) > S(C).
+
+Se S(A) è minimizzato per un dato n, lo chiameremo un insieme di somma speciale ottimale. Di seguito sono riportati i primi cinque insiemi di somme speciali ottimali:
+
+n = 1: {1}
+n = 2: {1, 2}
+n = 3: {2, 3, 4}
+n = 4: {3, 5, 6, 7}
+n = 5: {6, 9, 11, 12, 13}
+
+Sembra che per un dato insieme ottimo, A = {a1, a2, ... , an}, il successivo insieme ottimo sia della forma B = {b, a1+b, a2+b, ... ,an+ b}, dove b è l'elemento "medio" nella riga precedente.
+
+Applicando questa "regola" ci aspetteremmo che l'insieme ottimo per n = 6 sia A = {11, 17, 20, 22, 23, 24}, con S(A) = 117. Tuttavia, questo non è l'insieme ottimale, poiché abbiamo semplicemente applicato un algoritmo per fornire un insieme quasi ottimale. L'insieme ottimale per n = 6 è A = {11, 18, 19, 20, 22, 25}, con S(A) = 115 e la stringa dell'insieme corrispondente: 111819202225.
+
+Dato che A è un insieme di somma speciale ottimale per n = 7, trova la sua stringa.
+
+NOTA: questo problema è correlato al problema 103 e al problema 106.
+============================================================================
+
+Appplichiamo la regola di costruzione all'insieme ottimale per n = 6:
+
+n = 6 ==> (11 18 19 20 22 25)
+
+n = 7 ==> (20 11+20 18+20 19+20 22+20 25+20) = (20 31 38 39 40 42 45)
+
+Che risulta essere l'insieme ottimale per n = 7:
+
+(define (e105)
+  (local (s6 idx b)
+    (setq s6 '(11 18 19 20 22 25))
+    (setq idx (/ (length s6) 2))
+    (setq b (s6 idx))
+    (join (map string (push b (map (curry + b) s6))))))
+
+(e105)
+;-> "20313839404245"
+
+(time (e105))
+;-> 0
+----------------------------------------------------------------------------
+
+
+============
 Problema 104
 ============
 
@@ -12812,7 +12864,7 @@ Problema 122
 
 Esponenziazione efficiente
 
-Il modo più ingenuo di calcolare n15 richiede quattordici moltiplicazioni:
+Il modo più ingenuo di calcolare n^15 richiede quattordici moltiplicazioni:
 
 n × n × ... × n = n^15
 

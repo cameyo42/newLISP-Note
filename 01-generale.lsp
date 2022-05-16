@@ -5459,9 +5459,9 @@ I contesti possono essere creati usando la funzione di contesto o tramite la cre
 
 Se il contesto non esiste ancora, il simbolo di contesto deve essere citato. Se il simbolo non è quotato, newLISP assume che il simbolo sia una variabile che contiene il simbolo del contesto da creare. Poiché un contesto valuta se stesso, i contesti già esistenti come MAIN non richiedono la citazione.
 
-Quando newLISP legge il codice sopra, leggerà, quindi valuterà la prima affermazione: (context 'FOO). Ciò fa sì che newLISP cambi lo spazio dei nomi in FOO ei seguenti simboli var, x, y e z verranno tutti creati nel contesto FOO durante la lettura e la valutazione delle espressioni rimanenti.
+Quando newLISP legge il codice sopra, leggerà, quindi valuterà la prima espressione: (context 'FOO). Ciò fa sì che newLISP cambi lo spazio dei nomi in FOO e i seguenti simboli var, x, y e z verranno tutti creati nel contesto FOO durante la lettura e la valutazione delle espressioni rimanenti.
 
-Un simbolo di contesto è protetto dal cambiamento. Una volta che un simbolo fa riferimento a un contesto, non può essere utilizzato per nessun altro scopo, tranne quando si utilizza l'eliminazione.
+Un simbolo di contesto è protetto dal cambiamento. Una volta che un simbolo fa riferimento a un contesto, non può essere utilizzato per nessun altro scopo, tranne quando si utilizza l'eliminazione (delete).
 
 Per fare riferimento a var o func da qualsiasi altra parte al di fuori dello spazio dei nomi FOO, devono essere preceduti dal nome del contesto:
 
@@ -5481,6 +5481,10 @@ La funzione simboli è usata per mostrare tutti i simboli appartenenti ad un con
 (contesto FOO)
 ;-> (func x y z)
 (symbols)
+
+Per cancellare tutti i simboli di un contesto (es. FOO) possiamo usare la seguente espressione:
+
+(map delete (symbols 'FOO)))
 
 
 ================

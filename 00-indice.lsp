@@ -330,7 +330,7 @@ ROSETTA CODE
 
 PROJECT EULERO
 ==============
-  Problemi 1..102, 104, 105, 108, 110, 112, 113, 119..125,
+  Problemi 1..105, 108, 110, 112, 113, 119..125,
            135, 173, 188, 191, 206
 
 PROBLEMI VARI
@@ -1171,8 +1171,12 @@ NOTE LIBERE 8
   Combinazioni di punteggi per comporre un dato numero
   Pangram (pangramma)
   Problema K Centers
+  Verificare se due segmenti/rette sono paralleli
+  Verificare se due segmenti/rette sono ortogonali
   Quadrato, rettangolo, rombo o quadrilatero?
   Enigma machine
+  Radice cubica
+  Radice n-esima
 
 APPENDICI
 =========
