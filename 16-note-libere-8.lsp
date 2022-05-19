@@ -1726,7 +1726,7 @@ Nella teoria dei numeri, un numero Proth è un numero della forma:
 
 dove k è un intero positivo dispari e n è un intero positivo tale che 2^n > k. Prendono il nome dal matematico francese Francois Proth.
 
-Per esempio: 
+Per esempio:
 
 P0 = 2^1 + 1 = 3
 P1 = 2^2 + 1 = 5
@@ -1777,13 +1777,13 @@ Proviamo la funzione:
 ;-> (3 5 9 13 17 25 33 41 49 57 65)
 
 (proth 100)
-;-> (3 5 9 13 17 25 33 41 49 57 65 81 97 113 129 145 161 177 193 
-;->  209 225 241 257 289 321 353 385 417 449 481 513 545 577 609 
+;-> (3 5 9 13 17 25 33 41 49 57 65 81 97 113 129 145 161 177 193
+;->  209 225 241 257 289 321 353 385 417 449 481 513 545 577 609
 ;->  641 673 705 737 769 801 833 865 897 929 961 993 1025)
 
 I numeri di Proth che sono anche numeri primi iniziano con la sequente sequenza (OEIS A080076):
 
-  3, 5, 13, 17, 41, 97, 113, 193, 241, 257, 353, 449, 577, 641, 673, 
+  3, 5, 13, 17, 41, 97, 113, 193, 241, 257, 353, 449, 577, 641, 673,
   769, 929, 1153, 1217, 1409, 1601, 2113, 2689, 2753, 3137, 3329, 3457,
   4481, 4993, 6529, 7297, 7681, 7937, 9473, 9601, 9857, ...
 
@@ -1794,7 +1794,7 @@ Adesso vediamo una funzione che verifica se un determinato numero è un numero d
 Funzione che verifica se un determinato numero è una potenza di 2:
 
 (define (power-of-two? n)
-  (if (<= n 0) 
+  (if (<= n 0)
       nil
       (if (zero? (& n (- n 1))) true nil)))
 
@@ -1879,9 +1879,9 @@ Applichiamo la funzione "sigmoid" ad una lista di numeri:
   4.942625202185125))
 
 (map sigmoid num)
-;-> (0.9865431294370095 0.9721453955887022 0.9287519863607289 
-;->  0.820534705596925 0.5187219781074153 0.6123057366241003 
-;->  0.8608371122526624 0.6762440906843146 0.6962477351861746 
+;-> (0.9865431294370095 0.9721453955887022 0.9287519863607289
+;->  0.820534705596925 0.5187219781074153 0.6123057366241003
+;->  0.8608371122526624 0.6762440906843146 0.6962477351861746
 ;->  0.9929147187018224)
 
 
@@ -1920,7 +1920,7 @@ Per schedulare i processi in modo equo, uno scheduler round-robin generalmente i
 
 Proviamo la funzione:
 
-(round-robin '(10 5 8) 2) 
+(round-robin '(10 5 8) 2)
 ;-> (13 10 13)
 
 (round-robin '(4 6 3 1) 2)
@@ -2088,7 +2088,7 @@ Vediamo i due casi:
 1) domanda rivolta al prigioniero "Onesto":
 L'altro prigioniero indicherebbe la porta della libertà (perchè dice il falso), quindi l'Onesto risponderebbe: "l'altro prigioniero ti indicherebbe la porta" della libertà.
 2) domanda rivolta al prigioniero "Bugiardo":
-L'altro prigioniero indicherebbe la porta della condanna (perchè dice il vero), quindi il Bugirado risponderebbe: "l'altro prigioniero ti indicherebbe la porta" della libertà. 
+L'altro prigioniero indicherebbe la porta della condanna (perchè dice il vero), quindi il Bugirado risponderebbe: "l'altro prigioniero ti indicherebbe la porta" della libertà.
 Quindi con questa domanda entrambi i prigionieri indicherebbero la porta della libertà, quindi basta scegliere l'altra porta per essere liberi.
 
 
@@ -2102,7 +2102,7 @@ per n >= 2, a(n) = il primo che viene finalmente raggiunto quando inizi con n, c
 
 Sequenza OEIS A037274:
 
-  2, 3, 211, 5, 23, 7, 3331113965338635107, 311, 773, 11, 223, 13, 
+  2, 3, 211, 5, 23, 7, 3331113965338635107, 311, 773, 11, 223, 13,
   13367, 1129, 31636373, 17, 233, 19, 3318308475676071413, 37, 211,
   23, 331319, 773, 3251, 13367, 227, 29, 547, 31, 241271, 311, 31397,
   1129, 71129, 37, 373, 313, 3314192745739, 41, 379, 43, 22815088913,
@@ -2152,13 +2152,13 @@ Proviamo la funzione:
 ;->  13 13367 1129 31636373 17 233 19 3318308475676071413)
 
 (time (println (home-prime 47)))
-;-> (2 3 211 5 23 7 3331113965338635107 311 773 11 223 13 13367 1129 
+;-> (2 3 211 5 23 7 3331113965338635107 311 773 11 223 13 13367 1129
 ;->  31636373 17 233 19 3318308475676071413 37 211 23 331319 773 3251
-;->  13367 227 29 547 31 241271 311 31397 1129 71129 37 373 313 
+;->  13367 227 29 547 31 241271 311 31397 1129 71129 37 373 313
 ;->  3314192745739 41 379 43 22815088913 3411949 223 47)
 ;-> 11757.11
 
-Non abbiamo utilizzano i big-integer perchè fino al numero 47 non superiamo il valore massimo degli interi lunghi (9223372036854775807), ma per il numero 48 si ha il numero 6161791591356884791277 (che supera il valore massimo degli interi lunghi), e per il numero 49 si ha un numero ancora più lungo (che con conosco). 
+Non abbiamo utilizzano i big-integer perchè fino al numero 47 non superiamo il valore massimo degli interi lunghi (9223372036854775807), ma per il numero 48 si ha il numero 6161791591356884791277 (che supera il valore massimo degli interi lunghi), e per il numero 49 si ha un numero ancora più lungo (che con conosco).
 
 Scriviamo una funzione che "traccia" le trasformazioni di un numero:
 
@@ -2174,13 +2174,13 @@ Vediamo le trasformazioni di alcuni numeri:
 ;-> (3 3)
 
 (hp-trace 8)
-;-> (8 222 2337 31941 33371313 311123771 7149317941 
-;->  22931219729 112084656339 3347911118189 11613496501723 
+;-> (8 222 2337 31941 33371313 311123771 7149317941
+;->  22931219729 112084656339 3347911118189 11613496501723
 ;->  97130517917327 531832651281459 3331113965338635107)
 
 (hp-trace 20)
-;-> (20 225 3355 51161 114651 3312739 17194867 194122073 709273797 
-;->  39713717791 113610337981 733914786213 3333723311815403 
+;-> (20 225 3355 51161 114651 3312739 17194867 194122073 709273797
+;->  39713717791 113610337981 733914786213 3333723311815403
 ;->  131723655857429041 772688237874641409 3318308475676071413)
 
 
@@ -2227,7 +2227,7 @@ Sequenza OEIS A000567
 ;-> (1 8 21 40 65 96 133 176 225 280)
 
 Nonagonali:  F9(n) = (7*n^2 - 5*n)/2
-Sequenza OEIS A001106 
+Sequenza OEIS A001106
 (define (F9 n) (/ (- (* 7 n n) (* 5 n)) 2))
 (map F9 (sequence 1 10))
 ;-> (1 9 24 46 75 111 154 204 261 325)
@@ -2372,7 +2372,7 @@ Modificando la versione iterativa possiamo ottenere tutta la sequenza di lunghez
 Fattorione
 ----------
 
-Un numero fattorione è un numero che è uguale alla somma dei fattoriali di ogni sua cifra, cioè un numero è un fattorione se risulta: 
+Un numero fattorione è un numero che è uguale alla somma dei fattoriali di ogni sua cifra, cioè un numero è un fattorione se risulta:
 
   numero = d1! + d2! + d3! + ... + dn!
   dove d1..dn sono le cifre del numero
@@ -2416,7 +2416,7 @@ Continuo allo stesso modo:
 (sum-digit-fact 1454)
 ;-> 169 ; uguale al numero di partenza -> abbiamo trovato un ciclo.
 
-Il numero finale 169 è uguale al numero iniziale, quindi abbiamo trovato un ciclo reale: 
+Il numero finale 169 è uguale al numero iniziale, quindi abbiamo trovato un ciclo reale:
 
   (169 363601 1454 169)
 
@@ -2466,7 +2466,7 @@ Contiamo quante sono le catene di ogni tipo (Reale e Loop):
 Vediamo quali sono le catene reali:
 
 (filter (fn(x) (= "R" (first x))) c)
-;-> (("R" 1 1) ("R" 2 2) ("R" 145 145) ("R" 169 363601 1454 169) 
+;-> (("R" 1 1) ("R" 2 2) ("R" 145 145) ("R" 169 363601 1454 169)
 ;-> ("R" 871 45361 871) ("R" 872 45362 872) ("R" 1454 169 363601 1454)
 ;-> ("R" 40585 40585) ("R" 45361 871 45361) ("R" 45362 872 45362)
 ;-> ("R" 363601 1454 169 363601))
@@ -2482,28 +2482,28 @@ Ad esempio i numeri 1, 13 e 37 sono numeri star:
   1        13               37
   *         *                *
          * * * *            * *
-          * * *        * * * * * * * 
+          * * *        * * * * * * *
          * * * *        * * * * * *
             *            * * * * *
                         * * * * * *
-                       * * * * * * * 
+                       * * * * * * *
                             * *
                              *
 
 L'n-esimo numero stella è dato dalla formula:
 
-  S(n) = 6*n*(n − 1) + 1. 
+  S(n) = 6*n*(n − 1) + 1.
 
 Sequenza OEIS A003154:
-  1, 13, 37, 73, 121, 181, 253, 337, 433, 541, 661, 793, 937, 1093, 1261, 1441, 
-  1633, 1837, 2053, 2281, 2521, 2773, 3037, 3313, 3601, 3901, 4213, 4537, 4873, 
+  1, 13, 37, 73, 121, 181, 253, 337, 433, 541, 661, 793, 937, 1093, 1261, 1441,
+  1633, 1837, 2053, 2281, 2521, 2773, 3037, 3313, 3601, 3901, 4213, 4537, 4873,
   5221, 5581, 5953, 6337, 6733, 7141, 7561, 7993, 8437, 8893, 9361, ...
 
 (define (star n)
   (+ (* 6 n (- n 1)) 1))
 
 (map star (sequence 1 40))
-;-> (1 13 37 73 121 181 253 337 433 541 661 793 937 1093 1261 1441 
+;-> (1 13 37 73 121 181 253 337 433 541 661 793 937 1093 1261 1441
 ;->  1633 1837 2053 2281 2521 2773 3037 3313 3601 3901 4213 4537 4873
 ;->  5221 5581 5953 6337 6733 7141 7561 7993 8437 8893 9361)
 
@@ -2515,9 +2515,9 @@ Numeri emirp
 Un emirp (prime scritto al contrario) è un numero primo che risulta in un primo diverso quando le sue cifre decimali sono invertite. Questa definizione esclude i numeri primi palindromici.
 
 Sequenza OEIS: A006567
-  13, 17, 31, 37, 71, 73, 79, 97, 107, 113, 149, 157, 167, 179, 199, 
-  311, 337, 347, 359, 389, 701, 709, 733, 739, 743, 751, 761, 769, 
-  907, 937, 941, 953, 967, 971, 983, 991, 1009, 1021, 1031, 1033, 
+  13, 17, 31, 37, 71, 73, 79, 97, 107, 113, 149, 157, 167, 179, 199,
+  311, 337, 347, 359, 389, 701, 709, 733, 739, 743, 751, 761, 769,
+  907, 937, 941, 953, 967, 971, 983, 991, 1009, 1021, 1031, 1033,
   1061, 1069, 1091, 1097, 1103, 1109, 1151, 1153, 1181, 1193, 1201
 
 (define (prime? num)
@@ -2573,8 +2573,8 @@ Adesso dobbiamo eliminare i numeri primi palindromi:
 Vediamo i primi 40 numeri emirp:
 
 (slice d 0 40)
-;-> (13 17 31 37 71 73 79 97 107 113 149 157 167 179 199 
-;->  311 337 347 359 389 701 709 733 739 743 751 761 769 
+;-> (13 17 31 37 71 73 79 97 107 113 149 157 167 179 199
+;->  311 337 347 359 389 701 709 733 739 743 751 761 769
 ;->  907 937 941 953 967 971 983 991 1009 1021 1031 1033)
 
 
@@ -2758,8 +2758,8 @@ a) Valori numerici con significato inspiegabile o occorrenze multiple che potreb
 b) Un valore numerico o di testo costante utilizzato per identificare un formato di file o un protocollo (es. firme dei file)
 c) Valori univoci distintivi che è improbabile che vengano scambiati per altri significati (ad es. GUID, Globally Unique IDentifier)
 
-Il tipo a) è un numero o una stringa di testo a cui non è associato un significato esplicito, ma il cui valore è essenziale ai fini del funzionamento del codice. Questo è sconsigliato dalle best practice della programmazione (anti-pattern). 
-Questo anti-pattern è stato definito come la violazione di una delle più antiche regole di programmazione, che risale ai manuali COBOL, FORTRAN e PL/1 degli anni '60. L'uso di numeri magici senza nome nel codice oscura il significato del numero, aumenta le possibilità di errore e rende più difficile la manutenzione del programma. 
+Il tipo a) è un numero o una stringa di testo a cui non è associato un significato esplicito, ma il cui valore è essenziale ai fini del funzionamento del codice. Questo è sconsigliato dalle best practice della programmazione (anti-pattern).
+Questo anti-pattern è stato definito come la violazione di una delle più antiche regole di programmazione, che risale ai manuali COBOL, FORTRAN e PL/1 degli anni '60. L'uso di numeri magici senza nome nel codice oscura il significato del numero, aumenta le possibilità di errore e rende più difficile la manutenzione del programma.
 La sostituzione di tutti i numeri magici con costanti nominative semplifica la lettura, la comprensione e le modifiche dei programmi.
 
 In matematica, esistono due definizioni di numero magico
@@ -2767,21 +2767,21 @@ In matematica, esistono due definizioni di numero magico
 1) un numero magico è un numero la cui somma ripetuta delle cifre vale 1.
 Per esempio:
 
-  numero = 50113 
+  numero = 50113
   5 + 0 + 1 + 1 + 3 = 10  ->   1 + 0 = 1
 Quindi 50113 è un numero magico (tipo 2).
 
-  numero = 1234 
+  numero = 1234
   1 + 2 + 3 + 4 = 10   ->  1 + 0 = 1
 Quindi 50113 è un numero magico (tipo 2).
 
-2) un numero magico è un numero la cui somma delle cifre moltiplicata per l'inverso della stessa somma restituisce il numero originale. 
-Per esempio: 
+2) un numero magico è un numero la cui somma delle cifre moltiplicata per l'inverso della stessa somma restituisce il numero originale.
+Per esempio:
 
   Numero = 1729
   1 + 7 + 2 + 9 = 19
   (inverso 19) = 91
-  19 * 91 = 1729 
+  19 * 91 = 1729
 Quindi 1729 è un numero magico (tipo 1).
 
 
@@ -2891,7 +2891,7 @@ ecc.
 ;-> true
 
 (filter (fn(x) (polydivisible? x)) (sequence 90000 92000))
-;-> (90000 90005 90040 90045 90080 90085 90320 90325 90360 90365 
+;-> (90000 90005 90040 90045 90080 90085 90320 90325 90360 90365
 ;->  90600 90605 90640 90645 90680 90685 90920 90925 90960 90965)
 
 Possiamo anche scrivere una funzione che verifica se un numero è polidivisibile in una base positiva qualunqe. Dato un intero positivo N e K = (int log-b(n) 1) il numero di cifre di N in base b. Il numero N è un numero polidivisibile solo se, per 1 <= i <= k, risulta:
@@ -2960,9 +2960,9 @@ Ad esempio, il numero 4 non è intoccabile in quanto è uguale alla somma dei di
 Nota: la somma di tutti i divisori propri è anche nota come "aliquot sum".
 
 Sequenza OEIS A005114:
-  2, 5, 52, 88, 96, 120, 124, 146, 162, 188, 206, 210, 216, 238, 246, 
+  2, 5, 52, 88, 96, 120, 124, 146, 162, 188, 206, 210, 216, 238, 246,
   248, 262, 268, 276, 288, 290, 292, 304, 306, 322, 324, 326, 336, 342,
-  372, 406, 408, 426, 430, 448, 472, 474, 498, ... 
+  372, 406, 408, 426, 430, 448, 472, 474, 498, ...
 
 (define (factor-group num)
 "Factorize an integer number"
@@ -3008,7 +3008,7 @@ Funzione che verifica se un numero è intoccabile:
 
 (define (untouchable? num)
   (let (stop nil)
-    ; occorre sommare i divisori propri 
+    ; occorre sommare i divisori propri
     ; per ogni numero fino a (num^2 - 1)
     (for (i 2 (- (* num num) 1) 1 stop)
       (if (= (proper-divisors-sum i) num)
@@ -3025,19 +3025,19 @@ Questa funzione è lenta per trovare tutti i numeri intoccabili fino ad un dato 
 (time (setq un (filter (fn(x) (untouchable? x)) (sequence 1 500))))
 ;-> 18538.425
 un
-;-> (2 5 52 88 96 120 124 146 162 188 206 210 216 238 246 
-;->  248 262 268 276 288 290 292 304 306 322 324 326 336 342 
+;-> (2 5 52 88 96 120 124 146 162 188 206 210 216 238 246
+;->  248 262 268 276 288 290 292 304 306 322 324 326 336 342
 ;->  372 406 408 426 430 448 472 474 498)
 
 (time (setq un (filter (fn(x) (untouchable? x)) (sequence 1 1000))))
 ;-> 162800.669
 un
-;-> (2 5 52 88 96 120 124 146 162 188 206 210 216 238 246 
+;-> (2 5 52 88 96 120 124 146 162 188 206 210 216 238 246
 ;->  248 262 268 276 288 290 292 304 306 322 324 326 336 342
-;->  372 406 408 426 430 448 472 474 498 516 518 520 530 540 
-;->  552 556 562 576 584 612 624 626 628 658 668 670 708 714 
-;->  718 726 732 738 748 750 756 766 768 782 784 792 802 804 
-;->  818 836 848 852 872 892 894 896 898 902 926 934 936 964 
+;->  372 406 408 426 430 448 472 474 498 516 518 520 530 540
+;->  552 556 562 576 584 612 624 626 628 658 668 670 708 714
+;->  718 726 732 738 748 750 756 766 768 782 784 792 802 804
+;->  818 836 848 852 872 892 894 896 898 902 926 934 936 964
 ;->  966 976 982 996)
 
 Scriviamo in modo diverso la funzione che calcola i numeri intoccabili fino ad un dato numero:
@@ -3056,12 +3056,12 @@ Scriviamo in modo diverso la funzione che calcola i numeri intoccabili fino ad u
 ;-> (2 5 52 88 96)
 
 (untouchable-to 1000)
-;-> (2 5 52 88 96 120 124 146 162 188 206 210 216 238 246 
+;-> (2 5 52 88 96 120 124 146 162 188 206 210 216 238 246
 ;->  248 262 268 276 288 290 292 304 306 322 324 326 336 342
 ;->  372 406 408 426 430 448 472 474 498 516 518 520 530 540
 ;->  552 556 562 576 584 612 624 626 628 658 668 670 708 714
 ;->  718 726 732 738 748 750 756 766 768 782 784 792 802 804
-;->  818 836 848 852 872 892 894 896 898 902 926 934 936 964 
+;->  818 836 848 852 872 892 894 896 898 902 926 934 936 964
 ;->  966 976 982 996)
 
 (time (untouchable-to 1000))
@@ -3415,15 +3415,15 @@ Soluzione naive
           ; allora restituire nil
           ((or (< len 0) (< sum 0)) nil)
           (true
-            ; Caso 1. Includere l'elemento corrente lst(n) nel sottoinsieme e 
-            ; ripetere per gli (len-1) elementi rimanenti 
+            ; Caso 1. Includere l'elemento corrente lst(n) nel sottoinsieme e
+            ; ripetere per gli (len-1) elementi rimanenti
             ; con il totale rimanente (sum - lst[len])
             (setq in  (subset-sum-ex lst (- len 1) (- sum (lst len))))
             ; Caso 2. Escludere l'elemento corrente lst[len] dal sottoinsieme e
-            ; ricorrere per i (len - 1) elementi rimanenti 
+            ; ricorrere per i (len - 1) elementi rimanenti
             (setq out (subset-sum-ex lst (- len 1) sum))
-            ; Restituire true se possiamo ottenere un sottoinsieme 
-            ; includendo o escludendo l'elemento corrente            
+            ; Restituire true se possiamo ottenere un sottoinsieme
+            ; includendo o escludendo l'elemento corrente
             (or in out)))))
 
 (define (subset-sum lst sum)
@@ -3530,7 +3530,7 @@ Per calcolare i sottoinsiemi possiamo utilizzare la seguente funzione:
       (for (j 0 (- len 1) 1 stop)
         ; usa la rappresentazione binaria di "i"
         ; per decidere quali elementi prendere.
-        (if (!= (& i (<< 1 j))) 
+        (if (!= (& i (<< 1 j)))
           (begin
             (push (lst j) tmp -1)
             (setq val (+ val (lst j)))
@@ -3635,8 +3635,8 @@ Funzione che verifica se un numero è pratico:
 Calcoliamo i numeri pratici fino a 150:
 
 (filter (fn(x) (practical? x)) (sequence 1 150))
-;-> (1 2 4 6 8 12 16 18 20 24 28 30 32 36 40 42 48 54 
-;->  56 60 64 66 72 78 80 84 88 90 96 100 104 108 112 120 
+;-> (1 2 4 6 8 12 16 18 20 24 28 30 32 36 40 42 48 54
+;->  56 60 64 66 72 78 80 84 88 90 96 100 104 108 112 120
 ;->  126 128 132 140 144 150)
 
 Questo metodo è lento per calcolare molti numeri pratici:
@@ -3655,7 +3655,7 @@ I file di testo di Windows e Unix hanno il terminatore di linea diverso:
 
   in Windows -> CRLF \r\n
   in Unix    -> CR \r
-  
+
   dove il carattere \n -> LF (Line Feed)
      e il carattere \r -> CR (Carriage Return)
 
@@ -3709,7 +3709,7 @@ Creiamo un file di testo windows (\r):
 (println-ux "prova " "unix")
 (close (device))
 
-Adesso il file "unix.txt" ha il terminatore di linea di tipo unix (\r). 
+Adesso il file "unix.txt" ha il terminatore di linea di tipo unix (\r).
 Con notepad++ possiamo verificarlo tramite il menu View -> Show Symbol -> Show All Characters e convertire tra i due tipi con il menu Edit -> EOL Conversion.
 
 
@@ -3725,8 +3725,8 @@ Il radicale di un numero intero positivo è il prodotto dei distinti fattori pri
 
 (map radical (sequence 1 100))
 ;-> (1 2 3 2 5 6 7 2 3 10 11 6 13 14 15 2 17 6 19 10 21 22 23 6 5 26 3 14
-;->  29 30 31 2 33 34 35 6 37 38 39 10 41 42 43 22 15 46 47 6 7 10 51 26 
-;->  53 6 55 14 57 58 59 30 61 62 21 2 65 66 67 34 69 70 71 6 73 74 15 38 
+;->  29 30 31 2 33 34 35 6 37 38 39 10 41 42 43 22 15 46 47 6 7 10 51 26
+;->  53 6 55 14 57 58 59 30 61 62 21 2 65 66 67 34 69 70 71 6 73 74 15 38
 ;->  77 78 79 10 3 82 83 42 85 86 87 22 89 30 91 46 93 94 95 6 97 14 33 10)
 
 
@@ -3891,7 +3891,7 @@ La formula di Faulhaber rappresenta la somma delle p-esime potenze dei primi n n
 Calcoliamo il numero per p=2 e n=1..20 (numeri piramidali quadrati):
 
 (map (curry faulhaber 2) (sequence 1 20))
-;-> (1 5 14 30 55 91 140 204 285 385 506 650 
+;-> (1 5 14 30 55 91 140 204 285 385 506 650
 ;->  819 1015 1240 1496 1785 2109 2470 2870)
 
 Calcoliamo il numero per p=3 e n=1..20 (numeri piramidali quadrati):
@@ -3943,8 +3943,8 @@ Numeri potenti
 Un numero potente è un intero positivo n tale che, per ogni numero primo p che divide n, anche p^2 divide n. Equivalentemente, un numero potente è il prodotto di un quadrato per un cubo, ovvero può essere scomposto nella forma n = a^2*b^3, dove a e b sono interi positivi (eventualmente uguali a 1).
 
 Sequenza OEIS A001694:
-  1, 4, 8, 9, 16, 25, 27, 32, 36, 49, 64, 72, 81, 100, 108, 121, 125, 
-  128, 144, 169, 196, 200, 216, 225, 243, 256, 288, 289, 324, 343, 
+  1, 4, 8, 9, 16, 25, 27, 32, 36, 49, 64, 72, 81, 100, 108, 121, 125,
+  128, 144, 169, 196, 200, 216, 225, 243, 256, 288, 289, 324, 343,
   361, 392, 400, 432, 441, 484, 500, 512, 529, 576, 625, 648, 675, 676,
   729, 784, 800, 841, 864, 900, 961, 968, 972, 1000, ...
 
@@ -4419,8 +4419,8 @@ f) La distanza tra loro è al massimo 2*D (per la disuguaglianza triangolare), c
         # aggiorna la distanza delle città dai loro centri più vicini
         (setq (dist j) (min (dist j) (lst maximum j)))
       )
-      # aggiorna l'indice della città 
-      ; con la distanza massima dal centro più vicino      
+      # aggiorna l'indice della città
+      ; con la distanza massima dal centro più vicino
       (setq maximum (max-index dist))
     )
     (list (dist maximum) centers)))
@@ -4754,7 +4754,7 @@ https://github.com/TheAlgorithms/Python/blob/master/ciphers/enigma_machine2.py
   ; tests the input string if it
   ; a) is type string
   ; b) has even length (so pairs can be made)
-  ; https://en.wikipedia.org/wiki/Enigma_machine#Plugboard  
+  ; https://en.wikipedia.org/wiki/Enigma_machine#Plugboard
   (if (not (string? pbstring))
       (println "ERROR: pbstring in not a string: " pbstring))
   (if (odd? (length pbstring))
@@ -5045,16 +5045,512 @@ La seguente funzione utilizza il metodo di newton per calcolare la radice-n-esim
 
 (define (nth-root n a)
   (let ((x1 a)
-	(x2 (div a n)))
+  (x2 (div a n)))
   (until (= x1 x2)
     (setq x1 x2
-	        x2 (div (add (mul x1 (- n 1)) (div a (pow x1 (- n 1))))
-		              n))
+          x2 (div (add (mul x1 (- n 1)) (div a (pow x1 (- n 1))))
+                  n))
   )
   x2))
 
 (nth-root 3 1234.31)
 ;-> 10.72691277421636
+
+
+------------------------------------------------------------
+Analisi numerica e numeri in virgola mobile (floating point)
+------------------------------------------------------------
+
+https://people.eecs.berkeley.edu/~wkahan/
+
+L'indirizzo web sopra riportato è il sito di William Kahan, Ph.D. (Math., University of Toronto, 1958) e Professor Emeritus of Mathematics, and of E.E. & Computer Science.
+Contiene una miniera di informazioni sull'analisi numerica e sui problemi legati all'utilizzo dei numeri in virgola mobile nella soluzione dei problemi di calcolo.
+
+Alcuni articoli interessanti:
+  - Why is Floating-Point Computation so Hard to Debug when it Goes Wrong?
+  - Why I can Debug some Numerical Programs You can't (PDF file)
+  - Beastly Numbers, a paper about two different computers upset in the same way by the same two floating-point numbers
+  - How to Test Whether SQRT is Rounded Correctly
+  - Back to the Future of Undebuggable Floating-Point Software in Science and Engineering
+  - A Numerical Analyst thinks about Artificial Intelligence & Deep Learning
+  - ... the Critiques' gory details: (Unums' pdf) & (SORN's pdf)
+
+Di seguito riportiamo i risultati della funzione descritta nell'articolo "Why is Floating-Point Computation so Hard to Debug when it Goes Wrong?"
+
+(define (h x iter)
+  (local (a b)
+    (setq y (abs x))
+    (for (i 1 iter) (setq y (sqrt y)))
+    (setq w y)
+    (for (i 1 iter) (setq w (mul w w)))
+    (list y w)))
+
+(h 0 128)
+;-> (0 0)
+(h 0.5 128)
+;-> (0.9999999999999999 0)
+(h 1 128)
+;-> (1 1)
+(h 1.5 128)
+;-> (1 1)
+(h 1.5 128)
+;-> (1 1)
+(h -1 128)
+;-> (1 1)
+
+(for (i 0 2 0.1) (println i { } (h i 128)))
+;-> 0 (0 0)
+;-> 0.1 (0.9999999999999999 0)
+;-> 0.2 (0.9999999999999999 0)
+;-> 0.3 (0.9999999999999999 0)
+;-> 0.4 (0.9999999999999999 0)
+;-> 0.5 (0.9999999999999999 0)
+;-> 0.6000000000000001 (0.9999999999999999 0)
+;-> 0.7000000000000001 (0.9999999999999999 0)
+;-> 0.8 (0.9999999999999999 0)
+;-> 0.9 (0.9999999999999999 0)
+;-> 1 (1 1)
+;-> 1.1 (1 1)
+;-> 1.2 (1 1)
+;-> 1.3 (1 1)
+;-> 1.4 (1 1)
+;-> 1.5 (1 1)
+;-> 1.6 (1 1)
+;-> 1.7 (1 1)
+;-> 1.8 (1 1)
+;-> 1.9 (1 1)
+;-> 2 (1 1)
+
+Usando una lista con i valori da 0.0 a 2.0 con passo 0.1 si elimina il problema dei valori 0.6 e 0.7 (perchè i valori non vengono calcolati come nel ciclo "for"):
+
+(setq seq '(0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0
+              1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0))
+
+(dolist (i seq) (println i { } (h i 128)))
+;-> 0 (0 0)
+;-> 0.1 (0.9999999999999999 0)
+;-> 0.2 (0.9999999999999999 0)
+;-> 0.3 (0.9999999999999999 0)
+;-> 0.4 (0.9999999999999999 0)
+;-> 0.5 (0.9999999999999999 0)
+;-> 0.6 (0.9999999999999999 0)
+;-> 0.7 (0.9999999999999999 0)
+;-> 0.8 (0.9999999999999999 0)
+;-> 0.9 (0.9999999999999999 0)
+;-> 1 (1 1)
+;-> 1.1 (1 1)
+;-> 1.2 (1 1)
+;-> 1.3 (1 1)
+;-> 1.4 (1 1)
+;-> 1.5 (1 1)
+;-> 1.6 (1 1)
+;-> 1.7 (1 1)
+;-> 1.8 (1 1)
+;-> 1.9 (1 1)
+;-> 2 (1 1)
+;-> (1 1)
+
+Facciamo un altro test:
+
+(dolist (i seq)
+  (println i)
+  (for (j 5 10)
+    (print j {: } (last (h i j)) {. })
+    ;(print j { } (h i j) {. })
+  )
+  (println))
+;-> 0
+;-> 5: 0. 6: 0. 7: 0. 8: 0. 9: 0. 10: 0.
+;-> 0.1
+;-> 5: 0.1000000000000001. 6: 0.1000000000000001. 7: 0.09999999999999937.
+;-> 8: 0.09999999999999937. 9: 0.1000000000000024. 10: 0.1000000000000024.
+;-> 0.2
+;-> 5: 0.2000000000000001. 6: 0.2000000000000001. 7: 0.2000000000000016.
+;-> 8: 0.2000000000000016. 9: 0.2000000000000016. 10: 0.1999999999999899.
+;-> 0.3
+;-> 5: 0.2999999999999999. 6: 0.3000000000000013. 7: 0.3000000000000013.
+;-> 8: 0.2999999999999966. 9: 0.3000000000000047. 10: 0.3000000000000224.
+;-> 0.4
+;-> 5: 0.3999999999999993. 6: 0.3999999999999993. 7: 0.3999999999999993.
+;-> 8: 0.3999999999999993. 9: 0.3999999999999993. 10: 0.399999999999976.
+;-> 0.5
+;-> 5: 0.4999999999999994. 6: 0.4999999999999994. 7: 0.4999999999999994.
+;-> 8: 0.4999999999999994. 9: 0.4999999999999994. 10: 0.4999999999999994.
+;-> 0.6
+;-> 5: 0.6000000000000001. 6: 0.6000000000000001. 7: 0.6000000000000001.
+;-> 8: 0.6000000000000001. 9: 0.6000000000000001. 10: 0.5999999999999658.
+;-> 0.7
+;-> 5: 0.7000000000000007. 6: 0.7000000000000034. 7: 0.7000000000000034.
+;-> 8: 0.699999999999993. 9: 0.699999999999993. 10: 0.6999999999999529.
+;-> 0.8
+;-> 5: 0.8000000000000007. 6: 0.8000000000000037. 7: 0.8000000000000099.
+;-> 8: 0.8000000000000099. 9: 0.8000000000000099. 10: 0.8000000000000099.
+;-> 0.9
+;-> 5: 0.900000000000002. 6: 0.8999999999999987. 7: 0.8999999999999987.
+;-> 8: 0.8999999999999987. 9: 0.8999999999999987. 10: 0.8999999999999987.
+;-> 1
+;-> 5: 1. 6: 1. 7: 1. 8: 1. 9: 1. 10: 1.
+;-> 1.1
+;-> 5: 1.1. 6: 1.100000000000008. 7: 1.100000000000008.
+;-> 8: 1.099999999999977. 9: 1.099999999999977. 10: 1.099999999999977.
+;-> 1.2
+;-> 5: 1.199999999999998. 6: 1.199999999999998. 7: 1.199999999999998.
+;-> 8: 1.199999999999962. 9: 1.199999999999896. 10: 1.200000000000032.
+;-> 1.3
+;-> 5: 1.300000000000002. 6: 1.300000000000002. 7: 1.300000000000021.
+;-> 8: 1.300000000000021. 9: 1.299999999999946. 10: 1.300000000000092.
+;-> 1.4
+;-> 5: 1.400000000000001. 6: 1.400000000000012. 7: 1.400000000000029.
+;-> 8: 1.400000000000073. 9: 1.400000000000152. 10: 1.400000000000306.
+;-> 1.5
+;-> 5: 1.499999999999997. 6: 1.499999999999987. 7: 1.500000000000008.
+;-> 8: 1.500000000000008. 9: 1.500000000000008. 10: 1.500000000000008.
+;-> 1.6
+;-> 5: 1.600000000000001. 6: 1.600000000000001. 7: 1.599999999999975.
+;-> 8: 1.599999999999975. 9: 1.600000000000068. 10: 1.600000000000068.
+;-> 1.7
+;-> 5: 1.700000000000003. 6: 1.700000000000003. 7: 1.700000000000003.
+;-> 8: 1.700000000000052. 9: 1.700000000000052. 10: 1.700000000000239.
+;-> 1.8
+;-> 5: 1.800000000000005. 6: 1.800000000000005. 7: 1.800000000000005.
+;-> 8: 1.800000000000052. 9: 1.799999999999949. 10: 1.799999999999949.
+;-> 1.9
+;-> 5: 1.900000000000002. 6: 1.900000000000013. 7: 1.900000000000039.
+;-> 8: 1.900000000000039. 9: 1.900000000000144. 10: 1.900000000000357.
+;-> 2
+;-> 5: 1.999999999999996. 6: 1.999999999999996. 7: 1.999999999999971.
+;-> 8: 2.000000000000024. 9: 2.000000000000024. 10: 2.000000000000024.
+
+newLISP utilizza lo standard IEEE 754 per i numeri in virgola mobile e i risultati sono tutti corretti.
+
+
+----------------------------------------
+Stabilità degli algoritmi di ordinamento
+----------------------------------------
+
+Un algoritmo di ordinamento si dice stabile se due elementi con chiavi uguali appaiono nello stesso ordine nell'output ordinato come appaiono nella lista di input da ordinare.
+
+Formalmente la stabilità è definita nel modo seguente:
+
+Sia A un array, e sia "<" un ordinamento stretto e debole sugli elementi di A.
+Un algoritmo di ordinamento è stabile se:
+
+   i < j e A(i) = A(j) implica P(i) < P(j)
+
+dove P è la permutazione ordinata di A (l'ordinamento che muove A(i) nella posizione P(i)).
+
+Informalmente, stabilità significa che gli elementi uguali mantengono le loro posizioni relative, dopo l'ordinamento:
+
+   input: 1 2 2 3 1
+             \ \
+  output: 1 1 2 2 3
+
+Quando elementi uguali sono indistinguibili, ad esempio con numeri interi o, più in generale, qualsiasi dato in cui l'intero elemento è la chiave, la stabilità non è un problema. La stabilità non è un problema anche quando tutte le chiavi sono diverse.
+
+Algoritmi di ordinamento stabili: Bubble Sort, Insertion Sort, Merge Sort,...
+
+Algoritmi di ordinamento non stabili: Quick Sort, Heap Sort,...
+
+Vediamo un esempio in cui la stabilità è necessaria:
+
+Data la seguente lista di coppie (nome età):
+
+(("Dave" "A") ("Alice" "B") ("Ken" "A") ("Eric" "B") ("Carol" "A"))
+
+Se ordiniamo questi dati solo in base al nome, è altamente improbabile che anche il risultato venga ordinato/raggruppato in base all'età.
+
+(("Alice" "B") ("Carol" "A") ("Dave" "A") ("Eric" "B") ("Ken" "A"))
+
+Quindi potremmo dover ordinare di nuovo per ottenere anche la lista in base all'età. Ma così facendo, se l'algoritmo di ordinamento non è stabile, potremmo ottenere un risultato come questo
+
+(("Carol" "A") ("Dave" "A") ("Ken" "A") ("Eric" "B") ("Alice" "B"))
+
+La lista è ora ordinata in base all'età, ma non in base ai nomi.
+
+Nella lista ordinata per nome, la coppia ("Alice" "B") era precedente a ("Eric" "B"), ma poiché l'algoritmo di ordinamento non è stabile, l'ordine relativo viene perso.
+
+Se usiamo un algoritmo di ordinamento stabile, il risultato sarebbe:
+
+(("Carol" "A") ("Dave" "A") ("Ken" "A") ("Alice" "B")("Eric" "B"))
+
+In questo caso viene mantenuto l'ordine relativo tra le diverse coppie.
+È possibile che l'ordine relativo venga mantenuto in un ordinamento instabile, ma è altamente improbabile.
+
+Vediamo come si comporta la funzione integrata di ordinamento "sort":
+
+(setq aa '(("Dave" "A") ("Alice" "B") ("Ken" "A") ("Eric" "B") ("Carol" "A")))
+
+Ordiniamo per nome:
+
+(setq bb (sort aa))
+;-> (("Alice" "B") ("Carol" "A") ("Dave" "A") ("Eric" "B") ("Ken" "A"))
+
+Ordiniamo per classe:
+
+(define (comp x y)
+    (<= (last x) (last y)))
+
+(sort bb comp)
+;-> (("Carol" "A") ("Dave" "A") ("Ken" "A") ("Alice" "B") ("Eric" "B"))
+
+L'ordinamento è stabile.
+
+Nota: la funzione di ordinamento di newLISP "sort" è stabile se la funzione di comparazione utilizza gli operatori "<=" e/o ">=".
+
+Facciamo un'altra prova:
+
+(setq lst '((eva 24) (luisa 35) (roby 35) (leo 35) (vero 24) (vale 16) (luna 1)))
+
+Ordiniamo per nome:
+
+(sort lst)
+;-> ((eva 24) (leo 35) (luisa 35) (luna 1) (roby 35) (vale 16) (vero 24))
+
+Adesso ordiniamo per età:
+; Funzione di comparazione
+(define (comp x y)
+    (<= (last x) (last y)))
+
+(sort lst comp)
+;-> ((luna 1) (vale 16) (eva 24) (vero 24) (leo 35) (luisa 35) (roby 35))
+
+L'ordinamento è stabile.
+
+
+--------------------------------------------
+Colorazione di un grafo (m Coloring Problem)
+--------------------------------------------
+
+Implementazione in newLISP del problema presentato al sguente indirizoo web:
+
+https://www.geeksforgeeks.org/m-coloring-problem-backtracking-5/
+
+Dato un grafo non orientato e un numero m, determinare se il grafo può essere colorato con al massimo m colori in modo tale che non ci siano due vertici adiacenti del grafo colorati con lo stesso colore.
+La colorazione di un grafo significa l'assegnazione di colori a tutti i vertici.
+
+Input:
+Un grafo/list 2D [V][V] dove V è il numero di vertici nel grafo e graph[V][V] è la matrice di adiacenza del grafo. Un valore graph[i][j] è 1 se esiste un arco diretto da i a j, altrimenti graph[i][j] è 0.
+Un intero m è il numero massimo di colori che possono essere utilizzati.
+
+Output:
+Una lista color[V] che dovrebbe avere numeri da 1 a m. color[i] dovrebbe rappresentare il colore assegnato all'i-esimo vertice. Il codice dovrebbe anche restituire "nil" se il grafico non può essere colorato con m colori.
+
+Algoritmo:
+Approccio semplice: generare tutte le possibili configurazioni di colori. Poiché ogni nodo può essere colorato utilizzando uno qualsiasi degli m colori disponibili, il numero totale di configurazioni di colore possibili è m^V.
+Dopo aver generato una configurazione di colore, controllare se i vertici adiacenti hanno lo stesso colore o meno. Se le condizioni sono soddisfatte, stampare la combinazione e interrompere il ciclo.
+
+Creare una funzione ricorsiva che prende l'indice corrente, il numero di vertici e la lista di colori di output.
+Se l'indice corrente è uguale al numero di vertici, allora controllare se la configurazione del colore di output è sicura, ovvero controlla se i vertici adiacenti non hanno lo stesso colore. Se le condizioni sono soddisfatte, allora stampare la configurazione e interrompere.
+Assegnare un colore a un vertice (da 1 a m).
+Per ogni colore assegnato richiamare ricorsivamente la funzione con l'indice successivo e il numero di vertici
+Se una funzione ricorsiva restituisce true, interrompere il ciclo e restituire true.
+
+Questa funzione verifica se la colorazione di un grafo è corretta oppure no:
+
+(define (safe? graph color)
+(catch (begin
+  ; controlla ogni vertice
+  (for (i 0 3)
+    ; non deve superare, altrimenti newLISP fa il ciclo lo stesso...
+    (if (< (+ i 1) 4)
+      (for (j (+ i 1) 3)
+        (if (and (= (graph i j) 1) (= (color j) (color i)))
+            (throw nil)
+        )
+      )
+    )
+  )
+  true)))
+
+Questa funzione risolve il problema m-coloring utilizzando la ricorsione.
+Restituisce nil se non è possibile assegnare gli m colori, in caso contrario, restituisce true e stampa le assegnazioni dei colori su tutti i vertici.
+Si noti che potrebbero esserci più soluzioni, questa funzione stampa una delle soluzioni fattibili.
+
+(define (graph-color graph m i color)
+(catch (begin
+  (if (= i 4)
+    (begin
+      ; se la colorazione è corretta...
+      (if (safe? graph color)
+          (begin
+            ; stampa la soluzione e restituisce true
+            (println color)
+            (throw true)
+          )
+      )
+      (throw nil)
+    )
+  )
+  ; assegna ogni colore da 1 a m
+  (for (j 1 m)
+    (setf (color i) j)
+    ; ricorsione sui vertici rimanenti
+    (if (graph-color graph m (+ i 1) color)
+        (throw true)
+    )
+    (setf (color i) 0)
+  )
+  nil)))
+
+(define (m-color)
+  (local (graph m color)
+    (setq graph '(
+          ( 0 1 1 1 )
+          ( 1 0 1 0 )
+          ( 1 1 0 1 )
+          ( 1 0 1 0 )))
+    (setq m 3)
+    ;(setq 'color:color '(0 0 0 0))
+    (setq color '(0 0 0 0))
+    (if (not (graph-color graph m 0 color))
+        (println "Solution does not exist")
+    )))
+
+(m-color)
+;-> (1 2 3 2)
+
+(define (m-color1)
+  (local (graph m)
+    (setq graph '(
+          ( 1 1 1 1 )
+          ( 1 1 1 1 )
+          ( 1 1 1 1 )
+          ( 1 1 1 1 )))
+    (setq m 3)
+    ;(setq 'color:color '(0 0 0 0))
+    (setq color '(0 0 0 0))
+    (if (not (graph-color graph m 0 color))
+        (println "Solution does not exist")
+    )))
+
+(m-color1)
+;-> Solution does not exist
+
+
+------------------------------
+Auto-replicazione di una lista
+------------------------------
+
+Data una lista con un solo elemento, scrivere una funzione che permette di aggiungere alla lista un elemento dato dalla lista di tutti gli elementi precedenti della lista.
+
+(define (insert-copy lst)
+  (if (list? lst)
+      (push lst lst -1)
+      '()))
+
+(setq lst '(1))
+;-> (1)
+(setq lst (insert-copy lst))
+;-> (1 (1))
+(setq lst (insert-copy lst))
+;-> (1 (1) (1 (1)))
+(setq lst (insert-copy lst))
+;-> (1 (1) (1 (1)) (1 (1) (1 (1))))
+...
+
+(setq lst '())
+;-> ()
+(setq lst (insert-copy lst))
+;-> (())
+(setq lst (insert-copy lst))
+;-> (() (()))
+(setq lst (insert-copy lst))
+;-> (() (()) (() (())))
+(setq lst (insert-copy lst))
+;-> (() (()) (() (())) (() (()) (() (()))))
+(setq lst (insert-copy lst))
+;-> (() (()) (() (())) (() (()) (() (()))) (() (()) (() (())) (() (()) (() (())))))
+...
+
+
+----------------
+La funzione sort
+----------------
+
+Definizione dal manuale di riferimento:
+
+*******************
+>>> funzione: SORT
+*******************
+sintassi: (sort list [func-compare])
+sintassi: (sort array [func-compare])
+
+Tutti gli elementi della lista o del vettore sono ordinati in ordine crescente. Qualsiasi cosa può essere ordinata, indipendentemente dai tipi. Quando i membri sono essi stessi liste o vettori, ogni elemento viene confrontato in modo ricorsivo. Se vengono confrontate due espressioni di tipo diverso, il tipo inferiore viene ordinato prima del tipo superiore nell'ordine seguente:
+
+Atomi: nil, true, intero o float, stringa, simbolo, primitiva
+Liste: espressioni quotate, lista, lambda, lambda-macro
+
+L'ordinamento è distruttivo, modifica l'ordine degli elementi nella lista o nel vettore originale e restituisce la lista o il vettore ordinato. È un merge-sort binario stabile con prestazioni approssimativamente O(n log2 n) che preserva l'ordine degli elementi adiacenti che sono uguali. Quando viene utilizzato func-compare, deve utilizzare gli operatori <= o >= per essere stabile.
+
+È possibile fornire un operatore di confronto opzionale, una funzione definita dall'utente o una funzione anonima. Il funtore o l'operatore può essere fornito con o senza una virgoletta precedente.
+
+(sort '(v f r t h n m j))     → (f h j m n r t v)
+(sort '((3 4) (2 1) (1 10)))  → ((1 10) (2 1) (3 4))
+(sort '((3 4) "hi" 2.8 8 b))  → (2.8 8 "hi" b (3 4))
+
+(set 's '(k a l s))
+(sort s)  → (a k l s)
+
+(sort '(v f r t h n m j) >) → (v t r n m j h f)
+
+(sort s '<)  → (a k l s)
+(sort s >)  → (s l k a)
+s           → (s l k a)
+
+;; define a comparison function
+(define (comp x y)
+    (>= (last x) (last y)))
+
+(set 'db '((a 3) (g 2) (c 5)))
+
+(sort db comp)  →  ((c 5) (a 3) (g 2))
+
+;; use an anonymous function
+(sort db (fn (x y) (>= (last x) (last y))))
+
+Nota: La funzione sort è distruttiva, nel senso che mosdifica direttamente l'argomento (lista o vettore).
+
+Vediamo alcuni esempi.
+Data la seguente lista di punti (x y):
+
+  ((1 3) (4 4) (1 1) (2 5) (6 3) (8 5) (6 1) (6 5) (3 2) (2 4))
+
+Ordinamento per la coordinata x crescente:
+
+(setq lst '((1 3) (4 4) (1 1) (2 5) (6 3) (8 5) (6 1) (6 5) (3 2) (2 4)))
+(sort lst)
+;-> ((1 1) (1 3) (2 4) (2 5) (3 2) (4 4) (6 1) (6 3) (6 5) (8 5))
+
+Nota: per x uguali viene ordinata anche la y.
+
+Ordinamento per la coordinata y crescente:
+(setq lst '((1 3) (4 4) (1 1) (2 5) (6 3) (8 5) (6 1) (6 5) (3 2) (2 4)))
+(define (comp x y)
+    (<= (last x) (last y)))
+(sort lst comp)
+;-> ((1 1) (6 1) (3 2) (1 3) (6 3) (4 4) (2 4) (2 5) (8 5) (6 5))
+
+Nota: per y uguali non viene ordinata anche la x.
+
+Ordinamento per la coordinata x crescente e y decrescente:
+
+(setq lst '((1 3) (4 4) (1 1) (2 5) (6 3) (8 5) (6 1) (6 5) (3 2) (2 4)))
+(define (comp x y)
+  (if (= (first x) (first y))
+      (>= (last x) (last y))
+      (<= (first x) (first y))))
+(sort lst comp)
+;-> ((1 3) (1 1) (2 5) (2 4) (3 2) (4 4) (6 5) (6 3) (6 1) (8 5))
+
+Ordinamento per x/y crescente (x = numeratore e y = denominatore):
+
+(setq lst '((1 3) (4 4) (1 1) (2 5) (6 3) (8 5) (6 1) (6 5) (3 2) (2 4)))
+(define (comp x y)
+  (< (div (first x) (last x)) (div (first y) (last y))))
+(map (fn(x) (div (first x) (last x))) (sort lst comp))
+;-> (0.3333333333333333 0.4 0.5 1 1 1.2 1.5 1.6 2 6)
+lst
+;-> ((1 3) (2 5) (2 4) (4 4) (1 1) (6 5) (3 2) (8 5) (6 3) (6 1))
 
 =============================================================================
 

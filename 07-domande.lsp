@@ -2390,10 +2390,10 @@ Dopo, abbiamo due parti [oi, i] e [i + 1, oj], dove (oi, oj) sono i valori origi
               (setq mid (partition i j))
               (setq leftH (+ mid 1 (- i)))
               (if (< k leftH)
-                  (sort i (- mid 1) k)
+                  (ordina i (- mid 1) k)
               ;else
                   (if (> k leftH)
-                    (sort (+ mid 1) j (- k leftH))
+                    (ordina (+ mid 1) j (- k leftH))
                   )
               )
             )
@@ -2432,7 +2432,7 @@ Dopo, abbiamo due parti [oi, i] e [i + 1, oj], dove (oi, oj) sono i valori origi
 )
 
 (kClosest '((0 0)  (5 4)  (3 1))  '(1 2) 2)
-;-> ((0,0), (3,1))
+;-> ((0 0) (3 1))
 
 (kClosest '((3 3)  (5 -1) (-2 4)) '(0 0)  2)
 ;-> ((3 3 ) (-2 4)

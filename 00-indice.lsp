@@ -1177,6 +1177,11 @@ NOTE LIBERE 8
   Enigma machine
   Radice cubica
   Radice n-esima
+  Analisi numerica e numeri in virgola mobile (floating point)
+  Stabilità degli algoritmi di ordinamento
+  Colorazione di un grafo (m Coloring Problem)
+  Auto-replicazione di una lista
+  La funzione sort
 
 APPENDICI
 =========
