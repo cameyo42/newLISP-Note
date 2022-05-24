@@ -170,15 +170,37 @@ Ora vediamo quale metodo è più veloce:
 ;-> 16
 
 (time (bit1 123456789) 100000)
-;-> 527.479
+;-> 381.457
 
 (nbit1 123456789)
 ;-> 16
 
 (time (nbit1 123456789) 100000)
-;-> 494.247
+;-> 349.978
 
 La funzione che usa gli operatori bitwise è leggermente più veloce.
+
+Vediamo ora un altro metodo proposto da Brian Kernighan (autore insieme a Dennis Ritchie del famoso libro "The C language"):
+
+(define (kbit1 n)
+  (let (conta 0)
+    (while (> n 0)
+      ; In questo modo arriviamo al prossimo bit impostato (successivo 1) 
+      ; invece di eseguire il loop per ogni bit e controllare se vale 1
+      ; quindi il loop non verrà eseguito 32 volte, 
+      ; ma verrà eseguito solo quanti sono gli "1".
+      (setq n (& n (- n 1)))
+      (++ conta)
+    )
+    conta))
+
+(kbit1 123456789)
+;-> 16
+
+(time (kbit1 123456789) 100000)
+;-> 181.513
+
+Questo metodo è il più veloce.
 
 
 ---------------------------------------------
@@ -5951,17 +5973,17 @@ Possiamo utilizzare la funzione "apply":
 Vediamo la soluzione proposta da fdb:
 
 (define (find-number lst)
-	(define Myhash:Myhash)  ; hash table creation, O(1) lookup time
-	(set 'total 0)
-	(dolist (n lst)
-	(if (Myhash n)
-		(dec total n)    ; decrease when already added before
-		(begin
-			(Myhash n true)
-			(inc total n))))  ; if not in hash table increase
-	(delete 'Myhash)  ; first to delete contents and namespace
-	(delete 'Myhash)  ; second to delete symbol
-	total)
+  (define Myhash:Myhash)  ; hash table creation, O(1) lookup time
+  (set 'total 0)
+  (dolist (n lst)
+  (if (Myhash n)
+    (dec total n)    ; decrease when already added before
+    (begin
+      (Myhash n true)
+      (inc total n))))  ; if not in hash table increase
+  (delete 'Myhash)  ; first to delete contents and namespace
+  (delete 'Myhash)  ; second to delete symbol
+  total)
 
 (find-number '(1 2 3 4 5 3 2 1 5))
 ;-> 4

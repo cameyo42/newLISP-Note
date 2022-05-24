@@ -1182,6 +1182,7 @@ NOTE LIBERE 8
   Colorazione di un grafo (m Coloring Problem)
   Auto-replicazione di una lista
   La funzione sort
+  Algoritmo K-Means
 
 APPENDICI
 =========

@@ -5552,5 +5552,247 @@ Ordinamento per x/y crescente (x = numeratore e y = denominatore):
 lst
 ;-> ((1 3) (2 5) (2 4) (4 4) (1 1) (6 5) (3 2) (8 5) (6 3) (6 1))
 
+
+-----------------
+Algoritmo K-Means
+-----------------
+
+K-means (MacQueen, 1967) è uno dei più semplici algoritmi di apprendimento non supervisionato (unsupervised learning) che risolvono il noto problema del clustering.
+La procedura segue un modo semplice e facile per classificare un dato set di dati attraverso un certo numero di cluster (assume k cluster) fissati a priori.
+L'idea principale è definire k centroidi, uno per ogni cluster.
+Questi centroidi dovrebbero essere posizionati in modo astuto perché posizioni diverse provocano risultati diversi. Quindi, la scelta migliore è posizionarli il più lontano possibile l'uno dall'altro.
+Il passaggio successivo consiste nel prendere ogni punto appartenente a un dato set di dati e associarlo al baricentro più vicino. Quando nessun punto è in sospeso, il primo passaggio è completato e viene eseguito un primo raggruppamento.
+A questo punto dobbiamo ricalcolare k nuovi centroidi come baricentri dei cluster risultanti dal passaggio precedente.
+Dopo aver ottenuto questi k nuovi centroidi, è necessario eseguire un nuovo legame tra gli stessi set point di dati e il nuovo centroide più vicino. È stato generato un ciclo.
+Come risultato di questo ciclo, potremmo notare che i k centroidi cambiano la loro posizione passo dopo passo fino a quando non vengono apportate più modifiche. In altre parole i centroidi non si muovono più.
+Infine, questo algoritmo mira a minimizzare una funzione obiettivo, in questo caso una funzione di errore al quadrato. La funzione obiettivo è la seguente:
+
+      k   n
+  F = ∑   ∑ |x(i,j)-c(j)|²
+     j=1 i=1
+
+dove |x(i,j)-c(j)|², che è la misura della distanza al quadrato tra un punto dati x(i,j) e il centro del cluster c(j), rappresenta un indicatore della distanza degli n punti dati dai rispettivi centri del cluster.
+
+L'algoritmo è composto dai seguenti passaggi:
+
+  1. Posizionare i punti K nello spazio rappresentato dagli oggetti che vengono raggruppati. Questi punti rappresentano i centroidi del gruppo iniziale.
+
+  2. Assegnare ogni oggetto al gruppo che ha il baricentro più vicino.
+
+  3. Quando tutti gli oggetti sono stati assegnati, ricalcolare le posizioni dei centroidi K.
+
+  4. Ripetere i passaggi 2 e 3 finché i centroidi non si muovono più. Ciò produce una separazione degli oggetti in gruppi da cui è possibile calcolare la metrica da minimizzare.
+
+Sebbene si possa dimostrare che la procedura terminerà sempre, l'algoritmo k-means non trova necessariamente la configurazione ottimale, corrispondente al minimo della funzione obiettivo globale. L'algoritmo è anche significativamente sensibile al posizionamento casuale iniziale dei centroidi dei cluster. L'algoritmo k-means può essere eseguito più volte per ridurre questo effetto.
+
+K-means è un semplice algoritmo che è stato adattato per risolvere diversi problemi:
+
+Il clustering è una tecnica ampiamente utilizzata in quasi tutti i domini, dalle banche ai motori di ricerca, dal raggruppamento di documenti alla segmentazione delle immagini, cioè in tutti quei casi in cui abbiamo bisogno di raggruppare gli elementi di un insieme in base alle loro "caratteristiche/affinità"
+
+newLISP mette a disposizioni due funzioni per utilizzare questo algoritmo: "kmeans-train" e "kmeans-query".
+
+***************************
+>>> funzione: KMEANS-TRAIN
+***************************
+sintassi: (kmeans-train matrix-data int-k context [matrix-centroids])
+
+La funzione esegue l'analisi cluster K-means su matrix-data. Tutti gli n record di dati in matrix-data sono partizionati in un numero di int-k gruppi diversi.
+
+Entrambi, i dati della matrice n * m e i centroidi della matrice k * m opzionali possono essere liste nidificate o array bidimensionali.
+
+L'algoritmo Kmeans cerca di ridurre al minimo la somma del quadrato delle distanze interne del cluster (SSQ - sum of squared inner cluster distances) dal centroide del cluster. Ad ogni iterazione i centroidi si avvicinano alla loro posizione finale. In alcuni set di dati, il risultato finale può dipendere dai centroidi iniziali. La giusta scelta dei centroidi iniziali può accelerare il processo ed evitare minimi locali non desiderati.
+
+Quando non vengono forniti i centroidi opzionali con matrix-centroids, "kmeans-train" assegnerà inizialmente un'appartenenza casuale al cluster a ciascuna riga di dati e calcolerà i centroidi iniziali.
+
+"kmeans-train" restituisce un vettore di SSQ totali, la somma del quadrato delle distanze interne dal baricentro all'interno del cluster per tutti i cluster. L'algoritmo di iterazione si interrompe quando il cambio di SSQ da una all'iterazione successiva è inferiore a 1e-10.
+
+Altri risultati dell'analisi vengono memorizzati come liste in variabili di contesto.
+
+L'esempio seguente analizza 20 record di dati che misurano m = 3 caratteristiche e tenta di partizionare i dati in k = 3 cluster. Si potrebbero provare numeri diversi da k = 3. L'obiettivo è un risultato con pochi cluster ad alta densità misurati dalle distanze interne medie dei cluster.
+
+(set 'data '(
+(6.57 4.96 11.91)
+(2.29 4.18 1.06)
+(8.63 2.51 8.11)
+(1.85 1.89 0.11)
+(7.56 7.93 5.06)
+(3.61 7.95 5.11)
+(7.18 3.46 8.7)
+(8.17 6.59 7.49)
+(5.44 5.9 5.57)
+(2.43 2.14 1.59)
+(2.48 2.26 0.19)
+(8.16 3.83 8.93)
+(8.49 5.31 7.47)
+(3.12 3.1 1.4)
+(6.77 6.04 3.76)
+(7.01 4.2 11.9)
+(6.79 8.72 8.62)
+(1.17 4.46 1.02)
+(2.11 2.14 0.85)
+(9.44 2.65 7.37)))
+
+(kmeans-train data 3 'MAIN:K)
+;-> (439.7949357 90.7474276 85.06633163 82.74597619)
+
+; appartenenza ai cluster
+; cluster membership
+K:labels
+;-> (2 3 2 3 1 1 2 1 1 3 3 2 2 3 1 2 1 3 3 2)
+
+; centroidi di ogni cluster
+; the centroid for each cluster
+K:centroids
+;-> ( (6.39 7.188333333 5.935)
+;-> (7.925714286 3.845714286 9.198571429)
+;-> (2.207142857 2.881428571 0.8885714286) )
+
+La lista di SSQ restituita mostra come in ogni iterazione la somma delle distanze al quadrato interne diminuisce. La lista in K:labels mostra l'appartenenza a ciascun punto dati nello stesso ordine dei dati.
+
+I centroidi in K:centroids possono essere utilizzati per la successiva classificazione di nuovi record di dati utilizzando "kmeans-query". Quando il numero di cluster specificato in int-k è troppo grande, "kmeans-train" produrrà centroidi inutilizzati con dati nan o NaN. Quando sono presenti i centroidi del cluster inutilizzati, il numero in int-k dovrebbe essere ridotto.
+
+La media interna K:deviations dai membri del cluster al loro centroide mostra quanto è denso un cluster. Formalmente, le deviazioni sono calcolate in modo simile alle distanze euclidee e alle deviazioni standard nella statistica convenzionale. La quadratura delle deviazioni e la moltiplicazione di ciascuna per la dimensione del cluster (numero di membri nel cluster) mostra l'SSQ interno di ciascun cluster:
+
+; deviazioni medie interne dei membri del cluster dal centroide
+; average inner deviations of cluster members to the centroid
+; deviation = sqrt(ssq-of-cluster / n-of-cluster)
+K:deviations
+;-> (2.457052209 2.260089397 1.240236975)
+
+; calcola gli SSQ interni dalle deviazioni
+; calculating inner SSQs from cluster deviations
+(map mul '(6 7 7) (map mul K:deviations K:deviations))
+;-> (36.22263333 35.75602857 10.76731429) ; inner SSQs
+
+; SSQ dall'ultima iterazione come somma degli SSQ interni
+; SSQ from last iteration as sum of inner SSQs
+(apply add '(36.22263333 35.75602857 10.76731429))
+;-> 82.74597619
+
+K:clusters fornisce gli indici dei record di dati nei dati originali per ciascun cluster. Con questi, i singoli cluster possono essere estratti dai dati per ulteriori analisi:
+
+; lista dei cluster risultanti con gli indici degli elementi nel set di dati
+; list with the result clusters with indices into the data set
+K:clusters
+;-> ( (4 5 7 8 14 16)
+;-> (0 2 6 11 12 15 19)
+;-> (1 3 9 10 13 17 18) )
+
+; cluster di record di dati etichettati 1 all'offset 0
+; cluster of data records labeled 1 at offset 0
+(select data (K:clusters 0))
+;-> ( (7.56 7.93 5.06)
+;-> (3.61 7.95 5.11)
+;-> (8.17 6.59 7.49)
+;-> (5.44 5.9 5.57)
+;-> (6.77 6.04 3.76)
+;-> (6.79 8.72 8.62) )
+
+; cluster di record di dati etichettati 2 all'offset 1
+; cluster of data records labeled 2 at offset 1
+(select data (K:clusters 1))
+;-> ( (6.57 4.96 11.91)
+;-> (8.63 2.51 8.11)
+;-> (7.18 3.46 8.7)
+;-> (8.16 3.83 8.93)
+;-> (8.49 5.31 7.47)
+;-> (7.01 4.2 11.9)
+;-> (9.44 2.65 7.37) )
+
+; cluster di record di dati etichettati 3 all'offset 2
+; cluster of data records labeled 3 at offset 2
+(select data (K:clusters 2))
+;-> ( (2.29 4.18 1.06)
+;-> (1.85 1.89 0.11)
+;-> (2.43 2.14 1.59)
+;-> (2.48 2.26 0.19)
+;-> (3.12 3.1 1.4)
+;-> (1.17 4.46 1.02)
+;-> (2.11 2.14 0.85) )
+
+Nell'ultimo esempio ai dati vengono aggiunte le etichette del cluster (da 1 a 3):
+
+; aggiungere un'etichetta del cluster a ciascun record di dati
+; append a cluster label to each data record
+(set 'labeled-data (transpose (push K:labels (transpose data) -1)))
+
+labeled-data
+;-> ( (6.57 4.96 11.91 2)
+;-> (2.29 4.18 1.06 3)
+;-> (8.63 2.51 8.11 2)
+;-> (1.85 1.89 0.11 3)
+;-> (7.56 7.93 5.06 1)
+;-> (3.61 7.95 5.11 1)
+;-> ... ...
+;-> (2.11 2.14 0.85 3)
+;-> (9.44 2.65 7.37 2) )
+
+Il contesto risultante deve essere preceduto da MAIN quando il codice viene scritto in un contesto di spazio dei nomi. Se il contesto non esiste già, verrà creato.
+
+I risultati in K:labels, K:clusters, K:centroids e K:deviations verranno sovrascritti, se già presenti da un precedente utilizzo di "kmeans-train".
+
+È possibile supportare il training (allenamento) incrementale. Finché il contesto K viene salvato, può continuare ad allenarsi, poiché l'ultimo parametro della funzione "kmeans-train" è quello di ricevere i risultati esistenti.
+
+***************************
+>>> funzione: KMEANS-QUERY
+***************************
+sintassi: (kmeans-query list-data matrix-centroids)
+sintassi: (kmeans-query list-data matrix-data)
+
+Nel primo caso, "kmeans-query" calcola le distanze euclidee dal vettore di dati fornito in list-data ai centroidi dati in matrix-centroids. Il vettore di dati in list-data ha m elementi. La lista bidimensionale in matrix-centroids, risultato di un precedente clustering (raggruppamento) con "kmeans-train", ha k righe e m colonne per k centroidi che misurano m caratteristiche.
+
+; centroidi derivanti dall'esecuzione di kmeans-train
+; centroids from previous kmeans-train
+K:centroids
+;-> ( (6.39 7.188333333 5.935)
+;-> (7.925714286 3.845714286 9.198571429)
+;-> (2.207142857 2.881428571 0.8885714286) )
+
+; distanza dal cluster 1, 2 e 3
+(kmeans-query '(1 2 3) K:centroids)
+;-> (8.036487279 9.475994267 2.58693657) ; distances to cluster 1, 2 and 3
+
+Il record di dati (1 2 3) mostra la distanza più piccola dal terzo centroide del cluster e sarebbe classificato come appartenente a quel cluster.
+
+Nel secondo caso "kmeans-query" calcola le distanze euclidee da una lista di altri punti che non sono centroidi. L'esempio seguente calcola le distanze del vettore di dati (1 2 3) rispetto a tutti i punti originali dall'analisi dei dati originale di "kmeans-train".
+
+I dati in matrix-data possono essere una lista annidata o un array bidimensionale.
+
+Questo vettore potrebbe essere ordinato per una successiva analisi kNN (k Nearest Neighbor):
+
+(kmeans-query '(1 2 3) data)
+;-> (10.91671196 3.190626898 9.19723328 3.014415366 9.079763213
+;-> 6.83130295 8.533111976 9.624816881 6.444261013 2.013107051
+;-> 3.186549858 9.475199206 9.32936761 2.874786949 7.084638311
+;-> 10.96221237 10.50080473 3.162419959 2.423674896 9.526436899)
+
+; mostra le distanze dai membri in ogni cluster
+; show distances to members in each cluster
+
+; per il cluster etichettato 1
+; for cluster labeled 1
+(select (kmeans-query '(1 2 3) data) (K:clusters 0))
+;-> (9.079763213 6.83130295 9.624816881 6.444261013 7.084638311 10.50080473)
+
+; per il cluster etichettato 3
+; for cluster labeled 2
+(select (kmeans-query '(1 2 3) data) (K:clusters 1))
+;-> (10.91671196 9.19723328 8.533111976 9.475199206
+;->  9.32936761 10.96221237 9.526436899)
+
+; per il cluster etichettato 3
+; for cluster labeled 3
+(select (kmeans-query '(1 2 3) data) (K:clusters 2))
+;-> (3.190626898 3.014415366 2.013107051 3.186549858
+;->  2.874786949 3.162419959 2.423674896)
+
+Vediamo che le distanze più piccole sono mostrate per i punti dati nel 3° cluster all'offset 2.
+
+Se il numero di elementi - caratteristiche - nei record di list-data è diverso dal numero di colonne nei dati o nella matrice dei centroidi, allora il più piccolo viene preso per calcolare le distanze euclidee. Ciò è utile quando l'ultima colonna della matrice di dati non contiene dati sulle caratteristiche, ma etichette che identificano l'appartenenza al cluster di un punto.
+
+Nota: potete trovare una spiegazione esaustiva dell'algoritmo K-means al seguente indirizzo web:
+
+https://www.analyticsvidhya.com/blog/2019/08/comprehensive-guide-k-means-clustering/
+
 =============================================================================
 
