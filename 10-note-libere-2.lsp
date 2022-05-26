@@ -7084,6 +7084,35 @@ E possiamo sempre divertirci scrivendo:
 a
 ;-> 3
 
+Vediamo il caso delle assegnazioni multiple:
+
+(define (test-set) (set 'a 1 'b 2 'c 3 'd 4 'e 5 'f 6 'g 7))
+
+(define (test-setq) (setq a 1 b 2 c 3 d 4 e 5 f 6 g 7))
+
+(define (test-multiple-set)
+   (set 'a 1) (set 'b 2) (set 'c 3)
+   (set 'd 4) (set 'e 5) (set 'f 6)
+   (set 'g 7)
+)
+
+(define (test-multiple-setq)
+   (setq a 1) (setq b 2) (setq c 3)
+   (setq d 4) (setq e 5) (setq f 6)
+   (setq g 7)
+)
+
+(time (test-set) 1000000)
+;-> 118.868
+(time (test-setq) 1000000)
+;-> 103.736
+(time (test-multiple-set) 1000000)
+;-> 181.672
+(time (test-multiple-setq) 1000000)
+;-> 151.242
+
+Anche in questo caso "setq" è più veloce di "set", ma la funzione "test-set" è più leggibile della funzione "test-setq".
+
 
 -------
 Memfrob

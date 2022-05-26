@@ -8,7 +8,7 @@
  INTRODUZIONE
 ==============
 
-Questi appunti introducono all'uso del linguaggio newLISP per le elaborazioni numeriche (e anche per altre cose). È necessaria una conoscenza di base della programmazione in newLISP. Un'ottima scelta per imparare questo linguaggio è il libro "Introduction to newLISP" disponibile come WikiBooks all'indirizzo: 
+Questi appunti introducono all'uso del linguaggio newLISP per le elaborazioni numeriche (e anche per altre cose). È necessaria una conoscenza di base della programmazione in newLISP. Un'ottima scelta per imparare questo linguaggio è il libro "Introduction to newLISP" disponibile come WikiBooks all'indirizzo:
 
 http://en.wikibooks.org/wiki/Introduction_to_newLISP
 
@@ -1215,7 +1215,7 @@ Altra funzione di prova:
 Questo è ok (la lista "a" è una copia all'interno di "my-pop"):
 
 (my-pop a)
-;-> 
+;->
 a
 ;-> (1 2 3 4)
 
@@ -1234,13 +1234,13 @@ b:b
 ;-> (b c d)
 
 Inoltre il simbolo "b" è protetto:
- 
+
 (setq b '(2 2 2))
 ;-> ERR: symbol is protected in function setf : b
 
 Nota: Il passaggio per riferimento funziona solo con il funtore del contesto:
 
-a -> una variabile del contesto A 
+a -> una variabile del contesto A
 (setq A:a '(10 20 30))
 
 A -> il funtore del contesto A (usato come variabile/simbolo):
@@ -1840,7 +1840,7 @@ Per impostare il locale italiano (uso della virgola invece del punto):
 
 (set-locale "Italian_Italy.1252")
 
-oppure 
+oppure
 
 (set-locale "Italian_Italy.1252" ".")
 
@@ -2951,7 +2951,7 @@ Nota: le operazioni con numeri interi trattano NaN come valori 0 (zero).
 >>> funzione inf?
 ******************
 sintassi: (inf? float)
-  
+
 Se il valore in float è infinito la funzione restituisce true altrimenti nil.
 
 (inf? (div 1 0)) → true
@@ -3597,6 +3597,39 @@ Quindi il tempo di esecuzione dell'espressione vale (circa):
 ;-> 3.12497e-005 millisecondi
 
 Nota: nei sistemi windows la precisione della macro "time" è di 16 msec (circa).
+
+Un'altra tecnica è quella di utilizzare la funzione "GetTickCount" di windows che restituisce il numero di millisecondi trascorsi dal boot del sistema, fino a 49.7 giorni.
+
+(import "kernel32.dll" "GetTickCount")
+
+(GetTickCount)
+;-> 27906500
+
+(GetTickCount)
+;-> 27917125
+
+(define (test iter)
+  (let (start (GetTickCount))
+    (for (i 1 iter) (for (j 1 iter)))
+    (- (GetTickCount) start)))
+
+(test 10000)
+;-> 734
+
+(time (test 10000))
+;-> 731.947
+
+Possiamo anche simulare "GetTickCount" con una funzione:
+
+(define (get-tick-count) (time-of-day))
+
+(get-tick-count)
+;-> 53833638.561
+
+(get-tick-count)
+;-> 53846510.277
+
+La funzione "time-of-day" restituisce il tempo in millisecondi dall'inizio del giorno corrente.
 
 
 ==================
@@ -9084,12 +9117,12 @@ sintassi: (xml-parse string-xml [int-options [sym-context [func-callback]]])
 
 Analizza una stringa contenente XML ben formato, conforme a XML 1.0. xml-parse non esegue la convalida DTD. Viene saltata DTD (Document Type Declarations) e le relative istruzioni di elaborazione. Vengono analizzati i nodi di tipo ELEMENT, TEXT, CDATA e COMMENT e viene restituita una struttura lista newLISP. Quando un nodo elemento non ha attributi o nodi figlio, contiene invece una lista vuota. Gli attributi vengono restituiti come liste di associazioni, a cui è possibile accedere utilizzando "assoc". Quando xml-parse fallisce a causa di XML non valido, viene restituito nil e si può usare "xml-error" per accedere alle informazioni di errore.
 
-(set 'xml 
+(set 'xml
   "<person name='John Doe' tel='555-1212'>nice guy</person>")
 
-(xml-parse xml) 
-;-> (("ELEMENT" "person" 
-;->   (("name" "John Doe") 
+(xml-parse xml)
+;-> (("ELEMENT" "person"
+;->   (("name" "John Doe")
 ;->    ("tel" "555-1212"))
 ;->   (("TEXT" "nice guy"))))
 
@@ -9134,32 +9167,32 @@ XML source:
 Parsing senza alcuna opzione:
 
 (xml-parse (read-file "example.xml"))
-;-> (("ELEMENT" "DATABASE" (("name" "example.xml")) (("TEXT" "\r\n\t") 
-;->   ("COMMENT" "This is a database of fruits") 
-;->   ("TEXT" "\r\n\t") 
-;->   ("ELEMENT" "FRUIT" () (("TEXT" "\r\n\t\t") ("ELEMENT" "NAME" () 
-;->      (("TEXT" "apple"))) 
-;->     ("TEXT" "\r\n\t\t") 
-;->     ("ELEMENT" "COLOR" () (("TEXT" "red"))) 
-;->     ("TEXT" "\r\n\t\t") 
-;->     ("ELEMENT" "PRICE" () (("TEXT" "0.80"))) 
-;->     ("TEXT" "\r\n\t"))) 
-;->   ("TEXT" "\r\n\r\n\t") 
-;->   ("ELEMENT" "FRUIT" () (("TEXT" "\r\n\t\t") ("ELEMENT" "NAME" () 
-;->      (("TEXT" "orange"))) 
-;->     ("TEXT" "\r\n\t\t") 
-;->     ("ELEMENT" "COLOR" () (("TEXT" "orange"))) 
-;->     ("TEXT" "\r\n\t\t") 
-;->     ("ELEMENT" "PRICE" () (("TEXT" "1.00"))) 
-;->     ("TEXT" "\r\n\t"))) 
-;->   ("TEXT" "\r\n\r\n\t") 
-;->   ("ELEMENT" "FRUIT" () (("TEXT" "\r\n\t\t") ("ELEMENT" "NAME" () 
-;->      (("TEXT" "banana"))) 
-;->     ("TEXT" "\r\n\t\t") 
-;->     ("ELEMENT" "COLOR" () (("TEXT" "yellow"))) 
-;->     ("TEXT" "\r\n\t\t") 
-;->     ("ELEMENT" "PRICE" () (("TEXT" "0.60"))) 
-;->     ("TEXT" "\r\n\t"))) 
+;-> (("ELEMENT" "DATABASE" (("name" "example.xml")) (("TEXT" "\r\n\t")
+;->   ("COMMENT" "This is a database of fruits")
+;->   ("TEXT" "\r\n\t")
+;->   ("ELEMENT" "FRUIT" () (("TEXT" "\r\n\t\t") ("ELEMENT" "NAME" ()
+;->      (("TEXT" "apple")))
+;->     ("TEXT" "\r\n\t\t")
+;->     ("ELEMENT" "COLOR" () (("TEXT" "red")))
+;->     ("TEXT" "\r\n\t\t")
+;->     ("ELEMENT" "PRICE" () (("TEXT" "0.80")))
+;->     ("TEXT" "\r\n\t")))
+;->   ("TEXT" "\r\n\r\n\t")
+;->   ("ELEMENT" "FRUIT" () (("TEXT" "\r\n\t\t") ("ELEMENT" "NAME" ()
+;->      (("TEXT" "orange")))
+;->     ("TEXT" "\r\n\t\t")
+;->     ("ELEMENT" "COLOR" () (("TEXT" "orange")))
+;->     ("TEXT" "\r\n\t\t")
+;->     ("ELEMENT" "PRICE" () (("TEXT" "1.00")))
+;->     ("TEXT" "\r\n\t")))
+;->   ("TEXT" "\r\n\r\n\t")
+;->   ("ELEMENT" "FRUIT" () (("TEXT" "\r\n\t\t") ("ELEMENT" "NAME" ()
+;->      (("TEXT" "banana")))
+;->     ("TEXT" "\r\n\t\t")
+;->     ("ELEMENT" "COLOR" () (("TEXT" "yellow")))
+;->     ("TEXT" "\r\n\t\t")
+;->     ("ELEMENT" "PRICE" () (("TEXT" "0.60")))
+;->     ("TEXT" "\r\n\t")))
 ;->   ("TEXT" "\r\n"))))
 
 Gli elementi TEXT contenenti solo spazi bianchi rendono l'output molto confuso. Poiché il database in example.xml contiene solo dati, possiamo sopprimere spazi vuoti, liste vuote (senza attributi) e commenti con l'opzione (+ 1 2 4):
@@ -9167,18 +9200,18 @@ Gli elementi TEXT contenenti solo spazi bianchi rendono l'output molto confuso. 
 Filtrare gli spazi vuoti in TEXT, i COMMENT tag, e le liste con attributi vuoti:
 
 (xml-parse (read-file "example.xml") (+ 1 2 4))
-;-> (("ELEMENT" "DATABASE" (("name" "example.xml")) ( 
+;-> (("ELEMENT" "DATABASE" (("name" "example.xml")) (
 ;->    ("ELEMENT" "FRUIT" (
-;->      ("ELEMENT" "NAME" (("TEXT" "apple"))) 
-;->      ("ELEMENT" "COLOR" (("TEXT" "red"))) 
-;->      ("ELEMENT" "PRICE" (("TEXT" "0.80"))))) 
+;->      ("ELEMENT" "NAME" (("TEXT" "apple")))
+;->      ("ELEMENT" "COLOR" (("TEXT" "red")))
+;->      ("ELEMENT" "PRICE" (("TEXT" "0.80")))))
 ;->    ("ELEMENT" "FRUIT" (
-;->      ("ELEMENT" "NAME" (("TEXT" "orange"))) 
-;->      ("ELEMENT" "COLOR" (("TEXT" "orange"))) 
-;->      ("ELEMENT" "PRICE" (("TEXT" "1.00"))))) 
+;->      ("ELEMENT" "NAME" (("TEXT" "orange")))
+;->      ("ELEMENT" "COLOR" (("TEXT" "orange")))
+;->      ("ELEMENT" "PRICE" (("TEXT" "1.00")))))
 ;->    ("ELEMENT" "FRUIT" (
-;->      ("ELEMENT" "NAME" (("TEXT" "banana"))) 
-;->      ("ELEMENT" "COLOR" (("TEXT" "yellow"))) 
+;->      ("ELEMENT" "NAME" (("TEXT" "banana")))
+;->      ("ELEMENT" "COLOR" (("TEXT" "yellow")))
 ;->      ("ELEMENT" "PRICE" (("TEXT" "0.60"))))))))
 
 L'output risultante sembra molto più leggibile, ma può ancora essere migliorato utilizzando simboli anziché stringhe per i tag "FRUIT", "NAME", "COLOR" e "PRICE", nonché eliminando i tag di tipo XML "ELEMENT" e "TEXT" completamente utilizzando la funzione "xml-type-tags".
@@ -9188,16 +9221,16 @@ Soppressione dei tag XML con "xml-type-tags" e traduzione dei tag di stringhe in
 ;; suppress all XML type tags for TEXT and ELEMENT
 ;; instead of "CDATA", use cdata and instead of "COMMENT", use !--
 
-(xml-type-tags nil 'cdata '!-- nil) 
+(xml-type-tags nil 'cdata '!-- nil)
 
 ;; turn on all options for suppressing whitespace and empty
 ;; attributes, translate tags to symbols
 
 (xml-parse (read-file "example.xml") (+ 1 2 8))
-→ ((DATABASE (("name" "example.xml")) 
-     (!-- "This is a database of fruits") 
-     (FRUIT (NAME "apple") (COLOR "red") (PRICE "0.80")) 
-     (FRUIT (NAME "orange") (COLOR "orange") (PRICE "1.00")) 
+→ ((DATABASE (("name" "example.xml"))
+     (!-- "This is a database of fruits")
+     (FRUIT (NAME "apple") (COLOR "red") (PRICE "0.80"))
+     (FRUIT (NAME "orange") (COLOR "orange") (PRICE "1.00"))
      (FRUIT (NAME "banana") (COLOR "yellow") (PRICE "0.60"))))
 
 Quando i tag vengono tradotti in simboli utilizzando l'opzione 8, è possibile specificare un contesto in sym-context. Se non viene specificato alcun contesto, tutti i simboli verranno creati all'interno del contesto corrente.
@@ -9214,12 +9247,12 @@ Utilizzando xml-type-tags per sopprimere tutti i tag di tipo XML, insieme ai num
 
 (xml-type-tags nil nil nil nil)
 (xml-parse (read-file "example.xml") (+ 1 2 4 8 16))
-;-> ((DATABASE (@ (name "example.xml")) 
-;->   (FRUIT (NAME "apple") (COLOR "red") (PRICE "0.80")) 
-;->   (FRUIT (NAME "orange") (COLOR "orange") (PRICE "1.00")) 
+;-> ((DATABASE (@ (name "example.xml"))
+;->   (FRUIT (NAME "apple") (COLOR "red") (PRICE "0.80"))
+;->   (FRUIT (NAME "orange") (COLOR "orange") (PRICE "1.00"))
 ;->   (FRUIT (NAME "banana") (COLOR "yellow") (PRICE "0.6
 
-Se i tag XML originali contengono uno spazio di nomi (namespace) separato da un ":", i due 
+Se i tag XML originali contengono uno spazio di nomi (namespace) separato da un ":", i due
 punti verranno tradotti in un "." (dot) nel simbolo newLISP risultante.
 
 Si noti che l'utilizzo dell'opzione numero 16 comporta l'aggiunta di un simbolo "@" (simbolo "at") alla lista degli attributi.
@@ -9232,9 +9265,9 @@ Durante i parsing delle espressioni XML, i tag XML vengono tradotti in simboli n
 
 (xml-type-tags nil nil nil nil)
 (xml-parse (read-file "example.xml") (+ 1 2 4 8 16) 'CTX)
-;-> ((CTX:DATABASE (@ (CTX:name "example.xml")) 
-;->    (CTX:FRUIT (CTX:NAME "apple") (CTX:COLOR "red") (CTX:PRICE "0.80")) 
-;->    (CTX:FRUIT (CTX:NAME "orange") (CTX:COLOR "orange") (CTX:PRICE "1.00")) 
+;-> ((CTX:DATABASE (@ (CTX:name "example.xml"))
+;->    (CTX:FRUIT (CTX:NAME "apple") (CTX:COLOR "red") (CTX:PRICE "0.80"))
+;->    (CTX:FRUIT (CTX:NAME "orange") (CTX:COLOR "orange") (CTX:PRICE "1.00"))
 ;->    (CTX:FRUIT (CTX:NAME "banana") (CTX:COLOR "yellow") (CTX:PRICE "0.60"))))
 
 Se il contesto non esiste, verrà creato. Se esiste, il carattere quiote "'" può essere omesso o il contesto può essere indicato da una variabile.
@@ -9663,8 +9696,8 @@ Per vedere la differenza di velocità tra le funzioni possiamo anche eseguirle u
 
 Nella logica e nell'informatica, l'unificazione è un processo algoritmico di risoluzione di equazioni tra espressioni simboliche.
 
-A seconda di quali espressioni (chiamate anche termini) possono verificarsi in un insieme di equazioni (chiamato anche problema di unificazione) e quali espressioni sono considerate uguali, vengono distinti diversi modelli (framework) di unificazione. 
-Se in un'espressione sono consentite variabili di ordine superiore, ovvero variabili che rappresentano funzioni, il processo viene chiamato unificazione di ordine superiore (high-order unification), altrimenti unificazione di primo ordine (first-order unification). 
+A seconda di quali espressioni (chiamate anche termini) possono verificarsi in un insieme di equazioni (chiamato anche problema di unificazione) e quali espressioni sono considerate uguali, vengono distinti diversi modelli (framework) di unificazione.
+Se in un'espressione sono consentite variabili di ordine superiore, ovvero variabili che rappresentano funzioni, il processo viene chiamato unificazione di ordine superiore (high-order unification), altrimenti unificazione di primo ordine (first-order unification).
 Se è necessaria una soluzione per rendere letteralmente uguali entrambi i lati di ciascuna equazione, il processo è chiamato unificazione sintattica o libera, altrimenti unificazione semantica o equazionale, o E-unificazione.
 
 Una soluzione di un problema di unificazione è denotata come una sostituzione, cioè una mappatura che assegna un valore simbolico a ciascuna variabile delle espressioni del problema. Un algoritmo di unificazione dovrebbe calcolare per un dato problema un insieme di sostituzioni completo e minimo, cioè un insieme che copre tutte le sue soluzioni e non contiene membri ridondanti. A seconda del framework, un set di sostituzioni completo e minimo può avere al massimo uno, al massimo finitamente molti, o forse infinitamente molti membri, o può non esistere affatto. In alcuni framework è generalmente impossibile decidere se esiste una soluzione. Per l'unificazione sintattica del primo ordine, Martelli e Montanari [2] hanno fornito un algoritmo che segnala la non risolvibilità o calcola un insieme completo e minimo di sostituzioni singole contenente il cosiddetto unificatore più generale.
@@ -9739,7 +9772,7 @@ Notare che le variabili non sono effettivamente associate come assegnazione newL
 (set 'bindings (unify '(f (g A) A) '(f B xyz)))
 ;-> ((B (g xyz)) (A xyz))
 
-(expand '(f (g A) A) bindings)  
+(expand '(f (g A) A) bindings)
 ;-> (f (g xyz) xyz)
 
 ; or in one statement
@@ -10098,7 +10131,7 @@ D'altra parte abbiamo anche caratteri che normalmente vengono stampati come ti a
   |    \t      |  tab                   |
   |    \v      |  vertical tab          |
   +------------+------------------------+
-  
+
 (println "\t un tab")
 ;->          un tab
 ;-> "\t un tab"
@@ -10110,7 +10143,7 @@ D'altra parte abbiamo anche caratteri che normalmente vengono stampati come ti a
 ;-> riga 2
 ;-> "riga 1\nriga 2"
 (println "\n newline")
-;-> 
+;->
 ;->  newline
 ;-> "\n newline"
 
@@ -10350,19 +10383,19 @@ Numeri a virgola mobile (Floating Point)
 I numeri in virgola mobile sono quelli come 3.1415 che hanno un punto decimale interno da qualche parte. Questo è in diverso dai normali numeri interi come 27 che non hanno punto decimale. Tutti gli stessi flag e regole si applicano ai numeri in virgola mobile come per i numeri interi, ma abbiamo alcune nuove opzioni. La più importante è quella per specificare quante cifre compaiono dopo il punto decimale. Questo valore (numero intero) è chiamato la "precisione" del numero. Di seguito sono riportati alcuni esempi per stampare questi numeri:
 
 (setq e 2.718281828)
-(format "%.0f" e) 
+(format "%.0f" e)
 3
-(format "%.0f." e) 
+(format "%.0f." e)
 3.
-(format "%.1f" e) 
+(format "%.1f" e)
 2.7
-(format "%.2f" e) 
+(format "%.2f" e)
 2.72
-(format "%.6f" e) 
+(format "%.6f" e)
 2.718282
-(format "%f" e) 
+(format "%f" e)
 2.718282
-(format "%.7f" e) 
+(format "%.7f" e)
 2.7182818
 
 Si noti che se vengono specificati un punto e un numero, il numero (la precisione) indica quante posizioni devono essere visualizzate dopo il punto decimale. Si noti che se per %f non sono specificati punti e precisione, il valore predefinito è %.6f (sei cifre dopo il punto decimale). Si noti che se viene specificata una precisione pari a zero, anche il punto decimale scompare. Se lo vogliamo stampare comunque, allora dobbiamo inserirlo appositamente (dopo l'identificatore di formato %f.). Possiamo specificare sia una larghezza che una precisione allo stesso tempo. Si noti in particolare che 5.2 indica una larghezza totale di cinque, con due cifre dopo il punto decimale. È molto comune e naturale pensare che significhi cinque cifre prima del decimale e due cifre dopo, ma non è corretto: significa cinque cifre in totale (considerando anche il punto come una cifra) con due cifre dopo il punto decimale. Dobbiamo stare attenti. Comunque l'eventuale troncamento delle cifre vale solo per le cifre dopo il punto decimale: la parte intera del numero viene sempre stampata completamente, anche se la larghezza è inferiore alla dimensione del numero. Di seguito sono riportati alcuni esempi:
@@ -10418,7 +10451,7 @@ Possiamo anche combinare la precisione con i flag che abbiamo visto in precedenz
 
 Progettare un formato di stampa
 -------------------------------
-Per definire un formato di stampa, il primo passo è decidere che tipi di oggetti occorre utilizzare. Se è un numero intero, un float, una stringa o un carattere, faremo scelte diverse sul formato di base da usare. La seconda domanda è quanto dovrebbe essere ampio il nostro campo. Di solito questa sarà la dimensione del numero più grande che ci aspettiamo di stampare in circostanze normali. 
+Per definire un formato di stampa, il primo passo è decidere che tipi di oggetti occorre utilizzare. Se è un numero intero, un float, una stringa o un carattere, faremo scelte diverse sul formato di base da usare. La seconda domanda è quanto dovrebbe essere ampio il nostro campo. Di solito questa sarà la dimensione del numero più grande che ci aspettiamo di stampare in circostanze normali.
 Il test del formato di stampa deve essere effettuato utilizzando i valori estremi dei nostri oggetti (es. con una larghezza minima e massima dei numeri e delle stringhe che dobbiamo trattare).
 Per analizzare una specifica di formato occorre utilizzare un processo di eliminazione per isolare le singole opzioni che intendiamo verificare. Per definire una specifica di formato occorre verificare ogni opzione durante la costruzione della specifica stessa.
 
@@ -10543,8 +10576,8 @@ Tutte le sequenze hanno la forma:
   ║  ESC[XXXm  ║
   ╚════════════╝
 
-dove, ESC vale \027 (decimale) 
-             o \033 (ottale) 
+dove, ESC vale \027 (decimale)
+             o \033 (ottale)
              o \u001b (unicode)
              o \x1b esadecimale
              o ^[ (Ctrl-Key)
@@ -10651,7 +10684,7 @@ Per quanto riguarda i colori abbiamo la sequenza:
 
 dove "back" è il colore di Background e "fore" è il colore di Foreground.
 
-Con le seguenti tabelle di colori: 
+Con le seguenti tabelle di colori:
 
 Tabella 8 Colori
 ----------------
@@ -10679,7 +10712,7 @@ Tabella 8 Colori
   | Reset   | 0          | 0          |
   +---------+------------+------------+
 
-Nota: il colore "Reset" è il codice che ripristina tutti i colori e gli effetti di testo. 
+Nota: il colore "Reset" è il codice che ripristina tutti i colori e gli effetti di testo.
 Il colore "Default" ripristina solo i colori.
 
 Esempi:
@@ -10813,17 +10846,17 @@ Espressione che stampa i 256 colori disponibili:
 
 (for (i 0 255) (print (foreground i) i { }))
 ;-> 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27
-;-> 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 
-;-> 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 
-;-> 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 
-;-> 100 101 102 103 104 105 106 107 108 109 110 111 112 113 114 115 116 117 
-;-> 118 119 120 121 122 123 124 125 126 127 128 129 130 131 132 133 134 135 
-;-> 136 137 138 139 140 141 142 143 144 145 146 147 148 149 150 151 152 153 
-;-> 154 155 156 157 158 159 160 161 162 163 164 165 166 167 168 169 170 171 
-;-> 172 173 174 175 176 177 178 179 180 181 182 183 184 185 186 187 188 189 
-;-> 190 191 192 193 194 195 196 197 198 199 200 201 202 203 204 205 206 207 
-;-> 208 209 210 211 212 213 214 215 216 217 218 219 220 221 222 223 224 225 
-;-> 226 227 228 229 230 231 232 233 234 235 236 237 238 239 240 241 242 243 
+;-> 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51
+;-> 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75
+;-> 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99
+;-> 100 101 102 103 104 105 106 107 108 109 110 111 112 113 114 115 116 117
+;-> 118 119 120 121 122 123 124 125 126 127 128 129 130 131 132 133 134 135
+;-> 136 137 138 139 140 141 142 143 144 145 146 147 148 149 150 151 152 153
+;-> 154 155 156 157 158 159 160 161 162 163 164 165 166 167 168 169 170 171
+;-> 172 173 174 175 176 177 178 179 180 181 182 183 184 185 186 187 188 189
+;-> 190 191 192 193 194 195 196 197 198 199 200 201 202 203 204 205 206 207
+;-> 208 209 210 211 212 213 214 215 216 217 218 219 220 221 222 223 224 225
+;-> 226 227 228 229 230 231 232 233 234 235 236 237 238 239 240 241 242 243
 ;-> 244 245 246 247 248 249 250 251 252 253 254 255
 
 Naturalmente sul terminale l'output è a colori...
@@ -10841,11 +10874,11 @@ Imposta il colore in RGB del testo (foreground -> primo piano):
   ╚═════════════════════════╝
 
 Imposta il colore in RGB dello sfondo del testo (background -> sfondo):
-  
+
   ╔═════════════════════════╗
   ║  ESC[48;2;{r};{g};{b}m  ║ Imposta colore di sfondo in RGB
   ╚═════════════════════════╝
-  
+
 dove {r} = codice red, {g} = codice green e {b} = codice blue
 
 Nota: la console di Windows non supporta queste sequenze per definire i colori in RGB.
@@ -10874,7 +10907,7 @@ Tabella sequenze di cancellazione
   | ESC[2K   | clears entire line                        |
   +----------+-------------------------------------------+
 
-Vediamo alcuni esempi: 
+Vediamo alcuni esempi:
 
 Cancella interamente lo schermo:
 (println "\027[2J")
@@ -10942,7 +10975,7 @@ Operazione        Input                   Output                      Algoritmo 
 Addizione         due numeri da n cifre   un numero da (n+1) cifre    Addizione con riporto                Θ(n)
 Sottrazione       due numeri da n cifre   un numero da (n+1) cifre    Sottrazione con prestito             Θ(n)
 Moltiplicazione   due numeri da n cifre   un numero da 2*n cifre      Moltiplicazione standard             O(n^2)
-Moltiplicazione   due numeri da n cifre   un numero da 2*n cifre      Algoritmo Karatsuba                  O(n^1.585) 
+Moltiplicazione   due numeri da n cifre   un numero da 2*n cifre      Algoritmo Karatsuba                  O(n^1.585)
 Moltiplicazione   due numeri da n cifre   un numero da 2*n cifre      Algoritmo 3-way Toom-Cook            O(n^1.465)
 Moltiplicazione   due numeri da n cifre   un numero da 2*n cifre      Algoritmo k-way Toom-Cook            O(n^(log(2k-1))/log(k))
 Moltiplicazione   due numeri da n cifre   un numero da 2*n cifre      Mixed Toom-Cook/Knuth                O(n*(2^sqrt(2*log(n)))*log(n)
@@ -10951,7 +10984,7 @@ Moltiplicazione   due numeri da n cifre   un numero da 2*n cifre      Algoritmo 
 Moltiplicazione   due numeri da n cifre   un numero da 2*n cifre      Algoritmo Harvey-Hoeven              O(n*log(n))
 Divisione         due numeri da n cifre   un numero da n cifre        Divisione lunga standard             O(n^2)
 Divisione         due numeri da n cifre   un numero da n cifre        Burnikel-Ziegler Divide-and-Conquer  O(M(n)*log(n))
-Divisione         due numeri da n cifre   un numero da n cifre        Divisione Newton-Raphson             O(M(n)) 
+Divisione         due numeri da n cifre   un numero da n cifre        Divisione Newton-Raphson             O(M(n))
 Radice Quadrata   un numero da n cifre    un numero da n cifre        Metodo di Newton                     O(M(n))
 
 dove M(n) rappresenta la complessità dell'algoritmo di moltiplicazione utilizzato.

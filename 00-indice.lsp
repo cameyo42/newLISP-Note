@@ -1164,7 +1164,7 @@ NOTE LIBERE 8
   Creare file di testo Windows e Unix
   Radicale di un numero
   Fattoriale e funzione Y
-  Funzione explode
+  La funzione explode
   Formula di Faulhaber
   Numeri piramidali quadrati
   Numeri potenti
@@ -1180,9 +1180,17 @@ NOTE LIBERE 8
   Analisi numerica e numeri in virgola mobile (floating point)
   Stabilità degli algoritmi di ordinamento
   Colorazione di un grafo (m Coloring Problem)
+  Memoization
   Auto-replicazione di una lista
   La funzione sort
   Algoritmo K-Means
+  Comportamento Lazy
+  SBCL Mandelbrot
+  La funzione constant
+  La funzione global
+  map e curry
+  Trasformare la struttura di una lista
+  Elementi duplicati/multipli di una lista
 
 APPENDICI
 =========

@@ -3743,9 +3743,9 @@ Fattoriale e funzione Y
 ;-> 3628800
 
 
-----------------
-Funzione explode
-----------------
+-------------------
+La funzione explode
+-------------------
 
 ********************
 >>>funzione EXPLODE
@@ -5427,6 +5427,28 @@ Si noti che potrebbero esserci più soluzioni, questa funzione stampa una delle 
 ;-> Solution does not exist
 
 
+-----------
+Memoization
+-----------
+
+(define-macro (memoize mem-func func)
+  (set (sym mem-func mem-func)
+    (letex (f func c mem-func)
+      (lambda ()
+        (or (context c (string (args)))
+        (context c (string (args)) (apply f (args))))))))
+
+(memoize fibonacci
+    (lambda (n)
+        (if(< n 2) 1
+            (+  (fibonacci (- n 1))
+                (fibonacci (- n 2))))))
+
+(time (println (fibonacci 100)))
+;-> 1298777728820984005
+;-> 0
+
+
 ------------------------------
 Auto-replicazione di una lista
 ------------------------------
@@ -5793,6 +5815,549 @@ Se il numero di elementi - caratteristiche - nei record di list-data è diverso 
 Nota: potete trovare una spiegazione esaustiva dell'algoritmo K-means al seguente indirizzo web:
 
 https://www.analyticsvidhya.com/blog/2019/08/comprehensive-guide-k-means-clustering/
+
+
+------------------
+Comportamento Lazy
+------------------
+
+Per utilizzare funzioni con comportamenti "lazy" (funzioni con stato e generatori) newLISP ha metodi diversi da Scheme e Common LISP:
+
+1) utilizzare i contesti
+2) scrivere codice auto-modificante
+
+1) Contesti
+
+(define (fibo:fibo)
+    (if-not fibo:m
+        (setq fibo:m '(0 1)))
+    (pop (push (apply + fibo:m) fibo:m -1))
+    (last fibo:m))
+
+(fibo)
+;-> 1
+(fibo)
+;-> 2
+(fibo)
+;-> 3
+(fibo)
+;-> 5
+(fibo)
+;-> 8
+
+2) codice auto-modificante
+
+(define (fib)
+    (pop (push (eval (last fib)) (last fib) -1) 1)
+    (+ 0 1))
+
+(fib)
+;-> 2
+(fib)
+;-> 3
+(fib)
+;-> 5
+(fib)
+;-> 8
+
+fib
+;-> (lambda () (pop (push (eval (last fib)) (last fib) -1) 1) (+ 3 5))
+
+L'espressione: (last fib) si riferisce all'espressione: (+ 0 1), che viene modificata sul posto.
+Quasi tutte le funzioni distruttive su newLISP possono modificare i dati sul posto. La funzione "setf" non può.
+
+La funzione modificata può essere facilmente serializzata su disco usando: (save "fib.lsp" 'fib).
+Si noti che lo stesso sarebbe possibile con la funzione di contesto: (save "fibo.lsp" 'fibo).
+Questa funzione non è disponibile con le "closure" (chiusure), dove lo stato modificato di una chiusura di funzione è nascosto e non visibile.
+
+Un altra tecnica è quella della "memoization"
+
+La seguente macro genera uno spazio dei nomi (contesto) per la funzione di destinazione e genera simboli per ogni pattern di chiamata per memorizzare i risultati:
+
+(define-macro (memoize mem-func func)
+  (set (sym mem-func mem-func)
+    (letex (f func c mem-func)
+      (lambda ()
+        (or (context c (string (args)))
+        (context c (string (args)) (apply f (args))))))))
+
+(memoize fibonacci
+    (lambda (n)
+        (if (< n 2) 1
+            (+  (fibonacci (- n 1))
+                (fibonacci (- n 2))))))
+
+Senza l'utilizzo della "memoization" la seguente espressione non terminerebbe mai:
+
+(fibonacci 80)
+;-> 37889062373143906
+
+(time (fibonacci 80))
+;-> 0
+
+
+---------------
+SBCL Mandelbrot
+---------------
+
+Programma in linguaggio Steel Bank Common LISP che visualizza il frattale di Mandelbrot:
+
+; sbcl lisp version by mandeep singh
+
+(declaim (optimize (speed 3)))
+
+(defconstant +BAILOUT+ 16)
+(defconstant +MAX-ITERATIONS+ 1000)
+
+(defun mandelbrot (x y)
+  (declare (type single-float x y))
+  (let ((cr (- y 0.5))
+        (ci x)
+        (zi 0.0)
+        (zr 0.0))
+    (declare (type single-float cr ci zi zr))
+    (do ((i 0 (incf i)))
+        (nil)
+      (let* ((temp (the single-float (* zr zi)))
+             (zr2 (the single-float (* zr zr)))
+             (zi2 (the single-float (* zi zi))))
+        (declare (type single-float temp zr2 zi2)
+                 (type fixnum i))
+        (setq zr (the single-float (+ (- zr2 zi2) cr)))
+        (setq zi (the single-float (+ temp temp ci)))
+        (if (> (the single-float (+ zi2 zr2)) +BAILOUT+)
+            (return-from mandelbrot i))
+        (if (> i +MAX-ITERATIONS+)
+            (return-from mandelbrot 0))))))
+(defun main ()
+   (let ((tstart)
+   (tfinish))
+     (setq tstart (get-internal-real-time))
+     (do ((y -39 (incf y)))
+    ((= (the fixnum y) 39))
+       (format t "~%")
+       (do ((x -39 (incf x)))
+      ((= (the fixnum x) 39))
+    (let ((i (mandelbrot (the single-float (/ x 40.0))
+               (the single-float (/ y 40.0)))))
+      (declare (type fixnum i x y))
+        (if (zerop i)
+            (format t "*")
+            (format t " ")))))
+     (format t "~%")
+     (setq tfinish (get-internal-real-time))
+     (format t "SBCL Elapsed ~,2F~%"
+      (coerce (/ (- tfinish tstart) internal-time-units-per-second) 'float))))
+
+(progn
+ (main)
+ (quit))
+
+Versione newLISP del programma precedente:
+
+;newLISP v.10.0.0
+;on Win32 IPv4 UTF-8
+(import "kernel32.dll" "GetTickCount")
+(set 'BAILOUT 16)
+(set 'MAX_ITERATIONS 1000)
+
+(define (iterate x y)
+  (let ((cr (sub y 0.5))
+       (ci x)
+       (zi 0.0)
+       (zr 0.0)
+       (i 0))
+   (while 1
+     (inc i 1)
+     (set 'temp (mul zr zi))
+     (set 'zr2 (mul zr zr))
+     (set 'zi2 (mul zi zi))
+     (set 'zr  (add cr (sub zr2 zi2)))
+     (set 'zi  (add temp temp ci))
+     (if (> (add zi2 zr2) BAILOUT)
+        (throw i))
+     (if (> i MAX_ITERATIONS)
+       (throw 0)))))
+
+(define (mandelbrot)
+    (let ((t (GetTickCount)))
+     (for (y -39 38)
+      (for (x -39 38)
+         (set 'j (catch (iterate (div x 40.0) (div y 40.0))))
+            (if (= j 0.0)
+           (print "*")
+           (print " ")))
+      (print "\n"))
+     (println "Time Elapsed: " (- (GetTickCount) t))))
+
+(mandelbrot)
+;->                                        *
+;->                                        *
+;->                                        *
+;->                                        *
+;->                                        *
+;->                                       ***
+;->                                      *****
+;->                                      *****
+;->                                       ***
+;->                                        *
+;->                                    *********
+;->                                  *************
+;->                                 ***************
+;->                              *********************
+;->                              *********************
+;->                               *******************
+;->                               *******************
+;->                               *******************
+;->                               *******************
+;->                             ***********************
+;->                               *******************
+;->                               *******************
+;->                              *********************
+;->                               *******************
+;->                               *******************
+;->                                *****************
+;->                                 ***************
+;->                                  *************
+;->                                    *********
+;->                                        *
+;->                                 ***************
+;->                             ***********************
+;->                          * ************************* *
+;->                          *****************************
+;->                       * ******************************* *
+;->                        *********************************
+;->                       ***********************************
+;->                     ***************************************
+;->                *** ***************************************** ***
+;->                *************************************************
+;->                 ***********************************************
+;->                  *********************************************
+;->                  *********************************************
+;->                 ***********************************************
+;->                 ***********************************************
+;->               ***************************************************
+;->                *************************************************
+;->                *************************************************
+;->               ***************************************************
+;->               ***************************************************
+;->          *    ***************************************************    *
+;->        *****  ***************************************************  *****
+;->        ****** *************************************************** ******
+;->       ******* *************************************************** *******
+;->     ***********************************************************************
+;->     ********* *************************************************** *********
+;->        ****** *************************************************** ******
+;->        *****  ***************************************************  *****
+;->               ***************************************************
+;->               ***************************************************
+;->               ***************************************************
+;->               ***************************************************
+;->                *************************************************
+;->                *************************************************
+;->               ***************************************************
+;->                 ***********************************************
+;->                 ***********************************************
+;->                   *******************************************
+;->                    *****************************************
+;->                  *********************************************
+;->                 **** ****************** ****************** ****
+;->                  ***  ****************   ****************  ***
+;->                   *    **************     **************    *
+;->                          ***********       ***********
+;->                          **  *****           *****  **
+;->                           *   *                 *   *
+;-> 
+;-> 
+;-> Time Elapsed: 1000
+
+Altra versione di Mandelbrot:
+
+(define (complex:complex
+            (r 0)
+            (i 0))
+    (list complex r i))
+
+(define (complex:rad)
+    (set 're (self 1) 'im (self 2))
+    (sqrt (add
+            (mul re re)
+            (mul im im))))
+
+(define (complex:theta)
+    (atan (div
+            (self 1)
+            (self 2))))
+
+(define (complex:add b)
+    (complex (add
+                (self 1)
+                (b 1))
+             (add
+                (self 2)
+                (b 2))))
+
+(define (complex:mul  b)
+    (set 'a.re (self 1)
+         'a.im (self 2)
+         'b.re (b 1)
+         'b.im (b 2))
+    (complex
+         (sub
+            (mul a.re b.re)
+            (mul a.im b.im))
+         (add
+            (mul a.re b.im)
+            (mul a.im b.re))))
+
+(define (mandelbrot)
+    (for (y -2 2 0.02)
+        (for (x -2 2 0.02)
+            (inc counter)
+            (set 'z (complex x y) 'c 126 'a z)
+            (while (and
+                    (< (abs (:rad (set 'z (:add (:mul z z) a)))) 2)
+                    (> (dec c) 32)))
+            (print (char c)))
+        (println)))
+
+(mandelbrot)
+
+
+--------------------
+La funzione constant
+--------------------
+
+*********************
+>>>funzione CONSTANT
+*********************
+sintassi: (constant sym-1 exp-1 [sym-2 exp-2] ...)
+
+Identiche funzionalità di "set", "constant" protegge ulteriormente i simboli da successive modifiche. Un simbolo identificato con "constant" può essere modificato solo utilizzando nuovamente la funzione "constant". Quando si tenta di modificare il contenuto di un simbolo protetto con "constant", newLISP genera un messaggio di errore. Solo i simboli del contesto corrente possono essere utilizzati con constant. Ciò impedisce la sovrascrittura di simboli che sono stati protetti nel loro contesto domestico. L'ultimo inizializzatore exp-n è sempre facoltativo.
+
+I simboli inizializzati con "set", "define" o "define-macro" possono comunque essere protetti utilizzando la funzione "constant":
+
+(constant 'aVar 123)  → 123
+(set 'aVar 999) 
+ERR: symbol is protected in function set: aVar
+
+(define (double x) (+ x x))
+
+(constant 'double)
+
+;; equivalente a
+
+(constant 'double (fn (x) (+ x x)))
+
+Il primo esempio definisce una costante, aVar, che può essere modificata solo utilizzando un'altra istruzione "constant". Il secondo esempio protegge double dalla modifica (tranne che per "constant"). Poiché una definizione di funzione in newLISP equivale a un'assegnazione di una funzione lambda, entrambi i passaggi possono essere compressi in uno, come mostrato nell'ultima istruzione. Questa potrebbe essere una tecnica importante per evitare errori di protezione quando un file viene caricato più volte.
+
+L'ultimo valore da assegnare può essere omesso. "constant" restituisce il contenuto dell'ultimo simbolo impostato e protetto.
+
+Le funzioni integrate possono essere assegnate a simboli o ai nomi di altre funzioni integrate, ridefinendole di fatto come funzioni diverse. Non vi è alcuna perdita di prestazioni durante la ridenominazione delle funzioni.
+
+(constant 'squareroot sqrt)  → sqrt <406C2E>
+(constant '+ add)            → add <4068A6>
+
+squareroot si comporterà come sqrt. Il + (segno più) viene ridefinito per utilizzare la modalità di aggiunta in virgola mobile di tipo misto. Il numero esadecimale visualizzato nel risultato è l'indirizzo binario della funzione incorporata e varia in base alle piattaforme e ai sistemi operativi.
+
+I simboli protetti con "constant" non possono esssere eliminati:
+
+(constant 'prova 3)
+;-> 3
+(delete 'prova)
+;-> nil
+(set 'prova 3)
+;-> ERR: symbol is protected in function set : prova
+prova
+;-> 3
+
+Ecco perché "delete" restituisce "nil" e "prova" 'pippo' è ancora esistente.
+
+
+------------------
+La funzione global
+------------------
+
+*******************
+>>>funzione GLOBAL
+*******************
+sintassi: (global sym-1 [sym-2 ... ])
+
+Uno o più simboli in sym-1 [sym-2 ... ] possono essere resi globalmente accessibili da contesti diversi da MAIN. L'istruzione deve essere eseguita nel contesto MAIN e solo i simboli appartenenti a MAIN possono essere resi globali. "global" restituisce l'ultimo simbolo reso globale.
+
+(global 'aVar 'x 'y 'z)  → z
+
+(define (foo x) 
+(...))
+
+(constant (global 'foo))
+
+Il secondo esempio mostra come "constant" e "global" possono essere combinati in un'unica istruzione, proteggendo e rendendo globale una definizione di funzione precedente.
+
+
+-----------
+map e curry
+-----------
+
+Alcune volte abbiamo bisogno di passare un argomento alla funzione che viene utilizzata da "map". Ad esempio, supponiamo di voler aggiungere una stringa alla fine di ogni stringa della seguente lista:
+
+(setq lst '("roma" "parigi" "londra"))
+
+Possiamo scrivere una funzione:
+
+(define (add-tail tail str) (append str tail))
+
+(add-tail "-01" "pippo")
+;-> "pippo-01"
+
+Adesso per utilizzare la funzione "add-tail" con "map" occorre utilizzare "curry", perchè "add-tail" necessita di un parametro (sempre lo stesso in questo caso):
+
+(map (curry add-tail "-00") lst)
+;-> ("roma-00" "parigi-00" "londra-00")
+
+Per numerare in ordine crescente possiamo scrivere:
+
+(map (curry add-tail (string "-0" $idx)) lst)
+;-> ("roma-00" "parigi-01" "londra-02")
+
+
+-------------------------------------
+Trasformare la struttura di una lista
+-------------------------------------
+
+Data una lista con la seguente struttura:
+
+(setq lst '((1 Olio 2)
+            (1 Olio 5)
+            (1 Olio 7)
+            (2 Gas 4)
+            (2 Gas 12)))
+
+Trasformarla nella lista seguente:
+
+'((1 Olio (2 5 7))
+  (2 Gas  (4 12)))
+
+Definiamo i seguenti parametri per ogni elemento della lista trasformata (es. (1 Olio 2 5 7)):
+
+id     --> codice univoco = 1
+name   --> nome univoco = Olio 
+values --> lista dei valori (2 5 7)
+
+(define (trasf lst)
+  (local (out cur-id cur-name cur-values)
+    (sort lst)
+    (setq out '())
+    (setq cur-id (lst 0 0))
+    (setq cur-name (lst 0 1))
+    (setq cur-values (list (lst 0 2)))
+    (dolist (el lst)
+      ; il primo elemento è stato già processato
+      (if (> $idx 0)
+          (cond ((= (el 0) cur-id) ; stesso elemento del precedente
+                 (push (el 2) cur-values -1))
+                (true ; elemento diverso dal precedente
+                 ; aggiorna la lista soluzione
+                 (push (list cur-id cur-name cur-values) out -1)
+                 (setq cur-id (el 0)) ; aggiorna id corrente
+                 (setq cur-name (el 1)) ; aggiorna name corrente
+                 ; reinizializza la lista dei valori
+                 (setq cur-values (list (el 2))))
+          )
+      )
+    )
+    ; inserisce l'ultimo elemento della lista soluzione
+    (push (list cur-id cur-name cur-values) out -1)
+    out))
+
+Proviamo la funzione:
+
+(trasf lst)
+;-> ((1 Olio (2 5 7)) (2 Gas (4 12)))
+
+
+----------------------------------------
+Elementi duplicati/multipli di una lista
+----------------------------------------
+
+Data una lista di numeri interi, creare una nuova lista con solo gli elementi duplicati/multipli della lista originale.
+
+(setq lst '(5 7 1 3 5 2 9 12 6 4 8 5 10 5 5 5 6 6))
+
+(define (multiple lst all)
+  (local (out uniq conta)
+    (setq out '())
+    ; calcola gli elementi unici
+    (setq uniq (unique lst))
+    ; conta gli elementi 
+    (setq conta (count uniq lst))
+    ; ciclo per estrarre gli elementi con conteggio
+    ; maggiore di 1
+    (dolist (el conta)
+      (if (> el 1) 
+          (if all
+              ; inserisce tutti i valori dell'elemento
+              ; multiplo corrente
+              (push (dup (uniq $idx) el) out -1)
+              ; inserisce solo un valore dell'elemento
+              ; multiplo corrente
+              (push (uniq $idx) out -1)))
+    )
+    out))
+
+(multiple lst)
+;-> (5 6)
+
+(multiple lst true)
+;-> ((5 5 5 5 5 5) (6 6 6))
+
+Altro metodo (Kazimir Majorinc e cameyo):
+
+(define (multiple2 lst all)
+  (if all
+      (flat (map dup lst (replace 1 (count lst lst) 0)))
+      (unique (flat (map dup lst (replace 1 (count lst lst) 0))))))
+
+(setq lst '(5 7 1 3 5 2 9 12 6 4 8 5 10 5 5 5 6 6))
+
+(multiple2 lst)
+;-> (5 6)
+
+(multiple2 lst true)
+;-> (5 5 5 5 5 5 6 6 6)
+
+Altro metodo che mantiene l'ordine degli elementi multipli (Kazimir Majorinc):
+
+(define (multiple3 lst)
+  (flat (map (lambda(x y)(if (!= y 1)(list x)(list))) lst (count lst lst))))
+
+(multiple3 lst)
+;-> (5 5 6 5 5 5 5 6 6)
+
+Vediamo se le funzioni producono risultati uguali:
+
+(setq lst (rand 100 1000))
+
+(= (multiple lst) (multiple2 lst))
+;-> true
+(= (multiple lst all) (multiple2 lst all))
+;-> true
+
+Vediamo la velocità delle funzioni:
+
+(time (multiple lst) 1000)
+;-> 342.922
+(time (multiple2 lst) 1000)
+;-> 497.556
+
+(time (multiple lst true) 1000)
+;-> 391.729
+
+(time (multiple2 lst true) 1000)
+;-> 401.366
+
+(time (multiple3 lst) 1000)
+;-> 463.329
 
 =============================================================================
 
