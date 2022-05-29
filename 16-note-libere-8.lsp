@@ -6359,5 +6359,166 @@ Vediamo la velocità delle funzioni:
 (time (multiple3 lst) 1000)
 ;-> 463.329
 
+
+-------------------
+Nome della funzione
+-------------------
+
+newLISP non ha una funzione primitiva per conoscere il nome della funzione che si sta eseguendo. Comunque è possibile utilizzare la seguente macro scritta da Cormullion:
+
+(define-macro (define! farg)
+  (set (farg 0)
+    (letex (func   (farg 0)
+            arg    (rest farg)
+            arg-p  (cons 'list (map (fn (x) (if (list? x) (first x) x))
+                     (rest farg)))
+            body   (cons 'begin (args)))
+           (lambda
+               arg (let (_self 'func) body)))))
+
+La macro serve per definire la nostra funzione:
+
+(define! (f a b c)
+   (println "I'm " _self)
+   (+ a b c))
+
+(f 7 8 9)
+;-> I'm f
+;-> 24
+
+(define! (g a b c)
+   (println "and I'm " _self)
+   (- a b c))
+
+(g 3 2 1)
+;-> and I'm g
+;-> 0
+
+
+------------------------
+Complessità di una lista
+------------------------
+
+Come facciamo a definire la complessità di una lista?
+
+Possiamo identificare alcune caratteristiche come:
+- la lunghezza (numero di elementi)
+- la struttura/lista degli indici (come è stratificata/annidata)
+- massimo livello di annidamento
+- tipologia degli elementi
+- ...
+
+Prendiamo come esempio la lista seguente:
+
+(setq lst '((1 1 (2)) (3 3 3 (4 5 (4))) 1 ((((((6))))))))
+
+Calcoliamo le caratteristiche elencate sopra:
+
+lunghezza
+---------
+(length lst)
+;-> 4
+
+struttura/lista degli indici
+----------------------------
+(ref-all nil lst (fn (x) true))
+;-> ((0) (0 0) (0 1) (0 2) (0 2 0) (1) (1 0) (1 1) (1 2) (1 3) (1 3 0) 
+;->  (1 3 1) (1 3 2) (1 3 2 0) (2) (3) (3 0) (3 0 0) (3 0 0 0)
+;->  (3 0 0 0 0) (3 0 0 0 0 0)  (3 0 0 0 0 0 0))
+
+Dalla lista degli indici possiamo recuperare tutti gli elementi della lista:
+
+(setq idx (ref-all nil lst (fn (x) true)))
+(dolist (el idx) (print (lst el) { }))
+;-> (1 1 (2)) 1 1 (2) 2 (3 3 3 (4 5 (4))) 3 3 3 (4 5 (4)) 4 5 (4) 4 1 
+;-> ((((((6)))))) (((((6))))) ((((6)))) (((6))) ((6)) (6) 6
+
+Possiamo recuperare gli elementi più facilmente con "ref-all":
+
+(ref-all nil lst (fn (x) true) true)
+;-> (1 1 (2)) 1 1 (2) 2 (3 3 3 (4 5 (4))) 3 3 3 (4 5 (4)) 4 5 (4) 4 1 
+;-> ((((((6)))))) (((((6))))) ((((6)))) (((6))) ((6)) (6) 6
+
+Massimo livello di annidamento (by Sammo)
+-----------------------------------------
+(apply max (map length (ref-all nil lst (fn (x) true))))
+;-> 7
+
+Tipologia degli elementi
+------------------------
+(define (type-of x)
+"Get the type of a symbol"
+  (let (table '("nil" "true" "int" "float" "string" "symbol" "context"
+               "primitive" "import" "ffi" "quote" "list" "lambda"
+               "fexpr" "array" "dyn_symbol"))
+    (table (& 0xf ((dump x) 1)))))
+
+(dolist (el idx) (print (type-of (lst el)) { }))
+;-> list int int list int list int int int list int int
+;-> list int int list list list list list list int
+
+Vediamo alcuni esempi:
+
+(setq a '((1 2) ((2 (3)) (4 4)) (((7)))))
+(setq b '((1 2) ((2 (3)) (4 4)) (((7)) () ())))
+(setq c '((1 2) ((2 (3)) (4 4)) (((7)) () (nil))))
+
+Lista degli indici:
+(ref-all nil a (fn (x) true))
+;-> ((0) (0 0) (0 1) (1) (1 0) (1 0 0) (1 0 1) (1 0 1 0)
+;->  (1 1) (1 1 0) (1 1 1) (2) (2 0) (2 0 0) (2 0 0 0))
+
+Lista dei valori:
+(ref-all nil a (fn (x) true) true)
+;-> ((1 2) 1 2 ((2 (3)) (4 4)) (2 (3)) 2 (3) 3 (4 4) 4 4 (((7))) ((7)) (7) 7)
+
+Con elementi liste vuote "()":
+(setq b '((1 2) ((2 (3)) (4 4)) (((7)) () ())))
+(ref-all nil b (fn (x) true))
+;-> ((0) (0 0) (0 1) (1) (1 0) (1 0 0) (1 0 1) (1 0 1 0) (1 1)
+;->  (1 1 0) (1 1 1) (2) (2 0) (2 0 0) (2 0 0 0) (2 1) (2 2))
+
+Con elementi "nil":
+(setq c '((1 2) ((2 (3)) (4 4)) (((7)) () (nil))))
+(ref-all nil c (fn (x) true))
+;-> ((0) (0 0) (0 1) (1) (1 0) (1 0 0) (1 0 1) (1 0 1 0) (1 1) 
+;->  (1 1 0) (1 1 1) (2) (2 0) (2 0 0) (2 0 0 0) (2 1) (2 2) (2 2 0))
+
+Se consideriamo le liste come alberi e la complessità è misurata in termini di nodi, rami e foglie (il ramo è il percorso dalla radice alla foglia), possiamo usare le seguenti funzioni:
+
+; by Kazimir Majorinc
+;
+; Syntax:            (depth <L>) - length of the longest branch
+;                    (size <L>)  - number of nodes
+;                    (width <L>) - number of leafs
+;
+; Examples:
+
+(set 'depth (lambda(x)
+               ;(println x)
+               (cond ((quote? x)(+ 1 (depth (eval x))))
+                     ((and (list? x) (empty? x)) 1)
+                     ((list? x)(+ 1 (apply max (map depth x))))
+                     (true 1))))
+
+(set 'size (lambda(x)
+              (+ 1 (cond ((quote? x)(size (eval x)))
+                         ((list? x)(apply + (map size x)))
+                         (true 0)))))
+
+(set 'width (lambda(x)
+              (cond ((quote? x)(width (eval x)))
+                    ((list? x)(apply + (map width x)))
+                    (true 1))))
+
+(setq lst '((1 1 (2)) (3 3 3 (4 5 (4))) 1 ((((((6))))))))
+
+(depth lst)
+;-> 8
+(size lst)
+;-> 23
+(width lst)
+;-> 11
+
 =============================================================================
 

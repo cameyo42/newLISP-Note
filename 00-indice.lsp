@@ -813,7 +813,7 @@ NOTE LIBERE 4
   Gioco del 15
   Numeri rari
   Patience Sort
-  Lista degli indici
+  Lista degli indici di una lista
   Buche sulle strada
   Storia delle variabili
   Numeri di Chowla
@@ -1191,6 +1191,8 @@ NOTE LIBERE 8
   map e curry
   Trasformare la struttura di una lista
   Elementi duplicati/multipli di una lista
+  Nome della funzione
+  Complessità di una lista
 
 APPENDICI
 =========

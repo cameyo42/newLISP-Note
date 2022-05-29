@@ -3842,9 +3842,25 @@ Vediamo un'implementazione dell'ordinamento della pazienza:
 ;-> (-10 -9 -8 -7 -6 -5 -4 -3 -2 -1 0 1 2 3 4 5 6 7 8 9 10)
 
 
-------------------
-Lista degli indici
-------------------
+-------------------------------
+Lista degli indici di una lista
+-------------------------------
+
+----------------------------
+UPDATE: metodo con "ref-all"
+
+(setq a '((1 2) ((2 (3)) (4 4)) (((7)))))
+
+lista degli indici:
+(ref-all nil a (fn (x) true))
+;-> ((0) (0 0) (0 1) (1) (1 0) (1 0 0) (1 0 1) (1 0 1 0) (1 1) 
+;->  (1 1 0) (1 1 1) (2) (2 0) (2 0 0) (2 0 0 0))
+
+lista degli elementi:
+(ref-all nil a (fn (x) true) true)
+;-> ((1 2) 1 2 ((2 (3)) (4 4)) (2 (3)) 2 
+;->  (3) 3 (4 4) 4 4 (((7))) ((7)) (7) 7)
+----------------------------
 
 Supponiamo di avere una lista annidata e di voler conoscere la struttura della lista. Possiamo scrivere una funzione che elenca tutte le sotto-liste e i relativi elementi:
 
