@@ -80,6 +80,35 @@ Adesso scriviamo la funzione che calcola le frequenze:
 ;-> ()
 
 
+Un altro metodo è quello di utilizzare la funzione "count":
+
+(setq words '("one" "two" "two" "three" "three" "three" "four" "four" 
+              "four" "four" "five" "five" "five" "five" "five" "six" "six"))
+
+(define (frequencies lst)
+  (letn ((uniq (unique words))
+         (freq (count uniq words)))
+  (map list uniq freq)))
+
+(frequencies lst)
+;-> (("one" 1) ("two" 2) ("three" 3) ("four" 4) ("five" 5) ("six" 2))
+
+Un altro metodo è quello di utilizzare un contesto (by Cormullion):
+
+(setq words '("one" "two" "two" "three" "three" "three" "four" "four" 
+              "four" "four" "five" "five" "five" "five" "five" "six" "six"))
+
+(define C:C)
+
+(dolist (word words)
+   (if (set 'tally (C word))
+       (C word (inc tally))
+       (C word 1)))
+
+(C)
+;-> (("five" 5) ("four" 4) ("one" 1) ("six" 2) ("three" 3) ("two" 2))
+
+
 --------------------------------------
 Approssimazione razionale di un numero
 --------------------------------------

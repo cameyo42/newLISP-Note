@@ -1193,6 +1193,16 @@ NOTE LIBERE 8
   Elementi duplicati/multipli di una lista
   Nome della funzione
   Complessità di una lista
+  Eliminare sottoliste da una lista annidata
+  Le funzioni set-ref e set-ref-all
+  set-ref-all: differenze tra $0 e $it
+
+NOTE LIBERE 9
+=============
+  La lunghezza di nil
+  Vocali, consonanti e cifre in una stringa
+  Pseudo-closures con gensym
+  Passaggio di elementi di una lista come argomenti di funzione
 
 APPENDICI
 =========

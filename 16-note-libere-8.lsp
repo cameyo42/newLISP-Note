@@ -6520,5 +6520,205 @@ Se consideriamo le liste come alberi e la complessità è misurata in termini di
 (width lst)
 ;-> 11
 
+
+------------------------------------------
+Eliminare sottoliste da una lista annidata
+------------------------------------------
+
+Data la seguente lista:
+
+(set 'planets '(("Mercury"
+      (p-name "Mercury")
+      (diameter 0.382)
+      (mass 0.06)
+      (radius 0.387)
+      (period 0.241)
+      (incline 7)
+      (eccentricity 0.206)
+      (rotation 58.6)
+      (moons 0))
+  ("Venus"
+      (p-name "Venus")
+      (diameter 0.949)
+      (mass 0.82)
+      (radius 0.72)
+      (period 0.615)
+      (incline 3.39)
+      (eccentricity 0.0068)
+      (rotation -243)
+      (moons 0))
+      ))
+
+Come possiamo eliminare tutti gli elementi "p-name"?
+
+La seguente espressione risolve il problema:
+
+(dolist (item (reverse (ref-all '(p-name *) planets match)))
+   (pop planets item))
+
+planets
+;-> (("Mercury" (diameter 0.382) (mass 0.06) (radius 0.387) (period 0.241) 
+;->  (incline 7) (eccentricity 0.206) (rotation 58.6) (moons 0))
+;->  ("Venus" (diameter 0.949) (mass 0.82) (radius 0.72) (period 0.615) 
+;->  (incline 3.39) (eccentricity 0.0068) (rotation -243) (moons 0)))
+
+Dobbiamo utilizzare "pop" su "reverse list" perchè altrimenti potremmo incorrere in "list out of bounds error".
+
+Le funzioni della famiglia "ref" cercano sempre le corrispondenze scorrendo una lista da sinistra a destra,
+prima in profondità. Ciò significa che è la rimozione di qualsiasi espressione corrispondente
+interessa solo gli indici degli elementi che seguono, indipendentemente dall'annidamento,
+anche se le corrispondenze contengono altre corrispondenze in modo ricorsivo.
+Considera questo:
+
+(set 'theList '(a (b) (b (b 2) (b (b 3) (b 4)))))
+;-> (a (b) (b (b 2) (b (b 3) (b 4))))
+
+(ref-all '(b *) theList match)
+;-> ((1) (2) (2 1) (2 2) (2 2 1) (2 2 2))
+
+(pop theList '(2 2 2))
+;-> (b 4)
+
+(pop theList '(2 2 1))
+;-> (b 3)
+
+(pop theList '(2 2))
+;-> (b)
+
+(pop theList '(2 1))
+;-> (b 2)
+
+(pop theList '(2))
+;-> (b)
+
+(pop theList '(1))
+;-> (b)
+theList
+;-> (a)
+
+viceversa possiamo costruire la lista originale da tutti gli elementi eliminati (popped) e dal vettore degli indici:
+
+(set 'theList '(a (b) (b (b 2) (b (b 3) (b 4)))))
+
+; the list of the index vectors
+(set 'indexList (ref-all '(b *) theList match))
+;-> ((1) (2) (2 1) (2 2) (2 2 1) (2 2 2))
+
+; the list of all popped items
+(set 'popped (map (curry pop theList) (reverse (copy indexList))))
+((b 4) (b 3) (b) (b 2) (b) (b))
+
+; after popping out all matches
+theList
+;-> (a)
+
+; reconstruct the list from popped items starting with residual list
+(map (fn (m i) (push m theList i)) (reverse (copy popped)) indexList)
+;-> ((a (b)) (a (b) (b)) (a (b) (b (b 2))) (a (b) (b (b 2) (b))) 
+;->  (a (b) (b (b 2) (b (b 3)))) (a (b) (b (b 2) (b (b 3) (b 4)))))
+
+theList
+;-> (a (b) (b (b 2) (b (b 3) (b 4))))
+
+Nota che "reverse" deve essere reso non distruttivo usando "copy".
+
+
+---------------------------------
+Le funzioni set-ref e set-ref-all
+---------------------------------
+
+*********************
+>>> funzione SET-REF
+*********************
+sintassi: (set-ref exp-key list exp-replacement [func-compare])
+
+Cerca "exp-key" nella lista e sostituisce l'elemento trovato con "exp-replacement". La lista può essere nidificata. La variabile di sistema $it contiene l'espressione trovata e può essere utilizzata in "exp-replacement". La funzione restituisce la nuova lista modificata.
+
+(set 'data '(fruits (apples 123 44) (oranges 1 5 3)))
+
+(set-ref 'apples data 'Apples)
+;-> (fruits (Apples 123 44) (oranges 1 5 3))
+
+data
+;-> (fruits (Apples 123 44) (oranges 1 5 3)))
+
+i dati potrebbero essere un identificatore di contesto della funzione di default (funtore) per passare liste per riferimento:
+
+(set 'db:db '(fruits (apples 123 44) (oranges 1 5 3)))
+
+(define (update ct key value)
+  (set-ref key ct value))
+
+(update db 'apples 'Apples)
+;-> (fruits (Apples 123 44) (oranges 1 5 3))
+(update db 'oranges 'Oranges) 
+;-> (fruits (Apples 123 44) (Oranges 1 5 3))
+
+db:db
+;-> (fruits (Apples 123 44) (Oranges 1 5 3))
+
+Per esempi su come utilizzare "func-compare" vedere "set-ref-all". 
+
+Per modificare tutte le occorrenze di un elemento in una lista, utilizzare "set-ref-all".
+
+*************************
+>>> funzione SET-REF-ALL
+*************************
+sintassi: (set-ref-all exp-key list exp-replacement [func-compare])
+
+Cerca "exp-key" nella lista e sostituisce ogni istanza dell'elemento trovato con "exp-replacement". La lista può essere nidificata. La variabile di sistema $it contiene l'espressione trovata e può essere utilizzata in "exp-replacement". La variabile di sistema "$count" contiene il numero di sostituzioni effettuate. La funzione restituisce la nuova lista modificata.
+
+(set 'data '((monday (apples 20 30) (oranges 2 4 9)) (tuesday (apples 5) (oranges 32 1))))
+
+(set-ref-all 'apples data "Apples")
+;-> ((monday ("Apples" 20 30) (oranges 2 4 9)) (tuesday ("Apples" 5) (oranges 32 1)))
+
+$count
+;-> 2
+
+L'uso del funtore predefinito come lista consente di passare la lista per riferimento a una funzione definita dall'utente contenente un'istruzione set-ref-all. Ciò comporterebbe un minore utilizzo della memoria e velocità più elevate durante le sostituzioni in liste di grandi dimensioni:
+
+(set 'db:db '((monday (apples 20 30) (oranges 2 4 9)) (tuesday (apples 5) (oranges 32 1))))
+
+(define (foo ctx)
+  (set-ref-all 'apples ctx "Apples")
+)
+
+(foo db) 
+;-> ((monday ("Apples" 20 30) (oranges 2 4 9)) (tuesday ("Apples" 5) (oranges 32 1)))
+
+Durante la valutazione di (foo db), l'elenco in db:db verrà passato per riferimento e "set-ref-all" apporterà le modifiche sull'originale, non su una copia di db:db.
+
+Come con "find", "replace", "ref" e "ref-all", le ricerche complesse possono essere espresse usando "match" o "unify" in "func-compare":
+
+(set 'data '((monday (apples 20 30) (oranges 2 4 9)) (tuesday (apples 5) (oranges 32 1))))
+
+(set-ref-all '(oranges *) data (list (first $it) (apply + (rest $it))) match)
+;-> ( ... (oranges 15) ... (oranges 33) ... ) 
+
+L'esempio somma tutti i numeri trovati nei record che iniziano con il simbolo arancione. Gli elementi trovati appaiono in $it.
+
+Vedi anche "set-ref" che sostituisce solo il primo elemento trovato.
+
+
+------------------------------------
+set-ref-all: differenze tra $0 e $it
+------------------------------------
+
+Nella funzione set-ref-all la variabile $0 viene impostata solo quando si utilizza un'espressione regolare. Invece $it viene sempre impostata. Il seguente esempio (tutte le stringhe che contengono "m" vengono rese maiuscole) funziona con entrambi $0 e $it:
+
+(set-ref-all ".*m.*" '("abmcd" "defg" "xymzw") (upper-case $0) regex)
+;-> ("ABMCD" "defg" "XYMZW")
+
+(set-ref-all ".*m.*" '("abmcd" "defg" "xymzw") (upper-case $it) regex)
+;-> ("ABMCD" "defg" "XYMZW")
+
+Quando la regex corrisponde ad una sola parte dell'elemento ("m"), allora $0 e $it si comportano in modo diverso, perché $0 si riferisce solo alla parte dell'elemento che corrisponde e $it si riferisce all'intero elemento:
+
+(set-ref-all "m" '("abmcd" "defg" "xymzw") (upper-case $0) regex)
+;-> ("M" "defg" "M")
+(set-ref-all "m" '("abmcd" "defg" "xymzw") (upper-case $it) regex)
+;-> ("ABMCD" "defg" "XYMZW")
+
 =============================================================================
 

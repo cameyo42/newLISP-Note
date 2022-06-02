@@ -3853,8 +3853,8 @@ UPDATE: metodo con "ref-all"
 
 lista degli indici:
 (ref-all nil a (fn (x) true))
-;-> ((0) (0 0) (0 1) (1) (1 0) (1 0 0) (1 0 1) (1 0 1 0) (1 1) 
-;->  (1 1 0) (1 1 1) (2) (2 0) (2 0 0) (2 0 0 0))
+;-> ((0) (0 0) (0 1) (1) (1 0) (1 0 0) (1 0 1) (1 0 1 0)
+;->  (1 1) (1 1 0) (1 1 1) (2) (2 0) (2 0 0) (2 0 0 0))
 
 lista degli elementi:
 (ref-all nil a (fn (x) true) true)
