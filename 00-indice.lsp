@@ -1203,6 +1203,11 @@ NOTE LIBERE 9
   Vocali, consonanti e cifre in una stringa
   Pseudo-closures con gensym
   Passaggio di elementi di una lista come argomenti di funzione
+  Differenza tra let e letex
+  Ricorsione cond
+  Come funziona (define (sum (x 0)) (inc 0 x)) ?
+  Estrazione da una lista con un pattern
+  Creazione di liste con struttura predefinita e valori casuali
 
 APPENDICI
 =========
@@ -1236,7 +1241,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (218 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (219 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================
