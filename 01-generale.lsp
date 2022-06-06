@@ -1160,7 +1160,7 @@ m
 
 Nota: quando abbiamo delle liste con molti elementi, il passaggio per valore rallenta l'esecuzione del programma perchè ad ogni chiamata di funzione deve sempre essere fatta una copia degli argomenti.
 
-Per utilizzare il passaggio per riferimento dovremmo vedere come funzionano i contesti (CONTEXT), comunque, dal punto di vista pratico, questa è la tecnica pe usare il "passaggio per riferimento":
+Per utilizzare il passaggio per riferimento dovremmo vedere come funzionano i contesti (CONTEXT), comunque, dal punto di vista pratico, questa è la tecnica per usare il "passaggio per riferimento":
 
 (setq m:m '(0 1 2 3 4 5 6 7))
 
@@ -1290,10 +1290,10 @@ Poichè abbiamo passato la lista by-value, allora la lista originale non è camb
 nums
 ;-> (1 2 3 4)
 
-Adesso scriviamo una funzione che si aspetta di ricevere una lista quotata (che viene passata by-reference)
+Adesso scriviamo una funzione che si aspetta di ricevere una lista quotata (che viene passata by-reference):
 
 (define (change-ref lst x)
-  (push x (eval lst))
+  (push x (eval lst)) ; dobbiamo valutare la lista passata
   (push x (eval lst) -1)
   (eval lst))
 
@@ -1309,6 +1309,30 @@ nums
 ;-> (0 1 2 3 4 0)
 
 Nota: la funzione "eval" è molto veloce e può essere usata senza problemi.
+
+Senza usare i contesti, possiamo passare il riferimento della struttura (non la struttura stessa) e fare in modo che la funzione lo dereferenzi (valuti):
+
+(set 'x '(0 1 2 (3 4)))
+; eval is dereference
+(define (destruct lst) (setf ((eval lst) 3 0 0) 1))
+
+(println x)
+;-> (0 1 2 (3 4))
+(setf (x 3 0) 4)
+(println x)
+;-> (0 1 2 (4 4))
+
+; passes symbol x, which is reference of the list stored as value of x
+(destruct 'x)
+;-> 1
+(println x) ; =>(0 1 2 (1 4))
+
+Un altro modo per dereferenziare (se vogliamo farlo una volta sola per strutture più grandi) è il seguente:
+
+(define (destruct lst)
+           (letex((lst lst))
+              (setf (lst 3 0 0) 1)
+              (setf (lst 3 0 1) 2)))
 
 
 =============================

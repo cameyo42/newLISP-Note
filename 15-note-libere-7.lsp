@@ -7043,6 +7043,17 @@ Vediamo i tempi di esecuzione:
 
 Nota: se all'interno del loop indicizziamo una lista o un vettore, allora usare "dolist" (se possibile), altrimenti usare il ciclo "for". Il ciclo "while" solo per funzione in cui la velocità non conta (o non è possibile utilizzare "dolist" e "for").
 
+Posiamo utilizzare anche $idx come contatore:
+
+(time (while (< (++ i) 3000000)))
+;-> 88.79
+(time (while (< $idx 3000000)))
+;-> 72.834
+(time (dotimes (x 3000000)))
+;-> 21.969
+(time (for (i 1 3000000)))
+;-> 21.94
+
 
 -------------------
 Quicksort iterativo

@@ -1208,6 +1208,12 @@ NOTE LIBERE 9
   Come funziona (define (sum (x 0)) (inc 0 x)) ?
   Estrazione da una lista con un pattern
   Creazione di liste con struttura predefinita e valori casuali
+  Assegnazione doppiamente quotata
+  Esercizio
+  Cicli senza cicli
+  Lewis Carrol e le biglie
+  Ciclo Sattolo
+  Ricerca di elementi in una lista e in una hash-map
 
 APPENDICI
 =========

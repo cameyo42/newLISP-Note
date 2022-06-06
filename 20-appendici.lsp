@@ -6322,6 +6322,14 @@ Kelsey Hightower
 "You are not a Bayesian homunculus whose reasoning is “corrupted” by cognitive biases. You just are cognitive biases."
 - Luke Muehlhauser
 
+"Simple is:
+1. Clear abstraction: smart, well-drawn layers of "knowledge focus" that allow hiding of details.
+2. Clean expression: meaningful, concise but not cryptic, representation and communication of concepts."
+- Carl Sassenrath
+
+"Scrivi un programma nel modo migliore per fare il suo debug."
+- 
+
 ============================================================================
  Prefissi del Sistema Internazionale di unità di misura
 ============================================================================

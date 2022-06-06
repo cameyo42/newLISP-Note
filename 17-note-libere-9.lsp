@@ -59,7 +59,7 @@ Secondo metodo:
   (local (lst vowel conso digit out)
     (setq lst (explode testo))
     (setq vowel '("a" "e" "i" "o" "u"))
-    (setq conso '("b" "c" "d" "f" "g" "h" "j" "k" "l" "m" "n" 
+    (setq conso '("b" "c" "d" "f" "g" "h" "j" "k" "l" "m" "n"
                   "p" "q" "r" "s" "t" "v" "w" "x" "y" "z"))
     (setq digit '("0" "1" "2" "3" "4" "5" "6" "7" "8" "9"))
     (setq out '())
@@ -77,9 +77,9 @@ Secondo metodo:
 (howmany testo)
 ;-> ((("a" 3) ("e" 2) ("i" 6) ("o" 2) ("u" 1))
 ;->  (("b" 0) ("c" 2) ("d" 1) ("f" 1) ("g" 1) ("h" 1) ("j" 0) ("k" 0) ("l" 3)
-;->   ("m" 0) ("n" 0) ("p" 2) ("q" 0) ("r" 3) ("s" 5) ("t" 0) ("v" 0) ("w" 0) 
-;->   ("x" 0) ("y" 0) ("z" 0)) 
-;->  (("0" 0) ("1" 1) ("2" 1) ("3" 1) ("4" 0) 
+;->   ("m" 0) ("n" 0) ("p" 2) ("q" 0) ("r" 3) ("s" 5) ("t" 0) ("v" 0) ("w" 0)
+;->   ("x" 0) ("y" 0) ("z" 0))
+;->  (("0" 0) ("1" 1) ("2" 1) ("3" 1) ("4" 0)
 ;->    ("5" 0) ("6" 0) ("7" 0) ("8" 0) ("9" 0)))
 
 
@@ -148,7 +148,7 @@ La differenza di "def-static" rispetto a questa soluzione è che inserisce ogni 
 
 Al posto di "gensym" è possibile utilizzare (sym (uuid)).
 
-Nota: la funzione "gensym" è leggermente più veloce e mantiene tutti i simboli generati nello stesso contesto (namespace) gensym. Ma se ne usiamo solo alcuni, allora (sym (uuid)) è più pratico. 
+Nota: la funzione "gensym" è leggermente più veloce e mantiene tutti i simboli generati nello stesso contesto (namespace) gensym. Ma se ne usiamo solo alcuni, allora (sym (uuid)) è più pratico.
 Una buona pratica è spostare le define-macro (fexprs) nel proprio spazio dei nomi, che risolve anche l'acquisizione di variabili e crea una sorta di chiusura lessicale.
 
 
@@ -417,7 +417,7 @@ Primo metodo iterativo:
       (cond ((= token str1)
               (setq s true))
             ((= token str2)
-              (if s 
+              (if s
                 (begin
                   (push tmp out -1)
                   (setq s nil)
@@ -527,7 +527,7 @@ Adesso possiamo scrivere la funzione finale (spiegazione nei commenti):
       (dolist (idx indexes)
         (setq tipo (struct-lst idx))
         ; indice di un valore atomico?
-        (if (atom? tipo) 
+        (if (atom? tipo)
           (begin
             ; estrazione dei parametri del tipo
             (setq p (parse tipo))
@@ -559,15 +559,15 @@ Facciamo alcune prove:
 
 (setq a '("str 2 4" "int 10 20" "flt 0 10"))
 (make-list a 5)
-;-> (("xy"   13 5.249794000061037) 
-;->  ("tmxz" 18 0.5508590960417493) 
+;-> (("xy"   13 5.249794000061037)
+;->  ("tmxz" 18 0.5508590960417493)
 ;->  ("hig"  11 6.011535996581927)
 ;->  ("hyg"  19 8.886684774315622)
 ;->  ("skh"  20 3.220313119907224))
 
 (setq a '(("int 0 10" "int 0 10") (("int 3 3" ("str 3 3")) ("int 3 5" "str 1 2")) ((("flt 0.5 1.5")))))
 (make-list a 15)
-;-> (((0 6)  ((3 ("zln")) (3 "s"))  (((1.278923917355876)))) 
+;-> (((0 6)  ((3 ("zln")) (3 "s"))  (((1.278923917355876))))
 ;->  ((1 0)  ((3 ("fts")) (3 "yh")) (((1.481566820276498))))
 ;->  ((1 10) ((3 ("tiu")) (4 "wo")) (((0.7101809747611927))))
 ;->  ((4 4)  ((3 ("sge")) (3 "m"))  (((0.5996429334391309))))
@@ -583,7 +583,313 @@ Facciamo alcune prove:
 ;->  ((8 9)  ((3 ("xse")) (5 "n"))  (((1.179158909878842))))
 ;->  ((6 7)  ((3 ("xfy")) (5 "hz")) (((1.366176335947752)))))
 
+(setq a '("int 1 100"))
+(make-list a 5)
+;-> ((64) (5) (32) (48) (21))
+(flat (make-list a 5))
+;-> (25 24 83 96 55)
+
 Modificando la funzione è possibile aggiungere altri tipi oltre a "int", "flt" e "str".
+
+
+--------------------------------
+Assegnazione doppiamente quotata
+--------------------------------
+
+Partendo da una REPL nuova memorizziamo tutti i simboli in una lista:
+
+(setq simboli (symbols))
+
+Adesso assegniamo ai simboli "a", "b" e "c" i valori 1, 2 e 3 con tre metodi diversi:
+
+Assegnazione con "set" (usando il simbolo quotato):
+(set 'a 1)
+;-> 1
+
+Assegnazione con "setq" (senza il simbolo quotato):
+(setq b 2)
+;-> 2
+
+Assegnazione con "setq" (usando il simbolo quotato):
+(setq 'c 3)
+;-> 3 ; esiste un output
+Nota: questa assegnazione non ha una logica ed è sbagliato, ma produce risultato strani.
+
+Vediamo quali simboli sono stati creati:
+
+(difference (symbols) simboli)
+;-> (a b c)
+
+Vediamo i valori dei simboli creati:
+
+(println "a = " a ", b = " b ", c = " c})
+;-> a = 1, b = 2, c = nil
+
+Dove è finito il valore 3?
+
+
+---------
+Esercizio
+---------
+
+Scrivere una funzione per generare la seguente lista:
+
+  ((1 "a") (1 "b") (1 "c") (1 "d")
+   (2 "a") (2 "b") (2 "c") (2 "d")
+   (3 "a") (3 "b") (3 "c") (3 "d")
+   (4 "a") (4 "b") (4 "c") (4 "d")
+   (5 "a") (5 "b") (5 "c") (5 "d"))
+
+Soluzione 1:
+
+(define (sol01)
+  (map list
+    ; numbers
+    (sort (flat (dup (sequence 1 5) 4)))
+    ; letters
+    (explode (dup "abcd" 5))))
+
+(sol01)
+;-> ((1 "a") (1 "b") (1 "c") (1 "d")
+;->  (2 "a") (2 "b") (2 "c") (2 "d")
+;->  (3 "a") (3 "b") (3 "c") (3 "d")
+;->  (4 "a") (4 "b") (4 "c") (4 "d")
+;->  (5 "a") (5 "b") (5 "c") (5 "d"))
+
+Soluzione 2:
+
+(define (sol02)
+  (for (i 1 5) 
+    (extend '() (map (curry list i) '("a" "b" "c" "d")))))
+
+(sol02)
+;-> ((1 "a") (1 "b") (1 "c") (1 "d")
+;->  (2 "a") (2 "b") (2 "c") (2 "d")
+;->  (3 "a") (3 "b") (3 "c") (3 "d")
+;->  (4 "a") (4 "b") (4 "c") (4 "d")
+;->  (5 "a") (5 "b") (5 "c") (5 "d"))
+
+
+-------------
+Ciclo Sattolo
+-------------
+
+Il ciclo Sattolo è un algoritmo per mescolare casualmente uns lista in modo tale che ogni elemento finisca in una nuova posizione.
+
+Data una lista di elementi con indici che vanno da 0 a N, l'algoritmo può essere definito come segue (pseudo-codice):
+
+for i from N downto 1 do:
+    let j = random integer in range 0 <= j < i
+    swap items[i] with items[j]
+
+L'unica differenza tra questo e il Knuth shuffle, è che j viene scelto dall'intervallo nell'intervallo 0 <= j < i, anziché 0 <= j <= i. Questo è ciò che garantisce che ogni elemento finisca in una nuova posizione, purché siano presenti almeno due elementi.
+
+(define (sattolo lst)
+  (let (len (length lst))
+    (for (i (- len 1) 1)
+      (setq j (rand i))
+      ;(swap (lst i) (lst (rand i)))
+      (swap (lst i) (lst j))
+    )
+  lst))
+
+(sattolo '(1 2 3))
+;-> (2 3 1)
+(sattolo '(1 2 3))
+;-> (3 2 1)
+
+(setq lst '(1 2 3))
+(unique (collect (setq lst (sattolo lst)) 1e3))
+;-> ((1 2 3) (3 1 2) (2 3 1))
+
+(setq lst '(1 2 3 4 5 6 7 8 9))
+(sattolo lst)
+;-> (2 8 6 3 1 5 4 9 7)
+
+(length (unique (collect (setq lst (sattolo lst)) 1e6)))
+;-> 180693
+(length (unique (collect (setq lst (sattolo lst)) 1e7)))
+;-> 181440
+
+
+------------------------
+Lewis Carrol e le biglie
+------------------------
+
+Lewis Carroll (pseudonimo di Charles Lutwidge Dodgson, 1832 - 1898) è stato uno scrittore, matematico e prete anglicano britannico. È conosciuto soprattutto per i due romanzi "Le avventure di Alice nel Paese delle Meraviglie" e "Attraverso lo specchio e quel che Alice vi trovò".
+
+Vediamo uno dei suo problemi:
+
+1. In un sacchetto c'è una biglia di colore verde o giallo.
+2. Inseriamo nel sacchetto una biglia di colore giallo.
+3. Estraiamo una biglia dal sacchetto e notiamo che è di colore giallo.
+
+Quanto vale la probabilità che nel sacchetto (che adesso contiene una sola biglia) vi sia una biglia di colore giallo?
+
+Il secondo quesito è uguale, tranne che nel passaggio 3:
+
+3. Estraiamo una biglia senza vedere che colore è.
+
+Quanto vale la probabilità che nel sacchetto (che adesso contiene una sola biglia) vi sia una biglia di colore giallo?
+
+Prima risolviamo il problema con due simulazioni, poi vedremo la soluzione matematica.
+
+Funzione che genera "G"iallo o "V"erde:
+
+(define (g-v) (if (zero? (rand 2)) "G" "V"))
+
+Funzione per il primo quesito:
+
+(define (estrae1 iter)
+  (local (sacchetto contag)
+    (setq contag 0)
+    (setq i 0)
+    (while (< i iter)
+      (setq sacchetto '())
+      ; inseriamo una "G" o una "R"
+      (push (g-v) sacchetto -1)
+      ; inseriamo una "G"
+      (push "G" sacchetto)
+      ;estraiamo una biglia
+      (setq num (rand 2))
+      (cond ((= (pop sacchetto num) "G")
+             ; evento valido (da conteggiare)
+             (++ i)
+             ; controllo colore biglia rimasta
+             (if (= (sacchetto 0) "G") (++ contag)))
+            (true ; estratta "R" ==> evento non valido
+              nil)
+      )
+    )
+    (println iter)
+    (div contag iter)))
+
+Proviamo la funzione:
+
+(estrae1 1e5)
+;-> 0.66609
+(estrae1 1e6)
+;-> 0.665354
+(estrae1 1e7)
+;-> 0.6667029
+
+La prima simulazione produce una probabilità del 66.66% (2/3) che la biglia rimasta sia di colore giallo.
+
+Funzione per il secondo quesito:
+
+(estrae1 1e6)
+(define (estrae2 iter)
+  (local (sacchetto contag)
+    (setq contag 0)
+    (for (i 1 iter)
+      (setq sacchetto '())
+      ; inseriamo una "G" o una "R"
+      (push (g-v) sacchetto -1)
+      ; inseriamo una "G"
+      (push "G" sacchetto)
+      ; estraiamo una biglia senza vedere il suo colore
+      (pop sacchetto (rand 2))
+      ; controllo colore biglia rimasta
+      (if (= (sacchetto 0) "G")
+          (++ contag)
+      )
+    )
+    (div contag iter)))
+
+Proviamo la funzione:
+
+(estrae2 1e5)
+;-> 0.75031
+(estrae2 1e6)
+;-> 0.749505
+(estrae2 1e7)
+;-> 0.7497385
+
+La seconda simulazione produce una probabilità del 75% (3/4) che la biglia rimasta sia di colore giallo.
+
+Il risultato è controintuitivo, ma è esatto. Il calcolo matematico può essere svolto in due modi o con il teorema di Bayes o in maniera più intutitiva con il teorema fondamentale delle probabilità:
+
+                numero eventi favorevoli
+Probabilità = ----------------------------
+                numero eventi possibili
+
+Nel primo quesito, quando abbiamo due biglie nel sacchetto e estraiamo una biglia "Gialla", abbiamo i seguenti eventi possibili:
+
+1) nel sacchetto ci sono una biglia "Rossa" e una biglia "Gialla" 
+   ed estraiamo la biglia "Rossa" (rimane biglia "Gialla")
+2) nel sacchetto ci sono una biglia "Rossa" e una biglia "Gialla" 
+   ed estraiamo la biglia "Gialla" (rimane biglia "Rossa")
+3) nel sacchetto ci sono una biglia "Gialla" e una biglia "Gialla" 
+   ed estraiamo la prima biglia "Gialla" (rimane biglia "Gialla")
+4) nel sacchetto ci sono una biglia "Gialla" e una biglia "Gialla" 
+   ed estraiamo la prima seconda "Gialla" (rimane biglia "Gialla")
+
+Il primo evento non accade mai (perchè viene scartato) quindi abbiamo 3 eventi possibili (2, 3 e 4) e in due di questi casi rimane una biglia "Gialla".
+Quindi la probabilità che rimanga una biglia "Gialla" vale 2/3 = 66.66%
+
+Nel secondo quesito abbiamo gli stessi eventi, con la differenza che l'evento 1 non deve essere scartato in quanto non controlliamo il colore della biglia estratta. Quindi abbiamo 4 evanti di cui 3 favorevoli (rimane una biglia "Gialla").
+Quindi la probabilità che rimanga una biglia "Gialla" vale 3/4 = 75%.
+
+
+--------------------------------------------------
+Ricerca di elementi in una lista e in una hash-map
+--------------------------------------------------
+
+Supponiamo di avere una lista i cui (molti) elementi hanno la seguente struttura:
+
+  (int1 int2 int3 int4)
+
+Vediamo quando tempo occorre per ricercare un valore in questa lista.
+
+Creiamo la lista con 1 milione di elementi:
+
+(silent (dolist (s (sequence 1 1e6)) (push (rand 1000 4) lst -1)))
+
+Impostiamo l'elemento da cercare:
+; questo è il penultimo elemento
+(set 'z (lst -2))
+;-> (459 799 96 424)
+
+Cerchiamo l'elemento con "find":
+
+(find z lst)
+;-> 999998
+(time (find z lst))
+; 18.122
+
+Adesso utilizziamo una hash-map per fare la stessa ricerca. Prima dobbiamo verificare che gli elementi della lista siano unici (cioè non esistano elementi duplicati):
+
+(= lst (unique lst))
+;-> true
+
+Inseriamo tutti gli elementi della lista in una hash-map:
+
+(new Tree 'H) ; hash-map
+(silent (dolist (el lst)
+    (H (format "%03d%03d%03d%03d" el) el)))
+
+Verifichiamo la lunghezza della hash-map:
+
+(length (H))
+;-> 1000000
+
+Gli elementi della hash-map hjanno la seguente struttura:
+
+((H) 0)
+;-> ("000002143414" (0 2 143 414))
+
+Adesso ricerchiamo il valore di un elemento della lista:
+
+(set 'z ((H) -2))
+;-> ("999997717420" (999 997 717 420))
+
+(H (format "%03d%03d%03d%03d" (last z)))
+;-> (999 997 717 420)
+
+(time (H (format "%03d%03d%03d%03d" (last z))))
+;-> 0
+
+La ricerca con la hash-map è immediata.
 
 =============================================================================
 
