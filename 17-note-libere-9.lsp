@@ -670,6 +670,81 @@ Soluzione 2:
 ;->  (5 "a") (5 "b") (5 "c") (5 "d"))
 
 
+-----------------
+Cicli senza cicli
+-----------------
+
+Creazione di un ciclo in stile funzionale, cioè senza utilizzare "for", "while", "until" "dolist", ecc.
+
+Esempio 1: (by newdep)
+
+(define (loop x) (or (zero? x) (go x)) )
+;-> (lambda (x) (or (zero? x) (go x)))
+(define (go y) (print y { }) (loop (dec y)))
+;-> (lambda (y) (print y " "}) (loop (dec y)))
+
+(go 10)
+;-> 10 9 8 7 6 5 4 3 2 1 true
+
+(loop 10)
+;-> (loop 10)
+
+Esempio 2: (by Kazimir Majorinc)
+
+(setq counter 0)
+(eval (setf code '(when (< counter 10)
+                    (inc counter)
+                    (print counter { })
+                    (eval code))))
+;-> 1 2 3 4 5 6 7 8 9 10 nil
+
+Esempio 3: ("crawler-tractor" by Kazimir Majorinc)
+
+(setq counter2 0)
+(set 'f (lambda()
+            (if (< counter2 5)
+                (begin (println "Hi for the " (inc counter2) " time. ")
+                          (push (last f) f -1)
+                          (if (> (length f) 3) (pop f 1))))))
+
+(f)
+;-> Hi for the 1 time.
+;-> Hi for the 2 time.
+;-> Hi for the 3 time.
+;-> Hi for the 4 time.
+;-> Hi for the 5 time.
+;-> nil
+
+Esempio 4: (by newdep)
+
+# loops y * 1-second
+(define (loop y)
+        (map (fn(x) (sleep (mul x 1000)) (println (++ y))  ) (dup 1 y))  )
+
+#loops backwards from y to z
+(setf loop (lambda(y z)
+      (map (fn(x) (println (dup "@" x) )) (sequence y z))
+           true ))
+
+#loops backwards to 1
+(setf loop (lambda(y)
+      (map (fn(x) (println (dup "@" x) )) (sequence y 1))
+           true ))
+
+(loop 10)
+;-> @@@@@@@@@@
+;-> @@@@@@@@@
+;-> @@@@@@@@
+;-> @@@@@@@
+;-> @@@@@@
+;-> @@@@@
+;-> @@@@
+;-> @@@
+;-> @@
+;-> @
+;-> true
+
+
 -------------
 Ciclo Sattolo
 -------------
@@ -873,7 +948,7 @@ Verifichiamo la lunghezza della hash-map:
 (length (H))
 ;-> 1000000
 
-Gli elementi della hash-map hjanno la seguente struttura:
+Gli elementi della hash-map hanno la seguente struttura:
 
 ((H) 0)
 ;-> ("000002143414" (0 2 143 414))

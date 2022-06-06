@@ -1211,8 +1211,8 @@ NOTE LIBERE 9
   Assegnazione doppiamente quotata
   Esercizio
   Cicli senza cicli
-  Lewis Carrol e le biglie
   Ciclo Sattolo
+  Lewis Carrol e le biglie
   Ricerca di elementi in una lista e in una hash-map
 
 APPENDICI
