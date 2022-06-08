@@ -1214,6 +1214,8 @@ NOTE LIBERE 9
   Ciclo Sattolo
   Lewis Carrol e le biglie
   Ricerca di elementi in una lista e in una hash-map
+  Aerei della seconda guerra mondiale
+  Il gioco del caos (the chaos game)
 
 APPENDICI
 =========

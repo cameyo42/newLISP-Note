@@ -966,5 +966,307 @@ Adesso ricerchiamo il valore di un elemento della lista:
 
 La ricerca con la hash-map è immediata.
 
+
+-----------------------------------
+Aerei della seconda guerra mondiale
+-----------------------------------
+
+Non vuoi che i tuoi aerei vengano abbattuti dai nemici, quindi occorre rinforzare gli aerei con delle armature.
+Ma l'armatura rende l'aereo più pesante e gli aerei più pesanti sono meno manovrabili e usano di più carburante. Proteggere troppo gli aerei è un problema, blindare troppo poco gli aerei è un problema.
+Da qualche parte nel mezzo c'è un ottimo.
+Quando gli aerei americani tornavano dalle missioni erano coperti di fori di proiettile. Ma il danno non era distribuito uniformemente su tutto il velivolo. C'erano più fori di proiettile nella fusoliera, non così tanti nei motori.
+Questa è una tabella tipo dei danni riportati:
+ 
+  Sezione dell'aereo           Fori di proiettile per piede quadrato
+  ------------------           -------------------------------------
+  Motore                       1.11
+  Fusoliera                    1.73
+  Sistema di alimentazione     1.55
+  Resto dell'aereo             1.8
+
+Abbiamo un'opportunità di efficienza: possiamo ottenere la stessa protezione con meno armatura se concentriamo l'armatura nei punti di maggiore necessità. Ma quali sono questi punti deboli?
+Chiaramente dove gli aerei vengono colpiti... o no?!
+
+L'armatura non va dove ci sono i fori dei proiettili, ma va dove i fori dei proiettili non ci sono: sui motori.
+
+I danni sono distribuiti equamente su tutto l'aereo? Dove sono i buchi mancanti? 
+I fori di proiettile mancanti erano sugli aerei scomparsi. 
+Il motivo per cui gli aerei tornano indietro con meno colpi al motore è che gli aerei che sono stati colpiti nel motore non tornano. Invece i colpi alla fusoliera possono essere tollerati. 
+In un ospedale di guerra troviamo molti più pazienti con fori di proiettile nelle gambe che pazienti con fori di proiettile nel petto. Ma non è perché le persone non vengono colpite al petto, è perchè le persone che vengono colpite al petto muoiono.
+Questo è un vecchio trucco da matematico per rendere il quadro più chiaro: impostare alcune variabili su
+zero.
+
+
+----------------------------------
+Il gioco del caos (the chaos game)
+----------------------------------
+
+In matematica, il termine gioco del caos originariamente si riferiva a un metodo per creare un frattale, utilizzando un poligono e un punto iniziale selezionato a caso al suo interno.[1][2] Il frattale viene costruito iterativamente creando una sequenza di punti, a partire dal punto casuale iniziale, in cui ogni punto della sequenza è una data frazione della distanza tra il punto precedente e uno dei vertici del poligono. Il vertice viene scelto a caso in ogni iterazione. Ripetendo questo processo iterativo un gran numero di volte, selezionando il vertice a caso su ogni iterazione ed eliminando i primi punti della sequenza, spesso (ma non sempre) si ottiene una forma frattale.
+
+Utilizziamo ImageMagick per generare l'immaginew partendo da un file di punti. Per mggiori informazioni vedi "Creazione di immagini con ImageMagick" nel file/capitolo "15-note-libere-7.lsp".
+
+Funzione per generare i punti in formato ImageMagick partendo da una lista di punti:
+
+(define (list-IM lst file-str)
+  (local (outfile x-width y-height line)
+    (setq lst (sort (unique lst)))
+    (setq outfile (open file-str "write"))
+    (print outfile { })
+    ; calcolo dimensioni immagine
+    (setq x-width  (add 2 (int (apply max (map first lst)))))
+    (setq y-height (add 2 (int (apply max (map last lst)))))
+    ;(setq x-width  (add 1 (apply max (map first lst))))
+    ;(setq y-height (add 1 (apply max (map last lst))))
+    ; scrittura del file in formato ImageMagick
+    (write-line outfile (string "# ImageMagick pixel enumeration: "
+                (string x-width) "," (string y-height) ",256,rgba"))
+    (dolist (el lst)
+      (setq line (string (string (el 0)) ", " (string (el 1))
+            ": (0,0,0,255)")) ; colore nero con alpha=100%
+      (write-line outfile line)
+    )
+    (close outfile)))
+
+Esempio:
+
+(list-IM '((1 1) (10 10) (20 30)) "pippo.txt")
+
+(exec "convert pippo.txt pippo.png")
+
+Nota: "convert" è un comando di ImageMagick.
+
+Aprendo l'immagine "pippo.png" possiamo vedere i tre punti disegnati.
+
+Triangolo di Sierpinski
+-----------------------
+A seconda del poligono scelto possiamo ottenere una diversa forma frattale. Partendo da un triangolo equilatero e un punto interno ad esso, e scegliendo il punto successivo come il punto medio tra il punto corrente e uno dei vertici del triangolo selezionato casualmente, otteniamo il frattale di Sierpinski.
+
+Nota: se le coordinate dei vertici di un triangolo sono tutti numeri interi, allora il triangolo non può essere equilatero.
+Infatti il teorema di Pick implica che un triangolo con vertici in un lattice abbia un'area razionale. Invece l'area di un triangolo equilatero è un multiplo razionale della radice quadrata di 3.
+
+Per creare un triangolo equilatero partendo dalla lunghezza del lato L dobbiamo utilizzare alcune formule di geometria.
+Consideriamo il seguente triangolo (vedi immagine geometrica "equilateral-triangle.jpg" nella cartella "data"):
+
+                 C
+                / \
+               / O \
+              /     \
+             A-------B
+
+  Lunghezza del lato del triangolo equilatero: L
+
+  Centro del triangolo (e del cerchio circoscritto): O = (ox, oy)
+
+  Altezza triangolo = L * sqrt(3)/2
+
+  Raggio circonferenza circoscritta = R = 2/3 dell'altezza = 2/3 * L * sqrt(3)/2 = L * sqrt(3)/3
+
+da cui: L = R * 3/sqrt(3)
+
+In questo modo le coordinate dei vertici del triangolo valgono:
+
+  C = (ox, oy + R) = (ox, oy + L * sqrt(3)/3)
+  A = (ox - L/2, oy - L*(sqrt(3)/6))
+  B = (ox + L/2, oy - L*(sqrt(3)/6))
+
+Possiamo scrivere una funzione per creare il triangolo che prende come parametri le coordinate del centro e la lunghezza del lato del triangolo.
+Inoltre verifichiamo che i risultati siano corretti misurando le distanze tra i vertici.
+
+(define (dist2d x1 y1 x2 y2)
+"Calculates 2D Cartesian distance of two points P1 = (x1 y1) and P2 = (x2 y2)"
+  (sqrt (add (mul (sub x1 x2) (sub x1 x2))
+             (mul (sub y1 y2) (sub y1 y2)))))
+
+(define (make-triangle ox oy lato)
+  (local (ax ay bx by cx cy)
+    (setq ax (sub ox (div lato 2)))
+    (setq ay (sub oy (div (mul lato (sqrt 3)) 6)))
+    (setq bx (add ox (div lato 2)))
+    (setq by (sub oy (div (mul lato (sqrt 3)) 6)))
+    (setq cx ox)
+    (setq cy (add oy (div (mul lato (sqrt 3)) 3)))
+    (println "AB: " (dist2d ax ay bx by))
+    (println "AC: " (dist2d ax ay cx cy))
+    (println "BC: " (dist2d bx by cx cy))
+    (list (list ax ay) (list bx by) (list cx cy))))
+
+(make-triangle 100 100 220)
+;-> AB: 220
+;-> AC: 220
+;-> BC: 220
+;-> ((-10 36.49147038914117) (210 36.49147038914117) (100 227.0170592217177))
+
+Per fare in modo che le coordinate di A siano (0, 0) occorre impostare:
+
+  ox = L/2
+  oy = L*(sqrt(3)/6)
+
+In questo modo non abbiamo bisogno di passare il centro del triangolo, ma solo la lunghezza del lato:
+
+(define (make-triangle00 lato)
+  (local (ax ay bx by cx cy)
+    (setq ox (div lato 2))
+    (setq oy (div (mul lato (sqrt 3)) 6))
+    (setq ax (sub ox (div lato 2)))
+    (setq ay (sub oy (div (mul lato (sqrt 3)) 6)))
+    (setq bx (add ox (div lato 2)))
+    (setq by (sub oy (div (mul lato (sqrt 3)) 6)))
+    (setq cx ox)
+    (setq cy (add oy (div (mul lato (sqrt 3)) 3)))
+    ;(println "AB: " (dist2d ax ay bx by))
+    ;(println "AC: " (dist2d ax ay cx cy))
+    ;(println "BC: " (dist2d bx by cx cy))
+    (list (list ax ay) (list bx by) (list cx cy))))
+
+Facciamo alcune prove:
+
+(make-triangle00 220)
+;-> AB: 220
+;-> AC: 220
+;-> BC: 220
+;-> ((0 0) (220 0) (110 190.5255888325765))
+
+(make-triangle00 1500)
+;-> ((0 0) (1500 0) (750 1299.038105676658))
+
+Adesso possiamo scrivere la funzione che genera i punti del triangolo di Sierpinski.
+
+Algoritmo
+  1) Il primo punto (punto corrente) è il centro del triangolo (non strettamente necessario)
+  2) Il punto successivo si trova a metà tra il punto corrente e un vertice del triangolo scelto a caso.
+  3) Il punto successivo diventa il punto corrente
+  4) Andare al passo 2)
+
+(define (sierpinski lato iter)
+  (local (tri x y idx rx ry out)
+    (setq out '())
+    ; create equilateral triangle
+    (setq tri (make-triangle00 lato))
+    ; starting point: center of triangle
+    (setq x (div lato 2))
+    (setq y (div (mul lato (sqrt 3)) 6))
+    ; iterations...
+    (for (i 1 iter)
+      ; select random vertex
+      (setq idx (rand 3))
+      (setq rx (first (tri idx)))
+      (setq ry (last (tri idx)))
+      ; calculate new point coordinates
+      ; mid-point between (x,y) and (rx,ry)
+      (setq x (div (add x rx) 2))
+      (setq y (div (add y ry) 2))
+      ; insert point on result list
+      (push (list x y) out -1)
+    )
+    out))
+
+Proviamo con un lato di 1500 pixel e 1e5 iterazioni:
+
+(silent (setq s1 (sierpinski 1500 1e5)))
+(list-IM s1 "s1.txt")
+(exec "convert s1.txt s1.png")
+
+Proviamo con un lato di 1500 pixel e 1e6 iterazioni:
+
+(silent (setq s2 (sierpinski 1500 1e6)))
+(list-IM s2 "s2.txt")
+(exec "convert s2.txt sierpinski.png")
+
+Il file "sierpinski.png" si trova nella cartella "data".
+
+Quadrati chaos
+--------------
+Se il gioco del caos viene eseguito con un quadrato, non appare alcun frattale e l'interno del quadrato si riempie uniformemente di punti.
+Tuttavia, se vengono poste restrizioni sulla scelta dei vertici, anche nel quadrato possono apparire i fraattali.
+Per esempio, supponiamo che non sia possibile scegliere (casualmente) lo stesso vertice due volte consecutive.
+
+(define (square01 iter)
+  (local (quad ax ay bx by cx cy dx dy
+          p-idx idx x y rx ry out)
+    (setq out '())
+    ; create square
+    (setq ax 0)    (setq ay 0)
+    (setq bx 1500) (setq by 0)
+    (setq cx 1500) (setq cy 1500)
+    (setq dx 0)    (setq dy 1500)
+    (setq quad (list (list ax ay) (list bx by) (list cx cy) (list dx dy)))
+    ; starting point: center of square
+    (setq x 750)
+    (setq y 750)
+    ; previous vertex
+    (setq p-idx -1)
+    ; iterations...
+    (for (i 1 iter)
+      ; select random vertex
+      ; different from previous
+      (while (= (setq idx (rand 4)) p-idx)
+        (setq idx (rand 4))
+      )
+      (setq rx (first (quad idx)))
+      (setq ry (last (quad idx)))
+      ; update previous vertex
+      (setq p-idx idx)
+      ; calculate new point coordinates
+      ; mid-point between (x,y) and (rx,ry)
+      (setq x (div (add x rx) 2))
+      (setq y (div (add y ry) 2))
+      ; insert point on result list
+      (push (list x y) out -1)
+    )
+    out))
+
+Proviamo con 1e6 iterazioni (e con un lato prefissato di 1500 pixel):
+
+(silent (setq q1 (square01 1e6)))
+(list-IM q1 "q1.txt")
+(exec "convert q1.txt square1.png")
+
+Il file "square1.png" si trova nella cartella "data".
+
+Per maggiori informazioni vedi: https://en.wikipedia.org/wiki/Chaos_game
+
+Un'ultima prova con distanza 2/3 invece che 1/2:
+
+(define (square02 iter)
+  (local (quad ax ay bx by cx cy dx dy
+          p-idx idx x y rx ry out)
+    (setq out '())
+    ; create square
+    (setq ax 0)    (setq ay 0)
+    (setq bx 1500) (setq by 0)
+    (setq cx 1500) (setq cy 1500)
+    (setq dx 0)    (setq dy 1500)
+    (setq quad (list (list ax ay) (list bx by) (list cx cy) (list dx dy)))
+    ; starting point: center of square
+    (setq x 750)
+    (setq y 750)
+    ; previous vertex
+    (setq p-idx -1)
+    ; iterations...
+    (for (i 1 iter)
+      ; select random vertex
+      ; different from previous
+      (while (= (setq idx (rand 4)) p-idx)
+        (setq idx (rand 4))
+      )
+      (setq rx (first (quad idx)))
+      (setq ry (last (quad idx)))
+      ; update previous vertex
+      (setq p-idx idx)
+      ; calculate new point coordinates
+      ; mid-point between (x,y) and (rx,ry)
+      (setq x (mul 2 (div (add x rx) 3)))
+      (setq y (mul 2 (div (add y ry) 3)))
+      ; insert point on result list
+      (push (list x y) out -1)
+    )
+    out))
+
+Creiamo l'immagine:
+
+(silent (setq q2 (square02 1e6)))
+(list-IM q2 "q2.txt")
+(exec "convert q2.txt q2.png")
+
 =============================================================================
 
