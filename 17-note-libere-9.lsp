@@ -1268,5 +1268,196 @@ Creiamo l'immagine:
 (list-IM q2 "q2.txt")
 (exec "convert q2.txt q2.png")
 
+
+-------------------------------------------------
+Punto a distanza L e pendenza M da un altro punto
+-------------------------------------------------
+
+Dato un punto 2D P(x0, y0), trovare i (2) punti a una distanza L da esso, tale che la linea formata dall'unione di questi punti con P abbia una pendenza di M.
+
+La distanza tra P(x0, y0) e Q(x, y) vale:
+
+  (y - y0)² + (x - x0)² = L²  (*)
+
+La linea che passa per P e Q ha una pendenza:
+
+       y - y0
+  m = --------
+       x - x0
+
+Isolando y otteniamo:
+
+  y = y0 + m*(x - x0)
+
+Inserendo questa espressione nell'equazione (*) otteniamo:
+
+  m²*(x - x0)² + (x - x0)² = L²
+  
+Le cui soluzioni sono:
+
+  x = x0 ± L*(sqrt 1/(1 + m²))
+  y = y0 ± m*L*(sqrt 1/(1 + m²))
+
+Scriviamo la funzione:
+
+(define (find-points point dist m)
+  (local (a b px py dx dy)
+    (setq a '())
+    (setq b '())
+    (cond ((zero? m)
+            ; primo punto
+            (push (add (first point) dist) a)
+            (push (last point) a -1)
+            ; secondo punto
+            (push (sub (first point) dist) b)
+            (push (last point) b -1))
+          ((inf? m)
+            ; primo punto
+            (push (first point) a)
+            (push (add (last point) dist) a -1)
+            ; secondo punto
+            (push (first point) b)
+            (push (sub (last point) dist) b -1))
+          (true
+            (setq dx (div dist (sqrt (add 1 (mul m m)))))
+            (setq dy (mul m dx))
+            ; primo punto
+            (push (add (first point) dx) a)
+            (push (add (last point) dy) a -1)
+            (push (sub (first point) dx) b)
+            (push (sub (last point) dy) b -1))
+    )
+    (list a b)))
+
+Facciamo alcune prove:
+
+(find-points '(2 1) (sqrt 2) 1)
+;-> ((3 2) (1 0))
+
+(find-points '(1 0) 5 0)
+;-> ((6 0) (-4 0))
+
+(find-points '(1 1) 3 (div 1 0))
+;-> ((1 4) (1 -2))
+
+Nota:
+(div 1 0))
+;-> 1.#INF
+(inf? (div 1 0))
+;-> true
+
+
+---------------------------------------------
+Ricerca di una lista di elementi in una lista
+---------------------------------------------
+
+Supponiamo di avere la seguente lista di elementi:
+
+(setq lst '(1 2 3 4 5 6 7 8 9))
+
+e un altra lista di elementi da ricercare:
+
+(setq s '(3 5))
+
+Scrivere una funzione che restituisce una lista con gli indici degli elementi della prima lista che sono uguali agli elementi della seconda lista, cioè dobbiamo trovare gli indici degli elementi della lista "s" (3 e 5) che si trovano nella lista "lst" (1 2 3 4 5 6 7 8 9).
+
+Possiamo usare le funzioni "find" e "map":
+
+(find 3 lst)
+;-> 2
+(find 5 lst)
+;-> 4
+s
+(map (fn(x) (find x lst)) s)
+;-> (2 4)
+
+(setq s '(3 5 21))
+(map (fn(x) (find x lst)) s)
+;-> (2 4 nil)
+
+(define (find-index s lst)
+    (map (fn(x) (find x lst)) s))
+
+(find-index '(4 9 10 101) (sequence 1 20))
+;-> (3 8 9 nil)
+
+(find-index '(2 102 10 42 101) (sequence 1 20))
+;-> (1 nil 9 nil nil)
+
+
+-----------------------------
+Classificazione dei triangoli
+-----------------------------
+
+Un triangolo può essere classificato in base alla lunghezza dei lati come:
+1) equilatero
+2) isoscele
+3) scaleno
+
+Inoltre può essere classificato in base agli angoli:
+1) retto
+2) acuto
+3) ottuso
+
+Calcoliamo prima la lunghezza dei lati e poi classifichiamo confrontando le lunghezze dei lati:
+1) se tutti i lati sono uguali il triangolo è equilatero,
+2) se due lati sono uguali il triangolo è isoscele
+3) altrimenti sarà scaleno (tutti i lati diversi).
+
+Per gli angoli possiamo usare il teorema di Pitagora:
+1) se (d1² + d2² = d3²), allora è un triangolo retto
+2) se (d1² + d2² < d3²), allora è un triangolo acuto
+3) se (d1² + d2² > d3²), allora è un triangolo ottuso
+
+Dove d1 d2 e d3 sono le distanze tra i punti ordinate in modo crescente.
+
+(define (dist2d-2 x1 y1 x2 y2)
+"Calculates the square of 2D Cartesian distance of two points P1 = (x1 y1) and P2 = (x2 y2)"
+  (add (mul (sub x1 x2) (sub x1 x2))
+       (mul (sub y1 y2) (sub y1 y2))))
+
+Scriviamo la funzione:
+
+(define (triangle-type x1 y1 x2 y2 x3 y3)
+  (local (d1 d2 d3 tmp out)
+    (setq out '())
+    ; calcolo distanze
+    (setq d1 (dist2d-2 x1 y1 x2 y2))
+    (setq d2 (dist2d-2 x1 y1 x3 y3))
+    (setq d3 (dist2d-2 x2 y2 x3 y3))
+    ; sort d1 <= d2 <= d3
+    (setq tmp (sort (list d1 d2 d3)))
+    (setq d1 (tmp 0))
+    (setq d2 (tmp 1))
+    (setq d3 (tmp 2))
+    ; classificazione per lati
+    (cond ((and (= d1 d2) (= d2 d3))
+            (push "equilatero" out))
+          ((or (= d1 d2) (= d2 d3))
+            (push "isoscele" out))
+          (true
+            (push "scaleno" out))
+    )
+    ; classificazione per angoli
+    (cond ((> (add d1 d2) d3)
+            (push "acuto" out -1))
+          ((= (add d1 d2) d3)
+            (push "retto" out -1))
+          (true
+            (push "ottuso" out -1))
+    )
+    out))
+
+Facciamo alcune prove:
+
+(triangle-type 3 0 0 4 4 7)
+;-> ("isoscele" "retto")
+
+(triangle-type 0 0 1 1 1 2)
+;-> ("scaleno" "ottuso")
+
+(triangle-type 1 1 3 1 2 4)
+;-> ("isoscele" "acuto")
+
 =============================================================================
 

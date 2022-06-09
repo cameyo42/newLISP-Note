@@ -1216,6 +1216,9 @@ NOTE LIBERE 9
   Ricerca di elementi in una lista e in una hash-map
   Aerei della seconda guerra mondiale
   Il gioco del caos (the chaos game)
+  Punto a distanza L e pendenza M da un altro punto
+  Ricerca di una lista di elementi in una lista
+  Classificazione dei triangoli
 
 APPENDICI
 =========
