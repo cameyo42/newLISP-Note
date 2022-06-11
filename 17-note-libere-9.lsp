@@ -1459,5 +1459,222 @@ Facciamo alcune prove:
 (triangle-type 1 1 3 1 2 4)
 ;-> ("isoscele" "acuto")
 
+
+------------------
+Coppie simmetriche
+------------------
+
+Data una lista di coppie trovare tutte le coppie simmetriche.
+Due coppie (a b) e (c d) si dicono simmetriche se a=d e b=c. Ad esempio, (12 6) e (6 12) sono simmetriche.
+
+Prima soluzione
+---------------
+Esaminare ogni coppia e controllare ogni altra coppia per la simmetria. Questa soluzione richiede tempo O(n^2).
+
+Seconda soluzione
+-----------------
+Ordinare tutte le coppie in base al primo elemento. Per ogni coppia, eseguire una ricerca binaria per il secondo elemento nella lista data, ovvero controllare se il secondo elemento di questa coppia esiste come primo elemento nella lista. Se trovato, confrontare il primo elemento della coppia con il secondo elemento. La complessità temporale di questa soluzione è O(n*log(n)).
+
+Terza soluzione
+---------------
+Una soluzione efficiente consiste nell'usare una hash-map. Il primo elemento della coppia viene utilizzato come chiave e il secondo elemento viene utilizzato come valore. L'idea è di attraversare tutte le coppie una per una. Per ogni coppia, controllare se il suo secondo elemento è nella hash-map. In caso positivo, confrontare il primo elemento con il valore della voce corrispondente della hash-map. Se il valore e il primo elemento corrispondono, abbiamo trovato coppie simmetriche. Altrimenti, inserire il primo elemento come chiave e il secondo elemento come valore.
+
+Quarta soluzione
+----------------
+Creare una nuova lista con le coppie della lista data a valori invertiti e poi fare l'intersezione di questa nuova lista con la lista data.
+
+Implementiamo quest'ultima soluzione.
+
+(setq lst '((11 20) (30 40) (5 10) (40 30) (10 5)))
+
+(setq tsl (map (fn(x) (list (x 1) (x 0))) lst))
+;-> ((20 11) (40 30) (10 5) (30 40) (5 10))
+
+(intersect lst tsl)
+;-> ((30 40) (5 10) (40 30) (10 5))
+
+(define (simmetry lst)
+  (intersect lst (map (fn(x) (list (x 1) (x 0))) lst)))
+
+(simmetry lst)
+;-> ((30 40) (5 10) (40 30) (10 5))
+
+La funzione restituisce solo una coppia di coppie simmetriche anche se compaiono più di una volta:
+
+(setq lst '((11 20) (30 40) (5 10) (40 30) (10 5) (10 5) (5 10)))
+
+(simmetry lst)
+;-> ((30 40) (5 10) (40 30) (10 5))
+
+Comunque la funzione "intersect" ha un parametro che permette di considerare anche gli elementi multipli (basta passare "true" alla funzione):
+
+(define (simmetry lst all)
+  (if all
+      (intersect lst (map (fn(x) (list (x 1) (x 0))) lst) true)
+      (intersect lst (map (fn(x) (list (x 1) (x 0))) lst))))
+
+(setq lst '((11 20) (30 40) (5 10) (40 30) (10 5) (10 5) (5 10)))
+
+(simmetry lst)
+;-> ((30 40) (5 10) (40 30) (10 5))
+(simmetry lst true)
+;-> ((30 40) (5 10) (40 30) (10 5) (10 5) (5 10))
+
+
+---------------------
+Dirigenti e impiegati
+---------------------
+
+Supponiamo di avere una lista che contiene la gerarchia tra impiegati e dirigenti come un certo numero di coppie (impiegato dirigente):
+
+  ("A" "C")
+  ("B" "C")
+  ("C" "F")
+  ("D" "E")
+  ("E" "F")
+  ("F" "F")
+
+In questo esempio C è dirigente di A, C è anche dirigente di B, F è dirigente di C e così via.
+Nota: "F" è dirigente di se stesso.
+
+Scrivere una funzione che crea una lista i cui elementi hanno la seguente struttura:
+
+  (nome-impiegato (lista dei suoi dipendenti))
+  
+Per esempio, ("A" ()) oppure ("C" ("A" "B")).
+
+Ovviamente la lista deve contenere tutti i dipendenti.
+
+Nota: la rappresentazione grafica della struttura è un albero
+
+Prima scriviamo una funzione che crea una lista i cui elementi sono del tipo:
+
+  (nome-impiegato (lista dipendenti diretti))
+
+dove i dipendenti diretti sono quelli direttamente sotto di lui.
+
+Per fare questo usiamo la funzione "find-all":
+
+(setq imp-dir '(("A" "C") ("B" "C") ("C" "F") ("D" "E") ("E" "F") ("F" "F")))
+
+(setq a (find-all '(? "A") imp-dir (first $it)))
+;-> ()
+(setq b (find-all '(? "B") imp-dir (first $it)))
+;-> ()
+(setq c (find-all '(? "C") imp-dir (first $it)))
+;-> ("A" "B")
+(setq d (find-all '(? "D") imp-dir (first $it)))
+;-> ()
+(setq e (find-all '(? "E") imp-dir (first $it)))
+;-> ("D")
+(setq f (find-all '(? "F") imp-dir (first $it)))
+;-> ("C" "E" "F")
+
+(define (base lst)
+  (local (out rgx)
+    (setq out '())
+    (dolist (el lst)
+      ; build regex for find-all
+      ; es. rgx = (? "A")
+      (setq rgx (list (sym "?") (first el)))
+      ; we need to use:
+      ; (find-all rgx lst (first $it))
+      ; because the following don't work:
+      ; (find-all '(? (first el)) lst (first $it))
+      ; ... because (first el) is within a quoted list
+      ; and will not be evaluated.
+      (push (list (first el)
+                  (find-all rgx lst (first $it)))
+            out -1)
+    )
+    out))
+
+Vediamo come funziona:
+
+(base imp-dir)
+;-> (("A" ()) ("B" ()) ("C" ("A" "B")) ("D" ()) ("E" ("D")) ("F" ("C" "E" "F")))
+
+Adesso scriviamo la funzione che prende la lista generata da "base" ed espande ricorsivamente la (lista dei dipendenti diretti) per ogni nome-dipendente. Per capire meglio il funzionamento togliere i commenti alle espressioni "print" e "read-line".
+
+(define (espande lst)
+  (local (out dirigente impiegati elementi)
+    (setq out '())
+    (dolist (g lst)
+      (setq dirigente (first g))
+      (setq impiegati (last g))
+      (setq elementi impiegati)
+      ;(println "elementi prima: " elementi)
+      (espande-aux impiegati)
+      ;(println "elementi dopo: " elementi)
+      ;(read-line)
+      (push (list dirigente (sort (flat elementi))) out -1)
+    )
+    out))
+
+; funzione che espande ricorsivamente la lista degli elementi
+; utilizzando la lista degli impiegati aggiunti
+(define (espande-aux employed)
+  (dolist (imp employed)
+      (cond ((= imp dirigente) nil) ; caso "F" = "F"
+            ((= imp '()) nil) ; caso imp = '()
+            ((= (lookup imp lst) '()) nil) ; caso imp = ("A" ())
+            (true
+              ;(println "lookup: " (lookup imp lst))
+              ; modifica la lista elementi
+              (push (lookup imp lst) elementi -1)
+              ;(println "elementi: " elementi)
+              ;(read-line)
+              ; ricorsione sulla lista appena aggiunta
+              (espande-aux (lookup imp lst)))
+      )
+  ))
+
+Proviamo la funzione
+
+(espande (base imp-dir))
+;-> (("A" ()) 
+;->  ("B" ()) 
+;->  ("C" ("A" "B")) 
+;->  ("D" ()) 
+;->  ("E" ("D")) 
+;->  ("F" ("A" "B" "C" "D" "E" "F")))
+
+Proviamo con un esempio un pò più complesso:
+
+(setq em '(("E" "C") ("F" "C") ("C" "B") ("D" "B") ("B" "A") ("A" "A") ("G" "A") 
+           ("H" "G") ("I" "H") ("L" "F") ("K" "F") ("J" "H") ("M" "F")))
+
+(setq bem (sort (base em)))
+;-> (("A" ("B" "A" "G")) 
+;->  ("B" ("C" "D")) 
+;->  ("C" ("E" "F")) 
+;->  ("D" ()) 
+;->  ("E" ()) 
+;->  ("F" ("L" "K" "M"))
+;->  ("G" ("H"))
+;->  ("H" ("I" "J"))
+;->  ("I" ())
+;->  ("J" ())
+;->  ("K" ())
+;->  ("L" ())
+;->  ("M" ()))
+
+(espande bem)
+;-> (("A" ("A" "B" "C" "D" "E" "F" "G" "H" "I" "J" "K" "L" "M")) 
+;->  ("B" ("C" "D" "E" "F" "K" "L" "M"))
+;->  ("C" ("E" "F" "K" "L" "M"))
+;->  ("D" ())
+;->  ("E" ())
+;->  ("F" ("K" "L" "M"))
+;->  ("G" ("H" "I" "J"))
+;->  ("H" ("I" "J"))
+;->  ("I" ())
+;->  ("J" ())
+;->  ("K" ())
+;->  ("L" ())
+;->  ("M" ()))
+
+Nota: per verificare i risultati è consigliabile disegnare l'albero gerarchico partendo dalla lista iniziale di coppie (impiegato dirigente).
+
 =============================================================================
 

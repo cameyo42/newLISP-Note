@@ -1219,6 +1219,8 @@ NOTE LIBERE 9
   Punto a distanza L e pendenza M da un altro punto
   Ricerca di una lista di elementi in una lista
   Classificazione dei triangoli
+  Coppie simmetriche
+  Dirigenti e impiegati
 
 APPENDICI
 =========
