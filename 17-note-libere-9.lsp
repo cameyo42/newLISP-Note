@@ -1676,5 +1676,217 @@ Proviamo con un esempio un pò più complesso:
 
 Nota: per verificare i risultati è consigliabile disegnare l'albero gerarchico partendo dalla lista iniziale di coppie (impiegato dirigente).
 
+
+--------------------
+Terne con somma zero
+--------------------
+
+Data una lista di numeri interi non necessariamente distinti, trovare tutte le terne della lista la cui somma è zero.
+
+Esempi:
+lista: (0 -1 2 -3 1)
+Terne a somma zero: (0 -1 1), (2 -3 1)
+
+lista: (1 -2 1 0 5)
+Terne a somma zero: (1 -2  1)
+
+L'idea più semplice è quella di eseguire tre cicli e controllare per ogni terna di elementi se la loro somma vale zero. In caso positivo aggiungere la terna alla lista soluzione.
+
+Algoritmo:
+Eseguire tre cicli annidati con contatori i, j, k
+Il primo ciclo andrà da 0 a n-3, il secondo ciclo da i+1 a n-2 e il terzo ciclo da j+1 a n-1. 
+I contatori dei cicli rappresentano i tre elementi della terna.
+Controllare se la somma degli elementi i-esimo, j-esimo e k-esimo è uguale a zero o meno. 
+In caso positivo aggiungere la terna corrente alla lista soluzione.
+
+(define (find-triplet lst)
+  (let ((len (length lst)) (out '()))
+    (for (i 0 (- len 3))
+      (for (j (+ i 1) (- len 2))
+        (for (k (+ j 1) (- len 1))
+          (if (zero? (add (lst i) (lst j) (lst k)))
+              (push (list (lst i) (lst j) (lst k)) out -1)
+          )
+        )
+      )
+    )
+    out))
+
+Verifichiamo gli esempi:
+
+(find-triplet '(0 -1 2 -3 1))
+;-> ((0 -1 1) (2 -3 1))
+
+(find-triplet '(1 -2 1 0 5))
+;-> ((1 -2 1))
+
+Un esempio con elementi non distinti:
+
+(find-triplet '(1 1 -2 3 3 -2))
+;-> ((1 1 -2) (1 1 -2))
+ 
+Poiché usiamo tre cicli annidati, la complessità temporale è O(n^3).
+
+
+------------------
+for-each di Scheme
+------------------
+
+Il linguaggio Scheme ha la primitiva "for-each" che funziona nel modo seguente:
+
+  (for-each (lambda (x) (display (* x x))) '(1 2 3 4))
+  14916
+
+Possiamo simulare questa funzione con una macro (by HPW):
+
+(define-macro (foreach _foreachx _foreachlst)(eval (list 'dolist (list _foreachx _foreachlst) (append (list 'begin) (args)))))
+(constant (global 'foreach))
+
+(foreach i '(1 2 3 4) (print (* i i) { }))
+;-> 1 4 9 16
+
+Un altro metodo è quello di utilizzare la funzione "map" (by Kazimir Majorinc):
+
+(setf for-each map)
+(for-each (fn(x)(println(* x x))) '(1 2 3 4))
+;-> 1
+;-> 4
+;-> 9
+;-> 16
+;-> (1 4 9 16)
+
+In Scheme, map e for-each sono gli stessi, tranne che "valore di ritorno" di for-each non è specificato. Può essere lo stesso come risultato della map (almeno secondo R6RS).
+
+
+--------------------------------------
+Delete symbol vs setting symbol to nil
+--------------------------------------
+
+Quando vogliamo eliminare la memoria occupata da un simbolo (ad esempio una lista con molti elementi) possiamo usare due metodi:
+
+1) assegnare nil al simbolo con (setq <symbol> nil)
+2) eliminare il simbolo con (delete <symbol>)
+
+Il primo metodo assegna nil al simbolo e quindi la memoria viene liberata (almeno in teoria).
+
+Nel secondo metodo l'eliminazione di un simbolo influisce sull'albero dei simboli e viene effettuato un controllo per eventuali riferimenti nel codice o nei dati. 
+
+Vediamo un test sulla velocità dei due metodi:
+
+(time (dotimes (zCount 1e5) (set(sym(string "TEST" zCount)) 10)))
+;-> 74.828
+(time (dotimes (zCount 1e5) (set(sym(string "TEST" zCount)) 10) (set (sym (string "TEST" zCount)) nil)))
+;-> 110.762
+(time (dotimes (zCount 1e5) (set(sym(string "TEST" zCount)) 10) (delete (sym (string "TEST" zCount)))))
+;-> 7809.166
+
+Il primo metodo è molto più veloce (110 contro 7809).
+
+Poichè l'utilizzo della memoria di un simbolo è molto ridotto con 28 byte più la stringa del nome su newLISP a 32 bit su Windows, sembra molto più conveniente porre il simbolo a nil.
+
+
+---------------------------------------------------
+Similarità tra stringhe con il metodo dei trigrammi
+---------------------------------------------------
+
+Da un post del forum di newLISP ecco una funzione che calcola la similarità tra due stringhe usando il metodo dei trigrammi.
+Questo metodo consiste nel trovare tutte le combinazioni di 3 lettere sequenziali in entrambe le parole e misurare la loro sovrapposizione.
+
+Versione clojure (by Ric Szopa)
+
+# trigrams in clojure (author: Ric Szopa)
+(defn- trigrams [str]
+ (let [n 3
+       padding (repeat (dec n) \$)
+       cleaned (remove #(Character/isWhitespace %) (concat padding
+(clojure.string/lower-case str)))
+       freqs (frequencies (partition n 1 cleaned))
+       norm (Math/sqrt (reduce + (map #(Math/pow % 2) (vals freqs))))]
+   (into {} (for [[k v] freqs] [k (/ v norm)]))))
+
+(defn similarity [left right]
+ (if (= left right)
+   1.0
+   (let [left (trigrams left)
+         right (trigrams right)]
+     (apply + (for [[trigram value] left] (* value (or (right trigram) 0)))))))
+
+Versione newLISP (by Nick):
+
+(define (ngrams d str, (norm 0) (str-clean (append "  " (lower-case (replace " " str "")))))
+  (dotimes (i (- (length str-clean) 2))
+   (bayes-train (unpack "s3" (+ i (address str-clean))) d))
+  (dotree (x d true)
+    (inc norm (pow ((context d x) 0))))
+  (setq norm (sqrt norm))
+  (dotree (x d true)
+    (context d x (div ((context d x) 0) norm)))
+   d)
+
+(define (similarity left right, (accum 0))
+  (if (= left right)
+     1.0
+     (let ((left (ngrams 'Left left))
+         (right (ngrams 'Right right)))
+        (dotree (s left true)
+         (inc accum (mul (context Left s) (or (context Right s) 0))))
+      accum)))
+
+(similarity "banana" "bananana")
+;-> 0.9722718241
+
+Per velocizzare l'autore ha provato le seguenti strategie:
+* memorizzare il set di dati in un contesto e scorrere su di esso utilizzando dotree (invece di list + dolist)
+* utilizzare la funzione low-level "unpack" per iterare sulle stringhe più velocemente
+* utilizzare i metodi integrati quando possibile (ad es. bayes-train)
+
+Considerazione dell'autore (Nick):
+"One consequence of all the dotree's is that I felt like I ended up doing a lot more stateful variable manipulation (eg creating a variable and then calling "inc" on it within the block of the 'dotree') than I would have in other dialects of lisp (where I would have used eg 'reduce')."
+
+
+-------------------------------
+Crittografia one-time pad (OTP)
+-------------------------------
+
+In crittografia, il one-time pad (OTP) è una tecnica di crittografia che non può essere decifrata, ma richiede l'uso di una chiave pre-condivisa monouso non più piccola del messaggio inviato. In questa tecnica, un testo in chiaro viene associato a una chiave segreta casuale (denominata anche one-time pad). Ogni carattere del testo in chiaro viene crittografato combinandolo con il carattere corrispondente dal pad utilizzando l'addizione modulare.
+
+Il testo cifrato risultante sarà impossibile da decifrare se sono soddisfatte le seguenti quattro condizioni:
+
+1) La chiave deve essere lunga almeno quanto il testo in chiaro.
+2) La chiave deve essere casuale (distribuita uniformemente nell'insieme di tutte le chiavi possibili e indipendente dal testo in chiaro), interamente campionata da una fonte caotica non algoritmica come un generatore di numeri casuali hardware.
+3) La chiave non deve mai essere riutilizzata in tutto o in parte.
+4) La chiave deve essere tenuta completamente segreta dai comunicanti.
+
+Questa tecnica crittografica (in forma digitale) è stata utilizzata dalle nazioni per comunicazioni diplomatiche e militari critiche, ma i problemi di distribuzione sicura delle chiavi la rendono poco pratica per la maggior parte delle applicazioni.
+
+newLISP mette a disposizione una funzione primitiva per utilizza questa tecnica: "encrypt".
+Vediamo la definizione dal manuale di riferimento:
+
+*********************
+>>> funzione ENCRYPT
+*********************
+
+sintassi: (encrypt str-source str-pad)
+Esegue una crittografia one-time pad (OTP) di "str-source" utilizzando il pad di crittografia in "str-pad". Più "str-pad" è lungo e più casuali sono i byte, più sicura è la crittografia. Se il pad è lungo quanto il testo di origine, è completamente casuale e viene utilizzato solo una volta, la crittografia one-time pad è praticamente impossibile da violare, poiché la crittografia sembra contenere solo dati casuali. Per recuperare l'originale, la stessa funzione e pad vengono nuovamente applicati al testo crittografato:
+
+(set 'secret (encrypt "A secret message" "my secret key"))
+;-> ",YS\022\006\017\023\017TM\014\022\n\012\030E"
+
+(encrypt secret "my secret key")
+;-> "A secret message"
+
+Il secondo esempio cripta un intero file:
+
+(write-file "myfile.enc" 
+  (encrypt (read-file "myfile") "29kH67*"))
+
+(setq lst '(a 3 "a" -3.2))
+(setq k (encrypt (string lst) "pippo"))
+;-> "X\bPCOR\bRPBCGBY"
+(encrypt k "pippo")
+;-> "(a 3 \"a\" -3.2)"
+
+Per proteggere i piccoli segreti è più che sufficiente.
+
 =============================================================================
 

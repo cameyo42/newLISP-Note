@@ -1221,6 +1221,12 @@ NOTE LIBERE 9
   Classificazione dei triangoli
   Coppie simmetriche
   Dirigenti e impiegati
+  Terne con somma zero
+  for-each di Scheme
+  Delete symbol vs setting symbol to nil
+  Similarità tra stringhe con il metodo dei trigrammi
+  Crittografia one-time pad (OTP)
+  
 
 APPENDICI
 =========
