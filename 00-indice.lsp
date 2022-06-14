@@ -1226,6 +1226,8 @@ NOTE LIBERE 9
   Delete symbol vs setting symbol to nil
   Similarità tra stringhe con il metodo dei trigrammi
   Crittografia one-time pad (OTP)
+  Fern: il frattale di Barnsley
+  Miller: gestione CSV,TSV,JSON
   
 
 APPENDICI

@@ -7653,6 +7653,7 @@ Creazione di immagini con ImageMagick
 -------------------------------------
 
 https://imagemagick.org/
+
 ImageMagick è un programma freeware e multipiattaforma che viene usato per creare, modificare, comporre o convertire immagini digitali.
 
 Con ImageMagick è possibile creare immagini da newLISP.
@@ -7718,9 +7719,13 @@ Naturalmente è possibile l'operazione inversa, cioè creare un file di testo da
 
   convert image.png pixels.txt
 
-Questo si rivela utile per vedere come vengono codificate le varie informaqzioni da ImageMagick (spazio colore, ecc.).
+Questo si rivela utile per vedere come vengono codificate le varie informazioni da ImageMagick (spazio colore, ecc.).
 
 Maggiori informazioni a: https://legacy.imagemagick.org/Usage/files/#txt
+
+Nota: le coordinate dei punti devono essere non negative, altrimenti ImageMagick genera un errore.
+
+Nota: l'errore "...pixel not authentic..." di ImageMagick indica un errore nelle coordinate dei pixel o nella riga di intestazione.
 
 Per creare un'immagine da newLISP:
 

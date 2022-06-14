@@ -1888,5 +1888,251 @@ Il secondo esempio cripta un intero file:
 
 Per proteggere i piccoli segreti è più che sufficiente.
 
+
+-----------------------------
+Fern: il frattale di Barnsley
+-----------------------------
+
+Una felce (fern) di Barnsley è un frattale che prende il nome dal matematico britannico Michael Barnsley e può essere creata utilizzando un "iterated function system (IFS)".
+
+Il frattale viene creato usando le seguenti trasformazioni:
+
+  f1   (1% delle volte)
+          xn + 1 = 0
+          yn + 1 = 0.16 yn
+  f2   (85% delle volte)
+          xn + 1 = 0.85 xn + 0.04 yn
+          yn + 1 = −0.04 xn + 0.85 yn + 1.6
+  f3   (7% delle volte)
+          xn + 1 = 0.2 xn − 0.26 yn
+          yn + 1 = 0.23 xn + 0.22 yn + 1.6
+  f4   (7% delle volte)
+          xn + 1 = −0.15 xn + 0.28 yn
+          yn + 1 = 0.26 xn + 0.24 yn + 0.44.
+
+  Posizione iniziale: x = 0, y = 0
+
+Funzione che genera una lista di punti del frattale di Barnsley:
+
+(define (fern iter)
+  (let ((out '()) (xn 0) (yn 0))
+    (push (list xn yn) out -1)
+    (for (i 1 iter)
+      (map set '(xn yn) (fern-point xn yn))
+      (push (list xn yn) out -1)
+    )
+    out))
+
+Funzione che genera il punto successivo del frattale di Barnsley:
+
+(define (fern-point xn yn)
+  (let (r (rand 100))
+    (cond ((< r 1) ; f1
+            (list 0 (mul 0.16 yn)))
+          ((< r 86) ; f2
+            (list (add (mul 0.85 xn) (mul 0.04 yn))
+                  (add (mul -0.04 xn) (mul 0.85 yn) 1.6)))
+          ((< r 93) ; f3
+            (list (sub (mul 0.2 xn) (mul 0.26 yn))
+                  (add (mul 0.23 xn) (mul 0.22 yn) 1.6)))
+          (true ; f4
+            (list (add (mul -0.15 xn) (mul 0.28 yn))
+                  (add (mul 0.26 xn) (mul 0.24 yn) 0.44)))
+    )))
+
+(fern 10)
+;-> ((0 0)
+;->  (0 1.6)
+;->  (0.064 2.96)
+;->  (0.1728 4.113440000000001)
+;->  (0.3114176000000001 5.089512000000001)
+;->  (0.4682854400000001 5.913628496000001)
+;->  (0.63458776384 6.607852804000002)
+;->  (-1 3.199682802563201)
+;->  (-0.722012687897472 4.359730382178721)
+;->  (-0.4393215694257023 5.334651332367811))
+
+Poichè i punti possono avere coordinate negative e sono raggruppati in un piccolo spazio dobbiamo scrivere una funzione che sposta i punti nel quadrante positivo (traslazione) e moltiplica le coordinate dei punti di un certo fattore (scalatura).
+
+Funzione che sposta i punti di una lista nel quadrante positivo e moltiplica le coordinate dei punti di un certo fattore:
+
+(define (normalize points zoom)
+  (local (norm max-x min-x max-y min-y trasla-x trasla-y out)
+    ; moltiplica le coordinate dei punti per il valore "zoom"
+    ; e li rende numeri interi
+    (setq norm (explode (map (fn(x) (int (mul zoom x))) (flat points)) 2))
+    (setq max-x (norm 0 0))
+    (setq min-x (norm 0 0))
+    (setq max-y (norm 0 1))
+    (setq min-y (norm 0 1))
+    (dolist (el norm)
+      ;(setq max-x (max (el 0) max-x))
+      (setq min-x (min (el 0) min-x))
+      ;(setq max-y (max (el 1) max-y))
+      (setq min-y (min (el 1) min-y))
+    )
+    ; calcola i valori per la traslazione dei punti
+    (setq trasla-x (add 10 (abs min-x)))
+    (setq trasla-y (add 10 (abs min-y)))
+    ; traslazione dei punti
+    ; (solo se min-x e/o min-y minori di zero)
+    (cond ((and (< min-x 0) (< min-y 0))
+           (setq norm (map (fn(n) (list (add trasla-x (n 0)) (add trasla-y (n 1)))) norm)))
+          ((< min-x 0)
+           (setq norm (map (fn(n) (list (add trasla-x (n 0)) (n 1))) norm)))
+          ((< min-y 0)
+           (setq norm (map (fn(n) (list (n 0) (add trasla-y (n 1)))) norm)))
+    )
+    norm))
+
+(normalize (fern 10) 10)
+;-> ((0 0) (0 16) (0 29) (1 41) (3 50) (4 59) (6 66) (8 71) (9 76) (11 80) (12 84))
+
+Funzione per generare i punti in formato ImageMagick partendo da una lista di punti:
+
+(define (list-IM lst file-str)
+  (local (outfile x-width y-height line)
+    ; rimozione punti multipli
+    (setq lst (sort (unique lst)))
+    (setq outfile (open file-str "write"))
+    (print outfile { })
+    ; calcolo dimensioni immagine
+    (setq x-width  (add 2 (int (apply max (map first lst)))))
+    (setq y-height (add 2 (int (apply max (map last  lst)))))
+    ; scrittura del file in formato ImageMagick
+    (write-line outfile (string "# ImageMagick pixel enumeration: "
+                (string x-width) "," (string y-height) ",256,rgba"))
+    (dolist (el lst)
+      (setq line (string (string (el 0)) ", " (string (el 1))
+            ": (0,0,0,255)")) ; colore nero con alpha=100%
+      (write-line outfile line)
+    )
+    (close outfile)))
+
+Esempio:
+
+(list-IM '((1 1) (10 10) (20 30)) "pippo.txt")
+
+(exec "convert pippo.txt pippo.png")
+
+Nota: "convert" è un comando di ImageMagick.
+
+Aprendo l'immagine "pippo.png" possiamo vedere i tre punti disegnati.
+
+Proviamo a generare alcuni frattali di Barnsley:
+
+1000000 punti:
+(list-IM (normalize (fern 1e6) 500) "fern01.txt")
+(exec "convert fern01.txt fern01.png")
+
+5000000 punti:
+(list-IM (normalize (fern 5e6) 500) "fern02.txt")
+(exec "convert fern02.txt fern02.png")
+
+I due frattali sono raffigurati (in parte) nell'immagine "fern.png" nella cartella "data".
+
+
+-----------------------------
+Miller: gestione CSV,TSV,JSON
+-----------------------------
+
+https://github.com/johnkerl/miller
+
+What is Miller?
+Miller is like awk, sed, cut, join, and sort for data formats such as CSV, TSV, JSON, JSON Lines, and positionally-indexed.
+
+What can Miller do for me?
+With Miller, you get to use named fields without needing to count positional indices, using familiar formats such as CSV, TSV, JSON, JSON Lines, and positionally-indexed. Then, on the fly, you can add new fields which are functions of existing fields, drop fields, sort, aggregate statistically, pretty-print, and more.
+
+Installare "miller" (mlr.exe) in una cartella che si trova nella PATH di windows.
+
+Eseguiamo "miller" utilizzando la funzione "exec":
+
+(exec "mlr")
+;-> mlr: no verb supplied.
+;-> Usage: mlr [flags] {verb} [verb-dependent options ...] {zero or more file names}
+;-> 
+;-> If zero file names are provided, standard input is read, e.g.
+;->   mlr --csv sort -f shape example.csv
+;-> 
+;-> Output of one verb may be chained as input to another using "then", e.g.
+;->   mlr --csv stats1 -a min,mean,max -f quantity then sort -f color example.csv
+;-> 
+;-> Please see 'mlr help topics' for more information.
+;-> Please also see https://miller.readthedocs.io
+;-> ()
+
+File di esempio ("example.csv"):
+
+(exec "mlr --csv cat example.csv")
+;-> ("color,shape,flag,k,index,quantity,rate" "yellow,triangle,true,1,11,43.6498,9.8870"
+;->  "red,square,true,2,15,79.2778,0.0130" "red,circle,true,3,16,13.8103,2.9010" "red,square,false,4,48,77.5542,7.4670"
+;->  "purple,triangle,false,5,51,81.2290,8.5910" "red,square,false,6,64,77.1991,9.5310"
+;->  "purple,triangle,false,7,65,80.1405,5.8240" "yellow,circle,true,8,73,63.9785,4.2370"
+;->  "yellow,circle,true,9,87,63.5058,8.3350" "purple,square,false,10,91,72.3735,8.2430")
+
+Il risultato viene restituito come una lista. Ogni elemento della lista è una strina e rappresenta una riga di dati:
+
+(list? (exec "mlr --csv cat example.csv"))
+;-> true
+
+Stampiamo questi dati:
+
+(dolist (el (exec "mlr --csv cat example.csv"))  (println  el))
+;-> color,shape,flag,k,index,quantity,rate
+;-> yellow,triangle,true,1,11,43.6498,9.8870
+;-> red,square,true,2,15,79.2778,0.0130
+;-> red,circle,true,3,16,13.8103,2.9010
+;-> red,square,false,4,48,77.5542,7.4670
+;-> purple,triangle,false,5,51,81.2290,8.5910
+;-> red,square,false,6,64,77.1991,9.5310
+;-> purple,triangle,false,7,65,80.1405,5.8240
+;-> yellow,circle,true,8,73,63.9785,4.2370
+;-> yellow,circle,true,9,87,63.5058,8.3350
+;-> purple,square,false,10,91,72.3735,8.2430
+
+Possiamo usare anche "map":
+
+(map println (exec "mlr --csv cat example.csv"))
+;-> color,shape,flag,k,index,quantity,rate
+;-> yellow,triangle,true,1,11,43.6498,9.8870
+;-> red,square,true,2,15,79.2778,0.0130
+;-> red,circle,true,3,16,13.8103,2.9010
+;-> red,square,false,4,48,77.5542,7.4670
+;-> purple,triangle,false,5,51,81.2290,8.5910
+;-> red,square,false,6,64,77.1991,9.5310
+;-> purple,triangle,false,7,65,80.1405,5.8240
+;-> yellow,circle,true,8,73,63.9785,4.2370
+;-> yellow,circle,true,9,87,63.5058,8.3350
+;-> purple,square,false,10,91,72.3735,8.2430
+
+Stampiamo i dati in forma allineata:
+
+(exec "mlr --icsv --opprint cat example.csv")
+(list? (exec "mlr --icsv --opprint cat example.csv"))
+;-> true
+(map println (exec "mlr --icsv --opprint cat example.csv"))
+;-> color  shape    flag  k  index quantity rate
+;-> yellow triangle true  1  11    43.6498  9.8870
+;-> red    square   true  2  15    79.2778  0.0130
+;-> red    circle   true  3  16    13.8103  2.9010
+;-> red    square   false 4  48    77.5542  7.4670
+;-> purple triangle false 5  51    81.2290  8.5910
+;-> red    square   false 6  64    77.1991  9.5310
+;-> purple triangle false 7  65    80.1405  5.8240
+;-> yellow circle   true  8  73    63.9785  4.2370
+;-> yellow circle   true  9  87    63.5058  8.3350
+;-> purple square   false 10 91    72.3735  8.2430
+
+Stampiamo solo le righe che hanno color=yellow:
+
+(map println (exec "mlr --csv filter '$color == \"yellow\"' example.csv"))
+;-> color,shape,flag,k,index,quantity,rate
+;-> yellow,triangle,true,1,11,43.6498,9.8870
+;-> yellow,circle,true,8,73,63.9785,4.2370
+;-> yellow,circle,true,9,87,63.5058,8.3350
+;-> ("color,shape,flag,k,index,quantity,rate" "yellow,triangle,true,1,11,43.6498,9.8870"
+;->  "yellow,circle,true,8,73,63.9785,4.2370" "yellow,circle,true,9,87,63.5058,8.3350")
+
 =============================================================================
 
