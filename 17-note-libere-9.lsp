@@ -2062,7 +2062,7 @@ Eseguiamo "miller" utilizzando la funzione "exec":
 ;-> Please also see https://miller.readthedocs.io
 ;-> ()
 
-File di esempio ("example.csv"):
+File di esempio ("example.csv" si trova nella cartella "data"):
 
 (exec "mlr --csv cat example.csv")
 ;-> ("color,shape,flag,k,index,quantity,rate" "yellow,triangle,true,1,11,43.6498,9.8870"
@@ -2109,8 +2109,21 @@ Possiamo usare anche "map":
 Stampiamo i dati in forma allineata:
 
 (exec "mlr --icsv --opprint cat example.csv")
+;-> ("color  shape    flag  k  index quantity rate" 
+;->  "yellow triangle true  1  11    43.6498  9.8870"
+;->  "red    square   true  2  15    79.2778  0.0130" 
+;->  "red    circle   true  3  16    13.8103  2.9010"
+;->  "red    square   false 4  48    77.5542  7.4670" 
+;->  "purple triangle false 5  51    81.2290  8.5910"
+;->  "red    square   false 6  64    77.1991  9.5310" 
+;->  "purple triangle false 7  65    80.1405  5.8240"
+;->  "yellow circle   true  8  73    63.9785  4.2370" 
+;->  "yellow circle   true  9  87    63.5058  8.3350"
+;->  "purple square   false 10 91    72.3735  8.2430")
+
 (list? (exec "mlr --icsv --opprint cat example.csv"))
 ;-> true
+
 (map println (exec "mlr --icsv --opprint cat example.csv"))
 ;-> color  shape    flag  k  index quantity rate
 ;-> yellow triangle true  1  11    43.6498  9.8870
@@ -2133,6 +2146,416 @@ Stampiamo solo le righe che hanno color=yellow:
 ;-> yellow,circle,true,9,87,63.5058,8.3350
 ;-> ("color,shape,flag,k,index,quantity,rate" "yellow,triangle,true,1,11,43.6498,9.8870"
 ;->  "yellow,circle,true,8,73,63.9785,4.2370" "yellow,circle,true,9,87,63.5058,8.3350")
+
+Nota: i caratteri doppio apice ("") devono essere protetti dal carattere di escape (\):
+Per esempio "yellow" diventa \" yellow\". Proteggere (").
+
+Estrarre i primi record o gli ultimi (l'intestazione CSV è inclusa in entrambi i modi):
+
+(map println (exec "mlr --csv head -n 4 example.csv"))
+;-> color,shape,flag,k,index,quantity,rate
+;-> yellow,triangle,true,1,11,43.6498,9.8870
+;-> red,square,true,2,15,79.2778,0.0130
+;-> red,circle,true,3,16,13.8103,2.9010
+;-> red,square,false,4,48,77.5542,7.4670
+
+(map println (exec "mlr --csv tail -n 4 example.csv"))
+;-> color,shape,flag,k,index,quantity,rate
+;-> purple,triangle,false,7,65,80.1405,5.8240
+;-> yellow,circle,true,8,73,63.9785,4.2370
+;-> yellow,circle,true,9,87,63.5058,8.3350
+;-> purple,square,false,10,91,72.3735,8.2430
+
+Estrarre gli ultimi due record in formato JSON:
+
+(map println (exec "mlr --icsv --ojson tail -n 2 example.csv"))
+;-> [
+;-> {
+;->   "color": "yellow",
+;->   "shape": "circle",
+;->   "flag": "true",
+;->   "k": 9,
+;->   "index": 87,
+;->   "quantity": 63.5058,
+;->   "rate": 8.3350
+;-> },
+;-> {
+;->   "color": "purple",
+;->   "shape": "square",
+;->   "flag": "false",
+;->   "k": 10,
+;->   "index": 91,
+;->   "quantity": 72.3735,
+;->   "rate": 8.2430
+;-> }
+;-> ]
+;-> ("[" "{" "  \"color\": \"yellow\"," "  \"shape\": \"circle\"," "  \"flag\": \"true\","
+;->  "  \"k\": 9," "  \"index\": 87," "  \"quantity\": 63.5058," "  \"rate\": 8.3350"
+;->  "}," "{" "  \"color\": \"purple\"," "  \"shape\": \"square\"," "  \"flag\": \"false\","
+;->  "  \"k\": 10," "  \"index\": 91," "  \"quantity\": 72.3735," "  \"rate\": 8.2430"
+;->  "}" "]")
+
+Ordinamento per un campo (shape):
+
+(map println (exec "mlr --icsv --opprint sort -f shape example.csv"))
+;-> color  shape    flag  k  index quantity rate
+;-> red    circle   true  3  16    13.8103  2.9010
+;-> yellow circle   true  8  73    63.9785  4.2370
+;-> yellow circle   true  9  87    63.5058  8.3350
+;-> red    square   true  2  15    79.2778  0.0130
+;-> red    square   false 4  48    77.5542  7.4670
+;-> red    square   false 6  64    77.1991  9.5310
+;-> purple square   false 10 91    72.3735  8.2430
+;-> yellow triangle true  1  11    43.6498  9.8870
+;-> purple triangle false 5  51    81.2290  8.5910
+;-> purple triangle false 7  65    80.1405  5.8240
+
+Ordinamento primario per un campo alfabetico (shape) e secondario decrescente su un campo numerico (index):
+
+(map println (exec "mlr --icsv --opprint sort -f shape -nr index example.csv"))
+;-> color  shape    flag  k  index quantity rate
+;-> yellow circle   true  9  87    63.5058  8.3350
+;-> yellow circle   true  8  73    63.9785  4.2370
+;-> red    circle   true  3  16    13.8103  2.9010
+;-> purple square   false 10 91    72.3735  8.2430
+;-> red    square   false 6  64    77.1991  9.5310
+;-> red    square   false 4  48    77.5542  7.4670
+;-> red    square   true  2  15    79.2778  0.0130
+;-> purple triangle false 7  65    80.1405  5.8240
+;-> purple triangle false 5  51    81.2290  8.5910
+;-> yellow triangle true  1  11    43.6498  9.8870
+
+Se ci sono campi che non vogliamo vedere nei dati, possiamo usare "cut" per mantenere solo quelli che vogliamo, nello stesso ordine in cui appaiono nei dati di input:
+
+(map println (exec "mlr --icsv --opprint cut -f flag,shape example.csv"))
+;-> shape    flag
+;-> triangle true
+;-> square   true
+;-> circle   true
+;-> square   false
+;-> triangle false
+;-> square   false
+;-> triangle false
+;-> circle   true
+;-> circle   true
+;-> square   false
+
+Possiamo anche usare cut -o per mantenere i campi specificati, ma nell'ordine preferito:
+
+(map println (exec "mlr --icsv --opprint cut -o -f flag,shape example.csv"))
+;-> flag  shape
+;-> true  triangle
+;-> true  square
+;-> true  circle
+;-> false square
+;-> false triangle
+;-> false square
+;-> false triangle
+;-> true  circle
+;-> true  circle
+;-> false square
+
+Possiamo usare "cut -x" per togliere i campi che non ci interessano:
+
+(map println (exec "mlr --icsv --opprint cut -x -f flag,shape example.csv"))
+;-> color  k  index quantity rate
+;-> yellow 1  11    43.6498  9.8870
+;-> red    2  15    79.2778  0.0130
+;-> red    3  16    13.8103  2.9010
+;-> red    4  48    77.5542  7.4670
+;-> purple 5  51    81.2290  8.5910
+;-> red    6  64    77.1991  9.5310
+;-> purple 7  65    80.1405  5.8240
+;-> yellow 8  73    63.9785  4.2370
+;-> yellow 9  87    63.5058  8.3350
+;-> purple 10 91    72.3735  8.2430
+
+Anche se il principale punto di forza di Miller è l'indicizzazione dei nomi, a volte si desidera davvero fare riferimento a un nome di campo tramite il suo indice di posizione. Usa $[[3]] per accedere al nome del campo 3 o $[[[3]]] per accedere al valore del campo 3:
+
+(map println (exec "mlr --icsv --opprint put '$[[3]] = \"NEW\"' example.csv"))
+;-> color  shape    NEW   k  index quantity rate
+;-> yellow triangle true  1  11    43.6498  9.8870
+;-> red    square   true  2  15    79.2778  0.0130
+;-> red    circle   true  3  16    13.8103  2.9010
+;-> red    square   false 4  48    77.5542  7.4670
+;-> purple triangle false 5  51    81.2290  8.5910
+;-> red    square   false 6  64    77.1991  9.5310
+;-> purple triangle false 7  65    80.1405  5.8240
+;-> yellow circle   true  8  73    63.9785  4.2370
+;-> yellow circle   true  9  87    63.5058  8.3350
+;-> purple square   false 10 91    72.3735  8.2430
+
+(map println (exec "mlr --icsv --opprint put '$[[[3]]] = \"NEW\"' example.csv"))
+;-> color  shape    flag k  index quantity rate
+;-> yellow triangle NEW  1  11    43.6498  9.8870
+;-> red    square   NEW  2  15    79.2778  0.0130
+;-> red    circle   NEW  3  16    13.8103  2.9010
+;-> red    square   NEW  4  48    77.5542  7.4670
+;-> purple triangle NEW  5  51    81.2290  8.5910
+;-> red    square   NEW  6  64    77.1991  9.5310
+;-> purple triangle NEW  7  65    80.1405  5.8240
+;-> yellow circle   NEW  8  73    63.9785  4.2370
+;-> yellow circle   NEW  9  87    63.5058  8.3350
+;-> purple square   NEW  10 91    72.3735  8.2430
+
+Possiamo usare "filter" per estrarre solo i record che ci interessano:
+
+(map println (exec "mlr --icsv --opprint filter '$color == \"red\"' example.csv"))
+;-> color shape  flag  k index quantity rate
+;-> red   square true  2 15    79.2778  0.0130
+;-> red   circle true  3 16    13.8103  2.9010
+;-> red   square false 4 48    77.5542  7.4670
+;-> red   square false 6 64    77.1991  9.5310
+
+Nota: Miller ha anche la possibilità di utilizzare una sintassi simile a quella di un linguaggio di programmazione.
+
+
+---------------------------
+La funzione labels del LISP
+---------------------------
+
+Vediamo una macro (scritta da johu) che simula la funzione LABELS del LISP.
+
+Dal manuale del LISP:
+
+Syntax:
+
+labels bindings body (zero or more) => an object
+
+Argument description:
+  bindings list containing function definitions
+  body     program code in which definitions above are effective, implicit progn
+
+LABELS is special form for local function binding. Bindings can be recursive and can refer to each other. Each binding contains function name, arguments, and function body. See FLET, DEFUN, LAMBDA.
+
+(labels ((fact2x (x) (fact (* 2 x)))
+         (fact (x) (if (< x 2) 1 (* x (fact (1- x))))))
+  (fact2x 3))
+ => 720
+
+From the Hyperspec: labels is equivalent to flet except that the scope of the defined function names for labels encompasses the function definitions themselves as well as the body.
+
+What this means practically is that labels allows you to write recursive functions. For example:
+
+(defun fact (n)
+  (labels ((rec (x)
+             (if (< x 1) 
+                 1
+                 (* x (rec (- x 1))))))
+    (rec n)))
+
+This function works fine, but the same function written with flet will cause an error because the symbol rec will not be bound in the function definition. The sample function you provided would cause an error if it was written with flet for the same reason.
+
+Partendo da una REPL nuova:
+
+labels
+;-> nil
+
+(context 'MAIN:labels)
+(define-macro (labels:labels)
+  (letex (_labels (append '(let)
+                           (list (map (fn (x) (list (x 0) (append '(fn) (list (x 1)) (2 x)))) (args 0)))
+                           (1 (args))))
+     _labels))
+;-> (lambda-macro ()
+;->  (letex (_labels (append '(let) (list (map (lambda (x) (list (x 0) (append '(lambda )
+;->          (list (x 1))
+;->          (2 x))))
+;->       (args 0)))
+;->     (1 (args)))) _labels))
+
+(context MAIN)
+;-> MAIN
+
+(define (test-a x)
+        (labels ((in-test (x y) (println "test-a " x " " y))) (in-test x "a")))
+;-> (lambda (x) 
+;-> (labels ((in-test (x y) (println "test-a " x " " y))) (in-test x "a")))
+
+(define (test-b x)
+        (labels ((in-test (x y) (println "test-b " x " " y))) (in-test "b" x)))
+;-> (lambda (x) 
+;-> (labels ((in-test (x y) (println "test-b " x " " y))) (in-test "b" x)))
+
+(define (in-test x)
+        (println "test-out " x))
+;-> (lambda (x) (println "test-out " x))
+
+labels:labels
+;-> (lambda-macro ()
+;->  (letex (_labels (append '(let) (list (map (lambda (x) (list (x 0) (append '(lambda )
+;->          (list (x 1))
+;->          (2 x))))
+;->       (args 0)))
+;->     (1 (args)))) _labels))
+
+(in-test "in-test")
+;-> test-out in-test
+;-> "in-test"
+
+(test-a "test-a")
+;-> test-a test-a a
+;-> "a"
+
+(test-b "test-b")
+;-> test-b b test-b
+;-> "test-b"
+
+(in-test "in-test")
+;-> test-out in-test
+;-> "in-test"
+
+(define (test-2 x y)
+        (labels ((test-x (x) (println "test1 x=" x))
+                 (test-y (x) (println "test2 y=" x)))
+                (test-x x)
+                (test-y y)))
+;-> (lambda (x y) (labels ((test-x (x) (println "test1 x=" x)) (test-y (x) 
+;->   (println "test2 y=" x)))
+;->   (test-x x)
+;->   (test-y y)))
+
+(test-2 "a" "b")
+;-> test1 x=a
+;-> test2 y=b
+;-> "b"
+
+
+---------------------------
+A LISP programming exercise
+---------------------------
+
+"A LISP programming exercise" by Jan L.A. Van De Snepscheut
+Department of Computer Science, California Institute of Technology, Pasadena, CA 91125, USA
+Information Processing Letters 42 (1992) 103-108
+
+Sono dati due oggetti (liste) LISP. Scrivere una funzione booleana che restituisca true solo quando i due argomenti hanno la stessa "frange".
+La "frange" di un oggetto è la lista degli atomi nell'oggetto nel loro ordine di occorrenza e ignorando la struttura tra parentesi nell'oggetto dato.
+
+Esempi:
+
+  (same (a (b c)) ((a (b)) (c))) --> true
+
+  (same (a (b c)) ((a (c)) (b))) --> nil
+
+L'articolo propone il seguente programma LISP come (prima) soluzione:
+
+(define (same (lambda (a b)
+  (samefringe (fringe a) (fringe b))))
+
+(fringe (lambda (x)
+  (cond ((null x) nil)
+        ((atom x) (cons x nil))
+        (t (append (fringe (car x)) (fringe (cdr x)))))))
+
+(samefringe (lambda (fra frb)
+    (cond ((null fra) (null frb))
+          ((null frb) nil)
+          ((eq (car fra) (car frb))
+           (samefringe (cdr fra) (cdr frb)))
+          (t nil))))
+)
+
+Per convertire il programma in newLISP notiamo che in LISP (CLISP):
+
+> (cons '(1) nil)
+-> ((1))
+> (cons 1 nil)
+-> (1)
+
+Mentre in newLISP:
+
+(cons '(1) nil)
+;-> ((1) nil)
+(cons 1 nil)
+;-> (1 nil)
+
+Allora per ottenere lo stesso risultato del LISP usiamo "list" senza nil:
+
+(list '(1))
+;-> ((1))
+(list 1)
+;-> (1)
+
+Versione del programma in newLISP:
+
+(define car first)
+(define cdr rest)
+
+(define (same? a b)
+  (samefringe (fringe a) (fringe b)))
+
+(define (fringe x)
+  (cond ((null? x) '())
+        ((atom? x) (list x))
+        (true (append (fringe (car x)) (fringe (cdr x))))))
+
+(fringe '((a) (b) c))
+;-> (a b c)
+
+(define (samefringe fra frb)
+    (cond ((null? fra) (null? frb))
+          ((null? frb) nil)
+          ((= (car fra) (car frb))
+           (samefringe (cdr fra) (cdr frb)))
+          (true nil)))
+
+Proviamo la funzione:
+
+(same? '(a (b c)) '((a (b)) (c)))
+;-> true
+
+(same? '(a (b c)) '((a (c)) (b)))
+;-> nil
+
+L'articolo prosegue con la scrittura di un programma più efficiente basandosi sull'osservazione che la soluzione sopra costruisce due frange complete e solo successivamente inizia a confrontarle. 
+Per motivi di efficienza sarebbe molto meglio se potessimo combinare le due operazioni e, soprattutto, fermare sia il confronto che i processi di costruzione appena si riscontra una differenza tra le due frange.
+Nel peggiore dei casi, quando le due frange sono uguali, non deriva alcun beneficio da tale soluzione, ma in tutti gli altri casi si ha una riduzione dei tempi di esecuzione. Inoltre, calcolare gli atomi e confrontarli al volo riduce il consumo di memoria in quanto viene memorizzato niente.
+
+(define (same (lambda (a b)
+  (samesplit (split a) (split b))))
+
+(split (lambda (x)
+  (cond ((null x) nil)
+        ((atom x) (cons x nil))
+        (t (f (split (car x)) (cdr x))))))
+
+(f (lambda (scarx cdrx)
+  (cond ((null scarx) (split cdrx))
+        (t (cons (car (scarx)) (cons (cdr scarx) cdrx))))))
+            
+(samesplit (lambda (spa spb)
+  (cond ((null spa) (null spb))
+        ((null spb) nil)
+        ((eq (car spa) (car spb))
+          (samesplit (split (cdr spa)) (split (cdr spb))))
+        (t nil)))))
+
+Invece di convertire questo programma, vediamo come possiamo scrivere la funzione in newLISP. Usiamo la funzione "flat" per ottenere la "frange" di ogni lista e poi le confrontiamo:
+
+(define (frange lst) (flat lst))
+(define (same-frange? lst1 lst2)
+  (= (frange lst1) (frange lst2)))
+
+(define (same-frange? lst1 lst2)
+  (= (flat lst1) (flat lst2)))
+
+(same-frange? '(a (b c)) '((a (b)) (c)))
+;-> true
+
+(same-frange? '(a (b c)) '((a (c)) (b)))
+;-> nil
+
+Vediamo la velocità delle due funzioni:
+
+(setq obj1 '(a (b) (c (d) (e) (f (g) (h) i) l) (m n) (o) (p q (r (s t (((u))) v z)))))
+(setq obj2 '(a (b) (c (d) (e) (f (g) (x) i) l) (m n) (o) (p q (r (s t (((u))) v z)))))
+
+(time (same? obj1 obj2) 1e5)
+;-> 2847.412
+
+(time (same-frange? obj1 obj2) 1e5)
+;-> 94.774
 
 =============================================================================
 

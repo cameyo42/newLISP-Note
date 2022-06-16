@@ -1228,7 +1228,8 @@ NOTE LIBERE 9
   Crittografia one-time pad (OTP)
   Fern: il frattale di Barnsley
   Miller: gestione CSV,TSV,JSON
-  
+  La funzione labels del LISP
+  A LISP programming exercise
 
 APPENDICI
 =========
