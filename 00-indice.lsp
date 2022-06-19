@@ -1230,6 +1230,10 @@ NOTE LIBERE 9
   Miller: gestione CSV,TSV,JSON
   La funzione labels del LISP
   A LISP programming exercise
+  Formattazione di nil
+  La funzione juxt di Clojure
+  La funzione if-not
+  Simulare un iteratore python
 
 APPENDICI
 =========

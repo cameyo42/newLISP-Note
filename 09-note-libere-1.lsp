@@ -6146,7 +6146,7 @@ I simboli protetti di funzioni integrate e simboli speciali come nil e true non 
 
 delete restituisce true se il simbolo è stato eliminato correttamente o nil se il simbolo non è stato eliminato.
 
-Quando si elimina un simbolo di contesto, la prima chiamata a delete rimuove il contenuto dello spazio dei nomi di contesto e riduce il simbolo di contesto in un normale simbolo mono-variabile. Una seconda chiamata di delete rimuoverà il simbolo dalla tabella dei simboli.
+Quando si elimina un simbolo di contesto, la prima chiamata a delete rimuove il contenuto dello spazio dei nomi di contesto e riduce il simbolo di contesto in un normale simbolo mono-variabile. Una seconda chiamata di delete rimuoverà il simbolo dalla tabella dei simboli. "This behavior is necessary when using local variable symbols in functions as contexts." Lutz
 
 (set 'lst '(a b aVar c d))
 (delete 'aVar)  ; aVar deleted, references marked nil

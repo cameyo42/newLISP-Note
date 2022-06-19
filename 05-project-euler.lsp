@@ -80,7 +80,7 @@
 |    71    |  428570            |         -  |       191  |         -  |
 |    72    |  303963552391      |         -  |      2060  |         -  |
 |    73    |  7295372           |         -  |      1809  |      2345  |
-|    74    |  402               |         -  |    286059  |         -  |
+|    74    |  402               |         -  |    286059  |      1125  |
 |    75    |  161667            |         -  |       822  |         -  |
 |    76    |  190569291         |         -  |         0  |         -  |
 |    77    |  71                |         -  |         4  |         -  |
@@ -8691,7 +8691,7 @@ Consideriamo i numeri di una catena: hanno tutti la stessa lunghezza della caten
 Se nella costruzione della catena di un numero raggiungiamo il numero 169 o 871 o 872 sappiamo come termina la catena stessa.
 Utilizzando anche gli altri numeri 363601, 1454, 45361 e 45362 possiamo modificare il criterio di arresto del calcolo diretto della catena: ci fermiamo quando incontriamo uno di questi sette numeri oppure quando un numero termina la catena su se stesso.
 
-Scriviamo funzione finale:
+Scriviamo la funzione finale:
 
 (define (e074)
   (local (limite num ultimo somma out)
@@ -8718,6 +8718,40 @@ Scriviamo funzione finale:
 ;-> 28605.673
 
 Questa è la più veloce anche se il tempo non è entusiasmante.
+
+
+Dopo un pò di analisi si può trovare che gli unici numeri che generano una catena di 60 elementi sono i seguenti:
+
+  367945 367954 373944 379443 379465 735964
+
+Utilizzando questa informazione possiamo scrivere una nuova soluzione:
+
+(define (sum-fatt num)
+  (let ((temp num) (out 0))
+    (while (> temp 0)
+      (setq out (+ out (fact (% temp 10))))
+      (setq temp (/ temp 10))
+    )
+    out))
+
+(define (e074-2)
+  (local (iter sign fact out)
+    ; signature sum-fatt che portano a una catena di 60 termini (fino a 1e8)
+    (setq sign '(367945 367954 373944 379443 379465 735964))
+    ; precodifica dei fattoriali da 0 a 9
+    (setq fact '(1 1 2 6 24 120 720 5040 40320 362880))
+    (setq out 0)
+    (for (i 69 1e6)
+      (if (find (sum-fatt i) sign) (++ out))
+    )
+    out))
+
+(find 367954 '(367945 367954 373944 379443 379465 735964))
+(e074-2)
+;-> 402
+
+(time (e074-2))
+;-> 1124.954
 ----------------------------------------------------------------------------
 
 
@@ -11293,7 +11327,7 @@ Definiamo una funzione che effettua il check:
         (true
           (setq mappa (map list (explode (w-pair 0)) (int-lst (qq 0))))
           (setq new-num (lst-int (map (fn(x) (lookup x mappa)) (explode (w-pair 1)))))
-          (if (= new-num (q-pair 1)) 
+          (if (= new-num (q-pair 1))
               (setq out true)
           )
         )
@@ -11309,12 +11343,12 @@ Adesso possiamo confrontare la liste degli anagrammi con la lista dei quadrati:
 (dolist (ww ana-words)
   (dolist (qq sq-pair)
     (cond ((check ww qq)
-           (if (> (qq 0) valmax) 
+           (if (> (qq 0) valmax)
              (begin
                (setq valmax (qq 0))
                (println ww { } qq { } valmax)
              ))
-           (if (> (qq 1) valmax) 
+           (if (> (qq 1) valmax)
                (begin
                  (setq valmax (qq 1))
                  (println ww { } qq { } valmax)
@@ -11359,7 +11393,7 @@ Scriviamo la funzione completa:
 
 (define (doppie stamp)
   (if (find "2|3|4|5|6|7|8|9" (string stamp) 0) true nil))
-  
+
 (define (square? n)
   (let (v (+ (sqrt n 0.5)))
     (= n (* v v))))
@@ -11381,7 +11415,7 @@ Scriviamo la funzione completa:
         (true
           (setq mappa (map list (explode (w-pair 0)) (int-lst (qq 0))))
           (setq new-num (lst-int (map (fn(x) (lookup x mappa)) (explode (w-pair 1)))))
-          (if (= new-num (q-pair 1)) 
+          (if (= new-num (q-pair 1))
               (setq out true)
           )
         )
@@ -11389,7 +11423,7 @@ Scriviamo la funzione completa:
   out)
 
 (define (e098)
-  (local (ord-words ana-words len-w ord-w w-w 
+  (local (ord-words ana-words len-w ord-w w-w
           max-sq squares squares-stamp squares-pair
           stamp-sq num-sq sq-pair valmax)
     (setq ord-words (sort (map sortword words)))
@@ -11428,12 +11462,12 @@ Scriviamo la funzione completa:
     (dolist (ww ana-words)
       (dolist (qq sq-pair)
         (cond ((check ww qq)
-              (if (> (qq 0) valmax) 
+              (if (> (qq 0) valmax)
                 (begin
                   (setq valmax (qq 0))
                   ;(println ww { } qq { } valmax)
                 ))
-              (if (> (qq 1) valmax) 
+              (if (> (qq 1) valmax)
                   (begin
                     (setq valmax (qq 1))
                     ;(println ww { } qq { } valmax)
@@ -11783,17 +11817,17 @@ time eulero101(plotta=False)
 
 682 x + 1
 
-1.0 683.0 1365.0 
+1.0 683.0 1365.0
 [21461, -20779, 1]
            2
 2.146e+04 x - 2.078e+04 x + 1
 
-0.999999999993 683.0 44287.0 130813.0 
+0.999999999993 683.0 44287.0 130813.0
 [118008, -332563, 215237, 1]
           3             2
 1.18e+05 x - 3.326e+05 x + 2.152e+05 x + 1
 
-1.0 683.0 44287.0 838861.0 3092453.0 
+1.0 683.0 44287.0 838861.0 3092453.0
 [210232, -1143384, 1979989, -1046155, 1]
            4             3            2
 2.102e+05 x - 1.143e+06 x + 1.98e+06 x - 1.046e+06 x + 1
@@ -11803,32 +11837,32 @@ time eulero101(plotta=False)
            5            4             3             2
 1.591e+05 x - 1.38e+06 x + 4.424e+06 x - 5.973e+06 x + 2.771e+06 x + 1
 
-0.999999880791 683.000000086 44286.9999999 838861.0 8138021.0 51828151.0 205015603.0 
+0.999999880791 683.000000086 44286.9999999 838861.0 8138021.0 51828151.0 205015603.0
 [58542, -719070, 3595702, -8748234, 10067497, -4253755, 1]
            6             5             4             3             2
 5.854e+04 x - 7.191e+05 x + 3.596e+06 x - 8.748e+06 x + 1.007e+07 x - 4.254e+06 x + 1
 
-1.0 682.999999477 44287.0000006 838861.0 8138021.0 51828151.0 247165843.0 898165577.0 
+1.0 682.999999477 44287.0000006 838861.0 8138021.0 51828151.0 247165843.0 898165577.0
 [11165, -175923, 1234805, -4610573, 9383726, -9627563, 3785045, 1]
            7             6             5             4             3              2
 1.117e+04 x - 1.759e+05 x + 1.235e+06 x - 4.611e+06 x + 9.384e+06 x - 9.628e+06 x + 3.785e+06 x + 1
 
-1.0 683.000003743 44287.0000004 838861.000003 8138021.0 51828151.0 247165843.0 954437177.0 3093310441.0 
+1.0 683.000003743 44287.0000004 838861.000003 8138021.0 51828151.0 247165843.0 954437177.0 3093310441.0
 [1111, -19943, 181819, -942755, 2909786, -5205926, 4890985, -1814395, 1]
-      8             7             6             5            4             3             2 
-1111 x - 1.994e+04 x + 1.818e+05 x - 9.428e+05 x + 2.91e+06 x - 5.206e+06 x + 4.891e+06 x - 1.814e+06 x + 1 
+      8             7             6             5            4             3             2
+1111 x - 1.994e+04 x + 1.818e+05 x - 9.428e+05 x + 2.91e+06 x - 5.206e+06 x + 4.891e+06 x - 1.814e+06 x + 1
 
-1.00000762939 683.000007528 44286.9999997 838861.000002 8138021.00001 51828151.0 247165843.0 954437177.0 3138105961.0 9071313571.0 
+1.00000762939 683.000007528 44286.9999997 838861.000002 8138021.00001 51828151.0 247165843.0 954437177.0 3138105961.0 9071313571.0
 [54, -833, 9541, -63125, 269491, -723550, 1172770, -1026551, 362885, 1]
     9       8        7             6             5             4             3             2
 54 x - 833 x + 9541 x - 6.312e+04 x + 2.695e+05 x - 7.235e+05 x + 1.173e+06 x - 1.027e+06 x + 3.629e+05 x + 1
 
-0.999998092651 682.99998807 44286.9999814 838860.999984 8138020.99998 51828151.0 247165843.0 954437177.0 3138105961.0 9090909091.0 23772343751.0 
+0.999998092651 682.99998807 44286.9999814 838860.999984 8138020.99998 51828151.0 247165843.0 954437177.0 3138105961.0 9090909091.0 23772343751.0
 [1, 9, 37, 91, 148, 166, 130, 70, 25, 5, 1]
    10     9      8      7       6       5       4      3      2
 1 x  + 9 x + 37 x + 91 x + 148 x + 166 x + 130 x + 70 x + 25 x + 5 x + 1
 
-0.999999046326 682.999999004 44286.9999978 838860.999998 8138021.0 51828151.0 247165843.0 954437177.0 3138105961.0 9090909091.0 23775972551.0 57154490053.0 
+0.999999046326 682.999999004 44286.9999978 838860.999998 8138021.0 51828151.0 247165843.0 954437177.0 3138105961.0 9090909091.0 23775972551.0 57154490053.0
 [1, 1365.0, 130812.99999999997, 3092452.9999999986, 32740951.000000015, 205015603.00000089, 898165576.99999714, 3093310441.0001335, 9071313571.000391, 23772343750.999367]
 37076114526L
 Time: CPU 0.07 s, Wall: 0.22 s
@@ -11913,7 +11947,7 @@ Possiamo usare il teorema di Jordan (che vale anche per qualunque poligono):
                  (++ conta))
              (if (and (>= b3 (min (el 5) (el 1))) (<= b3 (max (el 5) (el 1))) (< b3 0))
                  (++ conta))
-             (if (odd? conta) 
+             (if (odd? conta)
                  (++ dentro)
                  (++ fuori))
             )
@@ -12232,11 +12266,11 @@ NOTA: questo problema è correlato al problema 103 e al problema 106.
           (if (not (find somma somme))
               (push somma somme -1)
           )
-          (if (or (= (somme-minime contatore) nil) 
+          (if (or (= (somme-minime contatore) nil)
                   (< somma (somme-minime contatore)))
               (setq (somme-minime contatore) somma)
           )
-          (if (or (= (somme-massime contatore) nil) 
+          (if (or (= (somme-massime contatore) nil)
                   (> somma (somme-massime contatore)))
               (setq (somme-massime contatore) somma)
           ))
@@ -12286,17 +12320,17 @@ NOTA: questo problema è una versione più semplice del problema 110. Si consigl
 1/x + 1/y = 1/n è equivalente a n*(x + y) = x*y.
 
 Osservando che x e y devono essere maggiori di n, sostituiamo:
-  
+
   x = n + a, y = n + b
 
 ottenendo:
-  
+
   n^2 = a * b
 
 Questo significa che qualsiasi coppia di divisori di n^2 darà una soluzione.
 
 La metà di queste coppie sono uniche. Poiché n^2 è un quadrato, ha un numero dispari di divisori, il che significa che non dividiamo la soluzione 1/2n + 1/2n = 1/n per 2. Essendo d(n) il numero di divisori di n, vogliamo trovare n in modo che
-   
+
    (divisori(n^2) + 1)/2 > 1000
 
 (define (divisors-count num)
@@ -12327,7 +12361,7 @@ La metà di queste coppie sono uniche. Poiché n^2 è un quadrato, ha un numero 
 
 Utilizziamo un'altro metodo.
 Se la fattorizzazione di n vale n = p1^e1*p2^e2*...*pk^ek allora il numero di soluzioni sono:
-  
+
    (2*e1+1)*(2*e2+1)...(2*ek+1) + 1
   ----------------------------------
                 2
@@ -13058,7 +13092,7 @@ Se calcoliamo rad(n) per 1 ≤ n ≤ 10, quindi li ordiniamo su rad(n) e ordinan
   9    3          7    7     9
   10  10         10   10    10
 
-Sia E(k) il k-esimo elemento nella colonna n ordinata. Ad esempio, E(4) = 8 e E(6) = 9. 
+Sia E(k) il k-esimo elemento nella colonna n ordinata. Ad esempio, E(4) = 8 e E(6) = 9.
 
 Se rad(n) è ordinato per 1 ≤ n ≤ 100000, trovare E(10000).
 ============================================================================
@@ -13158,7 +13192,7 @@ Poniamo:
 
 e sostituendo nella equazione (*) otteniamo:
 
-    (a+b)^2 - a^2 - (a-b)^2 = 
+    (a+b)^2 - a^2 - (a-b)^2 =
   = a^2 + 2ab + b^2 - a^2 - a^2 + 2ab - b^2 =
   = 4ab - a^2 =
   = a(4b - a)
@@ -13317,7 +13351,7 @@ Trova le ultime 8 cifre di 1777↑↑1855.
 (define (e188)
   (let ((base 1777) (hyper 1855) (digit 8) (out 0))
     (setq out base)
-    ; calcola base↑↑hyper mediante esponenziazione modulare ripetuta 
+    ; calcola base↑↑hyper mediante esponenziazione modulare ripetuta
     ; (associativa a destra)
     (for (i 1 (- hyper 1))
       (setq out (powmod base out (pow 10 digit)))
@@ -13381,8 +13415,8 @@ Questa funzione genera una situazione del giorno che permette di calcolare in nu
     ;    allora il contatore "assenti" aumenta di 1 e
     ;    il contatore "ritardo" si azzera
     (setq event-absent (calc (- days 1) (+ absent 1) 0))
-    ; 3) se siamo puntuali, 
-    ;    allora azzera il contatore di "ritardo" e 
+    ; 3) se siamo puntuali,
+    ;    allora azzera il contatore di "ritardo" e
     ;    mantiene il contatore di "assenti"
     (setq event-ontime (calc (- days 1) absent 0))
     ; calcola il numero delle stringhe premiate

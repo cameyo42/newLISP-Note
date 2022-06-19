@@ -2420,6 +2420,11 @@ labels:labels
 ;-> test2 y=b
 ;-> "b"
 
+Nota: codice veramente interessante
+
+Nota: newLISP non ha bisogno di costrutti come flet o labels. Questi hanno senso (in effetti, sono necessari) in linguaggi come Common Lisp in cui i nomi delle funzioni e i nomi delle variabili risiedono in spazi dei nomi diversi.
+Nei linguaggi Lisp-1 come newLISP e Scheme i nomi delle funzioni e i nomi delle variabili risiedono nello stesso spazio dei nomi, quindi flet e labels non sono necessari in questi linguaggi.
+
 
 ---------------------------
 A LISP programming exercise
@@ -2556,6 +2561,215 @@ Vediamo la velocità delle due funzioni:
 
 (time (same-frange? obj1 obj2) 1e5)
 ;-> 94.774
+
+
+--------------------
+Formattazione di nil
+--------------------
+
+Supponiamo di avere una lista con alcuni elementi che valgono "nil":
+
+(setq lst '("apple" "banana" nil nil "peach"))
+
+e di voler stampare la lista come un file CSV (Comma Separated Value):
+
+  apple,banana,,,peach
+
+La seguente espressione provoca un errore perchè "nil" non è una stringa:
+
+(format "%s,%s,%s,%s" lst)
+;-> ERR: data type and format don't match in function format : nil
+
+Allora possiamo sostituire "nil" con la stringa vuota "":
+
+(format "%s,%s,%s,%s,%s" (replace nil lst ""))
+;-> "apple,banana,,,peach"
+lst
+;-> ("apple" "banana" "" "" "peach")
+
+La funzione "replace" è distruttiva, quindi se vogliamo mantenere la lista originale dobbiamo applicare "replace" ad una copia della lista:
+
+(setq lst '("apple" "banana" nil nil "peach"))
+(format "%s,%s,%s,%s,%s" (replace nil (copy lst) ""))
+;-> "apple,banana,,,peach"
+lst
+;-> ("apple" "banana" nil nil "peach")
+
+Un altro metodo è il seguente:
+
+(format "%s,%s,%s,%s,%s" (map (fn (x) (or x "")) lst))
+;-> "apple,banana,,,peach"
+
+Vediamo la velocità dei due metodi:
+
+(define (m1)
+  (setq lst '("apple" "banana" nil nil "peach"))
+  (replace nil lst ""))
+
+(define (m2)
+  (setq lst '("apple" "banana" nil nil "peach"))
+  (map (fn (x) (or x "")) lst))
+
+(time (m1) 100000)
+;-> 74.803
+
+(time (m2) 100000)
+;-> 140.122
+
+La seconda funzione è più lenta perchè usare "map" con funzioni anonime ne rallenta l'esecuzione.
+
+
+---------------------------
+La funzione juxt di Clojure
+---------------------------
+
+Il linguaggio clojure ha la funzione juxtaposition ("juxt") che prende un insieme di funzioni e restituisce una fn che è la giustapposizione di quelle fn. La fn restituita accetta un numero variabile di argomenti e restituisce una lista contenente il risultato dell'applicazione di ciascun fn agli argomenti (da sinistra a destra).
+Esempio:
+((juxt a b c) x) => ((a x) (b x) (c x))
+
+Vediamo l'implementazione in newLISP di rickyboy:
+
+(define (juxt)
+  (letex (_args (args))
+    (lambda (x)
+      (let (fs '_args)
+        (map (lambda (f) (f x)) fs)))))
+
+((juxt sin cos tan) 10)
+;-> (-0.5440211108893698 -0.8390715290764524 0.6483608274590866)
+
+(sin 10)
+;-> -0.5440211108893698
+(cos 10)
+;-> -0.8390715290764524
+(tan 10)
+;-> 0.6483608274590866
+
+
+------------------
+La funzione if-not
+------------------
+
+Dal manuale della versione 10.7.5:
+
+"Since version 10.4.2 if-not is deprecated and will be removed in a future version."
+
+Comunque la primitiva "if-not" è ancora presente nella versione 10.7.5, come si deduce analizzando i simboli di newLISP (partendo da una REPL nuova):
+
+(filter (fn(x) (starts-with (string x) "if")) (symbols))
+;-> (if if-not ifft)
+
+Come funziona "if-not"?
+if-not
+- (if-not test then)
+- (if-not test then else)
+
+Evaluates test. If logical false, evaluates and returns then expr, otherwise else expr, if supplied, else nil.
+
+Logica di un test con "if-not":
+
+(if test then else)
+(if-not test then else)
+
+Logica dello stesso test senza "if-not":
+
+(if test then else)
+(if (not test) then else)
+
+Dal punto di vista logico, la funzione "if-not" è complementare alla funzione "if".
+Comunque le sintassi non sono perfettamente complementari, per esempio:
+
+(if-not 1 2 3 4 5 6)
+;-> 3
+
+(if (not 1) 2 3 4 5 6)
+;-> 4
+
+Comunque non bisogna utilizzare clausole "true" multiple altrimenti il codice è di difficile lettura.
+
+"The function will 'keep working for an indefinite time'."
+"if-not will not be removed."
+Lutz
+
+
+----------------------------
+Simulare un iteratore python
+----------------------------
+
+In python è possibile scrivere il seguente codice:
+
+>>> lst = [3, 2, 1]
+>>> s = iter(lst)
+>>> s
+<listiterator object at 0xb741e0cc>
+>>> s.next()
+3
+>>> s.next()
+2
+>>> s.next()
+1
+>>> s.next()
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+StopIteration
+
+Dove "s" è un oggetto e non una copia della lista originale.
+
+Per simulare questo comportamento possiamo utilizzare la funzione "pop":
+
+Per rimuovere un elemento dall'inizio della lista:
+
+(setq s '(3 2 1))
+
+(pop s)
+;-> 3
+(pop s)
+;-> 2
+(pop s)
+;-> 1
+(pop s)
+;-> nil
+
+Per rimuovere un elemento dalla fine della lista:
+
+(setq s '(3 2 1))
+
+(pop s -1) 
+;-> 1
+(pop s -1) 
+;-> 2
+(pop s -1) 
+;-> 3
+(pop s -1) 
+;-> nil
+
+Un altro metodo è quello di utilizzare la seguente macro (by conan):
+
+
+(context 'next)
+
+(setq seenSymbols '())
+
+(define-macro (next:next aList)
+    (unless (ref (string aList) next:seenSymbols)
+        (push (list (string aList) (copy (eval aList))) next:seenSymbols))
+    (pop (next:seenSymbols (first (ref (string aList) next:seenSymbols)) 1))
+)
+
+(context MAIN)
+;-> MAIN
+
+(setq lst '(1 2 3))
+(next:next lst)
+;-> 1
+(next:next lst)
+;-> 2
+(next:next lst)
+;-> 3
+(next:next lst)
+;-> nil
+(next:next lst)
+;-> nil
 
 =============================================================================
 
