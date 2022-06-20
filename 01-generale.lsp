@@ -3195,6 +3195,43 @@ Questo metodo supera i test per molti casi speciali importanti, come puoi vedere
 
 Ci sono alcuni casi in cui il metodo sopra produce ancora risultati imprevisti (in particolare, è molto più severo quando un valore è quasi zero rispetto a quando è esattamente zero), e alcuni dei test che sono stati sviluppati per il controllo evidenziano un comportamento che non è adatto per alcune applicazioni. Prima di usarlo, assicuratevi che sia appropriato per la vostra applicazione!
 
+Un altro metodo per confrontare A e B per l'uguaglianza approssimativa è il seguente: 
+due numeri A e B sono "uguali" se |a-b|/max(1,|a|,|b|) <= tolleranza.
+
+(define (num-delta a b)
+  ;|a-b|/max(1,|a|,|b|). Useful for comparing numbers.
+  (div (abs (sub a b))
+       (max 1 (abs a) (abs b))))
+
+(num-delta 1 100)
+;-> 0.99
+(num-delta 100 1)
+;-> 0.99
+(num-delta 10 10)
+;-> 0
+(num-delta 10 9)
+;-> 0.1
+(num-delta 1000 999)
+;-> 0.001
+(num-delta 100000 9)
+;-> 0.99991
+(num-delta 100 50)
+;-> 0.5
+(num-delta 1000 500)
+;-> 0.5
+(num-delta 1e-6 1e5)
+;-> 0.9999999999900001
+
+(define (equal? a b tol)
+  (println (num-delta a b))
+  (<= (num-delta a b) tol))
+
+(equal? 100 100.1 0.1)
+;-> true
+
+(equal? 100 100.1 0.0001)
+;-> nil
+
 Se non siete soddisfatti di queste informazioni pratiche, potete consultate il libro: "Numerical Computing with IEEE Floating Point Arithmetic" di Michael Overton.
 
 Vedi anche l'implementazione di "isclose" mutuata da python3 in "(isclose x y) di python 3" nel capitolo "01-generale.lsp".

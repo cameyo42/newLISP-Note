@@ -7108,8 +7108,9 @@ Creare una funzione che restituisce true se due numeri in virgola mobile sono "a
 
 Da notare che con numeri grandi il valore di abs-err-max perde di significato.
 
-Another way to measure the difference between a floating-point number and the real number it is approximating is relative error, which is simply the difference between the two numbers divided by the real number. For example the relative error committed when approximating 3.14159 by 3.14 × 100 is .00159/3.14159  .0005.
+Un altro modo per misurare la differenza tra un numero in virgola mobile e il numero reale che sta approssimando è l'errore relativo, che è semplicemente la differenza tra i due numeri divisa per il numero reale. Ad esempio, l'errore relativo commesso quando si approssima 3,14159 per 3,14 × 100 è 0,00159/3,14159 = 0,0005.
 
+(div .00159 3.14159)
 (define (rel-err x y)
   (div (abs-err x y) x))
 

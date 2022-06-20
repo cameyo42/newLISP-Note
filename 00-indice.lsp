@@ -1234,6 +1234,7 @@ NOTE LIBERE 9
   La funzione juxt di Clojure
   La funzione if-not
   Simulare un iteratore python
+  Modifica/aggiornamento di una lista annidata
 
 APPENDICI
 =========

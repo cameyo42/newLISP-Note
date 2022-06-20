@@ -2545,6 +2545,20 @@ Infine, c'è una terza funzione di valutazione che vale la pena menzionare:
 
 "eval-string" è una combinazione di "read-expr" e "eval".
 
+Nota: newLISP permette l'utilizzo standard delle stringhe fino ad una lunghezza di 2047 caratteri.
+Utilizzare i tag [text] e [/text] per stringhe più lunghe di 2047 caratteri:
+
+[text]this is a string, too[/text]
+;-> "this is a string, too"
+
+Nel caso della funzione "eval-string", quando abbiamo una stringa più lunga di 2047, occorre scrivere:
+
+(eval-string {(setq str [text]...(long string)...[/text])})
+
+oppure 
+
+(eval-string [text] (string {...(long string)...} ) [/text])
+
 
 --------------------
 newLISP from newLISP

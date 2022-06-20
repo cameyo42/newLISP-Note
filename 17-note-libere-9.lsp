@@ -2745,7 +2745,6 @@ Per rimuovere un elemento dalla fine della lista:
 
 Un altro metodo è quello di utilizzare la seguente macro (by conan):
 
-
 (context 'next)
 
 (setq seenSymbols '())
@@ -2770,6 +2769,153 @@ Un altro metodo è quello di utilizzare la seguente macro (by conan):
 ;-> nil
 (next:next lst)
 ;-> nil
+
+
+--------------------------------------------
+Modifica/aggiornamento di una lista annidata
+--------------------------------------------
+
+Supponiamo di avere la seguente lista:
+
+(set (global 'me) '(
+  (80 (1010 ((84 114 117 115 116 80 105 112 101 73 115 65 119 101 115 111 109 101))) )
+  (25 (1010 ((84 114 117 115 116 80 105 112 101 73 115 65 119 101 115 111 109 101))) )
+  ))
+
+Utilizzandola come lista associativa possiamo scrivere:
+
+; returns all "80" results
+(assoc 80 me)
+;-> (80 (1010 
+;-> ((84 114 117 115 116 80 105 112 101 73 115 65 119 101 115 111 109 101))
+
+; returns all "80" + "1010" results
+(assoc (list 80 1010) me)
+;-> (1010 ((84 114 117 115 116 80 105 112 101 73 115 65 119 101 115 111 109 101)))
+; returns the list for 80 + 1010
+(last (assoc (list 80 1010) me))
+;-> ((84 114 117 115 116 80 105 112 101 73 115 65 119 101 115 111 109 101))
+
+La domanda è: come inserire una lista nei risultati di (last (assoc (list 80 1010) me))?
+
+Possiamo usare "set-ref":
+
+(set-ref (assoc (list 80 1010) me) me (append $it (list "more stuff")))
+;-> ((80 (1010 ((84 114 117 115 116 80 105 112 101 73 115 65 119 101 115 111 109 101))
+;->    "more stuff"))
+;->  (25 (1010 ((84 114 117 115 116 80 105 112 101 73 115 65 119 101 115 111 109 101)))
+;-> ))
+
+Questo può essere reso ancora più semplice. L'esempio cerca "me" due volte. Prima "assoc" cerca internamente a "me" poi
+"set-ref" cerca di nuovo in "me" l'espressione trovata da "assoc".
+
+In questo caso possiamo semplicemente usare "setf":
+
+(set (global 'me) '(
+  (80 (1010 ((84 114 117 115 116 80 105 112 101 73 115 65 119 101 115 111 109 101))) )
+  (25 (1010 ((84 114 117 115 116 80 105 112 101 73 115 65 119 101 115 111 109 101))) )
+  ))
+
+(setf (assoc '(80 1010) me)  (append $it (list "more stuff")))
+;-> (1010 ((84 114 117 115 116 80 105 112 101 73 115 65 119 101 115 111 109 101)) "more stuff")
+
+Il riferimento restituito da "assoc" può essere utilizzato da "setf".. e possiamo renderlo ancora più breve usando "push":
+
+(set (global 'me) '(
+  (80 (1010 ((84 114 117 115 116 80 105 112 101 73 115 65 119 101 115 111 109 101))) )
+  (25 (1010 ((84 114 117 115 116 80 105 112 101 73 115 65 119 101 115 111 109 101))) )
+  ))
+
+(push "more stuff" (assoc '(80 1010) me) -1)
+;-> (1010 ((84 114 117 115 116 80 105 112 101 73 115 65 119 101 115 111 109 101)) "more stuff")
+
+"push" può anche usare riferimenti di luogo e puoi controllare meglio dove posizionare esattamente il nuovo elemento:
+
+(set (global 'me) '(
+  (80 (1010 ((84 114 117 115 116 80 105 112 101 73 115 65 119 101 115 111 109 101))) )
+  (25 (1010 ((84 114 117 115 116 80 105 112 101 73 115 65 119 101 115 111 109 101))) )
+  ))
+
+(push "more stuff" (assoc '(80 1010) me) -1 -1)
+;-> (1010 ((84 114 117 115 116 80 105 112 101 73 115 65 119 101 115 111 109 101) "more stuff"))
+
+me
+;-> ((80 (1010 ((84 114 117 115 116 80 105 112 101 73 115 65 119 101 115 111 109 101)
+;->     "more stuff")))
+;->  (25 (1010 ((84 114 117 115 116 80 105 112 101 73 115 65 119 101 115 111 109 101)))))
+
+in questo caso, il nuovo elemento viene inserito in un livello di annidamento più in alto.
+
+
+-------------------------------------------
+Algoritmo del punteggio (Scoring algorithm)
+-------------------------------------------
+
+Analizza i dati utilizzando un algoritmo di prossimità percentuale basato su un intervallo e calcola la stima lineare della massima verosimiglianza.
+Il principio di base è che tutti i valori forniti verranno suddivisi in un intervallo da 0 a 1 e il punteggio di ciascuna colonna verrà sommato per ottenere il punteggio totale.
+Praticamente, è una forma del metodo di Newton utilizzato in statistica per risolvere le equazioni di massima verosimiglianza.
+
+Esempio:
+Dati delle automobili
+  prezzo | chilometraggio | anno di immatricolazione
+  20     | 60             | 2012
+  22     | 50             | 2011
+  23     | 90             | 2015
+  16     | 210            | 2010
+
+Vogliamo l'automobile con il prezzo più basso, il chilometraggio più basso, ma l'anno di immatricolazione più recente. 
+Pertanto i pesi per ciascuna colonna sono i seguenti: (0 0 1)
+
+(define (score data weights)
+  (local (data-lists score-lists score min-el max-el final-scores)
+    ; transpose data
+    (setq data-lists (transpose data))
+    (setq score-lists '())
+    ; calcola il punteggio per ogni colonna
+    (dolist (el data-lists)
+      (setq min-el (apply min el))
+      (setq max-el (apply max el))
+      (setq score '())
+      (setq w (weights $idx))
+      (cond ((zero? w) ; peso zero --> score 1
+              (dolist (item el)
+                (if (zero? (sub max-el min-el))
+                    (push 1 score -1)
+                    (push (sub 1 (div (sub item min-el) (sub max-el min-el))) score -1)
+                )
+              )
+            )
+            ((= 1 w) ; peso 1 --> score 0
+              (dolist (item el)
+                (if (zero? (sub max-el min-el))
+                    (push 0 score -1)
+                    (push (div (sub item min-el) (sub max-el min-el)) score -1)
+                )
+              )
+            )
+            ; errore: peso diverso da 0 e 1
+            (true (println "Wrong Weight: " w))
+      )
+      (push score score-lists -1)
+    )
+    ; calcola punteggi finali
+    (setq final-scores '())
+    (dolist (el (transpose score-lists))
+      (push (apply add el) final-scores -1)
+    )
+    ; combina i dati iniziali e i punteggi finali
+    (map list data final-scores)
+))
+
+Facciamo una prova:
+
+(setq dati '((20 60 2012) (23 90 2015) (22 50 2011)))
+(setq pesi '(0 0 1))
+
+(score dati pesi)
+;-> (((20 60 2012) 2) 
+;->  ((23 90 2015) 1) 
+;->  ((22 50 2011) 1.333333333333334))
 
 =============================================================================
 
