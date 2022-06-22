@@ -6327,8 +6327,12 @@ Kelsey Hightower
 2. Clean expression: meaningful, concise but not cryptic, representation and communication of concepts."
 - Carl Sassenrath
 
-"Scrivi un programma nel modo migliore per fare il suo debug."
-- 
+"In genere, scrivo un programma nel modo migliore per fare il suo debug."
+- cameyo
+
+"La programmazione: tentativo, fallimento, analisi, correzione, nuovo tentativo"
+- cameyo
+
 
 ============================================================================
  Prefissi del Sistema Internazionale di unità di misura

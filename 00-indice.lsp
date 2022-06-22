@@ -331,7 +331,7 @@ ROSETTA CODE
 PROJECT EULERO
 ==============
   Problemi 1..105, 108, 110, 112, 113, 119..125,
-           135, 173, 188, 191, 206
+           135, 145, 173, 188, 191, 206
 
 PROBLEMI VARI
 =============
@@ -1235,6 +1235,8 @@ NOTE LIBERE 9
   La funzione if-not
   Simulare un iteratore python
   Modifica/aggiornamento di una lista annidata
+  Algoritmo del punteggio (Scoring algorithm)
+  Alfabeto, cifre, caratteri
 
 APPENDICI
 =========

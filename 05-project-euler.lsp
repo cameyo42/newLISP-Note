@@ -124,6 +124,7 @@
 |   124    |  21417             |         -  |       140  |         -  |
 |   125    |  2906969179        |         -  |      1570  |         -  |
 |   135    |  4989              |         -  |      2874  |      1194  |
+|   145    |  608720            |         -  |     99501  |         0  |
 |   173    |  1572729           |         -  |       124  |         0  |
 |   188    |  95962097          |         -  |        29  |         -  |
 |   191    |  1918080160        |         -  |         1  |         0  |
@@ -203,6 +204,7 @@ E la funzione inversa a factor-group che genera il numero partendo dalla fattori
 (inv-factor-group (factor-group 232792560))
 ;-> 232792560
 ----------------------------------------------------------------------------
+
 
 ==========
 Problema 1
@@ -13248,6 +13250,232 @@ Possiamo migliorare il tempo di esecuzione considerando che anche il valore tra 
 
 (time (e135-2 1e6))
 ;-> 1194.103
+----------------------------------------------------------------------------
+
+
+============
+Problema 145
+============
+
+Quanti numeri reversibili ci sono sotto il miliardo?
+
+Alcuni interi positivi n hanno la proprietà che la somma [ n + reverse(n) ]
+è composto interamente da cifre dispari (decimali).
+Ad esempio, 36 + 63 = 99 e 409 + 904 = 1313.
+Chiameremo tali numeri reversibili, quindi 36, 63, 409 e 904 sono reversibili.
+Gli zeri iniziali non sono consentiti né in n né in reverse(n).
+
+Ci sono 120 numeri reversibili sotto mille.
+
+Quanti numeri reversibili ci sono sotto il miliardo (10^9)?
+============================================================================
+
+Soluzione forza bruta
+---------------------
+Scriviamo la funzione che verifica se le cifre di un numero intero sono tutte dispari:
+
+(define (odd-digits? num)
+(catch
+  (local (digit)
+    (while (> num 0)
+      (setq digit (% num 10))
+      (if (even? digit) (throw nil))
+      (setq num (/ num 10))
+    )
+    true)))
+
+(odd-digits? 13579)
+;-> true
+(odd-digits? 13572)
+;-> nil
+
+Scriviamo la funzione soluzione (forza bruta):
+
+(define (e145 iter)
+  (local (result num-sum)
+    (setq result 0)
+    ; I numeri a una cifra si invertono su se stessi,
+    ; quindi le loro somme sono pari
+    (for (num 11 iter)
+      ; L'ultima cifra non può essere 0
+      (cond ((zero? (% num 10)) nil)
+            (true
+              (setq num-sum (+ num (int (reverse (string num)))))
+              (if (odd-digits? num-sum) (++ result)))
+      )
+    )
+    result))
+
+(e145 999)
+;-> 120
+
+Vediamo la sua velocità:
+
+(time (println (e145 (- 1e6 1))))
+;-> 18720
+;-> 2017.743
+
+Prima di calcolare la soluzione fino a 1e9 vediamo di ottimizzare il codice:
+1) quando un numero num è reversibile, allora anche (reverse num) è reversibile (es. se 1638 è reversibile, allora anche 8361 è reversibile). Ciò significa che dobbiamo solo verificare i numeri dispari e quando troviamo un numero reversibile aggiungere 2 al risultato (uno per num e uno per (reverse num).
+2) calcoliamo l'inverso di un numero in modo matematico.
+3) inglobiamo la funzione "odd-digits?" nella funzione "reversible?".
+4) non ci sono numeri reversibili tra 1e8 e 1e9.
+
+(define (reversible? num)
+(catch
+  (local (numero inverso)
+    (setq numero num)
+    ; check 0 alla fine
+    (if (zero? (% num 10)) (throw nil))
+    ; inversione del numero
+    (setq inverso 0)
+    (while (> numero 0)
+      (setq inverso (+ (* 10 inverso) (% numero 10)))
+      (setq numero (/ numero 10))
+    )
+    ; numero somma
+    (setq inverso (+ inverso num))
+    ; check tutte cifre dispari
+    (while (> inverso 0)
+      (if (zero? (% (% inverso 10) 2)) (throw nil))
+      (setq inverso (/ inverso 10))
+    )
+    true)))
+
+(reversible? 63)
+;-> true
+(reversible? 409)
+;-> true
+(reversible? 999)
+;-> nil
+
+(define (e145 iter)
+  (let (conta 0)
+    (for (i 1 iter 2)
+      (if (reversible? i) (++ conta 2))
+    )
+    conta))
+
+(e145 999)
+;-> 120
+
+(time (println (e145 (- 1e6 1))))
+;-> 18720
+;-> 1316.35
+
+Possiamo migliorare ancora un pò la velocità se scrivendo la funzione "reversible?" senza usare "catch":
+
+(define (reversible? num)
+  (local (numero inverso cont out)
+    (setq numero num)
+    (setq out true)
+    ; check 0 alla fine
+    (cond ((zero? (% num 10)) (setq out nil))
+          (true
+            ; inversione del numero
+            (setq inverso 0)
+            (while (> numero 0)
+              (setq inverso (+ (* 10 inverso) (% numero 10)))
+              (setq numero (/ numero 10))
+            )
+            ; numero somma
+            (setq inverso (+ inverso num))
+            ; check tutte cifre dispari
+            (setq cont true)
+            (while (and cont (> inverso 0))
+              (if (zero? (% (% inverso 10) 2)) 
+                  (set 'cont nil 'out nil))
+              (setq inverso (/ inverso 10))
+            ))
+    )
+    out))
+
+(e145 999)
+;-> 120
+
+(time (println (e145 (- 1e6 1))))
+;-> 18720
+;-> 850.272
+
+Proviamo a risolvere il problema fino a 1e8:
+
+(time (println (e145 (- 1e8 1))))
+;-> 608720
+;-> 99501.769 ; quasi 100 secondi
+
+Soluzione analitica
+-------------------
+Analizziamo i numeri in base al numero di cifre che lo compongono:
+
+1 cifra
+Qualsiasi numero di una cifra si aggiungerà a se stesso e finisce sempre per essere un numero pari. E quindi non ci sono soluzioni.
+
+2 cifre
+Se abbiamo due cifre a e b allora avremo una soluzione composta da due cifre con a+b. Entrambi devono essere dispari. Se a+b > 10 allora abbiamo un riporto e quindi la prima cifra del risultato avrà una parità diversa dalla seconda cifra. Pertanto possiamo solo formare soluzioni dove a+b < 10 e a+b è dispari. In tutto abbiamo 20 soluzioni (calcolate a mano)
+
+3 cifre
+Nel caso a tre cifre abbiamo ancora una volta che la cifra centrale deve essere aggiunta a se stessa. Ciò significa che la terza cifra deve avere un riporto ed essere dispari.
+Poiché la terza cifra è dispari, anche la prima cifra è dispari se la seconda cifra non ha un riporto, cosa che accade quando la seconda cifra è inferiore a 5, il che ci dà 20 scelte per la prima/terza cifra impostata e 5 opzioni per il mezzo. Che totalizza 100 soluzioni.
+
+4 cifre
+Qui abbiamo due coppie, interna ed esterna. Se la coppia interna ha il riporto, anche la coppia esterna deve avere il riporto. Poiché altrimenti le due coppie interne avranno parità diversa. Tuttavia, se la coppia interna ha un riporto, la coppia esterna avrà una parità diversa poiché la prima cifra finirà con un riporto che l'ultima cifra non otterrà. Pertanto abbiamo soluzioni solo quando nessuna delle coppie ha il riporto.
+Per la coppia esterna questo ci dà le 20 scelte che abbiamo visto nel caso a due cifre. E ci dà 30 casi per la coppia interna, poiché possono anche contenere uno zero.
+In totale otteniamo 20*30 = 600 soluzioni
+ 
+5 cifre
+Qui abbiamo la cifra centrale, la coppia interna e la coppia esterna.
+La cifra centrale si aggiunge a se stessa, il che significa che la coppia interna deve avere un riporto. Quando la coppia interna ha un riporto, significa che la coppia esterna avrà una parità diversa. E quindi non ci sono soluzioni.
+
+6 cifre
+Possiamo fare lo stesso discorso del caso a 4 cifre, ma con una coppia in più. Quindi se abbiamo la coppia interna, centrale ed esterna. Possiamo vedere che se la coppia interna ha un riporto, anche la coppia centrale deve avere un riporto e questo porta la coppia esterna ad avere una parità diversa. Ciò significa che nessuna delle coppie può avere un riporto.
+Quindi abbiamo che la coppia interna e quella centrale hanno 30 opzioni ciascuna e la coppia esterna ha 20 opzioni. Quindi in totale 20*30^2 = 18.000 soluzioni.
+
+7 cifre
+In questo caso abbiamo la cifra centrale, la coppia interna, la coppia centrale e la coppia esterna.
+La cifra centrale ha bisogno di un riporto, poiché si aggiunge a se stessa. Ciò significa che la coppia interna deve avere un riporto.
+Questo a sua volta significa che ci sarà un riporto alla coppia centrale dalla coppia interna che dovrà essere pari da sola. Il che a sua volta ci porta a concludere che la coppia esterna deve avere un riporto. Inoltre, la coppia centrale non può avere un riporto poiché ciò porterebbe la coppia esterna ad avere una parità diversa.
+Quindi la coppia esterna deve avere un riporto ed essere dispari e non includere 0. Questo dà 20 opzioni.
+La coppia centrale deve essere pari e non avere un riporto. Questo ci dà 25 opzioni.
+La coppia interna deve essere dispari e avere un riporto. Questo ci dà 20 opzioni.
+La cifra centrale non deve avere un riporto in modo che ci dia 5 opzioni.
+Quindi questo è un totale di 20*25*20*5 = 50.000 soluzioni
+
+8 cifre
+Possiamo portare lo stesso argomento del caso a 6 cifre e il risultato vale
+20*30^3 = 540.000 soluzioni
+
+9 cifre
+Abbiamo quattro coppie e una cifra centrale. Le coppie sono 1,2,3,4.
+La cifra centrale deve come sempre avere un riporto, quindi la coppia 4 deve avere un riporto.
+Se la coppia 4 ha un riporto, consegnerà un riporto alla coppia 3 e quindi, anche la coppia 2 deve fornire un riporto alla coppia 3.
+Se la coppia 2 ha un riporto, la coppia uno riceverà un riporto, il che significa che finirà con parità diverse. Quindi possiamo concludere che non ci sono soluzioni in questo caso.
+
+A questo punto possiamo ottenere la risposta semplicemente aggiungendo possibili soluzioni per le cifre (1-9).
+
+Ma possiamo anche vedere che esistono degli schemi (pattern). Per esempio:
+
+1) se n è pari, allora possibili numeri reversibili di n cifre = 20 * 30 ^ (n/2 - 1)
+2) ora se n % 4 = 1, allora possibili numeri reversibili di n cifre = 20 x 20 * (20 * 25) ^ (n/4 - 1)
+3) e per n % 4 = 3, allora possibili numeri reversibili di n cifre = 0
+
+Scriviamo la funzione finale:
+
+(define (e145-2)
+  (let (conta 0)
+    (for (i 2 9)
+      (cond ((zero? (% i 2))
+              (setq conta (+ conta (* 20 (pow 30 (- (/ i 2) 1))))))
+            ((= 1 (% i 4))
+              (setq conta (+ conta (* 100 (pow 500 (- (/ i 4) 1))))))
+      )
+    )
+    conta))
+
+(e145-2)
+;-> 608720
+
+(time (e145-2))
+;-> 0
 ----------------------------------------------------------------------------
 
 

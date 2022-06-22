@@ -2866,7 +2866,7 @@ Dati delle automobili
 Vogliamo l'automobile con il prezzo più basso, il chilometraggio più basso, ma l'anno di immatricolazione più recente. 
 Pertanto i pesi per ciascuna colonna sono i seguenti: (0 0 1)
 
-(define (score data weights)
+(define (scores data weights)
   (local (data-lists score-lists score min-el max-el final-scores)
     ; transpose data
     (setq data-lists (transpose data))
@@ -2912,10 +2912,62 @@ Facciamo una prova:
 (setq dati '((20 60 2012) (23 90 2015) (22 50 2011)))
 (setq pesi '(0 0 1))
 
-(score dati pesi)
+(scores dati pesi)
 ;-> (((20 60 2012) 2) 
 ;->  ((23 90 2015) 1) 
 ;->  ((22 50 2011) 1.333333333333334))
+
+
+--------------------------
+Alfabeto, cifre, caratteri
+--------------------------
+
+Alfabeto latino
+---------------
+Minuscole
+(setq chr-lower '())
+(for (i 97 122) (push (char i) chr-lowers -1 ))
+;-> ("a" "b" "c" "d" "e" "f" "g" "h" "i" "j" "k" "l" "m"
+;->  "n" "o" "p" "q" "r" "s" "t" "u" "v" "w" "x" "y" "z")
+Maiuscole
+(setq chr-upper '())
+(for (i 65 90) (push (char i) chr-upper -1 ))
+;-> ("A" "B" "C" "D" "E" "F" "G" "H" "I" "J" "K" "L" "M"
+;->  "N" "O" "P" "Q" "R" "S" "T" "U" "V" "W" "X" "Y" "Z")
+
+Cifre
+-----
+(setq chr-digit '())
+(for (i 48 57) (push (char i) chr-digit -1 ))
+;-> ("0" "1" "2" "3" "4" "5" "6" "7" "8" "9")
+
+Caratteri esadecimali
+---------------------
+Minuscole
+(setq chr-hexl (append chr-digit '("a" "b" "c" "d" "e" "f")))
+;-> ("0" "1" "2" "3" "4" "5" "6" "7" "8" "9" "a" "b" "c" "d" "e" "f")
+Maiuscole
+(setq chr-hexu (append chr-digit '("A" "B" "C" "D" "E" "F")))
+;-> ("0" "1" "2" "3" "4" "5" "6" "7" "8" "9" "A" "B" "C" "D" "E" "F")
+
+Caratteri di punteggiatura
+--------------------------
+(setq chr-punct '("." "!" "?" "," ";" ":"))
+;-> ("." "!" "?" "," ";" ":")
+
+Caratteri ASCII
+---------------
+(setq chr-ascii '())
+(for (i 32 126) (push (char i) chr-ascii -1))
+;-> (" " "!" "\"" "#" "$" "%" "&" "'" "(" ")" "*" "+" "," "-"
+;->  "." "/" "0" "1" "2" "3" "4" "5" "6" "7" "8" "9" ":" ";"
+;->  "<" "=" ">" "?" "@" "A" "B" "C" "D" "E" "F" "G" "H" "I"
+;->  "J" "K" "L" "M" "N" "O" "P" "Q" "R" "S" "T" "U" "V" "W"
+;->  "X" "Y" "Z" "[" "\\" "]" "^" "_" "`" "a" "b" "c" "d" "e"
+;->  "f" "g" "h" "i" "j" "k" "l" "m" "n" "o" "p" "q" "r" "s"
+;->  "t" "u" "v" "w" "x" "y" "z" "{" "|" "}" "~")
+
+Nota: i caratteri doppio apice "\"" e backslash "\\" hanno bisogno del carattere di escape (\).
 
 =============================================================================
 
