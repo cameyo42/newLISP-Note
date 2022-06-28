@@ -330,7 +330,7 @@ ROSETTA CODE
 
 PROJECT EULERO
 ==============
-  Problemi 1..105, 108, 110, 112, 113, 119..125,
+  Problemi 1..105, 108..110, 112..115, 119..125,
            135, 145, 173, 188, 191, 206
 
 PROBLEMI VARI
@@ -1237,6 +1237,11 @@ NOTE LIBERE 9
   Modifica/aggiornamento di una lista annidata
   Algoritmo del punteggio (Scoring algorithm)
   Alfabeto, cifre, caratteri
+  Inverso modulare (modular inverse)
+  La lista vuota () e la stringa vuota ""
+  Multiple dispatch
+  Palindromo più vicino
+  Comparative macrology
 
 APPENDICI
 =========

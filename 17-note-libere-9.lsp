@@ -2969,5 +2969,245 @@ Caratteri ASCII
 
 Nota: i caratteri doppio apice "\"" e backslash "\\" hanno bisogno del carattere di escape (\).
 
+
+----------------------------------
+Inverso modulare (modular inverse)
+----------------------------------
+
+L'inverso di un numero x vale 1/x --> x * 1/x = 1
+Tutti i numeri reali diversi da 0 hanno un inverso.
+Moltiplicare un numero per l'inverso di x equivale a dividere per x.
+
+Che cos'è un inverso modulare?
+Nell'aritmetica modulare non esiste un'operazione di divisione. Tuttavia, esistono gli inversi modulari:
+
+- L'inverso modulare di x (mod m) è x^-1.
+- (x * x^-1) ≡ 1 (mod m) o equivalente (x * x^-1) mod m = 1
+- Solo i numeri coprimi a m (numeri che non condividono fattori primi con m) hanno un inverso modulare (mod m)
+
+La seguente funzione utilizza una variante dell'algorimo di esteso di Euclide per calcolare l'inverso modulare (x^-1 mod m):
+
+(define (inv-mod x m)
+  ; Calcola x^-1 mod m. 
+  ; Nota: x * x^-1 mod m = x^-1 * x mod m = 1.
+  (local (y z a b c)
+    (cond ((or (< m 0) (< x 0) (>= x m)) nil)
+          (true
+            (setq y x)
+            (setq x m)
+            (setq a 0)
+            (setq b 1)
+            (until (zero? y)
+              (setq z (% x y))
+              (setq c (- a (/ (* b x) y)))
+              (setq x y)
+              (setq y z)
+              (setq a b)
+              (setq b c)
+            )
+            (if (= x 1) 
+                (% (+ a m) m)
+                nil))
+    )))
+
+(inv-mod 3 7)
+;-> 5
+
+
+---------------------------------------
+La lista vuota () e la stringa vuota ""
+---------------------------------------
+
+In newLISP esistono alcune inconsistenze. Per esempio indicizzando una lista vuota e una stringa vuota si ottengono risultati incongruenti:
+
+Con la lista vuota:
+
+('() 0)
+;-> ERR: invalid string index
+('() -1)
+;-> ERR: invalid string index
+
+Con la stringa vuota:
+
+("" 0)
+;-> ""
+("" -1)
+;-> ""
+
+Con un altro indice si ottiene un errore:
+
+("" -1)
+;-> ERR: invalid string index
+
+Questo perchè una stringa vuota non è come una lista vuota:
+
+(push "" "")
+;-> ""
+(push '() '())
+;-> (())
+
+(atom? "")
+;-> true
+(atom? '())
+;-> nil
+>
+
+Una lista vuota è ancora un contenitore. L'unica alternativa sarebbe restituire nil per ('()
+0) - non il simbolo nil ma il valore booleano nil. Questo è stato fatto nelle prime versioni di
+newLISP. Ma nella programmazione sembrava che sia più comodo restituire un messaggio di errore.
+
+Invece la funzione "pop" restituisce nil con la lista vuota:
+
+(pop '())
+;-> nil
+
+che è più pratico per elaborare liste con "pop".
+
+Ci sono altre incongruenze come questa in newLISP: la funzione dup su liste e stringhe,
+nil come valore booleano e simbolo, trattamento di () e nil - solo per citarne alcuni. Quando questi conflitti si verificano in newLISP, normalmente è perchè Lutz ha scelto la praticità verso il mondo reale piuttosto che cercare la coerenza del linguaggio.
+
+
+-----------------
+Multiple dispatch
+-----------------
+
+Il "Multiple dispatch" (o multimethods) è una caratteristica di alcuni linguaggi di programmazione in cui una funzione gestisce dinamicamente i tipi dei suoi parametri. In altre parole il risultato (e la logica eseguita) della funzione dipende dal tipo dei parametri e/o dal valore dei parametri.
+
+La seguente soluzione è stata proposta da ralph.ronnquist.
+Potrebbe non soddisfare un purista, ma è possibie implementarlo tramite contesti "doppi" e un oggetto FOOP falso, come nell'esempio seguente:
+
+(collide-with "asteroid" "asteroid") =>
+   ("POFF" spaceship-spaceship "asteroid" "asteroid")
+
+(context 'MAIN:asteroid-asteroid)
+(define (collide-with a b)  (list "BANG" (context) a b))
+
+(context 'MAIN:asteroid-spaceship)
+(define (collide-with a b) (list "BONG" (context) a b))
+
+(context 'MAIN:spaceship-asteroid)
+(define (collide-with a b) (list "ZING" (context) a b))
+
+(context 'MAIN:spaceship-spaceship)
+(define (collide-with a b) (list "POFF" (context) a b))
+
+(context 'MAIN)
+
+(define (dual a b) (list (context (sym (string a "-" b) MAIN))))
+
+(define (collide-with a b) (:collide-with (dual a b) a b))
+
+(println (collide-with "asteroid" "asteroid"))
+;-> ("BANG" asteroid-asteroid "asteroid" "asteroid")
+(println (collide-with "asteroid" "spaceship"))
+;-> ("BONG" asteroid-spaceship "asteroid" "spaceship")
+(println (collide-with "spaceship" "asteroid"))
+;-> ("ZING" spaceship-asteroid "spaceship" "asteroid")
+(println (collide-with "spaceship" "spaceship"))
+;-> ("POFF" spaceship-spaceship "spaceship" "spaceship")
+
+Qui la doppia funzione crea semplicemente il corretto contesto di composizione FOOP per consentire all'applicazione questo "singolare" polimorfismo.
+
+
+---------------------
+Palindromo più vicino
+---------------------
+
+Dato un numero intero positivo, determinare il numero palindromo più vicino:
+
+(define (palindromo? num)
+  (let (str (string num)) (= str (reverse (copy str)))))
+
+(define (find-pali num)
+  (local (up down found out)
+    (setq up num)
+    (setq down num)
+    (setq found nil)
+    (until found
+            ; caso palindromo maggiore
+      (cond ((palindromo? up)
+              (set 'out up 'found true))
+            ; caso palindromo minore
+            ((palindromo? down)
+              (set 'out down 'found true))
+            ; incr e decr up e down
+            (true
+              (++ up)
+              (-- down))
+      )
+    )
+    out))
+
+(find-pali 1234)
+;-> 1221
+
+(find-pali 1112)
+;-> 1111
+
+(find-pali 1)
+;-> 1
+
+(find-pali 10)
+;-> 11
+
+Proviamo a scrivere una versione più veloce della funzione "palindromo?":
+
+(define (pali? num)
+  (local (rev val)
+    (setq rev 0)
+    (setq val num)
+    ; crea il numero invertito
+    (until (zero? val)
+      (setq rev (+ (* rev 10) (% val 10)))
+      (setq val (/ val 10))
+    )
+    (= rev num)))
+
+(pali? 23321)
+;-> nil
+
+(pali? 1234321)
+;-> true
+
+Test di velocità:
+
+(setq test (rand 1e12 100))
+(time (map pali? test) 1000)
+;-> 179.984
+(time (map palindromo? test) 1000)
+;-> 493.379
+
+
+---------------------
+Comparative macrology
+---------------------
+
+https://www.wilfred.me.uk/blog/2014/09/15/comparative-macrology/
+
+newLISP supporta le f-espressioni. Sono simili alle macro, ma vengono valutate in fase di esecuzione. Una macro è una funzione che accetta un albero della sintassi astratto (AST) e restituisce un altro AST. Una f-espressione è un'espressione di runtime che può scegliere quale dei suoi argomenti verrà valutato e quando.
+
+Le f-espressioni sono in gran parte cadute in disgrazia oggi (la critica definitiva è questo documento: http://www.nhplace.com/kent/Papers/Special-Forms.html). Con le macro convenzionali, puoi espandere tutto il tuo codice ed eseguire analisi statiche, ad es. verificare la presenza di variabili non definite. Con le f-espressioni, perdiamo questa capacità (sebbene sia un argomento di ricerca attivo).
+
+Le versioni recenti di newLisp supportano anche le macro di espansione, ma esploriamo come funzionano le f-espressioni.
+
+;; swap is already defined in newlisp
+(context 'my-swap)
+(define-macro (my-swap:my-swap x y)
+    (set 'tmp (eval x))
+    (set x (eval y))
+    (set y tmp))
+(context MAIN)
+
+Le f-espressioni di newLISP sono difficili da scrivere se hai scritto solo macro normali. Non ci sono macroexpand, quasiquote e lo scope è dinamico. Non abbiamo la stessa separazione tra runtime e compiletime, quindi possiamo semplicemente chiamare "set" direttamente.
+
+(define-macro (each-it lst)
+    (let ((template (list 'dolist (list 'it lst))))
+      ;; args holds all the arguments that we
+      ;; haven't bound in our parameter list
+      (extend template (args))
+      (eval template)))
+
+"each-it" soffre anche della mancanza di quasiquote. newLisp è "unhygienic", quindi non abbiamo bisogno di fare alcun lavoro extra per catturare "it".
+
 =============================================================================
 

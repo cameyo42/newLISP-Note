@@ -113,9 +113,12 @@
 |   104    |  329468            |         -  |     37978  |         -  |
 |   105    |  73702             |         -  |       864  |         -  |
 |   108    |  180180            |         -  |      7521  |       331  |
+|   109    |  38182             |         -  |         9  |         -  |
 |   110    |  9350130049860600  |         -  |        16  |         -  |
 |   112    |  1587000           |         -  |      1732  |         -  |
 |   113    |  51161058134250    |         -  |         8  |         -  |
+|   114    |  16475640049       |         -  |         0  |         -  |
+|   115    |  168               |         -  |         2  |         -  |
 |   119    |  248155780267521   |         -  |        26  |         -  |
 |   120    |  333082500         |         -  |         0  |         -  |
 |   121    |  2269              |         -  |         1  |         -  |
@@ -150,7 +153,7 @@ Tuttavia, poiché alcuni problemi sono difficili, potresti voler visionare i pro
 
 "Il progetto Eulero esiste per incoraggiare, sfidare e sviluppare le capacità e il divertimento di chiunque abbia un interesse per l'affascinante mondo della matematica."
 
-Nota: i problemi devono essere risolti con la "regola del minuto", cioè i programmi devono trovare la soluzione entro un minuto.
+Nota: i problemi devono essere risolti con la "regola del minuto", cioè i programmi devono trovare la soluzione entro un minuto (se possibile).
 
 In questo paragrafo affronteremo e risolveremo alcuni di questi problemi. Comunque prima di vedere la soluzione dovresti provare a risolverli per conto proprio in modo da migliorare le tue capacità di problem-solver e di programmatore.
 
@@ -12403,6 +12406,86 @@ Se la fattorizzazione di n vale n = p1^e1*p2^e2*...*pk^ek allora il numero di so
 
 
 ============
+Problema 109
+============
+
+Freccette
+
+Nel gioco delle freccette un giocatore lancia tre freccette (dardi) su un bersaglio che è diviso in venti sezioni di uguali dimensioni numerate da uno a venti.
+
+Vedi immagine "e109.png" nella cartella "data".
+
+Il punteggio di un dardo è determinato dal numero della regione in cui il dardo atterra. Un dardo che atterra al di fuori dell'anello esterno rosso/verde ha un punteggio zero. Le regioni nere e crema all'interno di questo anello rappresentano punteggi singoli. Tuttavia, l'anello esterno rosso/verde e l'anello medio ottengono rispettivamente punteggi doppi e tripli.
+
+Al centro del tabellone ci sono due cerchi concentrici chiamati "regione del toro", o "occhio del toro". Il toro esterno vale 25 punti e il toro interno vale doppio, cioè 50 punti.
+
+Ci sono molte varianti nelle regole, ma nel gioco più popolare i giocatori inizieranno con un punteggio di 301 o 501 e il primo giocatore che riduce il proprio totale parziale a zero è il vincitore. Tuttavia, è normale giocare un sistema di "raddoppio", il che significa che il giocatore deve ottenere un doppio (incluso il doppio occhio di bue al centro del tabellone) sulla sua freccetta finale per vincere. Qualsiasi altra freccetta che ridurrebbe il totale parziale a 1 o minore significa che il punteggio per quella serie di tre freccette è "sballato".
+
+Quando un giocatore è in grado di terminare il punteggio corrente, viene chiamato "checkout" e il checkout più alto è 170: T20 T20 D25 (due tripli 20 e un doppio toro).
+
+Esistono esattamente undici modi distinti per effettuare il checkout con un punteggio di 6:
+     
+  D3
+  D1 D2
+  S2 D2
+  D2 D1
+  S4 D1
+  S1 S1 D2
+  S1 T1 D1
+  S1 S3 D1
+  D1 D1 D1
+  D1 S2 D1
+  S2 S2 D1
+
+Notare che D1 D2 è considerato diverso da D2 D1 poiché finiscono su doppi diversi. Tuttavia, la combinazione S1 T1 D1 è considerata uguale a T1 S1 D1.
+
+Inoltre non includeremo gli errori nel considerare le combinazioni: ad esempio, D3 è uguale a 0 D3 e 0 0 D3.
+
+Incredibilmente ci sono 42336 modi distinti per effettuare il check-out in totale.
+
+In quanti modi distinti può effettuare il checkout un giocatore con un punteggio inferiore a 100?
+============================================================================
+
+(define (e109)
+  (local (score lst limite out)
+    (setq limite 100)
+    (setq lst '())
+    ; punteggi doppi
+    (for (i 1 20) (push (* 2 i) lst -1))
+    (push 50 lst -1)
+    ; punteggi singoli
+    (for (i 1 20) (push i lst -1))
+    (push 25 lst -1)
+    ; punteggi tripli
+    (for (i 1 20) (push (* 3 i) lst -1))
+    ;(println lst)
+    ; brute force 
+    (setq out 0)
+    (for (i 0 20)
+      (setq score (lst i))
+      (if (< score limite) (++ out))
+      (for (j 0 61)
+        (setq score (+ score (lst j)))
+        (if (< score limite) (++ out))
+        (for (k j 61)
+          (setq score (+ score (lst k)))
+          (if (< score limite) (++ out))
+          (setq score (- score (lst k)))
+        )
+        (setq score (- score (lst j)))
+      )
+    )
+    out))
+
+(e109)
+;-> 38182
+
+(time (e109))
+;-> 8.977
+----------------------------------------------------------------------------
+
+
+============
 Problema 110
 ============
 
@@ -12708,6 +12791,122 @@ Calcola quanti sono i numeri non-bouncy fino a un numero di n cifre:
 
 (time (e113 100))
 ;-> 7.978
+----------------------------------------------------------------------------
+
+
+============
+Problema 114
+============
+
+Conteggio delle combinazioni di blocchi I
+
+Una riga di sette unità di lunghezza ha blocchi rossi con una lunghezza minima di tre unità posizionate su di essa, in modo tale che due blocchi rossi qualsiasi (che possono avere lunghezze diverse) siano separati da almeno un quadrato grigio. Ci sono esattamente diciassette modi per farlo.
+
+  GGGGGGG  RRRGGGG
+  GRRRGGG  GGRRRGG
+  GGGRRRG  GGGGRRR
+  RRRGRRR  RRRRGGG
+  GRRRRGG  GGRRRRG
+  GGGRRRR  RRRRRGG
+  GRRRRRG  GGRRRRR
+  RRRRRRG  GRRRRRR
+  RRRRRRR
+
+In quanti modi si può riempire una riga lunga cinquanta unità?
+
+NOTA: Sebbene l'esempio sopra non si presti alla possibilità, in generale è consentito mescolare le dimensioni dei blocchi. Ad esempio, su una riga di otto unità di lunghezza è possibile utilizzare il rosso (3), il grigio (1) e il rosso (4).
+============================================================================
+
+Indichiamo con dp(i) il numero di combinazioni di i unità che iniziano con un blocco rosso, dove i>=3. Quindi considerando la posizione di partenza del secondo blocco rosso (se esiste) abbiamo:
+
+                   i-2
+  dp(i) = (i - 2) + ∑ [(j - 4) * dp(i-j+1)]
+                   j=5
+
+Il numero totale di combinazioni di i unità vale:
+
+      i
+  1 + ∑ [dp(j)]
+     j=3
+
+(define (e114 num)
+  (let (dp (array (+ num 1) '(0)))
+    (for (i 3 num)
+      (setf (dp i) (- i 2))
+      (if (> i 6)
+          (for (j 5 (- i 2))
+            (setf (dp i) (+ (dp i) (* (- j 4) (dp (+ i (- j) 1)))))
+          )
+      )
+    )
+    (+ 1 (apply + (slice dp 2)))))
+
+(e114 7)
+;-> 17
+
+(e114 50)
+;-> 16475640049
+
+(time (e114 50))
+;-> 0
+----------------------------------------------------------------------------
+
+
+============
+Problema 115
+============
+
+Conteggio delle combinazioni di blocchi II
+
+NOTA: questa è una versione più difficile del problema 114.
+
+Una riga che misura n unità di lunghezza ha blocchi rossi con una lunghezza minima di m unità posizionati su di essa, in modo tale che due blocchi rossi qualsiasi (che possono avere lunghezze diverse) siano separati da almeno un quadrato nero.
+
+La funzione fill-count, F(m, n), rappresenta il numero di modi in cui una riga può essere riempita.
+
+Ad esempio, F(3, 29) = 673135 e F(3, 30) = 1089155.
+
+Cioè, per m = 3, si può vedere che n = 30 è il valore più piccolo per il quale la funzione fill-count supera prima il milione.
+
+Allo stesso modo, per m = 10, si può verificare che F(10, 56) = 880711 e F(10, 57) = 1148904, quindi n = 57 è il valore minimo per il quale la funzione fill-count supera per primo un milione.
+
+Per m = 50, trova il valore minimo di n per il quale la funzione fill-count supera prima un milione.
+============================================================================
+
+dp(m,i) indica il numero di combinazioni di i unità che iniziano con un blocco rosso, dove i>=m. Quindi considerando la posizione di partenza del secondo blocco rosso (se esiste) abbiamo:
+
+                        i-m+1
+  dp(m,i) = (i - m + 1) + ∑ [(j-m-1) * dp(m,i-j+1),
+                         m+2
+
+e il numero totale di combinazioni di n unità, indicato con F(m,i) nel problema, vale:
+
+      i
+  1 + ∑ [f(m,j)]
+     j=m
+
+(define (e115 num)
+  (local (dp i)
+    (setq dp (array 1001 '(0)))
+    (setq i (- num 1))
+    (setq conta 1)
+    (while (< conta 1e6)
+      (++ i)
+      (setf (dp i) (+ i 1 (- num)))
+      (if (>= (+ i 1 (- num))(+ num 2))
+        (for (j (+ num 2) (+ i 1 (- num)))
+          (setf (dp i) (+ (dp i) (* (- j num 1) (dp (+ i 1 (- j))))))
+        )
+      )
+      (setq conta (+ conta (dp i)))
+    )
+    i))
+
+(e115 50)
+;-> 168
+
+(time (e115 50))
+;-> 2
 ----------------------------------------------------------------------------
 
 
@@ -13319,7 +13518,7 @@ Prima di calcolare la soluzione fino a 1e9 vediamo di ottimizzare il codice:
 1) quando un numero num è reversibile, allora anche (reverse num) è reversibile (es. se 1638 è reversibile, allora anche 8361 è reversibile). Ciò significa che dobbiamo solo verificare i numeri dispari e quando troviamo un numero reversibile aggiungere 2 al risultato (uno per num e uno per (reverse num).
 2) calcoliamo l'inverso di un numero in modo matematico.
 3) inglobiamo la funzione "odd-digits?" nella funzione "reversible?".
-4) non ci sono numeri reversibili tra 1e8 e 1e9.
+4) non ci sono numeri reversibili tra 1e8 e 1e9 (dalla soluzione analitica).
 
 (define (reversible? num)
 (catch
