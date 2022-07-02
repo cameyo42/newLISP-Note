@@ -79,7 +79,6 @@ Adesso scriviamo la funzione che calcola le frequenze:
 (freq '())
 ;-> ()
 
-
 Un altro metodo è quello di utilizzare la funzione "count":
 
 (setq words '("one" "two" "two" "three" "three" "three" "four" "four" 
@@ -106,6 +105,28 @@ Un altro metodo è quello di utilizzare un contesto (by Cormullion):
        (C word 1)))
 
 (C)
+;-> (("five" 5) ("four" 4) ("one" 1) ("six" 2) ("three" 3) ("two" 2))
+
+Un altro metodo, credo il più veloce, è quello di utilizzare la funzione "bayes-train":
+
+(bayes-train '("a" "b" "a" "b" "c" "c" "c" "c" "a" "a") 'L)
+;-> (10) ; numero degli elementi della lista
+
+La lista delle frequenza è il contesto L:
+(L)
+;-> (("a" (4)) ("b" (2)) ("c" (4)))
+L:_a
+;-> (4)
+
+(bayes-train words 'W)
+;-> (17)
+(W)
+;-> (("five" (5)) ("four" (4)) ("one" (1)) ("six" (2)) ("three" (3)) ("two" (2)))
+
+(map (fn(x) (list (first x) (first (last x)))) (W))
+;-> (("five" 5) ("four" 4) ("one" 1) ("six" 2) ("three" 3) ("two" 2))
+
+(freq words)
 ;-> (("five" 5) ("four" 4) ("one" 1) ("six" 2) ("three" 3) ("two" 2))
 
 

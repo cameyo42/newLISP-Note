@@ -6220,6 +6220,46 @@ Per numerare in ordine crescente possiamo scrivere:
 (map (curry add-tail (string "-0" $idx)) lst)
 ;-> ("roma-00" "parigi-01" "londra-02")
 
+Un altro esempio riguarda l'uso di "apply". Supponiamo di avere una lista costituita da sottoliste di interi e di voler sommare i numeri di ogni sottolista:
+
+(setq lst '((1 3 5) (7 2 3 1)))
+
+Possiamo scrivere:
+
+(map (fn(x) (apply + x)) lst)
+;-> (9 13)
+
+Oppure possiamo usare "curry":
+
+(map (curry apply +) lst)
+;-> (9 13)
+
+Nota: la seguente espressione non restituisce il risultato voluto
+
+(map (apply +) lst)
+;-> ((1 3 5) (7 2 3 1))
+
+Infatti (apply +) restituisce 0 (come Scheme), e l'espressione mappa 0 in due liste.
+
+(apply +)
+
+Usando un numero come operatore applichiamo il "resting implicito", cioè 0 restituisce l'intera lista:
+
+(0 '(1 2 5))
+;-> (1 2 5)
+
+In questo modo possiamo utilizzare "curry".
+
+Il risultato della seguente espressione:
+
+(map (apply *) '((0 1 2) (3 4 5)))
+;-> ((1 2) (4 5))
+
+si spiega col fatto che (apply *) restituisce 1 e
+
+(1 '(0 1 2))
+;-> (1 2)
+
 
 -------------------------------------
 Trasformare la struttura di una lista

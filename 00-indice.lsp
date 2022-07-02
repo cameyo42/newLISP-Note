@@ -532,6 +532,7 @@ LIBRERIE
   funlisp.lsp (by Dmitry Chernyak)
   The Little newLISPER (newlisper.lsp)
   MessageBox (by Dexter Santucci)
+  default.lsp (by kazimir majorinc)
 
 NOTE LIBERE 1
 =============
@@ -1242,6 +1243,12 @@ NOTE LIBERE 9
   Multiple dispatch
   Palindromo più vicino
   Comparative macrology
+  exit e reset negli script
+  Tug of War
+  Estrazione elementi da una lista
+  Punti fissi di una lista
+  Numero mancante in una progressione aritmetica
+  List comprehensions
 
 APPENDICI
 =========

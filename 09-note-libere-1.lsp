@@ -434,6 +434,30 @@ Esempio base:
 (pretty-print 70 " " "%1.16g")
 ;-> (70 " " "%1.16g")
 
+Questa funzione è utile quando vogliamo salvare qualcosa come file di testo.
+Ogni volta che salviamo un file, di default, le interruzioni di riga vengono impostate ad 80 colonne o simili, per esempio:
+
+(setf foo (rand 1000 100))
+(save "foo.lsp" 'foo)
+
+foo.lsp:
+(set 'foo '(1 563 193 808 585 479 350 895 822 746 174 858 710 513 303 14 91 364 147 
+  165 988 445 119 4 8 377 531 571 601 607 166 663 450 352 57 607 783 802 519 301 
+  875 726 955 925 539 142 462 235 862 209 779 843 996 999 611 392 266 297 840 23 
+  375 92 677 56 8 918 275 272 587 691 837 726 484 205 743 468 457 949 744 108 599 
+  385 735 608 572 361 151 225 425 802 517 989 751 345 168 657 491 63 699 504))
+
+Se usiamo "pretty-print" possiamo impostare le interruzioni di riga ad un valore maggiore di 80:
+
+(pretty-print 8192 " ")
+;-> (8192 " " "%1.16g")
+
+(setf foo (rand 1000 100))
+(save "foo.lsp" 'foo)
+
+foo.lsp
+(set 'foo '(147 949 141 905 692 303 426 70 966 683 153 877 821 582 191 177 817 475 155 503 732 405 279 568 682 755 721 475 123 367 834 35 517 662 426 104 949 921 549 345 471 374 846 316 456 271 982 297 739 567 195 761 839 397 500 890 27 994 572 50 531 194 843 626 657 197 842 123 109 743 314 941 286 336 140 733 834 707 600 747 252 144 1 61 806 852 210 115 553 14 113 454 752 686 543 73 436 201 696 290))
+
 
 ---------------------------
 Gestione di file e cartelle
@@ -2528,6 +2552,23 @@ selfinc
 ;-> (lambda (x) (myinc x) 6)
 
 Nota: Una funzione definita dall'utente non ha modo di fare riferimento alla funzione da cui è stata invocata, tranne quando ha una sua precedente conoscenza. Quando abbiamo questa necessità, in cui una funzione deve conoscere il nome della chiamante, basta renderla un parametro della chiamata della funzione.
+
+Nota: non modificare le parti della funzione che sono in esecuzione.
+Per esempio, il codice seguente produce:
+
+(define (f a (b (define (f a) "D"))) a)
+(println (f "A" 1) (f "B") (f "C"))
+;-> AnilD
+
+Per produrre "ADD" dobbiamo scrivere:
+
+(define (f a (b (setf (nth 1 f) "D"))) a)
+(println (f "A" 1) (f "B") (f "C"))
+;-> "ADD"
+
+newLISP è un linguaggio completamente autoriflessivo che può introspezione o modificarsi in fase di esecuzione. Nell' esempio la funzione f sta ridefinendo se stessa durante l'esecuzione. La vecchia definizione della funzione viene mantenuta dalla gestione della memoria e l'esecuzione viene eseguita indirizzando una memoria non valida causando risultati imprevisti o arresti anomali.
+
+Quando le funzioni si modificano, è necessario prestare attenzione a non sostituire parti del codice che sono in esecuzione nello stesso momento.
 
 
 ---------------

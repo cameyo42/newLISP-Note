@@ -3209,5 +3209,449 @@ Le f-espressioni di newLISP sono difficili da scrivere se hai scritto solo macro
 
 "each-it" soffre anche della mancanza di quasiquote. newLisp è "unhygienic", quindi non abbiamo bisogno di fare alcun lavoro extra per catturare "it".
 
+
+-------------------------
+exit e reset negli script
+-------------------------
+
+I seguenti script si comportano in modo diverso quando eseguiti dal command prompt:
+
+script1.lsp stampa gli argomenti e ritorno al prompt.
+
+; newlisp script1.lsp
+(println (main-args))
+(println $main-args)
+;(println (args))
+;(println $args)
+(exit)
+
+
+script2.lsp stampa gli argomenti (ma non si vedono!) e rimane nella shell di newLISP.
+
+; newlisp script2.lsp
+(println (main-args))
+(println $main-args)
+;(println (args))
+;(println $args)
+(reset)
+
+Basta aggiungere il comando (exit) alla fine del file .lsp per impedire l'ulteriore caricamento di file come codice...
+
+Questa funzionalità permette di caricare in anticipo tutti i moduli (che non hanno il comando exit).
+
+Usando (reset) alla fine dello script piuttosto che (exit) si entra in modalità interattiva della shell di newLISP.
+
+
+----------
+Tug of War
+----------
+
+Dato un insieme di n interi, dividere l'insieme in due sottoinsiemi di n/2 dimensioni ciascuno in modo da minimizzare la differenza della somma di due sottoinsiemi. Se n è pari, le dimensioni di due sottoinsiemi devono essere rigorosamente n/2 e se n è dispari, la dimensione di un sottoinsieme deve essere (n-1)/2 e la dimensione dell'altro sottoinsieme deve essere (n+1)/2 .
+Esempio dove n è pari:
+Dato l'insieme (3 4 5 -3 100 1 89 54 23 20) la dimensione dell'insieme è 10. L'output per questo insieme dovrebbe essere (4 100 1 23 20) e (3 5 -3 89 54). Entrambi i sottoinsiemi hanno dimensione 5 e la somma degli elementi in entrambi i sottoinsiemi è la stessa (148 e 148).
+Esempio dove n è dispari:
+Sia dato l'insieme (23 45 -34 12 0 98 -99 4 189 -1 4). I sottoinsiemi di output dovrebbero essere (45 -34 12 98 -1) e (23 0 -99 4 189 4). Le somme degli elementi in due sottoinsiemi sono rispettivamente 120 e 121.
+
+La funzione seguente prova ogni possibile sottoinsieme di dimensione n/2. Se si forma un sottoinsieme di metà dimensione, allora gli elementi rimanenti formano l'altro sottoinsieme. Inizializziamo il set corrente come vuoto e aggiungiamo un elemento alla volta. Ci sono due possibilità per ogni elemento, o fa parte dell'insieme corrente, o fa parte degli elementi rimanenti (altro sottoinsieme). Consideriamo entrambe le possibilità per ogni elemento. Quando la dimensione dell'insieme corrente diventa n/2, controlliamo se questa soluzione è migliore della migliore soluzione disponibile finora. Se lo è, aggiorniamo la soluzione migliore.
+Complessità temporale: O(2^n)
+
+Vediamo la soluzione proposta in C++ da Ashish Anand per GeeksforGeeks reperibile al seguente indirizzo:
+
+https://www.geeksforgeeks.org/tug-of-war/
+
+#include <bits/stdc++.h>
+using namespace std;
+ 
+// function that tries every possible solution by calling itself recursively
+void TOWUtil(int* arr, int n, bool* curr_elements, int no_of_selected_elements,
+             bool* soln, int* min_diff, int sum, int curr_sum, int curr_position)
+{
+    // checks whether the it is going out of bound
+    if (curr_position == n)
+        return;
+ 
+    // checks that the numbers of elements left are not less than the
+    // number of elements required to form the solution
+    if ((n/2 - no_of_selected_elements) > (n - curr_position))
+        return;
+ 
+    // consider the cases when current element is not included in the solution
+    TOWUtil(arr, n, curr_elements, no_of_selected_elements,
+              soln, min_diff, sum, curr_sum, curr_position+1);
+ 
+    // add the current element to the solution
+    no_of_selected_elements++;
+    curr_sum = curr_sum + arr[curr_position];
+    curr_elements[curr_position] = true;
+ 
+    // checks if a solution is formed
+    if (no_of_selected_elements == n/2)
+    {
+        // checks if the solution formed is better than the best solution so far
+        if (abs(sum/2 - curr_sum) < *min_diff)
+        {
+            *min_diff = abs(sum/2 - curr_sum);
+            for (int i = 0; i<n; i++)
+                soln[i] = curr_elements[i];
+        }
+    }
+    else
+    {
+        // consider the cases where current element is included in the solution
+        TOWUtil(arr, n, curr_elements, no_of_selected_elements, soln,
+                  min_diff, sum, curr_sum, curr_position+1);
+    }
+ 
+    // removes current element before returning to the caller of this function
+    curr_elements[curr_position] = false;
+}
+ 
+// main function that generate an arr
+void tugOfWar(int *arr, int n)
+{
+    // the boolean array that contains the inclusion and exclusion of an element
+    // in current set. The number excluded automatically form the other set
+    bool* curr_elements = new bool[n];
+ 
+    // The inclusion/exclusion array for final solution
+    bool* soln = new bool[n];
+ 
+    int min_diff = INT_MAX;
+ 
+    int sum = 0;
+    for (int i=0; i<n; i++)
+    {
+        sum += arr[i];
+        curr_elements[i] =  soln[i] = false;
+    }
+ 
+    // Find the solution using recursive function TOWUtil()
+    TOWUtil(arr, n, curr_elements, 0, soln, &min_diff, sum, 0, 0);
+ 
+    // Print the solution
+    cout << "The first subset is: ";
+    for (int i=0; i<n; i++)
+    {
+        if (soln[i] == true)
+            cout << arr[i] << " ";
+    }
+    cout << "\nThe second subset is: ";
+    for (int i=0; i<n; i++)
+    {
+        if (soln[i] == false)
+            cout << arr[i] << " ";
+    }
+}
+ 
+// Driver program to test above functions
+int main()
+{
+    int arr[] = {23, 45, -34, 12, 0, 98, -99, 4, 189, -1, 4};
+    int n = sizeof(arr)/sizeof(arr[0]);
+    tugOfWar(arr, n);
+    return 0;
+}
+
+Nota: in newLISP la funzione ausiliaria "tugwar-ex" viene chiamata solo con i parametri che sono locali alla funzione, mentre i parametri che vengono modificati a livello globale vengono passati alla funzione in maniera implicita sfruttando lo scopo dinamico (dynamic scope).
+In particolare:
+
+ int* arr,                      globale
+ int n,                         locale
+ bool* curr_elements,           globale 
+ int no_of_selected_elements,   locale
+ bool* soln,                    globale 
+ int* min_diff,                 globale
+ int sum,                       locale
+ int curr_sum,                  locale
+ int curr_position              locale 
+
+(define (tugwar-ex n num-selected sum curr-sum curr-pos)
+        ; fine della lista?
+  (cond ((= curr-pos n) nil) 
+        ; controllo numero elementi delle parti sinistra e destra
+        ((> (- (/ n 2) num-selected) (- n curr-pos)) nil)
+        (true
+          ; caso in cui l'elemento corrente non è incluso nella soluzione
+          (tugwar-ex n num-selected sum curr-sum (+ curr-pos 1))
+          ; aggiunge l'elemento corrente alla soluzione
+          (++ num-selected)
+          (setq curr-sum (+ curr-sum (lst curr-pos)))
+          (setf (curr-el curr-pos) true)
+          ; raggiunta una soluzione?
+          (if (= (/ n 2) num-selected)
+              ; la soluzione corrente è migliore di quella migliore?
+              (if (< (abs (- (/ sum 2) curr-sum)) min-diff )
+                  (begin
+                    ; aggiorna la soluzione migliore
+                    (setf min-diff (abs (- (/ sum 2) curr-sum)))
+                    (for (i 0 (- n 1))
+                      (setf (soln i) (curr-el i))
+                    )
+                  )
+              )
+          ;else
+          ; caso in cui l'elemento corrente è incluso nella soluzione
+             (tugwar-ex n num-selected sum curr-sum (+ curr-pos 1))
+          )
+          ; rimuove l'elemento corrente prima di tornare 
+          ; alla funzione chiamante
+          (setf (curr-el curr-pos) nil))))
+
+(define (tugwar lst)
+  (local (len curr-el min-diff soln lst1 lst2)
+    (setq len (length lst))
+    (setq curr-el (array len '(nil)))
+    (setf soln (array len '(nil)))
+    (setq min-diff 999999999)
+    (tugwar-ex len 0 (apply + lst) 0 0)
+    (setq lst1 '())
+    (setq lst2 '())
+    (dolist (s soln)
+      (if s (push (lst $idx) lst1 -1)
+            (push (lst $idx) lst2 -1))
+    )
+    (println (apply + lst1) {, } (apply + lst2))
+    (list lst1 lst2)))
+
+Facciamo alcune prove:
+
+(setq vec '(23 45 -34 12 0 98 -99 4 189 -1 4))
+(tugwar vec)
+;-> 120, 121
+;-> ((45 -34 12 98 -1) (23 0 -99 4 189 4))
+
+(setq vec1 '(1 3 4 2 4 4))
+(tugwar vec1)
+;-> 9, 9
+;-> ((3 2 4) (1 4 4))
+
+(setq vec2 (dup 1 11))
+;-> (1 1 1 1 1 1 1 1 1 1 1)
+(tugwar vec2)
+;-> 5, 6
+;-> ((1 1 1 1 1) (1 1 1 1 1 1))
+
+
+--------------------------------
+Estrazione elementi da una lista
+--------------------------------
+
+Data una lista di numeri interi e due numeri interi x e y scrivere una funzione che restituisce gli elementi univoci della lista che soddisfano una delle seguenti condizioni:
+
+1) se x e y sono valori numerici allora estrarre ogni elemento el che soddisfa: 
+  (el <= x) AND (el <= y),
+  cioè bisogna estrarre tutti gli elementi che hanno valore compreso tra x e y
+2) se x e y sono indici allora estrarre ogni elemento el che soddisfa:
+  (el i) per x <= i <= y,
+  cioè bisogna estrarre tutti gli elementi che hanno indice compreso tra x e y.
+
+(define (find-unique-values lst a b idx)
+  (local (out)
+    (if idx
+      ; idx = true --> a e b sono indici
+      (unique (select lst (sequence a b)))
+      ; idx = nil --> a e b sono valori 
+      (unique (filter (fn(x) (and (>= x a) (<= b x))) lst))
+    )))
+
+Facciamo alcune prove:
+
+(setq w '(7 3 5 9 7 6 4 3 2))
+
+(find-unique-values w 2 5)
+;-> (7 5 9 6)
+
+(find-unique-values w 1 5 true)
+;-> ()
+
+
+------------------------
+Punti fissi di una lista
+------------------------
+
+Un "punto fisso" in una lista è un indice i tale che (lst i) è uguale a i.
+Data una lista di numeri interi scrivere una funzione che restituisce i punti fissi della lista, oppure nil se non esistono punti fissi. I numeri interi nella lista possono essere negativi.
+
+Un modo semplice è il seguente:
+
+(define (fixed lst)
+  (let (out '())
+    (dolist (el lst)
+      (if (= el $idx) (push $idx out -1))
+    )
+    out))
+
+(setq w '(-7 4 2 -3 2 5 -1))
+
+(fixed w)
+;-> (2 5)
+
+Comunque newLISP permette anche l'indicizzazione con indici negativi:
+
+(w -1)
+;-> -1
+
+Quindi dobbiamo considerare anche questi casi:
+
+(define (fixed-1 lst)
+  (let (out '())
+    ; ricerca punti fissi con indici positivi
+    (dolist (el lst)
+      (if (= el $idx) (push $idx out -1))
+    )
+    ; ricerca punti fissi con indici negativi
+    (for (i (- (length lst)) -1)
+      (if (= (lst i) i) (push i out -1))
+    )
+    out))
+
+(fixed-1 w)
+;-> (2 5 -7 -1)
+
+
+----------------------------------------------
+Numero mancante in una progressione aritmetica
+----------------------------------------------
+
+Abbiamo una lista di numeri interi in progressione aritmetica (ordinata) in cui manca un elemento della progressione. Trovare il numero mancante.
+Per esempio:
+
+lista = (2 4 6 10 12 14)
+Manca il numero 8
+
+lista = (1 6 11 16 26 31)
+Manca il numero 21
+
+La somma dei numeri di una progressione aritmetica vale:
+
+  S = (n/2) * (x1 + xn) = (n * x1 * xn)/2
+
+dove n  = lunghezza della lista
+     x1 = primo elemento della lista
+     xn = ultimo elemento della lista
+
+(define (arit lst)
+  ; se la lista completa è lunga n,
+  ; allora la nostra lista è lunga (n - 1)
+  (let (len (+ (length lst) 1))
+       ; somma vera della progressione
+    (- (/ (* len (+ (lst 0) (lst -1))) 2)
+       ; somma della nostra progrssione (lista)
+       (apply + lst))))
+
+
+Facciamo alcune prove:
+
+(setq w '(2 4 6 10 12 14))
+(arit w)
+;-> 8
+
+(setq w '(1 6 11 16 26 31))
+(arit w)
+;-> 21
+
+(setq w '(1 4 7 10 16))
+(arit w)
+;-> 13
+
+
+-------------------
+List comprehensions
+-------------------
+
+Vediamo come simulare le list comprehensions del linguaggio python in newLISP utilizzando l'iterazione innestata dele liste. 
+
+;;>>> a = range(10)
+;;>>> b = range(11,20)
+;;>>> [[x, y] for x in b for y in a]
+;;[[11, 0], [11, 1], [11, 2], [11, 3], ......
+
+(setq a (sequence 0 9))
+(setq b (sequence 11 19))
+(dolist (x b) (dolist (y a) (push (list x y) results -1)))
+;-> ((11 0) (11 1) (11 2) (11 3)...
+
+;; List Comprehensions in PYTHON
+
+;;>>> vec = [2, 4, 6]
+;;>>> [3*x for x in vec]
+;;[6, 12, 18]
+
+(set 'vec '(2 4 6))
+(println (map (lambda (x) (* x 3)) vec))
+;-> (6 12 18)
+
+;;>>> vec = [2, 4, 6]
+;;>>> [[x, x**2] for x in vec]
+;;[[2, 4], [4, 16], [6, 36]]
+
+(println (map (lambda (x) (list x (pow x))) vec))
+;-> ((2 4) (4 16) (6 36))
+
+;;>>> freshfruit = ['  banana', '  loganberry ', 'passion fruit  ']
+;;>>> [weapon.strip() for weapon in freshfruit]
+;;['banana', 'loganberry', 'passion fruit']
+
+(set 'freshfruit '("  banana" "  loganberry " "passion fruit  "))
+(println (map trim freshfruit))
+;-> ("banana" "loganberry" "passion fruit")
+
+;;>>> [3*x for x in vec if x > 3]
+;;[12, 18]
+;;>>> [3*x for x in vec if x < 2]
+;;[]
+
+(println (map (lambda (x) (when (> x 3)(* x 3)))vec))
+;-> (nil 12 18)
+(println (map (lambda (x) (when (< x 2)(* x 3))) vec))
+;-> (nil nil nil)
+
+;;>>> vec1 = [2, 4, 6]
+;;>>> vec2 = [4, 3, -9]
+;;>>> [x*y for x in vec1 for y in vec2]
+;;[8, 6, -18, 16, 12, -36, 24, 18, -54]
+
+(set 'vec1 '(2 4 6))
+(set 'vec2 '(4 3 -9))
+(dolist (x vec1)(dolist (y vec2) (print (* x y) " ")))
+;-> 8 6 -18 16 12 -36 24 18 -54
+
+;;>>> [x+y for x in vec1 for y in vec2]
+;;[6, 5, -7, 8, 7, -5, 10, 9, -3]
+
+(dolist (x vec1)(dolist (y vec2) (print (+ x y) " ")))
+;-> 6 5 -7 8 7 -5 10 9 -3
+
+;;>>> [vec1[i]*vec2[i] for i in range(len(vec1))]
+;;[8, 12, -54]
+
+(println (map * vec1 vec2))
+;-> (8 12 -54)
+
+;;>>> mat = [
+;;...        [1, 2, 3],
+;;...        [4, 5, 6],
+;;...        [7, 8, 9],
+;;...       ]
+;;>>> print([[row[i] for row in mat] for i in [0, 1, 2]])
+;;[[1, 4, 7], [2, 5, 8], [3, 6, 9]]
+;; ou
+;;>>> list(zip(*mat))
+;;[(1, 4, 7), (2, 5, 8), (3, 6, 9)]
+
+(set 'matrix '((1 2 3)(4 5 6)(7 8 9)))
+(println (transpose matrix))
+;-> ((1 4 7) (2 5 8) (3 6 9))
+
+;;for i in [0, 1, 2]:
+;;    for row in mat:
+;;        print(row[i], end="")
+;;    print()
+
+(dolist (row (transpose matrix)) (println row))
+;-> (1 4 7)
+;   (2 5 8)
+;   (3 6 9)
+
 =============================================================================
 

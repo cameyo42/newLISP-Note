@@ -890,6 +890,17 @@ Al posto di "let" e "letn" possiamo usare la funzione "local". In questo caso no
 
 In genere l'uso di "local" è più comodo e rende il programma più leggibile.
 
+Comunque con "let" e "letn" possiamo scrivere codice del tipo:
+
+(let ((local-even? (lambda (n)
+                     (if (= n 0) true
+                         (local-odd? (- n 1)))))
+      (local-odd?  (lambda (n)
+                     (if (= n 0) nil
+                         (local-even? (- n 1))))))
+  (list (local-even? 23) (local-odd? 23)))
+;-> (nil true)
+
 
 ========================================================
  EFFETTI COLLATERALI (side effect) DI SETQ, LET e LOCAL
