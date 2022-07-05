@@ -1249,6 +1249,10 @@ NOTE LIBERE 9
   Punti fissi di una lista
   Numero mancante in una progressione aritmetica
   List comprehensions
+  map e funzioni con argomenti multipli
+  Divisione incongrue
+  Numeri causali e numero di eulero
+  Funzioni come liste
 
 APPENDICI
 =========

@@ -606,14 +606,32 @@ Assegnazione con "set" (usando il simbolo quotato):
 (set 'a 1)
 ;-> 1
 
+Controlliamo che il simbolo esiste:
+(sym "a" MAIN nil)
+;-> a
+a
+;-> 1
+
 Assegnazione con "setq" (senza il simbolo quotato):
 (setq b 2)
+;-> 2
+
+Controlliamo che il simbolo esiste:
+(sym "b" MAIN nil)
+;-> b
+b
 ;-> 2
 
 Assegnazione con "setq" (usando il simbolo quotato):
 (setq 'c 3)
 ;-> 3 ; esiste un output
-Nota: questa assegnazione non ha una logica ed è sbagliato, ma produce risultato strani.
+
+Controlliamo che il simbolo esiste:
+(sym "c" MAIN nil)
+;-> c
+c
+;-> nil
+Il simbolo "c" esiste, ma non ha il valore 3 associato.
 
 Vediamo quali simboli sono stati creati:
 
@@ -626,6 +644,59 @@ Vediamo i valori dei simboli creati:
 ;-> a = 1, b = 2, c = nil
 
 Dove è finito il valore 3?
+
+Inoltre (setq 'c 3) non è uguale a (set ''c 3):
+
+(set ''c 3)
+;-> ERR: symbol expected in function set : ''c
+
+L'espressione (setq 'c 3) esegue la modifica sul posto del simbolo "c":
+
+(setq 'c 3)
+;-> 3
+c
+;-> nil
+(define (foo) (setq 'c 3))
+;-> (lambda () (setq 'c 3))
+(foo)
+;-> 3
+foo
+;-> (lambda () (setq '3 3))
+
+Per ulteriori esempi, vedere l'ultimo capitolo su questa pagina: http://www.newlisp.org/index.cgi?Closures (Closures, Contexts and Stateful Functions).
+
+Anche l'errore generato da (set ''c 3) è corretto, infatti il primo argomento di "set" dovrebbe essere un simbolo, ma ''c (che può essere considerato un'abbreviazione di (quote (quote c))) restituisce (quote c) che è di tipo quote, non un simbolo.
+
+Inoltre risulta:
+
+(quote? ''y)
+;-> true
+(quote? (quote (quote x)))
+;-> nil
+
+Questo perchè "quote" e "'" non sono la stessa cosa. La funzione "quote" viene eseguita in fase di esecuzione (run-time), mentre "'" viene risolta in fase di lettura/compilazione (reader/compile).
+Prima della valutazione (quote x) è una lista, ma 'x è una x quotata. Quindi:
+
+; uno è un simbolo quotato, l'altro una lista
+
+(quote? ''x) => true
+(list? '(quote x)) => true
+
+; al livello superiore entrambi valutano allo stesso modo:
+
+(= (quote 'x) ''x) => true
+(= (quote (quote x)) '(quote x)) => true
+
+; e
+(quote? (quote 'x)) => true
+
+; ma
+(= '(quote x) ''x) => nil
+
+; e
+(quote? '(quote x)) => nil
+
+A livello di valutazione, entrambi fanno la stessa, cioè che è creare uno "scudo" alla valutazione che non fa nulla.
 
 
 ---------
@@ -659,7 +730,7 @@ Soluzione 1:
 Soluzione 2:
 
 (define (sol02)
-  (for (i 1 5) 
+  (for (i 1 5)
     (extend '() (map (curry list i) '("a" "b" "c" "d")))))
 
 (sol02)
@@ -890,13 +961,13 @@ Probabilità = ----------------------------
 
 Nel primo quesito, quando abbiamo due biglie nel sacchetto e estraiamo una biglia "Gialla", abbiamo i seguenti eventi possibili:
 
-1) nel sacchetto ci sono una biglia "Rossa" e una biglia "Gialla" 
+1) nel sacchetto ci sono una biglia "Rossa" e una biglia "Gialla"
    ed estraiamo la biglia "Rossa" (rimane biglia "Gialla")
-2) nel sacchetto ci sono una biglia "Rossa" e una biglia "Gialla" 
+2) nel sacchetto ci sono una biglia "Rossa" e una biglia "Gialla"
    ed estraiamo la biglia "Gialla" (rimane biglia "Rossa")
-3) nel sacchetto ci sono una biglia "Gialla" e una biglia "Gialla" 
+3) nel sacchetto ci sono una biglia "Gialla" e una biglia "Gialla"
    ed estraiamo la prima biglia "Gialla" (rimane biglia "Gialla")
-4) nel sacchetto ci sono una biglia "Gialla" e una biglia "Gialla" 
+4) nel sacchetto ci sono una biglia "Gialla" e una biglia "Gialla"
    ed estraiamo la prima seconda "Gialla" (rimane biglia "Gialla")
 
 Il primo evento non accade mai (perchè viene scartato) quindi abbiamo 3 eventi possibili (2, 3 e 4) e in due di questi casi rimane una biglia "Gialla".
@@ -976,7 +1047,7 @@ Ma l'armatura rende l'aereo più pesante e gli aerei più pesanti sono meno mano
 Da qualche parte nel mezzo c'è un ottimo.
 Quando gli aerei americani tornavano dalle missioni erano coperti di fori di proiettile. Ma il danno non era distribuito uniformemente su tutto il velivolo. C'erano più fori di proiettile nella fusoliera, non così tanti nei motori.
 Questa è una tabella tipo dei danni riportati:
- 
+
   Sezione dell'aereo           Fori di proiettile per piede quadrato
   ------------------           -------------------------------------
   Motore                       1.11
@@ -989,9 +1060,9 @@ Chiaramente dove gli aerei vengono colpiti... o no?!
 
 L'armatura non va dove ci sono i fori dei proiettili, ma va dove i fori dei proiettili non ci sono: sui motori.
 
-I danni sono distribuiti equamente su tutto l'aereo? Dove sono i buchi mancanti? 
-I fori di proiettile mancanti erano sugli aerei scomparsi. 
-Il motivo per cui gli aerei tornano indietro con meno colpi al motore è che gli aerei che sono stati colpiti nel motore non tornano. Invece i colpi alla fusoliera possono essere tollerati. 
+I danni sono distribuiti equamente su tutto l'aereo? Dove sono i buchi mancanti?
+I fori di proiettile mancanti erano sugli aerei scomparsi.
+Il motivo per cui gli aerei tornano indietro con meno colpi al motore è che gli aerei che sono stati colpiti nel motore non tornano. Invece i colpi alla fusoliera possono essere tollerati.
 In un ospedale di guerra troviamo molti più pazienti con fori di proiettile nelle gambe che pazienti con fori di proiettile nel petto. Ma non è perché le persone non vengono colpite al petto, è perchè le persone che vengono colpite al petto muoiono.
 Questo è un vecchio trucco da matematico per rendere il quadro più chiaro: impostare alcune variabili su
 zero.
@@ -1292,7 +1363,7 @@ Isolando y otteniamo:
 Inserendo questa espressione nell'equazione (*) otteniamo:
 
   m²*(x - x0)² + (x - x0)² = L²
-  
+
 Le cui soluzioni sono:
 
   x = x0 ± L*(sqrt 1/(1 + m²))
@@ -1540,7 +1611,7 @@ Nota: "F" è dirigente di se stesso.
 Scrivere una funzione che crea una lista i cui elementi hanno la seguente struttura:
 
   (nome-impiegato (lista dei suoi dipendenti))
-  
+
 Per esempio, ("A" ()) oppure ("C" ("A" "B")).
 
 Ovviamente la lista deve contenere tutti i dipendenti.
@@ -1632,24 +1703,24 @@ Adesso scriviamo la funzione che prende la lista generata da "base" ed espande r
 Proviamo la funzione
 
 (espande (base imp-dir))
-;-> (("A" ()) 
-;->  ("B" ()) 
-;->  ("C" ("A" "B")) 
-;->  ("D" ()) 
-;->  ("E" ("D")) 
+;-> (("A" ())
+;->  ("B" ())
+;->  ("C" ("A" "B"))
+;->  ("D" ())
+;->  ("E" ("D"))
 ;->  ("F" ("A" "B" "C" "D" "E" "F")))
 
 Proviamo con un esempio un pò più complesso:
 
-(setq em '(("E" "C") ("F" "C") ("C" "B") ("D" "B") ("B" "A") ("A" "A") ("G" "A") 
+(setq em '(("E" "C") ("F" "C") ("C" "B") ("D" "B") ("B" "A") ("A" "A") ("G" "A")
            ("H" "G") ("I" "H") ("L" "F") ("K" "F") ("J" "H") ("M" "F")))
 
 (setq bem (sort (base em)))
-;-> (("A" ("B" "A" "G")) 
-;->  ("B" ("C" "D")) 
-;->  ("C" ("E" "F")) 
-;->  ("D" ()) 
-;->  ("E" ()) 
+;-> (("A" ("B" "A" "G"))
+;->  ("B" ("C" "D"))
+;->  ("C" ("E" "F"))
+;->  ("D" ())
+;->  ("E" ())
 ;->  ("F" ("L" "K" "M"))
 ;->  ("G" ("H"))
 ;->  ("H" ("I" "J"))
@@ -1660,7 +1731,7 @@ Proviamo con un esempio un pò più complesso:
 ;->  ("M" ()))
 
 (espande bem)
-;-> (("A" ("A" "B" "C" "D" "E" "F" "G" "H" "I" "J" "K" "L" "M")) 
+;-> (("A" ("A" "B" "C" "D" "E" "F" "G" "H" "I" "J" "K" "L" "M"))
 ;->  ("B" ("C" "D" "E" "F" "K" "L" "M"))
 ;->  ("C" ("E" "F" "K" "L" "M"))
 ;->  ("D" ())
@@ -1694,9 +1765,9 @@ L'idea più semplice è quella di eseguire tre cicli e controllare per ogni tern
 
 Algoritmo:
 Eseguire tre cicli annidati con contatori i, j, k
-Il primo ciclo andrà da 0 a n-3, il secondo ciclo da i+1 a n-2 e il terzo ciclo da j+1 a n-1. 
+Il primo ciclo andrà da 0 a n-3, il secondo ciclo da i+1 a n-2 e il terzo ciclo da j+1 a n-1.
 I contatori dei cicli rappresentano i tre elementi della terna.
-Controllare se la somma degli elementi i-esimo, j-esimo e k-esimo è uguale a zero o meno. 
+Controllare se la somma degli elementi i-esimo, j-esimo e k-esimo è uguale a zero o meno.
 In caso positivo aggiungere la terna corrente alla lista soluzione.
 
 (define (find-triplet lst)
@@ -1724,7 +1795,7 @@ Un esempio con elementi non distinti:
 
 (find-triplet '(1 1 -2 3 3 -2))
 ;-> ((1 1 -2) (1 1 -2))
- 
+
 Poiché usiamo tre cicli annidati, la complessità temporale è O(n^3).
 
 
@@ -1769,7 +1840,7 @@ Quando vogliamo eliminare la memoria occupata da un simbolo (ad esempio una list
 
 Il primo metodo assegna nil al simbolo e quindi la memoria viene liberata (almeno in teoria).
 
-Nel secondo metodo l'eliminazione di un simbolo influisce sull'albero dei simboli e viene effettuato un controllo per eventuali riferimenti nel codice o nei dati. 
+Nel secondo metodo l'eliminazione di un simbolo influisce sull'albero dei simboli e viene effettuato un controllo per eventuali riferimenti nel codice o nei dati.
 
 Vediamo un test sulla velocità dei due metodi:
 
@@ -1877,7 +1948,7 @@ Esegue una crittografia one-time pad (OTP) di "str-source" utilizzando il pad di
 
 Il secondo esempio cripta un intero file:
 
-(write-file "myfile.enc" 
+(write-file "myfile.enc"
   (encrypt (read-file "myfile") "29kH67*"))
 
 (setq lst '(a 3 "a" -3.2))
@@ -2051,13 +2122,13 @@ Eseguiamo "miller" utilizzando la funzione "exec":
 (exec "mlr")
 ;-> mlr: no verb supplied.
 ;-> Usage: mlr [flags] {verb} [verb-dependent options ...] {zero or more file names}
-;-> 
+;->
 ;-> If zero file names are provided, standard input is read, e.g.
 ;->   mlr --csv sort -f shape example.csv
-;-> 
+;->
 ;-> Output of one verb may be chained as input to another using "then", e.g.
 ;->   mlr --csv stats1 -a min,mean,max -f quantity then sort -f color example.csv
-;-> 
+;->
 ;-> Please see 'mlr help topics' for more information.
 ;-> Please also see https://miller.readthedocs.io
 ;-> ()
@@ -2109,15 +2180,15 @@ Possiamo usare anche "map":
 Stampiamo i dati in forma allineata:
 
 (exec "mlr --icsv --opprint cat example.csv")
-;-> ("color  shape    flag  k  index quantity rate" 
+;-> ("color  shape    flag  k  index quantity rate"
 ;->  "yellow triangle true  1  11    43.6498  9.8870"
-;->  "red    square   true  2  15    79.2778  0.0130" 
+;->  "red    square   true  2  15    79.2778  0.0130"
 ;->  "red    circle   true  3  16    13.8103  2.9010"
-;->  "red    square   false 4  48    77.5542  7.4670" 
+;->  "red    square   false 4  48    77.5542  7.4670"
 ;->  "purple triangle false 5  51    81.2290  8.5910"
-;->  "red    square   false 6  64    77.1991  9.5310" 
+;->  "red    square   false 6  64    77.1991  9.5310"
 ;->  "purple triangle false 7  65    80.1405  5.8240"
-;->  "yellow circle   true  8  73    63.9785  4.2370" 
+;->  "yellow circle   true  8  73    63.9785  4.2370"
 ;->  "yellow circle   true  9  87    63.5058  8.3350"
 ;->  "purple square   false 10 91    72.3735  8.2430")
 
@@ -2339,7 +2410,7 @@ What this means practically is that labels allows you to write recursive functio
 
 (defun fact (n)
   (labels ((rec (x)
-             (if (< x 1) 
+             (if (< x 1)
                  1
                  (* x (rec (- x 1))))))
     (rec n)))
@@ -2369,12 +2440,12 @@ labels
 
 (define (test-a x)
         (labels ((in-test (x y) (println "test-a " x " " y))) (in-test x "a")))
-;-> (lambda (x) 
+;-> (lambda (x)
 ;-> (labels ((in-test (x y) (println "test-a " x " " y))) (in-test x "a")))
 
 (define (test-b x)
         (labels ((in-test (x y) (println "test-b " x " " y))) (in-test "b" x)))
-;-> (lambda (x) 
+;-> (lambda (x)
 ;-> (labels ((in-test (x y) (println "test-b " x " " y))) (in-test "b" x)))
 
 (define (in-test x)
@@ -2410,7 +2481,7 @@ labels:labels
                  (test-y (x) (println "test2 y=" x)))
                 (test-x x)
                 (test-y y)))
-;-> (lambda (x y) (labels ((test-x (x) (println "test1 x=" x)) (test-y (x) 
+;-> (lambda (x y) (labels ((test-x (x) (println "test1 x=" x)) (test-y (x)
 ;->   (println "test2 y=" x)))
 ;->   (test-x x)
 ;->   (test-y y)))
@@ -2513,7 +2584,7 @@ Proviamo la funzione:
 (same? '(a (b c)) '((a (c)) (b)))
 ;-> nil
 
-L'articolo prosegue con la scrittura di un programma più efficiente basandosi sull'osservazione che la soluzione sopra costruisce due frange complete e solo successivamente inizia a confrontarle. 
+L'articolo prosegue con la scrittura di un programma più efficiente basandosi sull'osservazione che la soluzione sopra costruisce due frange complete e solo successivamente inizia a confrontarle.
 Per motivi di efficienza sarebbe molto meglio se potessimo combinare le due operazioni e, soprattutto, fermare sia il confronto che i processi di costruzione appena si riscontra una differenza tra le due frange.
 Nel peggiore dei casi, quando le due frange sono uguali, non deriva alcun beneficio da tale soluzione, ma in tutti gli altri casi si ha una riduzione dei tempi di esecuzione. Inoltre, calcolare gli atomi e confrontarli al volo riduce il consumo di memoria in quanto viene memorizzato niente.
 
@@ -2528,7 +2599,7 @@ Nel peggiore dei casi, quando le due frange sono uguali, non deriva alcun benefi
 (f (lambda (scarx cdrx)
   (cond ((null scarx) (split cdrx))
         (t (cons (car (scarx)) (cons (cdr scarx) cdrx))))))
-            
+
 (samesplit (lambda (spa spb)
   (cond ((null spa) (null spb))
         ((null spb) nil)
@@ -2734,13 +2805,13 @@ Per rimuovere un elemento dalla fine della lista:
 
 (setq s '(3 2 1))
 
-(pop s -1) 
+(pop s -1)
 ;-> 1
-(pop s -1) 
+(pop s -1)
 ;-> 2
-(pop s -1) 
+(pop s -1)
 ;-> 3
-(pop s -1) 
+(pop s -1)
 ;-> nil
 
 Un altro metodo è quello di utilizzare la seguente macro (by conan):
@@ -2786,7 +2857,7 @@ Utilizzandola come lista associativa possiamo scrivere:
 
 ; returns all "80" results
 (assoc 80 me)
-;-> (80 (1010 
+;-> (80 (1010
 ;-> ((84 114 117 115 116 80 105 112 101 73 115 65 119 101 115 111 109 101))
 
 ; returns all "80" + "1010" results
@@ -2863,7 +2934,7 @@ Dati delle automobili
   23     | 90             | 2015
   16     | 210            | 2010
 
-Vogliamo l'automobile con il prezzo più basso, il chilometraggio più basso, ma l'anno di immatricolazione più recente. 
+Vogliamo l'automobile con il prezzo più basso, il chilometraggio più basso, ma l'anno di immatricolazione più recente.
 Pertanto i pesi per ciascuna colonna sono i seguenti: (0 0 1)
 
 (define (scores data weights)
@@ -2913,8 +2984,8 @@ Facciamo una prova:
 (setq pesi '(0 0 1))
 
 (scores dati pesi)
-;-> (((20 60 2012) 2) 
-;->  ((23 90 2015) 1) 
+;-> (((20 60 2012) 2)
+;->  ((23 90 2015) 1)
 ;->  ((22 50 2011) 1.333333333333334))
 
 
@@ -2988,7 +3059,7 @@ Nell'aritmetica modulare non esiste un'operazione di divisione. Tuttavia, esisto
 La seguente funzione utilizza una variante dell'algorimo di esteso di Euclide per calcolare l'inverso modulare (x^-1 mod m):
 
 (define (inv-mod x m)
-  ; Calcola x^-1 mod m. 
+  ; Calcola x^-1 mod m.
   ; Nota: x * x^-1 mod m = x^-1 * x mod m = 1.
   (local (y z a b c)
     (cond ((or (< m 0) (< x 0) (>= x m)) nil)
@@ -3005,7 +3076,7 @@ La seguente funzione utilizza una variante dell'algorimo di esteso di Euclide pe
               (setq a b)
               (setq b c)
             )
-            (if (= x 1) 
+            (if (= x 1)
                 (% (+ a m) m)
                 nil))
     )))
@@ -3261,7 +3332,7 @@ https://www.geeksforgeeks.org/tug-of-war/
 
 #include <bits/stdc++.h>
 using namespace std;
- 
+
 // function that tries every possible solution by calling itself recursively
 void TOWUtil(int* arr, int n, bool* curr_elements, int no_of_selected_elements,
              bool* soln, int* min_diff, int sum, int curr_sum, int curr_position)
@@ -3269,21 +3340,21 @@ void TOWUtil(int* arr, int n, bool* curr_elements, int no_of_selected_elements,
     // checks whether the it is going out of bound
     if (curr_position == n)
         return;
- 
+
     // checks that the numbers of elements left are not less than the
     // number of elements required to form the solution
     if ((n/2 - no_of_selected_elements) > (n - curr_position))
         return;
- 
+
     // consider the cases when current element is not included in the solution
     TOWUtil(arr, n, curr_elements, no_of_selected_elements,
               soln, min_diff, sum, curr_sum, curr_position+1);
- 
+
     // add the current element to the solution
     no_of_selected_elements++;
     curr_sum = curr_sum + arr[curr_position];
     curr_elements[curr_position] = true;
- 
+
     // checks if a solution is formed
     if (no_of_selected_elements == n/2)
     {
@@ -3301,33 +3372,33 @@ void TOWUtil(int* arr, int n, bool* curr_elements, int no_of_selected_elements,
         TOWUtil(arr, n, curr_elements, no_of_selected_elements, soln,
                   min_diff, sum, curr_sum, curr_position+1);
     }
- 
+
     // removes current element before returning to the caller of this function
     curr_elements[curr_position] = false;
 }
- 
+
 // main function that generate an arr
 void tugOfWar(int *arr, int n)
 {
     // the boolean array that contains the inclusion and exclusion of an element
     // in current set. The number excluded automatically form the other set
     bool* curr_elements = new bool[n];
- 
+
     // The inclusion/exclusion array for final solution
     bool* soln = new bool[n];
- 
+
     int min_diff = INT_MAX;
- 
+
     int sum = 0;
     for (int i=0; i<n; i++)
     {
         sum += arr[i];
         curr_elements[i] =  soln[i] = false;
     }
- 
+
     // Find the solution using recursive function TOWUtil()
     TOWUtil(arr, n, curr_elements, 0, soln, &min_diff, sum, 0, 0);
- 
+
     // Print the solution
     cout << "The first subset is: ";
     for (int i=0; i<n; i++)
@@ -3342,7 +3413,7 @@ void tugOfWar(int *arr, int n)
             cout << arr[i] << " ";
     }
 }
- 
+
 // Driver program to test above functions
 int main()
 {
@@ -3357,17 +3428,17 @@ In particolare:
 
  int* arr,                      globale
  int n,                         locale
- bool* curr_elements,           globale 
+ bool* curr_elements,           globale
  int no_of_selected_elements,   locale
- bool* soln,                    globale 
+ bool* soln,                    globale
  int* min_diff,                 globale
  int sum,                       locale
  int curr_sum,                  locale
- int curr_position              locale 
+ int curr_position              locale
 
 (define (tugwar-ex n num-selected sum curr-sum curr-pos)
         ; fine della lista?
-  (cond ((= curr-pos n) nil) 
+  (cond ((= curr-pos n) nil)
         ; controllo numero elementi delle parti sinistra e destra
         ((> (- (/ n 2) num-selected) (- n curr-pos)) nil)
         (true
@@ -3393,7 +3464,7 @@ In particolare:
           ; caso in cui l'elemento corrente è incluso nella soluzione
              (tugwar-ex n num-selected sum curr-sum (+ curr-pos 1))
           )
-          ; rimuove l'elemento corrente prima di tornare 
+          ; rimuove l'elemento corrente prima di tornare
           ; alla funzione chiamante
           (setf (curr-el curr-pos) nil))))
 
@@ -3438,7 +3509,7 @@ Estrazione elementi da una lista
 
 Data una lista di numeri interi e due numeri interi x e y scrivere una funzione che restituisce gli elementi univoci della lista che soddisfano una delle seguenti condizioni:
 
-1) se x e y sono valori numerici allora estrarre ogni elemento el che soddisfa: 
+1) se x e y sono valori numerici allora estrarre ogni elemento el che soddisfa:
   (el <= x) AND (el <= y),
   cioè bisogna estrarre tutti gli elementi che hanno valore compreso tra x e y
 2) se x e y sono indici allora estrarre ogni elemento el che soddisfa:
@@ -3450,7 +3521,7 @@ Data una lista di numeri interi e due numeri interi x e y scrivere una funzione 
     (if idx
       ; idx = true --> a e b sono indici
       (unique (select lst (sequence a b)))
-      ; idx = nil --> a e b sono valori 
+      ; idx = nil --> a e b sono valori
       (unique (filter (fn(x) (and (>= x a) (<= b x))) lst))
     )))
 
@@ -3559,7 +3630,7 @@ Facciamo alcune prove:
 List comprehensions
 -------------------
 
-Vediamo come simulare le list comprehensions del linguaggio python in newLISP utilizzando l'iterazione innestata dele liste. 
+Vediamo come simulare le list comprehensions del linguaggio python in newLISP utilizzando l'iterazione innestata dele liste.
 
 ;;>>> a = range(10)
 ;;>>> b = range(11,20)
@@ -3652,6 +3723,376 @@ Vediamo come simulare le list comprehensions del linguaggio python in newLISP ut
 ;-> (1 4 7)
 ;   (2 5 8)
 ;   (3 6 9)
+
+
+-------------------------------------
+map e funzioni con argomenti multipli
+-------------------------------------
+
+Per utilizzare "map" con una funzione con argomenti multipli possiamo utilizzare la seguente funzione che utilizza (args) (by rickyboy):
+
+(define (my-func) (cons 'op (args)))
+;-> (lambda () (cons 'op (args)))
+
+Alcuni esempi di applicazione:
+
+(map my-func '(1 2 3))
+;-> ((op 1) (op 2) (op 3))
+
+(map my-func '(1 2 3) '(4 5 6))
+;-> ((op 1 4) (op 2 5) (op 3 6))
+
+(map my-func '(1 2 3) '(4 5 6) '(7 8 9))
+;-> ((op 1 4 7) (op 2 5 8) (op 3 6 9))
+
+Nota: se usiamo map con una funzione primitiva possiamo usarla direttamente, per esempio:
+
+(map + '(1 2 3) '(4 5 6) '(7 8 9))
+;-> (12 15 18)
+
+
+-------------------
+Divisione incongrue
+-------------------
+
+1. L'eredità degli 11 cammelli
+------------------------------
+Un ricco cammelliere arabo lasciò in eredità ai suoi tre figli 11 cammelli: al maggiore lasciò la metà dei cammelli, al secondo ne lasciò un quarto e al terzo un sesto.
+Nel dividersi l'eredità, sorsero seri problemi e i tre fratelli entrarono in una lite furibonda fino a rischiare di arrivare ai coltelli. Infatti, gli 11 cammelli non erano dividibili né a metà, né a un quarto, né a un sesto. E ciascuno pretendeva di avere un cammello in più per sé.
+
+Soluzione
+---------
+Sapendo del problema, il notaio incaricato si presentò ai tre fratelli e donò loro un suo cammello, gratuitamente.
+Avendo 12 cammelli, i tre fratelli poterono avere facilmente ciò che spettava a ciascuno di loro secondo giustizia: il primo ebbe i suoi 6 cammelli (la metà), il secondo ebbe 3 cammelli (un quarto), il terzo ebbe 2 cammelli (un sesto). A conti fatti, si accorsero poi che 6 + 3 +2 dava per risultato 11, 11 cammelli, e ne avanzava ancora uno. Così, risolti i loro problemi con giustizia, decisero di ridare il cammello a colui che l'aveva donato esprimendogli la loro riconoscenza.
+
+2. L'eredità di 17 cammelli
+---------------------------
+Uno sceicco lascia in eredità ai suoi tre figli rispettivamente 1/2, 1/3 e 1/9 dei suoi cammelli con la raccomandazione di non uccidere animali nella spartizione. Ma quando muore lascia 17 cammelli.
+Come andranno suddivisi fra i tre figli?
+
+Soluzione
+---------
+Poiché 1/2 + 1/3 + 1/9 = 17/18 il notaio, incaricato di suddividere l'eredità, aggiunge un suo cammello e consegna
+
+1/2 di 18 = 9 cammelli al primo figlio;
+
+1/3 di 18 = 6 cammelli al secondo figlio;
+
+1/9 di 18 = 2 cammeli al terzo figlio.
+
+In tutto ha consegnato 17 cammelli.
+Il notaio si riprende il suo cammello e il gioco è fatto.
+Nessun figlio protesta per il metodo di suddivisione, in quanto tutti hanno ricevuto più del dovuto.
+
+3. L'eredità dei 35 cammelli
+----------------------------
+Uno sceicco lascia in eredità 35 cammelli ai suoi tre figli.
+L'eredità dovrà essere divisa in parti direttamente proporzionali a 1/2, 1/3 e 1/9, senza uccidere animali.
+Il notaio, inoltre, dovrà ricevere un cammello come ricompensa per il suo lavoro di esecutore testamentario.
+Come andranno divisi i cammelli?
+Richard A. Proctor, 1886
+
+Soluzione
+---------
+Poiché 1/2 + 1/3 + 1/9 = 17/18 = 34/36
+il notaio aggiunge un suo cammello e consegna
+
+1/2 di 36 = 18 cammelli al primo figlio;
+
+1/3 di 36 = 12 cammelli al secondo figlio;
+
+1/9 di 36 = 4 cammeli al terzo figlio.
+
+In tutto ha consegnato 34 cammelli.
+Dunque si riprende il suo cammello e si tiene uno dei 35 cammelli come ricompensa.
+
+3. L'eredità di un gregge di pecore
+-----------------------------------
+Un pastore lascia in eredità ai suoi cinque figli un gregge di pecore.
+Al primo figlio toccherà 1/3 delle pecore, al secondo 1/4, al terzo 1/6, al quarto 1/8, al quinto 1/9.
+Al momento della divisione, il notaio presta 2 pecore e ciascun figlio riceve la sua parte senza uccidere alcun animale.
+Terminata la divisione, al notaio rimangono 2 pecore di ricompensa per il suo lavoro.
+Quante erano le pecore del gregge?
+Jerome S. Meyer, 1937
+
+Poiché il mcm tra 3, 4, 6, 8 e 9 è 72, proviamo a calcolare quanti settantaduesimi spetterebbero agli eredi.
+
+1/3 + 1/4 + 1/6 + 1/8 + 1/9 = 71/72
+
+Soluzione
+---------
+Dobbiamo ora tener conto del fatto che alla fine il notaio deve riprendersi le sue due pecore PIU' ALTRE DUE come ricompensa: in tutto 4 pecore.
+Quindi deve accadere che dopo aver tolto:
+1/3 + 1/4 + 1/6 + 1/8 + 1/9 = 71/72
+dal numero, deve avanzare 4.
+Da ciò si deduce che 1/72 equivale a 4 pecore.
+Perciò le pecore da suddividere in tutto sono 72*4 = 288.
+In definitiva le pecore lasciate in eredità sono 286 e il notaio ne aggiunge 2.
+I figli ricevono: 96 + 72 + 48 + 36 + 32 = 284 pecore.
+
+4. Un pasticcio mediorientale
+-----------------------------
+Si devono dividere 41 barili di petrolio fra 3 persone.
+Le tre persone devono ricevere rispettivamente 1/2, 1/3 e 1/7 dei barili.
+Siccome:
+1/2 + 1/3 + 1/7 = 41/42
+il problema si può risolvere aggiungendo un barile e calcolando le frazioni indicate di 42.
+Le tre persone ricevono rispettivamente: 21, 14 e 6 barili per un totale di 41 barili. Il barile aggiunto viene quindi restituito.
+La domanda è: esistono altre quadruple di numeri interi, oltre a 2, 3, 7, 41 che danno luogo ad un puzzle di questo tipo?
+(David Singmaster)
+
+Soluzione
+---------
+Ecco le 12 soluzioni.
+2, 3, 7, 41
+2, 3, 8, 23
+2, 3, 9, 17
+2, 3, 12, 11
+2, 4, 5, 19
+2, 4, 6, 11
+2, 4, 8, 7
+2, 5, 5, 9
+2, 6, 6, 5
+3, 3, 4, 11
+3, 3, 6, 5
+4, 4, 4, 3
+
+Ed ecco il procedimento per trovarle.
+Trovare le quaterne (a, b, c, n-1) tali che
+(1)   n/a + n/b + n/c = n - 1
+
+Supponiamo di conoscere a e b e poniamo c = x
+scriviamo r = m.c.m.(a, b) cioè r è il minimo comune multiplo di a e b;
+qualunque valore abbia x avremo:
+m.c.m.(a, b, x) = rt
+dove t è un parametro a valori interi che varia in funzione di x.
+
+Notare che il m.c.m. della terna è sempre multiplo di r,
+il m.c.m. della coppia. Riscriviamo (1) usando le nuove definizioni:
+
+(1)   rt/a + rt/b + rt/x = rt - 1
+
+da cui ricaviamo x:
+
+(2)   x = rt/(rt - rt/a - rt/b - 1)
+
+Per comodità poniamo s = r - r/a - r/b per cui raccogliendo a fattor comune
+la lettera t:
+
+(2)   x = rt/(st - 1)
+
+Poi riscrivendo la (2) in un'altra forma:
+
+x(st - 1) - rt = 0
+sxt - rt = x
+(sx - r)t = x
+t = x/(sx - r)
+
+da cui, siccome t è intero, ricaviamo che:
+x dev'essere congruo a 0 modulo (sx -r) ovvero:
+(sx - r) divide esattamente x
+
+e otteniamo anche un limite superiore per x:
+x/(sx - r) >=2
+e un limite inferiore per x:
+x > r/s
+
+Facciamo un esempio, siano a=2, b=4; allora
+r = m.c.m.(2, 4) = 4
+s = 4 - 4/2 - 4/4 = 1
+bisogna trovare i valori di x per cui x è esattamente diviso da
+(1x - 4)
+con x > 4/1, cioè maggiore di 4.
+
+Proviamo coi vari valori di x:
+t = 5/(1*5 - 4) = 5
+t = 6/(1*6 - 4) = 3
+t = 7/(1*7 - 4) = 2,3...
+t = 8/(1*8 - 4) = 2
+t = 9/(1*9 - 4) = 1,8
+e siccome l'ultimo rapporto è inferiore a 2 il calcolo si arresta.
+Abbiamo trovato tre valori di x che danno risultato intero nella divisione, ovvero
+x1=5, x2=6, x3=8
+che ci danno le quaterne:
+(2, 4, 5, 19)
+(2, 4, 6, 11)
+(2, 4, 8, 7)
+
+Nota storica
+Le prime versioni conosciute di questo problema si trovano nel papiro di Rhind (-1650) e in quello di Akhmim (+700).
+
+Dividere 700 pagnotte in due parti proporzionali ai numeri 1/2 e 1/4
+(Papiro di Rhind)
+
+Dividere 1000 in parti proporzionali a 3 + 1/2  :  2 + 1/2  :  3 + 1/2 + 1/4  :  6 + 1/4  :  4
+(Papiro di Akhmim)
+
+Dividere 3 + 1/2 + 1/4 in parti proporzionali a 7 : 8 : 9.
+(Papiro di Akhmim)
+
+In origine questi problemi venivano risolti dividendo semplicemente l'eredità in parti proporzionali alle frazioni.
+Secondo David Singmaster l'aggiunta del 18° cammello è una strategia recente, probabilmente del 1800, anche se alcuni autori ritengono che risalga a Tartaglia (1500) o addirittura alla cultura Araba, o Indiana o Cinese.
+
+
+---------------------------------
+Numeri causali e numero di eulero
+---------------------------------
+
+e = 2.7182818284590451
+
+Generando numeri casuali tra 0 e 1, qual'è il numero atteso medio di numeri selezionati affinchè la loro somma superi 1?
+
+(define (euler1 iter)
+  (local (val somma conta)
+    (setq val 0)
+    (for (i 1 iter)
+      (setq somma 0)
+      (setq conta 0)
+      (until (> somma 1)
+        (setq somma (add somma (random)))
+        (++ conta)
+      )
+      (setq val (+ val conta))
+    )
+    (div val iter)))
+
+(euler1 1e6)
+;-> 2.717473
+(euler1 1e7)
+;-> 2.7181288
+
+Generiamo una serie di numeri casuali x1,x2,x3,... fintanto che la serie è monotona crescente. Qual'è la lunghezza media attesa della sequenza monotonica?
+Per esempio, la sequenza 0.21, 0.71, 0.81, 0.42 ha una lunghezza pari a 4 (viene considerato anche l'ultimo numero che "spezza" la monotonicità della serie).
+Invece, la serie 0.21, 0.35, 0.16 ha lunghezza 3.
+
+(define (euler2 iter)
+  (local (cur-lun lun change dir)
+    (setq val 0)
+    (for (i 1 iter)
+      (setq prev-val (random))
+      (setq lun 2)
+      (setq change nil)
+      (until change
+        (setq cur-val (random))
+        (cond ((> cur-val prev-val)
+                (++ lun) 
+                (setq prev-val cur-val))
+              (true ; cambio monotonicità
+                (setq change true)
+                (setq val (+ val lun))
+              )
+        )
+      )
+    )
+    (div val iter)))
+
+(euler2 1e6)
+;-> 2.718573
+
+(euler2 1e7)
+;-> 2.7184529
+
+(define (euler3 iter)
+  (local (out stop tot)
+    (setq tot 0)
+    (for (i 1 iter)
+      (setq out (list (random)))
+      (setq stop nil)
+      (until stop
+        (if (> (length out) 1)
+            (cond ((apply < out) nil) ; valori crescenti
+                  (true
+                    (setq tot (+ tot (length out)))
+                    (setq stop true))
+            )
+        )
+        (push (random) out -1)
+      )
+    )
+    (div tot iter)))
+
+(euler3 1e6)
+;-> 2.717245
+
+(euler3 1e7)
+;-> 2.7186064
+
+
+-------------------
+Funzioni come liste
+-------------------
+
+La seguente funzione crea una lista con tutti gli indici della lista passata come parametro:
+
+(define (index-list lst)
+"Creates indexes of list elements"
+  (ref-all nil lst (fn (x) true)))
+
+Per esempio:
+(setq alst '(1 (2 (3)) 4 (5 (6))))
+
+(index-list alst)
+;-> ((0) (1) (1 0) (1 1) (1 1 0) (2) (3) (3 0) (3 1) (3 1 0))
+
+E con questi indici possiamo "recuperare" qualunque parte della lista:
+
+(setq idx (index-list alst))
+(dolist (el idx) (println el { - } (alst el)))
+;-> (0) - 1
+;-> (1) - (2 (3))
+;-> (1 0) - 2
+;-> (1 1) - (3)
+;-> (1 1 0) - 3
+;-> (2) - 4
+;-> (3) - (5 (6))
+;-> (3 0) - 5
+;-> (3 1) - (6)
+;-> (3 1 0) - 6
+
+Adesso per scomporre una funzione basta ricordare che anche una funzione è una lista in newLISP. Quindi posso scomporre una funzione con lo stesso metodo.
+Come esempio di funzione utilizziamo la "index-list" stessa:
+
+index-list
+;-> (lambda (lst) "Creates indexes of list elements"
+;->   (ref-all nil lst (lambda (x) true)))
+
+Creiamo la lista degli indici:
+
+(setq indici (index-list index-list))
+;-> ((0) (0 0) (1) (2) (2 0) (2 1) (2 2) (2 3) (2 3 0) (2 3 0 0) (2 3 1))
+
+Visualizziamo tutti gli elementi della funzione/lista:
+
+(dolist (el indici) (println el { - } (nth el index-list)))
+;-> (0) - (lst)
+;-> (0 0) - lst
+;-> (1) - Creates indexes of list elements
+;-> (2) - (ref-all nil lst (lambda (x) true))
+;-> (2 0) - ref-all
+;-> (2 1) - nil
+;-> (2 2) - lst
+;-> (2 3) - (lambda (x) true)
+;-> (2 3 0) - (x)
+;-> (2 3 0 0) - x
+;-> (2 3 1) - true
+
+Questo ci permette di individuare esattamente la posizione di una espressione all'interno di qualunque funzione e, eventualmente, di modificarla con facilità.
+Per esempio:
+
+(setf (nth '(1) index-list) "Crea una lista di tutti gli indici degli elementi della lista")
+index-list
+;-> (lambda (lst) "Crea una lista di tutti gli indici degli elementi della lista"
+;->   (ref-all nil lst (lambda (x) true)))
+
+Nota: quando indicizziamo una lista che rappresenta una funzione non possiamo utilizzare l'indicizzazione implicita (lista indice), ma dobbiamo usare l'indicizzazione esplicita (nth indice lista). Questo perchè con una funzione l'espressione (funzione indice) viene valutata invece che indicizzata in modo implicito.
+
+Se invece vogliamo scomporre la funzione in token, possiamo usare la funzione "parse":
+
+(parse (string index-list))
+;-> ("(" "lambda" "(" "lst" ")"
+;->  "Crea una lista di tutti gli indici degli elementi della lista"
+;->  "(" "ref-all" "nil" "lst" "(" "lambda" "(" "x" ")" "true" ")" ")" ")")
+
 
 =============================================================================
 

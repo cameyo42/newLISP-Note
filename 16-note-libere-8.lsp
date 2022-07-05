@@ -6255,7 +6255,7 @@ Il risultato della seguente espressione:
 (map (apply *) '((0 1 2) (3 4 5)))
 ;-> ((1 2) (4 5))
 
-si spiega col fatto che (apply *) restituisce 1 e
+si spiega col fatto che (apply *) restituisce 1 e quindi:
 
 (1 '(0 1 2))
 ;-> (1 2)
