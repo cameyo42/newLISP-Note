@@ -8515,10 +8515,11 @@ Per calcolare i tempi di esecuzione generiamo due liste con 100 e 1000 numeri ca
   (setq test (rand 10 1000))
   (if (eq-idx2 test)
       (setq b test)))
+
 (eq-idx1 b)
 ;-> 486
 (eq-idx2 b)
-;-> 488
+;-> 486
 
 Adesso vediamo la differenza di velocità tra le due funzioni:
 
@@ -8531,6 +8532,37 @@ Adesso vediamo la differenza di velocità tra le due funzioni:
 ;-> 97280.153
 (time (eq-idx2 b) 10000)
 ;-> 13656.492
+
+Vediamo un altro metodo:
+
+(define (equilibrio lst)
+  (local (tot left right stop out)
+    (setq out nil)
+    (setq stop nil)
+    (setq left 0)
+    (setq right 0)
+    (setq tot (apply + lst))
+    (dolist (el lst stop)
+      (setq right (sub tot el left))
+      (if (= left right)
+          (set 'out $idx 'stop true)
+      )
+      (setq left (+ left el))
+    )
+    out))
+
+(equilibrio '(-1 3 5 2 0))
+;-> 2
+
+(equilibrio a)
+;-> 47
+(equilibrio b)
+;-> 486
+
+(time (equilibrio a) 10000)
+;-> 83.419
+(time (equilibrio b) 10000)
+;-> 798.087
 
 
 ------------------------------------------------

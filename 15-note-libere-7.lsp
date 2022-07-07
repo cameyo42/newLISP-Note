@@ -202,7 +202,7 @@ Quando si impostano i valori hash, la variabile anaforica di sistema "$it" può 
 (myhash "bar")
 ;-> "HELLO WORLD"
 
-Supponiamo di voler inserire in una chiave della hash-map una lista di valori, cioè ogni volta che accediamo ad una coppia chiave-valore vogliamo aggiungere un nuovo valore (chiave (valore nuovo-valore)). 
+Supponiamo di voler inserire in una chiave della hash-map una lista di valori, cioè ogni volta che accediamo ad una coppia chiave-valore vogliamo aggiungere un nuovo valore (chiave (valore nuovo-valore)).
 Il valore iniziale di una coppia (chiave valore) è nil, quindi non possiamo usare "append" o "extend" per aggiungere un nuovo valore. La soluzione consiste nel controllare il valore di $it ed effettuare operazioni diverse nel caso il valore sia nil oppure no. Vediamo un esempio:
 
 Creiamo una hash-map:
@@ -249,9 +249,9 @@ Eliminiamo e ricreiamo la hash-map:
 Vediamo il contenuto della hash-map:
 
 (hh)
-;-> (("1" ((1 1))) 
-;->  ("2" ((2 1) (2 2))) 
-;->  ("3" ((3 1) (3 2) (3 3))) 
+;-> (("1" ((1 1)))
+;->  ("2" ((2 1) (2 2)))
+;->  ("3" ((3 1) (3 2) (3 3)))
 ;->  ("4" ((4 1) (4 2) (4 3) (4 4)))
 ;->  ("5" ((5 1) (5 2) (5 3) (5 4) (5 5))))
 
@@ -1410,6 +1410,140 @@ If you want to check for the existence of a key and update its value, do somethi
 (letn (key "foo")
    (if (lookup key Dict)
        (setf (assoc key Dict) (list key "new value"))))
+
+Vediamo un altro esempio. Data la lista associativa:
+
+(set 'al '( ("A" 123 "fred" 2) ("B" 234 "jim" 3) ("C" 345 "arthur" 4) ("D" 456 "dave" 5)))
+
+come possiamo rimuovere le stringhe "fred" "jim" "arthur" e "dave"?
+
+Primo metodo
+------------
+Utilizziamo "pop" in ciascuna sotto-lista
+
+; remove the element at offset 2 in each sublist
+(dotimes (i (length al))
+   (pop (al i) 2))
+
+al
+;-> (("A" 123 2) ("B" 234 3) ("C" 345 4) ("D" 456 5))
+
+Secondo metodo
+--------------
+Consideriamo che 'al' è una lista annidata e usiamo due indici per individuare l'elemento che deve essere eliminato (popped):
+
+(set 'al '( ("A" 123 "fred" 2) ("B" 234 "jim" 3) ("C" 345 "arthur" 4) ("D" 456 "dave" 5)))
+; remove at i 2 of al
+(dotimes (i (length al))
+  (pop al i 2))
+
+al
+;-> (("A" 123 2) ("B" 234 3) ("C" 345 4) ("D" 456 5))
+
+(set 'al '( ("A" 123 "fred" 2) ("B" 234 "jim" 3) ("C" 345 "arthur" 4) ("D" 456 "dave" 5)))
+; remove at (list i 2) of al
+(dotimes (i (length al))
+  (pop al (list i 2)))
+
+al
+;-> (("A" 123 2) ("B" 234 3) ("C" 345 4) ("D" 456 5))
+
+nel secondo esempio gli indici sono in una lista, simile a quello che ritorna "ref":
+
+(set 'al '( ("A" 123 "fred" 2) ("B" 234 "jim" 3) ("C" 345 "arthur" 4) ("D" 456 "dave" 5)))
+(ref "fred" al)
+(0 2)
+
+Terzo metodo
+------------
+Indicizziamo la sottolista come se fosse una lista associativa:
+
+(set 'al '( ("A" 123 "fred" 2) ("B" 234 "jim" 3) ("C" 345 "arthur" 4) ("D" 456 "dave" 5)))
+(pop (assoc "A" al) 2) => "fred"
+al
+;-> (("A" 123 2) ("B" 234 "jim" 3) ("C" 345 "arthur" 4) ("D" 456 "dave" 5))
+
+Quarto metodo
+-------------
+Usiamo "replace", "append" e "match" per evitare il ciclo:
+
+(set 'al '( ("A" 123 "fred" 2) ("B" 234 "jim" 3) ("C" 345 "arthur" 4) ("D" 456 "dave" 5)))
+(replace '(*) al (append (0 2 $it) (-1 $it)) match)
+al
+;-> (("A" 123 2) ("B" 234 3) ("C" 345 4) ("D" 456 5))
+
+L'espressione match cerca corrispondenze per tutte le liste di primo livello in 'al', che sono le sottoliste in $it. $it non è modificabile, quindi dobbiamo costruire la nuova sottolista aggiungendo le varie parti.
+
+(set 'al '( ("A" 123 "fred" 2) ("B" 234 "jim" 3) ("C" 345 "arthur" 4) ("D" 456 "dave" 5)))
+(set 'al (map (fn (e) (append (0 2 e) (-1 e))) al))
+;-> (("A" 123 2) ("B" 234 3) ("C" 345 4) ("D" 456 5))
+
+Quinto metodo
+-------------
+(set 'al '( ("A" 123 "fred" 2) ("B" 234 "jim" 3) ("C" 345 "arthur" 4) ("D" 456 "dave" 5)))
+(replace '(*) al (list (select $it '(0 1 3))) match)
+;-> ((("A" 123 2)) (("B" 234 3)) (("C" 345 4)) (("D" 456 5)))
+
+oppure:
+
+(set 'al '( ("A" 123 "fred" 2) ("B" 234 "jim" 3) ("C" 345 "arthur" 4) ("D" 456 "dave" 5)))
+(replace '(*) al (select $it 0 1 3) match)
+;-> ((("A" 123 2)) (("B" 234 3)) (("C" 345 4)) (("D" 456 5)))
+
+Sesto metodo
+-------------
+Soluzione non distruttiva
+(set 'al '( ("A" 123 "fred" 2) ("B" 234 "jim" 3) ("C" 345 "arthur" 4) ("D" 456 "dave" 5)))
+(map (fn(x) (replace (x 2) x)) al)
+;-> ((("A" 123 2)) (("B" 234 3)) (("C" 345 4)) (("D" 456 5)))
+
+Settimo metodo
+--------------
+(set 'al '( ("A" 123 "fred" 2) ("B" 234 "jim" 3) ("C" 345 "arthur" 4) ("D" 456 "dave" 5)))
+(for (x 0 (dec (length al))) (pop (al x) 2) )
+al
+;-> ((("A" 123 2)) (("B" 234 3)) (("C" 345 4)) (("D" 456 5)))
+
+Vediamo un altro esempio:
+
+(setq myScheduler '(
+(at
+  (
+   (days 1 7 14 21)         ;; Scheduler per i giorni 1, 7, 14, 21
+   (times "11:00" "23:00")  ;; Alle ore 11:00 e ore 12:00
+  )
+)
+(client-nodes
+  (
+   ("10.100.2.12"  3322)
+   ("10.100.3.198" 1234)
+  )
+)
+))
+
+Usiamo (lookup) controllare i dati nella lista. Per esempio:
+
+(lookup 'client-nodes myScheduler)
+;-> (("10.100.2.12" 3322) ("10.100.3.198" 1234))
+
+Adesso, dopo aver trovato un valore associato a una chiave (nodo), come possiamo aggiornare quel nodo?
+Well, after I found a value associated to a key (node), how can I quickly update that node)?
+
+Usiamo "setf" con "lookup" o con "assoc":
+
+(setq lst '((a 1 2 3) (b 4 5 6) (c 7 8 9)))
+;-> ((a 1 2 3) (b 4 5 6) (c 7 8 9))
+
+(setf (assoc 'b lst) '(B 40 50 60))
+;-> (B 40 50 60)
+lst
+;-> ((a 1 2 3) (B 40 50 60) (c 7 8 9))
+(setf (lookup 'c lst 2) 80)
+;-> 80
+lst
+;-> ((a 1 2 3) (B 40 50 60) (c 7 80 9))
+
+
 
 
 --------------------------------------------------
@@ -3717,7 +3851,7 @@ Fattoriale di un numero intero (output: big-integer):
         (for (x 1L num)
           (setq out (* out x))))))
 
-(fact-i 100) 
+(fact-i 100)
 ;-> 9332621544394415268169923885626670049071596826438162146859
 ;-> 2963895217599993229915608941463976156518286253697920827223
 ;-> 758251185210916864000000000000000000000000L
@@ -6797,7 +6931,7 @@ Funzione che restituisce "true" se la somma delle cifre con indice dispari è ug
 (define (sum-equal-odd-even? num)
   (let ((diff 0) (flip true))
     (while (!= num 0)
-      (if flip 
+      (if flip
           (++ diff (% num 10))
           (-- diff (% num 10))
       )
@@ -6818,8 +6952,8 @@ Funzione che calcola tutti i numeri con somma uguale fino a un determinato numer
     ; calcola il limite superiore
     ; se num-digits = 4, allora iter = 9999
     (setq iter (int (dup "9" num-digits)))
-    (for (i 1 iter) 
-      (if (sum-equal-odd-even? i) 
+    (for (i 1 iter)
+      (if (sum-equal-odd-even? i)
           (push i out -1)
       )
     )
@@ -6856,7 +6990,7 @@ Vediamo i primi 10 numeri con 6 cifre:
 ;-> 4816029
 
 (time (setq num9 (sum-equal 9)))
-;-> 1613876.858 ; quasi 27 minuti 
+;-> 1613876.858 ; quasi 27 minuti
 (length num9)
 ;-> 40051494 ; circa 40 milioni di numeri...
 
@@ -6969,15 +7103,15 @@ Vediamo i tempi di esecuzione:
 Funzioni che effettuano un ciclo con operazione di assegnamento e indicizzazione di un vettore:
 
 "for":
-(define (ciclo-for1 from to sum) 
+(define (ciclo-for1 from to sum)
   (for (i from to) (setq (arr i) i)))
 
 "while":
-(define (ciclo-while1 from to sum) 
+(define (ciclo-while1 from to sum)
   (while (<= from to) (++ sum (arr from)) (++ from)))
 
 "dolist":
-(define (ciclo-dolist1 from to sum) 
+(define (ciclo-dolist1 from to sum)
   (dolist (x arr) (++ sum x)))
 
 Vediamo i tempi di esecuzione:
@@ -6994,15 +7128,15 @@ Vediamo i tempi di esecuzione:
 Funzioni che effettuano un ciclo con operazione di assegnamento e indicizzazione di una lista:
 
 "for":
-(define (ciclo-for2 from to sum) 
+(define (ciclo-for2 from to sum)
   (for (i from to) (++ sum (lst i))))
 
 "while":
-(define (ciclo-while2 from to sum) 
+(define (ciclo-while2 from to sum)
   (while (<= from to) (++ sum (lst from)) (++ from)))
 
 "dolist":
-(define (ciclo-dolist2 from to sum) 
+(define (ciclo-dolist2 from to sum)
   (dolist (x lst) (++ sum x)))
 
 Vediamo i tempi di esecuzione:
@@ -7019,15 +7153,15 @@ Vediamo i tempi di esecuzione:
 Funzioni che effettuano un ciclo con operazione di assegnamento e indicizzazione di una lista:
 
 "for":
-(define (ciclo-for2 from to) 
+(define (ciclo-for2 from to)
   (for (i from to) (setq (lst i) i)))
 
 "while":
-(define (ciclo-while2 from to) 
+(define (ciclo-while2 from to)
   (while (<= from to) (setq (lst from) from) (++ from)))
 
 "dolist":
-(define (ciclo-dolist2 from to) 
+(define (ciclo-dolist2 from to)
   (dolist (x lst) (setq (lst x) $idx)))
 
 Vediamo i tempi di esecuzione:
@@ -7073,7 +7207,7 @@ La base è quella di utilizzare uno stack per memorizzare l'indice iniziale e fi
     ; elementi uguali possono andare da entrambe le parti
     (setq p-idx start)
     ; ogni volta che troviamo un elemento minore o uguale al pivot,
-    ; "p-idx" viene incrementato e quell'elemento 
+    ; "p-idx" viene incrementato e quell'elemento
     ; deve essere posizionato prima del pivot.
     (for (i start (- end 1))
       (if (<= (a i) pivot)
@@ -7101,12 +7235,12 @@ La base è quella di utilizzare uno stack per memorizzare l'indice iniziale e fi
       (map set '(start end) (pop stack))
       ; riorganizza gli elementi attraverso il pivot
       (setq pivot (partition start end))
-      ; impila gli indici della sotto-lista contenenti elementi 
+      ; impila gli indici della sotto-lista contenenti elementi
       ; che sono inferiore al pivot corrente
       (if (> (- pivot 1) start)
           (push (list start (- pivot 1)) stack)
       )
-      ; impila gli indici della sotto-lista contenenti elementi 
+      ; impila gli indici della sotto-lista contenenti elementi
       ; che sono superiori al pivot corrente
       (if (< (+ pivot 1) end)
           (push (list (+ pivot 1) end) stack)
@@ -7300,8 +7434,8 @@ e questo è l'output:
 
 L'unico effetto che possiamo vedere è causato dalla ridefinizione esplicita della funzione my-set:my-set. Le funzioni A:my-test e B:my-test non hanno effetto su my-set:myset.
 
-La cattura delle variabili tramite macro (realmente fexprs) del tipo descritto qui: 
-http://www.newlisp.org/downloads/newlisp_manual.html#scoping 
+La cattura delle variabili tramite macro (realmente fexprs) del tipo descritto qui:
+http://www.newlisp.org/downloads/newlisp_manual.html#scoping
 è possibile solo tramite interazioni all'interno dello stesso contesto. Quel contesto è sotto il controllo di uno sviluppatore, o meglio, hai tutte le macro nel loro contesto. Quindi qualsiasi simbolo portato nello spazio della macro è estraneo e non può interagire.
 
 Più in generale:
@@ -7399,7 +7533,7 @@ Per rispondere a questa domanda, dovremmo prima esaminare una semplice classific
 
 L'espressione 1 ha due variabili: x e y. Entrambe sono liebere. L'espressione 2 ha le stesse variabili, ma solo x è libera -- y è vincolata. Come mai? Perché il let è responsabile dell'associazione y (e questo è il motivo per cui il secondo elemento di qualsiasi forma  let è chiamato "the let bindings").
 
-Ecco una buona idea da tenere a mente nel determinare se una variabile è libera o vincolata in un'espressione: ogni variabile è libera finché non è *vincolata* da qualcosa, cioè finché qualcosa non la vincola, o la lega. Questo è ciò che ha fatto a y nell'espressione 2. 
+Ecco una buona idea da tenere a mente nel determinare se una variabile è libera o vincolata in un'espressione: ogni variabile è libera finché non è *vincolata* da qualcosa, cioè finché qualcosa non la vincola, o la lega. Questo è ciò che ha fatto a y nell'espressione 2.
 (cattivo let!) :))
 
 (A parte: non è convenzionale dire che il livello superiore (non-lambda) definisce (come nell'espressione 0) variabili vincolate ("bind"). Quindi, pur associando x a 42, x non è considerato vincolato ad esso. In breve, ignora le definizioni di primo livello non-lambda)
@@ -7437,7 +7571,7 @@ Infine, non dimentichiamo la funzione h definita sopra. Qual è il valore di (h 
 
 Quindi, la domanda su quale sia il valore di questo e quello nell'ambito dinamico rispetto all'ambito lessicale, dipende solo da come le variabili libere vengono risolte (o valutate) nell'espressione superiore che viene valutata. Al centro dello schema di ambito (scoping) delle variabili (che sia dinamico o statico) c'è questo problema di "come vengono risolte le variabili libere". Questo è praticamente tutto.
 
-Ecco perché è buona pratica di programmazione non avere variabili libere nelle espressioni quando non ne hai bisogno. (In parole povere, pensa ai "confini" delle tue variabili e non essere un programmatore pigro. :)) Tuttavia, ci sono momenti in cui è necessario avere una variabile libera nell'espressione, ad esempio se si desidera collegare un interruttore di runtime nel codice (Lutz lo ha menzionato in precedenza in questo thread), ma in generale, quando si codifica si dovrebbe trattare solo con variabili associate. 
+Ecco perché è buona pratica di programmazione non avere variabili libere nelle espressioni quando non ne hai bisogno. (In parole povere, pensa ai "confini" delle tue variabili e non essere un programmatore pigro. :)) Tuttavia, ci sono momenti in cui è necessario avere una variabile libera nell'espressione, ad esempio se si desidera collegare un interruttore di runtime nel codice (Lutz lo ha menzionato in precedenza in questo thread), ma in generale, quando si codifica si dovrebbe trattare solo con variabili associate.
 Questa pratica/disciplina aiuterà davvero a eliminare molti problemi che potrebbero insinuarsi nel tuo codice se non la utilizzi. (Le variabili libere "involontarie" tendono ad essere un problema minore con l'ambito lessicale. Tuttavia, essere consapevoli del "limite" delle variabili dovrebbe essere osservato come pratica anche con i linguaggi con ambito lessicale).
 
 bairui:
@@ -7512,7 +7646,7 @@ Scriviamo una funzione che prende i seguenti parametri:
   numero dei dadi                --> num-dice
   lista delle facce di ogni dado --> lst-faces
   numero di lanci da effettuare  --> iter
-  
+
 e restituisce una lista di elementi (uno per ogni numero possibile del lancio dei dadi) che hanno la seguente struttura:
 
   (numero contatore frequenza)
@@ -7568,7 +7702,7 @@ Funzione che simula il lancio dei dadi:
     (setq freqs (map (fn(x) (div x iter)) counts))
     ; check results:
     ; sum of counts must be equal to iter
-    (if (!= iter (apply + counts)) 
+    (if (!= iter (apply + counts))
         (println "Error counts: " (apply + counts))
     )
     ; sum of probabilities must be equal to 1
@@ -7594,24 +7728,24 @@ Funzione che simula il lancio dei dadi:
 ;-> ((12 0 0) (13 0 0) (14 0 0) (15 0 0) (16 1 1) (17 0 0) (18 0 0))
 
 (dice-stat 3 '((1 2 3) (1 2 3) (10 11 12)) 100)
-;-> ((12 1 0.01) (13 14 0.14) (14 21 0.21) (15 28 0.28) 
+;-> ((12 1 0.01) (13 14 0.14) (14 21 0.21) (15 28 0.28)
 ;->  (16 21 0.21) (17 11 0.11) (18 4 0.04))
 
 (dice-stat 1 '((1 2 3 4 5 6)) 1e6)
-;-> ((1 166192 0.1662) (2 166805 0.1668) (3 166936 0.1669) 
+;-> ((1 166192 0.1662) (2 166805 0.1668) (3 166936 0.1669)
 ;->  (4 166928 0.1669) (5 166565 0.1666) (6 166574 0.1666))
 
 (dice-stat 3 '((1 2) (1 2 3) (1 2 3 4)) 1e6)
-;-> ((3  41803 0.0418) 
-;->  (4 124753 0.1248) 
-;->  (5 208508 0.2085) 
-;->  (6 250475 0.2505) 
+;-> ((3  41803 0.0418)
+;->  (4 124753 0.1248)
+;->  (5 208508 0.2085)
+;->  (6 250475 0.2505)
 ;->  (7 207885 0.2079)
 ;->  (8 125210 0.1252)
 ;->  (9  41366 0.0414))
 
 (dice-stat 2 '((1 2 3 4 5 6) (1 2 3 4 5 6)) 1e6)
-;-> ((2 27599 0.0276) (3 55067 0.0551) (4 83716 0.0837) 
+;-> ((2 27599 0.0276) (3 55067 0.0551) (4 83716 0.0837)
 ;->  (5 111210 0.1112) (6 138393 0.1384) (7 166750 0.1668)
 ;->  (8 139317 0.1393) (9 111126 0.1111) (10 83366 0.0834)
 ;->  (11 55637 0.0556) (12 27819 0.0278))
@@ -7620,27 +7754,27 @@ Funzione che simula il lancio dei dadi:
 ;-> ((4 10000 1))
 
 (dice-stat 2 '((1 2 3) (3 2 1)) 1e6)
-;-> ((2 111137 0.1111) (3 222129 0.2221) (4 333639 0.3336) 
+;-> ((2 111137 0.1111) (3 222129 0.2221) (4 333639 0.3336)
 ;->  (5 222573 0.2226) (6 110522 0.1105))
 
 (dice-stat 2 '((1 3 5) (2 4 6)) 1e6)
-;-> ((3 110991 0.111) 
-;->  (5 223027 0.223) 
-;->  (7 333773 0.3338) 
-;->  (9 221395 0.2214) 
+;-> ((3 110991 0.111)
+;->  (5 223027 0.223)
+;->  (7 333773 0.3338)
+;->  (9 221395 0.2214)
 ;->  (11 110814 0.1108))
 
 (dice-stat 3 '((1 2 3) (1 2 3) (10 11 12)) 1e6)
-;-> ((12 37099  0.0371) 
-;->  (13 111249 0.1112) 
-;->  (14 221902 0.2219) 
-;->  (15 259005 0.259) 
+;-> ((12 37099  0.0371)
+;->  (13 111249 0.1112)
+;->  (14 221902 0.2219)
+;->  (15 259005 0.259)
 ;->  (16 222338 0.2223)
 ;->  (17 111343 0.1113)
 ;->  (18 37064  0.0371))
 
 (dice-stat 3 '((1 4 9) (1 8 27) (2 3 5)) 1e6)
-;-> ((4 37171 0.0372) (5 36838 0.0368) (7 73983 0.074) (8 37029 0.037) 
+;-> ((4 37171 0.0372) (5 36838 0.0368) (7 73983 0.074) (8 37029 0.037)
 ;->  (10 36995 0.037) (11 36912 0.0369) (12 73984 0.074) (13 36906 0.0369)
 ;->  (14 74154 0.0742) (15 73780 0.0738) (17 36997 0.037) (19 37090 0.0371)
 ;->  (20 36881 0.0369) (22 37427 0.0374) (30 36759 0.0368) (31 36810 0.0368)
@@ -7659,7 +7793,7 @@ ImageMagick è un programma freeware e multipiattaforma che viene usato per crea
 Con ImageMagick è possibile creare immagini da newLISP.
 
 Il seguente comando di ImageMagick crea un'immagine "image.png" da un file di testo "pixels.txt":
-   
+
    convert pixels.txt image.png
 
 Il seguente comando di ImageMagick crea un'immagine "image.png" (con uno sfondo bianco) da un file di testo "pixels.txt":
@@ -7731,7 +7865,7 @@ Per creare un'immagine da newLISP:
 
 (exec "convert pixels.txt image.png")
 
-oppure 
+oppure
 
 (exec "convert pixels.txt -background white -flatten pixels.png")
 
@@ -8063,17 +8197,17 @@ Questo ci permette di stabilire un test per stabilire se un simbolo è NaN:
 -------------------------
 Interpolazione dei colori
 -------------------------
- 
+
 L'interpolazione (lerping) è una tecnica che consente di "inserire un numero" tra due numeri. L'interpolazione più comune è quella lineare basata su tre parametri, il punto iniziale "a", il punto finale "b" e un valore "t" compreso tra 0 e 1 che ci permette di spostarci lungo il segmento che collega i numeri "a" e "b":
 
   c = a + (b-a)*t
 
-Quando t=0, viene restituito "a". 
-Quando t=1, viene restituito "b". 
+Quando t=0, viene restituito "a".
+Quando t=1, viene restituito "b".
 
 Questa formula è facile da capire, efficiente da implementare e funziona in qualsiasi dimensione.
 
-L'interpolazione in due (tre) dimensioni richiede solo che l'interpolazione delle componenti X e Y (X,Y e Z) siano indipendenti. L'interpolazione restituisce sempre punti sulla retta che collega "a" e "b", indipendentemente dal numero di dimensioni. 
+L'interpolazione in due (tre) dimensioni richiede solo che l'interpolazione delle componenti X e Y (X,Y e Z) siano indipendenti. L'interpolazione restituisce sempre punti sulla retta che collega "a" e "b", indipendentemente dal numero di dimensioni.
 Quindi una interpolazione RGB standard può essere scritta nel modo seguente:
 
 (define (lerpRGB c1 c2 t)
@@ -8104,7 +8238,7 @@ Funzione che genera un determinato numero di colori interpolati tra un colore in
 Vediamo una scala di toni di grigio con 5 colori che va dal bianco al nero:
 
 (lerpColors '(255 255 255) '(0 0 0) 5)
-;-> ((255 255 255) (204 204 204) (163 163 163) (130 130 130) 
+;-> ((255 255 255) (204 204 204) (163 163 163) (130 130 130)
 ;-> (104 104 104) (83 83 83) (0 0 0))
 
 Purtroppo, anche se l'interpolazione lineare funziona come ci si aspetta in tre dimensioni, lo stesso non può dirsi per i colori. Infatti c'è una differenza fondamentale tra gli spazi XYZ e RGB: il modo con cui l'occhio umano percepisce i colori non è lineare come lo spazio RGB.
@@ -8151,22 +8285,22 @@ Vediamo un'altra funzione:
 (dist-color2 10 30 150 250 30 60)
 ;-> 415.7294793492519
 
-La seguente funzione permette di utilizzare diversi metodi per calcolare la distanza tra due colori. 
+La seguente funzione permette di utilizzare diversi metodi per calcolare la distanza tra due colori.
 Riporto la versione che ho scritto in linguaggio Processing (java) per un programma di grafica.
 
-//********************************* 
-double deltaE(color col1, color col2, int m) 
+//*********************************
+double deltaE(color col1, color col2, int m)
 {
   double result = 0.0;
   if (col1 == col2) { return result; }
   //if (col1==color(0,0,0)) {col1=color(1,1,1);}
   //if (col2==color(0,0,0)) {col2=color(1,1,1);}
-  double[] xyz1 = rgb2xyz(col1);  
+  double[] xyz1 = rgb2xyz(col1);
   double[] lab1 = xyz2lab(xyz1);
- 
+
   double[] xyz2 = rgb2xyz(col2);
   double[] lab2 = xyz2lab(xyz2);
- 
+
   double c1 = Math.sqrt(lab1[1]*lab1[1]+lab1[2]*lab1[2]);
   double c2 = Math.sqrt(lab2[1]*lab2[1]+lab2[2]*lab2[2]);
   double dc = c1-c2;
@@ -8181,46 +8315,46 @@ double deltaE(color col1, color col2, int m)
   if (m == 1)
   {
     result = Math.sqrt((da*da)+(db*db)+(dc*dc));
-    if (isNaN(result)) { println("is NaN"); }; 
+    if (isNaN(result)) { println("is NaN"); };
   }
 
   double primo, secondo, terzo;
 
-  // color distance CIE94 (graphic arts)  
+  // color distance CIE94 (graphic arts)
   if (m == 2)
   {
     primo = dl;
     secondo = dc / (1.0 + 0.045*c1);
-    terzo = dh / (1.0 + 0.015*c1);    
+    terzo = dh / (1.0 + 0.015*c1);
     result = (Math.sqrt(primo*primo + secondo*secondo + terzo*terzo));
-    if (isNaN(result)) { println("is NaN"); };    
-   
-  }    
-  
+    if (isNaN(result)) { println("is NaN"); };
+
+  }
+
   // color distance CIE94 (textiles)
   if (m == 3)
-  {  
+  {
     primo = dl / 2.0;
     secondo = dc / (1.0 + 0.048*c1);
     terzo = dh / (1.0 + 0.014*c1);
     result = (Math.sqrt(primo*primo + secondo*secondo + terzo*terzo));
-    if (isNaN(result)) { println("is NaN"); };    
-  }  
+    if (isNaN(result)) { println("is NaN"); };
+  }
   return result;
 }
- 
-//********************************* 
-double [] rgb2xyz(color rgb) 
+
+//*********************************
+double [] rgb2xyz(color rgb)
 {
   double[] result = new double[3];
- 
+
   //double rr = red(rgb)/255.0;
   //double gg = green(rgb)/255.0;
   //double bb = blue(rgb)/255.0;
   double rr = ((rgb >> 16) & 0xFF) / 255.0;
   double gg = ((rgb >> 8) & 0xFF) / 255.0;
-  double bb = (rgb & 0xFF) / 255.0;  
- 
+  double bb = (rgb & 0xFF) / 255.0;
+
   if (rr > 0.04045) {
     rr = (rr + 0.055) / 1.055;
     rr = Math.pow(rr, 2.4);
@@ -8239,20 +8373,20 @@ double [] rgb2xyz(color rgb)
   } else {
     bb = bb / 12.92;
   }
- 
+
   bb *= 100.0;
   rr *= 100.0;
   gg *= 100.0;
- 
+
   result[0] = rr * 0.4124 + gg * 0.3576 + bb * 0.1805;
   result[1] = rr * 0.2126 + gg * 0.7152 + bb * 0.0722;
   result[2] = rr * 0.0193 + gg * 0.1192 + bb * 0.9505;
- 
+
   return result;
 }
- 
-//********************************* 
-double [] xyz2lab(double[] xyz) 
+
+//*********************************
+double [] xyz2lab(double[] xyz)
 {
   double[] result = new double[3];
 
@@ -8260,7 +8394,7 @@ double [] xyz2lab(double[] xyz)
   double x = xyz[0] / 95.047;
   double y = xyz[1] / 100.0;
   double z = xyz[2] / 108.8900;
- 
+
   if (x > 0.008856) {
     x = Math.pow(x, 1.0/3.0);
   } else {
@@ -8276,19 +8410,19 @@ double [] xyz2lab(double[] xyz)
   } else {
     z = 7.787*z + 16.0/116.0;
   }
- 
+
   result[0] = 116.0*y - 16.0;
   result[1] = 500.0*(x-y);
   result[2] = 200.0*(y-z);
- 
+
   return result;
 }
 
-//********************************* 
+//*********************************
 boolean isNaN(double x)
 {
   return (x != x);
-}  
+}
 
 
 -----------
@@ -8357,7 +8491,7 @@ dove x,y = coordinate di un punto della camminata
 
 (rnd-walk '(0 0) 10)
 ;-> 2 0
-;-> (((2 0) 1) ((0 2) 1) ((0 3) 1) ((1 1) 1) ((1 2) 2) 
+;-> (((2 0) 1) ((0 2) 1) ((0 3) 1) ((1 1) 1) ((1 2) 2)
 ;->  ((1 3) 2) ((2 0) 1) ((2 1) 1) ((2 2) 1) ((2 3) 1))
 
 Adesso dobbiamo scrivere la funzione che converte i punti nel formato di ImageMagick (file di testo). Usiamo due metodi per applicare il colore ai punti:
@@ -8404,7 +8538,7 @@ Adesso scriviamo la funzione per creare il file di testo per ImageMagick:
       ; Assegna  il colore
       (if (= tipo 0)
           ; colore nero - alpha=50%
-          (set 'r 0 'g 0 'b 0 'alpha 128) 
+          (set 'r 0 'g 0 'b 0 'alpha 128)
           ; altrimenti calcola il colore in base alla frequenza
           (map set '(r g b alpha) (make-col (el 1) max-f))
       )
@@ -8649,7 +8783,7 @@ Il file "script.nl" contiene il seguente script:
             ; running script.lsp with newlisp.exe
             (setq exe (argv 0))
             (setq script (argv 1)))
-            (true 
+            (true
             ; running script.exe
             (setq exe (argv 0))
             (setq script nil))
@@ -8662,7 +8796,7 @@ Il file "script.nl" contiene il seguente script:
   )
 
 (info)
-; don't exit when script is loaded 
+; don't exit when script is loaded
 ; from REPL with "load"
 (if (> argc 1) (exit))
 ------------------------------------------------
@@ -8698,7 +8832,7 @@ Con il seguente output:
 
 2) Eseguiamo lo script eseguibile "script.exe" (con tre parametri)
 
-  script.exe 1 2 3 
+  script.exe 1 2 3
 
 Con il seguente output:
 ;-> Directory corrente: f:\Lisp-Scheme\newLisp\MAX\script
@@ -8772,7 +8906,7 @@ Poi utilizziamo il seguente script per creare l'immagine .png con N=1000 colori:
 (gs:frame 'Colors 0 0 1700 950 "colors") ; crea finestra
 (gs:set-border-layout 'Colors)
 (gs:canvas 'MyCanvas 'Colors) ; crea canvas grafico
-(gs:add-to 'Colors 'MyCanvas "center") 
+(gs:add-to 'Colors 'MyCanvas "center")
 (gs:set-background 'MyCanvas gs:white) ; colore background canvas
 (gs:set-paint gs:black) ; default color (if not specified in shape or text)
 (set 'R 15) ; raggio del cerchio di colore
@@ -8868,7 +9002,7 @@ Calcolo delle nuove coordinate dei punti:
 Scriviamo la funzione finale:
 
 (define (move-pts pts x-min x-max y-min y-max v-min v-max w-min w-max)
-  (local (delta-x delta-y delta-v delta-w 
+  (local (delta-x delta-y delta-v delta-w
          scale-x scale-y scale v w out)
     ; calcolo parametri di traslazione e scalatura:
     (setq delta-x (sub x-max x-min))
@@ -8885,7 +9019,7 @@ Scriviamo la funzione finale:
       ; (traslazione e scalatura)
       (setq v (add v-min (mul (sub (p 0) x-min) scale)))
       (setq w (add w-min (mul (sub (p 1) y-min) scale)))
-      ; (println v "," w)  
+      ; (println v "," w)
       (push (list v w) out -1)
     )
     out))
@@ -8931,8 +9065,8 @@ Trasliamo e scaliamo i punti con la funzione "move-pts":
 
 (silent (setq points (move-pts cli1 x-min x-max y-min y-max 10 1850 10 950)))
 (slice points 0 5)
-;-> ((852.7468822251383 814.4249994149275) 
-;->  (218.9992905664541 807.1410865893224) 
+;-> ((852.7468822251383 814.4249994149275)
+;->  (218.9992905664541 807.1410865893224)
 ;->  (306.7889757764142 129.5673810757355)
 ;->  (1089.81411858894 199.1445361433653)
 ;->  (563.9852922103936 702.6947309382435))
@@ -8960,7 +9094,7 @@ Adesso usiamo il modulo "guiserver.lsp" per visualizzare i punti e salvare l'imm
 ; ciclo per la creazione dei colori
 (dolist (p points)
   (setq x (p 0))  ; x del punto
-  (setq y (p 1))  ; y del punto  
+  (setq y (p 1))  ; y del punto
   (gs:fill-circle 'C x y r) ; crea punto (nero)
   ;(gs:draw-text 'T (string x " " y) (- x 10) (+ y 25) gs:black) ; crea testo
 )
@@ -9126,8 +9260,8 @@ Scriviamo una versione per di questo gioco per il terminale DOS.
             (setq out nil)))
     out))
 
-; Funzione che, partendo da una cella (riga,colonna) modifica la cella 
-; e tutte le celle adiacenti nel colore nero 
+; Funzione che, partendo da una cella (riga,colonna) modifica la cella
+; e tutte le celle adiacenti nel colore nero
 ; (cioè sono eliminate perchè il colore nero è invisibile)
 (define (flood-fill grid r c new-value)
   (local (old-value dir max-r max-c)
@@ -9291,9 +9425,9 @@ function stoogesort(array L, i = 0, j = length(L)-1)
 (
   ; If the leftmost element is larger than the rightmost element
   if L[i] > L[j] then
-      ; Swap the leftmost element and the rightmost element  
+      ; Swap the leftmost element and the rightmost element
       L[i] ↔ L[j]
-  ; If there are at least 3 elements in the array      
+  ; If there are at least 3 elements in the array
   if (j - i + 1) > 2 then
       t = floor((j - i + 1) / 3)
       ; Sort the first 2/3 of the array
@@ -9347,7 +9481,7 @@ function slowsort(A[], i, j)     // Sort list A[i...j] in-place.
     m := floor( (i+j)/2 )
     slowsort(A, i, m)            // (1.1)
     slowsort(A, m+1, j)          // (1.2)
-    if A[j] < A[m] then       
+    if A[j] < A[m] then
         swap A[j] , A[m]         // (1.3)
     slowsort(A, i, j-1)          // (2)
 
@@ -9363,7 +9497,7 @@ La seguente implementazione richiede che la lista venga passata per riferimento:
 
 (define (slowsort-aux lst i j)
   (cond ((>= i j) 'end)
-        (true 
+        (true
             (setq m (int (floor (/ (+ i j) 2))))
             (slowsort-aux lst i m)
             (slowsort-aux lst (+ m 1) j)
@@ -10070,7 +10204,7 @@ Facciamo alcune prove:
 ;-> 51814.976
 
 (time (println (solve-all '("SO" "MANY" "MORE" "MEN" "SEEM" "TO" "SAY" "THAT" "THEY" "MAY" "SOON" "TRY" "TO" "STAY" "AT" "HOME" "SO" "AS" "TO" "SEE" "OR" "HEAR" "THE" "SAME" "ONE" "MAN" "TRY" "TO" "MEET" "THE" "TEAM" "ON" "THE" "MOON" "AS" "HE" "HAS" "AT" "THE" "OTHER" "TEN") "TESTS" "+")))
-;-> ((("A" 7) ("E" 0) ("H" 5) ("M" 2) ("N" 6) 
+;-> ((("A" 7) ("E" 0) ("H" 5) ("M" 2) ("N" 6)
 ;->   ("O" 1) ("R" 8) ("S" 3) ("T" 9) ("Y" 4)))
 ;-> 726961.943
 
@@ -10159,7 +10293,7 @@ Soluzione fornita da rickyboy:
 ;;----------------------------------------------------------------------
 
 (time (println (doit)))
-;-> ((LISP (2 6 4 0) FUN (7 5 1) NEWLISP (1 9 8 2 6 4 0)) 
+;-> ((LISP (2 6 4 0) FUN (7 5 1) NEWLISP (1 9 8 2 6 4 0))
 ;->  (LISP (7 8 4 0) FUN (2 5 1) NEWLISP (1 9 6 7 8 4 0))
 ;->  (LISP (7 3 6 0) FUN (2 5 1) NEWLISP (1 8 4 7 3 6 0)))
 ;-> 6571.633
@@ -10173,8 +10307,8 @@ Il centroide (cx, cy) di un insieme di N punti viene calcolato con la seguente f
 
        N                   N
        ∑(xi)               ∑(yi)
-      i=1                 i=1  
-cx = -------,       cy = -------   
+      i=1                 i=1
+cx = -------,       cy = -------
         N                   N
 
 Scriviamo prima una funzione in stile funzionale:
@@ -10287,7 +10421,7 @@ Il perchè è un mistero (forse una gestione errata della memoria da parte del S
 -------------
 guiserver.lsp
 -------------
- 
+
 guiserver.lsp è un modulo per interfacciarsi con guiserver.jar, un'applicazione server Java per la generazione di GUI (interfacce utente grafiche) e grafica 2D per applicazioni newLISP. Il modulo guiserver.lsp, implementa un'API newLISP molto più piccola e astratta delle API delle librerie Java Swing con cui si interfaccia. Per questo motivo, le applicazioni GUI possono essere create molto più velocemente rispetto a quando si utilizzano le API Java originali.
 
 Manuale di guiserver: http://www.newlisp.org/guiserver/guiserver.lsp.html
@@ -10299,7 +10433,7 @@ Vediamo un esempio di come è possibile creare una finestra grafica e disegnare 
 (gs:frame 'Colors 0 0 1280 900 "colors") ; crea finestra
 (gs:set-border-layout 'Colors) ; imposta il layout della finestra
 (gs:canvas 'MyCanvas 'Colors) ; crea canvas grafico
-(gs:add-to 'Colors 'MyCanvas "center") 
+(gs:add-to 'Colors 'MyCanvas "center")
 (gs:set-background 'MyCanvas gs:white) ; colore background canvas
 (gs:set-paint gs:black) ; default color (if not specified in shape or text)
 ; disegniamo alcune linee
@@ -10361,7 +10495,7 @@ Nel linguaggio di programmazione C, la funzione "memcmp" restituisce un numero i
 Quindi nel nestro caso, la funzione "memcmp" restituirà un numero intero negativo, zero o positivo a seconda che i primi n caratteri della stringa da s1 siano minori, uguali o maggiori dei primi n caratteri della stringa s2.
 Schematicamente:
   = 0  --> s1 e s2 sono uguali
-  < 0  --> Il primo carattere diverso di s1 è più piccolo di quello di s2 
+  < 0  --> Il primo carattere diverso di s1 è più piccolo di quello di s2
   > 0  --> Il primo carattere diverso di s1 è più grande di quello di s2
 
 (define (memcmp s1 s2 num-char)
@@ -10546,9 +10680,9 @@ Quando l'asserzione fallisce viene mostrata l'espressione non vera, ma senza val
 
 Funzione che valuta solo i simboli non-primitivi:
 
-(define (eval-var x) 
-  (if (primitive? (eval x)) 
-      x 
+(define (eval-var x)
+  (if (primitive? (eval x))
+      x
       (eval x)))
 
 Funzione che applica una funzione a tutti gli elementi di una lista annidata:
@@ -10565,7 +10699,7 @@ Nuova funzione "assert1":
 
 (define-macro (assert1 condition)
   (if (eval condition) true
-      (throw-error (format "assert failed: %s " 
+      (throw-error (format "assert failed: %s "
         (join (map string (map-all eval-var condition)) " ")))))
 
 Proviamo con lo stesso esempio precedente:
@@ -10656,11 +10790,11 @@ Algoritmo per convertire da "Lista di adiacenza" a "Matrice di adiacenza":
     matrix))
 
 (setq m (adjlist-adjmatrix g))
-;-> ((0 1 0 1 1 0) 
-;->  (1 0 1 0 0 0) 
-;->  (0 1 0 0 0 0) 
-;->  (1 0 0 0 0 1) 
-;->  (1 0 0 0 0 1) 
+;-> ((0 1 0 1 1 0)
+;->  (1 0 1 0 0 0)
+;->  (0 1 0 0 0 0)
+;->  (1 0 0 0 0 1)
+;->  (1 0 0 0 0 1)
 ;->  (0 0 0 1 1 0))
 
 Algoritmo per convertire da "Matrice di adiacenza" a "Lista di adiacenza":
@@ -10722,8 +10856,8 @@ Vediamo un esempio di un grafo con tutti gli archi bidirezionali:
                   | 0 |
                   +---+
                  /  |  \
-                /   |   \          
-               /    |    \        
+                /   |   \
+               /    |    \
           +---+   +---+   +---+
           | 1 |   | 3 |   | 4 |
           +---+   +---+   +---+
@@ -10758,7 +10892,7 @@ Passo 6: Dequeue(2).
 Coda dopo passo 6: 5
 
 Passo 7: Dequeue(5).
-Coda dopo passo 7: 
+Coda dopo passo 7:
 Poiché la coda è di nuovo vuota a questo punto, interrompiamo il processo.
 
 Adesso vediamo una possibile implementazione dell'algoritmo.
@@ -10786,7 +10920,7 @@ Funzione BFS:
       (setq start (pop queue)) ; rimuove il primo elemento della coda
       (push start out -1) ; inserisce l'elemento nella soluzione
       ; ciclo sui nodi collegati al nodo corrente (start)
-      (dolist (el (graph start 1)) 
+      (dolist (el (graph start 1))
         ; inserisce nella coda tutti i "vicini" del nodo start
         ; che non sono stati visitati
         (cond ((not (visited el))
@@ -10908,7 +11042,7 @@ Proviamo con un altro grafo (da wikipedia):
               |             |
               |             |
               +-------------+
-              
+
 (setq w '((0  (1 2 4)) (1 (0 3 5)) (2  (0 6)) (3 (1))
           (4  (0 5)) (5  (1 4)) (6 (2))))
 

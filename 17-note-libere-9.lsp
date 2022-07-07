@@ -4094,5 +4094,321 @@ Se invece vogliamo scomporre la funzione in token, possiamo usare la funzione "p
 ;->  "(" "ref-all" "nil" "lst" "(" "lambda" "(" "x" ")" "true" ")" ")" ")")
 
 
+------------------
+Numeri cistercensi
+------------------
+
+I numeri cistercensi medievali, o "cifrari" nel gergo ottocentesco, furono sviluppati dall'ordine monastico cistercense all'inizio del XIII secolo, all'incirca nel periodo in cui i numeri arabi furono introdotti nell'Europa nordoccidentale. Sono più compatti dei numeri arabi o romani, con un solo glifo in grado di indicare qualsiasi numero intero compreso tra 1 e 9999.
+I Cistercensi alla fine abbandonarono il sistema a favore dei numeri arabi, ma l'uso marginale al di fuori dell'ordine continuò fino all'inizio del XX secolo.
+
+Nota: per una spiegazione approfondita vedi la pagina web "The Forgotten Number System - Numberphile":
+
+https://www.youtube.com/watch?v=9p55Qgt7Ciw
+
+Le cifre si basano su un pentagramma orizzontale o verticale, con la posizione della cifra sul pentagramma che ne indica il valore posizionale (unità, decine, centinaia o migliaia). Queste cifre sono composte su un singolo rigo per indicare numeri più complessi.
+
+Il numero viene scritto in un piano cartesiano X-Y in cui ogni quadrante contiene una cifra/glifo:
+
+I)   alto-destra:    quadrante delle unità
+II)  alto-sinistra:  quadrante delle decine
+III) basso-sinistra: quadrante delle migliaia
+IV)  basso-destra:   quadrante delle centinaia
+
+                     |
+        (II)         |        (I)
+                     |
+       DECINE        |       UNITA'
+       (tens)        |      (units)
+                     |
+                     |
+  -------------------0-------------------
+                     |
+       (III)         |         (IV)
+                     |
+      MIGLIAIA       |       CENTINAIA
+     (thousands)     |       (hundreds)
+                     |
+                     |
+
+Le cifre/glifo cistercensi (unità, decine, centinaia, migliaia) sono le seguenti (con una matrice di 7x9 caratteri):
+
+Unità
+-----
+   (1)          (2)          (3)          (4)          (5)
+   ■■■■         ■            ■■           ■  ■         ■■■■
+   ■            ■            ■ ■          ■ ■          ■ ■
+   ■            ■■■■         ■  ■         ■■           ■■
+   ■            ■            ■            ■            ■
+   ■            ■            ■            ■            ■
+   ■            ■            ■            ■            ■
+   ■            ■            ■            ■            ■
+   ■            ■            ■            ■            ■
+   ■            ■            ■            ■            ■
+
+   (6)         (7)           (8)          (9)          (0)
+   ■  ■         ■■■■         ■  ■         ■■■■         ■
+   ■  ■         ■  ■         ■  ■         ■  ■         ■
+   ■  ■         ■  ■         ■■■■         ■■■■         ■
+   ■            ■            ■            ■            ■
+   ■            ■            ■            ■            ■
+   ■            ■            ■            ■            ■
+   ■            ■            ■            ■            ■
+   ■            ■            ■            ■            ■
+   ■            ■            ■            ■            ■
+
+Decine
+------
+   (10)         (20)         (30)         (40)         (50)
+■■■■            ■           ■■         ■  ■         ■■■■
+   ■            ■          ■ ■          ■ ■          ■ ■
+   ■         ■■■■         ■  ■           ■■           ■■
+   ■            ■            ■            ■            ■
+   ■            ■            ■            ■            ■
+   ■            ■            ■            ■            ■
+   ■            ■            ■            ■            ■
+   ■            ■            ■            ■            ■
+   ■            ■            ■            ■            ■
+
+   (60)         (70)         (80)         (90)
+■  ■         ■■■■         ■  ■         ■■■■
+■  ■         ■  ■         ■  ■         ■  ■
+■  ■         ■  ■         ■■■■         ■■■■
+   ■            ■            ■            ■
+   ■            ■            ■            ■
+   ■            ■            ■            ■
+   ■            ■            ■            ■
+   ■            ■            ■            ■
+   ■            ■            ■            ■
+
+Centinaia
+---------
+   (100)        (200)        (300)        (400)        (500)
+   ■            ■            ■            ■            ■
+   ■            ■            ■            ■            ■
+   ■            ■            ■            ■            ■
+   ■            ■            ■            ■            ■
+   ■            ■            ■            ■            ■
+   ■            ■            ■            ■            ■
+   ■            ■■■■         ■  ■         ■■           ■■
+   ■            ■            ■ ■          ■ ■          ■ ■
+   ■■■■         ■            ■■           ■  ■         ■■■■
+
+   (600)        (700)        (800)        (900)
+   ■            ■            ■            ■
+   ■            ■            ■            ■
+   ■            ■            ■            ■
+   ■            ■            ■            ■
+   ■            ■            ■            ■
+   ■            ■            ■            ■
+   ■  ■         ■  ■         ■■■■         ■■■■
+   ■  ■         ■  ■         ■  ■         ■  ■
+   ■  ■         ■■■■         ■  ■         ■■■■
+
+Migliaia
+--------
+   (1000)       (2000)       (3000)       (4000)       (5000)
+   ■            ■            ■            ■            ■
+   ■            ■            ■            ■            ■
+   ■            ■            ■            ■            ■
+   ■            ■            ■            ■            ■
+   ■            ■            ■            ■            ■
+   ■            ■            ■            ■            ■
+   ■         ■■■■         ■  ■           ■■           ■■
+   ■            ■          ■ ■          ■ ■          ■ ■
+■■■■            ■           ■■         ■  ■         ■■■■
+
+   (6000)       (7000)       (8000)       (9000)
+   ■            ■            ■            ■
+   ■            ■            ■            ■
+   ■            ■            ■            ■
+   ■            ■            ■            ■
+   ■            ■            ■            ■
+   ■            ■            ■            ■
+■  ■         ■  ■         ■■■■         ■■■■
+■  ■         ■  ■         ■  ■         ■  ■
+■  ■         ■■■■         ■  ■         ■■■■
+
+Per esempio il numero 5555 viene rappresentato nel modo seguente:
+
+  ■■■■■■■
+   ■ ■ ■
+    ■■■
+     ■
+     ■
+     ■
+    ■■■
+   ■ ■ ■
+  ■■■■■■■
+
+Per una rappresentazione grafica migliore vedi l'immagine "glifi-cistercensi.jpg" nella cartella "data".
+
+Scriviamo una funzione che prende un numero intero (da 1 a 9999) e stampa il relativo numero cistercense.
+Per la rappresentazione del numero cistercense useremo una matrice 7x9. Per esempio il numero 0 e il numero 1 sono rappresentati dalle seguenti matrici:
+
+  (0)         (1)
+  0001000     0001111
+  0001000     0001000
+  0001000     0001000
+  0001000     0001000
+  0001000     0001000
+  0001000     0001000
+  0001000     0001000
+  0001000     0001000
+  0001000     0001000
+
+Definiamo tutti i glifi cistercensi con le celle (pixel) che sono visibili (cioè tutte le celle che devono avere valore 1).
+
+(define (setup)
+  ; lista per ogni glifo
+  ; Unità
+  (setq c1 '((0 4) (0 5) (0 6)))
+  (setq c2 '((2 4) (2 5) (2 6)))
+  (setq c3 '((0 4) (1 5) (2 6)))
+  (setq c4 '((2 4) (1 5) (0 6)))
+  (setq c5 '((0 4) (0 5) (0 6) (2 4) (1 5) (0 6)))
+  (setq c6 '((0 6) (1 6) (2 6)))
+  (setq c7 '((0 4) (0 5) (0 6) (0 6) (1 6) (2 6)))
+  (setq c8 '((2 4) (2 5) (2 6) (0 6) (1 6) (2 6)))
+  (setq c9 '((0 4) (0 5) (0 6) (2 4) (2 5) (2 6) (0 6) (1 6) (2 6)))
+  ; Decine
+  (setq c10 '((0 0) (0 1) (0 2)))
+  (setq c20 '((2 0) (2 1) (2 2)))
+  (setq c30 '((0 2) (1 1) (2 0)))
+  (setq c40 '((2 2) (1 1) (0 0)))
+  (setq c50 '((0 0) (0 1) (0 2) (2 2) (1 1) (0 0)))
+  (setq c60 '((0 0) (1 0) (2 0)))
+  (setq c70 '((0 0) (0 1) (0 2) (0 0) (1 0) (2 0)))
+  (setq c80 '((2 0) (2 1) (2 2) (0 0) (1 0) (2 0)))
+  (setq c90 '((2 0) (2 1) (2 2) (0 0) (1 0) (2 0) (0 0) (0 1) (0 2)))
+  ; Centinaia
+  (setq c100 '((8 4) (8 5) (8 6)))
+  (setq c200 '((6 4) (6 5) (6 6)))
+  (setq c300 '((8 4) (7 5) (6 6)))
+  (setq c400 '((6 4) (7 5) (8 6)))
+  (setq c500 '((8 4) (8 5) (8 6) (6 4) (7 5) (8 6)))
+  (setq c600 '((6 6) (7 6) (8 6)))
+  (setq c700 '((8 4) (8 5) (8 6) (6 6) (7 6) (8 6)))
+  (setq c800 '((6 6) (7 6) (8 6) (6 4) (6 5) (6 6)))
+  (setq c900 '((6 6) (7 6) (8 6) (6 4) (6 5) (6 6) (8 4) (8 5) (8 6)))
+  ; Migliaia
+  (setq c1000 '((8 0) (8 1) (8 2)))
+  (setq c2000 '((6 0) (6 1) (6 2)))
+  (setq c3000 '((6 0) (7 1) (8 2)))
+  (setq c4000 '((6 2) (7 1) (8 0)))
+  (setq c5000 '((8 0) (8 1) (8 2) (6 2) (7 1) (8 0)))
+  (setq c6000 '((6 0) (7 0) (8 0)))
+  (setq c7000 '((6 0) (7 0) (8 0) (8 0) (8 1) (8 2)))
+  (setq c8000 '((6 0) (7 0) (8 0) (6 0) (6 1) (6 2)))
+  (setq c9000 '((6 0) (7 0) (8 0) (6 0) (6 1) (6 2) (8 0) (8 1) (8 2)))
+  ; lista con tutti i glifi
+  (setq gliph (list
+              (list c1 c2 c3 c4 c5 c6 c7 c8 c9)
+              (list c10 c20 c30 c40 c50 c60 c70 c80 c90)
+              (list c100 c200 c300 c400 c500 c600 c700 c800 c900)
+              (list c1000 c2000 c3000 c4000 c5000 c6000 c7000 c8000 c9000)))
+  ; numero di partenza: 0
+  (setq base '((0 0 0 1 0 0 0)
+               (0 0 0 1 0 0 0)
+               (0 0 0 1 0 0 0)
+               (0 0 0 1 0 0 0)
+               (0 0 0 1 0 0 0)
+               (0 0 0 1 0 0 0)
+               (0 0 0 1 0 0 0)
+               (0 0 0 1 0 0 0)
+               (0 0 0 1 0 0 0)))
+)
+
+Scriviamo la funzione che stampa il numero cistercense:
+
+(define (print-num lst)
+    (for (r 0 (- (length lst) 1)) ;8
+      (for (c 0 (- (length (lst 0)) 1)) ;6
+        (if (zero? (lst r c))
+            (print " ")
+            (print "■")
+        )
+      )
+      (println)))
+
+Adesso scriviamo la funzione di conversione da numero decimale a numero cistercense:
+
+(define (cistercense num)
+  (local (len digits)
+    (setup)
+    (setq len (length num))
+    ; lista con le cifre del numero invertite
+    ; 123 --> (3 2 1)
+    (setq digits (map int (explode (reverse (string num)))))
+    ; ciclo per ogni cifra del numero (nella lista)
+    (for (i 0 (- len 1))
+      (setq d (digits i))
+      ; aggiorna il glifo totale del numero cistercense
+      ; scrive il glifo corrente nel quadrante relativo
+      (if (!= d 0)
+        (dolist (g (gliph i (- d 1)))
+          (setf (base g) 1)
+        )
+      )
+    )
+    (print-num base)
+  ))
+
+Test:
+(cistercense 9999)
+(cistercense 8888)
+(cistercense 7777)
+(cistercense 6666)
+(cistercense 5555)
+(cistercense 4444)
+(cistercense 3333)
+(cistercense 2222)
+(cistercense 1111)
+
+Convertiamo alcuni numeri:
+
+(cistercense 1993)        (cistercense 4723)
+;-> ■■■■■                 ;->    ■■
+;-> ■  ■ ■                ;->    ■ ■
+;-> ■■■■  ■               ;-> ■■■■  ■
+;->    ■                  ;->    ■
+;->    ■                  ;->    ■
+;->    ■                  ;->    ■
+;->    ■■■■               ;->   ■■  ■
+;->    ■  ■               ;->  ■ ■  ■
+;-> ■■■■■■■               ;-> ■  ■■■■
+
+(cistercense 6859)        (cistercense 7085)
+;-> ■■■■■■■               ;-> ■  ■■■■
+;->  ■ ■  ■               ;-> ■  ■ ■
+;->   ■■■■■               ;-> ■■■■■
+;->    ■                  ;->    ■
+;->    ■                  ;->    ■
+;->    ■                  ;->    ■
+;-> ■  ■■■■               ;-> ■  ■
+;-> ■  ■  ■               ;-> ■  ■
+;-> ■  ■  ■               ;-> ■■■■
+
+(cistercense 9433)
+;->   ■■■
+;->  ■ ■ ■
+;-> ■  ■  ■
+;->    ■
+;->    ■
+;->    ■
+;-> ■■■■■
+;-> ■  ■ ■
+;-> ■■■■  ■
+
+(cistercense 1963)
+;-> ■  ■■
+;-> ■  ■ ■
+;-> ■  ■  ■
+;->    ■
+;->    ■
+;->    ■
+;->    ■■■■
+;->    ■  ■
+;-> ■■■■■■■
+
 =============================================================================
 
