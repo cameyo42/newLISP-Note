@@ -4391,9 +4391,42 @@ Da notare che i risultati sono diversi nel caso di liste annidate:
 ;-> ((1 4) (1 3) (1 5) (1 6) (2 4) (2 3) (2 5) (2 6)
 ;-> (3 4) (3 3) (3 5) (3 6) (4 4) (4 3) (4 5) (4 6))
 
+Se abbiamo delle liste con elementi di tipo stringa, potremmo volere un altro risultato invece di:
+
+(cp '("1" "2" "3") '("4" "5" "6"))
+;-> (("1" "4") ("1" "5") ("1" "6") 
+;->  ("2" "4") ("2" "5") ("2" "6") 
+;->  ("3" "4") ("3" "5") ("3" "6"))
+
+Cioè, vogliamo che il risultato sia: ("14" "15" "16" "24" ...).
+
+In questo caso possiamo scrivere una nuova funzione simile a "cp", dove usiamo "string" al posto di "append":
+
+(define (cps lst1 lst2)
+  (let (out '())
+    (if (or (null? lst1) (null? lst2))
+        nil
+        (dolist (el1 lst1)
+          (dolist (el2 lst2)
+            (push (string el1 el2) out -1))))))
+
+(cps '("1" "2" "3") '("4" "5" "6"))
+;-> ("14" "15" "16" "24" "25" "26" "34" "35" "36")
+
+(define (cps-2 lst1 lst2)
+  (if (or (empty? lst1) (empty? lst2))
+      '()
+      (apply append
+             ; map su tutti gli elementi in lst1, quindi su ciascuno di essi
+             ; map nuovamente su quelli in lst2 e concatenazione
+             (map (fn (x) (map (fn (y) (string x y)) lst2)) lst1))))
+
+(cps-2 '("1" "2" "3") '("4" "5" "6"))
+;-> ("14" "15" "16" "24" "25" "26" "34" "35" "36")
+
 Prodotto cartesiano di funzioni
 -------------------------------
-Se f è una funzione da A in B e g una funzione da C in }D, si definisce come loro prodotto cartesiano e si denota con f x g la funzione da A x C in B x D data da:
+Se f è una funzione da A in B e g una funzione da C in D, si definisce come loro prodotto cartesiano e si denota con f x g la funzione da A x C in B x D data da:
 
 [f x g](a,c) = [f(a), g(c)]
 

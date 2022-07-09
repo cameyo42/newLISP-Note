@@ -5670,6 +5670,27 @@ Una funzione predefinita "module" può essere utilizzata per abbreviare il param
 
 (module "mysql.lsp")
 
+Se il modulo non esiste otteniamo un messaggio di errore:
+
+(module "my.lsp")
+;-> ERR: value expected : "my.lsp"
+
+Possiamo usare la seguente funzione per caricare un modulo: 
+
+(define (load-module x)
+    (set 'module (string (env "NEWLISPDIR") "/modules/" x))
+    (catch (load module) 'error))
+
+che restituisce true o nil. Il messaggio di errore viene memorizzato in 'error.
+
+(load-module "plot.lsp")
+;-> true
+(load-module "pl.lsp")
+;-> nil
+error
+;-> "ERR: problem accessing file in function load : 
+;-> \"C:\\\\newlisp/modules/pl.lsp\"\r\n
+;-> called from user function (load-module \"pl.lsp\")"
 
 Il file di inizializzazione init.lsp
 ------------------------------------

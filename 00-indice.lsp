@@ -1220,6 +1220,7 @@ NOTE LIBERE 9
   Punto a distanza L e pendenza M da un altro punto
   Ricerca di una lista di elementi in una lista
   Classificazione dei triangoli
+  Algoritmo CYK
   Coppie simmetriche
   Dirigenti e impiegati
   Terne con somma zero
@@ -1254,6 +1255,7 @@ NOTE LIBERE 9
   Numeri causali e numero di eulero
   Funzioni come liste
   Numeri cistercensi
+  La funzione match
 
 APPENDICI
 =========

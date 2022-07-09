@@ -57,6 +57,9 @@ Version Year  Changes and Additions
 Indirizzi web:
 Home: http://www.newlisp.org
 Forum: http://www.newlispfanclub.alh.net/forum/
+Downloads: http://www.newlisp.org/downloads/
+Development: http://www.newlisp.org/downloads/development/
+Moduli: http://www.newlisp.org/modules/
 
 newLisp ha una sintassi semplice, ma una semantica potente e la sua natura interattiva supporta la prototipazione rapida e incoraggia gli utenti a esplorare e testare soluzioni ai problemi in modo incrementale.
 
@@ -3987,7 +3990,49 @@ Le stesse due funzioni possono essere scritte anche in modo leggermente diverso.
       base
       (op (car xs) (fold-right op base (cdr xs)))))
 
-Il metodo Fold utilizza una funzione specificata dall'utente per ridurre una lista di valori a un singolo valore e rappresenta uno delgi idiomi fondamentali della programmazione funzionale. "Fold-left" lavora da sinistra a destra attraverso l'elenco xs, applicando la funzione binaria op alla base e al primo elemento di xs, quindi applicando la funzione binaria op al risultato della prima funzione op e del secondo elemento di xs, e così via, applicando ad ogni passo la funzione binaria op al risultato della precedente funzione op e all'elemento corrente di xs. "fold-right" funziona allo stesso modo, ma da destra a sinistra.
+Il metodo Fold utilizza una funzione specificata dall'utente per ridurre una lista di valori a un singolo valore e rappresenta uno degli idiomi fondamentali della programmazione funzionale. "Fold-left" lavora da sinistra a destra attraverso l'elenco xs, applicando la funzione binaria op alla base e al primo elemento di xs, quindi applicando la funzione binaria op al risultato della prima funzione op e del secondo elemento di xs, e così via, applicando ad ogni passo la funzione binaria op al risultato della precedente funzione op e all'elemento corrente di xs. "fold-right" funziona allo stesso modo, ma da destra a sinistra.
+
+Conclusioni
+-----------
+Il folding (piegamento, noto anche come reduce o accumulate) è un metodo per ridurre una sequenza di termini fino a un singolo termine. Ciò si ottiene fornendo una funzione di folding con un operatore binario, un valore iniziale (o identità) e una sequenza.
+
+Ci sono due tipi di "fold": uno destra e uno sinistra.
+
+(define car first)
+(define cdr rest)
+
+Funzione "fold-right":
+ 
+(define (fold-right f init seq) 
+  (if (null? seq) 
+      init 
+      (f (car seq) 
+         (fold-right f init (cdr seq))))) 
+
+(fold-right + 0 '(1 2 3 4))         
+; expands to (+ 1 (+ 2 (+ 3 (+ 4 0)))) 
+
+Funzione "fold-left":
+
+(define (fold-left f init seq) 
+  (if (null? seq) 
+      init 
+      (fold-left f 
+                 (f init (car seq)) 
+                 (cdr seq)))) 
+
+(fold-left + 0 '(1 2 3 4)) 
+; expands to (+ (+ (+ (+ 0 1) 2) 3) 4) 
+
+Usiamo "fold-left" per definire una funzione che inverte gli elementi di una lista:
+
+ (define (reverse_ lst) 
+   (fold-left (lambda (x y) (cons y x)) 
+              '() 
+              lst)) 
+
+(reverse_ '(1 2 3))
+;-> (3 2 1)
 
 
 -----------------------

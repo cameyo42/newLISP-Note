@@ -1531,6 +1531,187 @@ Facciamo alcune prove:
 ;-> ("isoscele" "acuto")
 
 
+-------------
+Algoritmo CYK
+-------------
+
+Il codice seguente, scritto da Patrick Lerner, implementa l'algoritmo CYK per rilevare se una parola può essere costruita utilizzando una grammatica context-free in forma normale di Chomsky.
+Link: https://github.com/PatrickLerner/newLISP/blob/master/attic/cyk.lsp
+
+#!/usr/local/bin/newlisp
+;; Copyright (c) 2012, Patrick Lerner (patricklerner@me.com)
+;; All rights reserved.
+;; 
+;; Redistribution and use in source and binary forms, with or without
+;; modification, are permitted provided that the following conditions are met: 
+;; 
+;; 1. Redistributions of source code must retain the above copyright notice, 
+;;    this list of conditions and the following disclaimer. 
+;; 2. Redistributions in binary form must reproduce the above copyright 
+;;    notice, this list of conditions and the following disclaimer in the 
+;;    documentation and/or other materials provided with the distribution. 
+;; 
+;; THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
+;; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
+;; IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
+;; ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE 
+;; LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR 
+;; CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF 
+;; SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS 
+;; INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+;; CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+;; ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
+;; POSSIBILITY OF SUCH DAMAGE.
+
+;; Required: util:fold
+;(load "/Users/patrick/Projects/newLISP/lib/util.lsp")
+;; funct item (listof item) ~> item
+;; folds an element using the function f so that initially we calculate
+;; (f (first lst) i0) and then for subsequent items in lst (f item v), where
+;; item is the next item and v is the result of the last function call
+;; 
+;; note that unlike the scheme function with the same name, this one only 
+;; accepts a single list as argument
+(define (fold f i0 lst)
+  (apply (fn (v x) (f x v)) (cons i0 lst) 2))
+
+;; ===========================================================================
+;;  DESCRIPTION
+;; ===========================================================================
+
+;; This implements the CYK algorithm for detecting if a word can be build
+;; using a context-free grammar in Chomsky normal form.
+;; 
+;; Created to test the correctness of a homework for the FGdI I class @
+;; TU Darmstadt in the summer of 2012. Homework assignment 6, exercise 1.
+;; 
+;; Time to implement: ~4-5h+ (this is the rewrite of a quick and dirty 
+;; version, so that's why it took so long. Second implementation alone took
+;; ~2h).
+;; 
+;; Creation date: 2012-05-25 2:43 AM CEST.
+
+;; ===========================================================================
+;;  FUNCTIONS AREA
+;; ===========================================================================
+
+;; string grammar ~> (listof string)
+;; Takes a constructed string which is the construct we are looking for
+;; (e.g. "a" for a terminal or "TS" for a symbol construct) and a grammar
+;; definition and returns a list of which variables can build this construct
+(define (find-accepting-productions construct grammar)
+  ;(util:fold
+  (fold
+        (fn (x v)
+          (if (find construct (x 1))
+              (cons (x 0) v)
+              v))
+        '()
+        grammar))
+
+;; number number string grammar ~> (listof string)
+;; Calculates which symbols from the grammar are able to produce a cell in
+;; the cyk-table.
+(define (calculate-cell row col word grammar)
+  (if (= row 0)
+      ;; if we are looking at the first row, this is trivial
+      ;; just look for a terminal:
+      (find-accepting-productions (word col) grammar)
+      ;; for subsequent rows it is less trivial, we need recursion
+      ;;
+      ;; First, we need to compare 0 to row-1 fields to eachother
+      ;; the fields in question are calculated as:
+      ;; k|col and (row - k - 1)|(row + k + 1) where the coordinates are
+      ;; y|x in the table.
+      ;;
+      ;; Now basically, we always need to get the posibilies for these fields
+      ;; recursively and then try all permuations of the possibilies for these
+      ;; fields to each other and look if they can be produced by our grammar.
+      (unique (apply append (map
+          (fn (k)
+             (apply append (map
+                (fn (x) (find-accepting-productions x grammar))
+                (permutations
+                  (calculate-cell k col word grammar)
+                  (calculate-cell (- row k 1) (+ col k 1) word grammar)))))
+          (sequence 0 (- row 1)))))))
+
+;; (listof string) (listof string) ~> (listof string)
+;; Creates a list of all possible string permuations from two lists
+;; the resulting strings are concatenated together to a single string
+(define (permutations lst1 lst2)
+  (if (or (empty? lst1) (empty? lst2))
+      ;; if either one is empty, then there are no permuations
+      '()
+      ;; otherwise:
+      (apply append
+             ;; map over all elements in lst1, then for each of them
+             ;; map again over those in lst2 and concatenate them
+             (map (fn (x) (map (fn (y) (append x y)) lst2)) lst1))))
+
+;; string grammar ~> nul
+;; Generates the cyk table and prints it for you
+(define (gen-and-print-table word grammar)
+  ;; header
+  (print "V_i/j\t")
+  (dotimes (x (length word))
+      (print (+ 1 x) "\t"))
+  (println)
+  ;; print vertical dimension
+  (dotimes (y (length word))
+      ;; print horizontal dimension
+      (print (+ y 1) "\t")
+      (dotimes (x (- (length word) y))
+          (let ((result (calculate-cell x y word grammar)))
+              (if (= result '())
+                  (print "{}")
+                  (print "{"
+                         (join (sort result) ", ")
+                         "}")))
+                 (print "\t"))
+          ;; new line
+          (println)))
+
+;; string grammar string ~> boolean
+;; Returns whether the grammar detects a word based on the startsymbol.
+(define (grammar-detects-word? word grammar startsymbol)
+  (find startsymbol (calculate-cell (- (length word) 1) 0 word grammar)))
+
+;; ===========================================================================
+;;  MAIN / CONFIG AREA
+;; ===========================================================================
+
+;; Grammar must be in Chomsky normal form.
+;; symbols are written in uppercase, terminals in lowercase
+;; A -> BC becomes a list with the string "A" as the first element,
+;; followed by another list (containing "BC") as the second element. If a 
+;; symbol maps to more than one thing, then they can be added to the list
+;; along with "BC".
+;; 
+;; The table here specifies the grammar:
+;;    S -> TS | XS | a
+;;    T -> TT | YY | YS
+;;    X -> a
+;;    Y -> b
+(define grammar (list
+  '("S" ("TS" "XS" "a"))
+  '("T" ("TT" "YY" "YS"))
+  '("X" ("a"))
+  '("Y" ("b"))))
+
+(define startsymbol "S")
+
+;; the word as a string, note that every letter used here should also be a 
+;; terminal somewhere in the grammar.
+(define word "abbbaa")
+
+(gen-and-print-table word grammar)
+(println)
+(if (grammar-detects-word? word grammar startsymbol)
+    (println "~> Grammar detects word")
+    (println "~> Grammar does not detect word"))
+
+
 ------------------
 Coppie simmetriche
 ------------------
@@ -4350,10 +4531,12 @@ Adesso scriviamo la funzione di conversione da numero decimale a numero cisterce
         )
       )
     )
+    ;(println base)
     (print-num base)
   ))
 
 Test:
+
 (cistercense 9999)
 (cistercense 8888)
 (cistercense 7777)
@@ -4409,6 +4592,259 @@ Convertiamo alcuni numeri:
 ;->    ■■■■
 ;->    ■  ■
 ;-> ■■■■■■■
+
+Versione dei glifi con dimensione della griglia 15x11:
+
+Unità
+-----
+       (1)            (2)            (3)            (4)           (5)
+       ■■■■■■         ■              ■■             ■    ■        ■■■■■■
+       ■              ■              ■ ■            ■   ■         ■   ■
+       ■              ■              ■  ■           ■  ■          ■  ■
+       ■              ■              ■   ■          ■ ■           ■ ■
+       ■              ■■■■■■         ■    ■         ■■            ■■
+       ■              ■              ■              ■             ■
+       ■              ■              ■              ■             ■
+       ■              ■              ■              ■             ■
+       ■              ■              ■              ■             ■
+       ■              ■              ■              ■             ■
+       ■              ■              ■              ■             ■
+       ■              ■              ■              ■             ■
+       ■              ■              ■              ■             ■
+       ■              ■              ■              ■             ■
+       ■              ■              ■              ■             ■
+
+       (6)            (7)            (8)            (9)           (0)
+       ■    ■         ■■■■■■         ■    ■         ■■■■■■        ■
+       ■    ■         ■    ■         ■    ■         ■    ■        ■
+       ■    ■         ■    ■         ■    ■         ■    ■        ■
+       ■    ■         ■    ■         ■    ■         ■    ■        ■
+       ■    ■         ■    ■         ■■■■■■         ■■■■■■        ■
+       ■              ■              ■              ■             ■
+       ■              ■              ■              ■             ■
+       ■              ■              ■              ■             ■
+       ■              ■              ■              ■             ■
+       ■              ■              ■              ■             ■
+       ■              ■              ■              ■             ■
+       ■              ■              ■              ■             ■
+       ■              ■              ■              ■             ■
+       ■              ■              ■              ■             ■
+       ■              ■              ■              ■             ■
+
+Decine
+------
+       (10)           (20)           (30)           (40)           (50)
+  ■■■■■■              ■             ■■         ■    ■         ■■■■■■
+       ■              ■            ■ ■          ■   ■          ■   ■
+       ■              ■           ■  ■           ■  ■           ■  ■
+       ■              ■          ■   ■            ■ ■            ■ ■
+       ■         ■■■■■■         ■    ■             ■■             ■■
+       ■              ■              ■              ■              ■
+       ■              ■              ■              ■              ■
+       ■              ■              ■              ■              ■
+       ■              ■              ■              ■              ■
+       ■              ■              ■              ■              ■
+       ■              ■              ■              ■              ■
+       ■              ■              ■              ■              ■
+       ■              ■              ■              ■              ■
+       ■              ■              ■              ■              ■
+       ■              ■              ■              ■              ■
+
+       (60)           (70)           (80)           (90)
+  ■    ■         ■■■■■■         ■    ■         ■■■■■■
+  ■    ■         ■    ■         ■    ■         ■    ■
+  ■    ■         ■    ■         ■    ■         ■    ■
+  ■    ■         ■    ■         ■    ■         ■    ■
+  ■    ■         ■    ■         ■■■■■■         ■■■■■■
+       ■              ■              ■              ■
+       ■              ■              ■              ■
+       ■              ■              ■              ■
+       ■              ■              ■              ■
+       ■              ■              ■              ■
+       ■              ■              ■              ■
+       ■              ■              ■              ■
+       ■              ■              ■              ■
+       ■              ■              ■              ■
+       ■              ■              ■              ■
+
+Centinaia
+---------
+       (100)          (200)          (300)          (400)          (500)
+       ■              ■              ■              ■              ■
+       ■              ■              ■              ■              ■
+       ■              ■              ■              ■              ■
+       ■              ■              ■              ■              ■
+       ■              ■              ■              ■              ■
+       ■              ■              ■              ■              ■
+       ■              ■              ■              ■              ■
+       ■              ■              ■              ■              ■
+       ■              ■              ■              ■              ■
+       ■              ■              ■              ■              ■
+       ■              ■■■■■■         ■    ■         ■■             ■■
+       ■              ■              ■   ■          ■ ■            ■ ■
+       ■              ■              ■  ■           ■  ■           ■  ■
+       ■              ■              ■ ■            ■   ■          ■   ■
+       ■■■■■■         ■              ■■             ■    ■         ■■■■■■
+
+       (600)          (700)          (800)          (900)
+       ■              ■              ■              ■
+       ■              ■              ■              ■
+       ■              ■              ■              ■
+       ■              ■              ■              ■
+       ■              ■              ■              ■
+       ■              ■              ■              ■
+       ■              ■              ■              ■
+       ■              ■              ■              ■
+       ■              ■              ■              ■
+       ■              ■              ■              ■
+       ■    ■         ■    ■         ■■■■■■         ■■■■■■
+       ■    ■         ■    ■         ■    ■         ■    ■
+       ■    ■         ■    ■         ■    ■         ■    ■
+       ■    ■         ■    ■         ■    ■         ■    ■
+       ■    ■         ■■■■■■         ■    ■         ■■■■■■
+
+Migliaia
+--------
+       (1000)         (2000)         (3000)         (4000)         (5000)
+       ■              ■              ■              ■              ■
+       ■              ■              ■              ■              ■
+       ■              ■              ■              ■              ■
+       ■              ■              ■              ■              ■
+       ■              ■              ■              ■              ■
+       ■              ■              ■              ■              ■
+       ■              ■              ■              ■              ■
+       ■              ■              ■              ■              ■
+       ■              ■              ■              ■              ■
+       ■              ■              ■              ■              ■
+       ■         ■■■■■■         ■    ■             ■■             ■■
+       ■              ■          ■   ■            ■ ■            ■ ■
+       ■              ■           ■  ■           ■  ■           ■  ■
+       ■              ■            ■ ■          ■   ■          ■   ■
+  ■■■■■■              ■             ■■         ■    ■         ■■■■■■
+
+       (6000)         (7000)         (8000)         (9000)
+       ■              ■              ■              ■
+       ■              ■              ■              ■
+       ■              ■              ■              ■
+       ■              ■              ■              ■
+       ■              ■              ■              ■
+       ■              ■              ■              ■
+       ■              ■              ■              ■
+       ■              ■              ■              ■
+       ■              ■              ■              ■
+       ■              ■              ■              ■
+  ■    ■         ■    ■         ■■■■■■         ■■■■■■
+  ■    ■         ■    ■         ■    ■         ■    ■
+  ■    ■         ■    ■         ■    ■         ■    ■
+  ■    ■         ■    ■         ■    ■         ■    ■
+  ■    ■         ■■■■■■         ■    ■         ■■■■■■
+
+Numero 5555:
+
+  ■■■■■■■■■■■
+   ■   ■   ■
+    ■  ■  ■
+     ■ ■ ■
+      ■■■
+       ■
+       ■
+       ■
+       ■
+       ■
+      ■■■
+     ■ ■ ■
+    ■  ■  ■
+   ■   ■   ■
+  ■■■■■■■■■■■
+
+
+-----------------
+La funzione match
+-----------------
+
+******************
+>>>funzione MATCH
+******************
+sintassi: (match list-pattern list-match [bool])
+
+Il pattern (modello) in "list-pattern" viene confrontato con la lista in "list-match" e le espressioni corrispondenti vengono restituite in una lista. I tre caratteri jolly ?, + e * possono essere utilizzati in "list-pattern".
+
+I caratteri jolly possono essere nidificati. "match" restituisce una lista di espressioni corrispondenti. Per ciascuno ? (punto interrogativo), viene restituito un elemento corrispondente dell'espressione. Per ogni + (segno più) o * (asterisco), viene restituito una lista contenente gli elementi corrispondenti. Se il pattern non può essere confrontato con la lista in "list-match", "match" restituisce nil. Se non sono presenti caratteri jolly nel pattern, viene restituito una lista vuota.
+
+Opzionalmente, il valore booleano true (o qualsiasi altra espressione che non valuta nil) può essere fornito come terzo argomento. Ciò fa sì che "match" mostri tutti gli elementi nel risultato restituito.
+
+"match" è spesso impiegato come parametro functor in "find", "ref", "ref-all" e "replace" ed è usato internamente da "find-all" per le liste.
+
+(match '(a ? c) '(a b c))
+
+;->(b)
+
+(match '(a ? ?) '(a b c))
+;->(b c)
+
+(match '(a ? c) '(a (x y z) c))
+;->((x y z))
+
+(match '(a ? c) '(a (x y z) c) true)
+;->(a (x y z) c)
+
+(match '(a ? c) '(a x y z c))
+;->nil
+
+(match '(a * c) '(a x y z c))
+;-> ((x y z))
+
+(match '(a * c) '(a x y z c) true)
+;->(a (x y z) c)
+
+(match '(a (b c ?) x y z) '(a (b c d) x y z))
+;-> (d)
+
+(match '(a (*) x ? z) '(a (b c d) x y z))
+;-> ((b c d) y)
+
+(match '(+) '())
+;-> nil
+
+(match '(+) '(a))
+;-> ((a))
+
+(match '(+) '(a b))
+;-> ((a b))
+
+(match '(a (*) x ? z) '(a () x y z))
+;-> (() y)
+
+(match '(a (+) x ? z) '(a () x y z))
+;-> nil
+
+Nota che l'operatore * cerca di catturare il minor numero di elementi possibile, ma abbina i backtrack e cattura più elementi se non è possibile trovare una corrispondenza.
+
+L'operatore + funziona in modo simile all'operatore *, ma richiede almeno una lista con un elemento.
+
+L'esempio seguente mostra come le espressioni corrispondenti possono essere associate a variabili.
+
+(map set '(x y) (match '(a (? c) d *) '(a (b c) d e f)))
+x
+;-> b
+y
+;-> (e f)
+
+Si noti che "match" per le stringhe è stata eliminata. Per una corrispondenza di stringhe più potente, usa "regex", "find", "find-all" o "parse".
+
+"unify" è un'altra funzione per abbinare le espressioni in modo simile al PROLOG.
+
+Esempi:
+
+Conversione da stringa a intero di tutti gli elementi di una lista annidata:
+
+(set-ref-all '(*) '(("1" "2" "3") ("4")) (map int $it) match)
+;-> ((1 2 3) (4))
+
+Altro metodo senza usare "match":
+
+(map (curry map int) '(("1" "2" "3") ("4")))
+;-> ((1 2 3) (4))
 
 =============================================================================
 
