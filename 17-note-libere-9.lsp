@@ -4846,5 +4846,571 @@ Altro metodo senza usare "match":
 (map (curry map int) '(("1" "2" "3") ("4")))
 ;-> ((1 2 3) (4))
 
+
+-----------
+Analisi DNA
+-----------
+
+Data questa stringa che rappresenta un pezzo di DNA:
+
+(setq s "CGTAAAAAATTACAACGTCCTTTGGCTATCTCTTAAACTCCTGCTAAATG
+         CTCGTGCTTTCCAATTATGTAAGCGTTCCGAGACGGGGTGGTCGATTCTG
+         AGGACAAAGGTCAAGATGGAGCGCATCGAACGCAATAAGGATCATTTGAT
+         GGGACGTTTCGTCGACAAAGTCTTGTTTCGAGAGTAACGGCTACCGTCTT
+         CGATTCTGCTTATAACACTATGTTCTTATGAAATGGATGTTCTGAGTTGG
+         TCAGTCCCAATGTGCGGGGTTTCTTTTAGTACGTCGGGAGTGGTATTATA
+         TTTAATTTTTCTATATAGCGATCTGTATTTAAGCAATTCATTTAGGTTAT
+         CGCCGCGATGCTCGGTTCGGACCGCCAAGCATCTGGCTCCACTGCTAGTG
+         TCCTAAATTTGAATGGCAAACACAAATAAGATTTAGCAATTCGTGTAGAC
+         GACCGGGGACTTGCATGATGGGAGCAGCTTTGTTAAACTACGAACGTAAT")
+
+Contare le occorrenze delle varie basi: Adenina, Citosina, Guanina e Timina (A,C,G,T)
+
+Nota: nell'RNA al posto della Timina è presente l'Uracile.
+
+Potremmo usare "find-all" per ogni base:
+
+(find-all "A" s)
+$count
+;-> 129
+...
+
+Ma la funzione "count" è molto più comoda e veloce:
+
+(define (stat-dna str)
+  ; create list of chars
+  (let (dna (explode str))
+       ; accoppia le basi con il relativo numero di occorrenze
+       (map list '("A" "C" "G" "T")
+                  ; conta le occorrenze delle basi A, C, G e T
+                  (count '("A" "C" "G" "T") dna))))
+
+(stat-dna s)
+;-> (("A" 129) ("C" 97) ("G" 119) ("T" 155))
+
+
+----------------------------
+Caratteri a matrice di punti
+----------------------------
+
+Vediamo un metodo per stampare caratteri personalizzati.
+Definiamo una serie di caratteri utilizzando una matrice di punti 7x7.
+Prima scriviamo le funzioni che ci permettono di unire una serie di caratteri e di stampare una serie di caratteri.
+
+Funzione che stampa una matrice/carattere: se l'elemento della matrice vale 0, allora stmap uno spazio " ",
+altrimenti stampa un carattere (es. "■").
+
+Funzione che unisce due caratteri (matrici). Le matrici devono avere lo stesso numero di righe.
+
+(define (join-chars)
+  (local (rows out)
+    (setq rows (length ((args 0) 0)))
+    (setq out '())
+    (for (r 0 (- rows 1))
+      (setq riga '())
+      (dolist (c (args))
+        (setq riga (append riga (c r)))
+      )
+      (push riga out -1)
+    )
+    out))
+
+Funzione che stampa una matrice/caratteri. Se l'elemento della matrice vale 0, allora stampa uno spazio " ",
+altrimenti stampa un carattere (es. "█").
+
+(define (print-chars m)
+    (for (r 0 (- (length m) 1))
+      (for (c 0 (- (length (m 0)) 1))
+        (if (zero? (m r c))
+            (print " ")
+            (print "█")
+            ;(print "■")
+            ;(print "∙")
+        )
+        ;(print (m r c))
+      )
+      (println)))
+
+(print-chars '((1 0 1) (0 1 0) (1 1 1)))
+;-> █ █
+;->  █
+;-> ███
+
+Adesso definiamo i caratteri dell'alfabeto:
+
+; -----------------
+; Lettere maiuscole
+; -----------------
+(setq a '((0 0 1 1 1 0 0)
+          (0 1 0 0 0 1 0)
+          (0 1 0 0 0 1 0)
+          (0 1 0 0 0 1 0)
+          (0 1 1 1 1 1 0)
+          (0 1 0 0 0 1 0)
+          (0 1 0 0 0 1 0)))
+;
+(setq b '((0 1 1 1 1 0 0)
+          (0 1 0 0 0 1 0)
+          (0 1 0 0 0 1 0)
+          (0 1 1 1 1 0 0)
+          (0 1 0 0 0 1 0)
+          (0 1 0 0 0 1 0)
+          (0 1 1 1 1 0 0)))
+;
+(setq c '((0 0 1 1 1 0 0)
+          (0 1 0 0 0 1 0)
+          (0 1 0 0 0 0 0)
+          (0 1 0 0 0 0 0)
+          (0 1 0 0 0 0 0)
+          (0 1 0 0 0 1 0)
+          (0 0 1 1 1 0 0)))
+;
+(setq d '((0 1 1 1 1 0 0)
+          (0 1 0 0 0 1 0)
+          (0 1 0 0 0 1 0)
+          (0 1 0 0 0 1 0)
+          (0 1 0 0 0 1 0)
+          (0 1 0 0 0 1 0)
+          (0 1 1 1 1 0 0)))
+;
+(setq e '((0 1 1 1 1 1 0)
+          (0 1 0 0 0 0 0)
+          (0 1 0 0 0 0 0)
+          (0 1 1 1 1 0 0)
+          (0 1 0 0 0 0 0)
+          (0 1 0 0 0 0 0)
+          (0 1 1 1 1 1 0)))
+;
+(setq f '((0 1 1 1 1 1 0)
+          (0 1 0 0 0 0 0)
+          (0 1 0 0 0 0 0)
+          (0 1 1 1 1 0 0)
+          (0 1 0 0 0 0 0)
+          (0 1 0 0 0 0 0)
+          (0 1 0 0 0 0 0)))
+;
+(setq g '((0 0 1 1 1 0 0)
+          (0 1 0 0 0 1 0)
+          (0 1 0 0 0 0 0)
+          (0 1 0 0 0 0 0)
+          (0 1 0 0 1 1 0)
+          (0 1 0 0 0 1 0)
+          (0 0 1 1 1 0 0)))
+;
+(setq h '((0 1 0 0 0 1 0)
+          (0 1 0 0 0 1 0)
+          (0 1 0 0 0 1 0)
+          (0 1 1 1 1 1 0)
+          (0 1 0 0 0 1 0)
+          (0 1 0 0 0 1 0)
+          (0 1 0 0 0 1 0)))
+;
+(setq i '((0 0 1 1 1 0 0)
+          (0 0 0 1 0 0 0)
+          (0 0 0 1 0 0 0)
+          (0 0 0 1 0 0 0)
+          (0 0 0 1 0 0 0)
+          (0 0 0 1 0 0 0)
+          (0 0 1 1 1 0 0)))
+;
+(setq j '((0 0 0 0 0 1 0)
+          (0 0 0 0 0 1 0)
+          (0 0 0 0 0 1 0)
+          (0 0 0 0 0 1 0)
+          (0 1 0 0 0 1 0)
+          (0 1 0 0 0 1 0)
+          (0 0 1 1 1 0 0)))
+;
+(setq k '((0 1 0 0 0 1 0)
+          (0 1 0 0 1 0 0)
+          (0 1 0 1 0 0 0)
+          (0 1 1 0 0 0 0)
+          (0 1 0 1 0 0 0)
+          (0 1 0 0 1 0 0)
+          (0 1 0 0 0 1 0)))
+;
+(setq l '((0 1 0 0 0 0 0)
+          (0 1 0 0 0 0 0)
+          (0 1 0 0 0 0 0)
+          (0 1 0 0 0 0 0)
+          (0 1 0 0 0 0 0)
+          (0 1 0 0 0 0 0)
+          (0 1 1 1 1 1 0)))
+;
+(setq m '((0 1 0 0 0 1 0)
+          (0 1 1 0 1 1 0)
+          (0 1 0 1 0 1 0)
+          (0 1 0 0 0 1 0)
+          (0 1 0 0 0 1 0)
+          (0 1 0 0 0 1 0)
+          (0 1 0 0 0 1 0)))
+;
+(setq n '((0 1 0 0 0 1 0)
+          (0 1 0 0 0 1 0)
+          (0 1 1 0 0 1 0)
+          (0 1 0 1 0 1 0)
+          (0 1 0 0 1 1 0)
+          (0 1 0 0 0 1 0)
+          (0 1 0 0 0 1 0)))
+;
+(setq o '((0 0 1 1 1 0 0)
+          (0 1 0 0 0 1 0)
+          (0 1 0 0 0 1 0)
+          (0 1 0 0 0 1 0)
+          (0 1 0 0 0 1 0)
+          (0 1 0 0 0 1 0)
+          (0 0 1 1 1 0 0)))
+;
+(setq p '((0 1 1 1 1 0 0)
+          (0 1 0 0 0 1 0)
+          (0 1 0 0 0 1 0)
+          (0 1 0 0 0 1 0)
+          (0 1 1 1 1 0 0)
+          (0 1 0 0 0 0 0)
+          (0 1 0 0 0 0 0)))
+;
+(setq q '((0 0 1 1 1 0 0)
+          (0 1 0 0 0 1 0)
+          (0 1 0 0 0 1 0)
+          (0 1 0 0 0 1 0)
+          (0 1 0 1 0 1 0)
+          (0 1 0 0 1 1 0)
+          (0 0 1 1 1 1 0)))
+;
+(setq r '((0 1 1 1 1 0 0)
+          (0 1 0 0 0 1 0)
+          (0 1 0 0 0 1 0)
+          (0 1 0 0 0 1 0)
+          (0 1 1 1 1 0 0)
+          (0 1 0 0 0 1 0)
+          (0 1 0 0 0 1 0)))
+;
+(setq s '((0 0 1 1 1 0 0)
+          (0 1 0 0 0 1 0)
+          (0 1 0 0 0 0 0)
+          (0 0 1 1 1 0 0)
+          (0 0 0 0 0 1 0)
+          (0 1 0 0 0 1 0)
+          (0 0 1 1 1 0 0)))
+;
+(setq t '((0 1 1 1 1 1 0)
+          (0 0 0 1 0 0 0)
+          (0 0 0 1 0 0 0)
+          (0 0 0 1 0 0 0)
+          (0 0 0 1 0 0 0)
+          (0 0 0 1 0 0 0)
+          (0 0 0 1 0 0 0)))
+;
+(setq u '((0 1 0 0 0 1 0)
+          (0 1 0 0 0 1 0)
+          (0 1 0 0 0 1 0)
+          (0 1 0 0 0 1 0)
+          (0 1 0 0 0 1 0)
+          (0 1 0 0 0 1 0)
+          (0 0 1 1 1 0 0)))
+;
+(setq v '((0 1 0 0 0 1 0)
+          (0 1 0 0 0 1 0)
+          (0 1 0 0 0 1 0)
+          (0 1 0 0 0 1 0)
+          (0 1 0 0 0 1 0)
+          (0 0 1 0 1 0 0)
+          (0 0 0 1 0 0 0)))
+;
+(setq w '((0 1 0 0 0 1 0)
+          (0 1 0 0 0 1 0)
+          (0 1 0 0 0 1 0)
+          (0 1 0 0 0 1 0)
+          (0 1 0 1 0 1 0)
+          (0 1 1 0 1 1 0)
+          (0 1 0 0 0 1 0)))
+;
+(setq x '((0 1 0 0 0 1 0)
+          (0 1 0 0 0 1 0)
+          (0 0 1 0 1 0 0)
+          (0 0 0 1 0 0 0)
+          (0 0 1 0 1 0 0)
+          (0 1 0 0 0 1 0)
+          (0 1 0 0 0 1 0)))
+;
+(setq y '((0 1 0 0 0 1 0)
+          (0 1 0 0 0 1 0)
+          (0 1 0 0 0 1 0)
+          (0 0 1 0 1 0 0)
+          (0 0 0 1 0 0 0)
+          (0 0 0 1 0 0 0)
+          (0 0 0 1 0 0 0)))
+;
+(setq z '((0 1 1 1 1 1 0)
+          (0 0 0 0 0 1 0)
+          (0 0 0 0 1 0 0)
+          (0 0 0 1 0 0 0)
+          (0 0 1 0 0 0 0)
+          (0 1 0 0 0 0 0)
+          (0 1 1 1 1 1 0)))
+
+; -------
+; Cifre
+; -------
+(setq d0 '((0 1 1 1 1 1 0)
+           (0 1 0 0 0 1 0)
+           (0 1 0 0 1 1 0)
+           (0 1 0 1 0 1 0)
+           (0 1 1 0 0 1 0)
+           (0 1 0 0 0 1 0)
+           (0 1 1 1 1 1 0)))
+;
+(setq d1 '((0 0 0 1 0 0 0)
+           (0 0 1 1 0 0 0)
+           (0 0 0 1 0 0 0)
+           (0 0 0 1 0 0 0)
+           (0 0 0 1 0 0 0)
+           (0 0 0 1 0 0 0)
+           (0 0 1 1 1 0 0)))
+;
+(setq d2 '((0 1 1 1 1 1 0)
+           (0 0 0 0 0 1 0)
+           (0 0 0 0 0 1 0)
+           (0 1 1 1 1 1 0)
+           (0 1 0 0 0 0 0)
+           (0 1 0 0 0 0 0)
+           (0 1 1 1 1 1 0)))
+;
+(setq d3 '((0 1 1 1 1 1 0)
+           (0 0 0 0 0 1 0)
+           (0 0 0 0 0 1 0)
+           (0 1 1 1 1 1 0)
+           (0 0 0 0 0 1 0)
+           (0 0 0 0 0 1 0)
+           (0 1 1 1 1 1 0)))
+;
+(setq d4 '((0 1 0 0 0 1 0)
+           (0 1 0 0 0 1 0)
+           (0 1 0 0 0 1 0)
+           (0 1 1 1 1 1 0)
+           (0 0 0 0 0 1 0)
+           (0 0 0 0 0 1 0)
+           (0 0 0 0 0 1 0)))
+;
+(setq d5 '((0 1 1 1 1 1 0)
+           (0 1 0 0 0 0 0)
+           (0 1 0 0 0 0 0)
+           (0 1 1 1 1 1 0)
+           (0 0 0 0 0 1 0)
+           (0 0 0 0 0 1 0)
+           (0 1 1 1 1 1 0)))
+;
+(setq d6 '((0 1 1 1 1 1 0)
+           (0 1 0 0 0 0 0)
+           (0 1 0 0 0 0 0)
+           (0 1 1 1 1 1 0)
+           (0 1 0 0 0 1 0)
+           (0 1 0 0 0 1 0)
+           (0 1 1 1 1 1 0)))
+;
+(setq d7 '((0 1 1 1 1 1 0)
+           (0 0 0 0 0 1 0)
+           (0 0 0 0 0 1 0)
+           (0 0 0 0 0 1 0)
+           (0 0 0 0 0 1 0)
+           (0 0 0 0 0 1 0)
+           (0 0 0 0 0 1 0)))
+;
+(setq d8 '((0 1 1 1 1 1 0)
+           (0 1 0 0 0 1 0)
+           (0 1 0 0 0 1 0)
+           (0 1 1 1 1 1 0)
+           (0 1 0 0 0 1 0)
+           (0 1 0 0 0 1 0)
+           (0 1 1 1 1 1 0)))
+;
+(setq d9 '((0 1 1 1 1 1 0)
+           (0 1 0 0 0 1 0)
+           (0 1 0 0 0 1 0)
+           (0 1 1 1 1 1 0)
+           (0 0 0 0 0 1 0)
+           (0 0 0 0 0 1 0)
+           (0 1 1 1 1 1 0)))
+
+;---------------------
+; Operatori aritmetici
+;---------------------
+(setq plus '((0 0 0 0 0 0 0)
+             (0 0 0 1 0 0 0)
+             (0 0 0 1 0 0 0)
+             (0 1 1 1 1 1 0)
+             (0 0 0 1 0 0 0)
+             (0 0 0 1 0 0 0)
+             (0 0 0 0 0 0 0)))
+;
+(setq minus '((0 0 0 0 0 0 0)
+              (0 0 0 0 0 0 0)
+              (0 0 0 0 0 0 0)
+              (0 1 1 1 1 1 0)
+              (0 0 0 0 0 0 0)
+              (0 0 0 0 0 0 0)
+              (0 0 0 0 0 0 0)))
+;
+(setq mult '((0 0 0 0 0 0 0)
+             (0 1 0 0 0 1 0)
+             (0 0 1 0 1 0 0)
+             (0 0 0 1 0 0 0)
+             (0 0 1 0 1 0 0)
+             (0 1 0 0 0 1 0)
+             (0 0 0 0 0 0 0)))
+;
+(setq divis '((0 0 0 0 0 0 0)
+              (0 0 0 1 0 0 0)
+              (0 0 0 0 0 0 0)
+              (0 1 1 1 1 1 0)
+              (0 0 0 0 0 0 0)
+              (0 0 0 1 0 0 0)
+              (0 0 0 0 0 0 0)))
+;
+(setq equal '((0 0 0 0 0 0 0)
+              (0 0 0 0 0 0 0)
+              (0 1 1 1 1 1 0)
+              (0 0 0 0 0 0 0)
+              (0 1 1 1 1 1 0)
+              (0 0 0 0 0 0 0)
+              (0 0 0 0 0 0 0)))
+
+;---------------------------
+; Caratteri non alfanumerici
+;---------------------------
+(setq space '((0 0 0 0 0 0 0)
+              (0 0 0 0 0 0 0)
+              (0 0 0 0 0 0 0)
+              (0 0 0 0 0 0 0)
+              (0 0 0 0 0 0 0)
+              (0 0 0 0 0 0 0)
+              (0 0 0 0 0 0 0)))
+;
+(setq lpar '((0 0 0 1 0 0 0)
+             (0 0 1 0 0 0 0)
+             (0 1 0 0 0 0 0)
+             (0 1 0 0 0 0 0)
+             (0 1 0 0 0 0 0)
+             (0 0 1 0 0 0 0)
+             (0 0 0 1 0 0 0)))
+;
+(setq rpar '((0 0 0 1 0 0 0)
+             (0 0 0 0 1 0 0)
+             (0 0 0 0 0 1 0)
+             (0 0 0 0 0 1 0)
+             (0 0 0 0 0 1 0)
+             (0 0 0 0 1 0 0)
+             (0 0 0 1 0 0 0)))
+;
+(setq gt '((0 1 0 0 0 0 0)
+           (0 0 1 0 0 0 0)
+           (0 0 0 1 0 0 0)
+           (0 0 0 0 1 0 0)
+           (0 0 0 1 0 0 0)
+           (0 0 1 0 0 0 0)
+           (0 1 0 0 0 0 0)))
+;
+(setq lt '((0 0 0 0 1 0 0)
+           (0 0 0 1 0 0 0)
+           (0 0 1 0 0 0 0)
+           (0 1 0 0 0 0 0)
+           (0 0 1 0 0 0 0)
+           (0 0 0 1 0 0 0)
+           (0 0 0 0 1 0 0)))
+
+Facciamo alcune prove:
+
+(print-chars (join-chars d2 plus d1 equal d3))
+;->  █████           █           █████
+;->      █    █     ██               █
+;->      █    █      █    █████      █
+;->  █████  █████    █           █████
+;->  █        █      █    █████      █
+;->  █        █      █               █
+;->  █████          ███          █████
+
+(print-chars (join-chars n e w l i s p))
+;->  █   █  █████  █   █  █       ███    ███   ████
+;->  █   █  █      █   █  █        █    █   █  █   █
+;->  ██  █  █      █   █  █        █    █      █   █
+;->  █ █ █  ████   █   █  █        █     ███   █   █
+;->  █  ██  █      █ █ █  █        █        █  ████
+;->  █   █  █      ██ ██  █        █    █   █  █
+;->  █   █  █████  █   █  █████   ███    ███   █
+
+
+----------------------------------------------------
+Importazione di funzioni di libreria in linguaggio C
+----------------------------------------------------
+
+Per importare una funzione dalla libreria standard del C (windows) possiamo usare la funzione "import".
+
+Ad esempio per importare la funzione "printf":
+
+(import "msvcrt.dll" "printf")
+printf <77C4186A>
+(printf "pi = %f\n" 3.1415926)
+pi = 3.141593
+14
+
+Nota: L'utilizzo errato di import può causare un errore del bus di sistema o può verificarsi un segfault e causare l'arresto anomalo di newLISP o lasciarlo in uno stato instabile.
+
+
+---------------------
+Problema di McNuggets
+---------------------
+
+Wah Anita and Picciotto Henri (1994) 
+"Algebra: Themes, Tools, Concepts" p.186
+"Lesson 5.8 Building-block Numbers" (PDF)
+http://www.mathedpage.org/attc/lessons/ch.05/5.08-building-blocks.pdf
+
+Problem
+Eric tried to order 13 chicken nuggets at the fast food store. 
+The employee informed him that he could order only 6, 9, or 20 nuggets. 
+Eric realized he had to decide between ordering 6 + 6 = 12, or 6 + 9 = 15. 
+What numbers of nuggets can be ordered by combining 6, 9, and 20? 
+What numbers cannot be ordered? 
+What is the greatest number that cannot be ordered? Explain.
+
+Il problema delle monete (noto anche come problema di Frobenius) richiede quale sia il massimo importo monetario che non può essere ottenuto utilizzando solo monete di tagli specificati. Ad esempio, l'importo massimo che non può essere ottenuto utilizzando solo monete da 3 e 5 unità è 7 unità. 
+La soluzione a questo problema per una data serie di denominazioni di monete è chiamata numero di Frobenius della serie. Il numero di Frobenius esiste fintanto che l'insieme dei tagli delle monete non ha un divisore comune maggiore di 1.
+
+Quando ci sono solo due tagli di monete x e y, allora il numero di Frobenius vale xy − x − y. 
+Con più di due tagli, non è nota alcuna formula esplicita. 
+
+In termini matematici il problema può essere enunciato:
+
+Dati interi positivi a1, a2, ..., an tali che gcd(a1, a2, ..., an) = 1, trovi l'intero più grande che non può essere espresso come combinazione conica intera di questi numeri, cioè come un somma
+
+  k1*a1 + k2*a2 + ··· + kn*an,
+
+dove k1, k2, ..., kn sono numeri interi non negativi.
+
+Questo numero intero più grande è chiamato numero di Frobenius dell'insieme (a1, a2, ..., an).
+
+Affinché il numero di Frobenius esista deve risultare MCD(a1, a2, ..., an) sia uguale a 1. In questo caso l'insieme di interi che non può essere espresso come combinazione (a1, a2, ..., an) è limitato secondo il teorema di Schur, e quindi esiste il numero di Frobenius.
+
+Per il problema di Eric:
+
+(define (mcnugget)
+  (local (val lst)
+    (setq lst (array 101 '(nil)))
+    (for (a 0 (/ 100 6))
+      (for (b 0 (/ 100 9))
+        (for (c 0 (/ 100 20))
+          (setq val (+ (* a 6) (* b 9) (* c 20)))
+          (if (<= val 100) (setf (lst val) true))
+        )
+      )
+    )
+  (dolist (el lst)
+    (if (nil? el) (print $idx { }))
+  )
+  ))
+
+(mcnugget)
+;-> 1 2 3 4 5 7 8 10 11 13 14 16 17 19 22 23 25 28 31 34 37 43 nil
+
 =============================================================================
 

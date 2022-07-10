@@ -1256,7 +1256,11 @@ NOTE LIBERE 9
   Funzioni come liste
   Numeri cistercensi
   La funzione match
-
+  Analisi DNA
+  Caratteri a matrice di punti
+  Importazione di funzioni di libreria in linguaggio C
+  Problema di McNuggets
+  
 APPENDICI
 =========
   Lista delle funzioni newLISP
