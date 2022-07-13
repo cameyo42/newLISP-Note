@@ -5393,7 +5393,7 @@ Affinché il numero di Frobenius esista deve risultare MCD(a1, a2, ..., an) sia 
 
 Per il problema di Eric:
 
-(define (mcnugget)
+(define (mcnuggets)
   (local (val lst)
     (setq lst (array 101 '(nil)))
     (for (a 0 (/ 100 6))
@@ -5409,8 +5409,431 @@ Per il problema di Eric:
   )
   ))
 
-(mcnugget)
+(mcnuggets)
 ;-> 1 2 3 4 5 7 8 10 11 13 14 16 17 19 22 23 25 28 31 34 37 43 nil
+
+
+----------------------------------
+Frequenza delle parole di un testo
+----------------------------------
+
+Scriviamo una funzione che crea la lista delle parole di un testo e la loro frequenza.
+Il risultato si trova nelle liste:
+  "freq-num"  lista ordinata crescente: (frequenza - parola)
+  "freq-word" lista ordinata crescente: (parola - frequenza)
+
+(define (word-freq text)
+  (local (w uniq)
+    ; estra le parole in una lista
+    (setq w (find-all "\\w+" (read-file text)))
+    ; lista di parole univoche (vocabolario)
+    (setq uniq (unique w))
+    ; lista ordinata crescente: (frequenza - parola)
+    (setq freq-num  (sort (map list (count uniq w) uniq)))
+    ; lista ordinata crescente: (parola - frequenza)
+    (setq freq-word (sort (map list uniq (count uniq w))))
+    'done))
+
+Carichiamo un testo:
+
+(silent (setq dorian "F:\\Lisp-Scheme\\newLisp\\MAX\\dorian-grey.txt"))
+
+E creiamo le liste di frequenza:
+
+(word-freq dorian)
+;-> done
+
+Vediamo l'ultima parola del vocabolario:
+
+(freq-word -1)
+;-> ("zithers" 1)
+
+Vediamo la parola più frequente del vocabolario:
+(freq-num -1)
+;-> (3351 "the")
+
+Proviamo con un altro testo:
+
+(silent (setq moby "F:\\Lisp-Scheme\\newLisp\\MAX\\moby-dick.txt"))
+
+(word-freq moby)
+;-> done
+
+(freq-word -1)
+;-> ("zoology" 1)
+
+(freq-num -1)
+;-> (13770 "the")
+
+Un altro metodo è quello di usare la primitiva "bayes-train":
+
+(define (bayes-freq text)
+  (let (words (find-all "\\w+" (read-file text)))
+    (bayes-train words 'Vocab)))
+
+(bayes-freq dorian)
+;-> (80416)
+
+In questo caso il risultato si trova nel contesto "Vocab".
+Numero di parole nel vocabolario:
+
+(length (Vocab))
+;-> 7306
+
+((Vocab) 100)
+;-> ("Beatrice" (1))
+
+((Vocab) 0)
+;-> ("1" (1))
+
+((Vocab) -1)
+;-> ("zithers" (1))
+
+
+--------------------------------------
+Velocità di indicizzazione delle liste
+--------------------------------------
+
+Creiamo una lista di un milione di numeri:
+
+(silent (setq s (sequence 1 1e6)))
+
+Recuperiamo l'ultimo elemento in tre modi diversi:
+
+1) Indicizzazione calcolando prima la lunghezza della lista
+
+(define (i1 lst) (lst (- (length lst) 1)))
+
+2) Indicizzazione diretta della lista
+
+(define (i2 lst) (lst 999999))
+
+3) Indicizzazione partendo dalla fine della lista
+
+(define (i3 lst) (lst -1))
+
+(println (i1 s) { } (i2  s) { } (i3 s))
+;-> 1000000 1000000 1000000
+
+Vediamo i tempi di esecuzione:
+
+(time (i1 s) 100)
+;-> 1388.86
+(time (i2 s) 100)
+;-> 1123.725
+(time (i3 s) 100)
+;-> 850.491
+
+Facciamo una prova recuperando il penultimo elemento:
+
+(define (p1 lst) (lst (- (length lst) 2)))
+(define (p2 lst) (lst 999998))
+(define (p3 lst) (lst -2))
+
+(println (p1 s) { } (p2 s) { } (p3 s))
+;-> 999999 999999 999999
+
+(time (p1 s) 100)
+;-> 1396.194
+(time (p2 s) 100)
+;-> 1120.531
+(time (p3 s) 100)
+;-> 1391.127
+
+In questo caso non abbiamo alcun vantaggio nell'indicizzare dalla fine della lista. Infatti newLISP mantiene solo un puntatore all'ultimo elemento della lista.
+
+
+---------------
+Comma quibbling
+---------------
+
+Scrivere una funzione per generare una stringa che è la concatenazione delle stringhe di una lista di input dove:
+
+- Un input senza parole produce la stringa di output vuota "".
+- Un input di una sola parola, ad es. ("ABC"), produce la stringa di output della parola stessa, ad es. "ABC".
+- Un input di due parole, ad es. ("ABC" "DEF"), produce la stringa di output delle due parole separate dalla stringa " e ", ad es. "ABC e DEF".
+- Un input di tre o più parole, ad es. ("ABC" "DEF" "G" "H"), produce la stringa di output di tutte le parole (tranne l'ultima) separate da ", " con l'ultima parola separata da " e ", ad es. "ABC, DEF, G e H".
+
+(define (comma lst)
+  (local (len out)
+    (setq len (length lst))
+    (setq out '())
+    (cond ((zero? len) (setq out '()))
+          ((= len 1) (setq out lst))
+          ((= len 2) (setq out (list (lst 0) " e " (lst 1))))
+          (true
+            (dolist (el lst)
+              (push el out -1)
+              (push ", " out -1)
+            )
+            ; remove last ","
+            (pop out -1)
+            ; change the penultimate element
+            ; from "," to " e " 
+            (setf (out -2) " e "))
+    )
+    (join out)))
+
+Proviamo la funzione:
+
+(comma '())
+;-> ""
+(comma '("ABC"))
+;-> "ABC"
+(comma '("ABC" "DEF"))
+;-> "ABC e DEF"
+(comma '("ABC" "DEF" "G" "H"))
+;-> "ABC, DEF, G e H"
+
+
+----------------
+Numeri di Rhonda
+----------------
+
+Un intero positivo n si dice un numero Rhonda in base "b" se il prodotto delle cifre di n è uguale a "b" volte la somma dei fattori primi di n.
+
+Per esempio, 25662 è un numero Rhonda in base 10:
+  la base vale: 10
+  la somma dei fattori del numero vale: 2 + 3 + 7 + 13 + 47 = 72
+  la somma delle cifre del numero vale: 2 × 5 × 6 × 6 × 2 = 720
+
+Quindi risulta:
+
+  2 × 5 × 6 × 6 × 2 = 720 = 10 × (2 + 3 + 7 + 13 + 47)
+
+I numeri di Rhonda esistono solo in basi che non sono numeri primi.
+
+I numeri Rhonda in base 10 contengono sempre almeno 1 cifra 5 e contengono sempre almeno 1 cifra pari.
+
+Sequenza OEIS A099542:
+  1568, 2835, 4752, 5265, 5439, 5664, 5824, 5832, 8526, 12985, 
+  15625, 15698, 19435, 25284, 25662, 33475, 34935, 35581, 45951, 
+  47265, 47594, 52374, 53176, 53742, 54479, 55272, 56356, 56718, 
+  95232, 118465, 133857, 148653, 154462, 161785, ...
+
+Funzione che moltiplica le cifre di un numero:
+
+(define (digit-mul num)
+"Calculates the multiplication of the digits of an integer"
+  (let (out 1)
+    (while (!= num 0)
+      (setq out (* out (% num 10)))
+      (setq num (/ num 10))
+    )
+    out))
+
+Funzione che verifica se un numero è di Rhonda:
+
+(define (rhonda? num) ; base 10 only
+  (= (* 10 (apply + (factor num))) (digit-mul num)))
+
+(rhonda? 25662)
+;-> true
+
+(rhonda? 1)
+;-> nil
+
+Calcoliamo i numeri Rhonda fino a 100000:
+
+(filter rhonda? (sequence 1 1e5))
+;-> (1568 2835 4752 5265 5439 5664 5824 5832 8526 12985 15625 15698 
+;->  19435 25284 25662 33475 34935 35581 45951 47265 47594 52374 
+;->  53176 53742 54479 55272 56356 56718 95232)
+ 
+Tempo per calcolare i numeri Rhonda fino a 10 milioni:
+
+(time (filter rhonda? (sequence 1 1e7)))
+;-> 28644.423  ; quasi 29 secondi
+
+Modifichiamo le funzioni per calcolare i numeri di Rhonda nelle basi 4,6,8 e 10 (non esistono numeri di Rhonda per basi che sono numeri primi).
+
+Funzione che moltiplica le cifre di un numero in una data base:
+
+(define (digit-mul num base)
+  (let (out 1)
+    (while (!= num 0)
+      (setq out (* out (% num base)))
+      (setq num (/ num base))
+    )
+    out))
+
+(digit-mul 3 2)
+;-> 1
+
+(digit-mul 123 4)
+;-> 18
+
+Funzione di conversione di un numero tra due basi:
+
+(define (b1-b2 num base1 base2)
+"Convert an integer from base1 to base2 (2 <= base <= 10)"
+  (if (zero? num) num
+      (+ (% num base2) (* base1 (b1-b2 (/ num base2) base1 base2)))))
+
+(b1-b2 123 10 4)
+;-> 1323
+
+Funzione che verifica se un numero è di Rhonda:
+
+(define (rhonda? num base)
+  (= (* base (apply + (factor num))) (digit-mul num base)))
+
+(rhonda? 25662 10)
+;-> true
+
+(rhonda? 10206 4)
+;-> true
+
+(b1-b2 10206 10 4)
+;-> 2133132
+
+Funzione che calcola i primi numeri di Rhonda in una data base.
+L'output è una lista con elementi del tipo:
+
+(num-rhonda-base10 num-rhonda-base)
+
+(define (rhonda limite base)
+  (local (out num conta)
+    (setq out '())
+    (setq num 2)
+    (setq conta 0)
+    (while (< conta limite)
+      (if (rhonda? num base)  
+        (begin
+          (push (list num (b1-b2 num 10 base)) out -1)
+          (++ conta)
+        )
+      )
+      (++ num)
+      (if (zero? (% num 100)) print num { }})
+    )
+    out))
+
+(rhonda 10 10)
+;-> ((1568 1568) (2835 2835) (4752 4752) (5265 5265) (5439 5439) 
+;->  (5664 5664) (5824 5824) (5832 5832) (8526 8526) (12985 12985))
+
+(rhonda 10 4)
+;-> ((10206 2133132) (11935 2322133) (12150 2331312) (16031 3322133) 
+;->  (45030 22333212) (94185 112333221) (113022 123211332)
+;->  (114415 123323233) (191149 232222231) (244713 323233221))
+
+(rhonda 10 6)
+;-> ((855 3543) (1029 4433) (3813 25353) (5577 41453) (7040 52332) 
+;->  (7304 53452) (15104 153532) (19136 224332) (35350 431354)
+;->  (36992 443132))
+
+(rhonda 10 8)
+;-> ((1836 3454) (6318 14256) (6622 14736) (10530 24442) 
+;->  (14500 34244) (14739 34623) (17655 42367) (18550 44166)
+;->  (25398 61466) (25956 62544))
+
+
+-----------------------------------
+args, $args e main-args, $main-args
+-----------------------------------
+
+******************
+>>>funzione ARGS
+******************
+sintassi: (args)
+sintassi: (args int-idx-1 [int-idx-2 ... ])
+
+Accede a una lista di tutti gli argomenti non associati passati all'espressione define, define-macro lambda o lambda-macro attualmente in fase di valutazione. Sono disponibili solo gli argomenti della funzione o della macro corrente che rimangono dopo che si è verificata l'associazione di variabili locali. La funzione "args" è utile per definire funzioni o macro con un numero variabile di parametri.
+
+"args" può essere utilizzato per definire macro igieniche che evitano il pericolo di cattura delle variabili. Vedi define-macro.
+
+(define-macro (print-line)
+    (dolist (x (args))
+        (print x "\n")))
+                        
+(print-line "hello" "World")
+
+Questo esempio stampa un avanzamento riga dopo ogni argomento. La macro imita l'effetto della funzione integrata println.
+
+Nella seconda sintassi, "args" può assumere uno o più indici (int-idx-n).
+
+(define-macro (foo)
+    (print (args 2) (args 1) (args 0)))
+
+(foo x y z) 
+zyx 
+
+(define (bar)
+	(args 0 2 -1))
+
+(bar '(1 2 (3 4)))  → 4
+
+La funzione foo stampa gli argomenti in ordine inverso. La funzione della barra mostra che "args" viene utilizzato con più indici per accedere agli elenchi nidificati.
+
+Ricorda che (args) contiene solo gli argomenti non già legati alle variabili locali della funzione o della macro corrente:
+
+(define (foo a b) (args))
+  
+(foo 1 2)        → ()
+                 
+(foo 1 2 3 4 5)  → (3 4 5
+
+Nel primo esempio viene restituita una lista vuota perché gli argomenti sono legati ai due simboli locali, aeb. Il secondo esempio dimostra che, dopo che i primi due argomenti sono stati vincolati (come nel primo esempio), rimangono tre argomenti che vengono quindi restituiti da args.
+
+(args) può essere usato come argomento per una chiamata di funzione incorporata o definita dall'utente, ma non dovrebbe essere usato come argomento per un'altra macro, nel qual caso (args) non verrebbe valutato e avrebbe quindi sbagliato contenuti nel nuovo ambiente macro.
+
+---------------
+Variabile $args
+---------------
+$args contiene la lista dei parametri non vincolati alle variabili locali. Normalmente la funzione args viene utilizzata per recuperare il contenuto di questa variabile.
+
+**********************
+>>>funzione MAIN-ARGS
+**********************
+sintassi: (main-args)
+sintassi: (main-args int-index)
+
+"main-args" restituisce una lista con diversi membri di stringa, uno per l'invocazione del programma e uno per ciascuno degli argomenti della riga di comando.
+
+newlisp 1 2 3
+
+> (main-args)
+("/usr/local/bin/newlisp" "1" "2" "3")
+
+Dopo che newlisp 1 2 3 è stato eseguito al prompt dei comandi, "main-args" restituisce un elenco contenente il nome del programma che esegue il richiamo e tre argomenti della riga di comando.
+
+Facoltativamente, "main-args" può richiedere un int-index per l'indicizzazione nell'elenco. Si noti che un indice fuori intervallo causerà la restituzione di nil, non l'ultimo elemento dell'elenco come nell'indicizzazione dell'elenco.
+
+newlisp a b c
+
+> (main-args 0)   
+"/usr/local/bin/newlisp"
+> (main-args -1)  
+"c"
+> (main-args 2)   
+"b"
+> (main-args 10)
+nil
+
+Nota che quando newLISP viene eseguito da uno script, "main-args" restituisce anche il nome dello script come secondo argomento:
+
+#!/usr/local/bin/newlisp
+# 
+# script to show the effect of 'main-args' in script file
+
+(print (main-args) "\n")
+(exit)
+
+# end of script file
+
+;; execute script in the OS shell:
+
+script 1 2 3
+
+("/usr/local/bin/newlisp" "./script" "1" "2" "3")
+
+Prova a eseguire questo script con diversi parametri della riga di comando.
+
+--------------------
+Variabile $main-args
+--------------------
+$main-args Contiene la lista degli argomenti della riga di comando passati dal sistema operativo a newLISP quando è stato avviato. Normalmente la funzione "main-args" viene utilizzata per recuperare i contenuti.
 
 =============================================================================
 

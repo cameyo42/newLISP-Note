@@ -1260,6 +1260,11 @@ NOTE LIBERE 9
   Caratteri a matrice di punti
   Importazione di funzioni di libreria in linguaggio C
   Problema di McNuggets
+  Frequenza delle parole di un testo
+  Velocità di indicizzazione delle liste
+  Comma quibbling
+  Numeri di Rhonda
+  args, $args e main-args, $main-args
   
 APPENDICI
 =========
