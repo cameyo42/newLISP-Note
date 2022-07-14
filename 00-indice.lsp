@@ -1266,6 +1266,8 @@ NOTE LIBERE 9
   Numeri di Rhonda
   args, $args e main-args, $main-args
   Unit testing
+  Area di una circonferenza (montecarlo)
+  Area di intersezione tra due circonferenze
   
 APPENDICI
 =========

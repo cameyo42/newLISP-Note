@@ -5760,7 +5760,7 @@ Nella seconda sintassi, "args" può assumere uno o più indici (int-idx-n).
 zyx 
 
 (define (bar)
-	(args 0 2 -1))
+  (args 0 2 -1))
 
 (bar '(1 2 (3 4)))  → 4
 
@@ -6158,6 +6158,216 @@ File: "nl-unittest.lsp" (nella cartella "Data")
 ;-> true
 ;(println)
 ;(exit)
+
+
+--------------------------------------
+Area di una circonferenza (montecarlo)
+--------------------------------------
+
+Calcoliamo pi greco con il metodo di Montecarlo e poi lo utilizziamo per calcolare l'area della circonferenza data.
+Utilizziamo solo il quadrante in alto a destra di un cerchio di raggio 1 con centro in (0, 0).
+
+(define (f x y)
+  (if (<= (add (mul x x) (mul y y)) 1)
+      1
+      0))
+
+(define (pi iter)
+  (let (res 0)
+    (seed (time-of-day))
+    (for (i 1 iter)
+      (++ res (f (random) (random)))
+    )
+    ; moltiplichiamo per i 4 quadranti
+    (mul 4 (div res iter))))
+
+(define (area-circle radius iter)
+  (mul (pi iter) radius radius))
+
+Facciamo alcune prove:
+
+(area-circle 4 1e5)
+;-> 50.41792
+
+(area-circle 4 1e7)
+;-> 50.2565184
+
+(setq PI 3.1415926535897931)
+(mul PI 4 4)
+;-> 50.26548245743669
+
+Vediamo l'errore in funzione del numero di iterazioni:
+
+(define (diff radius iter)
+  (local (m r err)
+    (setq r (mul PI radius radius))
+    (setq m (mul (pi iter) radius radius))
+    (setq err (sub r m))
+    (println "reale:" r)
+    (println "montecarlo: " m)
+    (println "err = " err)))
+
+(diff 4 1e5)
+;-> reale:50.26548245743669
+;-> montecarlo: 50.2016
+;-> err = 0.06388245743669074
+
+(diff 4 1e6)
+;-> reale:50.26548245743669
+;-> montecarlo: 50.273664
+;-> err = -0.008181542563306721
+
+(diff 4 1e7)
+;-> reale:50.26548245743669
+;-> montecarlo: 50.2611264
+;-> err = 0.004356057436687877
+
+
+------------------------------------------
+Area di intersezione tra due circonferenze
+------------------------------------------
+
+Calcolare l'area di intersezione di due circonferenze.
+
+Vedi immagine "circles-intersection.png" nella cartella "data".
+
+Cerchio 1: C1
+  raggio = r1
+  centro: (c1x, c1y)
+
+Cerchio 2: C2
+  raggio = r2
+  centro: (c2x, c2y)
+
+Con r1 >= r2
+
+Distanza tra i centri = d
+
+Dati due cerchi C1 e C2 rispettivamente di raggio r1 e r2 (con r1 ≥ r2) i cui centri sono ad una distanza d l'uno dall'altro, l'area di intersezione dei cerchi è:
+
+1. zero, se d ≥ r1+r2, poiché in questo caso le circonferenze si intersecano al massimo fino ad un punto.
+
+2. π*r2^2, se d ≤ r1−r2, poiché in questo caso C2 è interamente contenuto in C1.
+
+3. data dall'equazione seguente in tutti gli altri casi:
+
+  Area = r1^2 * acos (d1/r1) - d1 * sqrt(r1^2 - d1^2) +
+         r2^2 * acos (d2/r2) - d2 * sqrt(r2^2 - d2^2)
+
+dove:
+
+  d1 = (r1^2 - r2^2 + d^2)/(2*d)
+
+  d2 = (d - d1) (r2^2 - r1^2 + d^2)/(2*d)
+
+  d = sqrt((c1x - c2x)^2 + (c1y - c2y)^2)
+
+Scriviamo la funzione:
+
+(setq PI 3.1415926535897931)
+
+(define (area r1 r2 c1x c1y c2x c2y)
+  (local (a b d d1 d2)
+    ; r1 must be greater then r2
+    (if (> r2 r1)
+      (begin
+        (swap r1 r2)
+        (swap c1x c2x)
+        (swap c1y c2y)
+      )
+    )
+    (setq d (sqrt (add (mul (sub c1x c2x) (sub c1x c2x))
+                       (mul (sub c1y c2y) (sub c1y c2y)))))
+    ;(println "d: " d)
+    (cond ((>= d (add r1 r2)) 0)
+          ((<= d (sub r1 r2)) (mul PI r2 r2))
+          (true
+            (setq d1 (div (add (sub (mul r1 r1) (mul r2 r2)) (mul d d))
+                          (mul 2 d)))
+            (setq d2 (div (add (sub (mul r2 r2) (mul r1 r1)) (mul d d))
+                          (mul 2 d)))
+            (setq a (sub (mul r1 r1 (acos (div d1 r1)))
+                         (mul d1 (sqrt (sub (mul r1 r1) (mul d1 d1))))))
+            (setq b (sub (mul r2 r2 (acos (div d2 r2)))
+                         (mul d2 (sqrt (sub (mul r2 r2) (mul d2 d2))))))
+            (add a b))
+     )))
+
+Facciamo alcune prove:
+
+(area 5 3 2 2 2 2)
+;-> 28.27433388230814
+(mul PI 3 3)
+;-> 28.27433388230814
+
+(area 5 3 2 2 5 5)
+;-> 16.77037113300692
+
+(area 5 3 2 2 9 9)
+;-> 0
+
+Per verificare i risultati scriviamo una funzione che calcola l'area di sovrapposizione tra due cerchi con il metodo di Montecarlo. L'algoritmo è il seguente:
+
+1. calcolare il rettangolo di contenimento dei due cerchi (Minimal Bounded Rectangle - MBR)
+2. generare N punti casuali all'interno del rettangolo
+3. verificare quanti (K) degli N punti cadono all'interno dell'intersezione dei due cerchi
+4. calcolare l'area di intersezione con la formula:
+
+           K
+   Area = --- * AreaMBR
+           N
+
+(define (rand-range-f min-val max-val)
+"Generate a random float in a closed range"
+  (if (> min-val max-val) (swap min-val max-val))
+  (add min-val (random 0 (sub max-val min-val))))
+
+(define (area-monte r1 r2 c1x c1y c2x c2y iter)
+  (local (in xmin xmax ymin ymax square-area x y)
+    (setq in 0)
+    ; calculates coordinates of
+    ; minimal bounded rectangle of circles (MBR)
+    (setq xmin (min (sub c1x r1) (sub c2x r2)))
+    (setq xmax (max (add c1x r1) (add c2x r2)))
+    (setq ymin (min (sub c1y r1) (sub c2y r2)))
+    (setq ymax (max (add c1y r1) (add c2y r2)))
+    ; area of MBR
+    (setq square-area (mul (sub xmax xmin) (sub ymax ymin)))
+    ;(println "xmin, xmax: " xmin ", " xmax)
+    ;(println "ymin, ymax: " ymin ", " ymax)
+    ;(println "square-area: " square-area)
+    ; iterazioni montecarlo
+    (for (i 1 iter)
+      ; generate random point within MBR
+      (setq x (rand-range-f xmin xmax))
+      (setq y (rand-range-f ymin ymax))
+      ; random point (x, y) must be inside both circles
+      (if (and (<= (sqrt (add (mul (sub x c1x) (sub x c1x))
+                              (mul (sub y c1y) (sub y c1y)))) r1)
+               (<= (sqrt (add (mul (sub x c2x) (sub x c2x))
+                              (mul (sub y c2y) (sub y c2y)))) r2))
+          ; update count of inside points
+          (++ in)
+      )
+    )
+    (mul square-area (div in iter))))
+
+Facciamo alcune prove e verifiche:
+
+(area 5 3 2 2 2 2)
+;-> 28.27433388230814
+(area-monte 5 3 2 2 2 2 1e6)
+;-> 28.2903
+
+(area 5 3 2 2 5 5)
+;-> 16.77037113300692
+(area-monte 5 3 2 2 5 5 1e6)
+;-> 16.725225
+
+(area 5 3 2 2 9 9)
+;-> 0
+(area-monte 5 3 2 2 9 9 1e6)
+;-> 0
 
 =============================================================================
 
