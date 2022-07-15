@@ -6369,5 +6369,172 @@ Facciamo alcune prove e verifiche:
 (area-monte 5 3 2 2 9 9 1e6)
 ;-> 0
 
+
+------------------
+Gocce dal soffitto
+------------------
+
+Dal soffitto cadono casualmente una serie di gocce d'acqua sul pavimento (forse c'è una perdita d'acqua...). Le gocce d'acqua atterrano in posizioni casuali e ciascuna crea un cerchio bagnato di un determinato raggio sul pavimento.
+Quanto vale l'area totale che risulta bagnata?
+
+I dati sono memorizzati in una lista in cui ogni elemento rappresenta le caratteristiche di una goccia, cioè le coordinate (xc yc) del centro del cerchio e il raggio del cerchio:
+
+  (xc yc raggio)
+
+Calcolare l'area bagnata del pavimento.
+
+(setq circles '(
+;     xc             yc             raggio
+    ( 1.6417233788   1.6121789534   0.0848270516)
+    (-1.4944608174   1.2077959613   1.1039549836)
+    ( 0.6110294452  -0.6907087527   0.9089162485)
+    ( 0.3844862411   0.2923344616   0.2375743054)
+    (-0.2495892950  -0.3832854473   1.0845181219)
+    ( 1.7813504266   1.6178237031   0.8162655711)
+    (-0.1985249206  -0.8343333301   0.0538864941)
+    (-1.7011985145  -0.1263820964   0.4776976918)
+    (-0.4319462812   1.4104420482   0.7886291537)
+    ( 0.2178372997  -0.9499557344   0.0357871187)
+    (-0.6294854565  -1.3078893852   0.7653357688)
+    ( 1.7952608455   0.6281269104   0.2727652452)
+    ( 1.4168575317   1.0683357171   1.1016025378)
+    ( 1.4637371396   0.9463877418   1.1846214562)
+    (-0.5263668798   1.7315156631   1.4428514068)
+    (-1.2197352481   0.9144146579   1.0727263474)
+    (-0.1389358881   0.1092805780   0.7350208828)
+    ( 1.5293954595   0.0030278255   1.2472867347)
+    (-0.5258728625   1.3782633069   1.3495508831)
+    (-0.1403562064   0.2437382535   1.3804956588)
+    ( 0.8055826339  -0.0482092025   0.3327165165)
+    (-0.6311979224   0.7184578971   0.2491045282)
+    ( 1.4685857879  -0.8347049536   1.3670667538)
+    (-0.6855727502   1.6465021616   1.0593087096)
+    ( 0.0152957411   0.0638919221   0.9771215985)))
+
+Usiamo un algoritmo che effettua un campionamento con una griglia regolare. Per questo problema questo metodo è più efficiente di un campionamento Montecarlo (forse).
+
+(define (droplets gocce cells)
+  (local (xmin xmax ymin ymax dx dy in found)
+    (setq xmin (gocce 0 0))
+    (setq xmax (gocce 0 0))
+    (setq ymin (gocce 0 1))
+    (setq ymax (gocce 0 1))
+    ; Calcolo del rettangolo di contenimento dei cerchi
+    ; Minimal Bounding Rectangle - MBR
+    (dolist (c gocce)
+      (setq xmin (min xmin (sub (c 0) (c 2))))
+      (setq xmax (max xmax (add (c 0) (c 2))))
+      (setq ymin (min ymin (sub (c 1) (c 2))))
+      (setq ymax (max ymax (add (c 1) (c 2))))
+    )
+    (setq dx (div (sub xmax xmin) cells))
+    (setq dy (div (sub ymax ymin) cells))
+    (println "dx: " dx ", dy: " dy)
+    (setq in 0)
+    (for (row 0 (- cells 1))
+      (setq y (add ymin (mul row dy)))
+      (for (col 0 (- cells 1))
+        (setq x (add xmin (mul col dx)))
+        (setq found nil)
+        (dolist (c gocce found)
+          (if (<= (add (mul (sub x (c 0)) (sub x (c 0)))
+                      (mul (sub y (c 1)) (sub y (c 1))))
+                  (mul (c 2) (c 2)))
+              (set 'in (+ in 1) 'found true)
+          )
+        )
+      )
+    )
+    (println "in: " in)
+    (mul in dx dy)))
+
+Facciamo alcune prove aumentando il numero di celle della griglia (cioè diminuendo la dimensione delle celle della griglia):
+
+Valore vero: 21.56503660...
+
+(droplets circles 500)
+;-> dx: 0.0108681366854, dy: 0.0107522775546
+;-> in: 184512
+;-> 21.56155977200332
+
+(droplets circles 1000)
+;-> dx: 0.0054340683427, dy: 0.0053761387773
+;-> in: 738126
+;-> 21.5638384878351
+
+(droplets circles 2000)
+;-> dx: 0.00271703417135, dy: 0.00268806938865
+;-> in: 2952616
+;-> 21.5646564883901
+
+(droplets circles 3000)
+;-> dx: 0.001811356114233333, dy: 0.0017920462591
+;-> in: 6643458
+;-> 21.56489020283439
+
+(droplets circles 4000)
+;-> dx: 0.001358517085675, dy: 0.001344034694325
+;-> in: 11810604
+;-> 21.56491211356354
+
+(droplets circles 5000)
+;-> dx: 0.00108681366854, dy: 0.00107522775546
+;-> in: 18454106
+;-> 21.56495564287879
+
+(time (droplets 5000))
+;-> dx: 0.00108681366854, dy: 0.00107522775546
+;-> in: 18454106
+;-> 21.56495564287879
+
+Vediamo un altro esempio:
+
+(setq circles '(
+;     xc         yc        raggio
+     ( 0.479477  -0.634017  0.137317)
+     (-0.568894  -0.450312  0.211238)
+     (-0.907263  -0.434144  0.668432)
+     ( 0.279875   0.309700  0.242502)
+     (-0.999968  -0.910107  0.455271)
+     ( 0.889064  -0.864342  1.292949)
+     (-0.701553   0.285499  0.321359)
+     (-0.947186   0.261604  0.028034)
+     ( 0.805749  -0.175108  0.688808)
+     ( 0.813269  -0.117034  0.340474)
+     (-0.630897  -0.659249  0.298656)
+     (-0.054129  -0.661273  0.270216)
+     ( 0.042748   0.469534  0.759090)
+     ( 0.079393  -0.803786  0.635903)
+     (-0.987166   0.561186  0.740386)
+     (-0.246960  -0.774309  1.035616)
+     (-0.189155  -0.244443  0.187699)
+     ( 0.683683  -0.569687  0.275045)
+     (-0.249028  -0.452500  0.713051)
+     (-0.070789  -0.898363  0.135069)))
+
+Valore vero: 9.73178...
+
+(droplets circles 500)
+;-> dx: 0.007819129999999999, dy: 0.006917726
+;-> in: 179895
+;-> 9.730628288824068
+
+(droplets circles 1000)
+;-> dx: 0.003909564999999999, dy: 0.003458863
+;-> in: 719643
+;-> 9.731480215756719
+
+(droplets circles 2000)
+;-> dx: 0.0019547825, dy: 0.0017294315
+;-> in: 2878613
+;-> 9.731618822916396
+
+(droplets circles 3000)
+;-> dx: 0.001303188333333333, dy: 0.001152954333333333
+;-> in: 6476925
+;-> 9.731687563052494
+
+Nota: questo metodo di campionamento raggiunge velocemente l'intorno del risultato esatto, ma poi converge lentamente.
+
 =============================================================================
 

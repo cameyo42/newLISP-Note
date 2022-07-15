@@ -1268,6 +1268,7 @@ NOTE LIBERE 9
   Unit testing
   Area di una circonferenza (montecarlo)
   Area di intersezione tra due circonferenze
+  Gocce dal soffitto
   
 APPENDICI
 =========
