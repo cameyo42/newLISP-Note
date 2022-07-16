@@ -6489,7 +6489,7 @@ Valore vero: 21.56503660...
 
 Vediamo un altro esempio:
 
-(setq circles '(
+(setq circles1 '(
 ;     xc         yc        raggio
      ( 0.479477  -0.634017  0.137317)
      (-0.568894  -0.450312  0.211238)
@@ -6514,27 +6514,145 @@ Vediamo un altro esempio:
 
 Valore vero: 9.73178...
 
-(droplets circles 500)
+(droplets circles1 500)
 ;-> dx: 0.007819129999999999, dy: 0.006917726
 ;-> in: 179895
 ;-> 9.730628288824068
 
-(droplets circles 1000)
+(droplets circles1 1000)
 ;-> dx: 0.003909564999999999, dy: 0.003458863
 ;-> in: 719643
 ;-> 9.731480215756719
 
-(droplets circles 2000)
+(droplets circles1 2000)
 ;-> dx: 0.0019547825, dy: 0.0017294315
 ;-> in: 2878613
 ;-> 9.731618822916396
 
-(droplets circles 3000)
+(droplets circles1 3000)
 ;-> dx: 0.001303188333333333, dy: 0.001152954333333333
 ;-> in: 6476925
 ;-> 9.731687563052494
 
 Nota: questo metodo di campionamento raggiunge velocemente l'intorno del risultato esatto, ma poi converge lentamente.
+
+Vediamo di risolvere il problema con il metodo di Montecarlo:
+
+(define (rand-range-f min-val max-val)
+"Generate a random float in a closed range"
+  (if (> min-val max-val) (swap min-val max-val))
+  (add min-val (random 0 (sub max-val min-val))))
+
+(define (droplets-m gocce iter)
+  (local (xmin xmax ymin ymax dx dy in found)
+    (setq xmin (gocce 0 0))
+    (setq xmax (gocce 0 0))
+    (setq ymin (gocce 0 1))
+    (setq ymax (gocce 0 1))
+    ; Calcolo del rettangolo di contenimento dei cerchi
+    ; Minimal Bounding Rectangle - MBR
+    (dolist (c gocce)
+      (setq xmin (min xmin (sub (c 0) (c 2))))
+      (setq xmax (max xmax (add (c 0) (c 2))))
+      (setq ymin (min ymin (sub (c 1) (c 2))))
+      (setq ymax (max ymax (add (c 1) (c 2))))
+    )
+    (setq dx (sub xmax xmin))
+    (setq dy (sub ymax ymin))
+    (println "dx: " dx ", dy: " dy)
+    (setq in 0)
+    (for (i 1 iter)
+      (setq x (add xmin (random 0 (sub xmax xmin))))
+      (setq y (add ymin (random 0 (sub ymax ymin))))
+      (setq found nil)
+      (dolist (c gocce found)
+        (if (<= (add (mul (sub x (c 0)) (sub x (c 0)))
+                    (mul (sub y (c 1)) (sub y (c 1))))
+                (mul (c 2) (c 2)))
+            (set 'in (+ in 1) 'found true)
+        )
+      )
+    )
+    (println "in: " in)
+    (mul (div in iter) dx dy)))
+
+(droplets-m circles 1e5)
+;-> dx: 5.4340683427, dy: 5.3761387773
+;-> in: 73840
+;-> 21.57184320755188
+
+(droplets-m circles 1e6)
+;-> dx: 5.4340683427, dy: 5.3761387773
+;-> in: 738093
+;-> 21.56287441575242
+
+(droplets-m circles 1e7)
+;-> dx: 5.4340683427, dy: 5.3761387773
+;-> in: 7379963
+;-> 21.56004939240712
+
+
+-----------------------
+La saggezza della folla
+-----------------------
+
+La saggezza della folla è una teoria sociologica e statistica secondo la quale, solo in determinate condizioni, la media delle valutazioni date da un insieme di individui inesperti indipendenti sarebbe in grado di fornire una risposta più adeguata e valida di un qualsiasi parere dato da un esperto. Il termine "folla" si riferisce ad un gruppo non necessariamente coeso di individui, che possono anche non conoscersi o non condividere le medesime idee.
+
+Il tema si trova nel saggio "La saggezza delle folle" scritto da James Surowiecki.
+
+Criteri di validità
+-------------------
+Ci sono quattro criteri che devono venire rispettati perché la teoria funzioni:
+
+1) Diversità di opinione: ogni persona deve avere un'opinione differente
+2) Indipendenza: le opinioni delle persone non devono venire influenzate da quelle altrui
+3) Decentralizzazione: nessuno deve essere in grado di pilotarla dall'alto
+4) Aggregazione: le opinioni devono poter essere aggregate in modo da ottenere un risultato finale
+
+Secondo la teoria della saggezza della folla:
+a) Deve essere possibile riassumere in un unico pensiero la moltitudine di pensieri delle persone che fanno parte della folla.
+b) La folla è molto più intelligente della persona più intelligente che ne fa parte.
+c) Devono venire rispettate le tre condizioni di diversità, indipendenza e decentralizzazione.
+d) Troppa comunicazione può rendere il gruppo meno intelligente.
+e) È necessario che vi sia un sistema di aggregazione dell'informazione.
+f) Non deve esserci il bisogno di interrogare un esperto.
+g) Le migliori decisioni nascono da una discussione.
+h) L'informazione corretta deve essere raggiungibile dalle giuste persone, nel momento giusto e nel luogo giusto.
+i) Vi sono dei casi in cui la teoria della saggezza della folla fallisce e la folla dà un giudizio errato. Questo avviene quando le persone si influenzano a vicenda invece che sviluppare le proprie opinioni indipendentemente.
+
+Scott E. Page, nel libro "The Difference: How the Power of Diversity Creates Better Groups, Firms, Schools, and Societies"introduce il teorema di predizione della diversità: "L'errore al quadrato della previsione collettiva è uguale all'errore al quadrato medio meno la diversità predittiva". Pertanto, quando la diversità in un gruppo è grande, l'errore della folla è piccolo.
+
+Vediamo di scrivere una funzione per calcolare i valori del teorema di predizione della diversità:
+
+(define (mean lst)
+  (div (apply + lst) (length lst)))
+
+(define (diversity-theorem valore pred)
+  (local val-medio, avg-sqr-err crowd-error diversity)
+    (setq val-medio (mean pred))
+    (setq avg-sqr-err (mean (map 
+                            (fn(x) (mul (sub x valore) (sub x valore)))
+                                  pred)))
+    (setq crowd-error (pow (sub (mean pred) valore) 2))
+    (setq diversity (mean (map 
+                          (fn(x) (mul (sub x val-medio) (sub x val-medio))) 
+                                pred)))
+    (list avg-sqr-err crowd-error diversity))
+
+Valore vero: 49
+
+Predizione1:
+(setq a '(48 47 51))
+
+Predizione2:
+(setq b '(48 47 51 42))
+
+(diversity-theorem 49 a)
+;-> (3 0.1111111111111127 2.333333333333334)
+(diversity-theorem 49 b)
+;-> (14.5 4 10.5)
+
+Nota: per una visione più completa vedere il libro "Rumore" di Kahneman, Sibony, Sunstein.
 
 =============================================================================
 

@@ -1269,6 +1269,7 @@ NOTE LIBERE 9
   Area di una circonferenza (montecarlo)
   Area di intersezione tra due circonferenze
   Gocce dal soffitto
+  La saggezza della folla
   
 APPENDICI
 =========
