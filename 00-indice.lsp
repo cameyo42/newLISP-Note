@@ -1270,6 +1270,10 @@ NOTE LIBERE 9
   Area di intersezione tra due circonferenze
   Gocce dal soffitto
   La saggezza della folla
+  Zodiaco cinese
+  Kilometri e miglia (terrestre, marine/nautiche)
+  FOOP e self
+  exec e redirezione di stdout e stderr
   
 APPENDICI
 =========

@@ -6654,5 +6654,188 @@ Predizione2:
 
 Nota: per una visione più completa vedere il libro "Rumore" di Kahneman, Sibony, Sunstein.
 
+
+--------------
+Zodiaco cinese
+--------------
+
+Determinare il segno zodiacale cinese e le relative associazioni per un determinato anno.
+Tradizionalmente, i cinesi hanno contato gli anni utilizzando due cicli simultanei, uno di lunghezza 10 (i "steli celesti") e uno di lunghezza 12 (i "rami terrestri"), la combinazione si traduce in uno schema ripetuto di 60 anni.
+ La mappatura dei rami di dodici divinità animali tradizionali si traduce nel noto "zodiaco cinese", che assegna ogni anno a un determinato animale.
+Gli steli celesti non hanno una mappatura uno a uno come quella dei rami degli animali. Tuttavia, le cinque coppie di steli consecutivi appartengono ciascuna a uno dei cinque elementi tradizionali cinesi (legno, fuoco, terra, metallo e acqua). Inoltre, uno dei due anni all'interno del governo di ciascun elemento è associato a yin, l'altro a yang.
+- Il ciclo animale si svolge in questo ordine: Ratto, Bue, Tigre, Coniglio, Drago, Serpente, Cavallo, Capra, Scimmia, Gallo, Cane, Maiale.
+- Il ciclo degli elementi si svolge in questo ordine: Legno, Fuoco, Terra, Metallo, Acqua.
+- L'anno yang precede l'anno yin all'interno di ogni elemento.
+
+Per esempio, il 2022 è l'anno yang dell'Acqua e della Tigre.
+
+(define (chinese year)
+  (local (yy elements animals y e a)
+    (setq yy '("yang" "yin"))
+    (setq elements '("Wood" "Fire" "Earth" "Metal" "Water"))
+    (setq animals '("Rat" "Ox" "Tiger" "Rabbit" "Dragon" "Snake"
+                    "Horse" "Goat" "Monkey" "Rooster" "Dog" "Pig"))
+    (setq y (% year 2))
+    (setq e (/ (% (- year 4) 10) 2))
+    (setq a (% (- year 4) 12))
+    (list year (elements e) (animals a) (yy y))))
+
+(chinese 2022)
+;-> (2022 "Water" "Tiger" "yang")
+(chinese 1963)
+;-> (1963 "Water" "Rabbit" "yin")
+(chinese 1998)
+;-> (1998 "Earth" "Tiger" "yang")
+
+In italiano:
+
+(define (cinese anno)
+  (local (yy elements animals y e a)
+    (setq yy '("yang" "yin"))
+    (setq elements '("Legno" "Fuoco" "Terra" "Metallo" "Acqua"))
+    (setq animals '("Topo" "Bue" "Tigre" "Coniglio" "Drago" "Serpente"
+                    "Cavallo" "Capra" "Scimmia" "Gallo" "Cane" "Maiale"))
+    (setq y (% anno 2))
+    (setq e (/ (% (- anno 4) 10) 2))
+    (setq a (% (- anno 4) 12))
+    (list anno (elements e) (animals a) (yy y))))
+
+(cinese 2022)
+;-> (2022 "Acqua" "Tigre" "yang")
+(cinese 1963)
+;-> (1963 "Acqua" "Coniglio" "yin")
+(cinese 1998)
+;-> (1998 "Terra" "Tigre" "yang")
+
+
+-----------------------------------------------
+Kilometri e miglia (terrestre, marine/nautiche)
+-----------------------------------------------
+
+Pollice/Inch     --> 1 in = 0.0254 m = 2.54 cm
+Piede/Foot       --> 1 ft = 12 in = 0.3048m = 30.48 cm
+Iarda/Yard       --> 1 yd = 3 ft = 0.9144 m
+Kilometro        --> 1 km = 1000 m  
+Miglio Terrestre --> 1 mi = 1609.344 m
+Miglio Marino    --> 1 nm = 1852 m
+
+(define (convert val unit unit-name unit-value)
+  (local (idx scala)
+    (setq idx (find unit unit-name))
+    (setq scala (mul val (unit-value idx)))
+    (println val " " unit " is:")
+    (dolist (el unit-name)
+      (cond ((!= el unit)
+            (println (format "%.6f %s" (div scala (unit-value $idx)) el)))
+      ))))
+
+(setq length-unit '("km" "m" "cm" "mm" "mi" "yd" "ft" "in" "nm"))
+
+(setq length-value '(1000.0 1.0 0.01 0.001 1609.34 0.9144 0.3048 0.0254 1852))
+
+(convert 5000 "ft" length-unit length-value)
+;-> 5000 ft is:
+;-> 1.524000 km
+;-> 1524.000000 m
+;-> 152400.000000 cm
+;-> 1524000.000000 mm
+;-> 0.946972 mi
+;-> 1666.666667 yd
+;-> 60000.000000 in
+;-> 0.822894 nm
+
+
+-----------
+FOOP e self
+-----------
+
+Quella che segue è un'implementazione FOOP che sfrutta i contesti di newLISP (spazi dei nomi) e il passaggio di oggetti per riferimento utilizzando la funzione FOOP "self":
+
+; FOOP stream implementation
+(new Class 'Stream) ; creates a Stream context and constructor
+
+; define Stream class methods
+(context Stream)
+
+(define (Stream:add elmnt)
+    (push elmnt (self) -1))
+
+(define (Stream:read)
+    (pop (self) 1))
+
+(context 'MAIN)
+
+now you can do:
+
+(set 'st (Stream 10 20)) ; create a new stream, with optional initial elements
+;-> (Stream 10 20)
+(:add st 30)
+;-> (Stream 10 20 30)
+(:read st)
+;-> 10
+st
+;-> (Stream 20 30)
+
+; create a second empty stream
+; create empty stream in a-stream
+(set 'a-stream (Stream)) 
+;-> (Stream)
+(:add a-stream 'a)
+;-> (Stream a)
+(:add a-stream 'b)
+;-> (Stream a b)
+(:add a-stream 'c)
+;-> (Stream a b c)
+a-stream
+;-> (Stream a b c)
+(:read a-stream)
+;-> a
+(:read a-stream)
+;-> b
+
+Non importa quanto sia grande lo stream, l'implementazione FOOP sarà sempre veloce. 
+Possiamo aggiungere più metodi alla classe Stream e ridefinire anche il costruttore. 
+L'espressione (new Class ‘Stream) è equivalente a:
+
+(context 'Stream
+(define (Stream:Stream) (cons (context) (args)))
+(context MAIN)
+
+
+-------------------------------------
+exec e redirezione di stdout e stderr
+-------------------------------------
+
+newLISP cattura solo l'output standard del comando (stdout). Quindi, se il comando invia l'output allo schermo, probabilmente sta scrivendo in standard error (stderr). Per reindirizzare l'output di standard error su standard output bisogna aggiungere " 2>&1" alla fine del comando "exec".
+
+Facciamo un esempio scrivendo e compilando il seguente progamma in C "test.c":
+
+#include <stdio.h>
+
+int main()
+{
+        fprintf(stdout, "Standard Output\n");
+        fprintf(stderr, "Standard Error\n");
+        return 0;
+}
+
+Per compilare il file con il compilatore gcc:
+
+gcc test.c -o test.exe
+
+Adesso da una REPL di newLISP:
+
+(exec "test.exe")
+;-> Standard Error
+;-> ("Standard Output")
+
+(exec "test.exe 2>&1")
+;-> ("Standard Output" "Standard Error")
+;(exit)
+
+Windows reindirizza anche l'errore standard allo standard output utilizzando la stessa sintassi per il reindirizzamento delle shell UNIX. 
+Notare come nel primo esempio newLISP non include l'output inviato allo standard error nel valore restituito da
+"exec", ma lo fa nel secondo esempio quando aggiungiamo " 2>&1".
+
 =============================================================================
 
