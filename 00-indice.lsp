@@ -1274,6 +1274,7 @@ NOTE LIBERE 9
   Kilometri e miglia (terrestre, marine/nautiche)
   FOOP e self
   exec e redirezione di stdout e stderr
+  Numeri magnanimi
   
 APPENDICI
 =========

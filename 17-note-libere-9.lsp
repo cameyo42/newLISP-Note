@@ -6837,5 +6837,126 @@ Windows reindirizza anche l'errore standard allo standard output utilizzando la 
 Notare come nel primo esempio newLISP non include l'output inviato allo standard error nel valore restituito da
 "exec", ma lo fa nel secondo esempio quando aggiungiamo " 2>&1".
 
+
+----------------
+Numeri magnanimi
+----------------
+
+Un numero magnanimo è un numero intero in cui ogni segno più "+" aggiunto tra due cifre genera una somma prima.
+Per esempio:
+
+6425 è un numero magnanimo:
+6 + 425 = 431 che è primo
+64 + 25 = 89 che è primo
+642 + 5 = 647 che è primo
+
+3538 non è un numero magnanimo:
+3 + 538 = 541 che è primo
+35 + 38 = 73 che è primo
+ma 353 + 8 = 361 non è primo
+
+I numeri a una cifra da 0 a 9 sono inclusi come numeri magnanimi poiché non c'è posto nel numero in cui è possibile aggiungere un "+" tra due cifre. Fatta eccezione per il valore 0, gli zeri iniziali non sono consentiti. Gli zeri interni vanno bene, 1001 --> 1 + 001 (primo), 10 + 01 (primo) 100 + 1 (primo).
+
+Ci sono solo 571 numeri magnanimi conosciuti. Si sospetta, anche se non è stato dimostrato, che non ci siano numeri magnanimi superiori a 97393713331910.
+
+Sequenza OEIS: A252996
+  0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 14, 16, 20, 21, 23, 25, 29, 30,
+  32, 34, 38, 41, 43, 47, 49, 50, 52, 56, 58, 61, 65, 67, 70, 74, 76, 83,
+  85, 89, 92, 94, 98, 101, 110, 112, 116, 118, 130, 136, 152, 158, 170,
+  172, 203, 209, 221, 227, 229, 245, 265, 281, 310, 316, 334, 338, 356
+
+Funzioni ausiliarie:
+
+(define (int-list num)
+"Convert an integer to a list of digits"
+  (let (out '())
+    (while (!= num 0)
+      (push (% num 10) out)
+      (setq num (/ num 10))) out))
+
+(define (list-int lst)
+"Convert a list of digits to integer"
+  (let (num 0)
+    (dolist (el lst) (setq num (+ el (* num 10))))))
+
+(define (prime? num)
+"Check if a number is prime"
+   (if (< num 2) nil
+       (= 1 (length (factor num)))))
+
+Funzione che verifica se un numero è magnanimo:
+
+(define (magnanimo? num)
+  (local (lst somme a b stop)
+    (setq somme '())
+    (setq lst (int-list num))
+    (dolist (el lst)
+      (setq a (list-int (slice lst 0 $idx)))
+      (setq b (list-int (slice lst $idx)))
+      ;(println a { } b)
+      (if a (push (+ a b) somme -1))
+    )
+    (setq stop nil)
+    (dolist (val somme stop)
+      (if-not (prime? val)
+          (setq stop true)
+      )
+    )
+  (not stop)))
+
+Facciamo alcune prove:
+
+(magnanimo? 6425)
+;-> true
+(magnanimo? 3538)
+;-> nil
+(magnanimo? 1001)
+;-> true
+(magnanimo? 97393713331910)
+;-> true
+
+Funzione che calcola i numeri magnanimi da 0 ad un dato limite:
+
+(define (magnanimi limite)
+  (let (out '())
+    (for (i 0 limite)
+      (if (magnanimo? i)
+          (push i out -1)))
+    out))
+
+(magnanimi 10000)
+;-> (0 1 2 3 4 5 6 7 8 9 11 12 14 16 20 21 23 25 29 30 32 34 38 41 43 47 49
+;->  50 52 56 58 61 65 67 70 74 76 83 85 89 92 94 98 101 110 112 116 118 130
+;->  136 152 158 170 172 203 209 221 227 229 245 265 281 310 316 334 338 356
+;->  358 370 376 394 398 401 403 407 425 443 449 467 485 512 518 536 538 554
+;->  556 574 592 598 601 607 625 647 661 665 667 683 710 712 730 736 754 772
+;->  776 790 794 803 809 821 845 863 881 889 934 938 952 958 970 974 992 994
+;->  998 1001 1112 1130 1198 1310 1316 1598 1756 1772 1910 1918 1952 1970 1990
+;->  2209 2221 2225 2249 2261 2267 2281 2429 2447 2465 2489 2645 2681 2885
+;->  3110 3170 3310 3334 3370 3398 3518 3554 3730 3736 3794 3934 3974 4001
+;->  4027 4063 4229 4247 4265 4267 4427 4445 4463 4643 4825 4883 5158 5176
+;->  5374 5516 5552 5558 5594 5752 5972 5992 6001 6007 6067 6265 6403 6425
+;->  6443 6485 6601 6685 6803 6821 7330 7376 7390 7394 7534 7556 7592 7712
+;->  7934 7970 8009 8029 8221 8225 8801 8821 9118 9172 9190 9338 9370 9374
+;->  9512 9598 9710 9734 9752 9910)
+
+(length (magnanimi 10000))
+;-> 226
+
+(length (magnanimi 1e5))
+;-> 338
+(time (length (magnanimi 1e5)))
+;-> 559.836
+
+(length (magnanimi 1e6))
+;-> 434
+(time (length (magnanimi 1e6)))
+;-> 7199.944
+
+(length (magnanimi 1e7))
+;-> 505
+(time (length (magnanimi 1e7)))
+;-> 91147.258
+
 =============================================================================
 
