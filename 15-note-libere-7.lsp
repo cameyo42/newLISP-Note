@@ -293,7 +293,8 @@ HASH-VALUE?: Valore esistente?
 HASH-EMPTY?: Hash-Map vuota?
 HASH-CLEAR: Eliminazione di tutti gli elementi (coppie chiave-valore)
 HASH-DESTROY: Eliminazione di una hash-map
-HASH-SET-LIST: Inserimento degli elementi (coppie chiave-valore) di una lista associativa
+HASH-SET-ALIST: Inserimento degli elementi (coppie chiave-valore) di una lista associativa
+HASH-SET-LIST: Inserimento degli elementi (coppie chiave-valore) di una lista (chiave autocreata)
 HASH?: Hash-map esistente?
 HASH-MAP-LAMBDA: Applica una funzione (kv-fn) agli elementi (coppie chiave-valore)
 
@@ -542,19 +543,47 @@ Esempi:
 ;-> ERR: invalid function : (aa)
 
 -----------------------------------------------------------------------------------------
-HASH-SET-LIST: inserimento degli elementi (coppie chiave-valore) di una lista associativa
+HASH-SET-ALIST: inserimento degli elementi (coppie chiave-valore) di una lista associativa
 -----------------------------------------------------------------------------------------
-(define (hash-set-list hash lst)
+(define (hash-set-alist hash lst)
   (hash lst))
 
 Esempi:
 (hh)
 ;-> (("3" "c") ("4" "d"))
 (setq lista '((1 "A") ("2" "B")))
-(hash-set-list hh lista)
+(hash-set-alist hh lista)
 ;-> hh
 (hh)
 ;-> (("1" "A") ("2" "B") ("3" "c") ("4" "d"))
+
+-------------------------------------------------------------------------------------------------
+HASH-SET-LIST: Inserimento degli elementi (coppie chiave-valore) di una lista (chiave autocreata)
+-------------------------------------------------------------------------------------------------
+La chiave è un numero sequenziale da 1 al numero di elementi della lista.
+Le coppie (chiave valore) sono del tipo (string-num list-element).
+
+(define (hash-set-list hash lst)
+  (hash (map list (sequence 1 (length lst)) lst)))
+
+Esempi:
+(hash-create 'bb)
+;-> bb
+(bb)
+;-> ()
+(setq lista '("a" "A" "b" "B"))
+(hash-set-list bb lista)
+;-> bb
+(bb)
+;-> (("1" "a") ("2" "A") ("3" "b") ("4" "B"))
+
+Nota: la funzione crea le chiavi come numeri da 1 alla lunghezza della lista. Se la hash-map contiene valori con le stesse chiavi, allora i valori della lista sovrascrivono i valori (coppie chiave-valore) della hash-map.
+
+(setq nuova '("g" "h"))
+(hash-set-list bb nuova)
+;-> bb
+(bb)
+;-> (("1" "g") ("2" "h") ("3" "b") ("4" "B"))
 
 ----------------------
 HASH?: hash esistente?

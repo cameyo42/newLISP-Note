@@ -5452,7 +5452,7 @@ Vediamo la parola più frequente del vocabolario:
 (freq-num -1)
 ;-> (3351 "the")
 
-Proviamo con un altro testo:
+Proviamo con un altro testo ("moby-dick.txt" che si trova nella cartella "data"):
 
 (silent (setq moby "F:\\Lisp-Scheme\\newLisp\\MAX\\moby-dick.txt"))
 
@@ -6823,6 +6823,8 @@ Per compilare il file con il compilatore gcc:
 
 gcc test.c -o test.exe
 
+Trovate i file "test.c" e "test.exe" nella cartella "data".
+
 Adesso da una REPL di newLISP:
 
 (exec "test.exe")
@@ -6863,7 +6865,7 @@ Sequenza OEIS: A252996
   0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 14, 16, 20, 21, 23, 25, 29, 30,
   32, 34, 38, 41, 43, 47, 49, 50, 52, 56, 58, 61, 65, 67, 70, 74, 76, 83,
   85, 89, 92, 94, 98, 101, 110, 112, 116, 118, 130, 136, 152, 158, 170,
-  172, 203, 209, 221, 227, 229, 245, 265, 281, 310, 316, 334, 338, 356
+  172, 203, 209, 221, 227, 229, 245, 265, 281, 310, 316, 334, 338, 356, ...
 
 Funzioni ausiliarie:
 
@@ -6957,6 +6959,144 @@ Funzione che calcola i numeri magnanimi da 0 ad un dato limite:
 ;-> 505
 (time (length (magnanimi 1e7)))
 ;-> 91147.258
+
+
+------------------------------------
+Aggiornamento dei valori dei simboli
+------------------------------------
+
+Supponiamo di avere alcuni simboli con valori numerici.
+Vogliamo aggiornare i valori aumentando di 1 ogni numero.
+
+Ad esempio supponiamo di avere i seguenti 5 simboli val1, ..., val5:
+
+(for (i 1 5)
+  (setq str (string "(setq val" i " " i ")"))
+  (println str)
+  (eval-string str)
+)
+
+(println val1 { } val2 { } val3 { } val4 { } val5)
+;-> 1 2 3 4 5
+
+Per aggiornare i valori possiamo usare il metodo seguente:
+
+(dolist (s '(val1 val2 val3 val4 val5))
+  (++ (eval s)))
+
+(println val1 { } val2 { } val3 { } val4 { } val5)
+;-> 2 3 4 5 6
+
+Se prima vogliamo inserire i simboli in una lista:
+
+(setq out '())
+(for (i 1 5)
+  ; inserisce numeri
+  ;(setq str (string "(push val" i " out -1)"))
+  ; inserisce simboli
+  (setq str (string "(push 'val" i " out -1)"))
+  (eval-string str)
+)
+out
+;-> (val1 val2 val3 val4 val5)
+
+Poi aggiorniamo i valori dei simboli della lista:
+
+(dolist (s out) (++ (eval s)))
+(println val1 { } val2 { } val3 { } val4 { } val5)
+;-> 3 4 5 6 7 
+
+
+------------------
+Numeri aritmetici
+------------------
+
+Un intero positivo n è un numero aritmetico se la media dei suoi divisori positivi è un intero.
+
+Chiaramente tutti i numeri primi dispari p devono essere numeri aritmetici perché i loro unici divisori sono 1 e p la cui somma è pari e quindi la loro media deve essere un intero. Tuttavia, il numero primo 2 non è un numero aritmetico perché la media dei suoi divisori vale 1.5.
+
+Sequenza OEIS: A003601
+  1, 3, 5, 6, 7, 11, 13, 14, 15, 17, 19, 20, 21, 22, 23, 27, 29, 30, 31,
+  33, 35, 37, 38, 39, 41, 42, 43, 44, 45, 46, 47, 49, 51, 53, 54, 55, 56, 
+  57, 59, 60, 61, 62, 65, 66, 67, 68, 69, 70, 71, 73, 77, 78, 79, 83, 85, 
+  86, 87, 89, 91, 92, 93, 94, 95, 96, 97, 99, 101, 102, 103, 105, ...
+
+Funzioni ausiliarie:
+
+(define (factor-group num)
+"Factorize an integer number"
+  (if (< num 2) nil
+      (letn ((out '()) (lst (factor num)) (cur-val (first lst)) (cur-count 0))
+        (dolist (el lst)
+          (if (= el cur-val) (++ cur-count)
+              (begin
+                (push (list cur-val cur-count) out -1)
+                (setq cur-count 1 cur-val el))))
+        (push (list cur-val cur-count) out -1))))
+
+(define (divisors-sum-len num)
+"Sum all the divisors of integer number and calculate length"
+  (local (sum out)
+    (if (= num 1)
+        (begin (setq len 1) 1)
+        (begin
+          (setq out 1)
+          (setq lst (factor-group num))
+          (setq len (apply * (map (fn(x) (+ 1 (last x))) lst)))
+          (dolist (el lst)
+            (setq sum 0)
+            (for (i 0 (last el))
+              (setq sum (+ sum (pow (first el) i)))
+            )
+            (setq out (* out sum)))))))
+
+Funzione che verifica se un numero è aritmentico:
+
+(define (arithmetic? num)
+  (local (sum len)
+  (setq sum (divisors-sum-len num))
+    (= (div sum len) (/ sum len))
+  ))
+
+Facciamo alcune prove:
+
+(arithmetic? 6)
+;-> true
+(arithmetic? 10)
+;-> nil
+
+Funzione che calcola i numeri aritmetici da 0 ad un dato limite:
+
+(define (arithmetic limite)
+  (let (out '())
+    (for (i 1 limite)
+      (if (arithmetic? i)
+          (push i out -1)))
+    out))
+
+(arithmetic 110)
+;-> (1 3 5 6 7 11 13 14 15 17 19 20 21 22 23 27 29 30 31 33 35 37 38 39 41
+;->  42 43 44 45 46 47 49 51 53 54 55 56 57 59 60 61 62 65 66 67 68 69 70 71
+;->  73 77 78 79 83 85 86 87 89 91 92 93 94 95 96 97 99 101 102 103 105 107
+;->  109 110)
+
+(length (arithmetic 10000))
+;-> 7688
+
+(length (arithmetic 1e5))
+;-> 79412
+(time (length (arithmetic 1e5)))
+;-> 310.776
+
+(length (arithmetic 1e6))
+;-> 812513
+(time (length (arithmetic 1e6)))
+;-> 3561.75
+
+(length (arithmetic 1e7))
+;-> 8262497
+(time (length (arithmetic 1e7)))
+;-> 45631.26
 
 =============================================================================
 

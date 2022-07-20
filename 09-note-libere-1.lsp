@@ -5594,6 +5594,26 @@ Equivalente a:
 (chop '("a" "b" "c" "d" "e"))
 ;-> ("a" "b" "c" "d")
 
+Nota: l'indicizzazione implicita non può usare indici multipli per attraversare tipi diversi (es. liste e stringhe).
+Per esempio:
+
+(setq lista '("abc" "efg"))
+
+Per estrarre il carattere "a" della prima stringa della lista non possiamo scrivere:
+
+(lista 0 0)
+;-> "abc"
+
+che restituisce il primo elemento della lista, ma dobbiamo scrivere:
+
+((lista 0) 0)
+;-> "a"
+
+Oppure:
+
+(first (lista 0))
+;-> "a"
+
 
 ------------------------------------
 nil come valore e nil come risultato

@@ -1275,6 +1275,8 @@ NOTE LIBERE 9
   FOOP e self
   exec e redirezione di stdout e stderr
   Numeri magnanimi
+  Aggiornamento dei valori dei simboli
+  Numeri aritmetici
   
 APPENDICI
 =========
@@ -1308,7 +1310,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (219 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (220 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================

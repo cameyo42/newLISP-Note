@@ -2363,18 +2363,18 @@ Vedi anche il capitolo "La funzione quote e il simbolo '".
 Il limite sulle stringhe
 ------------------------
 
-newLISP pone un limite all'utilizzo di stringhe: massimo 2048 caratteri.
+newLISP pone un limite all'utilizzo di stringhe: massimo 2047 caratteri.
 Questo crea dei vincoli a diverse operazioni:
 
-- una espressione non può superare 2048 caratteri
-- un input da stdin con la funzione "read-line" non può superare 2048 caratteri.
-- la funzione "print" non può usare stringhe con più di 2048 caratteri.
-- la funzione "parse" non può usare token-size maggiori di 2048 caratteri
+- una espressione non può superare 2047 caratteri
+- un input da stdin con la funzione "read-line" non può superare 2047 caratteri.
+- la funzione "print" non può usare stringhe con più di 2047 caratteri.
+- la funzione "parse" non può usare token-size maggiori di 2047 caratteri
 - ecc.
 
-Questo limite è stato imposto per ottenere una maggiore velocità nel trattamento delle stringhe, ma può risultare un problema in certi casi. Fortunatamente newLISP offre la possibilità di superare questo problema a scapito di una diminuzione della velocità delle operazioni: utilizzare il tag [text] e [/text].
+Questo limite è stato imposto per ottenere una maggiore velocità nel trattamento delle stringhe, ma può risultare un limite in certi casi. Fortunatamente newLISP offre la possibilità di superare questo problema a scapito di una diminuzione della velocità delle operazioni: utilizzare il tag [text] e [/text].
 
-Creiamo una stringa maggiore di 2048 cartteri e stampiamola:
+Creiamo una stringa maggiore di 2047 caratteri e stampiamola:
 
 (setq str (dup "01" 1025))
 
@@ -2395,9 +2395,37 @@ Se invece vogliamo stampare un testo creato internamente alla funzione "print", 
   </html>
 [/text])
 
-I tag [text] e [/ text] sono usati per delimitare stringhe lunghe (> 2048 char) e sopprimere la traduzione dei caratteri di escape.
+I tag [text] e [/text] sono usati per delimitare stringhe lunghe (> 2047 caratteri) e sopprimere la traduzione dei caratteri di escape.
 
-Nota: Il trattamento di stringhe maggiori di 2048 caratteri rallenta molto la velocità di esecuzione dei programmi.
+La distinzione tra minore o maggiore uguale a 2048 viene fatta per la velocità. La rappresentazione interna delle stringhe è la stessa. Ciò che differisce è il metodo utilizzato per leggere le stringhe dal sorgente. Per le stringhe inferiori a 2048 limitate da "" o {}, vengono utilizzati i buffer allocati o lo stack e un solo read(). Per l'output newLISP esamina la lunghezza e sceglie "" rispetto a [text][/text]. Per stringhe più lunghe viene utilizzata la lettura tramite stream. Il tipo corto, il più utilizzato nei programmi, può anche essere gestito velocemente sullo stack C, mentre il lungo no.
+
+Ma i tre set di delimitatori offrono anche al programmatore diversi modi di codificare le stringhe. Per esempio, per il lavoro sul web [text][/text] sono molto convenienti perché prendono il testo così com'è includendo i line-feeds. E i delimitatori {} sono utili per le espressioni regolari per evitare la doppia barra rovesciata.
+
+Il salvataggio delle stringhe più lunghe di 2047 viene suddiviso in porzioni fino a 72 caratteri delimitate da virgolette normali "" e con escape per i caratteri non stampabili. Ad esempio:
+
+(set 'str (dup "Part of \000 a long string with more than 2047 chars. " 45))
+
+(save "stringa.lsp" 'str)
+
+Il file "stringa.lsp" contiene:
+
+(set 'str (append
+"Part of \000 a long string with more than 2047 chars. Part of \000 a long stri"
+"ng with more than 2047 chars. Part of \000 a long string with more than 204"
+...
+"tring with more than 2047 chars. Part of \000 a long string with more than "
+"2047 chars. Part of \000 a long string with more than 2047 chars. ")
+
+La rappresentazione interna di una stringa è sempre la stessa: indirizzo e lunghezza. Le routine di I/O interne decidono il formato osservando il campo lunghezza della stringa e il dispositivo utilizzato.
+
+Perchè viene usato "append" invece di "extend" (che in genere è più veloce)?
+Dopo aver eseguito alcuni altri benchmark risulta che "append" è più veloce quando si aggiungono molte stringhe. QUando usiamo "save" abbiamo circa 30 stringhe di circa 72 caratteri ciascuna. "extend" esegue un realloc() su ogni stringa, mentre "append" alloca la memoria in blocchi più grandi.
+Inoltre, oltre ad essere distruttiva, la funzione extend ha anche una cronologia della variabile di cui preoccuparsi! Per utilizzare la funzione "extend" nell'output della funzione "save" occorre evitare effetti collaterali durante l'esecuzione della funzione di caricamento, cioè str deve essere esplicitamente impostata su nil o sulla "la stringa vuota" per evitare che si verifichino "errori di stringa" apparentemente casuali se la variabile str era stata impostata prima (per esempio da un modulo di terze parti o dall'esecuzione multipla di "load" dal terminale REPL).
+Quindi il codice generato dalla funzione di salvataggio dovrebbe essere:
+(set 'str "") ; clear string
+(extend str arg1 arg2 arg3 ...)
+
+Nota: L'utilizzo di stringhe maggiori di 2047 caratteri rallenta la velocità di esecuzione dei programmi.
 
 
 -----------------
