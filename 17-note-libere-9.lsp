@@ -7098,5 +7098,96 @@ Funzione che calcola i numeri aritmetici da 0 ad un dato limite:
 (time (length (arithmetic 1e7)))
 ;-> 45631.26
 
+
+-----------------------
+Contesti come dizionari
+-----------------------
+
+Supponiamo di avere N utenti e di voler associare ad ogni utente una lista di processi.
+In altre parole vogliamo una struttura dati del tipo:
+
+  (User-Name Process-Name Start-Time Interval-sec End-Time)
+
+che rappresenta un processo.
+
+Supponendo che i nomi dei processi siano tutti differenti, allora possiamo usare il seguente metodo per creare i processi con i relativi attributi (by TedWalther):
+
+(define schedules:schedules)
+(define (schedules:add u)
+  (let (s (sym (string "_" u)))
+    (if (eval s)
+      (push (args) (eval s) -1)
+      (set (sym (string "_" u)) (list (args))))))
+
+Quindi per inserire i dati possiamo scrivere:
+
+(schedules:add "user1" "Feed plants" 1450754544 604800 1456197744)
+;-> (("Feed plants" 1450754544 604800 1456197744))
+
+(schedules:add "user1" "Manicure plants" 1450754544 259200 1453346544)
+;-> (("Feed plants" 1450754544 604800 1456197744) 
+;->  ("Manicure plants" 1450754544 259200 1453346544))
+
+(schedules:add "user2" "Added" 1450754544 259200 1453346544)
+;-> (("Added" 1450754544 259200 1453346544))
+
+(println (schedules "user1"))
+;-> (("Feed plants" 1450754544 604800 1456197744) 
+;->  ("Manicure plants" 1450754544 259200 1453346544))
+(println (schedules "user2"))
+;-> (("Added" 1450754544 259200 1453346544))
+
+Questo metodo utilizza i "contesti come dizionari" (cioè sfrutta l'implementazione red-black tree).
+
+
+-------------------------------------------
+Interazione tra context, constant, e global
+-------------------------------------------
+
+Quando un simbolo è dichiarato globale con "global", è possibile dichiararlo "constant" solo nel contesto MAIN.
+Per esempio:
+
+(global 'x)
+;-> x
+(context 'pippo)
+;-> pippo
+
+Se usiamo "constant" otteniamo un errore:
+
+(constant 'x 2)
+;-> ERR: symbol not in current context in function constant : x
+
+Possiamo usare "set" o "setq":
+
+(set 'x 1)
+;-> 1
+x
+;-> 1
+
+Invece nel contesto MAIN possiamo usare "constant":
+
+(context 'MAIN)
+;-> MAIN
+(constant 'x 2)
+;-> 2
+
+Adesso il simbolo x è protetto in tutti i contesti:
+
+(set 'x 3)
+;-> ERR: symbol not in current context in function constant : x
+
+(context 'pippo)
+;-> pippo
+(set 'x 3)
+;-> ERR: symbol not in current context in function constant : foo
+
+Dal manuale:
+"Only symbols from the current context can be used with constant. This prevents the overwriting of symbols that have been protected in their home context."
+
+Una buona pratica è quella di rendere un simbolo globale e costante all'inizio in MAIN. Questo lo rende costante, se globale o meno. Entrambi, l'ambito del simbolo ("global") e la protezione ("constant"), sono attributi principali di un simbolo che non dovrebbero essere modificati.
+... ma se devi, puoi comunque farlo in questo modo non ovvio:
+
+(eval-string "(constant 'x 4)" MAIN)
+
 =============================================================================
 

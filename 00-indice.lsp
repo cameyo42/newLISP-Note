@@ -1277,6 +1277,8 @@ NOTE LIBERE 9
   Numeri magnanimi
   Aggiornamento dei valori dei simboli
   Numeri aritmetici
+  Contesti come dizionari
+  Interazione tra context, constant, e global
   
 APPENDICI
 =========
@@ -1303,6 +1305,7 @@ APPENDICI
   Frasi Famose sulla Programmazione e sul Linguaggio Lisp
   Prefissi del Sistema Internazionale di unità di misura
   Alfabeto greco
+  Codici nazionali (ISO 3166)
   Codici ASCII
 
 BIBLIOGRAFIA/WEB
