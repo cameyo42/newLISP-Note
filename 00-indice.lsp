@@ -1279,6 +1279,13 @@ NOTE LIBERE 9
   Numeri aritmetici
   Contesti come dizionari
   Interazione tra context, constant, e global
+  Indice di Gini
+
+NOTE LIBERE 10
+==============
+  Turochamp
+  Chess puzzle
+
   
 APPENDICI
 =========

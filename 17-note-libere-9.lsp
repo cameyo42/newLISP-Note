@@ -7189,5 +7189,73 @@ Una buona pratica è quella di rendere un simbolo globale e costante all'inizio 
 
 (eval-string "(constant 'x 4)" MAIN)
 
+
+--------------
+Indice di Gini
+--------------
+
+Il coefficiente di Gini è una misura statistica della diseguaglianza che descrive quanto omogenea (o diseguale) risulta la distribuzione di una risorsa (es. reddito) tra gli elementi di un insieme (es. popolazione)il reddito o la ricchezza sono distribuite tra la popolazione di un paese. Il coefficiente assume un valore tra 0 e 1, ed un coefficiente di Gini più elevato è associato ad una più elevata diseguaglianza.
+
+La differenza media assoluta (o differenza media (semplice) di Gini) è una misura di variabilità che mette in evidenza la disuguaglianza dei dati tra loro, indipendentemente da qualsiasi valore medio.
+Rappresenta la media aritmetica dei moduli degli scarti di ciascun valore da tutti i rimanenti e si calcola nel modo seguente (l'indicizzazione parte da 1):
+
+           n n
+           ∑ ∑|x(i) - x(j)|
+           i j
+ delta = -------------------- con i ≠ j 
+                  n
+              2*n*∑x(j)
+                  j
+
+Scriviamo due funzioni per calcolare l'indice, la prima è l'implementazione diretta della formula ed ha tempo O(n^2), la seconda utilizza la programmazione dinamica ed ha tempo O(n*log(n)).
+
+(define (gini1 lst)
+  ; gini with direct formula
+  (local (len res)
+    (setq len (length lst))
+    (push 0 lst) ; index of data start at 1
+    (setq res 0)
+    (for (i 1 len)
+      (for (j 1 len)
+        (if (!= i j) (begin
+            (setq res (add res (abs (sub (lst i) (lst j)))))))
+      )
+    )
+    (setq res (div res (mul 2 len (apply add lst))))))
+
+(define (gini2 lst)
+  ; gini with dynamic programming
+  (setq len (length lst))
+  (sort lst)
+  (setq sum-diff 0)
+  (setq subsum 0)
+  (dolist (x lst)
+    (setq sum-diff (add sum-diff (mul x $idx) (- subsum)))
+    (setq subsum (add subsum x))
+  )
+  (div sum-diff subsum len))
+
+Facciamo alcune prove:
+
+(setq a '(1 1 2 2)) ; 0.1666667
+(setq b '(50 50 70 70 70 90 150 150 150 150)) ; 0.226
+(setq c '(150 50 70 70 70 90 150 150 150 50)) ; 0.226
+(setq d '(1 2 3 4 5 6 7 8 9 10)) ;0.3
+(setq e '(5 1 2 3 4 5)) ; 0.25
+(setq f '(5 1 0 3 4 0)) ; 0.5
+
+(println (gini1 a) {, } (gini2 a))
+(println (gini1 b) {, } (gini2 b))
+(println (gini1 c) {, } (gini2 c))
+(println (gini1 d) {, } (gini2 d))
+(println (gini1 e) {, } (gini2 e))
+(println (gini1 f) {, } (gini2 f))
+;-> 0.1666666666666667, 0.1666666666666667
+;-> 0.226, 0.226
+;-> 0.226, 0.226
+;-> 0.3, 0.3
+;-> 0.25, 0.25
+;-> 0.5, 0.5
+
 =============================================================================
 
