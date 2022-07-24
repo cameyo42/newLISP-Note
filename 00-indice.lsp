@@ -1284,7 +1284,11 @@ NOTE LIBERE 9
 NOTE LIBERE 10
 ==============
   Turochamp
-  Chess puzzle
+  Riempimento di contenitori
+  Chess puzzle 1
+  Chess puzzle 2
+  Quale gioco?
+  Usare una funzione come macro
 
   
 APPENDICI
