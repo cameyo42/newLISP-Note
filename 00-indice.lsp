@@ -1289,6 +1289,10 @@ NOTE LIBERE 10
   Chess puzzle 2
   Quale gioco?
   Usare una funzione come macro
+  Operazioni tra numeri stringa
+  Confronto tra gli elementi di una lista
+  Numeri colorati
+  Numeri brillanti
 
   
 APPENDICI

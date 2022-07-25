@@ -735,7 +735,6 @@ In altre parole, come fa la la macro a diventare "eseguibile" a causa della sua 
 
 ralph.ronnquist:
 "Well, being or not being a macro is, I believe, some flag attached to the symbol, which is set by the "(macro ..)" term. That term also wraps the given "body" into an "expand" term, as is typically useful for these kinds of macros. But not in this case, where you want the xlate-ion to be invoked at read time.
-
 The "(constant ...)" term simply attaches a new definition to the symbol without messing with the flag, and thus redefines it. The manual has some discussion about this point."
 
 Altro esempio:
@@ -766,6 +765,314 @@ Altro esempio:
 (string (source 'quatmul))
 "(define (quatmul q1 q2) ...
 ... (mul z1 w2)) (mul w1 z2)))))\r\n\r\n"
+
+
+-----------------------------
+Operazioni tra numeri stringa
+-----------------------------
+
+Qualche volta occorre fare operazioni su numeri che sono rappresentati come stringhe.
+Ad esempio dobbiamo sommare i numeri-stringa "145634" e "3452".
+Potremmo scrivere una serie di funzioni per ogni operazione, ad esempio per l'operazione "add":
+
+(define (str-add str1 str2)
+  (string (add (float str1) (float str2))))
+
+(str-add "145634" "3452")
+;-> "149086"
+
+Comunque possiamo risolvere il problema con una sola funzione che ha come parametro anche l'operazione da effettuare:
+
+(define (str-math op str1 str2)
+  (string (op (float str1) (float str2))))
+
+Questa unica funzione è generale perchè accetta qualunque operazione matematica tra due numeri-stringa:
+
+(str-math + "1" "2")
+;-> "3"
+(str-math + 1 2)
+;-> "3"
+(str-math + "1.1" "2.1")
+;-> "3"
+
+(str-math add "1.0" "2")
+;-> "3"
+(str-math add "1.1" "2.1")
+;-> "3.2"
+(str-math add 1.1 2.1)
+;-> "3.2"
+
+Nota: i numeri-stringa possono anche essere numeri (integer o float).
+
+(str-math add 1e5 2e5)
+;-> "300000"
+
+(str-math add "1e5" "2e5")
+;-> "300000"
+
+
+---------------------------------------
+Confronto tra gli elementi di una lista
+---------------------------------------
+
+Data una lista di elementi ordinabili (numeri, stringhe, ecc.) verificare: 
+
+1) se gli elementi sono tutti uguali
+2) se gli elementi sono ordinati in modo strettamente crescente
+
+Possiamo scrivere due funzioni:
+
+Lista con elementi tutti uguali?
+
+(define (all-equal? lst) (apply = lst))
+
+(setq a '(1 1 1))
+(all-equal? a)
+;-> true
+(setq b '(1 2 2))
+(all-equal? b)
+;-> nil
+
+(setq c '("1" "1" "1"))
+(all-equal? c)
+;-> true
+(setq d '("3" "2" "1"))
+(all-equal? d)
+;-> nil
+
+Lista ordinata in modo strettamente crescente?
+
+(define (stret-crescente lst) (apply <  lst))
+
+(setq e '("a" "b" "c"))
+(stret-crescente e)
+;-> true
+(setq f '("a" "b" "b"))
+(stret-crescente f)
+;-> nil
+
+Possiamo anche scrivere una funzione più generale:
+
+(define (order-type lst)
+"Check the sort order of a list"
+  (cond ((apply =  lst) '= ) ;lista con elementi uguali
+        ((apply >  lst) '> ) ;lista strettamente decrescente
+        ((apply <  lst) '< ) ;lista strettamente crescente
+        ((apply >= lst) '>=) ;lista decrescente
+        ((apply <= lst) '<=) ;lista crescente
+        (true nil)))         ;lista non ordinata
+
+Facciamo alcune prove:
+
+(order-type a)
+;-> =
+(order-type b)
+;-> <=
+(order-type c)
+;-> =
+(order-type d)
+;-> >
+(order-type e)
+;-> <
+(order-type f)
+;-> <=
+(order-type '(1 3 2))
+;-> nil
+
+
+---------------
+Numeri colorati
+---------------
+
+Un numero colorato (colorful) è un numero intero non negativo in base 10 in cui il prodotto di ogni sottogruppo di cifre consecutive è unico.
+
+Per esempio,
+24753 è un numero colorato. 2, 4, 7, 5, 3, (2×4)=8, (4×7)=28, (7×5)=35, (5×3)=15, (2×4×7)=56, (4×7×5)=140, (7×5×3)=105, (2×4×7×5)=280, (4×7×5×3)=420, (2×4×7×5×3)=840
+Ogni prodotto è unico.
+
+2346 non è un numero colorato. 2, 3, 4, 6, (2×3)=6, (3×4)=12, (4×6)=24, (2×3×4)=48, (3×4×6)=72, (2×3×4×6)=144
+Il prodotto 6 viene ripetuto.
+
+I numeri a una cifra sono considerati colorati.
+Un numero colorato maggiore di 9 non può contenere una cifra ripetuta, la cifra 0 o la cifra 1. Di conseguenza, esiste un limite superiore fisso per i numeri colorati: nessun numero colorato può avere più di 8 cifre.
+
+(define (int-list num)
+"Convert an integer to a list of digits"
+  (let (out '())
+    (while (!= num 0)
+      (push (% num 10) out)
+      (setq num (/ num 10))) out))
+
+(define (colorato? num)
+  (local (out lst len start cifre)
+    (setq out '())
+    (cond ((< num 10) true)
+          ((> num 99999999) nil)
+          (true
+            (setq lst (int-list num))
+            (cond ((find 0 lst) nil) ; nessuna cifra 0
+                  ((find 1 lst) nil) ; nessuna cifra 1
+                  ((!= lst (unique lst)) nil) ; solo numeri unici
+                  (true
+                    (setq len (length lst))
+                    (setq cifre start)
+                    (setq mult (- len 1))
+                    ; calcola prodotti
+                    (for (cifre 2 mult)
+                      (for (start 0 (- len cifre))
+                        (push (apply * (slice lst start cifre)) out -1)
+                        ;(println start { } cifre)
+                        ;(println (slice lst start cifre))
+                      )
+                    )
+                    (if (> len 2)
+                      (begin
+                        ; aggiungiamo il prodotto di tutte le cifre alla lista
+                        (push (apply * lst) out -1)
+                        ; aggiungiamo le cifre alla lista
+                        (extend out lst)
+                      )
+                    )
+                    ;(println out)
+                    (= (unique out) out))
+            ))
+    )))
+
+(colorato? 24753)
+;-> true
+(colorato? 2346)
+;-> nil
+(colorato? 1111111)
+;-> nil
+
+(filter colorato? (sequence 0 100))
+;-> ( 0  1  2  3  4  5  6  7  8  9  
+;->  23 24 25 26 27 28 29 32 34 35 
+;->  36 37 38 39 42 43 45 46 47 48 
+;->  49 52 53 54 56 57 58 59 62 63 
+;->  64 65 67 68 69 72 73 74 75 76 
+;->  78 79 82 83 84 85 86 87 89 92 
+;->  93 94 95 96 97 98)
+
+Calcoliamo l'ultimo numero colorato:
+
+(setq t (filter colorato? (sequence 99999999 98500000)))
+;-> (98746253 98745362 98745263 98736254 98735462 98735264 98726453 98726354
+;->  98674352 98673452 98672543 98672534 98654372 98653472 98652743 98652734
+;->  98647352 98647253 98645372 98645273 98637452 98637254 98635472 98635274
+;->  98627453 98627354 98625473 98625374 98547362 98547263 98546273 98537462
+;->  98537264 98536274 98526473 98526374)
+
+Ultimo numero colorato: 98.746.253
+
+(time (setq all-colors (filter colorato? (sequence 0 999999))))
+;-> 6152.286
+
+Calcoliamo quali sono tutti i numeri colorati:
+
+(time (setq all-colors (filter colorato? (sequence 0 99999999))))
+;-> 230349.787 ; 230 secondi -> 3min 50sec
+
+(length all-colors)
+;-> 57256
+
+Numeri colorati totali: 57256
+
+
+----------------
+Numeri brillanti
+----------------
+
+I numeri brillanti (brilliant) sono un sottoinsieme dei numeri semiprimi. Nello specifico, sono numeri che sono il prodotto esattamente di due numeri primi che hanno entrambi lo stesso numero di cifre quando espressi in base 10.
+I numeri brillanti sono utili in crittografia e durante il test di algoritmi di fattorizzazione primi.
+
+Esempi:
+3 × 3 (9) è un numero brillante
+2 × 7 (14) è un numero brillante
+113 × 691 (78083) è un numero brillante
+2 × 31 (62) non è un numero brillante (diverso numero di cifre nei due fattori 2 e 31)
+
+Sequenza OEIS: A078972
+ 4, 6, 9, 10, 14, 15, 21, 25, 35, 49, 121, 143, 169, 187, 209,
+ 221, 247, 253, 289, 299, 319, 323, 341, 361, 377, 391, 403, 
+ 407, 437, 451, 473, 481, 493, 517, 527, 529, 533, 551, 559, 
+ 583, 589, 611, 629, 649, 667, 671, 689, 697, 703, 713, 731,
+ 737, 767, 779, 781 ...
+
+(define (primes-to num)
+"Generates all prime numbers less than or equal to a given number"
+  (cond ((= num 1) '())
+        ((= num 2) '(2))
+        (true
+         (let ((lst '(2)) (arr (array (+ num 1))))
+          (for (x 3 num 2)
+                (when (not (arr x))
+                  (push x lst -1)
+                  (for (y (* x x) num (* 2 x) (> y num))
+                      (setf (arr y) true)))) lst))))
+
+Algoritmo:
+Calcoliamo tutti i primi con "digits" cifre.
+Raggruppiamo i primi in base al numero di cifre:
+  1 <= p1 <= 9
+  10 <= p1 <= 99
+  100 <= p1 <= 999
+  ....
+E per ogni raggruppamento calcoliamo i numeri brillanti e li aggiungiamo alla lista soluzione.
+
+(define (brilliant digits)
+  (local (out limite primi filtrati)
+    (setq out '())
+    ; digits = 2 -> limite = 99
+    ; digits = 3 -> limite = 999
+    (setq limite (- (pow 10 digits) 1))
+    (setq primi (primes-to limite))
+    (for (i 1 digits)
+      ; (1 9) (10 99) (100 999)...
+      (setq val-min (pow 10 (- i 1)))
+      (setq val-max (- (pow 10 i) 1))
+      ;(println val-min { } val-max)
+      (setq filtrati (filter (fn(x) (and (>= x val-min) (<= x val-max))) primi))
+      ; aggiorna la lista soluzione con i numeri brillanti
+      ; creati dai numeri primi da val-min a val-max
+      (dolist (p1 filtrati)
+        (dolist (p2 filtrati)
+              ;(push (list p1 p2 (* p1 p2)) out -1)
+              (push (* p1 p2) out -1)
+        )
+      )
+    )
+    (unique (sort out))))
+
+Facciamo alcune prove:
+
+(brilliant 2)
+;-> (4 6 9 10 14 15 21 25 35 49 121 143 169 187 209 221 247 253 289 299 319
+;->  323 341 361 377 391 403 407 437 451 473 481 493 517 527 529 533 551 559
+;->  583 589 611 629 649 667 671 689 697 703 713 731 737 767 779 781 793 799
+;->  803 817 841 851 869 871 893 899 901 913 923 943 949 961 979 989 1003 1007
+;->  1027 1037 1067 1073 1079 1081 1121 1139 1147 1157 1159 1189 1207 1219
+;->  1241 1247 1261 1271 1273 1333 1343 1349 1357 1363 1369 1387 1403 1411
+;->  1457 1501 1513 1517 1537 1541 1577 1591 1633 1643 1649 1679 1681 1691
+;->  1711 1739 1763 1769 1817 1829 1843 1849 1891 1909 1927 1943 1961 2021
+;->  2047 2059 2077 2117 2173 2183 2201 2209 2231 2257 2263 2279 2291 2407
+;->  2419 2449 2479 2491 2501 2537 2573 2581 2623 2627 2701 2747 2759 2773
+;->  2809 2813 2867 2881 2911 2923 2993 3007 3053 3071 3127 3139 3149 3233
+;->  3239 3293 3337 3397 3403 3431 3481 3551 3569 3589 3599 3649 3713 3721
+;->  3763 3827 3869 3901 3953 3977 4087 4171 4183 4187 4189 4307 4331 4399
+;->  4453 4489 4559 4661 4717 4757 4819 4891 4897 5041 5063 5141 5183 5251
+;->  5293 5329 5429 5561 5609 5723 5767 5893 5917 5963 6059 6241 6319 6497
+;->  6499 6557 6887 6889 7031 7081 7387 7663 7921 8051 8633 9409)
+
+(length (brilliant 3))
+;-> 10537
+
+(length (brilliant 4))
+;-> 573928
+
+(time (println (length (brilliant 5))))
+;-> 35547994
+;-> 88158.245 ;88 secondi
 
 =============================================================================
 
