@@ -5,6 +5,28 @@
 ===========
 
 ============================================================================
+ The fifteen ideas characterizing LISP
+============================================================================
+
+The fifteen ideas characterizing LISP: 
+1. Computing with symbolic expressions rather than numbers. 
+2. Representation of symbolic expressions and other information by list structure in computer memory. 
+3. Representation of information on paper, from keyboards and in other external media mostly by multi-level lists and sometimes by S-expressions. It has been important that any kind of data can be represented by a single general type. 
+4. A small set of selector and constructor operations expressed as func- tions, i.e. car, cdr and cons. 
+5. Composition of functions as a tool for forming more complex functions. 
+6. The use of conditional expressions for getting branching into function definitions. 
+7. The recursive use of conditional expressions as a sufficient tool for building computable functions. 
+8. The use of lambda-expressions for naming functions. 
+9. The storage of information on the property lists of atoms. 
+10. The representation of LISP programs as LISP data that can be manipulated by object programs. This has prevented the separation between system programmers and application programmers. Everyone can "improve" his LISP, and many of these "improvements" have developed into improvements to the language. 
+11. The conditional expression interpretation of Boolean connectives. 
+12. The LISP function eval that serves both as a formal definition of the language and as an interpreter. 
+13. Garbage collection as the means of erasure. 
+14. Minimal requirements for declarations so that LISP statements can be executed in an on-line environment without preliminaries. 
+15. LISP statements as a command language in an on-line environment.
+
+
+============================================================================
  Lista delle funzioni newLISP
 ============================================================================
 
@@ -3664,8 +3686,8 @@ Quella che segue è il sorgente commentato del programma newLISP di esempio:
 (context 'example)
 
 (define (foo n msg)
-	(dotimes (i n)
-		(println msg))
+  (dotimes (i n)
+    (println msg))
 )
 
 ;; See the @link http://example.com/example.lsp source .
@@ -5241,7 +5263,7 @@ Lista delle funzioni:
 (define (ack m n)
     (cond ((= m 0) (+ n 1))
           ((= n 0) (ack (- m 1) 1))
-	  (true    (ack (- m 1) (ack m (- n 1))))))
+    (true    (ack (- m 1) (ack m (- n 1))))))
 
 (define (main)
     (set 'N (integer (last (main-args))))
@@ -5255,13 +5277,13 @@ Lista delle funzioni:
 ;;
 
 (define (main)
-	(set 'n (integer (main-args 2)))
-	(set 'x (array n (sequence 1 n)))
-	(set 'y (array n '(0)))
-	(dotimes (k 1000)
-		(for (i (- n 1) 0)
-			(nth-set (y i) (+ (y i) (x i)) )))
-	(println (y 0) " " (y (- n 1) )))
+  (set 'n (integer (main-args 2)))
+  (set 'x (array n (sequence 1 n)))
+  (set 'y (array n '(0)))
+  (dotimes (k 1000)
+    (for (i (- n 1) 0)
+      (nth-set (y i) (+ (y i) (x i)) )))
+  (println (y 0) " " (y (- n 1) )))
 
 ---------------------------------------------------------------------
 ;;
@@ -5281,9 +5303,9 @@ Lista delle funzioni:
 
 (set 'lc 0 'wc 0 'cc 0)
 (while (set 'line (read-line))
-	(inc 'lc)
-	(inc 'wc (length (parse (trim line) "\\s+" 0)))
-	(inc 'cc (+ (length line) 1))) ;; add back the line feed
+  (inc 'lc)
+  (inc 'wc (length (parse (trim line) "\\s+" 0)))
+  (inc 'cc (+ (length line) 1))) ;; add back the line feed
 (println lc " " wc " " cc)
 
 ---------------------------------------------------------------------
@@ -5295,20 +5317,20 @@ Lista delle funzioni:
 
 (set 'SIZE 10000)
 (define (test-lists)
-	(set 'Li1  (sequence 1 SIZE))
-	(set 'Li2 Li1)
-	(set 'Li3 '())
-	; remove each item from left of Li2 and append to Li3
-	(reverse Li2)
-	(while Li2 (push (pop Li2) Li3 -1))
-	(while Li3 (push (pop Li3) Li2 -1))
-	(reverse Li1)
-	(if 	(!= (first Li1) SIZE) 0
-		(= Li1 Li2) (length Li1)
-		0))
+  (set 'Li1  (sequence 1 SIZE))
+  (set 'Li2 Li1)
+  (set 'Li3 '())
+  ; remove each item from left of Li2 and append to Li3
+  (reverse Li2)
+  (while Li2 (push (pop Li2) Li3 -1))
+  (while Li3 (push (pop Li3) Li2 -1))
+  (reverse Li1)
+  (if   (!= (first Li1) SIZE) 0
+    (= Li1 Li2) (length Li1)
+    0))
 (set 'n (integer (main-args 2)))
 (dotimes (i n)
-	(set 'result (test-lists)))
+  (set 'result (test-lists)))
 (println result)
 
 ---------------------------------------------------------------------
@@ -5321,23 +5343,23 @@ Lista delle funzioni:
 (set 'DATA "Hello there sailor\n");
 (set 'bufferSize (length DATA))
 (define (server port)
-	(set 'listen (net-listen port))
-	(set 'connection (net-accept listen))
-	(set 'N 0)
-	(while (net-receive connection 'buff bufferSize)
-		(inc 'N (length buff))
-		(net-send connection buff))
-	(net-close connection)
-	(net-close listen)
-	(println "server processed " N " bytes"))
+  (set 'listen (net-listen port))
+  (set 'connection (net-accept listen))
+  (set 'N 0)
+  (while (net-receive connection 'buff bufferSize)
+    (inc 'N (length buff))
+    (net-send connection buff))
+  (net-close connection)
+  (net-close listen)
+  (println "server processed " N " bytes"))
 
 (define (client port n)
-	(set 'connection (net-connect "127.0.0.1" port))
-	(dotimes (x n)
-		(net-send connection DATA)
-		(net-receive connection 'buff bufferSize)
-		(if (!= buff DATA) (println "Received different message: " buff)))
-	(net-close connection))
+  (set 'connection (net-connect "127.0.0.1" port))
+  (dotimes (x n)
+    (net-send connection DATA)
+    (net-receive connection 'buff bufferSize)
+    (if (!= buff DATA) (println "Received different message: " buff)))
+  (net-close connection))
 
 (set 'n (integer (main-args 2)))
 
@@ -5356,31 +5378,31 @@ Lista delle funzioni:
 (set 'HI 0 'LO 0)
 
 (define (some_function num)
-	(catch (hi_function num) 'result)
-	(if (not (integer? result))
-		(println "we never get here")))
+  (catch (hi_function num) 'result)
+  (if (not (integer? result))
+    (println "we never get here")))
 
 (define (hi_function num)
-	(catch (lo_function num) 'result)
-	(if (= result 'HI_exception)
-		(inc 'HI)
-		(throw result)))
+  (catch (lo_function num) 'result)
+  (if (= result 'HI_exception)
+    (inc 'HI)
+    (throw result)))
 
 (define (lo_function num)
-	(catch (blowup num) 'result)
-	(if (= result 'LO_exception)
-		(inc 'LO)
-		(throw result)))
+  (catch (blowup num) 'result)
+  (if (= result 'LO_exception)
+    (inc 'LO)
+    (throw result)))
 
 (define (blowup num)
-	(if (= (& num 1) 1)
-		(throw 'HI_exception)
-		(throw 'LO_exception)))
+  (if (= (& num 1) 1)
+    (throw 'HI_exception)
+    (throw 'LO_exception)))
 
 (define (main)
-	(dotimes (i n)
-		(some_function i))
-	(println "Exceptions: HI=" HI " / LO=" LO))
+  (dotimes (i n)
+    (some_function i))
+  (println "Exceptions: HI=" HI " / LO=" LO))
 
 (set 'n (integer (nth 2 (main-args))))
 
@@ -5425,9 +5447,9 @@ Lista delle funzioni:
 ;;
 
 (define (fibo n)
-	(if(< n 2) 1
-	(+  (fibo (- n 1))
-	    (fibo (- n 2)))))
+  (if(< n 2) 1
+  (+  (fibo (- n 1))
+      (fibo (- n 2)))))
 
 (println (fibo (integer (main-args 2))))
 
@@ -5447,11 +5469,11 @@ Lista delle funzioni:
 (set 'n (integer (main-args 2)))
 
 (for (i 1 n)
-	(set (sym (format "_%x" i) HASH) i) )
+  (set (sym (format "_%x" i) HASH) i) )
 
 (set 'cnt 0)
 (for (i n 1)
-	(if (sym (format "_%d"  i) HASH nil) (inc 'cnt)))
+  (if (sym (format "_%d"  i) HASH nil) (inc 'cnt)))
 
 (println cnt)
 
@@ -5471,14 +5493,14 @@ Lista delle funzioni:
 (set 'n (integer (main-args 2)))
 
 (dotimes (i 10000)
-	(set (sym (format "foo_%d" i) Hash1) i) )
+  (set (sym (format "foo_%d" i) Hash1) i) )
 
 (dotimes (i n)
-	(dotree (k Hash1)
-		(set 'key (sym (name k) Hash2 nil))
-		(if key
-			(inc key (eval k))
-			(set (sym (name k) Hash2) (eval k)))))
+  (dotree (k Hash1)
+    (set 'key (sym (name k) Hash2 nil))
+    (if key
+      (inc key (eval k))
+      (set (sym (name k) Hash2) (eval k)))))
 
 (println Hash1:foo_1 " " Hash1:foo_9999 " " Hash2:foo_1 " " Hash2:foo_9999)
 
@@ -5497,54 +5519,54 @@ Lista delle funzioni:
 (set 'LAST 42)
 
 (define (gen_random maximum)
-	(set 'LAST (mod (add (mul LAST IA) IC) IM))
-	(div (mul maximum LAST) IM))
+  (set 'LAST (mod (add (mul LAST IA) IC) IM))
+  (div (mul maximum LAST) IM))
 
 (define (heapsort n ra)
-	(set 'rra 0 'i 0 'j 0)
-	(set 'l (+ (>> n 1) 1))
-	(set 'ir n)
+  (set 'rra 0 'i 0 'j 0)
+  (set 'l (+ (>> n 1) 1))
+  (set 'ir n)
 
-	(while (not done)
-		(if (> l 1)
-			(begin
-				(dec 'l)
-				(set 'rra (ra l)))
-			(begin
-				(set 'rra (ra ir))
-				(nth-set ir ra (ra 1))
-				(dec 'ir)
-				(if (= ir 1)
-					(begin
-						(nth-set (ra 1) rra)
-						(set 'done true)
-						; return
-						ra))))
-		(set 'i l)
-		(set 'j (<< l 1))
-		(if (not done) (begin
-			(while (<= j ir)
-				(if (and (< j ir) (< (ra j) (ra (+ j 1))))
-					(inc ' j))
-				(if (< rra (ra j))
-					(begin
-						(nth-set (ra i) (ra j))
-						(set 'i j)
-						(inc 'j i))
-					(set 'j (+ ir 1))))
-			(nth-set (ra i) rra))
-		) ra))
+  (while (not done)
+    (if (> l 1)
+      (begin
+        (dec 'l)
+        (set 'rra (ra l)))
+      (begin
+        (set 'rra (ra ir))
+        (nth-set ir ra (ra 1))
+        (dec 'ir)
+        (if (= ir 1)
+          (begin
+            (nth-set (ra 1) rra)
+            (set 'done true)
+            ; return
+            ra))))
+    (set 'i l)
+    (set 'j (<< l 1))
+    (if (not done) (begin
+      (while (<= j ir)
+        (if (and (< j ir) (< (ra j) (ra (+ j 1))))
+          (inc ' j))
+        (if (< rra (ra j))
+          (begin
+            (nth-set (ra i) (ra j))
+            (set 'i j)
+            (inc 'j i))
+          (set 'j (+ ir 1))))
+      (nth-set (ra i) rra))
+    ) ra))
 
 (define (main)
-	(set 'N (integer (last (main-args))))
+  (set 'N (integer (last (main-args))))
 
-	(set 'ary (array (+ N 1)))
+  (set 'ary (array (+ N 1)))
 
-	(for (i 1 N) (nth-set (ary i) (gen_random 1.0)))
+  (for (i 1 N) (nth-set (ary i) (gen_random 1.0)))
 
-	(set 'ary (heapsort N ary))
+  (set 'ary (heapsort N ary))
 
-	(println (format "%.10f" (ary N)))
+  (println (format "%.10f" (ary N)))
 )
 
 (main)
@@ -5559,14 +5581,14 @@ Lista delle funzioni:
 (set 'size 30)
 
 (define (mkmatrix rows cols)
- 	(map (fn (i) (sequence (+ (* i cols) 1)  (+ (* i cols) cols))) (sequence 0 (- rows 1))))
+  (map (fn (i) (sequence (+ (* i cols) 1)  (+ (* i cols) cols))) (sequence 0 (- rows 1))))
 
 (define (main n)
-	(set 'm1 (mkmatrix size size))
-	(set 'm2 m1)
-	(dotimes (i n)
-		(set 'm3 (multiply m1 m2)))
-	(println (m3 0 0) " " (m3 2 3) " " (m3 3 2) " " (m3 4 4)))
+  (set 'm1 (mkmatrix size size))
+  (set 'm2 m1)
+  (dotimes (i n)
+    (set 'm3 (multiply m1 m2)))
+  (println (m3 0 0) " " (m3 2 3) " " (m3 3 2) " " (m3 4 4)))
 
 (set 'n (integer (main-args 2)))
 
@@ -5586,13 +5608,13 @@ Lista delle funzioni:
 (context 'Toggle)
 
 (define (init start_state)
-	(set 'bool start_state))
+  (set 'bool start_state))
 
 (define (value)
-	bool)
+  bool)
 
 (define (activate)
-	(set 'bool (not bool)))
+  (set 'bool (not bool)))
 
 (context 'MAIN)
 
@@ -5603,16 +5625,16 @@ Lista delle funzioni:
 (context NthToggle)
 
 (define (init start_state max_counter)
-	(set 'bool start_state)
-	(set 'count_max max_counter)
-	(set 'counter 0))
+  (set 'bool start_state)
+  (set 'count_max max_counter)
+  (set 'counter 0))
 
 (define (activate)
-	(inc 'counter)
-	(if (>= counter count_max)
-		(begin
-			(set 'bool (not bool))
-			(set 'counter 0))
+  (inc 'counter)
+  (if (>= counter count_max)
+    (begin
+      (set 'bool (not bool))
+      (set 'counter 0))
                 counter ))
 
 (context 'MAIN)
@@ -5623,24 +5645,24 @@ Lista delle funzioni:
 (set 'n (integer (main-args 2)))
 
 (define (main)
-	(new Toggle 'toggle)
-	(toggle:init true)
+  (new Toggle 'toggle)
+  (toggle:init true)
 
-	(dotimes (x n)
-		(toggle:activate)
-		(set 'val toggle:value))
+  (dotimes (x n)
+    (toggle:activate)
+    (set 'val toggle:value))
 
-	(if (toggle:value) (println "true") (println "false"))
+  (if (toggle:value) (println "true") (println "false"))
 
-	(new NthToggle 'ntoggle)
-	(ntoggle:init true 3)
+  (new NthToggle 'ntoggle)
+  (ntoggle:init true 3)
 
-	(dotimes (x n)
-		(ntoggle:activate)
-		(set 'val ntoggle:value))
+  (dotimes (x n)
+    (ntoggle:activate)
+    (set 'val ntoggle:value))
 
-	(if (ntoggle:value) (println "true") (println "false"))
-	)
+  (if (ntoggle:value) (println "true") (println "false"))
+  )
 
 (main)
 
@@ -5655,23 +5677,23 @@ Lista delle funzioni:
 (set 'n (integer (main-args 2)))
 (set 'x 0)
 (dotimes (a n)
-	(dotimes (b n)
-		(dotimes (c n)
-			(dotimes (d n)
-				(dotimes (e n)
-					(dotimes (f n)
-						(inc 'x)))))))
+  (dotimes (b n)
+    (dotimes (c n)
+      (dotimes (d n)
+        (dotimes (e n)
+          (dotimes (f n)
+            (inc 'x)))))))
 (println x)
 
 (set 'n (integer (main-args 2)))
 (set 'x 0)
 (for (a 1 n)
-	(for (b 1 n)
-		(for (c 1 n)
-			(for (d 1 n)
-				(for (e 1 n)
-					(for (f 1 n)
-						(inc 'x)))))))
+  (for (b 1 n)
+    (for (c 1 n)
+      (for (d 1 n)
+        (for (e 1 n)
+          (for (f 1 n)
+            (inc 'x)))))))
 (println x)
 
 ---------------------------------------------------------------------
@@ -5686,7 +5708,7 @@ Lista delle funzioni:
 ;;
 
 (define (nsieve m f, cnt)
-	(set 'cnt 0)
+  (set 'cnt 0)
 
         (for (i 2 m)
             (if (= (char f:isPrime i) 1)
@@ -5695,7 +5717,7 @@ Lista delle funzioni:
                     (while (<= k m)
                         (cpymem "\000" (+ k (address f:isPrime)) 1)
                         (inc 'k i))
-	        (inc 'cnt))))
+          (inc 'cnt))))
          cnt)
 
 (define (main)
@@ -5725,13 +5747,13 @@ Lista delle funzioni:
 (context 'Toggle)
 
 (define (init start_state)
-	(set 'bool start_state))
+  (set 'bool start_state))
 
 (define (value)
-	bool)
+  bool)
 
 (define (activate)
-	(set 'bool (not bool)))
+  (set 'bool (not bool)))
 
 (context 'MAIN)
 
@@ -5742,16 +5764,16 @@ Lista delle funzioni:
 (context NthToggle)
 
 (define (init start_state max_counter)
-	(set 'bool start_state)
-	(set 'count_max max_counter)
-	(set 'counter 0))
+  (set 'bool start_state)
+  (set 'count_max max_counter)
+  (set 'counter 0))
 
 (define (activate)
-	(inc 'counter)
-	(if (>= counter count_max)
-		(begin
-			(set 'bool (not bool))
-			(set 'counter 0))
+  (inc 'counter)
+  (if (>= counter count_max)
+    (begin
+      (set 'bool (not bool))
+      (set 'counter 0))
                 counter ))
 
 (context 'MAIN)
@@ -5761,30 +5783,30 @@ Lista delle funzioni:
 (set 'n (integer (main-args 2)))
 
 (define (main)
-	(new Toggle 'toggle)
-	(toggle:init true)
+  (new Toggle 'toggle)
+  (toggle:init true)
 
-	(dotimes (x 5)
-		(toggle:activate)
-		(if (toggle:value) (println "true") (println "false")))
+  (dotimes (x 5)
+    (toggle:activate)
+    (if (toggle:value) (println "true") (println "false")))
 
-	(dotimes (x n)
-		(new Toggle 'toggle)
-		(toggle:init true))
+  (dotimes (x n)
+    (new Toggle 'toggle)
+    (toggle:init true))
 
-	(println)
+  (println)
 
-	(new NthToggle 'ntoggle)
-	(ntoggle:init true 3)
+  (new NthToggle 'ntoggle)
+  (ntoggle:init true 3)
 
-	(dotimes (x 8)
-		(ntoggle:activate)
-		(if (ntoggle:value) (println "true") (println "false")))
+  (dotimes (x 8)
+    (ntoggle:activate)
+    (if (ntoggle:value) (println "true") (println "false")))
 
-	(dotimes (x n)
-		(new NthToggle 'ntoggle)
-		(ntoggle:init true 3))
-	)
+  (dotimes (x n)
+    (new NthToggle 'ntoggle)
+    (ntoggle:init true 3))
+  )
 
 (main)
 
@@ -5795,22 +5817,22 @@ Lista delle funzioni:
 ;;
 
 (define (main)
-	(set 'NUM (integer (main-args 2)))
+  (set 'NUM (integer (main-args 2)))
 
-	(dotimes (p NUM)
-		(set 'flags (array 8193 '(1)))
-		(set 'cnt 0)
+  (dotimes (p NUM)
+    (set 'flags (array 8193 '(1)))
+    (set 'cnt 0)
 
-		(for (i 2 8192)
-			(if (= (nth i flags) 1)
-				(begin
-					(set 'k (+ i i))
-					(while (<= k 8192)
-						(nth-set k flags 0)
-						(inc 'k i))
-					(inc 'cnt)))))
+    (for (i 2 8192)
+      (if (= (nth i flags) 1)
+        (begin
+          (set 'k (+ i i))
+          (while (<= k 8192)
+            (nth-set k flags 0)
+            (inc 'k i))
+          (inc 'cnt)))))
 
-	(println "Count: " cnt))
+  (println "Count: " cnt))
 
 (main)
 
@@ -5829,13 +5851,13 @@ Lista delle funzioni:
 (set 'LAST 42)
 
 (define (gen_random maximum)
-	(set 'LAST (mod (add (mul LAST IA) IC) IM))
-	(div (mul maximum LAST) IM))
+  (set 'LAST (mod (add (mul LAST IA) IC) IM))
+  (div (mul maximum LAST) IM))
 
 (define (main)
-	(set 'N (integer (main-args 2)))
-	(dotimes (i (- N 1)) (gen_random 100.0))
-	(println (format "%.9f" (gen_random 100.0))) )
+  (set 'N (integer (main-args 2)))
+  (dotimes (i (- N 1)) (gen_random 100.0))
+  (println (format "%.9f" (gen_random 100.0))) )
 
 (main)
 
@@ -5850,15 +5872,15 @@ Lista delle funzioni:
 
 ;; patterns
 (set 'pattern (append
-    {(?:^|[^\d\(])}		; must be preceeded by non-digit
-    {(\()?}				; match 1: possible initial left paren
-    {(\d\d\d)}			; match 2: area code is 3 digits
-    {(?(1)\))}			; if match1 then match right paren
-    {[ ]}				; area code followed by one space
-    {(\d\d\d)}			; match 3: prefix of 3 digits
-    {[ -]}			      ; separator is either space or dash
-    {(\d\d\d\d)}			; match 4: last 4 digits
-    {\D}				; must be followed by a non-digit
+    {(?:^|[^\d\(])}   ; must be preceeded by non-digit
+    {(\()?}       ; match 1: possible initial left paren
+    {(\d\d\d)}      ; match 2: area code is 3 digits
+    {(?(1)\))}      ; if match1 then match right paren
+    {[ ]}       ; area code followed by one space
+    {(\d\d\d)}      ; match 3: prefix of 3 digits
+    {[ -]}            ; separator is either space or dash
+    {(\d\d\d\d)}      ; match 4: last 4 digits
+    {\D}        ; must be followed by a non-digit
 ))
 
 ;; get N
@@ -5889,14 +5911,14 @@ Lista delle funzioni:
 (context 'MAIN)
 
 (define (main)
-	(set 'infile (open "Usr.Dict.Words" "read"))
-	(while (set 'word (read-line infile))
-		(sym word 'Dictionary))
-	(close infile)
+  (set 'infile (open "Usr.Dict.Words" "read"))
+  (while (set 'word (read-line infile))
+    (sym word 'Dictionary))
+  (close infile)
 
-	(while (set 'word (read-line))
-		(if (not (sym word 'Dictionary nil))
-			(println word))))
+  (while (set 'word (read-line))
+    (if (not (sym word 'Dictionary nil))
+      (println word))))
 
 (main)
 
@@ -5928,13 +5950,13 @@ Lista delle funzioni:
   (set 'std-dev (sqrt var))
   (if (> var 0.0)
     (begin
-	(set 'skew (div skew (mul n var std-dev)))
-	(set 'kurtosis (sub (div kurtosis (mul n var var)) 3.0))))
+  (set 'skew (div skew (mul n var std-dev)))
+  (set 'kurtosis (sub (div kurtosis (mul n var var)) 3.0))))
   (sort nums)
   (set 'mid (/ n 2))
   (if (= 0 (% n 2))
-	(set 'median (div (add (nums mid) (nums (- mid 1))) 2))
-	(set 'median (nums mid)))
+  (set 'median (div (add (nums mid) (nums (- mid 1))) 2))
+  (set 'median (nums mid)))
   (println (format "n:                  %d" n))
   (println (format "median:             %f" median))
   (println (format "mean:               %f" mean))
@@ -5970,44 +5992,44 @@ Lista delle funzioni:
 (constant 'wait -1 'sig 1)
 
 (define (consumer n)
-	(set 'i 0)
-	(while (< i n)
-		(semaphore cons-sem wait)
-		(set 'i (share data))
-		(share consumed (+ (share consumed) 1))
-		(semaphore prod-sem sig))
-	(exit))
+  (set 'i 0)
+  (while (< i n)
+    (semaphore cons-sem wait)
+    (set 'i (share data))
+    (share consumed (+ (share consumed) 1))
+    (semaphore prod-sem sig))
+  (exit))
 
 (define (producer n)
-	(for (i 1 n)
-		(semaphore prod-sem wait)
-		(share data i)
-		(share produced (+ (share produced) 1))
-		(semaphore cons-sem sig))
-	(exit))
+  (for (i 1 n)
+    (semaphore prod-sem wait)
+    (share data i)
+    (share produced (+ (share produced) 1))
+    (semaphore cons-sem sig))
+  (exit))
 
 (define (main n)
-	(set 'produced (share)) ; get shared mem addresses
-	(set 'consumed (share))
-	(set 'data (share))
+  (set 'produced (share)) ; get shared mem addresses
+  (set 'consumed (share))
+  (set 'data (share))
 
-	(share produced 0) ; init shared memory
-	(share consumed 0)
-	(share data 0)
+  (share produced 0) ; init shared memory
+  (share consumed 0)
+  (share data 0)
 
-	(set 'prod-sem (semaphore)) ; get semaphores
-	(set 'cons-sem (semaphore))
+  (set 'prod-sem (semaphore)) ; get semaphores
+  (set 'cons-sem (semaphore))
 
-	(set 'prod-pid (fork (producer n))) ; start processes
-	(set 'cons-pid (fork (consumer n)))
-	(semaphore prod-sem sig) ; get producer started
+  (set 'prod-pid (fork (producer n))) ; start processes
+  (set 'cons-pid (fork (consumer n)))
+  (semaphore prod-sem sig) ; get producer started
 
-	(wait-pid prod-pid) ; wait for processe to finish
-	(wait-pid cons-pid)
-	(semaphore cons-sem 0) ; release semaphore
-	(semaphore prod-sem 0) ; release semaphore
+  (wait-pid prod-pid) ; wait for processe to finish
+  (wait-pid cons-pid)
+  (semaphore cons-sem 0) ; release semaphore
+  (semaphore prod-sem 0) ; release semaphore
 
-	(println (share produced) " " (share consumed)))
+  (println (share produced) " " (share consumed)))
 
 (main (integer (last (main-args))))
 
@@ -6050,20 +6072,20 @@ Lista delle funzioni:
 (context MAIN)
 
 (define (main)
-;;	(HASH:make 'wc)
-	(while (read-line)
-		(set 'data (parse (lower-case (current-line)) "[^a-z]+" 0))
-		(dolist (w data)
-			(if (set 'result (eval (symbol (append "_" w) wc) ))
-				(set (symbol (append "_" w) wc) (+ result 1))
-				(set (symbol (append "_" w) wc) 1))))
-	(dolist (w (symbols wc))
-		(set 'wrd (name w))
-		(if (and (starts-with wrd "_") (!= "_" wrd))
-			(push (list (eval w) (slice wrd 1) ) words) ))
-	(dolist (w (reverse (sort words)))
-		(println (format "%7d %s" (first w) (last w))))
-	)
+;;  (HASH:make 'wc)
+  (while (read-line)
+    (set 'data (parse (lower-case (current-line)) "[^a-z]+" 0))
+    (dolist (w data)
+      (if (set 'result (eval (symbol (append "_" w) wc) ))
+        (set (symbol (append "_" w) wc) (+ result 1))
+        (set (symbol (append "_" w) wc) 1))))
+  (dolist (w (symbols wc))
+    (set 'wrd (name w))
+    (if (and (starts-with wrd "_") (!= "_" wrd))
+      (push (list (eval w) (slice wrd 1) ) words) ))
+  (dolist (w (reverse (sort words)))
+    (println (format "%7d %s" (first w) (last w))))
+  )
 
 (main)
 ---------------------------------------------------------------------

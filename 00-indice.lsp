@@ -1293,10 +1293,13 @@ NOTE LIBERE 10
   Confronto tra gli elementi di una lista
   Numeri colorati
   Numeri brillanti
+  StrappaCamicia
+  Circonferenza passante per tre punti
 
   
 APPENDICI
 =========
+  The fifteen ideas characterizing LISP
   Lista delle funzioni newLISP
   Sul linguaggio newLISP - FAQ (Lutz Mueller)
   newLISP in 21 minuti (John W. Small)

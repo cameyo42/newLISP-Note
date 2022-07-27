@@ -1074,5 +1074,438 @@ Facciamo alcune prove:
 ;-> 35547994
 ;-> 88158.245 ;88 secondi
 
+
+--------------
+StrappaCamicia
+--------------
+
+StrappaCamicia o StracciaCamicia o Scamicia è un gioco di carte diffuso in Italia con il mazzo napoletano da 40 carte divise in 4 semi (coppe, denari, bastoni, spade) di 10 carte ciascuno e giocato da 2 persone o più persone, anche in numero dispari.
+
+Una volta mischiate le carte e smezzate dal giocatore alla propria sinistra vengono suddivise in mazzetti uguali, tanti quanti sono i giocatori.
+
+Quando un giocatore gioca una delle tre carte vincenti il giocatore successivo è obbligato a giocare il numero di carte indicate (1 per l'asso, 2 per il due e 3 per il tre). Se durante queste giocata esce una delle carte vincenti l'obbligo si interrompe e tocca al giocatore successivo giocare il numero di carte indicate. Se il giocatore obbligato a giocare le carte non pone una carta vincente il mazzetto di carte presente sul tavolo viene preso dall'altro giocatore (che ha giocato un 1 o un 2 o un 3). Questo riporrà le carte sotto le proprie e inizierà un nuovo turno.
+
+Il vincitore è quello che avrà l'intero mazzo (cioè quando tutti gli avversari non avranno più carte).
+
+Esiste una configurazione del mazzo che porta ad una partita infinita, ovvero nella quale i giocatori non arriveranno mai a zero carte, in quanto dopo una certa sequenza di mosse ritorneranno allo stato iniziale. È stata trovata nel 2017, ed è la seguente (con 0 si indica una carta diversa da 1, 2 e 3):
+
+Giocatore 1: 0 0 3 0 2 0 2 0 3 0 3 1 0 0 0 0 0 3 1 0
+Giocatore 2: 0 0 1 0 0 2 0 0 0 0 2 0 0 0 0 0 0 0 1 0
+
+(setq s1 '(0 0 3 0 2 0 2 0 3 0 3 1 0 0 0 0 0 3 1 0))
+(setq s2 '(0 0 1 0 0 2 0 0 0 0 2 0 0 0 0 0 0 0 1 0))
+
+Scriviamo un programma che simula una partita a StrappaCamicia:
+
+(define (strappa stampa)
+(local (carte mazzo shuffle s1 s2 pegno player grab scoperte carta)
+  (setq carte (sequence 1 10))
+  (setq mazzo (flat (dup carte 4)))
+  ; mazzo mischiato
+  (setq shuffle (randomize mazzo))
+  ; carte del giocatore 1
+  (setq s1 (slice shuffle 0 20))
+  ; carte del giocatore 2
+  (setq s2 (slice shuffle 20))
+  ; uncomment the following two lines to run an infinite game
+  ;(setq s1 '(0 0 3 0 2 0 2 0 3 0 3 1 0 0 0 0 0 3 1 0))
+  ;(setq s2 '(0 0 1 0 0 2 0 0 0 0 2 0 0 0 0 0 0 0 1 0))  
+  (setq pegno 0)
+  (setq player 1)
+  (setq grab nil)
+  (setq scoperte '())
+  (until (or (= s1 '()) (= s2 '()))
+    (if stampa (println "player: " player))
+    (cond ((= player 1)
+            ; estrazione prima carta e suo
+            ; inserimento nelle carte scoperte
+            (push (setq carta (pop s1)) scoperte -1)
+            ; se carta = 1 o 2 o 3, allora imposta il nuovo pegno,
+            ; tocca all'altro player e le carte scoperte
+            ; possono essere catturate (al termine del pegno)
+            (cond ((= carta 1) (setq pegno 1) (setq player 2) (setq grab true))
+                  ((= carta 2) (setq pegno 2) (setq player 2) (setq grab true))
+                  ((= carta 3) (setq pegno 3) (setq player 2) (setq grab true))
+                  (true ;altrimenti
+                    ; se il pegno vale 0, significa che il turno
+                    ; passa all'altro player e...
+                    ;(if (zero? pegno)
+                    (if (= 0 pegno) (setq player 2))
+                    (if (= 1 pegno)
+                      (begin
+                        (setq player 2)
+                        (-- pegno)
+                        ; se anche grab vale true, significa che
+                        ; che questo giocatore ha finito di pagare il pegno e
+                        ; l'altro giocatore deve prendere le carte scoperte
+                        (if grab
+                          (begin
+                            (extend s2 scoperte)
+                            (setq scoperte '())
+                            (setq grab nil)
+                          )
+                        )
+                      )
+                    )
+                    (if (> pegno 1)
+                      ; se il pegno maggiore di 1, significa che
+                      ; stiamo pagando pegno e quindi
+                      ; diminuiamo il suo valore
+                      (begin
+                        (-- pegno)
+                      )
+                    )
+                  )
+            )
+          )
+          ((= player 2)
+            ; estrazione prima carta e suo
+            ; inserimento nelle carte scoperte
+            (push (setq carta (pop s2)) scoperte -1)
+            ; se carta = 1 o 2 o 3, allora imposto il nuovo pegno,
+            ; tocca a player 2 e possibile cattura delle carte scoperte
+            (cond ((= carta 1) (setq pegno 1) (setq player 1) (setq grab true))
+                  ((= carta 2) (setq pegno 2) (setq player 1) (setq grab true))
+                  ((= carta 3) (setq pegno 3) (setq player 1) (setq grab true))
+                  (true ;altrimenti
+                    ; se il pegno vale 1, significa che il turno
+                    ; passa all'altro player e...
+                    ;(if (zero? pegno)
+                    (if (= 0 pegno) (setq player 1))
+                    (if (= 1 pegno)
+                      (begin
+                        (setq player 1)
+                        (-- pegno)
+                        ; se anche grab vale true, significa che
+                        ; che questo giocatore ha finito di pagare il pegno e
+                        ; l'altro giocatore deve prendere le carte scoperte
+                        (if grab
+                          (begin
+                            (extend s1 scoperte)
+                            (setq scoperte '())
+                            (setq grab nil)
+                          )
+                        )
+                      )
+                    )
+                    (if (> pegno 1)
+                      ; se il pegno maggiore di 1, significa che
+                      ; stiamo pagando pegno e quindi
+                      ; diminuiamo il suo valore
+                      (begin
+                        (-- pegno)
+                      )
+                    )
+                  )
+            )
+          )
+    )
+    (if stampa (begin
+      (println "carta estratta: " carta)
+      (println "pegno: " pegno)
+      (println "scoperte: " scoperte)
+      (println "mazzo 1: " s1 { } (length s1))
+      (println "mazzo 2: " s2 { } (length s2))
+      (println "new player: " player)
+      (read-line)))
+  )
+  player))
+
+Simuliamo una partita:
+
+(strappa true)
+;-> player: 1
+;-> carta estratta: 5
+;-> pegno: 0
+;-> scoperte: (5)
+;-> mazzo 1: (4 5 7 10 4 9 6 7 2 3 4 6 9 7 6 8 2 3 1) 19
+;-> mazzo 2: (2 3 3 8 7 10 5 1 8 8 6 10 5 9 10 1 2 4 1 9) 20
+;-> new player: 2
+;-> 
+;-> player: 2
+;-> carta estratta: 2
+;-> pegno: 2
+;-> scoperte: (5 2)
+;-> mazzo 1: (4 5 7 10 4 9 6 7 2 3 4 6 9 7 6 8 2 3 1) 19
+;-> mazzo 2: (3 3 8 7 10 5 1 8 8 6 10 5 9 10 1 2 4 1 9) 19
+;-> new player: 1
+;-> ...
+;-> player: 1
+;-> carta estratta: 2
+;-> pegno: 2
+;-> scoperte: (2)
+;-> mazzo 1: (8 4 9 1 4 7 7 3 8 6 9 3 3 3 9 6 5 10 5 5 9 10 1 7 4 1 2 8 10 10 2 6 6 4 2 7 1 5) 38
+;-> mazzo 2: (8) 1
+;-> new player: 2
+;-> 
+;-> player: 2
+;-> carta estratta: 8
+;-> pegno: 1
+;-> scoperte: (2 8)
+;-> mazzo 1: (8 4 9 1 4 7 7 3 8 6 9 3 3 3 9 6 5 10 5 5 9 10 1 7 4 1 2 8 10 10 2 6 6 4 2 7 1 5) 38
+;-> mazzo 2: () 0
+;-> new player: 2
+
+Facciamo alcuni test per vedere se la simulazione del gioco è equa:
+
+(define (test limite)
+  (setq p1 0)
+  (setq p2 0)
+  (for (i 1 limite)
+    (setq res (test2))
+    (cond ((= res 1) (++ p2))
+          ((= res 2) (++ p1))
+          (true (println res))
+    )
+  )
+  (list p1 p2))
+
+Facciamo alcune prove (sperando di non incappare in qualche partita infinita):
+
+(test 1e2)
+;-> (50 50)
+(test 1e3)
+;-> (499 501)
+(test 1e2)
+;-> (48 52)
+(test 1e2)
+;-> (46 54)
+(test 1e3)
+;-> (484 516)
+(test 1e4)
+;-> (4934 5066)
+(test 1e5)
+;-> (50073 49927)
+(time (println (test 1e6)))
+;-> (499372 500628)
+;-> 74640.609
+
+Per simulare una partita infinita togliere (nella funzione "strappa") il commento alle righe:
+  ;(setq s1 '(0 0 3 0 2 0 2 0 3 0 3 1 0 0 0 0 0 3 1 0))
+  ;(setq s2 '(0 0 1 0 0 2 0 0 0 0 2 0 0 0 0 0 0 0 1 0))
+
+
+------------------------------------
+Circonferenza passante per tre punti
+------------------------------------
+
+Dati tre punti, trovare il centro (x0, y0) e il raggio (r0) del cerchio che li attraversa.
+Tre punti individuano un'unico cerchio se, e solo se, non sono allineati.
+
+Primo metodo
+------------
+Dalla geometria analitica, il cerchio unico che passa per i tre punti:
+
+   (x1, y1), (x2, y2), (x3, y3)
+
+può essere trovato risolvendo la seguente equazione:
+
+  | (x^2 + y^2)    x   y   1 |
+  | (x1^2 + y1^2)  x1  y1  1 | = 0
+  | (x2^2 + y2^2)  x2  y2  1 |
+  | (x3^2 + y3^2)  x3  y3  1 |
+
+Per la dimostrazione vedi "Center and Radius of a Circle from Three Points" di Stephen R. Schmitt.
+http://www.abecedarical.com/zenosamples/zs_circle3pts.html
+
+Una volta risolto il sistema si ricavano la formule per il calcolo del centro (x0, y0) e del raggio r0 che sono le seguenti:
+
+         M01
+  x0 = -------
+        2*M00
+
+           M02
+  y0 = - -------
+          2*M00
+
+                           M03
+  r0 = sqrt(x0^2 + y0^2 + -----)
+                           M00
+
+dove Mij = det[m(i,j)]
+
+Il minore m(i,j) di una matrice A è la matrice (n-1)x(n-1) formata rimuovendo l'i-esima riga e la j-esima colonna dalla matrice A.
+
+Nel nostro caso abbiamo:
+
+(setq a
+  '(( "(x^2 + y^2)"    x   y   1 )
+    ( "(x1^2 + y1^2)"  x1  y1  1 )
+    ( "(x2^2 + y2^2)"  x2  y2  1 )
+    ( "(x3^2 + y3^2)"  x3  y3  1 )))
+
+Scriviamo una funzione per calcolare i minori di una matrice:
+
+(define (minor matrix row col)
+  (local (tmp)
+    (pop matrix row)
+    (setq tmp (transpose matrix))
+    (pop tmp col)
+  (transpose tmp)))
+
+Calcoliamo i minori che ci servono:
+
+(minor a 0 0)
+;-> ((x1 y1 1)
+;->  (x2 y2 1)
+;->  (x3 y3 1))
+(minor a 0 1)
+;-> (("(x1^2 + y1^2)" y1 1)
+;->  ("(x2^2 + y2^2)" y2 1)
+;->  ("(x3^2 + y3^2)" y3 1))
+(minor a 0 2)
+;-> (("(x1^2 + y1^2)" x1 1)
+;->  ("(x2^2 + y2^2)" x2 1)
+;->  ("(x3^2 + y3^2)" x3 1))
+(minor a 0 3)
+;-> (("(x1^2 + y1^2)" x1 y1)
+;->  ("(x2^2 + y2^2)" x2 y2)
+;->  ("(x3^2 + y3^2)" x3 y3))
+
+Adesso possiamo scrivere la funzione finale:
+
+(define (circle3p x1 y1 x2 y2 x3 y3)
+  (local (a m00 m01 m02 m03 q1 q2 q3 x0 y0 r0)
+    (setq a (array 3 3 '(0)))
+    (setq q1 (add (mul x1 x1) (mul y1 y1)))
+    (setq q2 (add (mul x2 x2) (mul y2 y2)))
+    (setq q3 (add (mul x3 x3) (mul y3 y3)))
+    ; minor m00
+    (setf (a 0 0) x1)
+    (setf (a 0 1) y1)
+    (setf (a 0 2) 1)
+    (setf (a 1 0) x2)
+    (setf (a 1 1) y2)
+    (setf (a 1 2) 1)
+    (setf (a 2 0) x3)
+    (setf (a 2 1) y3)
+    (setf (a 2 2) 1)
+    (setq m00 (det a))
+    ; minor m01
+    (setf (a 0 0) q1)
+    (setf (a 0 1) y1)
+    (setf (a 0 2) 1)
+    (setf (a 1 0) q2)
+    (setf (a 1 1) y2)
+    (setf (a 1 2) 1)
+    (setf (a 2 0) q3)
+    (setf (a 2 1) y3)
+    (setf (a 2 2) 1)
+    (setq m01 (det a))
+    ; minor m02
+    (setf (a 0 0) q1)
+    (setf (a 0 1) x1)
+    (setf (a 0 2) 1)
+    (setf (a 1 0) q2)
+    (setf (a 1 1) x2)
+    (setf (a 1 2) 1)
+    (setf (a 2 0) q3)
+    (setf (a 2 1) x3)
+    (setf (a 2 2) 1)
+    (setq m02 (det a))
+    ; minor m03
+    (setf (a 0 0) q1)
+    (setf (a 0 1) x1)
+    (setf (a 0 2) y1)
+    (setf (a 1 0) q2)
+    (setf (a 1 1) x2)
+    (setf (a 1 2) y2)
+    (setf (a 2 0) q3)
+    (setf (a 2 1) x3)
+    (setf (a 2 2) y3)
+    (setq m03 (det a))
+    ; controllo sui valori dei determinanti
+    (if (nil? m01) (setq m01 0))
+    (if (nil? m02) (setq m02 0))
+    (if (nil? m03) (setq m03 0))
+    ;(println m00 { } m01 { } m02 { } m03)
+    ; calcolo parametri del cerchio
+    (if (nil? m00) nil
+    (begin
+      (setq x0 (div m01 (mul 2 m00)))
+      (setq y0 (div m02 (mul -2 m00)))
+      (setq r0 (sqrt (add (mul x0 x0) (mul y0 y0) (div m03 m00))))
+      (list x0 y0 r0)))))
+
+Facciamo alcune prove:
+
+(circle3p 0 1 1 0 0 -1)
+;-> (0 0 1)
+
+(circle3p 1 1 2 4 5 3)
+;-> (3 2 2.23606797749979) ; (3 2 sqrt(5))
+
+(circle3p 4 2 5 1 4 0)
+;-> (4 0.9999999999999998 1)
+
+(circle3p 1 -6 2 1 5 2)
+;-> (4.999999999999999 -3 5)
+
+
+Secondo metodo
+--------------
+Equazione del cerchio in forma generale vale:
+
+  x² + y² + 2gx + 2fy + c = 0 
+
+oppure in altra forma:
+
+  (x – x0)² + (y - y0)² = r0², 
+  
+dove (x0, y0) è il centro del cerchio e r0 è il raggio.
+
+Mettendo le coordinate nell'equazione del cerchio e risolvendo per 2f e 2g e c, otteniamo:
+
+  2f = ((x1^2 - x3v2)*(x1 - x2) + (y1^2 - y3v2)*(x1 - x2) +
+        (x2^2 - x1^2)*(x1 - x3) + (y2^2 - y1^2)*(x1 - x3))
+       /
+       ((y3 - y1)*(x1 - x2) - (y2 - y1)*(x1 - x3))
+
+  2g = ((x1^2 - x3^2)*(y1 - x2) + (y1^2 - y3^2)*(y1 - y2) +
+        (x2^2 - x1^2)*(y1 - y3) + (y2^2 - y1^2)*(y1 - y3))
+       /
+       ((x3 - x1)*(y1 - y2) - (x2 - x1)*(y1 - y3))
+
+  c = x1^2 + y1^2 - 2*g*x1 - 2*f*y1
+
+Implementiamo queste formule:
+
+(define (cerchio3p x1 y1 x2 y2 x3 y3)
+  (setq x12 (sub x1 x2))
+  (setq x13 (sub x1 x3))
+  (setq y12 (sub y1 y2))
+  (setq y13 (sub y1 y3))
+  (setq y31 (sub y3 y1))
+  (setq y21 (sub y2 y1))
+  (setq x31 (sub x3 x1))
+  (setq x21 (sub x2 x1))
+  (setq sx13 (sub (mul x1 x1) (mul x3 x3)))
+  (setq sy13 (sub (mul y1 y1) (mul y3 y3)))
+  (setq sx21 (sub (mul x2 x2) (mul x1 x1)))
+  (setq sy21 (sub (mul y2 y2) (mul y1 y1)))
+  (setq f (div (add (mul sx13 x12) (mul sy13 x12) (mul sx21 x13) (mul sy21 x13))
+               (mul 2 (sub (mul y31 x12) (mul y21 x13)))))  
+  (setq g (div (add (mul sx13 y12) (mul sy13 y12) (mul sx21 y13) (mul sy21 y13))
+               (mul 2 (sub (mul x31 y12) (mul x21 y13)))))
+  (setq c (sub 0 (mul x1 x1) (mul y1 y1) (mul 2 g x1) (mul 2 f y1)))
+  (setq x0 (mul -1 g))
+  (setq y0 (mul -1 f))
+  (setq r0 (sqrt (sub (add (mul x0 x0) (mul y0 y0)) c)))
+  (list x0 y0 r0))
+
+Facciamo alcune prove:
+
+(cerchio3p 0 1 1 0 0 -1)
+;-> (0 -0 1)
+
+(cerchio3p 1 1 2 4 5 3)
+;-> (3 2 2.23606797749979) ; (3 2 sqrt(5))
+
+(cerchio3p 4 2 5 1 4 0)
+;-> (4 1 1)
+
+(cerchio3p 1 -6 2 1 5 2)
+;-> (5 -3 5)
+
 =============================================================================
 
