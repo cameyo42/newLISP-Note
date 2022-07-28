@@ -1295,6 +1295,9 @@ NOTE LIBERE 10
   Numeri brillanti
   StrappaCamicia
   Circonferenza passante per tre punti
+  Determinante di una matrice
+  Multiple Value Bind macro
+  100 prigionieri
 
   
 APPENDICI

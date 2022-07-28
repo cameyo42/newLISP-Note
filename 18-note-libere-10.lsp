@@ -12,35 +12,35 @@ Turochamp è un programma di scacchi sviluppato da Alan Turing e David Champerno
 Turing ha giocato una partita contro l'informatico Alick Glennie utilizzando il programma su carta nell'estate del 1952, eseguendolo manualmente passo dopo passo.
 Questa è la partita:
 
- 1. e2-e4     e7-e5   
- 2. Nb1-c3    Ng8-f6  
- 3. d2-d4     Bf8-b4  
- 4. Ng1-f3    d7-d6   
- 5. Bc1-d2    Nb8-c6  
- 6. d4-d5     Nc6-d4  
- 7. h2-h4     Bc8-g4  
- 8. a2-a4     Nd4xf3+ 
- 9. g2xf3     Bg4-h5  
-10. Bf1-b5+   c7-c6   
-11. d5xc6     O-O     
-12. c6xb7     Ra8-b8  
-13. Bb5-a6    Qd8-a5  
-14. Qd1-e2    Nf6-d7  
-15. Rh1-g1    Nd7-c5  
-16. Rg1-g5    Bh5-g6  
-17. Ba6-b5    Nc5xb7  
-18. O-O-O     Nb7-c5  
-19. Bb5-c6    Rf8-c8  
-20. Bc6-d5    Bb4xc3  
-21. Bd2xc3    Qa5xa4  
-22. Kc1-d2    Nc5-e6  
-23. Rg5-g4    Ne6-d4  
-24. Qe2-d3    Nd4-b5  
-25. Bd5-b3    Qa4-a6  
-26. Bb3-c4    Bg6-h5  
-27. Rg4-g3    Qa6-a4  
-28. Bc4xb5    Qa4xb5  
-29. Qd3xd6??  Rc8-d8  
+ 1. e2-e4     e7-e5
+ 2. Nb1-c3    Ng8-f6
+ 3. d2-d4     Bf8-b4
+ 4. Ng1-f3    d7-d6
+ 5. Bc1-d2    Nb8-c6
+ 6. d4-d5     Nc6-d4
+ 7. h2-h4     Bc8-g4
+ 8. a2-a4     Nd4xf3+
+ 9. g2xf3     Bg4-h5
+10. Bf1-b5+   c7-c6
+11. d5xc6     O-O
+12. c6xb7     Ra8-b8
+13. Bb5-a6    Qd8-a5
+14. Qd1-e2    Nf6-d7
+15. Rh1-g1    Nd7-c5
+16. Rg1-g5    Bh5-g6
+17. Ba6-b5    Nc5xb7
+18. O-O-O     Nb7-c5
+19. Bb5-c6    Rf8-c8
+20. Bc6-d5    Bb4xc3
+21. Bd2xc3    Qa5xa4
+22. Kc1-d2    Nc5-e6
+23. Rg5-g4    Ne6-d4
+24. Qe2-d3    Nd4-b5
+25. Bd5-b3    Qa4-a6
+26. Bb3-c4    Bg6-h5
+27. Rg4-g3    Qa6-a4
+28. Bc4xb5    Qa4xb5
+29. Qd3xd6??  Rc8-d8
 
 17. Aa6-c4!          (+/-)
 18. Aa6-c4!          (+/-)
@@ -249,7 +249,7 @@ Attenzione: nessun controllo di correttezza della mossa
     (replace (list to piece-move2) cur-pos (list to piece-move1))))
 
 (move 7 6)
-;-> ((1 "(CB1)") (2 "") (3 "") (4 "") (5 "(CB2)") (6 "(CN1)") 
+;-> ((1 "(CB1)") (2 "") (3 "") (4 "") (5 "(CB2)") (6 "(CN1)")
 ;->  (7 "") (8 "") (9 "(CN2)") (10 ""))
 (print-position)
 ;->  1(CB1)----5(CB2)----7----2----6(CN1)----8----3----10----4
@@ -612,7 +612,7 @@ Un gioco ha le seguenti regole:
 - in tutti gli altri casi deve pagare 1 euro
 
 +-----------------+-----+-----+-----+
-| Vincita Evento  |  4  |  2  | -1  | 
+| Vincita Evento  |  4  |  2  | -1  |
 +-----------------------------------+
 | Probabilità     | 1/6 | 2/6 | 3/6 |
 +-----------------------------------+
@@ -658,27 +658,27 @@ Vediamo di calcolare la speranza matematica:
 
 1) Speranza matematica per "uscita di 6 numeri"
 
-Somma da vincere 100000000 euro 
+Somma da vincere 100000000 euro
 
-Probabilita' di uscita di 6 numeri in ordine = 
+Probabilita' di uscita di 6 numeri in ordine =
  = 1/90 · 1/89 · 1/88 · 1/87 · 1/86 · 1/85 = 1/448282533600
 
 Pero' i numeri possono uscire in qualunque ordine, quindi occorre considerare le possibili sestine cioe' le permutazioni semplici su 6 oggetti:
 
 Permutazioni su 6 oggetti p6 = 6! =6 · 5 · 4 · 3 · 2 · 1 = 720
 
-Probabilita' di uscita di 6 numeri in ordine qualunque = 
- = 720/448282533600 = 1.606129942690232e-009 
+Probabilita' di uscita di 6 numeri in ordine qualunque =
+ = 720/448282533600 = 1.606129942690232e-009
 (cioè quasi 2 possibilita' su un miliardo)
 
-Speranza1 = S1*p1 = 
+Speranza1 = S1*p1 =
  = 100000000 * 1.606129942690232e-009 = 0.1606129942690232 euro
 
 2) Speranza matematica per "non uscita di tutti e sei i numeri"
 
 Somma da vincere -1 euro (negativo perchè' si perde)
 
-Probabilita' di non uscita di tutti e sei i numeri = probabilità contraria = 
+Probabilita' di non uscita di tutti e sei i numeri = probabilità contraria =
  = 1 - 1.606129942690232e-009 = 0.9999999983938701
 
 Speranza2 = S2*p2 = -1 * 0.9999999983938701 = -0.9999999983938701 euro
@@ -687,7 +687,7 @@ La Speranza matematica totale vale S1p1 + S2p2 =
 
  = 0.1606129942690232 -0.9999999983938701 = -0.8393870041248469 euro
 
-La speranza matematica del gioco vale 0.84 euro circa. 
+La speranza matematica del gioco vale 0.84 euro circa.
 Questo significa che, in media, ad ogni giocata si perdono 0.84 euro.
 
 
@@ -752,7 +752,7 @@ Altro esempio:
     (mix y = 0 - x1 * z2 + y1 * w2 + z1 * x2 + w1 * y2)
     (mix z =     x1 * y2 - y1 * x2 + z1 * w2 + w1 * z2)))
 ;-> (lambda (q1 q2)
-;->  (let ((x1 (nth 0 q1)) (y1 (nth 1 q1)) (z1 (nth 2 q1)) (w1 (nth 3 q1)) 
+;->  (let ((x1 (nth 0 q1)) (y1 (nth 1 q1)) (z1 (nth 2 q1)) (w1 (nth 3 q1))
 ;->        (x2 (nth 0 q2)) (y2 (nth 1 q2)) (z2 (nth 2 q2)) (w2 (nth 3 q2)))
 ;->   (setq w (add (sub (sub (sub 0 (mul x1 x2)) (mul y1 y2)) (mul z1 z2)) (mul w1 w2)))
 ;->   (setq x (add (sub (add (mul x1 w2) (mul y1 z2)) (mul z1 y2)) (mul w1 x2)))
@@ -815,7 +815,7 @@ Nota: i numeri-stringa possono anche essere numeri (integer o float).
 Confronto tra gli elementi di una lista
 ---------------------------------------
 
-Data una lista di elementi ordinabili (numeri, stringhe, ecc.) verificare: 
+Data una lista di elementi ordinabili (numeri, stringhe, ecc.) verificare:
 
 1) se gli elementi sono tutti uguali
 2) se gli elementi sono ordinati in modo strettamente crescente
@@ -946,12 +946,12 @@ Un numero colorato maggiore di 9 non può contenere una cifra ripetuta, la cifra
 ;-> nil
 
 (filter colorato? (sequence 0 100))
-;-> ( 0  1  2  3  4  5  6  7  8  9  
-;->  23 24 25 26 27 28 29 32 34 35 
-;->  36 37 38 39 42 43 45 46 47 48 
-;->  49 52 53 54 56 57 58 59 62 63 
-;->  64 65 67 68 69 72 73 74 75 76 
-;->  78 79 82 83 84 85 86 87 89 92 
+;-> ( 0  1  2  3  4  5  6  7  8  9
+;->  23 24 25 26 27 28 29 32 34 35
+;->  36 37 38 39 42 43 45 46 47 48
+;->  49 52 53 54 56 57 58 59 62 63
+;->  64 65 67 68 69 72 73 74 75 76
+;->  78 79 82 83 84 85 86 87 89 92
 ;->  93 94 95 96 97 98)
 
 Calcoliamo l'ultimo numero colorato:
@@ -994,8 +994,8 @@ Esempi:
 
 Sequenza OEIS: A078972
  4, 6, 9, 10, 14, 15, 21, 25, 35, 49, 121, 143, 169, 187, 209,
- 221, 247, 253, 289, 299, 319, 323, 341, 361, 377, 391, 403, 
- 407, 437, 451, 473, 481, 493, 517, 527, 529, 533, 551, 559, 
+ 221, 247, 253, 289, 299, 319, 323, 341, 361, 377, 391, 403,
+ 407, 437, 451, 473, 481, 493, 517, 527, 529, 533, 551, 559,
  583, 589, 611, 629, 649, 667, 671, 689, 697, 703, 713, 731,
  737, 767, 779, 781 ...
 
@@ -1108,8 +1108,8 @@ Scriviamo un programma che simula una partita a StrappaCamicia:
   ; carte del giocatore 2
   (setq s2 (slice shuffle 20))
   ; uncomment the following two lines to run an infinite game
-  ;(setq s1 '(0 0 3 0 2 0 2 0 3 0 3 1 0 0 0 0 0 3 1 0))
-  ;(setq s2 '(0 0 1 0 0 2 0 0 0 0 2 0 0 0 0 0 0 0 1 0))  
+  (setq s1 '(0 0 3 0 2 0 2 0 3 0 3 1 0 0 0 0 0 3 1 0))
+  (setq s2 '(0 0 1 0 0 2 0 0 0 0 2 0 0 0 0 0 0 0 1 0))
   (setq pegno 0)
   (setq player 1)
   (setq grab nil)
@@ -1128,9 +1128,10 @@ Scriviamo un programma che simula una partita a StrappaCamicia:
                   ((= carta 3) (setq pegno 3) (setq player 2) (setq grab true))
                   (true ;altrimenti
                     ; se il pegno vale 0, significa che il turno
-                    ; passa all'altro player e...
-                    ;(if (zero? pegno)
+                    ; passa all'altro player (non sta pagando pegno)
                     (if (= 0 pegno) (setq player 2))
+                    ; se il pegno vale 1, significa che il turno
+                    ; passa all'altro player e ...
                     (if (= 1 pegno)
                       (begin
                         (setq player 2)
@@ -1147,14 +1148,10 @@ Scriviamo un programma che simula una partita a StrappaCamicia:
                         )
                       )
                     )
-                    (if (> pegno 1)
-                      ; se il pegno maggiore di 1, significa che
-                      ; stiamo pagando pegno e quindi
-                      ; diminuiamo il suo valore
-                      (begin
-                        (-- pegno)
-                      )
-                    )
+                    ; se il pegno maggiore di 1, significa che
+                    ; stiamo pagando pegno e quindi
+                    ; diminuiamo il suo valore
+                    (if (> pegno 1) (-- pegno))
                   )
             )
           )
@@ -1162,16 +1159,18 @@ Scriviamo un programma che simula una partita a StrappaCamicia:
             ; estrazione prima carta e suo
             ; inserimento nelle carte scoperte
             (push (setq carta (pop s2)) scoperte -1)
-            ; se carta = 1 o 2 o 3, allora imposto il nuovo pegno,
-            ; tocca a player 2 e possibile cattura delle carte scoperte
+            ; se carta = 1 o 2 o 3, allora imposta il nuovo pegno,
+            ; tocca all'altro player e le carte scoperte
+            ; possono essere catturate (al termine del pegno)
             (cond ((= carta 1) (setq pegno 1) (setq player 1) (setq grab true))
                   ((= carta 2) (setq pegno 2) (setq player 1) (setq grab true))
                   ((= carta 3) (setq pegno 3) (setq player 1) (setq grab true))
                   (true ;altrimenti
-                    ; se il pegno vale 1, significa che il turno
-                    ; passa all'altro player e...
-                    ;(if (zero? pegno)
+                    ; se il pegno vale 0, significa che il turno
+                    ; passa all'altro player (non sta pagando pegno)
                     (if (= 0 pegno) (setq player 1))
+                    ; se il pegno vale 1, significa che il turno
+                    ; passa all'altro player e ...
                     (if (= 1 pegno)
                       (begin
                         (setq player 1)
@@ -1188,14 +1187,10 @@ Scriviamo un programma che simula una partita a StrappaCamicia:
                         )
                       )
                     )
-                    (if (> pegno 1)
-                      ; se il pegno maggiore di 1, significa che
-                      ; stiamo pagando pegno e quindi
-                      ; diminuiamo il suo valore
-                      (begin
-                        (-- pegno)
-                      )
-                    )
+                    ; se il pegno maggiore di 1, significa che
+                    ; stiamo pagando pegno e quindi
+                    ; diminuiamo il suo valore
+                    (if (> pegno 1) (-- pegno))
                   )
             )
           )
@@ -1221,7 +1216,7 @@ Simuliamo una partita:
 ;-> mazzo 1: (4 5 7 10 4 9 6 7 2 3 4 6 9 7 6 8 2 3 1) 19
 ;-> mazzo 2: (2 3 3 8 7 10 5 1 8 8 6 10 5 9 10 1 2 4 1 9) 20
 ;-> new player: 2
-;-> 
+;->
 ;-> player: 2
 ;-> carta estratta: 2
 ;-> pegno: 2
@@ -1237,7 +1232,7 @@ Simuliamo una partita:
 ;-> mazzo 1: (8 4 9 1 4 7 7 3 8 6 9 3 3 3 9 6 5 10 5 5 9 10 1 7 4 1 2 8 10 10 2 6 6 4 2 7 1 5) 38
 ;-> mazzo 2: (8) 1
 ;-> new player: 2
-;-> 
+;->
 ;-> player: 2
 ;-> carta estratta: 8
 ;-> pegno: 1
@@ -1252,7 +1247,7 @@ Facciamo alcuni test per vedere se la simulazione del gioco è equa:
   (setq p1 0)
   (setq p2 0)
   (for (i 1 limite)
-    (setq res (test2))
+    (setq res (strappa))
     (cond ((= res 1) (++ p2))
           ((= res 2) (++ p1))
           (true (println res))
@@ -1264,12 +1259,12 @@ Facciamo alcune prove (sperando di non incappare in qualche partita infinita):
 
 (test 1e2)
 ;-> (50 50)
-(test 1e3)
-;-> (499 501)
 (test 1e2)
 ;-> (48 52)
-(test 1e2)
-;-> (46 54)
+(test 1e3)
+;-> (499 501)
+(test 1e3)
+;-> (509 491)
 (test 1e3)
 ;-> (484 516)
 (test 1e4)
@@ -1446,12 +1441,12 @@ Secondo metodo
 --------------
 Equazione del cerchio in forma generale vale:
 
-  x² + y² + 2gx + 2fy + c = 0 
+  x² + y² + 2gx + 2fy + c = 0
 
 oppure in altra forma:
 
-  (x – x0)² + (y - y0)² = r0², 
-  
+  (x – x0)² + (y - y0)² = r0²,
+
 dove (x0, y0) è il centro del cerchio e r0 è il raggio.
 
 Mettendo le coordinate nell'equazione del cerchio e risolvendo per 2f e 2g e c, otteniamo:
@@ -1484,7 +1479,7 @@ Implementiamo queste formule:
   (setq sx21 (sub (mul x2 x2) (mul x1 x1)))
   (setq sy21 (sub (mul y2 y2) (mul y1 y1)))
   (setq f (div (add (mul sx13 x12) (mul sy13 x12) (mul sx21 x13) (mul sy21 x13))
-               (mul 2 (sub (mul y31 x12) (mul y21 x13)))))  
+               (mul 2 (sub (mul y31 x12) (mul y21 x13)))))
   (setq g (div (add (mul sx13 y12) (mul sy13 y12) (mul sx21 y13) (mul sy21 y13))
                (mul 2 (sub (mul x31 y12) (mul x21 y13)))))
   (setq c (sub 0 (mul x1 x1) (mul y1 y1) (mul 2 g x1) (mul 2 f y1)))
@@ -1506,6 +1501,257 @@ Facciamo alcune prove:
 
 (cerchio3p 1 -6 2 1 5 2)
 ;-> (5 -3 5)
+
+
+---------------------------
+Determinante di una matrice
+---------------------------
+
+Per calcolare il determinante di una matrice, prima trasformiamo la matrice data in una matrice triangolare superiore usando le operazioni sulle righe. Al termine il prodotto degli elementi diagonali della matrice diagonale è il determinante.
+
+(define (deter matrix)
+  (setq n (length matrix))
+  ; trasforma la matrice data in una matrice triangolare superiore
+  ; "fd" significa "focus diagonal"
+  (for (fd 0 (- n 1))
+    ; trucco: zero + ~zero
+    ;(if (zero? (matrix fd fd)) (setf (matrix fd fd) 1.0e-18))
+    # salta le righe con "fd"
+    (if (<= (+ fd 1) (- n 1))
+      (begin
+        (for (i (+ fd 1) (- n 1))
+          ; trucco: zero + ~zero
+          (if (zero? (matrix fd fd)) (setf (matrix fd fd) 1.0e-18))
+          ; "crs" significa "current row scaler".
+          (setq crs (div (matrix i fd) (matrix fd fd)))
+          (for (j 0 (- n 1))
+            ; scala un elemento per volta
+            (setf (matrix i j) (sub (matrix i j) (mul crs (matrix fd j))))
+          )
+        )
+      )
+    )
+  )
+  ; adesso la matrice è in forma triangolare superiore
+  ; quindi il prodotto della diagonale è il determinante
+  (setq product 1.0)
+  (for (i 0 (- n 1))
+    (setq product (mul product (matrix i i)))
+  )
+  product)
+
+Facciamo alcune prove e verifiche:
+
+(deter '((1 2) (2 1)))
+;-> -3
+(det '((1 2) (2 1)))
+;-> -3
+(deter '((1 3) (3 1)))
+;-> -8
+(det '((1 3) (3 1)))
+;-> -8
+(deter '((1 2 3) (4 5 6) (7 8 9)))
+;-> 0
+(det '((1 2 3) (4 5 6) (7 8 9)))
+;-> 6.661338147750939e-016
+(deter '((-1 -2 -3) (4 -5 6) (-7 -8 -9)))
+;-> 120
+(det '((-1 -2 -3) (4 -5 6) (-7 -8 -9)))
+;-> 120
+
+Vediamo la differenza di velocità tra la nostra funzione "deter" e la funzione integrata "det":
+
+Creiamo una matrice casuale 10x10 con numeri da 1 a 100:
+
+(setq test (explode (rand 10 100) 10))
+
+Calcoliamo il determinate con le due funzioni:
+
+(deter test)
+;-> 36134858.0000001
+
+(det test)
+;-> 36134858.00000002
+
+Vediamo la velocità di esecuzione:
+
+(time (deter test) 10000)
+;-> 799.727
+
+(time (det test) 10000)
+;-> 14.961
+
+La funzione integrata "det" è 50 volte più veloce.
+
+
+-------------------------
+Multiple Value Bind macro
+-------------------------
+
+Emulazione del "multiple-value-bind" con una macro (by hds1).
+
+;; @syntax (m-v-b symlist valuelist body)
+;;
+;; @param  symlist valuelist body
+;; symlist: List of var names
+;; valuelist: List of values or function call which returns list of values
+;; body: Operation with var names
+;; @return Expanded 'let with body
+;; @example
+;; (m-v-b '(a b c) '(1 2 3) (+ a b c)) -> (let (a 1 b 2 c 3) (+ a b c))
+;; Supposed to emulate Common Lisp multiple-value-bind macro
+;; Expansion is done during Read Time.
+;; Evaluation of the returned 'let body during Run Time.
+(macro (m-v-b) nil)
+(constant 'm-v-b (lambda-macro ()
+         ;; Read Time part
+        (when (or (not (quote? (args 0)))
+             (not (list? (eval (args 0)))))
+          (throw-error "m-v-b: first argument must be a quoted list i.e. '(a b c)"))
+        (let ((lst1 (eval (args 0)))
+         (lst2 (map quote (eval (args 1))))) ; quote elements so that list of lists can be used
+          (when (!= (length lst1)
+               (length lst2))
+            (throw-error
+             (append "m-v-b: Argument lists length unequal. " (string lst1) " " (string lst2))))
+          ;; Run Time part
+          (list 'let
+           (flat (transpose (list lst1 lst2)))
+           (args 2)))))
+
+(m-v-b '(a b) (transpose '((1 2)(3 4))) (println a b))
+;->  (1 3)(2 4)
+
+(m-v-b '(a b) '(3 4) (println a { } b))
+;-> 3 4
+
+(m-v-b '(a b) '(3 4) (list a b))
+;-> (3 4)
+
+Nota: le variabili della macro (es. "a" e "b") esistono solo durante l'esecuzione della macro stessa:
+
+(m-v-b '(a b) '(3 4) (println a { } b))
+;-> 3 4
+
+a
+;-> nil
+b
+;-> nil
+
+
+---------------
+100 prigionieri
+---------------
+
+100 prigionieri sono numerati da 1 a 100.
+Una stanza con un armadio di 100 cassetti numerati da 1 a 100.
+All'inizio un mazzo di carte numerate da 1 a 100 vengono messe casualmente, una per ogni cassetto, e tutti i cassetti vengono chiusi.
+I prigionieri iniziano fuori dalla stanza.
+Possono decidere una strategia prima di entrare nella stanza.
+I prigionieri entrano nella stanza uno alla volta, possono aprire un cassetto, controllare il numero della carta nel cassetto, quindi chiudere il cassetto.
+Un prigioniero non può aprire più di 50 cassetti.
+Un prigioniero che trova il proprio numero viene separato dagli altri.
+Se tutti i 100 prigionieri trovano il proprio numero, saranno tutti graziati. In caso contrario, saranno tutti giustiziati.
+
+Simulare diverse migliaia di prove del gioco in cui i prigionieri aprono casualmente i cassetti.
+Simulare diverse migliaia di prove del gioco in cui i prigionieri usano la seguente strategia ottimale:
+- Per prima cosa il prigioniero apre il cassetto il cui numero esterno è il suo numero di prigioniero.
+- Se la carta all'interno ha il suo numero allora ha successo, altrimenti apre il cassetto con lo stesso numero della carta scoperta (e così via finché non raggiunge il massimo di 50 cassetti aperti o trova il suo numero).
+
+Calcolare le probabilità delle due strategie.
+
+Funzione per la simulazione della strategia casuale:
+
+(define (casuale)
+  (local (cassetti carte armadio num-graziati trovato cassetto carta)
+    ; strategia casuale (random)
+    (setq cassetti (sequence 1 100))
+    (setq carte (sequence 1 100))
+    (setq armadio (map list (randomize cassetti) (randomize carte)))
+    (push '(0 0) armadio)
+    (setq num-graziati 0)
+    ; ciclo per ogni prigioniero
+    (for (p 1 100)
+      (setq trovato nil)
+      ; 50 prove per ogni prigioniero
+      (for (i 1 50 1 trovato)
+        ; apertura di un cassetto a caso
+        (setq cassetto (+ (rand 100) 1))
+        (setq carta (lookup cassetto armadio))
+        ; carta nel cassetto uguale numero prigioniero?
+        (cond ((= carta p)
+                (++ num-graziati)
+                (setq trovato true))
+        )
+      )
+    )
+    ; se tutti graziati restituisce true, altrimenti nil
+    (if (= num-graziati 100) true nil)))
+
+(define (test-casuale iter)
+  (let (totale 0)
+    (for (i 1 iter) (if (casuale) (++ totale)))
+    (div totale iter)))
+
+Calcolo delle probabilità della strategia casuale:
+
+(test-casuale 1e3)
+;-> 0
+(test-casuale 1e4)
+;-> 0
+(test-casuale 1e5)
+;-> 0
+
+Nota: la probabilità teorica vale P(casuale) = 1/(2^100) =
+
+  = 1/1267650600228229401496703205376 ≈ 0
+
+Funzione per la simulazione della strategia ottimale:
+
+(define (ottimale)
+  (local (cassetti carte armadio num-graziati trovato cassetto carta prove)
+    ; strategia ottimale
+    (setq cassetti (sequence 1 100))
+    (setq carte (sequence 1 100))
+    (setq armadio (map list (randomize cassetti) (randomize carte)))
+    (push '(0 0) armadio)
+    (setq num-graziati 0)
+    ; ciclo per ogni prigioniero
+    (for (p 1 100)
+      (setq trovato nil)
+      (setq prove 0)
+      (setq cassetto p)
+      (until (or trovato (>= prove 50))
+        (++ prove)
+        (setq carta (lookup cassetto armadio))
+        (if (= carta p) 
+          (begin
+            (setq trovato true)
+            (++ num-graziati)
+          )
+          ;else
+          (setq cassetto carta)
+        )
+      )
+    )
+    ; se tutti graziati restituisce true, altrimenti nil
+    (if (= num-graziati 100) true nil)))
+
+(define (test-ottimale iter)
+  (let (totale 0)
+    (for (i 1 iter) (if (ottimale) (++ totale)))
+    (div totale iter)))
+
+Calcolo delle probabilità della strategia ottimale:
+
+(test-ottimale 1e3)
+;-> 0.306
+(test-ottimale 1e4)
+;-> 0.3034
+(test-ottimale 1e5)
+;-> 0.31218
+
+Nota: la probabilità teorica vale P(ottimale) = 0.30685281
 
 =============================================================================
 
