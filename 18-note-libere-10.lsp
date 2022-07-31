@@ -1724,7 +1724,7 @@ Funzione per la simulazione della strategia ottimale:
       (until (or trovato (>= prove 50))
         (++ prove)
         (setq carta (lookup cassetto armadio))
-        (if (= carta p) 
+        (if (= carta p)
           (begin
             (setq trovato true)
             (++ num-graziati)
@@ -1752,6 +1752,655 @@ Calcolo delle probabilità della strategia ottimale:
 ;-> 0.31218
 
 Nota: la probabilità teorica vale P(ottimale) = 0.30685281
+
+
+------------
+Morra cinese
+------------
+
+La morra cinese (o Sasso-Carta-Forbici) è un gioco tra due persone che mostrano contemporaneamente uno dei tre simboli con la mano:
+
+- Sasso: la mano chiusa a pugno.
+- Carta: la mano aperta con tutte le dita stese.
+- Forbici: mano chiusa con indice e medio estesi a formare una "V".
+
+Lo scopo è sconfiggere l'avversario scegliendo un segno in grado di battere quello dell'altro, secondo le seguenti regole:
+
+1) Il Sasso spezza le Forbici (vince il Sasso)
+2) Le Forbici tagliano la Carta (vincono le Forbici)
+3) La Carta avvolge il Sasso (vince la Carta)
+
+Se i due giocatori scelgono lo stesso simbolo, il gioco è pari e si gioca di nuovo.
+
+La strategia tra giocatori umani comporta l'uso della psicologia per predire o influenzare le scelte dell'avversario.
+Secondo la teoria dei giochi la strategia ottimale è quella di selezionare i simboli casualmente. In questo caso "ottimale" significa solo "incapace di essere sconfitto più di quanto ci si attenda dal caso", mentre non implica che questa strategia casuale sia la migliore contro un avversario non ottimale. Infatti, se l'avversario è un essere umano, è molto probabile che giochi in modo sub-ottimale e che una strategia modificata possa sfruttare tale comportamento (debolezza).
+
+Scrivere una funzione per simulare un determinato numero di partite a morra cinese con strategia casuale.
+
+Utilizzando la seguente tabella (matrice):
+
+                 Player 2
+  Player 1   Sasso Carta Forbici
+   Sasso       0     -1     1
+   Carta       1      0    -1
+   Forbici    -1      1     0
+
+(setq table '((0 -1 1) (1 0 -1) (-1 1 0)))
+
+possiamo calcolare il risultato di un gioco con l'espressione:
+
+(setq res (table (rand 3) (rand 3)))
+
+Che può produrre i seguenti risultati:
+
+  res =  1 -> vince il giocatore 1
+  res = -1 -> vince il giocatore 2
+  res =  0 -> pareggio
+
+Funzione per simulare il gioco della morra cinese:
+
+(define (morra partite)
+  (local (table diff p1 p2)
+    (setq table '((0 -1 1) (1 0 -1) (-1 1 0)))
+    (setq diff 0)
+    (for (i 1 partite)
+      ; calcoliamo la differenza tra vincite e perdite (+1 e -1)
+      (++ diff (table (rand 3) (rand 3)))
+    )
+    ; ricostruzione dei punteggi p1 e p2 che non rappresentano
+    ; il numero di vittorie, ma i punteggi dei due giocatori,
+    ; perchè non è possibile calcolare il numero di partite patte
+    (setq p1 (/ (+ diff partite) 2))
+    (setq p2 (- p1 diff))
+    (list p1 p2 diff (div p1 p2))
+  ))
+
+Facciamo alcune prove:
+
+(morra 1)
+;-> (0 1 -1 0)
+(morra 10)
+;-> (6 4 2 1.5)
+(morra 1e4)
+;-> (4980 5020 -40 0.9920318725099602)
+(morra 1e5)
+;-> (49909 50090 -181 0.9963865042922739)
+(morra 1e6)
+;-> (500340 499660 680 1.001360925429292)
+(morra 1e7)
+;-> (5000828 4999172 1656 1.000331254855804)
+(morra 1e8)
+;-> (50003626 49996373 7253 1.000145070523416)
+(time (morra 1e8))
+;-> 11814.346
+Scriviamo un'altra funzione più completa per simulare la morra cinese:
+
+(define (cinese partite)
+  (local (table p p1 p2 res)
+    (setq table '((0 -1 1) (1 0 -1) (-1 1 0)))
+    (set 'p 0 'p1 0 'p2 0)
+    (for (i 1 partite)
+      (setq res (table (rand 3) (rand 3)))
+      (case res
+        ( 0 (++ p))
+        ( 1 (++ p1))
+        (-1 (++ p2))
+      )
+    )
+    (list p1 p2 p (div p1 p2))
+  ))
+
+Facciamo le stesse prove:
+
+(cinese 1)
+;-> (0 1 0 0)
+(cinese 10)
+;-> (6 2 2 3)
+(cinese 1e4)
+;-> (3294 3330 3376 0.9891891891891892)
+(cinese 1e5)
+;-> (33453 33303 33244 1.004504098729844)
+(cinese 1e6)
+;-> (334087 332557 333356 1.004600715065387)
+(cinese 1e7)
+;-> (3334859 3333208 3331933 1.00049531862398)
+(cinese 1e8)
+;-> (33331386 33334613 33334001 0.9999031937163933)
+(time (cinese 1e8))
+;-> 15609.656
+
+I risultati delle due funzioni sono congruenti.
+
+Funzione ottimizzata:
+
+(define (fast partite)
+  ; (arr 0) = patte, (arr 1) = vittorie p1, (arr 2) = vittorie p2
+  (let (arr (array 3 '(0)))
+    (for (i 1 partite) (++ (arr (rand 3))))
+    (list (arr 1) (arr 2) (arr 0) (div (arr 1) (arr 2)))))
+
+(time (println (fast 1e8)))
+;-> (33333857 33333261 33332882 1.0000178800388)
+;-> 6737.767
+
+
+---------
+Rubamazzo
+---------
+
+Il rubamazzo è un gioco tra due persone che viene fatto con le carte italiane (40 carte divise in 4 semi di 10 carte ciascuno).
+
+Regole
+------
+Dopo che le carte sono state mischiate vengono distribuite 3 carte a ciascun giocatore e poi vengono messe 4 scoperte sul tavolo. 
+Ogni giocatore nel rispettivo turno può prendere solo una carta dello stesso valore dal tavolo obbligatoriamente (ad es. se in mano ha un 7, allora dal tavolo può prendere solo un altro 7). 
+Ogni volta che viene effettuata una presa, il giocatore deve tenere scoperta l'ultima carta del proprio mazzo.
+Se l'avversario ne ha una dello stesso valore in mano può "rubare" il suo mazzo (che va tenuto sempre girato). Se la carta in tavola è la stessa del mazzo dell'avversario si prende quella che si preferisce.
+Una volta concluso il turno, le carte del mazzo saranno distribuite (3 + 3) ai due giocatori per iniziare un nuovo turno.
+Dopo l'ultima mano, le carte rimaste sulla tavola vengono prese dal giocatore che ha fatto l'ultima presa. 
+Il vincitore è quello che ha il maggior numero di carte (ogni carta vale 1).
+
+Funzione che stampa la posizione corrente:
+
+(define (print-position)
+  (println)
+  (print "[ ")
+  (dolist (c mano2) (print c " "))
+  (print "]")
+  (println "  (" scoperta2 ") " num-carte2)
+  (println)
+  (dolist (v visibili) (print " " v " "))
+  (println) (println)
+  (print "[ ")
+  (dolist (c mano1) (print c " "))
+  (print "]")
+  (println "  (" scoperta1 ") " num-carte1)
+  (println "---------------------")
+)
+
+Funzione che seleziona una carta casuale da una mano di carte:
+
+(define (random-play mano) (mano (rand (length mano))))
+
+Funzione che cattura il mazzetto dell'avversario (se ha la stessa carta) oppure seleziona una carta casuale da una mano di carte:
+
+(define (grab-play mano player)
+  (cond ((= player 1)
+          (if (find scoperta2 mano)
+              scoperta2
+              (mano (rand (length mano)))))
+        ((= player 2)
+          (if (find scoperta1 mano)
+              scoperta1
+              (mano (rand (length mano)))))
+  ))
+
+(setq mano1 '(9 10 3))
+(setq scoperta1 6)
+(setq mano2 '(2 1 6))
+(setq scoperta2 9)
+
+(grab-play mano1 1)
+;-> 9
+(grab-play mano2 2)
+;-> 6
+
+Funzione che esegue una partita di rubamazzo passo-passo. 
+Se tipo = 1, allora viene scelta la strategia casuale
+Se tipo è diverso da 1, allora viene scelta la strategia "cattura mazzetto"
+;;;
+;;; OK
+;;;
+(define (rubamazzo-log tipo)
+  ; setup posizione iniziale
+  (setq carte (flat (dup (sequence 1 10) 4)))
+  (setq mazzo (randomize carte))
+  ; carte scoperte dei due giocatori
+  (setq scoperta1 "") (setq scoperta2 "")
+  ; carte visibili sul tavolo
+  (setq visibili (list (pop mazzo 0) (pop mazzo 0) (pop mazzo 0) (pop mazzo 0)))
+  ; carte catturate di ogni giocatore
+  (setq num-carte1 0) (setq num-carte2 0)
+  ; giocatore corrente
+  (setq player 1)
+  ; inizio della partita
+  (while mazzo ; finchè ci sono carte nel mazzo...
+    ; distribuzione carte ai giocatori (per una mano)
+    (setq mano1 (list (pop mazzo 0) (pop mazzo 0) (pop mazzo 0)))
+    (setq mano2 (list (pop mazzo 0) (pop mazzo 0) (pop mazzo 0)))
+    (print-position)
+    (println "mazzo: " mazzo) (read-line)
+    ; per ogni mano...
+    (while (or mano1 mano2)
+      (cond ((= player 1)
+              (if (= tipo 1) ; carta giocata casuale
+                (setq carta (random-play mano1))
+                ;else cattura mazzetto se possibile
+                (setq carta (grab-play mano1 1))
+              )
+              (pop mano1 (find carta mano1))
+              (println "player 1: " carta { } scoperta2)
+                    ;carta uguale a carta scoperta dell'avversario
+              (cond ((= carta (int scoperta2))
+                      (println "cattura mazzetto")
+                      ; cattura del mazzetto dell'avversario
+                      (setq num-carte1 (+ num-carte1 num-carte2 1))
+                      (setq num-carte2 0)
+                      (setq scoperta1 (string carta))
+                      (setq scoperta2 "")
+                      (setq ultimo 1)
+                      (setq player 2))
+                    ; carta uguale ad una carta visibile
+                    ((find carta visibili)
+                      (println "prende carta dal tavolo")
+                      ; cattura della carta visibile
+                      (pop visibili (ref carta visibili))
+                      (setq num-carte1 (+ num-carte1 2))
+                      (setq scoperta1 (string carta))
+                      (setq ultimo 1)
+                      (setq player 2))
+                    ; carta diversa da tutte le carte visibili
+                    (true
+                      (println "aggiunge carta sul tavolo")
+                      (push carta visibili -1)
+                      (setq player 2))
+              ))
+            ((= player 2)
+              (if (= tipo 1) ; carta giocata casuale
+                  (setq carta (random-play mano2))
+                  ;else cattura mazzetto se possibile
+                  (setq carta (grab-play mano2 2))
+              )
+              (pop mano2 (find carta mano2))
+              (println "player 2: " carta)
+                    ;carta uguale a carta scoperta dell'avversario
+              (cond ((= carta (int scoperta1))
+                      (println "cattura mazzetto")
+                      ; cattura del mazzetto dell'avversario
+                      (setq num-carte2 (+ num-carte2 num-carte1 1))
+                      (setq num-carte1 0)
+                      (setq scoperta2 (string carta))
+                      (setq scoperta1 "")
+                      (setq ultimo 2)
+                      (setq player 1))
+                    ; carta uguale ad una carta visibile
+                    ((find carta visibili)
+                      (println "prende carta dal tavolo")
+                      ; cattura della carta visibile
+                      (pop visibili (ref carta visibili))
+                      (setq num-carte2 (+ num-carte2 2))
+                      (setq scoperta2 (string carta))
+                      (setq ultimo 2)
+                      (setq player 1))
+                    ; carta diversa da tutte le carte visibili
+                    (true
+                      (println "aggiunge carta sul tavolo")
+                      (push carta visibili -1)
+                      (setq player 1))
+              ))
+      )
+    )
+    (println "num-carte 1 = " num-carte1)
+    (println "num-carte 2 = " num-carte2)
+    (println "ultimo: " ultimo)
+    (println "visibili: " (length visibili))
+  )
+  ; aggiunge le carte visibili al giocatore che ha preso per ultimo
+  (cond ((= ultimo 1)
+          (setq num-carte1 (add num-carte1 (length visibili))))
+        ((= ultimo 2)
+          (setq num-carte2 (add num-carte2 (length visibili))))
+  )
+  ; fine della partita
+  (println "\ncarte player 1 = " num-carte1)
+  (println "carte player 2 = " num-carte2)
+)
+
+Vediamo una partita:
+
+(rubamazzo-log 1)
+
+;-> [ 10 6 9 ]  () 0
+;-> 
+;->  8  6  1  3
+;-> 
+;-> [ 10 10 2 ]  () 0
+;-> ---------------------
+;-> mazzo: (7 2 5 7 9 3 1 7 10 3 2 5 9 4 7 3 1 4 6 9 5 4 1 8 4 6 8 5 8 2)
+;-> 
+;-> player 1: 10
+;-> aggiunge carta sul tavolo
+;-> player 2: 6
+;-> prende carta dal tavolo
+;-> player 1: 2 6
+;-> aggiunge carta sul tavolo
+;-> player 2: 9
+;-> aggiunge carta sul tavolo
+;-> player 1: 10 6
+;-> prende carta dal tavolo
+;-> player 2: 10
+;-> cattura mazzetto
+;-> num-carte 1 = 0
+;-> num-carte 2 = 5
+;-> ultimo: 2
+;-> visibili: 5
+;-> 
+;-> [ 7 9 3 ]  (10) 5
+;-> 
+;->  8  1  3  2  9
+;-> 
+;-> [ 7 2 5 ]  () 0
+;-> ---------------------
+;-> mazzo: (1 7 10 3 2 5 9 4 7 3 1 4 6 9 5 4 1 8 4 6 8 5 8 2)
+;-> 
+;-> player 1: 5 10
+;-> aggiunge carta sul tavolo
+;-> player 2: 9
+;-> prende carta dal tavolo
+;-> player 1: 2 9
+;-> prende carta dal tavolo
+;-> player 2: 3
+;-> prende carta dal tavolo
+;-> player 1: 7 3
+;-> aggiunge carta sul tavolo
+;-> player 2: 7
+;-> prende carta dal tavolo
+;-> num-carte 1 = 2
+;-> num-carte 2 = 11
+;-> ultimo: 2
+;-> visibili: 3
+;-> 
+;-> [ 3 2 5 ]  (7) 11
+;-> 
+;->  8  1  5
+;-> 
+;-> [ 1 7 10 ]  (2) 2
+;-> ---------------------
+;-> mazzo: (9 4 7 3 1 4 6 9 5 4 1 8 4 6 8 5 8 2)
+;-> 
+;-> player 1: 7 7
+;-> cattura mazzetto
+;-> player 2: 3
+;-> aggiunge carta sul tavolo
+;-> player 1: 10
+;-> aggiunge carta sul tavolo
+;-> player 2: 2
+;-> aggiunge carta sul tavolo
+;-> player 1: 1
+;-> prende carta dal tavolo
+;-> player 2: 5
+;-> prende carta dal tavolo
+;-> num-carte 1 = 16
+;-> num-carte 2 = 2
+;-> ultimo: 2
+;-> visibili: 4
+;-> 
+;-> [ 3 1 4 ]  (5) 2
+;-> 
+;->  8  3  10  2
+;-> 
+;-> [ 9 4 7 ]  (1) 16
+;-> ---------------------
+;-> mazzo: (6 9 5 4 1 8 4 6 8 5 8 2)
+;-> 
+;-> player 1: 4 5
+;-> aggiunge carta sul tavolo
+;-> player 2: 3
+;-> prende carta dal tavolo
+;-> player 1: 9 3
+;-> aggiunge carta sul tavolo
+;-> player 2: 4
+;-> prende carta dal tavolo
+;-> player 1: 7 4
+;-> aggiunge carta sul tavolo
+;-> player 2: 1
+;-> cattura mazzetto
+;-> num-carte 1 = 0
+;-> num-carte 2 = 23
+;-> ultimo: 2
+;-> visibili: 5
+;-> 
+;-> [ 4 1 8 ]  (1) 23
+;-> 
+;->  8  10  2  9  7
+;-> 
+;-> [ 6 9 5 ]  () 0
+;-> ---------------------
+;-> mazzo: (4 6 8 5 8 2)
+;-> 
+;-> player 1: 9 1
+;-> prende carta dal tavolo
+;-> player 2: 8
+;-> prende carta dal tavolo
+;-> player 1: 5 8
+;-> aggiunge carta sul tavolo
+;-> player 2: 4
+;-> aggiunge carta sul tavolo
+;-> player 1: 6 8
+;-> aggiunge carta sul tavolo
+;-> player 2: 1
+;-> aggiunge carta sul tavolo
+;-> num-carte 1 = 2
+;-> num-carte 2 = 25
+;-> ultimo: 2
+;-> visibili: 7
+;-> 
+;-> [ 5 8 2 ]  (8) 25
+;-> 
+;->  10  2  7  5  4  6  1
+;-> 
+;-> [ 4 6 8 ]  (9) 2
+;-> ---------------------
+;-> mazzo: ()
+;-> 
+;-> player 1: 4 8
+;-> prende carta dal tavolo
+;-> player 2: 2
+;-> prende carta dal tavolo
+;-> player 1: 6 2
+;-> prende carta dal tavolo
+;-> player 2: 8
+;-> aggiunge carta sul tavolo
+;-> player 1: 8 2
+;-> prende carta dal tavolo
+;-> player 2: 5
+;-> prende carta dal tavolo
+;-> num-carte 1 = 8
+;-> num-carte 2 = 29
+;-> ultimo: 2
+;-> visibili: 3
+;-> 
+;-> carte player 1 = 8
+;-> carte player 2 = 32
+
+La seguente funzione simula una partita di rubamazzo e restituisce un numero:
+  numero = 0 --> partita pari (20 carte per ogni giocatore)
+  numero = 1 --> vince il giocatore 1
+  numero = 2 --> vince il giocatore 2
+
+(define (rubamazzo tipo)
+  (setq carte (flat (dup (sequence 1 10) 4)))
+  (setq mazzo (randomize carte))
+  (setq scoperta1 "") (setq scoperta2 "")
+  (setq visibili (list (pop mazzo 0) (pop mazzo 0) (pop mazzo 0) (pop mazzo 0)))
+  (setq num-carte1 0) (setq num-carte2 0)
+  (setq player 1)
+  (while mazzo
+    (setq mano1 (list (pop mazzo 0) (pop mazzo 0) (pop mazzo 0)))
+    (setq mano2 (list (pop mazzo 0) (pop mazzo 0) (pop mazzo 0)))
+    ;(print-position)
+    (while (or mano1 mano2)
+      (cond ((= player 1)
+              (if (= tipo 1)
+                (setq carta (random-play mano1))
+                (setq carta (grab-play mano1 1))
+              )      
+              (pop mano1 (find carta mano1))
+              (cond ((= carta (int scoperta2))
+                      (setq num-carte1 (+ num-carte1 num-carte2 1))
+                      (setq num-carte2 0)
+                      (setq scoperta1 (string carta))
+                      (setq scoperta2 "")
+                      (setq ultimo 1)
+                      (setq player 2))
+                    ((find carta visibili)
+                      (pop visibili (ref carta visibili))
+                      (setq num-carte1 (+ num-carte1 2))
+                      (setq scoperta1 (string carta))
+                      (setq ultimo 1)
+                      (setq player 2))
+                    (true
+                      (push carta visibili -1)
+                      (setq player 2))
+              ))
+            ((= player 2)
+              (if (= tipo 1)
+                  (setq carta (random-play mano2))
+                  (setq carta (grab-play mano2 2))
+              )
+              (pop mano2 (find carta mano2))
+              (cond ((= carta (int scoperta1))
+                      (setq num-carte2 (+ num-carte2 num-carte1 1))
+                      (setq num-carte1 0)
+                      (setq scoperta2 (string carta))
+                      (setq scoperta1 "")
+                      (setq ultimo 2)
+                      (setq player 1))
+                    ((find carta visibili)
+                      (pop visibili (ref carta visibili))
+                      (setq num-carte2 (+ num-carte2 2))
+                      (setq scoperta2 (string carta))
+                      (setq ultimo 2)
+                      (setq player 1))
+                    (true
+                      (push carta visibili -1)
+                      (setq player 1))
+              ))
+      )
+    )
+  )
+  (cond ((= ultimo 1)
+          (setq num-carte1 (add num-carte1 (length visibili))))
+        ((= ultimo 2)
+          (setq num-carte2 (add num-carte2 (length visibili))))
+  )
+  (cond ((= num-carte1 num-carte2) 0)
+        ((> num-carte1 num-carte2) 1)
+        ((< num-carte1 num-carte2) 2)
+  )
+)
+
+Scriviamo una funzione per simulare N partite a rubamazzo:
+
+(define (test iter tipo)
+  (local (p p1 p2 res)
+    (set 'p 0 'p1 0 'p2 0)
+    (for (i 1 iter)
+      (setq res (rubamazzo tipo))
+      (cond ((= res 0) (++ p))
+            ((= res 1) (++ p1))
+            ((= res 2) (++ p2))
+      )
+    )
+    (list p p1 p2 (div p1 p2))))
+
+Facciamo alcune prove:
+
+(seed (time-of-day))
+
+(test 1e4 1)
+;-> (414 4590 4996 0.9187349879903923)
+(test 1e4 2)
+;-> (403 4694 4903 0.9573730369161738)
+
+(test 1e5 1)
+;-> (4279 45947 49774 0.9231124683569735)
+(test 1e5 2)
+;-> (4319 46093 49588 0.9295192385254497)
+
+(test 1e6 1)
+;-> (43137 461137 495726 0.9302255681566026)
+(test 1e6 2)
+;-> (42768 461268 495964 0.9300433095950512)
+
+Sembra che il giocatore 2 sia leggermente avvantaggiato (se il programma non è errato...).
+
+
+------------------
+Numeri dei reparti
+------------------
+
+C'è una città altamente organizzata che ha deciso di assegnare un numero a ciascuno dei suoi reparti:
+
+   Polizia
+   Sanità
+   Vigili del fuoco
+
+Ogni reparto può avere un numero compreso tra 1 e 7 (compreso).
+
+I tre numeri di reparto devono essere univoci (diversi l'uno dall'altro) e devono sommarsi fino a 12.
+
+Al capo della polizia non piacciono i numeri dispari e vuole avere un numero pari per il suo dipartimento.
+
+Prima versione:
+
+(define (distretti)
+  (local (p s v valid out)
+    (setq out '(("P" "S" "V")))
+    (for (p 2 7)
+      (for (s 1 7)
+        (for (v 1 7)
+          (setq valid true)
+          (cond ((odd? p)
+                  (setq valid nil))
+                ((or (= p s) (= s v) (= v p))
+                  (setq valid nil))
+                ((!= (+ p s v) 12)
+                  (setq valid nil))
+          )
+          (if valid (push (list p s v) out -1))
+        )
+      )
+    )
+    out))
+
+(distretti)
+;-> (("P" "S" "V") (2 3 7) (2 4 6) (2 6 4) (2 7 3) (4 1 7) (4 2 6) 
+;->  (4 3 5) (4 5 3) (4 6 2) (4 7 1) (6 1 5) (6 2 4) (6 4 2) (6 5 1))
+
+Seconda versione:
+
+(define (label)
+  (local (p s v break out)
+    (setq out '(("P" "S" "V")))
+    (for (p 2 7 2)
+      (setq break nil)
+      (for (s 1 7 1 break)
+        (setq v (- 12 p s))
+        (cond ((>= s v) (setq break true))
+              ((> v 7) nil)
+              ((or (= s p) (= v p)) nil)
+              (true
+                (push (list p s v) out -1)
+                (push (list p v s) out -1))
+        )))
+    out))
+
+(label)
+;-> (("P" "S" "V") (2 3 7) (2 7 3) (2 4 6) (2 6 4) (4 1 7) (4 7 1)
+;->  (4 2 6) (4 6 2) (4 3 5) (4 5 3) (6 1 5) (6 5 1) (6 2 4) (6 4 2))
+
+Verifichiamo che i risultati delle due funzioni siano uguali:
+
+(= (sort (label)) (sort (distretti)))
+;-> true
+
+Vediamo la velocità delle due funzioni:
+
+(time (distretti) 1e4)
+;-> 441.846
+(time (label) 1e4)
+;-> 42.912
 
 =============================================================================
 

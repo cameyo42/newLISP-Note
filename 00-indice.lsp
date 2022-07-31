@@ -1298,6 +1298,9 @@ NOTE LIBERE 10
   Determinante di una matrice
   Multiple Value Bind macro
   100 prigionieri
+  Morra Cinese
+  Rubamazzo
+  Numeri dei reparti
 
   
 APPENDICI
