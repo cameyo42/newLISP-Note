@@ -2402,5 +2402,297 @@ Vediamo la velocità delle due funzioni:
 (time (label) 1e4)
 ;-> 42.912
 
+
+--------------------
+Generatore circolare
+--------------------
+
+Versione automodificante:
+
+(setf rotating-tasklet^ (fn (loc body)
+ (rotate body)
+  (letex (loc loc body body)
+   (expand (setf loc (fn (arg)
+    (pop loc -1)
+    (push (first (rotate 'body -1)) loc -1)
+    'first-of-body-goes-here))))))
+
+vVrsione leggermente più concisa con "eval":
+
+(setf rotating-tasklet^ (fn (loc body)
+ (rotate body)
+  (letex (loc loc body body)
+   (expand (setf loc (fn (arg)
+   (eval (first (rotate 'body -1)))))))))
+
+Uso:
+
+(rotating-tasklet^ 'rotX
+ '((+ 10 arg)
+   (+ 11 arg)
+   (+ 12 arg)))
+
+(rotating-tasklet^ 'rotX
+  '((println "first")
+    (println "second")
+    (println "third")))
+
+(rotX)
+;-> "first"
+
+(println (rotX 1000))
+;-> second
+;-> second
+
+(rotX)
+;-> "third"
+
+(println (rotX 2500))
+;-> first
+;-> first
+
+(rotX)
+;-> second
+
+(println (rotX 333))
+;-> third 
+;-> third
+
+Versione leggermente più breve senza "eval" che utilizza "setf" invece di "pop/push":
+
+(setf rotating-tasklet^ (fn (loc body)
+ (rotate body)
+  (letex (loc loc body body)
+   (expand (setf loc (fn (arg)
+    (setf (last loc) (first (rotate 'body -1)))
+    'first-of-body-goes-here))))))
+
+
+-----------------------------
+Numero di linea di uno script
+-----------------------------
+
+newLISP non mostra il numero di linea degli script in esecuzione.
+Un modo per ottenere questa informazione è quello di utilizzare la funzione "reader-event":
+
+(setq $exprno 0)
+(reader-event (fn (x) (inc $exprno) x))
+
+Per esempio:
+
+(define (divide x y)
+    (if (= y 0) 
+      (println "line " $exprno ": first argument cannot be 0")
+      (div x y)))
+
+(divide 10 0)
+;-> line 3: first argument cannot be 0
+
+$exprno
+;-> 4
+
+Non è proprio il massimo, ma meglio di niente.
+
+
+-----------------------------
+Interpolazione di una stringa
+-----------------------------
+
+Problema: come sostituire i segnaposto in una stringa con i valori dei simboli?
+
+It's like placeholders in function format but named so instead of %s you are using named placeholders
+The effect should be like in PHP where you write something like this
+Si tratta dei "segnaposto" della funzione "format", ma invece di %s possiamo usare i nomi dei segnaposti.
+L'effetto dovrebbe essere come in PHP dove possiamo scrivere qualcosa del genere:
+
+$one = 1;
+$two = 2;
+$str = "here $one and there $two";
+
+In questo modo invece di scrivere:
+
+(println (format "here %d and there %d" one two))
+
+Possiamo usare:
+
+(myprintln "here :one: and there :two:")
+
+Primo metodo
+------------
+(set 'name "John" 'age 37 'city "NY")
+
+;; P replaces symbol name in string with its value, symbol name is enclosed
+;; between colons (or choose your own), symbol must be defined
+
+(define (P str (sep ":"))
+    (set 'fields '())
+    (find-all (format {%s([a-z0-9-]+)%s} sep sep) str (push $1 fields -1))
+    (dolist (f fields)
+        (if (set 'val (eval (sym f MAIN nil)))
+            (replace (string sep f sep) str (string val))))
+    (println str))
+
+;; default call
+(P ":name: lives in :city: and is :age: years old.")
+;-> John lives in NY and is 37 years old
+
+;; custom separator
+(P "!name! lives in !city! and is !age! years old." "!")
+;-> John lives in NY and is 37 years old.
+
+;; custom separator, one symbol undefined
+(P "~name~ lives in ~city~ and is ~blah~ years old." "~")
+;-> John lives in NY and is ~blah~ years old.
+
+Secondo metodo
+--------------
+(define (fill-template TEMPLATE VALUES)
+  (replace ":([a-z]+):"
+           TEMPLATE
+           (if (lookup (sym $1) VALUES)
+               (string $it)
+               "<<<value does not exist>>>")
+           0))
+
+Questa funzione riempie il modello TEMPLATE con i valori di VALUES.
+
+TEMPLATE è una stringa contenente "slot" (da compilare) denotati da nomi di simboli circondati dai due punti ':', ad esempio ":name: is at :place:."
+
+VALUES è un elenco che associa quei simboli (senza i due punti) ai valori corrispondenti, ad esempio '((nome "Tom") (luogo "casa")).
+
+Vediamo un esempio:
+
+(fill-template ":name: is at :place:." '((name "Tom") (place "home")))
+;-> "Tom is at home."
+
+Altro esempio:
+
+(define *template* ":name: lives in :city: and is :age: years old.")
+
+Lista di persone (database):
+
+(define *people*
+  '(((name "John")
+     (age  37)
+     (city "NY"))
+    ((name "Giorgos")
+     (age  25)
+     (city "Athens"))
+    ((name "Elena")
+     (age  43)
+     (city "Amsterdam"))))
+
+E i loro collegamenti:
+
+(map (curry fill-template *template*) *people*)
+;-> ("John lives in NY and is 37 years old." 
+;->  "Giorgos lives in Athens and is 25 years old."
+;->  "Elena lives in Amsterdam and is 43 years old.")
+
+(dolist (p *people*) (println (fill-template *template* p)))
+;-> John lives in NY and is 37 years old.
+;-> Giorgos lives in Athens and is 25 years old.
+;-> Elena lives in Amsterdam and is 43 years old.
+
+Terzo metodo
+------------
+(define *people*
+      '((("name" "John")
+         ("age"  37)
+         ("city" "NY"))
+        (("name" "Giorgos")
+         ("age"  25)
+         ("city" "Athens"))
+        (("name" "Elena")
+         ("age"  43)
+         ("city" "Amsterdam"))))
+
+(define *template* ":name: lives in :city: and is :age: years old.")
+;-> ":name: lives in :city: and is :age: years old."
+
+(setq parsed-template (parse *template* ":"))
+;-> ("" "name" " lives in " "city" " and is " "age" " years old.")
+
+; definiamo un contesto per contenere i dati di una persona
+
+(define data:data)     
+;-> nil
+
+Stampa dei risultati:
+
+(dolist (p *people*)
+   (data p)
+   (dolist (str parsed-template)
+      (print (or (data str) str)))
+   (println))
+;-> John lives in NY and is 37 years old.
+;-> Giorgos lives in Athens and is 25 years old.
+;-> Elena lives in Amsterdam and is 43 years old.
+
+
+-------------
+Testing macro
+-------------
+
+(define (make-node value action name) (list value action name))
+(define (node? n) (list? n))
+(define (node-value n) (nth 0 n))
+(define (node-action n) (nth 1 n))
+(define (node-name n) (nth 2 n))
+(define (node-eval n) (if (nil? (node-action n)) (node-value n) (throw-error "unevaluable node")))
+(define (merge nodelist)
+  (letn
+    (priority '(+ - * / ^)
+     lowerpri? (lambda (n1 n2) (< (find (node-name n1) priority) (find (node-name n2) priority)))
+     _R (lambda (n1 n2) (make-node ((node-action n1) (node-value n1) (node-value n2)) (node-action n2) (node-name n2)))
+     _M (lambda (_l _c)
+          (cond
+            ((and (empty? _c) (empty? (rest _l))) (first _l))  ; length 1
+            ((and (empty? _c) (= 2 (length _l))) (_R (nth 0 _l) (nth 1 _l)))  ; length 2
+            ((lowerpri? (nth 0 _l) (nth 1 _l)) (_M (cons (nth 1 _l) (rest (rest _l))) (append _c (list (nth 0 _l)))))
+            (true (_M (append _c (cons (_R (nth 0 _l) (nth 1 _l)) (rest (rest _l)))) '())) )))
+    (_M nodelist '())))
+(define (evaluate nodelist) (let (n (merge nodelist)) (node-eval n)))
+
+;---- testing macro
+(define (test test-name test-cond) (if test-cond (println test-name " OK") (println test-name " Fail!!!!")))
+
+;---- macros for easy typing
+(define-macro (N v a t) (make-node (eval v) (or (eval a) nil) (or t a nil)))
+
+;---- testing examples
+(define l1 (list (N 3 +) (N 8)))
+(define l2 (list (N 3 +) (N 8 *) (N 4) ))
+(define l3 (list (N 2 +) (N 3 *) (N 4 pow ^) (N 2 +) (N 1) ))
+(define l4 (list (N 4 +) (N 2 *) (N 6 -) (N 4 pow ^) (N 3 +) (N 5) ))
+
+;---- tests
+(test "4" (= 4 (evaluate (list (N 4)))))
+(test "3+8" (= 11 (evaluate l1)))
+(test "3+8*4" (= 35 (evaluate l2)))
+(test "2+3*4^2+1" (= 51 (evaluate l3)))
+(test "4+2x6-4^3+5" (= -43 (evaluate l4)))
+(test "not evaluating 4+" (or (catch (evaluate (list (N 4 +))) 'res)
+                              (= "unevaluable node" ((parse ((parse res "\r") 0) ": ") -1))))
+
+(test "4" (= 4 (evaluate (list (N 4)))))
+;-> 4 OK
+
+(test "3+8" (= 11 (evaluate l1)))
+;-> 3+8 OK
+
+(test "3+8*4" (= 35 (evaluate l2)))
+;-> 3+8*4 OK
+
+(test "2+3*4^2+1" (= 51 (evaluate l3)))
+;-> 2+3*4^2+1 OK
+
+(test "4+2x6-4^3+5" (= -43 (evaluate l4)))
+;-> 4+2x6-4^3+5 OK
+
+(test "not evaluating 4+" (or (catch (evaluate (list (N 4 +))) 'res)
+                              (= "unevaluable node" ((parse ((parse res "\r") 0) ": ") -1))))
+;-> not evaluating 4+ OK
+
 =============================================================================
 

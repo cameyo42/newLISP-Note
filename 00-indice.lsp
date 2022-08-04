@@ -25,7 +25,7 @@ newLISP IN GENERALE
   Assegnazione locale: let, letn e local
   Effetti collaterali (side effect) di setq e let e local
   Passaggio per valore e passaggio per riferimento
-  Nil, true e lista vuota '()
+  nil, true e lista vuota '()
   La funzione quote e il simbolo '
   Funzioni con memoria
   Generare funzioni da funzioni
@@ -1301,7 +1301,10 @@ NOTE LIBERE 10
   Morra Cinese
   Rubamazzo
   Numeri dei reparti
-
+  Generatore circolare
+  Numero di linea di uno script
+  Interpolazione di una stringa
+  Testing macro
   
 APPENDICI
 =========

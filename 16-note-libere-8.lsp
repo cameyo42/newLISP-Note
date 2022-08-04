@@ -3870,6 +3870,16 @@ Vediamo i tempi di esecuzione:
 (time (explodes seq -7 true) 10)
 ;-> 7.951
 
+Infine vediamo una funzione che simula "explode":
+
+(define (my-exp llst number)
+  (if (empty? llst)
+      '()
+      (cons (0 number llst) (my-exp (number llst) number))))
+
+(my-exp '(0 1 2 3 4 5 6 7 8 9) 3)
+;-> ((0 1 2) (3 4 5) (6 7 8) (9))
+
 
 --------------------
 Formula di Faulhaber

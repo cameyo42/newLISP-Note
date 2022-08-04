@@ -785,6 +785,10 @@ L
 s
 ;->"newLISP"
 
+"setq" e "setf" sono sinonimi in newLISP. Sono "forme speciali" i cui nomi sono ereditati da altri Lisp.
+Se il primo argomento è un simbolo, il valore del secondo argomento valutato viene assegnato direttamente a quel simbolo, senza valutare il primo argomento.
+In caso contrario, viene valutato il primo argomento e se il risultato è un riferimento valido, il valore del secondo argomento viene assegnato in modo distruttivo al luogo in cui punta il riferimento.
+
 Vediamo adesso la funzione "define":
 
 *******************
