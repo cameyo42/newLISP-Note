@@ -2551,7 +2551,7 @@ Secondo metodo
            TEMPLATE
            (if (lookup (sym $1) VALUES)
                (string $it)
-               "<<<value does not exist>>>")
+               "<<value does not exist>>")
            0))
 
 Questa funzione riempie il modello TEMPLATE con i valori di VALUES.
@@ -2693,6 +2693,234 @@ Testing macro
 (test "not evaluating 4+" (or (catch (evaluate (list (N 4 +))) 'res)
                               (= "unevaluable node" ((parse ((parse res "\r") 0) ": ") -1))))
 ;-> not evaluating 4+ OK
+
+
+-------------------------
+Trasformazione Box-Muller
+-------------------------
+
+La trasformazione di Box-Muller (George Edward Pelham Box e Mervin Edgar Muller, 1958)[1] è un metodo per generare coppie di numeri casuali indipendenti e distribuiti gaussianamente con media nulla e varianza uno partendo da due numeri casuali uniformemente distribuiti.
+
+Nota: vedi immagine "box-muller.png" nella cartella "data".
+
+Algoritmo Box-Muller
+1. Generare U1 uniforme(0,1) e U2 uniforme(0,1) dove U1 indipendente da U2
+2. Calcolare R = sqrt(−2*log(U1)) e Theta = 2*π*U2
+3. Calcolare X = R*cos(θ) e Y = R*sin(θ)
+
+Nota: log -> logaritmo naturale
+
+(define (box-muller points)
+  (local (pi ua1 ua2 r theta x y)
+    (setq pi 3.1415926535897931)
+    ; Inizializza il generatore di numeri casuali
+    (seed (time-of-day))
+    ; Genera U1 con points numeri che sono uniformi in (0, 1)
+    (setq u1 (random 0 1 points))
+    ; Inizializza il generatore di numeri casuali
+    (seed (time-of-day))
+    ; Genera U2 con points numeri che sono uniformi in (0, 1)
+    (setq u2 (random 0 1 points))
+    ; Trasforma U1 in R (log -> logaritmo naturale)
+    (setq r (map (fn(x) (sqrt (mul -2 (log x)))) u1))
+    ; Trasforma U2 in Theta
+    (setq theta (map (fn(x) (mul 2 pi x)) u2))
+    ; Calcola x e y da R e theta
+    (setq x (map (fn(x y) (mul x (cos y))) r theta))
+    (setq y (map (fn(x y) (mul x (sin y))) r theta))
+    (list x y)))
+
+Vediamo un esempio:
+
+(setq ga (box-muller 1000))
+(setq gx (ga 0))
+(setq gy (ga 1))
+(setq xy (map list gx gy))
+(save "u1.txt" 'u1)
+(save "u2.txt" 'u2)
+(save "xy.txt" 'xy)
+
+I risultati sono riportati nel file "box-muller.xlsx" nella cartella "data".
+
+Nota: per generare numeri con distribuzione gaussiana (normale) è possibile utilizzare la funzione integrata "normal".
+
+*******************
+>>>funzione NORMAL
+*******************
+sintassi: (normal float-mean float-stdev int-n)
+sintassi: (normal float-mean float-stdev)
+
+Nella prima forma, "normal" restituisce un elenco di lunghezza "int-n" di numeri in virgola mobile casuali e distribuiti in modo continuo con una media di "float-mean" e una deviazione standard di "float-stdev". Il generatore casuale utilizzato internamente può essere seminato utilizzando la funzione "seed".
+
+(normal 10 3 10)
+;-> (7 6.563476562 11.93945312 6.153320312 9.98828125
+;->  7.984375 10.17871094 6.58984375 9.42578125 12.11230469)
+
+Nella seconda forma, "normal" restituisce un singolo numero a virgola mobile con distribuzione normale:
+
+(normal 1 0.2)
+;-> 0.646875
+
+Quando non vengono forniti parametri, "normal" assume una media di 0.0 e una deviazione standard di 1.0.
+
+Vedi anche le funzioni "random" e "rand" per numeri distribuiti uniformemente, "amb" per randomizzare la valutazione in un elenco di espressioni e "seed" per impostare un punto di partenza diverso per la generazione di numeri pseudo casuali.
+
+
+-------------------------------------------------------
+Cerchio minimo di inclusione (Minimum Enclosing Circle)
+-------------------------------------------------------
+
+Data una lista contenente N punti con coordinate 2D. Trovare il centro e il raggio del cerchio minimo di inclusione (MEC). Un cerchio minimo di inclusione è un cerchio in cui tutti i punti giacciono all'interno del cerchio o sulla sua circonferenza.
+
+Esempi:
+Input: punti = ((0, 0) (0, 1) (1, 0))
+Output: centro = (0.5, 0.5), raggio = 0.7071
+
+Input: punti ((5, -2) (-3, -2) (-2, 5) (1, 6) (0, 2))
+Output: centro = (1.0, 1.0), reggio = 5
+
+Per risolvere il problema dobbiamo fare alcune osservazioni:
+
+1) Il MEC interseca almeno un punto. Questo perché se il MEC non si interseca in nessun punto, il cerchio potrebbe essere ulteriormente ridotto fino a quando non si interseca uno dei punti.
+
+2) Dato un cerchio che racchiude tutti i punti e si interseca in un unico punto, il cerchio può essere ulteriormente rimpicciolito spostando il centro verso quel punto mantenendo il punto sul bordo del cerchio finché il cerchio non si interseca uno o più punti aggiuntivi.
+
+3) Se il cerchio si interseca in due punti (A e B) e la distanza AB è uguale al diametro del cerchio, il cerchio non può più essere rimpicciolito. Altrimenti, il centro del cerchio può essere spostato verso il punto medio di AB finché il cerchio non interseca un terzo punto (in corrispondenza del quale il cerchio non può più essere ridotto).
+
+Dalle osservazioni di cui sopra, si può concludere che il MEC:
+
+a) Interseca 2 punti A e B, dove AB = diametro del cerchio. In questo caso, il centro del cerchio sarebbe il punto medio di A e B e il raggio sarebbe la metà della distanza AB.
+b) Interseca 3 o più punti.
+
+Pertanto, la soluzione a questo problema è banale per N <= 3. Per gli altri casi utilizziamo tutte le coppie e le triple dei punti per ottenere il cerchio definito da quei punti. Dopo aver ottenuto il cerchio, verifichiamo se gli altri punti sono racchiusi dal cerchio e restituiamo il cerchio valido più piccolo trovato.
+
+I punti e i cerchi sono definiti dalle seguenti strutture:
+  - point -> (x y)
+  - circle -> (point radius) -> ((x y) r)
+
+Funzione che calcola la distanza euclidea tra due punti:
+
+(define (dist a b)
+  (sqrt (add (pow (sub (a 0) (b 0)) 2) (pow (sub (a 1) (b 1)) 2))))
+
+(dist '(0 0) '(1 1))
+;-> 1.414213562373095
+(dist '(2 2) '(2 4))
+;-> 2
+
+Funzione che verifica se un punto è interno o giace sul perimetro di un cerchio:
+
+(define (is-inside c p)
+  (<= (dist (c 0) p) (c 1)))
+
+(is-inside '((0 0) 5) '(0 4))
+;-> true
+(is-inside '((0 0) 5) '(0 6))
+;-> nil
+
+Funzione che calcola il centro di un cerchio da due punti dati:
+
+(define (get-circle-center bx by cx cy)
+  (local (b c d)
+    (setq b (add (mul bx bx) (mul by by)))
+    (setq c (add (mul cx cx) (mul cy cy)))
+    (setq d (sub (mul bx cy) (mul by cx)))
+    (list (div (sub (mul cy b) (mul by c)) (mul 2 d))
+          (div (sub (mul bx c) (mul cx b)) (mul 2 d)))))
+
+(get-circle-center 1 1 2 3)
+;-> (-3.5 4.5)
+
+Funzione che calcola il centro e il raggio del cerchio che passa per tre punti dati:
+
+(define (circle-from a b c)
+  (local (i)
+    (setq i (get-circle-center (sub (b 0) (a 0)) (sub (b 1) (a 1))
+                               (sub (c 0) (a 0)) (sub (c 1) (a 1))))
+    (setf (i 0) (add (i 0) (a 0)))
+    (setf (i 1) (add (i 1) (a 1)))
+    (list i (dist i a))))
+
+(circle-from '(1 0) '(0 1) '(0 -1))
+;-> ((0 0) 1)
+
+(circle-from '(2 0) '(4 2) '(0 2))
+;-> ((2 2) 2)
+
+Funzione  che verifica se un cerchio include tutti i punti:
+
+(define (is-valid-circle c p)
+  (let (outside nil)
+    (dolist (el p outside)
+      (if (not (is-inside c el)) (setq outside true))
+    )
+    (not outside)))
+
+(is-valid-circle '((2 2) 2) '((2 2) (1 1) (3 2) (4 2)))
+;-> true
+
+(is-valid-circle '((2 2) 2) '((2 2) (1 1) (3 2) (4 2.1)))
+;-> nil
+
+Funzione finale che calcola il MEC di un insieme di punti:
+
+(define (find-mec pts)
+  (local (len mec tmp j k)
+  (setq len (length pts))
+  ; MEC iniziale con centro in (0,0) e raggio infinito
+  (setq mec '((0 0) 1e18))
+  ; per tutte le coppie di punti
+  (for (i 0 (- len 1))
+    (setq j (+ i 1))
+    (while (< j len)
+      ; trova il mec che interseca pts(i) e pts(j)
+      ;(println " i j " i { } j) (read-line)
+      (setq tmp (circle-from2 (pts i) (pts j)))
+      ;(println tmp) (read-line)
+      ; aggiorna il MEC se tmp include tutti i punti
+      ; e ha un raggio minore
+      (if (and (< (tmp 1) (mec 1)) (is-valid-circle tmp pts))
+          (setq mec tmp)
+      )
+      (++ j)
+    )
+  )
+  ; per tutte le triple di punti
+  (for (i 0 (- len 1))
+    (setq j (+ i 1))
+    (while (< j len)
+      (setq k (+ j 1))
+      (while (< k len)
+        ; trova il mec che interseca pts(i), pts(j) e pts(k)
+        ;(println " i j " i { } j) (read-line)
+        (setq tmp (circle-from (pts i) (pts j) (pts k)))
+        ;(println tmp) (read-line)
+        ; aggiorna il MEC se tmp include tutti i punti
+        ; e ha un raggio minore
+        (if (and (< (tmp 1) (mec 1)) (is-valid-circle tmp pts))
+            (setq mec tmp)
+        )
+        (++ k)
+      )
+      (++ j)
+    )
+  )
+  mec))
+
+Facciamo alcune prove:
+
+(setq pts1 '((0 0) (0 1) (1 0)))
+(find-mec pts1)
+;-> ((0.5 0.5) 0.7071067811865476)
+
+(setq pts2 '((5 -2) (-3 -2) (-2 5) (1 6) (0 2)))
+(find-mec pts2)
+;-> ((1 1) 5)
+
+Complessità temporale: O(N^4)
+
+Un'altro metodo di soluzione del problema utilizza l'algoritmo convex-hull. 
+Calcoliamo il convex-hull dei punti dati e poi utilizziamo la funzione "find-mec" per trovare il MEC con i punti che formano il convex-hull. Se il numero di vertici del convex-hull è considerevolmente inferiore a N, la complessità sarebbe O(H^4 + N*Log(N)) dove H rappresenta il numero di vertici del convex-hull e il fattore NLog(N) è la complessità temporale dell'algoritmo di convex-hull (Graham Scan). Infine, se il numero di vertici, H, del convex-hull è molto piccolo, allora può essere considerato come un fattore costante e quindi la complessità temporale diventa O(NLog(N)).
 
 =============================================================================
 

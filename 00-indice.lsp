@@ -1305,6 +1305,8 @@ NOTE LIBERE 10
   Numero di linea di uno script
   Interpolazione di una stringa
   Testing macro
+  Trasformazione Box-Muller
+  Cerchio minimo di inclusione (Minimum Enclosing Circle)
   
 APPENDICI
 =========
