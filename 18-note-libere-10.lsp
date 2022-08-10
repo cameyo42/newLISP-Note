@@ -2699,7 +2699,7 @@ Testing macro
 Trasformazione Box-Muller
 -------------------------
 
-La trasformazione di Box-Muller (George Edward Pelham Box e Mervin Edgar Muller, 1958)[1] è un metodo per generare coppie di numeri casuali indipendenti e distribuiti gaussianamente con media nulla e varianza uno partendo da due numeri casuali uniformemente distribuiti.
+La trasformazione di Box-Muller (George Edward Pelham Box e Mervin Edgar Muller, 1958) è un metodo per generare coppie di numeri casuali indipendenti e distribuiti gaussianamente con media nulla e varianza uno partendo da due serie di numeri casuali uniformemente distribuiti e indipendenti.
 
 Nota: vedi immagine "box-muller.png" nella cartella "data".
 
@@ -2921,6 +2921,213 @@ Complessità temporale: O(N^4)
 
 Un'altro metodo di soluzione del problema utilizza l'algoritmo convex-hull. 
 Calcoliamo il convex-hull dei punti dati e poi utilizziamo la funzione "find-mec" per trovare il MEC con i punti che formano il convex-hull. Se il numero di vertici del convex-hull è considerevolmente inferiore a N, la complessità sarebbe O(H^4 + N*Log(N)) dove H rappresenta il numero di vertici del convex-hull e il fattore NLog(N) è la complessità temporale dell'algoritmo di convex-hull (Graham Scan). Infine, se il numero di vertici, H, del convex-hull è molto piccolo, allora può essere considerato come un fattore costante e quindi la complessità temporale diventa O(NLog(N)).
+
+
+---------------------
+Prodotto di Kronecker
+---------------------
+
+Il prodotto di Kronecker, indicato con " ** ", è un'operazione tra due matrici di dimensioni arbitrarie, sempre applicabile, al contrario della normale moltiplicazione di matrici.
+
+Se A è una matrice (m x n) e B è una matrice (p x q), allora il loro prodotto di Kronecker A**B è una matrice (m*p x n*q) definita a blocchi nel modo seguente:
+
+           | a11*B ... a1n*B |
+  A ** B = |  ...  ... ...   |
+           | am1*B ... amn*B |
+
+Per esempio se A è una matrice 2x2:
+
+                             | a11*b11 a11*b12  a12*b11 a12*b12 |
+           | a11*B a12*B |   | a11*b21 a11*b22  a12*b21 a12*b22 |
+  A ** B = |             | = |                                  |
+           | a21*B a22*B |   | a21*b11 a21*b12  a22*b11 a22*b12 |
+                             | a21*b21 a21*b22  a22*b21 a22*b22 |
+
+Scriviamo una funzione che calcola il prodotto di kronecker tra due matrici:
+
+  Matrice A   Matrice B
+   (m x n)     (p x q)
+   (r1xc1)     (r2xc2)
+
+(define (kron m1 m2)
+  (local (kro r1 c1 r2 c2)
+    (setq r1 (length m1))
+    (setq c1 (length (m1 0)))
+    (setq r2 (length m2))
+    (setq c2 (length (m2 0)))
+    (setq kro (array (mul r1 r2) (mul c1 c2) '(0)))
+    (for (i 0 (- r1 1))
+      (for (j 0 (- c1 1))
+        (for (k 0 (- r2 1))
+          (for (l 0 (- c2 1))
+            ; ogni elemento della matrice A (m1) viene
+            ; moltiplicato per tutta la matrice B (m2)
+            ; e memorizzato nella matrice C (kro)
+            (setf (kro (+ (* i r2) k) (+ (* j c2) l)) (mul (m1 i j) (m2 k l)))
+          )
+        )
+      )
+    )
+    kro))
+
+Facciamo alcune prove:
+
+(setq mat1 '((1 2)
+             (3 4)))
+
+(setq mat2 '((0 5)
+             (6 7)))
+
+(kron mat1 mat2)
+;-> (( 0  5  0 10) 
+;->  ( 6  7 12 14) 
+;->  ( 0 15  0 20) 
+;->  (18 21 24 28))
+
+(setq mat1 '((1 2)
+             (3 4)
+             (1 0)))
+(setq mat2 '((0 5 2)
+             (6 7 3)))
+
+(kron mat1 mat2)
+;-> (( 0  5  2  0 10  4) 
+;->  ( 6  7  3 12 14  6) 
+;->  ( 0 15  6  0 20  8) 
+;->  (18 21  9 24 28 12) 
+;->  ( 0  5  2  0  0  0)
+;->  ( 6  7  3  0  0  0))
+
+(setq mat1 '((0 1 0)
+             (1 1 1)
+             (0 1 0)))
+(setq mat2 '((1 1 1 1)
+             (1 0 0 1)
+             (1 1 1 1)))
+
+(kron mat1 mat2)
+;-> ((0 0 0 0 1 1 1 1 0 0 0 0)
+;->  (0 0 0 0 1 0 0 1 0 0 0 0)
+;->  (0 0 0 0 1 1 1 1 0 0 0 0)
+;->  (1 1 1 1 1 1 1 1 1 1 1 1)
+;->  (1 0 0 1 1 0 0 1 1 0 0 1)
+;->  (1 1 1 1 1 1 1 1 1 1 1 1)
+;->  (0 0 0 0 1 1 1 1 0 0 0 0)
+;->  (0 0 0 0 1 0 0 1 0 0 0 0)
+;->  (0 0 0 0 1 1 1 1 0 0 0 0))
+
+Complessità temporale: O(r1*c1*r2*c2)
+
+
+-------------
+Numeri di Lha
+-------------
+
+In matematica , i numeri di Lah , scoperti da Ivo Lah nel 1954, [1] [2] sono coefficienti che esprimono fattoriali crescenti in termini di fattoriali decrescenti . Sono anche i coefficienti delle derivate th di . [3]n{\displaystyle e^{1/x}}
+
+I numeri Lah senza segno hanno un significato interessante in combinatoria : contano il numero di modi in cui un insieme di n elementi può essere partizionato in k sottoinsiemi ordinati linearmente non vuoti . [4] I numeri di Lah sono correlati ai numeri di Stirling . [5]
+
+Numeri Lah senza segno (sequenza OEIS: A105278):
+
+L(n,k) = binom[(n-1) (k-1)]*(n!/k!)
+
+Numeri Lah con segno (sequenza OEIS: A108297):
+
+L(n,k) = ((-1)^n)*binom[(n-1) (k-1)]*(n!/k!)
+
+Scriviamo una funzione per calcolare i numeri di Lha senza segno:
+
+(define (fact-i num)
+"Calculates the factorial of an integer number"
+  (if (zero? num)
+      1
+      (let (out 1L)
+        (for (x 1L num)
+          (setq out (* out x))))))
+
+(define (lah-u1 n k)
+  (cond ((= k 1) (fact-i n))
+        ((= k n) 1)
+        ((> k n) 0)
+        ((or (< k 1) (< n 1)) 0)
+        (true
+          (/ (/ (* (fact-i n) (fact-i (- n 1)))
+                (* (fact-i k) (fact-i (- k 1))))
+             (fact-i (- n k))))))
+
+(lah-u1 12 5)
+;-> 1317254400L
+
+(lah-u1 21 3)
+;-> 1617879835437465600000L
+
+Proviamo ad ottimizzare la funzione "lah-u1" utilizzando una nuova funzione per calcolare il binomiale:
+
+(define (binom num k)
+"Calculates the binomial coefficient (n k) = n!/(k!*(n - k)!)"
+  (cond ((> k num) 0)
+        ((zero? k) 1)
+        (true
+          (let (r 1L)
+            (for (d 1 k)
+              (setq r (/ (* r num) d))
+              (-- num)
+            )
+          r))))
+
+(define (lah-u2 n k)
+  (cond ((= k 1) (fact-i n))
+        ((= k n) 1)
+        ((> k n) 0)
+        ((or (< k 1) (< n 1)) 0)
+        (true
+           (* (binom (- n 1) (- k 1))
+              (/ (fact-i n) (fact-i k))))))
+
+(lah-u2 12 5)
+;-> 1317254400L
+
+(lah-u2 21 3)
+;-> 1617879835437465600000L
+
+Vediamo la velocità delle due funzioni:
+
+(time (lah-u1 21 3) 10000)
+;-> 120.648
+(time (lah-u2 21 3) 10000)
+;-> 56.849
+
+Proviamo ad ottimizzare la funzione "lah-u2" calcolando n!/k! in modo diverso:
+
+(define (fact-div n k)
+"Calculates n!/k! with n > k"
+  (setq out 1L)
+  ; solo (n - k) moltiplicazioni
+  (dotimes (i (- n k))
+    (setq out (* out n))
+    (-- n)
+  )
+  out)
+
+(define (lah-u3 n k)
+  (cond ((= k 1) (fact-i n))
+        ((= k n) 1)
+        ((> k n) 0)
+        ((or (< k 1) (< n 1)) 0)
+        (true
+           (* (binom (- n 1) (- k 1))
+              (fact-div n k)))))
+
+(lah-u3 12 5)
+;-> 1317254400L
+
+(lah-u3 21 3)
+;-> 1617879835437465600000L
+
+Vediamo la velocità di questa funzione:
+
+(time (lah-u3 21 3) 10000)
+;-> 47.077
 
 =============================================================================
 

@@ -1307,6 +1307,8 @@ NOTE LIBERE 10
   Testing macro
   Trasformazione Box-Muller
   Cerchio minimo di inclusione (Minimum Enclosing Circle)
+  Prodotto di Kronecker
+  Numeri di Lha
   
 APPENDICI
 =========
