@@ -3129,5 +3129,527 @@ Vediamo la velocità di questa funzione:
 (time (lah-u3 21 3) 10000)
 ;-> 47.077
 
+
+-----------------
+Settore circolare
+-----------------
+
+Un settore circolare è la porzione di un cerchio racchiusa tra due raggi e un arco, dove l'area più piccola è il "settore minore" e la più grande è il "settore maggiore". Chiamiamo "theta" l'angolo minore racchiuso tra i due raggi. Chiamiamo L la lunghezza della parte circolare del settore.
+
+  Area-Settore = π*r^2 * (theta/360)
+
+(define (sector-area r theta)
+  (let (pi 3.1415926535897931)
+    (div (mul pi r r theta) 360)))
+
+(sector-area 10 45)
+;-> 39.26990816987242
+
+(sector-area 20 180)
+;-> 628.3185307179587
+
+(sector-area 1 360)
+;-> 3.141592653589793
+
+  Lunghezza-Settore = 2*π*r * (theta/360)
+
+(define (sector-length r theta)
+  (let (pi 3.1415926535897931)
+    (div (mul 2 pi r theta) 360)))
+
+(sector-length 10 45)
+;-> 7.853981633974483
+
+(sector-length 20 180)
+;-> 62.83185307179586
+
+(sector-length 20 0)
+;-> 0
+
+
+-----------------
+Corda del cerchio
+-----------------
+
+In un cerchio, se viene disegnata una corda, quella corda divide l'intero cerchio in due parti chiamate segmenti del cerchio. L'area più piccola è conosciuta come il "segmento minore" e l'area più grande è chiamata il "segmento maggiore".
+Dato il raggio del cerchio e l'angolo che forma il segmento minore, trovare l'area del "segmento minore".
+
+Vedi immagine "corda.png" nella cartella "data".
+
+Chiamiamo "theta" l'angolo del settore.
+
+  angolo AOP = angolo BOP = theta/2
+
+  Area-Triangolo AOB = 1/2 * base * altezza  = 1/2 * AB * OP
+
+Dalla trigonometria risulta:
+
+  cos(theta/2) = OP/AO  -->  OP = AO * cos(theta/2)  -->  OP = r * cos(theta/2)
+
+  sin(theta/2) = AP/AO  -->  AP = AO * sin(theta/2)  -->  AP = r * Sin(theta/2)
+
+  Base = AB = AP + PB = 2 * AP = 2 * r * sin(theta/2)
+
+  Altezza = OP = r * cos(theta/2)
+
+  Area-Triangolo = 1/2 * (2 * r * sin(theta/2)) * (r * cos(theta/2)) =
+                 = 1/2 * r^2 * sin(theta)
+  
+  Area-Settore = π*r^2 * (theta/360)
+
+  Area-Segmento = Area-Settore - Area-Triangolo = 
+                = π * r^2 * (theta/360) - 1/2 * r^2 * sin(theta)
+
+Scriviamo la funzione:
+
+(define (segment r theta)
+  (local (pi area-segmento area-settore area-triangolo)
+   (setq pi 3.1415926535897931)
+   (setq area-settore (div (mul pi r r theta) 360))
+   (setq area-triangolo (mul 0.5 r r (sin (div (mul theta pi) 180))))
+   (setq area-segmento (sub area-settore area-triangolo))))
+
+(segment 20 120)
+;-> 245.6739397217513
+
+(segment 10 45)
+;-> 3.914569110545045
+
+
+-------------------------------------------
+Esperimento dell'imbuto (Funnel Experiment)
+-------------------------------------------
+
+Il Dr. Deming ha affermato: "Se qualcuno regola un processo stabile a causa di un risultato indesiderato, o per un risultato molto buono, l'output che ne conseguirà sarà peggiore che se avesse lasciato il processo da solo (indisturbato)". Questo è spesso chiamato manomissione del processo. È qualcosa che viene fatto spesso dal personale in prima linea e molto spesso dal management. Ciò aumenta la variazione e i fallimenti in un processo. Fare del proprio meglio non è più sufficiente: devi sapere cosa fare.
+
+Un esempio di controllo eccessivo è l'esperimento a imbuto descritto dal Dr. Deming.
+L'obiettivo dell'esperimento dell'imbuto è far cadere una biglia attraverso un imbuto e colpire un bersaglio.
+Un punto su una superficie piana è designato come bersaglio.
+Un imbuto è tenuto a una certa distanza dalla superficie.
+Una biglia viene fatta cadere attraverso l'imbuto.
+Il punto in cui la biglia cade sulla superficie viene segnato.
+Questa operazione viene ripetuta per almeno 50 volte per ciascuna delle seguenti quattro regole:
+
+Regola 1:
+lasciare l'imbuto fisso sopra il bersaglio.
+
+Regola 2:
+Per ogni lancio, la biglia si fermerà a una distanza "z" dal bersaglio.
+La regola 2 è spostare l'imbuto di una distanza -z dalla sua ultima posizione.
+
+Regola 3:
+Spostare l'imbuto di una distanza -z dal bersaglio per ogni biglia che finisce a una distanza z dal bersaglio. Nota che la regola 2 sposta l'imbuto in base all'ultima posizione dell'imbuto stesso.
+La regola 3 sposta l'imbuto a una certa distanza dal bersaglio.
+
+Regola 4:
+La regola 4 è semplicemente quella di posizionare l'imbuto sul punto in cui si è caduta l'ultima biglia.
+
+Applichiamo le regole ai seguenti dati sperimentali:
+
+(setq dxs
+  '(-0.533 0.270 0.859 -0.043 -0.205 -0.127 -0.071 0.275 1.251 -0.231
+    -0.401 0.269 0.491 0.951 1.150 0.001 -0.382 0.161 0.915 2.080 -2.337
+    0.034 -0.126 0.014 0.709 0.129 -1.093 -0.483 -1.193 0.020 -0.051
+    0.047 -0.095 0.695 0.340 -0.182 0.287 0.213 -0.423 -0.021 -0.134 1.798
+    0.021 -1.099 -0.361 1.636 -1.134 1.315 0.201 0.034 0.097 -0.170 0.054
+    -0.553 -0.024 -0.181 -0.700 -0.361 -0.789 0.279 -0.174 -0.009 -0.323
+    -0.658 0.348 -0.528 0.881 0.021 -0.853 0.157 0.648 1.774 -1.043 0.051
+    0.021 0.247 -0.310 0.171 0.000 0.106 0.024 -0.386 0.962 0.765 -0.125
+    -0.289 0.521 0.017 0.281 -0.749 -0.149 -2.436 -0.909 0.394 -0.113 -0.598
+    0.443 -0.521 -0.799 0.087))
+
+(setq dys
+  '(0.136 0.717 0.459 -0.225 1.392 0.385 0.121 -0.395 0.490 -0.682 -0.065
+    0.242 -0.288 0.658 0.459 0.000 0.426 0.205 -0.765 -2.188 -0.742 -0.010
+    0.089 0.208 0.585 0.633 -0.444 -0.351 -1.087 0.199 0.701 0.096 -0.025
+    -0.868 1.051 0.157 0.216 0.162 0.249 -0.007 0.009 0.508 -0.790 0.723
+    0.881 -0.508 0.393 -0.226 0.710 0.038 -0.217 0.831 0.480 0.407 0.447
+    -0.295 1.126 0.380 0.549 -0.445 -0.046 0.428 -0.074 0.217 -0.822 0.491
+    1.347 -0.141 1.230 -0.044 0.079 0.219 0.698 0.275 0.056 0.031 0.421 0.064
+    0.721 0.104 -0.729 0.650 -1.103 0.154 -1.720 0.051 -0.385 0.477 1.537
+    -0.901 0.939 -0.411 0.341 -0.411 0.106 0.224 -0.947 -1.424 -0.542 -1.032))
+
+Formule per il calcolo della media:
+
+  media = (∑x(i))/N
+  
+Funzione per il calcolo della media di una lista di numeri:
+
+(define (media lst)
+  (div (apply add lst) (length lst)))
+
+(media dxs)
+;-> 0.0003999999999999896
+(media dys)
+;-> 0.07023000000000002
+
+Formule per il calcolo della deviazione standard:
+
+  stdev = sqrt( (∑[|x(i) - media|^2])/N )
+
+  stdev2 = sqrt( (∑[|x(i) - media|^2])/(N - 1) )
+
+Funzioni per il calcolo della deviazione standard di una lista di numeri:
+
+(define (stdev lst) ; diviso N
+  (let (m (media lst))
+    (sqrt (div (apply add (map (fn(x) (mul (sub x m) (sub x m))) lst))
+               (length lst)))))
+
+(define (stdev2 lst) ; diviso (N - 1)
+  (let (m (media lst))
+    (sqrt (div (apply add (map (fn(x) (mul (sub x m) (sub x m))) lst))
+               (- (length lst) 1)))))
+
+(stdev dxs)
+;-> 0.7152712073053128
+(stdev dys)
+;-> 0.6462060794359645
+(stdev2 dxs)
+;-> 0.7188746115079505
+(stdev2 dys)
+;-> 0.6494615462835427
+
+Scriviamo una funzione che calcola le liste con le varie posizioni di x e y in funzione della regola applicata:
+
+(define (funnel regola) 
+  (setq base-x 0)
+  (setq base-y 0)
+  (setq xvec '())
+  (setq yvec '())
+  (dolist (x dxs)
+    (push (add base-x x) xvec -1)
+    (cond ((= regola 1) (setq base-x 0))
+          ((= regola 2) (setq base-x (sub x)))
+          ((= regola 3) (setq base-x (sub (sub x) base-x)))
+          ((= regola 4) (setq base-x (add x base-x)))
+    )
+  )
+  (dolist (y dys)
+    (push (add base-y y) yvec -1)
+    (cond ((= regola 1) (setq base-y 0))
+          ((= regola 2) (setq base-y (sub y)))
+          ((= regola 3) (setq base-y (sub (sub y) base-y)))
+          ((= regola 4) (setq base-y (add y base-y)))
+    )
+  )
+  (println "regola: " regola)
+  (println "media x: " (media xvec))
+  (println "stdev x: " (stdev xvec))
+  (println "media y: " (media yvec))
+  (println "stdev y: " (stdev yvec)))
+
+Funzione per il plottaggio dei punti x,y:
+
+(define (plot-xy lst-xy width height)
+"Plot a list of points on terminal"
+  (local (lst-x lst-y x-min x-max y-min y-max
+          range-x range-y xx yy zero-x zero-y matrix)
+    ; crea lista delle x
+    (setq lst-x (map first lst-xy))
+    ; crea lista delle y
+    (setq lst-y (map last  lst-xy))
+    ; calcola valori min,max x
+    (setq x-min (apply min lst-x))
+    (setq x-max (apply max lst-x))
+    ; calcola valori min,max x
+    (setq y-min (apply min lst-y))
+    (setq y-max (apply max lst-y))
+    ; calcolo intervallo valori x
+    (setq range-x (sub x-max x-min))
+    ; calcolo intervallo valori y
+    (setq range-y (sub y-max y-min))
+    ; calcolo valori normalizzati lista x
+    ; (i valori vengono arrotondati e poi resi interi)
+    (setq xx (normal-zero lst-x 0 width))
+    (setq xx (map (fn(w) (int (round w))) xx))
+    ; estrazione valore dello zero x normalizzato
+    (setq zero-x (pop xx))
+    ; calcolo valori normalizzati lista y
+    (setq yy (normal-zero lst-y 0 height))
+    (setq yy (map (fn(w) (int (round w))) yy))
+    ; estrazione valore dello zero y normalizzato
+    (setq zero-y (pop yy))
+    ; Creazione matrice di caratteri di stampa
+    ; Matrice = Sistema di coordinate (row col)
+    ; x --> colonna della matrice
+    ; y --> riga della matrice
+    ; Valore cella vuota: " "
+    (setq matrix (array (+ height 2) (+ width 2) '(" ")))
+    ; Inserisce asse x sulla matrice
+    ;(for (i 0 (- (length (matrix 0)) 1))
+    ;  (setf (matrix zero-y i) "·")
+    ;)
+    ; asse x nella matrice
+    (if (and (>= zero-y 0) (< zero-y (+ height 2)))
+        (for (i 0 (- (length (matrix 0)) 1))
+          (setf (matrix zero-y i) "·")
+        )
+    )
+    ; Inserisce asse y sulla matrice (se visibile)
+    ; asse y nella matrice
+    (if (and (>= zero-x 0) (< zero-x (+ width 2)))
+        (for (i 0 (- (length matrix) 1))
+          (setf (matrix i zero-x) "·")
+        )
+    )
+    ; Inserisce punti (x y) nella matrice (se visibile)
+    ; (inserisce "■" nelle celle (y x) della matrice)
+    (for (i 0 (- (length xx) 1))
+      (setf (matrix (yy i) (xx i)) "■")
+    )
+    ; Inserisce origine degli assi (0 0) nella matrice (se visibile)
+    ; (0,0) nella matrice
+    (if (and (>= zero-x 0) (>= zero-y 0)
+             (< zero-x (+ width 2)) (< zero-y (+ height 2)))
+        (if (= (matrix zero-y zero-x) "■")
+            (setf (matrix zero-y zero-x) "O")
+            (setf (matrix zero-y zero-x) "∙")
+        )
+    )
+    ; stampa valori reali min e max
+    (println (format "x: %-12.3f %-12.3f" x-min x-max))
+    (println (format "y: %-12.3f %-12.3f" y-min y-max))
+    ; stampa matrice di caratteri
+    ; (le righe della matrice vengono invertite)
+    (dolist (el (reverse (array-list matrix)))
+      (println " " (join el))
+    )
+    nil))
+; auxiliary function
+(define (normal-zero lst-num val-min val-max)
+  (local (hi lo k out)
+    (setq out '())
+    (setq hi (apply max lst-num))
+    (setq lo (apply min lst-num))
+    (setq k (div (sub val-max val-min) (sub hi lo)))
+    (dolist (val lst-num)
+      (push (add val-min (mul (sub val lo) k)) out -1)
+    )
+    ; Zero (0) value in normalized list
+    (push (add val-min (mul (sub 0 lo) k)) out)
+    out))
+
+Applichiamo la funzione "funnel" con ogni regola calcolando la media e la deviazione standard e plottando i punti risultanti (x,y).
+
+Situazione iniziale:
+
+(setq xy0 (map list dxs dys))
+(plot-xy xy1 40 20)
+;-> x: -2.436       2.080
+;-> y: -2.188       1.537
+;->                        ·
+;->                        · ■
+;->                      ■ ·      ■
+;->                ■■      ·
+;->                      ■ ·  ■
+;->              ■     ■ ■■■■■
+;->              ■  ■  ■   ·■    ■ ■
+;->              ■ ■  ■■■■■■      ■  ■■    ■
+;->                  ■ ■ ■ ■■■   ■        ■
+;->  ·················■·■■■O■■··■··············
+;->                    ■■ ■■          ■
+;->  ■                ■  ■ · ■■■
+;->              ■ ■       · ■           ■
+;->   ■                  ■ ■       ■
+;->                 ■      ·  ■■ ■
+;->             ■          ■       ■
+;->                        ·
+;->                   ■    ·
+;->                      ■ ·
+;->                        ·
+;->                        ·
+;->                        ·                 ■
+
+Regola 1:
+
+(funnel 1)
+;-> regola: 1
+;-> media x: 0.0003999999999999896
+;-> stdev x: 0.7152712073053128
+;-> media y: 0.07023000000000002
+;-> stdev y: 0.6462060794359645
+
+(setq xy1 (map list xvec yvec))
+(plot-xy xy1 40 20)
+;-> x: -2.436       2.080
+;-> y: -2.188       1.537
+;->                        ·
+;->                        · ■
+;->                      ■ ·      ■
+;->                ■■      ·
+;->                      ■ ·  ■
+;->              ■     ■ ■■■■■
+;->              ■  ■  ■   ·■    ■ ■
+;->              ■ ■  ■■■■■■      ■  ■■    ■
+;->                  ■ ■ ■ ■■■   ■        ■
+;->  ·················■·■■■O■■··■··············
+;->                    ■■ ■■          ■
+;->  ■                ■  ■ · ■■■
+;->              ■ ■       · ■           ■
+;->   ■                  ■ ■       ■
+;->                 ■      ·  ■■ ■
+;->             ■          ■       ■
+;->                        ·
+;->                   ■    ·
+;->                      ■ ·
+;->                        ·
+;->                        ·
+;->                        ·                 ■
+
+La regola 1 è lasciare l'imbuto fisso sopra il bersaglio. Il modello risultante è mostrato nella figura sopra. Il bersaglio (obiettivo) è dove le linee continue si incrociano (0, 0).
+Come si può vedere nella figura, la variazione è un cerchio approssimativo ed è stabile. 
+Sicuramente possiamo fare di meglio! Questo cerchio è troppo grande. 
+Perché non regoliamo semplicemente l'imbuto dopo ogni lancio in modo che il prossimo lancio sia più vicino al bersaglio?
+
+Regola 2:
+
+(funnel 2)
+;-> regola: 2
+;-> media x: 0.0008699999999999942
+;-> stdev x: 1.037139967940682
+;-> media y: -0.01032
+;-> stdev y: 0.8999482749580666
+
+(setq xy2 (map list xvec yvec))
+(plot-xy xy2 40 20)
+;-> x: -4.417       2.449
+;-> y: -2.438       1.919
+;->                            ·
+;->                          ■ ·  ■
+;->                           ■·
+;->  ■                  ■   ■  ·
+;->                       ■   ■·      ■
+;->                          ■ ·■■
+;->            ■        ■   ■■ ·    ■  ■■    ■
+;->                         ■ ■·   ■
+;->           ■            ■■■■·■  ■      ■
+;->                        ■■ ■·■ ■■ ■
+;->  ······················■··■∙■■■············
+;->                            ■■■■
+;->                     ■■   ■ ·■■ ■■■
+;->                      ■ ■  ■■ ■    ■      ■
+;->                         ■ ■■   ■ ■
+;->                   ■ ■      ·     ■
+;->              ■  ■          ·     ■■   ■
+;->                       ■    ·
+;->                       ■    ·       ■
+;->                            ·
+;->                            ·
+;->                      ■     ·
+
+Per ogni lancio, la biglia si fermerà a una distanza "z" dal bersaglio.
+La regola 2 è spostare l'imbuto di una distanza -z dalla sua ultima posizione.
+Il modello risultante è mostrato nella figura sopra.
+Come si può vedere anche lo schema della Regola 2 è circolare e stabile.
+Tuttavia, il cerchio è più grande rispetto alla Regola 1.
+L'uso della Regola 2 aumenta effettivamente la varianza del processo di un fattore 2 rispetto alla Regola 1.
+La regola 2 è spesso utilizzata negli affari da persone che cercano solo di fare del loro meglio.
+Questo è il motivo per cui è importante comprendere quali sono i parametri che causano una variazione.
+Rispondendo ad una variazione che è dovuta ad una causa comune come se fosse dovuta ad una causa speciale, si aumenta la variazione del processo.
+
+Regola 3:
+
+(funnel 3)
+;-> media x: 0.04385999999999997
+;-> stdev x: 7.98711558701888
+;-> media y: -0.006299999999999955
+;-> stdev y: 4.778416812083266
+
+(setq xy3 (map list xvec yvec))
+(plot-xy xy3 40 20)
+;-> x: -12.560      12.584
+;-> y: -8.283       8.267
+;->                      ·
+;->  ■                   ·
+;->  ■■   ■■             ·
+;->     ■ ■■■            ·
+;->    ■■■ ■             ·
+;->      ■               ·
+;->   ■■ ■■■     ■■      ·
+;->    ■       ■    ■■   ·
+;->           ■   ■■     ·■■
+;->               ■      ■ ■
+;->                      ■■
+;->  ···················■O·····················
+;->                      ■
+;->                    ■ ■      ■ ■
+;->                    ■■·   ■■  ■         ■
+;->                      ·■   ■ ■   ■■  ■■
+;->                      ·      ■■     ■■■  ■
+;->                      ·              ■■
+;->                      ·             ■ ■■ ■
+;->                      ·            ■ ■ ■ ■
+;->                      ·           ■ ■■   ■■
+;->                      ·             ■     ■
+
+La regola 3 è spostare l'imbuto di una distanza -z dal bersaglio dopo ogni lancio della biglia che finisce a una distanza z dal bersaglio. Notare che la regola 2 sposta l'imbuto in base all'ultima posizione dell'imbuto. La regola 3 sposta l'imbuto a una distanza dal bersaglio.
+I risultati sono mostrati nella figura sopra.
+In questo caso il lancio delle biglie oscilla avanti e indietro. Il motivo sembra simile a una farfalla. Questo non è un processo stabile. L'ampiezza delle oscillazioni continuerà ad aumentare.
+
+Regola 4:
+
+(funnel 4)
+;-> regola: 4
+;-> media x: 3.13412
+;-> stdev x: 1.587393298965319
+;-> media y: 5.42102
+;-> stdev y: 3.930362593909116
+
+(setq xy4 (map list xvec yvec))
+(plot-xy xy4 40 20)
+;-> x: -0.533       6.680
+;-> y: -0.037       12.149
+;->     ·
+;->     ·                 ■■■
+;->     ·                 ■■■
+;->     ·    ■■ ■■ ■       ■■  ■ ■  ■ ■
+;->     ·      ■          ■       ■
+;->     ·         ■■  ■         ■■  ■
+;->     ·                          ■■
+;->     ·   ■          ■
+;->     ■
+;->     ■         ■■  ■ ■
+;->     ·            ■  ■■  ■ ■
+;->     ·
+;->     ·                         ■■
+;->     ·                          ■  ■
+;->     ·                   ■         ■
+;->     ·                  ■  ■       ■■
+;->     ·■       ■     ■   ■  ■  ■  ■■
+;->     · ■   ■■■ ■          ■     ■
+;->     ·                ■■■■      ■■
+;->     ·  ■        ■■   ■■ ■ ■     ■        ■
+;->   ■ ·            ■          ■
+;->  ■··∙············■··■······················
+
+La regola 4 consiste semplicemente nel posizionare l'imbuto sul punto in cui si è fermata l'ultima biglia. Il modello per questa variazione è mostrato nella figura sopra.
+In base a questa regola, la biglia continua a spostarsi in una direzione.
+Non tornerà. Questo non è un processo stabile.
+
+Esempi di regole
+----------------
+Nel libro del 1968 "Out of the Crisis" di Edward Deming, vengono presentati alcuni esempi di regole comuni.
+
+Esempi della regola 2:
+ - Meccanismi di feedback che rispondono a dati di un punto singolo
+ - Regolazione di un processo quando una parte manca delle specifiche
+ - Regolazioni dell'operatore senza l'ausilio di carte di controllo
+ - Modifica della politica aziendale in base all'ultimo sondaggio sulle tendenze
+ - Ricalibrazione degli strumenti su uno standard
+ - Utilizzo delle varianze per impostare i budget
+ - Reazione del mercato azionario al deficit del mese scorso
+
+Esempi della regola 3:
+ - Droghe illegali. Se la droga diminuisce, allora aumentano i prezzi. E questo stimola l'importazione di droga. Il ciclo si ripete.
+ - Il giocatore aumenta la sua scommessa per coprire le perdite
+
+Esempi della regola 4:
+ - Storia tramandata di generazione in generazione.
+ -  Cambiamenti continui della formazione dei lavoratori
+ - Adeguamento dell'orario della riunione in base all'ultimo orario effettivo di inizio.
+ - Uso dell'ultimo pezzo lavorato come motivo per il pezzo successivo.
+ - Seduto in cerchio con un certo numero di persone. Una persona sussurra un segreto alla persona successiva che a sua volta lo sussurra alla persona successiva e così via.
+
 =============================================================================
 

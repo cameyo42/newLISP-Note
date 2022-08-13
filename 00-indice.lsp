@@ -1309,6 +1309,9 @@ NOTE LIBERE 10
   Cerchio minimo di inclusione (Minimum Enclosing Circle)
   Prodotto di Kronecker
   Numeri di Lha
+  Settore circolare
+  Corda del cerchio
+  Esperimento dell'imbuto (Funnel Experiment)
   
 APPENDICI
 =========
