@@ -7217,6 +7217,35 @@ Posiamo utilizzare anche $idx come contatore:
 (time (for (i 1 3000000)))
 ;-> 21.94
 
+Cicli con interruzione
+----------------------
+La funzioni "do-list" e "for" hanno un parametro booleano che permette di interrompere il ciclo (quando il parametro diventa true).
+L'uso di questo parametro rallenta leggermente la velocità di esecuzione del ciclo.
+
+(define (do-list-break lst)
+  (dolist (el lst break)))
+
+(define (do-list lst)
+  (dolist (el lst)))
+
+(setq k (sequence 1 10000))
+
+(time (do-list-break k) 10000)
+;-> 2250.054
+(time (do-list k) 10000)
+;-> 1984.428
+
+(define (for-list-break lst)
+  (for (i 0 (- (length lst) 1) 1 break)))
+
+(define (for-list lst)
+  (for (i 0 (- (length lst) 1))))
+
+(time (for-list-break k) 10000)
+;-> 1656.548
+(time (for-list k) 10000)
+;-> 1390.832
+
 
 -------------------
 Quicksort iterativo

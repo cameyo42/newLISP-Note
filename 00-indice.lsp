@@ -1312,6 +1312,8 @@ NOTE LIBERE 10
   Settore circolare
   Corda del cerchio
   Esperimento dell'imbuto (Funnel Experiment)
+  Fase della luna
+  Varianza e deviazione standard, (N-1) oppure N ?
   
 APPENDICI
 =========

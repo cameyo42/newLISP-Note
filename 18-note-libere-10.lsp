@@ -3651,5 +3651,288 @@ Esempi della regola 4:
  - Uso dell'ultimo pezzo lavorato come motivo per il pezzo successivo.
  - Seduto in cerchio con un certo numero di persone. Una persona sussurra un segreto alla persona successiva che a sua volta lo sussurra alla persona successiva e così via.
 
+
+---------------
+Fase della luna
+---------------
+
+Scriviamo una funzione per calcolare la fase della luna di un dato giorno.
+Il ciclo completo della luna viene diviso in 30 fasi da 0 a 29.
+Da 0 a 14 la luna è crescente, da 15 a 29 la luna è calante.
+La luna piena è nei giorni 14 e 15.
+Vedi immagine  "moonPhases.jpg" nella cartella "data".
+
+(define (julian gdate)
+"Convert gregorian date to julian day number (valid only from 15 ottobre 1582 A.D.)"
+  (local (a y m)
+    (setq a (/ (- 14 (gdate 1)) 12))
+    (setq y (+ (gdate 0) 4800 (- a)))
+    (setq m (+ (gdate 1) (* 12 a) (- 3)))
+    (+ (gdate 2) (/ (+ (* 153 m) 2) 5) (* y 365) (/ y 4) (- (/ y 100)) (/ y 400) (- 32045))))
+
+Funzione che ritorna la parte frazionaria di un numero float:
+
+(define (getfrac fr) (sub fr (floor fr)))
+
+Funzione che calcola la fase della luna in un determinato giorno:
+
+; Calculate the approximate moon's age in days of a particular date
+; This is based on some Basic code by Roger W. Sinnot 
+; from Sky & Telescope magazine, March 1985.
+; I don't understand it very well :-)
+; Return the day of the moon (0..29)
+; (0..14) crescent moon (luna crescente)
+; (15..29) decrescent moon (luna calante)
+(define (moon theYear theMonth theDay)
+  (local (thisJD degToRad K0 T T2 T3 J0 F0 M0 M1 M5 M6 B1 B6 F
+          phase jtheDay oldJ)
+    (setq thisJD (julian (list theYear theMonth theDay)))
+    ;(println "julian: " thisJD)
+    ;;thisJD = jultheDay(theYear,theMonth,theDay);
+    (setq degToRad (div 3.1415926535897931 180))
+    ;;degToRad = 3.14159265 / 180;
+    (setq K0 (floor (mul (sub theYear 1900) 12.3685)))
+    ;;K0 = Math.floor((theYear-1900)*12.3685);
+    (setq T (div (sub theYear 1899.5) 100))
+    ;;T = (theYear-1899.5) / 100;
+    (setq T2 (mul T T))
+    ;;T2 = T*T;
+    (setq T3 (mul T T T))
+    ;;T3 = T*T*T;
+    (setq J0 (add 2415020 (mul 29 K0)))
+    ;;J0 = 2415020 + 29*K0;
+    (setq F0 (add (mul 0.0001178 T2) (- (mul 0.000000155 T3))
+                  (add 0.75933 (mul 0.53058868 K0))
+                  (- (add 0.000837 (mul 0.000335 T2)))))
+    ;;F0 = 0.0001178*T2 - 0.000000155*T3 + (0.75933 + 0.53058868*K0) - (0.000837*T + 0.000335*T2);
+    (setq M0 (add (mul 360 (getfrac (mul K0 0.08084821133))) 359.2242
+                  (- (mul 0.0000333 T2))
+                  (- (mul 0.00000347 T3))))
+    ;;M0 = 360*(GetFrac(K0*0.08084821133)) + 359.2242 - 0.0000333*T2 - 0.00000347*T3;
+    (setq M1 (add (mul 360 (getfrac (mul K0 0.07171366128))) 306.0253
+                  (mul 0.0107306 T2)
+                  (mul 0.00001236 T3)))
+    ;;M1 = 360*(GetFrac(K0*0.07171366128)) + 306.0253 + 0.0107306*T2 + 0.00001236*T3;
+    (setq B1 (add (mul 360 (getfrac (mul K0 0.08519585128))) 21.2964
+                  (- (mul 0.0016528 T2))
+                  (- (mul 0.00000239 T3))))
+    ;;B1 = 360*(GetFrac(K0*0.08519585128)) + 21.2964 - (0.0016528*T2) - (0.00000239*T3);
+    (setq phase 0.0)
+    ;;double phase = 0.0;
+    (setq jtheDay 0.0)
+    ;;double jtheDay = 0.0;
+    (setq oldJ 0.0)
+    ;;oldJ = 0.0;
+    (while (< jtheDay thisJD)
+      (setq F (add F0 (mul 1.530588 phase)))
+      ;;double F = F0 + 1.530588*phase;
+      (setq M5 (mul (add M0 (mul phase 29.10535608)) degToRad))
+      ;;double M5 = (M0 + phase*29.10535608)*degToRad;
+      (setq M6 (mul (add M1 (mul phase 385.81691806)) degToRad))
+      ;;double M6 = (M1 + phase*385.81691806)*degToRad;
+      (setq B6 (mul (add B1 (mul phase 390.67050646)) degToRad))
+      ;;double B6 = (B1 + phase*390.67050646)*degToRad;
+      (setq F (sub F
+              (add (mul 0.4068 (sin M6))
+                  (mul (sub 0.1734 (mul 0.000393 T)) (sin M5)))))
+      ;;F -= 0.4068*Math.sin(M6) + (0.1734 - 0.000393*T)*Math.sin(M5);
+      (setq F (add F
+              (add (mul 0.0161 (sin (mul 2 M6)))
+                  (mul 0.0104 (sin (mul 2 B6))))))
+      ;;F += 0.0161*Math.sin(2*M6) + 0.0104*Math.sin(2*B6);
+      (setq F (sub F
+              (sub (mul 0.0074 (sin (sub M5 M6)))
+                  (mul 0.0051 (sin (add M5 M6))))))
+      ;;F -= 0.0074*Math.sin(M5 - M6) - 0.0051*Math.sin(M5 + M6);
+      (setq F (add F
+              (add (mul 0.0021 (sin (mul 2 M5)))
+                  (mul 0.0010 (sin (sub (mul 2 B6) M6))))))
+      ;;F += 0.0021*Math.sin(2*M5) + 0.0010*Math.sin(2*B6-M6);
+      (setq F (add F  (div 0.5 1440)))
+      ;;F += 0.5 / 1440;
+      (setq oldJ jtheDay)
+      ;;oldJ=jtheDay;
+      (setq jtheDay (add J0 (mul 28 phase) (floor F)))
+      ;;jtheDay = J0 + 28*phase + Math.floor(F);
+      (++ phase)
+      ;;phase++;
+    )
+    ;(println "F: " F)
+    ;;return (thisJD-oldJ)%30;
+    (mod (sub thisJD oldJ) 30)))
+
+(moon 2022 8 17)
+;-> 20
+
+(moon 1977 6 15)
+;-> 29
+
+(moon 2022 12 31)
+;-> 9
+
+
+------------------------------------------------
+Varianza e deviazione standard, (N-1) oppure N ?
+------------------------------------------------
+
+Data una lista di valori x1, x2, ..., xN,
+
+La deviazione standard "s" viene calcolata con le seguenti formule:
+
+Deviazione standard della popolazione [D1]:
+
+              ∑[(x(i) - media)²]
+   s = sqrt(----------------------)   [D1]
+                      N
+
+Deviazione standard del campione [D2]:
+
+              ∑[(x(i) - media)²]
+   s = sqrt(----------------------)   [D2]
+                   (N - 1)
+
+dove media vale: 
+
+            ∑x(i)
+  media = ---------
+              N
+
+La varianza viene calcolata con le seguenti formule:
+
+Varianza della popolazione [V1]:
+
+         ∑[(x(i) - media)²]
+  s² = ----------------------         [V1]
+                N
+
+Varianza del campione [V2]:
+
+         ∑[(x(i) - media)²]
+  s² = ----------------------         [V2]
+             (N - 1)
+
+Perchè esistono due formule? E quale dobbiamo utilizzare?
+
+In pratica, la deviazione standard sintetizza le deviazioni dalla media.
+Tutto dipende da come abbiamo calcolato/stimato della media. 
+Se abbiamo la media effettiva, usiamo la formula della deviazione standard della popolazione [D1] che divide per N. 
+Se avviamo una stima della media, allora è necessario utilizzare la deviazione standard campionaria [D2] che divide per (N - 1).
+In altre parole, se dobbiamo calcolare la deviazione standard di una serie completa di dati, allora dobbiamo usare la formula della deviazione standard della popolazione [D1] (perchè siamo in grado di calcolare la media effettiva).
+Invece se dobbiamo calcolare la deviazione standard di un campione dei dati, allora dobbiamo usare la formula della deviazione standard del campione [D2] (poichè la media che calcoliamo è una stima della media effettiva).
+Nota: si usa la formula [D2] quando vogliamo effettuare delle previsioni sui prossimi valori della serie di dati.
+
+Perchè si divide per (N - 1)?
+
+Si tratta del metodo "Correzione di Bessel" che corregge il bias nella stima della varianza della popolazione e, parzialmente, il bias nella stima della deviazione standard della popolazione. Tuttavia, la correzione spesso aumenta l'errore quadratico medio in queste stime.
+
+newLISP mette a disposizione la funzione "stats" per calcolare la varianza e la deviazione standard di una lista di numeri.
+
+******************
+>>>funzione STATS
+******************
+sintassi: (stats list-vector)
+
+La funzione calcola alcuni valori statistici dei valori in list-vector.
+I seguenti valori vengono restituiti in una lista:
+
+  Name   Description
+  ----   -----------
+  N      Number of values
+  mean   Mean of values
+  avdev  Average deviation from mean value
+  sdev   Standard deviation (population estimate)
+  var    Variance (population estimate)
+  skew   Skew of distribution
+  kurt   Kurtosis of distribution
+
+L'esempio seguente formatta l'output della lista con "format":
+
+(set 'data '(90 100 130 150 180 200 220 300 350 400))
+
+(println (format [text]
+    N        = %5d
+    mean     = %8.2f
+    avdev    = %8.2f
+    sdev     = %8.2f
+    var      = %8.2f
+    skew     = %8.2f
+    kurt     = %8.2f
+[/text] (stats data)))
+;->     N        =    10
+;->     mean     =   212.00
+;->     avdev    =    84.40
+;->     sdev     =   106.12
+;->     var      = 11262.22
+;->     skew     =     0.49
+;->     kurtosis =    -1.34
+
+Scriviamo alcune funzioni per calcolare varianza e deviazione standard utilizzando la seguente lista di dati per i test:
+
+(setq dat
+  '(-0.533 0.270 0.859 -0.043 -0.205 -0.127 -0.071 0.275 1.251 -0.231
+    -0.401 0.269 0.491 0.951 1.150 0.001 -0.382 0.161 0.915 2.080 -2.337
+    0.034 -0.126 0.014 0.709 0.129 -1.093 -0.483 -1.193 0.020 -0.051
+    0.047 -0.095 0.695 0.340 -0.182 0.287 0.213 -0.423 -0.021 -0.134 1.798
+    0.021 -1.099 -0.361 1.636 -1.134 1.315 0.201 0.034 0.097 -0.170 0.054
+    -0.553 -0.024 -0.181 -0.700 -0.361 -0.789 0.279 -0.174 -0.009 -0.323
+    -0.658 0.348 -0.528 0.881 0.021 -0.853 0.157 0.648 1.774 -1.043 0.051
+    0.021 0.247 -0.310 0.171 0.000 0.106 0.024 -0.386 0.962 0.765 -0.125
+    -0.289 0.521 0.017 0.281 -0.749 -0.149 -2.436 -0.909 0.394 -0.113 -0.598
+    0.443 -0.521 -0.799 0.087))
+
+Funzione per il calcolo della media di una lista di numeri:
+
+(define (media lst)
+  (div (apply add lst) (length lst)))
+
+(media dat)
+;-> 0.0003999999999999896
+
+Funzioni per il calcolo della deviazione standard di una lista di numeri:
+
+(define (devst lst) ; popolazione -> diviso N
+  (let (m (media lst))
+    (sqrt (div (apply add (map (fn(x) (mul (sub x m) (sub x m))) lst))
+               (length lst)))))
+
+(define (devst2 lst) ; campione -> diviso (N - 1)
+  (let (m (media lst))
+    (sqrt (div (apply add (map (fn(x) (mul (sub x m) (sub x m))) lst))
+               (- (length lst) 1)))))
+
+(devst dat)
+;-> 0.7152712073053128
+(devst2 dat)
+;-> 0.7188746115079505
+
+Funzioni per il calcolo della varianza:
+
+(define (varianza lst) ; popolazione -> diviso N
+  (let (m (media lst))
+    (div (apply add (map (fn(x) (mul (sub x m) (sub x m))) lst))
+         (length lst))))
+
+(define (varianza2 lst) ; campione -> diviso (N - 1)
+  (let (m (media lst))
+    (div (apply add (map (fn(x) (mul (sub x m) (sub x m))) lst))
+         (- (length lst) 1))))
+
+(varianza dat)
+;-> 0.5116128999999997
+(varianza2 dat)
+;-> 0.5167807070707068
+
+Vediamo i valori restituiti dalla funzione "stats":
+
+(define (varianza-stat lst) ((stats lst) 4))
+(define (devst-stat lst) ((stats lst) 3))
+
+(varianza-stat dat)
+;-> 0.5167807070707071
+(devst-stat dat)
+;-> 0.7188746115079507
+
+Quindi la funzione "stats" calcola con il metodo del campione, cioè divide per (N - 1).
+
 =============================================================================
 
