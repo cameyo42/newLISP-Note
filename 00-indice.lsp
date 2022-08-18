@@ -1313,7 +1313,8 @@ NOTE LIBERE 10
   Corda del cerchio
   Esperimento dell'imbuto (Funnel Experiment)
   Fase della luna
-  Varianza e deviazione standard, (N-1) oppure N ?
+  Varianza e deviazione standard, (N-1) oppure N?
+  Jensen Device
   
 APPENDICI
 =========

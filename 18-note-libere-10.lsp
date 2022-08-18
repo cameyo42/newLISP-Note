@@ -3646,7 +3646,7 @@ Esempi della regola 3:
 
 Esempi della regola 4:
  - Storia tramandata di generazione in generazione.
- -  Cambiamenti continui della formazione dei lavoratori
+ - Cambiamenti continui della formazione dei lavoratori
  - Adeguamento dell'orario della riunione in base all'ultimo orario effettivo di inizio.
  - Uso dell'ultimo pezzo lavorato come motivo per il pezzo successivo.
  - Seduto in cerchio con un certo numero di persone. Una persona sussurra un segreto alla persona successiva che a sua volta lo sussurra alla persona successiva e così via.
@@ -3771,9 +3771,9 @@ Funzione che calcola la fase della luna in un determinato giorno:
 ;-> 9
 
 
-------------------------------------------------
-Varianza e deviazione standard, (N-1) oppure N ?
-------------------------------------------------
+-----------------------------------------------
+Varianza e deviazione standard, (N-1) oppure N?
+-----------------------------------------------
 
 Data una lista di valori x1, x2, ..., xN,
 
@@ -3933,6 +3933,95 @@ Vediamo i valori restituiti dalla funzione "stats":
 ;-> 0.7188746115079507
 
 Quindi la funzione "stats" calcola con il metodo del campione, cioè divide per (N - 1).
+
+Possiamo scrivere due funzioni che utilizzano la primitiva "stats" per calcolare la varianza e la deviazione standard con il metodo della popolazione (cioè dividendo per N):
+
+(define (stdev lst)
+  (setq stat (stats lst))
+  (setq var (stat 4))
+  (setq n (stat 0))
+  (sqrt (div (mul var (sub n 1)) n)))
+
+(stdev dat)
+;-> 0.715271207305313
+
+(define (variance lst)
+  (setq stat (stats lst))
+  (setq var (stat 4))
+  (setq n (stat 0))
+  (div (mul var (sub n 1)) n))
+
+(variance dat)
+;-> 0.5116129
+
+L'algoritmo cha abbiamo usato per il calcolo della varianza è numericamente stabile se N è piccolo. Tuttavia, i suoi risultati possono dipendere non commutativamente dall'ordinamento dei dati e possono dare scarsi risultati per molti dati a causa degli errori di arrotondamento che si accumulano nelle somme. Tecniche quali la somma compensata possono essere usate per ridurre questo errore.
+Vediamo la versione dell'algoritmo base con somma compensata:
+
+(define (varianza-compensata lst tipo)
+  (local (m n sum2 sum3)
+    (setq m (media lst))
+    (setq n (length lst))
+    (set 'sum2 0 'sum3 0)
+    (dolist (x lst)
+      (setq sum2 (add sum2 (mul (sub x m) (sub x m))))
+      (setq sum3 (add sum3 (sub x m)))
+    )
+    (if tipo
+      (div (sub sum2 (div (mul sum3 sum3) n)) n) ; diviso N
+      (div (sub sum2 (div (mul sum3 sum3) n)) (sub n 1))))) ;diviso (N - 1)
+
+(varianza-compensata dat)
+;-> 0.5167807070707068
+
+(varianza-compensata dat true)
+;-> 0.5116128999999997
+
+
+-------------
+Jensen Device
+-------------
+
+Il dispositivo di Jensen è una tecnica di programmazione ideata dal danese Jørn Jensen dopo aver studiato il rapporto ALGOL 60.
+Il seguente programma è stato proposto per illustrare la tecnica. 
+Calcola il centesimo numero armonico (5.18737751763962):
+
+begin
+   integer i;
+   real procedure sum (i, lo, hi, term);
+      value lo, hi;
+      integer i, lo, hi;
+      real term;
+      comment term is passed by-name, and so is i;
+   begin
+      real temp;
+      temp := 0;
+      for i := lo step 1 until hi do
+         temp := temp + term;
+      sum := temp
+   end;
+   comment note the correspondence between the mathematical notation and the call to sum;
+   print (sum (i, 1, 100, 1/i))
+end
+
+Vedaimo di scrivere una cosa simile in newLISP (non proprio uguale...):
+
+(define (somma var start end func)
+  (local (expr s)
+    (setq s 0)
+    (setq expr (replace (string " " var) (string func) " k"))
+    ;(println expr)
+    (for (k start end)
+      (setq s (add s (eval-string expr)))
+    )))
+
+(somma 'i 1 100 '(div i))
+;-> 5.187377517639621
+
+(somma 'x 1 100 '(div x))
+;-> 5.187377517639621
+
+(somma 'x 1 100 '(div (mul x x)))
+;-> 1.634983900184892
 
 =============================================================================
 
