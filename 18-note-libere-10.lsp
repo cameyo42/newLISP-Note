@@ -4023,5 +4023,266 @@ Vedaimo di scrivere una cosa simile in newLISP (non proprio uguale...):
 (somma 'x 1 100 '(div (mul x x)))
 ;-> 1.634983900184892
 
+
+--------------------------------------------------
+Il principio dei cassetti ("pigeonhole principle")
+--------------------------------------------------
+
+Il principio dei cassetti (o della piccionaia "pigeonhole principle"), afferma che se n+k oggetti sono messi in n cassetti, allora almeno un cassetto deve contenere più di un oggetto.
+Un altro modo di vedere il principio è che una piccionaia con m caselle può contenere al più m piccioni, se non se ne vogliono mettere più di uno in nessuna casella: un ulteriore volatile dovrà necessariamente condividere la casella con un suo simile.
+Formalmente, il principio afferma che se A e B sono due insiemi finiti e B ha cardinalità strettamente minore di A, allora non esiste alcuna funzione iniettiva da A a B.
+Questo principio è stato usato per la prima volta da Dirichlet nel 1834 col nome Schubfachprinzip ("principio del cassetto").
+
+Estensione del principio della piccionaia
+-----------------------------------------
+Se p(iccioni) > n*c(aselle) per qualche intero n, allora almeno una casella contiene n + 1 piccioni.
+Esempio:
+Se ci sono 27 piccioni in 8 caselle, allora, poiché 27 > 3*8, almeno una casella contiene 3 + 1 = 4 piccioni.
+
+Il principio afferma che:
+
+1) Se A è il numero medio di piccioni per buca, dove A non è un intero allora,
+almeno una buca contiene ceil[A] (numero intero più piccolo maggiore o uguale ad A) piccioni.
+Le buche rimanenti contengono al massimo floor(A) (numero intero maggiore minore o uguale ad A) piccioni.
+
+2) Possiamo dire che, se n + 1 oggetti vengono inseriti in n caselle, allora almeno una casella contiene due o più oggetti.
+
+Definizione del principio della piccionaia di Dijkstra
+------------------------------------------------------
+Dato un qualunque insieme non-vuoto di numeri reali, il valore massimo tra essi è almeno pari alla media dei valori.
+
+Consideriamo di nuovo il problema di infilare i piccioni nelle buche e consideriamo la media. Se abbiamo più di n piccioni e n buche, il valore medio di (piccioni/buche) è maggiore di uno. Ciò significa che anche il valore massimo dovrebbe essere maggiore di uno. In altre parole, ci deve essere un valore con più di un piccione per buca.
+
+Formulazione astratta del principio
+-----------------------------------
+Siano X e Y insiemi finiti e sia f: A -> B una funzione:
+  se X ha più elementi di Y, allora f non è uno a uno.
+  se X e Y hanno lo stesso numero di elementi ed f è su, allora f è uno a uno.
+  se X e Y hanno lo stesso numero di elementi ed f è uno a uno, allora f è su.
+
+Esempio
+-------
+Se (K*n+1) piccioni sono tenuti in n buche dove K è un intero positivo, qual è il numero medio di piccioni per buca?
+Soluzione:
+numero medio di piccioni per buca = (K*n+1)/n = K + 1/n
+Pertanto ci sarà almeno una buca che conterrà almeno (K+1) piccioni, cioè ceil(K + 1/n) e le rimaneti buche conterranno al massimo K  piccioni (cioè floor(K+1/n).
+In altre parole, il numero minimo di piccioni richiesto per garantire che almeno una buca contenga (K+1) piccioni è (K*n+1).
+
+Questo principio permette di risolvere problemi di varia natura, se si è in grado di applicarlo correttamente.
+
+Problema 1
+----------
+Da "Giochi di aritmetica e problemi interessanti" di Giuseppe Peano.
+Si stima che la superficie del capo umano portante capelli è di 775 cm2 e che ogni cm2 contiene al massimo 165 capelli. Dimostrare che in una città di 150.000 abitanti vi sono due persone che hanno lo stesso numero di capelli.
+Soluzione: poiché il massimo numero di capelli che può avere una persona vale:
+
+  775 * 165 = 125875 < 150.00
+
+allora si deduce la tesi come conseguenza del principio dei cassetti.
+Per esempio, per una città come Roma, che ha circa 2.788.000 abitanti (ISTAT 2020), esistono almeno 22 persone che hanno lo stesso numero di capelli.
+
+Problema 2
+----------
+Una borsa contiene 10 biglie rosse, 10 biglie bianche e 10 biglie blu. Qual è il minimo n. di biglie devi scegliere a caso dal sacchetto per assicurarti di ottenere 4 biglie dello stesso colore?
+Soluzione: applichiamo il principio della piccionaia.
+N. di colori (buche) n = 3
+N. di biglie (piccioni) K+1 = 4
+Pertanto il minimo n. di biglie richieste = K*n+1
+Semplificando otteniamo K*n+1 = 10.
+Verifica: ceil(media) è [K*n+1/n] = 4
+(K*n+1/3) = 4
+K*n+1 = 10
+cioè, 3 rosse + 3 bianche + 3 blu + 1 (rossa o bianca o blu) = 10
+
+Forma forte del Principio della Piccionaia
+------------------------------------------
+Teorema: Siano q1, q2, . . . , qn numeri interi positivi.
+Se q1 + q2 + ... + qn – n + 1 oggetti vengono inseriti in n caselle, quindi o la prima casella contiene almeno q1 oggetti o la seconda casella contiene almeno q2 oggetti, ..., o l'ennesima casella contiene almeno qn oggetti.
+
+Problema 3
+----------
+In una scuola, una squadra può essere formato con 10 alunni del primo anno o 8 del secondo anno o 6 del terzo anno o 4 dell'ultimo anno. Scegliendo gli alunni a caso, qual è il numero minimo di studenti che dobbiamo scegliere per garantire che si formi una squadra?
+Soluzione: possiamo applicare direttamente dalla formula sopra dove,
+
+  q1 = 10, q2 = 8, q3 = 6, q4 = 4 e n=4
+
+Pertanto il numero minimo di studenti richiesto per garantire la formazione del club di dipartimento vaLe:
+
+  10 + 8 + 6 + 4 – 4 + 1 = 25
+
+Problema 4
+----------
+Una scatola contiene 6 palline rosse, 8 verdi, 10 blu, 12 gialle e 15 bianche. Scegliendo a caso, qual è il numero minimo di palline che dobbiamo scegliere dalla scatola per essere certi di ottenere 9 palline dello stesso colore?
+Soluzione: in questo caso non possiamo applicare direttamente la formula.
+Infatti vediamo cosa accade se la applichiamo direttamente:
+
+ q1  q2   q3   q4   q5   n
+  6 + 8 + 10 + 12 + 15 - 5 + 1 = 47
+
+Ma questo risultato è sbagliato.
+Per ottenere la risposta corretta dobbiamo includere solo le palline blu, gialle e bianche perché le palline rosse e verdi sono meno di Ma, poichè stiamo selezionando casualmente, dobbiamo includere le palline rosse e blu dopo aver applicato il principio del piccione.
+Quindi prima applichiamo la formula con le palline blu, gialle e bianche:
+
+       q1      q2         q3          n
+       9 blu + 9 gialle + 9 bianche – 3 + 1 = 25
+
+E poi aggiungiamo le palline rosse e quelle verdi:
+
+  6 rosse + 8 verde + 25 = 39
+
+Possiamo concludere che per essere certi di avere 9 palline dello stesso colore, si devono prelevare, in modo casuale, 39 palline dalla scatola.
+
+Problema 5
+----------
+Dato un qualunque insieme A di n+1 numeri naturali compresi tra 1 e 2n.
+Esiste sempre in A una coppia di numeri in cui un numero divide l'altro?
+Soluzione:
+Ogni numero a si può dividere successivamente per 2, zero o più volte fino ad arrivare ad un numero dispari, ovvero a=(2^k)*m con m dispari. Si avrà k >= 0 e m <= a.
+Poichè a appartiene ad A si ha m <= 2n.
+Ma ci sono solo n numeri dispari tra 1 e 2n, mentre in A ci sono n+1 numeri, quindi un valore di m si ripete almeno due volte (principio della piccionaia):
+
+  a=(2^i)*m   b=(2^j)*m
+
+con a e b appartenenti ad A e quindi uno divide l'altro.
+
+Problema 6
+----------
+Non è possibile inventare un algoritmo di compressione dati senza perdita di informazioni ("lossless") che funzioni sempre, cioè che a partire da un qualunque file in ingresso ne produca in uscita sempre uno più corto.
+Soluzione:
+Consideriamo i file di lunghezza k bit. Il loro numero è per definizione 2^k: ma i file di lunghezza tra 1 e k−1 sono solo 2^k−1, e pertanto dobbiamo avere due file che vengono "compressi" nello stesso file.
+Come facciamo allora a decomprimere il file compresso e scegliere il risultato corretto?
+
+From wikipedia:
+
+Lossless data compression algorithms (that do not attach compression id labels to their output data sets) cannot guarantee compression for all input data sets. In other words, for any lossless data compression algorithm, there will be an input data set that does not get smaller when processed by the algorithm, and for any lossless data compression algorithm that makes at least one file smaller, there will be at least one file that it makes larger. This is easily proven with elementary mathematics using a counting argument called the pigeonhole principle:
+
+- Assume that each file is represented as a string of bits of some arbitrary length.
+- Suppose that there is a compression algorithm that transforms every file into an output file that is no longer than the original file, and that at least one file will be compressed into an output file that is shorter than the original file.
+- Let M be the least number such that there is a file F with length M bits that compresses to something shorter. Let N be the length (in bits) of the compressed version of F.
+- Because N<M, every file of length N keeps its size during compression. There are 2N such files possible. Together with F, this makes 2N+1 files that all compress into one of the 2N files of length N.
+- But 2N is smaller than 2N+1, so by the pigeonhole principle there must be some file of length N that is simultaneously the output of the compression function on two different inputs. That file cannot be decompressed reliably (which of the two originals should that yield?), which contradicts the assumption that the algorithm was lossless.
+- We must therefore conclude that our original hypothesis (that the compression function makes no file longer) is necessarily untrue.
+
+Problema 7
+----------
+Dimostrare che ad una festa ci sono due persone che hanno lo stesso numero di amici (l'amicizia è reciproca, cioè se A è amico di B, allora anche B è amico di A).
+Soluzione:
+detto n il numero di persone ad una festa, allora ogni partecipante può avere da 0 a (n - 1) amici. Se tutte le persone avessero un numero diverso di amici, allora ce ne sarebbe una con 0 amici e un’altra con (n - 1) amici, il che è impossibile in quanto la persona con(n - 1) amici sarebbe amica di tutti (compreso di colui che ha 0 amici).
+Un altro modo di ragionare
+Ognuno degli n partecipanti può essere amico di un numero di persone variabile tra 0 e n-1. Iniziamo a supporre che ciascuno abbia almeno un amico, e associamogli il numero di amici che ha: ci sono allora n persone a cui sono associati i numeri da 1 a n−1, e per il principio dei cassetti due di loro devono avere lo stesso numero. Cosa succede se esiste uno senza amici (imbucato)? In questo caso nessuno degli altri può avere n−1 amici, visto che non conosce l’imbucato. Quindi alle n persone si associano i numeri da 0 a n−2, che vale di nuovo n−1.
+
+Nota: nel 2014 è stato dimostrato che in meccanica quantistica il principio dei cassetti può essere violato.
+
+
+---------------------------------------------
+Fattoriale crescente e fattoriale decrescente
+---------------------------------------------
+
+Fattoriale decrescente (falling factorial)
+------------------------------------------
+
+                        n fattori
+              +-----------------------------+
+  fact-fall = x*(x - 1)*(x - 2)...(x - n + 1) =
+
+             (n-1)
+  fact-fall =  ∏ (x - k)
+              k=0
+
+Relazione con i numeri fattoriali:
+
+                  x!
+  fact-fall = ----------
+               (x - n)!
+
+Scriviamo la funzione:
+
+(define (fact-fall x n)
+  (let (f 1)
+    (cond ((zero? n) (setq f 0))
+          (true
+            (for (k 0 (- n 1))
+              (setq f (mul f (- x k)))))
+    )
+    f))
+
+Esempi:
+
+(fact-fall 10 0)
+;-> 0
+
+(fact-fall 10 4)
+;-> 5040
+(* 10 9 8 7)
+;-> 5040
+
+(fact-fall 8 3)
+;-> 336
+(* 8 7 6)
+;-> 336
+
+(fact-fall 4 4)
+;-> 24
+(* 4 3 2 1)
+;-> 24
+
+(fact-fall 4 5)
+;-> 0
+(* 4 3 2 1 0)
+;-> 0
+
+Fattoriale crescente (rising factorial)
+---------------------------------------
+
+                        n fattori
+              +-----------------------------+
+  fact-rise = x*(x + 1)*(x + 2)...(x + n + 1) =
+
+             (n-1)
+  fact-rise =  ∏ (x + k)
+              k=0
+
+Relazione con i numeri fattoriali:
+
+               (x + n + 1)!
+  fact-rise = --------------
+                 (x - 1)!
+
+Scriviamo la funzione:
+
+(define (fact-rise x n)
+  (let (f 1)
+    (cond ((zero? n) (setq f 0))
+          (true
+            (for (k 0 (- n 1))
+              (setq f (mul f (+ x k)))))
+    )
+    f))
+
+Esempi:
+
+(fact-rise 10 0)
+;-> 0
+
+(fact-rise 10 4)
+;-> 17160
+(* 10 11 12 13)
+;-> 17160
+
+(fact-rise 8 3)
+;-> 720
+(* 8 9 10)
+;-> 720
+
+(fact-rise 4 4)
+;-> 840
+(* 4 5 6 7)
+;-> 840
+
+(fact-rise 4 5)
+;-> 6720
+(* 4 5 6 7 8)
+;-> 6720
+
 =============================================================================
 

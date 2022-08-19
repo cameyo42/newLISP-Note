@@ -5888,7 +5888,7 @@ In alternativa al metodo precedente, è possibile utilizzare un contesto predefi
 (new Tree 'myHash)
 ;-> myHash
 
-Entrambi i metodi producono lo stesso risultato, ma il secondo metodo protegge anche il funtore predefinito myHash:myHash da possibili modifiche.
+Entrambi i metodi producono lo stesso risultato, ma il secondo metodo protegge anche il funtore predefinito myHash:myHash da possibili modifiche rendendolo una costante (contenente nil).
 
 Adesso possiamo usare il contesto definito come una hash map.
 

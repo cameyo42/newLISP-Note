@@ -1315,6 +1315,8 @@ NOTE LIBERE 10
   Fase della luna
   Varianza e deviazione standard, (N-1) oppure N?
   Jensen Device
+  Il principio dei cassetti ("pigeonhole principle")
+  Fattoriale crescente e fattoriale decrescente
   
 APPENDICI
 =========
