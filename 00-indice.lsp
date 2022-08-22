@@ -1317,6 +1317,10 @@ NOTE LIBERE 10
   Jensen Device
   Il principio dei cassetti ("pigeonhole principle")
   Fattoriale crescente e fattoriale decrescente
+  Parentesi quadre
+  cons e push
+  newLISP "leggero"
+  Binary dump
   
 APPENDICI
 =========

@@ -4153,14 +4153,13 @@ Consideriamo i file di lunghezza k bit. Il loro numero è per definizione 2^k: m
 Come facciamo allora a decomprimere il file compresso e scegliere il risultato corretto?
 
 From wikipedia:
-
 Lossless data compression algorithms (that do not attach compression id labels to their output data sets) cannot guarantee compression for all input data sets. In other words, for any lossless data compression algorithm, there will be an input data set that does not get smaller when processed by the algorithm, and for any lossless data compression algorithm that makes at least one file smaller, there will be at least one file that it makes larger. This is easily proven with elementary mathematics using a counting argument called the pigeonhole principle:
 
 - Assume that each file is represented as a string of bits of some arbitrary length.
 - Suppose that there is a compression algorithm that transforms every file into an output file that is no longer than the original file, and that at least one file will be compressed into an output file that is shorter than the original file.
 - Let M be the least number such that there is a file F with length M bits that compresses to something shorter. Let N be the length (in bits) of the compressed version of F.
-- Because N<M, every file of length N keeps its size during compression. There are 2N such files possible. Together with F, this makes 2N+1 files that all compress into one of the 2N files of length N.
-- But 2N is smaller than 2N+1, so by the pigeonhole principle there must be some file of length N that is simultaneously the output of the compression function on two different inputs. That file cannot be decompressed reliably (which of the two originals should that yield?), which contradicts the assumption that the algorithm was lossless.
+- Because N<M, every file of length N keeps its size during compression. There are 2^N such files possible. Together with F, this makes 2^N + 1 files that all compress into one of the 2^N files of length N.
+- But 2^N is smaller than 2^N + 1, so by the pigeonhole principle there must be some file of length N that is simultaneously the output of the compression function on two different inputs. That file cannot be decompressed reliably (which of the two originals should that yield?), which contradicts the assumption that the algorithm was lossless.
 - We must therefore conclude that our original hypothesis (that the compression function makes no file longer) is necessarily untrue.
 
 Problema 7
@@ -4283,6 +4282,158 @@ Esempi:
 ;-> 6720
 (* 4 5 6 7 8)
 ;-> 6720
+
+
+----------------
+Parentesi quadre
+----------------
+
+Le parentesi quadre "[ ]" sono un metodo rapido per creare simboli legali senza utilizzare la funzione "sym".
+Nel tokenizer di newLISP il carattere "[" inizia un nome di simbolo e non lo finisce fino a quando non viene trovato un "]" di chiusura:
+
+(set '[     ^$#@ () ] 123)
+;-> 123
+[     ^$#@ () ]
+;-> 123
+(symbol? '[     ^$#@ () ])
+;-> true
+
+
+-----------
+cons e push
+-----------
+
+In newLISP le seguenti espressioni producono lo stesso effetto, cioè aggiungono un elemento x alla lista s:
+
+1) (set 's (cons x) s) 
+2) (push x s)
+
+Verifichiamolo:
+
+(= (let (s '()) (dotimes (i 100) (set 's (cons (sqrt i) s))))
+   (let (s '()) (dotimes (i 100) (push (sqrt i) s))))
+;-> true   
+
+Vediamo i tempi di esecuzione delle due espressioni con un numero maggiore di elementi:
+
+(time (let (s '()) (dotimes (i 10000) (set 's (cons (sqrt i) s))) 'end))
+;-> 1150.942 ;millisecondi
+
+(time (let (s '()) (dotimes (i 10000) (push (sqrt i) s)) 'end))
+;-> 1.994 ;millisecondi
+
+La funzione "cons" è molto lenta.
+In newLISP "cons" crea una nuova lista che poi viene inserita in s.
+Invece "push" prende il riferimento/puntatore di s e modifica s direttamente, questo è molto più veloce perchè non viene creata e/o copiata nessuna lista aggiuntiva.
+
+
+-----------------
+newLISP "leggero"
+-----------------
+
+Un piccolo trucco per "alleggerire" newLISP durante l'avvio.
+
+;;
+;; SlimLine Newlisp.
+;;
+;; A small trick to SlimLine Newlisp during startup.
+;; To be used for i.e. a more secure newlisp.
+;;
+;; Removes all "network" "file-io" "system" access functions from current context 'MAIN in newlisp
+;; and replaces them with a warning message.
+;;
+;; Executed from interactive mode you'll have the "press enter to return!"
+;; else remove the text line.
+;;
+;; (thanks to "Lutz" for the 'constant tip instead of 'cpymem)
+;;
+;; Enjoy, Norman
+;;
+
+(define (default-message) 
+  (silent (println "Removed from newLisp, press enter to return!" )))
+
+(dolist (x '( "dump" "cpymem" "!" "exec" "fork" "pipe" "process" "wait-pid" 
+  "close" "command-line" "current-line" "device" "exec" "get-url" "load" "open" 
+  "post-url" "put-url" "read-buffer" "read-char" "read-file" "read-line" "save" 
+  "search" "seek" "write-buffer" "write-char" "write-file" "write-line"
+  "change-dir" "copy-file" "delete-file" "directory" "file-info" "make-dir" 
+  "remove-dir" "rename-file" "trace" "putenv" "getenv" "import" "file?" "env"
+  "directory?" "net-accept" "net-close" "net-connect" "net-error" "net-listen"
+  "net-local" "net-lookup" "net-peer" "net-peek" "net-receive" 
+  "net-receive-from" "net-receive-udp" "net-select" "net-send" "net-send-to" 
+  "net-send-udp" "net-service" "net-sessions"))
+(constant (symbol x) default-message))
+
+
+-----------
+Binary dump
+-----------
+
+Una "vecchia" funzione per fare il dump esadecimale di un file:
+
+(pretty-print 100)
+
+(define (hex-dump file)
+  (setq infile (open file "read"))
+  (println "Dumping -> " file)
+  (setq line 0)
+  (while (> (setq sofar (read-buffer infile buff 16)) 0)
+    (print (format "%08d - " (++ line 16)))
+    (if (< sofar 16)
+        (dotimes (x (- 16 sofar))
+          (setq buff (append buff (char 0)))))
+    (dolist (x (explode buff)) (print (format "%02X " (char x))))
+    (dolist (x (explode buff))
+      (if (and (>= (char x) 32) (<= (char x) 126))
+          (print x)
+          (print ".")))
+    (println "")
+  )
+  (close infile)
+  (println "Done"))
+
+(save "dump.lsp" 'hex-dump)
+
+(hex-dump "dump.lsp")
+;-> Dumping -> dump.lsp
+;-> 00000016 - 28 64 65 66 69 6E 65 20 28 68 65 78 2D 64 75 6D (define (hex-dum
+;-> 00000032 - 70 20 66 69 6C 65 29 0D 0A 20 20 28 73 65 74 71 p file)..  (setq
+;-> 00000048 - 20 69 6E 66 69 6C 65 20 28 6F 70 65 6E 20 66 69  infile (open fi
+;-> 00000064 - 6C 65 20 22 72 65 61 64 22 29 29 0D 0A 20 20 28 le "read"))..  (
+;-> 00000080 - 70 72 69 6E 74 6C 6E 20 22 44 75 6D 70 69 6E 67 println "Dumping
+;-> 00000096 - 20 2D 3E 20 22 20 66 69 6C 65 29 0D 0A 20 20 28  -> " file)..  (
+;-> 00000112 - 73 65 74 71 20 6C 69 6E 65 20 30 29 0D 0A 20 20 setq line 0)..
+;-> 00000128 - 28 77 68 69 6C 65 20 28 3E 20 28 73 65 74 71 20 (while (> (setq
+;-> 00000144 - 73 6F 66 61 72 20 28 72 65 61 64 2D 62 75 66 66 sofar (read-buff
+;-> 00000160 - 65 72 20 69 6E 66 69 6C 65 20 62 75 66 66 20 31 er infile buff 1
+;-> 00000176 - 36 29 29 20 30 29 20 0D 0A 20 20 20 28 70 72 69 6)) 0) ..   (pri
+;-> 00000192 - 6E 74 20 28 66 6F 72 6D 61 74 20 22 25 30 38 64 nt (format "%08d
+;-> 00000208 - 20 2D 20 22 20 28 2B 2B 20 6C 69 6E 65 20 31 36  - " (++ line 16
+;-> 00000224 - 29 29 29 20 0D 0A 20 20 20 28 69 66 20 28 3C 20 ))) ..   (if (<
+;-> 00000240 - 73 6F 66 61 72 20 31 36 29 20 0D 0A 20 20 20 20 sofar 16) ..
+;-> 00000256 - 28 64 6F 74 69 6D 65 73 20 28 78 20 28 2D 20 31 (dotimes (x (- 1
+;-> 00000272 - 36 20 73 6F 66 61 72 29 29 20 0D 0A 20 20 20 20 6 sofar)) ..
+;-> 00000288 - 20 28 73 65 74 71 20 62 75 66 66 20 28 61 70 70  (setq buff (app
+;-> 00000304 - 65 6E 64 20 62 75 66 66 20 28 63 68 61 72 20 30 end buff (char 0
+;-> 00000320 - 29 29 29 29 29 20 0D 0A 20 20 20 28 64 6F 6C 69 ))))) ..   (doli
+;-> 00000336 - 73 74 20 28 78 20 28 65 78 70 6C 6F 64 65 20 62 st (x (explode b
+;-> 00000352 - 75 66 66 29 29 20 0D 0A 20 20 20 20 28 70 72 69 uff)) ..    (pri
+;-> 00000368 - 6E 74 20 28 66 6F 72 6D 61 74 20 22 25 30 32 58 nt (format "%02X
+;-> 00000384 - 20 22 20 28 63 68 61 72 20 78 29 29 29 29 20 0D  " (char x)))) .
+;-> 00000400 - 0A 20 20 20 28 64 6F 6C 69 73 74 20 28 78 20 28 .   (dolist (x (
+;-> 00000416 - 65 78 70 6C 6F 64 65 20 62 75 66 66 29 29 20 0D explode buff)) .
+;-> 00000432 - 0A 20 20 20 20 28 69 66 20 28 61 6E 64 20 28 3E .    (if (and (>
+;-> 00000448 - 3D 20 28 63 68 61 72 20 78 29 20 33 32 29 20 28 = (char x) 32) (
+;-> 00000464 - 3C 3D 20 28 63 68 61 72 20 78 29 20 31 32 36 29 <= (char x) 126)
+;-> 00000480 - 29 20 0D 0A 20 20 20 20 20 28 70 72 69 6E 74 20 ) ..     (print
+;-> 00000496 - 78 29 20 0D 0A 20 20 20 20 20 28 70 72 69 6E 74 x) ..     (print
+;-> 00000512 - 20 22 2E 22 29 29 29 20 0D 0A 20 20 20 28 70 72  "."))) ..   (pr
+;-> 00000528 - 69 6E 74 6C 6E 20 22 22 29 29 0D 0A 20 20 28 63 intln ""))..  (c
+;-> 00000544 - 6C 6F 73 65 20 69 6E 66 69 6C 65 29 0D 0A 20 20 lose infile)..
+;-> 00000560 - 28 70 72 69 6E 74 6C 6E 20 22 44 6F 6E 65 22 29 (println "Done")
+;-> 00000576 - 29 0D 0A 0D 0A )....
+;-> Done
 
 =============================================================================
 

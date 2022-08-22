@@ -1954,7 +1954,7 @@ Il numero aureo
 ---------------
 
 Il numero aureo (o rapporto aureo) è il numero ottenuto effettuando il rapporto fra due lunghezze disuguali delle quali la maggiore "a" è medio proporzionale tra la minore "b" e la somma delle due (a+b):
-                        
+
 numero aureo (phi) --> (a + b) : a = a : b
 
 Quindi possiamo scrivere:
@@ -2811,7 +2811,7 @@ Se vogliamo ottenere la lista delle mosse in una lista possiamo scrivere:
 ;-> ((1 2) (1 3) (2 3) (1 2) (3 1) (3 2) (1 2) (1 3)
 ;->  (2 3) (2 1) (3 1) (2 3) (1 2) (1 3) (2 3))
 
-Infine la seguente funzione mostra la soluzione passo per passo:
+La seguente funzione mostra la soluzione passo per passo:
 
 (define (print-hanoi numdisk lst)
   (setq stato (list (sequence 1 numdisk) '() '()))
@@ -2840,6 +2840,146 @@ Infine la seguente funzione mostra la soluzione passo per passo:
 ;-> (() (1) (2 3 4))
 ;-> 15. da: B a: C
 ;-> (() () (1 2 3 4))
+
+Versione con grafica passo per passo:
+
+(define (print-stato stato)
+  (setq endline (dup "-" (* 3 (* numdisk 2))))
+  (setq lenline (* numdisk 2))
+  (setq st stato)
+  (dolist (el st)
+  ; da: ((2 3 4) (1) ())
+  ; a:  (("        " 2 3 4) 
+  ;      ("        " "        " "        " 1) 
+  ;      ("        " "        " "        "  "        "))
+    (if (!= (length el) numdisk)
+        ;(println (dup " " (- numdisk (length el)) true))
+        (setf (st $idx) (append (dup (dup " " lenline) (- numdisk (length el)) true) (st $idx)))
+    )
+  )
+  (dolist (row st)
+  ; da: (("        " 2 3 4) 
+  ;      ("        " "        " "        " 1) 
+  ;      ("        " "        " "        "  "        "))  
+  ; a:  (("        " "        " "        ") 
+  ;      ("   * *  " "        " "        ") 
+  ;      ("  * * * " "        " "        ")
+  ;      (" * * * *" "    *   " "        "))
+    (setq tmp '())
+    (setq idx $idx)
+    (dolist (el row)
+      (cond ((string? el) (push el tmp -1))
+            ((integer? el)
+              (begin
+                ;(setq s (dup " *" el))
+                (setq s (dup "██" el))
+                (setq espace (dup " " (/ (- lenline (length s)) 2)))
+                (setq s (append espace s espace))
+                (push s tmp -1)))
+      )
+      (setf (st idx) tmp)
+    )
+  )
+  (setq st (transpose st))
+  ; La trasposta è pronta per la stampa...
+  ; (("        " "        " "        ") 
+  ;  ("   * *  " "        " "        ") 
+  ;  ("  * * * " "        " "        ")
+  ;  (" * * * *" "    *   " "        "))
+  (dolist (p st)
+    (println (join p))
+  )
+  (println endline)
+)
+
+(setq numdisk 4)
+(print-stato '((2 3 4) (1) ()))
+;-> 
+;->    * *
+;->   * * *
+;->  * * * *    *
+;-> --------------------------
+
+Scriviamo la funzione finale:
+
+(define (print-hanoi numdisk lst)
+  (setq stato (list (sequence 1 numdisk) '() '()))
+  (println "Stato iniziale")
+  (print-stato stato)
+  (read-line)
+  (dolist (el lst)
+    (setq da (pop (stato (- (el 0) 1))))
+    (push da (stato (- (el 1) 1)))
+    (println (+ $idx 1) ") da " (el 0) " a " (el 1))
+    (print-stato stato)
+    (read-line)
+  ))
+
+Proviamo:
+
+(print-hanoi 4 (hanoi 4 1 3 2))
+;-> Stato iniziale
+;->    ██
+;->   ████
+;->  ██████
+;-> ████████
+;-> ------------------------ 
+;->                          
+;-> 1) da 1 a 2              2) da 1 a 3              3) da 2 a 3
+;->                                                   
+;->   ████                                            
+;->  ██████                   ██████                   ██████            ██
+;-> ████████   ██            ████████   ██     ████   ████████          ████
+;-> ------------------------ ------------------------ ------------------------
+;->                                                   
+;-> 4) da 1 a 2              5) da 3 a 1              6) da 3 a 2
+;->                                                   
+;->                                                   
+;->                    ██       ██                       ██     ████
+;-> ████████ ██████   ████   ████████ ██████   ████   ████████ ██████
+;-> ------------------------ ------------------------ ------------------------
+;->                                                   
+;-> 7) da 1 a 2              8) da 1 a 3              9) da 2 a 3
+;->                                                   
+;->            ██                       ██            
+;->           ████                     ████                     ████     ██
+;-> ████████ ██████                   ██████ ████████          ██████ ████████
+;-> ------------------------ ------------------------ ------------------------
+;->                                                   
+;-> 10) da 2 a 1             11) da 3 a 1             12) da 2 a 3
+;->                                                   
+;->                                                   
+;->                    ██       ██                       ██            ██████
+;->   ████   ██████ ████████   ████   ██████ ████████   ████          ████████
+;-> ------------------------ ------------------------ ------------------------
+;->                                                   
+;-> 13) da 1 a 2             14) da 1 a 3             15) da 2 a 3
+;->                                                                      ██
+;->                                            ████                     ████
+;->                  ██████                   ██████                   ██████
+;->   ████     ██   ████████            ██   ████████                 ████████
+;-> ------------------------ ------------------------ ------------------------
+(output modificato)
+
+Proviamo con 5 dischi:
+
+(print-hanoi 5 (hanoi 5 1 3 2))
+;-> Stato iniziale
+;->     ██
+;->    ████
+;->   ██████
+;->  ████████
+;-> ██████████
+;-> ------------------------------
+;-> ...
+;-> 
+;-> 31) da 1 a 3
+;->                         ██
+;->                        ████
+;->                       ██████
+;->                      ████████
+;->                     ██████████
+;-> ------------------------------
 
 
 ------------------
@@ -3363,7 +3503,7 @@ Un altra funzione per risolvere il problema:
 (define (rmul x y)
   (if (= x 1)
       y
-      (+ 
+      (+
        (* (& x 1) y)
        (rmul (>> x) (<< y)))))
 
@@ -5335,7 +5475,7 @@ Adesso scriviamo un programma che visualizza tutte le soluzioni per una scacchie
 ;-> ∙ ∙ ∙ ∙ ∙ ∙ ■ ∙    ∙ ∙ ∙ ■ ∙ ∙ ∙ ∙    ∙ ■ ∙ ∙ ∙ ∙ ∙ ∙    ∙ ∙ ∙ ■ ∙ ∙ ∙ ∙
 ;-> ∙ ■ ∙ ∙ ∙ ∙ ∙ ∙    ∙ ■ ∙ ∙ ∙ ∙ ∙ ∙    ∙ ∙ ∙ ∙ ■ ∙ ∙ ∙    ∙ ∙ ∙ ∙ ∙ ■ ∙ ∙
 ;-> ∙ ∙ ∙ ■ ∙ ∙ ∙ ∙    ∙ ∙ ∙ ∙ ■ ∙ ∙ ∙    ∙ ∙ ■ ∙ ∙ ∙ ∙ ∙    ∙ ∙ ■ ∙ ∙ ∙ ∙ ∙
-;-> 
+;->
 ;-> ∙ ■ ∙ ∙ ∙ ∙ ∙ ∙    ∙ ■ ∙ ∙ ∙ ∙ ∙ ∙    ∙ ■ ∙ ∙ ∙ ∙ ∙ ∙    ∙ ■ ∙ ∙ ∙ ∙ ∙ ∙
 ;-> ∙ ∙ ∙ ■ ∙ ∙ ∙ ∙    ∙ ∙ ∙ ∙ ■ ∙ ∙ ∙    ∙ ∙ ∙ ∙ ■ ∙ ∙ ∙    ∙ ∙ ∙ ∙ ∙ ■ ∙ ∙
 ;-> ∙ ∙ ∙ ∙ ∙ ■ ∙ ∙    ∙ ∙ ∙ ∙ ∙ ∙ ■ ∙    ∙ ∙ ∙ ∙ ∙ ∙ ■ ∙    ■ ∙ ∙ ∙ ∙ ∙ ∙ ∙
@@ -5344,9 +5484,9 @@ Adesso scriviamo un programma che visualizza tutte le soluzioni per una scacchie
 ;-> ■ ∙ ∙ ∙ ∙ ∙ ∙ ∙    ∙ ∙ ∙ ∙ ∙ ∙ ∙ ■    ∙ ∙ ∙ ∙ ∙ ∙ ∙ ■    ∙ ∙ ∙ ∙ ∙ ∙ ∙ ■
 ;-> ∙ ∙ ∙ ∙ ∙ ∙ ■ ∙    ∙ ∙ ∙ ∙ ∙ ■ ∙ ∙    ∙ ∙ ∙ ∙ ∙ ■ ∙ ∙    ∙ ∙ ■ ∙ ∙ ∙ ∙ ∙
 ;-> ∙ ∙ ∙ ∙ ■ ∙ ∙ ∙    ∙ ∙ ∙ ■ ∙ ∙ ∙ ∙    ∙ ∙ ■ ∙ ∙ ∙ ∙ ∙    ∙ ∙ ∙ ∙ ■ ∙ ∙ ∙
-;-> 
+;->
 ;-> ...
-;-> 
+;->
 ;-> ∙ ∙ ∙ ∙ ∙ ∙ ∙ ■    ∙ ∙ ∙ ∙ ∙ ∙ ∙ ■    ∙ ∙ ∙ ∙ ∙ ∙ ∙ ■    ∙ ∙ ∙ ∙ ∙ ∙ ∙ ■
 ;-> ∙ ■ ∙ ∙ ∙ ∙ ∙ ∙    ∙ ■ ∙ ∙ ∙ ∙ ∙ ∙    ∙ ∙ ■ ∙ ∙ ∙ ∙ ∙    ∙ ∙ ∙ ■ ∙ ∙ ∙ ∙
 ;-> ∙ ∙ ∙ ■ ∙ ∙ ∙ ∙    ∙ ∙ ∙ ∙ ■ ∙ ∙ ∙    ■ ∙ ∙ ∙ ∙ ∙ ∙ ∙    ■ ∙ ∙ ∙ ∙ ∙ ∙ ∙
@@ -5460,7 +5600,7 @@ Esempio: L = ((1 3) (4 4) (1 1) (2 5) (6 3) (8 5) (6 1) (6 5) (3 2) (2 4)
     0 ---------------------------------------
       0   1   2   3   4   5   6   7   8   9
 
-Il metodo più semplice è quello di utilizzare la forza bruta. Questo algoritmo calcola la distanza tra ciascuna coppia e restituisce la più piccola e ha un tempo O(n^2). 
+Il metodo più semplice è quello di utilizzare la forza bruta. Questo algoritmo calcola la distanza tra ciascuna coppia e restituisce la più piccola e ha un tempo O(n^2).
 
 (define (closestPairs lst)
   (local (cp vec dist minDist)
@@ -5650,14 +5790,14 @@ Funzione ricorsiva per trovare la distanza minima. La lista lst che contiene tut
            (setq midB (slice lst mid))
            ; Considera la linea verticale che passa
            ; attraverso il punto medio e calcola
-           ; la distanza minima dal punto centrale 
+           ; la distanza minima dal punto centrale
            ; dl a sinistra e dr a destra
            (setq dr (closestUtil midA (length midA)))
            (setq dl (closestUtil midB (length midB)))
            ; distanza minima
            (setq d (min dl dr))
-           ; Costruisce una lista strip che contiene i punti 
-           ; vicino (più vicino di d) alla linea che 
+           ; Costruisce una lista strip che contiene i punti
+           ; vicino (più vicino di d) alla linea che
            ; passa per il punto medio
            (setq strip '())
            (setq j 0)
@@ -10572,7 +10712,7 @@ Proviamo a cercare qualche triangolo di Stenhaus bilanciato:
 
 (find-balanced 100 10000)
 ;-> (0 0 1 1 0 0 0 0 1 1 1 0 0 0 0 0 1 1 1 1 0 0 1 0 0 1 0 0 1 1 1 0 1
-;->  0 1 0 0 0 1 1 0 1 0 0 0 1 1 1 1 0 1 0 0 0 1 1 1 1 1 1 1 1 1 0 1 1 
+;->  0 1 0 0 0 1 1 0 1 0 0 0 1 1 1 1 0 1 0 0 0 1 1 1 1 1 1 1 1 1 0 1 1
 ;->  1 0 1 0 1 0 1 0 0 1 0 1 0 1 1 0 1 1 1 1 0 1 0 0 1 1 1 1 1 1 0 1 1 0)
 
 (time (println (find-balanced 1000 100000)))
