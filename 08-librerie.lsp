@@ -775,6 +775,27 @@ Questa funzione mantiene l'ordine degli elementi della lista originale.
 ;-> (1 2 4)
 
 ;------------------------------------------------------
+; intersects
+;------------------------------------------------------
+sintassi: (intersects list-1 list-2 ... list-N)
+output: list
+
+Ritorna una lista che contiene una copia di ogni elemento che si trova sia nella list-1 che nella list-2... che nella lista N.
+
+(define (intersects)
+  (let (tmp (intersect (args 0)))
+    (doargs (arg)
+      (setq tmp (intersect tmp arg)))
+    tmp))
+
+(setq a1 '(1 2 3 4 5))
+(setq b1 '(4 5))
+(setq c1 '(5 6 7 8))
+
+(intersects a1 b1 c1)
+;-> (5)
+
+;------------------------------------------------------
 ; difference (built-in)
 ;------------------------------------------------------
 sintassi 1: (difference list-A list-B)

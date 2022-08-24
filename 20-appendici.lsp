@@ -6092,7 +6092,7 @@ Lista delle funzioni:
 
 
 ============================================================================
- Frasi Famose sulla Programmazione e sul Linguaggio Lisp
+ Frasi sulla Programmazione e sul Linguaggio Lisp
 ============================================================================
 
 "Programs must be written for people to read, and only incidentally for machines to execute."
@@ -6350,9 +6350,6 @@ Kelsey Hightower
 - Carl Sassenrath
 
 "In genere, scrivo un programma nel modo migliore per fare il suo debug."
-- cameyo
-
-"La programmazione: tentativo, fallimento, analisi, correzione, nuovo tentativo"
 - cameyo
 
 

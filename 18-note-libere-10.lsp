@@ -1892,12 +1892,12 @@ Il rubamazzo è un gioco tra due persone che viene fatto con le carte italiane (
 
 Regole
 ------
-Dopo che le carte sono state mischiate vengono distribuite 3 carte a ciascun giocatore e poi vengono messe 4 scoperte sul tavolo. 
-Ogni giocatore nel rispettivo turno può prendere solo una carta dello stesso valore dal tavolo obbligatoriamente (ad es. se in mano ha un 7, allora dal tavolo può prendere solo un altro 7). 
+Dopo che le carte sono state mischiate vengono distribuite 3 carte a ciascun giocatore e poi vengono messe 4 scoperte sul tavolo.
+Ogni giocatore nel rispettivo turno può prendere solo una carta dello stesso valore dal tavolo obbligatoriamente (ad es. se in mano ha un 7, allora dal tavolo può prendere solo un altro 7).
 Ogni volta che viene effettuata una presa, il giocatore deve tenere scoperta l'ultima carta del proprio mazzo.
 Se l'avversario ne ha una dello stesso valore in mano può "rubare" il suo mazzo (che va tenuto sempre girato). Se la carta in tavola è la stessa del mazzo dell'avversario si prende quella che si preferisce.
 Una volta concluso il turno, le carte del mazzo saranno distribuite (3 + 3) ai due giocatori per iniziare un nuovo turno.
-Dopo l'ultima mano, le carte rimaste sulla tavola vengono prese dal giocatore che ha fatto l'ultima presa. 
+Dopo l'ultima mano, le carte rimaste sulla tavola vengono prese dal giocatore che ha fatto l'ultima presa.
 Il vincitore è quello che ha il maggior numero di carte (ogni carta vale 1).
 
 Funzione che stampa la posizione corrente:
@@ -1945,7 +1945,7 @@ Funzione che cattura il mazzetto dell'avversario (se ha la stessa carta) oppure 
 (grab-play mano2 2)
 ;-> 6
 
-Funzione che esegue una partita di rubamazzo passo-passo. 
+Funzione che esegue una partita di rubamazzo passo-passo.
 Se tipo = 1, allora viene scelta la strategia casuale
 Se tipo è diverso da 1, allora viene scelta la strategia "cattura mazzetto"
 ;;;
@@ -2061,13 +2061,13 @@ Vediamo una partita:
 (rubamazzo-log 1)
 
 ;-> [ 10 6 9 ]  () 0
-;-> 
+;->
 ;->  8  6  1  3
-;-> 
+;->
 ;-> [ 10 10 2 ]  () 0
 ;-> ---------------------
 ;-> mazzo: (7 2 5 7 9 3 1 7 10 3 2 5 9 4 7 3 1 4 6 9 5 4 1 8 4 6 8 5 8 2)
-;-> 
+;->
 ;-> player 1: 10
 ;-> aggiunge carta sul tavolo
 ;-> player 2: 6
@@ -2084,15 +2084,15 @@ Vediamo una partita:
 ;-> num-carte 2 = 5
 ;-> ultimo: 2
 ;-> visibili: 5
-;-> 
+;->
 ;-> [ 7 9 3 ]  (10) 5
-;-> 
+;->
 ;->  8  1  3  2  9
-;-> 
+;->
 ;-> [ 7 2 5 ]  () 0
 ;-> ---------------------
 ;-> mazzo: (1 7 10 3 2 5 9 4 7 3 1 4 6 9 5 4 1 8 4 6 8 5 8 2)
-;-> 
+;->
 ;-> player 1: 5 10
 ;-> aggiunge carta sul tavolo
 ;-> player 2: 9
@@ -2109,15 +2109,15 @@ Vediamo una partita:
 ;-> num-carte 2 = 11
 ;-> ultimo: 2
 ;-> visibili: 3
-;-> 
+;->
 ;-> [ 3 2 5 ]  (7) 11
-;-> 
+;->
 ;->  8  1  5
-;-> 
+;->
 ;-> [ 1 7 10 ]  (2) 2
 ;-> ---------------------
 ;-> mazzo: (9 4 7 3 1 4 6 9 5 4 1 8 4 6 8 5 8 2)
-;-> 
+;->
 ;-> player 1: 7 7
 ;-> cattura mazzetto
 ;-> player 2: 3
@@ -2134,15 +2134,15 @@ Vediamo una partita:
 ;-> num-carte 2 = 2
 ;-> ultimo: 2
 ;-> visibili: 4
-;-> 
+;->
 ;-> [ 3 1 4 ]  (5) 2
-;-> 
+;->
 ;->  8  3  10  2
-;-> 
+;->
 ;-> [ 9 4 7 ]  (1) 16
 ;-> ---------------------
 ;-> mazzo: (6 9 5 4 1 8 4 6 8 5 8 2)
-;-> 
+;->
 ;-> player 1: 4 5
 ;-> aggiunge carta sul tavolo
 ;-> player 2: 3
@@ -2159,15 +2159,15 @@ Vediamo una partita:
 ;-> num-carte 2 = 23
 ;-> ultimo: 2
 ;-> visibili: 5
-;-> 
+;->
 ;-> [ 4 1 8 ]  (1) 23
-;-> 
+;->
 ;->  8  10  2  9  7
-;-> 
+;->
 ;-> [ 6 9 5 ]  () 0
 ;-> ---------------------
 ;-> mazzo: (4 6 8 5 8 2)
-;-> 
+;->
 ;-> player 1: 9 1
 ;-> prende carta dal tavolo
 ;-> player 2: 8
@@ -2184,15 +2184,15 @@ Vediamo una partita:
 ;-> num-carte 2 = 25
 ;-> ultimo: 2
 ;-> visibili: 7
-;-> 
+;->
 ;-> [ 5 8 2 ]  (8) 25
-;-> 
+;->
 ;->  10  2  7  5  4  6  1
-;-> 
+;->
 ;-> [ 4 6 8 ]  (9) 2
 ;-> ---------------------
 ;-> mazzo: ()
-;-> 
+;->
 ;-> player 1: 4 8
 ;-> prende carta dal tavolo
 ;-> player 2: 2
@@ -2209,7 +2209,7 @@ Vediamo una partita:
 ;-> num-carte 2 = 29
 ;-> ultimo: 2
 ;-> visibili: 3
-;-> 
+;->
 ;-> carte player 1 = 8
 ;-> carte player 2 = 32
 
@@ -2234,7 +2234,7 @@ La seguente funzione simula una partita di rubamazzo e restituisce un numero:
               (if (= tipo 1)
                 (setq carta (random-play mano1))
                 (setq carta (grab-play mano1 1))
-              )      
+              )
               (pop mano1 (find carta mano1))
               (cond ((= carta (int scoperta2))
                       (setq num-carte1 (+ num-carte1 num-carte2 1))
@@ -2365,7 +2365,7 @@ Prima versione:
     out))
 
 (distretti)
-;-> (("P" "S" "V") (2 3 7) (2 4 6) (2 6 4) (2 7 3) (4 1 7) (4 2 6) 
+;-> (("P" "S" "V") (2 3 7) (2 4 6) (2 6 4) (2 7 3) (4 1 7) (4 2 6)
 ;->  (4 3 5) (4 5 3) (4 6 2) (4 7 1) (6 1 5) (6 2 4) (6 4 2) (6 5 1))
 
 Seconda versione:
@@ -2455,7 +2455,7 @@ Uso:
 ;-> second
 
 (println (rotX 333))
-;-> third 
+;-> third
 ;-> third
 
 Versione leggermente più breve senza "eval" che utilizza "setf" invece di "pop/push":
@@ -2481,7 +2481,7 @@ Un modo per ottenere questa informazione è quello di utilizzare la funzione "re
 Per esempio:
 
 (define (divide x y)
-    (if (= y 0) 
+    (if (= y 0)
       (println "line " $exprno ": first argument cannot be 0")
       (div x y)))
 
@@ -2585,7 +2585,7 @@ Lista di persone (database):
 E i loro collegamenti:
 
 (map (curry fill-template *template*) *people*)
-;-> ("John lives in NY and is 37 years old." 
+;-> ("John lives in NY and is 37 years old."
 ;->  "Giorgos lives in Athens and is 25 years old."
 ;->  "Elena lives in Amsterdam and is 43 years old.")
 
@@ -2615,7 +2615,7 @@ Terzo metodo
 
 ; definiamo un contesto per contenere i dati di una persona
 
-(define data:data)     
+(define data:data)
 ;-> nil
 
 Stampa dei risultati:
@@ -2919,7 +2919,7 @@ Facciamo alcune prove:
 
 Complessità temporale: O(N^4)
 
-Un'altro metodo di soluzione del problema utilizza l'algoritmo convex-hull. 
+Un'altro metodo di soluzione del problema utilizza l'algoritmo convex-hull.
 Calcoliamo il convex-hull dei punti dati e poi utilizziamo la funzione "find-mec" per trovare il MEC con i punti che formano il convex-hull. Se il numero di vertici del convex-hull è considerevolmente inferiore a N, la complessità sarebbe O(H^4 + N*Log(N)) dove H rappresenta il numero di vertici del convex-hull e il fattore NLog(N) è la complessità temporale dell'algoritmo di convex-hull (Graham Scan). Infine, se il numero di vertici, H, del convex-hull è molto piccolo, allora può essere considerato come un fattore costante e quindi la complessità temporale diventa O(NLog(N)).
 
 
@@ -2979,9 +2979,9 @@ Facciamo alcune prove:
              (6 7)))
 
 (kron mat1 mat2)
-;-> (( 0  5  0 10) 
-;->  ( 6  7 12 14) 
-;->  ( 0 15  0 20) 
+;-> (( 0  5  0 10)
+;->  ( 6  7 12 14)
+;->  ( 0 15  0 20)
 ;->  (18 21 24 28))
 
 (setq mat1 '((1 2)
@@ -2991,10 +2991,10 @@ Facciamo alcune prove:
              (6 7 3)))
 
 (kron mat1 mat2)
-;-> (( 0  5  2  0 10  4) 
-;->  ( 6  7  3 12 14  6) 
-;->  ( 0 15  6  0 20  8) 
-;->  (18 21  9 24 28 12) 
+;-> (( 0  5  2  0 10  4)
+;->  ( 6  7  3 12 14  6)
+;->  ( 0 15  6  0 20  8)
+;->  (18 21  9 24 28 12)
 ;->  ( 0  5  2  0  0  0)
 ;->  ( 6  7  3  0  0  0))
 
@@ -3194,10 +3194,10 @@ Dalla trigonometria risulta:
 
   Area-Triangolo = 1/2 * (2 * r * sin(theta/2)) * (r * cos(theta/2)) =
                  = 1/2 * r^2 * sin(theta)
-  
+
   Area-Settore = π*r^2 * (theta/360)
 
-  Area-Segmento = Area-Settore - Area-Triangolo = 
+  Area-Segmento = Area-Settore - Area-Triangolo =
                 = π * r^2 * (theta/360) - 1/2 * r^2 * sin(theta)
 
 Scriviamo la funzione:
@@ -3272,7 +3272,7 @@ Applichiamo le regole ai seguenti dati sperimentali:
 Formule per il calcolo della media:
 
   media = (∑x(i))/N
-  
+
 Funzione per il calcolo della media di una lista di numeri:
 
 (define (media lst)
@@ -3312,7 +3312,7 @@ Funzioni per il calcolo della deviazione standard di una lista di numeri:
 
 Scriviamo una funzione che calcola le liste con le varie posizioni di x e y in funzione della regola applicata:
 
-(define (funnel regola) 
+(define (funnel regola)
   (setq base-x 0)
   (setq base-y 0)
   (setq xvec '())
@@ -3498,8 +3498,8 @@ Regola 1:
 ;->                        ·                 ■
 
 La regola 1 è lasciare l'imbuto fisso sopra il bersaglio. Il modello risultante è mostrato nella figura sopra. Il bersaglio (obiettivo) è dove le linee continue si incrociano (0, 0).
-Come si può vedere nella figura, la variazione è un cerchio approssimativo ed è stabile. 
-Sicuramente possiamo fare di meglio! Questo cerchio è troppo grande. 
+Come si può vedere nella figura, la variazione è un cerchio approssimativo ed è stabile.
+Sicuramente possiamo fare di meglio! Questo cerchio è troppo grande.
 Perché non regoliamo semplicemente l'imbuto dopo ogni lancio in modo che il prossimo lancio sia più vicino al bersaglio?
 
 Regola 2:
@@ -3677,7 +3677,7 @@ Funzione che ritorna la parte frazionaria di un numero float:
 Funzione che calcola la fase della luna in un determinato giorno:
 
 ; Calculate the approximate moon's age in days of a particular date
-; This is based on some Basic code by Roger W. Sinnot 
+; This is based on some Basic code by Roger W. Sinnot
 ; from Sky & Telescope magazine, March 1985.
 ; I don't understand it very well :-)
 ; Return the day of the moon (0..29)
@@ -3791,7 +3791,7 @@ Deviazione standard del campione [D2]:
    s = sqrt(----------------------)   [D2]
                    (N - 1)
 
-dove media vale: 
+dove media vale:
 
             ∑x(i)
   media = ---------
@@ -3814,8 +3814,8 @@ Varianza del campione [V2]:
 Perchè esistono due formule? E quale dobbiamo utilizzare?
 
 In pratica, la deviazione standard sintetizza le deviazioni dalla media.
-Tutto dipende da come abbiamo calcolato/stimato della media. 
-Se abbiamo la media effettiva, usiamo la formula della deviazione standard della popolazione [D1] che divide per N. 
+Tutto dipende da come abbiamo calcolato/stimato della media.
+Se abbiamo la media effettiva, usiamo la formula della deviazione standard della popolazione [D1] che divide per N.
 Se avviamo una stima della media, allora è necessario utilizzare la deviazione standard campionaria [D2] che divide per (N - 1).
 In altre parole, se dobbiamo calcolare la deviazione standard di una serie completa di dati, allora dobbiamo usare la formula della deviazione standard della popolazione [D1] (perchè siamo in grado di calcolare la media effettiva).
 Invece se dobbiamo calcolare la deviazione standard di un campione dei dati, allora dobbiamo usare la formula della deviazione standard del campione [D2] (poichè la media che calcoliamo è una stima della media effettiva).
@@ -3982,7 +3982,7 @@ Jensen Device
 -------------
 
 Il dispositivo di Jensen è una tecnica di programmazione ideata dal danese Jørn Jensen dopo aver studiato il rapporto ALGOL 60.
-Il seguente programma è stato proposto per illustrare la tecnica. 
+Il seguente programma è stato proposto per illustrare la tecnica.
 Calcola il centesimo numero armonico (5.18737751763962):
 
 begin
@@ -4173,6 +4173,204 @@ Ognuno degli n partecipanti può essere amico di un numero di persone variabile 
 Nota: nel 2014 è stato dimostrato che in meccanica quantistica il principio dei cassetti può essere violato.
 
 
+----------------------------------
+Principio di inclusione-esclusione
+----------------------------------
+
+Nella teoria degli insiemi, il principio di inclusione-esclusione è un'identità che mette in relazione la cardinalità di un insieme, espresso come unione di insiemi finiti, con le cardinalità delle intersezioni tra questi insiemi.
+Denotiamo |A| la cardinalità di un insieme A e consideriamo una famiglia finita di insiemi finiti: A1,A2,...,An.
+La cardinalità dell'unione di tale famiglia vale:
+
+  | n     |   n        {coppie}     {terne}                          {ennupla}           
+  | ∪ A(i)| = ∑|Ai| - ∑|Ai ∩ Aj| + ∑|Ai ∩ Aj ∩ Ak| - ... +(-1)^(n+1)*|A1 ∩ A2 ∩ ... ∩ An|
+  |i=1    |  i=1    1<=i<j<=n   1<=i<j<k<=n  
+
+oppure in modo equivalente:
+
+  | n     |   n
+  | ∪ A(i)| = ∑(-1)^(i+1) *        ∑ |Ai1 ∩ Ai2 ∩ ... ∩ Ain|
+  |i=1    |  i=1             1<=i1<...<ik<=n
+
+Nel caso n = 2:
+
+  |A ∪ B| = |A| + |B| - |A ∩ B|
+
+Nel caso n = 3:
+
+  |A ∪ B ∪ C| = |A| + |B| + |C| - |A ∩ B| - |A ∩ C| - |B ∩ C| + |A ∩ B ∩ C|
+
+Nel caso n = 4:
+
+  |A ∪ B ∪ C ∪ D| =
+  = |A| + |B| + |C| + |D| ;tutte le singole
+  - |A ∩ B| - |A ∩ C| - |A ∩ D| - |B ∩ C| - |B ∩ D| - |C ∩ D| ;tutte le coppie
+  + |A ∩ B ∩ C| + |A ∩ B ∩ D| + |A ∩ C ∩ D| + |B ∩ C ∩ D| ;tutte le terne
+  - |A ∩ B ∩ C ∩ D| ;tutte le quaterne
+
+Verifichiamo il principio implementando la relativa funzione.
+
+Funzione inclusione-esclusione con 2 liste:
+
+(define (include-exclude2 A B)
+  (- (+ (length A) (length B)) (length (intersect A B))))
+
+Facciamo una prova:
+
+(setq a '(1 2 3 4 5))
+(setq b '(3 4 5))
+(include-exclude2 a b)
+;-> 5
+
+Funzione che effettua l'intersezione di N liste:
+
+(define (intersects)
+  (let (tmp (intersect (args 0)))
+    (doargs (arg)
+      (setq tmp (intersect tmp arg)))
+    tmp))
+
+(setq a1 '(1 2 3 4 5))
+(setq b1 '(4 5))
+(setq c1 '(5 6 7 8))
+
+(intersects a1 b1 c1)
+;-> (5)
+
+La funzione che effettua l'unione di N liste non serve...perchè la primitiva "union" accetta N liste.
+
+(union a1 b1 c1)
+;-> (1 2 3 4 5 6 7 8)
+
+;(define (unions)
+;  (let (tmp '())
+;    (doargs (arg)
+;      (setq tmp (union tmp arg)))
+;    tmp))
+
+;(unions a1 b1 c1)
+;-> (1 2 3 4 5 6 7 8)
+
+Funzione inclusione-esclusione con 3 liste:
+
+(define (include-exclude3 A B C)
+  (+ (length A) (length B) (length C)
+     (- (+ (length (intersect A B))
+           (length (intersect A C))
+           (length (intersect B C))))
+     (length (intersects A B C))))
+
+(include-exclude3 a1 b1 c1)
+;-> 8
+
+Funzione inclusione-esclusione con 4 liste:
+
+(define (include-exclude4 A B C D)
+  (+ (length A) (length B) (length C) (length D)
+     (- (+ (length (intersect A B))
+           (length (intersect A C))
+           (length (intersect A D))
+           (length (intersect B C))
+           (length (intersect B D))
+           (length (intersect C D))))
+     (length (intersects A B C))
+     (length (intersects A B D))
+     (length (intersects A C D))
+     (length (intersects B C D))
+     (- (length (intersects A B C D)))))
+
+Facciamo una prova:
+
+(setq a2 '(1 2 3 4 5 6))
+(setq b2 '(4 5 6 9))
+(setq c2 '(5 6 7 8 10))
+(setq d2 '(5 6 7 8 10 11 12))
+
+(include-exclude4 a2 b2 c2 d2)
+;-> 12
+
+(unions a2 b2 c2 d2)
+;-> (1 2 3 4 5 6 7 8 9 10 11 12)
+
+Tutto in un'unica funzione:
+
+(define (include-exclude)
+  (cond ((= (length (args)) 2)
+          (- (+ (length (args 0)) (length (args 1)))
+          (length (intersect (args 0) (args 1)))))
+        ((= (length (args)) 3)
+          (+ (length (args 0)) (length (args 1)) (length (args 2))
+             (- (+ (length (intersect (args 0) (args 1)))
+                   (length (intersect (args 0) (args 2)))
+                   (length (intersect (args 1) (args 2)))))
+             (length (intersects (args 0) (args 1) (args 2)))))
+        ((= (length (args)) 4)
+          (+ (length (args 0)) (length (args 1)) (length (args 2)) (length (args 3))
+             (- (+ (length (intersect (args 0) (args 1)))
+                   (length (intersect (args 0) (args 2)))
+                   (length (intersect (args 0) (args 3)))
+                   (length (intersect (args 1) (args 2)))
+                   (length (intersect (args 1) (args 3)))
+                   (length (intersect (args 2) (args 3)))))
+             (length (intersects (args 0) (args 1) (args 2)))
+             (length (intersects (args 0) (args 1) (args 3)))
+             (length (intersects (args 0) (args 2) (args 3)))
+             (length (intersects (args 1) (args 2) (args 3)))
+             (- (length (intersects (args 0) (args 1) (args 2) (args 3))))))
+        (true (println "Error:" (args)) nil)
+  )
+)
+
+Verifichiamo i risultati delle funzioni precedenti:
+
+(include-exclude a b)
+;-> 5
+(include-exclude a1 b1 c1)
+;-> 8
+(include-exclude a2 b2 c2 d2)
+;-> 12
+
+Problema
+--------
+In un gruppo di 100 persone, 70 hanno un cane e 50 hanno un gatto.
+Quante persone hanno sia un cane sia un gatto?
+Soluzione
+Indichiamo con A e B i gruppi di possessori di cani e gatti.
+Per ipotesi abbiamo: |A|=70 e |B|=50.
+Per il principio di inclusione-esclusione abbiamo:
+
+  |A ∪ B| = |A| + |B| – |A ∩ B|
+
+Ora |A∪B| non può essere maggiore di 100. Quindi possiamo dedurre:
+
+  100 ≥ 70 + 50 – |A ∩ B|
+
+e quindi:
+
+  |A ∩ B| ≥ 70 + 50 − 100 = 20
+
+In questo caso quindi non siamo in grado di dare una risposta univoca, tuttavia possiamo essere sicuri che ci sono almeno 20 persone che hanno un cane e un gatto.
+
+Complementary counting
+----------------------
+Un’altra tecnica frequente è quella del complementary counting, cioè si vanno a contare tutti i casi non richiesti (il complementare) per poi sottrarli al numero totale di casi. Ad esempio, se volessi conoscere tutte le parole lunghe 5 lettere con almeno una A, possiamo sottrarre il numero di parole che non contengono la A(25^5) al numero totale di parole con 5 lettere (26^5).
+
+Problema
+--------
+Quante parole di 3 lettere non contengono la stessa lettera due volte di seguito?
+Soluzione
+Il numero totale di parole di 3 lettere è pari a 26^3.
+Contiamo in quanti modi le parole hanno almeno due lettere di seguito.
+Potrebbe accadere che le due lettere uguali occupano la prima e seconda posizione, per un totale di 26^2 modi  infatti la prima coppia di lettere la posso scegliere in 26 modi, la terza lettera nuovamente in 26 modi).
+Stesso conto nel caso in cui la coppia di lettere uguali occupano la seconda e terza posizione.
+Invece le parole in cui tutte e 3 le lettere sono uguali sono 26. Dunque la risposta cercata è data da:
+
+  26^3 - 26^2 - 26^2 + 26 = 16250
+
+Principio fondamentale del contare
+----------------------------------
+"Se un evento si può verificare una prima volta in n1 modi diversi, una seconda in n2, una terza in n2, e così via, allora il numero di sequenze di eventi nell’ordine indicato sarà n1*n2*n3*...".
+
+
 ---------------------------------------------
 Fattoriale crescente e fattoriale decrescente
 ---------------------------------------------
@@ -4305,14 +4503,14 @@ cons e push
 
 In newLISP le seguenti espressioni producono lo stesso effetto, cioè aggiungono un elemento x alla lista s:
 
-1) (set 's (cons x) s) 
+1) (set 's (cons x) s)
 2) (push x s)
 
 Verifichiamolo:
 
 (= (let (s '()) (dotimes (i 100) (set 's (cons (sqrt i) s))))
    (let (s '()) (dotimes (i 100) (push (sqrt i) s))))
-;-> true   
+;-> true
 
 Vediamo i tempi di esecuzione delle due espressioni con un numero maggiore di elementi:
 
@@ -4350,25 +4548,25 @@ Un piccolo trucco per "alleggerire" newLISP durante l'avvio.
 ;; Enjoy, Norman
 ;;
 
-(define (default-message) 
+(define (default-message)
   (silent (println "Removed from newLisp, press enter to return!" )))
 
-(dolist (x '( "dump" "cpymem" "!" "exec" "fork" "pipe" "process" "wait-pid" 
-  "close" "command-line" "current-line" "device" "exec" "get-url" "load" "open" 
-  "post-url" "put-url" "read-buffer" "read-char" "read-file" "read-line" "save" 
+(dolist (x '( "dump" "cpymem" "!" "exec" "fork" "pipe" "process" "wait-pid"
+  "close" "command-line" "current-line" "device" "exec" "get-url" "load" "open"
+  "post-url" "put-url" "read-buffer" "read-char" "read-file" "read-line" "save"
   "search" "seek" "write-buffer" "write-char" "write-file" "write-line"
-  "change-dir" "copy-file" "delete-file" "directory" "file-info" "make-dir" 
+  "change-dir" "copy-file" "delete-file" "directory" "file-info" "make-dir"
   "remove-dir" "rename-file" "trace" "putenv" "getenv" "import" "file?" "env"
   "directory?" "net-accept" "net-close" "net-connect" "net-error" "net-listen"
-  "net-local" "net-lookup" "net-peer" "net-peek" "net-receive" 
-  "net-receive-from" "net-receive-udp" "net-select" "net-send" "net-send-to" 
+  "net-local" "net-lookup" "net-peer" "net-peek" "net-receive"
+  "net-receive-from" "net-receive-udp" "net-select" "net-send" "net-send-to"
   "net-send-udp" "net-service" "net-sessions"))
 (constant (symbol x) default-message))
 
 
------------
-Binary dump
------------
+--------
+Hex dump
+--------
 
 Una "vecchia" funzione per fare il dump esadecimale di un file:
 
@@ -4434,6 +4632,27 @@ Una "vecchia" funzione per fare il dump esadecimale di un file:
 ;-> 00000560 - 28 70 72 69 6E 74 6C 6E 20 22 44 6F 6E 65 22 29 (println "Done")
 ;-> 00000576 - 29 0D 0A 0D 0A )....
 ;-> Done
+
+
+----------------------------------------
+Da quanto tempo newLISP è in esecuzione?
+----------------------------------------
+
+A volte è utile vogliamo sapere da quanto tempo stiamo usando la REPL, cioè da quanto tempo newLISP è in esecuzione.
+All'interno di newLISP non è definito alcun contatore per questo valore, ma possiamo crearlo nel modo seguente:
+
+;; newLISP Uptime 
+;; by newdep
+;; 
+(define (uptime?) (- (date-value) sys-uptime))
+;;
+;; syntax (uptime?)
+;; returns time in seconds newlisp is running.
+;; Note: place this in your init.lsp
+;; (constant 'sys-uptime (date-value))
+;; 
+;; example
+;; (uptime?) => 10
 
 =============================================================================
 

@@ -1316,11 +1316,13 @@ NOTE LIBERE 10
   Varianza e deviazione standard, (N-1) oppure N?
   Jensen Device
   Il principio dei cassetti ("pigeonhole principle")
+  Principio di inclusione-esclusione
   Fattoriale crescente e fattoriale decrescente
   Parentesi quadre
   cons e push
   newLISP "leggero"
-  Binary dump
+  Hex dump
+  Da quanto tempo newLISP è in esecuzione?
   
 APPENDICI
 =========
@@ -1345,7 +1347,7 @@ APPENDICI
   Valutazione delle espressioni, Indicizzazione Implicita, Contesti e Funtori di Default (Lutz Mueller)
   Gestione Automatica della Memoria in newLISP (Lutz Mueller)
   Benchmarking newLISP
-  Frasi Famose sulla Programmazione e sul Linguaggio Lisp
+  Frasi sulla Programmazione e sul Linguaggio Lisp
   Prefissi del Sistema Internazionale di unità di misura
   Alfabeto greco
   Codici nazionali (ISO 3166)
