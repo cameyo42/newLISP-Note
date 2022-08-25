@@ -8401,7 +8401,7 @@ I maggiori progressi sono stati compiuti nel marzo 2019 da Harvey e van der Hoev
 Indice di equilibrio
 --------------------
 
-Data una lista trovare, se esiste, un indice tale che la somma della sottolista a sinistra dell'indice è uguale alla somma della sottolista a  destra dell'indice: tale indice viene chiamato "Indice di equilibrio". In formula:
+Data una lista trovare, se esiste, un indice tale che la somma della sottolista a sinistra dell'indice è uguale alla somma della sottolista a destra dell'indice: tale indice viene chiamato "Indice di equilibrio". In formula:
 
   A(0) + A(1) + … + A(i-1) = A(i+1) + A(i+2) + … + A(n-1), dove 0 < i < n-1
 

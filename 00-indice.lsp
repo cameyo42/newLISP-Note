@@ -1323,6 +1323,11 @@ NOTE LIBERE 10
   newLISP "leggero"
   Hex dump
   Da quanto tempo newLISP è in esecuzione?
+  ORO, passaggio per valore e passaggio per riferimento
+  Segmenti sovrapposti
+  Media di numeri "nascosti"
+  Chiavi e lucchetti
+  Golden ratio, SuperGolden ratio e Plastic number
   
 APPENDICI
 =========

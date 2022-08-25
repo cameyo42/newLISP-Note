@@ -4654,5 +4654,299 @@ All'interno di newLISP non è definito alcun contatore per questo valore, ma pos
 ;; example
 ;; (uptime?) => 10
 
+
+-----------------------------------------------------
+ORO, passaggio per valore e passaggio per riferimento
+-----------------------------------------------------
+
+Perché la maggior parte delle funzioni in newlisp passano argomenti per valore?
+
+Question: Why do most newlisp functions pass arguments by value?
+---------
+Answer (by Kazimir Majorinc):
+-----------------------------
+I think that the main reason for that is - ORO. Each object in memory is referenced by only one symbol. If you have function (define (f x) ... ) and it accepts arguments by reference, and you call it with (f y), then y and x both point on the same value. 
+The trick is: think about Newlisp symbols not as variables, but as (generalized) memory addresses in other languages. Just like in other languages, one object in memory cannot be stored in two memory adresses, on the same way, it cannot be stored in two symbols in Newlisp.
+
+Because of that, Newlisp frequently requires one indirection more than other languages (just like assembler does).
+ But Newlisp is powerful enough so we do not notice it at the first moment, but only when we need to pass large objects as arguments - and our experience with other languages (including other Lisps) might be misleading. 
+ And why ORO? There are two other memory management model - manual and garbage collection. Lutz has find some middle ground that allow programmer to do some things without manual memory allocation and deallocation, which is hard on programmer - and without garbage collection - which has its own contra's.
+
+But - for those who really want passing by reference - they can redefine whole Newlisp to do something like:
+
+(set-indirect 'x <expression>) <==> (begin (set 'x 'x-indirection) (set 'x-indirection <expression>))
+
+and then redefine *all* functions in Newlips to accept not only normal arguments, but also the symbols of the form x-indirect and make that indirection.
+
+This is how it can be done:
+
+(define (indirection? ix)
+  (and (symbol? ix)
+       (ends-with (string (eval ix)) "-indirection")))
+
+(dolist (function-name (filter (lambda(x)(primitive? (eval x))) (symbols)))
+  (letex((new-function-name (sym (append (string function-name) "-indirect")))
+         (function-name function-name))
+      (println "Defining " 'new-function-name " using " 'function-name "... ")
+
+      (define (new-function-name)
+           (let ((indirected-vars (filter indirection? (args))))
+           (eval (append (list 'expand (append '(function-name) (args))) (map quote indirected-vars)))))))
+
+(define (set-indirect s1 expr1)
+   (let ((s1-indirection-name (sym (append (string s1) "-indirection"))))
+        (set s1 s1-indirection-name)
+        (set s1-indirection-name expr1)))
+
+;-----------
+
+(set-indirect 'L '(1 2 3 4 5))
+
+(define (my-reverse-and-insert-zeroes z)
+        (reverse-indirect z)
+        (push-indirect 0 z)
+        (push-indirect 0 z -1))
+
+(my-reverse-and-insert-zeroes L)
+(println-indirect "And finally ... " L) ; And finally ... (0 5 4 3 2 1 0)
+
+(set 'M L)
+(my-reverse-and-insert-zeroes M)
+(println-indirect "Where is ORO? " L M) ;Where is ORO? (0 0 1 2 3 4 5 0 0)(0 0 1 2 3 4 5 0 0)
+
+;(exit)
+
+Don't take this code seriously, it is 15 lines written in some half of the hour. It is only proof of the concept, i.e. how Newlisp can be developed in that direction. You can say that one goes through hoops only to achieve what other languages have out of the box, but that kind of flexibility is the essence of Lisp.
+Kazimir Majorinc
+
+
+--------------------
+Segmenti sovrapposti
+--------------------
+
+Dati n segmenti lungo l'asse X determinare quali si sovrappongono.
+Un segmento è rappresentato da una lista che contine la x iniziale e la X fnale, es. (3 5).
+Esempio:
+
+(setq seg '((1 5) (6 7) (4 6) (3 4)))
+  (1 5) si sovrappone con (3 4)
+  (1 5) si sovrappone con (4 6)
+
+Per ogni segmento i, controlla se si sovrappone ai segmenti i+1, i+2, ... n. 
+La complessità temporale di questo metodo è O(n^2).
+
+Funzione che verifica se due intervalli si sovrappongo:
+
+(define (overlap? i1 i2)
+  (and (< (i1 0) (i2 1)) (< (i2 0) (i1 1))))
+
+(overlap? '(1 5) '(3 7))
+;-> true
+(overlap? '(5 6) '(3 7))
+;-> true
+(overlap? '(1 4) '(4 7))
+;-> nil
+
+Funzione che verifica le sovrapposizioni tra segmenti:
+
+(define (check ap)
+  (sort ap)
+  (setq len (length ap))
+  (for (i 0 (- len 2))
+    (for (j (+ i 1) (- len 1))
+      (if (overlap? (ap i) (ap j))
+          (println "overlap: " (ap i) {, } (ap j))))))
+
+Facciamo alcune prove:
+
+(check seg)
+;-> overlap: (1 5), (3 4)
+;-> overlap: (1 5), (4 6)
+
+(setq ap '((1 5) (3 7) (2 6) (10 15) (5 6) (4 10)))
+(check ap)
+;-> overlap: (1 5), (2 6)
+;-> overlap: (1 5), (3 7)
+;-> overlap: (1 5), (4 10)
+;-> overlap: (2 6), (3 7)
+;-> overlap: (2 6), (4 10)
+;-> overlap: (2 6), (5 6)
+;-> overlap: (3 7), (4 10)
+;-> overlap: (3 7), (5 6)
+;-> overlap: (4 10), (5 6)
+
+Nota: i segmenti potrebbero rappresentare degli appuntamenti (ora iniziale, ora finale).
+
+
+--------------------------
+Media di numeri "nascosti"
+--------------------------
+
+Tre programmatori vogliono conoscere la media dei loro stipendi, ma non sono autorizzati a condividere i loro stipendi individuali.
+
+Soluzione
+Suponiamo che gli stipendi siano X, Y e Z.
+1) X aggiunge un numero casuale al suo stipendio e dice la somma a Y.
+    R1 = X + rnd-X
+2) Y aggiunge un numero casuale al suo stipendio alla somma detta da X e dice la nuova somma a Z.
+    R2 = Y + rnd-Y + R1
+3) Z aggiunge un numero casuale al suo stipendio alla somma detta da Y e dice la nuova somma a X.
+    R3 = Z + rnd-Z + R2
+4) X sottrae il suo numero casuale dalla somma detta da Z e comunica il nuovo numero a Y.
+    R4 = R3 - rnd-X
+5) Y sottrae il suo numero casuale dalla somma detta da X e comunica il nuovo numero a Z.
+    R5 = R4 - rnd-Y
+6) Z sottrae il suo numero casuale dalla somma detta da Y e comunica il nuovo numero.
+    R6 = R5 - rnd-Z
+7) Il nuovo numero è ora la somma dei tre stipendi e la media può essere calcolata dividendolo per 3.
+   media = R6/3
+
+Nessuno conosce lo stipendio degli altri, ma tutti conoscono la media.
+Questo metodo può essere esteso anche a più di 3 persone.
+
+(define (media lst)
+  (setq rndX (rand 1000))
+  (setq rndY (rand 1000))
+  (setq rndZ (rand 1000))
+  (set 'X (lst 0) 'Y (lst 1) 'Z (lst 2))
+  (setq R1 (add X rndX))
+  (setq R2 (add Y rndY R1))
+  (setq R3 (add Z rndZ R2))
+  (setq R4 (sub R3 rndX))
+  (setq R5 (sub R4 rndY))
+  (setq R6 (sub R5 rndZ))
+  (div R6 3))
+
+(setq lst '(100 150 110))
+(media lst)
+;-> 120
+
+
+------------------
+Chiavi e lucchetti
+------------------
+
+Dati due contenitori, uno con N chiavi e l'altro con N lucchetti, trovare tutte le coppie chiave-lucchetto che funzionano. Le chiavi e i lucchetti sono in relazione biunivoca (una chiave per ogni lucchetto e viceversa).
+
+Possiamo rappresentare il problema con due liste di caratteri, una che rappresenta le chiavi e una che rappresenta i lucchetti. Le due liste contengono gli stessi caratteri disposti in ordine casuale.
+Il risultato potrebbe essere una lista in cui ogni elemento è una sottolista che contiene il carattere, l'indice del carattere sulla prima lista (chiavi) e l'indice del carattere sulla seconda lista (lucchetti).
+
+Per esempio:
+chiavi = ("q" "f" "z")
+lucchetti = ("f" "z" "q")
+soluzione = (("q" (0) (2)) ("f" (1) (0)) ("z" (2) (1)))
+
+Algoritmo:
+Trovare tutti gli indici delle chiavi e creare una lista ordinata con elementi (chiave indice):
+  (("f" (1)) ("q" (0)) ("z" (2)))
+Trovare tutti gli indici delle chiavi e creare una lista ordinata con elementi (lucchetto indice):
+  (("f" (0)) ("q" (2)) ("z" (1)))
+Creare una lista con i valori uguali di chiave e lucchetto e relativi indici:
+  (("f" (1) (0)) ("q" (0) (2)) ("z" (2) (1)))
+Inoltre controllare se chiavi e lucchetti sono in corrispondenza biunivoca e, in caso negativo, applicare la ricerca esaustiva di ogni lucchetto per ogni chiave.
+
+(define (index-list lst)
+"Create a list of indexes for all the elements of a list"
+  (ref-all nil lst (fn (x) true)))
+
+(define (link chiavi lucchetti)
+  (local (keys locks out)
+    (setq out '())
+    ; controlla se chiavi è lucchetti sono
+    ; in corrispondenza biunivoca
+    (cond ((!= (count chiavi lucchetti) (dup 1 (length chiavi) true))
+            (println "Attenzione: chiavi e lucchetti non corrispondono")
+            (dolist (k chiavi)
+              (if (ref k lucchetti)
+                  (push (list k $idx (ref k lucchetti)) out -1))))
+          (true
+            (setq keys (sort (map list chiavi (index-list chiavi))))
+            (setq locks (sort (map list lucchetti (index-list lucchetti))))
+            (setq out (map (fn(x y) (list (x 0) (x 1) (y 1))) keys locks)))
+    )
+    out))
+
+Facciamo alcune prove:
+
+(setq ch '("$" "%" "!" "/" "#" "@" "&"))
+(setq lu '("%" "$" "@" "&" "#" "!" "/"))
+(link ch lu)
+;-> (("!" (2) (5)) ("#" (4) (4)) ("$" (0) (1)) ("%" (1) (0)) 
+;->  ("&" (6) (3)) ("/" (3) (6)) ("@" (5) (2)))
+
+(setq ch2 '("a" "b" "c"))
+(setq lu2 '("c" "d" "a" "f"))
+(link ch2 lu2)
+;-> Attenzione: chiavi e lucchetti non corrispondono
+;-> (("a" 0 (2)) ("c" 2 (0)))
+
+
+------------------------------------------------
+Golden ratio, SuperGolden ratio e Plastic number
+------------------------------------------------
+
+Golden ratio
+------------
+Due quantità sono in rapporto aureo (golden ratio) se il loro quoziente è uguale al rapporto tra la loro somma e la maggiore delle due quantità.
+Algebricamente, con le due quantità a, b con a > b:
+
+   a + b     a
+  ------- = --- = phi
+     a       b
+
+         1 + sqrt(5)
+  phi = -------------
+             2
+
+che è soluzione dell'equazione: x^2 = x + 1
+
+L'espansione decimale di questo numero vale 1.61803398874989484820...
+
+(define (phi) (div (add 1 (sqrt 5)) 2))
+
+(phi)
+;-> 1.618033988749895
+
+SuperGolden ratio
+-----------------
+Due quantità sono in rapporto super-aureo (supergolden ratio) se il quoziente del numero maggiore diviso per quello minore è uguale a:
+
+                     29 + 3*square(93)            29 - 3*square(93)
+          1 + cubic(-------------------) + cubic(-------------------)
+                             2                            2
+  psi = -------------------------------------------------------------
+                                      3
+
+che è l'unica soluzione reale dell'equazione: x^3 = x^2 + 1.
+
+L'espansione decimale di questo numero vale 1.465571231876768026656731...
+
+(define (cubic x) (pow x (div 3)))
+
+(define (psi)
+  (div (add 1 (cubic (div (add 29 (mul 3 (sqrt 93))) 2))
+              (cubic (div (sub 29 (mul 3 (sqrt 93))) 2)))
+       3))
+
+(psi)
+;-> 1.465571231876768
+
+Plastic number
+--------------
+Il numero plastico "ro" è una costante matematica che è l'unica soluzione reale dell'equazione cubica: x^3 = x + 1.
+
+              9 + square(69)            9 - square(69)
+  ro = cubic(----------------) + cubic(----------------)
+                    18                        18
+
+L'espansione decimale di questo numero vale 1.324717957244746025960908854...
+
+(define (ro)
+  (add (cubic (div (add 9 (sqrt 69)) 18))
+       (cubic (div (sub 9 (sqrt 69)) 18))))
+
+(ro)
+;-> 1.324717957244746
+
 =============================================================================
 
