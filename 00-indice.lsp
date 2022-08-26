@@ -1328,6 +1328,8 @@ NOTE LIBERE 10
   Media di numeri "nascosti"
   Chiavi e lucchetti
   Golden ratio, SuperGolden ratio e Plastic number
+  Costante di Feigenbaum
+  Numeri estetici
   
 APPENDICI
 =========

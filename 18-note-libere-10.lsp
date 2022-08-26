@@ -4948,5 +4948,145 @@ L'espansione decimale di questo numero vale 1.324717957244746025960908854...
 (ro)
 ;-> 1.324717957244746
 
+
+----------------------
+Costante di Feigenbaum
+----------------------
+
+La prima costante di Feigenbaum (le costanti di Feigenbaum sono due) è una costante universale per funzioni che si avvicinano al caos tramite il raddoppio del periodo. Fu scoperta da Feigenbaum nel 1975 mentre studiava il punto fisso della funzioni iterativa:
+
+  f(x) = 1 - u*|x|^r, 
+
+La prima costante di Feigenbaum (le costanti di Feigenbaum sono due), è un numero che esprime il seguente concetto fisico:
+
+"Dato un qualsiasi fenomeno fisico, di qualsiasi natura, il primo numero di Feigenbaum permette di predire quando il caos irromperà nel sistema."
+
+L'espansione decimale di questo numero vale 4.66920160910299067185320382...
+
+Scriviamo una funzione che calcola la prima costante di Feigenbaum:
+
+(define (feigenbaum)
+  (local (maxIt maxItJ a1 a2 d1 a d x y)
+    (setq maxIt 13)
+    (setq maxItJ 10)
+    (setq a1 1.0)
+    (setq a2 0.0)
+    (setq d1 3.2)
+    (for (i 2 maxIt)
+      (setq a (add a1 (div (sub a1 a2) d1)))
+      (for (j 1 maxItJ)
+        (setq x 0.0)
+        (setq y 0.0)
+        (for (k 1 (<< 1 i))
+          (setq y (sub 1.0 (mul 2.0 x y)))
+          (setq x (sub a (mul x x)))
+        )
+        (setq a (sub a (div x y)))
+      )
+      (setq d (div (sub a1 a2) (sub a a1)))
+      (println i { } d)
+      (setq d1 d)
+      (setq a2 a1)
+      (setq a1 a)
+    )
+    'end))
+
+(feigenbaum)
+;-> 2 3.218511422038087
+;-> 3 4.385677598568337
+;-> 4 4.600949276538056
+;-> 5 4.655130495391965
+;-> 6 4.666111947822846
+;-> 7 4.668548581451485
+;-> 8 4.66906066077106
+;-> 9 4.669171554514976
+;-> 10 4.669195154039278
+;-> 11 4.669200256503637
+;-> 12 4.669200975097843
+;-> 13 4.669205372040318
+
+
+---------------
+Numeri estetici
+---------------
+
+Un numero estetico è un numero intero positivo in cui ogni cifra adiacente differisce di 1 dalla sua vicina.
+Per esempio:
+- 12 è un numero estetico. 1 e 2 differiscono di 1.
+- 5654 è un numero estetico. Ogni cifra è esattamente a 1 distanza dal suo vicino.
+- 890 non è un numero estetico. 9 e 0 differiscono di 9.
+
+(define (uabs a b)
+  (if (> a b)
+      (- a b)
+      (- b a)))
+
+Funzione che verifica se un numero è estetico:
+
+(define (estetico? num)
+  (local (out i j)
+    (setq out true)
+    (setq i (% num 10))
+    (setq num (/ num 10))
+    (while (and (> num 0) out)
+      (setq j (% num 10))
+      (if (!= (uabs i j) 1) (setq out nil))
+      (setq num (/ num 10))
+      (setq i j)
+    )
+    out))
+
+(estetico? 12)
+;-> true
+(estetico? 5654)
+;-> true
+(estetico? 890)
+;-> nil
+(estetico? 9876543210)
+;-> true
+(estetico? 98765432109)
+;-> nil
+
+Sequenza OEIS: A033075
+  1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 21, 23, 32, 34, 43, 45, 54, 56, 65,
+  67, 76, 78, 87, 89, 98, 101, 121, 123, 210, 212, 232, 234, 321, 323,
+  343, 345, 432, 434, 454, 456, 543, 545, 565, 567, 654, 656, 676, 678,
+  765, 767, 787, 789, 876, ...
+
+Funzione che calcola i numeri estetici in un intervallo di numeri:
+
+(define (estetici start end)
+  (let (out '())
+    (for (i start end)
+      (if (estetico? i) (push i out -1))
+    )
+    out))
+
+(estetici 1 1000)
+;-> (1 2 3 4 5 6 7 8 9 10 12 21 23 32 34 43 45 54 56 65 67 76 78 87 89
+;->  98 101 121 123 210 212 232 234 321 323 343 345 432 434 454 456
+;->  543 545 565 567 654 656 676 678 765 767 787 789 876 878 898 987 989)
+
+(time (println (estetici 1e8 1.3e8)))
+;-> (101010101 101010121 101010123 101012101 101012121 101012123 101012321
+;->  101012323 101012343 101012345 101210101 101210121 101210123 101212101
+;->  101212121 101212123 101212321 101212323 101212343 101212345 101232101
+;->  101232121 101232123 101232321 101232323 101232343 101232345 101234321
+;->  101234323 101234343 101234345 101234543 101234545 101234565 101234567
+;->  121010101 121010121 121010123 121012101 121012121 121012123 121012321
+;->  121012323 121012343 121012345 121210101 121210121 121210123 121212101
+;->  121212121 121212123 121212321 121212323 121212343 121212345 121232101
+;->  121232121 121232123 121232321 121232323 121232343 121232345 121234321
+;->  121234323 121234343 121234345 121234543 121234545 121234565 121234567
+;->  123210101 123210121 123210123 123212101 123212121 123212123 123212321
+;->  123212323 123212343 123212345 123232101 123232121 123232123 123232321
+;->  123232323 123232343 123232345 123234321 123234323 123234343 123234345
+;->  123234543 123234545 123234565 123234567 123432101 123432121 123432123
+;->  123432321 123432323 123432343 123432345 123434321 123434323 123434343
+;->  123434345 123434543 123434545 123434565 123434567 123454321 123454323
+;->  123454343 123454345 123454543 123454545 123454565 123454567 123456543
+;->  123456545 123456565 123456567 123456765 123456767 123456787 123456789)
+;-> 21134.084 ; 21 secondi circa
+
 =============================================================================
 
