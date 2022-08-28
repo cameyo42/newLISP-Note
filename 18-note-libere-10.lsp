@@ -5088,5 +5088,213 @@ Funzione che calcola i numeri estetici in un intervallo di numeri:
 ;->  123456545 123456565 123456567 123456765 123456767 123456787 123456789)
 ;-> 21134.084 ; 21 secondi circa
 
+
+-------------------
+Colore dei cappelli
+-------------------
+
+Ci sono 10 persone in fila, una dietro l'altra.
+Ognuno indossa un cappello, che può essere bianco o nero.
+Ci può essere un numero qualsiasi di cappelli bianchi o neri tra 0 e 10.
+Ogni persona può vedere il cappello di tutte le persone davanti a sé nella fila, ma non quelli delle persone dietro.
+Ogni persona (partendo dall'ultimo della fila) è tenuta a indovinare (ad alta voce) il colore del proprio cappello.
+L'obiettivo è quello di ottenere il maggior numero possibile di ipotesi corrette.
+Il gruppo può discutere e formulare una strategia prima della prova.
+Trovare una strategia (la migliore se possibile).
+Qual è il numero di ipotesi corrette con la strategia trovata?
+
+Soluzione:
+L'ultimo in coda, dietro a tutti, conta il numero di cappelli bianchi in testa alle 9 persone presenti davanti a lui. 
+Se questo numero è pari, (ad alta voce) indovina il cappello in testa come "Nero". 
+Se il numero è dispari, indovina come "Bianco". 
+La probabilità che il cappello in testa sia quello che ha indovinato è del 50%. 
+Non c'è modo che questa persona possa indovinare correttamente il cappello in testa. 
+Tuttavia, la sua ipotesi funziona come un messaggio per tutti gli altri di fronte a lui.
+
+Supponiamo che la decima persona indovini "Nero". Ora, la persona che è nona in coda sa che il numero di cappelli bianchi sulle prime 9 persone (le 8 persone davanti a lui e se stesso) è pari. 
+Quindi controlla se il numero di cappelli bianchi davanti a lui è pari o dispari. 
+Se il numero è pari, significa che il cappello in testa è nero. 
+Se il numero è dispari, significa che il cappello sulla sua testa è bianco e quindi indovina il suo cappello.
+Pertanto, la nona persona nella coda indovina sempre correttamente, in base al messaggio trasmesso dalla decima persona.
+
+Una strategia simile è seguita da ogni persona che segue nella fila. 
+Pertanto, tutti tranne l'ultima (decima) persona indovinano di sicuro.
+
+Questa strategia permette di indovinare il colore di 9 cappelli al 100% e il colore di 1 cappello al 50% (quello della decima persona della fila).
+
+
+----------------------------------------
+push all'inizio o alla fine della lista?
+----------------------------------------
+
+newLISP permette di inserire un elemento all'inizio o alla fine di una lista:
+
+(setq lst '(a b c))
+
+inserimento all'inizio:
+(push "inizio" lst)
+;-> ("inizio" a b c)
+
+inserimento alla fine:
+(push "fine" lst -1)
+;-> ("inizio" a b c "fine")
+
+Per capire quale metodo è più efficace vediamo un post di Sammo sul forum di newLISP:
+
+---------------------
+Sammo:
+It seems that pushing those character indices onto the end of lists gets very, very expensive when the lists get large. The following uncommented solution (I hope you can read it) was running as slowly as yours (or even more slowly) until I tried pushing onto the front of the lists -- that is, (push value list-of-stacks stack-index 0) instead of (push value list-of-stacks stack-index -1). When I made this change, I can index the newlisp_manual.html file (455KB) in about 8 seconds -- including writing the resulting 3.2MB file to the disk.
+
+;(set 'time-begin (time-of-day))
+(define (test1)
+  (set 'infile "c:/newlisp/newlisp_manual.html")
+  (set 'outfile "c:/newlisp/test-coords.txt")
+  (set 'orig (explode (read-file infile)))
+  (set 'indiv (unique orig))
+  (set 'coord (dup '() (length indiv)))
+  (set 'ilist (map (fn (x) (find x indiv)) orig))
+  (set 'x -1)
+  (dolist (i ilist) (push (inc 'x) coord i 0))
+  (save outfile 'indiv 'coord)
+)
+;(println (- (time-of-day) time-begin))
+(time (test1))
+;-> 2640.59
+
+Pushing the character indicies onto the front of the lists is okay and doesn't need correcting later on. The only thing that matters is that each character's index get pushed onto the correct stack.
+
+If you really want the indicies in ascending order in each stack, the following one-line modification to the above does the trick:
+
+(define (test2)
+  (set 'infile "c:/newlisp/newlisp_manual.html")
+  (set 'outfile "c:/newlisp/test-coords.txt")
+  (set 'orig (explode (read-file infile)))
+  (set 'indiv (unique orig))
+  (set 'coord (dup '() (length indiv)))
+  (set 'ilist (map (fn (x) (find x indiv)) orig))
+  (set 'x -1)
+  (dolist (i ilist) (push (inc 'x) coord i 0))
+  (set 'coord (map reverse coord))
+  (save outfile 'indiv 'coord)
+)
+
+(time (test2))
+;-> 2209.525
+
+(define (tilt) (throw-error "newLISP reset"))
+(tilt)
+On a big file (e.g., newlisp_manual.html), reversing the stacks after populating them took about six percent more time on my WIN2K 1.4GHz laptop.
+
+A couple of more trial runs suggests that this scales pretty well.
+
+62KB file --> 0.75 seconds
+445KB file --> 8.5 seconds
+1.17MB file --> 20.8 seconds
+Sammo
+---------------------
+---------------------
+Lutz:
+Sammo's solution seems to be the best, but there is one other potential bottle neck in:
+
+(set 'ilist (map (fn (x) (find x indiv)) orig))
+
+which is the: (find x indiv)
+
+It doesn't matter in Norman's task because 'indiv' is such a short list. But imagine you deal with an 'indiv' with thousands of members.
+
+This is where newLISP arrays come in handy:
+
+; old code
+; (set 'ilist (map (fn (x) (find x indiv)) orig))
+
+; new code
+(set 'ivec (array 256))
+(set 'pos -1)
+(dolist (i indiv) (nth-set (char i) ivec (inc 'pos)))
+
+(set 'ilist (map (fn (x) (nth (char x) ivec)) orig))
+
+This builds an array vector where each character is at the position of its value. So at "A" index 65 you have the index position of "A" in indiv.
+
+Now the sequential (find x indiv) is replaced with (nth (char x) ivec) which does random access.
+
+This method worth doing it in situations with very long indexing vectors.
+Lutz
+---------------------
+---------------------
+Norman:
+Should I use 'index above 'find or always switch to 'array's when it comes
+to performance and what will 'map do on performace ?
+Norman
+---------------------
+---------------------
+Lutz:
+'map' is pretty good performance wise, becusae it goes sequentially thru the list one by one, so 'map' will always scale well. The problem with 'find' is that it searches sequentially, so if the list is very long it becomes an issue.
+
+I would use 'index' only if you are really interested to get various positions back in a list. But that was not the case in your riddle, because every letter occured only once in the individual vector and 'find' returns as soon as it found one. 'index' keeps on searching hoping to find more until the end of the list.
+
+The array versus list issue is difficult to decide. In your riddle it did not make a real difference and Sam's pure list code was much shorter. I always start coding as a list and only goto arrays when time seems to get a problem. As a thumb rule I would say when the list doesn't exceed a few hundred elements its not worth thinking about arrays. But then again in an individual case things may be different.
+
+Lists are very good when going thru it sequentially (like map), but as soon as you have to jump around in it randomly it can get a problem.
+
+When you are using 'nth-set' or 'set-nth' be also aware of the difference between the two. 'nth-set' is much faster becuase it doesn't need to return the whole list or array.
+Lutz
+
+
+---------------
+Funzione "itoa"
+---------------
+
+La funzione "itoa" converte un intero (anche negativo) in una stringa (null terminated). La definizione standard della funzione itoa è la seguente:
+
+  char* itoa(int num, char* buffer, int base)
+
+Il parametro "base" specifica la base di conversione.
+Se la base è 10 e il valore è negativo, allora la stringa risultante è preceduta da un segno meno (-). Con qualsiasi altra base, il valore è sempre considerato senza segno (unsigned).
+
+Scriviamo la funzione:
+
+(define (itoa num base)
+  (local (str negative rem)
+    (setq str "")
+    (setq negative nil)
+    (if (< num 0)
+      (begin
+        (setq negative true)
+        (setq num (- num)))
+    )
+    (cond ((zero? num) (setq str "0"))
+          (true
+            (while (!= num 0)
+              (setq rem (% num base))
+              (if (> rem 9)
+                  (push (char (+ 97 (- rem 10))) str)
+                  (push (char (+ 48 rem)) str)
+              )
+              (setq num (/ num base))
+            ))
+    )
+    (if negative (push "-" str))
+    str))
+
+Facciamo alcune prove:
+
+(itoa 1567 10)
+;-> "1567"
+(itoa -1567 10)
+;-> "-1567"
+(itoa -1567 16)
+;-> -61f
+(itoa 1567 2)
+;-> 11000011111
+(itoa -1567 8)
+;-> -3037
+(itoa 7a1 10)
+;-> ERR: value expected in function % : base
+;-> called from user function (itoa 7 a1 10)
+(itoa abc 10)
+;-> ERR: value expected in function - : nil
+;-> called from user function (itoa abc 10)
+
 =============================================================================
 

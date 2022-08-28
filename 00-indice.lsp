@@ -1330,6 +1330,9 @@ NOTE LIBERE 10
   Golden ratio, SuperGolden ratio e Plastic number
   Costante di Feigenbaum
   Numeri estetici
+  Colore dei cappelli
+  push all'inizio o alla fine della lista?
+  Funzione "itoa"
   
 APPENDICI
 =========
