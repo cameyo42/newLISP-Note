@@ -1333,6 +1333,10 @@ NOTE LIBERE 10
   Colore dei cappelli
   push all'inizio o alla fine della lista?
   Funzione "itoa"
+  Medie statistiche
+  Numeri duffiniani (Duffinian)
+  Numeri equidigitali
+  Costante di Eulero-Mascheroni 0.5772156649...
   
 APPENDICI
 =========

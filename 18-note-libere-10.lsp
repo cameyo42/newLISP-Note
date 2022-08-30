@@ -5229,7 +5229,7 @@ Norman
 ---------------------
 ---------------------
 Lutz:
-'map' is pretty good performance wise, becusae it goes sequentially thru the list one by one, so 'map' will always scale well. The problem with 'find' is that it searches sequentially, so if the list is very long it becomes an issue.
+'map' is pretty good performance wise, because it goes sequentially thru the list one by one, so 'map' will always scale well. The problem with 'find' is that it searches sequentially, so if the list is very long it becomes an issue.
 
 I would use 'index' only if you are really interested to get various positions back in a list. But that was not the case in your riddle, because every letter occured only once in the individual vector and 'find' returns as soon as it found one. 'index' keeps on searching hoping to find more until the end of the list.
 
@@ -5296,5 +5296,534 @@ Facciamo alcune prove:
 ;-> ERR: value expected in function - : nil
 ;-> called from user function (itoa abc 10)
 
+
+-----------------
+Medie statistiche
+-----------------
+
+Funzioni per il calcolo di varie medie statistiche di una lista di numeri.
+
+  L = (x1, x2,..., xn)
+
+(setq st '(1 2 4 2 1 6 7 8 4 5 6 8 9 2 3 4 5 6 3 2 6 5 7 2 7 2 8 5 2 3))
+
+Media Aritmetica
+----------------
+
+                      x1 + x2 +...+ xn
+  Media-Aritmetica = ------------------
+                             n
+
+(define (media-aritmetica lst)
+  (div (apply add lst) (length lst)))
+
+(media-aritmetica st)
+;-> 4.5
+(media-aritmetica '(0 0 3 1 4 1 5 9 0 0))
+;-> 2.3
+(media-aritmetica (sequence 1 10))
+;-> 5.5
+
+Media Geometrica
+----------------
+
+  Media-Geometrica = nth-root(x1*x2*...*xn)
+
+(define (media-geometrica lst)
+  (pow (apply mul lst) (div (length lst))))
+
+(media-geometrica st)
+;-> 3.81711148049494
+(media-geometrica '(0 0 3 1 4 1 5 9 0 0))
+;-> 0
+(media-geometrica (sequence 1 10))
+;-> 4.528728688116765
+
+Media Armonica
+--------------
+
+                              n
+  Media-Armonica = -------------------------
+                    (1/x1 + 1/x2 +...+ 1/n)
+
+(define (media-armonica lst)
+  (let (sum-rec 0)
+    (dolist (x lst)
+      (setq sum-rec (add sum-rec (div x)))
+    )
+    (div (length lst) sum-rec)))
+
+(media-armonica st)
+;-> 3.114828396028181
+(media-armonica '(0 0 3 1 4 1 5 9 0 0))
+;-> 0
+(media-armonica (sequence 1 10))
+;-> 3.414171521474055
+
+Radice quadrata media
+---------------------
+La radice quadrata media (RMS Root Mean Square) è la radice quadrata della media aritmetica dei quadrati dei numeri.
+
+                                x1^2 + x2^2 +...+ xn^2
+  Radice-Quadrata-Media = sqrt(------------------------)
+                                          n
+
+(define (rms lst)
+  (sqrt(div (apply add (map (fn(x) (mul x x)) lst)) (length lst))))
+
+(rms st)
+;-> 5.062937223917884
+(rms '(0 0 3 1 4 1 5 9 0 0))
+;-> 3.646916505762094
+(rms (sequence 1 10))
+;-> 6.204836822995429
+
+Mediana
+-------
+La mediana di una lista finita di numeri è il numero che si trova "in mezzo ", quando i numeri sono ordinati dal più piccolo al più grande (ordine crescente).
+
+             x[(n+1)/2],                 se n è pari
+  Mediana =
+             (x[(n/2)] + x[(n/2+1)])/2,  se n è dispari
+
+(define (mediana lst)
+  (let (mid (/ (length lst) 2))
+    (sort lst)
+    (if (even? (length lst))
+        (div (add (lst mid) (lst (- mid 1))) 2)
+        ;else
+        (lst mid))))
+
+(mediana st)
+;-> 4.5
+(mediana '(0 0 3 1 4 1 5 9 0 0))
+;-> 1
+(mediana (sequence 1 10))
+;-> 5.5
+(mediana '(4.1 5.6 7.2 1.7 9.3 4.4 3.2))
+;-> 4.4
+(mediana '(4.1 7.2 1.7 9.3 4.4 3.2))
+;-> 4.25
+
+Moda
+----
+La moda è il valore/numero che appare più spesso nella lista di numeri.
+
+(define (moda lst)
+  (letn ((uniq (unique lst))
+        (conta (count uniq lst)))
+    (uniq (find (apply max conta) conta))))
+
+(moda st)
+;-> 2
+(moda '(0 0 3 1 4 1 5 9 0 0))
+;-> 0
+(moda (sequence 1 10))
+;-> 1
+(moda '(4.1 5.6 7.2 1.7 9.3 4.4 3.2))
+;-> 4.1
+(moda '(4.1 7.2 1.7 9.3 4.4 3.2 7.2))
+;-> 7.2
+
+Nota: potremmo scrivere la funzione "moda" utilizzando una hash-map per renderla più veloce.
+
+Conteggio
+---------
+La funzione "conteggio" restituisce una lista ordinata di coppie che hanno la seguente struttura:
+
+- (val(i) (conta(i)), se il parametro "ordered" vale nil
+  in questo caso la lista è ordinata per valori crescenti di val(i))
+
+- (conta(i) val(i)), se il parametro "ordered" vale true
+  in questo caso la lista è ordinata per valori crescenti di conta(i))
+
+dove: val(i) è il valore dell'i-esimo numero
+      conta(i) è il numero di occorrenze dell'i-esimo numero
+
+(define (conteggio lst ordered)
+  (local (uniq conta out)
+    (setq uniq (unique lst))
+    (setq conta (count uniq lst))
+    (if ordered
+      (sort (map list conta uniq))
+      (sort (map list uniq conta)))))
+
+(conteggio '(3 1 1 1 1 0 0 1 1 4 1 1 2 2 3))
+;-> ((0 2) (1 8) (2 2) (3 2) (4 1))
+(conteggio '(3 1 1 1 1 0 0 1 1 4 1 1 2 2 3) true)
+;-> ((1 4) (2 0) (2 2) (2 3) (8 1))
+
+(conteggio st)
+;-> ((1 2) (2 7) (3 3) (4 3) (5 4) (6 4) (7 3) (8 3) (9 1))
+(conteggio st true)
+;-> ((1 9) (2 1) (3 3) (3 4) (3 7) (3 8) (4 5) (4 6) (7 2))
+
+
+-----------------------------
+Numeri duffiniani (Duffinian)
+-----------------------------
+
+Un numero duffiniano è un numero composto n che è relativamente primo a sigma(n).
+Il sigma(n) è la somma di tutti i divisori di n.
+
+Esempio: 161 è un numero duffiniano perchè è composito (7 × 23) e sigma(n) = 192 (1 + 7 + 23 + 161) è relativamente primo a 161.
+
+I numeri duffiniani sono molto comuni.
+Non è raro che due interi consecutivi siano duffiniani (un gemello duffiniano): (8, 9), (35, 36), (49, 50), ecc.
+Meno comuni sono le terne duffinane (tre numeri duffiniani consecutivi: (63, 64, 65), (323, 324, 325), ecc.
+Molto, molto meno comuni sono le quadruple e le quintuple duffiniane.
+La prima quintupla duffiniana è (202605639573839041, 202605639573839042, 202605639573839043, 202605639573839044, 202605639573839045).
+Non è possibile avere sei numeri duffiniani consecutivi.
+
+Sequenza OEIS: A003624
+  4, 8, 9, 16, 21, 25, 27, 32, 35, 36, 39, 49, 50, 55, 57, 63, 64, 65,
+  75, 77, 81, 85, 93, 98, 100, 111, 115, 119, 121, 125, 128, 129, 133,
+  143, 144, 155, 161, 169, 171, 175, 183, 185, 187, 189, 201, 203, 205,
+  209, 215, 217, 219, 221, 225, 235, 237, 242, 243, 245, 247, ...
+
+(define (factor-group num)
+"Factorize an integer number"
+  (if (< num 2) nil
+      (letn ((out '()) (lst (factor num)) (cur-val (first lst)) (cur-count 0))
+        (dolist (el lst)
+          (if (= el cur-val) (++ cur-count)
+              (begin
+                (push (list cur-val cur-count) out -1)
+                (setq cur-count 1 cur-val el))))
+        (push (list cur-val cur-count) out -1))))
+
+(define (divisors-sum num)
+"Sum all the divisors of integer number"
+  (local (sum out)
+    (if (= num 1)
+        1
+        (begin
+          (setq out 1)
+          (setq lst (factor-group num))
+          (dolist (el lst)
+            (setq sum 0)
+            (for (i 0 (last el))
+              (setq sum (+ sum (pow (first el) i)))
+            )
+            (setq out (* out sum)))))))
+
+Funzione che verifica se un numero è duffiniano:
+
+(define (duffinian? num)
+  ; calcola la somma di tutti i divisori del numero
+  (let (sumdiv (divisors-sum num))
+        ; se il numero è primo non è duffinian
+    (if (= sumdiv (+ num 1))
+        nil
+        ; else
+        ; se num e sumdiv sono relativamente primi tra loro (coprimi),
+        ; allora il numero è Duffinian
+        (= (gcd num sumdiv) 1))))
+
+(duffinian? 161)
+;-> true
+
+(filter duffinian? (sequence 2 100))
+;-> (4 8 9 16 21 25 27 32 35 36 39 49 50 55 57 63 64 65 75 77 81 85 93 98 100)
+
+(map duffinian? (sequence 2 100))
+;-> (nil nil true nil nil nil true true nil nil nil nil nil nil true nil
+;->  nil nil nil true nil nil nil true nil true nil nil nil nil true nil
+;->  nil true true nil nil true nil nil nil nil nil nil nil nil nil true
+;->  true nil nil nil nil true nil true nil nil nil nil nil true true
+;->  true nil nil nil nil nil nil nil nil nil true nil true nil nil nil
+;->  true nil nil nil true nil nil nil nil nil nil nil true nil nil nil
+;->  nil true nil true)
+
+(time (filter duffinian? (sequence 1 100000)))
+;-> 277.258
+(time (map duffinian? (sequence 1 100000)))
+;-> 257.34
+
+Funzione che calcola le coppie di numeri consecutivi duffiniani fino ad un dato numero:
+
+(define (duffi-pair limit)
+  (local (out duff-curr duff-next)
+    (setq out '())
+    ; (duffinian? 2) is nil
+    (setq duff-curr nil)
+    (for (i 2 limit)
+      (setq duff-next (duffinian? (+ i 1)))
+      (if (and duff-curr duff-next)
+          (push (list i (+ i 1)) out -1)
+      )
+      ; aggiorna il valore del numero da considerare
+      ; per la prossima iterazione
+      (setq duff-curr duff-next)
+    )
+    out))
+
+(duffi-pair 100)
+;-> ((8 9) (35 36) (49 50) (63 64) (64 65))
+
+(length (duffi-pair 1e6))
+;-> 713
+(time (duffi-pair 1e6))
+;-> 3088.713
+
+Funzione che calcola le triple di numeri consecutivi duffiniani fino ad un dato numero:
+
+(define (duffi-triplet limit)
+  (local (out duff-prev duff-curr duff-next)
+    (setq out '())
+    ; (duffinian? 2) is nil
+    (setq duff-prev nil)
+    ; (duffinian? 3) is nil
+    (setq duff-curr nil)
+    (for (i 3 limit)
+      (setq duff-next (duffinian? (+ i 1)))
+      (if (and duff-prev duff-curr duff-next)
+          (push (list (- i 1) i (+ i 1)) out -1)
+      )
+      ; aggiorna i valori dei numeri da considerare
+      ; per la prossima iterazione
+      (setq duff-prev duff-curr)
+      (setq duff-curr duff-next)
+    )
+    out))
+
+(duffi-triplet 100)
+;-> ((63 64 65))
+
+(length (duffi-triplet 1e6))
+;-> 131
+(time (duffi-triplet 1e6))
+;-> 3110.684
+
+(duffi-triplet 10000)
+;-> ((63 64 65) (323 324 325) (511 512 513) (721 722 723) (899 900 901)
+;->  (1443 1444 1445) (2303 2304 2305) (2449 2450 2451) (3599 3600 3601)
+;->  (3871 3872 3873) (5183 5184 5185) (5617 5618 5619) (6049 6050 6051)
+;->  (6399 6400 6401) (8449 8450 8451))
+
+Funzione che calcola le quadruple di numeri consecutivi duffiniani fino ad un dato numero:
+
+(define (duffi-quadruplet limit)
+  (local (out d1 d2 d3 d4 )
+    (setq out '())
+    ; (duffinian? 2) is nil
+    (setq d1 nil)
+    ; (duffinian? 3) is nil
+    (setq d2 nil)
+    ; (duffinian? 4) is true
+    (setq d3 true)
+    (for (i 4 limit)
+      (setq d4 (duffinian? (+ i 1)))
+      (if (and d1 d2 d3 d4)
+          (push (list (- i 2) (- i 1) i (+ i 1)) out -1)
+      )
+      ; aggiorna i valori dei numeri da considerare
+      ; per la prossima iterazione
+      (setq d1 d2)
+      (setq d2 d3)
+      (setq d3 d4)
+    )
+    out))
+
+(time (println (duffi-quadruplet 1e8)))
+;-> ()
+;-> 673358.296
+
+FIno a 100 milioni (1e8 non esistono quadruple duffiniane. Cerchiamo ancora:
+
+(define (duffi-quadruplets start end)
+  (local (out d1 d2 d3 d4)
+    (setq out '())
+    (setq d1 (duffinian? (- start 2)))
+    (setq d2 (duffinian? (- start 1)))
+    (setq d3 (duffinian? start))
+    (for (i start end)
+      (setq d4 (duffinian? (+ i 1)))
+      (if (and d1 d2 d3 d4)
+        (begin
+          (push (list (- i 2) (- i 1) i (+ i 1)) out -1)
+          (println (list (- i 2) (- i 1) i (+ i 1))))
+      )
+      ; aggiorna i valori dei numeri da considerare
+      ; per la prossima iterazione
+      (setq d1 d2)
+      (setq d2 d3)
+      (setq d3 d4)
+    )
+    out))
+
+(time (println (duffi-quadruplets 1e8 1e9)))
+;-> ()
+;-> 12853470.987 circa 214 minuti
+
+Questo algoritmo non è adatto per trovare quadruple duffiniane.
+
+
+-------------------
+Numeri equidigitali
+-------------------
+
+Un numero n si dice equidigitale se il numero di cifre nella fattorizzazione di n (incluse le potenze) è uguale al numero di cifre in n. 
+Ad esempio 16 è un numero equidigitale poiché la sua fattorizzazione primi è 2^4 e la sua fattorizzazione primi ha un totale di due cifre (2 e 4) che è uguale al numero di cifre di 16. 
+Come altro esempio, 128 non è un equidigitale, infatti la sua fattorizzazione vale è 2^7 e ha un totale di 2 cifre (2 e 7), ma il numero ha 3 cifre. 
+Tutti i numeri primi sono equidigitali. 
+
+Sequenza OEIS: A046758
+  1, 2, 3, 5, 7, 10, 11, 13, 14, 15, 16, 17, 19, 21, 23, 25, 27, 29, 31,
+  32, 35, 37, 41, 43, 47, 49, 53, 59, 61, 64, 67, 71, 73, 79, 81, 83, 89,
+  97, 101, 103, 105, 106, 107, 109, 111, 112, 113, 115, 118, 119, 121, 
+  122, 123, 127, 129, 131, 133, 134, 135, 137, 139, ...
+
+(define (equidigital? num)
+  ; 1 è equidigitale
+  (if (= num 1) true
+      (letn ((out '()) (lst (factor num)) (cur-val (first lst)) (cur-count 0))
+        (cond ((= (length lst) 1) true)
+              (true
+                ; raggruppa i fattori di (factor num)
+                ; es. (factor 153) --> (3 3 17)
+                ; (3 3 17) --> ((3 2) (17))
+                (dolist (el lst)
+                  (if (= el cur-val) (++ cur-count)
+                      (begin
+                        (if (= 1 cur-count)
+                            (push (list cur-val) out -1)
+                            (push (list cur-val cur-count) out -1)
+                        )
+                        (setq cur-count 1 cur-val el))
+                   )
+                )
+                (if (= 1 cur-count)
+                    (push (list cur-val) out -1)
+                    (push (list cur-val cur-count) out -1)
+                )
+                ; test numero equidigitale
+                (= (length num) (apply + (map length (flat out)))))
+         )
+       )
+  )
+)
+
+(filter equidigital? (sequence 1 140))
+;-> (1 2 3 5 7 10 11 13 14 15 16 17 19 21 23 25 27 29 31 32 35 37 41 43 47
+;->  49 53 59 61 64 67 71 73 79 81 83 89 97 101 103 105 106 107 109 111 112
+;->  113 115 118 119 121 122 123 127 129 131 133 134 135 137 139)
+
+
+---------------------------------------------
+Costante di Eulero-Mascheroni 0.5772156649...
+---------------------------------------------
+
+Scoperta da Leonhard Euler intorno al 1730, è la costante matematica più onnipresente dopo pi ed e, ma appare più arcana di queste.
+
+Viene chiamata gamma e misura quanto le somme parziali della serie armonica (la più semplice serie divergente) differiscono dalla funzione logaritmica (il suo integrale approssimativo):
+
+  lim[1 + 1/2 + 1/3 + ... + 1/n − log(n)] = lim[Hn - log(n)]
+ n → ∞                                      n → ∞
+
+La costante gamma vale:
+
+ 0.57721 56649 01532 86060 65120 90082 40243 10421 59335 93992 35988...
+
+La definizione di gamma converge troppo lentamente per essere numericamente utile, ma nel 1735 Eulero applicò la sua formula di somma recentemente scoperta per calcolare gamma con una precisione di 15 cifre.
+Per un'implementazione a precisione singola questo è ancora l'algoritmo più economico.
+
+Vediamo tre metodi per calcolare gamma in singola precisione.
+
+Metodo 1
+--------
+
+(define (eu01)
+  (local (n h a)
+    (println "From the definition, err. 3e-10")
+    (setq n 400)
+    (setq h 1)
+    (for (k 2 n)
+      (setq h (add h (div k)))
+    )
+    ; faster convergence: Negoi, 1997
+    (setq a (log (add n 0.5 (div (mul 24 n)))))
+    (println "Hn = " h)
+    (println "gamma = " (sub h a))
+    (println "k = " n)))
+
+(eu01)
+;-> From the definition, err. 3e-10
+;-> Hn = 6.569929691176506
+;-> gamma = 0.5772156645765731
+;-> k = 400
+
+Metodo 2
+--------
+
+(define (eu02)
+  (local (n a b h n2 r k eps)
+    (println "Bailey, 1988");
+    (setq eps 1e-6)
+    (setq n 5)
+    (setq a 1)
+    (setq h 1)
+    (setq n2 (pow 2 n))
+    (setq r 1)
+    (setq k 1)
+    (do-while (> (abs (sub b a)) eps)
+      (++ k)
+      (setq r (mul r (div n2 k)))
+      (setq h (add h (div k)))
+      (setq b a)
+      (setq a (add a (mul r h)))
+    )
+    (setq a (mul a (div n2 (exp n2))))
+    (println "gamma = " (sub a (mul n (log 2))))
+    (println "k = " k)))
+
+(eu02)
+;-> Bailey, 1988
+;-> gamma = 0.5772156649015341
+;-> k = 89
+
+
+Metodo 3
+--------
+
+(define (eu03)
+  (local (B2 m n h a n2 r)
+  (println "How Euler did it in 1735")
+  ; Bernoulli numbers with even indices
+  (setq B2 (list 1.0 (div 6) (div -1 30) (div 42) (div -1 30)
+                 (div 5 66) (div -691 2730) (div 7 6)
+                 (div -3617 510) (div 43867 798)))
+  (setq m 7)
+  (if (> m 9) (println "ERROR"))
+  (setq n 10)
+  ; n-th harmonic number
+  (setq h 1)
+  (for (k 2 n)
+    (setq h (add h (div k)))
+  )
+  (println "Hn = " h)
+  (setq h (sub h (log n)))
+  (println "ln = " h)
+  ; expansion C = -digamma(1)
+  (setq a (- (div (mul 2 n))))
+  (setq n2 (mul n n))
+  (setq r 1)
+  (for (k 1 m)
+    (setq r (mul r n2))
+    (setq a (add a (div (B2 k) (mul 2 k r))))
+  )
+  (println "err = " a)
+  (println "gamma = " (add h a))
+  (println "k = " (add n m))
+  (println "C  =  0.57721566490153286...")))
+
+(eu03)
+;-> How Euler did it in 1735
+;-> Hn = 2.928968253968254
+;-> ln = 0.6263831609742079
+;-> err =0.0008325039273246178
+;-> k = 17
+;-> gamma = 0.6272156649015325
+;-> C  =  0.57721566490153286...
 =============================================================================
 
