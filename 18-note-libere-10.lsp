@@ -6102,5 +6102,161 @@ Test variabili libere:
 (free-vars)
 ;-> nil
 
+
+-------------------
+Entropia di Shannon
+-------------------
+
+Data una stringa X di N caratteri che contiene d caratteri distinti, l'entropia di Shannon di X vale:
+
+          n   count(i)          count(i)
+  H(X) = -∑ (----------)*(log2(----------))
+         i=1     N                 N
+
+Lista dei caratteri:
+(setq x (explode "1223334444"))
+;-> ("1" "2" "2" "3" "3" "3" "4" "4" "4" "4")
+Lunghezza della lista/parola:
+(setq len (length x))
+;-> 10
+Caratteri unici della lista/parola:
+(setq u (unique x))
+;-> ("1" "2" "3" "4")
+Conteggio dei caratteri unici nella list/parola:
+(setq c (count u x))
+;-> (1 2 3 4)
+Applicazione della formula dell'entropia:
+(sub (apply add (map (fn(x) (mul (div x len) (log (div x len) 2))) c)))
+;-> 1.846439344671015
+
+Scriviamo la funzione:
+
+(define (shannon-entropy str)
+  (local (x len u c)
+    (setq x (explode str))
+    (setq len (length x))
+    (setq u (unique x))
+    (setq c (count u x))
+    (sub (apply add (map (fn(x) (mul (div x len) (log (div x len) 2))) c)))))
+
+(shannon-entropy "1223334444")
+;-> 1.846439344671015
+
+(shannon-entropy "newlisp")
+;-> 2.807354922057605
+(shannon-entropy "haskell")
+;-> 2.521640636343319
+(shannon-entropy "julia")
+;-> 2.321928094887362
+(shannon-entropy "lisp")
+;-> 2
+(shannon-entropy "c++")
+;-> 0.9182958340544896
+(shannon-entropy "c")
+;-> 0
+
+
+------------------
+Triangolo di Floyd
+------------------
+
+Il triangolo di Floyd elenca i numeri naturali in un triangolo rettangolo allineato a sinistra dove:
+
+- la prima riga è 1
+- le righe successive iniziano verso sinistra con il numero successivo seguito da numeri naturali successivi che elencano un numero in più rispetto alla riga sopra.
+
+Le prime righe di un triangolo di Floyd si presentano così:
+
+  1
+  2  3
+  4  5  6
+  7  8  9 10
+ 11 12 13 14 15
+
+(define (pad-string str ch len left)
+"Pad a string to a predefinite length with a predefinite char"
+  (local (out len-str)
+    (setq out "")
+    (setq len-str (length str))
+    (cond ((zero? len-str) (setq out (dup ch len)))
+          ((= len-str len) (setq out str))
+          ((> len-str len) (setq out (slice str 0 len)))
+          ((< len-str len)
+           (if left
+               (setq out (push (dup ch (- len len-str)) str))
+               (setq out (push (dup ch (- len len-str)) str -1)))))))
+
+(pad-string (string 12) " " 3 true)
+;->" 12"
+
+(pad-string (string 123) " " 4 true)
+;-> " 123"
+
+Funzione che calcola il numero massimo di un dato numero di righe:
+
+(define (max-num rows)
+  (div (mul rows (+ rows 1)) 2))
+
+(max-num 14)
+;-> 105
+
+Funzione che stampa il triangolo di Floyd con un dato numero di righe:
+
+(define (floyd rows)
+  (local (len val)
+    ; lunghezza del numero massimo
+    (setq len (+ (length (max-num rows)) 1))
+    ; valore da stampare
+    (setq val 1)
+    ; ciclo per ogni riga
+    (for (r 1 rows)
+      ; stampa dei valori per la riga corrente
+      (for (i 1 r)
+        ; formattazione valore
+        (if (= i 1)
+          (print (pad-string (string val) " " (- len 1) true))
+          ;else
+          (print (pad-string (string val) " " len true))
+        )
+        (++ val)
+      )
+      (println)
+    )))
+
+Facciamo alcune prove:
+
+(floyd 3)
+;-> 1
+;-> 2 3
+;-> 4 5 6
+
+(floyd 10)
+;->  1
+;->  2  3
+;->  4  5  6
+;->  7  8  9 10
+;-> 11 12 13 14 15
+;-> 16 17 18 19 20 21
+;-> 22 23 24 25 26 27 28
+;-> 29 30 31 32 33 34 35 36
+;-> 37 38 39 40 41 42 43 44 45
+;-> 46 47 48 49 50 51 52 53 54 55
+
+(floyd 14)
+;->   1
+;->   2   3
+;->   4   5   6
+;->   7   8   9  10
+;->  11  12  13  14  15
+;->  16  17  18  19  20  21
+;->  22  23  24  25  26  27  28
+;->  29  30  31  32  33  34  35  36
+;->  37  38  39  40  41  42  43  44  45
+;->  46  47  48  49  50  51  52  53  54  55
+;->  56  57  58  59  60  61  62  63  64  65  66
+;->  67  68  69  70  71  72  73  74  75  76  77  78
+;->  79  80  81  82  83  84  85  86  87  88  89  90  91
+;->  92  93  94  95  96  97  98  99 100 101 102 103 104 105
+
 =============================================================================
 

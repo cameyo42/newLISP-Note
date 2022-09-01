@@ -1339,6 +1339,8 @@ NOTE LIBERE 10
   Costante di Eulero-Mascheroni 0.5772156649...
   Stampare un testo molto lungo
   Flip matrix game
+  Entropia di Shannon
+  Triangolo di Floyd
   
 APPENDICI
 =========
