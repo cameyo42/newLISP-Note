@@ -5728,7 +5728,7 @@ La costante gamma vale:
 La definizione di gamma converge troppo lentamente per essere numericamente utile, ma nel 1735 Eulero applicò la sua formula di somma recentemente scoperta per calcolare gamma con una precisione di 15 cifre.
 Per un'implementazione a precisione singola questo è ancora l'algoritmo più economico.
 
-Vediamo tre metodi per calcolare gamma in singola precisione.
+Vediamo cinque metodi per calcolare gamma in singola precisione.
 
 Metodo 1
 --------
@@ -5757,6 +5757,35 @@ Metodo 2
 --------
 
 (define (eu02)
+  (local (n s r k eps)
+    (println "Sweeney, 1963, err. idem");
+    (setq eps 1e-6)
+    (setq n 21)
+    (setq s (list 0 n))
+    (setq r n)
+    (setq k 1)
+    (do-while (> r eps)
+      (++ k)
+      (setq r (mul r (div n k)))
+      (if (even? k)
+        (setf (s 0) (add (s 0) (div r k)))
+        ;else
+        (setf (s 1) (add (s 1) (div r k)))
+      )
+      ;(setf (s (& k 1)) (add (s (& k 1)) (div r k)))
+    )
+    (println "gamma = " (sub (s 1) (s 0) (log n)))
+    (println "k = " k)))
+
+(eu02)
+;-> Sweeney, 1963, err. idem
+;-> gamma = 0.5772156645636311
+;-> k = 68
+
+Metodo 3
+--------
+
+(define (eu03)
   (local (n a b h n2 r k eps)
     (println "Bailey, 1988");
     (setq eps 1e-6)
@@ -5777,16 +5806,48 @@ Metodo 2
     (println "gamma = " (sub a (mul n (log 2))))
     (println "k = " k)))
 
-(eu02)
+(eu03)
 ;-> Bailey, 1988
 ;-> gamma = 0.5772156649015341
 ;-> k = 89
 
-
-Metodo 3
+Metodo 4
 --------
 
-(define (eu03)
+(define (eu04)
+  (local (n a b u v n2 k2 k eps)
+    (println "Brent-McMillan, 1980");
+    (setq eps 1e-6)
+    (setq n 13)
+    (setq a (sub (log n)))
+    ;(println "a = " a)
+    (setq b 1)
+    (setq u a)
+    (setq v b)
+    (setq n2 (mul n n))
+    (setq k2 0)
+    (setq k 0)
+    (do-while (> (abs a) eps)
+      (setq k2 (add k2 (mul 2 k) 1))
+      (++ k)
+      (setq a (mul a (div n2 k)))
+      (setq b (mul b (div n2 k2)))
+      (setq a (div (add a b) k))
+      (setq u (add u a))
+      (setq v (add v b))
+    )
+    (println "gamma = " (div u v))
+    (println "k = " k)))
+
+(eu04)
+;-> Brent-McMillan, 1980
+;-> gamma = 0.5772156649015329
+;-> k = 40
+
+Metodo 5
+--------
+
+(define (eu05)
   (local (B2 m n h a n2 r)
   (println "How Euler did it in 1735")
   ; Bernoulli numbers with even indices
@@ -5805,7 +5866,7 @@ Metodo 3
   (setq h (sub h (log n)))
   (println "ln = " h)
   ; expansion C = -digamma(1)
-  (setq a (- (div (mul 2 n))))
+  (setq a (sub (div (mul 2 n))))
   (setq n2 (mul n n))
   (setq r 1)
   (for (k 1 m)
@@ -5817,13 +5878,229 @@ Metodo 3
   (println "k = " (add n m))
   (println "C  =  0.57721566490153286...")))
 
-(eu03)
+(eu05)
 ;-> How Euler did it in 1735
 ;-> Hn = 2.928968253968254
 ;-> ln = 0.6263831609742079
-;-> err =0.0008325039273246178
+;-> err = -0.04916749607267539
+;-> gamma = 0.5772156649015325
 ;-> k = 17
-;-> gamma = 0.6272156649015325
 ;-> C  =  0.57721566490153286...
+
+
+-----------------------------
+Stampare un testo molto lungo
+-----------------------------
+
+Per stampare un testo molto lungo basta racchiuderlo nel tag "[text] [/text]".
+
+(print [text]
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
+Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. 
+Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. 
+Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+[/text])
+;-> Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+;-> Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+;-> Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+;-> Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+
+
+----------------
+Flip matrix game
+----------------
+
+Data una matrice quadrata N×N di 0 e 1 (configurazione iniziale) e un'altra una matrice quadrata N×N di 0 e 1 (configurazione finale).
+Il gioco consiste nel trasformare la configurazione iniziale nella configurazione finale nel minor numero di mosse possibile, invertendo tutti i valori di intere righe o intere colonne (per ogni mossa).
+L'operazione di inversione consiste nel trasformare 0 in 1 e 1 in 0 per quell'intera riga o colonna.
+Il gioco crea in modo casuale una configurazione iniziale e una configurazione finale.
+
+Bisogna assicurarsi che:
+1) la posizione di partenza sia diversa dalla posizione finale
+2) la posizione finale deve essere raggiungibile dalla posizione di partenza.
+Per risolvere questo problema partiamo da una posizione finale casuale e generiamo la posizione di partenza con lanci casuali partendo da una posizione finale casuale.
+Questo metodo ci permette anche di definire una specie di "difficoltà" del gioco: più lanci casuali usiamo per creare la posizione di partenza iniziando da quella finale e maggiore dovrebbe essere la difficoltà di risolvere il gioco.
+
+Funzione che stampa la matrice:
+
+(define (print-matrix matrix)
+  (local (row col lenmax digit fmtstr)
+    ;(if (array? matrix) (setq matrix (array-list matrix)))
+    (setq row (length matrix))
+    (setq col (length (first matrix)))
+    (for (i 0 (- row 1))
+      (for (j 0 (- col 1))
+        (print " " (matrix i j) " ")
+      )
+      (println))))
+
+Funzione che "flippa" una riga della matrice:
+
+(define (flip-row matrix row)
+  (for (c 0 (- (length (matrix 0)) 1))
+    (setf (matrix row c) (^ (matrix row c) 1)))
+  matrix)
+
+Funzione che "flippa" una colonna della matrice:
+
+(define (flip-col matrix col)
+  (for (r 0 (- (length matrix) 1))
+    (setf (matrix r col) (^ (matrix r col) 1)))
+  matrix)
+
+Funzione che gestisce il gioco "flip-matrix":
+
+(define (flip-game N level)
+  (local (m e move row col a b num-moves)
+    (setq row N)
+    (setq col N)
+    ; matrice finale
+    (setq e (array N N (rand 2 (mul N N))))
+    ; matrice di partenza
+    (setq m e)
+    ; generazione della matrice di partenza
+    ; con flip casuali della matrice finale.
+    ; "level" è il numero di flip effettuati
+    (while (= m e)
+      (for (i 1 level)
+        ; flip di riga o colonna casuali
+        (if (zero? (rand 2))
+            (setq m (flip-row m (rand row)))
+            (setq m (flip-col m (rand col)))
+        )
+      )
+    )
+    (setq num-moves 0)
+    ; start game...
+    (while (!= m e)
+      (println "Target Matrix:")
+      (print-matrix e)
+      (println "Current Matrix:")
+      (print-matrix m)
+      ; gestione input utente
+      (setq move (get-move row col))
+      ; trasform matrix...
+      (setq a (move 0)) ; "r" or "c"
+      (setq b (int (move 1))) ; row number or column number
+      (if (= a "r") (setq m (flip-row m b)))
+      (if (= a "c") (setq m (flip-col m b)))
+      ; update number of moves
+      (++ num-moves)
+      (println "\nMove: " num-moves)
+    )
+    ; end game
+    (println "Target Matrix:")
+    (print-matrix e)
+    (println "Current Matrix:")
+    (print-matrix m)
+    (println "Solved !!!")
+    'game-over))
+
+Funzione che gestisce l'input utente:
+; input = "ab"
+; where: 'a' must be "r" or "c"
+;        'b' must be a number (string) lesser than rows or columns
+; ex. "r1" or "c2" or "c0" ...
+(define (get-move row col)
+  (local (ask val ch num)
+    (setq ask true)
+    (while ask
+      (setq ask nil)
+      (print "row or col to flip (ex. r0)? ")
+      (setq val (read-line))
+            ; almeno due caratteri
+      (cond ((< (length val) 2)
+              (setq ask true))
+            ; il promo carattere deve essere "r" o "c"
+            ((and (!= "r" (val 0)) (!= "c" (val 0)))
+              (setq ask true))
+            ; il secondo carattere deve essere un intero
+            ((not (integer? (int (val 1))))
+              (setq ask true))
+            ; il numero intero deve essere "dentro" la matrice
+            (true
+              (setq num (int (val 1)))
+              (setq ch (val 0))
+              (if (or (and (= ch "r") (>= num row))
+                      (and (= ch "c") (>= num col)))
+                  (setq ask true)))
+      )
+   )
+   (list (val 0) (val 1))))
+
+Facciamo una partita molto semplice:
+
+(flip-game 3 1)
+;-> Target Matrix:
+;->  0  1  0
+;->  1  1  0
+;->  0  1  1
+;-> Current Matrix:
+;->  1  1  0
+;->  0  1  0
+;->  1  1  1
+;-> row or col to flip (ex. r0)? c2
+;-> 
+;-> Move: 1
+;-> Target Matrix:
+;->  0  1  0
+;->  1  1  0
+;->  0  1  1
+;-> Current Matrix:
+;->  1  1  1
+;->  0  1  1
+;->  1  1  0
+;-> row or col to flip (ex. r0)? r1
+;-> 
+;-> Move: 2
+;-> Target Matrix:
+;->  0  1  0
+;->  1  1  0
+;->  0  1  1
+;-> Current Matrix:
+;->  1  1  1
+;->  1  0  0
+;->  1  1  0
+;-> row or col to flip (ex. r0)? r1
+;-> 
+;-> Move: 3
+;-> Target Matrix:
+;->  0  1  0
+;->  1  1  0
+;->  0  1  1
+;-> Current Matrix:
+;->  1  1  1
+;->  0  1  1
+;->  1  1  0
+;-> row or col to flip (ex. r0)? c2
+;-> 
+;-> Move: 4
+;-> Target Matrix:
+;->  0  1  0
+;->  1  1  0
+;->  0  1  1
+;-> Current Matrix:
+;->  1  1  0
+;->  0  1  0
+;->  1  1  1
+;-> row or col to flip (ex. r0)? c0
+;-> 
+;-> Move: 5
+;-> Target Matrix:
+;->  0  1  0
+;->  1  1  0
+;->  0  1  1
+;-> Current Matrix:
+;->  0  1  0
+;->  1  1  0
+;->  0  1  1
+;-> Solved !!!
+;-> game-over
+
+Test variabili libere:
+
+(free-vars)
+;-> nil
+
 =============================================================================
 

@@ -1337,6 +1337,8 @@ NOTE LIBERE 10
   Numeri duffiniani (Duffinian)
   Numeri equidigitali
   Costante di Eulero-Mascheroni 0.5772156649...
+  Stampare un testo molto lungo
+  Flip matrix game
   
 APPENDICI
 =========
