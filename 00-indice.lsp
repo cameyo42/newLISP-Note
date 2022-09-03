@@ -1341,6 +1341,10 @@ NOTE LIBERE 10
   Flip matrix game
   Entropia di Shannon
   Triangolo di Floyd
+  Problema algebrico
+  Horizontal sundial
+  FizzBuzz generico
+  Numeri di Jacobsthal e Jacobsthal-Lucas
   
 APPENDICI
 =========

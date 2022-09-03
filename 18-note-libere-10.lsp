@@ -6258,5 +6258,433 @@ Facciamo alcune prove:
 ;->  79  80  81  82  83  84  85  86  87  88  89  90  91
 ;->  92  93  94  95  96  97  98  99 100 101 102 103 104 105
 
+
+------------------
+Problema algebrico
+------------------
+
+Trovare il valore di x + y sapendo che x e y sono interi positivi e soddisfano la seguente equazione:
+
+  x + xy + y = 54
+  
+Soluzione
+---------
+Raccogliamo la x:
+
+  x + xy + y = 54  -->  x(y + 1) + y = 54
+  
+Aggiungiamo 1 ad entrambi i membri dell'equazione:
+
+  x(y + 1) + y = 54  -->  x(y + 1) + y + 1 = 55
+  
+Raccogliamo (y + 1):
+
+  x(y + 1) + y + 1 = 55  -->  (x + 1)(y + 1) = 55
+  
+L'equazione (x + 1)(y + 1) = 55 ci dice che 55 è dato dal prodotto di due numeri (x + 1) e (y + 1).
+Elenchiamo tutte le coppie di numeri che producono 55:
+
+  1 * 55 = 55
+  55 * 1 = 55
+  11 * 5 = 55
+  5 * 11 = 55
+
+Poichè x e y sono numeri interi positivi il loro valore minimo vale 1, quindi risulta:
+
+  (x + 1) >= 2 e 
+  (y + 1) >= 2
+
+Queste due condizioni permettono di eliminare le prime due coppie che producono 55, cioè 1*55 e 55*1.
+Rimangono da considerare le seguenti equazioni:
+
+  (x + 1) = 11
+  (y + 1) = 5
+
+e
+
+  (x + 1) = 5
+  (y + 1) = 11
+
+Nel primo caso la soluzione vale x = 10 e y = 4.
+Nel secondo caso la soluzione vale x = 4 e y = 10.
+
+In entrambi i casi risulta: (x + y) = 14
+
+In newLISP:
+
+(define (solve limit)
+  (for (x 1 limit)
+    (for (y 1 limit)
+      (if (= (+ x (mul x y) y) 54)
+          (println "x = " x ", y = " y ", (x + y) = " (+ x y))))))
+
+(solve 100)
+;-> x = 4, y = 10, (x + y) = 14
+;-> x = 10, y = 4, (x + y) = 14
+
+
+------------------
+Horizontal sundial
+------------------
+
+Creare un programma che calcoli l'ora, l'angolo dell'ora solare, l'angolo della linea dell'ora di composizione dalle 6:00 alle 18:00 per una posizione determinata.
+Ad esempio, latitudine = 4°57'S,
+            longitudine = 150°30'W,
+            Meridiano legale = 150°W.
+
+Nota: il "meridiano" è approssimativamente lo stesso concetto di "longitudine" - la distinzione è che il meridiano viene utilizzato per determinare quando è "mezzogiorno" per scopi ufficiali. Questo sarà in genere leggermente diverso da quando il sole appare nella sua posizione più alta, a causa della struttura dei fusi orari. Per la maggior parte dei fusi orari (tranne quei fusi orari con l'ora zero centrata su Greenwich), il meridiano legale sarà un multiplo pari di 15 gradi).
+
+(define (deg60-deg10 degs mins secs)
+"Convert sexagesimal degrees to decimal degrees"
+  (local (dd)
+    (if (< 0.0 degs)
+        (setq dd (add degs (div mins 60.0) (div secs 3600.0)))
+        (setq dd (add degs (- 0.0 (div mins 60.0)) (- 0.0 (div secs 3600.0))))
+    )
+    dd))
+
+(deg60-deg10 21 31 21)
+;-> 21.5225
+(deg60-deg10 11 42 21)
+;-> 11.70583333333333
+
+(define (sign x)
+"Return the sign of a real number"
+  (cond ((> x 0) 1)
+        ((< x 0) -1)
+        (true 0)))
+
+(setq PI 3.1415926535897931)
+
+(define (deg2rad deg) (div (mul deg (atan 1)) 45))
+(deg2rad 180)
+;-> 3.141592653589793
+
+(define (rad2deg rad) (div (mul rad 45) (atan 1)))
+(rad2deg 3.141592653589793)
+;-> 180
+
+(define (deg-rad deg)
+"Convert decimal degrees to radiants"
+  (div (mul deg PI) 180))
+
+(define (rad-deg rad)
+"Convert radiants to decimal degrees"
+  (div (mul rad 180) PI))
+
+Funzione finale:
+
+(define (sundial lat lon mer)
+  (local (hla hra slat hraRad)
+    (setq slat (sin (deg-rad lat)))
+    (println "Hour  Sun hour angle  Dial hour line angle")
+    (for (h -6 6) ;6AM-6PM
+      (setq hra (add (mul h 15) mer (sub lon)))
+      (setq hraRad (deg-rad hra)
+      (setq hla (rad-deg (atan2 (mul (sin hraRad) slat) (cos hraRad))))
+      (println (format "%4d %15.3f %21.3f" (+ h 12) hra hla))))))
+
+(sundial -4.95 -150.5 -150)
+;-> Hour  Sun hour angle  Dial hour line angle
+;->    6         -89.500                84.225
+;->    7         -74.500                17.283
+;->    8         -59.500                 8.334
+;->    9         -44.500                 4.847
+;->   10         -29.500                 2.795
+;->   11         -14.500                 1.278
+;->   12           0.500                -0.043
+;->   13          15.500                -1.371
+;->   14          30.500                -2.910
+;->   15          45.500                -5.018
+;->   16          60.500                -8.671
+;->   17          75.500               -18.451
+;->   18          90.500               -95.775
+
+
+-----------------
+FizzBuzz generico
+-----------------
+
+Scrivere una versione generalizzata di FizzBuzz che opera con qualsiasi lista di fattori, insieme alle loro parole.
+
+Esempio: Stampare i numeri da 1 a 20, sostituendo ogni multiplo di 3 con "Fizz", ogni multiplo di 5 con "Buzz" e ogni multiplo di 7 con "Baxx".
+
+Nel caso in cui un numero sia un multiplo di almeno due fattori, stampare ciascuna delle parole associate a tali fattori nell'ordine dal minimo al massimo fattore.
+
+Ad esempio, per il numero 15, che è un multiplo sia di 3 che di 5, stampare "FizzBuzz".
+Se il numero massimo fosse 105 anziché 20, stampere "FizzBuzzBaxx" perché è un multiplo di 3, 5 e 7.
+
+Numero massimo: 20
+Lista di fattori: (3 5 7)
+Lista di parole: ("Fizz" "Buzz" "Baxx")
+Output:
+  1
+  2
+  Fizz
+  4
+  Buzz
+  Fizz
+  Baxx
+  8
+  Fizz
+  Buzz
+  11
+  Fizz
+  13
+  Baxx
+  FizzBuzz
+  16
+  17
+  Fizz
+  19
+  Buzz
+
+Scriviamo la funzione:
+
+(define (general fattori parole limit)
+  (for (i 1 limit)
+    (setq s "")
+    (dolist (f fattori)
+      (if (zero? (% i f)) (extend s (parole $idx)))
+    )
+    (if (= s "") 
+        (println i)
+        (println s)
+    )
+  ))
+
+(setq factors '(3 5 7))
+(setq words '("Fizz" "Buzz" "Baxx"))
+(general factors words 20)
+;-> 1
+;-> 2
+;-> Fizz
+;-> 4
+;-> Buzz
+;-> Fizz
+;-> Baxx
+;-> 8
+;-> Fizz
+;-> Buzz
+;-> 11
+;-> Fizz
+;-> 13
+;-> Baxx
+;-> FizzBuzz
+;-> 16
+;-> 17
+;-> Fizz
+;-> 19
+;-> Buzz
+
+(general factors words 105)
+;-> 1
+;-> 2
+;-> Fizz
+;-> 4
+;-> Buzz
+;-> Fizz
+;-> Baxx
+;-> 8
+;-> ...
+;-> 92
+;-> Fizz
+;-> 94
+;-> Buzz
+;-> Fizz
+;-> 97
+;-> Baxx
+;-> Fizz
+;-> Buzz
+;-> 101
+;-> Fizz
+;-> 103
+;-> 104
+;-> FizzBuzzBaxx
+
+(general '(1 2 3 4 5 6 7 8 9 10) '("1" "2" "3" "4" "5" "6" "7" "8" "9" "10") 10)
+;-> 1
+;-> 12
+;-> 13
+;-> 124
+;-> 15
+;-> 1236
+;-> 17
+;-> 1248
+;-> 139
+;-> 12510
+
+
+---------------------------------------
+Numeri di Jacobsthal e Jacobsthal-Lucas
+---------------------------------------
+
+I numeri di Jacobsthal sono una sequenza correlata ai numeri di Fibonacci.
+Nella sequenza di Fibonacci ogni termine è la somma dei due termini precedenti.
+Nella sequenza di Jacobsthal ogni termine è la somma del precedente, più il doppio di quello precedente.
+La sequenza inizia con i termini indicati 0, 1.
+
+   J0 = 0
+   J1 = 1
+   J(n) = J(n-1) + 2*J(n-2)
+
+I termini possono essere calcolati anche utilizzando la seguente formula:
+
+    J(n) = (2^n - (-1)^n)/3
+
+Sequenza OEIS: A001045
+  0, 1, 1, 3, 5, 11, 21, 43, 85, 171, 341, 683, 1365, 2731, 5461,
+  10923, 21845, 43691, 87381, 174763, 349525, 699051, 1398101,
+  2796203, 5592405, 11184811, 22369621, 44739243, 89478485,
+  178956971, 357913941, 715827883, 1431655765, 2863311531, 5726623061, ...
+
+I numeri di Jacobsthal-Lucas sono molto simili. Hanno la stessa relazione di ricorrenza, l'unica differenza è il valore iniziale J0 = 2 anziché J0 = 0.
+
+I termini possono essere calcolati anche utilizzando la seguente formula:
+
+  JL(n) = 2^n + (-1)^n
+
+Sequenza OEIS: A014551
+  2, 1, 5, 7, 17, 31, 65, 127, 257, 511, 1025, 2047, 4097, 8191, 16385,
+  32767, 65537, 131071, 262145, 524287, 1048577, 2097151, 4194305, 8388607,
+  16777217, 33554431, 67108865, 134217727, 268435457, 536870911, 1073741825,
+  2147483647, 4294967297, 8589934591, ...
+
+Numeri di Jacobsthal
+--------------------
+1) Ricorsione
+
+Funzione che calcola l'n-esimo numero di Jacobsthal:
+
+(define (Jacob n)
+  (cond ((= n 0) 0)
+        ((= n 1) 1)
+        (true
+          (+ (Jacob (- n 1)) (* 2 (Jacob (- n 2)))))))
+
+Calcoliamo i primi 25 numeri di Jacobsthal:
+
+(map Jacob (sequence 0 25))
+;-> (0 1 1 3 5 11 21 43 85 171 341 683 1365 2731 5461 10923 21845 43691 
+;->  87381 174763 349525 699051 1398101 2796203 5592405 11184811)
+
+2) Formula: J(n) = (2^n - (-1)^n)/3
+
+Funzione che calcola l'n-esimo numero di Jacobsthal:
+(define (J n)
+  ;(div (- (pow 2 n) (pow-1 n)) 3)) ; stessa velocità
+  (div (- (pow 2 n) (pow -1 n)) 3))
+
+Calcoliamo i primi 25 numeri di Jacobsthal:
+
+(map J (sequence 0 25))
+;-> (0 1 1 3 5 11 21 43 85 171 341 683 1365 2731 5461 10923 21845 43691 
+;->  87381 174763 349525 699051 1398101 2796203 5592405 11184811)
+
+Vediamo la differenza di velocità tra le due funzioni "Jacob" e "J":
+
+(time (map Jacob (sequence 0 25)) 10)
+;-> 966.947
+(time (map J (sequence 0 25)) 10)
+;-> 0
+
+La versione ricorsiva non è utilizzabile praticamente.
+
+Numeri di Jacobsthal-Lucas
+--------------------------
+1) Ricorsione
+
+Funzione che calcola l'n-esimo numero di Jacobsthal-Lucas:
+
+(define (Jacob-Lucas n)
+  (cond ((= n 0) 2)
+        ((= n 1) 1)
+        (true
+          (+ (Jacob-Lucas (- n 1)) (* 2 (Jacob-Lucas (- n 2)))))))
+
+Calcoliamo i primi 25 numeri di Jacobsthal-Lucas:
+
+(map Jacob-Lucas (sequence 0 25))
+;-> (2 1 5 7 17 31 65 127 257 511 1025 2047 4097 8191 16385 32767 65537 131071
+;->  262145 524287 1048577 2097151 4194305 8388607 16777217 33554431)
+
+2) Formula: JL(n) = 2^n + (-1)^n
+
+Funzione che calcola l'n-esimo numero di Jacobsthal-Lucas:
+
+(define (JL n)
+  (add (pow 2 n) (pow -1 n)))
+
+Calcoliamo i primi 25 numeri di Jacobsthal-Lucas:
+
+(map JL (sequence 0 25))
+;-> (2 1 5 7 17 31 65 127 257 511 1025 2047 4097 8191 16385 32767 65537 131071
+;->  262145 524287 1048577 2097151 4194305 8388607 16777217 33554431)
+
+Vediamo la differenza di velocità tra le due funzioni "Jacob-Lucas" e "JL":
+
+(time (map Jacob-Lucas (sequence 0 25)) 10)
+;-> 967.959
+(time (map JL (sequence 0 25)) 10)
+;-> 0
+
+Anche in questo caso la versione ricorsiva non è utilizzabile praticamente.
+
+Possiamo utilizzare anche la Programmazione dinamica.
+
+Programmazione dinamica: Jacobsthal
+
+(define (Jacob-dp n all)
+  (cond ((= n 0) 0)
+        ((= n 1) 1)
+        (true
+          (let (dp (array (+ n 1) '(0)))
+            (setf (dp 0) 0)
+            (setf (dp 1) 1)
+            (for (i 2 n)
+              (setf (dp i) (+ (dp (- i 1)) (* 2 (dp (- i 2)))))
+            )
+            ; if all is true, then return all Jacob numbers from 0 to n
+            ; else return n-th Jacobsthal number     
+            (if all dp (dp n))))))
+
+(map Jacob-dp (sequence 0 25))
+;-> (0 1 1 3 5 11 21 43 85 171 341 683 1365 2731 5461 10923 21845 43691 87381
+;->  174763 349525 699051 1398101 2796203 5592405 11184811)
+
+Vediamo la differenza di velocità tra le funzioni "J" e "Jacob-dp":
+
+(time (map J (sequence 0 100000)) 100)
+;-> 2389.525
+(time (Jacob-dp 100000 true ) 100)
+;-> 1834.358
+
+Programmazione dinamica: Jacobsthal-Lucas
+
+(define (JL-dp n all)
+  (cond ((= n 0) 2)
+        ((= n 1) 1)
+        (true
+          (let (dp (array (+ n 1) '(0)))
+            (setf (dp 0) 2)
+            (setf (dp 1) 1)
+            (for (i 2 n)
+              (setf (dp i) (+ (dp (- i 1)) (* 2 (dp (- i 2)))))
+            )
+            ; if all is true, then return all Jacobsthal-Lucas numbers (0, n)
+            ; else return n-th Jacobsthal-Lucas number 
+            (if all dp (dp n))))))
+
+(map JL-dp (sequence 0 25))
+;-> (2 1 5 7 17 31 65 127 257 511 1025 2047 4097 8191 16385 32767 65537 131071
+;->  262145 524287 1048577 2097151 4194305 8388607 16777217 33554431)
+
+Vediamo la differenza di velocità tra le funzioni "JL" e "JL-dp":
+
+(time (map JL (sequence 0 100000)) 100)
+;-> 2115.345
+(time (JL-dp 100000 true ) 100)
+;-> 1818.167
+
 =============================================================================
 
