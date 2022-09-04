@@ -1345,6 +1345,8 @@ NOTE LIBERE 10
   Horizontal sundial
   FizzBuzz generico
   Numeri di Jacobsthal e Jacobsthal-Lucas
+  La formica di Langton (Langton's ant)
+  Il gioco di Penney
   
 APPENDICI
 =========

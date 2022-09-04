@@ -5924,7 +5924,7 @@ Questo metodo ci permette anche di definire una specie di "difficoltà" del gioc
 Funzione che stampa la matrice:
 
 (define (print-matrix matrix)
-  (local (row col lenmax digit fmtstr)
+  (local (row col)
     ;(if (array? matrix) (setq matrix (array-list matrix)))
     (setq row (length matrix))
     (setq col (length (first matrix)))
@@ -6685,6 +6685,497 @@ Vediamo la differenza di velocità tra le funzioni "JL" e "JL-dp":
 ;-> 2115.345
 (time (JL-dp 100000 true ) 100)
 ;-> 1818.167
+
+
+-------------------------------------
+La formica di Langton (Langton's ant)
+-------------------------------------
+
+La formica di Langton è un automa cellulare che parte con formica posizionata su un piano di celle, inizialmente tutte bianche, con la formica rivolta in una delle quattro direzioni.
+Ogni cella può essere nera o bianca.
+La formica si muove in base al colore della cella in cui si trova attualmente, con le seguenti regole:
+   a) Se la cella è nera, diventa bianca e la formica gira a sinistra;
+   b) Se la cella è bianca, diventa nera e la formica gira a destra;
+   c) La formica si sposta quindi alla cella successiva e ripete dal passaggio 1.
+
+Questo insieme di regole piuttosto semplice porta a uno schema di movimento inizialmente caotico e, dopo circa 10000 passaggi, appare un ciclo in cui la formica si allontana costantemente dalla posizione di partenza in un "corridoio" diagonale largo circa 10 celle. Potenzialmente la formica può quindi arrivare infinitamente lontano.
+
+(define (print-grid matrix)
+  (local (row col)
+    ;(if (array? matrix) (setq matrix (array-list matrix)))
+    (setq row (length matrix))
+    (setq col (length (first matrix)))
+    (for (i 0 (- row 1))
+      ; do not print empty row
+      (if (!= '(0) (count '(1) (array-list (matrix i))))
+        (begin
+          (for (j 0 (- col 1))
+            (cond ((= (matrix i j) 0) (print " "))
+                  ((= (matrix i j) 1) (print "*"))
+                  ; formica su cella bianca
+                  ((= (matrix i j) "a") (print "a"))
+                  ; formica su cella nera
+                  ((= (matrix i j) "A") (print "A"))
+            )
+          )
+          (println))
+      )
+    )))
+
+(define (langton iter step)
+  (local (x y grid dir)
+    (setq grid (array 101 101 '(0)))
+    (setq x 50) (setq y 50)
+    ; direction: (0 nord) (1 est) (2 sud) (3 ovest)
+    (setq dir (rand 4))
+    (for (i 1 iter)
+      ; step = true --> print grid for each step/movement
+      (if step (begin
+        (println i)
+        (print-grid grid)
+        (read-line))
+      )
+      (if (= (grid x y) 0) ; cella bianca (0)?
+        (begin ; gira a sinistra
+          (cond ((= dir 0)
+                  ; nuova direzione
+                  (setq dir 3)
+                  ; la cella corrente cambia colore
+                  (setf (grid x y) 1)
+                  ; aggiornamento posizione formica
+                  (-- x)
+                  (setq y y)
+                )
+                ((= dir 1)
+                  (setq dir 0)
+                  (setf (grid x y) 1)
+                  (setq x x)
+                  (-- y)
+                )
+                ((= dir 2)
+                  (setq dir 1)
+                  (setf (grid x y) 1)
+                  (++ x)
+                  (setq y y)
+                )
+                ((= dir 3)
+                  (setq dir 2)
+                  (setf (grid x y) 1)
+                  (setq x x)
+                  (++ y)
+                )
+          )
+        )
+        (begin ; gira a destra
+          (cond ((= dir 0)
+                  (setq dir 1)
+                  (setf (grid x y) 0)
+                  (++ x)
+                  (setq y y)
+                )
+                ((= dir 1)
+                  (setq dir 2)
+                  (setf (grid x y) 0)
+                  (setq x x)
+                  (++ y)
+                )
+                ((= dir 2)
+                  (setq dir 3)
+                  (setf (grid x y) 0)
+                  (-- x)
+                  (setq y y)
+                )
+                ((= dir 3)
+                  (setq dir 0)
+                  (setf (grid x y) 0)
+                  (setq x x)
+                  (-- y)
+                )
+          )
+        )
+      )
+    )
+    ; posizione finale della formica
+    (if (= 0 (grid x y))
+        (setf (grid x y) "a")
+        (setf (grid x y) "A")
+    )
+    (println "iterazione: " iter)
+    ; stampa la griglia
+    (print-grid grid)
+  )
+)
+
+(langton 11300)
+;-> iterazione: 11300
+;->                                                                     **
+;->                                                                      **
+;->                                               **  **            *** ** *
+;->                                              *  **  ***        **** *  *
+;->                                             *    **   *      ** **  * *
+;->                                          ** *     *     ******* *** **
+;->                                         *  *  *   ** *   *  ***** *  *
+;->                                        ***   *   ****  ** *** *      **
+;->                                     ** * *  **  *   * **  **** ******
+;->                                    *  *   *    *     **  **   * * ***** *
+;->                                   *** **  *  *    *   ***** * ** *    ***
+;->                                   **     ** ***   ** ***   ** ****  *  *
+;->                                     ***  *** *   * * ***     *  *    **
+;->                                       * *   ********* *****   ****
+;->                                 *** ***  ** *  *      *   **  *
+;->                                  ***** *****  **   *****    * * *
+;->                               ** * ******* *** ****** ***** * ***
+;->                              *    **  **   ***  *  *  *  *   * *
+;->                             ***      ***  * ** **    *  * ** *
+;->                             * *  *    *    * *****  *    * **
+;->                                  ** ***  * *  ** **    *  * *
+;->                              * *     * *     * * ** * *  *** ** *
+;->                             *   ***  *  *  * *  **** **   ** ****
+;->                             *   ** *** ** *  *   *     **** * **
+;->                             *  **   ***      *  **** *** **   **
+;->                             *      ***     ***  ***   **  *    *
+;->                             *     * * * ****    ****  ** **
+;->                             *     ** *** **   * ** **** ***   * *
+;->                             *      * *    ***** * * ***       ***
+;->                             *    **** *    *** ** ***   * *    *
+;->                             *     *  ** ** ** ****  ** **  ****
+;->                             *     * ** **  *    *******
+;->                             ***   **  **  * *** * ** *   *
+;->                             ***    ** ****** *  *   ****    *
+;->                              * ** * **  **    **** * ** **** *
+;->                              *   ******* ******  * ** * *    *
+;->                             *   *   ** *  *   ** ******  *  *
+;->                             * **    ***  *   * ******* *  **
+;->                              ** * **   * * * ** *  **  ***
+;->                               ****** **          *****   *
+;->                                   *   *  ***** *      * *
+;->                                    **     * * **   *    *
+;->                                 ** *  ** *     ** *    ***
+;->                                 * ** *      * *   *    ***
+;->                                  *   **** **   *   *    *
+;->                                  ***  *   *   ***   ****
+;->                                  *   **  ** **   *
+;->                                     **  **  *   ***
+;->                                      **  * ** **   *
+;->                                           **  *   ***
+;->                                            * ** **   *
+;->                                             **  *   ***
+;->                                              * ** **   *
+;->                                               **  *   ***
+;->                                                * ** **   *
+;->                                                 **  *   ***
+;->                                                  * ** **   *
+;->                                                   **  *   ***
+;->                                                    * ** **   *
+;->                                                     **  *   ***
+;->                                                      * ** **   *
+;->                                                       **  *   ***
+;->                                                        * ** **   *
+;->                                                         **  *   ***
+;->                                                          * ** **   *
+;->                                                           **  *   ***
+;->                                                            * ** **   *
+;->                                                             **  * *****
+;->                                                              * *** ****
+;->                                                               ** * *  a *
+;->                                                                * **   ***
+;->                                                                 *****  *
+;->                                                                  **  **
+
+Nota: la direzione del "corridoio" dipende dall'orientamento iniziale della formica.
+
+
+------------------
+Il gioco di Penney
+------------------
+
+Il gioco di Penney è un gioco in cui due giocatori scommettono sull'uscita della propria particolare sequenza di testa o croce in lanci consecutivi di una moneta.
+Le sequenze scelte dai giocatori sono lunghe tre. Per esempio, le sequenze scelte potrebbero essere le seguenti:
+
+  sequenza 1: TTC (Testa - Testa - Croce)
+  sequenza 2: CTC (Croce - Testa - Croce)
+
+A questo punto la moneta viene lanciata e il primo giocatore che vede la sua sequenza nella sequenza di lanci delle monete vince.
+
+Esempio:
+Sequenza Giocatore 1 =  TTC
+Sequenza Giocatore 2 =  CTC
+
+                             1 2 3 4 5
+Successivi lanci di monete = T C C T C  --> vince il giocatore 2 perchè le ultime tre monete uscite sono uguali alla sua sequenza (CTC).
+
+Se il giocatore 2 può scegliere la sequenza dopo aver visto la sequenza del giocatore 1, allora può massimizzare le sue probabilità di vittoria.
+Questo perché il gioco è "non transitivo", cioè per una data sequenza, di lunghezza tre o più, si può sempre trovare un'altra sequenza che ha una maggiore probabilità di verificarsi per prima.
+La relazione tra le otto triple è la seguente:
+
+      TCT   *TCC ----* CCC
+       *   /    \
+       |  /      \
+       | /        \
+      TTC          *
+       *          CCT ----* CTC
+        \        /
+         \      /
+          \    *
+  TTT *---- CTT
+
+Non importa quale delle otto triple il giocatore 1 sceglie, c'è sempre una tripla che il giocatore 2 può scegliere che ha maggiori possibilità di arrivare prima (cioè la tripla che punta con l'astrerisco "*" alla scelta del giocatore 1).
+Per esempio, CTT batte TTT, CCT batte CTC, ecc.
+Le migliori scelte del giocatore 2 formano una relazione ad anello tra le quattro triple interne in questa figura.
+Quindi le scelte ottime del secondo giocatore sono le seguenti:
+
+  Sequenza 1     Sequenza 2     Probabilità a favore del giocatore 2
+  ----------     ----------     ------------------------------------
+  TTT            CTT            7 a 1
+  TTC            CTT            3 a 1
+  TCT            TTC            2 a 1
+  TCC            TTC            2 a 1
+  CTT            CCT            2 a 1
+  CTC            CCT            2 a 1
+  CCT            TCC            3 a 1
+  CCC            TCC            7 a 1
+
+La formula per trovare la sequenza ottimale data una qualunque sequenza è la seguente:
+
+  Sequenza iniziale: abc
+  dove a,b,c possono essere T (Testa) o C (Croce)
+
+  Sequenza ottimale:  (!b)ab
+  dove (!a) è l'inverso di a: se a = T, allora (!a) = C
+                              se a = C, allora (!a) = T
+
+Funzione che simula il lancio di una moneta:
+
+(define (moneta) (if (zero? (rand 2)) "T" "C"))
+
+Funzione che inverte (flip) "T" con "C" e viceversa:
+
+(define (flip x) (if (= x "T") "C" "T"))
+
+Funzione che simula un gioco di Penney:
+
+(define (penney fair)
+  (local (winner seq1 seq2 game-over lst)
+    (setq seq1 (list (moneta) (moneta) (moneta)))
+    (cond ((= fair 0) ; seq2 random
+            (setq seq2 (list (moneta) (moneta) (moneta)))
+            ; seq2 deve essere diversa da seq1
+            (while (= seq1 seq2)
+              (setq seq2 (list (moneta) (moneta) (moneta)))
+            ))
+          ((= fair 1) ; seq2 = flip (seq1)
+            (setq seq2 (list (flip (seq1 0)) (flip (seq1 1)) (flip (seq1 2)))))
+          (true ; seq2 ottimale
+            (setq seq2 (list (flip (seq1 1)) (seq1 0) (seq1 1))))
+    )
+    (setq winner nil)
+    (setq lst (list (moneta) (moneta) (moneta)))
+    (until winner
+            ; qualcuno ha vinto?
+      (cond ((= lst seq1) (setq winner 1))
+            ((= lst seq2) (setq winner 2))
+            (true ; nuovo lancio
+              ; aggiorna lista delle tre monete
+              (setq (lst 0) (lst 1))
+              (setq (lst 1) (lst 2))
+              (setq (lst 2) (moneta))
+            )
+      )
+      ;(println seq1 seq2 lst)
+      ;(read-line)
+    )
+    winner))
+
+Funzione che simula un numero predefinito di giochi di Penney:
+
+(define (penney-prob iter fair)
+  (let ((res 0) (out '()) (w1 0) (w2 0))
+    (for (i 1 iter)
+      (if fair
+        (setq res (penney fair))
+        ;else
+        (setq res (penney))
+      )
+      (if (= res 1) (++ w1) (++ w2))
+    )
+    (list w1 w2 (div w1 iter) (div w2 iter))))
+
+Simulazione con Sequenza 2 casuale:
+
+(penney-prob 1e6 0)
+;-> (499385 500615 0.499385 0.500615)
+
+In questo caso la probabilità di vittoria è al 50%.
+
+Simulazione con Sequenza 2 inversa di Sequenza 1:
+
+(penney-prob 1e6 1)
+;-> (501014 498986 0.501014 0.498986)
+
+In questo caso la probabilità di vittoria è al 50%.
+
+Simulazione con Sequenza 2 ottimale:
+
+(penney-prob 1e6)
+;-> (260864 739136 0.260864 0.739136)
+
+In questo caso la probabilità di vittoria del giocatore 1 vale il 26%, mentre la probabilità del giocatore 2 vale il 74%.
+
+Adesso calcoliamo i valori della tabella con le sequenze ottimali.
+
+Funzione che simula un gioco di Penney con predeterminate sequenze:
+
+(define (penney-single s1 s2)
+  (local (winner seq1 seq2 game-over lst)
+    (setq seq1 s1)
+    (setq seq2 s2)
+    (setq winner nil)
+    (setq lst (list (moneta) (moneta) (moneta)))
+    (until winner
+            ; qualcuno ha vinto?
+      (cond ((= lst seq1) (setq winner 1))
+            ((= lst seq2) (setq winner 2))
+            (true ; nuovo lancio
+              ; aggiorna lista delle tre monete
+              (setq (lst 0) (lst 1))
+              (setq (lst 1) (lst 2))
+              (setq (lst 2) (moneta))
+            )
+      )
+    )
+    winner))
+
+(penney-single (explode "TTT") (explode "CTT"))
+;-> 2
+
+Funzione che calcola le probabilità di vittoria del giocatore 2 per ogni combinazione ottimale:
+
+(define (penney-optimal iter)
+  (local (w1 w2 s1 s2 ss)
+    (setq ss '(("TTT" "CTT") ("TTC" "CTT") ("TCT" "TTC") ("TCC" "TTC")
+               ("CTT" "CCT") ("CTC" "CCT") ("CCT" "TCC") ("CCC" "TCC")))
+    (println "Sequenza 1    Sequenza 2    % Gioc1  % Gioc2  Rapporto")
+    (dolist (el ss)
+      (setq w1 0)
+      (setq w2 0)
+      (setq s1 (explode (el 0)))
+      (setq s2 (explode (el 1)))
+      ;(println s1 { } s2) (read-line)
+      (for (i 1 iter)
+        (if (= (penney-single s1 s2) 1) (++ w1) (++ w2))
+      )
+      (println s1 { } s2 { } (div w1 iter) { } (div w2 iter) { }
+              (div (div w2 iter) (div w1 iter)))
+    )))
+
+(penney-optimal 1e6)
+;-> Sequenza 1    Sequenza 2    % Gioc1  % Gioc2  Rapporto
+;-> ("T" "T" "T") ("C" "T" "T") 0.124644 0.875356 7.022849074163217
+;-> ("T" "T" "C") ("C" "T" "T") 0.249992 0.750008 3.000128004096131
+;-> ("T" "C" "T") ("T" "T" "C") 0.333136 0.666864 2.001777052014793
+;-> ("T" "C" "C") ("T" "T" "C") 0.332826 0.667174 2.004572960045189
+;-> ("C" "T" "T") ("C" "C" "T") 0.333177 0.666823 2.001407660192631
+;-> ("C" "T" "C") ("C" "C" "T") 0.333699 0.666301 1.996712606270921
+;-> ("C" "C" "T") ("T" "C" "C") 0.249698 0.750302 3.004837844115692
+;-> ("C" "C" "C") ("T" "C" "C") 0.124870 0.875130 7.008328661808281
+
+I risultati della simulazione sono conformi ai valori della tabella.
+
+Vediamo adesso le probabilità di vittoria per ogni incrocio possibile di sequenze.
+
+Funzione per calcolare il prodotto cartesiano di due liste:
+
+(define (cp lst1 lst2)
+  (let (out '())
+    (if (or (null? lst1) (null? lst2))
+        nil
+        (dolist (el1 lst1)
+          (dolist (el2 lst2)
+            (push (list el1 el2) out -1))))))
+
+(cp '(1 2) '(3 4))
+;-> ((1 3) (1 4) (2 3) (2 4))
+
+(define (penney-all iter)
+  (local (a b w1 w2 s1 s2 ss)
+    (setq a '("TTT" "TTC" "TCT" "TCC" "CTT" "CTC" "CCT" "CCC"))
+    (setq b '("TTT" "TTC" "TCT" "TCC" "CTT" "CTC" "CCT" "CCC"))
+    ; crea tutte le coppie possibili di sequenze
+    (setq ss (filter (fn(x) (!= (x 0) (x 1))) (cp a b)))
+    (println "Sequenza 1    Sequenza 2    % Gioc1  % Gioc2  Rapporto")
+    (dolist (el ss)
+      (setq w1 0)
+      (setq w2 0)
+      (setq s1 (explode (el 0)))
+      (setq s2 (explode (el 1)))
+      ;(println s1 { } s2) (read-line)
+      (for (i 1 iter)
+        (if (= (penney-single s1 s2) 1) (++ w1) (++ w2))
+      )
+      (println s1 { } s2 { } (div w1 iter) { } (div w2 iter) { }
+              (div (div w2 iter) (div w1 iter)))
+    )))
+
+Calcoliamo le probabilità di ogni gioco possibile:
+
+(penney-all 1e6)
+;-> Sequenza 1    Sequenza 2    % Gioc1  % Gioc2  Rapporto
+;-> ("T" "T" "T") ("T" "T" "C") 0.499313 0.500687 1.002751780947021
+;-> ("T" "T" "T") ("T" "C" "T") 0.400304 0.599696 1.498101442903393
+;-> ("T" "T" "T") ("T" "C" "C") 0.399732 0.600268 1.501676123002412
+;-> ("T" "T" "T") ("C" "T" "T") 0.124959 0.875041 7.002624860954393
+;-> ("T" "T" "T") ("C" "T" "C") 0.417280 0.582720 1.396472392638037
+;-> ("T" "T" "T") ("C" "C" "T") 0.299926 0.700074 2.33415575842041
+;-> ("T" "T" "T") ("C" "C" "C") 0.499633 0.500367 1.001469078303475
+;-> ("T" "T" "C") ("T" "T" "T") 0.500340 0.499660 0.9986409241715634
+;-> ("T" "T" "C") ("T" "C" "T") 0.666352 0.333648 0.5007083343338055
+;-> ("T" "T" "C") ("T" "C" "C") 0.666052 0.333948 0.5013842763027512
+;-> ("T" "T" "C") ("C" "T" "T") 0.250122 0.749878 2.99804895211137
+;-> ("T" "T" "C") ("C" "T" "C") 0.624836 0.375164 0.6004199501949312
+;-> ("T" "T" "C") ("C" "C" "T") 0.500196 0.499804 0.9992163072075747
+;-> ("T" "T" "C") ("C" "C" "C") 0.700017 0.299983 0.4285367355364227
+;-> ("T" "C" "T") ("T" "T" "T") 0.601581 0.398419 0.662286541629473
+;-> ("T" "C" "T") ("T" "T" "C") 0.333578 0.666422 1.99779961508253
+;-> ("T" "C" "T") ("T" "C" "C") 0.499195 0.500805 1.003225192560022
+;-> ("T" "C" "T") ("C" "T" "T") 0.500469 0.499531 0.9981257580389593
+;-> ("T" "C" "T") ("C" "T" "C") 0.499413 0.500587 1.002350759791996
+;-> ("T" "C" "T") ("C" "C" "T") 0.375744 0.624256 1.661386475898484
+;-> ("T" "C" "T") ("C" "C" "C") 0.583225 0.416775 0.714604140769
+;-> ("T" "C" "C") ("T" "T" "T") 0.600184 0.399816 0.6661557122482438
+;-> ("T" "C" "C") ("T" "T" "C") 0.334018 0.665982 1.993850630804328
+;-> ("T" "C" "C") ("T" "C" "T") 0.500222 0.499778 0.9991123940970208
+;-> ("T" "C" "C") ("C" "T" "T") 0.499724 0.500276 1.001104609744579
+;-> ("T" "C" "C") ("C" "T" "C") 0.501011 0.498989 0.9959641604675347
+;-> ("T" "C" "C") ("C" "C" "T") 0.749516 0.250484 0.3341943334098271
+;-> ("T" "C" "C") ("C" "C" "C") 0.874730 0.125270 0.1432099047706149
+;-> ("C" "T" "T") ("T" "T" "T") 0.875181 0.124819 0.142620783586481
+;-> ("C" "T" "T") ("T" "T" "C") 0.750134 0.249866 0.3330951536658784
+;-> ("C" "T" "T") ("T" "C" "T") 0.499956 0.500044 1.000176015489363
+;-> ("C" "T" "T") ("T" "C" "C") 0.500190 0.499810 0.9992402886902976
+;-> ("C" "T" "T") ("C" "T" "C") 0.500333 0.499667 0.9986688865215765
+;-> ("C" "T" "T") ("C" "C" "T") 0.333456 0.666544 1.998896406122547
+;-> ("C" "T" "T") ("C" "C" "C") 0.600633 0.399367 0.6649101864199937
+;-> ("C" "T" "C") ("T" "T" "T") 0.582876 0.417124 0.7156307688084602
+;-> ("C" "T" "C") ("T" "T" "C") 0.374916 0.625084 1.667264133832645
+;-> ("C" "T" "C") ("T" "C" "T") 0.500352 0.499648 0.9985929905346636
+;-> ("C" "T" "C") ("T" "C" "C") 0.499795 0.500205 1.000820336337899
+;-> ("C" "T" "C") ("C" "T" "T") 0.499914 0.500086 1.000344059178179
+;-> ("C" "T" "C") ("C" "C" "T") 0.333520 0.666480 1.998320940273447
+;-> ("C" "T" "C") ("C" "C" "C") 0.599993 0.400007 0.6666861113379656
+;-> ("C" "C" "T") ("T" "T" "T") 0.699968 0.300032 0.4286367376794368
+;-> ("C" "C" "T") ("T" "T" "C") 0.500129 0.499871 0.9994841330936618
+;-> ("C" "C" "T") ("T" "C" "T") 0.624246 0.375754 0.6019325714542023
+;-> ("C" "C" "T") ("T" "C" "C") 0.250206 0.749794 2.996706713667938
+;-> ("C" "C" "T") ("C" "T" "T") 0.667345 0.332655 0.498475301380845
+;-> ("C" "C" "T") ("C" "T" "C") 0.666032 0.333968 0.5014293607514354
+;-> ("C" "C" "T") ("C" "C" "C") 0.500071 0.499929 0.9997160403222741
+;-> ("C" "C" "C") ("T" "T" "T") 0.499511 0.500489 1.001957914840714
+;-> ("C" "C" "C") ("T" "T" "C") 0.299189 0.700811 2.342368870513288
+;-> ("C" "C" "C") ("T" "C" "T") 0.417410 0.582590 1.395726024771807
+;-> ("C" "C" "C") ("T" "C" "C") 0.125206 0.874794 6.986837691484433
+;-> ("C" "C" "C") ("C" "T" "T") 0.400194 0.599806 1.498788087777428
+;-> ("C" "C" "C") ("C" "T" "C") 0.399576 0.600424 1.502652811980699
+;-> ("C" "C" "C") ("C" "C" "T") 0.499100 0.500900 1.003606491685033
 
 =============================================================================
 
