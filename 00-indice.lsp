@@ -1347,6 +1347,9 @@ NOTE LIBERE 10
   Numeri di Jacobsthal e Jacobsthal-Lucas
   La formica di Langton (Langton's ant)
   Il gioco di Penney
+  Prezzi frazionati
+  Tre cifre centrali
+  Inversioni di frase
   
 APPENDICI
 =========

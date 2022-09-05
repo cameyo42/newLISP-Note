@@ -7177,5 +7177,112 @@ Calcoliamo le probabilità di ogni gioco possibile:
 ;-> ("C" "C" "C") ("C" "T" "C") 0.399576 0.600424 1.502652811980699
 ;-> ("C" "C" "C") ("C" "C" "T") 0.499100 0.500900 1.003606491685033
 
+
+-----------------
+Prezzi frazionati
+-----------------
+
+Dato un valore in virgola mobile compreso tra 0.00 e 1.00, ridimensionare in base alla tabella seguente:
+
+  >=  0.00  <  0.06  :=  0.10
+  >=  0.06  <  0.11  :=  0.18
+  >=  0.11  <  0.16  :=  0.26
+  >=  0.16  <  0.21  :=  0.32
+  >=  0.21  <  0.26  :=  0.38
+  >=  0.26  <  0.31  :=  0.44
+  >=  0.31  <  0.36  :=  0.50
+  >=  0.36  <  0.41  :=  0.54
+  >=  0.41  <  0.46  :=  0.58
+  >=  0.46  <  0.51  :=  0.62
+  >=  0.51  <  0.56  :=  0.66
+  >=  0.56  <  0.61  :=  0.70
+  >=  0.61  <  0.66  :=  0.74
+  >=  0.66  <  0.71  :=  0.78
+  >=  0.71  <  0.76  :=  0.82
+  >=  0.76  <  0.81  :=  0.86
+  >=  0.81  <  0.86  :=  0.90
+  >=  0.86  <  0.91  :=  0.94
+  >=  0.91  <  0.96  :=  0.98
+  >=  0.96  <  1.01  :=  1.00
+
+(define (rescale x)
+  (cond ((< x 0) (println "Invalid Value") nil);
+        ((< x 0.06) 0.10)
+        ((< x 0.11) 0.18)
+        ((< x 0.16) 0.26)
+        ((< x 0.21) 0.32)
+        ((< x 0.26) 0.38)
+        ((< x 0.31) 0.44)
+        ((< x 0.36) 0.50)
+        ((< x 0.41) 0.54)
+        ((< x 0.46) 0.58)
+        ((< x 0.51) 0.62)
+        ((< x 0.56) 0.66)
+        ((< x 0.61) 0.70)
+        ((< x 0.66) 0.74)
+        ((< x 0.71) 0.78)
+        ((< x 0.76) 0.82)
+        ((< x 0.81) 0.86)
+        ((< x 0.86) 0.90)
+        ((< x 0.91) 0.94)
+        ((< x 0.96) 0.98)
+        ((< x 1.01) 1.00)
+        (true (println "Invalid Value") nil)))
+
+(map rescale '(0.7388727 0.8593103 0.826687 0.3444635))
+;-> (0.82 0.9 0.9 0.5)
+
+
+------------------
+Tre cifre centrali
+------------------
+
+Scrivere una funzione che prende un valore intero e restituisce, se possibile, le tre cifre centrali come stringa oppure "" se ciò non è possibile.
+L'ordine delle cifre centrali deve essere mantenuto.
+
+(length -13)
+(string "a" "b" "c")
+
+(define (mid3 num)
+  (let (len (length num))
+       (setq num (string (abs num)))
+       (cond ((< len 3) "")
+             ((even? len) "")
+             (true (string (num (- (/ len 2) 1))
+                           (num (/ len 2))
+                           (num (+ (/ len 2) 1)))))))
+
+(setq lst1 '(123 12345 1234567 987654321 10001 -10001 -123 -100 100 -12345))
+(setq lst2 '(1 2 -1 -10 2002 -2002 0))
+
+(map mid3 lst1)
+;-> ("123" "234" "345" "654" "000" "000" "123" "100" "100" "234")
+
+(map mid3 lst2)
+;-> ("" "" "" "" "" "" "")
+
+
+-------------------
+Inversioni di frase
+-------------------
+
+Data una stringa di parole separate da spazi:
+1) Invertire i caratteri della stringa.
+2) Invertire i caratteri di ogni singola parola nella stringa, mantenendo l'ordine delle parole originale all'interno della stringa.
+3) Invertire l'ordine di ogni parola della stringa, mantenendo l'ordine dei caratteri in ogni parola.
+
+(define (reverser str)
+  (setq s (parse str " "))
+  (println (reverse (copy str)))
+  (println (reverse (join (reverse s) " ")))
+  (println (join s " ")))
+
+(setq s1 "newlisp code phrase reversal")
+
+(reverser s1)
+;-> lasrever esarhp edoc psilwen
+;-> psilwen edoc esarhp lasrever
+;-> reversal phrase code newlisp
+
 =============================================================================
 
