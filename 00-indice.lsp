@@ -1350,6 +1350,8 @@ NOTE LIBERE 10
   Prezzi frazionati
   Tre cifre centrali
   Inversioni di frase
+  map range
+  I cinque numeri di Tukey (Tukey's fivenum)
   
 APPENDICI
 =========

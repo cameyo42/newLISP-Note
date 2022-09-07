@@ -7284,5 +7284,147 @@ Data una stringa di parole separate da spazi:
 ;-> psilwen edoc esarhp lasrever
 ;-> reversal phrase code newlisp
 
+
+---------
+map range
+---------
+
+Dati due intervalli (a1..a2) e (b1..b2) e un valore s nel range (a1..a2), calcolare il valore t che rappresenta la mappatura lineare del valore s nell'intervallo (b1..b2).
+Il valore t viene caclolato con la seguente formula:
+
+             (s - a1)*(b2 - b1)
+  t = b1 + ----------------------
+                 (a2 - a1)
+
+Scriviamo la funzione di mappatura:
+
+(define (map-range a1 a2 b1 b2 s)
+  (add b1
+       (div (mul (sub s a1) (sub b2 b1)) (sub a2 a1))))
+
+(map-range 0 100 10 20 50)
+;-> 15
+
+Facciamo un test da (0..10) a (-1 0) con valori di s da 0 a 10:
+
+(define (test)
+  (println "0..10   -1..0")
+  (for (i 0 10)
+    (println i {       } (map-range 0 10 -1 0 i))))
+
+(test)
+;-> 0..10   -1..0
+;-> 0       -1
+;-> 1       -0.9
+;-> 2       -0.8
+;-> 3       -0.7
+;-> 4       -0.6
+;-> 5       -0.5
+;-> 6       -0.4
+;-> 7       -0.3
+;-> 8       -0.2
+;-> 9       -0.09999999999999998
+;-> 10       0
+
+
+------------------------------------------
+I cinque numeri di Tukey (Tukey's fivenum)
+------------------------------------------
+
+Il riepilogo "fivenum" (cinque numeri) di Tukey è un insieme di statistiche descrittive che fornisce informazioni su un insieme di dati. È costituito dai cinque percentili più importanti del campione:
+
+  - il campione minimo (osservazione più piccola)
+  - il quartile inferiore o il primo quartile
+  - la mediana (il valore medio)
+  - il quartile superiore o il terzo quartile
+  - il massimo del campione (osservazione più grande)
+
+Se i dati sono ordinati, il quartile inferiore è al centro della metà inferiore dei dati e il quartile superiore è al centro della metà superiore dei dati.
+Questi quartili vengono utilizzati per calcolare l'intervallo interquartile, che aiuta a descrivere la variabilità (spread) dei dati e determinare se i punti dati sono valori anomali o meno (outliers).
+
+I valori dell'insieme "fivenum" vengono usati per rappresentare graficamente i dati con i "boxplot":
+
+1) Minimo (Q0 o 0° percentile):
+il punto dati più basso nel set di dati escludendo eventuali valori anomali (outliers)
+
+2) Primo quartile (Q1 o 25° percentile):
+noto anche come quartile inferiore qn(0.25), è la mediana della metà inferiore del set di dati.
+
+3) Mediana (Q2 o 50° percentile):
+il valore medio nel set di dati
+
+4) Terzo quartile (Q3 o 75° percentile):
+noto anche come quartile superiore qn(0.75), è la mediana della metà superiore del set di dati.
+
+5) Massimo (Q4 o 100° percentile):
+il punto dati più alto nel set di dati escludendo eventuali valori anomali
+
+Oltre ai valori minimo e massimo utilizzati per costruire un box-plot, un altro elemento importante che può essere impiegato anche per ottenere un box-plot è l'intervallo interquartile (IQR), come indicato di seguito:
+
+Interquartile range (IQR) = la distanza tra i quartili superiore e inferiore
+
+   IQR = Q3 - Q1 = q(n)(0,75) - q(n)(0,25)
+
+Funzione che calcola la mediana:
+
+(define (median x start end)
+  (local (size m)
+    (setq size (+ (- end start) 1))
+    (if (< size 0) (println "ERROR"))
+    (setq m (+ start (/ size 2)))
+    (if (odd? size)
+        (x m)
+        (div (add (x (- m 1)) (x m)) 2))))
+
+Funzione che calcola i cinque numeri di Tukey:
+(minimum, lower-hinge, median, upper-hinge, maximum)
+
+(define (fivenum x)
+  (local (res m len lower)
+    (setq len (length x))
+    (setq res (array 5 '(0)))
+    (sort x)
+    (setf (res 0) (x 0))
+    (setf (res 2) (median x 0 (- len 1)))
+    (setf (res 4) (x -1))
+    (setq m (/ len 2))
+    (if (odd? len)
+        (setq lower m)
+        ;else
+        (setq lower (- m 1))
+    )
+    (setf (res 1) (median x 0 lower))
+    (setf (res 3) (median x m (- len 1)))
+    res))
+
+Facciamo alcune prove:
+
+(fivenum (sequence 1 10))
+;-> (1 3 5.5 8 10)
+
+(fivenum (sequence 1 100))
+;-> (1 25.5 50.5 75.5 100)
+
+(fivenum '(10 10 11 12 12 13 13 15 15 16 18 18))
+;-> (10 11.5 13 15.5 18)
+
+(fivenum '(0 0 1 2 63 61 27 13))
+;-> (0 0.5 7.5 44 63)
+
+(setq a '(15.0 6.0 42.0 41.0 7.0 36.0 49.0 40.0 39.0 47.0 43.0))
+(setq b '(36.0 40.0 7.0 39.0 41.0 15.0))
+(setq c '(0.14082834  0.09748790  1.73131507  0.87636009 
+          -1.95059594  0.73438555  -0.03035726  1.46675970 
+          -0.74621349 -0.72588772  0.63905160  0.61501527
+          -0.98983780 -1.00447874 -0.62759469  0.66206163  
+          1.04312009 -0.10305385  0.75775634  0.32566578))
+
+(fivenum a)
+;-> (6 25.5 40 42.5 49)
+(fivenum b)
+;-> (7 15 37.5 40 41)
+(fivenum c)
+;-> (-1.95059594 -0.676741205 0.23324706 0.746070945 1.73131507)
+
 =============================================================================
 
