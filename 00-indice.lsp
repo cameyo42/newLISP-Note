@@ -1350,8 +1350,12 @@ NOTE LIBERE 10
   Prezzi frazionati
   Tre cifre centrali
   Inversioni di frase
-  map range
+  map range - rescale
   I cinque numeri di Tukey (Tukey's fivenum)
+  Modulino
+  I limiti del ciclo for
+  Topswops
+  
   
 APPENDICI
 =========

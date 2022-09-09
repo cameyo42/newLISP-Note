@@ -7285,9 +7285,9 @@ Data una stringa di parole separate da spazi:
 ;-> reversal phrase code newlisp
 
 
----------
-map range
----------
+-------------------
+map range - rescale
+-------------------
 
 Dati due intervalli (a1..a2) e (b1..b2) e un valore s nel range (a1..a2), calcolare il valore t che rappresenta la mappatura lineare del valore s nell'intervallo (b1..b2).
 Il valore t viene caclolato con la seguente formula:
@@ -7425,6 +7425,205 @@ Facciamo alcune prove:
 ;-> (7 15 37.5 40 41)
 (fivenum c)
 ;-> (-1.95059594 -0.676741205 0.23324706 0.746070945 1.73131507)
+
+
+--------
+Modulino
+--------
+
+È utile poter eseguire una funzione main() solo quando un programma viene eseguito direttamente. Questa è una caratteristica centrale negli script. 
+Uno script che si comporta in questo modo è chiamato "modulino".
+
+newLISP manca di script "main", ma la funzionalità può eseere aggiunta facilmente.
+
+From Rosetta Code: https://rosettacode.org/wiki/Modulinos#newLISP
+; scriptedmain.lsp
+(context 'SM)
+(define (SM:meaning-of-life) 42)
+(define (main)
+	(println (format "Main: The meaning of life is %d" (meaning-of-life)))
+	(exit))
+(if (find "scriptedmain" (main-args 1)) (main))
+(context MAIN)
+
+; test.lsp
+(load "scriptedmain.lsp")
+(println (format "Test: The meaning of life is %d" (SM:meaning-of-life)))
+(exit)
+
+
+----------------------
+I limiti del ciclo for
+----------------------
+
+Tempi di esecuzione di funzioni con cicli "for" multipli.
+
+1 for
+-----
+(define (one iter) 
+  (for (i 1 iter)))
+
+(time (one 5e8))
+;-> 3624.958
+
+2 for
+-----
+(define (two iter) 
+  (for (i 1 iter)
+    (for (j 1 iter))))
+
+(time (two 2e4))
+;-> 2875.373
+(time (two 3e4))
+;-> 6469.251
+(time (two 5e4))
+;-> 18001.799
+
+3 for
+-----
+(define (three iter) 
+  (for (i 1 iter)
+    (for (j 1 iter)
+      (for (k 1 iter)))))
+
+(time (three 100))
+;-> 15.586
+(time (three 500))
+;-> 906.358
+(time (three 1000))
+;-> 7203.743
+
+4 for
+-----
+(define (four iter) 
+  (for (i 1 iter)
+    (for (j 1 iter)
+      (for (k 1 iter)
+        (for (m 1 iter))))))
+
+(time (four 100))
+;-> 758.251
+(time (four 200))
+;-> 11901.573
+(time (four 300))
+;-> 59888.763
+
+5 for
+-----
+(define (five iter) 
+  (for (i 1 iter)
+    (for (j 1 iter)
+      (for (k 1 iter)
+        (for (m 1 iter)
+          (for (n 1 iter)))))))
+
+(time (five 50))
+;-> 2469.593
+(time (five 100))
+;-> 75553.391
+
+
+--------
+Topswops
+--------
+
+Topswops è un gioco di carte creato da John Conway negli anni '70.
+
+Supponiamo di avere una particolare permutazione di un insieme di n carte numerate 1..n su entrambe le facce, per esempio la disposizione di quattro carte data da (2 4 1 3) dove la carta più a sinistra è in cima.
+Un round è composto dall'inversione delle prime m carte dove m è il valore della carta più a sinistra (in cima).
+I round vengono ripetuti finché la carta a sinistra (più in alto) non è il numero 1.
+
+Per il nostro esempio i round producono:
+
+    # Riproduzione casuale iniziale
+    (2 4 1 3) ; invertiamo le prime 2 carte: 2 4 in 4 2
+1)  (4 2 1 3) ; invertiamo le prime 4 carte: 4 2 1 3 in 3 2 1 4
+2)  (3 1 2 4) ; invertiamo le prime 3 carte: 3 2 1 in 2 1 3
+3)  (2 1 3 4) ; invertiamo le prime 2 carte: 2 1 in 1 2
+4)  (1 2 3 4) ; la prima cifra a sinistra vale 1: stop.
+
+Per un totale di quattro round dall'ordine iniziale ottenere la posione di stop con il valore 1 a sinistra.
+
+Per un particolare numero n di carte, topswops(n) è il numero massimo di round necessari per arrivare alla posizione di stop considerando tutte le permutazioni iniziali delle n carte.
+
+(define (perm lst)
+"Generates all permutations without repeating from a list of items"
+  (local (i indici out)
+    (setq indici (dup 0 (length lst)))
+    (setq i 0)
+    ; aggiungiamo la lista iniziale alla soluzione
+    (setq out (list lst))
+    (while (< i (length lst))
+      (if (< (indici i) i)
+          (begin
+            (if (zero? (% i 2))
+              (swap (lst 0) (lst i))
+              (swap (lst (indici i)) (lst i))
+            )
+            ;(println lst);
+            (push lst out -1)
+            (++ (indici i))
+            (setq i 0)
+          )
+          (begin
+            (setf (indici i) 0)
+            (++ i)
+          )
+       )
+    )
+    out))
+
+Funzione che effettua un round su una lista:
+
+(define (swop lst)
+  (let (this (lst 0))
+    (setq lst (append (reverse (slice lst 0 this))
+                      (slice lst this (- (length lst) this))))))
+
+Funzione che calcola i valori massimi di turni per tutte le liste da 1 ad un determinasto numero di elementi:
+
+(define (topswops num)
+  (local (out permutazioni lst cambi cambimax)
+    (setq out '())
+    ; ciclo per ogni numero (lunghezza della lista)
+    (for (i 1 num)
+      ; calcola tutte le permutazioni
+      (setq permutazioni (perm (sequence 1 i)))
+      ; numero massimo di cambi
+      (setq cambimax 0)
+      ; ciclo per ogni permutazione della lista corrente
+      (dolist (p permutazioni)
+        (setq lst p)
+        ;(println lst { } (lst 0)) (read-line)
+        (setq cambi 0)
+        ; calcola il numero di cambi (swop)...
+        (until (= (lst 0) 1)
+          (++ cambi)
+          (setq lst (swop lst))
+        )
+        ; calcola il valore massimo dei cambi
+        (setq cambimax (max cambi cambimax))
+      )
+      ; aggiorna la lista soluzione
+      (push (list i cambimax) out -1)
+    )
+    out))
+
+Questo metodo permette di calcolare la soluzione fino a 10 carte:
+
+(time (println (topswops 9)))
+;-> ((1 0) (2 1) (3 2) (4 4) (5 7) (6 10) (7 16) (8 22) (9 30))
+;-> 1547.994
+
+(time (println (topswops 10)))
+;-> ((1 0) (2 1) (3 2) (4 4) (5 7) (6 10) (7 16) (8 22) (9 30) (10 38))
+;-> 17937.455
+
+Ho provato con 11 carte...
+; (time (println (topswops 11)))
+...ma windows è andato in crash.
+
+Infatti le permutazioni da calcolare sono 11! = 39916800.
 
 =============================================================================
 
