@@ -4181,9 +4181,9 @@ Nella teoria degli insiemi, il principio di inclusione-esclusione è un'identit�
 Denotiamo |A| la cardinalità di un insieme A e consideriamo una famiglia finita di insiemi finiti: A1,A2,...,An.
 La cardinalità dell'unione di tale famiglia vale:
 
-  | n     |   n        {coppie}     {terne}                          {ennupla}           
+  | n     |   n        {coppie}     {terne}                          {ennupla}
   | ∪ A(i)| = ∑|Ai| - ∑|Ai ∩ Aj| + ∑|Ai ∩ Aj ∩ Ak| - ... +(-1)^(n+1)*|A1 ∩ A2 ∩ ... ∩ An|
-  |i=1    |  i=1    1<=i<j<=n   1<=i<j<k<=n  
+  |i=1    |  i=1    1<=i<j<=n   1<=i<j<k<=n
 
 oppure in modo equivalente:
 
@@ -4641,16 +4641,16 @@ Da quanto tempo newLISP è in esecuzione?
 A volte è utile vogliamo sapere da quanto tempo stiamo usando la REPL, cioè da quanto tempo newLISP è in esecuzione.
 All'interno di newLISP non è definito alcun contatore per questo valore, ma possiamo crearlo nel modo seguente:
 
-;; newLISP Uptime 
+;; newLISP Uptime
 ;; by newdep
-;; 
+;;
 (define (uptime?) (- (date-value) sys-uptime))
 ;;
 ;; syntax (uptime?)
 ;; returns time in seconds newlisp is running.
 ;; Note: place this in your init.lsp
 ;; (constant 'sys-uptime (date-value))
-;; 
+;;
 ;; example
 ;; (uptime?) => 10
 
@@ -4665,11 +4665,11 @@ Question: Why do most newlisp functions pass arguments by value?
 ---------
 Answer (by Kazimir Majorinc):
 -----------------------------
-I think that the main reason for that is - ORO. Each object in memory is referenced by only one symbol. If you have function (define (f x) ... ) and it accepts arguments by reference, and you call it with (f y), then y and x both point on the same value. 
+I think that the main reason for that is - ORO. Each object in memory is referenced by only one symbol. If you have function (define (f x) ... ) and it accepts arguments by reference, and you call it with (f y), then y and x both point on the same value.
 The trick is: think about Newlisp symbols not as variables, but as (generalized) memory addresses in other languages. Just like in other languages, one object in memory cannot be stored in two memory adresses, on the same way, it cannot be stored in two symbols in Newlisp.
 
 Because of that, Newlisp frequently requires one indirection more than other languages (just like assembler does).
- But Newlisp is powerful enough so we do not notice it at the first moment, but only when we need to pass large objects as arguments - and our experience with other languages (including other Lisps) might be misleading. 
+ But Newlisp is powerful enough so we do not notice it at the first moment, but only when we need to pass large objects as arguments - and our experience with other languages (including other Lisps) might be misleading.
  And why ORO? There are two other memory management model - manual and garbage collection. Lutz has find some middle ground that allow programmer to do some things without manual memory allocation and deallocation, which is hard on programmer - and without garbage collection - which has its own contra's.
 
 But - for those who really want passing by reference - they can redefine whole Newlisp to do something like:
@@ -4732,7 +4732,7 @@ Esempio:
   (1 5) si sovrappone con (3 4)
   (1 5) si sovrappone con (4 6)
 
-Per ogni segmento i, controlla se si sovrappone ai segmenti i+1, i+2, ... n. 
+Per ogni segmento i, controlla se si sovrappone ai segmenti i+1, i+2, ... n.
 La complessità temporale di questo metodo è O(n^2).
 
 Funzione che verifica se due intervalli si sovrappongo:
@@ -4871,7 +4871,7 @@ Facciamo alcune prove:
 (setq ch '("$" "%" "!" "/" "#" "@" "&"))
 (setq lu '("%" "$" "@" "&" "#" "!" "/"))
 (link ch lu)
-;-> (("!" (2) (5)) ("#" (4) (4)) ("$" (0) (1)) ("%" (1) (0)) 
+;-> (("!" (2) (5)) ("#" (4) (4)) ("$" (0) (1)) ("%" (1) (0))
 ;->  ("&" (6) (3)) ("/" (3) (6)) ("@" (5) (2)))
 
 (setq ch2 '("a" "b" "c"))
@@ -4955,7 +4955,7 @@ Costante di Feigenbaum
 
 La prima costante di Feigenbaum (le costanti di Feigenbaum sono due) è una costante universale per funzioni che si avvicinano al caos tramite il raddoppio del periodo. Fu scoperta da Feigenbaum nel 1975 mentre studiava il punto fisso della funzioni iterativa:
 
-  f(x) = 1 - u*|x|^r, 
+  f(x) = 1 - u*|x|^r,
 
 La prima costante di Feigenbaum (le costanti di Feigenbaum sono due), è un numero che esprime il seguente concetto fisico:
 
@@ -5104,20 +5104,20 @@ Trovare una strategia (la migliore se possibile).
 Qual è il numero di ipotesi corrette con la strategia trovata?
 
 Soluzione:
-L'ultimo in coda, dietro a tutti, conta il numero di cappelli bianchi in testa alle 9 persone presenti davanti a lui. 
-Se questo numero è pari, (ad alta voce) indovina il cappello in testa come "Nero". 
-Se il numero è dispari, indovina come "Bianco". 
-La probabilità che il cappello in testa sia quello che ha indovinato è del 50%. 
-Non c'è modo che questa persona possa indovinare correttamente il cappello in testa. 
+L'ultimo in coda, dietro a tutti, conta il numero di cappelli bianchi in testa alle 9 persone presenti davanti a lui.
+Se questo numero è pari, (ad alta voce) indovina il cappello in testa come "Nero".
+Se il numero è dispari, indovina come "Bianco".
+La probabilità che il cappello in testa sia quello che ha indovinato è del 50%.
+Non c'è modo che questa persona possa indovinare correttamente il cappello in testa.
 Tuttavia, la sua ipotesi funziona come un messaggio per tutti gli altri di fronte a lui.
 
-Supponiamo che la decima persona indovini "Nero". Ora, la persona che è nona in coda sa che il numero di cappelli bianchi sulle prime 9 persone (le 8 persone davanti a lui e se stesso) è pari. 
-Quindi controlla se il numero di cappelli bianchi davanti a lui è pari o dispari. 
-Se il numero è pari, significa che il cappello in testa è nero. 
+Supponiamo che la decima persona indovini "Nero". Ora, la persona che è nona in coda sa che il numero di cappelli bianchi sulle prime 9 persone (le 8 persone davanti a lui e se stesso) è pari.
+Quindi controlla se il numero di cappelli bianchi davanti a lui è pari o dispari.
+Se il numero è pari, significa che il cappello in testa è nero.
 Se il numero è dispari, significa che il cappello sulla sua testa è bianco e quindi indovina il suo cappello.
 Pertanto, la nona persona nella coda indovina sempre correttamente, in base al messaggio trasmesso dalla decima persona.
 
-Una strategia simile è seguita da ogni persona che segue nella fila. 
+Una strategia simile è seguita da ogni persona che segue nella fila.
 Pertanto, tutti tranne l'ultima (decima) persona indovinano di sicuro.
 
 Questa strategia permette di indovinare il colore di 9 cappelli al 100% e il colore di 1 cappello al 50% (quello della decima persona della fila).
@@ -5663,15 +5663,15 @@ Questo algoritmo non è adatto per trovare quadruple duffiniane.
 Numeri equidigitali
 -------------------
 
-Un numero n si dice equidigitale se il numero di cifre nella fattorizzazione di n (incluse le potenze) è uguale al numero di cifre in n. 
-Ad esempio 16 è un numero equidigitale poiché la sua fattorizzazione primi è 2^4 e la sua fattorizzazione primi ha un totale di due cifre (2 e 4) che è uguale al numero di cifre di 16. 
-Come altro esempio, 128 non è un equidigitale, infatti la sua fattorizzazione vale è 2^7 e ha un totale di 2 cifre (2 e 7), ma il numero ha 3 cifre. 
-Tutti i numeri primi sono equidigitali. 
+Un numero n si dice equidigitale se il numero di cifre nella fattorizzazione di n (incluse le potenze) è uguale al numero di cifre in n.
+Ad esempio 16 è un numero equidigitale poiché la sua fattorizzazione primi è 2^4 e la sua fattorizzazione primi ha un totale di due cifre (2 e 4) che è uguale al numero di cifre di 16.
+Come altro esempio, 128 non è un equidigitale, infatti la sua fattorizzazione vale è 2^7 e ha un totale di 2 cifre (2 e 7), ma il numero ha 3 cifre.
+Tutti i numeri primi sono equidigitali.
 
 Sequenza OEIS: A046758
   1, 2, 3, 5, 7, 10, 11, 13, 14, 15, 16, 17, 19, 21, 23, 25, 27, 29, 31,
   32, 35, 37, 41, 43, 47, 49, 53, 59, 61, 64, 67, 71, 73, 79, 81, 83, 89,
-  97, 101, 103, 105, 106, 107, 109, 111, 112, 113, 115, 118, 119, 121, 
+  97, 101, 103, 105, 106, 107, 109, 111, 112, 113, 115, 118, 119, 121,
   122, 123, 127, 129, 131, 133, 134, 135, 137, 139, ...
 
 (define (equidigital? num)
@@ -5895,9 +5895,9 @@ Stampare un testo molto lungo
 Per stampare un testo molto lungo basta racchiuderlo nel tag "[text] [/text]".
 
 (print [text]
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
-Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. 
-Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. 
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
 Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
 [/text])
 ;-> Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
@@ -6040,7 +6040,7 @@ Facciamo una partita molto semplice:
 ;->  0  1  0
 ;->  1  1  1
 ;-> row or col to flip (ex. r0)? c2
-;-> 
+;->
 ;-> Move: 1
 ;-> Target Matrix:
 ;->  0  1  0
@@ -6051,7 +6051,7 @@ Facciamo una partita molto semplice:
 ;->  0  1  1
 ;->  1  1  0
 ;-> row or col to flip (ex. r0)? r1
-;-> 
+;->
 ;-> Move: 2
 ;-> Target Matrix:
 ;->  0  1  0
@@ -6062,7 +6062,7 @@ Facciamo una partita molto semplice:
 ;->  1  0  0
 ;->  1  1  0
 ;-> row or col to flip (ex. r0)? r1
-;-> 
+;->
 ;-> Move: 3
 ;-> Target Matrix:
 ;->  0  1  0
@@ -6073,7 +6073,7 @@ Facciamo una partita molto semplice:
 ;->  0  1  1
 ;->  1  1  0
 ;-> row or col to flip (ex. r0)? c2
-;-> 
+;->
 ;-> Move: 4
 ;-> Target Matrix:
 ;->  0  1  0
@@ -6084,7 +6084,7 @@ Facciamo una partita molto semplice:
 ;->  0  1  0
 ;->  1  1  1
 ;-> row or col to flip (ex. r0)? c0
-;-> 
+;->
 ;-> Move: 5
 ;-> Target Matrix:
 ;->  0  1  0
@@ -6266,21 +6266,21 @@ Problema algebrico
 Trovare il valore di x + y sapendo che x e y sono interi positivi e soddisfano la seguente equazione:
 
   x + xy + y = 54
-  
+
 Soluzione
 ---------
 Raccogliamo la x:
 
   x + xy + y = 54  -->  x(y + 1) + y = 54
-  
+
 Aggiungiamo 1 ad entrambi i membri dell'equazione:
 
   x(y + 1) + y = 54  -->  x(y + 1) + y + 1 = 55
-  
+
 Raccogliamo (y + 1):
 
   x(y + 1) + y + 1 = 55  -->  (x + 1)(y + 1) = 55
-  
+
 L'equazione (x + 1)(y + 1) = 55 ci dice che 55 è dato dal prodotto di due numeri (x + 1) e (y + 1).
 Elenchiamo tutte le coppie di numeri che producono 55:
 
@@ -6291,7 +6291,7 @@ Elenchiamo tutte le coppie di numeri che producono 55:
 
 Poichè x e y sono numeri interi positivi il loro valore minimo vale 1, quindi risulta:
 
-  (x + 1) >= 2 e 
+  (x + 1) >= 2 e
   (y + 1) >= 2
 
 Queste due condizioni permettono di eliminare le prime due coppie che producono 55, cioè 1*55 e 55*1.
@@ -6447,7 +6447,7 @@ Scriviamo la funzione:
     (dolist (f fattori)
       (if (zero? (% i f)) (extend s (parole $idx)))
     )
-    (if (= s "") 
+    (if (= s "")
         (println i)
         (println s)
     )
@@ -6565,7 +6565,7 @@ Funzione che calcola l'n-esimo numero di Jacobsthal:
 Calcoliamo i primi 25 numeri di Jacobsthal:
 
 (map Jacob (sequence 0 25))
-;-> (0 1 1 3 5 11 21 43 85 171 341 683 1365 2731 5461 10923 21845 43691 
+;-> (0 1 1 3 5 11 21 43 85 171 341 683 1365 2731 5461 10923 21845 43691
 ;->  87381 174763 349525 699051 1398101 2796203 5592405 11184811)
 
 2) Formula: J(n) = (2^n - (-1)^n)/3
@@ -6578,7 +6578,7 @@ Funzione che calcola l'n-esimo numero di Jacobsthal:
 Calcoliamo i primi 25 numeri di Jacobsthal:
 
 (map J (sequence 0 25))
-;-> (0 1 1 3 5 11 21 43 85 171 341 683 1365 2731 5461 10923 21845 43691 
+;-> (0 1 1 3 5 11 21 43 85 171 341 683 1365 2731 5461 10923 21845 43691
 ;->  87381 174763 349525 699051 1398101 2796203 5592405 11184811)
 
 Vediamo la differenza di velocità tra le due funzioni "Jacob" e "J":
@@ -6645,7 +6645,7 @@ Programmazione dinamica: Jacobsthal
               (setf (dp i) (+ (dp (- i 1)) (* 2 (dp (- i 2)))))
             )
             ; if all is true, then return all Jacob numbers from 0 to n
-            ; else return n-th Jacobsthal number     
+            ; else return n-th Jacobsthal number
             (if all dp (dp n))))))
 
 (map Jacob-dp (sequence 0 25))
@@ -6672,7 +6672,7 @@ Programmazione dinamica: Jacobsthal-Lucas
               (setf (dp i) (+ (dp (- i 1)) (* 2 (dp (- i 2)))))
             )
             ; if all is true, then return all Jacobsthal-Lucas numbers (0, n)
-            ; else return n-th Jacobsthal-Lucas number 
+            ; else return n-th Jacobsthal-Lucas number
             (if all dp (dp n))))))
 
 (map JL-dp (sequence 0 25))
@@ -7413,10 +7413,10 @@ Facciamo alcune prove:
 
 (setq a '(15.0 6.0 42.0 41.0 7.0 36.0 49.0 40.0 39.0 47.0 43.0))
 (setq b '(36.0 40.0 7.0 39.0 41.0 15.0))
-(setq c '(0.14082834  0.09748790  1.73131507  0.87636009 
-          -1.95059594  0.73438555  -0.03035726  1.46675970 
+(setq c '(0.14082834  0.09748790  1.73131507  0.87636009
+          -1.95059594  0.73438555  -0.03035726  1.46675970
           -0.74621349 -0.72588772  0.63905160  0.61501527
-          -0.98983780 -1.00447874 -0.62759469  0.66206163  
+          -0.98983780 -1.00447874 -0.62759469  0.66206163
           1.04312009 -0.10305385  0.75775634  0.32566578))
 
 (fivenum a)
@@ -7431,7 +7431,7 @@ Facciamo alcune prove:
 Modulino
 --------
 
-È utile poter eseguire una funzione main() solo quando un programma viene eseguito direttamente. Questa è una caratteristica centrale negli script. 
+È utile poter eseguire una funzione main() solo quando un programma viene eseguito direttamente. Questa è una caratteristica centrale negli script.
 Uno script che si comporta in questo modo è chiamato "modulino".
 
 newLISP manca di script "main", ma la funzionalità può eseere aggiunta facilmente.
@@ -7441,8 +7441,8 @@ From Rosetta Code: https://rosettacode.org/wiki/Modulinos#newLISP
 (context 'SM)
 (define (SM:meaning-of-life) 42)
 (define (main)
-	(println (format "Main: The meaning of life is %d" (meaning-of-life)))
-	(exit))
+  (println (format "Main: The meaning of life is %d" (meaning-of-life)))
+  (exit))
 (if (find "scriptedmain" (main-args 1)) (main))
 (context MAIN)
 
@@ -7460,7 +7460,7 @@ Tempi di esecuzione di funzioni con cicli "for" multipli.
 
 1 for
 -----
-(define (one iter) 
+(define (one iter)
   (for (i 1 iter)))
 
 (time (one 5e8))
@@ -7468,7 +7468,7 @@ Tempi di esecuzione di funzioni con cicli "for" multipli.
 
 2 for
 -----
-(define (two iter) 
+(define (two iter)
   (for (i 1 iter)
     (for (j 1 iter))))
 
@@ -7481,7 +7481,7 @@ Tempi di esecuzione di funzioni con cicli "for" multipli.
 
 3 for
 -----
-(define (three iter) 
+(define (three iter)
   (for (i 1 iter)
     (for (j 1 iter)
       (for (k 1 iter)))))
@@ -7495,7 +7495,7 @@ Tempi di esecuzione di funzioni con cicli "for" multipli.
 
 4 for
 -----
-(define (four iter) 
+(define (four iter)
   (for (i 1 iter)
     (for (j 1 iter)
       (for (k 1 iter)
@@ -7510,7 +7510,7 @@ Tempi di esecuzione di funzioni con cicli "for" multipli.
 
 5 for
 -----
-(define (five iter) 
+(define (five iter)
   (for (i 1 iter)
     (for (j 1 iter)
       (for (k 1 iter)
@@ -7624,6 +7624,280 @@ Ho provato con 11 carte...
 ...ma windows è andato in crash.
 
 Infatti le permutazioni da calcolare sono 11! = 39916800.
+
+
+---------------------
+Musica maestro (beep)
+---------------------
+
+Come fare musica con la funzione "Beep" di windows.
+Vediamo la definizione della funzione "Beep" dalla documentazione Microsoft:
+
+Beep function (utilapiset.h) (kernel32.dll)
+-------------------------------------------
+Generates simple tones on the speaker. The function is synchronous, it performs an alertable wait and does not return control to its caller until the sound finishes.
+
+Syntax C++:
+
+BOOL Beep(
+  [in] DWORD dwFreq,
+  [in] DWORD dwDuration
+);
+
+Parameters:
+[in] dwFreq
+The frequency of the sound, in hertz. This parameter must be in the range 37 through 32,767 (0x25 through 0x7FFF).
+
+[in] dwDuration
+The duration of the sound, in milliseconds.
+
+Return value:
+If the function succeeds, the return value is nonzero.
+If the function fails, the return value is zero.
+
+Per prima cosa dobbiamo importare la funzione:
+
+(import "kernel32.dll" "Beep")
+;-> Beep@D00668C0
+
+Poi scriviamo una funzione che genera un suono (beep) con un dato tono (freq) e una data lunghezza (duration):
+
+(define (beep freq duration)
+  (and (> freq 36) (Beep freq duration)))
+
+Facciamo alcune prove:
+
+(beep 280 150)
+(beep 700 150)
+(beep 1200 150)
+(beep 300 150)
+
+Funzione per resettare l'altoparlante:
+
+(define (nobeep) (Beep 0 0))
+
+Una pianola spartana:
+
+(define (pianola)
+  (setq sound '((113 523) (119 587) (101 659) (114 698)
+                (116 784) (121 880) (117 988) (105 1046)))
+  (println "Press the keys QWERTYUI to play the piano! ESC to exit.")
+  (while (!= (setq c (read-key)) 27)
+    (beep (lookup c sound) 100)))
+
+(pianola)
+
+Scale musicali:
+
+(setq scale1 '(9121 8609 8126 7670 7239 6833 6449
+               6087 5746 5423 5119 4831 4560))
+(dolist (el scale1) (beep el 150))
+
+(setq scale2 '(4560 4304 4063 3834 3619 3416 3224
+               3043 2873 2711 2559 2415 2280))
+(dolist (el scale2) (beep el 150))
+
+(setq scale3 '(2280 2152 2031 1917 1809 1715 1612
+               1521 1436 1355 1292 1207 1140))
+(dolist (el scale3) (beep el 150))
+
+Una pianola estesa:
+
+(define (piano)
+  (setq sound '((113 4560) (50 4304) (119 4063) (51 3834) (101 3619)
+                (114 3416) (53 3224) (116 3043) (54 2873) (121 2711)
+                (55 2559) (117 2415) (105 2280) (122 2280) (115 2152)
+                (120 2031) (100 1917) (99 1809) (118 1715) (103 1612)
+                (98 1521) (104 1436) (110 1355) (106 1292) (109 1207)
+                (44 1140)))
+  (println "Press the keys to play the piano! ESC to exit.")
+  (while (!= (setq c (read-key)) 27)
+    (beep (lookup c sound) 100)))
+
+(piano)
+
+
+-------------------------
+Numeri primi ultra-useful
+-------------------------
+
+Un primo ultra-useful è un elemento della sequenza in cui ogni a(n) è il più piccolo intero positivo k tale che 2^(2^n) - k è primo.
+Il numero k deve essere sempre dispari poiché 2 a qualsiasi potenza è sempre pari.
+
+Nota: I numeri diventano estremamente grandi molto velocemente. Ad oggi (2022) sono stati identificati solo diciannove elementi.
+
+Sequenza OEIS: A058220
+  1, 3, 5, 15, 5, 59, 159, 189, 569, 105, 1557, 2549, 2439, 13797,
+  25353, 5627, 24317, 231425, 164073, ...
+
+(define (** num power)
+"Calculates the integer power of an integer"
+  (if (zero? power) 1
+      (let (out 1L)
+        (dotimes (i power)
+          (setq out (* out num))))))
+
+(define (prime? num)
+"Check if a number is prime"
+   (if (< num 2) nil
+       (= 1 (length (factor num)))))
+
+Funzione che calcola i numeri primi ultra-useful:
+
+(define (ultra n)
+  (local (k p stop res)
+   (setq k 1)
+   (setq p (- (** 2 (** 2 n)) k))
+   (setq stop nil)
+   (until stop
+     (cond ((prime? p)
+             (setq stop true)
+             (setq res k))
+           (true
+             (-- p 2)
+             (++ k 2))
+     )
+   )
+  res))
+
+Calcoliamo i primi numeri della sequenza:
+
+(map ultra (sequence 1 5))
+
+Con questa funzione è possibile calcolare solo i primi cinque numeri della sequenza perchè la funzione "prime?" non accetta i big-integer.
+
+(ultra 6)
+;-> ERR: number out of range in function factor
+;-> called from user function (prime? p)
+;-> called from user function (ultra 6)
+
+Proviamo con una funzione che calcola (lentamente) la fattorizzazione di un numero big-integer:
+
+(define (factorbig n)
+  (local (f k i dist out)
+    ; Distanze tra due elementi consecutivi della ruota (wheel)
+    (setq dist (array 48 '(2 4 2 4 6 2 6 4 2 4 6 6 2 6 4 2 6 4
+                           6 8 4 2 4 2 4 8 6 4 6 2 4 6 2 6 6 4
+                           2 4 6 2 6 4 2 4 2 10 2 10)))
+    (setq out '())
+    (while (zero? (% n 2)) (push '2L out -1) (setq n (/ n 2)))
+    (while (zero? (% n 3)) (push '3L out -1) (setq n (/ n 3)))
+    (while (zero? (% n 5)) (push '5L out -1) (setq n (/ n 5)))
+    (while (zero? (% n 7)) (push '7L out -1) (setq n (/ n 7)))
+    (setq k 11L i 0)
+    (while (<= (* k k) n)
+      (if (zero? (% n k))
+        (begin
+        (push k out -1)
+        (setq n (/ n k)))
+        (begin
+        ;(++ k (dist i))
+        (setq k (+ k (dist i)))
+        (if (< i 47) (++ i) (setq i 0)))
+      )
+    )
+    (if (> n 1) (push (bigint n) out -1))
+    out
+  )
+)
+
+(factorbig 9223372036854775809L)
+;-> (3L 3L 3L 19L 43L 5419L 77158673929L)
+
+Riscriviamo la funzione "prime?":
+
+(define (prime? num)
+   (if (< num 2) nil
+       (= 1 (length (factorbig num)))))
+
+(time (println (ultra 6)))
+;-> 59
+;-> 971848.45 circa 16 minuti
+
+Per curiosità ecco lo stesso algoritmo scritto con il linguaggio di programmazione Arturo:
+
+; start script
+ultraUseful: function [n]
+[
+    k: 1
+    p: (2^2^n) - k
+    while ø
+    [
+        if prime? p -> return k
+        p: p-2
+        k: k+2
+    ]
+]
+
+print [pad "n" 3 "|" pad.right "k" 4]
+print repeat "-" 10
+loop 1..12 'x ->
+    print [(pad to :string x 3) "|" (pad.right to :string ultraUseful x 4)]
+; end script
+
+Possiamo eseguire il programma direttamente nel sito web:
+
+https://arturo-lang.io/
+
+In pochi secondi si ottiene il seguente risultato:
+
+    n | k
+  ----------
+    1 | 1
+    2 | 3
+    3 | 5
+    4 | 15
+    5 | 5
+    6 | 59
+    7 | 159
+    8 | 189
+    9 | 569
+   10 | 105
+   11 | 1557
+   12 | 2549
+
+
+------------------------------
+Lista dei file di una cartella
+------------------------------
+
+Ecco un semplice metodo per avere la lista di tutti i file di una cartella.
+
+Valore della cartella corrente:
+(real-path)
+;-> "F:\\Lisp-Scheme\\newLisp\\newLISP-Note"
+
+Cambio della cartella corrente:
+(change-dir "F:\\Lisp-Scheme\\newLisp\\newLISP-Note")
+
+Funzione che ritorna una lista con tutti i file di una cartella:
+
+(define (list-files str-path)
+  (if (null? str-path)
+      (clean directory? (directory (real-path)))
+      (clean directory? (directory str-path))))
+
+(list-files)
+;-> ("00-indice.lsp" "01-generale.lsp" "02-funzioni-varie.lsp"
+;->  "03-99-problemi.lsp" "04-rosetta-code.lsp" "05-project-euler.lsp"
+;->  "06-problemi-vari.lsp" "07-domande.lsp" "08-librerie.lsp"
+;->  "09-note-libere-1.lsp" "10-note-libere-2.lsp" "11-note-libere-3.lsp"
+;->  "12-note-libere-4.lsp" "13-note-libere-5.lsp" "14-note-libere-6.lsp"
+;->  "15-note-libere-7.lsp" "16-note-libere-8.lsp" "17-note-libere-9.lsp"
+;->  "18-note-libere-10.lsp" "20-appendici.lsp" "21-bibliografia.lsp"
+;->  "A-Introduction-to-newLISP.lisp" "B-Code-Patterns.lisp"
+;->  "C-The-little-newLISPER.lisp" "D-Kazimir-Blog.lisp"
+;->  "data.zip" "LICENSE.txt" "make-newLISP-Note.bat" "newLISP-Note.lsp.old"
+;->  "README.md" "yo.zip" "_npp-newlisp.ahk")
+> (list-files "c:\\")
+;-> ("$Recycle.Bin" "$WinREAgent" "acl10.1express" "AdwCleaner"
+;->  "ASUS" "BOOTNXT" "bootTel.dat" "CLISP" "Documents and Settings"
+;->  "DumpStack.log.tmp" "gforth64" "hiberfil.sys" "inetpub"
+;->  "Intel" "MapInfo15" "Microsoft" "MSOCache" "newlisp"
+;->  "pagefile.sys" "PDE3" "PDE4" "PerfLogs" "Program Files"
+;->  "Program Files (x86)" "ProgramData" "Python27" "Recovery"
+;->  "sqlite" "swapfile.sys" "System Volume Information"
+;->  "TDM-GCC-64" "totalcmd" "Users" "util" "Windows")
 
 =============================================================================
 

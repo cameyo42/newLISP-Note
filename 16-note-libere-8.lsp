@@ -3111,7 +3111,7 @@ Metodo 2 (ricorsivo)
   (if (empty? lst)
       (list '())
       (let ((element (first lst))
-            (p (power-set2 (rest lst))))
+            (p (powerset2 (rest lst))))
         (append (map (fn (subset) (cons element subset)) p) p) )))
 
 (powerset2 '(1 2 3))
@@ -3162,6 +3162,43 @@ Contatore (i)     Sottolista
    110        -->    23
    111        -->    123
 
+Metodo 4 (iterativo)
+--------------------
+Questa funzione prende come parametro il numero di elementi e genera il powerset della lista (0..n-1). Ad esempio se il numero vale 3, allora la funzione calcola il powerset della lista (0 1 2).
+
+(define (powerset4 num)
+  (local (out conta buf ind n_1 stop tmp)
+    (cond ((zero? num) (setq out '(())))
+          (true
+            (setq out '(()))
+            (setq conta 0) ; number of total permutations
+            (setq buf (array num '(0)))
+            (setq ind 0)
+            (setq n_1 (- num 1))
+            (setq stop nil)
+            (until stop
+              (setq tmp '())
+              ;(for (i 0 ind) (print (buf i) { })) (println)
+              (for (i 0 ind) (push (buf i) tmp -1))
+              (push tmp out -1)
+              (++ conta)
+              (cond ((< (buf ind) n_1)
+                      (++ ind)
+                      (setf (buf ind) (+ (buf (- ind 1)) 1)))
+                    ((> ind 0)
+                      (-- ind)
+                      (setf (buf ind) (+ (buf ind) 1)))
+                    (true
+                      (setq stop true))
+              )
+            )
+          )
+    )
+    out))
+
+(powerset4 3)
+;-> (() (0) (0 1) (0 1 2) (0 2) (1) (1 2) (2))
+
 Vediamo la velocità delle funzioni:
 
 (setq lst (randomize (sequence 1 10)))
@@ -3173,6 +3210,56 @@ Vediamo la velocità delle funzioni:
 
 (time (powerset3 lst) 100)
 ;-> 149.604
+
+(time (powerset4 10) 100)
+;-> 58.039
+
+(time (powerset1 (sequence 1 20)))
+;-> 905.264
+(time (powerset2 (sequence 1 20)))
+;-> 631.173
+(time (powerset3 (sequence 1 20)))
+;-> 2775.072
+(time (powerset4 20))
+;-> 1087.91
+
+Ottimizziamo un pò la funzione "powerset4":
+
+(define (powerset5 num)
+  (local (out conta buf ind n_1 stop tmp)
+    (cond ((> num 0)
+            (setq out '(()))
+            (setq buf (array num '(0)))
+            (setq ind 0)
+            (setq n_1 (- num 1))
+            (setq stop nil)
+            (until stop
+              (setq tmp '())
+              (for (i 0 ind) (push (buf i) tmp))
+              (push tmp out)
+              (cond ((< (buf ind) n_1)
+                      (++ ind)
+                      (setf (buf ind) (+ (buf (- ind 1)) 1)))
+                    ((> ind 0)
+                      (-- ind)
+                      (++ (buf ind)))
+                    (true
+                      (setq stop true))
+              )
+            )
+          )
+          (true (setq out '(())))
+    )
+    out))
+
+(powerset5 3)
+;-> ((2) (2 1) (1) (2 0) (2 1 0) (1 0) (0) ())
+
+(time (powerset5 10) 100)
+;-> 44.373
+
+(time (powerset5 20))
+;-> 966.032
 
 
 -----------------------------------
@@ -6077,8 +6164,8 @@ Versione newLISP del programma precedente:
 ;->                          ***********       ***********
 ;->                          **  *****           *****  **
 ;->                           *   *                 *   *
-;-> 
-;-> 
+;->
+;->
 ;-> Time Elapsed: 1000
 
 Altra versione di Mandelbrot:
@@ -6148,7 +6235,7 @@ Identiche funzionalità di "set", "constant" protegge ulteriormente i simboli da
 I simboli inizializzati con "set", "define" o "define-macro" possono comunque essere protetti utilizzando la funzione "constant":
 
 (constant 'aVar 123)  → 123
-(set 'aVar 999) 
+(set 'aVar 999)
 ERR: symbol is protected in function set: aVar
 
 (define (double x) (+ x x))
@@ -6197,7 +6284,7 @@ Uno o più simboli in sym-1 [sym-2 ... ] possono essere resi globalmente accessi
 
 (global 'aVar 'x 'y 'z)  → z
 
-(define (foo x) 
+(define (foo x)
 (...))
 
 (constant (global 'foo))
@@ -6291,7 +6378,7 @@ Trasformarla nella lista seguente:
 Definiamo i seguenti parametri per ogni elemento della lista trasformata (es. (1 Olio 2 5 7)):
 
 id     --> codice univoco = 1
-name   --> nome univoco = Olio 
+name   --> nome univoco = Olio
 values --> lista dei valori (2 5 7)
 
 (define (trasf lst)
@@ -6339,12 +6426,12 @@ Data una lista di numeri interi, creare una nuova lista con solo gli elementi du
     (setq out '())
     ; calcola gli elementi unici
     (setq uniq (unique lst))
-    ; conta gli elementi 
+    ; conta gli elementi
     (setq conta (count uniq lst))
     ; ciclo per estrarre gli elementi con conteggio
     ; maggiore di 1
     (dolist (el conta)
-      (if (> el 1) 
+      (if (> el 1)
           (if all
               ; inserisce tutti i valori dell'elemento
               ; multiplo corrente
@@ -6472,7 +6559,7 @@ lunghezza
 struttura/lista degli indici
 ----------------------------
 (ref-all nil lst (fn (x) true))
-;-> ((0) (0 0) (0 1) (0 2) (0 2 0) (1) (1 0) (1 1) (1 2) (1 3) (1 3 0) 
+;-> ((0) (0 0) (0 1) (0 2) (0 2 0) (1) (1 0) (1 1) (1 2) (1 3) (1 3 0)
 ;->  (1 3 1) (1 3 2) (1 3 2 0) (2) (3) (3 0) (3 0 0) (3 0 0 0)
 ;->  (3 0 0 0 0) (3 0 0 0 0 0)  (3 0 0 0 0 0 0))
 
@@ -6480,13 +6567,13 @@ Dalla lista degli indici possiamo recuperare tutti gli elementi della lista:
 
 (setq idx (ref-all nil lst (fn (x) true)))
 (dolist (el idx) (print (lst el) { }))
-;-> (1 1 (2)) 1 1 (2) 2 (3 3 3 (4 5 (4))) 3 3 3 (4 5 (4)) 4 5 (4) 4 1 
+;-> (1 1 (2)) 1 1 (2) 2 (3 3 3 (4 5 (4))) 3 3 3 (4 5 (4)) 4 5 (4) 4 1
 ;-> ((((((6)))))) (((((6))))) ((((6)))) (((6))) ((6)) (6) 6
 
 Possiamo recuperare gli elementi più facilmente con "ref-all":
 
 (ref-all nil lst (fn (x) true) true)
-;-> (1 1 (2)) 1 1 (2) 2 (3 3 3 (4 5 (4))) 3 3 3 (4 5 (4)) 4 5 (4) 4 1 
+;-> (1 1 (2)) 1 1 (2) 2 (3 3 3 (4 5 (4))) 3 3 3 (4 5 (4)) 4 5 (4) 4 1
 ;-> ((((((6)))))) (((((6))))) ((((6)))) (((6))) ((6)) (6) 6
 
 Massimo livello di annidamento (by Sammo)
@@ -6531,7 +6618,7 @@ Con elementi liste vuote "()":
 Con elementi "nil":
 (setq c '((1 2) ((2 (3)) (4 4)) (((7)) () (nil))))
 (ref-all nil c (fn (x) true))
-;-> ((0) (0 0) (0 1) (1) (1 0) (1 0 0) (1 0 1) (1 0 1 0) (1 1) 
+;-> ((0) (0 0) (0 1) (1) (1 0) (1 0 0) (1 0 1) (1 0 1 0) (1 1)
 ;->  (1 1 0) (1 1 1) (2) (2 0) (2 0 0) (2 0 0 0) (2 1) (2 2) (2 2 0))
 
 Se consideriamo le liste come alberi e la complessità è misurata in termini di nodi, rami e foglie (il ramo è il percorso dalla radice alla foglia), possiamo usare le seguenti funzioni:
@@ -6607,9 +6694,9 @@ La seguente espressione risolve il problema:
    (pop planets item))
 
 planets
-;-> (("Mercury" (diameter 0.382) (mass 0.06) (radius 0.387) (period 0.241) 
+;-> (("Mercury" (diameter 0.382) (mass 0.06) (radius 0.387) (period 0.241)
 ;->  (incline 7) (eccentricity 0.206) (rotation 58.6) (moons 0))
-;->  ("Venus" (diameter 0.949) (mass 0.82) (radius 0.72) (period 0.615) 
+;->  ("Venus" (diameter 0.949) (mass 0.82) (radius 0.72) (period 0.615)
 ;->  (incline 3.39) (eccentricity 0.0068) (rotation -243) (moons 0)))
 
 Dobbiamo utilizzare "pop" su "reverse list" perchè altrimenti potremmo incorrere in "list out of bounds error".
@@ -6664,7 +6751,7 @@ theList
 
 ; reconstruct the list from popped items starting with residual list
 (map (fn (m i) (push m theList i)) (reverse (copy popped)) indexList)
-;-> ((a (b)) (a (b) (b)) (a (b) (b (b 2))) (a (b) (b (b 2) (b))) 
+;-> ((a (b)) (a (b) (b)) (a (b) (b (b 2))) (a (b) (b (b 2) (b)))
 ;->  (a (b) (b (b 2) (b (b 3)))) (a (b) (b (b 2) (b (b 3) (b 4)))))
 
 theList
@@ -6701,13 +6788,13 @@ i dati potrebbero essere un identificatore di contesto della funzione di default
 
 (update db 'apples 'Apples)
 ;-> (fruits (Apples 123 44) (oranges 1 5 3))
-(update db 'oranges 'Oranges) 
+(update db 'oranges 'Oranges)
 ;-> (fruits (Apples 123 44) (Oranges 1 5 3))
 
 db:db
 ;-> (fruits (Apples 123 44) (Oranges 1 5 3))
 
-Per esempi su come utilizzare "func-compare" vedere "set-ref-all". 
+Per esempi su come utilizzare "func-compare" vedere "set-ref-all".
 
 Per modificare tutte le occorrenze di un elemento in una lista, utilizzare "set-ref-all".
 
@@ -6734,7 +6821,7 @@ L'uso del funtore predefinito come lista consente di passare la lista per riferi
   (set-ref-all 'apples ctx "Apples")
 )
 
-(foo db) 
+(foo db)
 ;-> ((monday ("Apples" 20 30) (oranges 2 4 9)) (tuesday ("Apples" 5) (oranges 32 1)))
 
 Durante la valutazione di (foo db), l'elenco in db:db verrà passato per riferimento e "set-ref-all" apporterà le modifiche sull'originale, non su una copia di db:db.
@@ -6744,7 +6831,7 @@ Come con "find", "replace", "ref" e "ref-all", le ricerche complesse possono ess
 (set 'data '((monday (apples 20 30) (oranges 2 4 9)) (tuesday (apples 5) (oranges 32 1))))
 
 (set-ref-all '(oranges *) data (list (first $it) (apply + (rest $it))) match)
-;-> ( ... (oranges 15) ... (oranges 33) ... ) 
+;-> ( ... (oranges 15) ... (oranges 33) ... )
 
 L'esempio somma tutti i numeri trovati nei record che iniziano con il simbolo arancione. Gli elementi trovati appaiono in $it.
 
