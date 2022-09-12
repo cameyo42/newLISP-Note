@@ -1358,6 +1358,7 @@ NOTE LIBERE 10
   Musica maestro (beep)
   Numeri primi ultra-useful
   Lista dei file di una cartella
+  Creazione di immagini in formato PPM
   
   
 APPENDICI

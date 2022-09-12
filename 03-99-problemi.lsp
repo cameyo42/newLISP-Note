@@ -119,7 +119,7 @@ Miscellaneous Problems (Problemi Vari)
 N-99-90  Eight queens problem (+)
 N-99-91  Knight's tour (+)
 N-99-92  Von Koch's conjecture
-N-99-93  An arithmetic puzzle
+N-99-93  An arithmetic puzzle (+)
 N-99-94  Generate K-regular simple graphs with N nodes
 N-99-95  English number words (+)
 N-99-96  Syntax checker (alternative solution with difference lists)

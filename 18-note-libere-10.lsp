@@ -7619,11 +7619,17 @@ Questo metodo permette di calcolare la soluzione fino a 10 carte:
 ;-> ((1 0) (2 1) (3 2) (4 4) (5 7) (6 10) (7 16) (8 22) (9 30) (10 38))
 ;-> 17937.455
 
-Ho provato con 11 carte...
-; (time (println (topswops 11)))
-...ma windows è andato in crash.
+Ho provato con 11 carte e la prima volta windows è andato in crash.
+Hp riprovato con una repl nuova e questo è il risultato:
 
-Infatti le permutazioni da calcolare sono 11! = 39916800.
+(time (println (topswops 11)))
+;-> ((1 0) (2 1) (3 2) (4 4) (5 7) (6 10) (7 16) (8 22) (9 30) (10 38) (11 51))
+;-> 331821.656
+
+Le permutazioni da calcolare sono 11! = 39916800.
+
+(time (perm (sequence 1 11)))
+;-> 39577.207
 
 
 ---------------------
@@ -7898,6 +7904,180 @@ Funzione che ritorna una lista con tutti i file di una cartella:
 ;->  "Program Files (x86)" "ProgramData" "Python27" "Recovery"
 ;->  "sqlite" "swapfile.sys" "System Volume Information"
 ;->  "TDM-GCC-64" "totalcmd" "Users" "util" "Windows")
+
+
+------------------------------------
+Creazione di immagini in formato PPM
+------------------------------------
+;
+; File: ppm-explore.lsp
+; Exploration with the PPM file format
+;
+; Format of ppm file
+; P3           # "P3" means this is a RGB color image in ASCII
+; 3 2          # "3 2" is the width and height of the image in pixels
+; 255          # "255" is the maximum value for each color
+; # The part above is the header
+; # The part below is the image data: RGB triplets (ASCII)
+; 255   0   0  # red
+;   0 255   0  # green
+;   0   0 255  # blue
+; 255 255   0  # yellow
+; 255 255 255  # white
+;   0   0   0  # black
+;
+; An RGB triplets (ASCII) cn be saved in pached string binary format
+;
+; Function to convert a rgb list (r g b) to a ppm packed string
+;( define ( ppm mrgb )  ( join ( map char mrgb ))) ; original by didi
+(define (ppm mrgb) (pack (dup "b" (length mrgb)) mrgb)) ; lutz
+;
+; set colors
+(setq white '(255 255 255))
+(setq black '(0 0 0))
+(setq red '(255 0 0))
+(setq green '(0 255 0))
+(setq blue '(0 0 255))
+;
+; background ppm color
+(setq backcolor (ppm white))
+; foreground ppm color
+(setq forecolor (ppm red))
+;
+; width and height of ppm image
+(set 'width 200 'height 200)
+;
+; range of x,y coords
+(set 'xmin 0 'ymin 0 'xmax (- width 1) 'ymax (- height 1))
+; array for store pixel of ppm image
+(silent (set 'bmparray (array (* width height) (list backcolor))))
+;
+; Function to convert a rgb color to ppm color
+(define (rgb2ppm-color) (ppm rgb))
+;
+; Function to write a point at x,y on ppm array
+; pcolor must be a ppm color
+(define (point x y pcolor)
+  (if (and (>= x xmin) (>= y ymin) (<= x xmax) (<= y ymax))
+    (begin
+      (setq idx (+  x  (*  (- ymax y) width)))
+      (setf (bmparray idx) pcolor))))
+;
+;Function to save the ppm array in a file (PPM format)
+(define (save-ppm file)
+  ; output as ppm-file, colormax-value is "255"
+  ; header
+  (write-file file
+     (append "P6\n" (string width) " " (string height) "\n255\n" ))
+  ; convert bitmap to string and append to ppm-file
+  ; Image data (pixel values)
+  (append-file file (join (array-list bmparray))))
+;
+; test: create image with random colors
+(define (rnd-image width height filename)
+  (set 'xmin 0 'ymin 0 'xmax (- width 1) 'ymax (- height 1))
+  (setq white '(255 255 255))
+  (setq backcolor (ppm white))
+  ; array for store pixel of ppm image
+  (setq bmparray (array (* width height) (list backcolor)))
+  (for (x xmin xmax)
+    (for (y ymin ymax)
+      (setq col (ppm (list (rand 256) (rand 256) (rand 256))))
+      (point x y col)
+    )
+  )
+  (save-ppm filename))
+;  
+(rnd-image 200 200 "ppm-rnd.ppm")
+;-> 120000
+; eof
+
+The PPM format (from http://netpbm.sourceforge.net/doc/ppm.html)
+----------------------------------------------------------------
+Updated: 09 October 2016
+
+The PPM format is a lowest common denominator color image file format.
+
+It should be noted that this format is egregiously inefficient. It is highly redundant, while containing a lot of information that the human eye can't even discern. Furthermore, the format allows very little information about the image besides basic color, which means you may have to couple a file in this format with other independent information to get any decent use out of it. However, it is very easy to write and analyze programs to process this format, and that is the point.
+
+It should also be noted that files often conform to this format in every respect except the precise semantics of the sample values. These files are useful because of the way PPM is used as an intermediary format. They are informally called PPM files, but to be absolutely precise, you should indicate the variation from true PPM. For example, "PPM using the red, green, and blue colors that the scanner in question uses."
+
+The name "PPM" is an acronym derived from "Portable Pixel Map." Images in this format (or a precursor of it) were once also called "portable pixmaps."
+
+The Format
+----------
+The format definition is as follows. You can use the libnetpbm C subroutine library to read and interpret the format conveniently and accurately.
+
+A PPM file consists of a sequence of one or more PPM images. There are no data, delimiters, or padding before, after, or between images.
+
+Each PPM image consists of the following:
+
+A "magic number" for identifying the file type. A ppm image's magic number is the two characters "P6".
+Whitespace (blanks, TABs, CRs, LFs).
+A width, formatted as ASCII characters in decimal.
+Whitespace.
+A height, again in ASCII decimal.
+Whitespace.
+The maximum color value (Maxval), again in ASCII decimal. Must be less than 65536 and more than zero.
+A single whitespace character (usually a newline).
+A raster of Height rows, in order from top to bottom. Each row consists of Width pixels, in order from left to right. Each pixel is a triplet of red, green, and blue samples, in that order. Each sample is represented in pure binary by either 1 or 2 bytes. If the Maxval is less than 256, it is 1 byte. Otherwise, it is 2 bytes. The most significant byte is first.
+A row of an image is horizontal. A column is vertical. The pixels in the image are square and contiguous.
+
+In the raster, the sample values are "nonlinear." They are proportional to the intensity of the ITU-R Recommendation BT.709 red, green, and blue in the pixel, adjusted by the BT.709 gamma transfer function. (That transfer function specifies a gamma number of 2.2 and has a linear section for small intensities). A value of Maxval for all three samples represents CIE D65 white and the most intense color in the color universe of which the image is part (the color universe is all the colors in all images to which this image might be compared).
+
+BT.709's range of channel values (16-240) is irrelevant to PPM.
+
+ITU-R Recommendation BT.709 is a renaming of the former CCIR Recommendation 709. When CCIR was absorbed into its parent organization, the ITU, ca. 2000, the standard was renamed. This document once referred to the standard as CIE Rec. 709, but it isn't clear now that CIE ever sponsored such a standard.
+
+Note that another popular color space is the newer sRGB. A common variation from PPM is to substitute this color space for the one specified. You can use pnmgamma to convert between this variation and true PPM.
+
+Note that a common variation from the PPM format is to have the sample values be "linear," i.e. as specified above except without the gamma adjustment. pnmgamma takes such a PPM variant as input and produces a true PPM as output.
+
+Strings starting with "#" may be comments, the same as with PBM.
+
+Note that you can use pamdepth to convert between a the format with 1 byte per sample and the one with 2 bytes per sample.
+
+All characters referred to herein are encoded in ASCII. "newline" refers to the character known in ASCII as Line Feed or LF. A "white space" character is space, CR, LF, TAB, VT, or FF (I.e. what the ANSI standard C isspace() function calls white space).
+
+Plain PPM
+---------
+There is actually another version of the PPM format that is fairly rare: "plain" PPM format. The format above, which generally considered the normal one, is known as the "raw" PPM format. See pbm for some commentary on how plain and raw formats relate to one another and how to use them.
+
+The difference in the plain format is:
+
+There is exactly one image in a file.
+The magic number is P3 instead of P6.
+Each sample in the raster is represented as an ASCII decimal number (of arbitrary size).
+Each sample in the raster has white space before and after it. There must be at least one character of white space between any two samples, but there is no maximum. There is no particular separation of one pixel from another -- just the required separation between the blue sample of one pixel from the red sample of the next pixel.
+No line should be longer than 70 characters.
+Here is an example of a small image in this format.
+
+P3
+# feep.ppm
+4 4
+15
+ 0  0  0    0  0  0    0  0  0   15  0 15
+ 0  0  0    0 15  7    0  0  0    0  0  0
+ 0  0  0    0  0  0    0 15  7    0  0  0
+15  0 15    0  0  0    0  0  0    0  0  0
+There is a newline character at the end of each of these lines.
+
+Programs that read this format should be as lenient as possible, accepting anything that looks remotely like a PPM image.
+
+Internet Media Type
+-------------------
+No Internet Media Type (aka MIME type, content type) for PPM has been registered with IANA, but the value image/x-portable-pixmap is conventional.
+Note that the PNM Internet Media Type image/x-portable-anymap also applies.
+
+File Name
+---------
+There are no requirements on the name of a PPM file, but the convention is to use the suffix ".ppm". "pnm" is also conventional, for cases where distinguishing between the particular subformats of PNM is not convenient.
+
+Compatibility
+-------------
+Before April 2000, a raw format PPM file could not have a maxval greater than 255. Hence, it could not have more than one byte per sample. Old programs may depend on this.
+
+Before July 2000, there could be at most one image in a PPM file. As a result, most tools to process PPM files ignore (and don't read) any data after the first image.
 
 =============================================================================
 
