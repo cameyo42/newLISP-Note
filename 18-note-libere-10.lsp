@@ -8079,5 +8079,249 @@ Before April 2000, a raw format PPM file could not have a maxval greater than 25
 
 Before July 2000, there could be at most one image in a PPM file. As a result, most tools to process PPM files ignore (and don't read) any data after the first image.
 
+
+---------
+Wave Sort
+---------
+
+Data una lista di numeri interi, ordinare la lista come un'onda (wave).
+Una lista di n elementi (0..n-1) viene ordinata come un'onda se:
+
+  lst(0) >= lst(1) <= lst(2) >= lst(3) <= lst(4) >= ...
+
+Cioè i numeri sono disposti in modo tale che il loro grafico sarà simile a un onda (up-down) piuttosto che a una linea retta di una lista ordinata in modo crescente/decrescente.
+
+Esempio:
+Input: lst = (10 5 6 3 2 20 100 80)
+Output: lst = (10 5 6 2 20 3 100 80)
+Nell'output il primo elemento è più grande del secondo, il secondo è più grande del terzo elemento e la stessa cosa si ripete fino alla fine della lista: elemento maggiore – elemento minore - elemento maggiore - elemento minore ecc.
+
+Nota: data una lista iniziale, la soluzione non è univoca, cioè ci possono essere più liste che soddisfano la forma wave.
+
+Primo metodo
+------------
+1) Ordinare la lista
+2) Scambiare gli elementi adiacenti
+
+(define (wave1 lst)
+  (sort lst)
+  (for (i 0 (- (length lst) 2) 2)
+    (swap (lst i) (lst (+ i 1))))
+  lst)
+
+(wave1 '(10 5 6 3 2 20 100 80))
+;-> (3 2 6 5 20 10 100 80)
+(wave1 '(10 90 49 2 1 5 23))
+;-> (2 1 10 5 49 23 90)
+
+Secondo metodo
+--------------
+L'idea si basa sul fatto che se ci assicuriamo che tutti gli elementi posizionati pari (all'indice 0, 2, 4, ..) siano maggiori dei loro elementi dispari adiacenti, allora abbiamo trovato una soluzione.
+1) Attraversare tutti gli elementi posizionati pari della lista:
+  1a) Se l'elemento corrente è più piccolo dell'elemento dispari precedente, scambia precedente e corrente.
+  1b) Se l'elemento corrente è più piccolo dell'elemento dispari successivo, scambia successivo e corrente.
+
+(define (wave2 lst)
+  (let (len (length lst))
+    (for (i 0 (- len 1) 2)
+      (if (and (> i 0) (> (lst (- i 1)) (lst i)))
+        (swap (lst i) (lst (- i 1)))
+      )
+      (if (and (< i (- len 1)) (< (lst i) (lst (+ i 1))))
+        (swap (lst i) (lst (+ i 1)))
+      )
+    )
+    lst))
+
+(wave2 '(10 5 6 3 2 20 100 80))
+;-> (10 5 6 2 20 3 100 80)
+
+(wave2 '(10 90 49 2 1 5 23))
+;-> (90 10 49 1 5 2 23)
+
+Nota: se nella lista esistono elementi multipli, allora il risultato può essere un onda che in qualche punto è piatta (due o più elementi uguali).
+
+(wave1 '(3 2 1 3 6 9 8 6 7 6))
+;-> (2 1 3 3 6 6 7 6 9 8)
+(wave2 '(3 2 1 3 6 9 8 6 7 6))
+;-> (3 1 3 2 9 6 8 6 7 6)
+
+
+-----
+1 o 2
+-----
+
+Scrivere una funzione che restituisce 2 con input 1 e restituisce 1 con input 2.
+Nota: questa è una domanda semplice per vedere in quanti modi siamo in grado di risolvere il problema.
+Inoltre non è specificato cosa deve ritornare la funzione per valori di input diversi da 1 e 2.
+
+Metodo 1: soluzione standard
+----------------------------
+(define (sol01 x)
+  (if (= x 1) 2 1))
+
+(sol01 1)
+;-> 2
+(sol01 2)
+;-> 1
+(sol01 3)
+;-> 1
+
+Metodo 2: soluzione algebrica
+-----------------------------
+(define (sol02 x)
+  (- 3 x))
+
+(sol02 1)
+;-> 2
+(sol02 2)
+;-> 1
+(sol02 3)
+;-> 0
+
+Metodo 3: operatore xor (bitwise)
+---------------------------------
+(define (sol03 x)
+  (^ x 1 2))
+
+(sol03 1)
+;-> 2
+(sol03 2)
+;-> 1
+(sol03 3)
+;-> 0
+
+
+--------------------------
+Little Endian e Big Endian
+--------------------------
+
+Little e big endian sono due modi per memorizzare tipi di dati multibyte (int, float, ecc.). Nelle macchine little endian, l'ultimo byte della rappresentazione binaria del tipo di dati multibyte viene memorizzato per primo. Invece, nelle macchine big endian, il primo byte della rappresentazione binaria del tipo di dati multibyte viene memorizzato per primo.
+Supponiamo che il numero intero sia memorizzato come 4 byte, quindi una variabile x con valore 0x01234567 verrà memorizzata come segue:
+ 
+Big endian
+
+            0x100   0x101   0x102   0x103
+  +-------+-------+-------+-------+-------+-------+          
+  |       |   01  |   23  |   45  |   67  |       |
+  +-------+-------+-------+-------+-------+-------+
+
+Little endian
+
+            0x100   0x101   0x102   0x103
+  +-------+-------+-------+-------+-------+-------+          
+  |       |   67  |   45  |   23  |   01  |       |
+  +-------+-------+-------+-------+-------+-------+
+
+Come facciamo a sapere quale tipo di rappresentazione (little o big endian) usa il nostro computer?
+
+Possiamo utilizzare la funzione primitiva "address".
+
+********************
+>>>funzione ADDRESS
+********************
+sintassi: (address int)
+sintassi: (address float)
+sintassi: (address string)
+
+Restituisce l'indirizzo di memoria del numero intero (int), del numero a doppia virgola mobile (float) o la stringa (string). Questa funzione viene utilizzata per passare parametri alle funzioni di libreria che sono state importate utilizzando la funzione "import".
+
+(set 's "\001\002\003\004")
+
+(get-char (+ (address s) 3))   → 4
+
+(set 'x 12345) ; x is a 64-bit long int
+(get-long (address x))         → 12345
+
+; on a big-endian CPU, i.e. PPC or SPARC 
+; the 32-bit int is in high 32-bit part of the long int
+(get-int (+ (address x) 4))    → 12345
+
+; on a little-endian CPU, i.e. Intel i386
+; the 32-bit int is in the low 32-bit part of the long int
+(get-int (address x))          → 12345
+
+; on both architectures (integers are 64 bit in newLISP)
+(set 'x 1234567890)
+(get-long (address x))         →  1234567890
+
+Quando una stringa viene passata alla funzione di libreria C, l'indirizzo della stringa viene utilizzato automaticamente e in tal caso non è necessario utilizzare la funzione "address". Come mostra l'esempio, "address" può essere utilizzata per eseguire operazioni aritmetiche del puntatore sull'indirizzo della stringa.
+
+"address" dovrebbe essere utilizzato solo su indirizzi persistenti di oggetti di dati a cui si fa riferimento da un simbolo di variabile, non da oggetti di espressioni intermedie volatili.
+
+Possiamo scrivere la funzione che trova il tipo di memorizzazione del nostro computer:
+
+(define (endian)
+  (let (x 12345)
+    (cond ((= x (get-int (+ (address x) 4))) "little")
+          ((= x (get-int (address x))) "big"))))
+
+(endian)
+;-> "big"
+
+
+---------------------------------------
+Conversione Binario-Gray e Gray-Binario
+---------------------------------------
+
+Questa conversione può essere effettuata applicando le seguenti regole:
+
+Da binario a gray:
+1) Il bit più significativo (MSB) del codice gray è sempre uguale all'MSB del codice binario.
+2) Gli altri bit del codice gray di uscita possono essere ottenuti XORing il bit del codice binario in corrispondenza di quell'indice e dell'indice precedente.
+
+Da gray a binario:
+1) Il bit più significativo (MSB) del codice binario è sempre uguale all'MSB del codice gray.
+2) Gli altri bit del codice binario di uscita possono essere ottenuti controllando il bit del codice gray in quell'indice. Se il bit del codice gray corrente è 0, copiare il bit del codice binario precedente, altrimenti copiare l'inversione del bit del codice binario precedente.
+
+; funzione di xor tra due caratteri
+(define (xor-char a b)
+  (if (= a b) "0" "1"))
+
+; funzione che inverte un bit
+(define (flip b)
+  (if (= b "0") "1" "0"))
+
+(define (binary-gray binary)
+  ; MSB è lo stesso del codice binario
+  (let ((len (length binary)) (gray (binary 0)))
+    ; i bit rimanenti, vengono calcolati
+    ; eseguendo lo XOR tra il precedente
+    ; e il corrente binario  
+    (for (i 1 (- len 1))
+      (extend gray (xor-char (binary (- i 1)) (binary i)))
+  )
+  gray))
+
+(binary-gray "01001")
+;-> "01101"
+
+(define (gray-binary gray)
+  (let ((len (length gray)) (binary (gray 0)))
+    ; MSB è lo stesso del codice gray
+    (for (i 1 (- len 1))
+      ; Se il bit corrente vale 0, 
+      (if (= (gray i) "0")
+          ; allora concatena il bit precedente
+          (extend binary (binary (- i 1)))
+          ; altrimenti concatena l'inverso del bit precedente
+          (extend binary (flip (binary (- i 1))))
+      )
+  )
+  binary))
+
+(gray-binary "01101")
+"01001"
+
+(binary-gray (gray-binary "1111"))
+;-> "1111"
+(binary-gray (gray-binary "0000"))
+;-> "0000"
+
+(gray-binary (binary-gray "1111"))
+;-> "1111"
+(gray-binary (binary-gray "0000"))
+;-> "0000"
+
 =============================================================================
 

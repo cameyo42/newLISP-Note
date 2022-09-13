@@ -2,7 +2,7 @@ Note su newLISP
 © copyright 2019-2022 Massimo Corinaldesi aka cameyo  
 MIT License  
 
-Appunti sul linguaggio newLISP  
+Appunti sul linguaggio newLISP e sul problem solving  
 
 00) Indice
 01) newLISP in generale (65)
@@ -22,7 +22,8 @@ Appunti sul linguaggio newLISP
 15) Note libere 7 (80)
 16) Note libere 8 (80)
 17) Note libere 9 (80)
-18) Note libere 10 (76)
+18) Note libere 10 (80)
+19) Note libere 11 (0)
 97) Appendici (25)
 98) Bibliografia
 99) yo library (yo.zip) (220)

@@ -1359,7 +1359,10 @@ NOTE LIBERE 10
   Numeri primi ultra-useful
   Lista dei file di una cartella
   Creazione di immagini in formato PPM
-  
+  Wave Sort
+  1 o 2
+  Little Endian e Big Endian
+  Conversione Binario-Gray e Gray-Binario
   
 APPENDICI
 =========
