@@ -1363,7 +1363,11 @@ NOTE LIBERE 10
   1 o 2
   Little Endian e Big Endian
   Conversione Binario-Gray e Gray-Binario
-  
+
+NOTE LIBERE 11
+==============
+  Il problema della celebrità
+
 APPENDICI
 =========
   The fifteen ideas characterizing LISP

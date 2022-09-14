@@ -7631,6 +7631,198 @@ Le permutazioni da calcolare sono 11! = 39916800.
 (time (perm (sequence 1 11)))
 ;-> 39577.207
 
+Proviamo con un altro algoritmo. 
+Dal sito Rosetta Code riportiamo la soluzione scritta in linguaggio julia:
+https://rosettacode.org/wiki/Topswops#Julia
+
+function fannkuch(n)
+  n == 1 && return 0
+  n == 2 && return 1
+  p = [1:n]
+  q = copy(p)
+  s = copy(p)
+  sign = 1
+  maxflips = sum = 0
+  while true
+    q0 = p[1]
+    if q0 != 1
+      for i = 2:n
+        q[i] = p[i]
+      end
+      flips = 1
+      while true
+        qq = q[q0] #??
+        if qq == 1
+          sum += sign*flips
+          flips > maxflips && (maxflips = flips)
+          break
+        end
+        q[q0] = q0
+        if q0 >= 4
+          i = 2
+          j = q0-1
+          while true
+            t = q[i]
+            q[i] = q[j]
+            q[j] = t
+            i += 1
+            j -= 1
+            i >= j && break
+          end
+        end
+        q0 = qq
+        flips += 1
+      end
+    end
+    #permute
+    if sign == 1
+      t = p[2]
+      p[2] = p[1]
+      p[1] = t
+      sign = -1
+    else
+      t = p[2]
+      p[2] = p[3]
+      p[3] = t
+      sign = 1
+      for i = 3:n
+        sx = s[i]
+        if sx != 1
+          s[i] = sx-1
+          break
+        end
+        i == n && return maxflips
+        s[i] = i
+        t = p[1]
+        for j = 1:i
+          p[j] = p[j+1]
+        end
+        p[i+1] = t
+      end
+    end
+  end
+end
+
+Dalla REPL di julia:
+
+julia> function main()
+for i = 1:10
+  println(fannkuch(i))
+end
+end
+
+julia> @time main()
+0
+1
+2
+4
+7
+10
+16
+22
+30
+38
+elapsed time: 0.299617582 seconds
+
+La versione newLISP (non proprio immediata da convertire e sicuramente migliorabile) è la seguente:
+
+(define (fannkuch n)
+(catch
+  (local (p q s sign maxflips sum q0 flips w1 qq w2 sx t i j)
+    (cond ((= n 1) 0)
+          ((= n 2) 1)
+          (true
+          (setq p (array (+ n 1) (sequence 0 n)))
+          (setq q p)
+          (setq s p)
+          (set 'sign 1 'maxflips 0 'sum 0)
+          (while true
+            (setq q0 (p 1))
+            (if (!= q0 1)
+              (begin
+                (for (i 2 n)
+                  (setf (q i) (p i))
+                )
+                (setq flips 1)
+                (setq w1 true)
+                (while w1
+                  (setq qq (q q0))
+                  (cond ((= qq 1)
+                          (setq sum (+ sum (* sign flips)))
+                          (if (> flips maxflips) (setq maxflips flips))
+                          (setq w1 nil))
+                        (true
+                          (setf (q q0) q0)
+                          (if (>= q0 4)
+                            (begin
+                              (set 'i 2 'j (- q0 1))
+                              (setq w2 true)
+                              (while w2
+                                (swap (q i) (q j))
+                                (++ i)
+                                (-- j)
+                                (if (>= i j) (setq w2 nil))
+                              );while
+                            )
+                          );if
+                          (setq q0 qq)
+                          (++ flips))
+                  )
+                );while
+              )
+            );if
+            ; permute
+            (cond ((= sign 1)
+                    (swap (p 1) (p 2))
+                    (setq sign -1))
+                  (true
+                    (swap (p 2) (p 3))
+                    (setq sign 1)
+                    (setq stop nil)
+                    (for (i 3 n 1 stop)
+                      (setq sx (s i))
+                      (cond ((!= sx 1)
+                              (setf (s i) (- sx 1))
+                              (setq stop true))
+                            (true
+                              (if (= i n) (throw maxflips))
+                              (setf (s i) i)
+                              (setq t (p 1))
+                              (for (j 1 i)
+                                (setf (p j) (p (+ j 1)))
+                              )
+                              (setf (p (+ i 1)) t))
+                      )
+                    );for
+                  )
+            );cond
+          );while
+        )
+      );cond
+    );let
+  );catch
+)
+
+Proviamo questa funzione:
+
+(fannkuch 5)
+;-> 7
+(fannkuch 7)
+;-> 16
+
+Vediamo il tempo di esecuzione con mazzi da 1 a 10 carte:
+
+(time (println (map fannkuch (sequence 1 10))))
+;-> 14431.258
+
+Proviamo con 11 carte:
+
+(time (println (fannkuch 11)))
+;-> 51
+;-> 169971.807
+
+Questo algoritmo è molto più veloce ed utilizzabile (perchè non crea una lista con tutte le permutazioni).
+
 
 ---------------------
 Musica maestro (beep)
