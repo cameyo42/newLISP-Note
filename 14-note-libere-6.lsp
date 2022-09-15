@@ -6374,7 +6374,7 @@ Quale delle due due funzioni è più veloce?
 (div 11255.923 9193.417)
 ;-> 1.224345964074076
 
-La prima funzione è più veloce, ma la differenza diminuisce con l'aumentare della dimensione della lista..
+La prima funzione è più veloce, ma la differenza diminuisce con l'aumentare della dimensione della lista.
 
 Nota: la prima funzione accetta liste e vettori, la seconda accetta solo liste.
 

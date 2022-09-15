@@ -7785,7 +7785,7 @@ La versione newLISP (non proprio immediata da convertire e sicuramente migliorab
                               (setf (s i) (- sx 1))
                               (setq stop true))
                             (true
-                              (if (= i n) (throw maxflips))
+                              (if (= i n) (throw maxflips)) ; function exit
                               (setf (s i) i)
                               (setq t (p 1))
                               (for (j 1 i)
