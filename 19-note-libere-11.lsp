@@ -386,7 +386,7 @@ Esempio 1
 
 ;; boucle d'attente d'événements
 (gs:listen)
-;------------------------------------
+;eof
 
 Esempio 2
 ---------
@@ -516,7 +516,7 @@ Esempio 2
 
 ;; event loop ------------------------------------------------------------
 (gs:listen)
-;------------------------------------
+;eof
 
 
 ------------------------------------
@@ -603,6 +603,173 @@ Legge un file byte per byte con 'read-char', quindi potrebbe essere lento, o pot
 ;-> (8400 280)
 
 Nota: non funziona con tutti i file jpg che ho provato (probabilmente alcuni jpg hanno dei caratteri unicode).
+
+
+----------------------
+Seven segments display
+----------------------
+
+Un display a sette segmenti può essere utilizzato per visualizzare i numeri. 
+La rappresentazione grafica del display è la seguente:
+
+  Segmenti tutti spenti    Segmenti tutti accesi
+          ---                       ■■■ 
+         |   |                     █   █
+          ---                       ■■■ 
+         |   |                     █   █
+          ---                       ■■■ 
+
+Le cifre da 0 a 9 vengono rappresentate nel modo seguente:
+
+   0       1       2       3       4       5       6       7       8       9
+  ■■■     ---     ■■■     ■■■     ---     ■■■     ■■■     ■■■     ■■■     ■■■
+ █   █   |   █   |   █   |   █   █   █   █   |   █   |   |   █   █   █   █   █
+  ---     ---     ■■■     ■■■     ■■■     ■■■     ■■■     ---     ■■■     ■■■
+ █   █   |   █   █   |   |   █   |   █   |   █   █   █   |   █   █   █   |   █
+  ■■■     ---     ■■■     ■■■     ---     ■■■     ■■■     ---     ■■■     ■■■
+  (6)     (2)     (5)     (5)     (4)     (5)     (6)     (3)     (7)     (6)
+
+Data una lista di numeri interi positivi, trovare il numero che utilizza il numero minimo di segmenti per essere visualizzato.
+Se più numeri hanno lo stesso numero minimo di segmenti, allora restituire il numero più grande.
+
+(define (min7 lst)
+  (local (seg numseg numval sumseg)
+    (setq numseg 999999999)
+    (setq numval -1)
+    ; array: seg(0) = 6, seg(1)=2, ecc.
+    (setq seg (array 10 '(6 2 5 5 4 5 6 3 7 6)))
+    ; per ogni numero della lista...
+    (dolist (num lst)
+      (setq sumseg 0)
+      ; somma tutti i segmenti per ogni cifra
+      (dolist (d (explode (string num)))
+        (setq sumseg (+ sumseg (seg (int d))))
+      )
+      ;(print sumseg { })
+      ; controllo valore minimo del numero di segmenti
+      (cond ((= sumseg numseg) ; se abbiamo lo stesso numero di segmenti...
+              ; allora memorizza il numero più grande
+              (if (> num numval) (setq numval num)))
+            ; se numero di segmenti maggiore, allora memorizza questa soluzione
+            ((< sumseg numseg)
+              (setq numval num)
+              (setq numseg sumseg))
+      )
+    )
+    (list numval numseg)))
+
+Facciamo un paio di prove:
+
+(min7 (sequence 0 9))
+;-> (1 2)
+(min7 '(123 345 23 44 57))
+;-> (57 8)
+
+
+-----------------------------------------------------
+Regular paperfolding sequence e dragon curve sequence
+-----------------------------------------------------
+
+La sequenza di piegatura regolare della carta (regular paperfolding sequence), nota anche come sequenza della curva del drago (dragon curve sequence), è una sequenza infinita di 0 e 1. Si ottiene dalla sequenza parziale ripetuta:
+
+1, ?, 0, ?, 1, ?, 0, ?, 1, ?, 0, ?, ...
+
+compilando i punti interrogativi con un'altra copia dell'intera sequenza.
+
+Sequenza OEIS: A014577
+
+  1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 1, ...
+
+Se una striscia di carta viene piegata ripetutamente a metà nella stessa direzione, i volte, otterrà (2^i - 1) pieghe, la cui direzione (sinistra o destra) è data dal motivo di 0 e 1 nella prima ( 2^i - 1) termini della normale sequenza di piegatura della carta. L'apertura di ogni piega per creare un angolo retto (o, equivalentemente, fare una sequenza di giri a sinistra ea destra attraverso una griglia regolare, seguendo lo schema della sequenza di piegatura della carta) produce una sequenza di catene poligonali che si avvicina al frattale della curva del drago.
+
+Il valore di un dato termine t(n) della sequenza, che inizia con n=1, può essere trovato ricorsivamente come segue. Dividere n per due, quante più volte possibile, per ottenere una fattorizzazione della forma n = m*2^k dove m è un numero dispari. Quindi:
+
+          | 1, se m ≡ 1 mod 4
+  t(n) = |
+          | 0, se m ≡ 3 mod 4
+
+Scriviamo una funzione che stampa i primi n numeri della sequenza.
+
+Algoritmo:
+Passaggio 1: inizia con il primo termine 1. Quindi aggiungi 1 e 0 alternativamente dopo ogni elemento del termine precedente.
+Passaggio 2: il nuovo termine ottenuto diventa il termine corrente.
+Passaggio 3: ripetere il processo in un ciclo da 1 a n, per generare ogni termine e infine l'n-esimo termine.
+
+Esempio:
+- 1
+(inizia con 1)
+
+- "1" 1 "0"
+1 e 0 sono inseriti alternativamente a sinistra ea destra del termine precedente.
+Qui il numero tra virgolette rappresenta gli elementi appena aggiunti.
+Così diventa il secondo termine
+1 1 0
+
+- "1" 1 "0" 1 "1" 0 "0"
+Così diventa il terzo termine
+1 1 0 1 1 0 0
+
+- "1" 1 "0" 1 "1" 0 "0" 1 "1" 1 "0" 0 "1" 0 "0"
+Il quarto termine diventa
+1 1 0 1 1 0 0 1 1 1 0 0 1 0 0
+
+(define (dragon n)
+  (local (s tmp prev zero uno)
+    ; primo termine della sequenza
+    (setq s "1")
+    (println 1 { } s)
+    ; generazione di ogni elemento della sequenza
+    (for (i 2 n)
+      (setq tmp "1")
+      (setq prev "1")
+      (setq zero "0")
+      (setq one "1")
+      ; ciclo per generare l'i-esimo termine
+      (for (j 0 (- (length s) 1))
+        ; aggiunge il carattere dalla stringa originale
+        (extend tmp (s j))
+        ; aggiunge alternativamente 0 e 1 in mezzo
+        (if (= prev "0")
+          (begin
+            ; se il precedente termine precedente era "0" aggiungere "1"
+            (extend tmp one)
+            ; termine corrente = termine precedente
+            (setq prev one)
+          )
+          ;else
+          (begin
+            ; se il precedente termine precedente era "1" aggiungere "0"
+            (extend tmp zero)
+            ; termine corrente = termine precedente
+            (setq prev zero)
+          )
+        )
+      )
+      ; s è l'i-esimo trermine della sequenza
+      (setq s tmp)
+      (println i { } s)
+    )
+    s))
+
+(dragon 4)
+;-> 1 1
+;-> 2 110
+;-> 3 1101100
+;-> 4 110110011100100
+
+(dragon 8)
+;-> 1 1
+;-> 2 110
+;-> 3 1101100
+;-> 4 110110011100100
+;-> 5 1101100111001001110110001100100
+;-> 6 110110011100100111011000110010011101100111001000110110001100100
+;-> 7 1101100111001001110110001100100111011001110010001101100011001001
+;->   110110011100100111011000110010001101100111001000110110001100100
+;-> 8 1101100111001001110110001100100111011001110010001101100011001001
+;->   1101100111001001110110001100100011011001110010001101100011001001
+;->   1101100111001001110110001100100111011001110010001101100011001000
+;->   110110011100100111011000110010001101100111001000110110001100100
 
 =============================================================================
 

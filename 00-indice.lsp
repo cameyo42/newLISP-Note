@@ -1369,6 +1369,8 @@ NOTE LIBERE 11
   Il problema della celebrità
   Turtle Graphics (by newbert)
   Dimensioni di un file JPG (by Cyril)
+  Seven segments display
+  Regular paperfolding sequence e dragon curve sequence
 
 APPENDICI
 =========
