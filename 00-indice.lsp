@@ -1371,6 +1371,9 @@ NOTE LIBERE 11
   Dimensioni di un file JPG (by Cyril)
   Seven segments display
   Regular paperfolding sequence e dragon curve sequence
+  Sequenza di Hofstadter-Conway $10000
+  Sommatoria e produttoria di una funzione
+  Teorema di Nicomachus (somma del k-esimo gruppo di numeri positivi dispari)
 
 APPENDICI
 =========

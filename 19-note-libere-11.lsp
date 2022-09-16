@@ -680,7 +680,7 @@ Sequenza OEIS: A014577
 
   1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 1, ...
 
-Se una striscia di carta viene piegata ripetutamente a metà nella stessa direzione, i volte, otterrà (2^i - 1) pieghe, la cui direzione (sinistra o destra) è data dal motivo di 0 e 1 nella prima ( 2^i - 1) termini della normale sequenza di piegatura della carta. L'apertura di ogni piega per creare un angolo retto (o, equivalentemente, fare una sequenza di giri a sinistra ea destra attraverso una griglia regolare, seguendo lo schema della sequenza di piegatura della carta) produce una sequenza di catene poligonali che si avvicina al frattale della curva del drago.
+Se una striscia di carta viene piegata ripetutamente a metà nella stessa direzione, i volte, otteniamo (2^i - 1) pieghe, la cui direzione (sinistra o destra) è data dal motivo di 0 e 1 nei primi (2^i - 1) termini della normale sequenza di piegatura della carta. L'apertura di ogni piega per creare un angolo retto (o, equivalentemente, fare una sequenza di giri a sinistra e a destra attraverso una griglia regolare, seguendo lo schema della sequenza di piegatura della carta) produce una sequenza di catene poligonali che si avvicina al frattale della curva del drago.
 
 Il valore di un dato termine t(n) della sequenza, che inizia con n=1, può essere trovato ricorsivamente come segue. Dividere n per due, quante più volte possibile, per ottenere una fattorizzazione della forma n = m*2^k dove m è un numero dispari. Quindi:
 
@@ -770,6 +770,221 @@ Il quarto termine diventa
 ;->   1101100111001001110110001100100011011001110010001101100011001001
 ;->   1101100111001001110110001100100111011001110010001101100011001000
 ;->   110110011100100111011000110010001101100111001000110110001100100
+
+
+------------------------------------
+Sequenza di Hofstadter-Conway $10000
+------------------------------------
+
+La sequenza Hofstadter-Conway (o Newman-Conway), è definita dalla relazione di ricorsiva:
+
+  P(n) = P(P(n - 1)) + P(n - P(n - 1))
+
+con valori iniziali P(1) = 1 e P(2) = 1
+
+Sequenza OEIS: A004001
+  1, 1, 2, 2, 3, 4, 4, 4, 5, 6, 7, 7, 8, 8, 8, 8, 9, 10, 11, 12, 12,
+  13, 14, 14, 15, 15, 15, 16, 16, 16, 16, 16, 17, 18, 19, 20, 21, 21,
+  22, 23, 24, 24, 25, 26, 26, 27, 27, 27, 28, 29, 29, 30, 30, 30, 31,
+  31, 31, 31, 32, 32, 32, 32, 32, 32, ...
+
+Il 15 luglio 1988, durante un colloquio presso i Bell Labs, John Conway dichiarò di poter provare a(n)/n -> 1/2 per n tendente all'infinito, ma che la dimostrazione era estremamente difficile.
+Ha quindi offerto $10000 a qualcuno che avesse trovato un n_0 tale che per tutti n >= n(0), abbiamo |a(n)/n - 1/2| < 0,05 e ha offerto $10.000 per il minimo n(0).
+Il premio è stato rivendicato da Colin Mallows, che ha accettato di non incassare l'assegno.
+
+Metodo 1 (ricorsione)
+---------------------
+
+(define (hc num)
+  (if (or (= num 1) (= num 2))
+      1
+      ;else
+      (+ (hc (hc (- num 1)))
+         (hc (- num (hc (- num 1)))))))
+
+(map hc (sequence 1 10))
+;-> (1 1 2 2 3 4 4 4 5 6)
+
+Metodo 2 (programmazione dinamica)
+----------------------------------
+Possiamo evitare di calcolare troppe volte gli stessi valori della sequenza memorizzandoli in un vettore.
+
+(define (hc1 num)
+  (let (s (array (+ num 1) '(0)))
+    (setf (s 1) 1)
+    (setf (s 2) 1)
+    (for (i 3 num)
+      (setf (s i) (+ (s (s (- i 1))) (s (- i (s (- i 1))))))
+    )
+    s))
+
+(hc1 10)
+;-> (0 1 1 2 2 3 4 4 4 5 6)
+
+Tempi di esecuzione:
+
+(time (println (hc 25)))
+;-> 15
+;-> 8380.959
+
+(time (println (hc1 25)))
+;-> (0 1 1 2 2 3 4 4 4 5 6 7 7 8 8 8 8 9 10 11 12 12 13 14 14 15)
+;-> 0
+
+
+----------------------------------------
+Sommatoria e produttoria di una funzione
+----------------------------------------
+
+              n
+Sommatoria:   ∑ [f(x)]
+             i=1
+
+              n
+Produttoria:  ∏ [f(x)]
+             i=1
+ 
+Funzione che effettua la sommatoria:
+
+(define (fn-sum func start end)
+  (let (sum 0)
+    (for (i start end)
+      (inc sum (func i)))))
+
+Funzione che effettua la produttoria:
+
+(define (fn-mul func start end)
+  (let (mult 1)
+    (for (i start end)
+      (setq mult (mul mult (func i))))))
+
+Esempi:
+
+f(x) = 1 + 1/2 + 1/3 + ... + 1/n
+(define (f x) (div x))
+
+(fn-sum f 1 20)
+;-> 3.597739657143682
+
+(fn-mul f 1 10)
+;-> 2.755731922398588e-007
+
+(fn-sum (fn(x) (div (add 1 x))) 1 20)
+;-> 2.64535870476273
+
+
+---------------------------------------------------------------------------
+Teorema di Nicomachus (somma del k-esimo gruppo di numeri positivi dispari)
+---------------------------------------------------------------------------
+
+Consideriamo i numeri dispari positivi in ​​ordine crescente come 1, 3, 5, 7, 9, 11, 13, 15, 17, 19, ... e raggruppati come (1), (3 5), (7 9 11), (13 15 17 19), ... e così via.
+Quindi, il primo gruppo è (1), il secondo gruppo è (3 5) e il terzo gruppo è (7 9 11), ecc. in generale, il k-esimo gruppo contiene i successivi k elementi della sequenza.
+Dato k, trovare la lista dei numeri e la somma del k-esimo gruppo.
+
+Esempi:
+Input: k = 3
+Uscita: 27
+Il terzo gruppo è (7 9 11) e la somma è 27.
+Input: k = 4
+Uscita: 64
+Il quarto gruppo è (13 15 17 19) e la somma è 64.
+
+Metodo 1
+-------- 
+Possiamo il primo elemento del gruppo k-esimo considerando che:
+ - il primo elemento del 1° gruppo è 1, che è il 1° numero dispari.
+ - il primo elemento del 2° gruppo è 3, che è il 2° numero dispari.
+ - il primo elemento del 3° gruppo è 7, che è il 4° numero dispari.
+ - il primo elemento del 4° gruppo è 13, che è il 7° numero dispari.
+e così via.
+
+In generale, il primo elemento del k-esimo gruppo è l'ennesimo numero dispari,
+ 
+ n = (1 + 2 + 3 + ... + (k – 1)) + 1.
+ 
+In generale, l'ennesimo numero dispari vale 2n – 1. 
+Questo ci permette di calcolare il primo elemento del k-esimo gruppo:
+
+  primo-elemento = (k * (k - 1)) + 1
+  
+Sapendo che ci sono k elementi nel gruppo, possiamo generarli e calcolare la loro somma.
+
+Funzione che calcola la somma del k-esimo gruppo di interi dispari positivi:
+
+(define (nico1 k all)
+    (local (cur nic)
+      ; trova il primo elemento del gruppo k
+      (setq cur (+ (* k (- k 1)) 1))
+      ; genera tutti gli elementi del gruppo k
+      (setq nic (sequence cur (- (+ cur (* 2 k)) 1) 2))
+      ; se all vale true ritorna la lista e la somma degli elementi
+      (if all
+        (list nic (apply + nic))
+        ;else altrimenti ritorna solo la somma degli elementi
+        (apply + nic))))
+
+Facciamo alcune prove:
+
+(nico1 3 true)
+;-> ((7 9 11) 27)
+
+(map nico1 (sequence 1 10))
+;-> (1 8 27 64 125 216 343 512 729 1000)
+
+(nico1 10 true)
+;-> ((91 93 95 97 99 101 103 105 107 109) 1000)
+
+Possiamo migliorare la funzione considerando il teorema di Nicomachus, il quale afferma che la somma del k-esimo gruppo vale k^3:
+
+  1^3	=	1	
+  2^3	=	3+5	
+  3^3	=	7+9+11	
+  4^3	=	13+15+17+19
+  ...
+
+   k
+   ∑[k*(k-1) - 1 + 2*i] = k^3
+  i=1
+
+Dimostrazione
+
+   k                       k                       
+   ∑[k*(k-1) - 1 + 2*i] =  ∑[k^k - k + 2i - 1] =
+  i=1                     i=1
+
+     k             k       k                
+  =  ∑[k^2 - k) +  ∑[2i] - ∑[1] =
+    i=1           i=1     i=1
+  
+  = k(k^2 - k) + 2(1 + 2 + 3 + 4 + ... + k) - (1 + 1 + ... + 1) = 
+  
+  = k(k^2 - k) + 2*(n/2)*(2 + n) - n =
+  
+  = k^3 - k^2 + k + k^2 - k = k^3
+
+La funzione diventa la seguente:
+
+(define (nico2 k all)
+  (if (not all)
+    ; calcola e restituisce la somma del k-esimo gruppo
+    (* k k k)
+    ;else
+    (local (cur nic)
+      ; trova il primo elemento del gruppo k
+      (setq cur (+ (* k (- k 1)) 1))
+      ; genera tutti gli elementi del gruppo k
+      (setq nic (sequence cur (- (+ cur (* 2 k)) 1) 2))
+      ;ritorna la lista e la somma degli elementi
+      (list nic (apply + nic)))))
+
+(nico2 4 true)
+;-> ((13 15 17 19) 64)
+
+(map nico2 (sequence 1 10))
+;-> (1 8 27 64 125 216 343 512 729 1000)
+
+(nico2 10 true)
+;-> ((91 93 95 97 99 101 103 105 107 109) 1000)
 
 =============================================================================
 
