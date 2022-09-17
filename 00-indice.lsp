@@ -1374,6 +1374,10 @@ NOTE LIBERE 11
   Sequenza di Hofstadter-Conway $10000
   Sommatoria e produttoria di una funzione
   Teorema di Nicomachus (somma del k-esimo gruppo di numeri positivi dispari)
+  Numeri Hoax
+  Numero di cifre dei fattoriali (formula di Kamenetsky)
+  Massimo sottoinsieme con MCD = 1
+  Coppie di cubi
 
 APPENDICI
 =========

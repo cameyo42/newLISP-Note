@@ -51,7 +51,7 @@ Funzione che effettua "A conosce B?":
 
 Algoritmo 1 (brute-force)
 -------------------------
-Trovare, se esiste, un ID che non conosce nessuno. 
+Trovare, se esiste, un ID che non conosce nessuno.
 Se esiste un tale ID (potenziale candidato per la celebrità), allora determinare se tutti lo conoscono o meno.
 
 (define (celebrity matrix)
@@ -609,15 +609,15 @@ Nota: non funziona con tutti i file jpg che ho provato (probabilmente alcuni jpg
 Seven segments display
 ----------------------
 
-Un display a sette segmenti può essere utilizzato per visualizzare i numeri. 
+Un display a sette segmenti può essere utilizzato per visualizzare i numeri.
 La rappresentazione grafica del display è la seguente:
 
   Segmenti tutti spenti    Segmenti tutti accesi
-          ---                       ■■■ 
+          ---                       ■■■
          |   |                     █   █
-          ---                       ■■■ 
+          ---                       ■■■
          |   |                     █   █
-          ---                       ■■■ 
+          ---                       ■■■
 
 Le cifre da 0 a 9 vengono rappresentate nel modo seguente:
 
@@ -843,7 +843,7 @@ Sommatoria:   ∑ [f(x)]
               n
 Produttoria:  ∏ [f(x)]
              i=1
- 
+
 Funzione che effettua la sommatoria:
 
 (define (fn-sum func start end)
@@ -860,7 +860,8 @@ Funzione che effettua la produttoria:
 
 Esempi:
 
-f(x) = 1 + 1/2 + 1/3 + ... + 1/n
+  f(x) = 1 + 1/2 + 1/3 + ... + 1/n
+
 (define (f x) (div x))
 
 (fn-sum f 1 20)
@@ -871,6 +872,28 @@ f(x) = 1 + 1/2 + 1/3 + ... + 1/n
 
 (fn-sum (fn(x) (div (add 1 x))) 1 20)
 ;-> 2.64535870476273
+
+Nota: alcune volte è necessario scrivere delle funzioni ad hoc per calcolare i valori di alcune serie. Per esempio, per la serie seguente:
+
+  f(x) = 1/1! + 1/2! + 1/3! + ... + 1/n!
+
+Possiamo precalcolare i valori dei fattoriali:
+
+(define (fact limit)
+  (local (f lst)
+    (setq f 1)
+    (setq lst '(1))
+    (for (i 1 limit)
+      (setq f (* f i))
+      (push f lst -1)
+    )
+    lst))
+
+(setq f (fact 10))
+;-> (1 1 2 6 24 120 720 5040 40320 362880 3628800)
+
+(fn-sum (fn(x) (div (f x))) 1 5)
+;-> 1.71666667
 
 
 ---------------------------------------------------------------------------
@@ -890,7 +913,7 @@ Uscita: 64
 Il quarto gruppo è (13 15 17 19) e la somma è 64.
 
 Metodo 1
--------- 
+--------
 Possiamo il primo elemento del gruppo k-esimo considerando che:
  - il primo elemento del 1° gruppo è 1, che è il 1° numero dispari.
  - il primo elemento del 2° gruppo è 3, che è il 2° numero dispari.
@@ -899,14 +922,14 @@ Possiamo il primo elemento del gruppo k-esimo considerando che:
 e così via.
 
 In generale, il primo elemento del k-esimo gruppo è l'ennesimo numero dispari,
- 
+
  n = (1 + 2 + 3 + ... + (k – 1)) + 1.
- 
-In generale, l'ennesimo numero dispari vale 2n – 1. 
+
+In generale, l'ennesimo numero dispari vale 2n – 1.
 Questo ci permette di calcolare il primo elemento del k-esimo gruppo:
 
   primo-elemento = (k * (k - 1)) + 1
-  
+
 Sapendo che ci sono k elementi nel gruppo, possiamo generarli e calcolare la loro somma.
 
 Funzione che calcola la somma del k-esimo gruppo di interi dispari positivi:
@@ -936,10 +959,10 @@ Facciamo alcune prove:
 
 Possiamo migliorare la funzione considerando il teorema di Nicomachus, il quale afferma che la somma del k-esimo gruppo vale k^3:
 
-  1^3	=	1	
-  2^3	=	3+5	
-  3^3	=	7+9+11	
-  4^3	=	13+15+17+19
+  1^3 = 1
+  2^3 = 3+5
+  3^3 = 7+9+11
+  4^3 = 13+15+17+19
   ...
 
    k
@@ -948,18 +971,18 @@ Possiamo migliorare la funzione considerando il teorema di Nicomachus, il quale 
 
 Dimostrazione
 
-   k                       k                       
+   k                       k
    ∑[k*(k-1) - 1 + 2*i] =  ∑[k^k - k + 2i - 1] =
   i=1                     i=1
 
-     k             k       k                
+     k             k       k
   =  ∑[k^2 - k) +  ∑[2i] - ∑[1] =
     i=1           i=1     i=1
-  
-  = k(k^2 - k) + 2(1 + 2 + 3 + 4 + ... + k) - (1 + 1 + ... + 1) = 
-  
+
+  = k(k^2 - k) + 2(1 + 2 + 3 + 4 + ... + k) - (1 + 1 + ... + 1) =
+
   = k(k^2 - k) + 2*(n/2)*(2 + n) - n =
-  
+
   = k^3 - k^2 + k + k^2 - k = k^3
 
 La funzione diventa la seguente:
@@ -985,6 +1008,236 @@ La funzione diventa la seguente:
 
 (nico2 10 true)
 ;-> ((91 93 95 97 99 101 103 105 107 109) 1000)
+
+
+-----------
+Numeri Hoax
+-----------
+
+Un numero hoax (beffa, truffa, inganno) è definito come un numero composto, la cui somma delle cifre è uguale alla somma delle cifre dei suoi distinti fattori primi.
+Notare che 1 non è considerato un numero primo, quindi non è incluso nella somma delle cifre di distinti fattori primi.
+
+Esempi:
+22 è un numero hoax, perchè i distinti fattori primi di 22 sono 2 e 11.
+La somma delle loro cifre è 4, cioè 2 + 1 + 1.
+Anche la somma delle cifre di 22 è 4, cioè 2 + 2.
+
+84 è un numero hoax perchè i distinti fattori primi di 84 sono 2, 3 e 7.
+La somma delle loro cifre è 12, cioè 2 + 3 + 4.
+Anche la somma delle cifre di 84 è 12, cioè 8 + 4.
+
+Sequenza OEIS: A019506
+  22, 58, 84, 85, 94, 136, 160, 166, 202, 234, 250, 265, 274, 308, 319,
+  336, 346, 355, 361, 364, 382, 391, 424, 438, 454, 456, 476, 483, 516,
+  517, 526, 535, 562, 627, 634, 644, 645, 650, 654, 660, 663, 690, 702,
+  706, 732, 735, 762, 778, 855, 860, ...
+
+(define (digit-sum num)
+"Calculates the sum of the digits of an integer"
+  (let (out 0)
+    (while (!= num 0)
+      (setq out (+ out (% num 10)))
+      (setq num (/ num 10))
+    )
+    out))
+
+(define (hoax? num)
+  (let (f (factor num))
+    (if (= (length f) 1)
+        nil ; numero primo
+        ;else
+        (= (apply + (map digit-sum (unique f)))
+           (digit-sum num)))))
+
+Facciamo alcune prove:
+
+(hoax? 22)
+;-> true
+(hoax? 84)
+;-> true
+
+(filter hoax? (sequence 2 1000))
+;-> (22 58 84 85 94 136 160 166 202 234 250 265 274 308 319 336 346 355 361
+;->  364 382 391 424 438 454 456 476 483 516 517 526 535 562 627 634 644 645
+;->  650 654 660 663 690 702 706 732 735 762 778 855 860 861 895 913 915 922
+;->  948 958 985)
+
+
+------------------------------------------------------
+Numero di cifre dei fattoriali (formula di Kamenetsky)
+------------------------------------------------------
+
+La formula di Kamenetsky approssima il numero di cifre del fattoriale di un numero n:
+
+  digits = log10( ((n/e)^n) * sqrt(2*pi*n) ) =
+         = n*log10(n/e) + log10(2*pi*n)/2
+
+(setq E 2.7182818284590451)
+(setq PI 3.1415926535897931)
+(define (fact-digit n)
+  (cond ((< n 0) 0)
+        ((<= n 1) 1)
+        (true
+          (add (floor
+                      (add (mul n (log (div n E) 10))
+                          (div (log (mul 2 PI n) 10) 2)))
+              1))))
+
+Facciamo alcune prove:
+
+(fact-digit 120)
+;-> 199
+(fact-digit 1e6)
+;-> 5565709
+(fact-digit 1e9)
+;-> 8565705523
+
+
+--------------------------------
+Massimo sottoinsieme con MCD = 1
+--------------------------------
+
+Dati n numeri interi, dobbiamo trovare il sottoinsieme più grande con MCD uguale a 1.
+
+Il problema diventa semplice se facciamo le seguenti considerazioni:
+Supponiamo di aver trovato un sottoinsieme con MCD 1, se gli aggiungiamo un nuovo elemento allora MCD rimane ancora 1. 
+Quindi se esiste un sottoinsieme con MCD 1, allora anche MCD dell'insieme completo è 1. 
+Per risolvere il problema troviamo prima MCD dell'insieme completo, se è 1, allora l'insieme completo è quel sottoinsieme altrimenti nessun sottoinsieme esiste con GCD 1.
+
+(define (list-gcd1 lst)
+  (if (= (apply gcd lst) 1)
+      lst
+      '()))
+
+Facciamo alcune prove:
+
+(list-gcd1 (rand 100 10))
+;-> (93 4 89 29 22 76 41 20 62 60)
+
+(list-gcd1 (sequence 2 100 2))
+;-> ()
+
+
+--------------
+Coppie di cubi
+--------------
+
+Dato un numero n, trovare due coppie che possono rappresentare il numero come somma di due cubi. In altre parole, trovare due coppie (a, b) e (c, d) tali che un dato numero n possa essere espresso come:
+
+   n = a^3 + b^3 = c^3 + d^3
+
+dove a, b, c e d sono quattro numeri distinti.
+
+Esempi:
+n = 1729
+Coppie di cubi: (1, 12) e (9, 10)
+1729 = 1^3 + 12^3 = 9^3 + 10^3
+
+n = 4104
+Coppie di cubi: (2, 16) e (9, 15)
+4104 = 2^3 + 16^3 = 9^3 + 15^3
+
+n = 13832
+Coppie di cubi: (2, 24) e (18, 20)
+13832 = 2^3 + 24^3 = 18^3 + 20^3
+
+Per soddisfare i vincoli qualsiasi numero n deve avere due coppie distinte (a, b) e (c, d) tali che a, b, c e d sono tutti minori di n^1/3.
+Creiamo un vettore di dimensione n^1/3 in cui ogni indice "i" dell'array contiene un valore uguale al cubo di quell'indice, ovvero vettore(i) = i^3.
+Ora il problema si riduce a trovare coppie di elementi in un vettore ordinato la cui somma sia uguale a un dato numero n (vedi anche "Somma di numeri in una lista (Google)"):
+
+Algoritmo:
+1) Creare una hash-map
+2) Per ogni elemento val della lista lst
+    Se (somma - val) esiste nella hash-map,
+       allora aggiungere la coppia ((somma - val), val) nella lista soluzione
+    Aggiungere val alla hash-map
+3) Restituire la lista soluzione
+
+(define (coppie lst somma)
+  (local (temp out)
+    (setq out '())
+    (new Tree 'hash)
+    (dolist (val lst)
+      (setq temp (- somma val))
+      (if (hash (string temp))
+          (push (list temp val) out -1)
+      )
+      (hash (string val) val)
+    )
+    (delete 'hash)
+    out))
+
+(coppie '(10 15 3 7) 17)
+;-> ((7 10))
+
+(coppie '(-2 3 7 -9 2) 5)
+;-> ((-2 7) (3 2))
+
+(coppie '(3 -2 15 10 7 -4 -11) 21)
+;-> ()
+
+Adesso scriviamo la funzione finale che cerca le coppie di cubi di un numero:
+
+(define (cube-pairs num)
+  (local (out cube3 c3)
+    (setq out '())
+    (setq cube3 (array (int (add (pow num (div 3)) 1)) '(0)))
+    ; generazione valori del vettore dei cubi
+    (for (i 1 (- (length cube3) 1))
+      (setf (cube3 i) (mul i i i))
+    )
+    ; ricerca delle coppie soluzione
+    (setq c3 (coppie cube3 num))
+    ; estrazione delle radici cubiche dei valori delle coppie soluzione
+    (dolist (el c3)
+      (push (list (el 0) (el 1)
+                  (round (pow (el 0) (div 3)))
+                  (round (pow (el 1) (div 3)))) out -1)
+    )
+    out))
+
+Facciamo alcune prove:
+
+(cube-pairs 1)
+;-> ((0 1 0 1))
+(cube-pairs 1729)
+;-> ((729 1000 9 10) (1 1728 1 12))
+(cube-pairs 1729)
+;-> ((729 1000 9 10) (1 1728 1 12))
+(cube-pairs 4104)
+;-> ((729 3375 9 15) (8 4096 2 16))
+(cube-pairs 13832)
+;-> ((5832 8000 18 20) (8 13824 2 24))
+(cube-pairs 20683)
+;-> ((6859 13824 19 24) (1000 19683 10 27))
+
+Funzione che elenco tutte le coppie di cubi di tutti i numeri fino dato limite:
+
+(define (cube-pairs-all limit)
+  (local (out)
+    (setq out '())
+    (for (i 1 limit)
+      (setq pairs (cube-pairs i))
+      (if (not (null? pairs))
+          (push (list i pairs) out -1)
+      )
+    )
+    out))
+
+(cube-pairs-all 1000)
+;-> ((1 ((0 1 0 1))) (8 ((0 8 0 2))) (9 ((1 8 1 2))) (27 ((0 27 0 3))) 
+;->  (28 ((1 27 1 3))) (35 ((8 27 2 3))) (64 ((0 64 0 4))) 
+;->  (65 ((1 64 1 4))) (72 ((8 64 2 4))) (91 ((27 64 3 4))) 
+;->  (126 ((1 125 1 5))) (133 ((8 125 2 5))) (152 ((27 125 3 5)))
+;->  (189 ((64 125 4 5))) (217 ((1 216 1 6))) (224 ((8 216 2 6)))
+;->  (243 ((27 216 3 6))) (280 ((64 216 4 6))) (341 ((125 216 5 6)))
+;->  (344 ((1 343 1 7))) (351 ((8 343 2 7))) (370 ((27 343 3 7)))
+;->  (407 ((64 343 4 7))) (468 ((125 343 5 7))) (512 ((0 512 0 8)))
+;->  (513 ((1 512 1 8))) (520 ((8 512 2 8))) (539 ((27 512 3 8)))
+;->  (559 ((216 343 6 7))) (576 ((64 512 4 8))) (637 ((125 512 5 8)))
+;->  (728 ((216 512 6 8))) (730 ((1 729 1 9))) (737 ((8 729 2 9)))
+;->  (756 ((27 729 3 9))) (793 ((64 729 4 9))) (854 ((125 729 5 9)))
+;->  (855 ((343 512 7 8))) (945 ((216 729 6 9))))
 
 =============================================================================
 
