@@ -1239,5 +1239,365 @@ Funzione che elenco tutte le coppie di cubi di tutti i numeri fino dato limite:
 ;->  (756 ((27 729 3 9))) (793 ((64 729 4 9))) (854 ((125 729 5 9)))
 ;->  (855 ((343 512 7 8))) (945 ((216 729 6 9))))
 
+
+----------------------------
+MCD delle cifre di un numero
+----------------------------
+
+Scrivere una funzione per calcolare il MCD delle cifre di un numero intero positivo.
+
+Sequenza OEIS: A052423
+  1, 2, 3, 4, 5, 6, 7, 8, 9, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 2, 
+  1, 2, 1, 2, 1, 2, 1, 3, 1, 1, 3, 1, 1, 3, 1, 1, 3, 4, 1, 2, 1, 4, 
+  1, 2, 1, 4, 1, 5, 1, 1, 1, 1, 5, 1, 1, 1, 1, 6, 1, 2, 3, 2, 1, 6,
+  1, 2, 3, 7, 1, 1, 1, 1, 1, 1, 7, 1, 1, 8, 1, 2, 1, 4, 1, 2, 1, 8,
+  1, 9, 1, 1, 3, 1, 1, 3, 1, 1, 9, 1, 1, 1, ...
+
+(define (int-list num)
+"Convert an integer to a list of digits"
+  (let (out '())
+    (while (!= num 0)
+      (push (% num 10) out)
+      (setq num (/ num 10))) out))
+
+(define (digit-gcd num)
+  (apply gcd (int-list num)))
+
+(digit-gcd 2468)
+;-> 2
+(digit-gcd 11)
+;-> 1
+(digit-gcd 66)
+;-> 6
+
+Calcoliamo la sequenza:
+
+(map digit-gcd (sequence 1 200))
+;-> (1 2 3 4 5 6 7 8 9 1 1 1 1 1 1 1 1 1 1 2 1 2 1 2 1 2 1 2 1 3 1 1 3 1 1
+;->  3 1 1 3 4 1 2 1 4 1 2 1 4 1 5 1 1 1 1 5 1 1 1 1 6 1 2 3 2 1 6 1 2 3 7
+;->  1 1 1 1 1 1 7 1 1 8 1 2 1 4 1 2 1 8 1 9 1 1 3 1 1 3 1 1 9 1 1 1 1 1 1
+;->  1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+;->  1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+;->  1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 2)
+
+
+---------------------------------
+La funzione DEFUN del Common LISP
+---------------------------------
+
+La funzione DEFUN del Common LISP è l'analoga della funzione "define" di newLISP.
+La funzione DEFUN ha la seguente sintassi:
+
+(defun <name> (list of arguments)
+  "docstring"
+  (function body))
+
+Possiamo scrivere una macro per simulare la funzione DEFUN:
+
+(define-macro (defun _name _args)
+      (set _name (append '(lambda ) (list _args) (args))))
+
+Esempio:
+
+(defun test (v1 v2)
+  (println v1 { } v2))
+;-> (lambda (v1 v2) (println v1 " " v2))
+
+(test 10 20)
+;-> 10 20
+(test 37 '(+ 10 2))
+;-> 37 (+ 10 2)
+
+
+---------------
+Spirale di Ulam
+---------------
+
+La spirale di Ulam, o spirale dei numeri primi, è una rappresentazione grafica dei numeri primi che rivela un pattern non ancora pienamente compreso.
+Fu scoperta dal matematico polacco Stanislaw Ulam nel 1963, mentre, sovrappensiero, scarabocchiava su di un foglietto di carta durante un meeting. Ulam, annoiato dal convegno, disegnò una griglia di numeri, mettendo l'1 al centro e tutti i seguenti disposti a spirale, poi segnò tutti i numeri primi (togliendo tutti gli altri numeri) ottenendo la seguente rappresentazione:
+
+  101 --- --- ---  97 --- --- --- --- --- ---
+  --- --- --- --- ---  61 ---  59 --- --- ---
+  103 ---  37 --- --- --- --- ---  31 ---  89
+  ---  67 ---  17 --- --- ---  13 --- --- ---
+  --- --- --- ---   5 ---   3 ---  29 --- ---
+  --- --- ---  19 --- ---   2  11 ---  53 ---
+  107 ---  41 ---   7 --- --- --- --- --- ---
+  ---  71 --- --- ---  23 --- --- --- --- ---
+  109 ---  43 --- --- ---  47 --- --- ---  83
+  ---  73 --- --- --- --- ---  79 --- --- ---
+  --- --- 113 --- --- --- --- --- --- --- ---
+
+Scrivere un programma per stampare la spirale di Ulam.
+
+(define (print-matrix matrix)
+"Print a matrix m x n"
+  (local (row col lenmax digit fmtstr)
+    ; converto matrice in lista?
+    (if (array? matrix) (setq matrix  (array-list matrix)))
+    ; righe della matrice
+    (setq row (length matrix))
+    ; colonne della matrice
+    (setq col (length (first matrix)))
+    ; valore massimo della lunghezza di un elemento (come stringa)
+    (setq lenmax (apply max (map length (map string (flat matrix)))))
+    ; calcolo spazio per gli elementi
+    (setq digit (+ 1 lenmax))
+    ; creo stringa di formattazione
+    (setq fmtstr (append "%" (string digit) "s"))
+    ; stampa la matrice
+    (for (i 0 (- row 1))
+      (for (j 0 (- col 1))
+        (print (format fmtstr (string (matrix i j))))
+      )
+      (println))))
+
+Prima scriviamo un programma che stampa una spirale di numeri (in senso orario o antiorario) partendo con il primo numero al centro della spirale:
+
+(define (spiral size clockwise)
+  (local (matrix x y dx dy dircount ringcount repeatcount value)
+    (setq dx '(0 -1 0 1)) (setq dy '(1 0 -1 0)) (setq dircount 4)
+    (setq ringcount (/ (- size 1) 2))
+    (setq y ringcount)
+    (setq x ringcount)
+    (setq repeatcount 0)
+    (setq value 1)
+    (setq matrix (array size size '(0)))
+    (setf (matrix y x) value)
+    (++ value)
+    (for (ring 0 (- ringcount 1))
+      (-- y)
+      (++ x)
+      (++ repeatcount 2)
+      (for (dir 0 (- dircount 1))
+        (for (repeat 0 (- repeatcount 1))
+        (setq y (+ y (dy dir)))
+        (setq x (+ x (dx dir)))
+        (setq (matrix y x) value)
+        (++ value)
+        )
+      )
+    )
+    ; fill last column and last row of matrix with even size
+    (if (even? size)
+      (begin
+        ; fill last column
+        (for (r 0 (- size 1))
+          (setf (matrix r (- size 1)) value)
+          (++ value)
+        )
+        ; fill last row
+        (for (c (- size 2) 0 -1)
+          (setf (matrix (- size 1) c) value)
+          (++ value)
+        )
+      )
+    )
+    ; clockwise or counter-clockwise spiral ?
+    ; matrix is ccw
+    ; (reverse matrix) is cw
+    (if clockwise
+        matrix
+        (reverse matrix))))
+
+Facciamo alcune prove:
+
+(print-matrix (spiral 7))
+;->  37 36 35 34 33 32 31
+;->  38 17 16 15 14 13 30
+;->  39 18  5  4  3 12 29
+;->  40 19  6  1  2 11 28
+;->  41 20  7  8  9 10 27
+;->  42 21 22 23 24 25 26
+;->  43 44 45 46 47 48 49
+(print-matrix (spiral 7 true))
+;->  43 44 45 46 47 48 49
+;->  42 21 22 23 24 25 26
+;->  41 20  7  8  9 10 27
+;->  40 19  6  1  2 11 28
+;->  39 18  5  4  3 12 29
+;->  38 17 16 15 14 13 30
+;->  37 36 35 34 33 32 31
+(print-matrix (spiral 8))
+;->  64 63 62 61 60 59 58 57
+;->  37 36 35 34 33 32 31 56
+;->  38 17 16 15 14 13 30 55
+;->  39 18  5  4  3 12 29 54
+;->  40 19  6  1  2 11 28 53
+;->  41 20  7  8  9 10 27 52
+;->  42 21 22 23 24 25 26 51
+;->  43 44 45 46 47 48 49 50
+(print-matrix (spiral 8 true))
+;->  43 44 45 46 47 48 49 50
+;->  42 21 22 23 24 25 26 51
+;->  41 20  7  8  9 10 27 52
+;->  40 19  6  1  2 11 28 53
+;->  39 18  5  4  3 12 29 54
+;->  38 17 16 15 14 13 30 55
+;->  37 36 35 34 33 32 31 56
+;->  64 63 62 61 60 59 58 57
+
+Adesso scriviamo la funzione che stampa la spirale di Ulam:
+
+(define (prime? num)
+"Check if a number is prime"
+   (if (< num 2) nil
+       (= 1 (length (factor num)))))
+
+(define (ulam size clockwise)
+  (local (matrix x y dx dy dircount ringcount repeatcount value max-val empty)
+    (setq maxval (* size size))
+    (setq empty (dup "-" (length 123)))
+    (setq dx '(0 -1 0 1)) (setq dy '(1 0 -1 0)) (setq dircount 4)
+    (setq ringcount (/ (- size 1) 2))
+    (setq y ringcount)
+    (setq x ringcount)
+    (setq repeatcount 0)
+    (setq value 1)
+    (setq matrix (array size size '(0)))
+    ; print only prime number
+    (if (prime? value)
+      (setf (matrix y x) value)
+      (setf (matrix y x) empty)
+    )
+    (++ value)
+    (for (ring 0 (- ringcount 1))
+      (-- y)
+      (++ x)
+      (++ repeatcount 2)
+      (for (dir 0 (- dircount 1))
+        (for (repeat 0 (- repeatcount 1))
+        (setq y (+ y (dy dir)))
+        (setq x (+ x (dx dir)))
+        ; print only prime number
+        (if (prime? value)
+          (setf (matrix y x) value)
+          (setf (matrix y x) empty)
+        )
+        (++ value)
+        )
+      )
+    )
+    ; fill last column and last row of matrix with even size
+    (if (even? size)
+      (begin
+        ; fill last column
+        (for (r 0 (- size 1))
+          (if (prime? value)
+            (setf (matrix r (- size 1)) value)
+            (setf (matrix r (- size 1)) empty)
+          )        
+          (++ value)
+        )
+        ; fill last row
+        (for (c (- size 2) 0 -1)
+          (if (prime? value)        
+            (setf (matrix (- size 1) c) value)
+            (setf (matrix (- size 1) c) empty)
+          )
+          (++ value)
+        )
+      )
+    )
+    ; clockwise or counter-clockwise spiral ?
+    ; matrix is ccw
+    ; (reverse matrix) is cw
+    (if clockwise
+        matrix
+        (reverse matrix))))
+
+Facciamo alcune prove:
+
+(print-matrix (ulam 7))
+;->   37 --- --- --- --- ---  31
+;->  ---  17 --- --- ---  13 ---
+;->  --- ---   5 ---   3 ---  29
+;->  ---  19 --- ---   2  11 ---
+;->   41 ---   7 --- --- --- ---
+;->  --- --- ---  23 --- --- ---
+;->   43 --- --- ---  47 --- ---
+
+(print-matrix (ulam 16))
+;->  --- --- --- --- --- 251 --- --- --- --- --- --- --- --- --- 241
+;->  197 --- --- --- 193 --- 191 --- --- --- --- --- --- --- --- ---
+;->  --- --- --- --- --- --- --- 139 --- 137 --- --- --- --- --- 239
+;->  199 --- 101 --- --- ---  97 --- --- --- --- --- --- --- 181 ---
+;->  --- --- --- --- --- --- ---  61 ---  59 --- --- --- 131 --- ---
+;->  --- --- 103 ---  37 --- --- --- --- ---  31 ---  89 --- 179 ---
+;->  --- 149 ---  67 ---  17 --- --- ---  13 --- --- --- --- --- ---
+;->  --- --- --- --- --- ---   5 ---   3 ---  29 --- --- --- --- ---
+;->  --- 151 --- --- ---  19 --- ---   2  11 ---  53 --- 127 --- 233
+;->  --- --- 107 ---  41 ---   7 --- --- --- --- --- --- --- --- ---
+;->  --- --- ---  71 --- --- ---  23 --- --- --- --- --- --- --- ---
+;->  --- --- 109 ---  43 --- --- ---  47 --- --- ---  83 --- 173 ---
+;->  --- --- ---  73 --- --- --- --- ---  79 --- --- --- --- --- 229
+;->  --- --- --- --- 113 --- --- --- --- --- --- --- --- --- --- ---
+;->  --- 157 --- --- --- --- --- 163 --- --- --- 167 --- --- --- 227
+;->  211 --- --- --- --- --- --- --- --- --- --- --- 223 --- --- ---
+
+
+----------------------------
+Coefficiente di correlazione
+----------------------------
+
+Il coefficiente di correlazione, chiamato anche coefficiente di correlazione incrociata (cross-correlation coefficient), è un valore che rappresenta la forza della relazione tra due liste di valori.
+Il coefficiente di correlazione è sempre compreso tra -1 (correlazione negativa) e +1 (correlazione positiva).
+
+La formula per calcolare il coefficiente di correlazione è la seguente:
+
+                      n*(∑x*y) - (∑x)*(∑y)
+   r = --------------------------------------------------
+         sqrt[(n*(∑x^2) - (∑x)^2) * (n*(∑y^2) - (∑y)^2)
+
+Funzione per il calcolo del coefficiente di correlazione tra due liste:
+
+(define (correlation a b)
+(local (sumA sumB sumAB squareSumA squareSumB n)
+  (set 'sumA 0 'sumB 0 'sumAB 0 'squareSumA 0 'squareSumB 0)
+  (setq n (length a))
+  (for (i 0 (- n 1))
+    # sum of elements of array A.
+    (setq sumA (add sumA (a i)))
+    # sum of elements of array B.
+    (setq sumB (add sumB (b i)))
+    # sum of A[i] * B[i]
+    (setq sumAB (add sumAB (mul (a i) (b i))))
+    # sum of square of array elements.
+    (setq squareSumA (add squareSumA (mul (a i) (a i))))
+    (setq squareSumB (add squareSumB (mul (b i) (b i))))
+  )
+  ; calcola il coefficiente di correlazione
+  (div (sub (mul n sumAB) (mul sumA sumB))
+       (sqrt (mul (sub (mul n squareSumA) (mul sumA sumA))
+                  (sub (mul n squareSumB) (mul sumB sumB)))))))
+
+Facciamo alcune prove:
+
+(setq x '(15 18 21 24 27))
+(setq y '(25 25 27 31 32))
+(correlation x y)
+;-> 0.9534625892455922
+
+(setq x1 '(43 21 25 42 57 59))
+(setq y1 '(99 65 79 75 87 81))
+(correlation x1 y1)
+;-> 0.5298089018901744
+
+(correlation (sequence 1 10) (sequence 1 10))
+;-> 1
+(correlation (sequence 1 10) (sequence 11 20))
+;-> 1
+(correlation (sequence 1 10) (sequence 100 1000 100))
+;-> 1
+
+Liste casuali:
+
+(setq x2 (rand 100 100))
+(setq y2 (rand 100 100))
+(correlation x2 y2)
+;-> 0.1470523813894944
+(correlation (sort x2) (sort y2))
+;-> 0.9926726835897934
+
 =============================================================================
 

@@ -1378,6 +1378,10 @@ NOTE LIBERE 11
   Numero di cifre dei fattoriali (formula di Kamenetsky)
   Massimo sottoinsieme con MCD = 1
   Coppie di cubi
+  MCD delle cifre di un numero
+  La funzione DEFUN del Common LISP
+  Spirale di Ulam
+  Coefficiente di correlazione
 
 APPENDICI
 =========
