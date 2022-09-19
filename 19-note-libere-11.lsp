@@ -1599,5 +1599,154 @@ Liste casuali:
 (correlation (sort x2) (sort y2))
 ;-> 0.9926726835897934
 
+
+--------------
+Numeri frugali
+--------------
+
+Un numero frugale (o numero economico) è un numero il cui numero di cifre è strettamente maggiore del numero di cifre nella sua fattorizzazione (inclusi gli esponenti). Se l'esponente è 1 per un certo numero primo, coinvolto nella fattorizzazione dei primi, allora quell'esponente non contribuisce al numero di cifre nella fattorizzazione dei primi.
+Alcuni esempi di numeri frugali sono:
+1) 125 = 5^3, qui il numero di cifre nel numero è 3 (1, 2 e 5) che è strettamente maggiore del numero di cifre nella sua fattorizzazione primi che è 2 (5 e 3).
+2) 512 = 2^9, qui il numero di cifre nel numero è 3 (5, 1 e 2) che è strettamente maggiore del numero di cifre nella sua fattorizzazione primi che è 2 (2 e 9).
+3) 1029 = 3 * 7^3, qui il numero di cifre nel numero è 4 (1, 0, 2 e 9) che è strettamente maggiore del numero di cifre la sua fattorizzazione primo che è 3 (3, 7 e 3 ).
+
+Sequenza OEIS: A046759
+  125, 128, 243, 256, 343, 512, 625, 729, 1024, 1029, 1215, 1250, 1280, 
+  1331, 1369, 1458, 1536, 1681, 1701, 1715, 1792, 1849, 1875, 2048, 2187,
+  2197, 2209, 2401, 2560, 2809, 3125, 3481, 3584, 3645, 3721, 4096, 4374,
+  4375, 4489, 4802, 4913, ...
+
+Nota: i numeri primi non sono numeri frugali. Infatti il numero di cifre nella fattorizzazione di un numero primo è uguale al numero di cifre nel numero primo (poiché gli esponenti di valore 1 non vengono considerati).
+
+Generiamo la fattorizzazione del numero e poi ne calcoliamo il numero di cifre.
+Infine confrontiamo questo valore con il nuumero di cifre del numero.
+
+(define (factor-group num)
+"Factorize an integer number"
+  (if (< num 2) nil
+      (letn ((out '()) (lst (factor num)) (cur-val (first lst)) (cur-count 0))
+        (dolist (el lst)
+          (if (= el cur-val) (++ cur-count)
+              (begin
+                (push (list cur-val cur-count) out -1)
+                (setq cur-count 1 cur-val el))))
+        (push (list cur-val cur-count) out -1))))
+
+(factor-group 1029)
+;-> (3 1) (7 3))
+
+Funzione che verifica se un numero è frugale:
+
+(define (frugal? num)
+  (let (sum 0)
+    (dolist (el (flat (factor-group num)))
+      (if (!= el 1) (++ sum (length el)))
+    )
+    (= (length num) (+ sum 1))))
+
+Facciamo alcune prove:
+
+(frugal? 1029)
+;-> true
+(frugal? 125)
+;-> true
+(frugal? 11);-> nil
+
+Calcoliamo tutti i numeri frugali fino a 5000:
+
+(filter frugal? (sequence 2 5000))
+;-> (125 128 243 256 343 512 625 729 1024 1029 1215 1250 1280 1331 1369 1458
+;->  1536 1681 1701 1715 1792 1849 1875 2048 2197 2209 2560 2809 3481 3584
+;->  3645 3721 4096 4374 4375 4489 4802 4913)
+
+Vediamo quanti numeri frugali ci sono fino ad 1 milione:
+
+(time (println (length (filter frugal? (sequence 2 1e6)))))
+;-> 2723
+;-> 2654.927
+
+
+-----------
+Numeri Blum
+-----------
+
+Un numero Blum è un intero semiprimo (cioè un numero che è il prodotto esattamente di due numeri primi).
+Supponiamo che p e q siano i due fattori (cioè n = p * q), essi (p e q) sono della forma 4t + 3, dove t è un numero intero.
+
+Sequenza OEIS: A016105
+   21, 33, 57, 69, 77, 93, 129, 133, 141, 161, 177, 201, 209, 213, 217,
+   237, 249, 253, 301, 309, 321, 329, 341, 381, 393, 413, 417, 437, 453,
+   469, 473, 489, 497, 501, 517, 537, 553, 573, 581, 589, 597, 633, 649,
+   669, 681, 713, 717, 721, 737, 749, 753, 781, 789, ...
+
+Nota: a causa della condizione che entrambi i fattori debbano essere semi-primi, i numeri pari non possono essere interi Blum né possono esserlo i numeri inferiori a 20.
+
+Esempi:
+N = 33
+Blum? Si
+Spiegazione: 33 = 3 * 11, 3 e 11 sono entrambi semiprimi 
+e nella forma 4t + 3 (per t = 0,2)
+
+N: 25
+Blum? No
+Spiegazione: 25 = 5*5, 5 e 5 sono entrambi semiprimi,
+ma non sono nella forma 4t + 3.
+
+N: 77
+Blum? Si
+Spiegazione: 77 = 7 * 11, 7 e 11 sono entrambi semiprimi 
+e nella forma 4t + 3 (per t = 1,2)
+
+Algoritmo:
+Dato un numero N intero, dispari e maggiore di 20, calcoliamo i numeri primi da 1 a N. 
+Se troviamo un numero primo che divide N e il suo quoziente, allora entrambi sono primi e seguono la forma 4t + 3 per un intero, quindi il numero intero N è Blum.
+
+(define (blum? num)
+(catch
+  (local (prime j q)
+  ; crea un vettore di numeri primi (true/nil)
+  (setq prime (array (+ num 1) '(true)))
+  (setq (prime 0) nil)
+  (setq (prime 1) nil)
+  (setq i 2)
+  (while (<= (* i i) num)
+    (if (prime i)
+        ; aggiorna tutti i multipli
+        (for (j (* i 2) num i)
+          (setf (prime j) nil)
+        )
+    )
+    (++ i)
+  )
+  ; check blum (solo numeri dispari)
+  (for (j 2 num)
+    (if (prime j)
+      ; controlla se i fattori sono nella forma 4t + 3
+      (if (and (= (% num j) 0) (= (% (- j 3) 4) 0))
+        (begin
+          (setq q (/ num j))
+          (throw (and (!= q j) (prime q) (= (% (- q 3) 4) 0))))
+      )
+    )
+  )
+  nil)))
+
+Facciamo alcune prove:
+
+(blum? 11)
+;-> nil
+(blum? 33)
+;-> true
+(blum? 501)
+;-> true
+
+Calcoliamo tutti i numeri blum fino a 1000:
+
+(filter blum? (sequence 20 1000))
+;-> (21 33 57 69 77 93 129 133 141 161 177 201 209 213 217 237 249 253 301
+;->  309 321 329 341 381 393 413 417 437 453 469 473 489 497 501 517 537 553
+;->  573 581 589 597 633 649 669 681 713 717 721 737 749 753 781 789 813 817
+;->  849 869 889 893 913 917 921 933 973 989 993)
+
 =============================================================================
 

@@ -1382,6 +1382,8 @@ NOTE LIBERE 11
   La funzione DEFUN del Common LISP
   Spirale di Ulam
   Coefficiente di correlazione
+  Numeri frugali
+  Numeri Blum
 
 APPENDICI
 =========
@@ -1417,7 +1419,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (220 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (221 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================
