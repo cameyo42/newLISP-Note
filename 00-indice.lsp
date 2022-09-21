@@ -1384,6 +1384,8 @@ NOTE LIBERE 11
   Coefficiente di correlazione
   Numeri frugali
   Numeri Blum
+  Firma dei primi (Prime signature)
+  Numeri di Achille
 
 APPENDICI
 =========

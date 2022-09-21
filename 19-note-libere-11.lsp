@@ -1748,5 +1748,121 @@ Calcoliamo tutti i numeri blum fino a 1000:
 ;->  573 581 589 597 633 649 669 681 713 717 721 737 749 753 781 789 813 817
 ;->  849 869 889 893 913 917 921 933 973 989 993)
 
+
+---------------------------------
+Firma dei primi (Prime signature)
+---------------------------------
+
+La firma dei primi (prime signature - firma prima) di un numero è la sequenza di esponenti della sua fattorizzazione ordinati in ordine di dimensione:
+
+  fattorizzazione(n) = p1^a1*p2^a2*...*pn^an 
+  dove p1 < p2 < ... < pn.
+  
+  firma(n) = (a1 a2 ... an)
+
+Ad esempio, tutti i numeri primi hanno una firma (1), i quadrati dei numeri primi hanno una firma (2), i prodotti di due primi distinti hanno firma (1 1) e i prodotti di un quadrato di un numero primo e un numero primo diverso (ad es. 12,18,20,... ) hanno firma (2 1).
+
+Nota: Il numero di divisori che di un numero è determinato dalla sua firma come segue: 
+Se aggiungiamo uno a ciascun esponente e li moltiplichiamo insieme otteniamo il numero di divisori incluso il numero stesso e 1. Ad esempio, 20 ha firma (2 1) e quindi il numero di divisori è 3*2=6 (1,2,4,5,10 e 20).
+
+Dato un numero con la firma prima S, risulta:
+- Un numero primo se S = (1)
+- Un quadrato se gcd S è pari
+- Un numero intero senza quadrati se max S = 1
+- Un numero potente se min S ≥ 2
+- Un numero di Achille se min S ≥ 2 e gcd S = 1
+- "k"-quasi primo se somma S = "k"
+
+(define (factor-group num)
+"Factorize an integer number"
+  (if (= num 1) '((1 1))
+      (letn ((out '()) (lst (factor num)) (cur-val (first lst)) (cur-count 0))
+        (dolist (el lst)
+          (if (= el cur-val) (++ cur-count)
+              (begin
+                (push (list cur-val cur-count) out -1)
+                (setq cur-count 1 cur-val el))))
+        (push (list cur-val cur-count) out -1))))
+
+La funzione per calcolare la firma prima di un numero:
+
+(define (signature num)
+  (map last (factor-group num)))
+
+Facciamo alcune prove:
+
+(signature 1)
+;-> (1)
+(signature 11)
+;-> (1)
+(signature 20)
+;-> (2 1)
+
+Calcoliamo la firma dei primi 20 numeri:
+
+(map signature (sequence 1 20))
+;-> ((1) (1) (1) (2) (1) (1 1) (1) (3) (2) (1 1) (1)
+;->  (2 1) (1) (1 1) (1 1) (4) (1) (1 2) (1) (2 1))
+
+
+-----------------
+Numeri di Achille
+-----------------
+
+Un numero di Achille è un intero positivo potente (nel senso che ogni fattore primo si presenta con esponente maggiore di uno), ma imperfetto (nel senso che il numero non è una potenza perfetta).
+
+Sequenza OEIS: A052486
+  72, 108, 200, 288, 392, 432, 500, 648, 675, 800, 864, 968, 972, 1125, 
+  1152, 1323, 1352, 1372, 1568, 1800, 1944, 2000, 2312, 2592, 2700, 2888,
+  3087, 3200, 3267, 3456, 3528, 3872, 3888, 4000, 4232, 4500, 4563, 4608,
+  5000, 5292, 5324, 5400, 5408, 5488, 6075, ...
+
+Ponendo "Signature" come la firma prima di un numero, allora il numero è di Achille se min(Signature) ≥ 2 e gcd(Signature) = 1. 
+
+(define (factor-group num)
+"Factorize an integer number"
+  (if (= num 1) '((1 1))
+      (letn ((out '()) (lst (factor num)) (cur-val (first lst)) (cur-count 0))
+        (dolist (el lst)
+          (if (= el cur-val) (++ cur-count)
+              (begin
+                (push (list cur-val cur-count) out -1)
+                (setq cur-count 1 cur-val el))))
+        (push (list cur-val cur-count) out -1))))
+
+Funzione per calcolare la firma prima di un numero:
+
+(define (signature num)
+  (map last (factor-group num)))
+
+Funzione che verifica se un numero è di Achille:
+
+(define (achille? num)
+  (let (s (signature num))
+    (and (>= (apply min s) 2) (= (apply gcd s) 1))))
+
+Facciamo alcune prove:
+
+(achille? 72)
+;-> true
+
+(achille? 100)
+;-> nil
+
+Calcoliamo tutti i numeri di Achille fino a 10000:
+
+(filter achille? (sequence 1 10000))
+;-> (72 108 200 288 392 432 500 648 675 800 864 968 972 1125 1152 1323 1352
+;->  1372 1568 1800 1944 2000 2312 2592 2700 2888 3087 3200 3267 3456 3528
+;->  3872 3888 4000 4232 4500 4563 4608 5000 5292 5324 5400 5408 5488 6075
+;->  6125 6272 6728 6912 7200 7688 7803 8575 8712 8748 8788 9000 9248 9747
+;->  9800)
+
+Calcoliamo quanti sono i numeri di Achille fino ad 1 milione:
+
+(time (println (length (filter achille? (sequence 1 1e6)))))
+;-> 916
+;-> 1932.563
+
 =============================================================================
 
