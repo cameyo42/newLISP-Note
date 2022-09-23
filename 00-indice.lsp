@@ -1386,6 +1386,8 @@ NOTE LIBERE 11
   Numeri Blum
   Firma dei primi (Prime signature)
   Numeri di Achille
+  Numeri di Perrin
+  a*x + b*y = n
 
 APPENDICI
 =========

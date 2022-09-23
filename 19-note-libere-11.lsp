@@ -1812,12 +1812,12 @@ Numeri di Achille
 Un numero di Achille è un intero positivo potente (nel senso che ogni fattore primo si presenta con esponente maggiore di uno), ma imperfetto (nel senso che il numero non è una potenza perfetta).
 
 Sequenza OEIS: A052486
-  72, 108, 200, 288, 392, 432, 500, 648, 675, 800, 864, 968, 972, 1125, 
+  72, 108, 200, 288, 392, 432, 500, 648, 675, 800, 864, 968, 972, 1125,
   1152, 1323, 1352, 1372, 1568, 1800, 1944, 2000, 2312, 2592, 2700, 2888,
   3087, 3200, 3267, 3456, 3528, 3872, 3888, 4000, 4232, 4500, 4563, 4608,
   5000, 5292, 5324, 5400, 5408, 5488, 6075, ...
 
-Ponendo "Signature" come la firma prima di un numero, allora il numero è di Achille se min(Signature) ≥ 2 e gcd(Signature) = 1. 
+Ponendo "Signature" come la firma prima di un numero, allora il numero è di Achille se min(Signature) ≥ 2 e gcd(Signature) = 1.
 
 (define (factor-group num)
 "Factorize an integer number"
@@ -1863,6 +1863,167 @@ Calcoliamo quanti sono i numeri di Achille fino ad 1 milione:
 (time (println (length (filter achille? (sequence 1 1e6)))))
 ;-> 916
 ;-> 1932.563
+
+Un numero intero positivo N è un numero di Achille forte se, sia N che toziente(N) sono numeri di Achille.
+
+Sequenza OEIS: A194085 
+  500, 864, 1944, 2000, 2592, 3456, 5000, 10125, 10368, 12348, 12500, 
+  16875, 19652, 19773, 30375, 31104, 32000, 33275, 37044, 40500, 49392,
+  50000, 52488, 55296, 61731, 64827, 67500, 69984, 78608, 80000, 81000,
+  83349, 84375, 93312, 108000, ...
+
+(define (totient num)
+"Calculates the eulero totient of a given number"
+  (if (= num 1) 1
+    (let (res num)
+      (dolist (f (unique (factor num)))
+        (setq res (- res (/ res f))))
+      res)))
+
+La seguente funzione verifica se un numero è di Achille forte, ma non è ottimizzata (calcola due volte (factor num)):
+
+(define (achille-strong? num)
+  (and (achille? num) (achille? (totient num))))
+
+Calcoliamo quanti sono i numeri di Achille forte fino ad 10000:
+
+(time (println (length (filter achille-strong? (sequence 1 1e4)))))
+;-> 7
+;-> 14.699
+
+Calcoliamo quanti sono i numeri di Achille forte fino ad 1 milione:
+
+(time (println (length (filter achille-strong? (sequence 1 1e6)))))
+;-> 99
+;-> 1999.647
+
+Vediamo quali sono sono i numeri di Achille forte fino ad 1 milione:
+
+(time (println (filter achille-strong? (sequence 1 1e6))))
+;-> (500 864 1944 2000 2592 3456 5000 10125 10368 12348 12500 16875 19652
+;->  19773 30375 31104 32000 33275 37044 40500 49392 50000 52488 55296
+;->  61731 64827 67500 69984 78608 80000 81000 83349 84375 93312 108000
+;->  111132 124416 128000 135000 148176 151875 158184 162000 165888 172872
+;->  177957 197568 200000 202612 209952 219488 221184 237276 243000 246924
+;->  253125 266200 270000 273375 296352 320000 324000 333396 364500 397953
+;->  405000 432000 444528 453789 455877 493848 497664 500000 518616 533871
+;->  540000 555579 583443 605052 607500 629856 632736 648000 663552 665500
+;->  666792 675000 691488 740772 750141 790272 800000 810448 820125 831875
+;->  877952 949104 972000 987696)
+;-> 1969.141
+
+Calcoliamo quanti sono i numeri di Achille fino ad 100 milioni:
+
+(time (println (length (filter achille-strong? (sequence 1 1e8)))))
+;-> 656
+;-> 550253.141
+
+
+----------------
+Numeri di Perrin
+----------------
+
+La sequenza P(n) dei numeri di Perrin (o sequenza Ondrej Such) è definita dalla seguente relazione ricorsiva:
+
+ P(0) = 3
+ P(1) = 0
+ P(2) = 2
+ P(n) = P(n-2) + P(n-3) per n > 2
+
+Sequenza OEIS: A001608
+  3, 0, 2, 3, 2, 5, 5, 7, 10, 12, 17, 22, 29, 39, 51, 68, 90, 119, 158,
+  209, 277, 367, 486, 644, 853, 1130, 1497, 1983, 2627, 3480, 4610, 6107,
+  8090, 10717, 14197, 18807, 24914, 33004, 43721, 57918, 76725, 101639,
+  134643, 178364, 236282, 313007, ...
+
+Metodo 1: ricorsione
+--------------------
+
+(define (perrin1 num)
+  (cond ((= num 0) 3)
+        ((= num 1) 0)
+        ((= num 2) 2)
+        (true
+          (+ (perrin1 (- num 2)) (perrin1 (- num 3))))))
+
+(perrin1 9)
+;-> 12
+
+(map perrin1 (sequence 1 20))
+;-> (0 2 3 2 5 5 7 10 12 17 22 29 39 51 68 90 119 158 209 277)
+
+Complessità temporale esponenziale: O(2^n)
+
+Metodo 2: iterativo
+-------------------
+
+(define (perrin2 num)
+  (let ((a 3) (b 0) (c 2) (out 0))
+    (cond ((= num 0) a)
+          ((= num 1) b)
+          ((= num 2) c)
+          (true
+            (while (> num 2)
+              (setq out (+ a b))
+              (setq a b)
+              (setq b c)
+              (setq c out)
+              (-- num)
+            )
+            out))))
+
+(perrin2 9)
+;-> 12
+
+(map perrin2 (sequence 1 20))
+;-> (0 2 3 2 5 5 7 10 12 17 22 29 39 51 68 90 119 158 209 277)
+
+Complessità temporale lineare: O(n)
+
+
+-------------
+a*x + b*y = n
+-------------
+
+Dati a, b e n. Trovare i valori interi di x e y che soddisfano la seguente equazione:
+
+  a*x + b*y = n
+
+Per risolvere questo problema possiamo iterare x (o y) per tutti i possibili valori da 0 a n.
+Poi calcoliamo: y = (n-a*x)/b (o x = (n-b*y)/a).
+Se i valori correnti di x y soddisfano l'equazione, allora x e y sono una soluzione.
+
+Per le equazioni diofantine lineari, esistono soluzioni intere se e solo se il MCD dei coefficienti delle due variabili divide perfettamente il termine costante. 
+In altre parole, una soluzione esiste se e solo se: MCD(a b) % n = 0.
+
+(define (solve a b n)
+  (local (x y out)
+    (setq out '())
+    ; controllo esistenza soluzione
+    (if (zero? (% n (gcd a b))) 
+      (begin
+        (setq x 0)
+        (while (<= (* x a) n)
+          (if (zero? (% (- n (* x a)) b))
+            (push (list x (/ (- n (* x a)) b)) out -1)
+          )
+          (++ x)
+        )
+      )
+    )
+    out))
+
+Facciamo alcune prove:
+
+(solve 2 3 7)
+;-> (2 1)
+
+(solve 12 13 777)
+;-> ((3 57) (16 45) (29 33) (42 21) (55 9))
+
+(solve 12 4 33)
+;-> ()
+
 
 =============================================================================
 
