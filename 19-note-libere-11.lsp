@@ -2025,5 +2025,256 @@ Facciamo alcune prove:
 ;-> ()
 
 
+---------------------------
+Sorry... i'm floating point
+--------------------------- 
+
+Poniamo f = 0
+(setq f 0.0)
+
+Poi aggiungiamo 10 volte 0.1 a f
+(for (i 1 10)
+  (setq f (add f 0.1))
+)
+Adesso f = 0.1 + 0.1 + 0.1 + 0.1 + 0.1 + 0.1 + 0.1 + 0.1 + 0.1 + 0.1
+
+Quindi f dovrebbe essere uguale a 1... e invece no!
+(= f 1.0)
+;-> nil
+
+Infatti f vale:
+f
+;-> 0.9999999999999999
+
+
+-------------------------------
+Numeri sequenziali come stringa
+-------------------------------
+
+Scriviamo una funzione che genera numeri-stringa da "start" a "end" di lunghezza predefinita "pad".
+Se un numero è più corto di "pad", allora vengono aggiunti all'inizio del numero gli zeri (0) necessari per avere lunghezza "pad".
+
+Esempio: 
+start = 2
+end = 12
+pad = 3
+Output: ("002" "003" "004" "005" "006" "007" "008" "009" "010" "011" "012")
+
+(define (seq-str start end pad)
+  (local (out fmt)
+    (setq out '())
+    (if (nil? pad) (setq pad (length (max start end))))
+    (setq fmt (string "%0" pad "d"))
+    (for (i start end)
+      (push (format fmt i) out -1)
+    )
+    out))
+
+Facciamo alcune prove:
+
+(seq-str 7 21)
+;-> ("07" "08" "09" "10" "11" "12" "13" "14" "15" "16" "17" "18" "19"
+;->  "20" "21")
+
+(seq-str 7 21 4)
+;-> ("0007" "0008" "0009" "0010" "0011" "0012" "0013" "0014" "0015" "0016"
+;->  "0017" "0018" "0019" "0020" "0021")
+
+Con "start" maggiore di "end":
+
+(seq-str 21 4 2)
+;-> ("21" "20" "19" "18" "17" "16" "15" "14" "13" "12" "11" "10" "09"
+;->  "08" "07" "06" "05" "04")
+
+(seq-str 21 4 3)
+;-> ("021" "020" "019" "018" "017" "016" "015" "014" "013" "012" "011"
+;->  "010" "009" "008" "007" "006" "005" "004")
+
+
+------------------------------
+6174 - La costante di Kaprekar
+------------------------------
+
+Dato un qualsiasi numero a quattro cifre, tranne quelli con tutte le cifre uguali (0000, 1111, ...), applichiamo il seguente algoritmo (Kaprekar's routine):
+
+1) Ordinare le quattro cifre in ordine crescente e memorizzare il risultato in un numero "asc".
+2) Ordinare le quattro cifre in ordine decrescente e memorizzare il risultato in un numero "desc".
+3) Sottrarre il numero più grande dal numero più piccolo, cioè abs(asc – desc).
+4) Ripetere i tre passaggi sopra (1,2 e 3) fino a quando il risultato della sottrazione non diventa uguale al numero precedente.
+
+La sequenza dei numeri generati termina sempre con 6174, che viene chiamato "costante di Kaprekar".
+Inoltre raggiunge sempre il suo punto fisso, 6174, in un massimo di 7 iterazioni.
+Una volta raggiunto 6174, il processo continuerà a produrre 7641 – 1467 = 6174. 
+
+Ad esempio, partiamo dal numero 1495:
+
+  9541 – 1459 = 8082
+  8820 – 0288 = 8532
+  8532 – 2358 = 6174
+  7641 – 1467 = 6174
+
+Gli unici numeri a quattro cifre per i quali la routine di Kaprekar non raggiunge 6174 sono i numeri repdigit come 1111 (cioè numeri con cifre tutte uguali), che danno il risultato 0000 dopo una singola iterazione. 
+Tutti gli altri numeri a quattro cifre alla fine raggiungono 6174 se si utilizzano zeri iniziali per mantenere il numero di cifre a 4. 
+Per i numeri con tre numeri identici e un quarto numero che è un numero più alto o più basso (come 2111), è essenziale trattare i numeri a 3 cifre con uno zero iniziale. 
+Ad esempio: 
+
+  2111 – 1112 = 0999, 9990 – 999 = 8991, 9981 – 1899 = 8082, 
+  8820 – 288 = 8532, 8532 – 2358 = 6174.
+
+(define (int-list num pad)
+"Convert an integer to a list of digits (pad left with 0)"
+  (let (out '())
+    (while (!= num 0)
+      (push (% num 10) out)
+      (setq num (/ num 10))
+    )
+    ; pad left with 0
+    (while (< (length out) pad) (push 0 out))
+    out))
+
+(int-list 24 4)
+;-> (0 0 2 4)
+(int-list 24 3)
+;-> (0 2 4)
+
+(define (list-int lst)
+"Convert a list of digits to integer"
+  (let (num 0)
+    (dolist (el lst) (setq num (+ el (* num 10))))
+    num))
+
+(list-int '(0 0 2 4))
+;-> 24
+(list-int '(0 2 4))
+;-> 24
+
+Funzione che trasforma un numero con le operazioni 1, 2 e 3:
+
+(define (trasform num len)
+  (local (asc desc)
+    (setq asc (list-int (sort (int-list num len))))
+    (setq desc (list-int (sort (int-list num len) >)))
+    (abs (- asc desc))))
+
+(trasform 6174 4)
+;-> 6174
+
+Funzione che crea la sequenza di kaprekar per un dato numero:
+
+(define (kaprekar len start)
+  (local (k stop curr next)
+    (setq stop nil)
+    (setq curr start)
+    (setq k (list curr))
+    (until stop
+      (setq next (trasform curr len))
+      ; uncomment next line to see cycles
+      ;(print curr { } next) (read-line)
+      (if (or (= curr next) (zero? next)) 
+          (setq stop true)
+          ;else
+          (push next k -1)
+      )
+      (setq curr next)
+    )
+    k))
+
+Facciamo alcune prove:
+
+(kaprekar 4 1234)
+;-> (1234 3087 8352 6174)
+
+(kaprekar 4 34)
+;-> (34 4266 4176 6174)
+
+(map (curry kaprekar 4) (sequence 1000 1010))
+;-> ((1000 999 8991 8082 8532 6174) 
+;->  (1001 1089 9621 8352 6174) 
+;->  (1002 2088 8532 6174)
+;->  (1003 3087 8352 6174)
+;->  (1004 4086 8172 7443 3996 6264 4176 6174)
+;->  (1005 5085 7992 7173 6354 3087 8352 6174)
+;->  (1006 6084 8172 7443 3996 6264 4176 6174)
+;->  (1007 7083 8352 6174)
+;->  (1008 8082 8532 6174)
+;->  (1009 9081 9621 8352 6174)
+;->  (1010 1089 9621 8352 6174))
+
+Vediamo quali numeri vengono generati dalla routine di kaprekar per tutti i numeri di 4 cifre (da 1000 a 9999):
+
+(sort (setq all (unique (flat (map (curry kaprekar 4) (sequence 1000 9999))))))
+;-> (999 1000 1001 1002 1003 1004 1005 1006 1007 1008 1009...
+;->  ... 9992 9993 9994 9995 9996 9997 9998 9999)
+
+(length (setq all (unique (flat (map (curry kaprekar 4) (sequence 1000 9999))))))
+;-> 9001
+
+Il parametro "len" ci permette di verificare se la routine di kaprekar vale anche per numeri con un numero di cifre diverso da 4. Per esempio con numeri da 3 cifre otteniamo un altra costante: 495.
+
+(kaprekar 3 124)
+;-> (124 297 693 594 495)
+
+(kaprekar 3 477)
+;-> (477 297 693 594 495)
+
+(kaprekar 3 21)
+;-> (21 198 792 693 594 495)
+
+Con numeri da 5 cifre otteniamo dei cicli di numeri e non una costante:
+(modificare la funzione "kaprekar": uncomment next line to see cycles)
+
+(kaprekar 5 21345)
+;-> 21345 41976
+;-> 41976 82962
+;-> 82962 75933
+;-> 75933 63954
+;-> 63954 61974
+;-> 61974 82962
+;-> 82962 75933
+;-> 75933 63954
+;-> 63954 61974
+;-> ...
+
+(kaprekar 5 44391)
+;-> 44391 80982
+;-> 80982 95931
+;-> 95931 85932
+;-> 85932 74943
+;-> 74943 62964
+;-> 62964 71973
+;-> 71973 83952
+;-> 83952 74943
+;-> 74943 62964
+;-> 62964 71973
+;-> 71973 83952
+;-> 83952 74943
+;-> ...
+
+Anche con numeri da25 cifre otteniamo dei cicli di numeri:
+
+(kaprekar 2 26)
+;-> 26 36
+;-> 36 27
+;-> 27 45
+;-> 45 9
+;-> 9 81
+;-> 81 63
+;-> 63 27
+;-> 27 45
+;-> 45 9
+;-> 9 81
+;-> ...
+
+(kaprekar 2 71)
+;-> 71 54
+;-> 54 9
+;-> 9 81
+;-> 81 63
+;-> 63 27
+;-> 27 45
+;-> 45 9
+;-> 9 81
+;-> ...
+
 =============================================================================
 

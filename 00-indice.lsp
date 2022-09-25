@@ -1388,6 +1388,9 @@ NOTE LIBERE 11
   Numeri di Achille
   Numeri di Perrin
   a*x + b*y = n
+  Sorry... i'm floating point
+  Numeri sequenziali come stringa
+  6174 - La costante di Kaprekar
 
 APPENDICI
 =========
