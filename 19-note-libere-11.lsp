@@ -2276,5 +2276,220 @@ Anche con numeri da25 cifre otteniamo dei cicli di numeri:
 ;-> 9 81
 ;-> ...
 
+
+----------------------------------------------------------
+Minimo Comune Multiplo (MCM) - Least Common Multiple (LCM)
+----------------------------------------------------------
+
+Il minimo comune multiplo di due numeri interi a e b, mcm(a,b), è il più piccolo numero intero positivo multiplo sia di a sia di b.
+Nel caso particolare in cui uno tra a o b è uguale a zero, allora si definisce mcm(a,b) uguale a zero.
+È possibile calcolare il minimo comune multiplo di più di due numeri, sostituendo man mano due dei numeri con il loro comune multiplo e proseguendo fino a che non rimane un solo numero che è il risultato.
+Si può dimostrare che il risultato è lo stesso qualunque sia l'ordine in cui vengono fatte le sostituzioni.
+
+Vediamo una implementazione proposta da Sammo:
+
+;; Returns the least common multiple of one or more integers.
+;; by Sammo
+
+(define (lcm2 a b)
+  (if (or (= a 0) (= b 0))
+      0
+      (/ (abs (* a b)) (gcd a b))))
+
+(define (lcm )
+  (cond ((empty? (args)) 1)
+        ((empty? (rest (args))) (int (abs (args 0))))
+        (true
+         ;; reduce
+         (apply lcm2 (args) 2))))
+
+(define-macro (=? x => y)
+  (if (!= (eval x) (eval y))
+      (throw-error (format "failed: %s =/> %s" (string x) (string y))))
+  true)
+
+(=? (lcm 10) => 10)
+;-> true
+(=? (lcm 25 30) => 150)
+;-> true
+(=? (lcm -24 18 10) => 360)
+;-> true
+(=? (lcm 14 35) => 70)
+;-> true
+(=? (lcm 0 5) => 0)
+;-> true
+(=? (lcm 1 2 3 4 5 6) => 60)
+;-> true
+
+Il minimo comune multiplo di due numeri a e b diversi da zero può essere calcolato usando il massimo comun divisore (MCD) di a e b con la formula seguente:
+
+                 a*b
+  MCM(a,b) = ------------
+               MCD(a,b)
+
+Usiamo questa formula per scrivere una nuova funzione che calcola il minimo comune multiplo di due o più numeri.
+La funzione integrata "gcd" calcola il massimo comun divisore (greatest common divisor) di due o più numeri.
+
+Funzione che calcola il MCM di due numeri:
+
+(define (lcm_ a b) (/ (* a b) (gcd a b)))
+
+Funzione che calcola il MCM di N numeri:
+
+(define-macro (lcm-macro)
+"Calculates the lcm of two or more number"
+  (apply lcm_ (args) 2))
+
+Facciamo alcune prove:
+
+(setq a '(2 3 4 5 6 7 8 9 10 11 12 13 78 34 56))
+
+Vediamo quale funzione è più veloce:
+
+(time (lcm 2 3 4 5 6 7 8 9 10 11 12 13 78 34 56) 100000)
+;-> 655.583
+(time (lcm-macro 2 3 4 5 6 7 8 9 10 11 12 13 78 34 56) 100000)
+;-> 371.634
+
+(time (apply lcm (sequence 10 500)) 10000)
+;-> 2393.297
+(time (apply lcm-macro (sequence 10 500)) 10000)
+;-> 1473.182
+
+
+-------------
+Ruote dentate
+-------------
+
+Abbiamo N ruote dentate (ingranaggi) disposte in linea e collegate tra loro.
+Le varie ruote dentate hanno un numero di denti pari a (d1 d2 ... dN).
+Viene tracciata una linea retta che attravera tutti i centri delle ruote.
+Quanti giri compiono tutte le ruote prima di essere di nuovo riallineate?
+
+Vediamo pima il caso di due ruote dentate con a e b denti ciascuna:
+
+quando gli ingranaggi iniziano a ruotare, il numero di rotazioni che la prima ruota deve completare per riallineare il segmento di linea può essere calcolato utilizzando il minimo comune multiplo. 
+La prima ruota deve compiere MCM(a,b)/a rotazioni per il riallineamento. 
+A quel punto, la seconda ruota avrà effettuato MCM(a,b)/b rotazioni.
+
+Nel caso di N ruote possiamo applicare lo stesso ragionamento.
+
+Funzione che calcola il MCM di N numeri:
+
+(define (lcm2 a b) (/ (* a b) (gcd a b)))
+(define-macro (lcm)
+"Calculates the lcm of two or more number"
+  (apply lcm2 (args) 2))
+
+(define (allinea lst)
+  (let (mcm (apply lcm lst))
+    (map (curry / mcm) lst)))
+
+Facciamo alcune prove:
+
+(allinea '(10 2))
+;-> (1 5)
+Per riallinearsi la prima ruota (10 denti) fa un giro e la seconda ruota (2 denti) fa 5 giri.
+
+(allinea '(3 3 4))
+;-> (4 4 3)
+
+(allinea (sequence 1 10))
+;-> (2520 1260 840 630 504 420 360 315 280 252)
+
+
+---------------
+curry e hayashi
+---------------
+
+La seguente macro è stata scritta da johu (https://johu02.wordpress.com/):
+
+(define-macro (hayashi)
+;  (letex ((_func (flat (list (args 0) '_x (1 (args))))))
+  (letex (_func (push '_x (args) 1))
+    (fn (_x) _func )))
+
+Vediamo cosa fa:
+
+(hayashi + 10)
+;-> (lambda (_x) (+ _x 10))
+
+(hayashi func 1 2)
+;-> (lambda (_x) (func _x 1 2))
+
+La macro "hayashi" crea una funzione che ha le seguenti proprietà:
+a) ha un solo parametro in ingresso: _x
+b) il corpo applica la funzione passata ad "hayashi" con i parametri _x e gli altri argomenti passati ad "hayashi"
+
+Ricordiamo che anche la funzione "curry" crea delle funzioni:
+
+(curry + 10)
+;-> (lambda ($x) (+ 10 $x))
+
+hayashi produce --> (lambda (_x) (+ _x 10))
+curry produce   --> (lambda ($x) (+ 10 $x))
+
+Le funzioni sono simili, infatti i prametri sono scambiati (+ _x 10) e (+ 10 $x).
+
+Vediamo la differenza in pratica:
+
+(setq lst '(4 8 10))
+
+"curry" divide il numero 2 per ogni elemento della lista:
+
+(map (curry div 2) lst)
+;-> (0.5 0.25 0.2)
+
+"hayashi" divide ogni elemento della lista per 2:
+
+(map (hayashi div 2) lst)
+;-> (2 4 5)
+
+Quindi "hayashi" può essere usato in modo simile a "curry" in base al modo con cui devono essere trattati i parametri.
+
+Comunque "hayashi" permette di "passare" più parametri alla funzione da applicare.
+
+Per esempio, supponiamo di avere la seguente funzione:
+
+  f(k x y) = k*(x + y)
+
+(define (f k x y) (mul k (add x y)))
+
+(f 0 1 1)
+;-> 0
+(f 1 1 1)
+;-> 2
+(f 5 1 1)
+;-> 10
+
+Se vogliamo conoscere i valori assunti da f(k x y) per x = 1, y = 1 e k che varia da 0 a 10, possiamo scrivere:
+
+(map (hayashi f 1 1) (sequence 0 10))
+;-> (0 2 4 6 8 10 12 14 16 18 20)
+
+Possiamo scrivere una funzione che si comporta esattamente come "curry", ma permette di "passare" più parametri alla funzione da applicare.
+Basta modificare la posizione del simbolo _x e inserirlo in fondo alla lista dei parametri:
+
+(define-macro (curry-ext)
+   (letex (_func (push '_x (args) -1))
+    (fn (_x) _func )))
+
+Nel caso di un solo parametro (10) "curry" e "curry-ext" generano la stessa funzione:
+
+(curry + 10)
+;-> (lambda ($x) (+ 10 $x))
+(curry-ext + 10)
+;-> (lambda (_x) (+ 10 _x))
+
+Se vogliamo passare più parametri dobbiamo usare "curry-ext":
+
+(curry + 10 20)
+;-> (lambda ($x) (+ 10 $x))
+(curry-ext + 10 20)
+;-> (lambda (_x) (+ 10 20 _x))
+
+(map (curry-ext + 10 20) (sequence 1 10))
+;-> (31 32 33 34 35 36 37 38 39 40)
+
 =============================================================================
 

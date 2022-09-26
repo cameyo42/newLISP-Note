@@ -6965,6 +6965,7 @@ Con una chiave inesistente key5:
 ;-> null
 
 Usiamo una lista associativa con valori multipli:
+
 (setq lst1 '((key1 value1 value11) (key2 value2 value22) (key3 value3 value33)))
 
 (lookup 'key1 lst1)
@@ -7030,6 +7031,7 @@ Possiamo scriviamo una versione semplificata delle funzioni "assoc" e "lookup":
 ;-> nil
 
 Vedi anche "Modificare le liste di associazione" nel capitolo "09-Note-libere-1".
+Vedi anche "Ricerca nelle liste di associazione" nel capitolo "19-Note-libere-11".
 
 
 -------------------------------

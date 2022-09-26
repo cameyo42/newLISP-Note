@@ -1391,6 +1391,9 @@ NOTE LIBERE 11
   Sorry... i'm floating point
   Numeri sequenziali come stringa
   6174 - La costante di Kaprekar
+  Minimo Comune Multiplo (MCM) - Least Common Multiple (LCM)
+  Ruote dentate
+  curry e hayashi
 
 APPENDICI
 =========
