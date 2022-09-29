@@ -2491,5 +2491,247 @@ Se vogliamo passare più parametri dobbiamo usare "curry-ext":
 (map (curry-ext + 10 20) (sequence 1 10))
 ;-> (31 32 33 34 35 36 37 38 39 40)
 
+
+-----------------------------------
+Ricerca nelle liste di associazione
+-----------------------------------
+
+Una lista di associazione è una lista con la seguente struttura:
+
+((chiave1 valore11 valore12 valore13 ... valore1N)
+ (chiave2 valore21 valore22 valore23 ... valore2N)
+ ...
+ (chiaveM valoreM1 valoreM2 valoreM3 ... valoreMN))
+
+Per esempio:
+
+(setq cibo
+'(
+  ("frutta" "banana" "pera" "mela" "uva")
+  ("verdura" "lattuga" "spinaci" "bietole")
+  ("grassi" "salame" "salcicce" "cioccolata" "mela")
+  ("pasta" "ravioli")
+))
+
+Uso di "assoc" con una chiave (restituisce chiave e tutti i valori):
+
+(assoc "frutta" cibo)
+;-> ("frutta" "banana" "pera" "mela" "uva")
+
+Uso di "assoc" con un valore (restituisce nil):
+
+(assoc "banana" food)
+;-> nil
+
+Uso di "lookup" con una chiave (restituisce l'ultimo valore associato alla chiave):
+
+(lookup "frutta" cibo)
+;-> "uva"
+
+Uso di "lookup" con una chiave e un indice (restituisce il valore associato alla chioave con quell'indice):
+
+(lookup "frutta" cibo 0)
+;-> "frutta"
+(lookup "frutta" cibo 1)
+;-> "banana"
+(lookup "frutta" cibo 3)
+;-> "mela"
+
+Quando l'indice non esiste, allora restituisce ultimo valore associato alla chiave:
+
+(lookup "frutta" cibo 10)
+;-> "uva"
+
+Uso di "lookup" con un valore (restituisce nil):
+
+(lookup "banana" cibo)
+;-> nil
+
+Scriviamo una funzione "look-all" che cerca anche i valori delle liste di associazione:
+
+(define (look-all key aList)
+  (let (vec (ref key aList))
+    (and vec (aList (vec 0)))))
+
+Uso di "look-all" con una chiave:
+
+(look-all "frutta" cibo)
+;-> ("frutta" "banana" "pera" "mela" "uva")
+
+Uso di "look-all" con un valore:
+
+(look-all "banana" cibo)
+;-> ("frutta" "banana" "pera" "mela" "uva")
+
+Se esiste un valore associato a più chiavi (es. "mela" è associato a "frutta" e a "grassi"), allora viene restituita solo la prima associazione:
+
+(look-all "mela" cibo)
+;-> ("frutta" "banana" "pera" "mela" "uva")
+
+Se il valore (o la chiave) non esiste, allora restituisce nil:
+
+(look-all "cocomero" cibo)
+;-> nil
+
+
+-------------------------
+Orientamento di tre punti
+-------------------------
+
+Dati 3 punti 2D determinare l'orientamento (orario, antiorario o collineari).
+
+                p3
+               /   
+              /
+             /
+            p2
+           .
+        .
+     .            
+    p1 
+
+La pendenza del segmento (p1,p2) vale: a = (y2−y1) / (x2−x1)
+
+La pendenza del segmento (p2,p3) vale: b = (y3−y2) / (x3−x2)
+
+Se risulta:
+
+a > b --> orario - clockwise (right turn): a > b
+a = b --> collineari - collinear (left turn): a = b
+a < b --> antiorario - counterclockwise (left turn): a < b
+
+Quindi l'orientamento dipende dall'espressione:
+
+                                     > 0   -->   senso orario                   
+  (y2−y1) (x3−x2) − (y3−y2) (x2−x1)  = 0   -->   punti collineari
+                                     < 0   -->   senso antiorario   
+
+(define (orientamento p1 p2 p3)
+  ;(println (mul (sub (p2 1) (p1 1)) (sub (p3 0) (p2 0))))
+  ;(println (mul (sub (p3 1) (p2 1)) (sub (p2 0) (p1 0))))
+  (sub (mul (sub (p2 1) (p1 1)) (sub (p3 0) (p2 0))) 
+       (mul (sub (p3 1) (p2 1)) (sub (p2 0) (p1 0)))))
+
+(orientamento '(1 2) '(3 3) '(-3 4))
+;-> -8 ; antiorario
+
+(orientamento '(1 2) '(3 3) '(5 1))
+;-> 6 ; orario
+
+(orientamento '(1 1) '(3 3) '(2 2))
+;-> 0 ; collineari
+
+
+----------------------------------------------------
+Algoritmo della prossima permutazione lessicografica
+----------------------------------------------------
+
+L'approccio migliore per generare tutte le permutazioni è iniziare dalla permutazione più bassa e calcolare ripetutamente la permutazione successiva in atto. 
+Vediamo un algoritmo semplice e veloce per calcolare la prossima permutazione lessicografica (next lexicographical permutation) partendo da una permutazione iniziale.
+L'idea base di questo algoritmo è che quando vogliamo calcolare la permutazione successiva, dobbiamo "aumentare" la sequenza il meno possibile. 
+Proprio come quando contiamo usando i numeri, proviamo a modificare gli elementi più a destra e a lasciare invariato il lato sinistro.
+
+Utilizzando la sequente lista iniziale (0 1 2 5 3 3 0), i passi dell'algoritmo sono i seguenti:
+
+1) Sequenza iniziale
+  0 1 2 5 3 3 0
+
+2) Trovare il più lungo suffisso non crescente: 5 3 3 0
+        _ _ _ _
+  0 1 2 5 3 3 0
+ 
+3) Identificare il pivot: 2
+      p _ _ _ _
+  0 1 2 5 3 3 0
+
+4) Trovare il successore del pivot che si trova più a destra: 3
+      p _ _ s _
+  0 1 2 5 3 3 0
+
+5) Scambiare pivot e successore: p <-> s
+      s _ _ p _
+  0 1 3 5 3 2 0
+
+6) Invertire il suffisso: 5 3 2 0  -->  0 2 3 5
+        _ _ _ _
+  0 1 3 0 2 3 5
+
+8) Finito, abbiamo trovato la prossima permutazione:
+  0 1 3 0 2 3 5
+
+Per maggiori spiegazioni vedere la seguente pagina web:
+
+https://www.nayuki.io/page/next-lexicographical-permutation-algorithm
+
+Scriviamo una funzione che implementa l'algoritmo:
+
+(define (next-perm lst)
+  (local (i j len)
+    (setq len (length lst))
+    ; Trova il più lungo suffisso non crescente
+    (setq i (- len 1))
+    (while (and (> i 0) (>= (lst (- i 1)) (lst i)))
+      (-- i)
+    )
+    ; adesso i è l'indice iniziale del suffisso
+    (cond ((<= i 0) nil) ; ultima permutazione raggiunta?
+          (true
+            ; il pivot è (lst (- i 1))
+            ; Trova il successore del pivot che si trova più a destra
+            (setq j (- len 1))
+            (while (<= (lst j) (lst (- i 1)))
+              (-- j)
+            )
+            ; Ora il valore array[j] diventerà il nuovo pivot
+            ; (println j " >= " i)
+            ; scambia il pivot con il successore
+            (swap (lst (- i 1)) (lst j))
+            ; Inverte il suffisso
+            (setq j (- len 1))
+            (while (< i j)
+              (swap (lst i) (lst j))
+              (++ i)
+              (-- j)
+            )
+            lst))))
+
+Facciamo alcune prove:
+
+(next-perm '(0 1 2 3))
+;-> (0 1 3 2)
+
+(next-perm '(0 1 1 1 4))
+;-> (0 1 1 4 1)
+
+(next-perm '(0 1 2 5 3 3 0))
+;-> (0 1 3 0 2 3 5)
+
+(setq v '(0 1 2 3))
+(while (setq v (next-perm v)) (println v))
+;-> (0 1 3 2)
+;-> (0 2 1 3)
+;-> (0 2 3 1)
+;-> (0 3 1 2)
+;-> (0 3 2 1)
+;-> (1 0 2 3)
+;-> (1 0 3 2)
+;-> (1 2 0 3)
+;-> (1 2 3 0)
+;-> (1 3 0 2)
+;-> (1 3 2 0)
+;-> (2 0 1 3)
+;-> (2 0 3 1)
+;-> (2 1 0 3)
+;-> (2 1 3 0)
+;-> (2 3 0 1)
+;-> (2 3 1 0)
+;-> (3 0 1 2)
+;-> (3 0 2 1)
+;-> (3 1 0 2)
+;-> (3 1 2 0)
+;-> (3 2 0 1)
+;-> (3 2 1 0)
+;-> (3 2 1 0)
+
 =============================================================================
 

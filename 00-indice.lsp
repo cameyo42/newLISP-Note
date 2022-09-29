@@ -1394,6 +1394,9 @@ NOTE LIBERE 11
   Minimo Comune Multiplo (MCM) - Least Common Multiple (LCM)
   Ruote dentate
   curry e hayashi
+  Ricerca nelle liste di associazione
+  Orientamento di tre punti
+  Algoritmo della prossima permutazione lessicografica
 
 APPENDICI
 =========

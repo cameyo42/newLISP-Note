@@ -816,7 +816,7 @@ Gli elementi della lista possono essere qualunque espressione lisp.
 (difference '(1 1 2 3 4) '(2 4 6 8) true)
 ;-> (1 1 3)
 
-Nella seconda sintassi, la differenza funziona in modalità elenco
+Nella seconda sintassi, la differenza funziona in modalità lista
 bool è un espressione che deve essere true o nil.
 Nelle lista risultante, tutti gli elementi di list-B sono eliminati nella list-A, ma i duplicati che si trovano nella list-A vengono mantenuti.
 
