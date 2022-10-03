@@ -2806,9 +2806,53 @@ Anche con Wolfram Mathematica non si va molto lontano...
 Nota: la formula assomiglia ad un algoritmo di ricerca brute-force.
 
 
-----------------------------------------
-Uso particolare degli operatori AND e OR
-----------------------------------------
+-----------------------------------------
+Creazione automatica di simboli/variabili
+-----------------------------------------
+
+Supponiamo di avere una lista di coppie con il nome (stringa) e l'età (intero):
+
+(setq lst '(("pietro" 55) ("ada" 50) ("frida" 45)))
+
+Il problema è quello di creare i simboli dai nomi e assegnare il valore dell'età.
+Cioè, pietro deve essere un simbolo che vale 55, ada deve essere un simbolo che vale 50 e frida deve essere un simbolo che vale 45.
+
+Funzione che prende una stringa e un valore e crea il simbolo dalla stringa e assegnandogli il valore:
+
+(define (sets str val)
+  (set (sym str) (eval val)))
+
+(sets "a" 10)
+;-> 10
+(println a)
+
+Adesso per risolvere il nostro problema possiamo scrivere:
+
+(map (fn(x) (sets (x 0) (x 1))) lst)
+;-> (55 50 45)
+(println pietro { } ada { } frida)
+;-> 55 50 45
+
+Questo metodo permette di creare simboli/variabili in modo automatico (ad. esempio tutti i simboli da A00 ad A99).
+
+Inoltre possiamo usarlo per scrivere una funzione che crea un insieme di simboli:
+
+(define (vars)
+  (let (lst (explode (args) 2))
+    (dolist (el lst)
+      (set (sym (string (el 0))) (eval (el 1))))))
+
+Che viene chiamata nel modo seguente:
+
+(vars "vv" 3.14 "aa" 10 "cc" 11)
+;-> 11
+(println vv { } aa { } cc)
+;-> 3.14 10 11
+
+
+--------------------------------------------------------
+Uso particolare degli operatori AND e OR (Short-circuit)
+--------------------------------------------------------
 
 Operatore AND
 -------------
@@ -2850,6 +2894,45 @@ In questa funzione l'operatore OR:
 
 (ultimi lst)
 (3 5 4 8)
+
+Questi metodi funzionano perchè newLISP valuta le espressioni booleane con il metodo "short-circuit".
+La valutazione "short-circuit" (o valutazione McCarthy) consiste nel valutare (eseguire) il secondo argomento dell'espressione solo se il primo argomento non è sufficiente a determinare il valore del espressione.
+In particolare:
+- quando il primo argomento della funzione AND restituisce nil, il valore complessivo deve essere nil.
+- quando il primo argomento della funzione OR restituisce true, il valore complessivo deve essere true.
+
+Esempi:
+
+(and (setq a nil) (setq b 10))
+;-> nil
+(println a { } b)
+;-> nil nil
+
+(and (setq a 5) (setq b nil))
+;-> nil
+(println a { } b)
+;-> 5 nil
+
+(and (setq a 5) (setq b 10))
+;-> 10
+(println a { } b)
+;-> 5 10
+
+(set 'a nil 'b nil)
+(or (setq a nil) (setq b 10))
+;-> 10
+(println a { } b)
+;-> nil 10
+
+(or (setq a 5) (setq b nil))
+;-> 5
+(println a { } b)
+;-> 5 10
+
+(or (setq a 5) (setq b 10))
+;-> 5
+(println a { } b)
+;-> 5 10
 
 =============================================================================
 

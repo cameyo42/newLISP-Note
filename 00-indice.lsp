@@ -1398,7 +1398,8 @@ NOTE LIBERE 11
   Orientamento di tre punti
   Algoritmo della prossima permutazione lessicografica
   Formula per calcolare i numeri primi
-  Uso particolare degli operatori AND e OR
+  Creazione automatica di simboli/variabili
+  Uso particolare degli operatori AND e OR (Short-circuit)
 
 APPENDICI
 =========
