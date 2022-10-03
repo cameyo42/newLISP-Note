@@ -5151,6 +5151,11 @@ Infatti con altri parametri otteniamo nil:
 (func-par 'a 1 'b 2)
 ;-> x = nil, y = nil
 
+Comunque a e b hanno i valori passati:
+
+(println a { } b)
+;-> 1 2
+
 Però possiamo inserire x e y in qualunque ordine:
 
 (func-par 'y 2 'x 1)

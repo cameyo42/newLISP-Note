@@ -1525,6 +1525,8 @@ Infine un polinomio che genera 57 numeri primi (per x da 0 a 56):
 ;->  289511 318259 355573 404267 467617 549391 653879 785923 950947
 ;->  1154987 1404721 1707499 2071373 2505127 3018307 3621251 4325119)
 
+Vedi anche "Formula per calcolare i numeri primi" sul capitolo "19-note-libere-11".
+
 
 ------------------------------------------------------
 Nomi delle variabili/funzioni e velocità di esecuzione

@@ -2733,5 +2733,123 @@ Facciamo alcune prove:
 ;-> (3 2 1 0)
 ;-> (3 2 1 0)
 
+
+------------------------------------
+Formula per calcolare i numeri primi
+------------------------------------
+
+La seguente formula è derivata in Willans, "On Formulas for the nth Prime Number" (1964) (Mathematical Gazette vol. 48, n. 366, pp. 413-415):
+
+                        |                                   |1/n
+                2^n     |                n                  |
+  prime(n) = 1 + ∑ floor|(---------------------------------)|
+                i=1     |  i               (j-1)! + 1       |
+                        |  ∑ floor ((cos(π*----------))^2)  |
+                        | j=1                  j            |
+
+Questa formula calcola l'n-esimo numero primo. 
+
+Implementiamola subito:
+
+(setq PI 3.1415926535897931)
+
+(define (fact num)
+"Calculates the factorial of an integer number"
+  (if (zero? num)
+      1
+      (let (out 1L)
+        (for (x 1L num)
+          (setq out (* out x))))))
+
+Funzione che calcola la seconda sommatoria della formula (quella interna):
+
+(define (sum2 i j)
+  (setq k 0)
+  (for (jj 1 i)
+    (setq k (add k
+            (floor (pow (cos (mul PI (div (+ (fact (- jj 1)) 1) jj))) 2))))
+  )
+  k)
+
+Funzione che implementa la formula di Willans:
+
+(define (prime n)
+  (setq p 1)
+  (for (i 1 (pow 2 n))
+    (setq p (add p
+            (floor (pow (div n (sum2 i j)) (div n)))))
+  )
+  p)
+
+Facciamo alcune prove:
+
+(prime 1)
+;-> 2
+
+(prime 2)
+;-> 3
+
+Calcoliamo i primi 5 numeri primi:
+
+(map prime (sequence 1 5))
+;-> (2 3 5 7 11)
+
+Comunque i numeri coinvolti nell'equazione rendono impossibile l'utilizzo pratico dell'equazione stessa.
+Ad esempio la sommatoria di 2^n termini (che calcola al suo interno un'altra sommatoria) rende il tempo di calcolo lunghissimo anche per piccoli valori di n.
+Inoltre i numeri floating point non sono abbastanza precisi per calcolare i risultati dell'equazione.
+
+(prime 8)
+;-> 1.#QNAN
+
+Anche con Wolfram Mathematica non si va molto lontano...
+
+Nota: la formula assomiglia ad un algoritmo di ricerca brute-force.
+
+
+----------------------------------------
+Uso particolare degli operatori AND e OR
+----------------------------------------
+
+Operatore AND
+-------------
+Scriviamo una funzione che trova il primo numero negativo e calcola il suo quadrato:
+
+(define (quad-neg lst)
+  (let (idx (find 0 lst >))
+    (and idx (* (lst idx) (lst idx)))))
+
+(setq lst '(3 -5 4 8 -2))
+(quad-neg lst)
+;-> 25
+
+Ma se la lista non ha numeri negativi, allora "find" ritorna "nil".
+
+In questa funzione l'operatore "AND":
+- restituisce "idx" se "idx" vale nil (non esistono numeri negativi nella lista)
+- restituisce il quadrato del numero negativo se "idx" è diverso da nil.
+
+(setq lst '(3 5 4 8 2))
+(quad-neg lst)
+;-> nil
+
+Operatore OR
+------------
+Scriviamo una funzione che ritorna la lista (o stringa) passta senza "num" elementi:
+
+(define (ultimi list-or-string num)
+  (chop list-or-string (or num 1)))
+
+In questa funzione l'operatore OR:
+- restituisce "num" se "num" è diverso da nil
+- restituisce 1 se "num" è uguale a nil (quando non passiamo il parametro "num")
+
+(setq lst '(3 5 4 8 2))
+
+(ultimi lst 2)
+;-> (3 5 4)
+
+(ultimi lst)
+(3 5 4 8)
+
 =============================================================================
 

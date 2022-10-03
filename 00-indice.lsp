@@ -1397,6 +1397,8 @@ NOTE LIBERE 11
   Ricerca nelle liste di associazione
   Orientamento di tre punti
   Algoritmo della prossima permutazione lessicografica
+  Formula per calcolare i numeri primi
+  Uso particolare degli operatori AND e OR
 
 APPENDICI
 =========
