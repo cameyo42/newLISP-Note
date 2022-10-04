@@ -1100,8 +1100,8 @@ Massimo sottoinsieme con MCD = 1
 Dati n numeri interi, dobbiamo trovare il sottoinsieme più grande con MCD uguale a 1.
 
 Il problema diventa semplice se facciamo le seguenti considerazioni:
-Supponiamo di aver trovato un sottoinsieme con MCD 1, se gli aggiungiamo un nuovo elemento allora MCD rimane ancora 1. 
-Quindi se esiste un sottoinsieme con MCD 1, allora anche MCD dell'insieme completo è 1. 
+Supponiamo di aver trovato un sottoinsieme con MCD 1, se gli aggiungiamo un nuovo elemento allora MCD rimane ancora 1.
+Quindi se esiste un sottoinsieme con MCD 1, allora anche MCD dell'insieme completo è 1.
 Per risolvere il problema troviamo prima MCD dell'insieme completo, se è 1, allora l'insieme completo è quel sottoinsieme altrimenti nessun sottoinsieme esiste con GCD 1.
 
 (define (list-gcd1 lst)
@@ -1225,9 +1225,9 @@ Funzione che elenco tutte le coppie di cubi di tutti i numeri fino dato limite:
     out))
 
 (cube-pairs-all 1000)
-;-> ((1 ((0 1 0 1))) (8 ((0 8 0 2))) (9 ((1 8 1 2))) (27 ((0 27 0 3))) 
-;->  (28 ((1 27 1 3))) (35 ((8 27 2 3))) (64 ((0 64 0 4))) 
-;->  (65 ((1 64 1 4))) (72 ((8 64 2 4))) (91 ((27 64 3 4))) 
+;-> ((1 ((0 1 0 1))) (8 ((0 8 0 2))) (9 ((1 8 1 2))) (27 ((0 27 0 3)))
+;->  (28 ((1 27 1 3))) (35 ((8 27 2 3))) (64 ((0 64 0 4)))
+;->  (65 ((1 64 1 4))) (72 ((8 64 2 4))) (91 ((27 64 3 4)))
 ;->  (126 ((1 125 1 5))) (133 ((8 125 2 5))) (152 ((27 125 3 5)))
 ;->  (189 ((64 125 4 5))) (217 ((1 216 1 6))) (224 ((8 216 2 6)))
 ;->  (243 ((27 216 3 6))) (280 ((64 216 4 6))) (341 ((125 216 5 6)))
@@ -1247,8 +1247,8 @@ MCD delle cifre di un numero
 Scrivere una funzione per calcolare il MCD delle cifre di un numero intero positivo.
 
 Sequenza OEIS: A052423
-  1, 2, 3, 4, 5, 6, 7, 8, 9, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 2, 
-  1, 2, 1, 2, 1, 2, 1, 3, 1, 1, 3, 1, 1, 3, 1, 1, 3, 4, 1, 2, 1, 4, 
+  1, 2, 3, 4, 5, 6, 7, 8, 9, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 2,
+  1, 2, 1, 2, 1, 2, 1, 3, 1, 1, 3, 1, 1, 3, 1, 1, 3, 4, 1, 2, 1, 4,
   1, 2, 1, 4, 1, 5, 1, 1, 1, 1, 5, 1, 1, 1, 1, 6, 1, 2, 3, 2, 1, 6,
   1, 2, 3, 7, 1, 1, 1, 1, 1, 1, 7, 1, 1, 8, 1, 2, 1, 4, 1, 2, 1, 8,
   1, 9, 1, 1, 3, 1, 1, 3, 1, 1, 9, 1, 1, 1, ...
@@ -1486,12 +1486,12 @@ Adesso scriviamo la funzione che stampa la spirale di Ulam:
           (if (prime? value)
             (setf (matrix r (- size 1)) value)
             (setf (matrix r (- size 1)) empty)
-          )        
+          )
           (++ value)
         )
         ; fill last row
         (for (c (- size 2) 0 -1)
-          (if (prime? value)        
+          (if (prime? value)
             (setf (matrix (- size 1) c) value)
             (setf (matrix (- size 1) c) empty)
           )
@@ -1611,7 +1611,7 @@ Alcuni esempi di numeri frugali sono:
 3) 1029 = 3 * 7^3, qui il numero di cifre nel numero è 4 (1, 0, 2 e 9) che è strettamente maggiore del numero di cifre la sua fattorizzazione primo che è 3 (3, 7 e 3 ).
 
 Sequenza OEIS: A046759
-  125, 128, 243, 256, 343, 512, 625, 729, 1024, 1029, 1215, 1250, 1280, 
+  125, 128, 243, 256, 343, 512, 625, 729, 1024, 1029, 1215, 1250, 1280,
   1331, 1369, 1458, 1536, 1681, 1701, 1715, 1792, 1849, 1875, 2048, 2187,
   2197, 2209, 2401, 2560, 2809, 3125, 3481, 3584, 3645, 3721, 4096, 4374,
   4375, 4489, 4802, 4913, ...
@@ -1684,7 +1684,7 @@ Nota: a causa della condizione che entrambi i fattori debbano essere semi-primi,
 Esempi:
 N = 33
 Blum? Si
-Spiegazione: 33 = 3 * 11, 3 e 11 sono entrambi semiprimi 
+Spiegazione: 33 = 3 * 11, 3 e 11 sono entrambi semiprimi
 e nella forma 4t + 3 (per t = 0,2)
 
 N: 25
@@ -1694,11 +1694,11 @@ ma non sono nella forma 4t + 3.
 
 N: 77
 Blum? Si
-Spiegazione: 77 = 7 * 11, 7 e 11 sono entrambi semiprimi 
+Spiegazione: 77 = 7 * 11, 7 e 11 sono entrambi semiprimi
 e nella forma 4t + 3 (per t = 1,2)
 
 Algoritmo:
-Dato un numero N intero, dispari e maggiore di 20, calcoliamo i numeri primi da 1 a N. 
+Dato un numero N intero, dispari e maggiore di 20, calcoliamo i numeri primi da 1 a N.
 Se troviamo un numero primo che divide N e il suo quoziente, allora entrambi sono primi e seguono la forma 4t + 3 per un intero, quindi il numero intero N è Blum.
 
 (define (blum? num)
@@ -1755,14 +1755,14 @@ Firma dei primi (Prime signature)
 
 La firma dei primi (prime signature - firma prima) di un numero è la sequenza di esponenti della sua fattorizzazione ordinati in ordine di dimensione:
 
-  fattorizzazione(n) = p1^a1*p2^a2*...*pn^an 
+  fattorizzazione(n) = p1^a1*p2^a2*...*pn^an
   dove p1 < p2 < ... < pn.
-  
+
   firma(n) = (a1 a2 ... an)
 
 Ad esempio, tutti i numeri primi hanno una firma (1), i quadrati dei numeri primi hanno una firma (2), i prodotti di due primi distinti hanno firma (1 1) e i prodotti di un quadrato di un numero primo e un numero primo diverso (ad es. 12,18,20,... ) hanno firma (2 1).
 
-Nota: Il numero di divisori che di un numero è determinato dalla sua firma come segue: 
+Nota: Il numero di divisori che di un numero è determinato dalla sua firma come segue:
 Se aggiungiamo uno a ciascun esponente e li moltiplichiamo insieme otteniamo il numero di divisori incluso il numero stesso e 1. Ad esempio, 20 ha firma (2 1) e quindi il numero di divisori è 3*2=6 (1,2,4,5,10 e 20).
 
 Dato un numero con la firma prima S, risulta:
@@ -1866,8 +1866,8 @@ Calcoliamo quanti sono i numeri di Achille fino ad 1 milione:
 
 Un numero intero positivo N è un numero di Achille forte se, sia N che toziente(N) sono numeri di Achille.
 
-Sequenza OEIS: A194085 
-  500, 864, 1944, 2000, 2592, 3456, 5000, 10125, 10368, 12348, 12500, 
+Sequenza OEIS: A194085
+  500, 864, 1944, 2000, 2592, 3456, 5000, 10125, 10368, 12348, 12500,
   16875, 19652, 19773, 30375, 31104, 32000, 33275, 37044, 40500, 49392,
   50000, 52488, 55296, 61731, 64827, 67500, 69984, 78608, 80000, 81000,
   83349, 84375, 93312, 108000, ...
@@ -1993,14 +1993,14 @@ Per risolvere questo problema possiamo iterare x (o y) per tutti i possibili val
 Poi calcoliamo: y = (n-a*x)/b (o x = (n-b*y)/a).
 Se i valori correnti di x y soddisfano l'equazione, allora x e y sono una soluzione.
 
-Per le equazioni diofantine lineari, esistono soluzioni intere se e solo se il MCD dei coefficienti delle due variabili divide perfettamente il termine costante. 
+Per le equazioni diofantine lineari, esistono soluzioni intere se e solo se il MCD dei coefficienti delle due variabili divide perfettamente il termine costante.
 In altre parole, una soluzione esiste se e solo se: MCD(a b) % n = 0.
 
 (define (solve a b n)
   (local (x y out)
     (setq out '())
     ; controllo esistenza soluzione
-    (if (zero? (% n (gcd a b))) 
+    (if (zero? (% n (gcd a b)))
       (begin
         (setq x 0)
         (while (<= (* x a) n)
@@ -2027,7 +2027,7 @@ Facciamo alcune prove:
 
 ---------------------------
 Sorry... i'm floating point
---------------------------- 
+---------------------------
 
 Poniamo f = 0
 (setq f 0.0)
@@ -2054,7 +2054,7 @@ Numeri sequenziali come stringa
 Scriviamo una funzione che genera numeri-stringa da "start" a "end" di lunghezza predefinita "pad".
 Se un numero è più corto di "pad", allora vengono aggiunti all'inizio del numero gli zeri (0) necessari per avere lunghezza "pad".
 
-Esempio: 
+Esempio:
 start = 2
 end = 12
 pad = 3
@@ -2104,7 +2104,7 @@ Dato un qualsiasi numero a quattro cifre, tranne quelli con tutte le cifre ugual
 
 La sequenza dei numeri generati termina sempre con 6174, che viene chiamato "costante di Kaprekar".
 Inoltre raggiunge sempre il suo punto fisso, 6174, in un massimo di 7 iterazioni.
-Una volta raggiunto 6174, il processo continuerà a produrre 7641 – 1467 = 6174. 
+Una volta raggiunto 6174, il processo continuerà a produrre 7641 – 1467 = 6174.
 
 Ad esempio, partiamo dal numero 1495:
 
@@ -2113,12 +2113,12 @@ Ad esempio, partiamo dal numero 1495:
   8532 – 2358 = 6174
   7641 – 1467 = 6174
 
-Gli unici numeri a quattro cifre per i quali la routine di Kaprekar non raggiunge 6174 sono i numeri repdigit come 1111 (cioè numeri con cifre tutte uguali), che danno il risultato 0000 dopo una singola iterazione. 
-Tutti gli altri numeri a quattro cifre alla fine raggiungono 6174 se si utilizzano zeri iniziali per mantenere il numero di cifre a 4. 
-Per i numeri con tre numeri identici e un quarto numero che è un numero più alto o più basso (come 2111), è essenziale trattare i numeri a 3 cifre con uno zero iniziale. 
-Ad esempio: 
+Gli unici numeri a quattro cifre per i quali la routine di Kaprekar non raggiunge 6174 sono i numeri repdigit come 1111 (cioè numeri con cifre tutte uguali), che danno il risultato 0000 dopo una singola iterazione.
+Tutti gli altri numeri a quattro cifre alla fine raggiungono 6174 se si utilizzano zeri iniziali per mantenere il numero di cifre a 4.
+Per i numeri con tre numeri identici e un quarto numero che è un numero più alto o più basso (come 2111), è essenziale trattare i numeri a 3 cifre con uno zero iniziale.
+Ad esempio:
 
-  2111 – 1112 = 0999, 9990 – 999 = 8991, 9981 – 1899 = 8082, 
+  2111 – 1112 = 0999, 9990 – 999 = 8991, 9981 – 1899 = 8082,
   8820 – 288 = 8532, 8532 – 2358 = 6174.
 
 (define (int-list num pad)
@@ -2170,7 +2170,7 @@ Funzione che crea la sequenza di kaprekar per un dato numero:
       (setq next (trasform curr len))
       ; uncomment next line to see cycles
       ;(print curr { } next) (read-line)
-      (if (or (= curr next) (zero? next)) 
+      (if (or (= curr next) (zero? next))
           (setq stop true)
           ;else
           (push next k -1)
@@ -2188,8 +2188,8 @@ Facciamo alcune prove:
 ;-> (34 4266 4176 6174)
 
 (map (curry kaprekar 4) (sequence 1000 1010))
-;-> ((1000 999 8991 8082 8532 6174) 
-;->  (1001 1089 9621 8352 6174) 
+;-> ((1000 999 8991 8082 8532 6174)
+;->  (1001 1089 9621 8352 6174)
 ;->  (1002 2088 8532 6174)
 ;->  (1003 3087 8352 6174)
 ;->  (1004 4086 8172 7443 3996 6264 4176 6174)
@@ -2368,8 +2368,8 @@ Quanti giri compiono tutte le ruote prima di essere di nuovo riallineate?
 
 Vediamo pima il caso di due ruote dentate con a e b denti ciascuna:
 
-quando gli ingranaggi iniziano a ruotare, il numero di rotazioni che la prima ruota deve completare per riallineare il segmento di linea può essere calcolato utilizzando il minimo comune multiplo. 
-La prima ruota deve compiere MCM(a,b)/a rotazioni per il riallineamento. 
+quando gli ingranaggi iniziano a ruotare, il numero di rotazioni che la prima ruota deve completare per riallineare il segmento di linea può essere calcolato utilizzando il minimo comune multiplo.
+La prima ruota deve compiere MCM(a,b)/a rotazioni per il riallineamento.
 A quel punto, la seconda ruota avrà effettuato MCM(a,b)/b rotazioni.
 
 Nel caso di N ruote possiamo applicare lo stesso ragionamento.
@@ -2581,14 +2581,14 @@ Orientamento di tre punti
 Dati 3 punti 2D determinare l'orientamento (orario, antiorario o collineari).
 
                 p3
-               /   
+               /
               /
              /
             p2
            .
         .
-     .            
-    p1 
+     .
+    p1
 
 La pendenza del segmento (p1,p2) vale: a = (y2−y1) / (x2−x1)
 
@@ -2602,14 +2602,14 @@ a < b --> antiorario - counterclockwise (left turn): a < b
 
 Quindi l'orientamento dipende dall'espressione:
 
-                                     > 0   -->   senso orario                   
+                                     > 0   -->   senso orario
   (y2−y1) (x3−x2) − (y3−y2) (x2−x1)  = 0   -->   punti collineari
-                                     < 0   -->   senso antiorario   
+                                     < 0   -->   senso antiorario
 
 (define (orientamento p1 p2 p3)
   ;(println (mul (sub (p2 1) (p1 1)) (sub (p3 0) (p2 0))))
   ;(println (mul (sub (p3 1) (p2 1)) (sub (p2 0) (p1 0))))
-  (sub (mul (sub (p2 1) (p1 1)) (sub (p3 0) (p2 0))) 
+  (sub (mul (sub (p2 1) (p1 1)) (sub (p3 0) (p2 0)))
        (mul (sub (p3 1) (p2 1)) (sub (p2 0) (p1 0)))))
 
 (orientamento '(1 2) '(3 3) '(-3 4))
@@ -2626,9 +2626,9 @@ Quindi l'orientamento dipende dall'espressione:
 Algoritmo della prossima permutazione lessicografica
 ----------------------------------------------------
 
-L'approccio migliore per generare tutte le permutazioni è iniziare dalla permutazione più bassa e calcolare ripetutamente la permutazione successiva in atto. 
+L'approccio migliore per generare tutte le permutazioni è iniziare dalla permutazione più bassa e calcolare ripetutamente la permutazione successiva in atto.
 Vediamo un algoritmo semplice e veloce per calcolare la prossima permutazione lessicografica (next lexicographical permutation) partendo da una permutazione iniziale.
-L'idea base di questo algoritmo è che quando vogliamo calcolare la permutazione successiva, dobbiamo "aumentare" la sequenza il meno possibile. 
+L'idea base di questo algoritmo è che quando vogliamo calcolare la permutazione successiva, dobbiamo "aumentare" la sequenza il meno possibile.
 Proprio come quando contiamo usando i numeri, proviamo a modificare gli elementi più a destra e a lasciare invariato il lato sinistro.
 
 Utilizzando la sequente lista iniziale (0 1 2 5 3 3 0), i passi dell'algoritmo sono i seguenti:
@@ -2639,7 +2639,7 @@ Utilizzando la sequente lista iniziale (0 1 2 5 3 3 0), i passi dell'algoritmo s
 2) Trovare il più lungo suffisso non crescente: 5 3 3 0
         _ _ _ _
   0 1 2 5 3 3 0
- 
+
 3) Identificare il pivot: 2
       p _ _ _ _
   0 1 2 5 3 3 0
@@ -2747,7 +2747,7 @@ La seguente formula è derivata in Willans, "On Formulas for the nth Prime Numbe
                         |  ∑ floor ((cos(π*----------))^2)  |
                         | j=1                  j            |
 
-Questa formula calcola l'n-esimo numero primo. 
+Questa formula calcola l'n-esimo numero primo.
 
 Implementiamola subito:
 
@@ -3092,6 +3092,128 @@ Facciamo una verifica:
 Abbiamo ritrovato il polinomio originale:
 
   p(x) = 103*x^3 + 19*x^2 + 4*x + 12345
+
+
+--------------------------------------------------------------
+Inversione dei valori di un matrice binaria (0 -> 1), (1 -> 0)
+--------------------------------------------------------------
+
+Problema: invertire i valori di una matrice binaria (nel modo più veloce).
+
+Per invertire il valore di un bit (da 0 a 1 e da 1 a 0) usiamo l'espressione:
+
+  x = 1 - x.
+
+Funzione che inverte un bit (0 -> 1 e 1 -> 0):
+
+(define (flip-bit x) (- 1 x))
+
+(flip-bit 0)
+;-> 1
+(flip-bit 1)
+;-> 0
+
+Funzione che crea una matrice binaria (0 e 1) dati larghezza e altezza:
+
+(define (random-bw width height)
+  (explode (rand 2 (* width height)) height))
+
+(setq m (random-bw 4 3))
+;-> ((1 1 0) (0 0 0) (0 0 1) (0 0 0))
+
+Funzioni che "flippano" una matrice binaria (lista):
+
+Metodo 1: iterazione con lista
+------------------------------
+
+(define (flip-mat-1 matrix)
+  (let ( (row (length matrix)) (col (length (matrix 0))) )
+    (for (r 0 (- row 1))
+      (for (c 0 (- col 1))
+        (setf (matrix r c) (flip-bit (matrix r c)))
+      )
+    )
+    matrix))
+
+(flip-mat-1 m)
+;-> ((0 0 1) (1 1 1) (1 1 0) (1 1 1))
+
+Metodo 2: iterazione con vettore
+--------------------------------
+
+(define (flip-mat-2 matrix)
+  (letn ( (row (length matrix)) (col (length (matrix 0)))
+          (arr (array row col (flat matrix))) )
+    (for (r 0 (- row 1))
+      (for (c 0 (- col 1))
+        (setf (arr r c) (flip-bit (arr r c)))
+      )
+    )
+    arr))
+
+(flip-mat-2 m)
+;-> ((0 0 1) (1 1 1) (1 1 0) (1 1 1))
+
+Metodo 3: primitive newLISP (map)
+---------------------------------
+
+(define (flip-mat-3 matrix)
+  (let (c (length (matrix 0)))
+    (explode (map flip-bit (flat matrix)) c)))
+
+(flip-mat-3 m)
+;-> ((0 0 1) (1 1 1) (1 1 0) (1 1 1))
+
+Metodo 4: primitive newLISP (set-ref-all)
+-----------------------------------------
+
+(define (flip-mat-4 matrix)
+  (set-ref-all '(*) matrix (map flip-bit $it) match))
+
+(flip-mat-4 m)
+;-> ((0 0 1) (1 1 1) (1 1 0) (1 1 1))
+
+Vediamo la velocità di queste funzioni:
+
+(silent (setq m1 (random-bw 10 10)))
+(silent (setq m2 (random-bw 100 100)))
+(silent (setq m3 (random-bw 1000 1000)))
+
+Prima funzione:
+(time (flip-mat-1 m1) 10000)
+;-> 154.942
+(time (flip-mat-1 m2) 100)
+;-> 338.329
+(time (flip-mat-1 m3) 1)
+;-> 6675.432
+Le liste con molti elementi sono lente.
+
+Seconda funzione:
+(time (flip-mat-2 m1) 10000)
+;-> 200.336
+(time (flip-mat-2 m2) 100)
+;-> 151.512
+(time (flip-mat-2 m3) 1)
+;-> 175.057
+I vettori (array) sono più veloci delle liste.
+
+Terza funzione:
+(time (flip-mat-3 m1) 10000)
+;-> 84.981
+(time (flip-mat-3 m2) 100)
+;-> 84.499
+(time (flip-mat-3 m3) 1)
+;-> 89.979
+La funzione "map" è molto veloce.
+
+Quarta funzione:
+(time (flip-mat-4 m1) 10000)
+;-> 113.309
+(time (flip-mat-4 m2) 100)
+;-> 95.535
+(time (flip-mat-4 m3) 1)
+;-> 99.359
+La funzione "set-ref-all" è veloce ed elegante.
 
 =============================================================================
 
