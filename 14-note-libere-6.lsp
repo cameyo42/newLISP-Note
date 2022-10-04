@@ -3495,6 +3495,19 @@ Per modificare la lista "data" avremmo dovuto scrivere:
 data
 ;-> ()
 
+Un altro esempio:
+
+(define (to-last lst)
+  (dolist (el lst)
+    (if (= el "") (setf (lst -1) "SI"))
+    (print el { })
+  )
+  lst)
+
+(setq lst '(1 "" 2 3 4))
+(to-last lst)
+;-> 1  2 3 4 (1 "" 2 3 "SI")
+
 È possibile anche aggiungere elementi alla lista (ad esempio con "push").
 
 Possiamo passare la lista per riferimento (call by-reference):
@@ -3676,9 +3689,9 @@ L'altra metà delle persone ha risposto il 50% SI e il 50% NO (perchè sia croce
 Quindi K - (1/4)N sono i SI in risposta alla domanda privata generati da (1/2)N persone.
 Adesso possiamo calcolare la probabilità cercata:
 
-       casi favorevoli      K - (1/4)N
-  P = ----------------- = -------------- = 2*(K/N - 1/4)
-       casi possibili         (1/2)N
+       casi favorevoli      K - (1/4)*N
+  P = ----------------- = --------------- = 2*(K/N - 1/4)
+       casi possibili         (1/2)*N
 
 (define (query num-people num-yes)
   (mul 2 (sub (div num-yes num-people) 0.25)))

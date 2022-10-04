@@ -2934,5 +2934,164 @@ Esempi:
 (println a { } b)
 ;-> 5 10
 
+
+-----------------------------------------------------
+Condividere un numero segreto (Shamir Secret Sharing)
+-----------------------------------------------------
+
+Nel suo articolo del 1979 "How to Sahre a Secret", Adi Shamir (la S in RSA) ha proposto uno schema crittografico che consente a n persone di condividere un numero segreto S in modo tale che ci vogliono almeno k di loro che mettono in comune le proprie risorse (chiavi) per ricostruire S.
+Questo schema di soglia (k n) utilizza i polinomi e l'aritmetica modulare per fornire a ciascuno degli n partecipanti 1/k delle informazioni necessarie.
+Articolo originale di Adi Shamir: https://www.cs.tau.ac.il/~bchor/Shamir.html
+
+Per spiegare il funzionamento di questo metodo facciamo un esempio.
+Il numero segreto vale: S = 12345
+Il numero di persone che condividono le informazioni (chiavi) vale: n = 10
+Il numero di persone necessario e sufficiente per rivelare il segreto è: k = 4
+
+1) Scegliere un polinomio di grado 3 (cioè k-1) il cui termine noto vale S.
+
+  p(x) = a3*x^3 + a2*x^2 + a1*x + a0
+
+Poichè i coefficienti delle potenze di x sono arbitrari poniamo:
+
+  a0 = S = 12345
+  a1 = 4
+  a2 = 19
+  a3 = 103
+
+  p(x) = 103*x^3 + 19*x^2 + 4*x + 12345
+
+Questi coefficienti devono essere mantenuti segreti alle persone.
+
+(define (make-poly coeffs)
+"Generates a function who evaluate a polynomial with those coefficients"
+  (local (func body)
+    (reverse coeffs)
+    (setq func '(lambda (x) x)) ; funzione lambda base
+    (setq body '())             ; corpo della funzione
+    (push 'add body -1)
+    (push (first coeffs) body -1)            ; termine noto
+    (push (list 'mul 'x (coeffs 1)) body -1) ; termine lineare
+    (if (> (length coeffs) 2)
+      (for (i 2 (- (length coeffs) 1))       ; termini di ordine superiore
+        (push (list 'mul (list 'pow 'x i) (coeffs i)) body -1)
+      )
+    )
+    (setq (last func) body) ; modifica corpo della funzione
+    func))
+
+Generiamo il polinomio:
+
+(setq poly (make-poly '(103 19 4 12345)))
+;-> (lambda (x) (add 12345 (mul x 4) (mul (pow x 2) 19) (mul (pow x 3) 103)))
+
+2) Generiamo n=10 valori del polinomio (es. per valori di x che vanno da 1 a 10):
+
+Generazione di 10 valori (chiavi):
+
+(for (i 1 10) (println (list i (poly i))))
+;-> (1 12471)
+;-> (2 13253)
+;-> (3 15309)
+;-> (4 19257)
+;-> (5 25715)
+;-> (6 35301)
+;-> (7 48633)
+;-> (8 66329)
+;-> (9 89007)
+;-> (10 117285)
+
+Attenzione, se usiamo x=0, allora viene rivelato il numero segreto:
+
+(poly 0)
+;-> 12345
+
+3) Utilizziamo il polinomio interpolatore di Lagrange per estrarre il segreto.
+Il polinomio di interpolazione di Lagrange è il polinomio unico di grado più basso che interpola un dato insieme di dati.
+Dato un insieme di dati di coppie di coordinate (x(i) y(i)) con 0 <= i <= n, il polinomio di Lagrange L(x) ha grado <= n e L(x(i)) = y(i) per ogni i.
+
+Questa proprietà ci permette di estrarre il numero segreto solo se abbiamo 4 o più chiavi (cioè un numero di chiavi pari al grado del polinomio più uno).
+
+Funzione che calcola il valore del polinomio interpolatore nel punto x:
+
+(define (lagrange lst-pt x)
+  (local (sum u l)
+    (setq sum 0.0)
+    (for (i 0 (- (length lst-pt) 1))
+      (setq u 1.0 l 1.0)
+      (for (j 0 (- (length lst-pt) 1))
+        (if (!= j i)
+          (setq u (mul u (sub x (lst-pt j 0)))
+                l (mul l (sub (lst-pt i 0) (lst-pt j 0))))
+        )
+      )
+      (setq sum (add sum (mul (div u l) (lst-pt i 1))))
+    )
+    sum))
+
+Con 4 o più chiavi (il poligono è di grado 3) possiamo ricavare il numero segreto:
+
+(setq pt '((1 12471) (4 19257) (5 25715) (6 35301)))
+
+(lagrange pt 0)
+;-> 12345
+
+(setq pt '((1 12471) (7 48633) (8 66329) (9 89007) (10 117285)))
+(lagrange pt 0)
+;-> 12345
+
+Con un numero di chiavi inferiore a 4 non possiamo ricavare il numero segreto:
+
+(setq pt '((1 12471) (4 19257) (5 25715)))
+
+(lagrange pt 0)
+;-> 14405
+
+In altre parole, 4 coefficienti (chiavi) sono necessari e sufficienti per definire esattamente lo stesso polinomio iniziale e quindi calcolare il suo valore per x=0 (che produce il numero segreto).
+
+Possiamo anche determinare i coefficienti del polinomio interpolatore di Lagrange:
+
+(define (lagrange-coeff pts)
+  (local (coeff newcoeff idx)
+    (setq coeff (array (length pts) '(0)))
+    (for (m 0 (- (length pts) 1))
+      (setq newcoeff (array (length pts) '(0)))
+      (if (> m 0)
+        (begin
+        (setf (newcoeff 0) (sub (div (pts 0 0) (sub (pts m 0) (pts 0 0)))))
+        (setf (newcoeff 1) (div 1 (sub (pts m 0) (pts 0 0)))))
+        (begin
+        (setf (newcoeff 0) (sub (div (pts 1 0) (sub (pts m 0) (pts 1 0)))))
+        (setf (newcoeff 1) (div 1 (sub (pts m 0) (pts 1 0)))))
+      )
+      (setq idx 1)
+      (if (= m 0) (setq idx 2))
+      (for (n idx (- (length pts) 1))
+        (if (!= m n)
+          (begin
+          (for (nc (- (length pts) 1) 1)
+            (setf (newcoeff nc) (add (mul (newcoeff nc) (sub (div (pts n 0) (sub (pts m 0) (pts n 0)))))
+                                     (div (newcoeff (- nc 1)) (sub (pts m 0) (pts n 0)))))
+          )
+          (setf (newcoeff 0) (mul (newcoeff 0) (sub (div (pts n 0) (sub (pts m 0) (pts n 0)))))))
+        )
+      )
+      (for (nc 0 (- (length pts) 1))
+        (setf (coeff nc) (add (coeff nc) (mul (pts m 1) (newcoeff nc))))
+      )
+    )
+    coeff))
+
+Facciamo una verifica:
+
+(setq pt '((1 12471) (2 13253) (3 15309) (4 19257)))
+
+(lagrange-coeff pt)
+;-> (12345 4 19 103)
+
+Abbiamo ritrovato il polinomio originale:
+
+  p(x) = 103*x^3 + 19*x^2 + 4*x + 12345
+
 =============================================================================
 

@@ -1400,6 +1400,7 @@ NOTE LIBERE 11
   Formula per calcolare i numeri primi
   Creazione automatica di simboli/variabili
   Uso particolare degli operatori AND e OR (Short-circuit)
+  Condividere un numero segreto (Shamir Secret Sharing)
 
 APPENDICI
 =========
