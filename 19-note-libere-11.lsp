@@ -3215,5 +3215,208 @@ Quarta funzione:
 ;-> 99.359
 La funzione "set-ref-all" è veloce ed elegante.
 
+
+---------------------
+Dobble (Spot It) Game
+---------------------
+
+Nel gioco "Dobble" (o "Spot it"), utilizza un mazzo di 55 carte da gioco, ciascuna con 8 simboli diversi su di esse. Ciò che è notevole (matematicamente) è che due carte scelte a caso dal mazzo avranno uno e un solo simbolo in comune. 
+Possiamo trovare la soluzione matematica al seguente indirizzo web:
+https://math.stackexchange.com/questions/36798/what-is-the-math-behind-the-game-spot-it
+
+In definitiva, se il numero di simboli su ogni carta è N, allora il numero massimo di simboli diversi nel mazzo è C, anche il numero massimo di carte in un mazzo è C, il numero di volte in cui un dato simbolo è ripetuto in tutto il pacchetto è N, e N e C sono correlati come segue:
+
+  C = N^2 - N + 1
+
+Ecco un algoritmo per generare un piano proiettivo per ogni N primo. Funziona per ogni N che è potenza di un primo primo se il calcolo del "(I*K + J) modulo N" viene effettuato nel "campo" corretto.
+
+Pseudocode:
+
+  // N*N first cards
+  for I = 0 to N-1
+    for J = 0 to N-1
+        for K = 0 to N-1
+          print ((I*K + J) modulus N)*N + K
+        end for
+        print N*N + I
+        new line
+    end for
+  end for
+  
+  // N following cards
+  for I = 0 to N-1
+    for J = 0 to N-1
+        print J*N + I
+    end for
+    print N*N + N
+    new line
+  end for
+  
+  // Last card
+  for I = 0 to N-1
+    print N*N + I
+  end for
+  new line
+
+Scriviamo una funzione per generare un mazzo di carte per giocare a Dobble.
+Funziona se n è un numero primo (2, 3, 5, 7, 11, 13, 17, ...).
+
+Numero di simboli in una data carta = n + 1
+
+Numero totale di carte = n^2 + n + 1
+
+Numero totale di simboli = n^2 + n + 1
+
+(define (spot-it n)
+  (local (r res out)
+    (setq out '())
+    (setq r 1)
+    (setq res '())
+    (for (i 1 (+ n 1))
+      (push i res -1)
+    )
+    (push res out -1)
+    (setq res '())
+    (for (j 1 n)
+      (setq res '())
+      (++ r)
+      (push 1 res -1)
+      (for (k 1 n)
+        (push (+ n (* n (- j 1)) k 1) res -1)
+      )
+      (push res out -1)
+    )
+    (for (i 1 n)
+      (for (j 1 n)
+        (setq res '())
+        (++ r)
+        (push (+ i 1) res -1)
+        (for (k 1 n)
+          (push (+ n 2 (* n (- k 1)) (% (+ (* (- i 1) (- k 1)) j (- 1)) n )) res -1)
+        )
+        (push res out -1)
+      )
+    )
+    out))
+
+(setq carte (spot-it 3))
+;-> ((1 2 3 4) 
+;->  (1 5 6 7) 
+;->  (1 8 9 10) 
+;->  (1 11 12 13) 
+;->  (2 5 8 11) 
+;->  (2 6 9 12) 
+;->  (2 7 10 13) 
+;->  (3 5 9 13)
+;->  (3 6 10 11)
+;->  (3 7 8 12)
+;->  (4 5 10 12)
+;->  (4 6 8 13)
+;->  (4 7 9 11))
+
+Scriviamo una funzione che verifica che ogni coppia di carte ha un solo numero in comune:
+
+(define (check-it lst)
+  (local (len out)
+    (setq out true)
+    (setq len (length lst))
+    (for (i 0 (- len 2))
+      (for (j (+ i 1) (- len 1))
+        ; verifica se due liste hanno solo un valore in comune
+        (if (!= (length (intersect (lst i) (lst j))) 1)
+          (begin
+            (println "Error: " (lst i) { } (lst j) { } (intersect (lst i) (lst j)))
+            (setq out nil))
+        )
+      )
+    )
+    out))
+
+(check-it carte)
+;-> true
+
+Facciamo un'altro esempio:
+
+(check-it (spot-it 7))
+;-> true
+
+Se togliamo alcune carte al mazzo, anche per le carte rimanenti ogni coppia di carte ha un solo numero in comune:
+
+(setq cartine '(
+  (1 5 6 7)
+  (1 8 9 10)
+  (1 11 12 13)
+  (2 6 9 12)
+  (2 7 10 13)
+  (3 5 9 13)
+  (3 7 8 12)
+  (4 5 10 12)
+  (4 7 9 11)))
+
+(check-it cartine)
+;-> true
+
+Vediamo il caso in cui n non è un numero primo:
+
+(setq c (spot-it 4))
+;-> ((1 2 3 4 5) 
+;->  (1 6 7 8 9) 
+;->  (1 10 11 12 13) 
+;->  (1 14 15 16 17) 
+;->  (1 18 19 20 21) 
+;->  (2 6 10 14 18)
+;->  (2 7 11 15 19)
+;->  (2 8 12 16 20)
+;->  (2 9 13 17 21)
+;->  (3 6 11 16 21)
+;->  (3 7 12 17 18)
+;->  (3 8 13 14 19)
+;->  (3 9 10 15 20)
+;->  (4 6 12 14 20)
+;->  (4 7 13 15 21)
+;->  (4 8 10 16 18)
+;->  (4 9 11 17 19)
+;->  (5 6 13 16 19)
+;->  (5 7 10 17 20)
+;->  (5 8 11 14 21)
+;->  (5 9 12 15 18))
+
+Verifichiamo se il mazzo è corretto:
+
+(check-it c)
+;-> Error: (2 6 10 14 18) (4 6 12 14 20) (6 14)
+;-> Error: (2 6 10 14 18) (4 7 13 15 21) ()
+;-> Error: (2 6 10 14 18) (4 8 10 16 18) (10 18)
+;-> Error: (2 6 10 14 18) (4 9 11 17 19) ()
+;-> Error: (2 7 11 15 19) (4 6 12 14 20) ()
+;-> Error: (2 7 11 15 19) (4 7 13 15 21) (7 15)
+;-> Error: (2 7 11 15 19) (4 8 10 16 18) ()
+;-> Error: (2 7 11 15 19) (4 9 11 17 19) (11 19)
+;-> Error: (2 8 12 16 20) (4 6 12 14 20) (12 20)
+;-> Error: (2 8 12 16 20) (4 7 13 15 21) ()
+;-> Error: (2 8 12 16 20) (4 8 10 16 18) (8 16)
+;-> Error: (2 8 12 16 20) (4 9 11 17 19) ()
+;-> Error: (2 9 13 17 21) (4 6 12 14 20) ()
+;-> Error: (2 9 13 17 21) (4 7 13 15 21) (13 21)
+;-> Error: (2 9 13 17 21) (4 8 10 16 18) ()
+;-> Error: (2 9 13 17 21) (4 9 11 17 19) (9 17)
+;-> Error: (3 6 11 16 21) (5 6 13 16 19) (6 16)
+;-> Error: (3 6 11 16 21) (5 7 10 17 20) ()
+;-> Error: (3 6 11 16 21) (5 8 11 14 21) (11 21)
+;-> Error: (3 6 11 16 21) (5 9 12 15 18) ()
+;-> Error: (3 7 12 17 18) (5 6 13 16 19) ()
+;-> Error: (3 7 12 17 18) (5 7 10 17 20) (7 17)
+;-> Error: (3 7 12 17 18) (5 8 11 14 21) ()
+;-> Error: (3 7 12 17 18) (5 9 12 15 18) (12 18)
+;-> Error: (3 8 13 14 19) (5 6 13 16 19) (13 19)
+;-> Error: (3 8 13 14 19) (5 7 10 17 20) ()
+;-> Error: (3 8 13 14 19) (5 8 11 14 21) (8 14)
+;-> Error: (3 8 13 14 19) (5 9 12 15 18) ()
+;-> Error: (3 9 10 15 20) (5 6 13 16 19) ()
+;-> Error: (3 9 10 15 20) (5 7 10 17 20) (10 20)
+;-> Error: (3 9 10 15 20) (5 8 11 14 21) ()
+;-> Error: (3 9 10 15 20) (5 9 12 15 18) (9 15)
+;-> nil
+
 =============================================================================
 
