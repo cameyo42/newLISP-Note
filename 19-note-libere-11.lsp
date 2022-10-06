@@ -2046,6 +2046,32 @@ Infatti f vale:
 f
 ;-> 0.9999999999999999
 
+Vediamo cosa accade duante la somma:
+
+(setq f 0.0)
+(for (i 1 10)
+  (setq f (add f 0.1))
+  (print f { } )
+)
+;-> 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.79999999999 0.89999999999 0.99999999999
+
+(add 0.7 0.1)
+;-> 0.7999999999999999
+
+Nota: la funzione "mul" fa le somme corrette :-)
+
+(mul 10 0.1)
+;-> 1
+
+(add 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1)
+;-> 0.9999999999999999
+
+(= (mul 10 0.1) (add 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1))
+;-> nil
+
+(sub (mul 10 0.1) (add 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1))
+;-> 1.110223024625157e-016
+
 
 -------------------------------
 Numeri sequenziali come stringa
@@ -3216,6 +3242,67 @@ Quarta funzione:
 La funzione "set-ref-all" è veloce ed elegante.
 
 
+--------------------------------
+Logaritmi: ln, log2, log10, logN
+--------------------------------
+
+****************
+>>>funzione LOG
+****************
+sintassi: (log num)
+sintassi: (log num num-base)
+
+Nella prima sintassi, viene valutata l'espressione in num e dal risultato viene calcolata la funzione logaritmica naturale.
+
+(log 1) → 0
+(log (exp 1)) → 1
+
+Nella seconda sintassi, una base arbitraria può essere specificata in num-base.
+
+(log 1024 2) → 10
+(log (exp 1) (exp 1)) → 1
+
+Vedi anche "exp", che è la funzione inversa di "log" con base e (2.718281828).
+
+Possiamo scrivere alcune funzioni per rendere le formule più leggibili:
+
+Logaritmo naturale (base e):
+(define (ln x) (log x))
+
+Logaritmo in base 2:
+(define (log2 x) (log x 2))
+
+Logaritmo in base 10:
+(define (log10 x) (log x 10))
+
+Logaritmo in base N:
+(define (logn x n) (log x n)
+
+Nota: logN x = log x / log N
+
+(div (log10 100) (log10 10))
+;-> 2
+(div (log2 100) (log2 10))
+;-> 2
+(div (log 100) (log 10))
+;-> 2
+(div (log 100 10) (log 10 10))
+;-> 2
+
+(for (i 0 100 10) (println i { } (ln i) { } (log2 i) { } (log10 i)))
+;->   0 -1.#INF -1.#INF -1.#INF
+;->  10 2.302585092994046 3.321928094887363 1
+;->  20 2.995732273553991 4.321928094887363 1.301029995663981
+;->  30 3.401197381662156 4.906890595608519 1.477121254719662
+;->  40 3.688879454113936 5.321928094887363 1.602059991327962
+;->  50 3.912023005428146 5.643856189774724 1.698970004336019
+;->  60 4.094344562222100 5.906890595608519 1.778151250383643
+;->  70 4.248495242049359 6.129283016944967 1.845098040014257
+;->  80 4.382026634673881 6.321928094887362 1.903089986991943
+;->  90 4.499809670330265 6.491853096329675 1.954242509439325
+;-> 100 4.605170185988092 6.643856189774725 2
+
+
 ---------------------
 Dobble (Spot It) Game
 ---------------------
@@ -3417,6 +3504,135 @@ Verifichiamo se il mazzo è corretto:
 ;-> Error: (3 9 10 15 20) (5 8 11 14 21) ()
 ;-> Error: (3 9 10 15 20) (5 9 12 15 18) (9 15)
 ;-> nil
+
+
+-------------------
+Conteggio di Morris
+-------------------
+
+Vediamo un algoritmo dei primi tempi dell'informatica che è ancora rilevante oggi: contare un gran numero di eventi utilizzando solo una piccola quantità di memoria.
+La tecnica è stata inventata da Robert Morris (ricercatore unix e crittografo della NSA, padre del primo "worm" per internet scritto nel 1988) e descritta nel suo articolo del 1978:
+
+"Counting Large Numbers of Events in Small Registers"
+http://www.inf.ed.ac.uk/teaching/courses/exc/reading/morris.pdf
+
+L'idea di base è contare i logaritmi invece degli eventi discreti. Assumendo logaritmi in base 2, l'algoritmo è il seguente:
+
+1) Inizializzare un contatore C su 0.
+
+2) Per ogni evento, incrementare il contatore con probabilità 2^−C.
+
+3) Quando viene richiesto il conteggio, restituire (2^C − 1).
+
+Probabilmente sembra banale registrare un conteggio in un singolo byte invece di, diciamo, un intero di 4 byte. Ma i risparmi si moltiplicano rapidamente se dobbiamo contare un gran numero di eventi distinti.
+
+(define (morris n)
+  (let (c 0)
+    (for (i 1 n)
+      ;(if (zero? (rand (pow 2 c)))
+      (if (< (random) (pow 2 (- c)))
+          (++ c)))
+    (- (pow 2 c) 1)))
+
+Facciamo alcune prove:
+
+(morris 0)
+;-> 1
+(morris 1)
+;-> 1
+(morris 3)
+;-> 3
+(morris 10)
+;-> 7
+
+Vediamo i primi 20 conteggi reali e quelli di Morris:
+
+(map list (sequence 1 20) (map morris (sequence 1 20)))
+;-> ((1 1) (2 3) (3 3) (4 3) (5 7) (6 3) (7 3) (8 7) (9 3) (10 31) (11 7)
+;->  (12 7) (13 15) (14 7) (15 15) (16 7) (17 15) (18 15) (19 15) (20 31))
+
+Vediamo i conteggi 1,101,201,...901 reali e quelli di Morris:
+
+(map list (sequence 1 1000 100) (map morris (sequence 1 1000 100)))
+;-> ((1 1) (101 31) (201 511) (301 255) (401 255) (501 255)
+;->  (601 511) (701 1023) (801 255) (901 1023))
+
+Come si vede non sempre abbiamo una stima valida e per vedere quanto ci discostiamo possiamo calcolare le percentuali degli errori.
+
+Funzione che calcola la differenza percentuale tra due valori:
+
+(define (delta xi xf) (mul (div (sub xf xi) xi) 100))
+
+(delta 10 20)
+;-> 100
+(delta 20 10)
+;-> -50
+
+(map (fn(x) (list (x 0) (x 1) (delta (x 0) (x 1))))
+      (map list (sequence 1 1000 100) (map morris (sequence 1 1000 100))))
+;-> ((1 1 0)
+;->  (101 31 -69.30693069306931)
+;->  (201 63 -68.65671641791045)
+;->  (301 255 -15.28239202657807)
+;->  (401 255 -36.40897755610973)
+;->  (501 255 -49.10179640718562)
+;->  (601 1023 70.21630615640599)
+;->  (701 1023 45.93437945791726)
+;->  (801 1023 27.71535580524345)
+;->  (901 1023 13.54051054384018))
+
+Se calcoliamo la somma dei primi 5000 conteggi di morris, otteniamo un valore molto vicino a quello esatto:
+
+(apply + (map morris (sequence 1 5000)))
+;-> 12503906
+(apply + (sequence 1 5000))
+;-> 12502500
+
+Quindi vediamo i valori medi dei conteggi, cioè calcoliamo il valore medio di tante misurazioni di morris.
+
+(define (morris-all n conteggi)
+  (setq totale 0)
+  (for (i 1 conteggi)
+    (setq totale (+ totale (morris n)))
+  )
+  (/ totale conteggi)
+)
+
+Facciamo 10 volte il conteggio di morris per 5000 eventi e calcoliamo la media:
+
+(morris-all 5000 10)
+;-> 4709
+
+100 conteggi di 5000:
+
+(morris-all 5000 100)
+;-> 5057
+
+1000 conteggi di 5000:
+
+(morris-all 5000 1000)
+;-> 4975
+
+Vediamo una funzione simile alla precedente:
+
+(define (morris-parallel n conteggi)
+  (local (c)
+    (setq c (array (+ conteggi 1) '(0)))
+    (setq val 0)
+    (for (k 1 conteggi)
+      (setf (c k) (morris n))
+    )
+    ;(println c)
+    (int (div (apply + c) (- (length c) 1)))))
+
+(morris-parallel 5000 10)
+;-> 5528
+
+(morris-parallel 5000 100)
+;-> 5170
+
+(morris-parallel 5000 1000)
+;-> 5008.408
 
 =============================================================================
 

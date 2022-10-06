@@ -9987,7 +9987,7 @@ Ci sono 15! modi in cui le ragazze possono essere disposte in un giorno e ci son
 
 Un numero di casi impossibile da analizzare...
 
-Il problema può essere risolto tramite la costruzione di un "Kirkman triple system" di ordine n=2 o con altri metodi ai matematica avanzata (almeno per me). In questo caso vediamo un metodo risolutivo analitico/grafico sviluppato dal Prof. Dr. Reinhard Laue:
+Il problema può essere risolto tramite la costruzione di un "Kirkman triple system" di ordine n=2 o con altri metodi di matematica avanzata (almeno per me). In questo caso vediamo un metodo risolutivo analitico/grafico sviluppato dal Prof. Dr. Reinhard Laue:
 
 http://www.algorithm.uni-bayreuth.de/en/research/discreta/EXAMPLES/kirkman.html
 

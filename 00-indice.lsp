@@ -1402,7 +1402,10 @@ NOTE LIBERE 11
   Uso particolare degli operatori AND e OR (Short-circuit)
   Condividere un numero segreto (Shamir Secret Sharing)
   Inversione dei valori di un matrice binaria (0 -> 1), (1 -> 0)
+  Logaritmi: ln, log2, log10, logN
   Dobble (Spot It) Game
+  Conteggio di Morris
+  
 
 APPENDICI
 =========
