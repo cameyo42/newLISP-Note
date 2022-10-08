@@ -3634,5 +3634,54 @@ Vediamo una funzione simile alla precedente:
 (morris-parallel 5000 1000)
 ;-> 5008.408
 
+
+---------------------------
+Orientamento di un poligono
+---------------------------
+
+Un poligono può essere orientato (winding) in senso orario (CW - ClockWise) o in senso antiorario (CCW - Counter-ClockWise), riferendosi alla direzione in cui passiamo attraverso i vertici guardando il piano delle coordinate.
+Per esempio:
+
+     p1      p2              p1      p4
+      +------+                +------+
+      |      |                |      |
+      |      |                |      |
+      +------+                +------+
+     p4      p3              p2      p3
+
+  poligono orario        poligono antiorario
+
+
+Funzione che verifica se un poligono è orientato in senso orario:
+
+(define (clockwise? poly)
+  (local (sum cur next)
+    (setq sum 0)
+    (for (i 0 (- (length poly) 2))
+      (setq cur (poly i))
+      (setq next (poly (+ i 1)))
+      (setq sum (add sum (mul (sub (next 0) (cur 0)) (add (next 1) (cur 1)))))
+    )
+    (> sum 0)))
+
+Facciamo alcune prove:
+
+; poligoni convessi
+; last point = first point
+(setq p1 '((0 0) (1 1) (1 0) (0 0)))
+(setq p2 '((0 0) (1 0) (1 1) (0 0)))
+
+(clockwise? p1)
+;-> true
+(clockwise? p2)
+;-> nil
+
+; poligono concavo
+(setq p3 '((0 0) (1 1) (0 2) (3 4) (6 2) (0 0)))
+(clockwise? p3)
+;-> true
+(clockwise? (reverse (copy p3)))
+;-> nil
+
 =============================================================================
 

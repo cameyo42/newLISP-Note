@@ -1405,6 +1405,7 @@ NOTE LIBERE 11
   Logaritmi: ln, log2, log10, logN
   Dobble (Spot It) Game
   Conteggio di Morris
+  Orientamento di un poligono
   
 
 APPENDICI
