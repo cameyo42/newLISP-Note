@@ -2417,7 +2417,7 @@ Versione automodificante:
     (push (first (rotate 'body -1)) loc -1)
     'first-of-body-goes-here))))))
 
-vVrsione leggermente più concisa con "eval":
+Versione leggermente più concisa con "eval":
 
 (setf rotating-tasklet^ (fn (loc body)
  (rotate body)

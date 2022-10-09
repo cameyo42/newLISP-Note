@@ -1406,6 +1406,8 @@ NOTE LIBERE 11
   Dobble (Spot It) Game
   Conteggio di Morris
   Orientamento di un poligono
+  Il problema della Bella Addormentata (Sleeping Beauty Problem)
+  Per divertimento
   
 
 APPENDICI

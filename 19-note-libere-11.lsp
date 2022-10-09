@@ -3683,5 +3683,124 @@ Facciamo alcune prove:
 (clockwise? (reverse (copy p3)))
 ;-> nil
 
+
+==============================================================
+Il problema della Bella Addormentata (Sleeping Beauty Problem)
+==============================================================
+
+The Sleeping Beauty Problem è un problema inventato da Arnold Zoboff e pubblicato per la prima volta su Usenet.
+La Bella Addormentata, accetta il seguente esperimento:
+La Bella Addormentata viene addormentata la domenica.
+C'è poi un lancio di moneta:
+1) Se esce testa, la Bella Addormentata si sveglia una volta (lunedì) e gli viene chiesto di stimare la probabilità che il lancio della moneta sia testa.
+La sua stima viene registrata e poi viene riaddormentata per 2 giorni fino a mercoledì, momento in cui vengono conteggiati i risultati dell'esperimento.
+2) Se invece il lancio della moneta è croce, la Bella Addormentata si sveglia lunedì e deve stimare la probabilità che il lancio della moneta fosse testa, ma poi le viene somministrato un farmaco che le fa dimenticare di essere stata svegliata lunedì prima di essere rimessa a dormire ancora.
+Poi si sveglia solo 1 giorno dopo, martedì.
+Le viene quindi chiesto (martedì) di indovinare di nuovo la probabilità che il lancio della moneta sia stato testa o croce. 
+Quindi viene riaddormentata e si sveglia come prima 1 giorno dopo, mercoledì.
+
+Alcuni hanno sostenuto che, poiché il lancio della moneta è equo, la Bella Addormentata dovrebbe sempre stimare la probabilità di testa come 1/2, poiché non ha alcuna informazione aggiuntiva. 
+Altri sono in disaccordo, dicendo che se la Bella Addormentata conosce l'esperimento, sa anche che ha il doppio delle probabilità di svegliarsi e di dover stimare il lancio della moneta su croce che su testa, quindi la stima dovrebbe essere 1/3 per testa.
+
+Scriviamo una funzione con il metodo di Monte Carlo per la simulazione dei risultati che calcola la percentuale di teste al risveglio.
+
+(define (bella iter)
+  (let ((up 0) (down 0) (coin 0))
+    (for (i 1 iter)
+      (++ down)
+      (setq coin (rand 2))
+      (if (= coin 1)
+          (++ up)
+          (++ down)
+      )
+    )
+    (div up down)))
+
+(bella 1e6)
+;-> 0.3332417840641609
+
+(bella 1e7)
+;-> 0.3331674872979135
+
+La simulazione dice che la percentuale di teste al risveglio è del 33%.
+
+
+----------------
+Per divertimento
+----------------
+
+Espressione:
+
+(select "rnmteiv dop" '(10 4 0 7 8 5 6 4 0 3 5 2 4 1 3 9))
+;-> "per divertimento"
+
+Creazione dell'espressione:
+
+(setq s "per divertimento")
+(setq u (unique (randomize (explode s))))
+;-> ("r" "n" "m" "t" "e" "i" "v" " " "d" "o" "p")
+(setq ustr (join u))
+;-> "rnmteiv dop"
+(setq lst '())
+(dolist (el (explode s)) (push (first (ref el u)) lst -1))
+;-> (10 4 0 7 8 5 6 4 0 3 5 2 4 1 3 9)
+
+(select "rnmteiv dop" '(10 4 0 7 8 5 6 4 0 3 5 2 4 1 3 9))
+;-> "per divertimento"
+
+Scriviamo una funzione che restituisce una funzione che esegue la nostra esepressione:
+(setq sign "massimo")
+
+(define (genera-firma sign)
+  (local (uniq lst u)
+    (setq uniq (randomize (unique (explode sign))))
+    (setq lst '())
+    (dolist (el (explode sign)) 
+      (push (first (ref el uniq)) lst -1)
+    )
+    (setq u (join uniq))
+    (letex ((indexes lst) (str u))
+      (lambda () (select str 'indexes)))))
+
+Adesso eseguendo la funzione otteniamo di ritorno un'altra funzione:
+
+(setq firma (genera-firma "massimo"))
+;-> (lambda () (select "amios" '(1 0 4 4 2 1 3)))
+
+Eseguendo la funzione creata otteniamo il valore iniziale:
+
+(firma)
+;-> "massimo"
+
+Riscriviamo la funzione in modo che restituisca una funzione che accetta un parametro che è la chiave per ottenere la risposta corretta dalla funzione stessa:
+
+(define (genera-firma2 sign)
+  (local (uniq lst)
+    (setq uniq (randomize (unique (explode sign)))))
+    (setq lst '())
+    (dolist (el (explode sign)) 
+      (push (first (ref el uniq)) lst -1)
+    )
+    ; stampa la chiave
+    (println (join uniq))
+    (letex (indexes lst)
+      (lambda (x) (select x 'indexes))))
+
+(setq firma2 (genera-firma2 "massimo"))
+;-> iamso ; questa è la chiave
+;-> (lambda (x) (select x '(0 2 1 1 3 0 4)))
+
+Chiave corretta:
+
+(firma2 "iamso")
+;-> "massimo"
+
+Chiave errata:
+
+(firma2 "maios")
+;-> "iaoomis"
+
+Abbiamo una funzione F che si comporta correttamente se viene chiamata con una chiave che viene generata da un'altra funzione G che è la stessa che ha generato F.
+
 =============================================================================
 

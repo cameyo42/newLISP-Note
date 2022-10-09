@@ -2225,7 +2225,7 @@ Il programma è in esecuzione? (progress display)
 -------------------------------------------------
 
 Qualche volta abbiamo bisogno di sapere se un programma è in esecuzione (e a che punto si trova) oppure si è bloccato in qualche parte del nostro codice. Ci sono due metodi per questo:
-il primo metodo stampa ciclicamente una serie di simboli sulla console per dimostrare che il programma sta girando:
+il primo metodo stampa ciclicamente una serie di simboli sulla console per dimostrare che il programma sta girando (spinning rod animation):
 
 (define (controllo)
     (setq i 1)
@@ -2250,6 +2250,36 @@ Poichè ad ogni print stampiamo anche un "carriage return" (\r) stampiamo sempre
 ;-> wait... (animazione dei caratteri)
 ;-> Programma terminato
 ;-> "Programma terminato"
+
+(time (controllo) 5)
+;-> 5515.739
+
+Una funzione simile:
+
+(define (controllo roll)
+  (let ((i 0) (r '("|\r" "/\r" "-\r" "\\\r")))
+    (dotimes (x 100000)
+      (if roll
+        (print "wait... " (r (% i 4)))
+        (print "x = " x "\r")
+      )
+      (++ i)
+    )
+    (println "Programma terminato")))
+
+(controllo)
+;-> x = 1 (in sequenza)
+;-> Programma terminato
+
+(time (controllo) 5)
+;-> 14320.088
+
+(controllo true)
+;-> wait... (animazione dei caratteri)
+;-> Programma terminato
+
+(time (controllo true) 5)
+;-> 10249.843
 
 Per migliorare l'output possiamo scrivere:
 
@@ -2276,6 +2306,29 @@ Possiamo diminuire il numero dei caratteri nell'animazione scegliendo due caratt
 ;-> wait... (animazione dei caratteri)
 ;-> Programma terminato
 
+Per finire il primo metodo utilizziamo un generatore per creare l'animazione:
+
+(define (roll:roll)
+  (inc roll:i)
+  (print "wait... " (roll:r (% roll:i 4)))
+)
+
+(define (roll:init)
+  (setq roll:r '("|\r" "/\r" "-\r" "\\\r"))
+  (setq roll:i 0)
+)
+
+(roll:init)
+;-> 0
+
+(define (test n)
+  (for (i 1 n) (roll))
+  'end-of-program)
+
+(test 100000)
+;-> wait... (animazione dei caratteri)
+;-> end-of-program
+
 Il secondo metodo è più informativo, poichè visualizza il valore della iterazione corrente:
 
 (define (controllo)
@@ -2291,7 +2344,7 @@ Il secondo metodo è più informativo, poichè visualizza il valore della iteraz
 ;-> Iter: 0 ... ;-> Iter: 900000000
 ;-> Programma terminato
 
-Da notare che entrambi i metodi rallentano leggermente l'esecuzione del programma.
+Da notare che tutti questi metodi rallentano l'esecuzione del programma.
 
 
 -----------------------------

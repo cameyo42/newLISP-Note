@@ -3463,7 +3463,7 @@ Possiamo usare anche un'altro metodo:
 foo:sum
 ;-> 9
 
-Queso metodo è meglio perché non è necessario scrivere funzioni aggiuntive per accedere alla somma.Inoltre foo:sum porta in primo piano il qualificatore 'foo'. Infine, ma non meno importante, questo è più facile da capire di una chiusura (closure).
+Questo metodo è meglio perché non è necessario scrivere funzioni aggiuntive per accedere alla somma. Inoltre foo:sum porta in primo piano il qualificatore 'foo'. Infine, ma non meno importante, questo è più facile da capire di una chiusura (closure).
 
 Adesso proviamo a scrivere un generatore di numeri primi.
 
@@ -3622,7 +3622,7 @@ Attiviamo lo stream degli elementi:
 ;-> b
 (mystream)
 ;-> c
-Poiché pop funziona sia con le liste che con le stringh, la stessa funzione generatrice può essere utilizzata per generare uno stream di stringhe:
+Poiché pop funziona sia con le liste che con le stringhe, la stessa funzione generatrice può essere utilizzata per generare uno stream di stringhe:
 
 (setq str "abcddefgh")
 
