@@ -3802,5 +3802,247 @@ Chiave errata:
 
 Abbiamo una funzione F che si comporta correttamente se viene chiamata con una chiave che viene generata da un'altra funzione G che è la stessa che ha generato F.
 
+
+----------------------------------------------------
+Posizione di scacchi casuale - random chess position
+----------------------------------------------------
+
+Generare una posizione di scacchi casuale.
+La posizione deve rispettare le seguenti regole:
+
+1) Solo un Re per ogni colore (un Re nero e un Re bianco).
+2) I Re non devono essere piazzati su caselle adiacenti.
+3) Non possono esserci pedoni nella casella promozione (nessuna pedone in ottava o in prima traversa).
+4) Il numero dei pezzi per ogni colore va da 2 a 16 (compresi i Re) (min 4 pezzi - max 32 pezzi).
+5) Non è richiesto un equilibrio materiale tra le parti.
+6) Il numero dei pezzi usati deve essere conforme a un normale set di scacchi (non cinque cavalli, dieci torri, ecc.)
+7) I Re non possono arroccare (o hanno già arroccato).
+8) Non c'è nessuna presa "en passant".
+
+Condizione extra: È il turno del bianco.
+
+Funzione che stampa la scacchiera:
+
+(define (print-board board)
+  (for (r 0 7)
+    (for (c 0 7)
+      (if (= (board r c) " ")
+          (print " .")
+          (print " " (board r c))
+      )
+    )
+    (println)
+  )
+  'random-position)
+
+Funzione che posiziona i due re nella scacchiera:
+
+(define (place-kings)
+(catch
+  (local (r1 c1 r2 c2)
+    (while true
+      (map set '(r1 c1 r2 c2) (rand 8 4))
+      ; i due Re non possono essere vicini (contigui)
+      (if (and (> (abs (- r1 r2)) 1) (> (abs (- c1 c2)) 1))
+        (begin
+          (setf (board r1 c1) "K") ; white king
+          (setf (board r2 c2) "k") ; black king
+          (throw true)))))))
+
+Funzione che seleziona un determinato numero di pezzi:
+
+(define (select-pieces num-pieces)
+  (local (out)
+    (setq out '())
+    (for (i 1 num-pieces)
+      (push (black (+ 1 (rand 15))) out -1)
+    )
+    out))
+
+Funzione che posiziona una lista di pezzi nella scacchiera:
+
+(define (place-pieces lst)
+  (local (r c ok)
+    (dolist (el lst)
+      (setq r (rand 8))
+      (setq c (rand 8))
+      (setq ok nil)
+      (until ok
+        (setq ok true)
+        ;(print r { } c { } el { } (board r c)) (read-line)
+        ; la casella deve essere vuota
+        (if (!= (board r c) " ")
+          (setq ok nil))
+        ; se il pezzo è un pedone,
+        ; allora non deve trovarsi nella prima o ultima traversa (riga)
+        (if (and (= (upper-case el) "P")
+                 (or (= r 7) (= r 0)))
+            (setq ok nil))
+        ; nuovo tentativo di posizionare il pezzo corrente
+        (if (not ok)
+          (begin
+            (setq r (rand 8))
+            (setq c (rand 8)))
+        )
+      )
+      ; posizionamento del pezzo corrente
+      (setf (board r c) el)
+    )))
+
+Funzione che genera una posizione casuale di scacchi:
+
+(define (random-chess equal)
+  (local (board black white pw pb w-pieces b-pieces)
+    ; array per la scacchiera
+    (setq board (array 8 8 '(" ")))
+    ; lista dei pezzi bianchi
+    (setq white '("K" "Q" "N" "N" "B" "B" "R" "R"
+                  "P" "P" "P" "P" "P" "P" "P" "P"))
+    ; lista dei pezzi neri
+    (setq black '("k" "q" "n" "n" "b" "b" "r" "r"
+                  "p" "p" "p" "p" "p" "p" "p" "p"))
+    ; numero casuale di pezzi bianchi da posizionare
+    (setq pw (+ 2 (rand 14)))
+    ; numero casuale di pezzi neri da posizionare
+    (setq pb (+ 2 (rand 14)))
+    ; se equal = true, allora stesso numero di pezzi bianchi e neri)
+    (if equal (setq pb pw))
+    ; scelta casuale dei pezzi bianchi
+    ; (- pw 1) perchè il Re viene posizionato a parte
+    (setq w-pieces (map upper-case (select-pieces (- pw 1))))
+    ; scelta casuale dei pezzi neri
+    ; (- pb 1) perchè il Re viene posizionato a parte
+    (setq b-pieces (select-pieces (- pb 1)))
+    ; assegnazione casuale della posizione dei due Re (King)
+    (place-kings)
+    ;(println "pezzi bianchi = " pw { - } w-pieces)
+    ;(println "pezzi neri = " pb { - }  b-pieces)
+    ; posizionamento dei pezzi bianchi
+    (place-pieces w-pieces)
+    ; posizionamento dei pezzi neri
+    (place-pieces b-pieces)
+    ; stampa della posizione finale
+    (print-board board)
+  ))
+
+Facciamo alcune prove:
+
+; Numero di pezzi uguali
+
+(random-chess true)
+;->  . . . . . . . .
+;->  . . . . . . p .
+;->  . . . . . . . k
+;->  . . . . . . . .
+;->  . . . K . . . .
+;->  . . . . . . . .
+;->  . . . . . N . .
+;->  . . . . . . . .
+;-> random-position
+(random-chess true)
+;->  . . . . K . . r
+;->  . p . . . . . .
+;->  . . R . . . . .
+;->  Q N . . . . r p
+;->  . R B P . p . r
+;->  q . . p n . . .
+;->  N N . . . p k .
+;->  . . . . . Q . N
+;-> random-position
+(random-chess true)
+;->  . . K n . n . .
+;->  p . . . . n N .
+;->  . p p . . . . p
+;->  P n Q . . . . .
+;->  P P P . . N . N
+;->  . r . . P . . .
+;->  k . P P . b p .
+;->  . . . . . . . .
+;-> random-position
+
+; Numero di pezzi diversi
+
+(random-chess)
+;->  . . . . . n . .
+;->  r . . . P R . .
+;->  . K . P . . . .
+;->  . P . . P . . .
+;->  . . p B P r . .
+;->  . . . . N . P .
+;->  . . . k P . . n
+;->  . . . . . . . .
+;-> random-position
+(random-chess)
+;->  . . . . N R . .
+;->  p . B . p b p .
+;->  . . p . . p . .
+;->  . . q P . . P .
+;->  . . P P p . . k
+;->  N . P R R . b .
+;->  . . . B K . b n
+;->  . . . . N n . .
+;-> random-position
+(random-chess)
+;->  b . b . . . . .
+;->  . R . . . . Q .
+;->  p . . . . . k p
+;->  . . . n . . . .
+;->  . . . p . . p p
+;->  . . . p K . . .
+;->  . . . . . . . .
+;->  n b . . . . b .
+;-> random-position
+
+Nota: la condizione extra ci dice che la mossa spetta al Bianco.
+Questo significa che il Re nero non può essere sotto scacco.
+Quindi la posizione è corretta solo se nessun pezzo del Bianco attacca il Re nero.
+La funzione che verifica se un Re è sotto scacco la scriverò in futuro...forse.
+
+
+-----------------------
+Struttura dati generica
+-----------------------
+
+La seguente espressione permette di creare strutture dati generiche:
+
+; Generic Data Structure by Cyril
+(define (Struct:Struct) (apply context (cons (context) (args))))
+;-> (lambda () (apply context (cons (context) (args))))
+
+Ora per creare una nuova struttura occorre scrivere:
+
+(new Struct 't)
+;-> t
+
+Per creare simbli ed assegnare valori basta scrivere:
+
+(map t '(year month day hour mins sec micro doy dow tz dst) (now))
+;-> (2022 10 10 15 55 14 969022 283 1 120 2)
+
+Vediamo come sono associati i simboli/valori:
+
+t:year
+;-> 2022
+
+t:day
+;-> 10
+
+Oppure:
+
+(t 'month)
+;-> 10
+
+Vediamo come aggiornare i simboli/valori:
+
+(setq t:year (+ t:year 1))
+;-> 2023
+
+Oppure:
+
+(t 'year (+ (t 'year) 1))
+;-> 2024
+
+Questa (t) è una struttura di dati generica (contesto) i cui campi sono accessibili sia con la sintassi dei due punti ":" che con la notazioni funzionale. Quest'ultimo metodo è utile per le assegnazioni di gruppo.
+
 =============================================================================
 

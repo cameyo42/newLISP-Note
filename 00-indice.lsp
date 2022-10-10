@@ -1408,6 +1408,8 @@ NOTE LIBERE 11
   Orientamento di un poligono
   Il problema della Bella Addormentata (Sleeping Beauty Problem)
   Per divertimento
+  Posizione di scacchi casuale - random chess position
+  Struttura dati generica
   
 
 APPENDICI

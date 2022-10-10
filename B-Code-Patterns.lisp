@@ -280,7 +280,8 @@ L'esempio seguente mostra come un file può essere reindirizzato (pipe) in uno s
 
 (exit)
 
-Il file verrà stampato in uscita standard tradotto in maiuscolo. Il seguente programma funzionerà anche con informazioni binarie non testuali contenenti 0:
+Il file verrà stampato nello standard output tradotto in maiuscolo. 
+Il seguente programma funzionerà anche con informazioni binarie non testuali contenenti 0:
 
 #!/usr/bin/newlisp
 ;
@@ -297,11 +298,11 @@ Il file verrà stampato in uscita standard tradotto in maiuscolo. Il seguente pr
 
 (exit)
 
-Impostare la dimensione del buffer per ottenere le migliori prestazioni.
+Impostare la dimensione del buffer per ottenere prestazioni migliori.
 
 Filtri di File
 ==============
-Lo script seguente funziona come l'utilità grep di Unix che itera sui file e filtra ogni riga in un file utilizzando un modello (pattern) di espressione regolare.
+Lo script seguente funziona come l'utilità grep di Unix che itera sui file e filtra ogni riga di ogni file utilizzando un modello (pattern) di espressione regolare.
 
 #!/usr/bin/newlisp
 #
@@ -340,7 +341,7 @@ Restituisce una lista di tutti i nomi di file. Questa forma di specificare gli i
 
 newLISP come pipe
 =================
-Inserisci una riga direttamente nell'eseguibile per la valutazione di espressioni brevi:
+Inserire una riga direttamente nell'eseguibile per la valutazione di espressioni brevi:
 
 ~> echo '(+ 1 2 3)' | newlisp
 6
@@ -3174,7 +3175,7 @@ Sono disponibili flag per modificare l'ordine dei byte endian durante il confezi
 
 Scrivere wrapper di librerie
 ============================
-A volte la versione semplice della funzione integrata "import" di newLISP non può essere utilizzata con una libreria. Questo accade ogni volta che una libreria non aderisce strettamente alle convenzioni di chiamata cdecl aspettandosi che tutti i parametri siano passati nello stack. Per esempio. quando si esegue Mac OS X su vecchie CPU PPC invece che su CPU Intel, le librerie OpenGL installate per impostazione predefinita su Mac OS X non possono essere utilizzate.
+A volte la versione semplice della funzione integrata "import" di newLISP non può essere utilizzata con una libreria. Questo accade ogni volta che una libreria non aderisce strettamente alle convenzioni di chiamata cdecl aspettandosi che tutti i parametri siano passati nello stack. Per esempio, quando si esegue Mac OS X su vecchie CPU PPC invece che su CPU Intel, le librerie OpenGL installate per impostazione predefinita su Mac OS X non possono essere utilizzate.
 
 Dalla versione 10.4.0 di newLISP, il problema può essere risolto più facilmente utilizzando la nuova sintassi estesa di "import", che risolve automaticamente le differenze di piattaforma e architettura. Su sistemi molto piccoli o ogni volta che la libreria di sistema libffi necessaria non è presente su una piattaforma, è possibile creare una libreria wrapper speciale per tradurre le convenzioni cdecl previste da newLISP nelle convenzioni di chiamata previste dalla libreria di destinazione.
 
@@ -3367,5 +3368,4 @@ p1 => 123 p2 => 456 p3 => 789
 99999
 
 Nota che Win32 e molte versioni Unix cercheranno newlisp.dll nel percorso della libreria di sistema, ma Mac OS X cercherà prima newlisp.dylib nella cartella corrente, se il percorso completo del file non è specificato. Il programma sopra può anche essere trovato come callback nella distribuzione dei sorgenti nella cartella newlisp-x.x.x/examples.
-
 
