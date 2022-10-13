@@ -163,6 +163,14 @@ Il risultato è corretto, ma perdiamo il match visivo con le parentesi "{" "}" c
 Stile del codice newLISP
 ------------------------
 
+"There is no single, correct way to format newLISP code.
+Do whatever makes it easier for you to understand the code's structure.
+Lutz intentionally uses various code formats in the manual to help encourage freedom in this area."
+
+"Non esiste un modo unico e corretto per formattare il codice newLISP.
+Fai qualsiasi cosa ti renda più facile comprendere la struttura del codice.
+Lutz utilizza intenzionalmente vari formati di codice nel manuale per incoraggiare la libertà in quest'area."
+
 Ogni linguaggio ha un proprio stile generale nella scrittura el codice. Comunque anche ogni programmatore ha uno stile proprio che deriva dalla sua esperienza. Fortunatamente newLISP permette di scrivere con stili diversi basta che si rispetti la sintassi delle liste (parentesi).
 Lo stile non è uno standard, ma solo il modo preferito di scrivere e leggere i programmi. Il problema nasce quando diversi programmatori lavorano sullo stesso codice. In questo caso occorrono delle regole comuni per evitare di avere stili diversi nello stesso programma. Poichè newLISP deriva dal LISP vediamo quali indicazioni vengono raccomandate per questo linguaggio (Common LISP) e quanto sono aderenti a newLISP (e comunque sta a voi scegliere quale stile di scittura si adatta di più al vostro modo di programmare).
 
@@ -444,10 +452,10 @@ Ogni volta che salviamo un file, di default, le interruzioni di riga vengono imp
 (save "foo.lsp" 'foo)
 
 foo.lsp:
-(set 'foo '(1 563 193 808 585 479 350 895 822 746 174 858 710 513 303 14 91 364 147 
-  165 988 445 119 4 8 377 531 571 601 607 166 663 450 352 57 607 783 802 519 301 
-  875 726 955 925 539 142 462 235 862 209 779 843 996 999 611 392 266 297 840 23 
-  375 92 677 56 8 918 275 272 587 691 837 726 484 205 743 468 457 949 744 108 599 
+(set 'foo '(1 563 193 808 585 479 350 895 822 746 174 858 710 513 303 14 91 364 147
+  165 988 445 119 4 8 377 531 571 601 607 166 663 450 352 57 607 783 802 519 301
+  875 726 955 925 539 142 462 235 862 209 779 843 996 999 611 392 266 297 840 23
+  375 92 677 56 8 918 275 272 587 691 837 726 484 205 743 468 457 949 744 108 599
   385 735 608 572 361 151 225 425 802 517 989 751 345 168 657 491 63 699 504))
 
 Se usiamo "pretty-print" possiamo impostare le interruzioni di riga ad un valore maggiore di 80:
@@ -3034,7 +3042,7 @@ Un altro esempio un pò più complicato:
 		(println (apply fun '()))))
 
 (define (myfun)
-	(let (a 10)		
+	(let (a 10)
 		(myfun2 (lambda () (setq a 30)))
 		a))
 
@@ -4002,34 +4010,34 @@ Ci sono due tipi di "fold": uno destra e uno sinistra.
 (define cdr rest)
 
 Funzione "fold-right":
- 
-(define (fold-right f init seq) 
-  (if (null? seq) 
-      init 
-      (f (car seq) 
-         (fold-right f init (cdr seq))))) 
 
-(fold-right + 0 '(1 2 3 4))         
-; expands to (+ 1 (+ 2 (+ 3 (+ 4 0)))) 
+(define (fold-right f init seq)
+  (if (null? seq)
+      init
+      (f (car seq)
+         (fold-right f init (cdr seq)))))
+
+(fold-right + 0 '(1 2 3 4))
+; expands to (+ 1 (+ 2 (+ 3 (+ 4 0))))
 
 Funzione "fold-left":
 
-(define (fold-left f init seq) 
-  (if (null? seq) 
-      init 
-      (fold-left f 
-                 (f init (car seq)) 
-                 (cdr seq)))) 
+(define (fold-left f init seq)
+  (if (null? seq)
+      init
+      (fold-left f
+                 (f init (car seq))
+                 (cdr seq))))
 
-(fold-left + 0 '(1 2 3 4)) 
-; expands to (+ (+ (+ (+ 0 1) 2) 3) 4) 
+(fold-left + 0 '(1 2 3 4))
+; expands to (+ (+ (+ (+ 0 1) 2) 3) 4)
 
 Usiamo "fold-left" per definire una funzione che inverte gli elementi di una lista:
 
- (define (reverse_ lst) 
-   (fold-left (lambda (x y) (cons y x)) 
-              '() 
-              lst)) 
+ (define (reverse_ lst)
+   (fold-left (lambda (x y) (cons y x))
+              '()
+              lst))
 
 (reverse_ '(1 2 3))
 ;-> (3 2 1)
@@ -4976,7 +4984,7 @@ Nel libro "The Practice of Programming" di Rob Pike e Brian Kernighan viene pres
       } while (*text++ != '\0');
       return 0;
   }
-  
+
   /* matchhere: search for regexp at beginning of text */
   int matchhere(char *regexp, char *text)
   {
@@ -4990,7 +4998,7 @@ Nel libro "The Practice of Programming" di Rob Pike e Brian Kernighan viene pres
           return matchhere(regexp+1, text+1);
       return 0;
   }
-  
+
   /* matchstar: search for c*regexp at beginning of text */
   int matchstar(int c, char *regexp, char *text)
   {
@@ -5456,7 +5464,7 @@ Creiamo due array unidimensionali:
 (setq vet2 (array 3 '(5 (6 7 8) a)))
 ;-> (5 (6 7 8) a))
 
-Il secondo array sopra ha un elemento nidificato che contiene 3 elementi. 
+Il secondo array sopra ha un elemento nidificato che contiene 3 elementi.
 
 Possiamo accedere agli elementi dell'array in questo modo:
 
@@ -5520,7 +5528,7 @@ Un'estensione naturale dell'"indicizzazione implicita" che abbiamo visto finora 
 (0 lista)
 ;-> (a b (c d) e)
 
-La prima espressione restituisce una sottolista a partire dal secondo elemento (1) della lista data. 
+La prima espressione restituisce una sottolista a partire dal secondo elemento (1) della lista data.
 Un altro argomento intero, se fornito, specifica il numero di elementi da estrarre dalla posizione iniziale.
 
 Slice di array e stringhe

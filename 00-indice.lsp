@@ -1410,6 +1410,8 @@ NOTE LIBERE 11
   Per divertimento
   Posizione di scacchi casuale - random chess position
   Struttura dati generica
+  Differenza simmetrica negli insiemi (set)
+  Problema dei nomi degli Stati (State name puzzle)
   
 
 APPENDICI

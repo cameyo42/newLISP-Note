@@ -4,6 +4,14 @@
 
 =======================
 
+"If you truly want to understand something, teach it.
+And I know of no more recalcitrant a student than the computer.
+So I decided to program something i want to learn."
+
+"Se vuoi veramente capire qualcosa, insegnala. 
+E non conosco studente più recalcitrante del computer. 
+Così ho deciso di programmare qualcosa che voglio imparare."
+
 ==============
  INTRODUZIONE
 ==============

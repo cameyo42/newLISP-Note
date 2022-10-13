@@ -3896,11 +3896,19 @@ Funzione che genera una posizione casuale di scacchi:
     ; array per la scacchiera
     (setq board (array 8 8 '(" ")))
     ; lista dei pezzi bianchi
+    ; caratteri ASCII
     (setq white '("K" "Q" "N" "N" "B" "B" "R" "R"
                   "P" "P" "P" "P" "P" "P" "P" "P"))
+    ; caratteri UTF
+    ;(setq white '("♚" "♛" "♞" "♞" "♝" "♝" "♜" "♜"
+    ;              "♟" "♟" "♟" "♟" "♟" "♟" "♟" "♟")
     ; lista dei pezzi neri
+    ; caratteri ASCII    
     (setq black '("k" "q" "n" "n" "b" "b" "r" "r"
                   "p" "p" "p" "p" "p" "p" "p" "p"))
+    ; caratteri UTF
+    ;(setq black '("♔" "♕" "♘" "♘" "♗" "♗" "♖" "♖"
+    ;              "♙" "♙" "♙" "♙" "♙" "♙" "♙" "♙"))
     ; numero casuale di pezzi bianchi da posizionare
     (setq pw (+ 2 (rand 14)))
     ; numero casuale di pezzi neri da posizionare
@@ -3923,6 +3931,7 @@ Funzione che genera una posizione casuale di scacchi:
     (place-pieces b-pieces)
     ; stampa della posizione finale
     (print-board board)
+    board
   ))
 
 Facciamo alcune prove:
@@ -3998,6 +4007,244 @@ Questo significa che il Re nero non può essere sotto scacco.
 Quindi la posizione è corretta solo se nessun pezzo del Bianco attacca il Re nero.
 La funzione che verifica se un Re è sotto scacco la scriverò in futuro...forse.
 
+Vediamo come convertire una posizione di scacchi rappresentata con una matrice nella relativa rappresentazione algebrica scacchistica:
+
+     Scacchiera con                          Matrice della posizione 
+     coordinate algebriche                   
+                                              0   1   2   3   4   5   6   7
+    +---+---+---+---+---+---+---+---+       +---+---+---+---+---+---+---+---+
+  8 |   |   |   |   |   |   |   |   |     0 |   |   |   |   |   |   |   |   |
+    +---+---+---+---+---+---+---+---+       +---+---+---+---+---+---+---+---+
+  7 |   |   |   |   |   |   |   |   |     1 |   |   |   |   |   |   |   |   |
+    +---+---+---+---+---+---+---+---+       +---+---+---+---+---+---+---+---+
+  6 |   |   |   |   |   |   |   |   |     2 |   |   |   |   |   |   |   |   |
+    +---+---+---+---+---+---+---+---+       +---+---+---+---+---+---+---+---+
+  5 |   |   |   |   |   |   |   |   |     3 |   |   |   |   |   |   |   |   |
+    +---+---+---+---+---+---+---+---+       +---+---+---+---+---+---+---+---+
+  4 |   |   |   |   |   |   |   |   |     4 |   |   |   |   |   |   |   |   |
+    +---+---+---+---+---+---+---+---+       +---+---+---+---+---+---+---+---+
+  3 |   |   |   |   |   |   |   |   |     5 |   |   |   |   |   |   |   |   |
+    +---+---+---+---+---+---+---+---+       +---+---+---+---+---+---+---+---+
+  2 |   |   |   |   |   |   |   |   |     6 |   |   |   |   |   |   |   |   |
+    +---+---+---+---+---+---+---+---+       +---+---+---+---+---+---+---+---+
+  1 |   |   |   |   |   |   |   |   |     7 |   |   |   |   |   |   |   |   |
+    +---+---+---+---+---+---+---+---+       +---+---+---+---+---+---+---+---+
+      a   b   c   d   e   f   g   h           
+
+Lista di associazione "char-col":
+
+(setq char-col '(("a" 0) ("b" 1) ("c" 2) ("d" 3)
+                 ("e" 4) ("f" 5) ("g" 6) ("h" 7)))
+
+(setq col (lookup "e" char-col))
+;-> 4
+
+Lista di associazione "col-char":
+
+(setq col-char (map (fn(x) (list (x 1) (x 0))) char-col))
+;-> ((0 "a") (1 "b") (2 "c") (3 "d") (4 "e") (5 "f") (6 "g") (7 "h"))
+
+(setq num-row '((8 0) (7 1) (6 2) (5 3) (4 4) (3 5) (2 6) (1 7)))
+
+(setq row (lookup 6 num-row))
+;-> 2
+
+Lista di associazione "row-num":
+
+;(setq row-num (map (fn(x) (list (x 1) (x 0))) num-row))
+;-> ((0 8) (1 7) (2 6) (3 5) (4 4) (5 3) (6 2) (7 1))
+(setq row-num '((0 8) (1 7) (2 6) (3 5) (4 4) (5 3) (6 2) (7 1)))
+
+Funzione che trasforma una coppia di indici di una matrice nelle coordinate di una casella:
+
+(define (matrix-chess row col)
+  (list (lookup col col-char)
+        (lookup row row-num)))
+
+(matrix-chess 0 0)
+;-> ("a 8")
+
+(matrix-chess 7 0)
+;-> ("a" 1)
+
+(matrix-chess 1 1)
+;-> ("b" 7)
+
+(matrix-chess 1 2)
+;-> ("c" 7)
+
+(matrix-chess 7 7)
+;-> ("h" 1)
+
+Funzione che trasforma le coordinate di una casella in una coppia di indici di una matrice:
+
+(define (chess-matrix chr num)
+  (list (lookup num num-row)
+        (lookup chr char-col)))
+
+(chess-matrix "c" 7)
+;-> (1 2)
+
+(chess-matrix "a" 1)
+;-> (7 0)
+
+Creiamo le liste di associazione che collegano gli indici della matrice con le coordinate algebriche.
+
+(setq out '())
+(for (i 0 7)
+  (for (j 0 7)
+    (setq p (matrix-chess i j))
+    (setq p (string (p 0) (p 1)))
+    ;(push p out -1)
+    (push (list (list i j) p) out -1)
+  )
+)
+;-> (((0 0) "a8") ((0 1) "b8") ((0 2) "c8") ((0 3) "d8") 
+;->  ((0 4) "e8") ((0 5) "f8") ((0 6) "g8") ((0 7) "h8") 
+;->  ((1 0) "a7") ((1 1) "b7") ((1 2) "c7") ((1 3) "d7") 
+;->  ((1 4) "e7") ((1 5) "f7") ((1 6) "g7") ((1 7) "h7")
+;->  ((2 0) "a6") ((2 1) "b6") ((2 2) "c6") ((2 3) "d6")
+;->  ((2 4) "e6") ((2 5) "f6") ((2 6) "g6") ((2 7) "h6")
+;->  ((3 0) "a5") ((3 1) "b5") ((3 2) "c5") ((3 3) "d5")
+;->  ((3 4) "e5") ((3 5) "f5") ((3 6) "g5") ((3 7) "h5")
+;->  ((4 0) "a4") ((4 1) "b4") ((4 2) "c4") ((4 3) "d4")
+;->  ((4 4) "e4") ((4 5) "f4") ((4 6) "g4") ((4 7) "h4")
+;->  ((5 0) "a3") ((5 1) "b3") ((5 2) "c3") ((5 3) "d3")
+;->  ((5 4) "e3") ((5 5) "f3") ((5 6) "g3") ((5 7) "h3")
+;->  ((6 0) "a2") ((6 1) "b2") ((6 2) "c2") ((6 3) "d2")
+;->  ((6 4) "e2") ((6 5) "f2") ((6 6) "g2") ((6 7) "h2")
+;->  ((7 0) "a1") ((7 1) "b1") ((7 2) "c1") ((7 3) "d1")
+;->  ((7 4) "e1") ((7 5) "f1") ((7 6) "g1") ((7 7) "h1"))
+
+(setq indexes-algebric
+     '(((0 0) "a8") ((0 1) "b8") ((0 2) "c8") ((0 3) "d8") 
+       ((0 4) "e8") ((0 5) "f8") ((0 6) "g8") ((0 7) "h8") 
+       ((1 0) "a7") ((1 1) "b7") ((1 2) "c7") ((1 3) "d7") 
+       ((1 4) "e7") ((1 5) "f7") ((1 6) "g7") ((1 7) "h7")
+       ((2 0) "a6") ((2 1) "b6") ((2 2) "c6") ((2 3) "d6")
+       ((2 4) "e6") ((2 5) "f6") ((2 6) "g6") ((2 7) "h6")
+       ((3 0) "a5") ((3 1) "b5") ((3 2) "c5") ((3 3) "d5")
+       ((3 4) "e5") ((3 5) "f5") ((3 6) "g5") ((3 7) "h5")
+       ((4 0) "a4") ((4 1) "b4") ((4 2) "c4") ((4 3) "d4")
+       ((4 4) "e4") ((4 5) "f4") ((4 6) "g4") ((4 7) "h4")
+       ((5 0) "a3") ((5 1) "b3") ((5 2) "c3") ((5 3) "d3")
+       ((5 4) "e3") ((5 5) "f3") ((5 6) "g3") ((5 7) "h3")
+       ((6 0) "a2") ((6 1) "b2") ((6 2) "c2") ((6 3) "d2")
+       ((6 4) "e2") ((6 5) "f2") ((6 6) "g2") ((6 7) "h2")
+       ((7 0) "a1") ((7 1) "b1") ((7 2) "c1") ((7 3) "d1")
+       ((7 4) "e1") ((7 5) "f1") ((7 6) "g1") ((7 7) "h1")))
+
+Funzione che converte da indici della matrice notazione algebrica:
+
+(define (mat-alg ij)
+  (lookup (list ij) indexes-algebric))
+
+(mat-alg '(0 0))
+;-> "a8"
+(mat-alg '(7 7))
+;-> "h1"
+(mat-alg '(2 6))
+;-> "g6"
+
+; (setq algebric-indexes (map (fn(x) (list (x 1) (x 0))) indexes-algebric))
+(setq algebric-indexes
+   '(("a8" (0 0)) ("b8" (0 1)) ("c8" (0 2)) ("d8" (0 3)) 
+     ("e8" (0 4)) ("f8" (0 5)) ("g8" (0 6)) ("h8" (0 7))
+     ("a7" (1 0)) ("b7" (1 1)) ("c7" (1 2)) ("d7" (1 3))
+     ("e7" (1 4)) ("f7" (1 5)) ("g7" (1 6)) ("h7" (1 7))
+     ("a6" (2 0)) ("b6" (2 1)) ("c6" (2 2)) ("d6" (2 3))
+     ("e6" (2 4)) ("f6" (2 5)) ("g6" (2 6)) ("h6" (2 7))
+     ("a5" (3 0)) ("b5" (3 1)) ("c5" (3 2)) ("d5" (3 3))
+     ("e5" (3 4)) ("f5" (3 5)) ("g5" (3 6)) ("h5" (3 7))
+     ("a4" (4 0)) ("b4" (4 1)) ("c4" (4 2)) ("d4" (4 3))
+     ("e4" (4 4)) ("f4" (4 5)) ("g4" (4 6)) ("h4" (4 7))
+     ("a3" (5 0)) ("b3" (5 1)) ("c3" (5 2)) ("d3" (5 3))
+     ("e3" (5 4)) ("f3" (5 5)) ("g3" (5 6)) ("h3" (5 7))
+     ("a2" (6 0)) ("b2" (6 1)) ("c2" (6 2)) ("d2" (6 3))
+     ("e2" (6 4)) ("f2" (6 5)) ("g2" (6 6)) ("h2" (6 7))
+     ("a1" (7 0)) ("b1" (7 1)) ("c1" (7 2)) ("d1" (7 3))
+     ("e1" (7 4)) ("f1" (7 5)) ("g1" (7 6)) ("h1" (7 7))))
+
+Funzione che converte da notazione algebrica a indici della matrice:
+
+(define (alg-mat c)
+  (lookup (list c) algebric-indexes))
+
+(alg-mat "a8")
+;-> (0 0)
+(alg-mat "h1")
+;-> (7 7)
+(alg-mat "g6")
+;-> (2 6)
+
+(define (upper-case? chr)
+  (and (>= (char chr) 65) (<= (char chr) 90)))
+
+(char 65)
+;-> "A"
+(char 90)
+;-> "Z"
+
+(define (matrice-algebrica m)
+  (local (w b)
+    ; lista dei pezzi bianchi
+    (setq w '())
+    ; lista dei pezzi neri
+    (setq b '())
+    (for (i 0 7)
+      (for (j 0 7)
+        (setq p (m i j))
+        (cond ((= p " ") nil)
+              (true
+                (setq val (append p (mat-alg (list i j))))
+                (if (upper-case? p)
+                    ; lettera maiuscola: pezzo bianco
+                    (push val w -1)
+                    ;else
+                    ; lettera minuscola: pezzo nero
+                    (push val b -1)))
+        )
+      )
+    )
+    (list w b)))
+
+Facciamo alcune prove:
+
+(matrice-algebrica (random-chess true))
+;->  B . . . . . . r
+;->  . P . n . . N .
+;->  p . . . . . k P
+;->  . p . P . . . p
+;->  . b p R . . P R
+;->  . . . p Q . . n
+;->  p K . . . . . .
+;->  . . . . . . B .
+;-> (("Ba8" "Pb7" "Ng7" "Ph6" "Pd5" "Rd4" "Pg4" "Rh4" "Qe3" "Kb2" "Bg1") 
+;->  ("rh8" "nd7" "pa6" "kg6" "pb5" "ph5" "bb4" "pc4" "pd3" "nh3" "pa2"))
+
+(matrice-algebrica (random-chess true))
+;->  . . . . . K B .
+;->  b . p . . . . .
+;->  . . . N . . p .
+;->  r . . . p . . P
+;->  . . . . . . . .
+;->  . k . . P P . .
+;->  . . . . . . . .
+;->  . . . . . . . .
+;-> (("Kf8" "Bg8" "Nd6" "Ph5" "Pe3" "Pf3") 
+;->  ("ba7" "pc7" "pg6" "ra5" "pe5" "kb3"))
+
+(matrice-algebrica (random-chess))
+;->  . . . K . q . .
+;->  . . . . P . . .
+;->  . . . . . . . .
+;->  . . . . . . . .
+;->  . . . . . . . .
+;->  . . . . . k . .
+;->  . . P . . P . .
+;->  . . . . . . . .
+;-> (("Kd8" "Pe7" "Pc2" "Pf2") ("qf8" "kf3"))
+
 
 -----------------------
 Struttura dati generica
@@ -4043,6 +4290,121 @@ Oppure:
 ;-> 2024
 
 Questa (t) è una struttura di dati generica (contesto) i cui campi sono accessibili sia con la sintassi dei due punti ":" che con la notazioni funzionale. Quest'ultimo metodo è utile per le assegnazioni di gruppo.
+
+
+-----------------------------------------
+Differenza simmetrica negli insiemi (set)
+-----------------------------------------
+
+Dati due insiemi A e B, calcolare la differenza simmetrica, cioè (A \ B) ∪ (B \ A).
+Cioè, enumerare gli elementi che si trovano in A o B, ma non in entrambi. 
+Questo insieme è chiamato differenza simmetrica di A e B.
+
+Nota:
+Differenza: A \ B fornisce l'insieme degli elementi in A che non sono in B;
+Differenza: B \ A fornisce l'insieme degli elementi in B che non sono in A;
+Unione: A ∪ B dà l'insieme degli elementi sia in A che in B, (la loro unione);
+Intersezione: A ∩ B dà l'insieme degli elementi che si trovano sia in A che in B (la loro intersezione).
+
+In altre parole: (A ∪ B) \ (B ∪ A) (l'insieme degli elementi che si trovano in almeno uno di A o B meno l'insieme degli elementi che si trovano sia in A che in B).
+
+(setq s1 '("John" "Bob" "Mary" "Serena"))
+(setq s2 '("Jim" "Mary" "John" "Bob"))
+
+(difference s1 s2)
+;-> "Serena"
+(difference s2 s1)
+;-> "Jim"
+
+(define (symmetric-difference a b)
+  (union (difference a b) (difference b a)))
+
+(symmetric-difference s1 s2)
+;-> ("Serena" "Jim")
+(symmetric-difference s2 s1)
+;-> ("Jim "Serena")
+
+Insiemi con elementi uguali:
+
+(setq s3 '("John" "Serena" "Bob" "Mary" "Serena"))
+(setq s4 '("Jim" "Mary" "John" "Jim" "Bob"))
+
+(symmetric-difference s3 s4)
+;-> ("Serena" "Jim")
+
+(symmetric-difference s4 s3)
+;-> ("Jim" "Serena")
+
+
+-------------------------------------------------
+Problema dei nomi degli Stati (State name puzzle)
+-------------------------------------------------
+
+Prendere i nomi di due Stati degli Stati Uniti, mescolarli tutti insieme, quindi riordinare le lettere per formare i nomi di altri due Stati degli Stati Uniti (in modo che tutti e quattro i nomi di stato differiscano l'uno dall'altro).
+Che stati sono questi?
+
+(setq states
+      '("Alabama" "Alaska" "Arizona" "Arkansas"
+        "California" "Colorado" "Connecticut" "Delaware" 
+        "Florida" "Georgia" "Hawaii" "Idaho" 
+        "Illinois" "Indiana" "Iowa" "Kansas" 
+        "Kentucky" "Louisiana" "Maine" "Maryland" 
+        "Massachusetts" "Michigan" "Minnesota" "Mississippi" 
+        "Missouri" "Montana" "Nebraska" "Nevada" 
+        "New Hampshire" "New Jersey" "New Mexico" "New York" 
+        "North Carolina" "North Dakota" "Ohio" "Oklahoma" 
+        "Oregon" "Pennsylvania" "Rhode Island" "South Carolina" 
+        "South Dakota" "Tennessee" "Texas" "Utah" 
+        "Vermont" "Virginia" "Washington" "West Virginia" 
+        "Wisconsin" "Wyoming"))
+
+(length states)
+;-> 50
+
+Funzione che calcola il prodotto cartesiano di due liste:
+
+(define (cp lst1 lst2)
+  (let (out '())
+    (if (or (null? lst1) (null? lst2))
+        nil
+        (dolist (el1 lst1)
+          (dolist (el2 lst2)
+            (push (list el1 el2) out -1))))))
+
+(length (cp states states))
+;-> 2500
+
+Funzione che trova i quattro stati (se esitono):
+
+(define (mixed-states lst)
+  (setq all (cp states states))
+  (setq s '())
+  ; creiamo una lista del tipo:
+  ; ("  CCNNaaaahhiillnnoooorrrrtt" "North Carolina" "North Carolina")
+  (dolist (el all)
+    (push (list (join (sort (append (explode (el 0)) (explode (el 1)))))
+                (el 0) (el 1)) s -1)
+  )
+  (sort s)
+  ; Adesso quando nella lista s troviamo 4 stringhe uguali (consecutive),
+  ; allora abbiamo trovato una soluzione.
+  (for (i 0 (- (length s) 4))
+    (if (= (first (s i)) (first (s (+ i 1))) 
+           (first (s (+ i 2))) (first (s (+ i 3))))
+      (begin
+        (println (s i))
+        (println (s (+ i 1)))
+        (println (s (+ i 2)))
+        (println (s (+ i 3))))
+    )
+  )
+)
+
+(mixed-states states)
+;-> ("  CDNSaaaahhiklnoooorrtttu" "North Carolina" "South Dakota")
+;-> ("  CDNSaaaahhiklnoooorrtttu" "North Dakota" "South Carolina")
+;-> ("  CDNSaaaahhiklnoooorrtttu" "South Carolina" "North Dakota")
+;-> ("  CDNSaaaahhiklnoooorrtttu" "South Dakota" "North Carolina")
 
 =============================================================================
 
