@@ -4406,5 +4406,149 @@ Funzione che trova i quattro stati (se esitono):
 ;-> ("  CDNSaaaahhiklnoooorrtttu" "South Carolina" "North Dakota")
 ;-> ("  CDNSaaaahhiklnoooorrtttu" "South Dakota" "North Carolina")
 
+
+-------------------
+Consigli del Buddha
+-------------------
+
+Il file "buddha.txt" si trova nella cartella "DATA".
+
+(define (buddha)
+  (local (file frasi num-frasi)
+    (setq file (open "buddha.txt" "read"))
+    (setq frasi '())
+    (while (read-line file)
+      (push (current-line) frasi -1)
+    )
+    (close file)
+    (setq num-frasi (length frasi))
+    (frasi (rand num-frasi))))
+
+(buddha)
+;-> "Un solo capello e' sufficiente ad agitare il mare."
+
+
+-----------------------------------
+Sequenza cifre-primi di Smarandache
+-----------------------------------
+
+La sequenza cifre-primi di Smarandache (SPDS - Smarandache prime-digital sequence) è la sequenza di numeri primi le cui cifre sono esse stesse prime.
+
+Ad esempio 257 è un elemento di questa sequenza perché è primo e le sue cifre: 2, 5 e 7 sono anche primi.
+
+Sequenza OEIS: A019546
+  2, 3, 5, 7, 23, 37, 53, 73, 223, 227, 233, 257, 277, 337, 353,
+  373, 523, 557, 577, 727, 733, 757, 773, 2237, 2273, 2333, 2357,
+  2377, 2557, 2753, 2777, 3253, 3257, 3323, 3373, 3527, 3533, 3557,
+  3727, 3733, 5227, 5233, 5237, 5273, 5323, 5333, 5527, 5557, ...
+
+(define (prime? num)
+"Check if a number is prime"
+   (if (< num 2) nil
+       (= 1 (length (factor num)))))
+
+(define (int-list num)
+"Convert an integer to a list of digits"
+  (let (out '())
+    (while (!= num 0)
+      (push (% num 10) out)
+      (setq num (/ num 10))) out))
+
+Funzione che verifica se tutte le cifre di un numero sono prime:
+
+(define (digit-prime? num)
+  (local (lst stop)
+    (setq lst (int-list num))
+    (setq stop nil)
+    (dolist (d lst stop)
+      (if (or (= d 0) (= d 1) (= d 4) (= d 6) (= d 8) (= d 9))
+          (setq stop true)
+      )
+    )
+    (not stop)))
+
+(digit-prime? 2371)
+;-> nil
+(digit-prime? 22275)
+;-> true
+
+Funzione che verifica se un numero è di Smarandache:
+
+(define (smarandache? num)
+  (and (digit-prime? num) (prime? num)))
+
+(smarandache? 257)
+;-> true
+
+(filter smarandache? (sequence 1 5000))
+;-> (2 3 5 7 23 37 53 73 223 227 233 257 277 337 353 373 523 557 577 
+;->  727 733 757 773 2237 2273 2333 2357 2377 2557 2753 2777 3253 3257
+;->  3323 3373 3527 3533 3557 3727 3733)
+
+
+------------------------------------------
+Ricerca del numero più vicino in una lista
+------------------------------------------
+
+Dato un valore intero da cercare e una lista di associazione, trovare l'elemento della lista che fornisce la corrispondenza più vicina tra il valore intero e il primo valore degli elementi della lista.
+Per esempio:
+
+(setq target 200906281845)
+
+(setq data '(
+  (200906282050 "29003KT" "CAVOK")
+  (200906281950 "05004KT" "CAVOK")
+  (200906281750 "12010KT" "2222") ; <- dovrebbe restituire questo elemento
+  (200906281700 "13010KT" "9999")
+  (200906280000 "14010KT" "1111")
+; ...
+))
+
+Calcoliamo tutte le differenza tra il numero e il primo valore di ogni elemento della lista (mantenendo l'indice di ogni elemento).
+Ordiniamo la lista ottenuta con la differenza crescente.
+Adesso il valore più vicino all'intero è quello che si trova al primo posto nella listail primo.
+
+Per esempio:
+
+Calcoliamo le differenze:
+
+(setq d (map (fn(x) (list (abs (- target (first x))) $idx)) data))
+;-> ((205 0) (105 1) (95 2) (145 3) (1845 4))
+
+dove (205 0) significa che la differenza tra il numero intero e il valore della lista con indice 0 vale 250.
+
+Adesso ordiniamo la lista delle differenze:
+
+(sort d)
+;-> ((95 2) (105 1) (145 3) (205 0) (1845 4))
+
+L'elemento più vicino all'intero ha una differenza di 95 ed è quello all'indice 2 della lista di associazione:
+
+(data 2)
+;-> (200906281750 "12010KT" "2222")
+
+Possiamo scrivere la funzione:
+
+(define (find-match target lst)
+  (let (diff (sort (map (fn(x) (list (abs (- target (first x))) $idx)) lst)))
+    (lst (diff 0 1))))
+
+(find-match target data)
+;-> (200906281750 "12010KT" "2222")
+
+(find-match 200906280000 data)
+;-> (200906280000 "14010KT" "1111")
+
+(setq data1 '(
+    (101 a b c)
+    (200 c d e)
+    (230 x y z)
+    (250 f g h)))
+
+(find-match 150 data1)
+;-> (101 a b c)
+(find-match 160 data1)
+;-> (200 c d e)
+
 =============================================================================
 

@@ -1412,6 +1412,9 @@ NOTE LIBERE 11
   Struttura dati generica
   Differenza simmetrica negli insiemi (set)
   Problema dei nomi degli Stati (State name puzzle)
+  Consigli del buddha
+  Sequenza cifre-primi di Smarandache
+  Ricerca del numero più vicino in una lista
   
 
 APPENDICI
