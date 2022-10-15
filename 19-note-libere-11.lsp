@@ -4550,5 +4550,99 @@ Possiamo scrivere la funzione:
 (find-match 160 data1)
 ;-> (200 c d e)
 
+
+---------------------
+Numeri primi Pierpont
+---------------------
+
+Un numero è Pierpont di primo tipo se è un numero primo della forma:
+  (2^t*3^u + 1) con u,t > 0
+
+Un numero è Pierpont di secondo tipo se è un numero primo della forma:
+  (2^t*3^u - 1) con u,t > 0
+
+Pierpont di primo tipo
+----------------------
+
+Sequenza OEIS: A005109
+  2, 3, 5, 7, 13, 17, 19, 37, 73, 97, 109, 163, 193, 257, 433, 487,
+  577, 769, 1153, 1297, 1459, 2593, 2917, 3457, 3889, 10369, 12289,
+  17497, 18433, 39367, 52489, 65537, 139969, 147457, 209953, 331777,
+  472393, 629857, 746497, 786433, 839809, 995329, 1179649, 1492993,
+  1769473, 1990657, ...
+
+(define (prime? num)
+"Check if a number is prime"
+   (if (< num 2) nil
+       (= 1 (length (factor num)))))
+
+(define (pierpont1 limit)
+  (local (x2 x3 k2 k23 out))
+    (setq out '())
+    (set 'x2 0 'x3 0 'k2 1 'k23 1)
+    (while (< k2 limit)
+      (setq k23 k2)
+      (while (< k23 limit)
+        (if (prime? (+ k23 1)) (push (+ k23 1) out))
+        (setq k23 (* k23 3))
+      )
+      (setq k2 (* k2 2))
+    )
+    (sort out)
+  )
+
+(pierpont1 1e6)
+;-> (2 3 5 7 13 17 19 37 73 97 109 163 193 257 433 487 577 769
+;->  1153 1297 1459 2593 2917 3457 3889 10369 12289 17497 18433
+;->  39367 52489 65537 139969 147457 209953 331777 472393 629857
+;->  746497 786433 839809 995329)
+
+(time (println (length (pierpont1 1e7))))
+;-> 50
+;-> 3.991
+
+(time (println (length (pierpont1 1e16))))
+;-> 125
+;-> 3820.517
+
+
+Pierpont secondo tipo
+---------------------
+
+Sequenza OEIS: A005105
+  2, 3, 5, 7, 11, 17, 23, 31, 47, 53, 71, 107, 127, 191, 383, 431, 
+  647, 863, 971, 1151, 2591, 4373, 6143, 6911, 8191, 8747, 13121, 
+  15551, 23327, 27647, 62207, 73727, 131071, 139967, 165887, 294911,
+  314927, 442367, 472391, 497663, 524287, 786431, 995327, ...
+
+(define (pierpont2 limit)
+  (local (x2 x3 k2 k23 out))
+    (setq out '())
+    (set 'x2 0 'x3 0 'k2 1 'k23 1)
+    (while (< k2 limit)
+      (setq k23 k2)
+      (while (< k23 limit)
+        (if (prime? (- k23 1)) (push (- k23 1) out))
+        (setq k23 (* k23 3))
+      )
+      (setq k2 (* k2 2))
+    )
+    (sort out)
+  )
+
+(pierpont2 1e6)
+;-> (2 3 5 7 11 17 23 31 47 53 71 107 127 191 383 431 647 863 971
+;->  1151 2591 4373 6143 6911 8191 8747 13121 15551 23327 27647 
+;->  62207 73727 131071 139967 165887 294911 314927 442367 472391
+;->  497663 524287 786431 995327)
+
+(time (println (length (pierpont2 1e7))))
+;-> 45
+;-> 0.998
+
+(time (println (length (pierpont2 1e16))))
+;-> 113
+;-> 3072.157
+
 =============================================================================
 
