@@ -4644,5 +4644,257 @@ Sequenza OEIS: A005105
 ;-> 113
 ;-> 3072.157
 
+
+---------------------------------
+Punti, linee, polilinee, poligoni
+---------------------------------
+
+Punto P: (x y)
+Linea L: ((x1 y1) (x2 y2))
+Polilinea PL: (((x1 y1) (x2 y2)) ... ((xn-1 yn-1) (xn yn)))
+Poligono PG: (((x1 y1) (x2 y2)) ... ((xn-1 yn-1) (xn yn))), dove x1 = xn e y1 = yn
+
+Funzione che converte una lista di punti in linea, polilinea, poligono:
+
+(define (pts2line lst)
+  (map list (chop lst) (rest lst)))
+
+(setq punti '((0 1) (2 2) (4 5) (2 3)))
+
+(pts2line punti)
+;-> (((0 1) (2 2)) ((2 2) (4 5)) ((4 5) (2 3)))
+
+Se la lista ha due punti, allora otteniamo una linea.
+Se la lista ha più di due punti, allora otteniamo una polilinea oppure un poligono se il primo e l'ultimo punto sono uguali.
+
+Funzione che converte una linea, polilinea, poligono in una lista di punti:
+
+(define (line2pts lst)
+  (unique (flat lst 1)))
+
+(line2pts (pts2line punti))
+;-> ((0 1) (2 2) (4 5) (2 3))
+
+
+-------------------
+Sequenza di Van Eck
+-------------------
+
+La sequenza di Van Eck viene generata seguendo questo pseudo-codice:
+
+R: Il primo termine è zero.
+     Applicare ripetutamente:
+         Se l'ultimo termine è *nuovo* nella sequenza finora, allora:
+B: Il prossimo termine è zero.
+         Altrimenti:
+C: Il termine successivo è quanto indietro è avvenuto in precedenza quest'ultimo termine.
+
+Esempio
+Usare un:
+0
+
+Usando B:
+0 0
+
+Usando C:
+0 0 1
+
+Usando B:
+0 0 1 0
+
+Usando C: (l'ultimo zero si è verificato due passi indietro - prima dell'uno)
+0 0 1 0 2
+
+Usando B:
+0 0 1 0 2 0
+
+Usando C: (le ultime due si sono verificate due passi indietro - prima dello zero)
+0 0 1 0 2 0 2 2
+
+Usando C: (le ultime due si sono verificate un passo indietro)
+0 0 1 0 2 0 2 2 1
+
+Usando C: (l'ultimo è apparso sei passi indietro)
+0 0 1 0 2 0 2 2 1 6
+
+Sequenza OEIS: A181391
+  0, 0, 1, 0, 2, 0, 2, 2, 1, 6, 0, 5, 0, 2, 6, 5, 4, 0, 5, 3, 0, 3, 2, 
+  9, 0, 4, 9, 3, 6, 14, 0, 6, 3, 5, 15, 0, 5, 3, 5, 2, 17, 0, 6, 11, 0,
+  3, 8, 0, 3, 3, 1, 42, 0, 5, 15, 20, 0, 4, 32, 0, 3, 11, 18, 0, 4, 7,
+  0, 3, 7, 3, 2, 31, 0, 6, 31, 3, 6, 3, 2, 8, 33, 0, 9, 56, 0, 3, 8, 7,
+  19, 0, 5, 37, 0, 3, 8, 8, 1, ...
+
+;; LISP version
+;; Tested using CLISP
+(defun VanEck (x) (reverse (VanEckh x 0 0 '(0))))
+
+(defun VanEckh (final index curr lst)
+  (if (eq index final) 
+    lst
+    (VanEckh final (+ index 1) (howfar curr lst) (cons curr lst))))
+
+(defun howfar (x lst) (howfarh x lst 0))
+
+(defun howfarh (x lst runningtotal) 
+  (cond
+    ((null lst) 0)
+    ((eq x (car lst)) (+ runningtotal 1))
+    (t (howfarh x (cdr lst) (+ runningtotal 1)))))
+
+(format t "The first 10 elements are ~a~%" (VanEck 9))
+(format t "The 990-1000th elements are ~a~%" (nthcdr 990 (VanEck 999)))
+
+Output:
+The first 10 elements are (0 0 1 0 2 0 2 2 1 6)
+The 990-1000th elements are (4 7 30 25 67 225 488 0 10 136)
+
+;; newLISP version
+(define car first)
+(define cdr rest)
+
+(define (VanEck x) (reverse (VanEckh x 0 0 '(0))))
+
+(define (VanEckh final idx curr lst)
+  (if (= idx final)
+      lst
+      (VanEckh final (+ idx 1) (howfar curr lst) (cons curr lst))))
+
+(define (howfar x lst) (howfarh x lst 0))
+
+(define (howfarh x lst runningtotal)
+  (cond
+    ((null? lst) 0)
+    ((= x (car lst)) (+ runningtotal 1))
+    (true (howfarh x (cdr lst) (+ runningtotal 1)))))
+
+(VanEck 9)
+;-> (0 0 1 0 2 0 2 2 1 6)
+
+Ma newLISP non ha (per default) uno stack sufficiente:
+
+(VanEck 1000)
+;-> ERR: call or result stack overflow in function cond : null?
+;-> called from user function (howfarh x (cdr lst) (+ runningtotal 1))
+
+Vediamo allora di utilizzare un algoritmo iterativo:
+
+Van Eck's sequence:
+For n >= 1, 
+if there exists an m < n such that a(m) = a(n), 
+   then take the largest such m and set a(n+1) = n-m, 
+   otherwise a(n+1) = 0. Start with a(1)=0.
+
+(define (vaneck limit)
+  (setq a (array limit '(0)))
+  (for (n 0 (- limit 2))
+    (setq stop nil)
+    (for (m  (- n 1) 0 -1 stop)
+      (if (= (a m) (a n))
+          (begin
+            (setf (a (+ n 1)) (- n m))
+            (setq stop true))
+      )
+    )
+  )
+  (push 0 (array-list a)))
+
+Facciamo alcune prove:
+
+(vaneck 10)
+;-> (0 0 1 0 2 0 2 2 1 6 0)
+
+(slice (vaneck 1000) 990 10)
+;-> (4 7 30 25 67 225 488 0 10 136)
+
+Complessità temporale: O(n^2)
+
+Vediamo i tempi di esecuzione:
+
+(time (vaneck 1e3))
+;-> 9.946
+
+(time (vaneck 1e4))
+;-> 738.647
+
+(time (vaneck 1e5))
+;-> 63503.147
+
+
+--------------------------------------
+Addizione tra numeri interi (stringhe)
+--------------------------------------
+
+Funzione che somma due numeri interi passati come stringhe:
+
+(define (add+ str1 str2)
+  (local (n1 n2 str sum carry z)
+    (setq z (char "0"))
+    ; str2 deve essere più lunga
+    (if (> (length str1) (length str2)) (swap str1 str2))
+    (setq str "")
+    (setq n1 (length str1))
+    (setq n2 (length str2))
+    ; inversione delle stringhe
+    (reverse str1)
+    (reverse str2)
+    (setq carry 0)
+    (for (i 0 (- n1 1))
+      (setq sum (+ (- (char (str1 i)) z)
+                   (- (char (str2 i)) z)
+                  carry))
+      (extend str (char (+ (% sum 10) z)))
+      (setq carry (int (div sum 10)))
+    )
+    (if (!= n1 n2) (begin
+      ; aggiunge la stringa rimanente di str2
+      (for (i n1 (- n2 1))
+        (setq sum (+ (- (char (str2 i)) z) carry))
+        (extend str (char (+ (% sum 10) z)))
+        (setq carry (int (div sum 10)))
+      ))
+    )
+    ; se esiste, aggiunge il riporto (carry)
+    (if (> carry 0) (extend str (char (+ carry z))))
+    ; inverte la stringa
+    (reverse str)))
+
+Facciamo alcune prove:
+
+(add+ "198199" "12")
+;-> "198211"
+(+ 198199 12)
+;-> 198211
+
+(add+ "1989" "121")
+;-> 2110
+(+ 1989 121)
+;-> 2110
+
+(add+ "888" "333")
+(+ 888 333)
+;-> "1221"
+
+(+ 873612837945612837945681273 3571234578912358971289511342578125)
+;-> 3571235452525196916902349288259398L
+(add+ "873612837945612837945681273" "3571234578912358971289511342578125")
+;-> "3571235452525196916902349288259398"
+
+Scriviamo una funzione per fare un determinato numero di test casuali:
+
+(define (test iter)
+  (local (a b as bs)
+    (for (i 1 iter)
+      (setq a (rand 1e12))
+      (setq b (rand 1e12))
+      (setq as (string a))
+      (setq bs (string b))
+      (if (!= (string (+ a b)) (add+ as bs))
+          (println a { } b { } as { } bs { } (+ a b) { } (add+ as bs))))))
+
+(time (test 1e6))
+;-> 11124.437
+
+Nessun errore su 1e6 addizioni.
+
 =============================================================================
 

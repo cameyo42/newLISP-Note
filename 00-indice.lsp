@@ -1416,6 +1416,9 @@ NOTE LIBERE 11
   Sequenza cifre-primi di Smarandache
   Ricerca del numero più vicino in una lista
   Numeri primi Pierpont
+  Punti, linee, polilinee, poligoni
+  Sequenza di Van Eck
+  Addizione tra numeri interi (stringhe)
   
 
 APPENDICI
