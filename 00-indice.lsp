@@ -1419,6 +1419,7 @@ NOTE LIBERE 11
   Punti, linee, polilinee, poligoni
   Sequenza di Van Eck
   Addizione tra numeri interi (stringhe)
+  Sottrazione tra numeri interi (stringhe)
   
 
 APPENDICI

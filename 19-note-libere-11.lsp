@@ -3307,7 +3307,7 @@ Nota: logN x = log x / log N
 Dobble (Spot It) Game
 ---------------------
 
-Nel gioco "Dobble" (o "Spot it"), utilizza un mazzo di 55 carte da gioco, ciascuna con 8 simboli diversi su di esse. Ciò che è notevole (matematicamente) è che due carte scelte a caso dal mazzo avranno uno e un solo simbolo in comune. 
+Nel gioco "Dobble" (o "Spot it"), utilizza un mazzo di 55 carte da gioco, ciascuna con 8 simboli diversi su di esse. Ciò che è notevole (matematicamente) è che due carte scelte a caso dal mazzo avranno uno e un solo simbolo in comune.
 Possiamo trovare la soluzione matematica al seguente indirizzo web:
 https://math.stackexchange.com/questions/36798/what-is-the-math-behind-the-game-spot-it
 
@@ -3329,7 +3329,7 @@ Pseudocode:
         new line
     end for
   end for
-  
+
   // N following cards
   for I = 0 to N-1
     for J = 0 to N-1
@@ -3338,7 +3338,7 @@ Pseudocode:
     print N*N + N
     new line
   end for
-  
+
   // Last card
   for I = 0 to N-1
     print N*N + I
@@ -3387,13 +3387,13 @@ Numero totale di simboli = n^2 + n + 1
     out))
 
 (setq carte (spot-it 3))
-;-> ((1 2 3 4) 
-;->  (1 5 6 7) 
-;->  (1 8 9 10) 
-;->  (1 11 12 13) 
-;->  (2 5 8 11) 
-;->  (2 6 9 12) 
-;->  (2 7 10 13) 
+;-> ((1 2 3 4)
+;->  (1 5 6 7)
+;->  (1 8 9 10)
+;->  (1 11 12 13)
+;->  (2 5 8 11)
+;->  (2 6 9 12)
+;->  (2 7 10 13)
 ;->  (3 5 9 13)
 ;->  (3 6 10 11)
 ;->  (3 7 8 12)
@@ -3446,11 +3446,11 @@ Se togliamo alcune carte al mazzo, anche per le carte rimanenti ogni coppia di c
 Vediamo il caso in cui n non è un numero primo:
 
 (setq c (spot-it 4))
-;-> ((1 2 3 4 5) 
-;->  (1 6 7 8 9) 
-;->  (1 10 11 12 13) 
-;->  (1 14 15 16 17) 
-;->  (1 18 19 20 21) 
+;-> ((1 2 3 4 5)
+;->  (1 6 7 8 9)
+;->  (1 10 11 12 13)
+;->  (1 14 15 16 17)
+;->  (1 18 19 20 21)
 ;->  (2 6 10 14 18)
 ;->  (2 7 11 15 19)
 ;->  (2 8 12 16 20)
@@ -3696,10 +3696,10 @@ C'è poi un lancio di moneta:
 La sua stima viene registrata e poi viene riaddormentata per 2 giorni fino a mercoledì, momento in cui vengono conteggiati i risultati dell'esperimento.
 2) Se invece il lancio della moneta è croce, la Bella Addormentata si sveglia lunedì e deve stimare la probabilità che il lancio della moneta fosse testa, ma poi le viene somministrato un farmaco che le fa dimenticare di essere stata svegliata lunedì prima di essere rimessa a dormire ancora.
 Poi si sveglia solo 1 giorno dopo, martedì.
-Le viene quindi chiesto (martedì) di indovinare di nuovo la probabilità che il lancio della moneta sia stato testa o croce. 
+Le viene quindi chiesto (martedì) di indovinare di nuovo la probabilità che il lancio della moneta sia stato testa o croce.
 Quindi viene riaddormentata e si sveglia come prima 1 giorno dopo, mercoledì.
 
-Alcuni hanno sostenuto che, poiché il lancio della moneta è equo, la Bella Addormentata dovrebbe sempre stimare la probabilità di testa come 1/2, poiché non ha alcuna informazione aggiuntiva. 
+Alcuni hanno sostenuto che, poiché il lancio della moneta è equo, la Bella Addormentata dovrebbe sempre stimare la probabilità di testa come 1/2, poiché non ha alcuna informazione aggiuntiva.
 Altri sono in disaccordo, dicendo che se la Bella Addormentata conosce l'esperimento, sa anche che ha il doppio delle probabilità di svegliarsi e di dover stimare il lancio della moneta su croce che su testa, quindi la stima dovrebbe essere 1/3 per testa.
 
 Scriviamo una funzione con il metodo di Monte Carlo per la simulazione dei risultati che calcola la percentuale di teste al risveglio.
@@ -3755,7 +3755,7 @@ Scriviamo una funzione che restituisce una funzione che esegue la nostra esepres
   (local (uniq lst u)
     (setq uniq (randomize (unique (explode sign))))
     (setq lst '())
-    (dolist (el (explode sign)) 
+    (dolist (el (explode sign))
       (push (first (ref el uniq)) lst -1)
     )
     (setq u (join uniq))
@@ -3778,7 +3778,7 @@ Riscriviamo la funzione in modo che restituisca una funzione che accetta un para
   (local (uniq lst)
     (setq uniq (randomize (unique (explode sign)))))
     (setq lst '())
-    (dolist (el (explode sign)) 
+    (dolist (el (explode sign))
       (push (first (ref el uniq)) lst -1)
     )
     ; stampa la chiave
@@ -3903,7 +3903,7 @@ Funzione che genera una posizione casuale di scacchi:
     ;(setq white '("♚" "♛" "♞" "♞" "♝" "♝" "♜" "♜"
     ;              "♟" "♟" "♟" "♟" "♟" "♟" "♟" "♟")
     ; lista dei pezzi neri
-    ; caratteri ASCII    
+    ; caratteri ASCII
     (setq black '("k" "q" "n" "n" "b" "b" "r" "r"
                   "p" "p" "p" "p" "p" "p" "p" "p"))
     ; caratteri UTF
@@ -4009,8 +4009,8 @@ La funzione che verifica se un Re è sotto scacco la scriverò in futuro...forse
 
 Vediamo come convertire una posizione di scacchi rappresentata con una matrice nella relativa rappresentazione algebrica scacchistica:
 
-     Scacchiera con                          Matrice della posizione 
-     coordinate algebriche                   
+     Scacchiera con                          Matrice della posizione
+     coordinate algebriche
                                               0   1   2   3   4   5   6   7
     +---+---+---+---+---+---+---+---+       +---+---+---+---+---+---+---+---+
   8 |   |   |   |   |   |   |   |   |     0 |   |   |   |   |   |   |   |   |
@@ -4029,7 +4029,7 @@ Vediamo come convertire una posizione di scacchi rappresentata con una matrice n
     +---+---+---+---+---+---+---+---+       +---+---+---+---+---+---+---+---+
   1 |   |   |   |   |   |   |   |   |     7 |   |   |   |   |   |   |   |   |
     +---+---+---+---+---+---+---+---+       +---+---+---+---+---+---+---+---+
-      a   b   c   d   e   f   g   h           
+      a   b   c   d   e   f   g   h
 
 Lista di associazione "char-col":
 
@@ -4099,9 +4099,9 @@ Creiamo le liste di associazione che collegano gli indici della matrice con le c
     (push (list (list i j) p) out -1)
   )
 )
-;-> (((0 0) "a8") ((0 1) "b8") ((0 2) "c8") ((0 3) "d8") 
-;->  ((0 4) "e8") ((0 5) "f8") ((0 6) "g8") ((0 7) "h8") 
-;->  ((1 0) "a7") ((1 1) "b7") ((1 2) "c7") ((1 3) "d7") 
+;-> (((0 0) "a8") ((0 1) "b8") ((0 2) "c8") ((0 3) "d8")
+;->  ((0 4) "e8") ((0 5) "f8") ((0 6) "g8") ((0 7) "h8")
+;->  ((1 0) "a7") ((1 1) "b7") ((1 2) "c7") ((1 3) "d7")
 ;->  ((1 4) "e7") ((1 5) "f7") ((1 6) "g7") ((1 7) "h7")
 ;->  ((2 0) "a6") ((2 1) "b6") ((2 2) "c6") ((2 3) "d6")
 ;->  ((2 4) "e6") ((2 5) "f6") ((2 6) "g6") ((2 7) "h6")
@@ -4117,9 +4117,9 @@ Creiamo le liste di associazione che collegano gli indici della matrice con le c
 ;->  ((7 4) "e1") ((7 5) "f1") ((7 6) "g1") ((7 7) "h1"))
 
 (setq indexes-algebric
-     '(((0 0) "a8") ((0 1) "b8") ((0 2) "c8") ((0 3) "d8") 
-       ((0 4) "e8") ((0 5) "f8") ((0 6) "g8") ((0 7) "h8") 
-       ((1 0) "a7") ((1 1) "b7") ((1 2) "c7") ((1 3) "d7") 
+     '(((0 0) "a8") ((0 1) "b8") ((0 2) "c8") ((0 3) "d8")
+       ((0 4) "e8") ((0 5) "f8") ((0 6) "g8") ((0 7) "h8")
+       ((1 0) "a7") ((1 1) "b7") ((1 2) "c7") ((1 3) "d7")
        ((1 4) "e7") ((1 5) "f7") ((1 6) "g7") ((1 7) "h7")
        ((2 0) "a6") ((2 1) "b6") ((2 2) "c6") ((2 3) "d6")
        ((2 4) "e6") ((2 5) "f6") ((2 6) "g6") ((2 7) "h6")
@@ -4148,7 +4148,7 @@ Funzione che converte da indici della matrice notazione algebrica:
 
 ; (setq algebric-indexes (map (fn(x) (list (x 1) (x 0))) indexes-algebric))
 (setq algebric-indexes
-   '(("a8" (0 0)) ("b8" (0 1)) ("c8" (0 2)) ("d8" (0 3)) 
+   '(("a8" (0 0)) ("b8" (0 1)) ("c8" (0 2)) ("d8" (0 3))
      ("e8" (0 4)) ("f8" (0 5)) ("g8" (0 6)) ("h8" (0 7))
      ("a7" (1 0)) ("b7" (1 1)) ("c7" (1 2)) ("d7" (1 3))
      ("e7" (1 4)) ("f7" (1 5)) ("g7" (1 6)) ("h7" (1 7))
@@ -4219,7 +4219,7 @@ Facciamo alcune prove:
 ;->  . . . p Q . . n
 ;->  p K . . . . . .
 ;->  . . . . . . B .
-;-> (("Ba8" "Pb7" "Ng7" "Ph6" "Pd5" "Rd4" "Pg4" "Rh4" "Qe3" "Kb2" "Bg1") 
+;-> (("Ba8" "Pb7" "Ng7" "Ph6" "Pd5" "Rd4" "Pg4" "Rh4" "Qe3" "Kb2" "Bg1")
 ;->  ("rh8" "nd7" "pa6" "kg6" "pb5" "ph5" "bb4" "pc4" "pd3" "nh3" "pa2"))
 
 (matrice-algebrica (random-chess true))
@@ -4231,7 +4231,7 @@ Facciamo alcune prove:
 ;->  . k . . P P . .
 ;->  . . . . . . . .
 ;->  . . . . . . . .
-;-> (("Kf8" "Bg8" "Nd6" "Ph5" "Pe3" "Pf3") 
+;-> (("Kf8" "Bg8" "Nd6" "Ph5" "Pe3" "Pf3")
 ;->  ("ba7" "pc7" "pg6" "ra5" "pe5" "kb3"))
 
 (matrice-algebrica (random-chess))
@@ -4297,7 +4297,7 @@ Differenza simmetrica negli insiemi (set)
 -----------------------------------------
 
 Dati due insiemi A e B, calcolare la differenza simmetrica, cioè (A \ B) ∪ (B \ A).
-Cioè, enumerare gli elementi che si trovano in A o B, ma non in entrambi. 
+Cioè, enumerare gli elementi che si trovano in A o B, ma non in entrambi.
 Questo insieme è chiamato differenza simmetrica di A e B.
 
 Nota:
@@ -4345,17 +4345,17 @@ Che stati sono questi?
 
 (setq states
       '("Alabama" "Alaska" "Arizona" "Arkansas"
-        "California" "Colorado" "Connecticut" "Delaware" 
-        "Florida" "Georgia" "Hawaii" "Idaho" 
-        "Illinois" "Indiana" "Iowa" "Kansas" 
-        "Kentucky" "Louisiana" "Maine" "Maryland" 
-        "Massachusetts" "Michigan" "Minnesota" "Mississippi" 
-        "Missouri" "Montana" "Nebraska" "Nevada" 
-        "New Hampshire" "New Jersey" "New Mexico" "New York" 
-        "North Carolina" "North Dakota" "Ohio" "Oklahoma" 
-        "Oregon" "Pennsylvania" "Rhode Island" "South Carolina" 
-        "South Dakota" "Tennessee" "Texas" "Utah" 
-        "Vermont" "Virginia" "Washington" "West Virginia" 
+        "California" "Colorado" "Connecticut" "Delaware"
+        "Florida" "Georgia" "Hawaii" "Idaho"
+        "Illinois" "Indiana" "Iowa" "Kansas"
+        "Kentucky" "Louisiana" "Maine" "Maryland"
+        "Massachusetts" "Michigan" "Minnesota" "Mississippi"
+        "Missouri" "Montana" "Nebraska" "Nevada"
+        "New Hampshire" "New Jersey" "New Mexico" "New York"
+        "North Carolina" "North Dakota" "Ohio" "Oklahoma"
+        "Oregon" "Pennsylvania" "Rhode Island" "South Carolina"
+        "South Dakota" "Tennessee" "Texas" "Utah"
+        "Vermont" "Virginia" "Washington" "West Virginia"
         "Wisconsin" "Wyoming"))
 
 (length states)
@@ -4389,7 +4389,7 @@ Funzione che trova i quattro stati (se esitono):
   ; Adesso quando nella lista s troviamo 4 stringhe uguali (consecutive),
   ; allora abbiamo trovato una soluzione.
   (for (i 0 (- (length s) 4))
-    (if (= (first (s i)) (first (s (+ i 1))) 
+    (if (= (first (s i)) (first (s (+ i 1)))
            (first (s (+ i 2))) (first (s (+ i 3))))
       (begin
         (println (s i))
@@ -4481,7 +4481,7 @@ Funzione che verifica se un numero è di Smarandache:
 ;-> true
 
 (filter smarandache? (sequence 1 5000))
-;-> (2 3 5 7 23 37 53 73 223 227 233 257 277 337 353 373 523 557 577 
+;-> (2 3 5 7 23 37 53 73 223 227 233 257 277 337 353 373 523 557 577
 ;->  727 733 757 773 2237 2273 2333 2357 2377 2557 2753 2777 3253 3257
 ;->  3323 3373 3527 3533 3557 3727 3733)
 
@@ -4610,8 +4610,8 @@ Pierpont secondo tipo
 ---------------------
 
 Sequenza OEIS: A005105
-  2, 3, 5, 7, 11, 17, 23, 31, 47, 53, 71, 107, 127, 191, 383, 431, 
-  647, 863, 971, 1151, 2591, 4373, 6143, 6911, 8191, 8747, 13121, 
+  2, 3, 5, 7, 11, 17, 23, 31, 47, 53, 71, 107, 127, 191, 383, 431,
+  647, 863, 971, 1151, 2591, 4373, 6143, 6911, 8191, 8747, 13121,
   15551, 23327, 27647, 62207, 73727, 131071, 139967, 165887, 294911,
   314927, 442367, 472391, 497663, 524287, 786431, 995327, ...
 
@@ -4632,7 +4632,7 @@ Sequenza OEIS: A005105
 
 (pierpont2 1e6)
 ;-> (2 3 5 7 11 17 23 31 47 53 71 107 127 191 383 431 647 863 971
-;->  1151 2591 4373 6143 6911 8191 8747 13121 15551 23327 27647 
+;->  1151 2591 4373 6143 6911 8191 8747 13121 15551 23327 27647
 ;->  62207 73727 131071 139967 165887 294911 314927 442367 472391
 ;->  497663 524287 786431 995327)
 
@@ -4718,7 +4718,7 @@ Usando C: (l'ultimo è apparso sei passi indietro)
 0 0 1 0 2 0 2 2 1 6
 
 Sequenza OEIS: A181391
-  0, 0, 1, 0, 2, 0, 2, 2, 1, 6, 0, 5, 0, 2, 6, 5, 4, 0, 5, 3, 0, 3, 2, 
+  0, 0, 1, 0, 2, 0, 2, 2, 1, 6, 0, 5, 0, 2, 6, 5, 4, 0, 5, 3, 0, 3, 2,
   9, 0, 4, 9, 3, 6, 14, 0, 6, 3, 5, 15, 0, 5, 3, 5, 2, 17, 0, 6, 11, 0,
   3, 8, 0, 3, 3, 1, 42, 0, 5, 15, 20, 0, 4, 32, 0, 3, 11, 18, 0, 4, 7,
   0, 3, 7, 3, 2, 31, 0, 6, 31, 3, 6, 3, 2, 8, 33, 0, 9, 56, 0, 3, 8, 7,
@@ -4729,13 +4729,13 @@ Sequenza OEIS: A181391
 (defun VanEck (x) (reverse (VanEckh x 0 0 '(0))))
 
 (defun VanEckh (final index curr lst)
-  (if (eq index final) 
+  (if (eq index final)
     lst
     (VanEckh final (+ index 1) (howfar curr lst) (cons curr lst))))
 
 (defun howfar (x lst) (howfarh x lst 0))
 
-(defun howfarh (x lst runningtotal) 
+(defun howfarh (x lst runningtotal)
   (cond
     ((null lst) 0)
     ((eq x (car lst)) (+ runningtotal 1))
@@ -4779,9 +4779,9 @@ Ma newLISP non ha (per default) uno stack sufficiente:
 Vediamo allora di utilizzare un algoritmo iterativo:
 
 Van Eck's sequence:
-For n >= 1, 
-if there exists an m < n such that a(m) = a(n), 
-   then take the largest such m and set a(n+1) = n-m, 
+For n >= 1,
+if there exists an m < n such that a(m) = a(n),
+   then take the largest such m and set a(n+1) = n-m,
    otherwise a(n+1) = 0. Start with a(1)=0.
 
 (define (vaneck limit)
@@ -4827,9 +4827,9 @@ Addizione tra numeri interi (stringhe)
 Funzione che somma due numeri interi passati come stringhe:
 
 (define (add+ str1 str2)
-  (local (n1 n2 str sum carry z)
+  (local (n1 n2 str val carry z)
     (setq z (char "0"))
-    ; str2 deve essere più lunga
+    ; str2 deve essere la più lunga
     (if (> (length str1) (length str2)) (swap str1 str2))
     (setq str "")
     (setq n1 (length str1))
@@ -4838,20 +4838,24 @@ Funzione che somma due numeri interi passati come stringhe:
     (reverse str1)
     (reverse str2)
     (setq carry 0)
+    ; Ciclo per tutta la stringa più corta
+    ; sottrae le cifre di str2 a str1
     (for (i 0 (- n1 1))
-      (setq sum (+ (- (char (str1 i)) z)
+      ; calcolo della somma delle cifre correnti e
+      ; del riporto (carry)
+      (setq val (+ (- (char (str1 i)) z)
                    (- (char (str2 i)) z)
                   carry))
-      (extend str (char (+ (% sum 10) z)))
-      (setq carry (int (div sum 10)))
+      (extend str (char (+ (% val 10) z)))
+      (setq carry (int (div val 10)))
     )
     (if (!= n1 n2) (begin
-      ; aggiunge la stringa rimanente di str2
-      (for (i n1 (- n2 1))
-        (setq sum (+ (- (char (str2 i)) z) carry))
-        (extend str (char (+ (% sum 10) z)))
-        (setq carry (int (div sum 10)))
-      ))
+        ; aggiunge le cifre rimanenti di str2
+        (for (i n1 (- n2 1))
+          (setq val (+ (- (char (str2 i)) z) carry))
+          (extend str (char (+ (% val 10) z)))
+          (setq carry (int (div val 10)))
+        ))
     )
     ; se esiste, aggiunge il riporto (carry)
     (if (> carry 0) (extend str (char (+ carry z))))
@@ -4895,6 +4899,158 @@ Scriviamo una funzione per fare un determinato numero di test casuali:
 ;-> 11124.437
 
 Nessun errore su 1e6 addizioni.
+
+
+----------------------------------------
+Sottrazione tra numeri interi (stringhe)
+----------------------------------------
+
+Funzione che restituisce true se str1 < str2:
+
+(define (smaller? str1 str2)
+  (local (n1 n2 out)
+    (setq n1 (length str1))
+    (setq n2 (length str2))
+    (cond ((> n1 n2) (setq out nil))
+          ((< n1 n2) (setq out true))
+          (true
+            (setq out nil)
+            (setq stop nil)
+            (for (i 0 (- n1 1) 1 stop)
+              (cond ((< (str1 i) (str2 i))
+                     (set 'out true 'stop true))
+                    ((> (str1 i) (str2 i))
+                     (set 'out nil 'stop true))
+              )
+            )
+          )
+    )
+    out))
+
+(smaller? "12" "122")
+;-> true
+(smaller? "345" "233")
+;-> nil
+(smaller? "233" "345")
+;-> true
+(smaller? "111" "111")
+;-> nil
+(smaller? "0" "1")
+;-> true
+
+Scriviamo una funzione per verificare la correttezza della funzione "smaller?":
+
+(define (test iter)
+  (local (a b as bs)
+    (for (i 1 iter)
+      (setq a (rand 1e12))
+      (setq b (rand 1e12))
+      (setq as (string a))
+      (setq bs (string b))
+      (if (and (> a b) (= (smaller? as bs) true))
+          (println a { } b { } as { } bs { } (+ a b) { } (smaller? as bs)))
+      (if (and (< a b) (= (smaller? as bs) nil))
+          (println a { } b { } as { } bs { } (+ a b) { } (smaller? as bs))))))
+
+(test 1e6)
+;-> nil
+
+Nessun errore di valutazione in un milione di prove.
+
+Funzione che sottrae due numeri interi passati come stringhe:
+
+(define (sub- str1 str2)
+  (local (n1 n2 str val carry z)
+    (setq z (char "0"))
+    ; str1 deve essere maggiore o uguale a str2
+    (if (smaller? str1 str2) (swap str1 str2))
+    (setq str "")
+    (setq n1 (length str1))
+    (setq n2 (length str2))
+    ; inversione delle stringhe
+    (reverse str1)
+    (reverse str2)
+    (setq carry 0)
+    ; Ciclo per tutta la stringa più corta
+    ; sottrae le cifre di str1 a str2
+    (for (i 0 (- n2 1))
+      (setq val (int (str1 i)))
+      (setq val (- (- (char (str1 i)) z)
+                   (- (char (str2 i)) z)
+                   carry))
+      ; Se la sottrazione è minore di zero
+      ; allora aggiungiamo 10 a val e
+      ; poniamo il riporto (carry) a 1
+      (if (< val 0)
+          (set 'val (+ val 10) 'carry 1)
+          ; else
+          (set 'carry 0)
+      )
+      (extend str (char (+ val z)))
+    )
+    ; sottrae le cifre rimanenti del numero maggiore
+    (if (!= n1 n2) (begin
+        ; sottrae le cifre che rimangono di str1
+        (for (i n2 (- n1 1))
+          (setq val (- (- (char (str1 i)) z) carry))
+          ; se il valore val è negativo, allora lo rende positivo
+          (if (< val 0)
+            (set 'val (+ val 10) 'carry 1)
+            ;else
+            (set 'carry 0)
+          )
+          (extend str (char (+ val z)))
+        ))
+    )
+    (reverse str)
+    ; toglie gli (eventuali) zeri iniziali
+    (while (= (str 0) "0") (pop str))
+    (if (= str "") (setq str "0"))
+    str))
+
+(sub- "978" "977")
+;-> "1"
+
+(sub- "977" "978")
+;-> "1"
+
+(sub- "801" "102")
+;-> "699"
+(- 801 102)
+;-> 699
+
+(sub- "8102" "103")
+;-> "7999"
+(- 8102 103)
+;-> 7999
+
+(sub- "978" "12977")
+;-> "11999"
+(- 12977 978)
+;-> 11999
+
+(sub- "99999" "99998")
+;-> "1"
+
+(sub- "999" "999")
+;-> "0"
+
+Scriviamo una funzione per fare un determinato numero di test casuali:
+
+(define (test iter)
+  (local (a b as bs)
+    (for (i 1 iter)
+      (setq a (rand 1e12))
+      (setq b (rand 1e12))
+      (setq as (string a))
+      (setq bs (string b))
+      (if (!= (string (abs (- a b))) (sub- as bs))
+          (println a { } b { } as { } bs { } (+ a b) { } (sub- as bs))))))
+
+(time (test 1e6))
+;-> 13714.882
+
+Nessun errore su 1e6 sottrazioni.
 
 =============================================================================
 
