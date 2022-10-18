@@ -1420,7 +1420,9 @@ NOTE LIBERE 11
   Sequenza di Van Eck
   Addizione tra numeri interi (stringhe)
   Sottrazione tra numeri interi (stringhe)
-  
+  Numeri primi additivi
+  Numeri primi-primi
+  Distanza di un punto da un segmento
 
 APPENDICI
 =========

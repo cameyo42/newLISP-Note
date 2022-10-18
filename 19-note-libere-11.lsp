@@ -5052,5 +5052,235 @@ Scriviamo una funzione per fare un determinato numero di test casuali:
 
 Nessun errore su 1e6 sottrazioni.
 
+
+---------------------
+Numeri primi additivi
+---------------------
+
+I numeri primi additivi sono numeri primi per i quali anche la somma delle cifre decimali è primo.
+
+Sequenza OEIS: A046704
+  2, 3, 5, 7, 11, 23, 29, 41, 43, 47, 61, 67, 83, 89, 101, 113, 131,
+  137, 139, 151, 157, 173, 179, 191, 193, 197, 199, 223, 227, 229, 241, 
+  263, 269, 281, 283, 311, 313, 317, 331, 337, 353, 359, 373, 379, 397, 
+  401, 409, 421, 443, 449, 461, 463, 467, 487, 557, 571, 577, 593, ...
+
+(define (prime? num)
+"Check if a number is prime"
+   (if (< num 2) nil
+       (= 1 (length (factor num)))))
+
+(define (digit-sum num)
+"Calculates the sum of the digits of an integer"
+  (let (out 0)
+    (while (!= num 0)
+      (setq out (+ out (% num 10)))
+      (setq num (/ num 10))
+    )
+    out))
+
+(define (additive? num)
+  (and (prime? num) (prime? (digit-sum num))))
+
+(filter additive? (sequence 1 500))
+;-> (2 3 5 7 11 23 29 41 43 47 61 67 83 89 101 113 131 137 139 151 157 173
+;->  179 191 193 197 199 223 227 229 241 263 269 281 283 311 313 317 331 337
+;->  353 359 373 379 397 401 409 421 443 449 461 463 467 487)
+
+
+------------------
+Numeri primi-primi
+------------------
+
+I numeri primi-primi sono numeri primi per i quali ogni cifra è primo e anche la somma delle cifre è primo.
+
+Sequenza OEIS: A062088
+  2, 3, 5, 7, 23, 223, 227, 337, 353, 373, 557, 577, 733, 757, 773,
+  2333, 2357, 2377, 2557, 2753, 2777, 3253, 3257, 3323, 3527, 3727,
+  5233, 5237, 5273, 5323, 5527, 7237, 7253, 7523, 7723, 7727, 22573,
+  23327, 25237, 25253, 25523, 27253, 27527, 32233, 32237, 32257, ...
+
+(define (prime? num)
+"Check if a number is prime"
+   (if (< num 2) nil
+       (= 1 (length (factor num)))))
+
+(define (digit-sum num)
+"Calculates the sum of the digits of an integer"
+  (let (out 0)
+    (while (!= num 0)
+      (setq out (+ out (% num 10)))
+      (setq num (/ num 10))
+    )
+    out))
+
+(define (digit-prime? num)
+  (local (lst stop)
+    (setq lst (int-list num))
+    (setq stop nil)
+    (dolist (d lst stop)
+      (if (or (= d 0) (= d 1) (= d 4) (= d 6) (= d 8) (= d 9))
+          (setq stop true)
+      )
+    )
+    (not stop)))
+
+Funzione che verifica se un numero è primo-primo:
+
+(define (primi-primi num)
+  (and (prime? num) (digit-prime? num) (prime? (digit-sum num))))
+
+(filter primi-primi (sequence 1 1000))
+;-> (2 3 5 7 23 223 227 337 353 373 557 577 733 757 773)
+
+Vediamo la velocità di esecuzione modificando l'ordine delle clausole nell'espressione "and":
+
+(time (filter primi-primi (sequence 1 1e6)))
+;-> 1021.831
+(time (filter primi-primi (sequence 1 1e7)))
+;-> 19123.615
+
+(define (primi-primi1 num)
+  (and (digit-prime? num) (prime? num) (prime? (digit-sum num))))
+
+(time (filter primi-primi1 (sequence 1 1e6)))
+;-> 1560.831
+(time (filter primi-primi1 (sequence 1 1e7)))
+;-> 16863.613
+
+(define (primi-primi2 num)
+  (and (prime? (digit-sum num)) (digit-prime? num) (prime? num)))
+
+(time (filter primi-primi2 (sequence 1 1e6)))
+;-> 1597.485
+(time (filter primi-primi2 (sequence 1 1e7)))
+;-> 17514.915
+
+(define (primi-primi3 num)
+  (and (prime? (digit-sum num)) (prime? num) (digit-prime? num)))
+
+(time (filter primi-primi3 (sequence 1 1e6)))
+;-> 1501.376
+(time (filter primi-primi3 (sequence 1 1e7)))
+;-> 18769.388
+
+(define (primi-primi4 num)
+  (and (prime? num) (prime? (digit-sum num)) (digit-prime? num)))
+
+(time (filter primi-primi4 (sequence 1 1e6)))
+;-> 1040.193
+(time (filter primi-primi4 (sequence 1 1e7)))
+;-> 19257.749
+
+(define (primi-primi5 num)
+  (and (digit-prime? num) (prime? (digit-sum num)) (prime? num)))
+
+(time (filter primi-primi5 (sequence 1 1e6)))
+;-> 1565.135
+(time (filter primi-primi5 (sequence 1 1e7)))
+;-> 16855.33
+
+
+-----------------------------------
+Distanza di un punto da un segmento
+-----------------------------------
+
+Determinare la distanza tra un punto P(x,y) e un segmento S((x1,y1) (x2,y2)).
+Possono verificarsi tre casi:
+
+ Caso 1         | Caso 2         | Caso 3
+---------------------------------|----------------
+                |         p0     |
+                |          *     |
+    p1    p0    |     p1         |   p1
+     \     *    |       \        |     \    
+   p3 *         |        \       |      \
+       \        |         \      |       \
+        \       |          \     |        \
+         \      |           \    |         \
+         p2     |           p2   |         p2   p0
+                |                |               *
+
+Nel caso 1, il punto del segmento più vicino a p0 è p3 (proiezione).
+Nel caso 2, il punto del segmento più vicino a p0 è p1.
+Nel caso 3, il punto del segmento più vicino a p0 è p2.
+
+Chiamiamo il nostro punto p0 e i punti che definiscono la retta come p1 e p2. 
+Calcoliamo i vettori a = p0 - p1 e b = p2 - p1. 
+"param" è il valore scalare che moltiplicato per b dà il punto sulla linea più vicino a p0. 
+se "param" <= 0, il punto più vicino è p1. 
+se "param" >= 1, il punto più vicino è p2. 
+se "param" è compreso tra 0 e 1, il punto è compreso tra p1 e p2, quindi interpoliamo. 
+xx e yy è quindi il punto più vicino sul segmento di retta.
+dx/dy è il vettore da p0 a quel punto e infine restituiamo la lunghezza di quel vettore.
+
+Il prodotto scalare "dot" diviso per la lunghezza al quadrato "len-sq" fornisce la distanza di proiezione da (x1, y1). 
+Questa è la frazione della retta a cui il punto (x,y) è più vicino. 
+dx e dy è la proiezione del punto (x,y) sul segmento (x1,y1), (x2,y2).
+
+(define (dist-point-line p s)
+  (local (x y x1 y1 x2 y2 a b c d dot len-sq param xx yy dx dy)
+    (set 'x (p 0) 'y (p 1))
+    (set 'x1 (s 0 0) 'y1 (s 0 1) 'x2 (s 1 0) 'y2 (s 1 1))
+    (setq a (sub x x1))
+    (setq b (sub y y1))
+    (setq c (sub x2 x1))
+    (setq d (sub y2 y1))
+    (setq dot (add (mul a c) (mul b d)))
+    (setq len-sq (add (mul c c) (mul d d)))
+    (setq param -1)
+    (if (!= len-sq 0)
+        (setq param (div dot len-sq))
+    )
+    (cond ((< param 0) ;caso 2
+            (set 'xx x1 'yy y1))
+          ((> param 1) ;caso 3
+            (set 'xx x2 'yy y2))
+          (true        ;caso 1
+            (setq xx (add x1 (mul param c)))
+            (setq yy (add y1 (mul param d))))
+    )
+    (setq dx (sub x xx)) ; p3 = (dx, dy)
+    (setq dy (sub y yy)) ; p3 = (dx, dy)
+    (println xx { } yy)
+    (sqrt (add (mul dx dx) (mul dy dy)))))
+
+Facciamo alcune prove:
+
+p1=(1,4)
+p2=(4,1)
+p0=(3,4), p0=(2,6), p0=(5,-1)
+
+(dist-point-line '(3 4) '((1 4) (4 1)))
+;-> 2 3
+;-> 1.414213562373095
+
+(dist-point-line '(2 6) '((1 4) (4 1)))
+;-> 1 4
+;-> 2.23606797749979
+
+(dist-point-line '(5 -1) '((1 4) (4 1)))
+;-> 4 1
+;-> 2.23606797749979
+
+Verifichiamo i risultati:
+
+(define (dist2d x1 y1 x2 y2)
+"Calculates 2D Cartesian distance of two points P1 = (x1 y1) and P2 = (x2 y2)"
+  (sqrt (add (mul (sub x1 x2) (sub x1 x2))
+             (mul (sub y1 y2) (sub y1 y2)))))
+
+Distanza p0=(3 4), p3:
+(dist2d 3 4 2 3)
+;-> 1.414213562373095
+
+Distanza p0=(2 6), p1:
+(dist2d 2 6 1 4)
+;-> 2.23606797749979
+
+Distanza p0=(5 -1), p2:
+(dist2d 5 -1 4 1)
+;-> 2.23606797749979
+
 =============================================================================
 
