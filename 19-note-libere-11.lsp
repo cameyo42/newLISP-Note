@@ -5282,5 +5282,90 @@ Distanza p0=(5 -1), p2:
 (dist2d 5 -1 4 1)
 ;-> 2.23606797749979
 
+
+-------------------------------------------
+Sostituire globalmente il testo in più file
+-------------------------------------------
+
+Funzione che modifica "str-old" in "str-new" in un file:
+
+(define (replace-in-file filename str-old str-new)
+   (setq data (read-file filename))
+   (when (string? data)
+     (replace str-old data str-new)
+     (write-file filename data)
+   )
+)
+
+Per ottenere la lista dei file di una cartella possiamo scrivere:
+
+(clean directory? (directory (real-path)))
+
+Oppure possiamo elencare i file in una lista:
+
+(setq files '("a.txt" "b.txt" "c.txt" "d.txt"))
+
+I file "a.txt", "b.txt" e "c.txt" si trovano nella cartella "data".
+
+Adesso modifichiamo tutti file della lista:
+
+(dolist (fname files)
+   (replace-in-file fname "programming language" "linguaggio di programmazione")
+   ;(replace-in-file fname "linguaggio di programmazione" "programming language")
+)
+;-> nil
+
+Nota: il file "d.txt" non esiste, ma non genera un errore (data = nil).
+
+
+-----------------------------
+Copiare da "stdin" a "stdout"
+-----------------------------
+
+Creare una funzione che copia da "stdin" a "stdout".
+
+Handle di default dei file
+--------------------------
+- standard input:  stdin = 0 
+- standard output: stdout = 1
+- standard error:  stderr = 2
+
+EOF
+---
+Per Windows, il carattere di EOF è Ctrl-Z.
+Per Linux e OS X, il carattere di EOF è Ctrl-D.
+
+Poiché l'input della console è spesso orientato alla riga, il sistema potrebbe anche non riconoscere il carattere EOF finché non viene seguito da un "Enter".
+Inoltre è possibile che, se un carattere viene riconosciuto come EOF, allora il programma potrebbe non vedere il carattere effettivo.
+Invece, un programma C si ottiene -1 da getchar().
+
+#include <stdio.h>
+int main(){
+  char c;
+  while ( (c=getchar()) != EOF ){
+    putchar(c);
+  }
+  return 0;
+}
+
+In newLISP possiamo scrivere una funzione simile:
+
+; premere CTRL-Z e poi Enter per terminare il programma
+(define (read-string)
+  (while (!= (setq c (read-char)) EOF)
+    (write-char 1 c)))
+
+(read-string)
+;-> asdfsdaf
+;-> asdfsdaf
+;-> adsfsdfasdf
+;-> adsfsdfasdf
+;-> fggghhhdddds
+;-> fggghhhdddds
+;-> ^Z
+;-> 1
+
+Nota: Premendo CTRL-Z e poi Enter dal prompt di newLISP provoca la chiusura immediata della REPL.
+
 =============================================================================
 

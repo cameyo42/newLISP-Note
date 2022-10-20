@@ -4366,7 +4366,7 @@ La funzione per calcolare il prodotto cartesiano di due liste è la seguente:
 (define (cp lst1 lst2)
   (let (out '())
     (if (or (null? lst1) (null? lst2))
-        nil
+        '()
         (dolist (el1 lst1)
           (dolist (el2 lst2)
             (push (list el1 el2) out -1))))))
@@ -4378,10 +4378,10 @@ La funzione per calcolare il prodotto cartesiano di due liste è la seguente:
 ;-> ((3 1) (3 2) (4 1) (4 2))
 
 (cp '(1 2) '())
-;-> nil
+;-> '()
 
 (cp '() '(1 2))
-;-> nil
+;-> '()
 
 (cp '(1 2 3) '(4 5))
 ;-> ((1 4) (1 5) (2 4) (2 5) (3 4) (3 5))
@@ -4412,7 +4412,9 @@ Scriviamo la funzione che calcola il prodotto cartesiano di tutte le sotto-liste
 (define (prodotto-cartesiano lst-lst)
   (let (out '())
     (dolist (el (apply cp lst-lst 2))
-      (push (flat el) out -1))))
+      (push (flat el) out -1)
+    )
+    out))
 
 (prodotto-cartesiano '((1 2) (3 4) (5 6)))
 ;-> ((1 3 5) (1 3 6) (1 4 5) (1 4 6) (2 3 5) (2 3 6) (2 4 5) (2 4 6))

@@ -6012,6 +6012,16 @@ Numeri primi lunghi
 -------------------
 
 I numeri primi lunghi sono numeri primi i cui reciproci (in decimali) hanno una lunghezza del periodo inferiore di uno al numero primo.
+Altra definizione: 
+numeri primi p tali che l'espansione decimale di 1/p abbia periodo p-1 (che è il periodo più grande possibile per qualsiasi intero).
+
+I primi lunghi (long primes) sono anche conosciuti come:
+ - base ten cyclic numbers
+ - full reptend primes
+ - golden primes
+ - long period primes
+ - maximal period primes
+ - proper primes
 
 Esempio
 7 è il primo numero primo lungo, il reciproco di sette è 1/7, che è uguale alla frazione decimale ripetuta 0,142857(142857)...
@@ -6115,6 +6125,57 @@ Vediamo quanti primi lunghi ci sono fino a 1 milione:
 (time (println (long-primes-to-count 1000000)))
 ;-> 29500
 ;-> 5022833.606 ; quasi 84 minuti
+
+Vediamo un altro metodo:
+
+;; 10 deve essere una radice primitiva mod p affinché p sia un primo lungo.
+;; p deve essere primo e >= 7
+(define (ciclo-mod p)
+  (let ((n 10) (conta 1))
+    (while (!= n 1)
+      (++ conta)
+      (setq n (% (* n 10) p)
+    )
+    conta)))
+
+(ciclo-mod 7)
+;-> 6
+(div 1 7)
+;-> 0.1428571428571429
+Il ciclo vale 142857 ed è lungo 6.
+7 - 6 = 1  --> 7 è un numero primo lungo
+
+(ciclo-mod 11)
+;-> 2
+(div 1 11)
+Il ciclo vale 09 ed è lungo 2.
+11 - 2 = 9  --> 11 non è un numero primo lungo
+
+(define (prime? num)
+"Check if a number is prime"
+   (if (< num 2) nil
+       (= 1 (length (factor num)))))
+
+Funzione che verifica se un numero primo è lungo:
+
+(define (primo-lungo? p)
+  (and (prime? p) (= (- p (ciclo-mod p)) 1)))
+
+Funzione che trova i numeri primi lunghi fino ad un determinato limite:
+
+(define (primi-lunghi limite)
+  (filter primo-lungo? (sequence 7 limite)))
+
+(primi-lunghi 500)
+;-> (7 17 19 23 29 47 59 61 97 109 113 131 149 167 179 181
+;->  193 223 229 233 257 263 269 313 337 367 379 383 389 419
+;->  433 461 487 491 499)
+
+(time (println (length (primi-lunghi 100000))))
+;-> 3617
+;-> 28295.371
+
+Questo metodo è il doppio più veloce (anche se non abbiamo precalcolato tutti i numeri primi).
 
 
 ----------

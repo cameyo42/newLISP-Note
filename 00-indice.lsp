@@ -1423,6 +1423,8 @@ NOTE LIBERE 11
   Numeri primi additivi
   Numeri primi-primi
   Distanza di un punto da un segmento
+  Sostituire globalmente il testo in più file
+  Copiare da "stdin" a "stdout"
 
 APPENDICI
 =========
@@ -1458,7 +1460,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (221 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (222 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================
