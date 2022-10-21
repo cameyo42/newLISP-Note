@@ -5061,8 +5061,8 @@ I numeri primi additivi sono numeri primi per i quali anche la somma delle cifre
 
 Sequenza OEIS: A046704
   2, 3, 5, 7, 11, 23, 29, 41, 43, 47, 61, 67, 83, 89, 101, 113, 131,
-  137, 139, 151, 157, 173, 179, 191, 193, 197, 199, 223, 227, 229, 241, 
-  263, 269, 281, 283, 311, 313, 317, 331, 337, 353, 359, 373, 379, 397, 
+  137, 139, 151, 157, 173, 179, 191, 193, 197, 199, 223, 227, 229, 241,
+  263, 269, 281, 283, 311, 313, 317, 331, 337, 353, 359, 373, 379, 397,
   401, 409, 421, 443, 449, 461, 463, 467, 487, 557, 571, 577, 593, ...
 
 (define (prime? num)
@@ -5193,7 +5193,7 @@ Possono verificarsi tre casi:
                 |         p0     |
                 |          *     |
     p1    p0    |     p1         |   p1
-     \     *    |       \        |     \    
+     \     *    |       \        |     \
    p3 *         |        \       |      \
        \        |         \      |       \
         \       |          \     |        \
@@ -5205,17 +5205,17 @@ Nel caso 1, il punto del segmento più vicino a p0 è p3 (proiezione).
 Nel caso 2, il punto del segmento più vicino a p0 è p1.
 Nel caso 3, il punto del segmento più vicino a p0 è p2.
 
-Chiamiamo il nostro punto p0 e i punti che definiscono la retta come p1 e p2. 
-Calcoliamo i vettori a = p0 - p1 e b = p2 - p1. 
-"param" è il valore scalare che moltiplicato per b dà il punto sulla linea più vicino a p0. 
-se "param" <= 0, il punto più vicino è p1. 
-se "param" >= 1, il punto più vicino è p2. 
-se "param" è compreso tra 0 e 1, il punto è compreso tra p1 e p2, quindi interpoliamo. 
+Chiamiamo il nostro punto p0 e i punti che definiscono la retta come p1 e p2.
+Calcoliamo i vettori a = p0 - p1 e b = p2 - p1.
+"param" è il valore scalare che moltiplicato per b dà il punto sulla linea più vicino a p0.
+se "param" <= 0, il punto più vicino è p1.
+se "param" >= 1, il punto più vicino è p2.
+se "param" è compreso tra 0 e 1, il punto è compreso tra p1 e p2, quindi interpoliamo.
 xx e yy è quindi il punto più vicino sul segmento di retta.
 dx/dy è il vettore da p0 a quel punto e infine restituiamo la lunghezza di quel vettore.
 
-Il prodotto scalare "dot" diviso per la lunghezza al quadrato "len-sq" fornisce la distanza di proiezione da (x1, y1). 
-Questa è la frazione della retta a cui il punto (x,y) è più vicino. 
+Il prodotto scalare "dot" diviso per la lunghezza al quadrato "len-sq" fornisce la distanza di proiezione da (x1, y1).
+Questa è la frazione della retta a cui il punto (x,y) è più vicino.
 dx e dy è la proiezione del punto (x,y) sul segmento (x1,y1), (x2,y2).
 
 (define (dist-point-line p s)
@@ -5326,7 +5326,7 @@ Creare una funzione che copia da "stdin" a "stdout".
 
 Handle di default dei file
 --------------------------
-- standard input:  stdin = 0 
+- standard input:  stdin = 0
 - standard output: stdout = 1
 - standard error:  stderr = 2
 
@@ -5366,6 +5366,371 @@ In newLISP possiamo scrivere una funzione simile:
 ;-> 1
 
 Nota: Premendo CTRL-Z e poi Enter dal prompt di newLISP provoca la chiusura immediata della REPL.
+
+
+------------------------------------------------------------
+Eliminare/cambiare caratteri di una stringa (trim e replace)
+------------------------------------------------------------
+
+Problema: eliminare caratteri all'inizio e/o alla fine di una stringa
+---------------------------------------------------------------------
+Per questo possiamo usare la funzione primitiva "trim".
+
+(setq str "   this is a string   ")
+
+;; trim leading blanks
+(trim str " " "")
+;-> "this is a string   "
+
+;; trim trailing blanks
+(trim str "" " ")
+;-> "   this is a string"
+
+;; trim both leading and trailing blanks
+(trim str)
+;-> "this is a string"
+
+Vediamo la definizione di "trim" dal manuale:
+
+*****************
+>>>funzione TRIM
+*****************
+sintassi: (trim str)
+sintassi: (trim str str-char)
+sintassi: (trim str str-left-char str-right-char)
+
+Usando la prima sintassi, tutti i caratteri spazio " " vengono tagliati da entrambi i lati di str.
+
+La seconda sintassi taglia la stringa str da entrambi i lati, eliminando i caratteri iniziali e finali contenuti in str-char.
+Se str-char non contiene alcun carattere, viene assunto il carattere spazio.
+trim restituisce la nuova stringa.
+
+La terza sintassi può tagliare caratteri diversi da entrambi i lati o tagliare solo un lato se viene specificata una stringa vuota per l'altro.
+
+(trim " hello \n ")
+;-> "hello"
+(trim " h e l l o ")
+;-> "h e l l o")
+(trim "----hello-----" "-")
+;-> "hello"
+(trim "00012340" "0" "")
+;-> "12340"
+(trim "1234000" "" "0")
+;-> "1234"
+(trim "----hello=====" "-" "=")
+;-> "hello"
+
+Per casi più complessi è possibile utilizzare la funzione "replace".
+Quando possibile, è preferibile usare "trim" che è molto più veloce.
+
+Problema: eliminare caratteri in tutta una stringa
+--------------------------------------------------
+Per questo possiamo usare la funzione primitiva "replace".
+
+(setq str "She was a soul stripper. She took my heart!")
+
+(replace "[aei]" str "" 0)
+;-> "Sh ws  soul strppr. Sh took my hrt!"
+
+Vediamo la definizione di "replace" dal manuale:
+
+*******************
+>>>funzione REPLACE
+*******************
+liste
+sintassi: (replace exp-key list exp-replacement [func-compare])
+sintassi: (replace exp-key list)
+
+stringhe
+sintassi: (replace str-key str-data exp-replacement)
+sintassi: (replace str-pattern str-data exp-replacement regex-option)
+
+Sostituzione nelle liste
+------------------------
+Se il secondo argomento è una lista, "replace" sostituisce tutti gli elementi nella lista list che sono uguali all'espressione in exp-key. L'elemento viene sostituito con exp-replacement. Se manca exp-replacement, tutte le istanze di exp-key verranno eliminate dalla lista.
+
+Si noti che "replace" è distruttiva. Cambia la lista passato ad esso e restituisce la lista modificata. Il numero di sostituzioni effettuate è contenuto nella variabile di sistema $count quando la funzione ritorna. Durante l'esecuzione delle sostituzioni delle espressioni, la variabile di sistema anaforica $it è impostata sull'espressione da sostituire.
+
+Facoltativamente, func-compare può specificare un operatore di confronto o una funzione definita dall'utente. Per impostazione predefinita, func-compare è il = (segno di uguale).
+
+;; list replacement
+
+(set 'aList '(a b c d e a b c d))
+
+(replace 'b aList 'B)
+;-> (a B c d e a B c d)
+aList
+;-> (a B c d e a B c d)
+$count
+;-> 2  ; number of replacements
+
+;; list replacement with special compare functor/function
+
+; replace all numbers where 10 < number
+(set 'L '(1 4 22 5 6 89 2 3 24))
+
+(replace 10 L 10 <)
+;-> (1 4 10 5 6 10 2 3 10)
+$count
+;-> 3
+
+; same as:
+
+(replace 10 L 10 (fn (x y) (< x y)))
+;-> (1 4 10 5 6 10 2 3 10)
+
+; change name-string to symbol, x is ignored as nil
+
+(set 'AL '((john 5 6 4) ("mary" 3 4 7) (bob 4 2 7 9) ("jane" 3)))
+
+(replace nil AL (cons (sym ($it 0)) (rest $it))
+                (fn (x y) (string? (y 0)))) ; parameter x = nil not used
+;-> ((john 5 6 4) (mary 3 4 7) (bob 4 2 7 9) (jane 3))
+
+; use $count in the replacement expression
+(replace 'a '(a b a b a b) (list $count $it) =)
+;-> ((1 a) b (2 a) b (3 a) b)
+
+Utilizzando le funzioni "match" e "unify" è possibile formulare ricerche sulla lista che sono potenti come le ricerche con le espressioni regolari sulle stringhe:
+
+; calculate the sum in all associations with 'mary
+
+(set 'AL '((john 5 6 4) (mary 3 4 7) (bob 4 2 7 9) (jane 3)))
+
+(replace '(mary *)  AL (list 'mary (apply + (rest $it))) match)
+;-> ((john 5 6 4) (mary 14) (bob 4 2 7 9) (jane 3))
+$count
+;-> 1
+
+; make sum in all expressions
+
+(set 'AL '((john 5 6 4) (mary 3 4 7) (bob 4 2 7 9) (jane 3)))
+
+(replace '(*) AL (list ($it 0) (apply + (rest $it))) match)
+;-> ((john 15) (mary 14) (bob 22) (jane 3))
+$count
+;-> 4
+
+; using unify, replace only if elements are equal
+(replace '(X X) '((3 10) (2 5) (4 4) (6 7) (8 8)) (list ($it 0) 'double ($it 1)) unify)
+;-> ((3 10) (2 5) (4 double 4) (6 7) (8 double 8))
+
+Eliminazione nelle liste
+------------------------
+L'ultima forma di "replace" per le liste ha solo due argomenti: l'espressione exp e la lista list. Questa forma rimuove tutte le espressioni exp trovate nella lista.
+
+;; removing elements from a list
+
+(set 'lst '(a b a a c d a f g))
+(replace 'a lst)
+;-> (b c d f g)
+lst
+;-> (b c d f g)
+
+$count
+;-> 4
+
+Sostituzione nelle stringhe senza espressioni regolari
+------------------------------------------------------
+Se tutti gli argomenti sono stringhe, "replace" sostituisce tutte le occorrenzw di str-key in str-data con l'espressione valutata exp-replacement e ritorna la stringa modificata. L'espressione in exp-replacement viene valutata per ogni sostituzione. Il numero di sostituzioni effettuate è contenuto nella variabile di sistema $count. Questa forma di "replace" può processare anche gli 0 (zero) binari.
+
+;; string replacement
+(set 'str "this isa sentence")
+(replace "isa" str "is a")
+;-> "this is a sentence"
+$count
+;-> 1
+
+Sostituzione con le espressioni regolari
+----------------------------------------
+La presenza di un quarto parametro indica che deve essere effettuata una ricerca con le espressioni regolari il cui modello/pattern viene specificato da str-pattern e da un numero, regex-option, che specifica l'opzione della regex (es. 1 (one) o "i" per ricerche case-insensitive o 0 (zero) per una ricerca standard PCRE (Perl Compatible Regular Expression) senza opzioni). Vedi anche "regex" per maggiori dettagli.
+
+Per default, "replace" sostituisce tutte le occorrenze nella stringa anche se viene inclusa la specifica di beginning-of-line nel modello/pattern di ricerca. Dopo ogni sostituzione, parte una nuova ricerca dalla nuova posizione in str-data. Impostare il bit di opzione a 0x8000 in regex-option costringe "replace" ad sostituire solo la prima occorrenza. La stringa modificata viene restituita.
+
+"replace" con le espressioni regolari imposta anche le variabili di sistema $0, $1 e $2 con il contenuto della espressione e delle sotto-espressioni trovate. La variabile anaforica di sistema $it ha lo stesso valore di $0. Queste variabili possono essere usate per sostituzioni che dipendono dal contenuto dell'espressione trovata durante la sostituzione. I simboli $0, $1, $2 e $it possono essere usati nelle espressioni come tutti gli altri simboli. L'espressione di sostituzione valuta su un valore diverso da una stringa, allora non viene effettuata alcuna sostituzione. In alternativa, si può accedere al contenuto di queste variabili utilizzando ($ 0), ($ 1), ($ 2), ecc. Questo metodo permette l'accesso indicizzato (es ($ i), dove i è un intero) .
+
+Dopo che sono state effettuate tutte le sostituzioni, il numero di sostituzioni è contenuto nella variabile di sistema $count.
+
+;; using the option parameter to employ regular expressions
+
+(set 'str "ZZZZZxZZZZyy")
+;-> "ZZZZZxZZZZyy"
+(replace "x|y" str "PP" 0)
+;-> "ZZZZZPPZZZZPPPP"
+str
+;-> "ZZZZZPPZZZZPPPP"
+
+;; using system variables for dynamic replacement
+
+(set 'str "---axb---ayb---")
+(replace "(a)(.)(b)" str (append $3 $2 $1) 0)
+;-> "---bxa---bya---"
+
+str
+;-> "---bxa---bya---"
+
+;; using the 'replace once' option bit 0x8000
+
+(replace "a" "aaa" "X" 0)
+;-> "XXX"
+
+(replace "a" "aaa" "X" 0x8000)
+;-> "Xaa"
+
+;; URL translation of hex codes with dynamic replacement
+
+(set 'str "xxx%41xxx%42")
+(replace "%([0-9A-F][0-9A-F])" str
+               (char (int (append "0x" $1))) 1)
+;-> xxxAxxxB
+str
+;-> "xxxAxxxB"
+
+$count
+;-> 2
+
+La funzione "setf" insieme a "nth", "first" o "last" possono anche essere usate per modificare gli elementi in una lista.
+
+Vedi anche "directory", "find", "find-all", "parse", "regex" e "search" per le altre funzioni che usano le espressioni regolari.
+
+Come abbiamo visto la funzione "replace" sostituisce gli elementi utilizzando una stringa di ricerca. Quando dobbiamo effettuare sostituzioni con diverse stringhe di ricerca occorre applicare la funzione "replace" per ognuna di queste stringhe. Per esempio:
+
+(setq text "albero mela cucina pesce")
+(replace "albero" text "pera" 0)
+;-> "pera mela cucina pesce"
+(replace "cucina" text "formaggio" 0)
+;-> "pera mela formaggio pesce"
+
+Possiamo accopiare e mettere tutte le stringhe di ricerca e modifica in una lista e poi utilizzare la seguente espressione:
+
+(setq text "albero mela cucina pesce")
+(setq repls '(("albero" "pera") ("cucina" "formaggio")))
+
+(dolist (r repls)
+    (replace (first r) text (last r)))
+;-> "pera mela formaggio pesce"
+
+Per utilizzare questo metodo, Lutz ha fornito la seguente macro:
+
+(define-macro (replace-all)
+    (dolist (r (eval (args 0)))
+        (replace (first r) (eval (args 1)) (last r))))
+
+(setq text "albero mela cucina pesce")
+;-> "albero mela cucina pesce"
+(replace-all repls text)
+;-> "pera mela formaggio pesce"
+text
+"pera mela formaggio pesce"
+
+Risulta comodo accoppiare le modifiche nel caso ci siano parecchie modifiche da effettuare.
+
+
+--------------------------------------------------
+Problema delle Somme quadrate (Square-Sum problem)
+--------------------------------------------------
+
+Ordinare i numeri da 1 a 15 in modo che la somma di due numeri consecutivi è sempre un quadrato.
+
+Algoritmo:
+Disegniamo un grafo con il nodo 1 al centro.
+Per ogni nodo, iteriamo sugli interi da 2 a 15, disegnando le connessioni e i nodi tra interi che si sommano in quadrati.
+Dopo aver costruito il grafo, dobbiamo trovare un percorso che visita ogni nodo esattamente una volta.
+Questo tipo di percorso è chiamato percorso hamiltoniano.
+Individuare questi percorsi in un grafo è un problema noto e richiede il test di tutti i percorsi possibili (NP-complete).
+Sebbene sia computazionalmente impegnativo, trovare un percorso hamiltoniano nel nostro grafo risolve esattamente il problema.
+
+La costruzione del grafo è la seguente:
+
+  +----+     +----+     +----+     +----+
+  | 13 |-----| 12 |-----|  4 |-----|  5 |
+  +----+     +----+     +----+     +----+
+     |                                |
+     |                                |
+  +----+     +----+     +----+     +----+
+  |  3 |-----|  6 |-----| 10 |     | 11 |
+  +----+     +----+     +----+     +----+
+     |                     |          |
+     |                     |          |
+  +----+                +----+     +----+
+  |  1 |----------------| 15 |     | 14 |
+  +----+                +----+     +----+
+     |                                |
+     |                                |
+  +----+     +----+     +----+     +----+
+  |  8 |     |  9 |-----|  7 |-----|  2 |
+  +----+     +----+     +----+     +----+     
+
+La soluzione (percorso che visita tutti i nodi una sola volta) è la seguente:
+
+(setq sol '(8 1 15 10 6 3 13 12 4 5 11 14 2 7 9))
+
+Per quali numeri (n) è possibile disporre i numeri da 1 a n in forma "square-sum"?
+
+La seguente tabella mostra che questi numeri sono 15, 16, 17, 23 e tutti i numeri dal 25 in poi.
+
+0: non è possibile
+1: è possibile
+
++---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+| 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 |
+| --|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10| 11| 12| 13| 14| 15|
++---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+
++---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+| 1 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 1 | 1 | 1 | 1 | 1 | 1 |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| 16| 17| 18| 19| 20| 21| 22| 23| 24| 25| 26| 27| 28| 29| 30|
++---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+
++---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+----+----+
+| 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 |  1 |  1 |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|----|----|
+| 31| 32| 33| 34| 35| 36| 37| 38| 39| 40| 41| 42| 43| 44| 45| ...| inf|
++---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+----+----+
+
+Dimostrazione di R. Gerbicz disponibile al seguente indirizzo:
+https://www.mersenneforum.org/showthread.php?t=22915
+in cui si trova anche un programma in C che genera le sequenze in forma "square-sum" fino a n < 2^63.
+
+Scriviamo una funzione per verificare se una lista di numeri è in forma "square-sum":
+
+Funzione che verifica se un numero è un quadrato:
+
+(define (square? n)
+  (let (v (+ (sqrt n 0.5)))
+    (= n (* v v))))
+
+Funzione che somma tutte le coppie consecutive di una lista di numeri:
+
+(define (pair-sums lst)
+  (map + (chop lst) (rest lst)))
+
+(setq a '(1 2 3 4 5 6 7 8 9 10 11 12 13 14 15))
+
+(pair-sums a)
+;-> (3 5 7 9 11 13 15 17 19 21 23 25 27 29)
+
+Funzione che verifica se una lista di numeri è in forma "square-sum":
+
+(map square? (pair-sums a))
+;-> (nil nil nil true nil nil nil nil nil nil nil true nil nil)
+(apply and (map square? (pair-sums a)))
+;-> nil
+
+(map square? '(4 9 16 81))
+;-> (true true true true)
+(apply and (map square? '(4 9 16 81)))
+;-> true
+
+(define (all-square? lst)
+  (apply and (map square? (pair-sums lst))))
+
+Verifichiamo la soluzione del problema:
+
+(all-square? sol)
+;-> true
 
 =============================================================================
 

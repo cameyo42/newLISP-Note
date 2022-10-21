@@ -1425,6 +1425,8 @@ NOTE LIBERE 11
   Distanza di un punto da un segmento
   Sostituire globalmente il testo in più file
   Copiare da "stdin" a "stdout"
+  Eliminare/cambiare caratteri di una stringa (trim e replace)
+  Problema delle Somme quadrate (Square-Sum problem)
 
 APPENDICI
 =========
