@@ -5732,5 +5732,368 @@ Verifichiamo la soluzione del problema:
 (all-square? sol)
 ;-> true
 
+
+---------
+Brainfuck
+---------
+
+Codice from Rosetta Code website:
+https://rosettacode.org/wiki/Execute_Brain****#NewLISP
+
+; This module translates a string containing a
+; Brainf*** program into a list of NewLISP expressions.
+; Attempts to optimize consecutive +, -, > and < operations
+; as well as bracket loops.
+
+; Create a namespace and put the following definitions in it
+
+(context 'BF)
+
+; If BF:quiet is true, BF:run will return the output of the
+; Brainf*** program
+
+(define quiet)
+
+; If BF:show-timing is true, the amount of milliseconds spent
+; in 'compiling' (actually translating) and running the
+; resulting program will be shown
+
+(define show-timing true)
+
+; The Brainf*** program as a string of characters
+
+(define src "")
+
+; Checks for correct pairs of brackets
+
+(define (well-formed?)
+  (let (p 0)
+    (dostring (i src (> 0 p))
+      (case i
+	("[" (++ p))
+	("]" (-- p))))
+    (zero? p)))
+
+; Translate the Brainf*** command into S-expressions
+
+(define (_compile)
+  (let ((prog '())
+	; Translate +
+	(incr '(++ (tape i) n))
+	; Translate -
+	(decr '(-- (tape i) n))
+	; Translate .
+        (emit (if quiet
+		'(push (char (tape i)) result -1)
+                '(print (char (tape i)))))
+	; Translate ,
+	(store '(setf (tape i) (read-key)))
+	; Check for loop condition
+	(over? '(zero? (tape i)))
+	; Current character of the program
+	(m)
+	; Find how many times the same character occurs
+	(rep (fn ((n 1))
+		 (while (= m (src 0))
+		 (++ n)
+		 (pop src))
+	     n)))
+    ; Traverse the program and translate recursively
+    (until (or (empty? src) (= "]" (setq m (pop src))))
+	   (case m
+	     (">" (push (list '++ 'i (rep)) prog -1))
+	     ("<" (push (list '-- 'i (rep)) prog -1))
+	     ("+" (push (expand incr '((n (rep))) true) prog -1))
+	     ("-" (push (expand decr '((n (rep))) true) prog -1))
+	     ("." (push emit prog -1))
+	     ("," (push store prog -1))
+	     ("[" (push (append (list 'until over?)
+				(_compile))
+			prog -1))))
+    prog))
+
+(define (compile str , tim code)
+  (setq src (join
+	(filter (fn (x)
+		    (member x '("<" ">" "-" "+"
+				"." "," {[} {]})))
+		(explode str))))
+  ; Throw an error if the program is ill-formed
+  (unless (well-formed?)
+    (throw-error "Unbalanced brackets in Brainf*** source string"))
+  (setq tim (time (setq code (cons 'begin (_compile)))))
+  (and show-timing (println "Compilation time: " tim))
+  code)
+
+; Translate and run
+; Tape size is optional and defaults to 30000 cells
+
+(define (run str (size 30000))
+  (let ((tape (array size '(0)))
+	 (i 0)
+	 (result '())
+	 (tim 0)
+	 (prog (compile str)))
+    (setq tim (time (eval prog)))
+    (and show-timing (println "Execution time: " tim))
+    (and quiet (join result))))
+
+; test - run it with (BF:test)
+
+(define (test)
+  (run "++++++++++[>+++++++>++++++++++>+++>+<<<<-]>++.>+.+++++++..+++.>++.<<+++++++++++++++.>.+++.------.--------.>+.>."))
+
+(BF:test)
+;-> Compilation time: 0
+;-> Hello World!
+;-> Execution time: 0.997
+;-> nil
+
+; to interpret a string of Brainf*** code, use (BF:run <string>)
+; to interpret a Brainf*** code file, use (BF:run (read-file <path-to-file>))
+
+
+----------------------------------------------------------
+Addizioni e sottrazioni esatte di numeri in virgola mobile
+----------------------------------------------------------
+
+Le rappresentazioni binarie in virgola mobile IEEE 754 di numeri come 2.86 e .0765 non sono esatte.
+Quindi le operazioni che applichiamo a questi numeri producono risultati non perfettamente esatti.
+L'errore che viene generato può propagarsi nelle successive operazioni fino a portare a risultati completamente errati.
+
+Per esempio la somma di 0.1 e 0.7 non produce il risultato esatto:
+(add 0.1 0.7)
+;-> 0.7999999999999999
+
+Addizione esatta
+----------------
+Scriviamo una funzione che somma esattamente due numeri in virgola mobile (in formato stringa) di (quasi) qualunque magnitudine.
+I numeri vengono memorizzati in vettori di cifre, quindi possiamo utilizzare numeri estremamente grandi e con molte cifre dopo la virgola.
+Esempio:
+  
+  stringa1 = "12345.009"
+  vettore1 = 0 2 3 4 5 . 0 0 9 0 0 0 0 0 0 0 0 0
+  
+  stringa2 = "6.038473666636"
+  vettore2 = 0 0 0 0 6 . 0 3 8 4 7 3 6 6 6 6 3 6
+
+(define (add-str str1 str2)
+  (local (sep p1 p2 len1 len2 dopo prima len ante post ar1 ar2 sum carry val)
+    (setq sep ".")
+    ; posizione del punto decimale numero 1
+    (setq p1 (find sep str1))
+    ; se è un numero intero...
+    (if (= p1 nil)
+      ; allora aggiungiamo ".0"
+      (begin
+        (extend str1 ".0")
+        (setq p1 (find sep str1))))
+    ; posizione del punto decimale numero 2
+    (setq p2 (find sep str2))
+    ; se è un numero intero...
+    (if (= p2 nil)
+      ; allora aggiungiamo ".0"
+      (begin
+        (extend str2 ".0")
+        (setq p2 (find sep str2))))
+    ; lunghezza dei numeri
+    (setq len1 (length str1))
+    (setq len2 (length str2))
+    ; max numero di cifre dopo la virgola
+    (setq dopo (max (- len1 p1 1) (- len2 p2 1)))
+    ; max numero di cifre prima della virgola
+    (setq prima (max p1 p2))
+    ; zeri da aggiungere posteriormente al numero
+    (setq post (dup "0" (- dopo (- len1 p1 1))))
+    ; zeri da aggiungere anteriormente al numero
+    (setq ante (dup "0" (+ (- prima p1) 1)))
+    (setq str1 (append ante str1 post))
+    ; zeri da aggiungere posteriormente al numero
+    (setq post (dup "0" (- dopo (- len2 p2 1))))
+    ; zeri da aggiungere anteriormente al numero
+    (setq ante (dup "0" (+ (- prima p2) 1)))
+    (setq str2 (append ante str2 post))
+    (setq len (length str1))
+    ;(setq len (length str2))
+    ; array di cifre dei due numeri
+    (setq ar1 (array len (explode str1)))
+    (setq ar2 (array len (explode str2)))
+    ; array di cifre della somma
+    (setq sum (array len '(0)))
+    ; addiziona gli array di cifre
+    (setq carry 0)
+    ; ciclo di addizione come a scuola...
+    (for (i (- len 1) 1 -1)
+      (cond ((= (ar1 i) sep)
+              (setf (sum i) sep))
+            (true
+              (setq val (+ (int (ar1 i)) (int (ar2 i)) carry))
+              (setf (sum i) (string (% val 10)))
+              (setq carry (/ val 10)))
+      )
+    )
+    ; imposta la prima cifra del risultato
+    (setf (sum 0) (string carry))
+    (setq sum (join (array-list sum)))
+    ; toglie gli (eventuali) zeri iniziali
+    (while (= (sum 0) "0") (pop sum))
+    (if (or (= sum "") (= sum ".0")) (setq sum "0.0"))
+    sum))
+
+Facciamo alcune prove:
+
+(setq s1 "12345.009")
+(setq s2 "6.038473666636")
+(add-str s1 s2)
+;-> "12351.047473666636"
+(add 12345.009 6.038473666636)
+;->  12351.04747366664
+
+(setq s1 "12345009")
+(setq s2 "6038473666636")
+(add-str s1 s2)
+;-> "6038486011645.0"
+(+ 12345009 6038473666636)
+;->  6038486011645
+
+(setq s1 "12345.009")
+(setq s2 "88763.9911")
+(add-str s1 s2)
+;-> "101109.0001"
+
+(setq s1 "99999999999999999999999999.99999999999999999999999999")
+(setq s2 "11111111111111111111111111.11111111111111111111111111")
+(add-str s1 s2)
+;-> "111111111111111111111111111.11111111111111111111111110"
+(setq s1 "9999999999999999999999999999999999999999999999999999")
+(setq s2 "1111111111111111111111111111111111111111111111111111")
+(add-str s1 s2)
+;-> "11111111111111111111111111111111111111111111111111110.0"
+(+ 9999999999999999999999999999999999999999999999999999
+   1111111111111111111111111111111111111111111111111111)
+;->  11111111111111111111111111111111111111111111111111110L
+
+(add-str "0.0" "0")
+;-> "0.0"
+
+Sommiamo 100 numeri casuali (da 0 a 1000) e vediamo la differenza tra il valore calcolato con "add-str" e il valore calcolato con la funzione "add" (che usa la rappresentazione IEEE 754):
+
+(setq nums (random 0 1000 100))
+(apply add nums)
+;->  48865.62700277716
+(apply add-str (map string nums) 2)
+;-> "48865.627002777184671"
+
+Scriviamo una macro per sommare più numeri (in formato stringa):
+
+(define-macro (add-str-num)
+  (apply add-str (args) 2))
+
+(add-str-num "111.1" "222.2" "333.3" "444.4")
+;-> "1111.0"
+
+(apply add-str '("111.1" "222.2" "333.3" "444.4") 2)
+;-> 1111.0
+
+Nota: la funzione "add-str" è estremamente lenta rispetto alla funzione "add".
+
+
+Sottrazione esatta
+------------------
+Scriviamo una funzione che sottrae esattamente due numeri in virgola mobile (in formato stringa) di (quasi) qualunque magnitudine.
+I numeri vengono memorizzati in vettori di cifre, quindi possiamo utilizzare numeri estremamente grandi e con molte cifre dopo la virgola.
+Il primo numero deve essere maggiore o uguale al secondo numero.
+
+(define (sub-str str1 str2)
+  ; condizione: str1 >= str2
+  (local (sep p1 p2 len1 len2 dopo prima len ante post ar1 ar2 sot carry val)
+    (setq sep ".")
+    ; posizione del punto decimale numero 1
+    (setq p1 (find sep str1))
+    ; se è un numero intero...
+    (if (= p1 nil)
+      ; allora aggiungiamo ".0"
+      (begin
+        (extend str1 ".0")
+        (setq p1 (find sep str1))))
+    ; posizione del punto decimale numero 2
+    (setq p2 (find sep str2))
+    ; se è un numero intero...
+    (if (= p2 nil)
+      ; allora aggiungiamo ".0"
+      (begin
+        (extend str2 ".0")
+        (setq p2 (find sep str2))))
+    ; lunghezza dei numeri
+    (setq len1 (length str1))
+    (setq len2 (length str2))
+    ; max numero di cifre dopo la virgola
+    (setq dopo (max (- len1 p1 1) (- len2 p2 1)))
+    ; max numero di cifre prima della virgola
+    (setq prima (max p1 p2))
+    ; zeri da aggiungere posteriormente al numero
+    (setq post (dup "0" (- dopo (- len1 p1 1))))
+    ; zeri da aggiungere anteriormente al numero
+    (setq ante (dup "0" (+ (- prima p1) 1)))
+    (setq str1 (append ante str1 post))
+    ; zeri da aggiungere posteriormente al numero
+    (setq post (dup "0" (- dopo (- len2 p2 1))))
+    ; zeri da aggiungere anteriormente al numero
+    (setq ante (dup "0" (+ (- prima p2) 1)))
+    (setq str2 (append ante str2 post))
+    (setq len (length str1))
+    ;(setq len (length str2))
+    ; array di cifre dei due numeri
+    (setq ar1 (array len (explode str1)))
+    (setq ar2 (array len (explode str2)))
+    ; array di cifre della differenza
+    (setq sot (array len '(0)))
+    ; sottraze gli array di cifre
+    (setq carry 0)
+    ; ciclo di sottrazione come a scuola...
+    (for (i (- len 1) 1 -1)
+      (cond ((= (ar1 i) sep)
+              (setf (sot i) sep))
+            (true
+              (setq val (- (int (str1 i)) (int (str2 i)) carry))
+              ; Se la sottrazione è minore di zero
+              ; allora aggiungiamo 10 a val e poniamo il riporto (carry) a 1
+              (if (< val 0)
+                  (set 'val (+ val 10) 'carry 1)
+                  ; else
+                  (set 'carry 0)
+              )
+              (setf (sot i) (string val)))
+       )
+    )
+    ; imposta la prima cifra del risultato
+    (setf (sot 0) (string carry))
+    (setq sot (join (array-list sot)))
+    ; toglie gli (eventuali) zeri iniziali
+    (while (= (sot 0) "0") (pop sot))
+    (if (or (= sot "") (= sot ".0")) (setq sot "0.0"))
+    sot))
+
+Facciamo alcune prove:
+
+(sub-str "111" "100")
+;-> "11.0"
+
+(sub-str "111.25" "99.77")
+;-> 11.48
+(sub 111.25 99.77)
+;-> 11.48
+
+(sub-str "0" "0")
+;-> "0.0"
+
+(sub-str "12" "12.0")
+;-> "0.0"
+
+(sub-str "173871523034953472" "57828987577128989")
+;-> "116042535457824483.0"
+(- 173871523034953472 57828987577128989)
+;->  116042535457824483
+
 =============================================================================
 

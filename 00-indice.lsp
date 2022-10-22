@@ -1427,6 +1427,8 @@ NOTE LIBERE 11
   Copiare da "stdin" a "stdout"
   Eliminare/cambiare caratteri di una stringa (trim e replace)
   Problema delle Somme quadrate (Square-Sum problem)
+  Brainfuck
+  Addizioni e sottrazioni esatte di numeri in virgola mobile
 
 APPENDICI
 =========
