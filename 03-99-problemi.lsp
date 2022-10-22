@@ -623,7 +623,7 @@ Implementiamo il metodo di compressione Run Length Encoding ad una lista. Gli el
 
 newLISP permette di utilizzare diversi stili di programmazione, infatti per questo problema scriveremo la funzione di rle encode sia in uno stile imperativo (iterativo), che in uno stile funzionale (ricorsivo).
 
-Cominciamo con la versione imperativa (iterativa).
+Vediamo la versione imperativa (iterativa).
 
 ; =====================================================
 ; (rle-encode lst)
@@ -1165,7 +1165,7 @@ Funzione newLISP predefinita: (pop lst [int-index-1 [int-index-2 ... ]])
 ;-> (b c d e)
 
 (wipe-k '(a b c d e) -2)
-;-> (a b c e) 
+;-> (a b c e)
 
 Il risultato è differente perchè quando l'indice k è negativo, "pop" considera -1 l'indice dell'ultimo elemento, mentre "elimina-a" considera 0 l'indice dell'ultimo elemento (-1 il penultimo e cosi via).
 
@@ -1275,8 +1275,8 @@ Un altro metodo per la stessa funzione (gestisce anche intervalli decrescenti):
 
 Funzione newLISP predefinita: (sequence num-start num-end [num-step])
 
-(define (sequenza start end step) 
-  (if step 
+(define (sequenza start end step)
+  (if step
       (sequence start end step)
       (sequence start end)))
 

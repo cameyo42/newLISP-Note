@@ -1188,7 +1188,7 @@ Possiamo scrivere la funzione:
 (time (e008) 500)
 ;-> 27315.46
 
-Possiamo scrivere la funzione utilizzando la tecnica "window sliding". La finestra di 13 caratteri simuove lungo la stringa il nuovo valore della moltiplicazione dei 13 caratteri è data dal valore precedente moltiplicato per l'ultimo carattere della nuova finestra e diviso per il primo carattere della finestra precedente. L'unico problema è quando tgroviamo il valore 0 come prima cifra della finestra precedente (non è possibile dividere per zero): questo caso deve essere trattato a parte.
+Possiamo scrivere la funzione utilizzando la tecnica "window sliding". La finestra di 13 caratteri simuove lungo la stringa il nuovo valore della moltiplicazione dei 13 caratteri è data dal valore precedente moltiplicato per l'ultimo carattere della nuova finestra e diviso per il primo carattere della finestra precedente. L'unico problema è quando troviamo il valore 0 come prima cifra della finestra precedente (non è possibile dividere per zero): questo caso deve essere trattato a parte.
 
 (define (e008-2 str n)
   (local (vet prod maxp pre cur)

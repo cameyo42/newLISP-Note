@@ -11,7 +11,7 @@ Il sito contiene moltissimi problemi risolti in più di 800 linguaggi (non tutti
 Di seguito vengono presentanti molti di questi problemi e la loro soluzione.
 Per avere una migliore comprensione si consiglia di provare a risolverli per conto proprio prima di leggere la soluzione.
 
-Nota: in questo capitolo vengono risolti circa 100 problemi presenti sul sito Rosetta Code (in ordine sparso). Molti altri problemi elencati nel sito e non qui presenti sono risolti in altri capitoli di questo documento.
+Nota: in questo capitolo vengono risolti circa 100 problemi presenti sul sito Rosetta Code (in ordine sparso). Molti altri problemi elencati nel sito, e non qui presenti, sono risolti in altri capitoli di questo documento.
 
 --------
 FIZZBUZZ

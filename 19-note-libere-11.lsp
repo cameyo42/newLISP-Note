@@ -6095,5 +6095,94 @@ Facciamo alcune prove:
 (- 173871523034953472 57828987577128989)
 ;->  116042535457824483
 
+
+----------------------
+Problema del serbatoio
+----------------------
+
+Abbiamo un serbatoio con capacità C litri riempito completamente in partenza.
+All'inizio di ogni giorno il serbatoio viene riempito con l litri d'acqua.
+Nel caso di superamento della capacità, l'acqua in eccesso viene dispersa.
+Ogni i-esimo giorno vengono prelevati i litri d'acqua.
+Quanti giorni occorrono per svuotare il serbatoio?
+
+(define (add-water litri)
+  (setq c (min (+ c litri) max-c)))
+
+(define (remove-water litri)
+  (setq c (- c litri)))
+
+(define (tank c l)
+  (local (max-c day)
+    ; capacità massima del serbatoio
+    (setq max-c c)
+    (setq day 0)
+    ; fino a che il berbatoio non è vuoto...
+    (while (> c 0)
+      (++ day 1)
+      ; inizio giornata
+      (add-water l)
+      ; fine giornata
+      (remove-water day)
+    )
+    day))
+
+Facciamo alcune prove:
+
+(tank 5 2)
+;-> 4
+
+(tank 1111 10)
+;-> 57
+
+Il problema può essere risolto matematicamente:
+Assumiamo C > L.
+Sia d la quantità di giorni dopo in cui il serbatoio si svuota.
+Durante questo periodo, ci saranno (d-1) ricariche e d prelievi.
+Quindi dobbiamo risolvere questa equazione:
+
+C + (d - 1)*L = Sum(i=1,d)[Ritiro(i)]
+
+La somma di tutti i prelievi è una progressione aritmetica, quindi:
+
+C + (d - 1)*L = 2*(L + 1 + L + d)/2
+
+2C + 2dL - 2L = 2dL + d + d^2
+
+d^2 + d - 2*(C - L) = 0
+
+Discriminante = 1 + 8*(C - L) > 0, perché C > L.
+
+Eliminando la radice negativa, otteniamo la seguente formula:
+
+           sqrt(1 + 8*(C - L))
+d = -1 + ---------------------
+                   2
+
+Pertanto, la risposta finale è:
+
+                       sqrt(1 + 8*(C - L)) - 1
+min-giorni = L + ceil(-------------------------)
+                                  2
+
+(define (tank-fn c l)
+  (add l (ceil (div (sub (sqrt(add 1 (mul 8 (sub c l)))) 1) 2))))
+
+Facciamo alcune prove:
+
+(tank-fn 5 2)
+;-> 4
+(tank-fn 1111 10)
+;-> 57
+
+(tank 100 5)
+;-> 19
+(tank-fn 100 5)
+;-> 19
+(tank 6514683 4965)
+;-> 8573
+(tank-fn 6514683 4965)
+;-> 8573
+
 =============================================================================
 

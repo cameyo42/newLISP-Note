@@ -216,11 +216,10 @@ Implementare una pila (stack) con un vettore
 La pila (Stack) è una struttura dati lineare che segue un ordine particolare in cui vengono eseguite le operazioni. L'ordine può essere LIFO (Last In First Out) o FILO (First In Last Out).
 Principalmente le seguenti quattro operazioni di base sono eseguite nello stack:
 
-Push: aggiunge un elemento nello stack. Se lo stack è pieno, si dice che sia una condizione di Overflow.
-Pop: rimuove un oggetto dalla pila. Gli articoli vengono visualizzati nell'ordine invertito in cui vengono inseriti. Se lo stack è vuoto, si dice che sia una condizione di Underflow.
+Push: aggiunge un elemento nello stack. Se lo stack è pieno, abbiamo la condizione di Overflow.
+Pop: rimuove un oggetto dalla pila. Gli elementi vengono visualizzati nell'ordine invertito in cui vengono inseriti. Se lo stack è vuoto, abbiamo la una condizione di Underflow.
 Look o Peek o Top: restituisce l'elemento superiore dello stack.
 isEmpty: restituisce true se lo stack è vuoto, altrimenti false.
-pila
 
 Come immaginare praticamente una pila?
 Ci sono molti esempi di vita reale di una pila. Considera il semplice esempio di piatti impilati uno sull'altro in una mensa. Il piatto che è nella parte superiore è il primo ad essere rimosso, in altre parole il piatto che è stato posto nella posizione più bassa rimane nella pila per il periodo di tempo più lungo. Quindi, può essere semplicemente visto seguire l'ordine LIFO / FILO.

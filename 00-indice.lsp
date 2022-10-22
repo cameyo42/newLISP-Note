@@ -1429,6 +1429,7 @@ NOTE LIBERE 11
   Problema delle Somme quadrate (Square-Sum problem)
   Brainfuck
   Addizioni e sottrazioni esatte di numeri in virgola mobile
+  Problema del serbatoio
 
 APPENDICI
 =========

@@ -1357,6 +1357,35 @@ Un altro modo per dereferenziare (se vogliamo farlo una volta sola per strutture
               (setf (lst 3 0 0) 1)
               (setf (lst 3 0 1) 2)))
 
+Uso di una macro
+----------------
+Possiamo usare una macro per ottenere il comportamento del passaggio per riferimento.
+
+Con una funzione:
+
+(define (strip str)
+  (replace "[+ -]" str "" 0))
+
+(setq s "+ -stringa+ -")
+(strip s)
+;-> "stringa"
+
+In questo caso la stringa originale non viene modificata:
+s
+;-> "+ -stringa+ -"
+
+Con una macro:
+
+(define-macro (strip str)
+  (replace "[+ -]" (eval str) "" 0))
+
+(strip s)
+;-> "stringa"
+
+In questo caso la stringa originale viene modificata:
+s
+;-> "stringa"
+
 
 =============================
  NIL, TRUE e LISTA VUOTA '()

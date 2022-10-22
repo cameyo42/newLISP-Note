@@ -1457,7 +1457,7 @@ Lista A (1 2 3 4 5)
 Lista B (2 5 6)
 B sottolista di A? no
 
-Utilizziamo due indici "i" e "j" per attraversare contemporaneamentele le liste A e B.
+Utilizziamo due indici "i" e "j" per attraversare contemporaneamente le liste A e B.
 Se gli elementi delle due liste sono uguali, allora incrementiamo entrambi gli indici (e controllo anche che la lista B non sia terminata);
 altrimenti incrementiamo l'indice "i" della lista A e resettiamo a zero l'indice "j" della lista B.
 Ecco la funzione:
