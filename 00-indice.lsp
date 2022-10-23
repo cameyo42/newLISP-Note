@@ -1430,6 +1430,8 @@ NOTE LIBERE 11
   Brainfuck
   Addizioni e sottrazioni esatte di numeri in virgola mobile
   Problema del serbatoio
+  Alcuni chiarimenti su newLISP
+  La signora degusta il tè (Lady Tasting Tea)
 
 APPENDICI
 =========

@@ -6184,5 +6184,148 @@ Facciamo alcune prove:
 (tank-fn 6514683 4965)
 ;-> 8573
 
+
+-----------------------------
+Alcuni chiarimenti su newLISP
+-----------------------------
+
+Dal forum di newLISP:
+
+Sunburned Surveyor
+------------------
+I had a couple of questions about the newLisp syntax I was hoping you guys could help with. 
+
+(1) I believe a symbol is like a variable in other languages. It is a named container that holds a value. Is this correct? 
+
+(2) What is the difference between a symbol and a constant? 
+
+(3) On page 13 pf the reference manual it discusses resetting the value of the integer math operators. It has the following LISP statement: 
+
+(constant '+ add) 
+
+I realize this statement is setting the value of the "+" operator to the add function, but what is the purpose of the single quote? Are we using that to refer to the name "+" rather than evauluating it as a math operator? 
+
+(4) Is init.lsp used to load a set of user defined functions for the newLisp compiler/IDE? 
+
+(5) I did some on-line research about Lambda ecpressions. I want to make sure I understand them correctly. Is the following true: 
+
+A Lambda expression defines a function temporarily. The first part of the expression must be the symbol name Lambda, the second is a parameter/argument list, and the thirs is the expression that operates on the arguments. 
+
+HPW
+---
+>(1) I believe a symbol is like a variable in other languages. It is a named container that holds a value. Is this correct? 
+
+Not only a value. It can also contain a function or list. There is no sharp frontier between code and data in lisp. It is one of the powerfull features and can be used for code generation at runtime. 
+
+>(2) What is the difference between a symbol and a constant? 
+
+The constant is protected against overwriting and the symbol not. 
+
+>I realize this statement is setting the value of the "+" operator to the add function, but what is the purpose of the single quote? Are we using that to refer to the name "+" rather than evauluating it as a math operator? 
+
+The quote prevent the symbol against evaluation to its content. You can also write (constant (quote +) add). It is the same. 
+
+>(4) Is init.lsp used to load a set of user defined functions for the newLisp compiler/IDE? 
+
+It is used to load your own function into the newlisp enviroment. It is not primaly used for the IDE. 
+
+Eddier
+------
+Coming from the imperative side of things, I also faced such challenges. The biggest one for me was (f x0 x1 ... xn) in Lisp == f(x0, x1, ..., xn) in Python, Perl, C, Java, etc,... Once I figured out that the first thing after the beginning "(" was an operation that operated on everything up to the ")" I started to get into it a bit. Then I realized to build programs in the functional world, just compose the functions. In the mathematical and imperative world (g comp f)(x) = g(f(x)), but in lisp it's just (g (f x)) => first apply f to x then apply g to whatever f left. This makes a pretty picture. Lisp is just evaluating a tree, the same infix, postfix, prefix trees you learned in that second semester programming course. As example, 
+
+(+ 2 3 (* 4 3))
+
+  [+]
+ / | \
+2  3  [*]
+      /  \
+    4     3
+
+Or, you can look at it as a bunch of linked lists. Each node has two pieces, in Lutz's model, the left part of the first node is the operation, the right part points to its argument list. The values are in the left part of each node. If the left part of a node is a pointer, then follow that pointer down. This will be a new list to evaluate. The down pointer will always be a function to evaluate unless it is a quote function.
+
+root
+ |
+ V
+[+ : -]-->[2 : -]-->[3 : -]-->[  : nil]
+                               |
+                               V
+                               [* : -]-->[4 : -]-->[3 : -]-->[  : nil]
+
+Lisp will try to evaluate every list even if it doesn't make sense. Sometimes (a bunch of times) you will want to treat a list as data. To do keep lisp from evaluating it, use the quote function or use the short hand of putting a ' in front of the list. Then you can pass a list from one function to the next.
+Example
+
+(join '("hello" "world") ":") => "hello:world"
+
+Here join is the function and it's arguments are '("hello" "world") and ":". The reason '("hello" "world") is data and lisp is not trying to evaluate "here" as a function is because of the ' in front. 
+
+Lutz
+----
+You can draw it even simpler: 
+
+(+ 2 3 (* 4 3))
+
+[ ]
+  \
+  [+] -> [2] -> [3] -> [ ]
+                         \
+                         [*] -> [4] -> [3]
+
+because newLISP has no dotted pairs, a lisp cell has just a contents and the pointer to the next cell. 
+
+Eddier
+------
+I think there should be a "->[ ]" after the "[*]->[4]->[3]" correct? 
+
+Lutz
+----
+In the diagram the [ ] stands for some kind of 'list envelope' for it's members: *, 2, 3 and this envelope itself is a lisp cell the content of which is a pointer to the first list member, in this case the *. 
+
+Note: read the tutorial "newLISP in 21 minutes" by John W. Small.
+(disponibile in italiano delle Appendici).
+
+
+-------------------------------------------
+La signora degusta il tè (Lady Tasting Tea)
+-------------------------------------------
+
+Questo problema si basa su un evento accaduto durante un tea party degli anni '20 a Cambridge.
+La storia racconta che una signora (Muriel Bristol) sosteneva la capacità di distinguere tra:
+1) una tazza di tè fatta versando il tè in una tazza di latte
+2) una tazza di tè fatta versando il latte in una tazza di tè.
+Non sorprende che molti fossero scettici e una persona decise di verificarlo.
+Fece un esperimento con 8 tazze da tè, composte da 4 tazze di ogni preparato.
+Straordinariamente, la signora fu in grado di identificare tutte e 8 le tazze, sollevando il problema se fosse stata solo fortunata.
+Quali sono le probabilità di identificare per caso tutte e 8 le coppe?
+Il problema è noto come Lady Tasting Tea e ha portato all'analisi moderna dei test di dati sperimentali casuali.
+
+Il problema può essere risolto calcolando le combinazioni di k (4) elementi senza ripetizione da n (8) elementi:
+
+(n k) = n!/(k!*(n - k)!)
+
+(8 4) = 8!/(4!*(8! - 4!)) = 8!/(4!*4!)
+
+(define (binom num k)
+"Calculates the binomial coefficient (n k) = n!/(k!*(n - k)!) (combinations of k elements without repetition from n elements)"
+  (cond ((> k num) 0)
+        ((zero? k) 1)
+        (true
+          (let (r 1L)
+            (for (d 1 k)
+              (setq r (/ (* r num) d))
+              (-- num)
+            )
+          r))))
+
+(binom 8 4)
+;-> 70L
+
+Probabilità di indovinare casualmente tutte le tazze:
+
+(div 1 70)
+;-> 0.01428571428571429
+
+Quindi la probabilità di identificare per caso tutte le tazze vale 1/70 (circa 1.42 percento).
+Possiamo concludere che la signora probabilmente aveva un gusto estremamente raffinato in grado di riconoscere la composizione delle tazze.
+
 =============================================================================
 
