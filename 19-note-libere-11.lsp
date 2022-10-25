@@ -6327,5 +6327,246 @@ Probabilità di indovinare casualmente tutte le tazze:
 Quindi la probabilità di identificare per caso tutte le tazze vale 1/70 (circa 1.42 percento).
 Possiamo concludere che la signora probabilmente aveva un gusto estremamente raffinato in grado di riconoscere la composizione delle tazze.
 
+
+--------------------------------
+Partizioni di sequenze di interi
+--------------------------------
+
+Gli interi consecutivi da 1 a n sono partizionati in m liste in modo tale che in ogni lista il numero più grande sia uguale alla somma dei numeri rimanenti.
+Nota: ogni lista ha almeno 3 elementi: il numero più grande e almeno due numeri per effettuare la somma.
+
+1) Quanti gruppi ci sono se n = 14?
+2) Quanti gruppi ci sono se n = 12?
+
+Chiamiamo "leader" il numero più grande di ogni lista.
+Possiamo notare che:
+a) la somma dei leader deve essere uguale alla metà della somma di tutti i numeri.
+b) quindi, se la somma di tutti i numeri è dispari, allora non può esistere nessuna partizione con la proprietà richiesta.
+
+Nel caso 1) Poiché 1 + 2 + ... + 13 + 14 = 105 è un numero dispari, allora non esiste nessuna partizione con la proprietà richiesta.
+
+Nel caso 2) Poiché 1 + 2 + ... + 13 + 14 = 78, la somma dei leader deve essere 39.
+Non ci possono essere solo tre gruppi perchè in questo caso la somma massima dei tre leader vale solo 10 + 11 + 12 = 33 < 39.
+D'altra parte, se ci sono cinque o più gruppi, alcuni gruppi avranno meno di tre numeri, il che non è possibile.
+Quindi il numero dei gruppi deve essere quattro.
+Una possibile partizione è (12 9 3), (11 7 4), (10 8 2) e (6 5 1).
+
+Usiamo alcune funzione per automatizzare la ricerca della soluzione.
+
+Funzione che verifica se una lista soddisfa la proprietà, cioè se primo elemento è uguale alla somma di tutti i restanti elementi:
+
+(define (check? lst)
+  (sort lst >)
+  (= (pop lst) (apply + lst)))
+
+(check? '(10 8 3))
+;-> nil
+(check? '(11 8 3))
+;-> true
+(check? '(10 4 3 2 1))
+;-> true
+
+(define (comb k lst (r '()))
+"Generates all combinations of k elements without repetition from a list of items"
+  (if (= (length r) k)
+    (list r)
+    (let (rlst '())
+      (dolist (x lst)
+        (extend rlst (comb k ((+ 1 $idx) lst) (append r (list x)))))
+      rlst)))
+
+(define (list-break lst lst-len)
+"Breaks a list into sub-lists of specified lengths"
+  (let ((i 0) (q 0) (res '()))
+    (dolist (el lst-len)
+      (setq i (+ i q))
+      (setq q el)
+      (push (slice lst i q) res -1)
+    )
+    res))
+
+(define (groups gs lst)
+"Groups the elements of a list into disjoint sublists"
+  (local (tmp out)
+    ;------------------------
+    (define (loop gs xss lst)
+      (cond ((null? gs) xss)
+            ((null? xss) '())
+            (true
+            (letn ((xs (first xss)) (leftover (filter (lambda (e) (not (member e xs))) lst)))
+              ;(append (map (lambda (ys) (list xs ys)))
+              (append (map (lambda (ys) (flat (list xs ys)))
+                            (loop (rest gs) (comb (first gs) leftover) leftover))
+                      (loop gs (rest xss) lst))))))
+    ;------------------------
+    (setq tmp (loop (rest gs) (comb (first gs) lst) lst))
+    (setq out '())
+    (dolist (g tmp)
+    ;(dolist (g (loop (rest gs) (comb (first gs) lst) lst))
+    (push (list-break g gs) out -1)
+    )
+    out))
+
+(groups '(1 2 2) '(1 2 3 4 5))
+;-> (((1) (2 3) (4 5)) ((1) (2 4) (3 5)) ((1) (2 5) (3 4)) ((1) (3 4) (2 5))
+;->  ((1) (3 5) (2 4)) ((1) (4 5) (2 3)) ((2) (1 3) (4 5)) ((2) (1 4) (3 5))
+;->  ((2) (1 5) (3 4)) ((2) (3 4) (1 5)) ((2) (3 5) (1 4)) ((2) (4 5) (1 3))
+;->  ((3) (1 2) (4 5)) ((3) (1 4) (2 5)) ((3) (1 5) (2 4)) ((3) (2 4) (1 5))
+;->  ((3) (2 5) (1 4)) ((3) (4 5) (1 2)) ((4) (1 2) (3 5)) ((4) (1 3) (2 5))
+;->  ((4) (1 5) (2 3)) ((4) (2 3) (1 5)) ((4) (2 5) (1 3)) ((4) (3 5) (1 2))
+;->  ((5) (1 2) (3 4)) ((5) (1 3) (2 4)) ((5) (1 4) (2 3)) ((5) (2 3) (1 4))
+;->  ((5) (2 4) (1 3)) ((5) (3 4) (1 2)))
+
+(groups '(2 3) '(1 2 3 4 5))
+;-> (((1 2) (3 4 5)) ((1 3) (2 4 5)) ((1 4) (2 3 5)) ((1 5) (2 3 4))
+;->  ((2 3) (1 4 5)) ((2 4) (1 3 5)) ((2 5) (1 3 4)) ((3 4) (1 2 5))
+;->  ((3 5) (1 2 4)) ((4 5) (1 2 3)))
+
+Nota: Se la lista delle parti contiene solo 1, allora la funzione "groups" genera gli stessi elementi della funzione che calcola le permutazioni "perm":
+
+(length (groups '(1 1 1 1 1 1) '(1 2 3 4 5 6)))
+;-> 720
+(length (perm '(1 2 3 4 5 6)))
+;-> 720
+
+Scriviamo una funzione che verifica se una data sequenza e un determinato numero di gruppi possono soddisfare la proprietà:
+
+(define (test num gruppi)
+  (local (seq somma-seq semi-somma-seq leaders somma-leaders
+          min-elements out)
+    (setq out "")
+    ; sequenza
+    (setq seq (sequence 1 num))
+    ; lunghezza sequenza
+    (setq len-seq num)
+    ; somma sequenza
+    (setq somma-seq (apply + seq))
+    ; semi-somma sequenza
+    (setq semi-somma-seq (/ somma-seq 2))
+    ; estrazione dei leaders (ultimi elementi della sequenza)
+    (if (>= len-seq gruppi)
+      (setq leaders (slice seq (- gruppi)))
+      (setq leaders seq)
+    )
+    ; somma dei leaders
+    (setq somma-leaders (apply + leaders))
+    ; numeri minimo di elementi necessari 
+    ; (ogni gruppo deve avere almeno 3 elementi:
+    ;  il leader e altri due elementi da sommare)
+    (setq min-elements (* gruppi 3))
+    ; deve risultare numero gruppi <= numero elementi della sequenza
+    (cond ((> gruppi len-seq)
+            (setq out "impossible"))
+          ; la somma dei numeri della sequenza deve essere pari
+          ((odd? somma-seq)
+            (setq out "impossible"))
+          ; la somma dei leaders deve essere maggiore o uguale
+          ; alla somma degli elementi restanti.
+          ((> semi-somma-seq somma-leaders)
+            (setq out "impossible"))
+          ; il numero minimo di elementi necessari deve essere
+          ; minore o uguale al numero di elementi della sequenza
+          ((> min-elements len-seq)
+            (setq out "impossible"))
+          (true
+            (setq out "*** possible ***"))
+    )
+    out))
+
+Facciamo alcune prove:
+
+(test 12 5)
+;-> "impossible"
+(test 12 4)
+;-> "*** possible ***"
+(test 19 6)
+;-> "*** possible ***"
+
+Calcoliamo i valori "possibili" per sequenze di lunghezza da 12 a 20 e con numero di gruppi da 1 a 8:
+
+(println "seq gruppi")
+(for (i 12 20)
+  (for (j 1 8)
+    (println i {  } j { } (test i j))))
+
+;-> seq gruppi
+;-> 12  1 impossible
+;-> 12  2 impossible
+;-> ...
+;-> 12  4 *** possible ***
+;-> ...
+;-> 15  5 *** possible ***
+;-> ...
+;-> 16  5 *** possible ***
+;-> ...
+;-> 19  6 *** possible ***
+;-> ...
+;-> 20  6 *** possible ***
+;-> 20  7 impossible
+;-> 20  8 impossible
+
+Adesso scriviamo una funzione che cerca le liste che soddisfano la proprietà.
+Generiamo tutte le possibili partizioni/raggruppamenti con la funzione "groups" per una determinata lista dei gruppi e una determinata sequenza, poi verifichiamo ogni partizione per vedere se verifica la proprietà (in ogni lista il numero più grande deve essere uguale alla somma dei numeri rimanenti).
+Per esempio, data la sequenza (1 2 3 4 5 6 7 8 9 10 11 12) e la lista dei gruppi (3 3 3 3), una partizione è del tipo:
+ ((12 11 1) (10 8 6) (9 5 3) (7 4 2))
+quindi verifichiamo che se ogni sottolista della partizione verifica la proprietà. In tal caso la partizione è una soluzione.
+
+(define (cerca gruppi seq)
+  (local (out gr)
+    (setq out '())
+    ; calcolo delle partizioni/raggruppamenti
+    (setq gr (groups gruppi seq))
+    (println "ciclo...")
+    ; ciclo sulle partizioni per il controllo della proprietà
+    (dolist (g gr)
+      ; tutti true il (check?) su ogni sottolista?
+      (if (apply and (map check? g))
+          ; ordiniamo gli elementi della partizione/soluzione corrente
+          ; e la inseriamo nella lista delle soluzioni
+          (push (sort (map (fn(x) (sort x >)) g) >) out -1)
+      )
+    )
+    ; elimina le soluzioni multiple
+    (unique out)
+  )
+)
+
+Quanto tempo ci mette "groups" a calcolare la partizioni/raggruppamenti ?
+
+(time (println (length (groups '(3 3 3 3) (sequence 1 12)))))
+;-> 369600
+;-> 23395.352 ; quasi 24 secondi
+
+Verifichiamo la sequenza del problema:
+sequenza: (1 2 3 4 5 6 7 8 9 10 11 12)
+lista dei gruppi: (3 3 3 3)
+
+(time (println (cerca '(3 3 3 3) (sequence 1 12))))
+;-> ciclo...
+;-> (((12 9 3) (11 7 4) (10 8 2) (6 5 1)) 
+;->  ((12 8 4) (11 9 2) (10 7 3) (6 5 1)) 
+;->  ((12 10 2) (11 8 3) (9 5 4) (7 6 1))
+;->  ((12 10 2) (11 6 5) (9 8 1) (7 4 3))
+;->  ((12 7 5) (11 8 3) (10 9 1) (6 4 2))
+;->  ((12 8 4) (11 10 1) (9 6 3) (7 5 2))
+;->  ((12 11 1) (10 7 3) (9 5 4) (8 6 2))
+;->  ((12 11 1) (10 6 4) (9 7 2) (8 5 3)))
+;-> 33191.995
+
+Abbiamo trovato 8 soluzioni al problema.
+
+Proviamo con la sequenza fino a 15 e con 5 gruppi:
+
+(time (println (cerca '(3 3 3 3 3) (sequence 1 15))))
+;-> ERR: call or result stack overflow in function extend : comb
+;-> called from user function (comb k ((+ 1 $idx) lst) (append r (list x)))
+;-> called from user function (comb k ((+ 1 $idx) lst) (append r (list x)))
+;-> called from user function (comb (first gs) leftover)
+;-> called from user function (loop (rest gs) (comb (first gs) leftover) leftover)
+;-> called from user function (loop gs (rest xss) lst)
+
+Bisognerebbe provare con uno stack più grande: newlisp -s <stacksize>
+Maximum call stack constant: 2048 (default)
+
 =============================================================================
 

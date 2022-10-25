@@ -1432,6 +1432,7 @@ NOTE LIBERE 11
   Problema del serbatoio
   Alcuni chiarimenti su newLISP
   La signora degusta il tè (Lady Tasting Tea)
+  Partizioni di sequenze di interi
 
 APPENDICI
 =========
