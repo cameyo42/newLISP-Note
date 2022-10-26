@@ -1428,11 +1428,12 @@ NOTE LIBERE 11
   Eliminare/cambiare caratteri di una stringa (trim e replace)
   Problema delle Somme quadrate (Square-Sum problem)
   Brainfuck
-  Addizioni e sottrazioni esatte di numeri in virgola mobile
   Problema del serbatoio
   Alcuni chiarimenti su newLISP
   La signora degusta il tè (Lady Tasting Tea)
   Partizioni di sequenze di interi
+  Punteggi scacchistici
+  Addizioni e sottrazioni esatte di numeri in virgola mobile
 
 APPENDICI
 =========

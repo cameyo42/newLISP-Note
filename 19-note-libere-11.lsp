@@ -5853,249 +5853,6 @@ https://rosettacode.org/wiki/Execute_Brain****#NewLISP
 ; to interpret a Brainf*** code file, use (BF:run (read-file <path-to-file>))
 
 
-----------------------------------------------------------
-Addizioni e sottrazioni esatte di numeri in virgola mobile
-----------------------------------------------------------
-
-Le rappresentazioni binarie in virgola mobile IEEE 754 di numeri come 2.86 e .0765 non sono esatte.
-Quindi le operazioni che applichiamo a questi numeri producono risultati non perfettamente esatti.
-L'errore che viene generato può propagarsi nelle successive operazioni fino a portare a risultati completamente errati.
-
-Per esempio la somma di 0.1 e 0.7 non produce il risultato esatto:
-(add 0.1 0.7)
-;-> 0.7999999999999999
-
-Addizione esatta
-----------------
-Scriviamo una funzione che somma esattamente due numeri in virgola mobile (in formato stringa) di (quasi) qualunque magnitudine.
-I numeri vengono memorizzati in vettori di cifre, quindi possiamo utilizzare numeri estremamente grandi e con molte cifre dopo la virgola.
-Esempio:
-  
-  stringa1 = "12345.009"
-  vettore1 = 0 2 3 4 5 . 0 0 9 0 0 0 0 0 0 0 0 0
-  
-  stringa2 = "6.038473666636"
-  vettore2 = 0 0 0 0 6 . 0 3 8 4 7 3 6 6 6 6 3 6
-
-(define (add-str str1 str2)
-  (local (sep p1 p2 len1 len2 dopo prima len ante post ar1 ar2 sum carry val)
-    (setq sep ".")
-    ; posizione del punto decimale numero 1
-    (setq p1 (find sep str1))
-    ; se è un numero intero...
-    (if (= p1 nil)
-      ; allora aggiungiamo ".0"
-      (begin
-        (extend str1 ".0")
-        (setq p1 (find sep str1))))
-    ; posizione del punto decimale numero 2
-    (setq p2 (find sep str2))
-    ; se è un numero intero...
-    (if (= p2 nil)
-      ; allora aggiungiamo ".0"
-      (begin
-        (extend str2 ".0")
-        (setq p2 (find sep str2))))
-    ; lunghezza dei numeri
-    (setq len1 (length str1))
-    (setq len2 (length str2))
-    ; max numero di cifre dopo la virgola
-    (setq dopo (max (- len1 p1 1) (- len2 p2 1)))
-    ; max numero di cifre prima della virgola
-    (setq prima (max p1 p2))
-    ; zeri da aggiungere posteriormente al numero
-    (setq post (dup "0" (- dopo (- len1 p1 1))))
-    ; zeri da aggiungere anteriormente al numero
-    (setq ante (dup "0" (+ (- prima p1) 1)))
-    (setq str1 (append ante str1 post))
-    ; zeri da aggiungere posteriormente al numero
-    (setq post (dup "0" (- dopo (- len2 p2 1))))
-    ; zeri da aggiungere anteriormente al numero
-    (setq ante (dup "0" (+ (- prima p2) 1)))
-    (setq str2 (append ante str2 post))
-    (setq len (length str1))
-    ;(setq len (length str2))
-    ; array di cifre dei due numeri
-    (setq ar1 (array len (explode str1)))
-    (setq ar2 (array len (explode str2)))
-    ; array di cifre della somma
-    (setq sum (array len '(0)))
-    ; addiziona gli array di cifre
-    (setq carry 0)
-    ; ciclo di addizione come a scuola...
-    (for (i (- len 1) 1 -1)
-      (cond ((= (ar1 i) sep)
-              (setf (sum i) sep))
-            (true
-              (setq val (+ (int (ar1 i)) (int (ar2 i)) carry))
-              (setf (sum i) (string (% val 10)))
-              (setq carry (/ val 10)))
-      )
-    )
-    ; imposta la prima cifra del risultato
-    (setf (sum 0) (string carry))
-    (setq sum (join (array-list sum)))
-    ; toglie gli (eventuali) zeri iniziali
-    (while (= (sum 0) "0") (pop sum))
-    (if (or (= sum "") (= sum ".0")) (setq sum "0.0"))
-    sum))
-
-Facciamo alcune prove:
-
-(setq s1 "12345.009")
-(setq s2 "6.038473666636")
-(add-str s1 s2)
-;-> "12351.047473666636"
-(add 12345.009 6.038473666636)
-;->  12351.04747366664
-
-(setq s1 "12345009")
-(setq s2 "6038473666636")
-(add-str s1 s2)
-;-> "6038486011645.0"
-(+ 12345009 6038473666636)
-;->  6038486011645
-
-(setq s1 "12345.009")
-(setq s2 "88763.9911")
-(add-str s1 s2)
-;-> "101109.0001"
-
-(setq s1 "99999999999999999999999999.99999999999999999999999999")
-(setq s2 "11111111111111111111111111.11111111111111111111111111")
-(add-str s1 s2)
-;-> "111111111111111111111111111.11111111111111111111111110"
-(setq s1 "9999999999999999999999999999999999999999999999999999")
-(setq s2 "1111111111111111111111111111111111111111111111111111")
-(add-str s1 s2)
-;-> "11111111111111111111111111111111111111111111111111110.0"
-(+ 9999999999999999999999999999999999999999999999999999
-   1111111111111111111111111111111111111111111111111111)
-;->  11111111111111111111111111111111111111111111111111110L
-
-(add-str "0.0" "0")
-;-> "0.0"
-
-Sommiamo 100 numeri casuali (da 0 a 1000) e vediamo la differenza tra il valore calcolato con "add-str" e il valore calcolato con la funzione "add" (che usa la rappresentazione IEEE 754):
-
-(setq nums (random 0 1000 100))
-(apply add nums)
-;->  48865.62700277716
-(apply add-str (map string nums) 2)
-;-> "48865.627002777184671"
-
-Scriviamo una macro per sommare più numeri (in formato stringa):
-
-(define-macro (add-str-num)
-  (apply add-str (args) 2))
-
-(add-str-num "111.1" "222.2" "333.3" "444.4")
-;-> "1111.0"
-
-(apply add-str '("111.1" "222.2" "333.3" "444.4") 2)
-;-> 1111.0
-
-Nota: la funzione "add-str" è estremamente lenta rispetto alla funzione "add".
-
-
-Sottrazione esatta
-------------------
-Scriviamo una funzione che sottrae esattamente due numeri in virgola mobile (in formato stringa) di (quasi) qualunque magnitudine.
-I numeri vengono memorizzati in vettori di cifre, quindi possiamo utilizzare numeri estremamente grandi e con molte cifre dopo la virgola.
-Il primo numero deve essere maggiore o uguale al secondo numero.
-
-(define (sub-str str1 str2)
-  ; condizione: str1 >= str2
-  (local (sep p1 p2 len1 len2 dopo prima len ante post ar1 ar2 sot carry val)
-    (setq sep ".")
-    ; posizione del punto decimale numero 1
-    (setq p1 (find sep str1))
-    ; se è un numero intero...
-    (if (= p1 nil)
-      ; allora aggiungiamo ".0"
-      (begin
-        (extend str1 ".0")
-        (setq p1 (find sep str1))))
-    ; posizione del punto decimale numero 2
-    (setq p2 (find sep str2))
-    ; se è un numero intero...
-    (if (= p2 nil)
-      ; allora aggiungiamo ".0"
-      (begin
-        (extend str2 ".0")
-        (setq p2 (find sep str2))))
-    ; lunghezza dei numeri
-    (setq len1 (length str1))
-    (setq len2 (length str2))
-    ; max numero di cifre dopo la virgola
-    (setq dopo (max (- len1 p1 1) (- len2 p2 1)))
-    ; max numero di cifre prima della virgola
-    (setq prima (max p1 p2))
-    ; zeri da aggiungere posteriormente al numero
-    (setq post (dup "0" (- dopo (- len1 p1 1))))
-    ; zeri da aggiungere anteriormente al numero
-    (setq ante (dup "0" (+ (- prima p1) 1)))
-    (setq str1 (append ante str1 post))
-    ; zeri da aggiungere posteriormente al numero
-    (setq post (dup "0" (- dopo (- len2 p2 1))))
-    ; zeri da aggiungere anteriormente al numero
-    (setq ante (dup "0" (+ (- prima p2) 1)))
-    (setq str2 (append ante str2 post))
-    (setq len (length str1))
-    ;(setq len (length str2))
-    ; array di cifre dei due numeri
-    (setq ar1 (array len (explode str1)))
-    (setq ar2 (array len (explode str2)))
-    ; array di cifre della differenza
-    (setq sot (array len '(0)))
-    ; sottraze gli array di cifre
-    (setq carry 0)
-    ; ciclo di sottrazione come a scuola...
-    (for (i (- len 1) 1 -1)
-      (cond ((= (ar1 i) sep)
-              (setf (sot i) sep))
-            (true
-              (setq val (- (int (str1 i)) (int (str2 i)) carry))
-              ; Se la sottrazione è minore di zero
-              ; allora aggiungiamo 10 a val e poniamo il riporto (carry) a 1
-              (if (< val 0)
-                  (set 'val (+ val 10) 'carry 1)
-                  ; else
-                  (set 'carry 0)
-              )
-              (setf (sot i) (string val)))
-       )
-    )
-    ; imposta la prima cifra del risultato
-    (setf (sot 0) (string carry))
-    (setq sot (join (array-list sot)))
-    ; toglie gli (eventuali) zeri iniziali
-    (while (= (sot 0) "0") (pop sot))
-    (if (or (= sot "") (= sot ".0")) (setq sot "0.0"))
-    sot))
-
-Facciamo alcune prove:
-
-(sub-str "111" "100")
-;-> "11.0"
-
-(sub-str "111.25" "99.77")
-;-> 11.48
-(sub 111.25 99.77)
-;-> 11.48
-
-(sub-str "0" "0")
-;-> "0.0"
-
-(sub-str "12" "12.0")
-;-> "0.0"
-
-(sub-str "173871523034953472" "57828987577128989")
-;-> "116042535457824483.0"
-(- 173871523034953472 57828987577128989)
-;->  116042535457824483
-
-
 ----------------------
 Problema del serbatoio
 ----------------------
@@ -6567,6 +6324,714 @@ Proviamo con la sequenza fino a 15 e con 5 gruppi:
 
 Bisognerebbe provare con uno stack più grande: newlisp -s <stacksize>
 Maximum call stack constant: 2048 (default)
+
+
+---------------------
+Punteggi scacchistici
+---------------------
+
+Giocando N partite a scacchi, in quanti modi possiamo fare P punti?
+
+Il punteggio di una partita a scacchi è il seguente:
+  - 1 punto per la vittoria
+  - 0.5 punti per una patt
+  - 0 punti per una sconfitta
+
+Giocando N partite con 3 risultati possiamo utlizzare le permutazioni per generare tutti i possibili risultati.
+
+(define (perm-rep k lst)
+"Generates all permutations of k elements with repetition from a list of items"
+  (if (zero? k) '(())
+      ;(flat (map (lambda (p) (map (lambda (e) (cons e p)) lst))
+      (flat (map (lambda (p) (map (lambda (e) (cons e p)) lst))
+                         (perm-rep (- k 1) lst)) 1)))
+
+Se giochiamo 3 partite possiamo ottenere i seguenti risultati:
+
+(perm-rep 3 '(1 0.5 0))
+;-> ((1 1 1) (0.5 1 1) (0 1 1) (1 0.5 1) (0.5 0.5 1) (0 0.5 1)
+;->  (1 0 1) (0.5 0 1) (0 0 1) (1 1 0.5) (0.5 1 0.5) (0 1 0.5)
+;->  (1 0.5 0.5) (0.5 0.5 0.5) (0 0.5 0.5) (1 0 0.5) (0.5 0 0.5)
+;->  (0 0 0.5) (1 1 0) (0.5 1 0) (0 1 0) (1 0.5 0) (0.5 0.5 0)
+;->  (0 0.5 0) (1 0 0) (0.5 0 0) (0 0 0))
+
+Adesso scriviamo una funzione che calcola tutti i possibili risultati e crea una lista con elementi che hanno la seguente struttura:
+
+  (somma-risultati (lista-risultati)
+
+(define (possible-results games)
+    (sort (map (fn(x) (list (apply add x) x)) (perm-rep games '(1 0.5 0)))))
+
+Giocando 3 partite otteniamo:
+
+(possible-results 3)
+;-> ((0 (0 0 0)) 
+;->  (0.5 (0 0 0.5)) 
+;->  (0.5 (0 0.5 0)) 
+;->  (0.5 (0.5 0 0)) 
+;->  (1 (0 0 1)) 
+;->  (1 (0 0.5 0.5))
+;->  (1 (0 1 0))
+;->  (1 (0.5 0 0.5))
+;->  (1 (0.5 0.5 0))
+;->  (1 (1 0 0))
+;->  (1.5 (0 0.5 1))
+;->  (1.5 (0 1 0.5))
+;->  (1.5 (0.5 0 1))
+;->  (1.5 (0.5 0.5 0.5))
+;->  (1.5 (0.5 1 0))
+;->  (1.5 (1 0 0.5))
+;->  (1.5 (1 0.5 0))
+;->  (2 (0 1 1))
+;->  (2 (0.5 0.5 1))
+;->  (2 (0.5 1 0.5))
+;->  (2 (1 0 1))
+;->  (2 (1 0.5 0.5))
+;->  (2 (1 1 0))
+;->  (2.5 (0.5 1 1))
+;->  (2.5 (1 0.5 1))
+;->  (2.5 (1 1 0.5))
+;->  (3 (1 1 1)))
+
+Giocando 10 partite abbiamo il seguente numero di risultati:
+
+(length (possible-results 10))
+;-> 59049
+
+Giocando 11 partite abbiamo il seguente numero di risultati:
+(length (possible-results 11))
+;-> 177147
+
+Scriviamo una funzione per rispondere alla domanda del problema.
+
+(define (modi points games)
+  (first (count (list points)
+                (sort (map (fn(x) (apply add x))
+                          (perm-rep games '(1 0.5 0)))))))
+
+Proviamo a vedere in quanti modi si possono fare 2 punti in 3 partite:
+
+(modi 2 3)
+;-> 6
+
+Modi di fare 5 punti in 10 partite:
+
+(modi 5 10)
+;-> 8953
+
+Calcoliamo i modi per tutti i punti che vanno da 0 al numero delle partite:
+
+(setq g 10) ; numero delle partite
+(for (i 0 g)
+  (println i { } (modi i g))
+)
+;-> 0 1
+;-> 1 55
+;-> 2 615
+;-> 3 2850
+;-> 4 6765
+;-> 5 8953
+;-> 6 6765
+;-> 7 2850
+;-> 8 615
+;-> 9 55
+;-> 10 1
+
+I risultati hanno una distribuzioone gaussiana.
+
+
+----------------------------------------------------------
+Addizioni e sottrazioni esatte di numeri in virgola mobile
+----------------------------------------------------------
+
+Le rappresentazioni binarie in virgola mobile IEEE 754 di numeri come 2.86 e .0765 non sono esatte.
+Quindi le operazioni che applichiamo a questi numeri producono risultati non perfettamente esatti.
+L'errore che viene generato può propagarsi nelle successive operazioni fino a portare a risultati completamente errati.
+
+Per esempio la somma di 0.1 e 0.7 non produce il risultato esatto:
+(add 0.1 0.7)
+;-> 0.7999999999999999
+
+Addizione esatta
+----------------
+Scriviamo una funzione che somma esattamente due numeri in virgola mobile (in formato stringa) di (quasi) qualunque magnitudine.
+I numeri vengono memorizzati in vettori di cifre, quindi possiamo utilizzare numeri estremamente grandi e con molte cifre dopo la virgola.
+Esempio:
+  
+  stringa1 = "12345.009"
+  vettore1 = 0 1 2 3 4 5 . 0 0 9 0 0 0 0 0 0 0 0 0
+  
+  stringa2 = "6.038473666636"
+  vettore2 = 0 0 0 0 0 6 . 0 3 8 4 7 3 6 6 6 6 3 6
+
+(define (add-str str1 str2)
+  (local (sep p1 p2 len1 len2 dopo prima len ante post ar1 ar2 sum carry val)
+    (setq sep ".")
+    ; posizione del punto decimale numero 1
+    (setq p1 (find sep str1))
+    ; se è un numero intero...
+    (if (= p1 nil)
+      ; allora aggiungiamo ".0"
+      (begin
+        (extend str1 ".0")
+        (setq p1 (find sep str1))))
+    ; posizione del punto decimale numero 2
+    (setq p2 (find sep str2))
+    ; se è un numero intero...
+    (if (= p2 nil)
+      ; allora aggiungiamo ".0"
+      (begin
+        (extend str2 ".0")
+        (setq p2 (find sep str2))))
+    ; lunghezza dei numeri
+    (setq len1 (length str1))
+    (setq len2 (length str2))
+    ; max numero di cifre dopo la virgola
+    (setq dopo (max (- len1 p1 1) (- len2 p2 1)))
+    ; max numero di cifre prima della virgola
+    (setq prima (max p1 p2))
+    ; zeri da aggiungere posteriormente al numero
+    (setq post (dup "0" (- dopo (- len1 p1 1))))
+    ; zeri da aggiungere anteriormente al numero
+    (setq ante (dup "0" (+ (- prima p1) 1)))
+    (setq str1 (append ante str1 post))
+    ; zeri da aggiungere posteriormente al numero
+    (setq post (dup "0" (- dopo (- len2 p2 1))))
+    ; zeri da aggiungere anteriormente al numero
+    (setq ante (dup "0" (+ (- prima p2) 1)))
+    (setq str2 (append ante str2 post))
+    (setq len (length str1))
+    ;(setq len (length str2))
+    ; array di cifre dei due numeri
+    (setq ar1 (array len (explode str1)))
+    (setq ar2 (array len (explode str2)))
+    ; array di cifre della somma
+    (setq sum (array len '(0)))
+    ; addiziona gli array di cifre
+    (setq carry 0)
+    ; ciclo di addizione come a scuola...
+    (for (i (- len 1) 1 -1)
+      (cond ((= (ar1 i) sep)
+              (setf (sum i) sep))
+            (true
+              (setq val (+ (int (ar1 i)) (int (ar2 i)) carry))
+              (setf (sum i) (string (% val 10)))
+              (setq carry (/ val 10)))
+      )
+    )
+    ; imposta la prima cifra del risultato
+    (setf (sum 0) (string carry))
+    (setq sum (join (array-list sum)))
+    ; toglie gli (eventuali) zeri iniziali
+    (while (= (sum 0) "0") (pop sum))
+    (if (or (= sum "") (= sum ".0")) (setq sum "0.0"))
+    sum))
+
+Facciamo alcune prove:
+
+(setq s1 "12345.009")
+(setq s2 "6.038473666636")
+(add-str s1 s2)
+;-> "12351.047473666636"
+(add 12345.009 6.038473666636)
+;->  12351.04747366664
+
+(setq s1 "12345009")
+(setq s2 "6038473666636")
+(add-str s1 s2)
+;-> "6038486011645.0"
+(+ 12345009 6038473666636)
+;->  6038486011645
+
+(setq s1 "12345.009")
+(setq s2 "88763.9911")
+(add-str s1 s2)
+;-> "101109.0001"
+
+(setq s1 "99999999999999999999999999.99999999999999999999999999")
+(setq s2 "11111111111111111111111111.11111111111111111111111111")
+(add-str s1 s2)
+;-> "111111111111111111111111111.11111111111111111111111110"
+(setq s1 "9999999999999999999999999999999999999999999999999999")
+(setq s2 "1111111111111111111111111111111111111111111111111111")
+(add-str s1 s2)
+;-> "11111111111111111111111111111111111111111111111111110.0"
+(+ 9999999999999999999999999999999999999999999999999999
+   1111111111111111111111111111111111111111111111111111)
+;->  11111111111111111111111111111111111111111111111111110L
+
+(add-str "0.0" "0")
+;-> "0.0"
+
+Sommiamo 100 numeri casuali (da 0 a 1000) e vediamo la differenza tra il valore calcolato con "add-str" e il valore calcolato con la funzione "add" (che usa la rappresentazione IEEE 754):
+
+(setq nums (random 0 1000 100))
+(apply add nums)
+;->  48865.62700277716
+(apply add-str (map string nums) 2)
+;-> "48865.627002777184671"
+
+Scriviamo una macro per sommare più numeri (in formato stringa):
+
+(define-macro (add-str-num)
+  (apply add-str (args) 2))
+
+(add-str-num "111.1" "222.2" "333.3" "444.4")
+;-> "1111.0"
+
+(apply add-str '("111.1" "222.2" "333.3" "444.4") 2)
+;-> 1111.0
+
+Nota: la funzione "add-str" è estremamente lenta rispetto alla funzione "add".
+
+
+Sottrazione esatta
+------------------
+Scriviamo una funzione che sottrae esattamente due numeri in virgola mobile (in formato stringa) di (quasi) qualunque magnitudine.
+I numeri vengono memorizzati in vettori di cifre, quindi possiamo utilizzare numeri estremamente grandi e con molte cifre dopo la virgola.
+Il primo numero deve essere maggiore o uguale al secondo numero.
+
+(define (sub-str str1 str2)
+  ; condizione: str1 >= str2
+  (local (sep p1 p2 len1 len2 dopo prima len ante post ar1 ar2 sot carry val)
+    (setq sep ".")
+    ; posizione del punto decimale numero 1
+    (setq p1 (find sep str1))
+    ; se è un numero intero...
+    (if (= p1 nil)
+      ; allora aggiungiamo ".0"
+      (begin
+        (extend str1 ".0")
+        (setq p1 (find sep str1))))
+    ; posizione del punto decimale numero 2
+    (setq p2 (find sep str2))
+    ; se è un numero intero...
+    (if (= p2 nil)
+      ; allora aggiungiamo ".0"
+      (begin
+        (extend str2 ".0")
+        (setq p2 (find sep str2))))
+    ; lunghezza dei numeri
+    (setq len1 (length str1))
+    (setq len2 (length str2))
+    ; max numero di cifre dopo la virgola
+    (setq dopo (max (- len1 p1 1) (- len2 p2 1)))
+    ; max numero di cifre prima della virgola
+    (setq prima (max p1 p2))
+    ; zeri da aggiungere posteriormente al numero
+    (setq post (dup "0" (- dopo (- len1 p1 1))))
+    ; zeri da aggiungere anteriormente al numero
+    (setq ante (dup "0" (+ (- prima p1) 1)))
+    (setq str1 (append ante str1 post))
+    ; zeri da aggiungere posteriormente al numero
+    (setq post (dup "0" (- dopo (- len2 p2 1))))
+    ; zeri da aggiungere anteriormente al numero
+    (setq ante (dup "0" (+ (- prima p2) 1)))
+    (setq str2 (append ante str2 post))
+    (setq len (length str1))
+    ;(setq len (length str2))
+    ; array di cifre dei due numeri
+    (setq ar1 (array len (explode str1)))
+    (setq ar2 (array len (explode str2)))
+    ; array di cifre della differenza
+    (setq sot (array len '(0)))
+    ; sottrae gli array di cifre
+    (setq carry 0)
+    ; ciclo di sottrazione come a scuola...
+    (for (i (- len 1) 1 -1)
+      (cond ((= (ar1 i) sep)
+              (setf (sot i) sep))
+            (true
+              (setq val (- (int (str1 i)) (int (str2 i)) carry))
+              ; Se la sottrazione è minore di zero
+              ; allora aggiungiamo 10 a val e poniamo il riporto (carry) a 1
+              (if (< val 0)
+                  (set 'val (+ val 10) 'carry 1)
+                  ; else
+                  (set 'carry 0)
+              )
+              (setf (sot i) (string val)))
+       )
+    )
+    ; imposta la prima cifra del risultato
+    (setf (sot 0) (string carry))
+    (setq sot (join (array-list sot)))
+    ; toglie gli (eventuali) zeri iniziali
+    (while (= (sot 0) "0") (pop sot))
+    (if (or (= sot "") (= sot ".0")) (setq sot "0.0"))
+    sot))
+
+Facciamo alcune prove:
+
+(sub-str "111" "100")
+;-> "11.0"
+
+(sub-str "111.25" "99.77")
+;-> 11.48
+(sub 111.25 99.77)
+;-> 11.48
+
+(sub-str "0" "0")
+;-> "0.0"
+
+(sub-str "12" "12.0")
+;-> "0.0"
+
+(sub-str "173871523034953472" "57828987577128989")
+;-> "116042535457824483.0"
+(- 173871523034953472 57828987577128989)
+;->  116042535457824483
+
+Le funzioni "add-str" e "sub-str" accettano solo numeri positivi e il primo numero deve essere maggiore del secondo.
+Riscriviamo le funzioni per fare in modo che possano accettare anche numeri negativi in ordine qualsiasi.
+
+Funzione che verifica se una stringa numerica è negativa:
+
+(define (negative? str)
+  (if (= (str 0) "-") true nil))
+
+(negative? "-12.56")
+;-> true
+(negative? "11.421")
+;-> nil
+
+Funzione che controlla se una stringa numerica è maggiore (o uguale) ad un altra stringa numerica.
+Le stringhe non hanno segno e hanno il seguente formato:
+
+(setq s1 "0002345.45300000")
+(setq s2 "0129755.73407001")
+
+(define (maggiore? str1 str2)
+(catch
+  (let (len (length str1))
+    (for (i 0 (- len 1))
+    (if (< (str1 i) (str2 i)) (throw nil))
+    (if (> (str1 i) (str2 i)) (throw true))
+    )
+    true)))
+
+(maggiore? s1 s2)
+;-> nil
+(maggiore? s2 s1)
+;-> true
+(maggiore? "0111.0" "0111.1")
+;-> nil
+
+Esempio:
+
+  stringa1 = "12345.009"
+  vettore1 = 0 1 2 3 4 5 . 0 0 9 0 0 0 0 0 0 0 0 0
+
+  stringa2 = "6.038473666636"
+  vettore2 = 0 0 0 0 0 6 . 0 3 8 4 7 3 6 6 6 6 3 6
+
+Funzioni ausiliarie:
+
+(define (add-str-aux str1 str2)
+  (local (ar1 ar2 sum carry val)
+    ; simbolo decimale
+    (setq sep ".")
+    ; la lunghezza delle due stringhe è uguale
+    (setq len (length str1))
+    ;(setq len (length str2))
+    ; array di cifre dei due numeri
+    (setq ar1 (array len (explode str1)))
+    (setq ar2 (array len (explode str2)))
+    ; array di cifre della somma
+    (setq sum (array len '("0")))
+    ; addiziona gli array di cifre
+    (setq carry 0)
+    ; ciclo di addizione come a scuola...
+    (for (i (- len 1) 1 -1)
+      (cond ((= (ar1 i) sep)
+              (setf (sum i) sep))
+            (true
+              (setq val (+ (int (ar1 i)) (int (ar2 i)) carry))
+              (setf (sum i) (string (% val 10)))
+              (setq carry (/ val 10)))
+      )
+    )
+    ; imposta la prima cifra del risultato
+    (setf (sum 0) (string carry))
+    ; converte il vettore in stringa
+    (setq sum (join (array-list sum)))
+    ; toglie gli (eventuali) zeri iniziali
+    (while (= (sum 0) "0") (pop sum))
+    (if (or (= sum "") (= sum ".0")) (setq sum "0.0"))
+    sum))
+
+(define (sub-str-aux str1 str2)
+  (local (ar1 ar2 sot carry val)
+    ; simbolo decimale
+    (setq sep ".")
+    ; la lunghezza delle due stringhe è uguale
+    (setq len (length str1))
+    ;(setq len (length str2))
+    ; array di cifre dei due numeri
+    (setq ar1 (array len (explode str1)))
+    (setq ar2 (array len (explode str2)))
+    ; array di cifre della differenza
+    (setq sot (array len '(0)))
+    ; sottrae gli array di cifre
+    (setq carry 0)
+    ; ciclo di sottrazione come a scuola...
+    (for (i (- len 1) 1 -1)
+      (cond ((= (ar1 i) sep)
+              (setf (sot i) sep))
+            (true
+              (setq val (- (int (str1 i)) (int (str2 i)) carry))
+              ; Se la sottrazione è minore di zero
+              ; allora aggiungiamo 10 a val e poniamo il riporto (carry) a 1
+              (if (< val 0)
+                  (set 'val (+ val 10) 'carry 1)
+                  ; else
+                  (set 'carry 0)
+              )
+              (setf (sot i) (string val)))
+       )
+    )
+    ; imposta la prima cifra del risultato
+    (setf (sot 0) (string carry))
+    ; converte il vettore in stringa
+    (setq sot (join (array-list sot)))
+    ; toglie gli (eventuali) zeri iniziali
+    (while (= (sot 0) "0") (pop sot))
+    (if (or (= sot "") (= sot ".0")) (setq sot "0.0"))
+    (if (= (sot 0) ".") (push "0" sot))
+    sot))
+
+Addizione esatta
+----------------
+
+(define (add-str str1 str2)
+  (local (sep p1 p2 len1 len2 dopo prima len ante post 
+          neg1 neg2 mag1 mag2 temp)
+    ; controllo numeri negativi
+    (setq neg1 (negative? str1))
+    (if neg1 (pop str1))
+    (setq neg2 (negative? str2))
+    (if neg2 (pop str2))
+    (setq sep ".")
+    ; posizione del punto decimale numero 1
+    (setq p1 (find sep str1))
+    ; se è un numero intero...
+    (if (= p1 nil)
+      ; allora aggiungiamo ".0"
+      (begin
+        (extend str1 ".0")
+        (setq p1 (find sep str1))))
+    ; posizione del punto decimale numero 2
+    (setq p2 (find sep str2))
+    ; se è un numero intero...
+    (if (= p2 nil)
+      ; allora aggiungiamo ".0"
+      (begin
+        (extend str2 ".0")
+        (setq p2 (find sep str2))))
+    ; lunghezza dei numeri
+    (setq len1 (length str1))
+    (setq len2 (length str2))
+    ; max numero di cifre dopo la virgola
+    (setq dopo (max (- len1 p1 1) (- len2 p2 1)))
+    ; max numero di cifre prima della virgola
+    (setq prima (max p1 p2))
+    ; zeri da aggiungere posteriormente al numero
+    (setq post (dup "0" (- dopo (- len1 p1 1))))
+    ; zeri da aggiungere anteriormente al numero
+    (setq ante (dup "0" (+ (- prima p1) 1)))
+    (setq str1 (append ante str1 post))
+    ; zeri da aggiungere posteriormente al numero
+    (setq post (dup "0" (- dopo (- len2 p2 1))))
+    ; zeri da aggiungere anteriormente al numero
+    (setq ante (dup "0" (+ (- prima p2) 1)))
+    (setq str2 (append ante str2 post))
+    ; controllo numero maggiore (o uguale)
+    (if (maggiore? str1 str2)
+        (set 'mag1 true 'mag2 nil)
+        ;else
+        (set 'mag1 nil 'mag2 true)
+    )
+    ; definizione dell'operazione da effettuare
+    (cond ((and neg1 neg2 mag1) ; -10 -6
+           (setq temp (add-str-aux str1 str2))
+           (push "-" temp))
+          ((and neg1 neg2 mag2) ; -6 -10
+           (setq temp (add-str-aux str1 str2))
+           (push "-" temp))
+          ((and neg1 (not neg2) mag1) ; -10 +5
+           (setq temp (sub-str-aux str1 str2))
+           (push "-" temp))
+          ((and (not neg1) neg2 mag1) ; +10 -5
+           (setq temp (sub-str-aux str1 str2)))
+          ((and neg1 (not neg2) mag2) ; -10 +11
+           (setq temp (sub-str-aux str2 str1)))
+          ((and (not neg1) neg2 mag2) ; +10 -11
+           (setq temp (sub-str-aux str2 str1))
+           (push "-" temp))
+          ((and (not neg1) (not neg2) mag1) ; +11 +10
+           (setq temp (add-str-aux str1 str2)))
+          ((and (not neg1) (not neg2) mag2) ; +10 +11
+           (setq temp (add-str-aux str1 str2)))
+    )
+    temp))
+
+Sottrazione esatta
+------------------
+
+(define (sub-str str1 str2)
+  (local (sep p1 p2 len1 len2 dopo prima len ante post 
+          neg1 neg2 mag1 mag2 temp)
+    ; controllo numeri negativi
+    (setq neg1 (negative? str1))
+    (if neg1 (pop str1))
+    (setq neg2 (negative? str2))
+    (if neg2 (pop str2))
+    (setq sep ".")
+    ; posizione del punto decimale numero 1
+    (setq p1 (find sep str1))
+    ; se è un numero intero...
+    (if (= p1 nil)
+      ; allora aggiungiamo ".0"
+      (begin
+        (extend str1 ".0")
+        (setq p1 (find sep str1))))
+    ; posizione del punto decimale numero 2
+    (setq p2 (find sep str2))
+    ; se è un numero intero...
+    (if (= p2 nil)
+      ; allora aggiungiamo ".0"
+      (begin
+        (extend str2 ".0")
+        (setq p2 (find sep str2))))
+    ; lunghezza dei numeri
+    (setq len1 (length str1))
+    (setq len2 (length str2))
+    ; max numero di cifre dopo la virgola
+    (setq dopo (max (- len1 p1 1) (- len2 p2 1)))
+    ; max numero di cifre prima della virgola
+    (setq prima (max p1 p2))
+    ; zeri da aggiungere posteriormente al numero
+    (setq post (dup "0" (- dopo (- len1 p1 1))))
+    ; zeri da aggiungere anteriormente al numero
+    (setq ante (dup "0" (+ (- prima p1) 1)))
+    (setq str1 (append ante str1 post))
+    ; zeri da aggiungere posteriormente al numero
+    (setq post (dup "0" (- dopo (- len2 p2 1))))
+    ; zeri da aggiungere anteriormente al numero
+    (setq ante (dup "0" (+ (- prima p2) 1)))
+    (setq str2 (append ante str2 post))
+    ; controllo numero maggiore (o uguale)
+    (if (maggiore? str1 str2)
+        (set 'mag1 true 'mag2 nil)
+        ;else
+        (set 'mag1 nil 'mag2 true)
+    )
+    ; definizione dell'operazione da effettuare
+    (cond ((and neg1 neg2 mag1) ; -10 -6
+           (setq temp (sub-str-aux str1 str2))
+           (push "-" temp))
+          ((and neg1 neg2 mag2) ; -6 -10
+           (setq temp (sub-str-aux str2 str1)))
+          ((and neg1 (not neg2) mag1) ; -10 +5
+           (setq temp (add-str-aux str1 str2))
+           (push "-" temp))
+          ((and (not neg1) neg2 mag1) ; +10 -5
+           (setq temp (add-str-aux str1 str2)))
+          ((and neg1 (not neg2) mag2) ; -10 +11
+           (setq temp (add-str-aux str1 str2))
+           (push "-" temp))
+          ((and (not neg1) neg2 mag2) ; +10 -11
+           (setq temp (add-str-aux str2 str1)))
+          ((and (not neg1) (not neg2) mag1) ; +11 +10
+           (setq temp (sub-str-aux str1 str2)))
+          ((and (not neg1) (not neg2) mag2) ; +10 +11
+           (setq temp (sub-str-aux str2 str1))
+           (push "-" temp))
+    )
+    temp))
+
+Facciamo alcune prove:
+
+(add-str "-5" "-6")
+;-> "-11.0"
+(add-str "-6" "-5")
+;-> "-11.0"
+(add-str "-6" "5")
+;-> "-1.0"
+(add-str "5" "-6")
+;-> "-1.0"
+(add-str "6" "-5")
+;-> "1.0"
+(add-str "-5" "6")
+;-> "1.0"
+(add-str "5" "6")
+;-> "11.0"
+(add-str "6" "5")
+;-> "11.0"
+
+(sub-str "-5" "-6")
+;-> "1.0"
+(sub-str "-6" "-5")
+;-> "-1.0"
+(sub-str "-6" "5")
+;-> "-11.0"
+(sub-str "5" "-6")
+;-> "11.0"
+(sub-str "6" "-5")
+;-> "11.0"
+(sub-str "-5" "6")
+;-> "-11.0"
+(sub-str "5" "6")
+;-> "-1.0"
+(sub-str "6" "5")
+;-> "1.0"
+
+Scriviamo due funzioni per sommare o sottrarre una serie di stringhe numeriche:
+
+(define (add-str-num)
+  (apply add-str (args) 2))
+
+(add-str-num "111.1" "222.2" "333.3" "444.4")
+;-> "1111.0"
+(add 111.1 222.2 333.3 444.4)
+;-> 1111
+
+Se abbiamo una lista di stringhe numeriche possiamo usare "apply":
+
+(apply add-str '("111.1" "222.2" "333.3" "444.4") 2)
+;-> "1111.0"
+
+(define (sub-str-num)
+  (apply sub-str (args) 2))
+
+(sub-str-num "111.1" "222.2" "333.3" "444.4")
+;-> "-888.8"
+(sub 111.1 222.2 333.3 444.4)
+;-> -888.8
+
+Se abbiamo una lista di stringhe numeriche possiamo usare "apply":
+
+(apply sub-str '("111.1" "222.2" "333.3" "444.4") 2)
+;-> "-888.8"
+
+Facciamo alcune prove:
+
+(add-str-num "-120.21" (sub-str-num "200.01" "0.009876534233001" "-200.01" "121"))
+;-> "158.800123465766999"
+(add -120.21 (sub 200.01 0.009876534233001 -200.01 121))
+;->  158.800123465767
+
+(add-str "32857853617893456123561" "3258915891765614561783456237465")
+;-> "3258915924623468179676912361026.0"
+(+ 32857853617893456123561 3258915891765614561783456237465)
+;->  3258915924623468179676912361026L
+(add 32857853617893456123561 3258915891765614561783456237465)
+;-> 3.258915924623468e+030
+
+(sub-str "0.032857853617893456123561" "0.03258915891765614561783456237465")
+;-> "0.00026869470023731050572643762535"
+(sub 0.032857853617893456123561 0.03258915891765614561783456237465)
+;->  0.0002686947002373125
 
 =============================================================================
 
