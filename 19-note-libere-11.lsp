@@ -7033,5 +7033,299 @@ Facciamo alcune prove:
 (sub 0.032857853617893456123561 0.03258915891765614561783456237465)
 ;->  0.0002686947002373125
 
+
+------------------------
+Funzione slice di python
+------------------------
+
+The syntax of slice in python is:
+
+a[start:stop]  # items start through stop-1
+a[start:]      # items start through the rest of the array
+a[:stop]       # items from the beginning through stop-1
+a[:]           # a copy of the whole array
+
+There is also the step value, which can be used with any of the above:
+
+a[start:stop:step] # start through not past stop, by step
+
+The key point to remember is that the :stop value represents the first value that is not in the selected slice. So, the difference between stop and start is the number of elements selected (if step is 1, the default).
+
+The other feature is that start or stop may be a negative number, which means it counts from the end of the array instead of the beginning. So:
+
+a[-1]    # last item in the array
+a[-2:]   # last two items in the array
+a[:-2]   # everything except the last two items
+
+Similarly, step may be a negative number:
+
+a[::-1]    # all items in the array, reversed
+a[1::-1]   # the first two items, reversed
+a[:-3:-1]  # the last two items, reversed
+a[-3::-1]  # everything except the last two items, reversed
+
+La seguente funzione simula lo slice di python ed è applicabile a liste e stringhe:
+
+(define (extract obj start end)
+"Extract a list/string from a list/string (from start to (end -1) indexes)"
+  (if (nil? end)
+      (slice obj start)
+      (slice obj start (- end start))))
+
+Con le stringhe:
+
+(extract "zippo" 0 1)
+;-> "z"
+(extract "zippo" 1 3)
+;-> "ip"
+(extract "zippo" 2)
+;-> "ppo"
+(extract "zippo" 0)
+;-> "zippo"
+(extract "zippo" 0 0)
+;-> ""
+(extract "zippo" -2 2)
+;-> "po"
+(extract "zippo" -5)
+;-> "zippo"
+(extract "zippo" 5 4)
+;-> ""
+(extract "zippo" 10 20)
+;-> ""
+
+Con le liste:
+
+(extract '("z" "i" "p" "p" "o") 0 1)
+;-> ("z")
+(extract '("z" "i" "p" "p" "o") 1 3)
+;-> ("i" "p")
+(extract '("z" "i" "p" "p" "o") 2)
+;-> ("p" "p" "o")
+(extract '("z" "i" "p" "p" "o") 0)
+;-> ("z" "i" "p" "p" "o")
+(extract '("z" "i" "p" "p" "o") 0 0)
+;-> ()
+(extract '("z" "i" "p" "p" "o") -2 2)
+;-> ("p" "o")
+(extract '("z" "i" "p" "p" "o") -5)
+;-> ("z" "i" "p" "p" "o")
+(extract '("z" "i" "p" "p" "o") 5 4)
+;-> ()
+(extract '("z" "i" "p" "p" "o") 10 20)
+;-> ()
+
+
+-------------------------
+Coefficienti multinomiali
+-------------------------
+
+I coefficienti multinomiali sono generalizzazioni di coefficienti binomiali, con un'interpretazione combinatoria simile.
+Sono i coefficienti dei termini nell'espansione di una potenza di un multinomio, nel teorema multinomiale.
+
+I coefficienti multinomiali possono essere espressi in numerosi modi, anche come prodotto di coefficienti binomiali o di fattoriali:
+
+  |      n       |           n!
+  |              | = --------------------- =
+  |k1,k2,k3,...km|    k1!*k2!*k3!*...*kn!
+
+    | k1 |   | k1+k2 |   |k1+k2+k3|   |k1+k2+k3+...+kn|
+  = |    | * |       | * |        | * |               |
+    | k1 |   |  k2   |   |   k3   |   |      kn       |
+
+Modi per mettere gli oggetti nelle scatole
+------------------------------------------
+I coefficienti multinomiali hanno un'interpretazione combinatoria diretta, come il numero di modi per depositare n oggetti distinti in m scatole distinte, con k1 oggetti nella prima scatola, k2 oggetti nella seconda scatola e così via.
+
+Selezione di oggetti
+--------------------
+Il numero di modi per scegliere k1 oggetti intercambiabili da n oggetti, quindi scegliere k2 da ciò che resta, quindi scegliere k3 da ciò che resta, ..., quindi scegliere k(n-1) da ciò che resta.
+
+Numero di permutazioni univoche di parole
+-----------------------------------------
+Il coefficiente multinomiale come prodotto di coefficienti binomiali, conta le permutazioni delle lettere di MISSISSIPPI.
+Il coefficiente multinomiale è anche il numero di modi distinti per permutare un multiinsieme di n elementi, dove ki è la molteplicità dell'i-esimo elemento. Ad esempio, il numero di permutazioni distinte delle lettere della parola MISSISSIPPI, che ha 1 M, 4 I, 4 S e 2 P, vale:
+
+  |   11    |        11!
+  |         | = ------------- = 34650
+  | 1 4 4 2 |    1!*4!*4!*2!
+
+Quante sono le permutazioni distinte della parola ABRACADABRA?
+
+  |    11     |         11!
+  |           | = ---------------- = 83160
+  | 5 2 1 1 2 |    5!*2!*1!*1!*2!
+
+Implementazione con i fattoriali:
+
+(define (fact-i num)
+"Calculates the factorial of an integer number"
+  (if (zero? num)
+      1
+      (let (out 1L)
+        (for (x 1L num)
+          (setq out (* out x))))))
+
+(define (multinomial1 lst)
+  (/ (fact-i (apply + lst)) (apply * (map fact-i lst))))
+
+(multinomial1 '(1 4 4 2))
+;-> 34650L
+
+(multinomial1 '(5 2 1 1 2))
+;-> 83160L
+
+Implementazione con i coefficienti binomiali:
+
+(define (binom num k)
+"Calculates the binomial coefficient (n k) = n!/(k!*(n - k)!) (combinations of k elements without repetition from n elements)"
+  (cond ((> k num) 0)
+        ((zero? k) 1)
+        (true
+          (let (r 1L)
+            (for (d 1 k)
+              (setq r (/ (* r num) d))
+              (-- num)
+            )
+          r))))
+
+(define (multinomial2 lst)
+  (let ((multi 1L) (sum 0L))
+    (dolist (el lst)
+      (setq sum (+ sum el))
+      (setq multi (* multi (binom sum el)))
+    )
+    multi))
+
+(multinomial2 '(1 4 4 2))
+;-> 34650L
+
+(multinomial2 '(5 2 1 1 2))
+;-> 83160L
+
+Implementazione efficiente:
+
+https://stackoverflow.com/questions/46374185/does-python-have-a-function-which-computes-multinomial-coefficients
+
+(define (multinomial3 lst)
+  (local (res i i0)
+    (setq res 1L)
+    (setq i (apply + lst))
+    (setq i0 (find (apply max lst) lst))
+    (setq l1 (slice lst 0 i0))
+    (setq l2 (slice lst (+ i0 1)))
+    (setq l12 (append l1 l2))
+    (dolist (a l12)
+      (for (j 1 a)
+        (setq res (* res i))
+        (setq res (/ res j))
+        (-- i)
+      )
+    )
+    res))
+
+Versione compatta:
+
+(define (multinomial3 lst)
+  (local (res i i0)
+    (setq res 1L)
+    (setq i (apply + lst))
+    (setq i0 (find (apply max lst) lst))
+    (dolist (a (append (slice lst 0 i0) (slice lst (+ i0 1))))
+      (for (j 1 a)
+        (setq res (* res i))
+        (setq res (/ res j))
+        (-- i)
+      )
+    )
+    res))
+
+(multinomial3 '(1 4 4 2))
+;-> 34650L
+
+(multinomial3 '(5 2 1 1 2))
+;-> 83160L
+
+Facciamo alcune prove di controllo:
+
+(multinomial3 '(10 12 11 10))
+;-> 239953960784788967676960L
+(multinomial1 '(10 12 11 10))
+;-> 239953960784788967676960L
+(multinomial2 '(10 12 11 10))
+;-> 239953960784788967676960L
+(multinomial3 '(10 12 11 10))
+;-> 239953960784788967676960L
+
+(multinomial1 '(25 100 50 10))
+;-> 258032725616706621605932604719180409163145266174701391871111490995550256691528504063680L
+(multinomial2 '(25 100 50 10))
+;-> 258032725616706621605932604719180409163145266174701391871111490995550256691528504063680L
+(multinomial3 '(25 100 50 10))
+;-> 258032725616706621605932604719180409163145266174701391871111490995550256691528504063680L
+
+Vediamo i tempi di esecuzione delle tre funzioni:
+
+(time (multinomial1 '(10 12 11 10)) 10000)
+;-> 154.656
+(time (multinomial2 '(10 12 11 10)) 10000)
+;-> 284.668
+(time (multinomial3 '(10 12 11 10)) 10000)
+;-> 33.792
+
+(time (multinomial1 '(25 100 50 10)) 10000)
+;-> 772.511
+(time (multinomial2 '(25 100 50 10)) 10000)
+;-> 1021.397
+(time (multinomial3 '(25 100 50 10)) 10000)
+;-> 86.195
+
+
+------------------------
+Sicurezza delle password
+------------------------
+
+Eva e Roby hanno il proprio cellulare protetto con una password.
+La password di Eva è lunga 4 e contiene 4 cifre diverse e le cifre possibili sono 1, 2, 3 e 4.
+La password di Roby è lunga 3 e contiene 2 cifre diverse (quindi 1 cifra ripetuta) e le cifre possibili sono 1, 2 e 3.
+
+Quale password è la più sicura?
+
+Nel caso di Eva dobbiamo calcolare le permutazioni di 4 oggetti distinti, cioè P = 4! = 24.
+Quindi abbiamo 24 possibili password distinte.
+
+Nel caso di Roby dobbiamo calcolare i coefficienti multinomiali.
+
+(define (fact-i num)
+"Calculates the factorial of an integer number"
+  (if (zero? num)
+      1
+      (let (out 1L)
+        (for (x 1L num)
+          (setq out (* out x))))))
+
+(define (multinomial lst)
+  (/ (fact-i (apply + lst)) (apply * (map fact-i lst))))
+
+Se viene ripetuto il numero 1 abbiamo i seguenti 12 casi:
+
+1123 1132 1213 1312 1231 1321 2113 2131 2311 3112 3121 3211
+(multinomial '(2 1 1))
+;-> 12L
+
+Se viene ripetuto il numero 2 abbiamo i seguenti 12 casi:
+
+2213 2231 2123 2321 2132 2312 1223 1232 1322 3221 3212 3122
+(multinomial '(1 2 1))
+;-> 12L
+Se viene ripetuto il numero 2 abbiamo i seguenti 12 casi:
+
+2213 2231 2123 2321 2132 2312 1223 1232 1322 3221 3212 3122
+(multinomial '(1 1 2))
+;-> 12L
+
+In totale, per Roby, abbiamo 12 + 12 + 12 = 36 possibili password distinte.
+
+Quindi la password più sicura è quella di Roby.
+
 =============================================================================
 

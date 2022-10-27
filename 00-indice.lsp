@@ -1434,6 +1434,9 @@ NOTE LIBERE 11
   Partizioni di sequenze di interi
   Punteggi scacchistici
   Addizioni e sottrazioni esatte di numeri in virgola mobile
+  Funzione slice di python
+  Coefficienti multinomiali
+  Sicurezza delle password
 
 APPENDICI
 =========
