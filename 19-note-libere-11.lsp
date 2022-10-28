@@ -7327,5 +7327,463 @@ In totale, per Roby, abbiamo 12 + 12 + 12 = 36 possibili password distinte.
 
 Quindi la password più sicura è quella di Roby.
 
+
+---------------------
+Cattura di pagine web
+---------------------
+
+Per catturare una pagina web "http" possiamo usare la funzione "get-url".
+
+********************
+>>>funzione GET-URL
+********************
+sintassi: (get-url str-url [str-option] [int-timeout [str-header]])
+
+Legge una pagina Web o un file specificato dall'URL in "str-url" utilizzando il protocollo HTTP GET. Vengono gestiti sia gli URL http:// che file://. "header" può essere specificato nell'argomento facoltativo "str-option" per recuperare solo l'intestazione. L'opzione "list" fa sì che le informazioni sull'intestazione e sulla pagina vengano restituite come stringhe separate in una lista e include anche il codice di stato del server come terzo membro della lista (dalla 10.6.4). L'opzione "raw" (dalla 10.6.4), che può essere utilizzata da sola o combinata con altre opzioni, sopprime il reindirizzamento della posizione dell'intestazione.
+
+Un'opzione "debug" può essere specificata da sola o dopo l'opzione "header" o "list" separata da un carattere, ad esempio "header debug" o "list debug". Includendo "debug" tutte le informazioni in uscita vengono inviate alla finestra della console.
+
+L'argomento facoltativo "int-timeout" può specificare un valore in millisecondi. Se non sono disponibili dati dall'host dopo il timeout specificato, "get-url" restituisce la stringa ERR: timeout. Quando si verificano altre condizioni di errore, "get-url" restituisce una stringa che inizia con ERR: e la descrizione dell'errore.
+
+get-url gestisce il reindirizzamento se rileva una posizione: spec nell'intestazione ricevuta ed esegue automaticamente una seconda richiesta. get-url comprende anche il formato Transfer-Encoding: chunked e decomprimerà i dati in un formato unchunk.
+
+le richieste get-url sono comprese anche dai nodi del server newLISP.
+
+(get-url "http://www.nuevatec.com")
+(get-url "http://www.nuevatec.com" 3000)
+(get-url "http://www.nuevatec.com" "intestazione")
+(get-url "http://www.nuevatec.com" "intestazione" 5000)
+(get-url "http://www.nuevatec.com" "lista")
+
+(get-url "file:///home/db/data.txt"); accedere al file system locale
+
+(env "HTTP_PROXY" "http://ourproxy:8080")
+(get-url "http://www.nuevatec.com/newlisp/")
+
+La pagina dell'indice del sito specificato in "str-url" viene restituita come stringa. Nella terza riga, in una stringa viene restituita solo l'intestazione HTTP. Le righe 2 e 4 mostrano un valore di timeout utilizzato.
+
+Il secondo esempio mostra l'utilizzo di un URL file:// per accedere a /home/db/data.txt sul file system locale.
+
+Il terzo esempio illustra l'uso di un server proxy. L'URL del server proxy deve trovarsi nell'ambiente del sistema operativo. Come mostrato nell'esempio, questo può essere aggiunto usando la funzione "env".
+
+L'int-timeout può essere seguito da un'intestazione personalizzata opzionale in "str-header":
+
+Intestazione (header) personalizzata
+------------------------------------
+L'intestazione personalizzata (header) può contenere opzioni per i cookie del browser o altre direttive al server. Quando non viene specificato "str-header", newLISP invia determinate informazioni di intestazione per impostazione predefinita. Dopo la seguente richiesta:
+
+(get-url "http://somehost.com" 5000)
+
+newLISP configurerà e invierà la richiesta e l'intestazione di seguito:
+
+GET / HTTP/1.1
+Host: somehost.com
+User-Agente: newLISP v10603
+Collegamento: close
+
+In alternativa, è possibile utilizzare l'opzione "str-header":
+
+(get-url "http://somehost.com" 5000
+"User-Agent: Mozilla/4.0\r\nCookie: nome=fred\r\n")
+
+newLISP invierà ora la seguente richiesta e intestazione:
+
+GET / HTTP/1.1
+Host: somehost.com
+User-Agente: Mozilla/4.o
+Cookie: nome=fred
+Collegamento: close
+
+Si noti che quando si utilizza un'intestazione personalizzata, newLISP fornirà solo la riga di richiesta GET, nonché le voci di intestazione "Host" e "Connection". newLISP inserisce tutte le altre voci fornite nell'intestazione personalizzata tra le voci "Host" e "Connection". Ogni voce deve terminare con una coppia di ritorno a capo e avanzamento riga: \r\n.
+
+Vedere un manuale di riferimento delle transazioni HTTP per voci di intestazione valide.
+
+Le intestazioni personalizzate possono essere utilizzate anche nelle funzioni "put-url" e "post-url".
+---------------------
+
+Vediamo un semplice esempio:
+
+(setq page (get-url "http://www.newlisp.org/"))
+;-> [text]
+;-> <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+;-> <html>
+;-> <head>
+;->   <title>newLISP  - Home</title>
+;-> ...
+;-> ...
+;-> ...
+;-> </script>
+;-> <script type="text/javascript">
+;-> _uacct = "UA-1098066-1";
+;-> urchinTracker();
+;-> </script> -->
+;-> </body>
+;-> </html>
+;-> [/text]
+
+Purtroppo la funzione "get-url" non supporta gli indirizzi web "HTTPS".
+
+Nota: HTTPS è HTTP con crittografia e verifica. L'unica differenza tra i due protocolli è che HTTPS utilizza TLS (SSL) per crittografare le normali richieste e risposte HTTP e per firmare digitalmente tali richieste e risposte. Di conseguenza, HTTPS è molto più sicuro di HTTP.
+
+Per ovviare a questo problema possiamo utilizzare il programma "curl" dall'interno di newLISP.
+
+"Curl: command line tool and library for transferring data with URLs (since 1998)" è disponibile all'indirizzo:
+
+https://curl.se/
+
+Vediamo un paio di esempi:
+
+Con il seguente comando salviamo la pagina web sul file "pagina.html" sulla cartella corrente:
+
+(! "curl https://sourceforge.net > pagina.html")
+
+Con il seguente comando salviamo la pagina html in una lista:
+
+(setq page (exec "curl https://sourceforge.net"))
+
+(page 0)
+;-> "<!doctype html>"
+
+(page -1)
+;-> "</html>"
+
+
+------------------------------------
+Generazione delle cartelle del lotto
+------------------------------------
+
+Lotto: numeri da 1 a 90
+Cartelle: gruppi di 6 cartelle con tutti i numeri da 1 a 90
+
+Le cartelle sono formate da 3 file orizzontali (righe) ognuna contenente 9 caselle colonne.
+
+Le cartelle devono seguire le seguenti regole nella disposizione dei numeri:
+
+1) In ogni riga 5 caselle sono occupate dai numeri e 4 restano vuote.
+2) Devono essere presenti 5 numeri per riga per un totale di 15 numeri.
+3) I numeri devono essere tutti diversi e disposti a colonne per decine:
+   nella prima colonna i numeri dall'1 al 9,
+   nella seconda colonna i numeri dal 10 al 19,
+   nella terza colonna i numeri dal 20 al 29,
+   nella quarta colonna i numeri dal 30 al 39,
+   nella quinta colonna i numeri dal 40 al 49,
+   nella sesta colonna i numeri dal 50 al 59,
+   nella settima colonna i numeri dal 60 al 69,
+   nell'ottava colonna i numeri dal 70 al 79,
+   nella nona colonna i numeri dall'80 al 90.
+4) In ogni colonna ci possono essere 1 o 2 numeri, mai 3.
+   (poichè ogni colonna deve avere almeno un numero,
+    allora non ci può essere una colonna vuota).
+5) I numeri nelle colonne devono essere in ordine crescente dall'alto in basso.
+6) Il gruppo di 6 cartelle deve contenere tutti i numeri da 1 a 90.
+
+Algoritmo:
+
+1) Generiamo una sequenza casuale di numeri da 1 a 90.
+2) Ciclo per riempire in sequenza le cartelle da 1 a 6 utilizzando i numeri della sequenza casuale.
+   Provare a generare una cartella con 15 numeri seguendo le regole stabilite.
+   Se abbiamo generato la cartella continua il ciclo,
+   altrimenti ricomincia con una nuova sequenza casuale di numeri da 1 a 90.
+
+L'algoritmo non è deterministico perchè le regole codificate non producono sempre 6 cartelle corrette (in genere, quando fallisce è la sesta cartella che non è corretta). Comunque dopo alcuni tentativi si trova velocemente una soluzione.
+
+Funzione che stampa una cartella:
+
+(define (print-table matrix)
+  (local (row col lenmax digit fmtstr)
+    ; converto matrice in lista?
+    (if (array? matrix) (setq matrix  (array-list matrix)))
+    ; righe della matrice
+    (setq row (length matrix))
+    ; colonne della matrice
+    (setq col (length (first matrix)))
+    ; valore massimo della lunghezza di un elemento (come stringa)
+    (setq lenmax (apply max (map length (map string (flat matrix)))))
+    ; calcolo spazio per gli elementi
+    (setq digit (+ 1 lenmax))
+    ; creo stringa di formattazione
+    (setq fmtstr (append "%" (string digit) "s"))
+    ; stampa la matrice
+    (for (i 0 (- row 1))
+      (for (j 0 (- col 1))
+        (print (format fmtstr (string (matrix i j))))
+      )
+      (println))))
+
+(setq table (array-list (array 3 9 (rand 2 27))))
+(print-table table)
+;-> 1 0 0 1 0 1 1 1 0
+;-> 0 0 0 0 0 0 0 1 1
+;-> 1 1 1 1 1 1 0 1 0
+
+Funzione che verifica se una riga è libera, cioè se contiene più di 4 caselle libere (0):
+
+(define (check-free-row? row)
+  (> (first (count '(0) (table row))) 4))
+
+(check-free-row? 0)
+;-> nil
+(check-free-row? 2)
+;-> nil
+
+Funzione che verifica se una colonna è libera, cioè se contiene più di 1 casella libera (0):
+
+(define (check-free-col? col)
+  (> (first (count '(0) ((transpose table) col))) 1))
+
+(check-free-col? 0)
+;-> nil
+
+(check-free-col? 1)
+;-> true
+
+La lista "colonne" contiene i possibili valori per ogni colonna:
+(setq colonne '(
+(0 (1 2 3 4 5 6 7 8 9)) (1 (10 11 12 13 14 15 16 17 18 19))
+(2 (20 21 22 23 24 25 26 27 28 29)) (3 (30 31 32 33 34 35 36 37 38 39))
+(4 (40 41 42 43 44 45 46 47 48 49)) (5 (50 51 52 53 54 55 56 57 58 59))
+(6 (60 61 62 63 64 65 66 67 68 69)) (7 (70 71 72 73 74 75 76 77 78 79))
+(8 (80 81 82 83 84 85 86 87 88 89 90))))
+
+Funzione che verifica se un dato numero può essere inserito in una data colonna:
+(define (check-num-col? num col)
+  (if (find num (lookup col colonne))
+      true
+      nil))
+
+(check-num-col? 10 0)
+;-> nil
+(check-num-col? 16 1)
+;-> true
+
+Funzione che verifica se un dato numero può essere inserito in una data casella:
+
+(define (possible? num row col)
+  (local (res)
+    (setq res true)
+          ; la casella deve essera vuota
+    (cond ((not (zero? (table row col)))
+           ;(println "casella piena")
+            (setq res nil))
+          ; ci sono almeno 5 caselle libere nella riga?
+          ((not (check-free-row? row))
+            ;(println "(check-free-row? row)")
+            (setq res nil))
+          ; ci sono almeno 2 caselle libere nella colonna?
+          ((not (check-free-col? col))
+           ;(println "(check-free-col? col)")
+            (setq res nil))
+          ; il numero può stare nella colonna?
+          ((not (check-num-col? num col))
+           ;(println "(check-num-col? col)")
+            (setq res nil))
+    )
+    res))
+
+Funzione che crea la lista delle posizioni possibili per un dato numero:
+
+(define (list-possible num)
+  (local (out)
+    (setq out '())
+    (for (r 0 2)
+      (for (c 0 8)
+        (if (possible? num r c)
+            (push (list r c) out -1)
+        )
+      )
+    )
+    out))
+
+(list-possible 11)
+;-> ((1 1))
+
+(list-possible 45)
+;-> ((1 4))
+
+(list-possible 54)
+;-> ()
+
+Funzione che verifica se una cartella è piena (cioè se ha 15 numeri):
+
+(define (filled? lst)
+  (<= (first (count '(0) (flat table))) 12))
+
+Funzione che ordina i valori delle colonne senza modificare i posti vuoti:
+(Questa operazione non modifica le altre proprietà della cartella).
+
+(define (change-col-order table)
+  (for (c 0 8)
+    (cond ((zero? (table 0 c))
+              (if (> (table 1 c) (table 2 c))
+                  (swap (table 1 c) (table 2 c))))
+          ((zero? (table 1 c))
+              (if (> (table 0 c) (table 2 c))
+                  (swap (table 0 c) (table 2 c))))
+          ((zero? (table 2 c))
+              (if (> (table 0 c) (table 1 c))
+                  (swap (table 0 c) (table 1 c))))
+    )
+  )
+  table)
+
+(setq prima '((0 15 22  0 46  0 64  0 87)
+              (6 19  0 35 47  0  0  0 84)
+              (9  0 21 39  0  0 61 74  0)))
+
+(print-table (change-col-order prima))
+;-> 0 15 21  0 46  0 61  0 84
+;-> 6 19  0 35 47  0  0  0 87
+;-> 9  0 22 39  0  0 64 74  0
+
+Funzione che genera il gruppo di 6 cartelle con i numeri da 1 a 90:
+
+(define (lotto stampa)
+  (local (colonne finito cartelle numbers table 
+          possible cur-row cur-col filled)
+    (setq colonne '(
+    (0 (1 2 3 4 5 6 7 8 9)) (1 (10 11 12 13 14 15 16 17 18 19))
+    (2 (20 21 22 23 24 25 26 27 28 29)) (3 (30 31 32 33 34 35 36 37 38 39))
+    (4 (40 41 42 43 44 45 46 47 48 49)) (5 (50 51 52 53 54 55 56 57 58 59))
+    (6 (60 61 62 63 64 65 66 67 68 69)) (7 (70 71 72 73 74 75 76 77 78 79))
+    (8 (80 81 82 83 84 85 86 87 88 89 90))))  
+    (setq finito nil)
+    ; proviamo a generare 6 cartelle corrette con
+    ; una lista random di numeri da 1 a 90.
+    ; se non è possibile, allora riproviamo con
+    ; una nuova lista random di numeri da 1 a 90.
+    (until finito
+      ; lista delle 6 cartelle da generare
+      (setq cartelle '())
+      ; generazione lista random da 1 a 90
+      (setq numbers (randomize (sequence 1 90)))
+      ; ciclo per ogni cartella
+      (for (c 1 6)
+        ; lista che rappresenta una cartella
+        (setq table (array-list (array 3 9 '(0))))
+        (setq stop nil)
+        ; ciclo per tutti i 90 numeri (o quelli rimasti)...
+        (dolist (n numbers stop)
+          ; lista delle posizioni possibili del numero corrente
+          ; nella cartella (r c)
+          (setq possible (list-possible n))
+          ; se esiste almeno una posizione possibile,
+          ; allora inserisce il numero nella prima posizione possibile
+          (if (!= possible '())
+            (begin
+              (setq cur-row (possible 0 0))
+              (setq cur-col (possible 0 1))
+              (setf (table cur-row cur-col) n))
+          )
+          ; se la cartella contiene 15 numeri (cioè se è piena)
+          ; allora ferma il ciclo dei numeri
+          (if (filled? table) (setq stop true))
+        )
+        ; se la cartella è piena (cioè se stop vale true),
+        ; allora ordiniamo correttamente le colonne e
+        ; la inseriamo nella lista delle cartelle
+        (if stop
+          (begin
+            ; ordina gli elementi delle colonne della cartella (table)
+            ; (gli 0 non vengono modificati)
+            ; questo non modifica le altre proprietà della cartella
+            (setq table (change-col-order table))
+            ; inserisce la cartella corrente nella lista delle cartelle
+            (push table cartelle -1)
+            ; elimina i 15 numeri utilizzati per la cartella (table) corrente
+            (setq numbers (difference numbers (flat table)))
+          )
+          ;else
+          ; altrimenti non è stato possibile completare la cartella corrente
+          ; questo accade in genere per l'ultima tabella (la sesta)          
+          (begin
+            ;(println "error: " c)
+          )
+        )
+      )
+      ; se abbiamo creato 6 cartelle e
+      ; se abbiamo utilizzato tutti i numeri da 1 a 90,
+      ; allora abbiamo finito
+      (if (and (= (length cartelle) 6) 
+               (= (sort (unique (flat cartelle))) (sequence 0 90)))
+          (setq finito true)
+      )
+    )
+    ; generazione delle cartelle terminata
+    (if stampa
+      ; stampa della cartelle
+      (for (i 0 5) (print-table (cartelle i)) (println))
+      ; else
+      ; restituisce la lista delle cartelle
+      cartelle
+    )
+  )
+)
+
+Facciamo un paio di prove:
+
+(lotto true)
+;-> 0 16  0 33 41  0  0 75  0
+;-> 0 17  0  0 42  0 60 76 81
+;-> 8  0 21 35  0 59 64  0 86
+;-> 
+;-> 0  0 20  0  0 56 61 73 84
+;-> 0  0 22  0 45  0 63  0  0
+;-> 1 18  0 34 49 58  0 78 89
+;-> 
+;-> 3  0  0  0  0  0  0 70 80
+;-> 0 11 26  0  0 55  0 74 83
+;-> 7 19 28 38 44 57 62  0  0
+;-> 
+;-> 0 10  0 30 40 51  0  0  0
+;-> 0  0 24  0  0 52  0 71  0
+;-> 2 12 25 36 46  0 65 79 85
+;-> 
+;-> 0  0 23 31  0  0 66  0 82
+;-> 4  0 27  0 43  0 69  0 90
+;-> 5 14  0 39 47 54  0 77  0
+;-> 
+;-> 6  0  0 32  0  0 67  0 87
+;-> 0 13  0  0  0 50 68  0 88
+;-> 9 15 29 37 48 53  0 72  0
+
+(lotto true)
+;-> 5  0 24  0  0 53 64  0 86
+;-> 6  0 26 33  0 58  0  0 87
+;-> 0 10  0 35 48  0 69 73  0
+;-> 
+;-> 0  0 22 34 42 55  0  0 80
+;-> 0  0 23 38 47 59 62  0  0
+;-> 8 12  0  0  0  0 63 75 84
+;-> 
+;-> 1  0 27 36 40  0  0 71  0
+;-> 3 11 29 37 43  0  0  0  0
+;-> 0 13  0  0  0 54 68 74 89
+;-> 
+;-> 0 14  0 31 46  0  0 76 81
+;-> 7 16  0 32 49  0  0 78  0
+;-> 9  0 25  0  0 57 60  0 90
+;-> 
+;-> 0  0  0  0 44  0 65  0 85
+;-> 0 18  0  0  0 50 66 72 88
+;-> 4 19 21 30 45 52  0 77  0
+;-> 
+;-> 0  0 20  0  0 51 61 70 82
+;-> 0 15  0  0  0 56  0 79  0
+;-> 2 17 28 39 41  0 67  0 83
+
+Vediamo la velocità della funzione:
+
+(time (lotto))
+;-> 540.247
+(time (lotto) 10)
+;-> 4182.781
+
+Il programma non è deterministico:
+
+(time (lotto) 10)
+;-> 7937.776
+(time (lotto) 10)
+;-> 6111.974
+
 =============================================================================
 

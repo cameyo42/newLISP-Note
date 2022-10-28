@@ -1437,6 +1437,8 @@ NOTE LIBERE 11
   Funzione slice di python
   Coefficienti multinomiali
   Sicurezza delle password
+  Cattura di pagine web
+  Generazione delle cartelle del lotto
 
 APPENDICI
 =========
