@@ -23,7 +23,7 @@ Appunti sul linguaggio newLISP e sul problem solving
 16) Note libere 8 (80)
 17) Note libere 9 (80)
 18) Note libere 10 (80)
-19) Note libere 11 (73)
+19) Note libere 11 (74)
 97) Appendici (25)
 98) Bibliografia
 99) yo library (yo.zip) (222)

@@ -1438,7 +1438,8 @@ NOTE LIBERE 11
   Coefficienti multinomiali
   Sicurezza delle password
   Cattura di pagine web
-  Generazione delle cartelle del lotto
+  Generazione delle cartelle della tombola
+  Prefix e Suffix Sum Array
 
 APPENDICI
 =========

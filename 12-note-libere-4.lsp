@@ -4471,6 +4471,7 @@ Nota: il problema della partizione è indicato come un problema NP-completo in i
 -------------------
 Numeri di Zumkeller
 -------------------
+
 I numeri Zumkeller sono l'insieme di numeri i cui divisori possono essere partizionati in due insiemi disgiunti che si sommano allo stesso valore. Ogni somma deve contenere valori di divisori che non sono nell'altra somma e tutti i divisori devono essere nell'una o nell'altra. Non ci sono restrizioni sul modo in cui i divisori devono essere partizionati, solo che le somme delle due partizione devono essere sono uguali.
 Per esempio:
 6 è un numero Zumkeller: i divisori (1 2 3 6) possono essere partizionati in due gruppi (1 2 3) e (6) che sommano entrambi a 6.

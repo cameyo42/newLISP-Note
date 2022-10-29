@@ -7114,6 +7114,31 @@ Con le liste:
 (extract '("z" "i" "p" "p" "o") 10 20)
 ;-> ()
 
+Vediamo la differenza con lo slice di newLISP:
+
+(setq lst '(1 2 3 4 5))
+
+(extract lst 0 1)
+;-> (1)
+(0 1 lst)
+;-> (1)
+(slice lst 0 1)
+;-> (1)
+
+(extract lst 0 0)
+;-> ()
+(0 0 lst)
+;-> ()
+(slice lst 0 0)
+;-> ()
+
+(extract lst 2 3)
+;-> (3)
+(2 3 lst)
+;-> (3 4 5)
+(slice lst 2 3)
+;-> (3 4 5)
+
 
 -------------------------
 Coefficienti multinomiali
@@ -7448,11 +7473,11 @@ Con il seguente comando salviamo la pagina html in una lista:
 ;-> "</html>"
 
 
-------------------------------------
-Generazione delle cartelle del lotto
-------------------------------------
+----------------------------------------
+Generazione delle cartelle della tombola
+----------------------------------------
 
-Lotto: numeri da 1 a 90
+Tombola: numeri da 1 a 90
 Cartelle: gruppi di 6 cartelle con tutti i numeri da 1 a 90
 
 Le cartelle sono formate da 3 file orizzontali (righe) ognuna contenente 9 caselle colonne.
@@ -7511,6 +7536,10 @@ Funzione che stampa una cartella:
       (println))))
 
 (setq table (array-list (array 3 9 (rand 2 27))))
+(setq table '((1 0 0 1 0 1 1 1 0)
+              (0 0 0 0 0 0 0 1 1)
+              (1 1 1 1 1 1 0 1 0)))
+
 (print-table table)
 ;-> 1 0 0 1 0 1 1 1 0
 ;-> 0 0 0 0 0 0 0 1 1
@@ -7523,6 +7552,8 @@ Funzione che verifica se una riga è libera, cioè se contiene più di 4 caselle
 
 (check-free-row? 0)
 ;-> nil
+(check-free-row? 1)
+;-> true
 (check-free-row? 2)
 ;-> nil
 
@@ -7533,11 +7564,11 @@ Funzione che verifica se una colonna è libera, cioè se contiene più di 1 case
 
 (check-free-col? 0)
 ;-> nil
-
 (check-free-col? 1)
 ;-> true
 
 La lista "colonne" contiene i possibili valori per ogni colonna:
+
 (setq colonne '(
 (0 (1 2 3 4 5 6 7 8 9)) (1 (10 11 12 13 14 15 16 17 18 19))
 (2 (20 21 22 23 24 25 26 27 28 29)) (3 (30 31 32 33 34 35 36 37 38 39))
@@ -7546,6 +7577,7 @@ La lista "colonne" contiene i possibili valori per ogni colonna:
 (8 (80 81 82 83 84 85 86 87 88 89 90))))
 
 Funzione che verifica se un dato numero può essere inserito in una data colonna:
+
 (define (check-num-col? num col)
   (if (find num (lookup col colonne))
       true
@@ -7637,7 +7669,7 @@ Funzione che ordina i valori delle colonne senza modificare i posti vuoti:
 
 Funzione che genera il gruppo di 6 cartelle con i numeri da 1 a 90:
 
-(define (lotto stampa)
+(define (tombola stampa)
   (local (colonne finito cartelle numbers table 
           possible cur-row cur-col filled)
     (setq colonne '(
@@ -7721,7 +7753,7 @@ Funzione che genera il gruppo di 6 cartelle con i numeri da 1 a 90:
 
 Facciamo un paio di prove:
 
-(lotto true)
+(tombola true)
 ;-> 0 16  0 33 41  0  0 75  0
 ;-> 0 17  0  0 42  0 60 76 81
 ;-> 8  0 21 35  0 59 64  0 86
@@ -7746,7 +7778,7 @@ Facciamo un paio di prove:
 ;-> 0 13  0  0  0 50 68  0 88
 ;-> 9 15 29 37 48 53  0 72  0
 
-(lotto true)
+(tombola true)
 ;-> 5  0 24  0  0 53 64  0 86
 ;-> 6  0 26 33  0 58  0  0 87
 ;-> 0 10  0 35 48  0 69 73  0
@@ -7773,17 +7805,85 @@ Facciamo un paio di prove:
 
 Vediamo la velocità della funzione:
 
-(time (lotto))
+(time (tombola))
 ;-> 540.247
-(time (lotto) 10)
+(time (tombola) 10)
 ;-> 4182.781
 
 Il programma non è deterministico:
 
-(time (lotto) 10)
+(time (tombola) 10)
 ;-> 7937.776
-(time (lotto) 10)
+(time (tombola) 10)
 ;-> 6111.974
+
+
+-------------------------
+Prefix e Suffix Sum Array
+-------------------------
+
+Prefix Sum Array
+----------------
+Dato un array arr[] di dimensione n, il suo array di prefix sum è un altro array prefixSum[] della stessa dimensione, in modo tale che il valore di prefixSum[i] sia:
+
+  prefixSum[i] = arr[0] + arr[1] + arr[2] + ... + arr[i]
+
+Esempio:
+arr = (10 20 10 5 15)
+prefixSum = (10 30 40 45 60)
+
+Algoritmo:
+Durante l'attraversamento dell'array, aggiornare l'elemento aggiungendolo al suo elemento precedente.
+prefixSum[0] = 10,
+prefixSum[1] = prefixSum[0] + arr[1] = 10 + 20 = 30,
+prefixSum[2] = prefixSum[1] + arr[2] = 30 + 10 = 40 e cosi via.
+
+(define (prefix-sum lst)
+  (let (out (array (length lst) '(0)))
+    ; imposta il primo elemento
+    (setf (out 0) (lst 0))
+    ; calcola i rimanenti elementi
+    (for (i 1 (- (length lst) 1))
+      ; aggiunge l'elemento corrente con l'elemento precedente
+      (setf (out i) (add (out (- i 1)) (lst i)))
+    )
+    out))
+
+(setq a '(10 20 10 5 15))
+
+(prefix-sum a)
+;-> (10 30 40 45 60)
+
+Suffix Sum Array
+----------------
+Dato un array arr[] di dimensione n, il suo array di suffix sum è un altro array suffixSum[] della stessa dimensione, in modo tale che il valore di suffixSum[i] sia:
+
+  suffixSum[i] = arr[i] + arr[i+1] + arr[i+2] + ... + arr[n-1]
+
+arr = (15 10 25 5 10 20)
+suffixSum = (85 70 60 35 30 20)
+
+Algoritmo:
+Durante l'attraversamento al contrario dell'array, aggiornare l'elemento corrente aggiungendolo all'elemento precedente (in senso contrario).
+suffixSum[5] = 20,
+suffixSum[4] = suffixSum[5] + arr[4] = 20 + 10 = 30,
+suffixSum[3] = suffixSum[4] + arr[3] = 30 + 5 = 35 e cosi via.
+
+(define (suffix-sum lst)
+  (let (out (array (length lst) '(0)))
+    ; imposta il primo elemento 
+    (setf (out -1) (lst -1))
+    ; calcola i rimanenti elementi
+    (for (i (- (length lst) 2) 0 -1)
+      ; aggiunge l'elemento corrente con l'elemento precedente
+      (setf (out i) (add (out (+ i 1)) (lst i)))
+    )
+    out))
+
+(setq a '(15 10 25 5 10 20))
+
+(suffix-sum a)
+;-> (85 70 60 35 30 20)
 
 =============================================================================
 
