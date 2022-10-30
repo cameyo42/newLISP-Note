@@ -1440,6 +1440,8 @@ NOTE LIBERE 11
   Cattura di pagine web
   Generazione delle cartelle della tombola
   Prefix e Suffix Sum Array
+  Minimize difference of Contiguous Sublist Sum
+  Minimize difference of Sublist Sum
 
 APPENDICI
 =========

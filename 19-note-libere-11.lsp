@@ -5659,7 +5659,7 @@ La costruzione del grafo è la seguente:
      |                                |
   +----+     +----+     +----+     +----+
   |  8 |     |  9 |-----|  7 |-----|  2 |
-  +----+     +----+     +----+     +----+     
+  +----+     +----+     +----+     +----+
 
 La soluzione (percorso che visita tutti i nodi una sola volta) è la seguente:
 
@@ -5770,54 +5770,54 @@ https://rosettacode.org/wiki/Execute_Brain****#NewLISP
   (let (p 0)
     (dostring (i src (> 0 p))
       (case i
-	("[" (++ p))
-	("]" (-- p))))
+  ("[" (++ p))
+  ("]" (-- p))))
     (zero? p)))
 
 ; Translate the Brainf*** command into S-expressions
 
 (define (_compile)
   (let ((prog '())
-	; Translate +
-	(incr '(++ (tape i) n))
-	; Translate -
-	(decr '(-- (tape i) n))
-	; Translate .
+  ; Translate +
+  (incr '(++ (tape i) n))
+  ; Translate -
+  (decr '(-- (tape i) n))
+  ; Translate .
         (emit (if quiet
-		'(push (char (tape i)) result -1)
+    '(push (char (tape i)) result -1)
                 '(print (char (tape i)))))
-	; Translate ,
-	(store '(setf (tape i) (read-key)))
-	; Check for loop condition
-	(over? '(zero? (tape i)))
-	; Current character of the program
-	(m)
-	; Find how many times the same character occurs
-	(rep (fn ((n 1))
-		 (while (= m (src 0))
-		 (++ n)
-		 (pop src))
-	     n)))
+  ; Translate ,
+  (store '(setf (tape i) (read-key)))
+  ; Check for loop condition
+  (over? '(zero? (tape i)))
+  ; Current character of the program
+  (m)
+  ; Find how many times the same character occurs
+  (rep (fn ((n 1))
+     (while (= m (src 0))
+     (++ n)
+     (pop src))
+       n)))
     ; Traverse the program and translate recursively
     (until (or (empty? src) (= "]" (setq m (pop src))))
-	   (case m
-	     (">" (push (list '++ 'i (rep)) prog -1))
-	     ("<" (push (list '-- 'i (rep)) prog -1))
-	     ("+" (push (expand incr '((n (rep))) true) prog -1))
-	     ("-" (push (expand decr '((n (rep))) true) prog -1))
-	     ("." (push emit prog -1))
-	     ("," (push store prog -1))
-	     ("[" (push (append (list 'until over?)
-				(_compile))
-			prog -1))))
+     (case m
+       (">" (push (list '++ 'i (rep)) prog -1))
+       ("<" (push (list '-- 'i (rep)) prog -1))
+       ("+" (push (expand incr '((n (rep))) true) prog -1))
+       ("-" (push (expand decr '((n (rep))) true) prog -1))
+       ("." (push emit prog -1))
+       ("," (push store prog -1))
+       ("[" (push (append (list 'until over?)
+        (_compile))
+      prog -1))))
     prog))
 
 (define (compile str , tim code)
   (setq src (join
-	(filter (fn (x)
-		    (member x '("<" ">" "-" "+"
-				"." "," {[} {]})))
-		(explode str))))
+  (filter (fn (x)
+        (member x '("<" ">" "-" "+"
+        "." "," {[} {]})))
+    (explode str))))
   ; Throw an error if the program is ill-formed
   (unless (well-formed?)
     (throw-error "Unbalanced brackets in Brainf*** source string"))
@@ -5830,10 +5830,10 @@ https://rosettacode.org/wiki/Execute_Brain****#NewLISP
 
 (define (run str (size 30000))
   (let ((tape (array size '(0)))
-	 (i 0)
-	 (result '())
-	 (tim 0)
-	 (prog (compile str)))
+   (i 0)
+   (result '())
+   (tim 0)
+   (prog (compile str)))
     (setq tim (time (eval prog)))
     (and show-timing (println "Execution time: " tim))
     (and quiet (join result))))
@@ -5950,45 +5950,45 @@ Dal forum di newLISP:
 
 Sunburned Surveyor
 ------------------
-I had a couple of questions about the newLisp syntax I was hoping you guys could help with. 
+I had a couple of questions about the newLisp syntax I was hoping you guys could help with.
 
-(1) I believe a symbol is like a variable in other languages. It is a named container that holds a value. Is this correct? 
+(1) I believe a symbol is like a variable in other languages. It is a named container that holds a value. Is this correct?
 
-(2) What is the difference between a symbol and a constant? 
+(2) What is the difference between a symbol and a constant?
 
-(3) On page 13 pf the reference manual it discusses resetting the value of the integer math operators. It has the following LISP statement: 
+(3) On page 13 pf the reference manual it discusses resetting the value of the integer math operators. It has the following LISP statement:
 
-(constant '+ add) 
+(constant '+ add)
 
-I realize this statement is setting the value of the "+" operator to the add function, but what is the purpose of the single quote? Are we using that to refer to the name "+" rather than evauluating it as a math operator? 
+I realize this statement is setting the value of the "+" operator to the add function, but what is the purpose of the single quote? Are we using that to refer to the name "+" rather than evauluating it as a math operator?
 
-(4) Is init.lsp used to load a set of user defined functions for the newLisp compiler/IDE? 
+(4) Is init.lsp used to load a set of user defined functions for the newLisp compiler/IDE?
 
-(5) I did some on-line research about Lambda ecpressions. I want to make sure I understand them correctly. Is the following true: 
+(5) I did some on-line research about Lambda ecpressions. I want to make sure I understand them correctly. Is the following true:
 
-A Lambda expression defines a function temporarily. The first part of the expression must be the symbol name Lambda, the second is a parameter/argument list, and the thirs is the expression that operates on the arguments. 
+A Lambda expression defines a function temporarily. The first part of the expression must be the symbol name Lambda, the second is a parameter/argument list, and the thirs is the expression that operates on the arguments.
 
 HPW
 ---
->(1) I believe a symbol is like a variable in other languages. It is a named container that holds a value. Is this correct? 
+>(1) I believe a symbol is like a variable in other languages. It is a named container that holds a value. Is this correct?
 
-Not only a value. It can also contain a function or list. There is no sharp frontier between code and data in lisp. It is one of the powerfull features and can be used for code generation at runtime. 
+Not only a value. It can also contain a function or list. There is no sharp frontier between code and data in lisp. It is one of the powerfull features and can be used for code generation at runtime.
 
->(2) What is the difference between a symbol and a constant? 
+>(2) What is the difference between a symbol and a constant?
 
-The constant is protected against overwriting and the symbol not. 
+The constant is protected against overwriting and the symbol not.
 
->I realize this statement is setting the value of the "+" operator to the add function, but what is the purpose of the single quote? Are we using that to refer to the name "+" rather than evauluating it as a math operator? 
+>I realize this statement is setting the value of the "+" operator to the add function, but what is the purpose of the single quote? Are we using that to refer to the name "+" rather than evauluating it as a math operator?
 
-The quote prevent the symbol against evaluation to its content. You can also write (constant (quote +) add). It is the same. 
+The quote prevent the symbol against evaluation to its content. You can also write (constant (quote +) add). It is the same.
 
->(4) Is init.lsp used to load a set of user defined functions for the newLisp compiler/IDE? 
+>(4) Is init.lsp used to load a set of user defined functions for the newLisp compiler/IDE?
 
-It is used to load your own function into the newlisp enviroment. It is not primaly used for the IDE. 
+It is used to load your own function into the newlisp enviroment. It is not primaly used for the IDE.
 
 Eddier
 ------
-Coming from the imperative side of things, I also faced such challenges. The biggest one for me was (f x0 x1 ... xn) in Lisp == f(x0, x1, ..., xn) in Python, Perl, C, Java, etc,... Once I figured out that the first thing after the beginning "(" was an operation that operated on everything up to the ")" I started to get into it a bit. Then I realized to build programs in the functional world, just compose the functions. In the mathematical and imperative world (g comp f)(x) = g(f(x)), but in lisp it's just (g (f x)) => first apply f to x then apply g to whatever f left. This makes a pretty picture. Lisp is just evaluating a tree, the same infix, postfix, prefix trees you learned in that second semester programming course. As example, 
+Coming from the imperative side of things, I also faced such challenges. The biggest one for me was (f x0 x1 ... xn) in Lisp == f(x0, x1, ..., xn) in Python, Perl, C, Java, etc,... Once I figured out that the first thing after the beginning "(" was an operation that operated on everything up to the ")" I started to get into it a bit. Then I realized to build programs in the functional world, just compose the functions. In the mathematical and imperative world (g comp f)(x) = g(f(x)), but in lisp it's just (g (f x)) => first apply f to x then apply g to whatever f left. This makes a pretty picture. Lisp is just evaluating a tree, the same infix, postfix, prefix trees you learned in that second semester programming course. As example,
 
 (+ 2 3 (* 4 3))
 
@@ -6013,11 +6013,11 @@ Example
 
 (join '("hello" "world") ":") => "hello:world"
 
-Here join is the function and it's arguments are '("hello" "world") and ":". The reason '("hello" "world") is data and lisp is not trying to evaluate "here" as a function is because of the ' in front. 
+Here join is the function and it's arguments are '("hello" "world") and ":". The reason '("hello" "world") is data and lisp is not trying to evaluate "here" as a function is because of the ' in front.
 
 Lutz
 ----
-You can draw it even simpler: 
+You can draw it even simpler:
 
 (+ 2 3 (* 4 3))
 
@@ -6027,15 +6027,15 @@ You can draw it even simpler:
                          \
                          [*] -> [4] -> [3]
 
-because newLISP has no dotted pairs, a lisp cell has just a contents and the pointer to the next cell. 
+because newLISP has no dotted pairs, a lisp cell has just a contents and the pointer to the next cell.
 
 Eddier
 ------
-I think there should be a "->[ ]" after the "[*]->[4]->[3]" correct? 
+I think there should be a "->[ ]" after the "[*]->[4]->[3]" correct?
 
 Lutz
 ----
-In the diagram the [ ] stands for some kind of 'list envelope' for it's members: *, 2, 3 and this envelope itself is a lisp cell the content of which is a pointer to the first list member, in this case the *. 
+In the diagram the [ ] stands for some kind of 'list envelope' for it's members: *, 2, 3 and this envelope itself is a lisp cell the content of which is a pointer to the first list member, in this case the *.
 
 Note: read the tutorial "newLISP in 21 minutes" by John W. Small.
 (disponibile in italiano delle Appendici).
@@ -6207,7 +6207,7 @@ Scriviamo una funzione che verifica se una data sequenza e un determinato numero
     )
     ; somma dei leaders
     (setq somma-leaders (apply + leaders))
-    ; numeri minimo di elementi necessari 
+    ; numeri minimo di elementi necessari
     ; (ogni gruppo deve avere almeno 3 elementi:
     ;  il leader e altri due elementi da sommare)
     (setq min-elements (* gruppi 3))
@@ -6300,8 +6300,8 @@ lista dei gruppi: (3 3 3 3)
 
 (time (println (cerca '(3 3 3 3) (sequence 1 12))))
 ;-> ciclo...
-;-> (((12 9 3) (11 7 4) (10 8 2) (6 5 1)) 
-;->  ((12 8 4) (11 9 2) (10 7 3) (6 5 1)) 
+;-> (((12 9 3) (11 7 4) (10 8 2) (6 5 1))
+;->  ((12 8 4) (11 9 2) (10 7 3) (6 5 1))
 ;->  ((12 10 2) (11 8 3) (9 5 4) (7 6 1))
 ;->  ((12 10 2) (11 6 5) (9 8 1) (7 4 3))
 ;->  ((12 7 5) (11 8 3) (10 9 1) (6 4 2))
@@ -6365,11 +6365,11 @@ Adesso scriviamo una funzione che calcola tutti i possibili risultati e crea una
 Giocando 3 partite otteniamo:
 
 (possible-results 3)
-;-> ((0 (0 0 0)) 
-;->  (0.5 (0 0 0.5)) 
-;->  (0.5 (0 0.5 0)) 
-;->  (0.5 (0.5 0 0)) 
-;->  (1 (0 0 1)) 
+;-> ((0 (0 0 0))
+;->  (0.5 (0 0 0.5))
+;->  (0.5 (0 0.5 0))
+;->  (0.5 (0.5 0 0))
+;->  (1 (0 0 1))
 ;->  (1 (0 0.5 0.5))
 ;->  (1 (0 1 0))
 ;->  (1 (0.5 0 0.5))
@@ -6457,10 +6457,10 @@ Addizione esatta
 Scriviamo una funzione che somma esattamente due numeri in virgola mobile (in formato stringa) di (quasi) qualunque magnitudine.
 I numeri vengono memorizzati in vettori di cifre, quindi possiamo utilizzare numeri estremamente grandi e con molte cifre dopo la virgola.
 Esempio:
-  
+
   stringa1 = "12345.009"
   vettore1 = 0 1 2 3 4 5 . 0 0 9 0 0 0 0 0 0 0 0 0
-  
+
   stringa2 = "6.038473666636"
   vettore2 = 0 0 0 0 0 6 . 0 3 8 4 7 3 6 6 6 6 3 6
 
@@ -6804,7 +6804,7 @@ Addizione esatta
 ----------------
 
 (define (add-str str1 str2)
-  (local (sep p1 p2 len1 len2 dopo prima len ante post 
+  (local (sep p1 p2 len1 len2 dopo prima len ante post
           neg1 neg2 mag1 mag2 temp)
     ; controllo numeri negativi
     (setq neg1 (negative? str1))
@@ -6879,7 +6879,7 @@ Sottrazione esatta
 ------------------
 
 (define (sub-str str1 str2)
-  (local (sep p1 p2 len1 len2 dopo prima len ante post 
+  (local (sep p1 p2 len1 len2 dopo prima len ante post
           neg1 neg2 mag1 mag2 temp)
     ; controllo numeri negativi
     (setq neg1 (negative? str1))
@@ -7547,34 +7547,34 @@ Funzione che stampa una cartella:
 
 Funzione che verifica se una riga è libera, cioè se contiene più di 4 caselle libere (0):
 
-(define (check-free-row? row)
-  (> (first (count '(0) (table row))) 4))
+(define (check-free-row? row lst)
+  (> (first (count '(0) (lst row))) 4))
 
-(check-free-row? 0)
+(check-free-row? 0 table)
 ;-> nil
-(check-free-row? 1)
+(check-free-row? 1 table)
 ;-> true
-(check-free-row? 2)
+(check-free-row? 2 table)
 ;-> nil
 
 Funzione che verifica se una colonna è libera, cioè se contiene più di 1 casella libera (0):
 
-(define (check-free-col? col)
-  (> (first (count '(0) ((transpose table) col))) 1))
+(define (check-free-col? col lst)
+  (> (first (count '(0) ((transpose lst) col))) 1))
 
-(check-free-col? 0)
+(check-free-col? 0 table)
 ;-> nil
-(check-free-col? 1)
+(check-free-col? 1 table)
 ;-> true
 
 La lista "colonne" contiene i possibili valori per ogni colonna:
 
 (setq colonne '(
-(0 (1 2 3 4 5 6 7 8 9)) (1 (10 11 12 13 14 15 16 17 18 19))
-(2 (20 21 22 23 24 25 26 27 28 29)) (3 (30 31 32 33 34 35 36 37 38 39))
-(4 (40 41 42 43 44 45 46 47 48 49)) (5 (50 51 52 53 54 55 56 57 58 59))
-(6 (60 61 62 63 64 65 66 67 68 69)) (7 (70 71 72 73 74 75 76 77 78 79))
-(8 (80 81 82 83 84 85 86 87 88 89 90))))
+  (0 (1 2 3 4 5 6 7 8 9)) (1 (10 11 12 13 14 15 16 17 18 19))
+  (2 (20 21 22 23 24 25 26 27 28 29)) (3 (30 31 32 33 34 35 36 37 38 39))
+  (4 (40 41 42 43 44 45 46 47 48 49)) (5 (50 51 52 53 54 55 56 57 58 59))
+  (6 (60 61 62 63 64 65 66 67 68 69)) (7 (70 71 72 73 74 75 76 77 78 79))
+  (8 (80 81 82 83 84 85 86 87 88 89 90))))
 
 Funzione che verifica se un dato numero può essere inserito in una data colonna:
 
@@ -7590,19 +7590,19 @@ Funzione che verifica se un dato numero può essere inserito in una data colonna
 
 Funzione che verifica se un dato numero può essere inserito in una data casella:
 
-(define (possible? num row col)
+(define (possible? num row col lst)
   (local (res)
     (setq res true)
           ; la casella deve essera vuota
-    (cond ((not (zero? (table row col)))
+    (cond ((not (zero? (lst row col)))
            ;(println "casella piena")
             (setq res nil))
           ; ci sono almeno 5 caselle libere nella riga?
-          ((not (check-free-row? row))
+          ((not (check-free-row? row lst))
             ;(println "(check-free-row? row)")
             (setq res nil))
           ; ci sono almeno 2 caselle libere nella colonna?
-          ((not (check-free-col? col))
+          ((not (check-free-col? col lst))
            ;(println "(check-free-col? col)")
             (setq res nil))
           ; il numero può stare nella colonna?
@@ -7614,70 +7614,73 @@ Funzione che verifica se un dato numero può essere inserito in una data casella
 
 Funzione che crea la lista delle posizioni possibili per un dato numero:
 
-(define (list-possible num)
+(define (list-possible num lst)
   (local (out)
     (setq out '())
     (for (r 0 2)
       (for (c 0 8)
-        (if (possible? num r c)
+        (if (possible? num r c lst)
             (push (list r c) out -1)
         )
       )
     )
     out))
 
-(list-possible 11)
+(list-possible 11 table)
 ;-> ((1 1))
 
-(list-possible 45)
+(list-possible 45 table)
 ;-> ((1 4))
 
-(list-possible 54)
+(list-possible 54 table)
 ;-> ()
 
 Funzione che verifica se una cartella è piena (cioè se ha 15 numeri):
 
 (define (filled? lst)
-  (<= (first (count '(0) (flat table))) 12))
+  (<= (first (count '(0) (flat lst))) 12))
 
 Funzione che ordina i valori delle colonne senza modificare i posti vuoti:
-(Questa operazione non modifica le altre proprietà della cartella).
+(questa operazione non modifica le altre proprietà della cartella).
 
-(define (change-col-order table)
+(define (change-col-order lst)
   (for (c 0 8)
-    (cond ((zero? (table 0 c))
-              (if (> (table 1 c) (table 2 c))
-                  (swap (table 1 c) (table 2 c))))
-          ((zero? (table 1 c))
-              (if (> (table 0 c) (table 2 c))
-                  (swap (table 0 c) (table 2 c))))
-          ((zero? (table 2 c))
-              (if (> (table 0 c) (table 1 c))
-                  (swap (table 0 c) (table 1 c))))
+    ; possibile scambio solo se la colonna ha un solo 0 (posto vuoto)
+    (if (= (first (count '(0) (list (lst 0 c) (lst 1 c) (lst 2 c)))) 1)
+        (cond ((zero? (lst 0 c))
+                  (if (and (> (lst 1 c) (lst 2 c))
+                      (swap (lst 1 c) (lst 2 c)))))
+              ((zero? (lst 1 c))
+                  (if (> (lst 0 c) (lst 2 c))
+                      (swap (lst 0 c) (lst 2 c))))
+              ((zero? (lst 2 c))
+                  (if (> (lst 0 c) (lst 1 c))
+                      (swap (lst 0 c) (lst 1 c))))
+        )
     )
   )
-  table)
+  lst)
 
-(setq prima '((0 15 22  0 46  0 64  0 87)
-              (6 19  0 35 47  0  0  0 84)
-              (9  0 21 39  0  0 61 74  0)))
+(setq prima '((0 15  0  0 47 55 64  0 86)
+              (0  0 29 38 42  0 62  0 87)
+              (4  0 28 37  0 53  0 76  0)))
 
 (print-table (change-col-order prima))
-;-> 0 15 21  0 46  0 61  0 84
-;-> 6 19  0 35 47  0  0  0 87
-;-> 9  0 22 39  0  0 64 74  0
+;->  0 15  0  0 42 53 62  0 86
+;->  0  0 28 37 47  0 64  0 87
+;->  4  0 29 38  0 55  0 76  0
 
 Funzione che genera il gruppo di 6 cartelle con i numeri da 1 a 90:
 
 (define (tombola stampa)
-  (local (colonne finito cartelle numbers table 
+  (local (colonne finito cartelle numbers table
           possible cur-row cur-col filled)
     (setq colonne '(
-    (0 (1 2 3 4 5 6 7 8 9)) (1 (10 11 12 13 14 15 16 17 18 19))
-    (2 (20 21 22 23 24 25 26 27 28 29)) (3 (30 31 32 33 34 35 36 37 38 39))
-    (4 (40 41 42 43 44 45 46 47 48 49)) (5 (50 51 52 53 54 55 56 57 58 59))
-    (6 (60 61 62 63 64 65 66 67 68 69)) (7 (70 71 72 73 74 75 76 77 78 79))
-    (8 (80 81 82 83 84 85 86 87 88 89 90))))  
+       (0 (1 2 3 4 5 6 7 8 9)) (1 (10 11 12 13 14 15 16 17 18 19))
+       (2 (20 21 22 23 24 25 26 27 28 29)) (3 (30 31 32 33 34 35 36 37 38 39))
+       (4 (40 41 42 43 44 45 46 47 48 49)) (5 (50 51 52 53 54 55 56 57 58 59))
+       (6 (60 61 62 63 64 65 66 67 68 69)) (7 (70 71 72 73 74 75 76 77 78 79))
+       (8 (80 81 82 83 84 85 86 87 88 89 90))))
     (setq finito nil)
     ; proviamo a generare 6 cartelle corrette con
     ; una lista random di numeri da 1 a 90.
@@ -7689,7 +7692,8 @@ Funzione che genera il gruppo di 6 cartelle con i numeri da 1 a 90:
       ; generazione lista random da 1 a 90
       (setq numbers (randomize (sequence 1 90)))
       ; ciclo per ogni cartella
-      (for (c 1 6)
+      (setq error nil)
+      (for (c 1 6 1 error)
         ; lista che rappresenta una cartella
         (setq table (array-list (array 3 9 '(0))))
         (setq stop nil)
@@ -7697,14 +7701,20 @@ Funzione che genera il gruppo di 6 cartelle con i numeri da 1 a 90:
         (dolist (n numbers stop)
           ; lista delle posizioni possibili del numero corrente
           ; nella cartella (r c)
-          (setq possible (list-possible n))
+          (setq possible (list-possible n table))
           ; se esiste almeno una posizione possibile,
           ; allora inserisce il numero nella prima posizione possibile
           (if (!= possible '())
             (begin
               (setq cur-row (possible 0 0))
               (setq cur-col (possible 0 1))
-              (setf (table cur-row cur-col) n))
+              (setf (table cur-row cur-col) n)
+              ;(println "numero: " n)
+              ;(print-table table)
+              ;(println possible)
+              ;(println cur-row { } cur-col)
+              ;(read-line)
+            )
           )
           ; se la cartella contiene 15 numeri (cioè se è piena)
           ; allora ferma il ciclo dei numeri
@@ -7723,19 +7733,24 @@ Funzione che genera il gruppo di 6 cartelle con i numeri da 1 a 90:
             (push table cartelle -1)
             ; elimina i 15 numeri utilizzati per la cartella (table) corrente
             (setq numbers (difference numbers (flat table)))
+            ;(println c)
+            ;(print-table table)
+            ;(println numbers)
+            ;(read-line)
           )
           ;else
           ; altrimenti non è stato possibile completare la cartella corrente
-          ; questo accade in genere per l'ultima tabella (la sesta)          
+          ; questo accade in genere per l'ultima tabella (la sesta)
           (begin
             ;(println "error: " c)
+            (setq error true) ; per uscire dal ciclo for
           )
         )
       )
       ; se abbiamo creato 6 cartelle e
       ; se abbiamo utilizzato tutti i numeri da 1 a 90,
       ; allora abbiamo finito
-      (if (and (= (length cartelle) 6) 
+      (if (and (= (length cartelle) 6)
                (= (sort (unique (flat cartelle))) (sequence 0 90)))
           (setq finito true)
       )
@@ -7754,68 +7769,65 @@ Funzione che genera il gruppo di 6 cartelle con i numeri da 1 a 90:
 Facciamo un paio di prove:
 
 (tombola true)
-;-> 0 16  0 33 41  0  0 75  0
-;-> 0 17  0  0 42  0 60 76 81
-;-> 8  0 21 35  0 59 64  0 86
+;->  0 11 24  0 46 50  0 72  0
+;->  0 13  0  0 49  0 67 73 81
+;->  7  0 26  0  0 57 69  0 87
 ;-> 
-;-> 0  0 20  0  0 56 61 73 84
-;-> 0  0 22  0 45  0 63  0  0
-;-> 1 18  0 34 49 58  0 78 89
+;->  2  0 25 32 42  0 60  0  0
+;->  4  0 29 39  0  0 64 71  0
+;->  0 10  0  0 47 53  0 79 80
 ;-> 
-;-> 3  0  0  0  0  0  0 70 80
-;-> 0 11 26  0  0 55  0 74 83
-;-> 7 19 28 38 44 57 62  0  0
+;->  1 12 20 31  0  0  0  0 89
+;->  0 15 28 33  0  0 62  0 90
+;->  5  0  0  0 41 54 66 78  0
 ;-> 
-;-> 0 10  0 30 40 51  0  0  0
-;-> 0  0 24  0  0 52  0 71  0
-;-> 2 12 25 36 46  0 65 79 85
+;->  0 16  0 30 44  0 61  0 82
+;->  9 17  0 34  0 55 63  0  0
+;->  0  0 23  0 45 58  0 75 83
 ;-> 
-;-> 0  0 23 31  0  0 66  0 82
-;-> 4  0 27  0 43  0 69  0 90
-;-> 5 14  0 39 47 54  0 77  0
+;->  0 18  0 36 48 51  0  0 84
+;->  3  0  0 37  0 56 65 74  0
+;->  8  0 22  0  0  0 68 76 88
 ;-> 
-;-> 6  0  0 32  0  0 67  0 87
-;-> 0 13  0  0  0 50 68  0 88
-;-> 9 15 29 37 48 53  0 72  0
+;->  0  0  0 35 40 52  0 70 85
+;->  6 14 21 38 43  0  0  0  0
+;->  0 19 27  0  0 59  0 77 86
 
 (tombola true)
-;-> 5  0 24  0  0 53 64  0 86
-;-> 6  0 26 33  0 58  0  0 87
-;-> 0 10  0 35 48  0 69 73  0
+;->  0  0 22 34 40  0 60  0 82
+;->  5 10 26  0  0  0 64  0 83
+;->  0 18  0 38 49 55  0 78  0
 ;-> 
-;-> 0  0 22 34 42 55  0  0 80
-;-> 0  0 23 38 47 59 62  0  0
-;-> 8 12  0  0  0  0 63 75 84
+;->  0 13  0 30 41  0  0 73 80
+;->  0  0  0 32 43 50  0 76 88
+;->  6 19 28  0  0 51 61  0  0
 ;-> 
-;-> 1  0 27 36 40  0  0 71  0
-;-> 3 11 29 37 43  0  0  0  0
-;-> 0 13  0  0  0 54 68 74 89
+;->  4  0  0  0 45 56  0 71 86
+;->  7 12 21  0 46  0  0  0 89
+;->  0  0 23 37  0 58 69 74  0
 ;-> 
-;-> 0 14  0 31 46  0  0 76 81
-;-> 7 16  0 32 49  0  0 78  0
-;-> 9  0 25  0  0 57 60  0 90
+;->  0  0 27  0 42 53 65  0 85
+;->  3  0  0  0 48  0 67 77 87
+;->  0 15 29 33  0 59  0 79  0
 ;-> 
-;-> 0  0  0  0 44  0 65  0 85
-;-> 0 18  0  0  0 50 66 72 88
-;-> 4 19 21 30 45 52  0 77  0
+;->  0 14 20 31  0 54  0  0 81
+;->  2 17 24 35  0  0 66  0  0
+;->  8  0  0  0  0 57 68 75 84
 ;-> 
-;-> 0  0 20  0  0 51 61 70 82
-;-> 0 15  0  0  0 56  0 79  0
-;-> 2 17 28 39 41  0 67  0 83
+;->  1  0  0 36 44  0 62 70  0
+;->  9 11  0 39  0  0 63  0 90
+;->  0 16 25  0 47 52  0 72  0
 
-Vediamo la velocità della funzione:
+Vediamo la velocità della funzione (considerando che il programma non è deterministico):
 
 (time (tombola))
-;-> 540.247
+;-> 1875.275
+(time (tombola))
+;-> 124.934
 (time (tombola) 10)
-;-> 4182.781
-
-Il programma non è deterministico:
-
+;-> 7297.853
 (time (tombola) 10)
-;-> 7937.776
-(time (tombola) 10)
-;-> 6111.974
+;-> 8344.443
 
 
 -------------------------
@@ -7871,7 +7883,7 @@ suffixSum[3] = suffixSum[4] + arr[3] = 30 + 5 = 35 e cosi via.
 
 (define (suffix-sum lst)
   (let (out (array (length lst) '(0)))
-    ; imposta il primo elemento 
+    ; imposta il primo elemento
     (setf (out -1) (lst -1))
     ; calcola i rimanenti elementi
     (for (i (- (length lst) 2) 0 -1)
@@ -7884,6 +7896,119 @@ suffixSum[3] = suffixSum[4] + arr[3] = 30 + 5 = 35 e cosi via.
 
 (suffix-sum a)
 ;-> (85 70 60 35 30 20)
+
+
+---------------------------------------------
+Minimize difference of Contiguous Sublist Sum
+---------------------------------------------
+
+Data una lista di numeri interi positivi, dividere la lista in due sottoliste (con elementi contigui) minimizzando la differenza delle somme degli elementi delle sottoliste.
+
+Nota: In questo caso una "sottolista" (sublist) è una parte contigua della lista (cioè un sottoinsieme di elementi contigui).
+
+Esempio:
+lst = (lst = (1 2 4 3)
+sublist1 = (7 9)
+sublist2 = (5 10)
+Differenza delle somme = (7 + 9) - (5 + `0) = 1)
+
+Algoritmo:
+Utilizziamo la tecnica dell'array Prefix and Suffix Sum.
+Generariamo l'array della somma dei prefissi e l'array della somma dei suffissi.
+Attraversiamo l'array e calcoliamo la differenza minima tra prefix_sum[i] e suffix_sum[i+1], per qualsiasi indice i (0 <= i <= N–1) dall'array ed eventualmente aggiorniamo la differenza minima assoluta.
+
+Time Complexity: O(N)
+Auxiliary Space: O(N)
+
+(define (prefix-sum lst)
+  (let (out (array (length lst) '(0)))
+    (setf (out 0) (lst 0))
+    (for (i 1 (- (length lst) 1))
+      (setf (out i) (add (out (- i 1)) (lst i)))
+    )
+    out))
+
+(define (suffix-sum lst)
+  (let (out (array (length lst) '(0)))
+    (setf (out -1) (lst -1))
+    (for (i (- (length lst) 2) 0 -1)
+      (setf (out i) (add (out (+ i 1)) (lst i)))
+    )
+    out))
+
+(define (minimize lst)
+  (local (len pre suf min-diff idx-pre idx-suf)
+    ;(setq out (array len '(0)))
+    (setq len (length lst))
+    (setq pre (prefix-sum lst))
+    (setq suf (suffix-sum lst))
+    (setq min-diff 9999999999999)
+    (for (i 0 (- len 2))
+      (setq diff (abs (sub (pre i) (suf (+ i 1)))))
+      (setq min-diff (min min-diff diff))
+    )
+    min-diff))
+
+(setq a '(7 9 5 10))
+(minimize a)
+;-> 1
+
+(setq b '(16 14 13 13 12 10 9 3))
+(minimize b)
+;-> 4
+
+Per sottoliste non-contigue la soluzione sarebbe:
+sublist1: (16 13 13 3)
+sublist2: (14 12 10 9)
+sum1 = 16 + 13 + 13 + 3 = 45
+sum2 = 14 + 12 + 10 + 9 = 45
+differenza = 0
+
+
+----------------------------------
+Minimize difference of Sublist Sum
+----------------------------------
+
+Data una lista di numeri interi positivi, dividere la lista in due sottoliste minimizzando la differenza delle somme degli elementi delle sottoliste e restituire questo valore minimo.
+
+Nota: In questo caso una "sottolista" (sublist) è una parte qualunque della lista (cioè un sottoinsieme di elementi qualunque).
+
+(define (find-min lst i sum-calculated sum-total)
+  ; If we have reached last element,
+  ; sum of one subset is sum-calculated and
+  ; sum of other subset is sum-total - sum-calculated.
+  ; Return absolute difference of two sums.
+  (cond ((zero? i)
+          (abs (- (- sum-total sum-calculated) sum-calculated)))
+        ; For every item arr[i], we have two choices:
+        ; (1) We do not include it first set
+        ; (2) We include it in first set
+        ; We return minimum of two choices
+        (true
+         (min (find-min lst (- i 1) (+ sum-calculated (lst (- i 1))) sum-total)
+              (find-min lst (- i 1) sum-calculated sum-total)))
+  ))
+
+(define (find-min-diff-sublist lst)
+  (find-min lst (length lst) 0 (apply + lst)))
+
+(find-min-diff-sublist '(3 1 4 2 2 1))
+;-> 1
+Una possibile soluzione:
+sublist1: (3 2 2)
+sublist2: (1 4 1)
+sum1 = 3 + 2 + 2 = 7
+sum2 = 1 + 4 + 1 = 6
+differenza = 7 - 6 = 1
+
+(find-min-diff-sublist '(16 14 13 13 12 10 9 3))
+;-> 0
+Una possibile soluzione:
+sublist1: (16 13 13 3)
+sublist2: (14 12 10 9)
+sum1 = 16 + 13 + 13 + 3 = 45
+sum2 = 14 + 12 + 10 + 9 = 45
+differenza = 45 - 45 = 0
 
 =============================================================================
 
