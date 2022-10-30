@@ -1442,6 +1442,7 @@ NOTE LIBERE 11
   Prefix e Suffix Sum Array
   Minimize difference of Contiguous Sublist Sum
   Minimize difference of Sublist Sum
+  Bambini e caramelle (Candy Lottery)
 
 APPENDICI
 =========

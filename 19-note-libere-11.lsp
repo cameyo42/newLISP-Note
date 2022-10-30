@@ -7973,17 +7973,19 @@ Data una lista di numeri interi positivi, dividere la lista in due sottoliste mi
 
 Nota: In questo caso una "sottolista" (sublist) è una parte qualunque della lista (cioè un sottoinsieme di elementi qualunque).
 
+Soluzione ricorsiva:
+
 (define (find-min lst i sum-calculated sum-total)
-  ; If we have reached last element,
-  ; sum of one subset is sum-calculated and
-  ; sum of other subset is sum-total - sum-calculated.
-  ; Return absolute difference of two sums.
+  ; Se abbiamo raggiunto l'ultimo elemento
+  ; la somma di una sublist vale sum-calculated e
+  ; la somma dell'altra sublist vale sum-total - sum-calculated.
+  ; Restituisce la differenza assoluta delle due somme.
   (cond ((zero? i)
           (abs (- (- sum-total sum-calculated) sum-calculated)))
-        ; For every item arr[i], we have two choices:
-        ; (1) We do not include it first set
-        ; (2) We include it in first set
-        ; We return minimum of two choices
+        ; Per ogni elemento arr[i] abbiamo due scelte:
+        ; (1) Non lo includiamo nella prima sublist
+        ; (2) Lo includiamo nella prima sublist
+        ; Restituisce il minimo delle due scelte.
         (true
          (min (find-min lst (- i 1) (+ sum-calculated (lst (- i 1))) sum-total)
               (find-min lst (- i 1) sum-calculated sum-total)))
@@ -7991,6 +7993,8 @@ Nota: In questo caso una "sottolista" (sublist) è una parte qualunque della lis
 
 (define (find-min-diff-sublist lst)
   (find-min lst (length lst) 0 (apply + lst)))
+
+Facciamo un paio di prove:
 
 (find-min-diff-sublist '(3 1 4 2 2 1))
 ;-> 1
@@ -8009,6 +8013,79 @@ sublist2: (14 12 10 9)
 sum1 = 16 + 13 + 13 + 3 = 45
 sum2 = 14 + 12 + 10 + 9 = 45
 differenza = 45 - 45 = 0
+
+Soluzione programmazione dinamica:
+
+(define (find-min-diff-sublist lst)
+  (local (n sum dp diff stop)
+    (setq n (length lst))
+    ; Calcola la somma di tutti gli elementi della lista
+    (setq sum (apply + lst))
+    ; Crea una lista per i risultati dei sottoproblemi
+    (setq dp (array (+ n 1) (+ sum 1) '(nil)))
+    ; Imposta la prima colonna a true
+    ; somma 0 è possibile con tutti gli elementi 0 sum is possible with all elements
+    (for (i 0 n) (setf (dp i 0) true))
+    ; Imposta la prima riga, eccetto dp[0][0], a nil
+    ; con 0 elementi, solo la somma 0 è possibile
+    (for (j 1 sum) (setf (dp 0 j) nil))
+    ; Riempie la matrice dp in modo bottom up
+    (for (i 1 n)
+      (for (j 1 sum)
+            # Se l'i-esimo elemento è escluso
+            (setf (dp i j) (dp (- i 1) j))
+            # Se l'i-esimo elemento è incluso
+            (if (<= (lst (- i 1)) j)
+                (setf (dp i j) (or (dp i j) (dp (- i 1) (- j (lst (- i 1))))))
+            )
+      )
+    )
+    ; Imposta la somma massima
+    (setq diff 999999999)
+    ; Trova il j più grande tale che dp[n][j] sia true 
+    ; per j che va da sum/2 a 0
+    (setq stop nil)
+    (for (j (/ sum 2) 0 -1 stop)
+      (if (dp n j)
+          (set 'diff (- sum (* 2 j)) 'stop true)
+      )
+    )
+    diff))
+
+Facciamo un paio di prove:
+
+(find-min-diff-sublist '(3 1 4 2 2 1))
+;-> 1
+(find-min-diff-sublist '(16 14 13 13 12 10 9 3))
+;-> 0
+
+
+-----------------------------------
+Bambini e caramelle (Candy Lottery)
+-----------------------------------
+
+Ci sono n bambini e ognuno di loro riceve un numero intero casuale (indipendente) di caramelle compreso tra 1 e k. 
+Qual è il numero massimo atteso/previsto di caramelle che un bambino riceve?
+
+              Sum{0, k-1}(i^n)
+max-value = --------------------
+                    k^n
+
+(define (max-candy n k)
+  (let ((sum 0) (den (pow k n)))
+    (for (i 0 (- k 1))
+      (setq sum (add sum (pow i n)))
+    )
+    (println (sub k (div sum den)))))
+
+(max-candy 2 3)
+;-> 2.444444444444445
+
+(max-candy 10 20)
+;-> 18.64027620304199
+
+(max-candy 1 2)
+;-> 1.5
 
 =============================================================================
 
