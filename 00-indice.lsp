@@ -1443,6 +1443,12 @@ NOTE LIBERE 11
   Minimize difference of Contiguous Sublist Sum
   Minimize difference of Sublist Sum
   Bambini e caramelle (Candy Lottery)
+  DNS Query
+  Libreria
+  Probabilità della somma dei dadi in un intervallo
+
+NOTE LIBERE 12
+==============
 
 APPENDICI
 =========

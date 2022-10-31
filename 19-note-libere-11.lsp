@@ -5601,7 +5601,7 @@ Come abbiamo visto la funzione "replace" sostituisce gli elementi utilizzando un
 (replace "cucina" text "formaggio" 0)
 ;-> "pera mela formaggio pesce"
 
-Possiamo accopiare e mettere tutte le stringhe di ricerca e modifica in una lista e poi utilizzare la seguente espressione:
+Possiamo accoppiare e mettere tutte le stringhe di ricerca e modifica in una lista e poi utilizzare la seguente espressione:
 
 (setq text "albero mela cucina pesce")
 (setq repls '(("albero" "pera") ("cucina" "formaggio")))
@@ -5623,7 +5623,23 @@ Per utilizzare questo metodo, Lutz ha fornito la seguente macro:
 text
 "pera mela formaggio pesce"
 
-Risulta comodo accoppiare le modifiche nel caso ci siano parecchie modifiche da effettuare.
+Risulta comodo accoppiare le modifiche nel caso ce ne siano parecchie da effettuare.
+
+Se vogliamo usare una funzione al posto della macro:
+
+(define (replace-all-fn repls text)
+    (dolist (r repls)
+        (replace (first r) text (last r))
+    )
+    text)
+
+(setq text "albero mela cucina pesce")
+;-> "albero mela cucina pesce"
+(replace-all-fn repls text)
+;-> "pera mela formaggio pesce"
+In questo caso "text" non viene modificato.
+text
+;-> "albero mela cucina pesce"
 
 
 --------------------------------------------------
@@ -8086,6 +8102,160 @@ max-value = --------------------
 
 (max-candy 1 2)
 ;-> 1.5
+
+
+---------
+DNS Query
+---------
+
+DNS è un servizio Internet che mappa i nomi di dominio, come rosettacode.org, in indirizzi IP, come 66.220.0.231.
+Utilizzare DNS per risolvere www.kame.net su indirizzi IPv4 e IPv6.
+
+Scriviamo una funzione che utilizza le primitive di newLISP per risolvere questo problema:
+
+(define (dnsLookup site , ipv)
+    ;; captures current IPv mode
+    (set 'ipv (net-ipv))
+    ;; IPv mode agnostic lookup
+    (println "IPv4: " (begin (net-ipv 4) (net-lookup site)))
+    (println "IPv6: " (begin (net-ipv 6) (net-lookup site)))
+    ;; returns newLISP to previous IPv mode
+    (net-ipv ipv)
+)
+
+(dnsLookup "www.newlisp.org")
+;-> IPv4: 208.94.116.177
+;-> IPv6: nil
+;-> 4
+
+Uso del comando "nslookup" di windows:
+
+(! "nslookup www.newlisp.org")
+;-> Server:  dsldevice.lan
+;-> Address:  fe80::3291:8fff:fece:4a20
+;-> 
+;-> DNS request timed out.
+;->     timeout was 2 seconds.
+;-> Non-authoritative answer:
+;-> Name:    newlisp.nfshost.com
+;-> Address:  208.94.116.177
+;-> Aliases:  www.newlisp.org
+
+(dnsLookup "www.google.com")
+;-> IPv4: 142.251.209.4
+;-> IPv6: 2a00:1450:4002:411::2004
+;-> 4
+
+Uso del comando "nslookup" di windows:
+
+(! "nslookup www.google.net")
+;-> Server:  dsldevice.lan
+;-> Address:  fe80::3291:8fff:fece:4a20
+;-> 
+;-> DNS request timed out.
+;->     timeout was 2 seconds.
+;-> Name:    www.google.com
+;-> Address:  2a00:1450:4002:410::2004
+;-> Aliases:  www.google.net
+
+
+--------
+Libreria
+--------
+
+Una libreria vende N libri diversi. Si conosce il prezzo e il numero di pagine di ogni libro.
+Si decide di voler spendere la cifra X. 
+Qual è il numero massimo di pagine che si possono acquistare? 
+È possibile acquistare ogni libro al massimo una volta.
+
+num-books: numero di libri (N)
+total-expense: spesa totale (X)
+pages: lista con il numero di pagine di ogni libro
+prices: lista con i prezzi di ogni libro
+
+(define (max-pages num-books total-expense prices s)
+  (setq dp (array 100100 '(0)))
+  (for (i 0 (- num-books 1))
+    (for (j total-expense 1 -1)
+      (if (>= j (prices i))
+          (setf (dp j) (max (dp j) (+ (dp (- j (prices i))) (s i))))
+      )
+    )
+  )
+  (dp total-expense))
+
+(setq libri 4)
+(setq spesa 10)
+(setq prezzo '(4 8 5 3))
+(setq pagine '(5 12 8 1))
+
+(max-pages libri spesa prezzo pagine)
+;-> 13
+
+(setq libri 1000)
+(setq spesa 100)
+(setq prezzo (map (fn(x) (+ x 1)) (rand 100 1000)))
+(setq pagine (map (fn(x) (+ x 10)) (rand 250 1000)))
+
+(max-pages libri spesa prezzo pagine)
+;-> 6041
+
+
+-------------------------------------------------
+Probabilità della somma dei dadi in un intervallo
+-------------------------------------------------
+
+Lanciando un dado (da 1 a 6) n volte, qual è la probabilità che la somma dei risultati sia compresa tra a e b?
+
+Soluzione con simulazione:
+
+(define (simula lanci a b iter)
+  (local (somma interno)
+    (for (i 1 iter)
+      (setq somma (apply + (map (fn(x) (+ x 1)) (rand 6 lanci))))
+      (if (and (>= somma a) (<= somma b))
+          (++ interno)
+      )
+    )
+    (div interno iter)))
+
+(simula 2 9 10 1e5)
+;-> 0.19605
+(simula 2 9 10 1e6)
+;-> 0.194535
+(simula 2 9 10 1e7)
+;-> 0.1942656
+(simula 2 9 10 1e8)
+;-> 0.19448131
+
+(simula 10 25 35 1e7)
+;-> 0.5111362
+
+Soluzione matematica:
+
+(define (prob lanci a b)
+  (let (dp (array 1000 200 '(0)))
+    (setf (dp 0 0) 1)
+    (for (j 1 lanci)
+      (for (i 1 600)
+        (for (k 1 6)
+          (if (>= (- i k) 0)
+              (setf (dp i j) (add (dp i j) (mul (dp (- i k) (- j 1)) (div 6))))
+          )
+        )
+      )
+    )
+    (setq out 0)
+    (for (i a b)
+      (setq out (add out (dp i lanci)))
+    )
+    out))
+
+(prob 2 9 10)
+;-> 0.1944444444444444
+
+(prob 10 25 35)
+;-> 0.5110984693326727
 
 =============================================================================
 
