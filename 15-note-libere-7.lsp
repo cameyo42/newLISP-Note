@@ -270,7 +270,7 @@ Caricamento di una hash-map dal file "myhash.lsp":
 (myhash)
 (("1" "a") ("2" "b") ("3" 4) ("5" 6) ("bar" "HELLO WORLD"))
 
-Per ulteriori informazioni, vedere "Hash-map e contesti" nel file "13-note-libere-5.lsp".
+Per ulteriori informazioni, vedere "Hash-map e contesti" nel capitolo "Note libere 5".
 
 
 -------------------------------------
@@ -3152,7 +3152,7 @@ La seguente espressione non genera errori perchè il simbolo/variabile "nuovo" n
 nuovo:nuovo
 ;-> "corretto"
 
-Vedi anche "Creazione dinamica di variabili" nel file "13-note-libere-5.lsp".
+Vedi anche "Creazione dinamica di variabili" nel file "Note libere 5".
 
 
 ----------------

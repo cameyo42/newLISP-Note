@@ -1074,7 +1074,7 @@ Il gioco del caos (the chaos game)
 
 In matematica, il termine gioco del caos originariamente si riferiva a un metodo per creare un frattale, utilizzando un poligono e un punto iniziale selezionato a caso al suo interno.[1][2] Il frattale viene costruito iterativamente creando una sequenza di punti, a partire dal punto casuale iniziale, in cui ogni punto della sequenza è una data frazione della distanza tra il punto precedente e uno dei vertici del poligono. Il vertice viene scelto a caso in ogni iterazione. Ripetendo questo processo iterativo un gran numero di volte, selezionando il vertice a caso su ogni iterazione ed eliminando i primi punti della sequenza, spesso (ma non sempre) si ottiene una forma frattale.
 
-Utilizziamo ImageMagick per generare l'immaginew partendo da un file di punti. Per mggiori informazioni vedi "Creazione di immagini con ImageMagick" nel file/capitolo "15-note-libere-7.lsp".
+Utilizziamo ImageMagick per generare l'immaginew partendo da un file di punti. Per mggiori informazioni vedi "Creazione di immagini con ImageMagick" nel capitolo "Note libere 7".
 
 Funzione per generare i punti in formato ImageMagick partendo da una lista di punti:
 

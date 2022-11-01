@@ -8040,7 +8040,7 @@ Soluzione programmazione dinamica:
     ; Crea una lista per i risultati dei sottoproblemi
     (setq dp (array (+ n 1) (+ sum 1) '(nil)))
     ; Imposta la prima colonna a true
-    ; somma 0 è possibile con tutti gli elementi 0 sum is possible with all elements
+    ; somma 0 è possibile con tutti gli elementi 0
     (for (i 0 n) (setf (dp i 0) true))
     ; Imposta la prima riga, eccetto dp[0][0], a nil
     ; con 0 elementi, solo la somma 0 è possibile
@@ -8083,9 +8083,9 @@ Bambini e caramelle (Candy Lottery)
 Ci sono n bambini e ognuno di loro riceve un numero intero casuale (indipendente) di caramelle compreso tra 1 e k. 
 Qual è il numero massimo atteso/previsto di caramelle che un bambino riceve?
 
-              Sum{0, k-1}(i^n)
-max-value = --------------------
-                    k^n
+              Sum[0, k-1] (i^n)
+max-value = ---------------------
+                     k^n
 
 (define (max-candy n k)
   (let ((sum 0) (den (pow k n)))

@@ -1449,6 +1449,11 @@ NOTE LIBERE 11
 
 NOTE LIBERE 12
 ==============
+  Copia/Taglia e Incolla una stringa
+  Massima Sequenza DNA
+  Il gioco della tombola
+  Modi per distribuire m oggetti tra n persone
+  
 
 APPENDICI
 =========

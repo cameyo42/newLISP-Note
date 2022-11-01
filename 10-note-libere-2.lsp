@@ -4487,7 +4487,7 @@ Ma non c'è alcuna possibilità di catturare gli errori in un contesto specifico
 sintassi: (last-error)
 sintassi: (last-error int-error)
 
-Riporta l'ultimo errore generato da newLISP a causa di errori di sintassi o esaurimento di alcune risorse. Per un riepilogo di tutti i possibili errori, vedere il capitolo Codici di errore in appendice del manuale di riferimento.
+Riporta l'ultimo errore generato da newLISP a causa di errori di sintassi o esaurimento di alcune risorse. Per un riepilogo di tutti i possibili errori, vedere il capitolo "Codici di errore" in appendice del manuale di riferimento.
 
 Se non si è verificato alcun errore dall'avvio della sessione newLISP, viene restituito nil.
 Quando viene specificato int-error, viene restituito una lista contenente numero e testo dell'errore.

@@ -696,7 +696,7 @@ Usare una funzione come macro
 -----------------------------
 
 Questo metodo è stato mostrato da ralph.ronnquist.
-Come esempio usiamo il modiulo "infix.lsp":
+Come esempio usiamo il modulo "infix.lsp":
 
 (module "infix.lsp")
 ;-> MAIN

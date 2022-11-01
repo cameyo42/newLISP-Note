@@ -9354,7 +9354,7 @@ Però possiamo passare un simbolo (a) che viene valutato in una stringa ("m"):
 (symbols)
 ;-> (a b c contesto d k simbolo simbolo? test x)
 
-Per maggiori informazioni sui simboli vedere il paragrafo "Gestione dei simboli".
+Per maggiori informazioni sui simboli vedere "Gestione dei simboli" nel capitolo "Note libere 1".
 
 
 --------------

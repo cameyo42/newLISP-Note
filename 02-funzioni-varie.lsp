@@ -2415,7 +2415,7 @@ La seguente funzione estrae il tipo di dato contenuto in una cella newLISP:
 ;; 14            ;; array
 ;; 15            ;; dynamic symbol
 
-Vedere il file newLISP.h nel programma sorgente per conoscere i bit superiori e il loro significato (e anche altre cose).
+Vedere il file "newLISP.h" nel programma sorgente per conoscere i bit superiori e il loro significato (e anche altre cose).
 
 Un altro metodo simile:
 
