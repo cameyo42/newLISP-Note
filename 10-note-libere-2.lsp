@@ -447,6 +447,19 @@ Lisp reader
 
 Un "Lisp reader" si riferisce a una procedura Lisp, vale a dire la funzione "read", che legge i caratteri da un flusso di input e li interpreta e li converte come rappresentazioni di oggetti Lisp (AST Abstract Syntax Tree).
 
+Dal manuale di XLISP
+read an expression 
+(read [<stream> [<eofp> [<eof> [<rflag>]]]]) 
+<stream>	the input stream (default, or NIL, is *standard-input*, T is *terminal-io*) 
+<eofp>	When T, signal an error on end of file, when NIL return <eof> (default is T) 
+<eof>	the value to return on end of file (default is NIL) 
+<rflag>	recursive read flag. The value is ignored
+returns	the expression read 
+
+Actually the basic READ doesn't need any parameter, it uses the *standard-input* 
+READ is for getting a syntactically valid S-expresseion. Only that value is returned. The S-expression is not evaluated. 
+Its practical for reading in S-expression from a file, without evaluation. 
+
 In newLISP per valutare un file di testo possiamo usare due metodi:
 
 1) (load "file.lsp")
@@ -468,7 +481,9 @@ x
 
 La seguente funzione simula (in modo semplificato) il comportamento della funzione "read" in Common Lisp:
 
-(define (reader readstr readret)
+; written by HPW
+; modified for newLISP 10.7.5 by cameyo
+(define (reader readstr , readret)
    (cond
       ((float readstr)
        (if (find "." readstr)
@@ -485,13 +500,25 @@ La seguente funzione simula (in modo semplificato) il comportamento della funzio
    )
 )
 
-(eval (reader "(+ 1 2)" a))
+(reader "1.345")
+;-> 1.345
+
+(reader "(+ 1 3)")
+;-> (+ 1 3)
+
+(setq a 10)
+(reader "a")
+;-> a
+(eval (reader "a"))
+;-> 10
+
+(eval (reader "(+ 1 2)"))
 ;-> 3
 
-(eval (reader "(+ 1 (/ 2 2))" a))
+(eval (reader "(+ 1 (/ 2 2))"))
 ;-> 2
 
-(eval (reader "(add 1.2 (div 2 2))" a))
+(eval (reader "(add 1.2 (div 2 2))"))
 ;-> 2.2
 
 

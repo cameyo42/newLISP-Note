@@ -1453,7 +1453,8 @@ NOTE LIBERE 12
   Massima Sequenza DNA
   Il gioco della tombola
   Modi per distribuire m oggetti tra n persone
-  
+  Problema di algebra elementare
+  Minimo e massimo tra due frazioni
 
 APPENDICI
 =========

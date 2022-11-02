@@ -585,5 +585,172 @@ Per le dimostrazioni vedere:
 
 https://www.geeksforgeeks.org/count-ways-to-distribute-m-items-among-n-people/
 
+
+------------------------------
+Problema di algebra elementare
+------------------------------
+
+Sapendo che a + b = x e a^2 + b^2 = y, scrivere una funzione per calcolare quanto vale a^3 + a^3.
+
+Algebricamente:
+
+1)  a + b = x
+2)  a^2 + b^2 = y
+3)  a^3 + a^3 ?
+
+Vediamo un esempio del processo di soluzione con x = 1 e y = 2.
+
+1)  a + b = 1
+2)  a^2 + b^2 = 2
+3)  a^3 + a^3 ?
+
+Eleviamo al quadrato entrambi i membri della 1):
+
+(a + b)^2 = 1^2
+
+a^2 + b^2 + 2ab = 1
+
+Sostituiamo la 2) nell'ultima equazione:
+
+2 + 2ab = 1  ==>  2ab = -1  ==> ab = -1/2
+
+Adesso eleviamo al cubo la 1):
+
+(a + b)^3 = 1^3
+a^3 + b^3 + 3*ab*(a + b) = 1
+
+Sostituiamo ab = -1/2 e (a + b) = 1 nell'ultima equazione:
+
+a^3 + b^3 + 3*(-1/2)*(1) = 1
+a^3 + b^3 - 3/2 = 1  ==>  a^3 + b^3 = 5/2
+
+Adesso facciamo lo stesso procedimento utilizzando le variabili x e y:
+
+1)  a + b = x
+2)  a^2 + b^2 = y
+3)  a^3 + a^3 ?
+
+Eleviamo al quadrato entrambi i membri della 1):
+
+(a + b)^2 = x^2
+
+a^2 + b^2 + 2ab = x^2
+
+Sostituiamo la 2) nell'ultima equazione:
+
+y + 2ab = x^2  ==>  2ab = x^2 - y  ==>  ab = (x^2 - y)/2
+
+Adesso eleviamo al cubo la 1):
+
+(a + b)^3 = x^3
+
+a^3 + b^3 + 3*ab*(a + b) = 1
+
+Sostituiamo ab = (x^2 - y)/2 e (a + b) = x nell'ultima equazione:
+
+a^3 + b^3 + 3 * ((x^2 - y)/2) * x = x^3
+
+Da cui ricaviamo la soluzione:
+
+a^3 + b^3 = x^2 - 3 * ((x^2 - y)/2) * x
+
+Scriviamo la funzione che risolve il problema:
+
+(define (cubo x y)
+  (sub (mul x x x) (mul 3 x (div (sub (mul x x) y) 2))))
+
+Facciamo alcune prove:
+
+(cubo 1 2)
+;-> 2.5 ;5/2
+
+a = 2, b = 2
+a + b = 4
+a^2 + b^2 = 8
+a^3 + b^3 = 16
+(cubo 4 8)
+;-> 16
+
+a = 21
+b = 12
+a + b = 33
+a^2 + b^2 = 585
+a^3 + b^3 = 10989
+(cubo 33 585)
+;-> 10989
+
+
+---------------------------------
+Minimo e massimo tra due frazioni
+---------------------------------
+
+Scrivere due funzione per calcolare il valore minimo e il valore massimo tra due frazioni.
+
+Per esempio, 11/18 è maggiore/uguale/minore di 5/8?
+
+Il metodo classico è quello di utilizzare il MCM dei denominatori:
+
+MCM(18 8) = 72
+
+ 11     11*4     44
+---- = ------ = ----
+ 18      72      72
+
+ 5     5*9     45
+--- = ----- = ----
+ 8      72     72
+ 
+Poichè 44 < 45, allora 11/8 è minore di 5/8.
+
+Possiamo usare un metodo più rapido.
+Consideriamo le due frazioni:
+
+        num1            num2
+  f1 = ------,    f2 = ------
+        den1            den2
+
+Calcoliamo i seguenti due valori:
+
+  val1 = num1 * den2
+
+  val2 = num2 * den1
+
+Se val1 > val2, allora f1 > f2
+Se val1 = val2, allora f1 = f2
+Se val1 < val2, allora f1 < f2
+
+Infatti, utilizzando l'esempio otteniamo:
+
+f1 = 11/18, f2 = 5/8
+
+val1 = 11*8 = 88
+val2 = 18*5 = 90
+
+Poichè val1 < val2, allora 11/18 < 5/8.
+
+Questo metodo funziona perchè è lo stesso del metdo classico, tranne il fatto che il denominatore comune delle due frazioni non è il MCM dei due denominatori, ma un semplice multiplo di entrambi:
+
+ 11     11*8      88
+---- = ------ = -----
+ 18     144      144
+
+ 5     5*18      90
+--- = ------ = -----
+ 8      144     144
+
+Adesso possiamo scrivere le funzioni.
+
+(define (min-f f1 f2)
+  (if (<= (* (f1 0) (f2 1)) (* (f1 1) (f2 0))) f1 f2))
+
+(define (max-f f1 f2)
+  (if (>= (* (f1 0) (f2 1)) (* (f1 1) (f2 0))) f1 f2))
+
+(max-f '(11 18) '(5 8))
+;-> (5 8)
+
+(min-f '(11 18) '(5 8))
+;-> (11 18)
+
 =============================================================================
 
