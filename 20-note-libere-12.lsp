@@ -752,5 +752,277 @@ Adesso possiamo scrivere le funzioni.
 (min-f '(11 18) '(5 8))
 ;-> (11 18)
 
+
+-------------------------
+Eventi singoli e ripetuti
+-------------------------
+
+Supponiamo di lanciare un dado a N facce per N volte.
+Nella sequenza risultante alcuni numeri saranno unici (cioè usciti solo una volta) e altri numeri saranno ripetuti più volte.
+Quanto vale la percentuale dei numeri che sono usciti solo una volta?
+
+Scriviamo una funzione che simula il processo.
+
+Come contare gli elementi univoci di una lista:
+
+(setq a (rand 100 100))
+;-> (5 2 3 0 5 3 3 0 9 8)
+(setq u (unique a))
+;-> (5 2 3 0 9 8)
+(count u a)
+;-> (2 1 3 2 1 1)
+(length (filter (fn(x) (= x 1)) (count u a)))
+;-> 3
+(length (filter (fn(x) (> x 1)) (count u a)))
+
+Funzione che simula il processo:
+
+(define (simula side iter)
+  (local (roll univoci uniq uni% mul%)
+    (setq univoci 0)
+    (for (i 1 iter)
+      (setq roll (map (fn(x) (+ x 1)) (rand side side)))
+      (setq uniq (unique roll))
+      (setq univoci (+ univoci
+            (length (filter (fn(x) (= x 1)) (count uniq roll)))))
+    )
+    (setq uni% (div univoci iter))
+    (setq mul% (sub side uni%))
+    (list uni% mul%)))
+
+Facciamo alcune prove:
+
+(simula 10 1e4)
+;-> (3.8765 6.1235)
+(simula 100 1e4)
+;-> (36.9606 63.0394)
+(simula 1000 1e4)
+;-> (367.9226 632.0774)
+(time (println (simula 10000 1e4)))
+;-> (3647.6315 6352.368500000001)
+;-> 109041.716
+
+Proviamo a velocizzare la funzione di simulazione utilizzando un vettore (con numeri casuali da 0 a N-1).
+
+(define (simula2 side iter)
+  (local (univoci ar roll uni% mul%)
+    (setq univoci 0)
+    (for (i 1 iter)
+      (setq ar (array side '(0)))
+      (setq roll (rand side side))
+      (dolist (r roll)
+        (++ (ar r))
+      )
+      (setq univoci 
+           (+ univoci (length (filter (fn(x) (= x 1)) (array-list ar)))))
+    )
+    (setq uni% (div univoci iter))
+    (setq mul% (sub side uni%))
+    (list uni% mul%)))
+
+Facciamo alcune prove:
+
+(simula2 10 1e4)
+;-> (3.8484 6.1516)
+(simula2 100 1e4)
+;-> (37.0575 62.9425)
+(simula2 1000 1e4)
+;-> (368.4869 631.5131)
+(time (println (simula2 10000 1e4)))
+;-> (3647.1127 6352.8873)
+;-> 22550.796
+
+Proviamo con un altra funzione:
+
+(define (simula3 side iter)
+  (local (roll univoci uni% mul%)
+    (setq univoci 0)
+    (for (i 1 iter)
+      (setq ar (array side '(0)))
+      (for (i 1 side)
+        (++ (ar (rand side)))
+      )
+      (setq univoci 
+           (+ univoci (length (filter (fn(x) (= x 1)) (array-list ar)))))
+    )
+    (setq uni% (div univoci iter))
+    (setq mul% (sub side uni%))
+    (list uni% mul%)))
+
+(simula3 10 1e4)
+;-> (3.8634 6.1366)
+(simula3 100 1e4)
+;-> (36.9194 63.0806)
+(simula3 1000 1e4)
+;-> (368.0959 631.9041)
+(time (println (simula3 10000 1e4)))
+;-> (3647.323 6352.677)
+;-> 24670.112
+
+Adesso vediamo la soluzione matematica.
+Dobbiamo contare il numero previsto di lanci distinti.
+Definiamo una variabile casuale Xi come 1 se il lancio i appare in qualsiasi momento nei 100 lanci e 0 altrimenti.
+Ciò significa che E(Xi) è la probabilità che il tiro i appaia come uno dei 100 tiri.
+Quanti numeri distinti compaiono in 100 lanci?
+Dobbiamo sommare le possibilità che appaia il lancio 1, appaia il lancio 2 e così via.
+In altre parole, il numero di lanci diversi è la somma prevista per ciascuno dei 100 lanci.
+Questa è la somma di E(Xi), dove i va da 1 a 100:
+
+  E(lanci distinti) = E(X1) + ... + E(X100)
+
+Per simmetria e indipendenza di ogni tiro, la possibilità che appaia il tiro 1 è la stessa che appaia il tiro 2, o appaia 3, o appaia qualsiasi tiro i. Quindi tutti gli E(Xi) devono essere uguali.
+Quindi possiamo riscrivere la somma come 100 volte E(X1).
+
+  E(lanci diversi) = 100 E(X1)
+
+Qual è la probabilità che appaia il risultato 1?
+Possiamo calcolare più facilmente la possibilità che non appaia.
+C'è una probabilità 99/100 che un dato tiro non sia un 1.
+Con 100 tiri, questo porta a una (99/100)^100 possibilità che il tiro 1 non appaia affatto.
+La possibilità che appaia il risultato 1 è l'evento complementare di 1 - (99/100)^100 = E(X1).
+Quindi, abbiamo:
+
+  E(lanci diversi) = 100*(1 - (99/100)^100)
+  E(lanci diversi) = 63.39676587267711
+
+(mul 100 (sub 1 (pow (div 99 100) 100)))
+;-> 63.39676587267711
+
+Questo processo genera circa il 63% di lanci multipli, indipendentemente dalla dimensione di N.
+Su un dado a N facce, c'è una possibilità (1 - 1/N) che un particolare tiro i non appaia. 
+In N lanci, la possibilità che il lancio i non appaia affatto è (1 - 1/N)^N.
+Se lo sommiamo negli N lanci e poi lo dividiamo per gli N lanci diversi totali, i termini di N verranno annullati.
+Ciò significa che la proporzione di lanci diversi è (1 - 1/N)^N.
+Poiché N va all'infinito, il limite di questo termine è 1 - 1/e = 0.6321205588285577.
+
+(setq e (exp 1))
+;-> 2.718281828459045
+
+(1 - 1/e) = 
+(sub 1 (div e))
+;-> 0.6321205588285577
+
+
+----------------------------
+Somma delle coppie e ritorno
+----------------------------
+
+1) Data una lista di numeri interi positivi, costruire la lista di tutte le somme delle coppie degli elementi della lista.
+
+La lista delle somme delle coppie per una lista con n elementi è la seguente:
+
+(lst[0]+lst[1], lst[0]+lst[2], ..., lst[1]+lst[ 2], lst[1]+lst[3], ..., lst[2]+lst[3], lst[2]+lst[4], …., lst[n-2]+lst[n -1).
+
+Funzione che genera la lista delle somme delle coppie:
+
+(define (sum-pair lst)
+  (local (res lenA lenB sumA sumB)
+    (setq res '())
+    (dolist (el lst)
+      ;(if (!= $idx (- len 1))
+        (extend res (map (fn(x) (+ el x)) (slice lst (+ $idx 1))))
+      ;)
+    )
+    res))
+
+Facciamo alcune prove:
+
+(setq a '(1 2 3))
+(sum-pair a)
+;-> (3 4 5)
+
+(setq b '(1 3 3 3))
+(sum-pair b)
+;-> (4 4 4 6 6 6)
+
+(setq c '(3 2 1 4))
+(sum-pair c)
+;-> (5 4 7 3 6 5)
+
+(setq d '(1 3 2 7 4 6 5))
+(sum-pair d)
+;-> (4 3 8 5 7 6 5 10 7 9 8 9 6 8 7 11 13 12 10 9 11)
+
+(setq e '(8 7 5 3 2))
+(sum-pair e)
+;-> (15 13 11 10 12 10 9 8 7 5)
+
+2) Data una lista di tutte le somme delle coppie degli elementi di un'altra lista, costruire quest'ultima lista.
+
+Se N è la lunghezza di una lista, allora la sua lista delle coppie è lunga:
+
+  M =  N*(N-1)/2
+  
+Se la lista delle coppie è lunga M, allora la lista che la genera è lunga:
+
+  M = N*(N-1)/2  -->  N^2 - N - 2M = 0
+
+       1 + sqrt(8M +1)
+  N = -----------------
+             2
+
+Adesso vediamo una lista con 3 elementi:
+ A = (a0 a1 a2)
+ B = (b0 b1 b2)
+ B = ((a0 + a1) (a0 + a2) (a1 + a2))
+
+Per trovare le soluzioni bisogna fare alcuni passaggi algebrici, ad esempio calcoliamo a0:
+
+ b0 + b1 = (a0 + a1) + (a0 + a2) = 2a0 + (a1 + a2) = 2a0 + b3
+
+Quindi, a0 = 1/2 (b0 + b1 - b2).
+
+Analogamente troviamo le altre soluzioni:
+
+ a0 = 1/2 (b0 + b1 - b2)
+ a1 = 1/2 (b0 - b1 + b2)
+ a2 = 1/2 (-b0 + b1 + b2)
+
+Se proviamo con una lista di 4 elementi, si osserva che risulta sempre:
+
+  a[0] = (b[0] + b[1] – b[n-1])/ 2. 
+
+Si noti che il valore di:
+
+    b[0] + b[1] – b[n-1] = (a[0] + a[1]) + (a[0] + a[2]) – (a[1] + a[2])
+  
+Una volta valutato a[0], possiamo valutare altri elementi sottraendo a[0]. 
+Ad esempio, a[1] può essere valutato sottraendo a[0] dalla b[0], 
+a[2] può essere valutato sottraendo a[0] dalla b[1], e cosi via.
+
+(define (desum-pair lst)
+  (local (len-lst len res)
+    (setq len-lst (length lst))
+    ; lunghezza della lista soluzione
+    (setq len (/ (+ 1 (sqrt (+ 1 (* 8 len-lst)))) 2))
+    (setq res (array len '(0)))
+    ; imposta il primo valore
+    (setf (res 0) (/ (+ (lst 0) (lst 1) (- (lst (- len 1)))) 2))
+    ; imposta i rimanenti valori
+    (for (i 1 (- len 1))
+      (setf (res i) (- (lst (- i 1)) (res 0)))
+    )
+    res))
+
+Facciamo alcune prove:
+
+(desum-pair '(3 4 5))
+;-> (1 2 3)
+
+(desum-pair '(4 4 4 6 6 6))
+;-> (1 3 3 3)
+
+(desum-pair '(5 4 7 3 6 5))
+;-> (3 2 1 4)
+
+(desum-pair '(4 3 8 5 7 6 5 10 7 9 8 9 6 8 7 11 13 12 10 9 11))
+;-> (1 3 2 7 4 6 5)
+
+(desum-pair '(15 13 11 10 12 10 9 8 7 5))
+;-> (8 7 5 3 2)
+
+(desum-pair (sum-pair '(2 9 8 3 5 6 1)))
+;-> (2 9 8 3 5 6 1)
+
 =============================================================================
 

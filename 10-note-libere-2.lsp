@@ -447,7 +447,7 @@ Lisp reader
 
 Un "Lisp reader" si riferisce a una procedura Lisp, vale a dire la funzione "read", che legge i caratteri da un flusso di input e li interpreta e li converte come rappresentazioni di oggetti Lisp (AST Abstract Syntax Tree).
 
-Dal manuale di XLISP
+Dal manuale di XLISP:
 read an expression 
 (read [<stream> [<eofp> [<eof> [<rflag>]]]]) 
 <stream>	the input stream (default, or NIL, is *standard-input*, T is *terminal-io*) 

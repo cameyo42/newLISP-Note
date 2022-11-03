@@ -1455,6 +1455,8 @@ NOTE LIBERE 12
   Modi per distribuire m oggetti tra n persone
   Problema di algebra elementare
   Minimo e massimo tra due frazioni
+  Eventi singoli e ripetuti
+  Somma delle coppie e ritorno
 
 APPENDICI
 =========
