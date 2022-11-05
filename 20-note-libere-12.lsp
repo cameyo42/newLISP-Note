@@ -1024,5 +1024,166 @@ Facciamo alcune prove:
 (desum-pair (sum-pair '(2 9 8 3 5 6 1)))
 ;-> (2 9 8 3 5 6 1)
 
+
+---------------------------
+Get data from a C structure
+---------------------------
+
+Post by Lutz Mueller:
+'unpack', 'get-integer' and 'get-char' all take memory (or string) addresses as an argument. You just need the memory address of you structure o union. Lets say you have the following in you library to import:
+
+#include <stdio.h>
+
+struct mystruct {
+   char * msg;
+   int intNumber;
+   double dFloat;
+   } data;
+
+struct mystruct * foo(void)
+{
+data.msg = "hello";
+data.intNumber = 123;
+data.dFloat = 123.456;
+
+return(&data);
+}
+
+Compile it to a library:
+
+gcc test.c -lm -shared -o test.so
+
+Now import into newLISP:
+
+> (import "./test.so" "foo")
+foo <281A0554>
+
+> (unpack "lu ld lf" (foo))
+(672794072 123 123.456)
+
+> (get-string 672794072) => "hello"
+
+Note that in 'C' on a Linux PC 'char *' and 'int' are 32 bit and 'double' is a 64 bit float as used in newLISP. 
+I used 'lu' to retrieve the pointer .
+Sometimes a 'C' function takes a pointer to an existing memory area. In this case you just allocate memory in a string:
+
+(set 'buff (dup "\000" 10)) ;; 10 bytes of zeroed memory
+
+and pass it to the function:
+
+int foo(char * buff)
+{
+strcpy(buff, "hello");
+return(0);
+}
+
+and from newLISP:
+
+(foo buff)
+
+buff => "hello"
+
+All of the database modules like mysql.lsp, sqlite.lsp and osbd.lsp make heavily use of these techniques.
+
+
+-----------------------------------
+Radice quadrata di numeri complessi
+-----------------------------------
+
+In genere, quando calcoliamo la radice quadrata sqrt(4) la risposta 2 è sufficiente per i nostri scopi. Comunque la risposta non è completa, infatti sqrt(4) = 2 e -2.
+Se consideriamo questo aspetto matematico, allora possiamo pensare di estendere la funzione "sqrt" ai numeri complessi, ad esempio sqrt(-1).
+
+; srt and new-sqrt
+; by Kazimir Majorinc
+(set '*. mul '/. div '+. add '-. sub)
+(set 'old-sqrt sqrt)
+(set 'pi (*. 2 (acos 0)))
+
+(set 'ro (lambda(z)
+            (old-sqrt (+. (*. (nth 0 z) (nth 0 z))
+                          (*. (nth 1 z) (nth 1 z))))))
+
+(set 'phi (lambda(z)
+            (cond ((= (nth 1 z) 0)(if (>= (nth 0 z) 0)
+                                      0
+                                      pi))
+                  ((= (nth 0 z) 0)(if (> (nth 1 z) 0)
+                                      (/. pi 2)
+                                      (*. 3 (/. pi 2))))
+                  (true (atan (/. (nth 1 z) (nth 0 z)))))))
+
+(set 'new-sqrt
+    (lambda(z)
+       (unless (list? z)
+               (set 'z (list z 0)))
+       (list (list (*. (old-sqrt (ro z)) (cos (/. (phi z) 2)))
+                   (*. (old-sqrt (ro z)) (sin (/. (phi z) 2))))
+             (list (*. (old-sqrt (ro z)) (cos (+. (/. (phi z) 2) pi)))
+                   (*. (old-sqrt (ro z)) (sin (+. (/. (phi z) 2) pi)))))))
+
+(set 'sqr (lambda (z)
+           (list (-. (*. (z 0)(z 0)) (*. (z 1)(z 1)))
+                 (*. 2 (z 0)(z 1)))))
+
+;test
+
+(dolist (z '((0 0) (0 4) (9 0) (3 4)))
+  (println z "-> new-sqrt -> map sqr -> " (map sqr (new-sqrt z))))
+
+; If you want not new-sqrt but sqrt (watch dynamic scope)
+
+(constant 'sqrt new-sqrt)
+
+(println)
+(dolist (z '((0 0) (0 4) (9 0) (3 4)))
+  (println z "-> sqrt -> map sqr -> " (map sqr (sqrt z))))
+
+Calcoliamo sqrt(4):
+
+(new-sqrt 4)
+;-> ((2 0) (-2 2.449212707644755e-016))
+
+Nota: usare una nuova REPL dopo queste funzioni :-)
+
+
+------------------------------
+Distributore d'acqua difettoso
+------------------------------
+
+Un distributore d'acqua non funziona correttamente.
+Quando premiamo il pulsante per avere un litro d'acqua, la macchina versa una quantità d'acqua casuale da 0 a 1 litro.
+Qual è il numero atteso/previsto di volte che occorre premere il pulsante per avere un litro d'acqua?
+Per esempio:
+la macchina versa il 10% di un litro, poi il 30% (arriviamo al 40%), poi l'80%: la bottiglia è piena al 100% e il 20% di acqua in più lo gettiamo (o lo beviamo noi). In questo caso abbiamo premuto 3 volte il pulsante per riempire la bottiglia.
+
+(define (flush capacity)
+  (let ((conta 1) (val (rand (+ capacity 1))))
+    (while (< val capacity)
+      (++ val (rand (+ capacity 1)))
+      (++ conta)
+    )
+    conta))
+
+(flush 100)
+;-> 4
+
+(define (atteso capacita iter)
+  (let (f 0)
+    (for (i 1 iter)
+      (++ f (flush capacita))
+    )
+    (div f iter)))
+
+(atteso 100 1e6)
+;-> 2.704101
+(atteso 500 1e6)
+;-> 2.715304
+(atteso 1000 1e6)
+;-> 2.71802
+(atteso 100 1e7)
+;-> 2.7046374
+
+Il risultato matematico vale: e = 2.718281828459045
+
 =============================================================================
 

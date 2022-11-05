@@ -7261,7 +7261,7 @@ Vedi anche la funzione di espansione "macro" che non risente della cattura delle
 
 In newLISP la differenza tra una funzione definita con 'define' e una con 'define-macro' è che 'define' valuterà tutti i suoi argomenti, mentre 'define-macro' no.
 
-Con 'define-macro' è possibile creare funzioni che si comportano e sembrano fiunctions built-in. Cioè la funzione (setq x y) non valuta l'argomento 'x', ma passa direttamente 'x' come simbolo. La normale (set 'x y) non funziona nello stesso modo perchè valuta entrambi i suoi argomenti.
+Con 'define-macro' è possibile creare funzioni che si comportano e sembrano functions built-in. Cioè la funzione (setq x y) non valuta l'argomento 'x', ma passa direttamente 'x' come simbolo. La normale (set 'x y) non funziona nello stesso modo perchè valuta entrambi i suoi argomenti.
 
 Un altro esempio è: (dolist (item mylist) .....). L'espressione (item mylist) non viene valutata ma passata in "dolist" per gestirla. Altrimenti, dovremmo citare facendo (dolist '(item mylist) ...).
 
@@ -9025,6 +9025,48 @@ L'idea alla base delle macro è quella di poter espandere la sintassi del lingua
 Le macro permettono di creare strutture sintattiche specifiche per scrivere un programma, spesso chiamati linguaggi specifici di dominio (DSL - Domain Specific Language). In questo modo la soluzione del problema viene definita (programmata) con espressioni (funzioni) che si adattano/descrivono meglio al dominio del problema stesso.
 
 Nota: "define-macro" alone is just a "define" without arguments evaluation (Lutz).
+
+Kazimir Majorinc on macro
+-------------------------
+Newlisp macro is like function that gets unevaluated arguments. Newlisp macros existed in pre CL Lisps under the name of fexprs, and it is usually considered fexprs are more expressive, but harder to compile efficiently than CL macros, and it was the main reason fexprs are dropped from CL. Because Newlisp is interpreter it doesn't matter much.
+
+Obviously, they are very similar to functions:
+
+(set 'f (lambda(x y) some-code ))
+(set 'm (lambda-macro(x y) some-code ))
+
+(m a b) has exactly the same result as (f 'a 'b).
+
+One difference between Newlisp and CL macro is that result of Newlisp macro is not evaluated once again in the body of the caller, like it is the case in Common Lisp macros. If you want that Newlisp macros work on similar way as CL macros, you have to add one eval.
+
+(defmacro m(arguments) some-code)
+
+is roughly equivalent to Newlisp:
+
+(define-macro (m arguments)(eval some-code))
+
+Usually Newlisp macros have that extra eval, but it might be pushed deeper into macro body.
+
+Newlisp doesn't have "`" del CommonLISP, but it has letex and expand serving similar purpose.
+
+ (defmacro my-dotimes(head body)`(dotimes ,head (progn ,body (print "hi"))))
+
+is directly translated to
+
+(define-macro (my-dotimes head body)
+   (eval (expand
+         '(dotimes head (begin body (print "hi"))) 'head 'body)))
+
+After some practice one can write his own unquote and quasiquote.
+
+So a macro in newlisp is just a function that doesn't evaluate its arguments when passing them, unlike in CL where its a replacement sort of thing.
+And vice versa - Newlisp functions can do everything Newlisp macros can - except for that apostrophes. So, unlike in other Lisp dialects, one can define IF as a function:
+
+(set 'IF (lambda()
+           (eval
+             ((args)
+               (find (true? (eval (first (args))))
+                     '(* true nil))))))
 
 
 =========================================================

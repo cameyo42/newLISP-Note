@@ -5902,6 +5902,11 @@ Si può dimostrare che per ottenere una distribuzione esponenziale è possibile 
 
 che genera numeri compresi tra 0 e infinito con distribuzione esponenziale.
 
+Nota: la seguente formula equivalente è più corretta se il generatore di numeri random è compreso in [0 1) o (0 1]:
+
+  u = random [0 1)
+  T = log(1 - u)/(-k),
+
 Per verificare che la formula genera effettivamente numeri con distribuzione esponenziale creiamo due file analoghi al precedente:
 
 (define (rand-exp k)

@@ -1457,6 +1457,9 @@ NOTE LIBERE 12
   Minimo e massimo tra due frazioni
   Eventi singoli e ripetuti
   Somma delle coppie e ritorno
+  Get data from a C structure
+  Radice quadrata di numeri complessi
+  Distributore d'acqua difettoso
 
 APPENDICI
 =========
