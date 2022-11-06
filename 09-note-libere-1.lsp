@@ -5189,7 +5189,7 @@ Potremmo usare anche una macro:
 
 
 -------------------------
-la funzione COMMAND-EVENT
+la funzione command-event
 -------------------------
 
 **************************

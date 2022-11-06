@@ -1185,5 +1185,349 @@ la macchina versa il 10% di un litro, poi il 30% (arriviamo al 40%), poi l'80%: 
 
 Il risultato matematico vale: e = 2.718281828459045
 
+
+------------------
+Dado con 100 facce
+------------------
+
+Un gioco ha le seguenti regole:
+1) Viene lanciato un dado con 100 facce (da 1 a 100)
+2) Adesso ci sono due scelte:
+   a) incassare il valore uscito in euro
+   b) pagare 1 euro per tirare di nuovo il dado
+Ci sono le stesse due scelte per ogni lancio e non c'è limite al numero di lanci che si possono effettuare.
+
+Qual è il valore atteso del gioco?
+
+Per scrivere una simulazione per prima cosa occorre stabilire una strategia da seguire nello svolgimento del gioco.
+Quando lanciamo il dado otteniamo un numero compreso tra 1 e 100.
+Se otteniamo un numero alto (es. 90), allora incassiamo. Se otteniamo un numero basso (es. 10), allora paghiamo 1 euro per lanciare di nuovo il dado.
+Sembra ragionevole scegliere il valore 50 (che è il valore medio dei lanci) come soglia per la nostra decisione.
+Quindi la strategia è la seguente:
+- se il valore del dado è maggiore o uguale a 50, allora incassiamo
+- se il valore del dado è minore a 50, allora paghiamo 1 euro per continuare.
+
+Scriviamo la funzione che esegue un gioco con questa strategia:
+
+(define (play limite)
+  (local (val total)
+    (setq total 0)
+    (while (< (setq val (+ (rand 100) 1)) limite)
+      (-- total)
+    )
+    (++ total val)))
+
+(play 50)
+;-> 79
+(play 50)
+;-> 74
+(play 50)
+;-> 92
+(play 50)
+;-> 82
+
+Scriviamo la funzione che calcola il valore atteso di questa strategia:
+
+(define (media limite iter)
+  (local (somma)
+    (setq somma 0)
+    (for (i 1 iter)
+      (setq somma (+ somma (play limite)))
+    )
+    (div somma iter)))
+
+Calcoliamo il valore atteso:
+
+(media 50 1e6)
+;-> 74.038256
+
+A questo punto sappiamo che il valore atteso del gioco vale circa 74 euro quando la soglia vale 50.
+Ma quanto vale il valore atteso ottimale? Cioè, per quale valore della soglia il valore atteso è massimo?
+
+Dal punto di vista matematico si può dimostrare che la funzione del valore atteso VA(s) in funzione della strategia s è la seguente:
+
+  VA(s) = 51 + 0.5s - 100/(101 - s)
+
+Per trovare il valore massimo di questo funzione possiamo scrivere:
+
+(define (f n) (add 51 (mul 0.5 n) (sub (div 100 (sub 101 n)))))
+
+(apply max (map f (sequence 1 100)))
+;-> 87.35714285714286
+
+Per calcolare anche il valore di s per cui abbiamo il valore atteso massimo:
+
+(define (find-max func a b)
+  (let ((vmax -999999999) (xmax 0))
+    (for (i a b)
+      (setq v (func i))
+      (if (> v vmax) (set 'vmax v 'xmax i))
+    )
+    (println "valore massimo = " vmax)
+    (println "per n = " xmax)))
+
+(find-max f 1 100)
+;-> valore massimo = 87.35714285714286
+;-> per n = 87
+
+Per vedere tutti i valori della funzione:
+
+(for (i 1 100) (println i { } (media i 1e6)))
+;-> 1 50.9076
+;-> 2 51.1131
+;-> 3 51.5065
+;-> 4 52.1447
+;-> ...
+;-> 49 73.5226
+;-> 50 73.9532
+;-> 51 74.7581
+;-> ...
+;-> 86 87.3257
+;-> 87 87.1818
+;-> 88 87.2634
+;-> 89 87.1832
+;-> 90 86.7658
+;-> 91 86.3957
+;-> ...
+;-> 97 74.6874
+;-> 98 66.6193
+;-> 99 50.4199
+;-> 100 0.8999
+
+Adesso scriviamo la funzione di simulazione finale e verifichiamo se corrisponde al risultato matematico:
+
+(define (max-media a b iter)
+  (let ((vmax -999999999) (smax 0))
+    (for (i a b)
+      (setq s (media i iter))
+      (if (> s vmax) (set 'vmax s 'smax i))
+    )
+    (println "valore atteso massimo = " vmax)
+    (println "per s = " smax)))
+
+Facciamo alcune prove:
+
+(max-media 1 100 1e4)
+;-> valore atteso massimo = 87.3925
+;-> per s = 86
+;-> 86
+(max-media 1 100 1e5)
+;-> valore atteso massimo = 87.38336
+;-> per s = 87
+;-> 87
+(max-media 1 100 1e6)
+;-> valore atteso massimo = 87.356909
+;-> per s = 87
+;-> 87
+
+I valori della simulazione sono congruenti con i risultati matematici.
+
+
+----------------
+La funzione bind
+----------------
+
+Vediamo la definizione dal manuale:
+
+*****************
+>>>funzione BIND
+*****************
+sintassi: (bind list-variable-associations [bool-eval])
+
+"list-variable-associations" contiene una lista di associazione di simboli e relativi valori. "bind" imposta tutti i simboli sui valori associati.
+I valori associati vengono valutati se il flag "bool-eval" vale true:
+
+(set 'lst '((a (+ 3 4)) (b "hello")))
+
+(bind lst)
+;-> "hello"
+a
+;-> (+ 3 4)
+b
+;-> "hello"
+
+(bind lst true) → "hello"
+;-> a 7
+
+Il valore di ritorno di "bind" è il valore dell'ultima associazione.
+
+"bind" viene spesso utilizzato per "associare" le liste di associazioni restituite da "unify".
+
+(bind (unify '(p X Y a) '(p Y X X)))
+;-> a
+
+X
+;-> a
+Y
+;-> a
+
+Questo può essere utilizzato per la destrutturazione:
+
+(set 'structure '((one "two") 3 (four (x y z))))
+(set 'pattern '((A B) C (D E)))
+(bind (unify pattern structure))
+
+A
+;-> one
+B
+;-> "two"
+C
+;-> 3
+D
+;-> four
+E
+;-> (x y z)
+
+"unify" restituisce una lista di associazioni e "bind" lega le associazioni.
+
+Vediamo un altro esempio:
+
+(setq lst1 '(a b c d e))
+(setq lst2 '(10 20 k 40 (+ 10 40)))
+(bind (map list lst1 lst2))
+
+Le liste non sono cambiate:
+
+lst1
+;-> (a b c d e)
+lst2
+;-> (10 20 k 40 (+ 10 40))
+
+Ma i simboli/variabili della lista lst1 sono stati associati ai simboli della lista lst2:
+
+(dolist (el lst1) (print (eval el) { }))
+;-> 10 20 30 40 (+ 10 40)
+
+Con "bool-eval" uguale a true, i simboli della lista lst2 vengono valutati prima di essere associati ai simboli della lista lst1:
+
+(bind lst1 lst2 true)
+
+(dolist (el lst1) (print (eval el) { }))
+;-> 10 20 k 40 (+ 10 40) " "
+
+
+-------------------
+Lattine ottimizzate
+-------------------
+
+Dobbiamo progettare delle lattine cilindriche per contenere una bevanda.
+Il nostro compito è quello di utilizzare la minor quantità di materiale (es. alluminio) nella costruzione.
+
+Per un dato volume dobbiamo cercare di minimizzare la superficie (area) della lattina.
+
+Prima risolviamo il problema matematicamente.
+
+Calcoliamo il volume del cilindro:
+
+  Volume = V = Ab*h
+  dove Ab = Area di base = π*r²
+  Volume = V = π*r²*h
+
+Calcoliamo l'area del cilindro:
+
+  Area = A = 2*Ab + At
+  dove At = Area del tubo = 2*π*r*h
+  Area = A = 2*π*r² + 2*π*r*h
+
+Supponiamo, per un dato volume, di ricavare l'altezza:
+
+  h = V/π*r²
+
+Sostituiamo questo valore nella formula dell'area del cilindro:
+
+  A = 2*π*r² + 2*π*r*(V/π*r²) = 2*π*r² + 2*(V/r)
+
+Per minimizzare il valore dell'area dobbiamo derivare la sua equazione rispetto alla variabile r ed uguagliarla a zero:
+
+  dA
+  -- = A' = 4*π*r - 2*(V/r³)
+  dr
+
+Equagliamo a zero la derivata per calcolare il minimo:
+
+  4*π*r - 2*(V/r³) = 0
+
+La precedente espressione vale 0 per V = 2*π*r³.
+
+Poichè per ogni cilindro il volume vale V = π*r²*h, per avere una superficie minima deve risultare:
+
+  V = π*r²*h = 2*π*r³
+
+Questo è vero quando h = 2*r.
+
+Quindi un cilindro con un dato volume ha una superficie minima se h = 2*r.
+
+Adesso possiamo scrivere una funzione di simulazione.
+La funzione prende un valore di volume e calcola l'area del cilindro variando il raggio r con un ciclo.
+All'interno del ciclo memorizziamo il valore minimo dell'area e il valore del raggio minimo.
+Alla fine del ciclo calcoliamo il valore dell'altezza con il volume e il raggio minimo.
+Restituisce il rapporto tra l'altezza e il raggio.
+
+(setq PI 3.1415926535897931)
+(define (volume h r) (mul PI r r h))
+(define (area h r) (add (mul 2 PI r r) (mul 2 PI r h)))
+(define (area2 r V) (add (mul 2 PI r r) (mul 2 (div V r))))
+(define (altezza vol r) (div vol (mul PI r r)))
+
+(define (area-minima vol)
+  (local (h r min-area a)
+    (setq min-area 999999999)
+    (setq r 0)
+    (for (x 1 vol 0.0001)
+      ; calcoliamo l'area con il volume prefissato
+      (setq a (area2 x vol))
+      ;(println "r = " x)
+      ;(println "h = " (altezza vol x))
+      ;(println "area = " (area (altezza vol x) x))
+      ;(println "area2 = " (area2 x vol))
+      ;(print "volume = " (volume (altezza vol x) x))
+      ;(read-line)
+      (if (< a min-area)
+          (set 'min-area a 'r x)
+      )
+    )
+    ; calcoliamo hanno per volume ed r predefiniti
+    (setq h (div vol (mul PI r r)))
+    (println "Volume: " vol)
+    (println "Area minima: " min-area)
+    (println "h = " h ", r = " r)
+    ; rapporto altezza/raggio
+    (println "h/r  = " (div h r))))
+
+Facciamo alcune prove:
+
+(area-minima 10)
+;-> Volume: 10
+;-> Area minima: 25.69495598787001
+;-> h = 2.335265959741505, r = 1.1675
+;-> h/r  = 2.00022780277645
+;-> 2.00022780277645
+(area-minima 50)
+;-> Volume: 50
+;-> Area minima: 75.13250699687636
+;-> h = 3.992836276202997, r = 1.9965
+;-> h/r  = 1.999917994592035
+;-> 1.999917994592035
+(area-minima 100)
+;-> Volume: 100
+;-> Area minima: 119.2654206216453
+;-> h = 5.030787974822657, r = 2.5154
+;-> h/r  = 1.999995219377696
+;-> 1.999995219377696
+(area-minima 500)
+;-> Volume: 500
+;-> Area minima: 348.7342054697743
+;-> h = 8.602420416092638, r = 4.3013
+;-> h/r  = 1.999958248923032
+;-> 1.999958248923032
+(area-minima 1000)
+;-> Volume: 1000
+;-> Area minima: 553.5810446223193
+;-> h = 10.83836421006721, r = 5.4193
+;-> h/r  = 1.999956490703081
+;-> 1.999956490703081
+
+La simulazione è congruente con il risultato matematico (minArea per h = 2*r).
+
 =============================================================================
 

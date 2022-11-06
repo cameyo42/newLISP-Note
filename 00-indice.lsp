@@ -585,7 +585,7 @@ NOTE LIBERE 1
   Un motore per espressioni regolari
   Insiemi (set) senza reinserimento
   Funzioni con parametri nominali
-  La funzione COMMAND-EVENT
+  La funzione command-event
   Massimo Comun Divisore (MCD)
   Indicizzazione implicita
   nil come valore e nil come risultato
@@ -1460,6 +1460,9 @@ NOTE LIBERE 12
   Get data from a C structure
   Radice quadrata di numeri complessi
   Distributore d'acqua difettoso
+  Dado con 100 facce
+  La funzione bind
+  Lattine ottimizzate
 
 APPENDICI
 =========
