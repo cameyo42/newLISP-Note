@@ -1529,5 +1529,342 @@ Facciamo alcune prove:
 
 La simulazione è congruente con il risultato matematico (minArea per h = 2*r).
 
+
+------------------
+Il gatto e il topo
+------------------
+
+Un gatto e un topo vengono posizionati su una griglia di NxN caselle.
+Il topo e il gatto possono muoversi solo orizzontalmente o verticalmente, non in diagonale.
+A turno, il topo e il gatto si muovono di una casella.
+Lo scopo del gatto è quello di catturare il topo occupando la sua casella.
+Lo scopo del topo è sfuggire al gatto.
+Il topo muove per primo.
+Il numero N è pari.
+La posizione del gatto è 0,0 (prima riga, prima colonna).
+La posizione del topo è N-1,0 (ultima riga, prima colonna).
+
+a) Il gatto riesce a prendere il topo?
+b) Cosa accade se la posizione iniziale è casuale?
+
+Soluzione caso a)
+Il gatto non priesce mai a prendere il topo. 
+Consideriamo la griglia come una scacchiera con i quadrati alternati bianchi e neri.
+Supponendo che la casella dove si trova il gatto (0,0) sia di colore nero, allora la casella dove si trova il topo (N-1,0) è di colore bianco.
+Ad ogni mossa, il topo e il gatto si spostano in una casella adiacente, che avrà sempre il colore opposto.
+Alla prima mossa, il topo si sposta su una casella bianca. 
+Alla prima mossa, il gatto si sposta su una casella nera.
+Alla seconda mossa, il topo si sposta su una casella nera. 
+Alla seconda mossa, il gatto si sposta su una casella bianca.
+Questo vale per tutte le mosse, quindi alla fine di ogni mossa il gatto e il topo si trovano sempre su caselle di colore diverse.
+In questo modo il gatto è impossibilitato a prendere il topo.
+
+Soluzione b)
+Dalla soluzione precedente si nota che se all'inizio il topo e il gatto si trovano su caselle di colore diverso, allora il gatto non è in grado di prendere il topo.
+Le caselle sono di colore diverso quando la distanza di manhattan delle due posizioni iniziali è dispari.
+
+(define (dist-manh4 x1 y1 x2 y2)
+"Calculates Manhattan distance (4 directions - rook) of two points P1=(x1 y1) e P2=(x2 y2)"
+  (add (abs (sub x1 x2)) (abs (sub y1 y2))))
+
+Per esempio,
+N = 6
+gatto = (0 0)
+topo = (5 0)
+
+(dist-manh4 0 0 5 0)
+;-> 5
+
+Quindi nel caso in cui il gatto e il topo si trovano inizialmente su caselle dello stesso colore, allora il gatto può provare a catturare il topo. Usando una scacchiera 4x4 è facile rendersi conto che, in questo caso, il gatto sarà sempre in grado di catturare il topo con una condotta ottimale.
+In definitiva abbiamo le seguenti due situazioni:
+1) il gatto e il topo si trovano inizialmente su caselle di colore diverso:
+   il gatto non riuscirà mai a catturare il topo.
+2) il gatto e il topo si trovano inizialmente su caselle di colore uguale:
+   il gatto riuscirà sempre (con una condotta ottimale) a catturare il topo.
+
+Vediamo alcune funzioni per simulare un gatto e un topo casuali.
+
+Funzione per stampare la griglia:
+
+(define (print-grid lst)
+  (local (row col)
+    (setq row (length lst))
+    (setq col (length (first lst)))
+    (for (i 0 (- row 1))
+      (for (j 0 (- col 1))
+        (cond ((= (lst i j) "0") (print ".."))
+               ; gatto
+               ((= (lst i j) "G") (print "GG"))
+               ; topo
+               ((= (lst i j) "T") (print "TT"))
+        )
+      )
+      (println))))
+
+Funzione che simula il movimento casuale del topo e del gatto su una griglia e verifica se il gatto prende (casualmente) il topo:
+
+(define (acchiappa n gx gy tx ty iter stampa)
+  (local (table preso mosse)
+    (setq table (array n n '("0")))
+    ; posizione gatto
+    (setf (table gx gy) "G")
+    ; posizione topo
+    (setf (table tx ty) "T")
+    (setq preso nil)
+    (setq mosse 0)
+    (if stampa
+      (begin
+        (println "Posizione iniziale:")
+        (print-grid table))
+    )
+    (until (or preso (>= mosse iter))
+      (if stampa (read-line))
+      ; il topo muove per primo
+      (move-topo)
+      (move-gatto)
+      (++ mosse)
+      (if stampa
+        (begin
+          (print-grid table)
+          (println "mosse: " mosse))
+      )
+      ; il gatto ha preso il topo?
+      (if (and (= gx tx) (= gy ty)) (setq preso true))
+    )
+    (println "gatto: " gx { } gy ", topo: "  tx { } ty)
+    preso))
+
+Funzione per muovere il topo:
+
+(define (move-topo) ; tx ty table
+  (local (x y valida xmove ymove)
+    (setq xmove '(1 0 -1))
+    (setq ymove '(1 0 -1))
+    ; prova a muoversi
+    (setq x (+ tx (xmove (rand 3))))
+    (setq y (+ ty (ymove (rand 3))))
+    (setq valida nil)
+    ; controllo validità nuova posizione
+    (until valida ; non la stessa posizione
+      (cond ((and (or (!= x tx) (!= y ty))
+                  ; dentro la griglia
+                  (>= x 0) (< x n) (>= y 0) (< y n)
+                  ; solo mosse in verticale o orizzontale
+                  (= (abs (- (+ tx ty) (+ x y))) 1)
+                  ; non è il topo che deve prendere il gatto
+                  (or (!= x gx) (!= y gy)))
+              (setq valida true)
+              ; aggiorna la vecchia posizione
+              (setf (table tx ty) "0")
+              (setq tx x)
+              (setq ty y)
+              ; aggiorna la nuova posizione
+              (setf (table tx ty) "T"))
+            (true
+              ; riprova a muoversi
+              (setq x (+ tx (xmove (rand 3))))
+              (setq y (+ ty (ymove (rand 3)))))
+      )
+    )
+    true))
+
+Funzione per muovere il gatto:
+
+(define (move-gatto) ; gx gy table
+  (local (x y valida xmove ymove)
+    (setq xmove '(1 0 -1))
+    (setq ymove '(1 0 -1))
+    ; prova a muoversi
+    (setq x (+ gx (xmove (rand 3))))
+    (setq y (+ gy (ymove (rand 3))))
+    (setq valida nil)
+    ; controllo validità nuova posizione
+    (until valida ; non la stessa posizione
+      (cond ((and (or (!= x gx) (!= y gy))
+                  ; solo mosse in verticale o in orizzontale 
+                  (= (abs (- (+ gx gy) (+ x y))) 1)
+                  ; dentro la griglia
+                  (>= x 0) (< x n) (>= y 0) (< y n))
+              (setq valida true)
+              ; aggiorna la vecchia posizione
+              (setf (table gx gy) "0")
+              (setq gx x)
+              (setq gy y)
+              ; aggiorna la nuova posizione
+              (setf (table gx gy) "G"))
+            (true
+              ; riprova a muoversi
+              (setq x (+ gx (xmove (rand 3))))
+              (setq y (+ gy (ymove (rand 3)))))
+      )
+    )
+    true))
+
+Proviamo con una griglia 6x6, gatto in (0,0) e topo (5,0) dove le caselle di partenza hanno colore diverso:
+
+(acchiappa 6 0 0 5 0 100 true)
+;-> Posizione iniziale:
+;-> GG..........
+;-> ............
+;-> ............
+;-> ............
+;-> ............
+;-> TT..........
+;-> 
+;-> ............
+;-> GG..........
+;-> ............
+;-> ............
+;-> ............
+;-> ..TT........
+;-> mosse: 1
+;-> ...
+;-> ...
+;-> ...
+;-> TT..........
+;-> ........GG..
+;-> ............
+;-> ............
+;-> ............
+;-> ............
+;-> mosse: 99
+;-> 
+;-> ............
+;-> TT....GG....
+;-> ............
+;-> ............
+;-> ............
+;-> ............
+;-> mosse: 100
+;-> gatto: 1 3, topo: 1 0
+;-> nil
+
+In questo caso il gatto non riuscirà mai a catturare il topo:
+
+(acchiappa 6 0 0 5 0 1e4)
+;-> gatto: 4 2, topo: 5 2
+;-> nil
+
+Neanche con un milione di iterazioni:
+
+(acchiappa 6 0 0 5 0 1e6)
+;-> gatto: 1 1, topo: 4 1
+;-> nil
+
+Proviamo con una griglia 6x6, gatto in (0,0) e topo (4,0) dove le caselle di partenza hanno colore uguale:
+
+Con 50 iterazioni il topo qualche volta si salva:
+
+(acchiappa 6 0 0 4 0 50)
+;-> gatto: 2 0, topo: 2 0
+;-> true
+(acchiappa 6 0 0 4 0 50)
+;-> gatto: 4 1, topo: 4 1
+;-> true
+(acchiappa 6 0 0 4 0 50)
+;-> gatto: 1 1, topo: 2 4
+;-> nil
+(acchiappa 6 0 0 4 0 50)
+;-> gatto: 2 4, topo: 1 1
+;-> nil
+(acchiappa 6 0 0 4 0 50)
+;-> gatto: 5 4, topo: 5 4
+;-> true
+
+Con 100 iterazioni il topo viene preso quasi sempre:
+
+(acchiappa 6 0 0 4 0 100)
+;-> gatto: 2 2, topo: 2 2
+;-> true
+(acchiappa 6 0 0 4 0 100)
+;-> gatto: 3 2, topo: 3 2
+;-> true
+(acchiappa 6 0 0 4 0 100)
+;-> gatto: 2 3, topo: 2 3
+;-> true
+(acchiappa 6 0 0 4 0 100)
+;-> gatto: 3 0, topo: 3 0
+;-> true
+
+Nota: la simulazione casuale dei movimenti del gatto e del topo utilizzata nella nostra funzione non è quella ottimale.
+La strategia ottimale del topo e del gatto è quella di muoversi nella casella che massimizza/minimizza la distanza dall'avversario.
+Comunque questa strategia porta il gatto a catturare sempre il topo.
+
+
+-----------------
+Palle da biliardo
+-----------------
+
+Due palle A e B sono posizionate in un biliardo ad una certa distanza tra loro.
+La palla A deve centrare la palla B con una sponda (cioè A deve toccare una sponda prima di colpire B).
+Qual è il punto C della sponda che minimizza la distanza A->C->B?
+
+Esempi di percorsi:
+
+|                       |
+|      A                |      A
+|       \      B        |      |      B
+|        \    /         |      |    .
+|         \  /          |      |  .
+|          \/           |      |.
+|===================    |==================
+           C                   C
+
+Supponiamo che la sponda sia l'asse x (cioè il punto C si trova sull'asse x).
+Il punto A vale (4 5).
+Il punto B vale (9 4).
+
+Soluzione
+Riflettiamo il punto B rispetto all'asse x e otteniamo B1.
+Quindi la distanza A->C->B è uguale alla distanza A->C->B1.
+Adesso la distanza minima tra due punti A e B1 è una retta, quindi il punto C è l'intersezione tra il segmento AB1 e l'asse x.
+
+ |
+ |      A
+ |       \      B
+ |        \    /|
+ |         \  / |
+ |          \/  |
+ |===================
+             C  |
+                |
+                |
+                B1
+
+A = (4 5)
+B1 = (9 -4)
+Asse x => proiezione di AB sull'asse x: (4 0) (9 0)
+
+Funzione che calcola il punto di intersezione tra due segmenti:
+
+(define (intersect-line p0x p0y p1x p1y p2x p2y p3x p3y)
+  (local (ix iy s1x s1y s2x s2y s t)
+    (setq s1x (sub p1x p0x))
+    (setq s1y (sub p1y p0y))
+    (setq s2x (sub p3x p2x))
+    (setq s2y (sub p3y p2y))
+    ;(println "numer = " (add (mul (sub 0 s1y) (sub p0x p2x)) (mul s1x (sub p0y p2y))))
+    ;(println "denom = " (add (mul (sub 0 s2x) s1y) (mul s1x s2y)))
+    (setq s (div (add (mul (sub 0 s1y) (sub p0x p2x)) (mul s1x (sub p0y p2y)))
+                (add (mul (sub 0 s2x) s1y) (mul s1x s2y))))
+    (setq t (div (sub (mul s2x (sub p0y p2y)) (mul s2y (sub p0x p2x)))
+                (add (mul (sub 0 s2x) s1y) (mul s1x s2y))))
+    ;(println "s = " s)
+    ;(println "t = " t)
+    (cond ((and (>= s 0) (<= s 1) (>= t 0) (<= t 1)) ;intersezione
+           (setq ix (add p0x (mul t s1x)))
+           (setq iy (add p0y (mul t s1y)))
+          )
+          (true (setq ix nil) (setq iy nil))
+    )
+    (list ix iy)
+  )
+)
+
+(intersect-line 4 5 9 -4 4 0 9 0)
+;-> (6.777777777777778 0)
+
+Il punto C vale (6.777777777777778 0).
+
 =============================================================================
 

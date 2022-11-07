@@ -1463,6 +1463,8 @@ NOTE LIBERE 12
   Dado con 100 facce
   La funzione bind
   Lattine ottimizzate
+  Il gatto e il topo
+  Palle da biliardo
 
 APPENDICI
 =========
