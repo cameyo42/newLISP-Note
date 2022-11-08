@@ -758,7 +758,7 @@ NOTE LIBERE 3
   Valutazione di espressioni infisse
   Vincere 2 volte su 3
   Investimenti in comune
-  Dadi intransitivi
+  Dadi non transitivi (intransitivi)
   Il prezzo di un libro
   La barca, l'uomo e il mattone
   Creare, modificare e restituire una funzione
@@ -1465,6 +1465,9 @@ NOTE LIBERE 12
   Lattine ottimizzate
   Il gatto e il topo
   Palle da biliardo
+  Espressioni condizionali in una lista
+  Poligoni e formiche
+  Cellulare e batterie
 
 APPENDICI
 =========

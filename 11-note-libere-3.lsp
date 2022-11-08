@@ -6268,9 +6268,9 @@ Il rapporto (266666.6666666667 / 33333.33333333331) vale 7, cioè Tom ha investi
 Nota: la risposta ovvia (500.000 euro a Tom e 300.000 a Jerry) è sbagliata se tutto l'affare viene considerato come un investimento. Se invece consideriamo la differenza iniziale come un prestito senza interessi di Tom a Jerry, allora la risposta è corretta (infatti alla fine ognuno ha una villetta senza spendere nulla).
 
 
------------------
-Dadi intransitivi
------------------
+----------------------------------
+Dadi non transitivi (intransitivi)
+----------------------------------
 
 Un insieme di dadi è intransitivo (o non-transitivo) se contiene tre dadi, A, B e C, con la proprietà che A maggiore di B più della metà delle volte, B maggiore di C più della metà delle volte, C maggiore di A più della metà delle volte. In altre parole, una serie di dadi è intransitiva se la relazione binaria - X tira un numero maggiore di Y più della metà delle volte - sui suoi elementi non è transitiva.
 

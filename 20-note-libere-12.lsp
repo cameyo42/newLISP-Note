@@ -1866,5 +1866,160 @@ Funzione che calcola il punto di intersezione tra due segmenti:
 
 Il punto C vale (6.777777777777778 0).
 
+
+-------------------------------------
+Espressioni condizionali in una lista
+-------------------------------------
+
+Supponiamo di avere il seguente pezzo di codice:
+
+(setq a 10)
+(setq b 20)
+
+(if (and (> a b) (> (+ a b) 10)) true nil)
+;-> nil
+
+(if (or (> a b) (> (+ a b) 10)) true nil)
+;-> true
+
+Cioè dobbiamo valutare una serie di condizioni tutte con l'operatore AND o tutte con l'operatore OR.
+In questo caso possiamo inserire le condizioni in una lista:
+
+(setq cond-expr '((> a b) (> (+ a b) 10)))
+
+E poi usare la seguente funzione:
+
+(define (check a b cond-expr op)
+  ;(println (map eval cond-expr))
+  (apply op (map eval cond-expr)))
+
+(check a b cond-expr 'and)
+;-> nil
+
+(check 10 20 cond-expr 'or)
+;-> true
+
+Questo è comodo quando dobbiamo frequentemente modificare e/o aggiungere espressioni condizionali alla logica del programma.
+
+
+-------------------
+Poligoni e formiche
+-------------------
+
+In un poligono regolare di N lati uguali (N-agono) si trovano N formiche, una formica per ogni vertice.
+Se tutte le formiche iniziano a muoversi contemporaneamente alla stessa velocità, qual è la probabilità che due formiche qualunque non si scontrino?
+Per esempio in un quadrato:
+
+      f1         f2 
+       +---------+
+       |         |
+       |         |
+       |         |
+       +---------+
+      f4         f3
+
+Ogni formica può scegliere tra due direzioni (orario o antiorario)
+Le formiche non si scontrano se tutte scelgono la stessa direzione.
+Quindi abbiamo 2^n possibilità.
+La probabilità che le formiche non si scontrino vale:
+
+        casi favorevoli       2
+  P = ------------------- = ----- = 1/2^(n-1)
+        casi possibili       2^n
+
+(define (formiche n) (div (pow 2 (- n 1))))
+
+(formiche 3)
+;-> 0.25
+(formiche 5)
+;-> 0.0625
+(formiche 12)
+;-> 0.00048828125
+
+Per simulare questo processo possiamo scrivere:
+
+(define (ants n iter)
+  (let (conta 0)
+    (for (i 1 iter)
+      (if (or (= (apply + (rand 2 n)) n)  ; tutti 1?
+              (= (apply + (rand 2 n)) 0)) ; tutti 0?
+          (++ conta)
+      )
+    )
+    (div conta iter)))
+
+(ants 3 1e6)
+;-> 0.234201
+(ants 5 1e6)
+;-> 0.061411
+(ants 12 1e6)
+;-> 0.000484
+
+I risultati della simulazione sono congruenti con i risultati matematici.
+
+
+--------------------
+Cellulare e batterie
+--------------------
+
+Il cellulare di Eva ha una batteria che dura 4 ore.
+Una seconda batteria di riserva ha una carica di 4 ore.
+Il tempo di ricarica della batteria è 8 ore.
+Le batterie si caricano in 8 ore (cioè in 4 ore si ricarica al 50% e dura 2 ore).
+Eva adotta il seguente metodo:
+1) quando la batteria sul telefono è scarica, prende l'altra batteria e la sostituisce.
+   Contemporaneamente mette la batteria appena tolta sotto carica.
+2) Ripetere il passo 1) fino all'esaurimento di entrambe le batterie.
+Supponiamo che le sostituzioni della batteria siano istantanee e che sia la carica che la scarica avvengano a velocità lineare.
+Quante ore ininterrotte può essere utilizzato il cellulare con questo metodo?
+
+Risolviamo il problema matematicamente con le serie infinite.
+La prima batteria si scarica in D ore. Chiamiamo questo periodo di tempo t1.
+La batteria di riserva si scarica quindi in D ore. Il periodo di tempo successivo è t2.
+Per il terzo periodo,t3, la prima batteria ha avuto D ore per caricarsi, ma è carica solo una frazione f della carica totale.
+In questo caso f = 0.5 (ricarica al 50%).
+Nel quarto periodo, t4, la batteria di riserva ha avuto f*D ore per caricarsi (il tempo impiegato dalla prima batteria a scaricarsi nell'ultimo periodo), ma si carica solo una frazione f del tempo. Quindi la batteria di riserva si scarica in f^2*D ore.
+Ora possiamo vedere lo schema che il periodo successivo dura f volte quanto il precedente. 
+Cioè, per ogni periodo di tempo tk, con k > 1, la batteria si scarica in f^(k-2)*D ore.
+Il tempo totale prima che entrambe le batterie si scarichino completamente è la somma di ogni periodo di tempo.
+
+  T = t1 + t2 + t3 + …
+  T = D + D + f*D + f^2*D + ...
+  T = D + D(1 + f + f^2 + ...)
+
+A questo punto siamo in grado di calcolare la soluzione in maniera brutale:
+
+(setq T 0)
+(setq D 4)
+(setq T (mul 2 D))
+
+(for (i 3 10000)
+  (setq T (add T (mul (pow 0.5 (- i 2)) D)))
+)
+;-> 12
+
+Il cellulare può essere usato per 12 ore.
+
+Continuando matematicamente da dove eravamo arrivati:
+
+  T = D + D(1 + f + f^2 + ...)
+
+La somma della serie infinita tra parentesi vale 1/(1 - f). 
+Pertanto, il tempo totale è il seguente:
+
+  T = D + D/(1 - f)
+
+  T = D*(2 - f)/(1 - f)
+  
+Adesso possiamo scrivere una funzione più generica:
+
+(define (durata D f)
+  (div (mul D (sub 2 f)) (sub 1 f)))
+
+(durata 4 0.5)
+;-> 12
+
+Il cellulare può essere usato per 12 ore.
+
 =============================================================================
 
