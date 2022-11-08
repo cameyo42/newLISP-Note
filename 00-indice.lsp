@@ -1468,6 +1468,7 @@ NOTE LIBERE 12
   Espressioni condizionali in una lista
   Poligoni e formiche
   Cellulare e batterie
+  Aree minime e massime
 
 APPENDICI
 =========

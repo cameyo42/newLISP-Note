@@ -564,7 +564,7 @@ Caso 3: Distribuzione di m oggetti identici tra n persone uniche
 ;-> 7920L
 
 Caso 4: Distribuzione di m oggetti unici tra n persone uniche
-  
+
   modi = binom[(m + n - 1) (n - 1)] * m! * (n - 1)!
 
 (define (unici-unici m n)
@@ -699,7 +699,7 @@ MCM(18 8) = 72
  5     5*9     45
 --- = ----- = ----
  8      72     72
- 
+
 Poichè 44 < 45, allora 11/8 è minore di 5/8.
 
 Possiamo usare un metodo più rapido.
@@ -813,7 +813,7 @@ Proviamo a velocizzare la funzione di simulazione utilizzando un vettore (con nu
       (dolist (r roll)
         (++ (ar r))
       )
-      (setq univoci 
+      (setq univoci
            (+ univoci (length (filter (fn(x) (= x 1)) (array-list ar)))))
     )
     (setq uni% (div univoci iter))
@@ -842,7 +842,7 @@ Proviamo con un altra funzione:
       (for (i 1 side)
         (++ (ar (rand side)))
       )
-      (setq univoci 
+      (setq univoci
            (+ univoci (length (filter (fn(x) (= x 1)) (array-list ar)))))
     )
     (setq uni% (div univoci iter))
@@ -889,7 +889,7 @@ Quindi, abbiamo:
 ;-> 63.39676587267711
 
 Questo processo genera circa il 63% di lanci multipli, indipendentemente dalla dimensione di N.
-Su un dado a N facce, c'è una possibilità (1 - 1/N) che un particolare tiro i non appaia. 
+Su un dado a N facce, c'è una possibilità (1 - 1/N) che un particolare tiro i non appaia.
 In N lanci, la possibilità che il lancio i non appaia affatto è (1 - 1/N)^N.
 Se lo sommiamo negli N lanci e poi lo dividiamo per gli N lanci diversi totali, i termini di N verranno annullati.
 Ciò significa che la proporzione di lanci diversi è (1 - 1/N)^N.
@@ -898,7 +898,7 @@ Poiché N va all'infinito, il limite di questo termine è 1 - 1/e = 0.6321205588
 (setq e (exp 1))
 ;-> 2.718281828459045
 
-(1 - 1/e) = 
+(1 - 1/e) =
 (sub 1 (div e))
 ;-> 0.6321205588285577
 
@@ -952,7 +952,7 @@ Facciamo alcune prove:
 Se N è la lunghezza di una lista, allora la sua lista delle coppie è lunga:
 
   M =  N*(N-1)/2
-  
+
 Se la lista delle coppie è lunga M, allora la lista che la genera è lunga:
 
   M = N*(N-1)/2  -->  N^2 - N - 2M = 0
@@ -980,14 +980,14 @@ Analogamente troviamo le altre soluzioni:
 
 Se proviamo con una lista di 4 elementi, si osserva che risulta sempre:
 
-  a[0] = (b[0] + b[1] – b[n-1])/ 2. 
+  a[0] = (b[0] + b[1] – b[n-1])/ 2.
 
 Si noti che il valore di:
 
     b[0] + b[1] – b[n-1] = (a[0] + a[1]) + (a[0] + a[2]) – (a[1] + a[2])
-  
-Una volta valutato a[0], possiamo valutare altri elementi sottraendo a[0]. 
-Ad esempio, a[1] può essere valutato sottraendo a[0] dalla b[0], 
+
+Una volta valutato a[0], possiamo valutare altri elementi sottraendo a[0].
+Ad esempio, a[1] può essere valutato sottraendo a[0] dalla b[0],
 a[2] può essere valutato sottraendo a[0] dalla b[1], e cosi via.
 
 (define (desum-pair lst)
@@ -1063,7 +1063,7 @@ foo <281A0554>
 
 > (get-string 672794072) => "hello"
 
-Note that in 'C' on a Linux PC 'char *' and 'int' are 32 bit and 'double' is a 64 bit float as used in newLISP. 
+Note that in 'C' on a Linux PC 'char *' and 'int' are 32 bit and 'double' is a 64 bit float as used in newLISP.
 I used 'lu' to retrieve the pointer .
 Sometimes a 'C' function takes a pointer to an existing memory area. In this case you just allocate memory in a string:
 
@@ -1548,13 +1548,13 @@ a) Il gatto riesce a prendere il topo?
 b) Cosa accade se la posizione iniziale è casuale?
 
 Soluzione caso a)
-Il gatto non priesce mai a prendere il topo. 
+Il gatto non priesce mai a prendere il topo.
 Consideriamo la griglia come una scacchiera con i quadrati alternati bianchi e neri.
 Supponendo che la casella dove si trova il gatto (0,0) sia di colore nero, allora la casella dove si trova il topo (N-1,0) è di colore bianco.
 Ad ogni mossa, il topo e il gatto si spostano in una casella adiacente, che avrà sempre il colore opposto.
-Alla prima mossa, il topo si sposta su una casella bianca. 
+Alla prima mossa, il topo si sposta su una casella bianca.
 Alla prima mossa, il gatto si sposta su una casella nera.
-Alla seconda mossa, il topo si sposta su una casella nera. 
+Alla seconda mossa, il topo si sposta su una casella nera.
 Alla seconda mossa, il gatto si sposta su una casella bianca.
 Questo vale per tutte le mosse, quindi alla fine di ogni mossa il gatto e il topo si trovano sempre su caselle di colore diverse.
 In questo modo il gatto è impossibilitato a prendere il topo.
@@ -1681,7 +1681,7 @@ Funzione per muovere il gatto:
     ; controllo validità nuova posizione
     (until valida ; non la stessa posizione
       (cond ((and (or (!= x gx) (!= y gy))
-                  ; solo mosse in verticale o in orizzontale 
+                  ; solo mosse in verticale o in orizzontale
                   (= (abs (- (+ gx gy) (+ x y))) 1)
                   ; dentro la griglia
                   (>= x 0) (< x n) (>= y 0) (< y n))
@@ -1710,7 +1710,7 @@ Proviamo con una griglia 6x6, gatto in (0,0) e topo (5,0) dove le caselle di par
 ;-> ............
 ;-> ............
 ;-> TT..........
-;-> 
+;->
 ;-> ............
 ;-> GG..........
 ;-> ............
@@ -1728,7 +1728,7 @@ Proviamo con una griglia 6x6, gatto in (0,0) e topo (5,0) dove le caselle di par
 ;-> ............
 ;-> ............
 ;-> mosse: 99
-;-> 
+;->
 ;-> ............
 ;-> TT....GG....
 ;-> ............
@@ -1910,7 +1910,7 @@ In un poligono regolare di N lati uguali (N-agono) si trovano N formiche, una fo
 Se tutte le formiche iniziano a muoversi contemporaneamente alla stessa velocità, qual è la probabilità che due formiche qualunque non si scontrino?
 Per esempio in un quadrato:
 
-      f1         f2 
+      f1         f2
        +---------+
        |         |
        |         |
@@ -1939,21 +1939,22 @@ La probabilità che le formiche non si scontrino vale:
 Per simulare questo processo possiamo scrivere:
 
 (define (ants n iter)
-  (let (conta 0)
+  (let ((conta 0) (rnd '()))
     (for (i 1 iter)
-      (if (or (= (apply + (rand 2 n)) n)  ; tutti 1?
-              (= (apply + (rand 2 n)) 0)) ; tutti 0?
+      (setq rnd (rand 2 n))
+      (if (or (= (apply + rnd) n)  ; tutti 1?
+              (= (apply + rnd) 0)) ; tutti 0?
           (++ conta)
       )
     )
     (div conta iter)))
 
-(ants 3 1e6)
-;-> 0.234201
-(ants 5 1e6)
-;-> 0.061411
-(ants 12 1e6)
-;-> 0.000484
+> (ants 3 1e7)
+;-> 0.250017
+;-> (ants 5 1e7)
+;-> 0.0625722
+(ants 12 1e7)
+;-> 0.0004801
 
 I risultati della simulazione sono congruenti con i risultati matematici.
 
@@ -1979,7 +1980,7 @@ La batteria di riserva si scarica quindi in D ore. Il periodo di tempo successiv
 Per il terzo periodo,t3, la prima batteria ha avuto D ore per caricarsi, ma è carica solo una frazione f della carica totale.
 In questo caso f = 0.5 (ricarica al 50%).
 Nel quarto periodo, t4, la batteria di riserva ha avuto f*D ore per caricarsi (il tempo impiegato dalla prima batteria a scaricarsi nell'ultimo periodo), ma si carica solo una frazione f del tempo. Quindi la batteria di riserva si scarica in f^2*D ore.
-Ora possiamo vedere lo schema che il periodo successivo dura f volte quanto il precedente. 
+Ora possiamo vedere lo schema che il periodo successivo dura f volte quanto il precedente.
 Cioè, per ogni periodo di tempo tk, con k > 1, la batteria si scarica in f^(k-2)*D ore.
 Il tempo totale prima che entrambe le batterie si scarichino completamente è la somma di ogni periodo di tempo.
 
@@ -2004,13 +2005,13 @@ Continuando matematicamente da dove eravamo arrivati:
 
   T = D + D(1 + f + f^2 + ...)
 
-La somma della serie infinita tra parentesi vale 1/(1 - f). 
+La somma della serie infinita tra parentesi vale 1/(1 - f).
 Pertanto, il tempo totale è il seguente:
 
   T = D + D/(1 - f)
 
   T = D*(2 - f)/(1 - f)
-  
+
 Adesso possiamo scrivere una funzione più generica:
 
 (define (durata D f)
@@ -2020,6 +2021,201 @@ Adesso possiamo scrivere una funzione più generica:
 ;-> 12
 
 Il cellulare può essere usato per 12 ore.
+
+
+---------------------
+Aree minime e massime
+---------------------
+
+Abbiamo una corda lunga 4 metri.
+Tagliamo la corda in due pezzi lc e lq.
+Con il primo pezzo costruiamo un cerchio.
+Con il secondo pezzo costruiamo un quadrato.
+L'area totale è la somma dell'area del cerchio e dell'area del quadrato.
+
+a) Determinare i valori delle lunghezza lc e lq per rendere massima l'area totale.
+b) Determinare i valori delle lunghezza lc e lq per rendere minima l'area totale.
+c) Se la corda viene tagliata a caso. Qual è il valore medio dell'area totale?
+
+a) Soluzione
+------------
+  L = lc + lq = 4
+  Area Cerchio = Ac = π*r²
+  Perimetro Cerchio = Pc = 2*π*r --> r = Pc/(2*π)
+  Ac = π*(Pc/(2*π))² = Pc²/(4*π)
+
+  Area Quadrato = Aq = l²
+  Perimetro Quadrato = Pq = 4*l  --> l = Pq/4
+  Aq = Pq²/16
+
+Nota: Pc = lc e Pq = lq
+
+(setq PI 3.141592653589793)
+
+Funzione che calcola area del cerchio dal perimetro del cerchio:
+
+(define (areaC perimC)
+  (div (mul perimC perimC) (mul 4 PI)))
+
+(areaC 2)
+;-> 0.3183098861837907
+
+Funzione che calcola area del quadrato dal perimetro del quadrato:
+
+(define (areaQ perimQ)
+  (div (mul perimQ perimQ) 16))
+
+(areaQ 2)
+;-> 0.25
+
+Funzione che effettua un taglio della corda e calcola la somma delle aree risultanti.
+I parametri sono la lunghezza della corda (L) e la lunghezza del pezzo del cerchio (lc) (cioè il perimetro del cerchio).
+La lughezza dell'altro pezzo di corda (lq) è il perimetro del quadrato e vale lq = L - lc.
+
+(define (taglia L lc)
+  (let (lq (sub L lc))
+    (add (areaC lc) (areaQ lq))))
+
+Facciamo alcune prove:
+
+(taglia 4 0)
+;-> 1
+(taglia 4 1)
+;-> 0.6420774715459476
+(taglia 4 1.5)
+;-> 0.5696743109783823
+(taglia 4 3)
+;-> 0.778697243913529
+(taglia 4 3.5)
+;-> 0.9904490264378589
+(taglia 4 3.8)
+;-> 1.151598689123484
+
+I valori non sono monotoni (cioè tutti crescenti o tutti decrescenti).
+
+Calcoliamo il valore massimo dell'area utilizzando la funzione "taglia" con lc che varia da 0 a L con un dato passo (step):
+
+(define (max-area L step)
+  (let ((lc 0) (lq 0) (area-max 0))
+    (for (i 0 L step)
+      (setq a (taglia L i))
+      ;(print i { } a ) (read-line)
+      (if (> a area-max)
+          (set 'area-max a 'lc i 'lq (sub L lc))
+      )
+    )
+    (list area-max lc lq)))
+
+(max-area 4 0.001)
+;-> (1.273239544735163 4 0)
+(max-area 4 0.000001)
+;-> (1.273239544735163 4 0)
+
+Area massima = 1.273239544735163
+lc = 4
+lq = 0
+
+Il risultato ci dice che l'area è massima se usiamo tutta la corda per il cerchio.
+Questo è spiegato dal fatto che a parità di perimetro e di lati i poligoni regolari sono quelli che massimizzano l'area, mentre il cerchio è quella che la massimizza in assoluto.
+
+b) Soluzione
+------------
+Calcoliamo il valore minimo dell'area utilizzando la funzione "taglia" con lc che varia da 0 a L con un dato passo (step):
+
+(define (min-area L step)
+  (let ((lc 0) (lq 0) (area-min 999999999))
+    (for (i 0 L step)
+      (setq a (taglia L i))
+      ;(print i { } a ) (read-line)
+      (if (< a area-min)
+          (set 'area-min a 'lc i 'lq (sub L lc))
+      )
+    )
+    (list area-min lc lq)))
+
+(min-area 4 0.001)
+;-> (0.5600991758607276 1.76 2.24)
+(min-area 4 0.000001)
+;-> (0.5600991535115785 1.759603 2.240397)
+
+Area minima = 0.5600991535115785
+lc = 1.759603
+lq = 2.240397
+
+Vediamo di verificare quest'ultimo risultato matematicamente.
+
+  L = lc + lq = 4
+  Area Cerchio = Ac = π*r²
+  Perimetro Cerchio = Pc = 2*π*r --> r = Pc/(2*π)
+  Ac = π*(Pc/(2*π))² = Pc²/(4*π)
+
+  Area Quadrato = Aq = l²
+  Perimetro Quadrato = Pq = 4*l  --> l = Pq/4
+  Aq = Pq²/16
+
+Nota: Pc = lc e Pq = lq
+
+Calcoliamo Ac + Aq:
+
+             Pc²     Pq²     (L - Pq)²      Pq²
+  Ac + Aq = ----- + ----- = ------------ + ----- =
+              4*π    16         4*π         16
+
+     L² + Pq² -2*L*Pq     Pq²
+  = ------------------ + ----- =
+           4*π            16
+
+     4*L² + 4*Pq² - 8*L*Pq + π*Pq²
+  = -------------------------------
+                16*π
+
+Calcoliamo la derivata di (Ac + Aq) rispetto alla variabile Pq:
+
+  d(Ac+Aq)
+  -------- = 8*Pq - 8*L + 2*π*Pq = Pq*(8 + 2*π) - 8*L
+    dPq
+
+Per calcolare il valore di minimo dobbiamo equagliare a 0 la derivata:
+
+  d(Ac+Aq)
+  -------- = Pq*(8 + 2*π) - 8*L = 0
+    dPq
+
+                                 8*L
+La funzione è minima per Pq = ---------
+                               8 + 2*π
+
+Nel nostro caso:
+
+          8*4
+  Pq = --------- = 2.24039661404623
+        8 + 2*π
+
+(div (mul 8 4) (add 8 (mul 2 PI)))
+;-> 2.24039661404623
+
+Abbiamo ottenuto lo stesso risultato della simulazione.
+
+c) soluzione
+------------
+Usiamo una funzione di simulazione.
+
+(define (area-media L iter)
+  (local (val tot)
+    (setq tot 0)
+    (for (i 1 iter)
+      (setq tot (add tot (taglia L (random 0 L))))
+    )
+    (div tot iter)))
+
+(area-media 4 1e4)
+;-> 0.7568260739237473
+(area-media 4 1e5)
+;-> 0.7574672497313104
+(area-media 4 1e6)
+;-> 0.7578529188281959
+(area-media 4 1e7)
+;-> 0.75776504437717
 
 =============================================================================
 
