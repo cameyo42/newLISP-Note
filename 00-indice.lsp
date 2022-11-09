@@ -1469,6 +1469,8 @@ NOTE LIBERE 12
   Poligoni e formiche
   Cellulare e batterie
   Aree minime e massime
+  Da 1 a 1 milione
+  Il gioco della sequenza
 
 APPENDICI
 =========

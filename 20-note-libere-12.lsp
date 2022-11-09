@@ -2217,5 +2217,223 @@ Usiamo una funzione di simulazione.
 (area-media 4 1e7)
 ;-> 0.75776504437717
 
+
+----------------
+Da 1 a 1 milione
+----------------
+
+Due giocatori A e B iniziano con il numero 1.
+A moltiplica 1 per qualsiasi numero intero compreso tra 2 e 9.
+B quindi moltiplica il risultato per qualsiasi numero intero da 2 a 9.
+Il gioco continua con ogni persona che muove a turno.
+Il vincitore è la prima persona che raggiunge o supera 1 milione.
+Chi vince questo gioco? Qual è la strategia?
+
+Possiamo ragionare all'indietro per individuare i numeri vincenti e i numeri perdenti.
+Partendo da 1 milione quale numeri sono vincenti per il giocatore corrente?
+Dividiamo 1 milione per 9:
+(div 1e6 9)
+;-> 111111.1111111111
+Quindi i numeri da 111112 fino a 999999 sono vincenti, nel senso che il giocatore che muove può vincere moltiplicando per 9 uno dei numeri tra 111112 e 999999.
+Per trovare i numri perdenti dividiamo il limite inferiore 111111 per 2:
+(div 111112 2)
+;-> 55556
+Quindi i numeri da 55556 a 111111 sono perdenti.
+Seguendo questo ragionamento, per calcolare i numeri vincenti dividiamo il limite inferiore per 9 e per calcolare i numeri perdenti dividiamo il limite inferiore per 2. (Dobbiamo arrotondare per eccesso dopo ogni divisione poiché il gioco tratta solo numeri interi).
+La seguente funzione calcola gli intervalli vincenti e perdenti:
+
+(define (find-numbers)
+  (local (out)
+    (setq out '())
+    (setq num 1e6)
+    (setq w-up (- num 1))
+    (until (<= num 1)
+      (setq w-down (+ (int (div num 9)) 1))
+      (push (list w-up w-down) out -1)
+      ;(println "w: " (list w-up w-down))
+      (setq num w-down)
+      (setq l-up (- w-down 1))
+      (setq l-down (add (int (div l-up 2)) 1))
+      (push (list l-up l-down) out -1)
+      ;(print "l: " (list l-up l-down)) (read-line)
+      (setq num (- l-down 1))
+      (setq w-up (- l-down 1))
+    )
+    out))
+
+(find-numbers)
+;-> ((999999 111112) 
+;->  (111111 55556) 
+;->  (55555 6173) 
+;->  (6172 3087) 
+;->  (3086 343) 
+;->  (342 172) 
+;->  (171 20)
+;->  (19 10)
+;->  (9 2)
+;->  (1 1))
+
+Quindi gli intervalli sono i seguenti:
+
+ da 111112 a 999999: vincenti
+ da 55556 a 111111: perdenti
+ da 6173 a 55555: vincenti
+ da 3087 a 6172: perdenti
+ da 343 a 3086: vincenti
+ da 172 a 342: perdenti
+ da 20 a 171: vincenti
+ da 10 a 19: perdenti
+ da 2 a 9: vincenti
+ da 1: perdente
+
+Quindi, A inizia il gioco con 1 che è un numero perdente.
+Quando presenta uno dei numeri da 2 a 9 a B, può arrivare nell'intervallo perdente da 10 a 18.
+Qualunque cosa faccia A, B può sempre lasciare A dentro gli intervalli perdenti e vincere la partita
+
+In definitiva chi comincia il gioco perde sempre se il suo avversario segue la strategia ottimale per cui, ad ogni tiro, parte da un intervallo vincente e arriva ad un intervallo perdente (da dove deve muovere l'altro giocatore).
+
+
+-----------------------
+Il gioco della sequenza
+-----------------------
+
+Due giocatori A e B fanno il gioco seguente:
+A scrive i numeri 1, 2, . . . , N su un pezzo di carta.
+B inizia per primo e sceglie due numeri x e y dalla sequenza. 
+B cancella questi numeri dalla sequenza e include un nuovo numero uguale alla loro differenza positiva (cioè, mette |x – y| nella sequenza).
+A fa la stessa identica cosa con i numeri rimanenti nella sequenza.
+B e A continuano a giocare, a turno, finché non rimane un solo numero nella sequenza.
+A vince se il numero finale è dispari e B vince se è pari.
+C'è una strategia vincente per uno dei giocatori?
+
+Come prima cosa simuliamo una partita con una sequenza semplice, per esempio (1 2 3).
+Il giocatore B può scegliere due numeri qualsiasi, il che genera le seguenti tre mosse:
+– Se sceglie (1 2) la lista risultante è (1 3).
+– Se sceglie (1 3) la lista risultante è (2 2).
+– Se sceglie (2 3) la lista risultante è (1 1).
+Poi il giocatore A dovrà scegliere i due numeri rimasti con i seguenti risultati:
+– Se la lista era (1 3) il numero risultante è 2 (numero pari, vince B).
+– Se la lista era (2 2) il numero risultante è 0 (numero pari, vince B).
+– Se la lista era (1 1) il numero risultante è 0 (numero pari, vince B).
+Questo esempio mostra che il giocatore A perde sempre, indipendentemente da come gioca B.
+
+Analizziamo meglio il nostro esempio.
+La somma originale di tutti i numeri è (1+2+3) = 6, un numero pari.
+Quando B muove, la somma risultante può essere:
+a) 4, se sceglie (1 2)
+b) 4, se sceglie (1 3)
+c) 2, se sceglie (2 3).
+In tutti i casi la somma dei numeri è pari.
+Dopo la mossa del giocatore A la somma risultante vale:
+a) 2
+b) 0
+c) 0
+Anche ora in tutti i casi la somma dei numeri è pari.
+
+Quindi partendo da una somma pari si ottiene un valore finale pari, perchè ad ogni mossa di A o B la parità della somma non cambia.
+Questo vale anche per somme iniziali dispari?
+Se questo è vero il numero finale, così come ogni somma intermedia, avrà la stessa parità (cioè la proprietà di essere dispari o pari) della somma della lista iniziale.
+Questo significherebbe che A vince se la lista iniziale ha una somma dispari, e B vince se la lista iniziale ha una somma pari.
+
+Scriviamo una funzione per verificare la nostra supposizione.
+
+La somma di una sequenza 1..N vale: Sum[1..N] = N*(N + 1)/2
+
+(define (somma n) (/ (* n (+ n 1)) 2))
+
+Funzione che simula una gioco prendendo come parametro il numero finale della sequenza (N):
+
+(define (game n)
+  (local (seq a b)
+    (setq seq (sequence 1 n))
+    ; fino a che non rimane un solo numero nella sequenza
+    (until (= (length seq) 1)
+      ; mischia la sequenza
+      (setq seq (randomize seq))
+      ; estrae primo numero
+      (setq a (pop seq))
+      ; estrae secondo numero
+      (setq b (pop seq))
+      ; inserisce la differenza in valore assoluto nella sequenza
+      (push (abs (- a b)) seq)
+    )
+    (seq 0)))
+
+Facciamo un paio di prove:
+
+(game 3)
+;-> 0
+(game 3)
+;-> 0
+(game 3)
+;-> 2
+
+Funzione che controlla la nostra ipotesi:
+
+(define (ipotesi num)
+  (local (sum)
+    (for (i 3 num)
+      (setq sum (somma i))
+      ; l'ipotesi fallisce se:
+      ; 1) la somma iniziale è pari è il numero finale è dispari, oppure
+      ; 2) la somma iniziale è dispari è il numero finale è pari
+      (if (or (and (odd? sum) (even? (game i)))
+              (and (even? sum) (odd? (game i))))
+          (println "errore: " i ", somma = " sum ", " (game i))))))
+
+Proviamo:
+
+(ipotesi 250)
+;-> nil
+(ipotesi 500)
+;-> nil
+(ipotesi 1000)
+;-> nil
+
+(time (ipotesi 1000))
+;-> 4357.583
+
+Siamo certi che l'ipotesi è vera fino a N=1000.
+
+Dal punto di vista matematico supponiamo che la somma originale dei numeri sia S.
+Al turno di B, rimuove due numeri x > y dalla lista, e scrive un altro numero (x – y).
+Ciò significa che l'azione di B riduce la somma originale S di:
+
+  x + y – (x – y) = x + y - x + y = 2*y
+
+La cosa da notare è che 2*y è un numero pari, il che significa che la parità della somma rimane invariata da una mossa nel gioco.
+In altre parole:
+
+– Se la somma originaria S era pari, ad ogni turno viene ridotta di un numero pari. 
+Poiché pari meno pari è un numero pari, questo significa che ogni somma intermedia sarà un numero pari. Quindi anche il numero finale deve essere pari.
+
+– Se la somma originaria S era dispari, ad ogni turno viene ridotta di un numero pari. 
+Poiché dispari meno un pari è un numero dispari, questo significa che ogni somma intermedia sarà un numero dispari. Quindi anche il numero finale deve essere dispari.
+
+La strategia finale non dipende dalla bravura dei giocatori:
+- se S è pari vince sempre B
+- se S è dispari vince sempre A
+
+Per finire, la funzione "game" ottimizzata:
+
+(define (game n)
+  (local (seq a b)
+    ; crea una sequenza casuale
+    (setq seq (randomize (sequence 1 n)))
+    ; fino a che non rimane un solo numero nella sequenza
+    (until (= (length seq) 1)
+      ; estrae primo numero
+      (setq a (pop seq))
+      ; estrae secondo numero
+      (setq b (pop seq))
+      ; inserisce la differenza in valore assoluto nella sequenza
+      ; (non è importante dove viene inserita)
+      (push (abs (- a b)) seq)
+    )
+    (seq 0)))
+
+(time (ipotesi 1000))
+;-> 359.736
+
 =============================================================================
 
