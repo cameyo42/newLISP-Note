@@ -1471,6 +1471,7 @@ NOTE LIBERE 12
   Aree minime e massime
   Da 1 a 1 milione
   Il gioco della sequenza
+  Problema delle 8 regine (8 queen)
 
 APPENDICI
 =========

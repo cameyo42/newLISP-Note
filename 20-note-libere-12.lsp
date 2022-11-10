@@ -1443,7 +1443,7 @@ Per minimizzare il valore dell'area dobbiamo derivare la sua equazione rispetto 
   -- = A' = 4*π*r - 2*(V/r³)
   dr
 
-Equagliamo a zero la derivata per calcolare il minimo:
+Eguagliamo a zero la derivata per calcolare il minimo:
 
   4*π*r - 2*(V/r³) = 0
 
@@ -2175,7 +2175,7 @@ Calcoliamo la derivata di (Ac + Aq) rispetto alla variabile Pq:
   -------- = 8*Pq - 8*L + 2*π*Pq = Pq*(8 + 2*π) - 8*L
     dPq
 
-Per calcolare il valore di minimo dobbiamo equagliare a 0 la derivata:
+Per calcolare il valore di minimo dobbiamo eguagliare a 0 la derivata:
 
   d(Ac+Aq)
   -------- = Pq*(8 + 2*π) - 8*L = 0
@@ -2225,8 +2225,8 @@ Da 1 a 1 milione
 Due giocatori A e B iniziano con il numero 1.
 A moltiplica 1 per qualsiasi numero intero compreso tra 2 e 9.
 B quindi moltiplica il risultato per qualsiasi numero intero da 2 a 9.
-Il gioco continua con ogni persona che muove a turno.
-Il vincitore è la prima persona che raggiunge o supera 1 milione.
+Il gioco continua con ogni giocatore che muove a turno.
+Il vincitore è il primo che raggiunge o supera 1 milione.
 Chi vince questo gioco? Qual è la strategia?
 
 Possiamo ragionare all'indietro per individuare i numeri vincenti e i numeri perdenti.
@@ -2262,12 +2262,12 @@ La seguente funzione calcola gli intervalli vincenti e perdenti:
     out))
 
 (find-numbers)
-;-> ((999999 111112) 
-;->  (111111 55556) 
-;->  (55555 6173) 
-;->  (6172 3087) 
-;->  (3086 343) 
-;->  (342 172) 
+;-> ((999999 111112)
+;->  (111111 55556)
+;->  (55555 6173)
+;->  (6172 3087)
+;->  (3086 343)
+;->  (342 172)
 ;->  (171 20)
 ;->  (19 10)
 ;->  (9 2)
@@ -2299,7 +2299,7 @@ Il gioco della sequenza
 
 Due giocatori A e B fanno il gioco seguente:
 A scrive i numeri 1, 2, . . . , N su un pezzo di carta.
-B inizia per primo e sceglie due numeri x e y dalla sequenza. 
+B inizia per primo e sceglie due numeri x e y dalla sequenza.
 B cancella questi numeri dalla sequenza e include un nuovo numero uguale alla loro differenza positiva (cioè, mette |x – y| nella sequenza).
 A fa la stessa identica cosa con i numeri rimanenti nella sequenza.
 B e A continuano a giocare, a turno, finché non rimane un solo numero nella sequenza.
@@ -2404,10 +2404,10 @@ Ciò significa che l'azione di B riduce la somma originale S di:
 La cosa da notare è che 2*y è un numero pari, il che significa che la parità della somma rimane invariata da una mossa nel gioco.
 In altre parole:
 
-– Se la somma originaria S era pari, ad ogni turno viene ridotta di un numero pari. 
+– Se la somma originaria S era pari, ad ogni turno viene ridotta di un numero pari.
 Poiché pari meno pari è un numero pari, questo significa che ogni somma intermedia sarà un numero pari. Quindi anche il numero finale deve essere pari.
 
-– Se la somma originaria S era dispari, ad ogni turno viene ridotta di un numero pari. 
+– Se la somma originaria S era dispari, ad ogni turno viene ridotta di un numero pari.
 Poiché dispari meno un pari è un numero dispari, questo significa che ogni somma intermedia sarà un numero dispari. Quindi anche il numero finale deve essere dispari.
 
 La strategia finale non dipende dalla bravura dei giocatori:
@@ -2420,20 +2420,300 @@ Per finire, la funzione "game" ottimizzata:
   (local (seq a b)
     ; crea una sequenza casuale
     (setq seq (randomize (sequence 1 n)))
-    ; fino a che non rimane un solo numero nella sequenza
-    (until (= (length seq) 1)
-      ; estrae primo numero
-      (setq a (pop seq))
-      ; estrae secondo numero
-      (setq b (pop seq))
-      ; inserisce la differenza in valore assoluto nella sequenza
+    ; si fanno (n-1) turni per una lista lunga n
+    (dotimes (x (- n 1))
+      ; inserisce nella sequenza la differenza in valore assoluto
+      ; tra il primo e il secondo numero della sequenza
       ; (non è importante dove viene inserita)
-      (push (abs (- a b)) seq)
+      (push (abs (- (pop seq) (pop seq))) seq)
     )
     (seq 0)))
 
 (time (ipotesi 1000))
-;-> 359.736
+;-> 68.95099999999999
+(time (ipotesi 10000))
+;-> 8069.884
+
+---------------------------------
+Problema delle 8 regine (8 queen)
+---------------------------------
+
+Il problema delle otto regine consiste nel di posizionare otto regine degli scacchi su una scacchiera 8 × 8 in modo che due regine non si minaccino a vicenda.
+In altre parole, una soluzione richiede che due regine non condividano la stessa riga, colonna o diagonale.
+
+Questo problema è piuttosto costoso dal punto di vista computazionale, poiché ci sono 4426165368 possibili disposizioni di otto regine su una scacchiaera 8×8, ma solo 92 soluzioni.
+
+(define (binom num k)
+"Calculates the binomial coefficient (n k) = n!/(k!*(n - k)!) (combinations of k elements without repetition from n elements)"
+  (cond ((> k num) 0)
+        ((zero? k) 1)
+        (true
+          (let (r 1L)
+            (for (d 1 k)
+              (setq r (/ (* r num) d))
+              (-- num)
+            )
+          r))))
+
+(binom 64 8)
+;-> 4426165368L
+
+Il puzzle delle otto regine ha 92 soluzioni distinte.
+Se le soluzioni che differiscono solo per le operazioni di simmetria di rotazione e riflessione della scacchiera sono contate come una, allora il puzzle ha 12 soluzioni.
+Queste 12 soluzioni sono chiamate soluzioni fondamentali.
+
+Per risolvere il problema, in genere vien utilizzato l'algoritmo "depth-first backtracking". Abbiamo visto questo algoritmo in "Problema delle N-Regine" nel capitolo "Problemi vari".
+Adesso proviamo a risolverlo con altri metodi.
+
+Primo metodo: generazione di posizioni casuali
+----------------------------------------------
+Generiamo un determinato numero di posizioni casuali e verifichiamo se soddisfano i vincoli.
+
+Funzione che restituisce true se la regina può attaccare l'avversaria:
+(non controlla se ci sono pezzi che si interpongono)
+
+(define (attack row-queen col-queen row col)
+        ; regina e avversaria sono nella stessa riga?
+  (cond ((= row-queen row)
+         true)
+        ; regina e avversaria sono nella stessa colonna?
+        ((= col-queen col)
+         true)
+        ; regina e avversaria sono nella stessa diagonale?
+        ((= (abs (- row-queen row)) (abs (- col-queen col)))
+         true)
+        ; altrimenti le regine non si attaccano
+        (true nil)))
+
+Funzione che cerca in modo casuale le soluzioni al problema:
+
+(define (queen8-1 iter)
+  (local (righe colonne sol check pos)
+    (setq righe (sequence 0 7))
+    (setq colonne (sequence 0 7))
+    (setq sol '())
+    ; genera iter posizioni casuali
+    (for (k 1 iter)
+      (setq check nil)
+      ; genera posizione completamente casuale
+      (setq pos (map list (rand 8 8) (rand 8 8)))
+      ; for debug
+      ;(if (= k 10)
+      ; ; posizione valida (soluzione)
+      ; (setq pos '((0 3) (1 6) (2 2) (3 7) (4 1) (5 4) (6 0) (7 5)))
+      ;)
+      ; controllo posizione corrente
+      (for (i 0 6 1 check)
+        (for (j (+ i 1) 7 1 check)
+          (if (attack (pos i 0) (pos i 1) (pos j 0) (pos j 1))
+              (setq check true)
+          )
+        )
+      )
+      ; trovata una soluzione?
+      (if (not check) (push (sort pos) sol))
+    )
+    ; vogliamo solo soluzioni diverse
+    (unique sol)))
+
+Facciamo alcune prove:
+
+(queen8-1 1000)
+;-> ()
+(queen8-1 1e5)
+;-> ()
+(queen8-1 1e7)
+;-> ()
+(queen8-1 1e7)
+;-> ()
+
+Non abbiamo trovato nessuna soluzione.
+
+Secondo metodo: generazione di posizioni semi-casuali
+-----------------------------------------------------
+Generiamo un determinato numero di posizioni semi-casuali e verifichiamo se soddisfano i vincoli.
+Il termine "semi-casuali" significa che per generare le posizioni sfruttiamo il fatto che per avere una soluzione tutte le regine devono trovarsi su righe diverse e su colonne diverse.
+Questo vincolo restringe molto il numero delle posizioni da cui scegliere una posizione casuale. Inoltre il controllo tra due regine può essere fatto solo sulle diagonali.
+
+Funzione che cerca in modo semi-casuale le soluzioni al problema:
+
+(define (queen8-2 iter)
+  (local (righe colonne sol check pos)
+    (setq righe (sequence 0 7))
+    (setq colonne (sequence 0 7))
+    (setq sol '())
+    ; genera iter posizioni casuali
+    (for (k 1 iter)
+      (setq check nil)
+      ; genera posizione semi-casuale
+      ; (donne su colonne e righe tutte diverse)
+      (setq pos (map list (randomize '(0 1 2 3 4 5 6 7))
+                          (randomize '(0 1 2 3 4 5 6 7))))
+      ; for debug
+      ;(if (= k 10)
+      ; ; posizione valida (soluzione)
+      ; (setq pos '((0 3) (1 6) (2 2) (3 7) (4 1) (5 4) (6 0) (7 5)))
+      ;)
+      ; controllo posizione corrente
+      (for (i 0 6 1 check)
+        (for (j (+ i 1) 7 1 check)
+          ; controllo solo sulle diagonali
+          (if (= (abs (- (pos i 0) (pos j 0)))
+                 (abs (- (pos i 1) (pos j 1))))
+          ;(if (attack (pos i 0) (pos i 1) (pos j 0) (pos j 1))
+              (setq check true)
+          )
+        )
+      )
+      ; trovata una soluzione?
+      (if (not check) (push (sort pos) sol))
+    )
+    ; vogliamo solo soluzioni diverse
+    (unique sol)))
+
+Proviamo con 1000 posizioni casuali:
+
+(queen8-2 1000)
+;-> (((0 6) (1 1) (2 5) (3 2) (4 0) (5 3) (6 7) (7 4))
+;->  ((0 2) (1 4) (2 1) (3 7) (4 5) (5 3) (6 6) (7 0)))
+
+Questa volta abbiamo trovato due soluzioni (dipende dal caso).
+Stampiamo le soluzioni.
+
+Funzione che stampa le soluzioni:
+
+(define (print-solution lst)
+  (local (board)
+    (dolist (sol lst)
+      (println "Soluzione: " (+ $idx 1))
+      (setq board (array 8 8 '("")))
+      (dolist (q sol)
+        (setf (board (q 0) (q 1)) "Q")
+      )
+      (for (i 0 7)
+        (for (j 0 7)
+          (if (= (board i j) "Q")
+              (print "■ ")
+              (print "∙ ")
+          )
+        )
+        (println "")))))
+
+(print-solution '(((0 6) (1 1) (2 5) (3 2) (4 0) (5 3) (6 7) (7 4))
+                  ((0 2) (1 4) (2 1) (3 7) (4 5) (5 3) (6 6) (7 0))))
+;-> Soluzione: 1
+;-> ∙ ∙ ∙ ∙ ∙ ∙ ■ ∙
+;-> ∙ ■ ∙ ∙ ∙ ∙ ∙ ∙
+;-> ∙ ∙ ∙ ∙ ∙ ■ ∙ ∙
+;-> ∙ ∙ ■ ∙ ∙ ∙ ∙ ∙
+;-> ■ ∙ ∙ ∙ ∙ ∙ ∙ ∙
+;-> ∙ ∙ ∙ ■ ∙ ∙ ∙ ∙
+;-> ∙ ∙ ∙ ∙ ∙ ∙ ∙ ■
+;-> ∙ ∙ ∙ ∙ ■ ∙ ∙ ∙
+;-> Soluzione: 2
+;-> ∙ ∙ ■ ∙ ∙ ∙ ∙ ∙
+;-> ∙ ∙ ∙ ∙ ■ ∙ ∙ ∙
+;-> ∙ ■ ∙ ∙ ∙ ∙ ∙ ∙
+;-> ∙ ∙ ∙ ∙ ∙ ∙ ∙ ■
+;-> ∙ ∙ ∙ ∙ ∙ ■ ∙ ∙
+;-> ∙ ∙ ∙ ■ ∙ ∙ ∙ ∙
+;-> ∙ ∙ ∙ ∙ ∙ ∙ ■ ∙
+;-> ■ ∙ ∙ ∙ ∙ ∙ ∙ ∙
+
+Vediamo cosa accade se aumentiamo le iterazioni:
+
+(length (queen8-1 1e5))
+;-> 86
+(length (queen8-1 1e6))
+;-> 92
+
+Con 1 milione di iterazioni abbiamo trovato tutte le 92 soluzioni.
+Vediamo il tempo medio di calcolo:
+
+(div (time (length (queen8-1 1e6)) 100) 100)
+;-> 1884.08408
+
+Tero metodo: generazione di permutazioni
+----------------------------------------
+Come abbiamo visto, ogni riga deve avere esattamente una regina e ogni colonna deve avere esattamente una regina.
+Quindi una soluzione può essere semplicemente specificata menzionando per ogni riga il numero di colonna in cui è posizionata la regina di quella riga.
+In particolare, la soluzione è una permutazione di tutti gli interi (a0,a1,a2,…,a7), dove a(r) è il numero di colonna per la regina sulla riga r.
+Tale permutazione deve anche riflettere il vincolo che due regine non possono condividere una diagonale.
+
+(define (perm lst)
+"Generates all permutations without repeating from a list of items"
+  (local (i indici out)
+    (setq indici (dup 0 (length lst)))
+    (setq i 0)
+    ; aggiungiamo la lista iniziale alla soluzione
+    (setq out (list lst))
+    (while (< i (length lst))
+      (if (< (indici i) i)
+          (begin
+            (if (zero? (% i 2))
+              (swap (lst 0) (lst i))
+              (swap (lst (indici i)) (lst i))
+            )
+            ;(println lst);
+            (push lst out -1)
+            (++ (indici i))
+            (setq i 0)
+          )
+          (begin
+            (setf (indici i) 0)
+            (++ i)
+          )
+       )
+    )
+    out))
+
+Funzione che cerca le soluzioni al problema su tutte le permutazioni possibili:
+
+(define (queen8-3)
+  (local (sol rows col check pos)
+    (setq sol '())
+    ; creazione posizioni con donne tutte su colonne diverse e righe diverse
+    ; (length all-pos) -> 40320 = 8!
+    (setq rows (perm '(0 1 2 3 4 5 6 7)))
+    (setq col '(0 1 2 3 4 5 6 7))
+    ; ciclo per ogni posizione...
+    (dolist (r rows)
+      (setq check nil)
+      ; crea la posizione corrente
+      (setq pos (map list col r))
+      ; controllo diagonali
+      (for (i 0 6 1 check)
+        (for (j (+ i 1) 7 1 check)
+          ;(if (attack (pos i 0) (pos i 1) (pos j 0) (pos j 1))
+          (if (= (abs (- (pos i 0) (pos j 0)))
+                 (abs (- (pos i 1) (pos j 1))))
+                 (setq check true)
+          )
+        )
+      )
+      (if (not check) (push pos sol))
+    )
+    sol))
+;->
+Facciamo una prova:
+
+(length (queen8-3))
+;-> 92
+(time (length (queen8-3)))
+;-> 112.823
+
+Stampiamo la soluzione 21:
+
+(print-solution (list ((queen8-3) 20)))
+Soluzione: 1
+;-> ∙ ∙ ∙ ∙ ∙ ∙ ■ ∙
+;-> ∙ ■ ∙ ∙ ∙ ∙ ∙ ∙
+;-> ∙ ∙ ∙ ∙ ∙ ■ ∙ ∙
+;-> ∙ ∙ ■ ∙ ∙ ∙ ∙ ∙
+;-> ■ ∙ ∙ ∙ ∙ ∙ ∙ ∙
+;-> ∙ ∙ ∙ ■ ∙ ∙ ∙ ∙
+;-> ∙ ∙ ∙ ∙ ∙ ∙ ∙ ■
+;-> ∙ ∙ ∙ ∙ ■ ∙ ∙ ∙
 
 =============================================================================
 
