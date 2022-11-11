@@ -3085,6 +3085,103 @@ Quindi possiamo valutare il termine finale per S(k) come risultato delle coppie 
 
 Questo dimostra che il termine finale di S(k) sarà k.
 
+
+-----------------
+Pierino e le mele
+-----------------
+
+La mamma chiede a Pierino di andare al mercato per acquistare 10 mele.
+Il mercato ha 200 mele di cui 20 sono marce.
+Il problema è che Pierino non è in grado di distinguere tra una mela sana e una mela marcia.
+Le mele costano 20 centesimi l'una.
+Se Pierino sceglie 10 mele a caso, qual è la probabilità che:
+1) nessuna mela è marcia?
+2) tutte le dieci mele sono marce?
+3) X mele sono marce?
+4) la mamma è insoddisfatta?
+
+Calcola il coefficiente binomiale (n k) = n!/(k!*(n - k)!)
+Numero di combinazioni di k elementi senza ripetizione da n elementi.
+
+(define (binom num k)
+  (cond ((> k num) 0)
+        ((zero? k) 1)
+        (true
+          (let (r 1L)
+            (for (d 1 k)
+              (setq r (/ (* r num) d))
+              (-- num)
+            )
+          r))))
+
+Modi in cui si possono scegliere 10 mele su 200: binom[200 10]
+
+(binom 200 10)
+;-> 22451004309013280L
+
+
+1) Soluzione
+Ci sono 180 mele sane. Se Pierino vuole evitare le mele marce, deve selezionare le sue 10 mele in 
+questo insieme. Pertanto, ci sono binom[180 10] modi in cui Pierino può selezionare tutte le mele buone. Le probabilità che quasto accada vale:
+
+          numero eventi favorevoli     binom[180 10]
+  P(1) = -------------------------- = --------------- = 0.3397743762367859
+            numero eventi totale       binom[200 10]
+
+(div (binom 180 10) (binom 200 10))
+;-> 0.3397743762367859
+
+2) Soluzione
+Ci sono 20 mele marce, da cui Bob deve selezionare tutte e 10 le sue mele.
+Le probabilità che quasto accada vale:
+
+          binom[20 10]
+  P(2) = --------------- = 8.229297783610822e-012
+          binom[200 10]
+
+(div (binom 20 10) (binom 200 10))
+;-> 8.229297783610822e-012
+
+3) Soluzione
+Dalle 20 mele marce, Pierino seleziona x mele marce e le restanti (10 – x) mele buone (il valore di x è compreso tra 0 e 10).
+
+          binom[20 x]*binom[180 (10 - x)]
+  P(2) = --------------------------------- = 
+                   binom[200 10]
+
+(define (mele-marce x)
+  (div (* (binom 20 x) (binom 180 (- 10 x)))
+       (binom 200 10)))
+
+Calcoliamo le probabilità di selezionare da 1 a 10 mele marce:
+
+(for (i 1 10) (println "mele marce: " i ", prob: " (mele-marce i)))
+;-> mele marce: 1, prob: 0.3973969312710947
+;-> mele marce: 2, prob: 0.1975432419981313
+;-> mele marce: 3, prob: 0.05480968564110002
+;-> mele marce: 4, prob: 0.009371196251854745
+;-> mele marce: 5, prob: 0.001028154103060635
+;-> mele marce: 6, prob: 7.302230845601101e-005
+;-> mele marce: 7, prob: 3.300443320045695e-006
+;-> mele marce: 8, prob: 9.03913549731616e-008
+;-> mele marce: 9, prob: 1.346612364590862e-009
+;-> mele marce: 10, prob: 8.229297783610822e-012
+
+4) Soluzione
+La probabilità che Pierino renda la madre insoddisfatta è data dalla somma di tutte le probabilità: 
+
+(apply add (map mele-marce (sequence 1 10)))
+;-> 0.6602256237632141
+
+quindi Pierino ha il 66% di probabilità di fallire.
+Ma Pierino acquista 30 mele ed è certo di avere 20 mele sane (nella peggiore delle ipotesi avrà 20 mele sane e 10 mele marce):
+
+  Spesa di 20 mele: (20 * 0.2) = 4 euro
+  Spesa di 30 mele: (30 * 0.2) = 6 euro
+  Differenza di prezzo = (30 * 0.2) - (20 * 0.2) = 6 - 4 = 2 euro
+
+Una Mamma soddisfatta vale molto di più di 2 euro.
+
 =============================================================================
 
 

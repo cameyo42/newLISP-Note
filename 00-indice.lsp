@@ -1476,6 +1476,7 @@ NOTE LIBERE 12
   Lavorare insieme
   Musica casuale
   Sequenza strana
+  Pierino e le mele
 
 APPENDICI
 =========
