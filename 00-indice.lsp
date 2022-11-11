@@ -1472,6 +1472,10 @@ NOTE LIBERE 12
   Da 1 a 1 milione
   Il gioco della sequenza
   Problema delle 8 regine (8 queen)
+  Dieta
+  Lavorare insieme
+  Musica casuale
+  Sequenza strana
 
 APPENDICI
 =========

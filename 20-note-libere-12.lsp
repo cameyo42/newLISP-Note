@@ -2715,5 +2715,376 @@ Soluzione: 1
 ;-> ∙ ∙ ∙ ∙ ∙ ∙ ∙ ■
 ;-> ∙ ∙ ∙ ∙ ■ ∙ ∙ ∙
 
+
+-----
+Dieta
+-----
+
+Una persona che pesa 120 kg si mette a dieta e ogni settimana perde l'1% del peso.
+In quante settimane raggiunge 80 kg?
+
+Alla i-esima settimana il peso della persona vale il 99% della settimana precedente:
+
+  P(i) = 0.99*P(i-1)
+
+Dopo N settimane la formula diventa:
+
+  P(N) = 0.99*P(N-1) = 0.99^2*P(N-2) = ... = 0.99^N*P(0)
+
+Adesso sostituiamo nella formula: 
+
+  P(N) = 80 (il peso dopo N settimane)
+  P(0) = 120 (il peso all'inizio, dopo 0 settimane)
+
+E la formula diventa:
+
+  80 = 0.99^N*120
+
+Risolviamo rispetto a N:
+
+  N = log(80/120)/log(0.99) = 40.343438...
+
+(define (weeks start end perc)
+  (div (log (div end start) 10) (log (abs (add 1 perc)) 10)))
+
+(weeks 120 80 -0.01)
+;-> 40.3434386689579
+In circa 40 settimane raggiunge il peso forma.
+
+Ci vuole un pò più di tempo per ingrassare:
+
+(weeks 80 120 0.01)
+;-> 40.74890715609402
+
+Ingrassare da 10 a 20 con 1%:
+
+(weeks 10 20 0.1)
+;-> 7.272540897341712
+
+Dimagrire da 20 a 10 con -1%:
+
+(weeks 20 10 -0.1)
+;-> 6.578813478960584
+
+Verifichiamo i risultati con la funzione primitiva "series":
+
+> (series 120 (fn (x) (mul x 0.99)) 42)
+;-> (120 118.8 117.612 116.43588 115.2715212 114.118805988 112.97761792812
+;->  111.8478417488388 110.7293633313504 109.6220696980369 108.5258490010565
+;->  107.440590511046 106.3661846059355 105.3025227598762 104.2494975322774
+;->  103.2070025569546 102.1749325313851 101.1531832060712 100.1416513740105
+;->  99.1402348602704 98.14883251166769 97.16734418655102 96.19567074468552
+;->  95.23371403723866 94.28137689686626 93.3385631278976 92.40517749661862
+;->  91.48112572165243 90.56631446443591 89.66065131979154 88.76404480659363
+;->  87.87640435852769 86.99764031494242 86.12766391179299 85.26638727267506
+;->  84.41372339994831 83.56958616594882 82.73389030428933 81.90655140124643
+;->  81.08748588723397 80.27661102836163 79.47384491807802)
+> (series 80 (fn (x) (mul x 1.01)) 42)
+;-> (80 80.8 81.608 82.42408 83.2483208 84.080804008 84.92161204808001
+;->  85.77082816856081 86.62853645024642 87.49482181474888 88.36977003289637
+;->  89.25346773322534 90.14600241055759 91.04746243466316 91.95793705900979
+;->  92.87751642959989 93.80629159389589 94.74435450983485 95.6917980549332
+;->  96.64871603548254 97.61520319583737 98.59135522779575 99.57726878007371
+;->  100.5730414678745 101.5787718825532 102.5945596013787 103.6205051973925
+;->  104.6567102493664 105.7032773518601 106.7603101253787 107.8279132266325
+;->  108.9061923588988 109.9952542824878 111.0952068253127 112.2061588935658
+;->  113.3282204825015 114.4615026873265 115.6061177141998 116.7621788913418
+;->  117.9298006802552 119.1090986870578 120.3001896739283)
+
+
+----------------
+Lavorare insieme
+----------------
+
+Due lavoratori A e B impiegano rispettivamente 10 ore e 5 ore per compiere da soli un certo lavoro.
+Quanto tempo impiegheranno se svolgono lo stesso lavoro insieme?
+
+Il lavoratore A svolge, in t ore, la frazione t/10 di tutto il lavoro.
+Il lavoratore B svolge, in t ore, la frazione t/5 di tutto il lavoro.
+Dobbiamo trovare il tempo t in modo che il loro lavoro congiunto sia 1 intero lavoro (cioè, i loro importi frazionari si sommano a 1).
+Questo ci permette di scrivere la seguente equazione:
+
+  t/10 + t/5 = 1
+
+Risolviamo per t:
+
+  (t + 2t)/10 = 1  -->  3t/10 = 1 --> t = 10/3 = 3.3333
+
+Notare che t = 3.333333333333333 vale 3 ore e 20 minuti.
+
+Funzione che converte ore decimali in ore, minui e secondi:
+
+(define (hdec-hms x)
+  (local (h m s)
+    (setq h (int x))
+    (setq m (int (mul 60.0 (sub x h))))
+    (setq s (mul 3600.0 (sub x h (div m 60.0))))
+    (list h m s)))
+
+(hdec-hms 3.333333333333333)
+;-> (3 19 59.99999999999899)
+
+In generale:
+
+  t/a + t/b = 1  -->  t = a*b/(a + b)
+
+Questa ultima formula è uguale alla metà della media armonica dei numeri a e b.
+
+(define (togheter2 a b) (div (mul a b) (add a b)))
+
+(togheter2 10 5)
+;-> 3.333333333333334
+
+(togheter2 6 3)
+;-> 2
+
+Adesso arriva un altro lavoratore C che compie il lavoro in 3 ore.
+Quanto tempo impiegheranno se A, B e C svolgono lo stesso lavoro insieme?
+
+Ragionando come prima:
+                                        a*b*c
+  (t/a + t/b + t/c) = 1  -->  t = -----------------
+                                   b*c + a*c + a*b 
+                               
+                                         10*5*3           150
+  (t/10 + t/5 + t/2) = 1  -->  t = ------------------- = ----- = 1.57894...
+                                    5*3 + 10*3 + 10*5      95
+
+Provviamo a scrivere una funzione che calcola il tempo per finire un lavoro quando ci sono N lavoratori (ognuno con il proprio tempo di completamento del lavoro):
+
+(define (togheter lst)
+  (local (num den)
+    (setq num (apply mul lst))
+    (setq den 0)
+    (dolist (x lst)
+      ; es. b*c*d = (a*b*c*d)/a
+      (setq den (add den (div (apply mul lst) x)))
+    )
+    (div num den)))
+
+Facciamo alcune prove:
+
+(togheter '(10 5))
+;-> 3.333333333333334
+
+(togheter '(10 5 3))
+;-> 1.578947368421053
+
+(togheter '(10 10 10 10 10))
+;-> 2
+
+Nota: aumentando il numero dei lavoratori occorre aggiungere al tempo totale di svolgimento del lavoro il tempo di "socializzazione" che cresce con l'aumentare del numero dei lavoratori...
+
+
+--------------
+Musica casuale
+--------------
+
+Abbiamo tre canzoni A, B e C. Se per tre volte scegliamo in maniera casuale una canzone, qual è la probabilità di ascoltare tutte e tre le canzoni?
+Le canzoni hanno tutte la stessa probabilità di essere estratte.
+
+Supponiamo che la prima canzone sia A, allora abbiamo le seguenti 9 possibilità per le prossime due canzoni:
+
+  AA, AB, AC, BA, BB, BC, CA, CB, CC
+
+Di queste solo due (CB e BC) permettono di ascoltare 3 canzoni diverse.
+La probabilità cercata vale:
+
+  P(3) = 2/9 = 0.2222222222222
+
+In altre parole abbiamo solo il 22.2% di probabilità di ascoltare tre canzoni diverse.
+
+In generale con N canzoni, qual è la probabilità che le prime N canzoni scelte casualmente siano tutte diverse?
+
+Con N canzoni ci sono N^N possibilità per la scelta delle N canzoni da suonare:
+
+  (N brani possibili)*(N brani possibili)* ... *(N brani possibili) = N^N
+
+Se vogliamo ascolater N canzoni senza ripetizioni, ci sono N! arrangiamenti delle N canzoni, perché c'è
+1 scelta in meno per riprodurre ogni brano successivo:
+
+ (N brani possibili)*(N - 1 brani possibili)* ... *(N brani possibili) = N!
+
+Quindi la probabilità di riprodurre N brani senza ripetizioni vale:
+
+  P(N) = N!/N^N
+
+All'aumentare di N, questo rapporto tende a 0. In altre parole, diventa sempre più improbabile ascoltare N canzoni a caso senza ripetizioni.
+
+(define (fact-i num)
+"Calculates the factorial of an integer number"
+  (if (zero? num)
+      1
+      (let (out 1L)
+        (for (x 1L num)
+          (setq out (* out x))))))
+
+(define (music n) (div (fact-i n) (pow n n)))
+
+Facciamo alcune prove:
+
+(music 3)
+;-> 0.2222222222222222
+(music 10)
+;-> 0.00036288
+(music 50)
+;-> 3.424322470251197e-021
+
+Scriviamo una funzione di simulazione.
+
+(define (simula n iter)
+  (local (conta seq lst)
+    (setq conta 0)
+    (setq seq (sequence 0 (- n 1)))
+    (for (i 1 iter)
+      ; generazione della lista casuale
+      (setq lst (rand n n))
+      ; lista con tutti elementi diversi?
+      (if (= (sort lst) seq) (++ conta))
+    )
+    (div conta iter)))
+
+Facciamo alcune prove:
+
+(simula 3 1e6)
+;-> 0.222638
+(simula 3 1e7)
+;-> 0.222461
+(simula 10 1e7)
+;-> 0.0003685
+(simula 50 1e7)
+;-> 0
+(time (println (simula 50 1e8)))
+;-> 0
+;-> 375300.241
+
+Al diminuire della probabilità da cercare (cioè con l'aumentare del numero N di canzoni), la funzione di simulazione diminuisce la capacità di calcolare il risultato corretto (perchè non è possibile effettuare il numero di iterazioni necessarie).
+
+Per selezionare N canzoni distinte occorre mischiare la lista delle canzoni e poi attraversare semplicemente la lista mischiata.
+
+(define (music-ok n) (randomize (sequence 1 n)))
+
+(music-ok 10)
+;-> (1 7 4 9 8 5 6 10 2 3)
+
+
+---------------
+Sequenza strana
+---------------
+
+Consideriamo la sequenza S = (1, 1/2, 1/3, 1/4, ..., 1/100).
+Scegliere due numeri qualsiasi x e y e sostituirli con un nuovo numero che vale:
+
+ nuovo numero = x + y + xy
+
+Ad esempio, i numeri 1/4 e 1/8 sarebbero sostituiti da 13/32.
+Continuare a ripetere il processo finché non rimane solo un numero. 
+Quale numero o numeri risulteranno?
+
+Come costruire la sequenza:
+
+(setq numer (dup 1 100))
+(setq denom (sequence 1 100))
+(setq S (map list numer denom))
+
+Funzioni per il calcolo delle quattro operazioni aritmetiche con le frazioni:
+
+(define (rat n d)
+  (let (g (gcd n d))
+    (map (curry * 1L)
+         (list (/ n g) (/ d g)))))
+(define (+rat r1 r2)
+  (setq r1 (list (bigint (r1 0)) (bigint(r1 1))))
+  (setq r2 (list (bigint (r2 0)) (bigint(r2 1))))
+  (rat (+ (* (r1 0L) (r2 1L))
+          (* (r2 0L) (r1 1L)))
+       (* (r1 1L) (r2 1L))))
+(define (-rat r1 r2)
+  (setq r1 (list (bigint (r1 0)) (bigint(r1 1))))
+  (setq r2 (list (bigint (r2 0)) (bigint(r2 1))))
+  (rat (- (* (r1 0L) (r2 1L))
+          (* (r2 0L) (r1 1L)))
+       (* (r1 1) (r2 1))))
+(define (*rat r1 r2)
+  (setq r1 (list (bigint (r1 0)) (bigint(r1 1))))
+  (setq r2 (list (bigint (r2 0)) (bigint(r2 1))))
+  (rat (* (r1 0L) (r2 0L))
+       (* (r1 1L) (r2 1L))))
+(define (/rat r1 r2)
+  (setq r1 (list (bigint (r1 0)) (bigint(r1 1))))
+  (setq r2 (list (bigint (r2 0)) (bigint(r2 1))))
+  (rat (* (r1 0L) (r2 1L))
+       (* (r1 1L) (r2 0L))))
+
+(+rat (+rat (S 0) (S 1)) (*rat (S 0) (S 1)))
+;-> (2L 1L)
+
+Funzione che applica le regole definite alla sequenza:
+
+(define (play n)
+  (local (numer denom s)
+    (setq numer (dup 1 n))
+    (setq denom (sequence 1 n))
+    ; potremmo anche non mischiare la lista
+    (setq s (randomize (map list numer denom)))
+    (until (= (length s) 1)
+      (setq a (pop s))
+      (setq b (pop s))
+      (setq val (+rat (+rat a b) (*rat a b)))
+      ;(print a { } b { } val) (read-line)
+      ; non è importante dove viene inserito il nuovo valore nella sequenza
+      (push val s)
+    )
+    (s 0)))
+
+Facciamo alcune prove:
+
+(play 100)
+;-> (100L 1L)
+
+(play 50)
+;-> (50L 1L)
+
+(play 1000)
+;-> (1000L 1L)
+
+Il numero finale è uguale al numero di frazioni.
+
+Dal punto di vista matematico abbiamo la seguente funzione:
+
+  f(x,y) = x + y + x*y
+
+La funzione è formata solo da addizioni e moltiplicazioni che sono operazioni associative e commutative. Questo significa che non è importante quali coppie vengano scelte. Per esempio:
+
+  f(f(x,y),z) = f(f(x,z),y) = f(f(y,z),x)
+
+Possiamo verificare che tutte e tre le formulazioni siano uguali alla seguente espressione:
+
+  x + y + z + xy + xz + yz + xyz
+
+Quindi l'ordine in cui scegliamo le coppie non ha importanza.
+Questo significa anche che possiamo inserire il nuovo valore in qualunque parte della lista.
+
+Per calcolare una formula generica vediamo se esiste un pattern.
+Per n = 2:
+S(2) = (1 1/2)
+f(1, 1/2) = 1 + 1/2 + (1)*(1/2) = 2
+
+Per n = 3
+S(3) = (1 1/2 1/3)
+Sappiamo già che la scelta delle coppie 1 e 1/2 sarà sostituita dal numero 2. Quindi possiamo semplicemente saltare in avanti e valutare la coppia di 2 e 1/3.
+f(2, 1/3) = 2 + 1/3 + (2)*(1/3) = 3
+
+Per n = k
+Quale sarà il risultato per la sequenza S(k)?
+Sappiamo che S(k) è uguale a S(k – 1) più il termine addizionale 1/k. 
+E conosciamo che il termine risultante di S(k – 1) sarà k – 1, per induzione.
+Quindi possiamo valutare il termine finale per S(k) come risultato delle coppie finali (k – 1) e 1/k:
+
+  f(k – 1, 1/k) = k – 1 + 1/k + (k – 1)/k = k – 1 + 1 = k
+
+Questo dimostra che il termine finale di S(k) sarà k.
+
 =============================================================================
+
 
