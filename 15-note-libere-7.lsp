@@ -1617,7 +1617,7 @@ Adesso vediamo un metodo migliore che viene spiegato nei commenti della funzione
     ; generiamo un numero random diverso da 1
     ; (per evitare errori di arrotondamento)
     (while (= (setq rnd (random)) 1))
-    (if (= rnd 1) (println rnd))
+    ;(if (= rnd 1) (println rnd))
     (setq stop nil)
     (dolist (p lst stop)
       ; sottraiamo la probabilità corrente al numero random...

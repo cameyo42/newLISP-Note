@@ -1477,6 +1477,10 @@ NOTE LIBERE 12
   Musica casuale
   Sequenza strana
   Pierino e le mele
+  Dado e numero ripetuto
+  Dado truccato
+  Lisp 1.5 Manual - John McCarthy
+  Ciclo for con due indici
 
 APPENDICI
 =========

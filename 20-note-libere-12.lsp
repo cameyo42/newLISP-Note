@@ -3180,7 +3180,360 @@ Ma Pierino acquista 30 mele ed è certo di avere 20 mele sane (nella peggiore de
   Spesa di 30 mele: (30 * 0.2) = 6 euro
   Differenza di prezzo = (30 * 0.2) - (20 * 0.2) = 6 - 4 = 2 euro
 
-Una Mamma soddisfatta vale molto di più di 2 euro.
+Una Mamma soddisfatta vale molto più di 2 euro.
+
+Nota: prima di andare a casa Pierino dovrà farsi aiutare da qualcuno per dividere le mele sane da quelle marce.
+
+
+----------------------
+Dado e numero ripetuto
+----------------------
+
+Qual è il numero previsto di lanci affinché un dado produca due numeri uguali?
+
+Scriviamo una funzione di simulazione.
+
+(define (dado iter)
+  (local (totale-lanci nums found lanci val)
+    (setq totale-lanci 0)
+    (for (i 1 iter)
+      ; vettore delle frequenze
+      (setq nums (array 7 '(0)))
+      (setq found nil)
+      (setq lanci 0)
+      ; ciclo fino a trovare un numero estratto due volte...
+      (until found
+        ; numero estratto
+        (setq val (+ (rand 6) 1))
+        ; aumenta numero lanci
+        (++ lanci)
+        ; aumenta frequenza
+        (++ (nums val))
+        ; numero già uscito?
+        (if (> (nums val) 1)
+            (set 'totale-lanci (+ totale-lanci lanci) 'found true)
+        )
+        ;(println nums { } val)
+        ;(print lanci { } totale-lanci) (read-line)
+      )
+    )
+    (div totale-lanci iter)))
+
+Facciamo alcune prove:
+
+(dado 1e4)
+;-> 3.7749
+(dado 1e5)
+;-> 3.77363
+(dado 1e6)
+;-> 3.777907
+(dado 1e7)
+;-> 3.7747246
+
+Poichè il numero di lanci per ottenere un numero doppio va da 2 a 7, il numero ottenuto dalla simulazione sembra ragionevole.
+
+Dal punto di vista matematico possiamo ragionare nel modo seguente.
+Il primo tiro è sempre un numero univoco e il settimo tiro è sempre un numero ripetuto.
+Sia E(x) il numero atteso di lanci per avere un duplicato se sono già usciti x numeri diversi.
+Se abbiamo visto tutti e 6 i numeri, il prossimo lancio produrrà sicuramente un numero ripetuto. Quindi E(6) = 1.
+
+  E(6) = 1
+
+Quanto vale E(5)?
+Possiamo calcolarlo in termini di E(6). C'è una probabilità 5/6 che il tiro produca un duplicato, nel qual caso abbiamo finito in 1 lancio. E c'è 1/6 di probabilità di avere un numero diverso, nel qual caso il tempo medio è E(6) più il tiro 1 che abbiamo appena fatto. Quindi abbiamo quanto segue:
+
+ E(5) = (5/6)*(1) + (1/6)8(1 + E(6))
+ E(5) = 1 + (1/6)*E(6)
+ E(5) = 1 + (1/6)*1 = 7 /6
+
+Quanto vale E(4)?
+Possiamo calcolarlo in modo simile in termini di E(5). C'è una probabilità di 4/6 di avere un duplicato, nel qual caso abbiamo finito in un 1 lancio. E c'è 2/6 di possibilità di avere un numero diverso, nel qual caso arriviamo al caso di aver visto 5 numeri, più aggiungiamo il tiro che abbiamo appena fatto. Adesso abbiamo:
+
+  E(4) = (4/6)*(1) + (2/6)*(1 + E(5))
+  E(4) = 1 + (2/6)*E(5)
+  E(4) = 1 + (1/6)*(7/6) = 25/18
+
+Notiamo che esiste uno schema per i calcoli.
+Se abbiamo visto x numeri, allora c'è x/6 di probabilità di avere unduplicato e finire con 1 lancio. Oppure c'è (1-x)/6 di probabilità di avere un numero diverso e arriviamo al caso di aver visto (x + 1) numeri e dobbiamo aggiungere il tiro appena fatto.
+Quindi la formula generale è la seguente:
+
+  E(x) = (x/6)*(1) + ((1 - x)/6)*(1 + E(x + 1))
+  E(x) = 1 + ((1 - x)/6)*E(x + 1)
+
+Possiamo usare questa formula per calcolare i valori di E(3), E(2), E(1) e E(0), cioè dopo aver visto 3, 2, 1 e poi 0 numeri:
+
+  E(3) = 61/36, 
+  E(2) = 115/54, 
+  E(1) = 899/324,
+  E(0) = 1223/324.
+
+Quindi, quando iniziamo, e non sono ancora stati visti numeri, il numero previsto di lanci fino a quando non vediamo un duplicato è E(0) = 1223/324, che è circa 3.77.
+
+(div 1223 324)
+;-> 3.774691358024692
+
+Il risultato della simulazione e quello matematico sono congruenti.
+
+
+-------------
+Dado truccato
+-------------
+
+In un locale d'azzardo viene proposto il seguente gioco:
+Un singolo dado viene lanciato 2 volte.
+Se i due lanci consecutivi producono lo stesso numero, allora vinciamo 6 euro.
+Il costo per un singolo gioco è 1 euro.
+In altre parole, se escono due numeri uguali vinciamo 5 euro, altrimenti perdiamo 1 euro.
+
+Attenzione, il dado potrebbe essere truccato.
+Il gioco è equo? oppure è avvantaggiato il banco o il giocatore?
+
+Scriviamo prima una simulazione per calcolare il valore atteso del gioco con un dado equo:
+
+(define (equo iter)
+  (local (totale a b)
+    (setq totale 0)
+    (for (i 1 iter)
+      (setq a (rand 6))
+      (setq b (rand 6))
+      (if (= a b)
+        (++ totale 5)
+        (-- totale)
+      )
+    )
+    (div totale iter)))
+
+Facciamo alcune prove:
+
+(equo 1e6)
+;-> -0.005404
+(equo 1e7)
+;-> 0.0009146
+(equo 1e8)
+;-> 0.00037508
+
+Il gioco sembra equo. Vediamo dal punto di vista matematico.
+Se il dado è equo ogni numero ha probabilità 1/6 di apparire.
+Ci sono 36 lanci possibili e si vince solo con 6 risultati:
+
+  (primo tiro, secondo tiro) = (1, 1), (2, 2), (3, 3), (4, 4), (5, 5), (6, 6).
+
+Quindi si vince in 6/36 = 1/6 partite.
+Poichè il gioco paga 6 euro al costo di 1 euro per giocare, il valore atteso vale:
+
+  VA = P(vittoria)*(guadagno) + P(sconfitta)*(rimessa) = (1/6)*5 + (5/6)*(-1) = 0
+
+Poichè il valore atteso vale 0, allora il gioco è equo.
+
+Cosa accade se il dado è truccato?
+Un dado è truccato quando la probabilità di uscita dei 6 numeri non è la stessa per tutti.
+Nota: la somma delle probabilità di tutti i numeri deve essere uguale a 1.
+
+Scriviamo una simulazione per calcolare il valore atteso del gioco con un dado non equo.
+
+La seguente funzione genera un numero casuale data una lista che contiene le probabilità di ogni numero.
+Il numero casuale va da 0 a ((length lista) - 1).
+
+(define (rand-pick lst)
+  (local (rnd stop out)
+    ; generiamo un numero random diverso da 1
+    ; (per evitare errori di arrotondamento)
+    (while (= (setq rnd (random)) 1))
+    (setq stop nil)
+    (dolist (p lst stop)
+      ; sottraiamo la probabilità corrente al numero random...
+      (setq rnd (sub rnd p))
+      ; se il risultato è minore di zero,
+      ; allora restituiamo l'indice della probabilità corrente
+      (if (< rnd 0)
+          (set 'out $idx 'stop true)
+      )
+    )
+    out))
+
+(setq p '(0.05 0.15 0.35 0.45))
+(apply add p)
+;-> 1
+
+(rand-pick p)
+;-> 2
+
+Facciamo una prova per verificare la correttezza della funzione:
+
+(setq p '(0.05 0.15 0.35 0.45))
+(setq vet (array 4 '(0)))
+;-> (0 0 0 0)
+(for (i 0 999999) (++ (vet (rand-pick p))))
+vet
+;-> (49676 150476 349804 450044)
+(apply + vet)
+;-> 1000000
+
+Funzione di simulazione del gioco per un dado non equo:
+
+(define (non-equo lst iter)
+  (local (totale a b)
+    (setq totale 0)
+    (for (i 1 iter)
+      (setq a (rand-pick lst))
+      (setq b (rand-pick lst))
+      (if (= a b)
+        (++ totale 5)
+        (-- totale)
+      )
+    )
+    (div totale iter)))
+(div 1 6)
+
+Proviamo con un dado equo:
+
+(setq p '(0.1666666666666667 0.1666666666666667 0.1666666666666667
+          0.1666666666666667 0.1666666666666667 0.1666666666666667))
+(apply add p)
+;-> 1
+(non-equo p 1e6)
+;-> -0.001546
+(non-equo p 1e7)
+;-> 0.0002828
+
+I risultati sono corretti.
+
+Proviamo con il numero 5 che ha 25% di probabilità di uscire (e scegliamo il numero 1 come quello che ha 8.3% di probabilità di uscire):
+
+(setq p '(0.1666666666666667 0.08333333333333329 0.1666666666666667
+          0.1666666666666667 0.1666666666666667 0.25))
+(apply add p)
+;-> 1
+(non-equo p 1e6)
+;-> 0.081902
+(non-equo p 1e7)
+;-> 0.0838016
+
+Adesso P(5) = 50% e P(2) = P(3) = P(4) = 5.55555555555555%:
+
+(setq p '(0.1666666666666667 0.1666666666666667 0.0555555555555555
+          0.0555555555555555 0.0555555555555555 0.5))
+(apply add p)
+;-> 0.9999999999999999
+(non-equo p 1e6)
+;-> 0.8861
+> (non-equo p 1e7)
+;-> 0.8894594
+
+Vediamo un caso limite, P(0) = 1, P(x) = 0 con x da 1 a 5
+(setq p '(1 0 0 0 0 0))
+(apply add p)
+;-> 1
+(non-equo p 1e6)
+;-> 5
+(non-equo p 1e7)
+;-> 5
+In questo caso si vince sempre.
+
+La simulazione afferma che in caso di dado non-equo il giocatore ha un valore atteso maggiore di 0, quindi è vantaggioso giocare.
+
+Dal punto di vista matematico possiamo scrivere la lista delle probabilità dei numeri da 1 a 6:
+
+ P = (p0 p1 p2 p3 p4 p5)
+
+La probabilità di vittoria è data dal prodotto scalare (dot-product) di P con se stesso.
+Questo deriva dall'algebra lineare: il prodotto scalare è minimo quando tutte le variabili sono uguali tra loro. Quindi la probabilità più piccola di ottenere un numero qualsiasi è 1/6.
+
+(define (dot-product x y)
+"Calculates the dot-product of two list/array of arbitrary length"
+  (apply add (map mul x y)))
+
+(setq p '(0.1666666666666667 0.1666666666666667 0.1666666666666667
+          0.1666666666666667 0.1666666666666667 0.1666666666666667))
+(dot-product p p)
+;-> 0.1666666666666668
+
+Negli altri casi questa probabilità aumenta:
+
+(setq p '(0.1666666666666667 0.08333333333333329 0.1666666666666667
+          0.1666666666666667 0.1666666666666667 0.25))
+(dot-product p p)
+;-> 0.1805555555555556
+
+(setq p '(0.1666666666666667 0.1666666666666667 0.0555555555555555
+          0.0555555555555555 0.0555555555555555 0.5))
+(dot-product p p)
+;-> 0.3148148148148148
+
+(setq p '(1 0 0 0 0 0))
+(dot-product p p)
+;-> 1
+
+In definitiva, se il dado è equo, allora il gioco è equo, se il dado non è equo, allora il gioco è favorevole al giocatore.
+
+-------------------------------
+Lisp 1.5 Manual - John McCarthy
+-------------------------------
+
+I. THE LISP LANGUAGE
+
+The LISP language is designed primarily for symbolic data processing. It has been used for symbolic calculations in differential and integral calculus, electrical circuit theory, mathematical logic, game playing, and other fields of artificial intelligence.
+
+LISP is a formal mathematical language. It is therefore podsible to give a concise yet complete description of it. Such is the purpose of this first section of the manual. Other sections will describe ways of using LISP to advantage and will explain extensions of the language which make it a convenient programming system. LISP differs from most programming languages in three important ways.
+
+The first way is in the nature of the data. In the LISP language, all data are in the form of symbolic expressions usually referred to as S-expressions. S-expressions are of indefinite length and have a branching tree type of structure, so that significant subexpressions can be readily isolated. In the LISP programming system, the bulk of available memory is used for storing S-expressions in the form of list structures. This type of memory organization frees the programmer from the necessity of allocating storage for the different sections of his program.
+
+The second important part of the LISP language is the source language itself which specifies in what way the S-expressions are to be processed. This consists of recursive functions of S-expressions. Since the notation for the writing of recursive functions of S-expressions is itself outside the S-expression notation, it will be called the meta language. These expressions will therefore be called M-expressions.
+
+Third, LISP can interpret and execute programs written in the form of Sexpressions. Thus, like machine language, and unlike most other higher level languages, it can be used to generate programs for further execution.
+
+John McCarthy, Lisp 1.5 Manual.
+
+
+------------------------
+Ciclo for con due indici
+------------------------
+
+newLISP supporta un solo indice per il ciclo "for".
+Per esempio potremmo voler scrivere:
+
+  (for ((i 1 5 1) (j 10 2 -2)) expr)
+
+La precedente espressione (non supportata) rappresenta un ciclo for con due indici "i" e "j".
+"i" varia da 1 a 5 con passo 1.
+"j" varia da 10 a 2 con passo -2.
+
+Vediamo come possiamo simularla:
+
+(setq j 10)
+(for (i 1 5 1 (= j 0))
+ (println (string "i=" i " j=" j))
+ (setq j (- j 2))
+)
+;-> i=1 j=10
+;-> i=2 j=8
+;-> i=3 j=6
+;-> i=4 j=4
+;-> i=5 j=2
+
+Un altro metodo più generico:
+
+  (for ((i low-i high-i step-i) (j low-i high-i step-i)) expr)
+
+(setq low-i 1)
+(setq high-i 5)
+(setq step-i 1)
+(setq low-j 10)
+(setq high-j 2)
+(setq step-j -2)
+(setq i low-i)
+(setq j low-j)
+
+(while (and (!= i (+ high-i 1)) (!= j (+ high-j 1)))
+  (println (string "i=" i " j=" j))
+  (inc i step-i)
+  (inc j step-j)
+)
+;-> i=1 j=10
+;-> i=2 j=8
+;-> i=3 j=6
+;-> i=4 j=4
+;-> i=5 j=2
 
 =============================================================================
 

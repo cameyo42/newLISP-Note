@@ -521,6 +521,124 @@ La seguente funzione simula (in modo semplificato) il comportamento della funzio
 (eval (reader "(add 1.2 (div 2 2))"))
 ;-> 2.2
 
+Un altro metodo by plugge:
+It is used to read a text file one atom or list at a time.
+
+(define (read fHandle, i result)
+   (setq result "")
+   (do-while (not (= i nil))
+           (setq i (read-char fHandle))
+           (cond ((= i nil) (setq result "EOF"))
+               ((not (member i '(32 13 10 40))) ;legal character
+                ;; not a list
+                     (setq result (append (char i) (read-atom fHandle)))
+                     (setq i nil))
+                    ((= i 40)
+                ;; opening parethesis - read in the list
+                     (setq result (append (char i) (read-list fHandle)))
+                (setq i nil))
+           )
+   )
+   (if (= result "EOF") nil (sym result))
+)
+
+(define (read-atom fHandle, x y)
+   (setq y "")
+   (do-while (not (= x nil))
+           (setq x (read-char fHandle))
+            (cond ((not (member x '(32 13 10 40)))
+                     (setq y (append y (char x))))
+                    ((member x '(32 13 10 40)) (setq x nil))
+              )
+    )
+y)
+
+(define (read-list fHandle, x y flag)
+   (setq flag 1)
+   (setq y "")
+   (do-while (not (= x nil))
+           (setq x (read-char fHandle))
+           (if (= x 40) (inc 'flag 1))
+           (if (= x 41) (dec 'flag 1))
+            (cond ((and (= x 41) (= flag 0))
+                     (setq y (append y (char x)))
+                 (setq x nil))
+                    ((not (member x '(13 10)))
+                     (setq y (append y (char x))))
+              )
+    )
+y)
+
+Un altro metodo by Sammo:
+You might want to investigate newLisp's parse function which, if you don't specify the str-break parameter, uses newLisp's internal tokenizer. parse without str-break automatically discards comments and line breaks.
+
+For example:
+
+(parse "atom (list (sublist magoo))")
+--> ("atom" "(" "list" "(" "sublist" "magoo" ")" ")")
+
+The trick is in putting the tokens together. Here is a simple-minded and not exhaustively tested solution based on parse.
+
+;; example
+;; (set 'hanoi (sexpr-file "hanoi.lsp"))
+;; now hanoi is a list of the sexprs found in "hanoi.lsp"
+
+(define (sexpr-file filename)
+  (if (file? filename)
+    (sexpr-ize (parse (read-file filename))) ))
+
+(define (sexpr-ize token-list)
+  (let
+    ( sexpr-list nil )
+  ;body of let
+    (while (not (empty? token-list))
+      (let
+        ( token (pop token-list) )
+      ;body of let
+        (case token
+          ("'"  (push (make-quote (pop token-list)) sexpr-list -1))
+          ("("  (push (make-list) sexpr-list -1))
+          (true (push token sexpr-list -1)) )))
+    sexpr-list ))
+
+(define (make-quote token)
+  (string "'" (if (= token "(") (make-list) token)) )
+
+(define (make-list)
+  (let
+    ( the-list (list "(")
+      looking-for-right-paren true
+    )
+  ;body of let
+    (while (and looking-for-right-paren (not (empty? token-list)))
+      (let
+        ( token (pop token-list) )
+      ;body of let
+        (case token
+          ("'"  (push (make-quote (pop token-list)) the-list -1))
+          ("("  (push (make-list) the-list -1))
+          (")"  (push token the-list -1)
+                (setq looking-for-right-paren nil))
+          (true (push token the-list -1)) )))
+    (replace " )" (replace "( " (join the-list " ") "(") ")") ))
+
+For example:
+
+(sexpr-ize (parse "atom (list (sublist magoo))"))
+--> ("atom" "(list (sublist magoo))")
+
+With the above in place, the READ function can be defined as:
+
+(define-macro (READ stack) (pop (eval stack)))
+
+and the whole thing used like this:
+
+(set 'hanoi (sexpr-file "hanoi.lsp"))
+(READ hanoi) ; returns first sexpr
+(READ hanoi) ; returns second sexpr
+(READ hanoi) ; etc.
+(READ hanoi) ; eventually returns nil
+
 
 ------------------------
 Liste e vettori annidati
