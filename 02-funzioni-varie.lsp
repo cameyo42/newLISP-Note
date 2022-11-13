@@ -2098,6 +2098,26 @@ Vediamo le differenze:
 (sprint "semplice")
 ;-> semplice
 
+Possiamo terminare le espressioni che usano "silent" in questo modo:
+
+(silent (println "ok?") (print ">  ")) ; due spazi dopo '>'
+;-> ok?
+
+silent sopprime solo il prompt ">" della REPL.
+Anche se il prompt è soppresso, newLISP è pronto per accettare nuovi comandi.
+Premendo "Invio" su una riga vuota viene stampato di nuovo il prompt. 
+(print ">") alla fine di un'espressione silent ripristina il normale prompt.
+Possiamo anche inserirlo nel file init.lsp:
+
+(set (global 'quiet) (fn ()
+   (eval (cons silent (args)))
+   (print "> ")))
+
+E usarlo in questo modo:
+
+(quiet (println "ok"))
+;-> ok
+
 
 -----------------------------------------------------
 Trasformare una lista di stringhe in lista di simboli

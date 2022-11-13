@@ -3535,6 +3535,167 @@ Un altro metodo più generico:
 ;-> i=4 j=4
 ;-> i=5 j=2
 
+
+---------------------------------------
+Challenge: the seemingly simple 'my-or'
+---------------------------------------
+
+From a post of itstoday:
+
+my-or is a macro, but not just any macro, it's a safe one. It takes exactly two arguments and evaluates the first argument only once, and it's immune to variable capture. If the result of that evaluation is true, then that value is returned, otherwise, the result of evaluating the second argument is returned.
+
+I'm looking for a single macro function, that gets the job done without any other user-defined functions or macros
+
+Sounds simple? Try it, it's not. Here, I'll help you out (evil grin). Here is the solution as written in Scheme:
+
+(define-macro my-or
+  (lambda (x y)
+    (let ((temp (gensym)))
+      `(let ((,temp ,x))
+         (if ,temp ,temp ,y)))))
+
+Once you've written 'my-or', run it against this program to test it:
+
+(set 'temp 45)
+(println "(my-or temp nil) = " (my-or temp nil))
+(println "(my-or nil temp) = " (my-or nil temp))
+(println "-----------")
+(set 'value (my-or (begin (println "first arg") 1) (begin (println "second arg") 2)))
+(println "should be 1: " value)
+(println "-----------")
+(set 'value (my-or (begin (println "first arg") nil) (begin (println "second arg") 2)))
+(println "should be 2: " value)
+
+IMPORTANT: In your implementation, make sure to name the symbol that you store the result of evaluating the first argument as 'temp'! Otherwise the variable-capture challenge is moot.
+
+The winner is the first person to get the following output exactly:
+
+(my-or temp nil) = 45
+(my-or nil temp) = 45
+
+Some solutions:
+
+1) Kazimir Majorinc
+
+(set 'my-or
+  (lambda-macro (x y)
+     (eval (let ((temp (sym (string (inc counter)))))
+                (expand
+                  '(let ((temp (eval x)))
+                          (if temp          ; Naive
+                              temp          ; version
+                              (eval y)))
+                 'temp)))))
+
+(set 'my-or
+  (lambda-macro (x y)
+     (first (list (eval (let ((temp (sym (append (string (last (symbols))) "+"))))
+                    (expand
+                     '(let ((temp (eval x)))
+                            (if temp          ; Naive
+                              temp          ; version
+                              (eval y)))
+                 'temp)))
+             (delete (last (symbols)))    ))))
+
+2) Lutz
+
+The proper solution in newLISP (not following the contest rules) is to avoid variable capture in the first place by enclosing the 'my-or' in a namespace:
+
+(define-macro (my-or:my-or)
+   (let (my-or:temp (eval (args 0)))
+      (if my-or:temp my-or:temp (eval (args 1)))))
+
+(my-or 1 nil) => 1
+(my-or nil 1) => 1
+
+it is as fast as the naive solution which is prone to variable capture.
+
+3) newdep
+
+(define-macro (my-or)
+ (let (temp
+  (unless (eval (args 0))
+   (eval (args 1))))
+    temp))
+
+4) cgs1019
+
+(define-macro (my-or)
+  (
+    (lambda ()
+      (if (args 0)
+          (args 0)
+          (eval (args 1))
+      )
+    )
+    (eval (args 0))
+    (args 1)
+  )
+)
+
+This solution uses a lambda to store the eval'ed first arg to the macro and defer evaluation of the second. It's not as fast as the solution presented by lutz, which has an execution time about 65% of mine, probably because mine entails an extra function call. But it does, at least, avoid the need for creating a new context just for one simple macro.
+This use nested function call to transfer arguments in nested function so you do not have to use any variable at all. As (arg n) are always local, accidental overshadowing is impossible. Very interesting idea.
+
+Here a rewrite easier to understand for beginners:
+
+(define-macro (my-or)
+  (let ( func (lambda () (if (args 0) (args 0) (eval (args 1)) )))
+    (func (eval (args 0)) (args 1))
+  )
+)
+
+cgs1019 passes the user arguments to an inner function, with only the first argument evaluated. The inner function then decides if the second must be evaluated too. cgs1019 just uses the anonymous version of func. This is like doing:
+
+((lambda (x) (+ x x)) 1) => 2
+
+5) itstoday
+
+(define-macro (my-or)
+   (catch
+      (begin
+         (let (temp (eval (args 0)))
+            (if temp (throw temp))
+         )
+         (throw (eval (args 1)))
+      )
+   )
+)
+
+
+-------------------------
+Link simbolico di oggetti
+-------------------------
+
+Come è possibile avere due oggetti uguali in cui una modifica su un oggetto si riflette anche sull'altro?
+Ad esempio, due liste A e B:
+
+(setq lst1 '(1 2 3))
+(setq lst2 lst1)
+
+Modifico lst1:
+(setf (lst1 0) 0)
+lst1
+;-> (0 2 3)
+Ma lst2 non è cambiata:
+lst2
+;-> (1 2 3)
+
+Poichè i contesti vengono passati per riferimento possiamo scrivere:
+
+(set 'A:var '(1 2 3))
+;-> (1 2 3)
+(set 'B A)
+;-> A
+A:var
+;-> (1 2 3)
+B:var
+;-> (1 2 3)
+(pop A:var)
+;-> 1
+B:var
+;-> (2 3)
+
 =============================================================================
 
 

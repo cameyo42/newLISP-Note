@@ -1481,6 +1481,8 @@ NOTE LIBERE 12
   Dado truccato
   Lisp 1.5 Manual - John McCarthy
   Ciclo for con due indici
+  Challenge: the seemingly simple 'my-or'
+  Link simbolico di oggetti
 
 APPENDICI
 =========

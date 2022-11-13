@@ -3497,20 +3497,61 @@ Vediamo la velocità della funzione primitiva di addizione "*":
 (time (* 12345232332323L 6782323232323239) 100000)
 ;-> 91.905
 
-Un altra funzione per risolvere il problema:
-
-(define (rmul x y)
-  (if (= x 1)
-      y
-      (+
-       (* (& x 1) y)
-       (rmul (>> x) (<< y)))))
+Vediamo altre funzioni per risolvere il problema:
 
 (rmul 10 31)
 ;-> 310
 
 (time (rmul 12345232332323 6782323232323239) 100000)
 ;-> 850.501
+
+Vediamo altre funzioni per risolvere il problema:
+
+xytroxon:
+; improvement for some problems starting with even number:
+(define (rmul x y , (s 0))
+  (until (= x 1)
+    (unless (zero? (% x 2))
+      (inc s y))
+    (setq x (>> x) y (<< y)))
+  (+ y s)
+)
+
+Ted Walther:
+; one-line
+(define (rmul x y) (if (= x 1) y (+ (if (zero? (% x 2)) 0 y) (rmul (>> x) (<< y)))))
+
+; with normal indentation
+(define (rmul x y)
+  (if (= x 1)
+      y
+    (+
+     (if (zero? (% x 2)) 0 y)
+     (rmul (>> x) (<< y)))))
+
+; shorter
+(define (rmul x y) (if (= x 1) y (+ (* (& x 1) y) (rmul (>> x) (<< y)))))
+
+; with normal indentation
+(define (rmul x y)
+  (if (= x 1)
+      y
+    (+
+     (* (& x 1) y)
+     (rmul (>> x) (<<y)))))
+
+(rmul 10 31)
+;-> 310
+
+(time (rmul 12345232332323 6782323232323239) 100000)
+;-> 850.501
+
+iamtim2:
+; purely functional
+(define (odd? x) (= (& x 1) 1))
+(define (half! x) (>> x 1))
+(define (double! x) (<< x 1))
+(define (b x y) (cond ((= 1 x) y) ((and (< 1 x) (odd? x)) (+ y (b (half! x) (double! y)))) ((< 1 x) (b (half! x) (double! y)))))
 
 
 ---------------------
