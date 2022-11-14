@@ -1483,6 +1483,8 @@ NOTE LIBERE 12
   Ciclo for con due indici
   Challenge: the seemingly simple 'my-or'
   Link simbolico di oggetti
+  Il numero 0 è pari o dispari?
+  Rapporto tra numeri casuali
 
 APPENDICI
 =========

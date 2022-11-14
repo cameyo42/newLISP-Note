@@ -335,6 +335,8 @@ Restituisce il punteggio maggiore oppure nil.
 (result-cartella c1 all)
 ;-> (22 34 40 60 82 5 10 26 64 83 18 38 49 55 78)
 
+Funzione che simula una partita a tombola:
+
 (define (run-tombola cartelle)
   (local (sacchetto usciti tombola res)
     ; lista con i numeri della tombola da 1 a 90 mischiati
@@ -442,31 +444,6 @@ Restituisce il punteggio maggiore oppure nil.
 ;-> cartella 4: (3 48 67 77 87)
 ;-> cartella 5: (2 17 24 35 66)
 ;-> cartella 6: (16 25 47 52 72)
-
-;-> Prossimo numero:
-;-> 81
-;-> cartella 1: (5 10 26 64 83)
-;-> cartella 2: (13 30 41 73)
-;-> cartella 3: (7 12 21 46 89)
-;-> cartella 4: (27 42 53 65 85)
-;-> cartella 5: (2 17 24 35 66)
-;-> cartella 6: (9 11 39 63 90)
-;-> Prossimo numero:
-;-> 74
-;-> cartella 1: (5 10 26 64 83)
-;-> cartella 2: (13 30 41 73)
-;-> cartella 3: (7 12 21 46 89)
-;-> cartella 4: (27 42 53 65 85)
-;-> cartella 5: (2 17 24 35 66)
-;-> cartella 6: (9 11 39 63 90)
-;-> Prossimo numero:
-;-> 67
-;-> cartella 1: (5 10 26 64 83)
-;-> cartella 2: (13 30 41 73)
-;-> cartella 3: (7 12 21 46 89)
-;-> cartella 4: (27 42 53 65 85 3 48 67 77 87 15 29 33 59 79)
-;-> cartella 5: (2 17 24 35 66)
-;-> cartella 6: (9 11 39 63 90)
 
 
 --------------------------------------------
@@ -3668,16 +3645,23 @@ Link simbolico di oggetti
 -------------------------
 
 Come è possibile avere due oggetti uguali in cui una modifica su un oggetto si riflette anche sull'altro?
-Ad esempio, due liste A e B:
+Ad esempio, due liste lst1 e lst2:
 
 (setq lst1 '(1 2 3))
+
+Copio la lista su un'altra lista:
+
 (setq lst2 lst1)
 
 Modifico lst1:
+
 (setf (lst1 0) 0)
+
 lst1
 ;-> (0 2 3)
+
 Ma lst2 non è cambiata:
+
 lst2
 ;-> (1 2 3)
 
@@ -3685,16 +3669,132 @@ Poichè i contesti vengono passati per riferimento possiamo scrivere:
 
 (set 'A:var '(1 2 3))
 ;-> (1 2 3)
+(set 'A:num 12)
+;-> 12
+
+Copio il contesto A nel contesto B (viene copiato tutto):
+
 (set 'B A)
 ;-> A
 A:var
 ;-> (1 2 3)
 B:var
 ;-> (1 2 3)
+
+Modifico A:var:
+
 (pop A:var)
 ;-> 1
+A:var
+;-> (2 3)
+
+Anche B:var è stato modificato:
+
 B:var
 ;-> (2 3)
+
+Vale anche il contrario. Modifico B:num:
+
+(setq B:num 10)
+;-> 10
+B:num
+;-> 10
+
+Anche A:num è stato modificato:
+
+A:num
+;-> 10
+
+Inseriamo un altro contesto e vediamo cosa accade:
+
+(set 'C A)
+;-> A
+
+Modifichiamo C:num:
+
+C:num
+;-> 10
+(setq C:num 22)
+C:num
+;-> 22
+
+Anche A:num e B:num sono stati modificati:
+
+A:num
+;-> 22
+B:num
+;-> 22
+
+Nota: questo comportamento dipende da "ORO: One-Reference-Only", il sistema di gestione della memoria di newLISP.
+
+
+-----------------------------
+Il numero 0 è pari o dispari?
+-----------------------------
+
+In matematica, "zero" è un numero pari. 
+Questo può essere facilmente verificato in base alla definizione di "pari": è un multiplo intero di 2, precisamente 0*2.
+In termini sociali la "parità" può essere vista come il "trattamento equo di due persone". La divisione per due di qualunque bene rappresenta un trattamento equo. Se il bene è "zero" e lo dividiamo per due, entrambe le persone hanno avuto lo stesso trattamento.
+Anche per newLISP il numero 0 è pari:
+
+(even? 0)
+;-> true
+(odd? 0)
+;-> nil
+
+
+---------------------------
+Rapporto tra numeri casuali
+---------------------------
+
+Siano x e y due numeri casuali compresi tra 0 e 1.
+Qual è la probabilità che x/y arrotonda a un numero pari?
+Per esempio:
+  a = (random 0 1) = 0.9467146824549089
+  b = (random 0 1) = 0.4056825464644307
+  a/b = 0.9467146824549089/0.4056825464644307 = 2.33363424358685
+  result = round(2.33363424358685) = 2  --> numero pari
+
+  a = (random 0 1) = 0.9525437177648244
+  b = (random 0 1) = 0.2914517654957732
+  a/b = 0.9525437177648244/0.2914517654957732 = 3.268272251308901
+  result = round(3.268272251308901) = 3  --> numero dispari
+
+Dato che x/y varia da 0 a infinito, e la probabilità che un numero sia pari o dispari è la stessa, allora la probabilità di arrotondamento a pari o dispari deve essere la stessa. 
+Quindi la risposta è del 50%.
+
+Siamo sicuri?
+
+Scriviamo una funzione di simulazione:
+
+(define (pari-dispari iter)
+  (local (even odd)
+    (for (i 1 iter)
+      (if (even? (round (div (random 0 1) (random 0 1)) 0))
+          (++ even)
+          (++ odd)
+      )
+    )
+    (list (div even iter) (div odd iter))))
+
+Proviamo:
+
+(pari-dispari 1e7)
+;-> (0.4647791 0.5352209)
+(pari-dispari 1e8)
+;-> (0.46459377 0.53540623)
+
+I numeri pari sono il 46.46% e i numeri dispari sono il 53.54%.
+
+Dal punto di vista matematico è stato dimostrato che la soluzione vale:
+
+  P(x/y arrotonda ad un numero pari) = 5/4 - π/4 = 0.4646...
+
+(setq PI 3.1415926535897931)
+(sub (div 5 4) (div PI 4))
+;-> 0.4646018366025517
+
+La nostra simulazione produce il risultato corretto.
 
 =============================================================================
 

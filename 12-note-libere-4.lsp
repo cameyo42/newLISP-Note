@@ -5294,7 +5294,7 @@ Nota: la descrizione del problema implica (e l'analisi dei blocchi lo conferma) 
 (possible? "BOOK")
 ;-> nil
 (possible? "TREAT")
-: true
+;->  true
 (possible? "COMMON")
 ;-> nil
 (possible? "SQUAD")
