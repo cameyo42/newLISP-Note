@@ -1449,6 +1449,8 @@ NOTE LIBERE 11
 
 NOTE LIBERE 12
 ==============
+  Sviluppo di programmi commerciali
+  The Paradox of the Question
   Copia/Taglia e Incolla una stringa
   Massima Sequenza DNA
   Il gioco della tombola
@@ -1485,6 +1487,9 @@ NOTE LIBERE 12
   Link simbolico di oggetti
   Il numero 0 è pari o dispari?
   Rapporto tra numeri casuali
+  Definizione di funzioni all'interno di funzioni
+  La funzione for-all
+  La funzione random
 
 APPENDICI
 =========

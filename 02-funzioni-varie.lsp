@@ -6805,7 +6805,7 @@ Funzione gamma-ln
 newLISP fornisce una funzione predefinita per la funzione Gamma.
 
 ********************
->>>funzione gammaln
+>>>funzione GAMMALN
 ********************
 sintassi: (gammaln num-x)
 

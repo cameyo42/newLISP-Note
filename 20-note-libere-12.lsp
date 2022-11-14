@@ -4,6 +4,37 @@
 
 ================
 
+---------------------------------
+Sviluppo di programmi commerciali
+---------------------------------
+
+Lutz:
+"The way newLISP is licensed, it does not permit linking or packaging closed source with newLISP together. 
+
+You would have to distribute your closed source in a separate package. Users would have to install a newLISP distribution and then your closed source package.
+
+You cannot distribute newLISP and your closed source application together. But you can distribute/sell you closed source application and let the user install newLISP from the binary installer available at http://newlisp.org/downloads.
+
+Anybody planning distribution of closed source software forming a program together with the newLISP should assume strict interpretation of the GPL at first, then consult a intellectual property (IP-) lawyer specialized in software, and consult me if modifications are desired."
+
+
+---------------------------
+The Paradox of the Question
+---------------------------
+
+From "The Paradox of the Question" by Markosian Ned (1997), Analysis 57: 95–7.
+
+Once upon a time, during a large and international conference of the world’s leading philosophers, an Angel miraculously appeared and said:
+"I come to you as a messenger from God. You will be permitted to ask any one question you want – but only one! – and I will answer that question truthfully. What would you like to ask?"
+...
+
+Il documento prosegue discutendo il problema di trovare la domanda migliore.
+
+Penso che un programmatore lisp chiederebbe all'Angelo di valutare qualcosa del genere:
+
+  (map answer (cure all diseases, stop all wars, eliminate poverty, ...))
+
+
 ----------------------------------
 Copia/Taglia e Incolla una stringa
 ----------------------------------
@@ -3458,8 +3489,15 @@ The first way is in the nature of the data. In the LISP language, all data are i
 The second important part of the LISP language is the source language itself which specifies in what way the S-expressions are to be processed. This consists of recursive functions of S-expressions. Since the notation for the writing of recursive functions of S-expressions is itself outside the S-expression notation, it will be called the meta language. These expressions will therefore be called M-expressions.
 
 Third, LISP can interpret and execute programs written in the form of Sexpressions. Thus, like machine language, and unlike most other higher level languages, it can be used to generate programs for further execution.
+------------
 
-John McCarthy, Lisp 1.5 Manual.
+John McCarthy wrote in the LISP 1.5 programmer’s manual that LISP differs from most programming languages in three ways:
+
+1) The first way is the data. In the LISP language, all data are in the form of symbolic expressions usually referred to as S-expressions.
+
+2) The second important part of the LISP language is the source language itself which specifies in what way the S-expressions are to be processed. This consists of recursive functions of S-expressions.
+
+3) Third, LISP can interpert and execute programs written in the form of S-expressions. Thus, like machine language, and unlike most other higher level languages, it can be used to generate programs for further execution.
 
 
 ------------------------
@@ -3750,6 +3788,7 @@ Rapporto tra numeri casuali
 Siano x e y due numeri casuali compresi tra 0 e 1.
 Qual è la probabilità che x/y arrotonda a un numero pari?
 Per esempio:
+
   a = (random 0 1) = 0.9467146824549089
   b = (random 0 1) = 0.4056825464644307
   a/b = 0.9467146824549089/0.4056825464644307 = 2.33363424358685
@@ -3795,6 +3834,225 @@ Dal punto di vista matematico è stato dimostrato che la soluzione vale:
 ;-> 0.4646018366025517
 
 La nostra simulazione produce il risultato corretto.
+
+
+-----------------------------------------------
+Definizione di funzioni all'interno di funzioni
+-----------------------------------------------
+
+Ecco come definire una funzione all'interno di un'altra funzione.
+La funzione creata viene eliminata una volta terminata la funzione principale.
+
+La funzione applica una funzione a tutti gli elementi di una lista (anche annidata):
+
+(define (mapflat f lst)
+  (let ((anonima (lambda (x)    ; define internal function
+                (cond ((atom? x) x)
+                       ("else" (apply f (map anonima x)))))))
+    (anonima lst)))
+
+(mapflat + '(1 2 3 (4 5 6 (7 8 9) 10)))
+;-> 55
+
+La funzione "anonima" non esiste più:
+
+anonima
+;-> nil
+
+Invece nel modo seguente la funzione interna esiste anche dopo il termine della funzione creatrice:
+
+(define (mapflat2 f lst)
+   (let ((dummy 0))
+         ; define internal-external function
+         (define (anonima2 x)
+               (cond ((atom? x) x)
+                      ("else" (apply f (map anonima2 x)))))
+    (anonima2 lst)))
+
+(mapflat2 + '(1 2 3 (4 5 6 (7 8 9) 10)))
+;-> 55
+
+Ed ecco la funzione "anonima2":
+
+anonima2
+;-> (lambda (x)
+;->  (cond
+;->   ((atom? x) x)
+;->   ("else" (apply f (map anonima2 x)))))
+
+Vediamo un altro esempio dove viene creata una funzione diversa in base ad un parametro e la funzione creata esiste anche dopo il termine della funzione creatrice:
+
+(define (main-function a?)
+   (if a?
+      ; funzione 1
+      ; funzione 2
+      (define (dafunc) (println "Doing something"))
+      (define (dafunc) (println "Doing something completely different"))
+   )
+   (dotimes (i 3)
+      (dafunc)
+   )
+)
+
+(main-function true)
+;-> Doing something
+;-> Doing something
+;-> Doing something
+dafunc
+;-> (lambda () (println "Doing something"))
+
+(main-function nil)
+;-> Doing something completely different
+;-> Doing something completely different
+;-> Doing something completely different
+dafunc
+;-> (lambda () (println "Doing something completely different"))
+
+
+-------------------
+La funzione for-all
+-------------------
+
+Vediamo la definizione dal manuale:
+
+********************
+>>>funzione FOR-ALL
+********************
+sintassi: (for-all func-condition list)
+
+Applica la funzione func-condition a tutti gli elementi nella lista. 
+Se tutti gli elementi soddisfano la condizione in func-condition, il risultato è true, in caso contrario, viene restituito nil.
+
+(for-all number? '(2 3 4 6 7))
+;-> true
+
+(for-all number? '(2 3 4 6 "hello" 7))
+;-> nil
+
+(for-all (fn (x) (= x 10)) '(10 10 10 10 10))
+;-> true
+
+Utilizzare la funzione "exist" per verificare se almeno un elemento in una lista soddisfa una condizione.
+------------
+
+Possiamo usare la funzione "apply" per alcune cose:
+
+(apply = '(11 10 10 10 10))
+;-> nil
+(apply = '(10 10 10 10 10))
+;-> true
+
+(apply (fn (x) (= x 10)) '(11 10 10 10 10))
+;-> nil
+(apply (fn (x) (= x 10)) '(10 10 10 10 10))
+;-> true
+
+Le seguenti funzioni svolgono funzioni simili:
+
+(define (map-predicate func lst bool)
+  (if bool
+      (for-all func lst)
+    (map func lst)))
+
+(map-predicate number? '(1 2 3 4 5) true)
+;-> true
+(map-predicate number? '(1 2 3 4 5) nil)
+;-> (true true true true true)
+
+(map-predicate number? '(1 2 3 "no" 5) true)
+;-> nil
+(map-predicate number? '(1 2 3 "no" 5) nil)
+;-> (true true true nil true)
+
+(define (map+ func lst bool)
+  (if bool
+      (apply = (map func lst))
+    (map func lst))
+)
+
+(map+ sqrt '(4 9 16) true)
+;-> nil
+(map+ sqrt '(4 9 16) nil)
+;-> (2 3 4)
+
+(map+ sqrt '(4 4 4) true)
+;-> true
+(map+ sqrt '(4 4 4) nil)
+;-> (2 2 2)
+
+(define (map-compare func lst value)
+  (apply = (cons value (map func lst)))
+)
+
+(map-compare sqrt '(4 4 4) 5)
+;-> nil
+(map-compare sqrt '(4 4 4) 2)
+;-> true
+(map-compare sqrt '(4 9 16) 2)
+;-> nil
+(map-compare sqrt '(4 9 16) 3)
+;-> nil
+(map-compare sqrt '(4 9 16) 4)
+;-> nil
+
+
+------------------
+La funzione random
+------------------
+
+Vediamo la definizione dal manuale:
+
+********************
+>>> funzione RANDOM
+********************
+sintassi: (random float-offset float-scale int-n)
+sintassi: (random float-offset float-scale)
+
+Nella prima forma, "random" restituisce una lista di "int-n" numeri in virgola mobile distribuiti uniformemente e scalati (moltiplicati) per "float-scale", con l'aggiunta dell'offset "float-offset".
+Il punto di partenza del generatore casuale interno può essere generato usando "seed".
+
+(random 0 1 10)
+;-> (0.10898973 0.69823783 0.56434872 0.041507289 0.16516733
+;->  0.81540917 0.68553784 0.76471068 0.82314585 0.95924564)
+
+Quando viene utilizzato nella seconda forma, "random" restituisce un unico numero distribuito uniformemente:
+
+(random 10 5)
+;-> 11.0971
+
+Quando non vengono forniti parametri, "random" assume una media di 0.0 e una deviazione standard di 1.0.
+
+Vedi anche le funzioni "normal" e "rand".
+------------
+
+La funzione "random" restituisce anche 0 e 1:
+
+(seed (time-of-day))
+(set 'counter 0)
+(dotimes(i 200000)
+  (let ((r (random)))
+    (unless (and (< 0 r) (< r 1))
+    (println "edge " (inc counter) ": " r))))
+;-> 61349469
+;-> 0
+;-> edge 1: 0
+;-> edge 2: 0
+;-> edge 3: 0
+;-> edge 4: 0
+;-> edge 5: 0
+;-> edge 6: 0
+;-> edge 7: 0
+;-> edge 8: 0
+;-> edge 9: 1
+;-> edge 10: 0
+;-> edge 11: 0
+;-> edge 12: 0
+;-> edge 13: 1
+
+Il fatto che si verificano casi limite è una questione di design.
+Un'altra sorpresa è che i casi limite si verificano all'incirca una volta ogni 16384 volte e ciò potrebbe essere troppo frequente, se random restituisce una decina di cifre significative.
+
+Ciò accade solo su Windows in cui il generatore casuale interno restituisce (purtroppo) solo valori interi compresi tra 0 e 32767 (15 bit). Sulla maggior parte degli Unix non lo vediamo (quasi) mai, dove i generatori casuali interni restituiscono 31 bit significativi.
 
 =============================================================================
 
