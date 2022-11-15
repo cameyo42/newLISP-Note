@@ -3947,7 +3947,7 @@ Possiamo usare la funzione "apply" per alcune cose:
 (apply (fn (x) (= x 10)) '(10 10 10 10 10))
 ;-> true
 
-Le seguenti funzioni svolgono funzioni simili:
+Le seguenti funzioni svolgono attività simili:
 
 (define (map-predicate func lst bool)
   (if bool
@@ -4053,6 +4053,85 @@ Il fatto che si verificano casi limite è una questione di design.
 Un'altra sorpresa è che i casi limite si verificano all'incirca una volta ogni 16384 volte e ciò potrebbe essere troppo frequente, se random restituisce una decina di cifre significative.
 
 Ciò accade solo su Windows in cui il generatore casuale interno restituisce (purtroppo) solo valori interi compresi tra 0 e 32767 (15 bit). Sulla maggior parte degli Unix non lo vediamo (quasi) mai, dove i generatori casuali interni restituiscono 31 bit significativi.
+
+
+---------
+Freccette
+---------
+
+Una squadra di freccette è composta da due giocatori, A e B.
+A ha una precisione di 1/3 e B di 1/4.
+La gara si svolge nel modo seguente: ogni squadra fa lanciare a turno una freccetta per ogni componente fino a che non colpiscono il bersaglio.
+Per esempio, A,B,A,...fino a che uno dei due colpisce il bersaglio.
+Quanti lanci occorrono in media se la serie vale: A,B,A,B,...?
+Quanti lanci occorrono in media se la serie vale: B,A,B,A,...?
+
+In linea di principio il numero medio di lanci che una persona farà è 1 diviso la sua precisione.
+
+1) lancia prima A
+C'è una possibilità di 1/3 che A colpisce al primo lancio.
+Se A sbaglia con probabilità 2/3, allora c'è a (2/3)*(1/4) possibilità che B colpisca il bersaglio al secondo lancio.
+Se nessuno dei due colpisce al primo lancio (possibilità di (2/3)*(3/4)), allora siamo nella stessa
+posizione d iniziale, tranne per il fatto che il numero totale di lanci deve essere aumentato di 2.
+Quindi abbiamo l'equazione:
+
+lanci medi = Pr(primo lancio)(1) + Pr(secondo lancio)(2) + Pr(nessun risultato nel primo o nel secondo)(media +
+2)
+
+  n = (1/3)*(1) + (2/3)*(1/4)*(2) + (2/3)*(3/4)*(n + 2)
+
+Risolvendo questa equazione troviamo n = 10/3 = 3.33333...
+Quindi ci vorranno in media 3 e 1/3 lanci per colpire il bersaglio.
+
+2) lancia prima B
+Se lancia prima B, allora l'aspettativa sarebbe:
+lanci medi = Pr(primo lancio)(1) + Pr(secondo lancio)(2) + Pr(nessun risultato nel primo o nel secondo)*(media + 2)
+
+  n = (1/4)*(1) + (3/4)*(1/3)*(2) + (3/4)*(2/3)*(n + 2)
+
+Risolvendo questa equazione troviamo n = 3.5.
+
+Dal momento che B inizia per primo ed è meno preciso, il numero previsto di lanci è un po' più alto.
+
+Scriviamo una funzione di simulazione.
+Supponiamo che 0 sia il bersaglio, allora A genera un numero casuale 0,1 o 2 e B genera un numero casuale 0,1,2 o 3.
+
+(define (freccette p1 p2 iter)
+  (local (totale colpito lanci)
+    (setq totale 0)
+    (for (i 1 iter)
+      (setq colpito nil)
+      (setq lanci 0)
+      (until colpito
+        (setq r1 (rand p1))
+        (if (zero? r1) (setq colpito true))
+        (++ lanci)
+        (setq r2 (rand p2))
+        (if (and (zero? r2) (nil? colpito))
+          (begin
+            (setq colpito true)
+            (++ lanci))
+        )
+        (if (nil? colpito) (++ lanci))
+        ;(print r1 { } r2 { } lanci) (read-line)
+      )
+      (setq totale (+ totale lanci))
+    )
+    (div totale iter)))
+
+Verifichiamo i risultati matematici:
+
+(freccette 3 4 1e6)
+;-> 3.333139
+(freccette 3 4 1e7)
+;-> 3.3337905
+
+(freccette 4 3 1e6)
+;-> 3.493661
+(freccette 4 3 1e7)
+;-> 3.5003379
+
+I risultati della simulazione sono congruenti con i risultati matematici.
 
 =============================================================================
 

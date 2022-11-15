@@ -1490,6 +1490,7 @@ NOTE LIBERE 12
   Definizione di funzioni all'interno di funzioni
   La funzione for-all
   La funzione random
+  Freccette
 
 APPENDICI
 =========
